@@ -32,12 +32,29 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  * }
  * @phpstan-type SummaryBehaviour array{
  *   definition_key:string,
- *   seed_strategy:'attention_aggregate'|'asset_cards'|'plugin_assets'|'vulnerability_section'|'maintenance',
+ *   seed_strategy:'attention_aggregate'|'asset_cards'|'vulnerability_section'|'maintenance',
  *   asset_source?:'plugins'|'themes',
  *   vulnerability_section?:'vulnerable'|'abandoned'
  * }
  */
 class ActionsQueueGroupDefinitions {
+
+	private const IGNORED_ONLY_SUMMARY_KEYS = [
+		'wp_files_ignored'     => [
+			'definition_key' => 'wordpress',
+		],
+		'plugin_files_ignored' => [
+			'definition_key' => 'plugins',
+			'asset_source'   => 'plugins',
+		],
+		'theme_files_ignored'  => [
+			'definition_key' => 'themes',
+			'asset_source'   => 'themes',
+		],
+		'malware_ignored'      => [
+			'definition_key' => 'malware',
+		],
+	];
 
 	private const GROUP_METADATA = [
 		'wordpress' => [
@@ -144,12 +161,7 @@ class ActionsQueueGroupDefinitions {
 	private const SUMMARY_BEHAVIOUR_OVERRIDES = [
 		'plugin_files' => [
 			'definition_key' => 'plugins',
-			'seed_strategy'  => 'plugin_assets',
-			'asset_source'   => 'plugins',
-		],
-		'plugin_files_ignored' => [
-			'definition_key' => 'plugins',
-			'seed_strategy'  => 'plugin_assets',
+			'seed_strategy'  => 'asset_cards',
 			'asset_source'   => 'plugins',
 		],
 		'theme_files' => [
@@ -292,6 +304,17 @@ class ActionsQueueGroupDefinitions {
 	/**
 	 * @return list<string>
 	 */
+	public static function ignoredOnlySummaryKeys() :array {
+		return \array_keys( self::IGNORED_ONLY_SUMMARY_KEYS );
+	}
+
+	public static function isIgnoredOnlySummaryKey( string $summaryKey ) :bool {
+		return isset( self::IGNORED_ONLY_SUMMARY_KEYS[ $summaryKey ] );
+	}
+
+	/**
+	 * @return list<string>
+	 */
 	public function criticalScanGroupKeys() :array {
 		return \array_values( \array_keys( PluginNavs::actionsQueueScanDefinitions() ) );
 	}
@@ -336,6 +359,21 @@ class ActionsQueueGroupDefinitions {
 	 * @return SummaryBehaviour
 	 */
 	public function summaryBehaviourForKey( string $summaryKey ) :array {
+		if ( isset( self::IGNORED_ONLY_SUMMARY_KEYS[ $summaryKey ] ) ) {
+			$ignoredDefinition = self::IGNORED_ONLY_SUMMARY_KEYS[ $summaryKey ];
+			$behaviour = [
+				'definition_key' => $ignoredDefinition[ 'definition_key' ],
+				'seed_strategy'  => isset( $ignoredDefinition[ 'asset_source' ] )
+					? 'asset_cards'
+					: 'attention_aggregate',
+			];
+			if ( isset( $ignoredDefinition[ 'asset_source' ] ) ) {
+				$behaviour[ 'asset_source' ] = $ignoredDefinition[ 'asset_source' ];
+			}
+
+			return $behaviour;
+		}
+
 		if ( isset( self::SUMMARY_BEHAVIOUR_OVERRIDES[ $summaryKey ] ) ) {
 			return self::SUMMARY_BEHAVIOUR_OVERRIDES[ $summaryKey ];
 		}

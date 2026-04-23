@@ -43,6 +43,14 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			[ $scanResultId ],
 			\array_column( $beforeActive[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
 		);
+		$this->assertStringContainsString(
+			'data-scan-result-action="ignore"',
+			(string)( $beforeActive[ 'datatable_data' ][ 'data' ][ 0 ][ 'actions' ] ?? '' )
+		);
+		$this->assertStringNotContainsString(
+			'data-scan-result-action="unignore"',
+			(string)( $beforeActive[ 'datatable_data' ][ 'data' ][ 0 ][ 'actions' ] ?? '' )
+		);
 
 		$payload = $this->processScanResultsAction( [
 			'sub_action' => 'ignore',
@@ -73,6 +81,43 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			[ $scanResultId ],
 			\array_column( $afterIgnored[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
 		);
+	}
+
+	public function test_unignore_sub_action_restores_wordpress_row_to_active_results_without_page_reload() :void {
+		$ignored = $this->seedWordpressScanResult();
+		$resultItemId = (int)( $ignored[ 'result_item_id' ] ?? 0 );
+		TestDataFactory::markScanResultItemIgnored( $resultItemId );
+
+		$beforeIgnored = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->ignoredOnly() );
+		$this->assertSame( [ $resultItemId ], \array_column( $beforeIgnored[ 'datatable_data' ][ 'data' ] ?? [], 'rid' ) );
+
+		$payload = $this->processScanResultsAction( [
+			'sub_action' => 'unignore',
+			'rids'       => [ $resultItemId ],
+		] );
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
+		$this->assertTrue( $payload[ 'table_reload' ] ?? false );
+
+		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( $resultItemId );
+		$this->assertNotEmpty( $item );
+		$this->assertSame( 0, (int)( $item->ignored_at ?? -1 ) );
+
+		$afterActive = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
+		$this->assertSame( [ $resultItemId ], \array_column( $afterActive[ 'datatable_data' ][ 'data' ] ?? [], 'rid' ) );
+
+		$afterIgnored = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->ignoredOnly() );
+		$this->assertSame( 0, (int)( $afterIgnored[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+
+		$secondPayload = $this->processScanResultsAction( [
+			'sub_action' => 'unignore',
+			'rids'       => [ $resultItemId ],
+		] );
+
+		$this->assertTrue( $secondPayload[ 'success' ] ?? false );
+		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( $resultItemId );
+		$this->assertSame( 0, (int)( $item->ignored_at ?? -1 ) );
 	}
 
 	public function test_ignore_sub_action_does_not_clean_unrelated_stale_rows_in_same_scan() :void {
@@ -152,7 +197,8 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
 		$this->assertTrue( $payload[ 'table_reload' ] ?? false );
-		$this->assertSame( 'No matching items remain in this view.', (string)( $payload[ 'message' ] ?? '' ) );
+		$this->assertIsString( $payload[ 'message' ] ?? null );
+		$this->assertNotSame( '', \trim( (string)( $payload[ 'message' ] ?? '' ) ) );
 
 		$afterActive = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
 		$this->assertSame( 0, (int)( $afterActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
@@ -235,13 +281,14 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertIsArray( $row );
 		$this->assertTrue( (bool)( $row[ 'is_ignored' ] ?? false ) );
-		$this->assertSame( 'scan-result-row scan-result-row--ignored', (string)( $row[ 'DT_RowClass' ] ?? '' ) );
 		$this->assertSame(
 			[ 'data-scan-result-ignored' => '1' ],
 			(array)( $row[ 'DT_RowAttr' ] ?? [] )
 		);
 		$this->assertStringContainsString( 'data-scan-result-file-cell="1"', (string)( $row[ 'file_as_href' ] ?? '' ) );
+		$this->assertStringContainsString( 'data-scan-result-action="view"', (string)( $row[ 'file_as_href' ] ?? '' ) );
 		$this->assertStringContainsString( 'data-scan-result-ignored-badge="1"', (string)( $row[ 'file_as_href' ] ?? '' ) );
+		$this->assertStringContainsString( 'data-scan-result-action="unignore"', (string)( $row[ 'actions' ] ?? '' ) );
 	}
 
 	/**

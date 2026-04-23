@@ -256,22 +256,10 @@ class EventStrings {
 					__( 'Login successful.', 'wp-simple-firewall' ),
 				],
 			],
-			'botbox_fail'                  => [
-				'name'  => __( 'BotBox Fail', 'wp-simple-firewall' ),
-				'audit' => [
-					__( "User '{{user_login}}' attempted '{{action}}' but Bot checkbox was not found.", 'wp-simple-firewall' ),
-				],
-			],
 			'cooldown_fail'                => [
 				'name'  => __( 'Cooldown Fail', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Login/Register request triggered cooldown and was blocked.', 'wp-simple-firewall' )
-				],
-			],
-			'honeypot_fail'                => [
-				'name'  => __( 'Honeypot Fail', 'wp-simple-firewall' ),
-				'audit' => [
-					__( "User '{{user_login}}' attempted {{action}} but they were caught by the honeypot.", 'wp-simple-firewall' )
 				],
 			],
 			'2fa_success'                  => [

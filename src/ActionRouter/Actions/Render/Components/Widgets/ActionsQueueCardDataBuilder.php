@@ -11,7 +11,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  * @phpstan-import-type ActionsQueueScanRow from ActionsQueueScanStateBuilder
  * @phpstan-import-type AttentionGroup from BuildAttentionItems
  * @phpstan-import-type AttentionGroups from BuildAttentionItems
- * @phpstan-import-type AttentionItem from BuildAttentionItems
  * @phpstan-import-type AttentionQuery from BuildAttentionItems
  * @phpstan-type ActionsQueueCardRow array{
  *   key:string,
@@ -69,7 +68,7 @@ class ActionsQueueCardDataBuilder {
 	 * @return ActionsQueueCardData
 	 */
 	public function build( array $attentionQuery, array $scanRows ) :array {
-		$attentionQuery = $this->buildDashboardAttentionQuery( $attentionQuery );
+		$attentionQuery = ( new DashboardAttentionQueryFilter() )->filter( $attentionQuery );
 		$queueSummary = $this->getQueueSummary( $attentionQuery );
 		$zoneGroups = $this->getQueueZoneGroups( $attentionQuery );
 		$shieldStatus = $this->normalizeSeverity( $queueSummary[ 'severity' ] );
@@ -267,50 +266,6 @@ class ActionsQueueCardDataBuilder {
 		return empty( $parts ) ? '' : implode( ' - ', $parts );
 	}
 
-	/**
-	 * @param AttentionQuery $attentionQuery
-	 * @return AttentionQuery
-	 */
-	private function buildDashboardAttentionQuery( array $attentionQuery ) :array {
-		$filteredItems = \array_values( \array_filter(
-			$attentionQuery[ 'items' ],
-			fn( array $item ) :bool => $this->showDashboardAttentionItem( $item )
-		) );
-
-		/** @var AttentionGroups $groups */
-		$groups = [];
-		foreach ( $attentionQuery[ 'groups' ] as $groupKey => $group ) {
-			$groupItems = \array_values( \array_filter(
-				$group[ 'items' ],
-				fn( array $item ) :bool => $this->showDashboardAttentionItem( $item )
-			) );
-			$groups[ $groupKey ] = [
-				'zone'     => $group[ 'zone' ],
-				'severity' => $this->highestDashboardItemSeverity( $groupItems ),
-				'total'    => (int)\array_sum( \array_column( $groupItems, 'count' ) ),
-				'items'    => $groupItems,
-			];
-		}
-
-		$totalItems = (int)\array_sum( \array_column( $filteredItems, 'count' ) );
-		$attentionQuery[ 'items' ] = $filteredItems;
-		$attentionQuery[ 'groups' ] = $groups;
-		$attentionQuery[ 'summary' ] = [
-			'total'        => $totalItems,
-			'severity'     => $this->highestDashboardItemSeverity( $filteredItems ),
-			'is_all_clear' => $totalItems === 0,
-		];
-
-		return $attentionQuery;
-	}
-
-	/**
-	 * @param AttentionItem $item
-	 */
-	private function showDashboardAttentionItem( array $item ) :bool {
-		return $item[ 'key' ] !== 'plugin_files_ignored';
-	}
-
 	private function dashboardScanQueueRowLabel( string $key, string $label ) :string {
 		if ( $key === 'plugin_files' ) {
 			return __( 'Plugins with Modified Files', 'wp-simple-firewall' );
@@ -348,22 +303,4 @@ class ActionsQueueCardDataBuilder {
 		return ( new ActionsQueueAllClearDataBuilder() )->build( $zonesIndexed );
 	}
 
-	/**
-	 * @param list<AttentionItem> $items
-	 */
-	private function highestDashboardItemSeverity( array $items ) :string {
-		$severities = \array_map(
-			fn( array $item ) :string => $this->normalizeSeverity( $item[ 'severity' ] ),
-			$items
-		);
-
-		if ( \in_array( 'critical', $severities, true ) ) {
-			return 'critical';
-		}
-		if ( \in_array( 'warning', $severities, true ) ) {
-			return 'warning';
-		}
-
-		return 'good';
-	}
 }

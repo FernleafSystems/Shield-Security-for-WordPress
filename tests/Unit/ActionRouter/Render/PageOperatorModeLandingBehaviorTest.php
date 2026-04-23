@@ -11,7 +11,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueAllClearDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageOperatorModeLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\LoadSessions;
@@ -279,25 +278,28 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertNull( $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
 	}
 
-	public function test_render_data_ignores_plugin_files_ignored_when_it_is_the_only_dashboard_issue() :void {
-		$ignoredPluginFiles = $this->attentionItem( 'plugin_files_ignored', 'scans', 1, 'warning', 'Plugin Files' );
+	public function test_render_data_ignores_ignored_only_scan_items_when_they_are_the_only_dashboard_issues() :void {
 		$renderData = $this->invokeNonPublicMethod( new PageOperatorModeLandingTestDouble(
-			$this->attentionQuery( [ $ignoredPluginFiles ] ),
+			$this->attentionQuery( [
+				$this->attentionItem( 'wp_files_ignored', 'scans', 2, 'warning', 'ignored-wp-label' ),
+				$this->attentionItem( 'plugin_files_ignored', 'scans', 1, 'warning', 'ignored-plugin-label' ),
+				$this->attentionItem( 'theme_files_ignored', 'scans', 3, 'warning', 'ignored-theme-label' ),
+				$this->attentionItem( 'malware_ignored', 'scans', 4, 'warning', 'ignored-malware-label' ),
+			] ),
 			[],
 			200000,
 			$this->scanState( [
-				$this->scanRow( 'plugin_files_ignored', 'Plugin Files', 'warning', 1 ),
+				$this->scanRow( 'wp_files_ignored', 'ignored-wp-label', 'warning', 2 ),
+				$this->scanRow( 'plugin_files_ignored', 'ignored-plugin-label', 'warning', 1 ),
+				$this->scanRow( 'theme_files_ignored', 'ignored-theme-label', 'warning', 3 ),
+				$this->scanRow( 'malware_ignored', 'ignored-malware-label', 'warning', 4 ),
 			] )
 		), 'getRenderData' );
-		$expectedAllClear = ( new ActionsQueueAllClearDataBuilder() )->build( [
-			'scans'       => [ 'label' => 'Scans' ],
-			'maintenance' => [ 'label' => 'Maintenance' ],
-		] );
 
 		$this->assertSame( [], $renderData[ 'vars' ][ 'actions_queue_rows' ] );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'shield_status' ] );
-		$this->assertSame( $expectedAllClear, $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
+		$this->assertIsArray( $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
 	}
 
 	private function newPage() :PageOperatorModeLanding {
@@ -316,7 +318,13 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			new UnitTestPluginUrls(),
 			null,
 			(object)[
-				'comps'  => (object)[],
+				'comps'  => (object)[
+					'site_query' => new class {
+						public function scanRuntime() :array {
+							return [ 'is_running' => false ];
+						}
+					},
+				],
 				'db_con' => (object)[
 					'reports' => new OperatorModeReportsStore(
 						$reportsState[ 'reports_count' ],

@@ -53,11 +53,14 @@ class BuildAttentionItems {
 
 	private const KEY_SORT = [
 		'malware',
+		'malware_ignored',
 		'vulnerable_assets',
 		'wp_files',
+		'wp_files_ignored',
 		'plugin_files',
 		'plugin_files_ignored',
 		'theme_files',
+		'theme_files_ignored',
 		'file_locker',
 		'abandoned',
 		'default_admin_user',

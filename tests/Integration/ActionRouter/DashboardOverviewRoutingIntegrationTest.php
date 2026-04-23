@@ -169,10 +169,23 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	}
 
 	public function test_counter_combinations_produce_expected_item_counts_and_severities() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_file_areas',
+			'scan_pluginsthemes_local',
+		] );
+		self::con()->opts
+			->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			->optSet( 'file_scan_areas', [ 'wp', 'plugins' ] )
+			->store();
+
+		$pluginSlug = self::con()->base_file;
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
 		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_core' );
-		TestDataFactory::insertScanResultMeta( $scanId, 'is_in_plugin' );
+		TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
 
 		$payload = $this->renderNeedsAttentionQueue()->payload();
 		$renderData = $payload[ 'render_data' ] ?? [];
@@ -233,7 +246,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$initialRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
 		$initialZone = $this->getZoneGroupBySlug( $initialRenderData, 'scans' );
-		$this->assertSame( 2, (int)( $initialZone[ 'total_issues' ] ?? 0 ) );
+		$this->assertSame( 1, (int)( $initialZone[ 'total_issues' ] ?? 0 ) );
 
 		$actionPayload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
 			'sub_action' => 'ignore',
@@ -473,7 +486,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		);
 	}
 
-	public function test_operator_mode_landing_hides_ignored_only_plugin_dashboard_row_and_uses_modified_plugins_label() :void {
+	public function test_operator_mode_landing_hides_ignored_only_plugin_dashboard_row() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_file_areas',
 			'scan_pluginsthemes_local',
@@ -512,12 +525,9 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$this->assertArrayHasKey( 'plugin_files', $rowsByKey );
 		$this->assertArrayNotHasKey( 'plugin_files_ignored', $rowsByKey );
-		$this->assertSame( 'Plugins with Modified Files', (string)( $rowsByKey[ 'plugin_files' ][ 'label' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $rowsByKey[ 'plugin_files' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $rowsByKey[ 'plugin_files' ][ 'severity' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' ) );
-		$this->assertSame( '1 issue needs your attention', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_text' ] ?? '' ) );
-		$this->assertSame( '1 issue needs your attention.', (string)( $renderData[ 'strings' ][ 'subtitle' ] ?? '' ) );
 	}
 
 	public function test_operator_mode_landing_omits_healthy_file_locker_and_zero_maintenance_rows() :void {

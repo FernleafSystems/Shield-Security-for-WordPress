@@ -148,7 +148,7 @@ class ScanResultsTableContractBuilder {
 			'table_id'                  => 'ShieldScanResultsTable-'.\substr( \md5( $tableKey ), 0, 12 ),
 			'datatables_init_attr'      => $this->encodeJsonAttr( $datatablesInit ),
 			'table_action_attr'         => $this->encodeJsonAttr( $tableAction ),
-			'results_display_options_attr' => $this->encodeJsonAttr( $tableAction[ 'results_display_options' ] ?? [] ),
+			'results_display_options_attr' => $this->encodeJsonAttr( $tableAction[ 'results_display_options' ] ),
 			'render_item_analysis_attr' => $this->encodeJsonAttr(
 				ActionData::BuildAjaxRender( Components\Scans\ItemAnalysis\Container::class )
 			),

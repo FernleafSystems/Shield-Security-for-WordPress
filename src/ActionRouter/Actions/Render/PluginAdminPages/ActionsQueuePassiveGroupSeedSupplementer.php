@@ -149,7 +149,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		$seeds = [];
 		$pendingFileLockerCount = $this->getPendingFileLockerCount();
 		foreach ( $rowsByDefinitionKey as $definitionKey => $rows ) {
-			if ( $definitionKey === 'plugins' && $this->bucketHasFullyIgnoredPluginAttention( $bucketSource ) ) {
+			if ( $this->bucketHasIgnoredOnlyAttentionForDefinition( $bucketSource, $definitionKey ) ) {
 				continue;
 			}
 
@@ -212,9 +212,11 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	/**
 	 * @phpstan-param BucketSource $bucketSource
 	 */
-	private function bucketHasFullyIgnoredPluginAttention( array $bucketSource ) :bool {
+	private function bucketHasIgnoredOnlyAttentionForDefinition( array $bucketSource, string $definitionKey ) :bool {
 		foreach ( $bucketSource[ 'attention_items' ] as $item ) {
-			if ( ( $item[ 'key' ] ?? '' ) === 'plugin_files_ignored' ) {
+			$itemKey = (string)( $item[ 'key' ] ?? '' );
+			if ( ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( $itemKey )
+				&& $this->groupDefinitions->groupKeyForSummaryKey( $itemKey ) === $definitionKey ) {
 				return true;
 			}
 		}

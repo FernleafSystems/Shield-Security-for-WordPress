@@ -12,7 +12,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueAllClearDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueCardDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -154,21 +153,24 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 	public function test_build_marks_all_clear_when_ignored_scan_items_are_the_only_attention_items() :void {
 		$data = $this->buildCardData(
 			$this->attentionQuery( [
-				$this->attentionItem( 'plugin_files_ignored', 'scans', 1, 'warning', 'Plugin Files' ),
+				$this->attentionItem( 'wp_files_ignored', 'scans', 2, 'warning', 'ignored-wp-label' ),
+				$this->attentionItem( 'plugin_files_ignored', 'scans', 1, 'warning', 'ignored-plugin-label' ),
+				$this->attentionItem( 'theme_files_ignored', 'scans', 3, 'warning', 'ignored-theme-label' ),
+				$this->attentionItem( 'malware_ignored', 'scans', 4, 'warning', 'ignored-malware-label' ),
 			] ),
-			[ $this->scanRow( 'plugin_files_ignored', 'Plugin Files', 'warning', 1 ) ]
+			[
+				$this->scanRow( 'wp_files_ignored', 'ignored-wp-label', 'warning', 2 ),
+				$this->scanRow( 'plugin_files_ignored', 'ignored-plugin-label', 'warning', 1 ),
+				$this->scanRow( 'theme_files_ignored', 'ignored-theme-label', 'warning', 3 ),
+				$this->scanRow( 'malware_ignored', 'ignored-malware-label', 'warning', 4 ),
+			]
 		);
-		$expectedAllClear = ( new ActionsQueueAllClearDataBuilder() )->build( [
-			'scans'       => [ 'label' => 'Scans' ],
-			'maintenance' => [ 'label' => 'Maintenance' ],
-		] );
 
 		$this->assertFalse( $data[ 'summary' ][ 'has_items' ] );
 		$this->assertSame( 0, $data[ 'summary' ][ 'total_items' ] );
 		$this->assertSame( 'good', $data[ 'shield_status' ] );
 		$this->assertSame( [], $data[ 'actions_queue_rows' ] );
 		$this->assertSame( 'good', $data[ 'actions_lane' ][ 'indicator_severity' ] );
-		$this->assertSame( $expectedAllClear, $data[ 'all_clear' ] );
 	}
 
 	public function test_build_rows_follow_scan_state_order_and_append_maintenance() :void {

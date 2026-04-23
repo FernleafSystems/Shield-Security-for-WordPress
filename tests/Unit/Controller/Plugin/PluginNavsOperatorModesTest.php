@@ -217,16 +217,23 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		}
 	}
 
-	public function test_actions_queue_scan_definitions_split_abandoned_from_vulnerabilities() :void {
+	public function test_actions_queue_scan_definitions_split_abandoned_and_add_queue_ignored_keys() :void {
 		$landingDefinitions = PluginNavs::actionsLandingScanDefinitions();
 		$queueDefinitions = PluginNavs::actionsQueueScanDefinitions();
 
+		$this->assertSame( [ 'plugin_files' ], $landingDefinitions[ 'plugins' ][ 'summary_keys' ] );
 		$this->assertSame( [ 'vulnerable_assets', 'abandoned' ], $landingDefinitions[ 'vulnerabilities' ][ 'summary_keys' ] );
+		$this->assertContains( 'wp_files_ignored', $queueDefinitions[ 'wordpress' ][ 'summary_keys' ] );
+		$this->assertContains( 'plugin_files_ignored', $queueDefinitions[ 'plugins' ][ 'summary_keys' ] );
+		$this->assertContains( 'theme_files_ignored', $queueDefinitions[ 'themes' ][ 'summary_keys' ] );
+		$this->assertContains( 'malware_ignored', $queueDefinitions[ 'malware' ][ 'summary_keys' ] );
 		$this->assertSame( [ 'vulnerable_assets' ], $queueDefinitions[ 'vulnerabilities' ][ 'summary_keys' ] );
 		$this->assertSame( [ 'abandoned' ], $queueDefinitions[ 'abandoned' ][ 'summary_keys' ] );
 		$this->assertSame( 'vulnerabilities', PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'vulnerable_assets' )[ 'slug' ] ?? '' );
 		$this->assertSame( 'abandoned', PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'abandoned' )[ 'slug' ] ?? '' );
+		$this->assertSame( 'themes', PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'theme_files_ignored' )[ 'slug' ] ?? '' );
 		$this->assertSame( 'vulnerabilities', PluginNavs::actionsLandingScanDefinitionForSummaryKey( 'abandoned' )[ 'slug' ] ?? '' );
+		$this->assertNull( PluginNavs::actionsLandingScanDefinitionForSummaryKey( 'theme_files_ignored' ) );
 	}
 
 	private function installZonesFixture(

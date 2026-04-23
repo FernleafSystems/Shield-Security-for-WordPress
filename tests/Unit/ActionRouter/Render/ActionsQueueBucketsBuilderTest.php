@@ -308,22 +308,40 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 0, $classified[ 'critical' ][ 'item_count' ] );
 	}
 
-	public function test_classify_routes_fully_ignored_plugin_attention_items_to_fix_now() :void {
+	public function test_classify_routes_ignored_only_scan_attention_items_to_fix_now() :void {
 		$classified = $this->newBuilder()->classify(
 			[
 				'items' => [
 					[
-						'key'      => 'plugin_files_ignored',
-						'label'    => 'Plugin Files',
+						'key'      => 'wp_files_ignored',
+						'label'    => 'ignored-wp-label',
 						'count'    => 2,
+						'severity' => 'warning',
+					],
+					[
+						'key'      => 'plugin_files_ignored',
+						'label'    => 'ignored-plugin-label',
+						'count'    => 2,
+						'severity' => 'warning',
+					],
+					[
+						'key'      => 'theme_files_ignored',
+						'label'    => 'ignored-theme-label',
+						'count'    => 1,
+						'severity' => 'warning',
+					],
+					[
+						'key'      => 'malware_ignored',
+						'label'    => 'ignored-malware-label',
+						'count'    => 3,
 						'severity' => 'warning',
 					],
 				],
 			]
 		);
 
-		$this->assertSame( 2, $classified[ 'critical' ][ 'item_count' ] );
-		$this->assertCount( 1, $classified[ 'critical' ][ 'attention_items' ] );
+		$this->assertSame( 8, $classified[ 'critical' ][ 'item_count' ] );
+		$this->assertCount( 4, $classified[ 'critical' ][ 'attention_items' ] );
 		$this->assertSame( 0, $classified[ 'review' ][ 'item_count' ] );
 	}
 

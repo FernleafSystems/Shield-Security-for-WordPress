@@ -43,11 +43,29 @@ class NeedsAttentionQueueDataBuilderTest extends BaseUnitTest {
 				'comps' => (object)[
 					'site_query' => new class {
 						public function attention() :array {
+							$item = [
+								'key'                => 'plugin_files',
+								'zone'               => 'scans',
+								'source'             => 'scan',
+								'label'              => 'Plugin Files',
+								'description'        => 'Plugin files need review.',
+								'count'              => 2,
+								'ignored_count'      => 0,
+								'severity'           => 'warning',
+								'href'               => '/admin/scans',
+								'action'             => 'Review',
+								'target'             => '',
+								'supports_sub_items' => false,
+							];
+
 							return [
 								'summary' => [
 									'total' => 2,
 									'severity' => 'warning',
 									'is_all_clear' => false,
+								],
+								'items' => [
+									$item,
 								],
 								'groups' => [
 									'scans' => [
@@ -55,18 +73,14 @@ class NeedsAttentionQueueDataBuilderTest extends BaseUnitTest {
 										'total' => 2,
 										'severity' => 'warning',
 										'items' => [
-											[
-												'key' => 'plugin_files',
-												'zone' => 'scans',
-												'label' => 'Plugin Files',
-												'count' => 2,
-												'severity' => 'warning',
-												'description' => 'Plugin files need review.',
-												'href' => '/admin/scans',
-												'action' => 'Review',
-												'target' => '',
-											],
+											$item,
 										],
+									],
+									'maintenance' => [
+										'zone' => 'maintenance',
+										'total' => 0,
+										'severity' => 'good',
+										'items' => [],
 									],
 								],
 							];
@@ -97,10 +111,6 @@ class NeedsAttentionQueueDataBuilderTest extends BaseUnitTest {
 
 		$builder = new NeedsAttentionQueueDataBuilder();
 		$this->setPrivateProperty( $builder, 'zoneRenderDataBuilder', new class extends ZoneRenderDataBuilder {
-			public function getZoneSlugs() :array {
-				return [ 'scans', 'maintenance' ];
-			}
-
 			public function getZonesIndexed() :array {
 				return [
 					'scans' => [
@@ -120,7 +130,7 @@ class NeedsAttentionQueueDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( 2, $data[ 'vars' ][ 'total_items' ] );
 		$this->assertSame( '', $data[ 'strings' ][ 'last_scan_subtext' ] );
 		$this->assertSame( 'warning', $data[ 'vars' ][ 'overall_severity' ] );
-		$this->assertSame( [ 'scans' ], \array_column( $data[ 'vars' ][ 'zone_groups' ], 'slug' ) );
+		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $data[ 'vars' ][ 'zone_groups' ], 'slug' ) );
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $data[ 'vars' ][ 'zone_chips' ], 'slug' ) );
 	}
 
@@ -138,7 +148,21 @@ class NeedsAttentionQueueDataBuilderTest extends BaseUnitTest {
 									'severity' => 'good',
 									'is_all_clear' => true,
 								],
-								'groups' => [],
+								'items' => [],
+								'groups' => [
+									'scans' => [
+										'zone' => 'scans',
+										'total' => 0,
+										'severity' => 'good',
+										'items' => [],
+									],
+									'maintenance' => [
+										'zone' => 'maintenance',
+										'total' => 0,
+										'severity' => 'good',
+										'items' => [],
+									],
+								],
 							];
 						}
 
@@ -163,10 +187,6 @@ class NeedsAttentionQueueDataBuilderTest extends BaseUnitTest {
 
 		$builder = new NeedsAttentionQueueDataBuilder();
 		$this->setPrivateProperty( $builder, 'zoneRenderDataBuilder', new class extends ZoneRenderDataBuilder {
-			public function getZoneSlugs() :array {
-				return [ 'scans', 'maintenance' ];
-			}
-
 			public function getZonesIndexed() :array {
 				return [
 					'scans' => [

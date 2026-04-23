@@ -21,6 +21,7 @@ class ScanResultsTableAction extends ScansBase {
 					break;
 				case 'delete':
 				case 'ignore':
+				case 'unignore':
 				case 'repair':
 				case 'repair-delete':
 					$response = $this->doAction( $this->action_data[ 'sub_action' ], $this->getItemIDs() );
@@ -107,6 +108,9 @@ class ScanResultsTableAction extends ScansBase {
 					break;
 				case 'ignore':
 					$msg = __( 'Ignore Success', 'wp-simple-firewall' );
+					break;
+				case 'unignore':
+					$msg = __( 'Restore Success', 'wp-simple-firewall' );
 					break;
 				case 'repair':
 					$msg = __( 'Repair Success', 'wp-simple-firewall' );

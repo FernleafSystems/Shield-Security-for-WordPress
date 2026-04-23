@@ -136,11 +136,12 @@ class ActionsQueueScanAssetCardsBuilder {
 	}
 
 	/**
+	 * @phpstan-param AssetType $assetType
 	 * @return list<QueueAssetSummaryRecord>
 	 */
-	public function buildFullyIgnoredPluginSummaryRecords() :array {
+	public function buildFullyIgnoredSummaryRecords( string $assetType ) :array {
 		$activeSlugs = \array_fill_keys(
-			\array_column( $this->buildSummaryRecords( 'plugin', $this->queueScanResultsOptions->activeOnly() ), 'key' ),
+			\array_column( $this->buildSummaryRecords( $assetType, $this->queueScanResultsOptions->activeOnly() ), 'key' ),
 			true
 		);
 
@@ -154,7 +155,7 @@ class ActionsQueueScanAssetCardsBuilder {
 				]
 			),
 			\array_filter(
-				$this->buildSummaryRecords( 'plugin', $this->queueScanResultsOptions->ignoredOnly() ),
+				$this->buildSummaryRecords( $assetType, $this->queueScanResultsOptions->ignoredOnly() ),
 				static fn( array $summary ) :bool => !isset( $activeSlugs[ $summary[ 'key' ] ] )
 			)
 		) );

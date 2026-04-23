@@ -204,6 +204,15 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 				$con->svgs->iconClass( 'eye-slash-fill.svg' )
 			);
 		}
+		else {
+			$actions[] = $this->buildActionButton(
+				'unignore',
+				'unignore',
+				$item->VO->resultitem_id,
+				__( 'Unignore', 'wp-simple-firewall' ),
+				$con->svgs->iconClass( 'eye-fill.svg' )
+			);
+		}
 
 		return $actions;
 	}
@@ -359,7 +368,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 	protected function getColumnContent_FileAsHref( ResultItem $item ) :string {
 		return sprintf(
-			'<div class="scan-results-file-cell" data-scan-result-file-cell="1"><a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>%s</div>',
+			'<div class="scan-results-file-cell" data-scan-result-file-cell="1"><a href="#" title="%s" class="action view-file" data-rid="%s" data-scan-result-action="view">%s</a>%s</div>',
 			__( 'View File Contents', 'wp-simple-firewall' ),
 			$item->VO->resultitem_id,
 			esc_html( $item->path_fragment ),
@@ -389,7 +398,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		string $iconClass
 	) :string {
 		return sprintf(
-			'<button type="button" class="btn btn-sm btn-light action actions-landing__table-icon-action scan-results-row-action scan-results-row-action--%1$s %2$s" title="%3$s" aria-label="%3$s" data-bs-toggle="tooltip" data-bs-title="%3$s" data-rid="%4$s"><i class="%5$s" aria-hidden="true"></i><span class="visually-hidden">%3$s</span></button>',
+			'<button type="button" class="btn btn-sm btn-light action actions-landing__table-icon-action scan-results-row-action scan-results-row-action--%1$s %2$s" title="%3$s" aria-label="%3$s" data-bs-toggle="tooltip" data-bs-title="%3$s" data-rid="%4$s" data-scan-result-action="%1$s"><i class="%5$s" aria-hidden="true"></i><span class="visually-hidden">%3$s</span></button>',
 			esc_attr( $actionKey ),
 			esc_attr( $actionClass ),
 			esc_attr( $label ),

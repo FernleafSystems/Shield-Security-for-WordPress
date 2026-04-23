@@ -99,7 +99,7 @@ class NeedsAttentionQueueDataBuilder {
 	 * }
 	 */
 	private function buildBaseData() :array {
-		$attention = self::con()->comps->site_query->attention();
+		$attention = ( new DashboardAttentionQueryFilter() )->filter( self::con()->comps->site_query->attention() );
 		$warning = ( new ScanResultsLagWarning() )->getText();
 		$latestScanAt = (int)\max( self::con()->comps->site_query->latestCompletedScanTimestamps() );
 		$lastScanSubtext = $latestScanAt > 0
@@ -173,10 +173,6 @@ class NeedsAttentionQueueDataBuilder {
 			],
 			$items
 		) );
-	}
-
-	private function getZoneSlugs() :array {
-		return $this->zoneRenderDataBuilder()->getZoneSlugs();
 	}
 
 	private function getZonesData() :array {

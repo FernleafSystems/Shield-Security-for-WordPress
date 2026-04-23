@@ -102,14 +102,6 @@
         "recent": true,
         "offense": true
     },
-    "botbox_fail": {
-        "audit_params": [
-            "user_login",
-            "action"
-        ],
-        "level": "warning",
-        "offense": true
-    },
     "bottrack_404": {
         "audit_params": [
             "path"
@@ -335,13 +327,6 @@
     },
     "hide_login_url": {
         "level": "notice"
-    },
-    "honeypot_fail": {
-        "audit_params": [
-            "user_login",
-            "action"
-        ],
-        "level": "warning"
     },
     "import_notify_received": {
         "audit_params": [

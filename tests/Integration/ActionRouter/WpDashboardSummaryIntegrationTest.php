@@ -7,13 +7,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionResponse,
 	Exceptions\UserAuthRequiredException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\WpDashboardSummary;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\{
+	MaintenanceIssueStateProvider,
+	WpDashboardSummary
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 	private int $adminUserId;
+	private array $optionsSnapshot = [];
 
 	public function set_up() {
 		parent::set_up();
@@ -22,6 +27,9 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scan_results' );
 		$this->requireDb( 'scan_result_items' );
 		$this->requireDb( 'scan_result_item_meta' );
+		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
+			MaintenanceIssueStateProvider::OPT_KEY,
+		] );
 
 		$this->adminUserId = $this->loginAsSecurityAdmin();
 		$this->enablePremiumCapabilities( [
@@ -34,6 +42,10 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 			->optSet( 'enable_wpvuln_scan', 'Y' )
 			->optSet( 'enabled_scan_apc', 'Y' )
 			->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
+			->optSet(
+				MaintenanceIssueStateProvider::OPT_KEY,
+				( new MaintenanceIssueStateProvider() )->currentIssueIdentifiersByKey()
+			)
 			->store();
 
 		\delete_site_transient( 'update_plugins' );
@@ -41,6 +53,9 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function tear_down() {
 		\delete_site_transient( 'update_plugins' );
+		if ( static::con() !== null ) {
+			$this->restoreSelectedOptions( $this->optionsSnapshot );
+		}
 		parent::tear_down();
 	}
 
@@ -62,8 +77,25 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		return $payload;
 	}
 
+	private function renderSummaryPayloadWithPluginAdminBypass() :array {
+		$filter = self::con()->prefix( 'bypass_is_plugin_admin' );
+		\add_filter( $filter, '__return_true', 1000 );
+
+		try {
+			return $this->renderSummaryPayload();
+		}
+		finally {
+			\remove_filter( $filter, '__return_true', 1000 );
+		}
+	}
+
 	private function renderSummaryData() :array {
 		return $this->renderSummaryPayload()[ 'render_data' ];
+	}
+
+	private function expectedActionsQueueHref() :string {
+		$entry = PluginNavs::defaultEntryForMode( PluginNavs::MODE_ACTIONS );
+		return self::con()->plugin_urls->adminTopNav( $entry[ 'nav' ], $entry[ 'subnav' ] );
 	}
 
 	private function rowsByKey( array $renderData ) :array {
@@ -94,12 +126,12 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_render_returns_actions_queue_widget_template_and_admin_links_contract() :void {
-		$payload = $this->renderSummaryPayload();
+		$payload = $this->renderSummaryPayloadWithPluginAdminBypass();
 		$renderData = $payload[ 'render_data' ];
 
 		$this->assertSame( '/wpadmin/components/widget/dashboard_actions_queue.twig', $payload[ 'render_template' ] );
 		$this->assertTrue( $renderData[ 'flags' ][ 'show_internal_links' ] );
-		$this->assertSame( self::con()->plugin_urls->actionsQueueScans(), $renderData[ 'hrefs' ][ 'actions_queue' ] );
+		$this->assertSame( $this->expectedActionsQueueHref(), $renderData[ 'hrefs' ][ 'actions_queue' ] );
 	}
 
 	public function test_all_clear_renders_green_widget_contract_when_no_items_exist() :void {
@@ -155,7 +187,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 			$renderData = $this->renderSummaryData();
 
 			$this->assertFalse( $renderData[ 'flags' ][ 'show_internal_links' ] );
-			$this->assertSame( self::con()->plugin_urls->actionsQueueScans(), $renderData[ 'hrefs' ][ 'actions_queue' ] );
+			$this->assertSame( $this->expectedActionsQueueHref(), $renderData[ 'hrefs' ][ 'actions_queue' ] );
 		}
 		finally {
 			\remove_filter( self::con()->prefix( 'is_plugin_admin' ), $forceNotPluginAdmin, \PHP_INT_MAX );

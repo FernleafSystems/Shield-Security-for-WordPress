@@ -27,6 +27,10 @@ abstract class ItemActionHandler {
 				$success = $this->ignore();
 				break;
 
+			case 'unignore':
+				$success = $this->unignore();
+				break;
+
 			case 'repair':
 				$success = $this->repair();
 				break;
@@ -66,6 +70,15 @@ abstract class ItemActionHandler {
 		return ( new ItemIgnoreHandler() )
 			->setScanItem( $this->getScanItem() )
 			->ignore();
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function unignore() :bool {
+		return ( new ItemIgnoreHandler() )
+			->setScanItem( $this->getScanItem() )
+			->unignore();
 	}
 
 	/**

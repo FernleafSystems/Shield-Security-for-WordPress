@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Handler as MalwareHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler as ReqLogsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Services\Services;
@@ -233,11 +234,18 @@ class TestDataFactory {
 	 * Insert a completed scan record and return its ID.
 	 */
 	public static function insertCompletedScan( string $scanSlug, ?int $finishedAt = null ) :int {
+		$finishedAt ??= \time();
 		$dbh = self::con()->db_con->scans;
 		$record = $dbh->getRecord();
 		$record->scan = $scanSlug;
-		$record->ready_at = \max( 1, ( $finishedAt ?? \time() ) - 60 );
-		$record->finished_at = $finishedAt ?? \time();
+		$record->status = 'completed';
+		$record->scope_type = 'full';
+		$record->scope_key = '';
+		$record->run_trigger = 'manual';
+		$record->started_at = \max( 1, $finishedAt - 60 );
+		$record->last_process_at = $finishedAt;
+		$record->ready_at = \max( 1, $finishedAt - 60 );
+		$record->finished_at = $finishedAt;
 		$dbh->getQueryInserter()->insert( $record );
 		return self::lastInsertId();
 	}
@@ -258,10 +266,24 @@ class TestDataFactory {
 	 * @return array{scan_result_id:int,result_item_id:int,meta_ids:list<int>}
 	 */
 	public static function insertScanResultItemTracked( int $scanId, array $meta = [] ) :array {
+		$scanSlug = self::scanSlugForScanId( $scanId );
+		$itemId = (string)( $meta[ 'item_id' ] ?? \uniqid( 'result-item-', true ) );
+		$itemScope = self::buildScanResultItemScope( $scanSlug, $itemId, $meta );
+
 		$resultItemsDb = self::con()->db_con->scan_result_items;
 		$item = $resultItemsDb->getRecord();
-		$item->item_type = 'f';
-		$item->item_id = (string)( $meta[ 'item_id' ] ?? \uniqid( 'result-item-', true ) );
+		$item->scan = $scanSlug;
+		$item->item_type = $itemScope[ 'item_type' ];
+		$item->item_id = $itemId;
+		$item->asset_type = $itemScope[ 'asset_type' ];
+		$item->asset_key = $itemScope[ 'asset_key' ];
+		$item->ignored_at = 0;
+		$item->notified_at = 0;
+		$item->auto_filtered_at = 0;
+		$item->attempt_repair_at = 0;
+		$item->last_seen_at = Services::Request()->ts();
+		$item->resolved_at = 0;
+		$item->resolution_reason = '';
 		$resultItemsDb->getQueryInserter()->insert( $item );
 		$resultItemId = self::lastInsertId();
 
@@ -292,6 +314,76 @@ class TestDataFactory {
 			'result_item_id' => $resultItemId,
 			'meta_ids'       => $metaIds,
 		];
+	}
+
+	private static function scanSlugForScanId( int $scanId ) :string {
+		$scanRecord = self::con()->db_con->scans->getQuerySelector()->byId( $scanId );
+		$scanSlug = \trim( (string)( $scanRecord->scan ?? '' ) );
+		if ( $scanSlug === '' ) {
+			throw new \RuntimeException( \sprintf( 'Cannot insert scan result item for unknown scan ID %d.', $scanId ) );
+		}
+
+		return $scanSlug;
+	}
+
+	/**
+	 * @param array<string,mixed> $meta
+	 * @return array{item_type:string,asset_type:string,asset_key:string}
+	 */
+	private static function buildScanResultItemScope( string $scanSlug, string $itemId, array $meta ) :array {
+		if ( $scanSlug === 'afs' ) {
+			return [
+				'item_type'  => ResultItemsHandler::ITEM_TYPE_FILE,
+				'asset_type' => self::afsAssetTypeFromMeta( $meta ),
+				'asset_key'  => self::afsAssetKeyFromMeta( $meta ),
+			];
+		}
+
+		if ( \in_array( $scanSlug, [ 'wpv', 'apc' ], true ) ) {
+			$isPlugin = !empty( Services::WpPlugins()->getPluginAsVo( $itemId, true ) );
+			return [
+				'item_type'  => $isPlugin ? ResultItemsHandler::ITEM_TYPE_PLUGIN : ResultItemsHandler::ITEM_TYPE_THEME,
+				'asset_type' => $isPlugin ? 'plugin' : 'theme',
+				'asset_key'  => $itemId,
+			];
+		}
+
+		return [
+			'item_type'  => ResultItemsHandler::ITEM_TYPE_FILE,
+			'asset_type' => '',
+			'asset_key'  => '',
+		];
+	}
+
+	/**
+	 * @param array<string,mixed> $meta
+	 */
+	private static function afsAssetTypeFromMeta( array $meta ) :string {
+		if ( !empty( $meta[ 'is_in_core' ] ) ) {
+			return 'core';
+		}
+		if ( !empty( $meta[ 'is_in_plugin' ] ) ) {
+			return 'plugin';
+		}
+		if ( !empty( $meta[ 'is_in_theme' ] ) ) {
+			return 'theme';
+		}
+
+		return 'other';
+	}
+
+	/**
+	 * @param array<string,mixed> $meta
+	 */
+	private static function afsAssetKeyFromMeta( array $meta ) :string {
+		if ( !empty( $meta[ 'is_in_core' ] ) ) {
+			return 'core';
+		}
+		if ( !empty( $meta[ 'is_in_plugin' ] ) || !empty( $meta[ 'is_in_theme' ] ) ) {
+			return (string)( $meta[ 'ptg_slug' ] ?? '' );
+		}
+
+		return '';
 	}
 
 	/**

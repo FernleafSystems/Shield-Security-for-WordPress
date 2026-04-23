@@ -85,7 +85,9 @@ export class ShieldTableScanResults extends ShieldTableBase {
 
 	bulkTableAction( action, RIDs = [] ) {
 		if ( RIDs.length === 0 ) {
-			RIDs = this.getSelectedRIDs();
+			RIDs = [ 'ignore', 'unignore' ].includes( action )
+				? this.getSelectedRIDsForScanResultAction( action )
+				: this.getSelectedRIDs();
 		}
 
 		if ( RIDs.length > 0 ) {
@@ -97,6 +99,22 @@ export class ShieldTableScanResults extends ShieldTableBase {
 
 			this.sendTableActionRequest( this.$table, data );
 		}
+	}
+
+	getSelectedRIDsForScanResultAction( action ) {
+		const RIDs = [];
+		const targetIgnoredState = action === 'unignore';
+
+		this.$table
+			.rows( { selected: true } )
+			.every( function () {
+				const rowData = this.data() || {};
+				if ( Boolean( rowData.is_ignored ) === targetIgnoredState ) {
+					RIDs.push( rowData.rid );
+				}
+			} );
+
+		return RIDs;
 	}
 
 	toggleResultsDisplayOption( optionKey ) {

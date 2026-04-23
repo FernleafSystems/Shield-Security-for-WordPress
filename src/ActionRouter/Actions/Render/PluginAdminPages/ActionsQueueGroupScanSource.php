@@ -14,9 +14,7 @@ class ActionsQueueGroupScanSource {
 	private ScanResultsDisplayOptions $queueScanResultsOptions;
 	private ?array $activePluginSummaries = null;
 	private ?array $activeThemeSummaries = null;
-	private ?array $ignoredPluginSummaries = null;
-	private ?array $ignoredThemeSummaries = null;
-	private ?array $fullyIgnoredPluginSummaries = null;
+	private array $fullyIgnoredAssetSummaries = [];
 	private ?array $vulnerabilitiesPayload = null;
 	private ?int $ignoredWordpressCount = null;
 	private ?int $ignoredMalwareCount = null;
@@ -53,10 +51,10 @@ class ActionsQueueGroupScanSource {
 			return $this->ignoredMalwareCount();
 		}
 		if ( $ignoredSource === 'plugins' ) {
-			return $this->countQueueAssetSummaryResults( $this->ignoredPluginSummaries() );
+			return $this->countQueueAssetSummaryResults( $this->fullyIgnoredAssetSummariesForSource( 'plugins' ) );
 		}
 		if ( $ignoredSource === 'themes' ) {
-			return $this->countQueueAssetSummaryResults( $this->ignoredThemeSummaries() );
+			return $this->countQueueAssetSummaryResults( $this->fullyIgnoredAssetSummariesForSource( 'themes' ) );
 		}
 
 		return 0;
@@ -65,12 +63,20 @@ class ActionsQueueGroupScanSource {
 	/**
 	 * @return list<QueueAssetSummaryRecord>
 	 */
-	public function fullyIgnoredPluginSummaries() :array {
-		if ( $this->fullyIgnoredPluginSummaries === null ) {
-			$this->fullyIgnoredPluginSummaries = $this->scanAssetCardsBuilder->buildFullyIgnoredPluginSummaryRecords();
+	public function fullyIgnoredAssetSummariesForSource( string $assetSource ) :array {
+		$assetType = $assetSource === 'plugins'
+			? 'plugin'
+			: ( $assetSource === 'themes' ? 'theme' : '' );
+		if ( $assetType === '' ) {
+			return [];
 		}
 
-		return $this->fullyIgnoredPluginSummaries;
+		if ( !isset( $this->fullyIgnoredAssetSummaries[ $assetSource ] ) ) {
+			$this->fullyIgnoredAssetSummaries[ $assetSource ] = $this->scanAssetCardsBuilder
+				->buildFullyIgnoredSummaryRecords( $assetType );
+		}
+
+		return $this->fullyIgnoredAssetSummaries[ $assetSource ];
 	}
 
 	/**
@@ -118,34 +124,6 @@ class ActionsQueueGroupScanSource {
 		}
 
 		return $this->activeThemeSummaries;
-	}
-
-	/**
-	 * @return list<QueueAssetSummaryRecord>
-	 */
-	private function ignoredPluginSummaries() :array {
-		if ( $this->ignoredPluginSummaries === null ) {
-			$this->ignoredPluginSummaries = $this->scanAssetCardsBuilder->buildSummaryRecords(
-				'plugin',
-				$this->queueScanResultsOptions->ignoredOnly()
-			);
-		}
-
-		return $this->ignoredPluginSummaries;
-	}
-
-	/**
-	 * @return list<QueueAssetSummaryRecord>
-	 */
-	private function ignoredThemeSummaries() :array {
-		if ( $this->ignoredThemeSummaries === null ) {
-			$this->ignoredThemeSummaries = $this->scanAssetCardsBuilder->buildSummaryRecords(
-				'theme',
-				$this->queueScanResultsOptions->ignoredOnly()
-			);
-		}
-
-		return $this->ignoredThemeSummaries;
 	}
 
 	private function ignoredWordpressCount() :int {

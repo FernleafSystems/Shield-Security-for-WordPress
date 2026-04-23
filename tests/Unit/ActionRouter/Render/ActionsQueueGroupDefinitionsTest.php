@@ -107,12 +107,15 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$definitions = new ActionsQueueGroupDefinitions();
 
 		$this->assertSame( 'wordpress', $definitions->groupKeyForSummaryKey( 'wp_files' ) );
+		$this->assertSame( 'wordpress', $definitions->groupKeyForSummaryKey( 'wp_files_ignored' ) );
 		$this->assertSame( 'plugins', $definitions->groupKeyForSummaryKey( 'plugin_files' ) );
 		$this->assertSame( 'plugins', $definitions->groupKeyForSummaryKey( 'plugin_files_ignored' ) );
 		$this->assertSame( 'themes', $definitions->groupKeyForSummaryKey( 'theme_files' ) );
+		$this->assertSame( 'themes', $definitions->groupKeyForSummaryKey( 'theme_files_ignored' ) );
 		$this->assertSame( 'vulnerabilities', $definitions->groupKeyForSummaryKey( 'vulnerable_assets' ) );
 		$this->assertSame( 'abandoned', $definitions->groupKeyForSummaryKey( 'abandoned' ) );
 		$this->assertSame( 'malware', $definitions->groupKeyForSummaryKey( 'malware' ) );
+		$this->assertSame( 'malware', $definitions->groupKeyForSummaryKey( 'malware_ignored' ) );
 		$this->assertSame( 'file_locker', $definitions->groupKeyForSummaryKey( 'file_locker' ) );
 		$this->assertSame( 'maintenance', $definitions->groupKeyForSummaryKey( 'wp_updates' ) );
 	}
@@ -138,7 +141,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				'definition_key' => 'plugins',
-				'seed_strategy'  => 'plugin_assets',
+				'seed_strategy'  => 'asset_cards',
 				'asset_source'   => 'plugins',
 			],
 			$definitions->summaryBehaviourForKey( 'plugin_files' )
@@ -146,10 +149,18 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				'definition_key' => 'plugins',
-				'seed_strategy'  => 'plugin_assets',
+				'seed_strategy'  => 'asset_cards',
 				'asset_source'   => 'plugins',
 			],
 			$definitions->summaryBehaviourForKey( 'plugin_files_ignored' )
+		);
+		$this->assertSame(
+			[
+				'definition_key' => 'themes',
+				'seed_strategy'  => 'asset_cards',
+				'asset_source'   => 'themes',
+			],
+			$definitions->summaryBehaviourForKey( 'theme_files_ignored' )
 		);
 		$this->assertSame(
 			[
@@ -177,5 +188,14 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( [], $definitions->ignoredRenderActionDataForGroupKey( 'abandoned', 2 ) );
 		$this->assertSame( 'wordpress', $definitions->ignoredRenderActionDataForGroupKey( 'wordpress', 2 )[ 'type' ] ?? '' );
 		$this->assertSame( 'malware', $definitions->ignoredRenderActionDataForGroupKey( 'malware', 2 )[ 'type' ] ?? '' );
+	}
+
+	public function test_ignored_only_summary_key_helpers_are_centralized() :void {
+		$this->assertSame(
+			[ 'wp_files_ignored', 'plugin_files_ignored', 'theme_files_ignored', 'malware_ignored' ],
+			ActionsQueueGroupDefinitions::ignoredOnlySummaryKeys()
+		);
+		$this->assertTrue( ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( 'theme_files_ignored' ) );
+		$this->assertFalse( ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( 'theme_files' ) );
 	}
 }

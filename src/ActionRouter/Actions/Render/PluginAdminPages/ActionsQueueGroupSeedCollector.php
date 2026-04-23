@@ -43,36 +43,26 @@ class ActionsQueueGroupSeedCollector {
 		$seeds = [];
 		$maintenanceItemsByGroupKey = null;
 		$maintenanceGroupsBuilt = [];
-		$pluginsExpanded = false;
-		$themesExpanded = false;
+		$expandedAssetSources = [];
 		$vulnerableExpanded = false;
 		$abandonedExpanded = false;
-		$pluginAttentionItems = \array_values( \array_filter(
-			$bucketSource[ 'attention_items' ],
-			static fn( array $item ) :bool => \in_array( $item[ 'key' ], [ 'plugin_files', 'plugin_files_ignored' ], true )
-		) );
 
 		foreach ( $bucketSource[ 'attention_items' ] as $item ) {
 			$summaryBehaviour = $this->groupDefinitions->summaryBehaviourForKey( $item[ 'key' ] );
 			$definitionKey = $summaryBehaviour[ 'definition_key' ];
 
 			switch ( $summaryBehaviour[ 'seed_strategy' ] ) {
-				case 'plugin_assets':
-					if ( !$pluginsExpanded ) {
-						$pluginsExpanded = true;
-						$seeds = \array_merge(
-							$seeds,
-							$this->buildPluginAssetSeeds( $pluginAttentionItems )
-						);
-					}
-					continue 2;
-
 				case 'asset_cards':
-					if ( $summaryBehaviour[ 'asset_source' ] === 'themes' && !$themesExpanded ) {
-						$themesExpanded = true;
+					$assetSource = $summaryBehaviour[ 'asset_source' ];
+					if ( !isset( $expandedAssetSources[ $assetSource ] ) ) {
+						$expandedAssetSources[ $assetSource ] = true;
 						$seeds = \array_merge(
 							$seeds,
-							$this->buildAssetSeeds( 'themes', $summaryBehaviour[ 'asset_source' ], $item )
+							$this->buildAssetSeeds(
+								$definitionKey,
+								$assetSource,
+								$this->attentionItemsForAssetSource( $bucketSource[ 'attention_items' ], $assetSource )
+							)
 						);
 					}
 					continue 2;
@@ -159,64 +149,45 @@ class ActionsQueueGroupSeedCollector {
 			$item[ 'severity' ],
 		], 'good' );
 		$seeds[ $seedKey ][ 'attention_items' ][] = $item;
-	}
 
-	/**
-	 * @phpstan-param AttentionItem $item
-	 * @return list<GroupSeed>
-	 */
-	private function buildAssetSeeds( string $definitionKey, string $assetSource, array $item ) :array {
-		$summaries = $this->scanSource->activeAssetSummariesForSource( $assetSource );
-		$seeds = [];
-
-		foreach ( $summaries as $summary ) {
-			$fileCount = \max( 0, (int)( $summary[ 'count_badge' ] ?? 0 ) );
-			if ( $fileCount < 1 ) {
-				continue;
-			}
-
-			$seeds[] = $this->buildScopedAssetSeed(
+		if ( ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( $item[ 'key' ] ) ) {
+			$seeds[ $seedKey ][ 'render_action_data_override' ] = $this->groupDefinitions->ignoredRenderActionDataForGroupKey(
 				$definitionKey,
-				$summary,
-				StatusPriority::normalize( $item[ 'severity' ], 'warning' ),
-				$this->buildScanResultsTableBuilder()->buildScopeActionData(
-					$summary[ 'type' ],
-					$summary[ 'file' ]
-				),
-				[ $item ]
+				(int)$item[ 'count' ]
 			);
 		}
-
-		return $seeds;
+		else {
+			unset( $seeds[ $seedKey ][ 'render_action_data_override' ] );
+		}
 	}
 
 	/**
-	 * @param list<AttentionItem> $pluginAttentionItems
+	 * @param list<AttentionItem> $attentionItems
 	 * @return list<GroupSeed>
 	 */
-	private function buildPluginAssetSeeds( array $pluginAttentionItems ) :array {
+	private function buildAssetSeeds( string $definitionKey, string $assetSource, array $attentionItems ) :array {
 		$activeItem = null;
 		$ignoredItem = null;
 
-		foreach ( $pluginAttentionItems as $item ) {
-			if ( $item[ 'key' ] === 'plugin_files' ) {
-				$activeItem = $item;
-			}
-			elseif ( $item[ 'key' ] === 'plugin_files_ignored' ) {
+		foreach ( $attentionItems as $item ) {
+			if ( ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( $item[ 'key' ] ) ) {
 				$ignoredItem = $item;
+			}
+			else {
+				$activeItem = $item;
 			}
 		}
 
 		$seeds = [];
 		if ( $activeItem !== null ) {
-			foreach ( $this->scanSource->activeAssetSummariesForSource( 'plugins' ) as $summary ) {
+			foreach ( $this->scanSource->activeAssetSummariesForSource( $assetSource ) as $summary ) {
 				$fileCount = \max( 0, (int)( $summary[ 'count_badge' ] ?? 0 ) );
 				if ( $fileCount < 1 ) {
 					continue;
 				}
 
 				$seeds[] = $this->buildScopedAssetSeed(
-					'plugins',
+					$definitionKey,
 					$summary,
 					StatusPriority::normalize( $activeItem[ 'severity' ], 'warning' ),
 					$this->buildScanResultsTableBuilder()->buildScopeActionData(
@@ -229,14 +200,14 @@ class ActionsQueueGroupSeedCollector {
 		}
 
 		if ( $ignoredItem !== null ) {
-			foreach ( $this->scanSource->fullyIgnoredPluginSummaries() as $summary ) {
+			foreach ( $this->scanSource->fullyIgnoredAssetSummariesForSource( $assetSource ) as $summary ) {
 				$fileCount = \max( 0, (int)( $summary[ 'count_badge' ] ?? 0 ) );
 				if ( $fileCount < 1 ) {
 					continue;
 				}
 
 				$seeds[] = $this->buildScopedAssetSeed(
-					'plugins',
+					$definitionKey,
 					$summary,
 					StatusPriority::normalize( $ignoredItem[ 'severity' ], 'warning' ),
 					$this->buildScanResultsTableBuilder()->buildScopeActionData(
@@ -250,6 +221,21 @@ class ActionsQueueGroupSeedCollector {
 		}
 
 		return $seeds;
+	}
+
+	/**
+	 * @param list<AttentionItem> $attentionItems
+	 * @return list<AttentionItem>
+	 */
+	private function attentionItemsForAssetSource( array $attentionItems, string $assetSource ) :array {
+		return \array_values( \array_filter(
+			$attentionItems,
+			function ( array $item ) use ( $assetSource ) :bool {
+				$summaryBehaviour = $this->groupDefinitions->summaryBehaviourForKey( $item[ 'key' ] );
+				return $summaryBehaviour[ 'seed_strategy' ] === 'asset_cards'
+					&& ( $summaryBehaviour[ 'asset_source' ] ?? '' ) === $assetSource;
+			}
+		) );
 	}
 
 	/**

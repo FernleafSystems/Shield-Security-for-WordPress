@@ -539,7 +539,7 @@ class PluginNavs {
 				'slug'            => 'plugins',
 				'label'           => __( 'Plugin Files', 'wp-simple-firewall' ),
 				'icon'            => 'plug',
-				'summary_keys'    => [ 'plugin_files', 'plugin_files_ignored' ],
+				'summary_keys'    => [ 'plugin_files' ],
 			],
 			'themes'          => [
 				'slug'            => 'themes',
@@ -581,7 +581,11 @@ class PluginNavs {
 	 */
 	public static function actionsQueueScanDefinitions() :array {
 		$definitions = self::actionsLandingScanDefinitions();
+		$definitions[ 'wordpress' ][ 'summary_keys' ][] = 'wp_files_ignored';
+		$definitions[ 'plugins' ][ 'summary_keys' ][] = 'plugin_files_ignored';
+		$definitions[ 'themes' ][ 'summary_keys' ][] = 'theme_files_ignored';
 		$definitions[ 'vulnerabilities' ][ 'summary_keys' ] = [ 'vulnerable_assets' ];
+		$definitions[ 'malware' ][ 'summary_keys' ][] = 'malware_ignored';
 
 		return \array_merge(
 			\array_slice( $definitions, 0, 4, true ),

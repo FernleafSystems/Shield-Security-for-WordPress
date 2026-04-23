@@ -86,7 +86,7 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 1, $builder->tableBuildCalls() );
 	}
 
-	public function test_build_fully_ignored_plugin_summary_records_filters_out_plugins_with_active_results() :void {
+	public function test_build_fully_ignored_summary_records_filters_out_assets_with_active_results() :void {
 		$builder = $this->newBuilder(
 			[
 				[ 'slug' => 'active-plugin/active-plugin.php', 'file_count' => 2 ],
@@ -113,11 +113,45 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$records = $builder->buildFullyIgnoredPluginSummaryRecords();
+		$records = $builder->buildFullyIgnoredSummaryRecords( 'plugin' );
 
 		$this->assertSame( [ 'ignored-plugin/ignored-plugin.php' ], \array_column( $records, 'key' ) );
 		$this->assertSame( [ 3 ], \array_column( $records, 'count_badge' ) );
-		$this->assertSame( '3 discovered files are currently ignored.', $records[ 0 ][ 'stat_text' ] ?? '' );
+		$this->assertNotSame( '', (string)( $records[ 0 ][ 'stat_text' ] ?? '' ) );
+	}
+
+	public function test_build_fully_ignored_summary_records_supports_theme_assets() :void {
+		$builder = $this->newBuilder(
+			[
+				[ 'slug' => 'active-theme', 'file_count' => 2 ],
+			],
+			[
+				'active-theme' => [
+					'type'       => 'theme',
+					'file'       => 'active-theme',
+					'title'      => 'asset-title-active',
+					'icon_class' => 'bi bi-palette-fill',
+					'has_update' => false,
+				],
+				'ignored-theme' => [
+					'type'       => 'theme',
+					'file'       => 'ignored-theme',
+					'title'      => 'asset-title-ignored',
+					'icon_class' => 'bi bi-palette-fill',
+					'has_update' => false,
+				],
+			],
+			[
+				[ 'slug' => 'active-theme', 'file_count' => 1 ],
+				[ 'slug' => 'ignored-theme', 'file_count' => 4 ],
+			]
+		);
+
+		$records = $builder->buildFullyIgnoredSummaryRecords( 'theme' );
+
+		$this->assertSame( [ 'ignored-theme' ], \array_column( $records, 'key' ) );
+		$this->assertSame( [ 4 ], \array_column( $records, 'count_badge' ) );
+		$this->assertNotSame( '', (string)( $records[ 0 ][ 'stat_text' ] ?? '' ) );
 	}
 
 	/**

@@ -103,6 +103,16 @@ export function buildScanResultsButtons( {
 			}
 		},
 		{
+			text: 'Unignore Selected',
+			name: 'selected-unignore',
+			className: 'action selected-action unignore btn-outline-secondary mb-2',
+			action: () => {
+				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+					onBulkAction( 'unignore' );
+				}
+			}
+		},
+		{
 			text: 'Delete/Repair Selected',
 			name: 'selected-repair',
 			className: 'action selected-action repair btn-outline-secondary mb-2',
@@ -140,7 +150,7 @@ export function bindScanResultsRowActions( {
 	if ( scanResultsAction !== null && typeof onAction === 'function' ) {
 		$tableElement.on(
 			`click.${namespace}`,
-			'td.actions .action.delete',
+			'td.actions [data-scan-result-action="delete"]',
 			( evt ) => {
 				evt.preventDefault();
 				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
@@ -152,7 +162,7 @@ export function bindScanResultsRowActions( {
 
 		$tableElement.on(
 			`click.${namespace}`,
-			'td.actions .action.ignore',
+			'td.actions [data-scan-result-action="ignore"]',
 			( evt ) => {
 				evt.preventDefault();
 				onAction( 'ignore', [ evt.currentTarget.dataset.rid ] );
@@ -162,7 +172,17 @@ export function bindScanResultsRowActions( {
 
 		$tableElement.on(
 			`click.${namespace}`,
-			'td.actions .action.repair',
+			'td.actions [data-scan-result-action="unignore"]',
+			( evt ) => {
+				evt.preventDefault();
+				onAction( 'unignore', [ evt.currentTarget.dataset.rid ] );
+				return false;
+			}
+		);
+
+		$tableElement.on(
+			`click.${namespace}`,
+			'td.actions [data-scan-result-action="repair"]',
 			( evt ) => {
 				evt.preventDefault();
 				datatable?.rows?.().deselect?.();
@@ -175,7 +195,7 @@ export function bindScanResultsRowActions( {
 	if ( renderItemAnalysis !== null ) {
 		$tableElement.on(
 			`click.${namespace}`,
-			'.action.view-file',
+			'[data-scan-result-action="view"]',
 			( evt ) => {
 				evt.preventDefault();
 				ScanItemAnalysisModal.show( renderItemAnalysis, evt.currentTarget.dataset.rid );
@@ -198,8 +218,30 @@ export function bindScanResultsSelectionButtons( datatable, namespace = 'shieldS
 }
 
 export function syncScanResultsSelectionButtons( datatable ) {
-	const hasSelections = datatable.rows( { selected: true } ).count() > 0;
-	datatable.buttons( 'selected-ignore:name, selected-repair:name' )[ hasSelections ? 'enable' : 'disable' ]();
+	const selectionState = getScanResultsSelectionState( datatable );
+	datatable.button( 'selected-ignore:name' )[ selectionState.hasActiveSelections ? 'enable' : 'disable' ]();
+	datatable.button( 'selected-unignore:name' )[ selectionState.hasIgnoredSelections ? 'enable' : 'disable' ]();
+	datatable.button( 'selected-repair:name' )[ selectionState.hasSelections ? 'enable' : 'disable' ]();
+}
+
+export function getScanResultsSelectionState( datatable ) {
+	const state = {
+		hasSelections: false,
+		hasActiveSelections: false,
+		hasIgnoredSelections: false,
+	};
+
+	datatable.rows( { selected: true } ).every( function () {
+		state.hasSelections = true;
+		if ( Boolean( this.data()?.is_ignored ) ) {
+			state.hasIgnoredSelections = true;
+		}
+		else {
+			state.hasActiveSelections = true;
+		}
+	} );
+
+	return state;
 }
 
 export function syncScanResultsDisplayButtons( datatable, resultsDisplayOptions = {} ) {
