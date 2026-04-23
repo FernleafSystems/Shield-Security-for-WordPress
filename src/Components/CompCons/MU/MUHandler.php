@@ -71,18 +71,12 @@ class MUHandler {
 		}
 
 		// Now test we haven't destroyed the site loading.
-		if ( !$this->testLoopback() ) {
+		if ( !self::con()->plugin->canSiteLoopback() ) {
 			$this->convertToStandard();
 			throw new \Exception( __( 'Cancelled - could not verify site loads successfully', 'wp-simple-firewall' ) );
 		}
 
 		return $this->isActiveMU();
-	}
-
-	protected function testLoopback() :bool {
-		return ( Services::Rest()->callInternal( [
-				'route' => '/wp-site-health/v1/tests/loopback-requests'
-			] )->get_data()[ 'status' ] ?? '' ) === 'good';
 	}
 
 	private function getMuFilePath() :string {
