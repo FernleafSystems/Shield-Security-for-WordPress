@@ -297,13 +297,15 @@ class Afs extends Base {
 	}
 
 	public function queueAssetScansFromUpgraderPostInstall( $response, $hookExtra ) {
-		if ( \is_array( $hookExtra ) ) {
-			if ( !empty( $hookExtra[ 'plugin' ] ) ) {
-				$this->queuePluginAssetScan( (string)$hookExtra[ 'plugin' ] );
-			}
-			if ( !empty( $hookExtra[ 'theme' ] ) ) {
-				$this->queueThemeAssetScan( (string)$hookExtra[ 'theme' ], true );
-			}
+		if ( \is_array( $hookExtra ) && ( !empty( $hookExtra[ 'plugin' ] ) || !empty( $hookExtra[ 'theme' ] ) ) ) {
+			add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () use ( $hookExtra ) {
+				if ( !empty( $hookExtra[ 'plugin' ] ) ) {
+					$this->queuePluginAssetScan( (string)$hookExtra[ 'plugin' ] );
+				}
+				if ( !empty( $hookExtra[ 'theme' ] ) ) {
+					$this->queueThemeAssetScan( (string)$hookExtra[ 'theme' ], true );
+				}
+			} );
 		}
 		return $response;
 	}

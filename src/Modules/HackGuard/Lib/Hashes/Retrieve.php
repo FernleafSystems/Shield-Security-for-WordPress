@@ -19,10 +19,7 @@ class Retrieve {
 	private static array $hashes;
 
 	public function __construct() {
-		self::$hashes ??= [
-			'plugins' => [],
-			'themes'  => [],
-		];
+		self::$hashes ??= [];
 	}
 
 	/**
@@ -56,7 +53,8 @@ class Retrieve {
 	 * @throws AssetHashesNotFound|\Exception
 	 */
 	public function byVO( $vo ) :array {
-		$hashes = self::$hashes[ $vo->asset_type === 'plugin' ? 'plugins' : 'themes' ][ $vo->slug ] ?? null;
+		$cacheKey = $this->buildCacheKey( $vo );
+		$hashes = self::$hashes[ $cacheKey ] ?? null;
 
 		if ( \is_null( $hashes ) ) {
 			try {
@@ -72,7 +70,7 @@ class Retrieve {
 			}
 
 			// cache it.
-			self::$hashes[ $vo->asset_type === 'plugin' ? 'plugins' : 'themes' ][ $vo->slug ] = $hashes;
+			self::$hashes[ $cacheKey ] = $hashes;
 		}
 
 		if ( empty( $hashes ) ) {
@@ -94,5 +92,16 @@ class Retrieve {
 			throw new \Exception( __( 'No crowd-sourced hashes available.', 'wp-simple-firewall' ) );
 		}
 		return $hashes;
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $vo
+	 */
+	private function buildCacheKey( $vo ) :string {
+		return \implode( '|', [
+			(string)$vo->asset_type,
+			(string)$vo->unique_id,
+			(string)$vo->Version,
+		] );
 	}
 }
