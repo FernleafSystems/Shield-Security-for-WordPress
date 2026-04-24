@@ -45,7 +45,7 @@ class Store {
 			$key = $this->resultKey( $scanResult );
 			/** @var ?ResultItemsDB\Record $resultRecord */
 			$resultRecord = $existingResultRecords[ $key ] ?? null;
-			if ( empty( $resultRecord ) ) {
+			if ( $resultRecord === null ) {
 				$dbCon->scan_result_items->getQueryInserter()->insert( $scanResult );
 				$scanResult->id = $this->lastInsertID();
 				$resultRecord = $scanResult;
@@ -53,12 +53,13 @@ class Store {
 			}
 			else {
 				$dbCon->scan_result_items->getQueryUpdater()->updateRecord( $resultRecord, [
+					'scan'              => $scanResult->scan,
 					'asset_type'        => $scanResult->asset_type,
 					'asset_key'         => $scanResult->asset_key,
 					'auto_filtered_at'  => $scanResult->auto_filtered_at,
 					'last_seen_at'      => $scanResult->last_seen_at,
-					'resolved_at'       => 0,
-					'resolution_reason' => '',
+					'resolved_at'       => $scanResult->resolved_at,
+					'resolution_reason' => $scanResult->resolution_reason,
 				] );
 				$updatedResultIDs[] = (int)$resultRecord->id;
 			}
@@ -119,19 +120,31 @@ class Store {
 		$rows = Services::WpDb()->selectCustom(
 			sprintf( "SELECT *
 						FROM `%s`
-						WHERE `scan`='%s'
-						  AND `resolved_at`=0
-						  AND (%s);",
+						WHERE `resolved_at`=0
+						  AND (%s)
+						  AND (
+							`scan`='%s'
+							OR (
+								`scan`=''
+								AND `asset_type`=''
+								AND `asset_key`=''
+								AND `item_repaired_at`=0
+								AND `item_deleted_at`=0
+							)
+						  );",
 				self::con()->db_con->scan_result_items->getTable(),
-				esc_sql( $scanSlug ),
-				\implode( ' OR ', $pairWheres )
+				\implode( ' OR ', $pairWheres ),
+				esc_sql( $scanSlug )
 			)
 		) ?: [];
 
 		$records = [];
 		foreach ( $rows as $row ) {
-			$record = new ResultItemsDB\Record( \is_array( $row ) ? $row : (array)$row );
-			$records[ $this->resultKey( $record ) ] = $record;
+			$record = new ResultItemsDB\Record( $row );
+			$key = $this->resultKey( $record );
+			if ( (string)$record->scan === $scanSlug || !isset( $records[ $key ] ) ) {
+				$records[ $key ] = $record;
+			}
 		}
 		return $records;
 	}
@@ -142,7 +155,7 @@ class Store {
 		}
 
 		return \array_values( \array_unique( \array_filter( \array_map(
-			static fn( $record ) :int => (int)( \is_array( $record ) ? ( $record[ 'resultitem_ref' ] ?? 0 ) : ( $record->resultitem_ref ?? 0 ) ),
+			static fn( array $record ) :int => (int)$record[ 'resultitem_ref' ],
 			Services::WpDb()->selectCustom(
 				sprintf( "SELECT `resultitem_ref`
 							FROM `%s`

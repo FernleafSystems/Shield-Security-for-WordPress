@@ -112,12 +112,112 @@ class StoreTest extends BaseUnitTest {
 		$this->assertSame( [], $queueItemUpdates );
 	}
 
+	public function test_store_reuses_blank_legacy_result_item_without_overwriting_history() :void {
+		$insertedObservationRows = [];
+		$queueItemUpdates = [];
+		$metaDeletes = [];
+		$resultItemInserts = [];
+		$resultItemUpdates = [];
+		$this->installController( [
+			$this->legacyBlankResultRow( 77, 'akismet/akismet.php', [
+				'ignored_at'        => 1699999800,
+				'notified_at'       => 1699999810,
+				'attempt_repair_at' => 1699999820,
+				'created_at'        => 1699999700,
+			] ),
+		], [], $insertedObservationRows, $queueItemUpdates, $metaDeletes, $resultItemInserts, $resultItemUpdates );
+
+		( new Store() )->store( $this->newQueueItem(), [
+			[
+				'item_id' => 'akismet/akismet.php',
+			],
+		] );
+
+		$this->assertSame( [], $resultItemInserts );
+		$this->assertCount( 1, $resultItemUpdates );
+		$this->assertSame( 77, $resultItemUpdates[ 0 ][ 'id' ] );
+		$this->assertSame( [
+			'scan'              => 'afs',
+			'asset_type'        => 'plugin',
+			'asset_key'         => 'akismet/akismet.php',
+			'auto_filtered_at'  => 0,
+			'last_seen_at'      => 1700000000,
+			'resolved_at'       => 0,
+			'resolution_reason' => '',
+		], $resultItemUpdates[ 0 ][ 'data' ] );
+		foreach ( [ 'notified_at', 'ignored_at', 'attempt_repair_at', 'created_at', 'item_repaired_at', 'item_deleted_at' ] as $historyField ) {
+			$this->assertArrayNotHasKey( $historyField, $resultItemUpdates[ 0 ][ 'data' ] );
+		}
+		$this->assertSame( [
+			[
+				'scan_ref'       => 91,
+				'resultitem_ref' => 77,
+			],
+		], $insertedObservationRows );
+		$this->assertSame( [ [ 77 ] ], $metaDeletes );
+		$this->assertSame( [], $queueItemUpdates );
+	}
+
+	public function test_store_prefers_current_scan_result_item_over_matching_legacy_row() :void {
+		$insertedObservationRows = [];
+		$queueItemUpdates = [];
+		$metaDeletes = [];
+		$resultItemInserts = [];
+		$resultItemUpdates = [];
+		$this->installController( [
+			$this->legacyBlankResultRow( 88, 'akismet/akismet.php' ),
+			$this->existingResultRow( 77, 'akismet/akismet.php' ),
+		], [], $insertedObservationRows, $queueItemUpdates, $metaDeletes, $resultItemInserts, $resultItemUpdates );
+
+		( new Store() )->store( $this->newQueueItem(), [
+			[
+				'item_id' => 'akismet/akismet.php',
+			],
+		] );
+
+		$this->assertSame( [], $resultItemInserts );
+		$this->assertCount( 1, $resultItemUpdates );
+		$this->assertSame( 77, $resultItemUpdates[ 0 ][ 'id' ] );
+		$this->assertSame( [
+			[
+				'scan_ref'       => 91,
+				'resultitem_ref' => 77,
+			],
+		], $insertedObservationRows );
+		$this->assertSame( [ [ 77 ] ], $metaDeletes );
+		$this->assertSame( [], $queueItemUpdates );
+	}
+
+	public function test_existing_result_lookup_limits_legacy_candidates_to_unresolved_blank_rows() :void {
+		$insertedObservationRows = [];
+		$queueItemUpdates = [];
+		$metaDeletes = [];
+		$wpdb = $this->installController( [], [], $insertedObservationRows, $queueItemUpdates, $metaDeletes );
+
+		( new Store() )->store( $this->newQueueItem(), [
+			[
+				'item_id' => 'akismet/akismet.php',
+			],
+		] );
+
+		$this->assertStringContainsString( "`resolved_at`=0", $wpdb->selectQueries[ 0 ] );
+		$this->assertStringContainsString( "`scan`='afs'", $wpdb->selectQueries[ 0 ] );
+		$this->assertStringContainsString( "`scan`=''", $wpdb->selectQueries[ 0 ] );
+		$this->assertStringContainsString( "`asset_type`=''", $wpdb->selectQueries[ 0 ] );
+		$this->assertStringContainsString( "`asset_key`=''", $wpdb->selectQueries[ 0 ] );
+		$this->assertStringContainsString( "`item_repaired_at`=0", $wpdb->selectQueries[ 0 ] );
+		$this->assertStringContainsString( "`item_deleted_at`=0", $wpdb->selectQueries[ 0 ] );
+		$this->assertSame( [], $queueItemUpdates );
+	}
+
 	private function installController(
 		array $existingResultRows,
 		array $observedResultItemIDs,
 		array &$insertedObservationRows,
 		array &$queueItemUpdates,
-		array &$metaDeletes = []
+		array &$metaDeletes = [],
+		array &$resultItemInserts = [],
+		array &$resultItemUpdates = []
 	) :object {
 		$wpdb = new class( $existingResultRows, $observedResultItemIDs ) extends Db {
 			public array $selectQueries = [];
@@ -182,24 +282,57 @@ class StoreTest extends BaseUnitTest {
 			},
 		];
 		$controller->db_con = (object)[
-			'scan_result_items' => new class {
+			'scan_result_items' => new class( $resultItemInserts, $resultItemUpdates ) {
+				private array $resultItemInserts;
+				private array $resultItemUpdates;
+
+				public function __construct( array &$resultItemInserts, array &$resultItemUpdates ) {
+					$this->resultItemInserts = &$resultItemInserts;
+					$this->resultItemUpdates = &$resultItemUpdates;
+				}
+
 				public function getTable() :string {
 					return 'shield_scan_result_items';
 				}
 
 				public function getQueryInserter() :object {
-					return new class {
+					return new class( $this->resultItemInserts ) {
+						private array $resultItemInserts;
+
+						public function __construct( array &$resultItemInserts ) {
+							$this->resultItemInserts = &$resultItemInserts;
+						}
+
 						public function insert( ResultItemRecord $record ) :bool {
-							unset( $record );
+							$this->resultItemInserts[] = [
+								'scan'              => $record->scan,
+								'item_type'         => $record->item_type,
+								'item_id'           => $record->item_id,
+								'asset_type'        => $record->asset_type,
+								'asset_key'         => $record->asset_key,
+								'auto_filtered_at'  => $record->auto_filtered_at,
+								'last_seen_at'      => $record->last_seen_at,
+								'resolved_at'       => $record->resolved_at,
+								'resolution_reason' => $record->resolution_reason,
+							];
 							return true;
 						}
 					};
 				}
 
 				public function getQueryUpdater() :object {
-					return new class {
+					return new class( $this->resultItemUpdates ) {
+						private array $resultItemUpdates;
+
+						public function __construct( array &$resultItemUpdates ) {
+							$this->resultItemUpdates = &$resultItemUpdates;
+						}
+
 						public function updateRecord( ResultItemRecord $record, array $data ) :bool {
-							unset( $record, $data );
+							$this->resultItemUpdates[] = [
+								'id'   => (int)$record->id,
+								'data' => $data,
+							];
 							return true;
 						}
 					};
@@ -321,7 +454,17 @@ class StoreTest extends BaseUnitTest {
 			'last_seen_at'      => 1699999900,
 			'resolved_at'       => 0,
 			'resolution_reason' => '',
+			'item_repaired_at'  => 0,
+			'item_deleted_at'   => 0,
 		];
+	}
+
+	private function legacyBlankResultRow( int $id, string $itemID, array $overrides = [] ) :array {
+		return \array_merge( $this->existingResultRow( $id, $itemID ), [
+			'scan'       => '',
+			'asset_type' => '',
+			'asset_key'  => '',
+		], $overrides );
 	}
 
 	private function newQueueItem() :QueueItemVO {
