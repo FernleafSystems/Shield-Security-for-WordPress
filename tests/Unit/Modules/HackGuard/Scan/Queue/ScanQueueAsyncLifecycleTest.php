@@ -25,6 +25,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	CleanQueue,
+	Controller as QueueController,
 	QueueInit,
 	QueueItems,
 	QueueProcessor
@@ -53,6 +54,29 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
 		parent::tearDown();
+	}
+
+	public function test_wp_loaded_does_not_orchestrate_scan_queue_work_during_ordinary_requests() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->insertScan( [
+			'scan'   => 'afs',
+			'status' => 'queued',
+		] );
+		$readyScanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'built',
+			'ready_at'        => 1700000000,
+			'last_process_at' => 1700000000,
+		] );
+		$harness->insertScanItem( $readyScanID, [ 'wpv-a' ] );
+		$harness->sql->resetQueryLog();
+		$harness->async->resetTransport();
+
+		( new QueueController() )->onWpLoaded();
+
+		$this->assertSame( [], $harness->sql->queryLog() );
+		$this->assertSame( [], $harness->async->scheduled );
+		$this->assertSame( [], $harness->async->remotePosts );
 	}
 
 	public function test_manual_start_creates_fresh_queued_rows_with_complete_producer_contract() :void {

@@ -629,13 +629,9 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [], $deletedScanItems );
 	}
 
-	public function test_on_wp_loaded_registers_queue_schedules_without_running_scans() :void {
+	public function test_on_wp_loaded_registers_queue_workers_without_scan_db_connection() :void {
 		Functions\when( 'add_action' )->justReturn( true );
 		Functions\when( 'add_filter' )->justReturn( true );
-
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest(),
-		] );
 
 		$this->installController( [
 			'cfg' => (object)[
@@ -643,31 +639,6 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 					'slug_parent' => 'icwp',
 					'slug_plugin' => 'wpsf',
 				],
-			],
-			'plugin_urls' => new class {
-				public function rootAdminPageSlug() :string {
-					return 'icwp_wpsf';
-				}
-			},
-			'db_con' => (object)[
-				'scans' => new class {
-					public function getQuerySelector() :object {
-						return new class {
-							public function filterByNotFinished() :self {
-								return $this;
-							}
-
-							public function addWhereIn( string $column, array $values ) :self {
-								unset( $column, $values );
-								return $this;
-							}
-
-							public function count() :int {
-								return 0;
-							}
-						};
-					}
-				},
 			],
 		] );
 
@@ -686,6 +657,12 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	public function test_scan_queue_transport_uses_plugin_prefix() :void {
 		Functions\when( 'add_action' )->justReturn( true );
 		Functions\when( 'add_filter' )->justReturn( true );
+		Functions\when( 'apply_filters' )->alias(
+			static function ( string $hook, $value ) {
+				unset( $hook );
+				return $value;
+			}
+		);
 
 		$this->installController( [
 			'cfg' => (object)[
@@ -701,8 +678,10 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame( 'icwp_wpsf_shield_scanqbuild', $this->readObjectProperty( $builder, 'identifier' ) );
 		$this->assertSame( 'icwp_wpsf_shield_scanqbuild_cron_interval', $this->readObjectProperty( $builder, 'cron_interval_identifier' ) );
+		$this->assertSame( 5, $builder->get_cron_interval() );
 		$this->assertSame( 'icwp_wpsf_shield_scanq', $this->readObjectProperty( $processor, 'identifier' ) );
 		$this->assertSame( 'icwp_wpsf_shield_scanq_cron_interval', $this->readObjectProperty( $processor, 'cron_interval_identifier' ) );
+		$this->assertSame( 5, $processor->get_cron_interval() );
 		$this->assertSame( \MINUTE_IN_SECONDS*10, $processor->getExpirationInterval() );
 	}
 

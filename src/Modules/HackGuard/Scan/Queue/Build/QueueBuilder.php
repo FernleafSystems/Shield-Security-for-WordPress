@@ -12,8 +12,6 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 
 	use PluginControllerConsumer;
 
-	protected $cron_interval = 1;
-
 	public function __construct() {
 		parent::__construct( 'shield_scanqbuild', self::con()->getPluginPrefix( '_' ) );
 	}

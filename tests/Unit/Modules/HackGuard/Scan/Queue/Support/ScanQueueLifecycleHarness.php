@@ -306,11 +306,21 @@ class AsyncQueueHarness {
 	public function hasScheduledHook( string $hook ) :bool {
 		return $this->nextScheduled( $hook ) !== false;
 	}
+
+	public function resetTransport() :void {
+		$this->scheduled = [];
+		$this->remotePosts = [];
+	}
 }
 
 class LifecycleSqliteDb extends Db {
 
 	private \PDO $pdo;
+
+	/**
+	 * @var string[]
+	 */
+	private array $queryLog = [];
 
 	public function __construct( private int $now ) {
 		$this->pdo = new \PDO( 'sqlite::memory:' );
@@ -358,12 +368,15 @@ class LifecycleSqliteDb extends Db {
 			$sets[] = sprintf( '`%s`=%s', $column, $param );
 			$params[ $param ] = $value;
 		}
-		$stmt = $this->pdo->prepare( sprintf( 'UPDATE `%s` SET %s WHERE `id`=:id', $table, \implode( ',', $sets ) ) );
+		$sql = sprintf( 'UPDATE `%s` SET %s WHERE `id`=:id', $table, \implode( ',', $sets ) );
+		$this->recordQuery( $sql );
+		$stmt = $this->pdo->prepare( $sql );
 		return $stmt->execute( $params );
 	}
 
 	public function deleteRows( string $table, array $wheres, array $params ) :bool {
 		$sql = sprintf( 'DELETE FROM `%s` %s', $table, empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ) );
+		$this->recordQuery( $sql );
 		$stmt = $this->pdo->prepare( $sql );
 		return $stmt->execute( $params );
 	}
@@ -376,6 +389,7 @@ class LifecycleSqliteDb extends Db {
 		if ( $limit > 0 ) {
 			$sql .= ' LIMIT '.$limit;
 		}
+		$this->recordQuery( $sql );
 		$stmt = $this->pdo->prepare( $sql );
 		$stmt->execute( $params );
 		return $stmt->fetchAll( \PDO::FETCH_ASSOC ) ?: [];
@@ -383,6 +397,7 @@ class LifecycleSqliteDb extends Db {
 
 	public function countRows( string $table, array $wheres = [], array $params = [] ) :int {
 		$sql = sprintf( 'SELECT COUNT(*) FROM `%s` %s', $table, empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ) );
+		$this->recordQuery( $sql );
 		$stmt = $this->pdo->prepare( $sql );
 		$stmt->execute( $params );
 		return (int)$stmt->fetchColumn();
@@ -390,6 +405,7 @@ class LifecycleSqliteDb extends Db {
 
 	public function distinctColumn( string $table, string $column, array $wheres = [], array $params = [] ) :array {
 		$sql = sprintf( 'SELECT DISTINCT `%s` FROM `%s` %s', $column, $table, empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ) );
+		$this->recordQuery( $sql );
 		$stmt = $this->pdo->prepare( $sql );
 		$stmt->execute( $params );
 		return \array_map( static fn( array $row ) => $row[ $column ], $stmt->fetchAll( \PDO::FETCH_ASSOC ) ?: [] );
@@ -412,6 +428,7 @@ class LifecycleSqliteDb extends Db {
 	}
 
 	public function getVar( $sql ) {
+		$this->recordQuery( (string)$sql );
 		if ( \stripos( (string)$sql, 'LAST_INSERT_ID()' ) !== false ) {
 			return (int)$this->pdo->lastInsertId();
 		}
@@ -421,6 +438,7 @@ class LifecycleSqliteDb extends Db {
 
 	public function selectRow( string $query, $format = null ) {
 		unset( $format );
+		$this->recordQuery( $query );
 		$stmt = $this->pdo->query( $query );
 		if ( $stmt === false ) {
 			return null;
@@ -431,12 +449,22 @@ class LifecycleSqliteDb extends Db {
 
 	public function selectCustom( $query, $format = \FernleafSystems\Wordpress\Services\Core\ARRAY_A ) {
 		unset( $format );
+		$this->recordQuery( (string)$query );
 		$stmt = $this->pdo->query( (string)$query );
 		return $stmt === false ? [] : ( $stmt->fetchAll( \PDO::FETCH_ASSOC ) ?: [] );
 	}
 
 	public function doSql( string $sqlQuery ) {
+		$this->recordQuery( $sqlQuery );
 		return $this->pdo->exec( $sqlQuery ) !== false;
+	}
+
+	public function resetQueryLog() :void {
+		$this->queryLog = [];
+	}
+
+	public function queryLog() :array {
+		return $this->queryLog;
 	}
 
 	private function createTables() :void {
@@ -469,13 +497,19 @@ class LifecycleSqliteDb extends Db {
 	private function insertRow( string $table, array $data ) :void {
 		$columns = \array_keys( $data );
 		$params = \array_map( static fn( string $column ) :string => ':'.$column, $columns );
-		$stmt = $this->pdo->prepare( sprintf(
+		$sql = sprintf(
 			'INSERT INTO `%s` (`%s`) VALUES (%s)',
 			$table,
 			\implode( '`,`', $columns ),
 			\implode( ',', $params )
-		) );
+		);
+		$this->recordQuery( $sql );
+		$stmt = $this->pdo->prepare( $sql );
 		$stmt->execute( \array_combine( $params, \array_values( $data ) ) ?: [] );
+	}
+
+	private function recordQuery( string $sql ) :void {
+		$this->queryLog[] = $sql;
 	}
 }
 
