@@ -32,6 +32,12 @@ class TestIntegrationLocalCommand extends Command {
 				InputOption::VALUE_NONE,
 				'Tear down local integration DB sidecar and exit.'
 			)
+			->addOption(
+				'show-docker-output',
+				null,
+				InputOption::VALUE_NONE,
+				'Show full Docker output instead of test-oriented compose output.'
+			)
 			->addArgument(
 				'phpunit_args',
 				InputArgument::IS_ARRAY,
@@ -42,6 +48,7 @@ class TestIntegrationLocalCommand extends Command {
 	protected function execute( InputInterface $input, OutputInterface $output ) :int {
 		try {
 			$dbDown = (bool)$input->getOption( 'db-down' );
+			$showDockerOutput = (bool)$input->getOption( 'show-docker-output' );
 			$phpunitArgs = \array_values( \array_filter(
 				(array)$input->getArgument( 'phpunit_args' ),
 				static function ( $value ) :bool {
@@ -49,7 +56,7 @@ class TestIntegrationLocalCommand extends Command {
 				}
 			) );
 
-			return $this->lane->run( $this->projectRoot, $dbDown, $phpunitArgs );
+			return $this->lane->run( $this->projectRoot, $dbDown, $phpunitArgs, $showDockerOutput );
 		}
 		catch ( \Throwable $throwable ) {
 			$output->writeln( '<error>Error: '.$throwable->getMessage().'</error>' );

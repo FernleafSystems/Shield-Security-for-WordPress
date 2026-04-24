@@ -29,7 +29,7 @@ class SourceRuntimeTestLane {
 		$this->setupCacheCoordinator = $setupCacheCoordinator ?? new SourceSetupCacheCoordinator();
 	}
 
-	public function run( string $rootDir, bool $refreshSetup = false ) :int {
+	public function run( string $rootDir, bool $refreshSetup = false, bool $showDockerOutput = false ) :int {
 		echo 'Mode: source'.\PHP_EOL;
 
 		$originalShieldPackagePath = \getenv( 'SHIELD_PACKAGE_PATH' );
@@ -61,7 +61,8 @@ class SourceRuntimeTestLane {
 					$rootDir,
 					$composeFiles,
 					$this->buildComposeCleanupCommand(),
-					$dockerProcessEnvOverrides
+					$dockerProcessEnvOverrides,
+					$showDockerOutput
 				);
 
 				if ( $this->runComposePhase(
@@ -70,6 +71,7 @@ class SourceRuntimeTestLane {
 					$rootDir,
 					$composeFiles,
 					$this->buildComposeMysqlUpCommand(),
+					$showDockerOutput,
 					$dockerProcessEnvOverrides,
 					$logSink
 				) !== 0 ) {
@@ -82,6 +84,7 @@ class SourceRuntimeTestLane {
 					$rootDir,
 					$composeFiles,
 					$this->buildComposeBuildRunnersCommand(),
+					$showDockerOutput,
 					$dockerProcessEnvOverrides,
 					$logSink
 				) !== 0 ) {
@@ -92,6 +95,7 @@ class SourceRuntimeTestLane {
 					$rootDir,
 					$phpVersion,
 					$refreshSetup,
+					$showDockerOutput,
 					$dockerProcessEnvOverrides,
 					$logSink
 				) !== 0 ) {
@@ -105,6 +109,7 @@ class SourceRuntimeTestLane {
 					$rootDir,
 					$composeFiles,
 					$this->buildComposeRunLatestCommand(),
+					$showDockerOutput,
 					$dockerProcessEnvOverrides,
 					$logSink
 				) !== 0 ) {
@@ -116,6 +121,7 @@ class SourceRuntimeTestLane {
 					$rootDir,
 					$composeFiles,
 					$this->buildComposeRunPreviousCommand(),
+					$showDockerOutput,
 					$dockerProcessEnvOverrides,
 					$logSink
 				) !== 0 ) {
@@ -129,7 +135,8 @@ class SourceRuntimeTestLane {
 					$rootDir,
 					$composeFiles,
 					$this->buildComposeCleanupCommand(),
-					$dockerProcessEnvOverrides
+					$dockerProcessEnvOverrides,
+					$showDockerOutput
 				);
 				if ( \is_file( $dockerEnvPath ) ) {
 					\unlink( $dockerEnvPath );
@@ -156,6 +163,7 @@ class SourceRuntimeTestLane {
 		string $rootDir,
 		string $phpVersion,
 		bool $refreshSetup = false,
+		bool $showDockerOutput = false,
 		?array $envOverrides = null,
 		?SourceRuntimeLogSink $logSink = null
 	) :int {
@@ -181,6 +189,7 @@ class SourceRuntimeTestLane {
 				$rootDir,
 				$composeFiles,
 				$this->buildSourceComposerInstallSetupCommand(),
+				$showDockerOutput,
 				$envOverrides,
 				$logSink
 			) !== 0 ) {
@@ -198,6 +207,7 @@ class SourceRuntimeTestLane {
 				$rootDir,
 				$composeFiles,
 				$this->buildSourceBuildConfigSetupCommand(),
+				$showDockerOutput,
 				$envOverrides,
 				$logSink
 			) !== 0 ) {
@@ -412,6 +422,7 @@ class SourceRuntimeTestLane {
 		string $rootDir,
 		array $composeFiles,
 		array $subCommand,
+		bool $showDockerOutput,
 		?array $envOverrides = null,
 		?SourceRuntimeLogSink $logSink = null
 	) :int {
@@ -422,7 +433,8 @@ class SourceRuntimeTestLane {
 			$composeFiles,
 			$subCommand,
 			$envOverrides,
-			$callback
+			$callback,
+			$showDockerOutput
 		);
 		if ( $logSink !== null ) {
 			$logSink->finishPhase( $phaseKey, $exitCode );

@@ -47,7 +47,7 @@ class LocalIntegrationTestLane {
 	/**
 	 * @param string[] $phpunitArgs
 	 */
-	public function run( string $rootDir, bool $dbDown = false, array $phpunitArgs = [] ) :int {
+	public function run( string $rootDir, bool $dbDown = false, array $phpunitArgs = [], bool $showDockerOutput = false ) :int {
 		echo 'Mode: integration-local'.\PHP_EOL;
 
 		$this->environmentResolver->assertDockerReady( $rootDir );
@@ -63,7 +63,9 @@ class LocalIntegrationTestLane {
 				$rootDir,
 				$composeFiles,
 				$this->buildComposeDownCommand(),
-				$envOverrides
+				$envOverrides,
+				null,
+				$showDockerOutput
 			);
 		}
 
@@ -71,7 +73,9 @@ class LocalIntegrationTestLane {
 			$rootDir,
 			$composeFiles,
 			$this->buildComposeUpCommand(),
-			$envOverrides
+			$envOverrides,
+			null,
+			$showDockerOutput
 		) !== 0 ) {
 			return 1;
 		}

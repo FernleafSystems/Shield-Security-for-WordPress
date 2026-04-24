@@ -29,7 +29,7 @@ class PackageFullTestLane {
 		$this->dockerComposeExecutor = $dockerComposeExecutor ?? new DockerComposeExecutor( $this->processRunner );
 	}
 
-	public function run( string $rootDir, ?string $packagePath = null ) :int {
+	public function run( string $rootDir, ?string $packagePath = null, bool $showDockerOutput = false ) :int {
 		echo 'Mode: package-full'.\PHP_EOL;
 
 		$this->environmentResolver->assertDockerReady( $rootDir );
@@ -62,14 +62,17 @@ class PackageFullTestLane {
 				$rootDir,
 				$composeFiles,
 				$this->buildComposeCleanupCommand(),
-				$dockerProcessEnvOverrides
+				$dockerProcessEnvOverrides,
+				$showDockerOutput
 			);
 
 			if ( $this->dockerComposeExecutor->run(
 				$rootDir,
 				$composeFiles,
 				$this->buildComposeMysqlUpCommand(),
-				$dockerProcessEnvOverrides
+				$dockerProcessEnvOverrides,
+				null,
+				$showDockerOutput
 			) !== 0 ) {
 				return 1;
 			}
@@ -77,7 +80,9 @@ class PackageFullTestLane {
 				$rootDir,
 				$composeFiles,
 				$this->buildComposeBuildRunnersCommand(),
-				$dockerProcessEnvOverrides
+				$dockerProcessEnvOverrides,
+				null,
+				$showDockerOutput
 			) !== 0 ) {
 				return 1;
 			}
@@ -87,7 +92,9 @@ class PackageFullTestLane {
 				$rootDir,
 				$composeFiles,
 				$this->buildComposeRunLatestCommand(),
-				$dockerProcessEnvOverrides
+				$dockerProcessEnvOverrides,
+				null,
+				$showDockerOutput
 			) !== 0 ) {
 				$overallExitCode = 1;
 			}
@@ -95,7 +102,9 @@ class PackageFullTestLane {
 				$rootDir,
 				$composeFiles,
 				$this->buildComposeRunPreviousCommand(),
-				$dockerProcessEnvOverrides
+				$dockerProcessEnvOverrides,
+				null,
+				$showDockerOutput
 			) !== 0 ) {
 				$overallExitCode = 1;
 			}
@@ -107,7 +116,8 @@ class PackageFullTestLane {
 				$rootDir,
 				$composeFiles,
 				$this->buildComposeCleanupCommand(),
-				$dockerProcessEnvOverrides
+				$dockerProcessEnvOverrides,
+				$showDockerOutput
 			);
 			if ( \is_file( $dockerEnvPath ) ) {
 				\unlink( $dockerEnvPath );

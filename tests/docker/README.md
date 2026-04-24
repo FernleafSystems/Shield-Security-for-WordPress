@@ -12,10 +12,10 @@ php bin/shield <command>
 
 | Mode | Behavior | Typical Use |
 |---|---|---|
-| `test:source` | Source runtime checks against working tree | Daily local CI-like runtime checks |
-| `test:integration-local` | Host PHP integration tests with local Docker MySQL sidecar | Fast local integration loop with persistent DB |
+| `test:source` | Source runtime checks against working tree (quiet compose output by default) | Daily local CI-like runtime checks |
+| `test:integration-local` | Host PHP integration tests with local Docker MySQL sidecar (quiet compose output by default) | Fast local integration loop with persistent DB |
 | `test:package-targeted` | Focused package validation checks | Package-targeted validation |
-| `test:package-full` | Full packaged runtime checks | Full-pathway package runtime mode |
+| `test:package-full` | Full packaged runtime checks (quiet compose output by default) | Full-pathway package runtime mode |
 | `analyze:source` | Run source static analysis pathway | Source static analysis |
 | `analyze:package` | Run packaged static analysis pathway | Packaged static analysis |
 
@@ -56,7 +56,7 @@ php bin/shield --help
 
 1. Default is `0`, so Docker runtime lanes run both unit and integration stages.
 2. Set `SHIELD_SKIP_UNIT_TESTS=1` to skip only the unit stage.
-3. This is used by the source GitHub Actions runtime lane to keep Docker logs focused on runtime and integration signal.
+3. This is used by the source GitHub Actions runtime lane to keep runtime focused on runtime/integration stages.
 
 ## Runtime Topology
 
@@ -66,7 +66,7 @@ Source mode:
 2. Runs one setup pass before runtime streams.
 3. Runs latest and previous WordPress streams with `SHIELD_SKIP_INNER_SETUP=1`.
 4. Uses setup cache by default for source dependency/build steps.
-5. In GitHub Actions, the source runtime lane also sets `SHIELD_SKIP_UNIT_TESTS=1` and captures raw per-phase logs as failure artifacts while streaming only high-signal output live.
+5. In GitHub Actions, the source runtime lane also sets `SHIELD_SKIP_UNIT_TESTS=1`, captures raw per-phase logs as failure artifacts, and currently runs with `php bin/shield test:source --show-docker-output` for full compose output.
 6. Use `php bin/shield test:source --refresh-setup` to force setup refresh.
 
 Packaged modes (`test:package-targeted`, `test:package-full`, `analyze:package`):
@@ -109,21 +109,47 @@ php bin/shield analyze:source --refresh-setup
 ```bash
 # Source runtime checks
 php bin/shield test:source
+php bin/shield test:source --show-docker-output
+# CI command form (for full compose logs): php bin/shield test:source --show-docker-output
 
 # Local integration with DB sidecar
 php bin/shield test:integration-local
+php bin/shield test:integration-local --show-docker-output
 
 # Package-targeted runtime checks
 php bin/shield test:package-targeted
 
 # Full-pathway packaged runtime mode
 php bin/shield test:package-full
+php bin/shield test:package-full --show-docker-output
 
 # Source static analysis
 php bin/shield analyze:source
 
 # Packaged static analysis
 php bin/shield analyze:package
+```
+
+## Quiet vs noisy compose output
+
+These modes default to reduced compose noise while preserving test output:
+
+- `test:source`
+- `test:integration-local`
+- `test:package-full`
+
+To inspect noisy compose output during troubleshooting:
+
+```bash
+php bin/shield test:source --show-docker-output
+php bin/shield test:integration-local --show-docker-output -- tests/Integration/ActionRouter/WpDashboardSummaryIntegrationTest.php
+php bin/shield test:package-full --show-docker-output
+```
+
+Composer wrapper equivalent for filtered integration runs:
+
+```bash
+composer test:integration -- --show-docker-output -- tests/Integration/ActionRouter/WpDashboardSummaryIntegrationTest.php
 ```
 
 ## Troubleshooting
