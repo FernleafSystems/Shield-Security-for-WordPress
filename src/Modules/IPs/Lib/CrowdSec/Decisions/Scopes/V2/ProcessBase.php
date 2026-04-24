@@ -8,11 +8,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property int $minimum_expires_at
- * @property int $timer_start
+ * @property int   $minimum_expires_at
+ * @property float $timer_start
  */
 abstract class ProcessBase extends DynPropertiesClass {
-
 	use PluginControllerConsumer;
 
 	public const SCOPE = '';
@@ -80,13 +79,13 @@ abstract class ProcessBase extends DynPropertiesClass {
 	protected function postRun() {
 	}
 
-	abstract protected function processDeleted() :int;
+	abstract protected function processDeleted(): int;
 
-	abstract protected function processNew() :int;
+	abstract protected function processNew(): int;
 
-	abstract protected function extractScopeDecisionData_New( array $rawDecisionsGroups ) :array;
+	abstract protected function extractScopeDecisionData_New( array $rawDecisionsGroups ): array;
 
-	protected function extractScopeDecisionData_Deleted( array $decisions ) :array {
+	protected function extractScopeDecisionData_Deleted( array $decisions ): array {
 		return $this->extractScopeDecisionData_New( $decisions );
 	}
 
@@ -96,7 +95,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 	/**
 	 * @throws \Exception
 	 */
-	protected function getDecisionExpiresAt( array $decision ) :int {
+	protected function getDecisionExpiresAt( array $decision ): int {
 		if ( empty( $decision[ 'duration' ] ) ) {
 			throw new \Exception( "Decision doesn't contain a 'duration'" );
 		}
@@ -126,7 +125,7 @@ abstract class ProcessBase extends DynPropertiesClass {
 	/**
 	 * @throws \Exception
 	 */
-	protected function getDecisionValuesFromGroup( array $decision ) :array {
+	protected function getDecisionValuesFromGroup( array $decision ): array {
 		if ( empty( $decision[ 'scope' ] ) ) {
 			throw new \Exception( 'Empty decision scope' );
 		}
@@ -184,5 +183,5 @@ abstract class ProcessBase extends DynPropertiesClass {
 	 * @param mixed $value
 	 * @return bool
 	 */
-	abstract protected function validateDecisionValue( $value ) :bool;
+	abstract protected function validateDecisionValue( $value ): bool;
 }

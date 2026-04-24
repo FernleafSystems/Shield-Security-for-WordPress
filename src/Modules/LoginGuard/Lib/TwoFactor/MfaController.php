@@ -147,7 +147,10 @@ class MfaController {
 		$enum = apply_filters( 'shield/2fa_providers', $this->enumShieldProviders() );
 		$providerClasses = \array_filter(
 			\array_filter( \is_array( $enum ) ? $enum : $this->enumShieldProviders(), '\is_string' ),
-			/** @var Provider\Provider2faInterface|string $providerClass */
+			/**
+			 * @var class-string<Provider\Provider2faInterface> $provider
+			 * @return bool
+			 */
 			fn( string $provider ) => isset( \class_implements( $provider )[ Provider\Provider2faInterface::class ] )
 									  && \preg_match( '#^[a-z0-9]+$#', $provider::ProviderSlug() )
 		);
@@ -155,7 +158,7 @@ class MfaController {
 		// Find duplicate slugs.
 		$duplicateSlugs = \array_filter(
 			\array_count_values( \array_map(
-			/** @var Provider\Provider2faInterface|string $provider */
+				/** @var class-string<Provider\Provider2faInterface> $provider */
 				fn( string $provider ) => \strtolower( $provider::ProviderSlug() ),
 				$providerClasses
 			) ),
@@ -166,7 +169,7 @@ class MfaController {
 			$providerClasses :
 			\array_filter(
 				$providerClasses,
-				/** @var Provider\Provider2faInterface|string $provider */
+				/** @var class-string<Provider\Provider2faInterface> $provider */
 				fn( string $provider ) => !\array_key_exists( $provider::ProviderSlug(), $duplicateSlugs )
 			);
 	}

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\Configurat
 
 /**
  * @property array            $properties
- * @property array{
+ * @property ?array{
  *     modules:array,
  *     sections:array,
  *     options:array,

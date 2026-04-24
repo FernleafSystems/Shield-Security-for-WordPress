@@ -417,7 +417,7 @@ class ActionsQueueGroupDefinitions {
 				return __( 'Malware Detections', 'wp-simple-firewall' );
 
 			case 'file_locker':
-				return __( 'File Changes', 'wp-simple-firewall' );
+				return __( 'Critical File Changes', 'wp-simple-firewall' );
 
 			case 'maintenance':
 				return __( 'Maintenance Items', 'wp-simple-firewall' );

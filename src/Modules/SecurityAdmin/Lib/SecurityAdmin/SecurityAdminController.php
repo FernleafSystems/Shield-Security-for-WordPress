@@ -75,7 +75,7 @@ class SecurityAdminController {
 	}
 
 	/**
-	 * @return Restrictions\Base[]
+	 * @return class-string<Restrictions\Base>[]
 	 */
 	private function enumRestrictionZones() :array {
 		return [

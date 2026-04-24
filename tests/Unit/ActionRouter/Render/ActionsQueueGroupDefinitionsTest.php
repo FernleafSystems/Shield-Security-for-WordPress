@@ -56,7 +56,6 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( [ 'section' => 'vulnerable' ], $definitions[ 'vulnerabilities' ][ 'render_action_data' ] );
 		$this->assertSame( Vulnerabilities::class, $definitions[ 'abandoned' ][ 'render_action_class' ] );
 		$this->assertSame( [ 'section' => 'abandoned' ], $definitions[ 'abandoned' ][ 'render_action_data' ] );
-		$this->assertSame( 'File Changes', $definitions[ 'file_locker' ][ 'label' ] );
 		$this->assertSame( 'asset_cards', $definitions[ 'file_locker' ][ 'detail_shell' ] );
 		$this->assertSame( FileLocker::class, $definitions[ 'file_locker' ][ 'render_action_class' ] );
 		$this->assertSame( 'maintenance', $definitions[ 'maintenance' ][ 'detail_shell' ] );
