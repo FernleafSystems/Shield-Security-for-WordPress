@@ -13,4 +13,8 @@ class UnitTestScansWpvComponent {
 	public function isEnabled() :bool {
 		return $this->enabled;
 	}
+
+	public function isRestricted() :bool {
+		return false;
+	}
 }

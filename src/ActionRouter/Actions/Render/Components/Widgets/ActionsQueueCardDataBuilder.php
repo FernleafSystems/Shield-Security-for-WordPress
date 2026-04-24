@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
- * @phpstan-import-type ActionsQueueScanRow from ActionsQueueScanStateBuilder
  * @phpstan-import-type AttentionGroup from BuildAttentionItems
  * @phpstan-import-type AttentionGroups from BuildAttentionItems
  * @phpstan-import-type AttentionItem from BuildAttentionItems
@@ -51,6 +50,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   actions_lane:ActionsQueueCardLane,
  *   actions_queue_rows:list<ActionsQueueCardRow>
  * }
+ * @phpstan-type DashboardAttentionState array{
+ *   summary:array{has_items:bool,total_items:int,severity:string},
+ *   groups:AttentionGroups
+ * }
  */
 class ActionsQueueCardDataBuilder {
 
@@ -64,13 +67,12 @@ class ActionsQueueCardDataBuilder {
 
 	/**
 	 * @param AttentionQuery $attentionQuery
-	 * @param list<ActionsQueueScanRow> $scanRows
 	 * @return ActionsQueueCardData
 	 */
-	public function build( array $attentionQuery, array $scanRows ) :array {
-		$attentionQuery = $this->buildDashboardAttentionQuery( $attentionQuery );
-		$queueSummary = $this->getQueueSummary( $attentionQuery );
-		$zoneGroups = $this->getQueueZoneGroups( $attentionQuery );
+	public function build( array $attentionQuery ) :array {
+		$dashboardState = $this->buildDashboardAttentionState( $attentionQuery );
+		$queueSummary = $dashboardState[ 'summary' ];
+		$zoneGroups = $dashboardState[ 'groups' ];
 		$shieldStatus = $this->normalizeSeverity( $queueSummary[ 'severity' ] );
 
 		return [
@@ -80,30 +82,8 @@ class ActionsQueueCardDataBuilder {
 			'shield_icon_class'  => $this->buildShieldIconClass( $shieldStatus ),
 			'all_clear'          => $this->buildAllClearData(),
 			'actions_lane'       => $this->buildActionsLane( $queueSummary, $zoneGroups ),
-			'actions_queue_rows' => $this->buildActionsQueueRows( $scanRows, $zoneGroups ),
+			'actions_queue_rows' => $this->buildActionsQueueRows( $zoneGroups ),
 		];
-	}
-
-	/**
-	 * @param AttentionQuery $attentionQuery
-	 * @return array{has_items:bool,total_items:int,severity:string}
-	 */
-	private function getQueueSummary( array $attentionQuery ) :array {
-		$hasItems = !$attentionQuery[ 'summary' ][ 'is_all_clear' ];
-
-		return [
-			'has_items'   => $hasItems,
-			'total_items' => $attentionQuery[ 'summary' ][ 'total' ],
-			'severity'    => $attentionQuery[ 'summary' ][ 'severity' ],
-		];
-	}
-
-	/**
-	 * @param AttentionQuery $attentionQuery
-	 * @return AttentionGroups
-	 */
-	private function getQueueZoneGroups( array $attentionQuery ) :array {
-		return $attentionQuery[ 'groups' ];
 	}
 
 	private function normalizeSeverity( string $severity ) :string {
@@ -178,21 +158,17 @@ class ActionsQueueCardDataBuilder {
 	}
 
 	/**
-	 * @param list<ActionsQueueScanRow> $scanRows
 	 * @param AttentionGroups $zoneGroups
 	 * @return list<ActionsQueueCardRow>
 	 */
-	private function buildActionsQueueRows( array $scanRows, array $zoneGroups ) :array {
+	private function buildActionsQueueRows( array $zoneGroups ) :array {
 		$rows = [];
-		$visibleScanKeys = \array_fill_keys( \array_column( $zoneGroups[ 'scans' ][ 'items' ], 'key' ), true );
 
-		foreach ( $scanRows as $item ) {
-			$key = $item[ 'key' ];
-			if ( $item[ 'count' ] < 1
-				|| !isset( $visibleScanKeys[ $key ] ) ) {
+		foreach ( $zoneGroups[ 'scans' ][ 'items' ] as $item ) {
+			if ( $item[ 'count' ] < 1 ) {
 				continue;
 			}
-			$rows[] = $this->buildScanQueueRowFromScanStateRow( $item );
+			$rows[] = $this->buildScanQueueRowFromAttentionItem( $item );
 		}
 
 		if ( $zoneGroups[ 'maintenance' ][ 'total' ] > 0 ) {
@@ -203,10 +179,10 @@ class ActionsQueueCardDataBuilder {
 	}
 
 	/**
-	 * @param ActionsQueueScanRow $item
+	 * @param AttentionItem $item
 	 * @return ActionsQueueCardRow
 	 */
-	private function buildScanQueueRowFromScanStateRow( array $item ) :array {
+	private function buildScanQueueRowFromAttentionItem( array $item ) :array {
 		$key = (string)$item[ 'key' ];
 
 		return [
@@ -244,8 +220,9 @@ class ActionsQueueCardDataBuilder {
 		];
 		foreach ( $zoneGroups as $zoneGroup ) {
 			foreach ( $zoneGroup[ 'items' ] as $item ) {
-				if ( isset( $counts[ $item[ 'severity' ] ] ) ) {
-					$counts[ $item[ 'severity' ] ] += $item[ 'count' ];
+				$severity = $this->normalizeSeverity( $item[ 'severity' ] );
+				if ( $severity === 'critical' || $severity === 'warning' ) {
+					$counts[ $severity ] += $item[ 'count' ];
 				}
 			}
 		}
@@ -263,14 +240,10 @@ class ActionsQueueCardDataBuilder {
 
 	/**
 	 * @param AttentionQuery $attentionQuery
-	 * @return AttentionQuery
+	 * @return DashboardAttentionState
 	 */
-	private function buildDashboardAttentionQuery( array $attentionQuery ) :array {
-		$filteredItems = \array_values( \array_filter(
-			$attentionQuery[ 'items' ],
-			fn( array $item ) :bool => $this->showDashboardAttentionItem( $item )
-		) );
-
+	private function buildDashboardAttentionState( array $attentionQuery ) :array {
+		$visibleItems = [];
 		/** @var AttentionGroups $groups */
 		$groups = [];
 		foreach ( $attentionQuery[ 'groups' ] as $groupKey => $group ) {
@@ -284,18 +257,19 @@ class ActionsQueueCardDataBuilder {
 				'total'    => (int)\array_sum( \array_column( $groupItems, 'count' ) ),
 				'items'    => $groupItems,
 			];
+			$visibleItems = \array_merge( $visibleItems, $groupItems );
 		}
 
-		$totalItems = (int)\array_sum( \array_column( $filteredItems, 'count' ) );
-		$attentionQuery[ 'items' ] = $filteredItems;
-		$attentionQuery[ 'groups' ] = $groups;
-		$attentionQuery[ 'summary' ] = [
-			'total'        => $totalItems,
-			'severity'     => $this->highestDashboardItemSeverity( $filteredItems ),
-			'is_all_clear' => $totalItems === 0,
-		];
+		$totalItems = (int)\array_sum( \array_column( $visibleItems, 'count' ) );
 
-		return $attentionQuery;
+		return [
+			'summary' => [
+				'has_items'   => $totalItems > 0,
+				'total_items' => $totalItems,
+				'severity'    => $this->highestDashboardItemSeverity( $visibleItems ),
+			],
+			'groups'  => $groups,
+		];
 	}
 
 	/**

@@ -11,10 +11,11 @@ class RetrieveCount extends RetrieveBase {
 	public const CONTEXT_RESULTS_DISPLAY = 2;
 
 	public function buildQuery( array $selectFields = [] ) :string {
+		$wheres = $this->getWheres();
 		return sprintf(
-			$this->getBaseQuery(),
+			$this->getBaseQuery( $this->wheresNeedResultMetaJoin( $wheres ) ),
 			\implode( ',', $selectFields ),
-			\implode( ' AND ', $this->getWheres() )
+			\implode( ' AND ', $wheres )
 		);
 	}
 
@@ -65,16 +66,32 @@ class RetrieveCount extends RetrieveBase {
 							ON `sr`.scan_ref = `scans`.id
 						INNER JOIN `%s` as `ri`
 							ON `sr`.resultitem_ref = `ri`.id
-						INNER JOIN `%s` as %s
-							ON %s.`ri_ref` = `ri`.id
+						%s
 						WHERE %%s;",
 			$dbCon->scan_results->getTable(),
 			$dbCon->scans->getTable(),
 			$dbCon->scan_result_items->getTable(),
-			$dbCon->scan_result_item_meta->getTable(),
-			self::ABBR_RESULTITEMMETA,
-			self::ABBR_RESULTITEMMETA
+			$joinWithResultMeta ? sprintf(
+				'INNER JOIN `%s` as %s
+							ON %s.`ri_ref` = `ri`.id',
+				$dbCon->scan_result_item_meta->getTable(),
+				self::ABBR_RESULTITEMMETA,
+				self::ABBR_RESULTITEMMETA
+			) : ''
 		);
+	}
+
+	/**
+	 * @param list<string> $wheres
+	 */
+	private function wheresNeedResultMetaJoin( array $wheres ) :bool {
+		foreach ( $wheres as $where ) {
+			if ( \strpos( $where, self::ABBR_RESULTITEMMETA ) !== false || \strpos( $where, 'rim.' ) !== false ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

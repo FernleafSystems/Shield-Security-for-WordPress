@@ -146,27 +146,17 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			PluginNavs::SUBNAV_ACTIVITY_BY_IP,
 			$tilesByKey[ 'ip' ][ 'render_action' ][ Constants::NAV_SUB_ID ] ?? ''
 		);
-		$this->assertSame( 'info', $tilesByKey[ 'ip' ][ 'header' ][ 'badge_status' ] ?? '' );
+		$ipHeader = $tilesByKey[ 'ip' ][ 'header' ] ?? [];
+		$this->assertSame( 'info', $ipHeader[ 'badge_status' ] ?? '' );
+		$this->assertSame( 'investigate', $ipHeader[ 'color_key' ] ?? '' );
+		$this->assertSame( [], $ipHeader[ 'actions' ] ?? [ 'unexpected' ] );
+		$this->assertSame( $tilesByKey[ 'ip' ][ 'icon_class' ], $ipHeader[ 'icon_class' ] ?? '' );
+		foreach ( [ 'compact_back_label', 'active_back_label', 'breadcrumb_label', 'title', 'summary', 'focus', 'next_step', 'badge' ] as $headerKey ) {
+			$this->assertArrayHasKey( $headerKey, $ipHeader );
+			$this->assertNotSame( '', $ipHeader[ $headerKey ] );
+		}
 		$this->assertSame(
-			[
-				'compact_back_label' => 'Back to IP Address',
-				'active_back_label'  => 'Back to Investigate',
-				'meta'               => '',
-				'breadcrumb_label'   => 'IP Address',
-				'title'              => 'IP Address',
-				'summary'            => 'Search or select an IP address to inspect matching sessions, activity, and request history.',
-				'focus'              => 'Requests, activity logs, and sessions tied to one IP address.',
-				'next_step'          => 'Choose an IP address, then switch between sessions, activity, and recent traffic.',
-				'icon_class'         => $tilesByKey[ 'ip' ][ 'icon_class' ],
-				'badge'              => 'IP activity',
-				'badge_status'       => 'info',
-				'color_key'          => 'investigate',
-				'actions'            => [],
-			],
-			$tilesByKey[ 'ip' ][ 'header' ] ?? []
-		);
-		$this->assertSame(
-			$tilesByKey[ 'ip' ][ 'header' ] ?? [],
+			$ipHeader,
 			\json_decode( (string)( $tilesByKey[ 'ip' ][ 'header_json' ] ?? '' ), true )
 		);
 	}

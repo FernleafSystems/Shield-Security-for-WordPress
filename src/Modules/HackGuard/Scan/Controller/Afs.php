@@ -35,54 +35,6 @@ class Afs extends Base {
 		];
 	}
 
-	public function getAdminMenuItems() :array {
-		$items = [];
-		$status = self::con()->comps->scans->getScanResultsCount();
-
-		$template = [
-			'id'    => self::con()->prefix( 'problems-'.$this->getSlug() ),
-			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
-		];
-
-		$count = $status->countMalware();
-		if ( $count > 0 ) {
-			$warning = $template;
-			$warning[ 'id' ] .= '-malware';
-			$warning[ 'title' ] = __( 'Potential Malware', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
-			$warning[ 'warnings' ] = $count;
-			$items[] = $warning;
-		}
-
-		$count = $status->countWPFiles();
-		if ( $count > 0 ) {
-			$warning = $template;
-			$warning[ 'id' ] .= '-wp';
-			$warning[ 'title' ] = __( 'WordPress Core Files', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
-			$warning[ 'warnings' ] = $count;
-			$items[] = $warning;
-		}
-
-		$count = $status->countPluginFiles();
-		if ( $count > 0 ) {
-			$warning = $template;
-			$warning[ 'id' ] .= '-plugin';
-			$warning[ 'title' ] = __( 'Plugin Files', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
-			$warning[ 'warnings' ] = $count;
-			$items[] = $warning;
-		}
-
-		$count = $status->countThemeFiles();
-		if ( $count > 0 ) {
-			$warning = $template;
-			$warning[ 'id' ] .= '-theme';
-			$warning[ 'title' ] = __( 'Theme Files', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
-			$warning[ 'warnings' ] = $count;
-			$items[] = $warning;
-		}
-
-		return $items;
-	}
-
 	public function buildScanResult( array $rawResult ) :ResultItemsDB\Record {
 		$autoFiltered = $rawResult[ 'auto_filter' ] ?? false;
 

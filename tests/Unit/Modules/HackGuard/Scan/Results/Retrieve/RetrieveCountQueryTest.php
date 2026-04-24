@@ -26,6 +26,34 @@ class RetrieveCountQueryTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
+	/**
+	 * @return array{
+	 *   scan_refs:list<int>,
+	 *   ri_columns:list<string>,
+	 *   rim_meta_keys:list<string>,
+	 *   rim_meta_values:list<string>,
+	 *   uses_count_star:bool,
+	 *   references_result_meta_table:bool
+	 * }
+	 */
+	private function countQueryFeatures( string $query ) :array {
+		$sql = \strtolower( \preg_replace( '/\s+/', ' ', $query ) ?? $query );
+
+		\preg_match_all( '/`sr`\.`scan_ref`=(\d+)/', $sql, $scanRefMatches );
+		\preg_match_all( '/`ri`\.`([^`]+)`=/', $sql, $riColumnMatches );
+		\preg_match_all( "/`rim`\.`meta_key`='([^']+)'/", $sql, $rimKeyMatches );
+		\preg_match_all( "/`rim`\.`meta_value`='([^']+)'/", $sql, $rimValueMatches );
+
+		return [
+			'scan_refs'                    => \array_map( '\intval', $scanRefMatches[ 1 ] ?? [] ),
+			'ri_columns'                   => \array_values( \array_unique( $riColumnMatches[ 1 ] ?? [] ) ),
+			'rim_meta_keys'                => $rimKeyMatches[ 1 ] ?? [],
+			'rim_meta_values'              => $rimValueMatches[ 1 ] ?? [],
+			'uses_count_star'              => \strpos( $sql, 'count(*)' ) !== false,
+			'references_result_meta_table' => \strpos( $sql, 'shield_scan_result_item_meta' ) !== false,
+		];
+	}
+
 	public function test_count_preserves_existing_wheres_without_accumulating_duplicates() :void {
 		$queries = [];
 		$this->installControllerAndDb( $queries );
@@ -42,17 +70,36 @@ class RetrieveCountQueryTest extends BaseUnitTest {
 
 		$this->assertCount( 2, $queries );
 		foreach ( $queries as $query ) {
-			$this->assertStringContainsString( 'COUNT(*)', $query );
-			$this->assertStringContainsString( "`sr`.`scan_ref`=55", $query );
-			$this->assertStringContainsString( "`ri`.`auto_filtered_at`=0", $query );
-			$this->assertStringContainsString( "`ri`.`ignored_at`=0", $query );
-			$this->assertStringContainsString( "`ri`.`item_repaired_at`=0", $query );
-			$this->assertStringContainsString( "`ri`.`item_deleted_at`=0", $query );
-			$this->assertStringContainsString( "`rim`.`meta_key`='ptg_slug'", $query );
-			$this->assertStringContainsString( "`rim`.`meta_value`='shield/shield.php'", $query );
-			$this->assertSame( 1, \substr_count( $query, "`rim`.`meta_key`='ptg_slug'" ) );
-			$this->assertSame( 1, \substr_count( $query, "`rim`.`meta_value`='shield/shield.php'" ) );
+			$features = $this->countQueryFeatures( $query );
+			$this->assertTrue( $features[ 'uses_count_star' ] );
+			$this->assertSame( [ 55 ], $features[ 'scan_refs' ] );
+			$this->assertSame( [ 'auto_filtered_at', 'ignored_at', 'item_repaired_at', 'item_deleted_at' ], \array_values( \array_intersect(
+				[ 'auto_filtered_at', 'ignored_at', 'item_repaired_at', 'item_deleted_at' ],
+				$features[ 'ri_columns' ]
+			) ) );
+			$this->assertSame( [ 'ptg_slug' ], $features[ 'rim_meta_keys' ] );
+			$this->assertSame( [ 'shield/shield.php' ], $features[ 'rim_meta_values' ] );
 		}
+	}
+
+	public function test_count_omits_result_item_meta_join_when_wheres_do_not_reference_meta_alias() :void {
+		$queries = [];
+		$this->installControllerAndDb( $queries );
+
+		$retriever = ( new RetrieveCount() )
+			->setScanController( $this->newScanController() )
+			->addWheres( [
+				"`ri`.`item_type`='f'",
+				"`ri`.`item_id`!=''",
+			] );
+
+		$this->assertSame( 3, $retriever->count( RetrieveCount::CONTEXT_RESULTS_DISPLAY ) );
+
+		$this->assertCount( 1, $queries );
+		$features = $this->countQueryFeatures( $queries[ 0 ] );
+		$this->assertTrue( $features[ 'uses_count_star' ] );
+		$this->assertFalse( $features[ 'references_result_meta_table' ] );
+		$this->assertContains( 'item_type', $features[ 'ri_columns' ] );
 	}
 
 	private function installControllerAndDb( array &$queries ) :void {

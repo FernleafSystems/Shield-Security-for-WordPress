@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueCardDataBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueScanStateBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\BuildConfigurationCoverage;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
@@ -13,9 +12,37 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\L
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @phpstan-import-type ActionsQueueScanRow from ActionsQueueScanStateBuilder
- * @phpstan-import-type ActionsQueueScanState from ActionsQueueScanStateBuilder
  * @phpstan-import-type ActionsQueueCardData from ActionsQueueCardDataBuilder
+ * @phpstan-type OperatorModeBadge array{text:string,severity:string,title:string}
+ * @phpstan-type OperatorModeStatusLane array{
+ *   mode:string,
+ *   label:string,
+ *   description:string,
+ *   href:string,
+ *   icon_class:string,
+ *   edge_status:string,
+ *   extra_classes:string,
+ *   indicator_type:'status',
+ *   indicator_severity:string,
+ *   indicator_text:string,
+ *   indicator_badges:list<OperatorModeBadge>,
+ *   indicator_subtext:string
+ * }
+ * @phpstan-type OperatorModePostureLane array{
+ *   mode:string,
+ *   label:string,
+ *   description:string,
+ *   href:string,
+ *   icon_class:string,
+ *   edge_status:string,
+ *   extra_classes:string,
+ *   indicator_type:'posture',
+ *   indicator_badges:list<OperatorModeBadge>,
+ *   posture_percentage:int,
+ *   posture_status:string,
+ *   posture_text:string
+ * }
+ * @phpstan-type OperatorModeSecondaryLane OperatorModeStatusLane|OperatorModePostureLane
  */
 class PageOperatorModeLanding extends BaseRender {
 
@@ -23,8 +50,6 @@ class PageOperatorModeLanding extends BaseRender {
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/operator_mode_landing.twig';
 
 	private ?array $attentionQueryCache = null;
-	/** @var ActionsQueueScanState|null */
-	private ?array $scanStateCache = null;
 
 	protected function getRenderData() :array {
 		$queueCard = $this->buildActionsQueueCardData();
@@ -36,6 +61,7 @@ class PageOperatorModeLanding extends BaseRender {
 
 		$sessionSummary = $this->getInvestigateSessionSummary();
 		$reportsSummary = $this->getReportsSummary();
+		/** @var list<OperatorModeSecondaryLane> $secondaryLanes */
 		$secondaryLanes = [
 			$this->buildInvestigateLane( $sessionSummary ),
 			$this->buildConfigureLane( $configPercentage, $configTraffic ),
@@ -52,10 +78,6 @@ class PageOperatorModeLanding extends BaseRender {
 				'shield_status'      => $queueCard[ 'shield_status' ],
 				'shield_icon_class'  => $queueCard[ 'shield_icon_class' ],
 				'actions_all_clear'  => $queueCard[ 'summary' ][ 'has_items' ] ? null : $queueCard[ 'all_clear' ],
-				'lanes'              => [
-					$queueCard[ 'actions_lane' ],
-					...$secondaryLanes,
-				],
 				'actions_lane'       => $queueCard[ 'actions_lane' ],
 				'secondary_lanes'    => $secondaryLanes,
 				'actions_queue_rows' => $queueCard[ 'actions_queue_rows' ],
@@ -68,10 +90,7 @@ class PageOperatorModeLanding extends BaseRender {
 	 * @return ActionsQueueCardData
 	 */
 	protected function buildActionsQueueCardData() :array {
-		return ( new ActionsQueueCardDataBuilder() )->build(
-			$this->getAttentionQuery(),
-			$this->getQueueScanRows()
-		);
+		return ( new ActionsQueueCardDataBuilder() )->build( $this->getAttentionQuery() );
 	}
 
 	/**
@@ -105,6 +124,7 @@ class PageOperatorModeLanding extends BaseRender {
 
 	/**
 	 * @param array{active_count:int,recent_active_count:int} $sessionSummary
+	 * @return OperatorModeStatusLane
 	 */
 	private function buildInvestigateLane( array $sessionSummary ) :array {
 		$badges = [
@@ -140,6 +160,9 @@ class PageOperatorModeLanding extends BaseRender {
 		];
 	}
 
+	/**
+	 * @return OperatorModePostureLane
+	 */
 	private function buildConfigureLane( int $percentage, string $status ) :array {
 		return [
 			'mode'               => PluginNavs::MODE_CONFIGURE,
@@ -150,6 +173,7 @@ class PageOperatorModeLanding extends BaseRender {
 			'edge_status'        => 'good',
 			'extra_classes'      => '',
 			'indicator_type'     => 'posture',
+			'indicator_badges'   => [],
 			'posture_percentage' => $percentage,
 			'posture_status'     => $this->normalizeSeverity( $status ),
 			'posture_text'       => sprintf( __( '%s%% configuration coverage', 'wp-simple-firewall' ), $percentage ),
@@ -158,6 +182,7 @@ class PageOperatorModeLanding extends BaseRender {
 
 	/**
 	 * @param array{count:int,latest_report_at:int,latest_alert_at:int} $reportsSummary
+	 * @return OperatorModeStatusLane
 	 */
 	private function buildReportsLane( array $reportsSummary ) :array {
 		$badges = [
@@ -230,13 +255,20 @@ class PageOperatorModeLanding extends BaseRender {
 		];
 
 		try {
-			$summary[ 'count' ] = self::con()->db_con->reports->getQuerySelector()
-				->addWhere( 'unique_id', '', '!=' )
-				->count();
-			$latestReport = $this->getLatestReportRecord();
-			$latestAlert = $this->getLatestReportRecord( ReportingConstants::REPORT_TYPE_ALERT );
-			$summary[ 'latest_report_at' ] = (int)( $latestReport->created_at ?? 0 );
-			$summary[ 'latest_alert_at' ] = (int)( $latestAlert->created_at ?? 0 );
+			$row = Services::WpDb()->selectRow( sprintf(
+				"SELECT
+					COUNT(*) AS `count`,
+					MAX(`created_at`) AS `latest_report_at`,
+					MAX(CASE WHEN `type`='%s' THEN `created_at` ELSE 0 END) AS `latest_alert_at`
+				FROM `%s`
+				WHERE `unique_id`!=''",
+				ReportingConstants::REPORT_TYPE_ALERT,
+				self::con()->db_con->reports->getTable()
+			) );
+			$row = \is_object( $row ) ? \get_object_vars( $row ) : ( \is_array( $row ) ? $row : [] );
+			$summary[ 'count' ] = (int)( $row[ 'count' ] ?? 0 );
+			$summary[ 'latest_report_at' ] = (int)( $row[ 'latest_report_at' ] ?? 0 );
+			$summary[ 'latest_alert_at' ] = (int)( $row[ 'latest_alert_at' ] ?? 0 );
 		}
 		catch ( \Throwable $e ) {
 		}
@@ -254,21 +286,6 @@ class PageOperatorModeLanding extends BaseRender {
 
 	protected function getCurrentTimestamp() :int {
 		return Services::Request()->ts();
-	}
-
-	/**
-	 * @return object|null
-	 */
-	private function getLatestReportRecord( ?string $reportType = null ) {
-		$selector = self::con()->db_con->reports->getQuerySelector()
-			->addWhere( 'unique_id', '', '!=' );
-		if ( !empty( $reportType ) ) {
-			$selector->filterByType( $reportType );
-		}
-
-		return $selector
-			->setOrderBy( 'created_at', 'DESC', true )
-			->first();
 	}
 
 	/**
@@ -312,24 +329,6 @@ class PageOperatorModeLanding extends BaseRender {
 
 	protected function buildAttentionQuery() :array {
 		return self::con()->comps->site_query->attention();
-	}
-
-	/**
-	 * @return ActionsQueueScanState
-	 */
-	protected function buildScanState() :array {
-		return ( new ActionsQueueScanStateBuilder() )->build();
-	}
-
-	/**
-	 * @return list<ActionsQueueScanRow>
-	 */
-	private function getQueueScanRows() :array {
-		if ( $this->scanStateCache === null ) {
-			$this->scanStateCache = $this->buildScanState();
-		}
-
-		return $this->scanStateCache[ 'rows' ];
 	}
 
 	private function normalizeSeverity( string $severity ) :string {

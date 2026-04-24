@@ -61,17 +61,10 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 	 * @return ActionsQueueCardData
 	 */
 	protected function buildActionsQueueCardData() :array {
-		return ( new ActionsQueueCardDataBuilder() )->build(
-			$this->buildAttentionQuery(),
-			$this->buildScanState()[ 'rows' ]
-		);
+		return ( new ActionsQueueCardDataBuilder() )->build( $this->buildAttentionQuery() );
 	}
 
 	protected function buildAttentionQuery() :array {
 		return self::con()->comps->site_query->attention();
-	}
-
-	protected function buildScanState() :array {
-		return ( new ActionsQueueScanStateBuilder() )->build();
 	}
 }

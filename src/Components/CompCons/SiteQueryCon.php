@@ -21,17 +21,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\{
 class SiteQueryCon {
 
 	/**
+	 * @var array<string,mixed>
+	 */
+	private array $memoized = [];
+
+	/**
 	 * @return AttentionQuery
 	 */
 	public function attention() :array {
-		return ( new BuildAttentionItems() )->build();
+		return $this->memoized[ 'attention' ] ??= $this->buildAttentionItems()->build();
 	}
 
 	/**
 	 * @return OverviewQuery
 	 */
 	public function overview() :array {
-		return ( new BuildOverview() )->build();
+		return $this->memoized[ 'overview' ] ??= $this->buildOverview()->build();
 	}
 
 	/**
@@ -45,14 +50,14 @@ class SiteQueryCon {
 	 * }
 	 */
 	public function latestCompletedScanTimestamps() :array {
-		return ( new BuildLatestCompletedScanTimestamps() )->build();
+		return $this->memoized[ 'latestCompletedScanTimestamps' ] ??= $this->buildLatestCompletedScanTimestamps()->build();
 	}
 
 	/**
 	 * @return RecentActivityQuery
 	 */
 	public function recentActivity() :array {
-		return ( new BuildRecentActivity() )->build();
+		return $this->memoized[ 'recentActivity' ] ??= $this->buildRecentActivity()->build();
 	}
 
 	/**
@@ -61,13 +66,42 @@ class SiteQueryCon {
 	 * @return ScanFindingsQuery
 	 */
 	public function scanFindings( array $scanSlugs = [], array $statesToInclude = [] ) :array {
-		return ( new BuildScanFindings() )->build( $scanSlugs, $statesToInclude );
+		$cacheKey = 'scanFindings:'.\md5( \serialize( [ $scanSlugs, $statesToInclude ] ) );
+		return $this->memoized[ $cacheKey ] ??= $this->buildScanFindings()->build( $scanSlugs, $statesToInclude );
 	}
 
 	/**
 	 * @return ScanRuntime
 	 */
 	public function scanRuntime() :array {
-		return ( new BuildScanRuntime() )->build();
+		return $this->memoized[ 'scanRuntime' ] ??= $this->buildScanRuntime()->build();
+	}
+
+	public function clearMemoized() :void {
+		$this->memoized = [];
+	}
+
+	protected function buildAttentionItems() :BuildAttentionItems {
+		return new BuildAttentionItems();
+	}
+
+	protected function buildOverview() :BuildOverview {
+		return new BuildOverview();
+	}
+
+	protected function buildLatestCompletedScanTimestamps() :BuildLatestCompletedScanTimestamps {
+		return new BuildLatestCompletedScanTimestamps();
+	}
+
+	protected function buildRecentActivity() :BuildRecentActivity {
+		return new BuildRecentActivity();
+	}
+
+	protected function buildScanFindings() :BuildScanFindings {
+		return new BuildScanFindings();
+	}
+
+	protected function buildScanRuntime() :BuildScanRuntime {
+		return new BuildScanRuntime();
 	}
 }

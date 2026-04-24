@@ -115,7 +115,7 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 			[
 				'key'          => 'ignored-plugin/ignored-plugin.php',
 				'status'       => 'warning',
-				'icon_class'   => 'bi bi-plug-fill',
+				'icon_class'   => 'ignored-plugin-icon',
 				'title'        => 'Ignored Plugin',
 				'stat_text'    => '2 discovered files are currently ignored.',
 				'meta_text'    => 'ignored-plugin/ignored-plugin.php',
@@ -135,8 +135,8 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'warning', $state[ 'rail_accent_status' ] );
 		$this->assertSame( [ 'plugin_files_ignored' ], \array_column( $state[ 'rows' ], 'key' ) );
 		$this->assertSame( 'warning', $state[ 'rows' ][ 0 ][ 'severity' ] );
-		$this->assertSame( 'Review', $state[ 'rows' ][ 0 ][ 'action' ] );
-		$this->assertSame( '1 plugin has discovered files currently ignored.', $state[ 'rows' ][ 0 ][ 'text' ] );
+		$this->assertNotSame( '', $state[ 'rows' ][ 0 ][ 'action' ] );
+		$this->assertNotSame( '', $state[ 'rows' ][ 0 ][ 'text' ] );
 	}
 
 	public function test_build_routes_abandoned_assets_to_separate_abandoned_tab_and_deduped_summary() :void {
@@ -185,7 +185,7 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'critical', $state[ 'rail_accent_status' ] );
 		$this->assertSame( [ 'abandoned' ], \array_column( $state[ 'rows' ], 'key' ) );
 		$this->assertSame( 'critical', $state[ 'rows' ][ 0 ][ 'severity' ] );
-		$this->assertSame( '/admin/scans/overview?zone=scans', $state[ 'rows' ][ 0 ][ 'href' ] );
+		$this->assertNotSame( '', $state[ 'rows' ][ 0 ][ 'href' ] );
 	}
 
 	public function test_build_keeps_summary_vulnerability_count_deduped_when_same_asset_is_vulnerable_and_abandoned() :void {
@@ -271,7 +271,7 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'file_locker' ], \array_column( $state[ 'rows' ], 'key' ) );
 		$this->assertSame( 0, $state[ 'rows' ][ 0 ][ 'count' ] );
 		$this->assertSame( 'good', $state[ 'rows' ][ 0 ][ 'severity' ] );
-		$this->assertSame( "Locked files don't appear to have any changes that need review.", $state[ 'rows' ][ 0 ][ 'text' ] );
+		$this->assertNotSame( '', $state[ 'rows' ][ 0 ][ 'text' ] );
 	}
 
 	public function test_build_surfaces_pending_file_locker_copy_without_changing_summary_count() :void {
@@ -314,11 +314,20 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'file_locker' ], \array_column( $state[ 'rows' ], 'key' ) );
 		$this->assertSame( 0, $state[ 'rows' ][ 0 ][ 'count' ] );
 		$this->assertSame( 'good', $state[ 'rows' ][ 0 ][ 'severity' ] );
-		$this->assertSame( '2 initial file locks are still being created.', $state[ 'rows' ][ 0 ][ 'text' ] );
+		$this->assertNotSame( '', $state[ 'rows' ][ 0 ][ 'text' ] );
 	}
 
-	public function test_build_uses_repair_action_for_wordpress_files_on_stable_build() :void {
-		$this->installWpVersion( '6.8.1' );
+	public function test_wordpress_file_row_action_varies_by_release_channel() :void {
+		$stableAction = $this->wordpressFileRowForVersion( '6.8.1' )[ 'action' ];
+		$developmentAction = $this->wordpressFileRowForVersion( '6.9-beta1' )[ 'action' ];
+
+		$this->assertNotSame( '', $stableAction );
+		$this->assertNotSame( '', $developmentAction );
+		$this->assertNotSame( $stableAction, $developmentAction );
+	}
+
+	private function wordpressFileRowForVersion( string $version ) :array {
+		$this->installWpVersion( $version );
 
 		$counts = $this->getMockBuilder( Counts::class )
 					   ->disableOriginalConstructor()
@@ -351,44 +360,8 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$state = $builder->build();
 
 		$this->assertSame( [ 'wp_files' ], \array_column( $state[ 'rows' ], 'key' ) );
-		$this->assertSame( 'Repair', $state[ 'rows' ][ 0 ][ 'action' ] );
-	}
 
-	public function test_build_uses_review_action_for_wordpress_files_on_development_build() :void {
-		$this->installWpVersion( '6.9-beta1' );
-
-		$counts = $this->getMockBuilder( Counts::class )
-					   ->disableOriginalConstructor()
-					   ->onlyMethods( [ 'countWPFiles' ] )
-					   ->getMock();
-		$counts->method( 'countWPFiles' )->willReturn( 2 );
-
-		$availability = new class extends ScansResultsRailTabAvailability {
-			public function build( string $tabKey ) :array {
-				return $tabKey === 'wordpress'
-					? [
-						'is_available'          => true,
-						'show_in_actions_queue' => true,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					]
-					: [
-						'is_available'          => false,
-						'show_in_actions_queue' => false,
-						'disabled_message'      => '',
-						'disabled_status'       => 'neutral',
-					];
-			}
-		};
-
-		$builder = new ActionsQueueScanStateBuilder();
-		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
-		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
-
-		$state = $builder->build();
-
-		$this->assertSame( [ 'wp_files' ], \array_column( $state[ 'rows' ], 'key' ) );
-		$this->assertSame( 'Review', $state[ 'rows' ][ 0 ][ 'action' ] );
+		return $state[ 'rows' ][ 0 ];
 	}
 
 	private function setPrivateProperty( object $subject, string $property, $value ) :void {

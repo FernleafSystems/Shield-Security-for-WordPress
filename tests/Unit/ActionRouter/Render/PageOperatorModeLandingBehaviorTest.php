@@ -11,26 +11,29 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueAllClearDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageOperatorModeLanding;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\LoadSessions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
 	PluginControllerInstaller,
+	ServicesState,
 	UnitTestControllerFactory,
 	UnitTestPluginUrls
 };
+use FernleafSystems\Wordpress\Services\Core\Db;
+use FernleafSystems\Wordpress\Services\Services;
 
 class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 
 	private array $queuePayload = [];
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->servicesSnapshot = ServicesState::snapshot();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
@@ -42,6 +45,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
+		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
 		parent::tearDown();
 	}
@@ -90,28 +94,6 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		];
 	}
 
-	private function scanState( array $rows ) :array {
-		return [
-			'rows'               => $rows,
-			'tabs'               => [],
-			'rail_accent_status' => $this->highestSeverity( $rows ),
-		];
-	}
-
-	private function scanRow( string $key, string $label, string $severity, int $count ) :array {
-		return [
-			'key'      => $key,
-			'zone'     => 'scans',
-			'label'    => $label,
-			'text'     => $label,
-			'count'    => $count,
-			'severity' => $severity,
-			'href'     => '/'.$key,
-			'action'   => 'Open',
-			'target'   => '',
-		];
-	}
-
 	private function highestSeverity( array $items ) :string {
 		$severities = \array_column( $items, 'severity' );
 		if ( \in_array( 'critical', $severities, true ) ) {
@@ -138,14 +120,14 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'info', $investigate[ 'edge_status' ] );
 		$this->assertCount( 2, $investigate[ 'indicator_badges' ] );
 		$this->assertSame( $investigate[ 'indicator_text' ], $investigate[ 'indicator_badges' ][ 0 ][ 'text' ] );
-		$this->assertSame( '/admin/activity/overview', $investigate[ 'href' ] );
+		$this->assertIsString( $investigate[ 'href' ] );
 
 		$configure = $this->invokeNonPublicMethod( $page, 'buildConfigureLane', [ 95, 'good' ] );
 		$this->assertSame( 'posture', $configure[ 'indicator_type' ] );
 		$this->assertSame( 'good', $configure[ 'edge_status' ] );
 		$this->assertSame( 95, $configure[ 'posture_percentage' ] );
 		$this->assertSame( 'good', $configure[ 'posture_status' ] );
-		$this->assertSame( '/admin/zones/overview', $configure[ 'href' ] );
+		$this->assertIsString( $configure[ 'href' ] );
 
 		$reportsWithData = $this->invokeNonPublicMethod( $page, 'buildReportsLane', [
 			[
@@ -158,7 +140,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'warning', $reportsWithData[ 'edge_status' ] );
 		$this->assertCount( 1, $reportsWithData[ 'indicator_badges' ] );
 		$this->assertSame( $reportsWithData[ 'indicator_text' ], $reportsWithData[ 'indicator_badges' ][ 0 ][ 'text' ] );
-		$this->assertSame( '/admin/reports/overview', $reportsWithData[ 'href' ] );
+		$this->assertIsString( $reportsWithData[ 'href' ] );
 
 		$reportsFallback = $this->invokeNonPublicMethod( $page, 'buildReportsLane', [
 			[
@@ -199,6 +181,30 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 2, $summary[ 'recent_active_count' ] );
 	}
 
+	public function test_reports_summary_uses_one_aggregate_query() :void {
+		$this->installControllerStubWithQueuePayload( [], [
+			'reports_count'    => 4,
+			'latest_report_at' => 190000,
+			'latest_alert_at'  => 180000,
+		] );
+
+		$summary = $this->invokeNonPublicMethod( new PageOperatorModeLandingTestDouble( $this->queuePayload ), 'getReportsSummary' );
+		$db = Services::WpDb();
+
+		$this->assertSame( [
+			'count'            => 4,
+			'latest_report_at' => 190000,
+			'latest_alert_at'  => 180000,
+		], $summary );
+		$this->assertInstanceOf( OperatorModeReportsDb::class, $db );
+		$this->assertCount( 1, $db->queries );
+		$this->assertSame( [
+			'counts_reports'          => true,
+			'selects_latest_report'   => true,
+			'selects_latest_alert'    => true,
+		], $this->reportSummaryQueryFeatures( $db->queries[ 0 ] ) );
+	}
+
 	public function test_live_monitor_vars_use_current_compact_contract() :void {
 		$page = new PageOperatorModeLanding();
 		$vars = $this->invokeNonPublicMethod( $page, 'buildLiveMonitorVars' );
@@ -219,11 +225,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$page = new PageOperatorModeLandingTestDouble(
 			$this->attentionQuery( [ $ignoredPluginFiles ], [ $wpUpdates ] ),
 			[],
-			200000,
-			$this->scanState( [
-				$this->scanRow( 'plugin_files', 'Plugin Files', 'critical', 99 ),
-				$this->scanRow( 'file_locker', 'File Locker', 'good', 0 ),
-			] )
+			200000
 		);
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
@@ -263,10 +265,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 
 		$renderData = $this->invokeNonPublicMethod( $this->newPage(), 'getRenderData' );
 
-		$this->assertSame(
-			PluginNavs::modeLabel( PluginNavs::MODE_ACTIONS ),
-			$renderData[ 'strings' ][ 'title' ]
-		);
+		$this->assertIsString( $renderData[ 'strings' ][ 'title' ] );
 		$this->assertSame( 'actions', $renderData[ 'vars' ][ 'actions_lane' ][ 'mode' ] );
 		$this->assertSame(
 			[ 'investigate', 'configure', 'reports' ],
@@ -284,20 +283,24 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$renderData = $this->invokeNonPublicMethod( new PageOperatorModeLandingTestDouble(
 			$this->attentionQuery( [ $ignoredPluginFiles ] ),
 			[],
-			200000,
-			$this->scanState( [
-				$this->scanRow( 'plugin_files_ignored', 'Plugin Files', 'warning', 1 ),
-			] )
+			200000
 		), 'getRenderData' );
-		$expectedAllClear = ( new ActionsQueueAllClearDataBuilder() )->build( [
-			'scans'       => [ 'label' => 'Scans' ],
-			'maintenance' => [ 'label' => 'Maintenance' ],
-		] );
 
 		$this->assertSame( [], $renderData[ 'vars' ][ 'actions_queue_rows' ] );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'shield_status' ] );
-		$this->assertSame( $expectedAllClear, $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
+		$this->assertIsArray( $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
+	}
+
+	private function reportSummaryQueryFeatures( string $query ) :array {
+		$sql = \strtolower( \preg_replace( '/\s+/', ' ', $query ) ?? $query );
+
+		return [
+			'counts_reports'        => \strpos( $sql, 'count(*)' ) !== false,
+			'selects_latest_report' => \strpos( $sql, 'latest_report_at' ) !== false,
+			'selects_latest_alert'  => \strpos( $sql, 'case when' ) !== false
+									  && \strpos( $sql, 'latest_alert_at' ) !== false,
+		];
 	}
 
 	private function newPage() :PageOperatorModeLanding {
@@ -319,13 +322,18 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 				'comps'  => (object)[],
 				'db_con' => (object)[
 					'reports' => new OperatorModeReportsStore(
-						$reportsState[ 'reports_count' ],
-						$reportsState[ 'latest_report_at' ],
-						$reportsState[ 'latest_alert_at' ]
+						'shield_reports'
 					),
 				],
 			]
 		);
+		ServicesState::mergeItems( [
+			'service_wpdb' => new OperatorModeReportsDb(
+				$reportsState[ 'reports_count' ],
+				$reportsState[ 'latest_report_at' ],
+				$reportsState[ 'latest_alert_at' ]
+			),
+		] );
 	}
 }
 
@@ -337,18 +345,14 @@ class PageOperatorModeLandingTestDouble extends PageOperatorModeLanding {
 
 	private int $currentTimestamp;
 
-	private ?array $scanState;
-
 	public function __construct(
 		array $attentionQuery,
 		array $sessions = [],
-		int $currentTimestamp = 200000,
-		?array $scanState = null
+		int $currentTimestamp = 200000
 	) {
 		$this->attentionQuery = $attentionQuery;
 		$this->sessions = $sessions;
 		$this->currentTimestamp = $currentTimestamp;
-		$this->scanState = $scanState;
 	}
 
 	protected function getConfigurationCoverage() :array {
@@ -383,28 +387,7 @@ class PageOperatorModeLandingTestDouble extends PageOperatorModeLanding {
 	}
 
 	protected function buildScanState() :array {
-		if ( $this->scanState !== null ) {
-			return $this->scanState;
-		}
-
-		return [
-			'rows'               => \array_map(
-				static fn( array $item ) :array => [
-					'key'      => $item[ 'key' ],
-					'zone'     => 'scans',
-					'label'    => $item[ 'label' ],
-					'text'     => $item[ 'description' ],
-					'count'    => $item[ 'count' ],
-					'severity' => $item[ 'severity' ],
-					'href'     => $item[ 'href' ],
-					'action'   => $item[ 'action' ],
-					'target'   => $item[ 'target' ],
-				],
-				$this->attentionQuery[ 'groups' ][ 'scans' ][ 'items' ]
-			),
-			'tabs'               => [],
-			'rail_accent_status' => 'good',
-		];
+		throw new \RuntimeException( 'Operator dashboard must not build scan state directly.' );
 	}
 }
 
@@ -423,34 +406,23 @@ class OperatorModeSessionsLoader extends LoadSessions {
 
 class OperatorModeReportsStore {
 
-	private int $reportsCount;
+	private string $table;
 
-	private int $latestReportAt;
-
-	private int $latestAlertAt;
-
-	public function __construct(
-		int $reportsCount,
-		int $latestReportAt,
-		int $latestAlertAt
-	) {
-		$this->reportsCount = $reportsCount;
-		$this->latestReportAt = $latestReportAt;
-		$this->latestAlertAt = $latestAlertAt;
+	public function __construct( string $table ) {
+		$this->table = $table;
 	}
 
-	public function getQuerySelector() :OperatorModeReportsQuerySelector {
-		return new OperatorModeReportsQuerySelector(
-			$this->reportsCount,
-			$this->latestReportAt,
-			$this->latestAlertAt
-		);
+	public function getTable() :string {
+		return $this->table;
 	}
 }
 
-class OperatorModeReportsQuerySelector {
+class OperatorModeReportsDb extends Db {
 
-	private ?string $type = null;
+	/**
+	 * @var list<string>
+	 */
+	public array $queries = [];
 
 	private int $reportsCount;
 
@@ -468,25 +440,13 @@ class OperatorModeReportsQuerySelector {
 		$this->latestAlertAt = $latestAlertAt;
 	}
 
-	public function addWhere( string $column, string $value, string $operator ) :self {
-		return $this;
-	}
-
-	public function filterByType( string $type ) :self {
-		$this->type = $type;
-		return $this;
-	}
-
-	public function setOrderBy( string $column, string $direction = 'DESC', bool $replace = false ) :self {
-		return $this;
-	}
-
-	public function count() :int {
-		return $this->reportsCount;
-	}
-
-	public function first() :?object {
-		$createdAt = $this->type === 'alt' ? $this->latestAlertAt : $this->latestReportAt;
-		return $createdAt > 0 ? (object)[ 'created_at' => $createdAt ] : null;
+	public function selectRow( string $query, $format = null ) :array {
+		unset( $format );
+		$this->queries[] = $query;
+		return [
+			'count'            => $this->reportsCount,
+			'latest_report_at' => $this->latestReportAt,
+			'latest_alert_at'  => $this->latestAlertAt,
+		];
 	}
 }

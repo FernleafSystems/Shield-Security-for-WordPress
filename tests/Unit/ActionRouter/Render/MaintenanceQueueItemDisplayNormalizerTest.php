@@ -206,21 +206,19 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 			'target'      => '',
 		] );
 
-		$this->assertSame( 'Manage Plugins', $item[ 'cta' ][ 'label' ] ?? '' );
-		$this->assertSame( '/wp-admin/plugins.php', $item[ 'cta' ][ 'href' ] ?? '' );
+		$this->assertNotEmpty( $item[ 'cta' ][ 'label' ] ?? '' );
+		$this->assertSame( 'plugins.php', \basename( \parse_url( $item[ 'cta' ][ 'href' ] ?? '', \PHP_URL_PATH ) ?: '' ) );
 		$this->assertCount( 1, $item[ 'expansion' ][ 'table' ][ 'rows' ] ?? [] );
-		$this->assertSame( 'Hello Dolly', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'title' ] ?? '' );
-		$this->assertSame( 'bi bi-plug-fill', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'icon_class' ] ?? '' );
-		$this->assertSame( 'Version 1.7.2', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'inline_meta' ] ?? '' );
-		$this->assertSame( 'Version: 1.7.2', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'context' ] ?? '' );
-		$this->assertNotEmpty( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
-		$this->assertNotEmpty( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'tooltip' ] ?? '' );
-		$this->assertTrue( (bool)( $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'is_icon_only' ] ?? false ) );
-		$this->assertSame( '_blank', $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'target' ] ?? '' );
-		$this->assertSame(
-			'/wp-admin/plugins.php?s=hello-dolly%2Fhello.php',
-			$item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ][ 'action' ][ 'href' ] ?? ''
-		);
+		$row = $item[ 'expansion' ][ 'table' ][ 'rows' ][ 0 ];
+		$action = $row[ 'action' ] ?? [];
+		$this->assertSame( 'Hello Dolly', $row[ 'title' ] ?? '' );
+		$this->assertNotEmpty( $action[ 'label' ] ?? '' );
+		$this->assertNotEmpty( $action[ 'tooltip' ] ?? '' );
+		$this->assertTrue( (bool)( $action[ 'is_icon_only' ] ?? false ) );
+		$this->assertSame( 'plugins.php', \basename( \parse_url( $action[ 'href' ] ?? '', \PHP_URL_PATH ) ?: '' ) );
+		\parse_str( (string)\parse_url( $action[ 'href' ] ?? '', \PHP_URL_QUERY ), $queryArgs );
+		$this->assertSame( 'hello-dolly/hello.php', $queryArgs[ 's' ] ?? '' );
+		$this->assertArrayNotHasKey( 'action', $queryArgs );
 	}
 
 	public function test_inactive_theme_rows_exclude_active_child_theme_and_parent_theme() :void {
