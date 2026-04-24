@@ -105,18 +105,8 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$this->installController( [
 			'db_con' => (object)[
 				'scan_results' => new class {
-					public function getQuerySelector() :object {
-						return new class {
-							public function filterByScan( int $scanID ) :self {
-								unset( $scanID );
-								return $this;
-							}
-
-							public function getDistinctForColumn( string $column ) :array {
-								unset( $column );
-								return [ 11, 12 ];
-							}
-						};
+					public function getTable() :string {
+						return 'shield_scan_results';
 					}
 				},
 				'scan_result_items' => new class {
@@ -156,7 +146,8 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$this->assertStringContainsString( "`resolution_reason`='asset_replaced'", $queries[ 0 ] );
 		$this->assertStringContainsString( "`asset_type`='plugin'", $queries[ 0 ] );
 		$this->assertStringContainsString( "`asset_key`='akismet/akismet.php'", $queries[ 0 ] );
-		$this->assertStringContainsString( 'NOTIN(11,12)', \str_replace( ' ', '', $queries[ 0 ] ) );
+		$this->assertStringContainsString( 'NOTEXISTS', \str_replace( ' ', '', $queries[ 0 ] ) );
+		$this->assertStringContainsString( 'shield_scan_results', $queries[ 0 ] );
 	}
 
 	private function installController( array $overrides = [] ) :void {

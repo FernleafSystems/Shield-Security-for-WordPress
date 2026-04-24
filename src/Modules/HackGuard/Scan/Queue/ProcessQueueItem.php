@@ -18,7 +18,7 @@ class ProcessQueueItem {
 		self::con()->db_con->scan_items->getQueryUpdater()->updateById( $item->qitem_id, [
 			'started_at' => $now
 		] );
-		( new RunState() )->markRunning( $item->scan_id );
+		( new RunState() )->markRunning( $item );
 
 		try {
 			$results = $this->runScanOnItem( $item );
@@ -33,7 +33,9 @@ class ProcessQueueItem {
 					'finished_at' => Services::Request()->ts()
 				] );
 
-			( new SetScanCompleted() )->run( $item->scan_id );
+			if ( $item->is_last_item_for_scan ) {
+				( new SetScanCompleted() )->runForQueueItem( $item );
+			}
 		}
 		catch ( \Throwable $e ) {
 			error_log( \sprintf(

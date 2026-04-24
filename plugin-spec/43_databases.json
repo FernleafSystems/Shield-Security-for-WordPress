@@ -784,7 +784,16 @@
                     "macro_type": "text",
                     "comment": "Meta Data"
                 }
-            }
+            },
+            "indices": [
+                {
+                    "key_name": "ri_ref_meta_key",
+                    "columns": [
+                        "ri_ref",
+                        "meta_key"
+                    ]
+                }
+            ]
         },
         "rules": {
             "name": "Rules",
@@ -917,6 +926,30 @@
             },
             "indices": [
                 {
+                    "key_name": "status_finished_created_at",
+                    "columns": [
+                        "status",
+                        "finished_at",
+                        "created_at"
+                    ]
+                },
+                {
+                    "key_name": "status_finished_ready_at",
+                    "columns": [
+                        "status",
+                        "finished_at",
+                        "ready_at"
+                    ]
+                },
+                {
+                    "key_name": "status_finished_last_process_at",
+                    "columns": [
+                        "status",
+                        "finished_at",
+                        "last_process_at"
+                    ]
+                },
+                {
                     "key_name": "status_created_at",
                     "columns": [
                         "status",
@@ -963,7 +996,25 @@
                     "macro_type": "timestamp",
                     "comment": "Finished Scanning Items At"
                 }
-            }
+            },
+            "indices": [
+                {
+                    "key_name": "scan_ref_finished_started_id",
+                    "columns": [
+                        "scan_ref",
+                        "finished_at",
+                        "started_at",
+                        "id"
+                    ]
+                },
+                {
+                    "key_name": "finished_started",
+                    "columns": [
+                        "finished_at",
+                        "started_at"
+                    ]
+                }
+            ]
         },
         "scan_results": {
             "name": "Scan Result Sets",

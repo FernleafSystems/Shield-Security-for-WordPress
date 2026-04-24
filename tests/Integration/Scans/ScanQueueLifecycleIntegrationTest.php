@@ -92,6 +92,11 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( $finishedItemID, $item->qitem_id );
 		$this->assertSame( $itemID, $item->qitem_id );
 		$this->assertSame( 'wpv', $item->scan );
+		$this->assertSame( 'full', $item->scope_type );
+		$this->assertSame( '', $item->scope_key );
+		$this->assertSame( 'manual', $item->run_trigger );
+		$this->assertSame( 0, $item->scan_started_at );
+		$this->assertTrue( $item->is_last_item_for_scan );
 	}
 
 	public function testProcessorExpiredCleanupResetsStaleStartedItemsWithoutFailingRecoverableScan() :void {

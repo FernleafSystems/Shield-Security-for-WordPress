@@ -27,8 +27,7 @@ class QueueInit {
 	 * @throws \Exception
 	 */
 	private function createScans( ScansDB\Record $scanRecord ) :void {
-		$scanID = (int)$scanRecord->id;
-		( new RunState() )->markBuilding( $scanID );
+		( new RunState() )->markBuilding( $scanRecord );
 
 		( new PopulateScanItems() )
 			->setRecord( $scanRecord )

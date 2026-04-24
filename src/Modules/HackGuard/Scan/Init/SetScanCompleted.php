@@ -4,57 +4,92 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItemVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-/**
- * TODO: not the most efficient
- */
 class SetScanCompleted {
 
 	use PluginControllerConsumer;
 
-	public function run( int $scanID ) {
+	public function runForQueueItem( QueueItemVO $queueItem ) :bool {
+		$scanRecord = new ScansDB\Record();
+		$scanRecord->id = $queueItem->scan_id;
+		$scanRecord->scan = $queueItem->scan;
+		$scanRecord->scope_type = $queueItem->scope_type;
+		$scanRecord->scope_key = $queueItem->scope_key;
+		$scanRecord->run_trigger = $queueItem->run_trigger;
+		return $this->run( $queueItem->scan_id, $scanRecord );
+	}
+
+	public function run( int $scanID, ?ScansDB\Record $scanRecord = null, bool $persistScanMeta = false ) :bool {
 		$con = self::con();
 		$dbCon = $con->db_con;
-		$count = (int)Services::WpDb()->getVar(
-			sprintf( "SELECT count(*)
-						FROM `%s` as `si`
-						WHERE `si`.`scan_ref` = %d
-						  AND `si`.`finished_at`=0;",
+		$now = Services::Request()->ts();
+		$metaUpdate = '';
+		if ( $persistScanMeta && !empty( $scanRecord ) ) {
+			$raw = $scanRecord->getRawData();
+			if ( isset( $raw[ 'meta' ] ) ) {
+				$metaUpdate = \sprintf( ", `meta`='%s'", esc_sql( $raw[ 'meta' ] ) );
+			}
+		}
+
+		$completed = (int)Services::WpDb()->doSql(
+			sprintf( "UPDATE `%s`
+						SET `finished_at`=%d,
+							`status`='completed',
+							`last_process_at`=%d
+							%s
+						WHERE `id`=%d
+						  AND `finished_at`=0
+						  AND NOT EXISTS (
+							SELECT 1
+							FROM `%s` as `si`
+							WHERE `si`.`scan_ref`=%d
+							  AND `si`.`finished_at`=0
+						  );",
+				$dbCon->scans->getTable(),
+				$now,
+				$now,
+				$metaUpdate,
+				$scanID,
 				$dbCon->scan_items->getTable(),
 				$scanID
 			)
-		);
+		) > 0;
 
-		if ( $count === 0 ) {
-			$scanRecord = $dbCon->scans->getQuerySelector()->byId( $scanID );
-			if ( empty( $scanRecord ) ) {
-				return;
-			}
-			$now = Services::Request()->ts();
-			( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\RunState() )->markCompleted( $scanID );
-
-			try {
-				$this->resolveStaleItemsForRun( $scanID, $scanRecord, $now );
-
-				$scanCon = $con->comps->scans->getScanCon( $scanRecord->scan );
-				$con->comps->events->fireEvent( 'scan_run', [
-					'audit_params' => [
-						'scan' => $scanCon->getScanName()
-					]
-				] );
-
-				$this->auditLatestScanItems( $scanCon, $scanID );
-			}
-			catch ( \Throwable $e ) {
-				error_log( \sprintf(
-					'Shield scan completion side effect failed: scan_id=%d message=%s',
-					$scanID,
-					$e->getMessage()
-				) );
-			}
+		if ( !$completed ) {
+			return false;
 		}
+
+		if ( empty( $scanRecord ) ) {
+			$scanRecord = $dbCon->scans->getQuerySelector()->byId( $scanID );
+		}
+		if ( empty( $scanRecord ) ) {
+			return true;
+		}
+
+		try {
+			$this->resolveStaleItemsForRun( $scanID, $scanRecord, $now );
+
+			$scanCon = $con->comps->scans->getScanCon( $scanRecord->scan );
+			$con->comps->events->fireEvent( 'scan_run', [
+				'audit_params' => [
+					'scan' => $scanCon->getScanName()
+				]
+			] );
+
+			$this->auditLatestScanItems( $scanCon, $scanID );
+		}
+		catch ( \Throwable $e ) {
+			error_log( \sprintf(
+				'Shield scan completion side effect failed: scan_id=%d message=%s',
+				$scanID,
+				$e->getMessage()
+			) );
+		}
+
+		return true;
 	}
 
 	/**
@@ -62,15 +97,16 @@ class SetScanCompleted {
 	 */
 	private function auditLatestScanItems( $scanCon, int $scanID ) {
 		$resultItemIDs = $this->resultItemIDsForScan( $scanID );
+		$auditItemIDs = \array_slice( $resultItemIDs, 0, 30 );
 		$results = empty( $resultItemIDs )
 			? $scanCon->getNewResultsSet()
 			: ( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems() )
 				->setScanController( $scanCon )
-				->byIDs( $resultItemIDs );
+				->byIDs( $auditItemIDs );
 
 		if ( $results->countItems() > 0 ) {
 
-			$items = $results->countItems() > 30 ?
+			$items = \count( $resultItemIDs ) > 30 ?
 				__( 'Only the first 30 items are shown.', 'wp-simple-firewall' )
 				: __( 'The following items were discovered.', 'wp-simple-firewall' );
 
@@ -91,10 +127,6 @@ class SetScanCompleted {
 
 	private function resolveStaleItemsForRun( int $scanID, ScansDB\Record $scanRecord, int $resolvedAt ) :void {
 		$scanSlug = \preg_replace( '/[^a-z0-9_]/i', '', $scanRecord->scan ) ?? '';
-		$observedItemIDs = $this->resultItemIDsForScan( $scanID );
-		$notInObserved = empty( $observedItemIDs )
-			? ''
-			: sprintf( " AND `id` NOT IN (%s)", implode( ',', array_map( 'intval', $observedItemIDs ) ) );
 		$scopeWhere = $this->buildScopeWhere( $scanRecord );
 		$reason = $scanSlug === 'afs'
 			&& \in_array( $scanRecord->scope_type, [ 'plugin', 'theme' ], true )
@@ -110,13 +142,20 @@ class SetScanCompleted {
 					WHERE `scan`='%s'
 					  AND `resolved_at`=0
 					  %s
-					  %s;",
+					  AND NOT EXISTS (
+						SELECT 1
+						FROM `%s` as `sr`
+						WHERE `sr`.`scan_ref`=%d
+						  AND `sr`.`resultitem_ref`=`%s`.`id`
+					  );",
 				self::con()->db_con->scan_result_items->getTable(),
 				$resolvedAt,
 				$reason,
 				$scanSlug,
 				$scopeWhere,
-				$notInObserved
+				self::con()->db_con->scan_results->getTable(),
+				$scanID,
+				self::con()->db_con->scan_result_items->getTable()
 			)
 		);
 	}
@@ -139,10 +178,17 @@ class SetScanCompleted {
 
 	private function resultItemIDsForScan( int $scanID ) :array {
 		return \array_values( \array_unique( \array_filter( \array_map(
-			static fn( $record ) :int => (int)( $record->resultitem_ref ?? 0 ),
-			self::con()->db_con->scan_results->getQuerySelector()
-				->filterByScan( $scanID )
-				->queryWithResult()
+			static fn( $record ) :int => (int)( \is_array( $record ) ? ( $record[ 'resultitem_ref' ] ?? 0 ) : ( $record->resultitem_ref ?? 0 ) ),
+			Services::WpDb()->selectCustom(
+				sprintf( "SELECT DISTINCT `resultitem_ref`
+							FROM `%s`
+							WHERE `scan_ref`=%d
+							ORDER BY `resultitem_ref` ASC
+							LIMIT 31;",
+					self::con()->db_con->scan_results->getTable(),
+					$scanID
+				)
+			) ?: []
 		) ) ) );
 	}
 }

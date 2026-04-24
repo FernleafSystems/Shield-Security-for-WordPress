@@ -26,6 +26,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	CleanQueue,
 	Controller as QueueController,
+	ProcessQueueItem,
 	QueueInit,
 	QueueItems,
 	QueueProcessor
@@ -100,6 +101,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			$this->assertSame( 'manual', $rawInsert[ 'run_trigger' ] ?? null );
 			$this->assertSame( [], \json_decode( \base64_decode( (string)( $rawInsert[ 'meta' ] ?? '' ) ), true ) );
 		}
+		$this->assertFalse( $this->queryLogContains( $harness->sql->queryLog(), 'SELECT * FROM `scans` WHERE `id`' ) );
 	}
 
 	public function test_queue_init_rejects_failed_or_finished_scan_rows() :void {
@@ -148,6 +150,25 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 'afs', $item->scan );
 		$this->assertSame( 1, $item->scan_id );
 		$this->assertSame( 1, $item->qitem_id );
+		$this->assertSame( 'full', $item->scope_type );
+		$this->assertSame( '', $item->scope_key );
+		$this->assertSame( 'manual', $item->run_trigger );
+		$this->assertSame( 0, $item->scan_started_at );
+		$this->assertFalse( $item->is_last_item_for_scan );
+	}
+
+	public function test_queue_init_marks_building_without_reloading_known_scan_row() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'   => 'afs',
+			'status' => 'queued',
+		] );
+		$harness->sql->resetQueryLog();
+
+		$this->assertTrue( ( new QueueInit() )->init( $scanID ) );
+
+		$this->assertSame( 1, $this->queryLogCount( $harness->sql->queryLog(), 'SELECT * FROM `scans` WHERE `id`' ) );
+		$this->assertSame( 'built', $harness->scanRow( $scanID )[ 'status' ] );
 	}
 
 	public function test_processor_healthcheck_completes_ready_queue_work() :void {
@@ -159,12 +180,35 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			'last_process_at' => 1700000000,
 		] );
 		$itemID = $harness->insertScanItem( $scanID, [] );
+		$harness->sql->resetQueryLog();
 
 		$harness->processor()->handle_cron_healthcheck();
 
 		$this->assertSame( 'completed', $harness->scanRow( $scanID )[ 'status' ] );
 		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
 		$this->assertSame( [], $harness->scanItemRow( $itemID ) );
+		$this->assertSame( 1, $this->queryLogCount( $harness->sql->queryLog(), 'UPDATE `scan_items` SET `finished_at`' ) );
+	}
+
+	public function test_processor_does_not_attempt_completion_for_non_final_queue_item() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'built',
+			'ready_at'        => 1700000000,
+			'last_process_at' => 1700000000,
+		] );
+		$harness->insertScanItem( $scanID, [] );
+		$harness->insertScanItem( $scanID, [] );
+		$harness->sql->resetQueryLog();
+
+		( new ProcessQueueItem() )->run( ( new QueueItems() )->next() );
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'running', $scan[ 'status' ] );
+		$this->assertSame( 0, (int)$scan[ 'finished_at' ] );
+		$this->assertSame( 2, $harness->countScanItems( $scanID ) );
+		$this->assertFalse( $this->queryLogContains( $harness->sql->queryLog(), "`status`='completed'" ) );
 	}
 
 	public function test_processor_expired_cleanup_recovers_built_work_with_items_instead_of_failing_it() :void {
@@ -197,14 +241,17 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			'started_at'      => 1699999000,
 		] );
 		$harness->insertScanItem( $scanID, [ 'wpv-a' ], 0, 1699999100 );
+		$harness->sql->resetQueryLog();
 
 		( new CleanQueue() )->execute();
+		$cleanQueueQueries = $harness->sql->queryLog();
 
 		$scan = $harness->scanRow( $scanID );
 		$this->assertSame( 'completed', $scan[ 'status' ] );
 		$this->assertSame( 1700000000, (int)$scan[ 'finished_at' ] );
 		$this->assertSame( 1, $harness->countScanItems( $scanID ) );
 		$this->assertFalse( QueueLifecycleLogSpy::contains( 'Scan timed out before it could finish' ) );
+		$this->assertFalse( $this->queryLogContains( $cleanQueueQueries, 'COUNT(*) FROM `scan_items`' ) );
 	}
 
 	public function test_clean_queue_fails_only_irrecoverable_ready_scan_without_items_and_stale_building_scan() :void {
@@ -269,6 +316,20 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$harness->builder()->dispatch();
 
 		$this->assertFalse( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanqbuild_expired_cron' ) );
+	}
+
+	private function queryLogContains( array $queries, string $needle ) :bool {
+		return $this->queryLogCount( $queries, $needle ) > 0;
+	}
+
+	private function queryLogCount( array $queries, string $needle ) :int {
+		$count = 0;
+		foreach ( $queries as $query ) {
+			if ( \strpos( $query, $needle ) !== false ) {
+				$count++;
+			}
+		}
+		return $count;
 	}
 }
 

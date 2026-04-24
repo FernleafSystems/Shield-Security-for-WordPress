@@ -47,7 +47,8 @@ class CreateNewScan {
 			throw new ScanCreateException( $slug );
 		}
 
-		return $dbh->getQuerySelector()->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
+		$record->id = $this->lastInsertID();
+		return $record;
 	}
 
 	private function scanExists( string $slug, string $scopeType, string $scopeKey ) :bool {
@@ -57,5 +58,12 @@ class CreateNewScan {
 						->filterByScope( $scopeType, $scopeKey )
 						->filterByNotFinished()
 						->count() > 0;
+	}
+
+	private function lastInsertID() :int {
+		global $wpdb;
+		return (int)( \is_object( $wpdb ) && isset( $wpdb->insert_id ) ?
+			$wpdb->insert_id
+			: Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 	}
 }

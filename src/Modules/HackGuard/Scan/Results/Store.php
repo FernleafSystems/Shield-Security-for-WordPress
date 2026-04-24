@@ -4,8 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ResultItemMeta\Ops as ResultItemMetaDB,
-	ResultItems\Ops as ResultItemsDB,
-	ScanResults\Ops as ScanResultsDB
+	ResultItems\Ops as ResultItemsDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItemVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -16,27 +15,41 @@ class Store {
 	use PluginControllerConsumer;
 
 	public function store( QueueItemVO $queueItem, array $results ) {
+		if ( empty( $results ) ) {
+			return;
+		}
+
 		$dbCon = self::con()->db_con;
 
 		$dbhResItemMetas = $dbCon->scan_result_item_meta;
-		/** @var ResultItemsDB\Select $resultSelector */
-		$resultSelector = $dbCon->scan_result_items->getQuerySelector();
-		/** @var ScanResultsDB\Select $scanResultsSelector */
-		$scanResultsSelector = $dbCon->scan_results->getQuerySelector();
 
-		foreach ( $results as $result ) {
+		$scanCon = self::con()->comps->scans->getScanCon( $queueItem->scan );
+		$scanResults = \array_values( \array_reduce(
+			\array_map(
+				static fn( array $result ) => $scanCon->buildScanResult( $result ),
+				$results
+			),
+			function ( array $carry, ResultItemsDB\Record $scanResult ) :array {
+				$carry[ $this->resultKey( $scanResult ) ] = $scanResult;
+				return $carry;
+			},
+			[]
+		) );
 
-			$scanResult = self::con()->comps->scans->getScanCon( $queueItem->scan )->buildScanResult( $result );
+		$existingResultRecords = $this->loadExistingResultItems( $queueItem->scan, $scanResults );
+		$updatedResultIDs = [];
+		$resultItemIDs = [];
+		$metaRows = [];
 
+		foreach ( $scanResults as $scanResult ) {
+			$key = $this->resultKey( $scanResult );
 			/** @var ?ResultItemsDB\Record $resultRecord */
-			$resultRecord = $resultSelector->filterByScan( $queueItem->scan )
-										   ->filterByItemType( $scanResult->item_type )
-										   ->filterByItemID( $scanResult->item_id )
-										   ->filterByUnresolved()
-										   ->first();
+			$resultRecord = $existingResultRecords[ $key ] ?? null;
 			if ( empty( $resultRecord ) ) {
 				$dbCon->scan_result_items->getQueryInserter()->insert( $scanResult );
-				$resultRecord = $resultSelector->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
+				$scanResult->id = $this->lastInsertID();
+				$resultRecord = $scanResult;
+				$existingResultRecords[ $key ] = $resultRecord;
 			}
 			else {
 				$dbCon->scan_result_items->getQueryUpdater()->updateRecord( $resultRecord, [
@@ -47,44 +60,110 @@ class Store {
 					'resolved_at'       => 0,
 					'resolution_reason' => '',
 				] );
-
-				// Delete/Reset all metadata for the results in preparation for update.
-				/** @var ResultItemMetaDB\Delete $metaDeleter */
-				$metaDeleter = $dbhResItemMetas->getQueryDeleter();
-				$metaDeleter->filterByResultItemRef( $resultRecord->id )->query();
+				$updatedResultIDs[] = (int)$resultRecord->id;
 			}
 
 			foreach ( $scanResult->meta as $metaKey => $metaValue ) {
-				/** @var ResultItemMetaDB\Insert $metaInserter */
-				$metaInserter = $dbhResItemMetas->getQueryInserter();
-				$metaInserter->setInsertData( [
+				$metaRows[] = [
 					'ri_ref'     => $resultRecord->id,
 					'meta_key'   => $metaKey,
 					'meta_value' => \is_scalar( $metaValue ) ? $metaValue : \wp_json_encode( $metaValue ),
-				] )->query();
+				];
 			}
 
-			if ( $scanResultsSelector->filterByScan( $queueItem->scan_id )
-									 ->filterByResultItem( (int)$resultRecord->id )
-									 ->count() === 0 ) {
-				$dbCon->scan_results->getQueryInserter()
-									->setInsertData( [
-										'scan_ref'       => $queueItem->scan_id,
-										'resultitem_ref' => $resultRecord->id,
-									] )
-									->query();
-			}
+			$resultItemIDs[] = (int)$resultRecord->id;
 		}
-		$this->markQueueItemAsFinished( $queueItem );
+
+		$updatedResultIDs = \array_values( \array_unique( \array_filter( \array_map( '\intval', $updatedResultIDs ) ) ) );
+		if ( !empty( $updatedResultIDs ) ) {
+			/** @var ResultItemMetaDB\Delete $metaDeleter */
+			$metaDeleter = $dbhResItemMetas->getQueryDeleter();
+			$metaDeleter->filterByResultItems( $updatedResultIDs )->query();
+		}
+
+		foreach ( $metaRows as $metaRow ) {
+			/** @var ResultItemMetaDB\Insert $metaInserter */
+			$metaInserter = $dbhResItemMetas->getQueryInserter();
+			$metaInserter->setInsertData( $metaRow )->query();
+		}
+
+		$resultItemIDs = \array_values( \array_unique( \array_filter( \array_map( '\intval', $resultItemIDs ) ) ) );
+		$observedResultItemIDs = $this->loadObservedResultItemIDs( $queueItem->scan_id, $resultItemIDs );
+		foreach ( \array_diff( $resultItemIDs, $observedResultItemIDs ) as $resultItemID ) {
+			$dbCon->scan_results->getQueryInserter()
+								->setInsertData( [
+									'scan_ref'       => $queueItem->scan_id,
+									'resultitem_ref' => $resultItemID,
+								] )
+								->query();
+		}
 	}
 
-	private function markQueueItemAsFinished( QueueItemVO $queueItem ) {
-		self::con()
-			->db_con
-			->scan_items
-			->getQueryUpdater()
-			->updateById( $queueItem->qitem_id, [
-				'finished_at' => Services::Request()->ts()
-			] );
+	/**
+	 * @param ResultItemsDB\Record[] $scanResults
+	 * @return array<string,ResultItemsDB\Record>
+	 */
+	private function loadExistingResultItems( string $scanSlug, array $scanResults ) :array {
+		$pairWheres = \array_values( \array_unique( \array_map(
+			fn( ResultItemsDB\Record $scanResult ) :string => sprintf(
+				"(`item_type`='%s' AND `item_id`='%s')",
+				esc_sql( (string)$scanResult->item_type ),
+				esc_sql( (string)$scanResult->item_id )
+			),
+			$scanResults
+		) ) );
+		if ( empty( $pairWheres ) ) {
+			return [];
+		}
+
+		$rows = Services::WpDb()->selectCustom(
+			sprintf( "SELECT *
+						FROM `%s`
+						WHERE `scan`='%s'
+						  AND `resolved_at`=0
+						  AND (%s);",
+				self::con()->db_con->scan_result_items->getTable(),
+				esc_sql( $scanSlug ),
+				\implode( ' OR ', $pairWheres )
+			)
+		) ?: [];
+
+		$records = [];
+		foreach ( $rows as $row ) {
+			$record = new ResultItemsDB\Record( \is_array( $row ) ? $row : (array)$row );
+			$records[ $this->resultKey( $record ) ] = $record;
+		}
+		return $records;
+	}
+
+	private function loadObservedResultItemIDs( int $scanID, array $resultItemIDs ) :array {
+		if ( empty( $resultItemIDs ) ) {
+			return [];
+		}
+
+		return \array_values( \array_unique( \array_filter( \array_map(
+			static fn( $record ) :int => (int)( \is_array( $record ) ? ( $record[ 'resultitem_ref' ] ?? 0 ) : ( $record->resultitem_ref ?? 0 ) ),
+			Services::WpDb()->selectCustom(
+				sprintf( "SELECT `resultitem_ref`
+							FROM `%s`
+							WHERE `scan_ref`=%d
+							  AND `resultitem_ref` IN (%s);",
+					self::con()->db_con->scan_results->getTable(),
+					$scanID,
+					\implode( ',', \array_map( '\intval', $resultItemIDs ) )
+				)
+			) ?: []
+		) ) ) );
+	}
+
+	private function resultKey( ResultItemsDB\Record $scanResult ) :string {
+		return (string)$scanResult->item_type."\n".(string)$scanResult->item_id;
+	}
+
+	private function lastInsertID() :int {
+		global $wpdb;
+		return (int)( \is_object( $wpdb ) && isset( $wpdb->insert_id ) ?
+			$wpdb->insert_id
+			: Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 	}
 }

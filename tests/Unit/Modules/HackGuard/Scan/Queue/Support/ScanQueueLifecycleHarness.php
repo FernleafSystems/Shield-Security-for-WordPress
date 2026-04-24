@@ -447,7 +447,7 @@ class LifecycleSqliteDb extends Db {
 		return \is_array( $row ) ? $row : null;
 	}
 
-	public function selectCustom( $query, $format = \FernleafSystems\Wordpress\Services\Core\ARRAY_A ) {
+	public function selectCustom( $query, $format = null ) {
 		unset( $format );
 		$this->recordQuery( (string)$query );
 		$stmt = $this->pdo->query( (string)$query );
@@ -456,7 +456,8 @@ class LifecycleSqliteDb extends Db {
 
 	public function doSql( string $sqlQuery ) {
 		$this->recordQuery( $sqlQuery );
-		return $this->pdo->exec( $sqlQuery ) !== false;
+		$result = $this->pdo->exec( $sqlQuery );
+		return $result === false ? false : $result;
 	}
 
 	public function resetQueryLog() :void {
@@ -925,6 +926,11 @@ class LifecycleEmptyDbHandler {
 		return new class {
 			public function filterByResultItemRef( int $id ) :self {
 				unset( $id );
+				return $this;
+			}
+
+			public function filterByResultItems( array $ids ) :self {
+				unset( $ids );
 				return $this;
 			}
 

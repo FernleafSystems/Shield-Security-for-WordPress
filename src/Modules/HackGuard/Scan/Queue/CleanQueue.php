@@ -3,10 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
-	ScanItems\Ops as ScanItemsDB,
-	Scans\Ops as ScansDB
-};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\SetScanCompleted;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -32,107 +28,108 @@ class CleanQueue {
 
 	private function resolveStaleScans() {
 		$this->resolveStaleScansForTime();
-		$this->failScansWithNoScanItems();
 	}
 
 	/**
 	 * Stale scans are resolved according to their current lifecycle state.
 	 */
 	private function resolveStaleScansForTime() {
-		$selector = self::con()->db_con->scans->getQuerySelector();
+		$cutoff = Services::Request()->carbon()->subMinutes( 9 )->timestamp;
 
-		foreach ( \array_unique( $this->idsFromRecords( $selector->reset()
-			->filterByStatus( 'building' )
-			->filterByNotFinished()
-			->addWhereOlderThan(
-				Services::Request()->carbon()->subMinutes( 9 )->timestamp,
-				'last_process_at'
-			)->queryWithResult() ) ) as $scanID ) {
+		foreach ( $this->staleBuildingScanIDs( $cutoff ) as $scanID ) {
 			if ( $scanID > 0 ) {
 				$this->markTimedOut( $scanID );
 			}
 		}
 
-		$staleReadyIDs = [];
-		foreach ( [
-			$selector->reset()
-				->filterByStatus( 'built' )
-				->filterByNotFinished()
-				->addWhereOlderThan(
-					Services::Request()->carbon()->subMinutes( 9 )->timestamp,
-					'ready_at'
-				)->queryWithResult(),
-			$selector->reset()
-				->filterByStatus( 'built' )
-				->filterByNotFinished()
-				->addWhereOlderThan(
-					Services::Request()->carbon()->subMinutes( 9 )->timestamp,
-					'last_process_at'
-				)->queryWithResult(),
-			$selector->reset()
-				->filterByNotFinished()
-				->filterByStatus( 'running' )
-				->addWhereOlderThan(
-					Services::Request()->carbon()->subMinutes( 9 )->timestamp,
-					'last_process_at'
-				)->queryWithResult(),
-		] as $matchingIDs ) {
-			$staleReadyIDs = \array_merge( $staleReadyIDs, $this->idsFromRecords( \is_array( $matchingIDs ) ? $matchingIDs : [] ) );
-		}
-
-		foreach ( \array_unique( \array_map( '\intval', $staleReadyIDs ) ) as $scanID ) {
+		foreach ( $this->staleReadyScanIDsWithNoItems( $cutoff ) as $scanID ) {
 			if ( $scanID > 0 ) {
-				if ( !$this->hasAnyScanItems( $scanID ) ) {
-					$this->markTimedOut( $scanID );
-				}
-				elseif ( !$this->hasUnfinishedScanItems( $scanID ) ) {
-					( new SetScanCompleted() )->run( $scanID );
-				}
+				$this->markTimedOut( $scanID );
 			}
 		}
-	}
 
-	/**
-	 * Scan set to ready but no scan items available.
-	 */
-	private function failScansWithNoScanItems() {
-		$dbCon = self::con()->db_con;
-		/** @var ScansDB\Select $selector */
-		$selector = $dbCon->scans->getQuerySelector();
-		/** @var ScansDB\Record[] $scans */
-		$scans = $selector->addWhereIn( 'status', [ 'built', 'running' ] )
-						  ->filterByNotFinished()
-						  ->filterByReady()
-						  ->queryWithResult();
-		foreach ( $scans as $scan ) {
-			/** @var ScanItemsDB\Select $selectorSI */
-			$selectorSI = $dbCon->scan_items->getQuerySelector();
-			if ( $selectorSI->filterByScan( $scan->id )->count() === 0 ) {
-				( new RunState() )->markFailed( (int)$scan->id, 'Scan queue was ready but no queue items were available.' );
+		foreach ( $this->staleReadyScanIDsWithOnlyFinishedItems( $cutoff ) as $scanID ) {
+			if ( $scanID > 0 ) {
+				( new SetScanCompleted() )->run( $scanID );
 			}
 		}
-	}
-
-	private function hasAnyScanItems( int $scanID ) :bool {
-		/** @var ScanItemsDB\Select $selectorSI */
-		$selectorSI = self::con()->db_con->scan_items->getQuerySelector();
-		return $selectorSI->filterByScan( $scanID )->count() > 0;
-	}
-
-	private function hasUnfinishedScanItems( int $scanID ) :bool {
-		/** @var ScanItemsDB\Select $selectorSI */
-		$selectorSI = self::con()->db_con->scan_items->getQuerySelector();
-		return $selectorSI->filterByScan( $scanID )->filterByNotFinished()->count() > 0;
 	}
 
 	private function markTimedOut( int $scanID ) :void {
 		( new RunState() )->markFailed( $scanID, 'Scan timed out before it could finish.' );
 	}
 
-	private function idsFromRecords( array $records ) :array {
-		return \array_map(
-			static fn( $record ) :int => (int)( $record->id ?? 0 ),
-			$records
+	private function staleBuildingScanIDs( int $cutoff ) :array {
+		return $this->idsFromRows( Services::WpDb()->selectCustom(
+			sprintf( "SELECT DISTINCT `scans`.`id`
+						FROM `%s` as `scans`
+						WHERE `scans`.`status`='building'
+						  AND `scans`.`finished_at`=0
+						  AND `scans`.`last_process_at`<%d;",
+				self::con()->db_con->scans->getTable(),
+				$cutoff
+			)
+		) ?: [] );
+	}
+
+	private function staleReadyScanIDsWithNoItems( int $cutoff ) :array {
+		return $this->idsFromRows( Services::WpDb()->selectCustom(
+			sprintf( "SELECT DISTINCT `scans`.`id`
+						FROM `%s` as `scans`
+						WHERE `scans`.`finished_at`=0
+						  AND %s
+						  AND NOT EXISTS (
+							SELECT 1
+							FROM `%s` as `si`
+							WHERE `si`.`scan_ref`=`scans`.`id`
+						  );",
+				self::con()->db_con->scans->getTable(),
+				$this->staleReadyWhere( $cutoff ),
+				self::con()->db_con->scan_items->getTable()
+			)
+		) ?: [] );
+	}
+
+	private function staleReadyScanIDsWithOnlyFinishedItems( int $cutoff ) :array {
+		return $this->idsFromRows( Services::WpDb()->selectCustom(
+			sprintf( "SELECT DISTINCT `scans`.`id`
+						FROM `%s` as `scans`
+						WHERE `scans`.`finished_at`=0
+						  AND %s
+						  AND EXISTS (
+							SELECT 1
+							FROM `%s` as `si_any`
+							WHERE `si_any`.`scan_ref`=`scans`.`id`
+						  )
+						  AND NOT EXISTS (
+							SELECT 1
+							FROM `%s` as `si_unfinished`
+							WHERE `si_unfinished`.`scan_ref`=`scans`.`id`
+							  AND `si_unfinished`.`finished_at`=0
+						  );",
+				self::con()->db_con->scans->getTable(),
+				$this->staleReadyWhere( $cutoff ),
+				self::con()->db_con->scan_items->getTable(),
+				self::con()->db_con->scan_items->getTable()
+			)
+		) ?: [] );
+	}
+
+	private function staleReadyWhere( int $cutoff ) :string {
+		return sprintf( "(
+							( `scans`.`status`='built' AND ( `scans`.`ready_at`<%d OR `scans`.`last_process_at`<%d ) )
+							OR ( `scans`.`status`='running' AND `scans`.`last_process_at`<%d )
+						)",
+			$cutoff,
+			$cutoff,
+			$cutoff
 		);
+	}
+
+	private function idsFromRows( array $rows ) :array {
+		return \array_values( \array_unique( \array_filter( \array_map(
+			static fn( $row ) :int => (int)( \is_array( $row ) ? ( $row[ 'id' ] ?? 0 ) : ( $row->id ?? 0 ) ),
+			$rows
+		) ) ) );
 	}
 }

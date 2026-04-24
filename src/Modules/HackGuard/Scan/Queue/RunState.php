@@ -12,49 +12,34 @@ class RunState {
 
 	public const META_KEY_LAST_ERROR = 'last_error';
 
-	public function markBuilding( int $scanID ) :void {
+	public function markBuilding( Record $scan ) :void {
 		$now = Services::Request()->ts();
-		/** @var ?Record $scan */
-		$scan = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
 		$update = [
 			'status'          => 'building',
 			'last_process_at' => $now,
 		];
-		if ( !empty( $scan ) ) {
-			$meta = \is_array( $scan->meta ) ? $scan->meta : [];
-			if ( isset( $meta[ self::META_KEY_LAST_ERROR ] ) ) {
-				unset( $meta[ self::META_KEY_LAST_ERROR ] );
-				$scan->meta = $meta;
-				$update[ 'meta' ] = $scan->getRawData()[ 'meta' ];
-			}
+		$meta = \is_array( $scan->meta ) ? $scan->meta : [];
+		if ( isset( $meta[ self::META_KEY_LAST_ERROR ] ) ) {
+			unset( $meta[ self::META_KEY_LAST_ERROR ] );
+			$scan->meta = $meta;
+			$update[ 'meta' ] = $scan->getRawData()[ 'meta' ];
 		}
-		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
-			...$update,
-		] );
+
+		self::con()->db_con->scans->getQueryUpdater()->updateById( (int)$scan->id, $update );
 	}
 
-	public function markBuilt( int $scanID ) :void {
+	public function markBuilt( Record $scan ) :void {
 		$now = Services::Request()->ts();
-		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
+		$update = [
 			'status'          => 'built',
 			'ready_at'        => $now,
 			'last_process_at' => $now,
-		] );
-	}
-
-	public function touch( int $scanID ) :void {
-		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
-			'last_process_at' => Services::Request()->ts(),
-		] );
-	}
-
-	public function markCompleted( int $scanID ) :void {
-		$now = Services::Request()->ts();
-		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
-			'finished_at'     => $now,
-			'status'          => 'completed',
-			'last_process_at' => $now,
-		] );
+		];
+		$raw = $scan->getRawData();
+		if ( isset( $raw[ 'meta' ] ) ) {
+			$update[ 'meta' ] = $raw[ 'meta' ];
+		}
+		self::con()->db_con->scans->getQueryUpdater()->updateById( (int)$scan->id, $update );
 	}
 
 	public function markFailed( int $scanID, string $failureMessage = '' ) :void {
@@ -87,26 +72,24 @@ class RunState {
 		$this->deleteUnfinishedItems( $scanID );
 	}
 
-	public function markRunning( int $scanID ) :void {
+	public function markRunning( QueueItemVO $item ) :void {
 		$now = Services::Request()->ts();
-		/** @var ?Record $scan */
-		$scan = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
 		$update = [
 			'status'          => 'running',
 			'last_process_at' => $now,
 		];
-		if ( empty( $scan ) || (int)$scan->started_at === 0 ) {
+		if ( $item->scan_started_at === 0 ) {
 			$update[ 'started_at' ] = $now;
 		}
-		if ( !empty( $scan ) ) {
-			$meta = \is_array( $scan->meta ) ? $scan->meta : [];
-			if ( isset( $meta[ self::META_KEY_LAST_ERROR ] ) ) {
-				unset( $meta[ self::META_KEY_LAST_ERROR ] );
-				$scan->meta = $meta;
-				$update[ 'meta' ] = $scan->getRawData()[ 'meta' ];
-			}
+		$meta = $item->meta;
+		if ( isset( $meta[ self::META_KEY_LAST_ERROR ] ) ) {
+			unset( $meta[ self::META_KEY_LAST_ERROR ] );
+			$item->meta = $meta;
+			$scan = new Record();
+			$scan->meta = $meta;
+			$update[ 'meta' ] = $scan->getRawData()[ 'meta' ];
 		}
-		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, $update );
+		self::con()->db_con->scans->getQueryUpdater()->updateById( $item->scan_id, $update );
 	}
 
 	public function markUnfinishedRunsFailed() :void {

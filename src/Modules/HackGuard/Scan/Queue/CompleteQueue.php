@@ -16,15 +16,9 @@ class CompleteQueue {
 		$deleter = $con->db_con->scan_items->getQueryDeleter();
 		$deleter->filterByFinished()->query();
 
-		$activeCount = $con->db_con->scans->getQuerySelector()
-			->filterByNotFinished()
-			->addWhereIn( 'status', [ 'queued', 'building', 'built', 'running' ] )
-			->count();
-		if ( $activeCount > 0 ) {
-			if ( $con->db_con->scans->getQuerySelector()
-					->filterByStatus( 'queued' )
-					->filterByNotFinished()
-					->count() > 0 ) {
+		$activeCounts = $this->activeStatusCounts();
+		if ( \array_sum( $activeCounts ) > 0 ) {
+			if ( ( $activeCounts[ 'queued' ] ?? 0 ) > 0 ) {
 				$con->comps->scans_queue->getQueueBuilder()->dispatch();
 			}
 			return;
@@ -37,5 +31,24 @@ class CompleteQueue {
 		do_action( 'shield/scan_queue_completed' );
 
 		self::con()->opts->optSet( 'is_scan_cron', false );
+	}
+
+	private function activeStatusCounts() :array {
+		$counts = [];
+		foreach ( Services::WpDb()->selectCustom(
+			sprintf( "SELECT `status`, COUNT(*) as `count`
+						FROM `%s`
+						WHERE `finished_at`=0
+						  AND `status` IN ('queued','building','built','running')
+						GROUP BY `status`;",
+				self::con()->db_con->scans->getTable()
+			)
+		) ?: [] as $row ) {
+			$status = (string)( \is_array( $row ) ? ( $row[ 'status' ] ?? '' ) : ( $row->status ?? '' ) );
+			if ( $status !== '' ) {
+				$counts[ $status ] = (int)( \is_array( $row ) ? ( $row[ 'count' ] ?? 0 ) : ( $row->count ?? 0 ) );
+			}
+		}
+		return $counts;
 	}
 }

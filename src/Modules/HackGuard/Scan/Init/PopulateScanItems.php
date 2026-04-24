@@ -32,13 +32,9 @@ class PopulateScanItems {
 		unset( $scanAction->items );
 
 		$scanRecord->meta = $scanAction->getRawData();
-		self::con()->db_con->scans->getQueryUpdater()->updateById( $scanRecord->id, [
-			'meta' => $scanRecord->getRawData()[ 'meta' ],
-		] );
-		( new RunState() )->touch( (int)$scanRecord->id );
 
 		if ( empty( $allItems ) ) {
-			( new SetScanCompleted() )->run( (int)$scanRecord->id );
+			( new SetScanCompleted() )->run( (int)$scanRecord->id, $scanRecord, true );
 			return;
 		}
 
@@ -55,6 +51,6 @@ class PopulateScanItems {
 			$allItems = \array_slice( $allItems, $sliceSize );
 		} while ( !empty( $allItems ) );
 
-		( new RunState() )->markBuilt( (int)$scanRecord->id );
+		( new RunState() )->markBuilt( $scanRecord );
 	}
 }
