@@ -29,23 +29,17 @@ class ActionsQueueScanResultsTableBuilder {
 
 	/**
 	 * @param array<string,mixed>|null $options
-	 * @return array{
-	 *   display_context:string,
-	 *   type:string,
-	 *   file:string,
-	 *   results_display_options:array{
-	 *     include_ignored:bool,
-	 *     include_repaired:bool,
-	 *     include_deleted:bool,
-	 *     ignored_only:bool
-	 *   }
-	 * }
+	 * @return array<string,mixed>
 	 */
-	public function buildScopeActionData( string $type, string $file, ?array $options = null ) :array {
-		$scope = $this->scopeResolver->normalizeActionScope( $type, $file );
-		return $this->displayOptions->mergeIntoActionData(
-			$scope,
-			$options ?? $this->displayOptions->activeOnly()
+	public function buildWordpressTable( ?array $options = null ) :array {
+		return $this->tableContractBuilder->buildFileStatusWithEmptyState(
+			'core',
+			'core',
+			$this->countForScope( 'wordpress', 'wordpress', $options ?? $this->displayOptions->activeOnly() ),
+			__( "Previous scans didn't detect any modified, missing, or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' ),
+			$this->buildFullLogHref(),
+			'info',
+			$this->buildTableActionData( $options )
 		);
 	}
 
@@ -53,34 +47,39 @@ class ActionsQueueScanResultsTableBuilder {
 	 * @param array<string,mixed>|null $options
 	 * @return array<string,mixed>
 	 */
-	public function buildTableForScope( string $type, string $file, string $emptyText, ?array $options = null ) :array {
-		$scope = $this->scopeResolver->normalizeActionScope( $type, $file );
-		$displayOptions = $this->displayOptions->normalize( $options ?? $this->displayOptions->activeOnly() );
-		$actionData = $this->buildScopeActionData( $scope[ 'type' ], $scope[ 'file' ], $displayOptions );
-		$livenessCount = $this->countForScope(
-			$scope[ 'type' ],
-			$scope[ 'file' ],
-			$this->displayOptions->activeAndIgnored()
+	public function buildPluginTable( string $pluginFile, ?array $options = null ) :array {
+		return $this->tableContractBuilder->buildFileStatus(
+			'plugin',
+			$pluginFile,
+			$this->buildFullLogHref(),
+			$this->buildTableActionData( $options )
 		);
+	}
 
-		if ( $scope[ 'type' ] === 'malware' ) {
-			return $this->tableContractBuilder->buildMalwareWithEmptyState(
-				$livenessCount,
-				$emptyText,
-				$this->buildFullLogHref(),
-				'info',
-				$actionData
-			);
-		}
+	/**
+	 * @param array<string,mixed>|null $options
+	 * @return array<string,mixed>
+	 */
+	public function buildThemeTable( string $stylesheet, ?array $options = null ) :array {
+		return $this->tableContractBuilder->buildFileStatus(
+			'theme',
+			$stylesheet,
+			$this->buildFullLogHref(),
+			$this->buildTableActionData( $options )
+		);
+	}
 
-		return $this->tableContractBuilder->buildFileStatusWithEmptyState(
-			$scope[ 'type' ] === 'wordpress' ? 'core' : $scope[ 'type' ],
-			$scope[ 'type' ] === 'wordpress' ? 'core' : $scope[ 'file' ],
-			$livenessCount,
-			$emptyText,
+	/**
+	 * @param array<string,mixed>|null $options
+	 * @return array<string,mixed>
+	 */
+	public function buildMalwareTable( ?array $options = null ) :array {
+		return $this->tableContractBuilder->buildMalwareWithEmptyState(
+			$this->countForScope( 'malware', 'malware', $options ?? $this->displayOptions->activeOnly() ),
+			__( "Previous scans didn't detect any files suspected of being malware.", 'wp-simple-firewall' ),
 			$this->buildFullLogHref(),
 			'info',
-			$actionData
+			$this->buildTableActionData( $options )
 		);
 	}
 
@@ -100,5 +99,24 @@ class ActionsQueueScanResultsTableBuilder {
 
 	protected function buildFullLogHref() :string {
 		return self::con()->plugin_urls->actionsQueueScans();
+	}
+
+	/**
+	 * @param array<string,mixed>|null $options
+	 * @return array{
+	 *   display_context:string,
+	 *   results_display_options:array{
+	 *     include_ignored:bool,
+	 *     include_repaired:bool,
+	 *     include_deleted:bool,
+	 *     ignored_only:bool
+	 *   }
+	 * }
+	 */
+	private function buildTableActionData( ?array $options = null ) :array {
+		$normalized = $this->displayOptions->normalize( $options ?? $this->displayOptions->activeOnly() );
+		return $normalized === $this->displayOptions->activeOnly()
+			? $this->displayOptions->buildDisplayContextActionData()
+			: $this->displayOptions->buildExplicitActionData( $normalized );
 	}
 }

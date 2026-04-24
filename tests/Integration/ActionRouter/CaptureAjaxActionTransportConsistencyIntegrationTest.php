@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
-	Actions\Render\PluginAdminPages\ActionsQueueAssetFileStatusDetail,
+	Actions\Render\Components\Scans\Results\Wordpress,
 	CaptureAjaxAction
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -82,9 +82,8 @@ class CaptureAjaxActionTransportConsistencyIntegrationTest extends ShieldIntegra
 	}
 
 	private function buildScanResultsRenderRequest() :array {
-		return ActionData::BuildAjaxRender( ActionsQueueAssetFileStatusDetail::class, [
-			'type' => 'wordpress',
-			'file' => 'wordpress',
+		return ActionData::BuildAjaxRender( Wordpress::class, [
+			'display_context' => 'actions_queue',
 		] );
 	}
 }

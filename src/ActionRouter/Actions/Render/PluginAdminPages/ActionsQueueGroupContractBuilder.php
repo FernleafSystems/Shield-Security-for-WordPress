@@ -166,9 +166,9 @@ class ActionsQueueGroupContractBuilder {
 		}
 
 		$narrative = __( 'No matching items remain in this group.', 'wp-simple-firewall' );
-		$renderActionData = $this->buildScanResultsTableBuilder()->buildScopeActionData(
-			$metadata[ 'type' ],
-			$metadata[ 'file' ]
+		$renderActionData = $this->queueScanResultsOptions->buildSubjectActionData(
+			$metadata[ 'subject_type' ],
+			$metadata[ 'subject_id' ]
 		);
 		$selection = $this->presentation->buildGroupSelection(
 			$bucketLabel,
@@ -594,10 +594,6 @@ class ActionsQueueGroupContractBuilder {
 	 */
 	private function buildDetailRenderAction( string $renderActionClass, array $renderActionData ) :array {
 		return ActionData::BuildAjaxRender( $renderActionClass, $renderActionData );
-	}
-
-	private function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
-		return new ActionsQueueScanResultsTableBuilder( null, $this->queueScanResultsOptions );
 	}
 
 }

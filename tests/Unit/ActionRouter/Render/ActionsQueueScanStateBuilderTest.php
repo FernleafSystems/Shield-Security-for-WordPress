@@ -120,8 +120,8 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 				'stat_text'    => '2 discovered files are currently ignored.',
 				'meta_text'    => 'ignored-plugin/ignored-plugin.php',
 				'count_badge'  => 2,
-				'type'         => 'plugin',
-				'file'         => 'ignored-plugin/ignored-plugin.php',
+				'subject_type' => 'plugin',
+				'subject_id'   => 'ignored-plugin/ignored-plugin.php',
 				'has_update'   => false,
 			],
 		] ) );

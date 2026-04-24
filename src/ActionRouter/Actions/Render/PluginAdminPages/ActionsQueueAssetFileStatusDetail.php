@@ -11,36 +11,23 @@ class ActionsQueueAssetFileStatusDetail extends BaseRender {
 
 	protected function getRequiredDataKeys() :array {
 		return [
-			'type',
-			'file',
+			'subject_type',
+			'subject_id',
 		];
 	}
 
 	protected function getRenderData() :array {
 		$options = new ScanResultsDisplayOptions();
+		$subjectType = \strtolower( \trim( (string)$this->action_data[ 'subject_type' ] ) );
+		$subjectId = \trim( (string)$this->action_data[ 'subject_id' ] );
+		$resultsDisplayOptions = $options->currentOptionsFromActionData( $this->action_data );
+		$tableBuilder = $this->buildScanResultsTableBuilder();
 
 		return [
-			'table' => $this->buildScanResultsTableBuilder()->buildTableForScope(
-				(string)$this->action_data[ 'type' ],
-				(string)$this->action_data[ 'file' ],
-				$this->emptyTextForScope( (string)$this->action_data[ 'type' ] ),
-				$options->currentOptionsFromActionData( $this->action_data )
-			),
+			'table' => $subjectType === 'theme'
+				? $tableBuilder->buildThemeTable( $subjectId, $resultsDisplayOptions )
+				: $tableBuilder->buildPluginTable( $subjectId, $resultsDisplayOptions ),
 		];
-	}
-
-	private function emptyTextForScope( string $type ) :string {
-		switch ( \strtolower( \trim( $type ) ) ) {
-			case 'malware':
-				return __( "Previous scans didn't detect any files suspected of being malware.", 'wp-simple-firewall' );
-			case 'plugin':
-				return __( "Previous scans didn't detect any modified, missing, or unrecognised files in plugin directories.", 'wp-simple-firewall' );
-			case 'theme':
-				return __( "Previous scans didn't detect any modified, missing, or unrecognised files in theme directories.", 'wp-simple-firewall' );
-			case 'wordpress':
-			default:
-				return __( "Previous scans didn't detect any modified, missing, or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' );
-		}
 	}
 
 	protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {

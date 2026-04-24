@@ -140,33 +140,19 @@ export function bindScanResultsRowActions( {
 	if ( scanResultsAction !== null && typeof onAction === 'function' ) {
 		$tableElement.on(
 			`click.${namespace}`,
-			'td.actions .action.delete',
+			'td.actions [data-scan-result-action="delete"], td.actions [data-scan-result-action="ignore"], td.actions [data-scan-result-action="repair"]',
 			( evt ) => {
 				evt.preventDefault();
-				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-					onAction( 'delete', [ evt.currentTarget.dataset.rid ] );
+				const action = evt.currentTarget.dataset.scanResultAction;
+
+				if ( action === 'delete' && !confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+					return false;
 				}
-				return false;
-			}
-		);
 
-		$tableElement.on(
-			`click.${namespace}`,
-			'td.actions .action.ignore',
-			( evt ) => {
-				evt.preventDefault();
-				onAction( 'ignore', [ evt.currentTarget.dataset.rid ] );
-				return false;
-			}
-		);
-
-		$tableElement.on(
-			`click.${namespace}`,
-			'td.actions .action.repair',
-			( evt ) => {
-				evt.preventDefault();
-				datatable?.rows?.().deselect?.();
-				onAction( 'repair', [ evt.currentTarget.dataset.rid ] );
+				if ( action === 'repair' ) {
+					datatable?.rows?.().deselect?.();
+				}
+				onAction( action, [ evt.currentTarget.dataset.rid ] );
 				return false;
 			}
 		);

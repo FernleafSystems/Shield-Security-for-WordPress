@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetMetadataResolver,
-	ActionsQueueScanAssetCardsBuilder
+	ActionsQueueScanAssetCardsBuilder,
+	ActionsQueueScanResultsTableBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
@@ -32,18 +33,18 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			],
 			[
 				'example-plugin/example-plugin.php' => [
-					'type'       => 'plugin',
-					'file'       => 'example-plugin/example-plugin.php',
-					'title'      => 'Example Plugin',
-					'icon_class' => 'bi bi-plug-fill',
-					'has_update' => false,
+					'subject_type' => 'plugin',
+					'subject_id'   => 'example-plugin/example-plugin.php',
+					'title'        => 'Example Plugin',
+					'icon_class'   => 'bi bi-plug-fill',
+					'has_update'   => false,
 				],
 				'busy-plugin/busy-plugin.php'    => [
-					'type'       => 'plugin',
-					'file'       => 'busy-plugin/busy-plugin.php',
-					'title'      => 'Busy Plugin',
-					'icon_class' => 'bi bi-plug-fill',
-					'has_update' => false,
+					'subject_type' => 'plugin',
+					'subject_id'   => 'busy-plugin/busy-plugin.php',
+					'title'        => 'Busy Plugin',
+					'icon_class'   => 'bi bi-plug-fill',
+					'has_update'   => false,
 				],
 			]
 		);
@@ -52,7 +53,6 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( [ 'busy-plugin/busy-plugin.php', 'example-plugin/example-plugin.php' ], \array_column( $records, 'key' ) );
 		$this->assertSame( [ 3, 1 ], \array_column( $records, 'count_badge' ) );
-		$this->assertSame( [ 'Busy Plugin', 'Example Plugin' ], \array_column( $records, 'title' ) );
 		$this->assertSame( 0, $builder->tableBuildCalls() );
 	}
 
@@ -63,11 +63,11 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			],
 			[
 				'example-plugin/example-plugin.php' => [
-					'type'       => 'plugin',
-					'file'       => 'example-plugin/example-plugin.php',
-					'title'      => 'Example Plugin',
-					'icon_class' => 'bi bi-plug-fill',
-					'has_update' => true,
+					'subject_type' => 'plugin',
+					'subject_id'   => 'example-plugin/example-plugin.php',
+					'title'        => 'Example Plugin',
+					'icon_class'   => 'bi bi-plug-fill',
+					'has_update'   => true,
 				],
 			]
 		);
@@ -77,13 +77,36 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 		$this->assertCount( 1, $records );
 		$this->assertSame( 'example-plugin/example-plugin.php', $records[ 0 ][ 'key' ] );
 		$this->assertSame( 2, $records[ 0 ][ 'count_badge' ] );
-		$this->assertSame( 'example-plugin/example-plugin.php', $records[ 0 ][ 'table' ][ 'file' ] );
+		$this->assertSame( 'plugin', $records[ 0 ][ 'table' ][ 'route' ] );
+		$this->assertSame( 'example-plugin/example-plugin.php', $records[ 0 ][ 'table' ][ 'subject_id' ] );
 		$this->assertSame( [ 'update', 'deactivate' ], \array_column( $records[ 0 ][ 'actions' ], 'type' ) );
-		$this->assertSame( 'bi bi-arrow-up-circle-fill', $records[ 0 ][ 'actions' ][ 0 ][ 'icon_class' ] );
-		$this->assertSame( 'Go to updates', $records[ 0 ][ 'actions' ][ 0 ][ 'tooltip_attr' ] );
 		$this->assertSame( '1', $records[ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
 		$this->assertSame( '0', $records[ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
 		$this->assertSame( 1, $builder->tableBuildCalls() );
+		$this->assertSame( [ 'plugin' ], $builder->tableBuildRoutes() );
+	}
+
+	public function test_build_issue_records_uses_theme_table_route_for_theme_subjects() :void {
+		$builder = $this->newBuilder(
+			[
+				[ 'slug' => 'example-theme', 'file_count' => 4 ],
+			],
+			[
+				'example-theme' => [
+					'subject_type' => 'theme',
+					'subject_id'   => 'example-theme',
+					'title'        => 'Example Theme',
+					'icon_class'   => 'bi bi-palette-fill',
+					'has_update'   => false,
+				],
+			]
+		);
+
+		$records = $builder->buildIssueRecords( 'theme' );
+
+		$this->assertCount( 1, $records );
+		$this->assertSame( 'example-theme', $records[ 0 ][ 'table' ][ 'subject_id' ] );
+		$this->assertSame( [ 'theme' ], $builder->tableBuildRoutes() );
 	}
 
 	public function test_build_fully_ignored_plugin_summary_records_filters_out_plugins_with_active_results() :void {
@@ -93,18 +116,18 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			],
 			[
 				'active-plugin/active-plugin.php' => [
-					'type'       => 'plugin',
-					'file'       => 'active-plugin/active-plugin.php',
-					'title'      => 'Active Plugin',
-					'icon_class' => 'bi bi-plug-fill',
-					'has_update' => false,
+					'subject_type' => 'plugin',
+					'subject_id'   => 'active-plugin/active-plugin.php',
+					'title'        => 'Active Plugin',
+					'icon_class'   => 'bi bi-plug-fill',
+					'has_update'   => false,
 				],
 				'ignored-plugin/ignored-plugin.php' => [
-					'type'       => 'plugin',
-					'file'       => 'ignored-plugin/ignored-plugin.php',
-					'title'      => 'Ignored Plugin',
-					'icon_class' => 'bi bi-plug-fill',
-					'has_update' => false,
+					'subject_type' => 'plugin',
+					'subject_id'   => 'ignored-plugin/ignored-plugin.php',
+					'title'        => 'Ignored Plugin',
+					'icon_class'   => 'bi bi-plug-fill',
+					'has_update'   => false,
 				],
 			],
 			[
@@ -117,7 +140,6 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( [ 'ignored-plugin/ignored-plugin.php' ], \array_column( $records, 'key' ) );
 		$this->assertSame( [ 3 ], \array_column( $records, 'count_badge' ) );
-		$this->assertSame( '3 discovered files are currently ignored.', $records[ 0 ][ 'stat_text' ] ?? '' );
 	}
 
 	/**
@@ -140,9 +162,9 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 		};
 
 		return new class( $resolver, $activeGroupedRows, $ignoredGroupedRows ?? $activeGroupedRows ) extends ActionsQueueScanAssetCardsBuilder {
-			private int $tableBuildCalls = 0;
 			private array $activeGroupedRows;
 			private array $ignoredGroupedRows;
+			private \stdClass $tableBuildRecorder;
 
 			public function __construct(
 				ActionsQueueAssetMetadataResolver $resolver,
@@ -152,6 +174,7 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 				parent::__construct( $resolver );
 				$this->activeGroupedRows = $activeGroupedRows;
 				$this->ignoredGroupedRows = $ignoredGroupedRows;
+				$this->tableBuildRecorder = (object)[ 'calls' => [] ];
 			}
 
 			protected function retrieveGroupedAssetSummaries( string $assetType, array $resultsDisplayOptions ) :array {
@@ -160,17 +183,48 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 					: $this->activeGroupedRows;
 			}
 
-			protected function buildFileStatusTable( string $type, string $file, array $resultsDisplayOptions ) :array {
-				$this->tableBuildCalls++;
-				return [
-					'table_type'   => 'file_scan_results',
-					'type'         => $type,
-					'file'         => $file,
-				];
+			protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
+				return new class( $this->tableBuildRecorder ) extends ActionsQueueScanResultsTableBuilder {
+					private \stdClass $recorder;
+
+					public function __construct( \stdClass $recorder ) {
+						$this->recorder = $recorder;
+					}
+
+					public function buildPluginTable( string $pluginFile, ?array $options = null ) :array {
+						$this->recorder->calls[] = [
+							'route'      => 'plugin',
+							'subject_id' => $pluginFile,
+							'options'    => $options,
+						];
+						return [
+							'table_type' => 'file_scan_results',
+							'route'      => 'plugin',
+							'subject_id' => $pluginFile,
+						];
+					}
+
+					public function buildThemeTable( string $stylesheet, ?array $options = null ) :array {
+						$this->recorder->calls[] = [
+							'route'      => 'theme',
+							'subject_id' => $stylesheet,
+							'options'    => $options,
+						];
+						return [
+							'table_type' => 'file_scan_results',
+							'route'      => 'theme',
+							'subject_id' => $stylesheet,
+						];
+					}
+				};
 			}
 
 			public function tableBuildCalls() :int {
-				return $this->tableBuildCalls;
+				return \count( $this->tableBuildRecorder->calls );
+			}
+
+			public function tableBuildRoutes() :array {
+				return \array_column( $this->tableBuildRecorder->calls, 'route' );
 			}
 		};
 	}

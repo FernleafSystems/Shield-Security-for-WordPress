@@ -5,6 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaLoginVerifyStep;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
+	Malware,
+	Wordpress
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
 	ActionsQueueDrillDownGroups,
@@ -35,6 +39,8 @@ class ActionRoutingDeterminismTest extends BaseUnitTest {
 
 	public function testActionFromDrillDownSlugsResolveExpectedClasses() :void {
 		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, ActionsMap::ActionFromSlug( ActionsQueueAssetFileStatusDetail::SLUG ) );
+		$this->assertSame( Wordpress::class, ActionsMap::ActionFromSlug( Wordpress::SLUG ) );
+		$this->assertSame( Malware::class, ActionsMap::ActionFromSlug( Malware::SLUG ) );
 		$this->assertSame( ActionsQueueDrillDownGroups::class, ActionsMap::ActionFromSlug( ActionsQueueDrillDownGroups::SLUG ) );
 		$this->assertSame( ConfigureDrillDownDiagnosis::class, ActionsMap::ActionFromSlug( ConfigureDrillDownDiagnosis::SLUG ) );
 	}

@@ -61,6 +61,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 	protected function getDataFromItem( ResultItem $item ) :array {
 		$isIgnored = $item->VO->ignored_at > 0;
+		$actions = $this->getActions( $item );
 		$data = \array_merge( $item->getRawData(), [
 			'rid'              => $item->VO->scanresult_id,
 			'file'             => $item->path_fragment,
@@ -74,7 +75,8 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			'status_file_size' => $this->column_fileSize( $item ),
 			'status_file_type' => $this->column_fileType( $item ),
 			'status'           => $this->getColumnContent_FileStatus( $item ),
-			'actions'          => $this->getActionsMarkup( $item ),
+			'actions'          => $this->getActionsMarkup( $actions ),
+			'action_ids'       => \array_column( $actions, 'key' ),
 			'is_ignored'       => $isIgnored,
 			'ignored_label'    => $isIgnored ? __( 'Ignored', 'wp-simple-firewall' ) : '',
 			'DT_RowClass'      => $isIgnored ? 'scan-result-row scan-result-row--ignored' : 'scan-result-row',
@@ -148,13 +150,16 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return $retriever;
 	}
 
+	/**
+	 * @return list<array{key:string,class:string,rid:int,label:string,icon_class:string}>
+	 */
 	protected function getActions( ResultItem $item ) :array {
 		$con = self::con();
 		$actions = [];
 
 		$fileFragment = $item->path_fragment;
 		if ( !empty( $fileFragment ) ) {
-			$actions[] = $this->buildActionButton(
+			$actions[] = $this->buildAction(
 				'view',
 				'view-file',
 				$item->VO->scanresult_id,
@@ -164,7 +169,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		if ( $item->VO->item_deleted_at === 0 && ( $item->is_unrecognised || $item->is_mal ) ) {
-			$actions[] = $this->buildActionButton(
+			$actions[] = $this->buildAction(
 				'delete',
 				'delete',
 				$item->VO->scanresult_id,
@@ -182,7 +187,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 					->getItemActionHandler()
 					->setScanItem( $item );
 				if ( $actionHandler->getRepairHandler()->canRepairItem() ) {
-					$actions[] = $this->buildActionButton(
+					$actions[] = $this->buildAction(
 						'repair',
 						'repair',
 						$item->VO->scanresult_id,
@@ -196,7 +201,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		if ( $item->VO->ignored_at === 0 ) {
-			$actions[] = $this->buildActionButton(
+			$actions[] = $this->buildAction(
 				'ignore',
 				'ignore',
 				$item->VO->scanresult_id,
@@ -208,14 +213,15 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return $actions;
 	}
 
-	protected function getActionsMarkup( ResultItem $item ) :string {
-		$actions = $this->getActions( $item );
-
+	/**
+	 * @param list<array{key:string,class:string,rid:int,label:string,icon_class:string}> $actions
+	 */
+	protected function getActionsMarkup( array $actions ) :string {
 		return empty( $actions )
 			? ''
 			: sprintf(
 				'<div class="scan-results-row-actions">%s</div>',
-				\implode( '', $actions )
+				\implode( '', \array_map( fn( array $action ) :string => $this->buildActionButton( $action ), $actions ) )
 			);
 	}
 
@@ -381,20 +387,38 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			: null;
 	}
 
-	private function buildActionButton(
+	/**
+	 * @return array{key:string,class:string,rid:int,label:string,icon_class:string}
+	 */
+	private function buildAction(
 		string $actionKey,
 		string $actionClass,
 		int $scanResultId,
 		string $label,
 		string $iconClass
+	) :array {
+		return [
+			'key'        => $actionKey,
+			'class'      => $actionClass,
+			'rid'        => $scanResultId,
+			'label'      => $label,
+			'icon_class' => $iconClass,
+		];
+	}
+
+	/**
+	 * @param array{key:string,class:string,rid:int,label:string,icon_class:string} $action
+	 */
+	private function buildActionButton(
+		array $action
 	) :string {
 		return sprintf(
-			'<button type="button" class="btn btn-sm btn-light action actions-landing__table-icon-action scan-results-row-action scan-results-row-action--%1$s %2$s" title="%3$s" aria-label="%3$s" data-bs-toggle="tooltip" data-bs-title="%3$s" data-rid="%4$s"><i class="%5$s" aria-hidden="true"></i><span class="visually-hidden">%3$s</span></button>',
-			esc_attr( $actionKey ),
-			esc_attr( $actionClass ),
-			esc_attr( $label ),
-			$scanResultId,
-			esc_attr( $iconClass )
+			'<button type="button" class="btn btn-sm btn-light action actions-landing__table-icon-action scan-results-row-action scan-results-row-action--%1$s %2$s" title="%3$s" aria-label="%3$s" data-bs-toggle="tooltip" data-bs-title="%3$s" data-rid="%4$s" data-scan-result-action="%1$s"><i class="%5$s" aria-hidden="true"></i><span class="visually-hidden">%3$s</span></button>',
+			esc_attr( $action[ 'key' ] ),
+			esc_attr( $action[ 'class' ] ),
+			esc_attr( $action[ 'label' ] ),
+			$action[ 'rid' ],
+			esc_attr( $action[ 'icon_class' ] )
 		);
 	}
 }

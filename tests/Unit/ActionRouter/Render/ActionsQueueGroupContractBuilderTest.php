@@ -96,18 +96,18 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 	public function test_build_empty_group_keeps_scoped_asset_groups_on_direct_table_contract() :void {
 		$builder = $this->newBuilder( [
 			'plugin:example-plugin/example-plugin.php' => [
-				'type'       => 'plugin',
-				'file'       => 'example-plugin/example-plugin.php',
-				'title'      => 'Example Plugin',
-				'icon_class' => 'bi bi-plug-fill',
-				'has_update' => false,
+				'subject_type' => 'plugin',
+				'subject_id'   => 'example-plugin/example-plugin.php',
+				'title'        => 'Example Plugin',
+				'icon_class'   => 'bi bi-plug-fill',
+				'has_update'   => false,
 			],
 			'theme:example-theme'                     => [
-				'type'       => 'theme',
-				'file'       => 'example-theme',
-				'title'      => 'Example Theme',
-				'icon_class' => 'bi bi-palette-fill',
-				'has_update' => false,
+				'subject_type' => 'theme',
+				'subject_id'   => 'example-theme',
+				'title'        => 'Example Theme',
+				'icon_class'   => 'bi bi-palette-fill',
+				'has_update'   => false,
 			],
 		] );
 
@@ -120,8 +120,6 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $pluginGroup[ 'render_action_class' ] );
 		$this->assertSame(
 			[
-				'type'                    => 'plugin',
-				'file'                    => 'example-plugin/example-plugin.php',
 				'display_context'         => 'actions_queue',
 				'results_display_options' => [
 					'include_ignored'  => false,
@@ -129,6 +127,8 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 					'include_deleted'  => false,
 					'ignored_only'     => false,
 				],
+				'subject_type'            => 'plugin',
+				'subject_id'              => 'example-plugin/example-plugin.php',
 			],
 			$pluginGroup[ 'render_action_data' ]
 		);
@@ -149,8 +149,8 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 			],
 			$themeGroup[ 'render_action_data' ][ 'results_display_options' ] ?? []
 		);
-		$this->assertSame( 'theme', $themeGroup[ 'render_action_data' ][ 'type' ] );
-		$this->assertSame( 'example-theme', $themeGroup[ 'render_action_data' ][ 'file' ] );
+		$this->assertSame( 'theme', $themeGroup[ 'render_action_data' ][ 'subject_type' ] );
+		$this->assertSame( 'example-theme', $themeGroup[ 'render_action_data' ][ 'subject_id' ] );
 		$this->assertSame( 'Example Theme', $themeGroup[ 'selection' ][ 'header' ][ 'title' ] );
 		$this->assertSame( [], $themeGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
 	}
