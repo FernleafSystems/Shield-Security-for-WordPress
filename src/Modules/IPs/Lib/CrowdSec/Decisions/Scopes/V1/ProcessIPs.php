@@ -211,9 +211,7 @@ class ProcessIPs extends ProcessBase {
 	protected function processDeleted() :int {
 
 		/** @var RangeInterface[] $ipsToDelete */
-		$ipsToDelete = \array_map( function ( $ip ) {
-			return Factory::parseRangeString( $ip );
-		}, $this->deletedDecisions );
+		$ipsToDelete = \array_map( fn ( $ip ) => Factory::parseRangeString( $ip ), $this->deletedDecisions );
 
 		$rulesIterator = new IpRulesIterator();
 		$loader = $rulesIterator->getLoader();

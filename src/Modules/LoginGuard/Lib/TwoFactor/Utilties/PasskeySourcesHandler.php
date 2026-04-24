@@ -79,7 +79,7 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 			$record->unique_id = $this->normalisedSourceIDFromCredentialData( $credentialData );
 			$record->label = 'No Label';
 			$record->data = $credentialData;
-			$record->passwordless = 1;
+			$record->passwordless = true;
 
 			( new MfaRecordsHandler() )->insert( $record );
 		}

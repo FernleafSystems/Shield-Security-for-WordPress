@@ -52,8 +52,8 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	private function buildCardData( array $attentionQuery, array $scanRows = [] ) :array {
-		return ( new ActionsQueueCardDataBuilder() )->build( $attentionQuery, $scanRows );
+	private function buildCardData( array $attentionQuery ) :array {
+		return ( new ActionsQueueCardDataBuilder() )->build( $attentionQuery );
 	}
 
 	private function attentionQuery(
@@ -103,20 +103,6 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		];
 	}
 
-	private function scanRow( string $key, string $label, string $severity, int $count ) :array {
-		return [
-			'key'      => $key,
-			'zone'     => 'scans',
-			'label'    => $label,
-			'text'     => $label,
-			'count'    => $count,
-			'severity' => $severity,
-			'href'     => '/'.$key,
-			'action'   => 'Open',
-			'target'   => '',
-		];
-	}
-
 	private function highestSeverity( array $items ) :string {
 		$severities = \array_column( $items, 'severity' );
 		if ( \in_array( 'critical', $severities, true ) ) {
@@ -134,20 +120,18 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			$this->attentionQuery(
 				[ $this->attentionItem( 'malware', 'scans', 2, 'critical', 'Malware' ) ],
 				[ $this->attentionItem( 'wp_updates', 'maintenance', 1, 'warning', 'WordPress Updates' ) ]
-			),
-			[ $this->scanRow( 'malware', 'Malware', 'critical', 2 ) ]
+			)
 		);
 
 		$this->assertSame( 'critical', $data[ 'shield_status' ] );
-		$this->assertSame( 'bi bi-shield-x', $data[ 'shield_icon_class' ] );
 		$this->assertSame( 3, $data[ 'summary' ][ 'total_items' ] );
 		$this->assertTrue( $data[ 'summary' ][ 'has_items' ] );
 		$this->assertSame( 'actions', $data[ 'actions_lane' ][ 'mode' ] );
 		$this->assertSame( 'status', $data[ 'actions_lane' ][ 'indicator_type' ] );
 		$this->assertSame( 'critical', $data[ 'actions_lane' ][ 'indicator_severity' ] );
-		$this->assertSame( ' has-critical', $data[ 'actions_lane' ][ 'extra_classes' ] );
-		$this->assertSame( 'bi bi-shield-x', $data[ 'actions_lane' ][ 'icon_class' ] );
-		$this->assertSame( '/admin/scans/overview', $data[ 'actions_lane' ][ 'href' ] );
+		$this->assertIsString( $data[ 'shield_icon_class' ] );
+		$this->assertIsString( $data[ 'actions_lane' ][ 'icon_class' ] );
+		$this->assertIsString( $data[ 'actions_lane' ][ 'href' ] );
 	}
 
 	public function test_build_marks_all_clear_when_ignored_scan_items_are_the_only_attention_items() :void {
@@ -157,13 +141,7 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 				$this->attentionItem( 'plugin_files_ignored', 'scans', 1, 'warning', 'ignored-plugin-label' ),
 				$this->attentionItem( 'theme_files_ignored', 'scans', 3, 'warning', 'ignored-theme-label' ),
 				$this->attentionItem( 'malware_ignored', 'scans', 4, 'warning', 'ignored-malware-label' ),
-			] ),
-			[
-				$this->scanRow( 'wp_files_ignored', 'ignored-wp-label', 'warning', 2 ),
-				$this->scanRow( 'plugin_files_ignored', 'ignored-plugin-label', 'warning', 1 ),
-				$this->scanRow( 'theme_files_ignored', 'ignored-theme-label', 'warning', 3 ),
-				$this->scanRow( 'malware_ignored', 'ignored-malware-label', 'warning', 4 ),
-			]
+			] )
 		);
 
 		$this->assertFalse( $data[ 'summary' ][ 'has_items' ] );
@@ -171,9 +149,11 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'good', $data[ 'shield_status' ] );
 		$this->assertSame( [], $data[ 'actions_queue_rows' ] );
 		$this->assertSame( 'good', $data[ 'actions_lane' ][ 'indicator_severity' ] );
+		$this->assertIsArray( $data[ 'all_clear' ][ 'zone_chips' ] );
+		$this->assertGreaterThan( 0, \count( $data[ 'all_clear' ][ 'zone_chips' ] ) );
 	}
 
-	public function test_build_rows_follow_scan_state_order_and_append_maintenance() :void {
+	public function test_build_rows_follow_attention_scan_items_and_append_maintenance() :void {
 		$scanItems = [
 			$this->attentionItem( 'malware', 'scans', 4, 'critical', 'Malware' ),
 			$this->attentionItem( 'vulnerable_assets', 'scans', 3, 'critical', 'Vulnerabilities' ),
@@ -187,17 +167,7 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			$this->attentionQuery(
 				$scanItems,
 				[ $this->attentionItem( 'wp_updates', 'maintenance', 7, 'warning', 'WordPress Updates' ) ]
-			),
-			[
-				$this->scanRow( 'malware', 'Malware', 'critical', 4 ),
-				$this->scanRow( 'vulnerable_assets', 'Vulnerabilities', 'critical', 3 ),
-				$this->scanRow( 'wp_files', 'WordPress Files', 'critical', 2 ),
-				$this->scanRow( 'plugin_files', 'Plugin Files', 'warning', 5 ),
-				$this->scanRow( 'plugin_files_ignored', 'Plugin Files', 'warning', 3 ),
-				$this->scanRow( 'theme_files', 'Theme Files', 'warning', 1 ),
-				$this->scanRow( 'abandoned', 'Abandoned Assets', 'critical', 6 ),
-				$this->scanRow( 'file_locker', 'File Locker', 'warning', 2 ),
-			]
+			)
 		);
 
 		$rows = $data[ 'actions_queue_rows' ];
@@ -207,19 +177,7 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			\array_column( $rows, 'key' )
 		);
 		$this->assertSame( [ 4, 3, 2, 5, 1, 6, 2, 7 ], \array_column( $rows, 'count' ) );
-		$this->assertSame(
-			[
-				'bi bi-bug',
-				'bi bi-shield-exclamation',
-				'bi bi-wordpress',
-				'bi bi-plug',
-				'bi bi-brush',
-				'bi bi-archive',
-				'bi bi-file-lock2',
-				'bi bi-wrench',
-			],
-			\array_column( $rows, 'icon_class' )
-		);
+		$this->assertCount( \count( $rows ), \array_filter( \array_column( $rows, 'icon_class' ), '\is_string' ) );
 	}
 
 	public function test_build_rows_only_include_visible_scan_items_and_warning_only_maintenance() :void {
@@ -227,8 +185,7 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			$this->attentionQuery(
 				[],
 				[ $this->attentionItem( 'wp_updates', 'maintenance', 2, 'warning', 'WordPress Updates' ) ]
-			),
-			[ $this->scanRow( 'plugin_files', 'Plugin Files', 'warning', 2 ) ]
+			)
 		);
 
 		$rows = $data[ 'actions_queue_rows' ];

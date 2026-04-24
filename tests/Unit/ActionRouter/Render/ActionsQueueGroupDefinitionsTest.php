@@ -5,11 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
+	Malware,
 	Maintenance,
-	Vulnerabilities
+	Vulnerabilities,
+	Wordpress
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	ActionsQueueAssetFileStatusDetail,
 	ActionsQueueGroupDefinitions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -27,11 +28,9 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'WordPress Files', $definitions[ 'wordpress' ][ 'label' ] );
 		$this->assertSame( 'direct_table', $definitions[ 'wordpress' ][ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $definitions[ 'wordpress' ][ 'card_type' ] );
-		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $definitions[ 'wordpress' ][ 'render_action_class' ] );
+		$this->assertSame( Wordpress::class, $definitions[ 'wordpress' ][ 'render_action_class' ] );
 		$this->assertSame(
 			[
-				'type'                    => 'wordpress',
-				'file'                    => 'wordpress',
 				'display_context'         => 'actions_queue',
 				'results_display_options' => [
 					'include_ignored'  => false,
@@ -47,16 +46,25 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'linked', $definitions[ 'vulnerabilities' ][ 'card_type' ] );
 		$this->assertSame( 'Abandoned Assets', $definitions[ 'abandoned' ][ 'label' ] );
 		$this->assertSame( 'linked', $definitions[ 'abandoned' ][ 'card_type' ] );
-		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $definitions[ 'malware' ][ 'render_action_class' ] );
-		$this->assertSame( 'malware', $definitions[ 'malware' ][ 'render_action_data' ][ 'type' ] ?? '' );
-		$this->assertSame( 'malware', $definitions[ 'malware' ][ 'render_action_data' ][ 'file' ] ?? '' );
+		$this->assertSame( Malware::class, $definitions[ 'malware' ][ 'render_action_class' ] );
+		$this->assertSame(
+			[
+				'display_context'         => 'actions_queue',
+				'results_display_options' => [
+					'include_ignored'  => false,
+					'include_repaired' => false,
+					'include_deleted'  => false,
+					'ignored_only'     => false,
+				],
+			],
+			$definitions[ 'malware' ][ 'render_action_data' ]
+		);
 		$this->assertSame( 'asset_cards', $definitions[ 'plugins' ][ 'detail_shell' ] );
 		$this->assertSame( 'asset_cards', $definitions[ 'themes' ][ 'detail_shell' ] );
 		$this->assertSame( Vulnerabilities::class, $definitions[ 'vulnerabilities' ][ 'render_action_class' ] );
 		$this->assertSame( [ 'section' => 'vulnerable' ], $definitions[ 'vulnerabilities' ][ 'render_action_data' ] );
 		$this->assertSame( Vulnerabilities::class, $definitions[ 'abandoned' ][ 'render_action_class' ] );
 		$this->assertSame( [ 'section' => 'abandoned' ], $definitions[ 'abandoned' ][ 'render_action_data' ] );
-		$this->assertSame( 'File Changes', $definitions[ 'file_locker' ][ 'label' ] );
 		$this->assertSame( 'asset_cards', $definitions[ 'file_locker' ][ 'detail_shell' ] );
 		$this->assertSame( FileLocker::class, $definitions[ 'file_locker' ][ 'render_action_class' ] );
 		$this->assertSame( 'maintenance', $definitions[ 'maintenance' ][ 'detail_shell' ] );
@@ -171,7 +179,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 			$definitions->summaryBehaviourForKey( 'abandoned' )
 		);
 		$this->assertSame( 'themes', $definitions->healthyIgnoredSourceForGroupKey( 'themes' ) );
-		$this->assertSame( 'malware', $definitions->healthyIgnoredSourceForGroupKey( 'malware' ) );
+		$this->assertSame( '', $definitions->healthyIgnoredSourceForGroupKey( 'malware' ) );
 		$this->assertSame(
 			[
 				'display_context'         => 'actions_queue',
@@ -186,8 +194,19 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		);
 		$this->assertSame( [], $definitions->ignoredRenderActionDataForGroupKey( 'vulnerabilities', 2 ) );
 		$this->assertSame( [], $definitions->ignoredRenderActionDataForGroupKey( 'abandoned', 2 ) );
-		$this->assertSame( 'wordpress', $definitions->ignoredRenderActionDataForGroupKey( 'wordpress', 2 )[ 'type' ] ?? '' );
-		$this->assertSame( 'malware', $definitions->ignoredRenderActionDataForGroupKey( 'malware', 2 )[ 'type' ] ?? '' );
+		$this->assertSame( [], $definitions->ignoredRenderActionDataForGroupKey( 'malware', 2 ) );
+		$this->assertSame(
+			[
+				'display_context'         => 'actions_queue',
+				'results_display_options' => [
+					'include_ignored'  => true,
+					'include_repaired' => false,
+					'include_deleted'  => false,
+					'ignored_only'     => true,
+				],
+			],
+			$definitions->ignoredRenderActionDataForGroupKey( 'wordpress', 2 )
+		);
 	}
 
 	public function test_ignored_only_summary_key_helpers_are_centralized() :void {

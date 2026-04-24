@@ -21,7 +21,7 @@ abstract class BaseApi extends DynPropertiesClass {
 
 	public const DEFAULT_URL_STUB = '';
 	public const API_ACTION = '';
-	public const DEFAULT_API_VERSION = '1';
+	public const DEFAULT_API_VERSION = 1;
 
 	protected function sendReq() :?array {
 		$httpReq = Services::HttpRequest();

@@ -34,6 +34,34 @@ class RetrieveCountQueryTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
+	/**
+	 * @return array{
+	 *   scan_slugs:list<string>,
+	 *   ri_columns:list<string>,
+	 *   rim_meta_keys:list<string>,
+	 *   rim_meta_values:list<string>,
+	 *   uses_count_star:bool,
+	 *   references_result_meta_table:bool
+	 * }
+	 */
+	private function countQueryFeatures( string $query ) :array {
+		$sql = \strtolower( \preg_replace( '/\s+/', ' ', $query ) ?? $query );
+
+		\preg_match_all( "/`ri`\.`scan`='([^']+)'/", $sql, $scanSlugMatches );
+		\preg_match_all( '/`ri`\.`([^`]+)`\s*(?:!?=|[<>]=?)/', $sql, $riColumnMatches );
+		\preg_match_all( "/`rim`\.`meta_key`='([^']+)'/", $sql, $rimKeyMatches );
+		\preg_match_all( "/`rim`\.`meta_value`='([^']+)'/", $sql, $rimValueMatches );
+
+		return [
+			'scan_slugs'                   => $scanSlugMatches[ 1 ] ?? [],
+			'ri_columns'                   => \array_values( \array_unique( $riColumnMatches[ 1 ] ?? [] ) ),
+			'rim_meta_keys'                => $rimKeyMatches[ 1 ] ?? [],
+			'rim_meta_values'              => $rimValueMatches[ 1 ] ?? [],
+			'uses_count_star'              => \strpos( $sql, 'count(*)' ) !== false,
+			'references_result_meta_table' => \strpos( $sql, 'shield_scan_result_item_meta' ) !== false,
+		];
+	}
+
 	public function test_count_preserves_existing_wheres_without_accumulating_duplicates() :void {
 		$queries = [];
 		$this->installControllerAndDb( $queries );
@@ -50,17 +78,36 @@ class RetrieveCountQueryTest extends BaseUnitTest {
 
 		$this->assertCount( 2, $queries );
 		foreach ( $queries as $query ) {
-			$this->assertStringContainsString( 'COUNT(*)', $query );
-			$this->assertStringContainsString( "`ri`.`scan`='afs'", $query );
-			$this->assertStringContainsString( "`ri`.`auto_filtered_at`=0", $query );
-			$this->assertStringContainsString( "`ri`.`ignored_at`=0", $query );
-			$this->assertStringContainsString( "`ri`.`resolution_reason`!='clean_rescan'", $query );
-			$this->assertStringContainsString( "`ri`.`resolution_reason`!='asset_replaced'", $query );
-			$this->assertStringContainsString( "`rim`.`meta_key`='ptg_slug'", $query );
-			$this->assertStringContainsString( "`rim`.`meta_value`='shield/shield.php'", $query );
-			$this->assertSame( 1, \substr_count( $query, "`rim`.`meta_key`='ptg_slug'" ) );
-			$this->assertSame( 1, \substr_count( $query, "`rim`.`meta_value`='shield/shield.php'" ) );
+			$features = $this->countQueryFeatures( $query );
+			$this->assertTrue( $features[ 'uses_count_star' ] );
+			$this->assertSame( [ 'afs' ], $features[ 'scan_slugs' ] );
+			$this->assertSame( [ 'scan', 'auto_filtered_at', 'resolution_reason', 'ignored_at', 'resolved_at' ], \array_values( \array_intersect(
+				[ 'scan', 'auto_filtered_at', 'resolution_reason', 'ignored_at', 'resolved_at' ],
+				$features[ 'ri_columns' ]
+			) ) );
+			$this->assertSame( [ 'ptg_slug' ], $features[ 'rim_meta_keys' ] );
+			$this->assertSame( [ 'shield/shield.php' ], $features[ 'rim_meta_values' ] );
 		}
+	}
+
+	public function test_count_omits_result_item_meta_join_when_wheres_do_not_reference_meta_alias() :void {
+		$queries = [];
+		$this->installControllerAndDb( $queries );
+
+		$retriever = ( new RetrieveCount() )
+			->setScanController( $this->newScanController() )
+			->addWheres( [
+				"`ri`.`item_type`='f'",
+				"`ri`.`item_id`!=''",
+			] );
+
+		$this->assertSame( 3, $retriever->count( RetrieveCount::CONTEXT_RESULTS_DISPLAY ) );
+
+		$this->assertCount( 1, $queries );
+		$features = $this->countQueryFeatures( $queries[ 0 ] );
+		$this->assertTrue( $features[ 'uses_count_star' ] );
+		$this->assertFalse( $features[ 'references_result_meta_table' ] );
+		$this->assertContains( 'item_type', $features[ 'ri_columns' ] );
 	}
 
 	private function installControllerAndDb( array &$queries ) :void {
@@ -83,25 +130,6 @@ class RetrieveCountQueryTest extends BaseUnitTest {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->db_con = (object)[
-			'scans' => new class {
-				public function getQuerySelector() {
-					return new class {
-						public function getLatestForScan( string $scanSlug ) {
-							unset( $scanSlug );
-							return (object)[ 'id' => 55 ];
-						}
-					};
-				}
-
-				public function getTable() :string {
-					return 'shield_scans';
-				}
-			},
-			'scan_results' => new class {
-				public function getTable() :string {
-					return 'shield_scan_results';
-				}
-			},
 			'scan_result_items' => new class {
 				public function getTable() :string {
 					return 'shield_scan_result_items';

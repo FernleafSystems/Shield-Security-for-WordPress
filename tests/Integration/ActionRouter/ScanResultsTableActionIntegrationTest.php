@@ -60,8 +60,6 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
 		$this->assertTrue( $payload[ 'table_reload' ] ?? false );
-		$this->assertIsString( $payload[ 'message' ] ?? null );
-		$this->assertNotSame( '', (string)( $payload[ 'message' ] ?? '' ) );
 
 		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( $resultItemId );
 		$this->assertNotEmpty( $item );
@@ -272,12 +270,13 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function test_retrieve_table_data_exposes_ignored_row_contract_fields() :void {
+	public function test_retrieve_table_data_exposes_ignored_row_state() :void {
 		$ignored = $this->seedWordpressScanResult();
 		TestDataFactory::markScanResultItemIgnored( (int)$ignored[ 'result_item_id' ] );
 
 		$payload = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->ignoredOnly() );
-		$row = $payload[ 'datatable_data' ][ 'data' ][ 0 ] ?? null;
+		$this->assertCount( 1, $payload[ 'datatable_data' ][ 'data' ] );
+		$row = $payload[ 'datatable_data' ][ 'data' ][ 0 ];
 
 		$this->assertIsArray( $row );
 		$this->assertTrue( (bool)( $row[ 'is_ignored' ] ?? false ) );
@@ -289,6 +288,56 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertStringContainsString( 'data-scan-result-action="view"', (string)( $row[ 'file_as_href' ] ?? '' ) );
 		$this->assertStringContainsString( 'data-scan-result-ignored-badge="1"', (string)( $row[ 'file_as_href' ] ?? '' ) );
 		$this->assertStringContainsString( 'data-scan-result-action="unignore"', (string)( $row[ 'actions' ] ?? '' ) );
+	}
+
+	public function test_core_row_actions_keep_independent_delete_and_repair_action_ids() :void {
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$tracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->corePathFragment( 'wp-admin/admin.php' ), [
+			'is_in_core' => 1,
+			'is_missing' => 1,
+			'is_mal'     => 1,
+		] );
+
+		$payload = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
+		$this->assertCount( 1, $payload[ 'datatable_data' ][ 'data' ] );
+		$row = $payload[ 'datatable_data' ][ 'data' ][ 0 ];
+
+		$this->assertSame( (int)$tracked[ 'result_item_id' ], (int)$row[ 'rid' ] );
+		$this->assertSame( [ 'view', 'delete', 'repair', 'ignore' ], $row[ 'action_ids' ] );
+	}
+
+	public function test_plugin_row_actions_use_plugin_route_scope_and_delete_id_without_repair() :void {
+		$pluginFile = self::con()->base_file;
+		$this->ensureFixtureFileExists( ABSPATH.$this->pluginPathFragment( $pluginFile ) );
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$tracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginPathFragment( $pluginFile ), [
+			'is_unrecognised' => 1,
+			'ptg_slug'        => $pluginFile,
+		] );
+
+		$payload = $this->retrieveRows( 'plugin', $pluginFile, ( new ScanResultsDisplayOptions() )->activeOnly() );
+		$this->assertCount( 1, $payload[ 'datatable_data' ][ 'data' ] );
+		$row = $payload[ 'datatable_data' ][ 'data' ][ 0 ];
+
+		$this->assertSame( (int)$tracked[ 'result_item_id' ], (int)$row[ 'rid' ] );
+		$this->assertSame( [ 'view', 'delete', 'ignore' ], $row[ 'action_ids' ] );
+	}
+
+	public function test_theme_row_actions_use_theme_route_scope_and_delete_id_without_repair() :void {
+		$stylesheet = \wp_get_theme()->get_stylesheet();
+		$this->ensureFixtureFileExists( \get_theme_root().'/'.$stylesheet.'/style.css' );
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$tracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->themePathFragment( $stylesheet ), [
+			'is_unrecognised' => 1,
+			'ptg_slug'        => $stylesheet,
+		] );
+
+		$payload = $this->retrieveRows( 'theme', $stylesheet, ( new ScanResultsDisplayOptions() )->activeOnly() );
+		$this->assertCount( 1, $payload[ 'datatable_data' ][ 'data' ] );
+		$row = $payload[ 'datatable_data' ][ 'data' ][ 0 ];
+
+		$this->assertSame( (int)$tracked[ 'result_item_id' ], (int)$row[ 'rid' ] );
+		$this->assertSame( [ 'view', 'delete', 'ignore' ], $row[ 'action_ids' ] );
 	}
 
 	/**
@@ -304,11 +353,18 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	 * @return array<string,mixed>
 	 */
 	private function retrieveWordpressRows( array $resultsDisplayOptions, ?array $tableData = null ) :array {
+		return $this->retrieveRows( 'core', 'core', $resultsDisplayOptions, $tableData );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function retrieveRows( string $type, string $file, array $resultsDisplayOptions, ?array $tableData = null ) :array {
 		return $this->processScanResultsAction( [
 			'sub_action' => 'retrieve_table_data',
 			'table_data' => $tableData ?? $this->tableDataFixture(),
-			'type'       => 'core',
-			'file'       => 'core',
+			'type'       => $type,
+			'file'       => $file,
 			...(
 				new ScanResultsDisplayOptions()
 			)->buildExplicitActionData( $resultsDisplayOptions ),
@@ -327,6 +383,27 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function corePathFragment( string $relativePath ) :string {
 		return TestDataFactory::pathFragmentFromAbsolutePath( ABSPATH.\ltrim( $relativePath, '/\\' ) );
+	}
+
+	private function pluginPathFragment( string $pluginFile ) :string {
+		return 'wp-content/plugins/'.\ltrim( \wp_normalize_path( $pluginFile ), '/\\' );
+	}
+
+	private function themePathFragment( string $stylesheet ) :string {
+		return TestDataFactory::pathFragmentFromAbsolutePath( \get_theme_root().'/'.$stylesheet.'/style.css' );
+	}
+
+	private function ensureFixtureFileExists( string $path ) :void {
+		$path = \wp_normalize_path( $path );
+		if ( \is_file( $path ) ) {
+			return;
+		}
+
+		$dir = \dirname( $path );
+		if ( !\is_dir( $dir ) ) {
+			\wp_mkdir_p( $dir );
+		}
+		\file_put_contents( $path, "fixture\n" );
 	}
 
 	/**

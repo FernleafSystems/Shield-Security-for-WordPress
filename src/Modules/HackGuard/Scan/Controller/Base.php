@@ -47,10 +47,6 @@ abstract class Base {
 		);
 	}
 
-	public function getAdminMenuItems() :array {
-		return [];
-	}
-
 	public function getQueueGroupSize() :int {
 		return 1;
 	}

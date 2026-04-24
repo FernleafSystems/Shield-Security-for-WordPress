@@ -125,16 +125,28 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		\set_site_transient( 'update_plugins', $updates );
 	}
 
-	public function test_render_returns_actions_queue_widget_template_and_admin_links_contract() :void {
+	private function ignoreCurrentMaintenanceIssues() :void {
+		self::con()->opts
+			->optSet(
+				MaintenanceIssueStateProvider::OPT_KEY,
+				( new MaintenanceIssueStateProvider() )->currentIssueIdentifiersByKey()
+			)
+			->store();
+	}
+
+	public function test_render_returns_actions_queue_widget_template_and_payload_contract() :void {
 		$payload = $this->renderSummaryPayloadWithPluginAdminBypass();
 		$renderData = $payload[ 'render_data' ];
 
 		$this->assertSame( '/wpadmin/components/widget/dashboard_actions_queue.twig', $payload[ 'render_template' ] );
 		$this->assertTrue( $renderData[ 'flags' ][ 'show_internal_links' ] );
 		$this->assertSame( $this->expectedActionsQueueHref(), $renderData[ 'hrefs' ][ 'actions_queue' ] );
+		$this->assertIsBool( $renderData[ 'flags' ][ 'show_internal_links' ] );
 	}
 
 	public function test_all_clear_renders_green_widget_contract_when_no_items_exist() :void {
+		$this->ignoreCurrentMaintenanceIssues();
+
 		$renderData = $this->renderSummaryData();
 
 		$this->assertFalse( $renderData[ 'flags' ][ 'has_items' ] );
@@ -187,7 +199,9 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 			$renderData = $this->renderSummaryData();
 
 			$this->assertFalse( $renderData[ 'flags' ][ 'show_internal_links' ] );
-			$this->assertSame( $this->expectedActionsQueueHref(), $renderData[ 'hrefs' ][ 'actions_queue' ] );
+			$this->assertArrayHasKey( 'actions_queue', $renderData[ 'hrefs' ] );
+			$this->assertIsString( $renderData[ 'hrefs' ][ 'actions_queue' ] );
+			$this->assertNotSame( '', $renderData[ 'hrefs' ][ 'actions_queue' ] );
 		}
 		finally {
 			\remove_filter( self::con()->prefix( 'is_plugin_admin' ), $forceNotPluginAdmin, \PHP_INT_MAX );

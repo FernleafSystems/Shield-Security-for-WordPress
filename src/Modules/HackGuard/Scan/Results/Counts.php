@@ -2,15 +2,42 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\LatestScanResultWheresBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveGroupedAssetSummaries;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-type AdminBarExactScanCounts array{
+ *   malware:int,
+ *   wp_files:int,
+ *   plugin_files:int,
+ *   theme_files:int,
+ *   abandoned:int,
+ *   vulnerable_assets:int
+ * }
+ * @phpstan-type AdminBarScanSummary array{
+ *   counts:array<string,int>,
+ *   total:int,
+ *   is_capped:bool
+ * }
+ */
 class Counts {
 
 	use PluginControllerConsumer;
+
+	private const ADMIN_BAR_EXACT_COUNT_KEYS = [
+		'malware_files',
+		'wp_files',
+		'plugin_files',
+		'theme_files',
+		'abandoned',
+		'assets_vulnerable',
+	];
+
+	private const ADMIN_BAR_BOUNDED_LIMIT = 100;
 
 	private array $counts = [];
 
@@ -58,6 +85,39 @@ class Counts {
 
 	public function countWPFiles() :int {
 		return $this->getCount( 'wp_files' );
+	}
+
+	/**
+	 * @return AdminBarScanSummary
+	 */
+	public function adminBarScanSummary( bool $forceExact = false ) :array {
+		if ( $forceExact || $this->hasWarmAdminBarExactCounts() ) {
+			$counts = $this->adminBarExactCounts();
+
+			return [
+				'counts'    => $counts,
+				'total'     => (int)\array_sum( $counts ),
+				'is_capped' => false,
+			];
+		}
+
+		$count = $this->adminBarBoundedActiveProblemCount( self::ADMIN_BAR_BOUNDED_LIMIT );
+
+		return [
+			'counts'    => [],
+			'total'     => \min( $count, self::ADMIN_BAR_BOUNDED_LIMIT - 1 ),
+			'is_capped' => $count >= self::ADMIN_BAR_BOUNDED_LIMIT,
+		];
+	}
+
+	private function hasWarmAdminBarExactCounts() :bool {
+		foreach ( self::ADMIN_BAR_EXACT_COUNT_KEYS as $key ) {
+			if ( !\array_key_exists( $key, $this->counts ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public function countAffectedPluginAssets() :int {
@@ -122,27 +182,27 @@ class Counts {
 
 				case 'malware_files':
 					$resultsCount->setScanController( $scansCon->AFS() )
-								 ->addWheres( [ "`rim`.`meta_key`='is_mal'", ] );
+								 ->addWheres( $this->resultMetaFlagWheres( 'is_mal' ) );
 					break;
 				case 'wp_files':
 					$resultsCount->setScanController( $scansCon->AFS() )
-								 ->addWheres( [ "`ri`.`asset_type`='core'", ] );
+								 ->addWheres( $this->coreFileWheres() );
 					break;
 				case 'plugin_files':
 					$resultsCount->setScanController( $scansCon->AFS() )
-								 ->addWheres( [ "`ri`.`asset_type`='plugin'", ] );
+								 ->addWheres( $this->pluginFileWheres() );
 					break;
 				case 'theme_files':
 					$resultsCount->setScanController( $scansCon->AFS() )
-								 ->addWheres( [ "`ri`.`asset_type`='theme'", ] );
+								 ->addWheres( $this->themeFileWheres() );
 					break;
 				case 'abandoned':
 					$resultsCount->setScanController( $scansCon->APC() )
-								 ->addWheres( [ "`rim`.`meta_key`='is_abandoned'", ] );
+								 ->addWheres( $this->resultMetaFlagWheres( 'is_abandoned' ) );
 					break;
 				case 'assets_vulnerable':
 					$resultsCount->setScanController( $scansCon->WPV() )
-								 ->addWheres( [ "`rim`.`meta_key`='is_vulnerable'", ] );
+								 ->addWheres( $this->resultMetaFlagWheres( 'is_vulnerable' ) );
 					break;
 
 				default:
@@ -152,6 +212,113 @@ class Counts {
 		}
 
 		return $this->counts[ $resultType ];
+	}
+
+	/**
+	 * @return AdminBarExactScanCounts
+	 */
+	private function adminBarExactCounts() :array {
+		return [
+			'malware'           => $this->countMalware(),
+			'wp_files'          => $this->countWPFiles(),
+			'plugin_files'      => $this->countPluginFiles(),
+			'theme_files'       => $this->countThemeFiles(),
+			'abandoned'         => $this->countAbandoned(),
+			'vulnerable_assets' => $this->countVulnerableAssets(),
+		];
+	}
+
+	private function adminBarBoundedActiveProblemCount( int $limit ) :int {
+		$cacheKey = 'admin_bar_bounded_active_problem_count_'.$limit;
+		if ( !isset( $this->counts[ $cacheKey ] ) ) {
+			$scanWheres = [];
+			foreach ( self::con()->comps->scans->getAllScanCons() as $scanCon ) {
+				if ( !$scanCon->isEnabled() ) {
+					continue;
+				}
+
+				$scanWheres[] = '('.\implode( ' AND ', $this->getLatestScanWheresBuilder()->forContext( $scanCon->getSlug(), $this->context ) ).')';
+			}
+
+			$this->counts[ $cacheKey ] = empty( $scanWheres )
+				? 0
+				: $this->countBoundedActiveProblemRows( $scanWheres, $limit );
+		}
+
+		return (int)$this->counts[ $cacheKey ];
+	}
+
+	/**
+	 * @param list<string> $scanWheres
+	 */
+	private function countBoundedActiveProblemRows( array $scanWheres, int $limit ) :int {
+		$dbCon = self::con()->db_con;
+
+		return (int)Services::WpDb()->getVar( \sprintf(
+			"SELECT COUNT(*) FROM (
+				SELECT `ri`.`id`
+				FROM `%s` AS `ri`
+				WHERE (%s)
+				LIMIT %d
+			) AS `bounded_scan_results`",
+			$dbCon->scan_result_items->getTable(),
+			\implode( ' OR ', $scanWheres ),
+			\max( 1, $limit )
+		) );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function coreFileWheres() :array {
+		return [
+			"`ri`.`item_type`='".ResultItemsHandler::ITEM_TYPE_FILE."'",
+			$this->resultMetaFlagExists( 'is_in_core' ),
+		];
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function pluginFileWheres() :array {
+		return [
+			"`ri`.`item_type`='".ResultItemsHandler::ITEM_TYPE_FILE."'",
+			$this->resultMetaFlagExists( 'is_in_plugin' ),
+		];
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function themeFileWheres() :array {
+		return [
+			"`ri`.`item_type`='".ResultItemsHandler::ITEM_TYPE_FILE."'",
+			$this->resultMetaFlagExists( 'is_in_theme' ),
+		];
+	}
+
+	private function resultMetaFlagExists( string $metaKey ) :string {
+		return \sprintf(
+			"EXISTS (
+				SELECT 1
+				FROM `%s` AS `rim_filter`
+				WHERE `rim_filter`.`ri_ref`=`ri`.`id`
+					AND `rim_filter`.`meta_key`='%s'
+					AND `rim_filter`.`meta_value`=1
+			)",
+			self::con()->db_con->scan_result_item_meta->getTable(),
+			$metaKey
+		);
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function resultMetaFlagWheres( string $metaKey ) :array {
+		return [
+			"`rim`.`meta_key`='".$metaKey."'",
+			"`rim`.`meta_value`=1",
+		];
 	}
 
 	private function countDistinctItemIdsForScanMeta( string $scanSlug, string $metaKey ) :int {
@@ -164,7 +331,7 @@ class Counts {
 					[
 						'alias' => 'rim',
 						'on'    => \sprintf(
-							"`rim`.`ri_ref`=`ri`.`id` AND `rim`.`meta_key`='%s'",
+							"`rim`.`ri_ref`=`ri`.`id` AND `rim`.`meta_key`='%s' AND `rim`.`meta_value`=1",
 							$metaKey
 						),
 					],
@@ -216,7 +383,7 @@ class Counts {
 				FROM `%s` AS `ri`
 				INNER JOIN `%s` AS `rim`
 					ON `rim`.`ri_ref`=`ri`.`id`
-				WHERE %s AND `rim`.`meta_key`='%s'",
+				WHERE %s AND `rim`.`meta_key`='%s' AND `rim`.`meta_value`=1",
 				$dbCon->scan_result_items->getTable(),
 				$dbCon->scan_result_item_meta->getTable(),
 				\implode( ' AND ', $this->getLatestScanWheresBuilder()->forContext( $filter[ 'scan_slug' ], $this->context ) ),

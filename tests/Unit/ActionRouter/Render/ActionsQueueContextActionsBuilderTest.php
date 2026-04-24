@@ -97,8 +97,8 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 			3,
 			[
 				'display_context' => 'actions_queue',
-				'type'            => 'plugin',
-				'file'            => 'example-plugin/example-plugin.php',
+				'subject_type'    => 'plugin',
+				'subject_id'      => 'example-plugin/example-plugin.php',
 			]
 		);
 
@@ -118,8 +118,6 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 			2,
 			[
 				'display_context' => 'actions_queue',
-				'type'            => 'wordpress',
-				'file'            => 'wordpress',
 			]
 		);
 
@@ -134,8 +132,6 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 			2,
 			[
 				'display_context' => 'actions_queue',
-				'type'            => 'malware',
-				'file'            => 'malware',
 			]
 		);
 
@@ -150,8 +146,8 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 			2,
 			[
 				'display_context' => 'actions_queue',
-				'type'            => 'theme',
-				'file'            => 'example-theme',
+				'subject_type'    => 'theme',
+				'subject_id'      => 'example-theme',
 			]
 		);
 

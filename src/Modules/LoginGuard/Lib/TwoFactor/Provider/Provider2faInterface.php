@@ -26,7 +26,7 @@ interface Provider2faInterface {
 	public function isProviderStandalone() :bool;
 
 	/**
-	 * @return true - always returns true if successful. Exception otherwise.
+	 * @return bool - always returns true if successful. Exception otherwise.
 	 * @throws OtpNotPresentException
 	 * @throws OtpVerificationFailedException
 	 * @throws ProviderNotActiveForUserException

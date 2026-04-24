@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\BuildConfigurationCoverage;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQueryCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -49,15 +50,12 @@ class BuildOverview {
 	 * @return OverviewQuery
 	 */
 	public function build() :array {
-		$attention = $this->buildAttentionQuery();
-		$posture = $this->buildPosture();
 		$runtime = $this->buildScanRuntime();
-
 		return [
 			'generated_at'      => Services::Request()->ts(),
 			'site'              => $this->buildSite(),
-			'attention_summary' => $attention[ 'summary' ],
-			'posture'           => $posture,
+			'attention_summary' => $this->buildAttentionQuery()[ 'summary' ],
+			'posture'           => $this->buildPosture(),
 			'scans'             => [
 				'is_running'         => $runtime[ 'is_running' ],
 				'enqueued_count'     => $runtime[ 'enqueued_count' ],
@@ -67,11 +65,11 @@ class BuildOverview {
 	}
 
 	protected function buildLatestCompletedScanTimestamps() :array {
-		return ( new BuildLatestCompletedScanTimestamps() )->build();
+		return $this->siteQueryCon()->latestCompletedScanTimestamps();
 	}
 
 	protected function buildAttentionQuery() :array {
-		return ( new BuildAttentionItems() )->build();
+		return $this->siteQueryCon()->attention();
 	}
 
 	protected function buildPosture() :array {
@@ -79,7 +77,7 @@ class BuildOverview {
 	}
 
 	protected function buildScanRuntime() :array {
-		return ( new BuildScanRuntime() )->build();
+		return $this->siteQueryCon()->scanRuntime();
 	}
 
 	protected function buildSite() :array {
@@ -89,5 +87,9 @@ class BuildOverview {
 			'shield_version' => self::con()->cfg->version(),
 			'is_premium'     => self::con()->isPremiumActive(),
 		];
+	}
+
+	protected function siteQueryCon() :SiteQueryCon {
+		return self::con()->comps->site_query;
 	}
 }

@@ -110,14 +110,38 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		return $itemKeys;
 	}
 
+	private function getZoneItemsByKey( array $zone ) :array {
+		$itemsByKey = [];
+		foreach ( $zone[ 'items' ] ?? [] as $item ) {
+			if ( \is_array( $item ) && !empty( $item[ 'key' ] ) ) {
+				$itemsByKey[ (string)$item[ 'key' ] ] = $item;
+			}
+		}
+
+		return $itemsByKey;
+	}
+
 	private function getLaneByMode( array $renderData, string $mode ) :array {
-		$lanes = \is_array( $renderData[ 'vars' ][ 'lanes' ] ?? null ) ? $renderData[ 'vars' ][ 'lanes' ] : [];
+		$lanes = $this->getOperatorModeLanes( $renderData );
 		$matches = \array_values( \array_filter(
 			$lanes,
 			static fn( array $lane ) :bool => (string)( $lane[ 'mode' ] ?? '' ) === $mode
 		) );
 		$this->assertCount( 1, $matches, \sprintf( 'Expected exactly one "%s" lane.', $mode ) );
 		return $matches[ 0 ] ?? [];
+	}
+
+	private function getOperatorModeLanes( array $renderData ) :array {
+		$actionsLane = $renderData[ 'vars' ][ 'actions_lane' ] ?? null;
+		$secondaryLanes = $renderData[ 'vars' ][ 'secondary_lanes' ] ?? null;
+
+		$this->assertIsArray( $actionsLane );
+		$this->assertIsArray( $secondaryLanes );
+
+		return [
+			$actionsLane,
+			...\array_values( $secondaryLanes ),
+		];
 	}
 
 	private function getActionsQueueRows( array $renderData ) :array {
@@ -233,20 +257,23 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->resetScanResultCountMemoization();
 
 		$pluginSlug = self::con()->base_file;
+		$otherPluginSlug = $this->requireAtLeastInactivePlugins( 1 )[ 0 ];
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		$active = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
 			'is_in_plugin' => 1,
 			'ptg_slug'     => $pluginSlug,
 		] );
-		$stale = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $pluginSlug ), [
+		$stale = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginMainPathFragment( $otherPluginSlug ), [
 			'is_in_plugin'    => 1,
-			'ptg_slug'        => $pluginSlug,
+			'ptg_slug'        => $otherPluginSlug,
 			'is_checksumfail' => 1,
 		] );
 
 		$initialRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
 		$initialZone = $this->getZoneGroupBySlug( $initialRenderData, 'scans' );
-		$this->assertSame( 1, (int)( $initialZone[ 'total_issues' ] ?? 0 ) );
+		$initialItems = $this->getZoneItemsByKey( $initialZone );
+		$this->assertSame( 2, (int)( $initialZone[ 'total_issues' ] ?? 0 ) );
+		$this->assertSame( 2, (int)( $initialItems[ 'plugin_files' ][ 'count' ] ?? 0 ) );
 
 		$actionPayload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
 			'sub_action' => 'ignore',
@@ -259,7 +286,10 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$refreshedRenderData = $this->renderNeedsAttentionQueue()->payload()[ 'render_data' ] ?? [];
 		$refreshedZone = $this->getZoneGroupBySlug( $refreshedRenderData, 'scans' );
+		$refreshedItems = $this->getZoneItemsByKey( $refreshedZone );
 		$this->assertSame( 1, (int)( $refreshedZone[ 'total_issues' ] ?? -1 ) );
+		$this->assertSame( 1, (int)( $refreshedItems[ 'plugin_files' ][ 'count' ] ?? 0 ) );
+		$this->assertArrayNotHasKey( 'plugin_files_ignored', $refreshedItems );
 
 		$activeItem = self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$active[ 'result_item_id' ] );
 		$this->assertNotEmpty( $activeItem );
@@ -343,7 +373,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	public function test_operator_mode_landing_lanes_are_in_expected_order() :void {
 		$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
 		$renderData = $payload[ 'render_data' ] ?? [];
-		$lanes = $renderData[ 'vars' ][ 'lanes' ] ?? [];
+		$lanes = $this->getOperatorModeLanes( $renderData );
 
 		$this->assertCount( 4, $lanes );
 		$this->assertSame(
@@ -528,6 +558,8 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame( 1, (int)( $rowsByKey[ 'plugin_files' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $rowsByKey[ 'plugin_files' ][ 'severity' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_text' ] ?? '' ) );
+		$this->assertNotSame( '', (string)( $renderData[ 'strings' ][ 'subtitle' ] ?? '' ) );
 	}
 
 	public function test_operator_mode_landing_omits_healthy_file_locker_and_zero_maintenance_rows() :void {

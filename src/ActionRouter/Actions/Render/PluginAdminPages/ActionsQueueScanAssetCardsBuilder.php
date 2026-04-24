@@ -23,8 +23,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   stat_text:string,
  *   meta_text:string,
  *   count_badge:int,
- *   type:string,
- *   file:string,
+ *   subject_type:string,
+ *   subject_id:string,
  *   has_update:bool
  * }
  * @phpstan-type QueueAssetIssueRecord array{
@@ -79,16 +79,16 @@ class ActionsQueueScanAssetCardsBuilder {
 			}
 
 			$records[] = [
-				'key'         => $summary[ 'slug' ],
-				'status'      => 'warning',
-				'icon_class'  => $metadata[ 'icon_class' ],
-				'title'       => $metadata[ 'title' ],
-				'stat_text'   => $this->buildQueueAssetStatText( $fileCount, $options ),
-				'meta_text'   => $metadata[ 'file' ],
-				'count_badge' => $fileCount,
-				'type'        => $metadata[ 'type' ],
-				'file'        => $metadata[ 'file' ],
-				'has_update'  => $metadata[ 'has_update' ],
+				'key'          => $summary[ 'slug' ],
+				'status'       => 'warning',
+				'icon_class'   => $metadata[ 'icon_class' ],
+				'title'        => $metadata[ 'title' ],
+				'stat_text'    => $this->buildQueueAssetStatText( $fileCount, $options ),
+				'meta_text'    => $metadata[ 'subject_id' ],
+				'count_badge'  => $fileCount,
+				'subject_type' => $metadata[ 'subject_type' ],
+				'subject_id'   => $metadata[ 'subject_id' ],
+				'has_update'   => $metadata[ 'has_update' ],
 			];
 		}
 
@@ -110,6 +110,8 @@ class ActionsQueueScanAssetCardsBuilder {
 		$options = $this->queueScanResultsOptions->normalize( $resultsDisplayOptions );
 		$records = [];
 		foreach ( $this->buildSummaryRecords( $assetType, $options ) as $summary ) {
+			$subjectType = $summary[ 'subject_type' ];
+			$subjectId = $summary[ 'subject_id' ];
 			$records[] = [
 				'key'               => $summary[ 'key' ],
 				'panel_id'          => 'actions-queue-'.$assetType.'-card-'.\sanitize_key( $summary[ 'key' ] ),
@@ -125,8 +127,8 @@ class ActionsQueueScanAssetCardsBuilder {
 				'panel_data'        => $this->buildImmediatePanelData(),
 				'actions'           => $this->buildAssetActions( $summary, $assetType ),
 				'table'             => $this->buildFileStatusTable(
-					$summary[ 'type' ],
-					$summary[ 'file' ],
+					$subjectType,
+					$subjectId,
 					$options
 				),
 			];
@@ -223,15 +225,12 @@ class ActionsQueueScanAssetCardsBuilder {
 	 * } $resultsDisplayOptions
 	 * @return array<string,mixed>
 	 */
-	protected function buildFileStatusTable( string $type, string $file, array $resultsDisplayOptions ) :array {
-		return $this->buildScanResultsTableBuilder()->buildTableForScope(
-			$type,
-			$file,
-			$type === 'theme'
-				? __( "Previous scans didn't detect any modified, missing, or unrecognised files in theme directories.", 'wp-simple-firewall' )
-				: __( "Previous scans didn't detect any modified, missing, or unrecognised files in plugin directories.", 'wp-simple-firewall' ),
-			$resultsDisplayOptions
-		);
+	protected function buildFileStatusTable( string $subjectType, string $subjectId, array $resultsDisplayOptions ) :array {
+		$tableBuilder = $this->buildScanResultsTableBuilder();
+
+		return $subjectType === 'theme'
+			? $tableBuilder->buildThemeTable( $subjectId, $resultsDisplayOptions )
+			: $tableBuilder->buildPluginTable( $subjectId, $resultsDisplayOptions );
 	}
 
 	protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {

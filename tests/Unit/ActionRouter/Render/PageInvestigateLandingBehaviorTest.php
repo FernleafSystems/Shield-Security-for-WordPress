@@ -149,10 +149,11 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$ipHeader = $tilesByKey[ 'ip' ][ 'header' ] ?? [];
 		$this->assertSame( 'info', $ipHeader[ 'badge_status' ] ?? '' );
 		$this->assertSame( 'investigate', $ipHeader[ 'color_key' ] ?? '' );
+		$this->assertSame( [], $ipHeader[ 'actions' ] ?? [ 'unexpected' ] );
 		$this->assertSame( $tilesByKey[ 'ip' ][ 'icon_class' ], $ipHeader[ 'icon_class' ] ?? '' );
-		$this->assertSame( [], $ipHeader[ 'actions' ] ?? null );
-		foreach ( [ 'compact_back_label', 'active_back_label', 'breadcrumb_label', 'title', 'summary', 'focus', 'next_step', 'badge' ] as $headerTextKey ) {
-			$this->assertNotSame( '', (string)( $ipHeader[ $headerTextKey ] ?? '' ) );
+		foreach ( [ 'compact_back_label', 'active_back_label', 'breadcrumb_label', 'title', 'summary', 'focus', 'next_step', 'badge' ] as $headerKey ) {
+			$this->assertArrayHasKey( $headerKey, $ipHeader );
+			$this->assertNotSame( '', $ipHeader[ $headerKey ] );
 		}
 		$this->assertSame(
 			$ipHeader,

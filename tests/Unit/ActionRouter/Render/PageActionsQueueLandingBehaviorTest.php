@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	DetailExpansionType,
 	PageActionsQueueLanding
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Labels;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -404,6 +405,9 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	}
 
 	private function installControllerStub() :void {
+		$labels = new Labels();
+		$labels->Name = 'Shield Security';
+
 		$this->capture = (object)[
 			'actionCalls'  => [],
 			'queuePayload' => $this->buildQueuePayload( false, 0, 'good', '', [] ),
@@ -427,17 +431,24 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 					], [] ),
 				] ),
 				'comps'         => (object)[
-					'scans'   => new UnitTestScansComponent(),
-					'license' => new UnitTestLicenseComponent( false ),
+					'scans'       => new UnitTestScansComponent(),
+					'license'     => new UnitTestLicenseComponent( false ),
 					'file_locker' => new class {
 						public function isEnabled() :bool {
 							return false;
 						}
 					},
 				],
-				'labels'        => (object)[
-					'Name' => 'Shield Security',
-				],
+				'labels'        => $labels,
+				'caps'          => new class {
+					public function canScanMalwareLocal() :bool {
+						return false;
+					}
+
+					public function canScanPluginsThemesLocal() :bool {
+						return false;
+					}
+				},
 				'action_router' => new PageActionsQueueActionRouter( $this->capture ),
 			]
 		);

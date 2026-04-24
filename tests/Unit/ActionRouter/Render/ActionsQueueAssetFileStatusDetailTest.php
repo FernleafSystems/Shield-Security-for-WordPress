@@ -11,6 +11,10 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
+	Malware,
+	Wordpress
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
 	ActionsQueueScanResultsTableBuilder
@@ -100,10 +104,10 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function testDedicatedScanTableActionDoesNotCarrySubjectBridgeFields() :void {
+	public function testDetailRenderUsesPluginSubjectRouteData() :void {
 		$action = new class( [
-			'type'                    => 'plugin',
-			'file'                    => 'akismet/akismet.php',
+			'subject_type'            => 'plugin',
+			'subject_id'              => 'akismet/akismet.php',
 			'results_display_options' => [
 				'include_ignored' => true,
 				'ignored_only'    => true,
@@ -116,31 +120,23 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 
 			protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
 				return new class extends ActionsQueueScanResultsTableBuilder {
-					public function buildTableForScope( string $type, string $file, string $emptyText, ?array $options = null ) :array {
+					public function buildPluginTable( string $pluginFile, ?array $options = null ) :array {
 						return [
-							'table_action_attr' => \json_encode( [
-								'type'                    => $type,
-								'file'                    => $file,
-								'display_context'         => 'actions_queue',
-								'results_display_options' => [
-									'include_ignored'  => true,
-									'include_repaired' => false,
-									'include_deleted'  => false,
-									'ignored_only'     => true,
-								],
-							], \JSON_THROW_ON_ERROR ),
+							'route'                   => 'plugin',
+							'subject_id'              => $pluginFile,
+							'results_display_options' => $options,
 						];
 					}
 				};
 			}
 		};
 
-		$table = $action->exposeRenderData()[ 'table' ] ?? [];
-		$tableAction = $this->decodeJsonAttr( (string)( $table[ 'table_action_attr' ] ?? '' ) );
+		$renderData = $action->exposeRenderData();
+		$this->assertArrayHasKey( 'table', $renderData );
+		$table = $renderData[ 'table' ];
 
-		$this->assertSame( 'plugin', $tableAction[ 'type' ] ?? '' );
-		$this->assertSame( 'akismet/akismet.php', $tableAction[ 'file' ] ?? '' );
-		$this->assertSame( 'actions_queue', $tableAction[ 'display_context' ] ?? '' );
+		$this->assertSame( 'plugin', $table[ 'route' ] );
+		$this->assertSame( 'akismet/akismet.php', $table[ 'subject_id' ] );
 		$this->assertSame(
 			[
 				'include_ignored'  => true,
@@ -148,13 +144,111 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 				'include_deleted'  => false,
 				'ignored_only'     => true,
 			],
-			$tableAction[ 'results_display_options' ] ?? []
+			$table[ 'results_display_options' ]
 		);
-		$this->assertArrayNotHasKey( 'subject_type', $tableAction );
-		$this->assertArrayNotHasKey( 'subject_id', $tableAction );
 	}
 
-	private function decodeJsonAttr( string $json ) :array {
-		return $json === '' ? [] : \json_decode( $json, true, 512, \JSON_THROW_ON_ERROR );
+	public function testDetailRenderUsesThemeSubjectRouteData() :void {
+		$action = new class( [
+			'subject_type' => 'theme',
+			'subject_id'   => 'twentytwentyfive',
+		] ) extends ActionsQueueAssetFileStatusDetail {
+
+			public function exposeRenderData() :array {
+				return $this->getRenderData();
+			}
+
+			protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
+				return new class extends ActionsQueueScanResultsTableBuilder {
+					public function buildThemeTable( string $stylesheet, ?array $options = null ) :array {
+						return [
+							'route'                   => 'theme',
+							'subject_id'              => $stylesheet,
+							'results_display_options' => $options,
+						];
+					}
+				};
+			}
+		};
+
+		$renderData = $action->exposeRenderData();
+		$this->assertArrayHasKey( 'table', $renderData );
+		$table = $renderData[ 'table' ];
+
+		$this->assertSame( 'theme', $table[ 'route' ] );
+		$this->assertSame( 'twentytwentyfive', $table[ 'subject_id' ] );
+		$this->assertSame(
+			[
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => false,
+			],
+			$table[ 'results_display_options' ]
+		);
 	}
+
+	public function testWordpressRouteUsesDedicatedWordpressTableBuilder() :void {
+		$action = new class( [
+			'display_context'         => 'actions_queue',
+			'results_display_options' => [
+				'include_ignored' => true,
+				'ignored_only'    => true,
+			],
+		] ) extends Wordpress {
+
+			public function exposeRenderData() :array {
+				return $this->getRenderData();
+			}
+
+			protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
+				return new class extends ActionsQueueScanResultsTableBuilder {
+					public function buildWordpressTable( ?array $options = null ) :array {
+						return [
+							'route'                   => 'wordpress',
+							'results_display_options' => $options,
+						];
+					}
+				};
+			}
+		};
+
+		$renderData = $action->exposeRenderData();
+		$this->assertArrayHasKey( 'table', $renderData );
+		$table = $renderData[ 'table' ];
+
+		$this->assertSame( 'wordpress', $table[ 'route' ] );
+		$this->assertTrue( $table[ 'results_display_options' ][ 'ignored_only' ] );
+	}
+
+	public function testMalwareRouteUsesDedicatedMalwareTableBuilder() :void {
+		$action = new class( [
+			'display_context' => 'actions_queue',
+		] ) extends Malware {
+
+			public function exposeRenderData() :array {
+				return $this->getRenderData();
+			}
+
+			protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
+				return new class extends ActionsQueueScanResultsTableBuilder {
+					public function buildMalwareTable( ?array $options = null ) :array {
+						return [
+							'route'                   => 'malware',
+							'results_display_options' => $options,
+						];
+					}
+				};
+			}
+		};
+
+		$renderData = $action->exposeRenderData();
+		$this->assertArrayHasKey( 'table', $renderData );
+		$table = $renderData[ 'table' ];
+
+		$this->assertSame( 'malware', $table[ 'route' ] );
+		$this->assertArrayHasKey( 'results_display_options', $table );
+		$this->assertNull( $table[ 'results_display_options' ] );
+	}
+
 }

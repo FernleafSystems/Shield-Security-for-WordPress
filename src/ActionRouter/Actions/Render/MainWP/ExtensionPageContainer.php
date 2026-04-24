@@ -84,7 +84,7 @@ class ExtensionPageContainer extends BaseMWP {
 	}
 
 	/**
-	 * @return BaseMWP[]
+	 * @return class-string<BaseMWP>[]
 	 */
 	protected function getPageRenderers() :array {
 		return [

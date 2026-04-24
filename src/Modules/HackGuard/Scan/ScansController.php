@@ -114,6 +114,7 @@ class ScansController {
 
 	public function resetScanResultsCountMemoization() :void {
 		$this->scanResultsStatus = null;
+		self::con()->comps->site_query->clearMemoized();
 	}
 
 	private function handlePostScanCron() {
