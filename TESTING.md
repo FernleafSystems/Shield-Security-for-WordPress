@@ -20,6 +20,8 @@ Supporting docs:
 | Source static analysis | `composer analyze` | Public wrapper around source static analysis |
 | JS static checks | `npm run test:js` | Policy, ESLint, and checkJs TypeScript validation only |
 
+`test:source`, `test:integration-local`, and `test:package-full` now default to reduced Docker output to keep signal dense. Add `--show-docker-output` when you need full compose output for a failing run.
+
 ## Internal Lane Ownership
 
 These commands remain the owned internal lanes behind the public surface and CI workflows. Do not add new public wrappers for them.
@@ -38,6 +40,34 @@ These commands remain the owned internal lanes behind the public surface and CI 
 `test:source` and `analyze:source` cache setup state by default for faster local reruns. Use `--refresh-setup` when you need a clean setup pass.
 
 `composer test:integration` is now focused on behaviour-level WordPress runtime coverage. Browser-managed ActionRouter page-shell and DOM-contract tests are intentionally excluded from the default PHPUnit integration lane and covered via `composer test:browser`.
+
+## Quiet vs noisy test runs
+
+Default behavior for Docker-backed lanes is intentionally quieter:
+
+- `php bin/shield test:source`
+- `php bin/shield test:integration-local`
+- `php bin/shield test:package-full`
+
+To get full Docker compose output during a troubleshooting run, append `--show-docker-output`:
+
+```bash
+php bin/shield test:source --show-docker-output
+php bin/shield test:integration-local --show-docker-output -- tests/Integration/ActionRouter/WpDashboardSummaryIntegrationTest.php
+php bin/shield test:package-full --show-docker-output
+```
+
+When running through Composer wrappers, place `--show-docker-output` before PHPUnit arguments:
+
+```bash
+composer test:integration -- --show-docker-output -- tests/Integration/ActionRouter/WpDashboardSummaryIntegrationTest.php
+```
+
+Automated CI workflows can enforce noisy mode by invoking the command form directly:
+
+```bash
+php bin/shield test:source --show-docker-output
+```
 
 ## Local Browser Lane
 
@@ -89,7 +119,8 @@ Required source-first gate: [`.github/workflows/tests.yml`](.github/workflows/te
 3. Source static analysis via `composer analyze`.
 4. Unit tests on PHP 7.4 and latest supported PHP via `composer test:unit`.
 5. Source Docker runtime checks focused on runtime and integration coverage.
-6. Package-targeted validation against the built artifact.
+6. Source Docker runtime in CI runs with `--show-docker-output` for full compose logs.
+7. Package-targeted validation against the built artifact.
 
 Serial compatibility sentinel: [`.github/workflows/unit-serial-sentinel.yml`](.github/workflows/unit-serial-sentinel.yml)
 

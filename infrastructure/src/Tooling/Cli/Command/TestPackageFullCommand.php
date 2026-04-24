@@ -30,6 +30,12 @@ class TestPackageFullCommand extends Command {
 				null,
 				InputOption::VALUE_REQUIRED,
 				'Path to an already built plugin package. If omitted, a deterministic temp package is built.'
+			)
+			->addOption(
+				'show-docker-output',
+				null,
+				InputOption::VALUE_NONE,
+				'Show full Docker output instead of test-oriented compose output.'
 			);
 	}
 
@@ -38,7 +44,8 @@ class TestPackageFullCommand extends Command {
 			$packagePath = $input->getOption( 'package-path' );
 			return $this->lane->run(
 				$this->projectRoot,
-				\is_string( $packagePath ) ? $packagePath : null
+				\is_string( $packagePath ) ? $packagePath : null,
+				(bool)$input->getOption( 'show-docker-output' )
 			);
 		}
 		catch ( \Throwable $throwable ) {

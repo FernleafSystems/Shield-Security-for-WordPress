@@ -79,6 +79,82 @@ class DockerComposeExecutorTest extends TestCase {
 		$this->assertTrue( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
 	}
 
+	/**
+	 * @param string[] $subCommand
+	 * @param string[] $expectedCommand
+	 * @dataProvider providerSubCommandsWithSuppressedOutput
+	 */
+	public function testRunIgnoringFailureWithSuppressedOutputInjectsExpectedFlags(
+		array $subCommand,
+		array $expectedCommand
+	) :void {
+		$processRunner = new RecordingProcessRunner( [ 5 ] );
+		$executor = new DockerComposeExecutor( $processRunner );
+
+		$executor->runIgnoringFailure(
+			$this->projectRoot,
+			[ 'tests/docker/docker-compose.yml' ],
+			$subCommand,
+			null,
+			false
+		);
+
+		$this->assertCount( 1, $processRunner->calls );
+		$this->assertSame(
+			$expectedCommand,
+			$processRunner->calls[ 0 ][ 'command' ]
+		);
+	}
+
+	/**
+	 * @param string[] $subCommand
+	 * @param string[] $expectedCommand
+	 * @dataProvider providerSubCommandsWithSuppressedOutput
+	 */
+	public function testRunWithSuppressedOutputInjectsExpectedFlags(
+		array $subCommand,
+		array $expectedCommand
+	) :void {
+		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$executor = new DockerComposeExecutor( $processRunner );
+
+		$exitCode = $executor->run(
+			$this->projectRoot,
+			[ 'tests/docker/docker-compose.yml' ],
+			$subCommand,
+			null,
+			null,
+			false
+		);
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $processRunner->calls );
+		$this->assertSame(
+			$expectedCommand,
+			$processRunner->calls[ 0 ][ 'command' ]
+		);
+	}
+
+	/**
+	 * @return array<string,array{0:string[],1:string[]}>
+	 */
+	public function providerSubCommandsWithSuppressedOutput() :array {
+		return [
+			'up-noise' => [
+				[ 'up', '-d', 'mysql' ],
+				[ 'docker', 'compose', '-f', 'tests/docker/docker-compose.yml', 'up', '--quiet-pull', '-d', 'mysql' ],
+			],
+			'build-noise' => [
+				[ 'build', 'test-runner-latest' ],
+				[ 'docker', 'compose', '-f', 'tests/docker/docker-compose.yml', 'build', '--quiet', 'test-runner-latest' ],
+			],
+			'run-noise' => [
+				[ 'run', '--rm', 'test-runner-latest' ],
+				[ 'docker', 'compose', '-f', 'tests/docker/docker-compose.yml', 'run', '--quiet-pull', '--rm', 'test-runner-latest' ],
+			],
+		];
+	}
+
 	public function testRunIgnoringFailureDoesNotThrowOnNonZeroExitCode() :void {
 		$processRunner = new RecordingProcessRunner( [ 5 ] );
 		$executor = new DockerComposeExecutor( $processRunner );

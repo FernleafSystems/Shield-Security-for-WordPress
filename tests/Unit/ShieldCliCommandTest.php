@@ -4,6 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTestTrait;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestSourceCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageFullTestLane;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceRuntimeTestLane;
 
 class ShieldCliCommandTest extends BaseUnitTest {
 
@@ -71,24 +77,33 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertStringContainsString( '--no-fail-on-skipped', $output );
 	}
 
-	public function testIntegrationLocalHelpIncludesDbDownOption() :void {
+	public function testIntegrationLocalCommandIncludesDebuggingOptions() :void {
 		$this->skipIfPackageScriptUnavailable();
-
-		$process = $this->runPhpScript( 'bin/shield', [ 'test:integration-local', '--help' ] );
-		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
-
-		$output = $this->processOutput( $process );
-		$this->assertStringContainsString( 'test:integration-local', $output );
-		$this->assertStringContainsString( '--db-down', $output );
-		$this->assertStringContainsString( 'composer: -- -- --filter FooTest', $output );
+		$command = new TestIntegrationLocalCommand(
+			$this->getPluginRoot(),
+			$this->createMock( LocalIntegrationTestLane::class )
+		);
+		$this->assertTrue( $command->getDefinition()->hasOption( 'db-down' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
 	}
 
-	public function testSourceCommandHelpIncludesRefreshSetupOption() :void {
+	public function testSourceCommandIncludesDebuggingOptions() :void {
 		$this->skipIfPackageScriptUnavailable();
+		$command = new TestSourceCommand(
+			$this->getPluginRoot(),
+			$this->createMock( SourceRuntimeTestLane::class )
+		);
+		$this->assertTrue( $command->getDefinition()->hasOption( 'refresh-setup' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
+	}
 
-		$process = $this->runPhpScript( 'bin/shield', [ 'test:source', '--help' ] );
-		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
-		$this->assertStringContainsString( '--refresh-setup', $this->processOutput( $process ) );
+	public function testPackageFullCommandIncludesDebuggingOption() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$command = new TestPackageFullCommand(
+			$this->getPluginRoot(),
+			$this->createMock( PackageFullTestLane::class )
+		);
+		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
 	}
 
 	public function testBrowserCommandHelpIncludesPlaywrightForwardingHint() :void {

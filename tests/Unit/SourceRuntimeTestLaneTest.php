@@ -54,6 +54,13 @@ class SourceRuntimeTestLaneTest extends TestCase {
 		$this->assertCount( 2, $dockerComposeExecutor->ignoredFailureCalls );
 		$this->assertCount( 0, $processRunner->calls );
 		$this->assertCount( 1, $setupCoordinator->persistCalls );
+
+		foreach ( $dockerComposeExecutor->calls as $call ) {
+			$this->assertFalse( $call[ 'show_docker_output' ] );
+		}
+		foreach ( $dockerComposeExecutor->ignoredFailureCalls as $call ) {
+			$this->assertFalse( $call[ 'show_docker_output' ] );
+		}
 	}
 
 	public function testSetupMissRunsComposerBuildConfigAndNpmInstall() :void {
@@ -90,6 +97,37 @@ class SourceRuntimeTestLaneTest extends TestCase {
 			\implode( ' ', $processRunner->calls[ 0 ][ 'command' ] )
 		);
 		$this->assertCount( 1, $setupCoordinator->persistCalls );
+	}
+
+	public function testRunCanEnableNoisyDockerOutput() :void {
+		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0, 0, 0, 0, 0 ] );
+		$environmentResolver = $this->createEnvironmentResolver();
+		$setupCoordinator = $this->createSetupCoordinator( [
+			'needs_composer_install' => true,
+			'needs_build_config' => true,
+			'needs_npm_install' => true,
+			'needs_npm_build' => true,
+			'node_modules_volume' => 'shield-source-node-modules-test',
+			'fingerprints' => $this->fingerprints(),
+		] );
+
+		$lane = new SourceRuntimeTestLane(
+			$processRunner,
+			$environmentResolver,
+			$dockerComposeExecutor,
+			$setupCoordinator
+		);
+
+		$exitCode = $this->runLaneSilenced( $lane, false, true );
+		$this->assertSame( 0, $exitCode );
+
+		foreach ( $dockerComposeExecutor->calls as $call ) {
+			$this->assertTrue( $call[ 'show_docker_output' ] );
+		}
+		foreach ( $dockerComposeExecutor->ignoredFailureCalls as $call ) {
+			$this->assertTrue( $call[ 'show_docker_output' ] );
+		}
 	}
 
 	public function testRefreshSetupClearsStatePurgesVolumeAndBuildsAssetsOnly() :void {
@@ -197,10 +235,14 @@ class SourceRuntimeTestLaneTest extends TestCase {
 		}
 	}
 
-	private function runLaneSilenced( SourceRuntimeTestLane $lane, bool $refreshSetup ) :int {
+	private function runLaneSilenced(
+		SourceRuntimeTestLane $lane,
+		bool $refreshSetup,
+		bool $showDockerOutput = false
+	) :int {
 		\ob_start();
 		try {
-			return $lane->run( $this->projectRoot, $refreshSetup );
+			return $lane->run( $this->projectRoot, $refreshSetup, $showDockerOutput );
 		}
 		finally {
 			\ob_end_clean();

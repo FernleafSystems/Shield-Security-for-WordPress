@@ -47,6 +47,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			],
 			$dockerComposeExecutor->calls[ 0 ][ 'sub_command' ]
 		);
+		$this->assertFalse( $dockerComposeExecutor->calls[ 0 ][ 'show_docker_output' ] );
 		$this->assertSame(
 			[
 				'tests/docker/docker-compose.local-db.yml',
@@ -129,7 +130,33 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			],
 			$dockerComposeExecutor->calls[ 0 ][ 'sub_command' ]
 		);
+		$this->assertFalse( $dockerComposeExecutor->calls[ 0 ][ 'show_docker_output' ] );
 		$this->assertCount( 0, $processRunner->calls );
+	}
+
+	public function testDbUpAndSuiteRunCanEnableNoisyDockerOutput() :void {
+		$processRunner = new RecordingProcessRunner( [ 0, 0, 0 ] );
+		$environmentResolver = $this->createRecordingEnvironmentResolver();
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
+		$installerCommandBuilder = $this->createRecordingInstallerCommandBuilder( [ 'custom-installer' ] );
+
+		$lane = new LocalIntegrationTestLane(
+			$processRunner,
+			$environmentResolver,
+			$dockerComposeExecutor,
+			null,
+			$installerCommandBuilder
+		);
+
+		$exitCode = $this->runLaneSilenced(
+			$lane,
+			false,
+			[ '--filter', 'RuleBuilderTest' ],
+			true
+		);
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertTrue( $dockerComposeExecutor->calls[ 0 ][ 'show_docker_output' ] );
 	}
 
 	/**
@@ -138,11 +165,12 @@ class LocalIntegrationTestLaneTest extends TestCase {
 	private function runLaneSilenced(
 		LocalIntegrationTestLane $lane,
 		bool $dbDown = false,
-		array $phpunitArgs = []
+		array $phpunitArgs = [],
+		bool $showDockerOutput = false
 	) :int {
 		\ob_start();
 		try {
-			return $lane->run( $this->projectRoot, $dbDown, $phpunitArgs );
+			return $lane->run( $this->projectRoot, $dbDown, $phpunitArgs, $showDockerOutput );
 		}
 		finally {
 			\ob_end_clean();

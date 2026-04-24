@@ -150,7 +150,7 @@ jobs:
       env:
         SHIELD_SKIP_UNIT_TESTS: '1'
         SHIELD_SOURCE_RUNTIME_LOG_DIR: ${{ runner.temp }}/shield-source-runtime-logs
-      run: php bin/shield test:source
+      run: php bin/shield test:source --show-docker-output
 
     - name: Upload source docker runtime logs
       if: failure()

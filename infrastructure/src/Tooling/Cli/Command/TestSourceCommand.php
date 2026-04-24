@@ -30,12 +30,22 @@ class TestSourceCommand extends Command {
 				null,
 				InputOption::VALUE_NONE,
 				'Force refresh source setup cache and rerun setup steps.'
+			)
+			->addOption(
+				'show-docker-output',
+				null,
+				InputOption::VALUE_NONE,
+				'Show full Docker output instead of test-oriented compose output.'
 			);
 	}
 
 	protected function execute( InputInterface $input, OutputInterface $output ) :int {
 		try {
-			return $this->lane->run( $this->projectRoot, (bool)$input->getOption( 'refresh-setup' ) );
+			return $this->lane->run(
+				$this->projectRoot,
+				(bool)$input->getOption( 'refresh-setup' ),
+				(bool)$input->getOption( 'show-docker-output' )
+			);
 		}
 		catch ( \Throwable $throwable ) {
 			$output->writeln( '<error>Error: '.$throwable->getMessage().'</error>' );
