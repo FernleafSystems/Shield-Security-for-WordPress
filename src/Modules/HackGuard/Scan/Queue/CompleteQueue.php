@@ -21,7 +21,10 @@ class CompleteQueue {
 			->addWhereIn( 'status', [ 'queued', 'building', 'built', 'running' ] )
 			->count();
 		if ( $activeCount > 0 ) {
-			if ( $con->db_con->scans->getQuerySelector()->filterByStatus( 'queued' )->count() > 0 ) {
+			if ( $con->db_con->scans->getQuerySelector()
+					->filterByStatus( 'queued' )
+					->filterByNotFinished()
+					->count() > 0 ) {
 				$con->comps->scans_queue->getQueueBuilder()->dispatch();
 			}
 			return;

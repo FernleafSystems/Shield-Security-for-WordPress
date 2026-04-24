@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -13,6 +14,7 @@ class RunState {
 
 	public function markBuilding( int $scanID ) :void {
 		$now = Services::Request()->ts();
+		/** @var ?Record $scan */
 		$scan = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
 		$update = [
 			'status'          => 'building',
@@ -57,11 +59,17 @@ class RunState {
 
 	public function markFailed( int $scanID, string $failureMessage = '' ) :void {
 		$now = Services::Request()->ts();
+		error_log( \sprintf(
+			'Shield scan marked failed: scan_id=%d message=%s',
+			$scanID,
+			$failureMessage
+		) );
 		$update = [
 			'finished_at'     => $now,
 			'status'          => 'failed',
 			'last_process_at' => $now,
 		];
+		/** @var ?Record $scan */
 		$scan = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
 		if ( !empty( $scan ) ) {
 			$meta = \is_array( $scan->meta ) ? $scan->meta : [];
@@ -81,6 +89,7 @@ class RunState {
 
 	public function markRunning( int $scanID ) :void {
 		$now = Services::Request()->ts();
+		/** @var ?Record $scan */
 		$scan = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
 		$update = [
 			'status'          => 'running',
@@ -101,10 +110,13 @@ class RunState {
 	}
 
 	public function markUnfinishedRunsFailed() :void {
-		$scanIDs = self::con()->db_con->scans->getQuerySelector()
+		$scans = self::con()->db_con->scans->getQuerySelector()
 					 ->filterByNotFinished()
-					 ->getDistinctForColumn( 'id' );
-		foreach ( \array_map( '\intval', \is_array( $scanIDs ) ? $scanIDs : [] ) as $scanID ) {
+					 ->queryWithResult();
+		foreach ( \array_map(
+			static fn( $scan ) :int => (int)( $scan->id ?? 0 ),
+			\is_array( $scans ) ? $scans : []
+		) as $scanID ) {
 			if ( $scanID > 0 ) {
 				$this->markFailed( $scanID );
 			}

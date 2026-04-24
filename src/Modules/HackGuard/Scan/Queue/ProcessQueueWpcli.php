@@ -26,6 +26,7 @@ class ProcessQueueWpcli {
 			if ( !( new QueueItems() )->hasNextItem() ) {
 				$queuedScan = $con->db_con->scans->getQuerySelector()
 							 ->filterByStatus( 'queued' )
+							 ->filterByNotFinished()
 							 ->setOrderBy( 'created_at', 'ASC', true )
 							 ->first();
 				if ( empty( $queuedScan ) ) {
@@ -38,7 +39,9 @@ class ProcessQueueWpcli {
 					WP_CLI::log( sprintf( __( 'Building scan items for scan: %s', 'wp-simple-firewall' ),
 						$con->comps->scans->getScanCon( $queuedScan->scan )->getScanName()
 					) );
-					( new QueueInit() )->init( (int)$queuedScan->id );
+					if ( !( new QueueInit() )->init( (int)$queuedScan->id ) ) {
+						continue;
+					}
 				}
 
 				WP_CLI::log( __( 'Starting scans...', 'wp-simple-firewall' ) );

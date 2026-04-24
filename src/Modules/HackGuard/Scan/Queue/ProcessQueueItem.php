@@ -36,8 +36,13 @@ class ProcessQueueItem {
 			( new SetScanCompleted() )->run( $item->scan_id );
 		}
 		catch ( \Throwable $e ) {
-			( new RunState() )->markFailed( $item->scan_id, \sprintf( 'Scan processing failed: %s', $e->getMessage() ) );
-			error_log( $e->getMessage() );
+			error_log( \sprintf(
+				'Shield scan processing exception: scan_id=%d qitem_id=%d scan=%s message=%s',
+				$item->scan_id,
+				$item->qitem_id,
+				$item->scan,
+				$e->getMessage()
+			) );
 		}
 	}
 
@@ -45,7 +50,10 @@ class ProcessQueueItem {
 	 * @throws \Exception
 	 */
 	private function runScanOnItem( QueueItemVO $item ) :array {
-		$action = ScanActionFromSlug::GetAction( $item->scan )->applyFromArray( $item->meta );
+		$action = ScanActionFromSlug::GetAction( $item->scan )->applyFromArray( \array_merge(
+			$item->meta,
+			[ 'scan' => $item->scan ]
+		) );
 		$action->items = $item->items;
 
 		$this->getScanner( $action )

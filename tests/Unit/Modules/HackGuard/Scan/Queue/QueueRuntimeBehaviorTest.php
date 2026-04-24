@@ -12,7 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 if ( !\function_exists( __NAMESPACE__.'\\error_log' ) ) {
 	function error_log( string $message ) :bool {
-		unset( $message );
+		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\QueueLifecycleLogSpy::record( $message );
 		return true;
 	}
 }
@@ -38,6 +38,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState,
 	UnitTestRequest
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\QueueLifecycleLogSpy;
 use FernleafSystems\Wordpress\Services\Core\Db;
 
 class QueueRuntimeBehaviorTest extends BaseUnitTest {
@@ -47,6 +48,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
+		QueueLifecycleLogSpy::reset();
 	}
 
 	protected function tearDown() :void {
@@ -269,7 +271,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		], $scanUpdates );
 	}
 
-	public function test_process_queue_item_marks_scan_failed_when_scan_execution_throws() :void {
+	public function test_process_queue_item_logs_processing_exception_without_failing_scan() :void {
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700002000 ),
 		] );
@@ -402,12 +404,11 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertCount( 1, $scanItemUpdates );
 		$this->assertSame( 7, $scanItemUpdates[ 0 ][ 'id' ] );
 		$this->assertSame( 1700002000, $scanItemUpdates[ 0 ][ 'data' ][ 'started_at' ] ?? null );
-		$this->assertCount( 2, $scanUpdates );
+		$this->assertCount( 1, $scanUpdates );
 		$this->assertSame( 'running', $scanUpdates[ 0 ][ 'data' ][ 'status' ] ?? null );
-		$this->assertSame( 'failed', $scanUpdates[ 1 ][ 'data' ][ 'status' ] ?? null );
-		$this->assertSame( 1700002000, $scanUpdates[ 1 ][ 'data' ][ 'finished_at' ] ?? null );
-		$this->assertNotSame( '', (string)( $scanUpdates[ 1 ][ 'data' ][ 'meta' ] ?? '' ) );
-		$this->assertSame( [ 99 ], $deletedScanItems );
+		$this->assertSame( [], $deletedScanItems );
+		$this->assertTrue( QueueLifecycleLogSpy::contains( 'scan_id=99' ) );
+		$this->assertTrue( QueueLifecycleLogSpy::contains( 'qitem_id=7' ) );
 	}
 
 	public function test_complete_queue_dispatches_next_builder_without_firing_queue_completed_when_backlog_remains() :void {
@@ -566,6 +567,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 8, $item->qitem_id );
 		$this->assertNotEmpty( $queries );
 		$this->assertStringContainsString( "`scans`.`status` IN ('built','running')", $queries[ 0 ] );
+		$this->assertStringContainsString( "`si`.`finished_at`=0", $queries[ 0 ] );
 		$this->assertStringNotContainsString( "'building','running'", $queries[ 0 ] );
 		$this->assertStringNotContainsString( "'queued'", $queries[ 0 ] );
 	}
@@ -598,7 +600,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [], $deletedScanItems );
 	}
 
-	public function test_clean_queue_fails_stale_built_scan_once() :void {
+	public function test_clean_queue_does_not_fail_stale_built_scan_with_queue_items() :void {
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700006000 ),
 			'service_wpdb'    => new class extends Db {
@@ -623,11 +625,8 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
 		( new CleanQueue() )->execute();
 
-		$this->assertCount( 1, $scanUpdates );
-		$this->assertSame( 91, $scanUpdates[ 0 ][ 'scan_id' ] );
-		$this->assertSame( 'failed', $scanUpdates[ 0 ][ 'data' ][ 'status' ] ?? null );
-		$this->assertSame( 1700006000, $scanUpdates[ 0 ][ 'data' ][ 'finished_at' ] ?? null );
-		$this->assertSame( [ 91 ], $deletedScanItems );
+		$this->assertSame( [], $scanUpdates );
+		$this->assertSame( [], $deletedScanItems );
 	}
 
 	public function test_on_wp_loaded_registers_queue_schedules_without_running_scans() :void {
@@ -785,7 +784,10 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 							}
 
 							public function queryWithResult() :array {
-								return [];
+								return \array_map(
+									static fn( int $scanID ) :object => (object)[ 'id' => $scanID ],
+									$this->staleIDsByStatusAndColumn[ $this->status.':'.$this->olderColumn ] ?? []
+								);
 							}
 
 							public function byId( int $scanID ) :object {
@@ -850,6 +852,10 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 						return new class {
 							public function filterByScan( int $scanID ) :self {
 								unset( $scanID );
+								return $this;
+							}
+
+							public function filterByNotFinished() :self {
 								return $this;
 							}
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
@@ -28,6 +28,7 @@ class CreateNewScan {
 		}
 
 		$dbh = self::con()->db_con->scans;
+		$now = Services::Request()->ts();
 		/** @var ScansDB\Record $record */
 		$record = $dbh->getRecord();
 		$record->scan = $slug;
@@ -35,6 +36,12 @@ class CreateNewScan {
 		$record->scope_type = $scopeType;
 		$record->scope_key = $scopeKey;
 		$record->run_trigger = $runTrigger;
+		$record->created_at = $now;
+		$record->started_at = 0;
+		$record->last_process_at = 0;
+		$record->ready_at = 0;
+		$record->finished_at = 0;
+		$record->meta = [];
 		$success = $dbh->getQueryInserter()->insert( $record );
 		if ( !$success ) {
 			throw new ScanCreateException( $slug );

@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Build;
 
@@ -26,6 +26,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	protected function get_batch() {
 		$scan = self::con()->db_con->scans->getQuerySelector()
 					->filterByStatus( 'queued' )
+					->filterByNotFinished()
 					->setOrderBy( 'created_at', 'ASC', true )
 					->first();
 
@@ -39,13 +40,17 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * Dispatch
 	 *
 	 * @access public
-	 * @return void
+	 * @return array|\WP_Error|false
 	 */
 	public function dispatch() {
 		// ensure any scheduled scans have been saved before remote post
 		$this->save();
 		// Perform remote post.
-		parent::dispatch();
+		$result = parent::dispatch();
+		if ( $result === false && !$this->is_queue_empty() ) {
+			$this->schedule_event();
+		}
+		return $result;
 	}
 
 	protected function get_post_args() {
@@ -113,11 +118,10 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return bool
 	 */
 	protected function is_queue_empty() {
-		$activeCount = self::con()->db_con->scans->getQuerySelector()
-						 ->addWhereIn( 'status', [ 'building', 'built', 'running' ] )
-						 ->filterByNotFinished()
-						 ->count();
-		return $activeCount > 0 || self::con()->db_con->scans->getQuerySelector()->filterByStatus( 'queued' )->count() < 1;
+		return self::con()->db_con->scans->getQuerySelector()
+				   ->filterByStatus( 'queued' )
+				   ->filterByNotFinished()
+				   ->count() < 1;
 	}
 
 	/**

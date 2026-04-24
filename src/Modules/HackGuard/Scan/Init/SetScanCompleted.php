@@ -35,16 +35,25 @@ class SetScanCompleted {
 			$now = Services::Request()->ts();
 			( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\RunState() )->markCompleted( $scanID );
 
-			$this->resolveStaleItemsForRun( $scanID, $scanRecord, $now );
+			try {
+				$this->resolveStaleItemsForRun( $scanID, $scanRecord, $now );
 
-			$scanCon = $con->comps->scans->getScanCon( $scanRecord->scan );
-			$con->comps->events->fireEvent( 'scan_run', [
-				'audit_params' => [
-					'scan' => $scanCon->getScanName()
-				]
-			] );
+				$scanCon = $con->comps->scans->getScanCon( $scanRecord->scan );
+				$con->comps->events->fireEvent( 'scan_run', [
+					'audit_params' => [
+						'scan' => $scanCon->getScanName()
+					]
+				] );
 
-			$this->auditLatestScanItems( $scanCon, $scanID );
+				$this->auditLatestScanItems( $scanCon, $scanID );
+			}
+			catch ( \Throwable $e ) {
+				error_log( \sprintf(
+					'Shield scan completion side effect failed: scan_id=%d message=%s',
+					$scanID,
+					$e->getMessage()
+				) );
+			}
 		}
 	}
 
@@ -52,9 +61,7 @@ class SetScanCompleted {
 	 * @param Base $scanCon
 	 */
 	private function auditLatestScanItems( $scanCon, int $scanID ) {
-		$resultItemIDs = self::con()->db_con->scan_results->getQuerySelector()
-						 ->filterByScan( $scanID )
-						 ->getDistinctForColumn( 'resultitem_ref' );
+		$resultItemIDs = $this->resultItemIDsForScan( $scanID );
 		$results = empty( $resultItemIDs )
 			? $scanCon->getNewResultsSet()
 			: ( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems() )
@@ -84,9 +91,7 @@ class SetScanCompleted {
 
 	private function resolveStaleItemsForRun( int $scanID, ScansDB\Record $scanRecord, int $resolvedAt ) :void {
 		$scanSlug = \preg_replace( '/[^a-z0-9_]/i', '', $scanRecord->scan ) ?? '';
-		$observedItemIDs = self::con()->db_con->scan_results->getQuerySelector()
-						 ->filterByScan( $scanID )
-						 ->getDistinctForColumn( 'resultitem_ref' );
+		$observedItemIDs = $this->resultItemIDsForScan( $scanID );
 		$notInObserved = empty( $observedItemIDs )
 			? ''
 			: sprintf( " AND `id` NOT IN (%s)", implode( ',', array_map( 'intval', $observedItemIDs ) ) );
@@ -130,5 +135,14 @@ class SetScanCompleted {
 		}
 
 		return '';
+	}
+
+	private function resultItemIDsForScan( int $scanID ) :array {
+		return \array_values( \array_unique( \array_filter( \array_map(
+			static fn( $record ) :int => (int)( $record->resultitem_ref ?? 0 ),
+			self::con()->db_con->scan_results->getQuerySelector()
+				->filterByScan( $scanID )
+				->queryWithResult()
+		) ) ) );
 	}
 }

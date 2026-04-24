@@ -20,6 +20,7 @@ class QueueItems {
 						INNER JOIN `%s` as `si`
 							ON `si`.`scan_ref` = `scans`.`id` 
 							AND `si`.`started_at`=0
+							AND `si`.`finished_at`=0
 						WHERE `scans`.`status` IN ('built','running')
 						  AND `scans`.`ready_at` > 0
 						  AND `scans`.`finished_at`=0

@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
@@ -33,6 +33,14 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 		}
 
 		return $args;
+	}
+
+	public function dispatch() {
+		$result = parent::dispatch();
+		if ( $result === false && !$this->is_queue_empty() ) {
+			$this->schedule_event();
+		}
+		return $result;
 	}
 
 	/**
@@ -131,5 +139,8 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 
 	public function handleExpiredItems() {
 		( new CleanQueue() )->execute();
+		if ( !$this->is_queue_empty() ) {
+			$this->schedule_event();
+		}
 	}
 }
