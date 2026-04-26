@@ -1,23 +1,33 @@
-<div class="modal fade" id="ScanProgressModal" tabindex="-1" role="dialog" aria-labelledby="ScanProgressModalTitle" aria-modal="true"
-	 style="z-index: 10000000;"
-	 aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document" style="z-index: 10000001;">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="ScanProgressModalTitle">
-					{{ strings.scan_progress }}
-				</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				<div class="progress">
-					<div class="progress-bar progress-bar-striped bg-success" role="progressbar"
-						 style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-					</div>
+{% extends '/components/modals/base_modal_content.twig' %}
+
+{% block modal_title %}
+	{{ strings.modal_title }}
+{% endblock %}
+
+{% block modal_body %}
+	<div data-shield-scan-modal-state="{{ vars.modal_state }}"
+		 aria-busy="{{ vars.is_running ? 'true' : 'false' }}">
+		<h6>
+			{% if vars.is_failed %}
+				{{ strings.failed }}
+			{% elseif vars.is_complete %}
+				{{ strings.completed }}
+			{% elseif vars.is_initiating %}
+				{{ strings.initiating }}
+			{% else %}
+				{{ strings.current_scan }}: {{ vars.current_scan }}
+			{% endif %}
+		</h6>
+		<p>{{ vars.remaining_scans }}</p>
+		{% if not vars.is_failed %}
+			<div class="progress">
+				<div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
+					 style="width: {{ vars.progress }}%" aria-valuenow="{{ vars.progress }}" aria-valuemin="0" aria-valuemax="100">
 				</div>
 			</div>
-			<div class="modal-footer">
-			</div>
-		</div>
+			<p class="mt-2">{{ strings.patience_1 }}
+				{{ strings.patience_2 }}
+			</p>
+		{% endif %}
 	</div>
-</div>
+{% endblock %}

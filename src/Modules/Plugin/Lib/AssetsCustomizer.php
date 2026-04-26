@@ -405,6 +405,13 @@ class AssetsCustomizer {
 					'hrefs' => [
 						'actions_queue_scans' => $con->plugin_urls->actionsQueueScans(),
 					],
+					'strings' => [
+						'modal_title'         => __( 'Scan Progress', 'wp-simple-firewall' ),
+						'modal_initiating'    => __( 'Preparing scans.', 'wp-simple-firewall' ),
+						'modal_wait'          => __( 'Please wait while the scan request starts.', 'wp-simple-firewall' ),
+						'modal_error_title'   => __( 'Scan failed.', 'wp-simple-firewall' ),
+						'modal_error_message' => __( 'Scan progress could not be updated.', 'wp-simple-firewall' ),
+					],
 				],
 			],
 			'super_search'     => [

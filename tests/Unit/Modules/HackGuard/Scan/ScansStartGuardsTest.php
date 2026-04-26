@@ -55,7 +55,7 @@ class ScansStartGuardsTest extends BaseUnitTest {
 			'service_request' => $request,
 		] );
 
-		$this->installActionController(
+		$controller = $this->installActionController(
 			canStart: false,
 			blockedReasons: [ 'reason_not_call_self' ],
 			startResult: StartScansResult::fromRequested( [] )
@@ -72,6 +72,10 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		$this->assertSame( StartScansResult::CODE_START_BLOCKED, $payload[ 'error_code' ] ?? '' );
 		$this->assertSame( [ 'reason_not_call_self' ], $payload[ 'blocked_reasons' ] ?? [] );
 		$this->assertNotSame( '', (string)( $payload[ 'message' ] ?? '' ) );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] ?? '' );
+		$this->assertNotSame( '', (string)( $payload[ 'modal_html' ] ?? '' ) );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
+		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 	}
 
 	public function test_action_router_start_returns_structured_failure_for_selected_scan_that_cannot_start() :void {
@@ -81,7 +85,7 @@ class ScansStartGuardsTest extends BaseUnitTest {
 			'service_request' => $request,
 		] );
 
-		$this->installActionController(
+		$controller = $this->installActionController(
 			canStart: true,
 			blockedReasons: [],
 			startResult: StartScansResult::fromRequested( [ 'afs' ] )
@@ -98,6 +102,10 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		$this->assertFalse( $payload[ 'success' ] ?? true );
 		$this->assertSame( StartScansResult::CODE_START_FAILED, $payload[ 'error_code' ] ?? '' );
 		$this->assertSame( [ StartScansResult::REASON_ALREADY_EXISTS ], \array_column( $payload[ 'start_failures' ] ?? [], 'reason' ) );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] ?? '' );
+		$this->assertNotSame( '', (string)( $payload[ 'modal_html' ] ?? '' ) );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
+		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 	}
 
 	public function test_action_router_start_allows_partial_success_with_started_ids_and_failures() :void {
@@ -107,7 +115,7 @@ class ScansStartGuardsTest extends BaseUnitTest {
 			'service_request' => $request,
 		] );
 
-		$this->installActionController(
+		$controller = $this->installActionController(
 			canStart: true,
 			blockedReasons: [],
 			startResult: StartScansResult::fromRequested( [ 'afs', 'wpv' ] )
@@ -126,6 +134,19 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		$this->assertSame( [ 31 ], $payload[ 'scan_ids' ] ?? [] );
 		$this->assertSame( StartScansResult::CODE_PARTIAL_START, $payload[ 'error_code' ] ?? '' );
 		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $payload[ 'start_failures' ] ?? [], 'reason' ) );
+		$this->assertTrue( $payload[ 'page_reload' ] ?? false );
+		$this->assertSame( '/actions-queue-scans/', $payload[ 'redirect_url' ] ?? '' );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] ?? '' );
+		$this->assertNotSame( '', (string)( $payload[ 'modal_html' ] ?? '' ) );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
+		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
+		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] ?? null );
+	}
+
+	private function assertModalRenderInputDoesNotCarryDerivedFlags( array $renderData ) :void {
+		foreach ( [ 'is_initiating', 'is_running', 'is_complete', 'is_failed' ] as $key ) {
+			$this->assertArrayNotHasKey( $key, $renderData );
+		}
 	}
 
 	private function installController( bool $canLoopback ) :void {
@@ -149,8 +170,9 @@ class ScansStartGuardsTest extends BaseUnitTest {
 	private function installActionController(
 		bool $canStart,
 		array $blockedReasons,
-		StartScansResult $startResult
-	) :void {
+		StartScansResult $startResult,
+		bool $hasRunningScans = false
+	) :Controller {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->comps = (object)[
@@ -185,13 +207,31 @@ class ScansStartGuardsTest extends BaseUnitTest {
 					return $this->startResult;
 				}
 			},
-			'scans_queue' => new class {
+			'scans_queue' => new class( $hasRunningScans ) {
+				public function __construct( private bool $hasRunningScans ) {
+				}
+
 				public function hasRunningScans() :bool {
-					return false;
+					return $this->hasRunningScans;
 				}
 			},
 		];
+		$controller->plugin_urls = new class {
+			public function actionsQueueScans() :string {
+				return '/actions-queue-scans/';
+			}
+		};
+		$controller->action_router = new class {
+			public array $renderData = [];
+
+			public function render( string $renderClass, array $data ) :string {
+				unset( $renderClass );
+				$this->renderData = $data;
+				return 'rendered-modal';
+			}
+		};
 
 		PluginControllerInstaller::install( $controller );
+		return $controller;
 	}
 }

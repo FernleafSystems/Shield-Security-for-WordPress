@@ -47,6 +47,9 @@ class ScansStart extends ScansBase {
 			'scan_ids'      => $startedScanIDs,
 			'message'       => $msg,
 		];
+		if ( $payload[ 'page_reload' ] ) {
+			$payload[ 'redirect_url' ] = $con->plugin_urls->actionsQueueScans();
+		}
 		if ( $errorCode !== '' ) {
 			$payload[ 'error_code' ] = $errorCode;
 		}
@@ -56,6 +59,18 @@ class ScansStart extends ScansBase {
 		if ( !empty( $failures ) ) {
 			$payload[ 'start_failures' ] = $failures;
 		}
+
+		$modalState = $success
+			? ( $isScanRunning ? self::SCAN_MODAL_STATE_RUNNING : self::SCAN_MODAL_STATE_COMPLETED )
+			: self::SCAN_MODAL_STATE_FAILED;
+
+		$payload = \array_merge( $payload, $this->renderScanModalPayload( $modalState, [
+			'current_scan'    => $success
+				? ( $isScanRunning ? __( 'Preparing scans.', 'wp-simple-firewall' ) : __( 'Scans completed.', 'wp-simple-firewall' ) )
+				: __( 'Scan failed.', 'wp-simple-firewall' ),
+			'remaining_scans' => $msg,
+			'progress'        => $isScanRunning ? 5 : 100,
+		] ) );
 
 		$this->response()->setPayload( $payload )->setPayloadSuccess( $success );
 	}

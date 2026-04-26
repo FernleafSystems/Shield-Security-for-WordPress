@@ -48,7 +48,6 @@ class PageScansRun extends PageScansBase {
 				'clear_ignore'          => __( 'Clear Ignore Flags', 'wp-simple-firewall' ),
 				'clear_ignore_sub'      => __( 'Previously ignored results will be revealed (for the selected scans only)', 'wp-simple-firewall' ),
 				'run_scans_now'         => __( 'Run Scans Now', 'wp-simple-firewall' ),
-				'scan_progress'         => __( 'Scan Progress', 'wp-simple-firewall' ),
 				'reason_not_call_self'  => __( "This site currently can't make HTTP requests to itself.", 'wp-simple-firewall' ),
 				'scans_disabled_prefix' => __( 'Scans are currently disabled because:', 'wp-simple-firewall' ),
 			],

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\RunState;
 
@@ -24,24 +23,25 @@ class ScansCheck extends ScansBase {
 		}
 
 		$running = \count( $status->enqueued() );
+		$modalState = $hasFailedScan
+			? self::SCAN_MODAL_STATE_FAILED
+			: ( $running === 0 ? self::SCAN_MODAL_STATE_COMPLETED : self::SCAN_MODAL_STATE_RUNNING );
 
-		$this->response()->setPayload( [
-			'running' => $con->comps->scans_queue->getScansRunningStates(),
-			'failed'  => $hasFailedScan,
+		$this->response()->setPayload( \array_merge( [
+			'running'         => $con->comps->scans_queue->getScansRunningStates(),
+			'failed'          => $hasFailedScan,
 			'failure_message' => $failureMessage,
-			'vars'    => [
-				'progress_html' => self::con()->action_router->render( ScansProgress::class, [
-					'current_scan'    => $hasFailedScan ? __( 'Scan failed.', 'wp-simple-firewall' ) : $currentScan,
-					'remaining_scans' => $hasFailedScan
-						? $failureMessage
-						: ( $running === 0 ?
-						__( 'No scans remaining.', 'wp-simple-firewall' )
-						: sprintf( _n( '%s scan remaining.', '%s scans remaining.', $running, 'wp-simple-firewall' ), $running ) ),
-					'progress'        => $hasFailedScan ? 100 : 100*$con->comps->scans_queue->getScanJobProgress(),
-					'is_failed'       => $hasFailedScan,
-				] ),
-			]
-		] )->setPayloadSuccess( true );
+		], $this->renderScanModalPayload( $modalState, [
+			'current_scan'    => $hasFailedScan ? __( 'Scan failed.', 'wp-simple-firewall' ) : $currentScan,
+			'remaining_scans' => $hasFailedScan
+				? $failureMessage
+				: ( $running === 0 ?
+					__( 'No scans remaining.', 'wp-simple-firewall' )
+					: sprintf( _n( '%s scan remaining.', '%s scans remaining.', $running, 'wp-simple-firewall' ), $running ) ),
+			'progress'        => $hasFailedScan || $modalState === self::SCAN_MODAL_STATE_COMPLETED
+				? 100
+				: 100*$con->comps->scans_queue->getScanJobProgress(),
+		] ) ) )->setPayloadSuccess( true );
 	}
 
 	/**
