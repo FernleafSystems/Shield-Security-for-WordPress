@@ -130,8 +130,8 @@ async function selectSelect2Option( page, selectName, searchTerm, optionMatcher,
 	await waitForShieldPage( page );
 }
 
-async function fetchShieldRenderedHtml( page, renderSlug ) {
-	return page.evaluate( async ( currentRenderSlug ) => {
+async function fetchShieldRenderedHtml( page, renderSlug, extraData = {} ) {
+	return page.evaluate( async ( { currentRenderSlug, currentExtraData } ) => {
 		const findAjaxRenderPayload = ( value ) => {
 			if ( value && typeof value === 'object' ) {
 				if ( value.ex === 'ajax_render' && typeof value.ajaxurl === 'string' ) {
@@ -157,6 +157,7 @@ async function fetchShieldRenderedHtml( page, renderSlug ) {
 		const requestData = {
 			...renderRequest,
 			render_slug: currentRenderSlug,
+			...currentExtraData,
 		};
 		delete requestData.limit;
 
@@ -175,7 +176,10 @@ async function fetchShieldRenderedHtml( page, renderSlug ) {
 		}
 
 		return payload.data.html;
-	}, renderSlug );
+	}, {
+		currentRenderSlug: renderSlug,
+		currentExtraData: extraData,
+	} );
 }
 
 function runShieldCli( args = [] ) {

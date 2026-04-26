@@ -115,7 +115,6 @@ export class PluginOnboarding extends BaseComponent {
 
 		const modalEls = this.buildVideoModalContent( videoModal );
 		modalContent.replaceChildren( modalEls.header, modalEls.body, modalEls.footer );
-		BootstrapModals.normalizeModalAccessibility( modal );
 
 		let player = this.createVimeoPlayer( modalEls.iframe );
 		let startedTour = false;

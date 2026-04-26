@@ -2,7 +2,7 @@
 	{% block modal_header %}
 		<h5 class="modal-title">
 			{% block modal_title %}
-				{{ strings.modal_title|default('Shield Modal Title') }}
+				{{ strings.modal_title }}
 			{% endblock %}
 		</h5>
 		{% block modal_title_button_close %}
@@ -12,7 +12,6 @@
 </div>
 <div class="modal-body">
 	{% block modal_body %}
-		{{ strings.modal_title|default('No modal body yet') }}
 	{% endblock %}
 </div>
 <div class="modal-footer">

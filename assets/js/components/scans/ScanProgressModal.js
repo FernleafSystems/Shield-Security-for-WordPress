@@ -1,4 +1,5 @@
 import { BootstrapModals } from "../ui/BootstrapModals";
+import { announceWithin } from "../ui/ShieldA11y";
 
 export class ScanProgressModal {
 
@@ -12,7 +13,12 @@ export class ScanProgressModal {
 		}
 
 		modalContent.innerHTML = html;
-		BootstrapModals.normalizeModalAccessibility( modal );
+		if ( modal.classList.contains( 'show' ) ) {
+			ScanProgressModal.announceCurrentState( modal );
+		}
+		else {
+			modal.addEventListener( 'shown.bs.modal', () => ScanProgressModal.announceCurrentState( modal ), { once: true } );
+		}
 		BootstrapModals.Show( modal );
 		return true;
 	}
@@ -23,6 +29,7 @@ export class ScanProgressModal {
 			title: strings.modal_title,
 			heading: strings.modal_initiating,
 			message: strings.modal_wait,
+			announcement: strings.modal_initiating,
 			busy: true
 		} ) );
 	}
@@ -37,6 +44,7 @@ export class ScanProgressModal {
 			title: strings.modal_title,
 			heading: strings.modal_error_title,
 			message: safeMessage,
+			announcement: safeMessage,
 			busy: false
 		} ) );
 	}
@@ -65,13 +73,13 @@ export class ScanProgressModal {
 		return modal?.querySelector( '.modal-content' ) || null;
 	}
 
-	static buildLocalModalContent( { state, title, heading, message, busy } ) {
+	static buildLocalModalContent( { state, title, heading, message, announcement, busy } ) {
 		return `<div class="modal-header">
 			<h5 class="modal-title">${ScanProgressModal.escapeHtml( title )}</h5>
 			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 		</div>
 		<div class="modal-body">
-			<div data-shield-scan-modal-state="${ScanProgressModal.escapeHtml( state )}" aria-busy="${busy ? 'true' : 'false'}">
+			<div data-shield-scan-modal-state="${ScanProgressModal.escapeHtml( state )}" aria-busy="${busy ? 'true' : 'false'}" data-shield-scan-modal-announcement="${ScanProgressModal.escapeHtml( announcement )}">
 				<h6>${ScanProgressModal.escapeHtml( heading )}</h6>
 				<p>${ScanProgressModal.escapeHtml( message )}</p>
 				${busy ? ScanProgressModal.buildSpinnerMarkup() : ''}
@@ -92,6 +100,13 @@ export class ScanProgressModal {
 		}
 
 		return '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+	}
+
+	static announceCurrentState( modal ) {
+		const stateEl = modal.querySelector( '[data-shield-scan-modal-announcement]' );
+		if ( stateEl instanceof HTMLElement ) {
+			announceWithin( modal, stateEl.dataset.shieldScanModalAnnouncement );
+		}
 	}
 
 	static escapeHtml( text = '' ) {

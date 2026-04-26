@@ -6,23 +6,16 @@
 
 {% block modal_body %}
 	<div data-shield-scan-modal-state="{{ vars.modal_state }}"
-		 aria-busy="{{ vars.is_running ? 'true' : 'false' }}">
-		<h6>
-			{% if vars.is_failed %}
-				{{ strings.failed }}
-			{% elseif vars.is_complete %}
-				{{ strings.completed }}
-			{% elseif vars.is_initiating %}
-				{{ strings.initiating }}
-			{% else %}
-				{{ strings.current_scan }}: {{ vars.current_scan }}
-			{% endif %}
-		</h6>
+		 aria-busy="{{ vars.is_busy ? 'true' : 'false' }}"
+		 data-shield-scan-modal-announcement="{{ vars.announcement }}">
+		<h6>{{ vars.heading }}</h6>
 		<p>{{ vars.remaining_scans }}</p>
-		{% if not vars.is_failed %}
+		{% if vars.show_progress %}
 			<div class="progress">
 				<div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
-					 style="width: {{ vars.progress }}%" aria-valuenow="{{ vars.progress }}" aria-valuemin="0" aria-valuemax="100">
+					 style="width: {{ vars.progress }}%"
+					 aria-label="{{ strings.progress_label }}"
+					 aria-valuenow="{{ vars.progress }}" aria-valuemin="0" aria-valuemax="100">
 				</div>
 			</div>
 			<p class="mt-2">{{ strings.patience_1 }}

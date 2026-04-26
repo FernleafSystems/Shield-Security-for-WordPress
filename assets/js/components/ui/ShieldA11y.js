@@ -42,6 +42,14 @@ function findLiveRegion( contextEl ) {
 		return null;
 	}
 
+	const modalShell = context.matches( '#ShieldModalContainer' )
+		? context
+		: context.closest( '#ShieldModalContainer' );
+	if ( modalShell instanceof HTMLElement ) {
+		const modalLiveRegion = modalShell.querySelector( '[data-shield-modal-live-region="1"]' );
+		return modalLiveRegion instanceof HTMLElement ? modalLiveRegion : null;
+	}
+
 	const shell = context.matches( '[data-drill-shell="1"]' )
 		? context
 		: context.closest( '[data-drill-shell="1"]' );

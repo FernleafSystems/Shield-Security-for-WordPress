@@ -25,6 +25,7 @@
     "./assets/js/components/general/MiscHooks.js",
     "./assets/js/components/general/PluginOnboarding.js",
     "./assets/js/plugin-onboarding.js",
+    "./assets/js/components/ui/ShieldA11y.js",
     "./assets/js/components/tables/ActivityLogMetaPopover.js",
     "./assets/js/components/tables/ShieldTableBase.js",
     "./assets/js/components/tables/ShieldTableActivityLog.js",
