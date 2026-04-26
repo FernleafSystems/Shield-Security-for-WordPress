@@ -1,6 +1,7 @@
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
+import { announceWithin, focusElement } from "../ui/ShieldA11y";
 import {
 	getActiveLayerIndex,
 	getLayerForShell,
@@ -10,6 +11,8 @@ import {
 } from "./DrillDownShared";
 
 export class DrillDownController extends BaseAutoExecComponent {
+
+	layerActivators = new WeakMap();
 
 	canRun() {
 		return true;
@@ -22,8 +25,9 @@ export class DrillDownController extends BaseAutoExecComponent {
 	 *
 	 * @param {HTMLElement|null} shellEl
 	 * @param {number} layerIndex
+	 * @param {{sourceEl?: Element|null}=} options
 	 */
-	drillTo( shellEl, layerIndex ) {
+	drillTo( shellEl, layerIndex, options = {} ) {
 		if ( !isDrillShell( shellEl ) ) {
 			return;
 		}
@@ -39,10 +43,16 @@ export class DrillDownController extends BaseAutoExecComponent {
 			return;
 		}
 
+		const isForward = targetIndex > currentActiveIndex;
 		const eventName = targetIndex > currentActiveIndex
 			? 'shield:drill-to'
 			: 'shield:drill-back';
 		const activeLayer = getLayerForShell( shellEl, targetIndex );
+		const sourceEl = options?.sourceEl instanceof Element ? options.sourceEl : null;
+
+		if ( isForward ) {
+			this.rememberLayerActivator( shellEl, targetIndex, sourceEl );
+		}
 
 		layers.forEach( ( layer ) => {
 			const currentLayerIndex = parseLayerIndex( layer.dataset.drillLayer );
@@ -62,6 +72,9 @@ export class DrillDownController extends BaseAutoExecComponent {
 			UiContentActivator.activateCurrentSubtree( activeLayerBody );
 		}
 
+		this.focusForLayerChange( shellEl, activeLayer, currentActiveIndex, isForward );
+		this.announceActiveLayer( shellEl, activeLayer );
+
 		shellEl.dispatchEvent( new CustomEvent( eventName, {
 			bubbles: true,
 			detail: {
@@ -72,7 +85,7 @@ export class DrillDownController extends BaseAutoExecComponent {
 		} ) );
 	}
 
-	updateLayerHeader( shellEl, layerIndex, headerData ) {
+	updateLayerHeader( shellEl, layerIndex, headerData, options = {} ) {
 		if ( !isDrillShell( shellEl ) ) {
 			return;
 		}
@@ -86,6 +99,10 @@ export class DrillDownController extends BaseAutoExecComponent {
 			? headerData
 			: {};
 		layer.dataset.drillLayerHeader = JSON.stringify( header );
+		this.syncLayerTitle( layer, header );
+		if ( options.announce !== false && this.isLayerActive( layer ) ) {
+			this.announceActiveLayer( shellEl, layer, header );
+		}
 		shellEl.dispatchEvent( new CustomEvent( 'shield:drill-header-updated', {
 			bubbles: true,
 			detail: {
@@ -115,5 +132,83 @@ export class DrillDownController extends BaseAutoExecComponent {
 		else if ( state === 'hidden' ) {
 			layer.classList.add( 'drill-layer--hidden' );
 		}
+
+		layer.setAttribute( 'aria-hidden', state === 'active' ? 'false' : 'true' );
+	}
+
+	rememberLayerActivator( shellEl, targetIndex, sourceEl ) {
+		if ( !( sourceEl instanceof HTMLElement )
+			|| !sourceEl.isConnected
+			|| sourceEl.closest( '[data-drill-shell="1"]' ) !== shellEl ) {
+			return;
+		}
+
+		let activators = this.layerActivators.get( shellEl );
+		if ( !( activators instanceof Map ) ) {
+			activators = new Map();
+			this.layerActivators.set( shellEl, activators );
+		}
+		activators.set( targetIndex, sourceEl );
+	}
+
+	focusForLayerChange( shellEl, activeLayer, previousIndex, isForward ) {
+		if ( !( activeLayer instanceof HTMLElement ) ) {
+			return;
+		}
+
+		if ( isForward ) {
+			focusElement( activeLayer );
+			return;
+		}
+
+		const activator = this.layerActivators.get( shellEl )?.get( previousIndex ) || null;
+		if ( !focusElement( activator ) ) {
+			focusElement( activeLayer );
+		}
+	}
+
+	announceActiveLayer( shellEl, layer, header = null ) {
+		const title = this.readLayerTitle( layer, header );
+		if ( title.length > 0 ) {
+			announceWithin( shellEl, title );
+		}
+	}
+
+	syncLayerTitle( layer, header ) {
+		const title = this.readHeaderTitle( header );
+		if ( title.length < 1 ) {
+			return;
+		}
+
+		const titleEl = layer.querySelector( '[data-drill-layer-title="1"]' );
+		if ( titleEl instanceof HTMLElement ) {
+			titleEl.textContent = title;
+		}
+	}
+
+	readLayerTitle( layer, header = null ) {
+		const headerTitle = this.readHeaderTitle( header );
+		if ( headerTitle.length > 0 ) {
+			return headerTitle;
+		}
+
+		const titleEl = layer instanceof HTMLElement
+			? layer.querySelector( '[data-drill-layer-title="1"]' )
+			: null;
+		return titleEl instanceof HTMLElement
+			? String( titleEl.textContent || '' ).trim()
+			: '';
+	}
+
+	readHeaderTitle( header ) {
+		return header && typeof header === 'object'
+			? String( header.title || '' ).trim()
+			: '';
+	}
+
+	isLayerActive( layer ) {
+		return layer instanceof HTMLElement
+			&& !layer.classList.contains( 'drill-layer--compact' )
+			&& !layer.classList.contains( 'drill-layer--hidden' );
 	}
 }

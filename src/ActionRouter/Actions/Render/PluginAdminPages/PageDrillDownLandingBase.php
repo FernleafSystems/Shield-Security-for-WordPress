@@ -5,12 +5,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 /**
  * @phpstan-import-type DrillLayerHeaderInput from OperatorChromeContract
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
+ * @phpstan-type RawDrillLayerHeader DrillLayerHeaderInput&array{title:non-empty-string}
  * @phpstan-type RawDrillLayer array{
  *   key:non-empty-string,
  *   body:string,
- *   header?:DrillLayerHeaderInput
+ *   header:RawDrillLayerHeader
  * }
  * @phpstan-type DrillLayer array{
+ *   id:string,
+ *   title_id:string,
  *   key:non-empty-string,
  *   body:string,
  *   header:DrillLayerHeader,
@@ -35,11 +38,12 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 	protected function getLandingVars() :array {
 		$vars = parent::getLandingVars();
 		$mode = $this->getLandingMode();
-		$layers = $this->normalizeLayers( $this->getLayers() );
+		$shellID = sanitize_key( $mode.'_drill_shell' );
+		$layers = $this->normalizeLayers( $this->getLayers(), $shellID );
 		$activeIndex = $this->clampActiveLayerIndex( $this->getActiveLayerIndex(), \count( $layers ) );
 
 		$vars[ 'drill_shell' ] = [
-			'id'           => sanitize_key( $mode.'_drill_shell' ),
+			'id'           => $shellID,
 			'mode'         => $mode,
 			'active_index' => $activeIndex,
 			'layers'       => $layers,
@@ -52,7 +56,7 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 	 * @param list<RawDrillLayer> $layers
 	 * @return list<DrillLayer>
 	 */
-	private function normalizeLayers( array $layers ) :array {
+	private function normalizeLayers( array $layers, string $shellID ) :array {
 		$normalized = [];
 
 		foreach ( $layers as $layer ) {
@@ -65,8 +69,20 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 				continue;
 			}
 
-			$header = OperatorChromeContract::normalizeHeader( $layer[ 'header' ] ?? [] );
+			$rawHeader = $layer[ 'header' ] ?? null;
+			if ( !\is_array( $rawHeader ) ) {
+				continue;
+			}
+
+			$header = OperatorChromeContract::normalizeHeader( $rawHeader );
+			if ( $header[ 'title' ] === '' ) {
+				continue;
+			}
+
+			$layerID = $this->buildLayerID( $shellID, \count( $normalized ), $key );
 			$normalized[] = [
+				'id'          => $layerID,
+				'title_id'    => $layerID.'_title',
 				'key'         => $key,
 				'body'        => $layer[ 'body' ],
 				'header'      => $header,
@@ -75,6 +91,15 @@ abstract class PageDrillDownLandingBase extends PageModeLandingBase {
 		}
 
 		return $normalized;
+	}
+
+	private function buildLayerID( string $shellID, int $layerIndex, string $layerKey ) :string {
+		return sanitize_key( \sprintf(
+			'%s_layer_%d_%s',
+			$shellID,
+			$layerIndex,
+			$layerKey
+		) );
 	}
 
 	private function clampActiveLayerIndex( int $activeIndex, int $layerCount ) :int {

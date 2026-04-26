@@ -131,12 +131,13 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.selectedGroup = null;
 		this.resetGroupsLayerHeader( shell );
 		this.resetDetailLayer( shell );
-		drillCtrl.drillTo( shell, layerIndex );
 		drillCtrl.updateLayerHeader(
 			shell,
 			1,
-			this.buildLoadingHeader( bucket.header, this.getGroupsLoadingText() )
+			this.buildLoadingHeader( bucket.header, this.getGroupsLoadingText() ),
+			{ announce: false }
 		);
+		drillCtrl.drillTo( shell, layerIndex, { sourceEl: item } );
 
 		this.loadGroupsLayer();
 	}
@@ -159,12 +160,13 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		}
 
 		this.selectedGroup = group;
-		drillCtrl.drillTo( shell, layerIndex );
 		drillCtrl.updateLayerHeader(
 			shell,
 			2,
-			this.buildLoadingHeader( group.header, this.getDetailLoadingText() )
+			this.buildLoadingHeader( group.header, this.getDetailLoadingText() ),
+			{ announce: false }
 		);
+		drillCtrl.drillTo( shell, layerIndex, { sourceEl: item } );
 
 		this.loadDetailLayer();
 	}
@@ -211,6 +213,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		if ( showPlaceholder ) {
 			this.replaceLayerBodyHtml( body, this.buildLoadingMarkup( this.getDetailLoadingText() ) );
 		}
+		this.setLayerBusy( layer, true, this.getDetailLoadingText() );
 
 		return ( new AjaxService() )
 			.send( renderAction, false, true )
@@ -221,6 +224,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 				if ( !resp?.success || typeof resp?.data?.html !== 'string' ) {
 					this.renderLayerFailure( body, 'detail' );
+					this.announceLayerMessage( layer, this.getLayerFailureText( 'detail' ) );
 					return null;
 				}
 
@@ -231,11 +235,13 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			.catch( () => {
 				if ( this.layerRequests.detail === requestKey ) {
 					this.renderLayerFailure( body, 'detail' );
+					this.announceLayerMessage( layer, this.getLayerFailureText( 'detail' ) );
 				}
 				return null;
 			} )
 			.finally( () => {
 				if ( this.layerRequests.detail === requestKey ) {
+					this.setLayerBusy( layer, false );
 					delete this.layerRequests.detail;
 				}
 			} );
@@ -824,6 +830,11 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			body,
 			`<div class="actions-landing__empty-state"><div>${this.escapeHtml( message )}</div><button type="button" class="btn btn-sm btn-outline-secondary mt-2" data-actions-queue-retry="${this.escapeHtml( layerKey )}">${this.escapeHtml( retry )}</button></div>`
 		);
+	}
+
+	getLayerFailureText( layerKey ) {
+		void layerKey;
+		return this.rootEl?.dataset.actionsLayerError || '';
 	}
 
 	buildLoadingMarkup( message ) {

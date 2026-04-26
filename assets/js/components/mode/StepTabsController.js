@@ -66,7 +66,7 @@ export class StepTabsController extends BaseAutoExecComponent {
 			const drillCtrl = shieldAppMain?.components?.drill_down || null;
 			if ( drillShell !== null && drillCtrl !== null ) {
 				evt.preventDefault();
-				drillCtrl.drillTo( drillShell, parseInt( tab.dataset.stepTabDrillIndex, 10 ) );
+				drillCtrl.drillTo( drillShell, parseInt( tab.dataset.stepTabDrillIndex, 10 ), { sourceEl: tab } );
 			}
 			return;
 		}

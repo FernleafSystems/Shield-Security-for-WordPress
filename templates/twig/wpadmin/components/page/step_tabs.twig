@@ -1,6 +1,9 @@
 {% import "/common/macros.twig" as icwp_macros %}
 
-<div class="operator-step-tabs" data-operator-step-tabs="1" data-shield-tour="breadcrumbs">
+<nav class="operator-step-tabs"
+	 data-operator-step-tabs="1"
+	 data-shield-tour="breadcrumbs"
+	 aria-label="{{ strings.operator_path_label|default('')|e('html_attr') }}">
 	<div class="operator-step-tabs__list" data-operator-step-tabs-list="1"></div>
 
 	{% if hrefs.inner_page_contextual_hrefs|default([]) is not empty %}
@@ -28,4 +31,4 @@
 			</div>
 		</div>
 	{% endif %}
-</div>
+</nav>

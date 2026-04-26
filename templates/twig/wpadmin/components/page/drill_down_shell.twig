@@ -2,6 +2,7 @@
 	 data-drill-shell="1"
 	 data-drill-shell-mode="{{ shell.mode }}"
 	 data-drill-shell-id="{{ shell.id }}">
+	<div class="screen-reader-text" aria-live="polite" aria-atomic="true" data-drill-live-region="1"></div>
 	{% for shell_layer in shell.layers %}
 		{% set layer_index = loop.index0 %}
 		{% set layer_state = 'hidden' %}

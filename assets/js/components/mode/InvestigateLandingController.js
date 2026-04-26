@@ -6,6 +6,7 @@ import { LiveTrafficPoller } from "../general/LiveTrafficPoller";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
+import { announceWithin, focusElement, setElementBusy } from "../ui/ShieldA11y";
 import { getActiveLayerIndex, getLayersForShell, parseJsonAttribute } from "./DrillDownShared";
 
 export class InvestigateLandingController extends BaseAutoExecComponent {
@@ -115,6 +116,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.panelEl = this.getPanel( root );
 
 		this.openSubjectSelection( selection, {
+			sourceEl: subjectTile,
 			requestData: {
 				...selection.render_action,
 			},
@@ -210,6 +212,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.panelEl = panel;
 
 		this.openSubjectSelection( pivot.selection, {
+			sourceEl: link,
 			requestData: pivot.requestData,
 			historyUrl: pivot.historyUrl,
 			hash: pivot.hash,
@@ -231,7 +234,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.rootEl = root;
 		this.shellEl = this.getShell( root );
 		this.panelEl = this.getPanel( root );
-		this.cancelPanelRequest();
+		this.cancelPanelRequest( this.panelEl );
 		this.stopLivePanelPoller();
 		this.resetLandingToIdle();
 	}
@@ -282,7 +285,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			} );
 	}
 
-	openSubjectSelection( selection, { requestData = {}, historyUrl = '', hash = '' } = {} ) {
+	openSubjectSelection( selection, { sourceEl = null, requestData = {}, historyUrl = '', hash = '' } = {} ) {
 		if ( this.shellEl === null || this.panelEl === null ) {
 			return Promise.resolve();
 		}
@@ -300,7 +303,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			1,
 			this.buildLoadingHeader( selection.header, this.getPanelLoadingText() )
 		);
-		drillCtrl.drillTo( this.shellEl, panelLayerIndex );
+		drillCtrl.drillTo( this.shellEl, panelLayerIndex, { sourceEl } );
 
 		return this.loadPanelBodyFromRenderAction(
 			this.panelEl,
@@ -377,8 +380,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 	loadGenericPanelBody( panel, selection, { historyUrl = '', hash = '' } = {} ) {
 		const cachedHtml = this.readCachedGenericPanelHtml( selection.key );
 		if ( cachedHtml.length > 0 ) {
-			this.cancelPanelRequest();
-			this.setPanelLoadingState( panel, false );
+			this.cancelPanelRequest( panel );
 			this.finalizeSuccessfulPanelLoad( panel, cachedHtml, selection, historyUrl, hash );
 			return Promise.resolve();
 		}
@@ -407,8 +409,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 						return;
 					}
 
-					this.setPanelLoadingState( panel, false );
-					this.panelRequestKey = '';
+					this.cancelPanelRequest( panel );
 					return this.sendPanelRequest(
 						panel,
 						{
@@ -500,9 +501,12 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 	}
 
-	cancelPanelRequest() {
+	cancelPanelRequest( panel = this.panelEl ) {
 		if ( this.panelRequestKey.length > 0 ) {
-			this.panelRequestKey = `cancelled-${Date.now()}`;
+			this.panelRequestKey = '';
+		}
+		if ( panel instanceof HTMLElement ) {
+			this.setPanelLoadingState( panel, false );
 		}
 	}
 
@@ -849,6 +853,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			panelContent.innerHTML = this.buildInlineErrorMarkup();
 		}
 		this.syncPanelChrome( panel, true );
+		this.announcePanelMessage( this.getPanelErrorText() );
 		this.setPanelLoadedState( panel, false );
 		this.stopLivePanelPoller();
 		this.finalizePanelRequestState(
@@ -863,6 +868,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		const panelContent = this.getPanelContentContainer( panel );
 		if ( panelContent !== null ) {
 			panelContent.classList.toggle( 'investigate-panel-is-loading', isLoading );
+			setElementBusy( panelContent, isLoading );
+		}
+		if ( isLoading ) {
+			this.announcePanelMessage( this.getPanelLoadingText() );
 		}
 	}
 
@@ -962,9 +971,13 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 	focusLivePanelOutput( panel ) {
 		const output = panel.querySelector( '.live_logs .output' );
-		if ( output ) {
-			output.focus();
+		if ( output instanceof HTMLElement ) {
+			focusElement( output );
 		}
+	}
+
+	announcePanelMessage( message ) {
+		announceWithin( this.shellEl || this.panelEl, message );
 	}
 
 	buildInlineErrorMarkup() {

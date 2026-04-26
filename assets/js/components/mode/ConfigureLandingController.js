@@ -107,7 +107,9 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 
 		this.rootEl = root;
 		this.shellEl = shell;
-		this.openDiagnosisSelection( zone );
+		this.openDiagnosisSelection( zone, {
+			sourceEl: item,
+		} );
 	}
 
 	handleSearchResultClick( item, evt ) {
@@ -132,6 +134,7 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		this.cancelPendingSearch();
 		this.clearSearchUi( root );
 		this.openDiagnosisSelection( zone, {
+			sourceEl: item,
 			focusRequestJson: String( item.dataset.configureFocusRequest || '' ),
 			historyUrl: item instanceof HTMLAnchorElement ? item.href : '',
 		} );
@@ -336,6 +339,11 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 		);
 	}
 
+	getLayerFailureText( layerKey ) {
+		void layerKey;
+		return this.rootEl?.dataset.configureLayerError || '';
+	}
+
 	buildLoadingMarkup( message ) {
 		return `<div class="text-muted small">${this.escapeHtml( message )}</div>`;
 	}
@@ -423,7 +431,7 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 			|| mouseEvt.altKey;
 	}
 
-	openDiagnosisSelection( zone, { focusRequestJson = '', historyUrl = '' } = {} ) {
+	openDiagnosisSelection( zone, { sourceEl = null, focusRequestJson = '', historyUrl = '' } = {} ) {
 		const shell = this.shellEl;
 		const diagnosisIndex = this.getLayerIndexByKey( shell, 'diagnosis' );
 		const drillCtrl = this.getDrillDownController();
@@ -433,7 +441,13 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 
 		this.selectedZone = zone;
 		this.cancelLayerRequest( 'diagnosis' );
-		drillCtrl.drillTo( shell, diagnosisIndex );
+		drillCtrl.updateLayerHeader(
+			shell,
+			diagnosisIndex,
+			this.buildLoadingHeader( zone.header, this.getDiagnosisLoadingText() ),
+			{ announce: false }
+		);
+		drillCtrl.drillTo( shell, diagnosisIndex, { sourceEl } );
 
 		if ( historyUrl.length > 0 ) {
 			this.replaceHistoryUrl( historyUrl );
@@ -445,12 +459,6 @@ export class ConfigureLandingController extends DrillDownAsyncControllerBase {
 			this.applyFocusRequest( focusRequestJson );
 			return Promise.resolve( cachedDiagnosis );
 		}
-
-		drillCtrl.updateLayerHeader(
-			shell,
-			diagnosisIndex,
-			this.buildLoadingHeader( zone.header, this.getDiagnosisLoadingText() )
-		);
 
 		return this.loadDiagnosisLayer().then( ( data ) => {
 			if ( data !== null ) {

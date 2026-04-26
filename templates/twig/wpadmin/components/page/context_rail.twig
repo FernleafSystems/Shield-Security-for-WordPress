@@ -1,6 +1,7 @@
 <aside class="operator-context-rail"
 	   data-operator-context-rail="1"
 	   data-shield-tour="context-box"
-	   data-context-mode="{{ mode|default('') }}">
+	   data-context-mode="{{ mode|default('') }}"
+	   aria-label="{{ label|default('')|e('html_attr') }}">
 	<div class="operator-context-rail__body" data-operator-context-rail-body="1"></div>
 </aside>

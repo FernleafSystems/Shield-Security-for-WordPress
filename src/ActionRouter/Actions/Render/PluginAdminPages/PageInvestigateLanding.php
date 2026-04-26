@@ -131,6 +131,13 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 				'body'   => $this->renderSubjectsLayer(),
 				'header' => [
 					'compact_back_label' => $this->buildBackLabel( __( 'Investigate', 'wp-simple-firewall' ) ),
+					'breadcrumb_label'   => __( 'Subjects', 'wp-simple-firewall' ),
+					'title'              => __( 'Subjects', 'wp-simple-firewall' ),
+					'summary'            => __( 'Choose a subject to investigate.', 'wp-simple-firewall' ),
+					'next_step'          => __( 'Open the subject you need to inspect next.', 'wp-simple-firewall' ),
+					'icon_class'         => 'bi bi-search',
+					'badge_status'       => 'info',
+					'color_key'          => 'investigate',
 				],
 			],
 			[

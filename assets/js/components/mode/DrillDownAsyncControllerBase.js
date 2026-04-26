@@ -3,6 +3,7 @@ import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
+import { announceWithin, setElementBusy } from "../ui/ShieldA11y";
 import {
 	getLayersForShell,
 	parseJsonAttribute,
@@ -44,8 +45,18 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 	}
 
 	cancelLayerRequest( layerKey ) {
-		if ( this.layerRequests[ layerKey ] !== undefined ) {
-			this.layerRequests[ layerKey ] = `cancelled-${Date.now()}`;
+		const normalizedLayerKey = String( layerKey || '' ).trim();
+		if ( normalizedLayerKey.length < 1 ) {
+			return;
+		}
+
+		if ( this.layerRequests[ normalizedLayerKey ] !== undefined ) {
+			delete this.layerRequests[ normalizedLayerKey ];
+		}
+
+		const layer = this.getLayerByKey( this.shellEl, normalizedLayerKey );
+		if ( layer !== null ) {
+			this.setLayerBusy( layer, false );
 		}
 	}
 
@@ -90,6 +101,7 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 		if ( showPlaceholder ) {
 			this.replaceLayerBodyHtml( body, this.buildLoadingMarkup( loadingText ) );
 		}
+		this.setLayerBusy( layer, true, loadingText );
 
 		return ( new AjaxService() )
 			.send( renderAction, false, true )
@@ -100,6 +112,7 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 
 				if ( !resp.success || typeof resp?.data?.html !== 'string' ) {
 					this.renderLayerFailure( body, layerKey );
+					this.announceLayerMessage( layer, this.getLayerFailureText( layerKey ) );
 					return null;
 				}
 
@@ -110,11 +123,13 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 			.catch( () => {
 				if ( this.layerRequests[ layerKey ] === requestKey ) {
 					this.renderLayerFailure( body, layerKey );
+					this.announceLayerMessage( layer, this.getLayerFailureText( layerKey ) );
 				}
 				return null;
 			} )
 			.finally( () => {
 				if ( this.layerRequests[ layerKey ] === requestKey ) {
+					this.setLayerBusy( layer, false );
 					delete this.layerRequests[ layerKey ];
 				}
 			} );
@@ -174,5 +189,21 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 	renderLayerFailure( body, layerKey ) {
 		void body;
 		void layerKey;
+	}
+
+	getLayerFailureText( layerKey ) {
+		void layerKey;
+		return '';
+	}
+
+	setLayerBusy( layer, isBusy, message = '' ) {
+		setElementBusy( layer, isBusy );
+		if ( isBusy ) {
+			this.announceLayerMessage( layer, message );
+		}
+	}
+
+	announceLayerMessage( layer, message ) {
+		announceWithin( layer, message );
 	}
 }

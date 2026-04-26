@@ -86,7 +86,7 @@ export class ReportsLandingController extends BaseAutoExecComponent {
 
 		const workspaceLayerIndex = this.getLayerIndexByKey( shell, 'workspace' );
 		if ( workspaceLayerIndex >= 0 ) {
-			drillCtrl.drillTo( shell, workspaceLayerIndex );
+			drillCtrl.drillTo( shell, workspaceLayerIndex, { sourceEl: item } );
 		}
 
 		this.activateWorkspaceSection( selection.key );

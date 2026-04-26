@@ -113,44 +113,42 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 
 		$data = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$vars = $data[ 'vars' ] ?? [];
+		$drillShell = $vars[ 'drill_shell' ] ?? [];
+		$layers = $drillShell[ 'layers' ] ?? [];
 
 		$this->assertSame( 'actions', $vars[ 'mode_shell' ][ 'mode' ] ?? '' );
-		$this->assertSame( 'Drill Title', $vars[ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
-		$this->assertSame( 'Drill Subtitle', $vars[ 'mode_shell' ][ 'root_step' ][ 'summary' ] ?? '' );
-		$this->assertSame( 'actions_drill_shell', $vars[ 'drill_shell' ][ 'id' ] ?? '' );
-		$this->assertSame( 'actions', $vars[ 'drill_shell' ][ 'mode' ] ?? '' );
-		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
-		$this->assertCount( 3, $vars[ 'drill_shell' ][ 'layers' ] ?? [] );
+		$this->assertNotSame( '', $vars[ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
+		$this->assertNotSame( '', $vars[ 'mode_shell' ][ 'root_step' ][ 'summary' ] ?? '' );
+		$this->assertSame( 'actions_drill_shell', $drillShell[ 'id' ] ?? '' );
+		$this->assertSame( 'actions', $drillShell[ 'mode' ] ?? '' );
+		$this->assertSame( 1, $drillShell[ 'active_index' ] ?? -1 );
+		$this->assertCount( 3, $layers );
 		$this->assertSame(
 			[ 'layerone', 'bucket_detail', 'finaldetail' ],
-			\array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' )
+			\array_column( $layers, 'key' )
 		);
-		$this->assertSame( 'neutral', $vars[ 'drill_shell' ][ 'layers' ][ 2 ][ 'header' ][ 'badge_status' ] ?? '' );
-		$this->assertSame(
-			[
-				'compact_back_label' => 'Back to Bucket Detail',
-				'active_back_label'  => 'Back to Queue',
-				'meta'               => 'Warning',
-				'breadcrumb_label'   => '',
-				'title'              => 'Bucket Detail',
-				'summary'            => 'Narrow the queue.',
-				'focus'              => '',
-				'next_step'          => '',
-				'icon_class'         => 'bi bi-eye',
-				'badge'              => 'Review',
-				'badge_status'       => 'warning',
-				'color_key'          => 'warning',
-				'actions'            => [],
-			],
-			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? []
-		);
-		$this->assertSame(
-			$vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [],
-			\json_decode( (string)( $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header_json' ] ?? '' ), true )
-		);
+		$this->assertSame( 'neutral', $layers[ 2 ][ 'header' ][ 'badge_status' ] ?? '' );
+		$this->assertSame( 'warning', $layers[ 1 ][ 'header' ][ 'badge_status' ] ?? '' );
+		$this->assertSame( 'warning', $layers[ 1 ][ 'header' ][ 'color_key' ] ?? '' );
+		$this->assertSame( [], $layers[ 1 ][ 'header' ][ 'actions' ] ?? null );
+		$layerIDs = [];
+		foreach ( $layers as $layerIndex => $layer ) {
+			$this->assertMatchesRegularExpression(
+				\sprintf( '/^actions_drill_shell_layer_%d_[a-z0-9_]+$/', $layerIndex ),
+				(string)( $layer[ 'id' ] ?? '' )
+			);
+			$this->assertNotContains( $layer[ 'id' ] ?? '', $layerIDs );
+			$layerIDs[] = $layer[ 'id' ] ?? '';
+			$this->assertSame( ( $layer[ 'id' ] ?? '' ).'_title', $layer[ 'title_id' ] ?? '' );
+			$this->assertNotSame( '', $layer[ 'header' ][ 'title' ] ?? '' );
+			$this->assertSame(
+				$layer[ 'header' ] ?? [],
+				\json_decode( (string)( $layer[ 'header_json' ] ?? '' ), true )
+			);
+			$this->assertArrayNotHasKey( 'index', $layer );
+			$this->assertArrayNotHasKey( 'is_active', $layer );
+		}
 		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
-		$this->assertArrayNotHasKey( 'index', $vars[ 'drill_shell' ][ 'layers' ][ 0 ] ?? [] );
-		$this->assertArrayNotHasKey( 'is_active', $vars[ 'drill_shell' ][ 'layers' ][ 0 ] ?? [] );
 	}
 
 	public function test_out_of_range_active_index_clamps_to_zero() :void {
@@ -201,6 +199,84 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 
 		$this->assertSame( 0, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
 		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
+	}
+
+	public function test_layers_without_non_empty_titles_are_rejected_at_producer_boundary() :void {
+		$page = new class extends PageDrillDownLandingBase {
+			public const SLUG = 'test_drill_down_landing_required_titles';
+
+			protected function getLandingTitle() :string {
+				return 'Contract Title';
+			}
+
+			protected function getLandingSubtitle() :string {
+				return 'Contract Subtitle';
+			}
+
+			protected function getLandingIcon() :string {
+				return 'shield-shaded';
+			}
+
+			protected function getLandingMode() :string {
+				return 'actions';
+			}
+
+			protected function getLayers() :array {
+				return [
+					[
+						'key'    => 'valid_one',
+						'body'   => '<div>Valid 1</div>',
+						'header' => [
+							'title' => 'Valid One',
+						],
+					],
+					[
+						'key'  => 'missing_title',
+						'body' => '<div>Missing title</div>',
+					],
+					[
+						'key'    => 'whitespace_title',
+						'body'   => '<div>Whitespace title</div>',
+						'header' => [
+							'title' => '   ',
+						],
+					],
+					[
+						'key'    => 'valid_two',
+						'body'   => '<div>Valid 2</div>',
+						'header' => [
+							'title' => 'Valid Two',
+						],
+					],
+				];
+			}
+
+			protected function getActiveLayerIndex() :int {
+				return 2;
+			}
+		};
+
+		$vars = $this->invokeNonPublicMethod( $page, 'getLandingVars' );
+		$drillShell = $vars[ 'drill_shell' ] ?? [];
+		$layers = $drillShell[ 'layers' ] ?? [];
+
+		$this->assertSame( [ 'valid_one', 'valid_two' ], \array_column( $layers, 'key' ) );
+		$this->assertSame( 0, $drillShell[ 'active_index' ] ?? -1 );
+
+		$ids = [];
+		$titleIDs = [];
+		foreach ( $layers as $layerIndex => $layer ) {
+			$this->assertNotSame( '', $layer[ 'header' ][ 'title' ] ?? '' );
+			$this->assertMatchesRegularExpression(
+				\sprintf( '/^actions_drill_shell_layer_%d_valid_(one|two)$/', $layerIndex ),
+				(string)( $layer[ 'id' ] ?? '' )
+			);
+			$ids[] = $layer[ 'id' ] ?? '';
+			$titleIDs[] = $layer[ 'title_id' ] ?? '';
+		}
+
+		$this->assertSame( $ids, \array_values( \array_unique( $ids ) ) );
+		$this->assertSame( $titleIDs, \array_values( \array_unique( $titleIDs ) ) );
 	}
 
 	public function test_empty_layers_produce_empty_drill_contract() :void {

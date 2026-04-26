@@ -110,12 +110,14 @@
 			{% set operator_rail_html %}
 				{% include '/wpadmin/components/page/context_rail.twig' with {
 					step: mode_shell.root_step,
-					mode: mode_shell.mode
+					mode: mode_shell.mode,
+					label: strings.operator_context_label
 				} only %}
 			{% endset %}
 			{% include '/wpadmin/components/page/step_tabs.twig' with {
 				hrefs: hrefs,
-				imgs: imgs
+				imgs: imgs,
+				strings: strings
 			} only %}
 			{% include '/wpadmin/components/page/shield_rail_layout.twig' with { layout: {
 				class: 'shield-rail-layout--context-end',
