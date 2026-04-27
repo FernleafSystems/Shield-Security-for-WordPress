@@ -21,7 +21,12 @@ abstract class BuildRuleBase {
 		$rule->wp_hook_level = $this->getWpHookLevel();
 		$rule->wp_hook_priority = $this->getWpHookPriority();
 		$rule->flags = $this->getFlags();
-		$rule->setConditionsRaw( $this->getConditions() );
+		if ( \method_exists( $this, 'setConditionsRaw' ) ) {
+			$rule->setConditionsRaw( $this->getConditions() );
+		}
+		else {
+			$rule->conditions = $this->getConditions();
+		}
 		$rule->responses = $this->getResponses();
 		$rule->immediate_exec_response = $this->isInstantExecResponse();
 		return $rule;
