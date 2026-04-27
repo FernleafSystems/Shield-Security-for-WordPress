@@ -73,7 +73,10 @@ export class DrillDownController extends BaseAutoExecComponent {
 		}
 
 		this.focusForLayerChange( shellEl, activeLayer, currentActiveIndex, isForward );
-		this.announceActiveLayer( shellEl, activeLayer );
+		this.announceActiveLayer( shellEl, activeLayer, null, {
+			politeness: 'polite',
+			allowRepeat: false,
+		} );
 
 		shellEl.dispatchEvent( new CustomEvent( eventName, {
 			bubbles: true,
@@ -98,10 +101,16 @@ export class DrillDownController extends BaseAutoExecComponent {
 		const header = headerData && typeof headerData === 'object'
 			? headerData
 			: {};
+		const previousTitle = this.readLayerTitle( layer );
 		layer.dataset.drillLayerHeader = JSON.stringify( header );
 		this.syncLayerTitle( layer, header );
-		if ( options.announce !== false && this.isLayerActive( layer ) ) {
-			this.announceActiveLayer( shellEl, layer, header );
+		const nextTitle = this.readLayerTitle( layer, header );
+		if ( this.isLayerActive( layer )
+			&& this.shouldAnnounceHeaderUpdate( options, previousTitle, nextTitle ) ) {
+			this.announceActiveLayer( shellEl, layer, header, {
+				politeness: 'polite',
+				allowRepeat: false,
+			} );
 		}
 		shellEl.dispatchEvent( new CustomEvent( 'shield:drill-header-updated', {
 			bubbles: true,
@@ -167,11 +176,23 @@ export class DrillDownController extends BaseAutoExecComponent {
 		}
 	}
 
-	announceActiveLayer( shellEl, layer, header = null ) {
+	announceActiveLayer( shellEl, layer, header = null, options = {} ) {
 		const title = this.readLayerTitle( layer, header );
 		if ( title.length > 0 ) {
-			announceWithin( shellEl, title );
+			announceWithin( shellEl, title, options );
 		}
+	}
+
+	shouldAnnounceHeaderUpdate( options, previousTitle, nextTitle ) {
+		if ( options?.announce === false || nextTitle.length < 1 ) {
+			return false;
+		}
+
+		if ( options?.announce === 'always' ) {
+			return true;
+		}
+
+		return nextTitle !== previousTitle;
 	}
 
 	syncLayerTitle( layer, header ) {

@@ -112,7 +112,10 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 
 				if ( !resp.success || typeof resp?.data?.html !== 'string' ) {
 					this.renderLayerFailure( body, layerKey );
-					this.announceLayerMessage( layer, this.getLayerFailureText( layerKey ) );
+					this.announceLayerMessage( layer, this.getLayerFailureText( layerKey ), {
+						politeness: 'assertive',
+						allowRepeat: false,
+					} );
 					return null;
 				}
 
@@ -123,7 +126,10 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 			.catch( () => {
 				if ( this.layerRequests[ layerKey ] === requestKey ) {
 					this.renderLayerFailure( body, layerKey );
-					this.announceLayerMessage( layer, this.getLayerFailureText( layerKey ) );
+					this.announceLayerMessage( layer, this.getLayerFailureText( layerKey ), {
+						politeness: 'assertive',
+						allowRepeat: false,
+					} );
 				}
 				return null;
 			} )
@@ -199,11 +205,14 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 	setLayerBusy( layer, isBusy, message = '' ) {
 		setElementBusy( layer, isBusy );
 		if ( isBusy ) {
-			this.announceLayerMessage( layer, message );
+			this.announceLayerMessage( layer, message, {
+				politeness: 'polite',
+				allowRepeat: false,
+			} );
 		}
 	}
 
-	announceLayerMessage( layer, message ) {
-		announceWithin( layer, message );
+	announceLayerMessage( layer, message, options = {} ) {
+		announceWithin( layer, message, options );
 	}
 }

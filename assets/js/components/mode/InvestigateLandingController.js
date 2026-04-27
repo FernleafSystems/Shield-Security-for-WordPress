@@ -853,7 +853,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			panelContent.innerHTML = this.buildInlineErrorMarkup();
 		}
 		this.syncPanelChrome( panel, true );
-		this.announcePanelMessage( this.getPanelErrorText() );
+		this.announcePanelMessage( this.getPanelErrorText(), {
+			politeness: 'assertive',
+			allowRepeat: false,
+		} );
 		this.setPanelLoadedState( panel, false );
 		this.stopLivePanelPoller();
 		this.finalizePanelRequestState(
@@ -871,7 +874,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			setElementBusy( panelContent, isLoading );
 		}
 		if ( isLoading ) {
-			this.announcePanelMessage( this.getPanelLoadingText() );
+			this.announcePanelMessage( this.getPanelLoadingText(), {
+				politeness: 'polite',
+				allowRepeat: false,
+			} );
 		}
 	}
 
@@ -976,8 +982,8 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 	}
 
-	announcePanelMessage( message ) {
-		announceWithin( this.shellEl || this.panelEl, message );
+	announcePanelMessage( message, options = {} ) {
+		announceWithin( this.shellEl || this.panelEl, message, options );
 	}
 
 	buildInlineErrorMarkup() {

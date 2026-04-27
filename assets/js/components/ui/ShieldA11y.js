@@ -1,4 +1,6 @@
-export function announceWithin( contextEl, message ) {
+const liveRegionAnnouncements = new WeakMap();
+
+export function announceWithin( contextEl, message, options = {} ) {
 	const text = String( message || '' ).trim();
 	if ( text.length < 1 ) {
 		return;
@@ -9,6 +11,23 @@ export function announceWithin( contextEl, message ) {
 		return;
 	}
 
+	const politeness = normalizePoliteness( options?.politeness );
+	const announcementKey = {
+		text,
+		politeness: politeness || String( liveRegion.getAttribute( 'aria-live' ) || '' ).trim(),
+	};
+	if ( options?.allowRepeat === false ) {
+		const previousAnnouncement = liveRegionAnnouncements.get( liveRegion ) || null;
+		if ( previousAnnouncement?.text === announcementKey.text
+			&& previousAnnouncement?.politeness === announcementKey.politeness ) {
+			return;
+		}
+	}
+
+	liveRegionAnnouncements.set( liveRegion, announcementKey );
+	if ( politeness.length > 0 ) {
+		liveRegion.setAttribute( 'aria-live', politeness );
+	}
 	liveRegion.textContent = '';
 	setTimeout( () => {
 		liveRegion.textContent = text;
@@ -59,4 +78,11 @@ function findLiveRegion( contextEl ) {
 
 	const liveRegion = shell.querySelector( '[data-drill-live-region="1"]' );
 	return liveRegion instanceof HTMLElement ? liveRegion : null;
+}
+
+function normalizePoliteness( politeness ) {
+	const value = String( politeness || '' ).trim();
+	return value === 'polite' || value === 'assertive'
+		? value
+		: '';
 }
