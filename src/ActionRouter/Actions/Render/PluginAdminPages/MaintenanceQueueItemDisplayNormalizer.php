@@ -184,10 +184,6 @@ class MaintenanceQueueItemDisplayNormalizer {
 	 * @return MaintenanceQueueItem
 	 */
 	private function normalizeWithState( array $item, array $state ) :array {
-		if ( $item[ 'zone' ] !== 'maintenance' ) {
-			return $item;
-		}
-
 		$item[ 'label' ] = $state[ 'label' ] !== '' ? $state[ 'label' ] : $item[ 'label' ];
 		$item[ 'icon_class' ] = $state[ 'icon_class' ]
 			?? $this->buildMaintenanceIssueStateProvider()->iconClassForKey( $item[ 'key' ] );
@@ -195,6 +191,13 @@ class MaintenanceQueueItemDisplayNormalizer {
 		$item[ 'count' ] = $state[ 'count' ];
 		$item[ 'drill_bucket' ] = $state[ 'drill_bucket' ];
 		$item[ 'severity' ] = $state[ 'severity' ] !== '' ? $state[ 'severity' ] : $item[ 'severity' ];
+		if ( $item[ 'zone' ] !== 'maintenance' ) {
+			$item[ 'cta' ] = [];
+			$item[ 'toggle_action' ] = [];
+			$item[ 'expansion' ] = [];
+			return $item;
+		}
+
 		$item[ 'cta' ] = $this->buildCta( $item );
 		$item[ 'toggle_action' ] = $this->buildToggleAction( $item, $state );
 		$item[ 'expansion' ] = $this->buildExpansion( $item, $state );

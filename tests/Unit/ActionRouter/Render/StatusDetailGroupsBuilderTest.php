@@ -72,6 +72,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( '_blank', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'target' ] ?? '' );
 		$this->assertSame( 1, $groups[ 0 ][ 'rows' ][ 0 ][ 'count_badge' ] ?? 0 );
 		$this->assertFalse( $groups[ 0 ][ 'rows' ][ 0 ][ 'is_expandable' ] ?? true );
+		$this->assertArrayNotHasKey( 'sort_index', $groups[ 0 ][ 'rows' ][ 0 ] );
 	}
 
 	public function test_build_for_configure_orders_by_severity_and_preserves_action_contract() :void {

@@ -68,8 +68,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 
 		$builder = new class( $assetCardsBuilder ) extends ScansResultsViewBuilder {
 
-			/** @var ActionsQueueScanAssetCardsBuilder */
-			private $assetCardsBuilder;
+			private ActionsQueueScanAssetCardsBuilder $assetCardsBuilder;
 
 			public function __construct( ActionsQueueScanAssetCardsBuilder $assetCardsBuilder ) {
 				$this->assetCardsBuilder = $assetCardsBuilder;
@@ -106,7 +105,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 			],
 			$assetCardsBuilder->getSeenOptions()
 		);
-		$tableAction = $this->decodeJsonAttr( (string)( $pane[ 'cards' ][ 0 ][ 'table' ][ 'table_action_attr' ] ?? '' ) );
+		$tableAction = $this->decodeJsonAttr( $pane[ 'cards' ][ 0 ][ 'table' ][ 'table_action_attr' ] );
 		$this->assertSame( 'plugin', $tableAction[ 'type' ] ?? '' );
 		$this->assertSame( 'example-plugin/example-plugin.php', $tableAction[ 'file' ] ?? '' );
 		$this->assertSame( 'actions_queue', $tableAction[ 'display_context' ] ?? '' );
@@ -139,11 +138,13 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( 'example-plugin/example-plugin.php', $queuePane[ 'cards' ][ 0 ][ 'meta_text' ] );
 		$this->assertTrue( $queuePane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( 3, $queuePane[ 'cards' ][ 0 ][ 'count_badge' ] );
+		$this->assertSame( '', $queuePane[ 'cards' ][ 0 ][ 'body_notice' ] );
+		$this->assertSame( '', $queuePane[ 'cards' ][ 0 ][ 'body_notice_variant' ] );
 		$this->assertSame( '/wp-admin/plugins.php', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'href' ] );
 		$this->assertSame( '1', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
 		$this->assertSame( '0', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
-		$queueTableAction = $this->decodeJsonAttr( (string)( $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'table_action_attr' ] ?? '' ) );
-		$railTableAction = $this->decodeJsonAttr( (string)( $railPane[ 'items' ][ 0 ][ 'expansion' ][ 'table' ][ 'table_action_attr' ] ?? '' ) );
+		$queueTableAction = $this->decodeJsonAttr( $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'table_action_attr' ] );
+		$railTableAction = $this->decodeJsonAttr( $railPane[ 'items' ][ 0 ][ 'expansion' ][ 'table' ][ 'table_action_attr' ] );
 		$this->assertSame( 'plugin', $queueTableAction[ 'type' ] ?? '' );
 		$this->assertSame( 'example-plugin/example-plugin.php', $queueTableAction[ 'file' ] ?? '' );
 		$this->assertCount( 1, $railPane[ 'items' ] );

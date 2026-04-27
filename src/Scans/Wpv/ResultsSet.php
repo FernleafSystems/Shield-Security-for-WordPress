@@ -6,20 +6,30 @@ class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	/**
 	 * @return ResultItem[]
 	 */
-	public function getItemsForSlug( string $slug ): array {
+	public function getItemsForSlug( string $slug ) :array {
 		return \array_values( \array_filter(
-			$this->getItems(),
-			fn( $item ) => /** @var ResultItem $item */ $item->VO->item_id == $slug,
+			$this->getWpvItems(),
+			static fn( ResultItem $item ) :bool => $item->VO->item_id === $slug,
 		) );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getUniqueSlugs(): array {
-		return \array_unique( \array_map(
-			fn( $item ) => /** @var ResultItem $item */ $item->VO->item_id,
-			$this->getItems()
+	public function getUniqueSlugs() :array {
+		return \array_values( \array_unique( \array_map(
+			static fn( ResultItem $item ) :string => $item->VO->item_id,
+			$this->getWpvItems()
+		) ) );
+	}
+
+	/**
+	 * @return list<ResultItem>
+	 */
+	private function getWpvItems() :array {
+		return \array_values( \array_filter(
+			$this->getItems(),
+			static fn( $item ) :bool => $item instanceof ResultItem
 		) );
 	}
 }

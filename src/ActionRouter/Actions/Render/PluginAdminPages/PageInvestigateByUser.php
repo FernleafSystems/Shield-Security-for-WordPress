@@ -293,7 +293,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		$table[ 'is_flat' ] = true;
 		$table[ 'show_header' ] = false;
 
-		return $this->normalizeInvestigationTableContract( $table );
+		return $table;
 	}
 
 	protected function buildSessions( \WP_User $subject ) :array {

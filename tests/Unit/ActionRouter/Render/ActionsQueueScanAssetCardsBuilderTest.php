@@ -80,6 +80,8 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'plugin', $records[ 0 ][ 'table' ][ 'route' ] );
 		$this->assertSame( 'example-plugin/example-plugin.php', $records[ 0 ][ 'table' ][ 'subject_id' ] );
 		$this->assertSame( [ 'update', 'deactivate' ], \array_column( $records[ 0 ][ 'actions' ], 'type' ) );
+		$this->assertSame( '', $records[ 0 ][ 'body_notice' ] );
+		$this->assertSame( '', $records[ 0 ][ 'body_notice_variant' ] );
 		$this->assertSame( '1', $records[ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
 		$this->assertSame( '0', $records[ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
 		$this->assertSame( 1, $builder->tableBuildCalls() );

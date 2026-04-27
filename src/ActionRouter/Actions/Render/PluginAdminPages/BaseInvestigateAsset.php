@@ -157,7 +157,7 @@ abstract class BaseInvestigateAsset extends BasePluginAdminPage {
 		);
 		$activityTable[ 'is_flat' ] = true;
 		$activityTable[ 'show_header' ] = false;
-		return $this->normalizeInvestigationTableContract( $activityTable );
+		return $activityTable;
 	}
 
 	protected function buildPluginScanData( $plugin ) :array {

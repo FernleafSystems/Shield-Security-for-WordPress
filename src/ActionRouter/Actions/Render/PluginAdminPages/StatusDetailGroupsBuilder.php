@@ -54,6 +54,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   badge_status:string,
  *   explanations:list<string>,
  *   action:array{}|DetailAction,
+ *   is_expandable:bool
+ * }
+ * @phpstan-type SortableDetailGroupRow array{
+ *   key:string,
+ *   title:string,
+ *   summary:string,
+ *   status:string,
+ *   status_label:string,
+ *   status_icon_class:string,
+ *   count_badge:?int,
+ *   badge_status:string,
+ *   explanations:list<string>,
+ *   action:array{}|DetailAction,
  *   is_expandable:bool,
  *   sort_index:int
  * }
@@ -105,7 +118,7 @@ class StatusDetailGroupsBuilder {
 
 	/**
 	 * @param MaintenanceIssueItem $item
-	 * @return DetailGroupRow
+	 * @return SortableDetailGroupRow
 	 */
 	private function buildMaintenanceIssueRow( array $item, int $sortIndex ) :array {
 		$status = $this->normalizeStatus( $item[ 'severity' ] );
@@ -129,7 +142,7 @@ class StatusDetailGroupsBuilder {
 
 	/**
 	 * @param AssessmentRow $row
-	 * @return DetailGroupRow
+	 * @return SortableDetailGroupRow
 	 */
 	private function buildAssessmentRow( array $row, int $sortIndex ) :array {
 		$status = $this->normalizeStatus( $row[ 'status' ] );
@@ -152,7 +165,7 @@ class StatusDetailGroupsBuilder {
 
 	/**
 	 * @param ConfigureRow $row
-	 * @return DetailGroupRow
+	 * @return SortableDetailGroupRow
 	 */
 	private function buildConfigureRow( array $row, int $sortIndex ) :array {
 		$status = $this->normalizeStatus( $row[ 'status' ] );
@@ -175,7 +188,7 @@ class StatusDetailGroupsBuilder {
 	}
 
 	/**
-	 * @param list<DetailGroupRow> $rows
+	 * @param list<SortableDetailGroupRow> $rows
 	 * @return list<DetailGroup>
 	 */
 	private function groupRows( array $rows ) :array {
@@ -191,7 +204,6 @@ class StatusDetailGroupsBuilder {
 
 		$groups = [];
 		foreach ( $rows as $row ) {
-			unset( $row[ 'sort_index' ] );
 			$status = $row[ 'status' ];
 			if ( empty( $groups ) || $groups[ \count( $groups ) - 1 ][ 'status' ] !== $status ) {
 				$groups[] = [
@@ -199,10 +211,30 @@ class StatusDetailGroupsBuilder {
 					'rows'   => [],
 				];
 			}
-			$groups[ \count( $groups ) - 1 ][ 'rows' ][] = $row;
+			$groups[ \count( $groups ) - 1 ][ 'rows' ][] = $this->withoutSortIndex( $row );
 		}
 
 		return $groups;
+	}
+
+	/**
+	 * @param SortableDetailGroupRow $row
+	 * @return DetailGroupRow
+	 */
+	private function withoutSortIndex( array $row ) :array {
+		return [
+			'key'               => $row[ 'key' ],
+			'title'             => $row[ 'title' ],
+			'summary'           => $row[ 'summary' ],
+			'status'            => $row[ 'status' ],
+			'status_label'      => $row[ 'status_label' ],
+			'status_icon_class' => $row[ 'status_icon_class' ],
+			'count_badge'       => $row[ 'count_badge' ],
+			'badge_status'      => $row[ 'badge_status' ],
+			'explanations'      => $row[ 'explanations' ],
+			'action'            => $row[ 'action' ],
+			'is_expandable'     => $row[ 'is_expandable' ],
+		];
 	}
 
 	/**

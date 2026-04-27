@@ -127,7 +127,9 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 			'meta_text'         => $subjectId,
 			'show_meta_in_tile' => true,
 			'count_badge'       => $countBadge,
-			'panel_data'        => [
+			'body_notice'         => '',
+			'body_notice_variant' => '',
+			'panel_data'          => [
 				'actions-queue-asset-panel-loaded' => '1',
 				'actions-queue-asset-panel-lazy'   => '0',
 			],

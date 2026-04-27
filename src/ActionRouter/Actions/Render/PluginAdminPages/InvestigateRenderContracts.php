@@ -80,7 +80,23 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   empty_status?:string,
  *   empty_text?:string
  * }
- * @phpstan-type InvestigationRenderableTableContract array{
+ * @phpstan-type InvestigationRenderableTableContractInput array{
+ *   title:string,
+ *   status:string,
+ *   table_type:string,
+ *   subject_type:string,
+ *   subject_id:string,
+ *   datatables_init_attr:string,
+ *   table_action_attr:string,
+ *   full_log_href?:string,
+ *   full_log_text?:string,
+ *   full_log_button_class?:string,
+ *   show_header?:bool,
+ *   is_flat?:bool,
+ *   empty_status?:string,
+ *   empty_text?:string
+ * }
+ * @phpstan-type InvestigationNonEmptyTableContract array{
  *   title:string,
  *   status:string,
  *   table_type:string,
@@ -96,7 +112,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   is_empty:false,
  *   empty_status:string,
  *   empty_text:string
- * }|array{
+ * }
+ * @phpstan-type InvestigationEmptyTableContract array{
  *   title:string,
  *   status:string,
  *   full_log_href?:string,
@@ -105,6 +122,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   show_header:bool,
  *   is_flat:bool,
  *   is_empty:true,
+ *   empty_status:string,
+ *   empty_text:string
+ * }
+ * @phpstan-type InvestigationRenderableTableContract InvestigationNonEmptyTableContract|InvestigationEmptyTableContract
+ * @phpstan-type InvestigationTableDefaults array{
+ *   full_log_text:string,
+ *   full_log_button_class:string,
+ *   show_header:bool,
+ *   is_flat:bool,
  *   empty_status:string,
  *   empty_text:string
  * }
@@ -228,7 +254,7 @@ trait InvestigateRenderContracts {
 			$table[ 'full_log_href' ] = $fullLogHref;
 		}
 
-		return $this->normalizeInvestigationTableContract( $table );
+		return $this->withRenderableTableContractDefaults( $table );
 	}
 
 	/**
@@ -238,7 +264,7 @@ trait InvestigateRenderContracts {
 	protected function withEmptyStateTableContract( array $table, int $count, string $emptyText, string $emptyStatus = 'info' ) :array {
 		if ( $count > 0 ) {
 			$table[ 'is_empty' ] = false;
-			return $this->normalizeInvestigationTableContract( $table );
+			return $this->withRenderableTableContractDefaults( $table );
 		}
 
 		$table[ 'is_empty' ] = true;
@@ -253,7 +279,7 @@ trait InvestigateRenderContracts {
 			$table[ 'datatables_init_attr' ],
 			$table[ 'table_action_attr' ],
 		);
-		return $this->normalizeInvestigationTableContract( $table );
+		return $this->withEmptyTableContractDefaults( $table );
 	}
 
 	/**
@@ -262,17 +288,85 @@ trait InvestigateRenderContracts {
 	 */
 	protected function normalizeInvestigationTableContract( array $table ) :array {
 		return \array_merge(
-			[
-				'full_log_text'         => __( 'Full Log', 'wp-simple-firewall' ),
-				'full_log_button_class' => 'btn btn-outline-secondary btn-sm',
-				'show_header'           => true,
-				'is_flat'               => false,
-				'is_empty'              => false,
-				'empty_status'          => 'info',
-				'empty_text'            => '',
-			],
+			$this->investigationTableDefaults() + [ 'is_empty' => false ],
 			$table
 		);
+	}
+
+	/**
+	 * @param InvestigationRenderableTableContractInput $table
+	 * @return InvestigationNonEmptyTableContract
+	 */
+	private function withRenderableTableContractDefaults( array $table ) :array {
+		$defaults = $this->investigationTableDefaults();
+		$contract = [
+			'title'                 => $table[ 'title' ],
+			'status'                => $table[ 'status' ],
+			'table_type'            => $table[ 'table_type' ],
+			'subject_type'          => $table[ 'subject_type' ],
+			'subject_id'            => $table[ 'subject_id' ],
+			'datatables_init_attr'  => $table[ 'datatables_init_attr' ],
+			'table_action_attr'     => $table[ 'table_action_attr' ],
+			'full_log_text'         => $table[ 'full_log_text' ] ?? $defaults[ 'full_log_text' ],
+			'full_log_button_class' => $table[ 'full_log_button_class' ] ?? $defaults[ 'full_log_button_class' ],
+			'show_header'           => $table[ 'show_header' ] ?? $defaults[ 'show_header' ],
+			'is_flat'               => $table[ 'is_flat' ] ?? $defaults[ 'is_flat' ],
+			'is_empty'              => false,
+			'empty_status'          => $table[ 'empty_status' ] ?? $defaults[ 'empty_status' ],
+			'empty_text'            => $table[ 'empty_text' ] ?? $defaults[ 'empty_text' ],
+		];
+		if ( isset( $table[ 'full_log_href' ] ) ) {
+			$contract[ 'full_log_href' ] = $table[ 'full_log_href' ];
+		}
+		return $contract;
+	}
+
+	/**
+	 * @param InvestigationTableContractInput $table
+	 * @return array{
+	 *   title:string,
+	 *   status:string,
+	 *   full_log_href?:string,
+	 *   full_log_text:string,
+	 *   full_log_button_class:string,
+	 *   show_header:bool,
+	 *   is_flat:bool,
+	 *   is_empty:true,
+	 *   empty_status:string,
+	 *   empty_text:string
+	 * }
+	 */
+	private function withEmptyTableContractDefaults( array $table ) :array {
+		$defaults = $this->investigationTableDefaults();
+		$contract = [
+			'title'                 => $table[ 'title' ],
+			'status'                => $table[ 'status' ],
+			'full_log_text'         => $table[ 'full_log_text' ] ?? $defaults[ 'full_log_text' ],
+			'full_log_button_class' => $table[ 'full_log_button_class' ] ?? $defaults[ 'full_log_button_class' ],
+			'show_header'           => $table[ 'show_header' ] ?? $defaults[ 'show_header' ],
+			'is_flat'               => $table[ 'is_flat' ] ?? $defaults[ 'is_flat' ],
+			'is_empty'              => true,
+			'empty_status'          => $table[ 'empty_status' ] ?? $defaults[ 'empty_status' ],
+			'empty_text'            => $table[ 'empty_text' ] ?? $defaults[ 'empty_text' ],
+		];
+		if ( isset( $table[ 'full_log_href' ] ) ) {
+			$contract[ 'full_log_href' ] = $table[ 'full_log_href' ];
+		}
+		return $contract;
+	}
+
+	/**
+	 * @return InvestigationTableDefaults
+	 */
+	private function investigationTableDefaults() :array {
+		return [
+			'full_log_text'         => __( 'Full Log', 'wp-simple-firewall' ),
+			'full_log_button_class' => 'btn btn-outline-secondary btn-sm',
+			'show_header'           => true,
+			'is_flat'               => false,
+			'empty_status'          => 'info',
+			'empty_text'            => '',
+		];
 	}
 
 	protected function buildRailNavItemsFromTabs( array $tabs ) :array {

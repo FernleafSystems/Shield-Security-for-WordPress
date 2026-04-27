@@ -505,6 +505,27 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( [], $items[ 0 ][ 'toggle_action' ] ?? [ 'unexpected' ] );
 	}
 
+	public function test_normalize_returns_complete_contract_for_non_maintenance_item() :void {
+		$item = ( new MaintenanceQueueItemDisplayNormalizer() )->normalize( [
+			'key'         => 'non_maintenance_item',
+			'zone'        => 'scan',
+			'label'       => 'Scan Item',
+			'count'       => 2,
+			'severity'    => 'warning',
+			'description' => 'Scan item needs review.',
+			'href'        => '/wp-admin/admin.php?page=scans',
+			'action'      => 'Review',
+			'target'      => '',
+		] );
+
+		$this->assertSame( 'scan', $item[ 'zone' ] );
+		$this->assertSame( 'review', $item[ 'drill_bucket' ] );
+		$this->assertIsString( $item[ 'icon_class' ] );
+		$this->assertSame( [], $item[ 'cta' ] );
+		$this->assertSame( [], $item[ 'toggle_action' ] );
+		$this->assertSame( [], $item[ 'expansion' ] );
+	}
+
 	private function installServices( array $fixture = [] ) :void {
 		$fixture = \array_merge( [
 			'plugins' => [],

@@ -39,6 +39,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   meta_text:string,
  *   show_meta_in_tile:bool,
  *   count_badge:int,
+ *   body_notice:string,
+ *   body_notice_variant:string,
  *   panel_data:array<string,string>,
  *   actions:list<QueueAssetAction>,
  *   table:array<string,mixed>
@@ -124,9 +126,11 @@ class ActionsQueueScanAssetCardsBuilder {
 				'meta_text'         => $summary[ 'meta_text' ],
 				'show_meta_in_tile' => true,
 				'count_badge'       => $summary[ 'count_badge' ],
-				'panel_data'        => $this->buildImmediatePanelData(),
-				'actions'           => $this->buildAssetActions( $summary, $assetType ),
-				'table'             => $this->buildFileStatusTable(
+				'body_notice'         => '',
+				'body_notice_variant' => '',
+				'panel_data'          => $this->buildImmediatePanelData(),
+				'actions'             => $this->buildAssetActions( $summary, $assetType ),
+				'table'               => $this->buildFileStatusTable(
 					$subjectType,
 					$subjectId,
 					$options
