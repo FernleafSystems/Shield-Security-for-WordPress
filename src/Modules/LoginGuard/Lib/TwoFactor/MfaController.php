@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MfaController {
-
 	use ExecOnce;
 	use PluginControllerConsumer;
 
@@ -25,12 +24,13 @@ class MfaController {
 	/**
 	 * @var Provider\AbstractProvider[][]
 	 */
-	private array $providers;
+	private array $providers = [];
 
 	private MfaProfilesController $mfaProfilesCon;
+
 	private TwoFactorImportController $mfaImportCon;
 
-	protected function canRun() :bool {
+	protected function canRun(): bool {
 		return !self::con()->this_req->wp_is_xmlrpc;
 	}
 
@@ -42,7 +42,7 @@ class MfaController {
 		add_filter( 'login_message', [ $this, 'onLoginMessage' ], 11 );
 	}
 
-	public function getLoginIntentMinutes() :int {
+	public function getLoginIntentMinutes(): int {
 		return (int)\max( 1,
 			apply_filters( 'shield/login_intent_timeout', self::con()->cfg->configuration->def( 'login_intent_timeout' ) )
 		);
@@ -53,7 +53,7 @@ class MfaController {
 	 * - email is the only provider
 	 * - it's the first time loading the 2FA page (we don't auto-send reloading the page after failure)
 	 */
-	public function isAutoSend2faEmail( \WP_User $user ) :bool {
+	public function isAutoSend2faEmail( \WP_User $user ): bool {
 		$auto = false;
 
 		$providers = $this->getProvidersActiveForUser( $user );
@@ -100,11 +100,11 @@ class MfaController {
 		( new LoginRequestCapture() )->execute();
 	}
 
-	public function getMfaProfilesCon() :MfaProfilesController {
+	public function getMfaProfilesCon(): MfaProfilesController {
 		return $this->mfaProfilesCon ??= new MfaProfilesController();
 	}
 
-	public function getMfaImportCon() :TwoFactorImportController {
+	public function getMfaImportCon(): TwoFactorImportController {
 		return $this->mfaImportCon ??= new TwoFactorImportController();
 	}
 
@@ -122,8 +122,8 @@ class MfaController {
 
 			$twoFAat = self::con()->user_metas->for( $user )->record->last_2fa_verified_at;
 			$carbon = Services::Request()
-							  ->carbon()
-							  ->setTimestamp( $twoFAat );
+			                  ->carbon()
+			                  ->setTimestamp( $twoFAat );
 
 			$content[] = sprintf( '<em title="%s">%s</em>: %s',
 				$twoFAat > 0 ? $carbon->toIso8601String() : __( 'Not Recorded', 'wp-simple-firewall' ),
@@ -140,25 +140,25 @@ class MfaController {
 	}
 
 	/**
-	 * @return Provider\AbstractProvider[]
+	 * @return class-string<Provider\AbstractProvider>[]
 	 */
-	public function collateMfaProviderClasses() :array {
+	public function collateMfaProviderClasses(): array {
 
 		$enum = apply_filters( 'shield/2fa_providers', $this->enumShieldProviders() );
 		$providerClasses = \array_filter(
 			\array_filter( \is_array( $enum ) ? $enum : $this->enumShieldProviders(), '\is_string' ),
 			/**
-			 * @var class-string<Provider\Provider2faInterface> $provider
 			 * @return bool
+			 * @var class-string<Provider\Provider2faInterface> $provider
 			 */
 			fn( string $provider ) => isset( \class_implements( $provider )[ Provider\Provider2faInterface::class ] )
-									  && \preg_match( '#^[a-z0-9]+$#', $provider::ProviderSlug() )
+			                          && \preg_match( '#^[a-z0-9]+$#', $provider::ProviderSlug() )
 		);
 
 		// Find duplicate slugs.
 		$duplicateSlugs = \array_filter(
 			\array_count_values( \array_map(
-				/** @var class-string<Provider\Provider2faInterface> $provider */
+			/** @var class-string<Provider\Provider2faInterface> $provider */
 				fn( string $provider ) => \strtolower( $provider::ProviderSlug() ),
 				$providerClasses
 			) ),
@@ -178,11 +178,9 @@ class MfaController {
 	 * Ensures that BackupCode provider isn't supplied on its own, and the user profile is setup for each.
 	 * @return Provider\Provider2faInterface[]
 	 */
-	public function getProvidersForUser( \WP_User $user, bool $onlyActive = false ) :array {
-		$this->providers ??= [];
-
-		if ( !isset( $this->providers[ $user->ID ] ) ) {
-			$this->providers[ $user->ID ] = [];
+	public function getProvidersForUser( \WP_User $user, bool $onlyActive = false ): array {
+		$this->providers[ $user->ID ] ??= [];
+		if ( empty( $this->providers[ $user->ID ] ) ) {
 			foreach ( $this->collateMfaProviderClasses() as $providerClass ) {
 				$this->providers[ $user->ID ][ $providerClass::ProviderSlug() ] = new $providerClass( $user );
 			}
@@ -203,27 +201,27 @@ class MfaController {
 	/**
 	 * @return Provider\Provider2faInterface[]
 	 */
-	public function getProvidersActiveForUser( \WP_User $user ) :array {
+	public function getProvidersActiveForUser( \WP_User $user ): array {
 		return $this->getProvidersForUser( $user, true );
 	}
 
 	/**
 	 * @return Provider\Provider2faInterface[]
 	 */
-	public function getProvidersAvailableToUser( \WP_User $user ) :array {
+	public function getProvidersAvailableToUser( \WP_User $user ): array {
 		return $this->getProvidersForUser( $user );
 	}
 
-	public function getMfaSkip() :int { // seconds
+	public function getMfaSkip(): int { // seconds
 		return \DAY_IN_SECONDS*( self::con()->opts->optGet( 'mfa_skip' ) );
 	}
 
-	public function isSubjectToLoginIntent( \WP_User $user ) :bool {
+	public function isSubjectToLoginIntent( \WP_User $user ): bool {
 		return !self::con()->this_req->request_bypasses_all_restrictions
-			   && \count( $this->getProvidersActiveForUser( $user ) ) > 0;
+		       && \count( $this->getProvidersActiveForUser( $user ) ) > 0;
 	}
 
-	public function removeAllFactorsForUser( int $userID ) :StdResponse {
+	public function removeAllFactorsForUser( int $userID ): StdResponse {
 		$result = new StdResponse();
 
 		$user = Services::WpUsers()->getUserById( $userID );
@@ -247,17 +245,17 @@ class MfaController {
 	/**
 	 * @return array[]
 	 */
-	public function getActiveLoginIntents( \WP_User $user ) :array {
+	public function getActiveLoginIntents( \WP_User $user ): array {
 		$meta = self::con()->user_metas->for( $user );
 		return \array_filter(
 			\is_array( $meta->login_intents ) ? $meta->login_intents : [],
 			fn( $intent ) => \is_array( $intent )
-							 && $intent[ 'start' ] > ( Services::Request()->ts() - $this->getLoginIntentMinutes()*60 )
-							 && $intent[ 'attempts' ] < self::con()->cfg->configuration->def( 'login_intent_max_attempts' )
+			                 && $intent[ 'start' ] > ( Services::Request()->ts() - $this->getLoginIntentMinutes()*60 )
+			                 && $intent[ 'attempts' ] < self::con()->cfg->configuration->def( 'login_intent_max_attempts' )
 		);
 	}
 
-	public function findHashedNonce( \WP_User $user, string $plainNonce ) :string {
+	public function findHashedNonce( \WP_User $user, string $plainNonce ): string {
 		$hashedNonce = '';
 		foreach ( \array_keys( $this->getActiveLoginIntents( $user ) ) as $maybeHash ) {
 			if ( wp_check_password( $plainNonce.$user->ID, $maybeHash ) ) {
@@ -268,7 +266,7 @@ class MfaController {
 		return $hashedNonce;
 	}
 
-	public function verifyLoginNonce( \WP_User $user, string $plainNonce ) :bool {
+	public function verifyLoginNonce( \WP_User $user, string $plainNonce ): bool {
 		$valid = !empty( $this->findHashedNonce( $user, $plainNonce ) );
 		if ( !$valid ) {
 			self::con()->comps->events->fireEvent( '2fa_nonce_verify_fail', [
@@ -283,7 +281,7 @@ class MfaController {
 	/**
 	 * @return class-string<AbstractShieldProvider>[]
 	 */
-	private function enumShieldProviders() :array {
+	private function enumShieldProviders(): array {
 		return [
 			Provider\Email::class,
 			Provider\GoogleAuth::class,

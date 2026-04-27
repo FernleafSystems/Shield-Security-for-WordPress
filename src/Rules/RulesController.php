@@ -94,7 +94,7 @@ class RulesController {
 			}
 			else {
 				$rule->result = true;
-				error_log( 'invalid: empty conditions for: '.var_export( $rule, true ) );
+				/* error_log( 'invalid: empty conditions for: '.var_export( $rule, true ) ); */
 			}
 
 			if ( $rule->result ) {

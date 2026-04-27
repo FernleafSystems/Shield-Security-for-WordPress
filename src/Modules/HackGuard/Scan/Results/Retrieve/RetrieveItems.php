@@ -15,7 +15,6 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property string   $order_dir
  */
 class RetrieveItems extends RetrieveBase {
-
 	public const CONTEXT_RESULTS_TABLE = 0;
 	public const CONTEXT_AUTOREPAIR = 1;
 	public const CONTEXT_LATEST = 2;
@@ -30,14 +29,14 @@ class RetrieveItems extends RetrieveBase {
 				$specificWheres = $wheresBuilder->forResultsDisplay( $scanSlug );
 				break;
 
-				case self::CONTEXT_AUTOREPAIR:
-					$scanSlug = \preg_replace( '/[^a-z0-9_]/i', '', $scanSlug ) ?? '';
-					$specificWheres = [
-						\sprintf( "`ri`.`scan`='%s'", $scanSlug ),
-						"`ri`.`resolved_at`=0",
-						"`ri`.`attempt_repair_at`=0",
-						"`ri`.`ignored_at`=0"
-					];
+			case self::CONTEXT_AUTOREPAIR:
+				$scanSlug = \preg_replace( '/[^a-z0-9_]/i', '', $scanSlug ) ?? '';
+				$specificWheres = [
+					\sprintf( "`ri`.`scan`='%s'", $scanSlug ),
+					"`ri`.`resolved_at`=0",
+					"`ri`.`attempt_repair_at`=0",
+					"`ri`.`ignored_at`=0"
+				];
 				break;
 
 			case self::CONTEXT_NOT_YET_NOTIFIED:
@@ -55,9 +54,8 @@ class RetrieveItems extends RetrieveBase {
 	}
 
 	public function retrieveLatestForFindings( array $stateMetaKeys = [] ) {
-		$results = null;
 		$stateMetaKeys = \array_values( \array_unique( \array_filter( \array_map(
-			static fn( $stateMetaKey ) :string => \preg_replace( '/[^a-z0-9_]/i', '', (string)$stateMetaKey ) ?? '',
+			static fn( $stateMetaKey ): string => \preg_replace( '/[^a-z0-9_]/i', '', (string)$stateMetaKey ) ?? '',
 			$stateMetaKeys
 		) ) ) );
 
@@ -133,13 +131,14 @@ class RetrieveItems extends RetrieveBase {
 	/**
 	 * @param array<string,mixed>|null $options
 	 */
-	public function retrieveForResultsTables( ?array $options = null ) :Scans\Afs\ResultsSet {
+	public function retrieveForResultsTables( ?array $options = null ): Scans\Afs\ResultsSet {
 		if ( $options === null ) {
 			return $this->retrieveResults( self::CONTEXT_RESULTS_TABLE );
 		}
 
 		$results = $this->retrieveByWheres(
-			( new LatestScanResultWheresBuilder() )->forResultsDisplayWithOptions( $this->getScanController()->getSlug(), $options )
+			( new LatestScanResultWheresBuilder() )->forResultsDisplayWithOptions( $this->getScanController()
+			                                                                            ->getSlug(), $options )
 		);
 
 		return empty( $results ) ? $this->getScanController()->getNewResultsSet() : $results;
@@ -161,7 +160,7 @@ class RetrieveItems extends RetrieveBase {
 		] );
 	}
 
-	public function buildQuery( array $selectFields = [] ) :string {
+	public function buildQuery( array $selectFields = [] ): string {
 
 		$hasResultMeta = false;
 		foreach ( $this->getWheres() as $where ) {
@@ -184,17 +183,15 @@ class RetrieveItems extends RetrieveBase {
 	 */
 	protected function convertToResultsSet( array $results ) {
 		$con = self::con();
-		$resultsSet = $this->getNewResultsSet();
 		$workingScan = $this->getScanController();
 		$workingScanSlug = empty( $workingScan ) ? '' : $workingScan->getSlug();
 
 		/** @var ScanResultVO[] $scanResults */
-		$scanResults = \array_map( function ( $r ) {
-			return ( new ScanResultVO() )->applyFromArray( $r );
-		}, $results );
+		$scanResults = \array_map( fn( $r ) => ( new ScanResultVO() )->applyFromArray( $r ), $results );
 
 		$this->addMetaToResults( $scanResults );
 
+		$resultsSet = $this->getNewResultsSet();
 		foreach ( $scanResults as $vo ) {
 			$scanCon = empty( $workingScanSlug )
 				? $con->comps->scans->getScanCon( $vo->scan )
@@ -217,9 +214,7 @@ class RetrieveItems extends RetrieveBase {
 		do {
 			$resultsSlice = \array_slice( $results, $offset, $length );
 			if ( !empty( $resultsSlice ) ) {
-				$resultItemIDs = \array_map( function ( $res ) {
-					return $res->resultitem_id;
-				}, $resultsSlice );
+				$resultItemIDs = \array_map( static fn( $res ) => $res->resultitem_id, $resultsSlice );
 
 				/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItemMeta\Ops\Select $rimSelector */
 				$rimSelector = self::con()->db_con->scan_result_item_meta->getQuerySelector();
@@ -240,7 +235,7 @@ class RetrieveItems extends RetrieveBase {
 		} while ( !empty( $resultsSlice ) );
 	}
 
-	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
+	protected function getBaseQuery( bool $joinWithResultMeta = false ): string {
 		$dbCon = self::con()->db_con;
 		return sprintf( "SELECT %%s
 						FROM `%s` as `ri`
@@ -262,7 +257,7 @@ class RetrieveItems extends RetrieveBase {
 		);
 	}
 
-	private function standardSelectFields() :array {
+	private function standardSelectFields(): array {
 		return [
 			'`ri`.`scan`',
 			'0 as `scan_created_at`',
@@ -295,10 +290,10 @@ class RetrieveItems extends RetrieveBase {
 		} );
 	}
 
-	private function buildStateMetaExistsWhere( array $stateMetaKeys ) :string {
+	private function buildStateMetaExistsWhere( array $stateMetaKeys ): string {
 		$metaTable = self::con()->db_con->scan_result_item_meta->getTable();
 		$exists = \array_map(
-			static function ( string $stateMetaKey ) use ( $metaTable ) :string {
+			static function ( string $stateMetaKey ) use ( $metaTable ): string {
 				return \sprintf(
 					"EXISTS (SELECT 1 FROM `%s` AS `rim_state` WHERE `rim_state`.`ri_ref`=`ri`.`id` AND `rim_state`.`meta_key`='%s' AND `rim_state`.`meta_value`!='' AND `rim_state`.`meta_value`!='0')",
 					$metaTable,
@@ -309,17 +304,5 @@ class RetrieveItems extends RetrieveBase {
 		);
 
 		return \sprintf( '(%s)', \implode( ' OR ', $exists ) );
-	}
-
-	public function getSelects() :array {
-		return \array_filter( \array_map( '\trim', \is_array( $this->selects ) ? $this->selects : [] ) );
-	}
-
-	/**
-	 * @return $this
-	 */
-	public function addSelects( array $selects, bool $merge = true ) {
-		$this->selects = $merge ? \array_merge( $this->getSelects(), $selects ) : $selects;
-		return $this;
 	}
 }

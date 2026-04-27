@@ -22,14 +22,6 @@ class ResultsSet {
 
 	/**
 	 * @param string $hash
-	 * @return ResultItem|null
-	 */
-	public function getItemByHash( $hash ) {
-		return $this->getItemExists( $hash ) ? $this->getAllItems()[ $hash ] : null;
-	}
-
-	/**
-	 * @param string $hash
 	 * @return bool
 	 */
 	public function getItemExists( $hash ) :bool {
