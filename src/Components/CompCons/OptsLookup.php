@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -35,6 +36,10 @@ class OptsLookup {
 
 	public function enabledIntegrationMainwp() :bool {
 		return self::con()->opts->optIs( 'enable_mainwp', 'Y' );
+	}
+
+	public function enabledPluginBadge() :bool {
+		return PluginBadgeMode::isEnabled( $this->getPluginBadgeMode() );
 	}
 
 	/**
@@ -77,6 +82,10 @@ class OptsLookup {
 			'exclusions'   => [],
 			'whitelist_me' => '',
 		], self::con()->opts->optGet( 'blockdown_cfg' ) );
+	}
+
+	public function getPluginBadgeMode() :string {
+		return PluginBadgeMode::normalise( self::con()->opts->optGet( 'display_plugin_badge' ) );
 	}
 
 	public function getBotTrackOffenseCountFor( string $key ) :int {

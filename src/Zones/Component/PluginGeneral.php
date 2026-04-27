@@ -17,7 +17,7 @@ class PluginGeneral extends Base {
 
 	protected function status() :array {
 		$status = parent::status();
-		$badgeEnabled = self::con()->opts->optIs( 'display_plugin_badge', 'Y' );
+		$badgeEnabled = self::con()->comps->opts_lookup->enabledPluginBadge();
 		$source = Services::Request()->getIpDetector()->getPublicRequestSource();
 
 		$status[ 'level' ] = EnumEnabledStatus::GOOD;

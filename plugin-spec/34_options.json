@@ -2390,15 +2390,29 @@
             "plugin_general",
             "module_plugin"
         ],
-        "default": "N",
-        "type": "checkbox",
+        "default": "disabled",
+        "type": "select",
+        "value_options": [
+            {
+                "value_key": "disabled",
+                "text": "Disabled"
+            },
+            {
+                "value_key": "light",
+                "text": "Light"
+            },
+            {
+                "value_key": "dark",
+                "text": "Dark"
+            }
+        ],
         "link_info": "https://clk.shldscrty.com/5v",
         "link_blog": "https://clk.shldscrty.com/wpsf20",
         "beacon_id": 130,
         "vimeo_id": "",
-        "name": "Show Plugin Badge",
-        "summary": "Display Plugin Security Badge On Your Site",
-        "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
+        "name": "Plugin Badge",
+        "summary": "Choose Whether To Display The Plugin Security Badge",
+        "description": "Choose whether to display the plugin badge on your site, and select the light or dark badge style. The plugin badge helps support the plugin by spreading the word about it and shows visitors that you take website security seriously."
     },
     {
         "key": "enable_upgrade_admin_notice",

@@ -36,6 +36,9 @@ class PreSetOptSanitize {
 
 	private function normaliseKnownValues() :void {
 		switch ( $this->key ) {
+			case 'display_plugin_badge':
+				$this->value = PluginBadgeMode::normalise( $this->value );
+				break;
 			case 'language_override':
 				$raw = ( \is_scalar( $this->value ) || \is_null( $this->value ) ) ? (string)$this->value : '';
 				$normalised = \strtolower( (string)\preg_replace( '#[^a-z]#i', '', $raw ) );

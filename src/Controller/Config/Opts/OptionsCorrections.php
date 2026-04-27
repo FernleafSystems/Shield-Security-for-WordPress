@@ -26,6 +26,7 @@ class OptionsCorrections {
 
 	public function runUpgradeMigrations() :void {
 		$this->alerts();
+		$this->pluginBadgeMode();
 	}
 
 	/**
@@ -189,6 +190,8 @@ class OptionsCorrections {
 	private function plugin() :void {
 		$opts = self::con()->opts;
 
+		$this->pluginBadgeMode();
+
 		if ( $opts->optChanged( 'importexport_whitelist' ) ) {
 			$opts->optSet( 'importexport_whitelist', \array_unique( \array_filter( \array_map(
 				function ( $url ) {
@@ -310,5 +313,15 @@ class OptionsCorrections {
 
 	private function hasLegacyFirewallBlockEmailAlertEnabled() :bool {
 		return self::con()->opts->optIs( 'block_send_email', 'Y' );
+	}
+
+	private function pluginBadgeMode() :void {
+		$opts = self::con()->opts;
+		$current = $opts->optGet( 'display_plugin_badge' );
+		$normalised = PluginBadgeMode::normalise( $current );
+
+		if ( $current !== $normalised ) {
+			$opts->optSet( 'display_plugin_badge', $normalised );
+		}
 	}
 }

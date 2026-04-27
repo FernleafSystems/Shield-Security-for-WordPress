@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotRequired;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -15,6 +16,8 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 	protected function getRenderData() :array {
 		$con = self::con();
 		$opts = $con->opts;
+		$isFloating = (bool)$this->action_data[ 'is_floating' ];
+		$mode = PluginBadgeMode::renderMode( $con->comps->opts_lookup->getPluginBadgeMode() );
 
 		if ( $con->comps->whitelabel->isEnabled() ) {
 			$badgeUrl = $opts->optGet( 'wl_homeurl' );
@@ -32,7 +35,7 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 			}
 		}
 
-		$protectedBy = sprintf( __( 'This Site Is Protected By %s', 'wp-simple-firewall' ),
+		$protectedBy = sprintf( __( 'Protected By %s', 'wp-simple-firewall' ),
 			'<br/><span class="plugin-badge-name">'.$name.'</span>' );
 
 		$badgeAttrs = [
@@ -46,31 +49,39 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 		if ( $con->isPremiumActive() ) {
 			$filteredBadgeAttrs = apply_filters( 'shield/plugin_badge_attributes',
 				/** @deprecated */
-				apply_filters( 'icwp_shield_plugin_badge_attributes', $badgeAttrs, $this->action_data[ 'is_floating' ] ),
-				$this->action_data[ 'is_floating' ]
+				apply_filters( 'icwp_shield_plugin_badge_attributes', $badgeAttrs, $isFloating ),
+				$isFloating
 			);
 			if ( \is_array( $filteredBadgeAttrs ) ) {
-				$badgeAttrs = $filteredBadgeAttrs;
+				$badgeAttrs = \array_merge( $badgeAttrs, $filteredBadgeAttrs );
 			}
 		}
 
 		return [
 			'content' => [
-				'custom_css' => esc_js( $badgeAttrs[ 'custom_css' ] ),
+				'custom_css' => esc_js( $this->stringAttr( $badgeAttrs[ 'custom_css' ] ) ),
 			],
 			'flags'   => [
 				'nofollow'    => !empty( $badgeAttrs[ 'nofollow' ] ),
-				'is_floating' => $this->action_data[ 'is_floating' ]
+				'is_floating' => $isFloating,
+				'mode'        => $mode,
 			],
 			'hrefs'   => [
-				'badge' => $badgeAttrs[ 'url' ],
-				'logo'  => $badgeAttrs[ 'logo' ],
+				'badge' => $this->stringAttr( $badgeAttrs[ 'url' ] ),
+				'logo'  => $this->stringAttr( $badgeAttrs[ 'logo' ] ),
 			],
 			'strings' => [
 				'alt'       => sprintf( __( 'Powerful Protection for WordPress, from %s', 'wp-simple-firewall' ), self::con()->labels->Name ),
-				'protected' => $badgeAttrs[ 'protected_by' ],
-				'name'      => $badgeAttrs[ 'name' ],
+				'protected' => $this->stringAttr( $badgeAttrs[ 'protected_by' ] ),
+				'name'      => $this->stringAttr( $badgeAttrs[ 'name' ] ),
 			],
 		];
+	}
+
+	/**
+	 * @param mixed $value
+	 */
+	private function stringAttr( $value ) :string {
+		return \is_scalar( $value ) ? (string)$value : '';
 	}
 }

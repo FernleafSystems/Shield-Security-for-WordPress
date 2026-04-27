@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Components;
 
@@ -22,7 +22,7 @@ class PluginBadge {
 		if ( !Services::WpGeneral()->isAjax() && !( is_admin() || is_network_admin() ) ) {
 
 			$display = apply_filters( 'shield/show_security_badge',
-				self::con()->opts->optIs( 'display_plugin_badge', 'Y' )
+				self::con()->comps->opts_lookup->enabledPluginBadge()
 				&& ( Services::Request()->cookie( $this->getCookieIdBadgeState() ) != 'closed' )
 			);
 

@@ -959,13 +959,13 @@ class StringsOptions {
 				break;
 
 			case 'display_plugin_badge':
-				$name = __( 'Show Plugin Badge', 'wp-simple-firewall' );
-				$summary = __( 'Display Plugin Security Badge To Your Visitors', 'wp-simple-firewall' );
+				$name = __( 'Plugin Badge', 'wp-simple-firewall' );
+				$summary = __( 'Choose Whether To Display The Plugin Security Badge', 'wp-simple-firewall' );
 				$desc = [
-					__( 'Enabling this option helps support the plugin by spreading the word about it on your website.', 'wp-simple-firewall' )
+					__( 'Choose whether to display the plugin badge on your site, and select the light or dark badge style.', 'wp-simple-firewall' )
 					.' '.__( 'The plugin badge also lets visitors know your are taking your website security seriously.', 'wp-simple-firewall' ),
 					sprintf( __( "This also acts as an affiliate link if you're running %s so you can earn rewards for each referral.", 'wp-simple-firewall' ), $pluginName ),
-					sprintf( '<strong><a href="%s" target="_blank">%s</a></strong>', 'https://clk.shldscrty.com/wpsf20', __( 'Read this carefully before enabling this option.', 'wp-simple-firewall' ) ),
+					sprintf( '<strong><a href="%s" target="_blank">%s</a></strong>', 'https://clk.shldscrty.com/wpsf20', __( 'Read this carefully before displaying this badge.', 'wp-simple-firewall' ) ),
 				];
 				break;
 			case 'delete_on_deactivate':

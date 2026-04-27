@@ -347,9 +347,12 @@ if ( false ) { // This ensures the code is never executed but is parsed for tran
 	__( 'Report Email', 'wp-simple-firewall' ); // config_spec.options.125.name
 	__( 'Email For All Reports and Plugin Notifications', 'wp-simple-firewall' ); // config_spec.options.125.summary
 	__( 'Defaults to the blog admin email address.', 'wp-simple-firewall' ); // config_spec.options.125.description
-	__( 'Show Plugin Badge', 'wp-simple-firewall' ); // config_spec.options.126.name
-	__( 'Display Plugin Security Badge On Your Site', 'wp-simple-firewall' ); // config_spec.options.126.summary
-	__( 'Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously.', 'wp-simple-firewall' ); // config_spec.options.126.description
+	__( 'Disabled', 'wp-simple-firewall' ); // config_spec.options.126.value_options.0.text
+	__( 'Light', 'wp-simple-firewall' ); // config_spec.options.126.value_options.1.text
+	__( 'Dark', 'wp-simple-firewall' ); // config_spec.options.126.value_options.2.text
+	__( 'Plugin Badge', 'wp-simple-firewall' ); // config_spec.options.126.name
+	__( 'Choose Whether To Display The Plugin Security Badge', 'wp-simple-firewall' ); // config_spec.options.126.summary
+	__( 'Choose whether to display the plugin badge on your site, and select the light or dark badge style. The plugin badge helps support the plugin by spreading the word about it and shows visitors that you take website security seriously.', 'wp-simple-firewall' ); // config_spec.options.126.description
 	__( 'In-Plugin Notices', 'wp-simple-firewall' ); // config_spec.options.127.name
 	__( 'Display Plugin Specific Notices', 'wp-simple-firewall' ); // config_spec.options.127.summary
 	__( 'Disable this option to hide certain plugin admin notices about available updates and post-update notices.', 'wp-simple-firewall' ); // config_spec.options.127.description

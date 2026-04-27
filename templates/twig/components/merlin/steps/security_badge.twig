@@ -17,11 +17,16 @@
 			</div>
 		</div>
 
-		{{ icwp_macros.formInput_Checkbox(
-			'SecurityPluginBadge', 'Y', 'Security Badge',
-			'Display Security Badge To Visitors',
-			'', null, true, 'me-0'
-		) }}
+		<div class="row mb-3">
+			<label class="col-4 col-form-label" for="SecurityPluginBadge">Security Badge</label>
+			<div class="col-8">
+				<select class="form-select" name="SecurityPluginBadge" id="SecurityPluginBadge">
+					{% for option in vars.security_badge_options %}
+						<option value="{{ option.value_key }}" {% if option.selected %}selected="selected"{% endif %}>{{ option.text }}</option>
+					{% endfor %}
+				</select>
+			</div>
+		</div>
 
 		{{ icwp_macros.formInput_Submit2( strings.security_badge_text_button, null, 'secondary', false ) }}
 	</form>

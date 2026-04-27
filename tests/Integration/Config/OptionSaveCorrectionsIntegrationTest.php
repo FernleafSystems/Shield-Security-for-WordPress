@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Config;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
@@ -36,6 +37,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'enable_admin_login_email_notification',
 		'instant_alert_firewall_block',
 		'block_send_email',
+		'display_plugin_badge',
 	];
 
 	private array $originalOptions = [];
@@ -270,6 +272,108 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( 'disabled', $con->opts->optGet( 'instant_alert_firewall_block' ) );
 		$this->assertSame( 'N', $con->opts->optGet( 'block_send_email' ) );
+
+		$con->cfg->previous_version = $previousVersion;
+	}
+
+	public function test_legacy_plugin_badge_enabled_migrates_to_light_during_store() :void {
+		$con = $this->requireController();
+		$this->replaceStoredOptionValues( [
+			'display_plugin_badge' => 'Y',
+		] );
+
+		$con->opts->store();
+
+		$this->assertSame( PluginBadgeMode::LIGHT, $con->opts->optGet( 'display_plugin_badge' ) );
+		$this->assertTrue( $con->comps->opts_lookup->enabledPluginBadge() );
+	}
+
+	public function test_legacy_plugin_badge_disabled_migrates_to_disabled_during_store() :void {
+		$con = $this->requireController();
+		$this->replaceStoredOptionValues( [
+			'display_plugin_badge' => 'N',
+		] );
+
+		$con->opts->store();
+
+		$this->assertSame( PluginBadgeMode::DISABLED, $con->opts->optGet( 'display_plugin_badge' ) );
+		$this->assertFalse( $con->comps->opts_lookup->enabledPluginBadge() );
+	}
+
+	public function test_plugin_badge_dark_mode_survives_store_corrections() :void {
+		$con = $this->requireController();
+		$this->replaceStoredOptionValues( [
+			'display_plugin_badge' => PluginBadgeMode::DARK,
+		] );
+
+		$con->opts->store();
+
+		$this->assertSame( PluginBadgeMode::DARK, $con->opts->optGet( 'display_plugin_badge' ) );
+		$this->assertTrue( $con->comps->opts_lookup->enabledPluginBadge() );
+	}
+
+	public function test_plugin_badge_unknown_values_normalise_to_disabled() :void {
+		$con = $this->requireController();
+		$this->replaceStoredOptionValues( [
+			'display_plugin_badge' => 'unknown-mode',
+		] );
+
+		$con->opts->store();
+
+		$this->assertSame( PluginBadgeMode::DISABLED, $con->opts->optGet( 'display_plugin_badge' ) );
+		$this->assertFalse( $con->comps->opts_lookup->enabledPluginBadge() );
+
+		$con->opts->optSet( 'display_plugin_badge', PluginBadgeMode::LIGHT )->store();
+		$con->opts->optSet( 'display_plugin_badge', 'not-a-mode' )->store();
+
+		$this->assertSame( PluginBadgeMode::DISABLED, $con->opts->optGet( 'display_plugin_badge' ) );
+		$this->assertFalse( $con->comps->opts_lookup->enabledPluginBadge() );
+	}
+
+	public function test_plugin_badge_legacy_values_normalise_on_direct_option_set() :void {
+		$con = $this->requireController();
+
+		$con->opts->optSet( 'display_plugin_badge', 'Y' )->store();
+		$this->assertSame( PluginBadgeMode::LIGHT, $con->opts->optGet( 'display_plugin_badge' ) );
+		$this->assertTrue( $con->comps->opts_lookup->enabledPluginBadge() );
+
+		$con->opts->optSet( 'display_plugin_badge', 'n' )->store();
+		$this->assertSame( PluginBadgeMode::DISABLED, $con->opts->optGet( 'display_plugin_badge' ) );
+		$this->assertFalse( $con->comps->opts_lookup->enabledPluginBadge() );
+	}
+
+	public function test_legacy_plugin_badge_enabled_migrates_to_light_during_upgrade_hook() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+
+		$this->replaceStoredOptionValues( [
+			'display_plugin_badge' => 'Y',
+		] );
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+
+		$this->assertSame( PluginBadgeMode::LIGHT, $con->opts->optGet( 'display_plugin_badge' ) );
+		$this->assertTrue( $con->comps->opts_lookup->enabledPluginBadge() );
+
+		$con->cfg->previous_version = $previousVersion;
+	}
+
+	public function test_legacy_plugin_badge_disabled_migrates_to_disabled_during_upgrade_hook() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+
+		$this->replaceStoredOptionValues( [
+			'display_plugin_badge' => 'N',
+		] );
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+
+		$this->assertSame( PluginBadgeMode::DISABLED, $con->opts->optGet( 'display_plugin_badge' ) );
+		$this->assertFalse( $con->comps->opts_lookup->enabledPluginBadge() );
 
 		$con->cfg->previous_version = $previousVersion;
 	}

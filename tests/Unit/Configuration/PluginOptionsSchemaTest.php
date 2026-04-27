@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Configuration;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
@@ -285,6 +286,39 @@ class PluginOptionsSchemaTest extends TestCase {
 		$this->assertArrayHasKey( 'value_options', $option );
 		$this->assertSame( [ 'disabled', 'email' ], \array_column( $option['value_options'], 'value_key' ) );
 		$this->assertSame( 788, $option['beacon_id'] );
+	}
+
+	public function testPluginBadgeOptionUsesDisplayModeSelectContract() :void {
+		$this->assertSame( 'disabled', PluginBadgeMode::DISABLED );
+		$this->assertSame( 'light', PluginBadgeMode::LIGHT );
+		$this->assertSame( 'dark', PluginBadgeMode::DARK );
+		$this->assertSame( [ 'disabled', 'light', 'dark' ], PluginBadgeMode::VALID_MODES );
+
+		$this->assertArrayHasKey( 'display_plugin_badge', $this->options );
+		$option = $this->options['display_plugin_badge'];
+
+		$this->assertIsArray( $option );
+		$this->assertSame( 'section_defaults', $option['section'] );
+		$this->assertSame( [ 'plugin_general', 'module_plugin' ], $option['zone_comp_slugs'] );
+		$this->assertSame( 'select', $option['type'] );
+		$this->assertSame( PluginBadgeMode::DISABLED, $option['default'] );
+		$this->assertSame( PluginBadgeMode::VALID_MODES, \array_column( $option['value_options'] ?? [], 'value_key' ) );
+		$this->assertSame( 130, $option['beacon_id'] );
+	}
+
+	public function testPluginBadgeOptionSourceSpecMatchesGeneratedModeContract() :void {
+		$options = $this->decodePluginJsonFile( 'plugin-spec/34_options.json', 'Source options spec' );
+		$matches = \array_values( \array_filter(
+			$options,
+			static fn( array $option ) :bool => ( $option['key'] ?? '' ) === 'display_plugin_badge'
+		) );
+
+		$this->assertCount( 1, $matches );
+		$option = $matches[ 0 ];
+
+		$this->assertSame( 'select', $option['type'] );
+		$this->assertSame( PluginBadgeMode::DISABLED, $option['default'] );
+		$this->assertSame( PluginBadgeMode::VALID_MODES, \array_column( $option['value_options'] ?? [], 'value_key' ) );
 	}
 
 	public function testAdminLoginInstantAlertOptionIsGroupedWithInstantAlertsInSourceSpec() :void {
