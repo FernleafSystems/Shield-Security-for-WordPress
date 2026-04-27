@@ -74,13 +74,8 @@ export class OffCanvasService extends BaseComponent {
 	}
 
 	static renderRequest( request ) {
-		const spinner = document.getElementById( 'ShieldWaitSpinner' ).cloneNode( true );
-		spinner.id = '';
-		spinner.classList.remove( 'd-none' );
-
 		BootstrapTooltips.DisposeTooltipsWithin( OffCanvasService.offCanvasEl );
-		OffCanvasService.offCanvasEl.textContent = '';
-		OffCanvasService.offCanvasEl.appendChild( spinner );
+		OffCanvasService.offCanvasEl.replaceChildren( OffCanvasService.buildLoadingContent() );
 		OffCanvasService.offCanvasEl.classList.forEach( ( cls ) => {
 			if ( cls.startsWith( 'offcanvas_' ) ) {
 				OffCanvasService.offCanvasEl.classList.remove( cls );
@@ -110,6 +105,40 @@ export class OffCanvasService extends BaseComponent {
 		.catch( ( error ) => {
 			console.log( error );
 		} );
+	}
+
+	static buildLoadingContent() {
+		const fragment = document.createDocumentFragment();
+		const header = document.createElement( 'div' );
+		header.className = 'offcanvas-header';
+		const title = document.createElement( 'h5' );
+		title.className = 'offcanvas-title';
+		title.id = 'AptoOffcanvasLabel';
+		title.textContent = typeof shieldStrings !== 'undefined' && typeof shieldStrings.string === 'function'
+			? shieldStrings.string( 'loading' ) || 'Loading'
+			: 'Loading';
+		header.appendChild( title );
+		const closeButton = document.createElement( 'button' );
+		closeButton.type = 'button';
+		closeButton.className = 'btn-close';
+		closeButton.setAttribute( 'data-bs-dismiss', 'offcanvas' );
+		closeButton.setAttribute( 'aria-label', typeof shieldStrings !== 'undefined' && typeof shieldStrings.string === 'function'
+			? shieldStrings.string( 'close' ) || 'Close'
+			: 'Close' );
+		header.appendChild( closeButton );
+
+		const body = document.createElement( 'div' );
+		body.className = 'offcanvas-body';
+		const spinner = document.getElementById( 'ShieldWaitSpinner' )?.cloneNode( true ) || document.createElement( 'div' );
+		if ( spinner instanceof HTMLElement ) {
+			spinner.id = '';
+			spinner.classList.remove( 'd-none' );
+			body.appendChild( spinner );
+		}
+
+		fragment.appendChild( header );
+		fragment.appendChild( body );
+		return fragment;
 	}
 
 	static CloseCanvas() {

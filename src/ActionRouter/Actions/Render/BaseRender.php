@@ -260,6 +260,10 @@ abstract class BaseRender extends BaseAction {
 				'dashboard' => __( 'Dashboard', 'wp-simple-firewall' ),
 
 				'are_you_sure'                 => __( 'Are you sure?', 'wp-simple-firewall' ),
+				'cancel'                       => __( 'Cancel', 'wp-simple-firewall' ),
+				'close'                        => __( 'Close', 'wp-simple-firewall' ),
+				'confirm'                      => __( 'Confirm', 'wp-simple-firewall' ),
+				'confirm_title'                => __( 'Confirm Action', 'wp-simple-firewall' ),
 				'description'                  => __( 'Description', 'wp-simple-firewall' ),
 				'loading'                      => __( 'Loading', 'wp-simple-firewall' ),
 				'aar_what_should_you_enter'    => __( 'Provide The Security Admin PIN.', 'wp-simple-firewall' ),

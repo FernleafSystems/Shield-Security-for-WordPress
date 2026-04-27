@@ -153,6 +153,7 @@ export class PluginOnboarding extends BaseComponent {
 
 		const title = document.createElement( 'h5' );
 		title.className = 'modal-title';
+		title.id = 'ShieldModalContainerLabel';
 		title.textContent = videoModal.modal_title;
 		header.appendChild( title );
 
@@ -160,7 +161,7 @@ export class PluginOnboarding extends BaseComponent {
 		closeButton.type = 'button';
 		closeButton.className = 'btn-close';
 		closeButton.setAttribute( 'data-bs-dismiss', 'modal' );
-		closeButton.setAttribute( 'aria-label', 'Close' );
+		closeButton.setAttribute( 'aria-label', shieldStrings.string( 'close' ) || 'Close' );
 		header.appendChild( closeButton );
 
 		const body = document.createElement( 'div' );

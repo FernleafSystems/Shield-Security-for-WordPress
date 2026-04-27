@@ -17,7 +17,7 @@
 					       {% if not flags.is_security_admin %}disabled="disabled"{% endif %}
 					/>
 				</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ strings.close|e('html_attr') }}"></button>
 			</div>
 			<div class="modal-body">
 				<div class="w-100" style="">

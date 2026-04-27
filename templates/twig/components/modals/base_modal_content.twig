@@ -1,12 +1,12 @@
 <div class="modal-header">
 	{% block modal_header %}
-		<h5 class="modal-title">
+		<h5 class="modal-title" id="{{ vars.modal_title_id }}">
 			{% block modal_title %}
 				{{ strings.modal_title }}
 			{% endblock %}
 		</h5>
 		{% block modal_title_button_close %}
-			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ strings.close|e('html_attr') }}"></button>
 		{% endblock %}
 	{% endblock %}
 </div>

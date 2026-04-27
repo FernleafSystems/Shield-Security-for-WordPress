@@ -4,6 +4,11 @@ const {
 	withActionsQueueFixture,
 } = require( './support/shield-browser' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
+const {
+	expectModalHiddenWithoutAriaModal,
+	expectNamedDialog,
+	expectOptionalDescription,
+} = require( './support/modal-accessibility' );
 
 async function waitForScanResultsTableRows( table ) {
 	await expect( table ).toBeVisible();
@@ -45,6 +50,13 @@ function isConfigureDiagnosisDirectRequest( request, zoneKey ) {
 	const params = new URLSearchParams( postData );
 	return params.get( 'render_slug' ) === 'configure_drill_down_diagnosis'
 		&& params.get( 'zone' ) === zoneKey;
+}
+
+function isIgnoreAllRequest( request ) {
+	const params = new URLSearchParams( request.postData() || '' );
+	return request.method() === 'POST'
+		&& request.url().includes( '/admin-ajax.php' )
+		&& params.get( 'sub_action' ) === 'ignore_all';
 }
 
 async function operatorContextAjaxAction( rail, matcher ) {
@@ -357,10 +369,55 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 		await ignoredFilter.click();
 		await waitForScanResultsTableRows( scanResultsTable );
 
-		page.once( 'dialog', ( dialog ) => dialog.accept() );
-		await actionsQueuePage.clickElement( ignoreAllAction );
+		let nativeDialogCount = 0;
+		let ignoreAllRequestCount = 0;
+		page.on( 'dialog', async ( dialog ) => {
+			nativeDialogCount++;
+			await dialog.dismiss();
+		} );
+		page.on( 'request', ( request ) => {
+			if ( isIgnoreAllRequest( request ) ) {
+				ignoreAllRequestCount++;
+			}
+		} );
+
+		await ignoreAllAction.evaluate( ( action ) => {
+			action.click();
+			action.click();
+		} );
+		const confirmModal = page.locator( '#AptoGeneralPurposeDialog.modal.show' );
+		await expect( confirmModal ).toBeVisible();
+		await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
+		await expectOptionalDescription( page, confirmModal );
+		await expect( confirmModal.locator( '[data-shield-dialog-cancel="1"]' ) ).toBeFocused();
+
+		await confirmModal.locator( '[data-shield-dialog-cancel="1"]' ).click();
+		await expectModalHiddenWithoutAriaModal( page, '#AptoGeneralPurposeDialog' );
+		await expect( ignoreAllAction ).toBeFocused();
+		await expect.poll( () => nativeDialogCount ).toBe( 0 );
+		await expect.poll( () => ignoreAllRequestCount, { timeout: 1000 } ).toBe( 0 );
+		await expect.poll(
+			async () => await hasOperatorContextAjaxAction(
+				rail,
+				( action ) => action?.sub_action === 'ignore_all'
+			),
+			{ timeout: 1000 }
+		).toBe( true );
+
+		const ignoreAllRequest = page.waitForRequest( isIgnoreAllRequest, { timeout: 20_000 } );
+		const requestsBeforeConfirm = ignoreAllRequestCount;
+		await ignoreAllAction.evaluate( ( action ) => {
+			action.click();
+			action.click();
+		} );
+		await expect( confirmModal ).toBeVisible();
+		await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
+		await confirmModal.locator( '[data-shield-dialog-confirm="1"]' ).click();
+		await ignoreAllRequest;
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+		await expect.poll( () => nativeDialogCount ).toBe( 0 );
+		await expect.poll( () => ignoreAllRequestCount ).toBe( requestsBeforeConfirm + 1 );
 		await expect.poll(
 			async () => await hasOperatorContextAjaxAction(
 				rail,

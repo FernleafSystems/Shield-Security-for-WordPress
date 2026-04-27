@@ -72,6 +72,10 @@ class AssetsCustomizer {
 							'select_action'   => __( 'Please select an action to perform.', 'wp-simple-firewall' ),
 							'are_you_sure'    => __( 'Are you sure?', 'wp-simple-firewall' ),
 							'absolutely_sure' => __( 'Are you absolutely sure?', 'wp-simple-firewall' ),
+							'cancel'          => __( 'Cancel', 'wp-simple-firewall' ),
+							'close'           => __( 'Close', 'wp-simple-firewall' ),
+							'confirm'         => __( 'Confirm', 'wp-simple-firewall' ),
+							'confirm_title'   => __( 'Confirm Action', 'wp-simple-firewall' ),
 						],
 						'comps'   => \array_map(
 							fn( array $c ) => \is_callable( $c[ 'data' ] ?? null ) ? \call_user_func( $c[ 'data' ] ) : $c[ 'data' ],

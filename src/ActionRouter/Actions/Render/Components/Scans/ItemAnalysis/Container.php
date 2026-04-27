@@ -57,6 +57,9 @@ class Container extends BaseScans {
 			'hrefs'   => [
 				'file_download' => $con->plugin_urls->fileDownload( 'scan_file', [ 'rid' => $item->VO->resultitem_id ] ),
 			],
+			'vars'    => [
+				'modal_title_id' => 'ShieldModalContainerLabel',
+			],
 			'imgs'    => [
 				'svgs' => [
 					'file_download' => $con->svgs->iconClass( 'download.svg' ),

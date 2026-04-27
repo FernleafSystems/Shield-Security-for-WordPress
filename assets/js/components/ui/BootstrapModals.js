@@ -7,10 +7,14 @@ export class BootstrapModals {
 
 	static Show( modalEl, options = {} ) {
 		if ( modalEl ) {
-			BootstrapModals.normalizeModalAccessibility( modalEl );
+			if ( !BootstrapModals.normalizeModalAccessibility( modalEl ) ) {
+				return false;
+			}
 			const relatedTarget = BootstrapModals.captureOpener( modalEl );
 			Modal.getOrCreateInstance( modalEl, options ).show( relatedTarget );
+			return true;
 		}
+		return false;
 	}
 
 	static Hide( modalEl ) {
@@ -23,22 +27,21 @@ export class BootstrapModals {
 		if ( !modalEl.hasAttribute( 'tabindex' ) ) {
 			modalEl.setAttribute( 'tabindex', '-1' );
 		}
+		BootstrapModals.normalizeDescription( modalEl );
 
 		const currentLabel = BootstrapModals.getReferencedLabel( modalEl );
 		if ( currentLabel !== null ) {
-			return;
+			return true;
 		}
 
-		const titleEl = modalEl.querySelector( '.modal-title' );
+		const titleEl = modalEl.querySelector( '.modal-title[id]' );
 		if ( titleEl instanceof HTMLElement && ( titleEl.textContent || '' ).trim().length > 0 ) {
-			if ( titleEl.id.length === 0 ) {
-				titleEl.id = `${ modalEl.id || 'ShieldModal' }Label`;
-			}
 			modalEl.setAttribute( 'aria-labelledby', titleEl.id );
-			return;
+			return true;
 		}
 
 		modalEl.removeAttribute( 'aria-labelledby' );
+		return false;
 	}
 
 	static getReferencedLabel( modalEl ) {
@@ -51,6 +54,18 @@ export class BootstrapModals {
 		return labelEl instanceof HTMLElement && ( labelEl.textContent || '' ).trim().length > 0
 			? labelEl
 			: null;
+	}
+
+	static normalizeDescription( modalEl ) {
+		const descriptionId = modalEl.getAttribute( 'aria-describedby' ) || '';
+		if ( descriptionId.length < 1 ) {
+			return;
+		}
+
+		const descriptionEl = modalEl.ownerDocument.getElementById( descriptionId );
+		if ( !( descriptionEl instanceof HTMLElement ) || ( descriptionEl.textContent || '' ).trim().length < 1 ) {
+			modalEl.removeAttribute( 'aria-describedby' );
+		}
 	}
 
 	static captureOpener( modalEl ) {

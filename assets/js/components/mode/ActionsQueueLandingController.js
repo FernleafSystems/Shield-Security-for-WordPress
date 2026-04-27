@@ -4,6 +4,7 @@ import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
 import { ShieldTableBase } from "../tables/ShieldTableBase";
+import { confirmDialog } from "../ui/ShieldDialog";
 
 export class ActionsQueueLandingController extends DrillDownAsyncControllerBase {
 
@@ -539,7 +540,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			.catch( () => null );
 	}
 
-	handleOperatorContextActionClick( evt ) {
+	async handleOperatorContextActionClick( evt ) {
 		const target = evt.target instanceof Element
 			? evt.target.closest( '[data-operator-context-action-ajax="1"]' )
 			: null;
@@ -563,8 +564,18 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		}
 
 		const confirmText = String( target.dataset.operatorContextActionConfirm || '' ).trim();
-		if ( confirmText.length > 0 && !window.confirm( confirmText ) ) {
-			return;
+		if ( confirmText.length > 0 ) {
+			const confirmed = await confirmDialog( {
+				title: shieldStrings.string( 'confirm_title' ),
+				message: confirmText,
+				confirmLabel: String( target.textContent || '' ).trim() || shieldStrings.string( 'confirm' ),
+				cancelLabel: shieldStrings.string( 'cancel' ),
+				danger: true,
+				launcher: target,
+			} );
+			if ( !confirmed ) {
+				return;
+			}
 		}
 
 		const busyTable = this.getCurrentDirectTable();

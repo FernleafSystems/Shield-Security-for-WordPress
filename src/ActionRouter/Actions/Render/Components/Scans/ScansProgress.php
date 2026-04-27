@@ -48,6 +48,7 @@ class ScansProgress extends BaseScans {
 				'announcement'    => $announcement,
 				'is_busy'         => $isRunning,
 				'show_progress'   => !$isFailed,
+				'modal_title_id'  => 'ShieldModalContainerLabel',
 			],
 		];
 	}

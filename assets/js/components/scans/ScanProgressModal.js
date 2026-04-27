@@ -75,8 +75,8 @@ export class ScanProgressModal {
 
 	static buildLocalModalContent( { state, title, heading, message, announcement, busy } ) {
 		return `<div class="modal-header">
-			<h5 class="modal-title">${ScanProgressModal.escapeHtml( title )}</h5>
-			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			<h5 class="modal-title" id="ShieldModalContainerLabel">${ScanProgressModal.escapeHtml( title )}</h5>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${ScanProgressModal.escapeHtml( ScanProgressModal.getCloseLabel() )}"></button>
 		</div>
 		<div class="modal-body">
 			<div data-shield-scan-modal-state="${ScanProgressModal.escapeHtml( state )}" aria-busy="${busy ? 'true' : 'false'}" data-shield-scan-modal-announcement="${ScanProgressModal.escapeHtml( announcement )}">
@@ -100,6 +100,12 @@ export class ScanProgressModal {
 		}
 
 		return '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+	}
+
+	static getCloseLabel() {
+		return typeof shieldStrings !== 'undefined' && typeof shieldStrings.string === 'function'
+			? shieldStrings.string( 'close' ) || 'Close'
+			: 'Close';
 	}
 
 	static announceCurrentState( modal ) {

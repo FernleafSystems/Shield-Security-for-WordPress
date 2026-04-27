@@ -3,6 +3,7 @@ const {
 	openShieldRoute,
 	withIpAnalysisActivityMetaFixture,
 } = require( './support/shield-browser' );
+const { expectNamedOffcanvas } = require( './support/modal-accessibility' );
 
 const investigationTableRequestMatcher = ( tableType ) => ( response ) => {
 	if ( !response.url().includes( '/admin-ajax.php' ) ) {
@@ -30,6 +31,15 @@ const requestMetaResponseMatcher = ( rid ) => ( response ) => {
 		&& postData.includes( `rid=${rid}` );
 };
 
+const ipAnalysisOffcanvasRequestMatcher = ( request ) => {
+	if ( !request.url().includes( '/admin-ajax.php' ) ) {
+		return false;
+	}
+
+	const postData = request.postData() || '';
+	return request.method() === 'POST' && postData.includes( 'render_slug=offcanvas_ipanalysis' );
+};
+
 const investigationTabLabels = {
 	sessions: 'User Sessions',
 	activity: 'Activity Log',
@@ -48,6 +58,7 @@ const openIpAnalysisOffcanvasFromClick = async ( page, ip ) => {
 
 	const offcanvas = page.locator( '#AptoOffcanvas.show' );
 	await expect( offcanvas ).toBeVisible();
+	await expectNamedOffcanvas( page, offcanvas, 'AptoOffcanvasLabel' );
 
 	const inlineTabs = offcanvas.locator( '[data-investigate-panel-tabs="1"] [data-investigate-panel-tab="1"]' );
 	await expect( inlineTabs ).toHaveCount( 4 );
@@ -64,6 +75,7 @@ const openIpAnalysisOffcanvas = async ( page, ip ) => {
 
 	const offcanvas = page.locator( '#AptoOffcanvas.show' );
 	await expect( offcanvas ).toBeVisible();
+	await expectNamedOffcanvas( page, offcanvas, 'AptoOffcanvasLabel' );
 
 	const inlineTabs = offcanvas.locator( '[data-investigate-panel-tabs="1"] [data-investigate-panel-tab="1"]' );
 	await expect( inlineTabs ).toHaveCount( 4 );
@@ -107,8 +119,19 @@ const expectRequestMetaPopover = async ( page, offcanvas, rid, expectedMeta ) =>
 
 test( 'clicked IP link opens the IP analysis offcanvas with the four investigation tabs', async ( { page } ) => {
 	await withIpAnalysisActivityMetaFixture( async ( fixture ) => {
+		let delayedOffcanvasRequest = false;
+		const delayHandler = async ( route ) => {
+			if ( !delayedOffcanvasRequest && ipAnalysisOffcanvasRequestMatcher( route.request() ) ) {
+				delayedOffcanvasRequest = true;
+				await new Promise( ( resolve ) => setTimeout( resolve, 600 ) );
+			}
+			await route.continue();
+		};
+		await page.route( '**/admin-ajax.php*', delayHandler );
+
 		const { offcanvas, inlineTabs } = await openIpAnalysisOffcanvasFromClick( page, fixture.ip );
-		await expect( offcanvas.locator( '#AptoOffcanvasLabel' ) ).toBeVisible();
+		await page.unroute( '**/admin-ajax.php*', delayHandler ).catch( () => null );
+		await expectNamedOffcanvas( page, offcanvas, 'AptoOffcanvasLabel' );
 		await expect( inlineTabs ).toHaveText( [ 'Overview', 'User Sessions', 'Activity Log', 'Recent Traffic' ] );
 
 		const targetTab = getInvestigationTab( inlineTabs, 'sessions' );

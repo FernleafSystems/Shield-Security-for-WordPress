@@ -84,8 +84,8 @@ export class ScanItemAnalysisModal {
 		const spinner = ScanItemAnalysisModal.buildSpinnerMarkup();
 
 		return `<div class="modal-header">
-			<h5 class="modal-title">${ScanItemAnalysisModal.escapeHtml( loadingLabel )}</h5>
-			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			<h5 class="modal-title" id="ShieldModalContainerLabel">${ScanItemAnalysisModal.escapeHtml( loadingLabel )}</h5>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${ScanItemAnalysisModal.escapeHtml( ScanItemAnalysisModal.getCloseLabel() )}"></button>
 		</div>
 		<div class="modal-body" aria-busy="true">
 			${spinner}
@@ -104,6 +104,12 @@ export class ScanItemAnalysisModal {
 		}
 
 		return '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-5" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+	}
+
+	static getCloseLabel() {
+		return typeof shieldStrings !== 'undefined' && typeof shieldStrings.string === 'function'
+			? shieldStrings.string( 'close' ) || 'Close'
+			: 'Close';
 	}
 
 	static extractErrorMessage( resp ) {
