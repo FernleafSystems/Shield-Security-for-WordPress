@@ -1,4 +1,5 @@
 import { ScanItemAnalysisModal } from "../scans/ScanItemAnalysisModal";
+import { confirmDialog } from "../ui/ShieldDialog";
 
 /**
  * @typedef {object} ScanResultsRowActionOptions
@@ -151,18 +152,34 @@ export function bindScanResultsRowActions( {
 		$tableElement.on(
 			`click.${namespace}`,
 			'td.actions [data-scan-result-action="delete"], td.actions [data-scan-result-action="ignore"], td.actions [data-scan-result-action="unignore"], td.actions [data-scan-result-action="repair"]',
-			( evt ) => {
+			async ( evt ) => {
 				evt.preventDefault();
-				const action = evt.currentTarget.dataset.scanResultAction;
+				evt.stopPropagation();
 
-				if ( action === 'delete' && !confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-					return false;
+				const target = evt.currentTarget;
+				const action = target.dataset.scanResultAction;
+
+				if ( action === 'delete' ) {
+					const confirmed = await confirmDialog( {
+						title: shieldStrings.string( 'confirm_title' ),
+						message: shieldStrings.string( 'are_you_sure' ),
+						confirmLabel: target.getAttribute( 'aria-label' )
+							|| target.getAttribute( 'title' )
+							|| shieldStrings.string( 'confirm' ),
+						cancelLabel: shieldStrings.string( 'cancel' ),
+						danger: true,
+						launcher: target,
+					} );
+
+					if ( !confirmed ) {
+						return false;
+					}
 				}
 
 				if ( action === 'repair' ) {
 					datatable?.rows?.().deselect?.();
 				}
-				onAction( action, [ evt.currentTarget.dataset.rid ] );
+				onAction( action, [ target.dataset.rid ] );
 				return false;
 			}
 		);

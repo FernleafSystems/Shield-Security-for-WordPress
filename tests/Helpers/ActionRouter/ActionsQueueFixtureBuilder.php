@@ -213,8 +213,9 @@ class ActionsQueueFixtureBuilder {
 			$scanId,
 			$this->pluginMainPathFragment( $pluginSlug ),
 			[
-				'is_in_plugin' => 1,
-				'ptg_slug'     => $pluginSlug,
+				'is_in_plugin'    => 1,
+				'is_unrecognised' => 1,
+				'ptg_slug'        => $pluginSlug,
 			]
 		) );
 		$vulnerabilityScanId = TestDataFactory::insertCompletedScan( 'wpv' );
