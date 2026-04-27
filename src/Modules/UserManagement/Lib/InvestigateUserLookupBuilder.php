@@ -5,22 +5,20 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib;
 use FernleafSystems\Wordpress\Services\Services;
 
 class InvestigateUserLookupBuilder {
-
-	public function shouldUseStaticSelect( int $threshold = 10 ) :bool {
+	public function shouldUseStaticSelect( int $threshold = 10 ): bool {
 		return $this->getTotalUsers() <= max( 1, $threshold );
 	}
 
-	public function getTotalUsers() :int {
-		$counts = \count_users();
-		return max( 0, (int)( $counts[ 'total_users' ] ?? 0 ) );
+	public function getTotalUsers(): int {
+		return (int)\max( 0, \count_users()[ 'total_users' ] );
 	}
 
 	/**
 	 * @return array<int,array{value:string,label:string}>
 	 */
-	public function buildStaticOptions( int $limit = 10 ) :array {
+	public function buildStaticOptions( int $limit = 10 ): array {
 		return \array_map(
-			fn( \WP_User $user ) :array => [
+			fn( \WP_User $user ): array => [
 				'value' => (string)$user->ID,
 				'label' => $this->formatLabel( $user ),
 			],
@@ -31,9 +29,9 @@ class InvestigateUserLookupBuilder {
 	/**
 	 * @return array<int,array{id:string,text:string}>
 	 */
-	public function searchResults( string $search, int $limit = 20 ) :array {
+	public function searchResults( string $search, int $limit = 20 ): array {
 		return \array_map(
-			fn( \WP_User $user ) :array => [
+			fn( \WP_User $user ): array => [
 				'id'   => (string)$user->ID,
 				'text' => $this->formatLabel( $user ),
 			],
@@ -41,7 +39,7 @@ class InvestigateUserLookupBuilder {
 		);
 	}
 
-	public function formatLabel( \WP_User $user ) :string {
+	public function formatLabel( \WP_User $user ): string {
 		$role = $this->formatPrimaryRole( $user );
 		$username = trim( (string)( $user->user_login ?? '' ) );
 		if ( $username === '' ) {
@@ -56,36 +54,32 @@ class InvestigateUserLookupBuilder {
 		return $label;
 	}
 
-	private function formatPrimaryRole( \WP_User $user ) :string {
+	private function formatPrimaryRole( \WP_User $user ): string {
 		$roles = \is_array( $user->roles ?? null ) ? \array_values( $user->roles ) : [];
-		$primaryRole = trim( (string)( $roles[ 0 ] ?? '' ) );
-		if ( $primaryRole === '' ) {
-			return __( 'Unknown', 'wp-simple-firewall' );
-		}
-		return trim( \ucwords( str_replace( '_', ' ', $primaryRole ) ) );
+		$primaryRole = \trim( (string)( $roles[ 0 ] ?? '' ) );
+		return $primaryRole === '' ? __( 'Unknown', 'wp-simple-firewall' ) : \trim( \ucwords( \str_replace( '_', ' ', $primaryRole ) ) );
 	}
 
 	/**
 	 * @return \WP_User[]
 	 */
-	private function loadUsersForStaticSelect( int $limit ) :array {
-		$users = ( new \WP_User_Query( [
-			'number'   => max( 1, $limit ),
-			'orderby'  => 'ID',
-			'order'    => 'ASC',
-			'fields'   => 'all',
-			'count_total' => false,
-		] ) )->get_results();
+	private function loadUsersForStaticSelect( int $limit ): array {
 		return \array_values( \array_filter(
-			\is_array( $users ) ? $users : [],
-			static fn( $user ) :bool => $user instanceof \WP_User
+			( new \WP_User_Query( [
+				'number'      => max( 1, $limit ),
+				'orderby'     => 'ID',
+				'order'       => 'ASC',
+				'fields'      => 'all',
+				'count_total' => false,
+			] ) )->get_results(),
+			static fn( $user ): bool => $user instanceof \WP_User
 		) );
 	}
 
 	/**
 	 * @return \WP_User[]
 	 */
-	private function searchUsers( string $search, int $limit ) :array {
+	private function searchUsers( string $search, int $limit ): array {
 		$search = strtolower( trim( sanitize_text_field( $search ) ) );
 		if ( strlen( $search ) < 1 ) {
 			return [];
@@ -101,7 +95,7 @@ class InvestigateUserLookupBuilder {
 	/**
 	 * @return \WP_User[]
 	 */
-	private function searchUsersByNumericTerm( string $search, int $limit ) :array {
+	private function searchUsersByNumericTerm( string $search, int $limit ): array {
 		$wpdb = Services::WpDb()->loadWpdb();
 		$like = '%'.$wpdb->esc_like( $search ).'%';
 		$rows = $wpdb->get_results(
@@ -126,13 +120,9 @@ class InvestigateUserLookupBuilder {
 			)
 		);
 
-		if ( !\is_array( $rows ) ) {
-			return [];
-		}
-
 		$users = [];
-		foreach ( $rows as $row ) {
-			$user = \is_object( $row ) ? Services::WpUsers()->getUserById( (int)( $row->ID ?? 0 ) ) : null;
+		foreach ( \is_array( $rows ) ? $rows : [] as $row ) {
+			$user = Services::WpUsers()->getUserById( (int)( $row->ID ?? 0 ) );
 			if ( $user instanceof \WP_User ) {
 				$users[] = $user;
 			}
@@ -143,20 +133,18 @@ class InvestigateUserLookupBuilder {
 	/**
 	 * @return \WP_User[]
 	 */
-	private function searchUsersByTextTerm( string $search, int $limit ) :array {
-		$rows = ( new \WP_User_Query( [
-			'number'         => max( 1, $limit ),
-			'search'         => '*'.$search.'*',
-			'search_columns' => [ 'user_login', 'user_email', 'display_name' ],
-			'orderby'        => 'ID',
-			'order'          => 'ASC',
-			'fields'         => 'all',
-			'count_total'    => false,
-		] ) )->get_results();
-
+	private function searchUsersByTextTerm( string $search, int $limit ): array {
 		return \array_values( \array_filter(
-			\is_array( $rows ) ? $rows : [],
-			static fn( $user ) :bool => $user instanceof \WP_User
+			( new \WP_User_Query( [
+				'number'         => max( 1, $limit ),
+				'search'         => '*'.$search.'*',
+				'search_columns' => [ 'user_login', 'user_email', 'display_name' ],
+				'orderby'        => 'ID',
+				'order'          => 'ASC',
+				'fields'         => 'all',
+				'count_total'    => false,
+			] ) )->get_results(),
+			static fn( $user ): bool => $user instanceof \WP_User
 		) );
 	}
 
@@ -164,7 +152,7 @@ class InvestigateUserLookupBuilder {
 	 * @param \WP_User[] $users
 	 * @return \WP_User[]
 	 */
-	private function deduplicateUsersById( array $users ) :array {
+	private function deduplicateUsersById( array $users ): array {
 		$deduplicated = [];
 		foreach ( $users as $user ) {
 			$userId = (int)$user->ID;

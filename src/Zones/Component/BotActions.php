@@ -122,8 +122,8 @@ class BotActions extends Base {
 		];
 	}
 
-	private function botSignalName( string $signalKey ) :string {
-		$name = $this->botSignalDefinitions()[ $signalKey ][ 'name' ] ?? '';
-		return \is_string( $name ) && $name !== '' ? $name : $signalKey;
+	private function botSignalName( string $key ): string {
+		$name = $this->botSignalDefinitions()[ $key ][ 'name' ] ?? '';
+		return empty( $name ) ? $key : $name;
 	}
 }

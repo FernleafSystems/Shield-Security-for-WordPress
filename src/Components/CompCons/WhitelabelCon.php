@@ -8,15 +8,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class WhitelabelCon {
-
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	protected function canRun() :bool {
+	protected function canRun(): bool {
 		return !self::con()->this_req->wp_is_wpcli && $this->isEnabled();
 	}
 
-	public function isEnabled() :bool {
+	public function isEnabled(): bool {
 		return self::con()->opts->optIs( 'whitelabel_enable', 'Y' );
 	}
 
@@ -27,7 +26,7 @@ class WhitelabelCon {
 		add_filter( 'plugin_row_meta', [ $this, 'removePluginMetaLinks' ], 200, 2 );
 	}
 
-	public function applyWhiteLabels( Labels $labels ) :Labels {
+	public function applyWhiteLabels( Labels $labels ): Labels {
 		$opts = self::con()->opts;
 
 		// these are the old white labelling keys which will be replaced upon final release of white labelling.
@@ -81,19 +80,6 @@ class WhitelabelCon {
 	}
 
 	/**
-	 * Adjusts the available updates count so as not to include Shield updates if they're hidden
-	 * @param array $updateData
-	 * @return array
-	 */
-	public function adjustUpdateDataCount( $updateData ) {
-		if ( Services::WpPlugins()->isUpdateAvailable( self::con()->base_file ) ) {
-			$updateData[ 'counts' ][ 'total' ]--;
-			$updateData[ 'counts' ][ 'plugins' ]--;
-		}
-		return $updateData;
-	}
-
-	/**
 	 * Verify whitelabel images
 	 */
 	public function verifyUrls() {
@@ -108,9 +94,9 @@ class WhitelabelCon {
 
 	/**
 	 * @filter
-	 * @param array  $pluginMeta
-	 * @param string $pluginBaseFile
-	 * @return array
+	 * @param array|mixed  $pluginMeta
+	 * @param string|mixed $pluginBaseFile
+	 * @return array|mixed
 	 */
 	public function removePluginMetaLinks( $pluginMeta, $pluginBaseFile ) {
 		if ( $pluginBaseFile == self::con()->base_file ) {
@@ -127,7 +113,7 @@ class WhitelabelCon {
 	 * Relative path URL: i.e. starts with /
 	 * Or Plugin image URL i.e. doesn't start with HTTP or /
 	 */
-	private function constructImageURL( string $key ) :string {
+	private function constructImageURL( string $key ): string {
 		$opts = self::con()->opts;
 
 		$url = $opts->optGet( $key );

@@ -45,8 +45,7 @@ class PreStore {
 	}
 
 	private function scanKeepers() :void {
-		$con = self::con();
-		foreach ( $con->comps->scans->getAllScanCons() as $scanCon ) {
+		foreach ( self::con()->comps->scans->getAllScanCons() as $scanCon ) {
 			if ( !$scanCon->isEnabled() ) {
 				$scanCon->purge();
 			}

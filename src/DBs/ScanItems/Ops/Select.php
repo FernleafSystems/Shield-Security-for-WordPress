@@ -7,7 +7,7 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 	use Common;
 
 	public function countAllForEachScan() :array {
-		/** @var Record[] $res */
+		/** @var ?Record[] $res */
 		$res = $this->setCustomSelect( '`scan_ref`,COUNT(*) as count' )
 					->setGroupBy( 'scan_ref' )
 					->setSelectResultsFormat( ARRAY_A )
@@ -23,7 +23,7 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 	}
 
 	public function countUnfinishedForEachScan() :array {
-		/** @var Record[] $res */
+		/** @var ?Record[] $res */
 		$res = $this->setCustomSelect( '`scan_ref`,COUNT(*) as count' )
 					->filterByNotFinished()
 					->setGroupBy( 'scan_ref' )

@@ -119,8 +119,8 @@ class WebApplicationFirewall extends Base {
 		];
 	}
 
-	private function firewallRuleName( string $ruleKey ) :string {
-		$name = $this->firewallRuleDefinitions()[ $ruleKey ][ 'name' ] ?? '';
-		return \is_string( $name ) && $name !== '' ? $name : $ruleKey;
+	private function firewallRuleName( string $key ) :string {
+		$name = $this->firewallRuleDefinitions()[ $key ][ 'name' ] ?? '';
+		return empty( $name ) ? $key : $name;
 	}
 }

@@ -537,13 +537,13 @@ class PluginNavs {
 			],
 			'plugins'         => [
 				'slug'            => 'plugins',
-				'label'           => __( 'Plugin Files', 'wp-simple-firewall' ),
+				'label'           => __( 'Plugins with modified files', 'wp-simple-firewall' ),
 				'icon'            => 'plug',
 				'summary_keys'    => [ 'plugin_files' ],
 			],
 			'themes'          => [
 				'slug'            => 'themes',
-				'label'           => __( 'Theme Files', 'wp-simple-firewall' ),
+				'label'           => __( 'Themes with modified files', 'wp-simple-firewall' ),
 				'icon'            => 'brush',
 				'summary_keys'    => [ 'theme_files' ],
 			],
