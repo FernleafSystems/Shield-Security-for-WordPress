@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 /**
- * @property string[]           $file_exts
+ * @property ?string[]          $file_exts
  * @property array<string, int> $scan_root_dirs
  * @property string[]           $paths_whitelisted
  * @property string[]           $patterns_regex
@@ -15,6 +15,5 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
  * @property int                $max_file_size (bytes)
  */
 class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO {
-
 	public const DEFAULT_SLEEP_SECONDS = 0.1;
 }

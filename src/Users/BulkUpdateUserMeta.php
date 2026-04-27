@@ -7,11 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BulkUpdateUserMeta {
-
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	protected function canRun() :bool {
+	protected function canRun(): bool {
 		return self::con()
 			->db_con
 			->user_meta
@@ -20,7 +19,6 @@ class BulkUpdateUserMeta {
 
 	protected function run() {
 		$WPDB = Services::WpDb();
-		/** @var array[] $IDs */
 		$IDs = $WPDB->selectCustom( sprintf(
 			'SELECT `ID` from `%s` WHERE `ID` NOT IN (%s) LIMIT 20',
 			$WPDB->getTable_Users(),
@@ -28,17 +26,15 @@ class BulkUpdateUserMeta {
 		) );
 
 		\array_map(
-			function ( $ID ) {
-				if ( \is_array( $ID ) && !empty( $ID[ 'ID' ] ) ) {
-					$user = Services::WpUsers()->getUserById( $ID[ 'ID' ] );
-					self::con()->user_metas->for( $user );
-				}
-			},
-			\is_array( $IDs ) ? $IDs : []
+			static fn( array $ID ) => self::con()->user_metas->for( Services::WpUsers()->getUserById( $ID[ 'ID' ] ) ),
+			\array_filter(
+				\is_array( $IDs ) ? $IDs : [],
+				static fn( $id ) => \is_array( $id ) && !empty( $id[ 'ID' ] )
+			)
 		);
 	}
 
-	private function getExistingUserMetaIDsQuery() :string {
+	private function getExistingUserMetaIDsQuery(): string {
 		return self::con()
 			->db_con
 			->user_meta

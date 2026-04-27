@@ -23,6 +23,12 @@
 		padding: 0;
 	}
 
+	.icwp_wpsf_site_badge a:focus-visible,
+	#icwpWpsfCloseButton:focus-visible {
+		outline: 2px solid #75b82a;
+		outline-offset: 3px;
+	}
+
 	.icwp_wpsf_site_badge img {
 		display: block;
 		flex: 0 0 auto;
@@ -39,9 +45,10 @@
 	}
 
 	.plugin-badge-name {
-		display: block;
+		display: inline-block;
 		font-size: 14px;
 		font-weight: 820;
+		white-space: nowrap;
 	}
 
 	.icwp_wpsf_site_badge.badge-mode-light {
@@ -58,7 +65,7 @@
 	.icwp_wpsf_site_badge.badge-mode-dark {
 		background: linear-gradient(145deg, #08283f, #115f88);
 		border: 2px solid rgba(117, 184, 42, 0.82);
-		border-radius: 8px;
+		border-radius: 999px;
 		box-shadow: 0 18px 48px rgba(6, 23, 35, 0.36), 0 0 0 3px rgba(117, 184, 42, 0.12);
 		color: #f7fbff;
 		padding: 9px 20px 9px 14px;
@@ -98,12 +105,14 @@
 		box-shadow: 0 12px 28px rgba(6, 23, 35, 0.28), 0 0 0 4px rgba(117, 184, 42, 0.22);
 	}
 
-	.icwp_wpsf_site_badge.floating_badge:hover {
+	.icwp_wpsf_site_badge.floating_badge:hover,
+	.icwp_wpsf_site_badge.floating_badge:focus-within {
 		opacity: 1;
 		width: auto;
 	}
 
-	.icwp_wpsf_site_badge.floating_badge.badge-mode-light:hover {
+	.icwp_wpsf_site_badge.floating_badge.badge-mode-light:hover,
+	.icwp_wpsf_site_badge.floating_badge.badge-mode-light:focus-within {
 		background: rgba(255, 255, 255, 0.98);
 		border-radius: 999px;
 		box-shadow: 0 18px 42px rgba(18, 31, 42, 0.20), 0 0 0 4px rgba(117, 184, 42, 0.16);
@@ -111,10 +120,11 @@
 		padding: 9px 16px 9px 10px;
 	}
 
-	.icwp_wpsf_site_badge.floating_badge.badge-mode-dark:hover {
+	.icwp_wpsf_site_badge.floating_badge.badge-mode-dark:hover,
+	.icwp_wpsf_site_badge.floating_badge.badge-mode-dark:focus-within {
 		background: linear-gradient(145deg, #08283f, #115f88);
 		border: 2px solid rgba(117, 184, 42, 0.82);
-		border-radius: 8px;
+		border-radius: 999px;
 		box-shadow: 0 18px 48px rgba(6, 23, 35, 0.36), 0 0 0 3px rgba(117, 184, 42, 0.12);
 		height: 58px;
 		padding: 9px 20px 9px 14px;
@@ -124,32 +134,41 @@
 		display: none;
 	}
 
-	.icwp_wpsf_site_badge.floating_badge:hover .badge-text {
+	.icwp_wpsf_site_badge.floating_badge:hover .badge-text,
+	.icwp_wpsf_site_badge.floating_badge:focus-within .badge-text {
 		display: inline-block;
 	}
 
-	a#icwpWpsfCloseButton {
+	#icwpWpsfCloseButton {
 		align-items: center;
+		appearance: none;
 		background: rgba(16, 25, 34, 0.88);
 		border: 1px solid rgba(255, 255, 255, 0.9);
 		border-radius: 999px;
 		color: #ffffff !important;
 		display: none;
-		font-size: 12px;
+		font-size: 13px;
 		font-weight: 700;
-		height: 18px;
+		height: 22px;
 		justify-content: center;
-		left: -6px;
+		left: -2px;
 		line-height: 1;
 		padding: 0 !important;
 		position: absolute;
 		text-align: center;
-		top: -8px;
-		width: 18px;
+		top: -6px;
+		width: 22px;
 		z-index: 1001;
 	}
 
-	#icwpWpsfSiteBadge:hover a#icwpWpsfCloseButton {
+	.badge-mode-dark #icwpWpsfCloseButton {
+		background: rgba(255, 255, 255, 0.94);
+		border-color: rgba(8, 40, 63, 0.36);
+		color: #08283f !important;
+	}
+
+	#icwpWpsfSiteBadge:hover #icwpWpsfCloseButton,
+	#icwpWpsfSiteBadge:focus-within #icwpWpsfCloseButton {
 		display: flex;
 	}
 
@@ -165,7 +184,8 @@
 			width: 36px;
 		}
 
-		.icwp_wpsf_site_badge.floating_badge:hover {
+		.icwp_wpsf_site_badge.floating_badge:hover,
+		.icwp_wpsf_site_badge.floating_badge:focus-within {
 			max-width: calc(100vw - 24px);
 		}
 
@@ -183,19 +203,21 @@
 		}
 
 		.icwp_wpsf_site_badge.floating_badge.badge-mode-light:hover,
-		.icwp_wpsf_site_badge.floating_badge.badge-mode-dark:hover {
+		.icwp_wpsf_site_badge.floating_badge.badge-mode-light:focus-within,
+		.icwp_wpsf_site_badge.floating_badge.badge-mode-dark:hover,
+		.icwp_wpsf_site_badge.floating_badge.badge-mode-dark:focus-within {
 			height: 48px;
 			padding: 8px 12px 8px 9px;
 		}
 	}
 	{% if content.custom_css is not empty %}{{ content.custom_css|raw }}{% endif %}
 </style>
-<div id="icwpWpsfSiteBadge" class="icwp_wpsf_site_badge badge-mode-{{ flags.mode }} {% if flags.is_floating %} floating_badge {% endif %}">
-	{% if flags.is_floating %}
-		<a id="icwpWpsfCloseButton">x</a>
-	{% endif %}
-	<a href="{{ hrefs.badge }}" target="_blank" {% if flags.nofollow %}rel="nofollow"{% endif %}>
-		<img src="{{ hrefs.logo }}" alt=" {{ strings.alt }}" />
-		<div class="badge-text">{{ strings.protected|raw }} &rarr;</div>
+<div id="icwpWpsfSiteBadge" class="icwp_wpsf_site_badge badge-mode-{{ flags.mode }} {% if flags.is_floating %} floating_badge {% endif %}" role="group" aria-label="{{ strings.badge_label }}">
+	<a href="{{ hrefs.badge }}" target="_blank" rel="noopener{% if flags.nofollow %} nofollow{% endif %}" aria-label="{{ strings.link_label }}">
+		<img src="{{ hrefs.logo }}" alt="" aria-hidden="true" />
+		<div class="badge-text">{{ strings.protected|raw }} <span aria-hidden="true">&rarr;</span></div>
 	</a>
+	{% if flags.is_floating %}
+		<button id="icwpWpsfCloseButton" type="button" aria-label="{{ strings.close_label }}"><span aria-hidden="true">x</span></button>
+	{% endif %}
 </div>

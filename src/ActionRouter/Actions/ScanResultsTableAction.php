@@ -92,11 +92,10 @@ class ScanResultsTableAction extends ScansBase {
 			->addWheres( ( new ScanResultsScopeResolver() )->wheresForActionScope( $type, $file ) )
 			->retrieveForResultsTables( $resultsDisplayOptions );
 
-		$itemIDs = \array_values( \array_unique( \array_map(
+		return \array_values( \array_unique( \array_map(
 			static fn( $item ) :int => (int)$item->VO->resultitem_id,
-			$results->getItems()
+			$results->getAllItems()
 		) ) );
-		return $itemIDs;
 	}
 
 	private function buildActionResponse( string $action, int $itemCount, int $successfulItemCount ) :array {

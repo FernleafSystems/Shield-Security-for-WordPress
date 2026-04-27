@@ -10,7 +10,7 @@ class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	public function getItemForSlug( string $slug ) {
 		$theItem = null;
 		/** @var ResultItem $item */
-		foreach ( $this->getItems() as $item ) {
+		foreach ( $this->items as $item ) {
 			if ( $item->VO->item_id === $slug ) {
 				$theItem = $item;
 				break;

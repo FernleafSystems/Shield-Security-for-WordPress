@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 abstract class BasePluginThemeFile extends BaseScan {
 
 	/**
-	 * @var WpPluginVo|WpThemeVo
+	 * @var null|WpPluginVo|WpThemeVo
 	 */
 	protected $asset = null;
 }

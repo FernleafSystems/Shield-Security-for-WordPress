@@ -137,7 +137,6 @@ class FileLocker extends Base {
 	 * @return list<string>
 	 */
 	private function selectedLockedFiles() :array {
-		$files = self::con()->comps->file_locker->getFilesToLock();
-		return \is_array( $files ) ? \array_values( \array_filter( $files, 'is_string' ) ) : [];
+		return \array_values( \array_filter( self::con()->comps->file_locker->getFilesToLock(), '\is_string' ) );
 	}
 }

@@ -11,7 +11,7 @@ class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	private function filterByFieldEquals( string $field, $equals ) :ResultsSet {
 		$res = new ResultsSet();
 		/** @var ResultItem $item */
-		foreach ( $this->getItems() as $item ) {
+		foreach ( $this->items as $item ) {
 			if ( $item->{$field} == $equals ) {
 				$res->addItem( $item );
 			}

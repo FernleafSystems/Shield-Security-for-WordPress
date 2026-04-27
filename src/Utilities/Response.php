@@ -48,7 +48,7 @@ class Response extends DynPropertiesClass {
 	}
 
 	public function addData( string $key, $value ) :self {
-		$arr = \is_array( $this->data ) ? $this->data : [];
+		$arr = $this->data;
 		$arr[ $key ] = $value;
 		$this->data = $arr;
 		return $this;

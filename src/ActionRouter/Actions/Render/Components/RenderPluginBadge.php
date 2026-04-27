@@ -71,9 +71,11 @@ class RenderPluginBadge extends \FernleafSystems\Wordpress\Plugin\Shield\ActionR
 				'logo'  => $this->stringAttr( $badgeAttrs[ 'logo' ] ),
 			],
 			'strings' => [
-				'alt'       => sprintf( __( 'Powerful Protection for WordPress, from %s', 'wp-simple-firewall' ), self::con()->labels->Name ),
-				'protected' => $this->stringAttr( $badgeAttrs[ 'protected_by' ] ),
-				'name'      => $this->stringAttr( $badgeAttrs[ 'name' ] ),
+				'badge_label' => sprintf( __( '%s security badge', 'wp-simple-firewall' ), $this->stringAttr( $badgeAttrs[ 'name' ] ) ),
+				'close_label' => __( 'Close security badge', 'wp-simple-firewall' ),
+				'link_label'  => sprintf( __( 'Learn more about %s security protection (opens in a new tab)', 'wp-simple-firewall' ), $this->stringAttr( $badgeAttrs[ 'name' ] ) ),
+				'protected'   => $this->stringAttr( $badgeAttrs[ 'protected_by' ] ),
+				'name'        => $this->stringAttr( $badgeAttrs[ 'name' ] ),
 			],
 		];
 	}

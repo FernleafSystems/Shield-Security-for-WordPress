@@ -5,16 +5,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ForceOff extends BaseCmd {
-
-	protected function cmdParts() :array {
+	protected function cmdParts(): array {
 		return [ 'forceoff' ];
 	}
 
-	protected function cmdShortDescription() :string {
+	protected function cmdShortDescription(): string {
 		return 'Manage the `forceoff` file.';
 	}
 
-	protected function cmdSynopsis() :array {
+	protected function cmdSynopsis(): array {
 		return [
 			[
 				'type'        => 'assoc',
@@ -31,7 +30,7 @@ class ForceOff extends BaseCmd {
 		];
 	}
 
-	public function runCmd() :void {
+	public function runCmd(): void {
 		$FS = Services::WpFs();
 		$path = path_join( self::con()->getRootDir(), 'forceoff' );
 
@@ -49,8 +48,7 @@ class ForceOff extends BaseCmd {
 					\WP_CLI::success( "`forceoff` doesn't exist." );
 				}
 				else {
-					$FS->deleteFile( $path );
-					$this->forceOffExists() ?
+					( $FS->deleteFile( $path ) && $this->forceOffExists() ) ?
 						\WP_CLI::error( "`forceoff` file couldn't be deleted." )
 						: \WP_CLI::success( '`forceoff` file deleted successfully.' );
 				}
@@ -63,7 +61,7 @@ class ForceOff extends BaseCmd {
 		}
 	}
 
-	private function forceOffExists() :bool {
+	private function forceOffExists(): bool {
 		return (bool)Services::WpFs()->exists( path_join( self::con()->getRootDir(), 'forceoff' ) );
 	}
 }

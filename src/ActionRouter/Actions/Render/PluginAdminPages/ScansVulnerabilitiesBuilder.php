@@ -116,7 +116,7 @@ class ScansVulnerabilitiesBuilder {
 		}
 
 		$items = [];
-		foreach ( $results->getItems() as $item ) {
+		foreach ( $results->getAllItems() as $item ) {
 			$asset = $this->getAsset( (string)$item->VO->item_id );
 			if ( $asset === null ) {
 				continue;

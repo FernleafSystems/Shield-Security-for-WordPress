@@ -6,19 +6,19 @@ class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	/**
 	 * @return ResultItem[]
 	 */
-	public function getItemsForSlug( string $slug ) :array {
+	public function getItemsForSlug( string $slug ): array {
 		return \array_values( \array_filter(
 			$this->getWpvItems(),
-			static fn( ResultItem $item ) :bool => $item->VO->item_id === $slug,
+			static fn( ResultItem $item ): bool => $item->VO->item_id === $slug,
 		) );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	public function getUniqueSlugs() :array {
+	public function getUniqueSlugs(): array {
 		return \array_values( \array_unique( \array_map(
-			static fn( ResultItem $item ) :string => $item->VO->item_id,
+			static fn( ResultItem $item ): string => $item->VO->item_id,
 			$this->getWpvItems()
 		) ) );
 	}
@@ -26,10 +26,10 @@ class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	/**
 	 * @return list<ResultItem>
 	 */
-	private function getWpvItems() :array {
+	private function getWpvItems(): array {
 		return \array_values( \array_filter(
-			$this->getItems(),
-			static fn( $item ) :bool => $item instanceof ResultItem
+			$this->getAllItems(),
+			static fn( $item ): bool => $item instanceof ResultItem
 		) );
 	}
 }

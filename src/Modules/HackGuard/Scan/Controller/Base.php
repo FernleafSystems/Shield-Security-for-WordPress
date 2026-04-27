@@ -53,7 +53,7 @@ abstract class Base {
 
 	public function cleanStalesResults() :bool {
 		$changed = false;
-		foreach ( $this->getAllResults()->getItems() as $item ) {
+		foreach ( $this->getAllResults()->getAllItems() as $item ) {
 			$changed = $this->cleanStaleResultItem( $item ) || $changed;
 		}
 		if ( $changed ) {

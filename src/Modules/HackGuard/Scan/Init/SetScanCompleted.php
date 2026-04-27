@@ -9,10 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SetScanCompleted {
-
 	use PluginControllerConsumer;
 
-	public function runForQueueItem( QueueItemVO $queueItem ) :bool {
+	public function runForQueueItem( QueueItemVO $queueItem ): bool {
 		$scanRecord = new ScansDB\Record();
 		$scanRecord->id = $queueItem->scan_id;
 		$scanRecord->scan = $queueItem->scan;
@@ -22,7 +21,7 @@ class SetScanCompleted {
 		return $this->run( $queueItem->scan_id, $scanRecord );
 	}
 
-	public function run( int $scanID, ?ScansDB\Record $scanRecord = null, bool $persistScanMeta = false ) :bool {
+	public function run( int $scanID, ?ScansDB\Record $scanRecord = null, bool $persistScanMeta = false ): bool {
 		$con = self::con();
 		$dbCon = $con->db_con;
 		$now = Services::Request()->ts();
@@ -35,7 +34,7 @@ class SetScanCompleted {
 		}
 
 		$completed = (int)Services::WpDb()->doSql(
-			sprintf( "UPDATE `%s`
+				sprintf( "UPDATE `%s`
 						SET `finished_at`=%d,
 							`status`='completed',
 							`last_process_at`=%d
@@ -48,15 +47,15 @@ class SetScanCompleted {
 							WHERE `si`.`scan_ref`=%d
 							  AND `si`.`finished_at`=0
 						  );",
-				$dbCon->scans->getTable(),
-				$now,
-				$now,
-				$metaUpdate,
-				$scanID,
-				$dbCon->scan_items->getTable(),
-				$scanID
-			)
-		) > 0;
+					$dbCon->scans->getTable(),
+					$now,
+					$now,
+					$metaUpdate,
+					$scanID,
+					$dbCon->scan_items->getTable(),
+					$scanID
+				)
+			) > 0;
 
 		if ( !$completed ) {
 			return false;
@@ -110,9 +109,9 @@ class SetScanCompleted {
 				__( 'Only the first 30 items are shown.', 'wp-simple-firewall' )
 				: __( 'The following items were discovered.', 'wp-simple-firewall' );
 
-			$itemDescriptions = \array_slice( \array_unique( \array_map( function ( $item ) {
-				return $item->getDescriptionForAudit();
-			}, $results->getItems() ) ), 0, 30 );
+			$itemDescriptions = \array_slice( \array_unique(
+				\array_map( fn( $item ) => $item->getDescriptionForAudit(), $results->getAllItems() )
+			), 0, 30 );
 
 			$items .= ' "'.\implode( '", "', $itemDescriptions ).'"';
 
@@ -125,14 +124,14 @@ class SetScanCompleted {
 		}
 	}
 
-	private function resolveStaleItemsForRun( int $scanID, ScansDB\Record $scanRecord, int $resolvedAt ) :void {
+	private function resolveStaleItemsForRun( int $scanID, ScansDB\Record $scanRecord, int $resolvedAt ): void {
 		$scanSlug = \preg_replace( '/[^a-z0-9_]/i', '', $scanRecord->scan ) ?? '';
 		$scopeWhere = $this->buildScopeWhere( $scanRecord );
 		$reason = $scanSlug === 'afs'
-			&& \in_array( $scanRecord->scope_type, [ 'plugin', 'theme' ], true )
-			&& $scanRecord->run_trigger === 'asset_change'
-				? 'asset_replaced'
-				: 'clean_rescan';
+		          && \in_array( $scanRecord->scope_type, [ 'plugin', 'theme' ], true )
+		          && $scanRecord->run_trigger === 'asset_change'
+			? 'asset_replaced'
+			: 'clean_rescan';
 
 		Services::WpDb()->doSql(
 			sprintf(
@@ -160,7 +159,7 @@ class SetScanCompleted {
 		);
 	}
 
-	private function buildScopeWhere( ScansDB\Record $scanRecord ) :string {
+	private function buildScopeWhere( ScansDB\Record $scanRecord ): string {
 		if ( $scanRecord->scan !== 'afs' || $scanRecord->scope_type === 'full' ) {
 			return '';
 		}
@@ -176,9 +175,9 @@ class SetScanCompleted {
 		return '';
 	}
 
-	private function resultItemIDsForScan( int $scanID ) :array {
+	private function resultItemIDsForScan( int $scanID ): array {
 		return \array_values( \array_unique( \array_filter( \array_map(
-			static fn( $record ) :int => (int)( \is_array( $record ) ? ( $record[ 'resultitem_ref' ] ?? 0 ) : ( $record->resultitem_ref ?? 0 ) ),
+			static fn( $record ): int => (int)( \is_array( $record ) ? ( $record[ 'resultitem_ref' ] ?? 0 ) : ( $record->resultitem_ref ?? 0 ) ),
 			Services::WpDb()->selectCustom(
 				sprintf( "SELECT DISTINCT `resultitem_ref`
 							FROM `%s`

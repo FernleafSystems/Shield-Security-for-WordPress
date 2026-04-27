@@ -16,20 +16,19 @@ use FernleafSystems\Wordpress\Services\Utilities\Decorate\FormatBytes;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 /**
- * @property int      $limit
- * @property int      $offset
- * @property string[] $wheres
- * @property string   $order_by
- * @property string   $order_dir
- * @property string   $search_text
- * @property array    $custom_record_retriever_wheres
+ * @property int                      $limit
+ * @property int                      $offset
+ * @property string[]                 $wheres
+ * @property string                   $order_by
+ * @property string                   $order_dir
+ * @property string                   $search_text
+ * @property array                    $custom_record_retriever_wheres
  * @property array<string,mixed>|null $results_display_options
  */
 class LoadFileScanResultsTableData extends DynPropertiesClass {
-
 	use PluginControllerConsumer;
 
-	public function run() :array {
+	public function run(): array {
 		$resultsDisplayOptions = $this->getResultsDisplayOptions();
 		$results = $this->getRecordRetriever()->retrieveForResultsTables( $resultsDisplayOptions );
 
@@ -37,13 +36,15 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		 * Bulk update the malai statuses
 		 */
 		( new RetrieveMalwareMalaiStatus() )->updateRecords(
-			\array_map( fn( ResultItem $item ) => $item->getMalwareRecord(), $results->getMalware()->getItems() )
+			\array_filter(
+				\array_map( fn( ResultItem $item ) => $item->getMalwareRecord(), $results->getMalware()->getAllItems() )
+			)
 		);
 
 		$changed = false;
 		$AFS = self::con()->comps->scans->AFS();
 		/** @var ResultItem $item */
-		foreach ( $results->getItems() as $item ) {
+		foreach ( $results->getAllItems() as $item ) {
 			$changed = $AFS->cleanStaleResultItem( $item ) || $changed;
 		}
 		if ( $changed ) {
@@ -51,7 +52,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		try {
-			$files = \array_map( fn( ResultItem $item ) => $this->getDataFromItem( $item ), $results->getItems() );
+			$files = \array_map( fn( ResultItem $item ) => $this->getDataFromItem( $item ), $results->getAllItems() );
 		}
 		catch ( \Exception $e ) {
 			$files = [];
@@ -59,7 +60,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return $files;
 	}
 
-	protected function getDataFromItem( ResultItem $item ) :array {
+	protected function getDataFromItem( ResultItem $item ): array {
 		$isIgnored = $item->VO->ignored_at > 0;
 		$actions = $this->getActions( $item );
 		$data = \array_merge( $item->getRawData(), [
@@ -67,9 +68,9 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			'file'             => $item->path_fragment,
 			'created_at'       => $item->VO->created_at,
 			'detected_since'   => Services::Request()
-										  ->carbon( true )
-										  ->setTimestamp( $item->VO->created_at )
-										  ->diffForHumans(),
+			                              ->carbon( true )
+			                              ->setTimestamp( $item->VO->created_at )
+			                              ->diffForHumans(),
 			'file_as_href'     => $this->getColumnContent_FileAsHref( $item ),
 			'file_type'        => \strtoupper( Services::Data()->getExtension( $item->path_full ) ),
 			'status_file_size' => $this->column_fileSize( $item ),
@@ -99,21 +100,21 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return $data;
 	}
 
-	public function countAll() :int {
+	public function countAll(): int {
 		$options = $this->getResultsDisplayOptions();
 		return \is_array( $options )
 			? $this->getRecordCounter()->countForResultsDisplay( $options )
 			: $this->getRecordCounter()->count( RetrieveCount::CONTEXT_RESULTS_DISPLAY );
 	}
 
-	protected function getRecordCounter() :RetrieveCount {
+	protected function getRecordCounter(): RetrieveCount {
 		$retriever = $this->getRecordRetriever();
 		return ( new RetrieveCount() )
 			->setScanController( $retriever->getScanController() )
 			->addWheres( $retriever->getWheres() );
 	}
 
-	protected function getRecordRetriever() :RetrieveItems {
+	protected function getRecordRetriever(): RetrieveItems {
 		$retriever = ( new RetrieveItems() )->setScanController( self::con()->comps->scans->AFS() );
 		$retriever->limit = $this->limit;
 		$retriever->offset = $this->offset;
@@ -153,7 +154,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	/**
 	 * @return list<array{key:string,class:string,rid:int,label:string,icon_class:string}>
 	 */
-	protected function getActions( ResultItem $item ) :array {
+	protected function getActions( ResultItem $item ): array {
 		$con = self::con();
 		$actions = [];
 
@@ -225,21 +226,21 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	/**
 	 * @param list<array{key:string,class:string,rid:int,label:string,icon_class:string}> $actions
 	 */
-	protected function getActionsMarkup( array $actions ) :string {
+	protected function getActionsMarkup( array $actions ): string {
 		return empty( $actions )
 			? ''
 			: sprintf(
 				'<div class="scan-results-row-actions">%s</div>',
-				\implode( '', \array_map( fn( array $action ) :string => $this->buildActionButton( $action ), $actions ) )
+				\implode( '', \array_map( fn( array $action ): string => $this->buildActionButton( $action ), $actions ) )
 			);
 	}
 
-	protected function column_fileSize( ResultItem $item ) :string {
+	protected function column_fileSize( ResultItem $item ): string {
 		$FS = Services::WpFs();
 		return $FS->isAccessibleFile( $item->path_full ) ? FormatBytes::Format( $FS->getFileSize( $item->path_full ) ) : '-';
 	}
 
-	protected function column_fileType( ResultItem $item ) :string {
+	protected function column_fileType( ResultItem $item ): string {
 		$extension = \strtoupper( Paths::Ext( $item->path_full ) );
 		if ( \strpos( $extension, 'PHP' ) !== false ) {
 			$type = sprintf( '<img src="%s" width="36px" alt="%s" title="%s" />',
@@ -271,7 +272,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return $type;
 	}
 
-	protected function getColumnContent_MalwareDetailsForRecord( ResultItem $item, string $sig ) :string {
+	protected function getColumnContent_MalwareDetailsForRecord( ResultItem $item, string $sig ): string {
 		$record = $item->getMalwareRecord();
 
 		switch ( $record->malai_status ) {
@@ -298,15 +299,15 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 				sprintf( '%s: %s', __( 'Pattern Detected', 'wp-simple-firewall' ), $sig ),
 				sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
 					Services::Request()
-							->carbon()
-							->setTimestamp( Services::WpFs()->getModifiedTime( $item->path_full ) )
-							->diffForHumans()
+					        ->carbon()
+					        ->setTimestamp( Services::WpFs()->getModifiedTime( $item->path_full ) )
+					        ->diffForHumans()
 				)
 			] )
 		);
 	}
 
-	protected function getColumnContent_MalwareDetails( int $confidence, string $sig ) :string {
+	protected function getColumnContent_MalwareDetails( int $confidence, string $sig ): string {
 		return sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>',
 			\implode( '</li><li>', [
 				sprintf( '%s: %s', __( 'False Positive Confidence', 'wp-simple-firewall' ), $confidence ),
@@ -315,11 +316,11 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		);
 	}
 
-	protected function getColumnContent_File( ResultItem $item ) :string {
+	protected function getColumnContent_File( ResultItem $item ): string {
 		return sprintf( '<div>%s</div>', $this->getColumnContent_FileAsHref( $item ) );
 	}
 
-	protected function getColumnContent_FileStatus( ResultItem $item ) :string {
+	protected function getColumnContent_FileStatus( ResultItem $item ): string {
 		$FS = Services::WpFs();
 		$carbon = Services::Request()->carbon( true );
 
@@ -351,8 +352,8 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		if ( $item->VO->ignored_at > 0 ) {
 			$meta[] = \sprintf( '%s: %s', __( 'Ignored', 'wp-simple-firewall' ),
 				Services::Request()->carbon( true )
-						->setTimestamp( $item->VO->ignored_at )
-						->diffForHumans()
+				        ->setTimestamp( $item->VO->ignored_at )
+				        ->diffForHumans()
 			);
 		}
 
@@ -363,7 +364,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return $content;
 	}
 
-	private function isOldWpCoreFile( ResultItem $item ) :bool {
+	private function isOldWpCoreFile( ResultItem $item ): bool {
 		$coreFile = path_join( ABSPATH, 'wp-admin/includes/update-core.php' );
 		if ( Services::WpFs()->isAccessibleFile( $coreFile ) ) {
 			include_once $coreFile;
@@ -372,7 +373,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return \is_array( $_old_files ) && \in_array( $item->path_fragment, $_old_files, true );
 	}
 
-	protected function getColumnContent_FileAsHref( ResultItem $item ) :string {
+	protected function getColumnContent_FileAsHref( ResultItem $item ): string {
 		return sprintf(
 			'<div class="scan-results-file-cell" data-scan-result-file-cell="1"><a href="#" title="%s" class="action view-file" data-rid="%s" data-scan-result-action="view">%s</a>%s</div>',
 			__( 'View File Contents', 'wp-simple-firewall' ),
@@ -380,9 +381,9 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			esc_html( $item->path_fragment ),
 			$item->VO->ignored_at > 0
 				? sprintf(
-					' <span class="badge text-bg-secondary scan-results-ignored-badge" data-scan-result-ignored-badge="1">%s</span>',
-					esc_html__( 'Ignored', 'wp-simple-firewall' )
-				)
+				' <span class="badge text-bg-secondary scan-results-ignored-badge" data-scan-result-ignored-badge="1">%s</span>',
+				esc_html__( 'Ignored', 'wp-simple-firewall' )
+			)
 				: ''
 		);
 	}
@@ -390,7 +391,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	/**
 	 * @return array<string,mixed>|null
 	 */
-	private function getResultsDisplayOptions() :?array {
+	private function getResultsDisplayOptions(): ?array {
 		return \is_array( $this->results_display_options )
 			? $this->results_display_options
 			: null;
@@ -405,7 +406,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		int $scanResultId,
 		string $label,
 		string $iconClass
-	) :array {
+	): array {
 		return [
 			'key'        => $actionKey,
 			'class'      => $actionClass,
@@ -420,7 +421,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	 */
 	private function buildActionButton(
 		array $action
-	) :string {
+	): string {
 		return sprintf(
 			'<button type="button" class="btn btn-sm btn-light action actions-landing__table-icon-action scan-results-row-action scan-results-row-action--%1$s %2$s" title="%3$s" aria-label="%3$s" data-bs-toggle="tooltip" data-bs-title="%3$s" data-rid="%4$s" data-scan-result-action="%1$s"><i class="%5$s" aria-hidden="true"></i><span class="visually-hidden">%3$s</span></button>',
 			esc_attr( $action[ 'key' ] ),

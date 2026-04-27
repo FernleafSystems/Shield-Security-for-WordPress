@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ImportExportController {
-
 	use ExecOnce;
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
@@ -27,15 +26,14 @@ class ImportExportController {
 	private function setupHooks() {
 		( new NotifyWhitelist() )->execute();
 
-		add_action( 'shield/plugin_activated', function () {
-			$this->importFromFlag();
-		} );
+		add_action( 'shield/plugin_activated', fn() => $this->importFromFlag() );
 
 		if ( !empty( $this->getImportExportMasterImportUrl() ) ) {
 			// For auto update whitelist notifications:
-			add_action( self::con()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG ), function () {
-				( new Import() )->autoImportFromMaster();
-			} );
+			add_action(
+				self::con()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG ),
+				fn() => ( new Import() )->autoImportFromMaster()
+			);
 		}
 	}
 

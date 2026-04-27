@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
 
 class SessionController {
-
 	use ExecOnce;
 	use PluginControllerConsumer;
 	use WpLoginCapture;
@@ -34,7 +33,7 @@ class SessionController {
 		}
 	}
 
-	public function current() :SessionVO {
+	public function current(): SessionVO {
 		$session = self::con()->this_req->session ?? null;
 		if ( !$session instanceof SessionVO ) {
 			$session = new SessionVO();
@@ -59,7 +58,7 @@ class SessionController {
 				$WPUsers = Services::WpUsers();
 				$user = $WPUsers->getCurrentWpUser();
 				if ( !$user instanceof \WP_User ) {
-					$user = $WPUsers->getUserById( $this->getCapturedUserID() );
+					$user = $WPUsers->getUserById( $this->capturedUserID ?? 0 );
 				}
 				$userID = $user instanceof \WP_User ? $user->ID : null;
 
@@ -86,7 +85,7 @@ class SessionController {
 	/**
 	 * @throws \Exception
 	 */
-	public function buildSession( int $userID, string $token ) :SessionVO {
+	public function buildSession( int $userID, string $token ): SessionVO {
 		$req = Services::Request();
 		$thisReq = self::con()->this_req;
 
@@ -172,7 +171,7 @@ class SessionController {
 		}
 	}
 
-	public function terminateCurrentSession() :bool {
+	public function terminateCurrentSession(): bool {
 		$current = $this->current();
 
 		if ( $current->valid ) {
