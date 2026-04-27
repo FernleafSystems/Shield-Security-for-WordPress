@@ -23,10 +23,10 @@ class BrowserTestLaneTest extends TestCase {
 		$this->seedRequiredFiles( $projectRoot );
 
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
-		$siteProcessRunner = new RecordingProcessRunner( [ 0, 0 ] );
-		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0 ] );
+		$siteProcessRunner = new RecordingProcessRunner( [ 0, 0, 0, 0 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0, 0 ] );
 		$siteManager = new LocalSiteManager(
-			LocalSiteDefinitions::test(),
+			LocalSiteDefinitions::browserLane( 1 ),
 			$siteProcessRunner,
 			new RecordingTestingEnvironmentResolver(),
 			$dockerComposeExecutor,
@@ -56,12 +56,42 @@ class BrowserTestLaneTest extends TestCase {
 			$playwrightRunner->calls[ 0 ][ 'command' ]
 		);
 		$this->assertSame(
-			LocalSiteDefinitions::test()->siteUrl(),
+			LocalSiteDefinitions::browserLane( 1 )->siteUrl(),
 			$playwrightRunner->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_BROWSER_BASE_URL' ]
 		);
-		$this->assertCount( 2, $dockerComposeExecutor->calls );
-		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
-		$this->assertSame( [ 'up', '-d', 'db', 'wordpress' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
+		$this->assertSame( '1', $playwrightRunner->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LANE_INDEX' ] );
+		$this->assertSame( './test-results/playwright/lane-1', $playwrightRunner->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_BROWSER_OUTPUT_DIR' ] );
+		$this->assertCount( 3, $dockerComposeExecutor->calls );
+		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
+		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
+		$this->assertSame( [ 'up', '-d', 'wordpress' ], $dockerComposeExecutor->calls[ 2 ][ 'sub_command' ] );
+	}
+
+	public function testRunAddsSingleWorkerDefaultWhenCallerDoesNotSpecifyWorkers() :void {
+		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-default-workers-' );
+		$this->seedRequiredFiles( $projectRoot );
+
+		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
+		$siteManager = new LocalSiteManager(
+			LocalSiteDefinitions::browserLane( 1 ),
+			new RecordingProcessRunner( [ 0, 0, 0, 0 ] ),
+			new RecordingTestingEnvironmentResolver(),
+			new RecordingDockerComposeExecutor( [ 0, 0, 0 ] ),
+			new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] ),
+			new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] )
+		);
+
+		$lane = new BrowserTestLane( $playwrightRunner, $siteManager );
+		\ob_start();
+		try {
+			$exitCode = $lane->run( $projectRoot, [ 'tests/browser/action-router/drill-down-flows.spec.js' ] );
+		}
+		finally {
+			\ob_end_clean();
+		}
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertSame( '--workers=1', $playwrightRunner->calls[ 0 ][ 'command' ][ 4 ] );
 	}
 
 	public function testRunFailsBeforeResetWhenPlaywrightIsMissing() :void {
@@ -84,17 +114,17 @@ class BrowserTestLaneTest extends TestCase {
 		);
 		$lane = new BrowserTestLane( $playwrightRunner, $siteManager );
 
-		$this->expectExceptionMessage( 'Playwright is not installed' );
-
 		\ob_start();
 		try {
-			$lane->run( $projectRoot );
+			$exitCode = $lane->run( $projectRoot );
 		}
 		finally {
 			\ob_end_clean();
 			$this->assertCount( 0, $dockerComposeExecutor->calls );
 			$this->assertCount( 0, $playwrightRunner->calls );
 		}
+
+		$this->assertSame( 1, $exitCode );
 	}
 
 	private function seedRequiredFiles( string $rootDir ) :void {

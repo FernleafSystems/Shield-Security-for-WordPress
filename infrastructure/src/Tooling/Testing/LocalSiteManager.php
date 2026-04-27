@@ -8,10 +8,10 @@ use Symfony\Component\Process\Process;
 
 class LocalSiteManager {
 
-	private const COMPOSE_FILE = 'tests/docker/docker-compose.local-site.yml';
 	private const DB_SERVICE_NAME = 'db';
 	private const WORDPRESS_SERVICE_NAME = 'wordpress';
 	private const WPCLI_SERVICE_NAME = 'wp-cli';
+	private const DB_ROOT_PASSWORD = 'testpass';
 
 	private ProcessRunner $processRunner;
 
@@ -123,24 +123,36 @@ class LocalSiteManager {
 		];
 	}
 
-	public function reset( string $rootDir, bool $requirePlaywright = false ) :int {
+	public function reset( string $rootDir, bool $requirePlaywright = false, ?callable $onOutput = null ) :int {
 		$this->runPreflightChecks( $rootDir, $requirePlaywright );
+
+		if ( $this->definition->usesSharedDatabase() ) {
+			$this->ensureSharedDatabaseReady( $rootDir, $onOutput );
+		}
 
 		$exitCode = $this->dockerComposeExecutor->run(
 			$rootDir,
 			$this->buildComposeFiles(),
 			[ 'down', '-v', '--remove-orphans' ],
-			$this->buildRuntimeEnvOverrides( $rootDir )
+			$this->buildRuntimeEnvOverrides( $rootDir ),
+			$onOutput
 		);
 		if ( $exitCode !== 0 ) {
-			return $exitCode;
+			throw new \RuntimeException( $this->diagnoseCommandFailure(
+				'Browser lane reset failed while removing lane WordPress containers and volumes.',
+				$this->buildComposeCommandForExecution( $this->buildComposeFiles(), [ 'down', '-v', '--remove-orphans' ] ),
+				$exitCode
+			) );
 		}
-		$this->ensureReadyAfterPreflight( $rootDir );
+		if ( $this->definition->usesSharedDatabase() ) {
+			$this->resetSharedDatabase( $rootDir );
+		}
+		$this->ensureReadyAfterPreflight( $rootDir, $onOutput, $this->definition->usesSharedDatabase() );
 		return 0;
 	}
 
 	/**
-	 * @return array{site_url:string,site_healthy:bool,port_open:bool,admin_user:string}
+	 * @return array{site_url:string,site_healthy:bool,port_open:bool,admin_user:string,lane_key:string,compose_project:string,db_name:string}
 	 */
 	public function status( string $rootDir ) :array {
 		$this->environmentResolver->assertDockerReady( $rootDir );
@@ -150,6 +162,9 @@ class LocalSiteManager {
 			'site_healthy' => $this->isSiteHealthy(),
 			'port_open' => $this->probe->isTcpPortOpen( $this->definition->siteHost(), $this->definition->sitePort() ),
 			'admin_user' => $this->definition->adminUser(),
+			'lane_key' => $this->definition->key(),
+			'compose_project' => $this->definition->composeProjectName(),
+			'db_name' => $this->definition->dbName(),
 		];
 	}
 
@@ -161,7 +176,15 @@ class LocalSiteManager {
 	/**
 	 * @param callable|null $onOutput Receives (string $type, string $buffer)
 	 */
-	private function ensureReadyAfterPreflight( string $rootDir, ?callable $onOutput = null ) :void {
+	private function ensureReadyAfterPreflight(
+		string $rootDir,
+		?callable $onOutput = null,
+		bool $sharedDatabaseAlreadyReady = false
+	) :void {
+		if ( $this->definition->usesSharedDatabase() && !$sharedDatabaseAlreadyReady ) {
+			$this->ensureSharedDatabaseReady( $rootDir, $onOutput );
+		}
+
 		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir );
 		$composeFiles = $this->buildComposeFiles();
 		$containerId = $this->resolveOrStartWordpressContainer( $rootDir, $composeFiles, $envOverrides, $onOutput );
@@ -180,6 +203,7 @@ class LocalSiteManager {
 		);
 		$envOverrides['PHP_VERSION'] = $this->environmentResolver->resolvePhpVersion( $rootDir );
 		$envOverrides['SHIELD_LOCAL_SITE_DB_NAME'] = $this->definition->dbName();
+		$envOverrides['SHIELD_LOCAL_SITE_DB_HOST'] = $this->definition->dbHost();
 		$envOverrides['SHIELD_LOCAL_SITE_PORT'] = (string)$this->definition->sitePort();
 		$envOverrides['SHIELD_LOCAL_SITE_PROFILE'] = $this->definition->key();
 		return $envOverrides;
@@ -190,7 +214,7 @@ class LocalSiteManager {
 	 */
 	private function buildComposeFiles() :array {
 		return [
-			self::COMPOSE_FILE,
+			$this->definition->composeFile(),
 		];
 	}
 
@@ -202,7 +226,7 @@ class LocalSiteManager {
 			'docker',
 			'compose',
 			'-f',
-			self::COMPOSE_FILE,
+			$this->definition->composeFile(),
 			'run',
 			'--rm',
 			'-T',
@@ -243,7 +267,7 @@ class LocalSiteManager {
 			'docker',
 			'compose',
 			'-f',
-			self::COMPOSE_FILE,
+			$this->definition->composeFile(),
 			'run',
 			'--rm',
 			'-T',
@@ -388,6 +412,143 @@ class LocalSiteManager {
 	}
 
 	/**
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 */
+	private function ensureSharedDatabaseReady( string $rootDir, ?callable $onOutput = null ) :void {
+		$this->withSharedDatabaseLock( $rootDir, function () use ( $rootDir, $onOutput ) :void {
+			$composeFiles = [ $this->definition->sharedDatabaseComposeFile() ];
+			$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir );
+
+			$exitCode = $this->dockerComposeExecutor->run(
+				$rootDir,
+				$composeFiles,
+				[ 'up', '-d', self::DB_SERVICE_NAME ],
+				$envOverrides,
+				$onOutput
+			);
+			if ( $exitCode !== 0 ) {
+				throw new \RuntimeException( $this->diagnoseCommandFailure(
+					'Failed to start the shared browser MySQL service.',
+					$this->buildComposeCommandForExecution( $composeFiles, [ 'up', '-d', self::DB_SERVICE_NAME ] ),
+					$exitCode
+				) );
+			}
+
+			$this->waitForSharedDatabaseHealthy( $rootDir, $envOverrides, $composeFiles );
+		} );
+	}
+
+	private function withSharedDatabaseLock( string $rootDir, callable $callback ) :void {
+		$lockDir = Path::join( $rootDir, 'tmp/browser-test-lanes' );
+		if ( !\is_dir( $lockDir ) && !\mkdir( $lockDir, 0777, true ) && !\is_dir( $lockDir ) ) {
+			throw new \RuntimeException( 'Failed to create browser lane lock directory: '.$lockDir );
+		}
+		$lockPath = Path::join( $lockDir, 'shared-db.lock' );
+		$handle = \fopen( $lockPath, 'c+' );
+		if ( $handle === false ) {
+			throw new \RuntimeException( 'Failed to open shared browser DB lock file: '.$lockPath );
+		}
+
+		$startedAt = \time();
+		try {
+			do {
+				if ( \flock( $handle, \LOCK_EX | \LOCK_NB ) ) {
+					$callback();
+					return;
+				}
+				\usleep( 500000 );
+			} while ( \time() - $startedAt < 120 );
+
+			throw new \RuntimeException( 'Timed out waiting for shared browser DB startup lock: '.$lockPath );
+		}
+		finally {
+			if ( \is_resource( $handle ) ) {
+				@\flock( $handle, \LOCK_UN );
+				@\fclose( $handle );
+			}
+		}
+	}
+
+	/**
+	 * @return array<string,string|false>
+	 */
+	private function buildSharedDatabaseEnvOverrides( string $rootDir ) :array {
+		$envOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
+			$this->definition->sharedDatabaseComposeProjectName(),
+			true
+		);
+		$envOverrides['PHP_VERSION'] = $this->environmentResolver->resolvePhpVersion( $rootDir );
+		return $envOverrides;
+	}
+
+	/**
+	 * @param array<string,string|false> $envOverrides
+	 * @param string[] $composeFiles
+	 */
+	private function waitForSharedDatabaseHealthy( string $rootDir, array $envOverrides, array $composeFiles ) :void {
+		$command = \array_merge(
+			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			[ 'mysqladmin', 'ping', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '--silent' ]
+		);
+		$startedAt = \time();
+		do {
+			$process = $this->processRunner->run(
+				$command,
+				$rootDir,
+				static function () :void {
+				},
+				$envOverrides
+			);
+			if ( ( $process->getExitCode() ?? 1 ) === 0 ) {
+				return;
+			}
+			\usleep( 500000 );
+		} while ( \time() - $startedAt < 60 );
+
+		throw new \RuntimeException( $this->diagnoseCommandFailure(
+			'Shared browser MySQL did not become healthy within 60 seconds.',
+			$command,
+			$process->getExitCode() ?? 1,
+			$process->getOutput(),
+			$process->getErrorOutput()
+		) );
+	}
+
+	private function resetSharedDatabase( string $rootDir ) :void {
+		$dbName = $this->definition->dbName();
+		if ( \preg_match( '/^[a-z0-9_]+$/', $dbName ) !== 1 ) {
+			throw new \RuntimeException( 'Unsafe browser lane database name: '.$dbName );
+		}
+
+		$composeFiles = [ $this->definition->sharedDatabaseComposeFile() ];
+		$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir );
+		$sql = \sprintf(
+			'DROP DATABASE IF EXISTS `%1$s`; CREATE DATABASE `%1$s`;',
+			$dbName
+		);
+		$command = \array_merge(
+			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			[ 'mysql', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '-e', $sql ]
+		);
+		$process = $this->processRunner->run(
+			$command,
+			$rootDir,
+			static function () :void {
+			},
+			$envOverrides
+		);
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			throw new \RuntimeException( $this->diagnoseCommandFailure(
+				'Failed to recreate browser lane database '.$dbName.'.',
+				$command,
+				$process->getExitCode() ?? 1,
+				$process->getOutput(),
+				$process->getErrorOutput()
+			) );
+		}
+	}
+
+	/**
 	 * @param string[] $composeFiles
 	 * @param array<string,string|false> $envOverrides
 	 */
@@ -406,7 +567,10 @@ class LocalSiteManager {
 		if ( $containerId !== '' ) {
 			if ( !$this->isSiteHealthy() ) {
 				throw new \RuntimeException(
-					$this->definition->label().' is already running but unhealthy before runtime refresh.'
+					$this->definition->label().' is already running but unhealthy before runtime refresh. '
+					.'URL: '.$this->definition->siteUrl().'/wp-admin/. '
+					.'Port: '.$this->definition->sitePort().'. '
+					.'Compose project: '.$this->definition->composeProjectName().'.'
 				);
 			}
 
@@ -456,23 +620,40 @@ class LocalSiteManager {
 		$exitCode = $this->dockerComposeExecutor->run(
 			$rootDir,
 			$composeFiles,
-			[
-				'up',
-				'-d',
-				self::DB_SERVICE_NAME,
-				self::WORDPRESS_SERVICE_NAME,
-			],
+			\array_merge(
+				[ 'up', '-d' ],
+				$this->definition->usesSharedDatabase()
+					? [ self::WORDPRESS_SERVICE_NAME ]
+					: [ self::DB_SERVICE_NAME, self::WORDPRESS_SERVICE_NAME ]
+			),
 			$envOverrides,
 			$onOutput
 		);
 		if ( $exitCode !== 0 ) {
-			throw new \RuntimeException( 'Failed to start the '.$this->definition->label().' Docker services.' );
+			throw new \RuntimeException( $this->diagnoseCommandFailure(
+				'Failed to start the '.$this->definition->label().' Docker services.',
+				$this->buildComposeCommandForExecution(
+					$composeFiles,
+					\array_merge(
+						[ 'up', '-d' ],
+						$this->definition->usesSharedDatabase()
+							? [ self::WORDPRESS_SERVICE_NAME ]
+							: [ self::DB_SERVICE_NAME, self::WORDPRESS_SERVICE_NAME ]
+					)
+				),
+				$exitCode
+			) );
 		}
 	}
 
 	private function waitForWordpressStartup() :void {
 		if ( !$this->probe->waitForHttpReady( $this->definition->siteUrl().'/wp-login.php', 90 ) ) {
-			throw new \RuntimeException( 'Local WordPress site did not become ready in time.' );
+			throw new \RuntimeException(
+				$this->definition->label().' did not serve wp-login.php within 90 seconds. '
+				.'URL: '.$this->definition->siteUrl().'/wp-login.php. '
+				.'Port: '.$this->definition->sitePort().'. '
+				.'Compose project: '.$this->definition->composeProjectName().'.'
+			);
 		}
 	}
 
@@ -483,7 +664,12 @@ class LocalSiteManager {
 	) :void {
 		$this->runtimeRefresher->refresh( $rootDir, $containerId, $onOutput );
 		if ( !$this->probe->waitForHttpReady( $this->definition->siteUrl().'/wp-login.php', 30 ) ) {
-			throw new \RuntimeException( $this->definition->label().' is unhealthy after runtime refresh.' );
+			throw new \RuntimeException(
+				$this->definition->label().' is unhealthy after runtime refresh. '
+				.'URL: '.$this->definition->siteUrl().'/wp-login.php. '
+				.'Port: '.$this->definition->sitePort().'. '
+				.'Compose project: '.$this->definition->composeProjectName().'.'
+			);
 		}
 	}
 
@@ -505,7 +691,87 @@ class LocalSiteManager {
 		}
 
 		if ( !$this->isSiteHealthy() ) {
-			throw new \RuntimeException( $this->definition->label().' is unhealthy after provisioning.' );
+			throw new \RuntimeException(
+				$this->definition->label().' is unhealthy after provisioning. '
+				.'URL: '.$this->definition->siteUrl().'/wp-admin/. '
+				.'Port: '.$this->definition->sitePort().'. '
+				.'Database: '.$this->definition->dbName().'. '
+				.'Compose project: '.$this->definition->composeProjectName().'.'
+			);
 		}
 	}
+
+	/**
+	 * @param string[] $composeFiles
+	 * @param string[] $subCommand
+	 * @return string[]
+	 */
+	private function buildComposeCommandForExecution( array $composeFiles, array $subCommand ) :array {
+		$command = [ 'docker', 'compose' ];
+		foreach ( $composeFiles as $composeFile ) {
+			$command[] = '-f';
+			$command[] = $composeFile;
+		}
+		return \array_merge( $command, $subCommand );
+	}
+
+	/**
+	 * @param string[] $composeFiles
+	 * @param string[] $subCommand
+	 * @return string[]
+	 */
+	/**
+	 * @param string[] $command
+	 */
+	private function diagnoseCommandFailure(
+		string $summary,
+		array $command,
+		int $exitCode,
+		string $stdout = '',
+		string $stderr = ''
+	) :string {
+		$message = $summary
+			."\nLane key: ".$this->definition->key()
+			."\nSite URL: ".$this->definition->siteUrl()
+			."\nDatabase: ".$this->definition->dbName()
+			."\nCompose project: ".$this->definition->composeProjectName()
+			."\nExit code: ".$exitCode
+			."\nCommand: ".$this->formatCommand( $command );
+		if ( \trim( $stderr ) !== '' ) {
+			$message .= "\nStderr: ".$this->trimDiagnosticBuffer( $stderr );
+		}
+		if ( \trim( $stdout ) !== '' ) {
+			$message .= "\nStdout: ".$this->trimDiagnosticBuffer( $stdout );
+		}
+		$message .= "\nNext diagnostic: SHIELD_BROWSER_LANE_INDEX=".$this->extractLaneIndexForDiagnostic()
+			.' php bin/shield test:site:status';
+
+		return $message;
+	}
+
+	/**
+	 * @param string[] $command
+	 */
+	private function formatCommand( array $command ) :string {
+		return \implode( ' ', \array_map(
+			static fn( string $part ) :string => \preg_match( '/\s/', $part ) === 1 ? '"'.$part.'"' : $part,
+			$command
+		) );
+	}
+
+	private function trimDiagnosticBuffer( string $buffer ) :string {
+		$buffer = \trim( $buffer );
+		if ( \strlen( $buffer ) <= 1200 ) {
+			return $buffer;
+		}
+		return \substr( $buffer, 0, 1200 ).'...';
+	}
+
+	private function extractLaneIndexForDiagnostic() :string {
+		if ( \preg_match( '/browser-lane-(\d+)/', $this->definition->key(), $matches ) === 1 ) {
+			return $matches[ 1 ];
+		}
+		return '1';
+	}
+
 }

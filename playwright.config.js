@@ -9,14 +9,14 @@ if ( !baseUrl ) {
 module.exports = defineConfig( {
 	testDir: './tests/browser',
 	timeout: 60_000,
-	outputDir: './test-results/playwright',
+	outputDir: process.env.SHIELD_BROWSER_OUTPUT_DIR || './test-results/playwright',
 	expect: {
 		timeout: 10_000,
 	},
 	fullyParallel: false,
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 1 : 0,
-	workers: process.env.CI ? 1 : undefined,
+	workers: 1,
 	reporter: process.env.CI ? [ [ 'github' ], [ 'html', { open: 'never' } ] ] : 'list',
 	use: {
 		baseURL: baseUrl,

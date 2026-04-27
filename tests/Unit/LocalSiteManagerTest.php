@@ -323,6 +323,38 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( [ 'up', '-d', 'db', 'wordpress' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
 	}
 
+	public function testBrowserLaneResetUsesSharedDatabaseWithoutTearingItDown() :void {
+		$processRunner = new RecordingProcessRunner( [ 0, 0, 0, 0 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0, 0 ] );
+		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
+
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::browserLane( 2 ),
+			$processRunner,
+			new RecordingTestingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			$probe,
+			$runtimeRefresher
+		);
+
+		$exitCode = $manager->reset( $this->projectRoot, true );
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertSame( [ 'tests/docker/docker-compose.browser-db.yml' ], $dockerComposeExecutor->calls[ 0 ][ 'compose_files' ] );
+		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
+		$this->assertSame( 'shield-browser-db', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
+		$this->assertSame( [ 'tests/docker/docker-compose.browser-lane.yml' ], $dockerComposeExecutor->calls[ 1 ][ 'compose_files' ] );
+		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
+		$this->assertSame( 'shield-test-site-lane-2', $dockerComposeExecutor->calls[ 1 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
+		$this->assertSame( [ 'tests/docker/docker-compose.browser-lane.yml' ], $dockerComposeExecutor->calls[ 2 ][ 'compose_files' ] );
+		$this->assertSame( [ 'up', '-d', 'wordpress' ], $dockerComposeExecutor->calls[ 2 ][ 'sub_command' ] );
+		$this->assertSame( '8891', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_PORT' ] );
+		$this->assertSame( 'shield_test_site_lane_2', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_DB_NAME' ] );
+		$this->assertSame( 'shield-browser-db:3306', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_DB_HOST' ] );
+		$this->assertContains( 'DROP DATABASE IF EXISTS `shield_test_site_lane_2`; CREATE DATABASE `shield_test_site_lane_2`;', $processRunner->calls[ 2 ][ 'command' ] );
+	}
+
 	public function testResetFailsFastWhenBrowserPrerequisitesAreMissing() :void {
 		$this->expectExceptionMessage( 'Playwright is not installed' );
 		$this->cleanupTrackedTempDirs();

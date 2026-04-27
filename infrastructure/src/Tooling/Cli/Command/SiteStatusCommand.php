@@ -35,6 +35,9 @@ class SiteStatusCommand extends Command {
 		try {
 			$status = $this->siteManager->status( $this->projectRoot );
 			$output->writeln( sprintf( 'Site URL: %s', $status['site_url'] ) );
+			$output->writeln( sprintf( 'Lane key: %s', $status['lane_key'] ) );
+			$output->writeln( sprintf( 'Compose project: %s', $status['compose_project'] ) );
+			$output->writeln( sprintf( 'Database: %s', $status['db_name'] ) );
 			$output->writeln( sprintf( 'Site healthy: %s', $status['site_healthy'] ? 'yes' : 'no' ) );
 			$output->writeln( sprintf( 'Port open: %s', $status['port_open'] ? 'yes' : 'no' ) );
 			$output->writeln( sprintf( 'Admin user: %s', $status['admin_user'] ) );

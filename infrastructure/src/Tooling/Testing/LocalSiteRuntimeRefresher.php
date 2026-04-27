@@ -119,7 +119,7 @@ class LocalSiteRuntimeRefresher {
 			$rootDir,
 			$containerId,
 			$refreshPlan,
-			$this->workspacePaths( $rootDir ),
+			$this->workspacePaths( $rootDir, $containerId ),
 			$onOutput
 		);
 	}
@@ -415,8 +415,8 @@ PHP;
 	/**
 	 * @return WorkspacePaths
 	 */
-	private function workspacePaths( string $rootDir ) :array {
-		$workspace = Path::join( $rootDir, self::TEMP_DIR );
+	private function workspacePaths( string $rootDir, string $containerId ) :array {
+		$workspace = Path::join( $rootDir, self::TEMP_DIR, \substr( \sha1( $containerId ), 0, 12 ) );
 		if ( !\is_dir( $workspace ) && !\mkdir( $workspace, 0777, true ) && !\is_dir( $workspace ) ) {
 			throw new \RuntimeException( 'Failed to create local browser runtime refresh workspace: '.$workspace );
 		}

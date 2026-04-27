@@ -64,7 +64,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 			$runner->calls[ 2 ][ 'command' ][ 3 ]
 		);
 
-		$fileList = (string)\file_get_contents( Path::join( $this->projectRoot, 'tmp/.browser-runtime-refresh/runtime-files.txt' ) );
+		$fileList = (string)\file_get_contents( Path::join( $this->runtimeWorkspace(), 'runtime-files.txt' ) );
 		$this->assertStringContainsString( "assets/images/logo.png\n", $fileList );
 		$this->assertStringContainsString( "flags/index.html\n", $fileList );
 		$this->assertStringContainsString( "vendor/autoload.php\n", $fileList );
@@ -177,7 +177,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		}
 
 		$this->assertCount( 7, $runner->calls );
-		$deleteList = (string)\file_get_contents( Path::join( $this->projectRoot, 'tmp/.browser-runtime-refresh/deleted-managed-paths.json' ) );
+		$deleteList = (string)\file_get_contents( Path::join( $this->runtimeWorkspace(), 'deleted-managed-paths.json' ) );
 		$this->assertStringContainsString( 'flags/obsolete.flag', $deleteList );
 		$this->assertStringContainsString( 'vendor_prefixed/autoload.php', $deleteList );
 		$this->assertSame( 'docker', $runner->calls[ 2 ][ 'command' ][ 0 ] );
@@ -278,6 +278,10 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 			'generated_at_unix' => 1,
 			'files' => $files,
 		];
+	}
+
+	private function runtimeWorkspace() :string {
+		return Path::join( $this->projectRoot, 'tmp/.browser-runtime-refresh', \substr( \sha1( 'wordpress-container' ), 0, 12 ) );
 	}
 
 	/**

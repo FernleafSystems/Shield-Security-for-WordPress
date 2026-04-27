@@ -26,6 +26,16 @@ class LocalSiteDefinition {
 
 	private string $adminEmail;
 
+	private string $composeFile;
+
+	private string $dbHost;
+
+	private bool $usesSharedDatabase;
+
+	private string $sharedDatabaseComposeFile;
+
+	private string $sharedDatabaseComposeProjectName;
+
 	public function __construct(
 		string $key,
 		string $label,
@@ -37,8 +47,23 @@ class LocalSiteDefinition {
 		string $siteTitle,
 		string $adminUser = 'admin',
 		string $adminPassword = 'password',
-		string $adminEmail = 'devnull@example.com'
+		string $adminEmail = 'devnull@example.com',
+		string $composeFile = 'tests/docker/docker-compose.local-site.yml',
+		string $dbHost = 'db:3306',
+		bool $usesSharedDatabase = false,
+		string $sharedDatabaseComposeFile = '',
+		string $sharedDatabaseComposeProjectName = ''
 	) {
+		if ( $composeFile === '' ) {
+			throw new \InvalidArgumentException( 'Local site compose file must not be empty.' );
+		}
+		if ( $dbHost === '' ) {
+			throw new \InvalidArgumentException( 'Local site database host must not be empty.' );
+		}
+		if ( $usesSharedDatabase && ( $sharedDatabaseComposeFile === '' || $sharedDatabaseComposeProjectName === '' ) ) {
+			throw new \InvalidArgumentException( 'Shared database sites must define shared database compose metadata.' );
+		}
+
 		$this->key = $key;
 		$this->label = $label;
 		$this->composeProjectName = $composeProjectName;
@@ -50,6 +75,15 @@ class LocalSiteDefinition {
 		$this->adminUser = $adminUser;
 		$this->adminPassword = $adminPassword;
 		$this->adminEmail = $adminEmail;
+		$this->composeFile = $composeFile;
+		$this->dbHost = $dbHost;
+		$this->usesSharedDatabase = $usesSharedDatabase;
+		$this->sharedDatabaseComposeFile = $sharedDatabaseComposeFile;
+		$this->sharedDatabaseComposeProjectName = $sharedDatabaseComposeProjectName;
+	}
+
+	public function composeFile() :string {
+		return $this->composeFile;
 	}
 
 	public function adminEmail() :string {
@@ -70,6 +104,10 @@ class LocalSiteDefinition {
 
 	public function dbName() :string {
 		return $this->dbName;
+	}
+
+	public function dbHost() :string {
+		return $this->dbHost;
 	}
 
 	public function key() :string {
@@ -94,5 +132,17 @@ class LocalSiteDefinition {
 
 	public function siteUrl() :string {
 		return $this->siteUrl;
+	}
+
+	public function sharedDatabaseComposeFile() :string {
+		return $this->sharedDatabaseComposeFile;
+	}
+
+	public function sharedDatabaseComposeProjectName() :string {
+		return $this->sharedDatabaseComposeProjectName;
+	}
+
+	public function usesSharedDatabase() :bool {
+		return $this->usesSharedDatabase;
 	}
 }

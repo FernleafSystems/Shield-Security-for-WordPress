@@ -1,0 +1,40 @@
+services:
+  wordpress:
+    image: wordpress:php${PHP_VERSION:-8.2}-apache
+    environment:
+      WORDPRESS_DB_HOST: ${SHIELD_LOCAL_SITE_DB_HOST:-shield-browser-db:3306}
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: testpass
+      WORDPRESS_DB_NAME: ${SHIELD_LOCAL_SITE_DB_NAME:-shield_test_site_lane_1}
+    ports:
+      - "${SHIELD_LOCAL_SITE_PORT:-8890}:80"
+    volumes:
+      - site-wp:/var/www/html
+      - site-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-local-browser-runtime.ini:ro
+    networks:
+      - browser-shared
+
+  wp-cli:
+    image: wordpress:cli-php${PHP_VERSION:-8.2}
+    environment:
+      WORDPRESS_DB_HOST: ${SHIELD_LOCAL_SITE_DB_HOST:-shield-browser-db:3306}
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: testpass
+      WORDPRESS_DB_NAME: ${SHIELD_LOCAL_SITE_DB_NAME:-shield_test_site_lane_1}
+    volumes:
+      - site-wp:/var/www/html
+      - site-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - ../../:/app
+      - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-local-browser-runtime.ini:ro
+    networks:
+      - browser-shared
+
+volumes:
+  site-wp:
+  site-plugin:
+
+networks:
+  browser-shared:
+    external: true
+    name: shield-browser-tests
