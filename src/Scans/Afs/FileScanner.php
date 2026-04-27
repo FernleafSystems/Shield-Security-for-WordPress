@@ -25,27 +25,48 @@ class FileScanner {
 		$fileExcluded = $this->isFileExcludedFromScans( $fullPath );
 
 		$validFile = false;
+		$skipMalwareScan = false;
 		try {
-			$validFile =
-				$fileExcluded
-				|| ( $scanCon->isEnabled() && ( new Scans\WpCoreFile( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() )
-				|| ( $scanCon->isEnabled() && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() )
-				|| ( $scanCon->isScanEnabledWpRoot() && ( new Scans\WpRootUnidentified( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() )
-				|| ( $scanCon->isScanEnabledPlugins() && ( new Scans\PluginFile( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() )
-				|| ( $scanCon->isScanEnabledThemes() && ( new Scans\ThemeFile( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() )
-				|| ( $scanCon->isScanEnabledWpContent() && ( new Scans\WpContentUnidentified( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() );
+			if ( $fileExcluded ) {
+				$validFile = true;
+			}
+			if ( !$validFile && $scanCon->isEnabled() && ( new Scans\WpCoreFile( $fullPath ) )
+					->setScanActionVO( $action )
+					->isFileValid() ) {
+				$validFile = true;
+				$skipMalwareScan = true;
+			}
+			if ( !$validFile && $scanCon->isEnabled() && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
+					->setScanActionVO( $action )
+					->isFileValid() ) {
+				$validFile = true;
+			}
+			if ( !$validFile && $scanCon->isScanEnabledWpRoot() && ( new Scans\WpRootUnidentified( $fullPath ) )
+					->setScanActionVO( $action )
+					->isFileValid() ) {
+				$validFile = true;
+			}
+			if ( !$validFile && $scanCon->isScanEnabledPlugins() ) {
+				$pluginScan = ( new Scans\PluginFile( $fullPath ) )
+					->setScanActionVO( $action );
+				if ( $pluginScan->isFileValid() ) {
+					$validFile = true;
+					$skipMalwareScan = $pluginScan->isVerifiedHashTrustedSource();
+				}
+			}
+			if ( !$validFile && $scanCon->isScanEnabledThemes() ) {
+				$themeScan = ( new Scans\ThemeFile( $fullPath ) )
+					->setScanActionVO( $action );
+				if ( $themeScan->isFileValid() ) {
+					$validFile = true;
+					$skipMalwareScan = $themeScan->isVerifiedHashTrustedSource();
+				}
+			}
+			if ( !$validFile && $scanCon->isScanEnabledWpContent() && ( new Scans\WpContentUnidentified( $fullPath ) )
+					->setScanActionVO( $action )
+					->isFileValid() ) {
+				$validFile = true;
+			}
 		}
 		catch ( Exceptions\WpCoreFileMissingException $me ) {
 			$item = $this->getResultItem( $fullPath );
@@ -102,7 +123,10 @@ class FileScanner {
 			//Never reached
 		}
 
-		if ( !$fileExcluded && $scanCon->isEnabledMalwareScanPHP() && ( empty( $item ) || !$item->is_missing ) ) {
+		if ( !$skipMalwareScan
+			 && !$fileExcluded
+			 && $scanCon->isEnabledMalwareScanPHP()
+			 && ( empty( $item ) || !$item->is_missing ) ) {
 			try {
 				( new Scans\MalwareFile( $fullPath ) )
 					->setScanActionVO( $action )

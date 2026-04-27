@@ -18,19 +18,11 @@ class Retrieve {
 
 	private static array $hashes;
 
+	private static array $trustedSources;
+
 	public function __construct() {
 		self::$hashes ??= [];
-	}
-
-	/**
-	 * @param WpPluginVo|WpThemeVo $vo
-	 * @throws \Exception
-	 */
-	private function fromLocalStore( $vo ) :array {
-		return ( new StoreAction\Load() )
-			->setAsset( $vo )
-			->run()
-			->getSnapData();
+		self::$trustedSources ??= [];
 	}
 
 	/**
@@ -53,16 +45,30 @@ class Retrieve {
 	 * @throws AssetHashesNotFound|\Exception
 	 */
 	public function byVO( $vo ) :array {
+		return $this->byVOWithSource( $vo )[ 'hashes' ];
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $vo
+	 * @return array{hashes:array, trusted_source:bool}
+	 * @throws AssetHashesNotFound|\Exception
+	 */
+	public function byVOWithSource( $vo ) :array {
 		$cacheKey = $this->buildCacheKey( $vo );
 		$hashes = self::$hashes[ $cacheKey ] ?? null;
+		$trustedSource = self::$trustedSources[ $cacheKey ] ?? false;
 
 		if ( \is_null( $hashes ) ) {
+			$trustedSource = false;
 			try {
 				$hashes = $this->fromCsHashes( $vo );
+				$trustedSource = true;
 			}
 			catch ( \Exception $e ) {
 				try {
-					$hashes = $this->fromLocalStore( $vo );
+					$localStore = $this->fromLocalStoreWithMeta( $vo );
+					$hashes = $localStore[ 'hashes' ];
+					$trustedSource = $localStore[ 'trusted_source' ];
 				}
 				catch ( \Exception $e ) {
 					$hashes = [];
@@ -71,12 +77,31 @@ class Retrieve {
 
 			// cache it.
 			self::$hashes[ $cacheKey ] = $hashes;
+			self::$trustedSources[ $cacheKey ] = $trustedSource;
 		}
 
 		if ( empty( $hashes ) ) {
 			throw new AssetHashesNotFound( sprintf( __( 'Could not locate hashes for VO: %s', 'wp-simple-firewall' ), $vo->slug ) );
 		}
-		return $hashes;
+		return [
+			'hashes'         => $hashes,
+			'trusted_source' => $trustedSource,
+		];
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $vo
+	 * @return array{hashes:array, trusted_source:bool}
+	 * @throws \Exception
+	 */
+	private function fromLocalStoreWithMeta( $vo ) :array {
+		$store = ( new StoreAction\Load() )
+			->setAsset( $vo )
+			->run();
+		return [
+			'hashes'         => $store->getSnapData(),
+			'trusted_source' => ( $store->getSnapMeta()[ 'live_hashes' ] ?? false ) === true,
+		];
 	}
 
 	/**

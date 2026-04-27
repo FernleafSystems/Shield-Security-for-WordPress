@@ -113,9 +113,12 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 	}
 
 	private function resetHashMemoization() :void {
-		$property = ( new \ReflectionClass( Retrieve::class ) )->getProperty( 'hashes' );
-		$property->setAccessible( true );
-		$property->setValue( null, [] );
+		$reflection = new \ReflectionClass( Retrieve::class );
+		foreach ( [ 'hashes', 'trustedSources' ] as $propertyName ) {
+			$property = $reflection->getProperty( $propertyName );
+			$property->setAccessible( true );
+			$property->setValue( null, [] );
+		}
 	}
 
 	private function resetHashesStorageDir() :void {
