@@ -119,7 +119,7 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 					return null;
 				}
 
-				this.applyLayerHtml( body, resp.data.html );
+				this.applyLayerHtml( body, this.prepareLayerHtml( layerKey, resp.data.html ) );
 				onSuccess( resp.data );
 				return resp.data;
 			} )
@@ -151,6 +151,11 @@ export class DrillDownAsyncControllerBase extends BaseAutoExecComponent {
 
 	applyLayerHtml( body, html ) {
 		this.replaceLayerBodyHtml( body, html, true );
+	}
+
+	prepareLayerHtml( layerKey, html ) {
+		void layerKey;
+		return html;
 	}
 
 	updateOperatorRootStep( rootStepJson ) {

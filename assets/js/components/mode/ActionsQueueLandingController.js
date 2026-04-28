@@ -197,55 +197,17 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	}
 
 	loadDetailLayer( showPlaceholder = true ) {
-		if ( this.selectedGroup === null || this.shellEl === null ) {
+		if ( this.selectedGroup === null ) {
 			return Promise.resolve( null );
 		}
 
-		const renderAction = this.selectedGroup.detail_render_action;
-		const layer = this.getLayerByKey( this.shellEl, 'detail' );
-		const body = layer?.querySelector( '.drill-layer__body' ) || null;
-		if ( layer === null || body === null ) {
-			return Promise.resolve( null );
-		}
-
-		const requestKey = `${Date.now()}-${Math.random()}`;
-		this.layerRequests.detail = requestKey;
-
-		if ( showPlaceholder ) {
-			this.replaceLayerBodyHtml( body, this.buildLoadingMarkup( this.getDetailLoadingText() ) );
-		}
-		this.setLayerBusy( layer, true, this.getDetailLoadingText() );
-
-		return ( new AjaxService() )
-			.send( renderAction, false, true )
-			.then( ( resp ) => {
-				if ( this.layerRequests.detail !== requestKey ) {
-					return null;
-				}
-
-				if ( !resp?.success || typeof resp?.data?.html !== 'string' ) {
-					this.renderLayerFailure( body, 'detail' );
-					this.announceLayerMessage( layer, this.getLayerFailureText( 'detail' ) );
-					return null;
-				}
-
-				this.applyLayerHtml( body, this.buildDetailLayerHtml( resp.data.html ) );
-				this.applyDetailLayerResponse();
-				return resp.data;
-			} )
-			.catch( () => {
-				if ( this.layerRequests.detail === requestKey ) {
-					this.renderLayerFailure( body, 'detail' );
-					this.announceLayerMessage( layer, this.getLayerFailureText( 'detail' ) );
-				}
-				return null;
-			} )
-			.finally( () => {
-				if ( this.layerRequests.detail === requestKey ) {
-					this.setLayerBusy( layer, false );
-					delete this.layerRequests.detail;
-				}
-			} );
+		return this.loadLayerContent(
+			'detail',
+			this.selectedGroup.detail_render_action,
+			showPlaceholder,
+			this.getDetailLoadingText(),
+			() => this.applyDetailLayerResponse()
+		);
 	}
 
 	applyGroupsLayerResponse( data ) {
@@ -867,6 +829,12 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 	buildLoadingMarkup( message ) {
 		return `<div class="text-muted small" data-actions-queue-pane-placeholder="1">${this.escapeHtml( message )}</div>`;
+	}
+
+	prepareLayerHtml( layerKey, html ) {
+		return layerKey === 'detail'
+			? this.buildDetailLayerHtml( html )
+			: super.prepareLayerHtml( layerKey, html );
 	}
 
 	readBucketSelectionPayload( selection ) {
