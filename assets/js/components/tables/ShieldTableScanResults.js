@@ -40,7 +40,7 @@ export class ShieldTableScanResults extends ShieldTableBase {
 			datatable: this.$table,
 			scanResultsAction: this._base_data.ajax.table_action,
 			renderItemAnalysis: this._base_data.ajax.render_item_analysis,
-			onAction: ( action, rids = [] ) => this.bulkTableAction.call( this, action, rids ),
+			onAction: ( action, rids = [], launcher = null ) => this.bulkTableAction.call( this, action, rids, launcher ),
 			namespace: 'shieldScanResults',
 		} );
 		this.syncDynamicUi();
@@ -77,12 +77,12 @@ export class ShieldTableScanResults extends ShieldTableBase {
 				}
 				else {
 					this.clearTableBusy( settings );
-					alert( this.extractResponseMessage( resp ) );
+					this.showErrorMessage( this.extractResponseMessage( resp ) );
 				}
 			} );
 	}
 
-	bulkTableAction( action, RIDs = [] ) {
+	bulkTableAction( action, RIDs = [], launcher = null ) {
 		if ( RIDs.length === 0 ) {
 			RIDs = [ 'ignore', 'unignore' ].includes( action )
 				? this.getSelectedRIDsForScanResultAction( action )
@@ -100,7 +100,10 @@ export class ShieldTableScanResults extends ShieldTableBase {
 				this.$table,
 				data,
 				'Communications error with site.',
-				{ resetPaging: false }
+				{
+					resetPaging: false,
+					launcher,
+				}
 			);
 		}
 	}

@@ -5,7 +5,7 @@ const DIALOG_ID = 'AptoGeneralPurposeDialog';
 const TITLE_ID = 'AptoGeneralPurposeDialogTitle';
 const MESSAGE_ID = 'AptoGeneralPurposeDialogMessage';
 const DIALOG_Z_INDEX = '100000';
-let pendingConfirmPromise = null;
+let pendingDialogPromise = null;
 
 export function resolveDialogLauncher( event = null, node = null ) {
 	if ( event?.currentTarget instanceof HTMLElement ) {
@@ -42,13 +42,84 @@ export function confirmDialog( {
 	danger = false,
 	launcher = null,
 } = {} ) {
-	if ( pendingConfirmPromise !== null ) {
+	if ( pendingDialogPromise !== null ) {
 		return Promise.resolve( false );
 	}
 
+	const dialogElements = resolveDialogElements();
+	if ( dialogElements === null ) {
+		return Promise.resolve( false );
+	}
+	const { confirmButton, cancelButton } = dialogElements;
+
+	prepareDialogContent(
+		dialogElements,
+		normalizeText( title ) || normalizeString( 'confirm_title', 'Confirm Action' ),
+		message
+	);
+	setDialogFooterMode( dialogElements, {
+		confirmLabel: normalizeText( confirmLabel ) || normalizeString( 'confirm', 'Confirm' ),
+		cancelLabel: normalizeText( cancelLabel ) || normalizeString( 'cancel', 'Cancel' ),
+		showCancel: true,
+		danger,
+	} );
+
+	const confirmPromise = openDialog( dialogElements, {
+		launcher,
+		focusTarget: danger ? cancelButton : confirmButton,
+		resolveValue: false,
+		handlers: {
+			confirm: () => true,
+			cancel: () => false,
+		},
+	} );
+
+	return confirmPromise;
+}
+
+export function messageDialog( {
+	title = '',
+	message = '',
+	confirmLabel = '',
+	launcher = null,
+} = {} ) {
+	if ( pendingDialogPromise !== null ) {
+		return Promise.resolve();
+	}
+
+	const dialogElements = resolveDialogElements();
+	if ( dialogElements === null ) {
+		return Promise.resolve();
+	}
+	const { confirmButton } = dialogElements;
+
+	prepareDialogContent(
+		dialogElements,
+		normalizeText( title ) || normalizeString( 'message_title', 'Message' ),
+		message
+	);
+	setDialogFooterMode( dialogElements, {
+		confirmLabel: normalizeText( confirmLabel ) || normalizeString( 'close', 'Close' ),
+		cancelLabel: normalizeString( 'cancel', 'Cancel' ),
+		showCancel: false,
+		danger: false,
+	} );
+
+	return openDialog( dialogElements, {
+		launcher,
+		focusTarget: confirmButton,
+		resolveValue: undefined,
+		handlers: {
+			confirm: () => undefined,
+			cancel: () => undefined,
+		},
+	} );
+}
+
+function resolveDialogElements() {
 	const dialog = document.getElementById( DIALOG_ID );
 	if ( !( dialog instanceof HTMLElement ) ) {
-		return Promise.resolve( false );
+		return null;
 	}
 	if ( dialog.parentElement !== document.body ) {
 		document.body.appendChild( dialog );
@@ -65,17 +136,23 @@ export function confirmDialog( {
 		|| !( confirmButton instanceof HTMLButtonElement )
 		|| !( cancelButton instanceof HTMLButtonElement )
 	) {
-		return Promise.resolve( false );
+		return null;
 	}
 
-	const normalizedTitle = normalizeText( title ) || normalizeString( 'confirm_title', 'Confirm Action' );
+	return {
+		dialog,
+		titleEl,
+		messageEl,
+		confirmButton,
+		cancelButton,
+	};
+}
+
+function prepareDialogContent( dialogElements, title, message ) {
+	const { dialog, titleEl, messageEl } = dialogElements;
 	const normalizedMessage = normalizeText( message );
-	titleEl.textContent = normalizedTitle;
+	titleEl.textContent = normalizeText( title );
 	messageEl.textContent = normalizedMessage;
-	confirmButton.textContent = normalizeText( confirmLabel ) || normalizeString( 'confirm', 'Confirm' );
-	cancelButton.textContent = normalizeText( cancelLabel ) || normalizeString( 'cancel', 'Cancel' );
-	confirmButton.classList.toggle( 'btn-danger', danger );
-	confirmButton.classList.toggle( 'btn-primary', !danger );
 
 	dialog.setAttribute( 'aria-labelledby', TITLE_ID );
 	if ( normalizedMessage.length > 0 ) {
@@ -84,39 +161,78 @@ export function confirmDialog( {
 	else {
 		dialog.removeAttribute( 'aria-describedby' );
 	}
+}
 
-	let resolveConfirm;
-	const confirmPromise = new Promise( ( resolve ) => {
-		resolveConfirm = resolve;
+function setDialogFooterMode( dialogElements, {
+	confirmLabel,
+	cancelLabel,
+	showCancel,
+	danger,
+} ) {
+	const { confirmButton, cancelButton } = dialogElements;
+	confirmButton.textContent = confirmLabel;
+	cancelButton.textContent = normalizeText( cancelLabel ) || normalizeString( 'cancel', 'Cancel' );
+	confirmButton.classList.toggle( 'btn-danger', danger );
+	confirmButton.classList.toggle( 'btn-primary', !danger );
+	cancelButton.hidden = !showCancel;
+	cancelButton.disabled = !showCancel;
+}
+
+function openDialog( dialogElements, {
+	launcher = null,
+	focusTarget,
+	resolveValue,
+	handlers,
+} ) {
+	const { dialog, confirmButton, cancelButton } = dialogElements;
+	let dialogValue = resolveValue;
+
+	let resolveDialog = ( value ) => {
+		void value;
+	};
+	const dialogPromise = new Promise( ( resolve ) => {
+		resolveDialog = resolve;
 	} );
-	pendingConfirmPromise = confirmPromise;
+	pendingDialogPromise = dialogPromise;
 	let isResolved = false;
-	const finish = ( value ) => {
+	const finish = () => {
 		if ( isResolved ) {
 			return;
 		}
 		isResolved = true;
-		cleanup();
-		pendingConfirmPromise = null;
-		resolveConfirm( value );
+		BootstrapModals.Hide( dialog );
 	};
 	const cleanup = () => {
 		confirmButton.removeEventListener( 'click', confirmHandler );
 		cancelButton.removeEventListener( 'click', cancelHandler );
 		dialog.removeEventListener( 'hidden.bs.modal', hiddenHandler );
 		dialog.removeEventListener( 'shown.bs.modal', shownHandler );
+		setDialogFooterMode( dialogElements, {
+			confirmLabel: normalizeString( 'confirm', 'Confirm' ),
+			cancelLabel: normalizeString( 'cancel', 'Cancel' ),
+			showCancel: true,
+			danger: false,
+		} );
 	};
 	const confirmHandler = () => {
-		finish( true );
-		BootstrapModals.Hide( dialog );
+		dialogValue = handlers.confirm();
+		finish();
 	};
 	const cancelHandler = () => {
-		finish( false );
-		BootstrapModals.Hide( dialog );
+		dialogValue = handlers.cancel();
+		finish();
 	};
-	const hiddenHandler = () => finish( false );
+	const hiddenHandler = () => {
+		if ( !isResolved ) {
+			dialogValue = handlers.cancel();
+			isResolved = true;
+		}
+		cleanup();
+		pendingDialogPromise = null;
+		resolveDialog( dialogValue );
+	};
 	const shownHandler = () => {
-		focusElement( danger ? cancelButton : confirmButton );
+		focusElement( focusTarget );
 	};
 
 	dialog.addEventListener( 'shown.bs.modal', shownHandler );
@@ -129,10 +245,12 @@ export function confirmDialog( {
 	}
 
 	if ( !BootstrapModals.Show( dialog ) ) {
-		finish( false );
+		cleanup();
+		pendingDialogPromise = null;
+		resolveDialog( handlers.cancel() );
 	}
 
-	return confirmPromise;
+	return dialogPromise;
 }
 
 function normalizeString( key, fallback ) {

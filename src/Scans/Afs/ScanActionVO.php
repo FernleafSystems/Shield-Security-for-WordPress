@@ -16,4 +16,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
  */
 class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO {
 	public const DEFAULT_SLEEP_SECONDS = 0.1;
+
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+		switch ( $key ) {
+			case 'valid_files':
+				$value = \is_array( $value ) ? $value : [];
+				break;
+			default:
+				break;
+		}
+		return $value;
+	}
 }

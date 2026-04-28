@@ -8,6 +8,7 @@ import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
+import { messageDialog } from "../ui/ShieldDialog";
 
 export class ShieldTableBase extends BaseComponent {
 
@@ -100,7 +101,7 @@ export class ShieldTableBase extends BaseComponent {
 			}
 			else {
 				this.clearTableBusy( settings );
-				alert( this.extractResponseMessage( resp ) );
+				this.showErrorMessage( this.extractResponseMessage( resp ) );
 			}
 		} );
 	}
@@ -286,14 +287,19 @@ export class ShieldTableBase extends BaseComponent {
 		const datatable = this.resolveDatatable( datatableOrSettings );
 		const processingDatatable = /** @type {{processing?: ( isBusy: boolean ) => void}|null} */ ( datatable );
 		if ( processingDatatable === null || typeof processingDatatable.processing !== 'function' ) {
-			return;
+			return false;
 		}
 
 		processingDatatable.processing( isBusy );
+		return true;
 	}
 
 	clearTableBusy( datatableOrSettings = null ) {
 		this.setTableBusy( datatableOrSettings, false );
+		ShieldTableBase.applyBusyStateToContainer(
+			this.resolveTableContainer( datatableOrSettings ),
+			false
+		);
 	}
 
 	static applyBusyStateToContainer( container, isBusy ) {
@@ -348,8 +354,26 @@ export class ShieldTableBase extends BaseComponent {
 			notificationService.showMessage( message, success );
 		}
 		else {
-			alert( message );
+			this.showTableMessage( message );
 		}
+	}
+
+	showTableMessage( message, launcher = null ) {
+		return messageDialog( {
+			title: normalizeShieldString( 'message_title', 'Message' ),
+			message,
+			confirmLabel: normalizeShieldString( 'close', 'Close' ),
+			launcher,
+		} );
+	}
+
+	showErrorMessage( message, launcher = null ) {
+		return messageDialog( {
+			title: normalizeShieldString( 'request_failed', 'Request Failed' ),
+			message,
+			confirmLabel: normalizeShieldString( 'close', 'Close' ),
+			launcher,
+		} );
 	}
 
 	dispatchTableActionSuccess( datatableOrSettings, reqData, responseData ) {
@@ -391,13 +415,16 @@ export class ShieldTableBase extends BaseComponent {
 			}
 			else {
 				this.clearTableBusy( datatable );
-				alert( this.extractResponseMessage( resp, fallbackErrorMessage ) );
+				this.showErrorMessage(
+					this.extractResponseMessage( resp, fallbackErrorMessage ),
+					options.launcher
+				);
 			}
 			return resp;
 		} )
 		.catch( ( error ) => {
 			this.clearTableBusy( datatable );
-			alert( fallbackErrorMessage );
+			this.showErrorMessage( fallbackErrorMessage, options.launcher );
 			throw error;
 		} );
 	}
@@ -443,4 +470,10 @@ export class ShieldTableBase extends BaseComponent {
 			datatable.ajax.reload( null, options.resetPaging ?? true );
 		}
 	}
+}
+
+function normalizeShieldString( key, fallback ) {
+	return typeof shieldStrings !== 'undefined' && typeof shieldStrings.string === 'function'
+		? String( shieldStrings.string( key ) || '' ).trim() || fallback
+		: fallback;
 }

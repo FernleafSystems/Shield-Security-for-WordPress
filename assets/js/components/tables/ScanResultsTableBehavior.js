@@ -1,5 +1,5 @@
 import { ScanItemAnalysisModal } from "../scans/ScanItemAnalysisModal";
-import { confirmDialog, resolveDialogConfirmLabel, resolveDialogLauncher } from "../ui/ShieldDialog";
+import { confirmDialog, messageDialog, resolveDialogConfirmLabel, resolveDialogLauncher } from "../ui/ShieldDialog";
 
 /**
  * @typedef {object} ScanResultsRowActionOptions
@@ -7,7 +7,7 @@ import { confirmDialog, resolveDialogConfirmLabel, resolveDialogLauncher } from 
  * @property {any} [datatable]
  * @property {any} [scanResultsAction]
  * @property {any} [renderItemAnalysis]
- * @property {((action: string, rids?: string[]) => void)|null} [onAction]
+ * @property {((action: string, rids?: string[], launcher?: HTMLElement|null) => void)|null} [onAction]
  * @property {string} [namespace]
  */
 
@@ -128,13 +128,19 @@ export function buildScanResultsButtons( {
 			name: 'selected-repair',
 			className: 'action selected-action repair btn-outline-secondary mb-2',
 			action: async ( e, dt, node ) => {
+				const launcher = resolveDialogLauncher( e, node );
 				if ( dt.rows( { selected: true } ).count() > 20 ) {
-					alert( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item." );
+					await messageDialog( {
+						title: shieldStrings.string( 'message_title' ),
+						message: shieldStrings.string( 'scan_repair_limit_exceeded' ),
+						confirmLabel: shieldStrings.string( 'close' ),
+						launcher,
+					} );
 				}
 				else if ( await confirmScanResultsBulkAction( {
 					message: shieldStrings.string( 'absolutely_sure' ),
 					danger: true,
-					launcher: resolveDialogLauncher( e, node ),
+					launcher,
 				} ) ) {
 					onBulkAction( 'repair-delete' );
 				}
@@ -206,7 +212,7 @@ export function bindScanResultsRowActions( {
 				if ( action === 'repair' ) {
 					datatable?.rows?.().deselect?.();
 				}
-				onAction( action, [ target.dataset.rid ] );
+				onAction( action, [ target.dataset.rid ], target );
 				return false;
 			}
 		);

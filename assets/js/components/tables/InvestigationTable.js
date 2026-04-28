@@ -101,7 +101,7 @@ export class InvestigationTable extends ShieldTableBase {
 			}
 			else {
 				this.clearTableBusy( settings );
-				alert( this.extractResponseMessage( resp ) );
+				this.showErrorMessage( this.extractResponseMessage( resp ) );
 			}
 		} );
 	}

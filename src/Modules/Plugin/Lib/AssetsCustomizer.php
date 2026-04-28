@@ -76,6 +76,9 @@ class AssetsCustomizer {
 							'close'           => __( 'Close', 'wp-simple-firewall' ),
 							'confirm'         => __( 'Confirm', 'wp-simple-firewall' ),
 							'confirm_title'   => __( 'Confirm Action', 'wp-simple-firewall' ),
+							'message_title'   => __( 'Message', 'wp-simple-firewall' ),
+							'request_failed'  => __( 'Request Failed', 'wp-simple-firewall' ),
+							'scan_repair_limit_exceeded' => __( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item.", 'wp-simple-firewall' ),
 						],
 						'comps'   => \array_map(
 							fn( array $c ) => \is_callable( $c[ 'data' ] ?? null ) ? \call_user_func( $c[ 'data' ] ) : $c[ 'data' ],
