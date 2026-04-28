@@ -180,44 +180,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'themes', $definitions->healthyIgnoredSourceForGroupKey( 'themes' ) );
 		$this->assertSame( 'malware', $definitions->healthyIgnoredSourceForGroupKey( 'malware' ) );
-		$this->assertSame(
-			[
-				'display_context'         => 'actions_queue',
-				'results_display_options' => [
-					'include_ignored'  => true,
-					'include_repaired' => false,
-					'include_deleted'  => false,
-					'ignored_only'     => true,
-				],
-			],
-			$definitions->ignoredRenderActionDataForGroupKey( 'plugins', 2 )
-		);
-		$this->assertSame( [], $definitions->ignoredRenderActionDataForGroupKey( 'vulnerabilities', 2 ) );
-		$this->assertSame( [], $definitions->ignoredRenderActionDataForGroupKey( 'abandoned', 2 ) );
-		$this->assertSame(
-			[
-				'display_context'         => 'actions_queue',
-				'results_display_options' => [
-					'include_ignored'  => true,
-					'include_repaired' => false,
-					'include_deleted'  => false,
-					'ignored_only'     => true,
-				],
-			],
-			$definitions->ignoredRenderActionDataForGroupKey( 'malware', 2 )
-		);
-		$this->assertSame(
-			[
-				'display_context'         => 'actions_queue',
-				'results_display_options' => [
-					'include_ignored'  => true,
-					'include_repaired' => false,
-					'include_deleted'  => false,
-					'ignored_only'     => true,
-				],
-			],
-			$definitions->ignoredRenderActionDataForGroupKey( 'wordpress', 2 )
-		);
+		$this->assertSame( 'wordpress', $definitions->healthyIgnoredSourceForGroupKey( 'wordpress' ) );
 	}
 
 	public function test_ignored_only_summary_key_helpers_are_centralized() :void {

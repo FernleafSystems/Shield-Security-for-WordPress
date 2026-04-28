@@ -1311,10 +1311,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			[
 				'display_context'         => 'actions_queue',
 				'results_display_options' => [
-					'include_ignored'  => true,
+					'include_ignored'  => false,
 					'include_repaired' => false,
 					'include_deleted'  => false,
-					'ignored_only'     => true,
+					'ignored_only'     => false,
 				],
 			],
 			$groups[ 'wordpress' ][ 'render_action_data' ]
@@ -1323,6 +1323,15 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $groups[ 'wordpress' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertSame( 'scanresults_wordpress', $groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( 'actions_queue', $groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' );
+		$this->assertSame(
+			[
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => false,
+			],
+			$groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'results_display_options' ] ?? []
+		);
 		$this->assertArrayNotHasKey( 'plugins', $groups );
 		$this->assertArrayNotHasKey( 'themes', $groups );
 		$this->assertArrayHasKey( 'plugins:ignored-plugin', $activeGroups );
@@ -1332,10 +1341,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $activeGroups[ 'plugins:ignored-plugin' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertSame(
 			[
-				'include_ignored'  => true,
+				'include_ignored'  => false,
 				'include_repaired' => false,
 				'include_deleted'  => false,
-				'ignored_only'     => true,
+				'ignored_only'     => false,
 			],
 			$activeGroups[ 'plugins:ignored-plugin' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
 		);
@@ -1344,10 +1353,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 4, $activeGroups[ 'themes:ignored-theme' ][ 'item_count' ] );
 		$this->assertSame(
 			[
-				'include_ignored'  => true,
+				'include_ignored'  => false,
 				'include_repaired' => false,
 				'include_deleted'  => false,
-				'ignored_only'     => true,
+				'ignored_only'     => false,
 			],
 			$activeGroups[ 'themes:ignored-theme' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
 		);
@@ -1357,13 +1366,14 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'scanresults_malware', $activeGroups[ 'malware' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame(
 			[
-				'include_ignored'  => true,
+				'include_ignored'  => false,
 				'include_repaired' => false,
 				'include_deleted'  => false,
-				'ignored_only'     => true,
+				'ignored_only'     => false,
 			],
 			$activeGroups[ 'malware' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
 		);
+		$this->assertSame( [], $activeGroups[ 'malware' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertSame( [ [ 'wordpress' ] ], $this->sectionGroupKeys( $data[ 'healthy_sections' ] ) );
 	}
 

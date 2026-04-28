@@ -155,7 +155,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 
 			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
 			$interaction = $this->buildHealthyScanInteraction( $definitionKey );
-			$seeds[] = [
+			$seed = [
 				'key'                         => $definitionKey,
 				'definition_key'              => $definitionKey,
 				'label'                       => $definition[ 'label' ],
@@ -173,8 +173,8 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'summary_row'                 => [],
 			];
 			if ( $definitionKey === 'file_locker' && $pendingFileLockerCount > 0 ) {
-				$seeds[ \array_key_last( $seeds ) ] = \array_merge(
-					$seeds[ \array_key_last( $seeds ) ],
+				$seed = \array_merge(
+					$seed,
 					[
 						'status'                        => 'neutral',
 						'narrative'                     => $this->describePendingFileLockerState( $pendingFileLockerCount ),
@@ -196,6 +196,10 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 					]
 				);
 			}
+			if ( $interaction[ 'suppress_context_actions' ] ) {
+				$seed[ 'context_actions_override' ] = [];
+			}
+			$seeds[] = $seed;
 		}
 
 		return $seeds;
@@ -240,7 +244,8 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	 * @return array{
 	 *   is_interactive:bool,
 	 *   item_count_override:int|null,
-	 *   render_action_data:array<string,mixed>
+	 *   render_action_data:array<string,mixed>,
+	 *   suppress_context_actions:bool
 	 * }
 	 */
 	private function buildHealthyScanInteraction( string $definitionKey ) :array {
@@ -250,6 +255,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'is_interactive'      => true,
 				'item_count_override' => 0,
 				'render_action_data'  => $this->groupDefinitions->definitionForGroupKey( $definitionKey )[ 'render_action_data' ],
+				'suppress_context_actions' => false,
 			];
 		}
 
@@ -258,6 +264,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'is_interactive'      => false,
 				'item_count_override' => null,
 				'render_action_data'  => [],
+				'suppress_context_actions' => false,
 			];
 		}
 
@@ -268,7 +275,10 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		return [
 			'is_interactive'      => $ignoredCount > 0,
 			'item_count_override' => $ignoredCount > 0 ? $ignoredCount : null,
-			'render_action_data'  => $this->groupDefinitions->ignoredRenderActionDataForGroupKey( $definitionKey, $ignoredCount ),
+			'render_action_data'  => $ignoredCount > 0
+				? $this->groupDefinitions->definitionForGroupKey( $definitionKey )[ 'render_action_data' ]
+				: [],
+			'suppress_context_actions' => $ignoredCount > 0,
 		];
 	}
 

@@ -282,7 +282,7 @@ class ActionsQueueFixtureBuilder {
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
 			'require_scan_results_table'  => true,
-			'require_populated_scan_results_table' => true,
+			'require_populated_scan_results_table' => false,
 		];
 	}
 

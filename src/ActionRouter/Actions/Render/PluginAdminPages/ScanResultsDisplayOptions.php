@@ -113,21 +113,6 @@ class ScanResultsDisplayOptions {
 	}
 
 	/**
-	 * @return array{
-	 *   display_context:string,
-	 *   results_display_options:array{
-	 *     include_ignored:bool,
-	 *     include_repaired:bool,
-	 *     include_deleted:bool,
-	 *     ignored_only:bool
-	 *   }
-	 * }
-	 */
-	public function buildForcedIgnoredActionData() :array {
-		return $this->buildExplicitActionData( $this->ignoredOnly() );
-	}
-
-	/**
 	 * @param array<string,mixed>|null $options
 	 * @return array{
 	 *   display_context:string,

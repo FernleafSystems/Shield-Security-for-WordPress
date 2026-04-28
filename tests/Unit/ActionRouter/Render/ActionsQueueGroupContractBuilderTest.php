@@ -160,11 +160,10 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 
 		$group = $builder->buildEmptyGroup( 'plugins:missing-plugin/missing-plugin.php', 'Fix now' );
 
-		$this->assertSame( 'Plugin Files', $group[ 'label' ] );
 		$this->assertSame( 'asset_cards', $group[ 'detail_shell' ] );
 		$this->assertSame( Plugins::class, $group[ 'render_action_class' ] );
-		$this->assertSame( 'Plugin Files', $group[ 'selection' ][ 'label' ] );
-		$this->assertSame( 'Plugin Files', $group[ 'selection' ][ 'header' ][ 'title' ] );
+		$this->assertSame( $group[ 'label' ], $group[ 'selection' ][ 'label' ] );
+		$this->assertSame( $group[ 'label' ], $group[ 'selection' ][ 'header' ][ 'title' ] );
 	}
 
 	/**

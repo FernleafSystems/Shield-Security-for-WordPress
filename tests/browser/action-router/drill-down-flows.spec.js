@@ -22,11 +22,40 @@ async function waitForScanResultsTableRows( table ) {
 
 async function waitForScanResultsTableEmpty( table ) {
 	await expect( table ).toBeVisible();
-	await expect.poll(
-		async () => await table.locator( 'tbody tr[data-scan-result-ignored]' ).count(),
-		{ timeout: 20_000 }
-	).toBe( 0 );
-	await expect( table.locator( 'tbody' ) ).toContainText( /current display filters/i );
+	await expect.poll( async () => {
+		const bodyRows = table.locator( 'tbody tr' );
+		if ( await bodyRows.count() !== 1 ) {
+			return false;
+		}
+
+		const emptyRow = bodyRows.first();
+		return await emptyRow.locator( 'td' ).count() === 1
+			&& await emptyRow.getAttribute( 'data-scan-result-ignored' ) === null;
+	}, { timeout: 20_000 } ).toBe( true );
+	await expect( table.locator( 'tbody tr[data-scan-result-ignored]' ) ).toHaveCount( 0 );
+}
+
+async function scanResultsDisplayOptions( table ) {
+	let options = null;
+	await expect.poll( async () => {
+		const rawOptions = await table.getAttribute( 'data-results-display-options' );
+		if ( !rawOptions ) {
+			return false;
+		}
+		try {
+			options = JSON.parse( rawOptions );
+			return true;
+		}
+		catch ( error ) {
+			return false;
+		}
+	}, { timeout: 20_000 } ).toBe( true );
+	return options;
+}
+
+async function expectScanResultsDisplayOptions( table, expectedOptions ) {
+	const options = await scanResultsDisplayOptions( table );
+	expect( options ).toMatchObject( expectedOptions );
 }
 
 async function delay( milliseconds ) {
@@ -326,7 +355,7 @@ test( 'actions queue keeps the same ignored-plugin direct table after the shared
 		const badgeText = ( await detailBadge.textContent() || '' ).trim();
 		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
 		await expect( scanResultsTable ).toBeVisible();
-		await waitForScanResultsTableRows( scanResultsTable );
+		await waitForScanResultsTableEmpty( scanResultsTable );
 		await scanResultsTable.evaluate( ( table ) => {
 			table.dispatchEvent( new CustomEvent( 'shield:table-action-success', {
 				bubbles: true,
@@ -475,7 +504,7 @@ test( 'actions queue ignores all malware results from the context rail without r
 	} );
 } );
 
-test( 'actions queue display collection can hide an ignored-only direct table without replacing the table shell', async ( { page, fixtureApi } ) => {
+test( 'actions queue direct table starts active-only when all scoped results are ignored', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
@@ -486,31 +515,48 @@ test( 'actions queue display collection can hide an ignored-only direct table wi
 		await actionsQueuePage.drillToDetail( fixture );
 		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
 		const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
-		const ignoredToggle = page.locator( '[role="dialog"] [data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
+		const ignoredToggle = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
 
-		await waitForScanResultsTableRows( scanResultsTable );
+		await waitForScanResultsTableEmpty( scanResultsTable );
 		await expect( displayCollection ).toBeVisible();
-		await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 2 );
-		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"ignored_only":true/ );
-		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_ignored":true/ );
-		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_repaired":false/ );
-		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_deleted":false/ );
+		await expectScanResultsDisplayOptions( scanResultsTable, {
+			ignored_only: false,
+			include_ignored: false,
+			include_repaired: false,
+			include_deleted: false,
+		} );
+		await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 0 );
 
-		const tableReload = page.waitForRequest(
+		const showIgnoredReload = page.waitForRequest(
 			( request ) => ( request.postData() || '' ).includes( 'sub_action=retrieve_table_data' ),
 			{ timeout: 20_000 }
 		);
 		await displayCollection.click();
 		await expect( ignoredToggle ).toBeVisible();
 		await ignoredToggle.click();
-		await tableReload;
+		await showIgnoredReload;
+		await waitForScanResultsTableRows( scanResultsTable );
+		await expectScanResultsDisplayOptions( scanResultsTable, {
+			include_ignored: true,
+			ignored_only: false,
+		} );
+		await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 2 );
+
+		const hideIgnoredReload = page.waitForRequest(
+			( request ) => ( request.postData() || '' ).includes( 'sub_action=retrieve_table_data' ),
+			{ timeout: 20_000 }
+		);
+		await ignoredToggle.click();
+		await hideIgnoredReload;
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
 		await waitForScanResultsTableEmpty( scanResultsTable );
 		await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 0 );
-		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_ignored":false/ );
-		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"ignored_only":false/ );
+		await expectScanResultsDisplayOptions( scanResultsTable, {
+			include_ignored: false,
+			ignored_only: false,
+		} );
 		await expect( displayCollection ).toBeVisible();
 		await expect( page.locator( '[data-actions-queue-retry]' ) ).toHaveCount( 0 );
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();

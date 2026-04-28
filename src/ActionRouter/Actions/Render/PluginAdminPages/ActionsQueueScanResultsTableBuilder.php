@@ -32,13 +32,10 @@ class ActionsQueueScanResultsTableBuilder {
 	 * @return array<string,mixed>
 	 */
 	public function buildWordpressTable( ?array $options = null ) :array {
-		return $this->tableContractBuilder->buildFileStatusWithEmptyState(
+		return $this->tableContractBuilder->buildFileStatus(
 			'core',
 			'core',
-			$this->countForScope( 'wordpress', 'wordpress', $options ?? $this->displayOptions->activeOnly() ),
-			__( "Previous scans didn't detect any modified, missing, or unrecognised files in the WordPress core directories.", 'wp-simple-firewall' ),
 			$this->buildFullLogHref(),
-			'info',
 			$this->buildTableActionData( $options )
 		);
 	}
@@ -74,11 +71,8 @@ class ActionsQueueScanResultsTableBuilder {
 	 * @return array<string,mixed>
 	 */
 	public function buildMalwareTable( ?array $options = null ) :array {
-		return $this->tableContractBuilder->buildMalwareWithEmptyState(
-			$this->countForScope( 'malware', 'malware', $options ?? $this->displayOptions->activeOnly() ),
-			__( "Previous scans didn't detect any files suspected of being malware.", 'wp-simple-firewall' ),
+		return $this->tableContractBuilder->buildMalware(
 			$this->buildFullLogHref(),
-			'info',
 			$this->buildTableActionData( $options )
 		);
 	}

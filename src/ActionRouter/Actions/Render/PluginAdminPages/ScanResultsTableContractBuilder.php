@@ -111,24 +111,6 @@ class ScanResultsTableContractBuilder {
 	}
 
 	/**
-	 * @return array<string,mixed>
-	 */
-	public function buildMalwareWithEmptyState(
-		int $resultCount,
-		string $emptyText,
-		string $fullLogHref,
-		string $emptyStatus = 'info',
-		array $scanResultsActionData = []
-	) :array {
-		return $this->withEmptyState(
-			$this->buildMalware( $fullLogHref, $scanResultsActionData ),
-			$resultCount,
-			$emptyText,
-			$emptyStatus
-		);
-	}
-
-	/**
 	 * @param array<string,mixed> $datatablesInit
 	 * @param array<string,mixed> $tableAction
 	 * @return array<string,mixed>

@@ -68,6 +68,14 @@ async function waitForScanResultsTableRows( table ) {
 	await expect( table.locator( 'tbody td.dataTables_empty' ) ).toHaveCount( 0 );
 }
 
+async function waitForScanResultsTableReady( table ) {
+	await expect( table ).toBeVisible();
+	await expect.poll( async () => table.evaluate( ( element ) => {
+		const jQuery = globalThis.jQuery;
+		return Boolean( jQuery?.fn?.dataTable?.isDataTable?.( element ) );
+	} ), { timeout: 20_000 } ).toBe( true );
+}
+
 function getDatatableContainer( table ) {
 	return table.locator( 'xpath=ancestor::div[contains(@class,"dt-container")]' ).first();
 }
@@ -188,7 +196,7 @@ test( 'datatable busy: actions queue display-filter reload marks the visible dir
 		const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
 		const repairedToggle = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_repaired"]' ).first();
 
-		await waitForScanResultsTableRows( table );
+		await waitForScanResultsTableReady( table );
 		await expect( displayCollection ).toBeVisible();
 		await expectNotBusyState( container );
 
@@ -204,7 +212,7 @@ test( 'datatable busy: actions queue display-filter reload marks the visible dir
 		await delayedRequest.completed;
 
 		const refreshedTable = page.locator( '[data-actions-queue-detail="1"] [data-scan-results-table="1"]' ).first();
-		await waitForScanResultsTableRows( refreshedTable );
+		await waitForScanResultsTableReady( refreshedTable );
 		await expect( page.locator( '[data-scan-results-display-collection="1"]' ).first() ).toBeVisible();
 		await expectNotBusyState( getDatatableContainer( refreshedTable ) );
 	} );

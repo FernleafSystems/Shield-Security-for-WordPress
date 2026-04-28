@@ -15,7 +15,7 @@ const CONFIRM_DIALOG_ACTIVE_SELECTOR = `${CONFIRM_DIALOG_SELECTOR}[aria-modal="t
 const CONFIRM_BUTTON_SELECTOR = '[data-shield-dialog-confirm="1"]';
 const CANCEL_BUTTON_SELECTOR = '[data-shield-dialog-cancel="1"]';
 
-async function openDirectScanResultsTable( page, fixture ) {
+async function openDirectScanResultsTable( page, fixture, { includeIgnored = false } = {} ) {
 	const actionsQueuePage = new ActionsQueuePage( page );
 	await openShieldRoute( page, {
 		nav: 'scans',
@@ -24,8 +24,26 @@ async function openDirectScanResultsTable( page, fixture ) {
 	await actionsQueuePage.drillToDetail( fixture );
 
 	const table = page.locator( SCAN_RESULTS_TABLE_SELECTOR ).first();
+	if ( includeIgnored ) {
+		await showIgnoredResults( page );
+	}
 	await waitForScanResultsData( table );
 	return table;
+}
+
+async function showIgnoredResults( page ) {
+	const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
+	const ignoredToggle = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
+	const tableReload = page.waitForRequest(
+		( request ) => ( request.postData() || '' ).includes( 'sub_action=retrieve_table_data' ),
+		{ timeout: 20_000 }
+	);
+
+	await expect( displayCollection ).toBeVisible();
+	await displayCollection.click();
+	await expect( ignoredToggle ).toBeVisible();
+	await ignoredToggle.click();
+	await tableReload;
 }
 
 async function waitForScanResultsData( table ) {
@@ -190,7 +208,7 @@ test( 'scan results bulk ignore confirm sends selected active row ids', async ( 
 
 test( 'scan results bulk unignore confirm handles selected ignored row ids', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
-		const table = await openDirectScanResultsTable( page, fixture );
+		const table = await openDirectScanResultsTable( page, fixture, { includeIgnored: true } );
 		const selectedRids = await selectScanResultsRows( table, 'ignored' );
 		expect( selectedRids.length ).toBeGreaterThan( 0 );
 

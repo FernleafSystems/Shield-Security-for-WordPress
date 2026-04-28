@@ -151,13 +151,12 @@ class ActionsQueueGroupSeedCollector {
 		$seeds[ $seedKey ][ 'attention_items' ][] = $item;
 
 		if ( ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( $item[ 'key' ] ) ) {
-			$seeds[ $seedKey ][ 'render_action_data_override' ] = $this->groupDefinitions->ignoredRenderActionDataForGroupKey(
-				$definitionKey,
-				(int)$item[ 'count' ]
-			);
+			unset( $seeds[ $seedKey ][ 'render_action_data_override' ] );
+			$seeds[ $seedKey ][ 'context_actions_override' ] = [];
 		}
 		else {
 			unset( $seeds[ $seedKey ][ 'render_action_data_override' ] );
+			unset( $seeds[ $seedKey ][ 'context_actions_override' ] );
 		}
 	}
 
@@ -212,10 +211,10 @@ class ActionsQueueGroupSeedCollector {
 					StatusPriority::normalize( $ignoredItem[ 'severity' ], 'warning' ),
 					$this->queueScanResultsOptions->buildSubjectActionData(
 						$summary[ 'subject_type' ],
-						$summary[ 'subject_id' ],
-						$this->queueScanResultsOptions->ignoredOnly()
+						$summary[ 'subject_id' ]
 					),
-					[ $ignoredItem ]
+					[ $ignoredItem ],
+					true
 				);
 			}
 		}
@@ -279,11 +278,12 @@ class ActionsQueueGroupSeedCollector {
 		array $summary,
 		string $status,
 		array $renderActionData,
-		array $attentionItems
+		array $attentionItems,
+		bool $suppressContextActions = false
 	) :array {
 		$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
 
-		return [
+		$seed = [
 			'key'              => $definitionKey.':'.$summary[ 'key' ],
 			'definition_key'   => $definitionKey,
 			'label'            => $summary[ 'title' ],
@@ -300,6 +300,12 @@ class ActionsQueueGroupSeedCollector {
 			'maintenance_rows' => [],
 			'summary_row'      => [],
 		];
+
+		if ( $suppressContextActions ) {
+			$seed[ 'context_actions_override' ] = [];
+		}
+
+		return $seed;
 	}
 
 	/**

@@ -410,19 +410,6 @@ class ActionsQueueGroupDefinitions {
 		return $this->definitionForGroupKey( $groupKey )[ 'healthy_interaction_mode' ];
 	}
 
-	/**
-	 * @return array<string,mixed>
-	 */
-	public function ignoredRenderActionDataForGroupKey( string $groupKey, int $ignoredCount ) :array {
-		if ( $ignoredCount < 1 ) {
-			return [];
-		}
-
-		return $this->healthyIgnoredSourceForGroupKey( $groupKey ) !== ''
-			? $this->queueScanResultsOptions->buildForcedIgnoredActionData()
-			: [];
-	}
-
 	public function reviewMaintenanceGroupKeyForItemKey( string $itemKey ) :string {
 		foreach ( self::REVIEW_MAINTENANCE_GROUPS as $groupKey => $group ) {
 			if ( \in_array( $itemKey, $group[ 'item_keys' ], true ) ) {
