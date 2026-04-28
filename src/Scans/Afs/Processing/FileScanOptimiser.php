@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalwarePatternFingerprint;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files as PluginFiles;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Theme\Files as ThemeFiles;
@@ -58,7 +59,7 @@ class FileScanOptimiser {
 		if ( $this->isCacheUsable() && Services::WpFs()->isAccessibleFile( $path ) ) {
 			$sha256 = $this->fileSha256( $path );
 			$size = $this->fileSize( $path );
-			$fingerprint = $this->patternFingerprint( $action );
+			$fingerprint = MalwarePatternFingerprint::fromScanAction( $action );
 			foreach ( $this->readRecords( $this->shardPath( self::MALWARE_CLEAN, $sha256 ), self::MALWARE_CLEAN ) as $record ) {
 				if ( $record[ 'sha256' ] === $sha256
 					 && $record[ 'size' ] === $size
@@ -79,8 +80,25 @@ class FileScanOptimiser {
 				'ts'                   => Services::Request()->ts(),
 				'sha256'               => $sha256,
 				'size'                 => $this->fileSize( $path ),
-				'pattern_fingerprint'  => $this->patternFingerprint( $action ),
+				'pattern_fingerprint'  => MalwarePatternFingerprint::fromScanAction( $action ),
 			], [ 'sha256', 'size', 'pattern_fingerprint' ] );
+		}
+	}
+
+	public function clearCleanMalwareVerdictCache() :void {
+		$root = $this->cacheRoot();
+		if ( $root === '' ) {
+			return;
+		}
+
+		$dir = \path_join( $root, self::MALWARE_CLEAN );
+		if ( !\is_dir( $dir ) ) {
+			return;
+		}
+		foreach ( new \DirectoryIterator( $dir ) as $file ) {
+			if ( $file->isFile() && $file->getExtension() === 'jsonl' ) {
+				@\unlink( $file->getPathname() );
+			}
 		}
 	}
 
@@ -298,16 +316,6 @@ class FileScanOptimiser {
 	private function fileSha256( string $path ) :string {
 		$hash = @\hash_file( 'sha256', $path );
 		return \is_string( $hash ) ? $hash : '';
-	}
-
-	private function patternFingerprint( ScanActionVO $action ) :string {
-		return \hash( 'sha256', (string)\wp_json_encode( [
-			'raw'       => $action->patterns_raw,
-			'iraw'      => $action->patterns_iraw,
-			'regex'     => $action->patterns_regex,
-			'functions' => $action->patterns_functions,
-			'keywords'  => $action->patterns_keywords,
-		] ) );
 	}
 
 	private function relativeToAbsPath( string $path ) :string {

@@ -310,6 +310,24 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $freshValid, $action ) );
 	}
 
+	public function test_clear_clean_malware_verdict_cache_preserves_known_valid_cache() :void {
+		$clean = $this->writeFile( ABSPATH.'wp-content/uploads/clear-clean.php', '<?php clean_malware();' );
+		$valid = $this->writeFile( ABSPATH.'wp-admin/clear-valid.php', '<?php clean_valid();' );
+		$this->installEnvironment( $this->makeTempDir( 'cache' ) );
+		$optimiser = new FileScanOptimiser();
+		$action = $this->newAction( [ 'bad_token' ] );
+
+		$optimiser->recordCleanMalwareVerdict( $clean, $action );
+		$optimiser->recordKnownValidFile( $valid, $this->coreContext( 'wp-admin/clear-valid.php' ) );
+		$this->assertTrue( $optimiser->hasCleanMalwareVerdict( $clean, $action ) );
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $valid, $action ) );
+
+		$optimiser->clearCleanMalwareVerdictCache();
+
+		$this->assertFalse( $optimiser->hasCleanMalwareVerdict( $clean, $action ) );
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $valid, $action ) );
+	}
+
 	private function installEnvironment(
 		string $cacheDir,
 		bool $cacheExists = true,

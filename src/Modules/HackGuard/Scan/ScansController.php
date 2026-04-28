@@ -340,9 +340,7 @@ class ScansController {
 
 	public function runDailyCron() {
 		$carbon = Services::Request()->carbon();
-		if ( $carbon->isSunday() ) {
-			( new FileScanOptimiser() )->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
-		}
+		( new FileScanOptimiser() )->cleanStaleHashesOlderThan( $carbon->subWeek()->timestamp );
 		( new CleanOutOldGuardFiles() )->execute();
 	}
 }
