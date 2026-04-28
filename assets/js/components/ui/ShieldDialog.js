@@ -4,7 +4,35 @@ import { focusElement } from "./ShieldA11y";
 const DIALOG_ID = 'AptoGeneralPurposeDialog';
 const TITLE_ID = 'AptoGeneralPurposeDialogTitle';
 const MESSAGE_ID = 'AptoGeneralPurposeDialogMessage';
+const DIALOG_Z_INDEX = '100000';
 let pendingConfirmPromise = null;
+
+export function resolveDialogLauncher( event = null, node = null ) {
+	if ( event?.currentTarget instanceof HTMLElement ) {
+		return event.currentTarget;
+	}
+	if ( node?.[ 0 ] instanceof HTMLElement ) {
+		return node[ 0 ];
+	}
+	if ( node instanceof HTMLElement ) {
+		return node;
+	}
+	return null;
+}
+
+export function resolveDialogConfirmLabel( launcher = null ) {
+	if ( !( launcher instanceof HTMLElement ) ) {
+		return '';
+	}
+
+	return [
+		launcher.getAttribute( 'aria-label' ),
+		launcher.getAttribute( 'title' ),
+		launcher.textContent,
+	]
+	.map( ( label ) => normalizeText( label ) )
+	.find( ( label ) => label.length > 0 ) || '';
+}
 
 export function confirmDialog( {
 	title = '',
@@ -22,6 +50,10 @@ export function confirmDialog( {
 	if ( !( dialog instanceof HTMLElement ) ) {
 		return Promise.resolve( false );
 	}
+	if ( dialog.parentElement !== document.body ) {
+		document.body.appendChild( dialog );
+	}
+	dialog.style.setProperty( 'z-index', DIALOG_Z_INDEX, 'important' );
 
 	const titleEl = dialog.querySelector( `#${TITLE_ID}` );
 	const messageEl = dialog.querySelector( `#${MESSAGE_ID}` );

@@ -2,6 +2,7 @@ import Sortable from 'sortablejs';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
+import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
 export class RulesManager extends BaseAutoExecComponent {
 
@@ -18,15 +19,18 @@ export class RulesManager extends BaseAutoExecComponent {
 	run() {
 		this.renderManager();
 		const baseSelector = '#' + this.containerID + ' ';
-		shieldEventsHandler_Main.add_Click( '#RulesManagerDisableAll', ( button ) => {
-			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+		shieldEventsHandler_Main.add_Click( '#RulesManagerDisableAll', async ( button ) => {
+			if ( await confirmRuleAction( button, true ) ) {
 				this.action( button.dataset );
 			}
 		} );
-		shieldEventsHandler_Main.add_Click( baseSelector + ' button', ( button ) => {
-			if ( button.dataset.action !== 'delete' || confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-				this.action( button.dataset );
+		shieldEventsHandler_Main.add_Click( baseSelector + ' button', async ( button ) => {
+			if ( button.dataset.action === 'delete' ) {
+				if ( !await confirmRuleAction( button, true ) ) {
+					return;
+				}
 			}
+			this.action( button.dataset );
 		} );
 		shieldEventsHandler_Main.add_Click( baseSelector + ' input[type=checkbox].active-switch', ( button ) => {
 			this.action( button.dataset );
@@ -79,4 +83,13 @@ export class RulesManager extends BaseAutoExecComponent {
 			} );
 		}
 	}
+}
+
+function confirmRuleAction( launcher, danger = false ) {
+	return confirmDialog( {
+		message: shieldStrings.string( 'are_you_sure' ),
+		confirmLabel: resolveDialogConfirmLabel( launcher ),
+		danger,
+		launcher,
+	} );
 }

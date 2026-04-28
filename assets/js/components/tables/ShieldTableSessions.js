@@ -1,4 +1,5 @@
 import { ShieldTableBase } from "./ShieldTableBase";
+import { confirmDialog, resolveDialogConfirmLabel, resolveDialogLauncher } from "../ui/ShieldDialog";
 
 export class ShieldTableSessions extends ShieldTableBase {
 
@@ -33,8 +34,15 @@ export class ShieldTableSessions extends ShieldTableBase {
 				text: 'Delete Selected',
 				name: 'selected-delete',
 				className: 'select-all action btn-outline-warning mb-2',
-				action: ( e, dt, node, config ) => {
-					if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+				action: async ( e, dt, node ) => {
+					const launcher = resolveDialogLauncher( e, node );
+					const confirmed = await confirmDialog( {
+						message: shieldStrings.string( 'are_you_sure' ),
+						confirmLabel: resolveDialogConfirmLabel( launcher ),
+						danger: true,
+						launcher,
+					} );
+					if ( confirmed ) {
 						this.bulkTableAction( 'delete' );
 					}
 				}

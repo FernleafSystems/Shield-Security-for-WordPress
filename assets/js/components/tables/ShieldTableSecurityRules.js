@@ -1,6 +1,7 @@
 import Sortable from 'sortablejs';
 import { ShieldTableBase } from "./ShieldTableBase";
 import { ObjectOps } from "../../util/ObjectOps";
+import { confirmDialog, resolveDialogConfirmLabel, resolveDialogLauncher } from "../ui/ShieldDialog";
 
 /**
  * Rows-Reorder extension for Datatables is terrible. When using server-side there's no way to gather
@@ -32,9 +33,12 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 			'input[type=checkbox].active-switch',
 			( evt ) => {
 				evt.preventDefault();
-				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-					this.bulkTableAction.call( this, evt.currentTarget.dataset.sub_action, [ evt.currentTarget.dataset.rid ] );
-				}
+				const target = evt.currentTarget;
+				confirmSecurityRuleAction( target, target.dataset.sub_action !== 'activate' ).then( ( confirmed ) => {
+					if ( confirmed ) {
+						this.bulkTableAction.call( this, target.dataset.sub_action, [ target.dataset.rid ] );
+					}
+				} );
 				return false;
 			}
 		);
@@ -44,9 +48,12 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 			'button',
 			( evt ) => {
 				evt.preventDefault();
-				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-					this.bulkTableAction.call( this, evt.currentTarget.dataset.sub_action, [ evt.currentTarget.dataset.rid ] );
-				}
+				const target = evt.currentTarget;
+				confirmSecurityRuleAction( target, true ).then( ( confirmed ) => {
+					if ( confirmed ) {
+						this.bulkTableAction.call( this, target.dataset.sub_action, [ target.dataset.rid ] );
+					}
+				} );
 				return false;
 			}
 		);
@@ -63,8 +70,8 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 				text: 'Deactivate All',
 				name: 'deactivate_all',
 				className: 'deactivate-all action btn-outline-warning mb-2',
-				action: ( e, dt, node, config ) => {
-					if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+				action: async ( e, dt, node ) => {
+					if ( await confirmSecurityRuleAction( resolveDialogLauncher( e, node ), true ) ) {
 						dt.rows().select();
 						this.bulkTableAction.call( this, 'deactivate_all' );
 					}
@@ -128,4 +135,13 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 			{ reloadTableOnSuccess: true }
 		);
 	}
+}
+
+function confirmSecurityRuleAction( launcher, danger = false ) {
+	return confirmDialog( {
+		message: shieldStrings.string( 'are_you_sure' ),
+		confirmLabel: resolveDialogConfirmLabel( launcher ),
+		danger,
+		launcher,
+	} );
 }

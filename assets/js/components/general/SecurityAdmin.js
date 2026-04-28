@@ -4,6 +4,7 @@ import { Forms } from "../../util/Forms";
 import { Navigation } from "../../util/Navigation";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldOverlay } from "../ui/ShieldOverlay";
+import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
 export class SecurityAdmin extends BaseComponent {
 
@@ -35,11 +36,17 @@ export class SecurityAdmin extends BaseComponent {
 				.finally();
 			} );
 
-			shieldEventsHandler_Main.add_Click( '#SecAdminRemoveConfirmEmail', () => {
-				if ( confirm( this._base_data.strings.confirm_disable ) ) {
+			shieldEventsHandler_Main.add_Click( '#SecAdminRemoveConfirmEmail', async ( targetEl ) => {
+				const confirmed = await confirmDialog( {
+					message: this._base_data.strings.confirm_disable,
+					confirmLabel: resolveDialogConfirmLabel( targetEl ),
+					danger: true,
+					launcher: targetEl,
+				} );
+				if ( confirmed ) {
 					( new AjaxService() )
-					.send( this._base_data.ajax.req_email_remove )
-					.finally();
+						.send( this._base_data.ajax.req_email_remove )
+						.finally();
 				}
 			} );
 

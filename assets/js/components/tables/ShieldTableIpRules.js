@@ -1,5 +1,6 @@
 import { ShieldTableBase } from "./ShieldTableBase";
 import { ObjectOps } from "../../util/ObjectOps";
+import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
 export class ShieldTableIpRules extends ShieldTableBase {
 
@@ -27,20 +28,24 @@ export class ShieldTableIpRules extends ShieldTableBase {
 	bindEvents() {
 		super.bindEvents();
 
-		shieldEventsHandler_Main.add_Click( 'td.ip_linked a.ip_delete', ( targetEl ) => {
+		shieldEventsHandler_Main.add_Click( 'td.ip_linked a.ip_delete', async ( targetEl ) => {
 			const rid = targetEl instanceof HTMLElement ? targetEl.dataset[ 'rid' ] || '' : '';
-			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-				if ( rid.length < 1 ) {
-					return;
-				}
-
-				this.sendTableActionRequest(
-					this.$table,
-					ObjectOps.Merge( this._base_data.ajax.rule_delete, { rid } ),
-					'Communications error with site.',
-					{ reloadTableOnSuccess: true }
-				).catch( () => null );
+			const confirmed = await confirmDialog( {
+				message: this._base_data?.strings?.are_you_sure || shieldStrings.string( 'are_you_sure' ),
+				confirmLabel: resolveDialogConfirmLabel( targetEl ),
+				danger: true,
+				launcher: targetEl,
+			} );
+			if ( !confirmed || rid.length < 1 ) {
+				return;
 			}
+
+			this.sendTableActionRequest(
+				this.$table,
+				ObjectOps.Merge( this._base_data.ajax.rule_delete, { rid } ),
+				'Communications error with site.',
+				{ reloadTableOnSuccess: true }
+			).catch( () => null );
 		} );
 		shieldEventsHandler_Main.addHandler(
 			'hidden.bs.offcanvas',

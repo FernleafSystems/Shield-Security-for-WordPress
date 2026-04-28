@@ -1,5 +1,5 @@
 import { ScanItemAnalysisModal } from "../scans/ScanItemAnalysisModal";
-import { confirmDialog } from "../ui/ShieldDialog";
+import { confirmDialog, resolveDialogConfirmLabel, resolveDialogLauncher } from "../ui/ShieldDialog";
 
 /**
  * @typedef {object} ScanResultsRowActionOptions
@@ -100,7 +100,7 @@ export function buildScanResultsButtons( {
 			action: async ( e, dt, node ) => {
 				const confirmed = await confirmScanResultsBulkAction( {
 					message: shieldStrings.string( 'are_you_sure' ),
-					launcher: getDatatableButtonLauncher( e, node ),
+					launcher: resolveDialogLauncher( e, node ),
 				} );
 
 				if ( confirmed ) {
@@ -115,7 +115,7 @@ export function buildScanResultsButtons( {
 			action: async ( e, dt, node ) => {
 				const confirmed = await confirmScanResultsBulkAction( {
 					message: shieldStrings.string( 'are_you_sure' ),
-					launcher: getDatatableButtonLauncher( e, node ),
+					launcher: resolveDialogLauncher( e, node ),
 				} );
 
 				if ( confirmed ) {
@@ -134,7 +134,7 @@ export function buildScanResultsButtons( {
 				else if ( await confirmScanResultsBulkAction( {
 					message: shieldStrings.string( 'absolutely_sure' ),
 					danger: true,
-					launcher: getDatatableButtonLauncher( e, node ),
+					launcher: resolveDialogLauncher( e, node ),
 				} ) ) {
 					onBulkAction( 'repair-delete' );
 				}
@@ -143,19 +143,6 @@ export function buildScanResultsButtons( {
 	);
 
 	return buttons;
-}
-
-function getDatatableButtonLauncher( event, node ) {
-	if ( event?.currentTarget instanceof HTMLElement ) {
-		return event.currentTarget;
-	}
-	if ( node?.[ 0 ] instanceof HTMLElement ) {
-		return node[ 0 ];
-	}
-	if ( node instanceof HTMLElement ) {
-		return node;
-	}
-	return null;
 }
 
 function confirmScanResultsBulkAction( {
@@ -205,9 +192,7 @@ export function bindScanResultsRowActions( {
 					const confirmed = await confirmDialog( {
 						title: shieldStrings.string( 'confirm_title' ),
 						message: shieldStrings.string( 'are_you_sure' ),
-						confirmLabel: target.getAttribute( 'aria-label' )
-							|| target.getAttribute( 'title' )
-							|| shieldStrings.string( 'confirm' ),
+						confirmLabel: resolveDialogConfirmLabel( target ),
 						cancelLabel: shieldStrings.string( 'cancel' ),
 						danger: true,
 						launcher: target,

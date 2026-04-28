@@ -3,7 +3,23 @@ const {
 	openShieldRoute,
 	withIpAnalysisActivityMetaFixture,
 } = require( './support/shield-browser' );
-const { expectNamedOffcanvas } = require( './support/modal-accessibility' );
+const {
+	expectModalHiddenWithoutAriaModal,
+	expectNamedDialog,
+	expectNamedOffcanvas,
+	expectOptionalDescription,
+} = require( './support/modal-accessibility' );
+
+const CONFIRM_DIALOG_SELECTOR = '#AptoGeneralPurposeDialog';
+const CONFIRM_DIALOG_ACTIVE_SELECTOR = `${CONFIRM_DIALOG_SELECTOR}.modal.show[aria-modal="true"]`;
+const CONFIRM_BUTTON_SELECTOR = '[data-shield-dialog-confirm="1"]';
+const CANCEL_BUTTON_SELECTOR = '[data-shield-dialog-cancel="1"]';
+const IP_ANALYSIS_CONFIRM_ACTION_SELECTOR = [
+	'.ip_analyse_action[data-ip_action="block"]',
+	'.ip_analyse_action[data-ip_action="bypass"]',
+	'.ip_analyse_action[data-ip_action="reset_offenses"]',
+	'.ip_analyse_action[data-ip_action="delete_notbot"]',
+].join( ', ' );
 
 const investigationTableRequestMatcher = ( tableType ) => ( response ) => {
 	if ( !response.url().includes( '/admin-ajax.php' ) ) {
@@ -38,6 +54,15 @@ const ipAnalysisOffcanvasRequestMatcher = ( request ) => {
 
 	const postData = request.postData() || '';
 	return request.method() === 'POST' && postData.includes( 'render_slug=offcanvas_ipanalysis' );
+};
+
+const isIpAnalysisActionRequest = ( request, expectedAction ) => {
+	if ( !request.url().includes( '/admin-ajax.php' ) || request.method() !== 'POST' ) {
+		return false;
+	}
+
+	const params = new URLSearchParams( request.postData() || '' );
+	return params.get( 'ip_action' ) === expectedAction;
 };
 
 const investigationTabLabels = {
@@ -143,6 +168,62 @@ test( 'clicked IP link opens the IP analysis offcanvas with the four investigati
 			offcanvas.locator( '.shield-options-rail-nav .nav-link.active' )
 		).toContainText( targetLabel ? targetLabel.trim() : '' );
 	} );
+} );
+
+test( 'IP analysis actions use accessible confirm without native dialog', async ( { page } ) => {
+	const { offcanvas } = await openIpAnalysisOffcanvas( page, '198.51.100.20' );
+	const action = offcanvas.locator( IP_ANALYSIS_CONFIRM_ACTION_SELECTOR ).first();
+	await expect( action ).toBeVisible();
+	const expectedAction = await action.getAttribute( 'data-ip_action' );
+	expect( expectedAction || '' ).not.toHaveLength( 0 );
+
+	let nativeDialogCount = 0;
+	let actionRequestCount = 0;
+	page.on( 'dialog', async ( dialog ) => {
+		nativeDialogCount++;
+		await dialog.dismiss();
+	} );
+	page.on( 'request', ( request ) => {
+		if ( isIpAnalysisActionRequest( request, expectedAction ) ) {
+			actionRequestCount++;
+		}
+	} );
+
+	await action.click();
+
+	const confirmModal = page.locator( CONFIRM_DIALOG_ACTIVE_SELECTOR );
+	await expect( confirmModal ).toBeVisible();
+	await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
+	await expectOptionalDescription( page, confirmModal );
+
+	await confirmModal.locator( CANCEL_BUTTON_SELECTOR ).click();
+	await expectModalHiddenWithoutAriaModal( page, CONFIRM_DIALOG_SELECTOR );
+	if ( await action.evaluate( ( element ) => element.isConnected ) ) {
+		await expect( action ).toBeFocused();
+	}
+	await expect.poll( () => nativeDialogCount ).toBe( 0 );
+	await page.waitForTimeout( 500 );
+	expect( actionRequestCount ).toBe( 0 );
+
+	const requestsBeforeConfirm = actionRequestCount;
+	const actionRequest = page.waitForRequest(
+		( request ) => isIpAnalysisActionRequest( request, expectedAction ),
+		{ timeout: 20_000 }
+	);
+	await action.evaluate( ( element ) => {
+		element.click();
+		element.click();
+	} );
+
+	await expect( confirmModal ).toHaveCount( 1 );
+	await expect( confirmModal ).toBeVisible();
+	await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
+	await confirmModal.locator( CONFIRM_BUTTON_SELECTOR ).click();
+	await actionRequest;
+
+	await expect.poll( () => nativeDialogCount ).toBe( 0 );
+	await page.waitForTimeout( 500 );
+	expect( actionRequestCount ).toBe( requestsBeforeConfirm + 1 );
 } );
 
 test( 'preloaded IP analysis offcanvas loads investigation tables without runtime errors', async ( { page } ) => {

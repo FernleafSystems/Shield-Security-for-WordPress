@@ -8,6 +8,7 @@ import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { announceWithin, focusElement, setElementBusy } from "../ui/ShieldA11y";
 import { getActiveLayerIndex, getLayersForShell, parseJsonAttribute } from "./DrillDownShared";
+import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
 export class InvestigateLandingController extends BaseAutoExecComponent {
 
@@ -239,7 +240,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.resetLandingToIdle();
 	}
 
-	handleOperatorContextActionClick( evt ) {
+	async handleOperatorContextActionClick( evt ) {
 		const target = evt.target instanceof Element
 			? evt.target.closest( '[data-operator-context-action-ajax="1"]' )
 			: null;
@@ -261,8 +262,16 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		const confirmText = String( target.dataset.operatorContextActionConfirm || '' ).trim();
-		if ( confirmText.length > 0 && !window.confirm( confirmText ) ) {
-			return;
+		if ( confirmText.length > 0 ) {
+			const confirmed = await confirmDialog( {
+				message: confirmText,
+				confirmLabel: resolveDialogConfirmLabel( target ),
+				danger: true,
+				launcher: target,
+			} );
+			if ( !confirmed ) {
+				return;
+			}
 		}
 
 		this.rootEl = root;

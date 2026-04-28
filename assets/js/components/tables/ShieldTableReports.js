@@ -1,4 +1,5 @@
 import { ShieldTableBase } from "./ShieldTableBase";
+import { confirmDialog, resolveDialogConfirmLabel, resolveDialogLauncher } from "../ui/ShieldDialog";
 
 export class ShieldTableReports extends ShieldTableBase {
 
@@ -18,8 +19,8 @@ export class ShieldTableReports extends ShieldTableBase {
 			text: 'Delete Selected',
 			name: 'selected-delete',
 			className: 'action selected-action delete btn-outline-warning mb-2',
-			action: () => {
-				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+			action: async ( e, dt, node ) => {
+				if ( await confirmReportDelete( resolveDialogLauncher( e, node ) ) ) {
 					this.bulkTableAction( 'delete' );
 				}
 			}
@@ -35,9 +36,12 @@ export class ShieldTableReports extends ShieldTableBase {
 			'button.delete[data-rid]',
 			( evt ) => {
 				evt.preventDefault();
-				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-					this.bulkTableAction( 'delete', [ evt.currentTarget.dataset.rid ] );
-				}
+				const target = evt.currentTarget;
+				confirmReportDelete( target ).then( ( confirmed ) => {
+					if ( confirmed ) {
+						this.bulkTableAction( 'delete', [ target.dataset.rid ] );
+					}
+				} );
 				return false;
 			}
 		);
@@ -51,4 +55,13 @@ export class ShieldTableReports extends ShieldTableBase {
 			this.$table.buttons( 'selected-delete:name' ).disable();
 		}
 	}
+}
+
+function confirmReportDelete( launcher ) {
+	return confirmDialog( {
+		message: shieldStrings.string( 'are_you_sure' ),
+		confirmLabel: resolveDialogConfirmLabel( launcher ),
+		danger: true,
+		launcher,
+	} );
 }

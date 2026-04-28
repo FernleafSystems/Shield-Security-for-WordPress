@@ -6,6 +6,7 @@ import { OffCanvasService } from "../ui/OffCanvasService";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { PageQueryParam } from "../../util/PageQueryParam";
 import { InvestigateLookupSelect2 } from "../mode/InvestigateLookupSelect2";
+import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
 export class IpAnalyse extends BaseAutoExecComponent {
 
@@ -37,9 +38,15 @@ export class IpAnalyse extends BaseAutoExecComponent {
 			false
 		);
 
-		shieldEventsHandler_Main.add_Click( '.ip_analyse_action', ( targetEl ) => {
-			if ( confirm( 'Are you sure?' ) ) {
-				const dataset = targetEl.dataset;
+		shieldEventsHandler_Main.add_Click( '.ip_analyse_action', async ( targetEl ) => {
+			const dataset = targetEl.dataset;
+			const confirmed = await confirmDialog( {
+				message: shieldStrings.string( 'are_you_sure' ),
+				confirmLabel: resolveDialogConfirmLabel( targetEl ),
+				danger: isDangerousIpAction( dataset[ 'ip_action' ] ),
+				launcher: targetEl,
+			} );
+			if ( confirmed ) {
 				( new AjaxService() ).send(
 					ObjectOps.Merge( this._base_data.ajax.action, {
 						ip: dataset[ 'ip' ],
@@ -138,4 +145,8 @@ export class IpAnalyse extends BaseAutoExecComponent {
 			this.lookupSelect2.initializeWithin( OffCanvasService.offCanvasEl );
 		} );
 	};
+}
+
+function isDangerousIpAction( action ) {
+	return [ 'block', 'bypass', 'reset_offenses', 'delete_notbot' ].includes( String( action || '' ).trim() );
 }

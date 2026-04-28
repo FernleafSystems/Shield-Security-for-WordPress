@@ -1,5 +1,6 @@
 import { BaseComponent } from "../BaseComponent";
 import { AjaxService } from "../services/AjaxService";
+import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
 export class LicenseHandler extends BaseComponent {
 	init() {
@@ -7,7 +8,7 @@ export class LicenseHandler extends BaseComponent {
 		this.busyRoot = null;
 		this.isBusy = false;
 
-		shieldEventsHandler_Main.add_Click( '.license-action', ( targetEl ) => {
+		shieldEventsHandler_Main.add_Click( '.license-action', async ( targetEl ) => {
 			const pageRoot = targetEl.closest( '.license-page' );
 			const action = String( targetEl.dataset[ 'action' ] || '' ).trim();
 			const actionData = this._base_data.ajax?.[ action ] || null;
@@ -16,13 +17,23 @@ export class LicenseHandler extends BaseComponent {
 				return;
 			}
 
-			if ( action !== 'clear' || confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-				this.enterBusyState( pageRoot );
-
-				( new AjaxService() )
-					.send( actionData, true )
-					.finally( () => this.exitBusyState() );
+			if ( action === 'clear' ) {
+				const confirmed = await confirmDialog( {
+					message: shieldStrings.string( 'are_you_sure' ),
+					confirmLabel: resolveDialogConfirmLabel( targetEl ),
+					danger: true,
+					launcher: targetEl,
+				} );
+				if ( !confirmed ) {
+					return;
+				}
 			}
+
+			this.enterBusyState( pageRoot );
+
+			( new AjaxService() )
+				.send( actionData, true )
+				.finally( () => this.exitBusyState() );
 		} );
 	}
 
