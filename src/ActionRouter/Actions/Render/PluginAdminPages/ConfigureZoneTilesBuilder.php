@@ -12,7 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 
 /**
- * @phpstan-type TileDefinition array{
+ * @phpstan-type StandardTileDefinition array{
  *   key:string,
  *   label:string,
  *   icon:string,
@@ -21,9 +21,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  *   component_slug?:string,
  *   component_slugs?:list<string>,
  *   include_in_posture?:bool,
- *   force_neutral?:bool,
+ *   force_neutral?:false,
  *   stat_line?:string
  * }
+ * @phpstan-type ForcedNeutralTileDefinition array{
+ *   key:string,
+ *   label:string,
+ *   icon:string,
+ *   summary:string,
+ *   zone_slug?:string,
+ *   component_slug?:string,
+ *   component_slugs?:list<string>,
+ *   include_in_posture?:bool,
+ *   force_neutral:true,
+ *   stat_line:string
+ * }
+ * @phpstan-type TileDefinition StandardTileDefinition|ForcedNeutralTileDefinition
  * @phpstan-type ConfigureRowContract array{
  *   key:string,
  *   title:string,
@@ -100,12 +113,12 @@ class ConfigureZoneTilesBuilder {
 			'include_in_posture' => $includeInPosture,
 			'label'             => $definition[ 'label' ],
 			'icon_class'        => self::con()->svgs->iconClass( $definition[ 'icon' ] ),
-			'summary'           => $this->requiredSummary( $definition ),
+			'summary'           => $definition[ 'summary' ],
 			'status'            => $status,
 			'status_label'      => $this->tileStatusLabel( $status ),
 			'status_icon_class' => $this->tileStatusIconClass( $status ),
 			'stat_line'         => $forceNeutral
-				? $this->forcedNeutralStatLine( $definition )
+				? $definition[ 'stat_line' ]
 				: $this->buildTileStatLine( $rows ),
 			'panel'             => [
 				'title'        => $definition[ 'label' ],
@@ -117,30 +130,9 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	/**
-	 * @param TileDefinition $definition
-	 */
-	private function forcedNeutralStatLine( array $definition ) :string {
-		$statLine = \trim( (string)( $definition[ 'stat_line' ] ?? '' ) );
-		if ( $statLine === '' ) {
-			throw new \LogicException( 'Forced-neutral configure tiles require a non-empty stat line.' );
-		}
-		return $statLine;
-	}
-
-	/**
-	 * @param TileDefinition $definition
-	 */
-	private function requiredSummary( array $definition ) :string {
-		$summary = \trim( (string)( $definition[ 'summary' ] ?? '' ) );
-		if ( $summary === '' ) {
-			throw new \LogicException( 'Configure tiles require a non-empty summary.' );
-		}
-		return $summary;
-	}
-
-	/**
 	 * @param list<Component\Base> $visibleComponents
 	 * @return list<ConfigureRowContract>
+	 * @throws \LogicException
 	 */
 	private function buildRowContracts( ?Zone\Base $zone, array $visibleComponents, bool $forceNeutral ) :array {
 		$rowInputs = [];
@@ -252,14 +244,12 @@ class ConfigureZoneTilesBuilder {
 
 	/**
 	 * @param list<ConfigureRowContract> $rows
+	 * @throws \LogicException
 	 */
 	private function assertValidUniqueRowKeys( array $rows ) :void {
 		$seenKeys = [];
 		foreach ( $rows as $row ) {
-			$key = (string)( $row[ 'key' ] ?? '' );
-			if ( $key === '' ) {
-				throw new \LogicException( 'Configure rows require a stable non-empty row key.' );
-			}
+			$key = $row[ 'key' ];
 			if ( isset( $seenKeys[ $key ] ) ) {
 				throw new \LogicException( 'Configure row keys must be unique within a zone: '.$key );
 			}
@@ -387,13 +377,17 @@ class ConfigureZoneTilesBuilder {
 		if ( !empty( $scope[ 'config_item' ] ) ) {
 			$data[ 'config_item' ] = $scope[ 'config_item' ];
 		}
+		$data[ 'form_context' ] = 'offcanvas';
 
-		return $this->normalizeActionContract( [
-			'label' => __( 'Configure', 'wp-simple-firewall' ),
-			'title' => $scope[ 'title' ] ?: __( 'Edit Settings', 'wp-simple-firewall' ),
-			'icon'  => self::con()->svgs->iconClass( 'gear' ),
-			'data'  => $data,
-		] );
+		return [
+			'label'   => __( 'Configure', 'wp-simple-firewall' ),
+			'title'   => $scope[ 'title' ] ?: __( 'Edit Settings', 'wp-simple-firewall' ),
+			'href'    => 'javascript:{}',
+			'icon'    => self::con()->svgs->iconClass( 'gear' ),
+			'tooltip' => '',
+			'classes' => [ 'zone_component_action' ],
+			'data'    => $data,
+		];
 	}
 
 	/**
@@ -418,16 +412,12 @@ class ConfigureZoneTilesBuilder {
 	 */
 	private function definitionComponentSlugs( array $definition ) :array {
 		if ( !empty( $definition[ 'component_slug' ] ) ) {
-			return [ (string)$definition[ 'component_slug' ] ];
+			return [ $definition[ 'component_slug' ] ];
 		}
 
 		$slugs = $definition[ 'component_slugs' ] ?? [];
-		if ( !\is_array( $slugs ) ) {
-			return [];
-		}
-
 		return \array_values( \array_filter( \array_map(
-			fn( $slug ) :string => \trim( (string)$slug ),
+			fn( string $slug ) :string => \trim( $slug ),
 			$slugs
 		) ) );
 	}
@@ -442,52 +432,6 @@ class ConfigureZoneTilesBuilder {
 		}
 
 		return $this->zonesCon()->getZone( $definition[ 'zone_slug' ] );
-	}
-
-	/**
-	 * @param array<string,mixed>|null $action
-	 * @return array<string,mixed>
-	 */
-	private function normalizeActionContract( ?array $action ) :array {
-		if ( empty( $action ) ) {
-			return [];
-		}
-
-		$data = $action[ 'data' ] ?? [];
-		if ( !\is_array( $data ) ) {
-			$data = [];
-		}
-
-		$data[ 'form_context' ] = 'offcanvas';
-		if ( !isset( $data[ 'zone_component_action' ] ) ) {
-			$data[ 'zone_component_action' ] = ZoneComponentConfig::SLUG;
-		}
-
-		return [
-			'label'   => (string)( $action[ 'label' ] ?? __( 'Configure', 'wp-simple-firewall' ) ),
-			'title'   => (string)( $action[ 'title' ] ?? __( 'Edit Settings', 'wp-simple-firewall' ) ),
-			'href'    => (string)( $action[ 'href' ] ?? 'javascript:{}' ),
-			'icon'    => (string)( $action[ 'icon' ] ?? self::con()->svgs->iconClass( 'gear' ) ),
-			'tooltip' => (string)( $action[ 'tooltip' ] ?? '' ),
-			'classes' => [ 'zone_component_action' ],
-			'data'    => $this->normalizeActionDataAttributes( $data ),
-		];
-	}
-
-	/**
-	 * @param array<mixed> $data
-	 * @return array<string,string>
-	 */
-	private function normalizeActionDataAttributes( array $data ) :array {
-		$normalized = [];
-		foreach ( $data as $key => $value ) {
-			$attribute = sanitize_key( (string)$key );
-			if ( $attribute === '' ) {
-				continue;
-			}
-			$normalized[ $attribute ] = (string)$value;
-		}
-		return $normalized;
 	}
 
 	private function zonesCon() :SecurityZonesCon {
