@@ -255,12 +255,9 @@ class AssetsCustomizer {
 					'main',
 				],
 				'data'    => fn() => [
-					'ajax'    => [
+					'ajax' => [
 						'add_form_submit'  => ActionData::Build( Actions\IpRuleAddSubmit::class ),
 						'render_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\IpRuleAddForm::class ),
-					],
-					'strings' => [
-						'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
 					],
 				],
 			],
@@ -465,6 +462,9 @@ class AssetsCustomizer {
 							'ajax' => [
 								'rule_delete'  => ActionData::Build( Actions\IpRuleDelete::class ),
 								'table_action' => ActionData::Build( Actions\IpRulesTableAction::class ),
+							],
+							'strings' => [
+								'are_you_sure' => __( 'Are you sure you want to delete this IP Rule?', 'wp-simple-firewall' ),
 							],
 							'vars' => [
 								'datatables_init' => ( new ForIpRules() )->buildRaw(),

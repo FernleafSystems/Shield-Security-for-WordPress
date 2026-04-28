@@ -31,7 +31,7 @@ export class ShieldTableIpRules extends ShieldTableBase {
 		shieldEventsHandler_Main.add_Click( 'td.ip_linked a.ip_delete', async ( targetEl ) => {
 			const rid = targetEl instanceof HTMLElement ? targetEl.dataset[ 'rid' ] || '' : '';
 			const confirmed = await confirmDialog( {
-				message: this._base_data?.strings?.are_you_sure || shieldStrings.string( 'are_you_sure' ),
+				message: this._base_data.strings.are_you_sure,
 				confirmLabel: resolveDialogConfirmLabel( targetEl ),
 				danger: true,
 				launcher: targetEl,
