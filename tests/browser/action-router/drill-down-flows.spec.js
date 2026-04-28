@@ -435,6 +435,47 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 	} );
 } );
 
+test( 'actions queue ignores all malware results from the context rail without replacing the direct table', async ( { page } ) => {
+	await withActionsQueueFixture( 'malware_direct_table', async ( fixture ) => {
+		const actionsQueuePage = new ActionsQueuePage( page );
+		await openShieldRoute( page, {
+			nav: 'scans',
+			nav_sub: 'overview',
+		} );
+
+		await actionsQueuePage.drillToDetail( fixture );
+		const rail = page.locator( '[data-operator-context-rail="1"]' );
+		const ignoreAllAction = await operatorContextAjaxAction(
+			rail,
+			( action ) => action?.sub_action === 'ignore_all'
+		);
+		const scanResultsTable = page.locator( '[data-actions-queue-detail="1"] [data-scan-results-table="1"]' ).first();
+
+		await waitForScanResultsTableRows( scanResultsTable );
+		expect( ignoreAllAction ).not.toBeNull();
+
+		const ignoreAllRequest = page.waitForRequest( isIgnoreAllRequest, { timeout: 20_000 } );
+		await ignoreAllAction.click();
+		const confirmModal = page.locator( '#AptoGeneralPurposeDialog.modal.show' );
+		await expect( confirmModal ).toBeVisible();
+		await confirmModal.locator( '[data-shield-dialog-confirm="1"]' ).click();
+		await ignoreAllRequest;
+
+		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+		await expect( page.locator( '[data-actions-queue-detail="1"] .shield-scan-pane-empty' ) ).toHaveCount( 0 );
+		await expect( scanResultsTable ).toBeVisible();
+		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"ignored_only":false/, { timeout: 20_000 } );
+		await waitForScanResultsTableEmpty( scanResultsTable );
+		await expect.poll(
+			async () => await hasOperatorContextAjaxAction(
+				rail,
+				( action ) => action?.sub_action === 'ignore_all'
+			),
+			{ timeout: 20_000 }
+		).toBe( false );
+	} );
+} );
+
 test( 'actions queue display collection can hide an ignored-only direct table without replacing the table shell', async ( { page } ) => {
 	await withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );

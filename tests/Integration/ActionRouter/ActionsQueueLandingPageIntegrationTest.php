@@ -628,6 +628,43 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_ignored_malware_group_keeps_actions_queue_direct_table_detail() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_malware_local',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
+			 ->store();
+		$this->resetScanResultCountMemoization();
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		foreach ( [ 'ignored-malware-a.php', 'ignored-malware-b.php' ] as $itemId ) {
+			$tracked = TestDataFactory::insertScanResultItemTracked( $afsId, [
+				'item_id' => $itemId,
+				'is_mal'  => 1,
+			] );
+			TestDataFactory::markScanResultItemIgnored( (int)$tracked[ 'result_item_id' ] );
+		}
+		$this->resetScanResultCountMemoization();
+
+		$groupsPayload = $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+			'bucket' => 'critical',
+			'group'  => 'malware',
+		] );
+
+		$this->assertSame( 'malware', (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'direct_table', (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
+		$this->assertSame( 'scanresults_malware', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' ) );
+		$this->assertSame( 'actions_queue', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'display_context' ] ?? '' ) );
+		$this->assertSame(
+			( new ScanResultsDisplayOptions() )->ignoredOnly(),
+			(array)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'results_display_options' ] ?? [] )
+		);
+		$this->assertHeaderHasNoDisplayOptions( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ) );
+	}
+
 	public function test_ignored_plugin_group_keeps_forced_ignored_scope_on_direct_table_detail() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_pluginsthemes_local',

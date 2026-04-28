@@ -101,8 +101,8 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 3, $definitions->sectionOrderForGroupKey( 'themes' ) );
 		$this->assertSame( 4, $definitions->sectionOrderForGroupKey( 'abandoned' ) );
 		$this->assertSame( 'Known Vulnerabilities', $definitions->sectionLabelForGroupKey( 'vulnerabilities' ) );
-		$this->assertSame( 'Plugin Files', $definitions->sectionLabelForGroupKey( 'plugins' ) );
-		$this->assertSame( 'Theme Files', $definitions->sectionLabelForGroupKey( 'themes' ) );
+		$this->assertSame( 'Plugins with modified files', $definitions->sectionLabelForGroupKey( 'plugins' ) );
+		$this->assertSame( 'Themes with modified files', $definitions->sectionLabelForGroupKey( 'themes' ) );
 		$this->assertSame( 'Abandoned Assets', $definitions->sectionLabelForGroupKey( 'abandoned' ) );
 
 		$this->assertSame( 2, $definitions->sortOrderForGroupKey( 'wordpress' ) );
@@ -179,7 +179,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 			$definitions->summaryBehaviourForKey( 'abandoned' )
 		);
 		$this->assertSame( 'themes', $definitions->healthyIgnoredSourceForGroupKey( 'themes' ) );
-		$this->assertSame( '', $definitions->healthyIgnoredSourceForGroupKey( 'malware' ) );
+		$this->assertSame( 'malware', $definitions->healthyIgnoredSourceForGroupKey( 'malware' ) );
 		$this->assertSame(
 			[
 				'display_context'         => 'actions_queue',
@@ -194,7 +194,18 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		);
 		$this->assertSame( [], $definitions->ignoredRenderActionDataForGroupKey( 'vulnerabilities', 2 ) );
 		$this->assertSame( [], $definitions->ignoredRenderActionDataForGroupKey( 'abandoned', 2 ) );
-		$this->assertSame( [], $definitions->ignoredRenderActionDataForGroupKey( 'malware', 2 ) );
+		$this->assertSame(
+			[
+				'display_context'         => 'actions_queue',
+				'results_display_options' => [
+					'include_ignored'  => true,
+					'include_repaired' => false,
+					'include_deleted'  => false,
+					'ignored_only'     => true,
+				],
+			],
+			$definitions->ignoredRenderActionDataForGroupKey( 'malware', 2 )
+		);
 		$this->assertSame(
 			[
 				'display_context'         => 'actions_queue',

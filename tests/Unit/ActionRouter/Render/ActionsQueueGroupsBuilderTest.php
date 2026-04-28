@@ -1255,6 +1255,12 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'severity' => 'warning',
 						'zone'     => 'scans',
 					],
+					[
+						'key'      => 'malware_ignored',
+						'count'    => 5,
+						'severity' => 'warning',
+						'zone'     => 'scans',
+					],
 				],
 			],
 			[
@@ -1344,6 +1350,19 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				'ignored_only'     => true,
 			],
 			$activeGroups[ 'themes:ignored-theme' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
+		);
+		$this->assertArrayHasKey( 'malware', $activeGroups );
+		$this->assertTrue( $activeGroups[ 'malware' ][ 'is_interactive' ] );
+		$this->assertSame( 'direct_table', $activeGroups[ 'malware' ][ 'detail_shell' ] );
+		$this->assertSame( 'scanresults_malware', $activeGroups[ 'malware' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame(
+			[
+				'include_ignored'  => true,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => true,
+			],
+			$activeGroups[ 'malware' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
 		);
 		$this->assertSame( [ [ 'wordpress' ] ], $this->sectionGroupKeys( $data[ 'healthy_sections' ] ) );
 	}

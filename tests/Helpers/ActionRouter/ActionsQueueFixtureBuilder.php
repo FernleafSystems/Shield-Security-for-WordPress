@@ -170,6 +170,8 @@ class ActionsQueueFixtureBuilder {
 		switch ( $scenario ) {
 			case 'direct_table':
 				return $this->seedDirectTable( $state );
+			case 'malware_direct_table':
+				return $this->seedMalwareDirectTable( $state );
 			case 'ignored_plugin_direct_table':
 				return $this->seedIgnoredPluginDirectTable( $state );
 			case 'file_locker_lazy':
@@ -277,6 +279,41 @@ class ActionsQueueFixtureBuilder {
 		return [
 			'scenario'                    => 'ignored_plugin_direct_table',
 			'target_group_key'            => 'plugins:'.$pluginSlug,
+			'expected_detail_shell'       => 'direct_table',
+			'expected_lazy_panel'         => false,
+			'require_scan_results_table'  => true,
+			'require_populated_scan_results_table' => true,
+		];
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return ScenarioDefinition
+	 */
+	private function seedMalwareDirectTable( array &$state ) :array {
+		RuntimeTestState::applyPremiumCapabilities( [
+			'scan_malware_local',
+		] );
+
+		RuntimeTestState::controller()->opts
+			->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
+			->store();
+		RuntimeTestState::forcePersistOptions( [
+			'enable_core_file_integrity_scan' => 'Y',
+			'file_scan_areas'                 => [ 'wp', 'malware_php' ],
+		] );
+		RuntimeTestState::primeCacheSubDir( 'browser-fixtures-actions-queue' );
+
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$this->trackId( $state, 'scan_ids', $scanId );
+		$this->trackScanResult( $state, TestDataFactory::insertAfsFileScanResultTracked( $scanId, 'wp-config.php', [
+			'is_mal' => 1,
+		] ) );
+
+		return [
+			'scenario'                    => 'malware_direct_table',
+			'target_group_key'            => 'malware',
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
 			'require_scan_results_table'  => true,

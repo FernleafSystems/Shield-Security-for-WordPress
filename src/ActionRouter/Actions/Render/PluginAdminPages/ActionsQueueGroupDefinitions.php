@@ -28,9 +28,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   card_type:'expandable'|'linked'|'category',
  *   summary_keys:list<string>,
  *   healthy_interaction_mode:'none'|'ignored_only'|'default_detail',
- *   healthy_ignored_source:''|'wordpress'|'plugins'|'themes',
+ *   healthy_ignored_source:''|'wordpress'|'plugins'|'themes'|'malware',
  *   render_action_class:class-string<BaseAction>,
  *   render_action_data:array<string,mixed>
+ * }
+ * @phpstan-type GroupMetadata array{
+ *   sort_order:int,
+ *   section_key:string,
+ *   section_order:int,
+ *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
+ *   card_type:'expandable'|'linked'|'category',
+ *   healthy_interaction_mode:'none'|'ignored_only'|'default_detail',
+ *   healthy_ignored_source:''|'wordpress'|'plugins'|'themes'|'malware',
+ *   render_action_class:class-string<BaseAction>,
+ *   render_action_data:'none'|'scan_results'|array<string,mixed>
  * }
  * @phpstan-type SummaryBehaviour array{
  *   definition_key:string,
@@ -58,6 +69,9 @@ class ActionsQueueGroupDefinitions {
 		],
 	];
 
+	/**
+	 * @var array<string,GroupMetadata>
+	 */
 	private const GROUP_METADATA = [
 		'wordpress' => [
 			'sort_order'               => 2,
@@ -124,8 +138,8 @@ class ActionsQueueGroupDefinitions {
 			'section_order'            => 0,
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
-			'healthy_interaction_mode' => 'none',
-			'healthy_ignored_source'   => '',
+			'healthy_interaction_mode' => 'ignored_only',
+			'healthy_ignored_source'   => 'malware',
 			'render_action_class'      => Malware::class,
 			'render_action_data'       => 'scan_results',
 		],

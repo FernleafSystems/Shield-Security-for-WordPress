@@ -592,10 +592,17 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 					return resp;
 				}
 
-				return this.refreshAfterNestedAction( true ).then( ( refreshResult ) => {
+				const reloadDetail = this.selectedGroup?.detail_shell === 'asset_cards';
+				return this.refreshAfterNestedAction( reloadDetail ).then( ( refreshResult ) => {
 					if ( refreshResult === null ) {
 						this.setDirectTableBusy( busyTable, false );
+						return refreshResult;
 					}
+
+					if ( !reloadDetail && !this.reloadDirectTable( busyTable ) ) {
+						this.setDirectTableBusy( busyTable, false );
+					}
+
 					return refreshResult;
 				} );
 			} )
@@ -700,6 +707,16 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 	setDirectTableBusy( tableEl, isBusy ) {
 		return ShieldTableBase.setBusyForTableElement( tableEl, isBusy );
+	}
+
+	reloadDirectTable( tableEl ) {
+		const datatable = ShieldTableBase.resolveDatatableForTableElement( tableEl );
+		if ( datatable === null || typeof datatable.ajax?.reload !== 'function' ) {
+			return false;
+		}
+
+		datatable.ajax.reload( () => this.setDirectTableBusy( tableEl, false ) );
+		return true;
 	}
 
 	captureResultsDisplayOptionsFromTarget( target ) {
