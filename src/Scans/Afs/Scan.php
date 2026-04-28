@@ -14,7 +14,16 @@ class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan 
 		$action = $this->getScanActionVO();
 
 		if ( self::con()->opts->optIs( 'optimise_scan_speed', 'Y' ) ) {
-			( new Processing\FileScanOptimiser() )->filterFilesFromAction( $action );
+			$optimiser = new Processing\FileScanOptimiser();
+			if ( !empty( $action->items ) ) {
+				$action->items = \array_values( \array_filter(
+					$action->items,
+					function ( $item ) use ( $action, $optimiser ) {
+						$path = \base64_decode( (string)$item, true );
+						return !\is_string( $path ) || !$optimiser->canSkipKnownValidFile( $path, $action );
+					}
+				) );
+			}
 		}
 
 		$patterns = ( new Utilities\MalwareScanPatterns() )->retrieve();
@@ -35,13 +44,5 @@ class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan 
 				->run()
 				->getAllItems()
 		);
-	}
-
-	protected function postScan() {
-		/** @var ScanActionVO $action */
-		$action = $this->getScanActionVO();
-		if ( self::con()->opts->optIs( 'optimise_scan_speed', 'Y' ) && \is_array( $action->valid_files ) ) {
-			( new Processing\FileScanOptimiser() )->addFiles( $action->valid_files );
-		}
 	}
 }

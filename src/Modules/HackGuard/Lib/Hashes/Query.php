@@ -20,7 +20,7 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\{
 class Query {
 
 	/**
-	 * @return array{hashes:array<int, string>, trusted_source:bool, asset_type:string, asset_key:string}
+	 * @return array{hashes:array<int, string>, trusted_source:bool, asset_type:string, asset_key:string, asset_version:string, relative_path:string}
 	 * @throws AssetHashesNotFound
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
@@ -48,6 +48,8 @@ class Query {
 			'trusted_source' => $hashSource[ 'trusted_source' ],
 			'asset_type'     => (string)$vo->asset_type,
 			'asset_key'      => (string)$vo->unique_id,
+			'asset_version'  => (string)$vo->Version,
+			'relative_path'  => $fragment,
 		];
 	}
 
@@ -112,7 +114,9 @@ class Query {
 			$verified,
 			$verified && $hashData[ 'trusted_source' ],
 			$hashData[ 'asset_type' ],
-			$hashData[ 'asset_key' ]
+			$hashData[ 'asset_key' ],
+			$hashData[ 'asset_version' ],
+			$hashData[ 'relative_path' ]
 		);
 	}
 

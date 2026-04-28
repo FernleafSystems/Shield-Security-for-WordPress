@@ -34,6 +34,7 @@ class PluginFile extends BasePluginThemeFile {
 					'slug' => $this->asset->unique_id,
 				] );
 			}
+			$this->hashVerificationResult = $verification;
 			$this->verifiedHashTrustedSource = $verification->trustedSource;
 			$valid = true;
 		}
