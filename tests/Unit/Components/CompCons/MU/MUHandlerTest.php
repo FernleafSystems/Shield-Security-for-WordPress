@@ -18,6 +18,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\MU;
 
+use function Brain\Monkey\Actions\expectAdded;
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\MU\MUHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
@@ -51,6 +52,58 @@ class MUHandlerTest extends BaseUnitTest {
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
+	}
+
+	public function testExecuteRegistersOptionsStoreHookOnce() :void {
+		[ $con ] = $this->installHookController( true, [] );
+		$handler = new MUHandler();
+
+		expectAdded( $con->prefix( 'pre_options_store' ) )
+			->once()
+			->with( [ $handler, 'rewriteOnWhiteLabelOptionSave' ], 10, 1 );
+
+		$handler->execute();
+		$handler->execute();
+
+		$this->assertSame( 10, has_action( $con->prefix( 'pre_options_store' ), [ $handler, 'rewriteOnWhiteLabelOptionSave' ] ) );
+	}
+
+	public function testWhiteLabelOptionChangeRewritesMuFileWhenMuEnabled() :void {
+		[ , $fs ] = $this->installHookController( true, [ 'wl_pluginnamemain' ] );
+
+		( new MUHandler() )->rewriteOnWhiteLabelOptionSave();
+
+		$this->assertSame( 1, $fs->writeCount() );
+	}
+
+	public function testWhiteLabelOptionChangeDoesNotRewriteMuFileWhenMuDisabled() :void {
+		[ , $fs ] = $this->installHookController( false, [ 'wl_pluginnamemain' ] );
+
+		( new MUHandler() )->rewriteOnWhiteLabelOptionSave();
+
+		$this->assertSame( 0, $fs->writeCount() );
+	}
+
+	public function testNonWhiteLabelOptionChangeDoesNotRewriteMuFile() :void {
+		[ , $fs ] = $this->installHookController( true, [ 'non_whitelabel_option' ] );
+
+		( new MUHandler() )->rewriteOnWhiteLabelOptionSave();
+
+		$this->assertSame( 0, $fs->writeCount() );
+	}
+
+	public function testCachedLabelsAreInvalidatedBeforeMuFileRewrite() :void {
+		$cachedLabels = (object)[
+			'Name'      => 'cached',
+			'PluginURI' => 'cached',
+			'Author'    => 'cached',
+		];
+		[ $con, $fs ] = $this->installHookController( true, [ 'wl_pluginnamemain' ], $cachedLabels );
+
+		( new MUHandler() )->rewriteOnWhiteLabelOptionSave();
+
+		$this->assertSame( 1, $fs->writeCount() );
+		$this->assertNotSame( $cachedLabels, $con->labels );
 	}
 
 	public function testConvertToMuUsesPluginLoopbackHelperWithoutCallingRestRoute() :void {
@@ -102,11 +155,69 @@ class MUHandlerTest extends BaseUnitTest {
 			$this->assertFalse( $fs->hasFile( WPMU_PLUGIN_DIR.'/'.MUHandler::PLUGIN_FILE_NAME ) );
 		}
 	}
+
+	private function installHookController(
+		bool $muEnabled,
+		array $changedOptions,
+		object $cachedLabels = null
+	) :array {
+		$fs = new MUHandlerFsStub();
+		$opts = new MUHandlerOptionsStub( $muEnabled, $changedOptions );
+		$controllerExtras = [
+			'plugin'         => new MUHandlerLoopbackPluginStub( true ),
+			'root_file'      => 'vfs/wp-content/plugins/wp-simple-firewall/icwp-wpsf.php',
+			'cfg'            => (object)[
+				'properties'    => [
+					'slug_parent' => 'icwp',
+					'slug_plugin' => 'wpsf',
+				],
+				'labels'        => [
+					'Name'      => 'Shield',
+					'Title'     => 'Shield',
+					'MenuTitle' => 'Shield',
+					'PluginURI' => 'https://example.test/shield',
+					'Author'    => 'Shield',
+				],
+				'configuration' => (object)[
+					'options' => [
+						'wl_pluginnamemain'     => [
+							'section' => 'section_whitelabel',
+						],
+						'whitelabel_enable'     => [
+							'section' => 'section_whitelabel',
+						],
+						'non_whitelabel_option' => [
+							'section' => 'section_defaults',
+						],
+					],
+				],
+			],
+			'opts'           => $opts,
+			'modules_loaded' => true,
+			'comps'          => (object)[
+				'license' => new MUHandlerLicenseStub(),
+			],
+		];
+
+		if ( $cachedLabels !== null ) {
+			$controllerExtras[ 'labels' ] = $cachedLabels;
+		}
+
+		$con = UnitTestControllerFactory::install( null, null, (object)$controllerExtras );
+		ServicesState::installItems( [
+			'service_wpfs'      => $fs,
+			'service_wpgeneral' => new MUHandlerWpGeneralStub(),
+		] );
+
+		return [ $con, $fs, $opts ];
+	}
 }
 
 class MUHandlerFsStub extends Fs {
 
 	private array $files = [];
+
+	private int $writeCount = 0;
 
 	public function isDir( string $path ) :bool {
 		unset( $path );
@@ -116,6 +227,7 @@ class MUHandlerFsStub extends Fs {
 	public function putFileContent( $path, $contents, $compress = false ) :bool {
 		unset( $compress );
 		$this->files[ $path ] = $contents;
+		++$this->writeCount;
 		return true;
 	}
 
@@ -139,6 +251,10 @@ class MUHandlerFsStub extends Fs {
 	public function hasFile( string $path ) :bool {
 		return isset( $this->files[ $path ] );
 	}
+
+	public function writeCount() :int {
+		return $this->writeCount;
+	}
 }
 
 class MUHandlerWpGeneralStub extends General {
@@ -159,5 +275,39 @@ class MUHandlerLoopbackPluginStub extends ModCon {
 
 	public function canSiteLoopback() :bool {
 		return $this->canLoopback;
+	}
+}
+
+class MUHandlerOptionsStub {
+
+	private bool $muEnabled;
+
+	private array $changedOptions;
+
+	public function __construct( bool $muEnabled, array $changedOptions ) {
+		$this->muEnabled = $muEnabled;
+		$this->changedOptions = $changedOptions;
+	}
+
+	public function optIs( string $key, $value ) :bool {
+		return $key === 'enable_mu' && ( $this->muEnabled ? 'Y' : 'N' ) === $value;
+	}
+
+	public function optChanged( string $key ) :bool {
+		return \in_array( $key, $this->changedOptions, true );
+	}
+
+	public function optSet( string $key, $value ) :self {
+		if ( $key === 'enable_mu' ) {
+			$this->muEnabled = $value === 'Y';
+		}
+		return $this;
+	}
+}
+
+class MUHandlerLicenseStub {
+
+	public function hasValidWorkingLicense() :bool {
+		return false;
 	}
 }

@@ -48,6 +48,7 @@ class Processor {
 				$components->badge->execute();
 				$components->import_export->execute();
 				$components->comment_spam->execute();
+				$components->mu->execute();
 				$components->whitelabel->execute();
 				$components->integrations->execute();
 				$components->translation_downloads->execute();
