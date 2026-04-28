@@ -28,6 +28,18 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 class LoadFileScanResultsTableData extends DynPropertiesClass {
 	use PluginControllerConsumer;
 
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+		switch ( $key ) {
+			case 'custom_record_retriever_wheres':
+				$value = \is_array( $value ) ? $value : [];
+				break;
+			default:
+				break;
+		}
+		return $value;
+	}
+
 	public function run(): array {
 		$resultsDisplayOptions = $this->getResultsDisplayOptions();
 		$results = $this->getRecordRetriever()->retrieveForResultsTables( $resultsDisplayOptions );
@@ -144,7 +156,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			] );
 		}
 
-		if ( \is_array( $this->custom_record_retriever_wheres ) ) {
+		if ( \count( $this->custom_record_retriever_wheres ) > 0 ) {
 			$retriever->addWheres( $this->custom_record_retriever_wheres );
 		}
 

@@ -54,7 +54,7 @@ class ConvertHtmlToText {
 			'/<a\b[^>]*href\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s>]+))[^>]*>(.*?)<\/a>/is',
 			function ( array $matches ) :string {
 				$href = $this->normalizeInlineText( $matches[ 1 ] ?: ( $matches[ 2 ] ?: ( $matches[ 3 ] ?: '' ) ) );
-				$label = $this->normalizeInlineText( \strip_tags( $matches[ 4 ] ?? '' ) );
+				$label = $this->normalizeInlineText( \strip_tags( $matches[ 4 ] ) );
 
 				if ( $href === '' ) {
 					return $label;

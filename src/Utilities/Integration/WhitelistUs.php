@@ -16,6 +16,7 @@ class WhitelistUs {
 	}
 
 	public function wordfence() :void {
+		// @phpstan-ignore-next-line function.alreadyNarrowedType
 		if ( ( new Find() )->isPluginActive( Find::WORDFENCE ) && \method_exists( '\wordfence', 'whitelistIP' ) ) {
 			foreach ( $this->getIpsForShield() as $ip ) {
 				\wordfence::whitelistIP( $ip );

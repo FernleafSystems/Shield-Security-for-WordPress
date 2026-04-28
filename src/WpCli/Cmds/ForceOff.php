@@ -61,6 +61,9 @@ class ForceOff extends BaseCmd {
 		}
 	}
 
+	/**
+	 * @phpstan-impure
+	 */
 	private function forceOffExists(): bool {
 		return (bool)Services::WpFs()->exists( path_join( self::con()->getRootDir(), 'forceoff' ) );
 	}

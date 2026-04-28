@@ -16,24 +16,20 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 	/**
 	 * Creates a testable subclass that:
 	 * - Overrides query methods to return canned data
-	 * - Exposes buildForIPs (no controller dependency)
 	 * - Provides buildForEvents with injectable event names (avoids controller)
 	 */
-	private function createBuilder( array $events = [], array $users = [], array $ips = [] ) :object {
-		return new class( $events, $users, $ips ) extends BuildSearchPanesData {
+	private function createBuilder( array $events = [], array $users = [] ) :object {
+		return new class( $events, $users ) extends BuildSearchPanesData {
 
 			private array $events;
 
 			private array $users;
 
-			private array $ips;
-
 			private array $eventNames = [];
 
-			public function __construct( array $events, array $users, array $ips ) {
+			public function __construct( array $events, array $users ) {
 				$this->events = $events;
 				$this->users = $users;
-				$this->ips = $ips;
 			}
 
 			public function setEventNames( array $names ) :self {
@@ -47,29 +43,6 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 
 			protected function runDistinctUsersQuery() :array {
 				return $this->users;
-			}
-
-			protected function runDistinctIPsQuery() :array {
-				return $this->ips;
-			}
-
-			/**
-			 * Exposes IP transformation (no controller needed)
-			 */
-			public function testBuildForIPs() :array {
-				return \array_values( \array_filter( \array_map(
-					function ( $result ) {
-						$ip = $result[ 'ip' ] ?? null;
-						if ( !empty( $ip ) ) {
-							$ip = [
-								'label' => $ip,
-								'value' => $ip,
-							];
-						}
-						return $ip;
-					},
-					$this->runDistinctIPsQuery()
-				) ) );
 			}
 
 			/**
@@ -150,49 +123,6 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 		$this->assertSame( 'IP Blocked', $result[ 0 ][ 'label' ] );
 	}
 
-	public function test_ips_transforms_to_label_value_pairs() :void {
-		$builder = $this->createBuilder( [], [], [
-			[ 'ip' => '192.168.1.1' ],
-			[ 'ip' => '10.0.0.1' ],
-		] );
-
-		$result = $builder->testBuildForIPs();
-
-		$this->assertCount( 2, $result );
-		$this->assertSame( [ 'label' => '192.168.1.1', 'value' => '192.168.1.1' ], $result[ 0 ] );
-		$this->assertSame( [ 'label' => '10.0.0.1', 'value' => '10.0.0.1' ], $result[ 1 ] );
-	}
-
-	public function test_ips_empty_result_returns_empty_array() :void {
-		$builder = $this->createBuilder( [], [], [] );
-		$this->assertSame( [], $builder->testBuildForIPs() );
-	}
-
-	public function test_ips_filters_null_and_empty_values() :void {
-		$builder = $this->createBuilder( [], [], [
-			[ 'ip' => '192.168.1.1' ],
-			[ 'ip' => null ],
-			[ 'ip' => '' ],
-			[ 'ip' => '10.0.0.1' ],
-		] );
-
-		$result = $builder->testBuildForIPs();
-		$this->assertCount( 2, $result );
-		$this->assertSame( '192.168.1.1', $result[ 0 ][ 'value' ] );
-		$this->assertSame( '10.0.0.1', $result[ 1 ][ 'value' ] );
-	}
-
-	public function test_ips_single_ip() :void {
-		$builder = $this->createBuilder( [], [], [
-			[ 'ip' => '8.8.8.8' ],
-		] );
-
-		$result = $builder->testBuildForIPs();
-		$this->assertCount( 1, $result );
-		$this->assertSame( '8.8.8.8', $result[ 0 ][ 'label' ] );
-		$this->assertSame( '8.8.8.8', $result[ 0 ][ 'value' ] );
-	}
-
 	public function test_users_extracts_integer_uids() :void {
 		$builder = $this->createBuilder( [], [
 			[ 'uid' => '1' ],
@@ -211,7 +141,6 @@ class ActivityLogSearchPanesTest extends BaseUnitTest {
 	public function test_all_transformations_handle_empty_data() :void {
 		$builder = $this->createBuilder();
 		$this->assertSame( [], $builder->testBuildForEvents() );
-		$this->assertSame( [], $builder->testBuildForIPs() );
 		$this->assertSame( [], $builder->testExtractUserIDs() );
 	}
 }

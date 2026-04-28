@@ -14,6 +14,9 @@ class InstantAlerts extends Base {
 		return __( 'Instant alerts on critical events.', 'wp-simple-firewall' );
 	}
 
+	/**
+	 * @throws \LogicException
+	 */
 	public function configureRows() :array {
 		return [
 			$this->buildConfigureRowInput(

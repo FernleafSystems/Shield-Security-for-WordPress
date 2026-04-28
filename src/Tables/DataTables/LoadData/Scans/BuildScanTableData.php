@@ -8,39 +8,38 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retri
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\BaseForScan;
 
 /**
- * @property string $type
- * @property string $file
+ * @property string                   $type
+ * @property string                   $file
  * @property array<string,mixed>|null $results_display_options
  */
 class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
-
-	protected function getTotalCountCacheKey() :string {
+	protected function getTotalCountCacheKey(): string {
 		return '';
 	}
 
-	protected function getSearchPanesDataBuilder() :BuildSearchPanesData {
+	protected function getSearchPanesDataBuilder(): BuildSearchPanesData {
 		return new BuildSearchPanesData();
 	}
 
-	protected function loadRecordsWithSearch() :array {
+	protected function loadRecordsWithSearch(): array {
 		return $this->loadRecordsWithDirectQuery();
 	}
 
-	protected function getSearchPanesData() :array {
+	protected function getSearchPanesData(): array {
 		return [];
 	}
 
 	/**
 	 * @param LogRecord[] $records
 	 */
-	protected function buildTableRowsFromRawRecords( array $records ) :array {
+	protected function buildTableRowsFromRawRecords( array $records ): array {
 		return \array_values( $records );
 	}
 
 	/**
 	 * The Wheres need to align with the structure of the Query called from getRecords()
 	 */
-	protected function buildWheresFromSearchParams() :array {
+	protected function buildWheresFromSearchParams(): array {
 		$wheres = [];
 		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
 			foreach ( \array_filter( $this->table_data[ 'searchPanes' ] ) as $column => $selected ) {
@@ -56,17 +55,17 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 		return $wheres;
 	}
 
-	protected function countTotalRecords() :int {
+	protected function countTotalRecords(): int {
 		return $this->getRecordsLoader()->countAll();
 	}
 
-	protected function countTotalRecordsFiltered() :int {
+	protected function countTotalRecordsFiltered(): int {
 		$loader = $this->getRecordsLoader();
 		$loader->wheres = $this->buildWheresFromSearchParams();
 		return $loader->countAll();
 	}
 
-	protected function getSearchableColumns() :array {
+	protected function getSearchableColumns(): array {
 		// Use the DataTables definition builder to locate searchable columns
 		return \array_filter( \array_map(
 			fn( $column ) => ( $column[ 'searchable' ] ?? false ) ? $column[ 'data' ] : '',
@@ -77,7 +76,7 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 	/**
 	 * @return array[]
 	 */
-	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
+	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ): array {
 		$loader = $this->getRecordsLoader();
 		$loader->wheres = $wheres;
 		$loader->limit = $limit;
@@ -85,7 +84,7 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 		return $loader->run();
 	}
 
-	protected function getRecordsLoader() :LoadFileScanResultsTableData {
+	protected function getRecordsLoader(): LoadFileScanResultsTableData {
 		$loader = new LoadFileScanResultsTableData();
 		$loader->custom_record_retriever_wheres = ( new ScanResultsScopeResolver() )
 			->wheresForActionScope( $this->type, $this->file );
@@ -97,14 +96,14 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 
 		$loader->order_dir = $this->getOrderDirection();
 		$loader->order_by = $this->order_by;
-		$loader->search_text = \preg_replace( '#[^/a-z\d_-]#i', '', (string)$this->table_data[ 'search' ][ 'value' ] ?? '' );
+		$loader->search_text = \preg_replace( '#[^/a-z\d_-]#i', '', (string)( $this->table_data[ 'search' ][ 'value' ] ?? '' ) );
 		return $loader;
 	}
 
 	/**
 	 * @return array<string,bool>|null
 	 */
-	private function getExplicitResultsDisplayOptions() :?array {
+	private function getExplicitResultsDisplayOptions(): ?array {
 		if ( !\is_array( $this->results_display_options ) ) {
 			return null;
 		}

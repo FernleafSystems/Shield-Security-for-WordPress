@@ -43,22 +43,6 @@ class BuildSearchPanesData extends BaseBuildSearchPanesData {
 		);
 	}
 
-	private function buildForIPs() :array {
-		return \array_values( \array_filter( \array_map(
-			function ( $result ) {
-				$ip = $result[ 'ip' ] ?? null;
-				if ( !empty( $ip ) ) {
-					$ip = [
-						'label' => $ip,
-						'value' => $ip,
-					];
-				}
-				return $ip;
-			},
-			$this->runDistinctIPsQuery()
-		) ) );
-	}
-
 	private function buildForEvents() :array {
 		return \array_values( \array_filter( \array_map(
 			function ( $result ) {
@@ -95,23 +79,6 @@ class BuildSearchPanesData extends BaseBuildSearchPanesData {
 							ON `log`.`req_ref` = `req`.`id`',
 				$dbCon->activity_logs->getTableSchema()->table,
 				$dbCon->req_logs->getTableSchema()->table
-			)
-		);
-		return \is_array( $results ) ? $results : [];
-	}
-
-	protected function runDistinctIPsQuery() :array {
-		$dbCon = self::con()->db_con;
-		$results = Services::WpDb()->selectCustom(
-			\sprintf( 'SELECT DISTINCT INET6_NTOA(`ips`.`ip`) as `ip`
-						FROM `%s` as `log`
-						INNER JOIN `%s` as `req`
-							ON `log`.`req_ref` = `req`.`id`
-						INNER JOIN `%s` as `ips`
-							ON `ips`.`id` = `req`.`ip_ref`',
-				$dbCon->activity_logs->getTableSchema()->table,
-				$dbCon->req_logs->getTableSchema()->table,
-				$dbCon->ips->getTableSchema()->table
 			)
 		);
 		return \is_array( $results ) ? $results : [];
