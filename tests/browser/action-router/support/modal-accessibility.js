@@ -10,10 +10,22 @@ async function expectNamedDialog( page, modal, expectedLabelId = null ) {
 }
 
 async function expectNamedOffcanvas( page, offcanvas, expectedLabelId = null ) {
+	await expect( offcanvas ).toHaveAttribute( 'role', 'dialog' );
+	await expect( offcanvas ).toHaveAttribute( 'aria-modal', 'true' );
 	const labelId = await expectConnectedNonEmptyReference( page, offcanvas, 'aria-labelledby' );
 	if ( expectedLabelId !== null ) {
 		expect( labelId ).toBe( expectedLabelId );
 	}
+}
+
+async function expectLabelledControl( control ) {
+	await expect( control ).toBeVisible();
+	const label = await control.getAttribute( 'aria-label' );
+	expect( label || '' ).not.toHaveLength( 0 );
+}
+
+async function expectFocusWithin( element ) {
+	await expect.poll( async () => element.evaluate( ( node ) => node.contains( document.activeElement ) ) ).toBe( true );
 }
 
 async function expectOptionalDescription( page, dialog ) {
@@ -41,6 +53,8 @@ async function expectModalHiddenWithoutAriaModal( page, modalSelector ) {
 }
 
 module.exports = {
+	expectFocusWithin,
+	expectLabelledControl,
 	expectModalHiddenWithoutAriaModal,
 	expectNamedDialog,
 	expectNamedOffcanvas,

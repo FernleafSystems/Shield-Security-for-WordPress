@@ -19,7 +19,7 @@ export class IpAnalyse extends BaseAutoExecComponent {
 		this.runAnalysisOnLoad();
 
 		shieldEventsHandler_Main.add_Click( '.offcanvas_ip_analysis', ( targetEl ) => {
-			this.render( targetEl.dataset[ 'ip' ] ).finally();
+			this.render( targetEl.dataset[ 'ip' ], { launcher: targetEl } ).finally();
 		} );
 		shieldEventsHandler_Main.add_Submit(
 			'.offcanvas.offcanvas_ipanalysis form[data-investigate-panel-form="1"]',

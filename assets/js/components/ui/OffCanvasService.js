@@ -4,18 +4,21 @@ import { ObjectOps } from "../../util/ObjectOps";
 import { AjaxService } from "../services/AjaxService";
 import { UiContentActivator } from "./UiContentActivator";
 import { BootstrapTooltips } from "./BootstrapTooltips";
+import { focusElement } from "./ShieldA11y";
 
 export class OffCanvasService extends BaseComponent {
 
 	static bsCanvas;
 	static canvasTracker;
 	static offCanvasEl;
+	static rootOpenerEl;
 	static HISTORY_MODE_PUSH = 'push';
 	static HISTORY_MODE_REPLACE = 'replace';
 
 	init() {
 		OffCanvasService.canvasTracker = [];
 		OffCanvasService.offCanvasEl = document.getElementById( 'AptoOffcanvas' ) || false;
+		OffCanvasService.rootOpenerEl = null;
 		this.exec();
 	}
 
@@ -36,7 +39,12 @@ export class OffCanvasService extends BaseComponent {
 				OffCanvasService.renderRequest(
 					OffCanvasService.canvasTracker[ OffCanvasService.canvasTracker.length - 1 ]
 				).finally();
+				return;
 			}
+
+			const openerEl = OffCanvasService.rootOpenerEl;
+			OffCanvasService.rootOpenerEl = null;
+			focusElement( openerEl );
 		} );
 	}
 
@@ -48,12 +56,36 @@ export class OffCanvasService extends BaseComponent {
 
 	static RenderCanvas( canvasProperties = {}, options = {} ) {
 		const request = ObjectOps.ObjClone( canvasProperties );
+		if ( OffCanvasService.canvasTracker.length === 0 ) {
+			OffCanvasService.captureRootOpener( options.launcher );
+		}
 		OffCanvasService.updateHistory(
 			request,
 			OffCanvasService.normalizeHistoryMode( options.historyMode )
 		);
 		return OffCanvasService.renderRequest( request );
 	};
+
+	static captureRootOpener( launcher = null ) {
+		if ( OffCanvasService.isValidRootOpener( launcher ) ) {
+			OffCanvasService.rootOpenerEl = launcher;
+			return;
+		}
+
+		const activeEl = OffCanvasService.offCanvasEl instanceof HTMLElement
+			? OffCanvasService.offCanvasEl.ownerDocument.activeElement
+			: document.activeElement;
+		OffCanvasService.rootOpenerEl = OffCanvasService.isValidRootOpener( activeEl ) ? activeEl : null;
+	}
+
+	static isValidRootOpener( element ) {
+		return element instanceof HTMLElement
+			&& OffCanvasService.offCanvasEl instanceof HTMLElement
+			&& element.isConnected
+			&& element !== element.ownerDocument.body
+			&& element !== element.ownerDocument.documentElement
+			&& !OffCanvasService.offCanvasEl.contains( element );
+	}
 
 	static normalizeHistoryMode( historyMode = '' ) {
 		return historyMode === OffCanvasService.HISTORY_MODE_REPLACE

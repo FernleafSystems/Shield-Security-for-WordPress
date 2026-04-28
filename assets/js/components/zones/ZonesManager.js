@@ -11,7 +11,10 @@ export class ZonesManager extends BaseAutoExecComponent {
 	componentAction( button ) {
 		const data = button.dataset;
 		if ( data.zone_component_action.startsWith( 'offcanvas_' ) ) {
-			OffCanvasService.RenderCanvas( ObjectOps.Merge( this._base_data.ajax[ data.zone_component_action ], data ) ).finally();
+			OffCanvasService.RenderCanvas(
+				ObjectOps.Merge( this._base_data.ajax[ data.zone_component_action ], data ),
+				{ launcher: button }
+			).finally();
 		}
 	}
 }

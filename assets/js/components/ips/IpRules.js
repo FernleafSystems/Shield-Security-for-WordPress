@@ -11,8 +11,8 @@ export class IpRules extends BaseAutoExecComponent {
 	}
 
 	handleIpRuleOffcanvasForm() {
-		shieldEventsHandler_Main.add_Click( 'a.offcanvas_form_create_ip_rule', () => {
-			OffCanvasService.RenderCanvas( this._base_data.ajax.render_offcanvas ).finally();
+		shieldEventsHandler_Main.add_Click( 'a.offcanvas_form_create_ip_rule', ( launcher ) => {
+			OffCanvasService.RenderCanvas( this._base_data.ajax.render_offcanvas, { launcher } ).finally();
 		} );
 	}
 

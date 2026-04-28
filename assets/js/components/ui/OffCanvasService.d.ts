@@ -1,3 +1,6 @@
 export class OffCanvasService {
-	static RenderCanvas( canvasProperties?: Record<string, any>, options?: Record<string, any> ) :Promise<any>;
+	static RenderCanvas(
+		canvasProperties?: Record<string, any>,
+		options?: { historyMode?: string, launcher?: HTMLElement|null }
+	) :Promise<any>;
 }

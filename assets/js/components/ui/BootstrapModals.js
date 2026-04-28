@@ -24,6 +24,7 @@ export class BootstrapModals {
 	}
 
 	static normalizeModalAccessibility( modalEl ) {
+		modalEl.setAttribute( 'role', 'dialog' );
 		if ( !modalEl.hasAttribute( 'tabindex' ) ) {
 			modalEl.setAttribute( 'tabindex', '-1' );
 		}

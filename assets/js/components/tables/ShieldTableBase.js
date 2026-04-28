@@ -178,12 +178,28 @@ export class ShieldTableBase extends BaseComponent {
 				name: 'search-help',
 				className: 'action search-help btn-outline-info mb-2',
 				action: ( e, dt, node, config ) => {
-					OffCanvasService.RenderCanvas( this._base_data.ajax.render_offcanvas );
+					OffCanvasService.RenderCanvas(
+						this._base_data.ajax.render_offcanvas,
+						{ launcher: this.resolveButtonLauncher( node ) }
+					);
 				}
 			} );
 		}
 
 		return buttons;
+	}
+
+	resolveButtonLauncher( node ) {
+		if ( node instanceof HTMLElement ) {
+			return node;
+		}
+		if ( node?.[ 0 ] instanceof HTMLElement ) {
+			return node[ 0 ];
+		}
+		if ( typeof node?.get === 'function' && node.get( 0 ) instanceof HTMLElement ) {
+			return node.get( 0 );
+		}
+		return null;
 	}
 
 	rowSelectionChanged() {
