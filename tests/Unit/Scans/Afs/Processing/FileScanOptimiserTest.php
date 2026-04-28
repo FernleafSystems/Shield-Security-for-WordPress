@@ -59,22 +59,10 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_disabled_option_fails_open_without_writing_cache() :void {
-		$cacheDir = $this->makeTempDir( 'cache' );
-		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
-		$this->installEnvironment( $cacheDir, false );
-		$optimiser = new FileScanOptimiser();
-
-		$optimiser->recordKnownValidFile( $path, $this->coreContext( 'wp-admin/core.php' ) );
-
-		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
-		$this->assertFileDoesNotExist( $this->normalisePath( $cacheDir.'/afs-file-optimiser' ) );
-	}
-
 	public function test_missing_cache_dir_fails_open() :void {
 		$cacheDir = $this->normalisePath( \sys_get_temp_dir().'/shield-missing-cache-'.\uniqid() );
 		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
-		$this->installEnvironment( $cacheDir, true, false );
+		$this->installEnvironment( $cacheDir, false );
 		$optimiser = new FileScanOptimiser();
 
 		$optimiser->recordKnownValidFile( $path, $this->coreContext( 'wp-admin/core.php' ) );
@@ -85,7 +73,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 	public function test_unbuildable_optimiser_cache_dir_fails_open_without_writing_cache() :void {
 		$cacheDir = $this->makeTempDir( 'cache' );
 		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
-		$this->installEnvironment( $cacheDir, true, true, '6.5.0', [], [], null, false );
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [], [], null, false );
 		$optimiser = new FileScanOptimiser();
 		$action = $this->newAction( [ 'bad_token' ] );
 
@@ -120,7 +108,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $otherPath, $this->newAction() ) );
 
 		\file_put_contents( $path, '<?php clean();' );
-		$this->installEnvironment( $cacheDir, true, true, '6.5.1' );
+		$this->installEnvironment( $cacheDir, true, '6.5.1' );
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 	}
 
@@ -129,7 +117,6 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$beta = $this->writeFile( WP_PLUGIN_DIR.'/beta/dup.php', '<?php shared();' );
 		$this->installEnvironment(
 			$this->makeTempDir( 'cache' ),
-			true,
 			true,
 			'6.5.0',
 			[ 'alpha/alpha.php', 'beta/beta.php' ]
@@ -152,7 +139,6 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->installEnvironment(
 			$cacheDir,
 			true,
-			true,
 			'6.5.0',
 			[ 'alpha/alpha.php' ],
 			[ 'clean' ],
@@ -170,7 +156,6 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->installEnvironment(
 			$cacheDir,
 			true,
-			true,
 			'6.5.0',
 			[ 'alpha/alpha.php' ],
 			[ 'clean' ],
@@ -183,7 +168,6 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->installEnvironment(
 			$cacheDir,
 			true,
-			true,
 			'6.5.0',
 			[ 'alpha/alpha.php' ],
 			[ 'clean' ],
@@ -195,7 +179,6 @@ class FileScanOptimiserTest extends BaseUnitTest {
 
 		$this->installEnvironment(
 			$cacheDir,
-			true,
 			true,
 			'6.5.0',
 			[ 'alpha/alpha.php' ],
@@ -251,6 +234,58 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertTrue( $optimiser->hasCleanMalwareVerdict( $path, $action ) );
 	}
 
+	/**
+	 * @dataProvider staleSchemaProvider
+	 */
+	public function test_records_without_current_schema_version_do_not_hit_cache( ?int $schemaVersion ) :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$knownValid = $this->writeFile( ABSPATH.'wp-admin/schema-valid.php', '<?php clean_valid();' );
+		$clean = $this->writeFile( ABSPATH.'wp-content/uploads/schema-clean.php', '<?php clean_malware();' );
+		$this->installEnvironment( $cacheDir );
+		$optimiser = new FileScanOptimiser();
+		$action = $this->newAction( [ 'bad_token' ] );
+
+		$optimiser->recordKnownValidFile( $knownValid, $this->coreContext( 'wp-admin/schema-valid.php' ) );
+		$optimiser->recordCleanMalwareVerdict( $clean, $action );
+		$this->rewriteCacheRecords(
+			$cacheDir,
+			static function ( array $record ) use ( $schemaVersion ) :array {
+				if ( $schemaVersion === null ) {
+					unset( $record[ 'schema_version' ] );
+				}
+				else {
+					$record[ 'schema_version' ] = $schemaVersion;
+				}
+				return $record;
+			}
+		);
+
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $knownValid, $action ) );
+		$this->assertFalse( $optimiser->hasCleanMalwareVerdict( $clean, $action ) );
+	}
+
+	public function test_records_without_family_specific_fields_do_not_hit_cache() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$knownValid = $this->writeFile( ABSPATH.'wp-admin/schema-valid.php', '<?php clean_valid();' );
+		$clean = $this->writeFile( ABSPATH.'wp-content/uploads/schema-clean.php', '<?php clean_malware();' );
+		$this->installEnvironment( $cacheDir );
+		$optimiser = new FileScanOptimiser();
+		$action = $this->newAction( [ 'bad_token' ] );
+
+		$optimiser->recordKnownValidFile( $knownValid, $this->coreContext( 'wp-admin/schema-valid.php' ) );
+		$optimiser->recordCleanMalwareVerdict( $clean, $action );
+		$this->rewriteCacheRecords(
+			$cacheDir,
+			static function ( array $record ) :array {
+				unset( $record[ 'context_key' ], $record[ 'pattern_fingerprint' ] );
+				return $record;
+			}
+		);
+
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $knownValid, $action ) );
+		$this->assertFalse( $optimiser->hasCleanMalwareVerdict( $clean, $action ) );
+	}
+
 	public function test_stale_cleanup_removes_old_records_and_preserves_fresh_records() :void {
 		$oldClean = $this->writeFile( ABSPATH.'wp-content/uploads/old.php', '<?php old_clean();' );
 		$freshClean = $this->writeFile( ABSPATH.'wp-content/uploads/fresh.php', '<?php fresh_clean();' );
@@ -258,7 +293,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$freshValid = $this->writeFile( ABSPATH.'wp-admin/fresh-valid.php', '<?php fresh_valid();' );
 		$cacheDir = $this->makeTempDir( 'cache' );
 		$request = new OptimiserRequest( 100 );
-		$this->installEnvironment( $cacheDir, true, true, '6.5.0', [], [], $request );
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [], [], $request );
 		$optimiser = new FileScanOptimiser();
 		$action = $this->newAction( [ 'bad_token' ] );
 		$optimiser->recordCleanMalwareVerdict( $oldClean, $action );
@@ -277,7 +312,6 @@ class FileScanOptimiserTest extends BaseUnitTest {
 
 	private function installEnvironment(
 		string $cacheDir,
-		bool $optimise = true,
 		bool $cacheExists = true,
 		string $wpVersion = '6.5.0',
 		array $pluginFiles = [],
@@ -297,7 +331,6 @@ class FileScanOptimiserTest extends BaseUnitTest {
 
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->opts = new OptimiserOpts( $optimise );
 		$controller->cache_dir_handler = new OptimiserCacheDir( $cacheDir, $cacheExists, $cacheBuildable );
 		$controller->comps = (object)[
 			'scans' => new class( $afsComponent ?? new OptimiserAfsComponent() ) {
@@ -342,6 +375,29 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		];
 	}
 
+	public static function staleSchemaProvider() :array {
+		return [
+			'missing schema' => [ null ],
+			'wrong schema'   => [ 0 ],
+		];
+	}
+
+	private function rewriteCacheRecords( string $cacheDir, callable $mutator ) :void {
+		foreach ( \glob( $cacheDir.'/afs-file-optimiser/*/*.jsonl' ) ?: [] as $file ) {
+			$records = [];
+			foreach ( \file( $file, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES ) ?: [] as $line ) {
+				$record = \json_decode( $line, true );
+				if ( \is_array( $record ) ) {
+					$records[] = $mutator( $record );
+				}
+			}
+			\file_put_contents(
+				$file,
+				\implode( "\n", \array_map( static fn( array $record ) :string => \json_encode( $record ), $records ) )."\n"
+			);
+		}
+	}
+
 	private function coreContext( string $relativePath ) :TrustedFileContext {
 		return new TrustedFileContext( 'core', 'core', '6.5.0', $relativePath );
 	}
@@ -378,15 +434,6 @@ class FileScanOptimiserTest extends BaseUnitTest {
 			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
 		}
 		@\rmdir( $dir );
-	}
-}
-
-class OptimiserOpts {
-	public function __construct( private bool $enabled ) {
-	}
-
-	public function optIs( string $key, string $value ) :bool {
-		return $key === 'optimise_scan_speed' && $value === 'Y' && $this->enabled;
 	}
 }
 

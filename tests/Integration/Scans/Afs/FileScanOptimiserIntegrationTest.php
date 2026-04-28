@@ -25,7 +25,6 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 	public function set_up() {
 		parent::set_up();
 		$this->optionSnapshot = $this->snapshotSelectedOptions( [
-			'optimise_scan_speed',
 			'enable_core_file_integrity_scan',
 			'file_scan_areas',
 		] );
@@ -49,31 +48,29 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 		parent::tear_down();
 	}
 
-	public function test_cache_off_and_cache_on_return_same_result_flags_for_file_map_scan() :void {
+	public function test_cold_and_warm_cache_return_same_result_flags_for_file_map_scan() :void {
 		$fixtureDir = $this->makeDir( WP_CONTENT_DIR.'/shield-afs-cache-integration-'.\uniqid() );
 		$clean = $this->writeFile( $fixtureDir.'/clean.php', '<?php clean_cache_fixture();' );
 		$malware = $this->writeFile( $fixtureDir.'/malware.php', '<?php '.self::MALWARE_MARKER.'();' );
 		$unidentified = $this->writeFile( $fixtureDir.'/unidentified.php', '<?php unidentified_cache_fixture();' );
 		$malwareFiles = [ $clean, $malware ];
 
-		$cacheOffResults = $this->runFileMap( $malwareFiles, false, [ 'malware_php' ] );
-		$cacheOnFirstRunResults = $this->runFileMap( $malwareFiles, true, [ 'malware_php' ] );
-		$cacheOnWarmRunResults = $this->runFileMap( $malwareFiles, true, [ 'malware_php' ] );
+		$coldResults = $this->runFileMap( $malwareFiles, [ 'malware_php' ] );
+		$warmResults = $this->runFileMap( $malwareFiles, [ 'malware_php' ] );
 
-		$this->assertSame( $cacheOffResults, $cacheOnFirstRunResults );
-		$this->assertSame( $cacheOffResults, $cacheOnWarmRunResults );
-		$this->assertContains( true, \array_column( $cacheOffResults, 'is_mal' ) );
+		$this->assertSame( $coldResults, $warmResults );
+		$this->assertContains( true, \array_column( $coldResults, 'is_mal' ) );
 
-		$unidentifiedCacheOff = $this->runFileMap( [ $unidentified ], false, [ 'wpcontent', 'malware_php' ] );
-		$unidentifiedCacheOn = $this->runFileMap( [ $unidentified ], true, [ 'wpcontent', 'malware_php' ] );
-		$this->assertSame( $unidentifiedCacheOff, $unidentifiedCacheOn );
-		$this->assertContains( true, \array_column( $unidentifiedCacheOff, 'is_unidentified' ) );
+		$unidentifiedCold = $this->runFileMap( [ $unidentified ], [ 'wpcontent', 'malware_php' ] );
+		$unidentifiedWarm = $this->runFileMap( [ $unidentified ], [ 'wpcontent', 'malware_php' ] );
+		$this->assertSame( $unidentifiedCold, $unidentifiedWarm );
+		$this->assertContains( true, \array_column( $unidentifiedCold, 'is_unidentified' ) );
 	}
 
 	public function test_unavailable_cache_dir_keeps_scan_results_unchanged() :void {
 		$fixtureDir = $this->makeDir( WP_CONTENT_DIR.'/shield-afs-cache-unavailable-'.\uniqid() );
 		$malware = $this->writeFile( $fixtureDir.'/malware.php', '<?php '.self::MALWARE_MARKER.'();' );
-		$cacheOffResults = $this->runFileMap( [ $malware ], false );
+		$availableCacheResults = $this->runFileMap( [ $malware ] );
 
 		$this->requireController()->cache_dir_handler = new class {
 			public function exists() :bool {
@@ -86,7 +83,7 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 			}
 		};
 
-		$this->assertSame( $cacheOffResults, $this->runFileMap( [ $malware ], true ) );
+		$this->assertSame( $availableCacheResults, $this->runFileMap( [ $malware ] ) );
 	}
 
 	public function test_known_valid_cache_is_exact_to_core_context() :void {
@@ -97,7 +94,6 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 		$tempDir = $this->makeDir( \sys_get_temp_dir().'/shield-afs-known-valid-'.\uniqid() );
 		$copyPath = $this->writeFile( $tempDir.'/version.php', (string)\file_get_contents( $corePath ) );
 		$action = $this->newAction( [ $corePath, $copyPath ] );
-		$this->requireController()->opts->optSet( 'optimise_scan_speed', 'Y' );
 
 		( new FileScanOptimiser() )->recordKnownValidFile( $corePath, new TrustedFileContext(
 			'core',
@@ -121,7 +117,7 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 		$malware = $this->writeFile( $fixtureDir.'/malware.php', '<?php '.self::MALWARE_MARKER.'();' );
 		$files = [ $corePath, $coreCopy, $malware ];
 
-		$cacheOffAction = $this->runFullScan( $files, false, [ 'wpcontent', 'malware_php' ] );
+		$coldAction = $this->runFullScan( $files, [ 'wpcontent', 'malware_php' ] );
 
 		( new FileScanOptimiser() )->recordKnownValidFile( $corePath, new TrustedFileContext(
 			'core',
@@ -129,19 +125,18 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 			Services::WpGeneral()->getVersion(),
 			\str_replace( \wp_normalize_path( ABSPATH ), '', \wp_normalize_path( $corePath ) )
 		) );
-		$cacheOnAction = $this->runFullScan( $files, true, [ 'wpcontent', 'malware_php' ] );
+		$warmAction = $this->runFullScan( $files, [ 'wpcontent', 'malware_php' ] );
 
-		$decodedItems = \array_map( '\base64_decode', $cacheOnAction->items );
+		$decodedItems = \array_map( '\base64_decode', $warmAction->items );
 		$this->assertFalse( \in_array( $corePath, $decodedItems, true ) );
 		$this->assertTrue( \in_array( $coreCopy, $decodedItems, true ) );
 		$this->assertTrue( \in_array( $malware, $decodedItems, true ) );
-		$this->assertSame( $this->normaliseRawResults( $cacheOffAction->results ), $this->normaliseRawResults( $cacheOnAction->results ) );
-		$this->assertContains( true, \array_column( $this->normaliseRawResults( $cacheOnAction->results ), 'is_unidentified' ) );
-		$this->assertContains( true, \array_column( $this->normaliseRawResults( $cacheOnAction->results ), 'is_mal' ) );
+		$this->assertSame( $this->normaliseRawResults( $coldAction->results ), $this->normaliseRawResults( $warmAction->results ) );
+		$this->assertContains( true, \array_column( $this->normaliseRawResults( $warmAction->results ), 'is_unidentified' ) );
+		$this->assertContains( true, \array_column( $this->normaliseRawResults( $warmAction->results ), 'is_mal' ) );
 	}
 
-	private function runFileMap( array $files, bool $optimise, array $scanAreas = [ 'malware_php' ] ) :array {
-		$this->requireController()->opts->optSet( 'optimise_scan_speed', $optimise ? 'Y' : 'N' );
+	private function runFileMap( array $files, array $scanAreas = [ 'malware_php' ] ) :array {
 		$this->requireController()->opts->optSet( 'file_scan_areas', $scanAreas );
 		$results = ( new ScanFromFileMap() )
 			->setScanActionVO( $this->newAction( $files ) )
@@ -163,9 +158,8 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 		return $normalised;
 	}
 
-	private function runFullScan( array $files, bool $optimise, array $scanAreas ) :ScanActionVO {
+	private function runFullScan( array $files, array $scanAreas ) :ScanActionVO {
 		$this->seedMalwarePatternCache();
-		$this->requireController()->opts->optSet( 'optimise_scan_speed', $optimise ? 'Y' : 'N' );
 		$this->requireController()->opts->optSet( 'file_scan_areas', $scanAreas );
 		$action = $this->newAction( $files );
 

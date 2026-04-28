@@ -61,7 +61,7 @@ class ConfigureGeneralSettingsScopeResolverTest extends BaseUnitTest {
 
 	public function test_resolve_dedupes_leftovers_when_visible_components_overlap() :void {
 		$this->installZonesController( [
-			'module_scans' => [ 'scan_frequency', 'scan_path_exclusions', 'optimise_scan_speed', 'optimise_scan_speed' ],
+			'module_scans' => [ 'scan_frequency', 'scan_path_exclusions', 'file_scan_areas', 'file_scan_areas' ],
 		] );
 
 		$scope = ( new ConfigureGeneralSettingsScopeResolver() )->resolve(
@@ -70,7 +70,7 @@ class ConfigureGeneralSettingsScopeResolverTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( [ 'module_scans' ], $scope[ 'zone_component_slugs' ] ?? [] );
-		$this->assertSame( [ 'optimise_scan_speed' ], $scope[ 'option_keys' ] ?? [] );
+		$this->assertSame( [ 'file_scan_areas' ], $scope[ 'option_keys' ] ?? [] );
 	}
 
 	public function test_resolve_excludes_user_options_now_owned_by_visible_rows() :void {

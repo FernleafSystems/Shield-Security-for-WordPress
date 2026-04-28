@@ -888,22 +888,6 @@
         "description": "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },
     {
-        "key": "optimise_scan_speed",
-        "section": "section_scan_options",
-        "zone_comp_slugs": [
-            "file_scanning",
-            "module_scans"
-        ],
-        "premium": false,
-        "type": "checkbox",
-        "default": "Y",
-        "link_info": "",
-        "link_blog": "",
-        "name": "Optimise File Scans",
-        "summary": "Optimise File Scans",
-        "description": "Optimise file scans wherever possible."
-    },
-    {
         "key": "shieldbackups_status",
         "section": "section_hidden",
         "type": "array",

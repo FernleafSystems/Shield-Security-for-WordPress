@@ -13,17 +13,15 @@ class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan 
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 
-		if ( self::con()->opts->optIs( 'optimise_scan_speed', 'Y' ) ) {
+		if ( !empty( $action->items ) ) {
 			$optimiser = new Processing\FileScanOptimiser();
-			if ( !empty( $action->items ) ) {
-				$action->items = \array_values( \array_filter(
-					$action->items,
-					function ( $item ) use ( $action, $optimiser ) {
-						$path = \base64_decode( (string)$item, true );
-						return !\is_string( $path ) || !$optimiser->canSkipKnownValidFile( $path, $action );
-					}
-				) );
-			}
+			$action->items = \array_values( \array_filter(
+				$action->items,
+				function ( $item ) use ( $action, $optimiser ) {
+					$path = \base64_decode( (string)$item, true );
+					return !\is_string( $path ) || !$optimiser->canSkipKnownValidFile( $path, $action );
+				}
+			) );
 		}
 
 		$patterns = ( new Utilities\MalwareScanPatterns() )->retrieve();

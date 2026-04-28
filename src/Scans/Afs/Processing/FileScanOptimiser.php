@@ -15,6 +15,7 @@ class FileScanOptimiser {
 	private const CACHE_DIR = 'afs-file-optimiser';
 	private const KNOWN_VALID = 'known-valid';
 	private const MALWARE_CLEAN = 'malware-clean';
+	private const CACHE_SCHEMA_VERSION = 1;
 
 	public function canSkipKnownValidFile( string $path, ScanActionVO $action ) :bool {
 		$skip = false;
@@ -24,7 +25,7 @@ class FileScanOptimiser {
 				$size = $this->fileSize( $path );
 				$sha256 = null;
 				$contextKey = $context->key();
-				foreach ( $this->readRecords( $this->shardPath( self::KNOWN_VALID, $contextKey ) ) as $record ) {
+				foreach ( $this->readRecords( $this->shardPath( self::KNOWN_VALID, $contextKey ), self::KNOWN_VALID ) as $record ) {
 					if ( $record[ 'context_key' ] === $contextKey
 						 && $record[ 'size' ] === $size ) {
 						$sha256 ??= $this->fileSha256( $path );
@@ -43,10 +44,11 @@ class FileScanOptimiser {
 		if ( $this->isCacheUsable() && Services::WpFs()->isAccessibleFile( $path ) ) {
 			$contextKey = $context->key();
 			$this->appendUniqueRecord( self::KNOWN_VALID, $contextKey, [
-				'ts'          => Services::Request()->ts(),
-				'context_key' => $contextKey,
-				'size'        => $this->fileSize( $path ),
-				'sha256'      => $this->fileSha256( $path ),
+				'schema_version' => self::CACHE_SCHEMA_VERSION,
+				'ts'             => Services::Request()->ts(),
+				'context_key'    => $contextKey,
+				'size'           => $this->fileSize( $path ),
+				'sha256'         => $this->fileSha256( $path ),
 			], [ 'context_key', 'size', 'sha256' ] );
 		}
 	}
@@ -57,7 +59,7 @@ class FileScanOptimiser {
 			$sha256 = $this->fileSha256( $path );
 			$size = $this->fileSize( $path );
 			$fingerprint = $this->patternFingerprint( $action );
-			foreach ( $this->readRecords( $this->shardPath( self::MALWARE_CLEAN, $sha256 ) ) as $record ) {
+			foreach ( $this->readRecords( $this->shardPath( self::MALWARE_CLEAN, $sha256 ), self::MALWARE_CLEAN ) as $record ) {
 				if ( $record[ 'sha256' ] === $sha256
 					 && $record[ 'size' ] === $size
 					 && \hash_equals( $record[ 'pattern_fingerprint' ], $fingerprint ) ) {
@@ -73,10 +75,11 @@ class FileScanOptimiser {
 		if ( $this->isCacheUsable() && Services::WpFs()->isAccessibleFile( $path ) ) {
 			$sha256 = $this->fileSha256( $path );
 			$this->appendUniqueRecord( self::MALWARE_CLEAN, $sha256, [
-				'ts'                  => Services::Request()->ts(),
-				'sha256'              => $sha256,
-				'size'                => $this->fileSize( $path ),
-				'pattern_fingerprint' => $this->patternFingerprint( $action ),
+				'schema_version'       => self::CACHE_SCHEMA_VERSION,
+				'ts'                   => Services::Request()->ts(),
+				'sha256'               => $sha256,
+				'size'                 => $this->fileSize( $path ),
+				'pattern_fingerprint'  => $this->patternFingerprint( $action ),
 			], [ 'sha256', 'size', 'pattern_fingerprint' ] );
 		}
 	}
@@ -94,7 +97,7 @@ class FileScanOptimiser {
 			}
 			foreach ( new \DirectoryIterator( $dir ) as $file ) {
 				if ( $file->isFile() && $file->getExtension() === 'jsonl' ) {
-					$this->rewriteFreshRecords( $file->getPathname(), $ts );
+					$this->rewriteFreshRecords( $file->getPathname(), $type, $ts );
 				}
 			}
 		}
@@ -158,8 +161,7 @@ class FileScanOptimiser {
 
 	private function cacheRoot() :string {
 		try {
-			if ( !self::con()->opts->optIs( 'optimise_scan_speed', 'Y' )
-				 || !self::con()->cache_dir_handler->exists() ) {
+			if ( !self::con()->cache_dir_handler->exists() ) {
 				return '';
 			}
 			$dir = self::con()->cache_dir_handler->buildSubDir( self::CACHE_DIR );
@@ -183,9 +185,9 @@ class FileScanOptimiser {
 	}
 
 	/**
-	 * @return array<int, array{ts:int, context_key:string, size:int, sha256:string, pattern_fingerprint:string}>
+	 * @return array<int, array{schema_version:int, ts:int, context_key?:string, size:int, sha256:string, pattern_fingerprint?:string}>
 	 */
-	private function readRecords( string $path ) :array {
+	private function readRecords( string $path, string $type ) :array {
 		if ( $path === '' || !\is_readable( $path ) ) {
 			return [];
 		}
@@ -194,7 +196,7 @@ class FileScanOptimiser {
 		foreach ( \file( $path, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES ) ?: [] as $line ) {
 			$record = \json_decode( $line, true );
 			if ( \is_array( $record ) ) {
-				$normalised = $this->normaliseRecord( $record );
+				$normalised = $this->normaliseRecord( $record, $type );
 				if ( \is_array( $normalised ) ) {
 					$records[] = $normalised;
 				}
@@ -204,23 +206,44 @@ class FileScanOptimiser {
 	}
 
 	/**
-	 * @return array{ts:int, context_key:string, size:int, sha256:string, pattern_fingerprint:string}|null
+	 * @return array{schema_version:int, ts:int, context_key?:string, size:int, sha256:string, pattern_fingerprint?:string}|null
 	 */
-	private function normaliseRecord( array $record ) :?array {
+	private function normaliseRecord( array $record, string $type ) :?array {
+		$schemaVersion = $record[ 'schema_version' ] ?? null;
 		$ts = $record[ 'ts' ] ?? null;
 		$size = $record[ 'size' ] ?? null;
 		$sha256 = $record[ 'sha256' ] ?? null;
-		if ( !\is_numeric( $ts ) || !\is_numeric( $size ) || !\is_string( $sha256 )
+		if ( $schemaVersion !== self::CACHE_SCHEMA_VERSION
+			 || !\is_numeric( $ts ) || !\is_numeric( $size ) || !\is_string( $sha256 )
 			 || !\preg_match( '#^[a-f0-9]{64}$#', $sha256 ) ) {
 			return null;
 		}
-		return [
-			'ts'                  => (int)$ts,
-			'context_key'         => \is_string( $record[ 'context_key' ] ?? null ) ? $record[ 'context_key' ] : '',
-			'size'                => (int)$size,
-			'sha256'              => $sha256,
-			'pattern_fingerprint' => \is_string( $record[ 'pattern_fingerprint' ] ?? null ) ? $record[ 'pattern_fingerprint' ] : '',
+		$normalised = [
+			'schema_version'       => $schemaVersion,
+			'ts'                   => (int)$ts,
+			'size'                 => (int)$size,
+			'sha256'               => $sha256,
 		];
+
+		if ( $type === self::KNOWN_VALID ) {
+			$contextKey = $record[ 'context_key' ] ?? null;
+			if ( !\is_string( $contextKey ) || $contextKey === '' ) {
+				return null;
+			}
+			$normalised[ 'context_key' ] = $contextKey;
+		}
+		elseif ( $type === self::MALWARE_CLEAN ) {
+			$fingerprint = $record[ 'pattern_fingerprint' ] ?? null;
+			if ( !\is_string( $fingerprint ) || !\preg_match( '#^[a-f0-9]{64}$#', $fingerprint ) ) {
+				return null;
+			}
+			$normalised[ 'pattern_fingerprint' ] = $fingerprint;
+		}
+		else {
+			return null;
+		}
+
+		return $normalised;
 	}
 
 	private function appendUniqueRecord( string $type, string $shardKey, array $record, array $uniqueKeys ) :void {
@@ -229,7 +252,7 @@ class FileScanOptimiser {
 			return;
 		}
 
-		foreach ( $this->readRecords( $path ) as $existing ) {
+		foreach ( $this->readRecords( $path, $type ) as $existing ) {
 			$matches = true;
 			foreach ( $uniqueKeys as $key ) {
 				if ( ( $existing[ $key ] ?? null ) !== ( $record[ $key ] ?? null ) ) {
@@ -249,9 +272,9 @@ class FileScanOptimiser {
 		);
 	}
 
-	private function rewriteFreshRecords( string $path, int $ts ) :void {
+	private function rewriteFreshRecords( string $path, string $type, int $ts ) :void {
 		$records = \array_filter(
-			$this->readRecords( $path ),
+			$this->readRecords( $path, $type ),
 			fn( array $record ) :bool => $record[ 'ts' ] > $ts
 		);
 		$tmp = $path.'.tmp';
