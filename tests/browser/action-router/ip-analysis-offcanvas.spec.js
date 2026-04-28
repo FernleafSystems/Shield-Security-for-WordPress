@@ -124,6 +124,25 @@ const expectInvestigationTableInitialized = async ( offcanvas, tableType ) => {
 	).toBe( true );
 };
 
+const reloadActiveInvestigationTable = async ( page, offcanvas, tableType ) => {
+	const table = offcanvas.locator( `.tab-pane.active.show table[data-investigation-table="1"][data-table-type="${tableType}"]` ).first();
+	await expect( table ).toBeVisible();
+
+	await Promise.all( [
+		page.waitForResponse( investigationTableRequestMatcher( tableType ) ),
+		table.evaluate( ( element ) => {
+			globalThis.jQuery( element ).DataTable().ajax.reload( null, false );
+		} ),
+	] );
+
+	await expect.poll( async () => {
+		return table.evaluate( ( element ) => {
+			const container = element.closest( '[aria-busy]' );
+			return container?.getAttribute( 'aria-busy' ) === 'true' ? 'busy' : 'ready';
+		} );
+	}, { timeout: 20_000 } ).toBe( 'ready' );
+};
+
 const expectRequestMetaPopover = async ( page, offcanvas, rid, expectedMeta ) => {
 	const metaButton = offcanvas.locator( '.tab-pane.active.show td.meta > button[data-toggle="popover"]' ).first();
 	await expect( metaButton ).toBeVisible();
@@ -266,6 +285,9 @@ test( 'preloaded IP analysis offcanvas activity meta button loads request meta p
 
 		await expect( targetTab ).toHaveClass( /is-active/ );
 		await expectInvestigationTableInitialized( offcanvas, 'activity' );
+		await expectRequestMetaPopover( page, offcanvas, fixture.rid, fixture.expected_meta );
+		await reloadActiveInvestigationTable( page, offcanvas, 'activity' );
+		await expect( offcanvas.locator( '.popover.show' ) ).toHaveCount( 0 );
 		await expectRequestMetaPopover( page, offcanvas, fixture.rid, fixture.expected_meta );
 	} );
 

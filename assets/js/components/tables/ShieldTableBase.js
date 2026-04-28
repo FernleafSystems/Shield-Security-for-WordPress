@@ -7,6 +7,7 @@ import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
+import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 
 export class ShieldTableBase extends BaseComponent {
 
@@ -40,6 +41,7 @@ export class ShieldTableBase extends BaseComponent {
 	setupDatatable() {
 		this.$table = this.$el.DataTable( this.buildDatatableConfig() );
 		this.markBusyStateLifecycleBound( this.$table );
+		this.bindFloatingUiLifecycle( this.$table );
 		this.addButtons();
 		this.bindEvents();
 		this.ensureSearchDelay();
@@ -243,7 +245,37 @@ export class ShieldTableBase extends BaseComponent {
 		} );
 	}
 
+	bindFloatingUiLifecycle( datatable ) {
+		const container = this.resolveTableContainer( datatable );
+		if ( container === null || container.dataset.shieldFloatingUiLifecycleBound === '1' ) {
+			return;
+		}
+
+		const tableNode = datatable?.table?.().node?.() || null;
+		if ( !( tableNode instanceof HTMLTableElement ) ) {
+			return;
+		}
+
+		container.dataset.shieldFloatingUiLifecycleBound = '1';
+		datatable.on( 'preXhr.dt.shieldFloatingUi preDraw.dt.shieldFloatingUi destroy.dt.shieldFloatingUi', () => {
+			this.disposeFloatingUiWithinTable( datatable );
+		} );
+		datatable.on( 'draw.dt.shieldFloatingUi', () => {
+			BootstrapTooltips.RegisterNewTooltipsWithin( container );
+		} );
+		BootstrapTooltips.RegisterNewTooltipsWithin( container );
+	}
+
+	disposeFloatingUiWithinTable( datatableOrSettings = null ) {
+		BootstrapTooltips.DisposeFloatingUiWithin(
+			this.resolveTableContainer( datatableOrSettings )
+		);
+	}
+
 	handleDatatableProcessing( datatableOrSettings, isBusy ) {
+		if ( isBusy ) {
+			this.disposeFloatingUiWithinTable( datatableOrSettings );
+		}
 		ShieldTableBase.applyBusyStateToContainer(
 			this.resolveTableContainer( datatableOrSettings ),
 			isBusy

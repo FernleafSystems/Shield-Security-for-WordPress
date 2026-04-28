@@ -1,6 +1,5 @@
 import { ObjectOps } from "../../util/ObjectOps";
 import { AjaxService } from "../services/AjaxService";
-import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { ShieldTableBase } from "./ShieldTableBase";
 import {
 	bindScanResultsRowActions,
@@ -163,11 +162,6 @@ export class ShieldTableScanResults extends ShieldTableBase {
 
 	syncDynamicUi() {
 		this.syncResultsDisplayState();
-
-		const tableContainer = this.$table?.table?.().container?.() || null;
-		if ( tableContainer instanceof HTMLElement ) {
-			BootstrapTooltips.RegisterNewTooltipsWithin( tableContainer );
-		}
 	}
 
 	parseResultsDisplayOptionsDataset() {

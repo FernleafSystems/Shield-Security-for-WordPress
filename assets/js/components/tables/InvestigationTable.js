@@ -41,6 +41,7 @@ export class InvestigationTable extends ShieldTableBase {
 		if ( $.fn.dataTable && $.fn.dataTable.isDataTable( tableEl ) ) {
 			const datatable = $tableElement.DataTable();
 			this.bindBusyStateLifecycle( datatable );
+			this.bindFloatingUiLifecycle( datatable );
 			this.ensureSearchDelay( datatable );
 			this.bindTableBehaviors( tableEl, context );
 			return;
@@ -61,6 +62,7 @@ export class InvestigationTable extends ShieldTableBase {
 
 		const datatable = $tableElement.DataTable( cfg );
 		this.markBusyStateLifecycleBound( datatable );
+		this.bindFloatingUiLifecycle( datatable );
 		this.ensureSearchDelay( datatable );
 		this.bindTableBehaviors( tableEl, context );
 	}
