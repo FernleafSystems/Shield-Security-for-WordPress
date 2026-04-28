@@ -15,20 +15,22 @@ class ScansCheck extends ScansBase {
 		$hasFailedScan = !empty( $failedScan );
 		$failureMessage = $hasFailedScan ? $failedScan[ 'message' ] : '';
 		$status = new ScansStatus();
+		$scanState = $status->activeSnapshot();
 
-		$current = $status->current();
+		$current = $scanState[ 'current' ];
 		$currentScan = __( 'No scan running.', 'wp-simple-firewall' );
 		if ( !empty( $current ) ) {
 			$currentScan = $con->comps->scans->getScanCon( $current )->getScanName();
 		}
 
-		$running = \count( $status->enqueued() );
+		$enqueued = $scanState[ 'enqueued' ];
+		$running = \count( $enqueued );
 		$modalState = $hasFailedScan
 			? self::SCAN_MODAL_STATE_FAILED
 			: ( $running === 0 ? self::SCAN_MODAL_STATE_COMPLETED : self::SCAN_MODAL_STATE_RUNNING );
 
 		$this->response()->setPayload( \array_merge( [
-			'running'         => $con->comps->scans_queue->getScansRunningStates(),
+			'running'         => $con->comps->scans_queue->getScansRunningStates( $enqueued ),
 			'failed'          => $hasFailedScan,
 			'failure_message' => $failureMessage,
 		], $this->renderScanModalPayload( $modalState, [
@@ -56,9 +58,22 @@ class ScansCheck extends ScansBase {
 			return [];
 		}
 
+		$failedScans = self::con()->db_con->scans->getQuerySelector()
+							 ->filterByIDs( $scanIDs )
+							 ->filterByStatus( 'failed' )
+							 ->queryWithResult();
+		if ( empty( $failedScans ) ) {
+			return [];
+		}
+
+		$failedScansByID = [];
+		foreach ( $failedScans as $scan ) {
+			$failedScansByID[ (int)$scan->id ] = $scan;
+		}
+
 		foreach ( $scanIDs as $scanID ) {
-			$scan = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
-			if ( !empty( $scan ) && $scan->status === 'failed' ) {
+			if ( isset( $failedScansByID[ $scanID ] ) ) {
+				$scan = $failedScansByID[ $scanID ];
 				return [
 					'id'      => $scanID,
 					'message' => (string)( $scan->meta[ RunState::META_KEY_LAST_ERROR ] ?? __( 'The scan failed before it could finish.', 'wp-simple-firewall' ) ),

@@ -38,4 +38,26 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 		}
 		return $counts;
 	}
+
+	/**
+	 * @return array<int|string,array{total:int,unfinished:int}>
+	 */
+	public function countProgressForEachScan() :array {
+		/** @var ?Record[] $res */
+		$res = $this->setCustomSelect( '`scan_ref`,COUNT(*) as count_all,SUM(CASE WHEN `finished_at`=0 THEN 1 ELSE 0 END) as count_unfinished' )
+					->setGroupBy( 'scan_ref' )
+					->setSelectResultsFormat( ARRAY_A )
+					->queryWithResult();
+		$counts = [];
+		if ( \is_array( $res ) ) {
+			foreach ( $res as $entry ) {
+				$entry = $entry->getRawData();
+				$counts[ $entry[ 'scan_ref' ] ] = [
+					'total'      => (int)$entry[ 'count_all' ],
+					'unfinished' => (int)$entry[ 'count_unfinished' ],
+				];
+			}
+		}
+		return $counts;
+	}
 }

@@ -28,10 +28,10 @@ class Controller {
 	/**
 	 * @return bool[]
 	 */
-	public function getScansRunningStates() :array {
+	public function getScansRunningStates( ?array $enqueued = null ) :array {
 		$scans = \array_fill_keys( self::con()->comps->scans->getScanSlugs(), false );
-		foreach ( ( new ScansStatus() )->enqueued() as $enqueued ) {
-			$scans[ $enqueued ] = true;
+		foreach ( $enqueued ?? ( new ScansStatus() )->enqueued() as $scan ) {
+			$scans[ $scan ] = true;
 		}
 		return $scans;
 	}
@@ -50,17 +50,19 @@ class Controller {
 		/** @var ScanItemsDB\Select $selector */
 		$selector = self::con()->db_con->scan_items->getQuerySelector();
 
-		$countsAll = $selector->countAllForEachScan();
-		$countsUnfinished = $selector->countUnfinishedForEachScan();
+		$progressCounts = $selector->countProgressForEachScan();
 
-		if ( empty( $countsAll ) || empty( $countsUnfinished ) ) {
+		if ( empty( $progressCounts ) ) {
 			$progress = 1.0;
 		}
 		else {
 			$progress = 0.0;
-			$eachScanWeight = 1/count( $countsAll );
-			foreach ( \array_keys( $countsAll ) as $scan ) {
-				$progress += $eachScanWeight*( 1 - ( ( $countsUnfinished[ $scan ] ?? 0 )/$countsAll[ $scan ] ) );
+			$eachScanWeight = 1/count( $progressCounts );
+			foreach ( $progressCounts as $counts ) {
+				$total = (int)$counts[ 'total' ];
+				if ( $total > 0 ) {
+					$progress += $eachScanWeight*( 1 - ( ( (int)$counts[ 'unfinished' ] )/$total ) );
+				}
 			}
 		}
 

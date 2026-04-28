@@ -543,6 +543,106 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'GROUP BY `status`', $wpdb->queries[ 0 ] );
 	}
 
+	public function test_scan_job_progress_uses_single_grouped_progress_query() :void {
+		$selector = new class {
+			public int $progressCalls = 0;
+
+			public function countProgressForEachScan() :array {
+				$this->progressCalls++;
+				return [
+					1 => [
+						'total'      => 4,
+						'unfinished' => 1,
+					],
+					2 => [
+						'total'      => 2,
+						'unfinished' => 0,
+					],
+				];
+			}
+
+			public function countAllForEachScan() :array {
+				throw new \RuntimeException( 'Progress must use the consolidated count query.' );
+			}
+
+			public function countUnfinishedForEachScan() :array {
+				throw new \RuntimeException( 'Progress must use the consolidated count query.' );
+			}
+		};
+		$this->installController( [
+			'db_con' => (object)[
+				'scan_items' => new class( $selector ) {
+					public function __construct( private object $selector ) {
+					}
+
+					public function getQuerySelector() :object {
+						return $this->selector;
+					}
+				},
+			],
+		] );
+
+		$this->assertSame( 0.875, ( new QueueController() )->getScanJobProgress() );
+		$this->assertSame( 1, $selector->progressCalls );
+	}
+
+	public function test_scan_job_progress_reports_complete_when_no_grouped_counts_exist() :void {
+		$selector = new class {
+			public int $progressCalls = 0;
+
+			public function countProgressForEachScan() :array {
+				$this->progressCalls++;
+				return [];
+			}
+		};
+		$this->installController( [
+			'db_con' => (object)[
+				'scan_items' => new class( $selector ) {
+					public function __construct( private object $selector ) {
+					}
+
+					public function getQuerySelector() :object {
+						return $this->selector;
+					}
+				},
+			],
+		] );
+
+		$this->assertSame( 1.0, ( new QueueController() )->getScanJobProgress() );
+		$this->assertSame( 1, $selector->progressCalls );
+	}
+
+	public function test_scan_job_progress_ignores_zero_total_group_without_dividing_by_zero() :void {
+		$selector = new class {
+			public function countProgressForEachScan() :array {
+				return [
+					1 => [
+						'total'      => 0,
+						'unfinished' => 0,
+					],
+					2 => [
+						'total'      => 2,
+						'unfinished' => 1,
+					],
+				];
+			}
+		};
+		$this->installController( [
+			'db_con' => (object)[
+				'scan_items' => new class( $selector ) {
+					public function __construct( private object $selector ) {
+					}
+
+					public function getQuerySelector() :object {
+						return $this->selector;
+					}
+				},
+			],
+		] );
+
+		$this->assertSame( 0.25, ( new QueueController() )->getScanJobProgress() );
+	}
+
 	public function test_set_scan_completed_uses_conditional_update_and_single_bounded_result_lookup() :void {
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700003500 ),

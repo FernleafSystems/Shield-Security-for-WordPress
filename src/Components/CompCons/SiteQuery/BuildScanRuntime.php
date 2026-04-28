@@ -24,14 +24,15 @@ class BuildScanRuntime {
 	 */
 	public function build() :array {
 		$status = new ScansStatus();
-		$currentSlug = $status->current();
-		$enqueued = $status->enqueued();
+		$scanState = $status->activeSnapshot();
+		$currentSlug = $scanState[ 'current' ];
+		$enqueued = $scanState[ 'enqueued' ];
 		$queueCon = self::con()->comps->scans_queue;
 
 		return [
 			'is_running'     => !empty( $enqueued ),
 			'enqueued_count' => \count( $enqueued ),
-			'running_states' => $queueCon->getScansRunningStates(),
+			'running_states' => $queueCon->getScansRunningStates( $enqueued ),
 			'current_slug'   => $currentSlug,
 			'current_name'   => $currentSlug === ''
 				? ''

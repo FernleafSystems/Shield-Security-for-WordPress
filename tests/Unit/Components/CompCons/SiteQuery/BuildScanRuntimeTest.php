@@ -56,9 +56,11 @@ class BuildScanRuntimeTest extends BaseUnitTest {
 		$this->assertSame( 'File Scanner', $runtime[ 'current_name' ] );
 		$this->assertSame( 0.42, $runtime[ 'progress' ] );
 		$this->assertSame( [ 'afs' ], $scanCalls->requested_slugs );
+		$this->assertSame( 1, $scanCalls->status_query_count );
+		$this->assertSame( [ 'afs', 'wpv' ], $scanCalls->received_enqueued );
 	}
 
-	public function test_build_leaves_current_scan_name_empty_when_nothing_is_running() :void {
+	public function test_build_maps_single_running_scan_runtime() :void {
 		$scanCalls = (object)[
 			'requested_slugs' => [],
 		];
@@ -80,6 +82,8 @@ class BuildScanRuntimeTest extends BaseUnitTest {
 		$this->assertSame( 'Vulnerability Scan', $runtime[ 'current_name' ] );
 		$this->assertSame( 1.0, $runtime[ 'progress' ] );
 		$this->assertSame( [ 'wpv' ], $scanCalls->requested_slugs );
+		$this->assertSame( 1, $scanCalls->status_query_count );
+		$this->assertSame( [ 'wpv' ], $scanCalls->received_enqueued );
 	}
 
 	public function test_build_reports_not_running_when_no_enqueued_scans_exist() :void {
@@ -102,6 +106,8 @@ class BuildScanRuntimeTest extends BaseUnitTest {
 		$this->assertSame( '', $runtime[ 'current_slug' ] );
 		$this->assertSame( '', $runtime[ 'current_name' ] );
 		$this->assertSame( [], $scanCalls->requested_slugs );
+		$this->assertSame( 1, $scanCalls->status_query_count );
+		$this->assertSame( [], $scanCalls->received_enqueued );
 	}
 
 	private function installRuntimeEnvironment(
@@ -112,63 +118,45 @@ class BuildScanRuntimeTest extends BaseUnitTest {
 		float $progress,
 		object $scanCalls
 	) :void {
-		$selector = new class( $enqueuedScans ) {
-			private array $enqueuedScans;
-
-			public function __construct( array $enqueuedScans ) {
-				$this->enqueuedScans = $enqueuedScans;
-			}
-
-			public function filterByNotFinished() :self {
-				return $this;
-			}
-
-			public function addWhereIn( string $column, array $values ) :self {
-				unset( $column, $values );
-				return $this;
-			}
-
-			public function addColumnToSelect( string $column ) :self {
-				return $this;
-			}
-
-			public function setIsDistinct( bool $isDistinct ) :self {
-				return $this;
-			}
-
-			public function queryWithResult() :array {
-				return $this->enqueuedScans;
-			}
-		};
-
-		$db = new class( $currentSlug ) extends Db {
+		$db = new class( $currentSlug, $enqueuedScans, $scanCalls ) extends Db {
+			public array $queries = [];
 			private string $currentSlug;
+			private array $enqueuedScans;
+			private object $scanCalls;
 
-			public function __construct( string $currentSlug ) {
+			public function __construct( string $currentSlug, array $enqueuedScans, object $scanCalls ) {
 				$this->currentSlug = $currentSlug;
+				$this->enqueuedScans = $enqueuedScans;
+				$this->scanCalls = $scanCalls;
 			}
 
-			public function getVar( $sql ) {
-				return $this->currentSlug;
+			public function selectCustom( $query, $format = null ) {
+				unset( $format );
+				$this->queries[] = (string)$query;
+				$this->scanCalls->status_query_count = \count( $this->queries );
+				$ordered = $this->currentSlug === '' ? [] : [ $this->currentSlug ];
+				foreach ( $this->enqueuedScans as $scan ) {
+					if ( !\in_array( $scan, $ordered, true ) ) {
+						$ordered[] = $scan;
+					}
+				}
+				return \array_map(
+					static fn( string $scan ) :array => [
+						'scan'       => $scan,
+						'status'     => 'running',
+						'created_at' => 1,
+					],
+					$ordered
+				);
 			}
 		};
 
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->db_con = (object)[
-			'scans' => new class( $selector ) {
-				private object $selector;
-
-				public function __construct( object $selector ) {
-					$this->selector = $selector;
-				}
-
+			'scans' => new class {
 				public function getTable() :string {
 					return 'shield_scans';
-				}
-
-				public function getQuerySelector() :object {
-					return $this->selector;
 				}
 			},
 			'scan_items' => new class {
@@ -178,16 +166,19 @@ class BuildScanRuntimeTest extends BaseUnitTest {
 			},
 		];
 		$controller->comps = (object)[
-			'scans_queue' => new class( $runningStates, $progress ) {
+			'scans_queue' => new class( $runningStates, $progress, $scanCalls ) {
 				private array $runningStates;
 				private float $progress;
+				private object $scanCalls;
 
-				public function __construct( array $runningStates, float $progress ) {
+				public function __construct( array $runningStates, float $progress, object $scanCalls ) {
 					$this->runningStates = $runningStates;
 					$this->progress = $progress;
+					$this->scanCalls = $scanCalls;
 				}
 
-				public function getScansRunningStates() :array {
+				public function getScansRunningStates( ?array $enqueued = null ) :array {
+					$this->scanCalls->received_enqueued = $enqueued ?? [];
 					return $this->runningStates;
 				}
 

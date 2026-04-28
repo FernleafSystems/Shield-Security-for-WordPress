@@ -82,22 +82,20 @@ class Store {
 			$metaDeleter->filterByResultItems( $updatedResultIDs )->query();
 		}
 
-		foreach ( $metaRows as $metaRow ) {
-			/** @var ResultItemMetaDB\Insert $metaInserter */
-			$metaInserter = $dbhResItemMetas->getQueryInserter();
-			$metaInserter->setInsertData( $metaRow )->query();
-		}
+		$this->bulkInsertRows( $dbhResItemMetas->getTable(), [ 'ri_ref', 'meta_key', 'meta_value' ], $metaRows );
 
 		$resultItemIDs = \array_values( \array_unique( \array_filter( \array_map( '\intval', $resultItemIDs ) ) ) );
 		$observedResultItemIDs = $this->loadObservedResultItemIDs( $queueItem->scan_id, $resultItemIDs );
+		$observationRows = [];
+		$createdAt = Services::Request()->ts();
 		foreach ( \array_diff( $resultItemIDs, $observedResultItemIDs ) as $resultItemID ) {
-			$dbCon->scan_results->getQueryInserter()
-								->setInsertData( [
-									'scan_ref'       => $queueItem->scan_id,
-									'resultitem_ref' => $resultItemID,
-								] )
-								->query();
+			$observationRows[] = [
+				'scan_ref'       => $queueItem->scan_id,
+				'resultitem_ref' => $resultItemID,
+				'created_at'     => $createdAt,
+			];
 		}
+		$this->bulkInsertRows( $dbCon->scan_results->getTable(), [ 'scan_ref', 'resultitem_ref', 'created_at' ], $observationRows );
 	}
 
 	/**
@@ -171,6 +169,28 @@ class Store {
 
 	private function resultKey( ResultItemsDB\Record $scanResult ) :string {
 		return (string)$scanResult->item_type."\n".(string)$scanResult->item_id;
+	}
+
+	private function bulkInsertRows( string $table, array $columns, array $rows ) :bool {
+		if ( empty( $rows ) ) {
+			return true;
+		}
+
+		$values = [];
+		foreach ( $rows as $row ) {
+			$values[] = "('".\implode( "','", \array_map(
+				static fn( string $column ) :string => esc_sql( (string)$row[ $column ] ),
+				$columns
+			) )."')";
+		}
+
+		return Services::WpDb()->doSql(
+			sprintf( "INSERT INTO `%s` (`%s`) VALUES %s;",
+				$table,
+				\implode( '`,`', $columns ),
+				\implode( ',', $values )
+			)
+		) !== false;
 	}
 
 	private function lastInsertID() :int {

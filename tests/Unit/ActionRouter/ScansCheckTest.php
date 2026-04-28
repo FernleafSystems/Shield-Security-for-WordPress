@@ -56,12 +56,63 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] ?? null );
 		$this->assertSame( $failureMessage, $controller->action_router->renderData[ 'remaining_scans' ] ?? '' );
+		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
+	}
+
+	public function test_exec_preserves_request_id_precedence_when_failed_scan_query_returns_multiple_rows() :void {
+		$controller = $this->installController( failedScanRows: [
+			(object)[
+				'id'     => 32,
+				'status' => 'failed',
+				'meta'   => [
+					'last_error' => 'second requested failure',
+				],
+			],
+			(object)[
+				'id'     => 21,
+				'status' => 'failed',
+				'meta'   => [
+					'last_error' => 'first requested failure',
+				],
+			],
+		] );
+
+		$action = new ScansCheck( [
+			'scan_ids' => [ 21, 32 ],
+		] );
+		$method = new \ReflectionMethod( ScansCheck::class, 'exec' );
+		$method->setAccessible( true );
+		$method->invoke( $action );
+
+		$this->assertSame( 'first requested failure', $action->response()->payload()[ 'failure_message' ] ?? '' );
+		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
+		$this->assertSame( [ 21, 32 ], $controller->db_con->scans->selector->filteredIDs );
+	}
+
+	public function test_exec_uses_default_failed_message_when_failed_row_has_no_error_meta() :void {
+		$controller = $this->installController( failedScanRows: [
+			(object)[
+				'id'     => 21,
+				'status' => 'failed',
+				'meta'   => [],
+			],
+		] );
+
+		$action = new ScansCheck( [
+			'scan_ids' => [ 21 ],
+		] );
+		$method = new \ReflectionMethod( ScansCheck::class, 'exec' );
+		$method->setAccessible( true );
+		$method->invoke( $action );
+
+		$this->assertSame( 'The scan failed before it could finish.', $action->response()->payload()[ 'failure_message' ] ?? '' );
+		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
 	}
 
 	public function test_exec_reports_running_scan_modal_state_and_render_input() :void {
 		$controller = $this->installController(
 			currentScan: 'wpv',
-			enqueued: [ (object)[ 'scan' => 'wpv' ] ],
+			enqueued: [ 'wpv' ],
 			runningStates: [ 'afs' => false, 'wpv' => true, 'apc' => false ],
 			progress: 0.42
 		);
@@ -79,6 +130,7 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertNotSame( '', (string)( $payload[ 'modal_html' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'vars', $payload );
 		$this->assertSame( [ 'afs' => false, 'wpv' => true, 'apc' => false ], $payload[ 'running' ] ?? [] );
+		$this->assertSame( [ 'wpv' ], $controller->comps->scans_queue->receivedEnqueued );
 		$this->assertSame( ScansProgress::class, $controller->action_router->renderClass );
 		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
@@ -107,6 +159,7 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertNotSame( '', (string)( $payload[ 'modal_html' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'vars', $payload );
 		$this->assertSame( ScansProgress::class, $controller->action_router->renderClass );
+		$this->assertSame( [], $controller->comps->scans_queue->receivedEnqueued );
 		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] ?? null );
@@ -123,16 +176,30 @@ class ScansCheckTest extends BaseUnitTest {
 		string $currentScan = '',
 		array $enqueued = [],
 		array $runningStates = [ 'afs' => false, 'wpv' => false, 'apc' => false ],
-		float $progress = 0.2
+		float $progress = 0.2,
+		array $failedScanRows = []
 	) :Controller {
 		ServicesState::installItems( [
-			'service_wpdb' => new class( $currentScan ) extends Db {
-				public function __construct( private string $currentScan ) {
+			'service_wpdb' => new class( $currentScan, $enqueued ) extends Db {
+				public function __construct( private string $currentScan, private array $enqueued ) {
 				}
 
-				public function getVar( $sql ) {
-					unset( $sql );
-					return $this->currentScan;
+				public function selectCustom( $query, $format = null ) {
+					unset( $query, $format );
+					$ordered = $this->currentScan === '' ? [] : [ $this->currentScan ];
+					foreach ( $this->enqueued as $scan ) {
+						if ( !\in_array( $scan, $ordered, true ) ) {
+							$ordered[] = $scan;
+						}
+					}
+					return \array_map(
+						static fn( string $scan ) :array => [
+							'scan'       => $scan,
+							'status'     => 'running',
+							'created_at' => 1,
+						],
+						$ordered
+					);
 				}
 			},
 		] );
@@ -140,8 +207,54 @@ class ScansCheckTest extends BaseUnitTest {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->db_con = (object)[
-			'scans' => new class( $failureMessage, $enqueued ) {
-				public function __construct( private string $failureMessage, private array $enqueued ) {
+			'scans' => new class( $failureMessage, $failedScanRows ) {
+				public object $selector;
+
+				public function __construct( private string $failureMessage, private array $failedScanRows ) {
+					$this->selector = new class( $failureMessage, $failedScanRows ) {
+						public int $queryCount = 0;
+						public array $filteredIDs = [];
+						private array $ids = [];
+
+						public function __construct( private string $failureMessage, private array $failedScanRows ) {
+						}
+
+						public function filterByIDs( array $ids ) :self {
+							$this->ids = $ids;
+							$this->filteredIDs = $ids;
+							return $this;
+						}
+
+						public function filterByStatus( string $status ) :self {
+							unset( $status );
+							return $this;
+						}
+
+						public function queryWithResult() :array {
+							$this->queryCount++;
+							if ( empty( $this->ids ) ) {
+								return [];
+							}
+							if ( !empty( $this->failedScanRows ) ) {
+								return \array_values( \array_filter(
+									$this->failedScanRows,
+									fn( object $row ) :bool => \in_array( (int)$row->id, $this->ids, true )
+								) );
+							}
+							if ( $this->failureMessage === '' ) {
+								return [];
+							}
+							return [
+								(object)[
+									'id'     => $this->ids[ 0 ],
+									'status' => 'failed',
+									'meta'   => [
+										'last_error' => $this->failureMessage,
+									],
+								],
+							];
+						}
+					};
 				}
 
 				public function getTable() :string {
@@ -149,43 +262,7 @@ class ScansCheckTest extends BaseUnitTest {
 				}
 
 				public function getQuerySelector() :object {
-					return new class( $this->failureMessage, $this->enqueued ) {
-						public function __construct( private string $failureMessage, private array $enqueued ) {
-						}
-
-						public function byId( int $scanID ) {
-							return $this->failureMessage === '' ? null : (object)[
-								'id' => $scanID,
-								'status' => 'failed',
-								'meta' => [
-									'last_error' => $this->failureMessage,
-								],
-							];
-						}
-
-						public function filterByNotFinished() :self {
-							return $this;
-						}
-
-						public function addWhereIn( string $column, array $values ) :self {
-							unset( $column, $values );
-							return $this;
-						}
-
-						public function addColumnToSelect( string $column ) :self {
-							unset( $column );
-							return $this;
-						}
-
-						public function setIsDistinct( bool $isDistinct ) :self {
-							unset( $isDistinct );
-							return $this;
-						}
-
-						public function queryWithResult() :array {
-							return $this->enqueued;
-						}
-					};
+					return $this->selector;
 				}
 			},
 		];
@@ -203,10 +280,13 @@ class ScansCheckTest extends BaseUnitTest {
 				}
 			},
 			'scans_queue' => new class( $runningStates, $progress ) {
+				public array $receivedEnqueued = [];
+
 				public function __construct( private array $runningStates, private float $progress ) {
 				}
 
-				public function getScansRunningStates() :array {
+				public function getScansRunningStates( ?array $enqueued = null ) :array {
+					$this->receivedEnqueued = $enqueued ?? [];
 					return $this->runningStates;
 				}
 

@@ -743,6 +743,10 @@ class LifecycleScanItemsSelector {
 	public function countUnfinishedForEachScan() :array {
 		return [];
 	}
+
+	public function countProgressForEachScan() :array {
+		return [];
+	}
 }
 
 class LifecycleScanItemsDeleter {
