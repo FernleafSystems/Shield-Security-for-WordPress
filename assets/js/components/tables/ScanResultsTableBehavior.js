@@ -97,8 +97,13 @@ export function buildScanResultsButtons( {
 			text: 'Ignore Selected',
 			name: 'selected-ignore',
 			className: 'action selected-action ignore btn-outline-secondary mb-2',
-			action: () => {
-				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+			action: async ( e, dt, node ) => {
+				const confirmed = await confirmScanResultsBulkAction( {
+					message: shieldStrings.string( 'are_you_sure' ),
+					launcher: getDatatableButtonLauncher( e, node ),
+				} );
+
+				if ( confirmed ) {
 					onBulkAction( 'ignore' );
 				}
 			}
@@ -107,8 +112,13 @@ export function buildScanResultsButtons( {
 			text: 'Unignore Selected',
 			name: 'selected-unignore',
 			className: 'action selected-action unignore btn-outline-secondary mb-2',
-			action: () => {
-				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+			action: async ( e, dt, node ) => {
+				const confirmed = await confirmScanResultsBulkAction( {
+					message: shieldStrings.string( 'are_you_sure' ),
+					launcher: getDatatableButtonLauncher( e, node ),
+				} );
+
+				if ( confirmed ) {
 					onBulkAction( 'unignore' );
 				}
 			}
@@ -117,11 +127,15 @@ export function buildScanResultsButtons( {
 			text: 'Delete/Repair Selected',
 			name: 'selected-repair',
 			className: 'action selected-action repair btn-outline-secondary mb-2',
-			action: ( e, dt ) => {
+			action: async ( e, dt, node ) => {
 				if ( dt.rows( { selected: true } ).count() > 20 ) {
 					alert( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item." );
 				}
-				else if ( confirm( shieldStrings.string( 'absolutely_sure' ) ) ) {
+				else if ( await confirmScanResultsBulkAction( {
+					message: shieldStrings.string( 'absolutely_sure' ),
+					danger: true,
+					launcher: getDatatableButtonLauncher( e, node ),
+				} ) ) {
 					onBulkAction( 'repair-delete' );
 				}
 			}
@@ -129,6 +143,34 @@ export function buildScanResultsButtons( {
 	);
 
 	return buttons;
+}
+
+function getDatatableButtonLauncher( event, node ) {
+	if ( event?.currentTarget instanceof HTMLElement ) {
+		return event.currentTarget;
+	}
+	if ( node?.[ 0 ] instanceof HTMLElement ) {
+		return node[ 0 ];
+	}
+	if ( node instanceof HTMLElement ) {
+		return node;
+	}
+	return null;
+}
+
+function confirmScanResultsBulkAction( {
+	message = '',
+	danger = false,
+	launcher = null,
+} = {} ) {
+	return confirmDialog( {
+		title: shieldStrings.string( 'confirm_title' ),
+		message,
+		confirmLabel: shieldStrings.string( 'confirm' ),
+		cancelLabel: shieldStrings.string( 'cancel' ),
+		danger,
+		launcher,
+	} );
 }
 
 /**
