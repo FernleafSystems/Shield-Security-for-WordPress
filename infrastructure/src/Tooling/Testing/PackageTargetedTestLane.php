@@ -102,7 +102,7 @@ class PackageTargetedTestLane {
 	}
 
 	/**
-	 * @param array{strauss_version:?string,strauss_fork_repo:?string} $packagerConfig
+	 * @param array{strauss_version:?string,strauss_fork_repo:?string,strauss_fork_branch:?string} $packagerConfig
 	 * @return array<string,string>
 	 */
 	private function buildProcessEnvOverrides( string $resolvedPackagePath, array $packagerConfig ) :array {
@@ -114,6 +114,9 @@ class PackageTargetedTestLane {
 		}
 		if ( \is_string( $packagerConfig[ 'strauss_fork_repo' ] ) && $packagerConfig[ 'strauss_fork_repo' ] !== '' ) {
 			$env[ 'SHIELD_STRAUSS_FORK_REPO' ] = $packagerConfig[ 'strauss_fork_repo' ];
+			if ( \is_string( $packagerConfig[ 'strauss_fork_branch' ] ) && $packagerConfig[ 'strauss_fork_branch' ] !== '' ) {
+				$env[ 'SHIELD_STRAUSS_FORK_BRANCH' ] = $packagerConfig[ 'strauss_fork_branch' ];
+			}
 		}
 
 		return $env;

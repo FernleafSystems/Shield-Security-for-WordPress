@@ -5,10 +5,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\CommandRunner;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\SafeDirectoryRemover;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\StraussBinaryProvider;
+use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Process\Process;
 
 class StraussBinaryProviderTest extends TestCase {
 
@@ -30,6 +32,7 @@ class StraussBinaryProviderTest extends TestCase {
 
 		$this->provider = new StraussBinaryProvider(
 			'0.26.5',
+			null,
 			null,
 			new CommandRunner( $this->projectRoot, $logger ),
 			new SafeDirectoryRemover( $this->projectRoot ),
@@ -134,6 +137,48 @@ class StraussBinaryProviderTest extends TestCase {
 		$this->assertDirectoryExists( Path::join( $this->tempDir, 'vendor_prefixed' ) );
 	}
 
+	public function testForkCloneChecksOutRequestedBranchWhenAvailable() :void {
+		[ $provider, $processRunner ] = $this->createForkProvider( 'feature/strauss-fix', [ 0 ] );
+
+		$provider->provide( $this->tempDir );
+
+		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'ls-remote', '--exit-code', '--heads', 'https://example.com/strauss.git', 'feature/strauss-fix' ] );
+		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'checkout', 'feature/strauss-fix' ] );
+	}
+
+	public function testForkCloneFallsBackToDevelopWhenRequestedBranchMissing() :void {
+		$logs = [];
+		[ $provider, $processRunner ] = $this->createForkProvider( 'missing-branch', [ 1 ], $logs );
+
+		$provider->provide( $this->tempDir );
+
+		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'ls-remote', '--exit-code', '--heads', 'https://example.com/strauss.git', 'missing-branch' ] );
+		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'checkout', 'develop' ] );
+		$this->assertContains( 'Strauss fork branch "missing-branch" not found; falling back to develop', $logs );
+	}
+
+	public function testForkCloneDefaultsBlankBranchToDevelop() :void {
+		[ $provider, $processRunner ] = $this->createForkProvider( '  ', [ 1 ] );
+
+		$provider->provide( $this->tempDir );
+
+		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'ls-remote', '--exit-code', '--heads', 'https://example.com/strauss.git', 'develop' ] );
+		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'checkout', 'develop' ] );
+	}
+
+	public function testForkCloneCachePathIncludesBranch() :void {
+		[ $mainProvider, $mainProcessRunner ] = $this->createForkProvider( 'main', [ 0 ] );
+		[ $developProvider, $developProcessRunner ] = $this->createForkProvider( 'develop', [ 0 ] );
+
+		$mainProvider->provide( $this->tempDir );
+		$developProvider->provide( $this->tempDir );
+
+		$mainCloneTarget = $this->findCloneTarget( $mainProcessRunner->calls );
+		$developCloneTarget = $this->findCloneTarget( $developProcessRunner->calls );
+
+		$this->assertNotSame( $mainCloneTarget, $developCloneTarget );
+	}
+
 	private function invokePathValidation( string $settingName, string $configuredPath, bool $expectsDirectory ) :void {
 		$this->invokeNonPublicMethod(
 			$this->provider,
@@ -171,13 +216,119 @@ class StraussBinaryProviderTest extends TestCase {
 				callable $logger
 			) {
 				$this->straussScriptPath = $straussScriptPath;
-				parent::__construct( '0.19.4', null, $commandRunner, $directoryRemover, $logger );
+				parent::__construct( '0.19.4', null, null, $commandRunner, $directoryRemover, $logger );
 			}
 
 			public function provide( string $targetDir ) :string {
 				return $this->straussScriptPath;
 			}
 		};
+	}
+
+	/**
+	 * @param int[] $lsRemoteExitCodes
+	 * @param string[] $logs
+	 * @return array{0:StraussBinaryProvider,1:object}
+	 */
+	private function createForkProvider( ?string $forkBranch, array $lsRemoteExitCodes, array &$logs = [] ) :array {
+		$processRunner = new class( $lsRemoteExitCodes ) extends ProcessRunner {
+
+			/** @var array<int,array{command:array,working_dir:string,env_overrides:?array,has_output_callback:bool}> */
+			public array $calls = [];
+
+			/** @var int[] */
+			private array $lsRemoteExitCodes;
+
+			/**
+			 * @param int[] $lsRemoteExitCodes
+			 */
+			public function __construct( array $lsRemoteExitCodes ) {
+				parent::__construct();
+				$this->lsRemoteExitCodes = $lsRemoteExitCodes;
+			}
+
+			public function run(
+				array $command,
+				string $workingDir,
+				?callable $onOutput = null,
+				?array $envOverrides = null
+			) :Process {
+				$this->calls[] = [
+					'command' => $command,
+					'working_dir' => $workingDir,
+					'env_overrides' => $envOverrides,
+					'has_output_callback' => $onOutput !== null,
+				];
+
+				$exitCode = 0;
+				if ( \array_slice( $command, 0, 4 ) === [ 'git', 'ls-remote', '--exit-code', '--heads' ] ) {
+					$exitCode = \array_shift( $this->lsRemoteExitCodes ) ?? 0;
+				}
+				elseif ( \array_slice( $command, 0, 2 ) === [ 'git', 'clone' ] && isset( $command[ 3 ] ) ) {
+					$binDir = Path::join( $command[ 3 ], 'bin' );
+					if ( !\is_dir( $binDir ) ) {
+						\mkdir( $binDir, 0777, true );
+					}
+					\file_put_contents( Path::join( $binDir, 'strauss' ), '#!/usr/bin/env php' );
+				}
+
+				$process = new Process( [
+					\PHP_BINARY,
+					'-r',
+					'exit((int)$argv[1]);',
+					(string)$exitCode,
+				] );
+				$process->run( static function () :void {
+				} );
+
+				return $process;
+			}
+		};
+
+		$logger = static function ( string $message ) use ( &$logs ) :void {
+			$logs[] = $message;
+		};
+		$commandRunner = new CommandRunner( $this->projectRoot, $logger, $processRunner );
+
+		return [
+			new StraussBinaryProvider(
+				'0.19.4',
+				'https://example.com/strauss.git',
+				$forkBranch,
+				$commandRunner,
+				new SafeDirectoryRemover( $this->projectRoot ),
+				$logger
+			),
+			$processRunner,
+		];
+	}
+
+	/**
+	 * @param array<int,array{command:array,working_dir:string,env_overrides:?array,has_output_callback:bool}> $calls
+	 * @param string[] $expectedCommand
+	 */
+	private function assertCommandWasRun( array $calls, array $expectedCommand ) :void {
+		foreach ( $calls as $call ) {
+			if ( $call[ 'command' ] === $expectedCommand ) {
+				$this->addToAssertionCount( 1 );
+				return;
+			}
+		}
+
+		$this->fail( 'Expected command was not run: '.\implode( ' ', $expectedCommand ) );
+	}
+
+	/**
+	 * @param array<int,array{command:array,working_dir:string,env_overrides:?array,has_output_callback:bool}> $calls
+	 */
+	private function findCloneTarget( array $calls ) :string {
+		foreach ( $calls as $call ) {
+			if ( \array_slice( $call[ 'command' ], 0, 2 ) === [ 'git', 'clone' ] ) {
+				return (string)( $call[ 'command' ][ 3 ] ?? '' );
+			}
+		}
+
+		$this->fail( 'Git clone command was not run.' );
 	}
 
 	private function createRequiredPackage( string $package, bool $withFile = true ) :void {

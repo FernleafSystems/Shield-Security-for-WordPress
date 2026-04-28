@@ -95,7 +95,7 @@ class TestingEnvironmentResolver {
 	}
 
 	/**
-	 * @return array{strauss_version:?string,strauss_fork_repo:?string}
+	 * @return array{strauss_version:?string,strauss_fork_repo:?string,strauss_fork_branch:?string}
 	 */
 	public function resolvePackagerConfig( string $rootDir ) :array {
 		$configPath = Path::join( $rootDir, '.github', 'config', 'packager.conf' );
@@ -103,6 +103,7 @@ class TestingEnvironmentResolver {
 			return [
 				'strauss_version' => null,
 				'strauss_fork_repo' => null,
+				'strauss_fork_branch' => null,
 			];
 		}
 
@@ -111,12 +112,14 @@ class TestingEnvironmentResolver {
 			return [
 				'strauss_version' => null,
 				'strauss_fork_repo' => null,
+				'strauss_fork_branch' => null,
 			];
 		}
 
 		$values = [
 			'strauss_version' => null,
 			'strauss_fork_repo' => null,
+			'strauss_fork_branch' => null,
 		];
 
 		foreach ( $lines as $line ) {
@@ -131,7 +134,18 @@ class TestingEnvironmentResolver {
 			}
 			if ( \preg_match( '/^STRAUSS_FORK_REPO=(.+)$/', $trimmed, $matches ) === 1 ) {
 				$values[ 'strauss_fork_repo' ] = \trim( (string)( $matches[ 1 ] ?? '' ), " \t\n\r\0\x0B\"'" );
+				continue;
 			}
+			if ( \preg_match( '/^STRAUSS_FORK_BRANCH=(.+)$/', $trimmed, $matches ) === 1 ) {
+				$values[ 'strauss_fork_branch' ] = \trim( (string)( $matches[ 1 ] ?? '' ), " \t\n\r\0\x0B\"'" );
+			}
+		}
+
+		if ( !\is_string( $values[ 'strauss_fork_repo' ] ) || $values[ 'strauss_fork_repo' ] === '' ) {
+			$values[ 'strauss_fork_branch' ] = null;
+		}
+		elseif ( !\is_string( $values[ 'strauss_fork_branch' ] ) || $values[ 'strauss_fork_branch' ] === '' ) {
+			$values[ 'strauss_fork_branch' ] = 'develop';
 		}
 
 		return $values;

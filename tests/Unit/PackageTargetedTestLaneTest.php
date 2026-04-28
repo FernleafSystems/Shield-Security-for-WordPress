@@ -70,6 +70,7 @@ class PackageTargetedTestLaneTest extends TestCase {
 			[
 				'strauss_version' => '0.19.1',
 				'strauss_fork_repo' => 'fernleafsystems/strauss',
+				'strauss_fork_branch' => 'feature/packager',
 			]
 		);
 
@@ -88,6 +89,7 @@ class PackageTargetedTestLaneTest extends TestCase {
 						'SHIELD_PACKAGE_PATH' => $packagePath,
 						'SHIELD_STRAUSS_VERSION' => '0.19.1',
 						'SHIELD_STRAUSS_FORK_REPO' => 'fernleafsystems/strauss',
+						'SHIELD_STRAUSS_FORK_BRANCH' => 'feature/packager',
 					],
 					$call[ 'env_overrides' ]
 				);
@@ -101,6 +103,33 @@ class PackageTargetedTestLaneTest extends TestCase {
 			else {
 				\putenv( 'SHIELD_PACKAGE_PATH' );
 			}
+		}
+	}
+
+	public function testRunDoesNotPassForkBranchWithoutForkRepo() :void {
+		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
+		$packagePath = '/resolved/package';
+		$lane = $this->createLane(
+			$processRunner,
+			$packagePath,
+			[
+				'strauss_version' => null,
+				'strauss_fork_repo' => null,
+				'strauss_fork_branch' => 'feature/packager',
+			]
+		);
+
+		$exitCode = $this->runLaneSilenced( $lane, null, false );
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 2, $processRunner->calls );
+		foreach ( $processRunner->calls as $call ) {
+			$this->assertSame(
+				[
+					'SHIELD_PACKAGE_PATH' => $packagePath,
+				],
+				$call[ 'env_overrides' ]
+			);
 		}
 	}
 
@@ -119,12 +148,12 @@ class PackageTargetedTestLaneTest extends TestCase {
 	}
 
 	/**
-	 * @param array{strauss_version:?string,strauss_fork_repo:?string} $packagerConfig
+	 * @param array{strauss_version:?string,strauss_fork_repo:?string,strauss_fork_branch:?string} $packagerConfig
 	 */
 	private function createLane(
 		RecordingProcessRunner $processRunner,
 		string $resolvedPackagePath,
-		array $packagerConfig = [ 'strauss_version' => null, 'strauss_fork_repo' => null ]
+		array $packagerConfig = [ 'strauss_version' => null, 'strauss_fork_repo' => null, 'strauss_fork_branch' => null ]
 	) :PackageTargetedTestLane {
 		$packagePathResolver = new class( $resolvedPackagePath ) extends PackagePathResolver {
 
@@ -142,11 +171,11 @@ class PackageTargetedTestLaneTest extends TestCase {
 
 		$environmentResolver = new class( $packagerConfig ) extends TestingEnvironmentResolver {
 
-			/** @var array{strauss_version:?string,strauss_fork_repo:?string} */
+			/** @var array{strauss_version:?string,strauss_fork_repo:?string,strauss_fork_branch:?string} */
 			private array $packagerConfig;
 
 			/**
-			 * @param array{strauss_version:?string,strauss_fork_repo:?string} $packagerConfig
+			 * @param array{strauss_version:?string,strauss_fork_repo:?string,strauss_fork_branch:?string} $packagerConfig
 			 */
 			public function __construct( array $packagerConfig ) {
 				parent::__construct();
@@ -154,7 +183,7 @@ class PackageTargetedTestLaneTest extends TestCase {
 			}
 
 			/**
-			 * @return array{strauss_version:?string,strauss_fork_repo:?string}
+			 * @return array{strauss_version:?string,strauss_fork_repo:?string,strauss_fork_branch:?string}
 			 */
 			public function resolvePackagerConfig( string $rootDir ) :array {
 				return $this->packagerConfig;

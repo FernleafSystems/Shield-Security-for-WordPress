@@ -12,6 +12,7 @@ $options = getopt( '', [
 	'output::',
 	'strauss-version::',
 	'strauss-fork-repo::',
+	'strauss-fork-branch::',
 	'skip-root-composer',
 	'skip-lib-composer',
 	'skip-package-dependency-build',
@@ -82,6 +83,12 @@ if ( !is_string( $straussForkRepo ) || $straussForkRepo === '' ) {
 
 if ( $straussForkRepo !== null ) {
 	$packagerOptions[ 'strauss_fork_repo' ] = trim( $straussForkRepo );
+
+	$straussForkBranch = $options[ 'strauss-fork-branch' ] ?? null;
+	if ( !is_string( $straussForkBranch ) || $straussForkBranch === '' ) {
+		$straussForkBranch = PackagerConfig::getStraussForkBranch();
+	}
+	$packagerOptions[ 'strauss_fork_branch' ] = trim( $straussForkBranch );
 }
 
 // Version metadata options

@@ -171,7 +171,7 @@ class PackageFullTestLane {
 	}
 
 	/**
-	 * @param array{strauss_version:?string,strauss_fork_repo:?string} $packagerConfig
+	 * @param array{strauss_version:?string,strauss_fork_repo:?string,strauss_fork_branch:?string} $packagerConfig
 	 * @return string[]
 	 */
 	private function buildDockerEnvLines(
@@ -196,6 +196,9 @@ class PackageFullTestLane {
 		}
 		if ( \is_string( $packagerConfig[ 'strauss_fork_repo' ] ) && $packagerConfig[ 'strauss_fork_repo' ] !== '' ) {
 			$lines[] = 'SHIELD_STRAUSS_FORK_REPO='.$packagerConfig[ 'strauss_fork_repo' ];
+			if ( \is_string( $packagerConfig[ 'strauss_fork_branch' ] ) && $packagerConfig[ 'strauss_fork_branch' ] !== '' ) {
+				$lines[] = 'SHIELD_STRAUSS_FORK_BRANCH='.$packagerConfig[ 'strauss_fork_branch' ];
+			}
 		}
 		foreach ( [ 'PHPUNIT_DEBUG', 'SHIELD_TEST_VERBOSE' ] as $optionalEnvVar ) {
 			$value = \getenv( $optionalEnvVar );

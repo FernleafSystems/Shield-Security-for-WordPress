@@ -14,6 +14,7 @@ declare( strict_types=1 );
  *   php bin/run-strauss-dev.php --clean      # Remove vendor_prefixed/
  *   php bin/run-strauss-dev.php --strauss-version=0.26.3
  *   php bin/run-strauss-dev.php --strauss-fork-repo=https://github.com/user/strauss
+ *   php bin/run-strauss-dev.php --strauss-fork-branch=feature-branch
  */
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\CommandRunner;
@@ -28,6 +29,7 @@ $options = getopt( '', [
 	'clean',
 	'strauss-version::',
 	'strauss-fork-repo::',
+	'strauss-fork-branch::',
 	'help',
 ] );
 
@@ -56,6 +58,7 @@ Options:
   --clean                Remove vendor_prefixed/ directory
   --strauss-version      Specify Strauss version (e.g., 0.26.3)
   --strauss-fork-repo    Use a custom Strauss fork repository URL
+  --strauss-fork-branch  Use a custom Strauss fork branch (default: develop)
   --help                 Show this help message
 
 Examples:
@@ -63,6 +66,7 @@ Examples:
   php bin/run-strauss-dev.php --clean
   php bin/run-strauss-dev.php --strauss-version=0.26.3
   php bin/run-strauss-dev.php --strauss-fork-repo=https://github.com/paulgoodchild/strauss
+  php bin/run-strauss-dev.php --strauss-fork-repo=https://github.com/paulgoodchild/strauss --strauss-fork-branch=develop
 
 HELP;
 	exit( 0 );
@@ -112,6 +116,14 @@ if ( !\is_string( $straussForkRepo ) || $straussForkRepo === '' ) {
 	$straussForkRepo = PackagerConfig::getStraussForkRepo();
 }
 
+$straussForkBranch = null;
+if ( \is_string( $straussForkRepo ) && $straussForkRepo !== '' ) {
+	$straussForkBranch = $options[ 'strauss-fork-branch' ] ?? null;
+	if ( !\is_string( $straussForkBranch ) || $straussForkBranch === '' ) {
+		$straussForkBranch = PackagerConfig::getStraussForkBranch();
+	}
+}
+
 try {
 	$logger( '=== Development Strauss Runner ===' );
 	$logger( '' );
@@ -128,6 +140,7 @@ try {
 	$straussProvider = new StraussBinaryProvider(
 		$resolvedStrauss,
 		$straussForkRepo,
+		$straussForkBranch,
 		$commandRunner,
 		$directoryRemover,
 		$logger

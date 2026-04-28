@@ -17,6 +17,8 @@ class PluginPackager {
 
 	private ?string $straussForkRepo = null;
 
+	private ?string $straussForkBranch = null;
+
 	/** @var callable */
 	private $logger;
 
@@ -66,6 +68,7 @@ class PluginPackager {
 		$options = $this->resolveOptions( $options );
 		$this->straussVersion = $this->resolveStraussVersion( $options );
 		$this->straussForkRepo = $options[ 'strauss_fork_repo' ] ?? null;
+		$this->straussForkBranch = $options[ 'strauss_fork_branch' ] ?? null;
 		$targetDir = $this->resolveOutputDirectory( $outputDir );
 		$this->log( sprintf( 'Packaging Shield plugin to: %s', $targetDir ) );
 
@@ -128,6 +131,7 @@ class PluginPackager {
 			$straussProvider = new StraussBinaryProvider(
 				$this->straussVersion,
 				$this->straussForkRepo,
+				$this->straussForkBranch,
 				$this->commandRunner,
 				$this->directoryRemover,
 				$this->logger
@@ -231,6 +235,7 @@ class PluginPackager {
 			'skip_copy'                => false,
 			'strauss_version'          => null,
 			'strauss_fork_repo'        => null,
+			'strauss_fork_branch'      => null,
 			'version'                  => null,
 			'release_timestamp'        => null,
 			'build'                    => null,

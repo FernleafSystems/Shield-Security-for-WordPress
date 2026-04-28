@@ -44,6 +44,18 @@ class CommandRunner {
 	}
 
 	/**
+	 * Execute a shell command and report whether it exits successfully.
+	 *
+	 * @param string[] $parts Command parts (first element is command, rest are arguments)
+	 */
+	public function succeeds( array $parts, ?string $workingDir = null ) :bool {
+		$cwd = $workingDir ?? $this->projectRoot;
+
+		$this->log( '> '.\implode( ' ', $parts ) );
+		return $this->processRunner->runForExitCode( $parts, $cwd ) === 0;
+	}
+
+	/**
 	 * Get the composer command array (handles PHAR files by prepending PHP binary).
 	 *
 	 * @return string[] Command parts for composer

@@ -79,6 +79,23 @@ class DockerComposeExecutorTest extends TestCase {
 		$this->assertTrue( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
 	}
 
+	public function testPackageComposeForwardsStraussEnvironmentToBothRunners() :void {
+		$composePath = $this->projectRoot.'/tests/docker/docker-compose.package.yml';
+		$content = \file_get_contents( $composePath );
+		$this->assertNotFalse( $content );
+
+		foreach ( [ 'test-runner-latest', 'test-runner-previous' ] as $service ) {
+			$serviceBlock = $this->composeServiceBlock( (string)$content, $service );
+			foreach ( [
+				'SHIELD_STRAUSS_VERSION: ${SHIELD_STRAUSS_VERSION:-}',
+				'SHIELD_STRAUSS_FORK_REPO: ${SHIELD_STRAUSS_FORK_REPO:-}',
+				'SHIELD_STRAUSS_FORK_BRANCH: ${SHIELD_STRAUSS_FORK_BRANCH:-}',
+			] as $expectedEnvLine ) {
+				$this->assertStringContainsString( $expectedEnvLine, $serviceBlock );
+			}
+		}
+	}
+
 	/**
 	 * @param string[] $subCommand
 	 * @param string[] $expectedCommand
@@ -167,5 +184,14 @@ class DockerComposeExecutorTest extends TestCase {
 
 		$this->assertCount( 1, $processRunner->calls );
 		$this->assertTrue( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
+	}
+
+	private function composeServiceBlock( string $content, string $service ) :string {
+		$pattern = \sprintf(
+			'/^  %s:\R(?<block>(?:    .*(?:\R|$))*)/m',
+			\preg_quote( $service, '/' )
+		);
+		$this->assertSame( 1, \preg_match( $pattern, $content, $matches ) );
+		return (string)( $matches[ 'block' ] ?? '' );
 	}
 }

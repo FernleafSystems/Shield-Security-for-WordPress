@@ -25,6 +25,7 @@ class RunStraussDevScriptTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'Development Strauss Runner', $output );
 		$this->assertStringContainsString( '--clean', $output );
 		$this->assertStringContainsString( '--strauss-version', $output );
+		$this->assertStringContainsString( '--strauss-fork-branch', $output );
 	}
 
 	public function testComposerStraussScriptsRemainMapped() :void {

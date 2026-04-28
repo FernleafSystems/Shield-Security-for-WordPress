@@ -35,6 +35,20 @@ class PackagerConfig {
 	}
 
 	/**
+	 * Resolve custom Strauss fork branch.
+	 * Priority: env SHIELD_STRAUSS_FORK_BRANCH > config file > develop.
+	 */
+	public static function getStraussForkBranch() :string {
+		$env = getenv( 'SHIELD_STRAUSS_FORK_BRANCH' );
+		if ( is_string( $env ) && $env !== '' ) {
+			return trim( $env );
+		}
+
+		$value = self::getConfigValue( 'STRAUSS_FORK_BRANCH' );
+		return $value !== null && $value !== '' ? trim( $value ) : 'develop';
+	}
+
+	/**
 	 * Extract a value from packager.conf.
 	 * Simple approach: find line starting with KEY=, get everything after =, trim quotes.
 	 */

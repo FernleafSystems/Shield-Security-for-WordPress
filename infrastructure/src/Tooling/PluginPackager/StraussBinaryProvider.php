@@ -16,6 +16,8 @@ class StraussBinaryProvider {
 
 	private ?string $forkRepo;
 
+	private string $forkBranch;
+
 	private CommandRunner $commandRunner;
 
 	private SafeDirectoryRemover $directoryRemover;
@@ -26,12 +28,14 @@ class StraussBinaryProvider {
 	public function __construct(
 		string $version,
 		?string $forkRepo,
+		?string $forkBranch,
 		CommandRunner $commandRunner,
 		SafeDirectoryRemover $directoryRemover,
 		?callable $logger = null
 	) {
 		$this->version = $version !== '' ? $version : self::FALLBACK_VERSION;
 		$this->forkRepo = $forkRepo;
+		$this->forkBranch = $this->normalizeForkBranch( $forkBranch );
 		$this->commandRunner = $commandRunner;
 		$this->directoryRemover = $directoryRemover;
 		$this->logger = $logger ?? static function ( string $message ) :void {
@@ -125,7 +129,8 @@ class StraussBinaryProvider {
 	 * @throws \RuntimeException if clone or setup fails
 	 */
 	private function cloneAndPrepareStraussFork( string $targetDir ) :string {
-		$forkHash = \substr( \md5( $this->forkRepo ), 0, 12 );
+		$checkoutBranch = $this->resolveCheckoutBranch();
+		$forkHash = \substr( \md5( $this->forkRepo.'#'.$checkoutBranch ), 0, 12 );
 
 		// In Docker/Linux: use /tmp (no cross-drive issues, ephemeral so no cleanup needed)
 		// On Windows: use target directory to avoid cross-drive path resolution issues
@@ -148,6 +153,7 @@ class StraussBinaryProvider {
 
 		// Clone fresh
 		$this->log( sprintf( 'Cloning Strauss fork: %s', $this->forkRepo ) );
+		$this->log( sprintf( 'Using Strauss fork branch: %s', $checkoutBranch ) );
 
 		if ( \is_dir( $forkDir ) ) {
 			// Pass appropriate base path for safety check
@@ -162,7 +168,7 @@ class StraussBinaryProvider {
 		}
 
 		$this->commandRunner->run( [ 'git', 'clone', $this->forkRepo, $forkDir ], $parentDir );
-		$this->commandRunner->run( [ 'git', 'checkout', 'develop' ], $forkDir );
+		$this->commandRunner->run( [ 'git', 'checkout', $checkoutBranch ], $forkDir );
 
 		// Install dependencies (--no-scripts skips phive/dev tool hooks we don't need)
 		$this->log( 'Installing Strauss fork dependencies...' );
@@ -193,6 +199,33 @@ class StraussBinaryProvider {
 		$this->log( '  ✓ Strauss fork ready' );
 		$this->log( '' );
 		return $binPath;
+	}
+
+	private function normalizeForkBranch( ?string $forkBranch ) :string {
+		$normalized = \trim( (string)$forkBranch, " \t\n\r\0\x0B\"'" );
+		return $normalized !== '' ? $normalized : 'develop';
+	}
+
+	private function resolveCheckoutBranch() :string {
+		if ( $this->forkBranchExists( $this->forkBranch ) ) {
+			return $this->forkBranch;
+		}
+
+		if ( $this->forkBranch !== 'develop' ) {
+			$this->log( sprintf(
+				'Strauss fork branch "%s" not found; falling back to develop',
+				$this->forkBranch
+			) );
+		}
+
+		return 'develop';
+	}
+
+	private function forkBranchExists( string $branch ) :bool {
+		return $this->commandRunner->succeeds(
+			[ 'git', 'ls-remote', '--exit-code', '--heads', (string)$this->forkRepo, $branch ],
+			null
+		);
 	}
 
 	/**
