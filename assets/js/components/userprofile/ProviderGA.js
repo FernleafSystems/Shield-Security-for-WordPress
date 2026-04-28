@@ -1,13 +1,21 @@
 import QRCode from 'qrcode'
 import { ProviderBase } from "./ProviderBase";
 import { ObjectOps } from "../../util/ObjectOps";
+import { mfaConfirm } from "./MfaProfileDialog";
 
 export class ProviderGA extends ProviderBase {
 
 	run() {
-		shieldEventsHandler_UserProfile.add_Click( '.shield_ga_remove', ( targetEl ) => {
-			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-				this.sendReq( this._base_data.ajax.profile_ga_toggle );
+		shieldEventsHandler_UserProfile.add_Click( '.shield_ga_remove', async ( targetEl ) => {
+			if ( await mfaConfirm( {
+				title: shieldStrings.string( 'dialog_confirm_title' ),
+				message: shieldStrings.string( 'are_you_sure' ),
+				confirmLabel: shieldStrings.string( 'confirm' ),
+				cancelLabel: shieldStrings.string( 'cancel' ),
+				danger: true,
+				launcher: targetEl,
+			} ) ) {
+				this.sendReq( this._base_data.ajax.profile_ga_toggle, targetEl );
 			}
 		} );
 		shieldEventsHandler_UserProfile.add_Keyup( 'input[type=text].shield_gacode', ( targetEl ) => {

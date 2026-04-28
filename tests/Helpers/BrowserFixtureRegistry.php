@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQueueFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpAnalysisActivityMetaFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MfaProfileFixtureBuilder;
 
 class BrowserFixtureRegistry {
 
@@ -21,6 +22,8 @@ class BrowserFixtureRegistry {
 				return self::runActionsQueueFixture( $action, $args );
 			case 'ip-analysis-activity-meta':
 				return self::runIpAnalysisActivityMetaFixture( $action );
+			case 'mfa-profile':
+				return self::runMfaProfileFixture( $action );
 			default:
 				throw new \RuntimeException( 'Unknown browser fixture: '.$fixture );
 		}
@@ -36,6 +39,7 @@ class BrowserFixtureRegistry {
 
 		self::runActionsQueueFixture( 'cleanup', [] );
 		self::runIpAnalysisActivityMetaFixture( 'cleanup' );
+		self::runMfaProfileFixture( 'cleanup' );
 		return [ 'cleaned' => true ];
 	}
 
@@ -81,6 +85,36 @@ class BrowserFixtureRegistry {
 	private static function runIpAnalysisActivityMetaFixture( string $action ) :array {
 		$builder = new IpAnalysisActivityMetaFixtureBuilder();
 		$optionKey = self::fixtureOptionKey( 'ip-analysis-activity-meta' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runMfaProfileFixture( string $action ) :array {
+		$builder = new MfaProfileFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'mfa-profile' );
 		$state = \get_option( $optionKey, [] );
 		$state = \is_array( $state ) ? $state : [];
 

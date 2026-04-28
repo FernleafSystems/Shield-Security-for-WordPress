@@ -105,7 +105,14 @@ class MfaProfilesController {
 									)
 								],
 								'strings' => [
-									'are_you_sure' => __( 'Are you sure?', 'wp-simple-firewall' )
+									'are_you_sure'         => __( 'Are you sure?', 'wp-simple-firewall' ),
+									'cancel'               => __( 'Cancel', 'wp-simple-firewall' ),
+									'confirm'              => __( 'Confirm', 'wp-simple-firewall' ),
+									'continue'             => __( 'Continue', 'wp-simple-firewall' ),
+									'dialog_alert_title'   => __( 'Notice', 'wp-simple-firewall' ),
+									'dialog_confirm_title' => __( 'Confirm Action', 'wp-simple-firewall' ),
+									'dialog_prompt_title'  => __( 'Information Required', 'wp-simple-firewall' ),
+									'request_failed'       => __( 'Request Failed', 'wp-simple-firewall' ),
 								],
 							];
 						},

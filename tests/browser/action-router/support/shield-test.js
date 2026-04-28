@@ -113,6 +113,19 @@ async function createFixtureApi( playwright, lane ) {
 					}
 				}
 			},
+			async withMfaProfileFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'mfa-profile', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'mfa-profile', 'cleanup' );
+					}
+				}
+			},
 		},
 	};
 }

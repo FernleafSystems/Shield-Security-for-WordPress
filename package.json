@@ -10,6 +10,7 @@
     "@playwright/test": "^1.54.2",
     "@simplewebauthn/browser": "^8.3.7",
     "@types/jquery": "^3.5.33",
+    "a11y-dialog": "^8.1.5",
     "ajv": "^8.18.0",
     "altcha-lib": "^1.4.1",
     "autoprefixer": "^10.4.24",

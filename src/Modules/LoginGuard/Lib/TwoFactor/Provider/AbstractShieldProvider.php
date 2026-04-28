@@ -23,6 +23,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 				'err_no_label'        => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
 				'err_invalid_label'   => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
 				'label_prompt_dialog' => __( 'Please provide a label to identify the device.', 'wp-simple-firewall' ),
+				'label_prompt_label'  => __( 'Device Label', 'wp-simple-firewall' ),
 			]
 		];
 	}

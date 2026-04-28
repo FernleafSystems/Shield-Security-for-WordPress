@@ -63,6 +63,7 @@ function shield_browser_fixture_allowed_actions() :array {
 		'__all__' => [ 'cleanup' ],
 		'actions-queue' => [ 'seed', 'cleanup', 'inspect' ],
 		'ip-analysis-activity-meta' => [ 'seed', 'cleanup' ],
+		'mfa-profile' => [ 'seed', 'cleanup' ],
 	];
 }
 
@@ -76,6 +77,7 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/ActionRouter/ActionsQueueRuntimeProbe.php',
 		'tests/Helpers/ActionRouter/ActionsQueueFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/IpAnalysisActivityMetaFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/MfaProfileFixtureBuilder.php',
 	] as $relativePath ) {
 		require_once $pluginRoot.'/'.$relativePath;
 	}

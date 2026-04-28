@@ -20,13 +20,22 @@ class Sms extends AbstractShieldProvider {
 
 	public function getJavascriptVars() :array {
 		return [
-			'ajax'  => [
+			'ajax'    => [
 				'profile_sms2fa_add'    => ActionData::Build( MfaSmsAdd::class ),
 				'profile_sms2fa_remove' => ActionData::Build( MfaSmsRemove::class ),
 				'profile_sms2fa_verify' => ActionData::Build( MfaSmsVerify::class ),
 			],
-			'flags' => [
+			'flags'   => [
 				'is_available' => $this->isProviderAvailableToUser(),
+			],
+			'strings' => [
+				'are_you_sure'          => __( 'Are you sure?', 'wp-simple-firewall' ),
+				'confirm_phone'         => __( 'Are you sure this country code and number are correct: %s', 'wp-simple-firewall' ),
+				'phone_digits_only'     => __( 'Phone number should contain only numbers 0-9.', 'wp-simple-firewall' ),
+				'phone_too_short'       => __( "Phone number doesn't seem long enough.", 'wp-simple-firewall' ),
+				'sms_code_prompt_label' => __( 'SMS Verification Code', 'wp-simple-firewall' ),
+				'sms_code_prompt_title' => __( 'Verify SMS Code', 'wp-simple-firewall' ),
+				'sms_send_failed'       => __( 'Sending verification SMS failed', 'wp-simple-firewall' ),
 			],
 		];
 	}
