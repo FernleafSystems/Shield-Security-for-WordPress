@@ -97,7 +97,12 @@ export class ShieldTableScanResults extends ShieldTableBase {
 			data.sub_action = action;
 			data.rids = RIDs;
 
-			this.sendTableActionRequest( this.$table, data );
+			this.sendTableActionRequest(
+				this.$table,
+				data,
+				'Communications error with site.',
+				{ resetPaging: false }
+			);
 		}
 	}
 

@@ -349,7 +349,7 @@ export class ShieldTableBase extends BaseComponent {
 			if ( resp?.success ) {
 				const responseData = this.extractResponseData( resp );
 				if ( responseData.table_reload || options.reloadTableOnSuccess ) {
-					this.tableReload( datatable );
+					this.tableReload( datatable, options );
 				}
 				else {
 					this.clearTableBusy( datatable );
@@ -405,10 +405,10 @@ export class ShieldTableBase extends BaseComponent {
 		return RIDs;
 	}
 
-	tableReload( datatableOrSettings = null ) {
+	tableReload( datatableOrSettings = null, options = {} ) {
 		const datatable = this.resolveDatatable( datatableOrSettings );
 		if ( datatable !== null ) {
-			datatable.ajax.reload( null );
+			datatable.ajax.reload( null, options.resetPaging ?? true );
 		}
 	}
 }
