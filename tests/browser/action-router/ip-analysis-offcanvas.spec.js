@@ -1,7 +1,6 @@
-const { test, expect } = require( '@playwright/test' );
+const { test, expect } = require( './support/shield-test' );
 const {
 	openShieldRoute,
-	withIpAnalysisActivityMetaFixture,
 } = require( './support/shield-browser' );
 const {
 	expectModalHiddenWithoutAriaModal,
@@ -142,8 +141,8 @@ const expectRequestMetaPopover = async ( page, offcanvas, rid, expectedMeta ) =>
 	}
 };
 
-test( 'clicked IP link opens the IP analysis offcanvas with the four investigation tabs', async ( { page } ) => {
-	await withIpAnalysisActivityMetaFixture( async ( fixture ) => {
+test( 'clicked IP link opens the IP analysis offcanvas with the four investigation tabs', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => {
 		let delayedOffcanvasRequest = false;
 		const delayHandler = async ( route ) => {
 			if ( !delayedOffcanvasRequest && ipAnalysisOffcanvasRequestMatcher( route.request() ) ) {
@@ -250,13 +249,13 @@ test( 'preloaded IP analysis offcanvas loads investigation tables without runtim
 	).toEqual( [] );
 } );
 
-test( 'preloaded IP analysis offcanvas activity meta button loads request meta popover', async ( { page } ) => {
+test( 'preloaded IP analysis offcanvas activity meta button loads request meta popover', async ( { page, fixtureApi } ) => {
 	const pageErrors = [];
 	page.on( 'pageerror', ( error ) => {
 		pageErrors.push( error.message );
 	} );
 
-	await withIpAnalysisActivityMetaFixture( async ( fixture ) => {
+	await fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => {
 		const { offcanvas, inlineTabs } = await openIpAnalysisOffcanvas( page, fixture.ip );
 		const targetTab = getInvestigationTab( inlineTabs, 'activity' );
 

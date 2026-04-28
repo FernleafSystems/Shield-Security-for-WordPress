@@ -22,6 +22,10 @@ jobs:
     name: 'Playwright ActionRouter'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [ '1/2', '2/2' ]
 
     steps:
     - name: Checkout code
@@ -52,7 +56,7 @@ jobs:
       run: npm run playwright:install -- --with-deps chromium
 
     - name: Run ActionRouter browser lane
-      run: composer test:browser -- --workers=1
+      run: composer test:browser -- --clean -- --shard=${{ matrix.shard }}
 
     - name: Stop isolated browser test site
       if: always()

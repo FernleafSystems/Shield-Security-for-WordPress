@@ -15,6 +15,8 @@ class BrowserFixtureRegistry {
 	 */
 	public static function run( string $fixture, string $action, array $args = [] ) :array {
 		switch ( $fixture ) {
+			case '__all__':
+				return self::runAllFixtures( $action );
 			case 'actions-queue':
 				return self::runActionsQueueFixture( $action, $args );
 			case 'ip-analysis-activity-meta':
@@ -22,6 +24,19 @@ class BrowserFixtureRegistry {
 			default:
 				throw new \RuntimeException( 'Unknown browser fixture: '.$fixture );
 		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runAllFixtures( string $action ) :array {
+		if ( $action !== 'cleanup' ) {
+			throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+
+		self::runActionsQueueFixture( 'cleanup', [] );
+		self::runIpAnalysisActivityMetaFixture( 'cleanup' );
+		return [ 'cleaned' => true ];
 	}
 
 	/**

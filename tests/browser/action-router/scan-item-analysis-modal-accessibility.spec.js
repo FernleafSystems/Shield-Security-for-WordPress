@@ -1,7 +1,6 @@
-const { test, expect } = require( '@playwright/test' );
+const { test, expect } = require( './support/shield-test' );
 const {
 	openShieldRoute,
-	withActionsQueueFixture,
 } = require( './support/shield-browser' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const {
@@ -26,8 +25,8 @@ function isScanItemAnalysisRequest( request ) {
 	return params.get( 'render_slug' ) === 'scanitemanalysis_container';
 }
 
-test( 'scan item analysis keeps shared modal semantics after async content replacement', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'scan item analysis keeps shared modal semantics after async content replacement', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await page.route( '**/admin-ajax.php*', async ( route ) => {
 			if ( isScanItemAnalysisRequest( route.request() ) ) {

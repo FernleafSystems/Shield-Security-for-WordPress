@@ -1,4 +1,4 @@
-const { test, expect } = require( '@playwright/test' );
+const { test, expect } = require( './support/shield-test' );
 const { fetchShieldRenderedHtml, openShieldRoute } = require( './support/shield-browser' );
 const {
 	expectModalHiddenWithoutAriaModal,

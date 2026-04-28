@@ -1,7 +1,6 @@
-const { test, expect } = require( '@playwright/test' );
+const { test, expect } = require( './support/shield-test' );
 const {
 	openShieldRoute,
-	withActionsQueueFixture,
 } = require( './support/shield-browser' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const {
@@ -137,8 +136,8 @@ async function assertAccessibleConfirmVisible( page ) {
 	return confirmModal;
 }
 
-test( 'scan results bulk ignore cancel uses accessible confirm without native dialog', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'scan results bulk ignore cancel uses accessible confirm without native dialog', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const table = await openDirectScanResultsTable( page, fixture );
 		const selectedRids = await selectScanResultsRows( table, 'active' );
 		expect( selectedRids.length ).toBeGreaterThan( 0 );
@@ -163,8 +162,8 @@ test( 'scan results bulk ignore cancel uses accessible confirm without native di
 	} );
 } );
 
-test( 'scan results bulk ignore confirm sends selected active row ids', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'scan results bulk ignore confirm sends selected active row ids', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const table = await openDirectScanResultsTable( page, fixture );
 		const selectedRids = await selectScanResultsRows( table, 'active' );
 		expect( selectedRids.length ).toBeGreaterThan( 0 );
@@ -189,8 +188,8 @@ test( 'scan results bulk ignore confirm sends selected active row ids', async ( 
 	} );
 } );
 
-test( 'scan results bulk unignore confirm handles selected ignored row ids', async ( { page } ) => {
-	await withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
+test( 'scan results bulk unignore confirm handles selected ignored row ids', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
 		const table = await openDirectScanResultsTable( page, fixture );
 		const selectedRids = await selectScanResultsRows( table, 'ignored' );
 		expect( selectedRids.length ).toBeGreaterThan( 0 );
@@ -222,8 +221,8 @@ test( 'scan results bulk unignore confirm handles selected ignored row ids', asy
 	} );
 } );
 
-test( 'scan results bulk repair-delete uses one accessible danger confirm for duplicate clicks', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'scan results bulk repair-delete uses one accessible danger confirm for duplicate clicks', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const table = await openDirectScanResultsTable( page, fixture );
 		const selectedRids = await selectScanResultsRows( table, 'active' );
 		expect( selectedRids.length ).toBeGreaterThan( 0 );

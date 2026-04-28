@@ -59,6 +59,11 @@ class LocalSiteRuntimeRefresher {
 		'assets/dist',
 		'assets/images',
 		'flags',
+		'tests/Helpers/RuntimeTestState.php',
+		'tests/Helpers/TestDataFactory.php',
+		'tests/Helpers/BrowserFixtureRegistry.php',
+		'tests/Helpers/ActionRouter',
+		'tests/browser/support/shield-browser-fixtures.php',
 	];
 	private const TEMP_DIR = 'tmp/.browser-runtime-refresh';
 	private const ARCHIVE_FILE = 'runtime-refresh.tar';

@@ -1,7 +1,6 @@
-const { test, expect } = require( '@playwright/test' );
+const { test, expect } = require( './support/shield-test' );
 const {
 	openShieldRoute,
-	withActionsQueueFixture,
 } = require( './support/shield-browser' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const {
@@ -87,8 +86,8 @@ async function hasOperatorContextAjaxAction( rail, matcher ) {
 	return ( await operatorContextAjaxAction( rail, matcher ) ) !== null;
 }
 
-test( 'actions queue drills into groups and back out, opening details when available', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'actions queue drills into groups and back out, opening details when available', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -129,8 +128,8 @@ test( 'actions queue drills into groups and back out, opening details when avail
 	} );
 } );
 
-test( 'actions queue warning breadcrumb uses warning palette', async ( { page } ) => {
-	await withActionsQueueFixture( 'file_locker_lazy', async ( fixture ) => {
+test( 'actions queue warning breadcrumb uses warning palette', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'file_locker_lazy', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -311,8 +310,8 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	await expect( page.locator( `[data-configure-row-key="${targetRowKey}"] [data-shield-expand-body="1"].show` ) ).toHaveCount( 0 );
 } );
 
-test( 'actions queue keeps the same ignored-plugin direct table after the shared table success event', async ( { page } ) => {
-	await withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
+test( 'actions queue keeps the same ignored-plugin direct table after the shared table success event', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -342,8 +341,8 @@ test( 'actions queue keeps the same ignored-plugin direct table after the shared
 	} );
 } );
 
-test( 'actions queue ignores all results from the context rail and refreshes the direct table in place', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'actions queue ignores all results from the context rail and refreshes the direct table in place', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -435,8 +434,8 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 	} );
 } );
 
-test( 'actions queue ignores all malware results from the context rail without replacing the direct table', async ( { page } ) => {
-	await withActionsQueueFixture( 'malware_direct_table', async ( fixture ) => {
+test( 'actions queue ignores all malware results from the context rail without replacing the direct table', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'malware_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -476,8 +475,8 @@ test( 'actions queue ignores all malware results from the context rail without r
 	} );
 } );
 
-test( 'actions queue display collection can hide an ignored-only direct table without replacing the table shell', async ( { page } ) => {
-	await withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
+test( 'actions queue display collection can hide an ignored-only direct table without replacing the table shell', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -518,8 +517,8 @@ test( 'actions queue display collection can hide an ignored-only direct table wi
 	} );
 } );
 
-test( 'actions queue lazy-loads the file locker asset panel to a terminal state on demand', async ( { page } ) => {
-	await withActionsQueueFixture( 'file_locker_lazy', async ( fixture ) => {
+test( 'actions queue lazy-loads the file locker asset panel to a terminal state on demand', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'file_locker_lazy', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',

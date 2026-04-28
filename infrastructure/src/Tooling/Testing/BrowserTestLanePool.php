@@ -15,8 +15,13 @@ class BrowserTestLanePool {
 	 * @param callable|null $onOutput Receives (string $type, string $buffer)
 	 * @param int[] $skipLaneIndexes
 	 */
-	public function acquire( string $rootDir, ?callable $onOutput = null, array $skipLaneIndexes = [] ) :BrowserTestLaneLease {
-		$laneCount = $this->laneCount();
+	public function acquire(
+		string $rootDir,
+		?callable $onOutput = null,
+		array $skipLaneIndexes = [],
+		?int $laneCountOverride = null
+	) :BrowserTestLaneLease {
+		$laneCount = $this->laneCount( $laneCountOverride );
 		$waitSeconds = $this->waitSeconds();
 		$skipLaneIndexes = \array_flip( \array_map( 'intval', $skipLaneIndexes ) );
 		$lockDir = Path::join( $rootDir, self::LOCK_DIR );
@@ -58,7 +63,13 @@ class BrowserTestLanePool {
 		);
 	}
 
-	public function laneCount() :int {
+	public function laneCount( ?int $laneCountOverride = null ) :int {
+		if ( $laneCountOverride !== null ) {
+			if ( $laneCountOverride < 1 ) {
+				throw new \InvalidArgumentException( 'Browser lane count must be a positive integer.' );
+			}
+			return $laneCountOverride;
+		}
 		return $this->positiveIntegerFromEnvironment( 'SHIELD_BROWSER_LANE_COUNT', self::DEFAULT_LANE_COUNT );
 	}
 

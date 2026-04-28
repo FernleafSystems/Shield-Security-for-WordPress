@@ -28,6 +28,9 @@ if ! wp core is-installed --allow-root >/dev/null 2>&1; then
 		--allow-root
 fi
 
+wp rewrite structure '/%postname%/' --allow-root
+wp rewrite flush --hard --allow-root
+
 if ! wp user get "${ADMIN_USER}" --field=ID --allow-root >/dev/null 2>&1; then
 	wp user create "${ADMIN_USER}" "${ADMIN_EMAIL}" \
 		--role=administrator \

@@ -1,4 +1,4 @@
-const { expect } = require( '@playwright/test' );
+const { expect } = require( './shield-test' );
 
 async function expectNamedDialog( page, modal, expectedLabelId = null ) {
 	await expect( modal ).toHaveAttribute( 'role', 'dialog' );

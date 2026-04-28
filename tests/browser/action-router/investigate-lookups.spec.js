@@ -1,8 +1,7 @@
-const { test, expect } = require( '@playwright/test' );
+const { test, expect } = require( './support/shield-test' );
 const {
 	openShieldRoute,
 	selectSelect2Option,
-	withIpAnalysisActivityMetaFixture,
 } = require( './support/shield-browser' );
 
 const panelSelector = '[data-investigate-panel="1"]';
@@ -366,13 +365,13 @@ test( 'investigate landing IP analysis loads investigation tables without runtim
 	).toEqual( [] );
 } );
 
-test( 'investigate landing IP activity meta button loads request meta popover', async ( { page } ) => {
+test( 'investigate landing IP activity meta button loads request meta popover', async ( { page, fixtureApi } ) => {
 	const pageErrors = [];
 	page.on( 'pageerror', ( error ) => {
 		pageErrors.push( error.message );
 	} );
 
-	await withIpAnalysisActivityMetaFixture( async ( fixture ) => {
+	await fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => {
 		await openShieldRoute( page, {
 			nav: 'activity',
 			nav_sub: 'overview',

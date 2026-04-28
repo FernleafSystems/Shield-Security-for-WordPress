@@ -76,16 +76,18 @@ Use this lane for ActionRouter interaction and accessibility checks that now liv
 ```bash
 npm run playwright:install
 composer test:browser
-composer test:browser -- -- -g "Select2 lookup flow"
-composer test:browser -- -- tests/browser/action-router/drill-down-flows.spec.js -g "configure opens a prefetched diagnosis without a standalone diagnosis request" --list
+composer test:browser -- --warm -- --list
+composer test:browser -- --warm -- -g "Select2 lookup flow"
+composer test:browser -- --warm -- tests/browser/action-router/drill-down-flows.spec.js --workers=1
+composer test:browser -- --clean -- tests/browser/action-router/drill-down-flows.spec.js -g "configure opens a prefetched diagnosis without a standalone diagnosis request" --list
 ```
 
 Operational notes:
 
 1. `php bin/shield dev:site:up` starts or reuses the persistent local Docker WordPress dev site at `http://127.0.0.1:8888` for normal manual development.
 2. `php bin/shield test:site:up` remains available for the legacy/manual isolated test site at `http://127.0.0.1:8889`, but browser tests do not use that port.
-3. `composer test:browser` leases a browser lane automatically, hard-resets that lane before launching Playwright, then runs against the lane URL. The first default lane is `http://127.0.0.1:8890`.
-4. Browser fixtures inherit the leased lane environment, so fixture setup and cleanup hit the same lane as Playwright.
+3. Local `composer test:browser` defaults to warm mode, two lanes, two Playwright workers, and Playwright `fullyParallel`. The first default lane is `http://127.0.0.1:8890`.
+4. CI defaults to clean mode, one lane, and one worker. CI speed comes from the browser workflow's Playwright shards, not multi-worker execution inside one job.
 5. `php bin/shield dev:site:reset` and `php bin/shield test:site:reset` destroy and reprovision their respective manual sites; `dev:site:down` and `test:site:down` stop them while preserving state.
 6. `php bin/shield dev:site:wp plugin list` and `php bin/shield test:site:wp plugin list` run WP-CLI against the appropriate local `wp-cli` container after ensuring the site is ready. The command appends `--allow-root` automatically when it is not already present.
 7. Browser lanes fail fast if required source prerequisites are missing. At minimum, keep Composer dependencies, `plugin.json`, built assets, Docker, and Playwright current before running browser tests.
@@ -97,28 +99,60 @@ Operational notes:
     - Second `--` is passed through to `php bin/shield test:browser` so Symfony stops parsing options and forwards the remaining arguments to Playwright.
     - Do not use `composer test:browser -- --grep "..."`; that is parsed at the wrong layer and fails.
     - Use `composer test:browser -- -- -g "..."` for a pure Playwright grep, or `composer test:browser -- -- <path-or-filter> -g "..."` when you also want to narrow to a file.
+12. `php bin/shield test:site:fixture` is a manual diagnostic path only. Playwright specs must use the REST-backed fixture API exposed by `tests/browser/action-router/support/shield-test.js`.
 
 ### Browser lane parallelism
 
-`composer test:browser` automatically leases an isolated browser lane before resetting that lane. No lane configuration is required for normal use.
+`composer test:browser` automatically leases isolated browser lanes, prepares those lanes before Playwright starts, and lets Playwright schedule tests. No lane configuration is required for normal local use.
 
 - Default pool: 2 browser lanes.
-- Override pool size only when the machine can run more WordPress lanes.
+- Default local run: `mode=warm`, `lanes=2`, `workers=2`, `fullyParallel=true`.
+- Default CI run: `mode=clean`, `lanes=1`, `workers=1`.
 - Each lane has its own WordPress container, port, database, and Playwright output directory. Browser lanes start at port `8890`, leaving the legacy/manual `test:site` port `8889` alone.
 - All lanes share one MySQL container, so parallel browser commands avoid starting multiple database servers.
-- Each Playwright invocation runs with one worker by default; command-level parallelism comes from separate `composer test:browser ...` processes. Pass Playwright's `--workers` explicitly only when you are deliberately testing intra-run parallelism.
+- Browser worker isolation is keyed by Playwright `parallelIndex`. PHP passes `SHIELD_BROWSER_LANE_MAP` as a JSON object keyed by `parallelIndex`, and every worker uses its mapped lane URL, fixture token, auth state file, and output directory.
+- Warm mode starts or reuses lane containers, refreshes the copied runtime, installs the runtime-only fixture endpoint, and skips baseline provisioning only when the readiness marker still matches the lane and the site is healthy.
+- Clean mode preserves the old reset semantics: reset lane containers and volumes, recreate the lane database, refresh runtime, install the fixture endpoint, provision baseline state, and write the readiness marker.
+- Requested workers greater than the available lane count is a hard error.
+
+Browser harness options are parsed before Playwright arguments:
+
+```bash
+composer test:browser -- --warm -- -g "flow"
+composer test:browser -- --clean --lanes=3 -- --workers=3
+composer test:browser -- --show-setup-output -- --headed
+```
+
+Precedence rules:
+
+1. Explicit CLI options beat environment variables.
+2. Environment variables beat defaults.
+3. Playwright `--workers=N` or `-j N` beats `SHIELD_BROWSER_WORKERS`.
+4. `--lanes=N` beats `SHIELD_BROWSER_LANE_COUNT`.
 
 Pool-size override examples:
 
 ```bash
 SHIELD_BROWSER_LANE_COUNT=3 composer test:browser
+SHIELD_BROWSER_WORKERS=1 composer test:browser
 ```
 
 ```powershell
 $env:SHIELD_BROWSER_LANE_COUNT='3'; composer test:browser; Remove-Item Env:\SHIELD_BROWSER_LANE_COUNT
+$env:SHIELD_BROWSER_WORKERS='1'; composer test:browser; Remove-Item Env:\SHIELD_BROWSER_WORKERS
 ```
 
-The lane setup prints concise setup stages. If setup fails, the failure output includes the lane, URL, database, Compose project, failed command, and a diagnostic command. For lane-specific site diagnostics, pass the lane environment shown in the failure, for example:
+For a local CI-equivalent shard check, force CI defaults only for that shell command:
+
+```bash
+CI=true composer test:browser -- --clean -- --shard=1/2 --list
+```
+
+```powershell
+$env:CI='true'; composer test:browser -- --clean -- --shard=1/2 --list; Remove-Item Env:\CI
+```
+
+The lane setup prints concise setup stages. If setup fails, the failure output includes the lane, URL, database, Compose project, error message, and a diagnostic command. For lane-specific site diagnostics, pass the lane environment shown in the failure, for example:
 
 ```bash
 SHIELD_BROWSER_LANE_INDEX=2 php bin/shield test:site:status
@@ -130,7 +164,7 @@ $env:SHIELD_BROWSER_LANE_INDEX='2'; php bin/shield test:site:status; Remove-Item
 
 If a browser run fails before Playwright starts:
 
-1. Read the diagnostic block first. It names the failed stage and the exact command that failed.
+1. Read the diagnostic block first. It names the failed stage, lane metadata, and error message.
 2. Run the suggested `php bin/shield test:site:status` command with the displayed `SHIELD_BROWSER_LANE_INDEX`.
 3. If Docker is unavailable or unhealthy, start Docker and rerun `composer test:browser`.
 4. If the failure is a port conflict, stop the process or container using the reported lane port, then rerun. Browser lane ports start at `8890`; the legacy `8889` site is not part of browser test execution.
@@ -143,6 +177,26 @@ npm install
 npm run build
 npm run playwright:install
 ```
+
+### Browser spec authoring contract
+
+Use these rules for every Playwright spec under `tests/browser/action-router`:
+
+1. Import only from the Shield fixture module:
+
+   ```js
+   const { test, expect } = require( './support/shield-test' );
+   ```
+
+2. Do not import `@playwright/test` directly from specs. `shield-test.js` owns lane selection, per-worker login, `baseURL`, storage state, and fixture API setup.
+3. Keep specs independent and safe for `fullyParallel`. Do not depend on file order, test order, or state left by another test.
+4. Use `fixtureApi.withActionsQueueFixture( scenario, async ( fixture ) => { ... } )` for ActionRouter actions-queue state.
+5. Use `fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => { ... } )` for IP activity meta state.
+6. Do not call `php bin/shield test:site:fixture`, WP-CLI, shell commands, or child processes from Playwright specs. Fixture seed/cleanup goes through the REST fixture API.
+7. If a new browser fixture is needed, add it to `tests/Helpers/BrowserFixtureRegistry.php`, allow it in `tests/browser/support/shield-browser-fixtures.php`, and keep the required PHP files inside `LocalSiteRuntimeRefresher` managed roots. Do not add the whole `tests/` tree to the browser runtime.
+8. The REST fixture endpoint returns success as `{ ok: true, fixture, action, data }` and errors as `{ ok: false, error: { code, message } }`. JS specs should call the fixture API wrappers instead of constructing these payloads manually.
+9. Let the fixture wrappers seed and clean state with `try/finally`. Avoid manual cleanup in specs unless a new wrapper cannot express the scenario.
+10. Use Playwright's own narrowing flags after the second `--`, for example `composer test:browser -- --warm -- tests/browser/action-router/example.spec.js -g "flow" --workers=1`.
 
 ### Optional Playground Tooling
 
@@ -184,7 +238,8 @@ Scheduled/manual browser lane: [`.github/workflows/browser-tests.yml`](.github/w
 1. Installs Composer and Node dependencies.
 2. Rebuilds admin assets for the checked-out source tree.
 3. Installs Chromium and runs the ActionRouter Playwright + axe lane against an isolated local Docker WordPress browser lane.
-4. Triggered by `workflow_dispatch`, the weekday schedule `30 6 * * 1-5` (06:30 UTC Monday through Friday), and PRs that touch ActionRouter/browser-owned UI paths.
+4. Runs clean one-worker Playwright jobs with official shards `1/2` and `2/2`; do not raise CI workers unless the lane count is raised in the same command.
+5. Triggered by `workflow_dispatch`, the weekday schedule `30 6 * * 1-5` (06:30 UTC Monday through Friday), and PRs that touch ActionRouter/browser-owned UI paths.
 
 ## Local Verification Commands
 

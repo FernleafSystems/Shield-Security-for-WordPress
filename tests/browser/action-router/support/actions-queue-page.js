@@ -1,4 +1,4 @@
-const { expect } = require( '@playwright/test' );
+const { expect } = require( './shield-test' );
 
 class ActionsQueuePage {
 	constructor( page ) {

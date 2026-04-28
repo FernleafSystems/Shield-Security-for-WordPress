@@ -1,7 +1,6 @@
-const { test, expect } = require( '@playwright/test' );
+const { test, expect } = require( './support/shield-test' );
 const {
 	openShieldRoute,
-	withActionsQueueFixture,
 } = require( './support/shield-browser' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 
@@ -115,8 +114,8 @@ async function expectInvestigationTableInitialized( table ) {
 	).toBe( true );
 }
 
-test( 'datatable busy: actions queue reload button marks the direct table busy while the reload request is in flight', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'datatable busy: actions queue reload button marks the direct table busy while the reload request is in flight', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -174,8 +173,8 @@ test( 'datatable busy: IP analysis tab loads show busy state from the first inve
 	await expectNotBusyState( container );
 } );
 
-test( 'datatable busy: actions queue display-filter reload marks the visible direct table busy while the datatable request is in flight', async ( { page } ) => {
-	await withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
+test( 'datatable busy: actions queue display-filter reload marks the visible direct table busy while the datatable request is in flight', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',

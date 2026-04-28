@@ -4,9 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTestTrait;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestSourceCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageFullTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceRuntimeTestLane;
@@ -115,6 +117,23 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$output = $this->processOutput( $process );
 		$this->assertStringContainsString( 'test:browser', $output );
 		$this->assertStringContainsString( 'composer: -- -- --headed', $output );
+		$this->assertStringContainsString( '--clean', $output );
+		$this->assertStringContainsString( '--warm', $output );
+		$this->assertStringContainsString( '--show-setup-output', $output );
+		$this->assertStringContainsString( '--lanes', $output );
+	}
+
+	public function testBrowserCommandIncludesHarnessOptions() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$command = new TestBrowserCommand(
+			$this->getPluginRoot(),
+			$this->createMock( BrowserTestLane::class )
+		);
+
+		$this->assertTrue( $command->getDefinition()->hasOption( 'clean' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'warm' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'show-setup-output' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'lanes' ) );
 	}
 
 	public function testDevSiteWpHelpIncludesWpCliForwardingHint() :void {

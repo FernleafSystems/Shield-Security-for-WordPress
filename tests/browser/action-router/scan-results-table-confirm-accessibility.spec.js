@@ -1,7 +1,6 @@
-const { test, expect } = require( '@playwright/test' );
+const { test, expect } = require( './support/shield-test' );
 const {
 	openShieldRoute,
-	withActionsQueueFixture,
 } = require( './support/shield-browser' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const {
@@ -60,8 +59,8 @@ function isScanResultDeleteRequest( request, expectedRid = null ) {
 		&& ( expectedRid === null || rids.includes( expectedRid ) );
 }
 
-test( 'scan results row delete cancel uses accessible confirm without native dialog', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'scan results row delete cancel uses accessible confirm without native dialog', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const table = await openDirectScanResultsTable( page, fixture );
 		const deleteAction = table.locator( SCAN_RESULT_DELETE_SELECTOR ).first();
 		await expect( deleteAction ).toBeVisible();
@@ -98,8 +97,8 @@ test( 'scan results row delete cancel uses accessible confirm without native dia
 	} );
 } );
 
-test( 'scan results row delete confirm uses one accessible confirm for rapid duplicate clicks', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'scan results row delete confirm uses one accessible confirm for rapid duplicate clicks', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const table = await openDirectScanResultsTable( page, fixture );
 		const deleteAction = table.locator( SCAN_RESULT_DELETE_SELECTOR ).first();
 		await expect( deleteAction ).toBeVisible();

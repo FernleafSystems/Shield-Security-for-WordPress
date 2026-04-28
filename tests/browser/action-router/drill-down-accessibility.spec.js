@@ -1,8 +1,7 @@
-const { test, expect } = require( '@playwright/test' );
+const { test, expect } = require( './support/shield-test' );
 const AxeBuilder = require( '@axe-core/playwright' ).default;
 const {
 	openShieldRoute,
-	withActionsQueueFixture,
 } = require( './support/shield-browser' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 
@@ -276,8 +275,8 @@ test( 'reports workspace drill keeps named regions, focus, and breadcrumb state'
 	await expectNoAxeViolations( page, '[data-reports-section="drilldown"]' );
 } );
 
-test( 'actions queue drill path keeps layer state, focus, announcements, and axe contract', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'actions queue drill path keeps layer state, focus, announcements, and axe contract', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -341,8 +340,8 @@ test( 'actions queue drill path keeps layer state, focus, announcements, and axe
 	} );
 } );
 
-test( 'actions queue drill back focuses the active layer when a group launcher is gone', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'actions queue drill back focuses the active layer when a group launcher is gone', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -370,8 +369,8 @@ test( 'actions queue drill back focuses the active layer when a group launcher i
 	} );
 } );
 
-test( 'actions queue clears groups layer busy state without stale announcement when request is cancelled', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'actions queue clears groups layer busy state without stale announcement when request is cancelled', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -401,8 +400,8 @@ test( 'actions queue clears groups layer busy state without stale announcement w
 	} );
 } );
 
-test( 'actions queue clears detail layer busy state without stale announcement when request is cancelled', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'actions queue clears detail layer busy state without stale announcement when request is cancelled', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',
@@ -442,8 +441,8 @@ test( 'actions queue clears detail layer busy state without stale announcement w
 	} );
 } );
 
-test( 'actions queue detail failure clears busy state and announces assertively', async ( { page } ) => {
-	await withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+test( 'actions queue detail failure clears busy state and announces assertively', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
 			nav: 'scans',

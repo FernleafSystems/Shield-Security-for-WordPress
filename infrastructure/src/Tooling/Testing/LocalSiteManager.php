@@ -12,6 +12,11 @@ class LocalSiteManager {
 	private const WORDPRESS_SERVICE_NAME = 'wordpress';
 	private const WPCLI_SERVICE_NAME = 'wp-cli';
 	private const DB_ROOT_PASSWORD = 'testpass';
+	private const BROWSER_FIXTURE_ENDPOINT_SOURCE = 'tests/browser/support/shield-browser-fixtures.php';
+	private const BROWSER_FIXTURE_ENDPOINT_TARGET = '/var/www/html/wp-content/mu-plugins/shield-browser-fixtures.php';
+	private const BROWSER_FIXTURE_TOKEN_FILE = '/var/www/html/wp-content/.shield-browser-fixture-token';
+	private const BROWSER_LANE_READY_MARKER = '/var/www/html/wp-content/.shield-browser-lane-ready.json';
+	private const BROWSER_LANE_READY_SCHEMA_VERSION = 2;
 
 	private ProcessRunner $processRunner;
 
@@ -151,6 +156,48 @@ class LocalSiteManager {
 		return 0;
 	}
 
+	public function prepareBrowserLane(
+		string $rootDir,
+		string $mode,
+		bool $requirePlaywright,
+		string $fixtureToken,
+		?callable $onOutput = null
+	) :int {
+		$this->runPreflightChecks( $rootDir, $requirePlaywright );
+		if ( $this->definition->usesSharedDatabase() ) {
+			$this->ensureSharedDatabaseReady( $rootDir, $onOutput );
+		}
+
+		if ( $mode === 'clean' ) {
+			$exitCode = $this->dockerComposeExecutor->run(
+				$rootDir,
+				$this->buildComposeFiles(),
+				[ 'down', '-v', '--remove-orphans' ],
+				$this->buildRuntimeEnvOverrides( $rootDir ),
+				$onOutput
+			);
+			if ( $exitCode !== 0 ) {
+				throw new \RuntimeException( $this->diagnoseCommandFailure(
+					'Browser lane reset failed while removing lane WordPress containers and volumes.',
+					$this->buildComposeCommandForExecution( $this->buildComposeFiles(), [ 'down', '-v', '--remove-orphans' ] ),
+					$exitCode
+				) );
+			}
+			if ( $this->definition->usesSharedDatabase() ) {
+				$this->resetSharedDatabase( $rootDir );
+			}
+			$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, true );
+			return 0;
+		}
+
+		if ( $mode !== 'warm' ) {
+			throw new \InvalidArgumentException( 'Browser lane mode must be "clean" or "warm".' );
+		}
+
+		$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, false );
+		return 0;
+	}
+
 	/**
 	 * @return array{site_url:string,site_healthy:bool,port_open:bool,admin_user:string,lane_key:string,compose_project:string,db_name:string}
 	 */
@@ -179,7 +226,9 @@ class LocalSiteManager {
 	private function ensureReadyAfterPreflight(
 		string $rootDir,
 		?callable $onOutput = null,
-		bool $sharedDatabaseAlreadyReady = false
+		bool $sharedDatabaseAlreadyReady = false,
+		?string $fixtureToken = null,
+		bool $forceProvision = true
 	) :void {
 		if ( $this->definition->usesSharedDatabase() && !$sharedDatabaseAlreadyReady ) {
 			$this->ensureSharedDatabaseReady( $rootDir, $onOutput );
@@ -190,7 +239,16 @@ class LocalSiteManager {
 		$containerId = $this->resolveOrStartWordpressContainer( $rootDir, $composeFiles, $envOverrides, $onOutput );
 
 		$this->refreshRuntimeAndAssertHealthy( $rootDir, $containerId, $onOutput );
+		if ( $fixtureToken !== null ) {
+			$this->installBrowserFixtureEndpoint( $rootDir, $containerId, $fixtureToken, $onOutput );
+		}
+		if ( !$forceProvision && $this->isBrowserLaneReady( $rootDir, $containerId ) && $this->isSiteHealthy() ) {
+			return;
+		}
 		$this->provisionBaselineAndAssertHealthy( $rootDir, $envOverrides, $onOutput );
+		if ( $fixtureToken !== null ) {
+			$this->writeBrowserLaneReadyMarker( $rootDir, $containerId );
+		}
 	}
 
 	/**
@@ -701,6 +759,143 @@ class LocalSiteManager {
 		}
 	}
 
+	private function installBrowserFixtureEndpoint(
+		string $rootDir,
+		string $containerId,
+		string $fixtureToken,
+		?callable $onOutput = null
+	) :void {
+		$sourcePath = Path::join( $rootDir, self::BROWSER_FIXTURE_ENDPOINT_SOURCE );
+		if ( !\is_file( $sourcePath ) ) {
+			throw new \RuntimeException( 'Browser fixture endpoint source is missing: '.$sourcePath );
+		}
+
+		$this->writeProgress( 'Installing browser fixture endpoint', $onOutput );
+		$this->processRunner->runOrThrow(
+			[
+				'docker',
+				'cp',
+				self::BROWSER_FIXTURE_ENDPOINT_SOURCE,
+				$containerId.':/tmp/shield-browser-fixtures.php',
+			],
+			$rootDir,
+			$onOutput
+		);
+
+		$script = <<<'PHP'
+$endpointSource = '/tmp/shield-browser-fixtures.php';
+$endpointTarget = getenv('SHIELD_BROWSER_FIXTURE_ENDPOINT_TARGET');
+$tokenFile = getenv('SHIELD_BROWSER_FIXTURE_TOKEN_FILE');
+$fixtureToken = getenv('SHIELD_BROWSER_FIXTURE_TOKEN');
+if ( !is_string($endpointTarget) || $endpointTarget === '' || !is_string($tokenFile) || $tokenFile === '' || !is_string($fixtureToken) || $fixtureToken === '' ) {
+	fwrite(STDERR, "missing browser fixture endpoint environment\n");
+	exit(2);
+}
+if ( !is_file($endpointSource) ) {
+	fwrite(STDERR, "fixture endpoint source missing\n");
+	exit(3);
+}
+if ( !is_dir(dirname($endpointTarget)) && !mkdir(dirname($endpointTarget), 0777, true) && !is_dir(dirname($endpointTarget)) ) {
+	fwrite(STDERR, "failed to create mu-plugins directory\n");
+	exit(4);
+}
+if ( !copy($endpointSource, $endpointTarget) ) {
+	fwrite(STDERR, "failed to install fixture endpoint\n");
+	exit(5);
+}
+if ( file_put_contents($tokenFile, $fixtureToken) === false ) {
+	fwrite(STDERR, "failed to write fixture token\n");
+	exit(6);
+}
+PHP;
+		$this->processRunner->runOrThrow(
+			[
+				'docker',
+				'exec',
+				'-e',
+				'SHIELD_BROWSER_FIXTURE_ENDPOINT_TARGET='.self::BROWSER_FIXTURE_ENDPOINT_TARGET,
+				'-e',
+				'SHIELD_BROWSER_FIXTURE_TOKEN_FILE='.self::BROWSER_FIXTURE_TOKEN_FILE,
+				'-e',
+				'SHIELD_BROWSER_FIXTURE_TOKEN='.$fixtureToken,
+				$containerId,
+				'php',
+				'-r',
+				$script,
+			],
+			$rootDir,
+			$onOutput
+		);
+	}
+
+	private function isBrowserLaneReady( string $rootDir, string $containerId ) :bool {
+		$script = 'echo is_file('.\var_export( self::BROWSER_LANE_READY_MARKER, true ).') ? file_get_contents('.\var_export( self::BROWSER_LANE_READY_MARKER, true ).') : "";';
+		$process = $this->processRunner->run(
+			[
+				'docker',
+				'exec',
+				$containerId,
+				'php',
+				'-r',
+				$script,
+			],
+			$rootDir,
+			static function () :void {}
+		);
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			return false;
+		}
+
+		$decoded = \json_decode( \trim( $process->getOutput() ), true );
+		if ( !\is_array( $decoded ) ) {
+			return false;
+		}
+
+		return (int)( $decoded[ 'schema_version' ] ?? 0 ) === self::BROWSER_LANE_READY_SCHEMA_VERSION
+			&& (string)( $decoded[ 'site_url' ] ?? '' ) === $this->definition->siteUrl()
+			&& (string)( $decoded[ 'db_name' ] ?? '' ) === $this->definition->dbName()
+			&& (string)( $decoded[ 'admin_user' ] ?? '' ) === $this->definition->adminUser()
+			&& (string)( $decoded[ 'profile' ] ?? '' ) === $this->definition->key();
+	}
+
+	private function writeBrowserLaneReadyMarker( string $rootDir, string $containerId ) :void {
+		$marker = \json_encode( [
+			'schema_version' => self::BROWSER_LANE_READY_SCHEMA_VERSION,
+			'site_url'       => $this->definition->siteUrl(),
+			'db_name'        => $this->definition->dbName(),
+			'admin_user'     => $this->definition->adminUser(),
+			'profile'        => $this->definition->key(),
+		], \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR );
+
+		$script = <<<'PHP'
+$markerPath = getenv('SHIELD_BROWSER_READY_MARKER');
+$markerJson = getenv('SHIELD_BROWSER_READY_JSON');
+if ( !is_string($markerPath) || $markerPath === '' || !is_string($markerJson) || $markerJson === '' ) {
+	fwrite(STDERR, "missing browser readiness environment\n");
+	exit(2);
+}
+if ( file_put_contents($markerPath, $markerJson) === false ) {
+	fwrite(STDERR, "failed to write browser readiness marker\n");
+	exit(3);
+}
+PHP;
+		$this->processRunner->runOrThrow(
+			[
+				'docker',
+				'exec',
+				'-e',
+				'SHIELD_BROWSER_READY_MARKER='.self::BROWSER_LANE_READY_MARKER,
+				'-e',
+				'SHIELD_BROWSER_READY_JSON='.$marker,
+				$containerId,
+				'php',
+				'-r',
+				$script,
+			],
+			$rootDir
+		);
+	}
+
 	/**
 	 * @param string[] $composeFiles
 	 * @param string[] $subCommand
@@ -715,11 +910,6 @@ class LocalSiteManager {
 		return \array_merge( $command, $subCommand );
 	}
 
-	/**
-	 * @param string[] $composeFiles
-	 * @param string[] $subCommand
-	 * @return string[]
-	 */
 	/**
 	 * @param string[] $command
 	 */
@@ -765,6 +955,15 @@ class LocalSiteManager {
 			return $buffer;
 		}
 		return \substr( $buffer, 0, 1200 ).'...';
+	}
+
+	private function writeProgress( string $message, ?callable $onOutput = null ) :void {
+		if ( $onOutput !== null ) {
+			$onOutput( Process::OUT, $message.\PHP_EOL );
+			return;
+		}
+
+		echo $message.\PHP_EOL;
 	}
 
 	private function extractLaneIndexForDiagnostic() :string {

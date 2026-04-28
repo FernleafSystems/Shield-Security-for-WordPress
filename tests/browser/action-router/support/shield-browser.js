@@ -1,9 +1,6 @@
-const { expect } = require( '@playwright/test' );
-const { execFileSync } = require( 'child_process' );
-const path = require( 'path' );
+const { expect } = require( './shield-test' );
 
 const SHIELD_PAGE = 'icwp-wpsf-plugin';
-const PROJECT_ROOT = path.resolve( __dirname, '..', '..', '..', '..' );
 
 function buildShieldUrl( params = {} ) {
 	const search = new URLSearchParams( {
@@ -182,79 +179,11 @@ async function fetchShieldRenderedHtml( page, renderSlug, extraData = {} ) {
 	} );
 }
 
-function runShieldCli( args = [] ) {
-	return execFileSync( 'php', [
-		'bin/shield',
-		...args,
-	], {
-		cwd: PROJECT_ROOT,
-		stdio: 'pipe',
-	} ).toString( 'utf8' ).trim();
-}
-
-function runWpFixture( fixtureKey, args = [] ) {
-	const output = runShieldCli( [
-		'test:site:fixture',
-		fixtureKey,
-		...args,
-	] );
-
-	if ( output.length < 1 ) {
-		return null;
-	}
-
-	return JSON.parse( output );
-}
-
-async function withWpFixture( fixtureKey, seedArgs, runScenario ) {
-	let scenarioError = null;
-	let fixtureContract = null;
-
-	try {
-		fixtureContract = runWpFixture( fixtureKey, seedArgs );
-		return await runScenario( fixtureContract );
-	}
-	catch ( error ) {
-		scenarioError = error;
-		throw error;
-	}
-	finally {
-		try {
-			runWpFixture( fixtureKey, [ 'cleanup' ] );
-		}
-		catch ( cleanupError ) {
-			if ( scenarioError === null ) {
-				throw cleanupError;
-			}
-		}
-	}
-}
-
-async function withActionsQueueFixture( scenario, runScenario ) {
-	return withWpFixture(
-		'actions-queue',
-		[ 'seed', scenario ],
-		runScenario
-	);
-}
-
-async function withIpAnalysisActivityMetaFixture( runScenario ) {
-	return withWpFixture(
-		'ip-analysis-activity-meta',
-		[ 'seed' ],
-		runScenario
-	);
-}
-
 module.exports = {
 	buildShieldUrl,
 	dismissBlockingDialogs,
 	fetchShieldRenderedHtml,
 	openShieldRoute,
-	runWpFixture,
 	selectSelect2Option,
 	waitForShieldPage,
-	withActionsQueueFixture,
-	withIpAnalysisActivityMetaFixture,
-	withWpFixture,
 };

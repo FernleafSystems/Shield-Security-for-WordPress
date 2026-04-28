@@ -67,4 +67,10 @@ class BrowserTestLanePoolTest extends TestCase {
 
 		( new BrowserTestLanePool() )->laneCount();
 	}
+
+	public function testLaneCountOverrideBeatsEnvironmentValue() :void {
+		\putenv( 'SHIELD_BROWSER_LANE_COUNT=3' );
+
+		$this->assertSame( 1, ( new BrowserTestLanePool() )->laneCount( 1 ) );
+	}
 }

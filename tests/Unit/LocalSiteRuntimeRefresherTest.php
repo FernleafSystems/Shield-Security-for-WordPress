@@ -68,6 +68,9 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		$this->assertStringContainsString( "assets/images/logo.png\n", $fileList );
 		$this->assertStringContainsString( "flags/index.html\n", $fileList );
 		$this->assertStringContainsString( "vendor/autoload.php\n", $fileList );
+		$this->assertStringContainsString( "tests/Helpers/BrowserFixtureRegistry.php\n", $fileList );
+		$this->assertStringContainsString( "tests/Helpers/ActionRouter/ActionsQueueFixtureBuilder.php\n", $fileList );
+		$this->assertStringContainsString( "tests/browser/support/shield-browser-fixtures.php\n", $fileList );
 	}
 
 	public function testRefreshSkipsWhenManifestMatches() :void {
@@ -248,6 +251,11 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 			'assets/dist',
 			'assets/images',
 			'flags',
+			'tests/Helpers/RuntimeTestState.php',
+			'tests/Helpers/TestDataFactory.php',
+			'tests/Helpers/BrowserFixtureRegistry.php',
+			'tests/Helpers/ActionRouter',
+			'tests/browser/support/shield-browser-fixtures.php',
 		];
 		foreach ( $paths as $path ) {
 			$absolutePath = Path::join( $this->projectRoot, $path );
@@ -306,6 +314,8 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 			'src',
 			'templates/twig',
 			'languages',
+			'tests/Helpers/ActionRouter',
+			'tests/browser/support',
 		];
 		foreach ( $dirs as $dir ) {
 			\mkdir( Path::join( $rootDir, $dir ), 0777, true );
@@ -325,5 +335,10 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		\file_put_contents( Path::join( $rootDir, 'assets', 'dist', 'shield-example.bundle.js' ), 'bundle' );
 		\file_put_contents( Path::join( $rootDir, 'assets', 'images', 'logo.png' ), 'png' );
 		\file_put_contents( Path::join( $rootDir, 'flags', 'index.html' ), 'index' );
+		\file_put_contents( Path::join( $rootDir, 'tests', 'Helpers', 'RuntimeTestState.php' ), '<?php' );
+		\file_put_contents( Path::join( $rootDir, 'tests', 'Helpers', 'TestDataFactory.php' ), '<?php' );
+		\file_put_contents( Path::join( $rootDir, 'tests', 'Helpers', 'BrowserFixtureRegistry.php' ), '<?php' );
+		\file_put_contents( Path::join( $rootDir, 'tests', 'Helpers', 'ActionRouter', 'ActionsQueueFixtureBuilder.php' ), '<?php' );
+		\file_put_contents( Path::join( $rootDir, 'tests', 'browser', 'support', 'shield-browser-fixtures.php' ), '<?php' );
 	}
 }

@@ -355,6 +355,163 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertContains( 'DROP DATABASE IF EXISTS `shield_test_site_lane_2`; CREATE DATABASE `shield_test_site_lane_2`;', $processRunner->calls[ 2 ][ 'command' ] );
 	}
 
+	public function testPrepareBrowserLaneCleanResetsRefreshesInstallsFixtureEndpointAndWritesMarker() :void {
+		$processRunner = new RecordingProcessRunner( [ 0, 0, 0, 0, 0, 0, 0 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0, 0 ] );
+		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
+
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::browserLane( 2 ),
+			$processRunner,
+			new RecordingTestingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			$probe,
+			$runtimeRefresher
+		);
+
+		$exitCode = $manager->prepareBrowserLane(
+			$this->projectRoot,
+			'clean',
+			true,
+			'fixture-token',
+			static function () :void {}
+		);
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
+		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
+		$this->assertSame( [ 'up', '-d', 'wordpress' ], $dockerComposeExecutor->calls[ 2 ][ 'sub_command' ] );
+		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
+		$this->assertContains( 'DROP DATABASE IF EXISTS `shield_test_site_lane_2`; CREATE DATABASE `shield_test_site_lane_2`;', $processRunner->calls[ 2 ][ 'command' ] );
+		$this->assertSame(
+			[
+				'docker',
+				'cp',
+				'tests/browser/support/shield-browser-fixtures.php',
+				'wordpress-container:/tmp/shield-browser-fixtures.php',
+			],
+			$processRunner->calls[ 3 ][ 'command' ]
+		);
+		$this->assertContains( 'SHIELD_BROWSER_FIXTURE_TOKEN=fixture-token', $processRunner->calls[ 4 ][ 'command' ] );
+		$this->assertContains( '/app/tests/docker/provision-local-site.sh', $processRunner->calls[ 5 ][ 'command' ] );
+		$this->assertContains( 'SHIELD_BROWSER_READY_MARKER=/var/www/html/wp-content/.shield-browser-lane-ready.json', $processRunner->calls[ 6 ][ 'command' ] );
+		$this->assertContains(
+			'SHIELD_BROWSER_READY_JSON={"schema_version":2,"site_url":"http://127.0.0.1:8891","db_name":"shield_test_site_lane_2","admin_user":"admin","profile":"browser-lane-2"}',
+			$processRunner->calls[ 6 ][ 'command' ]
+		);
+	}
+
+	public function testPrepareBrowserLaneWarmSkipsBaselineOnlyWithValidMarkerAndHealthySite() :void {
+		$marker = \json_encode( [
+			'schema_version' => 2,
+			'site_url'       => 'http://127.0.0.1:8890',
+			'db_name'        => 'shield_test_site_lane_1',
+			'admin_user'     => 'admin',
+			'profile'        => 'browser-lane-1',
+		], \JSON_UNESCAPED_SLASHES ) ?: '{}';
+		$processRunner = new RecordingProcessRunner( [
+			0,
+			0,
+			0,
+			0,
+			[
+				'exit_code' => 0,
+				'stdout' => $marker,
+			],
+		] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
+		$probe = new RecordingLocalSiteProbe( [ true, true ], [ true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
+
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::browserLane( 1 ),
+			$processRunner,
+			new RecordingTestingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			$probe,
+			$runtimeRefresher
+		);
+
+		$exitCode = $manager->prepareBrowserLane(
+			$this->projectRoot,
+			'warm',
+			true,
+			'fixture-token',
+			static function () :void {}
+		);
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $dockerComposeExecutor->calls );
+		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
+		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
+		$this->assertSame(
+			[
+				'docker',
+				'cp',
+				'tests/browser/support/shield-browser-fixtures.php',
+				'wordpress-container:/tmp/shield-browser-fixtures.php',
+			],
+			$processRunner->calls[ 2 ][ 'command' ]
+		);
+		$this->assertContains( 'SHIELD_BROWSER_FIXTURE_TOKEN=fixture-token', $processRunner->calls[ 3 ][ 'command' ] );
+		foreach ( $processRunner->calls as $call ) {
+			$this->assertNotContains( '/app/tests/docker/provision-local-site.sh', $call[ 'command' ] );
+			$this->assertNotContains( 'SHIELD_BROWSER_READY_MARKER=/var/www/html/wp-content/.shield-browser-lane-ready.json', $call[ 'command' ] );
+		}
+	}
+
+	public function testPrepareBrowserLaneWarmProvisionsWhenMarkerIsStale() :void {
+		$staleMarker = \json_encode( [
+			'schema_version' => 1,
+			'site_url'       => 'http://127.0.0.1:8890',
+			'db_name'        => 'shield_test_site_lane_1',
+			'admin_user'     => 'admin',
+			'profile'        => 'browser-lane-1',
+		], \JSON_UNESCAPED_SLASHES ) ?: '{}';
+		$processRunner = new RecordingProcessRunner( [
+			0,
+			0,
+			0,
+			0,
+			[
+				'exit_code' => 0,
+				'stdout' => $staleMarker,
+			],
+			0,
+			0,
+		] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
+		$probe = new RecordingLocalSiteProbe( [ true, true ], [ true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
+
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::browserLane( 1 ),
+			$processRunner,
+			new RecordingTestingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			$probe,
+			$runtimeRefresher
+		);
+
+		$exitCode = $manager->prepareBrowserLane(
+			$this->projectRoot,
+			'warm',
+			true,
+			'fixture-token',
+			static function () :void {}
+		);
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $dockerComposeExecutor->calls );
+		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
+		$this->assertContains( '/app/tests/docker/provision-local-site.sh', $processRunner->calls[ 5 ][ 'command' ] );
+		$this->assertContains(
+			'SHIELD_BROWSER_READY_JSON={"schema_version":2,"site_url":"http://127.0.0.1:8890","db_name":"shield_test_site_lane_1","admin_user":"admin","profile":"browser-lane-1"}',
+			$processRunner->calls[ 6 ][ 'command' ]
+		);
+	}
+
 	public function testResetFailsFastWhenBrowserPrerequisitesAreMissing() :void {
 		$this->expectExceptionMessage( 'Playwright is not installed' );
 		$this->cleanupTrackedTempDirs();
@@ -443,10 +600,12 @@ class LocalSiteManagerTest extends TestCase {
 		\mkdir( Path::join( $rootDir, 'node_modules', '@playwright', 'test' ), 0777, true );
 		\mkdir( Path::join( $rootDir, 'plugin-spec' ), 0777, true );
 		\mkdir( Path::join( $rootDir, 'bin' ), 0777, true );
+		\mkdir( Path::join( $rootDir, 'tests', 'browser', 'support' ), 0777, true );
 		\file_put_contents( Path::join( $rootDir, 'vendor', 'autoload.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'bin', 'build-config.php' ), '<?php' );
 		$this->writeMetadataFiles( $rootDir, '21.99.3', '21.99.3', '21.99.3', '202604.1701', '202604.1701' );
 		\file_put_contents( Path::join( $rootDir, 'node_modules', '@playwright', 'test', 'cli.js' ), '' );
+		\file_put_contents( Path::join( $rootDir, 'tests', 'browser', 'support', 'shield-browser-fixtures.php' ), '<?php' );
 	}
 
 	private function writeMetadataFiles(

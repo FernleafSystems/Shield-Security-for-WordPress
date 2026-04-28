@@ -6,9 +6,12 @@ use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 
 class BrowserTestLane {
 
-	private ProcessRunner $processRunner;
+	private const MODE_CLEAN = 'clean';
+	private const MODE_WARM = 'warm';
+	private const DEFAULT_LOCAL_LANES = 2;
+	private const DEFAULT_CI_LANES = 1;
 
-	private LocalSiteManager $siteManager;
+	private ProcessRunner $processRunner;
 
 	private ?LocalSiteManager $providedSiteManager;
 
@@ -21,62 +24,86 @@ class BrowserTestLane {
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$this->providedSiteManager = $siteManager;
-		$this->siteManager = $siteManager ?? new LocalSiteManager( LocalSiteDefinitions::browserLane( 1 ) );
 		$this->lanePool = $lanePool ?? new BrowserTestLanePool();
 	}
 
 	/**
 	 * @param string[] $playwrightArgs
+	 * @param array{mode?:?string,lanes?:?string,show_setup_output?:bool} $options
 	 */
-	public function run( string $rootDir, array $playwrightArgs = [] ) :int {
+	public function run( string $rootDir, array $playwrightArgs = [], array $options = [] ) :int {
 		echo 'Mode: browser'.\PHP_EOL;
 
-		$lease = null;
-		$skippedLaneIndexes = [];
-		$lastPrepareError = null;
-		while ( \count( $skippedLaneIndexes ) < $this->lanePool->laneCount() ) {
-			try {
-				$lease = $this->lanePool->acquire( $rootDir, null, $skippedLaneIndexes );
-				$this->siteManager = $this->providedSiteManager ?? new LocalSiteManager( $lease->definition() );
-
-				echo \sprintf(
-					'Browser lane: reset lane %d at %s',
-					$lease->laneIndex(),
-					$lease->definition()->siteUrl()
-				).\PHP_EOL;
-				$this->siteManager->reset( $rootDir, true, static function () :void {} );
-				break;
-			}
-			catch ( \Throwable $throwable ) {
-				$lastPrepareError = $throwable;
-				if ( $lease !== null && $this->isRecoverablePortConflict( $throwable ) ) {
-					$skippedLaneIndexes[] = $lease->laneIndex();
-					\fwrite(
-						\STDERR,
-						'Browser lane: lane '.$lease->laneIndex().' port unavailable; trying another lane.'.\PHP_EOL
-					);
-					$lease->release();
-					$lease = null;
-					continue;
-				}
-
-				$this->writeFailureDiagnostic( 'prepare browser lane', $throwable, $lease );
-				return 1;
-			}
-		}
-		if ( $lease === null ) {
-			if ( $lastPrepareError !== null ) {
-				$this->writeFailureDiagnostic( 'prepare browser lane', $lastPrepareError, null );
-			}
+		$playwrightArgs = $this->normalizePlaywrightArgs( $playwrightArgs );
+		$runMode = $this->resolveRunMode( $options[ 'mode' ] ?? null );
+		$laneCount = $this->resolveLaneCount( $options[ 'lanes' ] ?? null );
+		$workerCount = $this->resolveWorkerCount( $playwrightArgs, $laneCount );
+		$showSetupOutput = (bool)( $options[ 'show_setup_output' ] ?? false );
+		if ( $workerCount > $laneCount ) {
+			\fwrite(
+				\STDERR,
+				\sprintf(
+					'Browser workers (%d) cannot exceed available lanes (%d). Use --lanes or reduce --workers.',
+					$workerCount,
+					$laneCount
+				).\PHP_EOL
+			);
 			return 1;
 		}
 
-		$envOverrides = [
-			'SHIELD_BROWSER_BASE_URL' => $this->siteManager->definition()->siteUrl(),
-			'SHIELD_BROWSER_LANE_INDEX' => (string)$lease->laneIndex(),
-			'SHIELD_BROWSER_LANE_DB_NAME' => $this->siteManager->definition()->dbName(),
-			'SHIELD_BROWSER_OUTPUT_DIR' => './test-results/playwright/lane-'.$lease->laneIndex(),
-		];
+		$leases = [];
+		try {
+			while ( \count( $leases ) < $workerCount ) {
+				$lease = $this->lanePool->acquire(
+					$rootDir,
+					null,
+					\array_keys( $leases ),
+					$laneCount
+				);
+				$leases[ $lease->laneIndex() ] = $lease;
+			}
+		}
+		catch ( \Throwable $throwable ) {
+			$this->releaseLeases( $leases );
+			$this->writeFailureDiagnostic( 'acquire browser lanes', $throwable, null );
+			return 1;
+		}
+
+		$laneMap = [];
+		$parallelIndex = 0;
+		foreach ( $leases as $lease ) {
+			try {
+				$siteManager = $this->providedSiteManager ?? new LocalSiteManager( $lease->definition() );
+
+				echo \sprintf(
+					'Browser lane: prepare lane %d at %s (%s)',
+					$lease->laneIndex(),
+					$lease->definition()->siteUrl(),
+					$runMode
+				).\PHP_EOL;
+				$fixtureToken = \bin2hex( \random_bytes( 24 ) );
+				$siteManager->prepareBrowserLane(
+					$rootDir,
+					$runMode,
+					true,
+					$fixtureToken,
+					$showSetupOutput ? null : static function () :void {}
+				);
+				$laneMap[ (string)$parallelIndex ] = [
+					'laneIndex'     => $lease->laneIndex(),
+					'baseUrl'       => $lease->definition()->siteUrl(),
+					'fixtureToken'  => $fixtureToken,
+					'authStatePath' => './test-results/playwright/lane-'.$lease->laneIndex().'/.auth/admin.json',
+					'outputDir'     => './test-results/playwright/lane-'.$lease->laneIndex(),
+				];
+				$parallelIndex++;
+			}
+			catch ( \Throwable $throwable ) {
+				$this->writeFailureDiagnostic( 'prepare browser lane', $throwable, $lease );
+				$this->releaseLeases( $leases );
+				return 1;
+			}
+		}
 
 		echo 'Browser lane: run Playwright'.\PHP_EOL;
 		try {
@@ -88,30 +115,125 @@ class BrowserTestLane {
 						'playwright',
 						'test',
 					],
-					$this->withDefaultWorkers( $playwrightArgs )
+					$this->withResolvedWorkers( $playwrightArgs, $workerCount )
 				),
 				$rootDir,
 				null,
-				$envOverrides
+				[
+					'SHIELD_BROWSER_LANE_MAP' => $this->encodeLaneMap( $laneMap ),
+				]
 			);
 		}
 		finally {
-			$lease->release();
+			$this->releaseLeases( $leases );
 		}
+	}
+
+	/**
+	 * @param array<int,array<string,int|string>> $laneMap
+	 */
+	private function encodeLaneMap( array $laneMap ) :string {
+		return \json_encode( (object)$laneMap, \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR );
 	}
 
 	/**
 	 * @param string[] $playwrightArgs
 	 * @return string[]
 	 */
-	private function withDefaultWorkers( array $playwrightArgs ) :array {
+	private function withResolvedWorkers( array $playwrightArgs, int $workerCount ) :array {
 		foreach ( $playwrightArgs as $arg ) {
 			if ( $arg === '-j' || \str_starts_with( $arg, '--workers' ) ) {
 				return $playwrightArgs;
 			}
 		}
 
-		return \array_merge( [ '--workers=1' ], $playwrightArgs );
+		return \array_merge( [ '--workers='.$workerCount ], $playwrightArgs );
+	}
+
+	/**
+	 * @param string[] $playwrightArgs
+	 * @return string[]
+	 */
+	private function normalizePlaywrightArgs( array $playwrightArgs ) :array {
+		return \array_values( \array_filter(
+			$playwrightArgs,
+			static fn( string $arg ) :bool => $arg !== '--'
+		) );
+	}
+
+	private function resolveRunMode( ?string $explicitMode ) :string {
+		if ( $explicitMode === self::MODE_CLEAN || $explicitMode === self::MODE_WARM ) {
+			return $explicitMode;
+		}
+		$envMode = \getenv( 'SHIELD_BROWSER_MODE' );
+		if ( $envMode === self::MODE_CLEAN || $envMode === self::MODE_WARM ) {
+			return $envMode;
+		}
+		return \getenv( 'CI' ) ? self::MODE_CLEAN : self::MODE_WARM;
+	}
+
+	private function resolveLaneCount( ?string $explicitLaneCount ) :int {
+		if ( $explicitLaneCount !== null && $explicitLaneCount !== '' ) {
+			return $this->positiveInteger( $explicitLaneCount, '--lanes' );
+		}
+		$envLaneCount = \getenv( 'SHIELD_BROWSER_LANE_COUNT' );
+		if ( \is_string( $envLaneCount ) && $envLaneCount !== '' ) {
+			return $this->positiveInteger( $envLaneCount, 'SHIELD_BROWSER_LANE_COUNT' );
+		}
+		return \getenv( 'CI' ) ? self::DEFAULT_CI_LANES : self::DEFAULT_LOCAL_LANES;
+	}
+
+	/**
+	 * @param string[] $playwrightArgs
+	 */
+	private function resolveWorkerCount( array $playwrightArgs, int $laneCount ) :int {
+		$playwrightWorkerCount = $this->extractPlaywrightWorkerCount( $playwrightArgs );
+		if ( $playwrightWorkerCount !== null ) {
+			return $playwrightWorkerCount;
+		}
+		$envWorkerCount = \getenv( 'SHIELD_BROWSER_WORKERS' );
+		if ( \is_string( $envWorkerCount ) && $envWorkerCount !== '' ) {
+			return $this->positiveInteger( $envWorkerCount, 'SHIELD_BROWSER_WORKERS' );
+		}
+		return \getenv( 'CI' ) ? 1 : $laneCount;
+	}
+
+	/**
+	 * @param string[] $playwrightArgs
+	 */
+	private function extractPlaywrightWorkerCount( array $playwrightArgs ) :?int {
+		foreach ( $playwrightArgs as $index => $arg ) {
+			if ( \preg_match( '/^--workers=(\d+)$/', $arg, $matches ) === 1
+				|| \preg_match( '/^-j=(\d+)$/', $arg, $matches ) === 1
+			) {
+				return $this->positiveInteger( $matches[ 1 ], $arg );
+			}
+			if ( ( $arg === '--workers' || $arg === '-j' ) && isset( $playwrightArgs[ $index + 1 ] ) ) {
+				return $this->positiveInteger( $playwrightArgs[ $index + 1 ], $arg );
+			}
+			if ( \str_starts_with( $arg, '--workers' ) || $arg === '-j' ) {
+				throw new \InvalidArgumentException( 'Playwright workers must be a positive integer for browser lane mapping.' );
+			}
+		}
+
+		return null;
+	}
+
+	private function positiveInteger( string $value, string $source ) :int {
+		if ( !\ctype_digit( $value ) || (int)$value < 1 ) {
+			throw new \InvalidArgumentException( $source.' must be a positive integer.' );
+		}
+
+		return (int)$value;
+	}
+
+	/**
+	 * @param BrowserTestLaneLease[] $leases
+	 */
+	private function releaseLeases( array $leases ) :void {
+		foreach ( $leases as $lease ) {
+			$lease->release();
+		}
 	}
 
 	private function writeFailureDiagnostic(
@@ -132,10 +254,4 @@ class BrowserTestLane {
 		\fwrite( \STDERR, 'Error: '.$throwable->getMessage().\PHP_EOL );
 	}
 
-	private function isRecoverablePortConflict( \Throwable $throwable ) :bool {
-		$message = $throwable->getMessage();
-		return \strpos( $message, 'Port ' ) !== false
-			&& \strpos( $message, 'already in use' ) !== false
-			&& \strpos( $message, 'not responding' ) !== false;
-	}
 }
