@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum,
@@ -18,6 +19,10 @@ class BotTrack404 extends BuildRuleIpsBase {
 
 	protected function getDescription() :string {
 		return 'Tracking HTTP 404 errors by bots probing a site';
+	}
+
+	protected function getWpHookPriority() :?int {
+		return HookTimings::TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS;
 	}
 
 	protected function getConditions() :array {

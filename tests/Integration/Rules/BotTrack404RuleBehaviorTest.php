@@ -2,13 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rules;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Build\Builder,
 	Build\Core\BotTrack404,
 	Conditions,
 	ConditionsVO,
 	Enum\EnumLogic,
 	Processors\ProcessConditions,
-	Processors\ResponseProcessor
+	Processors\ResponseProcessor,
+	WPHooksOrder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\OffenseTracker;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -79,6 +82,17 @@ class BotTrack404RuleBehaviorTest extends ShieldIntegrationTestCase {
 		return ( new ProcessConditions( $this->getRule()->conditions ) )
 			->setThisRequest( $con->this_req )
 			->process();
+	}
+
+	public function test_rule_runs_after_wordpress_redirect_handlers() {
+		$rules = ( new Builder() )->run();
+
+		$this->assertArrayHasKey( BotTrack404::SLUG, $rules );
+		$rule = $rules[ BotTrack404::SLUG ];
+		$this->assertSame( WPHooksOrder::HOOK_NAME( WPHooksOrder::TEMPLATE_REDIRECT ), $rule->wp_hook );
+		$this->assertSame( HookTimings::TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS, $rule->wp_hook_priority );
+		$this->assertGreaterThan( 10, $rule->wp_hook_priority );
+		$this->assertGreaterThan( 1000, $rule->wp_hook_priority );
 	}
 
 	public function test_allowlisted_extension_png_does_not_match_tracking_gate() {
@@ -164,7 +178,8 @@ class BotTrack404RuleBehaviorTest extends ShieldIntegrationTestCase {
 
 		$events = $this->getCapturedEventsByKey( 'bottrack_404' );
 		$this->assertNotEmpty( $events, 'BotTrack404 response should fire bottrack_404 event.' );
-		$this->assertSame( 1, (int)( $events[ 0 ][ 'meta' ][ 'offense_count' ] ?? 0 ) );
+		$this->assertArrayHasKey( 'offense_count', $events[ 0 ][ 'meta' ] );
+		$this->assertSame( 1, (int)$events[ 0 ][ 'meta' ][ 'offense_count' ] );
 		$this->assertSame( $initialOffenseCount + 1, $tracker->getOffenseCount() );
 	}
 }
