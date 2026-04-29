@@ -28,8 +28,7 @@ These commands remain the owned internal lanes behind the public surface and CI 
 
 | Internal Command | Role |
 |---|---|
-| `php bin/shield analyze:tooling` | Fail-fast syntax lint and tooling/test-platform analysis on PHP 7.4 |
-| `php bin/shield analyze:source` | Canonical source static-analysis lane |
+| `php bin/shield analyze:source` | Canonical source static-analysis lane; source parse-compatibility gate when run on PHP 7.4 |
 | `php bin/shield analyze:package` | Packaged static analysis lane |
 | `php bin/shield test:source` | Source-first Docker runtime lane |
 | `php bin/shield test:integration-local` | Local Docker-backed WordPress integration lane |
@@ -213,13 +212,14 @@ php bin/run-playground-local.php --clean
 
 Required source-first gate: [`.github/workflows/tests.yml`](.github/workflows/tests.yml)
 
-1. Tooling guard on PHP 7.4 via `php bin/shield analyze:tooling`.
+1. Source static analysis on PHP 7.4 via `composer analyze`.
 2. JS static checks via `npm run test:js`.
-3. Source static analysis via `composer analyze`.
-4. Unit tests on PHP 7.4 and latest supported PHP via `composer test:unit`.
-5. Source Docker runtime checks focused on runtime and integration coverage.
-6. Source Docker runtime in CI runs with `--show-docker-output` for full compose logs.
-7. Package-targeted validation against the built artifact.
+3. Unit tests on PHP 7.4 and latest supported PHP via `composer test:unit`.
+4. Source Docker runtime checks focused on runtime and integration coverage.
+5. Source Docker runtime in CI runs with `--show-docker-output` for full compose logs.
+6. Package-targeted validation against the built artifact.
+
+Do not use `php bin/shield analyze:tooling` as a source compatibility gate. Source PHP compatibility belongs to `composer analyze` / `php bin/shield analyze:source`.
 
 Serial compatibility sentinel: [`.github/workflows/unit-serial-sentinel.yml`](.github/workflows/unit-serial-sentinel.yml)
 

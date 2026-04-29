@@ -530,29 +530,46 @@ class ScansResultsViewBuilder {
 	}
 
 	private function areaKeyForSubjectType( string $subjectType ) :string {
-		return match ( \strtolower( \trim( $subjectType ) ) ) {
-			InvestigationTableContract::SUBJECT_TYPE_PLUGIN => 'plugins',
-			InvestigationTableContract::SUBJECT_TYPE_THEME  => 'themes',
-			default => throw new \InvalidArgumentException( \sprintf( 'Unsupported scan result subject type "%s".', $subjectType ) ),
-		};
+		switch ( \strtolower( \trim( $subjectType ) ) ) {
+			case InvestigationTableContract::SUBJECT_TYPE_PLUGIN:
+				return 'plugins';
+
+			case InvestigationTableContract::SUBJECT_TYPE_THEME:
+				return 'themes';
+
+			default:
+				throw new \InvalidArgumentException( \sprintf( 'Unsupported scan result subject type "%s".', $subjectType ) );
+		}
 	}
 
 	private function buildDirectTableForArea( string $areaKey, ?array $resultsDisplayOptions ) :array {
 		$tableBuilder = $this->buildScanResultsTableBuilder();
 
-		return match ( $areaKey ) {
-			'wordpress' => $tableBuilder->buildWordpressTable( $resultsDisplayOptions ),
-			'malware'   => $tableBuilder->buildMalwareTable( $resultsDisplayOptions ),
-		};
+		switch ( $areaKey ) {
+			case 'wordpress':
+				return $tableBuilder->buildWordpressTable( $resultsDisplayOptions );
+
+			case 'malware':
+				return $tableBuilder->buildMalwareTable( $resultsDisplayOptions );
+
+			default:
+				throw new \InvalidArgumentException( \sprintf( 'Scan result area "%s" has no direct table.', $areaKey ) );
+		}
 	}
 
 	private function buildSubjectTableForArea( string $areaKey, string $subjectId, ?array $resultsDisplayOptions ) :array {
 		$tableBuilder = $this->buildScanResultsTableBuilder();
 
-		return match ( $areaKey ) {
-			'plugins' => $tableBuilder->buildPluginTable( $subjectId, $resultsDisplayOptions ),
-			'themes'  => $tableBuilder->buildThemeTable( $subjectId, $resultsDisplayOptions ),
-		};
+		switch ( $areaKey ) {
+			case 'plugins':
+				return $tableBuilder->buildPluginTable( $subjectId, $resultsDisplayOptions );
+
+			case 'themes':
+				return $tableBuilder->buildThemeTable( $subjectId, $resultsDisplayOptions );
+
+			default:
+				throw new \InvalidArgumentException( \sprintf( 'Scan result area "%s" has no subject table.', $areaKey ) );
+		}
 	}
 
 	/**

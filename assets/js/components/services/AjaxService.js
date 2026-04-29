@@ -46,7 +46,7 @@ export class AjaxService {
 			return respJSON;
 		} )
 		.then( respJSON => {
-			if ( respJSON.data.page_reload ) {
+			if ( respJSON?.data?.page_reload ) {
 				setTimeout( () => Navigation.RedirectOrReload( respJSON, null ), 2000 );
 			}
 			else if ( showOverlay ) {
@@ -88,8 +88,18 @@ export class AjaxService {
 			delete reqData.ajaxurl;
 
 			return fetch( url, this.constructFetchRequestData( reqData ) )
-			.then( raw => raw.text() )
-			.then( respTEXT => AjaxParseResponseService.ParseIt( respTEXT ) );
+			.then( raw => raw.text().then( respTEXT => {
+				const respJSON = AjaxParseResponseService.ParseIt( respTEXT );
+				if ( respJSON === null
+					|| typeof respJSON !== 'object'
+					|| Array.isArray( respJSON )
+					|| ObjectOps.IsEmpty( respJSON ) ) {
+					throw new Error(
+						raw.ok ? 'Invalid AJAX response.' : `AJAX request failed with HTTP ${ raw.status }.`
+					);
+				}
+				return respJSON;
+			} ) );
 		}
 	}
 
