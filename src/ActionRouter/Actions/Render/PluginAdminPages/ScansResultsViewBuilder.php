@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansFileLockerDiff;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
@@ -86,6 +87,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   disabled_actions:list<DisabledPaneAction>,
  *   cards:list<QueueFileLockerCard>
  * }
+ * @phpstan-type ScanResultAccessDetailPane array{
+ *   flags:array{is_disabled:bool},
+ *   strings:array{disabled_message:string},
+ *   vars:array{disabled_actions:list<DisabledPaneAction>},
+ *   table:array<string,mixed>
+ * }
  * @phpstan-type RailTabAvailability array{
  *   is_available:bool,
  *   show_in_actions_queue:bool,
@@ -118,6 +125,20 @@ class ScansResultsViewBuilder {
 
 	use PluginControllerConsumer;
 
+	private const RESULT_AREA_KEYS = [
+		'wordpress',
+		'plugins',
+		'themes',
+		'vulnerabilities',
+		'abandoned',
+		'malware',
+		'file_locker',
+	];
+	private const DIRECT_TABLE_AREA_KEYS = [
+		'wordpress',
+		'malware',
+	];
+
 	private ?ScansResultsRailTabAvailability $cachedRailTabAvailability = null;
 
 	/**
@@ -125,23 +146,6 @@ class ScansResultsViewBuilder {
 	 */
 	protected function buildVulnerabilities() :array {
 		return ( new ScansVulnerabilitiesBuilder() )->build();
-	}
-
-	protected function isPluginsRailTabEnabled() :bool {
-		return self::con()->comps->scans->AFS()->isScanEnabledPlugins();
-	}
-
-	protected function isThemesRailTabEnabled() :bool {
-		return self::con()->comps->scans->AFS()->isScanEnabledThemes();
-	}
-
-	protected function isVulnerabilitiesRailTabEnabled() :bool {
-		$scansCon = self::con()->comps->scans;
-		return $scansCon->WPV()->isEnabled() || $scansCon->APC()->isEnabled();
-	}
-
-	protected function isAbandonedRailTabEnabled() :bool {
-		return self::con()->comps->scans->APC()->isEnabled();
 	}
 
 	/**
@@ -167,7 +171,7 @@ class ScansResultsViewBuilder {
 	 * }>
 	 */
 	protected function getScanTabDefinitions() :array {
-		return PluginNavs::actionsLandingScanDefinitions();
+		return PluginNavs::actionsQueueScanDefinitions();
 	}
 
 	/**
@@ -227,6 +231,40 @@ class ScansResultsViewBuilder {
 			'disabled_actions' => [],
 			'cards'            => $this->buildFileLockerQueueRecords(),
 		];
+	}
+
+	/**
+	 * @return ScanResultAccessDetailPane
+	 */
+	public function buildActionsQueueDirectTablePane( string $areaKey, ?array $resultsDisplayOptions = null ) :array {
+		$areaKey = $this->normalizeDirectTableAreaKey( $areaKey );
+		$availability = $this->getRailTabAvailability( $areaKey );
+		if ( !$availability[ 'is_available' ] ) {
+			return $this->buildDisabledDirectTablePane( $availability );
+		}
+
+		return $this->buildEnabledDirectTablePane(
+			$this->buildDirectTableForArea( $areaKey, $resultsDisplayOptions )
+		);
+	}
+
+	/**
+	 * @return ScanResultAccessDetailPane
+	 */
+	public function buildActionsQueueSubjectTablePane(
+		string $subjectType,
+		string $subjectId,
+		?array $resultsDisplayOptions = null
+	) :array {
+		$areaKey = $this->areaKeyForSubjectType( $subjectType );
+		$availability = $this->getRailTabAvailability( $areaKey );
+		if ( !$availability[ 'is_available' ] ) {
+			return $this->buildDisabledDirectTablePane( $availability );
+		}
+
+		return $this->buildEnabledDirectTablePane(
+			$this->buildSubjectTableForArea( $areaKey, $subjectId, $resultsDisplayOptions )
+		);
 	}
 
 	/**
@@ -375,11 +413,7 @@ class ScansResultsViewBuilder {
 	public function buildRailPaneData( string $tabKey, array $vulnerabilities = [], ?string $vulnerabilitySection = null ) :array {
 		$tabKey = \strtolower( \trim( $tabKey ) );
 		$meta = $this->getRailTabMeta( $tabKey );
-		$availability = $this->normalizedRailPaneAvailability(
-			$tabKey,
-			$this->getRailTabAvailability( $tabKey ),
-			$vulnerabilitySection
-		);
+		$availability = $this->getRailTabAvailability( $tabKey );
 		$items = [];
 		$count = 0;
 		$status = 'good';
@@ -389,7 +423,7 @@ class ScansResultsViewBuilder {
 		$disabledActions = [];
 
 		if ( !$availability[ 'is_available' ]
-			 && \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'file_locker' ], true ) ) {
+			 && $this->isProtectedScanResultsArea( $tabKey ) ) {
 			$isDisabled = true;
 			$status = $disabledStatus;
 			$disabledMessage = $availability[ 'disabled_message' ];
@@ -412,7 +446,7 @@ class ScansResultsViewBuilder {
 
 				case 'vulnerabilities':
 					$vulnerabilities = empty( $vulnerabilities ) ? $this->buildVulnerabilities() : $vulnerabilities;
-					$sectionPayload = $this->vulnerabilityPanePayload( $vulnerabilities, $vulnerabilitySection );
+					$sectionPayload = $this->vulnerabilityPanePayload( $vulnerabilities, $vulnerabilitySection ?? 'vulnerable' );
 					$items = $this->buildVulnerabilitiesRailItems( $sectionPayload );
 					$count = $sectionPayload[ 'count' ];
 					$status = $sectionPayload[ 'status' ];
@@ -447,27 +481,78 @@ class ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @return array{
-	 *   is_available:bool,
-	 *   show_in_actions_queue:bool,
-	 *   disabled_message:string,
-	 *   disabled_status:string
-	 * }
+	 * @return ScanResultAccessDetailPane
 	 */
-	private function normalizedRailPaneAvailability(
-		string $tabKey,
-		array $availability,
-		?string $vulnerabilitySection
-	) :array {
-		if ( $tabKey === 'vulnerabilities'
-			 && $vulnerabilitySection === null
-			 && $this->isVulnerabilitiesRailTabEnabled() ) {
-			$availability[ 'is_available' ] = true;
-			$availability[ 'disabled_message' ] = '';
-			$availability[ 'disabled_status' ] = 'neutral';
+	private function buildDisabledDirectTablePane( array $availability ) :array {
+		return [
+			'flags'   => [
+				'is_disabled' => true,
+			],
+			'strings' => [
+				'disabled_message' => $availability[ 'disabled_message' ],
+			],
+			'vars'    => [
+				'disabled_actions' => $availability[ 'disabled_actions' ] ?? [],
+			],
+			'table'   => [],
+		];
+	}
+
+	/**
+	 * @return ScanResultAccessDetailPane
+	 */
+	private function buildEnabledDirectTablePane( array $table ) :array {
+		return [
+			'flags'   => [
+				'is_disabled' => false,
+			],
+			'strings' => [
+				'disabled_message' => '',
+			],
+			'vars'    => [
+				'disabled_actions' => [],
+			],
+			'table'   => $table,
+		];
+	}
+
+	private function normalizeDirectTableAreaKey( string $areaKey ) :string {
+		$areaKey = \strtolower( \trim( $areaKey ) );
+		if ( !\in_array( $areaKey, self::DIRECT_TABLE_AREA_KEYS, true ) ) {
+			throw new \InvalidArgumentException( \sprintf( 'Scan result area "%s" has no direct table.', $areaKey ) );
 		}
 
-		return $availability;
+		return $areaKey;
+	}
+
+	private function isProtectedScanResultsArea( string $areaKey ) :bool {
+		return \in_array( $areaKey, self::RESULT_AREA_KEYS, true );
+	}
+
+	private function areaKeyForSubjectType( string $subjectType ) :string {
+		return match ( \strtolower( \trim( $subjectType ) ) ) {
+			InvestigationTableContract::SUBJECT_TYPE_PLUGIN => 'plugins',
+			InvestigationTableContract::SUBJECT_TYPE_THEME  => 'themes',
+			default => throw new \InvalidArgumentException( \sprintf( 'Unsupported scan result subject type "%s".', $subjectType ) ),
+		};
+	}
+
+	private function buildDirectTableForArea( string $areaKey, ?array $resultsDisplayOptions ) :array {
+		$tableBuilder = $this->buildScanResultsTableBuilder();
+
+		return match ( $areaKey ) {
+			'wordpress' => $tableBuilder->buildWordpressTable( $resultsDisplayOptions ),
+			'malware'   => $tableBuilder->buildMalwareTable( $resultsDisplayOptions ),
+		};
+	}
+
+	private function buildSubjectTableForArea( string $areaKey, string $subjectId, ?array $resultsDisplayOptions ) :array {
+		$tableBuilder = $this->buildScanResultsTableBuilder();
+
+		return match ( $areaKey ) {
+			'plugins' => $tableBuilder->buildPluginTable( $subjectId, $resultsDisplayOptions ),
+			'themes'  => $tableBuilder->buildThemeTable( $subjectId, $resultsDisplayOptions ),
+		};
 	}
 
 	/**
@@ -783,6 +868,10 @@ class ScansResultsViewBuilder {
 
 	protected function buildActionsQueueAssetCardsBuilder() :ActionsQueueScanAssetCardsBuilder {
 		return new ActionsQueueScanAssetCardsBuilder();
+	}
+
+	protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
+		return new ActionsQueueScanResultsTableBuilder();
 	}
 
 	private function queueScanResultsOptions() :ScanResultsDisplayOptions {

@@ -138,7 +138,7 @@ class ScansResultsRailTabAvailability {
 				$state[ 'is_available' ] = $scansCon->WPV()->isEnabled();
 				$state[ 'show_in_actions_queue' ] = true;
 				if ( !$state[ 'is_available' ] ) {
-					$state = \array_replace( $state, $scansCon->WPV()->isRestricted()
+					$state = \array_replace( $state, !self::con()->caps->canScanVulnerabilities()
 						? $this->buildDisabledState(
 							'upgrade_required',
 							$this->buildRestrictedMessage( __( 'Vulnerability Scanning', 'wp-simple-firewall' ) ),

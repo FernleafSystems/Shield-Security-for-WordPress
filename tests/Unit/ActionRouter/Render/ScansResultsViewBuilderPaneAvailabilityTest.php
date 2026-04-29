@@ -88,7 +88,29 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 		$this->assertSame( [], $pane[ 'items' ] ?? [ 'unexpected' ] );
 	}
 
-	public function test_combined_vulnerability_pane_stays_available_when_only_abandoned_results_are_enabled() :void {
+	public function test_malware_pane_data_returns_disabled_state_when_scan_is_unavailable() :void {
+		$message = 'malware-unavailable-sentinel';
+		$builder = $this->createBuilder( [
+			'tabAvailability' => [
+				'malware' => [
+					'is_available'          => false,
+					'show_in_actions_queue' => true,
+					'disabled_message'      => $message,
+					'disabled_status'       => 'neutral',
+				],
+			],
+		] );
+
+		$pane = $builder->buildRailPaneData( 'malware' );
+		$this->assertTrue( (bool)( $pane[ 'is_disabled' ] ?? false ) );
+		$this->assertSame( 'neutral', $pane[ 'status' ] ?? '' );
+		$this->assertSame( 0, $pane[ 'count_items' ] ?? -1 );
+		$this->assertSame( [], $pane[ 'items' ] ?? [ 'unexpected' ] );
+		$this->assertSame( $message, $pane[ 'disabled_message' ] ?? '' );
+		$this->assertSame( [], $pane[ 'disabled_actions' ] ?? [ 'unexpected' ] );
+	}
+
+	public function test_vulnerability_pane_does_not_use_abandoned_state_to_bypass_unavailable_wpv() :void {
 		$builder = $this->createBuilder( [
 			'vulnerabilitiesEnabled' => true,
 			'vulnerabilities'        => [
@@ -122,11 +144,11 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 		] );
 
 		$pane = $builder->buildRailPaneData( 'vulnerabilities' );
-		$this->assertFalse( (bool)( $pane[ 'is_disabled' ] ?? true ) );
-		$this->assertSame( '', $pane[ 'disabled_message' ] ?? 'unexpected' );
-		$this->assertSame( 'critical', $pane[ 'status' ] ?? '' );
-		$this->assertSame( 1, $pane[ 'count_items' ] ?? -1 );
-		$this->assertNotSame( '', $pane[ 'items' ][ 0 ][ 'section_label' ] ?? '' );
+		$this->assertTrue( (bool)( $pane[ 'is_disabled' ] ?? false ) );
+		$this->assertSame( 'vulnerabilities-unavailable-sentinel', $pane[ 'disabled_message' ] ?? '' );
+		$this->assertSame( 'neutral', $pane[ 'status' ] ?? '' );
+		$this->assertSame( 0, $pane[ 'count_items' ] ?? -1 );
+		$this->assertSame( [], $pane[ 'items' ] ?? [ 'unexpected' ] );
 	}
 
 	public function test_plugin_rail_items_pass_through_to_tab() :void {

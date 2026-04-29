@@ -17,7 +17,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
-	ActionsQueueScanResultsTableBuilder
+	ActionsQueueScanResultsTableBuilder,
+	ScansResultsViewBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
@@ -105,31 +106,15 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 	}
 
 	public function testDetailRenderUsesPluginSubjectRouteData() :void {
-		$action = new class( [
+		$viewBuilder = $this->buildGatedViewBuilder();
+		$action = $this->buildAssetDetailAction( [
 			'subject_type'            => 'plugin',
 			'subject_id'              => 'akismet/akismet.php',
 			'results_display_options' => [
 				'include_ignored' => true,
 				'ignored_only'    => true,
 			],
-		] ) extends ActionsQueueAssetFileStatusDetail {
-
-			public function exposeRenderData() :array {
-				return $this->getRenderData();
-			}
-
-			protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
-				return new class extends ActionsQueueScanResultsTableBuilder {
-					public function buildPluginTable( string $pluginFile, ?array $options = null ) :array {
-						return [
-							'route'                   => 'plugin',
-							'subject_id'              => $pluginFile,
-							'results_display_options' => $options,
-						];
-					}
-				};
-			}
-		};
+		], $viewBuilder );
 
 		$renderData = $action->exposeRenderData();
 		$this->assertArrayHasKey( 'table', $renderData );
@@ -149,27 +134,11 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 	}
 
 	public function testDetailRenderUsesThemeSubjectRouteData() :void {
-		$action = new class( [
+		$viewBuilder = $this->buildGatedViewBuilder();
+		$action = $this->buildAssetDetailAction( [
 			'subject_type' => 'theme',
 			'subject_id'   => 'twentytwentyfive',
-		] ) extends ActionsQueueAssetFileStatusDetail {
-
-			public function exposeRenderData() :array {
-				return $this->getRenderData();
-			}
-
-			protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
-				return new class extends ActionsQueueScanResultsTableBuilder {
-					public function buildThemeTable( string $stylesheet, ?array $options = null ) :array {
-						return [
-							'route'                   => 'theme',
-							'subject_id'              => $stylesheet,
-							'results_display_options' => $options,
-						];
-					}
-				};
-			}
-		};
+		], $viewBuilder );
 
 		$renderData = $action->exposeRenderData();
 		$this->assertArrayHasKey( 'table', $renderData );
@@ -188,28 +157,84 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 		);
 	}
 
+	public function testPluginSubjectDetailReturnsDisabledPayloadBeforeBuildingTableWhenUnavailable() :void {
+		$viewBuilder = $this->buildGatedViewBuilder( false, true, 'plugins-disabled-sentinel' );
+		$action = $this->buildAssetDetailAction( [
+			'subject_type' => 'plugin',
+			'subject_id'   => 'akismet/akismet.php',
+		], $viewBuilder );
+
+		$renderData = $action->exposeRenderData();
+		$this->assertTrue( $renderData[ 'flags' ][ 'is_disabled' ] ?? false );
+		$this->assertSame( 'plugins-disabled-sentinel', $renderData[ 'strings' ][ 'disabled_message' ] ?? '' );
+		$this->assertSame( [], $renderData[ 'table' ] ?? [ 'unexpected' ] );
+		$this->assertSame( 0, $viewBuilder->tableBuildCalls );
+	}
+
+	public function testThemeSubjectDetailReturnsDisabledPayloadBeforeBuildingTableWhenUnavailable() :void {
+		$viewBuilder = $this->buildGatedViewBuilder( true, false, 'themes-disabled-sentinel' );
+		$action = $this->buildAssetDetailAction( [
+			'subject_type' => 'theme',
+			'subject_id'   => 'twentytwentyfive',
+		], $viewBuilder );
+
+		$renderData = $action->exposeRenderData();
+		$this->assertTrue( $renderData[ 'flags' ][ 'is_disabled' ] ?? false );
+		$this->assertSame( 'themes-disabled-sentinel', $renderData[ 'strings' ][ 'disabled_message' ] ?? '' );
+		$this->assertSame( [], $renderData[ 'table' ] ?? [ 'unexpected' ] );
+		$this->assertSame( 0, $viewBuilder->tableBuildCalls );
+	}
+
+	public function testUnsupportedSubjectTypeIsRejectedBeforeBuildingTable() :void {
+		$viewBuilder = $this->buildGatedViewBuilder();
+		$action = $this->buildAssetDetailAction( [
+			'subject_type' => 'core',
+			'subject_id'   => 'core',
+		], $viewBuilder );
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'Unsupported scan result subject type "core".' );
+
+		try {
+			$action->exposeRenderData();
+		}
+		finally {
+			$this->assertSame( 0, $viewBuilder->tableBuildCalls );
+		}
+	}
+
+	public function testDirectTablePaneRejectsAreasWithoutDirectTables() :void {
+		$viewBuilder = $this->buildGatedViewBuilder();
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'Scan result area "plugins" has no direct table.' );
+
+		$viewBuilder->buildActionsQueueDirectTablePane( 'plugins' );
+	}
+
 	public function testWordpressRouteUsesDedicatedWordpressTableBuilder() :void {
+		$viewBuilder = $this->buildGatedViewBuilder();
 		$action = new class( [
 			'display_context'         => 'actions_queue',
 			'results_display_options' => [
 				'include_ignored' => true,
 				'ignored_only'    => true,
 			],
-		] ) extends Wordpress {
+		], $viewBuilder ) extends Wordpress {
+
+			private ScansResultsViewBuilder $viewBuilder;
+
+			public function __construct( array $data, ScansResultsViewBuilder $viewBuilder ) {
+				parent::__construct( $data );
+				$this->viewBuilder = $viewBuilder;
+			}
 
 			public function exposeRenderData() :array {
 				return $this->getRenderData();
 			}
 
-			protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
-				return new class extends ActionsQueueScanResultsTableBuilder {
-					public function buildWordpressTable( ?array $options = null ) :array {
-						return [
-							'route'                   => 'wordpress',
-							'results_display_options' => $options,
-						];
-					}
-				};
+			protected function buildScansResultsViewBuilder() :ScansResultsViewBuilder {
+				return $this->viewBuilder;
 			}
 		};
 
@@ -222,23 +247,24 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 	}
 
 	public function testMalwareRouteUsesDedicatedMalwareTableBuilder() :void {
+		$viewBuilder = $this->buildGatedViewBuilder();
 		$action = new class( [
 			'display_context' => 'actions_queue',
-		] ) extends Malware {
+		], $viewBuilder ) extends Malware {
+
+			private ScansResultsViewBuilder $viewBuilder;
+
+			public function __construct( array $data, ScansResultsViewBuilder $viewBuilder ) {
+				parent::__construct( $data );
+				$this->viewBuilder = $viewBuilder;
+			}
 
 			public function exposeRenderData() :array {
 				return $this->getRenderData();
 			}
 
-			protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
-				return new class extends ActionsQueueScanResultsTableBuilder {
-					public function buildMalwareTable( ?array $options = null ) :array {
-						return [
-							'route'                   => 'malware',
-							'results_display_options' => $options,
-						];
-					}
-				};
+			protected function buildScansResultsViewBuilder() :ScansResultsViewBuilder {
+				return $this->viewBuilder;
 			}
 		};
 
@@ -249,6 +275,118 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 		$this->assertSame( 'malware', $table[ 'route' ] );
 		$this->assertArrayHasKey( 'results_display_options', $table );
 		$this->assertNull( $table[ 'results_display_options' ] );
+	}
+
+	private function buildAssetDetailAction( array $data, ScansResultsViewBuilder $viewBuilder ) :ActionsQueueAssetFileStatusDetail {
+		return new class( $data, $viewBuilder ) extends ActionsQueueAssetFileStatusDetail {
+
+			private ScansResultsViewBuilder $viewBuilder;
+
+			public function __construct( array $data, ScansResultsViewBuilder $viewBuilder ) {
+				parent::__construct( $data );
+				$this->viewBuilder = $viewBuilder;
+			}
+
+			public function exposeRenderData() :array {
+				return $this->getRenderData();
+			}
+
+			protected function buildScansResultsViewBuilder() :ScansResultsViewBuilder {
+				return $this->viewBuilder;
+			}
+		};
+	}
+
+	private function buildGatedViewBuilder(
+		bool $pluginsAvailable = true,
+		bool $themesAvailable = true,
+		string $disabledMessage = 'scan-disabled-sentinel'
+	) :ScansResultsViewBuilder {
+		return new class( $pluginsAvailable, $themesAvailable, $disabledMessage ) extends ScansResultsViewBuilder {
+
+			public int $tableBuildCalls = 0;
+			private bool $pluginsAvailable;
+			private bool $themesAvailable;
+			private string $disabledMessage;
+
+			public function __construct( bool $pluginsAvailable, bool $themesAvailable, string $disabledMessage ) {
+				$this->pluginsAvailable = $pluginsAvailable;
+				$this->themesAvailable = $themesAvailable;
+				$this->disabledMessage = $disabledMessage;
+			}
+
+			protected function getRailTabAvailability( string $tabKey ) :array {
+				$isAvailable = !\in_array( $tabKey, [ 'plugins', 'themes' ], true )
+					|| ( $tabKey === 'plugins' ? $this->pluginsAvailable : $this->themesAvailable );
+
+				return [
+					'is_available'          => $isAvailable,
+					'show_in_actions_queue' => true,
+					'show_in_fix_now'       => true,
+					'disabled_reason'       => $isAvailable ? '' : 'upgrade_required',
+					'disabled_message'      => $isAvailable ? '' : $this->disabledMessage,
+					'disabled_status'       => 'neutral',
+					'disabled_actions'      => $isAvailable ? [] : [
+						[
+							'type'         => 'navigate',
+							'label'        => 'View Plans',
+							'href'         => '/go-pro',
+							'icon_class'   => 'bi bi-arrow-right-circle-fill',
+							'tooltip_attr' => '',
+							'class_name'   => '',
+							'target'       => '_blank',
+							'rel'          => 'noopener noreferrer',
+							'attributes'   => [],
+						],
+					],
+				];
+			}
+
+			protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
+				return new class( $this ) extends ActionsQueueScanResultsTableBuilder {
+
+					private object $recorder;
+
+					public function __construct( object $recorder ) {
+						$this->recorder = $recorder;
+					}
+
+					public function buildPluginTable( string $pluginFile, ?array $options = null ) :array {
+						$this->recorder->tableBuildCalls++;
+						return [
+							'route'                   => 'plugin',
+							'subject_id'              => $pluginFile,
+							'results_display_options' => $options,
+						];
+					}
+
+					public function buildThemeTable( string $stylesheet, ?array $options = null ) :array {
+						$this->recorder->tableBuildCalls++;
+						return [
+							'route'                   => 'theme',
+							'subject_id'              => $stylesheet,
+							'results_display_options' => $options,
+						];
+					}
+
+					public function buildWordpressTable( ?array $options = null ) :array {
+						$this->recorder->tableBuildCalls++;
+						return [
+							'route'                   => 'wordpress',
+							'results_display_options' => $options,
+						];
+					}
+
+					public function buildMalwareTable( ?array $options = null ) :array {
+						$this->recorder->tableBuildCalls++;
+						return [
+							'route'                   => 'malware',
+							'results_display_options' => $options,
+						];
+					}
+				};
+			}
+		};
 	}
 
 }

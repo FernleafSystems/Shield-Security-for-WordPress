@@ -41,7 +41,7 @@ class Vulnerabilities extends BaseRender {
 			case 'abandoned':
 				return __( "Previous scans didn't detect any abandoned assets.", 'wp-simple-firewall' );
 			default:
-				return __( "Previous scans didn't detect any vulnerable or abandoned assets.", 'wp-simple-firewall' );
+				return __( "Previous scans didn't detect any vulnerable assets.", 'wp-simple-firewall' );
 		}
 	}
 }

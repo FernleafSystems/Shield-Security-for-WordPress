@@ -1341,10 +1341,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $activeGroups[ 'plugins:ignored-plugin' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertSame(
 			[
-				'include_ignored'  => false,
+				'include_ignored'  => true,
 				'include_repaired' => false,
 				'include_deleted'  => false,
-				'ignored_only'     => false,
+				'ignored_only'     => true,
 			],
 			$activeGroups[ 'plugins:ignored-plugin' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
 		);
@@ -1353,10 +1353,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 4, $activeGroups[ 'themes:ignored-theme' ][ 'item_count' ] );
 		$this->assertSame(
 			[
-				'include_ignored'  => false,
+				'include_ignored'  => true,
 				'include_repaired' => false,
 				'include_deleted'  => false,
-				'ignored_only'     => false,
+				'ignored_only'     => true,
 			],
 			$activeGroups[ 'themes:ignored-theme' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
 		);
@@ -1366,10 +1366,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'scanresults_malware', $activeGroups[ 'malware' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame(
 			[
-				'include_ignored'  => false,
+				'include_ignored'  => true,
 				'include_repaired' => false,
 				'include_deleted'  => false,
-				'ignored_only'     => false,
+				'ignored_only'     => true,
 			],
 			$activeGroups[ 'malware' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
 		);

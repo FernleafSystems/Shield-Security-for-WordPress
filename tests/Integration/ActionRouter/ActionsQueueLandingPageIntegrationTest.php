@@ -7,7 +7,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItem
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\FileLocker as FileLockerPane;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
+	FileLocker as FileLockerPane,
+	Malware as MalwarePane,
+	Plugins as PluginsPane,
+	Themes as ThemesPane,
+	Vulnerabilities as VulnerabilitiesPane
+};
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueAssetFileStatusDetail;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueGroupsBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingAssessmentBuilder;
@@ -31,6 +38,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	use ActionRequestNonceFixture;
 	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
+
+	private const THEME_FIXTURE_STYLESHEET = 'shield-integration-theme';
 
 	private array $optionsSnapshot = [];
 	private array $tempPaths = [];
@@ -73,6 +82,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			if ( \is_string( $path ) && $path !== '' && \file_exists( $path ) ) {
 				@\unlink( $path );
 			}
+		}
+		if ( \function_exists( 'wp_clean_themes_cache' ) ) {
+			\wp_clean_themes_cache( true );
 		}
 		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
@@ -135,7 +147,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->enableAssetScanFixture( [ 'wp', 'plugins', 'themes' ] );
 
 		$pluginSlug = self::con()->base_file;
-		$themeSlug = \wp_get_theme()->get_stylesheet();
+		$themeSlug = $this->requireAtLeastInstalledThemes( 1 )[ 0 ];
 
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
@@ -162,7 +174,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function themeMainPathFragment( ?string $themeSlug = null ) :string {
-		$themeSlug = $themeSlug ?? \wp_get_theme()->get_stylesheet();
+		$themeSlug = $themeSlug ?? $this->requireAtLeastInstalledThemes( 1 )[ 0 ];
 		return TestDataFactory::pathFragmentFromAbsolutePath( \get_theme_root().'/'.$themeSlug.'/style.css' );
 	}
 
@@ -253,6 +265,52 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			( new ScanResultsDisplayOptions() )->activeOnly()
 		);
 		$this->assertSame( 'ajax_render', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'ex' ] ?? '' ) );
+	}
+
+	private function renderSelectedGroupDetail( array $groupsPayload ) :array {
+		$renderAction = \is_array( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ] ?? null )
+			? $groupsPayload[ 'selected_group' ][ 'detail_render_action' ]
+			: [];
+		$renderSlug = (string)( $renderAction[ 'render_slug' ] ?? '' );
+		$this->assertNotSame( '', $renderSlug );
+
+		return $this->processActionPayloadWithAdminBypass( $renderSlug, $renderAction );
+	}
+
+	private function assertDisabledDirectScanRenderPayload( array $payload, string $context ) :void {
+		$html = $this->assertRouteRenderOutputHealthy( $payload, $context );
+		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
+
+		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'is_disabled' ] ?? false ), $context );
+		$this->assertNotSame( '', \trim( (string)( $renderData[ 'strings' ][ 'disabled_message' ] ?? '' ) ), $context );
+		$this->assertSame( [], $renderData[ 'table' ] ?? [ 'unexpected' ], $context );
+		$this->assertStringContainsString( 'data-shield-scan-pane-disabled="1"', $html, $context );
+		$this->assertStringNotContainsString( 'data-scan-results-table="1"', $html, $context );
+	}
+
+	private function assertDisabledAssetCardsRenderPayload( array $payload, string $context ) :void {
+		$html = $this->assertRouteRenderOutputHealthy( $payload, $context );
+		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
+
+		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'is_disabled' ] ?? false ), $context );
+		$this->assertNotSame( '', \trim( (string)( $renderData[ 'strings' ][ 'disabled_message' ] ?? '' ) ), $context );
+		$this->assertSame( [], $renderData[ 'vars' ][ 'asset_cards' ] ?? [ 'unexpected' ], $context );
+		$this->assertStringContainsString( 'data-shield-scan-pane-disabled="1"', $html, $context );
+		$this->assertStringNotContainsString( 'data-actions-queue-asset-cards="1"', $html, $context );
+		$this->assertStringNotContainsString( 'data-scan-results-table="1"', $html, $context );
+	}
+
+	private function assertDisabledRailPaneRenderPayload( array $payload, string $context ) :void {
+		$html = $this->assertRouteRenderOutputHealthy( $payload, $context );
+		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
+		$tab = \is_array( $renderData[ 'tab' ] ?? null ) ? $renderData[ 'tab' ] : [];
+
+		$this->assertTrue( (bool)( $tab[ 'is_disabled' ] ?? false ), $context );
+		$this->assertSame( [], $tab[ 'items' ] ?? [ 'unexpected' ], $context );
+		$this->assertSame( 0, (int)( $tab[ 'count_items' ] ?? -1 ), $context );
+		$this->assertNotSame( '', \trim( (string)( $tab[ 'disabled_message' ] ?? '' ) ), $context );
+		$this->assertStringContainsString( 'data-shield-scan-pane-disabled="1"', $html, $context );
+		$this->assertStringNotContainsString( 'data-scan-results-table="1"', $html, $context );
 	}
 
 	private function findZoneTile( array $zoneTiles, string $key ) :array {
@@ -582,7 +640,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_theme_direct_table_group_and_detail_expose_ignore_all_action() :void {
 		$this->enableAssetScanFixture( [ 'themes' ] );
 
-		$themeSlug = \wp_get_theme()->get_stylesheet();
+		$themeSlug = $this->requireAtLeastInstalledThemes( 1 )[ 0 ];
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
 			'is_in_theme' => 1,
@@ -868,7 +926,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 
 		$pluginSlug = self::con()->base_file;
-		$themeSlug = \wp_get_theme()->get_stylesheet();
+		$themeSlug = $this->requireAtLeastInstalledThemes( 1 )[ 0 ];
 
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertScanResultItem( $afsId, [
@@ -926,6 +984,113 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		) );
 	}
 
+	public function test_pro_deactivated_stale_scan_result_details_render_disabled_panes() :void {
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'enable_wpvuln_scan', 'Y' )
+			 ->optSet( 'enabled_scan_apc', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes', 'malware_php' ] )
+			 ->store();
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
+		$this->resetScanResultCountMemoization();
+
+		$pluginSlug = self::con()->base_file;
+		$themeSlug = $this->requireAtLeastInstalledThemes( 1 )[ 0 ];
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
+			'is_in_theme' => 1,
+			'ptg_slug'    => $themeSlug,
+		] );
+		TestDataFactory::insertScanResultItem( $afsId, [
+			'item_id' => 'infected.php',
+			'is_mal'  => 1,
+		] );
+
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		TestDataFactory::insertScanResultItem( $wpvId, [
+			'item_id'       => $pluginSlug,
+			'is_vulnerable' => 1,
+		] );
+
+		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
+		TestDataFactory::insertScanResultItem( $apcId, [
+			'item_id'      => $themeSlug,
+			'is_abandoned' => 1,
+		] );
+		$this->resetScanResultCountMemoization();
+
+		$displayOptions = new ScanResultsDisplayOptions();
+		$this->assertDisabledDirectScanRenderPayload(
+			$this->processActionPayloadWithAdminBypass( MalwarePane::SLUG, $displayOptions->buildDisplayContextActionData() ),
+			'pro-deactivated stale malware detail'
+		);
+		$this->assertDisabledDirectScanRenderPayload(
+			$this->processActionPayloadWithAdminBypass(
+				ActionsQueueAssetFileStatusDetail::SLUG,
+				$displayOptions->buildSubjectActionData( 'plugin', $pluginSlug )
+			),
+			'pro-deactivated stale plugin subject detail'
+		);
+		$this->assertDisabledDirectScanRenderPayload(
+			$this->processActionPayloadWithAdminBypass(
+				ActionsQueueAssetFileStatusDetail::SLUG,
+				$displayOptions->buildSubjectActionData( 'theme', $themeSlug )
+			),
+			'pro-deactivated stale theme subject detail'
+		);
+		$this->assertDisabledAssetCardsRenderPayload(
+			$this->processActionPayloadWithAdminBypass( PluginsPane::SLUG, $displayOptions->buildDisplayContextActionData() ),
+			'pro-deactivated stale plugin cards'
+		);
+		$this->assertDisabledAssetCardsRenderPayload(
+			$this->processActionPayloadWithAdminBypass( ThemesPane::SLUG, $displayOptions->buildDisplayContextActionData() ),
+			'pro-deactivated stale theme cards'
+		);
+		$this->assertDisabledRailPaneRenderPayload(
+			$this->processActionPayloadWithAdminBypass( VulnerabilitiesPane::SLUG, [ 'section' => 'vulnerable' ] ),
+			'pro-deactivated stale vulnerability rail'
+		);
+
+		$abandonedPayload = $this->processActionPayloadWithAdminBypass( VulnerabilitiesPane::SLUG, [ 'section' => 'abandoned' ] );
+		$abandonedHtml = $this->assertRouteRenderOutputHealthy( $abandonedPayload, 'pro-deactivated abandoned rail remains available' );
+		$abandonedTab = \is_array( $abandonedPayload[ 'render_data' ][ 'tab' ] ?? null )
+			? $abandonedPayload[ 'render_data' ][ 'tab' ]
+			: [];
+		$this->assertFalse( (bool)( $abandonedTab[ 'is_disabled' ] ?? true ) );
+		$this->assertSame( 1, (int)( $abandonedTab[ 'count_items' ] ?? 0 ) );
+		$this->assertNotEmpty( $abandonedTab[ 'items' ] ?? [] );
+		$this->assertStringNotContainsString( 'data-shield-scan-pane-disabled="1"', $abandonedHtml );
+
+		foreach ( [
+			'plugins'         => 'asset_cards',
+			'themes'          => 'asset_cards',
+			'malware'         => 'direct_table',
+			'vulnerabilities' => 'direct_table',
+		] as $groupKey => $expectedShell ) {
+			$groupsPayload = $this->loadSelectedGroupPayload( 'critical', $groupKey );
+			$this->assertSame( $groupKey, (string)( $groupsPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
+			$this->assertSame( $expectedShell, (string)( $groupsPayload[ 'selected_group' ][ 'detail_shell' ] ?? '' ) );
+			$this->assertSame( 'ajax_render', (string)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'ex' ] ?? '' ) );
+			$this->assertSame( [], $groupsPayload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? [] );
+
+			$detailPayload = $this->renderSelectedGroupDetail( $groupsPayload );
+			if ( $groupKey === 'plugins' || $groupKey === 'themes' ) {
+				$this->assertDisabledAssetCardsRenderPayload( $detailPayload, 'selected disabled '.$groupKey.' group detail' );
+			}
+			elseif ( $groupKey === 'malware' ) {
+				$this->assertDisabledDirectScanRenderPayload( $detailPayload, 'selected disabled malware group detail' );
+			}
+			else {
+				$this->assertDisabledRailPaneRenderPayload( $detailPayload, 'selected disabled vulnerabilities group detail' );
+			}
+		}
+	}
+
 	public function test_actions_queue_groups_do_not_surface_disabled_review_sources_with_historical_results() :void {
 		$this->requireController()->opts
 			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
@@ -936,7 +1101,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 
 		$pluginSlug = self::con()->base_file;
-		$themeSlug = \wp_get_theme()->get_stylesheet();
+		$themeSlug = $this->requireAtLeastInstalledThemes( 1 )[ 0 ];
 
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
@@ -984,7 +1149,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			 ->store();
 
 		$pluginSlug = self::con()->base_file;
-		$themeSlug = \wp_get_theme()->get_stylesheet();
+		$themeSlug = $this->requireAtLeastInstalledThemes( 1 )[ 0 ];
 
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		TestDataFactory::insertScanResultItem( $scanId, [
@@ -1095,6 +1260,47 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		return \array_slice( $pluginFiles, 0, $minimum );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function requireAtLeastInstalledThemes( int $minimum ) :array {
+		$this->ensureInstalledThemeFixture();
+		$stylesheets = Services::WpThemes()->getInstalledStylesheets();
+		\natsort( $stylesheets );
+		$stylesheets = \array_values( $stylesheets );
+		if ( \count( $stylesheets ) < $minimum && \file_exists( $this->themeFixtureStylePath() ) ) {
+			$stylesheets = [ self::THEME_FIXTURE_STYLESHEET ];
+		}
+
+		if ( \count( $stylesheets ) < $minimum ) {
+			$this->markTestSkipped( 'Not enough installed themes are available for this integration fixture.' );
+		}
+
+		return \array_slice( $stylesheets, 0, $minimum );
+	}
+
+	private function ensureInstalledThemeFixture() :void {
+		$themeDir = \dirname( $this->themeFixtureStylePath() );
+		$styleCss = $this->themeFixtureStylePath();
+		if ( !\is_dir( $themeDir ) ) {
+			\wp_mkdir_p( $themeDir );
+		}
+		if ( \function_exists( 'register_theme_directory' ) ) {
+			\register_theme_directory( \trailingslashit( WP_CONTENT_DIR ).'themes' );
+		}
+		if ( !\file_exists( $styleCss ) ) {
+			\file_put_contents( $styleCss, "/*\nTheme Name: Shield Integration Theme\n*/\n" );
+			$this->tempPaths[] = $styleCss;
+		}
+		if ( \function_exists( 'wp_clean_themes_cache' ) ) {
+			\wp_clean_themes_cache( true );
+		}
+	}
+
+	private function themeFixtureStylePath() :string {
+		return \trailingslashit( WP_CONTENT_DIR ).'themes/'.self::THEME_FIXTURE_STYLESHEET.'/style.css';
 	}
 
 	/**

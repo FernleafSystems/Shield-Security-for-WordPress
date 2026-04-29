@@ -92,6 +92,10 @@ class Capabilities {
 		return $this->hasCap( 'scan_pluginsthemes_remote' );
 	}
 
+	public function canScanVulnerabilities() :bool {
+		return $this->hasCap( 'scan_vulnerabilities' );
+	}
+
 	public function canMainwpLevel1() :bool {
 		return $this->hasCap( 'mainwp_level_1' ) || $this->canMainwpLevel2();
 	}

@@ -151,7 +151,9 @@ class ActionsQueueGroupSeedCollector {
 		$seeds[ $seedKey ][ 'attention_items' ][] = $item;
 
 		if ( ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( $item[ 'key' ] ) ) {
-			unset( $seeds[ $seedKey ][ 'render_action_data_override' ] );
+			$seeds[ $seedKey ][ 'render_action_data_override' ] = $this->queueScanResultsOptions->buildExplicitActionData(
+				$this->queueScanResultsOptions->ignoredOnly()
+			);
 			$seeds[ $seedKey ][ 'context_actions_override' ] = [];
 		}
 		else {
@@ -211,7 +213,8 @@ class ActionsQueueGroupSeedCollector {
 					StatusPriority::normalize( $ignoredItem[ 'severity' ], 'warning' ),
 					$this->queueScanResultsOptions->buildSubjectActionData(
 						$summary[ 'subject_type' ],
-						$summary[ 'subject_id' ]
+						$summary[ 'subject_id' ],
+						$this->queueScanResultsOptions->ignoredOnly()
 					),
 					[ $ignoredItem ],
 					true

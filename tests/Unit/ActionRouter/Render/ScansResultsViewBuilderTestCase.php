@@ -227,18 +227,6 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		return $this->vulnerabilities;
 	}
 
-	protected function isPluginsRailTabEnabled() :bool {
-		return $this->pluginsEnabled;
-	}
-
-	protected function isThemesRailTabEnabled() :bool {
-		return $this->themesEnabled;
-	}
-
-	protected function isVulnerabilitiesRailTabEnabled() :bool {
-		return $this->vulnerabilitiesEnabled;
-	}
-
 	protected function getProblemFileLocks() :array {
 		return $this->problemLocks;
 	}
@@ -275,6 +263,9 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 			case 'vulnerabilities':
 				$isAvailable = $this->vulnerabilitiesEnabled;
 				break;
+			case 'abandoned':
+				$isAvailable = false;
+				break;
 			case 'file_locker':
 				$isAvailable = true;
 				break;
@@ -285,8 +276,8 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 
 		return [
 			'is_available'          => $isAvailable,
-			'show_in_actions_queue' => \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'file_locker' ], true ),
-			'show_in_fix_now'       => \in_array( $tabKey, [ 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'file_locker' ], true ),
+			'show_in_actions_queue' => \in_array( $tabKey, [ 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'malware', 'file_locker' ], true ),
+			'show_in_fix_now'       => \in_array( $tabKey, [ 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'malware', 'file_locker' ], true ),
 			'disabled_reason'       => '',
 			'disabled_message'      => '',
 			'disabled_status'       => 'neutral',

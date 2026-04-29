@@ -2,7 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueScanResultsTableBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScansResultsViewBuilder;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Wordpress extends Base {
 
@@ -11,23 +12,33 @@ class Wordpress extends Base {
 
 	protected function getRenderTemplate() :string {
 		return $this->isActionsQueueDisplayContext()
-			? '/wpadmin/components/scans/scan_results_table.twig'
+			? '/wpadmin_pages/insights/scans/results/scan_results_access_detail.twig'
 			: parent::getRenderTemplate();
 	}
 
 	protected function getRenderData() :array {
 		if ( $this->isActionsQueueDisplayContext() ) {
-			return [
-				'table' => $this->buildScanResultsTableBuilder()->buildWordpressTable(
-					$this->getActionsQueueExplicitResultsDisplayOptions()
-				),
-			];
+			return $this->buildScansResultsViewBuilder()->buildActionsQueueDirectTablePane(
+				'wordpress',
+				$this->getActionsQueueExplicitResultsDisplayOptions()
+			);
 		}
 
-		return parent::getRenderData();
+		$pane = $this->buildScansResultsViewBuilder()->buildRailPaneData( 'wordpress' );
+
+		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
+			'strings' => [
+				'no_issues' => __( "Previous scans didn't detect any modified or missing WordPress core files.", 'wp-simple-firewall' ),
+			],
+			'vars'    => [
+				'count_items' => $pane[ 'count_items' ],
+			],
+			'tab'     => $pane,
+			'content' => [],
+		] );
 	}
 
-	protected function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
-		return new ActionsQueueScanResultsTableBuilder();
+	protected function buildScansResultsViewBuilder() :ScansResultsViewBuilder {
+		return new ScansResultsViewBuilder();
 	}
 }
