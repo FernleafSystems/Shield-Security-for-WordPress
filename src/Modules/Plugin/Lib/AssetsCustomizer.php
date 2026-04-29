@@ -148,6 +148,20 @@ class AssetsCustomizer {
 					],
 				],
 			],
+			'dashboard_widget' => [
+				'key'     => 'dashboard_widget',
+				'handles' => [
+					'wpadmin',
+				],
+				'data'    => [
+					'ajax'    => [
+						'render' => ActionData::BuildAjaxRender( Components\Widgets\WpDashboardSummary::class ),
+					],
+					'strings' => [
+						'load_failed' => __( 'There was a problem loading the content.', 'wp-simple-firewall' ),
+					],
+				],
+			],
 			'debug_tools'      => [
 				'key'     => 'debug_tools',
 				'handles' => [

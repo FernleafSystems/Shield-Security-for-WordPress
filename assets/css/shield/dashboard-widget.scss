@@ -27,6 +27,14 @@
   margin: 0;
 }
 
+#ShieldDashboardWidget .shield-dashboard-widget__loading {
+  align-items: center;
+  color: var(--shield-widget-muted);
+  display: flex;
+  justify-content: center;
+  min-height: 120px;
+}
+
 #ShieldDashboardWidget .shield-dashboard-widget__card {
   background: var(--shield-widget-surface);
   border: 1px solid var(--shield-widget-border);

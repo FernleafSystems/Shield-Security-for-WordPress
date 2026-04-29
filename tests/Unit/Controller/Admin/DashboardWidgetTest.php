@@ -29,6 +29,8 @@ class DashboardWidgetTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => $text );
 		$this->servicesSnapshot = ServicesState::snapshot();
 	}
 
@@ -62,6 +64,27 @@ class DashboardWidgetTest extends BaseUnitTest {
 		$this->assertFalse( $this->canRun() );
 	}
 
+	public function test_widget_callback_emits_async_placeholder_without_rendering_summary() :void {
+		$this->installEnvironment( true, true, true );
+
+		$callback = null;
+		Functions\when( 'wp_add_dashboard_widget' )->alias(
+			static function ( string $id, string $title, callable $widgetCallback ) use ( &$callback ) :void {
+				$callback = $widgetCallback;
+			}
+		);
+
+		$this->invokeNonPublicMethod( new DashboardWidget(), 'createWidget' );
+
+		$this->assertIsCallable( $callback );
+		\ob_start();
+		$callback();
+		$output = (string)\ob_get_clean();
+
+		$this->assertStringContainsString( 'id="ShieldDashboardWidget"', $output );
+		$this->assertStringContainsString( 'aria-busy="true"', $output );
+	}
+
 	private function canRun() :bool {
 		return (bool)$this->invokeNonPublicMethod( new DashboardWidget(), 'canRun' );
 	}
@@ -93,8 +116,18 @@ class DashboardWidgetTest extends BaseUnitTest {
 				$this->cfg = (object)[
 					'properties' => [
 						'show_dashboard_widget' => true,
+						'slug_parent'           => 'icwp',
+						'slug_plugin'           => 'wpsf',
 					],
 				];
+				$this->labels = (object)[
+					'Name' => 'Shield',
+				];
+				$this->action_router = new class {
+					public function render( string $renderAction ) :string {
+						throw new \RuntimeException( 'Dashboard widget must load summary asynchronously.' );
+					}
+				};
 			}
 
 			public function isValidAdminArea( bool $checkUserPerms = false ) :bool {

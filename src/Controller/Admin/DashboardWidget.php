@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\WpDashboardSummary;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -32,8 +31,8 @@ class DashboardWidget {
 			apply_filters( 'shield/dashboard_widget_title', sprintf( '%s: %s', $con->labels->Name, __( 'Actions Queue', 'wp-simple-firewall' ) ) ),
 			function () {
 				echo sprintf(
-					'<div id="ShieldDashboardWidget">%s</div>',
-					self::con()->action_router->render( WpDashboardSummary::class )
+					'<div id="ShieldDashboardWidget" aria-busy="true"><div class="shield-dashboard-widget__loading">%s...</div></div>',
+					esc_html__( 'Loading', 'wp-simple-firewall' )
 				);
 			}
 		);

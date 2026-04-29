@@ -11,6 +11,11 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Plugin\Lib;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Actions\AjaxRender,
+	Actions\Render\Components\Widgets\WpDashboardSummary
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -121,6 +126,20 @@ class AssetsCustomizerTest extends BaseUnitTest {
 			'dynamic_load',
 			\is_callable( $naviComp[ 'data' ] ?? null ) ? \call_user_func( $naviComp[ 'data' ] )[ 'ajax' ] ?? [] : $naviComp[ 'data' ][ 'ajax' ] ?? []
 		);
+	}
+
+	public function test_dashboard_widget_component_defines_wpadmin_ajax_render_contract() :void {
+		$this->installEnvironment();
+
+		$dashboardWidgetComp = $this->getComponentDefinition( 'dashboard_widget' );
+
+		$this->assertContains( 'wpadmin', $dashboardWidgetComp[ 'handles' ] ?? [] );
+		$renderAjax = $dashboardWidgetComp[ 'data' ][ 'ajax' ][ 'render' ] ?? [];
+
+		$this->assertSame( AjaxRender::SLUG, $renderAjax[ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( WpDashboardSummary::SLUG, $renderAjax[ 'render_slug' ] ?? '' );
+		$this->assertIsString( $dashboardWidgetComp[ 'data' ][ 'strings' ][ 'load_failed' ] ?? null );
+		$this->assertNotSame( '', $dashboardWidgetComp[ 'data' ][ 'strings' ][ 'load_failed' ] ?? '' );
 	}
 
 	private function installEnvironment( array $query = [], array $completedTours = [] ) :void {
