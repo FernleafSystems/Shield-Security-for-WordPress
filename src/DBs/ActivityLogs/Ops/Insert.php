@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops;
+namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\Ops;
 
 use FernleafSystems\Wordpress\Services\Services;
 

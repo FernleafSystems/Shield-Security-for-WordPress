@@ -6,10 +6,10 @@ use Monolog\Handler\AbstractProcessingHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ActivityLogs\Ops as LogsDB,
 	ActivityLogsMeta\Ops as MetaDB,
-	ReqLogs\Ops as ReqLogsDB,
-	ReqLogs\RequestRecords
+	ReqLogs\Ops as ReqLogsDB
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -43,15 +43,9 @@ class LocalDbWriter extends AbstractProcessingHandler {
 				$metas[ 'audit_count' ] = 1;
 			}
 
-			$dbhMeta = self::con()->db_con->activity_logs_meta;
-			/** @var MetaDB\Record $metaRecord */
-			$metaRecord = $dbhMeta->getRecord();
-			$metaRecord->log_ref = $log->id;
-			foreach ( $metas as $metaKey => $metaValue ) {
-				$metaRecord->meta_key = $metaKey;
-				$metaRecord->meta_value = $metaValue;
-				$dbhMeta->getQueryInserter()->insert( $metaRecord );
-			}
+			/** @var MetaDB\Insert $metaInserter */
+			$metaInserter = self::con()->db_con->activity_logs_meta->getQueryInserter();
+			$metaInserter->insertManyForLog( $log->id, $metas );
 			$this->triggerRequestLogger();
 		}
 		catch ( \Exception $e ) {
@@ -69,40 +63,40 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$ipRecordID = ( new IPRecords() )
 			->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] )
 			->id;
-		/** @var ReqLogsDB\Select $reqSelector */
-		$reqSelector = $dbCon->req_logs->getQuerySelector();
-		$reqIDs = \array_map(
-			function ( $rawRecord ) {
-				return $rawRecord->id;
-			},
-			(array)$reqSelector->filterByIP( $ipRecordID )
-							   ->setColumnsToSelect( [ 'id' ] )
-							   ->queryWithResult()
-		);
+		$wpdb = Services::WpDb()->loadWpdb();
+		$existingLogID = (int)$wpdb->get_var( $wpdb->prepare(
+			sprintf(
+				"SELECT `log`.`id`
+					FROM `%s` AS `log`
+					INNER JOIN `%s` AS `req` ON `req`.`id`=`log`.`req_ref`
+					WHERE `log`.`event_slug`=%%s
+						AND `req`.`ip_ref`=%%d
+						AND `log`.`created_at`>%%d
+					ORDER BY `log`.`updated_at` DESC, `log`.`created_at` DESC
+					LIMIT 1",
+				$dbCon->activity_logs->getTable(),
+				$dbCon->req_logs->getTable()
+			),
+			$this->log[ 'context' ][ 'event_slug' ],
+			$ipRecordID,
+			Services::Request()->carbon()->subDay()->timestamp
+		) );
 
-		/** @var LogsDB\Select $select */
-		$select = $dbCon->activity_logs->getQuerySelector();
-		/** @var ?LogsDB\Record $existingLog */
-		$existingLog = $select->filterByEvent( $this->log[ 'context' ][ 'event_slug' ] )
-							  ->filterByRequestRefs( $reqIDs )
-							  ->filterByCreatedAt( Services::Request()->carbon()->subDay()->timestamp, '>' )
-							  ->setOrderBy( 'updated_at', 'DESC', true )
-							  ->setOrderBy( 'created_at' )
-							  ->first();
-
-		if ( !empty( $existingLog ) ) {
-			Services::WpDb()->doSql(
-				sprintf( "UPDATE `%s` SET `meta_value` = `meta_value`+1
-					WHERE `log_ref`=%s
-						AND `meta_key`='audit_count'
-				", $dbCon->activity_logs_meta->getTable(), $existingLog->id )
-			);
+		if ( $existingLogID > 0 ) {
+			$wpdb->query( $wpdb->prepare(
+				sprintf( "UPDATE `%s` SET `meta_value`=CAST(`meta_value` AS UNSIGNED)+1
+					WHERE `log_ref`=%%d
+						AND `meta_key`=%%s
+				", $dbCon->activity_logs_meta->getTable() ),
+				$existingLogID,
+				'audit_count'
+			) );
 			// this can fail under load, but doesn't actually matter:
-			$dbCon->activity_logs->getQueryUpdater()->updateById( $existingLog->id, [
+			$dbCon->activity_logs->getQueryUpdater()->updateById( $existingLogID, [
 				'updated_at' => Services::Request()->ts()
 			] );
 		}
-		return !empty( $existingLog );
+		return $existingLogID > 0;
 	}
 
 	/**
@@ -115,31 +109,34 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		$record->event_slug = $this->log[ 'context' ][ 'event_slug' ];
 		$record->site_id = $this->log[ 'extra' ][ 'meta_wp' ][ 'site_id' ];
 
-		// Create the underlying request log.
-		self::con()->comps->requests_log->createDependentLog();
-
-		$requestRecord = ( new RequestRecords() )->loadReq(
-			$this->log[ 'extra' ][ 'meta_request' ][ 'rid' ],
-			( new IPRecords() )
-				->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )
-				->id
-		);
+		$requestRecord = self::con()->comps->requests_log->createDependentLog()
+						 ?? $this->loadCurrentRequestRecordFromUpgradeCompatibilityPath();
 		if ( empty( $requestRecord ) ) {
 			throw new \Exception( __( 'No dependent request record found or created.', 'wp-simple-firewall' ) );
 		}
 
 		$record->req_ref = $requestRecord->id;
 
-		$success = $dbh->getQueryInserter()->insert( $record );
-		if ( !$success ) {
+		/** @var LogsDB\Insert $inserter */
+		$inserter = $dbh->getQueryInserter();
+		$log = $inserter->insertGetRecord( $record );
+		if ( empty( $log ) ) {
 			throw new \Exception( __( 'Failed to insert.', 'wp-simple-firewall' ) );
 		}
-
-		/** @var ?LogsDB\Record $log */
-		$log = $dbh->getQuerySelector()->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
-		if ( empty( $log ) ) {
-			throw new \Exception( __( 'Could not load log record.', 'wp-simple-firewall' ) );
-		}
 		return $log;
+	}
+
+	private function loadCurrentRequestRecordFromUpgradeCompatibilityPath() :?ReqLogsDB\Record {
+		try {
+			return ( new RequestRecords() )->loadReq(
+				$this->log[ 'extra' ][ 'meta_request' ][ 'rid' ],
+				( new IPRecords() )
+					->loadIP( $this->log[ 'extra' ][ 'meta_request' ][ 'ip' ] ?? '' )
+					->id
+			);
+		}
+		catch ( \Exception $e ) {
+			return null;
+		}
 	}
 }

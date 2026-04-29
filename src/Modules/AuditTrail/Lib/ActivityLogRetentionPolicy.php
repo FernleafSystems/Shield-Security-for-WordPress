@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ActivityLogRetentionPolicy {
 
@@ -86,6 +87,25 @@ class ActivityLogRetentionPolicy {
 			fn( string $level ) => \in_array( $level, $available, true )
 		) );
 		return empty( $levels ) ? [ 'warning', 'notice', 'info' ] : $levels;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function dbWriteLevels() :array {
+		$levels = [
+			'warning',
+			'notice',
+		];
+
+		if ( Services::WpGeneral()->isDebug() ) {
+			$levels[] = 'info';
+		}
+
+		return \array_values( \array_unique( \array_filter(
+			(array)apply_filters( 'shield/activity_logs/db_write_levels', $levels ),
+			fn( $level ) => \is_string( $level ) && \in_array( $level, [ 'warning', 'notice', 'info' ], true )
+		) ) );
 	}
 
 	/**

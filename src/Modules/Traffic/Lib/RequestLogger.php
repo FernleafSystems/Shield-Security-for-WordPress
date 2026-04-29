@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
 use Monolog\Logger;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops as ReqLogsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -19,6 +20,8 @@ class RequestLogger {
 	private bool $hasLogged = false;
 
 	private bool $isDependentLog = false;
+
+	private ?ReqLogsDB\Record $lastLoggedRecord = null;
 
 	protected function canRun(): bool {
 		$con = self::con();
@@ -59,12 +62,12 @@ class RequestLogger {
 		return $isLogged;
 	}
 
-	public function createDependentLog(): void {
+	public function createDependentLog(): ?ReqLogsDB\Record {
 		$this->isDependentLog = true;
-		$this->createLog();
+		return $this->createLog();
 	}
 
-	private function createLog() {
+	private function createLog() :?ReqLogsDB\Record {
 		if ( !$this->hasLogged ) {
 			try {
 				( new Monolog() )->assess();
@@ -78,15 +81,22 @@ class RequestLogger {
 				$this->hasLogged = true;
 			}
 		}
+		return $this->lastLoggedRecord;
 	}
 
 	private function initLogger() {
-		$this->getLogger()->pushHandler( new LogHandlers\LocalDbWriter() );
+		$handler = new LogHandlers\LocalDbWriter();
+		$handler->setRequestLogger( $this );
+		$this->getLogger()->pushHandler( $handler );
 		$this->pushCustomHandlers();
 	}
 
 	public function isDependentLog(): bool {
 		return $this->isDependentLog;
+	}
+
+	public function setLastLoggedRecord( ?ReqLogsDB\Record $record ) :void {
+		$this->lastLoggedRecord = $record;
 	}
 
 	private function pushCustomHandlers() {

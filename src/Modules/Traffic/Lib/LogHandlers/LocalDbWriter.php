@@ -4,9 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\LogHandler
 
 use Monolog\Handler\AbstractProcessingHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops as ReqLogsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogRetentionPolicy;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\{
+	RequestLogger,
+	RequestLogRetentionPolicy
+};
 
 /**
  * Request logs are tiered during write so pruning can retain high-signal requests longer without user configuration.
@@ -15,9 +19,19 @@ class LocalDbWriter extends AbstractProcessingHandler {
 
 	use PluginControllerConsumer;
 
+	private ?RequestLogger $requestLogger = null;
+
+	public function setRequestLogger( RequestLogger $requestLogger ) :self {
+		$this->requestLogger = $requestLogger;
+		return $this;
+	}
+
 	protected function write( array $record ) :void {
 		try {
-			$this->createPrimaryLogRecord( $record );
+			$reqRecord = $this->createPrimaryLogRecord( $record );
+			if ( $this->requestLogger instanceof RequestLogger ) {
+				$this->requestLogger->setLastLoggedRecord( $reqRecord );
+			}
 		}
 		catch ( \Exception $e ) {
 		}
@@ -26,7 +40,7 @@ class LocalDbWriter extends AbstractProcessingHandler {
 	/**
 	 * @throws \Exception
 	 */
-	protected function createPrimaryLogRecord( array $logData ) :bool {
+	protected function createPrimaryLogRecord( array $logData ) :ReqLogsDB\Record {
 		$ipRecord = ( new IPRecords() )->loadIP( $logData[ 'extra' ][ 'meta_request' ][ 'ip' ] );
 
 		$reqRecord = ( new RequestRecords() )->loadReq(
@@ -60,6 +74,6 @@ class LocalDbWriter extends AbstractProcessingHandler {
 			throw new \Exception( 'Failed to insert' );
 		}
 
-		return true;
+		return $reqRecord;
 	}
 }

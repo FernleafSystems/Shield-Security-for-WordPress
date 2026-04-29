@@ -529,6 +529,25 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame( $before + 1, $this->rowCount( 'req_logs' ) );
 	}
 
+	public function test_plain_home_get_without_params_is_not_logged_when_live_log_and_limiter_are_disabled() :void {
+		$this->requireController()->opts
+			 ->optSet( 'enable_logger', 'Y' )
+			 ->optSet( 'enable_live_log', 'N' )
+			 ->optSet( 'enable_limiter', 'N' )
+			 ->optSet( 'live_log_started_at', 0 );
+
+		$this->applyCurrentRequestState(
+			[
+				'REQUEST_METHOD' => 'GET',
+				'REQUEST_URI'    => '/',
+			],
+			[],
+			[]
+		);
+
+		$this->assertFalse( ( new RequestLogger() )->isLogged() );
+	}
+
 	private function rowCount( string $dbKey ) :int {
 		global $wpdb;
 		return (int)$wpdb->get_var(
