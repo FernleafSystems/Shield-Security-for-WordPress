@@ -178,7 +178,7 @@ class AjaxBatchRequests extends BaseAction {
 
 		return [
 			'status_code' => $statusCode,
-			'payload'     => \is_array( $payload ) ? $payload : [],
+			'payload'     => $payload,
 		];
 	}
 

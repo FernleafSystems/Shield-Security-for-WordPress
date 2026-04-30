@@ -47,7 +47,7 @@ class LoginIntentFormFieldBase extends \FernleafSystems\Wordpress\Plugin\Shield\
 		$field[ 'text' ] = (string)( $field[ 'text' ] ?? '' );
 		$field[ 'element' ] = $field[ 'element' ] ?? 'input';
 		$field[ 'hidden_input_name' ] = (string)( $field[ 'hidden_input_name' ] ?? '' );
-		$field[ 'id' ] = $field[ 'id' ] ?? (string)( $field[ 'name' ] ?? '' );
+		$field[ 'id' ] = $field[ 'id' ] ?? $field[ 'name' ];
 		$field[ 'value' ] = (string)( $field[ 'value' ] ?? '' );
 		$field[ 'placeholder' ] = (string)( $field[ 'placeholder' ] ?? '' );
 		$field[ 'description' ] = (string)( $field[ 'description' ] ?? '' );

@@ -40,7 +40,7 @@ class MfaPasskeyAuthenticationStart extends MfaLoginFlowBase {
 			$response[ 'message' ] = __( 'There was a problem preparing the Passkey Auth Challenge.', 'wp-simple-firewall' );
 		}
 
-		$payloadSuccess = (bool)( $response[ 'success' ] ?? false );
+		$payloadSuccess = $response[ 'success' ];
 		unset( $response[ 'success' ] );
 
 		$this->response()

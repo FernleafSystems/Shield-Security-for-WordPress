@@ -184,7 +184,7 @@ class LiveLogRowsBuilder {
 	private function buildTrafficUserLabel( RequestLogRecord $record ) :string {
 		$user = Services::WpUsers()->getUserById( $record->uid );
 
-		return \is_object( $user ) && isset( $user->user_login ) && \is_string( $user->user_login ) && $user->user_login !== ''
+		return \is_object( $user ) && isset( $user->user_login ) && $user->user_login !== ''
 			? $user->user_login
 			: \sprintf( 'ID %d', $record->uid );
 	}

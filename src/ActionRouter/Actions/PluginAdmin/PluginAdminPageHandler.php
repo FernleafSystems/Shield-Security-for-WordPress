@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginAdminPageHandler extends Actions\BaseAction {
-
 	use NonceVerifyNotRequired;
 	use SecurityAdminNotRequired;
 
@@ -24,7 +23,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 	protected function exec() {
 		if ( !Services::WpGeneral()->isAjax()
-			 && apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
+		     && apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
 
 			add_action( 'admin_menu', function () {
 				if ( !Services::WpGeneral()->isMultisite() && is_admin() ) {
@@ -44,7 +43,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 	/**
 	 * In order to prevent certain errors when the back button is used
-	 * @param array $h
+	 * @param array|mixed $h
 	 * @return array
 	 */
 	public function adjustNocacheHeaders( $h ) {

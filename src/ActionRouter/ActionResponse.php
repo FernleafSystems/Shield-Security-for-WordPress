@@ -47,8 +47,7 @@ class ActionResponse extends Response {
 	}
 
 	public function mergePayload( array $payload ) :self {
-		$existing = $this->action_response_data;
-		$this->action_response_data = \array_merge( \is_array( $existing ) ? $existing : [], $payload );
+		$this->action_response_data = \array_merge( $this->action_response_data, $payload );
 		return $this;
 	}
 
@@ -68,9 +67,6 @@ class ActionResponse extends Response {
 	}
 
 	public function payload() :array {
-		if ( !\is_array( $this->action_response_data ) ) {
-			$this->action_response_data = [];
-		}
 		return $this->action_response_data;
 	}
 }

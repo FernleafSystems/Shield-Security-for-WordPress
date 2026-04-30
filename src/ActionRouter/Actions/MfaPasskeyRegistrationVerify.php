@@ -37,7 +37,7 @@ class MfaPasskeyRegistrationVerify extends MfaUserConfigBase {
 			];
 		}
 
-		$payloadSuccess = (bool)( $response[ 'success' ] ?? false );
+		$payloadSuccess = $response[ 'success' ];
 		unset( $response[ 'success' ] );
 
 		$this->response()

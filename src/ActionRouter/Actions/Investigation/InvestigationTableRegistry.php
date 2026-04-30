@@ -56,7 +56,6 @@ class InvestigationTableRegistry {
 	}
 
 	public static function getAllowedSubjectTypes( string $tableType ) :array {
-		$subjects = self::tableMap()[ $tableType ][ 'subjects' ] ?? [];
-		return \is_array( $subjects ) ? \array_values( $subjects ) : [];
+		return \array_values( self::tableMap()[ $tableType ][ 'subjects' ] ?? [] );
 	}
 }
