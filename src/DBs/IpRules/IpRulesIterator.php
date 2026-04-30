@@ -5,13 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules;
 use Elliotchance\Iterator\AbstractPagedIterator;
 
 class IpRulesIterator extends AbstractPagedIterator {
+	protected LoadIpRules $loader;
 
-	/**
-	 * @var LoadIpRules
-	 */
-	protected $loader;
-
-	protected $pageSize = 1000;
+	protected int $pageSize = 1000;
 
 	protected $useCache = false;
 
@@ -22,17 +18,14 @@ class IpRulesIterator extends AbstractPagedIterator {
 		return parent::current();
 	}
 
-	/**
-	 * @var int
-	 */
-	protected $total;
+	protected int $total;
 
 	public function getPageSize() {
 		return $this->pageSize;
 	}
 
 	public function getTotalSize() {
-		return $this->total ?? $this->total = $this->getLoader()->countAll();
+		return $this->total ??= $this->getLoader()->countAll();
 	}
 
 	/**
@@ -45,7 +38,7 @@ class IpRulesIterator extends AbstractPagedIterator {
 		return \array_values( $this->getLoader()->select() );
 	}
 
-	public function getLoader() :LoadIpRules {
-		return $this->loader ?? $this->loader = new LoadIpRules();
+	public function getLoader(): LoadIpRules {
+		return $this->loader ??= new LoadIpRules();
 	}
 }

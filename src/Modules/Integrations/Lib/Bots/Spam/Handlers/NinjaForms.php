@@ -55,6 +55,7 @@ class NinjaForms extends Base {
 	 */
 	private function canAddDirectlyToActionsProperty() :bool {
 		$can = false;
+		// @phpstan-ignore-next-line
 		if ( \method_exists( \Ninja_Forms::class, 'instance' ) ) {
 			try {
 				$can = ( new \ReflectionClass( \Ninja_Forms::class ) )->getProperty( 'actions' )->isPublic();

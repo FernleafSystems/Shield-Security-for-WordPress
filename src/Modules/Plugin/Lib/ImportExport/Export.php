@@ -18,7 +18,6 @@ class Export {
 			switch ( $method ) {
 				case 'json':
 					$this->toJson();
-					break;
 				default:
 					throw new \Exception();
 			}
@@ -80,8 +79,6 @@ class Export {
 			'message' => $msg,
 			'data'    => $data,
 		], 403 );
-		/** it dies within wp_send_json_error(); but just to make sure regardless */
-		die();
 	}
 
 	/**

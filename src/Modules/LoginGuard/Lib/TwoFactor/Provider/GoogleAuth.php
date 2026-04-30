@@ -21,23 +21,10 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 	private const COMPAT_MIN_SECRET_LENGTH = 16;
 	private const GENERATED_SECRET_LENGTH = 32;
 
-	/**
-	 * @var Secret
-	 */
-	private $tempSecret;
+	private Secret $tempSecret;
 
 	public static function ProviderEnabled(): bool {
 		return parent::ProviderEnabled() && self::con()->opts->optIs( 'enable_google_authenticator', 'Y' );
-	}
-
-	protected function maybeMigrate(): void {
-		$meta = self::con()->user_metas->for( $this->getUser() );
-		$legacySecret = \trim( (string)$meta->ga_secret );
-		if ( !empty( $legacySecret ) && $meta->ga_validated && self::IsValidBase32Secret( $legacySecret )
-		     && ( $this->hasValidSecret() || $this->createNewSecretRecord( $legacySecret, 'Google Auth' ) ) ) {
-			unset( $meta->ga_secret );
-			unset( $meta->ga_validated );
-		}
 	}
 
 	public function getJavascriptVars(): array {

@@ -26,12 +26,10 @@ class ClassDependencyGuard {
 	}
 
 	private function includePrefixedVendorIfAvailable() :void {
-		if ( \method_exists( self::con(), 'includePrefixedVendor' ) ) {
-			try {
-				self::con()->includePrefixedVendor();
-			}
-			catch ( Exceptions\LibraryPrefixedAutoloadNotFoundException $e ) {
-			}
+		try {
+			self::con()->includePrefixedVendor();
+		}
+		catch ( Exceptions\LibraryPrefixedAutoloadNotFoundException $e ) {
 		}
 	}
 }

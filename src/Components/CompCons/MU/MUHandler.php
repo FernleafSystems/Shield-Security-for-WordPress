@@ -7,14 +7,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class MUHandler {
-
 	use ExecOnce;
 	use PluginControllerConsumer;
 
 	public const PLUGIN_FILE_NAME = 'a-shield-mu.php';
-
 	private const OPT_ENABLE_MU = 'enable_mu';
-
 	private const SECTION_WHITE_LABEL = 'section_whitelabel';
 
 	public function execute() {
@@ -28,7 +25,7 @@ class MUHandler {
 		}
 	}
 
-	public function rewriteOnWhiteLabelOptionSave() :void {
+	public function rewriteOnWhiteLabelOptionSave(): void {
 		if ( self::con()->opts->optIs( self::OPT_ENABLE_MU, 'Y' ) && $this->hasWhiteLabelOptionChange() ) {
 			unset( self::con()->labels );
 			$this->run();
@@ -46,14 +43,17 @@ class MUHandler {
 		}
 	}
 
-	public function isActiveMU() :bool {
+	/**
+	 * @phpstan-impure
+	 */
+	public function isActiveMU(): bool {
 		return Services::WpFs()->isAccessibleFile( $this->getMuFilePath() );
 	}
 
 	/**
 	 * @throws \Exception
 	 */
-	public function convertToStandard() :bool {
+	public function convertToStandard(): bool {
 		if ( $this->isActiveMU() ) {
 			$file = $this->getMuFilePath();
 			Services::WpFs()->deleteFile( $file );
@@ -64,7 +64,7 @@ class MUHandler {
 		return !$this->isActiveMU();
 	}
 
-	private function hasWhiteLabelOptionChange() :bool {
+	private function hasWhiteLabelOptionChange(): bool {
 		$opts = self::con()->opts;
 
 		foreach ( self::con()->cfg->configuration->options as $optKey => $optDef ) {
@@ -79,7 +79,7 @@ class MUHandler {
 	/**
 	 * @throws \Exception
 	 */
-	public function convertToMU() :bool {
+	public function convertToMU(): bool {
 		$FS = Services::WpFs();
 
 		if ( !Services::WpGeneral()->getWordpressIsAtLeastVersion( '5.6' ) ) {
@@ -115,11 +115,11 @@ class MUHandler {
 		return $this->isActiveMU();
 	}
 
-	private function getMuFilePath() :string {
+	private function getMuFilePath(): string {
 		return path_join( $this->getMuDir(), self::PLUGIN_FILE_NAME );
 	}
 
-	private function getMuDir() :string {
+	private function getMuDir(): string {
 		return \defined( 'WPMU_PLUGIN_DIR' ) ? WPMU_PLUGIN_DIR :
 			path_join( \dirname( self::con()->getRootDir(), 2 ), 'mu-plugins' );
 	}
@@ -127,7 +127,7 @@ class MUHandler {
 	/**
 	 * @throws \Exception
 	 */
-	private function buildContent() :string {
+	private function buildContent(): string {
 		$con = self::con();
 		$templateFile = path_join( __DIR__, '.mu-template.txt' );
 		$template = Services::WpFs()->getFileContent( $templateFile );

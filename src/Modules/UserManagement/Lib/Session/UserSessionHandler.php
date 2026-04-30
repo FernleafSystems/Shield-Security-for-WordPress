@@ -10,12 +10,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UserSessionHandler {
-
 	use ExecOnce;
 	use PluginControllerConsumer;
 	use WpLoginCapture;
 
-	protected function canRun() :bool {
+	protected function canRun(): bool {
 		return !self::con()->this_req->request_bypasses_all_restrictions;
 	}
 
@@ -36,12 +35,12 @@ class UserSessionHandler {
 	 * Only show Go To Admin link for Authors+
 	 * @param string|mixed $msg
 	 */
-	public function printLinkToAdmin( $msg = '' ) :string {
+	public function printLinkToAdmin( $msg = '' ): string {
 		$user = Services::WpUsers()->getCurrentWpUser();
 
 		if ( \in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
-			 && $user instanceof \WP_User
-			 && self::con()->comps->session->current()->valid
+		     && $user instanceof \WP_User
+		     && self::con()->comps->session->current()->valid
 		) {
 			$msg .= sprintf( '<p class="message">%s %s<br />%s</p>',
 				__( "You're already logged-in.", 'wp-simple-firewall' ),
@@ -61,8 +60,8 @@ class UserSessionHandler {
 		$sendUser = self::con()->opts->optIs( 'enable_user_login_email_notification', 'Y' );
 
 		if ( $adminAlertData !== null
-			 && $sendUser
-			 && \strtolower( $user->user_email ) === \strtolower( self::con()->comps->opts_lookup->getReportEmail() ) ) {
+		     && $sendUser
+		     && \strtolower( $user->user_email ) === \strtolower( self::con()->comps->opts_lookup->getReportEmail() ) ) {
 			$sendUser = false;
 		}
 
@@ -100,19 +99,17 @@ class UserSessionHandler {
 			}
 		}
 		catch ( \Exception $e ) {
-			if ( !$srvIP->isLoopback() ) {
-				$event = $e->getMessage();
+			$event = $e->getMessage();
 
-				$con->comps->events->fireEvent( $event, [
-					'audit_params' => [
-						'user_login' => Services::WpUsers()->getCurrentWpUser()->user_login
-					]
-				] );
+			$con->comps->events->fireEvent( $event, [
+				'audit_params' => [
+					'user_login' => Services::WpUsers()->getCurrentWpUser()->user_login
+				]
+			] );
 
-				$con->comps->session->terminateCurrentSession();
-				$WPU = Services::WpUsers();
-				is_admin() ? $WPU->forceUserRelogin( [ 'shield-forcelogout' => $event ] ) : $WPU->logoutUser( true );
-			}
+			$con->comps->session->terminateCurrentSession();
+			$WPU = Services::WpUsers();
+			is_admin() ? $WPU->forceUserRelogin( [ 'shield-forcelogout' => $event ] ) : $WPU->logoutUser( true );
 		}
 	}
 

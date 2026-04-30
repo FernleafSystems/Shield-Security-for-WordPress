@@ -9,7 +9,7 @@ class Insert extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Inser
 	public function insertManyForLog( int $logRef, array $metas ) :bool {
 		$metas = \array_filter(
 			$metas,
-			fn( $metaValue, $metaKey ) => \is_scalar( $metaKey ) && (string)$metaKey !== '',
+			fn( $metaValue, $metaKey ) => (string)$metaKey !== '',
 			\ARRAY_FILTER_USE_BOTH
 		);
 		if ( empty( $metas ) ) {

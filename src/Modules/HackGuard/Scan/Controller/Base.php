@@ -21,10 +21,7 @@ abstract class Base {
 
 	public const SCAN_SLUG = '';
 
-	/**
-	 * @var BaseScanActionVO
-	 */
-	private $scanActionVO;
+	private ?BaseScanActionVO $scanActionVO = null;
 
 	protected $latestResults;
 

@@ -85,11 +85,13 @@ class HandleUpgrade {
 				fn() => wp_cache_clean_cache( $file_prefix, true )
 			);
 		}
+		// @phpstan-ignore-next-line
 		if ( \class_exists( '\LiteSpeed\Purge' ) && \method_exists( '\LiteSpeed\Purge', 'purge_all' ) ) {
 			$this->runUpgradeSideEffect( 'cache purge LiteSpeed\Purge::purge_all',
 				fn() => \LiteSpeed\Purge::purge_all()
 			);
 		}
+		// @phpstan-ignore-next-line
 		if ( \class_exists( '\WP_Optimize' ) && \method_exists( '\WP_Optimize', 'get_page_cache' ) ) {
 			$this->runUpgradeSideEffect( 'cache purge WP_Optimize', function () {
 				$wpOptimisePageCache = \WP_Optimize()->get_page_cache();

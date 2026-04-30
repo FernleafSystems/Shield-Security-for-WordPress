@@ -19,17 +19,6 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 		return parent::ProviderEnabled() && self::con()->opts->optIs( 'allow_backupcodes', 'Y' );
 	}
 
-	protected function maybeMigrate() :void {
-		$meta = self::con()->user_metas->for( $this->getUser() );
-		$legacySecret = $meta->backupcode_secret;
-		if ( !empty( $legacySecret ) ) {
-			$this->removeFromProfile();
-			$this->createNewSecretRecord( $legacySecret, 'Backup Code' );
-			unset( $meta->backupcode_secret );
-			unset( $meta->backupcode_validated );
-		}
-	}
-
 	public function isProviderStandalone() :bool {
 		return false;
 	}

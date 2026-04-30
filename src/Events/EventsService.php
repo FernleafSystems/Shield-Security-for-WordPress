@@ -105,7 +105,7 @@ class EventsService {
 
 			$events = \array_filter( $events );
 			foreach ( $events as $evtKey => $evtDef ) {
-				if ( \is_numeric( $evtKey ) || !\is_string( $evtKey ) || !\preg_match( '#^custom_[a-z_]{1,43}$#', $evtKey ) ) {
+				if ( \is_numeric( $evtKey ) || !\preg_match( '#^custom_[a-z_]{1,43}$#', $evtKey ) ) {
 					throw new \Exception( __( "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores.", 'wp-simple-firewall' ) );
 				}
 				if ( !isset( $evtDef[ 'strings' ] ) || !\is_array( $evtDef[ 'strings' ] ) ) {

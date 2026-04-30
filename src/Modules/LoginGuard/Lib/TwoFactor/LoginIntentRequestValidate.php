@@ -71,9 +71,6 @@ class LoginIntentRequestValidate {
 
 		if ( empty( $validatedSlug ) ) {
 			throw new CouldNotValidate2FA();
-			if ( empty( $mfaCon->getActiveLoginIntents( $user )[ $plainNonce ] ) ) {
-				throw new TooManyAttemptsException();
-			}
 		}
 
 		// Always remove intents after success.

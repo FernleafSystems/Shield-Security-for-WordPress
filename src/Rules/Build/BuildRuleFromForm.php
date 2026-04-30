@@ -44,7 +44,6 @@ class BuildRuleFromForm extends BuildRuleBase {
 	/**
 	 * There's a bit of hard-coding of the logic here as we don't have multi-level logic yet. So we just assume a single
 	 * level with no sub-conditions.  Not ideal, but we'll add depth in the future and this will need to be updated.
-	 * @see parseConditionsRecursive()
 	 */
 	private function parseConditions( array $conditionsToParse ) :array {
 		$conditions = [
@@ -110,31 +109,6 @@ class BuildRuleFromForm extends BuildRuleBase {
 			$conditions = \array_pop( $conditions[ 'conditions' ] );
 		}
 
-		return $conditions;
-	}
-
-	private function parseConditionsRecursive( array $conditionsToParse ) :array {
-
-		if ( \count( $conditionsToParse[ 'conditions' ] ) === 1 ) {
-			$singleCondition = \array_pop( $conditionsToParse[ 'conditions' ] );
-			$conditions = [
-				'logic'      => $singleCondition[ 'invert' ][ 'value' ],
-				'conditions' => FindFromSlug::Condition( $singleCondition[ 'value' ] ),
-				'params'     => [],
-			];
-			foreach ( $singleCondition[ 'params' ] as $paramValueDef ) {
-				$singleCondition[ 'params' ][ $paramValueDef[ 'name' ] ] = $paramValueDef[ 'value' ];
-			}
-		}
-		else {
-			$conditions = [
-				'logic'      => $conditionsToParse[ 'conditions_logic' ],
-				'conditions' => [],
-			];
-			foreach ( $conditionsToParse[ 'conditions' ] as $conditionToParse ) {
-				$conditions[ 'conditions' ][] = $this->parseConditions( $conditionToParse );
-			}
-		}
 		return $conditions;
 	}
 

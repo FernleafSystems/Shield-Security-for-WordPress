@@ -25,6 +25,7 @@ abstract class BuildRuleBase {
 			$rule->setConditionsRaw( $this->getConditions() );
 		}
 		else {
+			// @phpstan-ignore assign.propertyType
 			$rule->conditions = $this->getConditions();
 		}
 		$rule->responses = $this->getResponses();

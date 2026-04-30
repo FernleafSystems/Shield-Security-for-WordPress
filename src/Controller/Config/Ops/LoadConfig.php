@@ -36,7 +36,7 @@ class LoadConfig {
 		$pluginVersion = $WPP->getPluginAsVo( self::con()->base_file )->Version;
 
 		$def = $this->parseDef();
-		$rebuild = empty( $def ) || !\is_array( $def ) || ( empty( $def[ 'config_spec' ] ) && empty( $def[ 'configuration' ] ) );
+		$rebuild = empty( $def ) || ( empty( $def[ 'config_spec' ] ) && empty( $def[ 'configuration' ] ) );
 
 		$specHash = $this->buildFileSignature();
 		$previousVersion = ( \is_array( $def ) && !empty( $def[ 'previous_version' ] ) ) ? $def[ 'previous_version' ] : null;

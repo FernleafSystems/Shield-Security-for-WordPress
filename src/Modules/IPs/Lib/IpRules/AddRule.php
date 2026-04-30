@@ -171,7 +171,7 @@ class AddRule {
 					( new DeleteRule() )->byRecord( $ruleStatus->getRuleForAutoBlock() );
 				}
 
-				if ( $parsedRange->getSize() > 1 && $ruleStatus->hasManualBlock() ) {
+				if ( $parsedRange->getSize() > 1 ) {
 					foreach ( $ruleStatus->getRulesForManualBlock() as $existingRule ) {
 						$parsedExistingRange = Factory::parseRangeString( $existingRule->ipAsSubnetRange() );
 

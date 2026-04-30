@@ -67,9 +67,7 @@ abstract class BaseBuildData {
 	 * @return BotSignalRecord[]
 	 */
 	private function getRecords() :array {
-		$serverIPs = IpAddressSql::literalsFromIps(
-			\is_array( Services::IP()->getServerPublicIPs() ) ? Services::IP()->getServerPublicIPs() : []
-		);
+		$serverIPs = IpAddressSql::literalsFromIps( Services::IP()->getServerPublicIPs() );
 
 		$records = Services::WpDb()->selectCustom(
 			sprintf( "SELECT `ips`.`ip`, `bs`.*

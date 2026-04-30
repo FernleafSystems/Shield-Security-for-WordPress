@@ -295,7 +295,7 @@ class TranslationDownloadController {
 			try {
 				$this->addCfg( 'last_fetch_at', Services::Request()->ts() );
 				$apiLocales = ( new ListAvailable() )->retrieve();
-				$this->addCfg( 'locales', ( !empty( $apiLocales ) && \is_array( $apiLocales ) ) ? $apiLocales : [] );
+				$this->addCfg( 'locales', !empty( $apiLocales  ) ? $apiLocales : [] );
 				$locales = $this->cfg()[ 'locales' ];
 			}
 			finally {

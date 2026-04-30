@@ -17,9 +17,9 @@ class AllowBetaUpgrades {
 	use PluginControllerConsumer;
 
 	/**
-	 * @var false|\stdClass
+	 * @var null|false|\stdClass
 	 */
-	private $beta;
+	private $beta = null;
 
 	protected function canRun() :bool {
 		return self::con()->isPremiumActive();

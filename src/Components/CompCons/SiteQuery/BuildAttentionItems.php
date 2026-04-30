@@ -120,7 +120,7 @@ class BuildAttentionItems {
 			},
 			\array_values( \array_filter(
 				$scanState[ 'rows' ],
-				static fn( array $item ) :bool => (int)( $item[ 'count' ] ?? 0 ) > 0
+				static fn( array $item ) :bool => $item[ 'count' ] > 0
 			) )
 		) );
 	}

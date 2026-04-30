@@ -58,7 +58,7 @@ class AssetsCustomizer {
 		$data = [];
 
 		$all = $this->components();
-		foreach ( $this->handles ?? [] as $handle ) {
+		foreach ( $this->handles as $handle ) {
 			$components = \array_filter( $all,
 				fn( array $c ) => \in_array( $handle, $c[ 'handles' ] ) && ( !isset( $c[ 'required' ] ) || $c[ 'required' ] )
 			);

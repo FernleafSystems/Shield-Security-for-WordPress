@@ -23,16 +23,6 @@ class Email extends AbstractShieldProviderMfaDB {
 			   && self::con()->opts->optGet( 'email_can_send_verified_at' ) > 0;
 	}
 
-	protected function maybeMigrate() :void {
-		$meta = self::con()->user_metas->for( $this->getUser() );
-		$legacyEnabled = $meta->email_validated;
-		if ( $legacyEnabled ) {
-			$this->toggleEmail2FA( $legacyEnabled );
-			unset( $meta->email_validated );
-			unset( $meta->email_secret );
-		}
-	}
-
 	public function getJavascriptVars() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getJavascriptVars(),

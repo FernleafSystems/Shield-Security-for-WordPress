@@ -565,7 +565,6 @@ class Controller extends DynPropertiesClass {
 	 */
 	private function loadConfig() {
 		$this->cfg = ( new Config\Ops\LoadConfig( $this->paths->forPluginItem( 'plugin.json' ), $this->getConfigStoreKey() ) )->run();
-		$this->plugin_urls;
 	}
 
 	public function getPrechecks() :array {

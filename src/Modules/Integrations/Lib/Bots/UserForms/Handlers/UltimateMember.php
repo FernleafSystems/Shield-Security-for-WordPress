@@ -41,6 +41,7 @@ class UltimateMember extends Base {
 	}
 
 	protected static function ProviderMeetsRequirements() :bool {
+		// @phpstan-ignore function.impossibleType
 		return \method_exists( '\UM', 'form' );
 	}
 }
