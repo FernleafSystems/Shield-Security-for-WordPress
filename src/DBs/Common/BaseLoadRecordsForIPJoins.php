@@ -78,9 +78,45 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	}
 
 	protected function buildOrderBy() :string {
-		$orderBy = $this->order_by;
+		$requestedOrderBy = \trim( (string)( $this->order_by ?? '' ) );
+		if ( empty( $requestedOrderBy ) ) {
+			return '';
+		}
+
+		$orderBy = $this->normaliseOrderByColumn( $requestedOrderBy );
 		return empty( $orderBy ) ? ''
-			: sprintf( 'ORDER BY %s %s', sprintf( '`%s`.`%s`', $this->getJoinedTableAbbreviation(), $orderBy ), $this->order_dir ?? 'DESC' );
+			: sprintf( 'ORDER BY `%s`.`%s` %s',
+				$this->getJoinedTableAbbreviation(),
+				$orderBy,
+				$this->normaliseOrderDirection( (string)( $this->order_dir ?? '' ) )
+			);
+	}
+
+	protected function getFallbackOrderByColumn() :string {
+		return $this->getTableSchemaForJoinedTable()->getPrimaryKeyColumnName();
+	}
+
+	private function normaliseOrderByColumn( string $column ) :string {
+		$columns = [];
+		foreach ( $this->getTableSchemaForJoinedTable()->getColumnNames() as $schemaColumn ) {
+			$schemaColumn = \trim( (string)$schemaColumn );
+			if ( !empty( $schemaColumn ) ) {
+				$columns[ \strtolower( $schemaColumn ) ] = $schemaColumn;
+			}
+		}
+
+		$normalised = $columns[ \strtolower( \trim( $column ) ) ] ?? '';
+		if ( !empty( $normalised ) ) {
+			return $normalised;
+		}
+
+		$fallback = \trim( $this->getFallbackOrderByColumn() );
+		return empty( $fallback ) ? '' : ( $columns[ \strtolower( $fallback ) ] ?? '' );
+	}
+
+	private function normaliseOrderDirection( string $direction ) :string {
+		$direction = \strtoupper( \trim( $direction ) );
+		return \in_array( $direction, [ 'ASC', 'DESC' ], true ) ? $direction : 'DESC';
 	}
 
 	protected function getDefaultSelectFieldsForJoinedTable() :array {

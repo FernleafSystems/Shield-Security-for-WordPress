@@ -263,6 +263,53 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		) );
 	}
 
+	public function testTrafficIpPayloadRejectsTamperedOrderColumnAtSqlSink() :void {
+		$targetIp = '203.0.113.113';
+		$otherIp = '203.0.113.114';
+
+		TestDataFactory::insertRequestLog( $targetIp, [
+			'path' => '/target-order-one',
+		] );
+		TestDataFactory::insertRequestLog( $targetIp, [
+			'path' => '/target-order-two',
+		] );
+		TestDataFactory::insertRequestLog( $otherIp, [
+			'path' => '/other-order',
+		] );
+
+		$datatable = $this->assertSuccessfulDatatablePayload( $this->fetchInvestigationTablePayload(
+			InvestigationTableContract::TABLE_TYPE_TRAFFIC,
+			InvestigationTableContract::SUBJECT_TYPE_IP,
+			$targetIp,
+			$this->tableDataFixture( [
+				'order'   => [
+					[
+						'column' => 0,
+						'dir'    => 'sideways',
+					],
+				],
+				'columns' => [
+					[
+						'data' => "path` DESC, (SELECT SLEEP(1)) -- ",
+					],
+				],
+			] )
+		) );
+		$rows = $datatable[ 'data' ] ?? [];
+		$ips = \array_values( \array_map(
+			static fn( array $row ) :string => (string)( $row[ 'ip' ] ?? '' ),
+			$rows
+		) );
+
+		$this->assertSame( [ $targetIp, $targetIp ], $ips );
+		$this->assertSame( 2, (int)( $datatable[ 'recordsTotal' ] ?? 0 ) );
+		$this->assertSame( 2, (int)( $datatable[ 'recordsFiltered' ] ?? 0 ) );
+		$this->assertCount( 0, \array_filter(
+			$rows,
+			fn( array $row ) :bool => \strpos( (string)( $row[ 'page' ] ?? '' ), '/other-order' ) !== false
+		) );
+	}
+
 	public function testValidActivityThemePayloadReturnsDatatableEnvelope() :void {
 		$payload = $this->processor()->processAction( InvestigationTableAction::SLUG, [
 			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
@@ -291,58 +338,98 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayHasKey( 'data', $payload[ 'datatable_data' ] );
 	}
 
-	public function testPluginActivityRowsIncludeInvestigatePluginLinkWhenPluginMetaPresent() :void {
+	public function testPluginActivityRowsIncludeSubjectRowsWhenPluginMetaPresent() :void {
 		$pluginSlug = $this->firstInstalledPluginSlug();
-		$logId = TestDataFactory::insertActivityLog( 'plugin_file_edited', '203.0.113.201' );
+		$rid = 'plugmeta01';
+		$requestId = TestDataFactory::insertRequestLog( '203.0.113.201', [
+			'rid' => $rid,
+		] );
+		$logId = TestDataFactory::insertActivityLogForRequest( $requestId, 'plugin_file_edited' );
 		TestDataFactory::insertActivityLogMeta( $logId, 'plugin', $pluginSlug );
 		TestDataFactory::insertActivityLogMeta( $logId, 'file', $pluginSlug );
 
-		$payload = $this->processor()->processAction( InvestigationTableAction::SLUG, [
-			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
-			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_ACTIVITY,
-			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
-			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => $pluginSlug,
-			InvestigationTableContract::REQ_KEY_TABLE_DATA   => $this->tableDataFixture(),
-		] )->payload();
+		$datatable = $this->assertSuccessfulDatatablePayload( $this->fetchInvestigationTablePayload(
+			InvestigationTableContract::TABLE_TYPE_ACTIVITY,
+			InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
+			$pluginSlug,
+			$this->tableDataFixture( [ 'length' => 100 ] )
+		) );
 
-		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$rows = $payload[ 'datatable_data' ][ 'data' ] ?? [];
-		$this->assertTrue(
-			$this->rowsContain( $rows, 'Investigate Plugin' ),
-			'Expected an activity row message with "Investigate Plugin".'
-		);
+		$this->assertContains( $rid, $this->rowRids( $datatable[ 'data' ] ?? [] ) );
 	}
 
-	public function testThemeActivityRowsIncludeInvestigateThemeLinkWhenThemeMetaPresent() :void {
+	public function testPluginActivityFileOnlyFallbackUsesExactAndPrefixScope() :void {
+		$pluginSlug = $this->firstInstalledPluginSlug();
+		$pluginDir = \trim( \dirname( $pluginSlug ), './\\' );
+		$targetExactRid = 'plugfile01';
+		$targetPrefixRid = 'plugfile02';
+		$unrelatedRid = 'plugfile03';
+
+		$exactRequestId = TestDataFactory::insertRequestLog( '203.0.113.203', [
+			'rid' => $targetExactRid,
+		] );
+		$exactLogId = TestDataFactory::insertActivityLogForRequest( $exactRequestId, 'plugin_file_edited' );
+		TestDataFactory::insertActivityLogMeta( $exactLogId, 'file', $pluginSlug );
+
+		if ( !empty( $pluginDir ) && $pluginDir !== '.' ) {
+			$prefixRequestId = TestDataFactory::insertRequestLog( '203.0.113.204', [
+				'rid' => $targetPrefixRid,
+			] );
+			$prefixLogId = TestDataFactory::insertActivityLogForRequest( $prefixRequestId, 'plugin_file_edited' );
+			TestDataFactory::insertActivityLogMeta( $prefixLogId, 'file', $pluginDir.'/unit8-target.php' );
+			$unrelatedFile = 'other/'.$pluginDir.'/unit8-unrelated.php';
+		}
+		else {
+			$targetPrefixRid = '';
+			$unrelatedFile = 'other/'.$pluginSlug;
+		}
+
+		$unrelatedRequestId = TestDataFactory::insertRequestLog( '203.0.113.205', [
+			'rid' => $unrelatedRid,
+		] );
+		$unrelatedLogId = TestDataFactory::insertActivityLogForRequest( $unrelatedRequestId, 'plugin_file_edited' );
+		TestDataFactory::insertActivityLogMeta( $unrelatedLogId, 'file', $unrelatedFile );
+
+		$datatable = $this->assertSuccessfulDatatablePayload( $this->fetchInvestigationTablePayload(
+			InvestigationTableContract::TABLE_TYPE_ACTIVITY,
+			InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
+			$pluginSlug,
+			$this->tableDataFixture( [ 'length' => 100 ] )
+		) );
+		$rids = $this->rowRids( $datatable[ 'data' ] ?? [] );
+
+		$this->assertContains( $targetExactRid, $rids );
+		if ( !empty( $targetPrefixRid ) ) {
+			$this->assertContains( $targetPrefixRid, $rids );
+		}
+		$this->assertNotContains( $unrelatedRid, $rids );
+	}
+
+	public function testThemeActivityRowsIncludeSubjectRowsWhenThemeMetaPresent() :void {
 		$themeSlug = $this->firstInstalledThemeSlug();
-		$logId = TestDataFactory::insertActivityLog( 'theme_file_edited', '203.0.113.202' );
+		$rid = 'thememeta1';
+		$requestId = TestDataFactory::insertRequestLog( '203.0.113.202', [
+			'rid' => $rid,
+		] );
+		$logId = TestDataFactory::insertActivityLogForRequest( $requestId, 'theme_file_edited' );
 		TestDataFactory::insertActivityLogMeta( $logId, 'theme', $themeSlug );
 		TestDataFactory::insertActivityLogMeta( $logId, 'file', $themeSlug.'/functions.php' );
 
-		$payload = $this->processor()->processAction( InvestigationTableAction::SLUG, [
-			InvestigationTableContract::REQ_KEY_SUB_ACTION   => InvestigationTableContract::SUB_ACTION_RETRIEVE_TABLE_DATA,
-			InvestigationTableContract::REQ_KEY_TABLE_TYPE   => InvestigationTableContract::TABLE_TYPE_ACTIVITY,
-			InvestigationTableContract::REQ_KEY_SUBJECT_TYPE => InvestigationTableContract::SUBJECT_TYPE_THEME,
-			InvestigationTableContract::REQ_KEY_SUBJECT_ID   => $themeSlug,
-			InvestigationTableContract::REQ_KEY_TABLE_DATA   => $this->tableDataFixture(),
-		] )->payload();
+		$datatable = $this->assertSuccessfulDatatablePayload( $this->fetchInvestigationTablePayload(
+			InvestigationTableContract::TABLE_TYPE_ACTIVITY,
+			InvestigationTableContract::SUBJECT_TYPE_THEME,
+			$themeSlug,
+			$this->tableDataFixture( [ 'length' => 100 ] )
+		) );
 
-		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$rows = $payload[ 'datatable_data' ][ 'data' ] ?? [];
-		$this->assertTrue(
-			$this->rowsContain( $rows, 'Investigate Theme' ),
-			'Expected an activity row message with "Investigate Theme".'
-		);
+		$this->assertContains( $rid, $this->rowRids( $datatable[ 'data' ] ?? [] ) );
 	}
 
-	private function rowsContain( array $rows, string $needle ) :bool {
-		foreach ( $rows as $row ) {
-			$message = (string)( $row[ 'message' ] ?? '' );
-			if ( \strpos( $message, $needle ) !== false ) {
-				return true;
-			}
-		}
-		return false;
+	private function rowRids( array $rows ) :array {
+		return \array_values( \array_map(
+			static fn( array $row ) :string => (string)( $row[ 'rid' ] ?? '' ),
+			$rows
+		) );
 	}
 
 	private function fetchInvestigationTablePayload(

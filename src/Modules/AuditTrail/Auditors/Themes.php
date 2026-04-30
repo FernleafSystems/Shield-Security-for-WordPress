@@ -98,7 +98,10 @@ class Themes extends Base {
 		) {
 			self::con()->comps->events->fireEvent(
 				'theme_file_edited',
-				[ 'audit_params' => [ 'file' => sanitize_text_field( $req->post( 'file' ) ) ] ]
+				[ 'audit_params' => [
+					'theme' => sanitize_text_field( $theme ),
+					'file'  => sanitize_text_field( $req->post( 'file' ) ),
+				] ]
 			);
 		}
 	}

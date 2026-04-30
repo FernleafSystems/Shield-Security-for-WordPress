@@ -74,10 +74,10 @@ class InvestigationSubjectWheres {
 		$metaWhere = \sprintf(
 			'(%s OR %s)',
 			self::existsActivityMetaEquals( $activityMetaTable, 'plugin', $subjectId, 'meta_plugin' ),
-			self::existsActivityFileEditMetaLike(
+			self::existsActivityFileEditMetaMatches(
 				$activityMetaTable,
 				'plugin_file_edited',
-				self::buildPluginFileTokens( $subjectId ),
+				self::pluginFileEditFallbacks( $subjectId ),
 				'meta_plugin_file'
 			)
 		);
@@ -97,10 +97,10 @@ class InvestigationSubjectWheres {
 		$metaWhere = \sprintf(
 			'(%s OR %s)',
 			self::existsActivityMetaEquals( $activityMetaTable, 'theme', $subjectId, 'meta_theme' ),
-			self::existsActivityFileEditMetaLike(
+			self::existsActivityFileEditMetaMatches(
 				$activityMetaTable,
 				'theme_file_edited',
-				self::buildThemeFileTokens( $subjectId ),
+				self::themeFileEditFallbacks( $subjectId ),
 				'meta_theme_file'
 			)
 		);
@@ -130,15 +130,24 @@ class InvestigationSubjectWheres {
 		);
 	}
 
-	private static function existsActivityFileEditMetaLike( string $activityMetaTable, string $eventSlug, array $searchTokens, string $abbr ) :string {
-		$likeClauses = \array_values( \array_filter( \array_map(
-			static fn( string $token ) :string => \trim( $token ) === ''
-				? ''
-				: \sprintf( "`%s`.`meta_value` LIKE '%%%s%%'", $abbr, esc_sql( self::escapeLikeToken( $token ) ) ),
-			$searchTokens
-		), '\strlen' ) );
+	/**
+	 * @param array{exact:string[], prefix:string[]} $fallbacks
+	 */
+	private static function existsActivityFileEditMetaMatches( string $activityMetaTable, string $eventSlug, array $fallbacks, string $abbr ) :string {
+		$exactClauses = \array_map(
+			static fn( string $file ) :string => \sprintf( "`%s`.`meta_value`='%s'", $abbr, esc_sql( $file ) ),
+			$fallbacks[ 'exact' ]
+		);
+		$prefixClauses = \array_map(
+			static fn( string $prefix ) :string => \sprintf( "`%s`.`meta_value` LIKE '%s%%'", $abbr, esc_sql( self::escapeLikeToken( $prefix ) ) ),
+			$fallbacks[ 'prefix' ]
+		);
+		$clauses = \array_values( \array_unique( \array_filter(
+			\array_merge( $exactClauses, $prefixClauses ),
+			'\strlen'
+		) ) );
 
-		if ( empty( $likeClauses ) ) {
+		if ( empty( $clauses ) ) {
 			return '0=1';
 		}
 
@@ -149,44 +158,59 @@ class InvestigationSubjectWheres {
 			$abbr,
 			esc_sql( $eventSlug ),
 			$abbr,
-			\implode( ' OR ', $likeClauses )
+			\implode( ' OR ', $clauses )
 		);
 	}
 
-	private static function buildPluginFileTokens( string $subjectId ) :array {
-		$subjectId = \trim( \str_replace( '\\', '/', $subjectId ), '/' );
+	/**
+	 * @return array{exact:string[], prefix:string[]}
+	 */
+	private static function pluginFileEditFallbacks( string $subjectId ) :array {
+		$subjectId = self::normaliseAssetFilePath( $subjectId );
 		if ( empty( $subjectId ) ) {
-			return [];
+			return [ 'exact' => [], 'prefix' => [] ];
 		}
 
-		$tokens = [ $subjectId ];
+		$prefixes = [];
 		$dir = \trim( \dirname( $subjectId ), './\\' );
 		if ( !empty( $dir ) && $dir !== '.' ) {
-			$tokens[] = $dir.'/';
-			$tokens[] = '/'.$dir.'/';
+			$prefixes[] = $dir.'/';
 		}
 
-		return \array_values( \array_unique( \array_filter( $tokens, '\strlen' ) ) );
+		return [
+			'exact'  => [ $subjectId ],
+			'prefix' => self::normaliseFilePrefixes( $prefixes ),
+		];
 	}
 
-	private static function buildThemeFileTokens( string $subjectId ) :array {
-		$subjectId = \trim( \str_replace( '\\', '/', $subjectId ), '/' );
+	/**
+	 * @return array{exact:string[], prefix:string[]}
+	 */
+	private static function themeFileEditFallbacks( string $subjectId ) :array {
+		$subjectId = self::normaliseAssetFilePath( $subjectId );
 		if ( empty( $subjectId ) ) {
-			return [];
+			return [ 'exact' => [], 'prefix' => [] ];
 		}
 
-		$tokens = [];
-		$dir = \trim( \dirname( $subjectId ), './\\' );
-		if ( !empty( $dir ) && $dir !== '.' ) {
-			$tokens[] = $dir.'/';
-			$tokens[] = '/'.$dir.'/';
-		}
-		else {
-			$tokens[] = $subjectId.'/';
-			$tokens[] = '/'.$subjectId.'/';
-		}
+		return [
+			'exact'  => [ $subjectId ],
+			'prefix' => self::normaliseFilePrefixes( [ $subjectId.'/' ] ),
+		];
+	}
 
-		return \array_values( \array_unique( \array_filter( $tokens, '\strlen' ) ) );
+	private static function normaliseAssetFilePath( string $path ) :string {
+		return \trim( \str_replace( '\\', '/', $path ), '/' );
+	}
+
+	/**
+	 * @param string[] $prefixes
+	 * @return string[]
+	 */
+	private static function normaliseFilePrefixes( array $prefixes ) :array {
+		return \array_values( \array_unique( \array_filter( \array_map(
+			static fn( string $prefix ) :string => \rtrim( \trim( \str_replace( '\\', '/', $prefix ) ), '/' ).'/',
+			$prefixes
+		), static fn( string $prefix ) :bool => $prefix !== '/' ) ) );
 	}
 
 	private static function escapeLikeToken( string $token ) :string {

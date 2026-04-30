@@ -38,6 +38,10 @@ class LoadIpMeta extends \FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\Bas
 		];
 	}
 
+	protected function getFallbackOrderByColumn() :string {
+		return 'updated_at';
+	}
+
 	protected function getTableSchemaForJoinedTable() :TableSchema {
 		return self::con()->db_con->ip_meta->getTableSchema();
 	}

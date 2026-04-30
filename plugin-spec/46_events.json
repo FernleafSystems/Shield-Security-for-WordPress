@@ -541,6 +541,7 @@
     },
     "plugin_file_edited": {
         "audit_params": [
+            "plugin",
             "file"
         ],
         "level": "warning"
@@ -871,6 +872,7 @@
     },
     "theme_file_edited": {
         "audit_params": [
+            "theme",
             "file"
         ],
         "level": "warning"

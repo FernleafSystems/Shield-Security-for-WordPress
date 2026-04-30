@@ -107,6 +107,40 @@ class EventsServiceTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'Alert', $captured[ 0 ][ 'meta' ][ 'audit_params' ][ 'type' ] ?? '' );
 	}
 
+	public function test_plugin_file_edited_preserves_plugin_and_file_audit_params() {
+		$this->captureShieldEvents();
+
+		$this->events()->fireEvent( 'plugin_file_edited', [
+			'audit_params' => [
+				'plugin' => 'example-plugin/example-plugin.php',
+				'file'   => 'example-plugin/includes/edit.php',
+			],
+		] );
+
+		$captured = $this->getCapturedEventsByKey( 'plugin_file_edited' );
+		$this->assertCount( 1, $captured );
+		$auditParams = $captured[ 0 ][ 'meta' ][ 'audit_params' ] ?? [];
+		$this->assertSame( 'example-plugin/example-plugin.php', $auditParams[ 'plugin' ] ?? '' );
+		$this->assertSame( 'example-plugin/includes/edit.php', $auditParams[ 'file' ] ?? '' );
+	}
+
+	public function test_theme_file_edited_preserves_theme_and_file_audit_params() {
+		$this->captureShieldEvents();
+
+		$this->events()->fireEvent( 'theme_file_edited', [
+			'audit_params' => [
+				'theme' => 'example-theme',
+				'file'  => 'example-theme/functions.php',
+			],
+		] );
+
+		$captured = $this->getCapturedEventsByKey( 'theme_file_edited' );
+		$this->assertCount( 1, $captured );
+		$auditParams = $captured[ 0 ][ 'meta' ][ 'audit_params' ] ?? [];
+		$this->assertSame( 'example-theme', $auditParams[ 'theme' ] ?? '' );
+		$this->assertSame( 'example-theme/functions.php', $auditParams[ 'file' ] ?? '' );
+	}
+
 	// ── buildEvents defaults ───────────────────────────────────────
 
 	public function test_report_generated_alert_requires_all_audit_params() {

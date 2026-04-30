@@ -45,6 +45,10 @@ class LoadRequestLogs extends \FernleafSystems\Wordpress\Plugin\Shield\DBs\Commo
 		];
 	}
 
+	protected function getFallbackOrderByColumn() :string {
+		return 'created_at';
+	}
+
 	protected function getTableSchemaForJoinedTable() :TableSchema {
 		return self::con()->db_con->req_logs->getTableSchema();
 	}
