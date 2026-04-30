@@ -94,6 +94,7 @@ class SessionController {
 		if ( !\is_array( $session ) ) {
 			throw new \Exception( 'No such session available' );
 		}
+		$storedSession = $session;
 
 		// Ensure the correct IP is stored
 		$srvIP = Services::IP();
@@ -131,7 +132,9 @@ class SessionController {
 		}
 
 		$session[ 'shield' ] = $shieldMeta;
-		$manager->update( $token, $session );
+		if ( ( new SessionActivityPersistencePolicy() )->shouldPersist( $storedSession, $session, $req->ts() ) ) {
+			$manager->update( $token, $session );
+		}
 
 		$VO = ( new SessionVO() )->applyFromArray( $session );
 		$VO->valid = true;

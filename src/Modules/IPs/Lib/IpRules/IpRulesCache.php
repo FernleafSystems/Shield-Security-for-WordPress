@@ -47,7 +47,7 @@ class IpRulesCache {
 			'_at'  => Services::Request()->ts(),
 		];
 		self::$ipCache[ $group ] = self::normalizeGroupCache( self::$ipCache[ $group ], $group );
-		if ( $store ) {
+		if ( $store && self::CanPersistGroup( $group ) ) {
 			self::StoreCache( $group );
 		}
 	}
@@ -62,7 +62,12 @@ class IpRulesCache {
 	public static function Delete( string $key, string $group ) :void {
 		self::LoadCache();
 		unset( self::$ipCache[ $group ][ $key ] );
-		self::StoreCache( $group );
+		if ( self::CanPersistGroup( $group ) ) {
+			self::StoreCache( $group );
+		}
+		elseif ( $group === self::GROUP_NO_RULES ) {
+			\delete_transient( self::buildTransientKey( $group ) );
+		}
 	}
 
 	public static function Has( string $key, string $group ) :bool {
@@ -93,8 +98,10 @@ class IpRulesCache {
 			$cache = Arrays::SetAllValuesTo( self::GROUPS, [] );
 
 			foreach ( self::GROUPS as $groupKey => $groupSettings ) {
-				$group = \get_transient( self::buildTransientKey( $groupKey ) );
-				$cache[ $groupKey ] = self::normalizeGroupCache( \is_array( $group ) ? $group : [], $groupKey );
+				if ( self::CanPersistGroup( $groupKey ) ) {
+					$group = \get_transient( self::buildTransientKey( $groupKey ) );
+					$cache[ $groupKey ] = self::normalizeGroupCache( \is_array( $group ) ? $group : [], $groupKey );
+				}
 			}
 
 			self::$ipCache = $cache;
@@ -104,6 +111,16 @@ class IpRulesCache {
 
 	private static function buildTransientKey( string $group ) :string {
 		return self::con()->prefix( 'ip_rules_cache_'.$group, '_' );
+	}
+
+	private static function CanPersistGroup( string $group ) :bool {
+		if ( $group !== self::GROUP_NO_RULES ) {
+			return true;
+		}
+
+		$usingExternalObjectCache = \function_exists( 'wp_using_ext_object_cache' ) && \wp_using_ext_object_cache();
+		return $usingExternalObjectCache
+			   || (bool)apply_filters( 'shield/ip_rules/cache_persist_no_rules', false );
 	}
 
 	private static function normalizeGroupCache( array $group, string $groupKey ) :array {

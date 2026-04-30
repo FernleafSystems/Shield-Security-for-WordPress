@@ -548,6 +548,27 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertFalse( ( new RequestLogger() )->isLogged() );
 	}
 
+	public function test_logged_in_front_get_selected_for_traffic_logging_remains_loggable() :void {
+		$this->loginAsAdministrator();
+		$this->applyCurrentRequestState(
+			[
+				'REQUEST_METHOD' => 'GET',
+				'REQUEST_URI'    => '/?selected=1',
+			],
+			[
+				'selected' => '1',
+			],
+			[],
+			[
+				'path'        => '/',
+				'wp_is_admin' => false,
+				'wp_is_ajax'  => false,
+			]
+		);
+
+		$this->assertTrue( $this->withTrafficLoggingEnabled( fn() => ( new RequestLogger() )->isLogged() ) );
+	}
+
 	private function rowCount( string $dbKey ) :int {
 		global $wpdb;
 		return (int)$wpdb->get_var(

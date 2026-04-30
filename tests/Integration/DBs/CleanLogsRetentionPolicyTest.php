@@ -131,20 +131,26 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 		bool $hasParams,
 		bool $offense,
 		bool $isDependent,
-		string $verb = 'GET'
+		string $verb = 'GET',
+		?string $rid = null,
+		?string $ip = null,
+		bool $precreate = false
 	) :int {
-		$ip = '203.0.113.'.wp_rand( 10, 250 );
+		$ip = $ip ?? '203.0.113.'.wp_rand( 10, 250 );
 		$ipRecord = ( new IPRecords() )->loadIP( $ip );
-		$rid = \substr( \wp_generate_uuid4(), 0, 10 );
-		$reqRecord = ( new RequestRecords() )->loadReq( $rid, $ipRecord->id );
+		$rid = $rid ?? \substr( \wp_generate_uuid4(), 0, 10 );
+		$precreatedRecord = ( $isDependent || $precreate ) ?
+			( new RequestRecords() )->loadReq( $rid, $ipRecord->id )
+			: null;
 
 		$writer = new class() extends TrafficLocalDbWriter {
-			public function writePrimaryForTest( array $record ) :bool {
+			public function writePrimaryForTest( array $record ) {
 				return $this->createPrimaryLogRecord( $record );
 			}
 		};
+		$writer->setRequestLogger( $this->requireController()->comps->requests_log );
 
-		$this->withRequestLoggerDependentState(
+		$writtenRecord = $this->withRequestLoggerDependentState(
 			$isDependent,
 			fn() => $writer->writePrimaryForTest( [
 				'extra' => [
@@ -168,7 +174,11 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 			] )
 		);
 
-		return (int)$reqRecord->id;
+		if ( $isDependent ) {
+			$this->assertSame( (int)$precreatedRecord->id, (int)$writtenRecord->id );
+		}
+
+		return (int)$writtenRecord->id;
 	}
 
 	private function firstEventForLevel( string $level, array $exclude = [] ) :string {
@@ -556,6 +566,37 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $this->existsById( 'req_logs', $postReq ) );
 		$this->assertFalse( $this->existsById( 'req_logs', $noParamsReq ) );
 		$this->assertTrue( $this->existsById( 'req_logs', $offenseReq ) );
+	}
+
+	public function test_traffic_only_request_log_writer_creates_complete_row_without_precreate() :void {
+		$before = $this->rowCount( 'req_logs' );
+		$reqID = $this->writeRequestLogViaWriter( true, false, false, 'POST' );
+
+		$this->assertSame( $before + 1, $this->rowCount( 'req_logs' ) );
+
+		$record = $this->requireController()->db_con->req_logs->getQuerySelector()->byId( $reqID );
+		$this->assertSame( ReqLogsHandler::TYPE_HTTP, $record->type );
+		$this->assertSame( 'POST', $record->verb );
+		$this->assertSame( '/matrix/post', $record->path );
+		$this->assertSame( 200, (int)$record->code );
+		$this->assertSame( 0, (int)$record->uid );
+	}
+
+	public function test_duplicate_request_id_falls_back_to_existing_record_update() :void {
+		$rid = \substr( \wp_generate_uuid4(), 0, 10 );
+		$ip = '203.0.113.'.wp_rand( 10, 250 );
+		$ipRecord = ( new IPRecords() )->loadIP( $ip );
+		$existing = ( new RequestRecords() )->loadReq( $rid, $ipRecord->id );
+		$before = $this->rowCount( 'req_logs' );
+
+		$writtenID = $this->writeRequestLogViaWriter( true, false, false, 'POST', $rid, $ip );
+
+		$this->assertSame( $before, $this->rowCount( 'req_logs' ) );
+		$this->assertSame( (int)$existing->id, $writtenID );
+
+		$record = $this->requireController()->db_con->req_logs->getQuerySelector()->byId( $writtenID );
+		$this->assertSame( 'POST', $record->verb );
+		$this->assertSame( '/matrix/post', $record->path );
 	}
 
 	public function test_referenced_request_logs_are_protected_until_activity_is_pruned() :void {

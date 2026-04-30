@@ -540,7 +540,17 @@
                 "created_at": {
                     "comment": "Registered At"
                 }
-            }
+            },
+            "indices": [
+                {
+                    "key_name": "user_deleted_created",
+                    "columns": [
+                        "user_id",
+                        "deleted_at",
+                        "created_at"
+                    ]
+                }
+            ]
         },
         "reports": {
             "name": "Security Reports",

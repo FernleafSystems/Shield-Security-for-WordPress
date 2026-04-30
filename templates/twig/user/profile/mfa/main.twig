@@ -1,7 +1,7 @@
 <div id="ShieldUserProfileMFA">
 	<h3>
 		{{ strings.title }}
-		{% if strings.subtitle|default('') is not empty %}
+		{% if strings.subtitle is not empty %}
 			<small style="margin-left: 10px">({{ strings.subtitle }})</small>
 		{% endif %}
 	</h3>

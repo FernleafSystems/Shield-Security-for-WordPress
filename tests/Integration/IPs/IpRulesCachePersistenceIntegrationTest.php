@@ -25,15 +25,43 @@ class IpRulesCachePersistenceIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'ips' );
 
 		$legacyOption = $this->requireController()->prefix( 'ip_rules_cache', '_' );
+		$noRulesTransient = $this->transientKeyForGroup( IpRulesCache::GROUP_NO_RULES );
 		\delete_option( $legacyOption );
-		\delete_transient( $this->transientKeyForGroup( IpRulesCache::GROUP_NO_RULES ) );
+		\delete_transient( $noRulesTransient );
 
-		$this->startTrackingOptionWrites( [ $legacyOption ] );
+		$this->startTrackingOptionWrites( [
+			$legacyOption,
+			'_transient_'.$noRulesTransient,
+			'_transient_timeout_'.$noRulesTransient,
+		] );
 
 		$status = new IpRuleStatus( '10.0.0.150' );
 		$this->assertFalse( $status->hasRules() );
 		$this->assertOptionWasNotWritten( $legacyOption );
+		$this->assertOptionWasNotWritten( '_transient_'.$noRulesTransient );
+		$this->assertOptionWasNotWritten( '_transient_timeout_'.$noRulesTransient );
 		$this->assertTrue( IpRulesCache::Has( '10.0.0.150', IpRulesCache::GROUP_NO_RULES ) );
+	}
+
+	public function test_filter_opt_in_persists_single_ip_no_rules_miss() :void {
+		$this->requireDb( 'ip_rules' );
+		$this->requireDb( 'ips' );
+
+		$noRulesTransient = $this->transientKeyForGroup( IpRulesCache::GROUP_NO_RULES );
+		\delete_transient( $noRulesTransient );
+		$this->resetIpCaches();
+
+		$persistNoRules = static fn( bool $persist = false ) => true;
+		\add_filter( 'shield/ip_rules/cache_persist_no_rules', $persistNoRules );
+
+		try {
+			$status = new IpRuleStatus( '10.0.0.153' );
+			$this->assertFalse( $status->hasRules() );
+			$this->assertIsArray( \get_transient( $noRulesTransient ) );
+		}
+		finally {
+			\remove_filter( 'shield/ip_rules/cache_persist_no_rules', $persistNoRules );
+		}
 	}
 
 	public function test_bypass_lookup_does_not_leak_between_ips_in_same_request() :void {

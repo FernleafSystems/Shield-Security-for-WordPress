@@ -9,7 +9,12 @@ abstract class ShieldUser2faBase extends Base {
 	use Traits\TypeShield;
 
 	protected function getUserFromSession() :?\WP_User {
-		return Services::WpUsers()->getUserById( $this->req->session->shield[ 'user_id' ] );
+		if ( !isset( $this->req->session ) ) {
+			$this->req->session = self::con()->comps->session->current();
+		}
+		return $this->req->session->valid ?
+			Services::WpUsers()->getUserById( $this->req->session->shield[ 'user_id' ] ?? 0 )
+			: null;
 	}
 
 	protected function get2faProviderForParamDef() :array {

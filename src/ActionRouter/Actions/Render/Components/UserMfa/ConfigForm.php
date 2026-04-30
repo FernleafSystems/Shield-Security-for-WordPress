@@ -31,10 +31,15 @@ class ConfigForm extends UserMfaBase {
 
 		$user = $requestedUserID > 0 ? $WPU->getUserById( $requestedUserID ) : $currentUser;
 
-		$providerRenders = \array_map(
-			fn( $provider ) => $provider->renderUserProfileConfigFormField(),
-			$user instanceof \WP_User ? self::con()->comps->mfa->getProvidersAvailableToUser( $user ) : []
-		);
+		$providerRenders = [];
+		$providerVars = [];
+		foreach ( $user instanceof \WP_User ? self::con()->comps->mfa->getProvidersAvailableToUser( $user ) : [] as $provider ) {
+			$slug = $provider::ProviderSlug();
+			$providerRenders[ $slug ] = $provider->renderUserProfileConfigFormField();
+			if ( \method_exists( $provider, 'getJavascriptVars' ) ) {
+				$providerVars[ $slug ] = $provider->getJavascriptVars();
+			}
+		}
 
 		return apply_filters( 'shield/render_data_custom_profiles_mfa', [
 			'content' => [
@@ -45,13 +50,13 @@ class ConfigForm extends UserMfaBase {
 				'logged_in'     => $user instanceof \WP_User,
 			],
 			'strings' => [
-				'title'         => esc_html( $this->action_data[ 'title' ] ?? 'MFA' ),
-				'subtitle'      => esc_html( $this->action_data[ 'subtitle' ] ?? '' ),
+				'title'         => (string)( $this->action_data[ 'title' ] ?? 'MFA' ),
+				'subtitle'      => (string)( $this->action_data[ 'subtitle' ] ?? '' ),
 				'not_logged_in' => __( 'Not currently logged-in.', 'wp-simple-firewall' ),
 				'no_providers'  => __( 'There are currently no 2FA providers available on your account.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'provider_data' => ''
+				'providers' => $providerVars,
 			],
 		] );
 	}

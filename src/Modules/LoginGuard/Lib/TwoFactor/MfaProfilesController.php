@@ -15,9 +15,7 @@ class MfaProfilesController {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	private bool $rendered = false;
-
-	private bool $isFrontend = false;
+	private bool $localisationRegistered = false;
 
 	protected function run() {
 		// shortcode for placing user authentication handling anywhere
@@ -26,16 +24,20 @@ class MfaProfilesController {
 		}
 
 		if ( Services::WpUsers()->isUserLoggedIn() ) {
-			add_action( 'wp', fn() => $this->enqueueAssets( true ) );
+			if ( !is_admin() ) {
+				add_action( 'wp', fn() => $this->enqueueFrontendAssetsIfRequired() );
+			}
 
 			if ( is_admin() && !Services::WpGeneral()->isAjax() ) {
-				$this->enqueueAssets( false );
+				$setupPages = self::con()->opts->optGet( 'mfa_user_setup_pages' );
+				$setupPages = \is_array( $setupPages ) ? $setupPages : [];
+				$this->enqueueAssets( false, $setupPages );
 
-				if ( \in_array( 'dedicated', self::con()->opts->optGet( 'mfa_user_setup_pages' ) ) ) {
+				if ( \in_array( 'dedicated', $setupPages, true ) ) {
 					$this->provideUserLoginSecurityPage();
 				}
 
-				if ( \in_array( 'profile', self::con()->opts->optGet( 'mfa_user_setup_pages' ) ) ) {
+				if ( \in_array( 'profile', $setupPages, true ) ) {
 					$this->provideUserProfileSections();
 				}
 			}
@@ -65,7 +67,6 @@ class MfaProfilesController {
 		// WordPress Admin Editing OTHER user profile.
 		add_action( 'edit_user_profile', function ( $user ) {
 			if ( $user instanceof \WP_User ) {
-				$this->rendered = true;
 				echo self::con()->action_router->render( Actions\Render\Components\UserMfa\ConfigEdit::class, [
 					'user_id' => $user->ID
 				] );
@@ -73,60 +74,81 @@ class MfaProfilesController {
 		} );
 	}
 
-	private function enqueueAssets( bool $isFrontend ) {
-		$this->isFrontend = $isFrontend;
+	private function enqueueFrontendAssetsIfRequired() :void {
+		if ( $this->shouldEnqueueFrontendAssets() ) {
+			$this->enqueueAssets( true );
+		}
+	}
 
-		add_filter( 'shield/custom_enqueue_assets', function ( array $assets, $hook = '' ) {
+	private function shouldEnqueueFrontendAssets() :bool {
+		$shouldEnqueue = (bool)apply_filters( 'shield/mfa_profile/enqueue_frontend_assets', false );
 
-			$isPageWithProfileDisplay = \preg_match( '#^(profile\.php|user-edit\.php|[a-z_\-]+shield-login-security)$#', (string)$hook );
-			if ( $this->isFrontend || $isPageWithProfileDisplay ) {
+		if ( !$shouldEnqueue && \function_exists( 'is_singular' ) && is_singular() ) {
+			global $post;
+			$shouldEnqueue = $post instanceof \WP_Post
+							 && \function_exists( 'has_shortcode' )
+							 && has_shortcode( (string)$post->post_content, 'SHIELD_USER_PROFILE_MFA' );
+		}
+
+		return $shouldEnqueue;
+	}
+
+	private function enqueueAssets( bool $isFrontend, array $setupPages = [] ) {
+
+		add_filter( 'shield/custom_enqueue_assets', function ( array $assets, $hook = '' ) use ( $isFrontend, $setupPages ) {
+
+			if ( $isFrontend || $this->isAdminHookWithConfiguredMfaUi( (string)$hook, $setupPages ) ) {
 				$assets[] = 'userprofile';
 
-				add_filter( 'shield/custom_dequeues', fn( $assets ) => \array_merge( $assets, $this->rendered ? [] : [ 'userprofile' ] ) );
-
-				add_filter( 'shield/custom_localisations/components', function ( array $components ) {
-					$components[ 'userprofile' ] = [
-						'key'     => 'userprofile',
-						'handles' => [
-							'userprofile',
-						],
-						'data'    => function () {
-							$user = Services::WpUsers()->getCurrentWpUser();
-							$providers = $user instanceof \WP_User ? self::con()->comps->mfa->getProvidersAvailableToUser( $user ) : [];
-							return [
-								'ajax'    => [
-									'mfa_remove_all' => ActionData::Build( Actions\MfaRemoveAll::class ),
-									'render_profile' => ActionData::BuildAjaxRender( Actions\Render\Components\UserMfa\ConfigForm::class ),
-								],
-								'vars'    => [
-									'providers' => \array_map(
-										fn( Provider\Provider2faInterface $p ) => \method_exists( $p, 'getJavascriptVars' ) ? $p->getJavascriptVars() : [],
-										$providers
-									)
-								],
-								'strings' => [
-									'are_you_sure'         => __( 'Are you sure?', 'wp-simple-firewall' ),
-									'cancel'               => __( 'Cancel', 'wp-simple-firewall' ),
-									'confirm'              => __( 'Confirm', 'wp-simple-firewall' ),
-									'continue'             => __( 'Continue', 'wp-simple-firewall' ),
-									'dialog_alert_title'   => __( 'Notice', 'wp-simple-firewall' ),
-									'dialog_confirm_title' => __( 'Confirm Action', 'wp-simple-firewall' ),
-									'dialog_prompt_title'  => __( 'Information Required', 'wp-simple-firewall' ),
-									'request_failed'       => __( 'Request Failed', 'wp-simple-firewall' ),
-								],
-							];
-						},
-					];
-					return $components;
-				} );
+				$this->registerUserProfileLocalisation();
 			}
 
-			return $assets;
-		}, 10, $this->isFrontend ? 1 : 2 );
+			return \array_unique( $assets );
+		}, 10, $isFrontend ? 1 : 2 );
+	}
+
+	private function isAdminHookWithConfiguredMfaUi( string $hook, array $setupPages ) :bool {
+		return ( \in_array( 'profile', $setupPages, true ) && \in_array( $hook, [ 'profile.php', 'user-edit.php' ], true ) )
+			   || ( \in_array( 'dedicated', $setupPages, true ) && \preg_match( '#shield-login-security$#', $hook ) );
+	}
+
+	private function registerUserProfileLocalisation() :void {
+		if ( $this->localisationRegistered ) {
+			return;
+		}
+		$this->localisationRegistered = true;
+
+		add_filter( 'shield/custom_localisations/components', function ( array $components ) {
+			$components[ 'userprofile' ] = [
+				'key'     => 'userprofile',
+				'handles' => [
+					'userprofile',
+				],
+				'data'    => function () {
+					return [
+						'ajax'    => [
+							'mfa_remove_all' => ActionData::Build( Actions\MfaRemoveAll::class ),
+							'render_profile' => ActionData::BuildAjaxRender( Actions\Render\Components\UserMfa\ConfigForm::class ),
+						],
+						'vars'    => [],
+						'strings' => [
+							'are_you_sure'         => __( 'Are you sure?', 'wp-simple-firewall' ),
+							'cancel'               => __( 'Cancel', 'wp-simple-firewall' ),
+							'confirm'              => __( 'Confirm', 'wp-simple-firewall' ),
+							'continue'             => __( 'Continue', 'wp-simple-firewall' ),
+							'dialog_alert_title'   => __( 'Notice', 'wp-simple-firewall' ),
+							'dialog_confirm_title' => __( 'Confirm Action', 'wp-simple-firewall' ),
+							'dialog_prompt_title'  => __( 'Information Required', 'wp-simple-firewall' ),
+							'request_failed'       => __( 'Request Failed', 'wp-simple-firewall' ),
+						],
+					];
+				},
+			];
+			return $components;
+		} );
 	}
 
 	public function renderUserProfileMFA() :string {
-		$this->rendered = true;
 		return '<div id="ShieldMfaUserProfileForm" class="shield_user_mfa_container"><p>Loading ...</p></div>';
 	}
 }
