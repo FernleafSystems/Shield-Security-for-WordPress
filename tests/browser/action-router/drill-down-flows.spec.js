@@ -504,62 +504,69 @@ test( 'actions queue ignores all malware results from the context rail without r
 	} );
 } );
 
-test( 'actions queue direct table starts active-only when all scoped results are ignored', async ( { page, fixtureApi } ) => {
-	await fixtureApi.withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
-		const actionsQueuePage = new ActionsQueuePage( page );
-		await openShieldRoute( page, {
-			nav: 'scans',
-			nav_sub: 'overview',
+[
+	{ name: 'plugin', fixture: 'ignored_plugin_direct_table' },
+	{ name: 'theme', fixture: 'ignored_theme_direct_table' },
+	{ name: 'WordPress', fixture: 'ignored_wordpress_direct_table' },
+	{ name: 'malware', fixture: 'ignored_malware_direct_table' },
+].forEach( ( scenario ) => {
+	test( `actions queue ${ scenario.name } direct table starts active-only when all scoped results are ignored`, async ( { page, fixtureApi } ) => {
+		await fixtureApi.withActionsQueueFixture( scenario.fixture, async ( fixture ) => {
+			const actionsQueuePage = new ActionsQueuePage( page );
+			await openShieldRoute( page, {
+				nav: 'scans',
+				nav_sub: 'overview',
+			} );
+
+			await actionsQueuePage.drillToDetail( fixture );
+			const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
+			const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
+			const ignoredToggle = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
+
+			await waitForScanResultsTableEmpty( scanResultsTable );
+			await expect( displayCollection ).toBeVisible();
+			await expectScanResultsDisplayOptions( scanResultsTable, {
+				ignored_only: false,
+				include_ignored: false,
+				include_repaired: false,
+				include_deleted: false,
+			} );
+			await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 0 );
+
+			const showIgnoredReload = page.waitForRequest(
+				( request ) => ( request.postData() || '' ).includes( 'sub_action=retrieve_table_data' ),
+				{ timeout: 20_000 }
+			);
+			await displayCollection.click();
+			await expect( ignoredToggle ).toBeVisible();
+			await ignoredToggle.click();
+			await showIgnoredReload;
+			await waitForScanResultsTableRows( scanResultsTable );
+			await expectScanResultsDisplayOptions( scanResultsTable, {
+				include_ignored: true,
+				ignored_only: false,
+			} );
+			await expect( scanResultsTable.locator( 'tbody tr[data-scan-result-ignored="1"]' ) ).toHaveCount( 2 );
+
+			const hideIgnoredReload = page.waitForRequest(
+				( request ) => ( request.postData() || '' ).includes( 'sub_action=retrieve_table_data' ),
+				{ timeout: 20_000 }
+			);
+			await ignoredToggle.click();
+			await hideIgnoredReload;
+
+			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+			await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
+			await waitForScanResultsTableEmpty( scanResultsTable );
+			await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 0 );
+			await expectScanResultsDisplayOptions( scanResultsTable, {
+				include_ignored: false,
+				ignored_only: false,
+			} );
+			await expect( displayCollection ).toBeVisible();
+			await expect( page.locator( '[data-actions-queue-retry]' ) ).toHaveCount( 0 );
+			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 		} );
-
-		await actionsQueuePage.drillToDetail( fixture );
-		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
-		const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
-		const ignoredToggle = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
-
-		await waitForScanResultsTableEmpty( scanResultsTable );
-		await expect( displayCollection ).toBeVisible();
-		await expectScanResultsDisplayOptions( scanResultsTable, {
-			ignored_only: false,
-			include_ignored: false,
-			include_repaired: false,
-			include_deleted: false,
-		} );
-		await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 0 );
-
-		const showIgnoredReload = page.waitForRequest(
-			( request ) => ( request.postData() || '' ).includes( 'sub_action=retrieve_table_data' ),
-			{ timeout: 20_000 }
-		);
-		await displayCollection.click();
-		await expect( ignoredToggle ).toBeVisible();
-		await ignoredToggle.click();
-		await showIgnoredReload;
-		await waitForScanResultsTableRows( scanResultsTable );
-		await expectScanResultsDisplayOptions( scanResultsTable, {
-			include_ignored: true,
-			ignored_only: false,
-		} );
-		await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 2 );
-
-		const hideIgnoredReload = page.waitForRequest(
-			( request ) => ( request.postData() || '' ).includes( 'sub_action=retrieve_table_data' ),
-			{ timeout: 20_000 }
-		);
-		await ignoredToggle.click();
-		await hideIgnoredReload;
-
-		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
-		await waitForScanResultsTableEmpty( scanResultsTable );
-		await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 0 );
-		await expectScanResultsDisplayOptions( scanResultsTable, {
-			include_ignored: false,
-			ignored_only: false,
-		} );
-		await expect( displayCollection ).toBeVisible();
-		await expect( page.locator( '[data-actions-queue-retry]' ) ).toHaveCount( 0 );
-		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 	} );
 } );
 

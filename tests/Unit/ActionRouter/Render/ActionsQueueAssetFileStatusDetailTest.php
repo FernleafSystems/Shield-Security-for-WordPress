@@ -105,7 +105,7 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function testDetailRenderUsesPluginSubjectRouteData() :void {
+	public function testDetailRenderPassesCallerSuppliedIgnoredOnlyOptionsToPluginSubjectRouteData() :void {
 		$viewBuilder = $this->buildGatedViewBuilder();
 		$action = $this->buildAssetDetailAction( [
 			'subject_type'            => 'plugin',
@@ -212,7 +212,7 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 		$viewBuilder->buildActionsQueueDirectTablePane( 'plugins' );
 	}
 
-	public function testWordpressRouteUsesDedicatedWordpressTableBuilder() :void {
+	public function testWordpressRoutePassesCallerSuppliedIgnoredOnlyOptionsToDedicatedWordpressTableBuilder() :void {
 		$viewBuilder = $this->buildGatedViewBuilder();
 		$action = new class( [
 			'display_context'         => 'actions_queue',
@@ -243,7 +243,15 @@ class ActionsQueueAssetFileStatusDetailTest extends BaseUnitTest {
 		$table = $renderData[ 'table' ];
 
 		$this->assertSame( 'wordpress', $table[ 'route' ] );
-		$this->assertTrue( $table[ 'results_display_options' ][ 'ignored_only' ] );
+		$this->assertSame(
+			[
+				'include_ignored'  => true,
+				'include_repaired' => false,
+				'include_deleted'  => false,
+				'ignored_only'     => true,
+			],
+			$table[ 'results_display_options' ]
+		);
 	}
 
 	public function testMalwareRouteUsesDedicatedMalwareTableBuilder() :void {

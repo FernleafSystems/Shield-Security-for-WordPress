@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 
 class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBuilderTestCase {
 
-	public function test_actions_queue_plugin_pane_preserves_ignored_only_contract_in_real_asset_card_tables() :void {
+	public function test_actions_queue_plugin_pane_passes_caller_supplied_ignored_only_display_options_to_real_asset_card_tables() :void {
 		$assetMetadataResolver = new class extends ActionsQueueAssetMetadataResolver {
 
 			public function resolve( string $assetType, string $assetKey ) :?array {
@@ -89,8 +89,8 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		};
 
 		$pane = $builder->buildActionsQueuePluginsPane( [
-			'include_ignored' => true,
-			'ignored_only'    => true,
+			'include_ignored'  => true,
+			'ignored_only'     => true,
 		] );
 
 		$this->assertFalse( $pane[ 'is_disabled' ] );

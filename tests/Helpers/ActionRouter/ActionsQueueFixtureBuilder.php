@@ -174,6 +174,12 @@ class ActionsQueueFixtureBuilder {
 				return $this->seedMalwareDirectTable( $state );
 			case 'ignored_plugin_direct_table':
 				return $this->seedIgnoredPluginDirectTable( $state );
+			case 'ignored_wordpress_direct_table':
+				return $this->seedIgnoredWordpressDirectTable( $state );
+			case 'ignored_theme_direct_table':
+				return $this->seedIgnoredThemeDirectTable( $state );
+			case 'ignored_malware_direct_table':
+				return $this->seedIgnoredMalwareDirectTable( $state );
 			case 'file_locker_lazy':
 				return $this->seedFileLockerLazy( $state );
 			default:
@@ -279,6 +285,141 @@ class ActionsQueueFixtureBuilder {
 		return [
 			'scenario'                    => 'ignored_plugin_direct_table',
 			'target_group_key'            => 'plugins:'.$pluginSlug,
+			'expected_detail_shell'       => 'direct_table',
+			'expected_lazy_panel'         => false,
+			'require_scan_results_table'  => true,
+			'require_populated_scan_results_table' => false,
+		];
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return ScenarioDefinition
+	 */
+	private function seedIgnoredWordpressDirectTable( array &$state ) :array {
+		RuntimeTestState::applyPremiumCapabilities( [
+			'scan_file_areas',
+		] );
+
+		RuntimeTestState::controller()->opts
+			->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			->optSet( 'preferred_temp_dir', WP_CONTENT_DIR )
+			->optSet( 'file_scan_areas', [ 'wp' ] )
+			->store();
+		RuntimeTestState::forcePersistOptions( [
+			'enable_core_file_integrity_scan' => 'Y',
+			'preferred_temp_dir'              => WP_CONTENT_DIR,
+			'file_scan_areas'                 => [ 'wp' ],
+		] );
+		RuntimeTestState::primeCacheSubDir( 'browser-fixtures-actions-queue' );
+
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$this->trackId( $state, 'scan_ids', $scanId );
+
+		foreach ( [ 'wp-admin/admin.php', 'wp-includes/version.php' ] as $pathFragment ) {
+			$tracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $pathFragment, [
+				'is_in_core' => 1,
+			] );
+			$this->trackScanResult( $state, $tracked );
+			TestDataFactory::markScanResultItemIgnored( (int)$tracked[ 'result_item_id' ] );
+		}
+
+		return [
+			'scenario'                    => 'ignored_wordpress_direct_table',
+			'target_group_key'            => 'wordpress',
+			'expected_detail_shell'       => 'direct_table',
+			'expected_lazy_panel'         => false,
+			'require_scan_results_table'  => true,
+			'require_populated_scan_results_table' => false,
+		];
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return ScenarioDefinition
+	 */
+	private function seedIgnoredThemeDirectTable( array &$state ) :array {
+		RuntimeTestState::applyPremiumCapabilities( [
+			'scan_file_areas',
+			'scan_pluginsthemes_local',
+		] );
+
+		RuntimeTestState::controller()->opts
+			->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			->optSet( 'preferred_temp_dir', WP_CONTENT_DIR )
+			->optSet( 'file_scan_areas', [ 'wp', 'themes' ] )
+			->store();
+		RuntimeTestState::forcePersistOptions( [
+			'enable_core_file_integrity_scan' => 'Y',
+			'preferred_temp_dir'              => WP_CONTENT_DIR,
+			'file_scan_areas'                 => [ 'wp', 'themes' ],
+		] );
+		RuntimeTestState::primeCacheSubDir( 'browser-fixtures-actions-queue' );
+
+		$themeSlug = (string)\wp_get_theme()->get_stylesheet();
+		if ( $themeSlug === '' ) {
+			throw new \RuntimeException( 'Unable to determine the active theme for the Actions Queue fixture.' );
+		}
+
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$this->trackId( $state, 'scan_ids', $scanId );
+
+		foreach ( [ 'style.css', 'functions.php' ] as $file ) {
+			$tracked = TestDataFactory::insertAfsFileScanResultTracked(
+				$scanId,
+				$this->themeFilePathFragment( $themeSlug, $file ),
+				[
+					'is_in_theme' => 1,
+					'ptg_slug'    => $themeSlug,
+				]
+			);
+			$this->trackScanResult( $state, $tracked );
+			TestDataFactory::markScanResultItemIgnored( (int)$tracked[ 'result_item_id' ] );
+		}
+
+		return [
+			'scenario'                    => 'ignored_theme_direct_table',
+			'target_group_key'            => 'themes:'.$themeSlug,
+			'expected_detail_shell'       => 'direct_table',
+			'expected_lazy_panel'         => false,
+			'require_scan_results_table'  => true,
+			'require_populated_scan_results_table' => false,
+		];
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return ScenarioDefinition
+	 */
+	private function seedIgnoredMalwareDirectTable( array &$state ) :array {
+		RuntimeTestState::applyPremiumCapabilities( [
+			'scan_malware_local',
+		] );
+
+		RuntimeTestState::controller()->opts
+			->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
+			->store();
+		RuntimeTestState::forcePersistOptions( [
+			'enable_core_file_integrity_scan' => 'Y',
+			'file_scan_areas'                 => [ 'wp', 'malware_php' ],
+		] );
+		RuntimeTestState::primeCacheSubDir( 'browser-fixtures-actions-queue' );
+
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$this->trackId( $state, 'scan_ids', $scanId );
+
+		foreach ( [ 'wp-config.php', 'index.php' ] as $pathFragment ) {
+			$tracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $pathFragment, [
+				'is_mal' => 1,
+			] );
+			$this->trackScanResult( $state, $tracked );
+			TestDataFactory::markScanResultItemIgnored( (int)$tracked[ 'result_item_id' ] );
+		}
+
+		return [
+			'scenario'                    => 'ignored_malware_direct_table',
+			'target_group_key'            => 'malware',
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
 			'require_scan_results_table'  => true,
@@ -546,5 +687,9 @@ class ActionsQueueFixtureBuilder {
 
 	private function pluginMainPathFragment( string $pluginSlug ) :string {
 		return TestDataFactory::pathFragmentFromAbsolutePath( WP_PLUGIN_DIR.'/'.$pluginSlug );
+	}
+
+	private function themeFilePathFragment( string $themeSlug, string $file ) :string {
+		return TestDataFactory::pathFragmentFromAbsolutePath( \get_theme_root().'/'.$themeSlug.'/'.$file );
 	}
 }
