@@ -43,7 +43,7 @@
             "score",
             "minimum"
         ],
-        "level": "info",
+        "level": "notice",
         "stat": true
     },
     "app_incorrect_password": {
@@ -193,7 +193,7 @@
         ]
     },
     "comment_unmarkspam": {
-        "level": "info",
+        "level": "notice",
         "offense": false,
         "stat": false
     },
@@ -555,7 +555,7 @@
         "audit_multiple": true
     },
     "plugin_option_changed": {
-        "level": "info",
+        "level": "notice",
         "audit_params": [
             "name",
             "key",
