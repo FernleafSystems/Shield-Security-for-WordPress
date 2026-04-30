@@ -81,10 +81,7 @@ class SecurityAdminDisableActionBuilder {
 	private function buildHref( string $baseUrl ) :string {
 		return self::con()->plugin_urls->noncedPluginAction(
 			SecurityAdminRemove::class,
-			$baseUrl,
-			[
-				'quietly' => '1',
-			]
+			$baseUrl
 		);
 	}
 

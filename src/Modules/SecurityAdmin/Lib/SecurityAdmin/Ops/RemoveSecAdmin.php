@@ -13,7 +13,7 @@ class RemoveSecAdmin {
 
 	use PluginControllerConsumer;
 
-	public function remove( bool $quietly = false ) {
+	public function remove() {
 		if ( !empty( self::con()->comps->opts_lookup->getSecAdminPIN() ) ) {
 			self::con()->this_req->is_security_admin = true;
 
@@ -29,9 +29,7 @@ class RemoveSecAdmin {
 			// After removing Security Admin entirely, ensure flag remains true since protection is now disabled
 			self::con()->this_req->is_security_admin = true;
 
-			if ( !$quietly ) {
-				$this->sendNotificationEmail();
-			}
+			$this->sendNotificationEmail();
 		}
 	}
 
