@@ -75,7 +75,7 @@ class ActionsQueueScanAssetCardsBuilder {
 				continue;
 			}
 
-			$fileCount = \max( 0, (int)( $summary[ 'file_count' ] ?? 0 ) );
+			$fileCount = $summary[ 'file_count' ];
 			if ( $fileCount < 1 ) {
 				continue;
 			}
@@ -143,11 +143,12 @@ class ActionsQueueScanAssetCardsBuilder {
 
 	/**
 	 * @phpstan-param AssetType $assetType
+	 * @param list<QueueAssetSummaryRecord> $activeSummaries
 	 * @return list<QueueAssetSummaryRecord>
 	 */
-	public function buildFullyIgnoredSummaryRecords( string $assetType ) :array {
+	public function buildFullyIgnoredSummaryRecords( string $assetType, array $activeSummaries ) :array {
 		$activeSlugs = \array_fill_keys(
-			\array_column( $this->buildSummaryRecords( $assetType, $this->queueScanResultsOptions->activeOnly() ), 'key' ),
+			\array_column( $activeSummaries, 'key' ),
 			true
 		);
 
@@ -156,7 +157,7 @@ class ActionsQueueScanAssetCardsBuilder {
 				$summary,
 				[
 					'stat_text' => $this->buildQueueAssetDiscoveredIgnoredStatText(
-						(int)( $summary[ 'count_badge' ] ?? 0 )
+						$summary[ 'count_badge' ]
 					),
 				]
 			),

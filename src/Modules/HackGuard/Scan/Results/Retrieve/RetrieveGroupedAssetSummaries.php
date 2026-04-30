@@ -20,15 +20,15 @@ class RetrieveGroupedAssetSummaries {
 
 	/**
 	 * @phpstan-param GroupedAssetType $assetType
-	 * @param array<string,mixed>|null $resultsDisplayOptions
+	 * @param array<string,mixed> $resultsDisplayOptions
 	 * @return list<GroupedAssetSummaryRow>
 	 */
-	public function retrieve( string $assetType, ?array $resultsDisplayOptions = null ) :array {
+	public function retrieve( string $assetType, array $resultsDisplayOptions = [] ) :array {
 		$query = $this->buildQuery(
 			$assetType,
 			$this->latestScanWheresBuilder()->forResultsDisplayWithOptions(
 				'afs',
-				\is_array( $resultsDisplayOptions ) ? $resultsDisplayOptions : []
+				$resultsDisplayOptions
 			),
 			"SELECT `ri`.`asset_key` AS `slug`, COUNT(DISTINCT `ri`.`id`) AS `file_count`",
 			'GROUP BY `ri`.`asset_key`
@@ -48,19 +48,6 @@ class RetrieveGroupedAssetSummaries {
 			},
 			Services::WpDb()->selectCustom( $query )
 		), static fn( array $row ) :bool => $row !== [] ) );
-	}
-
-	/**
-	 * @phpstan-param GroupedAssetType $assetType
-	 */
-	public function countForContext( string $assetType, int $context ) :int {
-		return (int)Services::WpDb()->getVar(
-			$this->buildQuery(
-				$assetType,
-				$this->latestScanWheresBuilder()->forContext( 'afs', $context ),
-				'SELECT COUNT(DISTINCT `ri`.`asset_key`)'
-			)
-		);
 	}
 
 	/**

@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\LatestScanResultWheresBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveGroupedAssetSummaries;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -18,7 +17,18 @@ use FernleafSystems\Wordpress\Services\Services;
  *   abandoned:int,
  *   vulnerable_assets:int
  * }
- * @phpstan-type AdminBarScanSummary array{
+ * @phpstan-type AdminBarExactScanSummary array{
+ *   counts:AdminBarExactScanCounts,
+ *   total:int,
+ *   is_capped:false
+ * }
+ * @phpstan-type AdminBarBoundedScanSummary array{
+ *   counts:array{},
+ *   total:int,
+ *   is_capped:bool
+ * }
+ * @phpstan-type AdminBarScanSummary AdminBarExactScanSummary|AdminBarBoundedScanSummary
+ * @phpstan-type AdminBarScanSummaryShape array{
  *   counts:array<string,int>,
  *   total:int,
  *   is_capped:bool
@@ -42,8 +52,6 @@ class Counts {
 	private array $counts = [];
 
 	private int $context;
-
-	private ?RetrieveGroupedAssetSummaries $groupedAssetSummaries = null;
 
 	private ?LatestScanResultWheresBuilder $latestScanWheresBuilder = null;
 
@@ -118,26 +126,6 @@ class Counts {
 		}
 
 		return true;
-	}
-
-	public function countAffectedPluginAssets() :int {
-		$cacheKey = 'count_affected_plugin_assets';
-		if ( !isset( $this->counts[ $cacheKey ] ) ) {
-			$this->counts[ $cacheKey ] = $this->groupedAssetSummaries()
-				->countForContext( 'plugin', $this->context );
-		}
-
-		return (int)$this->counts[ $cacheKey ];
-	}
-
-	public function countAffectedThemeAssets() :int {
-		$cacheKey = 'count_affected_theme_assets';
-		if ( !isset( $this->counts[ $cacheKey ] ) ) {
-			$this->counts[ $cacheKey ] = $this->groupedAssetSummaries()
-				->countForContext( 'theme', $this->context );
-		}
-
-		return (int)$this->counts[ $cacheKey ];
 	}
 
 	public function countDistinctVulnerableAssets() :int {
@@ -405,9 +393,5 @@ class Counts {
 
 	private function getLatestScanWheresBuilder() :LatestScanResultWheresBuilder {
 		return $this->latestScanWheresBuilder ??= new LatestScanResultWheresBuilder();
-	}
-
-	private function groupedAssetSummaries() :RetrieveGroupedAssetSummaries {
-		return $this->groupedAssetSummaries ??= new RetrieveGroupedAssetSummaries();
 	}
 }

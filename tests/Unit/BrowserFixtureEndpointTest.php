@@ -10,20 +10,39 @@ namespace {
 			/** @var array<string,mixed> */
 			private array $params;
 
+			private string $method = '';
+
+			private string $route = '';
+
 			/**
-			 * @param array<string,string> $headers
-			 * @param array<string,mixed>  $params
+			 * @param array<string,string>|string $headers
+			 * @param array<string,mixed>|string  $params
 			 */
-			public function __construct( array $headers = [], array $params = [] ) {
+			public function __construct( $headers = [], $params = [] ) {
 				$this->headers = [];
-				foreach ( $headers as $name => $value ) {
-					$this->headers[ \strtolower( $name ) ] = $value;
+				if ( \is_string( $headers ) ) {
+					$this->method = $headers;
+					$this->route = \is_string( $params ) ? $params : '';
+					$params = [];
 				}
-				$this->params = $params;
+				elseif ( \is_array( $headers ) ) {
+					foreach ( $headers as $name => $value ) {
+						$this->headers[ \strtolower( $name ) ] = $value;
+					}
+				}
+				$this->params = \is_array( $params ) ? $params : [];
 			}
 
 			public function get_header( string $name ) :string {
 				return $this->headers[ \strtolower( $name ) ] ?? '';
+			}
+
+			public function get_method() :string {
+				return $this->method;
+			}
+
+			public function get_route() :string {
+				return $this->route;
 			}
 
 			/**

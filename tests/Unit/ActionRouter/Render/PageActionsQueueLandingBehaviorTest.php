@@ -448,6 +448,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 					public function canScanPluginsThemesLocal() :bool {
 						return false;
 					}
+
+					public function canScanVulnerabilities() :bool {
+						return false;
+					}
 				},
 				'action_router' => new PageActionsQueueActionRouter( $this->capture ),
 			]

@@ -35,5 +35,6 @@ class Update {
 				\implode( ' AND ', $wheres )
 			)
 		);
+		self::con()->comps->scans->resetScanResultsCountMemoization();
 	}
 }

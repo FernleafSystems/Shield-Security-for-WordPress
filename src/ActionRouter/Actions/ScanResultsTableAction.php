@@ -60,8 +60,9 @@ class ScanResultsTableAction extends ScansBase {
 		}
 
 		if ( $successfulItemCount > 0 ) {
-			// Interactive actions invalidate cached counts only; stale cleanup stays on displayed rows and background maintenance.
-			self::con()->comps->scans->resetScanResultsCountMemoization();
+			$scans = self::con()->comps->scans;
+			$scans->resetScanResultsCountMemoization();
+			$scans->getAdminBarScanSummaryCache()->refresh( $scans->getScanResultsCount() );
 		}
 
 		return $this->buildActionResponse( $action, $itemCount, $successfulItemCount );

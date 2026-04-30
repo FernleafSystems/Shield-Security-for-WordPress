@@ -56,6 +56,7 @@ abstract class ItemActionHandler {
 			->delete(); // Exception if can't delete
 		if ( $item->deleted ) {
 			self::con()->db_con->scan_result_items->getQueryUpdater()->setItemDeleted( $item->VO->resultitem_id );
+			self::con()->comps->scans->resetScanResultsCountMemoization();
 			$item->repair_event_status = 'delete_success';
 		}
 
@@ -115,6 +116,9 @@ abstract class ItemActionHandler {
 				->scan_result_items
 				->getQueryUpdater()
 				->updateById( $item->VO->resultitem_id, $updateInfo );
+			if ( $item->repaired ) {
+				self::con()->comps->scans->resetScanResultsCountMemoization();
+			}
 
 			$item->repair_event_status = $item->repaired ? 'repair_success' : 'repair_fail';
 

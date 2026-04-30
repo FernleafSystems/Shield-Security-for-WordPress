@@ -51,17 +51,14 @@ class AdminBarMenu {
 
 	private function createAdminBarMenu( \WP_Admin_Bar $adminBar ) :void {
 
-		$groups = \array_filter( [
-			$this->ipsBlocked(),
-			$this->ipsOffended(),
-			$this->hackGuard(),
-			$this->users(),
-		] );
+		$con = self::con();
+		$canShowDetail = $con->isPluginAdmin();
+		$canQueryLiveDetail = $canShowDetail && $con->isPluginAdminPageRequest();
+		$groups = $this->buildGroups( $canShowDetail, $canQueryLiveDetail );
 
 		$subNodeGroupsToAdd = [];
 
 		if ( !empty( $groups ) ) {
-			$con = self::con();
 			$totalWarnings = 0;
 			$hasCappedWarnings = false;
 			$topNodeID = $con->prefix( 'adminbarmenu' );
@@ -94,7 +91,7 @@ class AdminBarMenu {
 				'href'  => $con->plugin_urls->adminHome()
 			] );
 
-			if ( $con->isPluginAdmin() ) {
+			if ( $canShowDetail ) {
 				foreach ( $subNodeGroupsToAdd as $nodeGroup ) {
 					$this->addAdminBarNode( $adminBar, $nodeGroup );
 				}
@@ -102,14 +99,41 @@ class AdminBarMenu {
 		}
 	}
 
+	private function buildGroups( bool $canShowDetail, bool $canQueryLiveDetail ) :array {
+		return \array_filter( [
+			$canQueryLiveDetail ? $this->ipsBlocked() : null,
+			$canQueryLiveDetail ? $this->ipsOffended() : null,
+			$this->hackGuard( $canShowDetail, $canQueryLiveDetail ),
+			$canQueryLiveDetail ? $this->users() : null,
+		] );
+	}
+
 	/**
 	 * @return AdminBarGroup|null
 	 */
-	private function hackGuard() :?array {
+	private function hackGuard( bool $canShowDetail, bool $canQueryLiveDetail ) :?array {
 		$con = self::con();
 		$counts = $con->comps->scans->getScanResultsCount();
-		$showScanItems = $con->isPluginAdmin();
-		$summary = $counts->adminBarScanSummary( $showScanItems );
+		$showScanItems = false;
+
+		if ( $canQueryLiveDetail ) {
+			$summary = $con->comps->scans->getAdminBarScanSummaryCache()->refresh( $counts );
+			if ( $summary !== null ) {
+				$showScanItems = true;
+			}
+			else {
+				$summary = $counts->adminBarScanSummary( false );
+			}
+		}
+		else {
+			$summary = $canShowDetail ? $con->comps->scans->getAdminBarScanSummaryCache()->read() : null;
+			if ( $summary !== null ) {
+				$showScanItems = true;
+			}
+			else {
+				$summary = $counts->adminBarScanSummary( false );
+			}
+		}
 
 		$thisGroup = null;
 		if ( $summary[ 'total' ] > 0 ) {

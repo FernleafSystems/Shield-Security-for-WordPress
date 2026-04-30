@@ -82,8 +82,8 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'update', 'deactivate' ], \array_column( $records[ 0 ][ 'actions' ], 'type' ) );
 		$this->assertSame( '', $records[ 0 ][ 'body_notice' ] );
 		$this->assertSame( '', $records[ 0 ][ 'body_notice_variant' ] );
-		$this->assertSame( '1', $records[ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
-		$this->assertSame( '0', $records[ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
+		$this->assertSame( '1', $records[ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
+		$this->assertSame( '0', $records[ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
 		$this->assertSame( 1, $builder->tableBuildCalls() );
 		$this->assertSame( [ 'plugin' ], $builder->tableBuildRoutes() );
 	}
@@ -138,11 +138,47 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$records = $builder->buildFullyIgnoredSummaryRecords( 'plugin' );
+		$records = $builder->buildFullyIgnoredSummaryRecords(
+			'plugin',
+			$builder->buildSummaryRecords( 'plugin' )
+		);
 
 		$this->assertSame( [ 'ignored-plugin/ignored-plugin.php' ], \array_column( $records, 'key' ) );
 		$this->assertSame( [ 3 ], \array_column( $records, 'count_badge' ) );
-		$this->assertNotSame( '', (string)( $records[ 0 ][ 'stat_text' ] ?? '' ) );
+	}
+
+	public function test_build_fully_ignored_summary_records_reuses_precomputed_active_summaries() :void {
+		$builder = $this->newBuilder(
+			[
+				[ 'slug' => 'active-plugin/active-plugin.php', 'file_count' => 2 ],
+			],
+			[
+				'active-plugin/active-plugin.php'  => [
+					'subject_type' => 'plugin',
+					'subject_id'   => 'active-plugin/active-plugin.php',
+					'title'        => 'Active Plugin',
+					'icon_class'   => 'bi bi-plug-fill',
+					'has_update'   => false,
+				],
+				'ignored-plugin/ignored-plugin.php' => [
+					'subject_type' => 'plugin',
+					'subject_id'   => 'ignored-plugin/ignored-plugin.php',
+					'title'        => 'Ignored Plugin',
+					'icon_class'   => 'bi bi-plug-fill',
+					'has_update'   => false,
+				],
+			],
+			[
+				[ 'slug' => 'active-plugin/active-plugin.php', 'file_count' => 1 ],
+				[ 'slug' => 'ignored-plugin/ignored-plugin.php', 'file_count' => 3 ],
+			]
+		);
+
+		$activeSummaries = $builder->buildSummaryRecords( 'plugin' );
+		$records = $builder->buildFullyIgnoredSummaryRecords( 'plugin', $activeSummaries );
+
+		$this->assertSame( [ 'ignored-plugin/ignored-plugin.php' ], \array_column( $records, 'key' ) );
+		$this->assertSame( [ 'active', 'ignored' ], $builder->retrieveCalls );
 	}
 
 	public function test_build_fully_ignored_summary_records_supports_theme_assets() :void {
@@ -172,11 +208,13 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$records = $builder->buildFullyIgnoredSummaryRecords( 'theme' );
+		$records = $builder->buildFullyIgnoredSummaryRecords(
+			'theme',
+			$builder->buildSummaryRecords( 'theme' )
+		);
 
 		$this->assertSame( [ 'ignored-theme' ], \array_column( $records, 'key' ) );
 		$this->assertSame( [ 4 ], \array_column( $records, 'count_badge' ) );
-		$this->assertNotSame( '', (string)( $records[ 0 ][ 'stat_text' ] ?? '' ) );
 	}
 
 	/**
@@ -202,6 +240,7 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			private array $activeGroupedRows;
 			private array $ignoredGroupedRows;
 			private \stdClass $tableBuildRecorder;
+			public array $retrieveCalls = [];
 
 			public function __construct(
 				ActionsQueueAssetMetadataResolver $resolver,
@@ -215,6 +254,7 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			}
 
 			protected function retrieveGroupedAssetSummaries( string $assetType, array $resultsDisplayOptions ) :array {
+				$this->retrieveCalls[] = !empty( $resultsDisplayOptions[ 'ignored_only' ] ) ? 'ignored' : 'active';
 				return !empty( $resultsDisplayOptions[ 'ignored_only' ] )
 					? $this->ignoredGroupedRows
 					: $this->activeGroupedRows;

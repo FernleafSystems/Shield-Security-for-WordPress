@@ -72,8 +72,11 @@ class ActionsQueueGroupScanSource {
 		}
 
 		if ( !isset( $this->fullyIgnoredAssetSummaries[ $assetSource ] ) ) {
+			$activeSummaries = $assetSource === 'plugins'
+				? $this->activePluginSummaries()
+				: $this->activeThemeSummaries();
 			$this->fullyIgnoredAssetSummaries[ $assetSource ] = $this->scanAssetCardsBuilder
-				->buildFullyIgnoredSummaryRecords( $assetType );
+				->buildFullyIgnoredSummaryRecords( $assetType, $activeSummaries );
 		}
 
 		return $this->fullyIgnoredAssetSummaries[ $assetSource ];
@@ -155,7 +158,7 @@ class ActionsQueueGroupScanSource {
 	 */
 	private function countQueueAssetSummaryResults( array $summaries ) :int {
 		return (int)\array_sum( \array_map(
-			static fn( array $summary ) :int => (int)( $summary[ 'count_badge' ] ?? 0 ),
+			static fn( array $summary ) :int => $summary[ 'count_badge' ],
 			$summaries
 		) );
 	}

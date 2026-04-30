@@ -42,7 +42,6 @@ class CountsQueryTest extends BaseUnitTest {
 	 *   ri_item_types:list<string>,
 	 *   ri_asset_types:list<string>,
 	 *   limit:int|null,
-	 *   uses_count_distinct_asset_key:bool,
 	 *   uses_count_distinct_item_id:bool,
 	 *   uses_count_star_subquery:bool,
 	 *   uses_result_meta_rim_join:bool,
@@ -70,7 +69,6 @@ class CountsQueryTest extends BaseUnitTest {
 			'ri_item_types'                => $itemTypeMatches[ 1 ] ?? [],
 			'ri_asset_types'               => $assetTypeMatches[ 1 ] ?? [],
 			'limit'                        => isset( $limitMatch[ 1 ] ) ? (int)$limitMatch[ 1 ] : null,
-			'uses_count_distinct_asset_key' => \strpos( $sql, 'count(distinct `ri`.`asset_key`)' ) !== false,
 			'uses_count_distinct_item_id'   => \strpos( $sql, 'count(distinct `ri`.`item_id`)' ) !== false,
 			'uses_count_star_subquery'      => \strpos( $sql, 'select count(*) from (' ) !== false,
 			'uses_result_meta_rim_join'     => (bool)\preg_match( '/inner\s+join\s+`shield_scan_result_item_meta`\s+as\s+`rim`/', $sql ),
@@ -80,21 +78,6 @@ class CountsQueryTest extends BaseUnitTest {
 			'rim_truthy_filter_count'       => \substr_count( $sql, '`rim`.`meta_value`=1' ),
 			'rim_filter_truthy_filter_count' => \substr_count( $sql, '`rim_filter`.`meta_value`=1' ),
 		];
-	}
-
-	public function test_count_affected_plugin_assets_is_memoized_by_counts_facade() :void {
-		$queries = [];
-		$this->installControllerAndDb( $queries, 5 );
-
-		$counts = new Counts();
-		$this->assertSame( 5, $counts->countAffectedPluginAssets() );
-		$this->assertSame( 5, $counts->countAffectedPluginAssets() );
-
-		$this->assertCount( 1, $queries );
-		$features = $this->scanCountQueryFeatures( $queries[ 0 ] );
-		$this->assertTrue( $features[ 'uses_count_distinct_asset_key' ] );
-		$this->assertSame( [ 'afs' ], $features[ 'scan_slugs' ] );
-		$this->assertSame( [ 'plugin' ], $features[ 'ri_asset_types' ] );
 	}
 
 	public function test_count_distinct_vulnerable_assets_uses_db_side_distinct_item_count() :void {

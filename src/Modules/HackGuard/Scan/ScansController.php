@@ -31,6 +31,8 @@ class ScansController {
 
 	private ?Results\Counts $scanResultsStatus = null;
 
+	private ?Results\AdminBarScanSummaryCache $adminBarScanSummaryCache = null;
+
 	protected function canRun() :bool {
 		return self::con()->db_con->scan_results->isReady() && self::con()->db_con->scan_items->isReady();
 	}
@@ -42,6 +44,7 @@ class ScansController {
 		$this->setCustomCronSchedules();
 		$this->setupCron();
 		$this->setupCronHooks();
+		$this->setupAdminBarScanSummaryCacheHooks();
 		$this->handlePostScanCron();
 	}
 
@@ -112,9 +115,21 @@ class ScansController {
 		return $this->scanResultsStatus ??= new Results\Counts();
 	}
 
+	public function getAdminBarScanSummaryCache() :Results\AdminBarScanSummaryCache {
+		return $this->adminBarScanSummaryCache ??= new Results\AdminBarScanSummaryCache();
+	}
+
 	public function resetScanResultsCountMemoization() :void {
 		$this->scanResultsStatus = null;
+		$this->getAdminBarScanSummaryCache()->invalidate();
 		self::con()->comps->site_query->clearMemoized();
+	}
+
+	private function setupAdminBarScanSummaryCacheHooks() :void {
+		add_action( 'shield/scan_queue_completed', function () {
+			$this->resetScanResultsCountMemoization();
+			$this->getAdminBarScanSummaryCache()->refresh( $this->getScanResultsCount() );
+		} );
 	}
 
 	private function handlePostScanCron() {

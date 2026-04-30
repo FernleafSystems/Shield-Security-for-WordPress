@@ -169,6 +169,10 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		};
 		$controller->comps = (object)[
 			'scans_queue' => $queue,
+			'scans'       => new class {
+				public function resetScanResultsCountMemoization() :void {
+				}
+			},
 		];
 
 		PluginControllerInstaller::install( $controller );

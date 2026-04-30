@@ -39,7 +39,7 @@ class UpdateTest extends BaseUnitTest {
 
 	public function test_clear_ignored_within_scope_only_targets_unresolved_items_in_scope() :void {
 		$queries = [];
-		$this->installController( $queries );
+		$resets = $this->installController( $queries );
 
 		( new Update() )
 			->setScanController( new class {
@@ -54,9 +54,10 @@ class UpdateTest extends BaseUnitTest {
 		$this->assertStringContainsString( "`resolved_at`=0", $queries[ 0 ] );
 		$this->assertStringContainsString( "`asset_type`='plugin'", $queries[ 0 ] );
 		$this->assertStringContainsString( "`asset_key`='akismet/akismet.php'", $queries[ 0 ] );
+		$this->assertSame( 1, $resets->resets );
 	}
 
-	private function installController( array &$queries ) :void {
+	private function installController( array &$queries ) :object {
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
 			'service_wpdb'    => new class( $queries ) extends Db {
@@ -82,7 +83,18 @@ class UpdateTest extends BaseUnitTest {
 				}
 			},
 		];
+		$resets = new class {
+			public int $resets = 0;
+
+			public function resetScanResultsCountMemoization() :void {
+				$this->resets++;
+			}
+		};
+		$controller->comps = (object)[
+			'scans' => $resets,
+		];
 
 		PluginControllerInstaller::install( $controller );
+		return $resets;
 	}
 }

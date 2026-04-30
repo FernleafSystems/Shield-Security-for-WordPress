@@ -162,12 +162,17 @@ class ActionsQueueScanStateBuilder {
 			return;
 		}
 
-		$count = $tabKey === 'plugins'
-			? $this->getDisplayCounts()->countAffectedPluginAssets()
-			: $this->getDisplayCounts()->countAffectedThemeAssets();
 		$assetType = $tabKey === 'plugins' ? 'plugin' : 'theme';
 		$ignoredSummaryKey = $tabKey === 'plugins' ? 'plugin_files_ignored' : 'theme_files_ignored';
-		$fullyIgnoredCount = \count( $this->getScanAssetCardsBuilder()->buildFullyIgnoredSummaryRecords( $assetType ) );
+		$activeSummaries = $this->getScanAssetCardsBuilder()->buildSummaryRecords(
+			$assetType,
+			$this->getQueueScanResultsOptions()->activeOnly()
+		);
+		$count = \count( $activeSummaries );
+		$fullyIgnoredCount = \count( $this->getScanAssetCardsBuilder()->buildFullyIgnoredSummaryRecords(
+			$assetType,
+			$activeSummaries
+		) );
 		$totalCount = $count + $fullyIgnoredCount;
 		$status = $count > 0
 			? 'critical'
@@ -546,7 +551,7 @@ class ActionsQueueScanStateBuilder {
 			if ( \in_array( $tabKey, [ 'vulnerabilities', 'abandoned' ], true ) ) {
 				continue;
 			}
-			$count += (int)( $tab[ 'count' ] ?? 0 );
+			$count += $tab[ 'count' ];
 		}
 
 		return $count;

@@ -31,6 +31,7 @@ class ItemIgnoreHandler {
 			throw new \Exception( 'Item could not be ignored at this time.' );
 		}
 
+		self::con()->comps->scans->resetScanResultsCountMemoization();
 		return true;
 	}
 
@@ -58,6 +59,7 @@ class ItemIgnoreHandler {
 			throw new \Exception( 'Item could not be restored at this time.' );
 		}
 
+		self::con()->comps->scans->resetScanResultsCountMemoization();
 		return true;
 	}
 }

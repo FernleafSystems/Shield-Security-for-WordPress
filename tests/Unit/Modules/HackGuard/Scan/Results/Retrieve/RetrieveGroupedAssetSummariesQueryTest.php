@@ -11,10 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Results\Retrieve;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
-	RetrieveCount,
-	RetrieveGroupedAssetSummaries
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveGroupedAssetSummaries;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -67,38 +64,20 @@ class RetrieveGroupedAssetSummariesQueryTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'ORDER BY `file_count` DESC, `ri`.`asset_key` ASC', $queries[ 'select' ][ 0 ] );
 	}
 
-	public function test_count_for_context_uses_same_afs_joins_with_context_filters() :void {
-		$queries = [];
-		$this->installControllerAndDb( $queries, 4 );
-
-		$count = ( new RetrieveGroupedAssetSummaries() )
-			->countForContext( 'plugin', RetrieveCount::CONTEXT_ACTIVE_PROBLEMS );
-
-		$this->assertSame( 4, $count );
-		$this->assertCount( 1, $queries[ 'count' ] );
-		$this->assertStringContainsString( 'SELECT COUNT(DISTINCT `ri`.`asset_key`)', $queries[ 'count' ][ 0 ] );
-		$this->assertStringContainsString( "`ri`.`asset_type`='plugin'", $queries[ 'count' ][ 0 ] );
-		$this->assertStringContainsString( "`ri`.`asset_key`!=''", $queries[ 'count' ][ 0 ] );
-		$this->assertStringContainsString( "`ri`.`scan`='afs'", $queries[ 'count' ][ 0 ] );
-		$this->assertStringContainsString( "`ri`.`auto_filtered_at`=0", $queries[ 'count' ][ 0 ] );
-		$this->assertStringContainsString( "`ri`.`ignored_at`=0", $queries[ 'count' ][ 0 ] );
-		$this->assertStringNotContainsString( 'GROUP BY', $queries[ 'count' ][ 0 ] );
-	}
-
 	/**
-	 * @param array{select:list<string>,count:list<string>} $queries
-	 * @param list<array{slug:string,file_count:int}>|int $dbResult
+	 * @param array{select:list<string>} $queries
+	 * @param list<array{slug:string,file_count:int}> $dbResult
 	 */
 	private function installControllerAndDb( array &$queries, $dbResult ) :void {
 		ServicesState::installItems( [
 			'service_wpdb' => new class( $queries, $dbResult ) extends Db {
 				public array $queries = [];
-				/** @var list<array{slug:string,file_count:int}>|int */
+				/** @var list<array{slug:string,file_count:int}> */
 				private $dbResult;
 
 				/**
-				 * @param array{select:list<string>,count:list<string>} $queries
-				 * @param list<array{slug:string,file_count:int}>|int $dbResult
+				 * @param array{select:list<string>} $queries
+				 * @param list<array{slug:string,file_count:int}> $dbResult
 				 */
 				public function __construct( array &$queries, $dbResult ) {
 					$this->queries = &$queries;
@@ -108,12 +87,7 @@ class RetrieveGroupedAssetSummariesQueryTest extends BaseUnitTest {
 				public function selectCustom( $query, $format = null ) {
 					unset( $format );
 					$this->queries[ 'select' ][] = $query;
-					return \is_array( $this->dbResult ) ? $this->dbResult : [];
-				}
-
-				public function getVar( $sql ) {
-					$this->queries[ 'count' ][] = $sql;
-					return \is_int( $this->dbResult ) ? $this->dbResult : 0;
+					return $this->dbResult;
 				}
 			},
 		] );
@@ -167,7 +141,6 @@ class RetrieveGroupedAssetSummariesQueryTest extends BaseUnitTest {
 
 		$queries = [
 			'select' => [],
-			'count'  => [],
 		];
 
 		PluginControllerInstaller::install( $controller );
