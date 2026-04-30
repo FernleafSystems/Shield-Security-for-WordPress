@@ -154,6 +154,40 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 		$this->assertIgnoreAllAction( $actions, 'theme', 'example-theme' );
 	}
 
+	public function test_plugin_and_theme_scopes_are_derived_from_group_key_not_render_subject_type() :void {
+		$builder = new ActionsQueueContextActionsBuilder(
+			null,
+			null,
+			$this->buildPluginReinstallActionBuilder()
+		);
+
+		$pluginActions = $builder->buildForGroup(
+			'plugins',
+			'Example Plugin',
+			'direct_table',
+			2,
+			[
+				'display_context' => 'actions_queue',
+				'subject_type'    => 'theme',
+				'subject_id'      => 'example-plugin/example-plugin.php',
+			]
+		);
+		$themeActions = $builder->buildForGroup(
+			'themes',
+			'Example Theme',
+			'direct_table',
+			2,
+			[
+				'display_context' => 'actions_queue',
+				'subject_type'    => 'plugin',
+				'subject_id'      => 'example-theme',
+			]
+		);
+
+		$this->assertIgnoreAllAction( $pluginActions, 'plugin', 'example-plugin/example-plugin.php' );
+		$this->assertIgnoreAllAction( $themeActions, 'theme', 'example-theme' );
+	}
+
 	public function test_build_for_ignored_only_or_non_direct_groups_returns_no_actions() :void {
 		$builder = new ActionsQueueContextActionsBuilder();
 

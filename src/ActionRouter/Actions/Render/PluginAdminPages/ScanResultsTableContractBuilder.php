@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components,
 	Actions\ScanResultsTableAction
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\ScanResultsScopeResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\{
 	ForMalware,
@@ -27,6 +26,7 @@ class ScanResultsTableContractBuilder {
 
 	/**
 	 * @return array<string,mixed>
+	 * @throws \InvalidArgumentException
 	 */
 	public function buildFileStatus(
 		string $subjectType,
@@ -34,32 +34,29 @@ class ScanResultsTableContractBuilder {
 		string $fullLogHref,
 		array $scanResultsActionData = []
 	) :array {
-		$subjectType = \strtolower( \trim( $subjectType ) );
-		$subjectId = \trim( $subjectId );
-		$tableActionData = \array_merge(
-			$this->scopeResolver->canonicalActionDataForSubject( $subjectType, $subjectId ),
-			$scanResultsActionData
-		);
+		$scope = $this->scopeResolver->canonicalActionDataForSubject( $subjectType, $subjectId );
+		$tableActionData = \array_merge( $scanResultsActionData, $scope );
 		$tableActionData = $this->displayOptions->mergeIntoActionData(
 			$tableActionData,
 			$this->displayOptions->explicitOptionsFromActionData( $tableActionData )
 		);
 
-		switch ( $subjectType ) {
-			case InvestigationTableContract::SUBJECT_TYPE_CORE:
+		switch ( $scope[ 'type' ] ) {
+			case ScanResultsScopeResolver::SCOPE_TYPE_WORDPRESS:
 				$datatablesInit = ( new ForWordpress() )->buildRaw();
 				break;
-			case InvestigationTableContract::SUBJECT_TYPE_PLUGIN:
-			case InvestigationTableContract::SUBJECT_TYPE_THEME:
-			default:
+			case ScanResultsScopeResolver::SCOPE_TYPE_PLUGIN:
+			case ScanResultsScopeResolver::SCOPE_TYPE_THEME:
 				$datatablesInit = ( new ForPluginTheme() )->buildRaw();
 				break;
+			default:
+				throw new \InvalidArgumentException( \sprintf( 'Unsupported scan result scope type "%s".', $scope[ 'type' ] ) );
 		}
 
 		return $this->buildTableContract(
 			__( 'File Scan Status', 'wp-simple-firewall' ),
 			'warning',
-			'file-status-'.$subjectType.'-'.$subjectId,
+			'file-status-'.$scope[ 'type' ].'-'.$scope[ 'file' ],
 			$datatablesInit,
 			ActionData::Build( ScanResultsTableAction::class, true, $tableActionData ),
 			$fullLogHref,
@@ -91,18 +88,20 @@ class ScanResultsTableContractBuilder {
 	 * @return array<string,mixed>
 	 */
 	public function buildMalware( string $fullLogHref, array $scanResultsActionData = [] ) :array {
+		$scope = $this->scopeResolver->normalizeActionScope(
+			ScanResultsScopeResolver::SCOPE_TYPE_MALWARE,
+			ScanResultsScopeResolver::SCOPE_TYPE_MALWARE
+		);
+		$tableActionData = \array_merge( $scanResultsActionData, $scope );
 		$tableActionData = $this->displayOptions->mergeIntoActionData(
-			\array_merge(
-				$this->scopeResolver->normalizeActionScope( 'malware', 'malware' ),
-				$scanResultsActionData
-			),
-			$this->displayOptions->explicitOptionsFromActionData( $scanResultsActionData )
+			$tableActionData,
+			$this->displayOptions->explicitOptionsFromActionData( $tableActionData )
 		);
 
 		return $this->buildTableContract(
 			__( 'Malware Results', 'wp-simple-firewall' ),
 			'warning',
-			'malware',
+			ScanResultsScopeResolver::SCOPE_TYPE_MALWARE,
 			( new ForMalware() )->buildRaw(),
 			ActionData::Build( ScanResultsTableAction::class, true, $tableActionData ),
 			$fullLogHref,

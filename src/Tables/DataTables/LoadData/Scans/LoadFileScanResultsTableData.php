@@ -84,7 +84,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			                              ->setTimestamp( $item->VO->created_at )
 			                              ->diffForHumans(),
 			'file_as_href'     => $this->getColumnContent_FileAsHref( $item ),
-			'file_type'        => \strtoupper( Services::Data()->getExtension( $item->path_full ) ),
+			'file_type'        => $this->column_fileTypeLabel( $item ),
 			'status_file_size' => $this->column_fileSize( $item ),
 			'status_file_type' => $this->column_fileType( $item ),
 			'status'           => $this->getColumnContent_FileStatus( $item ),
@@ -253,35 +253,45 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	}
 
 	protected function column_fileType( ResultItem $item ): string {
-		$extension = \strtoupper( Paths::Ext( $item->path_full ) );
+		$extension = $this->fileExtensionForDisplay( $item );
+		$extensionAttr = esc_attr( $extension );
+		$extensionHtml = $this->column_fileTypeLabel( $item );
 		if ( \strpos( $extension, 'PHP' ) !== false ) {
 			$type = sprintf( '<img src="%s" width="36px" alt="%s" title="%s" />',
-				self::con()->urls->forImage( 'icons/icon-php-elephant.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-php-elephant.png' ), $extensionAttr, $extensionAttr );
 		}
 		elseif ( $extension === 'JS' ) {
 			$type = sprintf( '<img src="%s" height="24px" alt="%s" title="%s" />',
-				self::con()->urls->forImage( 'icons/icon-javascript.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-javascript.png' ), $extensionAttr, $extensionAttr );
 		}
 		elseif ( $extension === 'CSS' ) {
 			$type = sprintf( '<img src="%s" height="24px" alt="%s" title="%s" />',
-				self::con()->urls->forImage( 'icons/icon-css.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-css.png' ), $extensionAttr, $extensionAttr );
 		}
 		elseif ( $extension === 'ICO' ) {
 			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
-				self::con()->urls->forImage( 'icons/icon-ico.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-ico.png' ), $extensionAttr, $extensionAttr );
 		}
 		elseif ( $extension === 'SVG' ) {
 			$type = sprintf( '<i class="%s" title="%s" aria-label="%s"></i>',
-				self::con()->svgs->iconClass( 'filetype-svg' ), $extension, $extension );
+				self::con()->svgs->iconClass( 'filetype-svg' ), $extensionAttr, $extensionAttr );
 		}
 		elseif ( $extension === 'JSON' ) {
 			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
-				self::con()->urls->forImage( 'icons/icon-json.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-json.png' ), $extensionAttr, $extensionAttr );
 		}
 		else {
-			$type = $extension;
+			$type = $extensionHtml;
 		}
 		return $type;
+	}
+
+	protected function fileExtensionForDisplay( ResultItem $item ) :string {
+		return \strtoupper( Paths::Ext( $item->path_full ) );
+	}
+
+	protected function column_fileTypeLabel( ResultItem $item ) :string {
+		return esc_html( $this->fileExtensionForDisplay( $item ) );
 	}
 
 	protected function getColumnContent_MalwareDetailsForRecord( ResultItem $item, string $sig ): string {

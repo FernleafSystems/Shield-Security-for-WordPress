@@ -73,7 +73,7 @@ class ActionsQueueContextActionsBuilder {
 			],
 		];
 
-		if ( $definitionKey === 'plugins' && $scope[ 'type' ] === 'plugin' ) {
+		if ( $definitionKey === 'plugins' && $scope[ 'type' ] === ScanResultsScopeResolver::SCOPE_TYPE_PLUGIN ) {
 			$actions = \array_merge(
 				$actions,
 				$this->pluginReinstallActionBuilder->buildForPluginFile( $scope[ 'file' ], $label )
@@ -90,15 +90,30 @@ class ActionsQueueContextActionsBuilder {
 	private function determineScopeForGroup( string $definitionKey, array $renderActionData ) :array {
 		switch ( $definitionKey ) {
 			case 'wordpress':
-				return $this->scopeResolver->normalizeActionScope( 'wordpress', 'wordpress' );
+				return $this->scopeResolver->normalizeActionScope(
+					ScanResultsScopeResolver::SCOPE_TYPE_WORDPRESS,
+					ScanResultsScopeResolver::SCOPE_FILE_WORDPRESS
+				);
 			case 'malware':
-				return $this->scopeResolver->normalizeActionScope( 'malware', 'malware' );
+				return $this->scopeResolver->normalizeActionScope(
+					ScanResultsScopeResolver::SCOPE_TYPE_MALWARE,
+					ScanResultsScopeResolver::SCOPE_TYPE_MALWARE
+				);
 			case 'plugins':
-			case 'themes':
-				$subjectType = \trim( (string)( $renderActionData[ 'subject_type' ] ?? '' ) );
 				$subjectId = \trim( (string)( $renderActionData[ 'subject_id' ] ?? '' ) );
-				return $subjectType !== '' && $subjectId !== ''
-					? $this->scopeResolver->canonicalActionDataForSubject( $subjectType, $subjectId )
+				return $subjectId !== ''
+					? $this->scopeResolver->canonicalActionDataForSubject(
+						ScanResultsScopeResolver::SCOPE_TYPE_PLUGIN,
+						$subjectId
+					)
+					: [];
+			case 'themes':
+				$subjectId = \trim( (string)( $renderActionData[ 'subject_id' ] ?? '' ) );
+				return $subjectId !== ''
+					? $this->scopeResolver->canonicalActionDataForSubject(
+						ScanResultsScopeResolver::SCOPE_TYPE_THEME,
+						$subjectId
+					)
 					: [];
 			default:
 				return [];

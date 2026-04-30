@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\ScanResultsScopeResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
@@ -33,8 +34,8 @@ class ActionsQueueScanResultsTableBuilder {
 	 */
 	public function buildWordpressTable( ?array $options = null ) :array {
 		return $this->tableContractBuilder->buildFileStatus(
-			'core',
-			'core',
+			InvestigationTableContract::SUBJECT_TYPE_CORE,
+			InvestigationTableContract::SUBJECT_TYPE_CORE,
 			$this->buildFullLogHref(),
 			$this->buildTableActionData( $options )
 		);
@@ -46,7 +47,7 @@ class ActionsQueueScanResultsTableBuilder {
 	 */
 	public function buildPluginTable( string $pluginFile, ?array $options = null ) :array {
 		return $this->tableContractBuilder->buildFileStatus(
-			'plugin',
+			InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
 			$pluginFile,
 			$this->buildFullLogHref(),
 			$this->buildTableActionData( $options )
@@ -59,7 +60,7 @@ class ActionsQueueScanResultsTableBuilder {
 	 */
 	public function buildThemeTable( string $stylesheet, ?array $options = null ) :array {
 		return $this->tableContractBuilder->buildFileStatus(
-			'theme',
+			InvestigationTableContract::SUBJECT_TYPE_THEME,
 			$stylesheet,
 			$this->buildFullLogHref(),
 			$this->buildTableActionData( $options )
@@ -81,11 +82,10 @@ class ActionsQueueScanResultsTableBuilder {
 	 * @param array<string,mixed> $options
 	 */
 	public function countForScope( string $type, string $file, array $options ) :int {
-		$scope = $this->scopeResolver->normalizeActionScope( $type, $file );
 		$loader = new LoadFileScanResultsTableData();
 		$loader->custom_record_retriever_wheres = $this->scopeResolver->wheresForActionScope(
-			$scope[ 'type' ],
-			$scope[ 'file' ]
+			$type,
+			$file
 		);
 		$loader->results_display_options = $this->displayOptions->normalize( $options );
 		return $loader->countAll();

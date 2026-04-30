@@ -179,6 +179,30 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_ignore_all_sub_action_rejects_invalid_scope_without_mutating_wordpress_results() :void {
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$activeOne = $this->seedWordpressScanResultForScan( $scanId );
+		$activeTwo = $this->seedWordpressScanResultForScan( $scanId, 'wp-admin/update.php' );
+
+		$payload = $this->processScanResultsAction( [
+			'sub_action' => 'ignore_all',
+			'type'       => 'unknown',
+			'file'       => 'wordpress',
+		] );
+
+		$this->assertFalse( $payload[ 'success' ] ?? true );
+		$this->assertTrue( $payload[ 'page_reload' ] ?? false );
+
+		foreach ( [ $activeOne, $activeTwo ] as $tracked ) {
+			$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$tracked[ 'result_item_id' ] );
+			$this->assertNotEmpty( $item );
+			$this->assertSame( 0, (int)( $item->ignored_at ?? -1 ) );
+		}
+
+		$afterActive = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
+		$this->assertSame( 2, (int)( $afterActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+	}
+
 	public function test_ignore_all_sub_action_returns_in_place_noop_when_scope_is_already_empty() :void {
 		$ignored = $this->seedWordpressScanResult();
 		TestDataFactory::markScanResultItemIgnored( (int)$ignored[ 'result_item_id' ] );

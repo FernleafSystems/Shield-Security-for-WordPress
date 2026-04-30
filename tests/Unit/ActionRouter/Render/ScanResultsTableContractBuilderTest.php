@@ -149,6 +149,31 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 		);
 	}
 
+	public function testBuilderKeepsProducerOwnedScopeWhenAuxiliaryActionDataContainsScopeKeys() :void {
+		$builder = new ScanResultsTableContractBuilder();
+		$fileStatus = $builder->buildFileStatus(
+			'plugin',
+			'akismet/akismet.php',
+			'/queue/scans',
+			[
+				'type' => 'wordpress',
+				'file' => 'wordpress',
+			]
+		);
+		$malware = $builder->buildMalware( '/queue/scans', [
+			'type' => 'plugin',
+			'file' => 'akismet/akismet.php',
+		] );
+
+		$fileStatusAction = $this->decodeJsonAttr( (string)( $fileStatus[ 'table_action_attr' ] ?? '' ) );
+		$malwareAction = $this->decodeJsonAttr( (string)( $malware[ 'table_action_attr' ] ?? '' ) );
+
+		$this->assertSame( 'plugin', $fileStatusAction[ 'type' ] ?? '' );
+		$this->assertSame( 'akismet/akismet.php', $fileStatusAction[ 'file' ] ?? '' );
+		$this->assertSame( 'malware', $malwareAction[ 'type' ] ?? '' );
+		$this->assertSame( 'malware', $malwareAction[ 'file' ] ?? '' );
+	}
+
 	public function testFileStatusBuilderEmptyStatePreservesFullLogHrefAndDropsTableAttrs() :void {
 		$href = '/scans/full-log';
 		$table = ( new ScanResultsTableContractBuilder() )->buildFileStatusWithEmptyState(
@@ -180,6 +205,16 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 		$tableAction = $this->decodeJsonAttr( (string)( $table[ 'table_action_attr' ] ?? '' ) );
 		$this->assertSame( 'malware', $tableAction[ 'type' ] ?? '' );
 		$this->assertSame( 'malware', $tableAction[ 'file' ] ?? '' );
+	}
+
+	public function testFileStatusBuilderRejectsUnsupportedSubjectType() :void {
+		$this->expectException( \InvalidArgumentException::class );
+
+		( new ScanResultsTableContractBuilder() )->buildFileStatus(
+			'user',
+			'1',
+			'/queue/scans'
+		);
 	}
 
 	private function decodeJsonAttr( string $json ) :array {
