@@ -70,6 +70,7 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	 * @throws \Exception
 	 */
 	public function saveCredentialData( array $credentialData ) :void {
+		$credentialData = $this->normalizeCredentialData( $credentialData );
 		$preExistingSource = $this->getRecordFromCredentialData( $credentialData );
 		if ( empty( $preExistingSource ) ) {
 			/** @var MfaDB\Record $record */
@@ -99,6 +100,7 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	 * @throws \Exception
 	 */
 	public function updateCredentialData( array $credentialData, array $data = [] ) :void {
+		$credentialData = $this->normalizeCredentialData( $credentialData );
 		$record = $this->getRecordFromCredentialData( $credentialData );
 		if ( empty( $record ) ) {
 			throw new \Exception( 'Source does not exist.' );
@@ -144,7 +146,9 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 
 	private function getSourceFromRecord( MfaDB\Record $record ) :?PublicKeyCredentialSource {
 		try {
-			$source = PublicKeyCredentialSource::createFromArray( $record->data );
+			$source = PublicKeyCredentialSource::createFromArray(
+				$this->normalizeCredentialData( $record->data )
+			);
 		}
 		catch ( \InvalidArgumentException $e ) {
 			$source = null;
@@ -168,5 +172,9 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 		return $this->normalisedSourceID(
 			Base64Url::decode( (string)( $credentialData[ 'publicKeyCredentialId' ] ?? '' ) )
 		);
+	}
+
+	private function normalizeCredentialData( array $credentialData ) :array {
+		return ( new PasskeyCredentialDataNormalizer() )->normalize( $credentialData );
 	}
 }

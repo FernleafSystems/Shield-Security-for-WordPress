@@ -44,6 +44,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( PasskeyFixtureLoader::registrationCredentialUniqueId(), $records[ 0 ]->unique_id );
 		$this->assertSame( PasskeyFixtureLoader::registrationCredentialId(), $records[ 0 ]->data[ 'publicKeyCredentialId' ] ?? '' );
 		$this->assertSame( PasskeyFixtureLoader::registrationExpectedCounter(), (int)( $records[ 0 ]->data[ 'counter' ] ?? 0 ) );
+		$this->assertSame( 'empty', $records[ 0 ]->data[ 'trustPath' ][ 'type' ] ?? '' );
 	}
 
 	public function test_registration_verification_rejects_wrong_challenge() :void {
@@ -109,6 +110,28 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
 		$this->assertGreaterThan( 0, (int)$record->used_at );
 		$this->assertSame( PasskeyFixtureLoader::authenticationExpectedCounter(), (int)( $record->data[ 'counter' ] ?? 0 ) );
+		$this->assertSame( 'empty', $record->data[ 'trustPath' ][ 'type' ] ?? '' );
+	}
+
+	public function test_authentication_verification_normalizes_prefixed_trust_path_type() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+		$recordId = $this->seedLegacyPasskey( $user, [
+			'trustPath' => [
+				'type' => 'AptowebDeps\\Webauthn\\TrustPath\\EmptyTrustPath',
+			],
+		] );
+		$this->seedPasskeyAuthenticationOptions( $user );
+
+		$provider = $this->assertPasskeyProviderActiveFor( $user );
+		$result = $provider->verifyAuthResponse( PasskeyFixtureLoader::authenticationResponse() );
+
+		$this->assertTrue( $result->success );
+
+		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
+		$this->assertGreaterThan( 0, (int)$record->used_at );
+		$this->assertSame( PasskeyFixtureLoader::authenticationExpectedCounter(), (int)( $record->data[ 'counter' ] ?? 0 ) );
+		$this->assertSame( 'empty', $record->data[ 'trustPath' ][ 'type' ] ?? '' );
 	}
 
 	public function test_authentication_verification_rejects_wrong_origin() :void {

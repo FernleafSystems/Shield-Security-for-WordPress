@@ -76,15 +76,21 @@ trait PasskeyTestEnvironmentTrait {
 		return $provider;
 	}
 
-	protected function seedLegacyPasskey( \WP_User $user, string $label = 'Fixture Passkey' ) :int {
+	protected function seedLegacyPasskey(
+		\WP_User $user,
+		array $dataOverrides = [],
+		string $label = 'Fixture Passkey'
+	) :int {
 		$this->mergePasskeyMeta( $user, [
 			'user_key' => PasskeyFixtureLoader::userHandleRaw(),
 		] );
 
+		$credentialData = \array_replace_recursive( PasskeyFixtureLoader::legacyRecord(), $dataOverrides );
+
 		return TestDataFactory::insertMfaRecord(
 			$user->ID,
 			Passkey::ProviderSlug(),
-			PasskeyFixtureLoader::legacyRecord(),
+			$credentialData,
 			[
 				'unique_id'    => PasskeyFixtureLoader::credentialUniqueId(),
 				'label'        => $label,
