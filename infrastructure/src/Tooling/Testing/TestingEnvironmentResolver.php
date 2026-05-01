@@ -4,6 +4,7 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
 use FernleafSystems\ShieldPlatform\Tooling\Process\BashCommandResolver;
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PackagerConfigResolver;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
@@ -98,57 +99,7 @@ class TestingEnvironmentResolver {
 	 * @return array{strauss_version:?string,strauss_fork_repo:?string,strauss_fork_branch:?string}
 	 */
 	public function resolvePackagerConfig( string $rootDir ) :array {
-		$configPath = Path::join( $rootDir, '.github', 'config', 'packager.conf' );
-		if ( !\is_file( $configPath ) ) {
-			return [
-				'strauss_version' => null,
-				'strauss_fork_repo' => null,
-				'strauss_fork_branch' => null,
-			];
-		}
-
-		$lines = \file( $configPath, \FILE_IGNORE_NEW_LINES | \FILE_SKIP_EMPTY_LINES );
-		if ( !\is_array( $lines ) ) {
-			return [
-				'strauss_version' => null,
-				'strauss_fork_repo' => null,
-				'strauss_fork_branch' => null,
-			];
-		}
-
-		$values = [
-			'strauss_version' => null,
-			'strauss_fork_repo' => null,
-			'strauss_fork_branch' => null,
-		];
-
-		foreach ( $lines as $line ) {
-			$trimmed = \trim( $line );
-			if ( $trimmed === '' || \strpos( $trimmed, '#' ) === 0 ) {
-				continue;
-			}
-
-			if ( \preg_match( '/^STRAUSS_VERSION=(.+)$/', $trimmed, $matches ) === 1 ) {
-				$values[ 'strauss_version' ] = \ltrim( \trim( (string)( $matches[ 1 ] ?? '' ), " \t\n\r\0\x0B\"'" ), 'v' );
-				continue;
-			}
-			if ( \preg_match( '/^STRAUSS_FORK_REPO=(.+)$/', $trimmed, $matches ) === 1 ) {
-				$values[ 'strauss_fork_repo' ] = \trim( (string)( $matches[ 1 ] ?? '' ), " \t\n\r\0\x0B\"'" );
-				continue;
-			}
-			if ( \preg_match( '/^STRAUSS_FORK_BRANCH=(.+)$/', $trimmed, $matches ) === 1 ) {
-				$values[ 'strauss_fork_branch' ] = \trim( (string)( $matches[ 1 ] ?? '' ), " \t\n\r\0\x0B\"'" );
-			}
-		}
-
-		if ( !\is_string( $values[ 'strauss_fork_repo' ] ) || $values[ 'strauss_fork_repo' ] === '' ) {
-			$values[ 'strauss_fork_branch' ] = null;
-		}
-		elseif ( !\is_string( $values[ 'strauss_fork_branch' ] ) || $values[ 'strauss_fork_branch' ] === '' ) {
-			$values[ 'strauss_fork_branch' ] = 'develop';
-		}
-
-		return $values;
+		return ( new PackagerConfigResolver() )->resolve( $rootDir );
 	}
 
 	/**

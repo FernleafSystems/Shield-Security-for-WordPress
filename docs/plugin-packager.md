@@ -411,16 +411,16 @@ The packager executes these steps in order:
 |----------|-------------|
 | `SHIELD_STRAUSS_VERSION` | Default Strauss version |
 | `SHIELD_STRAUSS_FORK_REPO` | Default Strauss fork repository |
+| `SHIELD_STRAUSS_FORK_BRANCH` | Default Strauss fork branch |
 
 ### Config File
 
-Create `tests/Helpers/packager-config.json`:
+Create `.github/config/packager.conf`:
 
-```json
-{
-    "strauss_version": "0.22.0",
-    "strauss_fork_repo": "https://github.com/user/strauss-fork"
-}
+```bash
+STRAUSS_VERSION="0.22.0"
+STRAUSS_FORK_REPO="https://github.com/user/strauss-fork"
+STRAUSS_FORK_BRANCH="develop"
 ```
 
 **Priority:** CLI arguments > Environment variables > Config file > Defaults

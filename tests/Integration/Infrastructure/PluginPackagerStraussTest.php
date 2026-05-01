@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Infrastructure;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PackagerConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Path;
@@ -111,10 +110,6 @@ class PluginPackagerStraussTest extends TestCase {
 		}
 
 		$this->packagePath = $this->getPluginRoot();
-		$version = PackagerConfig::getStraussVersion();
-		if ( $version === null || $version === '' ) {
-			$this->markTestSkipped( 'SHIELD_STRAUSS_VERSION not set and packager config not available.' );
-		}
 	}
 
 	/** @group package-targeted */

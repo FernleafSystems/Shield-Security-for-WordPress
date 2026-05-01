@@ -18,9 +18,9 @@ declare( strict_types=1 );
  */
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\CommandRunner;
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PackagerConfigResolver;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\SafeDirectoryRemover;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\StraussBinaryProvider;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PackagerConfig;
 use Symfony\Component\Filesystem\Path;
 
 require dirname( __DIR__ ).'/vendor/autoload.php';
@@ -88,6 +88,8 @@ if ( isset( $options[ 'clean' ] ) ) {
 	exit( 0 );
 }
 
+$packagerConfig = ( new PackagerConfigResolver() )->resolve( $projectRoot );
+
 // Verify vendor/ exists (composer install must have been run)
 $vendorDir = Path::join( $projectRoot, 'vendor' );
 if ( !\is_dir( $vendorDir ) ) {
@@ -102,7 +104,7 @@ if ( \is_string( $straussVersion ) && $straussVersion !== '' ) {
 	$resolvedStrauss = \ltrim( \trim( $straussVersion ), 'v' );
 }
 else {
-	$resolvedStrauss = PackagerConfig::getStraussVersion();
+	$resolvedStrauss = $packagerConfig[ 'strauss_version' ];
 }
 
 // Use fallback if nothing specified
@@ -113,14 +115,14 @@ if ( $resolvedStrauss === null || $resolvedStrauss === '' ) {
 // Resolve fork repo: CLI arg > env var/config file > null
 $straussForkRepo = $options[ 'strauss-fork-repo' ] ?? null;
 if ( !\is_string( $straussForkRepo ) || $straussForkRepo === '' ) {
-	$straussForkRepo = PackagerConfig::getStraussForkRepo();
+	$straussForkRepo = $packagerConfig[ 'strauss_fork_repo' ];
 }
 
 $straussForkBranch = null;
 if ( \is_string( $straussForkRepo ) && $straussForkRepo !== '' ) {
 	$straussForkBranch = $options[ 'strauss-fork-branch' ] ?? null;
 	if ( !\is_string( $straussForkBranch ) || $straussForkBranch === '' ) {
-		$straussForkBranch = PackagerConfig::getStraussForkBranch();
+		$straussForkBranch = $packagerConfig[ 'strauss_fork_branch' ] ?? 'develop';
 	}
 }
 
