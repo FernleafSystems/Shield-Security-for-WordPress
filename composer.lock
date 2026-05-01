@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1ae3f85f65f620b88502bf49ede8e976",
+    "content-hash": "772e511325d2054953be71265bc020a6",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -263,16 +263,16 @@
         },
         {
             "name": "crowdsec/capi-client",
-            "version": "v3.5.0",
+            "version": "v3.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/crowdsecurity/php-capi-client.git",
-                "reference": "3e5de572c666ad316abb7cd74086f0d1ffab5687"
+                "reference": "733fdfbe95495c4b8e392eb55eac510c59678aef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/crowdsecurity/php-capi-client/zipball/3e5de572c666ad316abb7cd74086f0d1ffab5687",
-                "reference": "3e5de572c666ad316abb7cd74086f0d1ffab5687",
+                "url": "https://api.github.com/repos/crowdsecurity/php-capi-client/zipball/733fdfbe95495c4b8e392eb55eac510c59678aef",
+                "reference": "733fdfbe95495c4b8e392eb55eac510c59678aef",
                 "shasum": ""
             },
             "require": {
@@ -323,9 +323,9 @@
             ],
             "support": {
                 "issues": "https://github.com/crowdsecurity/php-capi-client/issues",
-                "source": "https://github.com/crowdsecurity/php-capi-client/tree/v3.5.0"
+                "source": "https://github.com/crowdsecurity/php-capi-client/tree/v3.5.2"
             },
-            "time": "2025-06-13T01:34:56+00:00"
+            "time": "2026-02-06T08:59:37+00:00"
         },
         {
             "name": "crowdsec/common",
@@ -574,16 +574,16 @@
         },
         {
             "name": "fernleafsystems/wordpress-services",
-            "version": "3.15.3",
+            "version": "3.16.0",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services.git",
-                "reference": "1cf4ac346cfadaa2309e7390d831ff0429293713"
+                "reference": "6fc2481cd0c355e080bcfffd82126d1a2a425528"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=1cf4ac346cfadaa2309e7390d831ff0429293713",
-                "reference": "1cf4ac346cfadaa2309e7390d831ff0429293713",
+                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=6fc2481cd0c355e080bcfffd82126d1a2a425528",
+                "reference": "6fc2481cd0c355e080bcfffd82126d1a2a425528",
                 "shasum": ""
             },
             "require": {
@@ -621,9 +621,9 @@
             "description": "Base WordPress Services provider for all AptoWeb WordPress plugins",
             "support": {
                 "issues": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/issues",
-                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.15.3"
+                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.16.0"
             },
-            "time": "2026-04-27T11:33:15+00:00"
+            "time": "2026-04-29T12:28:18+00:00"
         },
         {
             "name": "fernleafsystems/zxcvbn-php",
@@ -4460,11 +4460,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.51",
+            "version": "2.1.54",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/dc3b523c45e714c70de2ac5113b958223b55dc59",
-                "reference": "dc3b523c45e714c70de2ac5113b958223b55dc59",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/8be50c3992107dc837b17da4d140fbbdf9a5c5bd",
+                "reference": "8be50c3992107dc837b17da4d140fbbdf9a5c5bd",
                 "shasum": ""
             },
             "require": {
@@ -4509,7 +4509,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-04-21T18:22:01+00:00"
+            "time": "2026-04-29T13:31:09+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",

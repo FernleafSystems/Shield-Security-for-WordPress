@@ -11,6 +11,78 @@ class PluginPackagerStraussTest extends TestCase {
 
 	use PluginPathsTrait;
 
+	private const STRAUSS_NAMESPACE_PREFIX = 'AptowebDeps\\';
+
+	private const EXPECTED_STRAUSS_PACKAGES = [
+		'monolog/monolog',
+		'twig/twig',
+		'crowdsec/capi-client',
+		'thecodingmachine/safe',
+		'web-auth/webauthn-lib',
+		'web-auth/cose-lib',
+		'web-auth/metadata-service',
+		'spomky-labs/base64url',
+		'spomky-labs/cbor-php',
+		'fgrosse/phpasn1',
+		'beberlei/assert',
+		'league/uri',
+		'league/uri-interfaces',
+		'nyholm/psr7',
+		'nyholm/psr7-server',
+		'symfony/process',
+		'dolondro/google-authenticator',
+	];
+
+	private const EXPECTED_EXCLUDED_PACKAGES = [
+		'psr/log',
+		'psr/cache',
+		'psr/http-client',
+		'psr/http-factory',
+		'psr/http-message',
+		'ramsey/uuid',
+		'ramsey/collection',
+		'brick/math',
+		'paragonie/random_compat',
+		'christian-riesen/base32',
+		'symfony/deprecation-contracts',
+		'symfony/polyfill-ctype',
+		'symfony/polyfill-mbstring',
+		'symfony/polyfill-php81',
+		'symfony/polyfill-php80',
+		'symfony/polyfill-uuid',
+	];
+
+	private const REQUIRED_UNPREFIXED_PACKAGES = [
+		'psr/log',
+		'psr/cache',
+		'psr/http-client',
+		'psr/http-factory',
+		'psr/http-message',
+		'ramsey/uuid',
+		'ramsey/collection',
+		'brick/math',
+		'paragonie/random_compat',
+		'christian-riesen/base32',
+	];
+
+	private const EXPECTED_NAMESPACE_REWRITES = [
+		'Monolog\\'                       => 'AptowebDeps\\Monolog\\',
+		'Twig\\'                          => 'AptowebDeps\\Twig\\',
+		'CrowdSec\\CapiClient\\'          => 'AptowebDeps\\CrowdSec\\CapiClient\\',
+		'Safe\\'                          => 'AptowebDeps\\Safe\\',
+		'Webauthn\\'                      => 'AptowebDeps\\Webauthn\\',
+		'Cose\\'                          => 'AptowebDeps\\Cose\\',
+		'Base64Url\\'                     => 'AptowebDeps\\Base64Url\\',
+		'CBOR\\'                          => 'AptowebDeps\\CBOR\\',
+		'FG\\'                            => 'AptowebDeps\\FG\\',
+		'Assert\\'                        => 'AptowebDeps\\Assert\\',
+		'League\\Uri\\'                   => 'AptowebDeps\\League\\Uri\\',
+		'Nyholm\\Psr7\\'                  => 'AptowebDeps\\Nyholm\\Psr7\\',
+		'Nyholm\\Psr7Server\\'            => 'AptowebDeps\\Nyholm\\Psr7Server\\',
+		'Symfony\\Component\\Process\\'   => 'AptowebDeps\\Symfony\\Component\\Process\\',
+		'Dolondro\\GoogleAuthenticator\\' => 'AptowebDeps\\Dolondro\\GoogleAuthenticator\\',
+	];
+
 	private string $packagePath;
 
 	private function packagePathJoin( string ...$parts ) :string {
@@ -21,12 +93,14 @@ class PluginPackagerStraussTest extends TestCase {
 	 * @return string[]
 	 */
 	private function getRequiredPrefixedPackages() :array {
-		return [
-			'monolog/monolog',
-			'twig/twig',
-			'crowdsec/capi-client',
-			'thecodingmachine/safe',
-		];
+		return self::EXPECTED_STRAUSS_PACKAGES;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getRequiredUnprefixedPackages() :array {
+		return self::REQUIRED_UNPREFIXED_PACKAGES;
 	}
 
 	protected function setUp() :void {
@@ -41,6 +115,20 @@ class PluginPackagerStraussTest extends TestCase {
 		if ( $version === null || $version === '' ) {
 			$this->markTestSkipped( 'SHIELD_STRAUSS_VERSION not set and packager config not available.' );
 		}
+	}
+
+	/** @group package-targeted */
+	public function testSourceStraussConfigMatchesPackageContract() :void {
+		$strauss = $this->getSourceComposerStraussConfig();
+
+		$this->assertSame( 'vendor_prefixed', $strauss[ 'target_directory' ] ?? null );
+		$this->assertSame( self::STRAUSS_NAMESPACE_PREFIX, $strauss[ 'namespace_prefix' ] ?? null );
+		$this->assertSame( self::EXPECTED_STRAUSS_PACKAGES, $strauss[ 'packages' ] ?? null );
+		$this->assertSame( [ 'src' ], $strauss[ 'update_call_sites' ] ?? null );
+		$this->assertSame(
+			self::EXPECTED_EXCLUDED_PACKAGES,
+			$strauss[ 'exclude_from_copy' ][ 'packages' ] ?? null
+		);
 	}
 
 	/** @group package-targeted */
@@ -72,6 +160,19 @@ class PluginPackagerStraussTest extends TestCase {
 				"Prefixed-only package should not exist in vendor: {$package}"
 			);
 		}
+
+		foreach ( $this->getRequiredUnprefixedPackages() as $package ) {
+			$this->assertContains(
+				$package,
+				$vendorPackages,
+				"Required unprefixed package missing: {$package}"
+			);
+			$this->assertNotContains(
+				$package,
+				$prefixedPackages,
+				"Required unprefixed package should not exist in vendor_prefixed: {$package}"
+			);
+		}
 	}
 
 	/** @group package-targeted */
@@ -91,7 +192,7 @@ class PluginPackagerStraussTest extends TestCase {
 	/** @group package-targeted */
 	public function testPrefixedLibrariesPresent() :void {
 		$prefixed = $this->packagePathJoin( 'vendor_prefixed' );
-		foreach ( [ 'monolog', 'twig', 'crowdsec', 'thecodingmachine' ] as $dir ) {
+		foreach ( $this->getExpectedPrefixedPackageVendors() as $dir ) {
 			$this->assertDirectoryExists(
 				Path::join( $prefixed, $dir ),
 				"Prefixed directory missing: {$dir}"
@@ -100,17 +201,10 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	/** @group package-targeted */
-	public function testUnprefixedRemoved() :void {
-		$vendor = $this->packagePathJoin( 'vendor' );
-		foreach ( [ 'monolog', 'twig', 'bin' ] as $dir ) {
-			$this->assertDirectoryDoesNotExist(
-				Path::join( $vendor, $dir ),
-				"Unprefixed directory should be removed: {$dir}"
-			);
-		}
+	public function testPackageVendorBinRemoved() :void {
 		$this->assertDirectoryDoesNotExist(
-			$this->packagePathJoin( 'vendor/thecodingmachine/safe' ),
-			'Unprefixed Safe package should be removed from vendor'
+			$this->packagePathJoin( 'vendor/bin' ),
+			'Packaged vendor/bin should be removed'
 		);
 	}
 
@@ -149,16 +243,13 @@ class PluginPackagerStraussTest extends TestCase {
 			}
 			$content = file_get_contents( $path );
 			$this->assertNotFalse( $content );
-			$this->assertStringNotContainsString(
-				'/twig/twig/',
-				(string)$content,
-				"Autoload file should not contain twig references: {$file}"
-			);
-			$this->assertStringNotContainsString(
-				'/thecodingmachine/safe/',
-				(string)$content,
-				"Autoload file should not contain Safe references: {$file}"
-			);
+			foreach ( self::EXPECTED_STRAUSS_PACKAGES as $package ) {
+				$this->assertStringNotContainsString(
+					$package,
+					(string)$content,
+					"Main vendor autoload file should not contain prefixed package references: {$file} -> {$package}"
+				);
+			}
 		}
 	}
 
@@ -207,10 +298,10 @@ class PluginPackagerStraussTest extends TestCase {
 
 		// Note: We search for double-backslashes because the autoload files are PHP source
 		// where namespace backslashes are escaped (e.g., 'AptowebDeps\\Monolog\\').
-		foreach ( [ 'AptowebDeps\\\\Monolog\\\\', 'AptowebDeps\\\\Twig\\\\', 'AptowebDeps\\\\CrowdSec\\\\', 'AptowebDeps\\\\Safe\\\\' ] as $namespace ) {
+		foreach ( $this->getExpectedPrefixedAutoloadNamespaces() as $namespace ) {
 			$found = false;
 			foreach ( $autoloadContents as $content ) {
-				if ( strpos( $content, $namespace ) !== false ) {
+				if ( strpos( $content, str_replace( '\\', '\\\\', $namespace ) ) !== false ) {
 					$found = true;
 					break;
 				}
@@ -267,55 +358,327 @@ class PluginPackagerStraussTest extends TestCase {
 
 		$dateTime = new \AptowebDeps\Safe\DateTimeImmutable( 'now' );
 		$this->assertInstanceOf( \AptowebDeps\Safe\DateTimeImmutable::class, $dateTime->setTimestamp( 123 ) );
+
+		$attestationManager = new \AptowebDeps\Webauthn\AttestationStatement\AttestationStatementSupportManager();
+		$attestationLoader = new \AptowebDeps\Webauthn\AttestationStatement\AttestationObjectLoader( $attestationManager );
+		$credentialLoader = new \AptowebDeps\Webauthn\PublicKeyCredentialLoader( $attestationLoader );
+		$this->assertInstanceOf( \AptowebDeps\Webauthn\PublicKeyCredentialLoader::class, $credentialLoader );
+
+		$googleAuthenticator = new \AptowebDeps\Dolondro\GoogleAuthenticator\GoogleAuthenticator();
+		$this->assertInstanceOf(
+			\AptowebDeps\Dolondro\GoogleAuthenticator\GoogleAuthenticator::class,
+			$googleAuthenticator
+		);
+
+		$psr17Factory = new \AptowebDeps\Nyholm\Psr7\Factory\Psr17Factory();
+		$this->assertInstanceOf( \AptowebDeps\Nyholm\Psr7\Factory\Psr17Factory::class, $psr17Factory );
+
+		$base64Url = new \AptowebDeps\Base64Url\Base64Url();
+		$this->assertInstanceOf( \AptowebDeps\Base64Url\Base64Url::class, $base64Url );
+
+		$process = new \AptowebDeps\Symfony\Component\Process\Process( [ 'php', '-v' ] );
+		$this->assertInstanceOf( \AptowebDeps\Symfony\Component\Process\Process::class, $process );
 	}
 
-	public function testPackageRuntimeCallSitesArePrefixed() :void {
-		$checks = [
-			'src/Modules/Traffic/Lib/RequestLogger.php'          => [ 'AptowebDeps\\Monolog\\Logger', 'Monolog\\Logger' ],
-			'src/Render/RenderService.php'                       => [ 'AptowebDeps\\Twig\\Environment', 'Twig\\Environment' ],
-			'src/Modules/IPs/Lib/CrowdSec/CrowdSecController.php' => [ 'AptowebDeps\\CrowdSec\\CapiClient\\Watcher', 'CrowdSec\\CapiClient\\Watcher' ],
-		];
+	/** @group package-targeted */
+	public function testPackagedSourceHasNoUnprefixedReferencesToPrefixedNamespaces() :void {
+		$violations = $this->findForbiddenNamespaceReferences(
+			$this->collectPhpFiles( $this->packagePathJoin( 'src' ) ),
+			array_keys( self::EXPECTED_NAMESPACE_REWRITES ),
+			true
+		);
 
-		foreach ( $checks as $relativePath => [ $prefixedNamespace, $sourceNamespace ] ) {
-			$content = $this->getPluginFileContents( $relativePath, "Packaged runtime file: {$relativePath}" );
-			$this->assertStringContainsString(
-				$prefixedNamespace,
-				$content,
-				"Expected rewritten prefixed call site in package output: {$relativePath}"
-			);
-			$this->assertStringNotContainsString(
-				'use '.$sourceNamespace.';',
-				$content,
-				"Unprefixed source namespace should not remain as a use-import in package output: {$relativePath}"
-			);
-		}
+		$this->assertTrue( $violations === [], $this->formatNamespaceViolations( $violations ) );
 	}
 
-	public function testPackageVendorSafeCallSitesArePrefixed() :void {
-		$checks = [
-			'vendor/web-auth/webauthn-lib/src/StringStream.php'                                    => [ 'use function AptowebDeps\\Safe\\fopen;', 'use function Safe\\fopen;' ],
-			'vendor/web-auth/webauthn-lib/src/AttestationStatement/TPMAttestationStatementSupport.php' => [ 'use AptowebDeps\\Safe\\DateTimeImmutable;', 'use Safe\\DateTimeImmutable;' ],
-			'vendor/web-auth/metadata-service/src/MetadataService.php'                             => [ 'use function AptowebDeps\\Safe\\json_decode;', 'use function Safe\\json_decode;' ],
-		];
+	/** @group package-targeted */
+	public function testPrefixedVendorHasNoUnprefixedReferencesToGeneratedPrefixedNamespaces() :void {
+		$violations = $this->findForbiddenNamespaceReferences(
+			$this->collectPhpFiles( $this->packagePathJoin( 'vendor_prefixed' ) ),
+			array_keys( self::EXPECTED_NAMESPACE_REWRITES ),
+			false
+		);
 
-		foreach ( $checks as $relativePath => [ $prefixedImport, $sourceImport ] ) {
-			$content = $this->getPluginFileContents( $relativePath, "Packaged vendor file: {$relativePath}" );
-			$this->assertStringContainsString(
-				$prefixedImport,
-				$content,
-				"Expected rewritten prefixed Safe import in package output: {$relativePath}"
-			);
-			$this->assertStringNotContainsString(
-				$sourceImport,
-				$content,
-				"Unprefixed Safe import should not remain in package output: {$relativePath}"
-			);
-		}
+		$this->assertTrue( $violations === [], $this->formatNamespaceViolations( $violations ) );
 	}
 
 	/** @group package-targeted */
 	public function testLegacyCompatibilityOutputIsAbsentWhenNoPlanIsActive() :void {
 		$this->assertDirectoryDoesNotExist( $this->packagePathJoin( 'src/lib' ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getExpectedPrefixedPackageVendors() :array {
+		$vendors = [];
+		foreach ( self::EXPECTED_STRAUSS_PACKAGES as $package ) {
+			$vendors[] = explode( '/', $package )[ 0 ];
+		}
+		sort( $vendors );
+		return array_values( array_unique( $vendors ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getExpectedPrefixedAutoloadNamespaces() :array {
+		$namespaces = array_values( self::EXPECTED_NAMESPACE_REWRITES );
+		sort( $namespaces );
+		return $namespaces;
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	private function getSourceComposerStraussConfig() :array {
+		$composerJson = Path::join( dirname( __DIR__, 3 ), 'composer.json' );
+		$this->assertFileExists( $composerJson );
+
+		$content = file_get_contents( $composerJson );
+		$this->assertNotFalse( $content, "Failed reading {$composerJson}" );
+
+		$decoded = json_decode( (string)$content, true );
+		$this->assertIsArray( $decoded, 'Source composer.json must decode to an array.' );
+		$this->assertIsArray( $decoded[ 'extra' ][ 'strauss' ] ?? null, 'Source composer.json missing extra.strauss config.' );
+
+		return $decoded[ 'extra' ][ 'strauss' ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function collectPhpFiles( string $baseDir ) :array {
+		if ( !is_dir( $baseDir ) ) {
+			return [];
+		}
+
+		$files = [];
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $baseDir, \FilesystemIterator::SKIP_DOTS )
+		);
+
+		foreach ( $iterator as $file ) {
+			if ( $file instanceof \SplFileInfo
+				 && $file->isFile()
+				 && strtolower( $file->getExtension() ) === 'php' ) {
+				$files[] = $file->getPathname();
+			}
+		}
+
+		sort( $files );
+		return $files;
+	}
+
+	/**
+	 * @param string[] $files
+	 * @param string[] $forbiddenRoots
+	 * @return array<string, array<string, string[]>>
+	 */
+	private function findForbiddenNamespaceReferences( array $files, array $forbiddenRoots, bool $inspectStringLiterals ) :array {
+		$violations = [];
+
+		foreach ( $files as $file ) {
+			$content = file_get_contents( $file );
+			$this->assertNotFalse( $content, "Failed reading {$file}" );
+
+			$references = $this->collectNamespaceTokenReferences( (string)$content );
+			if ( $inspectStringLiterals ) {
+				$references = array_merge(
+					$references,
+					$this->collectNamespaceStringReferences( (string)$content )
+				);
+			}
+
+			$references = array_values( array_unique( $references ) );
+			sort( $references );
+
+			foreach ( $references as $reference ) {
+				foreach ( $forbiddenRoots as $root ) {
+					if ( $this->namespaceReferenceMatchesRoot( $reference, $root ) ) {
+						$relativePath = $this->formatPackageRelativePath( $file );
+						$violations[ $relativePath ][ $root ][] = $reference;
+					}
+				}
+			}
+		}
+
+		foreach ( $violations as $file => $roots ) {
+			foreach ( $roots as $root => $references ) {
+				$references = array_values( array_unique( $references ) );
+				sort( $references );
+				$violations[ $file ][ $root ] = $references;
+			}
+			ksort( $violations[ $file ] );
+		}
+		ksort( $violations );
+
+		return $violations;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function collectNamespaceTokenReferences( string $content ) :array {
+		$tokens = token_get_all( $content );
+		$references = [];
+		$qualifiedTokenIds = $this->getQualifiedNameTokenIds();
+		$namespaceSeparatorId = defined( 'T_NS_SEPARATOR' ) ? constant( 'T_NS_SEPARATOR' ) : null;
+
+		$count = count( $tokens );
+		for ( $i = 0; $i < $count; $i++ ) {
+			$token = $tokens[ $i ];
+			if ( !is_array( $token ) ) {
+				continue;
+			}
+
+			if ( in_array( $token[0], $qualifiedTokenIds, true ) ) {
+				$references[] = $this->normaliseNamespaceReference( $token[1] );
+				continue;
+			}
+
+			if ( $token[0] !== T_STRING ) {
+				continue;
+			}
+
+			$parts = [ $token[1] ];
+			$nextIndex = $i + 1;
+			$hasSeparator = false;
+
+			while ( $nextIndex < $count ) {
+				$nextToken = $tokens[ $nextIndex ];
+				$nextTokenText = is_array( $nextToken ) ? $nextToken[1] : $nextToken;
+				$nextTokenId = is_array( $nextToken ) ? $nextToken[0] : null;
+
+				if ( $nextTokenText !== '\\' && $nextTokenId !== $namespaceSeparatorId ) {
+					break;
+				}
+
+				$hasSeparator = true;
+				$parts[] = '\\';
+				$nextIndex++;
+
+				if ( $nextIndex >= $count
+					 || !is_array( $tokens[ $nextIndex ] )
+					 || $tokens[ $nextIndex ][0] !== T_STRING ) {
+					break;
+				}
+
+				$parts[] = $tokens[ $nextIndex ][1];
+				$nextIndex++;
+			}
+
+			if ( $hasSeparator ) {
+				$references[] = $this->normaliseNamespaceReference( implode( '', $parts ) );
+				$i = $nextIndex - 1;
+			}
+		}
+
+		return array_values( array_unique( array_filter( $references ) ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function collectNamespaceStringReferences( string $content ) :array {
+		$tokens = token_get_all( $content );
+		$stringTokenIds = [ T_CONSTANT_ENCAPSED_STRING ];
+		if ( defined( 'T_ENCAPSED_AND_WHITESPACE' ) ) {
+			$stringTokenIds[] = constant( 'T_ENCAPSED_AND_WHITESPACE' );
+		}
+
+		$references = [];
+		foreach ( $tokens as $token ) {
+			if ( !is_array( $token ) || !in_array( $token[0], $stringTokenIds, true ) ) {
+				continue;
+			}
+
+			$value = trim( $token[1], "'\"" );
+			while ( strpos( $value, '\\\\' ) !== false ) {
+				$value = str_replace( '\\\\', '\\', $value );
+			}
+
+			if ( preg_match_all(
+				'#\\\\?([A-Z][A-Za-z0-9_]*(?:\\\\[A-Za-z_][A-Za-z0-9_]*)+)#',
+				$value,
+				$matches
+			) ) {
+				foreach ( $matches[1] as $match ) {
+					$references[] = $this->normaliseNamespaceReference( $match );
+				}
+			}
+		}
+
+		return array_values( array_unique( array_filter( $references ) ) );
+	}
+
+	/**
+	 * @return int[]
+	 */
+	private function getQualifiedNameTokenIds() :array {
+		$tokenNames = [
+			'T_NAME_QUALIFIED',
+			'T_NAME_FULLY_QUALIFIED',
+			'T_NAME_RELATIVE',
+		];
+
+		$ids = [];
+		foreach ( $tokenNames as $tokenName ) {
+			if ( defined( $tokenName ) ) {
+				$ids[] = constant( $tokenName );
+			}
+		}
+
+		return $ids;
+	}
+
+	private function normaliseNamespaceReference( string $reference ) :string {
+		while ( strpos( $reference, '\\\\' ) !== false ) {
+			$reference = str_replace( '\\\\', '\\', $reference );
+		}
+
+		return trim( trim( $reference ), '\\' );
+	}
+
+	private function namespaceReferenceMatchesRoot( string $reference, string $root ) :bool {
+		$reference = $this->normaliseNamespaceReference( $reference );
+		$root = $this->normaliseNamespaceReference( $root );
+
+		return $reference === $root || strpos( $reference, $root.'\\' ) === 0;
+	}
+
+	private function formatPackageRelativePath( string $file ) :string {
+		$packagePath = rtrim( str_replace( '\\', '/', $this->packagePath ), '/' );
+		$file = str_replace( '\\', '/', $file );
+
+		if ( strpos( $file, $packagePath.'/' ) === 0 ) {
+			return substr( $file, strlen( $packagePath ) + 1 );
+		}
+
+		return $file;
+	}
+
+	/**
+	 * @param array<string, array<string, string[]>> $violations
+	 */
+	private function formatNamespaceViolations( array $violations ) :string {
+		if ( $violations === [] ) {
+			return 'No forbidden unprefixed namespace references found.';
+		}
+
+		$lines = [ 'Forbidden unprefixed namespace references found:' ];
+		foreach ( $violations as $file => $roots ) {
+			foreach ( $roots as $root => $references ) {
+				$lines[] = sprintf(
+					'%s: %s -> %s',
+					$file,
+					$root,
+					implode( ', ', $references )
+				);
+			}
+		}
+
+		return implode( "\n", $lines );
 	}
 
 	/**
