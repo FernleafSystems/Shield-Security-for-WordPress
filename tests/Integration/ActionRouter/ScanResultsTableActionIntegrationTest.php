@@ -3,14 +3,20 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	Actions\ScanResultsTableAction
+	ActionData,
+	ActionProcessor,
+	Actions\ScanResultsTableAction,
+	Exceptions\InvalidActionNonceException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdminRouteRuntime;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
+
+	use ActionRequestNonceFixture;
 
 	public function set_up() {
 		parent::set_up();
@@ -79,6 +85,30 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			[ $scanResultId ],
 			\array_column( $afterIgnored[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
 		);
+	}
+
+	public function test_mutating_sub_action_requires_valid_nonce_before_state_change() :void {
+		$tracked = $this->seedWordpressScanResult();
+		$resultItemId = (int)( $tracked[ 'result_item_id' ] ?? 0 );
+		$this->assertGreaterThan( 0, $resultItemId );
+		$snapshot = $this->seedActionNonceContext( ScanResultsTableAction::class );
+		$this->mergeCurrentRequestTransport( [
+			ActionData::FIELD_NONCE => '',
+		] );
+
+		try {
+			$this->expectException( InvalidActionNonceException::class );
+			( new ActionProcessor() )->processAction( ScanResultsTableAction::SLUG, [
+				'sub_action' => 'ignore',
+				'rids'       => [ $resultItemId ],
+			] );
+		}
+		finally {
+			$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( $resultItemId );
+			$this->restoreActionNonceContext( $snapshot );
+			$this->assertNotEmpty( $item );
+			$this->assertSame( 0, (int)( $item->ignored_at ?? -1 ) );
+		}
 	}
 
 	public function test_unignore_sub_action_restores_wordpress_row_to_active_results_without_page_reload() :void {
@@ -369,8 +399,15 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	 * @return array<string,mixed>
 	 */
 	private function processScanResultsAction( array $params ) :array {
-		return ( new PluginAdminRouteRuntime() )
-			->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, $params );
+		$snapshot = $this->seedActionNonceContext( ScanResultsTableAction::class );
+
+		try {
+			return ( new PluginAdminRouteRuntime() )
+				->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, $params );
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+		}
 	}
 
 	/**

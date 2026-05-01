@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 
 abstract class ScansBase extends BaseAction {
 
+	use Traits\NonceVerifyRequired;
+
 	public const SCAN_MODAL_STATE_INITIATING = 'initiating';
 	public const SCAN_MODAL_STATE_RUNNING = 'running';
 	public const SCAN_MODAL_STATE_COMPLETED = 'completed';

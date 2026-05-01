@@ -44,8 +44,10 @@ class ScansMalaiFileQueryTest extends BaseUnitTest {
 
 	public function test_missing_confirm_fails_before_result_lookup() :void {
 		$action = new ScansMalaiFileQueryConsentTestDouble( [] );
+		$exec = new \ReflectionMethod( $action, 'exec' );
+		$exec->setAccessible( true );
 
-		$action->process();
+		$exec->invoke( $action );
 
 		$payload = $action->response()->payload();
 		$this->assertFalse( (bool)( $payload[ 'success' ] ?? true ) );

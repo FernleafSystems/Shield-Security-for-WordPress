@@ -182,18 +182,25 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	 * @return array<string,mixed>
 	 */
 	private function retrieveScanResultsTableData( string $type, string $file ) :array {
-		$payload = $this->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, [
-			'sub_action' => 'retrieve_table_data',
-			'type'       => $type,
-			'file'       => $file,
-			'table_data' => [
-				'search'  => [ 'value' => '' ],
-				'start'   => 0,
-				'length'  => 10,
-				'order'   => [],
-				'columns' => [],
-			],
-		] );
+		$snapshot = $this->seedActionNonceContext( ScanResultsTableAction::class );
+
+		try {
+			$payload = $this->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, [
+				'sub_action' => 'retrieve_table_data',
+				'type'       => $type,
+				'file'       => $file,
+				'table_data' => [
+					'search'  => [ 'value' => '' ],
+					'start'   => 0,
+					'length'  => 10,
+					'order'   => [],
+					'columns' => [],
+				],
+			] );
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+		}
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertIsArray( $payload[ 'datatable_data' ] ?? null );
