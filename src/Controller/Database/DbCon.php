@@ -65,6 +65,8 @@ class DbCon extends DynPropertiesClass {
 	use PluginCronsConsumer;
 	use PluginControllerConsumer;
 
+	public const TABLE_READY_CACHE_LIFETIME = 3600;
+
 	public const MAP = [
 		'activity_logs'         => [
 			'slug'          => 'at_logs',
@@ -155,7 +157,12 @@ class DbCon extends DynPropertiesClass {
 	private ?array $dbHandlers = null;
 
 	protected function run() {
+		add_filter( 'apto/db/table_ready_cache_lifetime', [ $this, 'filterTableReadyCacheLifetime' ], 10, 2 );
 		$this->setupCronHooks();
+	}
+
+	public function filterTableReadyCacheLifetime( int $lifetime, ?Common\TableSchema $schema = null ) :int {
+		return \max( $lifetime, self::TABLE_READY_CACHE_LIFETIME );
 	}
 
 	public function runDailyCron() {
