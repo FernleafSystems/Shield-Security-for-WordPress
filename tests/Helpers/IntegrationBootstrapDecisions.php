@@ -14,7 +14,6 @@ class IntegrationBootstrapDecisions {
 	 *   mode:'package'|'docker_symlink'|'docker_missing_symlink'|'source',
 	 *   plugin_dir:string,
 	 *   main_plugin_file:string,
-	 *   plugin_autoload_file:string,
 	 *   wp_plugin_dir:string
 	 * }
 	 */
@@ -30,7 +29,6 @@ class IntegrationBootstrapDecisions {
 				'mode' => 'package',
 				'plugin_dir' => $packagePath,
 				'main_plugin_file' => Path::join( $packagePath, 'icwp-wpsf.php' ),
-				'plugin_autoload_file' => Path::join( $packagePath, 'plugin_autoload.php' ),
 				'wp_plugin_dir' => \dirname( $packagePath ),
 			];
 		}
@@ -40,7 +38,6 @@ class IntegrationBootstrapDecisions {
 				'mode' => 'docker_symlink',
 				'plugin_dir' => self::DOCKER_PLUGIN_DIR,
 				'main_plugin_file' => Path::join( self::DOCKER_PLUGIN_DIR, 'icwp-wpsf.php' ),
-				'plugin_autoload_file' => Path::join( self::DOCKER_PLUGIN_DIR, 'plugin_autoload.php' ),
 				'wp_plugin_dir' => \dirname( self::DOCKER_PLUGIN_DIR ),
 			];
 		}
@@ -52,7 +49,6 @@ class IntegrationBootstrapDecisions {
 				'mode' => 'docker_missing_symlink',
 				'plugin_dir' => self::DOCKER_PLUGIN_DIR,
 				'main_plugin_file' => Path::join( self::DOCKER_PLUGIN_DIR, 'icwp-wpsf.php' ),
-				'plugin_autoload_file' => Path::join( self::DOCKER_PLUGIN_DIR, 'plugin_autoload.php' ),
 				'wp_plugin_dir' => \dirname( self::DOCKER_PLUGIN_DIR ),
 			];
 		}
@@ -61,7 +57,6 @@ class IntegrationBootstrapDecisions {
 			'mode' => 'source',
 			'plugin_dir' => $repoRoot,
 			'main_plugin_file' => Path::join( $repoRoot, 'icwp-wpsf.php' ),
-			'plugin_autoload_file' => Path::join( $repoRoot, 'plugin_autoload.php' ),
 			'wp_plugin_dir' => \dirname( $repoRoot ),
 		];
 	}

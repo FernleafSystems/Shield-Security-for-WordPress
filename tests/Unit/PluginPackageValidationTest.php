@@ -48,6 +48,7 @@ class PluginPackageValidationTest extends TestCase {
 			'phpstan.package.neon.dist',
 			'phpstan.tooling.neon.dist',
 			'phpunit.xml',
+			'plugin_'.'autoload.php',
 			'composer.json',
 			'composer.lock',
 			'vendor/bin',

@@ -44,7 +44,6 @@ if ( !\function_exists( 'shield_test_set_plugin_context' ) ) {
 	 *   mode:string,
 	 *   plugin_dir:string,
 	 *   main_plugin_file:string,
-	 *   plugin_autoload_file:string,
 	 *   wp_plugin_dir:string
 	 * } $pluginContext
 	 */
@@ -190,24 +189,15 @@ function _manually_load_shield_plugin() {
 	}
 
 	$main_plugin_file = $pluginContext[ 'main_plugin_file' ] ?? '';
-	$plugin_autoload = $pluginContext[ 'plugin_autoload_file' ] ?? '';
 	$plugin_mode = (string)( $pluginContext[ 'mode' ] ?? '' );
 
 	if ( !\is_string( $main_plugin_file ) || $main_plugin_file === '' ) {
 		shield_test_error( 'ERROR: Invalid plugin context: missing main_plugin_file.' );
 		return;
 	}
-	if ( !\is_string( $plugin_autoload ) || $plugin_autoload === '' ) {
-		shield_test_error( 'ERROR: Invalid plugin context: missing plugin_autoload_file.' );
-		return;
-	}
 
 	if ( !\file_exists( $main_plugin_file ) ) {
 		shield_test_error( 'ERROR: Main plugin file not found: '.shield_test_format_path_for_log( $main_plugin_file ) );
-		return;
-	}
-	if ( !\file_exists( $plugin_autoload ) ) {
-		shield_test_error( 'ERROR: Plugin autoload file not found: '.shield_test_format_path_for_log( $plugin_autoload ) );
 		return;
 	}
 

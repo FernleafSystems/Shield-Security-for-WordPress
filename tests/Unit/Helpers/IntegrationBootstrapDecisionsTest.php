@@ -42,7 +42,6 @@ class IntegrationBootstrapDecisionsTest extends TestCase {
 		$this->assertSame( $expectedMode, $context[ 'mode' ] );
 		$this->assertSame( $expectedPluginDir, $context[ 'plugin_dir' ] );
 		$this->assertSame( Path::join( $expectedPluginDir, 'icwp-wpsf.php' ), $context[ 'main_plugin_file' ] );
-		$this->assertSame( Path::join( $expectedPluginDir, 'plugin_autoload.php' ), $context[ 'plugin_autoload_file' ] );
 		$this->assertSame( \dirname( $expectedPluginDir ), $context[ 'wp_plugin_dir' ] );
 	}
 

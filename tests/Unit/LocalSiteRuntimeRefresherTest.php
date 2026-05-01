@@ -34,7 +34,6 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 					'sentinels' => [
 						'icwp-wpsf.php' => false,
 						'plugin.json' => false,
-						'plugin_autoload.php' => false,
 					],
 					'all_required_sentinels_present' => false,
 					'has_any_required_sentinel' => false,
@@ -83,7 +82,6 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 					'sentinels' => [
 						'icwp-wpsf.php' => true,
 						'plugin.json' => true,
-						'plugin_autoload.php' => true,
 					],
 					'all_required_sentinels_present' => true,
 					'has_any_required_sentinel' => true,
@@ -116,7 +114,6 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 					'sentinels' => [
 						'icwp-wpsf.php' => true,
 						'plugin.json' => false,
-						'plugin_autoload.php' => false,
 					],
 					'all_required_sentinels_present' => false,
 					'has_any_required_sentinel' => true,
@@ -145,6 +142,11 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 			'sha256' => 'prefixed-obsolete-hash',
 			'size' => 0,
 		];
+		$staleAutoloadFile = 'plugin_'.'autoload.php';
+		$manifest[ 'files' ][ $staleAutoloadFile ] = [
+			'sha256' => 'stale-autoload-hash',
+			'size' => 0,
+		];
 
 		$runner = new ScriptedProcessRunner( [
 			[
@@ -154,7 +156,6 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 					'sentinels' => [
 						'icwp-wpsf.php' => true,
 						'plugin.json' => true,
-						'plugin_autoload.php' => true,
 					],
 					'all_required_sentinels_present' => true,
 					'has_any_required_sentinel' => true,
@@ -183,6 +184,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		$deleteList = (string)\file_get_contents( Path::join( $this->runtimeWorkspace(), 'deleted-managed-paths.json' ) );
 		$this->assertStringContainsString( 'flags/obsolete.flag', $deleteList );
 		$this->assertStringContainsString( 'vendor_prefixed/autoload.php', $deleteList );
+		$this->assertStringContainsString( $staleAutoloadFile, $deleteList );
 		$this->assertSame( 'docker', $runner->calls[ 2 ][ 'command' ][ 0 ] );
 		$this->assertSame( 'cp', $runner->calls[ 2 ][ 'command' ][ 1 ] );
 		$this->assertSame(
@@ -206,7 +208,6 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 					'sentinels' => [
 						'icwp-wpsf.php' => true,
 						'plugin.json' => true,
-						'plugin_autoload.php' => true,
 					],
 					'all_required_sentinels_present' => true,
 					'has_any_required_sentinel' => true,
@@ -239,7 +240,6 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		$paths = [
 			'icwp-wpsf.php',
 			'plugin.json',
-			'plugin_autoload.php',
 			'plugin_compatibility.php',
 			'plugin_init.php',
 			'uninstall.php',
@@ -324,7 +324,6 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		\file_put_contents( Path::join( $rootDir, 'vendor', 'autoload.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'plugin.json' ), '{}' );
 		\file_put_contents( Path::join( $rootDir, 'icwp-wpsf.php' ), '<?php' );
-		\file_put_contents( Path::join( $rootDir, 'plugin_autoload.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'plugin_compatibility.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'plugin_init.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'uninstall.php' ), '<?php' );

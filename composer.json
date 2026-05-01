@@ -10,7 +10,9 @@
     }
   ],
   "config":            {
-    "audit":         {
+    "prepend-autoloader":  false,
+    "optimize-autoloader": true,
+    "audit":               {
       "ignore": {
         "PKSA-n72g-8zd8-6dm2": {
           "apply":  "block",
@@ -18,7 +20,7 @@
         }
       }
     },
-    "platform":      {
+    "platform":            {
       "php": "7.4"
     }
   },
@@ -53,18 +55,18 @@
     "ext-zip":                               "*"
   },
   "require-dev":       {
-    "phpunit/phpunit":                      "^9.6",
-    "yoast/phpunit-polyfills":              "^4.0",
-    "brain/monkey":                         "^2.6",
-    "brianium/paratest":                    "^6.11.1",
-    "mockery/mockery":                      "^1.6",
-    "phpstan/phpstan":                      "^2.1",
-    "php-stubs/wordpress-stubs":            "^6.0",
-    "symfony/filesystem":                   "^5.4|^6.0|^7.0",
-    "symfony/console":                      "^5.4|^6.0|^7.0",
-    "symfony/process":                      "^5.4|^6.0|^7.0",
-    "szepeviktor/phpstan-wordpress":       "^2.0",
-    "php-stubs/wp-cli-stubs":              "^2.12"
+    "phpunit/phpunit":               "^9.6",
+    "yoast/phpunit-polyfills":       "^4.0",
+    "brain/monkey":                  "^2.6",
+    "brianium/paratest":             "^6.11.1",
+    "mockery/mockery":               "^1.6",
+    "phpstan/phpstan":               "^2.1",
+    "php-stubs/wordpress-stubs":     "^6.0",
+    "symfony/filesystem":            "^5.4|^6.0|^7.0",
+    "symfony/console":               "^5.4|^6.0|^7.0",
+    "symfony/process":               "^5.4|^6.0|^7.0",
+    "szepeviktor/phpstan-wordpress": "^2.0",
+    "php-stubs/wp-cli-stubs":        "^2.12"
   },
   "autoload":          {
     "psr-4": {
@@ -100,11 +102,11 @@
       "@build:config",
       "@php bin/shield test:integration-local"
     ],
-    "test:browser": [
+    "test:browser":     [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:browser"
     ],
-    "test:package": [
+    "test:package":     [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:package-targeted"
     ],

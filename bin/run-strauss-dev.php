@@ -170,7 +170,7 @@ try {
 		$logger( 'vendor_prefixed/ created alongside vendor/' );
 		$logger( '' );
 		$logger( 'AptowebDeps\\* prefixed classes are now available.' );
-		$logger( 'Both autoloaders will be loaded by plugin_autoload.php.' );
+		$logger( 'Both autoloaders will be loaded by icwp-wpsf.php.' );
 		$logger( '' );
 		$logger( 'To clean up later, run: php bin/run-strauss-dev.php --clean' );
 	}

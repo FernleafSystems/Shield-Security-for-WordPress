@@ -8,7 +8,6 @@ parameters:
 	paths:
 		- src
 		- icwp-wpsf.php
-		- plugin_autoload.php
 		- plugin_compatibility.php
 		- plugin_init.php
 		- uninstall.php

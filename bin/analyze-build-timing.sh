@@ -97,7 +97,7 @@ php bin/build-config.php
 
 # Copy individual files
 for file in icwp-wpsf.php plugin_init.php readme.txt plugin.json cl.json \
-            plugin_autoload.php plugin_compatibility.php uninstall.php unsupported.php; do
+            plugin_compatibility.php uninstall.php unsupported.php; do
     if [ -f "$file" ]; then
         cp "$file" "$PACKAGE_DIR/" 2>/dev/null
     fi

@@ -40,14 +40,12 @@ class LocalSiteRuntimeRefresher {
 	private const REQUIRED_SENTINELS = [
 		'icwp-wpsf.php',
 		'plugin.json',
-		'plugin_autoload.php',
 	];
 	// The local browser lane intentionally mirrors source runtime only.
 	// Packaged-only vendor_prefixed coverage belongs to packaged lanes.
 	private const MANAGED_ROOTS = [
 		'icwp-wpsf.php',
 		'plugin.json',
-		'plugin_autoload.php',
 		'plugin_compatibility.php',
 		'plugin_init.php',
 		'uninstall.php',
