@@ -146,6 +146,7 @@ class BuildIpRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 		$cleaner = new CleanIpRules();
 		$cleaner->expired();
 		$cleaner->duplicates_AutoBlock();
+		$cleaner->manualOverrides_Crowdsec();
 
 		$loader = $this->getRecordsLoader();
 		$loader->wheres = $wheres;

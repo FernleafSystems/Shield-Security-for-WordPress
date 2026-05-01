@@ -23,6 +23,7 @@ class CleanIpRules {
 	public function duplicates() {
 		$this->duplicates_AutoBlock();
 		$this->duplicates_Crowdsec();
+		$this->manualOverrides_Crowdsec();
 	}
 
 	public function expired() {
@@ -107,6 +108,43 @@ class CleanIpRules {
 				->filterByType( IpRulesDB\Handler::T_CROWDSEC )
 				->addWhereIn( 'id', $deleteIDs )
 				->query();
+		}
+	}
+
+	public function manualOverrides_Crowdsec() {
+		$table = self::con()->db_con->ip_rules->getTable();
+
+		$rows = Services::WpDb()->selectCustom( sprintf(
+			"SELECT `cs`.`id`
+			 FROM `%s` AS `cs`
+			 INNER JOIN `%s` AS `manual`
+				ON `manual`.`ip_ref`=`cs`.`ip_ref`
+				AND `manual`.`cidr`=`cs`.`cidr`
+				AND `manual`.`is_range`=`cs`.`is_range`
+				AND `manual`.`type` IN ('%s', '%s')
+			 WHERE `cs`.`type`='%s'",
+			$table,
+			$table,
+			IpRulesDB\Handler::T_MANUAL_BLOCK,
+			IpRulesDB\Handler::T_MANUAL_BYPASS,
+			IpRulesDB\Handler::T_CROWDSEC
+		) );
+
+		$idsToDelete = \array_values( \array_unique( \array_filter( \array_map(
+			fn( array $row ) => (int)( $row[ 'id' ] ?? 0 ),
+			$rows
+		) ) ) );
+
+		if ( !empty( $idsToDelete ) ) {
+			self::con()
+				->db_con
+				->ip_rules
+				->getQueryDeleter()
+				->filterByType( IpRulesDB\Handler::T_CROWDSEC )
+				->addWhereIn( 'id', $idsToDelete )
+				->query();
+
+			IpRulesCache::ResetAll();
 		}
 	}
 

@@ -141,7 +141,11 @@ class ProcessIPs extends ProcessBase {
 					sprintf( "`ips`.`ip` IN (%s)",
 						\implode( ',', IpAddressSql::literalsFromIps( $singles ) )
 					),
-					sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_CROWDSEC )
+					sprintf( "`ir`.`type` IN ('%s')", \implode( "','", [
+						IpRulesDB\Handler::T_CROWDSEC,
+						IpRulesDB\Handler::T_MANUAL_BLOCK,
+						IpRulesDB\Handler::T_MANUAL_BYPASS,
+					] ) )
 				];
 
 				foreach ( $loader->select() as $preExistingRule ) {

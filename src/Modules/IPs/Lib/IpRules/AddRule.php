@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressCons
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use IPLib\Factory;
+use IPLib\Range\RangeInterface;
 use IPLib\Range\Type;
 
 class AddRule {
@@ -115,12 +116,8 @@ class AddRule {
 						}
 					}
 				}
-				if ( $ruleStatus->hasCrowdsecBlock() ) {
-					foreach ( $ruleStatus->getRulesForCrowdsec() as $rule ) {
-						if ( !$rule->is_range ) {
-							( new DeleteRule() )->byRecord( $rule );
-						}
-					}
+				if ( $ruleStatus->hasCrowdsecRule() ) {
+					$this->deleteExactCrowdsecRules( $ruleStatus, $parsedRange );
 				}
 				break;
 
@@ -131,7 +128,7 @@ class AddRule {
 				if ( $ruleStatus->hasManualBlock() ) {
 					throw new \Exception( sprintf( "IP (%s) is already manually blocked so we don't duplicate.", $ip ) );
 				}
-				if ( $ruleStatus->hasCrowdsecBlock() ) {
+				if ( $ruleStatus->hasCrowdsecRule() ) {
 					throw new \Exception( sprintf( 'IP (%s) is already on the CrowdSec list.', $ip ) );
 				}
 				if ( $ruleStatus->isAutoBlacklisted() ) {
@@ -162,8 +159,8 @@ class AddRule {
 				if ( $ruleStatus->hasManualBlock() ) {
 					throw new \Exception( sprintf( 'IP (%s) is already manually blocked.', $ip ) );
 				}
-				if ( $ruleStatus->hasCrowdsecBlock() ) {
-					( new DeleteRule() )->byRecords( $ruleStatus->getRulesForCrowdsec() );
+				if ( $ruleStatus->hasCrowdsecRule() ) {
+					$this->deleteExactCrowdsecRules( $ruleStatus, $parsedRange );
 				}
 
 				// 1. You can manually block an IP on the Auto list (it'll be replaced)
@@ -225,6 +222,16 @@ class AddRule {
 		$this->clearCaches( $tmp );
 
 		return $ipRuleRecord;
+	}
+
+	private function deleteExactCrowdsecRules( IpRuleStatus $ruleStatus, RangeInterface $parsedRange ) {
+		$targetSubnet = $parsedRange->asSubnet()->toString();
+
+		foreach ( $ruleStatus->getRulesForCrowdsec() as $rule ) {
+			if ( $rule->ipAsSubnetRange( true ) === $targetSubnet ) {
+				( new DeleteRule() )->byRecord( $rule );
+			}
+		}
 	}
 
 	private function clearCaches( IpRulesDB\Record $record ) {

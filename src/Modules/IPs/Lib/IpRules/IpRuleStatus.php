@@ -179,6 +179,10 @@ class IpRuleStatus {
 		return $has;
 	}
 
+	public function hasCrowdsecRule() :bool {
+		return !empty( $this->getRulesForCrowdsec() );
+	}
+
 	public function hasAutoBlock() :bool {
 		$rule = $this->getRuleForAutoBlock();
 		return !empty( $rule ) && $rule->blocked_at > 0 && ( $rule->blocked_at >= $rule->unblocked_at );
