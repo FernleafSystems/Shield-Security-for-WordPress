@@ -1,56 +1,3 @@
-<style>
-	.switch {
-	  display: inline-block;
-	  height: 34px;
-	  position: relative;
-	  width: 60px;
-	  margin: 0 20px;
-  }
-  .switch.disabled {
-	  opacity: 0.5;
-  }
-  /** https://www.sarasoueidan.com/blog/inclusively-hiding-and-styling-checkboxes-and-radio-buttons/#hiding-the-checkboxes-inclusively */
-  .switch input {
-	  position: absolute;
-	  opacity: 0;
-	  width: 100%;
-	  height: 100%;
-	  margin: 0;
-	  z-index: 1;
-  }
-  .shield_slider {
-	  background-color: #ccc;
-	  bottom: 0;
-	  cursor: pointer;
-	  left: 0;
-	  position: absolute;
-	  right: 0;
-	  top: 0;
-	  transition: .4s;
-  }
-  .shield_slider:before {
-	  background-color: #fff;
-	  bottom: 4px;
-	  content: "";
-	  height: 26px;
-	  left: 4px;
-	  position: absolute;
-	  transition: .4s;
-	  width: 26px;
-  }
-  input:checked + .shield_slider {
-	  background-color: #66bb6a;
-  }
-  input:checked + .shield_slider:before {
-	  transform: translateX(26px);
-  }
-  .shield_slider.round {
-	  border-radius: 34px;
-  }
-  .shield_slider.round:before {
-	  border-radius: 50%;
-  }
-</style>
 <tr>
 	<th>
 		<label for="shield_enable_mfaemail" class="form-label"
@@ -65,7 +12,6 @@
 				   class="shield-enable-mfaemail"
 			       {% if flags.is_profile_active %}checked="checked"{% endif %}
 					{% if flags.is_enforced %}
-						style="opacity:0.5;pointer-events: none;"
 						disabled="disabled"
 					{% endif %}
 			/>

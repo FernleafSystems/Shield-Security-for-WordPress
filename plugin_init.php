@@ -13,15 +13,9 @@ if ( isset( $oICWP_Wpsf ) || empty( $rootFile ) ) {
 
 class ICWP_WPSF_Shield_Security {
 
-	/**
-	 * @var \ICWP_WPSF_Shield_Security
-	 */
-	private static $oInstance = null;
+	private static ?ICWP_WPSF_Shield_Security $oInstance = null;
 
-	/**
-	 * @var Controller\Controller
-	 */
-	private $con;
+	private Controller\Controller $con;
 
 	private function __construct( Controller\Controller $controller ) {
 		$this->con = $controller;

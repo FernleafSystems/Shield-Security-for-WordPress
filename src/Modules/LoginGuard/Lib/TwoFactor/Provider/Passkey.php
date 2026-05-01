@@ -126,12 +126,18 @@ class Passkey extends AbstractShieldProviderMfaDB {
 					'button_reg_key'     => __( 'Register New Passkey', 'wp-simple-firewall' ),
 					'prompt'             => __( 'Click To Register A Passkey.', 'wp-simple-firewall' ),
 					'registered_devices' => __( 'Registered Passkeys', 'wp-simple-firewall' ),
+					'passkey'            => __( 'Passkey', 'wp-simple-firewall' ),
+					'used'               => __( 'Used', 'wp-simple-firewall' ),
+					'registered'         => __( 'Registered', 'wp-simple-firewall' ),
+					'action'             => __( 'Action', 'wp-simple-firewall' ),
 				],
 				'flags'   => [
 					'is_validated' => $this->hasValidatedProfile(),
 				],
 				'vars'    => [
-					'passkeys' => ( new MfaRecordsForDisplay() )->run( $this->getSourceRepo()->getUserSourceRecords() ),
+					'passkeys' => ( new MfaRecordsForDisplay() )->runWithoutDateLabels(
+						$this->getSourceRepo()->getUserSourceRecords()
+					),
 				],
 			]
 		);
