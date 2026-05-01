@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMoni
 
 class DashboardLiveMonitorSetState extends SecurityAdminBase {
 
+	use Traits\NonceVerifyRequired;
+
 	public const SLUG = 'dashboard_live_monitor_set_state';
 
 	protected function exec() {

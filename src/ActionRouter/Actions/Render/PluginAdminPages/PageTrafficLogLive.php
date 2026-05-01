@@ -21,12 +21,14 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 	}
 
 	protected function getRenderData() :array {
-		$limit = $this->action_data[ 'limit' ] ?? 200;
+		$renderActionData = [];
+		if ( \array_key_exists( 'limit', $this->action_data ) ) {
+			$renderActionData[ 'limit' ] = $this->action_data[ 'limit' ];
+		}
+
 		return [
 			'ajax'    => [
-				'load_live_logs' => ActionData::BuildJson( TrafficLiveLogs::class, true, [
-					'limit' => \is_numeric( $limit ) ? $limit : 200,
-				] ),
+				'load_live_logs' => ActionData::BuildJson( TrafficLiveLogs::class, true, $renderActionData ),
 			],
 			'flags'   => [
 				'is_enabled' => self::con()->comps->opts_lookup->getTrafficLiveLogTimeRemaining() > 0,

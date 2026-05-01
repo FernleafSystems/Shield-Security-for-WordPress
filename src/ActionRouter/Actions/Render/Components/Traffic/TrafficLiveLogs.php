@@ -8,10 +8,13 @@ class TrafficLiveLogs extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRou
 
 	public const SLUG = 'render_traffic_live_logs';
 	public const TEMPLATE = '/wpadmin/components/traffic/live_logs.twig';
+	private const DEFAULT_LIMIT = 200;
+	private const MIN_LIMIT = 1;
+	private const MAX_LIMIT = 200;
 
 	protected function getRenderData() :array {
 		$logLoader = new LoadRequestLogs();
-		$logLoader->limit = (int)( $this->action_data[ 'limit' ] ?? 200 );
+		$logLoader->limit = $this->normaliseLimit( $this->action_data[ 'limit' ] ?? null );
 		$logLoader->offset = 0;
 		$logLoader->order_by = 'id';
 		$logLoader->order_dir = 'DESC';
@@ -21,5 +24,13 @@ class TrafficLiveLogs extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRou
 				'empty' => __( 'No live traffic entries are available yet.', 'wp-simple-firewall' ),
 			]
 		];
+	}
+
+	private function normaliseLimit( $limit ) :int {
+		if ( !\is_scalar( $limit ) || !\is_numeric( $limit ) ) {
+			$limit = self::DEFAULT_LIMIT;
+		}
+
+		return (int)\min( self::MAX_LIMIT, \max( self::MIN_LIMIT, (int)$limit ) );
 	}
 }
