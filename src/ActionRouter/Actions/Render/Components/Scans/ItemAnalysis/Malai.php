@@ -3,9 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ItemAnalysis;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
-use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalaiFileQueryEligibility;
 
 class Malai extends BaseComponent {
 
@@ -14,21 +12,12 @@ class Malai extends BaseComponent {
 
 	protected function getRenderData() :array {
 		$item = $this->getScanItem();
-		$pathFull = empty( $item->path_full ) ? path_join( ABSPATH, $item->path_fragment ) : $item->path_full;
 
-		if ( !Services::WpFs()->isAccessibleFile( $pathFull ) ) {
-			throw new ActionException( __( "This file doesn't appear to be available on this site any longer.", 'wp-simple-firewall' ) );
+		try {
+			( new MalaiFileQueryEligibility() )->assertCanOfferQuery( $item );
 		}
-		if ( !\in_array( \strtolower( Paths::Ext( $pathFull ) ), [ 'php', 'php7', 'phtml', 'phtm', 'ico' ] ) ) {
-			throw new ActionException(
-				sprintf( __( "The file type/extension (%s) isn't supported by the MAL{ai} engine.", 'wp-simple-firewall' ), Paths::Ext( $pathFull ) )
-			);
-		}
-		if ( $item->is_mal ) {
-			throw new ActionException( sprintf(
-				__( 'Please see the "%s" tab for more information as this file has already been classified as "potential malware" in the scan.', 'wp-simple-firewall' ),
-				CommonDisplayStrings::get( 'info_label' )
-			) );
+		catch ( \Exception $e ) {
+			throw new ActionException( $e->getMessage() );
 		}
 
 		return [
