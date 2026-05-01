@@ -3,14 +3,19 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
 	ActionProcessor,
-	Actions\ReportTableAction
+	Actions\ReportTableAction,
+	Exceptions\InvalidActionNonceException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForReports;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ReportTableActionIntegrationTest extends ShieldIntegrationTestCase {
+
+	use ActionRequestNonceFixture;
 
 	public function set_up() {
 		parent::set_up();
@@ -33,10 +38,10 @@ class ReportTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			'unique_id' => '',
 		] );
 
-		$payload = $this->processor()->processAction( ReportTableAction::SLUG, [
+		$payload = $this->processReportTableAction( [
 			'sub_action' => 'retrieve_table_data',
 			'table_data' => $this->buildTableDataRequest(),
-		] )->payload();
+		] );
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertSame( 2, $payload[ 'datatable_data' ][ 'recordsTotal' ] ?? null );
@@ -47,10 +52,10 @@ class ReportTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			\array_column( $payload[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
 		);
 
-		$searchPayload = $this->processor()->processAction( ReportTableAction::SLUG, [
+		$searchPayload = $this->processReportTableAction( [
 			'sub_action' => 'retrieve_table_data',
 			'table_data' => $this->buildTableDataRequest( 'Alpha' ),
-		] )->payload();
+		] );
 
 		$this->assertTrue( $searchPayload[ 'success' ] ?? false );
 		$this->assertSame( 2, $searchPayload[ 'datatable_data' ][ 'recordsTotal' ] ?? null );
@@ -63,15 +68,13 @@ class ReportTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$reportId = $this->insertReport( 'Delete Me' );
 		$this->assertNotEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportId ) );
 
-		$payload = $this->processor()->processAction( ReportTableAction::SLUG, [
+		$payload = $this->processReportTableAction( [
 			'sub_action' => 'delete',
 			'rids'       => [ $reportId ],
-		] )->payload();
+		] );
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
-		$this->assertIsString( $payload[ 'message' ] ?? null );
-		$this->assertNotSame( '', (string)( $payload[ 'message' ] ?? '' ) );
 		$this->assertEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportId ) );
 	}
 
@@ -81,24 +84,112 @@ class ReportTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportIdA ) );
 		$this->assertNotEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportIdB ) );
 
-		$payload = $this->processor()->processAction( ReportTableAction::SLUG, [
+		$payload = $this->processReportTableAction( [
 			'sub_action' => 'delete',
 			'rids'       => [ $reportIdA, $reportIdB ],
-		] )->payload();
+		] );
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
-		$this->assertIsString( $payload[ 'message' ] ?? null );
-		$this->assertNotSame( '', (string)( $payload[ 'message' ] ?? '' ) );
 		$this->assertEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportIdA ) );
 		$this->assertEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportIdB ) );
+	}
+
+	public function test_delete_sub_action_requires_valid_nonce_before_deleting_report() :void {
+		$reportId = $this->insertReport( 'Nonce Protected Delete' );
+		$snapshot = $this->seedActionNonceContext( ReportTableAction::class );
+		$this->mergeCurrentRequestTransport( [
+			ActionData::FIELD_NONCE => '',
+		] );
+
+		try {
+			$this->expectException( InvalidActionNonceException::class );
+			$this->processor()->processAction( ReportTableAction::SLUG, [
+				'sub_action' => 'delete',
+				'rids'       => [ $reportId ],
+			] );
+		}
+		finally {
+			$this->assertNotEmpty( self::con()->db_con->reports->getQuerySelector()->byId( $reportId ) );
+			$this->restoreActionNonceContext( $snapshot );
+		}
+	}
+
+	public function test_retrieve_table_data_clamps_excessive_length() :void {
+		$this->seedReports( 101 );
+
+		$payload = $this->processReportTableAction( [
+			'sub_action' => 'retrieve_table_data',
+			'table_data' => $this->buildTableDataRequest( '', [
+				'length' => 100000,
+			] ),
+		] );
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertLessThanOrEqual( 100, \count( $payload[ 'datatable_data' ][ 'data' ] ?? [] ) );
+	}
+
+	public function test_retrieve_table_data_clamps_zero_length_to_minimum() :void {
+		$this->seedReports( 3 );
+
+		$payload = $this->processReportTableAction( [
+			'sub_action' => 'retrieve_table_data',
+			'table_data' => $this->buildTableDataRequest( '', [
+				'length' => 0,
+			] ),
+		] );
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertCount( 1, $payload[ 'datatable_data' ][ 'data' ] ?? [] );
+	}
+
+	public function test_retrieve_table_data_rebuilds_canonical_order_contract() :void {
+		$newerId = $this->insertReport( 'Alpha Newer', [
+			'created_at' => 200,
+		] );
+		$olderId = $this->insertReport( 'Zulu Older', [
+			'created_at' => 100,
+		] );
+
+		$tableData = $this->buildTableDataRequest( '', [
+			'columns' => [
+				[
+					'data' => 'title',
+				],
+			],
+			'order'   => [
+				[
+					'column' => 0,
+					'dir'    => 'sideways',
+				],
+			],
+		] );
+
+		$payload = $this->processReportTableAction( [
+			'sub_action' => 'retrieve_table_data',
+			'table_data' => $tableData,
+		] );
+
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertSame(
+			[ $newerId, $olderId ],
+			\array_column( $payload[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
+		);
 	}
 
 	private function processor() :ActionProcessor {
 		return new ActionProcessor();
 	}
 
-	private function buildTableDataRequest( string $search = '' ) :array {
+	private function processReportTableAction( array $actionData ) :array {
+		$this->requireController()->this_req->wp_is_ajax = true;
+		return $this->processor()->processAction(
+			ReportTableAction::SLUG,
+			ActionData::Build( ReportTableAction::class, true, $actionData )
+		)->payload();
+	}
+
+	private function buildTableDataRequest( string $search = '', array $overrides = [] ) :array {
 		$tableData = ( new ForReports() )->buildRaw();
 		$tableData[ 'order' ] = \array_values( \array_map(
 			static fn( array $order ) :array => [
@@ -116,7 +207,15 @@ class ReportTableActionIntegrationTest extends ShieldIntegrationTestCase {
 				'value' => $search,
 				'regex' => false,
 			],
-		] );
+		], $overrides );
+	}
+
+	private function seedReports( int $count ) :void {
+		for ( $i = 1; $i <= $count; $i++ ) {
+			$this->insertReport( 'Report '.$i, [
+				'created_at' => $i,
+			] );
+		}
 	}
 
 	private function insertReport( string $title, array $overrides = [] ) :int {

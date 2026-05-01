@@ -24,6 +24,7 @@ class ReportGenerator {
 	}
 
 	/**
+	 * @param array{areas:array<string,list<string>>} $options
 	 * @throws Exceptions\ReportDataEmptyException
 	 */
 	public function custom( string $title, int $start, int $end, array $options ) :ReportsDB\Record {
