@@ -978,6 +978,25 @@
         ],
         "level": "warning"
     },
+    "user_password_reset": {
+        "audit_params": [
+            "user_login"
+        ],
+        "level": "notice"
+    },
+    "user_password_reset_request_failed": {
+        "audit_params": [
+            "requested_login",
+            "reason"
+        ],
+        "level": "warning"
+    },
+    "user_password_reset_requested": {
+        "audit_params": [
+            "user_login"
+        ],
+        "level": "notice"
+    },
     "user_password_updated": {
         "audit_params": [
             "user_login"

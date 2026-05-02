@@ -980,6 +980,25 @@ class EventStrings {
 					__( "Email updated for user '{{user_login}}'.", 'wp-simple-firewall' )
 				],
 			],
+			'user_password_reset'          => [
+				'name'  => __( 'User Password Reset', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "Password reset for user '{{user_login}}'.", 'wp-simple-firewall' )
+				],
+			],
+			'user_password_reset_request_failed' => [
+				'name'  => __( 'User Password Reset Request Failed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "Password reset requested for '{{requested_login}}' was not accepted.", 'wp-simple-firewall' ),
+					__( 'Reason: {{reason}}', 'wp-simple-firewall' )
+				],
+			],
+			'user_password_reset_requested' => [
+				'name'  => __( 'User Password Reset Requested', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "Password reset requested for user '{{user_login}}'.", 'wp-simple-firewall' )
+				],
+			],
 			'user_password_updated'        => [
 				'name'  => __( 'User Password Updated', 'wp-simple-firewall' ),
 				'audit' => [
