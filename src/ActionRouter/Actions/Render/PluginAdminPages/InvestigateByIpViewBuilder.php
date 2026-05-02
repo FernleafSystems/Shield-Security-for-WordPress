@@ -37,6 +37,11 @@ class InvestigateByIpViewBuilder {
 	 *       use_select2:bool,
 	 *       auto_submit_on_change:bool
 	 *     },
+	 *     lookup_field:array{
+	 *       control_id:string,
+	 *       label_id:string,
+	 *       helper_id:string
+	 *     },
 	 *     lookup_ajax:array{
 	 *       subject:string,
 	 *       minimum_input_length:int,
@@ -93,6 +98,7 @@ class InvestigateByIpViewBuilder {
 				'analyse_ip'      => $lookup,
 				'lookup_route'    => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_IP ),
 				'lookup_behavior' => $this->buildLookupBehaviorContract( true, true, true ),
+				'lookup_field'    => $this->buildLookupFieldContract( 'ip', 'analyse_ip' ),
 				'lookup_ajax'     => $lookupAjax,
 				'lookup_ajax_attr' => $this->buildLookupAjaxAttrValue( $lookupAjax ),
 				'lookup_shortcuts' => $this->buildLookupShortcuts(),

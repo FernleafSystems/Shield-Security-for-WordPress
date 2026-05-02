@@ -104,6 +104,14 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 			],
 			$renderData[ 'vars' ][ 'lookup_behavior' ] ?? []
 		);
+		$this->assertSame(
+			[
+				'control_id' => 'shield-investigate-theme-lookup-theme_slug-control',
+				'label_id'   => 'shield-investigate-theme-lookup-theme_slug-label',
+				'helper_id'  => 'shield-investigate-theme-lookup-theme_slug-helper',
+			],
+			$renderData[ 'vars' ][ 'lookup_field' ] ?? []
+		);
 		$this->assertSame( [], $renderData[ 'vars' ][ 'lookup_ajax' ] ?? null );
 		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? 'missing' ) );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'lookup_shortcuts' ] ?? null );

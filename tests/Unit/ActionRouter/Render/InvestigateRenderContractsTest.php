@@ -143,6 +143,19 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_lookup_field_contract_builds_stable_ids() :void {
+		$subject = new InvestigateRenderContractsTestDouble();
+
+		$this->assertSame(
+			[
+				'control_id' => 'shield-investigate-plugin-lookup-plugin_slug-control',
+				'label_id'   => 'shield-investigate-plugin-lookup-plugin_slug-label',
+				'helper_id'  => 'shield-investigate-plugin-lookup-plugin_slug-helper',
+			],
+			$subject->lookupField( 'plugin', 'plugin_slug' )
+		);
+	}
+
 	public function test_lookup_shortcut_contract_is_normalized() :void {
 		$subject = new InvestigateRenderContractsTestDouble();
 		$shortcut = $subject->lookupShortcut(
@@ -324,6 +337,10 @@ class InvestigateRenderContractsTestDouble {
 
 	public function lookupBehavior( bool $panelForm = true, bool $useSelect2 = false, bool $autoSubmit = false ) :array {
 		return $this->buildLookupBehaviorContract( $panelForm, $useSelect2, $autoSubmit );
+	}
+
+	public function lookupField( string $subjectKey, string $inputName ) :array {
+		return $this->buildLookupFieldContract( $subjectKey, $inputName );
 	}
 
 	public function lookupShortcut(

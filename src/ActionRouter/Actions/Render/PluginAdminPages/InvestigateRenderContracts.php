@@ -16,6 +16,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   use_select2:bool,
  *   auto_submit_on_change:bool
  * }
+ * @phpstan-type LookupFieldContract array{
+ *   control_id:string,
+ *   label_id:string,
+ *   helper_id:string
+ * }
  * @phpstan-type LookupRouteContract array{
  *   page:string,
  *   nav:string,
@@ -179,6 +184,23 @@ trait InvestigateRenderContracts {
 
 	protected function buildLookupAjaxAttrValue( array $lookupAjax ) :string {
 		return $this->buildJsonAttrValue( $lookupAjax );
+	}
+
+	/**
+	 * @return LookupFieldContract
+	 */
+	protected function buildLookupFieldContract( string $subjectKey, string $inputName ) :array {
+		$idBase = \sprintf(
+			'shield-investigate-%s-lookup-%s',
+			sanitize_key( $subjectKey ),
+			sanitize_key( $inputName )
+		);
+
+		return [
+			'control_id' => $idBase.'-control',
+			'label_id'   => $idBase.'-label',
+			'helper_id'  => $idBase.'-helper',
+		];
 	}
 
 	/**

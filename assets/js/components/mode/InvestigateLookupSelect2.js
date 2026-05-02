@@ -20,6 +20,7 @@ export class InvestigateLookupSelect2 {
 			const $select = $( selectEl );
 			const shouldAutoSubmit = selectEl.dataset.investigateAutoSubmit === '1';
 			if ( $select.hasClass( 'select2-hidden-accessible' ) ) {
+				this.syncSelectionAccessibility( selectEl );
 				if ( shouldAutoSubmit ) {
 					this.bindAutoSubmit( selectEl, $select );
 				}
@@ -44,11 +45,53 @@ export class InvestigateLookupSelect2 {
 			}
 
 			$select.select2( select2Config );
+			this.syncSelectionAccessibility( selectEl );
 
 			if ( shouldAutoSubmit ) {
 				this.bindAutoSubmit( selectEl, $select );
 			}
 		} );
+	}
+
+	syncSelectionAccessibility( selectEl ) {
+		const selectionEl = this.resolveSelectionElement( selectEl );
+		if ( selectionEl === null ) {
+			return;
+		}
+
+		this.mergeIdReference(
+			selectionEl,
+			'aria-labelledby',
+			selectEl.dataset.investigateSelect2Label || ''
+		);
+		this.mergeIdReference(
+			selectionEl,
+			'aria-describedby',
+			selectEl.dataset.investigateSelect2Description || ''
+		);
+	}
+
+	resolveSelectionElement( selectEl ) {
+		const containerEl = selectEl.nextElementSibling;
+		const selectionEl = containerEl instanceof HTMLElement
+			? containerEl.querySelector( '.select2-selection' )
+			: null;
+		return selectionEl instanceof HTMLElement ? selectionEl : null;
+	}
+
+	mergeIdReference( element, attribute, referenceId ) {
+		const id = String( referenceId || '' ).trim();
+		if ( id.length < 1 ) {
+			return;
+		}
+
+		const references = String( element.getAttribute( attribute ) || '' )
+		.split( /\s+/ )
+		.filter( ( reference ) => reference.length > 0 );
+		if ( !references.includes( id ) ) {
+			references.push( id );
+			element.setAttribute( attribute, references.join( ' ' ) );
+		}
 	}
 
 	bindAutoSubmit( selectEl, $select ) {

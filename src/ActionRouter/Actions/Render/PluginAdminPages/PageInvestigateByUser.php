@@ -106,6 +106,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 				'user_lookup_label'=> $hasSubject ? $userLookupBuilder->formatLabel( $subject ) : $lookup,
 				'lookup_route'     => $this->buildLookupRouteContract( PluginNavs::SUBNAV_ACTIVITY_BY_USER ),
 				'lookup_behavior'  => $this->buildLookupBehaviorContract( true, true, true ),
+				'lookup_field'     => $this->buildLookupFieldContract( 'user', 'user_lookup' ),
 				'lookup_ajax'      => $lookupAjax,
 				'lookup_ajax_attr' => $this->buildLookupAjaxAttrValue( $lookupAjax ),
 				'lookup_shortcuts' => $this->buildLookupShortcuts(),

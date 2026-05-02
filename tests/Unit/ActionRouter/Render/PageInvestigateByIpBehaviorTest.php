@@ -109,6 +109,14 @@ class PageInvestigateByIpBehaviorTest extends BaseUnitTest {
 			],
 			$renderData[ 'vars' ][ 'lookup_behavior' ] ?? []
 		);
+		$this->assertSame(
+			[
+				'control_id' => 'shield-investigate-ip-lookup-analyse_ip-control',
+				'label_id'   => 'shield-investigate-ip-lookup-analyse_ip-label',
+				'helper_id'  => 'shield-investigate-ip-lookup-analyse_ip-helper',
+			],
+			$renderData[ 'vars' ][ 'lookup_field' ] ?? []
+		);
 		$this->assertSame( 'ip', (string)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'subject' ] ?? '' ) );
 		$this->assertSame( 3, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'minimum_input_length' ] ?? 0 ) );
 		$this->assertSame( 700, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'delay_ms' ] ?? 0 ) );

@@ -114,6 +114,14 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame(
 			[
+				'control_id' => 'shield-investigate-ip-lookup-analyse_ip-control',
+				'label_id'   => 'shield-investigate-ip-lookup-analyse_ip-label',
+				'helper_id'  => 'shield-investigate-ip-lookup-analyse_ip-helper',
+			],
+			$renderData[ 'vars' ][ 'lookup_field' ] ?? []
+		);
+		$this->assertSame(
+			[
 				'show_subject_header'      => true,
 				'show_lookup_with_subject' => false,
 				'change_label'             => '',

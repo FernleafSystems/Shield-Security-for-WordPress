@@ -127,6 +127,14 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 			],
 			$renderData[ 'vars' ][ 'lookup_behavior' ] ?? []
 		);
+		$this->assertSame(
+			[
+				'control_id' => 'shield-investigate-user-lookup-user_lookup-control',
+				'label_id'   => 'shield-investigate-user-lookup-user_lookup-label',
+				'helper_id'  => 'shield-investigate-user-lookup-user_lookup-helper',
+			],
+			$renderData[ 'vars' ][ 'lookup_field' ] ?? []
+		);
 		$this->assertSame( 'user', (string)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'subject' ] ?? '' ) );
 		$this->assertSame( 1, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'minimum_input_length' ] ?? 0 ) );
 		$this->assertSame( 700, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'delay_ms' ] ?? 0 ) );

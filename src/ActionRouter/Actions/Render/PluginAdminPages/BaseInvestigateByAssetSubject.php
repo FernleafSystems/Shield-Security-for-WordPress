@@ -77,6 +77,7 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				$this->getLookupOptionsVarKey() => $this->buildLookupOptionsPayload(),
 				'lookup_route'                  => $this->buildLookupRouteContract( $this->getLookupSubNav() ),
 				'lookup_behavior'               => $this->buildLookupBehaviorContract( true, true, true ),
+				'lookup_field'                  => $this->buildLookupFieldContract( $this->getLookupSubjectKey(), $this->getLookupQueryKey() ),
 				'lookup_ajax'                   => $lookupAjax,
 				'lookup_ajax_attr'              => $this->buildLookupAjaxAttrValue( $lookupAjax ),
 				'lookup_shortcuts'              => [],
