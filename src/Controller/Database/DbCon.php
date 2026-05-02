@@ -156,6 +156,8 @@ class DbCon extends DynPropertiesClass {
 
 	private ?array $dbHandlers = null;
 
+	private bool $hasResetTableReadyCacheForRebuiltConfig = false;
+
 	protected function run() {
 		add_filter( 'apto/db/table_ready_cache_lifetime', [ $this, 'filterTableReadyCacheLifetime' ], 10, 2 );
 		$this->setupCronHooks();
@@ -179,6 +181,8 @@ class DbCon extends DynPropertiesClass {
 	 * @return array[]
 	 */
 	public function getHandlers() :array {
+		$this->resetTableReadyCacheForRebuiltConfig();
+
 		if ( $this->dbHandlers === null ) {
 			$this->dbHandlers = [];
 			$dbSpecs = self::con()->cfg->configuration->databases;
@@ -220,6 +224,8 @@ class DbCon extends DynPropertiesClass {
 	 * @throws \Exception
 	 */
 	public function loadDbH( string $dbSlug, bool $reload = false ) {
+		$this->resetTableReadyCacheForRebuiltConfig();
+
 		$con = self::con();
 
 		$dbKey = null;
@@ -270,6 +276,19 @@ class DbCon extends DynPropertiesClass {
 
 	public function reset() :void {
 		$this->dbHandlers = null;
+	}
+
+	private function resetTableReadyCacheForRebuiltConfig() :void {
+		if ( $this->hasResetTableReadyCacheForRebuiltConfig || !self::con()->cfg->rebuilt ) {
+			return;
+		}
+
+		$this->hasResetTableReadyCacheForRebuiltConfig = true;
+
+		Services::WpGeneral()->deleteOption( Common\TableReadyCache::DB_STATUS_KEY );
+		Handler::GetTableReadyCache()->reset();
+		Services::WpDb()->clearResultShowTables();
+		$this->reset();
 	}
 
 	public function __get( string $key ) {

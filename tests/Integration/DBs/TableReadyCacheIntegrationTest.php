@@ -15,6 +15,10 @@ class TableReadyCacheIntegrationTest extends ShieldIntegrationTestCase {
 
 	private array $optionSnapshot = [];
 
+	private bool $cfgRebuiltSnapshot = false;
+
+	private ?DbCon $dbConSnapshot = null;
+
 	/**
 	 * @var array<int,array{family:string,snippet:string}>
 	 */
@@ -26,6 +30,9 @@ class TableReadyCacheIntegrationTest extends ShieldIntegrationTestCase {
 		parent::set_up();
 
 		$con = $this->requireController();
+		$this->dbConSnapshot = $con->db_con;
+		$this->cfgRebuiltSnapshot = $con->cfg->rebuilt;
+		$con->cfg->rebuilt = false;
 		$this->optionSnapshot = [
 			'activated_at'       => $con->opts->optGet( 'activated_at' ),
 			'transient_tracking' => $con->opts->optGet( 'transient_tracking' ),
@@ -40,6 +47,10 @@ class TableReadyCacheIntegrationTest extends ShieldIntegrationTestCase {
 		$this->stopCapturingSchemaProbeQueries();
 
 		if ( static::con() !== null ) {
+			$this->requireController()->cfg->rebuilt = $this->cfgRebuiltSnapshot;
+			if ( $this->dbConSnapshot instanceof DbCon ) {
+				$this->requireController()->db_con = $this->dbConSnapshot;
+			}
 			$this->restorePluginTimingOptions();
 			$this->clearTableReadyCache();
 			$this->resetDbReadinessRuntimeState();
@@ -131,6 +142,48 @@ class TableReadyCacheIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertFalse( $cache->isReady( $schema ) );
 		$this->assertPersistedReadyCacheContainsOnlyPositiveTimestamps();
+	}
+
+	public function test_config_rebuild_clears_warm_ready_cache_once_before_reassessment() :void {
+		$schema = $this->getHandlerSchema( 'events' );
+		$cache = Handler::GetTableReadyCache();
+
+		$cache->setReady( $schema );
+		$cache->save();
+		$this->assertTrue( $cache->isReady( $schema ) );
+
+		$con = $this->requireController();
+		$con->db_con = new DbCon();
+		$con->cfg->rebuilt = true;
+		$this->resetDbReadinessRuntimeState();
+
+		$reassessmentQueries = $this->captureSchemaProbeQueries( function () :void {
+			$handler = $this->requireController()->db_con->load( 'events' );
+			$this->assertTrue( $handler->isReady(), 'Events handler should be ready after rebuilt config reassessment.' );
+		} );
+
+		$this->assertNotEmpty(
+			$reassessmentQueries,
+			'Rebuilt configuration should clear warm table-ready cache before the first handler load.'
+		);
+		$this->assertTrue(
+			Handler::GetTableReadyCache()->isReady( $schema ),
+			'Ready cache should be restored only after rebuilt config reassessment succeeds.'
+		);
+
+		Handler::GetTableReadyCache()->save();
+		$this->resetDbReadinessRuntimeState();
+
+		$secondLoadQueries = $this->captureSchemaProbeQueries( function () :void {
+			$handler = $this->requireController()->db_con->load( 'events' );
+			$this->assertTrue( $handler->isReady(), 'Events handler should stay ready after one-shot rebuilt config reassessment.' );
+		} );
+
+		$this->assertSame(
+			[],
+			$secondLoadQueries,
+			'Rebuilt configuration should clear table-ready cache only once per DB controller instance. Observed: '.$this->formatSchemaProbeQueries( $secondLoadQueries )
+		);
 	}
 
 	private function makeTableReadyCacheEligible() :void {
