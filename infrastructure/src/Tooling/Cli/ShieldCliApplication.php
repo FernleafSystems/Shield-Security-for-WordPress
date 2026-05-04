@@ -12,11 +12,13 @@ use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteStatusCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteUpCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteWpCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestCrossSiteCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageTargetedCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestSourceCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLane;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\CrossSiteTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteDefinitions;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteManager;
@@ -73,6 +75,9 @@ class ShieldCliApplication {
 			[
 				'test:browser' => static function () use ( $projectRoot ) :Command {
 					return new TestBrowserCommand( $projectRoot, new BrowserTestLane() );
+				},
+				'test:cross-site' => static function () use ( $projectRoot ) :Command {
+					return new TestCrossSiteCommand( $projectRoot, new CrossSiteTestLane() );
 				},
 				'test:source' => static function () use ( $projectRoot, $environmentResolver ) :Command {
 					return new TestSourceCommand(

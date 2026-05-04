@@ -1,0 +1,61 @@
+name: Cross-Site Tests
+
+concurrency:
+  group: cross-site-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    branches: [ develop, main, master, docker-matrix-testing-research ]
+    paths:
+      - 'composer.json'
+      - 'composer.lock'
+      - 'src/ActionRouter/Actions/PluginImportExport_*.php'
+      - 'src/Modules/Plugin/Lib/ImportExport/**'
+      - 'src/WpCli/**'
+      - 'infrastructure/src/Tooling/Cli/**'
+      - 'infrastructure/src/Tooling/Testing/**'
+      - 'tests/Helpers/CrossSite/**'
+      - 'tests/docker/**'
+      - '.github/workflows/cross-site-tests.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '45 6 * * 1-5'
+
+jobs:
+  shield-cross-site:
+    name: 'Shield Cross-Site Import/Export'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.10'
+        cache: npm
+
+    - name: Install dependencies
+      run: |
+        composer install --no-interaction --prefer-dist --optimize-autoloader
+        npm ci --no-audit --no-fund
+
+    - name: Build admin assets
+      run: npm run build
+
+    - name: Run cross-site lane
+      run: composer test:cross-site -- --clean
+
+    - name: Stop cross-site services
+      if: always()
+      run: docker compose -p shield-cross-site -f tests/docker/docker-compose.cross-site.yml down -v --remove-orphans

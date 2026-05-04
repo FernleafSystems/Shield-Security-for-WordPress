@@ -28,6 +28,10 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertContains( 'Composer\\Config::disableProcessTimeout', $browserCommands );
 		$this->assertContains( '@php bin/shield test:browser', $browserCommands );
 
+		$crossSiteCommands = $this->getComposerScriptCommands( 'test:cross-site' );
+		$this->assertSame( [ '@php bin/shield test:cross-site' ], $crossSiteCommands );
+		$this->assertNotContains( '@test:cross-site', $this->getComposerScriptCommands( 'test' ) );
+
 		$packageCommands = $this->getComposerScriptCommands( 'test:package' );
 		$this->assertContains( 'Composer\\Config::disableProcessTimeout', $packageCommands );
 		$this->assertContains( '@php bin/shield test:package-targeted', $packageCommands );
@@ -72,6 +76,40 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertContains( './vendor/phpunit/phpunit/phpunit', $command );
 		$this->assertNotContains( 'paratest', $command );
 		$this->assertContains( 'phpunit-integration.xml', $command );
+	}
+
+	public function testCrossSiteWorkflowRunsCleanLaneWithScopedTriggers() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'GitHub workflows are excluded from packages (development-only)' );
+		}
+
+		$workflow = $this->getPluginFileContents(
+			'.github/workflows/cross-site-tests.yml',
+			'cross-site workflow'
+		);
+
+		$this->assertStringContainsString( 'workflow_dispatch:', $workflow );
+		$this->assertStringContainsString( 'schedule:', $workflow );
+		$this->assertStringContainsString( "cron: '45 6 * * 1-5'", $workflow );
+		$this->assertStringContainsString( 'composer test:cross-site -- --clean', $workflow );
+
+		foreach ( [
+			'composer.json',
+			'composer.lock',
+			'src/ActionRouter/Actions/PluginImportExport_*.php',
+			'src/Modules/Plugin/Lib/ImportExport/**',
+			'src/WpCli/**',
+			'infrastructure/src/Tooling/Cli/**',
+			'infrastructure/src/Tooling/Testing/**',
+			'tests/Helpers/CrossSite/**',
+			'tests/docker/**',
+			'.github/workflows/cross-site-tests.yml',
+		] as $pathTrigger ) {
+			$this->assertStringContainsString( $pathTrigger, $workflow );
+		}
+
+		$this->assertStringNotContainsString( 'MainWP', $workflow );
+		$this->assertStringNotContainsString( 'mainwp', $workflow );
 	}
 
 	public function testIntegrationBootstrapFailsFastWhenParallelTokensArePresent() :void {

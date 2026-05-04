@@ -106,6 +106,9 @@
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:browser"
     ],
+    "test:cross-site": [
+      "@php bin/shield test:cross-site"
+    ],
     "test:package":     [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:package-targeted"

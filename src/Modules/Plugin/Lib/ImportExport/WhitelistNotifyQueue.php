@@ -22,9 +22,17 @@ class WhitelistNotifyQueue extends BackgroundProcess {
 	 * @inheritDoc
 	 */
 	protected function task( $item ) {
-		Services::HttpRequest()->get(
-			self::con()->plugin_urls->noncedPluginAction( PluginImportExport_UpdateNotified::class, $item )
-		);
+		$targetUrl = self::con()->plugin_urls->noncedPluginAction( PluginImportExport_UpdateNotified::class, $item );
+		$targetHost = (string)( \wp_parse_url( $targetUrl, \PHP_URL_HOST ) ?: '' );
+		$allowTargetHost = static fn( $external, $host ) :bool => ( $targetHost !== '' && \strcasecmp( (string)$host, $targetHost ) === 0 ) || $external;
+
+		add_filter( 'http_request_host_is_external', $allowTargetHost, 11, 2 );
+		try {
+			Services::HttpRequest()->get( $targetUrl );
+		}
+		finally {
+			remove_filter( 'http_request_host_is_external', $allowTargetHost, 11 );
+		}
 		return false;
 	}
 

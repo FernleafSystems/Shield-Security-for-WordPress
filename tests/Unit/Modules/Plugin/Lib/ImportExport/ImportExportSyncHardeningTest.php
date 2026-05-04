@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExp
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -45,7 +46,9 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
 		);
 		Functions\when( 'wp_parse_url' )->alias(
-			static fn( string $url ) => \parse_url( $url ) ?: false
+			static fn( string $url, int $component = -1 ) => $component === -1
+				? ( \parse_url( $url ) ?: false )
+				: \parse_url( $url, $component )
 		);
 		Functions\when( 'wp_generate_password' )->justReturn( 'uniq' );
 		Functions\when( 'add_filter' )->justReturn( true );
@@ -193,6 +196,43 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertCount( 1, $this->events->byKey( 'import_notify_received' ) );
 	}
 
+	public function test_whitelist_notify_task_allows_external_hosts_only_around_request() :void {
+		$events = [];
+		$queue = $this->buildWhitelistNotifyQueueWithRecordedFilters( $events );
+		$this->httpRequest->setOnGet( static function () use ( &$events ) :void {
+			$events[] = [
+				'operation' => 'http_get',
+			];
+		} );
+
+		$result = $this->invokeWhitelistNotifyTask( $queue, 'http://wordpress-slave' );
+
+		$this->assertFalse( $result );
+		$this->assertScopedExternalHostFilterEvents( $events );
+		$this->assertStringContainsString( PluginImportExport_UpdateNotified::SLUG, $this->httpRequest->lastGetRequestedUrl() );
+	}
+
+	public function test_whitelist_notify_task_removes_external_host_filter_when_request_fails() :void {
+		$events = [];
+		$queue = $this->buildWhitelistNotifyQueueWithRecordedFilters( $events );
+		$this->httpRequest->setOnGet( static function () use ( &$events ) :void {
+			$events[] = [
+				'operation' => 'http_get',
+			];
+		} );
+		$this->httpRequest->throwOnGet( new \RuntimeException( 'notify failed' ) );
+
+		try {
+			$this->invokeWhitelistNotifyTask( $queue, 'http://wordpress-slave' );
+			$this->fail( 'Expected whitelist notification request failure.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertSame( 'notify failed', $exception->getMessage() );
+		}
+
+		$this->assertScopedExternalHostFilterEvents( $events );
+	}
+
 	private function installControllerStub() :void {
 		$this->controller = UnitTestControllerFactory::install(
 			null,
@@ -219,6 +259,77 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 
 	private function notifyCronHook() :string {
 		return $this->controller->prefix( PluginImportExport_UpdateNotified::SLUG );
+	}
+
+	/**
+	 * @param array<int,array<string,mixed>> $events
+	 */
+	private function buildWhitelistNotifyQueueWithRecordedFilters( array &$events ) :WhitelistNotifyQueue {
+		Functions\when( 'add_action' )->justReturn( true );
+		Functions\when( 'add_filter' )->alias(
+			static function ( $tag, $callback, $priority = 10, $acceptedArgs = 1 ) use ( &$events ) :bool {
+				$event = [
+					'operation'     => 'add_filter',
+					'tag'           => (string)$tag,
+					'callback'      => \is_string( $callback ) ? $callback : 'callable',
+					'callback_id'   => \is_object( $callback ) ? \spl_object_id( $callback ) : 0,
+					'priority'      => (int)$priority,
+					'accepted_args' => (int)$acceptedArgs,
+				];
+				if ( (string)$tag === 'http_request_host_is_external' && \is_callable( $callback ) ) {
+					$event[ 'allows_target_host' ] = $callback( false, 'wordpress-slave' );
+					$event[ 'allows_other_host' ] = $callback( false, 'wordpress-other' );
+					$event[ 'preserves_existing_external_host' ] = $callback( true, 'wordpress-other' );
+				}
+				$events[] = $event;
+				return true;
+			}
+		);
+		Functions\when( 'remove_filter' )->alias(
+			static function ( $tag, $callback, $priority = 10 ) use ( &$events ) :bool {
+				$events[] = [
+					'operation'   => 'remove_filter',
+					'tag'         => (string)$tag,
+					'callback'    => \is_string( $callback ) ? $callback : 'callable',
+					'callback_id' => \is_object( $callback ) ? \spl_object_id( $callback ) : 0,
+					'priority'    => (int)$priority,
+				];
+				return true;
+			}
+		);
+
+		$queue = new WhitelistNotifyQueue( 'whitelist_notify_urls', $this->controller->prefix() );
+		$events = [];
+		return $queue;
+	}
+
+	/**
+	 * @param array<int,array<string,mixed>> $events
+	 */
+	private function assertScopedExternalHostFilterEvents( array $events ) :void {
+		$this->assertCount( 3, $events );
+		$this->assertSame( 'add_filter', $events[ 0 ][ 'operation' ] ?? '' );
+		$this->assertSame( 'http_request_host_is_external', $events[ 0 ][ 'tag' ] ?? '' );
+		$this->assertSame( 'callable', $events[ 0 ][ 'callback' ] ?? '' );
+		$this->assertSame( 11, $events[ 0 ][ 'priority' ] ?? 0 );
+		$this->assertSame( 2, $events[ 0 ][ 'accepted_args' ] ?? 0 );
+		$this->assertTrue( $events[ 0 ][ 'allows_target_host' ] ?? false );
+		$this->assertFalse( $events[ 0 ][ 'allows_other_host' ] ?? true );
+		$this->assertTrue( $events[ 0 ][ 'preserves_existing_external_host' ] ?? false );
+
+		$this->assertSame( 'http_get', $events[ 1 ][ 'operation' ] ?? '' );
+
+		$this->assertSame( 'remove_filter', $events[ 2 ][ 'operation' ] ?? '' );
+		$this->assertSame( 'http_request_host_is_external', $events[ 2 ][ 'tag' ] ?? '' );
+		$this->assertSame( 'callable', $events[ 2 ][ 'callback' ] ?? '' );
+		$this->assertSame( 11, $events[ 2 ][ 'priority' ] ?? 0 );
+		$this->assertSame( $events[ 0 ][ 'callback_id' ] ?? null, $events[ 2 ][ 'callback_id' ] ?? null );
+	}
+
+	private function invokeWhitelistNotifyTask( WhitelistNotifyQueue $queue, string $url ) {
+		$method = new \ReflectionMethod( $queue, 'task' );
+		$method->setAccessible( true );
+		return $method->invoke( $queue, $url );
 	}
 }
 
@@ -281,6 +392,9 @@ class ImportExportHttpRequestStub extends HttpRequest {
 
 	private array $responseOptions = [];
 	private string $lastRequestedUrl = '';
+	private string $lastGetRequestedUrl = '';
+	private ?\Throwable $getException = null;
+	private $onGet = null;
 
 	public function setResponseOptions( array $options ) :void {
 		$this->responseOptions = $options;
@@ -288,6 +402,29 @@ class ImportExportHttpRequestStub extends HttpRequest {
 
 	public function lastRequestedUrl() :string {
 		return $this->lastRequestedUrl;
+	}
+
+	public function lastGetRequestedUrl() :string {
+		return $this->lastGetRequestedUrl;
+	}
+
+	public function throwOnGet( \Throwable $throwable ) :void {
+		$this->getException = $throwable;
+	}
+
+	public function setOnGet( callable $callback ) :void {
+		$this->onGet = $callback;
+	}
+
+	public function get( $url, $args = [] ) :bool {
+		$this->lastGetRequestedUrl = (string)$url;
+		if ( \is_callable( $this->onGet ) ) {
+			( $this->onGet )( $url, $args );
+		}
+		if ( $this->getException !== null ) {
+			throw $this->getException;
+		}
+		return true;
 	}
 
 	public function getContent( string $url, $args = [] ) :string {

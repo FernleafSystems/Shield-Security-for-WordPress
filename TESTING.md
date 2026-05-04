@@ -16,6 +16,7 @@ Supporting docs:
 | Unit tests | `composer test:unit` | Default developer unit entry point |
 | Integration tests | `composer test:integration` | Public wrapper around the local Docker-backed integration lane |
 | Browser lane | `composer test:browser` | Playwright + axe against an automatically leased isolated Docker WordPress browser lane |
+| Cross-site sync lane | `composer test:cross-site` | Two Docker WordPress sites exercising Shield import/export master/slave sync |
 | Package validation | `composer test:package` | Public wrapper around targeted package validation |
 | Source static analysis | `composer analyze` | Public wrapper around source static analysis |
 | JS static checks | `npm run test:js` | Policy, ESLint, and checkJs TypeScript validation only |
@@ -32,6 +33,7 @@ These commands remain the owned internal lanes behind the public surface and CI 
 | `php bin/shield analyze:package` | Packaged static analysis lane |
 | `php bin/shield test:source` | Source-first Docker runtime lane |
 | `php bin/shield test:integration-local` | Local Docker-backed WordPress integration lane |
+| `php bin/shield test:cross-site` | Two-site Docker WordPress import/export sync lane |
 | `php bin/shield test:package-targeted` | Targeted package validation lane |
 | `php bin/shield test:package-full` | Scheduled/manual deep packaged runtime lane |
 | `php bin/run-unit-tests.php --runner-mode=serial` | Serial unit sentinel path |
@@ -177,6 +179,27 @@ npm run build
 npm run playwright:install
 ```
 
+## Local Cross-Site Lane
+
+Use this lane for Shield-to-Shield import/export communication. It provisions a master WordPress site and a slave WordPress site on one Docker network, uses Docker service-name URLs for site-to-site HTTP, and drives setup, cron, queue processing, and assertions with WP-CLI.
+
+```bash
+composer test:cross-site
+composer test:cross-site -- --warm
+composer test:cross-site -- --clean --show-setup-output
+```
+
+Operational notes:
+
+1. The lane uses internal URLs `http://wordpress-master` and `http://wordpress-slave`; exposed host ports are only for diagnostics.
+2. Local runs default to warm mode. CI defaults to clean mode.
+3. Successful runs stay quiet except for the final lane result; use `--show-setup-output` when Docker, provisioning, or runtime-refresh setup logs are needed.
+4. The lane has a single lock under `tmp/cross-site-test-lane` because both sites share one Compose project and one database container.
+5. The runtime helper grants every capability required by transferable Shield options, plus WP-CLI, before generating the option corpus.
+6. The comparison excludes only explicit non-corpus keys: slave-local sync state such as `importexport_masterurl`, and runtime prerequisites such as `global_enable_plugin_features` and `importexport_enable`. Every generated corpus key must change from its baseline after Shield option normalization.
+7. `SHIELD_CROSS_SITE_MASTER_PORT` and `SHIELD_CROSS_SITE_SLAVE_PORT` override the diagnostic host ports if `8892` or `8893` are unavailable.
+8. This lane covers Shield import/export sync only. MainWP scenarios should be added as explicit consumers of the same harness when they exist.
+
 ### Browser spec authoring contract
 
 Use these rules for every Playwright spec under `tests/browser/action-router`:
@@ -240,6 +263,12 @@ Scheduled/manual browser lane: [`.github/workflows/browser-tests.yml`](.github/w
 3. Installs Chromium and runs the ActionRouter Playwright + axe lane against an isolated local Docker WordPress browser lane.
 4. Runs clean one-worker Playwright jobs with official shards `1/2` and `2/2`; do not raise CI workers unless the lane count is raised in the same command.
 5. Triggered by `workflow_dispatch`, the weekday schedule `30 6 * * 1-5` (06:30 UTC Monday through Friday), and PRs that touch ActionRouter/browser-owned UI paths.
+
+Scheduled/manual cross-site lane: [`.github/workflows/cross-site-tests.yml`](.github/workflows/cross-site-tests.yml)
+
+1. Installs Composer dependencies and builds source config/assets.
+2. Runs `composer test:cross-site -- --clean`.
+3. Triggered by `workflow_dispatch`, the weekday schedule, and PRs that touch import/export, WP-CLI, plugin action routing, cross-site tooling, Docker test files, Composer scripts, or the workflow.
 
 ## Local Verification Commands
 

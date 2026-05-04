@@ -1,0 +1,87 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: testpass
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
+    volumes:
+      - cross-site-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  wordpress-master:
+    image: wordpress:php${PHP_VERSION:-8.2}-apache
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: testpass
+      WORDPRESS_DB_NAME: shield_cross_site_master
+    ports:
+      - "${SHIELD_CROSS_SITE_MASTER_PORT:-8892}:80"
+    volumes:
+      - cross-site-master-wp:/var/www/html
+      - cross-site-master-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-cross-site-runtime.ini:ro
+
+  wordpress-slave:
+    image: wordpress:php${PHP_VERSION:-8.2}-apache
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: testpass
+      WORDPRESS_DB_NAME: shield_cross_site_slave
+    ports:
+      - "${SHIELD_CROSS_SITE_SLAVE_PORT:-8893}:80"
+    volumes:
+      - cross-site-slave-wp:/var/www/html
+      - cross-site-slave-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-cross-site-runtime.ini:ro
+
+  wp-cli-master:
+    image: wordpress:cli-php${PHP_VERSION:-8.2}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: testpass
+      WORDPRESS_DB_NAME: shield_cross_site_master
+    volumes:
+      - cross-site-master-wp:/var/www/html
+      - cross-site-master-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - ../../:/app
+      - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-cross-site-runtime.ini:ro
+
+  wp-cli-slave:
+    image: wordpress:cli-php${PHP_VERSION:-8.2}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: testpass
+      WORDPRESS_DB_NAME: shield_cross_site_slave
+    volumes:
+      - cross-site-slave-wp:/var/www/html
+      - cross-site-slave-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - ../../:/app
+      - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-cross-site-runtime.ini:ro
+
+volumes:
+  cross-site-db:
+  cross-site-master-wp:
+  cross-site-master-plugin:
+  cross-site-slave-wp:
+  cross-site-slave-plugin:

@@ -61,6 +61,7 @@ class LocalSiteRuntimeRefresher {
 		'tests/Helpers/TestDataFactory.php',
 		'tests/Helpers/BrowserFixtureRegistry.php',
 		'tests/Helpers/ActionRouter',
+		'tests/Helpers/CrossSite',
 		'tests/browser/support/shield-browser-fixtures.php',
 	];
 	private const TEMP_DIR = 'tmp/.browser-runtime-refresh';
@@ -468,7 +469,8 @@ PHP;
 				$rootDir,
 				$containerId,
 				$refreshPlan[ 'deleted_paths' ],
-				$workspacePaths
+				$workspacePaths,
+				$onOutput
 			);
 			$this->deletePathsWithProgress( $rootDir, $containerId, \count( $refreshPlan[ 'deleted_paths' ] ), $onOutput );
 		}
@@ -503,7 +505,7 @@ PHP;
 		?callable $onOutput = null
 	) :float {
 		$buildStartedAt = \microtime( true );
-		$this->runPhase( 'build', function () use ( $workspacePaths, $archivePaths, $rootDir ) :void {
+		$this->runPhase( 'build', function () use ( $workspacePaths, $archivePaths, $rootDir, $onOutput ) :void {
 			if ( \file_put_contents( $workspacePaths[ 'list_path' ], \implode( "\n", $archivePaths )."\n" ) === false ) {
 				throw new \RuntimeException( 'Failed to write local browser runtime archive file list: '.$workspacePaths[ 'list_path' ] );
 			}
@@ -515,7 +517,8 @@ PHP;
 					'-T',
 					Path::makeRelative( $workspacePaths[ 'list_path' ], $rootDir ),
 				],
-				$rootDir
+				$rootDir,
+				$onOutput
 			);
 		} );
 		$buildDuration = \microtime( true ) - $buildStartedAt;
@@ -542,7 +545,7 @@ PHP;
 		$copyStartedAt = \microtime( true );
 		$this->runPhase(
 			'copy archive',
-			fn() => $this->copyFileToContainer( $rootDir, $containerId, $workspacePaths[ 'archive_path' ], self::CONTAINER_ARCHIVE_PATH )
+			fn() => $this->copyFileToContainer( $rootDir, $containerId, $workspacePaths[ 'archive_path' ], self::CONTAINER_ARCHIVE_PATH, $onOutput )
 		);
 
 		return \microtime( true ) - $copyStartedAt;
@@ -556,7 +559,8 @@ PHP;
 		string $rootDir,
 		string $containerId,
 		array $deletedPaths,
-		array $workspacePaths
+		array $workspacePaths,
+		?callable $onOutput = null
 	) :float {
 		$this->runPhase(
 			'prepare delete list',
@@ -575,7 +579,7 @@ PHP;
 		$copyStartedAt = \microtime( true );
 		$this->runPhase(
 			'copy delete list',
-			fn() => $this->copyFileToContainer( $rootDir, $containerId, $workspacePaths[ 'delete_list_path' ], self::CONTAINER_DELETE_LIST_PATH )
+			fn() => $this->copyFileToContainer( $rootDir, $containerId, $workspacePaths[ 'delete_list_path' ], self::CONTAINER_DELETE_LIST_PATH, $onOutput )
 		);
 
 		return \microtime( true ) - $copyStartedAt;
@@ -593,7 +597,7 @@ PHP;
 		$deleteStartedAt = \microtime( true );
 		$this->runPhase(
 			'delete',
-			fn() => $this->deleteManagedPaths( $rootDir, $containerId )
+			fn() => $this->deleteManagedPaths( $rootDir, $containerId, $onOutput )
 		);
 		$this->writeProgress(
 			'Runtime refresh delete: '
@@ -609,7 +613,7 @@ PHP;
 	 */
 	private function extractArchiveWithProgress( string $rootDir, string $containerId, ?callable $onOutput = null ) :void {
 		$extractStartedAt = \microtime( true );
-		$this->runPhase( 'extract', function () use ( $containerId, $rootDir ) :void {
+		$this->runPhase( 'extract', function () use ( $containerId, $rootDir, $onOutput ) :void {
 			$this->processRunner->runOrThrow(
 				[
 					'docker',
@@ -622,7 +626,8 @@ PHP;
 					'-C',
 					self::PLUGIN_ROOT,
 				],
-				$rootDir
+				$rootDir,
+				$onOutput
 			);
 		} );
 		$this->writeProgress(
@@ -661,7 +666,7 @@ PHP;
 	) :float {
 		$copyDuration = 0.0;
 		$manifestStartedAt = \microtime( true );
-		$this->runPhase( 'manifest write', function () use ( $containerId, $hostManifest, $workspacePaths, $rootDir, &$copyDuration ) :void {
+		$this->runPhase( 'manifest write', function () use ( $containerId, $hostManifest, $workspacePaths, $rootDir, $onOutput, &$copyDuration ) :void {
 			$manifestJson = \json_encode( $hostManifest, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES );
 			if ( !\is_string( $manifestJson ) ) {
 				throw new \RuntimeException( 'Failed to encode local browser runtime manifest.' );
@@ -670,7 +675,7 @@ PHP;
 				throw new \RuntimeException( 'Failed to write local browser runtime manifest export: '.$workspacePaths[ 'manifest_path' ] );
 			}
 			$copyStartedAt = \microtime( true );
-			$this->copyFileToContainer( $rootDir, $containerId, $workspacePaths[ 'manifest_path' ], self::CONTAINER_MANIFEST_PATH );
+			$this->copyFileToContainer( $rootDir, $containerId, $workspacePaths[ 'manifest_path' ], self::CONTAINER_MANIFEST_PATH, $onOutput );
 			$copyDuration += \microtime( true ) - $copyStartedAt;
 			$this->processRunner->runOrThrow(
 				[
@@ -681,7 +686,8 @@ PHP;
 					'-r',
 					'if (!rename('.\var_export( self::CONTAINER_MANIFEST_PATH, true ).','. \var_export( self::PLUGIN_ROOT.'/'.self::MANIFEST_FILE, true ).')) { fwrite(STDERR, "manifest move failed\n"); exit(1); }',
 				],
-				$rootDir
+				$rootDir,
+				$onOutput
 			);
 		} );
 		$this->writeProgress(
@@ -692,7 +698,13 @@ PHP;
 		return $copyDuration;
 	}
 
-	private function copyFileToContainer( string $rootDir, string $containerId, string $sourcePath, string $targetPath ) :void {
+	private function copyFileToContainer(
+		string $rootDir,
+		string $containerId,
+		string $sourcePath,
+		string $targetPath,
+		?callable $onOutput = null
+	) :void {
 		$this->processRunner->runOrThrow(
 			[
 				'docker',
@@ -700,7 +712,8 @@ PHP;
 				Path::makeRelative( $sourcePath, $rootDir ),
 				$containerId.':'.$targetPath,
 			],
-			$rootDir
+			$rootDir,
+			$onOutput
 		);
 	}
 
@@ -719,7 +732,7 @@ PHP;
 		}
 	}
 
-	private function deleteManagedPaths( string $rootDir, string $containerId ) :void {
+	private function deleteManagedPaths( string $rootDir, string $containerId, ?callable $onOutput = null ) :void {
 		$script = <<<'PHP'
 $pluginRoot = getenv('SHIELD_PLUGIN_ROOT');
 $deleteFile = getenv('SHIELD_DELETE_LIST');
@@ -782,7 +795,8 @@ PHP;
 				'-r',
 				$script,
 			],
-			$rootDir
+			$rootDir,
+			$onOutput
 		);
 	}
 

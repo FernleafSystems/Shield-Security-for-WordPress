@@ -26,26 +26,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 	}
 
 	public function testRefreshSeedsWhenRuntimeIsEmpty() :void {
-		$runner = new ScriptedProcessRunner( [
-			[
-				'exit_code' => 0,
-				'stdout' => \json_encode( [
-					'manifest_exists' => false,
-					'sentinels' => [
-						'icwp-wpsf.php' => false,
-						'plugin.json' => false,
-					],
-					'all_required_sentinels_present' => false,
-					'has_any_required_sentinel' => false,
-				], \JSON_UNESCAPED_SLASHES ) ?: '',
-			],
-			[ 'exit_code' => 0 ],
-			[ 'exit_code' => 0 ],
-			[ 'exit_code' => 0 ],
-			[ 'exit_code' => 0 ],
-			[ 'exit_code' => 0 ],
-			[ 'exit_code' => 0 ],
-		] );
+		$runner = new ScriptedProcessRunner( $this->emptyRuntimeSeedResponses() );
 		$refresher = new LocalSiteRuntimeRefresher( $runner );
 
 		\ob_start();
@@ -69,7 +50,20 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		$this->assertStringContainsString( "vendor/autoload.php\n", $fileList );
 		$this->assertStringContainsString( "tests/Helpers/BrowserFixtureRegistry.php\n", $fileList );
 		$this->assertStringContainsString( "tests/Helpers/ActionRouter/ActionsQueueFixtureBuilder.php\n", $fileList );
+		$this->assertStringContainsString( "tests/Helpers/CrossSite/CrossSiteRuntime.php\n", $fileList );
 		$this->assertStringContainsString( "tests/browser/support/shield-browser-fixtures.php\n", $fileList );
+	}
+
+	public function testRefreshRoutesSubprocessOutputThroughProvidedCallback() :void {
+		$runner = new ScriptedProcessRunner( $this->emptyRuntimeSeedResponses() );
+		$refresher = new LocalSiteRuntimeRefresher( $runner );
+
+		$refresher->refresh( $this->projectRoot, 'wordpress-container', static function () :void {} );
+
+		$this->assertCount( 7, $runner->calls );
+		foreach ( $runner->calls as $call ) {
+			$this->assertTrue( $call[ 'has_output_callback' ], \implode( ' ', $call[ 'command' ] ) );
+		}
 	}
 
 	public function testRefreshSkipsWhenManifestMatches() :void {
@@ -255,6 +249,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 			'tests/Helpers/TestDataFactory.php',
 			'tests/Helpers/BrowserFixtureRegistry.php',
 			'tests/Helpers/ActionRouter',
+			'tests/Helpers/CrossSite',
 			'tests/browser/support/shield-browser-fixtures.php',
 		];
 		foreach ( $paths as $path ) {
@@ -293,6 +288,32 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 	}
 
 	/**
+	 * @return array<int,array{exit_code:int,stdout?:string,stderr?:string}>
+	 */
+	private function emptyRuntimeSeedResponses() :array {
+		return [
+			[
+				'exit_code' => 0,
+				'stdout' => \json_encode( [
+					'manifest_exists' => false,
+					'sentinels' => [
+						'icwp-wpsf.php' => false,
+						'plugin.json' => false,
+					],
+					'all_required_sentinels_present' => false,
+					'has_any_required_sentinel' => false,
+				], \JSON_UNESCAPED_SLASHES ) ?: '',
+			],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+		];
+	}
+
+	/**
 	 * @return array{sha256:string,size:int}
 	 */
 	private function describeFile( string $filePath ) :array {
@@ -315,6 +336,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 			'templates/twig',
 			'languages',
 			'tests/Helpers/ActionRouter',
+			'tests/Helpers/CrossSite',
 			'tests/browser/support',
 		];
 		foreach ( $dirs as $dir ) {
@@ -338,6 +360,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		\file_put_contents( Path::join( $rootDir, 'tests', 'Helpers', 'TestDataFactory.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'tests', 'Helpers', 'BrowserFixtureRegistry.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'tests', 'Helpers', 'ActionRouter', 'ActionsQueueFixtureBuilder.php' ), '<?php' );
+		\file_put_contents( Path::join( $rootDir, 'tests', 'Helpers', 'CrossSite', 'CrossSiteRuntime.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'tests', 'browser', 'support', 'shield-browser-fixtures.php' ), '<?php' );
 	}
 }
