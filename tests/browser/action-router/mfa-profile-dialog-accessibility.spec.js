@@ -1,5 +1,4 @@
-const { test, expect } = require( './support/shield-test' );
-const AxeBuilder = require( '@axe-core/playwright' ).default;
+const { AxeBuilder, test, expect } = require( './support/shield-test' );
 
 function requestParams( request ) {
 	return new URLSearchParams( request.postData() || '' );
@@ -109,6 +108,46 @@ async function expectNoAxeViolations( page ) {
 	expect( results.violations, JSON.stringify( results.violations, null, 2 ) ).toEqual( [] );
 }
 
+async function expectVisibleActionButtonsNamed( dialog, expectedCount ) {
+	const names = await dialog.locator( '.shield-mfa-dialog__actions button' ).evaluateAll( ( buttons ) => {
+		const accessibleName = ( button ) => {
+			const ariaLabel = ( button.getAttribute( 'aria-label' ) || '' ).trim();
+			if ( ariaLabel.length > 0 ) {
+				return ariaLabel;
+			}
+
+			const labelledBy = ( button.getAttribute( 'aria-labelledby' ) || '' ).trim();
+			if ( labelledBy.length > 0 ) {
+				return labelledBy
+				.split( /\s+/ )
+				.map( ( id ) => document.getElementById( id ) )
+				.filter( Boolean )
+				.map( ( element ) => ( element.textContent || '' ).trim() )
+				.join( ' ' )
+				.trim();
+			}
+
+			return ( button.textContent || '' ).trim();
+		};
+
+		return buttons
+		.filter( ( button ) => {
+			const style = window.getComputedStyle( button );
+			return !button.hidden
+				&& !button.disabled
+				&& button.getAttribute( 'aria-hidden' ) !== 'true'
+				&& style.display !== 'none'
+				&& style.visibility !== 'hidden';
+		} )
+		.map( accessibleName );
+	} );
+
+	expect( names ).toHaveLength( expectedCount );
+	for ( const name of names ) {
+		expect( name.length ).toBeGreaterThan( 0 );
+	}
+}
+
 function installNativeDialogGuard( page ) {
 	const nativeDialogs = [];
 	page.on( 'dialog', async ( dialog ) => {
@@ -134,10 +173,36 @@ test( 'backup-code confirm uses accessible modal and cancel does not send ajax',
 		await launcher.click();
 
 		const dialog = await expectNamedMfaDialog( page );
+		await expectVisibleActionButtonsNamed( dialog, 2 );
 		await dialog.locator( '.shield-mfa-dialog__cancel' ).click();
 		await expectMfaDialogHidden( page );
 		await expect( launcher ).toBeFocused();
 		expect( matchingRequests ).toBe( 0 );
+		expect( nativeDialogs ).toEqual( [] );
+	} );
+} );
+
+test( 'invalid yubikey alert does not expose an empty cancel action', async ( { page, fixtureApi } ) => {
+	const nativeDialogs = installNativeDialogGuard( page );
+	await fixtureApi.withMfaProfileFixture( async ( fixture ) => {
+		await openMfaProfile( page, fixture );
+
+		const launcher = page.locator( 'input.shield_yubi_otp' );
+		await expect( launcher ).toBeVisible();
+		await launcher.fill( 'bad' );
+		await launcher.press( 'Enter' );
+
+		const dialog = await expectNamedMfaDialog( page );
+		await expectVisibleActionButtonsNamed( dialog, 1 );
+		expect( await dialog.locator( '.shield-mfa-dialog__cancel' ).evaluate( ( button ) => {
+			return button.hidden
+				&& button.disabled
+				&& button.getAttribute( 'aria-hidden' ) === 'true'
+				&& window.getComputedStyle( button ).display === 'none';
+		} ) ).toBe( true );
+		await dialog.locator( '.shield-mfa-dialog__confirm' ).click();
+		await expectMfaDialogHidden( page );
+		await expect( launcher ).toBeFocused();
 		expect( nativeDialogs ).toEqual( [] );
 	} );
 } );
@@ -171,14 +236,7 @@ test( 'yubikey label prompt is labelled and validates inline', async ( { page, f
 		const launcher = page.locator( 'input.shield_yubi_otp' );
 		await expect( launcher ).toBeVisible();
 		await launcher.fill( 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' );
-		await launcher.evaluate( ( node ) => {
-			node.dispatchEvent( new KeyboardEvent( 'keypress', {
-				bubbles: true,
-				cancelable: true,
-				key: 'Enter',
-				keyCode: 13,
-			} ) );
-		} );
+		await launcher.press( 'Enter' );
 
 		const dialog = await expectNamedMfaDialog( page );
 		const input = dialog.locator( '#ShieldMfaDialogInput' );

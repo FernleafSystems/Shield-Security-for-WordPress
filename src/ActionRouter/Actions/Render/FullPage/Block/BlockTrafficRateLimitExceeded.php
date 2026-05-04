@@ -8,11 +8,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\ByPassIp
 class BlockTrafficRateLimitExceeded extends BaseBlock {
 
 	use ByPassIpBlock;
+	use BlockRecoveryRenderContracts;
 
 	public const SLUG = 'render_block_traffic_rate_limited_exceeded';
 	public const TEMPLATE = '/pages/block/block_page_traffic_rate_limit_exceeded.twig';
 
 	protected function getRenderData() :array {
+		$autoRecovery = $this->buildBlockRecoveryActionContract( $this->getBlockRecoveryPageKey(), 'auto-recover' );
 
 		return [
 			'strings' => [
@@ -21,11 +23,27 @@ class BlockTrafficRateLimitExceeded extends BaseBlock {
 				'subtitle'      => __( 'There have been too many requests from your IP address.', 'wp-simple-firewall' ),
 				'contact_admin' => __( 'Please contact the site administrator if you need further guidance.', 'wp-simple-firewall' ),
 			],
+			'vars'    => [
+				'recovery' => $this->buildBlockRecoveryContract( $this->getBlockRecoveryPageKey(), [
+					$this->buildBlockRecoveryCandidate(
+						$autoRecovery,
+						$this->renderAutoUnblock( $autoRecovery )
+					),
+				] ),
+			],
 		];
 	}
 
-	protected function renderAutoUnblock() :string {
-		return self::con()->action_router->render( Components\AutoUnblockShield::class );
+	protected function getBlockRecoveryPageKey() :string {
+		return 'traffic-rate-limit';
+	}
+
+	protected function renderAutoUnblock( array $recovery ) :string {
+		return self::con()->action_router->render( Components\AutoUnblockShield::class, [
+			'vars' => [
+				'recovery' => $recovery,
+			],
+		] );
 	}
 
 	protected function getRestrictionDetailsBlurb() :array {

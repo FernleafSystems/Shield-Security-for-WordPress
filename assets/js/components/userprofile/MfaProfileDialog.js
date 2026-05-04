@@ -102,6 +102,57 @@ function setText( selector, value ) {
 	return el;
 }
 
+function normalizedText( value ) {
+	return String( value || '' ).trim();
+}
+
+function setCancelAction( button, isVisible, label, shouldAutofocus = false ) {
+	button.textContent = isVisible ? label : '';
+	button.hidden = !isVisible;
+	button.disabled = !isVisible;
+	button.toggleAttribute( 'autofocus', isVisible && shouldAutofocus );
+	if ( isVisible ) {
+		button.removeAttribute( 'aria-hidden' );
+	}
+	else {
+		button.setAttribute( 'aria-hidden', 'true' );
+	}
+}
+
+function normalizeDialogConfig( config ) {
+	const type = [ 'alert', 'confirm', 'prompt' ].includes( config.type ) ? config.type : 'alert';
+	const localizedStrings = dialogStrings();
+	const titleFallbacks = {
+		alert: localizedStrings.dialog_alert_title,
+		confirm: localizedStrings.dialog_confirm_title,
+		prompt: localizedStrings.dialog_prompt_title,
+	};
+
+	const normalized = {
+		...config,
+		type,
+		title: normalizedText( config.title || titleFallbacks[ type ] ),
+		message: normalizedText( config.message ),
+		label: type === 'prompt' ? normalizedText( config.label ) : '',
+		confirmLabel: normalizedText(
+			config.confirmLabel || ( type === 'alert' ? localizedStrings.continue : localizedStrings.confirm )
+		),
+		cancelLabel: type === 'alert' ? '' : normalizedText( config.cancelLabel || localizedStrings.cancel ),
+	};
+
+	if ( normalized.title.length < 1 || normalized.confirmLabel.length < 1 ) {
+		throw new Error( 'MFA profile dialog requires a non-empty title and confirm label.' );
+	}
+	if ( type !== 'alert' && normalized.cancelLabel.length < 1 ) {
+		throw new Error( 'MFA profile dialog requires a non-empty cancel label when cancel is visible.' );
+	}
+	if ( type === 'prompt' && normalized.label.length < 1 ) {
+		throw new Error( 'MFA profile dialog requires a non-empty prompt label.' );
+	}
+
+	return normalized;
+}
+
 function resetValidation() {
 	const input = dialogEl.querySelector( `#${INPUT_ID}` );
 	const validation = dialogEl.querySelector( `#${VALIDATION_ID}` );
@@ -126,9 +177,9 @@ function configureDialog( config ) {
 	element.classList.toggle( 'shield-mfa-dialog--danger', config.danger === true );
 	setText( `#${TITLE_ID}`, config.title );
 	setText( `#${MESSAGE_ID}`, config.message );
-	setText( '.shield-mfa-dialog__cancel', config.cancelLabel );
 	setText( '.shield-mfa-dialog__confirm', config.confirmLabel );
-	element.querySelector( '.shield-mfa-dialog__cancel' ).hidden = config.type === 'alert';
+	const cancelButton = element.querySelector( '.shield-mfa-dialog__cancel' );
+	setCancelAction( cancelButton, config.type !== 'alert', config.cancelLabel );
 	resetValidation();
 
 	const field = element.querySelector( '.shield-mfa-dialog__field' );
@@ -136,16 +187,16 @@ function configureDialog( config ) {
 	const label = element.querySelector( '#ShieldMfaDialogInputLabel' );
 	if ( config.type === 'prompt' ) {
 		field.hidden = false;
-		label.textContent = config.label || '';
+		label.textContent = config.label;
 		input.value = config.value || '';
 		input.setAttribute( 'autofocus', 'autofocus' );
-		element.querySelector( '.shield-mfa-dialog__cancel' ).removeAttribute( 'autofocus' );
+		cancelButton.removeAttribute( 'autofocus' );
 	}
 	else {
 		field.hidden = true;
 		input.value = '';
 		input.removeAttribute( 'autofocus' );
-		element.querySelector( '.shield-mfa-dialog__cancel' ).toggleAttribute( 'autofocus', config.danger === true );
+		setCancelAction( cancelButton, config.type !== 'alert', config.cancelLabel, config.danger === true );
 	}
 
 	currentConfig = config;
@@ -183,13 +234,7 @@ function showProfileDialog( config, cancelValue ) {
 		return Promise.resolve( cancelValue );
 	}
 
-	config.title = String( config.title || '' ).trim();
-	config.message = String( config.message || '' ).trim();
-	config.confirmLabel = String( config.confirmLabel || '' ).trim();
-	config.cancelLabel = String( config.cancelLabel || '' ).trim();
-	if ( config.title.length < 1 || config.confirmLabel.length < 1 ) {
-		throw new Error( 'MFA profile dialog requires a non-empty title and confirm label.' );
-	}
+	config = normalizeDialogConfig( config );
 	pendingLauncher = config.launcher instanceof HTMLElement ? config.launcher : document.activeElement;
 	pendingResult = cancelValue;
 	configureDialog( config );

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQueueFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpAnalysisActivityMetaFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MfaProfileFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PublicBlockRecoveryFixtureBuilder;
 
 class BrowserFixtureRegistry {
 
@@ -24,6 +25,8 @@ class BrowserFixtureRegistry {
 				return self::runIpAnalysisActivityMetaFixture( $action );
 			case 'mfa-profile':
 				return self::runMfaProfileFixture( $action );
+			case 'public-block-recovery':
+				return self::runPublicBlockRecoveryFixture( $action, $args );
 			default:
 				throw new \RuntimeException( 'Unknown browser fixture: '.$fixture );
 		}
@@ -40,6 +43,7 @@ class BrowserFixtureRegistry {
 		self::runActionsQueueFixture( 'cleanup', [] );
 		self::runIpAnalysisActivityMetaFixture( 'cleanup' );
 		self::runMfaProfileFixture( 'cleanup' );
+		self::runPublicBlockRecoveryFixture( 'cleanup', [] );
 		return [ 'cleaned' => true ];
 	}
 
@@ -131,6 +135,38 @@ class BrowserFixtureRegistry {
 				}
 
 				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @param list<string> $args
+	 * @return array<string,mixed>
+	 */
+	private static function runPublicBlockRecoveryFixture( string $action, array $args ) :array {
+		$builder = new PublicBlockRecoveryFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'public-block-recovery' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'seed':
+				$scenario = self::requireScenario( $args );
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed( $scenario );
 				\update_option( $optionKey, $result[ 'state' ], false );
 				return $result[ 'contract' ];
 

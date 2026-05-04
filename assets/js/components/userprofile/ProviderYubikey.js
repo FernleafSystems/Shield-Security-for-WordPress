@@ -5,8 +5,9 @@ import { isValidMfaDeviceLabel, mfaAlert, mfaConfirm, mfaPrompt } from "./MfaPro
 export class ProviderYubikey extends ProviderBase {
 
 	run() {
-		shieldEventsHandler_UserProfile.add_Keypress( 'input.shield_yubi_otp', async ( targetEl, evt ) => {
+		shieldEventsHandler_UserProfile.add_Keydown( 'input.shield_yubi_otp', async ( targetEl, evt ) => {
 			if ( evt.key === 'Enter' || evt.keyCode === 13 ) {
+				evt.preventDefault();
 				let value = targetEl.value;
 				const yubikeyUniqueID = value.substring( 0, 12 );
 

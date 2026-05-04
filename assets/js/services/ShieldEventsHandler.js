@@ -13,6 +13,7 @@ export class ShieldEventsHandler extends BaseService {
 			click: {},
 			dblclick: {},
 			change: {},
+			keydown: {},
 			keypress: {},
 			keyup: {},
 			mouseenter: {},
@@ -71,6 +72,10 @@ export class ShieldEventsHandler extends BaseService {
 
 	add_Keypress( selector, callback, suppress = null ) {
 		this.addHandler( 'keypress', selector, callback, suppress );
+	}
+
+	add_Keydown( selector, callback, suppress = null ) {
+		this.addHandler( 'keydown', selector, callback, suppress );
 	}
 
 	add_Keyup( selector, callback, suppress = null ) {

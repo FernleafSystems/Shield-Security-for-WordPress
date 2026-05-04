@@ -1,4 +1,5 @@
 const base = require( '@playwright/test' );
+const AxeBuilder = require( '@axe-core/playwright' ).default;
 const fs = require( 'fs' );
 const path = require( 'path' );
 
@@ -224,6 +225,19 @@ async function createFixtureApi( playwright, lane ) {
 					}
 				}
 			},
+			async withPublicBlockRecoveryFixture( scenario, runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'public-block-recovery', 'seed', [ scenario ] );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'public-block-recovery', 'cleanup' );
+					}
+				}
+			},
 		},
 	};
 }
@@ -267,6 +281,7 @@ const test = base.test.extend( {
 } );
 
 module.exports = {
+	AxeBuilder,
 	buildShieldUrl,
 	dismissBlockingDialogs,
 	expect: base.expect,

@@ -193,6 +193,10 @@
 	margin-top: 20px;
 }
 
+.shield-mfa-dialog__actions .button[hidden] {
+	display: none !important;
+}
+
 .shield-mfa-dialog__confirm:focus-visible,
 .shield-mfa-dialog__cancel:focus-visible,
 .shield-mfa-dialog__field input:focus-visible {

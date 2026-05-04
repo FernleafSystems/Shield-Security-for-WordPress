@@ -1,0 +1,11 @@
+{% if vars.recovery.is_available %}
+	<div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
+		<button type="button"
+		        id="{{ vars.recovery.launcher.id }}"
+		        class="btn btn-primary btn-lg px-4 me-sm-3"
+		        data-bs-toggle="modal"
+		        data-bs-target="{{ vars.recovery.launcher.target_selector }}">
+			{{ vars.recovery.launcher.label }}
+		</button>
+	</div>
+{% endif %}
