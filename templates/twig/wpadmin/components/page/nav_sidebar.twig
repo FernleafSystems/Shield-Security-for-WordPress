@@ -1,6 +1,7 @@
 {% set sidebar = vars.nav_sidebar|default({}) %}
 
-<div id="NavSideBar" class="d-flex flex-column flex-fill">
+<nav id="NavSideBar" class="d-flex flex-column flex-fill"
+	 aria-label="{{ strings.admin_shell_navigation_label|e('html_attr') }}">
 
 	{% if sidebar.back_item|default(null) is not empty %}
 		{% set back = sidebar.back_item %}
@@ -108,4 +109,4 @@
 		</div>
 	{% endif %}
 
-</div>
+</nav>
