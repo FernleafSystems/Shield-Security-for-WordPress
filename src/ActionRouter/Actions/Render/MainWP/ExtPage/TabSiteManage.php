@@ -37,19 +37,6 @@ class TabSiteManage extends BaseSubPage {
 
 	protected function runAction() :string {
 		return 'nothing';
-		try {
-			$payload = self::con()->action_router->action( Render::class, [
-				'render_action_slug' => TabManageSitePage::SLUG,
-				'render_action_data' => [
-					'site_id' => $this->getActiveSiteID(),
-				],
-			] )->payload();
-			return (string)( $payload[ 'render_output' ] ?? '' );
-		}
-		catch ( ActionException $e ) {
-			error_log( $e->getMessage() );
-			die( $e->getMessage() );
-		}
 	}
 
 	protected function getActiveSiteID() :int {
