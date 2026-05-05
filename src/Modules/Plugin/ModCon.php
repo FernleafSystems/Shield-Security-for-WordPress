@@ -145,6 +145,7 @@ class ModCon {
 		}
 
 		if ( \class_exists( '\WP_Site_Health' )
+		     // @phpstan-ignore function.alreadyNarrowedType
 		     && \method_exists( '\WP_Site_Health', 'get_instance' )
 		     && \method_exists( \WP_Site_Health::get_instance(), 'get_test_loopback_requests' ) ) {
 			$result = \WP_Site_Health::get_instance()->get_test_loopback_requests();

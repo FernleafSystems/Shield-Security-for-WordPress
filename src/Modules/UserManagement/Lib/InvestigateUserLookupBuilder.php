@@ -55,6 +55,7 @@ class InvestigateUserLookupBuilder {
 	}
 
 	private function formatPrimaryRole( \WP_User $user ): string {
+		// @phpstan-ignore nullCoalesce.property
 		$roles = \is_array( $user->roles ?? null ) ? \array_values( $user->roles ) : [];
 		$primaryRole = \trim( (string)( $roles[ 0 ] ?? '' ) );
 		return $primaryRole === '' ? __( 'Unknown', 'wp-simple-firewall' ) : \trim( \ucwords( \str_replace( '_', ' ', $primaryRole ) ) );

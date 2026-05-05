@@ -208,7 +208,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	protected function configZoneComponentSlugs() :array {
 		$slugs = \array_values( \array_unique( \array_filter(
 			[ static::Slug() ],
-			static fn( $slug ) :bool => \is_string( $slug ) && $slug !== ''
+			static fn( $slug ) :bool => $slug !== ''
 		) ) );
 		return empty( $slugs ) ? [ static::Slug() ] : $slugs;
 	}
