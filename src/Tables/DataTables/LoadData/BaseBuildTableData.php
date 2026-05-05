@@ -343,9 +343,11 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				$id = '';
 			}
 
-			$deleteLink = sprintf( '<a href="javascript:{}" data-rid="%s" class="ip_delete text-danger svg-container" title="%s">%s</a>',
+			$deleteLabel = esc_attr__( 'Delete IP', 'wp-simple-firewall' );
+			$deleteLink = sprintf( '<button type="button" data-rid="%d" class="ip_delete shield-button-link text-danger svg-container" title="%s" aria-label="%s">%s</button>',
 				$recordDeleteID,
-				__( 'Delete IP', 'wp-simple-firewall' ),
+				$deleteLabel,
+				$deleteLabel,
 				sprintf( '<i class="%s" aria-hidden="true"></i>', self::con()->svgs->iconClass( 'trash3-fill.svg' ) )
 			);
 

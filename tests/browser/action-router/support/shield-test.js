@@ -199,6 +199,19 @@ async function createFixtureApi( playwright, lane ) {
 					}
 				}
 			},
+			async withImportExportFileFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'import-export-file', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'import-export-file', 'cleanup' );
+					}
+				}
+			},
 			async withIpAnalysisActivityMetaFixture( runScenario ) {
 				let seeded = false;
 				try {
@@ -209,6 +222,32 @@ async function createFixtureApi( playwright, lane ) {
 				finally {
 					if ( seeded ) {
 						await runFixture( 'ip-analysis-activity-meta', 'cleanup' );
+					}
+				}
+			},
+			async withIpRulesTableFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'ip-rules-table', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'ip-rules-table', 'cleanup' );
+					}
+				}
+			},
+			async withMerlinWelcomeFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'merlin-welcome', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'merlin-welcome', 'cleanup' );
 					}
 				}
 			},

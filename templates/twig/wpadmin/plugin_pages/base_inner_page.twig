@@ -51,6 +51,8 @@
 						<button type="button"
 								class="btn btn-link dropdown-toggle page-action-menu-toggle"
 								data-bs-toggle="dropdown"
+								aria-label="{{ strings.actions_title|e('html_attr') }}"
+								title="{{ strings.actions_title|e('html_attr') }}"
 								aria-expanded="false"><i class="{{ imgs.svgs.menu }}" aria-hidden="true"></i></button>
 							<ul class="dropdown-menu">
 								{% for item in hrefs.inner_page_contextual_hrefs %}

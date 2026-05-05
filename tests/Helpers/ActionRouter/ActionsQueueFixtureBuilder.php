@@ -37,6 +37,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
  */
 class ActionsQueueFixtureBuilder {
 
+	private const FILE_LOCKER_API_MOCK_OPTION = 'shield_browser_fixture_filelocker_api';
+
 	private const OPTION_KEYS = [
 		'enable_core_file_integrity_scan',
 		'enable_wpvuln_scan',
@@ -153,6 +155,7 @@ class ActionsQueueFixtureBuilder {
 
 		RuntimeTestState::clearFileLocks();
 		RuntimeTestState::resetScanResultCountMemoization();
+		\delete_option( self::FILE_LOCKER_API_MOCK_OPTION );
 		RuntimeTestState::restoreOptions(
 			\is_array( $state[ 'options_snapshot' ] ?? null ) ? $state[ 'options_snapshot' ] : []
 		);
@@ -479,12 +482,13 @@ class ActionsQueueFixtureBuilder {
 		] );
 		RuntimeTestState::primeShieldNetHandshake();
 		RuntimeTestState::requireDbHandler( 'file_locker', true );
-		RuntimeTestState::controller()->comps->file_locker->canEncrypt( true );
 
 		$file = new \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\File(
 			'wpconfig',
 			'wp-config.php'
 		);
+		$this->primeFileLockerApiMock( $file );
+		RuntimeTestState::controller()->comps->file_locker->canEncrypt( true );
 		( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CreateFileLocks( $file ) )
 			->create();
 
@@ -518,8 +522,39 @@ class ActionsQueueFixtureBuilder {
 		];
 	}
 
+	private function primeFileLockerApiMock( \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\File $file ) :void {
+		$paths = $file->getExistingPossiblePaths();
+		$path = \reset( $paths );
+		$originalContent = \is_string( $path ) ? \file_get_contents( $path ) : false;
+		if ( !\is_string( $originalContent ) || $originalContent === '' ) {
+			throw new \RuntimeException( 'Unable to read the FileLocker fixture source file.' );
+		}
+
+		$key = \openssl_pkey_new( [
+			'private_key_bits' => 2048,
+			'private_key_type' => OPENSSL_KEYTYPE_RSA,
+		] );
+		$keyDetails = $key === false ? false : \openssl_pkey_get_details( $key );
+		$publicKey = \is_array( $keyDetails ) ? (string)( $keyDetails[ 'key' ] ?? '' ) : '';
+		if ( $publicKey === '' ) {
+			throw new \RuntimeException( 'Unable to generate the FileLocker fixture public key.' );
+		}
+
+		\update_option( self::FILE_LOCKER_API_MOCK_OPTION, [
+			'enabled'          => true,
+			'ciphers'          => \array_values( \array_filter(
+				\openssl_get_cipher_methods(),
+				static fn( string $cipher ) :bool => $cipher !== 'null'
+			) ),
+			'key_id'           => 9001,
+			'public_key'       => $publicKey,
+			'original_content' => $originalContent,
+		], false );
+	}
+
 	private function resetRuntimeState() :void {
 		\delete_site_transient( 'update_plugins' );
+		\delete_option( self::FILE_LOCKER_API_MOCK_OPTION );
 		RuntimeTestState::clearFileLocks();
 		RuntimeTestState::resetScanResultCountMemoization();
 	}

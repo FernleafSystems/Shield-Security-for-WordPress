@@ -1,7 +1,4 @@
-const { test, expect } = require( './support/shield-test' );
-const {
-	openShieldRoute,
-} = require( './support/shield-browser' );
+const { AxeBuilder, openShieldRoute, test, expect } = require( './support/shield-test' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const {
 	expectModalHiddenWithoutAriaModal,
@@ -25,6 +22,31 @@ function isScanItemAnalysisRequest( request ) {
 	return params.get( 'render_slug' ) === 'scanitemanalysis_container';
 }
 
+function formatAxeViolations( violations ) {
+	return violations.map( ( violation ) => {
+		const targets = violation.nodes
+		.flatMap( ( node ) => node.target || [] )
+		.slice( 0, 5 )
+		.join( ', ' );
+
+		return `${ violation.id }: ${ targets }`;
+	} ).join( '\n' );
+}
+
+async function expectNoAxeViolations( page, selector, excludes = [], disabledRules = [] ) {
+	let builder = new AxeBuilder( { page } )
+	.include( selector );
+	for ( const exclude of excludes ) {
+		builder = builder.exclude( exclude );
+	}
+	if ( disabledRules.length > 0 ) {
+		builder = builder.disableRules( disabledRules );
+	}
+	const results = await builder.analyze();
+
+	expect( results.violations, formatAxeViolations( results.violations ) ).toEqual( [] );
+}
+
 test( 'scan item analysis keeps shared modal semantics after async content replacement', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
@@ -44,8 +66,10 @@ test( 'scan item analysis keeps shared modal semantics after async content repla
 		const table = page.locator( '[data-scan-results-table="1"]' ).first();
 		await waitForScanResultsTableRows( table );
 
-		const viewAction = table.locator( '[data-scan-result-action="view"]' ).first();
+		const viewAction = table.locator( 'button[data-scan-result-action="view"]' ).first();
 		await expect( viewAction ).toBeVisible();
+		await expect( viewAction ).toHaveAttribute( 'type', 'button' );
+		expect( await viewAction.getAttribute( 'href' ) ).toBeNull();
 		const analysisRequest = page.waitForRequest( isScanItemAnalysisRequest, { timeout: 20_000 } );
 		await viewAction.click();
 		await analysisRequest;
@@ -56,6 +80,12 @@ test( 'scan item analysis keeps shared modal semantics after async content repla
 
 		await expect( modal.locator( '#tabInfo[role="tabpanel"]' ) ).toBeVisible( { timeout: 20_000 } );
 		await expectNamedDialog( page, modal );
+		await expectNoAxeViolations(
+			page,
+			'#ShieldModalContainer',
+			[ '#ShieldModalContainer [role="tab"]' ],
+			[ 'heading-order' ]
+		);
 
 		await modal.locator( '.btn-close' ).click();
 		await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );

@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQueueFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportFileFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpAnalysisActivityMetaFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpRulesTableFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MerlinWelcomeFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MfaProfileFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PublicBlockRecoveryFixtureBuilder;
 
@@ -21,8 +24,14 @@ class BrowserFixtureRegistry {
 				return self::runAllFixtures( $action );
 			case 'actions-queue':
 				return self::runActionsQueueFixture( $action, $args );
+			case 'import-export-file':
+				return self::runImportExportFileFixture( $action );
 			case 'ip-analysis-activity-meta':
 				return self::runIpAnalysisActivityMetaFixture( $action );
+			case 'ip-rules-table':
+				return self::runIpRulesTableFixture( $action );
+			case 'merlin-welcome':
+				return self::runMerlinWelcomeFixture( $action );
 			case 'mfa-profile':
 				return self::runMfaProfileFixture( $action );
 			case 'public-block-recovery':
@@ -41,7 +50,10 @@ class BrowserFixtureRegistry {
 		}
 
 		self::runActionsQueueFixture( 'cleanup', [] );
+		self::runImportExportFileFixture( 'cleanup' );
 		self::runIpAnalysisActivityMetaFixture( 'cleanup' );
+		self::runIpRulesTableFixture( 'cleanup' );
+		self::runMerlinWelcomeFixture( 'cleanup' );
 		self::runMfaProfileFixture( 'cleanup' );
 		self::runPublicBlockRecoveryFixture( 'cleanup', [] );
 		return [ 'cleaned' => true ];
@@ -86,9 +98,99 @@ class BrowserFixtureRegistry {
 	/**
 	 * @return array<string,mixed>
 	 */
+	private static function runImportExportFileFixture( string $action ) :array {
+		$builder = new ImportExportFileFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'import-export-file' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
 	private static function runIpAnalysisActivityMetaFixture( string $action ) :array {
 		$builder = new IpAnalysisActivityMetaFixtureBuilder();
 		$optionKey = self::fixtureOptionKey( 'ip-analysis-activity-meta' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runIpRulesTableFixture( string $action ) :array {
+		$builder = new IpRulesTableFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'ip-rules-table' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runMerlinWelcomeFixture( string $action ) :array {
+		$builder = new MerlinWelcomeFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'merlin-welcome' );
 		$state = \get_option( $optionKey, [] );
 		$state = \is_array( $state ) ? $state : [];
 

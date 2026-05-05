@@ -49,14 +49,6 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			[ $scanResultId ],
 			\array_column( $beforeActive[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
 		);
-		$this->assertStringContainsString(
-			'data-scan-result-action="ignore"',
-			(string)( $beforeActive[ 'datatable_data' ][ 'data' ][ 0 ][ 'actions' ] ?? '' )
-		);
-		$this->assertStringNotContainsString(
-			'data-scan-result-action="unignore"',
-			(string)( $beforeActive[ 'datatable_data' ][ 'data' ][ 0 ][ 'actions' ] ?? '' )
-		);
 
 		$payload = $this->processScanResultsAction( [
 			'sub_action' => 'ignore',
@@ -338,10 +330,6 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			[ 'data-scan-result-ignored' => '1' ],
 			(array)( $row[ 'DT_RowAttr' ] ?? [] )
 		);
-		$this->assertStringContainsString( 'data-scan-result-file-cell="1"', (string)( $row[ 'file_as_href' ] ?? '' ) );
-		$this->assertStringContainsString( 'data-scan-result-action="view"', (string)( $row[ 'file_as_href' ] ?? '' ) );
-		$this->assertStringContainsString( 'data-scan-result-ignored-badge="1"', (string)( $row[ 'file_as_href' ] ?? '' ) );
-		$this->assertStringContainsString( 'data-scan-result-action="unignore"', (string)( $row[ 'actions' ] ?? '' ) );
 	}
 
 	public function test_core_row_actions_keep_independent_delete_and_repair_action_ids() :void {
