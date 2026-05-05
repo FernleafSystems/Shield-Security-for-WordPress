@@ -36,6 +36,7 @@ import { HealthyDisclosureController } from "../components/ui/HealthyDisclosureC
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesPlugin } from "../services/ShieldServicesPlugin";
 import { ShieldTableActivityLog } from "../components/tables/ShieldTableActivityLog";
+import { ShieldTableImportExportSites } from "../components/tables/ShieldTableImportExportSites";
 import { ShieldTableIpRules } from "../components/tables/ShieldTableIpRules";
 import { ShieldTableReports } from "../components/tables/ShieldTableReports";
 import { ShieldTableSecurityRules } from "../components/tables/ShieldTableSecurityRules";
@@ -113,6 +114,7 @@ export class AppMain extends AppBase {
 		this.components.traffic = ( 'traffic' in comps ) ? new TrafficLiveLogs( comps.traffic ) : null;
 
 		this.components.tables_activity = ( 'activity' in comps.tables ) ? new ShieldTableActivityLog( comps.tables.activity ) : null;
+		this.components.tables_import_export_sites = ( 'import_export_sites' in comps.tables ) ? new ShieldTableImportExportSites( comps.tables.import_export_sites ) : null;
 		this.components.tables_ip_rules = ( 'ip_rules' in comps.tables ) ? new ShieldTableIpRules( comps.tables.ip_rules ) : null;
 		this.components.tables_reports = ( 'reports' in comps.tables ) ? new ShieldTableReports( comps.tables.reports ) : null;
 		this.components.tables_sessions = ( 'sessions' in comps.tables ) ? new ShieldTableSessions( comps.tables.sessions ) : null;

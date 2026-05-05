@@ -16,7 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExp
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\PingSender;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -196,25 +196,25 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertCount( 1, $this->events->byKey( 'import_notify_received' ) );
 	}
 
-	public function test_whitelist_notify_task_allows_external_hosts_only_around_request() :void {
+	public function test_ping_sender_allows_external_hosts_only_around_request() :void {
 		$events = [];
-		$queue = $this->buildWhitelistNotifyQueueWithRecordedFilters( $events );
+		$sender = $this->buildPingSenderWithRecordedFilters( $events );
 		$this->httpRequest->setOnGet( static function () use ( &$events ) :void {
 			$events[] = [
 				'operation' => 'http_get',
 			];
 		} );
 
-		$result = $this->invokeWhitelistNotifyTask( $queue, 'http://wordpress-slave' );
+		$result = $sender->send( 'http://wordpress-slave' );
 
-		$this->assertFalse( $result );
+		$this->assertTrue( $result[ 'success' ] ?? false );
 		$this->assertScopedExternalHostFilterEvents( $events );
 		$this->assertStringContainsString( PluginImportExport_UpdateNotified::SLUG, $this->httpRequest->lastGetRequestedUrl() );
 	}
 
-	public function test_whitelist_notify_task_removes_external_host_filter_when_request_fails() :void {
+	public function test_ping_sender_removes_external_host_filter_when_request_fails() :void {
 		$events = [];
-		$queue = $this->buildWhitelistNotifyQueueWithRecordedFilters( $events );
+		$sender = $this->buildPingSenderWithRecordedFilters( $events );
 		$this->httpRequest->setOnGet( static function () use ( &$events ) :void {
 			$events[] = [
 				'operation' => 'http_get',
@@ -223,7 +223,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->httpRequest->throwOnGet( new \RuntimeException( 'notify failed' ) );
 
 		try {
-			$this->invokeWhitelistNotifyTask( $queue, 'http://wordpress-slave' );
+			$sender->send( 'http://wordpress-slave' );
 			$this->fail( 'Expected whitelist notification request failure.' );
 		}
 		catch ( \RuntimeException $exception ) {
@@ -264,7 +264,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 	/**
 	 * @param array<int,array<string,mixed>> $events
 	 */
-	private function buildWhitelistNotifyQueueWithRecordedFilters( array &$events ) :WhitelistNotifyQueue {
+	private function buildPingSenderWithRecordedFilters( array &$events ) :PingSender {
 		Functions\when( 'add_action' )->justReturn( true );
 		Functions\when( 'add_filter' )->alias(
 			static function ( $tag, $callback, $priority = 10, $acceptedArgs = 1 ) use ( &$events ) :bool {
@@ -298,9 +298,8 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 			}
 		);
 
-		$queue = new WhitelistNotifyQueue( 'whitelist_notify_urls', $this->controller->prefix() );
 		$events = [];
-		return $queue;
+		return new PingSender();
 	}
 
 	/**
@@ -326,11 +325,6 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertSame( $events[ 0 ][ 'callback_id' ] ?? null, $events[ 2 ][ 'callback_id' ] ?? null );
 	}
 
-	private function invokeWhitelistNotifyTask( WhitelistNotifyQueue $queue, string $url ) {
-		$method = new \ReflectionMethod( $queue, 'task' );
-		$method->setAccessible( true );
-		return $method->invoke( $queue, $url );
-	}
 }
 
 class ImportExportOptsStoreStub {

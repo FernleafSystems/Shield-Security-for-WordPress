@@ -3108,6 +3108,12 @@
         "default": []
     },
     {
+        "key": "importexport_sites_migrated_at",
+        "section": "section_hidden",
+        "type": "integer",
+        "default": 0
+    },
+    {
         "key": "test_rest_data",
         "section": "section_hidden",
         "type": "array",

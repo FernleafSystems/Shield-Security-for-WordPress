@@ -25,6 +25,11 @@ class CrossSitePairManager {
 	private const MASTER_HOST_PORT = '8892';
 	private const SLAVE_HOST_PORT = '8893';
 	private const HELPER_FILE = '/app/tests/Helpers/CrossSite/CrossSiteRuntime.php';
+	private const STATUS_ACTIVE = 'active';
+	private const QUEUE_IDLE = 'idle';
+	private const QUEUE_QUEUED = 'queued';
+	private const QUEUE_WAITING_EXPORT = 'waiting_export';
+	private const EXPORT_RESULT_SUCCESS = 'success';
 
 	private ProcessRunner $processRunner;
 
@@ -153,6 +158,17 @@ class CrossSitePairManager {
 		$this->runHelper( $rootDir, self::MASTER, 'setup', [ 'role' => self::MASTER ] );
 		$this->runHelper( $rootDir, self::SLAVE, 'setup', [ 'role' => self::SLAVE ] );
 
+		$this->stage( 'verify legacy import/export registry migration' );
+		$legacyMigration = $this->runHelper( $rootDir, self::MASTER, 'legacy-migration-check', [
+			'slave_url' => self::SLAVE_INTERNAL_URL,
+		] );
+		$this->lastDiagnostics[ 'legacy_migration' ] = $legacyMigration;
+		$this->assertLegacyMigration( $legacyMigration );
+
+		$this->stage( 'reset cross-site runtime state after legacy migration check' );
+		$this->runHelper( $rootDir, self::MASTER, 'setup', [ 'role' => self::MASTER ] );
+		$this->runHelper( $rootDir, self::SLAVE, 'setup', [ 'role' => self::SLAVE ] );
+
 		$this->stage( 'read master import secret' );
 		$secret = (string)( $this->runHelper( $rootDir, self::MASTER, 'secret' )[ 'secret' ] ?? '' );
 		if ( $secret === '' ) {
@@ -181,6 +197,7 @@ class CrossSitePairManager {
 			 || !\in_array( self::SLAVE_INTERNAL_URL, $masterState[ 'whitelist' ] ?? [], true ) ) {
 			throw new \RuntimeException( 'Master whitelist does not contain the slave internal URL.' );
 		}
+		$this->assertRegistryContainsSlave( $masterState, 'after slave connection' );
 		if ( !\is_array( $slaveState ) || ( $slaveState[ 'master_url' ] ?? '' ) !== self::MASTER_INTERNAL_URL ) {
 			throw new \RuntimeException( 'Slave master URL was not set to the master internal URL.' );
 		}
@@ -189,15 +206,11 @@ class CrossSitePairManager {
 		$corpus = $this->runHelper( $rootDir, self::MASTER, 'apply-corpus' );
 		$this->lastDiagnostics[ 'corpus' ] = $this->summariseCorpusDiagnostics( $corpus );
 
-		$this->stage( 'run master notify cron' );
-		$notifyHook = (string)( $corpus[ 'notify_hook' ] ?? '' );
-		if ( $notifyHook === '' ) {
-			throw new \RuntimeException( 'Master notify hook was not reported by the runtime helper.' );
-		}
-		$this->wpCapture( $rootDir, self::MASTER, [ 'cron', 'event', 'run', $notifyHook ] );
+		$this->stage( 'run legacy notify compatibility hook' );
+		$this->lastDiagnostics[ 'legacy_notify' ] = $this->runHelper( $rootDir, self::MASTER, 'run-notify-hook' );
 
-		$this->stage( 'process master background notify queue' );
-		$this->processMasterNotifyQueue( $rootDir );
+		$this->stage( 'process master DB-backed site queue' );
+		$this->processMasterSitesQueue( $rootDir );
 
 		$this->stage( 'run slave import cron' );
 		$slaveCron = $this->runHelper( $rootDir, self::SLAVE, 'cron-state' );
@@ -207,6 +220,11 @@ class CrossSitePairManager {
 			throw new \RuntimeException( 'Slave import cron was not scheduled after master notification.' );
 		}
 		$this->wpCapture( $rootDir, self::SLAVE, [ 'cron', 'event', 'run', $importHook ] );
+
+		$this->stage( 'assert master export sync completion' );
+		$queueAfterImport = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
+		$this->lastDiagnostics[ 'master_queue_after_import' ] = $queueAfterImport;
+		$this->assertPostExportQueueState( $queueAfterImport );
 
 		$this->stage( 'compare exported option payloads' );
 		$this->assertExportsMatch( $rootDir );
@@ -243,19 +261,110 @@ class CrossSitePairManager {
 		return self::SLAVE_DB_NAME;
 	}
 
-	private function processMasterNotifyQueue( string $rootDir ) :void {
+	private function processMasterSitesQueue( string $rootDir ) :void {
 		$queue = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
 		$this->lastDiagnostics[ 'master_queue_before' ] = $queue;
 		$queueHook = (string)( $queue[ 'queue_hook' ] ?? '' );
-		if ( !empty( $queue[ 'batch_count' ] ) ) {
-			if ( empty( $queue[ 'queue_scheduled' ] ) || $queueHook === '' ) {
-				throw new \RuntimeException( 'Master notify queue has batches but no scheduled healthcheck hook.' );
-			}
-			$this->wpCapture( $rootDir, self::MASTER, [ 'cron', 'event', 'run', $queueHook ] );
+		if ( empty( $queue[ 'due_count' ] ) ) {
+			throw new \RuntimeException( 'Master DB-backed site queue had no due rows for the slave.' );
 		}
+		if ( empty( $queue[ 'queue_scheduled' ] ) || $queueHook === '' ) {
+			throw new \RuntimeException( 'Master DB-backed site queue had due rows but no scheduled queue hook.' );
+		}
+		$this->wpCapture( $rootDir, self::MASTER, [ 'cron', 'event', 'run', $queueHook ] );
 
 		$queueAfter = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
-		$this->lastDiagnostics[ 'master_queue_after' ] = $queueAfter;
+		$this->lastDiagnostics[ 'master_queue_after_ping' ] = $queueAfter;
+		$this->assertPostPingQueueState( $queueAfter );
+	}
+
+	private function assertLegacyMigration( array $legacyMigration ) :void {
+		$rows = (array)( $legacyMigration[ 'rows' ] ?? [] );
+		$slaveUrl = (string)( $legacyMigration[ 'slave_url' ] ?? '' );
+		$extraUrl = (string)( $legacyMigration[ 'extra_url' ] ?? '' );
+		$slave = $this->findRegistryRow( $rows, $slaveUrl );
+		$extra = $this->findRegistryRow( $rows, $extraUrl );
+
+		if ( !\is_array( $slave ) || !\is_array( $extra ) ) {
+			throw new \RuntimeException( 'Legacy registry migration did not create active rows for fallback URLs.' );
+		}
+		if ( ( $slave[ 'import_id' ] ?? '' ) !== 'legacy-slave-id'
+			 || ( $extra[ 'import_id' ] ?? '' ) !== 'legacy-extra-id' ) {
+			throw new \RuntimeException( 'Legacy registry migration did not preserve import IDs.' );
+		}
+		if ( ( $slave[ 'status' ] ?? '' ) !== self::STATUS_ACTIVE
+			 || ( $slave[ 'queue_status' ] ?? '' ) !== self::QUEUE_QUEUED
+			 || (int)( $slave[ 'next_ping_at' ] ?? 0 ) <= 0 ) {
+			throw new \RuntimeException( 'Legacy registry migration did not mark the matching fallback URL due.' );
+		}
+		if ( !empty( $legacyMigration[ 'unknown_old_queue_row_exists' ] ) ) {
+			throw new \RuntimeException( 'Legacy registry migration created a row from an unknown old queue URL.' );
+		}
+		if ( !empty( $legacyMigration[ 'legacy_batch_count' ] ) ) {
+			throw new \RuntimeException( 'Legacy registry migration did not clear old queue batches.' );
+		}
+
+		$whitelist = (array)( $legacyMigration[ 'whitelist' ] ?? [] );
+		if ( !\in_array( $slaveUrl, $whitelist, true ) || !\in_array( $extraUrl, $whitelist, true ) ) {
+			throw new \RuntimeException( 'Legacy registry migration did not mirror active rows back to the fallback whitelist.' );
+		}
+		$importIds = (array)( $legacyMigration[ 'import_url_ids' ] ?? [] );
+		if ( ( $importIds[ \md5( $slaveUrl ) ] ?? '' ) !== 'legacy-slave-id'
+			 || ( $importIds[ \md5( $extraUrl ) ] ?? '' ) !== 'legacy-extra-id' ) {
+			throw new \RuntimeException( 'Legacy registry migration did not mirror import IDs back to fallback settings.' );
+		}
+	}
+
+	private function assertRegistryContainsSlave( array $state, string $context ) :void {
+		$row = $this->findRegistryRow( (array)( $state[ 'registry' ] ?? [] ), self::SLAVE_INTERNAL_URL );
+		if ( !\is_array( $row ) || ( $row[ 'status' ] ?? '' ) !== self::STATUS_ACTIVE ) {
+			throw new \RuntimeException( 'Master registry does not contain the active slave URL '.$context.'.' );
+		}
+	}
+
+	private function assertPostPingQueueState( array $queueState ) :void {
+		$row = $this->findRegistryRow( (array)( $queueState[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
+		if ( !\is_array( $row ) ) {
+			throw new \RuntimeException( 'Master DB-backed site queue lost the slave registry row after ping.' );
+		}
+		if ( ( $row[ 'queue_status' ] ?? '' ) !== self::QUEUE_WAITING_EXPORT ) {
+			throw new \RuntimeException( 'Master DB-backed site queue did not wait for slave export after ping.' );
+		}
+		if ( (int)( $row[ 'last_ping_success_at' ] ?? 0 ) <= 0 ) {
+			throw new \RuntimeException( 'Master DB-backed site queue did not record ping success.' );
+		}
+		if ( (int)( $row[ 'last_export_success_at' ] ?? 0 ) >= (int)( $row[ 'last_ping_success_at' ] ?? 0 ) ) {
+			throw new \RuntimeException( 'Master DB-backed site queue counted ping success as export sync success.' );
+		}
+	}
+
+	private function assertPostExportQueueState( array $queueState ) :void {
+		$row = $this->findRegistryRow( (array)( $queueState[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
+		if ( !\is_array( $row ) ) {
+			throw new \RuntimeException( 'Master DB-backed site queue lost the slave registry row after slave import.' );
+		}
+		if ( ( $row[ 'queue_status' ] ?? '' ) !== self::QUEUE_IDLE ) {
+			throw new \RuntimeException( 'Master DB-backed site queue did not return the slave row to idle after export.' );
+		}
+		if ( (int)( $row[ 'last_export_request_at' ] ?? 0 ) <= 0
+			 || (int)( $row[ 'last_export_success_at' ] ?? 0 ) <= 0 ) {
+			throw new \RuntimeException( 'Master DB-backed site queue did not record export request and success.' );
+		}
+		if ( (int)( $row[ 'last_export_success_at' ] ?? 0 ) <= (int)( $row[ 'last_ping_success_at' ] ?? 0 ) ) {
+			throw new \RuntimeException( 'Master DB-backed site queue did not record a new export success after ping.' );
+		}
+		if ( ( $row[ 'last_export_result_code' ] ?? '' ) !== self::EXPORT_RESULT_SUCCESS ) {
+			throw new \RuntimeException( 'Master DB-backed site queue did not record export success result code.' );
+		}
+	}
+
+	private function findRegistryRow( array $rows, string $url ) :?array {
+		foreach ( $rows as $row ) {
+			if ( \is_array( $row ) && ( $row[ 'url' ] ?? '' ) === $url ) {
+				return $row;
+			}
+		}
+		return null;
 	}
 
 	private function assertExportsMatch( string $rootDir ) :void {

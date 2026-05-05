@@ -6,7 +6,9 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ImportExportController {
@@ -24,6 +26,12 @@ class ImportExportController {
 	}
 
 	private function setupHooks() {
+		try {
+			( new SiteRepository() )->ensureLegacyImported();
+		}
+		catch ( \Throwable $e ) {
+		}
+
 		( new NotifyWhitelist() )->execute();
 
 		add_action( 'shield/plugin_activated', fn() => $this->importFromFlag() );
@@ -46,6 +54,14 @@ class ImportExportController {
 					'importexport_whitelist', \array_unique( \array_merge( $this->getImportExportWhitelist(), [ $url ] ) )
 				)
 				->store();
+
+			try {
+				$repo = new SiteRepository();
+				$repo->upsertActive( $url, ImportExportSitesDB::SOURCE_MANUAL, '', true );
+				$repo->syncFallbackSettings();
+			}
+			catch ( \Throwable $e ) {
+			}
 		}
 	}
 
@@ -56,6 +72,12 @@ class ImportExportController {
 				->opts
 				->optSet( 'importexport_whitelist', \array_diff( $this->getImportExportWhitelist(), [ $url ] ) )
 				->store();
+
+			try {
+				( new SiteRepository() )->softDeleteUrl( $url );
+			}
+			catch ( \Throwable $e ) {
+			}
 		}
 	}
 

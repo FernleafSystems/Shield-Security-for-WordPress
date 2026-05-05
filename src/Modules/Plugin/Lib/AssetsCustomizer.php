@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
+	ForImportExportSites,
 	ForIpRules,
 	ForReports,
 	ForSecurityRules,
@@ -471,6 +472,16 @@ class AssetsCustomizer {
 							],
 							'vars' => [
 								'datatables_init' => ( new ForActivityLog() )->buildRaw(),
+							]
+						];
+					}
+					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ) ) {
+						$data[ 'import_export_sites' ] = [
+							'ajax' => [
+								'table_action' => ActionData::Build( Actions\ImportExportSitesTableAction::class ),
+							],
+							'vars' => [
+								'datatables_init' => ( new ForImportExportSites() )->buildRaw(),
 							]
 						];
 					}

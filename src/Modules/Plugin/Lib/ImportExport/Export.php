@@ -4,8 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_HandshakeConfirm;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -35,38 +37,63 @@ class Export {
 		$success = false;
 		$data = [];
 
+		$repo = new SiteRepository();
+		try {
+			$repo->ensureLegacyImported( false );
+		}
+		catch ( \Throwable $e ) {
+		}
+
 		$url = (string)Services::Data()->validateSimpleHttpUrl( (string)$req->query( 'url', '' ) );
-		if ( !$this->verifyUrl( $url, (string)$req->query( 'id', '' ), (string)$req->query( 'secret', '' ) ) ) {
+		$id = (string)$req->query( 'id', '' );
+		$repo->recordExportRequested( $url );
+
+		if ( !$this->verifyUrl( $url, $id, (string)$req->query( 'secret', '' ) ) ) {
 			$code = 3;
 			$msg = __( 'Verification of import-origin failed.', 'wp-simple-firewall' );
+			$repo->recordExportFailure( $url, ImportExportSitesDB::EXPORT_RESULT_VERIFY_FAILED, $msg );
 		}
 		else {
-			$code = 0;
-			$success = true;
-			$data = $this->getExportData();
-			$msg = 'Options Exported Successfully';
+			try {
+				$code = 0;
+				$data = $this->getExportData();
+				$success = true;
+				$msg = 'Options Exported Successfully';
 
-			$evt->fireEvent(
-				'options_exported',
-				[ 'audit_params' => [ 'site' => $url ] ]
-			);
-
-			// Only setup the network if we have a valid URL
-			$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
-
-			if ( $networkOpt === 'Y' ) {
-				$ieCon->addUrlToImportExportWhitelistUrls( $url );
 				$evt->fireEvent(
-					'whitelist_site_added',
+					'options_exported',
 					[ 'audit_params' => [ 'site' => $url ] ]
 				);
+
+				// Only setup the network if we have a valid URL
+				$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
+
+				if ( $networkOpt === 'Y' ) {
+					$ieCon->addUrlToImportExportWhitelistUrls( $url );
+				}
+
+				$repo->recordExportSuccess( $url, ImportExportSitesDB::EXPORT_RESULT_SUCCESS, $id );
+
+				if ( $networkOpt === 'Y' ) {
+					$evt->fireEvent(
+						'whitelist_site_added',
+						[ 'audit_params' => [ 'site' => $url ] ]
+					);
+				}
+				elseif ( !empty( $networkOpt ) ) {
+					$ieCon->removeUrlFromImportExportWhitelistUrls( $url );
+					$evt->fireEvent(
+						'whitelist_site_removed',
+						[ 'audit_params' => [ 'site' => $url ] ]
+					);
+				}
 			}
-			elseif ( !empty( $networkOpt ) ) {
-				$ieCon->removeUrlFromImportExportWhitelistUrls( $url );
-				$evt->fireEvent(
-					'whitelist_site_removed',
-					[ 'audit_params' => [ 'site' => $url ] ]
-				);
+			catch ( \Throwable $e ) {
+				$code = 4;
+				$success = false;
+				$data = [];
+				$msg = $e->getMessage();
+				$repo->recordExportFailure( $url, ImportExportSitesDB::EXPORT_RESULT_EXCEPTION, $msg );
 			}
 		}
 

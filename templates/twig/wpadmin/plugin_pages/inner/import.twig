@@ -32,6 +32,12 @@
 						</a>
 					</li>
 
+					<li class="nav-item">
+						<a class="nav-link" data-bs-toggle="tab" role="tab" href="#syncSites">
+							{{ strings.tab_sync_sites }}
+						</a>
+					</li>
+
 				</ul>
 			</div>
 		</div>
@@ -75,6 +81,18 @@
 					<div class="col">
 						{% if flags.can_importexport_sync %}
 							{% include '/wpadmin_pages/insights/importexport/from_site.twig' %}
+						{% else %}
+							{% include '/wpadmin/components/feature_unavailable.twig' %}
+						{% endif %}
+					</div>
+				</div>
+			</div>
+
+			<div class="tab-pane fade" id="syncSites" role="tabpanel" aria-labelledby="syncSites">
+				<div class="row">
+					<div class="col">
+						{% if flags.can_importexport_sync %}
+							<table id="ShieldTable-ImportExportSites" class="table table-striped table-bordered" style="width: 100%;"></table>
 						{% else %}
 							{% include '/wpadmin/components/feature_unavailable.twig' %}
 						{% endif %}

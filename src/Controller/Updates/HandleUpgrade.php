@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\OptionsCorrections;
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -41,6 +42,9 @@ class HandleUpgrade {
 		$con = self::con();
 
 		( new OptionsCorrections() )->runUpgradeMigrations();
+		$this->runUpgradeSideEffect( 'import/export site registry legacy import', function () {
+			( new SiteRepository() )->ensureLegacyImported();
+		} );
 		if ( $con->opts->hasChanges() ) {
 			$con->opts->store();
 		}

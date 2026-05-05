@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	ActivityLogTableAction,
+	ImportExportSitesTableAction,
 	Investigation\InvestigationTableContract,
 	InvestigationTableAction,
 	IpRulesTableAction,
@@ -56,6 +57,13 @@ class TableActionsFailureEnvelopeTest extends BaseUnitTest {
 		$this->assertTrue( $payload[ 'page_reload' ] ?? false );
 	}
 
+	public function testImportExportSitesFailureUsesNoPageReload() :void {
+		$payload = ( new ImportExportSitesTableActionTestDouble( [ 'sub_action' => 'unknown' ] ) )->runExecForTest();
+
+		$this->assertFalse( $payload[ 'success' ] ?? true );
+		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
+	}
+
 	public function testInvestigationFailureIncludesStableErrorCode() :void {
 		$payload = ( new InvestigationTableActionTestDouble( [ 'sub_action' => 'unknown' ] ) )->runExecForTest();
 
@@ -85,6 +93,10 @@ class TableActionsFailureEnvelopeTest extends BaseUnitTest {
 			[
 				'action' => new IpRulesTableActionTestDouble( [] ),
 				'keys'   => [ 'retrieve_table_data' ],
+			],
+			[
+				'action' => new ImportExportSitesTableActionTestDouble( [] ),
+				'keys'   => [ 'retrieve_table_data', ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC ],
 			],
 			[
 				'action' => new InvestigationTableActionTestDouble( [] ),
@@ -138,6 +150,11 @@ class ReportTableActionTestDouble extends ReportTableAction {
 }
 
 class IpRulesTableActionTestDouble extends IpRulesTableAction {
+
+	use RunsTableActionExecForTest;
+}
+
+class ImportExportSitesTableActionTestDouble extends ImportExportSitesTableAction {
 
 	use RunsTableActionExecForTest;
 }
