@@ -133,6 +133,7 @@ class PageInvestigateByUser extends BasePluginAdminPage {
 		$roles = \array_values( \array_filter(
 			\array_map(
 				static fn( string $role ) :string => \trim( \ucwords( \str_replace( '_', ' ', $role ) ) ),
+				// @phpstan-ignore nullCoalesce.property
 				\is_array( $subject->roles ?? null ) ? $subject->roles : []
 			)
 		) );

@@ -51,11 +51,7 @@ class SqlBackend {
 			return true;
 		}
 
-		try {
-			$dbh = $wpdb->dbh ?? null;
-		}
-		catch ( \Throwable $e ) {
-		}
+		$dbh = $wpdb->dbh ?? null;
 
 		return self::isSqliteDbHandle( $dbh );
 	}
