@@ -89,8 +89,8 @@ export class ReportingHandler extends BaseAutoExecComponent {
 
 	showValidationError( missingFields ) {
 		const msg = this._base_data.strings.required_fields.replace( '%s', missingFields.join( ', ' ) );
-		if ( typeof shieldServices === 'undefined' ) {
-			alert( msg );
+		if ( typeof shieldServices === 'undefined' || typeof shieldServices.notification !== 'function' ) {
+			console.warn( msg );
 		}
 		else {
 			shieldServices.notification().showMessage( msg, false );

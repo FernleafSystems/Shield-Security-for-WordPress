@@ -419,6 +419,21 @@ body.shield-mfa-login-page.shield-busy {
 	text-decoration: none;
 }
 
+.shield-login2fa-status {
+	display: block;
+	margin-top: 8px;
+	font-size: 12.5px;
+	line-height: 1.45;
+}
+
+.shield-login2fa-status--success {
+	color: var(--shield-green-deep);
+}
+
+.shield-login2fa-status--error {
+	color: var(--shield-danger);
+}
+
 .mfa-fallback-wrap {
 	margin-top: 16px;
 }

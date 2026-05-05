@@ -20,7 +20,10 @@ export class OptionsFormSubmit extends BaseComponent {
 				const confirmPass = this.form.querySelector( '#' + passwordField.id + '_confirm' );
 				if ( confirmPass && ( confirmPass.value.length === 0 || passwordField.value !== confirmPass.value ) ) {
 					confirmPass.classList.add( 'is-invalid' );
-					alert( 'Form not submitted due to error: security admin PIN and confirm PIN do not match.' );
+					shieldServices.dialog().message( {
+						message: 'Form not submitted due to error: security admin PIN and confirm PIN do not match.',
+						launcher: confirmPass,
+					} );
 					passwordsReady = false;
 				}
 			}

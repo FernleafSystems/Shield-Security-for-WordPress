@@ -48,7 +48,10 @@ export class SuperSearchResults extends BaseComponent {
 						$( '#ModalSuperSearchBox .modal-body' ).html( resp.data.render_output );
 					}
 					else {
-						alert( resp.data.error );
+						shieldServices.dialog().message( {
+							message: resp.data.error,
+							launcher: document.querySelector( '#ModalSuperSearchBox input.search-text' ),
+						} );
 					}
 				} )
 				.finally();

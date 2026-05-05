@@ -112,7 +112,10 @@ export class Merlin extends BaseComponent {
 				this.next();
 			}
 			else {
-				alert( resp.data.message );
+				shieldServices.dialog().message( {
+					message: resp.data.message,
+					launcher: form,
+				} );
 			}
 		} )
 		.catch( ( error ) => {

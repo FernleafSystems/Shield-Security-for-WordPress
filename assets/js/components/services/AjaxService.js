@@ -5,6 +5,7 @@ import { ObjectOps } from "../../util/ObjectOps";
 import qs from "qs";
 import { Random } from "../../util/Random";
 import { RestService } from "./RestService";
+import { announceGlobal } from "../ui/ShieldA11y";
 
 export class AjaxService {
 
@@ -36,8 +37,8 @@ export class AjaxService {
 				&& respJSON?.data?.show_toast !== false
 				&& typeof respJSON?.data?.message === 'string'
 				&& respJSON.data.message.length > 0 ) {
-				if ( typeof shieldServices === 'undefined' ) {
-					alert( respJSON.data.message );
+				if ( typeof shieldServices === 'undefined' || typeof shieldServices.notification !== 'function' ) {
+					this.showFallbackMessage( respJSON.data.message, respJSON.success );
 				}
 				else {
 					shieldServices.notification().showMessage( respJSON.data.message, respJSON.success );
@@ -57,7 +58,10 @@ export class AjaxService {
 		.catch( error => {
 			console.log( error );
 			if ( !quiet ) {
-				alert( 'Something went wrong with the request - it was either blocked or there was an error.' );
+				this.showFallbackMessage(
+					'Something went wrong with the request - it was either blocked or there was an error.',
+					false
+				);
 			}
 			if ( showOverlay ) {
 				ShieldOverlay.Hide();
@@ -65,6 +69,14 @@ export class AjaxService {
 			return error;
 		} );
 	};
+
+	showFallbackMessage( message, success ) {
+		announceGlobal( message, {
+			politeness: success ? 'polite' : 'assertive',
+		} );
+		const logger = success ? console.info : console.warn;
+		logger.call( console, message );
+	}
 
 	req( data ) {
 		if ( data === null || ObjectOps.IsEmpty( data ) ) {

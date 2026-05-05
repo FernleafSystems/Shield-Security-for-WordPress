@@ -39,7 +39,7 @@ export class TrafficLiveLogs extends BaseComponent {
 
 	handlePollFailure( resp ) {
 		if ( typeof resp?.data?.message === 'string' && resp.data.message.length > 0 ) {
-			alert( resp.data.message );
+			shieldServices.notification().showMessage( resp.data.message, false );
 		}
 		else if ( resp ) {
 			console.log( resp );

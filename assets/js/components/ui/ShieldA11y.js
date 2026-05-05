@@ -1,4 +1,5 @@
 const liveRegionAnnouncements = new WeakMap();
+let globalLiveRegion = null;
 
 export function announceWithin( contextEl, message, options = {} ) {
 	const text = String( message || '' ).trim();
@@ -28,6 +29,25 @@ export function announceWithin( contextEl, message, options = {} ) {
 	if ( politeness.length > 0 ) {
 		liveRegion.setAttribute( 'aria-live', politeness );
 	}
+	liveRegion.textContent = '';
+	setTimeout( () => {
+		liveRegion.textContent = text;
+	}, 20 );
+}
+
+export function announceGlobal( message, options = {} ) {
+	const text = String( message || '' ).trim();
+	if ( text.length < 1 ) {
+		return;
+	}
+
+	const liveRegion = ensureGlobalLiveRegion();
+	if ( liveRegion === null ) {
+		return;
+	}
+
+	const politeness = normalizePoliteness( options?.politeness ) || 'assertive';
+	liveRegion.setAttribute( 'aria-live', politeness );
 	liveRegion.textContent = '';
 	setTimeout( () => {
 		liveRegion.textContent = text;
@@ -78,6 +98,32 @@ function findLiveRegion( contextEl ) {
 
 	const liveRegion = shell.querySelector( '[data-drill-live-region="1"]' );
 	return liveRegion instanceof HTMLElement ? liveRegion : null;
+}
+
+function ensureGlobalLiveRegion() {
+	if ( globalLiveRegion instanceof HTMLElement && globalLiveRegion.isConnected ) {
+		return globalLiveRegion;
+	}
+
+	if ( typeof document === 'undefined' || !( document.body instanceof HTMLElement ) ) {
+		return null;
+	}
+
+	globalLiveRegion = document.createElement( 'div' );
+	globalLiveRegion.setAttribute( 'role', 'status' );
+	globalLiveRegion.setAttribute( 'aria-live', 'assertive' );
+	globalLiveRegion.setAttribute( 'aria-atomic', 'true' );
+	globalLiveRegion.style.position = 'absolute';
+	globalLiveRegion.style.width = '1px';
+	globalLiveRegion.style.height = '1px';
+	globalLiveRegion.style.padding = '0';
+	globalLiveRegion.style.margin = '-1px';
+	globalLiveRegion.style.overflow = 'hidden';
+	globalLiveRegion.style.clip = 'rect(0 0 0 0)';
+	globalLiveRegion.style.whiteSpace = 'nowrap';
+	globalLiveRegion.style.border = '0';
+	document.body.appendChild( globalLiveRegion );
+	return globalLiveRegion;
 }
 
 function normalizePoliteness( politeness ) {

@@ -7,6 +7,7 @@ export class Login2faEmail extends Login2faBase {
 	init() {
 		this.emailInput = document.getElementById( 'icwp_wpsf_email_otp' ) || false;
 		this.emailSend = document.getElementById( 'ajax_intent_email_send' ) || false;
+		this.statusRegion = null;
 		super.init();
 	}
 
@@ -40,27 +41,67 @@ export class Login2faEmail extends Login2faBase {
 			/** TODO: TEST THIS?*/
 			let msg = 'Communications error with site.';
 
-			if ( resp.data.success ) {
-				alert( resp.data.message );
+			if ( resp?.data?.success ) {
+				this.showStatus( resp.data.message, true );
 			}
 			else {
-				if ( resp.data.message !== undefined ) {
+				if ( resp?.data?.message !== undefined ) {
 					msg = resp.data.message;
 				}
 				else {
 					msg = 'Sending Email 2FA failed';
 				}
-				alert( msg );
+				this.showStatus( msg, false );
 			}
 		} )
 		.catch( ( error ) => {
 			const message = error?.responseJSON?.data?.message || 'Communications error with site.';
-			alert( 'OTP email sending was unsuccessful: ' + message );
+			this.showStatus( 'OTP email sending was unsuccessful: ' + message, false );
 		} )
 		.finally( () => {
 			this.emailSend.removeAttribute( 'disabled' );
 		} )
 	};
+
+	showStatus( message, success ) {
+		const region = this.ensureStatusRegion();
+		if ( !( region instanceof HTMLElement ) ) {
+			console.warn( message );
+			return;
+		}
+
+		region.classList.toggle( 'shield-login2fa-status--success', success === true );
+		region.classList.toggle( 'shield-login2fa-status--error', success !== true );
+		region.setAttribute( 'aria-live', success === true ? 'polite' : 'assertive' );
+		region.textContent = '';
+		window.setTimeout( () => {
+			region.textContent = message;
+		}, 20 );
+	}
+
+	ensureStatusRegion() {
+		if ( this.statusRegion instanceof HTMLElement && this.statusRegion.isConnected ) {
+			return this.statusRegion;
+		}
+
+		this.statusRegion = document.getElementById( 'ShieldLogin2faEmailStatus' );
+		if ( this.statusRegion instanceof HTMLElement ) {
+			return this.statusRegion;
+		}
+
+		this.statusRegion = document.createElement( 'span' );
+		this.statusRegion.id = 'ShieldLogin2faEmailStatus';
+		this.statusRegion.className = 'shield-login2fa-status';
+		this.statusRegion.setAttribute( 'role', 'status' );
+		this.statusRegion.setAttribute( 'aria-live', 'polite' );
+		this.statusRegion.setAttribute( 'aria-atomic', 'true' );
+
+		const anchor = this.emailSend.closest( '.mfa-resend-row' )
+			|| this.emailSend.closest( 'p' )
+			|| this.emailSend;
+		anchor.insertAdjacentElement( 'afterend', this.statusRegion );
+		return this.statusRegion;
+	}
 
 	setupSegmentedInputs() {
 		const group = document.querySelector( `[data-otp-group][data-otp-target="${ this.emailInput.id }"]` );

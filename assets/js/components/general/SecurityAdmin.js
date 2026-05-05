@@ -4,7 +4,6 @@ import { Forms } from "../../util/Forms";
 import { Navigation } from "../../util/Navigation";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ShieldOverlay } from "../ui/ShieldOverlay";
-import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
 export class SecurityAdmin extends BaseComponent {
 
@@ -37,9 +36,10 @@ export class SecurityAdmin extends BaseComponent {
 			} );
 
 			shieldEventsHandler_Main.add_Click( '#SecAdminRemoveConfirmEmail', async ( targetEl ) => {
-				const confirmed = await confirmDialog( {
+				const dialog = shieldServices.dialog();
+				const confirmed = await dialog.confirm( {
 					message: this._base_data.strings.confirm_disable,
-					confirmLabel: resolveDialogConfirmLabel( targetEl ),
+					confirmLabel: dialog.resolveConfirmLabel( targetEl ),
 					danger: true,
 					launcher: targetEl,
 				} );
@@ -80,8 +80,11 @@ export class SecurityAdmin extends BaseComponent {
 		else {
 			ShieldOverlay.Show();
 			setTimeout( () => {
-				alert( this._base_data.strings.confirm )
-				window.location.reload();
+				ShieldOverlay.Hide();
+				shieldServices.dialog().message( {
+					message: this._base_data.strings.confirm,
+					launcher: document.getElementById( 'SecAdminDialog' ),
+				} ).finally( () => window.location.reload() );
 			}, 1500 );
 			shieldServices.notification().showMessage( this._base_data.strings.expired, resp.success );
 		}

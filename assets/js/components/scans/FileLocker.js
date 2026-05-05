@@ -28,7 +28,10 @@ export class FileLocker extends BaseComponent {
 					document.getElementById( 'FileLockerDiffContents' ).innerHTML = resp.data.html;
 				}
 				else {
-					alert( resp.data.error );
+					shieldServices.dialog().message( {
+						message: resp.data.error,
+						launcher: targetEl,
+					} );
 				}
 			} )
 			.finally( () => {

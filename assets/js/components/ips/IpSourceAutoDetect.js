@@ -20,10 +20,11 @@ export class IpSourceAutoDetect extends BaseAutoExecComponent {
 				.bg( this._base_data.ajax )
 				.then( ( resp ) => {
 					if ( resp.success && !this._base_data.flags.quiet ) {
-						alert(
+						shieldServices.notification().showMessage(
 							this._base_data.strings.source_found
 							+ ' ' + this._base_data.strings.ip_source
-							+ ': ' + resp.data.ip_source
+							+ ': ' + resp.data.ip_source,
+							true
 						);
 					}
 				} )
