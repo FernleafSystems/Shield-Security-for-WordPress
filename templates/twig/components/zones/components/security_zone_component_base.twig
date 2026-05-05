@@ -27,11 +27,11 @@
 			{% endif %}
 		</div>
 		{% if vars.actions.config is defined %}
-			<a class="configure-link {{ vars.actions.config.classes|join(' ') }}"
-			   href="javascript:{}"
-			   title="{{ vars.actions.config.title }}"
-			   {% for key, value in vars.actions.config.data %}data-{{ key }}="{{ value }}"{% endfor %}
-			><span class="configure-gear"><i class="{{ imgs.svgs.gear }}" aria-hidden="true"></i></span> {{ strings.configure }}</a>
+			<button type="button"
+					class="configure-link {{ vars.actions.config.classes|join(' ') }}"
+					title="{{ vars.actions.config.title }}"
+					{% for key, value in vars.actions.config.data %}data-{{ key }}="{{ value }}"{% endfor %}
+			><span class="configure-gear"><i class="{{ imgs.svgs.gear }}" aria-hidden="true"></i></span> {{ strings.configure }}</button>
 		{% endif %}
 	</div>
 

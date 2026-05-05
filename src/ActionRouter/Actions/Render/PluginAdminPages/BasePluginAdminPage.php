@@ -63,12 +63,53 @@ abstract class BasePluginAdminPage extends BaseRender {
 			];
 		}
 		$hrefs[] = $this->getPageContextualHrefs_Help();
+		$hrefs = \array_values( \array_map(
+			fn( array $href ) :array => $this->normalizePageContextualHref( $href ),
+			\array_filter( $hrefs )
+		) );
 
 		return [
 			'hrefs' => [
 				'breadcrumbs'                 => $this->getBreadCrumbs(),
-				'inner_page_contextual_hrefs' => \array_filter( $hrefs ),
+				'inner_page_contextual_hrefs' => $hrefs,
 			],
+		];
+	}
+
+	/**
+	 * @param array{
+	 *   title?:string,
+	 *   href?:string,
+	 *   id?:string,
+	 *   classes?:list<string>,
+	 *   new_window?:bool,
+	 *   data?:array<string,string>,
+	 *   disabled?:bool,
+	 *   is_action?:bool
+	 * } $href
+	 * @return array{
+	 *   title:string,
+	 *   href:string,
+	 *   id:string,
+	 *   classes:list<string>,
+	 *   new_window:bool,
+	 *   data:array<string,string>,
+	 *   disabled:bool,
+	 *   is_action:bool
+	 * }
+	 */
+	private function normalizePageContextualHref( array $href ) :array {
+		$isAction = (bool)( $href[ 'is_action' ] ?? false );
+
+		return [
+			'title'      => (string)( $href[ 'title' ] ?? '' ),
+			'href'       => $isAction ? '' : (string)( $href[ 'href' ] ?? '' ),
+			'id'         => (string)( $href[ 'id' ] ?? '' ),
+			'classes'    => \array_values( $href[ 'classes' ] ?? [] ),
+			'new_window' => !$isAction && (bool)( $href[ 'new_window' ] ?? false ),
+			'data'       => $href[ 'data' ] ?? [],
+			'disabled'   => (bool)( $href[ 'disabled' ] ?? false ),
+			'is_action'  => $isAction,
 		];
 	}
 

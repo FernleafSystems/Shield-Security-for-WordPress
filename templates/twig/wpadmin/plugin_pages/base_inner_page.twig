@@ -58,11 +58,12 @@
 										{{ icwp_macros.tagAnchor(
 											item.href,
 											item.title,
-											item.id|default(''),
-											item.classes|default([])|merge(['dropdown-item']),
-											item.new_window|default(false),
-											item.data|default([]),
-											item.disabled|default(false)
+											item.id,
+											item.classes|merge(['dropdown-item']),
+											item.new_window,
+											item.data,
+											item.disabled,
+											item.is_action
 										) }}
 									</li>
 								{% endfor %}

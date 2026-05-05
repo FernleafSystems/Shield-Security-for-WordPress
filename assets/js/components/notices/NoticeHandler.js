@@ -8,7 +8,7 @@ export class NoticeHandler extends BaseComponent {
 	init() {
 		new NoticeAllowTracking( ObjectOps.ObjClone( this._base_data ) );
 
-		shieldEventsHandler_Main.add_Click( 'a.shield_admin_notice_action', ( targetEl ) => {
+		shieldEventsHandler_Main.add_Click( '.shield_admin_notice_action', ( targetEl ) => {
 			( new AjaxService() )
 			.send( this._base_data.ajax[ targetEl.dataset.notice_action ] )
 			.finally();

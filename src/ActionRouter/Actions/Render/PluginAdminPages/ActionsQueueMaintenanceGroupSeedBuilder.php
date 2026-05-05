@@ -331,6 +331,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 
 		return [
 			'href'             => $cta[ 'href' ],
+			'is_action'        => false,
 			'label'            => $cta[ 'label' ],
 			'icon'             => $cta[ 'target' ] === '_blank' ? 'bi bi-box-arrow-up-right' : 'bi bi-arrow-right',
 			'tooltip'          => $cta[ 'label' ],
@@ -358,16 +359,18 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 		$href = \trim( (string)( $toggleAction[ 'href' ] ?? '' ) );
 		$label = \trim( (string)( $toggleAction[ 'label' ] ?? '' ) );
 		$icon = \trim( (string)( $toggleAction[ 'icon' ] ?? '' ) );
-		if ( $href === '' || $label === '' || $icon === '' ) {
+		if ( $label === '' || $icon === '' ) {
 			return [];
 		}
+		$isAction = (bool)( $toggleAction[ 'is_action' ] ?? false );
 
 		return [
-			'href'             => $href,
+			'href'             => $isAction ? '' : $href,
+			'is_action'        => $isAction,
 			'label'            => $label,
 			'icon'             => $icon,
 			'tooltip'          => \trim( (string)( $toggleAction[ 'tooltip' ] ?? '' ) ),
-			'target'           => \trim( (string)( $toggleAction[ 'target' ] ?? '' ) ),
+			'target'           => $isAction ? '' : \trim( (string)( $toggleAction[ 'target' ] ?? '' ) ),
 			'ajax_action_json' => \trim( (string)( $toggleAction[ 'ajax_action_json' ] ?? '' ) ),
 		];
 	}

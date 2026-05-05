@@ -4,12 +4,12 @@
 			{% if not flags.is_enabled %}
 				<div class="alert alert-secondary d-inline-block">
 					{{ strings.not_enabled }}
-					<a href="javascript:{}"
-					   class="zone_component_action"
-					   data-zone_component_action="offcanvas_zone_component_config"
-					   data-zone_component_slug="request_live_logging"
-					   title="{{ strings.toggle_live_log }}"
-					>{{ strings.toggle_live_log }}</a>
+					<button type="button"
+							class="zone_component_action shield-button-link"
+							data-zone_component_action="offcanvas_zone_component_config"
+							data-zone_component_slug="request_live_logging"
+							title="{{ strings.toggle_live_log }}"
+					>{{ strings.toggle_live_log }}</button>
 				</div>
 			{% endif %}
 			<div class="text-start">

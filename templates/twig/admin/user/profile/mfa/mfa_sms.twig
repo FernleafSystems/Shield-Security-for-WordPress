@@ -11,10 +11,11 @@
 		{% if flags.is_validated %}
 			<p>
 				{{ strings.registered_number }}: {{ vars.validated_number }}
-				<a href="#" class="shield_sms_remove"
-				   style="text-decoration: none;"
-				   title="Remove">
-					&#10006;</a>
+				<button type="button"
+						class="shield_sms_remove shield-button-link"
+						style="text-decoration: none;"
+						title="Remove">
+					&#10006;</button>
 			</p>
 		{% else %}
 			<label class="" for="shield_mfasms_country">

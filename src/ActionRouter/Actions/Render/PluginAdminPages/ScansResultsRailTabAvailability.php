@@ -310,7 +310,8 @@ class ScansResultsRailTabAvailability {
 		return [
 			'type'         => 'navigate',
 			'label'        => $label,
-			'href'         => 'javascript:{}',
+			'href'         => '',
+			'is_action'    => true,
 			'icon_class'   => 'bi bi-gear-fill',
 			'tooltip_attr' => '',
 			'class_name'   => 'zone_component_action',
@@ -328,6 +329,7 @@ class ScansResultsRailTabAvailability {
 			'type'         => 'navigate',
 			'label'        => __( 'View Plans', 'wp-simple-firewall' ),
 			'href'         => BaseRender::GO_PRO_URL,
+			'is_action'    => false,
 			'icon_class'   => 'bi bi-arrow-right-circle-fill',
 			'tooltip_attr' => '',
 			'class_name'   => '',

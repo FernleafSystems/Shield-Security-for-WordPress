@@ -258,7 +258,8 @@ class ActionsQueueLandingViewBuilderTest extends BaseUnitTest {
 							],
 							'toggle_action' => [
 								'label'       => 'Stop ignoring',
-								'href'        => 'javascript:{}',
+								'href'        => '',
+								'is_action'   => true,
 								'icon'        => 'bi bi-eye-fill',
 								'tooltip'     => 'Stop ignoring this maintenance item',
 								'ajax_action' => [ 'ex' => 'maintenance_item_unignore' ],

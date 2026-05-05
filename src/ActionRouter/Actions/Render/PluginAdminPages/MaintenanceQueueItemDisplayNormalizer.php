@@ -23,6 +23,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * }
  * @phpstan-type MaintenanceUiAction array{
  *   href:string,
+ *   is_action:bool,
  *   kind:'ignore'|'unignore',
  *   label:string,
  *   icon:string,
@@ -579,7 +580,8 @@ class MaintenanceQueueItemDisplayNormalizer {
 		], static fn( string $value ) :bool => $value !== '' ) );
 
 		return [
-			'href'             => 'javascript:{}',
+			'href'             => '',
+			'is_action'        => true,
 			'kind'             => $isIgnored ? 'unignore' : 'ignore',
 			'label'            => $label,
 			'icon'             => $isIgnored ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill',

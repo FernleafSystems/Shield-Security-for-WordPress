@@ -99,8 +99,11 @@
 
 /* Configure Link - color matches card status */
 .zone-component-card .configure-link {
+  appearance: none;
+  background: transparent;
   font-size: 0.8125rem;
   font-weight: 600;
+  font-family: inherit;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -108,6 +111,8 @@
   padding: 0.35rem 0.75rem;
   border-radius: 6px;
   border: 1px solid transparent;
+  cursor: pointer;
+  line-height: inherit;
   transition: background 0.2s, color 0.2s;
   white-space: nowrap;
 

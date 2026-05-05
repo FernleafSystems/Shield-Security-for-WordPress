@@ -3,10 +3,10 @@
 	{% if flags.global_plugin_disabled %}
 		<div class="alert alert-danger" role="alert">
 			{{ strings.global_plugin_disabled }}
-			<a href="javascript:{}"
-			   class="{{ vars.href_global_plugin_enable.classes|join(' ') }}"
-			   {% for key, value in vars.href_global_plugin_enable.data %}data-{{ key }}="{{ value }}"{% endfor %}
-			>{{ strings.reenable_plugin }}</a>
+			<button type="button"
+					class="{{ vars.href_global_plugin_enable.classes|join(' ') }} shield-button-link"
+					{% for key, value in vars.href_global_plugin_enable.data %}data-{{ key }}="{{ value }}"{% endfor %}
+			>{{ strings.reenable_plugin }}</button>
 
 		</div>
 	{% endif %}
@@ -26,13 +26,23 @@
 
 						<div class="list-group">
 							{% for action in vars.actions %}
-								<a class="list-group-item list-group-item-action {{ action.classes|join(' ') }}"
-								   title="{{ action.title }}"
-								   href="{{ action.href|default('#') }}"
-								   {% for key, value in action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
-								   >
-									<span class="svg-container me-1"><i class="{{ action.icon }}" aria-hidden="true"></i></span>{{ action.title }}
-								</a>
+								{% if action.is_action %}
+									<button type="button"
+											class="list-group-item list-group-item-action {{ action.classes|join(' ') }}"
+											title="{{ action.title }}"
+											{% for key, value in action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
+											>
+										<span class="svg-container me-1"><i class="{{ action.icon }}" aria-hidden="true"></i></span>{{ action.title }}
+									</button>
+								{% elseif action.href is not empty %}
+									<a class="list-group-item list-group-item-action {{ action.classes|join(' ') }}"
+									   title="{{ action.title }}"
+									   href="{{ action.href }}"
+									   {% for key, value in action.data|default([]) %}data-{{ key }}="{{ value }}"{% endfor %}
+									   >
+										<span class="svg-container me-1"><i class="{{ action.icon }}" aria-hidden="true"></i></span>{{ action.title }}
+									</a>
+								{% endif %}
 							{% endfor %}
 						</div>
 					</div>

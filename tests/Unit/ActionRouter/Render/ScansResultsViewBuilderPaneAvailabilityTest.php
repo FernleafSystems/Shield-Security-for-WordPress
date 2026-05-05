@@ -20,7 +20,8 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 						[
 							'type'         => 'navigate',
 							'label'      => 'Turn On Scanning',
-							'href'       => 'javascript:{}',
+							'href'       => '',
+							'is_action'  => true,
 							'class_name' => 'zone_component_action',
 							'target'     => '',
 							'rel'        => '',
@@ -41,7 +42,8 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 		$this->assertSame( $message, $pane[ 'disabled_message' ] ?? '' );
 		$this->assertCount( 1, $pane[ 'disabled_actions' ] ?? [] );
 		$this->assertSame( 'navigate', $pane[ 'disabled_actions' ][ 0 ][ 'type' ] ?? '' );
-		$this->assertSame( 'javascript:{}', $pane[ 'disabled_actions' ][ 0 ][ 'href' ] ?? '' );
+		$this->assertSame( '', $pane[ 'disabled_actions' ][ 0 ][ 'href' ] ?? 'unexpected' );
+		$this->assertTrue( $pane[ 'disabled_actions' ][ 0 ][ 'is_action' ] ?? false );
 		$this->assertSame( '', $pane[ 'disabled_actions' ][ 0 ][ 'target' ] ?? 'unexpected' );
 		$this->assertSame( '', $pane[ 'disabled_actions' ][ 0 ][ 'rel' ] ?? 'unexpected' );
 		$this->assertSame( 'zone_component_action', $pane[ 'disabled_actions' ][ 0 ][ 'class_name' ] ?? '' );

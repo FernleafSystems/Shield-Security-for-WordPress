@@ -622,7 +622,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'toggle_action' => [
 						'kind'             => 'unignore',
 						'label'            => 'Stop ignoring',
-						'href'             => 'javascript:{}',
+						'href'             => '',
+						'is_action'        => true,
 						'icon'             => 'bi bi-eye-fill',
 						'tooltip'          => 'Stop ignoring this maintenance item',
 						'target'           => '',
@@ -702,7 +703,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 										[
 											'kind'             => 'ignore',
 											'label'            => 'Ignore',
-											'href'             => 'javascript:{}',
+											'href'             => '',
+											'is_action'        => true,
 											'icon'             => 'bi bi-eye-slash-fill',
 											'tooltip'          => 'Ignore this maintenance item',
 											'target'           => '',
@@ -789,8 +791,11 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$systemRows = \array_values( $systemGroup[ 'maintenance_rows' ] );
 		$this->assertCount( 2, $systemRows );
 		$this->assertSame( '', $systemRows[ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] );
+		$this->assertFalse( $systemRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] ?? true );
 		$this->assertFalse( $systemRows[ 0 ][ 'is_ignored' ] );
 		$this->assertTrue( $systemRows[ 1 ][ 'is_ignored' ] );
+		$this->assertSame( '', $systemRows[ 1 ][ 'actions' ][ 0 ][ 'href' ] ?? 'unexpected' );
+		$this->assertTrue( $systemRows[ 1 ][ 'actions' ][ 0 ][ 'is_action' ] ?? false );
 		$this->assertSame(
 			'maintenance_item_unignore',
 			$this->decodeAjaxAction( $systemRows[ 1 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] )[ 'ex' ] ?? ''
@@ -802,6 +807,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$wordpressRows = \array_values( $wordpressGroup[ 'maintenance_rows' ] );
 		$this->assertCount( 2, $wordpressRows );
 		$this->assertSame( '/wp-admin/update-core.php', $wordpressRows[ 0 ][ 'actions' ][ 0 ][ 'href' ] ?? '' );
+		$this->assertFalse( $wordpressRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] ?? true );
 		$this->assertSame( [], $wordpressRows[ 1 ][ 'actions' ] ?? [] );
 
 		$pluginUpdatesGroup = $activeGroups[ 'wp_plugins_updates' ];
@@ -824,6 +830,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			'maintenance_item_ignore',
 			$this->decodeAjaxAction( $pluginUpdatesGroup[ 'maintenance_rows' ][ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] )[ 'ex' ] ?? ''
 		);
+		$this->assertTrue( $pluginUpdatesGroup[ 'maintenance_rows' ][ 0 ][ 'actions' ][ 0 ][ 'is_action' ] ?? false );
 		$this->assertSame( '', $pluginUpdatesGroup[ 'drill_hint' ] );
 		$this->assertSame( 'maintenance', $pluginUpdatesGroup[ 'detail_shell' ] );
 	}
@@ -943,7 +950,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'toggle_action' => [
 						'kind'             => 'unignore',
 						'label'            => 'Stop ignoring',
-						'href'             => 'javascript:{}',
+						'href'             => '',
+						'is_action'        => true,
 						'icon'             => 'bi bi-eye-fill',
 						'tooltip'          => 'Stop ignoring this maintenance item',
 						'target'           => '',

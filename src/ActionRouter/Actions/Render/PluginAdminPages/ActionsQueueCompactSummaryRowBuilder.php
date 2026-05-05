@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 /**
  * @phpstan-type CompactSummaryAction array{
  *   href:string,
+ *   is_action:bool,
  *   label:string,
  *   icon:string,
  *   tooltip:string,

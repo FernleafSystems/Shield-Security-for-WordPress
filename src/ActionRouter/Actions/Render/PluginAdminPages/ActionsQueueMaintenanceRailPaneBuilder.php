@@ -114,7 +114,8 @@ class ActionsQueueMaintenanceRailPaneBuilder extends ScansResultsViewBuilder {
 		return [
 			'type'       => 'navigate',
 			'label'      => $action[ 'label' ],
-			'href'       => $action[ 'href' ],
+			'href'       => '',
+			'is_action'  => true,
 			'icon'       => $action[ 'icon' ],
 			'tooltip'    => $action[ 'tooltip' ],
 			'attributes' => \array_filter( [

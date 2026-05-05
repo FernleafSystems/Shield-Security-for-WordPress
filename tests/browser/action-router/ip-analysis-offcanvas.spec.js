@@ -64,12 +64,6 @@ const isIpAnalysisActionRequest = ( request, expectedAction ) => {
 	return params.get( 'ip_action' ) === expectedAction;
 };
 
-const investigationTabLabels = {
-	sessions: 'User Sessions',
-	activity: 'Activity Log',
-	traffic: 'Recent Traffic',
-};
-
 const openIpAnalysisOffcanvasFromClick = async ( page, ip ) => {
 	await openShieldRoute( page, {
 		nav: 'activity',
@@ -107,9 +101,34 @@ const openIpAnalysisOffcanvas = async ( page, ip ) => {
 	return { offcanvas, inlineTabs };
 };
 
-const getInvestigationTab = ( inlineTabs, tableType ) => inlineTabs.filter( {
-	hasText: investigationTabLabels[ tableType ],
-} ).first();
+const getInvestigationTab = async ( offcanvas, tableType ) => {
+	const table = offcanvas.locator( `table[data-investigation-table="1"][data-table-type="${tableType}"]` ).first();
+	await expect( table ).toHaveCount( 1 );
+	const panel = table.locator( 'xpath=ancestor::*[@role="tabpanel"][1]' );
+	await expect( panel ).toHaveCount( 1 );
+	const panelId = await panel.getAttribute( 'id' );
+	expect( panelId || '' ).not.toHaveLength( 0 );
+
+	return offcanvas.locator( `[data-investigate-panel-tab="1"][aria-controls="${panelId}"]` ).first();
+};
+
+const expectInlineTabsContract = async ( page, inlineTabs ) => {
+	await expect( inlineTabs ).toHaveCount( 4 );
+	const tabContract = await inlineTabs.evaluateAll( ( tabs ) => tabs.map( ( tab ) => ( {
+		role: tab.getAttribute( 'role' ),
+		controls: tab.getAttribute( 'aria-controls' ),
+		selected: tab.getAttribute( 'aria-selected' ),
+	} ) ) );
+
+	expect( tabContract.every( ( tab ) => tab.role === 'tab' ) ).toBe( true );
+	expect( tabContract.every( ( tab ) => ( tab.controls || '' ).length > 0 ) ).toBe( true );
+	expect( new Set( tabContract.map( ( tab ) => tab.controls ) ).size ).toBe( tabContract.length );
+	expect( tabContract.filter( ( tab ) => tab.selected === 'true' ) ).toHaveLength( 1 );
+
+	for ( const tab of tabContract ) {
+		await expect( page.locator( `#${tab.controls}` ) ).toHaveCount( 1 );
+	}
+};
 
 const expectInvestigationTableInitialized = async ( offcanvas, tableType ) => {
 	const table = offcanvas.locator( `.tab-pane.active.show table[data-investigation-table="1"][data-table-type="${tableType}"]` ).first();
@@ -175,16 +194,18 @@ test( 'clicked IP link opens the IP analysis offcanvas with the four investigati
 		const { offcanvas, inlineTabs } = await openIpAnalysisOffcanvasFromClick( page, fixture.ip );
 		await page.unroute( '**/admin-ajax.php*', delayHandler ).catch( () => null );
 		await expectNamedOffcanvas( page, offcanvas, 'AptoOffcanvasLabel' );
-		await expect( inlineTabs ).toHaveText( [ 'Overview', 'User Sessions', 'Activity Log', 'Recent Traffic' ] );
+		await expectInlineTabsContract( page, inlineTabs );
 
-		const targetTab = getInvestigationTab( inlineTabs, 'sessions' );
-		const targetLabel = await targetTab.textContent();
+		const targetTab = await getInvestigationTab( offcanvas, 'sessions' );
+		const targetPanelId = await targetTab.getAttribute( 'aria-controls' );
+		expect( targetPanelId || '' ).not.toHaveLength( 0 );
 		await targetTab.click();
 
 		await expect( targetTab ).toHaveClass( /is-active/ );
+		await expect( targetTab ).toHaveAttribute( 'aria-selected', 'true' );
 		await expect(
-			offcanvas.locator( '.shield-options-rail-nav .nav-link.active' )
-		).toContainText( targetLabel ? targetLabel.trim() : '' );
+			offcanvas.locator( `.shield-options-rail-nav .nav-link.active[aria-controls="${targetPanelId}"]` )
+		).toHaveCount( 1 );
 	} );
 } );
 
@@ -192,6 +213,7 @@ test( 'IP analysis actions use accessible confirm without native dialog', async 
 	const { offcanvas } = await openIpAnalysisOffcanvas( page, '198.51.100.20' );
 	const action = offcanvas.locator( IP_ANALYSIS_CONFIRM_ACTION_SELECTOR ).first();
 	await expect( action ).toBeVisible();
+	await expect( action ).toHaveRole( 'button' );
 	const expectedAction = await action.getAttribute( 'data-ip_action' );
 	expect( expectedAction || '' ).not.toHaveLength( 0 );
 
@@ -253,7 +275,8 @@ test( 'preloaded IP analysis offcanvas loads investigation tables without runtim
 	const { offcanvas, inlineTabs } = await openIpAnalysisOffcanvas( page, '198.51.100.20' );
 
 	for ( const tableType of [ 'sessions', 'activity', 'traffic' ] ) {
-		const targetTab = getInvestigationTab( inlineTabs, tableType );
+		await expectInlineTabsContract( page, inlineTabs );
+		const targetTab = await getInvestigationTab( offcanvas, tableType );
 		const tableResponsePromise = page.waitForResponse( investigationTableRequestMatcher( tableType ) );
 
 		await targetTab.click();
@@ -276,7 +299,8 @@ test( 'preloaded IP analysis offcanvas activity meta button loads request meta p
 
 	await fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => {
 		const { offcanvas, inlineTabs } = await openIpAnalysisOffcanvas( page, fixture.ip );
-		const targetTab = getInvestigationTab( inlineTabs, 'activity' );
+		await expectInlineTabsContract( page, inlineTabs );
+		const targetTab = await getInvestigationTab( offcanvas, 'activity' );
 
 		await Promise.all( [
 			page.waitForResponse( investigationTableRequestMatcher( 'activity' ) ),

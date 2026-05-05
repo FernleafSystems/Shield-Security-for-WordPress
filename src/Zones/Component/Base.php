@@ -48,6 +48,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 
 			$actions[ 'config' ] = [
 				'title'   => __( 'Edit Settings', 'wp-simple-firewall' ),
+				'href'    => '',
 				'data'    => \array_merge(
 					$configData,
 					empty( $this->tooltip() ) ? [] : [
@@ -57,8 +58,9 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 						'bs-title'     => $this->tooltip(),
 					]
 				),
-				'icon'    => self::con()->svgs->iconClass( 'gear' ),
-				'classes' => [
+				'icon'      => self::con()->svgs->iconClass( 'gear' ),
+				'is_action' => true,
+				'classes'   => [
 					'zone_component_action',
 				],
 			];

@@ -122,11 +122,11 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 			'Non-warning rows should not render the warning-style explanation icon'
 		);
 		$this->assertSame(
-			1,
+			2,
 			$xpath->query(
-				'//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__explanations ")]/li[normalize-space()="This setting still needs a short explanation."]'
+				'//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__explanations ")]/li[normalize-space()!=""]'
 			)->length,
-			'Non-warning rows should still render the explanation text'
+			'Non-warning rows should render non-empty explanation items'
 		);
 	}
 
@@ -156,11 +156,12 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 						],
 						'secondary_actions' => [
 							[
-								'href'             => 'javascript:{}',
+								'href'             => '',
 								'label'            => 'Ignore',
 								'icon'             => 'bi bi-eye-slash-fill',
 								'tooltip'          => 'Ignore this maintenance item',
 								'target'           => '',
+								'is_action'        => true,
 								'ajax_action'      => [ 'ex' => 'maintenance_item_ignore' ],
 								'ajax_action_json' => '{"ex":"maintenance_item_ignore"}',
 							],
@@ -193,8 +194,8 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 		);
 		$this->assertSame(
 			1,
-			$xpath->query( '//a[contains(concat(" ", normalize-space(@class), " "), " actions-landing__table-icon-action ") and contains(@data-actions-queue-maintenance-action, "maintenance_item_ignore")]' )->length,
-			'Simple tables should render the PHP-provided maintenance AJAX action attribute directly'
+			$xpath->query( '//button[@type="button" and contains(concat(" ", normalize-space(@class), " "), " actions-landing__table-icon-action ") and contains(@data-actions-queue-maintenance-action, "maintenance_item_ignore")]' )->length,
+			'Simple tables should render PHP-provided maintenance AJAX actions as buttons'
 		);
 		$this->assertSame(
 			1,
@@ -208,8 +209,8 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 		);
 		$this->assertSame(
 			0,
-			$xpath->query( '//tr[td//*[normalize-space()="Inactive Theme"]]//a' )->length,
-			'Rows without a primary maintenance action should not render an empty button'
+			$xpath->query( '//tr[not(@data-actions-queue-maintenance-ignored)]//*[self::a or self::button]' )->length,
+			'Rows without maintenance actions should not render an empty control'
 		);
 	}
 
