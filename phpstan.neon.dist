@@ -10,7 +10,6 @@ parameters:
 		- icwp-wpsf.php
 		- plugin_compatibility.php
 		- plugin_init.php
-		- uninstall.php
 		- unsupported.php
 	bootstrapFiles:
 		- vendor/autoload.php

@@ -236,7 +236,6 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 			'plugin.json',
 			'plugin_compatibility.php',
 			'plugin_init.php',
-			'uninstall.php',
 			'unsupported.php',
 			'src',
 			'templates',
@@ -348,7 +347,6 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		\file_put_contents( Path::join( $rootDir, 'icwp-wpsf.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'plugin_compatibility.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'plugin_init.php' ), '<?php' );
-		\file_put_contents( Path::join( $rootDir, 'uninstall.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'unsupported.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'src', 'Example.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'templates', 'twig', 'example.twig' ), 'twig' );
