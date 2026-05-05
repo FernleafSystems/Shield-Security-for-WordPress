@@ -5,6 +5,7 @@ import { AjaxService } from "../services/AjaxService";
 import { UiContentActivator } from "./UiContentActivator";
 import { BootstrapTooltips } from "./BootstrapTooltips";
 import { focusElement } from "./ShieldA11y";
+import { messageDialog } from "./ShieldDialog";
 
 export class OffCanvasService extends BaseComponent {
 
@@ -118,25 +119,98 @@ export class OffCanvasService extends BaseComponent {
 		return ( new AjaxService() )
 		.send( request, false )
 		.then( ( resp ) => {
-			if ( resp.success ) {
+			if ( resp?.success && typeof resp?.data?.html === 'string' ) {
 				OffCanvasService.offCanvasEl.classList.add( request.render_slug );
 				BootstrapTooltips.DisposeTooltipsWithin( OffCanvasService.offCanvasEl );
 				OffCanvasService.offCanvasEl.innerHTML = resp.data.html;
+				if ( !OffCanvasService.validateOffcanvasAccessibility() ) {
+					return OffCanvasService.handleRenderFailure(
+						'The requested panel could not be displayed.'
+					);
+				}
 				if ( OffCanvasService.offCanvasEl.classList.contains( 'show' ) ) {
 					UiContentActivator.activateCurrentSubtree( OffCanvasService.offCanvasEl );
 				}
+				return true;
 			}
-			else if ( typeof resp.data.error !== 'undefined' ) {
-				alert( resp.data.error );
-			}
-			else {
-				alert( 'There was a problem displaying the page.' );
-				console.log( resp );
-			}
+			console.log( resp );
+			return OffCanvasService.handleRenderFailure( OffCanvasService.extractErrorMessage( resp ) );
 		} )
 		.catch( ( error ) => {
 			console.log( error );
+			return OffCanvasService.handleRenderFailure(
+				'There was a problem displaying the page.'
+			);
 		} );
+	}
+
+	static validateOffcanvasAccessibility() {
+		const offcanvas = OffCanvasService.offCanvasEl;
+		if ( !( offcanvas instanceof HTMLElement ) || !offcanvas.hasAttribute( 'tabindex' ) ) {
+			return false;
+		}
+
+		const labelId = String( offcanvas.getAttribute( 'aria-labelledby' ) || '' ).trim();
+		const labelEl = labelId.length > 0 ? offcanvas.ownerDocument.getElementById( labelId ) : null;
+		if ( !( labelEl instanceof HTMLElement ) || String( labelEl.textContent || '' ).trim().length < 1 ) {
+			return false;
+		}
+
+		return Array.from( offcanvas.querySelectorAll( '[data-bs-dismiss="offcanvas"]' ) )
+		.every( ( control ) => OffCanvasService.hasAccessibleControlLabel( control ) );
+	}
+
+	static hasAccessibleControlLabel( control ) {
+		if ( !( control instanceof HTMLElement ) ) {
+			return false;
+		}
+
+		return [
+			control.getAttribute( 'aria-label' ),
+			control.getAttribute( 'title' ),
+			control.textContent,
+		].some( ( label ) => String( label || '' ).trim().length > 0 );
+	}
+
+	static handleRenderFailure( message ) {
+		const openMessage = () => messageDialog( {
+			title: OffCanvasService.localizedString( 'request_failed', 'Request Failed' ),
+			message: message,
+			launcher: OffCanvasService.resolveDialogLauncher(),
+		} ).then( () => false );
+
+		OffCanvasService.canvasTracker = [];
+		if ( !( OffCanvasService.offCanvasEl instanceof HTMLElement )
+			|| (
+				!OffCanvasService.offCanvasEl.classList.contains( 'show' )
+				&& !OffCanvasService.offCanvasEl.classList.contains( 'showing' )
+			) ) {
+			return openMessage();
+		}
+
+		return new Promise( ( resolve ) => {
+			OffCanvasService.offCanvasEl.addEventListener( 'hidden.bs.offcanvas', () => {
+				resolve( openMessage() );
+			}, { once: true } );
+			OffCanvasService.CloseCanvas();
+		} );
+	}
+
+	static resolveDialogLauncher() {
+		return document.activeElement instanceof HTMLElement ? document.activeElement : null;
+	}
+
+	static extractErrorMessage( resp ) {
+		const message = resp?.data?.error || resp?.data?.message;
+		return typeof message === 'string' && message.length > 0
+			? message
+			: 'There was a problem displaying the page.';
+	}
+
+	static localizedString( key, fallback ) {
+		return typeof shieldStrings !== 'undefined' && typeof shieldStrings.string === 'function'
+			? shieldStrings.string( key ) || fallback
+			: fallback;
 	}
 
 	static buildLoadingContent() {

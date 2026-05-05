@@ -5,6 +5,7 @@ const {
 } = require( './support/shield-browser' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const {
+	expectAccessibleMessageDialog,
 	expectFocusWithin,
 	expectLabelledControl,
 	expectModalHiddenWithoutAriaModal,
@@ -59,6 +60,41 @@ async function pauseNextMatchingRequest( page, matcher ) {
 		release: () => releaseResolve(),
 		remove: () => page.unroute( '**/admin-ajax.php*', handler ).catch( () => null ),
 	};
+}
+
+async function fulfillNextMatchingRequest( page, matcher, body ) {
+	let matched = false;
+	const handler = async ( route ) => {
+		if ( matched || !matcher( route.request() ) ) {
+			await route.fallback();
+			return;
+		}
+
+		matched = true;
+		await route.fulfill( {
+			status: 200,
+			contentType: 'application/json',
+			body: JSON.stringify( body ),
+		} );
+		await page.unroute( '**/admin-ajax.php*', handler ).catch( () => null );
+	};
+
+	await page.route( '**/admin-ajax.php*', handler );
+	return {
+		seen: () => matched,
+		remove: () => page.unroute( '**/admin-ajax.php*', handler ).catch( () => null ),
+	};
+}
+
+async function expectNoNativeDialogDuring( page, action ) {
+	let nativeDialogCount = 0;
+	page.on( 'dialog', async ( dialog ) => {
+		nativeDialogCount++;
+		await dialog.dismiss();
+	} );
+
+	await action();
+	await expect.poll( () => nativeDialogCount ).toBe( 0 );
 }
 
 async function waitForScanResultsTableRows( table ) {
@@ -165,6 +201,88 @@ test( 'scan item analysis shared modal stays named through async replacement', a
 	} );
 } );
 
+test( 'scan item analysis render failure opens accessible message dialog', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+		const actionsQueuePage = new ActionsQueuePage( page );
+		const failed = await fulfillNextMatchingRequest( page, isScanItemAnalysisRequest, {
+			success: false,
+			data: {
+				message: 'scan-item-analysis-failed',
+				page_reload: false,
+			},
+		} );
+
+		try {
+			await openShieldRoute( page, {
+				nav: 'scans',
+				nav_sub: 'overview',
+			} );
+
+			await actionsQueuePage.drillToDetail( fixture );
+			const table = page.locator( '[data-scan-results-table="1"]' ).first();
+			await waitForScanResultsTableRows( table );
+
+			const viewAction = table.locator( '[data-scan-result-action="view"]' ).first();
+			await expect( viewAction ).toBeVisible();
+
+			await expectNoNativeDialogDuring( page, async () => {
+				await viewAction.click();
+				await expect.poll( failed.seen ).toBe( true );
+				const dialog = await expectAccessibleMessageDialog( page );
+				await expectNoAxeViolations( page, '#AptoGeneralPurposeDialog' );
+				await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
+				await dialog.locator( '[data-shield-dialog-confirm="1"]' ).click();
+				await expectModalHiddenWithoutAriaModal( page, '#AptoGeneralPurposeDialog' );
+				await expect( viewAction ).toBeFocused();
+			} );
+		}
+		finally {
+			await failed.remove();
+		}
+	} );
+} );
+
+test( 'scan item analysis unnamed replacement opens accessible message dialog', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+		const actionsQueuePage = new ActionsQueuePage( page );
+		const malformed = await fulfillNextMatchingRequest( page, isScanItemAnalysisRequest, {
+			success: true,
+			data: {
+				html: '<div class="modal-body"><button type="button" data-bs-dismiss="modal" aria-label="Dismiss"></button></div>',
+				page_reload: false,
+			},
+		} );
+
+		try {
+			await openShieldRoute( page, {
+				nav: 'scans',
+				nav_sub: 'overview',
+			} );
+
+			await actionsQueuePage.drillToDetail( fixture );
+			const table = page.locator( '[data-scan-results-table="1"]' ).first();
+			await waitForScanResultsTableRows( table );
+
+			const viewAction = table.locator( '[data-scan-result-action="view"]' ).first();
+			await expect( viewAction ).toBeVisible();
+
+			await expectNoNativeDialogDuring( page, async () => {
+				await viewAction.click();
+				await expect.poll( malformed.seen ).toBe( true );
+				const dialog = await expectAccessibleMessageDialog( page );
+				await expectNoAxeViolations( page, '#AptoGeneralPurposeDialog' );
+				await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
+				await dialog.locator( '[data-shield-dialog-confirm="1"]' ).click();
+				await expectModalHiddenWithoutAriaModal( page, '#AptoGeneralPurposeDialog' );
+				await expect( viewAction ).toBeFocused();
+			} );
+		}
+		finally {
+			await malformed.remove();
+		}
+	} );
+} );
+
 test( 'IP analysis offcanvas is named while loading and after async replacement', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => {
 		const paused = await pauseNextMatchingRequest( page, isIpAnalysisOffcanvasRequest );
@@ -202,6 +320,78 @@ test( 'IP analysis offcanvas is named while loading and after async replacement'
 		finally {
 			paused.release();
 			await paused.remove();
+		}
+	} );
+} );
+
+test( 'IP analysis offcanvas render failure opens accessible message dialog', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => {
+		const failed = await fulfillNextMatchingRequest( page, isIpAnalysisOffcanvasRequest, {
+			success: false,
+			data: {
+				error: 'offcanvas-render-failed',
+				page_reload: false,
+			},
+		} );
+
+		try {
+			await openShieldRoute( page, {
+				nav: 'activity',
+				nav_sub: 'logs',
+			} );
+
+			const launcher = page.locator( `.offcanvas_ip_analysis[data-ip="${fixture.ip}"]` ).first();
+			await expect( launcher ).toBeVisible();
+
+			await expectNoNativeDialogDuring( page, async () => {
+				await launcher.click();
+				await expect.poll( failed.seen ).toBe( true );
+				const dialog = await expectAccessibleMessageDialog( page );
+				await expectNoAxeViolations( page, '#AptoGeneralPurposeDialog' );
+				await expectModalHiddenWithoutAriaModal( page, '#AptoOffcanvas' );
+				await dialog.locator( '[data-shield-dialog-confirm="1"]' ).click();
+				await expectModalHiddenWithoutAriaModal( page, '#AptoGeneralPurposeDialog' );
+				await expect( launcher ).toBeFocused();
+			} );
+		}
+		finally {
+			await failed.remove();
+		}
+	} );
+} );
+
+test( 'IP analysis offcanvas unnamed replacement opens accessible message dialog', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => {
+		const malformed = await fulfillNextMatchingRequest( page, isIpAnalysisOffcanvasRequest, {
+			success: true,
+			data: {
+				html: '<div class="offcanvas-body"><button type="button" data-bs-dismiss="offcanvas" aria-label="Dismiss"></button></div>',
+				page_reload: false,
+			},
+		} );
+
+		try {
+			await openShieldRoute( page, {
+				nav: 'activity',
+				nav_sub: 'logs',
+			} );
+
+			const launcher = page.locator( `.offcanvas_ip_analysis[data-ip="${fixture.ip}"]` ).first();
+			await expect( launcher ).toBeVisible();
+
+			await expectNoNativeDialogDuring( page, async () => {
+				await launcher.click();
+				await expect.poll( malformed.seen ).toBe( true );
+				const dialog = await expectAccessibleMessageDialog( page );
+				await expectNoAxeViolations( page, '#AptoGeneralPurposeDialog' );
+				await expectModalHiddenWithoutAriaModal( page, '#AptoOffcanvas' );
+				await dialog.locator( '[data-shield-dialog-confirm="1"]' ).click();
+				await expectModalHiddenWithoutAriaModal( page, '#AptoGeneralPurposeDialog' );
+				await expect( launcher ).toBeFocused();
+			} );
+		}
+		finally {
+			await malformed.remove();
 		}
 	} );
 } );

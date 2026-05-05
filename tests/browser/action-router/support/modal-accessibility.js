@@ -18,6 +18,15 @@ async function expectNamedOffcanvas( page, offcanvas, expectedLabelId = null ) {
 	}
 }
 
+async function expectAccessibleMessageDialog( page ) {
+	const dialog = page.locator( '#AptoGeneralPurposeDialog[aria-modal="true"]' );
+	await expect( dialog ).toBeVisible();
+	await expectNamedDialog( page, dialog, 'AptoGeneralPurposeDialogTitle' );
+	await expectOptionalDescription( page, dialog );
+	await expectFocusWithin( dialog );
+	return dialog;
+}
+
 async function expectLabelledControl( control ) {
 	await expect( control ).toBeVisible();
 	const label = await control.getAttribute( 'aria-label' );
@@ -53,6 +62,7 @@ async function expectModalHiddenWithoutAriaModal( page, modalSelector ) {
 }
 
 module.exports = {
+	expectAccessibleMessageDialog,
 	expectFocusWithin,
 	expectLabelledControl,
 	expectModalHiddenWithoutAriaModal,

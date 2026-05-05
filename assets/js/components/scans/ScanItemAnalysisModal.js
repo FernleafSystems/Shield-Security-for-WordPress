@@ -8,6 +8,7 @@ import sql from 'highlight.js/lib/languages/sql';
 import xml from 'highlight.js/lib/languages/xml';
 import { AjaxService } from "../services/AjaxService";
 import { BootstrapModals } from "../ui/BootstrapModals";
+import { messageDialog } from "../ui/ShieldDialog";
 import { ObjectOps } from "../../util/ObjectOps";
 
 hljs.registerLanguage( 'bash', bash );
@@ -51,15 +52,20 @@ export class ScanItemAnalysisModal {
 
 			if ( resp?.success && typeof resp?.data?.html === 'string' ) {
 				modalContent.innerHTML = resp.data.html;
-				BootstrapModals.normalizeModalAccessibility( modal );
+				if ( !BootstrapModals.normalizeModalAccessibility( modal ) ) {
+					activeRequestToken = '';
+					return ScanItemAnalysisModal.showFailureMessage(
+						modal,
+						ScanItemAnalysisModal.getContractFailureMessage()
+					);
+				}
 				ScanItemAnalysisModal.highlightModalCodeBlocks( modal );
 				activeRequestToken = '';
 				return;
 			}
 
 			activeRequestToken = '';
-			BootstrapModals.Hide( modal );
-			alert( ScanItemAnalysisModal.extractErrorMessage( resp ) );
+			return ScanItemAnalysisModal.showFailureMessage( modal, ScanItemAnalysisModal.extractErrorMessage( resp ) );
 		} )
 		.catch( ( error ) => {
 			if ( activeRequestToken !== requestToken ) {
@@ -67,9 +73,11 @@ export class ScanItemAnalysisModal {
 			}
 
 			activeRequestToken = '';
-			BootstrapModals.Hide( modal );
 			console.log( error );
-			alert( 'Communications error with site.' );
+			return ScanItemAnalysisModal.showFailureMessage(
+				modal,
+				ScanItemAnalysisModal.getCommunicationsErrorMessage()
+			);
 		} );
 	}
 
@@ -116,7 +124,48 @@ export class ScanItemAnalysisModal {
 		const message = resp?.data?.message;
 		return typeof message === 'string' && message.length > 0
 			? message
-			: 'Communications error with site.';
+			: ScanItemAnalysisModal.getCommunicationsErrorMessage();
+	}
+
+	static showFailureMessage( modal, message ) {
+		const openMessage = () => messageDialog( {
+			title: ScanItemAnalysisModal.localizedString( 'request_failed', 'Request Failed' ),
+			message: message,
+			launcher: ScanItemAnalysisModal.resolveDialogLauncher(),
+		} );
+
+		if ( !( modal instanceof HTMLElement )
+			|| (
+				!modal.classList.contains( 'show' )
+				&& !modal.classList.contains( 'showing' )
+			) ) {
+			return openMessage();
+		}
+
+		return new Promise( ( resolve ) => {
+			modal.addEventListener( 'hidden.bs.modal', () => {
+				resolve( openMessage() );
+			}, { once: true } );
+			BootstrapModals.Hide( modal );
+		} );
+	}
+
+	static resolveDialogLauncher() {
+		return document.activeElement instanceof HTMLElement ? document.activeElement : null;
+	}
+
+	static getContractFailureMessage() {
+		return 'The requested content could not be displayed.';
+	}
+
+	static getCommunicationsErrorMessage() {
+		return 'Communications error with site.';
+	}
+
+	static localizedString( key, fallback ) {
+		return typeof shieldStrings !== 'undefined' && typeof shieldStrings.string === 'function'
+			? shieldStrings.string( key ) || fallback
+			: fallback;
 	}
 
 	static highlightModalCodeBlocks( modal ) {

@@ -141,8 +141,10 @@ export class IpAnalyse extends BaseAutoExecComponent {
 		return OffCanvasService.RenderCanvas(
 			ObjectOps.Merge( this._base_data.ajax.render_offcanvas, { ip: ip } ),
 			options
-		).then( () => {
-			this.lookupSelect2.initializeWithin( OffCanvasService.offCanvasEl );
+		).then( ( rendered ) => {
+			if ( rendered !== false ) {
+				this.lookupSelect2.initializeWithin( OffCanvasService.offCanvasEl );
+			}
 		} );
 	};
 }
