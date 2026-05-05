@@ -12,6 +12,8 @@
 				<button type="button"
 						class="btn btn-link dropdown-toggle page-action-menu-toggle"
 						data-bs-toggle="dropdown"
+						aria-label="{{ strings.actions_title|e('html_attr') }}"
+						title="{{ strings.actions_title|e('html_attr') }}"
 						aria-expanded="false"><i class="{{ imgs.svgs.menu }}" aria-hidden="true"></i></button>
 				<ul class="dropdown-menu">
 					{% for item in hrefs.inner_page_contextual_hrefs %}
@@ -19,11 +21,12 @@
 							{{ icwp_macros.tagAnchor(
 								item.href,
 								item.title,
-								item.id|default(''),
-								item.classes|default([])|merge(['dropdown-item']),
-								item.new_window|default(false),
-								item.data|default([]),
-								item.disabled|default(false)
+								item.id,
+								item.classes|merge(['dropdown-item']),
+								item.new_window,
+								item.data,
+								item.disabled,
+								item.is_action
 							) }}
 						</li>
 					{% endfor %}

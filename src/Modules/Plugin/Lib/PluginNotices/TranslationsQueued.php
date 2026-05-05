@@ -53,9 +53,8 @@ class TranslationsQueued extends Base {
 					'%s %s',
 					sprintf( '%s: %s - ', $con->labels->Name, __( 'Translations Queued', 'wp-simple-firewall' ) ),
 					sprintf(
-						'%s <a href="%s" data-notice_action="%s" class="shield_admin_notice_action">%s</a>',
+						'%s <button type="button" data-notice_action="%s" class="shield_admin_notice_action shield-button-link">%s</button>',
 						$message,
-						'#',
 						TranslationsForceDownload::SLUG,
 						__( 'Download Now', 'wp-simple-firewall' )
 					)

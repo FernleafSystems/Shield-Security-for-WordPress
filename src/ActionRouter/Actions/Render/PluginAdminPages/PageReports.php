@@ -14,9 +14,10 @@ class PageReports extends BasePluginAdminPage {
 		$renderDefinition = $this->getCurrentSubNavRenderDefinition();
 		if ( $renderDefinition[ 'show_create_action' ] && $con->caps->canReportsLocal() ) {
 			\array_unshift( $hrefs, [
-				'title'   => __( 'Create Custom Report', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'offcanvas_report_create_form' ],
+				'title'     => __( 'Create Custom Report', 'wp-simple-firewall' ),
+				'href'      => '',
+				'is_action' => true,
+				'classes'   => [ 'offcanvas_report_create_form' ],
 			] );
 		}
 		return $hrefs;

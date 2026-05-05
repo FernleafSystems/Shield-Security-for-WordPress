@@ -83,13 +83,23 @@
 							: (action_type == 'deactivate' ? 'bi bi-power' : 'bi bi-arrow-right-circle-fill')
 					) %}
 					{% set tooltip = action.tooltip is defined and action.tooltip is not null ? action.tooltip|trim : '' %}
-					<a href="{{ action.href|default('#') }}"
-					   class="shield-action-chip shield-action-chip--{{ action_type }}"{% if tooltip is not empty %}
-					   data-bs-toggle="tooltip"
-					   data-bs-title="{{ tooltip|e('html_attr') }}"{% endif %}{{ icwp_macros.renderAttributes(action.attributes|default({})) }}>
-						<i class="{{ chip_icon }}"></i>
-						{{ action.label|default('') }}
-					</a>
+					{% if action.is_action %}
+						<button type="button"
+								class="shield-action-chip shield-action-chip--{{ action_type }}"{% if tooltip is not empty %}
+								data-bs-toggle="tooltip"
+								data-bs-title="{{ tooltip|e('html_attr') }}"{% endif %}{{ icwp_macros.renderAttributes(action.attributes|default({})) }}>
+							<i class="{{ chip_icon }}"></i>
+							{{ action.label|default('') }}
+						</button>
+					{% elseif action.href is not empty %}
+						<a href="{{ action.href }}"
+						   class="shield-action-chip shield-action-chip--{{ action_type }}"{% if tooltip is not empty %}
+						   data-bs-toggle="tooltip"
+						   data-bs-title="{{ tooltip|e('html_attr') }}"{% endif %}{{ icwp_macros.renderAttributes(action.attributes|default({})) }}>
+							<i class="{{ chip_icon }}"></i>
+							{{ action.label|default('') }}
+						</a>
+					{% endif %}
 				{% endfor %}
 			</div>
 		{% endif %}

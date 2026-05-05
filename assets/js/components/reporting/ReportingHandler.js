@@ -12,7 +12,7 @@ export class ReportingHandler extends BaseAutoExecComponent {
 	}
 
 	run() {
-		shieldEventsHandler_Main.add_Click( 'a.offcanvas_report_create_form', ( launcher ) => {
+		shieldEventsHandler_Main.add_Click( '.offcanvas_report_create_form', ( launcher ) => {
 			OffCanvasService.RenderCanvas( this._base_data.ajax.render_offcanvas, { launcher } )
 							.then( () => this.postRender() )
 							.finally();

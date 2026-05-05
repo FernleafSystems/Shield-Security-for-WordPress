@@ -6,7 +6,10 @@ require_once '/app/tests/Helpers/BrowserFixtureRegistry.php';
 require_once '/app/tests/Helpers/ActionRouter/PluginAdminRouteRuntime.php';
 require_once '/app/tests/Helpers/ActionRouter/ActionsQueueRuntimeProbe.php';
 require_once '/app/tests/Helpers/ActionRouter/ActionsQueueFixtureBuilder.php';
+require_once '/app/tests/Helpers/ActionRouter/ImportExportFileFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/IpAnalysisActivityMetaFixtureBuilder.php';
+require_once '/app/tests/Helpers/ActionRouter/IpRulesTableFixtureBuilder.php';
+require_once '/app/tests/Helpers/ActionRouter/MerlinWelcomeFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/MfaProfileFixtureBuilder.php';
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrowserFixtureRegistry;

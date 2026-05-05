@@ -39,6 +39,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 		$zoneComponentSlugs = $this->getConfigZoneComponentSlugs();
 		return empty( $zoneComponentSlugs ) ? null : [
 			'title'   => sprintf( __( "Configure All '%s' Options", 'wp-simple-firewall' ), $this->title() ),
+			'href'    => '',
 			'data'    => \array_merge(
 				[
 					'zone_component_action' => ZoneComponentConfig::SLUG,
@@ -51,8 +52,9 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 					'bs-title'     => $this->tooltip(),
 				]
 			),
-			'icon'    => self::con()->svgs->iconClass( 'gear' ),
-			'classes' => [
+			'icon'      => self::con()->svgs->iconClass( 'gear' ),
+			'is_action' => true,
+			'classes'   => [
 				'list-group-item-primary',
 				'zone_component_action',
 			],

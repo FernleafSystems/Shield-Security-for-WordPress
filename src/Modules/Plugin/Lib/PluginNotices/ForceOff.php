@@ -16,8 +16,7 @@ class ForceOff extends Base {
 					sprintf(
 						'%s %s',
 						sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), sprintf( __( '%s is not currently protecting your site.', 'wp-simple-firewall' ), $con->labels->Name ) ),
-						sprintf( '<a href="%s" data-notice_action="%s" class="shield_admin_notice_action">%s</a>',
-							'#',
+						sprintf( '<button type="button" data-notice_action="%s" class="shield_admin_notice_action shield-button-link">%s</button>',
 							PluginDeleteForceOff::SLUG,
 							__( "Delete 'forceoff' File", 'wp-simple-firewall' )
 						)

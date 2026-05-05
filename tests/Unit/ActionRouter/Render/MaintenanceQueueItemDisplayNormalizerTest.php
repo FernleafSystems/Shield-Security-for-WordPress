@@ -355,6 +355,8 @@ class MaintenanceQueueItemDisplayNormalizerTest extends BaseUnitTest {
 		$this->assertSame( 'good', $items[ 0 ][ 'severity' ] ?? '' );
 		$this->assertSame( [], $items[ 0 ][ 'cta' ] ?? [ 'unexpected' ] );
 		$this->assertSame( [], $items[ 0 ][ 'expansion' ] ?? [] );
+		$this->assertSame( '', $items[ 0 ][ 'toggle_action' ][ 'href' ] ?? 'unexpected' );
+		$this->assertTrue( $items[ 0 ][ 'toggle_action' ][ 'is_action' ] ?? false );
 		$this->assertSame( 'bi bi-eye-fill', $items[ 0 ][ 'toggle_action' ][ 'icon' ] ?? '' );
 		$this->assertSame( 'maintenance_item_unignore', $items[ 0 ][ 'toggle_action' ][ 'ajax_action' ][ 'ex' ] ?? '' );
 		$this->assertSame( 'unignore', $items[ 0 ][ 'toggle_action' ][ 'kind' ] ?? '' );

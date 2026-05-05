@@ -62,15 +62,41 @@ class PageAdminPlugin extends BaseRender {
 				'logo_banner' => $con->labels->url_img_pagebanner,
 				'logo_small'  => $con->labels->url_img_logo_small,
 			],
-			'strings' => [
-				'top_page_warnings' => $this->buildTopPageWarnings(),
-				'dismiss_notice'    => __( 'Dismiss', 'wp-simple-firewall' ),
-			],
+			'strings' => \array_merge(
+				$this->buildAdminShellStrings( $nav, $subNav ),
+				[
+					'top_page_warnings' => $this->buildTopPageWarnings(),
+					'dismiss_notice'    => __( 'Dismiss', 'wp-simple-firewall' ),
+				]
+			),
 			'vars'    => [
 				'active_module_settings' => $subNav,
 				'nav_sidebar'            => ( new NavMenuBuilder() )->build(),
 			],
 		];
+	}
+
+	private function buildAdminShellStrings( string $nav, string $subNav ) :array {
+		$pluginName = self::con()->labels->Name;
+
+		return [
+			'admin_shell_title'            => sprintf(
+				__( '%1$s - %2$s', 'wp-simple-firewall' ),
+				$this->resolveRouteLabel( $nav, $subNav ),
+				$pluginName
+			),
+			'admin_shell_main_label'       => sprintf( __( '%s admin content', 'wp-simple-firewall' ), $pluginName ),
+			'admin_shell_sidebar_label'    => sprintf( __( '%s admin sidebar', 'wp-simple-firewall' ), $pluginName ),
+			'admin_shell_navigation_label' => sprintf( __( '%s admin navigation', 'wp-simple-firewall' ), $pluginName ),
+		];
+	}
+
+	private function resolveRouteLabel( string $nav, string $subNav ) :string {
+		$navHierarchy = PluginNavs::GetNavHierarchy();
+		$navLabel = \trim( (string)( $navHierarchy[ $nav ][ 'name' ] ?? '' ) );
+		$routeLabel = \trim( (string)( $navHierarchy[ $nav ][ 'sub_navs' ][ $subNav ][ 'label' ] ?? '' ) );
+
+		return empty( $routeLabel ) ? $navLabel : $routeLabel;
 	}
 
 	private function buildDelegateActionData( string $nav, string $subNav ) :array {

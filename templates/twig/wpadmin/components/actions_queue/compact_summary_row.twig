@@ -24,15 +24,26 @@
 	{% if row.actions is not empty %}
 		<span class="item-box__row-actions">
 			{% for action in row.actions %}
-				<a href="{{ action.href }}"
-				   class="btn btn-sm btn-light action actions-landing__table-icon-action item-box__row-action"
-				   {% if action.tooltip is not empty %}data-bs-toggle="tooltip"
-				   data-bs-title="{{ action.tooltip|e('html_attr') }}"{% endif %}
-				   {% if action.target is not empty %}target="{{ action.target }}"{% endif %}
-				   {% if action.ajax_action_json is not empty %}data-actions-queue-maintenance-action="{{ action.ajax_action_json|e('html_attr') }}"{% endif %}>
-					<i class="{{ action.icon }}" aria-hidden="true"></i>
-					<span class="visually-hidden">{{ action.label }}</span>
-				</a>
+				{% if action.is_action %}
+					<button type="button"
+							class="btn btn-sm btn-light action actions-landing__table-icon-action item-box__row-action"
+							{% if action.tooltip is not empty %}data-bs-toggle="tooltip"
+							data-bs-title="{{ action.tooltip|e('html_attr') }}"{% endif %}
+							{% if action.ajax_action_json is not empty %}data-actions-queue-maintenance-action="{{ action.ajax_action_json|e('html_attr') }}"{% endif %}>
+						<i class="{{ action.icon }}" aria-hidden="true"></i>
+						<span class="visually-hidden">{{ action.label }}</span>
+					</button>
+				{% elseif action.href is not empty %}
+					<a href="{{ action.href }}"
+					   class="btn btn-sm btn-light action actions-landing__table-icon-action item-box__row-action"
+					   {% if action.tooltip is not empty %}data-bs-toggle="tooltip"
+					   data-bs-title="{{ action.tooltip|e('html_attr') }}"{% endif %}
+					   {% if action.target is not empty %}target="{{ action.target }}"{% endif %}
+					   {% if action.ajax_action_json is not empty %}data-actions-queue-maintenance-action="{{ action.ajax_action_json|e('html_attr') }}"{% endif %}>
+						<i class="{{ action.icon }}" aria-hidden="true"></i>
+						<span class="visually-hidden">{{ action.label }}</span>
+					</a>
+				{% endif %}
 			{% endfor %}
 		</span>
 	{% endif %}

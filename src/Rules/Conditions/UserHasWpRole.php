@@ -17,7 +17,6 @@ class UserHasWpRole extends Base {
 	}
 
 	protected function execConditionCheck() :bool {
-		// @phpstan-ignore function.alreadyNarrowedType
 		$roles = Services::WpUsers()->getCurrentWpUser()->roles;
 		return \in_array(
 			\strtolower( $this->p->user_role ),

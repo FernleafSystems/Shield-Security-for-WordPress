@@ -31,7 +31,7 @@ export class Merlin extends BaseComponent {
 			( targetEl ) => this.#runSettingUpdate( targetEl )
 		);
 		shieldEventsHandler_Main.add_Click(
-			'#merlin a.skip-step, #merlin .skip-link',
+			'#merlin .skip-step, #merlin .skip-link',
 			() => this.next()
 		);
 

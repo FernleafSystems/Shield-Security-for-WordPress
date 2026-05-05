@@ -47,7 +47,7 @@ class SecurityAdminPin extends SecurityAdminBase {
 		}
 
 		if ( $isRemove ) {
-			( new RemoveSecAdmin() )->remove( true );
+			( new RemoveSecAdmin() )->remove();
 			\WP_CLI::success( __( 'Security admin pin removed.', 'wp-simple-firewall' ) );
 		}
 		else {

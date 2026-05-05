@@ -15,7 +15,7 @@ export class ShieldTableIpRules extends ShieldTableBase {
 				name: 'create-ip-rule',
 				className: 'action create-ip-rule btn-outline-info mb-2',
 				action: () => {
-					const triggerEl = document.querySelector( 'a.offcanvas_form_create_ip_rule' );
+					const triggerEl = document.querySelector( '.offcanvas_form_create_ip_rule' );
 					if ( triggerEl instanceof HTMLElement ) {
 						triggerEl.click();
 					}
@@ -28,7 +28,7 @@ export class ShieldTableIpRules extends ShieldTableBase {
 	bindEvents() {
 		super.bindEvents();
 
-		shieldEventsHandler_Main.add_Click( 'td.ip_linked a.ip_delete', async ( targetEl ) => {
+		shieldEventsHandler_Main.add_Click( 'td.ip_linked .ip_delete', async ( targetEl ) => {
 			const rid = targetEl instanceof HTMLElement ? targetEl.dataset[ 'rid' ] || '' : '';
 			const confirmed = await confirmDialog( {
 				message: this._base_data.strings.are_you_sure,

@@ -235,7 +235,7 @@ export class StepTabsController extends BaseAutoExecComponent {
 
 		const titleRow = document.createElement( 'div' );
 		titleRow.className = 'operator-context-rail__title-row';
-		const title = document.createElement( 'h5' );
+		const title = document.createElement( 'div' );
 		title.className = 'operator-context-rail__title';
 		title.textContent = step.title;
 		titleRow.appendChild( title );

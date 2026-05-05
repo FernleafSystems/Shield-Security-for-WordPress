@@ -39,12 +39,12 @@
 	</div>
 {% endmacro %}
 
-{% macro tagAnchor(href,text,id='',classes=[],new_window=false,datas=[],disabled=false) %}
+{% macro tagAnchor(href,text,id='',classes=[],new_window=false,datas=[],disabled=false,is_action=false) %}
 	{% set attributes = {} %}
 	{% if id is not empty %}
 		{% set attributes = attributes|merge( { id: id } ) %}
 	{% endif %}
-	{% if new_window %}
+	{% if new_window and not is_action %}
 		{% set attributes = attributes|merge( { target: '_blank' } ) %}
 	{% endif %}
 	{% if datas is not empty %}
@@ -55,9 +55,15 @@
 	{% if disabled %}
 		{% set attributes = attributes|merge( { disabled: 'disabled' } ) %}
 	{% endif %}
-	<a href="{{ disabled ? '#' : href }}"
-	   class="{{ classes|join(' ') }} {{ disabled ? 'disabled' : '' }}"{{ _self.renderAttributes( attributes ) }}
-	>{{ text }}</a>
+	{% if is_action %}
+		<button type="button"
+				class="{{ classes|join(' ') }} {{ disabled ? 'disabled' : '' }}"{{ _self.renderAttributes( attributes ) }}
+		>{{ text }}</button>
+	{% else %}
+		<a href="{{ disabled ? '#' : href }}"
+		   class="{{ classes|join(' ') }} {{ disabled ? 'disabled' : '' }}"{{ _self.renderAttributes( attributes ) }}
+		>{{ text }}</a>
+	{% endif %}
 {% endmacro %}
 
 {% macro slideTitle(content) %}

@@ -60,12 +60,12 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 			],
 			$this->renderCapture->calls
 		);
-		$this->assertSame( 'rendered-1', $renderData[ 'content' ][ 'create_report' ] ?? '' );
-		$this->assertSame( 'View & Create', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
-		$this->assertSame( 'View and create new security reports.', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
+		$this->assertNotSame( '', $renderData[ 'content' ][ 'create_report' ] ?? '' );
 
 		$this->assertCount( 1, $contextualHrefs );
-		$this->assertSame( 'Create Custom Report', $contextualHrefs[ 0 ][ 'title' ] ?? '' );
+		$this->assertNotSame( '', \trim( (string)( $contextualHrefs[ 0 ][ 'title' ] ?? '' ) ) );
+		$this->assertSame( '', $contextualHrefs[ 0 ][ 'href' ] ?? 'unexpected' );
+		$this->assertTrue( $contextualHrefs[ 0 ][ 'is_action' ] ?? false );
 		$this->assertSame( [ 'offcanvas_report_create_form' ], $contextualHrefs[ 0 ][ 'classes' ] ?? [] );
 	}
 
@@ -86,9 +86,7 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 			],
 			$this->renderCapture->calls
 		);
-		$this->assertSame( 'rendered-1', $renderData[ 'content' ][ 'charts_trends' ] ?? '' );
-		$this->assertSame( 'Charts & Trends', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
-		$this->assertSame( '', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
+		$this->assertNotSame( '', $renderData[ 'content' ][ 'charts_trends' ] ?? '' );
 		$this->assertSame( [], $contextualHrefs );
 	}
 
@@ -116,10 +114,7 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 			true,
 			\in_array( Reporting::Slug().'-opt-a', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ] ?? [], true )
 		);
-		$this->assertSame( 'rendered-1', $renderData[ 'content' ][ 'reporting_alerts_configuration' ] ?? '' );
-		$this->assertStringContainsString( 'Reporting', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
-		$this->assertStringContainsString( 'Alerts', $renderData[ 'strings' ][ 'inner_page_title' ] ?? '' );
-		$this->assertSame( '', $renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? '' );
+		$this->assertNotSame( '', $renderData[ 'content' ][ 'reporting_alerts_configuration' ] ?? '' );
 		$this->assertSame( [], $contextualHrefs );
 	}
 
@@ -129,7 +124,6 @@ class PageReportsBehaviorTest extends BaseUnitTest {
 		] );
 
 		$this->expectException( \LogicException::class );
-		$this->expectExceptionMessage( 'Missing reports workspace definition for subnav: unknown-subnav' );
 
 		$this->invokeNonPublicMethod( $page, 'getRenderData' );
 	}

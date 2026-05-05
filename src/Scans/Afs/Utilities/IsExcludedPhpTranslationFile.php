@@ -334,6 +334,7 @@ class IsExcludedPhpTranslationFile {
 		if ( \defined( 'WP_CONTENT_DIR' ) ) {
 			$roots[] = path_join( WP_CONTENT_DIR, 'languages' );
 		}
+		// @phpstan-ignore function.alreadyNarrowedType
 		if ( \defined( 'ABSPATH' ) && \is_string( ABSPATH ) ) {
 			$roots[] = path_join( ABSPATH, 'wp-content/languages' );
 			$roots[] = path_join( ABSPATH, 'wp-includes/languages' );

@@ -94,9 +94,9 @@
 					<i class="bi {{ vars.status.is_blocked ? 'bi-lock-fill text-danger' : 'bi-unlock text-success' }}" style="width:14px; text-align:center; font-size:.78rem"></i>
 					<span style="flex:1; color:#5f6974">{{ strings.status.is_blocked }}</span>
 					{% if vars.status.is_blocked %}
-						<a href="#" class="text-primary ip_analyse_action" data-ip_action="unblock" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.unblock_ip }}</a>
+						<button type="button" class="text-primary ip_analyse_action shield-button-link" data-ip_action="unblock" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.unblock_ip }}</button>
 					{% elseif not vars.status.is_bypass %}
-						<a href="#" class="text-primary ip_analyse_action" data-ip_action="block" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.block_ip }}</a>
+						<button type="button" class="text-primary ip_analyse_action shield-button-link" data-ip_action="block" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.block_ip }}</button>
 					{% endif %}
 					<span class="badge bg-{{ vars.status.is_blocked ? 'danger' : 'success' }}" style="font-size:.77rem; padding:.2rem .55rem; border-radius:4px; min-width:72px; text-align:center">
 						{{ vars.status.is_blocked ? strings.status.block_type : strings.no }}
@@ -106,9 +106,9 @@
 					<i class="bi bi-check-square" style="color:#5f6974; width:14px; text-align:center; font-size:.78rem"></i>
 					<span style="flex:1; color:#5f6974">{{ strings.status.is_bypass }}</span>
 					{% if vars.status.is_bypass %}
-						<a href="#" class="text-primary ip_analyse_action" data-ip_action="unbypass" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.unbypass_ip }}</a>
+						<button type="button" class="text-primary ip_analyse_action shield-button-link" data-ip_action="unbypass" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.unbypass_ip }}</button>
 					{% else %}
-						<a href="#" class="text-primary ip_analyse_action" data-ip_action="bypass" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.bypass_ip }}</a>
+						<button type="button" class="text-primary ip_analyse_action shield-button-link" data-ip_action="bypass" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.bypass_ip }}</button>
 					{% endif %}
 					<span class="badge bg-{{ vars.status.is_bypass ? 'warning text-dark' : 'success' }}" style="font-size:.77rem; padding:.2rem .55rem; border-radius:4px; min-width:72px; text-align:center">
 						{{ vars.status.is_bypass ? strings.yes : strings.no }}
@@ -118,7 +118,7 @@
 					<i class="bi bi-exclamation-triangle-fill text-warning" style="width:14px; text-align:center; font-size:.78rem"></i>
 					<span style="flex:1; color:#5f6974">{{ strings.status.offenses }}</span>
 					{% if vars.status.offenses > 0 %}
-						<a href="#" class="text-primary ip_analyse_action" data-ip_action="reset_offenses" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.reset_offenses }}</a>
+						<button type="button" class="text-primary ip_analyse_action shield-button-link" data-ip_action="reset_offenses" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.reset_offenses }}</button>
 					{% endif %}
 					<span class="badge bg-{{ vars.status.offenses > 0 ? 'danger' : 'success' }}" style="font-size:.77rem; padding:.2rem .55rem; border-radius:4px; min-width:72px; text-align:center">
 						{{ vars.status.offenses > 0 ? vars.status.offenses : strings.no }}
@@ -127,7 +127,7 @@
 				<div style="display:flex; align-items:center; gap:.5rem; padding:.32rem 0; border-bottom:none; font-size:.81rem">
 					<i class="bi bi-shield-fill" style="color:#5f6974; width:14px; text-align:center; font-size:.78rem"></i>
 					<span style="flex:1; color:#5f6974">{{ strings.status.ip_reputation }}</span>
-					<a href="#" class="text-primary ip_analyse_action" data-ip_action="delete_notbot" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.delete_notbot }}</a>
+					<button type="button" class="text-primary ip_analyse_action shield-button-link" data-ip_action="delete_notbot" data-ip="{{ vars.ip }}" style="font-size:.75rem; white-space:nowrap">{{ strings.delete_notbot }}</button>
 					<span class="badge bg-{{ vars.overview.local_reputation_badge_class }}" style="font-size:.77rem; padding:.2rem .55rem; border-radius:4px; min-width:72px; text-align:center">{{ vars.overview.bot_risk_label }}</span>
 				</div>
 			</div>
@@ -168,22 +168,22 @@
 				{% set action_button_style = 'width:100%; margin:0; font-size:.8rem; text-align:left; display:flex; align-items:center; justify-content:flex-start; gap:.4rem' %}
 				<div style="display:flex; flex-direction:column; gap:.4rem">
 					{% if vars.status.is_blocked %}
-						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="unblock" data-ip="{{ vars.ip }}" style="{{ action_button_style }}">
+						<button type="button" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="unblock" data-ip="{{ vars.ip }}" style="{{ action_button_style }}">
 							<i class="bi bi-unlock"></i>{{ strings.unblock_ip }}
-						</a>
+						</button>
 					{% elseif not vars.status.is_bypass %}
-						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="block" data-ip="{{ vars.ip }}" style="{{ action_button_style }}">
+						<button type="button" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="block" data-ip="{{ vars.ip }}" style="{{ action_button_style }}">
 							<i class="bi bi-lock"></i>{{ strings.block_ip }}
-						</a>
+						</button>
 					{% endif %}
 					{% if vars.status.is_bypass %}
-						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="unbypass" data-ip="{{ vars.ip }}" style="{{ action_button_style }}">
+						<button type="button" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="unbypass" data-ip="{{ vars.ip }}" style="{{ action_button_style }}">
 							<i class="bi bi-x-square"></i>{{ strings.unbypass_ip }}
-						</a>
+						</button>
 					{% else %}
-						<a href="#" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="bypass" data-ip="{{ vars.ip }}" style="{{ action_button_style }}">
+						<button type="button" class="btn btn-sm btn-outline-secondary ip_analyse_action" data-ip_action="bypass" data-ip="{{ vars.ip }}" style="{{ action_button_style }}">
 							<i class="bi bi-check-square"></i>{{ strings.bypass_ip }}
-						</a>
+						</button>
 					{% endif %}
 				</div>
 			</div>

@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   type:string,
  *   label:string,
  *   href:string,
+ *   is_action:bool,
  *   icon_class:string,
  *   tooltip_attr:string,
  *   attributes:array<string,string>
@@ -64,6 +65,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   type:string,
  *   label:string,
  *   href:string,
+ *   is_action:bool,
  *   icon_class:string,
  *   tooltip_attr:string,
  *   class_name:string,
@@ -827,11 +829,13 @@ class ScansResultsViewBuilder {
 				? 'bi bi-arrow-up-circle-fill'
 				: ( $type === 'deactivate' ? 'bi bi-power' : 'bi bi-arrow-right-circle-fill' );
 		}
+		$isAction = (bool)( $action[ 'is_action' ] ?? false );
 
 		return [
 			'type'         => $type,
 			'label'        => (string)( $action[ 'label' ] ?? '' ),
-			'href'         => (string)( $action[ 'href' ] ?? '' ),
+			'href'         => $isAction ? '' : (string)( $action[ 'href' ] ?? '' ),
+			'is_action'    => $isAction,
 			'icon_class'   => $iconClass,
 			'tooltip_attr' => \trim( (string)( $action[ 'tooltip' ] ?? '' ) ),
 			'attributes'   => \is_array( $action[ 'attributes' ] ?? null ) ? $action[ 'attributes' ] : [],
@@ -858,10 +862,11 @@ class ScansResultsViewBuilder {
 
 		return [
 			[
-				'type'    => $type,
-				'label'   => $label,
-				'href'    => $href,
-				'icon'    => $type === 'update'
+				'type'      => $type,
+				'label'     => $label,
+				'href'      => $href,
+				'is_action' => false,
+				'icon'       => $type === 'update'
 					? 'bi bi-arrow-up-circle-fill'
 					: 'bi bi-arrow-right-circle-fill',
 				'attributes' => $attributes,

@@ -83,7 +83,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			                              ->carbon( true )
 			                              ->setTimestamp( $item->VO->created_at )
 			                              ->diffForHumans(),
-			'file_as_href'     => $this->getColumnContent_FileAsHref( $item ),
+			'file_as_href'     => $this->getColumnContent_FileAction( $item ),
 			'file_type'        => $this->column_fileTypeLabel( $item ),
 			'status_file_size' => $this->column_fileSize( $item ),
 			'status_file_type' => $this->column_fileType( $item ),
@@ -339,7 +339,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	}
 
 	protected function getColumnContent_File( ResultItem $item ): string {
-		return sprintf( '<div>%s</div>', $this->getColumnContent_FileAsHref( $item ) );
+		return sprintf( '<div>%s</div>', $this->getColumnContent_FileAction( $item ) );
 	}
 
 	protected function getColumnContent_FileStatus( ResultItem $item ): string {
@@ -395,10 +395,11 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return \is_array( $_old_files ) && \in_array( $item->path_fragment, $_old_files, true );
 	}
 
-	protected function getColumnContent_FileAsHref( ResultItem $item ): string {
+	protected function getColumnContent_FileAction( ResultItem $item ): string {
 		return sprintf(
-			'<div class="scan-results-file-cell" data-scan-result-file-cell="1"><a href="#" title="%s" class="action view-file" data-rid="%s" data-scan-result-action="view">%s</a>%s</div>',
-			__( 'View File Contents', 'wp-simple-firewall' ),
+			'<div class="scan-results-file-cell" data-scan-result-file-cell="1"><button type="button" title="%s" aria-label="%s" class="action view-file shield-button-link text-primary text-decoration-underline" data-rid="%d" data-scan-result-action="view">%s</button>%s</div>',
+			esc_attr__( 'View File Contents', 'wp-simple-firewall' ),
+			esc_attr( sprintf( __( 'View File Contents: %s', 'wp-simple-firewall' ), $item->path_fragment ) ),
 			$item->VO->resultitem_id,
 			esc_html( $item->path_fragment ),
 			$item->VO->ignored_at > 0

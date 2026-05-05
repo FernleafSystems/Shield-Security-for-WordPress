@@ -154,31 +154,32 @@ class TranslationDownloadController {
 	}
 
 	private function acquireMoWithSingleRefreshRetry( string $locale, string $remoteHash, string $hashType ) :bool {
-		for ( $attempt = 0; $attempt < 2; $attempt++ ) {
-			try {
-				$this->acquireMo( $locale, $remoteHash, $hashType );
-				return true;
-			}
-			catch ( AcquireMoException $e ) {
-				if ( !$e instanceof AcquireMoHashMismatchException
-					 || $attempt > 0
-					 || !$this->canForceRefreshLocalesAfterHashMismatch() ) {
-					$this->fireDownloadFailedEvent( $locale, $e->reason() );
-					return false;
-				}
-
-				$freshMeta = $this->getLocaleMeta( $this->getAvailableLocales( true ), $locale );
-				if ( !\is_array( $freshMeta ) ) {
-					$this->fireDownloadFailedEvent( $locale, 'missing_locale_meta_after_hash_mismatch' );
-					return false;
-				}
-
-				$remoteHash = $freshMeta[ 'hash' ];
-				$hashType = $freshMeta[ 'hash_type' ];
+		try {
+			$this->acquireMo( $locale, $remoteHash, $hashType );
+			return true;
+		}
+		catch ( AcquireMoException $e ) {
+			if ( !$e instanceof AcquireMoHashMismatchException
+				 || !$this->canForceRefreshLocalesAfterHashMismatch() ) {
+				$this->fireDownloadFailedEvent( $locale, $e->reason() );
+				return false;
 			}
 		}
 
-		return false;
+		$freshMeta = $this->getLocaleMeta( $this->getAvailableLocales( true ), $locale );
+		if ( !\is_array( $freshMeta ) ) {
+			$this->fireDownloadFailedEvent( $locale, 'missing_locale_meta_after_hash_mismatch' );
+			return false;
+		}
+
+		try {
+			$this->acquireMo( $locale, $freshMeta[ 'hash' ], $freshMeta[ 'hash_type' ] );
+			return true;
+		}
+		catch ( AcquireMoException $e ) {
+			$this->fireDownloadFailedEvent( $locale, $e->reason() );
+			return false;
+		}
 	}
 
 	private function acquireMo( string $locale, string $expectedHash, string $hashAlgo ) :void {

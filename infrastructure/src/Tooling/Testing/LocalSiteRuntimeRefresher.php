@@ -48,7 +48,6 @@ class LocalSiteRuntimeRefresher {
 		'plugin.json',
 		'plugin_compatibility.php',
 		'plugin_init.php',
-		'uninstall.php',
 		'unsupported.php',
 		'src',
 		'templates',

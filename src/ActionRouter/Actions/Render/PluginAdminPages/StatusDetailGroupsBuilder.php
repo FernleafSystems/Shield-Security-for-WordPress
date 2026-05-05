@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-type DetailAction array{
  *   label:string,
  *   href:string,
+ *   is_action:bool,
  *   title:string,
  *   target:string,
  *   icon:string,
@@ -19,6 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-type DetailActionInput array{
  *   label?:string,
  *   href?:string,
+ *   is_action?:bool,
  *   title?:string,
  *   target?:string,
  *   icon?:string,
@@ -169,7 +171,7 @@ class StatusDetailGroupsBuilder {
 	 */
 	private function buildConfigureRow( array $row, int $sortIndex ) :array {
 		$status = $this->normalizeStatus( $row[ 'status' ] );
-		$action = $row[ 'config_action' ];
+		$action = $this->normalizeAction( $row[ 'config_action' ], '' );
 
 		return [
 			'key'               => $row[ 'key' ],
@@ -256,14 +258,18 @@ class StatusDetailGroupsBuilder {
 			static fn( string $class ) :bool => $class !== ''
 		) );
 
+		$data = $this->normalizeActionDataAttributes( $data );
+		$isAction = (bool)( $action[ 'is_action' ] ?? false );
+
 		return [
-			'label'   => $action[ 'label' ] ?? $defaultLabel,
-			'href'    => $action[ 'href' ] ?? 'javascript:{}',
-			'title'   => $action[ 'title' ] ?? '',
-			'target'  => $action[ 'target' ] ?? '',
-			'icon'    => $action[ 'icon' ] ?? '',
-			'classes' => $classes,
-			'data'    => $this->normalizeActionDataAttributes( $data ),
+			'label'     => $action[ 'label' ] ?? $defaultLabel,
+			'href'      => $isAction ? '' : (string)( $action[ 'href' ] ?? '' ),
+			'is_action' => $isAction,
+			'title'     => $action[ 'title' ] ?? '',
+			'target'    => $isAction ? '' : ( $action[ 'target' ] ?? '' ),
+			'icon'      => $action[ 'icon' ] ?? '',
+			'classes'   => $classes,
+			'data'      => $data,
 		];
 	}
 

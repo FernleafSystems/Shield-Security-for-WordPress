@@ -16,9 +16,10 @@ class PageIpRulesTable extends BasePluginAdminPage {
 		$con = self::con();
 		return [
 			[
-				'title'   => __( 'Create New IP Rule', 'wp-simple-firewall' ),
-				'href'    => 'javascript:{}',
-				'classes' => [ 'offcanvas_form_create_ip_rule' ],
+				'title'     => __( 'Create New IP Rule', 'wp-simple-firewall' ),
+				'href'      => '',
+				'is_action' => true,
+				'classes'   => [ 'offcanvas_form_create_ip_rule' ],
 			],
 			[
 				'title'    => __( 'Download IP Rules as CSV', 'wp-simple-firewall' ),

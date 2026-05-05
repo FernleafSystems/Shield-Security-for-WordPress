@@ -4,8 +4,8 @@ import { AjaxService } from "../services/AjaxService";
 export class NoticeAllowTracking extends NoticeBase {
 
 	init() {
-		shieldEventsHandler_Main.add_Click( 'a#icwpButtonPluginTrackingAgree', ( targetEl ) => this.setAgreement( targetEl, true ) );
-		shieldEventsHandler_Main.add_Click( 'a#icwpButtonPluginTrackingDisagree', ( targetEl ) => this.setAgreement( targetEl, false ) );
+		shieldEventsHandler_Main.add_Click( '#icwpButtonPluginTrackingAgree', ( targetEl ) => this.setAgreement( targetEl, true ) );
+		shieldEventsHandler_Main.add_Click( '#icwpButtonPluginTrackingDisagree', ( targetEl ) => this.setAgreement( targetEl, false ) );
 	}
 
 	setAgreement( targetEl, agree ) {

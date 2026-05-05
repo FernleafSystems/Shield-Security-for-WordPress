@@ -5,7 +5,7 @@ import { mfaAlert, mfaConfirm, mfaPrompt } from "./MfaProfileDialog";
 export class ProviderSMS extends ProviderBase {
 
 	init() {
-		shieldEventsHandler_UserProfile.add_Click( 'a.shield_sms_remove', async ( targetEl ) => {
+		shieldEventsHandler_UserProfile.add_Click( '.shield_sms_remove', async ( targetEl ) => {
 			if ( await mfaConfirm( {
 				title: shieldStrings.string( 'dialog_confirm_title' ),
 				message: this._base_data.strings.are_you_sure,

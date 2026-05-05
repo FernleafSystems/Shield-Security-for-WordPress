@@ -98,7 +98,8 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'explanations'      => [ 'Critical explanation' ],
 					'config_action'     => [
 						'label'   => 'Configure',
-						'href'    => 'javascript:{}',
+						'href'    => '',
+						'is_action' => true,
 						'icon'    => 'bi bi-gear',
 						'classes' => [ 'zone_component_action' ],
 						'data'    => [
@@ -146,6 +147,8 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'Primary Control' ], \array_column( $groups[ 0 ][ 'rows' ] ?? [], 'title' ) );
 		$this->assertSame( [ 'Secondary Control', 'Another Warning' ], \array_column( $groups[ 1 ][ 'rows' ] ?? [], 'title' ) );
 		$this->assertSame( 'Configure', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
+		$this->assertSame( '', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'href' ] ?? 'unexpected' );
+		$this->assertTrue( $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'is_action' ] ?? false );
 		$this->assertSame( 'offcanvas_zone_component_config', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'zone_component_action' ] ?? '' );
 		$this->assertSame( '7', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'retry-count' ] ?? '' );
 		$this->assertFalse( $groups[ 1 ][ 'rows' ][ 0 ][ 'is_expandable' ] ?? true );

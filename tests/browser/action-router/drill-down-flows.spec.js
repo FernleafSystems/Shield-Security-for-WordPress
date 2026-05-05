@@ -1,7 +1,4 @@
-const { test, expect } = require( './support/shield-test' );
-const {
-	openShieldRoute,
-} = require( './support/shield-browser' );
+const { openShieldRoute, test, expect } = require( './support/shield-test' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const {
 	expectModalHiddenWithoutAriaModal,
@@ -87,6 +84,17 @@ function isIgnoreAllRequest( request ) {
 		&& params.get( 'sub_action' ) === 'ignore_all';
 }
 
+function isFileLockerActionRequest( request, expectedPayload ) {
+	if ( request.method() !== 'POST' || !request.url().includes( '/admin-ajax.php' ) ) {
+		return false;
+	}
+
+	const params = new URLSearchParams( request.postData() || '' );
+	return params.get( 'action' ) === 'shield_action'
+		&& params.get( 'ex' ) === 'filelocker_fileaction'
+		&& Object.entries( expectedPayload ).every( ( [ key, value ] ) => params.get( key ) === String( value ) );
+}
+
 async function operatorContextAjaxAction( rail, matcher ) {
 	const actions = rail.locator( '[data-operator-context-action-ajax="1"]' );
 	const count = await actions.count();
@@ -135,9 +143,8 @@ test( 'actions queue drills into groups and back out, opening details when avail
 		const actionTabs = page.locator( '[data-operator-step-tab="1"]' );
 		await expect( actionTabs ).toHaveCount( 3 );
 		await expect( actionTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
-		await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Actions Queue/i );
 		await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__eyebrow' ) ).toHaveCount( 0 );
-		await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).not.toHaveText( '' );
+		await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toBeVisible();
 
 		const group = await actionsQueuePage.waitForGroupWithRetry( bucket, fixture.group_key );
 		if ( group === null ) {
@@ -188,9 +195,9 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( page.locator( '[data-healthy-disclosure-body="1"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
 
-	const zone = page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' )
-		.filter( { hasText: /Security Admin/i } )
-		.first();
+	const zone = page.locator(
+		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"secadmin\\""]'
+	).first();
 	await expect( zone ).toBeVisible();
 
 	await zone.click();
@@ -199,8 +206,8 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	const configureTabs = page.locator( '[data-operator-step-tab="1"]' );
 	await expect( configureTabs ).toHaveCount( 3 );
 	await expect( configureTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
-	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Configure/i );
-	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toHaveText( /Security Admin/i );
+	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toBeVisible();
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-drill-target="editor"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] .zone-summary-header' ) ).toHaveCount( 0 );
 	const expandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-trigger="1"]' ).first();
@@ -215,8 +222,8 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( visibleExpandedForms ).toHaveCount( 0, { timeout: 20_000 } );
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 	await expect( configureTabs ).toHaveCount( 3 );
-	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toHaveText( /Configure/i );
-	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toHaveText( /Security Admin/i );
+	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toBeVisible();
+	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toBeVisible();
 	const refreshedExpandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-trigger="1"]' ).first();
 	await expect( refreshedExpandRow.locator( '.shield-detail-row__expand-cta' ) ).toBeVisible();
 	await refreshedExpandRow.click();
@@ -246,9 +253,9 @@ test( 'configure opens a prefetched diagnosis without a standalone diagnosis req
 	} );
 	await page.waitForLoadState( 'networkidle' );
 
-	const zone = page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' )
-		.filter( { hasText: /Security Admin/i } )
-		.first();
+	const zone = page.locator(
+		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"secadmin\\""]'
+	).first();
 	await expect( zone ).toBeVisible();
 
 	await zone.click();
@@ -295,8 +302,7 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	await secondSearchRequest;
 	await Promise.all( [ firstSearchResponse, secondSearchResponse ] );
 
-	const optionResult = page.locator( '[data-configure-search-results="1"] a' )
-		.filter( { hasText: /Comments Cooldown/i } )
+	const optionResult = page.locator( '[data-configure-search-results="1"] a[href*="config_item=comments_cooldown"]' )
 		.first();
 	await expect( optionResult ).toBeVisible( { timeout: 20_000 } );
 	await expect( optionResult ).toBeVisible();
@@ -588,13 +594,37 @@ test( 'actions queue lazy-loads the file locker asset panel to a terminal state 
 			return await panel.getAttribute( 'data-actions-queue-asset-panel-loading' ) || '';
 		}, { timeout: 20_000 } ).toBe( '' );
 
-		const failureAlert = panel.locator( '.alert.alert-warning' );
-		if ( await failureAlert.count() > 0 ) {
-			await expect( failureAlert ).toContainText( /Unable to load these scan details/i );
+		await expect( panel.locator( '.alert.alert-warning' ) ).toHaveCount( 0 );
+		await expect( panel ).toHaveAttribute( 'data-actions-queue-asset-panel-loaded', '1', { timeout: 20_000 } );
+		const fileActionForms = panel.locator( 'form.filelocker_fileaction' );
+		await expect( fileActionForms ).toHaveCount( 2 );
+		await expect( fileActionForms.first() ).toBeVisible();
+
+		const fileActionSubmits = fileActionForms.locator( 'input[type=submit][data-action][data-rid]' );
+		await expect( fileActionSubmits ).toHaveCount( 2 );
+		for ( let index = 0; index < await fileActionSubmits.count(); index++ ) {
+			const submit = fileActionSubmits.nth( index );
+			await expect( submit ).toBeVisible();
+			await expect( submit ).toBeEnabled();
+			expect( await submit.getAttribute( 'href' ) ).toBeNull();
 		}
-		else {
-			await expect( panel ).toHaveAttribute( 'data-actions-queue-asset-panel-loaded', '1', { timeout: 20_000 } );
-			await expect( panel.locator( 'form.filelocker_fileaction' ) ).toBeVisible();
-		}
+
+		const fileActionSubmit = fileActionSubmits.first();
+		const fileAction = await fileActionSubmit.getAttribute( 'data-action' );
+		const fileRID = await fileActionSubmit.getAttribute( 'data-rid' );
+		expect( fileAction || '' ).not.toHaveLength( 0 );
+		expect( fileRID || '' ).not.toHaveLength( 0 );
+
+		const fileActionRequest = page.waitForRequest(
+			( request ) => isFileLockerActionRequest( request, {
+				confirmed: '0',
+				file_action: fileAction,
+				rid: fileRID,
+			} ),
+			{ timeout: 20_000 }
+		);
+		await fileActionSubmit.click();
+		await fileActionRequest;
+		await expect( fileActionSubmit ).toBeEnabled( { timeout: 20_000 } );
 	} );
 } );

@@ -24,19 +24,21 @@ class PageDebug extends BasePluginAdminPage {
 				),
 			],
 			[
-				'title'   => __( 'Purge Provider IPs', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'tool_purge_provider_ips' ],
+				'title'     => __( 'Purge Provider IPs', 'wp-simple-firewall' ),
+				'href'      => '',
+				'is_action' => true,
+				'classes'   => [ 'tool_purge_provider_ips' ],
 			],
 			[
 				'title' => __( 'Reset CrowdSec Enrollment', 'wp-simple-firewall' ),
 				'href'  => $URLs->noncedPluginAction( CrowdsecResetEnrollment::class, $URLs->debugInfo() ),
 			],
 			[
-				'title'   => __( 'Print', 'wp-simple-firewall' ),
-				'href'    => "javascript:{}",
-				'classes' => [ 'shield_div_print' ],
-				'data'    => [ 'selector' => '#PageMainBody_Inner-Apto' ],
+				'title'     => __( 'Print', 'wp-simple-firewall' ),
+				'href'      => '',
+				'is_action' => true,
+				'classes'   => [ 'shield_div_print' ],
+				'data'      => [ 'selector' => '#PageMainBody_Inner-Apto' ],
 			],
 		];
 	}

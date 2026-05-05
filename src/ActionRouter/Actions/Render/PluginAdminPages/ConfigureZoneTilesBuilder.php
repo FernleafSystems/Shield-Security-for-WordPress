@@ -380,13 +380,14 @@ class ConfigureZoneTilesBuilder {
 		$data[ 'form_context' ] = 'offcanvas';
 
 		return [
-			'label'   => __( 'Configure', 'wp-simple-firewall' ),
-			'title'   => $scope[ 'title' ] ?: __( 'Edit Settings', 'wp-simple-firewall' ),
-			'href'    => 'javascript:{}',
-			'icon'    => self::con()->svgs->iconClass( 'gear' ),
-			'tooltip' => '',
-			'classes' => [ 'zone_component_action' ],
-			'data'    => $data,
+			'label'     => __( 'Configure', 'wp-simple-firewall' ),
+			'title'     => $scope[ 'title' ] ?: __( 'Edit Settings', 'wp-simple-firewall' ),
+			'href'      => '',
+			'is_action' => true,
+			'icon'      => self::con()->svgs->iconClass( 'gear' ),
+			'tooltip'   => '',
+			'classes'   => [ 'zone_component_action' ],
+			'data'      => $data,
 		];
 	}
 
