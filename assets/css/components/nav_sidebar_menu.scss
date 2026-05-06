@@ -282,6 +282,14 @@
 	}
 }
 
+button.tool-item {
+	cursor: pointer;
+	font-family: inherit;
+	justify-content: flex-start;
+	text-align: left;
+	width: 100%;
+}
+
 .sidebar-connect {
 	margin-top: 0.2rem;
 

@@ -13,9 +13,14 @@ class UnitTestZoneActionComponent {
 	public function getActions() :array {
 		return [
 			'config' => [
-				'href'    => '/admin/zone/'.$this->slug,
-				'active'  => false,
-				'classes' => [],
+				'href'      => '',
+				'active'    => false,
+				'classes'   => [ 'zone_component_action' ],
+				'data'      => [
+					'zone_component_action' => 'offcanvas_zone_component_config',
+					'zone_component_slug'   => $this->slug,
+				],
+				'is_action' => true,
 			],
 		];
 	}

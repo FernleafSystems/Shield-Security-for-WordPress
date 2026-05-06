@@ -197,14 +197,15 @@ class NavMenuBuilder {
 	}
 
 	private function buildConfigureZoneToolItem( string $componentSlug, string $slug, string $title, string $icon ) :array {
-		return \array_merge(
-			self::con()->comps->zones->getZoneComponent( $componentSlug )->getActions()[ 'config' ],
-			[
-				'slug'  => $slug,
-				'title' => $title,
-				'img'   => self::con()->svgs->iconClass( $icon ),
-			]
-		);
+		$action = self::con()->comps->zones->getZoneComponent( $componentSlug )->getActions()[ 'config' ];
+		return [
+			'slug'      => $slug,
+			'title'     => $title,
+			'img'       => self::con()->svgs->iconClass( $icon ),
+			'classes'   => $action[ 'classes' ],
+			'data'      => $action[ 'data' ],
+			'is_action' => true,
+		];
 	}
 
 	/**
@@ -411,7 +412,8 @@ class NavMenuBuilder {
 		$item = Services::DataManipulation()->mergeArraysRecursive( [
 			'slug'      => 'no-slug',
 			'title'     => __( 'NO TITLE', 'wp-simple-firewall' ),
-			'href'      => 'javascript:{}',
+			'href'      => '',
+			'is_action' => false,
 			'classes'   => [],
 			'id'        => '',
 			'active'    => false,
@@ -421,20 +423,38 @@ class NavMenuBuilder {
 			'badge'     => [],
 		], $item );
 
+		$item[ 'is_action' ] = (bool)$item[ 'is_action' ];
+		if ( $item[ 'is_action' ] ) {
+			$item[ 'href' ] = '';
+			$item[ 'target' ] = '';
+		}
+
 		if ( empty( $item[ 'sub_items' ] ) ) {
+			if ( !$item[ 'is_action' ] && \trim( (string)$item[ 'href' ] ) === '' ) {
+				throw new \LogicException( sprintf( 'Sidebar link item requires a non-empty href: %s', $item[ 'slug' ] ) );
+			}
 			$item[ 'classes' ][] = 'body_content_link';
 		}
 		else {
 			$item[ 'sub_items' ] = \array_values( \array_map( function ( $sub ) use ( $isSecAdmin ) {
 				$sub = Services::DataManipulation()->mergeArraysRecursive( [
-					'slug'    => 'no-slug',
-					'title'   => __( 'NO TITLE', 'wp-simple-firewall' ),
-					'href'    => '#',
-					'active'  => false,
-					'classes' => [],
-					'data'    => [],
-					'target'  => '',
+					'slug'      => 'no-slug',
+					'title'     => __( 'NO TITLE', 'wp-simple-firewall' ),
+					'href'      => '',
+					'is_action' => false,
+					'active'    => false,
+					'classes'   => [],
+					'data'      => [],
+					'target'    => '',
 				], $sub );
+				$sub[ 'is_action' ] = (bool)$sub[ 'is_action' ];
+				if ( $sub[ 'is_action' ] ) {
+					$sub[ 'href' ] = '';
+					$sub[ 'target' ] = '';
+				}
+				if ( !$sub[ 'is_action' ] && \trim( (string)$sub[ 'href' ] ) === '' ) {
+					throw new \LogicException( sprintf( 'Sidebar sub-link item requires a non-empty href: %s', $sub[ 'slug' ] ) );
+				}
 				if ( $sub[ 'active' ] ) {
 					$sub[ 'classes' ][] = 'active';
 				}
