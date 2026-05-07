@@ -15,7 +15,7 @@ class MatchRequestParamFileUploads extends MatchRequestParam {
 	protected function getRequestParamsToTest() :array {
 		return \array_filter( \array_map(
 			fn ( $file ) => $file[ 'name' ] ?? '',
-			( !empty( $_FILES ) && \is_array( $_FILES ) ) ? $_FILES : []
+			!empty( $_FILES ) ? $_FILES : []
 		) );
 	}
 }

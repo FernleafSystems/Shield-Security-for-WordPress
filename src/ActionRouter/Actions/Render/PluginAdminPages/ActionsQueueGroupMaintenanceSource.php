@@ -35,7 +35,7 @@ class ActionsQueueGroupMaintenanceSource {
 	private function maintenanceAttentionItems( array $bucketSource ) :array {
 		return \array_values( \array_filter(
 			$bucketSource[ 'attention_items' ],
-			static fn( array $item ) :bool => ( $item[ 'zone' ] ?? '' ) === 'maintenance'
+			static fn( array $item ) :bool => $item[ 'zone' ] === 'maintenance'
 		) );
 	}
 }
