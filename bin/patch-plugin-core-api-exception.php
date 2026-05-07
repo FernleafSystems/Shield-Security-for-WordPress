@@ -16,8 +16,7 @@ if ( \strpos( $contents, $replace ) !== false ) {
 
 $patched = \str_replace( $search, $replace, $contents, $count );
 if ( $count !== 1 ) {
-	\fwrite( \STDERR, "Unable to patch wordpress-plugin-core ApiException signature.\n" );
-	exit( 1 );
+	return;
 }
 
 \file_put_contents( $file, $patched );

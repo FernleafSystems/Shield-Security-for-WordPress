@@ -137,6 +137,26 @@ class PluginPackagerTest extends TestCase {
 		$this->invokePrivateMethod( $packager, 'updatePackageFiles', [ $tempDir ] );
 	}
 
+	public function testRemovePackagingOnlyFilesKeepsRuntimeFiles() :void {
+		$packager = $this->createPackager();
+		$tempDir = $this->createTrackedTempDir( 'shield-packager-test-' );
+
+		mkdir( Path::join( $tempDir, 'bin' ) );
+		file_put_contents( Path::join( $tempDir, 'composer.json' ), '{}' );
+		file_put_contents( Path::join( $tempDir, 'composer.lock' ), '{}' );
+		file_put_contents( Path::join( $tempDir, 'bin', 'patch-plugin-core-api-exception.php' ), '<?php' );
+		file_put_contents( Path::join( $tempDir, 'bin', 'runtime-helper.php' ), '<?php' );
+		file_put_contents( Path::join( $tempDir, 'icwp-wpsf.php' ), '<?php' );
+
+		$this->invokePrivateMethod( $packager, 'removePackagingOnlyFiles', [ $tempDir ] );
+
+		$this->assertFileDoesNotExist( Path::join( $tempDir, 'composer.json' ) );
+		$this->assertFileDoesNotExist( Path::join( $tempDir, 'composer.lock' ) );
+		$this->assertFileDoesNotExist( Path::join( $tempDir, 'bin', 'patch-plugin-core-api-exception.php' ) );
+		$this->assertFileExists( Path::join( $tempDir, 'bin', 'runtime-helper.php' ) );
+		$this->assertFileExists( Path::join( $tempDir, 'icwp-wpsf.php' ) );
+	}
+
 	public function testReadRequiredStraussPackagesParsesComposerConfig() :void {
 		$packager = $this->createPackager();
 		$tempDir = $this->createTrackedTempDir( 'shield-packager-test-' );

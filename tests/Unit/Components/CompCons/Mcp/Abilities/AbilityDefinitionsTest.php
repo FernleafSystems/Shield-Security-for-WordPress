@@ -15,11 +15,15 @@ if ( !\class_exists( 'WP_Error' ) ) {
 		private string $code;
 		private string $message;
 		private array $data;
+		private array $errors = [];
 
 		public function __construct( string $code = '', string $message = '', $data = [] ) {
 			$this->code = $code;
 			$this->message = $message;
 			$this->data = \is_array( $data ) ? $data : [];
+			if ( $code !== '' ) {
+				$this->errors[ $code ] = [ $message ];
+			}
 		}
 
 		public function get_error_code() :string {
@@ -32,6 +36,23 @@ if ( !\class_exists( 'WP_Error' ) ) {
 
 		public function get_error_data() :array {
 			return $this->data;
+		}
+
+		public function add( string $code, string $message, $data = '' ) :void {
+			$this->errors[ $code ][] = $message;
+			$this->code = $code;
+			$this->message = $message;
+			if ( \is_array( $data ) ) {
+				$this->data = $data;
+			}
+		}
+
+		public function has_errors() :bool {
+			return !empty( $this->errors );
+		}
+
+		public function get_error_codes() :array {
+			return \array_keys( $this->errors );
 		}
 	}
 

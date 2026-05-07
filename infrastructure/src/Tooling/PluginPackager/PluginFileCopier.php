@@ -50,7 +50,9 @@ class PluginFileCopier {
 		$this->log( '(Applying .gitattributes export-ignore rules and filtering ignored local artifacts)' );
 
 		$fs = new Filesystem();
-		$excludePatterns = $this->getExportIgnorePatterns();
+		$exportIgnorePatternSets = $this->getExportIgnorePatternSets();
+		$excludePatterns = $exportIgnorePatternSets[ 'exclude' ];
+		$includePatterns = $exportIgnorePatternSets[ 'include' ];
 		$ignoredLocalPathsState = $this->getIgnoredLocalPaths();
 		$ignoredLocalPaths = $ignoredLocalPathsState[ 'paths' ];
 
@@ -90,7 +92,7 @@ class PluginFileCopier {
 		// Filter out excluded directories BEFORE descending into them
 		$filterIterator = new \RecursiveCallbackFilterIterator(
 			$dirIterator,
-			function ( \SplFileInfo $current ) use ( $projectRoot, $excludePatterns, $ignoredLocalPaths, $targetDir, $isTargetInsideRoot ) :bool {
+			function ( \SplFileInfo $current ) use ( $projectRoot, $excludePatterns, $includePatterns, $ignoredLocalPaths, $targetDir, $isTargetInsideRoot ) :bool {
 				$relativePath = Path::makeRelative( $current->getPathname(), $projectRoot );
 
 				// Skip the target directory itself to prevent infinite recursion
@@ -98,7 +100,8 @@ class PluginFileCopier {
 					return false;
 				}
 
-				if ( $this->shouldExcludePath( $relativePath, $excludePatterns ) ) {
+				if ( $this->shouldExcludePath( $relativePath, $excludePatterns, $includePatterns )
+					 && !( $current->isDir() && $this->hasIncludedDescendant( $relativePath, $includePatterns ) ) ) {
 					return false;
 				}
 
@@ -157,19 +160,33 @@ class PluginFileCopier {
 	 * @return string[] Array of patterns that should be excluded from packages
 	 */
 	public function getExportIgnorePatterns() :array {
+		return $this->getExportIgnorePatternSets()[ 'exclude' ];
+	}
+
+	/**
+	 * @return array{exclude: string[], include: string[]} Excluded paths and explicit include exceptions
+	 */
+	private function getExportIgnorePatternSets() :array {
 		$gitattributesPath = Path::join( $this->projectRoot, '.gitattributes' );
 
 		if ( !file_exists( $gitattributesPath ) ) {
 			$this->log( 'Warning: .gitattributes not found, no export-ignore patterns loaded' );
-			return [];
+			return [
+				'exclude' => [],
+				'include' => [],
+			];
 		}
 
-		$patterns = [];
+		$excludePatterns = [];
+		$includePatterns = [];
 		$lines = file( $gitattributesPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
 
 		if ( $lines === false ) {
 			$this->log( 'Warning: Could not read .gitattributes' );
-			return [];
+			return [
+				'exclude' => [],
+				'include' => [],
+			];
 		}
 
 		foreach ( $lines as $line ) {
@@ -179,12 +196,25 @@ class PluginFileCopier {
 				continue;
 			}
 
-			if ( preg_match( '/^(\S+)\s+.*\bexport-ignore\b/', $line, $matches ) ) {
-				$patterns[] = $this->normalizeRelativePath( $matches[ 1 ] );
+			if ( !preg_match( '/^(\S+)\s+(.+)$/', $line, $matches ) ) {
+				continue;
+			}
+
+			$pattern = $this->normalizeRelativePath( $matches[ 1 ] );
+			$attributes = preg_split( '/\s+/', trim( $matches[ 2 ] ) ) ?: [];
+
+			if ( in_array( '-export-ignore', $attributes, true ) ) {
+				$includePatterns[] = $pattern;
+			}
+			elseif ( in_array( 'export-ignore', $attributes, true ) ) {
+				$excludePatterns[] = $pattern;
 			}
 		}
 
-		return $patterns;
+		return [
+			'exclude' => $excludePatterns,
+			'include' => $includePatterns,
+		];
 	}
 
 	/**
@@ -193,8 +223,12 @@ class PluginFileCopier {
 	 * @param string   $relativePath Path relative to project root (forward slashes)
 	 * @param string[] $patterns     Export-ignore patterns from .gitattributes
 	 */
-	public function shouldExcludePath( string $relativePath, array $patterns ) :bool {
+	public function shouldExcludePath( string $relativePath, array $patterns, array $includePatterns = [] ) :bool {
 		$normalizedPath = $this->normalizeRelativePath( $relativePath );
+
+		if ( in_array( $normalizedPath, array_map( [ $this, 'normalizeRelativePath' ], $includePatterns ), true ) ) {
+			return false;
+		}
 
 		foreach ( $patterns as $pattern ) {
 			$normalizedPattern = $this->normalizeRelativePath( $pattern );
@@ -211,6 +245,21 @@ class PluginFileCopier {
 				if ( preg_match( $regexPattern, $normalizedPath ) ) {
 					return true;
 				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param string[] $includePatterns
+	 */
+	private function hasIncludedDescendant( string $relativePath, array $includePatterns ) :bool {
+		$normalizedPath = rtrim( $this->normalizeRelativePath( $relativePath ), '/' );
+
+		foreach ( $includePatterns as $includePattern ) {
+			if ( strpos( $this->normalizeRelativePath( $includePattern ), $normalizedPath.'/' ) === 0 ) {
+				return true;
 			}
 		}
 

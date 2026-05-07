@@ -148,7 +148,7 @@ class PluginPackager {
 			$this->log( 'Skipping package dependency build (--skip-package-dependency-build enabled)' );
 		}
 
-		$this->removeComposerFiles( $targetDir );
+		$this->removePackagingOnlyFiles( $targetDir );
 
 		// Create legacy path duplicates for upgrade compatibility
 		$this->legacyPathDuplicator->createDuplicates( $targetDir );
@@ -399,12 +399,16 @@ class PluginPackager {
 	}
 
 	/**
-	 * Remove composer files from the package directory.
+	 * Remove packaging-only files from the package directory.
 	 * Called after all composer/Strauss operations are complete.
 	 * These files are needed during packaging but not at runtime.
 	 */
-	private function removeComposerFiles( string $targetDir ) :void {
-		$files = [ 'composer.json', 'composer.lock' ];
+	private function removePackagingOnlyFiles( string $targetDir ) :void {
+		$files = [
+			'composer.json',
+			'composer.lock',
+			Path::join( 'bin', 'patch-plugin-core-api-exception.php' ),
+		];
 		foreach ( $files as $file ) {
 			$path = Path::join( $targetDir, $file );
 			if ( \file_exists( $path ) ) {

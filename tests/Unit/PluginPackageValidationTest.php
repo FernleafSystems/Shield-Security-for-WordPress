@@ -41,6 +41,7 @@ class PluginPackageValidationTest extends TestCase {
 			'.github',
 			'tests',
 			'test-results',
+			'bin/patch-plugin-core-api-exception.php',
 			'bin/install-wp-tests.sh',
 			'playwright.config.js',
 			'phpstan-baseline.neon',

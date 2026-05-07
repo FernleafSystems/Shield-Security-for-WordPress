@@ -303,10 +303,13 @@ class ScansResultsViewBuilder {
 	 * @return list<QueueAssetCard>
 	 */
 	protected function buildPluginThemeIssueRecords( string $assetType, ?array $resultsDisplayOptions = null ) :array {
-		return $this->buildActionsQueueAssetCardsBuilder()->buildIssueRecords(
-			$assetType,
-			$this->queueScanResultsOptions()->normalize( $resultsDisplayOptions )
-		);
+		return \array_values( \array_map(
+			fn( array $card ) :array => $this->normalizeQueueAssetCard( $card ),
+			$this->buildActionsQueueAssetCardsBuilder()->buildIssueRecords(
+				$assetType,
+				$this->queueScanResultsOptions()->normalize( $resultsDisplayOptions )
+			)
+		) );
 	}
 
 	/**

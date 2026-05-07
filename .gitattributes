@@ -146,6 +146,7 @@ yarn.lock text eol=lf
 
 # Build and development scripts
 /bin export-ignore
+/bin/patch-plugin-core-api-exception.php -export-ignore
 /scripts export-ignore
 /infrastructure export-ignore
 /builds export-ignore
