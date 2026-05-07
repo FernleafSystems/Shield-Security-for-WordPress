@@ -168,7 +168,12 @@ class ConfigureZoneDiagnosisBuilder {
 			'status_label'      => $row[ 'status_label' ],
 			'status_icon_class' => $row[ 'status_icon_class' ],
 			'explanations'      => $row[ 'explanations' ],
-			'expand_action'     => $this->buildExpandAction( $row[ 'action' ], $this->buildExpandId( $zoneKey, $rowKey ) ),
+			'expand_action'     => $this->buildExpandAction(
+				$row[ 'action' ],
+				$row[ 'is_expandable' ],
+				$this->buildExpandId( $zoneKey, $rowKey ),
+				$row[ 'title' ]
+			),
 		];
 	}
 
@@ -206,21 +211,27 @@ class ConfigureZoneDiagnosisBuilder {
 	 * @param array{}|DetailAction $action
 	 * @return DiagnosisExpandAction
 	 */
-	private function buildExpandAction( array $action, string $expandId ) :array {
+	private function buildExpandAction( array $action, bool $isExpandable, string $expandId, string $rowTitle ) :array {
 		$dataAttributes = [];
-		$isExpandable = false;
+		$label = '';
+		$title = '';
 
-		if ( !empty( $action ) ) {
-			$dataAttributes = $action[ 'data' ] ?? [];
-			$isExpandable = !empty( $dataAttributes[ 'zone_component_slug' ] )
-				&& !empty( $dataAttributes[ 'zone_component_action' ] );
+		if ( $isExpandable && $action === [] ) {
+			throw new \LogicException( 'Expandable configure diagnosis rows require action data.' );
+		}
+
+		if ( $action !== [] ) {
+			$dataAttributes = $action[ 'data' ];
+			$label = $action[ 'label' ];
+			$title = $action[ 'title' ];
 		}
 
 		return [
 			'id'              => $isExpandable ? $expandId : '',
 			'is_expandable'   => $isExpandable,
-			'label'           => (string)( $action[ 'label' ] ?? '' ),
-			'title'           => (string)( $action[ 'title' ] ?? '' ),
+			'label'           => $label,
+			'title'           => $title,
+			'accessible_label' => $isExpandable ? $this->buildExpandAccessibleLabel( $label, $rowTitle ) : '',
 			'data_attributes' => $dataAttributes,
 		];
 	}
@@ -234,8 +245,23 @@ class ConfigureZoneDiagnosisBuilder {
 			'is_expandable'   => false,
 			'label'           => '',
 			'title'           => '',
+			'accessible_label' => '',
 			'data_attributes' => [],
 		];
+	}
+
+	private function buildExpandAccessibleLabel( string $label, string $rowTitle ) :string {
+		$label = \trim( $label );
+		$rowTitle = \trim( $rowTitle );
+
+		$accessibleLabel = $label !== '' && $rowTitle !== ''
+			? \sprintf( __( '%1$s: %2$s', 'wp-simple-firewall' ), $label, $rowTitle )
+			: ( $label !== '' ? $label : $rowTitle );
+		if ( $accessibleLabel === '' ) {
+			throw new \LogicException( 'Expandable configure diagnosis rows require a non-empty accessible label.' );
+		}
+
+		return $accessibleLabel;
 	}
 
 	private function buildExpandId( string $zoneKey, string $rowKey ) :string {

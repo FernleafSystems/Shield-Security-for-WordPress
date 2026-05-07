@@ -167,6 +167,26 @@
 	flex-shrink: 0;
 }
 
+.shield-detail-row__expand-toggle {
+	appearance: none;
+	background: transparent;
+	border: none;
+	color: inherit;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-family: inherit;
+	margin: 0;
+	padding: 0;
+
+	&:focus-visible {
+		outline: 2px solid #c7dfc7;
+		outline-offset: 3px;
+		border-radius: 999px;
+	}
+}
+
 .shield-detail-row__expand-cta {
 	align-items: center;
 	background: #fff;

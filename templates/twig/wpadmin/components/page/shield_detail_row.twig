@@ -18,20 +18,19 @@
 {% set icon = row_data.status_icon|default(default_icons[status]|default('bi bi-dash-circle')) %}
 {% set status_label = row_data.status_label|default(default_labels[status]|default('Status')) %}
 {% set badge_status = row_data.badge_status|default(status == 'neutral' ? 'info' : status) %}
-{% set expandable = row_data.expandable|default(false) %}
+{% set expandable = row_data.expandable %}
 {% set actions = row_data.actions|default([]) %}
 {% set explanations = row_data.explanations|default([]) %}
-{% set expand_cta_label = row_data.expand_cta_label|default('') %}
+{% set expand_target = row_data.expand_target %}
+{% set expand_cta_label = row_data.expand_cta_label %}
+{% set expand_accessible_label = row_data.expand_accessible_label %}
+{% set expand_title = row_data.expand_title %}
 
 <div class="shield-detail-row shield-detail-row--{{ status }}{% if expandable %} shield-detail-row--expandable{% endif %}"
 	 {{ icwp_macros.renderAttributes(row_data.attributes|default({})) }}
 	 {% if expandable %}
-	 data-shield-expand-trigger="1"
-	 data-shield-expand-target="{{ row_data.expand_target|default('')|e('html_attr') }}"
-	 aria-controls="{{ row_data.expand_target|default('')|e('html_attr') }}"
-	 role="button"
-	 tabindex="0"
-	 aria-expanded="false"
+	 data-shield-expand-row="1"
+	 data-shield-expand-target="{{ expand_target|e('html_attr') }}"
 	 {% endif %}>
 	<div class="shield-detail-row__icons">
 		<span class="shield-detail-row__status-icon shield-detail-row__status-icon--{{ status }}"
@@ -106,11 +105,21 @@
 	</div>
 
 	{% if expandable %}
-		<div class="shield-detail-row__end" aria-hidden="true">
-			{% if expand_cta_label is not empty %}
-				<span class="shield-detail-row__expand-cta">{{ expand_cta_label }}</span>
-			{% endif %}
-			<i class="bi bi-chevron-right shield-detail-row__chevron" aria-hidden="true"></i>
+		<div class="shield-detail-row__end">
+			<button type="button"
+					class="shield-detail-row__expand-toggle"
+					data-shield-expand-trigger="1"
+					aria-controls="{{ expand_target|e('html_attr') }}"
+					aria-expanded="false"
+					aria-label="{{ expand_accessible_label|e('html_attr') }}"{% if expand_title is not empty %}
+					title="{{ expand_title|e('html_attr') }}"{% endif %}>
+				{% if expand_cta_label is not empty %}
+					<span class="shield-detail-row__expand-cta" aria-hidden="true">{{ expand_cta_label }}</span>
+				{% else %}
+					<span class="visually-hidden">{{ expand_accessible_label }}</span>
+				{% endif %}
+				<i class="bi bi-chevron-right shield-detail-row__chevron" aria-hidden="true"></i>
+			</button>
 		</div>
 	{% endif %}
 </div>
