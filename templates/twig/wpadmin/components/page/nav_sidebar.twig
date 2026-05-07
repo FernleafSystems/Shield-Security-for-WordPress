@@ -5,32 +5,32 @@
 
 	{% if sidebar.back_item|default(null) is not empty %}
 		{% set back = sidebar.back_item %}
-		<a href="{{ back.href|default('#') }}"
-		   class="sidebar-back-item {{ back.classes|default([])|join(' ') }}"
-		   {% if back.target|default('') is not empty %}target="{{ back.target }}"{% endif %}
-		   {% for data_key,data_val in back.data|default([]) %}
+		<a href="{{ back.href }}"
+		   class="sidebar-back-item {{ back.classes|join(' ') }}"
+		   {% if back.target is not empty %}target="{{ back.target }}"{% endif %}
+		   {% for data_key,data_val in back.data %}
 			   data-{{ data_key }}="{{ data_val }}"
 		   {% endfor %}
 		>
-			<span class="sidebar-back-icon"><i class="{{ back.img|default('') }}" aria-hidden="true"></i></span>
+			<span class="sidebar-back-icon"><i class="{{ back.img }}" aria-hidden="true"></i></span>
 			<span class="sidebar-back-label">{{ back.title }}</span>
 		</a>
 	{% endif %}
 
 	<div class="shield-mode-selector" data-shield-tour="sidebar-menu">
 		{% for mode_item in sidebar.mode_items|default([]) %}
-			<a href="{{ mode_item.href|default('#') }}"
-			   class="mode-item {{ mode_item.active|default(false) ? 'active' : '' }} {{ mode_item.classes|default([])|join(' ') }}"
-			   data-mode="{{ mode_item.mode|default('') }}"
-			   {% if mode_item.target|default('') is not empty %}target="{{ mode_item.target }}"{% endif %}
-			   {% for data_key,data_val in mode_item.data|default([]) %}
+			<a href="{{ mode_item.href }}"
+			   class="mode-item {{ mode_item.active ? 'active' : '' }} {{ mode_item.classes|join(' ') }}"
+			   data-mode="{{ mode_item.mode }}"
+			   {% if mode_item.target is not empty %}target="{{ mode_item.target }}"{% endif %}
+			   {% for data_key,data_val in mode_item.data %}
 				   data-{{ data_key }}="{{ data_val }}"
 			   {% endfor %}
 			>
-				<span class="mode-icon"><i class="{{ mode_item.img|default('') }}" aria-hidden="true"></i></span>
+				<span class="mode-icon"><i class="{{ mode_item.img }}" aria-hidden="true"></i></span>
 				<span class="mode-label">{{ mode_item.title }}</span>
-				{% if mode_item.badge|default([]) is not empty %}
-					<span class="mode-badge {{ mode_item.badge.status|default('') is not empty ? 'status-' ~ mode_item.badge.status : '' }}">
+				{% if mode_item.badge is not empty %}
+					<span class="mode-badge {{ mode_item.badge.status is not empty ? 'status-' ~ mode_item.badge.status : '' }}">
 						{{ mode_item.badge.text }}
 					</span>
 				{% endif %}
@@ -48,22 +48,22 @@
 
 	{% if sidebar.home_license_item|default(null) is not empty %}
 		{% set license = sidebar.home_license_item %}
-		<a href="{{ license.href|default('#') }}"
-		   class="sidebar-license-item {{ license.classes|default([])|join(' ') }}"
-		   {% if license.target|default('') is not empty %}target="{{ license.target }}"{% endif %}
-		   {% for data_key,data_val in license.data|default([]) %}
+		<a href="{{ license.href }}"
+		   class="sidebar-license-item {{ license.classes|join(' ') }}"
+		   {% if license.target is not empty %}target="{{ license.target }}"{% endif %}
+		   {% for data_key,data_val in license.data %}
 			   data-{{ data_key }}="{{ data_val }}"
 		   {% endfor %}
 		>
-			<span class="sidebar-license-icon"><i class="{{ license.img|default('') }}" aria-hidden="true"></i></span>
+			<span class="sidebar-license-icon"><i class="{{ license.img }}" aria-hidden="true"></i></span>
 			<span class="sidebar-license-content">
 				<span class="sidebar-license-title">{{ license.title }}</span>
-				{% if license.subtitle|default('') is not empty %}
+				{% if license.subtitle is not empty %}
 					<span class="sidebar-license-subtitle">{{ license.subtitle }}</span>
 				{% endif %}
 			</span>
-			{% if license.badge|default([]) is not empty %}
-				<span class="sidebar-license-badge {{ license.badge.status|default('') is not empty ? 'status-' ~ license.badge.status : '' }}">{{ license.badge.text }}</span>
+			{% if license.badge is not empty %}
+				<span class="sidebar-license-badge {{ license.badge.status is not empty ? 'status-' ~ license.badge.status : '' }}">{{ license.badge.text }}</span>
 			{% endif %}
 		</a>
 	{% endif %}
@@ -71,18 +71,33 @@
 	{% if sidebar.tool_items|default([]) is not empty %}
 		<div class="sidebar-tools">
 			{% for tool in sidebar.tool_items %}
-				<a href="{{ tool.href|default('#') }}"
-				   class="tool-item {{ tool.active|default(false) ? 'active' : '' }} {{ tool.classes|default([])|join(' ') }}"
-				   {% if tool.target|default('') is not empty %}target="{{ tool.target }}"{% endif %}
-				   {% for data_key,data_val in tool.data|default([]) %}
-					   data-{{ data_key }}="{{ data_val }}"
-				   {% endfor %}
-				>
-					{% if tool.img|default('') is not empty %}
-						<span class="tool-icon"><i class="{{ tool.img }}" aria-hidden="true"></i></span>
-					{% endif %}
-					<span class="tool-label">{{ tool.title }}</span>
-				</a>
+				{% set tool_classes = "tool-item " ~ (tool.active ? 'active ' : '') ~ tool.classes|join(' ') %}
+				{% if tool.is_action %}
+					<button type="button"
+							class="{{ tool_classes }}"
+							{% for data_key,data_val in tool.data %}
+								data-{{ data_key }}="{{ data_val }}"
+							{% endfor %}
+					>
+						{% if tool.img is not empty %}
+							<span class="tool-icon"><i class="{{ tool.img }}" aria-hidden="true"></i></span>
+						{% endif %}
+						<span class="tool-label">{{ tool.title }}</span>
+					</button>
+				{% else %}
+					<a href="{{ tool.href }}"
+					   class="{{ tool_classes }}"
+					   {% if tool.target is not empty %}target="{{ tool.target }}"{% endif %}
+					   {% for data_key,data_val in tool.data %}
+						   data-{{ data_key }}="{{ data_val }}"
+					   {% endfor %}
+					>
+						{% if tool.img is not empty %}
+							<span class="tool-icon"><i class="{{ tool.img }}" aria-hidden="true"></i></span>
+						{% endif %}
+						<span class="tool-label">{{ tool.title }}</span>
+					</a>
+				{% endif %}
 			{% endfor %}
 		</div>
 	{% endif %}
@@ -92,14 +107,14 @@
 			<div class="sidebar-connect-title">{{ sidebar.home_connect_title|default('Connect') }}</div>
 			<div class="sidebar-connect-grid">
 				{% for link in sidebar.home_connect_items %}
-					<a href="{{ link.href|default('#') }}"
-					   class="sidebar-connect-item {{ link.classes|default([])|join(' ') }}"
-					   {% if link.target|default('') is not empty %}target="{{ link.target }}"{% endif %}
-					   {% for data_key,data_val in link.data|default([]) %}
+					<a href="{{ link.href }}"
+					   class="sidebar-connect-item {{ link.classes|join(' ') }}"
+					   {% if link.target is not empty %}target="{{ link.target }}"{% endif %}
+					   {% for data_key,data_val in link.data %}
 						   data-{{ data_key }}="{{ data_val }}"
 					   {% endfor %}
 					>
-						{% if link.img|default('') is not empty %}
+						{% if link.img is not empty %}
 							<span class="sidebar-connect-icon"><i class="{{ link.img }}" aria-hidden="true"></i></span>
 						{% endif %}
 						<span class="sidebar-connect-label">{{ link.title }}</span>

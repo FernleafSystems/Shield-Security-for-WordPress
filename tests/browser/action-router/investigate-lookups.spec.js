@@ -3,13 +3,15 @@ const {
 	openShieldRoute,
 	selectSelect2Option,
 } = require( './support/shield-browser' );
+const {
+	expectActiveInlineTabState,
+	expectInlineTabsContract,
+	expectKeyboardTabActivation,
+	getInlineTabByIndex,
+	getInlineTabByTableType,
+} = require( './support/investigate-inline-tabs' );
 
 const panelSelector = '[data-investigate-panel="1"]';
-const investigationTabLabels = {
-	sessions: 'User Sessions',
-	activity: 'Activity Log',
-	traffic: 'Recent Traffic',
-};
 
 const investigationTableRequestMatcher = ( tableType ) => ( response ) => {
 	if ( !response.url().includes( '/admin-ajax.php' ) ) {
@@ -77,16 +79,6 @@ const clickSubjectTile = async ( page, subject ) => {
 		page.locator( `[data-drill-target="panel"][data-investigate-subject="${subject}"]` ).click(),
 	] );
 };
-
-const getInvestigationInlineTabs = async ( panel ) => {
-	const inlineTabs = panel.locator( '[data-investigate-panel-tabs="1"] [data-investigate-panel-tab="1"]' );
-	await expect( inlineTabs ).toHaveCount( 4 );
-	return inlineTabs;
-};
-
-const getInvestigationTab = ( inlineTabs, tableType ) => inlineTabs.filter( {
-	hasText: investigationTabLabels[ tableType ],
-} ).first();
 
 const expectInvestigationTableInitialized = async ( panel, tableType ) => {
 	const table = panel.locator( `.tab-pane.active.show table[data-investigation-table="1"][data-table-type="${tableType}"]` ).first();
@@ -345,19 +337,35 @@ test( 'investigate landing IP analysis loads investigation tables without runtim
 		isLoaded: true,
 	} );
 
-	const inlineTabs = await getInvestigationInlineTabs( panel );
+	await expectInlineTabsContract( panel );
 
 	for ( const tableType of [ 'sessions', 'activity', 'traffic' ] ) {
-		const targetTab = getInvestigationTab( inlineTabs, tableType );
+		const targetTab = await getInlineTabByTableType( panel, tableType );
 
 		await Promise.all( [
 			page.waitForResponse( investigationTableRequestMatcher( tableType ) ),
 			targetTab.click(),
 		] );
 
-		await expect( targetTab ).toHaveClass( /is-active/ );
+		await expectActiveInlineTabState( panel, targetTab );
 		await expectInvestigationTableInitialized( panel, tableType );
 	}
+	const activityTab = await getInlineTabByTableType( panel, 'activity' );
+	const trafficTab = await getInlineTabByTableType( panel, 'traffic' );
+	const firstTab = await getInlineTabByIndex( panel, 0 );
+	const lastTab = await getInlineTabByIndex( panel, 3 );
+
+	await expectKeyboardTabActivation( page, panel, trafficTab, 'ArrowLeft', activityTab );
+	await expectInvestigationTableInitialized( panel, 'activity' );
+	await expectKeyboardTabActivation( page, panel, activityTab, 'ArrowRight', trafficTab );
+	await expectInvestigationTableInitialized( panel, 'traffic' );
+	await expectKeyboardTabActivation( page, panel, trafficTab, 'ArrowUp', activityTab );
+	await expectInvestigationTableInitialized( panel, 'activity' );
+	await expectKeyboardTabActivation( page, panel, activityTab, 'ArrowDown', trafficTab );
+	await expectInvestigationTableInitialized( panel, 'traffic' );
+	await expectKeyboardTabActivation( page, panel, trafficTab, 'Home', firstTab );
+	await expectKeyboardTabActivation( page, panel, firstTab, 'End', lastTab );
+	await expectInvestigationTableInitialized( panel, 'traffic' );
 
 	await expect.poll(
 		() => pageErrors,
@@ -385,15 +393,15 @@ test( 'investigate landing IP activity meta button loads request meta popover', 
 			isLoaded: true,
 		} );
 
-		const inlineTabs = await getInvestigationInlineTabs( panel );
-		const targetTab = getInvestigationTab( inlineTabs, 'activity' );
+		await expectInlineTabsContract( panel );
+		const targetTab = await getInlineTabByTableType( panel, 'activity' );
 
 		await Promise.all( [
 			page.waitForResponse( investigationTableRequestMatcher( 'activity' ) ),
 			targetTab.click(),
 		] );
 
-		await expect( targetTab ).toHaveClass( /is-active/ );
+		await expectActiveInlineTabState( panel, targetTab );
 		await expectInvestigationTableInitialized( panel, 'activity' );
 		await expectRequestMetaPopover( page, panel, fixture.rid, fixture.expected_meta );
 	} );

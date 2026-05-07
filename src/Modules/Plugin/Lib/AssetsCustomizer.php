@@ -569,21 +569,24 @@ class AssetsCustomizer {
 					 * actually use this method of requests.
 					 * @deprecated 18.5
 					 */
-					$data = $con->opts->optGet( 'test_rest_data' );
+					$data = $con->opts->optGet( Actions\TestRestFetchRequests::OPT_KEY );
 					if ( empty( $data ) || \array_key_exists( 'test_at', $data ) ) {
 						$data = [];
 					}
 
 					$data = \array_merge( [
-						'maybe_test_at'   => 0,
-						'success_test_at' => 0,
+						Actions\TestRestFetchRequests::DATA_MAYBE_TEST_AT   => 0,
+						Actions\TestRestFetchRequests::DATA_SUCCESS_TEST_AT => 0,
 					], $data );
 
 					$now = Services::Request()->ts();
 
-					$hasSuccess = $data[ 'success_test_at' ] > 0;
-					$lastAttemptAt = (int)\max( $data[ 'maybe_test_at' ], $data[ 'success_test_at' ] );
-					$run = ( $now - $lastAttemptAt ) > ( $hasSuccess ? \WEEK_IN_SECONDS : \DAY_IN_SECONDS );
+					$run = ( $now - (int)$data[ Actions\TestRestFetchRequests::DATA_MAYBE_TEST_AT ] ) > \DAY_IN_SECONDS;
+					if ( $run ) {
+						$data[ Actions\TestRestFetchRequests::DATA_MAYBE_TEST_AT ] = $now;
+						$con->opts->optSet( Actions\TestRestFetchRequests::OPT_KEY, $data )
+								  ->store();
+					}
 
 					return [
 						'ajax'  => [

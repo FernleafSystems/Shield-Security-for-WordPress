@@ -14,6 +14,7 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Whitelabel;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState,
@@ -120,8 +121,27 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertNotNull( $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-whitelabel' ) );
 		$this->assertNotNull( $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-loginhide' ) );
 		$this->assertNotNull( $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-integrations' ) );
-		$this->assertTrue( (bool)( $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG )[ 'active' ] ?? false ) );
-		$this->assertFalse( (bool)( $this->findItemBySlug( $toolItems, PluginNavs::NAV_WIZARD.'-'.PluginNavs::SUBNAV_WIZARD_WELCOME )[ 'active' ] ?? true ) );
+
+		$debugTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG );
+		$this->assertTrue( (bool)( $debugTool[ 'active' ] ?? false ) );
+		$this->assertFalse( (bool)( $debugTool[ 'is_action' ] ?? true ) );
+		$this->assertNotSame( '', $debugTool[ 'href' ] ?? '' );
+
+		$wizardTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_WIZARD.'-'.PluginNavs::SUBNAV_WIZARD_WELCOME );
+		$this->assertFalse( (bool)( $wizardTool[ 'active' ] ?? true ) );
+		$this->assertFalse( (bool)( $wizardTool[ 'is_action' ] ?? true ) );
+		$this->assertNotSame( '', $wizardTool[ 'href' ] ?? '' );
+
+		$whitelabelTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-whitelabel' );
+		$this->assertTrue( (bool)( $whitelabelTool[ 'is_action' ] ?? false ) );
+		$this->assertSame( '', $whitelabelTool[ 'href' ] ?? null );
+		$this->assertSame( '', $whitelabelTool[ 'target' ] ?? null );
+		$this->assertContains( 'zone_component_action', $whitelabelTool[ 'classes' ] ?? [] );
+		$this->assertSame(
+			'offcanvas_zone_component_config',
+			$whitelabelTool[ 'data' ][ 'zone_component_action' ] ?? ''
+		);
+		$this->assertSame( Whitelabel::Slug(), $whitelabelTool[ 'data' ][ 'zone_component_slug' ] ?? '' );
 	}
 
 	public function test_whitelabel_hides_home_connect_items() :void {

@@ -1,18 +1,6 @@
 <div class="shield-ipanalyse options_form_for--modern">
 	{% if flags.render_inline_tabs %}
-		<div class="investigate-panel__tabs" data-investigate-panel-tabs="1">
-			{% for tab in tabs %}
-				<button type="button"
-						class="investigate-panel__tab {{ tab.is_focus ? 'is-active active' : '' }}"
-						data-investigate-panel-tab="1"
-						data-investigate-panel-target="{{ tab.target }}"
-						role="tab"
-						aria-controls="{{ tab.controls }}"
-						aria-selected="{{ tab.is_focus ? 'true' : 'false' }}">
-					{{ tab.label }}
-				</button>
-			{% endfor %}
-		</div>
+		<div class="investigate-panel__tabs" data-investigate-panel-tabs="1"></div>
 	{% endif %}
 
 	<div class="shield-options-layout has-rail">

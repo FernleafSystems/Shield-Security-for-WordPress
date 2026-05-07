@@ -64,6 +64,36 @@ async function flushInterceptedModeNavigationRaf( page ) {
 	} );
 }
 
+function installNativeDialogGuard( page ) {
+	const nativeDialogs = [];
+	page.on( 'dialog', async ( dialog ) => {
+		nativeDialogs.push( dialog.type() );
+		await dialog.dismiss().catch( () => null );
+	} );
+	return nativeDialogs;
+}
+
+async function expectNamedOffcanvas( page ) {
+	const offcanvas = page.locator( '#AptoOffcanvas' );
+	await expect( page.locator( '#AptoOffcanvas.show' ) ).toBeVisible( { timeout: 20_000 } );
+	await expect( offcanvas ).toHaveAttribute( 'role', 'dialog' );
+	await expect( offcanvas ).toHaveAttribute( 'aria-modal', 'true' );
+	const labelId = await offcanvas.getAttribute( 'aria-labelledby' );
+	expect( labelId || '' ).not.toHaveLength( 0 );
+	expect(
+		await page.locator( `#${labelId}` ).evaluate(
+			( node ) => node.isConnected && ( node.textContent || '' ).trim().length > 0
+		)
+	).toBe( true );
+	return offcanvas;
+}
+
+async function closeOffcanvasAndExpectFocusReturn( offcanvas, launcher ) {
+	await offcanvas.locator( '[data-bs-dismiss="offcanvas"]' ).first().click();
+	await expect( offcanvas ).not.toHaveAttribute( 'aria-modal', 'true' );
+	await expect( launcher ).toBeFocused();
+}
+
 test( 'dashboard mode selector shows a matching loading placeholder before each mode navigation completes', async ( { page } ) => {
 	for ( const route of modeRoutes ) {
 		await openShieldRoute( page, dashboardRoute );
@@ -132,6 +162,38 @@ test( 'dashboard mode selector opens each operator mode landing route', async ( 
 
 		await expect( page.locator( `[data-mode-shell="1"][data-mode="${route.mode}"]` ) ).toBeVisible();
 	}
+} );
+
+test( 'configure sidebar zone actions are buttons that open accessible offcanvas panels without navigation', async ( { page } ) => {
+	const nativeDialogs = installNativeDialogGuard( page );
+	await openShieldRoute( page, {
+		nav: 'zones',
+		nav_sub: 'overview',
+	} );
+	await dismissBlockingDialogs( page );
+
+	const originalUrl = page.url();
+	const whitelabelAction = page.locator(
+		'#NavSideBar button[data-zone_component_action="offcanvas_zone_component_config"][data-zone_component_slug="whitelabel"]'
+	).first();
+
+	await expect( whitelabelAction ).toBeVisible();
+	await expect( whitelabelAction ).toHaveRole( 'button' );
+	await expect( whitelabelAction ).toHaveAttribute( 'type', 'button' );
+	expect( await whitelabelAction.getAttribute( 'href' ) ).toBeNull();
+
+	await whitelabelAction.click();
+	const clickedOffcanvas = await expectNamedOffcanvas( page );
+	expect( page.url() ).toBe( originalUrl );
+	await closeOffcanvasAndExpectFocusReturn( clickedOffcanvas, whitelabelAction );
+
+	await whitelabelAction.focus();
+	await page.keyboard.press( 'Enter' );
+	const keyboardOffcanvas = await expectNamedOffcanvas( page );
+	expect( page.url() ).toBe( originalUrl );
+	await closeOffcanvasAndExpectFocusReturn( keyboardOffcanvas, whitelabelAction );
+
+	expect( nativeDialogs ).toEqual( [] );
 } );
 
 test( 'dashboard overview renders the current context rail without runtime errors', async ( { page } ) => {
