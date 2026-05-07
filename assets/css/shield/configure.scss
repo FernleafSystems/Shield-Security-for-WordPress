@@ -269,6 +269,7 @@
 }
 
 .configure-zone-card__title {
+	display: block;
 	font-size: 0.875rem;
 	font-weight: 600;
 	margin: 0 0 0.125rem;
@@ -281,20 +282,20 @@
 }
 
 .status-critical .configure-zone-card__status {
-	color: $status-color-critical;
+	color: $status-text-color-critical;
 }
 
 .status-warning .configure-zone-card__status {
-	color: $status-color-warning;
+	color: $status-text-color-warning;
 }
 
 .status-good .configure-zone-card__status {
-	color: $status-color-good;
+	color: $status-text-color-good;
 }
 
 .status-neutral .configure-zone-card__status,
 .status-info .configure-zone-card__status {
-	color: $status-color-info;
+	color: $status-text-color-info;
 }
 
 .reports-landing .configure-zone-card.operator-tile-card--reports {
@@ -307,7 +308,7 @@
 }
 
 .reports-landing .operator-tile-card--reports .configure-zone-card__status {
-	color: $mode-reports;
+	color: $mode-reports-text;
 }
 
 .reports-landing .operator-tile-card--reports .configure-zone-card__icon {

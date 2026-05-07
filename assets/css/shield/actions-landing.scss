@@ -87,20 +87,20 @@
 }
 
 .actions-queue-bucket-card.status-critical .actions-queue-bucket-card__severity {
-	color: $status-color-critical;
+	color: $status-text-color-critical;
 }
 
 .actions-queue-bucket-card.status-warning .actions-queue-bucket-card__severity {
-	color: $status-color-warning;
+	color: $status-text-color-warning;
 }
 
 .actions-queue-bucket-card.status-good .actions-queue-bucket-card__severity {
-	color: $status-color-good;
+	color: $status-text-color-good;
 }
 
 .actions-queue-bucket-card.status-neutral .actions-queue-bucket-card__severity,
 .actions-queue-bucket-card.status-info .actions-queue-bucket-card__severity {
-	color: $status-color-info;
+	color: $status-text-color-info;
 }
 
 .actions-queue-bucket-card__count {
@@ -147,9 +147,6 @@
 	color: #5f6974;
 	font-size: 0.86rem;
 	line-height: 1.5;
-}
-
-.actions-queue-bucket-card__summary {
 	margin: 0;
 }
 

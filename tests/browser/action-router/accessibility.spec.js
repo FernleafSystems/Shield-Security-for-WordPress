@@ -41,6 +41,39 @@ async function expectNonEmptyAriaLabel( locator ) {
 	).toBe( true );
 }
 
+const routeAccessibilitySmokeScenarios = [
+	{
+		id: 'actions-overview',
+		route: { nav: 'scans', nav_sub: 'overview' },
+		rootSelector: '[data-actions-landing="1"]',
+	},
+	{
+		id: 'configure-overview',
+		route: { nav: 'zones', nav_sub: 'overview' },
+		rootSelector: '[data-configure-landing="1"]',
+	},
+	{
+		id: 'investigate-overview',
+		route: { nav: 'activity', nav_sub: 'overview' },
+		rootSelector: '[data-investigate-landing="1"]',
+	},
+	{
+		id: 'reports-overview',
+		route: { nav: 'reports', nav_sub: 'overview' },
+		rootSelector: '[data-reports-landing="1"]',
+	},
+	{
+		id: 'traffic-live',
+		route: { nav: 'traffic', nav_sub: 'live' },
+		rootSelector: '#SectionTrafficLiveLogs',
+	},
+	{
+		id: 'ip-rules',
+		route: { nav: 'ips', nav_sub: 'rules' },
+		rootSelector: '#SectionIpRulesTable',
+	},
+];
+
 test( 'dashboard overview passes axe smoke', async ( { page } ) => {
 	await openShieldRoute( page, {
 		nav: 'dashboard',
@@ -91,6 +124,16 @@ test( 'admin shell exposes stable accessibility landmarks', async ( { page } ) =
 	await expectAccessibleAdminShell( page );
 	await expectNoAxeViolations( page, '#PageContainer-Apto' );
 } );
+
+for ( const scenario of routeAccessibilitySmokeScenarios ) {
+	test( `${scenario.id} route preserves admin shell and scoped axe contract`, async ( { page } ) => {
+		await openShieldRoute( page, scenario.route );
+
+		await expect( page.locator( scenario.rootSelector ) ).toBeVisible();
+		await expectAccessibleAdminShell( page );
+		await expectNoAxeViolations( page, scenario.rootSelector );
+	} );
+}
 
 test( 'plugin investigate page preserves accessible admin shell for a loaded subject state', async ( { page } ) => {
 	await openShieldRoute( page, {

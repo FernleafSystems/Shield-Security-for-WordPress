@@ -44,6 +44,7 @@ export class ShieldTableBase extends BaseComponent {
 		this.$table = this.$el.DataTable( this.buildDatatableConfig() );
 		this.markBusyStateLifecycleBound( this.$table );
 		this.bindFloatingUiLifecycle( this.$table );
+		this.applyGeneratedAccessibility( this.$table );
 		this.addButtons();
 		this.bindEvents();
 		this.ensureSearchDelay();
@@ -139,10 +140,24 @@ export class ShieldTableBase extends BaseComponent {
 		const existingProcessingHandler = typeof events.processing === 'function'
 			? events.processing
 			: null;
+		const existingInitHandler = typeof events.init === 'function'
+			? events.init
+			: null;
+		const existingDrawHandler = typeof events.draw === 'function'
+			? events.draw
+			: null;
 
 		events.processing = ( e, settings, isBusy ) => {
 			this.handleDatatableProcessing( settings, isBusy );
 			existingProcessingHandler?.( e, settings, isBusy );
+		};
+		events.init = ( e, settings, json ) => {
+			existingInitHandler?.( e, settings, json );
+			this.applyGeneratedAccessibility( settings );
+		};
+		events.draw = ( e, settings ) => {
+			existingDrawHandler?.( e, settings );
+			this.applyGeneratedAccessibility( settings );
 		};
 
 		return events;
@@ -260,6 +275,46 @@ export class ShieldTableBase extends BaseComponent {
 			BootstrapTooltips.RegisterNewTooltipsWithin( container );
 		} );
 		BootstrapTooltips.RegisterNewTooltipsWithin( container );
+	}
+
+	applyGeneratedAccessibility( datatableOrSettings = null ) {
+		const container = this.resolveTableContainer( datatableOrSettings );
+		if ( container === null ) {
+			return;
+		}
+
+		this.labelGeneratedSearchPaneInputs( container );
+		this.labelGeneratedPaginationLandmarks( container );
+	}
+
+	labelGeneratedSearchPaneInputs( container ) {
+		container.querySelectorAll( 'input.dtsp-paneInputButton.search' ).forEach( ( input ) => {
+			const label = String(
+				input.getAttribute( 'aria-label' )
+				|| input.getAttribute( 'title' )
+				|| input.getAttribute( 'placeholder' )
+				|| ''
+			).trim();
+			if ( label.length > 0 ) {
+				input.setAttribute( 'aria-label', label );
+			}
+		} );
+	}
+
+	labelGeneratedPaginationLandmarks( container ) {
+		const navs = Array.from( container.querySelectorAll( '.dt-paging nav' ) );
+		const labelBase = this.resolveTableLabelBase();
+		navs.forEach( ( nav, index ) => {
+			const suffix = navs.length > 1 ? ` ${index + 1}` : '';
+			nav.setAttribute( 'aria-label', `${labelBase} pagination${suffix}` );
+		} );
+	}
+
+	resolveTableLabelBase() {
+		return String( this.el?.id || 'Shield table' )
+		.replace( /^ShieldTable-?/, '' )
+		.replace( /[-_]+/g, ' ' )
+		.trim() || 'Shield table';
 	}
 
 	disposeFloatingUiWithinTable( datatableOrSettings = null ) {
