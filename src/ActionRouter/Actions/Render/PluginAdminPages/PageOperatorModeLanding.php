@@ -119,6 +119,8 @@ class PageOperatorModeLanding extends BaseRender {
 			'activity'     => __( 'WP Activity', 'wp-simple-firewall' ),
 			'traffic'      => __( 'Live Traffic', 'wp-simple-firewall' ),
 			'loading'      => __( 'Waiting for live updates...', 'wp-simple-firewall' ),
+			'ready'        => __( 'Live monitor updated.', 'wp-simple-firewall' ),
+			'error'        => __( 'Live monitor update failed.', 'wp-simple-firewall' ),
 		];
 	}
 

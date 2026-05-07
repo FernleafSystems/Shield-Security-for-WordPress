@@ -78,6 +78,7 @@ class AssetsCustomizer {
 							'confirm_title'   => __( 'Confirm Action', 'wp-simple-firewall' ),
 							'message_title'   => __( 'Message', 'wp-simple-firewall' ),
 							'request_failed'  => __( 'Request Failed', 'wp-simple-firewall' ),
+							'table_loading'   => __( 'Loading table data.', 'wp-simple-firewall' ),
 							'scan_repair_limit_exceeded' => __( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item.", 'wp-simple-firewall' ),
 						],
 						'comps'   => \array_map(

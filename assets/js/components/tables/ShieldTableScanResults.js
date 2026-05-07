@@ -72,13 +72,7 @@ export class ShieldTableScanResults extends ShieldTableBase {
 		return ( new AjaxService() )
 			.send( reqData, false, true )
 			.then( ( resp ) => {
-				if ( resp.success ) {
-					callback( resp.data.datatable_data );
-				}
-				else {
-					this.clearTableBusy( settings );
-					this.showErrorMessage( this.extractResponseMessage( resp ) );
-				}
+				this.handleDatatableAjaxResponse( resp, callback, settings );
 			} );
 	}
 

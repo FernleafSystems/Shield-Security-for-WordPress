@@ -9,6 +9,7 @@ import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { messageDialog } from "../ui/ShieldDialog";
+import { announceStatus } from "../ui/ShieldA11y";
 
 export class ShieldTableBase extends BaseComponent {
 
@@ -96,13 +97,7 @@ export class ShieldTableBase extends BaseComponent {
 		return ( new AjaxService() )
 		.send( reqData, false, true )
 		.then( ( resp ) => {
-			if ( resp.success ) {
-				callback( resp.data.datatable_data );
-			}
-			else {
-				this.clearTableBusy( settings );
-				this.showErrorMessage( this.extractResponseMessage( resp ) );
-			}
+			this.handleDatatableAjaxResponse( resp, callback, settings );
 		} );
 	}
 
@@ -276,6 +271,7 @@ export class ShieldTableBase extends BaseComponent {
 	handleDatatableProcessing( datatableOrSettings, isBusy ) {
 		if ( isBusy ) {
 			this.disposeFloatingUiWithinTable( datatableOrSettings );
+			this.announceTableLoading( datatableOrSettings );
 		}
 		ShieldTableBase.applyBusyStateToContainer(
 			this.resolveTableContainer( datatableOrSettings ),
@@ -344,6 +340,58 @@ export class ShieldTableBase extends BaseComponent {
 			: fallback;
 	}
 
+	handleDatatableAjaxResponse( resp, callback, datatableOrSettings, fallbackErrorMessage = 'Communications error with site.' ) {
+		if ( resp?.success ) {
+			callback( this.extractResponseData( resp ).datatable_data );
+			return true;
+		}
+
+		const message = this.extractResponseMessage( resp, fallbackErrorMessage );
+		this.clearTableBusy( datatableOrSettings );
+		this.announceTableError( datatableOrSettings, message );
+		this.showErrorMessage( message );
+		return false;
+	}
+
+	announceTableLoading( datatableOrSettings = null ) {
+		this.announceTableStatus(
+			datatableOrSettings,
+			normalizeShieldString( 'table_loading', 'Loading table data.' ),
+			{
+				politeness: 'polite',
+				allowRepeat: false,
+			}
+		);
+	}
+
+	announceTableSuccess( datatableOrSettings = null, message = '' ) {
+		this.announceTableStatus(
+			datatableOrSettings,
+			message,
+			{
+				politeness: 'polite',
+			}
+		);
+	}
+
+	announceTableError( datatableOrSettings = null, message = '' ) {
+		this.announceTableStatus(
+			datatableOrSettings,
+			message,
+			{
+				politeness: 'assertive',
+			}
+		);
+	}
+
+	announceTableStatus( datatableOrSettings = null, message = '', options = {} ) {
+		announceStatus(
+			this.resolveTableContainer( datatableOrSettings ) || this.el,
+			message,
+			options
+		);
+	}
+
 	showResponseMessage( message, success = true ) {
 		if ( typeof message !== 'string' || message.length < 1 ) {
 			return;
@@ -410,13 +458,17 @@ export class ShieldTableBase extends BaseComponent {
 				else {
 					this.clearTableBusy( datatable );
 				}
-				this.showResponseMessage( responseData.message || '', true );
+				const message = responseData.message || '';
+				this.announceTableSuccess( datatable, message );
+				this.showResponseMessage( message, true );
 				this.dispatchTableActionSuccess( datatable, reqData, responseData );
 			}
 			else {
+				const message = this.extractResponseMessage( resp, fallbackErrorMessage );
 				this.clearTableBusy( datatable );
+				this.announceTableError( datatable, message );
 				this.showErrorMessage(
-					this.extractResponseMessage( resp, fallbackErrorMessage ),
+					message,
 					options.launcher
 				);
 			}
@@ -424,6 +476,7 @@ export class ShieldTableBase extends BaseComponent {
 		} )
 		.catch( ( error ) => {
 			this.clearTableBusy( datatable );
+			this.announceTableError( datatable, fallbackErrorMessage );
 			this.showErrorMessage( fallbackErrorMessage, options.launcher );
 			throw error;
 		} );

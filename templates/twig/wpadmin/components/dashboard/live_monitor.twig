@@ -3,7 +3,15 @@
 		 class="dashboard-live-monitor{{ is_collapsed ? ' is-collapsed' : '' }}"
 		 data-dashboard-live-monitor="1"
 		 data-shield-tour="dashboard-live-monitor"
-		 data-is-collapsed="{{ is_collapsed ? '1' : '0' }}">
+		 data-is-collapsed="{{ is_collapsed ? '1' : '0' }}"
+		 data-live-monitor-loading="{{ vars.loading|e('html_attr') }}"
+		 data-live-monitor-ready="{{ vars.ready|e('html_attr') }}"
+		 data-live-monitor-error="{{ vars.error|e('html_attr') }}">
+	<div class="screen-reader-text"
+		 role="status"
+		 aria-live="polite"
+		 aria-atomic="true"
+		 data-shield-status-region="1"></div>
 	<button type="button"
 			class="dashboard-live-monitor__header"
 			data-live-monitor-toggle="1"

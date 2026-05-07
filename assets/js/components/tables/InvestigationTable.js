@@ -96,13 +96,7 @@ export class InvestigationTable extends ShieldTableBase {
 		return ( new AjaxService() )
 		.send( reqData, false, true )
 		.then( ( resp ) => {
-			if ( resp && resp.success ) {
-				callback( this.extractResponseData( resp ).datatable_data );
-			}
-			else {
-				this.clearTableBusy( settings );
-				this.showErrorMessage( this.extractResponseMessage( resp ) );
-			}
+			this.handleDatatableAjaxResponse( resp, callback, settings );
 		} );
 	}
 

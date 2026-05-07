@@ -43,6 +43,7 @@ class PageTrafficLogLive extends PageTrafficLogBase {
 				'toggle_live_log'     => __( "Toggle Live Traffic Logging", 'wp-simple-firewall' ),
 				'live_view_status'    => __( 'Viewing the latest request entries as they arrive.', 'wp-simple-firewall' ),
 				'waiting_live_logs'   => __( 'Waiting for live updates...', 'wp-simple-firewall' ),
+				'update_failed'       => __( 'Live log update failed.', 'wp-simple-firewall' ),
 			],
 		];
 	}

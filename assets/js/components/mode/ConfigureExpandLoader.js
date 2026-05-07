@@ -4,6 +4,7 @@ import { AjaxService } from "../services/AjaxService";
 import { AjaxBatchService } from "../services/AjaxBatchService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
+import { announceStatus } from "../ui/ShieldA11y";
 
 /**
  * @typedef {{row_key: string, config_item: string}} ConfigureFocusRequest
@@ -332,11 +333,18 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		this.clearPendingRequestedFocusForExpansion( expansion );
 		placeholder.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( message )}</div>`;
 		this.setSaveButtonDisabled( expansion, true );
+		this.announceExpansionStatus( expansion || placeholder, message, {
+			politeness: 'assertive',
+		} );
 	}
 
 	showExpansionLoadingState( expansion, placeholder ) {
 		placeholder.innerHTML = this.buildLoadingMarkup();
 		this.setSaveButtonDisabled( expansion, true );
+		this.announceExpansionStatus( expansion || placeholder, this.getSettingsLoadingText(), {
+			politeness: 'polite',
+			allowRepeat: false,
+		} );
 	}
 
 	handleSaveClick( button ) {
@@ -374,6 +382,14 @@ export class ConfigureExpandLoader extends BaseAutoExecComponent {
 		}
 
 		return '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-3" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+	}
+
+	announceExpansionStatus( context, message, options = {} ) {
+		announceStatus( context, message, options );
+	}
+
+	getSettingsLoadingText() {
+		return String( this.rootEl?.dataset?.configureSettingsLoading || '' ).trim();
 	}
 
 	getExpansionPlaceholder( expansion ) {
