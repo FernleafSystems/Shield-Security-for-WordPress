@@ -83,7 +83,7 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 		);
 	}
 
-	public function test_ip_analysis_offcanvas_reuses_investigate_lookup_and_renders_inline_tabs() :void {
+	public function test_ip_analysis_offcanvas_reuses_investigate_lookup_contract() :void {
 		$payload = $this->processor()->processAction( IpAnalysis::SLUG, [
 			'ip' => '198.51.100.20',
 		] )->payload();
@@ -99,25 +99,57 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 			'//form[@data-investigate-panel-form="1" and @data-offcanvas-history-mode="replace"]//select[@data-investigate-select2="1"]',
 			'IP analysis offcanvas lookup select contract'
 		);
-		$this->assertXPathExists(
+		$this->assertIpAnalysisInlineHostAndSourceRailContract( $xpath );
+	}
+
+	private function assertIpAnalysisInlineHostAndSourceRailContract( \DOMXPath $xpath ) :void {
+		$scopeQuery = '//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]';
+		$this->assertXPathCount(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]//*[@data-investigate-panel-tabs="1"]//*[@data-investigate-panel-tab="1" and normalize-space()="Overview"]',
-			'IP analysis offcanvas overview tab contract'
+			$scopeQuery.'//*[@data-investigate-panel-tabs="1"]',
+			1,
+			'IP analysis offcanvas inline tab host contract'
 		);
-		$this->assertXPathExists(
+		$this->assertXPathCount(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]//*[@data-investigate-panel-tabs="1"]//*[@data-investigate-panel-tab="1" and normalize-space()="User Sessions"]',
-			'IP analysis offcanvas sessions tab contract'
+			$scopeQuery.'//*[@data-investigate-panel-tabs="1"]//*[@data-investigate-panel-tab="1"]',
+			0,
+			'IP analysis offcanvas should not server-render proxy tabs'
 		);
-		$this->assertXPathExists(
+		$this->assertXPathCount(
 			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]//*[@data-investigate-panel-tabs="1"]//*[@data-investigate-panel-tab="1" and normalize-space()="Activity Log"]',
-			'IP analysis offcanvas activity tab contract'
+			$scopeQuery.'//*[@role="tabpanel" and string-length(@id) > 0 and string-length(@aria-labelledby) > 0]',
+			4,
+			'IP analysis offcanvas source panel contract'
 		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]//*[@data-investigate-panel-tabs="1"]//*[@data-investigate-panel-tab="1" and normalize-space()="Recent Traffic"]',
-			'IP analysis offcanvas traffic tab contract'
+
+		$sourceTabs = $xpath->query(
+			$scopeQuery.'//*[contains(concat(" ", normalize-space(@class), " "), " shield-options-rail ")]'
+			.'//*[@data-bs-toggle="tab" and @role="tab" and string-length(@id) > 0'
+			.' and string-length(@aria-controls) > 0 and starts-with(@data-bs-target, "#")]'
 		);
+		$this->assertNotFalse( $sourceTabs, 'IP analysis source rail tab query should be valid' );
+		$this->assertSame( 4, $sourceTabs->length, 'IP analysis source rail tab count contract' );
+
+		foreach ( $sourceTabs as $sourceTab ) {
+			$this->assertInstanceOf( \DOMElement::class, $sourceTab );
+			$tabId = $sourceTab->getAttribute( 'id' );
+			$panelId = $sourceTab->getAttribute( 'aria-controls' );
+			$this->assertSame(
+				'#'.$panelId,
+				$sourceTab->getAttribute( 'data-bs-target' ),
+				'IP analysis source tab target should match controls'
+			);
+			$this->assertXPathExists(
+				$xpath,
+				\sprintf(
+					'%s//*[@role="tabpanel" and @id="%s" and @aria-labelledby="%s"]',
+					$scopeQuery,
+					$panelId,
+					$tabId
+				),
+				'IP analysis source tab/panel relationship contract'
+			);
+		}
 	}
 }
