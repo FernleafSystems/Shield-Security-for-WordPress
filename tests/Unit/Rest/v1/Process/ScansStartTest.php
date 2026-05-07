@@ -10,19 +10,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rest\v1\Process;
 
-if ( !\class_exists( 'WP_REST_Request' ) ) {
-	class ScansStartRestRequestStub {
-		public function __construct( private array $params = [] ) {
-		}
-
-		public function get_param( string $key ) {
-			return $this->params[ $key ] ?? null;
-		}
-	}
-
-	\class_alias( __NAMESPACE__.'\\ScansStartRestRequestStub', 'WP_REST_Request' );
-}
-
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
@@ -44,7 +31,7 @@ class ScansStartTest extends BaseUnitTest {
 	}
 
 	public function test_process_uses_conflict_for_already_running_scans() :void {
-		$this->installController( StartScansResult::fromRequested( [] ), enqueuedCount: 1 );
+		$this->installController( StartScansResult::fromRequested( [] ), 1 );
 
 		$exception = $this->captureProcessException( [ 'scan_slugs' => [ 'afs' ] ] );
 
@@ -62,7 +49,7 @@ class ScansStartTest extends BaseUnitTest {
 	}
 
 	public function test_process_uses_unavailable_when_start_is_blocked() :void {
-		$this->installController( StartScansResult::fromRequested( [ 'afs' ] ), blocked: true );
+		$this->installController( StartScansResult::fromRequested( [ 'afs' ] ), 0, true );
 
 		$exception = $this->captureProcessException( [ 'scan_slugs' => [ 'afs' ] ] );
 
@@ -128,10 +115,12 @@ class ScansStartTest extends BaseUnitTest {
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->comps = (object)[
 			'scans'     => new class( $result, $blocked ) {
-				public function __construct(
-					private StartScansResult $result,
-					private bool $blocked
-				) {
+				private StartScansResult $result;
+				private bool $blocked;
+
+				public function __construct( StartScansResult $result, bool $blocked ) {
+					$this->result = $result;
+					$this->blocked = $blocked;
 				}
 
 				public function getStartBlockedMessage() :string {
@@ -144,7 +133,10 @@ class ScansStartTest extends BaseUnitTest {
 				}
 			},
 			'site_query' => new class( $enqueuedCount ) {
-				public function __construct( private int $enqueuedCount ) {
+				private int $enqueuedCount;
+
+				public function __construct( int $enqueuedCount ) {
+					$this->enqueuedCount = $enqueuedCount;
 				}
 
 				public function scanRuntime() :array {

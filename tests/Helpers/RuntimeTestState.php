@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogger;
 use FernleafSystems\Wordpress\Services\Services;
 use WP_User;
 
@@ -237,6 +238,20 @@ class RuntimeTestState {
 		}
 
 		unset( $opts->mod_opts_all, $opts->mod_opts_free, $opts->mod_opts_pro );
+	}
+
+	public static function resetRequestLoggerState() :void {
+		$logger = self::controller()->comps->requests_log ?? null;
+		if ( !$logger instanceof RequestLogger ) {
+			return;
+		}
+
+		\Closure::bind( function () {
+			$this->hasLogged = false;
+			$this->isDependentLog = false;
+			$this->lastLoggedRecord = null;
+			unset( $this->logger );
+		}, $logger, RequestLogger::class )();
 	}
 
 	/**

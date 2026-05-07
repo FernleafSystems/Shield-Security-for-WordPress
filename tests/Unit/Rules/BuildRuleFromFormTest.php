@@ -23,12 +23,29 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\{
 	HttpRedirect
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	ServicesState,
+	UnitTestRequest
+};
+use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
 
 class BuildRuleFromFormTest extends BaseUnitTest {
 
+	private array $servicesSnapshot = [];
+
 	protected function setUp() :void {
 		parent::setUp();
+
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::installItems( [
+			'service_request'          => new UnitTestRequest(),
+			'service_serviceproviders' => new class() extends ServiceProviders {
+				public function getProviders_Flat() :array {
+					return [];
+				}
+			},
+		] );
 
 		Functions\when( '__' )->returnArg();
 		Functions\when( 'apply_filters' )->alias( static fn( string $hook, $value ) => $value );
@@ -37,6 +54,7 @@ class BuildRuleFromFormTest extends BaseUnitTest {
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 

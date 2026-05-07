@@ -113,7 +113,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$nextScheduledCalls = [];
 			$this->captureUpgradeAction( $actions );
 			$this->mockCronScheduling( $scheduled, false, $nextScheduledCalls );
-			$state = $this->installController( previousVersion: '2.0.0' );
+			$state = $this->installController( '2.0.0' );
 
 			( new HandleUpgrade() )->execute();
 
@@ -127,7 +127,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 		public function test_scheduled_upgrade_callback_runs_upgrade_work() :void {
 			$actions = [];
 			$this->captureUpgradeAction( $actions );
-			$state = $this->installController( previousVersion: '2.0.0' );
+			$state = $this->installController( '2.0.0' );
 
 			( new HandleUpgrade() )->execute();
 			$this->runCapturedUpgradeCallback( $actions );
@@ -144,7 +144,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$actions = [];
 			$this->captureUpgradeAction( $actions );
 			HandleUpgradeCacheSpy::$throws = [ __NAMESPACE__.'\handle_upgrade_test_cache_purge' ];
-			$state = $this->installController( previousVersion: '2.0.0' );
+			$state = $this->installController( '2.0.0' );
 
 			( new HandleUpgradeCachePurgeHarness() )->execute();
 			$this->runCapturedUpgradeCallback( $actions );
@@ -158,9 +158,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$actions = [];
 			$this->captureUpgradeAction( $actions );
 			$state = $this->installController(
-				previousVersion: '2.0.0',
-				includeThrowingExtension: true,
-				includeThrowingHandlerLookup: true
+				'2.0.0',
+				true,
+				true
 			);
 
 			( new HandleUpgrade() )->execute();

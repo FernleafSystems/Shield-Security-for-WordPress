@@ -20,20 +20,41 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	RuleVO
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	ServicesState,
+	UnitTestGeneral,
+	UnitTestRequest
+};
+use FernleafSystems\Wordpress\Services\Utilities\IpUtils;
 
 class ResponseProcessorTest extends BaseUnitTest {
+
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
 
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::installItems( [
+			'service_ip'        => new IpUtils(),
+			'service_request'   => $this->buildRequestService(),
+			'service_wpgeneral' => $this->buildGeneralService(),
+		] );
+
 		Functions\when( '__' )->returnArg();
 		Functions\when( '__return_false' )->justReturn( false );
+		Functions\when( 'is_admin' )->justReturn( false );
+		Functions\when( 'is_network_admin' )->justReturn( false );
+		Functions\when( 'wp_parse_url' )->alias(
+			static fn( string $url, int $component = -1 ) => \parse_url( $url, $component )
+		);
 		$this->installController();
 	}
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 
@@ -67,6 +88,8 @@ class ResponseProcessorTest extends BaseUnitTest {
 		( new ResponseProcessor( $rule ) )
 			->setThisRequest( new ThisRequest() )
 			->run();
+
+		$this->addToAssertionCount( 1 );
 	}
 
 	public function test_hook_add_action_consumes_accepted_args_as_hook_argument_count() :void {
@@ -90,6 +113,8 @@ class ResponseProcessorTest extends BaseUnitTest {
 				'accepted_args' => 2,
 			] )
 			->execResponse();
+
+		$this->addToAssertionCount( 1 );
 	}
 
 	private function installController() :void {
@@ -109,5 +134,47 @@ class ResponseProcessorTest extends BaseUnitTest {
 		];
 
 		PluginControllerInstaller::install( $controller );
+	}
+
+	private function buildRequestService() :UnitTestRequest {
+		return new class() extends UnitTestRequest {
+			public function __construct() {
+				parent::__construct();
+				$this->server = [];
+			}
+		};
+	}
+
+	private function buildGeneralService() :UnitTestGeneral {
+		return new class() extends UnitTestGeneral {
+			public function getLocale( $separator = '_' ) {
+				unset( $separator );
+				return 'en_US';
+			}
+
+			public function isAjax() :bool {
+				return false;
+			}
+
+			public function isCron() :bool {
+				return false;
+			}
+
+			public function isDebug() :bool {
+				return false;
+			}
+
+			public function isWpCli() :bool {
+				return false;
+			}
+
+			public function isXmlrpc() :bool {
+				return false;
+			}
+
+			public function isPermalinksEnabled() :bool {
+				return true;
+			}
+		};
 	}
 }

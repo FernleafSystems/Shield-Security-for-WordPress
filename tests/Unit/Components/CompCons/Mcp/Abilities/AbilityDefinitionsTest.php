@@ -10,55 +10,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\Mcp\Abilities;
 
-if ( !\class_exists( 'WP_Error' ) ) {
-	class ShieldWpErrorStub {
-		private string $code;
-		private string $message;
-		private array $data;
-		private array $errors = [];
-
-		public function __construct( string $code = '', string $message = '', $data = [] ) {
-			$this->code = $code;
-			$this->message = $message;
-			$this->data = \is_array( $data ) ? $data : [];
-			if ( $code !== '' ) {
-				$this->errors[ $code ] = [ $message ];
-			}
-		}
-
-		public function get_error_code() :string {
-			return $this->code;
-		}
-
-		public function get_error_message() :string {
-			return $this->message;
-		}
-
-		public function get_error_data() :array {
-			return $this->data;
-		}
-
-		public function add( string $code, string $message, $data = '' ) :void {
-			$this->errors[ $code ][] = $message;
-			$this->code = $code;
-			$this->message = $message;
-			if ( \is_array( $data ) ) {
-				$this->data = $data;
-			}
-		}
-
-		public function has_errors() :bool {
-			return !empty( $this->errors );
-		}
-
-		public function get_error_codes() :array {
-			return \array_keys( $this->errors );
-		}
-	}
-
-	\class_alias( __NAMESPACE__.'\\ShieldWpErrorStub', 'WP_Error' );
-}
-
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Abilities\AbilityDefinitions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;

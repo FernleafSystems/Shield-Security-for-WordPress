@@ -144,4 +144,5 @@ test( 'plugin investigate page preserves accessible admin shell for a loaded sub
 
 	await expect( page.locator( '[data-investigate-subject-header="1"]' ) ).toBeVisible();
 	await expectAccessibleAdminShell( page );
+	await expectNoAxeViolations( page, '#PageContainer-Apto' );
 } );

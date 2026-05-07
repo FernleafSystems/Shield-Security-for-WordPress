@@ -2,66 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\Mcp\Support;
 
-if ( !\class_exists( 'WP_Error' ) ) {
-	class ShieldWpErrorStub {
-		private string $code;
-		private string $message;
-		private array $data;
-
-		public function __construct( string $code = '', string $message = '', $data = [] ) {
-			$this->code = $code;
-			$this->message = $message;
-			$this->data = \is_array( $data ) ? $data : [];
-		}
-
-		public function get_error_code() :string {
-			return $this->code;
-		}
-
-		public function get_error_message() :string {
-			return $this->message;
-		}
-
-		public function get_error_data() :array {
-			return $this->data;
-		}
-	}
-
-	\class_alias( __NAMESPACE__.'\\ShieldWpErrorStub', 'WP_Error' );
-}
-
-if ( !\class_exists( 'WP_REST_Request' ) ) {
-	class ShieldWpRestRequestStub {
-		private array $params;
-
-		public function __construct( $method = 'GET', string $route = '/', array $params = [] ) {
-			unset( $route );
-			$this->params = \is_array( $method ) ? $method : $params;
-		}
-
-		public function get_param( string $key ) {
-			return $this->params[ $key ] ?? null;
-		}
-	}
-
-	\class_alias( __NAMESPACE__.'\\ShieldWpRestRequestStub', 'WP_REST_Request' );
-}
-
-if ( !\class_exists( 'WP_REST_Controller' ) ) {
-	class ShieldWpRestControllerStub {
-	}
-
-	\class_alias( __NAMESPACE__.'\\ShieldWpRestControllerStub', 'WP_REST_Controller' );
-}
-
-if ( !\class_exists( 'WP_REST_Server' ) ) {
-	class ShieldWpRestServerStub {
-		public const READABLE = 'GET';
-	}
-
-	\class_alias( __NAMESPACE__.'\\ShieldWpRestServerStub', 'WP_REST_Server' );
-}
-
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\Mcp\Support\QuerySurfaceAccessPolicy;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Route\PostureOverview;

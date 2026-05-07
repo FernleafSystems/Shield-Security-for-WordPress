@@ -31,7 +31,10 @@ class WordpressReleaseChannelTest extends BaseUnitTest {
 	private function newReleaseChannelForVersion( string $version ) :WordpressReleaseChannel {
 		ServicesState::installItems( [
 			'service_wpgeneral' => new class( $version ) extends General {
-				public function __construct( private string $version ) {
+				private string $version;
+
+				public function __construct( string $version ) {
+					$this->version = $version;
 				}
 
 				public function getVersion( $ignoreClassicpress = false ) {

@@ -33,6 +33,8 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\ToolingAnalysisLane;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\CommandLoader\FactoryCommandLoader;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ShieldCliApplication {
 
@@ -238,7 +240,7 @@ class ShieldCliApplication {
 		return $factories;
 	}
 
-	public function run() :int {
-		return $this->application->run();
+	public function run( ?InputInterface $input = null, ?OutputInterface $output = null ) :int {
+		return $this->application->run( $input, $output );
 	}
 }

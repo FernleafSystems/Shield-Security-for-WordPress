@@ -30,6 +30,9 @@ class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	 * @return list<ResultItem>
 	 */
 	private function getWpvItems(): array {
-		return $this->getAllItems();
+		return \array_values( \array_filter(
+			$this->getAllItems(),
+			static fn( $item ): bool => $item instanceof ResultItem
+		) );
 	}
 }

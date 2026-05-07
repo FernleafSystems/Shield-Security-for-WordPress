@@ -6,7 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\Render\Components\OffCanvas\FormReportCreate,
 	Actions\Render\Components\OffCanvas\IpAnalysis,
-	Actions\Render\Components\Scans\ItemAnalysis\Container
+	Actions\Render\Components\Scans\ItemAnalysis\Container,
+	Actions\Render\Components\UserMfa\ConfigPage
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\HtmlDomAssertions;
@@ -31,6 +32,30 @@ class SharedAccessibilityRenderContractIntegrationTest extends ShieldIntegration
 
 	private function processor() :ActionProcessor {
 		return new ActionProcessor();
+	}
+
+	public function test_user_mfa_config_renders_single_shared_shell_title_and_mfa_placeholder() :void {
+		$payload = $this->processor()->processAction( ConfigPage::SLUG )->payload();
+		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
+
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@id="ShieldAdminShellTitle" and self::h1 and normalize-space()!=""]',
+			1,
+			'MFA profile shared shell title contract'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//h1[contains(translate(@style, "ABCDEFGHIJKLMNOPQRSTUVWXYZ ", "abcdefghijklmnopqrstuvwxyz"), "display:none")]',
+			0,
+			'MFA profile should not render an inline-hidden h1 override'
+		);
+		$this->assertXPathCount(
+			$xpath,
+			'//*[@id="ShieldMfaUserProfileForm" and contains(concat(" ", normalize-space(@class), " "), " shield_user_mfa_container ")]',
+			1,
+			'MFA profile placeholder container contract'
+		);
 	}
 
 	public function test_report_create_offcanvas_content_renders_stable_title_id_contract() :void {

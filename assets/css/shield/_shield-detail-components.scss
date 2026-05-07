@@ -300,7 +300,7 @@
 	&--update {
 		background: $badge-warning-bg;
 		border: 1px solid rgba($status-color-warning, 0.3);
-		color: $badge-warning-color;
+		color: $status-text-color-warning;
 
 		&:hover {
 			background: #fce9c0;

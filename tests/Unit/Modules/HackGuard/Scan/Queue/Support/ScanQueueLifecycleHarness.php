@@ -34,17 +34,23 @@ class ScanQueueLifecycleHarness {
 
 	private LifecycleQueueComponent $queueComponent;
 
+	private int $now;
+
+	private array $itemsByScan;
+
 	/**
 	 * @param array<string,string[]> $itemsByScan
 	 */
 	public function __construct(
-		private int $now = 1700000000,
-		private array $itemsByScan = [
+		int $now = 1700000000,
+		array $itemsByScan = [
 			'afs' => [ 'afs-a', 'afs-b' ],
 			'apc' => [ 'apc-a' ],
 			'wpv' => [ 'wpv-a' ],
 		]
 	) {
+		$this->now = $now;
+		$this->itemsByScan = $itemsByScan;
 		$this->async = new AsyncQueueHarness();
 		$this->sql = new LifecycleSqliteDb( $this->now );
 		$this->scansDb = new LifecycleScansDb( $this->sql );
@@ -145,7 +151,7 @@ class ScanQueueLifecycleHarness {
 			static fn( $value ) :int => \abs( (int)$value )
 		);
 		Functions\when( 'wp_convert_hr_to_bytes' )->alias(
-			static fn( $value ) :int => 134217728
+			static fn( $value ) :int => 1073741824
 		);
 		Functions\when( 'add_action' )->alias(
 			static function ( string $hook, $callback = null, int $priority = 10, int $acceptedArgs = 1 ) use ( $async ) :bool {
@@ -322,7 +328,10 @@ class LifecycleSqliteDb extends Db {
 	 */
 	private array $queryLog = [];
 
-	public function __construct( private int $now ) {
+	private int $now;
+
+	public function __construct( int $now ) {
+		$this->now = $now;
 		$this->pdo = new \PDO( 'sqlite::memory:' );
 		$this->pdo->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
 		$this->createTables();
@@ -518,7 +527,10 @@ class LifecycleScansDb {
 
 	public array $rawInserts = [];
 
-	public function __construct( private LifecycleSqliteDb $db ) {
+	private LifecycleSqliteDb $db;
+
+	public function __construct( LifecycleSqliteDb $db ) {
+		$this->db = $db;
 	}
 
 	public function getTable() :string {
@@ -531,7 +543,12 @@ class LifecycleScansDb {
 
 	public function getQueryInserter() :object {
 		return new class( $this->db, $this->rawInserts ) {
-			public function __construct( private LifecycleSqliteDb $db, private array &$rawInserts ) {
+			private LifecycleSqliteDb $db;
+			private array $rawInserts;
+
+			public function __construct( LifecycleSqliteDb $db, array &$rawInserts ) {
+				$this->db = $db;
+				$this->rawInserts =& $rawInserts;
 			}
 
 			public function insert( ScansDB\Record $record ) :bool {
@@ -549,7 +566,10 @@ class LifecycleScansDb {
 
 	public function getQueryUpdater() :object {
 		return new class( $this->db ) {
-			public function __construct( private LifecycleSqliteDb $db ) {
+			private LifecycleSqliteDb $db;
+
+			public function __construct( LifecycleSqliteDb $db ) {
+				$this->db = $db;
 			}
 
 			public function updateById( int $id, array $data ) :bool {
@@ -561,7 +581,10 @@ class LifecycleScansDb {
 
 class LifecycleScanItemsDb {
 
-	public function __construct( private LifecycleSqliteDb $db ) {
+	private LifecycleSqliteDb $db;
+
+	public function __construct( LifecycleSqliteDb $db ) {
+		$this->db = $db;
 	}
 
 	public function getTable() :string {
@@ -574,7 +597,10 @@ class LifecycleScanItemsDb {
 
 	public function getQueryInserter() :object {
 		return new class( $this->db ) {
-			public function __construct( private LifecycleSqliteDb $db ) {
+			private LifecycleSqliteDb $db;
+
+			public function __construct( LifecycleSqliteDb $db ) {
+				$this->db = $db;
 			}
 
 			public function insert( ScanItemsDB\Record $record ) :bool {
@@ -590,7 +616,10 @@ class LifecycleScanItemsDb {
 
 	public function getQueryUpdater() :object {
 		return new class( $this->db ) {
-			public function __construct( private LifecycleSqliteDb $db ) {
+			private LifecycleSqliteDb $db;
+
+			public function __construct( LifecycleSqliteDb $db ) {
+				$this->db = $db;
 			}
 
 			public function updateById( int $id, array $data ) :bool {
@@ -612,7 +641,10 @@ class LifecycleScansSelector {
 
 	private int $limit = 0;
 
-	public function __construct( private LifecycleSqliteDb $db ) {
+	private LifecycleSqliteDb $db;
+
+	public function __construct( LifecycleSqliteDb $db ) {
+		$this->db = $db;
 		$this->reset();
 	}
 
@@ -701,7 +733,10 @@ class LifecycleScanItemsSelector {
 
 	use LifecycleWhereBuilder;
 
-	public function __construct( private LifecycleSqliteDb $db ) {
+	private LifecycleSqliteDb $db;
+
+	public function __construct( LifecycleSqliteDb $db ) {
+		$this->db = $db;
 		$this->reset();
 	}
 
@@ -753,7 +788,10 @@ class LifecycleScanItemsDeleter {
 
 	use LifecycleWhereBuilder;
 
-	public function __construct( private LifecycleSqliteDb $db ) {
+	private LifecycleSqliteDb $db;
+
+	public function __construct( LifecycleSqliteDb $db ) {
+		$this->db = $db;
 		$this->resetWhereBuilder();
 	}
 
@@ -843,7 +881,10 @@ trait LifecycleWhereBuilder {
 
 class LifecycleEmptyDbHandler {
 
-	public function __construct( private string $table ) {
+	private string $table;
+
+	public function __construct( string $table ) {
+		$this->table = $table;
 	}
 
 	public function getTable() :string {
@@ -975,7 +1016,12 @@ class LifecycleScanController extends Base {
 	/**
 	 * @param string[] $items
 	 */
-	public function __construct( private string $slug, private array $items ) {
+	private string $slug;
+	private array $items;
+
+	public function __construct( string $slug, array $items ) {
+		$this->slug = $slug;
+		$this->items = $items;
 	}
 
 	public function getSlug() :string {
@@ -1078,7 +1124,10 @@ class LifecycleOptsLookup {
 
 class LifecycleRequest extends Request {
 
-	public function __construct( private int $timestamp ) {
+	private int $timestamp;
+
+	public function __construct( int $timestamp ) {
+		$this->timestamp = $timestamp;
 	}
 
 	public function ts( bool $update = true ) :int {

@@ -11,7 +11,10 @@ class DateTimeImmutable extends \DateTimeImmutable {
 
 	private \DateTimeImmutable $innerDateTime;
 
-	public function __construct( string $datetime = 'now', ?DateTimeZone $timezone = null ) {
+	/**
+	 * @param string $datetime
+	 */
+	public function __construct( $datetime = 'now', ?DateTimeZone $timezone = null ) {
 		parent::__construct( $datetime, $timezone );
 		$this->innerDateTime = new parent( $datetime, $timezone );
 	}
@@ -22,7 +25,14 @@ class DateTimeImmutable extends \DateTimeImmutable {
 		return $safeDateTime;
 	}
 
-	public static function createFromFormat( string $format, string $datetime, ?DateTimeZone $timezone = null ) :self {
+	/**
+	 * @param string            $format
+	 * @param string            $datetime
+	 * @param DateTimeZone|null $timezone
+	 * @return self
+	 */
+	#[\ReturnTypeWillChange]
+	public static function createFromFormat( $format, $datetime, ?DateTimeZone $timezone = null ) {
 		$result = parent::createFromFormat( $format, $datetime, $timezone );
 		if ( $result === false ) {
 			throw DatetimeException::createFromPhpError();
@@ -30,7 +40,12 @@ class DateTimeImmutable extends \DateTimeImmutable {
 		return self::createFromRegular( $result );
 	}
 
-	public function format( string $format ) :string {
+	/**
+	 * @param string $format
+	 * @return string
+	 */
+	#[\ReturnTypeWillChange]
+	public function format( $format ) {
 		$result = $this->innerDateTime->format( $format );
 		if ( $result === false ) {
 			throw DatetimeException::createFromPhpError();
@@ -38,7 +53,13 @@ class DateTimeImmutable extends \DateTimeImmutable {
 		return $result;
 	}
 
-	public function diff( DateTimeInterface $targetObject, bool $absolute = false ) :DateInterval {
+	/**
+	 * @param DateTimeInterface $targetObject
+	 * @param bool              $absolute
+	 * @return DateInterval
+	 */
+	#[\ReturnTypeWillChange]
+	public function diff( $targetObject, $absolute = false ) {
 		$result = $this->innerDateTime->diff( $targetObject, $absolute );
 		if ( $result === false ) {
 			throw DatetimeException::createFromPhpError();
@@ -46,7 +67,12 @@ class DateTimeImmutable extends \DateTimeImmutable {
 		return $result;
 	}
 
-	public function modify( string $modifier ) :self {
+	/**
+	 * @param string $modifier
+	 * @return self
+	 */
+	#[\ReturnTypeWillChange]
+	public function modify( $modifier ) {
 		$result = $this->innerDateTime->modify( $modifier );
 		if ( $result === false ) {
 			throw DatetimeException::createFromPhpError();
@@ -54,7 +80,14 @@ class DateTimeImmutable extends \DateTimeImmutable {
 		return self::createFromRegular( $result );
 	}
 
-	public function setDate( int $year, int $month, int $day ) :self {
+	/**
+	 * @param int $year
+	 * @param int $month
+	 * @param int $day
+	 * @return self
+	 */
+	#[\ReturnTypeWillChange]
+	public function setDate( $year, $month, $day ) {
 		$result = $this->innerDateTime->setDate( $year, $month, $day );
 		if ( $result === false ) {
 			throw DatetimeException::createFromPhpError();
@@ -62,7 +95,14 @@ class DateTimeImmutable extends \DateTimeImmutable {
 		return self::createFromRegular( $result );
 	}
 
-	public function setISODate( int $year, int $week, int $dayOfWeek = 1 ) :self {
+	/**
+	 * @param int $year
+	 * @param int $week
+	 * @param int $dayOfWeek
+	 * @return self
+	 */
+	#[\ReturnTypeWillChange]
+	public function setISODate( $year, $week, $dayOfWeek = 1 ) {
 		$result = $this->innerDateTime->setISODate( $year, $week, $dayOfWeek );
 		if ( $result === false ) {
 			throw DatetimeException::createFromPhpError();
@@ -70,7 +110,15 @@ class DateTimeImmutable extends \DateTimeImmutable {
 		return self::createFromRegular( $result );
 	}
 
-	public function setTime( int $hour, int $minute, int $second = 0, int $microsecond = 0 ) :self {
+	/**
+	 * @param int $hour
+	 * @param int $minute
+	 * @param int $second
+	 * @param int $microsecond
+	 * @return self
+	 */
+	#[\ReturnTypeWillChange]
+	public function setTime( $hour, $minute, $second = 0, $microsecond = 0 ) {
 		$result = $this->innerDateTime->setTime( $hour, $minute, $second, $microsecond );
 		if ( $result === false ) {
 			throw DatetimeException::createFromPhpError();
@@ -78,7 +126,12 @@ class DateTimeImmutable extends \DateTimeImmutable {
 		return self::createFromRegular( $result );
 	}
 
-	public function setTimestamp( int $timestamp ) :self {
+	/**
+	 * @param int $timestamp
+	 * @return self
+	 */
+	#[\ReturnTypeWillChange]
+	public function setTimestamp( $timestamp ) {
 		$result = $this->innerDateTime->setTimestamp( $timestamp );
 		if ( $result === false ) {
 			throw DatetimeException::createFromPhpError();
@@ -86,7 +139,12 @@ class DateTimeImmutable extends \DateTimeImmutable {
 		return self::createFromRegular( $result );
 	}
 
-	public function setTimezone( DateTimeZone $timezone ) :self {
+	/**
+	 * @param DateTimeZone $timezone
+	 * @return self
+	 */
+	#[\ReturnTypeWillChange]
+	public function setTimezone( $timezone ) {
 		$result = $this->innerDateTime->setTimezone( $timezone );
 		if ( $result === false ) {
 			throw DatetimeException::createFromPhpError();
@@ -94,7 +152,12 @@ class DateTimeImmutable extends \DateTimeImmutable {
 		return self::createFromRegular( $result );
 	}
 
-	public function sub( DateInterval $interval ) :self {
+	/**
+	 * @param DateInterval $interval
+	 * @return self
+	 */
+	#[\ReturnTypeWillChange]
+	public function sub( $interval ) {
 		$result = $this->innerDateTime->sub( $interval );
 		if ( $result === false ) {
 			throw DatetimeException::createFromPhpError();
@@ -102,7 +165,11 @@ class DateTimeImmutable extends \DateTimeImmutable {
 		return self::createFromRegular( $result );
 	}
 
-	public function getOffset() :int {
+	/**
+	 * @return int
+	 */
+	#[\ReturnTypeWillChange]
+	public function getOffset() {
 		$result = $this->innerDateTime->getOffset();
 		if ( $result === false ) {
 			throw DatetimeException::createFromPhpError();
@@ -110,19 +177,37 @@ class DateTimeImmutable extends \DateTimeImmutable {
 		return $result;
 	}
 
-	public function add( DateInterval $interval ) :self {
+	/**
+	 * @param DateInterval $interval
+	 * @return self
+	 */
+	#[\ReturnTypeWillChange]
+	public function add( $interval ) {
 		return self::createFromRegular( $this->innerDateTime->add( $interval ) );
 	}
 
-	public static function __set_state( array $array ) :self {
+	/**
+	 * @param array<string,mixed> $array
+	 * @return self
+	 */
+	#[\ReturnTypeWillChange]
+	public static function __set_state( $array ) {
 		return self::createFromRegular( parent::__set_state( $array ) );
 	}
 
-	public function getTimezone() :DateTimeZone {
+	/**
+	 * @return DateTimeZone
+	 */
+	#[\ReturnTypeWillChange]
+	public function getTimezone() {
 		return $this->innerDateTime->getTimezone();
 	}
 
-	public function getTimestamp() :int {
+	/**
+	 * @return int
+	 */
+	#[\ReturnTypeWillChange]
+	public function getTimestamp() {
 		return $this->innerDateTime->getTimestamp();
 	}
 }

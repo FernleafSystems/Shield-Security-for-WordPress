@@ -495,7 +495,10 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 
 	private function newScanResultsTableBuilderStub( array $countsByScope ) :ActionsQueueScanResultsTableBuilder {
 		return new class( $countsByScope ) extends ActionsQueueScanResultsTableBuilder {
-			public function __construct( private array $countsByScope ) {
+			private array $countsByScope;
+
+			public function __construct( array $countsByScope ) {
+				$this->countsByScope = $countsByScope;
 			}
 
 			public function countForScope( string $type, string $file, array $options ) :int {
@@ -506,7 +509,10 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 
 	private function newAvailabilityForTab( string $availableTabKey ) :ScansResultsRailTabAvailability {
 		return new class( $availableTabKey ) extends ScansResultsRailTabAvailability {
-			public function __construct( private string $availableTabKey ) {
+			private string $availableTabKey;
+
+			public function __construct( string $availableTabKey ) {
+				$this->availableTabKey = $availableTabKey;
 			}
 
 			public function build( string $tabKey ) :array {
@@ -530,7 +536,10 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 	private function installWpVersion( string $version ) :void {
 		ServicesState::mergeItems( [
 			'service_wpgeneral' => new class( $version ) extends General {
-				public function __construct( private string $version ) {
+				private string $version;
+
+				public function __construct( string $version ) {
+					$this->version = $version;
 				}
 
 				public function getVersion( $ignoreClassicpress = false ) {

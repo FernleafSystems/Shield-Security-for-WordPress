@@ -99,7 +99,10 @@ class ItemIgnoreHandlerTest extends BaseUnitTest {
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->db_con = (object)[
 			'scan_result_items' => new class( $updater ) {
-				public function __construct( private ItemIgnoreQueryUpdaterSpy $updater ) {
+				private ItemIgnoreQueryUpdaterSpy $updater;
+
+				public function __construct( ItemIgnoreQueryUpdaterSpy $updater ) {
+					$this->updater = $updater;
 				}
 
 				public function getQueryUpdater() :ItemIgnoreQueryUpdaterSpy {
@@ -129,7 +132,10 @@ class ItemIgnoreQueryUpdaterSpy {
 
 	public array $updates = [];
 
-	public function __construct( private bool $succeed ) {
+	private bool $succeed;
+
+	public function __construct( bool $succeed ) {
+		$this->succeed = $succeed;
 	}
 
 	public function updateById( int $id, array $data ) :bool {

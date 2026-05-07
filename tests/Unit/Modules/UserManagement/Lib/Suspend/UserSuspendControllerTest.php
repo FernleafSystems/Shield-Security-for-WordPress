@@ -162,10 +162,7 @@ class UserSuspendControllerFakeSelector {
 	}
 
 	public function count() :int {
-		return match ( $this->activeFilter ) {
-			'idle', 'pass' => 1,
-			default => 0,
-		};
+		return \in_array( $this->activeFilter, [ 'idle', 'pass' ], true ) ? 1 : 0;
 	}
 
 	public function setResultsAsVo( bool $asVO ) :self {
@@ -181,10 +178,13 @@ class UserSuspendControllerFakeSelector {
 	}
 
 	public function queryWithResult() :array {
-		return match ( $this->activeFilter ) {
-			'idle' => [ [ 'user_id' => 101 ] ],
-			'pass' => [ [ 'user_id' => 202 ] ],
-			default => [],
-		};
+		switch ( $this->activeFilter ) {
+			case 'idle':
+				return [ [ 'user_id' => 101 ] ];
+			case 'pass':
+				return [ [ 'user_id' => 202 ] ];
+			default:
+				return [];
+		}
 	}
 }

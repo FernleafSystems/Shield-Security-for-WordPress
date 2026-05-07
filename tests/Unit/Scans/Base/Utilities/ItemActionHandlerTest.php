@@ -128,7 +128,10 @@ class ItemActionHandlerTest extends BaseUnitTest {
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->db_con = (object)[
 			'scan_result_items' => new class( $updater ) {
-				public function __construct( private ItemActionQueryUpdaterSpy $updater ) {
+				private ItemActionQueryUpdaterSpy $updater;
+
+				public function __construct( ItemActionQueryUpdaterSpy $updater ) {
+					$this->updater = $updater;
 				}
 
 				public function getQueryUpdater() :ItemActionQueryUpdaterSpy {
@@ -155,12 +158,18 @@ class ItemActionHandlerTest extends BaseUnitTest {
 
 class ItemActionHandlerRepairTestSubject extends ItemActionHandler {
 
-	public function __construct( private bool $repairSucceeds ) {
+	private bool $repairSucceeds;
+
+	public function __construct( bool $repairSucceeds ) {
+		$this->repairSucceeds = $repairSucceeds;
 	}
 
 	public function getRepairHandler() :ItemRepairHandler {
 		return new class( $this->repairSucceeds ) extends ItemRepairHandler {
-			public function __construct( private bool $repairSucceeds ) {
+			private bool $repairSucceeds;
+
+			public function __construct( bool $repairSucceeds ) {
+				$this->repairSucceeds = $repairSucceeds;
 			}
 
 			public function canRepairItem() :bool {

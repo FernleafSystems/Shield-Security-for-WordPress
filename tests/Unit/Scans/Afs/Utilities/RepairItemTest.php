@@ -44,7 +44,10 @@ class RepairItemTest extends BaseUnitTest {
 	private function installServices( string $version, bool $isCoreFile ) :void {
 		ServicesState::installItems( [
 			'service_wpgeneral' => new class( $version ) extends General {
-				public function __construct( private string $version ) {
+				private string $version;
+
+				public function __construct( string $version ) {
+					$this->version = $version;
 				}
 
 				public function getVersion( $ignoreClassicpress = false ) {
@@ -52,7 +55,10 @@ class RepairItemTest extends BaseUnitTest {
 				}
 			},
 			'service_corefilehashes' => new class( $isCoreFile ) extends CoreFileHashes {
-				public function __construct( private bool $isCoreFile ) {
+				private bool $isCoreFile;
+
+				public function __construct( bool $isCoreFile ) {
+					$this->isCoreFile = $isCoreFile;
 				}
 
 				public function isCoreFile( $file ) :bool {

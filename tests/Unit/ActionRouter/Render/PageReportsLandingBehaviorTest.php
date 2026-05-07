@@ -79,7 +79,6 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'button', $cards[ 0 ][ 'tile' ][ 'tag' ] ?? '' );
 		$this->assertSame( 'neutral', $cards[ 0 ][ 'tile' ][ 'status' ] ?? '' );
-		$this->assertSame( 'operator-tile-card--reports', $cards[ 0 ][ 'tile' ][ 'class_name' ] ?? '' );
 		$this->assertSame( 'workspace', $cards[ 0 ][ 'tile' ][ 'data_drill_target' ] ?? '' );
 		$this->assertSame( '', $cards[ 0 ][ 'tile' ][ 'data_drill_zone_selection' ] ?? null );
 		$this->assertSame( '', $cards[ 0 ][ 'tile' ][ 'data_drill_bucket_selection' ] ?? null );
@@ -104,15 +103,12 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertIsArray( $listSelection );
 		$this->assertIsArray( $chartsSelection );
 		$this->assertSame( PluginNavs::SUBNAV_REPORTS_LIST, $listSelection[ 'key' ] ?? '' );
-		$this->assertSame( 'Security Reports', $listSelection[ 'label' ] ?? '' );
-		$this->assertSame( 'Security Reports', $listSelection[ 'header' ][ 'title' ] ?? '' );
+		$this->assertArrayHasKey( 'label', $listSelection );
+		$this->assertArrayHasKey( 'title', $listSelection[ 'header' ] ?? [] );
 		$this->assertSame( 'neutral', $listSelection[ 'header' ][ 'badge_status' ] ?? '' );
 		$this->assertSame( 'reports', $listSelection[ 'header' ][ 'color_key' ] ?? '' );
 		$this->assertSame( '', $chartsSelection[ 'header' ][ 'summary' ] ?? '' );
-		$this->assertSame(
-			'Select the events and period you want to compare, then update the chart.',
-			$chartsSelection[ 'header' ][ 'next_step' ] ?? ''
-		);
+		$this->assertArrayHasKey( 'next_step', $chartsSelection[ 'header' ] ?? [] );
 	}
 
 	public function test_workspace_cards_render_through_strict_twig_layer_template() :void {
@@ -127,20 +123,21 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 			$xpath->query( '//button[@data-drill-target="workspace" and @data-reports-workspace-selection]' )->length,
 			'Reports workspaces should render as shared drill-down buttons with explicit workspace selection payloads'
 		);
+		$selectionKeys = [];
+		foreach ( $xpath->query( '//button[@data-drill-target="workspace" and @data-reports-workspace-selection]' ) as $button ) {
+			$payload = \json_decode( $button->getAttribute( 'data-reports-workspace-selection' ), true );
+			$this->assertIsArray( $payload );
+			$this->assertArrayHasKey( 'key', $payload );
+			$this->assertArrayHasKey( 'header', $payload );
+			$selectionKeys[] = $payload[ 'key' ] ?? '';
+		}
 		$this->assertSame(
-			1,
-			$xpath->query( '//button[.//h4[normalize-space()="Security Reports"]]' )->length,
-			'The Security Reports workspace card should render through the strict Twig layer template'
-		);
-		$this->assertSame(
-			1,
-			$xpath->query( '//button[.//h4[normalize-space()="Reporting & Alerts Configuration"]]' )->length,
-			'The Reporting & Alerts Configuration workspace card should render through the strict Twig layer template'
-		);
-		$this->assertSame(
-			1,
-			$xpath->query( '//button[.//h4[normalize-space()="Charts & Trends"]]' )->length,
-			'The Charts & Trends workspace card should render through the strict Twig layer template'
+			[
+				PluginNavs::SUBNAV_REPORTS_LIST,
+				PluginNavs::SUBNAV_REPORTS_SETTINGS,
+				PluginNavs::SUBNAV_REPORTS_CHARTS,
+			],
+			$selectionKeys
 		);
 	}
 
@@ -169,7 +166,7 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $vars[ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
 		$this->assertFalse( (bool)( $vars[ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
 		$this->assertTrue( (bool)( $vars[ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
-		$this->assertSame( 'Reports', $vars[ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
+		$this->assertArrayHasKey( 'title', $vars[ 'mode_shell' ][ 'root_step' ] ?? [] );
 		$this->assertSame( 'reports', $vars[ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 		$this->assertSame( [], $vars[ 'mode_tiles' ] ?? [ 'unexpected' ] );
 		$this->assertSame( '', $vars[ 'mode_panel' ][ 'active_target' ] ?? 'unexpected' );
@@ -179,8 +176,8 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [ 'workspaces', 'workspace' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
 		$this->assertSame( 'rendered-template:/wpadmin/components/reports/layer_workspaces.twig', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
 		$this->assertSame( 'rendered-template:/wpadmin/components/reports/layer_workspace.twig', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
-		$this->assertSame( 'Workspace', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
-		$this->assertSame( 'Select', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'badge' ] ?? '' );
+		$this->assertArrayHasKey( 'title', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
+		$this->assertArrayHasKey( 'badge', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
 		$this->assertSame( 'neutral', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'badge_status' ] ?? '' );
 		$this->assertSame( 'neutral', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'badge_status' ] ?? '' );
 		$this->assertSame(

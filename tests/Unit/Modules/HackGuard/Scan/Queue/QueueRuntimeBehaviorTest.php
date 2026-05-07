@@ -572,7 +572,10 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->installController( [
 			'db_con' => (object)[
 				'scan_items' => new class( $selector ) {
-					public function __construct( private object $selector ) {
+					private object $selector;
+
+					public function __construct( object $selector ) {
+						$this->selector = $selector;
 					}
 
 					public function getQuerySelector() :object {
@@ -598,7 +601,10 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->installController( [
 			'db_con' => (object)[
 				'scan_items' => new class( $selector ) {
-					public function __construct( private object $selector ) {
+					private object $selector;
+
+					public function __construct( object $selector ) {
+						$this->selector = $selector;
 					}
 
 					public function getQuerySelector() :object {
@@ -630,7 +636,10 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->installController( [
 			'db_con' => (object)[
 				'scan_items' => new class( $selector ) {
-					public function __construct( private object $selector ) {
+					private object $selector;
+
+					public function __construct( object $selector ) {
+						$this->selector = $selector;
 					}
 
 					public function getQuerySelector() :object {
