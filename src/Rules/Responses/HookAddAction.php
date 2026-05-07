@@ -11,7 +11,7 @@ class HookAddAction extends HookAddFilter {
 			$this->p->hook,
 			$this->p->callback,
 			$this->p->priority,
-			$this->p->args
+			$this->p->accepted_args
 		);
 	}
 }

@@ -660,7 +660,7 @@ class ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction> $actionClass
+	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender> $actionClass
 	 */
 	protected function buildAjaxRenderActionData( string $actionClass, array $aux = [] ) :array {
 		return ActionData::BuildAjaxRender( $actionClass, $aux );

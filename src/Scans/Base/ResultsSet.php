@@ -2,14 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
+/**
+ * @template T of ResultItem
+ */
 class ResultsSet {
 	/**
-	 * @var ResultItem[]
+	 * @var list<T>
 	 */
 	protected array $items = [];
 
 	/**
-	 * @param ResultItem $item
+	 * @param T $item
 	 * @return $this
 	 */
 	public function addItem( $item ) {
@@ -20,7 +23,7 @@ class ResultsSet {
 	}
 
 	/**
-	 * @return ResultItem[]
+	 * @return list<T>
 	 */
 	public function getAllItems(): array {
 		return $this->items;
@@ -49,6 +52,7 @@ class ResultsSet {
 	}
 
 	/**
+	 * @param list<T> $items
 	 * @return static
 	 */
 	public function setItems( array $items ) {
@@ -57,7 +61,7 @@ class ResultsSet {
 	}
 
 	/**
-	 * @return ResultItem[]
+	 * @return list<T>
 	 * @deprecated 22.0
 	 */
 	public function getItems(): array {

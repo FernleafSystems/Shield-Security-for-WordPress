@@ -75,7 +75,7 @@ class ConfigImport extends BaseCmd {
 				if ( empty( $secret ) ) {
 					\WP_CLI::log( __( "No secret provided so we assume we're a registered slave site.", 'wp-simple-firewall' ) );
 					if ( $slave === 'add' ) {
-						throw new \Exception( "You have elected to set this site up as a slave without providing the `site-secret`.", 'wp-simple-firewall' );
+						throw new \Exception( __( 'You have elected to set this site up as a slave without providing the `site-secret`.', 'wp-simple-firewall' ) );
 					}
 				}
 

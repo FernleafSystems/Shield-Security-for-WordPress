@@ -366,14 +366,14 @@ class ConfigureSearchResultsBuilder {
 			fn( string $zoneComponentSlug ) :bool => !$this->isModuleZoneComponentSlug( $zoneComponentSlug )
 		) );
 
-		return \array_values( \array_keys( \array_filter(
+		return \array_keys( \array_filter(
 			self::con()->cfg->configuration->options,
 			function ( array $optionDef ) use ( $zoneComponentSlugs, $specificSlugs ) :bool {
 				$ownerSlugs = \array_filter( $optionDef[ 'zone_comp_slugs' ] ?? [], 'is_string' );
 				return \count( \array_intersect( $zoneComponentSlugs, $ownerSlugs ) ) > 0
 					&& ( !empty( $specificSlugs ) || !$this->hasSpecificZoneComponentSlug( $ownerSlugs ) );
 			}
-		) ) );
+		) );
 	}
 
 	private function typePriority( string $type ) :int {

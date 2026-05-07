@@ -35,7 +35,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   header_color_key_override?:string,
  *   context_actions_override?:list<OperatorChromeActionInput>,
  *   detail_table:array<string,mixed>,
- *   render_action_class_override?:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction>,
+ *   render_action_class_override?:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender>,
  *   render_action_data_override?:array<string,mixed>,
  *   attention_items:list<AttentionItem>,
  *   maintenance_rows:list<CompactSummaryRow>,
@@ -588,7 +588,7 @@ class ActionsQueueGroupContractBuilder {
 	}
 
 	/**
-	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction> $renderActionClass
+	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender> $renderActionClass
 	 * @param array<string,mixed> $renderActionData
 	 * @return array<string,mixed>
 	 */

@@ -7,7 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\RequestBypassesAllR
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\FindFromSlug;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\{
+	FindFromSlug,
+	ResponseParamsNormalizer
+};
 
 class BuildRuleFromForm extends BuildRuleBase {
 
@@ -119,8 +122,9 @@ class BuildRuleFromForm extends BuildRuleBase {
 	private function parseResponses( array $responsesToParse ) :array {
 		$responses = [];
 		foreach ( $responsesToParse[ 'responses' ] as $responseToParse ) {
+			$responseClass = FindFromSlug::Response( $responseToParse[ 'value' ] );
 			$response = [
-				'response' => FindFromSlug::Response( $responseToParse[ 'value' ] ),
+				'response' => $responseClass,
 				'params'   => [],
 			];
 			foreach ( $responseToParse[ 'params' ] ?? [] as $paramDef ) {
@@ -130,6 +134,7 @@ class BuildRuleFromForm extends BuildRuleBase {
 				}
 				$response[ 'params' ][ $paramDef[ 'name' ] ] = $value;
 			}
+			$response[ 'params' ] = ( new ResponseParamsNormalizer() )->normalize( $responseClass, $response[ 'params' ] );
 			$responses[] = $response;
 		}
 		return $responses;

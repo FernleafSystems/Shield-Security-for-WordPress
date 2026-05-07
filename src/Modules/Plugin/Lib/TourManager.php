@@ -150,7 +150,10 @@ class TourManager {
 			return '';
 		}
 
-		$pathParts = \array_values( \array_filter( \explode( '/', (string)( $parts[ 'path' ] ?? '' ) ), '\strlen' ) );
+		$pathParts = \array_values( \array_filter(
+			\explode( '/', (string)( $parts[ 'path' ] ?? '' ) ),
+			static fn( string $part ) :bool => $part !== ''
+		) );
 		$videoID = $this->extractVimeoVideoID( $host, $pathParts );
 		if ( empty( $videoID ) ) {
 			return '';

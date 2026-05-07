@@ -313,10 +313,10 @@ class MaintenanceIssueStateProvider {
 
 		switch ( $key ) {
 			case 'wp_plugins_updates':
-				return \array_values( \array_keys( Services::WpPlugins()->getUpdates() ) );
+				return \array_keys( Services::WpPlugins()->getUpdates() );
 
 			case 'wp_themes_updates':
-				return \array_values( \array_keys( Services::WpThemes()->getUpdates() ) );
+				return \array_keys( Services::WpThemes()->getUpdates() );
 
 			case 'wp_plugins_inactive':
 				return \array_values( \array_diff(

@@ -116,10 +116,7 @@ class InvestigationSubjectResolver {
 	}
 
 	protected function findMatchingAssetSubjectIdentifier( string $subjectId, array $installedSubjects ) :string {
-		$installedSubjects = \array_values( \array_filter( \array_map(
-			fn( $item ) => \trim( (string)$item ),
-			$installedSubjects
-		), '\strlen' ) );
+		$installedSubjects = $this->normalizeInstalledSubjectIdentifiers( $installedSubjects );
 
 		if ( \in_array( $subjectId, $installedSubjects, true ) ) {
 			return $subjectId;
@@ -144,5 +141,16 @@ class InvestigationSubjectResolver {
 		}
 
 		return '';
+	}
+
+	private function normalizeInstalledSubjectIdentifiers( array $installedSubjects ) :array {
+		$normalized = [];
+		foreach ( $installedSubjects as $item ) {
+			$item = \trim( (string)$item );
+			if ( $item !== '' ) {
+				$normalized[] = $item;
+			}
+		}
+		return $normalized;
 	}
 }

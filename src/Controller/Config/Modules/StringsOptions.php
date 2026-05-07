@@ -1280,7 +1280,7 @@ class StringsOptions {
 				$desc = [ __( 'Monitor web requests sent to your WordPress site.', 'wp-simple-firewall' ) ];
 				break;
 			case 'enable_live_log':
-				$max = \round( $opts->getTrafficLiveLogDuration()/\MINUTE_IN_SECONDS );
+				$max = (int)\round( $opts->getTrafficLiveLogDuration()/\MINUTE_IN_SECONDS );
 
 				$name = __( 'Live Traffic', 'wp-simple-firewall' );
 				$summary = __( 'Temporarily Log All Traffic', 'wp-simple-firewall' );

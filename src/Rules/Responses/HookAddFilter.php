@@ -13,26 +13,26 @@ class HookAddFilter extends Base {
 			$this->p->hook,
 			$this->p->callback,
 			$this->p->priority,
-			$this->p->args
+			$this->p->accepted_args
 		);
 	}
 
 	public function getParamsDef() :array {
 		return [
-			'hook'     => [
+			'hook'          => [
 				'type'  => EnumParameters::TYPE_STRING,
 				'label' => __( 'Hook Name', 'wp-simple-firewall' ),
 			],
-			'callback' => [
+			'callback'      => [
 				'type'  => EnumParameters::TYPE_CALLBACK,
 				'label' => __( 'Callback', 'wp-simple-firewall' ),
 			],
-			'priority' => [
+			'priority'      => [
 				'type'    => EnumParameters::TYPE_INT,
 				'default' => 10,
 				'label'   => __( 'Priority', 'wp-simple-firewall' ),
 			],
-			'args'     => [
+			'accepted_args' => [
 				'type'    => EnumParameters::TYPE_INT,
 				'default' => 1,
 				'label'   => __( 'Number of Arguments', 'wp-simple-firewall' ),

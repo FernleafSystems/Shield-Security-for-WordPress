@@ -20,7 +20,7 @@ class VerifySecurityAdminList {
 				else {
 					$user = $WPU->getUserByUsername( $usernameOrEmail );
 					if ( \is_null( $user ) && \is_numeric( $usernameOrEmail ) ) {
-						$user = $WPU->getUserById( $usernameOrEmail );
+						$user = $WPU->getUserById( (int)$usernameOrEmail );
 					}
 				}
 			}

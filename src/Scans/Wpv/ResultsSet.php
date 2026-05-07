@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
+/**
+ * @extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet<ResultItem>
+ */
 class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet {
 	/**
 	 * @return ResultItem[]
@@ -27,9 +30,6 @@ class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	 * @return list<ResultItem>
 	 */
 	private function getWpvItems(): array {
-		return \array_values( \array_filter(
-			$this->getAllItems(),
-			static fn( $item ): bool => $item instanceof ResultItem
-		) );
+		return $this->getAllItems();
 	}
 }

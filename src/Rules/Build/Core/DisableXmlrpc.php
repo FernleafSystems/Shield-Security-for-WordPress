@@ -48,19 +48,19 @@ class DisableXmlrpc extends BuildRuleLockdownBase {
 			[
 				'response' => Responses\HookAddFilter::class,
 				'params'   => [
-					'hook'     => 'xmlrpc_enabled',
-					'callback' => '__return_false',
-					'priority' => 1000,
-					'args'     => 0,
+					'hook'          => 'xmlrpc_enabled',
+					'callback'      => '__return_false',
+					'priority'      => 1000,
+					'accepted_args' => 0,
 				]
 			],
 			[
 				'response' => Responses\HookAddFilter::class,
 				'params'   => [
-					'hook'     => 'xmlrpc_methods',
-					'callback' => '__return_empty_array',
-					'priority' => 1000,
-					'args'     => 0,
+					'hook'          => 'xmlrpc_methods',
+					'callback'      => '__return_empty_array',
+					'priority'      => 1000,
+					'accepted_args' => 0,
 				]
 			],
 			[

@@ -482,7 +482,7 @@ class ActionsQueueBucketsBuilder {
 	 *   label:string,
 	 *   icon_class:string,
 	 *   summary_keys:list<string>,
-	 *   render_action_class:string,
+	 *   render_action_class:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender>,
 	 *   render_action_data:array<string,string>
 	 * }>
 	 */
