@@ -31,12 +31,7 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_registers_shield_abilities_and_executes_scan_findings_against_live_abilities_api() :void {
-		if ( !\function_exists( '\wp_register_ability' )
-			 || !\function_exists( '\wp_register_ability_category' )
-			 || !\function_exists( '\wp_has_ability' )
-			 || !\function_exists( '\wp_get_ability' ) ) {
-			$this->markTestSkipped( 'WordPress Abilities API is unavailable in this test environment.' );
-		}
+		$this->skipUnlessMcpIsAvailable();
 
 		$this->registerShieldAbilities();
 
@@ -91,12 +86,7 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_ability_execution_honors_shared_rest_permission_filter() :void {
-		if ( !\function_exists( '\wp_register_ability' )
-			 || !\function_exists( '\wp_register_ability_category' )
-			 || !\function_exists( '\wp_has_ability' )
-			 || !\function_exists( '\wp_get_ability' ) ) {
-			$this->markTestSkipped( 'WordPress Abilities API is unavailable in this test environment.' );
-		}
+		$this->skipUnlessMcpIsAvailable();
 
 		$this->registerShieldAbilities();
 
@@ -134,6 +124,16 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 		( new McpCon() )->execute();
 		\do_action( 'wp_abilities_api_categories_init' );
 		\do_action( 'wp_abilities_api_init' );
+	}
+
+	private function skipUnlessMcpIsAvailable() :void {
+		if ( !\function_exists( '\wp_register_ability' )
+			 || !\function_exists( '\wp_register_ability_category' )
+			 || !\function_exists( '\wp_has_ability' )
+			 || !\function_exists( '\wp_get_ability' )
+			 || !( new McpCon() )->isAvailable() ) {
+			$this->markTestSkipped( 'Shield MCP abilities are unavailable in this test environment.' );
+		}
 	}
 
 	public function denyRestPermissionFilter( $verify, $request ) {

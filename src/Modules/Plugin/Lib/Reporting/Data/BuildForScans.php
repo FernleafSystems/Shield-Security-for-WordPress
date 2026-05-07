@@ -126,7 +126,6 @@ class BuildForScans extends BuildBase {
 
 	private function buildWpvEntry( ScansController $scansCon, Counts $cActive, Counts $cNew ) :array {
 		$items = [];
-		$notificationTargetIDs = [];
 		if ( $scansCon->WPV()->isEnabled() && !$scansCon->WPV()->isRestricted() ) {
 			$wpvResults = $scansCon->WPV()->getResultsForDisplay();
 			$slugs = $wpvResults->getUniqueSlugs();
@@ -136,7 +135,6 @@ class BuildForScans extends BuildBase {
 				foreach ( $slugItems as $si ) {
 					if ( $si->VO->notified_at === 0 ) {
 						$isNew = true;
-						$notificationTargetIDs[] = (int)$si->VO->resultitem_id;
 					}
 				}
 				if ( \strpos( $slug, '/' ) !== false ) {
@@ -161,21 +159,17 @@ class BuildForScans extends BuildBase {
 			'available'   => $scansCon->WPV()->isEnabled(),
 			'items'       => \array_slice( $items, 0, self::ITEMS_CAP ),
 			'items_total' => $itemsTotal,
-			'notification_target_ids' => \array_values( \array_unique( $notificationTargetIDs ) ),
+			'notification_target_ids' => $this->loadNotYetNotifiedResultItemIdsForMeta( Wpv::SCAN_SLUG, 'is_vulnerable' ),
 		];
 	}
 
 	private function buildApcEntry( ScansController $scansCon, Counts $cActive, Counts $cNew ) :array {
 		$items = [];
-		$notificationTargetIDs = [];
 		if ( !$scansCon->APC()->isRestricted() ) {
 			$apcItems = $scansCon->APC()->getResultsForDisplay()->getAllItems();
 			foreach ( $apcItems as $item ) {
 				$slug = $item->VO->item_id;
 				$isNew = $item->VO->notified_at === 0;
-				if ( $isNew ) {
-					$notificationTargetIDs[] = (int)$item->VO->resultitem_id;
-				}
 				if ( \strpos( $slug, '/' ) !== false ) {
 					$asset = Services::WpPlugins()->getPluginAsVo( $slug );
 					$label = !empty( $asset ) ? $asset->Title : $slug;
@@ -198,7 +192,7 @@ class BuildForScans extends BuildBase {
 			'available'   => $scansCon->APC()->isEnabled(),
 			'items'       => \array_slice( $items, 0, self::ITEMS_CAP ),
 			'items_total' => $itemsTotal,
-			'notification_target_ids' => \array_values( \array_unique( $notificationTargetIDs ) ),
+			'notification_target_ids' => $this->loadNotYetNotifiedResultItemIdsForMeta( Apc::SCAN_SLUG, 'is_abandoned' ),
 		];
 	}
 
@@ -207,12 +201,8 @@ class BuildForScans extends BuildBase {
 	 */
 	private function buildAfsEntry( array $allAfsItems, string $filterField, string $name, int $activeCount, int $newCount, bool $available ) :array {
 		$items = [];
-		$notificationTargetIDs = [];
 		foreach ( $allAfsItems as $item ) {
 			if ( $item->{$filterField} ) {
-				if ( $item->VO->notified_at === 0 ) {
-					$notificationTargetIDs[] = (int)$item->VO->resultitem_id;
-				}
 				$items[] = [
 					'label'  => $item->path_fragment,
 					'is_new' => $item->VO->notified_at === 0,
@@ -230,8 +220,33 @@ class BuildForScans extends BuildBase {
 			'available'   => $available,
 			'items'       => \array_slice( $items, 0, self::ITEMS_CAP ),
 			'items_total' => $itemsTotal,
-			'notification_target_ids' => \array_values( \array_unique( $notificationTargetIDs ) ),
+			'notification_target_ids' => $this->loadNotYetNotifiedResultItemIdsForMeta( Afs::SCAN_SLUG, $filterField ),
 		];
+	}
+
+	/**
+	 * @return list<int>
+	 */
+	private function loadNotYetNotifiedResultItemIdsForMeta( string $scanSlug, string $metaKey ) :array {
+		$dbCon = self::con()->db_con;
+		$wheres = ( new \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\LatestScanResultWheresBuilder() )
+			->forNotYetNotified( $scanSlug );
+		$wheres[] = \sprintf( "`rim`.`meta_key`='%s'", \preg_replace( '#[^a-z0-9_]#i', '', $metaKey ) );
+		$wheres[] = "`rim`.`meta_value`=1";
+		$rows = Services::WpDb()->selectCustom( sprintf(
+			"SELECT `ri`.`id`
+				FROM `%s` AS `ri`
+				INNER JOIN `%s` AS `rim` ON `rim`.`ri_ref`=`ri`.`id`
+				WHERE %s;",
+			$dbCon->scan_result_items->getTable(),
+			$dbCon->scan_result_item_meta->getTable(),
+			\implode( ' AND ', $wheres )
+		) );
+
+		return \array_values( \array_map(
+			'intval',
+			\array_column( \is_array( $rows ) ? $rows : [], 'id' )
+		) );
 	}
 
 	protected function buildForRepairs() :array {
