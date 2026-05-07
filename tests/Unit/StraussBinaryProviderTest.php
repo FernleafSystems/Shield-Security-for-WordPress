@@ -138,37 +138,45 @@ class StraussBinaryProviderTest extends TestCase {
 	}
 
 	public function testForkCloneChecksOutRequestedBranchWhenAvailable() :void {
-		[ $provider, $processRunner ] = $this->createForkProvider( 'feature/strauss-fix', [ 0 ] );
+		$forkRepo = $this->uniqueForkRepo( 'requested-branch' );
+		$logs = [];
+		[ $provider, $processRunner ] = $this->createForkProvider( 'feature/strauss-fix', [ 0 ], $logs, $forkRepo );
 
 		$provider->provide( $this->tempDir );
 
-		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'ls-remote', '--exit-code', '--heads', 'https://example.com/strauss.git', 'feature/strauss-fix' ] );
+		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'ls-remote', '--exit-code', '--heads', $forkRepo, 'feature/strauss-fix' ] );
 		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'checkout', 'feature/strauss-fix' ] );
 	}
 
 	public function testForkCloneFallsBackToDevelopWhenRequestedBranchMissing() :void {
 		$logs = [];
-		[ $provider, $processRunner ] = $this->createForkProvider( 'missing-branch', [ 1 ], $logs );
+		$forkRepo = $this->uniqueForkRepo( 'missing-branch' );
+		[ $provider, $processRunner ] = $this->createForkProvider( 'missing-branch', [ 1 ], $logs, $forkRepo );
 
 		$provider->provide( $this->tempDir );
 
-		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'ls-remote', '--exit-code', '--heads', 'https://example.com/strauss.git', 'missing-branch' ] );
+		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'ls-remote', '--exit-code', '--heads', $forkRepo, 'missing-branch' ] );
 		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'checkout', 'develop' ] );
 		$this->assertContains( 'Strauss fork branch "missing-branch" not found; falling back to develop', $logs );
 	}
 
 	public function testForkCloneDefaultsBlankBranchToDevelop() :void {
-		[ $provider, $processRunner ] = $this->createForkProvider( '  ', [ 1 ] );
+		$forkRepo = $this->uniqueForkRepo( 'blank-branch' );
+		$logs = [];
+		[ $provider, $processRunner ] = $this->createForkProvider( '  ', [ 1 ], $logs, $forkRepo );
 
 		$provider->provide( $this->tempDir );
 
-		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'ls-remote', '--exit-code', '--heads', 'https://example.com/strauss.git', 'develop' ] );
+		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'ls-remote', '--exit-code', '--heads', $forkRepo, 'develop' ] );
 		$this->assertCommandWasRun( $processRunner->calls, [ 'git', 'checkout', 'develop' ] );
 	}
 
 	public function testForkCloneCachePathIncludesBranch() :void {
-		[ $mainProvider, $mainProcessRunner ] = $this->createForkProvider( 'main', [ 0 ] );
-		[ $developProvider, $developProcessRunner ] = $this->createForkProvider( 'develop', [ 0 ] );
+		$forkRepo = $this->uniqueForkRepo( 'cache-path' );
+		$mainLogs = [];
+		$developLogs = [];
+		[ $mainProvider, $mainProcessRunner ] = $this->createForkProvider( 'main', [ 0 ], $mainLogs, $forkRepo );
+		[ $developProvider, $developProcessRunner ] = $this->createForkProvider( 'develop', [ 0 ], $developLogs, $forkRepo );
 
 		$mainProvider->provide( $this->tempDir );
 		$developProvider->provide( $this->tempDir );
@@ -230,7 +238,12 @@ class StraussBinaryProviderTest extends TestCase {
 	 * @param string[] $logs
 	 * @return array{0:StraussBinaryProvider,1:object}
 	 */
-	private function createForkProvider( ?string $forkBranch, array $lsRemoteExitCodes, array &$logs = [] ) :array {
+	private function createForkProvider(
+		?string $forkBranch,
+		array $lsRemoteExitCodes,
+		array &$logs = [],
+		string $forkRepo = 'https://example.com/strauss.git'
+	) :array {
 		$processRunner = new class( $lsRemoteExitCodes ) extends ProcessRunner {
 
 			/** @var array<int,array{command:array,working_dir:string,env_overrides:?array,has_output_callback:bool}> */
@@ -293,7 +306,7 @@ class StraussBinaryProviderTest extends TestCase {
 		return [
 			new StraussBinaryProvider(
 				'0.19.4',
-				'https://example.com/strauss.git',
+				$forkRepo,
 				$forkBranch,
 				$commandRunner,
 				new SafeDirectoryRemover( $this->projectRoot ),
@@ -337,5 +350,9 @@ class StraussBinaryProviderTest extends TestCase {
 		if ( $withFile ) {
 			$this->assertNotFalse( \file_put_contents( Path::join( $packagePath, 'Class.php' ), '<?php' ) );
 		}
+	}
+
+	private function uniqueForkRepo( string $suffix ) :string {
+		return \sprintf( 'https://example.com/strauss-%s-%s.git', $suffix, \str_replace( '.', '-', \uniqid( '', true ) ) );
 	}
 }

@@ -5,6 +5,7 @@ import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
 import { ShieldTableBase } from "../tables/ShieldTableBase";
 import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
+import { announceStatus } from "../ui/ShieldA11y";
 
 export class ActionsQueueLandingController extends DrillDownAsyncControllerBase {
 
@@ -392,6 +393,10 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		panel.dataset.actionsQueueAssetPanelRequest = requestKey;
 		BootstrapTooltips.DisposeTooltipsWithin( content );
 		content.innerHTML = this.buildLoadingMarkup( this.rootEl?.dataset.actionsPaneLoading || '' );
+		this.announceAssetPanelStatus( panel, this.rootEl?.dataset.actionsPaneLoading || '', {
+			politeness: 'polite',
+			allowRepeat: false,
+		} );
 
 		( new AjaxService() )
 			.send( renderAction, false, true )
@@ -408,6 +413,9 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 				panel.dataset.actionsQueueAssetPanelLoaded = '0';
 				this.replaceLayerBodyHtml( content, `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>` );
+				this.announceAssetPanelStatus( panel, this.getErrorMessage(), {
+					politeness: 'assertive',
+				} );
 			} )
 			.catch( () => {
 				if ( panel.dataset.actionsQueueAssetPanelRequest !== requestKey ) {
@@ -416,6 +424,9 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 				panel.dataset.actionsQueueAssetPanelLoaded = '0';
 				this.replaceLayerBodyHtml( content, `<div class="alert alert-warning mb-0">${this.escapeHtml( this.getErrorMessage() )}</div>` );
+				this.announceAssetPanelStatus( panel, this.getErrorMessage(), {
+					politeness: 'assertive',
+				} );
 			} )
 			.finally( () => {
 				if ( panel.dataset.actionsQueueAssetPanelRequest === requestKey ) {
@@ -430,6 +441,10 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			shell,
 			shell.querySelector( '[data-mode-panel="1"].is-open' ) === null
 		);
+	}
+
+	announceAssetPanelStatus( panel, message, options = {} ) {
+		announceStatus( panel, message, options );
 	}
 
 	setAssetHintVisible( shell, isVisible ) {

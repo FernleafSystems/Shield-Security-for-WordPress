@@ -56,6 +56,7 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 		return [
 			'posture_title'       => __( 'Configuration Coverage', 'wp-simple-firewall' ),
 			'diagnosis_loading'   => __( 'Loading diagnosis...', 'wp-simple-firewall' ),
+			'settings_loading'    => __( 'Loading settings.', 'wp-simple-firewall' ),
 			'layer_load_error'    => __( 'Unable to load this step right now.', 'wp-simple-firewall' ),
 			'layer_retry'         => __( 'Try again', 'wp-simple-firewall' ),
 			'search_label'        => __( 'Search Configure Options', 'wp-simple-firewall' ),

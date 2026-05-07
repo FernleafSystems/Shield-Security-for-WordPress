@@ -1,6 +1,7 @@
 import { BaseComponent } from "../BaseComponent";
 import { AjaxService } from "../services/AjaxService";
 import { LiveTrafficPoller } from "./LiveTrafficPoller";
+import { announceStatus } from "../ui/ShieldA11y";
 
 // Keep this paired with the dashboard overview stack breakpoint in dashboard.scss.
 const DASHBOARD_COMPACT_BREAKPOINT = 1249.98;
@@ -18,6 +19,9 @@ export class DashboardLiveMonitor extends BaseComponent {
 		};
 		this.latestTickerID = 0;
 		this.poller = null;
+		this.hasAnnouncedInitialLoad = false;
+		this.lastPollFailed = false;
+		this.lastPollFailureMessage = '';
 		this.resizeObserver = null;
 		this.dockingUpdatePending = false;
 		this.compactModeQuery = null;
@@ -50,6 +54,10 @@ export class DashboardLiveMonitor extends BaseComponent {
 		} );
 
 		if ( !this.isCollapsed() ) {
+			this.announceMonitorStatus( this.getMonitorLoadingMessage(), {
+				politeness: 'polite',
+				allowRepeat: false,
+			} );
 			this.poller.start();
 		}
 
@@ -104,6 +112,10 @@ export class DashboardLiveMonitor extends BaseComponent {
 				this.poller.stop();
 			}
 			else {
+				this.announceMonitorStatus( this.getMonitorLoadingMessage(), {
+					politeness: 'polite',
+					allowRepeat: false,
+				} );
 				this.poller.start();
 			}
 		}
@@ -209,20 +221,28 @@ export class DashboardLiveMonitor extends BaseComponent {
 
 	handlePollSuccess( resp ) {
 		const results = resp?.data?.results || {};
-		this.applyTickerResult( results.ticker || null );
-		this.applyTrafficResult( results.traffic || null );
+		const tickerStatus = this.applyTickerResult( results.ticker || null );
+		const trafficStatus = this.applyTrafficResult( results.traffic || null );
+		const failedStatuses = [ tickerStatus, trafficStatus ].filter( ( status ) => !status.success );
+		if ( failedStatuses.length > 0 ) {
+			this.announceMonitorFailure( this.resolveMonitorFailureMessage( failedStatuses ) );
+		}
+		else {
+			this.announcePollRecovery();
+		}
 		this.scheduleDockingUpdate();
 	}
 
 	applyTickerResult( result ) {
 		const output = this.outputs.ticker;
 		if ( output === null ) {
-			return;
+			return this.buildMonitorResultStatus( true );
 		}
 
 		if ( !result?.success ) {
-			this.renderError( output, result?.error || result?.data?.message || '' );
-			return;
+			const message = this.extractMonitorResultMessage( result );
+			this.renderError( output, message );
+			return this.buildMonitorResultStatus( false, message );
 		}
 
 		if ( typeof result?.data?.html === 'string' ) {
@@ -235,35 +255,115 @@ export class DashboardLiveMonitor extends BaseComponent {
 			window.setTimeout( () => output.classList.remove( 'is-new' ), 900 );
 		}
 		this.latestTickerID = Math.max( latestID, this.latestTickerID );
+		return this.buildMonitorResultStatus( true );
 	}
 
 	applyTrafficResult( result ) {
 		const output = this.outputs.traffic;
 		if ( output === null ) {
-			return;
+			return this.buildMonitorResultStatus( true );
 		}
 
 		if ( !result?.success ) {
-			this.renderError( output, result?.error || result?.data?.message || '' );
-			return;
+			const message = this.extractMonitorResultMessage( result );
+			this.renderError( output, message );
+			return this.buildMonitorResultStatus( false, message );
 		}
 
 		if ( typeof result?.data?.html === 'string' ) {
 			output.innerHTML = result.data.html;
 		}
+		return this.buildMonitorResultStatus( true );
 	}
 
 	handlePollFailure( resp ) {
 		const message = resp?.data?.message || resp?.error || '';
 		this.renderError( this.outputs.ticker, message );
 		this.renderError( this.outputs.traffic, message );
+		this.announceMonitorFailure( this.normalizeStatusMessage( message, this.getMonitorFailureMessage() ) );
+	}
+
+	announcePollRecovery() {
+		if ( this.hasAnnouncedInitialLoad && !this.lastPollFailed ) {
+			return;
+		}
+
+		this.hasAnnouncedInitialLoad = true;
+		this.lastPollFailed = false;
+		this.lastPollFailureMessage = '';
+		this.announceMonitorStatus( this.getMonitorReadyMessage(), {
+			politeness: 'polite',
+			allowRepeat: false,
+		} );
+	}
+
+	announceMonitorFailure( message ) {
+		if ( this.lastPollFailed && this.lastPollFailureMessage === message ) {
+			return;
+		}
+
+		this.lastPollFailed = true;
+		this.lastPollFailureMessage = message;
+		this.announceMonitorStatus( message, {
+			politeness: 'assertive',
+		} );
+	}
+
+	announceMonitorStatus( message, options = {} ) {
+		announceStatus( this.rootEl, message, options );
+	}
+
+	buildMonitorResultStatus( success, message = '' ) {
+		return {
+			success: !!success,
+			message: success ? '' : this.normalizeStatusMessage( message, this.getMonitorFailureMessage() ),
+		};
+	}
+
+	extractMonitorResultMessage( result ) {
+		return result?.data?.message || result?.error || '';
+	}
+
+	resolveMonitorFailureMessage( failedStatuses ) {
+		if ( failedStatuses.length === 1 ) {
+			return failedStatuses[ 0 ].message;
+		}
+		return this.getMonitorFailureMessage();
+	}
+
+	getMonitorLoadingMessage() {
+		return this.normalizeStatusMessage(
+			this.rootEl?.dataset.liveMonitorLoading,
+			'Waiting for live updates...'
+		);
+	}
+
+	getMonitorReadyMessage() {
+		return this.normalizeStatusMessage(
+			this.rootEl?.dataset.liveMonitorReady,
+			'Live monitor updated.'
+		);
+	}
+
+	getMonitorFailureMessage() {
+		return this.normalizeStatusMessage(
+			this.rootEl?.dataset.liveMonitorError,
+			'Live monitor update failed.'
+		);
+	}
+
+	normalizeStatusMessage( message, fallback ) {
+		const text = String( message || '' ).trim();
+		return text.length > 0 ? text : fallback;
 	}
 
 	renderError( output, message = '' ) {
 		if ( output === null ) {
 			return;
 		}
-		const safeMessage = this.escapeHtml( message.length > 0 ? message : 'Live monitor update failed.' );
+		const safeMessage = this.escapeHtml(
+			this.normalizeStatusMessage( message, this.getMonitorFailureMessage() )
+		);
 		output.innerHTML = `<div class="text-muted small">${safeMessage}</div>`;
 	}
 

@@ -177,6 +177,10 @@ class PackageFullTestLaneTest extends TestCase {
 				return '8.2';
 			}
 
+			public function assertDockerReady( string $rootDir ) :void {
+				unset( $rootDir );
+			}
+
 			public function resolvePackagerConfig( string $rootDir ) :array {
 				return $this->packagerConfig;
 			}

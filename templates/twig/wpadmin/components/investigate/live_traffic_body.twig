@@ -1,4 +1,12 @@
-<div id="SectionTrafficLiveLogs">
+<div id="SectionTrafficLiveLogs"
+	 data-live-logs-loading="{{ strings.waiting_live_logs|e('html_attr') }}"
+	 data-live-logs-ready="{{ strings.live_view_status|e('html_attr') }}"
+	 data-live-logs-error="{{ strings.update_failed|e('html_attr') }}">
+	<div class="screen-reader-text"
+		 role="status"
+		 aria-live="polite"
+		 aria-atomic="true"
+		 data-shield-status-region="1"></div>
 	<div class="row">
 		<div class="col">
 			{% if not flags.is_enabled %}

@@ -23,6 +23,11 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 
 	private Secret $tempSecret;
 
+	public function __construct( \WP_User $user ) {
+		parent::__construct( $user );
+		$this->maybeMigrate();
+	}
+
 	public static function ProviderEnabled(): bool {
 		return parent::ProviderEnabled() && self::con()->opts->optIs( 'enable_google_authenticator', 'Y' );
 	}
@@ -177,6 +182,30 @@ class GoogleAuth extends AbstractShieldProviderMfaDB {
 
 	protected function isValidSecret( $secret ): bool {
 		return parent::isValidSecret( $secret ) && self::IsValidBase32Secret( $secret->unique_id );
+	}
+
+	protected function maybeMigrate() :void {
+		$meta = self::con()->user_metas->for( $this->getUser() );
+		$legacySecret = \trim( (string)$meta->ga_secret );
+		$legacyValidated = $meta->ga_validated === true;
+
+		if ( $this->hasValidSecret() ) {
+			if ( $legacySecret !== '' || $legacyValidated ) {
+				$this->clearLegacyMeta();
+			}
+			return;
+		}
+
+		if ( $legacyValidated && self::IsValidBase32Secret( $legacySecret )
+			 && $this->createNewSecretRecord( $legacySecret, 'Google Auth' ) ) {
+			$this->clearLegacyMeta();
+		}
+	}
+
+	private function clearLegacyMeta() :void {
+		$meta = self::con()->user_metas->for( $this->getUser() );
+		$meta->ga_secret = '';
+		$meta->ga_validated = false;
 	}
 
 	public static function IsValidBase32Secret( string $secret ): bool {

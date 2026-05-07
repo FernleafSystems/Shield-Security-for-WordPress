@@ -6,7 +6,7 @@ import { LiveTrafficPoller } from "../general/LiveTrafficPoller";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
-import { announceWithin, focusElement, setElementBusy } from "../ui/ShieldA11y";
+import { announceStatus, announceWithin, focusElement, setElementBusy } from "../ui/ShieldA11y";
 import { getActiveLayerIndex, getLayersForShell, parseJsonAttribute } from "./DrillDownShared";
 import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
@@ -28,6 +28,9 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.preloadedRoots = new WeakSet();
 		this.preloadingRoots = new WeakSet();
 		this.lastInvestigateRoot = null;
+		this.livePanelPollFailed = false;
+		this.livePanelPollFailureMessage = '';
+		this.livePanelPollAnnouncedReady = false;
 
 		this.bindHandlers();
 		this.initializeCurrentRoot();
@@ -941,6 +944,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		}
 
 		this.focusLivePanelOutput( panel );
+		this.announceLivePanelStatus( panel, this.getLivePanelLoadingMessage( panel ), {
+			politeness: 'polite',
+			allowRepeat: false,
+		} );
 		this.livePanelPoller.start();
 	}
 
@@ -948,6 +955,9 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		if ( this.livePanelPoller ) {
 			this.livePanelPoller.stop();
 		}
+		this.livePanelPollFailed = false;
+		this.livePanelPollFailureMessage = '';
+		this.livePanelPollAnnouncedReady = false;
 	}
 
 	getLiveRenderRequestData() {
@@ -960,6 +970,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		if ( output && typeof resp?.data?.html === 'string' ) {
 			output.innerHTML = resp.data.html;
 		}
+		this.announceLivePanelRecovery( panel );
 	}
 
 	handleLivePanelPollingFailure( panel, resp ) {
@@ -968,9 +979,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return;
 		}
 
-		const message = this.extractResponseMessage( resp );
+		const message = this.extractResponseMessage( resp ) || this.getLivePanelFailureMessage( panel );
 		if ( message.length > 0 ) {
 			output.innerHTML = `<div class="text-muted small">${this.escapeHtml( message )}</div>`;
+			this.announceLivePanelFailure( panel, message );
 		}
 	}
 
@@ -982,6 +994,66 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 			return resp.error;
 		}
 		return '';
+	}
+
+	announceLivePanelRecovery( panel ) {
+		if ( this.livePanelPollAnnouncedReady && !this.livePanelPollFailed ) {
+			return;
+		}
+
+		this.livePanelPollAnnouncedReady = true;
+		this.livePanelPollFailed = false;
+		this.livePanelPollFailureMessage = '';
+		this.announceLivePanelStatus( panel, this.getLivePanelReadyMessage( panel ), {
+			politeness: 'polite',
+			allowRepeat: false,
+		} );
+	}
+
+	announceLivePanelFailure( panel, message ) {
+		if ( this.livePanelPollFailed && this.livePanelPollFailureMessage === message ) {
+			return;
+		}
+
+		this.livePanelPollFailed = true;
+		this.livePanelPollFailureMessage = message;
+		this.announceLivePanelStatus( panel, message, {
+			politeness: 'assertive',
+		} );
+	}
+
+	announceLivePanelStatus( panel, message, options = {} ) {
+		announceStatus( panel, message, options );
+	}
+
+	getLivePanelStatusSurface( panel ) {
+		return panel.querySelector( '#SectionTrafficLiveLogs' ) || panel.querySelector( '.live_logs' );
+	}
+
+	getLivePanelLoadingMessage( panel ) {
+		return this.normalizeStatusMessage(
+			this.getLivePanelStatusSurface( panel )?.dataset.liveLogsLoading,
+			this.getPanelLoadingText() || 'Waiting for live updates...'
+		);
+	}
+
+	getLivePanelReadyMessage( panel ) {
+		return this.normalizeStatusMessage(
+			this.getLivePanelStatusSurface( panel )?.dataset.liveLogsReady,
+			'Live log entries updated.'
+		);
+	}
+
+	getLivePanelFailureMessage( panel ) {
+		return this.normalizeStatusMessage(
+			this.getLivePanelStatusSurface( panel )?.dataset.liveLogsError,
+			'Live log update failed.'
+		);
+	}
+
+	normalizeStatusMessage( message, fallback ) {
+		const text = String( message || '' ).trim();
+		return text.length > 0 ? text : fallback;
 	}
 
 	focusLivePanelOutput( panel ) {

@@ -87,6 +87,12 @@
     }
   },
   "scripts":           {
+    "post-install-cmd": [
+      "@php bin/patch-plugin-core-api-exception.php"
+    ],
+    "post-update-cmd": [
+      "@php bin/patch-plugin-core-api-exception.php"
+    ],
     "build:config":     "@php bin/build-config.php",
     "test":             [
       "@build:config",
