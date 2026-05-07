@@ -591,8 +591,7 @@
 }
 
 .dashboard-live-monitor__header:focus-visible {
-	outline: 2px solid $border-color-neutral-strong;
-	outline-offset: -2px;
+	@include shield-focus-ring(-2px);
 }
 
 .dashboard-live-monitor__title {

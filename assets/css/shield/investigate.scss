@@ -201,9 +201,7 @@
 }
 
 .investigate-panel__tab:focus-visible {
-	box-shadow: 0 0 0 0.2rem rgba($status-color-info, 0.2);
-	outline: 2px solid $status-color-info;
-	outline-offset: 2px;
+	@include shield-focus-ring();
 }
 
 .investigate-panel__tab.is-active {

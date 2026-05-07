@@ -15,6 +15,7 @@ $code-color: $secondary;
 @import '~highlight.js/styles/github.css';
 @import './mode-palette';
 @import './shield/status-colors';
+@import './shield/focus-indicators';
 @import "./plugin-wpadmin.scss";
 @import './shield/datatables.css';
 @import './shield/merlin.scss';
@@ -511,7 +512,7 @@ a[target="_blank"]:not(.shield-footer-version):not(.option_link_info):not(.card-
   cursor: default;
 }
 
-.shield-button-link:focus {
+.shield-button-link:focus:not(:focus-visible) {
   box-shadow: none;
 }
 
@@ -1235,13 +1236,11 @@ td.status_file_size {
 }
 
 #ModalSuperSearchBox input.search-text:focus-visible {
-  border-color: rgba(0, 128, 0, 1) !important;
-  box-shadow: 0 0 0 2px rgba(0, 128, 0, 0.15);
-  outline: 0;
+	border-color: rgba(0, 128, 0, 1) !important;
 }
 
 .select2-search__field:active,
-.select2-search__field:focus,
+.select2-search__field:focus:not(:focus-visible),
 .select2-search__field:hover {
   box-shadow: 0 0 0 1px #008000 !important;
 }
@@ -1284,24 +1283,6 @@ td.status_file_size {
 
 #AptoOffcanvas .offcanvas-header .btn-close:hover {
   opacity: 1;
-}
-
-#AptoOffcanvas .offcanvas-header .btn-close:focus-visible,
-#ShieldModalContainer .btn-close:focus-visible,
-#ModalSuperSearchBox .btn-close:focus-visible,
-#SecurityAdminOverlay .btn-close:focus-visible,
-.shield-topwarning-dismiss:focus-visible,
-.mode-panel-close-btn:focus-visible,
-.beacon-article:focus-visible,
-.section_title_info:focus-visible,
-.option-description-expander:focus-visible,
-.option-video:focus-visible,
-#ajax_intent_email_send:focus-visible,
-.shield_remove_passkey:focus-visible,
-.shield_remove_yubi:focus-visible,
-ul.nav.nav-tabs.shield_body-sub-nav a.nav-link:focus-visible {
-  outline: 2px solid rgba(0, 128, 0, 0.65);
-  outline-offset: 2px;
 }
 
 #AptoOffcanvas .offcanvas-body {

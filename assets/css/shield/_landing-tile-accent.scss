@@ -32,8 +32,7 @@
 .actions-queue-bucket-card:focus-visible,
 .configure-zone-card:focus-visible,
 .investigate-landing__subject-card:focus-visible {
-	outline: 2px solid rgba(0, 128, 0, 0.65);
-	outline-offset: 2px;
+	@include shield-focus-ring();
 }
 
 .actions-queue-bucket-card:disabled,

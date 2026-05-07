@@ -62,8 +62,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid #c7dfc7;
-		outline-offset: 1px;
+		@include shield-focus-ring(1px);
 	}
 }
 
@@ -181,8 +180,7 @@
 	padding: 0;
 
 	&:focus-visible {
-		outline: 2px solid #c7dfc7;
-		outline-offset: 3px;
+		@include shield-focus-ring(3px);
 		border-radius: 999px;
 	}
 }
@@ -548,8 +546,7 @@
 	}
 
 	&:focus-visible {
-		outline: 2px solid #c7dfc7;
-		outline-offset: 1px;
+		@include shield-focus-ring(1px);
 	}
 
 	&.is-active,
