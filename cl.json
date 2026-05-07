@@ -9,39 +9,47 @@
     "title":       "Guided Security Workflows",
     "description": [
       "Shield 22.0 reshapes the plugin around clearer day-to-day security work: what needs attention, what to investigate, what to configure, and what your reports are telling you.",
-      "It also improves live monitoring, MFA migration, IP analysis, and several admin protection flows."
+      "It also improves live monitoring, scan handling, 2FA login, PHP 8.4 support, and admin action prompts."
     ],
     "items": [
       {
         "type":        "new",
         "title":       "A Clearer Picture of What Needs Your Attention",
         "description": [
-          "The dashboard now leads you through your security work in a logical order: what to fix, what to investigate, what to configure, and what your reports are telling you.",
+          "The dashboard guides you through your security work in a logical order: what to fix, what to investigate, what to configure, and what your reports are telling you.",
           "The WordPress dashboard widget shows the same priority items as the Actions Queue, so you always know where things stand without digging."
         ]
       },
       {
         "type":        "new",
-        "title":       "Actions Queue: Fix the Right Things First",
+        "title":       "Actions Queue: A New Workspace for Security Tasks",
         "description": [
-          "The Actions Queue now separates urgent issues from follow-up work, so you're not wading through a flat list to figure out what actually matters.",
-          "Scan findings, maintenance tasks, File Locker items, and quick actions are easier to review and act on without losing context."
+          "The Actions Queue separates urgent issues from follow-up work, so you're not wading through a flat list to figure out what actually matters.",
+          "Scan findings, maintenance tasks, File Locker items, and quick actions are easier to review and act on from one place."
         ]
       },
       {
         "type":        "new",
-        "title":       "Investigate: Faster Answers About Users, IPs, and More",
+        "title":       "Investigate: A New Way To Find Answers",
         "description": [
-          "Investigate now has dedicated views for users, IPs, plugins, themes, core files, live traffic, and sessions, so you go straight to what you're looking for.",
+          "Investigate has dedicated views for users, IPs, plugins, themes, core files, live traffic, and sessions, so you go straight to what you're looking for.",
           "IP analysis shows more at a glance: clearer summaries, identity details, and the actions you actually need."
         ]
       },
       {
-        "type":        "improved",
-        "title":       "Configure and Reports: Less Hunting, More Doing",
+        "type":        "new",
+        "title":       "Configure: A New Way To Review Your Security Setup",
         "description": [
-          "Configure now surfaces weak settings more directly, with in-place search so you can find and fix problems without losing your place.",
-          "Reports has a cleaner layout, better data presentation, and it's easier to manage and clean up what you've already run."
+          "Configure shows security coverage, weak settings, and next steps in one place.",
+          "In-place search helps you find and open settings without losing your place."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Reports: A New Workspace for Security Reporting",
+        "description": [
+          "Reports gives you clearer summaries, trend charts, and cleaner report management.",
+          "It's also easier to review and clean up reports you've already run."
         ]
       },
       {
@@ -50,14 +58,36 @@
         "description": [
           "The dashboard shows a live activity feed so you can see what's happening on your site while you work.",
           "Traffic and live logs show more useful detail about each request, while filtering out routine admin noise like AJAX and heartbeat traffic.",
-          "Logging configuration simplified and the system automatically retains logs depending on the severity or nature of events."
+          "Less useful logs are cleared sooner, while more useful events are kept longer."
         ]
       },
       {
         "type":        "improved",
-        "title":       "MFA: Smoother 2FA Login",
+        "title":       "Scan Handling",
         "description": [
-          "The MFA verification portal has been redesigned to be cleaner and easier to use."
+          "Scans are faster and more reliable, especially on larger sites and when reviewing results.",
+          "Scan result pages keep more context while you work through findings."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Safer Admin Actions",
+        "description": [
+          "Sensitive admin actions now use clearer confirmation prompts, so it's easier to understand what will happen before you continue."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "2FA: Smoother Login",
+        "description": [
+          "The 2FA verification portal is cleaner and easier to use."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Improved PHP 8.4 Support",
+        "description": [
+          "Reduces PHP 8.4 deprecation warnings on sites running newer PHP versions."
         ]
       },
       {
@@ -71,7 +101,7 @@
         "type":        "improved",
         "title":       "Release Stability Improved",
         "description": [
-          "Automated tests and analyses detect issues before release, reducing unforeseen errors and impacts on member sites."
+          "Automated tests and checks catch more issues before release."
         ]
       }
     ],
