@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQu
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportFileFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpAnalysisActivityMetaFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpRulesTableFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MainwpSitesFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MerlinWelcomeFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MfaProfileFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PublicBlockRecoveryFixtureBuilder;
@@ -30,6 +31,8 @@ class BrowserFixtureRegistry {
 				return self::runIpAnalysisActivityMetaFixture( $action );
 			case 'ip-rules-table':
 				return self::runIpRulesTableFixture( $action );
+			case 'mainwp-sites':
+				return self::runMainwpSitesFixture( $action );
 			case 'merlin-welcome':
 				return self::runMerlinWelcomeFixture( $action );
 			case 'mfa-profile':
@@ -53,6 +56,7 @@ class BrowserFixtureRegistry {
 		self::runImportExportFileFixture( 'cleanup' );
 		self::runIpAnalysisActivityMetaFixture( 'cleanup' );
 		self::runIpRulesTableFixture( 'cleanup' );
+		self::runMainwpSitesFixture( 'cleanup' );
 		self::runMerlinWelcomeFixture( 'cleanup' );
 		self::runMfaProfileFixture( 'cleanup' );
 		self::runPublicBlockRecoveryFixture( 'cleanup', [] );
@@ -161,6 +165,36 @@ class BrowserFixtureRegistry {
 	private static function runIpRulesTableFixture( string $action ) :array {
 		$builder = new IpRulesTableFixtureBuilder();
 		$optionKey = self::fixtureOptionKey( 'ip-rules-table' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runMainwpSitesFixture( string $action ) :array {
+		$builder = new MainwpSitesFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'mainwp-sites' );
 		$state = \get_option( $optionKey, [] );
 		$state = \is_array( $state ) ? $state : [];
 
