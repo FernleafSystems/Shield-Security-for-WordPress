@@ -68,7 +68,7 @@ class NotBotHandler {
 		return \array_keys( \array_filter( [
 			self::SIGNAL_NOTBOT => !empty( $BS )
 								   && $isVisitorUnidentified
-								   && $con->comps->altcha->complexityLevel() !== 'none'
+								   && $con->comps->altcha->complexityLevel() !== SilentCaptchaComplexity::NONE
 								   && ( Services::Request()->ts() - $BS->notbot_at > HOUR_IN_SECONDS ),
 			self::SIGNAL_ALTCHA => !empty( $BS )
 								   && $isVisitorUnidentified

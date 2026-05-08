@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Config;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -38,6 +39,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'instant_alert_firewall_block',
 		'block_send_email',
 		'display_plugin_badge',
+		'silentcaptcha_complexity',
 	];
 
 	private array $originalOptions = [];
@@ -340,6 +342,33 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$con->opts->optSet( 'display_plugin_badge', 'n' )->store();
 		$this->assertSame( PluginBadgeMode::DISABLED, $con->opts->optGet( 'display_plugin_badge' ) );
 		$this->assertFalse( $con->comps->opts_lookup->enabledPluginBadge() );
+	}
+
+	public function test_silentcaptcha_legacy_complexity_migrates_to_low_during_store() :void {
+		$con = $this->requireController();
+		$this->replaceStoredOptionValues( [
+			'silentcaptcha_complexity' => 'legacy',
+		] );
+
+		$con->opts->store();
+
+		$this->assertSame( SilentCaptchaComplexity::LOW, $con->opts->optGet( 'silentcaptcha_complexity' ) );
+	}
+
+	public function test_silentcaptcha_legacy_complexity_migrates_to_low_during_upgrade_hook() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+		$this->replaceStoredOptionValues( [
+			'silentcaptcha_complexity' => 'legacy',
+		] );
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+
+		$this->assertSame( SilentCaptchaComplexity::LOW, $con->opts->optGet( 'silentcaptcha_complexity' ) );
+
+		$con->cfg->previous_version = $previousVersion;
 	}
 
 	public function test_legacy_plugin_badge_enabled_migrates_to_light_during_upgrade_hook() :void {

@@ -9,19 +9,33 @@ class AltChaHandler {
 
 	use PluginControllerConsumer;
 
+	private const COMPLEXITY_PROFILES = [
+		SilentCaptchaComplexity::LOW    => [
+			'cost'        => 250,
+			'counter_min' => 200,
+			'counter_max' => 600,
+		],
+		SilentCaptchaComplexity::MEDIUM => [
+			'cost'        => 500,
+			'counter_min' => 600,
+			'counter_max' => 1600,
+		],
+		SilentCaptchaComplexity::HIGH   => [
+			'cost'        => 1000,
+			'counter_min' => 1600,
+			'counter_max' => 3500,
+		],
+	];
+
 	/**
 	 * Very basic adaptive complexity for now. More to come.
 	 */
 	public function complexityLevel() :string {
-		$opt = self::con()->opts->optGet( 'silentcaptcha_complexity' );
-		if ( $opt === 'adaptive' ) {
-			$opt = wp_is_mobile() ? 'medium' : 'high';
-		}
-		return $opt;
+		return SilentCaptchaComplexity::resolve( self::con()->opts->optGet( 'silentcaptcha_complexity' ) );
 	}
 
 	public function enabled() :bool {
-		return !\in_array( $this->complexityLevel(), [ 'none', 'legacy' ] ) && $this->reqsMet();
+		return $this->complexityLevel() !== SilentCaptchaComplexity::NONE && $this->reqsMet();
 	}
 
 	/**
@@ -38,7 +52,7 @@ class AltChaHandler {
 	public function reqsMet() :bool {
 		try {
 			$this->hmacKey();
-			$met = true;
+			$met = $this->protocol()->requirementsMet();
 		}
 		catch ( \Exception $e ) {
 			$met = false;
@@ -47,58 +61,48 @@ class AltChaHandler {
 	}
 
 	/**
-	 * https://altcha.org/docs/server-integration/
 	 * @throws \Exception
 	 */
-	public function verifySolution( string $algo, string $salt, string $challenge, string $signature, string $number, int $expires ) :bool {
-		if ( $algo !== 'SHA-256' ) {
-			throw new \Exception( __( 'Algorithm not supported', 'wp-simple-firewall' ) );
-		}
-		if ( $expires < Services::Request()->ts() ) {
-			throw new \Exception( __( 'Challenge has expired.', 'wp-simple-firewall' ) );
-		}
-		// challenge_ok = equals(data.challenge, sha2_hex(concat(data.salt, data.number)))
-		if ( !\hash_equals( \hash( 'sha256', $salt.$number ), $challenge ) ) {
-			throw new \Exception( __( 'Challenge Failed', 'wp-simple-firewall' ) );
-		}
-		// signature_ok = equals(data.signature, hmac_sha2_hex(data.challenge, hmac_key))
-		if ( !\hash_equals( \hash_hmac( 'sha256', $challenge, $this->hmacKey() ), $signature ) ) {
-			throw new \Exception( __( 'Signature Failed', 'wp-simple-firewall' ) );
-		}
-		return true;
+	public function verifySolution( string $challengeJson, string $solutionJson ) :bool {
+		$protocol = $this->protocol();
+		$hmacKey = $this->hmacKey();
+
+		return $protocol->verifySolution(
+			$challengeJson,
+			$solutionJson,
+			$hmacKey,
+			$protocol->keySignatureSecret( $hmacKey ),
+			Services::Request()->ts()
+		);
 	}
 
 	/**
 	 * @throws \Exception
 	 */
 	public function generateChallenge() :array {
-		$this->hmacKey();
-		switch ( $this->complexityLevel() ) {
-			case 'high':
-				$secretMin = 10000;
-				$secretMax = 100000;
-				break;
-			case 'low':
-				$secretMin = 100;
-				$secretMax = 1000;
-				break;
-			case 'medium':
-			default:
-				$secretMin = 1000;
-				$secretMax = 20000;
-				break;
+		$protocol = $this->protocol();
+		$hmacKey = $this->hmacKey();
+		$complexity = $this->complexityLevel();
+		if ( !isset( self::COMPLEXITY_PROFILES[ $complexity ] ) ) {
+			throw new \Exception( 'ALTCHA challenge generation is disabled.' );
 		}
+		$profile = self::COMPLEXITY_PROFILES[ $complexity ];
 		$expires = Services::Request()->ts() + MINUTE_IN_SECONDS*5;
-		$salt = \bin2hex( \random_bytes( 12 ) ).$expires;
-		$challenge = \hash( 'sha256', $salt.\random_int( $secretMin, $secretMax ) );
-		$signature = \hash_hmac( 'sha256', $challenge, $this->hmacKey() );
+		$challenge = $protocol->buildChallenge(
+			$hmacKey,
+			$protocol->keySignatureSecret( $hmacKey ),
+			$profile[ 'cost' ],
+			\random_int( $profile[ 'counter_min' ], $profile[ 'counter_max' ] ),
+			$expires
+		);
+
 		return [
-			'algorithm' => 'SHA-256',
-			'challenge' => $challenge,
-			'maxnumber' => $secretMax,
-			'salt'      => $salt,
-			'signature' => $signature,
-			'expires'   => $expires,
+			'altcha_version'   => AltChaV2Pbkdf2::VERSION,
+			'altcha_challenge' => $protocol->encodeChallenge( $challenge ),
 		];
+	}
+
+	private function protocol() :AltChaV2Pbkdf2 {
+		return new AltChaV2Pbkdf2();
 	}
 }

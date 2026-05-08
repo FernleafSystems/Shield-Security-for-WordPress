@@ -97,7 +97,7 @@
             }
         },
         {
-            "handle": "notbot",
+            "handle": "silentcaptcha",
             "types": [
                 "js"
             ],

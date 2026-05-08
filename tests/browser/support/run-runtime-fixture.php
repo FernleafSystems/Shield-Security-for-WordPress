@@ -12,6 +12,7 @@ require_once '/app/tests/Helpers/ActionRouter/IpRulesTableFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/MainwpSitesFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/MerlinWelcomeFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/MfaProfileFixtureBuilder.php';
+require_once '/app/tests/Helpers/ActionRouter/NotBotAltchaFixtureBuilder.php';
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrowserFixtureRegistry;
 

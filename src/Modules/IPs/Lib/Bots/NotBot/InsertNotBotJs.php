@@ -22,13 +22,13 @@ class InsertNotBotJs {
 
 	protected function run() {
 		add_filter( 'shield/custom_enqueue_assets', function ( array $assets ) {
-			$assets[] = 'notbot';
+			$assets[] = 'silentcaptcha';
 
 			add_filter( 'shield/custom_localisations/components', function ( array $components ) {
-				$components[ 'notbot' ] = [
-					'key'     => 'notbot',
+				$components[ 'silentcaptcha' ] = [
+					'key'     => 'silentcaptcha',
 					'handles' => [
-						'notbot',
+						'silentcaptcha',
 					],
 					'data'    => function () {
 						$notBotVO = new ActionDataVO();
@@ -37,7 +37,7 @@ class InsertNotBotJs {
 
 						return [
 							'ajax'  => [
-								'not_bot' => ActionData::BuildVO( $notBotVO ),
+								'silentcaptcha' => ActionData::BuildVO( $notBotVO ),
 							],
 							'flags' => [
 								'skip'     => false,

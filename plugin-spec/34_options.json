@@ -1028,10 +1028,6 @@
                 "text": "None"
             },
             {
-                "value_key": "legacy",
-                "text": "Legacy"
-            },
-            {
                 "value_key": "adaptive",
                 "text": "Adaptive"
             },

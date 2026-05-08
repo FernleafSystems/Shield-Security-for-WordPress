@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\VerifySecurityAdminList;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -21,12 +22,14 @@ class OptionsCorrections {
 		$this->plugin();
 		$this->scanners();
 		$this->securityAdmin();
+		$this->silentCaptcha();
 		$this->user();
 	}
 
 	public function runUpgradeMigrations() :void {
 		$this->alerts();
 		$this->pluginBadgeMode();
+		$this->silentCaptcha();
 	}
 
 	/**
@@ -231,6 +234,15 @@ class OptionsCorrections {
 					WildCardOptions::FILE_PATH_REL
 				)
 			);
+		}
+	}
+
+	private function silentCaptcha() :void {
+		$opts = self::con()->opts;
+		$current = $opts->optGet( 'silentcaptcha_complexity' );
+		$normalised = SilentCaptchaComplexity::normalise( $current );
+		if ( $current !== $normalised ) {
+			$opts->optSet( 'silentcaptcha_complexity', $normalised );
 		}
 	}
 

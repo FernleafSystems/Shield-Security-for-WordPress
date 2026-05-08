@@ -26,7 +26,7 @@ module.exports = {
 		'shield-badge': pathResources + '/plugin-badge.js',
 		'shield-blockpage': pathResources + '/plugin-blockpage.js',
 		'shield-login_2fa': pathResources + '/plugin-login_2fa.js',
-		'shield-notbot': pathResources + '/plugin-notbot.js',
+		'shield-silentcaptcha': pathResources + '/plugin-silentcaptcha.js',
 		'shield-reports': pathResources + '/plugin-reports.js',
 		'shield-wpadmin': pathResources + '/plugin-wpadmin.js',
 		'shield-userprofile': pathResources + '/plugin-userprofile.js',

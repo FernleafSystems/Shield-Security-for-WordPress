@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpRulesTa
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MainwpSitesFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MerlinWelcomeFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MfaProfileFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\NotBotAltchaFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PublicBlockRecoveryFixtureBuilder;
 
 class BrowserFixtureRegistry {
@@ -37,6 +38,8 @@ class BrowserFixtureRegistry {
 				return self::runMerlinWelcomeFixture( $action );
 			case 'mfa-profile':
 				return self::runMfaProfileFixture( $action );
+			case 'notbot-altcha':
+				return self::runNotBotAltchaFixture( $action, $args );
 			case 'public-block-recovery':
 				return self::runPublicBlockRecoveryFixture( $action, $args );
 			default:
@@ -59,6 +62,7 @@ class BrowserFixtureRegistry {
 		self::runMainwpSitesFixture( 'cleanup' );
 		self::runMerlinWelcomeFixture( 'cleanup' );
 		self::runMfaProfileFixture( 'cleanup' );
+		self::runNotBotAltchaFixture( 'cleanup', [] );
 		self::runPublicBlockRecoveryFixture( 'cleanup', [] );
 		return [ 'cleaned' => true ];
 	}
@@ -271,6 +275,39 @@ class BrowserFixtureRegistry {
 				}
 
 				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runNotBotAltchaFixture( string $action, array $args ) :array {
+		$builder = new NotBotAltchaFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'notbot-altcha' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'inspect':
+				return $builder->inspect( $state );
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed( \trim( $args[ 0 ] ?? '' ) );
 				\update_option( $optionKey, $result[ 'state' ], false );
 				return $result[ 'contract' ];
 

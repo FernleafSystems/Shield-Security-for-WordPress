@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 
 class SilentCaptcha extends Base {
@@ -104,7 +105,7 @@ class SilentCaptcha extends Base {
 				$state[ 'challenge_strong' ],
 				[
 					$state[ 'challenge_strong' ]
-						? __( 'Bot challenge complexity is set above the low/legacy levels.', 'wp-simple-firewall' )
+						? __( 'Bot challenge complexity is set above the low level.', 'wp-simple-firewall' )
 						: __( 'Bot challenge complexity is too low to be considered reliable.', 'wp-simple-firewall' ),
 				]
 			),
@@ -132,9 +133,9 @@ class SilentCaptcha extends Base {
 		return [
 			'threshold_enabled'          => $minimum > 0,
 			'threshold_weak'             => $minimum > 0 && $minimum < 30,
-			'challenge_disabled'         => $complexity === 'none',
-			'challenge_weak'             => \in_array( $complexity, [ 'legacy', 'low' ], true ),
-			'challenge_strong'           => !\in_array( $complexity, [ 'none', 'legacy', 'low' ], true ),
+			'challenge_disabled'         => $complexity === SilentCaptchaComplexity::NONE,
+			'challenge_weak'             => $complexity === SilentCaptchaComplexity::LOW,
+			'challenge_strong'           => !\in_array( $complexity, [ SilentCaptchaComplexity::NONE, SilentCaptchaComplexity::LOW ], true ),
 			'threshold_disabled_message' => sprintf( __( "%s bot detection isn't running because the minimum score is set to 0.", 'wp-simple-firewall' ), $silentCaptcha ),
 			'threshold_warning_message'  => sprintf( __( '%1$s bot minimum score is quite low (%2$s).', 'wp-simple-firewall' ), $silentCaptcha, '< 30' ),
 			'challenge_disabled_message' => sprintf( __( "%s bot detection isn't running, as bots aren't currently being challenged.", 'wp-simple-firewall' ), $silentCaptcha ),

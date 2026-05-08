@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PreSetOptSanitize {
@@ -38,6 +39,9 @@ class PreSetOptSanitize {
 		switch ( $this->key ) {
 			case 'display_plugin_badge':
 				$this->value = PluginBadgeMode::normalise( $this->value );
+				break;
+			case 'silentcaptcha_complexity':
+				$this->value = SilentCaptchaComplexity::normalise( $this->value );
 				break;
 			case 'language_override':
 				$raw = ( \is_scalar( $this->value ) || \is_null( $this->value ) ) ? (string)$this->value : '';

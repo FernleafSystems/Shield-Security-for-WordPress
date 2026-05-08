@@ -65,6 +65,20 @@ type ShieldPluginOnboardingGlobal = {
 	};
 };
 
+type ShieldSilentCaptchaBaseData = {
+	ajax: {
+		silentcaptcha: Record<string, any> & {
+			ajaxurl: string;
+		};
+	};
+};
+
+type ShieldSilentCaptchaGlobal = {
+	comps?: {
+		silentcaptcha?: ShieldSilentCaptchaBaseData;
+	};
+};
+
 interface Window {
 	shieldAppMain?: {
 		components?: Record<string, any>;
@@ -73,6 +87,7 @@ interface Window {
 		comps?: Record<string, any>;
 	};
 	shield_vars_plugin_onboarding?: ShieldPluginOnboardingGlobal;
+	shield_vars_silentcaptcha?: ShieldSilentCaptchaGlobal;
 	Vimeo?: {
 		Player: new ( iframe: HTMLIFrameElement ) => {
 			destroy?: () => Promise<void>;
