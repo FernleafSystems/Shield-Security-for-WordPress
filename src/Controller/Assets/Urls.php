@@ -11,7 +11,7 @@ class Urls {
 
 	use PluginControllerConsumer;
 
-	public $includeTS = true;
+	public bool $includeTS = true;
 
 	public function forImage( string $asset ) :string {
 		return $this->forAsset( 'images/'.$asset );

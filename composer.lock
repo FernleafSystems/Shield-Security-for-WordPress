@@ -531,16 +531,16 @@
         },
         {
             "name": "fernleafsystems/wordpress-plugin-core",
-            "version": "2.4.11",
+            "version": "2.4.12",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/fernleafsystems/wordpress/wordpress-plugin-core.git",
-                "reference": "c79645243542dd2ec426159ede26bd3a122b3578"
+                "reference": "381886804b93133303cfbd2a4ef01d36350d6e87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-plugin-core/repository/archive.zip?sha=c79645243542dd2ec426159ede26bd3a122b3578",
-                "reference": "c79645243542dd2ec426159ede26bd3a122b3578",
+                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-plugin-core/repository/archive.zip?sha=381886804b93133303cfbd2a4ef01d36350d6e87",
+                "reference": "381886804b93133303cfbd2a4ef01d36350d6e87",
                 "shasum": ""
             },
             "require": {
@@ -568,22 +568,22 @@
             "description": "AptoWeb Plugin Core",
             "support": {
                 "issues": "https://gitlab.com/fernleafsystems/wordpress/wordpress-plugin-core/-/issues",
-                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-plugin-core/-/tree/2.4.11"
+                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-plugin-core/-/tree/2.4.12"
             },
-            "time": "2026-04-27T13:03:36+00:00"
+            "time": "2026-05-08T08:09:09+00:00"
         },
         {
             "name": "fernleafsystems/wordpress-services",
-            "version": "3.16.1",
+            "version": "3.16.2",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services.git",
-                "reference": "f5ae77b2ebb84d1cd94bac58fc9467a2f0449711"
+                "reference": "27b590bb031fd8221dd4b2e77731b55585c9a3eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=f5ae77b2ebb84d1cd94bac58fc9467a2f0449711",
-                "reference": "f5ae77b2ebb84d1cd94bac58fc9467a2f0449711",
+                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=27b590bb031fd8221dd4b2e77731b55585c9a3eb",
+                "reference": "27b590bb031fd8221dd4b2e77731b55585c9a3eb",
                 "shasum": ""
             },
             "require": {
@@ -621,9 +621,9 @@
             "description": "Base WordPress Services provider for all AptoWeb WordPress plugins",
             "support": {
                 "issues": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/issues",
-                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.16.1"
+                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.16.2"
             },
-            "time": "2026-05-05T14:03:11+00:00"
+            "time": "2026-05-08T08:00:02+00:00"
         },
         {
             "name": "fernleafsystems/zxcvbn-php",

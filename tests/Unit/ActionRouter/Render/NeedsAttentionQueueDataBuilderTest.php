@@ -114,11 +114,13 @@ class NeedsAttentionQueueDataBuilderTest extends BaseUnitTest {
 			public function getZonesIndexed() :array {
 				return [
 					'scans' => [
-						'label' => 'Scans',
+						'slug'       => 'scans',
+						'label'      => 'Scans',
 						'icon_class' => 'bi bi-shield',
 					],
 					'maintenance' => [
-						'label' => 'Maintenance',
+						'slug'       => 'maintenance',
+						'label'      => 'Maintenance',
 						'icon_class' => 'bi bi-tools',
 					],
 				];
@@ -190,11 +192,13 @@ class NeedsAttentionQueueDataBuilderTest extends BaseUnitTest {
 			public function getZonesIndexed() :array {
 				return [
 					'scans' => [
-						'label' => 'Scans',
+						'slug'       => 'scans',
+						'label'      => 'Scans',
 						'icon_class' => 'bi bi-shield',
 					],
 					'maintenance' => [
-						'label' => 'Maintenance',
+						'slug'       => 'maintenance',
+						'label'      => 'Maintenance',
 						'icon_class' => 'bi bi-tools',
 					],
 				];
