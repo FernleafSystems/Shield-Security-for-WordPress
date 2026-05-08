@@ -446,6 +446,9 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			public function selectCustom( $query, $format = null ) {
 				unset( $format );
 				$this->queries[] = (string)$query;
+				if ( \strpos( (string)$query, 'GROUP BY `status`' ) === false ) {
+					return [];
+				}
 				return [
 					[
 						'status' => 'queued',
@@ -487,6 +490,10 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 								return true;
 							}
 						};
+					}
+
+					public function getTable() :string {
+						return 'shield_scan_items';
 					}
 				},
 				'scans' => new class {
@@ -539,8 +546,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame( 1, $finishedDeletes );
 		$this->assertSame( 1, $dispatches );
-		$this->assertCount( 1, $wpdb->queries );
-		$this->assertStringContainsString( 'GROUP BY `status`', $wpdb->queries[ 0 ] );
+		$this->assertTrue( $this->queryLogContains( $wpdb->queries, 'GROUP BY `status`' ) );
 	}
 
 	public function test_scan_job_progress_uses_single_grouped_progress_query() :void {
@@ -812,16 +818,15 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 				public function selectRow( string $query, $format = null ) {
 					unset( $query, $format );
 					return [
-						'scan_id'                => '71',
-						'scan'                   => 'afs',
-						'scope_type'             => 'plugin',
-						'scope_key'              => 'akismet/akismet.php',
-						'run_trigger'            => 'asset_change',
-						'scan_started_at'        => '1700000100',
-						'meta'                   => base64_encode( json_encode( [ 'scan_meta' => 'value' ] ) ),
-						'qitem_id'               => '8',
-						'items'                  => base64_encode( json_encode( [ 'item-a' ] ) ),
-						'is_last_item_for_scan'  => '1',
+						'scan_id'         => '71',
+						'scan'            => 'afs',
+						'scope_type'      => 'plugin',
+						'scope_key'       => 'akismet/akismet.php',
+						'run_trigger'     => 'asset_change',
+						'scan_started_at' => '1700000100',
+						'meta'            => base64_encode( json_encode( [ 'scan_meta' => 'value' ] ) ),
+						'qitem_id'        => '8',
+						'items'           => base64_encode( json_encode( [ 'item-a' ] ) ),
 					];
 				}
 			},
@@ -849,7 +854,6 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'akismet/akismet.php', $item->scope_key );
 		$this->assertSame( 'asset_change', $item->run_trigger );
 		$this->assertSame( 1700000100, $item->scan_started_at );
-		$this->assertTrue( $item->is_last_item_for_scan );
 		$this->assertSame( [ 'scan_meta' => 'value' ], $item->meta );
 		$this->assertSame( [ 'item-a' ], $item->items );
 	}

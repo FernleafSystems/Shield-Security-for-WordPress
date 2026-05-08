@@ -12,9 +12,14 @@ class CompleteQueue {
 
 	public function complete() {
 		$con = self::con();
+		$reconcileQueue = new ReconcileQueue();
+		$reconcileQueue->completeReadyScansWithOnlyFinishedItems();
+
 		/** @var ScanItemsDB\Delete $deleter */
 		$deleter = $con->db_con->scan_items->getQueryDeleter();
 		$deleter->filterByFinished()->query();
+
+		$reconcileQueue->failReadyScansWithNoItems( ReconcileQueue::MESSAGE_ORPHANED_QUEUE );
 
 		$activeCounts = $this->activeStatusCounts();
 		if ( \array_sum( $activeCounts ) > 0 ) {

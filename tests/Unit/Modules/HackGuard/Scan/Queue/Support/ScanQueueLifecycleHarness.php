@@ -123,7 +123,7 @@ class ScanQueueLifecycleHarness {
 		$controller->db_con = (object)[
 			'scans'                 => $this->scansDb,
 			'scan_items'            => $this->scanItemsDb,
-			'scan_results'          => new LifecycleEmptyDbHandler( 'scan_results' ),
+			'scan_results'          => new LifecycleEmptyDbHandler( 'scan_results', $this->sql ),
 			'scan_result_items'     => new LifecycleEmptyDbHandler( 'scan_result_items' ),
 			'scan_result_item_meta' => new LifecycleEmptyDbHandler( 'scan_result_item_meta' ),
 		];
@@ -132,6 +132,7 @@ class ScanQueueLifecycleHarness {
 			'scans_queue'  => $this->queueComponent,
 			'events'       => new LifecycleEventsComponent(),
 			'opts_lookup'  => new LifecycleOptsLookup(),
+			'file_locker'  => new LifecycleFileLocker(),
 		];
 		$controller->opts = new LifecycleOpts();
 		PluginControllerInstaller::install( $controller );
@@ -631,6 +632,10 @@ class LifecycleScanItemsDb {
 	public function getQueryDeleter() :LifecycleScanItemsDeleter {
 		return new LifecycleScanItemsDeleter( $this->db );
 	}
+
+	public function tableDelete() :bool {
+		return $this->db->deleteRows( 'scan_items', [], [] );
+	}
 }
 
 class LifecycleScansSelector {
@@ -883,8 +888,11 @@ class LifecycleEmptyDbHandler {
 
 	private string $table;
 
-	public function __construct( string $table ) {
+	private ?LifecycleSqliteDb $db;
+
+	public function __construct( string $table, ?LifecycleSqliteDb $db = null ) {
 		$this->table = $table;
+		$this->db = $db;
 	}
 
 	public function getTable() :string {
@@ -984,6 +992,10 @@ class LifecycleEmptyDbHandler {
 			}
 		};
 	}
+
+	public function tableDelete() :bool {
+		return $this->db === null ? true : $this->db->deleteRows( $this->table, [], [] );
+	}
 }
 
 class LifecycleScansComponent {
@@ -1008,6 +1020,10 @@ class LifecycleScansComponent {
 
 	public function getScanSlugs() :array {
 		return \array_keys( $this->controllers );
+	}
+
+	public function getAllScanCons() :array {
+		return \array_values( $this->controllers );
 	}
 }
 
@@ -1119,6 +1135,12 @@ class LifecycleOptsLookup {
 
 	public function isPluginEnabled() :bool {
 		return true;
+	}
+}
+
+class LifecycleFileLocker {
+
+	public function purge() :void {
 	}
 }
 

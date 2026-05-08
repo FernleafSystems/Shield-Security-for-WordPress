@@ -23,8 +23,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
 	ScansController,
 	StartScansResult
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	CleanQueue,
+	CompleteQueue,
 	Controller as QueueController,
 	ProcessQueueItem,
 	QueueInit,
@@ -154,7 +156,6 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( '', $item->scope_key );
 		$this->assertSame( 'manual', $item->run_trigger );
 		$this->assertSame( 0, $item->scan_started_at );
-		$this->assertFalse( $item->is_last_item_for_scan );
 	}
 
 	public function test_queue_init_marks_building_without_reloading_known_scan_row() :void {
@@ -190,7 +191,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 1, $this->queryLogCount( $harness->sql->queryLog(), 'UPDATE `scan_items` SET `finished_at`' ) );
 	}
 
-	public function test_processor_does_not_attempt_completion_for_non_final_queue_item() :void {
+	public function test_processor_attempts_idempotent_completion_for_non_final_queue_item() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'            => 'wpv',
@@ -208,7 +209,48 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 'running', $scan[ 'status' ] );
 		$this->assertSame( 0, (int)$scan[ 'finished_at' ] );
 		$this->assertSame( 2, $harness->countScanItems( $scanID ) );
-		$this->assertFalse( $this->queryLogContains( $harness->sql->queryLog(), "`status`='completed'" ) );
+		$this->assertTrue( $this->queryLogContains( $harness->sql->queryLog(), "`status`='completed'" ) );
+	}
+
+	public function test_complete_queue_completes_active_scan_with_finished_items_before_deleting_queue_rows() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'ready_at'        => 1700000000,
+			'last_process_at' => 1700000000,
+			'started_at'      => 1700000000,
+		] );
+		$harness->insertScanItem( $scanID, [ 'wpv-a' ], 0, 1700000000 );
+		$harness->sql->resetQueryLog();
+
+		( new CompleteQueue() )->complete();
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'completed', $scan[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'finished_at' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertFalse( QueueLifecycleLogSpy::contains( 'Scan timed out before it could finish' ) );
+	}
+
+	public function test_complete_queue_fails_ready_scan_without_queue_rows_immediately() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'ready_at'        => 1700000000,
+			'last_process_at' => 1700000000,
+			'started_at'      => 1700000000,
+		] );
+
+		( new CompleteQueue() )->complete();
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'failed', $scan[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'finished_at' ] );
+		$this->assertTrue( QueueLifecycleLogSpy::contains( 'scan_id='.$scanID ) );
+		$this->assertTrue( QueueLifecycleLogSpy::contains( 'Scan queue was empty before the scan could finish.' ) );
+		$this->assertFalse( QueueLifecycleLogSpy::contains( 'Scan timed out before it could finish' ) );
 	}
 
 	public function test_processor_expired_cleanup_recovers_built_work_with_items_instead_of_failing_it() :void {
@@ -276,6 +318,39 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertTrue( QueueLifecycleLogSpy::contains( 'scan_id='.$staleBuilding ) );
 	}
 
+	public function test_plugin_deactivation_marks_unfinished_scans_failed_before_dropping_scan_tables() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'ready_at'        => 1700000000,
+			'last_process_at' => 1700000000,
+			'started_at'      => 1700000000,
+		] );
+		$harness->insertScanItem( $scanID, [ 'wpv-a' ], 1700000000 );
+		$harness->insertScan( [
+			'scan'        => 'afs',
+			'status'      => 'completed',
+			'finished_at' => 1700000000,
+		] );
+		$harness->sql->resetQueryLog();
+
+		$method = new \ReflectionMethod( PluginDeactivate::class, 'purgeScans' );
+		$method->setAccessible( true );
+		$method->invoke( new PluginDeactivate() );
+		$queries = $harness->sql->queryLog();
+
+		$this->assertSame( 'failed', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$scanFailedAt = $this->queryLogFirstIndex( $queries, 'UPDATE `scans` SET' );
+		$scanItemsDroppedAt = $this->queryLogLastIndex( $queries, 'DELETE FROM `scan_items`' );
+		$scanResultsDroppedAt = $this->queryLogFirstIndex( $queries, 'DELETE FROM `scan_results`' );
+
+		$this->assertGreaterThanOrEqual( 0, $scanFailedAt );
+		$this->assertGreaterThan( $scanFailedAt, $scanItemsDroppedAt );
+		$this->assertGreaterThan( $scanFailedAt, $scanResultsDroppedAt );
+	}
+
 	public function test_locked_builder_dispatch_schedules_normal_builder_healthcheck_when_queued_work_exists() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$harness->insertScan( [
@@ -330,6 +405,25 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			}
 		}
 		return $count;
+	}
+
+	private function queryLogFirstIndex( array $queries, string $needle ) :int {
+		foreach ( $queries as $index => $query ) {
+			if ( \strpos( $query, $needle ) !== false ) {
+				return (int)$index;
+			}
+		}
+		return -1;
+	}
+
+	private function queryLogLastIndex( array $queries, string $needle ) :int {
+		$match = -1;
+		foreach ( $queries as $index => $query ) {
+			if ( \strpos( $query, $needle ) !== false ) {
+				$match = (int)$index;
+			}
+		}
+		return $match;
 	}
 }
 

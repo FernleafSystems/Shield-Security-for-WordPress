@@ -112,6 +112,25 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( 'mainwp', $workflow );
 	}
 
+	public function testRequiredTestsWorkflowUsesExplicitParityCommands() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'GitHub workflows are excluded from packages (development-only)' );
+		}
+
+		$workflow = $this->getPluginFileContents(
+			'.github/workflows/tests.yml',
+			'tests workflow'
+		);
+
+		$this->assertStringContainsString( 'run: composer analyze', $workflow );
+		$this->assertStringNotContainsString( 'run: composer build:config', $workflow );
+		$this->assertStringContainsString(
+			'run: php bin/shield test:source --skip-unit-tests --show-docker-output',
+			$workflow
+		);
+		$this->assertStringNotContainsString( 'SHIELD_SKIP_UNIT_TESTS:', $workflow );
+	}
+
 	public function testIntegrationBootstrapFailsFastWhenParallelTokensArePresent() :void {
 		$bootstrapPath = \dirname( __DIR__, 2 ).'/tests/Integration/bootstrap.php';
 		$process = new Process( [

@@ -33,9 +33,7 @@ class ProcessQueueItem {
 					'finished_at' => Services::Request()->ts()
 				] );
 
-			if ( $item->is_last_item_for_scan ) {
-				( new SetScanCompleted() )->runForQueueItem( $item );
-			}
+			( new SetScanCompleted() )->runForQueueItem( $item );
 		}
 		catch ( \Throwable $e ) {
 			error_log( \sprintf(

@@ -23,14 +23,7 @@ class QueueItems {
 							 `scans`.`started_at` AS `scan_started_at`,
 							 `scans`.`meta`,
 							 `si`.`id` as `qitem_id`,
-							 `si`.`items`,
-							 CASE WHEN NOT EXISTS (
-								SELECT 1
-								FROM `%s` as `si2`
-								WHERE `si2`.`scan_ref`=`scans`.`id`
-								  AND `si2`.`finished_at`=0
-								  AND `si2`.`id`<>`si`.`id`
-							 ) THEN 1 ELSE 0 END AS `is_last_item_for_scan`
+							 `si`.`items`
 						FROM `%s` as `scans`
 						INNER JOIN `%s` as `si`
 							ON `si`.`scan_ref` = `scans`.`id` 
@@ -41,7 +34,6 @@ class QueueItems {
 						  AND `scans`.`finished_at`=0
 						ORDER BY `scans`.`created_at` ASC, `si`.`id` ASC
 						LIMIT 1;",
-				self::con()->db_con->scan_items->getTable(),
 				self::con()->db_con->scans->getTable(),
 				self::con()->db_con->scan_items->getTable()
 			)

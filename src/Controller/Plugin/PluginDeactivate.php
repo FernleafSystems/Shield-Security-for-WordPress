@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\RunState;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -20,6 +21,7 @@ class PluginDeactivate {
 		foreach ( self::con()->comps->scans->getAllScanCons() as $scanCon ) {
 			$scanCon->purge();
 		}
+		( new RunState() )->markUnfinishedRunsFailed();
 		self::con()->db_con->scan_items->tableDelete();
 		self::con()->db_con->scan_results->tableDelete();
 		self::con()->comps->file_locker->purge();

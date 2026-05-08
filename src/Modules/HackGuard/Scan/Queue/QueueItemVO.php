@@ -12,7 +12,6 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string $scope_key
  * @property string $run_trigger
  * @property int    $scan_started_at
- * @property bool   $is_last_item_for_scan
  * @property array  $meta
  * @property array  $items
  */
@@ -35,9 +34,6 @@ class QueueItemVO extends DynPropertiesClass {
 			case 'qitem_id':
 			case 'scan_started_at':
 				$value = (int)$value;
-				break;
-			case 'is_last_item_for_scan':
-				$value = (bool)$value;
 				break;
 			case 'meta':
 			case 'items':

@@ -23,6 +23,21 @@ Supporting docs:
 
 `test:source`, `test:integration-local`, and `test:package-full` now default to reduced Docker output to keep signal dense. Add `--show-docker-output` when you need full compose output for a failing run.
 
+## Required PR CI local parity
+
+The required PR CI gate is [`.github/workflows/tests.yml`](.github/workflows/tests.yml). It is broader than `composer test` because CI also proves static analysis, JS checks, package build/validation, and a source Docker runtime lane. Use these local equivalents when you need to reproduce the required CI gate:
+
+| CI lane | Local equivalent | Notes |
+|---|---|---|
+| Source static analysis | `composer analyze` | CI runs this on PHP 7.4; use a PHP 7.4 shell when reproducing parse-compatibility exactly. |
+| JS static checks | `npm run test:js` | Static policy, ESLint, and checkJs only. |
+| Unit PHP 7.4 | `composer test:unit` | Run under PHP 7.4 for exact CI parity. |
+| Unit latest PHP | `composer test:unit` | Run under the latest supported CI PHP version. |
+| Source Docker runtime | `php bin/shield test:source --skip-unit-tests --show-docker-output` | Mirrors required CI by focusing Docker on runtime/integration checks after the unit lanes have already run. |
+| Package-targeted validation | `composer package-plugin -- --output=tmp/shield-package-ci` then `php bin/shield test:package-targeted --package-path=tmp/shield-package-ci` | Mirrors CI's built-artifact validation path. |
+
+`composer test` remains the everyday local confidence gate: it builds config, runs unit tests, and runs the local Docker-backed integration lane. It is intentionally faster and narrower than required PR CI, while scheduled/manual browser, cross-site, and full package matrix workflows remain deeper coverage rather than default local requirements.
+
 ## Internal Lane Ownership
 
 These commands remain the owned internal lanes behind the public surface and CI workflows. Do not add new public wrappers for them.
@@ -67,7 +82,7 @@ composer test:integration -- --show-docker-output -- tests/Integration/ActionRou
 Automated CI workflows can enforce noisy mode by invoking the command form directly:
 
 ```bash
-php bin/shield test:source --show-docker-output
+php bin/shield test:source --skip-unit-tests --show-docker-output
 ```
 
 ## Local Browser Lane
@@ -238,8 +253,8 @@ Required source-first gate: [`.github/workflows/tests.yml`](.github/workflows/te
 1. Source static analysis on PHP 7.4 via `composer analyze`.
 2. JS static checks via `npm run test:js`.
 3. Unit tests on PHP 7.4 and latest supported PHP via `composer test:unit`.
-4. Source Docker runtime checks focused on runtime and integration coverage.
-5. Source Docker runtime in CI runs with `--show-docker-output` for full compose logs.
+4. Source Docker runtime checks focused on runtime and integration coverage via `php bin/shield test:source --skip-unit-tests --show-docker-output`.
+5. Source Docker runtime in CI skips its unit stage because the dedicated unit lanes have already run.
 6. Package-targeted validation against the built artifact.
 
 Do not use `php bin/shield analyze:tooling` as a source compatibility gate. Source PHP compatibility belongs to `composer analyze` / `php bin/shield analyze:source`.
