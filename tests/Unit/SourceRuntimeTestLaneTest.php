@@ -169,7 +169,7 @@ class SourceRuntimeTestLaneTest extends TestCase {
 		);
 	}
 
-	public function testLogSinkEnablesOutputCallbacksAndSkipUnitFlagForwarding() :void {
+	public function testLogSinkEnablesOutputCallbacksAndEnvSkipUnitFlagForwarding() :void {
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0, 0, 0, 0, 0 ] );
 		$environmentResolver = $this->createEnvironmentResolver();
@@ -218,7 +218,62 @@ class SourceRuntimeTestLaneTest extends TestCase {
 		$this->assertTrue( $dockerComposeExecutor->calls[ 0 ][ 'has_output_callback' ] );
 		$this->assertTrue( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
 
-		$runtimeCommands = \array_values( \array_filter(
+		$runtimeCommands = $this->runtimeRunCommands( $dockerComposeExecutor );
+		$this->assertCount( 2, $runtimeCommands );
+		foreach ( $runtimeCommands as $runtimeCommand ) {
+			$this->assertContains( 'SHIELD_SKIP_UNIT_TESTS=1', $runtimeCommand[ 'sub_command' ] );
+		}
+	}
+
+	public function testExplicitSkipUnitOptionForwardsSkipUnitFlag() :void {
+		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0, 0, 0, 0, 0 ] );
+		$environmentResolver = $this->createEnvironmentResolver();
+		$setupCoordinator = $this->createSetupCoordinator( [
+			'needs_composer_install' => true,
+			'needs_build_config' => true,
+			'needs_npm_install' => true,
+			'needs_npm_build' => true,
+			'node_modules_volume' => 'shield-source-node-modules-test',
+			'fingerprints' => $this->fingerprints(),
+		] );
+
+		$lane = new SourceRuntimeTestLane(
+			$processRunner,
+			$environmentResolver,
+			$dockerComposeExecutor,
+			$setupCoordinator
+		);
+
+		$originalSkipUnits = \getenv( 'SHIELD_SKIP_UNIT_TESTS' );
+		$hadOriginalSkipUnits = \is_string( $originalSkipUnits );
+		\putenv( 'SHIELD_SKIP_UNIT_TESTS=0' );
+
+		try {
+			$exitCode = $this->runLaneSilenced( $lane, false, false, true );
+			$this->assertSame( 0, $exitCode );
+		}
+		finally {
+			if ( $hadOriginalSkipUnits ) {
+				\putenv( 'SHIELD_SKIP_UNIT_TESTS='.$originalSkipUnits );
+			}
+			else {
+				\putenv( 'SHIELD_SKIP_UNIT_TESTS' );
+			}
+		}
+
+		$runtimeCommands = $this->runtimeRunCommands( $dockerComposeExecutor );
+		$this->assertCount( 2, $runtimeCommands );
+		foreach ( $runtimeCommands as $runtimeCommand ) {
+			$this->assertContains( 'SHIELD_SKIP_UNIT_TESTS=1', $runtimeCommand[ 'sub_command' ] );
+		}
+	}
+
+	/**
+	 * @return array<int,array{sub_command:string[]}>
+	 */
+	private function runtimeRunCommands( RecordingDockerComposeExecutor $dockerComposeExecutor ) :array {
+		return \array_values( \array_filter(
 			$dockerComposeExecutor->calls,
 			static function ( array $call ) :bool {
 				return \in_array( 'run', $call[ 'sub_command' ], true )
@@ -229,20 +284,17 @@ class SourceRuntimeTestLaneTest extends TestCase {
 					);
 			}
 		) );
-		$this->assertCount( 2, $runtimeCommands );
-		foreach ( $runtimeCommands as $runtimeCommand ) {
-			$this->assertContains( 'SHIELD_SKIP_UNIT_TESTS=1', $runtimeCommand[ 'sub_command' ] );
-		}
 	}
 
 	private function runLaneSilenced(
 		SourceRuntimeTestLane $lane,
 		bool $refreshSetup,
-		bool $showDockerOutput = false
+		bool $showDockerOutput = false,
+		bool $skipUnitTests = false
 	) :int {
 		\ob_start();
 		try {
-			return $lane->run( $this->projectRoot, $refreshSetup, $showDockerOutput );
+			return $lane->run( $this->projectRoot, $refreshSetup, $showDockerOutput, $skipUnitTests );
 		}
 		finally {
 			\ob_end_clean();

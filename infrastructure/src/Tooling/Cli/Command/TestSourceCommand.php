@@ -36,6 +36,12 @@ class TestSourceCommand extends Command {
 				null,
 				InputOption::VALUE_NONE,
 				'Show full Docker output instead of test-oriented compose output.'
+			)
+			->addOption(
+				'skip-unit-tests',
+				null,
+				InputOption::VALUE_NONE,
+				'Skip the Docker unit-test stage and run source runtime integration checks only.'
 			);
 	}
 
@@ -44,7 +50,8 @@ class TestSourceCommand extends Command {
 			return $this->lane->run(
 				$this->projectRoot,
 				(bool)$input->getOption( 'refresh-setup' ),
-				(bool)$input->getOption( 'show-docker-output' )
+				(bool)$input->getOption( 'show-docker-output' ),
+				(bool)$input->getOption( 'skip-unit-tests' )
 			);
 		}
 		catch ( \Throwable $throwable ) {

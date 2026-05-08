@@ -29,7 +29,12 @@ class SourceRuntimeTestLane {
 		$this->setupCacheCoordinator = $setupCacheCoordinator ?? new SourceSetupCacheCoordinator();
 	}
 
-	public function run( string $rootDir, bool $refreshSetup = false, bool $showDockerOutput = false ) :int {
+	public function run(
+		string $rootDir,
+		bool $refreshSetup = false,
+		bool $showDockerOutput = false,
+		bool $skipUnitTests = false
+	) :int {
 		echo 'Mode: source'.\PHP_EOL;
 
 		$originalShieldPackagePath = \getenv( 'SHIELD_PACKAGE_PATH' );
@@ -108,7 +113,7 @@ class SourceRuntimeTestLane {
 					'Run latest WordPress runtime checks',
 					$rootDir,
 					$composeFiles,
-					$this->buildComposeRunLatestCommand(),
+					$this->buildComposeRunLatestCommand( $skipUnitTests ),
 					$showDockerOutput,
 					$dockerProcessEnvOverrides,
 					$logSink
@@ -120,7 +125,7 @@ class SourceRuntimeTestLane {
 					'Run previous WordPress runtime checks',
 					$rootDir,
 					$composeFiles,
-					$this->buildComposeRunPreviousCommand(),
+					$this->buildComposeRunPreviousCommand( $skipUnitTests ),
 					$showDockerOutput,
 					$dockerProcessEnvOverrides,
 					$logSink
@@ -285,15 +290,15 @@ class SourceRuntimeTestLane {
 	/**
 	 * @return string[]
 	 */
-	private function buildComposeRunLatestCommand() :array {
-		return $this->buildComposeRunCommand( 'test-runner-latest' );
+	private function buildComposeRunLatestCommand( bool $skipUnitTests ) :array {
+		return $this->buildComposeRunCommand( 'test-runner-latest', $skipUnitTests );
 	}
 
 	/**
 	 * @return string[]
 	 */
-	private function buildComposeRunPreviousCommand() :array {
-		return $this->buildComposeRunCommand( 'test-runner-previous' );
+	private function buildComposeRunPreviousCommand( bool $skipUnitTests ) :array {
+		return $this->buildComposeRunCommand( 'test-runner-previous', $skipUnitTests );
 	}
 
 	/**
@@ -446,12 +451,12 @@ class SourceRuntimeTestLane {
 	/**
 	 * @return string[]
 	 */
-	private function buildComposeRunCommand( string $serviceName ) :array {
+	private function buildComposeRunCommand( string $serviceName, bool $skipUnitTests ) :array {
 		$command = [ 'run', '--rm', '-e', 'SHIELD_SKIP_INNER_SETUP=1' ];
-		$skipUnitTests = \getenv( 'SHIELD_SKIP_UNIT_TESTS' );
-		if ( \is_string( $skipUnitTests ) && $skipUnitTests !== '' ) {
+		$skipUnitTestsEnv = $skipUnitTests ? '1' : \getenv( 'SHIELD_SKIP_UNIT_TESTS' );
+		if ( \is_string( $skipUnitTestsEnv ) && $skipUnitTestsEnv !== '' ) {
 			$command[] = '-e';
-			$command[] = 'SHIELD_SKIP_UNIT_TESTS='.$skipUnitTests;
+			$command[] = 'SHIELD_SKIP_UNIT_TESTS='.$skipUnitTestsEnv;
 		}
 
 		$command[] = $serviceName;
