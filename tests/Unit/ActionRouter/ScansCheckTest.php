@@ -34,7 +34,7 @@ class ScansCheckTest extends BaseUnitTest {
 
 	public function test_exec_reports_failed_started_scan_with_failure_message() :void {
 		$failureMessage = 'producer failure detail';
-		$controller = $this->installController( failureMessage: $failureMessage );
+		$controller = $this->installController( $failureMessage );
 
 		$action = new ScansCheck( [
 			'scan_ids' => [ 21 ],
@@ -60,7 +60,7 @@ class ScansCheckTest extends BaseUnitTest {
 	}
 
 	public function test_exec_preserves_request_id_precedence_when_failed_scan_query_returns_multiple_rows() :void {
-		$controller = $this->installController( failedScanRows: [
+		$controller = $this->installController( '', '', [], [ 'afs' => false, 'wpv' => false, 'apc' => false ], 0.2, [
 			(object)[
 				'id'     => 32,
 				'status' => 'failed',
@@ -90,7 +90,7 @@ class ScansCheckTest extends BaseUnitTest {
 	}
 
 	public function test_exec_uses_default_failed_message_when_failed_row_has_no_error_meta() :void {
-		$controller = $this->installController( failedScanRows: [
+		$controller = $this->installController( '', '', [], [ 'afs' => false, 'wpv' => false, 'apc' => false ], 0.2, [
 			(object)[
 				'id'     => 21,
 				'status' => 'failed',
@@ -111,10 +111,11 @@ class ScansCheckTest extends BaseUnitTest {
 
 	public function test_exec_reports_running_scan_modal_state_and_render_input() :void {
 		$controller = $this->installController(
-			currentScan: 'wpv',
-			enqueued: [ 'wpv' ],
-			runningStates: [ 'afs' => false, 'wpv' => true, 'apc' => false ],
-			progress: 0.42
+			'',
+			'wpv',
+			[ 'wpv' ],
+			[ 'afs' => false, 'wpv' => true, 'apc' => false ],
+			0.42
 		);
 
 		$action = new ScansCheck();
@@ -140,10 +141,11 @@ class ScansCheckTest extends BaseUnitTest {
 
 	public function test_exec_reports_completed_scan_modal_state_and_render_input() :void {
 		$controller = $this->installController(
-			currentScan: '',
-			enqueued: [],
-			runningStates: [ 'afs' => false, 'wpv' => false, 'apc' => false ],
-			progress: 0.25
+			'',
+			'',
+			[],
+			[ 'afs' => false, 'wpv' => false, 'apc' => false ],
+			0.25
 		);
 
 		$action = new ScansCheck();
@@ -181,7 +183,12 @@ class ScansCheckTest extends BaseUnitTest {
 	) :Controller {
 		ServicesState::installItems( [
 			'service_wpdb' => new class( $currentScan, $enqueued ) extends Db {
-				public function __construct( private string $currentScan, private array $enqueued ) {
+				private string $currentScan;
+				private array $enqueued;
+
+				public function __construct( string $currentScan, array $enqueued ) {
+					$this->currentScan = $currentScan;
+					$this->enqueued = $enqueued;
 				}
 
 				public function selectCustom( $query, $format = null ) {
@@ -210,13 +217,23 @@ class ScansCheckTest extends BaseUnitTest {
 			'scans' => new class( $failureMessage, $failedScanRows ) {
 				public object $selector;
 
-				public function __construct( private string $failureMessage, private array $failedScanRows ) {
+				private string $failureMessage;
+				private array $failedScanRows;
+
+				public function __construct( string $failureMessage, array $failedScanRows ) {
+					$this->failureMessage = $failureMessage;
+					$this->failedScanRows = $failedScanRows;
 					$this->selector = new class( $failureMessage, $failedScanRows ) {
 						public int $queryCount = 0;
 						public array $filteredIDs = [];
 						private array $ids = [];
 
-						public function __construct( private string $failureMessage, private array $failedScanRows ) {
+						private string $failureMessage;
+						private array $failedScanRows;
+
+						public function __construct( string $failureMessage, array $failedScanRows ) {
+							$this->failureMessage = $failureMessage;
+							$this->failedScanRows = $failedScanRows;
 						}
 
 						public function filterByIDs( array $ids ) :self {
@@ -270,7 +287,10 @@ class ScansCheckTest extends BaseUnitTest {
 			'scans' => new class {
 				public function getScanCon( string $slug ) :object {
 					return new class( $slug ) {
-						public function __construct( private string $slug ) {
+						private string $slug;
+
+						public function __construct( string $slug ) {
+							$this->slug = $slug;
 						}
 
 						public function getScanName() :string {
@@ -282,7 +302,12 @@ class ScansCheckTest extends BaseUnitTest {
 			'scans_queue' => new class( $runningStates, $progress ) {
 				public array $receivedEnqueued = [];
 
-				public function __construct( private array $runningStates, private float $progress ) {
+				private array $runningStates;
+				private float $progress;
+
+				public function __construct( array $runningStates, float $progress ) {
+					$this->runningStates = $runningStates;
+					$this->progress = $progress;
 				}
 
 				public function getScansRunningStates( ?array $enqueued = null ) :array {

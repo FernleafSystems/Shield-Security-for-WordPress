@@ -238,6 +238,19 @@ async function createFixtureApi( playwright, lane ) {
 					}
 				}
 			},
+			async withMainwpSitesFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'mainwp-sites', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'mainwp-sites', 'cleanup' );
+					}
+				}
+			},
 			async withMerlinWelcomeFixture( runScenario ) {
 				let seeded = false;
 				try {

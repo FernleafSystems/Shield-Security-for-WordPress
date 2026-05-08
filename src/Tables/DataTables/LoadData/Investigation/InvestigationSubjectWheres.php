@@ -134,17 +134,15 @@ class InvestigationSubjectWheres {
 	 * @param array{exact:string[], prefix:string[]} $fallbacks
 	 */
 	private static function existsActivityFileEditMetaMatches( string $activityMetaTable, string $eventSlug, array $fallbacks, string $abbr ) :string {
-		$exactClauses = \array_map(
-			static fn( string $file ) :string => \sprintf( "`%s`.`meta_value`='%s'", $abbr, esc_sql( $file ) ),
-			$fallbacks[ 'exact' ]
-		);
-		$prefixClauses = \array_map(
-			static fn( string $prefix ) :string => \sprintf( "`%s`.`meta_value` LIKE '%s%%'", $abbr, esc_sql( self::escapeLikeToken( $prefix ) ) ),
-			$fallbacks[ 'prefix' ]
-		);
-		$clauses = \array_values( \array_unique( \array_filter(
-			\array_merge( $exactClauses, $prefixClauses ),
-			'\strlen'
+		$clauses = \array_values( \array_unique( \array_merge(
+			\array_map(
+				static fn( string $file ) :string => \sprintf( "`%s`.`meta_value`='%s'", $abbr, esc_sql( $file ) ),
+				$fallbacks[ 'exact' ]
+			),
+			\array_map(
+				static fn( string $prefix ) :string => \sprintf( "`%s`.`meta_value` LIKE '%s%%'", $abbr, esc_sql( self::escapeLikeToken( $prefix ) ) ),
+				$fallbacks[ 'prefix' ]
+			)
 		) ) );
 
 		if ( empty( $clauses ) ) {

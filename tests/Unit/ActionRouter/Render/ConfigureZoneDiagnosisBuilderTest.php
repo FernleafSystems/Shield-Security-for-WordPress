@@ -231,6 +231,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 					'is_expandable'   => false,
 					'label'           => '',
 					'title'           => '',
+					'accessible_label'=> '',
 					'data_attributes' => [],
 				],
 			],
@@ -344,6 +345,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 			'count_badge'       => null,
 			'badge_status'      => $status,
 			'explanations'      => $explanations,
+			'is_expandable'     => true,
 			'action'            => $action ?? [
 				'label'     => 'Configure',
 				'href'      => '',

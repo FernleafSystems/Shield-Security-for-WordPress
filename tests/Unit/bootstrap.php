@@ -17,6 +17,9 @@ if ( \FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestEnv::isVerbose()
 // Intentional manual join: this pre-autoload bootstrap resolves Composer paths before Symfony classes are guaranteed.
 require_once $plugin_dir . '/vendor/autoload.php';
 
+// Load shared WordPress global class stubs before PHPUnit discovers test files.
+require_once __DIR__ . '/Support/WordPressGlobalStubs.php';
+
 // Load Brain Monkey
 // WARNING: Patchwork + bootstrap stdout make @runInSeparateProcess INCOMPATIBLE with this
 // test suite. PHPUnit subprocesses communicate via stdout serialization—the echo corrupts

@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
 
 /**
@@ -45,7 +45,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildA
  *   management_link:array{}|GroupManagementLink,
  *   is_interactive:bool,
  *   detail_table:array<string,mixed>,
- *   render_action_class:class-string<BaseAction>,
+ *   render_action_class:class-string<BaseRender>,
  *   render_action_data:array<string,mixed>,
  *   maintenance_rows:list<CompactSummaryRow>,
  *   summary_row:array{}|CompactSummaryRow,

@@ -154,7 +154,6 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			$page++;
 		} while ( \count( $results ) < $start + $length );
 
-		$results = \array_values( $results );
 		if ( \count( $results ) < $start ) {
 			$results = [];
 		}
@@ -429,7 +428,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 					return sprintf( "(`%s`.`%s`=0)", $tableAbbr, $column );
 				}
 				else {
-					[ $year, $month, $day ] = \explode( '-', $selectedDay );
+					[ $year, $month, $day ] = \array_map( '\intval', \explode( '-', $selectedDay ) );
 					$carbon = Services::Request()->carbon( true )->setDate( $year, $month, $day );
 					return sprintf( "(`%s`.`%s`>%s AND `%s`.`%s`<%s)",
 						$tableAbbr,

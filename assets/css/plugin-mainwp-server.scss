@@ -10,6 +10,15 @@ table.mainwp-shield-ext-table td.cell-span-issue {
   text-align: center;
 }
 
+table.mainwp-shield-ext-table .site-dropdown .menu > button.item {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  width: 100%;
+}
+
 .mainwp-ui-leftmenu .mainwp-content-wrap {
   /*margin-left: 190px;*/
 }

@@ -132,7 +132,10 @@ class ScansControllerDailyCronTest extends BaseUnitTest {
 }
 
 class ScansDailyCronCacheDir {
-	public function __construct( private string $dir ) {
+	private string $dir;
+
+	public function __construct( string $dir ) {
+		$this->dir = $dir;
 	}
 
 	public function exists() :bool {
@@ -150,7 +153,10 @@ class ScansDailyCronCacheDir {
 }
 
 class ScansDailyCronRequest extends Request {
-	public function __construct( public int $now ) {
+	public int $now;
+
+	public function __construct( int $now ) {
+		$this->now = $now;
 	}
 
 	public function carbon( $setTimezone = false, bool $userLocale = true ) :Carbon {

@@ -23,7 +23,7 @@ class ActionsQueueAllClearDataBuilder {
 	use PluginControllerConsumer;
 
 	/**
-	 * @param array<string,array{slug?:string,label:string}> $zonesIndexed
+	 * @param array<string,array{slug:string,label:string}> $zonesIndexed
 	 * @return AllClearData
 	 */
 	public function build( array $zonesIndexed ) :array {
@@ -34,13 +34,12 @@ class ActionsQueueAllClearDataBuilder {
 			'subtitle'   => __( 'Shield is actively protecting your site. Nothing requires your action.', 'wp-simple-firewall' ),
 			'icon_class' => self::con()->svgs->iconClass( 'shield-check' ),
 			'zone_chips' => \array_values( \array_map(
-				static fn( string $slug, array $zone ) :array => [
-					'slug'       => $zone[ 'slug' ] ?? $slug,
+				static fn( array $zone ) :array => [
+					'slug'       => $zone[ 'slug' ],
 					'label'      => $zone[ 'label' ],
 					'icon_class' => $chipIconClass,
 					'severity'   => 'good',
 				],
-				\array_keys( $zonesIndexed ),
 				\array_values( $zonesIndexed )
 			) ),
 		];

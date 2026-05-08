@@ -1,16 +1,5 @@
 <?php declare( strict_types=1 );
 
-namespace {
-	if ( !\class_exists( '\WP_User' ) ) {
-		class WP_User {
-			public int $ID = 0;
-			public string $user_login = '';
-			public string $user_email = '';
-			public array $roles = [];
-		}
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\UserManagement\Lib {
 
 	use Brain\Monkey\Functions;

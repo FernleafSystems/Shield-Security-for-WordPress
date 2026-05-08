@@ -13,7 +13,7 @@ export class ShieldTableIpRules extends ShieldTableBase {
 			{
 				text: 'Create New IP Rule',
 				name: 'create-ip-rule',
-				className: 'action create-ip-rule btn-outline-info mb-2',
+				className: 'action create-ip-rule btn-outline-primary mb-2',
 				action: () => {
 					const triggerEl = document.querySelector( '.offcanvas_form_create_ip_rule' );
 					if ( triggerEl instanceof HTMLElement ) {

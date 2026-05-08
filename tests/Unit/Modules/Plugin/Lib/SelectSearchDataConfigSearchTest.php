@@ -85,22 +85,23 @@ class SelectSearchDataConfigSearchTest extends BaseUnitTest {
 		];
 		$controller->opts = new class {
 			public function optDef( string $key ) :array {
-				return match ( $key ) {
-					'disable_xmlrpc' => [
-						'section'         => 'section_apixml',
-						'name'            => 'Disable XML-RPC',
-						'summary'         => 'Disable The XML-RPC System',
-						'description'     => 'Checking this option will completely turn off the whole XML-RPC system.',
-						'zone_comp_slugs' => [ 'xml_rpc_component' ],
-					],
-					'user_form_providers' => [
-						'value_options' => [],
-					],
-					'form_spam_providers' => [
-						'value_options' => [],
-					],
-					default => [],
-				};
+				switch ( $key ) {
+					case 'disable_xmlrpc':
+						return [
+							'section'         => 'section_apixml',
+							'name'            => 'Disable XML-RPC',
+							'summary'         => 'Disable The XML-RPC System',
+							'description'     => 'Checking this option will completely turn off the whole XML-RPC system.',
+							'zone_comp_slugs' => [ 'xml_rpc_component' ],
+						];
+					case 'user_form_providers':
+					case 'form_spam_providers':
+						return [
+							'value_options' => [],
+						];
+					default:
+						return [];
+				}
 			}
 		};
 

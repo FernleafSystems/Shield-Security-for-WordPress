@@ -254,11 +254,14 @@ class AuditCon {
 	private function runAsyncSnapshotDiscovery( bool $isDataPrime = false ) {
 		$q = $this->getSnapshotDiscoveryQueue();
 		foreach ( $this->getAuditors() as $auditor ) {
-			try {
-				$addToQ = !$isDataPrime || empty( $this->getSnapshot( $auditor::Slug() ) );
-			}
-			catch ( \Exception $e ) {
-				$addToQ = true;
+			$addToQ = !$isDataPrime;
+			if ( $isDataPrime ) {
+				try {
+					$this->getSnapshot( $auditor::Slug() );
+				}
+				catch ( \Exception $e ) {
+					$addToQ = true;
+				}
 			}
 			if ( $addToQ ) {
 				$q->push_to_queue( $auditor::Slug() );

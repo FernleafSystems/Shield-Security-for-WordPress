@@ -155,7 +155,7 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 	}
 
 	/**
-	 * @param class-string<BasePluginAdminPage|PageModeLandingBase> $renderAction
+	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender> $renderAction
 	 * @param array<string,mixed> $auxData
 	 * @return array<string,mixed>
 	 */

@@ -1,16 +1,5 @@
 <?php declare( strict_types=1 );
 
-namespace {
-	if ( !\class_exists( '\WP_User' ) ) {
-		class WP_User {
-			public int $ID = 0;
-			public string $user_login = '';
-			public string $user_email = '';
-			public string $display_name = '';
-		}
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render {
 
 	use Brain\Monkey\Functions;

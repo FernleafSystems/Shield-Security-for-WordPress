@@ -168,7 +168,7 @@ class MaintenanceQueueItemDisplayNormalizer {
 			);
 		}
 
-		return \array_values( $normalized );
+		return $normalized;
 	}
 
 	/**

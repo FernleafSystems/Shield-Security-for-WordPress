@@ -33,8 +33,8 @@ class HttpRedirect extends Base {
 
 	public function getParamsDef() :array {
 		$statusCodes = [
-			'301' => __( 'Permanent Redirect (301)', 'wp-simple-firewall' ),
-			'302' => __( 'Temporary Redirect (302)', 'wp-simple-firewall' ),
+			301 => __( 'Permanent Redirect (301)', 'wp-simple-firewall' ),
+			302 => __( 'Temporary Redirect (302)', 'wp-simple-firewall' ),
 		];
 		return [
 			'redirect_url' => [
@@ -45,7 +45,7 @@ class HttpRedirect extends Base {
 				'type'        => EnumParameters::TYPE_ENUM,
 				'type_enum'   => \array_keys( $statusCodes ),
 				'enum_labels' => $statusCodes,
-				'default'     => '302',
+				'default'     => 302,
 				'label'       => __( 'Redirect Status', 'wp-simple-firewall' ),
 			],
 		];

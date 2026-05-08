@@ -1,41 +1,5 @@
 <?php declare( strict_types=1 );
 
-namespace {
-	if ( !\class_exists( '\WP_User' ) ) {
-		class WP_User {
-			public int $ID = 0;
-			public string $user_login = '';
-			public string $user_email = '';
-			public string $user_pass = '';
-			public array $roles = [];
-		}
-	}
-
-	if ( !\class_exists( '\WP_Error' ) ) {
-		class WP_Error {
-			private array $errors = [];
-
-			public function __construct( string $code = '', string $message = '' ) {
-				if ( $code !== '' ) {
-					$this->add( $code, $message );
-				}
-			}
-
-			public function add( string $code, string $message = '' ) :void {
-				$this->errors[ $code ][] = $message;
-			}
-
-			public function has_errors() :bool {
-				return !empty( $this->errors );
-			}
-
-			public function get_error_codes() :array {
-				return \array_keys( $this->errors );
-			}
-		}
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules {
 
 	if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {

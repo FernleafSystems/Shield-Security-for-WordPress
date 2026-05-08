@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\{
 	ActivityLogRetentionPolicy,
 	AuditLogger
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogger;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
@@ -38,14 +37,11 @@ class AuditLoggerDbWritePolicyIntegrationTest extends ShieldIntegrationTestCase 
 			->optSet( 'enable_live_log', 'N' )
 			->optSet( 'enable_limiter', 'N' )
 			->optSet( 'live_log_started_at', 0 );
-
-		$this->resetRequestLoggerState();
 	}
 
 	public function tear_down() {
 		$this->restoreCurrentRequestState( $this->requestSnapshot );
 		parent::tear_down();
-		$this->resetRequestLoggerState();
 	}
 
 	public function test_db_write_levels_include_info_only_when_wp_debug_is_enabled() :void {
@@ -264,13 +260,4 @@ class AuditLoggerDbWritePolicyIntegrationTest extends ShieldIntegrationTestCase 
 		] );
 	}
 
-	private function resetRequestLoggerState() :void {
-		$logger = $this->requireController()->comps->requests_log;
-		\Closure::bind( function () {
-			$this->hasLogged = false;
-			$this->isDependentLog = false;
-			$this->lastLoggedRecord = null;
-			unset( $this->logger );
-		}, $logger, RequestLogger::class )();
-	}
 }

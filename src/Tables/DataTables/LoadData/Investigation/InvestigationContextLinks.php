@@ -50,10 +50,14 @@ trait InvestigationContextLinks {
 	}
 
 	protected function renderAnchorSpecs( array $specs, string $separator = ' | ' ) :string {
-		return \implode( $separator, \array_values( \array_filter( \array_map(
-			fn( array $spec ) => $this->renderAnchorSpec( $spec ),
-			$specs
-		), '\strlen' ) ) );
+		$rendered = [];
+		foreach ( $specs as $spec ) {
+			$anchor = $this->renderAnchorSpec( $spec );
+			if ( $anchor !== '' ) {
+				$rendered[] = $anchor;
+			}
+		}
+		return \implode( $separator, $rendered );
 	}
 
 	protected function renderAnchorSpec( array $spec ) :string {

@@ -135,7 +135,7 @@ class EmailCon {
 	 * @deprecated 21.2.0 Use sendVO()
 	 */
 	public function sendEmail( $subject, $message ) :bool {
-		return $this->sendEmailWithWrap( null, $subject, $message );
+		return $this->sendEmailWithWrap( '', $subject, $message );
 	}
 
 	/**

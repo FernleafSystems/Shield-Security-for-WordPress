@@ -348,7 +348,10 @@ class ActionsQueueBucketsBuilderTest extends BaseUnitTest {
 	private function newBuilder( array $availability = [] ) :ActionsQueueBucketsBuilder {
 		return new ActionsQueueBucketsBuilder(
 			new class( $availability ) extends ScansResultsRailTabAvailability {
-				public function __construct( private array $availability ) {
+				private array $availability;
+
+				public function __construct( array $availability ) {
+					$this->availability = $availability;
 				}
 
 				public function build( string $tabKey ) :array {

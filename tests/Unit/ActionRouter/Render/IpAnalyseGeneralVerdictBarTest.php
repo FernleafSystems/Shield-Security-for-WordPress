@@ -17,6 +17,7 @@ class IpAnalyseGeneralVerdictBarTest extends BaseUnitTest {
 
 	public function test_human_verdict_bar_moves_right_from_threshold() :void {
 		$method = new \ReflectionMethod( General::class, 'buildVerdictBar' );
+		$method->setAccessible( true );
 
 		$this->assertSame(
 			[
@@ -33,6 +34,7 @@ class IpAnalyseGeneralVerdictBarTest extends BaseUnitTest {
 
 	public function test_bot_verdict_bar_moves_left_from_threshold() :void {
 		$method = new \ReflectionMethod( General::class, 'buildVerdictBar' );
+		$method->setAccessible( true );
 
 		$this->assertSame(
 			[

@@ -56,9 +56,9 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		] );
 
 		$controller = $this->installActionController(
-			canStart: false,
-			blockedReasons: [ 'reason_not_call_self' ],
-			startResult: StartScansResult::fromRequested( [] )
+			false,
+			[ 'reason_not_call_self' ],
+			StartScansResult::fromRequested( [] )
 		);
 
 		$action = new ScansStart();
@@ -86,9 +86,9 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		] );
 
 		$controller = $this->installActionController(
-			canStart: true,
-			blockedReasons: [],
-			startResult: StartScansResult::fromRequested( [ 'afs' ] )
+			true,
+			[],
+			StartScansResult::fromRequested( [ 'afs' ] )
 										->addFailure( 'afs', StartScansResult::REASON_ALREADY_EXISTS )
 		);
 
@@ -116,9 +116,9 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		] );
 
 		$controller = $this->installActionController(
-			canStart: true,
-			blockedReasons: [],
-			startResult: StartScansResult::fromRequested( [ 'afs', 'wpv' ] )
+			true,
+			[],
+			StartScansResult::fromRequested( [ 'afs', 'wpv' ] )
 										->addStarted( 'afs', 31 )
 										->addFailure( 'wpv', StartScansResult::REASON_CREATE_FAILED )
 		);
@@ -177,11 +177,14 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->comps = (object)[
 			'scans' => new class( $canStart, $blockedReasons, $startResult ) {
-				public function __construct(
-					private bool $canStart,
-					private array $blockedReasons,
-					private StartScansResult $startResult
-				) {
+				private bool $canStart;
+				private array $blockedReasons;
+				private StartScansResult $startResult;
+
+				public function __construct( bool $canStart, array $blockedReasons, StartScansResult $startResult ) {
+					$this->canStart = $canStart;
+					$this->blockedReasons = $blockedReasons;
+					$this->startResult = $startResult;
 				}
 
 				public function getStartBlockedMessage( bool $isCli = false ) :string {
@@ -208,7 +211,10 @@ class ScansStartGuardsTest extends BaseUnitTest {
 				}
 			},
 			'scans_queue' => new class( $hasRunningScans ) {
-				public function __construct( private bool $hasRunningScans ) {
+				private bool $hasRunningScans;
+
+				public function __construct( bool $hasRunningScans ) {
+					$this->hasRunningScans = $hasRunningScans;
 				}
 
 				public function hasRunningScans() :bool {

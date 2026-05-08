@@ -1,0 +1,59 @@
+$shield-focus-ring-color: #0b57a4 !default;
+$shield-focus-ring-shadow: rgba(11, 87, 164, 0.22) !default;
+
+@mixin shield-focus-ring($offset: 2px) {
+	outline: 2px solid $shield-focus-ring-color;
+	outline-offset: $offset;
+	box-shadow: 0 0 0 0.2rem $shield-focus-ring-shadow;
+}
+
+#PageMain-Shield .modules a.module:focus-visible,
+#PageMain-Shield .shield-options-rail-nav .nav-link:focus-visible,
+#PageMain-Shield .shield-config-icon-action:focus-visible,
+#PageMain-Shield .toggle-importexport-inclusion:focus-within,
+#PageMain-Shield .option-description-expander:focus-visible,
+#PageMain-Shield .option-video:focus-visible,
+#PageMain-Shield .shield-topwarning-dismiss:focus-visible,
+#PageMain-Shield .mode-panel-close-btn:focus-visible,
+#PageMain-Shield .beacon-article:focus-visible,
+#PageMain-Shield .section_title_info:focus-visible,
+#PageMain-Shield #ajax_intent_email_send:focus-visible,
+#PageMain-Shield ul.nav.nav-tabs.shield_body-sub-nav a.nav-link:focus-visible,
+#AptoOffcanvas .offcanvas-header .btn-close:focus-visible,
+#ShieldModalContainer .btn-close:focus-visible,
+#ModalSuperSearchBox .btn-close:focus-visible,
+#SecurityAdminOverlay .btn-close:focus-visible,
+.shield-accessible-dialog__confirm:focus-visible,
+.shield-accessible-dialog__cancel:focus-visible,
+.shield-accessible-dialog__field input:focus-visible,
+.shield-mfa-dialog__confirm:focus-visible,
+.shield-mfa-dialog__cancel:focus-visible,
+.shield-mfa-dialog__field input:focus-visible,
+.shield-section-datatable div.dt-search input:focus-visible,
+.shield-section-datatable .dt-buttons .dt-button:focus-visible,
+.shield-section-datatable .dt-paging button:focus-visible,
+.shield-section-datatable .paginate_button:focus-visible,
+.shield-section-datatable .scan-results-row-action:focus-visible,
+.shield-section-datatable table.dataTable a:focus-visible,
+.shield-section-datatable table.dataTable button:focus-visible,
+.shield-section-datatable table.dataTable input:focus-visible,
+#ShieldUserProfileMFA .shield_remove_passkey:focus-visible,
+#ShieldUserProfileMFA .shield_remove_yubi:focus-visible,
+#ShieldUserProfileMFA .shield-passkeys-register:focus-visible,
+#ShieldUserProfileMFA .shield_mfa_remove_all:focus-visible,
+#ShieldUserProfileMFA .shield-gen-backup-login-code:focus-visible,
+#ShieldUserProfileMFA .shield_yubi_otp:focus-visible,
+.shield_user_mfa_container .shield_remove_passkey:focus-visible,
+.shield_user_mfa_container .shield_remove_yubi:focus-visible,
+.shield_user_mfa_container .shield_mfa_remove_all:focus-visible {
+	@include shield-focus-ring();
+}
+
+#ModalSuperSearchBox input.search-text:focus-visible,
+.select2-search__field:focus-visible {
+	@include shield-focus-ring();
+}
+
+#ShieldUserProfileMFA .switch input:focus-visible + .shield_slider {
+	@include shield-focus-ring();
+}

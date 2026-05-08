@@ -49,8 +49,8 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 
 	public function test_start_new_scans_classifies_duplicate_create_unknown_and_unready_outcomes() :void {
 		$scansDb = new StartScansFakeScansDb(
-			existingScans: [ 'apc' ],
-			insertFailures: [ 'wpv' ]
+			[ 'apc' ],
+			[ 'wpv' ]
 		);
 		$queue = new StartScansFakeQueue();
 		$wpDb = new StartScansFakeWpDb( $scansDb );
@@ -82,7 +82,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 	}
 
 	public function test_reset_ignored_and_dispatch_only_run_for_created_scans() :void {
-		$scansDb = new StartScansFakeScansDb( insertFailures: [ 'wpv' ] );
+		$scansDb = new StartScansFakeScansDb( [], [ 'wpv' ] );
 		$queue = new StartScansFakeQueue();
 		$wpDb = new StartScansFakeWpDb( $scansDb );
 		$this->installController( $scansDb, $queue );
@@ -103,7 +103,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 	}
 
 	public function test_no_dispatch_when_nothing_starts() :void {
-		$scansDb = new StartScansFakeScansDb( insertFailures: [ 'afs' ] );
+		$scansDb = new StartScansFakeScansDb( [], [ 'afs' ] );
 		$queue = new StartScansFakeQueue();
 		$this->installController( $scansDb, $queue );
 		ServicesState::installItems( [
@@ -232,7 +232,10 @@ class StartScansTestScanController extends Base {
 
 class StartScansTestAfsController extends AfsController {
 
-	public function __construct( private bool $ready ) {
+	private bool $ready;
+
+	public function __construct( bool $ready ) {
+		$this->ready = $ready;
 	}
 
 	public function getSlug() :string {
@@ -250,10 +253,12 @@ class StartScansFakeScansDb {
 
 	public array $insertedRecords = [];
 
-	public function __construct(
-		public array $existingScans = [],
-		public array $insertFailures = []
-	) {
+	public array $existingScans;
+	public array $insertFailures;
+
+	public function __construct( array $existingScans = [], array $insertFailures = [] ) {
+		$this->existingScans = $existingScans;
+		$this->insertFailures = $insertFailures;
 	}
 
 	public function getRecord() :Record {
@@ -262,7 +267,10 @@ class StartScansFakeScansDb {
 
 	public function getQueryInserter() :object {
 		return new class( $this ) {
-			public function __construct( private StartScansFakeScansDb $db ) {
+			private StartScansFakeScansDb $db;
+
+			public function __construct( StartScansFakeScansDb $db ) {
+				$this->db = $db;
 			}
 
 			public function insert( Record $record ) :bool {
@@ -280,7 +288,10 @@ class StartScansFakeScansDb {
 		return new class( $this ) {
 			private string $scan = '';
 
-			public function __construct( private StartScansFakeScansDb $db ) {
+			private StartScansFakeScansDb $db;
+
+			public function __construct( StartScansFakeScansDb $db ) {
+				$this->db = $db;
 			}
 
 			public function filterByScan( string $scan ) :self {
@@ -317,7 +328,10 @@ class StartScansFakeQueue {
 
 	public function getQueueBuilder() :object {
 		return new class( $this ) {
-			public function __construct( private StartScansFakeQueue $queue ) {
+			private StartScansFakeQueue $queue;
+
+			public function __construct( StartScansFakeQueue $queue ) {
+				$this->queue = $queue;
 			}
 
 			public function dispatch() :void {
@@ -331,7 +345,10 @@ class StartScansFakeWpDb extends Db {
 
 	public int $writeCount = 0;
 
-	public function __construct( private StartScansFakeScansDb $scansDb ) {
+	private StartScansFakeScansDb $scansDb;
+
+	public function __construct( StartScansFakeScansDb $scansDb ) {
+		$this->scansDb = $scansDb;
 	}
 
 	public function getVar( $sql ) {
@@ -348,7 +365,10 @@ class StartScansFakeWpDb extends Db {
 
 class StartScansFakeGeneral extends General {
 
-	public function __construct( private bool $isCli ) {
+	private bool $isCli;
+
+	public function __construct( bool $isCli ) {
+		$this->isCli = $isCli;
 	}
 
 	public function isWpCli() :bool {

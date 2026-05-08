@@ -68,6 +68,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   is_expandable:bool,
  *   label:string,
  *   title:string,
+ *   accessible_label:string,
  *   data_attributes:DetailActionData
  * }
  * @phpstan-type DiagnosisFinding array{

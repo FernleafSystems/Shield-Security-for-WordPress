@@ -2,13 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Wpv;
 
+/**
+ * @extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet<ResultItem>
+ */
 class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet {
 	/**
 	 * @return ResultItem[]
 	 */
 	public function getItemsForSlug( string $slug ): array {
 		return \array_values( \array_filter(
-			$this->getWpvItems(),
+			$this->getAllItems(),
 			static fn( ResultItem $item ): bool => $item->VO->item_id === $slug,
 		) );
 	}
@@ -19,17 +22,7 @@ class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	public function getUniqueSlugs(): array {
 		return \array_values( \array_unique( \array_map(
 			static fn( ResultItem $item ): string => $item->VO->item_id,
-			$this->getWpvItems()
+			$this->getAllItems()
 		) ) );
-	}
-
-	/**
-	 * @return list<ResultItem>
-	 */
-	private function getWpvItems(): array {
-		return \array_values( \array_filter(
-			$this->getAllItems(),
-			static fn( $item ): bool => $item instanceof ResultItem
-		) );
 	}
 }

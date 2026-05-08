@@ -185,7 +185,7 @@ class ScansVulnerabilitiesBuilder {
 				: \strcmp( $a[ 'label' ], $b[ 'label' ] );
 		} );
 
-		return \array_values( $items );
+		return $items;
 	}
 
 	/**

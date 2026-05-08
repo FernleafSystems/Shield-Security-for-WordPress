@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
 	Maintenance,
@@ -29,7 +29,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   summary_keys:list<string>,
  *   healthy_interaction_mode:'none'|'ignored_only'|'default_detail',
  *   healthy_ignored_source:''|'wordpress'|'plugins'|'themes'|'malware',
- *   render_action_class:class-string<BaseAction>,
+ *   render_action_class:class-string<BaseRender>,
  *   render_action_data:array<string,mixed>
  * }
  * @phpstan-type GroupMetadata array{
@@ -40,7 +40,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   card_type:'expandable'|'linked'|'category',
  *   healthy_interaction_mode:'none'|'ignored_only'|'default_detail',
  *   healthy_ignored_source:''|'wordpress'|'plugins'|'themes'|'malware',
- *   render_action_class:class-string<BaseAction>,
+ *   render_action_class:class-string<BaseRender>,
  *   render_action_data:'none'|'scan_results'|array<string,mixed>
  * }
  * @phpstan-type SummaryBehaviour array{
@@ -326,7 +326,7 @@ class ActionsQueueGroupDefinitions {
 	 * @return list<string>
 	 */
 	public function criticalScanGroupKeys() :array {
-		return \array_values( \array_keys( PluginNavs::actionsQueueScanDefinitions() ) );
+		return \array_keys( PluginNavs::actionsQueueScanDefinitions() );
 	}
 
 	public function groupKeyForGroupKey( string $groupKey ) :string {

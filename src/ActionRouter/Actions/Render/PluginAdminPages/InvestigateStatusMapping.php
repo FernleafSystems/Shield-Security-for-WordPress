@@ -11,12 +11,22 @@ trait InvestigateStatusMapping {
 	}
 
 	protected function highestStatus( array $statuses, string $defaultStatus = 'info' ) :string {
-		$statuses = \array_values( \array_filter( \array_map( '\strval', $statuses ), '\strlen' ) );
+		$statuses = $this->normalizeStatuses( $statuses );
 		return StatusPriority::highest( $statuses, $defaultStatus );
 	}
 
 	protected function mapFlagGroupToStatus( array $statuses, string $defaultStatus = 'info' ) :string {
 		return $this->highestStatus( $statuses, $defaultStatus );
 	}
-}
 
+	private function normalizeStatuses( array $statuses ) :array {
+		$normalized = [];
+		foreach ( $statuses as $status ) {
+			$status = (string)$status;
+			if ( $status !== '' ) {
+				$normalized[] = $status;
+			}
+		}
+		return $normalized;
+	}
+}

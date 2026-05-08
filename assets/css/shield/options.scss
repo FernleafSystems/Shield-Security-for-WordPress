@@ -365,7 +365,7 @@ $options-rail-width-max: 260px;
 }
 
 .options_form_for--modern .shield-option-control-col .form-switch .form-check-input:focus {
-  box-shadow: 0 0 0 0.2rem rgba(95, 170, 71, 0.25);
+  @include shield-focus-ring();
   border-color: #c9ddc9;
 }
 

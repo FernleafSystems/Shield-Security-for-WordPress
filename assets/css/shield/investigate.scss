@@ -196,25 +196,18 @@
 }
 
 .investigate-panel__tab:hover {
-	background: #f0f8fb;
-	color: $status-color-info;
+	background: $mode-investigate-light;
+	color: $mode-investigate;
 }
 
 .investigate-panel__tab:focus-visible {
-	box-shadow: 0 0 0 0.2rem rgba($status-color-info, 0.2);
-	outline: 2px solid $status-color-info;
-	outline-offset: 2px;
+	@include shield-focus-ring();
 }
 
-.investigate-panel__tab.is-active {
-	background: $status-color-info;
-	border-color: $status-color-info;
-	color: #fff;
-}
-
+.investigate-panel__tab.is-active,
 .investigate-panel__tab.active {
-	background: $status-color-info;
-	border-color: $status-color-info;
+	background: $mode-investigate;
+	border-color: $mode-investigate;
 	color: #fff;
 }
 

@@ -25,7 +25,10 @@
 .healthy-disclosure__toggle:focus-visible {
 	background: #d4edda;
 	border-color: rgba($status-color-good, 0.35);
-	outline: none;
+}
+
+.healthy-disclosure__toggle:focus-visible {
+	@include shield-focus-ring();
 }
 
 .healthy-disclosure__icon,

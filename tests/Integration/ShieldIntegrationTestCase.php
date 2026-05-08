@@ -25,6 +25,9 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 
 	public function set_up() {
 		parent::set_up();
+		if ( static::con() !== null ) {
+			RuntimeTestState::resetRequestLoggerState();
+		}
 		$this->capturedEvents = [];
 		$this->resetIpCaches();
 		$this->resetScanResultCountMemoization();
@@ -34,6 +37,9 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 	public function tear_down() {
 		$this->disablePremiumCapabilities();
 		$this->truncateShieldTables();
+		if ( static::con() !== null ) {
+			RuntimeTestState::resetRequestLoggerState();
+		}
 		$this->resetIpCaches();
 		if ( static::con() !== null ) {
 			$this->resetScanResultCountMemoization();

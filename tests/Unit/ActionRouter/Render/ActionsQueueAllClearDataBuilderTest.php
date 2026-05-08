@@ -41,9 +41,11 @@ class ActionsQueueAllClearDataBuilderTest extends BaseUnitTest {
 	public function test_build_produces_expected_title_subtitle_and_zone_chips() :void {
 		$data = ( new ActionsQueueAllClearDataBuilder() )->build( [
 			'scans' => [
+				'slug'  => 'scans',
 				'label' => 'Scans',
 			],
 			'maintenance' => [
+				'slug'  => 'maintenance',
 				'label' => 'Maintenance',
 			],
 		] );

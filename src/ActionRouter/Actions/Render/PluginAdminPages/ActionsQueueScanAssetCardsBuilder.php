@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   type:string,
  *   label:string,
  *   href:string,
+ *   is_action:bool,
  *   icon_class:string,
  *   tooltip_attr:string,
  *   attributes:array<string,string>
@@ -193,6 +194,7 @@ class ActionsQueueScanAssetCardsBuilder {
 				'type'         => 'update',
 				'label'        => __( 'Update', 'wp-simple-firewall' ),
 				'href'         => \admin_url( 'update-core.php' ),
+				'is_action'    => false,
 				'icon_class'   => 'bi bi-arrow-up-circle-fill',
 				'tooltip_attr' => __( 'Go to updates', 'wp-simple-firewall' ),
 				'attributes'   => [],
@@ -203,6 +205,7 @@ class ActionsQueueScanAssetCardsBuilder {
 				'type'         => 'deactivate',
 				'label'        => __( 'Deactivate', 'wp-simple-firewall' ),
 				'href'         => \admin_url( 'plugins.php' ),
+				'is_action'    => false,
 				'icon_class'   => 'bi bi-power',
 				'tooltip_attr' => __( 'Go to plugins', 'wp-simple-firewall' ),
 				'attributes'   => [],

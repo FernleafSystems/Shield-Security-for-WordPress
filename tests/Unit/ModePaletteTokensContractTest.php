@@ -16,7 +16,7 @@ class ModePaletteTokensContractTest extends BaseUnitTest {
 			'mode-actions'            => '$danger',
 			'mode-actions-light'      => '#fdeaec',
 			'mode-actions-border'     => '#f5c6cb',
-			'mode-investigate'        => '$info',
+			'mode-investigate'        => '#0a58ca',
 			'mode-investigate-light'  => '#e0f4f8',
 			'mode-investigate-border' => '#b6e3ed',
 			'mode-configure'          => '#6c4bb3',

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansFileLockerDiff;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
@@ -277,12 +278,12 @@ class ScansResultsViewBuilder {
 		foreach ( $this->buildPluginThemeIssueRecords( $assetType ) as $item ) {
 			$row = $this->attachExpansionToDetailRow(
 				$this->buildDetailRow(
-				$item[ 'title' ],
-				$item[ 'stat_text' ],
-				$item[ 'status' ],
-				$item[ 'count_badge' ],
-				$item[ 'status' ],
-				$item[ 'actions' ]
+					$item[ 'title' ],
+					$item[ 'stat_text' ],
+					$item[ 'status' ],
+					$item[ 'count_badge' ],
+					$item[ 'status' ],
+					$item[ 'actions' ]
 				),
 				$this->buildDetailExpansion(
 					$item[ 'expand_target' ],
@@ -302,10 +303,13 @@ class ScansResultsViewBuilder {
 	 * @return list<QueueAssetCard>
 	 */
 	protected function buildPluginThemeIssueRecords( string $assetType, ?array $resultsDisplayOptions = null ) :array {
-		return $this->buildActionsQueueAssetCardsBuilder()->buildIssueRecords(
-			$assetType,
-			$this->queueScanResultsOptions()->normalize( $resultsDisplayOptions )
-		);
+		return \array_values( \array_map(
+			fn( array $card ) :array => $this->normalizeQueueAssetCard( $card ),
+			$this->buildActionsQueueAssetCardsBuilder()->buildIssueRecords(
+				$assetType,
+				$this->queueScanResultsOptions()->normalize( $resultsDisplayOptions )
+			)
+		) );
 	}
 
 	/**
@@ -655,12 +659,8 @@ class ScansResultsViewBuilder {
 		];
 	}
 
-	private function actionPayload( string $actionClass ) :array {
-		return self::con()->action_router->action( $actionClass )->payload();
-	}
-
 	/**
-	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction> $actionClass
+	 * @param class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender> $actionClass
 	 */
 	protected function buildAjaxRenderActionData( string $actionClass, array $aux = [] ) :array {
 		return ActionData::BuildAjaxRender( $actionClass, $aux );
@@ -737,6 +737,9 @@ class ScansResultsViewBuilder {
 			'badge_status' => $badgeStatus,
 			'expandable'   => false,
 			'expand_target' => '',
+			'expand_cta_label' => '',
+			'expand_accessible_label' => '',
+			'expand_title' => '',
 			'expansion'    => [],
 			'explanations' => [],
 			'show_gear'    => false,
@@ -747,12 +750,21 @@ class ScansResultsViewBuilder {
 	}
 
 	/**
+	 * @param array{title:string,expandable:bool,expand_target:string,expand_accessible_label:string,expansion:array<string,mixed>} $row
 	 * @param DetailExpansion $expansion
 	 * @return array<string,mixed>
 	 */
 	protected function attachExpansionToDetailRow( array $row, array $expansion ) :array {
+		if ( $expansion[ 'id' ] === '' ) {
+			throw new \LogicException( 'Expandable scan result rows require a non-empty expansion target.' );
+		}
+
 		$row[ 'expandable' ] = true;
 		$row[ 'expand_target' ] = $expansion[ 'id' ];
+		$row[ 'expand_accessible_label' ] = $this->buildExpandAccessibleLabel(
+			CommonDisplayStrings::get( 'details_label' ),
+			$row[ 'title' ]
+		);
 		$row[ 'expansion' ] = $expansion;
 		return $row;
 	}
@@ -768,6 +780,20 @@ class ScansResultsViewBuilder {
 			'status' => $status,
 			'table'  => $table,
 		];
+	}
+
+	private function buildExpandAccessibleLabel( string $label, string $rowTitle ) :string {
+		$label = \trim( $label );
+		$rowTitle = \trim( $rowTitle );
+
+		$accessibleLabel = $label !== '' && $rowTitle !== ''
+			? \sprintf( __( '%1$s: %2$s', 'wp-simple-firewall' ), $label, $rowTitle )
+			: ( $label !== '' ? $label : $rowTitle );
+		if ( $accessibleLabel === '' ) {
+			throw new \LogicException( 'Expandable scan result rows require a non-empty accessible label.' );
+		}
+
+		return $accessibleLabel;
 	}
 
 	/**

@@ -63,7 +63,7 @@ class CompatibilityChecks extends BaseHandler {
 			'paths'    => $this->paths(),
 			'ini'      => $this->ini(),
 			'caps'     => $this->caps(),
-			'exts'     => \is_array( \get_loaded_extensions() ) ? \get_loaded_extensions() : [],
+			'exts'     => \get_loaded_extensions(),
 		];
 	}
 

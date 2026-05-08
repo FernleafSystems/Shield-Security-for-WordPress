@@ -50,7 +50,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			'label'               => $maintenanceItem[ 'label' ],
 			'item_count'          => $isHealthy
 				? $this->visibleCount( $maintenanceItem )
-				: (int)$maintenanceItem[ 'count' ],
+				: $maintenanceItem[ 'count' ],
 			'status'              => StatusPriority::normalize( $maintenanceItem[ 'severity' ], 'warning' ),
 			'narrative'           => $maintenanceItem[ 'description' ],
 			'detail_shell'        => 'maintenance',
@@ -98,7 +98,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 		return (int)\array_sum( \array_map(
 			fn( array $maintenanceItem ) :int => $isHealthy
 				? $this->visibleCount( $maintenanceItem )
-				: (int)( $maintenanceItem[ 'count' ] ?? 0 ),
+				: $maintenanceItem[ 'count' ],
 			$maintenanceItems
 		) );
 	}
@@ -109,7 +109,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 	private function aggregateStatus( array $maintenanceItems ) :string {
 		return StatusPriority::highest( \array_map(
 			static fn( array $maintenanceItem ) :string => StatusPriority::normalize(
-				$maintenanceItem[ 'severity' ] ?? 'good',
+				$maintenanceItem[ 'severity' ],
 				'good'
 			),
 			$maintenanceItems
@@ -193,7 +193,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 
 	/**
 	 * @phpstan-param MaintenanceQueueItem $maintenanceItem
-	 * @return array{}|MaintenanceItemCta
+	 * @return array{}|array{label:string,href:string,target:string}
 	 */
 	private function resolveCta( array $maintenanceItem ) :array {
 		if ( empty( $maintenanceItem[ 'cta' ] ) ) {
@@ -201,8 +201,8 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 		}
 
 		$cta = $maintenanceItem[ 'cta' ];
-		$label = \trim( (string)( $cta[ 'label' ] ?? '' ) );
-		$href = \trim( (string)( $cta[ 'href' ] ?? '' ) );
+		$label = \trim( $cta[ 'label' ] );
+		$href = \trim( $cta[ 'href' ] );
 		if ( $label === '' || $href === '' ) {
 			return [];
 		}
@@ -268,7 +268,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 	 * @return array{}|CompactSummaryRow
 	 */
 	private function buildSummaryRow( array $maintenanceItem ) :array {
-		$toggleAction = $this->normalizeToggleAction( $maintenanceItem[ 'toggle_action' ] ?? [] );
+		$toggleAction = $this->normalizeToggleAction( $maintenanceItem[ 'toggle_action' ] );
 		if ( $maintenanceItem[ 'description' ] === '' && empty( $toggleAction ) ) {
 			return [];
 		}
@@ -287,7 +287,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 	 * @phpstan-param MaintenanceQueueItem $maintenanceItem
 	 */
 	private function visibleCount( array $maintenanceItem ) :int {
-		$activeCount = (int)( $maintenanceItem[ 'count' ] ?? 0 );
+		$activeCount = $maintenanceItem[ 'count' ];
 		if ( $activeCount > 0 ) {
 			return $activeCount;
 		}
@@ -311,7 +311,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			$actions[] = $navigationAction;
 		}
 
-		$toggleAction = $this->normalizeToggleAction( $maintenanceItem[ 'toggle_action' ] ?? [] );
+		$toggleAction = $this->normalizeToggleAction( $maintenanceItem[ 'toggle_action' ] );
 		if ( !empty( $toggleAction ) ) {
 			$actions[] = $toggleAction;
 		}
@@ -352,26 +352,30 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 	}
 
 	/**
-	 * @param array<string,mixed> $toggleAction
+	 * @param array{}|MaintenanceUiAction $toggleAction
 	 * @return array{}|CompactSummaryAction
 	 */
 	private function normalizeToggleAction( array $toggleAction ) :array {
-		$href = \trim( (string)( $toggleAction[ 'href' ] ?? '' ) );
-		$label = \trim( (string)( $toggleAction[ 'label' ] ?? '' ) );
-		$icon = \trim( (string)( $toggleAction[ 'icon' ] ?? '' ) );
+		if ( empty( $toggleAction ) ) {
+			return [];
+		}
+
+		$href = \trim( $toggleAction[ 'href' ] );
+		$label = \trim( $toggleAction[ 'label' ] );
+		$icon = \trim( $toggleAction[ 'icon' ] );
 		if ( $label === '' || $icon === '' ) {
 			return [];
 		}
-		$isAction = (bool)( $toggleAction[ 'is_action' ] ?? false );
+		$isAction = $toggleAction[ 'is_action' ];
 
 		return [
 			'href'             => $isAction ? '' : $href,
 			'is_action'        => $isAction,
 			'label'            => $label,
 			'icon'             => $icon,
-			'tooltip'          => \trim( (string)( $toggleAction[ 'tooltip' ] ?? '' ) ),
-			'target'           => $isAction ? '' : \trim( (string)( $toggleAction[ 'target' ] ?? '' ) ),
-			'ajax_action_json' => \trim( (string)( $toggleAction[ 'ajax_action_json' ] ?? '' ) ),
+			'tooltip'          => \trim( $toggleAction[ 'tooltip' ] ),
+			'target'           => $isAction ? '' : \trim( $toggleAction[ 'target' ] ),
+			'ajax_action_json' => \trim( $toggleAction[ 'ajax_action_json' ] ),
 		];
 	}
 
@@ -382,9 +386,9 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 	private function sortAggregateItems( array $maintenanceItems ) :array {
 		\uasort( $maintenanceItems, function ( array $left, array $right ) :int {
 			$statusCmp = StatusPriority::rank(
-				StatusPriority::normalize( $right[ 'severity' ] ?? 'good', 'good' )
+				StatusPriority::normalize( $right[ 'severity' ], 'good' )
 			) <=> StatusPriority::rank(
-				StatusPriority::normalize( $left[ 'severity' ] ?? 'good', 'good' )
+				StatusPriority::normalize( $left[ 'severity' ], 'good' )
 			);
 			if ( $statusCmp !== 0 ) {
 				return $statusCmp;
@@ -405,7 +409,7 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 	 * @phpstan-param MaintenanceQueueItem $maintenanceItem
 	 */
 	private function isIgnored( array $maintenanceItem ) :bool {
-		$toggleAction = $maintenanceItem[ 'toggle_action' ] ?? [];
-		return !empty( $toggleAction ) && ( $toggleAction[ 'kind' ] ?? '' ) === 'unignore';
+		$toggleAction = $maintenanceItem[ 'toggle_action' ];
+		return !empty( $toggleAction ) && $toggleAction[ 'kind' ] === 'unignore';
 	}
 }

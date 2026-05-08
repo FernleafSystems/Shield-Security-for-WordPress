@@ -1113,10 +1113,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			}
 
 			public function optDefault( string $key ) {
-				return match ( $key ) {
-					'transgression_limit' => 10,
-					default => null,
-				};
+				return $key === 'transgression_limit' ? 10 : null;
 			}
 
 			public function optDef( string $key ) :array {

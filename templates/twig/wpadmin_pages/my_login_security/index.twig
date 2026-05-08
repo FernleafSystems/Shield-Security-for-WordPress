@@ -8,12 +8,9 @@
 	</style>
 {% endblock %}
 
-{% block h1heading %}<h1 style="display: none;">&nbsp;</h1>{% endblock %}
 {% block page_head %}{% endblock %}
 {% block body %}
-	<div id="ShieldMfaUserProfileForm" class="shield_user_mfa_container">
-		<p>Loading ...</p>
-	</div>
+	{{ content.mfa_setup|raw }}
 {% endblock %}
 
 {% block page_foot %}

@@ -47,6 +47,9 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 				'title'   => 'Tooltip Row',
 				'expandable' => true,
 				'expand_target' => 'tooltip-row-expansion',
+				'expand_cta_label' => 'Details',
+				'expand_accessible_label' => 'Details for Tooltip Row',
+				'expand_title' => 'Open details',
 				'actions' => [
 					[
 						'type'    => 'update',
@@ -72,8 +75,18 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 
 		$this->assertSame(
 			1,
-			$xpath->query( '//*[@data-shield-expand-trigger="1" and @aria-controls="tooltip-row-expansion" and @aria-expanded="false"]' )->length,
-			'Expandable rows should expose the Bootstrap collapse target through aria-controls'
+			$xpath->query( '//*[@data-shield-expand-row="1" and @data-shield-expand-target="tooltip-row-expansion" and not(@role) and not(@tabindex) and not(@aria-controls) and not(@aria-expanded)]' )->length,
+			'Expandable row wrappers should stay layout containers instead of acting as buttons'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query( '//button[@type="button" and @data-shield-expand-trigger="1" and @aria-controls="tooltip-row-expansion" and @aria-expanded="false" and string-length(normalize-space(@aria-label)) > 0]' )->length,
+			'Expandable rows should render a real button with a non-empty accessible collapse contract'
+		);
+		$this->assertSame(
+			0,
+			$xpath->query( '//button[@data-shield-expand-trigger="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-action-chip ")]' )->length,
+			'Nested action controls should not be descendants of the expand button'
 		);
 		$this->assertSame(
 			1,
@@ -98,6 +111,11 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 				'status'       => 'good',
 				'title'        => 'Healthy Row',
 				'description'  => 'Everything is configured.',
+				'expandable'   => false,
+				'expand_target' => '',
+				'expand_cta_label' => '',
+				'expand_accessible_label' => '',
+				'expand_title' => '',
 				'explanations' => [
 					'This setting still needs a short explanation.',
 					'The explanation should render without a warning icon.',

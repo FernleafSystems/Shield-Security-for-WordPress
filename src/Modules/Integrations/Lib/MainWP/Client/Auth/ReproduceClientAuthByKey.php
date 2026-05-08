@@ -20,7 +20,7 @@ class ReproduceClientAuthByKey {
 		}
 
 		return (bool)MainWP_Connect::instance()->auth(
-			rawurldecode( (string)$req->request( 'mainwpsignature', '' ) ),
+			rawurldecode( (string)$req->request( 'mainwpsignature', false, '' ) ),
 			sanitize_text_field( $functionOrWhere ),
 			sanitize_text_field( $req->request( 'nonce' ) ),
 			sanitize_text_field( $req->request( 'nossl' ) )

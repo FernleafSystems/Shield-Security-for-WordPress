@@ -352,7 +352,10 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$controller->cache_dir_handler = new OptimiserCacheDir( $cacheDir, $cacheExists, $cacheBuildable );
 		$controller->comps = (object)[
 			'scans' => new class( $afsComponent ?? new OptimiserAfsComponent() ) {
-				public function __construct( private OptimiserAfsComponent $afsComponent ) {
+				private OptimiserAfsComponent $afsComponent;
+
+				public function __construct( OptimiserAfsComponent $afsComponent ) {
+					$this->afsComponent = $afsComponent;
 				}
 
 				public function AFS() :OptimiserAfsComponent {
@@ -456,11 +459,14 @@ class FileScanOptimiserTest extends BaseUnitTest {
 }
 
 class OptimiserCacheDir {
-	public function __construct(
-		private string $dir,
-		private bool $exists,
-		private bool $buildable = true
-	) {
+	private string $dir;
+	private bool $exists;
+	private bool $buildable;
+
+	public function __construct( string $dir, bool $exists, bool $buildable = true ) {
+		$this->dir = $dir;
+		$this->exists = $exists;
+		$this->buildable = $buildable;
 	}
 
 	public function exists() :bool {
@@ -477,7 +483,10 @@ class OptimiserCacheDir {
 }
 
 class OptimiserRequest extends Request {
-	public function __construct( public int $ts ) {
+	public int $ts;
+
+	public function __construct( int $ts ) {
+		$this->ts = $ts;
 	}
 
 	public function ts( bool $update = true ) :int {
@@ -497,7 +506,10 @@ class OptimiserFs extends Fs {
 }
 
 class OptimiserGeneral extends General {
-	public function __construct( private string $version ) {
+	private string $version;
+
+	public function __construct( string $version ) {
+		$this->version = $version;
 	}
 
 	public function getVersion( $ignoreClassicpress = false ) :string {
@@ -513,11 +525,14 @@ class OptimiserCoreHashes extends CoreFileHashes {
 }
 
 class OptimiserAfsComponent {
-	public function __construct(
-		private bool $coreEnabled = true,
-		private bool $pluginsEnabled = true,
-		private bool $themesEnabled = true
-	) {
+	private bool $coreEnabled;
+	private bool $pluginsEnabled;
+	private bool $themesEnabled;
+
+	public function __construct( bool $coreEnabled = true, bool $pluginsEnabled = true, bool $themesEnabled = true ) {
+		$this->coreEnabled = $coreEnabled;
+		$this->pluginsEnabled = $pluginsEnabled;
+		$this->themesEnabled = $themesEnabled;
 	}
 
 	public function isEnabled() :bool {
@@ -534,7 +549,10 @@ class OptimiserAfsComponent {
 }
 
 class OptimiserPlugins extends Plugins {
-	public function __construct( private array $pluginFiles ) {
+	private array $pluginFiles;
+
+	public function __construct( array $pluginFiles ) {
+		$this->pluginFiles = $pluginFiles;
 	}
 
 	public function getInstalledPluginFiles() :array {
@@ -570,13 +588,19 @@ class OptimiserPluginVo extends WpPluginVo {
 }
 
 class OptimiserThemes extends Themes {
-	public function __construct( private array $themes ) {
+	private array $themes;
+
+	public function __construct( array $themes ) {
+		$this->themes = $themes;
 	}
 
 	public function getThemes() :array {
 		return \array_map(
 			static fn( string $stylesheet ) => new class( $stylesheet ) {
-				public function __construct( private string $stylesheet ) {
+				private string $stylesheet;
+
+				public function __construct( string $stylesheet ) {
+					$this->stylesheet = $stylesheet;
 				}
 
 				public function get_stylesheet() :string {

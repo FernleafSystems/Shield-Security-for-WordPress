@@ -101,16 +101,6 @@
 	color: #fff;
 }
 
-.shield-accessible-dialog__confirm:focus-visible,
-.shield-accessible-dialog__cancel:focus-visible,
-.shield-accessible-dialog__field input:focus-visible,
-.shield-mfa-dialog__confirm:focus-visible,
-.shield-mfa-dialog__cancel:focus-visible,
-.shield-mfa-dialog__field input:focus-visible {
-	outline: 2px solid #2271b1;
-	outline-offset: 2px;
-}
-
 @media ( max-width: 480px ) {
 	[data-shield-accessible-dialog="1"],
 	[data-shield-mfa-dialog="1"] {

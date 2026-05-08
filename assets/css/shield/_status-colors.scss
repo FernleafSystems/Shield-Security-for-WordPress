@@ -21,6 +21,12 @@ $badge-info-bg: #e7f7fb;
 $badge-info-color: #0a58ca;
 $panel-border-info-subtle: #ddeef5;
 
+// Status text colours for small labels on white/neutral surfaces
+$status-text-color-good: $badge-good-color;
+$status-text-color-warning: #946200;
+$status-text-color-critical: $status-color-critical;
+$status-text-color-info: $badge-info-color;
+
 // Card status tint backgrounds (very subtle, for card body fill)
 $card-bg-good: #f9fdf9;
 $card-bg-warning: #fdfcf8;
