@@ -83,7 +83,7 @@ class WebauthnLibAdapter implements PasskeyAdapterInterface {
 
 		return $validator->check(
 			$authenticatorAttestationResponse,
-			PublicKeyCredentialCreationOptions::createFromArray( $registrationOptions ),
+			$this->creationOptionsFromArray( $registrationOptions ),
 			$this->createServerRequest()
 		)->jsonSerialize();
 	}
@@ -96,10 +96,26 @@ class WebauthnLibAdapter implements PasskeyAdapterInterface {
 	) :array {
 		return $this->getServer( $context, $sourceRepo )->loadAndCheckAssertionResponse(
 			$rawResponseJson,
-			PublicKeyCredentialRequestOptions::createFromArray( $authenticationOptions ),
+			$this->requestOptionsFromArray( $authenticationOptions ),
 			$this->getUserEntity( $context ),
 			$this->createServerRequest()
 		)->jsonSerialize();
+	}
+
+	private function creationOptionsFromArray( array $options ) :PublicKeyCredentialCreationOptions {
+		$creationOptions = PublicKeyCredentialCreationOptions::createFromArray( $options );
+		if ( !$creationOptions instanceof PublicKeyCredentialCreationOptions ) {
+			throw new \InvalidArgumentException( 'Invalid PublicKeyCredentialCreationOptions payload.' );
+		}
+		return $creationOptions;
+	}
+
+	private function requestOptionsFromArray( array $options ) :PublicKeyCredentialRequestOptions {
+		$requestOptions = PublicKeyCredentialRequestOptions::createFromArray( $options );
+		if ( !$requestOptions instanceof PublicKeyCredentialRequestOptions ) {
+			throw new \InvalidArgumentException( 'Invalid PublicKeyCredentialRequestOptions payload.' );
+		}
+		return $requestOptions;
 	}
 
 	private function createServerRequest() :\Psr\Http\Message\ServerRequestInterface {

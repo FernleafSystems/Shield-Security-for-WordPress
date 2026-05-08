@@ -287,16 +287,7 @@ class ActionsQueueCardDataBuilder {
 	 * }
 	 */
 	private function buildAllClearData() :array {
-		$zonesIndexed = \array_map(
-			static fn( string $slug, array $zone ) :array => [
-				'slug'  => $slug,
-				'label' => $zone[ 'label' ],
-			],
-			\array_keys( PluginNavs::actionsLandingZoneDefinitions() ),
-			\array_values( PluginNavs::actionsLandingZoneDefinitions() )
-		);
-
-		return ( new ActionsQueueAllClearDataBuilder() )->build( $zonesIndexed );
+		return ( new ActionsQueueAllClearDataBuilder() )->build( PluginNavs::actionsLandingZoneDefinitions() );
 	}
 
 }
