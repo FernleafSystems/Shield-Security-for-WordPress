@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\SilentCaptchaComplexity;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 
 class SilentCaptcha extends Base {

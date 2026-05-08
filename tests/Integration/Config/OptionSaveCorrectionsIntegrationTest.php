@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Config;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\SilentCaptchaComplexity;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 

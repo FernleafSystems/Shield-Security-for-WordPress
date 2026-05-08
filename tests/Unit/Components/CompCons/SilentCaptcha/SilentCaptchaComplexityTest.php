@@ -1,8 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\IPs\Lib\Bots\NotBot;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\SilentCaptcha;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\SilentCaptchaComplexity;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class SilentCaptchaComplexityTest extends BaseUnitTest {

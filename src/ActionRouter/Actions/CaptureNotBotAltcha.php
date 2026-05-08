@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\AltChaV2Pbkdf2;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\AltCha\AltChaV2Pbkdf2;
 
 class CaptureNotBotAltcha extends BaseAction {
 

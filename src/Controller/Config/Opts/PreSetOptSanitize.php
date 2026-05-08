@@ -3,7 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\SilentCaptchaComplexity;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PreSetOptSanitize {

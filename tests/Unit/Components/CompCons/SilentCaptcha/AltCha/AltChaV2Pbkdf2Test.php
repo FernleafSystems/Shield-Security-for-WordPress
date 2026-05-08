@@ -1,8 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\IPs\Lib\Bots\NotBot;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\SilentCaptcha\AltCha;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\AltChaV2Pbkdf2;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\AltCha\AltChaV2Pbkdf2;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class AltChaV2Pbkdf2Test extends BaseUnitTest {

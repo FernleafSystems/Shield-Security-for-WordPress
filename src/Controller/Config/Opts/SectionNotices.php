@@ -9,7 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	LoginGuard\Lib\TwoFactor\Utilties\PasskeyCompatibilityCheck,
 	PluginControllerConsumer
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\TestNotBotLoading;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Diagnostics\TestNotBotLoading;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\WorldTimeApi;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModulePlugin;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\SilentCaptcha;
