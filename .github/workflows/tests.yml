@@ -14,7 +14,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Run cache cleanup script regression tests
       run: |
@@ -28,10 +28,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: '20.10'
 
@@ -47,10 +47,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: '20.10'
         cache: npm
@@ -67,7 +67,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -79,11 +79,8 @@ jobs:
     - name: Install dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-    - name: Build plugin config
-      run: composer build:config
-
     - name: Run source static analysis
-      run: php bin/shield analyze:source
+      run: composer analyze
 
   unit-php74:
     name: 'Unit PHP 7.4'
@@ -105,7 +102,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Verify required Docker test scripts are executable
       shell: bash
@@ -123,13 +120,12 @@ jobs:
 
     - name: Run source docker runtime checks
       env:
-        SHIELD_SKIP_UNIT_TESTS: '1'
         SHIELD_SOURCE_RUNTIME_LOG_DIR: ${{ runner.temp }}/shield-source-runtime-logs
-      run: php bin/shield test:source --show-docker-output
+      run: php bin/shield test:source --skip-unit-tests --show-docker-output
 
     - name: Upload source docker runtime logs
       if: failure()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: source-docker-runtime-logs
         path: ${{ runner.temp }}/shield-source-runtime-logs
@@ -149,7 +145,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -169,7 +165,7 @@ jobs:
         echo "SHIELD_STRAUSS_FORK_BRANCH=${SHIELD_STRAUSS_FORK_BRANCH:-}" >> $GITHUB_ENV
 
     - name: Download package artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: shield-package
         path: ${{ github.workspace }}/shield-package

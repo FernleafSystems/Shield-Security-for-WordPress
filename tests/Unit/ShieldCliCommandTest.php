@@ -14,6 +14,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\CrossSiteTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageFullTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceRuntimeTestLane;
+use Symfony\Component\Console\Tester\CommandTester;
 
 class ShieldCliCommandTest extends BaseUnitTest {
 
@@ -100,6 +101,25 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		);
 		$this->assertTrue( $command->getDefinition()->hasOption( 'refresh-setup' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'skip-unit-tests' ) );
+	}
+
+	public function testSourceCommandForwardsSkipUnitTestsOption() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$lane = $this->createMock( SourceRuntimeTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), false, true, true )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestSourceCommand( $this->getPluginRoot(), $lane ) );
+		$exitCode = $tester->execute( [
+			'--show-docker-output' => true,
+			'--skip-unit-tests'    => true,
+		] );
+
+		$this->assertSame( 0, $exitCode );
 	}
 
 	public function testPackageFullCommandIncludesDebuggingOption() :void {
