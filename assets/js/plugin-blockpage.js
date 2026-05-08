@@ -1,8 +1,6 @@
 import { BlockPageAutoRecover } from "./components/block/BlockPageAutoRecover";
 import { BlockPageMagicLink } from "./components/block/BlockPageMagicLink";
 
-import "../css/plugin-blockpage.scss";
-
 window.addEventListener( 'load', () => {
 	new BlockPageAutoRecover();
 	if ( 'shield_vars_blockpage' in window ) {
