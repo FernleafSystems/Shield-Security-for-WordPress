@@ -113,12 +113,15 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'empty', $record->data[ 'trustPath' ][ 'type' ] ?? '' );
 	}
 
-	public function test_authentication_verification_normalizes_prefixed_trust_path_type() :void {
+	/**
+	 * @dataProvider classLikeTrustPathTypesProvider
+	 */
+	public function test_authentication_verification_normalizes_class_like_trust_path_type( string $trustPathType ) :void {
 		$userId = $this->createAdministratorUser();
 		$user = \get_user_by( 'id', $userId );
 		$recordId = $this->seedLegacyPasskey( $user, [
 			'trustPath' => [
-				'type' => 'AptowebDeps\\Webauthn\\TrustPath\\EmptyTrustPath',
+				'type' => $trustPathType,
 			],
 		] );
 		$this->seedPasskeyAuthenticationOptions( $user );
@@ -229,6 +232,37 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_success' ) );
 	}
 
+	/**
+	 * @dataProvider classLikeTrustPathTypesProvider
+	 */
+	public function test_login_intent_validation_succeeds_for_class_like_passkey_record( string $trustPathType ) :void {
+		$this->captureShieldEvents();
+
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+		$recordId = $this->seedLegacyPasskey( $user, [
+			'trustPath' => [
+				'type' => $trustPathType,
+			],
+		] );
+		$this->seedPasskeyAuthenticationOptions( $user );
+		$this->seedLoginIntent( $user, 'fixture-passkey-login' );
+
+		$provider = $this->assertPasskeyProviderActiveFor( $user );
+		$this->setPasskeyLoginOtpRequest( $provider, PasskeyFixtureLoader::authenticationResponse() );
+
+		$validatedSlug = ( new LoginIntentRequestValidate() )
+			->setWpUser( $user )
+			->run( 'fixture-passkey-login' );
+
+		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
+		$this->assertSame( Passkey::ProviderSlug(), $validatedSlug );
+		$this->assertSame( 'empty', $record->data[ 'trustPath' ][ 'type' ] ?? '' );
+		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
+		$this->assertGreaterThan( 0, (int)$this->requireController()->user_metas->for( $user )->record->last_2fa_verified_at );
+		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_success' ) );
+	}
+
 	public function test_login_intent_validation_fails_for_invalid_passkey_payload() :void {
 		$this->captureShieldEvents();
 
@@ -261,5 +295,16 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function randomBase64Url( int $length = 32 ) :string {
 		return \rtrim( \strtr( \base64_encode( \random_bytes( $length ) ), '+/', '-_' ), '=' );
+	}
+
+	/**
+	 * @return array<string, array{0:string}>
+	 */
+	public function classLikeTrustPathTypesProvider() :array {
+		return [
+			'legacy unprefixed class'       => [ 'Webauthn\\TrustPath\\EmptyTrustPath' ],
+			'legacy prefixed class'         => [ 'AptowebDeps\\Webauthn\\TrustPath\\EmptyTrustPath' ],
+			'renamed implementation class'  => [ 'RenamedVendor\\PasskeyRuntime\\Storage\\CurrentTrustPath' ],
+		];
 	}
 }

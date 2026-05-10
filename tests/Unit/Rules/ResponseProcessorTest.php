@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Processors\ResponseProcessor,
 	Responses\HookAddAction,
 	Responses\HookAddFilter,
+	Responses\SetRequestToBeLogged,
 	RuleVO
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -113,6 +114,37 @@ class ResponseProcessorTest extends BaseUnitTest {
 				'accepted_args' => 2,
 			] )
 			->execResponse();
+
+		$this->addToAssertionCount( 1 );
+	}
+
+	public function test_legacy_log_request_hook_priority_reaches_add_filter_as_priority() :void {
+		Functions\expect( 'add_filter' )
+			->once()
+			->with(
+				'shield/is_log_traffic',
+				'__return_true',
+				25
+			)
+			->andReturn( true );
+
+		$rule = ( new RuleVO() )->applyFromArray( [
+			'slug'                    => 'test_log_request_rule',
+			'immediate_exec_response' => true,
+			'responses'               => [
+				[
+					'response' => SetRequestToBeLogged::class,
+					'params'   => [
+						'do_log'        => true,
+						'hook_priority' => '25',
+					],
+				],
+			],
+		] );
+
+		( new ResponseProcessor( $rule ) )
+			->setThisRequest( new ThisRequest() )
+			->run();
 
 		$this->addToAssertionCount( 1 );
 	}

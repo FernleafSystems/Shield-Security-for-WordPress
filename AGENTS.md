@@ -54,6 +54,7 @@ All PHP files declare strict types, follow PSR-4 namespaces rooted at `FernleafS
 - If existing repository changes do not directly conflict with the files or code you need to change, leave them alone and continue.
 - If existing repository changes do directly conflict with the files or code you need to change, report the conflict and stop rather than overwriting, reverting, or working around them silently.
 - When working from a numbered plan or task document, only mark items complete once the implementation and any required verification for that item are actually complete.
+- When a plan or Linear queue spans multiple feature areas or cannot be confidently implemented, verified, tracked, and closed in one rigorous pass, split it into independently completable slices before coding. Each slice must have one coherent outcome and per-item acceptance evidence; mapping, scaffolding, or partial status alone never counts as completion.
 - For UI changes, preserve the existing rendering, data flow, and presentation mechanisms wherever possible; change only the specific logic required for the approved behaviour.
 
 ## Testing Practices

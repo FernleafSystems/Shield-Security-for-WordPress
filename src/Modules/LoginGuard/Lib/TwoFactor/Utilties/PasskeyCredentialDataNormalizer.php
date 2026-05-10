@@ -4,10 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFact
 
 class PasskeyCredentialDataNormalizer {
 
-	private const TRUST_PATH_CLASS_ALIASES = [
-		'EmptyTrustPath'       => 'empty',
-		'CertificateTrustPath' => 'x5c',
-		'EcdaaKeyIdTrustPath'  => 'ecdaa_key_id',
+	private const TRUST_PATH_TYPE_EMPTY = 'empty';
+	private const TRUST_PATH_TYPE_CERTIFICATE = 'x5c';
+	private const TRUST_PATH_TYPE_ECDAA = 'ecdaa_key_id';
+	private const TRUST_PATH_ALIAS_TYPES = [
+		self::TRUST_PATH_TYPE_EMPTY,
+		self::TRUST_PATH_TYPE_CERTIFICATE,
+		self::TRUST_PATH_TYPE_ECDAA,
 	];
 
 	public function normalize( array $credentialData ) :array {
@@ -15,8 +18,7 @@ class PasskeyCredentialDataNormalizer {
 			return $credentialData;
 		}
 
-		$type = $credentialData[ 'trustPath' ][ 'type' ] ?? null;
-		$alias = \is_string( $type ) ? $this->normaliseTrustPathClassType( $type ) : null;
+		$alias = $this->normaliseTrustPathType( $credentialData[ 'trustPath' ] );
 		if ( $alias === null ) {
 			return $credentialData;
 		}
@@ -25,20 +27,38 @@ class PasskeyCredentialDataNormalizer {
 		return $credentialData;
 	}
 
-	private function normaliseTrustPathClassType( string $type ) :?string {
-		$parts = \explode( '\\', \ltrim( $type, '\\' ) );
-		if ( \count( $parts ) < 3 ) {
+	private function normaliseTrustPathType( array $trustPath ) :?string {
+		if ( \array_key_exists( 'x5c', $trustPath ) ) {
+			return self::TRUST_PATH_TYPE_CERTIFICATE;
+		}
+		if ( \array_key_exists( 'ecdaaKeyId', $trustPath ) ) {
+			return self::TRUST_PATH_TYPE_ECDAA;
+		}
+
+		$type = $trustPath[ 'type' ] ?? null;
+		if ( !\is_string( $type ) ) {
 			return null;
 		}
 
-		$className = \array_pop( $parts );
-		$pathNamespace = \array_pop( $parts );
-		$webauthnNamespace = \array_pop( $parts );
+		if ( \in_array( $type, self::TRUST_PATH_ALIAS_TYPES, true ) ) {
+			return $type;
+		}
 
-		return $webauthnNamespace === 'Webauthn'
-			   && $pathNamespace === 'TrustPath'
-			   && isset( self::TRUST_PATH_CLASS_ALIASES[ $className ] )
-			? self::TRUST_PATH_CLASS_ALIASES[ $className ]
-			: null;
+		return $this->isClassLikeType( $type ) ? self::TRUST_PATH_TYPE_EMPTY : null;
+	}
+
+	private function isClassLikeType( string $type ) :bool {
+		$parts = \explode( '\\', \ltrim( $type, '\\' ) );
+		if ( \count( $parts ) < 2 ) {
+			return false;
+		}
+
+		foreach ( $parts as $part ) {
+			if ( \preg_match( '/^[A-Za-z_][A-Za-z0-9_]*$/', $part ) !== 1 ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

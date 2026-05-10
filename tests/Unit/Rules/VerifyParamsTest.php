@@ -6,7 +6,8 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\{
 	HookAddFilter,
-	HttpRedirect
+	HttpRedirect,
+	SetRequestToBeLogged
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\{
 	ResponseParamsNormalizer,
@@ -61,6 +62,41 @@ class VerifyParamsTest extends BaseUnitTest {
 
 		$this->assertArrayNotHasKey( 'args', $normalized );
 		$this->assertArrayHasKey( 'accepted_args', $normalized );
+	}
+
+	public function test_legacy_log_request_hook_priority_is_normalized_to_priority() :void {
+		$normalized = ( new ResponseParamsNormalizer() )->normalize(
+			SetRequestToBeLogged::class,
+			[
+				'do_log'        => true,
+				'hook_priority' => '25',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'hook_priority', $normalized );
+		$this->assertSame( '25', $normalized[ 'priority' ] );
+
+		$verified = ( new VerifyParams() )->verifyParams(
+			$normalized,
+			( new SetRequestToBeLogged() )->getParamsDef()
+		);
+
+		$this->assertTrue( $verified[ 'do_log' ] );
+		$this->assertSame( 25, $verified[ 'priority' ] );
+	}
+
+	public function test_current_log_request_priority_wins_over_legacy_hook_priority() :void {
+		$normalized = ( new ResponseParamsNormalizer() )->normalize(
+			SetRequestToBeLogged::class,
+			[
+				'do_log'        => true,
+				'priority'      => '30',
+				'hook_priority' => '25',
+			]
+		);
+
+		$this->assertArrayNotHasKey( 'hook_priority', $normalized );
+		$this->assertSame( '30', $normalized[ 'priority' ] );
 	}
 
 	public function test_callback_args_remain_argument_array() :void {
