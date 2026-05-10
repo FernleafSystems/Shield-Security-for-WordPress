@@ -240,7 +240,7 @@ Use these rules for every Playwright spec under `tests/browser/action-router`:
 Raw Playground is no longer part of the supported test surface. Keep the local helper only for standalone smoke or debugging work:
 
 ```bash
-npm install --prefix tools/playground --no-audit --no-fund
+npm ci --prefix tools/playground --no-audit --no-fund
 php bin/run-playground-local.php
 php bin/run-playground-local.php --run-blueprint
 php bin/run-playground-local.php --clean
