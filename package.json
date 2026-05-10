@@ -45,15 +45,6 @@
     "select2": "^4.1.0-rc.0",
     "sortablejs": "^1.15.6"
   },
-  "overrides": {
-    "ajv": "^8.18.0",
-    "eslint": {
-      "ajv": "^6.12.6"
-    },
-    "@eslint/eslintrc": {
-      "ajv": "^6.12.6"
-    }
-  },
   "scripts": {
     "start": "webpack --config webpack.config.js",
     "build": "webpack --config webpack.config.js --mode production",

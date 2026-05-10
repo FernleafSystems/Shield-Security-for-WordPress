@@ -376,6 +376,50 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	/** @group package-targeted */
+	public function testPackagedPasskeyCredentialNormalizerUsesStableTrustPathContract() :void {
+		$this->requirePackageAutoload();
+		$normalizerClass = $this->loadPackagedPasskeyCredentialDataNormalizer();
+		$normalizer = new $normalizerClass();
+
+		$legacyRecord = $this->loadPasskeyLegacyRecordFixture();
+		foreach ( $this->packagePasskeyTrustPathTypeCases() as $case => $type ) {
+			$credentialData = $legacyRecord;
+			$credentialData[ 'trustPath' ][ 'type' ] = $type;
+
+			$normalized = $normalizer->normalize( $credentialData );
+
+			$this->assertSame( 'empty', $normalized[ 'trustPath' ][ 'type' ] ?? null, $case );
+			$source = \AptowebDeps\Webauthn\PublicKeyCredentialSource::createFromArray( $normalized );
+			$this->assertInstanceOf( \AptowebDeps\Webauthn\PublicKeyCredentialSource::class, $source, $case );
+		}
+	}
+
+	/** @group package-targeted */
+	public function testPackagedPasskeyCompatibilityDoesNotCompareExactWebauthnTrustPathClassNames() :void {
+		$content = file_get_contents( $this->packagePasskeyCredentialDataNormalizerPath() );
+		$this->assertNotFalse( $content );
+
+		$this->assertStringNotContainsString( 'EmptyTrustPath', (string)$content );
+		$this->assertStringNotContainsString( 'CertificateTrustPath', (string)$content );
+		$this->assertStringNotContainsString( 'EcdaaKeyIdTrustPath', (string)$content );
+		$this->assertStringNotContainsString( 'AptowebDeps\\Webauthn', (string)$content );
+
+		$violations = [];
+		foreach ( $this->packagePasskeySourceFiles() as $file ) {
+			$content = file_get_contents( $file );
+			$this->assertNotFalse( $content );
+
+			foreach ( [ 'EmptyTrustPath', 'CertificateTrustPath', 'EcdaaKeyIdTrustPath' ] as $className ) {
+				if ( \str_contains( (string)$content, $className ) ) {
+					$violations[ $this->formatPackageRelativePath( $file ) ][] = $className;
+				}
+			}
+		}
+
+		$this->assertSame( [], $violations, 'Packaged passkey source must not compare exact WebAuthn trust-path classes.' );
+	}
+
+	/** @group package-targeted */
 	public function testPackagedSourceHasNoUnprefixedReferencesToPrefixedNamespaces() :void {
 		$violations = $this->findForbiddenNamespaceReferences(
 			$this->collectPhpFiles( $this->packagePathJoin( 'src' ) ),
@@ -438,6 +482,75 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertIsArray( $decoded[ 'extra' ][ 'strauss' ] ?? null, 'Source composer.json missing extra.strauss config.' );
 
 		return $decoded[ 'extra' ][ 'strauss' ];
+	}
+
+	private function requirePackageAutoload() :void {
+		$autoload = $this->packagePathJoin( 'vendor/autoload.php' );
+		$this->assertFileExists( $autoload );
+		require_once $autoload;
+	}
+
+	private function loadPackagedPasskeyCredentialDataNormalizer() :string {
+		$class = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\Modules\\LoginGuard\\Lib\\TwoFactor\\Utilties\\PasskeyCredentialDataNormalizer';
+		if ( !\class_exists( $class, false ) ) {
+			require_once $this->packagePasskeyCredentialDataNormalizerPath();
+		}
+
+		$reflection = new \ReflectionClass( $class );
+		$expectedPath = \realpath( $this->packagePasskeyCredentialDataNormalizerPath() );
+		$actualPath = \realpath( (string)$reflection->getFileName() );
+		$this->assertNotFalse( $expectedPath );
+		$this->assertNotFalse( $actualPath );
+		$this->assertSame(
+			Path::normalize( $expectedPath ),
+			Path::normalize( $actualPath ),
+			'Package-targeted passkey compatibility test must execute the built package normalizer, not source.'
+		);
+
+		return $class;
+	}
+
+	private function packagePasskeyCredentialDataNormalizerPath() :string {
+		return $this->packagePathJoin(
+			'src',
+			'Modules',
+			'LoginGuard',
+			'Lib',
+			'TwoFactor',
+			'Utilties',
+			'PasskeyCredentialDataNormalizer.php'
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function packagePasskeySourceFiles() :array {
+		return $this->collectPhpFiles(
+			$this->packagePathJoin( 'src', 'Modules', 'LoginGuard', 'Lib', 'TwoFactor' )
+		);
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	private function packagePasskeyTrustPathTypeCases() :array {
+		return [
+			'legacy unprefixed class'      => 'Webauthn\\TrustPath\\EmptyTrustPath',
+			'legacy prefixed class'        => 'AptowebDeps\\Webauthn\\TrustPath\\EmptyTrustPath',
+			'renamed implementation class' => 'RenamedVendor\\PasskeyRuntime\\Storage\\CurrentTrustPath',
+		];
+	}
+
+	private function loadPasskeyLegacyRecordFixture() :array {
+		$fixturePath = Path::join( \dirname( __DIR__, 3 ), 'tests', 'fixtures', 'passkeys', 'fixture_ceremony.json' );
+		$this->assertFileExists( $fixturePath );
+
+		$decoded = \json_decode( (string)\file_get_contents( $fixturePath ), true );
+		$this->assertIsArray( $decoded );
+		$this->assertIsArray( $decoded[ 'legacy_record' ] ?? null );
+
+		return $decoded[ 'legacy_record' ];
 	}
 
 	/**
