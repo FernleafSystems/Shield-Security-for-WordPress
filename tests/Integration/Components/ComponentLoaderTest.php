@@ -88,4 +88,24 @@ class ComponentLoaderTest extends ShieldIntegrationTestCase {
 			$mcp
 		);
 	}
+
+	public function test_altcha_component_is_correct_type() {
+		$con = $this->requireController();
+		$altcha = $con->comps->altcha;
+
+		$this->assertInstanceOf(
+			\FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\AltCha\AltChaHandler::class,
+			$altcha
+		);
+	}
+
+	public function test_not_bot_component_is_correct_type() {
+		$con = $this->requireController();
+		$notBot = $con->comps->not_bot;
+
+		$this->assertInstanceOf(
+			\FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\NotBotHandler::class,
+			$notBot
+		);
+	}
 }

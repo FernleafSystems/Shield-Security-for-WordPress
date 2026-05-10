@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\AltCha\AltChaV2Pbkdf2;
+
 class CaptureNotBotAltcha extends BaseAction {
 
 	use Traits\AuthNotRequired;
@@ -33,22 +35,16 @@ class CaptureNotBotAltcha extends BaseAction {
 	private function verifyAltChaSolution( array $data ) :bool {
 		$verified = false;
 		$keys = [
-			'algorithm',
-			'salt',
-			'challenge',
-			'signature',
-			'number',
-			'expires',
+			'altcha_version',
+			'altcha_challenge',
+			'altcha_solution',
 		];
-		if ( \count( \array_intersect_key( $data, \array_flip( $keys ) ) ) === \count( $keys ) ) {
+		if ( \count( \array_intersect_key( $data, \array_flip( $keys ) ) ) === \count( $keys )
+			 && (string)$data[ 'altcha_version' ] === AltChaV2Pbkdf2::VERSION ) {
 			try {
 				$verified = self::con()->comps->altcha->verifySolution(
-					$data[ 'algorithm' ],
-					$data[ 'salt' ],
-					$data[ 'challenge' ],
-					$data[ 'signature' ],
-					$data[ 'number' ],
-					(int)$data[ 'expires' ]
+					(string)$data[ 'altcha_challenge' ],
+					(string)$data[ 'altcha_solution' ]
 				);
 			}
 			catch ( \Exception $e ) {

@@ -72,8 +72,7 @@
                 "page_shield_block"
             ],
             "types": [
-                "js",
-                "css"
+                "js"
             ],
             "flags": {
                 "admin_only": false
@@ -97,7 +96,7 @@
             }
         },
         {
-            "handle": "notbot",
+            "handle": "silentcaptcha",
             "types": [
                 "js"
             ],

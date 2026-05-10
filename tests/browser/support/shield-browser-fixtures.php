@@ -140,6 +140,7 @@ function shield_browser_fixture_allowed_actions() :array {
 		'mainwp-sites' => [ 'seed', 'cleanup' ],
 		'merlin-welcome' => [ 'seed', 'cleanup' ],
 		'mfa-profile' => [ 'seed', 'cleanup' ],
+		'notbot-altcha' => [ 'seed', 'cleanup', 'inspect' ],
 		'public-block-recovery' => [ 'seed', 'cleanup' ],
 	];
 }
@@ -159,6 +160,7 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/ActionRouter/MainwpSitesFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/MerlinWelcomeFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/MfaProfileFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/NotBotAltchaFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/PublicBlockRecoveryFixtureBuilder.php',
 	] as $relativePath ) {
 		require_once $pluginRoot.'/'.$relativePath;

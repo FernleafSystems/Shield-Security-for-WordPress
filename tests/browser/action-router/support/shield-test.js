@@ -277,6 +277,24 @@ async function createFixtureApi( playwright, lane ) {
 					}
 				}
 			},
+			async inspectNotBotAltchaFixture() {
+				return runFixture( 'notbot-altcha', 'inspect' );
+			},
+			async withNotBotAltchaFixture( ipOrRunScenario, maybeRunScenario ) {
+				let seeded = false;
+				const runScenario = typeof ipOrRunScenario === 'function' ? ipOrRunScenario : maybeRunScenario;
+				const args = typeof ipOrRunScenario === 'function' ? [] : [ String( ipOrRunScenario ) ];
+				try {
+					const contract = await runFixture( 'notbot-altcha', 'seed', args );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'notbot-altcha', 'cleanup' );
+					}
+				}
+			},
 			async withPublicBlockRecoveryFixture( scenario, runScenario ) {
 				let seeded = false;
 				try {

@@ -70,12 +70,6 @@ module.exports = {
 					'highlight',
 
 					// ===================
-					// TOASTIFY
-					// ===================
-					'toastify',
-					'on',
-
-					// ===================
 					// DATEPICKER
 					// ===================
 					'datepicker',
@@ -139,6 +133,8 @@ module.exports = {
 					/^offcanvas-(start|end|top|bottom)$/,
 					// Modal sizes
 					/^modal-(sm|lg|xl|fullscreen)/,
+					// Toast elements
+					/^toast-/,
 
 					// Bootstrap color variants (dynamically constructed in Twig/PHP)
 					// Used via: btn-{{ var }}, bg-{{ var }}, text-bg-{{ var }},
@@ -187,12 +183,6 @@ module.exports = {
 					// ===================
 					/^introjs-/,
 					/^introjsFloatingElement/,
-
-					// ===================
-					// TOASTIFY PATTERNS
-					// ===================
-					/^toastify-/,
-					/^toast-/,
 
 					// ===================
 					// DATEPICKER PATTERNS
