@@ -155,6 +155,7 @@ function shield_browser_fixture_allowed_actions() :array {
 	return [
 		'__all__' => [ 'cleanup' ],
 		'actions-queue' => [ 'seed', 'cleanup', 'inspect' ],
+		'dashboard-defaults' => [ 'seed', 'cleanup', 'inspect', 'reset-defaults' ],
 		'import-export-file' => [ 'seed', 'cleanup' ],
 		'ip-analysis-activity-meta' => [ 'seed', 'cleanup', 'inspect' ],
 		'ip-rules-table' => [ 'seed', 'cleanup', 'inspect' ],
@@ -177,6 +178,7 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/ActionRouter/PluginAdminRouteRuntime.php',
 		'tests/Helpers/ActionRouter/ActionsQueueRuntimeProbe.php',
 		'tests/Helpers/ActionRouter/ActionsQueueFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/DashboardDefaultsFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/ImportExportFileFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/IpAnalysisActivityMetaFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/IpRulesTableFixtureBuilder.php',

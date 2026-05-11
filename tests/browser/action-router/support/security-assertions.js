@@ -59,9 +59,78 @@ function waitForShieldAjaxAction( page, actionSlug ) {
 	} );
 }
 
+function requestBatchRenderSlugs( request ) {
+	const renderSlugs = [];
+	for ( const [ key, value ] of requestPostParams( request ).entries() ) {
+		if ( /^requests\[\d+\]\[request\]\[render_slug\]$/.test( key ) ) {
+			renderSlugs.push( value );
+		}
+	}
+	return renderSlugs;
+}
+
+function isShieldAjaxBatchRequestWithRenderSlugs( request, actionSlug, renderSlugs ) {
+	if ( !isAdminAjaxRequest( request ) || requestActionSlug( request ) !== actionSlug ) {
+		return false;
+	}
+	const actualRenderSlugs = requestBatchRenderSlugs( request );
+	return renderSlugs.every( ( renderSlug ) => actualRenderSlugs.includes( renderSlug ) );
+}
+
+function isAjaxRenderRequest( request, renderSlug ) {
+	return isAdminAjaxRequest( request )
+		&& requestActionSlug( request ) === 'ajax_render'
+		&& requestPostParam( request, 'render_slug' ) === renderSlug;
+}
+
+function parseShieldAjaxJson( rawPayload ) {
+	const openJsonTag = '##APTO_OPEN##';
+	const closeJsonTag = '##APTO_CLOSE##';
+	if ( rawPayload.includes( openJsonTag ) ) {
+		const start = rawPayload.indexOf( openJsonTag ) + openJsonTag.length;
+		const end = rawPayload.lastIndexOf( closeJsonTag );
+		if ( end <= start ) {
+			throw new Error( 'Malformed wrapped Shield AJAX response.' );
+		}
+		return JSON.parse( rawPayload.substring( start, end ) );
+	}
+
+	return JSON.parse( rawPayload );
+}
+
+async function setDashboardLiveMonitorCollapsed( page, isCollapsed ) {
+	const result = await page.evaluate( async ( nextCollapsed ) => {
+		const requestData = window.shield_vars_main?.comps?.dashboard_live_monitor?.ajax?.set_state;
+		if ( !requestData || typeof requestData.ajaxurl !== 'string' || requestData.ajaxurl.length < 1 ) {
+			throw new Error( 'Missing dashboard live monitor set_state AJAX payload.' );
+		}
+
+		const response = await fetch( requestData.ajaxurl, {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+			},
+			body: new URLSearchParams( {
+				...requestData,
+				is_collapsed: nextCollapsed ? '1' : '0',
+			} ),
+		} );
+
+		return {
+			ok: response.ok,
+			payload: await response.json(),
+		};
+	}, isCollapsed );
+
+	expect( result.ok ).toBeTruthy();
+	expect( result.payload ).toHaveProperty( 'success', true );
+	return result.payload;
+}
+
 async function expectShieldAjaxSuccess( response ) {
 	expect( response.ok() ).toBeTruthy();
-	const payload = await response.json();
+	const payload = parseShieldAjaxJson( await response.text() );
 	expect( payload ).toHaveProperty( 'success', true );
 	return payload;
 }
@@ -200,12 +269,16 @@ module.exports = {
 	expectShieldAjaxSuccess,
 	expectStatusLiveRegion,
 	investigationTableResponseMatcher,
+	isAjaxRenderRequest,
 	isAdminAjaxRequest,
+	isShieldAjaxBatchRequestWithRenderSlugs,
 	openBlockRecoveryModal,
 	openPublicBlockPage,
 	requestActionSlug,
+	requestBatchRenderSlugs,
 	requestMetaResponseMatcher,
 	requestPostParam,
 	requestPostParams,
+	setDashboardLiveMonitorCollapsed,
 	waitForShieldAjaxAction,
 };

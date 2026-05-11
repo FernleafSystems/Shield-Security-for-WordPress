@@ -200,6 +200,25 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 					}
 				}
 			},
+			async inspectDashboardDefaultsFixture() {
+				return runFixture( 'dashboard-defaults', 'inspect' );
+			},
+			async resetDashboardDefaultsFixture() {
+				return runFixture( 'dashboard-defaults', 'reset-defaults' );
+			},
+			async withDashboardDefaultsFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'dashboard-defaults', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'dashboard-defaults', 'cleanup' );
+					}
+				}
+			},
 			async withImportExportFileFixture( runScenario ) {
 				let seeded = false;
 				try {

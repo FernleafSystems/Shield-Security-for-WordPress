@@ -1,6 +1,13 @@
 const { test, expect } = require( './support/shield-test' );
 const { dismissBlockingDialogs, openShieldRoute } = require( './support/shield-browser' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
+const {
+	isAdminAjaxRequest,
+	isShieldAjaxBatchRequestWithRenderSlugs,
+	requestActionSlug,
+	requestPostParam,
+	setDashboardLiveMonitorCollapsed,
+} = require( './support/security-assertions' );
 
 test.setTimeout( 180_000 );
 
@@ -35,8 +42,7 @@ async function fulfillNextMatchingAdminAjaxRequest( page, requestMatcher = () =>
 	const handler = async ( route ) => {
 		const request = route.request();
 		const shouldFulfill = !handled
-			&& request.method() === 'POST'
-			&& request.url().includes( '/admin-ajax.php' )
+			&& isAdminAjaxRequest( request )
 			&& requestMatcher( request );
 
 		if ( !shouldFulfill ) {
@@ -96,50 +102,33 @@ async function expectStatusAnnouncement( context, politeness ) {
 }
 
 function datatableRequestMatcher( request ) {
-	const postData = request.postData() || '';
-	return postData.includes( 'sub_action=retrieve_table_data' );
+	return requestPostParam( request, 'sub_action' ) === 'retrieve_table_data';
 }
 
 function dashboardMonitorRequestMatcher( request ) {
-	const postData = request.postData() || '';
-	return postData.includes( 'render_dashboard_live_monitor_ticker' )
-		|| postData.includes( 'render_traffic_live_logs' );
+	return (
+		requestActionSlug( request ) === 'ajax_render'
+		&& [
+			'render_dashboard_live_monitor_ticker',
+			'render_traffic_live_logs',
+		].includes( requestPostParam( request, 'render_slug' ) )
+	) || dashboardMonitorBatchRequestMatcher( request );
 }
 
 function dashboardMonitorBatchRequestMatcher( request ) {
-	const postData = request.postData() || '';
-	return postData.includes( 'ajax_batch_requests' )
-		&& postData.includes( 'render_dashboard_live_monitor_ticker' )
-		&& postData.includes( 'render_traffic_live_logs' );
+	return isShieldAjaxBatchRequestWithRenderSlugs(
+		request,
+		'ajax_batch_requests',
+		[
+			'render_dashboard_live_monitor_ticker',
+			'render_traffic_live_logs',
+		]
+	);
 }
 
 function trafficLiveLogsRequestMatcher( request ) {
-	return ( request.postData() || '' ).includes( 'render_traffic_live_logs' );
-}
-
-async function setDashboardLiveMonitorCollapsed( page, isCollapsed ) {
-	await page.evaluate( async ( nextCollapsed ) => {
-		const requestData = window.shield_vars_main?.comps?.dashboard_live_monitor?.ajax?.set_state || null;
-		if ( !requestData?.ajaxurl ) {
-			throw new Error( 'Missing dashboard live monitor set_state AJAX payload.' );
-		}
-
-		const response = await fetch( requestData.ajaxurl, {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-			},
-			body: new URLSearchParams( {
-				...requestData,
-				is_collapsed: nextCollapsed ? '1' : '0',
-			} ),
-		} );
-		const payload = await response.json();
-		if ( !response.ok || !payload?.success ) {
-			throw new Error( 'Dashboard live monitor state request failed.' );
-		}
-	}, isCollapsed );
+	return requestActionSlug( request ) === 'ajax_render'
+		&& requestPostParam( request, 'render_slug' ) === 'render_traffic_live_logs';
 }
 
 test( 'datatable status region announces busy and failed refresh states', async ( { page, fixtureApi } ) => {

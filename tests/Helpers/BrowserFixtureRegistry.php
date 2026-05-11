@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQueueFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\DashboardDefaultsFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportFileFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpAnalysisActivityMetaFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpRulesTableFixtureBuilder;
@@ -28,6 +29,8 @@ class BrowserFixtureRegistry {
 				return self::runAllFixtures( $action );
 			case 'actions-queue':
 				return self::runActionsQueueFixture( $action, $args );
+			case 'dashboard-defaults':
+				return self::runDashboardDefaultsFixture( $action );
 			case 'import-export-file':
 				return self::runImportExportFileFixture( $action );
 			case 'ip-analysis-activity-meta':
@@ -62,6 +65,7 @@ class BrowserFixtureRegistry {
 		}
 
 		self::runActionsQueueFixture( 'cleanup', [] );
+		self::runDashboardDefaultsFixture( 'cleanup' );
 		self::runImportExportFileFixture( 'cleanup' );
 		self::runIpAnalysisActivityMetaFixture( 'cleanup' );
 		self::runIpRulesTableFixture( 'cleanup' );
@@ -103,6 +107,42 @@ class BrowserFixtureRegistry {
 				}
 
 				$result = $builder->seed( $scenario );
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runDashboardDefaultsFixture( string $action ) :array {
+		$builder = new DashboardDefaultsFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'dashboard-defaults' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'inspect':
+				return $builder->inspect( $state );
+
+			case 'reset-defaults':
+				return $builder->resetDefaults( $state );
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
 				\update_option( $optionKey, $result[ 'state' ], false );
 				return $result[ 'contract' ];
 
