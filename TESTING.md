@@ -36,7 +36,7 @@ The required PR CI gate is [`.github/workflows/tests.yml`](.github/workflows/tes
 | Source Docker runtime | `php bin/shield test:source --skip-unit-tests --show-docker-output` | Mirrors required CI by focusing Docker on runtime/integration checks after the unit lanes have already run. |
 | Package-targeted validation | `composer package-plugin -- --output=tmp/shield-package-ci` then `php bin/shield test:package-targeted --package-path=tmp/shield-package-ci` | Mirrors CI's built-artifact validation path. |
 
-`composer test` remains the everyday local confidence gate: it builds config, runs unit tests, and runs the local Docker-backed integration lane. It is intentionally faster and narrower than required PR CI, while scheduled/manual browser, cross-site, and full package matrix workflows remain deeper coverage rather than default local requirements.
+`composer test` remains the everyday local confidence gate: it builds config, runs unit tests, and runs the local Docker-backed integration lane. It is intentionally faster and narrower than required PR CI, while scheduled/manual browser and cross-site workflows remain deeper coverage rather than default local requirements. Use `php bin/shield test:package-full` when you need the manual full packaged runtime lane.
 
 ## Internal Lane Ownership
 
@@ -50,7 +50,7 @@ These commands remain the owned internal lanes behind the public surface and CI 
 | `php bin/shield test:integration-local` | Local Docker-backed WordPress integration lane |
 | `php bin/shield test:cross-site` | Two-site Docker WordPress import/export sync lane |
 | `php bin/shield test:package-targeted` | Targeted package validation lane |
-| `php bin/shield test:package-full` | Scheduled/manual deep packaged runtime lane |
+| `php bin/shield test:package-full` | Manual local deep packaged runtime lane |
 | `php bin/run-unit-tests.php --runner-mode=serial` | Serial unit sentinel path |
 
 `test:source` and `analyze:source` cache setup state by default for faster local reruns. Use `--refresh-setup` when you need a clean setup pass.
@@ -264,12 +264,6 @@ Serial compatibility sentinel: [`.github/workflows/unit-serial-sentinel.yml`](.g
 1. Runs `php bin/run-unit-tests.php --runner-mode=serial`.
 2. Triggered by `workflow_dispatch`.
 3. Runs weekly at `0 5 * * 1` (05:00 UTC every Monday).
-
-Scheduled/manual packaged pathway: [`.github/workflows/docker-tests.yml`](.github/workflows/docker-tests.yml)
-
-1. Runs the full packaged matrix runtime checks.
-2. Runs packaged static analysis.
-3. Triggered by `workflow_dispatch` and the weekday schedule `0 6 * * 1-5` (06:00 UTC Monday through Friday).
 
 Scheduled/manual browser lane: [`.github/workflows/browser-tests.yml`](.github/workflows/browser-tests.yml)
 
