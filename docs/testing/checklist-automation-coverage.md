@@ -1,0 +1,134 @@
+# Shield Checklist Automation Coverage
+
+This matrix tracks the Linear project `Shield Manual Checklist Automation`.
+It was rebuilt from Linear on 2026-05-11 after the checklist work was regrouped into execution slices.
+
+Rows distinguish Linear state from automation evidence. A checklist row is not complete just because a Linear issue, fixture, scenario, or slice parent exists.
+
+Status key:
+
+- `automated`: stable local behavior automation exists, evidence has been run, and no manual remainder is known.
+- `partial evidence`: at least one local behavior check exists, but the row still has a documented remainder or needs final verification/Linear closure.
+- `pending evidence`: Linear work exists, but this matrix has no accepted behavior evidence yet.
+- `manual/external-blocked`: a concrete external-only blocker remains and no local double is currently planned.
+- `framework complete`: reusable harness/tracking work is complete; this is not checklist behavior coverage by itself.
+
+Current summary:
+
+| Group | Total | Automated | Partial evidence | Pending evidence | Manual/external-blocked |
+|---|---:|---:|---:|---:|---:|
+| Original checklist items | 61 | 0 | 1 | 60 | 0 |
+| Supplemental items | 6 | 0 | 0 | 6 | 0 |
+
+## Slice Status
+
+| Slice | Linear | Linear state | Included checklist/supplemental IDs |
+|---|---|---|---|
+| Dashboard and Defaults | SHI-269 | Todo | GLOBAL-01, TP-01, TP-02, BT-01 |
+| Scan Prep and Actions | SHI-270 | Todo | TP-03, BT-02 |
+| Package, Upgrade, and CLI | SHI-271 | Todo | UT-01, UT-02, UT-03, SUP-03, SUP-05 |
+| Security Admin Core | SHI-272 | Todo | BT-03, BT-03-01, BT-03-02, BT-03-03, BT-03-04 |
+| Security Admin Boundaries | SHI-273 | Todo | BT-03-05, BT-03-06, BT-03-07, BT-03-08, SUP-01 |
+| Firewall Core Rules | SHI-274 | Todo | BT-04, BT-04-01, BT-04-02, BT-04-03, BT-04-04 |
+| Firewall Request Controls | SHI-275 | Todo | BT-04-05, BT-04-06, BT-04-07, BT-10, SUP-04 |
+| Bots and IP Decisions | SHI-276 | Todo | BT-05, BT-05-01, BT-05-02, BT-05-03, BT-14-01, BT-14-02 |
+| Login Guard Core | SHI-277 | Todo | BT-06, BT-06-01, BT-06-02, BT-06-03, BT-06-04 |
+| Login and User Controls | SHI-278 | Todo | BT-06-05, BT-06-06, BT-06-07, BT-07, BT-07-01, BT-07-02 |
+| Users, Content, Headers, Traffic | SHI-279 | Todo | BT-07-03, BT-08, BT-09, SUP-06 |
+| Import/Export Cross-Site | SHI-280 | Todo | BT-11, BT-11-01, BT-11-02 |
+| Integration Discovery | SHI-281 | Todo | BT-12, BT-12-01 |
+| Forms, Email, Localization | SHI-282 | Todo | BT-12-02, BT-12-03, BT-12-04, SUP-02 |
+| Custom Rules | SHI-283 | Todo | BT-13, BT-13-01 |
+| Tools, Reports, UI Sweep | SHI-284 | Todo | BT-14, BT-14-03, BT-14-04, BT-14-05 |
+
+## Original Checklist Items
+
+| ID | Linear | Slice | Linear state | Target | Automation status | Lane | Evidence command | Remainder / next evidence |
+|---|---|---|---|---|---|---|---|---|
+| GLOBAL-01 | SHI-187 | SHI-269 Dashboard and Defaults | Todo | full local | pending evidence | browser | TBD | Prove global testing rules through stable browser/integration contracts. |
+| TP-01 | SHI-188 | SHI-269 Dashboard and Defaults | Todo | full local | pending evidence | browser | TBD | Prove reset-to-defaults behavior and cleanup. |
+| TP-02 | SHI-189 | SHI-269 Dashboard and Defaults | Todo | partial/external | pending evidence | browser | TBD | Configuration sweep needs stable option evidence; broad visual/manual sweep remains out of scope until decomposed. |
+| TP-03 | SHI-190 | SHI-270 Scan Prep and Actions | Todo | partial/external | pending evidence | browser/integration | TBD | External scan feeds or samples need local doubles or manual remainder. |
+| UT-01 | SHI-191 | SHI-271 Package, Upgrade, and CLI | Todo | partial/external | pending evidence | package/upgrade | TBD | Real update execution remains package/upgrade lane work. |
+| UT-02 | SHI-192 | SHI-271 Package, Upgrade, and CLI | Todo | full local | pending evidence | package/upgrade | TBD | Prove configuration consistency after update. |
+| UT-03 | SHI-193 | SHI-271 Package, Upgrade, and CLI | Todo | partial/external | pending evidence | package/upgrade | TBD | Scan-result consistency with live feeds remains external unless locally doubled. |
+| BT-01 | SHI-194 | SHI-269 Dashboard and Defaults | Todo | full local | pending evidence | browser | TBD | Prove dashboard/general behavior beyond smoke loading. |
+| BT-02 | SHI-195 | SHI-270 Scan Prep and Actions | Todo | partial/external | pending evidence | browser/integration | TBD | Real malware/vulnerability samples and repair actions need fixtures or manual remainder. |
+| BT-03 | SHI-196 | SHI-272 Security Admin Core | Todo | full local | pending evidence | browser/integration | TBD | Prove Security Admin zone behavior. |
+| BT-03-01 | SHI-197 | SHI-272 Security Admin Core | Todo | full local | pending evidence | browser/integration | TBD | Prove PIN set and verify behavior. |
+| BT-03-02 | SHI-198 | SHI-272 Security Admin Core | Todo | full local | pending evidence | browser/integration | TBD | Prove incorrect PIN blocking. |
+| BT-03-03 | SHI-199 | SHI-272 Security Admin Core | Todo | full local | pending evidence | browser/integration | TBD | Prove Security Admin timeout behavior. |
+| BT-03-04 | SHI-200 | SHI-272 Security Admin Core | Todo | full local | pending evidence | browser/integration | TBD | Prove end-session behavior. |
+| BT-03-05 | SHI-201 | SHI-273 Security Admin Boundaries | Todo | full local | pending evidence | browser/integration | TBD | Prove direct disable option behavior. |
+| BT-03-06 | SHI-202 | SHI-273 Security Admin Boundaries | Todo | partial/external | pending evidence | browser/integration | TBD | Local mail capture should prove Shield-owned email override generation; real inbox remains external. |
+| BT-03-07 | SHI-203 | SHI-273 Security Admin Boundaries | Todo | full local | pending evidence | browser/integration | TBD | Prove restriction zones. |
+| BT-03-08 | SHI-204 | SHI-273 Security Admin Boundaries | Todo | full local | pending evidence | browser/integration | TBD | Prove persistent Security Admins. |
+| BT-04 | SHI-205 | SHI-274 Firewall Core Rules | Todo | full local | pending evidence | integration/browser | TBD | Prove firewall zone behavior. |
+| BT-04-01 | SHI-206 | SHI-274 Firewall Core Rules | Todo | full local | pending evidence | integration/browser | TBD | Prove directory traversal rule. |
+| BT-04-02 | SHI-207 | SHI-274 Firewall Core Rules | Todo | full local | pending evidence | integration/browser | TBD | Prove firewall whitelist parameter behavior. |
+| BT-04-03 | SHI-208 | SHI-274 Firewall Core Rules | Todo | full local | pending evidence | integration/browser | TBD | Prove WP file editing restriction. |
+| BT-04-04 | SHI-209 | SHI-274 Firewall Core Rules | Todo | full local | pending evidence | integration/browser | TBD | Prove user enumeration blocking. |
+| BT-04-05 | SHI-210 | SHI-275 Firewall Request Controls | Todo | full local | pending evidence | integration/browser | TBD | Prove XML-RPC blocking. |
+| BT-04-06 | SHI-211 | SHI-275 Firewall Request Controls | Todo | full local | pending evidence | integration/browser | TBD | Prove anonymous REST blocking. |
+| BT-04-07 | SHI-212 | SHI-275 Firewall Request Controls | Todo | full local | pending evidence | integration/browser | TBD | Prove abusive request rate limiting. |
+| BT-05 | SHI-213 | SHI-276 Bots and IP Decisions | Todo | full local | pending evidence | integration/browser | TBD | Prove bots/IP blocking zone behavior. |
+| BT-05-01 | SHI-214 | SHI-276 Bots and IP Decisions | Todo | full local | pending evidence | integration/browser | TBD | Prove offense-limit behavior, not only seeded offense state. |
+| BT-05-02 | SHI-215 | SHI-276 Bots and IP Decisions | Todo | partial/external | pending evidence | integration/browser | TBD | Local tests should cover Shield-owned offense decisions; real VPN/reputation variation remains manual/external. |
+| BT-05-03 | SHI-216 | SHI-276 Bots and IP Decisions | Todo | full local | pending evidence | integration/browser | TBD | Prove silentCAPTCHA high-reputation bypass behavior. |
+| BT-06 | SHI-217 | SHI-277 Login Guard Core | Todo | full local | pending evidence | browser/integration | TBD | Prove login zone behavior. |
+| BT-06-01 | SHI-218 | SHI-277 Login Guard Core | Todo | full local | pending evidence | browser/integration | TBD | Prove hide login/admin behavior. |
+| BT-06-02 | SHI-219 | SHI-277 Login Guard Core | Todo | full local | pending evidence | browser/integration | TBD | Prove 2FA remember-me behavior. |
+| BT-06-03 | SHI-220 | SHI-277 Login Guard Core | Todo | full local | pending evidence | browser/integration | TBD | Prove backup code behavior. |
+| BT-06-04 | SHI-221 | SHI-277 Login Guard Core | Todo | partial/external | pending evidence | browser/integration | TBD | Local mail capture should prove Shield-owned email auth generation; real inbox remains external. |
+| BT-06-05 | SHI-222 | SHI-278 Login and User Controls | Todo | full local | pending evidence | browser/integration | TBD | Prove local TOTP/authenticator contract; phone app may remain manual. |
+| BT-06-06 | SHI-223 | SHI-278 Login and User Controls | Todo | full local | pending evidence | browser/integration | TBD | Prove login notification email generation via local mail capture. |
+| BT-06-07 | SHI-224 | SHI-278 Login and User Controls | Todo | full local | pending evidence | browser/integration | TBD | Prove user session lock by IP. |
+| BT-07 | SHI-225 | SHI-278 Login and User Controls | Todo | full local | pending evidence | browser/integration | TBD | Prove users zone behavior. |
+| BT-07-01 | SHI-226 | SHI-278 Login and User Controls | Todo | partial/external | pending evidence | browser/integration | TBD | HIBP/live intelligence checks need local doubles or manual remainder. |
+| BT-07-02 | SHI-227 | SHI-278 Login and User Controls | Todo | full local | pending evidence | browser/integration | TBD | Prove user suspension behavior. |
+| BT-07-03 | SHI-228 | SHI-279 Users, Content, Headers, Traffic | Todo | partial/external | pending evidence | browser/integration | TBD | External email intelligence checks need local doubles or manual remainder. |
+| BT-08 | SHI-229 | SHI-279 Users, Content, Headers, Traffic | Todo | partial/external | pending evidence | integration/browser | TBD | Human judgement for real-world spam remains manual; Shield-owned filters should be local. |
+| BT-09 | SHI-230 | SHI-279 Users, Content, Headers, Traffic | Todo | full local | partial evidence | browser | `composer test:browser -- --warm -- tests/browser/action-router/security-headers-readiness.spec.js --workers=1` | Local response-header contract exists; external scanner checks such as securityheaders.com remain manual. Verify command and update Linear before closure. |
+| BT-10 | SHI-231 | SHI-275 Firewall Request Controls | Todo | full local | pending evidence | integration/browser | TBD | Prove site lockdown behavior. |
+| BT-11 | SHI-232 | SHI-280 Import/Export Cross-Site | Todo | full local | pending evidence | cross-site | TBD | Prove import/export feature contracts. |
+| BT-11-01 | SHI-233 | SHI-280 Import/Export Cross-Site | Todo | full local | pending evidence | cross-site | TBD | Prove import-from-file behavior. |
+| BT-11-02 | SHI-234 | SHI-280 Import/Export Cross-Site | Todo | full local | pending evidence | cross-site | TBD | Prove import-from-site behavior. |
+| BT-12 | SHI-235 | SHI-281 Integration Discovery | Todo | partial/external | pending evidence | browser/integration | TBD | Real third-party plugin installs remain external unless local doubles/fixtures are added. |
+| BT-12-01 | SHI-236 | SHI-281 Integration Discovery | Todo | partial/external | pending evidence | browser/integration | TBD | Auto-integration discovery for supported plugins needs local doubles or manual remainder. |
+| BT-12-02 | SHI-237 | SHI-282 Forms, Email, Localization | Todo | partial/external | pending evidence | browser/integration | TBD | Contact Form 7 install/submission remains external until local fixture exists. |
+| BT-12-03 | SHI-238 | SHI-282 Forms, Email, Localization | Todo | partial/external | pending evidence | browser/integration | TBD | WooCommerce install/submission remains external until local fixture exists. |
+| BT-12-04 | SHI-239 | SHI-282 Forms, Email, Localization | Todo | partial/external | pending evidence | browser/integration | TBD | Live SureSend delivery remains external; local doubles should prove Shield-owned contract. |
+| BT-13 | SHI-240 | SHI-283 Custom Rules | Todo | full local | pending evidence | integration/browser | TBD | Prove custom security rules behavior. |
+| BT-13-01 | SHI-241 | SHI-283 Custom Rules | Todo | full local | pending evidence | integration/browser | TBD | Prove custom 404 detection rule blocks as expected. |
+| BT-14 | SHI-242 | SHI-284 Tools, Reports, UI Sweep | Todo | full local | pending evidence | integration/browser | TBD | Prove tools functionality. |
+| BT-14-01 | SHI-243 | SHI-276 Bots and IP Decisions | Todo | full local | pending evidence | integration/browser | TBD | Prove bots and IP rules behavior. |
+| BT-14-02 | SHI-244 | SHI-276 Bots and IP Decisions | Todo | full local | pending evidence | integration/browser | TBD | Prove IP whitelisting versus offenses. |
+| BT-14-03 | SHI-245 | SHI-284 Tools, Reports, UI Sweep | Todo | full local | pending evidence | integration/browser | TBD | Prove disable-Pro state behavior. |
+| BT-14-04 | SHI-246 | SHI-284 Tools, Reports, UI Sweep | Todo | full local | pending evidence | integration/browser | TBD | Prove important-alert reports behavior. |
+| BT-14-05 | SHI-247 | SHI-284 Tools, Reports, UI Sweep | Todo | partial/external | pending evidence | integration/browser | TBD | Full visual UI and white-label sweep remains partly manual unless stable contracts are defined. |
+
+## Supplemental Items
+
+| ID | Linear | Slice | Linear state | Automation status | Lane | Evidence command | Remainder / next evidence |
+|---|---|---|---|---|---|---|---|
+| SUP-01 | SHI-248 | SHI-273 Security Admin Boundaries | Todo | pending evidence | integration/browser | TBD | Broader non-Security-Admin permission/nonce matrix pending. |
+| SUP-02 | SHI-249 | SHI-282 Forms, Email, Localization | Todo | pending evidence | browser | TBD | JS localization negative-path browser checks pending. |
+| SUP-03 | SHI-250 | SHI-271 Package, Upgrade, and CLI | Todo | pending evidence | package/upgrade | TBD | Black-box package install/upgrade runtime coverage pending. |
+| SUP-04 | SHI-251 | SHI-275 Firewall Request Controls | Todo | pending evidence | integration | TBD | Property-style firewall/rate-limit/search cases pending. |
+| SUP-05 | SHI-252 | SHI-271 Package, Upgrade, and CLI | Todo | pending evidence | package/upgrade | TBD | WP-CLI operational smoke pending. |
+| SUP-06 | SHI-253 | SHI-279 Users, Content, Headers, Traffic | Todo | pending evidence | integration/browser | TBD | Traffic/request-log completeness behavior pending; shared fixture inspection support exists but does not close this row. |
+
+## Framework And Recovery Items
+
+| Item | Linear | Linear state | Coverage status | Evidence / note |
+|---|---|---|---|---|
+| Coordinate Shield manual checklist automation | SHI-180 | In Progress | tracking open | Project coordinator remains open until slices and convergence finish. |
+| FWK-01 - Checklist scenario registry | SHI-181 | Done | framework complete | Existing reusable browser fixture registry/scenario foundation. |
+| FWK-02 - Shared security and offense assertions | SHI-182 | Done | framework complete | Covered by shared assertion helpers and fixture inspection contracts. |
+| FWK-03 - Coverage matrix and reporting | SHI-183 | Done | framework complete | This file is the rebuilt matrix; keep it updated with each slice. |
+| FWK-04 - External service and email doubles | SHI-184 | Done | framework complete | Local doubles policy established; per-slice behavior evidence still required. |
+| FWK-05 - Package and upgrade automation lane | SHI-185 | Done | framework complete | Package/upgrade lane exists; checklist rows still need evidence. |
+| FWK-06 - Final convergence cleanup | SHI-186 | Todo | pending evidence | Run only after behavior slices complete. |
+| Slice: Recovery and Evidence Rules | SHI-267 | Done | framework complete | Restored truthful closure rule: no evidence, no completion. |
+| Slice: Shared Assertion Readiness | SHI-268 | Done | framework complete | Latest committed shared assertion/fixture work supports later behavior slices. |
+| Convergence cleanup: Shared Assertion Readiness | SHI-313 | Done | framework complete | Cleanup for SHI-268 completed. |
