@@ -1,6 +1,5 @@
 import { BaseComponent } from "../BaseComponent";
 import { AjaxService } from "../services/AjaxService";
-import { confirmDialog } from "../ui/ShieldDialog";
 
 export class DynamicActionButtons extends BaseComponent {
 
@@ -11,7 +10,7 @@ export class DynamicActionButtons extends BaseComponent {
 			};
 			const confirmValue = String( requestData.confirm || '' ).trim();
 			if ( confirmValue.length > 0 ) {
-				const confirmed = await confirmDialog( {
+				const confirmed = await shieldServices.dialog().confirm( {
 					message: normalizeConfirmMessage( confirmValue ),
 					danger: true,
 					launcher: targetEl,

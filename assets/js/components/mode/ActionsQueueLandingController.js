@@ -4,7 +4,6 @@ import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
 import { ShieldTableBase } from "../tables/ShieldTableBase";
-import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 import { announceStatus } from "../ui/ShieldA11y";
 
 export class ActionsQueueLandingController extends DrillDownAsyncControllerBase {
@@ -542,10 +541,11 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 
 		const confirmText = String( target.dataset.operatorContextActionConfirm || '' ).trim();
 		if ( confirmText.length > 0 ) {
-			const confirmed = await confirmDialog( {
-				title: shieldStrings.string( 'confirm_title' ),
+			const dialog = shieldServices.dialog();
+			const confirmed = await dialog.confirm( {
+				title: shieldStrings.string( 'dialog_confirm_title' ),
 				message: confirmText,
-				confirmLabel: resolveDialogConfirmLabel( target ),
+				confirmLabel: dialog.resolveConfirmLabel( target ),
 				cancelLabel: shieldStrings.string( 'cancel' ),
 				danger: true,
 				launcher: target,

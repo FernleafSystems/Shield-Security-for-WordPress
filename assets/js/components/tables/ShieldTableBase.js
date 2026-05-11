@@ -8,7 +8,6 @@ import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
-import { messageDialog } from "../ui/ShieldDialog";
 import { announceStatus } from "../ui/ShieldA11y";
 
 export class ShieldTableBase extends BaseComponent {
@@ -462,8 +461,8 @@ export class ShieldTableBase extends BaseComponent {
 	}
 
 	showTableMessage( message, launcher = null ) {
-		return messageDialog( {
-			title: normalizeShieldString( 'message_title', 'Message' ),
+		return shieldServices.dialog().message( {
+			title: normalizeShieldString( 'dialog_alert_title', 'Notice' ),
 			message,
 			confirmLabel: normalizeShieldString( 'close', 'Close' ),
 			launcher,
@@ -471,11 +470,12 @@ export class ShieldTableBase extends BaseComponent {
 	}
 
 	showErrorMessage( message, launcher = null ) {
-		return messageDialog( {
+		return shieldServices.dialog().message( {
 			title: normalizeShieldString( 'request_failed', 'Request Failed' ),
 			message,
 			confirmLabel: normalizeShieldString( 'close', 'Close' ),
 			launcher,
+			showTitle: true,
 		} );
 	}
 

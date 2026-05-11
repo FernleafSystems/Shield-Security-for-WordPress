@@ -25,8 +25,8 @@ function dialog() {
 			inputId: INPUT_ID,
 			inputLabelId: 'ShieldMfaDialogInputLabel',
 			validationId: VALIDATION_ID,
-			datasetKey: 'shieldMfaDialog',
-			classPrefix: 'shield-mfa-dialog',
+			datasetKey: 'shieldAccessibleDialog',
+			classPrefix: 'shield-accessible-dialog',
 			stringsProvider: dialogStrings,
 			fallbackFocus: profileForm,
 			errorContext: 'MFA profile dialog',
@@ -58,13 +58,19 @@ export function mfaPrompt( config = {} ) {
 
 export function mfaAlert( config = {} ) {
 	const localizedStrings = dialogStrings();
+	const title = config.title || localizedStrings.dialog_alert_title;
 	return dialog().message( {
 		...config,
-		title: config.title || localizedStrings.dialog_alert_title,
+		title,
 		confirmLabel: config.confirmLabel || localizedStrings.continue,
+		showTitle: config.showTitle ?? normalizeText( title ) === normalizeText( localizedStrings.request_failed ),
 	} );
 }
 
 export function isValidMfaDeviceLabel( value ) {
 	return typeof value === 'string' && ( new RegExp( "^[\\s\\da-zA-Z_-]{1,16}$" ) ).test( value );
+}
+
+function normalizeText( value ) {
+	return String( value || '' ).trim();
 }

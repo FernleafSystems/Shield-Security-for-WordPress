@@ -49,8 +49,10 @@ export class SuperSearchResults extends BaseComponent {
 					}
 					else {
 						shieldServices.dialog().message( {
+							title: shieldStrings.string( 'request_failed' ),
 							message: resp.data.error,
 							launcher: document.querySelector( '#ModalSuperSearchBox input.search-text' ),
+							showTitle: true,
 						} );
 					}
 				} )

@@ -16,10 +16,10 @@ const {
 	getInlineTabByTableType,
 } = require( './support/investigate-inline-tabs' );
 
-const CONFIRM_DIALOG_SELECTOR = '#AptoGeneralPurposeDialog';
-const CONFIRM_DIALOG_ACTIVE_SELECTOR = `${CONFIRM_DIALOG_SELECTOR}.modal.show[aria-modal="true"]`;
-const CONFIRM_BUTTON_SELECTOR = '[data-shield-dialog-confirm="1"]';
-const CANCEL_BUTTON_SELECTOR = '[data-shield-dialog-cancel="1"]';
+const CONFIRM_DIALOG_SELECTOR = '[data-shield-accessible-dialog="1"]';
+const CONFIRM_DIALOG_ACTIVE_SELECTOR = `${CONFIRM_DIALOG_SELECTOR}[aria-modal="true"]:not([aria-hidden="true"])`;
+const CONFIRM_BUTTON_SELECTOR = '.shield-accessible-dialog__confirm';
+const CANCEL_BUTTON_SELECTOR = '.shield-accessible-dialog__cancel';
 const IP_ANALYSIS_CONFIRM_ACTION_SELECTOR = [
 	'.ip_analyse_action[data-ip_action="block"]',
 	'.ip_analyse_action[data-ip_action="bypass"]',
@@ -202,7 +202,7 @@ test( 'IP analysis actions use accessible confirm without native dialog', async 
 
 	const confirmModal = page.locator( CONFIRM_DIALOG_ACTIVE_SELECTOR );
 	await expect( confirmModal ).toBeVisible();
-	await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
+	await expectNamedDialog( page, confirmModal );
 	await expectOptionalDescription( page, confirmModal );
 
 	await confirmModal.locator( CANCEL_BUTTON_SELECTOR ).click();
@@ -226,7 +226,7 @@ test( 'IP analysis actions use accessible confirm without native dialog', async 
 
 	await expect( confirmModal ).toHaveCount( 1 );
 	await expect( confirmModal ).toBeVisible();
-	await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
+	await expectNamedDialog( page, confirmModal );
 	await confirmModal.locator( CONFIRM_BUTTON_SELECTOR ).click();
 	await actionRequest;
 

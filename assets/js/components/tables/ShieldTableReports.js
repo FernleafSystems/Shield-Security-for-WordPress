@@ -1,5 +1,4 @@
 import { ShieldTableBase } from "./ShieldTableBase";
-import { confirmDialog, resolveDialogConfirmLabel, resolveDialogLauncher } from "../ui/ShieldDialog";
 
 export class ShieldTableReports extends ShieldTableBase {
 
@@ -20,7 +19,7 @@ export class ShieldTableReports extends ShieldTableBase {
 			name: 'selected-delete',
 			className: 'action selected-action delete btn-outline-warning mb-2',
 			action: async ( e, dt, node ) => {
-				if ( await confirmReportDelete( resolveDialogLauncher( e, node ) ) ) {
+				if ( await confirmReportDelete( shieldServices.dialog().resolveLauncher( e, node ) ) ) {
 					this.bulkTableAction( 'delete' );
 				}
 			}
@@ -58,9 +57,10 @@ export class ShieldTableReports extends ShieldTableBase {
 }
 
 function confirmReportDelete( launcher ) {
-	return confirmDialog( {
+	const dialog = shieldServices.dialog();
+	return dialog.confirm( {
 		message: shieldStrings.string( 'are_you_sure' ),
-		confirmLabel: resolveDialogConfirmLabel( launcher ),
+		confirmLabel: dialog.resolveConfirmLabel( launcher ),
 		danger: true,
 		launcher,
 	} );

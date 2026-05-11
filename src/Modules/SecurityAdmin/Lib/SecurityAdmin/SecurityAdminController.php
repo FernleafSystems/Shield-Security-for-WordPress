@@ -119,11 +119,13 @@ class SecurityAdminController {
 												  && !$this->isCurrentUserRegisteredSecAdmin(),
 						],
 						'strings' => [
-							'confirm_disable'    => sprintf( __( "An confirmation link will be sent to '%s' - please open it in this browser window.", 'wp-simple-firewall' ),
+							'confirm_disable'    => sprintf( __( "A confirmation link will be sent to '%s' - please open it in this browser window.", 'wp-simple-firewall' ),
 								Obfuscate::Email( $con->comps->opts_lookup->getReportEmail() ) ),
-							'confirm'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ).' '.__( 'Click OK to reload and re-authenticate.', 'wp-simple-firewall' ),
-							'nearly'             => __( 'Security Admin session has nearly timed-out.', 'wp-simple-firewall' ),
-							'expired'            => __( 'Security Admin session has timed-out.', 'wp-simple-firewall' ),
+							'timeout_title'      => __( 'Session Expired', 'wp-simple-firewall' ),
+							'timeout_message'    => __( 'Your Security Admin session has timed out. Reload to re-authenticate.', 'wp-simple-firewall' ),
+							'timeout_reload'     => __( 'Reload', 'wp-simple-firewall' ),
+							'nearly'             => __( 'Security Admin session has nearly timed out.', 'wp-simple-firewall' ),
+							'expired'            => __( 'Security Admin session has timed out.', 'wp-simple-firewall' ),
 							'are_you_sure'       => __( 'Are you sure?', 'wp-simple-firewall' ),
 							'editing_restricted' => __( 'Editing this option is currently restricted.', 'wp-simple-firewall' ),
 							'unlock_link'        => sprintf(

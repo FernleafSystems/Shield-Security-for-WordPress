@@ -29,8 +29,10 @@ export class FileLocker extends BaseComponent {
 				}
 				else {
 					shieldServices.dialog().message( {
+						title: shieldStrings.string( 'request_failed' ),
 						message: resp.data.error,
 						launcher: targetEl,
+						showTitle: true,
 					} );
 				}
 			} )

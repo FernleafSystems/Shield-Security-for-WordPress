@@ -1,6 +1,5 @@
 import { ShieldTableBase } from "./ShieldTableBase";
 import { ObjectOps } from "../../util/ObjectOps";
-import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
 export class ShieldTableIpRules extends ShieldTableBase {
 
@@ -29,10 +28,14 @@ export class ShieldTableIpRules extends ShieldTableBase {
 		super.bindEvents();
 
 		shieldEventsHandler_Main.add_Click( 'td.ip_linked .ip_delete', async ( targetEl ) => {
-			const rid = targetEl instanceof HTMLElement ? targetEl.dataset[ 'rid' ] || '' : '';
-			const confirmed = await confirmDialog( {
+			if ( !( targetEl instanceof HTMLElement ) ) {
+				return;
+			}
+			const rid = targetEl.dataset[ 'rid' ] || '';
+			const dialog = shieldServices.dialog();
+			const confirmed = await dialog.confirm( {
 				message: this._base_data.strings.are_you_sure,
-				confirmLabel: resolveDialogConfirmLabel( targetEl ),
+				confirmLabel: dialog.resolveConfirmLabel( targetEl ),
 				danger: true,
 				launcher: targetEl,
 			} );

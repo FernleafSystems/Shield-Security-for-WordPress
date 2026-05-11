@@ -1,5 +1,4 @@
 import { ShieldTableBase } from "./ShieldTableBase";
-import { confirmDialog, resolveDialogConfirmLabel, resolveDialogLauncher } from "../ui/ShieldDialog";
 
 export class ShieldTableSessions extends ShieldTableBase {
 
@@ -35,10 +34,11 @@ export class ShieldTableSessions extends ShieldTableBase {
 				name: 'selected-delete',
 				className: 'select-all action btn-outline-warning mb-2',
 				action: async ( e, dt, node ) => {
-					const launcher = resolveDialogLauncher( e, node );
-					const confirmed = await confirmDialog( {
+					const dialog = shieldServices.dialog();
+					const launcher = dialog.resolveLauncher( e, node );
+					const confirmed = await dialog.confirm( {
 						message: shieldStrings.string( 'are_you_sure' ),
-						confirmLabel: resolveDialogConfirmLabel( launcher ),
+						confirmLabel: dialog.resolveConfirmLabel( launcher ),
 						danger: true,
 						launcher,
 					} );

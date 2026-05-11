@@ -8,7 +8,6 @@ import sql from 'highlight.js/lib/languages/sql';
 import xml from 'highlight.js/lib/languages/xml';
 import { AjaxService } from "../services/AjaxService";
 import { BootstrapModals } from "../ui/BootstrapModals";
-import { messageDialog } from "../ui/ShieldDialog";
 import { ObjectOps } from "../../util/ObjectOps";
 
 hljs.registerLanguage( 'bash', bash );
@@ -92,7 +91,7 @@ export class ScanItemAnalysisModal {
 		const spinner = ScanItemAnalysisModal.buildSpinnerMarkup();
 
 		return `<div class="modal-header">
-			<h5 class="modal-title" id="ShieldModalContainerLabel">${ScanItemAnalysisModal.escapeHtml( loadingLabel )}</h5>
+			<div class="modal-title" id="ShieldModalContainerLabel">${ScanItemAnalysisModal.escapeHtml( loadingLabel )}</div>
 			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${ScanItemAnalysisModal.escapeHtml( ScanItemAnalysisModal.getCloseLabel() )}"></button>
 		</div>
 		<div class="modal-body" aria-busy="true">
@@ -128,10 +127,11 @@ export class ScanItemAnalysisModal {
 	}
 
 	static showFailureMessage( modal, message ) {
-		const openMessage = () => messageDialog( {
+		const openMessage = () => shieldServices.dialog().message( {
 			title: ScanItemAnalysisModal.localizedString( 'request_failed', 'Request Failed' ),
 			message: message,
 			launcher: ScanItemAnalysisModal.resolveDialogLauncher(),
+			showTitle: true,
 		} );
 
 		if ( !( modal instanceof HTMLElement )

@@ -1123,21 +1123,6 @@ $sidebar-transition-speed: 0.25s;
   padding: 0;
 }
 
-#AptoGeneralPurposeDialog {
-  z-index: 99999; /** Above WP admin bar **/
-}
-
-#AptoGeneralPurposeDialog .card {
-  max-width: none;
-  padding: 0;
-  margin: 0;
-  border: 0 none;
-}
-
-#AptoGeneralPurposeDialog .card-header {
-  background: transparent;
-}
-
 th.actions,
 td.actions {
   width: 150px !important;

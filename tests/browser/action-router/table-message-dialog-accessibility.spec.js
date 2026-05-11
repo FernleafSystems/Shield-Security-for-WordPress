@@ -12,9 +12,10 @@ const {
 
 const SCAN_RESULTS_TABLE_SELECTOR = '[data-actions-queue-detail="1"] [data-scan-results-table="1"]';
 const SCAN_RESULT_DELETE_SELECTOR = '[data-scan-result-action="delete"]';
-const DIALOG_ACTIVE_SELECTOR = '#AptoGeneralPurposeDialog[aria-modal="true"]';
-const DIALOG_SELECTOR = '#AptoGeneralPurposeDialog';
-const CONFIRM_BUTTON_SELECTOR = '[data-shield-dialog-confirm="1"]';
+const DIALOG_ACTIVE_SELECTOR = '[data-shield-accessible-dialog="1"][aria-modal="true"]:not([aria-hidden="true"])';
+const DIALOG_SELECTOR = '[data-shield-accessible-dialog="1"]';
+const DIALOG_TITLE_SELECTOR = '.shield-accessible-dialog__title';
+const CONFIRM_BUTTON_SELECTOR = '.shield-accessible-dialog__confirm';
 
 async function openDirectScanResultsTable( page, fixture ) {
 	const actionsQueuePage = new ActionsQueuePage( page );
@@ -57,10 +58,22 @@ async function triggerTableReload( table ) {
 async function expectAccessibleMessageDialog( page ) {
 	const dialog = page.locator( DIALOG_ACTIVE_SELECTOR );
 	await expect( dialog ).toBeVisible();
-	await expectNamedDialog( page, dialog, 'AptoGeneralPurposeDialogTitle' );
+	await expectNamedDialog( page, dialog );
 	await expectOptionalDescription( page, dialog );
 	await expectFocusWithin( dialog );
 	return dialog;
+}
+
+async function expectDialogTitle( dialog, expectedText, { hidden = false } = {} ) {
+	const title = dialog.locator( DIALOG_TITLE_SELECTOR );
+	await expect( title ).toHaveText( expectedText );
+	if ( hidden ) {
+		await expect( title ).toHaveClass( /__title--hidden/ );
+	}
+	else {
+		await expect( title ).not.toHaveClass( /__title--hidden/ );
+		await expect( title ).toBeVisible();
+	}
 }
 
 async function expectNoAxeViolations( page, selector ) {
@@ -145,9 +158,11 @@ test( 'scan results row action failure opens accessible message dialog', async (
 
 		await deleteAction.click();
 		const confirmDialog = await expectAccessibleMessageDialog( page );
+		await expectDialogTitle( confirmDialog, 'Confirm Action' );
 		await confirmDialog.locator( CONFIRM_BUTTON_SELECTOR ).click();
 
 		const messageDialog = await expectAccessibleMessageDialog( page );
+		await expectDialogTitle( messageDialog, 'Request Failed' );
 		await expectNoAxeViolations( page, DIALOG_SELECTOR );
 		await expect.poll( () => nativeDialogCount ).toBe( 0 );
 		await expect.poll( () => interceptedAction.count() ).toBe( 1 );
@@ -159,6 +174,25 @@ test( 'scan results row action failure opens accessible message dialog', async (
 
 		await interceptedAction.cleanup();
 	} );
+} );
+
+test( 'simple notice dialog hides its redundant title and keeps a named close button', async ( { page } ) => {
+	await openShieldRoute( page, {
+		nav: 'dashboard',
+		nav_sub: 'overview',
+	} );
+
+	await page.evaluate( () => {
+		window.shieldServices.dialog().message( {
+			message: 'browser-fixture-simple-notice',
+		} );
+	} );
+
+	const dialog = await expectAccessibleMessageDialog( page );
+	await expectDialogTitle( dialog, 'Notice', { hidden: true } );
+	await expect( dialog.locator( CONFIRM_BUTTON_SELECTOR ) ).toHaveText( 'Close' );
+	await expectNoAxeViolations( page, DIALOG_SELECTOR );
+	await dialog.locator( CONFIRM_BUTTON_SELECTOR ).click();
 } );
 
 test( 'scan results table data failure clears busy and opens accessible message dialog', async ( { page, fixtureApi } ) => {

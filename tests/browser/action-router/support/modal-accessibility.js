@@ -19,9 +19,9 @@ async function expectNamedOffcanvas( page, offcanvas, expectedLabelId = null ) {
 }
 
 async function expectAccessibleMessageDialog( page ) {
-	const dialog = page.locator( '#AptoGeneralPurposeDialog[aria-modal="true"]' );
+	const dialog = page.locator( '[data-shield-accessible-dialog="1"][aria-modal="true"]:not([aria-hidden="true"])' );
 	await expect( dialog ).toBeVisible();
-	await expectNamedDialog( page, dialog, 'AptoGeneralPurposeDialogTitle' );
+	await expectNamedDialog( page, dialog );
 	await expectOptionalDescription( page, dialog );
 	await expectFocusWithin( dialog );
 	return dialog;
@@ -42,31 +42,42 @@ async function expectOptionalDescription( page, dialog ) {
 	if ( descriptionId === null || descriptionId.length < 1 ) {
 		return null;
 	}
-	await expectReferenceTargetNonEmpty( page, descriptionId );
-	return descriptionId;
+	return expectConnectedNonEmptyReference( page, dialog, 'aria-describedby' );
 }
 
 async function expectConnectedNonEmptyReference( page, element, attribute ) {
-	const referenceId = await element.getAttribute( attribute );
-	expect( referenceId || '' ).not.toHaveLength( 0 );
-	await expectReferenceTargetNonEmpty( page, referenceId );
-	return referenceId;
+	const referenceIds = await getIdReferenceTokens( element, attribute );
+	expect( referenceIds.length ).toBeGreaterThan( 0 );
+	for ( const referenceId of referenceIds ) {
+		await expectReferenceTargetNonEmpty( page, referenceId );
+	}
+	return referenceIds.length === 1 ? referenceIds[ 0 ] : referenceIds;
 }
 
 async function expectReferenceTargetNonEmpty( page, referenceId ) {
 	expect( await page.locator( `#${referenceId}` ).evaluate( ( node ) => node.isConnected && ( node.textContent || '' ).trim().length > 0 ) ).toBe( true );
 }
 
+const getIdReferenceTokens = async ( locator, attribute ) => locator.evaluate(
+	( element, currentAttribute ) => String( element.getAttribute( currentAttribute ) || '' )
+		.split( /\s+/ )
+		.filter( ( id ) => id.length > 0 ),
+	attribute
+);
+
 async function expectModalHiddenWithoutAriaModal( page, modalSelector ) {
-	await expect( page.locator( modalSelector ) ).not.toHaveAttribute( 'aria-modal', 'true' );
+	await expect( page.locator( `${modalSelector}[aria-modal="true"]:not([aria-hidden="true"])` ) ).toHaveCount( 0 );
 }
 
 module.exports = {
 	expectAccessibleMessageDialog,
 	expectFocusWithin,
+	expectConnectedNonEmptyReference,
 	expectLabelledControl,
 	expectModalHiddenWithoutAriaModal,
 	expectNamedDialog,
 	expectNamedOffcanvas,
 	expectOptionalDescription,
+	expectReferenceTargetNonEmpty,
+	getIdReferenceTokens,
 };

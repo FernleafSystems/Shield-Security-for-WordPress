@@ -3,6 +3,24 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrowserFixtureRegistry;
 
 \add_filter( 'pre_http_request', 'shield_browser_fixture_filelocker_api_response', 10, 3 );
+\add_action( 'after_setup_theme', 'shield_browser_fixture_force_security_admin_restrictions', \PHP_INT_MIN );
+
+function shield_browser_fixture_force_security_admin_restrictions() :void {
+	if ( \get_option( 'shield_browser_fixture_security_admin_force_restrictions' ) !== 'Y'
+		 || !\function_exists( 'shield_security_get_plugin' )
+	) {
+		return;
+	}
+
+	$plugin = \shield_security_get_plugin();
+	$controller = \is_object( $plugin ) && \method_exists( $plugin, 'getController' )
+		? $plugin->getController()
+		: null;
+	if ( \is_object( $controller ) && isset( $controller->this_req ) ) {
+		$controller->this_req->request_bypasses_all_restrictions = false;
+		$controller->this_req->request_subject_to_shield_restrictions = true;
+	}
+}
 
 \add_action( 'rest_api_init', static function () :void {
 	\register_rest_route( 'shield-browser-test/v1', '/fixture', [
@@ -142,6 +160,7 @@ function shield_browser_fixture_allowed_actions() :array {
 		'mfa-profile' => [ 'seed', 'cleanup' ],
 		'notbot-altcha' => [ 'seed', 'cleanup', 'inspect' ],
 		'public-block-recovery' => [ 'seed', 'cleanup' ],
+		'security-admin' => [ 'seed', 'cleanup' ],
 	];
 }
 
@@ -162,6 +181,7 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/ActionRouter/MfaProfileFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/NotBotAltchaFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/PublicBlockRecoveryFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/SecurityAdminFixtureBuilder.php',
 	] as $relativePath ) {
 		require_once $pluginRoot.'/'.$relativePath;
 	}

@@ -156,9 +156,10 @@ async function openShieldRoute( page, params = {} ) {
 	return url;
 }
 
-async function createFixtureApi( playwright, lane ) {
+async function createFixtureApi( playwright, lane, authStatePath ) {
 	const request = await playwright.request.newContext( {
 		baseURL: lane.baseUrl,
+		storageState: authStatePath,
 		extraHTTPHeaders: {
 			'X-Shield-Browser-Fixture-Token': lane.fixtureToken,
 		},
@@ -308,6 +309,19 @@ async function createFixtureApi( playwright, lane ) {
 					}
 				}
 			},
+			async withSecurityAdminFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'security-admin', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'security-admin', 'cleanup' );
+					}
+				}
+			},
 		},
 	};
 }
@@ -327,8 +341,8 @@ const test = base.test.extend( {
 		{ scope: 'worker' },
 	],
 	fixtureApi: [
-		async ( { playwright, lane }, use ) => {
-			const api = await createFixtureApi( playwright, lane );
+		async ( { playwright, lane, authStatePath }, use ) => {
+			const api = await createFixtureApi( playwright, lane, authStatePath );
 			await api.cleanupAll();
 			try {
 				await use( api.fixtureApi );
@@ -341,6 +355,9 @@ const test = base.test.extend( {
 		{ scope: 'worker' },
 	],
 	context: async ( { browser, lane, authStatePath }, use ) => {
+		if ( !fs.existsSync( authStatePath ) ) {
+			await loginAndWriteStorageState( browser, lane );
+		}
 		const context = await browser.newContext( {
 			baseURL: lane.baseUrl,
 			storageState: authStatePath,

@@ -1,7 +1,6 @@
 import Sortable from 'sortablejs';
 import { ShieldTableBase } from "./ShieldTableBase";
 import { ObjectOps } from "../../util/ObjectOps";
-import { confirmDialog, resolveDialogConfirmLabel, resolveDialogLauncher } from "../ui/ShieldDialog";
 
 /**
  * Rows-Reorder extension for Datatables is terrible. When using server-side there's no way to gather
@@ -71,7 +70,7 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 				name: 'deactivate_all',
 				className: 'deactivate-all action btn-outline-warning mb-2',
 				action: async ( e, dt, node ) => {
-					if ( await confirmSecurityRuleAction( resolveDialogLauncher( e, node ), true ) ) {
+					if ( await confirmSecurityRuleAction( shieldServices.dialog().resolveLauncher( e, node ), true ) ) {
 						dt.rows().select();
 						this.bulkTableAction.call( this, 'deactivate_all' );
 					}
@@ -138,9 +137,10 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 }
 
 function confirmSecurityRuleAction( launcher, danger = false ) {
-	return confirmDialog( {
+	const dialog = shieldServices.dialog();
+	return dialog.confirm( {
 		message: shieldStrings.string( 'are_you_sure' ),
-		confirmLabel: resolveDialogConfirmLabel( launcher ),
+		confirmLabel: dialog.resolveConfirmLabel( launcher ),
 		danger,
 		launcher,
 	} );

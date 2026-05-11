@@ -438,14 +438,14 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 			action.click();
 			action.click();
 		} );
-		const confirmModal = page.locator( '#AptoGeneralPurposeDialog.modal.show' );
+		const confirmModal = page.locator( '[data-shield-accessible-dialog="1"][aria-modal="true"]:not([aria-hidden="true"])' );
 		await expect( confirmModal ).toBeVisible();
-		await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
+		await expectNamedDialog( page, confirmModal );
 		await expectOptionalDescription( page, confirmModal );
-		await expect( confirmModal.locator( '[data-shield-dialog-cancel="1"]' ) ).toBeFocused();
+		await expect( confirmModal.locator( '.shield-accessible-dialog__cancel' ) ).toBeFocused();
 
-		await confirmModal.locator( '[data-shield-dialog-cancel="1"]' ).click();
-		await expectModalHiddenWithoutAriaModal( page, '#AptoGeneralPurposeDialog' );
+		await confirmModal.locator( '.shield-accessible-dialog__cancel' ).click();
+		await expectModalHiddenWithoutAriaModal( page, '[data-shield-accessible-dialog="1"]' );
 		await expect( ignoreAllAction ).toBeFocused();
 		await expect.poll( () => nativeDialogCount ).toBe( 0 );
 		await expect.poll( () => ignoreAllRequestCount, { timeout: 1000 } ).toBe( 0 );
@@ -464,8 +464,8 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 			action.click();
 		} );
 		await expect( confirmModal ).toBeVisible();
-		await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
-		await confirmModal.locator( '[data-shield-dialog-confirm="1"]' ).click();
+		await expectNamedDialog( page, confirmModal );
+		await confirmModal.locator( '.shield-accessible-dialog__confirm' ).click();
 		await ignoreAllRequest;
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
@@ -509,9 +509,9 @@ test( 'actions queue ignores all malware results from the context rail without r
 
 		const ignoreAllRequest = page.waitForRequest( isIgnoreAllRequest, { timeout: 20_000 } );
 		await ignoreAllAction.click();
-		const confirmModal = page.locator( '#AptoGeneralPurposeDialog.modal.show' );
+		const confirmModal = page.locator( '[data-shield-accessible-dialog="1"][aria-modal="true"]:not([aria-hidden="true"])' );
 		await expect( confirmModal ).toBeVisible();
-		await confirmModal.locator( '[data-shield-dialog-confirm="1"]' ).click();
+		await confirmModal.locator( '.shield-accessible-dialog__confirm' ).click();
 		await ignoreAllRequest;
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
