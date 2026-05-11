@@ -17,11 +17,14 @@ class BotSignalNames {
 	 */
 	public function getBotSignalNames() :array {
 		$silentCaptcha = self::con()->labels->getBrandName( 'silentcaptcha' );
+		/* translators: %1$s: silentCAPTCHA brand name, %2$s: public silentCAPTCHA version number. */
+		$silentCaptchaRegistration = __( '%1$s v%2$s Registration', 'wp-simple-firewall' );
+
 		return [
 			'created'         => __( 'New Visitor Bonus', 'wp-simple-firewall' ),
 			'known'           => __( 'A Known Service Provider/Bot', 'wp-simple-firewall' ),
-			'notbot'          => sprintf( __( '%sv1 Registration', 'wp-simple-firewall' ), $silentCaptcha ),
-			'altcha'          => sprintf( __( '%sv2 Registration', 'wp-simple-firewall' ), $silentCaptcha ),
+			'notbot'          => sprintf( $silentCaptchaRegistration, $silentCaptcha, '1' ),
+			'altcha'          => sprintf( $silentCaptchaRegistration, $silentCaptcha, '3' ),
 			'frontpage'       => __( 'Any Frontend Page Visited', 'wp-simple-firewall' ),
 			'loginpage'       => __( 'Login Page Visited', 'wp-simple-firewall' ),
 			'bt404'           => __( '404 Triggered', 'wp-simple-firewall' ),
