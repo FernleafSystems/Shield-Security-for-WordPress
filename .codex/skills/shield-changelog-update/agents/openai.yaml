@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shield Changelog Update"
+  short_description: "Write clear Shield release notes"
+  default_prompt: "Use $shield-changelog-update to update Shield's cl.json changelog from recent repository changes."
