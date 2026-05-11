@@ -33,6 +33,7 @@ class SourceStaticAnalysisLaneTest extends TestCase {
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 1, $processRunner->calls );
 		$this->assertStringContainsString( 'phpstan', \implode( ' ', $processRunner->calls[ 0 ][ 'command' ] ) );
+		$this->assertContains( '--memory-limit=2G', $processRunner->calls[ 0 ][ 'command' ] );
 		$this->assertCount( 0, $setupCoordinator->persistCalls );
 	}
 

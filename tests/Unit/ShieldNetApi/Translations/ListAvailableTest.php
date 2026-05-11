@@ -20,8 +20,39 @@ class ListAvailableTest extends BaseUnitTest {
 		$this->assertInstanceOf( BaseShieldNetApiV2::class, $api );
 	}
 
-	public function testRetrieveMethodExists() :void {
-		$api = new ListAvailable();
-		$this->assertTrue( \method_exists( $api, 'retrieve' ) );
+	public function testRetrieveReturnsLocalesFromSuccessfulResponse() :void {
+		$locales = [
+			'de_DE' => [
+				'hash'      => 'abc123',
+				'hash_type' => 'sha256',
+			],
+		];
+
+		$api = new class( $locales ) extends ListAvailable {
+			private array $locales;
+
+			public function __construct( array $locales ) {
+				$this->locales = $locales;
+			}
+
+			protected function sendReq() :?array {
+				return [
+					'error_code' => 0,
+					'locales'    => $this->locales,
+				];
+			}
+		};
+
+		$this->assertSame( $locales, $api->retrieve() );
+	}
+
+	public function testRetrieveReturnsNullForFailedResponse() :void {
+		$api = new class extends ListAvailable {
+			protected function sendReq() :?array {
+				return [ 'error_code' => 1 ];
+			}
+		};
+
+		$this->assertNull( $api->retrieve() );
 	}
 }

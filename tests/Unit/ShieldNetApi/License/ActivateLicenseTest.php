@@ -22,11 +22,6 @@ class ActivateLicenseTest extends BaseUnitTest {
 		$this->assertInstanceOf( BaseShieldNetApiV2::class, $api );
 	}
 
-	public function testActivateMethodExists() :void {
-		$api = new ActivateLicense();
-		$this->assertTrue( \method_exists( $api, 'activate' ) );
-	}
-
 	public function testActivateThrowsWhenRequestFails() :void {
 		$api = new class extends ActivateLicense {
 			protected function sendReq() :?array {

@@ -52,7 +52,7 @@ class SourceStaticAnalysisLane {
 				'-c',
 				Path::join( '.', 'phpstan.neon.dist' ),
 				'--no-progress',
-				'--memory-limit=1G',
+				'--memory-limit=2G',
 			],
 			$rootDir
 		);

@@ -36,10 +36,6 @@ class ActivateTest extends BaseUnitTest {
 		$this->assertCount( \count( $codes ), \array_unique( $codes ) );
 	}
 
-	public function testAlreadyActivatedExceptionClassExists() :void {
-		$this->assertTrue( \class_exists( LicenseAlreadyActivatedException::class ) );
-	}
-
 	public function testProcessActivationResponseThrowsAlreadyActivatedException() :void {
 		$activate = new Activate();
 		$reflection = new \ReflectionClass( $activate );
