@@ -13,6 +13,9 @@ require_once '/app/tests/Helpers/ActionRouter/MainwpSitesFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/MerlinWelcomeFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/MfaProfileFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/NotBotAltchaFixtureBuilder.php';
+require_once '/app/tests/Helpers/ActionRouter/PublicBlockRecoveryFixtureBuilder.php';
+require_once '/app/tests/Helpers/ActionRouter/SecurityAdminFixtureBuilder.php';
+require_once '/app/tests/Helpers/ActionRouter/SecurityHeadersFixtureBuilder.php';
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrowserFixtureRegistry;
 

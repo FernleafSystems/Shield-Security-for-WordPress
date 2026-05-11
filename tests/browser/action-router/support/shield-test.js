@@ -226,6 +226,9 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 					}
 				}
 			},
+			async inspectIpAnalysisActivityMetaFixture() {
+				return runFixture( 'ip-analysis-activity-meta', 'inspect' );
+			},
 			async withIpRulesTableFixture( runScenario ) {
 				let seeded = false;
 				try {
@@ -238,6 +241,9 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 						await runFixture( 'ip-rules-table', 'cleanup' );
 					}
 				}
+			},
+			async inspectIpRulesTableFixture() {
+				return runFixture( 'ip-rules-table', 'inspect' );
 			},
 			async withMainwpSitesFixture( runScenario ) {
 				let seeded = false;
@@ -319,6 +325,19 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 				finally {
 					if ( seeded ) {
 						await runFixture( 'security-admin', 'cleanup' );
+					}
+				}
+			},
+			async withSecurityHeadersFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'security-headers', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'security-headers', 'cleanup' );
 					}
 				}
 			},

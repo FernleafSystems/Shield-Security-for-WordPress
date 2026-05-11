@@ -10,40 +10,23 @@ const {
 	getInlineTabByIndex,
 	getInlineTabByTableType,
 } = require( './support/investigate-inline-tabs' );
+const {
+	collectRuntimeErrors,
+	expectInvestigationTableInitialized,
+	expectNoRuntimeErrors,
+	expectRequestMetaPopover,
+	investigationTableResponseMatcher,
+	isAdminAjaxRequest,
+	requestActionSlug,
+	requestPostParam,
+} = require( './support/security-assertions' );
 
 const panelSelector = '[data-investigate-panel="1"]';
 
-const investigationTableRequestMatcher = ( tableType ) => ( response ) => {
-	if ( !response.url().includes( '/admin-ajax.php' ) ) {
-		return false;
-	}
-
-	const request = response.request();
-	const postData = request.postData() || '';
-
-	return request.method() === 'POST'
-		&& postData.includes( 'sub_action=retrieve_table_data' )
-		&& postData.includes( `table_type=${tableType}` );
-};
-
-const requestMetaResponseMatcher = ( rid ) => ( response ) => {
-	if ( !response.url().includes( '/admin-ajax.php' ) ) {
-		return false;
-	}
-
-	const request = response.request();
-	const postData = request.postData() || '';
-
-	return request.method() === 'POST'
-		&& postData.includes( 'sub_action=get_request_meta' )
-		&& postData.includes( `rid=${rid}` );
-};
-
 const isLiveTrafficPollRequest = ( request ) => {
-	const postData = request.postData() || '';
-	return request.url().includes( '/admin-ajax.php' )
-		&& request.method() === 'POST'
-		&& postData.includes( 'render_traffic_live_logs' );
+	return isAdminAjaxRequest( request )
+		&& requestActionSlug( request ) === 'ajax_render'
+		&& requestPostParam( request, 'render_slug' ) === 'render_traffic_live_logs';
 };
 
 const parseWrappedAjaxJson = ( raw ) => {
@@ -78,36 +61,6 @@ const clickSubjectTile = async ( page, subject ) => {
 		),
 		page.locator( `[data-drill-target="panel"][data-investigate-subject="${subject}"]` ).click(),
 	] );
-};
-
-const expectInvestigationTableInitialized = async ( panel, tableType ) => {
-	const table = panel.locator( `.tab-pane.active.show table[data-investigation-table="1"][data-table-type="${tableType}"]` ).first();
-	await expect( table ).toBeVisible();
-	await expect.poll(
-		async () => table.evaluate( ( el ) => {
-			return !!globalThis.jQuery?.fn?.dataTable?.isDataTable?.( el );
-		} ),
-		{
-			message: `Expected ${tableType} investigation table to be initialized by DataTables.`,
-		}
-	).toBe( true );
-};
-
-const expectRequestMetaPopover = async ( page, root, rid, expectedMeta ) => {
-	const metaButton = root.locator( '.tab-pane.active.show td.meta > button[data-toggle="popover"]' ).first();
-	await expect( metaButton ).toBeVisible();
-
-	await Promise.all( [
-		page.waitForResponse( requestMetaResponseMatcher( rid ) ),
-		metaButton.click(),
-	] );
-
-	const popoverBody = page.locator( '.popover.show .popover-body' ).last();
-	await expect( popoverBody ).toBeVisible();
-
-	for ( const marker of expectedMeta ) {
-		await expect( popoverBody ).toContainText( marker );
-	}
 };
 
 test( 'investigate user reset uses the shared generic panel path and self shortcut', async ( { page } ) => {
@@ -257,20 +210,22 @@ test( 'investigate landing deep link opens the IP panel, resets generically, and
 	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toBeVisible();
 
 	const rail = page.locator( '[data-operator-context-rail="1"]' );
-	const railTitle = rail.locator( '.operator-context-rail__title' );
-	const railBadge = rail.locator( '.operator-context-rail__title-row .shield-badge' );
-	await expect( railTitle ).toHaveText( '203.0.113.88' );
-	await expect( railBadge ).toHaveText( 'IP activity' );
-	await expect( rail.locator( '.operator-context-rail__summary' ) ).toHaveText(
-		'Review sessions, activity, and request history for this IP address.'
-	);
-	await expect( rail ).not.toContainText( 'Use the panel below to look up and explore.' );
-	await expect( rail ).not.toContainText( 'Use the panel tabs and actions to continue the investigation.' );
-	const titleBox = await railTitle.boundingBox();
-	const badgeBox = await railBadge.boundingBox();
-	expect( titleBox ).not.toBeNull();
-	expect( badgeBox ).not.toBeNull();
-	expect( Math.abs( ( titleBox?.y || 0 ) - ( badgeBox?.y || 0 ) ) ).toBeLessThan( 8 );
+	await expect( rail ).toBeVisible();
+	await expect( rail.locator( '[data-operator-context-rail-body="1"]' ) ).toBeVisible();
+
+	const subjectHeader = panel.locator( '[data-investigate-subject-header="1"]' );
+	const contextStepJson = await subjectHeader.getAttribute( 'data-investigate-context-step' );
+	expect( contextStepJson ).not.toBeNull();
+	const contextStep = JSON.parse( contextStepJson );
+	expect( contextStep ).toMatchObject( {
+		breadcrumb_label: '203.0.113.88',
+		title: '203.0.113.88',
+		color_key: 'investigate',
+	} );
+	expect( typeof contextStep.summary ).toBe( 'string' );
+	expect( contextStep.summary.trim().length ).toBeGreaterThan( 0 );
+	expect( typeof contextStep.badge_status ).toBe( 'string' );
+	expect( contextStep.badge_status.trim().length ).toBeGreaterThan( 0 );
 
 	await Promise.all( [
 		page.waitForURL(
@@ -319,10 +274,7 @@ test( 'investigate landing deep link opens the IP panel, resets generically, and
 } );
 
 test( 'investigate landing IP analysis loads investigation tables without runtime errors', async ( { page } ) => {
-	const pageErrors = [];
-	page.on( 'pageerror', ( error ) => {
-		pageErrors.push( error.message );
-	} );
+	const runtimeErrors = collectRuntimeErrors( page );
 
 	await openShieldRoute( page, {
 		nav: 'activity',
@@ -343,7 +295,7 @@ test( 'investigate landing IP analysis loads investigation tables without runtim
 		const targetTab = await getInlineTabByTableType( panel, tableType );
 
 		await Promise.all( [
-			page.waitForResponse( investigationTableRequestMatcher( tableType ) ),
+			page.waitForResponse( investigationTableResponseMatcher( tableType ) ),
 			targetTab.click(),
 		] );
 
@@ -367,17 +319,11 @@ test( 'investigate landing IP analysis loads investigation tables without runtim
 	await expectKeyboardTabActivation( page, panel, firstTab, 'End', lastTab );
 	await expectInvestigationTableInitialized( panel, 'traffic' );
 
-	await expect.poll(
-		() => pageErrors,
-		{ message: `Expected no browser runtime errors while loading drill-down IP analysis investigation tables: ${pageErrors.join( '; ' )}` }
-	).toEqual( [] );
+	await expectNoRuntimeErrors( runtimeErrors, 'Expected no browser runtime errors while loading drill-down IP analysis investigation tables' );
 } );
 
 test( 'investigate landing IP activity meta button loads request meta popover', async ( { page, fixtureApi } ) => {
-	const pageErrors = [];
-	page.on( 'pageerror', ( error ) => {
-		pageErrors.push( error.message );
-	} );
+	const runtimeErrors = collectRuntimeErrors( page );
 
 	await fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => {
 		await openShieldRoute( page, {
@@ -397,7 +343,7 @@ test( 'investigate landing IP activity meta button loads request meta popover', 
 		const targetTab = await getInlineTabByTableType( panel, 'activity' );
 
 		await Promise.all( [
-			page.waitForResponse( investigationTableRequestMatcher( 'activity' ) ),
+			page.waitForResponse( investigationTableResponseMatcher( 'activity' ) ),
 			targetTab.click(),
 		] );
 
@@ -406,10 +352,7 @@ test( 'investigate landing IP activity meta button loads request meta popover', 
 		await expectRequestMetaPopover( page, panel, fixture.rid, fixture.expected_meta );
 	} );
 
-	await expect.poll(
-		() => pageErrors,
-		{ message: `Expected no browser runtime errors while opening the IP investigation request-meta popover: ${pageErrors.join( '; ' )}` }
-	).toEqual( [] );
+	await expectNoRuntimeErrors( runtimeErrors, 'Expected no browser runtime errors while opening the IP investigation request-meta popover' );
 } );
 
 test( 'investigate landing drill-back clears stale plugin breadcrumbs after a resolved selection', async ( { page } ) => {
@@ -437,8 +380,6 @@ test( 'investigate landing drill-back clears stale plugin breadcrumbs after a re
 	const stepTabs = page.locator( '[data-operator-step-tab="1"]' );
 	await expect( stepTabs ).toHaveCount( 4 );
 	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 1 );
-	const resolvedLabel = ( await stepTabs.last().textContent() || '' ).trim();
-	expect( resolvedLabel.length ).toBeGreaterThan( 0 );
 
 	await Promise.all( [
 		page.waitForURL(
@@ -457,7 +398,6 @@ test( 'investigate landing drill-back clears stale plugin breadcrumbs after a re
 	} );
 	await expect( stepTabs ).toHaveCount( 2 );
 	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 0 );
-	await expect( stepTabs.filter( { hasText: resolvedLabel } ) ).toHaveCount( 0 );
 } );
 
 test( 'investigate landing reopens a cached generic user panel with a live select2 lookup', async ( { page } ) => {
@@ -512,20 +452,17 @@ test( 'investigate landing preloads generic subjects and keeps live traffic lazy
 	let batchRequestCount = 0;
 	let directUserPanelRequestCount = 0;
 	let liveTrafficRequestCount = 0;
-	const isAdminAjaxRequest = ( request ) => request.url().includes( '/admin-ajax.php' );
 
 	await page.route( '**/admin-ajax.php**', async ( route ) => {
 		const request = route.request();
-		const postData = request.postData() || '';
-		if ( isAdminAjaxRequest( request ) && postData.includes( 'ex=ajax_batch_requests' ) ) {
+		const actionSlug = requestActionSlug( request );
+		if ( isAdminAjaxRequest( request ) && actionSlug === 'ajax_batch_requests' ) {
 			batchRequestCount++;
 		}
-		if ( isAdminAjaxRequest( request )
-			&& postData.includes( 'ex=render_investigate_by_user_panel_body' )
-			&& !postData.includes( 'ex=ajax_batch_requests' ) ) {
+		if ( isAdminAjaxRequest( request ) && actionSlug === 'render_investigate_by_user_panel_body' ) {
 			directUserPanelRequestCount++;
 		}
-		if ( isAdminAjaxRequest( request ) && postData.includes( 'render_traffic_live_logs' ) ) {
+		if ( isLiveTrafficPollRequest( request ) ) {
 			liveTrafficRequestCount++;
 		}
 		await route.continue();

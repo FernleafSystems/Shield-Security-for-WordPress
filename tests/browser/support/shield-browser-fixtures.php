@@ -3,10 +3,13 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrowserFixtureRegistry;
 
 \add_filter( 'pre_http_request', 'shield_browser_fixture_filelocker_api_response', 10, 3 );
-\add_action( 'after_setup_theme', 'shield_browser_fixture_force_security_admin_restrictions', \PHP_INT_MIN );
+\add_action( 'after_setup_theme', 'shield_browser_fixture_force_restrictions', \PHP_INT_MIN );
 
-function shield_browser_fixture_force_security_admin_restrictions() :void {
-	if ( \get_option( 'shield_browser_fixture_security_admin_force_restrictions' ) !== 'Y'
+function shield_browser_fixture_force_restrictions() :void {
+	if ( !\in_array( 'Y', [
+			\get_option( 'shield_browser_fixture_security_admin_force_restrictions' ),
+			\get_option( 'shield_browser_fixture_force_restrictions' ),
+		], true )
 		 || !\function_exists( 'shield_security_get_plugin' )
 	) {
 		return;
@@ -153,14 +156,15 @@ function shield_browser_fixture_allowed_actions() :array {
 		'__all__' => [ 'cleanup' ],
 		'actions-queue' => [ 'seed', 'cleanup', 'inspect' ],
 		'import-export-file' => [ 'seed', 'cleanup' ],
-		'ip-analysis-activity-meta' => [ 'seed', 'cleanup' ],
-		'ip-rules-table' => [ 'seed', 'cleanup' ],
+		'ip-analysis-activity-meta' => [ 'seed', 'cleanup', 'inspect' ],
+		'ip-rules-table' => [ 'seed', 'cleanup', 'inspect' ],
 		'mainwp-sites' => [ 'seed', 'cleanup' ],
 		'merlin-welcome' => [ 'seed', 'cleanup' ],
 		'mfa-profile' => [ 'seed', 'cleanup' ],
 		'notbot-altcha' => [ 'seed', 'cleanup', 'inspect' ],
 		'public-block-recovery' => [ 'seed', 'cleanup' ],
 		'security-admin' => [ 'seed', 'cleanup' ],
+		'security-headers' => [ 'seed', 'cleanup' ],
 	];
 }
 
@@ -182,6 +186,7 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/ActionRouter/NotBotAltchaFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/PublicBlockRecoveryFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/SecurityAdminFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/SecurityHeadersFixtureBuilder.php',
 	] as $relativePath ) {
 		require_once $pluginRoot.'/'.$relativePath;
 	}
