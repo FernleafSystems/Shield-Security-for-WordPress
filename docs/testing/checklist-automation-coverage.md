@@ -17,16 +17,16 @@ Current summary:
 
 | Group | Total | Automated | Partial evidence | Pending evidence | Manual/external-blocked |
 |---|---:|---:|---:|---:|---:|
-| Original checklist items | 61 | 0 | 1 | 60 | 0 |
-| Supplemental items | 6 | 0 | 0 | 6 | 0 |
+| Original checklist items | 61 | 4 | 4 | 53 | 0 |
+| Supplemental items | 6 | 1 | 1 | 4 | 0 |
 
 ## Slice Status
 
 | Slice | Linear | Linear state | Included checklist/supplemental IDs |
 |---|---|---|---|
-| Dashboard and Defaults | SHI-269 | Todo | GLOBAL-01, TP-01, TP-02, BT-01 |
+| Dashboard and Defaults | SHI-269 | Done | GLOBAL-01, TP-01, TP-02, BT-01 |
 | Scan Prep and Actions | SHI-270 | Todo | TP-03, BT-02 |
-| Package, Upgrade, and CLI | SHI-271 | Todo | UT-01, UT-02, UT-03, SUP-03, SUP-05 |
+| Package, Upgrade, and CLI | SHI-271 | Done | UT-01, UT-02, UT-03, SUP-03, SUP-05 |
 | Security Admin Core | SHI-272 | Todo | BT-03, BT-03-01, BT-03-02, BT-03-03, BT-03-04 |
 | Security Admin Boundaries | SHI-273 | Todo | BT-03-05, BT-03-06, BT-03-07, BT-03-08, SUP-01 |
 | Firewall Core Rules | SHI-274 | Todo | BT-04, BT-04-01, BT-04-02, BT-04-03, BT-04-04 |
@@ -45,14 +45,14 @@ Current summary:
 
 | ID | Linear | Slice | Linear state | Target | Automation status | Lane | Evidence command | Remainder / next evidence |
 |---|---|---|---|---|---|---|---|---|
-| GLOBAL-01 | SHI-187 | SHI-269 Dashboard and Defaults | Todo | full local | pending evidence | browser | TBD | Prove global testing rules through stable browser/integration contracts. |
-| TP-01 | SHI-188 | SHI-269 Dashboard and Defaults | Todo | full local | pending evidence | browser | TBD | Prove reset-to-defaults behavior and cleanup. |
-| TP-02 | SHI-189 | SHI-269 Dashboard and Defaults | Todo | partial/external | pending evidence | browser | TBD | Configuration sweep needs stable option evidence; broad visual/manual sweep remains out of scope until decomposed. |
+| GLOBAL-01 | SHI-187 | SHI-269 Dashboard and Defaults | Done | full local | automated | browser/integration | `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/BrowserFixtureEndpointTest.php`<br>`composer test:integration -- -- tests/Integration/ActionRouter/DashboardDefaultsFixtureContractIntegrationTest.php`<br>`composer test:browser -- --warm -- tests/browser/action-router/dashboard-defaults.spec.js --workers=1` | Dashboard/configure routes open through the supported fixture lane, runtime errors are captured, fixture seed/cleanup restores state, and registry/runtime/API/JS fixture alignment is covered. |
+| TP-01 | SHI-188 | SHI-269 Dashboard and Defaults | Done | full local | automated | browser/integration | `composer test:integration -- -- tests/Integration/ActionRouter/DashboardDefaultsFixtureContractIntegrationTest.php`<br>`composer test:browser -- --warm -- tests/browser/action-router/dashboard-defaults.spec.js --workers=1` | Safe `OptsHandler::resetToDefaults()` behavior is covered for representative option defaults; full raw option-store cleanup restores pre-fixture state. Destructive uninstall/delete-on-deactivate/table deletion reset behavior remains outside SHI-269. |
+| TP-02 | SHI-189 | SHI-269 Dashboard and Defaults | Done | partial/external | partial evidence | browser/integration | `composer test:integration -- -- tests/Integration/ActionRouter/DashboardDefaultsFixtureContractIntegrationTest.php`<br>`composer test:browser -- --warm -- tests/browser/action-router/dashboard-defaults.spec.js --workers=1`<br>`npm run test:js` | General/Plugin Defaults configuration save and reload reflection are covered for representative select, checkbox, and text-normalization options. Remaining option families: integer, multiple-select, array, email/password/sensitive, premium, hidden, feature-module options, environment-dependent paths/IP/webserver settings, and external side effects. |
 | TP-03 | SHI-190 | SHI-270 Scan Prep and Actions | Todo | partial/external | pending evidence | browser/integration | TBD | External scan feeds or samples need local doubles or manual remainder. |
-| UT-01 | SHI-191 | SHI-271 Package, Upgrade, and CLI | Todo | partial/external | pending evidence | package/upgrade | TBD | Real update execution remains package/upgrade lane work. |
-| UT-02 | SHI-192 | SHI-271 Package, Upgrade, and CLI | Todo | full local | pending evidence | package/upgrade | TBD | Prove configuration consistency after update. |
-| UT-03 | SHI-193 | SHI-271 Package, Upgrade, and CLI | Todo | partial/external | pending evidence | package/upgrade | TBD | Scan-result consistency with live feeds remains external unless locally doubled. |
-| BT-01 | SHI-194 | SHI-269 Dashboard and Defaults | Todo | full local | pending evidence | browser | TBD | Prove dashboard/general behavior beyond smoke loading. |
+| UT-01 | SHI-191 | SHI-271 Package, Upgrade, and CLI | Done | partial/external | partial evidence | package/upgrade | `php vendor\phpunit\phpunit\phpunit -c phpunit-unit.xml tests\Unit\Controller\Updates\HandleUpgradeTest.php`<br>`php vendor\phpunit\phpunit\phpunit -c phpunit-unit.xml tests\Unit\Controller\Updates\CaptureMyUpgradeTest.php`<br>`php vendor\phpunit\phpunit\phpunit -c phpunit-unit.xml tests\Unit\Modules\HackGuard\Scan\AfsUpgradeQueueingTest.php` | Shield-owned update/upgrade scheduling, version transition, own-upgrade capture, and AFS queueing are locally covered. Live WordPress.org or external update-source execution remains external. |
+| UT-02 | SHI-192 | SHI-271 Package, Upgrade, and CLI | Done | full local | automated | package/upgrade | `composer test:integration -- -- tests\Integration\Config\OptionSaveCorrectionsIntegrationTest.php`<br>`php bin\shield test:package-targeted --package-path=tmp\shield-package-shi-271`<br>`composer test:package` | Bounded post-update configuration corpus, package metadata, headers, and packaged config assets are locally covered. Browser/dashboard configuration behavior remains SHI-269. |
+| UT-03 | SHI-193 | SHI-271 Package, Upgrade, and CLI | Done | partial/external | partial evidence | package/upgrade | `php vendor\phpunit\phpunit\phpunit -c phpunit-unit.xml tests\Unit\Modules\HackGuard\Scan\Results\UpdateTest.php`<br>`php vendor\phpunit\phpunit\phpunit -c phpunit-unit.xml tests\Unit\Modules\HackGuard\Scan\Results\StoreTest.php`<br>`composer test:integration -- -- tests\Integration\Scans\ScanResultStoreLegacyReuseIntegrationTest.php` | Legacy scan-result reuse, retrieval count consistency, update normalization, and memoized count reset paths are locally covered. Live malware/vulnerability feeds and real sample corpus remain external. |
+| BT-01 | SHI-194 | SHI-269 Dashboard and Defaults | Done | full local | automated | browser | `composer test:browser -- --warm -- tests/browser/action-router/dashboard-defaults.spec.js --workers=1`<br>`composer test:browser -- --warm -- tests/browser/action-router/operator-modes.spec.js tests/browser/action-router/status-announcements.spec.js --workers=1` | Dashboard/general behavior is covered beyond route load: operator mode keys and route params, live monitor state AJAX, parsed dashboard batch requests, WP dashboard widget render, and status-region behavior. |
 | BT-02 | SHI-195 | SHI-270 Scan Prep and Actions | Todo | partial/external | pending evidence | browser/integration | TBD | Real malware/vulnerability samples and repair actions need fixtures or manual remainder. |
 | BT-03 | SHI-196 | SHI-272 Security Admin Core | Todo | full local | pending evidence | browser/integration | TBD | Prove Security Admin zone behavior. |
 | BT-03-01 | SHI-197 | SHI-272 Security Admin Core | Todo | full local | pending evidence | browser/integration | TBD | Prove PIN set and verify behavior. |
@@ -113,9 +113,9 @@ Current summary:
 |---|---|---|---|---|---|---|---|
 | SUP-01 | SHI-248 | SHI-273 Security Admin Boundaries | Todo | pending evidence | integration/browser | TBD | Broader non-Security-Admin permission/nonce matrix pending. |
 | SUP-02 | SHI-249 | SHI-282 Forms, Email, Localization | Todo | pending evidence | browser | TBD | JS localization negative-path browser checks pending. |
-| SUP-03 | SHI-250 | SHI-271 Package, Upgrade, and CLI | Todo | pending evidence | package/upgrade | TBD | Black-box package install/upgrade runtime coverage pending. |
+| SUP-03 | SHI-250 | SHI-271 Package, Upgrade, and CLI | Done | partial evidence | package/upgrade | `composer package-plugin -- --output=tmp/shield-package-shi-271`<br>`php bin\shield test:package-targeted --package-path=tmp\shield-package-shi-271`<br>`composer test:package` | Package build, targeted package validation, prefixed dependency checks, metadata consistency, and public package command coverage passed. `php bin\shield test:package-full --package-path=tmp\shield-package-shi-271` was not run; full Docker install/upgrade runtime remains deeper manual evidence. |
 | SUP-04 | SHI-251 | SHI-275 Firewall Request Controls | Todo | pending evidence | integration | TBD | Property-style firewall/rate-limit/search cases pending. |
-| SUP-05 | SHI-252 | SHI-271 Package, Upgrade, and CLI | Todo | pending evidence | package/upgrade | TBD | WP-CLI operational smoke pending. |
+| SUP-05 | SHI-252 | SHI-271 Package, Upgrade, and CLI | Done | automated | wp-cli | `php vendor\phpunit\phpunit\phpunit -c phpunit-unit.xml tests\Unit\WpCliCommandBehaviorTest.php`<br>`php bin\shield test:site:wp plugin list`<br>`php bin\shield test:site:wp -- shield opt-list --format=json`<br>`php bin\shield test:site:wp -- shield opt-get --key=global_enable_plugin_features` | Production WP-CLI command registration, option list/get/set, reset force, scan-run exit behavior, and local site forwarding passed. Test-site `wpcli_level_2` capability was seeded before level-2 smoke and restored afterward. |
 | SUP-06 | SHI-253 | SHI-279 Users, Content, Headers, Traffic | Todo | pending evidence | integration/browser | TBD | Traffic/request-log completeness behavior pending; shared fixture inspection support exists but does not close this row. |
 
 ## Framework And Recovery Items

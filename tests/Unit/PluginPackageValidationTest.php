@@ -86,6 +86,34 @@ class PluginPackageValidationTest extends TestCase {
 		$this->assertStringContainsString( 'Author:', $content );
 	}
 
+	public function testPackagedMetadataVersionsAreConsistent() :void {
+		$pluginJsonFile = Path::join( $this->packagePath, 'plugin.json' );
+		$pluginFile = Path::join( $this->packagePath, 'icwp-wpsf.php' );
+		$readmeFile = Path::join( $this->packagePath, 'readme.txt' );
+
+		$this->assertFileExists( $pluginJsonFile );
+		$this->assertFileExists( $pluginFile );
+		$this->assertFileExists( $readmeFile );
+
+		$pluginJson = json_decode( (string)file_get_contents( $pluginJsonFile ), true );
+		$this->assertIsArray( $pluginJson );
+		$configVersion = $pluginJson[ 'properties' ][ 'version' ] ?? null;
+		$this->assertIsString( $configVersion );
+		$this->assertNotSame( '', trim( $configVersion ) );
+
+		$pluginHeader = (string)file_get_contents( $pluginFile );
+		$readme = (string)file_get_contents( $readmeFile );
+
+		$this->assertMatchesRegularExpression(
+			'/^\s*\*\s*Version:\s*'.preg_quote( $configVersion, '/' ).'\s*$/m',
+			$pluginHeader
+		);
+		$this->assertMatchesRegularExpression(
+			'/^Stable tag:\s*'.preg_quote( $configVersion, '/' ).'\s*$/m',
+			$readme
+		);
+	}
+
 	/**
 	 * Test package file permissions (when applicable)
 	 */

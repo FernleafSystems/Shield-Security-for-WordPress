@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItemVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Store;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -43,6 +44,12 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 
 		$this->assertSame( 1, $this->countResultItemsForPath( $pathFragment ) );
 		$this->assertSame( 1, $this->countScanResultLinks( $scanID, $legacyResultItemID ) );
+		$this->assertSame(
+			1,
+			( new RetrieveCount() )
+				->setScanController( $this->newAfsScanController() )
+				->count( RetrieveCount::CONTEXT_RESULTS_DISPLAY )
+		);
 	}
 
 	private function insertLegacyBlankResultItem( string $pathFragment, int $notifiedAt ) :int {
@@ -73,6 +80,14 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 		$queueItem->qitem_id = 0;
 		$queueItem->scan = 'afs';
 		return $queueItem;
+	}
+
+	private function newAfsScanController() :object {
+		return new class {
+			public function getSlug() :string {
+				return 'afs';
+			}
+		};
 	}
 
 	private function countResultItemsForPath( string $pathFragment ) :int {
