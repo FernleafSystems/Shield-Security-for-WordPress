@@ -23,6 +23,10 @@ Supporting docs:
 
 `test:source`, `test:integration-local`, and `test:package-full` now default to reduced Docker output to keep signal dense. Add `--show-docker-output` when you need full compose output for a failing run.
 
+## Pre-commit checks
+
+`php bin/shield git:pre-commit --stdin --null` accepts NUL-delimited changed file paths from Git, filters changed PHP files, and feeds them into the existing syntax lint, PHPStan, and unit test tooling. A local pre-commit hook can stay thin by piping `git diff --cached --name-only --diff-filter=ACMR -z` into that command.
+
 ## Required PR CI local parity
 
 The required PR CI gate is [`.github/workflows/tests.yml`](.github/workflows/tests.yml). It is broader than `composer test` because CI also proves static analysis, JS checks, package build/validation, and a source Docker runtime lane. Use these local equivalents when you need to reproduce the required CI gate:

@@ -3,6 +3,7 @@
 namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
+use Symfony\Component\Filesystem\Path;
 
 class UnitTestScriptRunner {
 
@@ -24,10 +25,43 @@ class UnitTestScriptRunner {
 	public function run( array $args, string $rootDir ) :int {
 		[ $mode, $forwardArgs ] = $this->extractModeAndArgs( $args );
 
+		if ( $this->shouldRunParallelPathsIndividually( $forwardArgs, $mode, $rootDir ) ) {
+			foreach ( $forwardArgs as $pathArg ) {
+				$exitCode = $this->processRunner->runForExitCode(
+					$this->selector->buildCommand( [ $pathArg ], $mode ),
+					$rootDir
+				);
+				if ( $exitCode !== 0 ) {
+					return $exitCode;
+				}
+			}
+			return 0;
+		}
+
 		return $this->processRunner->runForExitCode(
 			$this->selector->buildCommand( $forwardArgs, $mode ),
 			$rootDir
 		);
+	}
+
+	/**
+	 * Paratest accepts a single positional path. When callers provide a list of concrete
+	 * test paths, keep using the existing Paratest command and run it once per path.
+	 *
+	 * @param string[] $args
+	 */
+	private function shouldRunParallelPathsIndividually( array $args, string $mode, string $rootDir ) :bool {
+		if ( \count( $args ) < 2 || $this->selector->shouldUseSerialPhpUnit( $args, $mode ) ) {
+			return false;
+		}
+
+		foreach ( $args as $arg ) {
+			if ( \strpos( $arg, '-' ) === 0 || !\file_exists( Path::join( $rootDir, $arg ) ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
@@ -69,4 +103,3 @@ class UnitTestScriptRunner {
 		return [ $mode, $forwardArgs ];
 	}
 }
-

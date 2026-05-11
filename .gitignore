@@ -91,3 +91,4 @@ CLAUDE.md
 .Trashes
 ehthumbs.db
 /.codex/
+/.githooks/pre-commit

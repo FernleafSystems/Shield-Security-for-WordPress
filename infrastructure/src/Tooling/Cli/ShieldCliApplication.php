@@ -5,6 +5,7 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Cli;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzePackageCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeSourceCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeToolingCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\GitPreCommitCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteDownCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteFixtureCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteResetCommand;
@@ -26,6 +27,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageFullTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackagePathResolver;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageStaticAnalysisLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageTargetedTestLane;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\PreCommitChangedFileLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceRuntimeTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceStaticAnalysisLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\TestingEnvironmentResolver;
@@ -128,6 +130,9 @@ class ShieldCliApplication {
 						$projectRoot,
 						new PackageStaticAnalysisLane( $packagePathResolver, $environmentResolver )
 					);
+				},
+				'git:pre-commit' => static function () use ( $projectRoot ) :Command {
+					return new GitPreCommitCommand( $projectRoot, new PreCommitChangedFileLane() );
 				},
 			]
 		);

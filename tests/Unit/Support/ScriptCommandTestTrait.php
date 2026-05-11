@@ -42,8 +42,11 @@ trait ScriptCommandTestTrait {
 	 * @param string[]             $command
 	 * @param array<string,string> $env
 	 */
-	protected function runProcess( array $command, array $env = [] ) :Process {
+	protected function runProcess( array $command, array $env = [], ?string $input = null ) :Process {
 		$process = new Process( $command, $this->getPluginRoot(), $env );
+		if ( $input !== null ) {
+			$process->setInput( $input );
+		}
 		$process->run();
 		return $process;
 	}

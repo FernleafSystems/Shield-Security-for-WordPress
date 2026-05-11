@@ -19,7 +19,10 @@ class SourceStaticAnalysisLane {
 		$this->setupCacheCoordinator = $setupCacheCoordinator ?? new SourceSetupCacheCoordinator();
 	}
 
-	public function run( string $rootDir, bool $refreshSetup = false ) :int {
+	/**
+	 * @param string[] $phpStanPaths
+	 */
+	public function run( string $rootDir, bool $refreshSetup = false, array $phpStanPaths = [] ) :int {
 		echo 'Mode: analyze-source'.\PHP_EOL;
 
 		if ( $refreshSetup ) {
@@ -44,16 +47,18 @@ class SourceStaticAnalysisLane {
 			echo 'Skipping build-config setup (cache hit).'.\PHP_EOL;
 		}
 
+		$command = [
+			\PHP_BINARY,
+			Path::join( '.', 'vendor', 'phpstan', 'phpstan', 'phpstan' ),
+			'analyse',
+			'-c',
+			Path::join( '.', 'phpstan.neon.dist' ),
+			'--no-progress',
+			'--memory-limit=2G',
+		];
+
 		return $this->processRunner->runForExitCode(
-			[
-				\PHP_BINARY,
-				Path::join( '.', 'vendor', 'phpstan', 'phpstan', 'phpstan' ),
-				'analyse',
-				'-c',
-				Path::join( '.', 'phpstan.neon.dist' ),
-				'--no-progress',
-				'--memory-limit=2G',
-			],
+			\array_merge( $command, $phpStanPaths ),
 			$rootDir
 		);
 	}
