@@ -7,25 +7,41 @@ concurrency:
 on:
   pull_request:
     branches: [ develop, main, master, docker-matrix-testing-research ]
-    paths:
-      - 'assets/js/**'
-      - 'templates/twig/**'
-      - 'src/ActionRouter/**'
-      - 'tests/browser/**'
-      - 'playwright.config.*'
+  push:
+    branches: [ develop ]
   workflow_dispatch:
   schedule:
     - cron: '30 6 * * 1-5'
 
 jobs:
+  changes:
+    name: 'Changed File Filters'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      browser: ${{ steps.filter.outputs.browser }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Detect changed file groups
+      id: filter
+      uses: dorny/paths-filter@v4
+      with:
+        base: ${{ github.ref_name }}
+        filters: .github/ci-path-filters.yml
+
   playwright-action-router:
     name: 'Playwright ActionRouter'
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [ '1/2', '2/2' ]
+    needs: changes
+    if: ${{ needs.changes.outputs.browser == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
 
     steps:
     - name: Checkout code
@@ -52,15 +68,26 @@ jobs:
     - name: Build admin assets
       run: npm run build
 
-    - name: Install Playwright Chromium
-      run: npm run playwright:install -- --with-deps chromium
+    - name: Install Playwright Chromium headless shell
+      run: npm run playwright:install -- --with-deps --only-shell
 
     - name: Run ActionRouter browser lane
-      run: composer test:browser -- --clean -- --shard=${{ matrix.shard }}
+      run: composer test:browser -- --clean --lanes=2 -- --workers=2
 
-    - name: Stop isolated browser test site
+    - name: Stop isolated browser lane sites
       if: always()
-      run: php bin/shield test:site:down
+      shell: bash
+      run: |
+        for lane in 1 2; do
+          docker compose \
+            -p "shield-test-site-lane-${lane}" \
+            -f tests/docker/docker-compose.browser-lane.yml \
+            down -v --remove-orphans || true
+        done
+
+    - name: Stop shared browser database
+      if: always()
+      run: docker compose -p shield-browser-db -f tests/docker/docker-compose.browser-db.yml down -v --remove-orphans
 
     - name: Upload Playwright artifacts
       if: failure()
