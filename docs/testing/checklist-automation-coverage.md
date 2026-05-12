@@ -17,7 +17,7 @@ Current summary:
 
 | Group | Total | Automated | Partial evidence | Pending evidence | Manual/external-blocked |
 |---|---:|---:|---:|---:|---:|
-| Original checklist items | 61 | 12 | 7 | 42 | 0 |
+| Original checklist items | 61 | 17 | 7 | 37 | 0 |
 | Supplemental items | 6 | 2 | 1 | 3 | 0 |
 
 ## Slice Status
@@ -29,7 +29,7 @@ Current summary:
 | Package, Upgrade, and CLI | SHI-271 | Done | UT-01, UT-02, UT-03, SUP-03, SUP-05 |
 | Security Admin Core | SHI-272 | Done | BT-03, BT-03-01, BT-03-02, BT-03-03, BT-03-04 |
 | Security Admin Boundaries | SHI-273 | Done | BT-03-05, BT-03-06, BT-03-07, BT-03-08, SUP-01 |
-| Firewall Core Rules | SHI-274 | Todo | BT-04, BT-04-01, BT-04-02, BT-04-03, BT-04-04 |
+| Firewall Core Rules | SHI-274 | Done | BT-04, BT-04-01, BT-04-02, BT-04-03, BT-04-04 |
 | Firewall Request Controls | SHI-275 | Todo | BT-04-05, BT-04-06, BT-04-07, BT-10, SUP-04 |
 | Bots and IP Decisions | SHI-276 | Todo | BT-05, BT-05-01, BT-05-02, BT-05-03, BT-14-01, BT-14-02 |
 | Login Guard Core | SHI-277 | Todo | BT-06, BT-06-01, BT-06-02, BT-06-03, BT-06-04 |
@@ -63,11 +63,11 @@ Current summary:
 | BT-03-06 | SHI-202 | SHI-273 Security Admin Boundaries | Done | partial/external | partial evidence | browser/integration | `composer test:integration -- -- tests/Integration/ActionRouter/SecurityAdminRemoveActionIntegrationTest.php`<br>`composer test:browser -- --warm -- tests/browser/action-router/security-admin-boundaries.spec.js --workers=1` | Shield-owned email override generation/gating is locally covered with `allow_email_override` allow/reject behavior, local mail capture containing the nonced remove action, browser button/action localization gating, and no disabled-path mutation. Real inbox delivery remains external. |
 | BT-03-07 | SHI-203 | SHI-273 Security Admin Boundaries | Done | full local | automated | browser/integration | `composer test:integration -- -- tests/Integration/SecurityAdmin/SecurityAdminControllerTest.php`<br>`composer test:browser -- --warm -- tests/browser/action-router/security-admin-boundaries.spec.js --workers=1` | Restriction-zone evidence covers WP option save blocking/bypass plus representative plugin, theme, post, and admin-user restriction behavior, with browser proof that WP option controls are disabled only for non-Security-Admin state. |
 | BT-03-08 | SHI-204 | SHI-273 Security Admin Boundaries | Done | full local | automated | browser/integration | `composer test:integration -- -- tests/Integration/ActionRouter/SecurityAdminFixtureContractIntegrationTest.php`<br>`composer test:integration -- -- tests/Integration/SecurityAdmin/SecurityAdminControllerTest.php`<br>`composer test:browser -- --warm -- tests/browser/action-router/security-admin-boundaries.spec.js --workers=1` | Persistent Security Admin evidence covers `sec_admin_users` fixture state, registered-user detection, `isCurrentlySecAdmin()` without temporary `shield.secadmin_at`, zero active-session timer, and browser access to the protected surface without the overlay. |
-| BT-04 | SHI-205 | SHI-274 Firewall Core Rules | Todo | full local | pending evidence | integration/browser | TBD | Prove firewall zone behavior. |
-| BT-04-01 | SHI-206 | SHI-274 Firewall Core Rules | Todo | full local | pending evidence | integration/browser | TBD | Prove directory traversal rule. |
-| BT-04-02 | SHI-207 | SHI-274 Firewall Core Rules | Todo | full local | pending evidence | integration/browser | TBD | Prove firewall whitelist parameter behavior. |
-| BT-04-03 | SHI-208 | SHI-274 Firewall Core Rules | Todo | full local | pending evidence | integration/browser | TBD | Prove WP file editing restriction. |
-| BT-04-04 | SHI-209 | SHI-274 Firewall Core Rules | Todo | full local | pending evidence | integration/browser | TBD | Prove user enumeration blocking. |
+| BT-04 | SHI-205 | SHI-274 Firewall Core Rules | Done | full local | automated | unit | `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Zones/Component/ConfigureSeverityAssessmentTest.php` | Firewall zone behavior is covered by owned component classes, `module_firewall` config scope, WAF posture signal slugs including `firewall_dir_traversal`, and option-driven File Editing / Username Fishing component status signals. |
+| BT-04-01 | SHI-206 | SHI-274 Firewall Core Rules | Done | full local | automated | integration | `composer test:integration -- -- tests/Integration/Rules/FirewallRuleBehaviorTest.php` | Directory traversal behavior is covered by enabled traversal request matching, stable condition meta, `firewall_block` event/audit response mapping, `FirewallBlock` response contract, and disabled/bypass/non-match negatives. |
+| BT-04-02 | SHI-207 | SHI-274 Firewall Core Rules | Done | full local | automated | integration | `composer test:integration -- -- tests/Integration/Rules/FirewallRuleBehaviorTest.php` | Configurable WAF parameter whitelist behavior is covered for `page_params_whitelist`: configured parameter/path avoids a known SQL match, while the same payload still triggers on other parameters and paths. IP/request whitelist behavior is not used as closure evidence. |
+| BT-04-03 | SHI-208 | SHI-274 Firewall Core Rules | Done | full local | automated | unit/integration | `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Zones/Component/ConfigureSeverityAssessmentTest.php`<br>`composer test:integration -- -- tests/Integration/Rules/FirewallCoreRulesBehaviorTest.php` | WP file editing restriction is covered by enabled/disabled/bypass rule decisions, `DisableFileEditing` and `PhpSetDefine` response contracts, capability removal for `edit_themes`, `edit_plugins`, and `edit_files`, and safe proof that the shared test process leaves the `DISALLOW_FILE_EDIT` defined state unchanged. |
+| BT-04-04 | SHI-209 | SHI-274 Firewall Core Rules | Done | full local | automated | integration | `composer test:integration -- -- tests/Integration/Rules/FirewallCoreRulesBehaviorTest.php` | User enumeration blocking is covered by anonymous numeric `author` request matching, condition meta for the `author` parameter, `block_author_fishing` event firing, `render_block_author_fishing` block-page contract, and disabled/logged-in/bypass/non-numeric negatives. |
 | BT-04-05 | SHI-210 | SHI-275 Firewall Request Controls | Todo | full local | pending evidence | integration/browser | TBD | Prove XML-RPC blocking. |
 | BT-04-06 | SHI-211 | SHI-275 Firewall Request Controls | Todo | full local | pending evidence | integration/browser | TBD | Prove anonymous REST blocking. |
 | BT-04-07 | SHI-212 | SHI-275 Firewall Request Controls | Todo | full local | pending evidence | integration/browser | TBD | Prove abusive request rate limiting. |

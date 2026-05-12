@@ -27,6 +27,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	FileScanning,
 	InactiveUsers,
 	LoginProtectionForms,
+	Modules\ModuleFirewall,
 	PasswordPolicies,
 	PasswordStrength,
 	PwnedPasswords,
@@ -44,6 +45,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	WebApplicationFirewall,
 	XmlRpcDisable
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Firewall as FirewallZone;
 
 class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
@@ -227,6 +229,62 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
 		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] ?? null );
 		$this->assertCount( 4, $row[ 'explanations' ] ?? [] );
+	}
+
+	public function test_firewall_zone_owns_core_rule_components_and_module_config_scope() :void {
+		$this->installController();
+
+		$zone = new FirewallZone();
+		$components = $zone->components();
+		$configAction = $zone->getAction_Config();
+
+		$this->assertContains( WebApplicationFirewall::class, $components );
+		$this->assertContains( UsernameFishingBlock::class, $components );
+		$this->assertContains( FileEditingBlock::class, $components );
+		$this->assertSame( [ ModuleFirewall::Slug() ], $zone->getConfigZoneComponentSlugs() );
+		$this->assertSame( ModuleFirewall::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
+	}
+
+	public function test_firewall_core_component_statuses_and_signals_follow_options() :void {
+		$enabledOptions = [
+			'block_dir_traversal'    => 'Y',
+			'block_sql_queries'      => 'Y',
+			'block_field_truncation' => 'Y',
+			'block_php_code'         => 'Y',
+			'block_aggressive'       => 'Y',
+			'disable_file_editing'   => 'Y',
+			'block_author_discovery' => 'Y',
+		];
+		$this->installController( $enabledOptions );
+
+		$enabledWaf = new WebApplicationFirewall();
+		$enabledSignals = $this->indexSignalsBySlug( $enabledWaf->postureSignals() );
+
+		$this->assertSame( EnumEnabledStatus::GOOD, $enabledWaf->enabledStatus() );
+		$this->assertSame( 'good', $enabledSignals[ 'firewall_dir_traversal' ][ 'severity' ] ?? null );
+		$this->assertTrue( $enabledSignals[ 'firewall_dir_traversal' ][ 'is_protected' ] ?? null );
+		$this->assertSame( EnumEnabledStatus::GOOD, ( new FileEditingBlock() )->enabledStatus() );
+		$this->assertSame( EnumEnabledStatus::GOOD, ( new UsernameFishingBlock() )->enabledStatus() );
+
+		$disabledOptions = \array_merge( $enabledOptions, [
+			'block_dir_traversal'    => 'N',
+			'block_sql_queries'      => 'N',
+			'block_field_truncation' => 'N',
+			'block_php_code'         => 'N',
+			'block_aggressive'       => 'N',
+			'disable_file_editing'   => 'N',
+			'block_author_discovery' => 'N',
+		] );
+		$this->installController( $disabledOptions );
+
+		$disabledWaf = new WebApplicationFirewall();
+		$disabledSignals = $this->indexSignalsBySlug( $disabledWaf->postureSignals() );
+
+		$this->assertSame( EnumEnabledStatus::BAD, $disabledWaf->enabledStatus() );
+		$this->assertSame( 'critical', $disabledSignals[ 'firewall_dir_traversal' ][ 'severity' ] ?? null );
+		$this->assertFalse( $disabledSignals[ 'firewall_dir_traversal' ][ 'is_protected' ] ?? true );
+		$this->assertSame( EnumEnabledStatus::BAD, ( new FileEditingBlock() )->enabledStatus() );
+		$this->assertSame( EnumEnabledStatus::BAD, ( new UsernameFishingBlock() )->enabledStatus() );
 	}
 
 	public function test_bot_actions_use_partial_primary_coverage_and_shared_signal_list() :void {
