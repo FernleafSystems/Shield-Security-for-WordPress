@@ -19,8 +19,6 @@ class LicenseHandshakeVerifyKeyless extends LicenseBase {
 			] ) );
 		}
 
-		$this->response()->action_response_data = [
-			'success' => true,
-		];
+		$this->response()->setPayload()->setPayloadSuccess( true );
 	}
 }

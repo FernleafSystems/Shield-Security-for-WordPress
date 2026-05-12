@@ -42,4 +42,37 @@ class AutoIpBlocking extends Base {
 
 		return $status;
 	}
+
+	public function postureSignals() :array {
+		$lookup = self::con()->comps->opts_lookup;
+		$enabled = $lookup->enabledIpAutoBlock();
+		$limit = $lookup->getIpAutoBlockOffenseLimit();
+
+		return [
+			$this->buildPostureSignal(
+				'ip_autoblock_shield',
+				__( 'Automatic IP Blocking', 'wp-simple-firewall' ),
+				7,
+				$enabled ? 7 : 0,
+				$enabled ? 'good' : 'critical',
+				$enabled,
+				$enabled
+					? [ __( 'Automatic IP blocking is enabled for repeat offenders.', 'wp-simple-firewall' ) ]
+					: [ __( 'Automatic IP blocking is disabled for repeat offenders.', 'wp-simple-firewall' ) ]
+			),
+			$this->buildPostureSignal(
+				'ip_autoblock_limit',
+				__( 'IP Auto-Block Offense Limit', 'wp-simple-firewall' ),
+				3,
+				( $enabled && $limit <= 20 ) ? 3 : ( $enabled ? 1 : 0 ),
+				( !$enabled || $limit > 20 ) ? 'warning' : 'good',
+				$enabled && $limit <= 20,
+				[
+					$enabled
+						? sprintf( __( 'The current offense limit before auto-blocking is %s.', 'wp-simple-firewall' ), $limit )
+						: __( 'No offense limit is set because auto-blocking is disabled.', 'wp-simple-firewall' ),
+				]
+			),
+		];
+	}
 }

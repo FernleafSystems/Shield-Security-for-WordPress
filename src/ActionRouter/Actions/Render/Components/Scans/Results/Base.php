@@ -7,6 +7,29 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDi
 
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\BaseScans {
 
+	protected function getDefaults() :array {
+		return \array_merge( parent::getDefaults(), [
+			'display_context' => 'scan_results',
+		] );
+	}
+
+	protected function isActionsQueueDisplayContext() :bool {
+		return $this->action_data[ 'display_context' ] === 'actions_queue';
+	}
+
+	/**
+	 * @return array{
+	 *   include_ignored:bool,
+	 *   include_repaired:bool,
+	 *   include_deleted:bool,
+	 *   ignored_only:bool
+	 * }|null
+	 */
+	protected function getActionsQueueExplicitResultsDisplayOptions() :?array {
+		return ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions() )
+			->explicitOptionsFromActionData( $this->action_data );
+	}
+
 	protected function getRenderData() :array {
 		$common = CommonDisplayStrings::pick( [ 'author_label', 'version_label', 'name_label', 'warning_label' ] );
 		return [

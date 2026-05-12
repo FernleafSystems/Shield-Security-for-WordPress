@@ -19,17 +19,6 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 		return parent::ProviderEnabled() && self::con()->opts->optIs( 'allow_backupcodes', 'Y' );
 	}
 
-	protected function maybeMigrate() :void {
-		$meta = self::con()->user_metas->for( $this->getUser() );
-		$legacySecret = $meta->backupcode_secret;
-		if ( !empty( $legacySecret ) ) {
-			$this->removeFromProfile();
-			$this->createNewSecretRecord( $legacySecret, 'Backup Code' );
-			unset( $meta->backupcode_secret );
-			unset( $meta->backupcode_validated );
-		}
-	}
-
 	public function isProviderStandalone() :bool {
 		return false;
 	}
@@ -107,10 +96,15 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 
 	protected function processOtp( string $otp ) :bool {
 		$valid = false;
+		$otpCandidates = $this->getNormalizedOtpCandidates( $otp );
+
 		foreach ( $this->loadMfaRecords() as $loadMfaRecord ) {
-			if ( wp_check_password( \str_replace( '-', '', $otp ), $loadMfaRecord->unique_id ) ) {
-				$valid = true;
-				self::con()->db_con->mfa->getQueryDeleter()->deleteRecord( $loadMfaRecord );
+			foreach ( $otpCandidates as $otpCandidate ) {
+				if ( wp_check_password( $otpCandidate, $loadMfaRecord->unique_id ) ) {
+					$valid = true;
+					self::con()->db_con->mfa->getQueryDeleter()->deleteRecord( $loadMfaRecord );
+					break 2;
+				}
 			}
 		}
 		return $valid;
@@ -144,5 +138,22 @@ class BackupCodes extends AbstractShieldProviderMfaDB {
 				] )
 			)
 		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function getNormalizedOtpCandidates( string $otp ) :array {
+		$normalized = (string)\preg_replace( '#[\s-]+#', '', $otp );
+		$candidates = [ $normalized ];
+
+		if ( \preg_match( '#^[a-f0-9]+$#i', $normalized ) === 1 ) {
+			$candidates[] = \strtolower( $normalized );
+		}
+
+		return \array_values( \array_unique( \array_filter(
+			$candidates,
+			static fn( string $candidate ) => $candidate !== ''
+		) ) );
 	}
 }

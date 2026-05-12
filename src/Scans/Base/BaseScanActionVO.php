@@ -2,10 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
-use FernleafSystems\Utilities\Data\Adapter\DynProperties;
+use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
  * @property string   $scan
+ * @property string   $scope_type
+ * @property string   $scope_key
  * @property int      $created_at
  * @property int      $finished_at
  * @property int      $site_assets
@@ -13,9 +15,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynProperties;
  * @property array[]  $results
  * @property int      $usleep
  */
-abstract class BaseScanActionVO {
-
-	use DynProperties;
+abstract class BaseScanActionVO extends DynPropertiesClass {
 
 	public const DEFAULT_SLEEP_SECONDS = 0;
 

@@ -17,6 +17,7 @@ class AnonRestApiDisable {
 	}
 
 	protected function run() {
+		// @phpstan-ignore return.void
 		add_action( 'init',
 			fn() => !Services::WpUsers()->isUserLoggedIn()
 					&& add_filter( 'rest_authentication_errors', [ $this, 'disableAnonymousRestApi' ], 99 )

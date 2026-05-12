@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginAdminPageHandler extends Actions\BaseAction {
-
 	use NonceVerifyNotRequired;
 	use SecurityAdminNotRequired;
 
@@ -24,7 +23,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 	protected function exec() {
 		if ( !Services::WpGeneral()->isAjax()
-			 && apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
+		     && apply_filters( 'shield/show_admin_menu', self::con()->cfg->menu[ 'show' ] ?? true ) ) {
 
 			add_action( 'admin_menu', function () {
 				if ( !Services::WpGeneral()->isMultisite() && is_admin() ) {
@@ -44,7 +43,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 
 	/**
 	 * In order to prevent certain errors when the back button is used
-	 * @param array $h
+	 * @param array|mixed $h
 	 * @return array
 	 */
 	public function adjustNocacheHeaders( $h ) {
@@ -98,13 +97,10 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 		$con = self::con();
 
 		$navs = [
-			PluginNavs::NAV_DASHBOARD => __( 'Security Dashboard', 'wp-simple-firewall' ),
-			PluginNavs::NAV_ZONES     => __( 'Security Zones', 'wp-simple-firewall' ),
-			PluginNavs::NAV_IPS       => __( 'IP Manager', 'wp-simple-firewall' ),
-			PluginNavs::NAV_SCANS     => __( 'Scans', 'wp-simple-firewall' ),
-			PluginNavs::NAV_ACTIVITY  => __( 'Activity', 'wp-simple-firewall' ),
-			PluginNavs::NAV_TRAFFIC   => __( 'Traffic', 'wp-simple-firewall' ),
-			PluginNavs::NAV_RULES     => __( 'Custom Rules', 'wp-simple-firewall' ),
+			PluginNavs::NAV_DASHBOARD => __( 'Dashboard', 'wp-simple-firewall' ),
+			PluginNavs::NAV_SCANS     => __( 'Actions Queue', 'wp-simple-firewall' ),
+			PluginNavs::NAV_ACTIVITY  => __( 'Investigate', 'wp-simple-firewall' ),
+			PluginNavs::NAV_ZONES     => __( 'Configure', 'wp-simple-firewall' ),
 			PluginNavs::NAV_REPORTS   => __( 'Reports', 'wp-simple-firewall' ),
 		];
 		if ( !self::con()->isPremiumActive() ) {
@@ -112,6 +108,11 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 		}
 
 		$currentNav = $this->action_data[ Constants::NAV_ID ] ?? '';
+		if ( !isset( $navs[ $currentNav ] ) ) {
+			$mode = PluginNavs::modeForNav( (string)$currentNav );
+			$entry = PluginNavs::defaultEntryForMode( $mode );
+			$currentNav = $entry[ 'nav' ];
+		}
 		foreach ( $navs as $submenuNavID => $submenuTitle ) {
 
 			$markupTitle = sprintf( '<span style="color:#fff;font-weight: 600">%s</span>', $submenuTitle );

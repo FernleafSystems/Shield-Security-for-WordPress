@@ -9,15 +9,13 @@ class MatchRequestParamFileUploads extends MatchRequestParam {
 	public const SLUG = 'match_request_param_file_uploads';
 
 	public function getDescription() :string {
-		return __( "Do any files uploaded in the request match the given set of filenames.", 'wp-simple-firewall' );
+		return __( 'Do any files uploaded in the request match the given set of filenames.', 'wp-simple-firewall' );
 	}
 
 	protected function getRequestParamsToTest() :array {
 		return \array_filter( \array_map(
-			function ( $file ) {
-				return $file[ 'name' ] ?? '';
-			},
-			( !empty( $_FILES ) && \is_array( $_FILES ) ) ? $_FILES : []
+			fn ( $file ) => $file[ 'name' ] ?? '',
+			!empty( $_FILES ) ? $_FILES : []
 		) );
 	}
 }

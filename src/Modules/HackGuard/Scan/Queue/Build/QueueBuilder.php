@@ -1,7 +1,8 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\RunState;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueInit;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -11,17 +12,25 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 
 	use PluginControllerConsumer;
 
+	public function __construct() {
+		parent::__construct( 'shield_scanqbuild', self::con()->getPluginPrefix( '_' ) );
+	}
+
 	/**
 	 * Get batch
 	 *
 	 * @return \stdClass Return the first batch from the queue
 	 */
 	protected function get_batch() {
-		$scan = \key( self::con()->comps->scans->getScansToBuild() );
+		$scan = self::con()->db_con->scans->getQuerySelector()
+					->filterByStatus( 'queued' )
+					->filterByNotFinished()
+					->setOrderBy( 'created_at', 'ASC', true )
+					->first();
 
 		$batch = new \stdClass();
-		$batch->key = $scan;
-		$batch->data = [ $scan ];
+		$batch->key = empty( $scan ) ? '0' : (string)$scan->id;
+		$batch->data = empty( $scan ) ? [] : [ (int)$scan->id ];
 		return $batch;
 	}
 
@@ -29,13 +38,17 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * Dispatch
 	 *
 	 * @access public
-	 * @return void
+	 * @return array|\WP_Error|false
 	 */
 	public function dispatch() {
 		// ensure any scheduled scans have been saved before remote post
 		$this->save();
 		// Perform remote post.
-		parent::dispatch();
+		$result = parent::dispatch();
+		if ( $result === false && !$this->is_queue_empty() ) {
+			$this->schedule_event();
+		}
+		return $result;
 	}
 
 	protected function get_post_args() {
@@ -62,17 +75,17 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * in the next pass through. Or, return false to remove the
 	 * item from the queue.
 	 *
-	 * @param string $slug .
+	 * @param int $scanID
 	 * @return mixed
 	 */
-	protected function task( $slug ) {
+	protected function task( $scanID ) {
 		try {
-			( new QueueInit() )->init( (string)$slug );
+			( new QueueInit() )->init( (int)$scanID );
 		}
-		catch ( \Exception $e ) {
+		catch ( \Throwable $e ) {
+			( new RunState() )->markFailed( (int)$scanID, \sprintf( 'Scan queue build failed: %s', $e->getMessage() ) );
 		}
 
-		// deletes the scan from the to-be-built array
 		return false;
 	}
 
@@ -90,12 +103,10 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	/**
 	 * Delete queue
 	 *
-	 * @param string $scanSlug .
+	 * @param string $scanID .
 	 * @return $this
 	 */
-	public function delete( $scanSlug ) {
-		self::con()->comps->scans->addRemoveScanToBuild( $scanSlug, false );
-		$this->save();
+	public function delete( $scanID ) {
 		return $this;
 	}
 
@@ -105,7 +116,10 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return bool
 	 */
 	protected function is_queue_empty() {
-		return empty( self::con()->comps->scans->getScansToBuild() );
+		return self::con()->db_con->scans->getQuerySelector()
+				   ->filterByStatus( 'queued' )
+				   ->filterByNotFinished()
+				   ->count() < 1;
 	}
 
 	/**
@@ -114,7 +128,6 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 * @return $this
 	 */
 	public function save() {
-		self::con()->opts->store();
 		return $this;
 	}
 

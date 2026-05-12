@@ -11,13 +11,7 @@
   padding: 0;
   margin-bottom: 1rem;
   background: #fff;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
   overflow: hidden;
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: $card-box-shadow-hover;
-  }
 }
 
 .zone-card-accent {
@@ -78,7 +72,7 @@
     display: inline-flex;
     align-items: center;
 
-    > svg {
+    > .bi {
       width: 12px;
       height: 12px;
       display: block;
@@ -105,8 +99,11 @@
 
 /* Configure Link - color matches card status */
 .zone-component-card .configure-link {
+  appearance: none;
+  background: transparent;
   font-size: 0.8125rem;
   font-weight: 600;
+  font-family: inherit;
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -114,6 +111,8 @@
   padding: 0.35rem 0.75rem;
   border-radius: 6px;
   border: 1px solid transparent;
+  cursor: pointer;
+  line-height: inherit;
   transition: background 0.2s, color 0.2s;
   white-space: nowrap;
 
@@ -121,7 +120,7 @@
     display: inline-flex;
     align-items: center;
 
-    > svg {
+    > .bi {
       width: 16px;
       height: 16px;
       transform: rotate(0deg);
@@ -129,7 +128,7 @@
     }
   }
 
-  &:hover .configure-gear > svg {
+  &:hover .configure-gear > .bi {
     transform: rotate(45deg);
   }
 }
@@ -200,7 +199,7 @@
     display: inline-flex;
     align-self: center;
 
-    > svg {
+    > .bi {
       width: 14px;
       height: 14px;
       color: $status-color-critical;

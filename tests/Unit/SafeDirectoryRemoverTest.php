@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\SafeDirectoryRemover;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Unit tests for SafeDirectoryRemover.
@@ -67,7 +68,7 @@ class SafeDirectoryRemoverTest extends TestCase {
 		$remover = $this->createRemover();
 
 		// Path that is within the project root
-		$internalPath = $this->projectRoot.'/tests';
+		$internalPath = Path::join( $this->projectRoot, 'tests' );
 
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'Cannot build package within project directory' );
@@ -82,8 +83,8 @@ class SafeDirectoryRemoverTest extends TestCase {
 		$tempDir = sys_get_temp_dir();
 
 		// Create a temp test directory
-		$parentDir = $tempDir.'/shield-test-parent-'.uniqid();
-		$childDir = $parentDir.'/child';
+		$parentDir = Path::join( $tempDir, 'shield-test-parent-'.uniqid() );
+		$childDir = Path::join( $parentDir, 'child' );
 
 		mkdir( $parentDir, 0777, true );
 		mkdir( $childDir, 0777, true );
@@ -112,8 +113,8 @@ class SafeDirectoryRemoverTest extends TestCase {
 		$tempDir = sys_get_temp_dir();
 
 		// Create two unrelated directories
-		$dir1 = $tempDir.'/shield-test-dir1-'.uniqid();
-		$dir2 = $tempDir.'/shield-test-dir2-'.uniqid();
+		$dir1 = Path::join( $tempDir, 'shield-test-dir1-'.uniqid() );
+		$dir2 = Path::join( $tempDir, 'shield-test-dir2-'.uniqid() );
 
 		mkdir( $dir1, 0777, true );
 		mkdir( $dir2, 0777, true );
@@ -144,7 +145,7 @@ class SafeDirectoryRemoverTest extends TestCase {
 		$tempDir = sys_get_temp_dir();
 
 		// Create a temp test directory
-		$testDir = $tempDir.'/shield-test-temp-'.uniqid();
+		$testDir = Path::join( $tempDir, 'shield-test-temp-'.uniqid() );
 		mkdir( $testDir, 0777, true );
 
 		try {
@@ -179,8 +180,9 @@ class SafeDirectoryRemoverTest extends TestCase {
 		$remover = $this->createRemover();
 
 		// This should not throw - just return silently
-		$remover->removeSafely( '/path/that/does/not/exist/'.uniqid() );
+		$remover->removeSafely( Path::join( '/path/that/does/not/exist', uniqid() ) );
 
 		$this->assertTrue( true ); // If we got here, no exception was thrown
 	}
 }
+

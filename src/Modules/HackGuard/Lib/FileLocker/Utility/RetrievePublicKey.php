@@ -18,7 +18,7 @@ class RetrievePublicKey {
 		$getter->last_error = self::con()->comps->file_locker->getState()[ 'last_error' ] ?? '';
 
 		$key = $getter->retrieve();
-		if ( empty( $key ) || !\is_array( $key ) ) {
+		if ( empty( $key ) ) {
 			throw new PublicKeyRetrievalFailure( __( 'Failed to obtain public key from API.', 'wp-simple-firewall' ) );
 		}
 

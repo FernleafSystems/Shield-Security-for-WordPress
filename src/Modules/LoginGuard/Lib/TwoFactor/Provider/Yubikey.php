@@ -26,23 +26,6 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			   && !empty( $opts->optGet( 'yubikey_app_id' ) ) && !empty( $opts->optGet( 'yubikey_api_key' ) );
 	}
 
-	protected function maybeMigrate() :void {
-		$meta = self::con()->user_metas->for( $this->getUser() );
-		$legacySecret = $meta->yubi_secret;
-		if ( !empty( $legacySecret ) ) {
-
-			$ids = \array_filter( \array_map( '\trim', \explode( ',', $legacySecret ) ) );
-			if ( !self::con()->caps->hasCap( '2fa_multi_yubikey' ) ) {
-				$ids = \array_slice( $ids, 0, 1 );
-			}
-			foreach ( $ids as $id ) {
-				$this->createNewSecretRecord( $id, 'Yubikey' );
-			}
-			unset( $meta->yubi_secret );
-			unset( $meta->yubi_validated );
-		}
-	}
-
 	public function getJavascriptVars() :array {
 		return Services::DataManipulation()->mergeArraysRecursive(
 			parent::getJavascriptVars(),

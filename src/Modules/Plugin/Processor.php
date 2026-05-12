@@ -48,9 +48,11 @@ class Processor {
 				$components->badge->execute();
 				$components->import_export->execute();
 				$components->comment_spam->execute();
+				$components->mu->execute();
 				$components->whitelabel->execute();
 				$components->integrations->execute();
 				$components->translation_downloads->execute();
+				$components->mcp->execute();
 
 				new Events\StatsWriter();
 				( new Lib\AllowBetaUpgrades() )->execute();
@@ -73,6 +75,7 @@ class Processor {
 				self::con()->comps->user_suspend->execute();
 
 				// All newly created users have their first seen and password start date set
+				// @phpstan-ignore return.void
 				add_action( 'user_register',
 					fn( $userID ) => self::con()->user_metas->for( Services::WpUsers()->getUserById( $userID ) ) );
 

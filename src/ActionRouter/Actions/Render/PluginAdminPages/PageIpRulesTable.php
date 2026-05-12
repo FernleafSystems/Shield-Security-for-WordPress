@@ -16,9 +16,10 @@ class PageIpRulesTable extends BasePluginAdminPage {
 		$con = self::con();
 		return [
 			[
-				'title'   => __( 'Create New IP Rule', 'wp-simple-firewall' ),
-				'href'    => 'javascript:{}',
-				'classes' => [ 'offcanvas_form_create_ip_rule' ],
+				'title'     => __( 'Create New IP Rule', 'wp-simple-firewall' ),
+				'href'      => '',
+				'is_action' => true,
+				'classes'   => [ 'offcanvas_form_create_ip_rule' ],
 			],
 			[
 				'title'    => __( 'Download IP Rules as CSV', 'wp-simple-firewall' ),
@@ -43,7 +44,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 				'inner_page_subtitle' => __( 'View and manage IP rules that block malicious visitors and bots.', 'wp-simple-firewall' ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'diagram-3' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'diagram-3' ),
 			],
 			'vars'    => [
 				'datatable_iprules' => wp_json_encode( [

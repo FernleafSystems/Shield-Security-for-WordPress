@@ -36,12 +36,6 @@
   overflow: hidden;
   border: none;
   height: 100%;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: $card-box-shadow-hover;
-  }
 }
 
 .scan-card-accent {
@@ -135,14 +129,8 @@
   border-radius: $card-border-radius;
   overflow: hidden;
   box-shadow: $card-box-shadow;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
   border: none;
   height: 100%;
-
-  &:hover {
-    transform: translateY(-3px);
-    box-shadow: $card-box-shadow-hover;
-  }
 
   &.bg-tint-good { background: $card-bg-good; }
   &.bg-tint-warning { background: $card-bg-warning; }
@@ -262,12 +250,6 @@
   overflow: hidden;
   box-shadow: $card-box-shadow;
   border: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: $card-box-shadow-hover;
-  }
 }
 
 .change-card-header {

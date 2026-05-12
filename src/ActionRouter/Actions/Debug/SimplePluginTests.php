@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug;
 
-use AptowebDeps\CrowdSec\CapiClient\ClientException;
+use CrowdSec\CapiClient\ClientException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
@@ -32,13 +32,13 @@ class SimplePluginTests extends BaseAction {
 		}
 		\ob_start();
 		$this->{$testMethod}();
-		$this->response()->action_response_data = [
+		$this->response()->setPayload( [
 			'debug_output' => \ob_get_clean()
-		];
+		] );
 	}
 
 	protected function postExec() {
-		var_dump( $this->response()->action_response_data[ 'debug_output' ] );
+		var_dump( $this->response()->payload()[ 'debug_output' ] );
 		die( 'end tests' );
 	}
 
@@ -153,10 +153,6 @@ class SimplePluginTests extends BaseAction {
 		catch ( \Exception $e ) {
 			var_dump( $e->getMessage() );
 		}
-	}
-
-	private function dbg_plugin_tests() {
-		( new RunTests() )->run();
 	}
 
 	private function dbg_telemetry() {

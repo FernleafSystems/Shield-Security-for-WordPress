@@ -18,22 +18,11 @@ class Retrieve {
 
 	private static array $hashes;
 
-	public function __construct() {
-		self::$hashes ??= [
-			'plugins' => [],
-			'themes'  => [],
-		];
-	}
+	private static array $trustedSources;
 
-	/**
-	 * @param WpPluginVo|WpThemeVo $vo
-	 * @throws \Exception
-	 */
-	private function fromLocalStore( $vo ) :array {
-		return ( new StoreAction\Load() )
-			->setAsset( $vo )
-			->run()
-			->getSnapData();
+	public function __construct() {
+		self::$hashes ??= [];
+		self::$trustedSources ??= [];
 	}
 
 	/**
@@ -56,15 +45,30 @@ class Retrieve {
 	 * @throws AssetHashesNotFound|\Exception
 	 */
 	public function byVO( $vo ) :array {
-		$hashes = self::$hashes[ $vo->asset_type === 'plugin' ? 'plugins' : 'themes' ][ $vo->slug ] ?? null;
+		return $this->byVOWithSource( $vo )[ 'hashes' ];
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $vo
+	 * @return array{hashes:array, trusted_source:bool}
+	 * @throws AssetHashesNotFound|\Exception
+	 */
+	public function byVOWithSource( $vo ) :array {
+		$cacheKey = $this->buildCacheKey( $vo );
+		$hashes = self::$hashes[ $cacheKey ] ?? null;
+		$trustedSource = self::$trustedSources[ $cacheKey ] ?? false;
 
 		if ( \is_null( $hashes ) ) {
+			$trustedSource = false;
 			try {
 				$hashes = $this->fromCsHashes( $vo );
+				$trustedSource = true;
 			}
 			catch ( \Exception $e ) {
 				try {
-					$hashes = $this->fromLocalStore( $vo );
+					$localStore = $this->fromLocalStoreWithMeta( $vo );
+					$hashes = $localStore[ 'hashes' ];
+					$trustedSource = $localStore[ 'trusted_source' ];
 				}
 				catch ( \Exception $e ) {
 					$hashes = [];
@@ -72,13 +76,32 @@ class Retrieve {
 			}
 
 			// cache it.
-			self::$hashes[ $vo->asset_type === 'plugin' ? 'plugins' : 'themes' ][ $vo->slug ] = $hashes;
+			self::$hashes[ $cacheKey ] = $hashes;
+			self::$trustedSources[ $cacheKey ] = $trustedSource;
 		}
 
 		if ( empty( $hashes ) ) {
 			throw new AssetHashesNotFound( sprintf( __( 'Could not locate hashes for VO: %s', 'wp-simple-firewall' ), $vo->slug ) );
 		}
-		return $hashes;
+		return [
+			'hashes'         => $hashes,
+			'trusted_source' => $trustedSource,
+		];
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $vo
+	 * @return array{hashes:array, trusted_source:bool}
+	 * @throws \Exception
+	 */
+	private function fromLocalStoreWithMeta( $vo ) :array {
+		$store = ( new StoreAction\Load() )
+			->setAsset( $vo )
+			->run();
+		return [
+			'hashes'         => $store->getSnapData(),
+			'trusted_source' => ( $store->getSnapMeta()[ 'live_hashes' ] ?? false ) === true,
+		];
 	}
 
 	/**
@@ -94,5 +117,16 @@ class Retrieve {
 			throw new \Exception( __( 'No crowd-sourced hashes available.', 'wp-simple-firewall' ) );
 		}
 		return $hashes;
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $vo
+	 */
+	private function buildCacheKey( $vo ) :string {
+		return \implode( '|', [
+			(string)$vo->asset_type,
+			(string)$vo->unique_id,
+			(string)$vo->Version,
+		] );
 	}
 }

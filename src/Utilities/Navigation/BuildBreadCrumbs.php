@@ -9,10 +9,16 @@ class BuildBreadCrumbs {
 
 	use PluginControllerConsumer;
 
+	/**
+	 * @return list<array{text:string, title:string, href:string}>
+	 */
 	public function current() :array {
 		return $this->for( PluginNavs::GetNav(), PluginNavs::GetSubNav() );
 	}
 
+	/**
+	 * @return list<array{text:string, title:string, href:string}>
+	 */
 	public function for( string $nav, string $subnav ) :array {
 		try {
 			$crumbs = $this->parse( $nav, $subnav );
@@ -25,9 +31,9 @@ class BuildBreadCrumbs {
 
 	/**
 	 * @throws \Exception
+	 * @return list<array{text:string, title:string, href:string}>
 	 */
 	public function parse( string $nav, string $subNav ) :array {
-		$urls = self::con()->plugin_urls;
 		$crumbs = [];
 		if ( empty( $nav ) ) {
 			throw new \Exception( 'No nav provided.' );
@@ -36,7 +42,7 @@ class BuildBreadCrumbs {
 			$subNav = PluginNavs::SUBNAV_INDEX;
 		}
 
-		$hierarchy = PluginNavs::GetNavHierarchy();
+		$hierarchy = $this->getNavHierarchy();
 		$navStruct = $hierarchy[ $nav ] ?? null;
 		if ( empty( $navStruct ) ) {
 			throw new \Exception( 'Not a valid nav: '.$nav );
@@ -45,23 +51,96 @@ class BuildBreadCrumbs {
 			throw new \Exception( 'Not a valid sub_nav: '.$subNav );
 		}
 
-		$crumbs[] = [
-			'text'  => $navStruct[ 'name' ],
-			'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] ) ),
-			'href'  => $urls->adminTopNav( $nav, PluginNavs::GetDefaultSubNavForNav( $nav ) ),
-		];
+		$this->appendCrumbIfNotCurrentRoute(
+			$crumbs,
+			PluginNavs::NAV_DASHBOARD,
+			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
+			$nav,
+			$subNav,
+			[
+				'text'  => __( 'Shield Security', 'wp-simple-firewall' ),
+				'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), __( 'Mode Selector', 'wp-simple-firewall' ) ),
+				'href'  => $this->buildNavUrl( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ),
+			]
+		);
 
-		foreach ( $navStruct[ 'parents' ] as $parentNav ) {
-			if ( $parentNav !== $nav ) {
-				$name = $hierarchy[ $parentNav ][ 'name' ];
-				\array_unshift( $crumbs, [
-					'text'  => $name,
-					'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), sprintf( __( '%s Home', 'wp-simple-firewall' ), $name ) ),
-					'href'  => $urls->adminTopNav( $parentNav, \key( $hierarchy[ $parentNav ][ 'sub_navs' ] ) ),
-				] );
+		if ( $nav !== PluginNavs::NAV_RESTRICTED ) {
+			$mode = PluginNavs::modeForRoute( $nav, $subNav );
+			if ( !empty( $mode ) ) {
+				$entry = PluginNavs::defaultEntryForMode( $mode );
+				$this->appendCrumbIfNotCurrentRoute(
+					$crumbs,
+					$entry[ 'nav' ],
+					$entry[ 'subnav' ],
+					$nav,
+					$subNav,
+					[
+						'text'  => PluginNavs::modeLabel( $mode ),
+						'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), PluginNavs::modeLabel( $mode ) ),
+						'href'  => $this->buildNavUrl( $entry[ 'nav' ], $entry[ 'subnav' ] ),
+					]
+				);
 			}
 		}
 
+		if ( !( $nav === PluginNavs::NAV_DASHBOARD && $subNav === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW )
+			 && !$this->isModeLandingRoute( $nav, $subNav ) ) {
+			$crumbText = $navStruct[ 'name' ];
+			$crumbHrefSubNav = $this->getDefaultSubNavForNav( $nav, $hierarchy );
+			$crumbTitleLabel = sprintf( __( '%s Home', 'wp-simple-firewall' ), $navStruct[ 'name' ] );
+
+			$subNavDefinition = $navStruct[ 'sub_navs' ][ $subNav ];
+			$subNavLabel = $subNavDefinition[ 'label' ] ?? null;
+			if ( \is_string( $subNavLabel ) && $subNavLabel !== '' ) {
+				$crumbText = $subNavLabel;
+				$crumbHrefSubNav = $subNav;
+				$crumbTitleLabel = $subNavLabel;
+			}
+
+			$this->appendCrumbIfNotCurrentRoute(
+				$crumbs,
+				$nav,
+				$crumbHrefSubNav,
+				$nav,
+				$subNav,
+				[
+					'text'  => $crumbText,
+					'title' => sprintf( '%s: %s', __( 'Navigation', 'wp-simple-firewall' ), $crumbTitleLabel ),
+					'href'  => $this->buildNavUrl( $nav, $crumbHrefSubNav ),
+				]
+			);
+		}
+
 		return $crumbs;
+	}
+
+	protected function getNavHierarchy() :array {
+		return PluginNavs::GetNavHierarchy();
+	}
+
+	protected function buildNavUrl( string $nav, string $subNav ) :string {
+		return self::con()->plugin_urls->adminTopNav( $nav, $subNav );
+	}
+
+	protected function getDefaultSubNavForNav( string $nav, array $hierarchy ) :string {
+		return PluginNavs::GetDefaultSubNavForNav( $nav );
+	}
+
+	private function isModeLandingRoute( string $nav, string $subNav ) :bool {
+		return PluginNavs::isModeLandingRoute( $nav, $subNav );
+	}
+
+	/**
+	 * @param list<array{text:string, title:string, href:string}> $crumbs
+	 * @param array{text:string, title:string, href:string} $crumb
+	 */
+	private function appendCrumbIfNotCurrentRoute( array &$crumbs, string $candidateNav, string $candidateSubNav, string $currentNav, string $currentSubNav, array $crumb ) :void {
+		if ( !$this->isSameRoute( $candidateNav, $candidateSubNav, $currentNav, $currentSubNav ) ) {
+			$crumbs[] = $crumb;
+		}
+	}
+
+	private function isSameRoute( string $candidateNav, string $candidateSubNav, string $currentNav, string $currentSubNav ) :bool {
+		return $candidateNav === $currentNav && $candidateSubNav === $currentSubNav;
 	}
 }

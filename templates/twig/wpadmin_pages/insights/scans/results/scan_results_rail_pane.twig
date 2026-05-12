@@ -1,0 +1,60 @@
+{% set has_lazy_render_action = tab.render_action is not empty %}
+{% set is_lazy_placeholder = has_lazy_render_action and not tab.is_loaded %}
+
+{% if is_lazy_placeholder %}
+	<div class="text-muted small" data-actions-queue-pane-placeholder="1">
+		{{ strings.pane_loading }}
+	</div>
+{% elseif tab.is_disabled %}
+	{% include '/wpadmin_pages/insights/scans/results/disabled_pane.twig' with {
+		message: tab.disabled_message,
+		actions: tab.disabled_actions
+	} only %}
+{% elseif tab.items is empty %}
+	<div class="shield-scan-pane-empty py-4 text-center text-muted">
+		<i class="bi bi-check-circle fs-3 d-block mb-2"></i>
+		{{ strings.no_issues }}
+	</div>
+{% else %}
+	{% set current_section = null %}
+	{% for item in tab.items %}
+
+		{% if item.section_label is not empty and item.section_label != current_section %}
+			{% set current_section = item.section_label %}
+			<div class="shield-mode-strip__eyebrow mb-2{% if not loop.first %} mt-3{% endif %}">
+				{{ current_section }}
+			</div>
+		{% endif %}
+
+		<div class="shield-detail-item">
+			{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: item } only %}
+
+			{% if item.expandable and item.expansion is not empty %}
+				{% set expansion = item.expansion %}
+				{% set file_table_body %}
+					{% if expansion.type == 'scan_results_table' %}
+						{% include '/wpadmin/components/scans/scan_results_table.twig' with {
+							table: expansion.table
+						} only %}
+					{% elseif expansion.type == 'investigation_table' %}
+						{% include '/wpadmin/components/investigate/table_container.twig' with {
+							table: expansion.table
+						} only %}
+					{% elseif expansion.type == 'simple_table' %}
+						{% include '/wpadmin/components/page/detail_expansion_simple_table.twig' with {
+							table: expansion.table
+						} only %}
+					{% endif %}
+				{% endset %}
+				{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
+					id: expansion.id,
+					parent_id: tab.pane_id,
+					type: 'table',
+					status: expansion.status,
+					body: file_table_body
+				}} only %}
+			{% endif %}
+		</div>
+
+	{% endfor %}
+{% endif %}

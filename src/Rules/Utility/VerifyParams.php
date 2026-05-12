@@ -54,7 +54,17 @@ class VerifyParams {
 				$invalidType = !\is_scalar( $paramValue );
 				break;
 			case EnumParameters::TYPE_ENUM:
-				$invalidType = empty( $def[ 'type_enum' ] ) || !\in_array( $paramValue, $def[ 'type_enum' ] );
+				$invalidType = empty( $def[ 'type_enum' ] );
+				if ( !$invalidType ) {
+					$invalidType = true;
+					foreach ( $def[ 'type_enum' ] as $enumValue ) {
+						if ( $paramValue == $enumValue ) {
+							$paramValue = $enumValue;
+							$invalidType = false;
+							break;
+						}
+					}
+				}
 				$invalidMsg = __( 'Please select one of the options available', 'wp-simple-firewall' );
 				break;
 			case EnumParameters::TYPE_BOOL:
@@ -103,9 +113,11 @@ class VerifyParams {
 	 * @throws ParametersMissingException
 	 * @throws \Exception
 	 */
-	public function verifyParams( array $params = [], array $paramsDef = [] ) {
+	public function verifyParams( array $params = [], array $paramsDef = [] ) :array {
+		$verified = [];
 		foreach ( $paramsDef as $key => $def ) {
-			$this->verifyParam( $params[ $key ] ?? null, $def, $key );
+			$verified[ $key ] = $this->verifyParam( $params[ $key ] ?? null, $def, $key );
 		}
+		return $verified;
 	}
 }

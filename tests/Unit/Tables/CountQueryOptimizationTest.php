@@ -10,10 +10,11 @@ class CountQueryOptimizationTest extends BaseUnitTest {
 
 	private function createBuilder( array $overrides = [] ) :object {
 		$defaults = [
-			'totalCount'    => 100,
-			'filteredCount' => 50,
-			'wheres'        => [],
-			'cacheKey'      => 'shield_dt_total_test',
+			'totalCount'            => 100,
+			'filteredCount'         => 50,
+			'wheres'                => [],
+			'cacheKey'              => 'shield_dt_total_test',
+			'filtersActiveOverride' => null,
 		];
 		$config = \array_merge( $defaults, $overrides );
 
@@ -63,6 +64,12 @@ class CountQueryOptimizationTest extends BaseUnitTest {
 				return $this->config[ 'cacheKey' ];
 			}
 
+			protected function hasActiveFiltersForFilteredCount() :bool {
+				return \is_bool( $this->config[ 'filtersActiveOverride' ] )
+					? $this->config[ 'filtersActiveOverride' ]
+					: parent::hasActiveFiltersForFilteredCount();
+			}
+
 			public function testBuild() :array {
 				return $this->build();
 			}
@@ -99,6 +106,24 @@ class CountQueryOptimizationTest extends BaseUnitTest {
 
 		$this->assertSame( 1, $builder->countFilteredCalls );
 		$this->assertSame( 25, $result[ 'recordsFiltered' ] );
+		$this->assertSame( 100, $result[ 'recordsTotal' ] );
+	}
+
+	public function test_filtered_count_called_when_filter_hook_override_active() :void {
+		Functions\when( 'get_transient' )->justReturn( false );
+		Functions\when( 'set_transient' )->justReturn( true );
+
+		$builder = $this->createBuilder( [
+			'totalCount'            => 100,
+			'filteredCount'         => 12,
+			'wheres'                => [],
+			'filtersActiveOverride' => true,
+		] );
+
+		$result = $builder->testBuild();
+
+		$this->assertSame( 1, $builder->countFilteredCalls );
+		$this->assertSame( 12, $result[ 'recordsFiltered' ] );
 		$this->assertSame( 100, $result[ 'recordsTotal' ] );
 	}
 

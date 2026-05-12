@@ -1,0 +1,21 @@
+<div class="drill-shell"
+	 data-drill-shell="1"
+	 data-drill-shell-mode="{{ shell.mode }}"
+	 data-drill-shell-id="{{ shell.id }}">
+	<div class="screen-reader-text" aria-live="polite" aria-atomic="true" data-drill-live-region="1"></div>
+	{% for shell_layer in shell.layers %}
+		{% set layer_index = loop.index0 %}
+		{% set layer_state = 'hidden' %}
+		{% if layer_index == shell.active_index %}
+			{% set layer_state = 'active' %}
+		{% elseif layer_index < shell.active_index %}
+			{% set layer_state = 'compact' %}
+		{% endif %}
+		{% include '/wpadmin/components/page/drill_down_layer.twig' with {
+			layer: shell_layer|merge({
+				index: layer_index,
+				state: layer_state
+			})
+		} only %}
+	{% endfor %}
+</div>

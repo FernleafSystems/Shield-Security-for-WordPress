@@ -1,0 +1,10 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	{% include '/wpadmin/components/investigate/theme_body.twig' with {
+		flags: flags,
+		hrefs: hrefs,
+		strings: strings,
+		vars: vars
+	} only %}
+{% endblock %}

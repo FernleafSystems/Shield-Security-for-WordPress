@@ -12,11 +12,12 @@
 				{% for reg in vars.yubikeys %}
 					<li style="margin: 10px 0 0;">
 						<code>{{ reg.label }} ({{ reg.id }})</code>
-						<a href="#"
-						   class="shield_remove_yubi"
-						   style="text-decoration: none;"
-						   title="Remove"
-						   data-yubikeyid="{{ reg.id }}">&#10006;</a>
+						<button type="button"
+								class="shield_remove_yubi shield-button-link"
+								style="text-decoration: none;"
+								title="{{ strings.remove_label }}"
+								aria-label="{{ strings.remove_label }} {{ reg.label }}"
+								data-yubikeyid="{{ reg.id }}">&#10006;</button>
 						<ul style="list-style: none; margin-left: 20px; margin-top: 0;">
 							<li style="margin: 0;">{{ reg.used_at }}</li>
 							<li>{{ reg.reg_at }}</li>

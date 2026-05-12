@@ -29,10 +29,9 @@ class LicenseLookup extends LicenseBase {
 			}
 		}
 
-		$this->response()->action_response_data = [
-			'success'     => $success,
+		$this->response()->setPayload( [
 			'message'     => $msg,
 			'page_reload' => true,
-		];
+		] )->setPayloadSuccess( $success );
 	}
 }

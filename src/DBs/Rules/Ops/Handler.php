@@ -35,7 +35,7 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 		}
 
 		if ( $form->edit_rule_id >= 0 ) {
-			/** @var Record $record */
+			/** @var ?Record $record */
 			$record = $this->getQuerySelector()->byId( (int)$form->edit_rule_id );
 			if ( empty( $record ) ) {
 				throw new \Exception( "Failed to update rule as it doesn't exist." );

@@ -1,0 +1,151 @@
+{% extends '/email/base_email.twig' %}
+
+{% block email_branding %}
+	<tr>
+		<td style="height: 4px; background-color: #008000; background: linear-gradient(90deg, #008000, #d2ddd2); font-size: 0; line-height: 0;">&nbsp;</td>
+	</tr>
+
+	<tr>
+		<td style="padding: 24px 28px 18px; border-bottom: 1px solid #d9dfd9;">
+			<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					<td style="vertical-align: middle;">
+						<div style="font-size: 20px; font-weight: 700; color: #222222; line-height: 1.2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+							{{ body.strings.security_report }}
+						</div>
+						<div style="font-size: 13px; color: #888888; line-height: 1.4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+							{{ body.vars.site_url }}
+						</div>
+					</td>
+					<td style="text-align: right; vertical-align: middle;">
+						<span style="display: inline-block; background: #f5f6f5; border: 1px solid #d9dfd9; border-radius: 8px; padding: 5px 12px; font-size: 12px; color: #555555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+							{{ body.vars.report.date_start }} &ndash; {{ body.vars.report.date_end }}
+						</span>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+{% endblock %}
+
+{% block email_header %}
+	<p style="margin: 0; padding: 12px 16px; font-size: 13px; color: #666666; line-height: 1.5; background: #f5f6f5; border-bottom: 1px solid #d9dfd9; border-radius: 6px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+		{{ body.strings.intro_text }}
+	</p>
+{% endblock %}
+
+{% block email_body %}
+	{% set headline = body.vars.info_headline %}
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 14px 0 12px; border: 1px solid #d9dfd9; border-radius: 10px; background: #f8f9f8;">
+		<tr>
+			<td style="padding: 16px 18px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+				<div style="font-size: 17px; font-weight: 700; color: #222222;">{{ headline.summary.title }}</div>
+				<div style="font-size: 13px; color: #666666; margin-top: 4px;">{{ headline.summary.subtitle }}</div>
+			</td>
+		</tr>
+	</table>
+
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 14px;">
+		<tr>
+			{% for card in headline.cards %}
+				<td width="{{ 100 // headline.cards|length }}%" style="padding: 0 4px 0 0; vertical-align: top;">
+					<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border: 1px solid #d9dfd9; border-radius: 10px; background: #ffffff; min-height: 116px;">
+						<tr>
+							<td style="padding: 14px 14px 12px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+								<div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #888888; margin-bottom: 4px;">{{ card.label }}</div>
+								<div style="font-size: 18px; font-weight: 700; color: #222222; line-height: 1.2;">{{ card.value }}</div>
+								<div style="font-size: 12px; color: #666666; margin-top: 6px;">{{ card.meta }}</div>
+							</td>
+						</tr>
+					</table>
+				</td>
+			{% endfor %}
+		</tr>
+	</table>
+
+	{% set report = body.vars.report %}
+	{% if report.areas_data.scans is defined %}
+		{% if report.areas_data.scans.scan_results is defined and report.areas_data.scans.scan_results|length > 0 %}
+			<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					<td style="padding: 12px 4px; background: #f8f9f8; border-bottom: 1px solid #d9dfd9; border-left: 4px solid #008000;">
+						<strong style="font-size: 13px; color: #222222; text-transform: uppercase; letter-spacing: 0.03em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">{{ body.strings.section_scans }}</strong>
+					</td>
+				</tr>
+			</table>
+			{% include '/email/reports/areas/scans_results.twig' with {
+				scan_counts: report.areas_data.scans.scan_results,
+				strings: body.strings
+			} only %}
+		{% endif %}
+
+		{% if report.areas_data.scans.scan_repairs is defined and report.areas_data.scans.scan_repairs|length > 0 %}
+			<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					<td style="padding: 12px 4px; background: #f8f9f8; border-bottom: 1px solid #d9dfd9; border-left: 4px solid #008000;">
+						<strong style="font-size: 13px; color: #222222; text-transform: uppercase; letter-spacing: 0.03em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">{{ body.strings.section_scans_repairs }}</strong>
+					</td>
+				</tr>
+			</table>
+			{% include '/email/reports/areas/scans_repairs.twig' with {
+				scan_repairs: report.areas_data.scans.scan_repairs,
+				strings: body.strings
+			} only %}
+		{% endif %}
+	{% endif %}
+
+	{% if report.areas_data.statistics is defined and report.areas_data.statistics|length > 0 %}
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+			<tr>
+				<td style="padding: 12px 4px; background: #f8f9f8; border-bottom: 1px solid #d9dfd9; border-left: 4px solid #0ea8c7;">
+					<strong style="font-size: 13px; color: #222222; text-transform: uppercase; letter-spacing: 0.03em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">{{ body.strings.section_stats }}</strong>
+				</td>
+			</tr>
+		</table>
+		{% include '/email/reports/areas/stats.twig' with {
+			stats: report.areas_data.statistics,
+			strings: body.strings,
+			detail_level: body.vars.detail_level
+		} only %}
+	{% endif %}
+
+	{% if report.areas_data.changes is defined and report.areas_data.changes|length > 0 %}
+		<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+			<tr>
+				<td style="padding: 12px 4px; background: #f8f9f8; border-bottom: 1px solid #d9dfd9; border-left: 4px solid #0ea8c7;">
+					<strong style="font-size: 13px; color: #222222; text-transform: uppercase; letter-spacing: 0.03em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">{{ body.strings.section_changes }}</strong>
+				</td>
+			</tr>
+		</table>
+		{% include '/email/reports/areas/changes.twig' with {
+			changes: report.areas_data.changes,
+			strings: body.strings,
+			detail_level: body.vars.detail_level
+		} only %}
+	{% endif %}
+
+	<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 20px 0 10px;">
+		<tr>
+			<td align="center">
+				<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+					<tr>
+						<td style="border-radius: 8px; background-color: #008000; background: linear-gradient(135deg, #006d00, #008000);">
+							<a href="{{ report.href }}" target="_blank" style="display: inline-block; padding: 12px 32px; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+								{{ body.strings.view_full_report }} &rarr;
+							</a>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+{% endblock %}
+
+{% block email_footer %}
+	<div style="text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 11px; color: #999999; line-height: 1.5;">
+		<div style="margin-bottom: 6px;">{{ body.strings.generated_by_plugin }}</div>
+		{% for section in footer %}
+			<div>{{ section|raw }}</div>
+		{% endfor %}
+	</div>
+{% endblock %}

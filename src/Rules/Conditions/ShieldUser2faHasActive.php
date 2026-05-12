@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Conditions,
 	Enum
 };
 
@@ -25,6 +26,12 @@ class ShieldUser2faHasActive extends ShieldUser2faBase {
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
 			'conditions' => [
+				[
+					'conditions' => Conditions\IsLoggedInNormal::class,
+				],
+				[
+					'conditions' => Conditions\ShieldHasValidCurrentSession::class,
+				],
 				[
 					'conditions' => $this->getDefaultConditionCheckCallable(),
 				],

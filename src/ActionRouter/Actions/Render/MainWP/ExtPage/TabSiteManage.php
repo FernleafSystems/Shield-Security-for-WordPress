@@ -37,22 +37,10 @@ class TabSiteManage extends BaseSubPage {
 
 	protected function runAction() :string {
 		return 'nothing';
-		try {
-			return self::con()->action_router->action( Render::class, [
-				'render_action_slug' => TabManageSitePage::SLUG,
-				'render_action_data' => [
-					'site_id' => $this->getActiveSiteID(),
-				],
-			] )->action_response_data[ 'render_output' ];
-		}
-		catch ( ActionException $e ) {
-			error_log( $e->getMessage() );
-			die( $e->getMessage() );
-		}
 	}
 
 	protected function getActiveSiteID() :int {
-		return (int)$this->action_data[ 'site_id' ] ?? 0;
+		return (int)( $this->action_data[ 'site_id' ] ?? 0 );
 	}
 
 	protected function getMenuTopNavItems() :array {

@@ -11,7 +11,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Exceptions\InvalidActionNonceException,
 	Exceptions\SecurityAdminRequiredException,
 	Exceptions\UserAuthRequiredException,
-	ResponseAdapter\AjaxResponseAdapter
+	ResponseAdapter\AjaxResponseAdapter,
+	Utility\AuthRefreshRequest,
+	Utility\ResponseEnvelopeNormalizer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\{
 	AnyUserAuthRequired,
@@ -24,40 +26,48 @@ class AjaxBatchRequests extends BaseAction {
 	use SecurityAdminNotRequired;
 
 	public const SLUG = 'ajax_batch_requests';
-
-	private const MAX_BATCH_SIZE = 20;
+	private const MAX_BATCH_SIZE = 50;
 
 	protected function exec() {
-		$requests = $this->action_data[ 'requests' ];
+		try {
+			$requests = $this->action_data[ 'requests' ];
 
-		if ( !\is_array( $requests ) ) {
-			throw new ActionException( __( 'Invalid batch request format.', 'wp-simple-firewall' ) );
-		}
-		if ( \count( $requests ) > self::MAX_BATCH_SIZE ) {
-			throw new ActionException(
-				sprintf(
-					/* translators: %s: request count limit */
-					__( 'Too many batched requests. Maximum allowed is %s.', 'wp-simple-firewall' ),
-					self::MAX_BATCH_SIZE
-				)
-			);
-		}
-
-		$lastRequestIndexes = $this->collectLastRequestIndexes( $requests );
-		$results = [];
-		foreach ( $requests as $index => $requestItem ) {
-			$key = $this->extractResultKey( $requestItem, $index );
-			if ( ( $lastRequestIndexes[ $key ] ?? $index ) !== $index ) {
-				continue;
+			if ( !\is_array( $requests ) ) {
+				throw new ActionException( __( 'Invalid batch request format.', 'wp-simple-firewall' ) );
 			}
-			$results[ $key ] = $this->processBatchRequest( $requestItem );
-		}
+			if ( \count( $requests ) > self::MAX_BATCH_SIZE ) {
+				throw new ActionException(
+					sprintf(
+					/* translators: %s: request count limit */
+						__( 'Too many batched requests. Maximum allowed is %s.', 'wp-simple-firewall' ),
+						self::MAX_BATCH_SIZE
+					)
+				);
+			}
 
-		$this->response()->action_response_data = [
-			'success' => true,
-			'message' => '',
-			'results' => $results,
-		];
+			$lastRequestIndexes = $this->collectLastRequestIndexes( $requests );
+			$results = [];
+			foreach ( $requests as $index => $requestItem ) {
+				$key = $this->extractResultKey( $requestItem, $index );
+				if ( ( $lastRequestIndexes[ $key ] ?? $index ) !== $index ) {
+					continue;
+				}
+				$results[ $key ] = $this->processBatchRequest( $requestItem );
+			}
+
+			$this->response()->setPayload( [
+				'message' => '',
+				'results' => $results,
+			] )->setPayloadSuccess( true );
+		}
+		catch ( UserAuthRequiredException $e ) {
+			if ( !AuthRefreshRequest::isRequested() ) {
+				throw $e;
+			}
+			$this->response()
+				->setPayload( ResponseEnvelopeNormalizer::forAjaxAuthRefresh() )
+				->setPayloadSuccess( false );
+		}
 	}
 
 	protected function getRequiredDataKeys() :array {
@@ -139,6 +149,9 @@ class AjaxBatchRequests extends BaseAction {
 			);
 		}
 		catch ( UserAuthRequiredException $e ) {
+			if ( AuthRefreshRequest::isRequested() ) {
+				throw $e;
+			}
 			return $this->buildFailureResult( $e->getMessage(), 403 );
 		}
 		catch ( ActionException $e ) {
@@ -165,18 +178,12 @@ class AjaxBatchRequests extends BaseAction {
 
 		return [
 			'status_code' => $statusCode,
-			'payload'     => \is_array( $payload ) ? $payload : [],
+			'payload'     => $payload,
 		];
 	}
 
 	private function normaliseAjaxPayload( array $payload ) :array {
-		return \array_merge( [
-			'success'     => false,
-			'page_reload' => false,
-			'message'     => __( 'No AJAX message provided', 'wp-simple-firewall' ),
-			'error'       => '',
-			'html'        => '',
-		], $payload );
+		return ResponseEnvelopeNormalizer::forBatchSubresponse( $payload );
 	}
 
 	private function sanitizeSubrequestPayload( array $payload ) :array {

@@ -2,8 +2,8 @@
 <?php declare( strict_types=1 );
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PluginPackager;
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PackagerConfigResolver;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\SafeDirectoryRemover;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PackagerConfig;
 use Symfony\Component\Filesystem\Path;
 
 require dirname( __DIR__ ).'/vendor/autoload.php';
@@ -13,6 +13,7 @@ $options = getopt( '', [
 	'zip-root-folder::',
 	'strauss-version::',
 	'strauss-fork-repo::',
+	'strauss-fork-branch::',
 	'skip-root-composer',
 	'skip-lib-composer',
 	'skip-npm-install',
@@ -23,14 +24,17 @@ $options = getopt( '', [
 	'build::',
 ] );
 
-// Resolve Strauss version: CLI arg > env var/config file (via PackagerConfig) > null (fallback in PluginPackager)
+$projectRoot = Path::normalize( dirname( __DIR__ ) );
+$packagerConfig = ( new PackagerConfigResolver() )->resolve( $projectRoot );
+
+// Resolve Strauss version: CLI arg > env var/config file > null (fallback in PluginPackager)
 $straussVersion = $options[ 'strauss-version' ] ?? null;
 $resolvedStrauss = null;
 if ( \is_string( $straussVersion ) && $straussVersion !== '' ) {
 	$resolvedStrauss = \ltrim( \trim( $straussVersion ), 'v' );
 }
 else {
-	$resolvedStrauss = PackagerConfig::getStraussVersion();
+	$resolvedStrauss = $packagerConfig[ 'strauss_version' ];
 }
 
 $packagerOptions = [];
@@ -55,14 +59,20 @@ if ( \is_string( $resolvedStrauss ) && $resolvedStrauss !== '' ) {
 	$packagerOptions[ 'strauss_version' ] = $resolvedStrauss;
 }
 
-// Resolve fork repo: CLI arg > env var/config file (via PackagerConfig) > null
+// Resolve fork repo: CLI arg > env var/config file > null
 $straussForkRepo = $options[ 'strauss-fork-repo' ] ?? null;
 if ( !\is_string( $straussForkRepo ) || $straussForkRepo === '' ) {
-	$straussForkRepo = PackagerConfig::getStraussForkRepo();
+	$straussForkRepo = $packagerConfig[ 'strauss_fork_repo' ];
 }
 
 if ( $straussForkRepo !== null ) {
 	$packagerOptions[ 'strauss_fork_repo' ] = \trim( $straussForkRepo );
+
+	$straussForkBranch = $options[ 'strauss-fork-branch' ] ?? null;
+	if ( !\is_string( $straussForkBranch ) || $straussForkBranch === '' ) {
+		$straussForkBranch = $packagerConfig[ 'strauss_fork_branch' ] ?? 'develop';
+	}
+	$packagerOptions[ 'strauss_fork_branch' ] = \trim( $straussForkBranch );
 }
 
 // Version metadata options
@@ -90,7 +100,6 @@ else {
 // Create temp directory for intermediate package
 $tempDir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'shield-build-'.\bin2hex( \random_bytes( 8 ) );
 $keepPackage = isset( $options[ 'keep-package' ] );
-$projectRoot = dirname( __DIR__ );
 
 $exitCode = 0;
 $packagePath = null;

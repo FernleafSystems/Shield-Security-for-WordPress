@@ -1,50 +1,6 @@
 {% extends '/integration/mainwp/pages/page_base.twig' %}
 
 {% block actions_bar %}
-	{#  <div class="mainwp_shield_tabs_content" data-tab="dashboard"> #}
-	{#    <div class="mainwp-actions-bar"> #}
-	{#      <div class="ui grid"> #}
-	{#        <div class="ui two column row"> #}
-	{#          <div class="middle aligned column ui mini form"> #}
-	{#  #}
-	{#            <div class="ui dropdown selection" tabindex="0"> #}
-	{#              <select id="mwp_shield_plugin_action"> #}
-	{#                <option value="-1">Bulk Actions</option> #}
-	{#                <option value="activate-selected">Activate</option> #}
-	{#                <option value="update-selected">Update</option> #}
-	{#                <option value="hide-selected">Hide</option> #}
-	{#                <option value="show-selected">Unhide</option> #}
-	{#              </select> #}
-	{#              <i class="dropdown icon"></i> #}
-	{#              <div class="text">Bulk Actions</div> #}
-	{#              <div class="menu" tabindex="-1"> #}
-	{#                <div #}
-	{#                    class="item active selected" data-value="-1" data-text="Bulk Actions">Bulk Actions</div> #}
-	{#                <div #}
-	{#                    class="item" data-value="activate-selected" data-text="Activate">Activate</div> #}
-	{#                <div class="item" data-value="update-selected" data-text="Update">Update</div> #}
-	{#                <div class="item" data-value="hide-selected" data-text="Hide">Hide</div> #}
-	{#                <div class="item" data-value="show-selected" data-text="Unhide">Unhide</div> #}
-	{#              </div> #}
-	{#            </div> #}
-	{#  #}
-	{#            <input type="button" value="Apply" #}
-	{#                   class="ui basic mini button action" #}
-	{#                   id="shield_plugin_doaction_btn" #}
-	{#                   name="shield_plugin_doaction_btn"> #}
-	{#          </div> #}
-	{#  #}
-	{#          <div class="right aligned middle aligned column"> #}
-	{#            <span id="mainwp_shield_remind_change_status"></span> #}
-	{#            <a href="#" id="mainwp-shield-kill-scan" class="ui mini button">Stop Scan Process</a> #}
-	{#            <a href="#" id="mainwp-shield-run-scan" class="ui mini green button shield-run-scan" #}
-	{#               title="Start a Wordfence Scan">Scan all Child Sites</a> #}
-	{#          </div> #}
-	{#  #}
-	{#        </div> #}
-	{#      </div> #}
-	{#    </div> #}
-	{#  </div> #}
 {% endblock %}
 
 {% block body_main %}
@@ -65,7 +21,6 @@
 							{#              <th>{{ strings.site }}</th> #}
 							<th>{{ strings.url }}</th>
 							<th>{{ strings.status }}</th>
-							<th>{{ strings.overall_grade }}</th>
 							<th>{{ strings.issues }}</th>
 							<th>{{ strings.version }}</th>
 							<th>{{ strings.last_sync }}</th>
@@ -82,18 +37,8 @@
 								</span>
 							</td>
 
-							{#              <td> #}
-							{#                {% if site.shield.is_active %} #}
-							{#                  <a href="{{ site.shield.href_manage }}" #}
-							{#                     class="ui mini compact button">{{ strings.manage }}</a> #}
-							{#                {% else %} #}
-							{#                  {{ site.name }} #}
-							{#                {% endif %} #}
-							{#              </td> #}
-
 							<td>
 								{{ site.name }}
-								{#                <a href="{{ site.hrefs.manage_site }}">{{ site.name }}</a> #}
 								<br />
 								<a href="{{ site.url }}" target="_blank" style="text-decoration: none!important;">
 									<small>{{ site.url }} <i class="external alternate icon"></i></small>
@@ -105,14 +50,8 @@
 								</td>
 
 								<td>
-									<a href="{{ site.shield.grades.href }}"
-									   class="ui mini basic compact button {{ site.shield.grades.good ? 'green':'red' }}"
-									   target="_blank">{{ site.shield.grades.integrity }}</a>
-								</td>
-
-								<td>
 									<a href="{{ site.shield.href_issues }}"
-									   class="ui mini basic compact button {{ site.shield.has_issues ? 'red':'green' }}"
+									   class="ui mini basic compact button {{ site.shield.issues_button_class }}"
 									   target="_blank">{{ site.shield.issues }}</a>
 								</td>
 
@@ -150,13 +89,16 @@
 								<div class="site-dropdown ui left pointing dropdown icon mini basic green button"
 									 style="z-index: 999;" tabindex="0">
 									<i class="ellipsis horizontal icon"></i>
-									<div class="menu" tabindex="-1" data-sid="{{ site.id }}">
+									<div class="menu" tabindex="-1">
 
 										{% for site_action in site.shield.site_actions %}
-											<a href="#"
-											   class="item site_action"
-											   data-site_action='{{ vars.site_actions[site_action]|raw }}'
-											>{{ strings.actions[site_action] }}</a>
+											<button type="button"
+													class="item site_action"
+													data-mainwp-site-action="1"
+													data-mainwp-site-id="{{ site.id|e('html_attr') }}"
+													data-mainwp-site-action-key="{{ site_action|e('html_attr') }}"
+													data-site_action="{{ vars.site_actions[site_action]|e('html_attr') }}"
+											>{{ strings.actions[site_action] }}</button>
 										{% endfor %}
 
 									</div>

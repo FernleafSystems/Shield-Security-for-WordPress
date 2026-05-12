@@ -38,6 +38,14 @@ class ContactFormSpamBlockBot extends Base {
 		return $status;
 	}
 
+	protected function postureWeight() :int {
+		return 3;
+	}
+
+	protected function configureTreatsBadStatusAsWarning() :bool {
+		return true;
+	}
+
 	/**
 	 * @return string[]
 	 */

@@ -1,0 +1,55 @@
+{% set rail_data = rail|default({}) %}
+{% set items = rail_data.items|default([]) %}
+
+<div class="shield-rail-sidebar" id="{{ rail_data.id|default('ShieldRailSidebar')|e('html_attr') }}">
+	<div class="shield-rail-sidebar__accent shield-rail-sidebar__accent--{{ rail_data.accent_status|default('good') }}"></div>
+	<ul class="shield-rail-sidebar__nav" role="tablist" aria-orientation="vertical">
+		{% for item in items %}
+			{% set is_active = item.is_active|default(false) %}
+			{% set item_status = item.status|default('good') %}
+			{% set badge_status = item_status %}
+			{% set show_count_placeholder = item.show_count_placeholder|default(false) %}
+			{% set item_classes = [ 'shield-rail-sidebar__item' ] %}
+			{% if is_active %}
+				{% set item_classes = item_classes|merge( [ 'is-active', 'active' ] ) %}
+			{% endif %}
+
+			<li>
+					<button type="button"
+						class="{{ item_classes|join(' ') }}"
+						id="{{ item.nav_id|default('')|e('html_attr') }}"
+						data-shield-rail-key="{{ item.key|default('')|e('html_attr') }}"
+						data-shield-rail-target="{{ item.key|default('')|e('html_attr') }}"
+						data-shield-rail-status="{{ item_status|e('html_attr') }}"
+						data-bs-toggle="tab"
+						data-bs-target="{{ item.target|default('')|e('html_attr') }}"
+						role="tab"
+						aria-controls="{{ item.controls|default('')|e('html_attr') }}"
+						aria-selected="{{ is_active ? 'true' : 'false' }}">
+					{% if item.icon_class|default('') is not empty %}
+						<span class="shield-rail-sidebar__icon shield-rail-sidebar__icon--{{ item_status }}" aria-hidden="true">
+							<i class="{{ item.icon_class }}"></i>
+						</span>
+					{% else %}
+						<span class="shield-rail-sidebar__pip shield-rail-sidebar__pip--{{ item_status }}"></span>
+					{% endif %}
+					<span class="shield-rail-sidebar__label">{{ item.label|default('') }}</span>
+					{% if item.count|default(null) is not null %}
+						<span class="shield-badge badge-{{ badge_status }} shield-rail-sidebar__badge">
+							{{ item.count }}
+						</span>
+					{% elseif show_count_placeholder %}
+						<span class="shield-badge badge-disabled shield-rail-sidebar__badge shield-rail-sidebar__badge--placeholder"
+							  aria-label="{{ 'Count loading'|e('html_attr') }}">
+							-
+						</span>
+					{% elseif item.status_label|default('') is not empty %}
+						<span class="shield-badge badge-{{ badge_status }} shield-rail-sidebar__badge shield-rail-sidebar__badge--sm">
+							<i class="{{ item.status_icon_class|default('') }}"></i>
+						</span>
+					{% endif %}
+				</button>
+			</li>
+		{% endfor %}
+	</ul>
+</div>

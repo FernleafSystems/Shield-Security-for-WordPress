@@ -6,15 +6,9 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class LocateNeedles {
 
-	/**
-	 * @var string
-	 */
-	private $content;
+	private ?string $content;
 
-	/**
-	 * @var string
-	 */
-	private $path;
+	private ?string $path;
 
 	public function raw( string $needle ) :bool {
 		return \strpos( $this->getContent(), $needle ) !== false;
@@ -28,11 +22,11 @@ class LocateNeedles {
 		return \preg_match( '/('.$needle.')/i', $this->getContent() ) > 0;
 	}
 
-	public function getContent() :string {
-		return $this->content ?? $this->content = (string)Services::WpFs()->getFileContent( $this->getPath() );
+	public function getContent() :?string {
+		return $this->content ??= (string)Services::WpFs()->getFileContent( $this->getPath() );
 	}
 
-	public function getPath() :string {
+	public function getPath() :?string {
 		return $this->path;
 	}
 

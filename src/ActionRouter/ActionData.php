@@ -18,6 +18,16 @@ class ActionData {
 	public const FIELD_REST_NONCE = '_wpnonce';
 	public const FIELD_REST_URL = '_rest_url';
 	public const FIELD_WRAP_RESPONSE = 'apto_wrap_response';
+	public const EXECUTE_SLUG_PATTERN = '[a-z0-9_.:\-]+';
+
+	public static function extractActionSlug( string $candidate ) :string {
+		\preg_match( '#^('.self::EXECUTE_SLUG_PATTERN.')$#', $candidate, $matches );
+		return $matches[ 1 ] ?? '';
+	}
+
+	public static function isValidActionSlug( string $candidate ) :bool {
+		return self::extractActionSlug( $candidate ) === $candidate && $candidate !== '';
+	}
 
 	public static function Build( string $actionClass, bool $isAjax = true, array $aux = [], bool $uniq = false ) :array {
 		$vo = new ActionDataVO();
@@ -64,11 +74,10 @@ class ActionData {
 	}
 
 	/**
-	 * @param class-string<BaseAction> $actionClass
+	 * @param class-string<Actions\Render\BaseRender> $actionClass
 	 */
-	public static function BuildAjaxRender( string $actionClass = '', array $aux = [] ) :array {
-		$aux[ 'render_slug' ] = empty( $actionClass ) ? '' : $actionClass::SLUG;
-		return self::Build( AjaxRender::class, true, $aux );
+	public static function BuildAjaxRender( string $actionClass, array $aux = [] ) :array {
+		return self::Build( AjaxRender::class, true, \array_merge( $aux, [ 'render_slug' => $actionClass::SLUG ] ) );
 	}
 
 	public static function BuildJson( string $actionClass, bool $isAjax = true, array $aux = [] ) :string {

@@ -96,6 +96,8 @@ class Import {
 	public function fromSite( string $masterURL = '', string $secretKey = '', ?bool $enableNetwork = null ) :void {
 		$con = self::con();
 		$optsCon = $con->opts;
+		$originalImportExportEnabled = (string)$optsCon->optGet( 'importexport_enable' );
+		$originalMasterSiteURL = (string)$optsCon->optGet( 'importexport_masterurl' );
 
 		if ( empty( $masterURL ) ) {
 			$masterURL = $con->comps->import_export->getImportExportMasterImportUrl();
@@ -104,7 +106,6 @@ class Import {
 			}
 		}
 
-		$originalMasterSiteURL = $masterURL;
 		$secretKey = sanitize_key( $secretKey );
 
 		if ( !empty( $secretKey ) && \strlen( $secretKey ) !== 40 ) {
@@ -142,11 +143,13 @@ class Import {
 
 		// Don't send the network setup request if it's the cron.
 		$data = [
-			'secret' => $secretKey,
 			'url'    => Services::WpGeneral()->getHomeUrl(),
 			'id'     => $this->getImportID(),
 			'method' => 'json',
 		];
+		if ( !empty( $secretKey ) ) {
+			$data[ 'secret' ] = $secretKey;
+		}
 		if ( !\is_null( $enableNetwork ) && !Services::WpGeneral()->isCron() ) {
 			$data[ 'network' ] = $enableNetwork ? 'Y' : 'N';
 		}
@@ -185,8 +188,9 @@ class Import {
 
 		$this->processDataImport( $response[ 'data' ], $masterURL );
 
-		// Fix for the overwriting of the Master Site URL with an empty string.
-		// Only do so if we're not turning it off. i.e on or no-change
+		$optsCon->optSet( 'importexport_enable', Services::WpGeneral()->isCron() ? $originalImportExportEnabled : 'Y' );
+
+		// Restore local sync state after imported options have been applied.
 		if ( $enableNetwork === true ) {
 			$optsCon->optSet( 'importexport_masterurl', $masterURL );
 			$con->comps->events->fireEvent(

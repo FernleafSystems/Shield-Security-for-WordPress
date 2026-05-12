@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\CrowdsecResetEnrollment;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug\SimplePluginTests;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Debug\DebugRecentEvents;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -20,24 +19,26 @@ class PageDebug extends BasePluginAdminPage {
 			[
 				'title' => __( 'Force Check of Visitor IP Source', 'wp-simple-firewall' ),
 				'href'  => URL::Build(
-					$URLs->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ),
+					$URLs->debugInfo(),
 					[ 'shield_check_ip_source' => '1' ]
 				),
 			],
 			[
-				'title'   => __( 'Purge Provider IPs', 'wp-simple-firewall' ),
-				'href'    => '#',
-				'classes' => [ 'tool_purge_provider_ips' ],
+				'title'     => __( 'Purge Provider IPs', 'wp-simple-firewall' ),
+				'href'      => '',
+				'is_action' => true,
+				'classes'   => [ 'tool_purge_provider_ips' ],
 			],
 			[
 				'title' => __( 'Reset CrowdSec Enrollment', 'wp-simple-firewall' ),
-				'href'  => $URLs->noncedPluginAction( CrowdsecResetEnrollment::class, $URLs->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG ) ),
+				'href'  => $URLs->noncedPluginAction( CrowdsecResetEnrollment::class, $URLs->debugInfo() ),
 			],
 			[
-				'title'   => __( 'Print', 'wp-simple-firewall' ),
-				'href'    => "javascript:{}",
-				'classes' => [ 'shield_div_print' ],
-				'data'    => [ 'selector' => '#PageMainBody_Inner-Apto' ],
+				'title'     => __( 'Print', 'wp-simple-firewall' ),
+				'href'      => '',
+				'is_action' => true,
+				'classes'   => [ 'shield_div_print' ],
+				'data'      => [ 'selector' => '#PageMainBody_Inner-Apto' ],
 			],
 		];
 	}
@@ -70,7 +71,7 @@ class PageDebug extends BasePluginAdminPage {
 				'display_tests' => !empty( $availableTests ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->raw( 'patch-question' ),
+				'inner_page_title_icon' => self::con()->svgs->iconClass( 'patch-question' ),
 			],
 			'strings' => [
 				'inner_page_title'    => sprintf( __( '%s Debug Information', 'wp-simple-firewall' ), $con->labels->Name ),

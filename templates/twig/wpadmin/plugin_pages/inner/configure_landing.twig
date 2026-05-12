@@ -1,0 +1,40 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="configure-landing"
+		 data-configure-landing="1"
+		 data-configure-diagnosis-loading="{{ strings.diagnosis_loading }}"
+		 data-configure-settings-loading="{{ strings.settings_loading|e('html_attr') }}"
+		 data-configure-layer-error="{{ strings.layer_load_error }}"
+		 data-configure-layer-retry="{{ strings.layer_retry }}"
+		 data-configure-diagnosis-action="{{ vars.configure_ajax.diagnosis_render_action_json }}"
+		 data-configure-search-action="{{ vars.configure_ajax.search_render_action_json }}"
+		 data-configure-search-loading="{{ strings.search_loading }}"
+		 data-configure-search-min-chars="3"
+		 data-configure-focus-request="{{ vars.configure_focus_request_json|e('html_attr') }}">
+		<div class="configure-landing__search"
+			 data-configure-search-dock="1"
+			 data-configure-search-state="idle"
+			 data-configure-section="search">
+			<label class="configure-landing__search-label" for="ConfigureLandingSearchInput">{{ strings.search_label }}</label>
+			<div class="configure-landing__search-input-wrap">
+				<input type="search"
+					   id="ConfigureLandingSearchInput"
+					   class="form-control configure-landing__search-input"
+					   data-configure-search-input="1"
+					   autocomplete="off"
+					   placeholder="{{ strings.search_placeholder }}">
+				<div class="configure-landing__search-results"
+					 data-configure-search-body="1"
+					 aria-live="polite"
+					 aria-busy="false"></div>
+			</div>
+		</div>
+		<div class="configure-landing__drilldown"
+			 data-configure-section="drilldown">
+			{% include '/wpadmin/components/page/drill_down_shell.twig' with {
+				shell: vars.drill_shell
+			} only %}
+		</div>
+	</div>
+{% endblock %}

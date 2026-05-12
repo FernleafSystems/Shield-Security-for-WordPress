@@ -1,0 +1,103 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
+
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+
+class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
+
+	public const SLUG = 'plugin_admin_page_investigate_by_plugin';
+	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_by_plugin.twig';
+
+	protected function resolveSubject( string $lookup ) {
+		return $this->resolvePluginByLookup( $lookup );
+	}
+
+	protected function buildSubjectAssetData( $subject ) :array {
+		return $this->buildPluginScanData( $subject );
+	}
+
+	protected function getSubjectType() :string {
+		return InvestigationTableContract::SUBJECT_TYPE_PLUGIN;
+	}
+
+	protected function getLookupQueryKey() :string {
+		return 'plugin_slug';
+	}
+
+	protected function getLookupOptionsVarKey() :string {
+		return 'plugin_options';
+	}
+
+	protected function getLookupHrefKey() :string {
+		return 'by_plugin';
+	}
+
+	protected function getLookupHref() :string {
+		return self::con()->plugin_urls->investigateByPlugin();
+	}
+
+	protected function getLookupSubNav() :string {
+		return PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN;
+	}
+
+	protected function getLookupSubjectKey() :string {
+		return 'plugin';
+	}
+
+	protected function getSubjectAvatarIcon() :string {
+		return 'puzzle-fill';
+	}
+
+	protected function getAssetIdentifierLabel() :string {
+		return __( 'File', 'wp-simple-firewall' );
+	}
+
+	protected function getPageStrings() :array {
+		return [
+			'inner_page_title'    => __( 'Investigate By Plugin', 'wp-simple-firewall' ),
+			'inner_page_subtitle' => __( 'Inspect plugin integrity, vulnerability status, and activity footprint.', 'wp-simple-firewall' ),
+			'lookup_label'        => __( 'Plugin Lookup', 'wp-simple-firewall' ),
+			'lookup_placeholder'  => __( 'Search for a plugin...', 'wp-simple-firewall' ),
+			'lookup_submit'       => __( 'Load Plugin Context', 'wp-simple-firewall' ),
+			'lookup_helper'       => __( 'Type at least 2 characters to search installed plugins.', 'wp-simple-firewall' ),
+			'change_subject'      => __( 'Change plugin', 'wp-simple-firewall' ),
+			'not_found_title'     => __( 'Plugin Not Found', 'wp-simple-firewall' ),
+			'not_found_text'      => __( 'The selected plugin isn\'t currently installed on this site.', 'wp-simple-firewall' ),
+			'overview_title'      => __( 'Plugin Overview', 'wp-simple-firewall' ),
+			'file_status_empty_text' => __( 'No file scan status records were found for this subject.', 'wp-simple-firewall' ),
+			'activity_empty_text'    => __( 'No activity records were found for this subject.', 'wp-simple-firewall' ),
+		];
+	}
+
+	protected function buildLookupOptions() :array {
+		return $this->buildPluginLookupOptions();
+	}
+
+	protected function buildLookupAjaxPayload() :array {
+		return [];
+	}
+
+	protected function buildSubjectContextStepJson( string $subjectId, string $subjectTitle ) :string {
+		if ( $subjectId === '' ) {
+			return '';
+		}
+
+		$definition = PluginNavs::investigateLandingSubjectDefinitions()[ 'plugin' ];
+		$title = \trim( $subjectTitle );
+
+		return OperatorChromeContract::encodeJson( OperatorChromeContract::normalizeStep( [
+			'breadcrumb_label' => $title !== '' ? $title : $definition[ 'label' ],
+			'title'            => $title !== '' ? $title : $definition[ 'label' ],
+			'summary'          => $definition[ 'context_summary' ],
+			'focus'            => $definition[ 'context_focus' ],
+			'next_step'        => $definition[ 'context_next_step' ],
+			'icon_class'       => $definition[ 'icon_class' ],
+			'badge'            => $definition[ 'context_badge' ],
+			'badge_status'     => $definition[ 'status' ],
+			'color_key'        => 'investigate',
+			'actions'          => ( new PluginReinstallContextActionBuilder() )->buildForPluginFile( $subjectId, $title ),
+		] ) );
+	}
+}

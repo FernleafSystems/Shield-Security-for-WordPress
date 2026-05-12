@@ -15,7 +15,13 @@ class Users extends Base {
 
 	use WpLoginCapture;
 
+	private array $passwordUpdatedUserIDs = [];
+
 	private array $passwordResetUserIDs = [];
+
+	private array $activePasswordResetUserIDs = [];
+
+	private array $activePasswordResetRequests = [];
 
 	protected function initAuditHooks() :void {
 		$this->setupLoginCaptureHooks();
@@ -42,9 +48,14 @@ class Users extends Base {
 
 		add_action( 'profile_update', [ $this, 'captureProfileUpdate' ], \PHP_INT_MAX, 3 );
 
+		add_filter( 'lostpassword_errors', [ $this, 'capturePasswordResetRequestErrors' ], \PHP_INT_MAX, 2 );
+		add_filter( 'allow_password_reset', [ $this, 'capturePasswordResetDisallowed' ], \PHP_INT_MAX, 2 );
+		add_filter( 'retrieve_password_message', [ $this, 'capturePasswordResetRequest' ], \PHP_INT_MAX, 4 );
+		add_action( 'password_reset', [ $this, 'captureUserPasswordResetStarted' ], \PHP_INT_MAX, 2 );
+
 		add_filter( 'send_password_change_email', [ $this, 'captureUserPasswordUpdate' ], \PHP_INT_MAX, 2 );
 		add_action( 'wp_set_password', [ $this, 'captureUserPasswordSet' ], \PHP_INT_MAX, 2 );
-		add_action( 'after_password_reset', [ $this, 'captureUserPasswordReset' ], \PHP_INT_MAX );
+		add_action( 'after_password_reset', [ $this, 'captureUserPasswordReset' ], \PHP_INT_MAX, 2 );
 	}
 
 	public function auditAppPasswordNew( $userID, $appPassItem = [] ) {
@@ -156,16 +167,75 @@ class Users extends Base {
 	}
 
 	public function captureUserPasswordSet( $password, $user_id ) {
+		unset( $password );
+
 		$user = Services::WpUsers()->getUserById( $user_id );
-		if ( $user instanceof \WP_User ) {
+		if ( $user instanceof \WP_User && !$this->isPasswordResetActive( $user ) ) {
 			$this->fireEventUserPasswordUpdated( $user );
 		}
 	}
 
-	public function captureUserPasswordReset( $user ) {
+	public function captureUserPasswordResetStarted( $user, $newPass = null ) :void {
+		unset( $newPass );
+
 		if ( $user instanceof \WP_User ) {
-			$this->fireEventUserPasswordUpdated( $user );
+			$this->activePasswordResetUserIDs[ (int)$user->ID ] = true;
 		}
+	}
+
+	public function captureUserPasswordReset( $user, $newPass = null ) {
+		unset( $newPass );
+
+		if ( $user instanceof \WP_User ) {
+			unset( $this->activePasswordResetUserIDs[ (int)$user->ID ] );
+			$this->fireEventUserPasswordReset( $user );
+		}
+	}
+
+	public function capturePasswordResetRequestErrors( $errors, $userData ) {
+		if ( is_wp_error( $errors ) ) {
+			if ( $errors->has_errors() ) {
+				$this->firePasswordResetRequestFailedEvent(
+					$this->getPasswordResetRequestedLogin(),
+					$this->getPasswordResetFailureReason( $errors )
+				);
+			}
+			elseif ( $userData instanceof \WP_User ) {
+				$this->activePasswordResetRequests[ (int)$userData->ID ] = $this->getPasswordResetRequestedLogin( $userData );
+			}
+			else {
+				$this->firePasswordResetRequestFailedEvent(
+					$this->getPasswordResetRequestedLogin(),
+					'invalidcombo'
+				);
+			}
+		}
+		return $errors;
+	}
+
+	public function capturePasswordResetDisallowed( $allow, $userID ) {
+		$userID = (int)$userID;
+		if ( isset( $this->activePasswordResetRequests[ $userID ] )
+			 && ( $allow === false || is_wp_error( $allow ) ) ) {
+			$this->firePasswordResetRequestFailedEvent(
+				$this->activePasswordResetRequests[ $userID ],
+				is_wp_error( $allow ) ? $this->getPasswordResetFailureReason( $allow ) : 'no_password_reset'
+			);
+			unset( $this->activePasswordResetRequests[ $userID ] );
+		}
+		return $allow;
+	}
+
+	public function capturePasswordResetRequest( $message, $key, $userLogin, $userData ) {
+		unset( $key, $userLogin );
+
+		if ( $userData instanceof \WP_User ) {
+			unset( $this->activePasswordResetRequests[ (int)$userData->ID ] );
+			$this->fireAuditEvent( 'user_password_reset_requested', [
+				'user_login' => $userData->user_login,
+			] );
+		}
+		return $message;
 	}
 
 	public function captureProfileUpdate( $userID, $oldUser, $userdata = null ) :void {
@@ -202,14 +272,53 @@ class Users extends Base {
 	}
 
 	private function fireEventUserPasswordUpdated( \WP_User $user ) {
-		if ( !\in_array( $user->ID, $this->passwordResetUserIDs ) ) {
-			$this->passwordResetUserIDs[] = $user->ID;
+		if ( !$this->isPasswordResetActive( $user ) && !isset( $this->passwordUpdatedUserIDs[ (int)$user->ID ] ) ) {
+			$this->passwordUpdatedUserIDs[ (int)$user->ID ] = true;
 			$this->fireAuditEvent( 'user_password_updated', [
 				'user_login' => $user->user_login,
 			] );
 
 			$this->updateSnapshotItem( $user );
 		}
+	}
+
+	private function fireEventUserPasswordReset( \WP_User $user ) {
+		if ( !isset( $this->passwordResetUserIDs[ (int)$user->ID ] ) ) {
+			$this->passwordResetUserIDs[ (int)$user->ID ] = true;
+			$this->fireAuditEvent( 'user_password_reset', [
+				'user_login' => $user->user_login,
+			] );
+
+			$this->updateSnapshotItem( $user );
+		}
+	}
+
+	private function isPasswordResetActive( \WP_User $user ) :bool {
+		return isset( $this->activePasswordResetUserIDs[ (int)$user->ID ] );
+	}
+
+	private function firePasswordResetRequestFailedEvent( string $requestedLogin, string $reason ) :void {
+		$this->fireAuditEvent( 'user_password_reset_request_failed', [
+			'requested_login' => $requestedLogin,
+			'reason'          => $reason,
+		] );
+	}
+
+	private function getPasswordResetRequestedLogin( ?\WP_User $user = null ) :string {
+		$login = Services::Request()->post( 'user_login', '' );
+		if ( \is_array( $login ) ) {
+			$login = '';
+		}
+		$login = \trim( (string)wp_unslash( $login ) );
+		if ( $login === '' && $user instanceof \WP_User ) {
+			$login = $user->user_login;
+		}
+		return sanitize_text_field( $login );
+	}
+
+	private function getPasswordResetFailureReason( \WP_Error $errors ) :string {
+		$codes = \array_filter( \array_map( '\strval', $errors->get_error_codes() ) );
+		return empty( $codes ) ? 'unknown' : \implode( ',', $codes );
 	}
 
 	/**

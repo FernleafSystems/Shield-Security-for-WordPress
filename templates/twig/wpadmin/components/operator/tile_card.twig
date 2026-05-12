@@ -1,0 +1,55 @@
+{% set tile_class = 'configure-zone-card status-' ~ tile.status %}
+{% if tile.class_name is not empty %}
+	{% set tile_class = tile_class ~ ' ' ~ tile.class_name %}
+{% endif %}
+
+{% set tile_body %}
+	<span class="configure-zone-card__icon">
+		<i class="{{ tile.icon_class }}" aria-hidden="true"></i>
+	</span>
+	<div class="configure-zone-card__body">
+		<span class="configure-zone-card__title">{{ tile.title }}</span>
+		{% if tile.status_label is not empty %}
+			<div class="configure-zone-card__status">{{ tile.status_label }}</div>
+		{% endif %}
+		{% if tile.oneliner is not empty %}
+			<p class="configure-zone-card__oneliner">{{ tile.oneliner }}</p>
+		{% endif %}
+		{% if tile.footer_links is not empty %}
+			<div class="configure-zone-card__footer">
+				{% for link in tile.footer_links %}
+					<a class="configure-zone-card__footer-link"
+					   href="{{ link.href }}"
+					   {% if link.target is not empty %}target="{{ link.target }}"{% endif %}
+					   {% if link.rel is not empty %}rel="{{ link.rel }}"{% endif %}>
+						{{ link.label }}{% if link.icon_class is not empty %} <i class="bi {{ link.icon_class }}" aria-hidden="true"></i>{% endif %}
+					</a>
+				{% endfor %}
+			</div>
+		{% endif %}
+	</div>
+{% endset %}
+
+{% if tile.tag == 'button' %}
+	<button type="button"
+			class="{{ tile_class }}"
+			{% if tile.data_drill_target is not empty %}data-drill-target="{{ tile.data_drill_target|e('html_attr') }}"{% endif %}
+			{% if tile.data_drill_zone_selection is not empty %}data-drill-zone-selection="{{ tile.data_drill_zone_selection|e('html_attr') }}"{% endif %}
+			{% if tile.data_drill_bucket_selection is not empty %}data-drill-bucket-selection="{{ tile.data_drill_bucket_selection|e('html_attr') }}"{% endif %}
+			{% if tile.data_drill_group_selection is not empty %}data-drill-group-selection="{{ tile.data_drill_group_selection|e('html_attr') }}"{% endif %}
+			{% if tile.data_reports_workspace_selection is not empty %}data-reports-workspace-selection="{{ tile.data_reports_workspace_selection|e('html_attr') }}"{% endif %}
+			{% if tile.is_disabled %}disabled{% endif %}>
+		{{ tile_body }}
+	</button>
+{% elseif tile.tag == 'a' %}
+	<a class="{{ tile_class }}"
+	   href="{{ tile.href }}"
+	   {% if tile.target is not empty %}target="{{ tile.target }}"{% endif %}
+	   {% if tile.rel is not empty %}rel="{{ tile.rel }}"{% endif %}>
+		{{ tile_body }}
+	</a>
+{% else %}
+	<div class="{{ tile_class }}">
+		{{ tile_body }}
+	</div>
+{% endif %}

@@ -43,6 +43,7 @@ class TranslationDownloadController {
 		$now = Services::Request()->ts();
 		$localesLookup = $con->prefix( 'adhoc_locales_check' );
 		if ( empty( $this->getCachedLocales() ) ) {
+			// @phpstan-ignore return.void
 			add_action( $localesLookup, fn() => $this->getAvailableLocales() );
 			if ( !Services::WpGeneral()->isCron() && !wp_next_scheduled( $localesLookup ) ) {
 				wp_schedule_single_event( $now + \MINUTE_IN_SECONDS, $localesLookup );
@@ -153,31 +154,32 @@ class TranslationDownloadController {
 	}
 
 	private function acquireMoWithSingleRefreshRetry( string $locale, string $remoteHash, string $hashType ) :bool {
-		for ( $attempt = 0; $attempt < 2; $attempt++ ) {
-			try {
-				$this->acquireMo( $locale, $remoteHash, $hashType );
-				return true;
-			}
-			catch ( AcquireMoException $e ) {
-				if ( !$e instanceof AcquireMoHashMismatchException
-					 || $attempt > 0
-					 || !$this->canForceRefreshLocalesAfterHashMismatch() ) {
-					$this->fireDownloadFailedEvent( $locale, $e->reason() );
-					return false;
-				}
-
-				$freshMeta = $this->getLocaleMeta( $this->getAvailableLocales( true ), $locale );
-				if ( !\is_array( $freshMeta ) ) {
-					$this->fireDownloadFailedEvent( $locale, 'missing_locale_meta_after_hash_mismatch' );
-					return false;
-				}
-
-				$remoteHash = $freshMeta[ 'hash' ];
-				$hashType = $freshMeta[ 'hash_type' ];
+		try {
+			$this->acquireMo( $locale, $remoteHash, $hashType );
+			return true;
+		}
+		catch ( AcquireMoException $e ) {
+			if ( !$e instanceof AcquireMoHashMismatchException
+				 || !$this->canForceRefreshLocalesAfterHashMismatch() ) {
+				$this->fireDownloadFailedEvent( $locale, $e->reason() );
+				return false;
 			}
 		}
 
-		return false;
+		$freshMeta = $this->getLocaleMeta( $this->getAvailableLocales( true ), $locale );
+		if ( !\is_array( $freshMeta ) ) {
+			$this->fireDownloadFailedEvent( $locale, 'missing_locale_meta_after_hash_mismatch' );
+			return false;
+		}
+
+		try {
+			$this->acquireMo( $locale, $freshMeta[ 'hash' ], $freshMeta[ 'hash_type' ] );
+			return true;
+		}
+		catch ( AcquireMoException $e ) {
+			$this->fireDownloadFailedEvent( $locale, $e->reason() );
+			return false;
+		}
 	}
 
 	private function acquireMo( string $locale, string $expectedHash, string $hashAlgo ) :void {
@@ -294,7 +296,7 @@ class TranslationDownloadController {
 			try {
 				$this->addCfg( 'last_fetch_at', Services::Request()->ts() );
 				$apiLocales = ( new ListAvailable() )->retrieve();
-				$this->addCfg( 'locales', ( !empty( $apiLocales ) && \is_array( $apiLocales ) ) ? $apiLocales : [] );
+				$this->addCfg( 'locales', !empty( $apiLocales  ) ? $apiLocales : [] );
 				$locales = $this->cfg()[ 'locales' ];
 			}
 			finally {

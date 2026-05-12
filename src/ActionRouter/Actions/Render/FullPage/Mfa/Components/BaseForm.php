@@ -23,12 +23,21 @@ abstract class BaseForm extends Base {
 		$mfaSkip = (int)( $mfaCon->getMfaSkip()/\DAY_IN_SECONDS );
 		return [
 			'content' => [
-				'login_fields' => \array_filter( \array_map(
-					fn( $p ) => $p->renderLoginIntentFormField( self::con()->opts->optGet( 'mfa_verify_page' ) ),
+				'login_fields' => \array_values( \array_filter( \array_map(
+					function ( $p ) {
+						$html = $p->renderLoginIntentFormField( self::con()->opts->optGet( 'mfa_verify_page' ) );
+						return empty( $html ) ? null : [
+							'slug'      => $p::ProviderSlug(),
+							'name'      => $p::ProviderName(),
+							'html'      => $html,
+							'tab_icon'  => $this->getLoginFieldTabIcon( $p::ProviderSlug() ),
+							'tab_label' => $this->getLoginFieldTabLabel( $p::ProviderSlug(), $p::ProviderName() ),
+						];
+					},
 					$mfaCon->getProvidersActiveForUser(
 						Services::WpUsers()->getUserById( (int)$this->action_data[ 'user_id' ] )
 					)
-				) ),
+				) ) ),
 			],
 			'flags'   => [
 				'can_skip_mfa'       => $mfaCon->getMfaSkip() > 0,
@@ -45,7 +54,6 @@ abstract class BaseForm extends Base {
 			],
 			'strings' => [
 				'cancel'          => __( 'Cancel Login', 'wp-simple-firewall' ),
-				'time_remaining'  => __( 'Time Remaining', 'wp-simple-firewall' ),
 				'calculating'     => __( 'Calculating', 'wp-simple-firewall' ).' ...',
 				'verify_my_login' => __( 'Verify My Login', 'wp-simple-firewall' ),
 				'skip_mfa'        => sprintf(
@@ -55,8 +63,6 @@ abstract class BaseForm extends Base {
 			],
 			'vars'    => [
 				'form_hidden_fields' => $this->getHiddenFields(),
-				'show_branded_links' => !$con->comps->whitelabel->isEnabled(),
-				'message_type'       => 'info',
 			]
 		];
 	}
@@ -116,5 +122,29 @@ abstract class BaseForm extends Base {
 			'plain_login_nonce',
 			'rememberme',
 		];
+	}
+
+	private function getLoginFieldTabIcon( string $slug ) :string {
+		return [
+			'email'      => 'bi-envelope',
+			'ga'         => 'bi-phone',
+			'passkey'    => 'bi-fingerprint',
+			'yubi'       => 'bi-key-fill',
+			'sms'        => 'bi-chat-left-dots',
+			'u2f'        => 'bi-usb-symbol',
+			'backupcode' => 'bi-shield-lock',
+		][ $slug ] ?? 'bi-shield-lock';
+	}
+
+	private function getLoginFieldTabLabel( string $slug, string $fallback ) :string {
+		return [
+			'email'      => __( 'Email', 'wp-simple-firewall' ),
+			'ga'         => __( 'Authenticator', 'wp-simple-firewall' ),
+			'passkey'    => __( 'Passkey', 'wp-simple-firewall' ),
+			'yubi'       => __( 'YubiKey', 'wp-simple-firewall' ),
+			'sms'        => __( 'SMS', 'wp-simple-firewall' ),
+			'u2f'        => __( 'Security Key', 'wp-simple-firewall' ),
+			'backupcode' => __( 'Backup code', 'wp-simple-firewall' ),
+		][ $slug ] ?? $fallback;
 	}
 }

@@ -24,7 +24,7 @@ class CommentSpamBlockBot extends Base {
 	protected function status() :array {
 		$status = parent::status();
 
-		if ( self::con()->comps->opts_lookup->enabledAntiBotCommentSpam() ) {
+		if ( self::con()->comps->opts_lookup->enabledSilentCaptchaCommentSpam() ) {
 			$status[ 'level' ] = EnumEnabledStatus::GOOD;
 		}
 		else {
@@ -33,5 +33,13 @@ class CommentSpamBlockBot extends Base {
 		}
 
 		return $status;
+	}
+
+	protected function postureWeight() :int {
+		return 7;
+	}
+
+	protected function configureTreatsBadStatusAsWarning() :bool {
+		return true;
 	}
 }

@@ -43,20 +43,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequestConsumer;
  * @property string   $user_cap
  * @property string   $user_role
  * -- Responses --
+ * @property int      $accepted_args
  * @property array    $args
  * @property string   $block_page_slug
- * @property string   $callback
+ * @property callable $callback
  * @property int      $count
- * @property string   $duration
+ * @property int      $duration
  * @property string   $event
  * @property string   $header
  * @property string   $hook
  * @property string   $message
- * @property string   $priority
+ * @property int      $priority
  * @property string   $redirect_url
  * @property string   $rule_slug
  * @property int      $status_code
- * @property string   $value
+ * @property scalar   $value
  * @property int      $offense_count
  * @property bool     $use_cloudflare
  * @property bool     $block

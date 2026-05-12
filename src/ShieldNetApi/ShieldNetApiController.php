@@ -6,10 +6,13 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildCanonicalEvidence;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\ShieldNET\BuildLegacySignals;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\SendIPReputation;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\IpTelemetryMode;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\SendCanonicalIpEvidence;
+use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\SendLegacyIpReputation;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -84,8 +87,7 @@ class ShieldNetApiController extends DynPropertiesClass {
 	}
 
 	public function runHourlyCron() {
-		if ( is_main_network() && self::con()->comps->opts_lookup->enabledCrowdSecAutoBlock()
-			 && self::con()->isPremiumActive() && $this->canStoreDataReliably() && $this->canHandshake() ) {
+		if ( $this->canSendShieldNetIpTelemetry() ) {
 			$this->sendIPReputationData();
 		}
 	}
@@ -96,11 +98,40 @@ class ShieldNetApiController extends DynPropertiesClass {
 			$this->vo->last_send_iprep_at = $req->ts();
 			$this->storeVoData();
 
-			$data = ( new BuildData() )->build();
-			if ( !empty( $data ) ) {
-				( new SendIPReputation() )->send( $data );
+			switch ( $this->getIpTelemetryMode() ) {
+				case IpTelemetryMode::LEGACY_SIGNALS:
+					$data = ( new BuildLegacySignals() )->build();
+					if ( !empty( $data ) ) {
+						( new SendLegacyIpReputation() )->send( $data );
+					}
+					break;
+				case IpTelemetryMode::CANONICAL_EVIDENCE:
+				default:
+					$data = ( new BuildCanonicalEvidence() )->build();
+					if ( !empty( $data ) ) {
+						( new SendCanonicalIpEvidence() )->send( $data );
+					}
+					break;
 			}
 		}
+	}
+
+	private function canSendShieldNetIpTelemetry() :bool {
+		return is_main_network()
+			   && self::con()->isPremiumActive()
+			   && $this->canStoreDataReliably()
+			   && $this->canHandshake();
+	}
+
+	private function getIpTelemetryMode() :string {
+		$mode = (string)apply_filters(
+			'shield/ip_reputation_telemetry_mode',
+			IpTelemetryMode::CANONICAL_EVIDENCE
+		);
+
+		return \in_array( $mode, IpTelemetryMode::all(), true )
+			? $mode
+			: IpTelemetryMode::CANONICAL_EVIDENCE;
 	}
 
 	/**

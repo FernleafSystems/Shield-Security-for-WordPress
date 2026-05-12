@@ -15,66 +15,188 @@ class Store {
 	use PluginControllerConsumer;
 
 	public function store( QueueItemVO $queueItem, array $results ) {
+		if ( empty( $results ) ) {
+			return;
+		}
+
 		$dbCon = self::con()->db_con;
 
 		$dbhResItemMetas = $dbCon->scan_result_item_meta;
-		/** @var ResultItemsDB\Select $resultSelector */
-		$resultSelector = $dbCon->scan_result_items->getQuerySelector();
 
-		foreach ( $results as $result ) {
+		$scanCon = self::con()->comps->scans->getScanCon( $queueItem->scan );
+		$scanResults = \array_values( \array_reduce(
+			\array_map(
+				static fn( array $result ) => $scanCon->buildScanResult( $result ),
+				$results
+			),
+			function ( array $carry, ResultItemsDB\Record $scanResult ) :array {
+				$carry[ $this->resultKey( $scanResult ) ] = $scanResult;
+				return $carry;
+			},
+			[]
+		) );
 
-			$scanResult = self::con()->comps->scans->getScanCon( $queueItem->scan )->buildScanResult( $result );
+		$existingResultRecords = $this->loadExistingResultItems( $queueItem->scan, $scanResults );
+		$updatedResultIDs = [];
+		$resultItemIDs = [];
+		$metaRows = [];
 
-			/** @var ResultItemsDB\Record $resultRecord */
-			$resultRecord = $resultSelector->filterByItemID( $scanResult->item_id )
-										   ->filterByItemNotDeleted()
-										   ->filterByItemNotRepaired()
-										   ->first();
-			if ( empty( $resultRecord ) ) {
+		foreach ( $scanResults as $scanResult ) {
+			$key = $this->resultKey( $scanResult );
+			/** @var ?ResultItemsDB\Record $resultRecord */
+			$resultRecord = $existingResultRecords[ $key ] ?? null;
+			if ( $resultRecord === null ) {
 				$dbCon->scan_result_items->getQueryInserter()->insert( $scanResult );
-				$resultRecord = $resultSelector->byId( Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
+				$scanResult->id = $this->lastInsertID();
+				$resultRecord = $scanResult;
+				$existingResultRecords[ $key ] = $resultRecord;
 			}
 			else {
-				// If a result item is now auto-filtered, where before it wasn't, update it.
-				if ( empty( $resultRecord->auto_filtered_at ) && $scanResult->auto_filtered_at > 0 ) {
-					$dbCon->scan_result_items->getQueryUpdater()->updateRecord( $resultRecord, [
-						'auto_filtered_at' => $scanResult->auto_filtered_at
-					] );
-				}
-
-				// Delete/Reset all metadata for the results in preparation for update.
-				/** @var ResultItemMetaDB\Delete $metaDeleter */
-				$metaDeleter = $dbhResItemMetas->getQueryDeleter();
-				$metaDeleter->filterByResultItemRef( $resultRecord->id )->query();
+				$dbCon->scan_result_items->getQueryUpdater()->updateRecord( $resultRecord, [
+					'scan'              => $scanResult->scan,
+					'asset_type'        => $scanResult->asset_type,
+					'asset_key'         => $scanResult->asset_key,
+					'auto_filtered_at'  => $scanResult->auto_filtered_at,
+					'last_seen_at'      => $scanResult->last_seen_at,
+					'resolved_at'       => $scanResult->resolved_at,
+					'resolution_reason' => $scanResult->resolution_reason,
+				] );
+				$updatedResultIDs[] = (int)$resultRecord->id;
 			}
 
 			foreach ( $scanResult->meta as $metaKey => $metaValue ) {
-				/** @var ResultItemMetaDB\Insert $metaInserter */
-				$metaInserter = $dbhResItemMetas->getQueryInserter();
-				$metaInserter->setInsertData( [
+				$metaRows[] = [
 					'ri_ref'     => $resultRecord->id,
 					'meta_key'   => $metaKey,
 					'meta_value' => \is_scalar( $metaValue ) ? $metaValue : \wp_json_encode( $metaValue ),
-				] )->query();
+				];
 			}
 
-			$dbCon->scan_results->getQueryInserter()
-								->setInsertData( [
-									'scan_ref'       => $queueItem->scan_id,
-									'resultitem_ref' => $resultRecord->id,
-								] )
-								->query();
+			$resultItemIDs[] = (int)$resultRecord->id;
 		}
-		$this->markQueueItemAsFinished( $queueItem );
+
+		$updatedResultIDs = \array_values( \array_unique( \array_filter( \array_map( '\intval', $updatedResultIDs ) ) ) );
+		if ( !empty( $updatedResultIDs ) ) {
+			/** @var ResultItemMetaDB\Delete $metaDeleter */
+			$metaDeleter = $dbhResItemMetas->getQueryDeleter();
+			$metaDeleter->filterByResultItems( $updatedResultIDs )->query();
+		}
+
+		$this->bulkInsertRows( $dbhResItemMetas->getTable(), [ 'ri_ref', 'meta_key', 'meta_value' ], $metaRows );
+
+		$resultItemIDs = \array_values( \array_unique( \array_filter( \array_map( '\intval', $resultItemIDs ) ) ) );
+		$observedResultItemIDs = $this->loadObservedResultItemIDs( $queueItem->scan_id, $resultItemIDs );
+		$observationRows = [];
+		$createdAt = Services::Request()->ts();
+		foreach ( \array_diff( $resultItemIDs, $observedResultItemIDs ) as $resultItemID ) {
+			$observationRows[] = [
+				'scan_ref'       => $queueItem->scan_id,
+				'resultitem_ref' => $resultItemID,
+				'created_at'     => $createdAt,
+			];
+		}
+		$this->bulkInsertRows( $dbCon->scan_results->getTable(), [ 'scan_ref', 'resultitem_ref', 'created_at' ], $observationRows );
 	}
 
-	private function markQueueItemAsFinished( QueueItemVO $queueItem ) {
-		self::con()
-			->db_con
-			->scan_items
-			->getQueryUpdater()
-			->updateById( $queueItem->qitem_id, [
-				'finished_at' => Services::Request()->ts()
-			] );
+	/**
+	 * @param ResultItemsDB\Record[] $scanResults
+	 * @return array<string,ResultItemsDB\Record>
+	 */
+	private function loadExistingResultItems( string $scanSlug, array $scanResults ) :array {
+		$pairWheres = \array_values( \array_unique( \array_map(
+			fn( ResultItemsDB\Record $scanResult ) :string => sprintf(
+				"(`item_type`='%s' AND `item_id`='%s')",
+				esc_sql( (string)$scanResult->item_type ),
+				esc_sql( (string)$scanResult->item_id )
+			),
+			$scanResults
+		) ) );
+		if ( empty( $pairWheres ) ) {
+			return [];
+		}
+
+		$rows = Services::WpDb()->selectCustom(
+			sprintf( "SELECT *
+						FROM `%s`
+						WHERE `resolved_at`=0
+						  AND (%s)
+						  AND (
+							`scan`='%s'
+							OR (
+								`scan`=''
+								AND `asset_type`=''
+								AND `asset_key`=''
+								AND `item_repaired_at`=0
+								AND `item_deleted_at`=0
+							)
+						  );",
+				self::con()->db_con->scan_result_items->getTable(),
+				\implode( ' OR ', $pairWheres ),
+				esc_sql( $scanSlug )
+			)
+		) ?: [];
+
+		$records = [];
+		foreach ( $rows as $row ) {
+			$record = new ResultItemsDB\Record( $row );
+			$key = $this->resultKey( $record );
+			if ( (string)$record->scan === $scanSlug || !isset( $records[ $key ] ) ) {
+				$records[ $key ] = $record;
+			}
+		}
+		return $records;
+	}
+
+	private function loadObservedResultItemIDs( int $scanID, array $resultItemIDs ) :array {
+		if ( empty( $resultItemIDs ) ) {
+			return [];
+		}
+
+		return \array_values( \array_unique( \array_filter( \array_map(
+			static fn( array $record ) :int => (int)$record[ 'resultitem_ref' ],
+			Services::WpDb()->selectCustom(
+				sprintf( "SELECT `resultitem_ref`
+							FROM `%s`
+							WHERE `scan_ref`=%d
+							  AND `resultitem_ref` IN (%s);",
+					self::con()->db_con->scan_results->getTable(),
+					$scanID,
+					\implode( ',', \array_map( '\intval', $resultItemIDs ) )
+				)
+			) ?: []
+		) ) ) );
+	}
+
+	private function resultKey( ResultItemsDB\Record $scanResult ) :string {
+		return (string)$scanResult->item_type."\n".(string)$scanResult->item_id;
+	}
+
+	private function bulkInsertRows( string $table, array $columns, array $rows ) :bool {
+		if ( empty( $rows ) ) {
+			return true;
+		}
+
+		$values = [];
+		foreach ( $rows as $row ) {
+			$values[] = "('".\implode( "','", \array_map(
+				static fn( string $column ) :string => esc_sql( (string)$row[ $column ] ),
+				$columns
+			) )."')";
+		}
+
+		return Services::WpDb()->doSql(
+			sprintf( "INSERT INTO `%s` (`%s`) VALUES %s;",
+				$table,
+				\implode( '`,`', $columns ),
+				\implode( ',', $values )
+			)
+		) !== false;
+	}
+
+	private function lastInsertID() :int {
+		global $wpdb;
+		return (int)( \is_object( $wpdb ) && isset( $wpdb->insert_id ) ?
+			$wpdb->insert_id
+			: Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' ) );
 	}
 }

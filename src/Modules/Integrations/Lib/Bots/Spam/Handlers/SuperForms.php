@@ -13,6 +13,7 @@ class SuperForms extends Base {
 	}
 
 	protected static function ProviderMeetsRequirements() :bool {
+		// @phpstan-ignore-next-line
 		return isset( \SUPER_Forms::$version ) && \version_compare( \SUPER_Forms::$version, '4.9', '>=' );
 	}
 }

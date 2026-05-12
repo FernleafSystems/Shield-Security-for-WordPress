@@ -1,0 +1,20 @@
+<div class="investigate-subject-header"
+	 data-investigate-subject-header="1"
+	 data-investigate-breadcrumb-label="{{ title|e('html_attr') }}"
+	 {% if context_step_json is not empty %}
+	 data-investigate-context-step="{{ context_step_json|e('html_attr') }}"
+	 {% endif %}>
+	<div class="d-flex align-items-start flex-wrap gap-2">
+		<div>
+			<div class="investigate-subject-header__title" data-investigate-subject-title="1">{{ title }}</div>
+			{% if meta is not empty %}
+				<div class="investigate-subject-header__meta">{{ meta }}</div>
+			{% endif %}
+		</div>
+		{% if change_label is not empty %}
+			<button type="button"
+					class="investigate-subject-header__change-link shield-button-link"
+					data-investigate-change-subject="1">{{ change_label }}</button>
+		{% endif %}
+	</div>
+</div>

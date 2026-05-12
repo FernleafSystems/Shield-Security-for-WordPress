@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Events;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -176,7 +177,7 @@ class EventStringsCompletenessTest extends TestCase {
 	private static function resolveExistingFilePath( string $relativePath ) :?string {
 		$relativePath = \ltrim( $relativePath, '/' );
 		foreach ( static::getCandidateRoots() as $root ) {
-			$path = $root.'/'.$relativePath;
+			$path = Path::join( $root, $relativePath );
 			if ( \file_exists( $path ) ) {
 				return $path;
 			}

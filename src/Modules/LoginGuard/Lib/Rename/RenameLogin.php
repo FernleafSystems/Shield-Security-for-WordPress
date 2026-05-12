@@ -198,7 +198,7 @@ class RenameLogin {
 			Services::WpGeneral()->turnOffCache();
 			// To prevent PHP warnings about undefined vars
 			$user_login = $error = '';
-			@require_once( ABSPATH.'wp-login.php' );
+			@require_once( path_join( ABSPATH, 'wp-login.php' ) );
 			die();
 		}
 	}

@@ -1,0 +1,363 @@
+/* Landing */
+.investigate-landing__drilldown .drill-shell {
+	min-width: 0;
+}
+
+.investigate-landing__section-label {
+	color: #646970;
+	font-size: 0.72rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	margin-bottom: 0.6rem;
+	text-transform: uppercase;
+}
+
+.investigate-landing__heading {
+	margin-bottom: 0.8rem;
+}
+
+.investigate-landing__subject-grid {
+	display: grid;
+	gap: 0.7rem;
+	grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+}
+
+.investigate-landing__subject-card {
+	--landing-subject-accent-color: #{$status-color-info};
+	--landing-subject-active-bg: #{$status-bg-info-light};
+	--landing-subject-icon-bg: #{$status-bg-info-light};
+	--landing-subject-icon-color: #{$status-color-info};
+
+	align-items: center;
+	border: 2px solid rgba($status-color-info, 0.25);
+	cursor: pointer;
+	flex-direction: column;
+	gap: 0.35rem;
+	padding: 1rem 0.85rem;
+	min-height: 132px;
+	text-align: center;
+	text-decoration: none;
+}
+
+.investigate-landing__subject-card.is-active {
+	background: var(--landing-subject-active-bg);
+	border-color: var(--landing-subject-accent-color);
+	box-shadow: $card-box-shadow-hover;
+	color: #1d2327;
+	transform: translateY(-1px);
+}
+
+.investigate-landing__subject-card:hover,
+.investigate-landing__subject-card:focus-visible {
+	border-color: var(--landing-subject-accent-color);
+}
+
+.investigate-landing__subject-card.status-good {
+	--landing-subject-accent-color: #{$status-color-good};
+	--landing-subject-active-bg: #{$status-bg-good-light};
+	--landing-subject-icon-bg: #{$status-bg-good-light};
+	--landing-subject-icon-color: #{$status-color-good};
+	border-color: rgba($status-color-good, 0.25);
+}
+
+.investigate-landing__subject-card.status-warning {
+	--landing-subject-accent-color: #{$status-color-warning};
+	--landing-subject-active-bg: #{$status-bg-warning-light};
+	--landing-subject-icon-bg: #{$status-bg-warning-light};
+	--landing-subject-icon-color: #{$status-color-warning};
+	border-color: rgba($status-color-warning, 0.25);
+}
+
+.investigate-landing__subject-card.status-critical {
+	--landing-subject-accent-color: #{$status-color-critical};
+	--landing-subject-active-bg: #{$status-bg-critical-light};
+	--landing-subject-icon-bg: #{$status-bg-critical-light};
+	--landing-subject-icon-color: #{$status-color-critical};
+	border-color: rgba($status-color-critical, 0.25);
+}
+
+.investigate-landing__subject-card.status-neutral,
+.investigate-landing__subject-card.status-info {
+	--landing-subject-accent-color: #{$status-color-info};
+	--landing-subject-active-bg: #{$status-bg-info-light};
+	--landing-subject-icon-bg: #{$status-bg-info-light};
+	--landing-subject-icon-color: #{$status-color-info};
+	border-color: rgba($status-color-info, 0.25);
+}
+
+.investigate-landing__subject-icon {
+	align-items: center;
+	background: var(--landing-subject-icon-bg);
+	border-radius: 12px;
+	color: var(--landing-subject-icon-color);
+	display: inline-flex;
+	height: 48px;
+	justify-content: center;
+	width: 48px;
+}
+
+.investigate-landing__subject-icon i {
+	font-size: 1.2rem;
+}
+
+.investigate-landing__subject-card.is-disabled .investigate-landing__subject-icon {
+	background: #edf0ef;
+	color: #6c757d;
+}
+
+.investigate-landing__subject-card.is-disabled {
+	opacity: 0.4;
+	pointer-events: none;
+}
+
+.investigate-landing__subject-label {
+	align-items: center;
+	display: inline-flex;
+	font-size: 0.88rem;
+	font-weight: 700;
+	gap: 0.35rem;
+	justify-content: center;
+	line-height: 1.25;
+}
+
+.investigate-landing__subject-stat {
+	color: #646970;
+	font-size: 0.76rem;
+	line-height: 1.2;
+}
+
+.investigate-landing__hint {
+	color: #888;
+	font-size: 0.85rem;
+	padding: 0.2rem 0 0;
+}
+
+.investigate-landing__subject-panel .investigate-panel-is-loading {
+	opacity: 0.7;
+	pointer-events: none;
+}
+
+.investigate-subject-header {
+	align-items: flex-start;
+	border-bottom: 1px solid $border-color-neutral-subtle;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.65rem 1rem;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+	padding-bottom: 0.7rem;
+}
+
+.investigate-subject-header__title {
+	color: #1d2327;
+	font-size: 1rem;
+	font-weight: 700;
+	line-height: 1.35;
+}
+
+.investigate-subject-header__meta {
+	color: #646970;
+	font-size: 0.8rem;
+	margin-top: 0.1rem;
+}
+
+.investigate-subject-header__change-link {
+	font-size: 0.8rem;
+	font-weight: 600;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.investigate-subject-header__change-link:hover {
+	text-decoration: underline;
+}
+
+.investigate-panel__tabs {
+	border-bottom: 1px solid #e8f0f4;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3rem;
+	margin-bottom: 0.9rem;
+	padding-bottom: 0.5rem;
+}
+
+.investigate-panel__tabs:empty {
+	display: none;
+}
+
+.investigate-panel__tab {
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 20px;
+	color: #555;
+	cursor: pointer;
+	font-size: 0.82rem;
+	padding: 0.3rem 0.8rem;
+}
+
+.investigate-panel__tab:hover {
+	background: $mode-investigate-light;
+	color: $mode-investigate;
+}
+
+.investigate-panel__tab:focus-visible {
+	@include shield-focus-ring();
+}
+
+.investigate-panel__tab.is-active,
+.investigate-panel__tab.active {
+	background: $mode-investigate;
+	border-color: $mode-investigate;
+	color: #fff;
+}
+
+.investigate-landing__subject-panel [data-investigate-panel-content="1"] .shield-options-layout.has-rail {
+	grid-template-columns: 1fr;
+}
+
+.investigate-landing__subject-panel [data-investigate-panel-content="1"] .shield-options-rail {
+	display: none;
+}
+
+/* Lookup strip */
+.investigate-lookup-strip {
+	margin: 0 0 1rem;
+	padding: 0;
+}
+
+.investigate-lookup-strip__form {
+	align-items: end;
+	display: flex;
+	gap: 0.75rem;
+}
+
+.investigate-lookup-strip .form-text {
+	color: #888;
+	font-size: 0.78rem;
+}
+
+.investigate-lookup-strip__field {
+	flex: 1;
+}
+
+.investigate-lookup-strip__label-row {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	justify-content: flex-start;
+	margin-bottom: 0.3rem;
+}
+
+.investigate-lookup-strip__label-row .form-label {
+	margin-bottom: 0;
+}
+
+.investigate-lookup-strip__shortcuts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+}
+
+.investigate-lookup-strip__field .form-control,
+.investigate-lookup-strip__field .form-select,
+.investigate-lookup-strip__field .select2-container .select2-selection--single {
+	min-height: 38px;
+}
+
+.investigate-lookup-strip__field .select2-container .select2-selection--single {
+	border-color: $border-color-neutral-subtle;
+}
+
+.investigate-lookup-strip__submit {
+	display: flex;
+	flex-shrink: 0;
+}
+
+.investigate-lookup-strip__submit .btn {
+	white-space: nowrap;
+}
+
+/* Flat content sections (de-boxed investigate panels) */
+.investigate-flat-section {
+	padding: 0.75rem 0;
+	border-bottom: 1px solid $border-color-neutral-subtle;
+
+	&:last-child {
+		border-bottom: none;
+	}
+}
+
+.investigate-section-title {
+	font-size: 0.95rem;
+	font-weight: 600;
+}
+
+.investigate-ip-card {
+	background: #fff;
+	border-color: $border-color-neutral-subtle !important;
+	transition: border-color 0.15s ease;
+
+	&:hover {
+		border-color: $status-color-info !important;
+	}
+}
+
+/* Shared investigate shell/table panel */
+.investigate-page-shell {
+	margin: 0;
+}
+
+.investigate-table-panel--flat {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	padding: 0;
+}
+
+.investigate-table-panel--flat .shield-section-datatable {
+	margin: 0;
+}
+
+.investigate-table-panel--flat .table {
+	border-color: $border-color-neutral-subtle;
+}
+
+.investigate-inline-ipanalyse .shield-ipanalyse.options_form_for--modern .shield-options-layout {
+	gap: 0;
+	grid-template-columns: 1fr;
+}
+
+.investigate-inline-ipanalyse .shield-options-rail {
+	display: none;
+}
+
+.investigate-inline-ipanalyse .shield-options-panel {
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	margin: 0;
+}
+
+.investigate-inline-ipanalyse .shield-options-panel-accent {
+	display: none;
+}
+
+.investigate-inline-ipanalyse .shield-options-panel-body {
+	overflow-x: visible;
+	padding: 0;
+}
+
+/* Responsive lookup strip */
+@media (max-width: 575.98px) {
+	.investigate-lookup-strip__form {
+		align-items: stretch;
+		flex-direction: column;
+	}
+
+	.investigate-lookup-strip__submit,
+	.investigate-lookup-strip__submit .btn {
+		width: 100%;
+	}
+}

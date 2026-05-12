@@ -69,10 +69,9 @@ class BlockdownFormSubmit extends BaseAction {
 			$msg = $e->getMessage();
 		}
 
-		$this->response()->action_response_data = [
-			'success'     => $success,
+		$this->response()->setPayload( [
 			'page_reload' => $success,
 			'message'     => $msg,
-		];
+		] )->setPayloadSuccess( $success );
 	}
 }

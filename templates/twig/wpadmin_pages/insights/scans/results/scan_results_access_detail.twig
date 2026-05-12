@@ -1,0 +1,10 @@
+{% if flags.is_disabled %}
+	{% include '/wpadmin_pages/insights/scans/results/disabled_pane.twig' with {
+		message: strings.disabled_message,
+		actions: vars.disabled_actions
+	} only %}
+{% else %}
+	{% include '/wpadmin/components/scans/scan_results_table.twig' with {
+		table: table
+	} only %}
+{% endif %}

@@ -22,7 +22,10 @@ export class MalaiFileScanQuery extends BaseComponent {
 				.finally();
 			}
 			else {
-				alert( 'Please check the box to agree.' );
+				shieldServices.dialog().message( {
+					message: 'Please check the box to agree.',
+					launcher: targetEl.querySelector( 'input[type=checkbox]' ),
+				} );
 			}
 		} );
 	}

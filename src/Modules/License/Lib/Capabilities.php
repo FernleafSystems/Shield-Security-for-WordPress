@@ -92,6 +92,10 @@ class Capabilities {
 		return $this->hasCap( 'scan_pluginsthemes_remote' );
 	}
 
+	public function canScanVulnerabilities() :bool {
+		return $this->hasCap( 'scan_vulnerabilities' );
+	}
+
 	public function canMainwpLevel1() :bool {
 		return $this->hasCap( 'mainwp_level_1' ) || $this->canMainwpLevel2();
 	}
@@ -183,19 +187,6 @@ class Capabilities {
 				   self::con()->isPremiumActive()
 				   && ( \in_array( $cap, $license->capabilities, true ) || $license->lic_version === 0 )
 			   );
-	}
-
-	public function getMaxLogRetentionDays() :int {
-		if ( $this->hasCap( 'logs_retention_unlimited' ) ) {
-			$max = \PHP_INT_MAX;
-		}
-		elseif ( $this->hasCap( 'logs_retention_31' ) ) {
-			$max = 31;
-		}
-		else {
-			$max = self::con()->cfg->configuration->def( 'max_free_days' );
-		}
-		return $max;
 	}
 
 	private function isPremiumOnlyCap( string $cap ) :bool {

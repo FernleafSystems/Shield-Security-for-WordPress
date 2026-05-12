@@ -13,7 +13,8 @@ abstract class BaseBotDetectionController {
 	private array $installedProviders;
 
 	protected function canRun() :bool {
-		return !self::con()->this_req->request_bypasses_all_restrictions;
+		return !self::con()->this_req->request_bypasses_all_restrictions
+			   && $this->isEnabled();
 	}
 
 	/**
@@ -24,10 +25,11 @@ abstract class BaseBotDetectionController {
 	}
 
 	protected function run() {
-		\array_map(
-			fn( string $providerClass ) => ( new $providerClass() )->execute(),
-			\array_intersect_key( $this->getInstalled(), \array_flip( $this->getSelectedProviders() ) )
-		);
+		foreach ( \array_intersect_key( $this->enumProviders(), \array_flip( $this->getSelectedProviders() ) ) as $providerClass ) {
+			if ( $providerClass::IsProviderAvailable() ) {
+				( new $providerClass() )->execute();
+			}
+		}
 	}
 
 	/**

@@ -119,7 +119,7 @@ class Init {
 						'active_path'          => [ 'Extensions-Wp-Simple-Firewall' => 'managesites' ],
 					] );
 				}
-			}, 10, 2 );
+			}, 10, 0 );
 		}
 
 		return new ExtensionSettingsPage();
@@ -162,7 +162,6 @@ class Init {
 					'error' => sprintf( 'The MainWP integration within %s has been disabled.', $con->labels->Name )
 							   .' '.sprintf( "You'll need to re-enable the option to view the %s extension on this page again.", $con->labels->Name )
 				] );
-				die();
 			}
 		}
 	}

@@ -17,32 +17,10 @@ class SecurityZone extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter
 			'flags'   => [
 				'global_plugin_disabled' => !$con->comps->opts_lookup->isPluginEnabled(),
 			],
-			'hrefs'   => [
-				// not currently used
-				//				'all_zones' => \array_filter( \array_map(
-				//					function ( $zone ) {
-				//						return [
-				//							'title'   => $zone->title(),
-				//							'classes' => [
-				//								'dynamic_body_load',
-				//								'body_content_link'
-				//							],
-				//							'data'    => [
-				//								'dynamic_page_load' => \wp_json_encode( [
-				//									'dynamic_load_slug' => Zone::SLUG,
-				//									'dynamic_load_data' => [
-				//										'zone_slug' => $zone::Slug(),
-				//									],
-				//								] ),
-				//							],
-				//						];
-				//					},
-				//					$zonesCon->getZones()
-				//				) ),
-			],
+			'hrefs'   => [],
 			'imgs'    => [
 				'svgs' => [
-					'title'   => $con->svgs->raw( $zone->icon() ),
+					'title'   => $con->svgs->iconClass( $zone->icon() ),
 					'heading' => $con->svgs->rawImage( sprintf( 'zones/zone_%s.svg', $zone::Slug() ) ),
 				],
 			],

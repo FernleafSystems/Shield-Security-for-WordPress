@@ -4,73 +4,80 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\WildCardOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Helpers\StandardDirectoryIterator;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildScanItems {
-
 	use PluginControllerConsumer;
+	use ScanActionConsumer;
 
 	protected function preBuild() {
 		$con = self::con();
 		/** @var ScanActionVO $action */
-		$action = $con->comps->scans->AFS()->getScanActionVO();
+		$action = $this->getScanActionVO();
 
 		$pluginsDir = \dirname( $con->getRootDir() );
 		$themesDir = \dirname( Services::WpThemes()->getCurrent()->get_stylesheet_directory() );
 
+		$action->valid_files = [];
 		$rootDirs = [];
-		foreach (
-			[
-				ABSPATH                          => [
-					'depth' => 1,
-					'areas' => [
-						'wproot',
-						'malware_php',
+		if ( $action->scope_type === 'plugin' || $action->scope_type === 'theme' ) {
+			$rootDirs = $this->buildScopedRootDirs( $action );
+		}
+		else {
+			foreach (
+				[
+					ABSPATH                          => [
+						'depth' => 1,
+						'areas' => [
+							'wproot',
+							'malware_php',
+						],
 					],
-				],
-				path_join( ABSPATH, WPINC )      => [
-					'depth' => 0,
-					'areas' => [
-						'wp',
-						'malware_php',
+					path_join( ABSPATH, WPINC )      => [
+						'depth' => 0,
+						'areas' => [
+							'wp',
+							'malware_php',
+						],
 					],
-				],
-				path_join( ABSPATH, 'wp-admin' ) => [
-					'depth' => 0,
-					'areas' => [
-						'wp',
-						'malware_php',
+					path_join( ABSPATH, 'wp-admin' ) => [
+						'depth' => 0,
+						'areas' => [
+							'wp',
+							'malware_php',
+						],
 					],
-				],
-				WP_CONTENT_DIR                   => [
-					'depth' => 0,
-					'areas' => [
-						'wpcontent',
-						'malware_php',
+					WP_CONTENT_DIR                   => [
+						'depth' => 0,
+						'areas' => [
+							'wpcontent',
+							'malware_php',
+						],
 					],
-				],
-				$pluginsDir                      => [
-					'depth' => 0,
-					'areas' => [
-						'plugins',
-						'malware_php',
+					$pluginsDir                      => [
+						'depth' => 0,
+						'areas' => [
+							'plugins',
+							'malware_php',
+						],
 					],
-				],
-				$themesDir                       => [
-					'depth' => 0,
-					'areas' => [
-						'themes',
-						'malware_php',
+					$themesDir                       => [
+						'depth' => 0,
+						'areas' => [
+							'themes',
+							'malware_php',
+						],
 					],
-				],
-			] as $dir => $dirAttr
-		) {
-			if ( \count( \array_intersect( $dirAttr[ 'areas' ], $con->comps->scans->AFS()
-																				  ->getFileScanAreas() ) ) > 0 ) {
-				// we don't include the plugins and themes if WP Content Dir is already included.
-				if ( !\in_array( $dir, [ $pluginsDir, $themesDir ] ) || !isset( $rootDirs[ WP_CONTENT_DIR ] ) ) {
-					$rootDirs[ $dir ] = $dirAttr[ 'depth' ];
+				] as $dir => $attr
+			) {
+				if ( \count( \array_intersect( $attr[ 'areas' ], $con->comps->scans->AFS()
+				                                                                   ->getFileScanAreas() ) ) > 0 ) {
+					// we don't include the plugins and themes if WP Content Dir is already included.
+					if ( !\in_array( $dir, [ $pluginsDir, $themesDir ] ) || !isset( $rootDirs[ WP_CONTENT_DIR ] ) ) {
+						$rootDirs[ $dir ] = $attr[ 'depth' ];
+					}
 				}
 			}
 		}
@@ -88,13 +95,16 @@ class BuildScanItems {
 		$action->max_file_size = apply_filters( 'shield/file_scan_size_max', 16*1024*1024 );
 	}
 
-	public function run() :array {
+	public function run(): array {
 		$this->preBuild();
 
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
 		$files = \array_filter(
 			\array_unique( \array_merge(
+				$this->buildExplicitValidFiles(),
 				$this->buildFilesFromDisk(),
-				$this->buildFilesFromWpHashes()
+				$action->scope_type === 'full' ? $this->buildFilesFromWpHashes() : []
 			) ),
 			fn( $path ) => !$this->isWhitelistedPath( $path ),
 		);
@@ -104,7 +114,7 @@ class BuildScanItems {
 		return \array_map( '\base64_encode', \array_values( $files ) );
 	}
 
-	private function buildFilesFromWpHashes() :array {
+	private function buildFilesFromWpHashes(): array {
 		$files = [];
 
 		$coreHashes = Services::CoreFileHashes();
@@ -120,9 +130,9 @@ class BuildScanItems {
 		return $files;
 	}
 
-	private function buildFilesFromDisk() :array {
+	private function buildFilesFromDisk(): array {
 		/** @var ScanActionVO $action */
-		$action = self::con()->comps->scans->AFS()->getScanActionVO();
+		$action = $this->getScanActionVO();
 
 		$files = [];
 		foreach ( $action->scan_root_dirs as $scanDir => $depth ) {
@@ -144,24 +154,65 @@ class BuildScanItems {
 		return $files;
 	}
 
-	private function isAutoFilterFile( \SplFileInfo $file ) :bool {
+	private function buildExplicitValidFiles(): array {
+		$files = [];
+		/** @var ScanActionVO $action */
+		$action = $this->getScanActionVO();
+		foreach (
+			\array_filter( $action->valid_files, static fn( $p ) => Services::WpFs()->isAccessibleFile( $p ) ) as $path
+		) {
+			$file = new \SplFileInfo( $path );
+			if ( !$this->isAutoFilterFile( $file ) ) {
+				$files[] = wp_normalize_path( $path );
+			}
+		}
+		return $files;
+	}
+
+	private function buildScopedRootDirs( ScanActionVO $action ): array {
+		if ( $action->scope_type === 'plugin' ) {
+			$plugin = Services::WpPlugins()->getPluginAsVo( $action->scope_key, true );
+			if ( !empty( $plugin ) ) {
+				if ( \dirname( $plugin->file ) === '.' ) {
+					$action->valid_files = [
+						wp_normalize_path( path_join( WP_PLUGIN_DIR, $plugin->file ) ),
+					];
+					return [];
+				}
+				return [
+					$plugin->getInstallDir() => 0,
+				];
+			}
+		}
+		elseif ( $action->scope_type === 'theme' ) {
+			$theme = Services::WpThemes()->getThemeAsVo( $action->scope_key, true );
+			if ( !empty( $theme ) ) {
+				return [
+					$theme->getInstallDir() => 0,
+				];
+			}
+		}
+		return [];
+	}
+
+	private function isAutoFilterFile( \SplFileInfo $file ): bool {
 		/**
 		 * Remove anything in wp-content as this is only relevant for Plugins/Themes/Malware
 		 * and this is PRO-only anyway.
 		 */
 		return (
-				   !self::con()->isPremiumActive()
-				   && \strpos( wp_normalize_path( $file->getPathname() ), '/wp-content/' ) !== false
-			   )
-			   ||
-			   ( self::con()->comps->opts_lookup->isScanAutoFilterResults() && $file->getSize() === 0 );
+			       !self::con()->isPremiumActive()
+			       && \strpos( wp_normalize_path( $file->getPathname() ), '/wp-content/' ) !== false
+		       )
+		       ||
+		       ( self::con()->comps->opts_lookup->isScanAutoFilterResults() && $file->getSize() === 0 );
 	}
 
-	private function isWhitelistedPath( string $path ) :bool {
+	private function isWhitelistedPath( string $path ): bool {
 		$whitelisted = false;
 
 		/** @var ScanActionVO $action */
-		$action = self::con()->comps->scans->AFS()->getScanActionVO();
+		$action = $this->getScanActionVO();
 		foreach ( $action->paths_whitelisted as $wlPathRegEx ) {
 			if ( \preg_match( $wlPathRegEx, $path ) ) {
 				$whitelisted = true;

@@ -1,14 +1,24 @@
-/** Security Admin PIN Modal Overlay **/
-
-#SecurityAdminOverlay {
-	z-index: 1055;
+.security-admin-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 20;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1.5rem;
+	background: rgba( 241, 241, 241, 0.72 );
+	backdrop-filter: blur( 1px );
 }
 
 .security-admin-dialog {
+	width: 100%;
 	max-width: 420px;
+	margin: 0;
 }
 
 #IcwpWpsfSecurityAdmin {
+	background-color: #ffffff;
+	border: 1px solid rgba( 0, 0, 0, 0.08 );
 	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
 }
 
@@ -21,4 +31,15 @@
 	width: 12px;
 	height: 12px;
 	vertical-align: baseline;
+}
+
+@media (max-width: 782px) {
+	.security-admin-overlay {
+		padding: 1rem;
+		align-items: flex-start;
+	}
+
+	.security-admin-dialog {
+		max-width: none;
+	}
 }

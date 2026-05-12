@@ -41,10 +41,11 @@ class ResponseProcessor {
 				$params = $respDef[ 'params' ] ?? [];
 				/** @var class-string<Responses\Base> $responseClass */
 				$response = new $responseClass();
+				$params = ( new Utility\ResponseParamsNormalizer() )->normalize( $responseClass, $params );
+				$params = ( new Utility\VerifyParams() )->verifyParams( $params, $response->getParamsDef() );
 				$response->setThisRequest( $this->req )
 						 ->setRule( $this->rule )
 						 ->setParams( $params );
-				( new Utility\VerifyParams() )->verifyParams( $params, $response->getParamsDef() );
 				$this->execResponse( $response );
 			}
 			catch ( NoResponseActionDefinedException|NoSuchResponseHandlerException $e ) {

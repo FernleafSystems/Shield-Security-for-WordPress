@@ -1,0 +1,46 @@
+{% macro render_rows(rows, diagnosis_id) %}
+	<div class="configure-diagnosis__settings">
+		{% for row in rows %}
+			{% include '/wpadmin/components/configure/detail_item.twig' with { item: {
+				row: {
+					title: row.title,
+					description: row.summary,
+					status: row.status,
+					status_icon: row.status_icon_class,
+					status_label: row.status_label,
+					explanations: row.explanations,
+					attributes: {}
+				},
+				expand: {
+					row_key: row.key,
+					id: row.expand_action.id,
+					parent_id: diagnosis_id,
+					is_expandable: row.expand_action.is_expandable,
+					label: row.expand_action.label,
+					title: row.expand_action.title,
+					accessible_label: row.expand_action.accessible_label,
+					data_attributes: row.expand_action.data_attributes
+				}
+			} } only %}
+		{% endfor %}
+	</div>
+{% endmacro %}
+
+{% from _self import render_rows %}
+{% set diagnosis_id = 'configure-diagnosis-' ~ diagnosis.zone_key %}
+<div class="configure-diagnosis"
+	 data-configure-diagnosis="1"
+	 data-configure-zone="{{ diagnosis.zone_key }}"
+	 id="{{ diagnosis_id }}">
+	{% if diagnosis.problem_rows is not empty %}
+		{{ render_rows(diagnosis.problem_rows, diagnosis_id) }}
+	{% endif %}
+
+	{% if diagnosis.review_rows is not empty %}
+		{{ render_rows(diagnosis.review_rows, diagnosis_id) }}
+	{% endif %}
+
+	{% if diagnosis.healthy_rows is not empty %}
+		{{ render_rows(diagnosis.healthy_rows, diagnosis_id) }}
+	{% endif %}
+</div>

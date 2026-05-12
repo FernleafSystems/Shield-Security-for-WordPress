@@ -1,0 +1,7 @@
+{
+  "name": "shield-playground-tools",
+  "private": true,
+  "devDependencies": {
+    "@wp-playground/cli": "^3.1.4"
+  }
+}

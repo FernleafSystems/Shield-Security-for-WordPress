@@ -8,7 +8,7 @@ trait Common {
 		return $this->addWhereEquals( 'scan_ref', $scanID );
 	}
 
-	public function filterByResultItems( int $resultItemID ) {
+	public function filterByResultItem( int $resultItemID ) {
 		return $this->addWhereEquals( 'resultitem_ref', $resultItemID );
 	}
 }

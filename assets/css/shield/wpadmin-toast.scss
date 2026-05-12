@@ -1,0 +1,72 @@
+.shield-wpadmin-toast-container {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(360px, calc(100vw - 32px));
+  pointer-events: none;
+  position: fixed;
+  right: 16px;
+  top: 48px;
+  z-index: 100000;
+}
+
+.shield-wpadmin-toast {
+  background: #ffffff;
+  border: 1px solid #c3c4c7;
+  border-left: 4px solid #dba617;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  color: #1d2327;
+  display: flex;
+  gap: 12px;
+  line-height: 1.4;
+  max-width: 100%;
+  min-width: 240px;
+  opacity: 0;
+  padding: 12px;
+  pointer-events: auto;
+  transform: translateY(-8px);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.shield-wpadmin-toast--success {
+  border-left-color: #00a32a;
+}
+
+.shield-wpadmin-toast--warning {
+  border-left-color: #dba617;
+}
+
+.shield-wpadmin-toast--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.shield-wpadmin-toast--dismissed {
+  opacity: 0;
+}
+
+.shield-wpadmin-toast__message {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.shield-wpadmin-toast__close {
+  appearance: none;
+  background: transparent;
+  border: 0 none;
+  color: #50575e;
+  cursor: pointer;
+  flex: 0 0 auto;
+  font: inherit;
+  line-height: 1;
+  margin: 0;
+  padding: 1px 4px;
+}
+
+.shield-wpadmin-toast__close:hover,
+.shield-wpadmin-toast__close:focus-visible {
+  color: #1d2327;
+}

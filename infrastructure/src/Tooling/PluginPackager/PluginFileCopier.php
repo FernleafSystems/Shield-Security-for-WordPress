@@ -2,39 +2,67 @@
 
 namespace FernleafSystems\ShieldPlatform\Tooling\PluginPackager;
 
+use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Copies plugin files to a target directory, respecting .gitattributes export-ignore patterns.
+ * Copies plugin files to a target directory, respecting intentional export-ignore
+ * rules and filtering ignored local artifacts that should not ship in a package.
  */
 class PluginFileCopier {
+
+	private const GIT_IGNORED_PATHS_COMMAND = [
+		'git',
+		'ls-files',
+		'--others',
+		'--ignored',
+		'--exclude-standard',
+		'--directory',
+		'-z',
+	];
+
+	private const IGNORED_PATH_ALLOWLIST = [
+		'assets/dist',
+	];
 
 	private string $projectRoot;
 
 	/** @var callable */
 	private $logger;
 
-	public function __construct( string $projectRoot, callable $logger ) {
+	private ProcessRunner $processRunner;
+
+	public function __construct( string $projectRoot, callable $logger, ?ProcessRunner $processRunner = null ) {
 		$this->projectRoot = $projectRoot;
 		$this->logger = $logger;
+		$this->processRunner = $processRunner ?? new ProcessRunner();
 	}
 
 	/**
 	 * Copy plugin files to the target package directory.
-	 * Uses .gitattributes export-ignore patterns as single source of truth.
 	 *
 	 * @return array{files: int, dirs: int} Statistics about copied items
 	 * @throws \RuntimeException|\Symfony\Component\Filesystem\Exception\InvalidArgumentException if copy operations fail
 	 */
 	public function copy( string $targetDir ) :array {
 		$this->log( 'Copying plugin files...' );
-		$this->log( '(Using .gitattributes export-ignore as source of truth)' );
+		$this->log( '(Applying .gitattributes export-ignore rules and filtering ignored local artifacts)' );
 
 		$fs = new Filesystem();
-		$excludePatterns = $this->getExportIgnorePatterns();
+		$exportIgnorePatternSets = $this->getExportIgnorePatternSets();
+		$excludePatterns = $exportIgnorePatternSets[ 'exclude' ];
+		$includePatterns = $exportIgnorePatternSets[ 'include' ];
+		$ignoredLocalPathsState = $this->getIgnoredLocalPaths();
+		$ignoredLocalPaths = $ignoredLocalPathsState[ 'paths' ];
 
 		$this->log( sprintf( '  Loaded %d export-ignore patterns from .gitattributes', count( $excludePatterns ) ) );
+		$this->log( sprintf(
+			$ignoredLocalPathsState[ 'loaded_from_git' ]
+				? '  Loaded %d ignored local paths from git'
+				: '  Ignored local path discovery unavailable; using 0 git-reported ignored paths',
+			count( $ignoredLocalPaths )
+		) );
 
 		// Ensure target directory exists
 		if ( !is_dir( $targetDir ) ) {
@@ -64,7 +92,7 @@ class PluginFileCopier {
 		// Filter out excluded directories BEFORE descending into them
 		$filterIterator = new \RecursiveCallbackFilterIterator(
 			$dirIterator,
-			function ( \SplFileInfo $current, string $key, \RecursiveDirectoryIterator $iterator ) use ( $projectRoot, $excludePatterns, $targetDir, $isTargetInsideRoot ) :bool {
+			function ( \SplFileInfo $current ) use ( $projectRoot, $excludePatterns, $includePatterns, $ignoredLocalPaths, $targetDir, $isTargetInsideRoot ) :bool {
 				$relativePath = Path::makeRelative( $current->getPathname(), $projectRoot );
 
 				// Skip the target directory itself to prevent infinite recursion
@@ -72,8 +100,12 @@ class PluginFileCopier {
 					return false;
 				}
 
-				// Skip export-ignore paths
-				if ( $this->shouldExcludePath( $relativePath, $excludePatterns ) ) {
+				if ( $this->shouldExcludePath( $relativePath, $excludePatterns, $includePatterns )
+					 && !( $current->isDir() && $this->hasIncludedDescendant( $relativePath, $includePatterns ) ) ) {
+					return false;
+				}
+
+				if ( $this->shouldExcludeIgnoredLocalPath( $relativePath, $ignoredLocalPaths ) ) {
 					return false;
 				}
 
@@ -92,7 +124,6 @@ class PluginFileCopier {
 			/** @var \SplFileInfo $item */
 			$fullPath = $item->getPathname();
 			$relativePath = Path::makeRelative( $fullPath, $this->projectRoot );
-
 			$targetPath = Path::join( $targetDir, $relativePath );
 
 			if ( $item->isDir() ) {
@@ -114,8 +145,8 @@ class PluginFileCopier {
 			}
 		}
 
-		$this->log( sprintf( '  ✓ Copied %d files in %d directories', $stats[ 'files' ], $stats[ 'dirs' ] ) );
-		$this->log( '  (Excluded paths filtered via .gitattributes export-ignore)' );
+		$this->log( sprintf( '  OK Copied %d files in %d directories', $stats[ 'files' ], $stats[ 'dirs' ] ) );
+		$this->log( '  (Excluded paths filtered via .gitattributes export-ignore and ignored local artifact checks)' );
 		$this->log( '' );
 		$this->log( 'Package structure created successfully' );
 		$this->log( '' );
@@ -125,97 +156,90 @@ class PluginFileCopier {
 
 	/**
 	 * Parse .gitattributes and return list of export-ignore patterns.
-	 * This makes .gitattributes the single source of truth for package contents.
 	 *
 	 * @return string[] Array of patterns that should be excluded from packages
 	 */
 	public function getExportIgnorePatterns() :array {
+		return $this->getExportIgnorePatternSets()[ 'exclude' ];
+	}
+
+	/**
+	 * @return array{exclude: string[], include: string[]} Excluded paths and explicit include exceptions
+	 */
+	private function getExportIgnorePatternSets() :array {
 		$gitattributesPath = Path::join( $this->projectRoot, '.gitattributes' );
 
 		if ( !file_exists( $gitattributesPath ) ) {
 			$this->log( 'Warning: .gitattributes not found, no export-ignore patterns loaded' );
-			return [];
+			return [
+				'exclude' => [],
+				'include' => [],
+			];
 		}
 
-		$patterns = [];
+		$excludePatterns = [];
+		$includePatterns = [];
 		$lines = file( $gitattributesPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
 
 		if ( $lines === false ) {
 			$this->log( 'Warning: Could not read .gitattributes' );
-			return [];
+			return [
+				'exclude' => [],
+				'include' => [],
+			];
 		}
 
 		foreach ( $lines as $line ) {
 			$line = trim( $line );
 
-			// Skip comments and empty lines
 			if ( $line === '' || strpos( $line, '#' ) === 0 ) {
 				continue;
 			}
 
-			// Match lines with export-ignore attribute
-			// Formats supported:
-			//   /path export-ignore
-			//   /path/to/dir export-ignore
-			//   /languages/*.po export-ignore
-			if ( preg_match( '/^(\S+)\s+.*\bexport-ignore\b/', $line, $matches ) ) {
-				$pattern = $matches[ 1 ];
-				// Normalize: remove leading slash for internal consistency
-				$patterns[] = ltrim( $pattern, '/' );
+			if ( !preg_match( '/^(\S+)\s+(.+)$/', $line, $matches ) ) {
+				continue;
+			}
+
+			$pattern = $this->normalizeRelativePath( $matches[ 1 ] );
+			$attributes = preg_split( '/\s+/', trim( $matches[ 2 ] ) ) ?: [];
+
+			if ( in_array( '-export-ignore', $attributes, true ) ) {
+				$includePatterns[] = $pattern;
+			}
+			elseif ( in_array( 'export-ignore', $attributes, true ) ) {
+				$excludePatterns[] = $pattern;
 			}
 		}
 
-		return $patterns;
+		return [
+			'exclude' => $excludePatterns,
+			'include' => $includePatterns,
+		];
 	}
 
 	/**
 	 * Check if a path should be excluded based on export-ignore patterns.
-	 * Supports:
-	 *   - Exact file matches: "README.md"
-	 *   - Directory matches: "tests" matches "tests/Unit/Test.php"
-	 *   - Glob patterns: "languages/*.po" matches "languages/en_US.po"
-	 *
-	 * NOTE: Matching is case-sensitive (consistent with git's behavior).
-	 * Git tracks paths exactly as committed, so case mismatches are rare.
 	 *
 	 * @param string   $relativePath Path relative to project root (forward slashes)
 	 * @param string[] $patterns     Export-ignore patterns from .gitattributes
-	 * @return bool True if path should be excluded
 	 */
-	public function shouldExcludePath( string $relativePath, array $patterns ) :bool {
-		// Normalize to forward slashes (simpler than Path::normalize() for this use case)
-		// We only need to handle backslash->forward slash conversion, not ../ resolution
-		$normalizedPath = str_replace( '\\', '/', $relativePath );
+	public function shouldExcludePath( string $relativePath, array $patterns, array $includePatterns = [] ) :bool {
+		$normalizedPath = $this->normalizeRelativePath( $relativePath );
+
+		if ( in_array( $normalizedPath, array_map( [ $this, 'normalizeRelativePath' ], $includePatterns ), true ) ) {
+			return false;
+		}
 
 		foreach ( $patterns as $pattern ) {
-			// Normalize pattern
-			$normalizedPattern = str_replace( '\\', '/', $pattern );
+			$normalizedPattern = $this->normalizeRelativePath( $pattern );
 
-			// Case 1: Exact match
-			if ( $normalizedPath === $normalizedPattern ) {
+			if ( $this->pathMatchesSelfOrDescendant( $normalizedPath, $normalizedPattern ) ) {
 				return true;
 			}
 
-			// Case 2: Directory match - pattern is a directory prefix
-			// Pattern "tests" should match "tests/Unit/Test.php"
-			$patternAsDir = rtrim( $normalizedPattern, '/' ).'/';
-			if ( strpos( $normalizedPath, $patternAsDir ) === 0 ) {
-				return true;
-			}
-
-			// Case 3: Pattern ends with directory name, path is exactly that directory
-			if ( $normalizedPath === rtrim( $normalizedPattern, '/' ) ) {
-				return true;
-			}
-
-			// Case 4: Glob pattern with asterisk (e.g., "languages/*.po")
 			if ( strpos( $normalizedPattern, '*' ) !== false ) {
-				// Convert glob pattern to regex
-				// Escape regex special chars except *
 				$regexPattern = preg_quote( $normalizedPattern, '#' );
-				// Replace escaped \* with regex .*
 				$regexPattern = str_replace( '\\*', '[^/]*', $regexPattern );
-				// Anchor the pattern
 				$regexPattern = '#^'.$regexPattern.'$#';
 
 				if ( preg_match( $regexPattern, $normalizedPath ) ) {
@@ -225,6 +249,146 @@ class PluginFileCopier {
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param string[] $includePatterns
+	 */
+	private function hasIncludedDescendant( string $relativePath, array $includePatterns ) :bool {
+		$normalizedPath = rtrim( $this->normalizeRelativePath( $relativePath ), '/' );
+
+		foreach ( $includePatterns as $includePattern ) {
+			if ( strpos( $this->normalizeRelativePath( $includePattern ), $normalizedPath.'/' ) === 0 ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @return array{paths: string[], loaded_from_git: bool}
+	 */
+	private function getIgnoredLocalPaths() :array {
+		$gitDir = Path::join( $this->projectRoot, '.git' );
+		if ( !file_exists( $gitDir ) ) {
+			$this->log( 'Warning: .git not found, skipping ignored local artifact filtering' );
+			return [
+				'paths' => [],
+				'loaded_from_git' => false,
+			];
+		}
+
+		try {
+			$process = $this->processRunner->run(
+				self::GIT_IGNORED_PATHS_COMMAND,
+				$this->projectRoot,
+				static function () :void {
+				}
+			);
+		}
+		catch ( \Throwable $e ) {
+			$this->log( sprintf( 'Warning: Failed to inspect ignored local artifacts: %s', $e->getMessage() ) );
+			return [
+				'paths' => [],
+				'loaded_from_git' => false,
+			];
+		}
+
+		$exitCode = $process->getExitCode() ?? 1;
+		if ( $exitCode !== 0 ) {
+			$errorOutput = trim( $process->getErrorOutput() );
+			$this->log( sprintf(
+				'Warning: git ignored-path inspection failed with exit code %d%s',
+				$exitCode,
+				$errorOutput !== '' ? sprintf( ' (%s)', $errorOutput ) : ''
+			) );
+			return [
+				'paths' => [],
+				'loaded_from_git' => false,
+			];
+		}
+
+		$stdout = $process->getOutput();
+		if ( $stdout === '' ) {
+			return [
+				'paths' => [],
+				'loaded_from_git' => true,
+			];
+		}
+
+		$paths = array_values( array_filter( array_map(
+			fn( string $path ) :string => $this->normalizeRelativePath( $path ),
+			explode( "\0", $stdout )
+		) ) );
+
+		$paths = array_values( array_filter(
+			$paths,
+			fn( string $path ) :bool => !$this->isIgnoredPathAllowlisted( $path )
+		) );
+
+		$paths = array_values( array_unique( $paths ) );
+		sort( $paths );
+
+		return [
+			'paths' => $paths,
+			'loaded_from_git' => true,
+		];
+	}
+
+	/**
+	 * @param string[] $ignoredLocalPaths
+	 */
+	private function shouldExcludeIgnoredLocalPath( string $relativePath, array $ignoredLocalPaths ) :bool {
+		$normalizedPath = $this->normalizeRelativePath( $relativePath );
+		if ( $normalizedPath === '' || $this->isIgnoredPathAllowlisted( $normalizedPath ) ) {
+			return false;
+		}
+
+		foreach ( $ignoredLocalPaths as $ignoredPath ) {
+			$normalizedIgnoredPath = $this->normalizeRelativePath( $ignoredPath );
+			if ( $normalizedIgnoredPath === '' ) {
+				continue;
+			}
+
+			if ( $this->pathMatchesSelfOrDescendant( $normalizedPath, $normalizedIgnoredPath ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private function isIgnoredPathAllowlisted( string $relativePath ) :bool {
+		$normalizedPath = $this->normalizeRelativePath( $relativePath );
+
+		foreach ( self::IGNORED_PATH_ALLOWLIST as $allowlistedPath ) {
+			$normalizedAllowlistedPath = $this->normalizeRelativePath( $allowlistedPath );
+
+			if ( $this->pathMatchesSelfOrDescendant( $normalizedPath, $normalizedAllowlistedPath ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private function normalizeRelativePath( string $path ) :string {
+		$normalized = trim( str_replace( '\\', '/', $path ) );
+
+		while ( strpos( $normalized, './' ) === 0 ) {
+			$normalized = substr( $normalized, 2 );
+		}
+
+		return trim( $normalized, '/' );
+	}
+
+	private function pathMatchesSelfOrDescendant( string $path, string $candidate ) :bool {
+		$normalizedPath = rtrim( $path, '/' );
+		$normalizedCandidate = rtrim( $candidate, '/' );
+
+		return $normalizedPath === $normalizedCandidate
+			|| strpos( $normalizedPath, $normalizedCandidate.'/' ) === 0;
 	}
 
 	private function log( string $message ) :void {

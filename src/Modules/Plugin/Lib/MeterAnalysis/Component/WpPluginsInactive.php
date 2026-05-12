@@ -10,6 +10,10 @@ class WpPluginsInactive extends Base {
 	public const SLUG = 'wp_plugins_inactive';
 	public const WEIGHT = 2;
 
+	public function channel() :string {
+		return self::CHANNEL_ACTION;
+	}
+
 	public function hrefFull() :string {
 		return URL::Build( Services::WpGeneral()->getAdminUrl_Plugins( true ), [
 			'plugin_status' => 'inactive'
@@ -38,7 +42,6 @@ class WpPluginsInactive extends Base {
 	}
 
 	private function countInactive() :int {
-		$WPP = Services::WpPlugins();
-		return \count( $WPP->getPlugins() ) - \count( $WPP->getActivePlugins() );
+		return \count( Services::WpPlugins()->getPlugins() ) - \count( Services::WpPlugins()->getActivePlugins() );
 	}
 }

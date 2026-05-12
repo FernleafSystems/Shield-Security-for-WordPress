@@ -9,7 +9,6 @@ export class TestRest extends BaseAutoExecComponent {
 
 	run() {
 		( new RestService() )
-		.req( this._base_data.ajax.test_rest )
-		.then( resp => console.log( resp ) )
+		.req( this._base_data.ajax.test_rest );
 	}
 }

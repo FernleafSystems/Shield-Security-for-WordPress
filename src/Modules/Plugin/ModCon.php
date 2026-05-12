@@ -17,7 +17,6 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\{
 };
 
 class ModCon {
-
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
@@ -25,12 +24,11 @@ class ModCon {
 
 	private bool $is_booted = false;
 
+	private ?CacheDirHandler $cacheDirHandler = null;
+
 	private Processor $processor;
 
-	/**
-	 * @var Lib\TrackingVO
-	 */
-	private $tracking;
+	private Lib\TrackingVO $tracking;
 
 	/**
 	 * @throws \Exception
@@ -46,13 +44,12 @@ class ModCon {
 	/**
 	 * @throws \Exception
 	 */
-	public function getProcessor() :Processor {
+	public function getProcessor(): Processor {
 		return $this->processor ??= new Processor();
 	}
 
 	protected function doPostConstruction() {
 		$this->setVisitorIpSource();
-		$this->setupCacheDir();
 		$this->declareWooHposCompat();
 		$this->storeRealInstallDate();
 	}
@@ -60,11 +57,19 @@ class ModCon {
 	public function onWpInit() {
 		if ( self::con()->cfg->previous_version !== self::con()->cfg->version() ) {
 			$this->getTracking()->last_upgrade_at = Services::Request()->ts();
+			self::con()->opts->optSet( 'transient_tracking', $this->getTracking()->getRawData() );
 		}
 		self::con()->comps->assets_customizer->execute();
 	}
 
-	protected function setupCacheDir() {
+	public function getCacheDirHandler(): CacheDirHandler {
+		if ( !isset( $this->cacheDirHandler ) ) {
+			$this->cacheDirHandler = $this->buildCacheDirHandler();
+		}
+		return $this->cacheDirHandler;
+	}
+
+	protected function buildCacheDirHandler(): CacheDirHandler {
 		$con = self::con();
 		$url = Services::WpGeneral()->getWpUrl();
 
@@ -74,10 +79,16 @@ class ModCon {
 		], \is_array( $lastKnownDirs ) ? $lastKnownDirs : [] );
 
 		$cacheDirFinder = new CacheDirHandler( $lastKnownDirs[ $url ], $con->opts->optGet( 'preferred_temp_dir' ) );
-		$lastKnownDirs[ $url ] = \dirname( $cacheDirFinder->dir() );
-		$con->opts->optSet( 'last_known_cache_basedirs', $lastKnownDirs );
-
+		$resolvedDir = $cacheDirFinder->dir();
+		if ( !empty( $resolvedDir ) ) {
+			$lastKnownDir = \dirname( $resolvedDir );
+			if ( $lastKnownDirs[ $url ] !== $lastKnownDir ) {
+				$lastKnownDirs[ $url ] = $lastKnownDir;
+				$con->opts->optSet( 'last_known_cache_basedirs', $lastKnownDirs );
+			}
+		}
 		$con->cache_dir_handler = $cacheDirFinder;
+		return $cacheDirFinder;
 	}
 
 	/**
@@ -120,40 +131,50 @@ class ModCon {
 		}
 		$con->this_req->ip = Services::Request()->ip();
 		$con->this_req->ip_is_public = !empty( $con->this_req->ip )
-									   && Services::IP()->isValidIp_PublicRemote( $con->this_req->ip );
+		                               && Services::IP()->isValidIp_PublicRemote( $con->this_req->ip );
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	public function canSiteLoopback() :bool {
+	public function canSiteLoopback(): bool {
 		$can = false;
-		if ( \class_exists( '\WP_Site_Health' ) && \method_exists( '\WP_Site_Health', 'get_instance' ) ) {
-			$can = \WP_Site_Health::get_instance()->get_test_loopback_requests()[ 'status' ] === 'good';
+
+		if ( !\class_exists( '\WP_Site_Health' ) && \defined( 'ABSPATH' ) ) {
+			$siteHealthFile = path_join( ABSPATH, '/wp-admin/includes/class-wp-site-health.php' );
+			if ( Services::WpFs()->isAccessibleFile( $siteHealthFile ) ) {
+				require_once $siteHealthFile;
+			}
 		}
-		if ( !$can ) {
-			$can = Services::HttpRequest()->post( site_url( 'wp-cron.php' ), [
-				'timeout' => 10
-			] );
+
+		if ( \class_exists( '\WP_Site_Health' )
+		     // @phpstan-ignore function.alreadyNarrowedType
+		     && \method_exists( '\WP_Site_Health', 'get_instance' )
+		     && \method_exists( \WP_Site_Health::get_instance(), 'get_test_loopback_requests' ) ) {
+			$result = \WP_Site_Health::get_instance()->get_test_loopback_requests();
+			$can = \is_array( $result ) && ( $result[ 'status' ] ?? '' ) === 'good';
 		}
+
 		return $can;
 	}
 
-	public function storeRealInstallDate() :int {
+	public function storeRealInstallDate(): int {
 		$key = self::con()->prefix( 'install_date', '_' );
-		$wpDate = Services::WpGeneral()->getOption( $key );
-		if ( empty( $wpDate ) ) {
-			$wpDate = Services::Request()->ts();
+		$now = Services::Request()->ts();
+		$wpDate = (int)Services::WpGeneral()->getOption( $key );
+		if ( $wpDate === 0 ) {
+			$wpDate = $now;
 		}
 
-		$date = self::con()->comps->opts_lookup->getInstalledAt();
-		if ( $date == 0 ) {
-			$date = Services::Request()->ts();
+		$date = (int)self::con()->comps->opts_lookup->getInstalledAt();
+		if ( $date === 0 ) {
+			$date = $now;
 		}
 
 		$finalDate = (int)\min( $date, $wpDate );
-		Services::WpGeneral()->updateOption( $key, $finalDate );
-		self::con()->opts->optSet( 'installation_time', $date );
+		if ( (int)Services::WpGeneral()->getOption( $key ) !== $finalDate ) {
+			Services::WpGeneral()->updateOption( $key, $finalDate );
+		}
+		if ( (int)self::con()->opts->optGet( 'installation_time' ) !== $finalDate ) {
+			self::con()->opts->optSet( 'installation_time', $finalDate );
+		}
 
 		return $finalDate;
 	}
@@ -175,14 +196,7 @@ class ModCon {
 		}, 100, 0 );
 	}
 
-	public function getTracking() :Lib\TrackingVO {
-		if ( !isset( $this->tracking ) ) {
-			$this->tracking = ( new Lib\TrackingVO() )->applyFromArray( self::con()->opts->optGet( 'transient_tracking' ) );
-			add_action(
-				self::con()->prefix( 'pre_options_store' ),
-				fn ()=> self::con()->opts->optSet( 'transient_tracking', $this->tracking->getRawData() )
-			);
-		}
-		return $this->tracking;
+	public function getTracking(): Lib\TrackingVO {
+		return $this->tracking ??= ( new Lib\TrackingVO() )->applyFromArray( self::con()->opts->optGet( 'transient_tracking' ) );
 	}
 }

@@ -19,6 +19,7 @@ class Buddyboss extends Base {
 	}
 
 	protected static function ProviderMeetsRequirements() :bool {
+		// @phpstan-ignore function.alreadyNarrowedType
 		return \method_exists( '\BuddyPress', 'instance' )
 			   && \function_exists( '\buddypress' )
 			   && \BuddyPress::instance()->buddyboss === true;

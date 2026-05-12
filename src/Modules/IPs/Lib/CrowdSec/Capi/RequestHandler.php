@@ -2,13 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Capi;
 
-use AptowebDeps\CrowdSec\CapiClient\Client\CapiHandler\CapiHandlerInterface;
-use AptowebDeps\CrowdSec\Common\Client\ClientException;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
-use AptowebDeps\CrowdSec\Common\Client\HttpMessage\{
+use CrowdSec\CapiClient\Client\CapiHandler\CapiHandlerInterface;
+use CrowdSec\Common\Client\ClientException;
+use CrowdSec\Common\Client\HttpMessage\{
 	Request,
 	Response
 };
+use FernleafSystems\Wordpress\Services\Utilities\URL;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class RequestHandler implements CapiHandlerInterface {

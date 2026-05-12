@@ -2,9 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveBase;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
+	RetrieveBase
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\ForPluginTheme;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
@@ -13,26 +14,10 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Assets\DetectInstallationDate;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 abstract class PluginThemesBase extends Base {
 
 	private static $wpOrgDataCache = false;
-
-	protected function getRenderData() :array {
-		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
-			'strings' => [
-				'ptg_name'          => __( 'Plugin/Theme Guard', 'wp-simple-firewall' ),
-				'ptg_not_available' => sprintf( __( 'Scanning Plugin & Theme Files is available only with the Pro version of %s.', 'wp-simple-firewall' ), self::con()->labels->Name ),
-			],
-			'flags'   => [
-				'ptg_is_restricted' => !self::con()->isPremiumActive(),
-			],
-			'vars'    => [
-				'datatables_init' => ( new ForPluginTheme() )->build()
-			]
-		] );
-	}
 
 	protected function getVulnerabilities() :Scans\Wpv\ResultsSet {
 		try {
@@ -129,15 +114,11 @@ abstract class PluginThemesBase extends Base {
 					: $carbon->setTimestamp( $abandoned->last_updated_at )->diffForHumans(),
 			],
 			'hrefs' => [
-				'vul_info' => URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
-					'type'    => $plugin->asset_type,
-					'slug'    => $plugin->slug,
-					'version' => $plugin->Version,
-				] ),
+				'vul_info' => self::con()->plugin_urls->vulnerabilityLookupByPlugin( $plugin->slug, $plugin->Version ),
 			],
 			'flags' => $flags,
 			'vars'  => [
-				'abandoned_rid' => empty( $abandoned ) ? -1 : $abandoned->VO->scanresult_id,
+				'abandoned_rid' => empty( $abandoned ) ? -1 : $abandoned->VO->resultitem_id,
 				'count_items'   => $countGuardFiles + \count( $vulnerabilities ) + ( empty( $abandoned ) ? 0 : 1 )
 			],
 		];
@@ -232,11 +213,7 @@ abstract class PluginThemesBase extends Base {
 				'parent_theme' => $theme->is_child ? $theme->parent_theme->Name : '',
 			],
 			'hrefs' => [
-				'vul_info' => URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
-					'type'    => $theme->asset_type,
-					'slug'    => $theme->stylesheet,
-					'version' => $theme->Version,
-				] ),
+				'vul_info' => self::con()->plugin_urls->vulnerabilityLookupByTheme( $theme->stylesheet, $theme->Version ),
 			],
 			'flags' => $flags,
 			'vars'  => [

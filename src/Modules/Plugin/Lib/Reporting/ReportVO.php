@@ -12,6 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops\Record;
  * @property int          $end_at
  * @property array        $areas
  * @property array        $areas_data
+ * @property array        $alert_digest
+ * @property array        $info_headline
  * @property string       $title
  * @property string       $content
  * @property Record|false $previous
@@ -31,6 +33,8 @@ class ReportVO extends DynPropertiesClass {
 			case 'end_at':
 				$value = (int)$value;
 				break;
+			case 'alert_digest':
+			case 'info_headline':
 			case 'areas_data':
 			case 'areas':
 				if ( !\is_array( $value ) ) {

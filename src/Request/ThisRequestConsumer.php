@@ -4,10 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Request;
 
 trait ThisRequestConsumer {
 
-	/**
-	 * @var ThisRequest
-	 */
-	protected $req;
+	protected ?ThisRequest $req = null;
 
 	/**
 	 * @return $this

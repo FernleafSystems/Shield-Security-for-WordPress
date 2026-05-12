@@ -4,7 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\D
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\{
+	Constants,
+	ReportIntervalWindow,
+	ReportIntervalWindowResolver
+};
 
 class BuildForStats extends BuildBase {
 
@@ -56,16 +60,17 @@ class BuildForStats extends BuildBase {
 
 		$start = $this->report->start_at;
 		$end = $this->report->end_at;
+		$previousWindow = $this->resolvePreviousWindow( $start, $end );
 
 		/** @var EventsDB\Select $selector */
 		$selector = $con->db_con->events->getQuerySelector();
 		$countsCurrent = $selector
 			->filterByBoundary( $start, $end )
 			->sumEventsSeparately( $eventsGroup );
-		$countsPrevious = $start === 0 ?
+		$countsPrevious = $previousWindow === null ?
 			\array_fill_keys( $eventsGroup, 0 )
 			: $selector->reset()
-					   ->filterByBoundary( $start - ( $end - $start ), $start )
+					   ->filterByBoundary( $previousWindow->start_at, $previousWindow->end_at )
 					   ->sumEventsSeparately( $eventsGroup );
 
 		foreach ( $eventsGroup as $event ) {
@@ -80,7 +85,7 @@ class BuildForStats extends BuildBase {
 				'count_diff'             => $diff,
 				'count_diff_abs'         => \abs( $diff ),
 				'diff_symbol_email'      => $diff > 0 ? '↗' : ( $diff < 0 ? '↘' : '➡' ),
-				'diff_symbol_svg'        => $con->svgs->raw( $diff > 0 ? 'arrow-up-right' : ( $diff < 0 ? 'arrow-down-right' : 'arrow-right' ) ),
+				'diff_symbol_icon_class' => $con->svgs->iconClass( $diff > 0 ? 'arrow-up-right' : ( $diff < 0 ? 'arrow-down-right' : 'arrow-right' ) ),
 				'diff_symbol_plus_minus' => $diff > 0 ? '+' : ( $diff < 0 ? '-' : '' ),
 				'diff_colour'            => $diff > 0 ? 'warning' : ( $diff < 0 ? 'success' : 'info' ),
 				'diff_percentage'        => self::calcDiffPercentage( $sumCurrent, $sumPrevious ),
@@ -113,5 +118,24 @@ class BuildForStats extends BuildBase {
 			'spam_block_bot',
 			'spam_block_human',
 		];
+	}
+
+	private function resolvePreviousWindow( int $startAt, int $endAt ) :?ReportIntervalWindow {
+		if ( $startAt <= 0 ) {
+			return null;
+		}
+
+		$timezone = \wp_timezone()->getName();
+		$resolver = new ReportIntervalWindowResolver();
+		$interval = (string)$this->report->interval;
+
+		if ( $resolver->isSupportedScheduledInterval( $interval ) ) {
+			return $resolver->resolvePreviousMatchingWindow(
+				new ReportIntervalWindow( $startAt, $endAt, $timezone ),
+				$interval
+			);
+		}
+
+		return $resolver->resolveAdjacentInclusiveWindow( $startAt, $endAt, $timezone );
 	}
 }

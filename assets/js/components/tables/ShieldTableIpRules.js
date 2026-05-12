@@ -1,5 +1,4 @@
 import { ShieldTableBase } from "./ShieldTableBase";
-import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 
 export class ShieldTableIpRules extends ShieldTableBase {
@@ -13,10 +12,10 @@ export class ShieldTableIpRules extends ShieldTableBase {
 			{
 				text: 'Create New IP Rule',
 				name: 'create-ip-rule',
-				className: 'action create-ip-rule btn-outline-info mb-2',
+				className: 'action create-ip-rule btn-outline-primary mb-2',
 				action: () => {
-					const triggerEl = document.querySelector( 'a.offcanvas_form_create_ip_rule' );
-					if ( triggerEl ) {
+					const triggerEl = document.querySelector( '.offcanvas_form_create_ip_rule' );
+					if ( triggerEl instanceof HTMLElement ) {
 						triggerEl.click();
 					}
 				}
@@ -28,13 +27,28 @@ export class ShieldTableIpRules extends ShieldTableBase {
 	bindEvents() {
 		super.bindEvents();
 
-		shieldEventsHandler_Main.add_Click( 'td.ip_linked a.ip_delete', ( targetEl ) => {
-			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-				( new AjaxService() )
-				.send( ObjectOps.Merge( this._base_data.ajax.rule_delete, { rid: targetEl.dataset[ 'rid' ] } ) )
-				.then( () => this.tableReload() )
-				.finally();
+		shieldEventsHandler_Main.add_Click( 'td.ip_linked .ip_delete', async ( targetEl ) => {
+			if ( !( targetEl instanceof HTMLElement ) ) {
+				return;
 			}
+			const rid = targetEl.dataset[ 'rid' ] || '';
+			const dialog = shieldServices.dialog();
+			const confirmed = await dialog.confirm( {
+				message: this._base_data.strings.are_you_sure,
+				confirmLabel: dialog.resolveConfirmLabel( targetEl ),
+				danger: true,
+				launcher: targetEl,
+			} );
+			if ( !confirmed || rid.length < 1 ) {
+				return;
+			}
+
+			this.sendTableActionRequest(
+				this.$table,
+				ObjectOps.Merge( this._base_data.ajax.rule_delete, { rid } ),
+				'Communications error with site.',
+				{ reloadTableOnSuccess: true }
+			).catch( () => null );
 		} );
 		shieldEventsHandler_Main.addHandler(
 			'hidden.bs.offcanvas',

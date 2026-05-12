@@ -11,11 +11,11 @@
 				<li>
 					<code>{{ reg.label }}</code>
 					<span>{{ reg.used_at }}</span>
-					<a href="#"
-					   class="icwpWpsf-U2FRemove"
-					   style="text-decoration: none;"
-					   title="Remove"
-					   data-u2fid="{{ reg.label }}">&#10006;</a>
+					<button type="button"
+							class="icwpWpsf-U2FRemove shield-button-link"
+							style="text-decoration: none;"
+							title="Remove"
+							data-u2fid="{{ reg.label }}">&#10006;</button>
 				</li>
 			{% endfor %}
 		</ul>

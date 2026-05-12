@@ -49,6 +49,9 @@ class UserSessionTokenDuration extends Base {
 					'conditions' => IsLoggedInNormal::class,
 				],
 				[
+					'conditions' => ShieldHasValidCurrentSession::class,
+				],
+				[
 					'conditions' => $this->getDefaultConditionCheckCallable(),
 				],
 			]

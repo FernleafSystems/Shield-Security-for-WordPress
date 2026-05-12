@@ -59,11 +59,10 @@ class BuildSearchPanesData extends BaseBuildSearchPanesData {
 			sprintf( "SELECT DISTINCT `ri`.`item_id`
 						FROM `%s` as `ri`
 						WHERE `ri`.`item_type`='f'
+							AND `ri`.`scan`='afs'
 							AND `ri`.`ignored_at`=0
-							AND `ri`.`auto_filtered_at`!=0
-							AND `ri`.`item_repaired_at`=0
-							AND `ri`.`item_deleted_at`=0
-							AND `ri`.`deleted_at`=0
+							AND `ri`.`auto_filtered_at`=0
+							AND `ri`.`resolved_at`=0
 				",
 				self::con()->db_con->scan_result_items->getTable()
 			)

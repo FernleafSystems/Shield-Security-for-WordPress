@@ -7,70 +7,48 @@ use FernleafSystems\Wordpress\Services\Services;
 class Plugins extends PluginThemesBase {
 
 	public const SLUG = 'scanresults_plugins';
-	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/section/assets/plugins_index.twig';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig';
+
+	protected function getRenderTemplate() :string {
+		return $this->isActionsQueueDisplayContext()
+			? '/wpadmin_pages/insights/scans/results/actions_queue_asset_cards.twig'
+			: parent::getRenderTemplate();
+	}
 
 	protected function getRenderData() :array {
-		$items = $this->buildPluginsData();
-		\ksort( $items );
+		if ( $this->isActionsQueueDisplayContext() ) {
+			$pane = ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScansResultsViewBuilder() )
+				->buildActionsQueuePluginsPane( $this->getActionsQueueExplicitResultsDisplayOptions() );
 
-		$hashes = [];
-		$abandoned = [];
-		$vulnerable = [];
-		$problems = [];
-		$inactive = [];
-		$warning = [];
-		foreach ( $items as $key => $item ) {
-			if ( $item[ 'flags' ][ 'has_guard_files' ] ) {
-				unset( $items[ $key ] );
-				$hashes[] = $item;
-			}
-			elseif ( $item[ 'flags' ][ 'is_vulnerable' ] ) {
-				unset( $items[ $key ] );
-				$vulnerable[] = $item;
-			}
-			elseif ( $item[ 'flags' ][ 'is_abandoned' ] ) {
-				unset( $items[ $key ] );
-				$abandoned[] = $item;
-			}
-			elseif ( $item[ 'flags' ][ 'has_issue' ] ) {
-				unset( $items[ $key ] );
-				$problems[] = $item;
-			}
-			elseif ( $item[ 'flags' ][ 'has_warning' ] ) {
-				unset( $items[ $key ] );
-				$warning[] = $item;
-			}
+			return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
+				'flags'   => [
+					'is_disabled' => $pane[ 'is_disabled' ],
+				],
+				'strings' => [
+					'no_issues'         => __( "Previous scans didn't detect any modified, missing, or unrecognised files in plugin directories.", 'wp-simple-firewall' ),
+					'disabled_message'  => $pane[ 'disabled_message' ],
+					'select_asset_hint' => __( 'Select a plugin above to review its file table.', 'wp-simple-firewall' ),
+				],
+				'vars'    => [
+					'asset_cards'      => $pane[ 'cards' ],
+					'count_items'      => \count( $pane[ 'cards' ] ),
+					'disabled_actions' => $pane[ 'disabled_actions' ],
+				],
+			] );
 		}
 
-		$items = \array_merge( $vulnerable, $hashes, $abandoned, $problems, $warning, $inactive, $items );
+		$pane = ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScansResultsViewBuilder() )
+			->buildRailPaneData( 'plugins' );
 
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [
-				'no_files'      => __( "Scans didn't detect any modified or unrecognised files in the plugin directory.", 'wp-simple-firewall' ),
-				'files_found'   => __( "Scans detected modified or unrecognised files in the plugin directory.", 'wp-simple-firewall' ),
-				'not_active'    => __( "This plugin isn't active and should be uninstalled.", 'wp-simple-firewall' ),
-				'wporg_ok'      => __( "This plugin is installed from WordPress.org so actions such as file repair and file diff are available.", 'wp-simple-firewall' ),
-				'not_wporg'     => __( "This plugin isn't installed from WordPress.org so actions such as file repair and file diff aren't available.", 'wp-simple-firewall' ),
-				'no_tags'       => __( "The plugin developer chose not to use SVN tags for this version, so actions such as file repair and file diff aren't available.", 'wp-simple-firewall' ),
-				'go_to_plugins' => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Plugins', 'wp-simple-firewall' ) ),
-			],
-			'hrefs'   => [
-				'page_plugins' => Services::WpGeneral()->getAdminUrl_Plugins()
+				'no_issues' => __( "Previous scans didn't detect any modified, missing, or unrecognised files in plugin directories.", 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'count_items' => \count( $vulnerable ) + \count( $hashes )
-								 + \count( $abandoned ) + \count( $problems ),
-				'plugins'     => \array_values( $items ),
-			]
+				'count_items' => $pane[ 'count_items' ],
+			],
+			'tab'     => $pane,
+			'content' => [],
 		] );
-	}
-
-	private function buildPluginsData() :array {
-		return \array_map(
-			function ( $plugin ) {
-				return $this->buildPluginData( $plugin );
-			},
-			Services::WpPlugins()->getPluginsAsVo()
-		);
 	}
 }

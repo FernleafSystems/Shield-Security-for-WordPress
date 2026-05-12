@@ -19,11 +19,10 @@ class MerlinAction extends BaseAction {
 			$msg = $e->getMessage();
 		}
 
-		$this->response()->action_response_data = [
-			'success'     => $success,
+		$this->response()->setPayload( [
 			'message'     => $msg,
 			'page_reload' => $response->data[ 'page_reload' ] ?? false,
 			'show_toast'  => true,
-		];
+		] )->setPayloadSuccess( $success );
 	}
 }

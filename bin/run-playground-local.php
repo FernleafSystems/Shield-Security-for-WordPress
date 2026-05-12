@@ -3,18 +3,19 @@
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\SafeDirectoryRemover;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Process\Process;
 
 /**
  * Run WordPress Playground against the current Git working copy under the real plugin slug.
  *
  * Defaults to interactive server mode:
- *   composer playground:local
+ *   php bin/run-playground-local.php
  *
  * Non-interactive activation/login smoke test with explicit report:
- *   composer playground:local:check
+ *   php bin/run-playground-local.php --run-blueprint
  *
  * Cleanup old runtime artifacts:
- *   composer playground:local:clean
+ *   php bin/run-playground-local.php --clean
  */
 
 const EXIT_PASS = 0;
@@ -118,15 +119,22 @@ function runInteractiveServer(
 ) :int {
 	if ( $localPlaygroundBinary === null ) {
 		fwrite( STDERR, "Local @wp-playground/cli binary not found.\n" );
-		fwrite( STDERR, "Install it with: npm install --save-dev @wp-playground/cli\n" );
+		fwrite( STDERR, "Install it with: ".getPlaygroundInstallCommand()."\n" );
 		return EXIT_ENV;
 	}
 
 	$pluginPathInVfs = '/wordpress/wp-content/plugins/wp-simple-firewall';
 	$tempDir = pathJoin( $runtimeRoot, 'server-tmp-'.substr( bin2hex( random_bytes( 4 ) ), 0, 8 ) );
 	ensureDirectory( $tempDir );
-	putenv( 'TEMP='.$tempDir );
-	putenv( 'TMP='.$tempDir );
+	$originalTempEnv = captureTempEnvironment();
+	$tempEnvRestored = false;
+	register_shutdown_function( static function () use ( &$tempEnvRestored, $originalTempEnv ) :void {
+		if ( !$tempEnvRestored ) {
+			restoreTempEnvironment( $originalTempEnv );
+			$tempEnvRestored = true;
+		}
+	} );
+	applyTempEnvironment( $tempDir );
 
 	$runtimeProbe = probeRuntimeEnvironment(
 		$localPlaygroundBinary,
@@ -137,6 +145,8 @@ function runInteractiveServer(
 		$pluginPathInVfs,
 		$safeRemover
 	);
+	// Runtime probe uses a separate temp dir; force server launch back to this session temp dir.
+	applyTempEnvironment( $tempDir );
 	if ( !$runtimeProbe['ok'] ) {
 		fwrite( STDERR, "Interactive startup blocked: ".$runtimeProbe['error']."\n" );
 		fwrite(
@@ -152,6 +162,8 @@ function runInteractiveServer(
 		if ( $runtimeProbe['output_tail'] !== '' ) {
 			fwrite( STDERR, "Output Tail (last 30 lines):\n".$runtimeProbe['output_tail']."\n" );
 		}
+		restoreTempEnvironment( $originalTempEnv );
+		$tempEnvRestored = true;
 		return (int)$runtimeProbe['exit_code'];
 	}
 
@@ -189,7 +201,7 @@ function runInteractiveServer(
 	echo "Mounted plugin path: {$pluginPathInVfs}\n";
 	echo "Open in browser: http://127.0.0.1:{$port}/wp-admin/\n";
 	echo "Pruned stale runs: {$pruned['removed_dirs']} directories, ".formatBytes( $pruned['removed_bytes'] )."\n";
-	echo "Cleanup command: composer playground:local:clean\n";
+	echo "Cleanup command: php bin/run-playground-local.php --clean\n";
 	echo sprintf(
 		"Version Verification: requested PHP %s (major.minor %s), runtime PHP %s (major.minor %s)\n",
 		$runtimeProbe['requested_php'],
@@ -198,7 +210,18 @@ function runInteractiveServer(
 		$runtimeProbe['actual_php_major_minor']
 	);
 
-	return runPassthruCommand( $command );
+	$effectiveTempDir = resolveEffectiveTempDirectory();
+	if ( !is_dir( $effectiveTempDir ) ) {
+		fwrite( STDERR, "Playground CLI temp directory does not exist: {$effectiveTempDir}\n" );
+		restoreTempEnvironment( $originalTempEnv );
+		$tempEnvRestored = true;
+		return EXIT_ENV;
+	}
+
+	$exitCode = runPassthruCommand( $command );
+	restoreTempEnvironment( $originalTempEnv );
+	$tempEnvRestored = true;
+	return $exitCode;
 }
 
 function runSmokeCheck(
@@ -222,8 +245,7 @@ function runSmokeCheck(
 
 	ensureDirectory( $captureDir );
 	ensureDirectory( $tempDir );
-	putenv( 'TEMP='.$tempDir );
-	putenv( 'TMP='.$tempDir );
+	applyTempEnvironment( $tempDir );
 
 	$blueprintPath = buildSmokeCheckBlueprint( $runDir, true, $phpVersion, $wpVersion );
 	register_shutdown_function( static function () use ( $blueprintPath ) :void {
@@ -282,7 +304,7 @@ function runSmokeCheck(
 	elseif ( $localPlaygroundBinary === null ) {
 		$environmentFailure = true;
 		$summary['errors'][] = 'Local @wp-playground/cli binary not found.';
-		$summary['errors'][] = 'Install it with: npm install --save-dev @wp-playground/cli';
+		$summary['errors'][] = 'Install it with: '.getPlaygroundInstallCommand();
 	}
 	else {
 		$command = buildPlaygroundCommand(
@@ -686,52 +708,76 @@ function buildPreferredVersions( string $phpVersion, string $wpVersion ) :array 
 }
 
 function runPassthruCommand( array $command ) :int {
-	$commandString = implode(
-		' ',
-		array_map(
-			static fn( string $arg ) :string => escapeshellarg( $arg ),
-			$command
-		)
-	);
-	passthru( $commandString, $exitCode );
-	return (int)$exitCode;
+	$process = new Process( $command );
+	$process->setTimeout( null );
+	$process->run( static function ( string $type, string $buffer ) :void {
+		if ( $type === Process::ERR ) {
+			fwrite( STDERR, $buffer );
+		}
+		else {
+			echo $buffer;
+		}
+	} );
+
+	return $process->getExitCode() ?? 1;
 }
 
 function runCommandCapture( array $command ) :array {
-	$descriptorSpec = [
-		0 => [ 'pipe', 'r' ],
-		1 => [ 'pipe', 'w' ],
-		2 => [ 'pipe', 'w' ],
-	];
-	$commandString = implode(
-		' ',
-		array_map(
-			static fn( string $arg ) :string => escapeshellarg( $arg ),
-			$command
-		)
-	);
-	$process = proc_open( $commandString, $descriptorSpec, $pipes );
-	if ( !is_resource( $process ) ) {
+	$process = new Process( $command );
+	$process->setTimeout( null );
+
+	try {
+		$process->run();
+	}
+	catch ( Throwable $e ) {
 		return [
 			'exit_code' => 1,
 			'stdout' => '',
-			'stderr' => 'Failed to start process.',
+			'stderr' => $e->getMessage(),
 		];
 	}
 
-	fclose( $pipes[0] );
-	$stdout = stream_get_contents( $pipes[1] );
-	$stderr = stream_get_contents( $pipes[2] );
-	fclose( $pipes[1] );
-	fclose( $pipes[2] );
-
-	$exitCode = proc_close( $process );
-
 	return [
-		'exit_code' => (int)$exitCode,
-		'stdout' => is_string( $stdout ) ? $stdout : '',
-		'stderr' => is_string( $stderr ) ? $stderr : '',
+		'exit_code' => $process->getExitCode() ?? 1,
+		'stdout' => $process->getOutput(),
+		'stderr' => $process->getErrorOutput(),
 	];
+}
+
+function captureTempEnvironment() :array {
+	return [
+		'TEMP' => getenv( 'TEMP' ),
+		'TMP' => getenv( 'TMP' ),
+		'TMPDIR' => getenv( 'TMPDIR' ),
+	];
+}
+
+function applyTempEnvironment( string $tempDir ) :void {
+	putenv( 'TEMP='.$tempDir );
+	putenv( 'TMP='.$tempDir );
+	putenv( 'TMPDIR='.$tempDir );
+}
+
+function restoreTempEnvironment( array $environment ) :void {
+	foreach ( [ 'TEMP', 'TMP', 'TMPDIR' ] as $key ) {
+		$value = $environment[ $key ] ?? false;
+		if ( $value === false ) {
+			putenv( $key );
+		}
+		else {
+			putenv( $key.'='.(string)$value );
+		}
+	}
+}
+
+function resolveEffectiveTempDirectory() :string {
+	foreach ( [ 'TMPDIR', 'TMP', 'TEMP' ] as $key ) {
+		$value = getenv( $key );
+		if ( is_string( $value ) && trim( $value ) !== '' ) {
+			return normalizePath( $value );
+		}
+	}
+	return normalizePath( sys_get_temp_dir() );
 }
 
 function normalizePath( string $path ) :string {
@@ -1028,11 +1074,17 @@ function buildPlaygroundCommand( string $localPlaygroundBinary, string $subcomma
 
 function findLocalPlaygroundBinary( string $projectRoot ) :?string {
 	$candidates = \PHP_OS_FAMILY === 'Windows' ? [
+		pathJoin( $projectRoot, 'tools', 'playground', 'node_modules', '.bin', 'wp-playground-cli.cmd' ),
+		pathJoin( $projectRoot, 'tools', 'playground', 'node_modules', '.bin', 'wp-playground-cli' ),
+		pathJoin( $projectRoot, 'tools', 'playground', 'node_modules', '.bin', 'wp-playground.cmd' ),
+		pathJoin( $projectRoot, 'tools', 'playground', 'node_modules', '.bin', 'wp-playground' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground-cli.cmd' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground-cli' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground.cmd' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground' ),
 	] : [
+		pathJoin( $projectRoot, 'tools', 'playground', 'node_modules', '.bin', 'wp-playground-cli' ),
+		pathJoin( $projectRoot, 'tools', 'playground', 'node_modules', '.bin', 'wp-playground' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground-cli' ),
 		pathJoin( $projectRoot, 'node_modules', '.bin', 'wp-playground' ),
 	];
@@ -1043,6 +1095,10 @@ function findLocalPlaygroundBinary( string $projectRoot ) :?string {
 		}
 	}
 	return null;
+}
+
+function getPlaygroundInstallCommand() :string {
+	return 'npm ci --prefix tools/playground --no-audit --no-fund';
 }
 
 function probeRuntimeEnvironment(
@@ -1061,8 +1117,8 @@ function probeRuntimeEnvironment(
 
 	ensureDirectory( $captureDir );
 	ensureDirectory( $tempDir );
-	putenv( 'TEMP='.$tempDir );
-	putenv( 'TMP='.$tempDir );
+	$originalTempEnv = captureTempEnvironment();
+	applyTempEnvironment( $tempDir );
 
 	$blueprintPath = buildRuntimeProbeBlueprint( $probeDir, $phpVersion, $wpVersion );
 	try {
@@ -1152,6 +1208,7 @@ function probeRuntimeEnvironment(
 		];
 	}
 	finally {
+		restoreTempEnvironment( $originalTempEnv );
 		if ( is_file( $blueprintPath ) ) {
 			@unlink( $blueprintPath );
 		}
@@ -1245,15 +1302,15 @@ Options:
   --help            Show this help.
 
 Examples:
-  composer playground:local
-  composer playground:local:check
-  composer playground:local:clean
-  composer playground:local -- --php=8.3 --port=9500
-  composer playground:local:check -- --strict
-  composer playground:local:check -- --plugin-root=./shield-package
+  php bin/run-playground-local.php
+  php bin/run-playground-local.php --run-blueprint
+  php bin/run-playground-local.php --clean
+  php bin/run-playground-local.php --php=8.3 --port=9500
+  php bin/run-playground-local.php --run-blueprint --strict
+  php bin/run-playground-local.php --run-blueprint --plugin-root=./shield-package
 
 Notes:
-  Local local-run workflows require node_modules/.bin/wp-playground-cli.
-  Install once: npm install --save-dev @wp-playground/cli
+  Local Playground workflows use the isolated tools/playground install first and fall back to the root node_modules bin only for legacy setups.
+  Install once: npm ci --prefix tools/playground --no-audit --no-fund
 TXT;
 }

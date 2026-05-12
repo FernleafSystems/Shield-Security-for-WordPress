@@ -6,6 +6,15 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableSchema;
 
 class LoadRequestLogs extends \FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\BaseLoadRecordsForIPJoins {
 
+	public function forUserId( int $userId ) :self {
+		if ( $userId > 0 ) {
+			$wheres = \is_array( $this->wheres ) ? $this->wheres : [];
+			$wheres[] = \sprintf( '`req`.`uid`=%d', $userId );
+			$this->wheres = $wheres;
+		}
+		return $this;
+	}
+
 	/**
 	 * @return LogRecord[]
 	 */
@@ -34,6 +43,10 @@ class LoadRequestLogs extends \FernleafSystems\Wordpress\Plugin\Shield\DBs\Commo
 			'offense',
 			'created_at',
 		];
+	}
+
+	protected function getFallbackOrderByColumn() :string {
+		return 'created_at';
 	}
 
 	protected function getTableSchemaForJoinedTable() :TableSchema {

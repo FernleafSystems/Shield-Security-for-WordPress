@@ -1,0 +1,23 @@
+{% set layer_classes = ['drill-layer'] %}
+{% if layer.state == 'compact' %}
+	{% set layer_classes = layer_classes|merge(['drill-layer--compact']) %}
+{% elseif layer.state == 'hidden' %}
+	{% set layer_classes = layer_classes|merge(['drill-layer--hidden']) %}
+{% endif %}
+
+<div class="{{ layer_classes|join(' ') }}"
+	 id="{{ layer.id }}"
+	 role="region"
+	 aria-labelledby="{{ layer.title_id }}"
+	 aria-hidden="{% if layer.state == 'active' %}false{% else %}true{% endif %}"
+	 aria-busy="false"
+	 tabindex="-1"
+	 data-drill-layer="{{ layer.index }}"
+	 data-drill-layer-key="{{ layer.key }}"
+	 data-drill-layer-is-root="{% if layer.index == 0 %}1{% else %}0{% endif %}"
+	 data-drill-layer-header="{{ layer.header_json|e('html_attr') }}">
+	<h2 id="{{ layer.title_id }}" class="screen-reader-text" data-drill-layer-title="1">{{ layer.header.title }}</h2>
+	<div class="drill-layer__body">
+		{{ layer.body|raw }}
+	</div>
+</div>

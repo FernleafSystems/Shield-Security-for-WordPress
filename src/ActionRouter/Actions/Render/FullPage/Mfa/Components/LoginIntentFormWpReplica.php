@@ -13,9 +13,6 @@ class LoginIntentFormWpReplica extends BaseForm {
 				'button_cancel' => __( 'Cancel', 'wp-simple-firewall' ),
 				'button_submit' => __( 'Complete Login', 'wp-simple-firewall' ),
 			],
-			'vars'    => [
-				'message_type' => 'info',
-			],
 		];
 	}
 }

@@ -12,8 +12,8 @@ export class ReportingHandler extends BaseAutoExecComponent {
 	}
 
 	run() {
-		shieldEventsHandler_Main.add_Click( 'a.offcanvas_report_create_form', () => {
-			OffCanvasService.RenderCanvas( this._base_data.ajax.render_offcanvas )
+		shieldEventsHandler_Main.add_Click( '.offcanvas_report_create_form', ( launcher ) => {
+			OffCanvasService.RenderCanvas( this._base_data.ajax.render_offcanvas, { launcher } )
 							.then( () => this.postRender() )
 							.finally();
 		} );
@@ -89,8 +89,8 @@ export class ReportingHandler extends BaseAutoExecComponent {
 
 	showValidationError( missingFields ) {
 		const msg = this._base_data.strings.required_fields.replace( '%s', missingFields.join( ', ' ) );
-		if ( typeof shieldServices === 'undefined' ) {
-			alert( msg );
+		if ( typeof shieldServices === 'undefined' || typeof shieldServices.notification !== 'function' ) {
+			console.warn( msg );
 		}
 		else {
 			shieldServices.notification().showMessage( msg, false );

@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\SiteHealth;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Handler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Meter\MeterOverallConfig;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZoneSignals;
 
 class Analysis extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender {
 
@@ -16,7 +15,7 @@ class Analysis extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Act
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$components = ( new Handler() )->getMeter( MeterOverallConfig::SLUG, false )[ 'components' ];
+		$components = $this->buildZoneSignals();
 		return [
 			'hrefs'   => [
 				'dashboard_home' => $con->plugin_urls->adminHome(),
@@ -41,5 +40,9 @@ class Analysis extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Act
 				'improvement_components' => \array_filter( $components, fn( $c ) => !$c[ 'is_protected' ] && $c[ 'weight' ] < self::CRITICAL_BOUNDARY ),
 			],
 		];
+	}
+
+	protected function buildZoneSignals() :array {
+		return ( new BuildZoneSignals() )->build();
 	}
 }

@@ -18,12 +18,11 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  * @property array       $params_query
  */
 abstract class BaseApi extends DynPropertiesClass {
-
 	public const DEFAULT_URL_STUB = '';
 	public const API_ACTION = '';
-	public const DEFAULT_API_VERSION = '1';
+	public const DEFAULT_API_VERSION = 1;
 
-	protected function sendReq() :?array {
+	protected function sendReq(): ?array {
 		$httpReq = Services::HttpRequest();
 
 		$reqParams = $this->getRequestParams();
@@ -61,11 +60,11 @@ abstract class BaseApi extends DynPropertiesClass {
 		return $response;
 	}
 
-	protected function getApiRequestUrl() :string {
+	protected function getApiRequestUrl(): string {
 		return sprintf( '%s/v%s/%s', $this->lookup_url_stub, $this->api_version, static::API_ACTION );
 	}
 
-	protected function getRequestParams() :array {
+	protected function getRequestParams(): array {
 		return [
 			'timeout' => $this->timeout,
 			'headers' => $this->headers,
@@ -75,7 +74,7 @@ abstract class BaseApi extends DynPropertiesClass {
 	/**
 	 * @return string[]
 	 */
-	protected function getRequestParamKeys() :array {
+	protected function getRequestParamKeys(): array {
 		return [];
 	}
 
@@ -99,7 +98,7 @@ abstract class BaseApi extends DynPropertiesClass {
 				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
-				if ( $this->headers[ 'Content-Type' ] ?? '' === 'application/json' ) {
+				if ( ( $this->headers[ 'Content-Type' ] ?? '' ) === 'application/json' ) {
 					$value = \wp_json_encode( $value );
 				}
 				break;

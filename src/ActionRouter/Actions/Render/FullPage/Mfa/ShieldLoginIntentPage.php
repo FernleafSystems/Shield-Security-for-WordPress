@@ -13,18 +13,10 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 		$con = self::con();
 		return [
 			'strings' => [
-				'what_is_this' => __( 'What is this?', 'wp-simple-firewall' ),
 				'page_title'   => sprintf( __( '%s Login Verification', 'wp-simple-firewall' ), $con->labels->Name ),
 			],
-			'hrefs'   => [
-				'what_is_this' => 'https://help.getshieldsecurity.com/article/322-what-is-the-login-authentication-portal',
-			],
 			'imgs'    => [
-				'logo_banner' => $con->labels->url_img_pagebanner,
 				'favicon'     => $con->labels->icon_url_32x32,
-			],
-			'flags'   => [
-				'show_branded_links' => !$con->comps->whitelabel->isEnabled(),
 			],
 			'content' => [
 				'form' => $con->action_router->render( Components\LoginIntentFormShield::class, $this->action_data ),

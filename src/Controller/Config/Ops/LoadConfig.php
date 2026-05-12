@@ -33,24 +33,23 @@ class LoadConfig {
 	 */
 	public function run() :ConfigVO {
 		$WPP = Services::WpPlugins();
+		$pluginVersion = $WPP->getPluginAsVo( self::con()->base_file )->Version;
 
 		$def = $this->parseDef();
-		$rebuild = empty( $def ) || !\is_array( $def ) || ( empty( $def[ 'config_spec' ] ) && empty( $def[ 'configuration' ] ) );
+		$rebuild = empty( $def ) || ( empty( $def[ 'config_spec' ] ) && empty( $def[ 'configuration' ] ) );
 
-		$specHash = \hash_file( 'sha1', $this->path );
+		$specHash = $this->buildFileSignature();
 		$previousVersion = ( \is_array( $def ) && !empty( $def[ 'previous_version' ] ) ) ? $def[ 'previous_version' ] : null;
 		if ( !$rebuild ) {
 			$version = $def[ 'properties' ][ 'version' ] ?? '0';
 			$rebuild = empty( $def[ 'hash' ] )
-					   || !\hash_equals( $def[ 'hash' ], $specHash )
-					   || ( $version !== $WPP->getPluginAsVo( self::con()->base_file )->Version )
-					   || empty( $def[ 'last_file_load_at' ] )
-					   || Services::Request()->ts() - $def[ 'last_file_load_at' ] > MINUTE_IN_SECONDS*15;
-			$def[ 'hash' ] = $specHash;
+					   || !\hash_equals( (string)$def[ 'hash' ], $specHash )
+					   || ( $version !== $pluginVersion );
 		}
 
 		if ( $rebuild ) {
 			$def = $this->fromFile();
+			$def[ 'hash' ] = $specHash;
 			$def[ 'last_file_load_at' ] = Services::Request()->ts();
 			$def[ 'previous_version' ] = $previousVersion;
 		}
@@ -58,16 +57,26 @@ class LoadConfig {
 		$cfg = ( new ConfigVO() )->applyFromArray( $def );
 		$cfg->hash = $specHash;
 		$cfg->rebuilt = $rebuild;
+		$cfg->persist_required = $rebuild;
 
 		if ( empty( $cfg->previous_version ) ) {
 			$cfg->previous_version = $cfg->properties[ 'version' ];
 		}
 
-		if ( $cfg->properties[ 'version' ] !== $WPP->getPluginAsVo( self::con()->base_file )->Version ) {
+		if ( $cfg->properties[ 'version' ] !== $pluginVersion ) {
 			throw new VersionMismatchException();
 		}
 
 		return $cfg;
+	}
+
+	private function buildFileSignature() :string {
+		$FS = Services::WpFs();
+		return sprintf(
+			'%d:%d',
+			$FS->getModifiedTime( $this->path ),
+			(int)( $FS->getFileSize( $this->path ) ?? 0 )
+		);
 	}
 
 	/**

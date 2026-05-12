@@ -6,18 +6,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TestContent {
-
 	use PluginControllerConsumer;
 
 	/**
 	 * @var string[]
 	 */
-	private $list;
+	private ?array $list = null;
 
 	/**
 	 * @return string[][]
 	 */
-	public function findSpam( array $itemsToTest, bool $finishAfterFirst = true ) :array {
+	public function findSpam( array $itemsToTest, bool $finishAfterFirst = true ): array {
 		$spamFound = [];
 
 		foreach ( $this->getSpamList() as $word ) {
@@ -39,12 +38,12 @@ class TestContent {
 		return $spamFound;
 	}
 
-	private function getSpamList() :array {
+	private function getSpamList(): array {
 		if ( !\is_array( $this->list ) ) {
 			$FS = Services::WpFs();
 			$file = $this->getFile();
 			if ( $FS->exists( $file )
-				 && Services::Request()->ts() - $FS->getModifiedTime( $file ) < \MONTH_IN_SECONDS ) {
+			     && Services::Request()->ts() - $FS->getModifiedTime( $file ) < \MONTH_IN_SECONDS ) {
 				$this->list = \array_map( '\base64_decode', \explode( "\n", (string)$FS->getFileContent( $file, true ) ) );
 			}
 			else {
@@ -55,10 +54,9 @@ class TestContent {
 		return $this->list;
 	}
 
-	private function downloadBlacklist() :array {
-		$rawList = Services::HttpRequest()
-						   ->getContent( self::con()->cfg->configuration->def( 'url_spam_blacklist_terms' ) );
-		return \array_filter( \array_map( '\trim', \explode( "\n", $rawList ) ) );
+	private function downloadBlacklist(): array {
+		$url = self::con()->cfg->configuration->def( 'url_spam_blacklist_terms' );
+		return \array_filter( \array_map( '\trim', \explode( "\n", Services::HttpRequest()->getContent( $url ) ) ) );
 	}
 
 	private function storeList( array $list ) {
@@ -71,7 +69,7 @@ class TestContent {
 		}
 	}
 
-	private function getFile() :string {
+	private function getFile(): string {
 		return self::con()->cache_dir_handler->cacheItemPath( 'spamblacklist.txt' );
 	}
 }

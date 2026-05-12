@@ -156,76 +156,131 @@ $options-rail-width-max: 260px;
   margin-top: 0.5rem;
 }
 
-.options_form_for--modern .option_form_row.shield-option-row {
-  margin: 0;
-  padding: 0.9rem 0.35rem;
+// ─── Option Item (row + description wrapper) ───
+.options_form_for--modern .shield-option-item {
   border-bottom: 1px solid $options-border-subtle;
 }
 
-.options_form_for--modern .shield-options-option-list .shield-option-row:last-child {
+.options_form_for--modern .shield-options-option-list .shield-option-item:last-child {
   border-bottom: 0;
 }
 
-.options_form_for--modern .option_form_row.shield-option-row.focus_option {
-  border-radius: 8px;
-  border: 1px solid #c9ddc9;
-  background: #f4faf4;
-  box-shadow: none;
-  margin-bottom: 0.5rem;
+.options_form_for--modern .shield-option-item.shield-option-item-expanded {
+  background: $options-surface-1;
 }
 
-.options_form_for--modern .shield-option-label-col,
-.options_form_for--modern .shield-option-control-col {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+// ─── Option Row (flex: label-zone | control) ───
+.options_form_for--modern .shield-option-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem 0.8rem;
 }
 
-.options_form_for--modern .shield-option-description-col {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+// ─── Label Zone ───
+.options_form_for--modern .shield-option-label-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.options_form_for--modern .shield-option-label-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .options_form_for--modern .option_label_name {
-  position: relative;
   color: $options-text-strong;
   font-size: 0.85rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 
-.options_form_for--modern .option-help-container {
-  opacity: 1;
-  transition: none;
+// ─── Helper Icon Pills ───
+.options_form_for--modern .shield-option-helpers {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
-.options_form_for--modern .option-help-container .svg-container {
-  color: #55615a;
+.options_form_for--modern .shield-config-icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 99px;
   border: 1px solid #d8e0d8;
-  border-radius: 999px;
   background: $surface-color-neutral-raised;
-  padding: 0.18rem 0.35rem;
+  color: #55615a;
+  padding: 0;
   line-height: 1;
-  transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
 }
 
-.options_form_for--modern .option-help-container .svg-container:hover {
+.options_form_for--modern button.shield-config-icon-action {
+  appearance: none;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+.options_form_for--modern .shield-config-icon-action:hover,
+.options_form_for--modern .shield-config-icon-action:focus-visible {
   color: $primary;
   border-color: #c1d9c1;
   background: #f2faf2;
 }
 
-.options_form_for--modern .option-help-container .svg-container > svg {
-  width: 15px;
-  height: 15px;
-  vertical-align: middle;
+.options_form_for--modern .shield-config-icon-action[aria-expanded="true"] {
+  border-color: #c9ddc9;
+  background: #e8f4e4;
+  color: $primary;
 }
 
-.options_form_for--modern .option_label_name .beacon-article > sup svg {
-  width: 14px;
+.options_form_for--modern .shield-config-icon-action > .bi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  font-size: 12px;
+  line-height: 1;
+  vertical-align: 0;
 }
 
-.options_form_for--modern .option_link_info > .dashicons {
-  font-size: 16px;
-  text-decoration: none;
+.options_form_for--modern .shield-config-icon-action > .bi::before {
+  display: block;
+  line-height: 1;
+  vertical-align: 0;
+}
+
+.options_form_for--modern .shield-config-icon-action--upgrade {
+  color: $primary;
+}
+
+// ─── Summary ───
+.options_form_for--modern .options-summary {
+  margin: 0;
+  color: $options-text-muted;
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.45;
+}
+
+// ─── Control Column ───
+.options_form_for--modern .shield-option-control-col {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  min-width: 0;
 }
 
 .options_form_for--modern .shield-option-control-col .form-control,
@@ -236,7 +291,22 @@ $options-rail-width-max: 260px;
   border: 1px solid $options-border-strong;
   border-radius: 8px;
   font-size: 0.84rem;
-  padding: 0.45rem 0.55rem;
+  padding: 0.35rem 0.5rem;
+  width: 220px;
+}
+
+.options_form_for--modern .shield-option-stacked-control {
+  display: grid;
+  gap: 0.45rem;
+  width: 220px;
+}
+
+.options_form_for--modern .shield-option-stacked-control .form-control {
+  width: 100%;
+}
+
+.options_form_for--modern .shield-option-control-col textarea.form-control {
+  width: min(100%, 440px);
 }
 
 .options_form_for--modern .shield-option-control-col .form-check-label {
@@ -244,58 +314,116 @@ $options-rail-width-max: 260px;
   font-size: 0.84rem;
 }
 
-.options_form_for--modern .options-summary {
-  margin-top: 0.6rem;
-  margin-bottom: 0;
-  color: $options-text-muted;
-  font-size: 0.78rem;
-  font-style: normal;
+.options_form_for--modern .shield-option-multiple-list {
+  display: grid;
+  gap: 0.4rem;
+  width: min(100%, 280px);
 }
 
-.options_form_for--modern .shield-option-description-col .option-description {
-  margin-top: 0.45rem;
-  margin-bottom: 0.3rem;
-  padding: 0.75rem 0.9rem 0.45rem;
+.options_form_for--modern .shield-option-multiple-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  min-height: 0;
+  margin: 0;
+  padding-left: 0;
+}
+
+.options_form_for--modern .shield-option-multiple-item .form-check-input {
+  margin-top: 0.2rem;
+  margin-left: 0;
+  flex-shrink: 0;
+}
+
+.options_form_for--modern .shield-option-multiple-item .form-check-label {
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+// ─── Bootstrap Switch Overrides ───
+.options_form_for--modern .shield-option-control-col .form-switch {
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0;
+  min-height: 0;
+}
+
+.options_form_for--modern .shield-option-control-col .form-switch .form-check-input {
+  width: 2.25rem;
+  height: 1.25rem;
+  margin-top: 0;
+  margin-left: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.options_form_for--modern .shield-option-control-col .form-switch .form-check-input:checked {
+  background-color: $primary;
+  border-color: $primary;
+}
+
+.options_form_for--modern .shield-option-control-col .form-switch .form-check-input:focus {
+  @include shield-focus-ring();
+  border-color: #c9ddc9;
+}
+
+.options_form_for--modern .shield-option-switch-state {
+  font-size: 0.78rem;
+  color: $options-text-muted;
+  white-space: nowrap;
+  user-select: none;
+  order: -1;
+}
+
+.options_form_for--modern .shield-option-switch-state.on {
+  color: $primary;
+  font-weight: 500;
+}
+
+// ─── Description Block ───
+.options_form_for--modern .option-description {
+  padding: 0 1rem 0.7rem;
+}
+
+.options_form_for--modern .option-description-content {
+  padding: 0.58rem 0.85rem 0.42rem;
   border: 1px solid #e1e6e1;
   border-left: 3px solid $accent-color-salt-green;
   background: $surface-color-neutral-raised;
   border-radius: 8px;
 }
 
-.options_form_for--modern .shield-option-description-col .option-description p {
-  margin-bottom: 0.45rem;
+.options_form_for--modern .option-description-content p {
+  margin-bottom: 0.35rem;
   color: #556170;
   font-size: 0.8rem;
+  line-height: 1.5;
 }
 
-.options_form_for--modern .shield-option-description-col .toggle-importexport-container {
-  display: block;
-  margin: 0.55rem 0 0 !important;
-  padding: 0.55rem 0 0 !important;
-  border: 0 none !important;
-  border-top: 1px solid #dce4dc !important;
-  border-radius: 0 !important;
-  background: transparent !important;
+.options_form_for--modern .option-description-content p:last-child {
+  margin-bottom: 0;
 }
 
-.options_form_for--modern .shield-option-description-col .toggle-importexport-container:hover {
-  background: transparent !important;
+// ─── Import/Export Toggle ───
+.options_form_for--modern .option-description .toggle-importexport-container {
+  margin-top: 0.5rem;
+  cursor: pointer;
 }
 
-.options_form_for--modern .shield-option-description-col .toggle-importexport-container .toggle-importexport-inclusion {
+.options_form_for--modern .option-description .toggle-importexport-inclusion {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   font-size: 0.78rem;
   color: #5f6a63;
-}
-
-.options_form_for--modern .toggle-importexport-container {
   cursor: pointer;
-  border-color: $border-color-neutral-subtle !important;
-  background: $surface-color-neutral-raised;
-  margin-bottom: 0.2rem !important;
+  margin: 0;
 }
 
-.options_form_for--modern .toggle-importexport-container:hover {
-  background-color: #f3f6f3;
+.options_form_for--modern .option-description .toggle-importexport-inclusion input[type="checkbox"] {
+  cursor: pointer;
 }
 
 .options_form_for--modern .shield-options-save-row {
@@ -308,15 +436,6 @@ $options-rail-width-max: 260px;
 
 .options_form_for--modern .shield-options-save-row-inline {
   padding-left: 0.1rem;
-}
-
-.options_form_for--modern a.section_title_info .dashicons {
-  color: #5b665f;
-  transition: color 0.2s ease;
-}
-
-.options_form_for--modern a.section_title_info:hover .dashicons {
-  color: $primary;
 }
 
 @container (max-width: 600px) {
@@ -346,5 +465,67 @@ $options-rail-width-max: 260px;
   .options_form_for--modern .shield-options-rail-save {
     padding-top: 0.5rem;
     border-top: 1px solid $options-border-subtle;
+  }
+
+  .options_form_for--modern .shield-option-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7rem;
+  }
+
+  .options_form_for--modern .shield-option-control-col {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .options_form_for--modern .shield-option-control-col .form-control,
+  .options_form_for--modern .shield-option-control-col .form-select,
+  .options_form_for--modern .shield-option-control-col textarea,
+  .options_form_for--modern .shield-option-control-col input[type='text'],
+  .options_form_for--modern .shield-option-control-col input[type='password'],
+  .options_form_for--modern .shield-option-stacked-control,
+  .options_form_for--modern .shield-option-multiple-list {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+// Embedded expansion mode: strip all chrome
+.options_form_for--modern[data-context="expansion"] {
+
+  .shield-options-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .shield-options-rail {
+    display: none;
+  }
+
+  .shield-options-panel {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .shield-options-panel-accent {
+    display: none;
+  }
+
+  .shield-options-panel-header {
+    display: none;
+  }
+
+  .shield-options-panel-body {
+    padding: 0.85rem;
+  }
+
+  .shield-options-save-row {
+    display: none;
+  }
+
+  // When rail is hidden, show all tab panes
+  .tab-pane {
+    display: block !important;
+    opacity: 1;
   }
 }

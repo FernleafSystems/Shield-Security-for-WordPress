@@ -38,7 +38,7 @@ if [ -n "$SHIELD_PACKAGE_PATH" ]; then
         exit 1
     fi
     
-    echo "✓ Package verification successful"
+    echo " Package verification successful"
     # Export to ensure it's available to child processes
     export SHIELD_PACKAGE_PATH
 else
@@ -78,7 +78,7 @@ echo "MySQL is ready!"
 echo "Installing WordPress test environment..."
 if [ -f "bin/install-wp-tests.sh" ]; then
     # Pass 'true' as SKIP_DB_CREATE parameter (6th arg) since database is pre-created by Docker
-    bin/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASS" "$DB_HOST" "$WP_VERSION" true
+    bash bin/install-wp-tests.sh "$DB_NAME" "$DB_USER" "$DB_PASS" "$DB_HOST" "$WP_VERSION" true
 else
     echo "Error: bin/install-wp-tests.sh not found"
     exit 1
@@ -102,7 +102,7 @@ fi
 # Verify source directory exists before attempting symlink
 if [ ! -d "$PLUGIN_SOURCE_DIR" ]; then
     echo ""
-    echo "❌ FATAL: Plugin source directory does not exist"
+    echo " FATAL: Plugin source directory does not exist"
     echo "   Expected: $PLUGIN_SOURCE_DIR"
     echo "   SHIELD_PACKAGE_PATH: ${SHIELD_PACKAGE_PATH:-not set}"
     echo ""
@@ -116,7 +116,7 @@ fi
 # Verify main plugin file exists in source
 if [ ! -f "$PLUGIN_SOURCE_DIR/icwp-wpsf.php" ]; then
     echo ""
-    echo "❌ FATAL: Main plugin file not found in source directory"
+    echo " FATAL: Main plugin file not found in source directory"
     echo "   Expected: $PLUGIN_SOURCE_DIR/icwp-wpsf.php"
     echo "   Directory contents:"
     ls -la "$PLUGIN_SOURCE_DIR" 2>/dev/null || echo "   (could not list directory)"
@@ -127,7 +127,7 @@ fi
 # Create plugins directory if it doesn't exist
 if ! mkdir -p "$WP_PLUGINS_DIR"; then
     echo ""
-    echo "❌ FATAL: Could not create WordPress plugins directory"
+    echo " FATAL: Could not create WordPress plugins directory"
     echo "   Target: $WP_PLUGINS_DIR"
     echo "   Check filesystem permissions"
     echo ""
@@ -143,7 +143,7 @@ fi
 echo "Creating symlink: $WP_PLUGINS_DIR/$PLUGIN_SLUG -> $PLUGIN_SOURCE_DIR"
 if ! ln -s "$PLUGIN_SOURCE_DIR" "$WP_PLUGINS_DIR/$PLUGIN_SLUG"; then
     echo ""
-    echo "❌ FATAL: Could not create symlink"
+    echo " FATAL: Could not create symlink"
     echo "   Source: $PLUGIN_SOURCE_DIR"
     echo "   Target: $WP_PLUGINS_DIR/$PLUGIN_SLUG"
     echo ""
@@ -156,12 +156,12 @@ if ! ln -s "$PLUGIN_SOURCE_DIR" "$WP_PLUGINS_DIR/$PLUGIN_SLUG"; then
     echo ""
     exit 1
 fi
-echo "✓ Plugin symlinked successfully"
+echo " Plugin symlinked successfully"
 
 # Verify the symlink works (can access plugin file through it)
 if [ ! -f "$WP_PLUGINS_DIR/$PLUGIN_SLUG/icwp-wpsf.php" ]; then
     echo ""
-    echo "❌ FATAL: Symlink created but plugin file not accessible through it"
+    echo " FATAL: Symlink created but plugin file not accessible through it"
     echo "   Symlink: $WP_PLUGINS_DIR/$PLUGIN_SLUG"
     echo "   Points to: $(readlink "$WP_PLUGINS_DIR/$PLUGIN_SLUG")"
     echo "   Expected file: $WP_PLUGINS_DIR/$PLUGIN_SLUG/icwp-wpsf.php"
@@ -170,47 +170,96 @@ if [ ! -f "$WP_PLUGINS_DIR/$PLUGIN_SLUG/icwp-wpsf.php" ]; then
     echo ""
     exit 1
 fi
-echo "✓ Plugin file accessible via symlink"
+echo " Plugin file accessible via symlink"
 
 # Handle dependency installation based on testing mode
 if [ -n "$SHIELD_PACKAGE_PATH" ]; then
     echo "Package Testing Mode: Skipping dependency installation (package should be pre-built)"
-    echo "ℹ Note: Package testing assumes all dependencies are already installed in the package"
+    echo " Note: Package testing assumes all dependencies are already installed in the package"
 else
-    # Install Composer dependencies for source testing
-    echo "Source Testing Mode: Installing Composer dependencies..."
-    composer install --no-interaction --no-cache
+    if [ "${SHIELD_SKIP_INNER_SETUP:-0}" = "1" ]; then
+        echo "Source Testing Mode: Skipping inner setup (SHIELD_SKIP_INNER_SETUP=1)"
+    else
+        # Install Composer dependencies for source testing
+        echo "Source Testing Mode: Installing Composer dependencies..."
+        composer install --no-interaction --prefer-dist --no-progress
 
-    # Generate plugin.json from modular spec files (source testing only)
-    # In package mode, PluginPackager already generates plugin.json in the package
-    echo "Generating plugin.json from plugin-spec/ files..."
-    php bin/build-config.php
+        # Generate plugin.json from modular spec files (source testing only)
+        # In package mode, PluginPackager already generates plugin.json in the package
+        echo "Generating plugin.json from plugin-spec/ files..."
+        php bin/build-config.php
+    fi
 fi
 
 # Run tests with environment variable support
-echo "Running PHPUnit tests..."
+echo "Running tests..."
+
+# Normalize boolean-like environment values.
+is_truthy() {
+    case "$1" in
+        1|true|TRUE|True|yes|YES|on|ON) return 0 ;;
+        *) return 1 ;;
+    esac
+}
 
 # Build PHPUnit extra flags
-# Default: debug enabled (set PHPUNIT_DEBUG=0 to disable)
+# Resolution order:
+# 1) Explicit PHPUNIT_DEBUG wins.
+# 2) SHIELD_TEST_VERBOSE forces debug on.
+# 3) Legacy aliases (SHIELD_DEBUG / SHIELD_DEBUG_PATHS) force debug on.
+# 4) CI/GitHub Actions default to debug off.
+# 5) Local default remains debug on.
 PHPUNIT_EXTRA_FLAGS=""
-if [ "${PHPUNIT_DEBUG:-1}" = "1" ] || [ "${PHPUNIT_DEBUG:-}" = "true" ]; then
+if [ -n "${PHPUNIT_DEBUG:-}" ]; then
+    if is_truthy "${PHPUNIT_DEBUG:-}"; then
+        PHPUNIT_EXTRA_FLAGS="--debug"
+        echo "PHPUnit debug mode enabled (explicit PHPUNIT_DEBUG)"
+    else
+        echo "PHPUnit debug mode disabled (explicit PHPUNIT_DEBUG)"
+    fi
+elif is_truthy "${SHIELD_TEST_VERBOSE:-}"; then
     PHPUNIT_EXTRA_FLAGS="--debug"
-    echo "PHPUnit debug mode enabled"
+    echo "PHPUnit debug mode enabled (SHIELD_TEST_VERBOSE)"
+elif is_truthy "${SHIELD_DEBUG:-}" || is_truthy "${SHIELD_DEBUG_PATHS:-}"; then
+    PHPUNIT_EXTRA_FLAGS="--debug"
+    echo "PHPUnit debug mode enabled (legacy Shield verbose alias)"
+elif is_truthy "${CI:-}" || is_truthy "${GITHUB_ACTIONS:-}"; then
+    echo "PHPUnit debug mode disabled (CI default)"
+else
+    PHPUNIT_EXTRA_FLAGS="--debug"
+    echo "PHPUnit debug mode enabled (local default)"
 fi
 
 # Prepare environment variables for PHPUnit
 PHPUNIT_ENV=""
 if [ -n "$SHIELD_PACKAGE_PATH" ]; then
     PHPUNIT_ENV="SHIELD_PACKAGE_PATH=$SHIELD_PACKAGE_PATH"
-    echo "ℹ Passing SHIELD_PACKAGE_PATH to PHPUnit: $SHIELD_PACKAGE_PATH"
+    echo " Passing SHIELD_PACKAGE_PATH to PHPUnit: $SHIELD_PACKAGE_PATH"
 fi
 
+# Unit runner mode defaults to explicit parallel execution.
+SHIELD_UNIT_TEST_MODE_RESOLVED="${SHIELD_UNIT_TEST_MODE:-parallel}"
+case "$SHIELD_UNIT_TEST_MODE_RESOLVED" in
+    auto|parallel|serial)
+        ;;
+    *)
+        echo "ERROR: Invalid SHIELD_UNIT_TEST_MODE value: $SHIELD_UNIT_TEST_MODE_RESOLVED"
+        echo "Expected one of: auto, parallel, serial"
+        exit 1
+        ;;
+esac
+
 # Run Unit Tests
-echo "Running Unit Tests..."
-if [ -n "$PHPUNIT_ENV" ]; then
-    env $PHPUNIT_ENV vendor/bin/phpunit -c phpunit-unit.xml --no-coverage $PHPUNIT_EXTRA_FLAGS
+if is_truthy "${SHIELD_SKIP_UNIT_TESTS:-0}"; then
+    echo "Skipping Unit Tests (SHIELD_SKIP_UNIT_TESTS)"
 else
-    vendor/bin/phpunit -c phpunit-unit.xml --no-coverage $PHPUNIT_EXTRA_FLAGS
+    echo "Running Unit Tests..."
+    echo "Unit test runner mode: $SHIELD_UNIT_TEST_MODE_RESOLVED"
+    if [ -n "$PHPUNIT_ENV" ]; then
+        env $PHPUNIT_ENV php bin/run-unit-tests.php --runner-mode="$SHIELD_UNIT_TEST_MODE_RESOLVED" $PHPUNIT_EXTRA_FLAGS
+    else
+        php bin/run-unit-tests.php --runner-mode="$SHIELD_UNIT_TEST_MODE_RESOLVED" $PHPUNIT_EXTRA_FLAGS
+    fi
 fi
 
 # Run Integration Tests

@@ -1,0 +1,29 @@
+<div class="actions-queue-buckets shield-stack">
+	<div class="actions-queue-buckets__grid">
+		{% for bucket in buckets %}
+			<button type="button"
+					class="actions-queue-bucket-card status-{{ bucket.status }}"
+					data-drill-target="groups"
+					data-drill-bucket-selection="{{ bucket.selection.selection_json }}"
+					{% if not bucket.is_interactive %}disabled{% endif %}>
+				<div class="actions-queue-bucket-card__severity">
+					<span class="actions-queue-bucket-card__severity-label">{{ bucket.state_label }}</span>
+					<span class="actions-queue-bucket-card__count">{{ bucket.display_count }}</span>
+				</div>
+				<div class="actions-queue-bucket-card__title">{{ bucket.label }}</div>
+				<div class="actions-queue-bucket-card__summary">{{ bucket.summary_text }}</div>
+			</button>
+		{% endfor %}
+	</div>
+	{% if healthy_rows is not empty %}
+		<div class="item-box item-box--good">
+			<div class="item-box__grid">
+				{% for row in healthy_rows %}
+					{% include '/wpadmin/components/actions_queue/compact_summary_row.twig' with {
+						row: row
+					} only %}
+				{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+</div>

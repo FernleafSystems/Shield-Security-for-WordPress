@@ -1,0 +1,43 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+
+/**
+ * @phpstan-type ScanRuntime array{
+ *   is_running:bool,
+ *   enqueued_count:int,
+ *   running_states:array<string,bool>,
+ *   current_slug:string,
+ *   current_name:string,
+ *   progress:float
+ * }
+ */
+class BuildScanRuntime {
+
+	use PluginControllerConsumer;
+
+	/**
+	 * @return ScanRuntime
+	 */
+	public function build() :array {
+		$status = new ScansStatus();
+		$scanState = $status->activeSnapshot();
+		$currentSlug = $scanState[ 'current' ];
+		$enqueued = $scanState[ 'enqueued' ];
+		$queueCon = self::con()->comps->scans_queue;
+
+		return [
+			'is_running'     => !empty( $enqueued ),
+			'enqueued_count' => \count( $enqueued ),
+			'running_states' => $queueCon->getScansRunningStates( $enqueued ),
+			'current_slug'   => $currentSlug,
+			'current_name'   => $currentSlug === ''
+				? ''
+				: self::con()->comps->scans->getScanCon( $currentSlug )->getScanName(),
+			'progress'       => (float)$queueCon->getScanJobProgress(),
+		];
+	}
+}

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\NotBotHandler;
 
 class CaptureNotBot extends BaseAction {
 
@@ -13,6 +14,7 @@ class CaptureNotBot extends BaseAction {
 
 	protected function exec() {
 		$con = self::con();
+		$response = $this->response();
 		try {
 			$con->comps->events->fireEvent( 'bottrack_multiple', [
 				'data' => [
@@ -24,17 +26,16 @@ class CaptureNotBot extends BaseAction {
 
 			$notBotCon = $con->comps->not_bot;
 			$notBotCon->sendNotBotFlagCookie();
+			$requiredSignals = $notBotCon->getRequiredSignals();
 
-			$this->response()->success = true;
-			$this->response()->action_response_data = [
-				'success'     => true,
-				'altcha_data' => $notBotCon->getRequiredSignals() ?
+			$response->setPayload( [
+				'altcha_data' => \in_array( NotBotHandler::SIGNAL_ALTCHA, $requiredSignals, true ) ?
 					ActionData::Build( CaptureNotBotAltcha::class, true, $con->comps->altcha->generateChallenge() ) : [],
-			];
+			] )->setPayloadSuccess( true );
 		}
 		catch ( \Exception $e ) {
 //			error_log( $e->getMessage() );
-			$this->response()->success = false;
+			$response->setPayloadSuccess( false );
 		}
 	}
 

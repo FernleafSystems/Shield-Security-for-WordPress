@@ -1,0 +1,30 @@
+{% if vars.recovery.is_available %}
+	<div class="modal fade"
+	     role="dialog"
+	     id="{{ vars.recovery.modal.id }}"
+	     aria-labelledby="{{ vars.recovery.modal.title_id }}"
+	     aria-describedby="{{ vars.recovery.modal.body_id }}"
+	     tabindex="-1"
+	     aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="{{ vars.recovery.modal.title_id }}">{{ vars.recovery.modal.title }}</h5>
+					<button type="button"
+					        class="btn-close"
+					        data-bs-dismiss="modal"
+					        aria-label="{{ vars.recovery.modal.close_label }}"></button>
+				</div>
+				<div class="modal-body" id="{{ vars.recovery.modal.body_id }}">
+					<div class="container-fluid">
+						<div class="row no-gutters row-cols-1">
+							<div class="col">
+								{{ vars.recovery.content|raw }}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endif %}

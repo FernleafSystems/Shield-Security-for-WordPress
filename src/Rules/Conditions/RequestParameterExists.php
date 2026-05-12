@@ -43,8 +43,8 @@ class RequestParameterExists extends Base {
 		}
 
 		$matches = false;
-		foreach ( \array_map( '\array_keys', $paramSources ) as $paramsSource ) {
-			foreach ( $paramsSource as $paramName ) {
+		foreach ( $paramSources as $paramSource ) {
+			foreach ( \array_keys( $paramSource ) as $paramName ) {
 				if ( ( new Utility\PerformConditionMatch( $paramName, $this->p->match_pattern, $this->p->match_type ) )->doMatch() ) {
 					$matches = true;
 					break;

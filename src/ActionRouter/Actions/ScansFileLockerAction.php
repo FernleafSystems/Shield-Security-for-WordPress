@@ -42,10 +42,9 @@ class ScansFileLockerAction extends ScansBase {
 			$msg = __( 'Please check the box to confirm this action', 'wp-simple-firewall' );
 		}
 
-		$this->response()->action_response_data = [
-			'success'     => $success,
+		$this->response()->setPayload( [
 			'message'     => $msg,
 			'page_reload' => $success,
-		];
+		] )->setPayloadSuccess( $success );
 	}
 }

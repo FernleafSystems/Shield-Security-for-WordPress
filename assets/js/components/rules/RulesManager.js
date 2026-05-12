@@ -18,15 +18,18 @@ export class RulesManager extends BaseAutoExecComponent {
 	run() {
 		this.renderManager();
 		const baseSelector = '#' + this.containerID + ' ';
-		shieldEventsHandler_Main.add_Click( '#RulesManagerDisableAll', ( button ) => {
-			if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+		shieldEventsHandler_Main.add_Click( '#RulesManagerDisableAll', async ( button ) => {
+			if ( await confirmRuleAction( button, true ) ) {
 				this.action( button.dataset );
 			}
 		} );
-		shieldEventsHandler_Main.add_Click( baseSelector + ' button', ( button ) => {
-			if ( button.dataset.action !== 'delete' || confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-				this.action( button.dataset );
+		shieldEventsHandler_Main.add_Click( baseSelector + ' button', async ( button ) => {
+			if ( button.dataset.action === 'delete' ) {
+				if ( !await confirmRuleAction( button, true ) ) {
+					return;
+				}
 			}
+			this.action( button.dataset );
 		} );
 		shieldEventsHandler_Main.add_Click( baseSelector + ' input[type=checkbox].active-switch', ( button ) => {
 			this.action( button.dataset );
@@ -79,4 +82,14 @@ export class RulesManager extends BaseAutoExecComponent {
 			} );
 		}
 	}
+}
+
+function confirmRuleAction( launcher, danger = false ) {
+	const dialog = shieldServices.dialog();
+	return dialog.confirm( {
+		message: shieldStrings.string( 'are_you_sure' ),
+		confirmLabel: dialog.resolveConfirmLabel( launcher ),
+		danger,
+		launcher,
+	} );
 }

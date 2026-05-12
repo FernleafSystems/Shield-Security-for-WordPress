@@ -11,22 +11,18 @@ use FernleafSystems\Wordpress\Services\Services;
 class BlockIpAddressShield extends BaseBlock {
 
 	use ByPassIpBlock;
+	use BlockRecoveryRenderContracts;
 
 	public const SLUG = 'render_block_ip_address_shield';
 	public const TEMPLATE = '/pages/block/block_page_ip.twig';
 
 	protected function getRenderData() :array {
-		$autoUnblock = \trim( $this->renderAutoUnblock() );
-		$magicLink = \trim( $this->renderEmailMagicLinkContent() );
+		$recovery = $this->buildBlockRecoveryContract(
+			$this->getBlockRecoveryPageKey(),
+			$this->buildBlockRecoveryCandidates()
+		);
+
 		return [
-			'content' => [
-				'auto_unblock'  => $autoUnblock,
-				'email_unblock' => $magicLink,
-			],
-			'flags'   => [
-				'has_autorecover' => !empty( $autoUnblock ),
-				'has_magiclink'   => !empty( $magicLink ),
-			],
 			'hrefs'   => [
 				'how_to_unblock' => 'https://clk.shldscrty.com/shieldhowtounblock',
 			],
@@ -37,23 +33,66 @@ class BlockIpAddressShield extends BaseBlock {
 				'contact_admin' => __( 'Please contact site admin to request your IP address is unblocked.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'inline_js' => [
-					sprintf( 'var shield_vars_blockpage = %s;', \wp_json_encode( [
-						'magic_unblock' => [
-							'ajax' => [
-								'unblock_request' => ActionData::Build( IpAutoUnblockShieldUserLinkRequest::class, true, [
-									'ip' => self::con()->this_req->ip
-								] )
-							],
-						],
-					] ) )
-				],
-			]
+				'recovery'  => $recovery,
+				'inline_js' => $this->getBlockRecoveryInlineJs( $recovery ),
+			],
 		];
 	}
 
-	protected function renderAutoUnblock() :string {
-		return self::con()->action_router->render( Components\AutoUnblockShield::class );
+	/**
+	 * @return list<array{recovery:array<string,mixed>,content:string}>
+	 */
+	protected function buildBlockRecoveryCandidates() :array {
+		$emailRecovery = $this->buildBlockRecoveryActionContract( $this->getBlockRecoveryPageKey(), 'email-unblock' );
+		$autoRecovery = $this->buildBlockRecoveryActionContract( $this->getBlockRecoveryPageKey(), 'auto-recover' );
+
+		return [
+			$this->buildBlockRecoveryCandidate(
+				$emailRecovery,
+				$this->renderEmailMagicLinkContent( $emailRecovery )
+			),
+			$this->buildBlockRecoveryCandidate(
+				$autoRecovery,
+				$this->renderAutoUnblock( $autoRecovery )
+			),
+		];
+	}
+
+	protected function getBlockRecoveryPageKey() :string {
+		return 'ip-shield';
+	}
+
+	/**
+	 * @param array{action:string} $recovery
+	 * @return list<string>
+	 */
+	protected function getBlockRecoveryInlineJs( array $recovery ) :array {
+		if ( $recovery[ 'action' ] !== 'email-unblock' ) {
+			return [];
+		}
+
+		return [
+			sprintf( 'var shield_vars_blockpage = %s;', \wp_json_encode( [
+				'magic_unblock' => [
+					'ajax' => [
+						'unblock_request' => ActionData::Build( IpAutoUnblockShieldUserLinkRequest::class, true, [
+							'ip' => self::con()->this_req->ip
+						] )
+					],
+					'strings' => [
+						'request_failed' => __( 'Request Failed', 'wp-simple-firewall' ),
+					],
+				],
+			] ) )
+		];
+	}
+
+	protected function renderAutoUnblock( array $recovery ) :string {
+		return self::con()->action_router->render( Components\AutoUnblockShield::class, [
+			'vars' => [
+				'recovery' => $recovery,
+			],
+		] );
 	}
 
 	protected function getRestrictionDetailsBlurb() :array {
@@ -77,7 +116,11 @@ class BlockIpAddressShield extends BaseBlock {
 		);
 	}
 
-	protected function renderEmailMagicLinkContent() :string {
-		return self::con()->action_router->render( Components\MagicLink::class );
+	protected function renderEmailMagicLinkContent( array $recovery ) :string {
+		return self::con()->action_router->render( Components\MagicLink::class, [
+			'vars' => [
+				'recovery' => $recovery,
+			],
+		] );
 	}
 }

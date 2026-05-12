@@ -12,16 +12,15 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Versions;
  * This way we can more easily test upgrades to ensure there are no upgrade errors etc. and make it easier for testers.
  */
 class AllowBetaUpgrades {
-
 	use ExecOnce;
 	use PluginControllerConsumer;
 
 	/**
-	 * @var false|\stdClass
+	 * @var null|false|\stdClass
 	 */
-	private $beta;
+	private $beta = null;
 
-	protected function canRun() :bool {
+	protected function canRun(): bool {
 		return self::con()->isPremiumActive();
 	}
 
@@ -32,10 +31,10 @@ class AllowBetaUpgrades {
 
 			// only offer "betas" when there is no "normal" upgrade already available
 			if ( $this->isBetaEnabled()
-				 && \is_object( $updates )
-				 && isset( $updates->response )
-				 && \is_array( $updates->response )
-				 && empty( $updates->response[ self::con()->base_file ] ) ) {
+			     && \is_object( $updates )
+			     && isset( $updates->response )
+			     && \is_array( $updates->response )
+			     && empty( $updates->response[ self::con()->base_file ] ) ) {
 
 				if ( !empty( $this->getBeta() ) ) {
 					$updates->response[ self::con()->base_file ] = $this->getBeta();
@@ -66,11 +65,11 @@ class AllowBetaUpgrades {
 	 */
 	private function removeStaleSelfUpdateNoticeCore( $updates, string $baseFile, string $currentVersion ) {
 		if ( \is_object( $updates )
-			 && !empty( $baseFile )
-			 && !empty( $currentVersion )
-			 && isset( $updates->response )
-			 && \is_array( $updates->response )
-			 && !empty( $updates->response[ $baseFile ] ) ) {
+		     && !empty( $baseFile )
+		     && !empty( $currentVersion )
+		     && isset( $updates->response )
+		     && \is_array( $updates->response )
+		     && !empty( $updates->response[ $baseFile ] ) ) {
 
 			$ourUpdate = $updates->response[ $baseFile ];
 			$ourUpdate = \is_array( $ourUpdate ) ? (object)$ourUpdate : $ourUpdate;
@@ -84,7 +83,7 @@ class AllowBetaUpgrades {
 		return $updates;
 	}
 
-	private function isBetaEnabled() :bool {
+	private function isBetaEnabled(): bool {
 		return apply_filters( 'shield/enable_beta', self::con()->opts->optIs( 'enable_beta', 'Y' ) );
 	}
 
@@ -97,9 +96,8 @@ class AllowBetaUpgrades {
 			$versionsLookup = ( new Versions() )->setWorkingSlug( $thisPlugin->slug );
 			$betas = \array_filter(
 				$versionsLookup->all(),
-				fn( $betaVersion ) => \is_string( $betaVersion )
-									  && \preg_match( '#^\d+(\.\d+)+$#', $betaVersion )
-									  && \version_compare( $betaVersion, self::con()->cfg->version(), '>' )
+				static fn( $version ) => \preg_match( '#^\d+(\.\d+)+$#', $version )
+				                         && \version_compare( $version, self::con()->cfg->version(), '>' )
 			);
 			if ( !empty( $betas ) ) {
 				\natsort( $betas );

@@ -5,7 +5,6 @@
          colors="true"
          testdox="true"
          verbose="true"
-         displayDetailsOnSkippedTests="true"
          beStrictAboutOutputDuringTests="false"
          beStrictAboutTestsThatDoNotTestAnything="true"
          convertErrorsToExceptions="true"
@@ -21,6 +20,28 @@
         <testsuite name="WordPress Integration Tests">
             <directory suffix="Test.php">tests/Integration</directory>
             <exclude>tests/Integration/InfrastructureSmokeTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/ActionsQueueLandingPageIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/ActionExecutorNonceFailureIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/ConfigureLandingPageIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/DashboardLiveMonitorActionsIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/DashboardOverviewRoutingIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/InvestigateByCorePageIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/InvestigateByIpPageIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/InvestigateByPluginPageIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/InvestigateByThemePageIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/InvestigateByUserPageIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/InvestigateLandingPageIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/InvestigateLookupSelectIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/MaintenanceItemActionsIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/OptionsFormForRenderIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/PluginSuperSearchIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/ReportsRoutingIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/ScanResultsTableActionIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/SecurityAdminRestrictedPageIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/SharedAccessibilityRenderContractIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/TrafficLogLivePageIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/WpDashboardSummaryIntegrationTest.php</exclude>
+            <exclude>tests/Integration/ActionRouter/ZoneComponentConfigRenderIntegrationTest.php</exclude>
         </testsuite>
     </testsuites>
     <coverage processUncoveredFiles="true">

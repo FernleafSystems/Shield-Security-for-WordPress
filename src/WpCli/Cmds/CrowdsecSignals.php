@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\WpCli\Cmds;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Exceptions\LibraryPrefixedAutoloadNotFoundException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Signals\PushSignalsToCS;
 
 class CrowdsecSignals extends CrowdsecBase {
@@ -38,11 +37,7 @@ class CrowdsecSignals extends CrowdsecBase {
 //				);
 				break;
 			case 'push':
-				try {
-					( new PushSignalsToCS() )->push();
-				}
-				catch ( LibraryPrefixedAutoloadNotFoundException $e ) {
-				}
+				( new PushSignalsToCS() )->push();
 				break;
 			default:
 				\WP_CLI::error( 'Provide a valid action.' );

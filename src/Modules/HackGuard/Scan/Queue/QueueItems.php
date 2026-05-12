@@ -15,13 +15,24 @@ class QueueItems {
 	 */
 	public function next() :QueueItemVO {
 		$result = Services::WpDb()->selectRow(
-			sprintf( "SELECT `scans`.id as `scan_id`, `scans`.`scan`, `scans`.`meta`, `si`.`id` as `qitem_id`, `si`.`items`
+			sprintf( "SELECT `scans`.id as `scan_id`,
+							 `scans`.`scan`,
+							 `scans`.`scope_type`,
+							 `scans`.`scope_key`,
+							 `scans`.`run_trigger`,
+							 `scans`.`started_at` AS `scan_started_at`,
+							 `scans`.`meta`,
+							 `si`.`id` as `qitem_id`,
+							 `si`.`items`
 						FROM `%s` as `scans`
 						INNER JOIN `%s` as `si`
 							ON `si`.`scan_ref` = `scans`.`id` 
 							AND `si`.`started_at`=0
-						WHERE `scans`.`ready_at` > 0 AND `scans`.`finished_at`=0
-						ORDER BY `si`.`id` ASC
+							AND `si`.`finished_at`=0
+						WHERE `scans`.`status` IN ('built','running')
+						  AND `scans`.`ready_at` > 0
+						  AND `scans`.`finished_at`=0
+						ORDER BY `scans`.`created_at` ASC, `si`.`id` ASC
 						LIMIT 1;",
 				self::con()->db_con->scans->getTable(),
 				self::con()->db_con->scan_items->getTable()
@@ -30,20 +41,24 @@ class QueueItems {
 		if ( empty( $result ) ) {
 			throw new NoQueueItems( __( 'No items remaining in queue to select.', 'wp-simple-firewall' ) );
 		}
-		foreach ( [ 'items', 'meta' ] as $key ) {
-			$result[ $key ] = \json_decode( \base64_decode( $result[ $key ] ), true );
-		}
-		return ( new QueueItemVO() )->applyFromArray( \is_array( $result ) ? $result : [] );
+		return ( new QueueItemVO() )->applyFromArray( $result );
 	}
 
 	public function hasNextItem() :bool {
-		try {
-			$this->next();
-			$has = true;
-		}
-		catch ( NoQueueItems $e ) {
-			$has = false;
-		}
-		return $has;
+		return (int)Services::WpDb()->getVar(
+			sprintf( "SELECT 1
+						FROM `%s` as `scans`
+						INNER JOIN `%s` as `si`
+							ON `si`.`scan_ref` = `scans`.`id`
+							AND `si`.`started_at`=0
+							AND `si`.`finished_at`=0
+						WHERE `scans`.`status` IN ('built','running')
+						  AND `scans`.`ready_at` > 0
+						  AND `scans`.`finished_at`=0
+						LIMIT 1;",
+				self::con()->db_con->scans->getTable(),
+				self::con()->db_con->scan_items->getTable()
+			)
+		) === 1;
 	}
 }

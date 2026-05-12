@@ -1,0 +1,115 @@
+{% set badge_class_map = {
+	'good': 'badge-good',
+	'info': 'badge-info',
+	'warning': 'badge-warning',
+	'critical': 'badge-critical',
+	'neutral': 'badge-disabled'
+} %}
+{% set featured_lane = vars.actions_lane %}
+<div class="operator-mode-landing" data-shield-status="{{ vars.shield_status }}">
+	<div class="operator-mode-landing__grid">
+		<a href="{{ featured_lane.href }}"
+		   class="operator-mode-landing__featured shield-card{{ featured_lane.extra_classes }}"
+		   data-mode="{{ featured_lane.mode }}"
+		   data-shield-tour="dashboard-actions"
+		   aria-label="{{ featured_lane.label }}">
+			<div class="shield-card-accent status-{{ featured_lane.indicator_severity }}"></div>
+			<div class="operator-mode-landing__featured-body">
+				<div class="dash-header operator-mode-landing__featured-header">
+					<div class="shield-orb">
+						<i class="{{ vars.shield_icon_class }}" aria-hidden="true"></i>
+					</div>
+					<div class="dash-header-text">
+						<h1 class="dash-header-title">{{ strings.title }}</h1>
+						<p class="dash-header-subtitle">
+							<span class="status-dot"></span>
+							<span>{{ strings.subtitle }}</span>
+						</p>
+					</div>
+				</div>
+
+				{% if featured_lane.description is not empty and vars.actions_all_clear is null %}
+					<p class="operator-mode-landing__featured-desc">{{ featured_lane.description }}</p>
+				{% endif %}
+
+				{% if vars.actions_queue_rows is not empty %}
+					<div class="operator-mode-landing__queue-list shield-stack-detail-list" data-shield-tour="dashboard-queue">
+						{% for row in vars.actions_queue_rows %}
+							<div class="operator-mode-landing__queue-row shield-stack-detail-row is-{{ row.severity }}">
+								<span class="operator-mode-landing__queue-icon" aria-hidden="true">
+									<i class="{{ row.icon_class }}"></i>
+								</span>
+								<div class="shield-stack-detail-copy">
+									<div class="shield-stack-detail-title">{{ row.label }}</div>
+								</div>
+								<div class="shield-stack-detail-meta">
+									<span class="shield-badge {{ badge_class_map[row.severity] }}">{{ row.count }}</span>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				{% elseif vars.actions_all_clear is not null %}
+					<p class="operator-mode-landing__featured-desc">{{ vars.actions_all_clear.subtitle }}</p>
+					<div class="shield-needs-attention__chips">
+						{% for chip in vars.actions_all_clear.zone_chips %}
+							<span class="shield-needs-attention__chip is-{{ chip.severity }}">
+								<i class="{{ chip.icon_class }}" aria-hidden="true"></i> {{ chip.label }}
+							</span>
+						{% endfor %}
+					</div>
+				{% endif %}
+
+				<span class="operator-mode-landing__featured-cta">
+					{{ strings.actions_queue_cta }}
+					<i class="bi bi-arrow-right" aria-hidden="true"></i>
+				</span>
+			</div>
+		</a>
+
+		<div class="operator-mode-landing__side-stack">
+			{% for lane in vars.secondary_lanes %}
+				<a href="{{ lane.href }}"
+				   class="operator-mode-landing__side-card shield-card"
+				   data-mode="{{ lane.mode }}"
+				   data-shield-tour="dashboard-{{ lane.mode|e('html_attr') }}"
+				   aria-label="{{ lane.label }}">
+					<div class="shield-card-accent status-{{ lane.edge_status }}"></div>
+					<div class="operator-mode-landing__side-body">
+						<div class="operator-mode-landing__side-header">
+							<span class="operator-mode-landing__side-icon" aria-hidden="true">
+								<i class="{{ lane.icon_class }}"></i>
+							</span>
+							<span class="operator-mode-landing__side-title">{{ lane.label }}</span>
+						</div>
+						<div class="operator-mode-landing__side-desc">{{ lane.description }}</div>
+						<div class="operator-mode-landing__side-indicator">
+							{% if lane.indicator_type == 'posture' %}
+								<div class="lane-posture">
+									<div class="posture-track">
+										<div class="posture-fill fill-{{ lane.posture_status }}" style="width:{{ lane.posture_percentage }}%"></div>
+									</div>
+									<div class="posture-label status-{{ lane.posture_status }}">{{ lane.posture_text }}</div>
+								</div>
+							{% elseif lane.indicator_badges is not empty %}
+								<div class="operator-mode-landing__side-badges">
+									{% for badge in lane.indicator_badges %}
+										<span class="shield-badge {{ badge_class_map[badge.severity] }}"{% if badge.title is not empty %} title="{{ badge.title }}"{% endif %}>{{ badge.text }}</span>
+									{% endfor %}
+								</div>
+							{% else %}
+								<span class="shield-badge {{ badge_class_map[lane.indicator_severity] }}">{{ lane.indicator_text }}</span>
+								{% if lane.indicator_subtext is not empty %}
+									<div class="operator-mode-landing__side-subtext">{{ lane.indicator_subtext }}</div>
+								{% endif %}
+							{% endif %}
+						</div>
+					</div>
+				</a>
+			{% endfor %}
+		</div>
+	</div>
+
+	{% include '/wpadmin/components/dashboard/live_monitor.twig' with {
+		vars: vars.live_monitor
+	} only %}
+</div>

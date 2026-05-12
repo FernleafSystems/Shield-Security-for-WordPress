@@ -4,9 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 /**
  * Lightweight transport wrapper to separate action execution from channel formatting.
- * @todo Remove __get proxy once all consumers depend on payload/status helpers directly.
- * @property ActionResponse $action_response_data
- * @property bool $success
  */
 class RoutedResponse {
 
@@ -32,9 +29,5 @@ class RoutedResponse {
 
 	public function statusCode() :int {
 		return $this->statusCode;
-	}
-
-	public function __get( string $property ) {
-		return $this->actionResponse->$property;
 	}
 }

@@ -1,0 +1,28 @@
+{% set row = item.row %}
+{% set expand = item.expand %}
+
+<div class="shield-detail-item shield-detail-item--configure"{% if expand.is_expandable and expand.row_key is not empty %} data-configure-row-key="{{ expand.row_key|e('html_attr') }}"{% endif %}>
+	{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: row|merge( {
+		expandable: expand.is_expandable,
+		expand_target: expand.id,
+		expand_cta_label: expand.label,
+		expand_accessible_label: expand.accessible_label,
+		expand_title: expand.title,
+		attributes: row.attributes
+	} ) } only %}
+
+	{% if expand.is_expandable %}
+		{% set expansion_body %}
+			<div data-configure-expand-ajax="1"
+				 {% for key, value in expand.data_attributes %}data-{{ key }}="{{ value|e('html_attr') }}"{% endfor %}></div>
+		{% endset %}
+
+		{% include '/wpadmin/components/page/shield_detail_expansion.twig' with { expansion: {
+			id: expand.id,
+			parent_id: expand.parent_id,
+			type: 'options',
+			status: row.status,
+			body: expansion_body
+		} } only %}
+	{% endif %}
+</div>

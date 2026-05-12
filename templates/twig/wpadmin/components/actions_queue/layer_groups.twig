@@ -1,0 +1,48 @@
+<div class="actions-queue-groups{% if bucket_selection.key == 'review' %} actions-queue-groups--review{% endif %}"
+	 data-actions-queue-groups="1">
+	{% if active_sections is empty and healthy_sections is empty %}
+		<div class="actions-landing__empty-state">
+			{{ empty_message }}
+		</div>
+	{% else %}
+		<div class="actions-queue-groups__findings">
+			{% for section in active_sections %}
+				<section class="configure-zones__section">
+					{% if section.heading_label is not empty %}
+						<div class="finding-group__heading">{{ section.heading_label }}</div>
+					{% endif %}
+					<div class="configure-zones__grid">
+						{% for group in section.groups %}
+							{% include '/wpadmin/components/actions_queue/group_card.twig' with {
+								group: group,
+								bucket_selection: bucket_selection,
+								is_healthy: false
+							} only %}
+						{% endfor %}
+					</div>
+				</section>
+			{% endfor %}
+
+			{% if healthy_sections is not empty %}
+				<div class="actions-queue-groups__healthy-stack">
+					{% for section in healthy_sections %}
+						<section class="configure-zones__section">
+							{% if section.heading_label is not empty %}
+								<div class="finding-group__heading">{{ section.heading_label }}</div>
+							{% endif %}
+							<div class="configure-zones__grid">
+								{% for group in section.groups %}
+									{% include '/wpadmin/components/actions_queue/group_card.twig' with {
+										group: group,
+										bucket_selection: bucket_selection,
+										is_healthy: true
+									} only %}
+								{% endfor %}
+							</div>
+						</section>
+					{% endfor %}
+				</div>
+			{% endif %}
+		</div>
+	{% endif %}
+</div>

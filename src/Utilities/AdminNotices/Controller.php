@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\AdminNotice;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
 use FernleafSystems\Wordpress\Services\Services;
@@ -322,7 +321,7 @@ class Controller {
 
 			],
 			'hrefs'             => [
-				'configure' => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_BLOCKDOWN )
+				'configure' => self::con()->plugin_urls->lockdown()
 			],
 		];
 	}

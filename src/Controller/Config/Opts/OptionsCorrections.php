@@ -3,127 +3,337 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\VerifySecurityAdminList;
+use FernleafSystems\Wordpress\Services\Services;
 
 class OptionsCorrections {
 
 	use PluginControllerConsumer;
 
 	public function run() :void {
-		$this->removeDeprecated();
-		$this->removeModuleEnablers();
+		$this->audit();
+		$this->alerts();
+		$this->comments();
+		$this->firewall();
+		$this->headers();
+		$this->ips();
+		$this->login();
+		$this->plugin();
+		$this->scanners();
+		$this->securityAdmin();
+		$this->silentCaptcha();
+		$this->user();
 	}
 
+	public function runUpgradeMigrations() :void {
+		$this->alerts();
+		$this->pluginBadgeMode();
+		$this->silentCaptcha();
+	}
+
+	/**
+	 * @deprecated 21.3
+	 */
 	protected function removeDeprecated() {
+	}
+
+	/**
+	 * @deprecated 21.3
+	 */
+	protected function removeModuleEnablers() {
+	}
+
+	private function audit() :void {
 		$opts = self::con()->opts;
-		if ( $opts->optExists( 'enable_login_gasp_check' ) && $opts->optIs( 'enable_login_gasp_check', 'Y' ) ) {
-			$opts->optSet( 'enable_antibot_check', 'Y' );
-			$opts->optSet( 'enable_login_gasp_check', 'N' );
+
+		if ( $opts->optIs( 'enable_limiter', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
+			$opts->optSet( 'enable_logger', 'Y' );
 		}
-		// If the original antibot option was disabled, since we're removing it, we must remove all bot locations.
-		if ( $opts->optExists( 'enable_antibot_check' ) && $opts->optIs( 'enable_antibot_check', 'N' ) ) {
-			$opts->optSet( 'bot_protection_locations', [] )
-				 ->optSet( 'enable_antibot_check', 'Y' );
+		if ( $opts->optIs( 'enable_live_log', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
+			$opts->optSet( 'enable_live_log', 'N' )
+					 ->optSet( 'live_log_started_at', 0 );
 		}
 	}
 
-	protected function removeModuleEnablers() {
+	private function alerts() :void {
 		$opts = self::con()->opts;
-		if ( $opts->optIs( 'enable_admin_access_restriction', 'N' ) ) {
-			$opts->optReset( 'admin_access_key' );
-			$opts->optReset( 'sec_admin_users' );
-			$opts->optReset( 'enable_admin_access_restriction' );
+
+		if ( $this->hasLegacyAdminLoginNotificationEmail() ) {
+			$opts->optSet( 'instant_alert_admin_login', 'email' )
+				 ->optSet( 'enable_admin_login_email_notification', '' );
 		}
-		if ( $opts->optIs( 'enable_audit_trail', 'N' ) ) {
-			$opts->optSet( 'log_level_db', 'disabled' );
-			$opts->optReset( 'enable_audit_trail' );
+
+		if ( $this->hasLegacyFirewallBlockEmailAlertEnabled() ) {
+			$opts->optSet( 'instant_alert_firewall_block', 'email' )
+				 ->optSet( 'block_send_email', 'N' );
 		}
-		if ( $opts->optIs( 'enable_comments_filter', 'N' ) ) {
-			$opts->optReset( 'enable_antibot_comments' );
-			$opts->optReset( 'enable_comments_human_spam_filter' );
-			$opts->optReset( 'trusted_user_roles' );
-			$opts->optSet( 'comments_cooldown', 0 );
-			$opts->optReset( 'enable_comments_filter' );
+	}
+
+	private function comments() :void {
+		$opts = self::con()->opts;
+		if ( $opts->optChanged( 'trusted_user_roles' ) ) {
+			$opts->optSet( 'trusted_user_roles',
+				\array_unique( \array_filter( \array_map(
+					fn( $role ) => sanitize_key( \strtolower( $role ) ),
+					$opts->optGet( 'trusted_user_roles' )
+				) ) )
+			);
 		}
-		if ( $opts->optIs( 'enable_firewall', 'N' ) ) {
-			$opts->optReset( 'block_send_email' );
-			$opts->optSet( 'block_dir_traversal', 'N' );
-			$opts->optSet( 'block_sql_queries', 'N' );
-			$opts->optSet( 'block_field_truncation', 'N' );
-			$opts->optSet( 'block_php_code', 'N' );
-			$opts->optSet( 'block_aggressive', 'N' );
-			$opts->optReset( 'enable_firewall' );
+	}
+
+	private function firewall() :void {
+		$opts = self::con()->opts;
+
+		if ( $opts->optChanged( 'page_params_whitelist' ) ) {
+			$parsed = [];
+			foreach ( $opts->optGet( 'page_params_whitelist' ) as $line ) {
+				$line = \str_replace( ' ', '', \trim( (string)$line ) );
+				if ( !empty( $line ) ) {
+					$parts = \explode( ',', $line );
+					if ( \count( $parts ) > 1 ) {
+						$page = \array_shift( $parts );
+						if ( !isset( $parsed[ $page ] ) ) {
+							$parsed[ $page ] = [];
+						}
+						$parsed[ $page ] = \array_map( '\\strtolower', \array_unique( \array_merge( $parsed[ $page ], $parts ) ) );
+					}
+				}
+			}
+			$final = [];
+			foreach ( $parsed as $page => $params ) {
+				\array_unshift( $params, $page );
+				$final[] = \implode( ',', $params );
+			}
+			$opts->optSet( 'page_params_whitelist', $final );
 		}
-		if ( $opts->optIs( 'enable_hack_protect', 'N' ) ) {
-			$opts->optSet( 'section_file_guard', 'N' );
-			$opts->optReset( 'file_locker' );
-			$opts->optSet( 'enable_wpvuln_scan', 'N' );
-			$opts->optSet( 'ptg_reinstall_links', 'N' );
-			$opts->optReset( 'enable_hack_protect' );
+
+		$exclusions = $opts->optGet( 'api_namespace_exclusions' );
+		if ( !\in_array( 'shield', $exclusions, true ) ) {
+			$exclusions[] = 'shield';
+			$opts->optSet( 'api_namespace_exclusions', $exclusions );
 		}
-		if ( $opts->optIs( 'enable_headers', 'N' ) ) {
-			$opts->optSet( 'x_frame', 'off' );
-			$opts->optSet( 'x_xss_protect', 'N' );
-			$opts->optSet( 'x_content_type', 'N' );
-			$opts->optSet( 'x_referrer_policy', 'disabled' );
-			$opts->optReset( 'enable_x_content_security_policy' );
-			$opts->optReset( 'enable_headers' );
+	}
+
+	private function headers() :void {
+		$opts = self::con()->opts;
+
+		if ( $opts->optChanged( 'xcsp_custom' ) ) {
+			$opts->optSet( 'xcsp_custom', \array_unique( \array_filter( \array_map(
+				function ( $rule ) {
+					$rule = \trim( \preg_replace( '#;|\s{2,}#', '', \html_entity_decode( $rule, \ENT_QUOTES ) ) );
+					if ( !empty( $rule ) ) {
+						$rule .= ';';
+					}
+					return $rule;
+				},
+				$opts->optGet( 'xcsp_custom' )
+			) ) ) );
 		}
-		if ( $opts->optIs( 'enable_integrations', 'N' ) ) {
-			$opts->optReset( 'enable_mainwp' );
-			$opts->optReset( 'suresend_emails' );
-			$opts->optReset( 'form_spam_providers' );
-			$opts->optReset( 'user_form_providers' );
-			$opts->optReset( 'enable_integrations' );
+
+		if ( empty( $opts->optGet( 'xcsp_custom' ) ) ) {
+			$opts->optSet( 'enable_x_content_security_policy', 'N' );
 		}
-		if ( $opts->optIs( 'enable_ips', 'N' ) ) {
-			$opts->optSet( 'transgression_limit', 0 );
-			$opts->optSet( 'cs_block', 'disabled' );
-			$opts->optReset( 'track_fakewebcrawler' );
-			$opts->optReset( 'track_logininvalid' );
-			$opts->optReset( 'track_xmlrpc' );
-			$opts->optReset( 'track_404' );
-			$opts->optReset( 'track_linkcheese' );
-			$opts->optReset( 'track_invalidscript' );
-			$opts->optReset( 'track_useragent' );
-			$opts->optSet( 'track_loginfailed', 'disabled' );
-			$opts->optReset( 'enable_ips' );
+	}
+
+	private function ips() :void {
+		$opts = self::con()->opts;
+
+		if ( !\defined( \strtoupper( $opts->optGet( 'auto_expire' ).'_IN_SECONDS' ) ) ) {
+			$opts->optReset( 'auto_expire' );
 		}
-		if ( $opts->optIs( 'enable_lockdown', 'N' ) ) {
-			$opts->optReset( 'disable_xmlrpc' );
-			$opts->optReset( 'disable_anonymous_restapi' );
-			$opts->optSet( 'disable_file_editing', 'N' );
-			$opts->optSet( 'block_author_discovery', 'N' );
-			$opts->optSet( 'clean_wp_rubbish', 'N' );
-			$opts->optReset( 'enable_lockdown' );
+
+		if ( $opts->optChanged( 'request_whitelist' ) ) {
+			$WP = Services::WpGeneral();
+			$opts->optSet( 'request_whitelist',
+				( new WildCardOptions() )->clean(
+					$opts->optGet( 'request_whitelist' ),
+					\array_unique( \array_map(
+						fn( $url ) => (string)wp_parse_url( $url, \PHP_URL_PATH ),
+						[
+							'/',
+							$WP->getHomeUrl(),
+							$WP->getWpUrl(),
+							$WP->getAdminUrl( 'admin.php' ),
+						]
+					) ),
+					WildCardOptions::URL_PATH
+				)
+			);
 		}
-		if ( $opts->optIs( 'enable_login_protect', 'N' ) ) {
-			$opts->optReset( 'enable_antibot_check' );
-			$opts->optSet( 'login_limit_interval', 0 );
-			$opts->optReset( 'enable_passkeys' );
-			$opts->optReset( 'enable_email_authentication' );
-			$opts->optReset( 'enable_google_authenticator' );
-			$opts->optReset( 'enable_yubikey' );
-			$opts->optReset( 'rename_wplogin_path' );
-			$opts->optReset( 'enable_login_protect' );
+	}
+
+	private function login() :void {
+		$opts = self::con()->opts;
+
+		$opts->optSet( 'two_factor_auth_user_roles', self::con()->comps->opts_lookup->getLoginGuardEmailAuth2FaRoles() );
+
+		$redirect = \preg_replace( '#[^\da-z_\-/.]#i', '', (string)$opts->optGet( 'rename_wplogin_redirect' ) );
+		if ( !empty( $redirect ) ) {
+			$redirect = \preg_replace( '#^http(s)?//.*/#iU', '', $redirect );
+			if ( !empty( $redirect ) ) {
+				$redirect = '/'.\ltrim( $redirect, '/' );
+			}
 		}
-		if ( $opts->optIs( 'enable_traffic', 'N' ) ) {
-			$opts->optReset( 'enable_logger' );
-			$opts->optReset( 'enable_live_log' );
-			$opts->optReset( 'enable_limiter' );
-			$opts->optReset( 'enable_traffic' );
+		$opts->optSet( 'rename_wplogin_redirect', $redirect );
+
+		if ( empty( $opts->optGet( 'mfa_user_setup_pages' ) ) ) {
+			$opts->optSet( 'mfa_user_setup_pages', [ 'profile' ] );
 		}
-		if ( $opts->optIs( 'enable_user_management', 'N' ) ) {
-			$opts->optReset( 'enable_user_login_email_notification' );
-			$opts->optReset( 'enable_admin_login_email_notification' );
-			$opts->optSet( 'session_timeout_interval', 0 );
-			$opts->optSet( 'session_idle_timeout_interval', 0 );
-			$opts->optReset( 'session_lock' );
-			$opts->optReset( 'reg_email_validate' );
-			$opts->optReset( 'email_checks' );
-			$opts->optReset( 'enable_password_policies' );
-			$opts->optReset( 'auto_idle_days' );
-			$opts->optReset( 'pass_expire' );
-			$opts->optReset( 'enable_user_management' );
+
+		if ( $opts->optChanged( 'rename_wplogin_path' ) ) {
+			$path = $opts->optGet( 'rename_wplogin_path' );
+			if ( !empty( $path ) ) {
+				$path = \preg_replace( '#[^\da-zA-Z-]#', '', \trim( $path, '/' ) );
+				$opts->optSet( 'rename_wplogin_path', $path );
+			}
+		}
+	}
+
+	private function plugin() :void {
+		$opts = self::con()->opts;
+
+		$this->pluginBadgeMode();
+
+		if ( $opts->optChanged( 'importexport_whitelist' ) ) {
+			$opts->optSet( 'importexport_whitelist', \array_unique( \array_filter( \array_map(
+				function ( $url ) {
+					return Services::Data()->validateSimpleHttpUrl( $url );
+				},
+				$opts->optGet( 'importexport_whitelist' )
+			) ) ) );
+		}
+
+		$url = Services::Data()->validateSimpleHttpUrl( $opts->optGet( 'importexport_masterurl' ) );
+		$opts->optSet( 'importexport_masterurl', $url === false ? '' : $url );
+	}
+
+	private function scanners() :void {
+		$opts = self::con()->opts;
+
+		if ( $opts->optChanged( 'file_locker' ) ) {
+			$lockFiles = $opts->optGet( 'file_locker' );
+			if ( !empty( $lockFiles ) && \in_array( 'root_webconfig', $lockFiles, true ) && !Services::Data()->isWindows() ) {
+				unset( $lockFiles[ \array_search( 'root_webconfig', $lockFiles, true ) ] );
+			}
+			$opts->optSet( 'file_locker', $lockFiles );
+		}
+
+		if ( $opts->optChanged( 'scan_path_exclusions' ) ) {
+			$opts->optSet( 'scan_path_exclusions',
+				( new WildCardOptions() )->clean(
+					$opts->optGet( 'scan_path_exclusions' ),
+					\array_map( 'trailingslashit', [
+						ABSPATH,
+						path_join( ABSPATH, 'wp-admin' ),
+						path_join( ABSPATH, 'wp-includes' ),
+						untrailingslashit( WP_CONTENT_DIR ),
+						path_join( WP_CONTENT_DIR, 'plugins' ),
+						path_join( WP_CONTENT_DIR, 'themes' ),
+					] ),
+					WildCardOptions::FILE_PATH_REL
+				)
+			);
+		}
+	}
+
+	private function silentCaptcha() :void {
+		$opts = self::con()->opts;
+		$current = $opts->optGet( 'silentcaptcha_complexity' );
+		$normalised = SilentCaptchaComplexity::normalise( $current );
+		if ( $current !== $normalised ) {
+			$opts->optSet( 'silentcaptcha_complexity', $normalised );
+		}
+	}
+
+	private function securityAdmin() :void {
+		$opts = self::con()->opts;
+
+		$p = $opts->optGet( 'admin_access_restrict_plugins' );
+		if ( $opts->optChanged( 'admin_access_restrict_plugins' ) && \in_array( 'activate_plugins', $p, true ) ) {
+			$opts->optSet( 'admin_access_restrict_plugins',
+				\array_unique( \array_merge( $p, [
+					'install_plugins',
+					'update_plugins',
+					'delete_plugins'
+				] ) )
+			);
+		}
+
+		$t = $opts->optGet( 'admin_access_restrict_themes' );
+		if ( $opts->optChanged( 'admin_access_restrict_themes' )
+			 && \in_array( 'switch_themes', $t, true ) && \in_array( 'edit_theme_options', $t, true ) ) {
+			$opts->optSet( 'admin_access_restrict_themes',
+				\array_unique( \array_merge( $t, [
+					'install_themes',
+					'update_themes',
+					'delete_themes'
+				] ) )
+			);
+		}
+
+		$posts = $opts->optGet( 'admin_access_restrict_posts' );
+		if ( $opts->optChanged( 'admin_access_restrict_posts' ) && \in_array( 'edit', $posts, true ) ) {
+			$opts->optSet( 'admin_access_restrict_posts',
+				\array_unique( \array_merge( $posts, [ 'publish', 'delete' ] ) )
+			);
+		}
+
+		if ( $opts->optChanged( 'sec_admin_users' ) ) {
+			$opts->optSet( 'sec_admin_users',
+				( new VerifySecurityAdminList() )->run( $opts->optGet( 'sec_admin_users' ) )
+			);
+		}
+	}
+
+	private function user() :void {
+		$opts = self::con()->opts;
+		$optsLookup = self::con()->comps->opts_lookup;
+
+		if ( $optsLookup->getSessionIdleInterval() > $optsLookup->getSessionMax() ) {
+			$opts->optSet( 'session_idle_timeout_interval', $opts->optGet( 'session_timeout_interval' )*24 );
+		}
+
+		if ( $opts->optChanged( 'auto_idle_roles' ) ) {
+			$opts->optSet( 'auto_idle_roles',
+				\array_unique( \array_filter( \array_map(
+					function ( $role ) {
+						return \preg_replace( '#[^\s\da-z_-]#i', '', \trim( \strtolower( $role ) ) );
+					},
+					$opts->optGet( 'auto_idle_roles' )
+				) ) )
+			);
+		}
+
+		if ( $opts->optChanged( 'email_checks' ) ) {
+			$opts->optSet( 'email_checks', \array_unique( \array_merge( $opts->optGet( 'email_checks' ), [ 'syntax' ] ) ) );
+		}
+	}
+
+	/**
+	 * Legacy option allowed multiple emails. Migration only cares whether any valid email exists.
+	 */
+	private function hasLegacyAdminLoginNotificationEmail() :bool {
+		return !empty( \array_filter(
+			\array_map(
+				static fn( string $email ) :string => \trim( \strtolower( $email ) ),
+				\explode( ',', (string)self::con()->opts->optGet( 'enable_admin_login_email_notification' ) )
+			),
+			static fn( string $email ) :bool => Services::Data()->validEmail( $email )
+		) );
+	}
+
+	private function hasLegacyFirewallBlockEmailAlertEnabled() :bool {
+		return self::con()->opts->optIs( 'block_send_email', 'Y' );
+	}
+
+	private function pluginBadgeMode() :void {
+		$opts = self::con()->opts;
+		$current = $opts->optGet( 'display_plugin_badge' );
+		$normalised = PluginBadgeMode::normalise( $current );
+
+		if ( $current !== $normalised ) {
+			$opts->optSet( 'display_plugin_badge', $normalised );
 		}
 	}
 }

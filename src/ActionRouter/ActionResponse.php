@@ -7,12 +7,19 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
 /**
  * @property string $action_slug
  * @property array  $action_data
- * @property array  $action_response_data
+ * @property array  $action_response_data Legacy compatibility payload field.
  *
- * @property array  $next_step
+ * @property array  $next_step            Legacy compatibility field; canonical transport is payload-native `next_step`.
  *
  * AJAX Actions:
  * @property array  $ajax_data
+ *
+ * Canonical payload transport paths:
+ * - payload()
+ * - setPayload()
+ * - mergePayload()
+ * - setPayloadSuccess()
+ * - setPayloadRedirectNextStep()
  */
 class ActionResponse extends Response {
 
@@ -34,24 +41,32 @@ class ActionResponse extends Response {
 		return $value;
 	}
 
-	public function setPayload( array $payload ) :self {
+	public function setPayload( array $payload = [] ) :self {
 		$this->action_response_data = $payload;
 		return $this;
 	}
 
 	public function mergePayload( array $payload ) :self {
-		$existing = $this->action_response_data;
-		if ( !\is_array( $existing ) ) {
-			$existing = [];
-		}
-		$this->action_response_data = \array_merge( $existing, $payload );
+		$this->action_response_data = \array_merge( $this->action_response_data, $payload );
 		return $this;
 	}
 
+	public function setPayloadSuccess( bool $success ) :self {
+		return $this->mergePayload( [
+			'success' => $success,
+		] );
+	}
+
+	public function setPayloadRedirectNextStep( string $url ) :self {
+		return $this->mergePayload( [
+			'next_step' => [
+				'type' => 'redirect',
+				'url'  => $url,
+			],
+		] );
+	}
+
 	public function payload() :array {
-		if ( !\is_array( $this->action_response_data ) ) {
-			$this->action_response_data = [];
-		}
 		return $this->action_response_data;
 	}
 }

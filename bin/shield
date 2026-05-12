@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php declare( strict_types=1 );
+
+use FernleafSystems\ShieldPlatform\Tooling\Cli\ShieldCliApplication;
+use Symfony\Component\Filesystem\Path;
+
+require dirname( __DIR__ ).'/vendor/autoload.php';
+
+$projectRoot = Path::normalize( dirname( __DIR__ ) );
+
+// Ensure `php bin/shield --help` shows the command list surface.
+$argv = $_SERVER[ 'argv' ] ?? [];
+if ( \is_array( $argv ) && \count( $argv ) === 2 && \in_array( (string)$argv[ 1 ], [ '--help', '-h' ], true ) ) {
+	$_SERVER[ 'argv' ] = [ (string)$argv[ 0 ], 'list' ];
+}
+
+exit(
+	( new ShieldCliApplication( $projectRoot ) )->run()
+);

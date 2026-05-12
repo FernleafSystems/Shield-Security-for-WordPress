@@ -5,14 +5,14 @@
 	<div class="row my-2 {% if field.type == "hidden" %}d-none{% endif %}">
 		<div class="col">
 			<label class="form-label"
-			       for="{{ field.id|default(field.name) }}">{{ field.text }}</label>
+			       for="{{ field.id }}">{{ field.text }}</label>
 			<div class="input-group shield_2fa_field_container shield_{{ field.slug }}_container">
 
 				{% block login_field_input %}
 					{% include '/components/html/input.twig' %}
 				{% endblock %}
 
-				{% if flags.show_branded_links|default(false) %}
+				{% if flags.show_branded_links %}
 					<div class="input-group-text">
 						<a href="{{ field.help_link }}" target="_blank" class="input-help">&quest;</a>
 					</div>
@@ -21,7 +21,7 @@
 
 			<span class="otp-description">
 				{% block after_login_field_input %}
-					{{ field.description|default('') }}
+					{{ field.description }}
 				{% endblock %}
 			</span>
 

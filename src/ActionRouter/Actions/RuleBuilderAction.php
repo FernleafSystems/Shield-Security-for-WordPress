@@ -90,10 +90,9 @@ class RuleBuilderAction extends BaseAction {
 			}
 		}
 
-		$this->response()->action_response_data = [
-			'success'      => $success,
+		$this->response()->setPayload( [
 			'message'      => $msg ?? '',
 			'edit_rule_id' => $record instanceof RulesDB\Record ? $record->id : -1,
-		];
+		] )->setPayloadSuccess( $success );
 	}
 }

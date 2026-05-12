@@ -1,0 +1,42 @@
+<div class="investigate-landing__subjects">
+	<div class="investigate-landing__subject-grid">
+		{% for subject in subjects %}
+			{% if subject.is_enabled %}
+				<button type="button"
+						class="investigate-landing__subject-card status-{{ subject.status }}"
+						data-drill-target="panel"
+						data-investigate-subject="{{ subject.key }}"
+						data-investigate-header="{{ subject.header_json }}"
+						data-investigate-render-action="{{ subject.render_action_json }}"
+						data-investigate-lookup-key="{{ subject.lookup_key }}"
+						data-investigate-is-live="{{ subject.is_live_attr }}">
+					<span class="investigate-landing__subject-icon" aria-hidden="true">
+						<i class="{{ subject.icon_class }}"></i>
+					</span>
+					<span class="investigate-landing__subject-label">
+						{{ subject.title }}
+						{% if subject.is_pro %}
+							<span class="shield-badge badge-warning">{{ strings.label_pro }}</span>
+						{% endif %}
+					</span>
+					<span class="investigate-landing__subject-stat">{{ subject.stat_text }}</span>
+				</button>
+			{% else %}
+				<div class="investigate-landing__subject-card is-disabled status-{{ subject.status }}"
+					 data-investigate-subject="{{ subject.key }}"
+					 aria-disabled="true">
+					<span class="investigate-landing__subject-icon" aria-hidden="true">
+						<i class="{{ subject.icon_class }}"></i>
+					</span>
+					<span class="investigate-landing__subject-label">
+						{{ subject.title }}
+						{% if subject.is_pro %}
+							<span class="shield-badge badge-warning">{{ strings.label_pro }}</span>
+						{% endif %}
+					</span>
+					<span class="investigate-landing__subject-stat">{{ subject.stat_text }}</span>
+				</div>
+			{% endif %}
+		{% endfor %}
+	</div>
+</div>

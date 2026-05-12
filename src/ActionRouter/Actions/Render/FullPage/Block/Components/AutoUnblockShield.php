@@ -15,19 +15,31 @@ class AutoUnblockShield extends Base {
 	protected function getRenderData() :array {
 		return [
 			'flags'   => [
-				'is_available' => ( new AutoUnblockVisitor() )->isUnblockAvailable()
+				'is_available' => $this->isAutoUnblockAvailable(),
 			],
 			'hrefs'   => [
 				'home' => Services::WpGeneral()->getHomeUrl( '/' )
 			],
 			'vars'    => [
-				'unblock_nonce' => ActionData::Build( IpAutoUnblockShieldVisitor::class ),
+				'unblock_nonce' => ActionData::Build( $this->getAutoUnblockActionClass() ),
 			],
 			'strings' => [
-				'title'   => __( 'Auto-Unblock Your IP', 'wp-simple-firewall' ),
-				'you_can' => __( 'You can automatically unblock your IP address by clicking the button below.', 'wp-simple-firewall' ),
-				'button'  => __( 'Unblock My IP Address', 'wp-simple-firewall' ),
+				'title'              => __( 'Auto-Unblock Your IP', 'wp-simple-firewall' ),
+				'you_can'            => __( 'You can automatically unblock your IP address by clicking the button below.', 'wp-simple-firewall' ),
+				'button'             => __( 'Unblock My IP Address', 'wp-simple-firewall' ),
+				'confirm_legitimate' => __( "I confirm that I'm accessing this site legitimately", 'wp-simple-firewall' ),
 			],
 		];
+	}
+
+	protected function isAutoUnblockAvailable() :bool {
+		return ( new AutoUnblockVisitor() )->isUnblockAvailable();
+	}
+
+	/**
+	 * @return class-string
+	 */
+	protected function getAutoUnblockActionClass() :string {
+		return IpAutoUnblockShieldVisitor::class;
 	}
 }

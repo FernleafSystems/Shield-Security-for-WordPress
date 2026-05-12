@@ -51,45 +51,46 @@ class IpIdCacheTest extends BaseUnitTest {
 				throw new \RuntimeException( 'Not implemented' );
 			}
 
-			protected function createIpIdentifier( string $ip ) :IpID {
-				if ( !isset( $this->callCounts->counts[ $ip ] ) ) {
-					$this->callCounts->counts[ $ip ] = 0;
+			protected function createIpIdentifier( string $ip, ?string $userAgent = null ) :IpID {
+				$key = $ip.'|'.\trim( (string)$userAgent );
+				if ( !isset( $this->callCounts->counts[ $key ] ) ) {
+					$this->callCounts->counts[ $key ] = 0;
 				}
-				$this->callCounts->counts[ $ip ]++;
+				$this->callCounts->counts[ $key ]++;
 
-				if ( isset( $this->ipResults[ $ip ] ) ) {
-					$result = $this->ipResults[ $ip ];
+				if ( isset( $this->ipResults[ $key ] ) ) {
+					$result = $this->ipResults[ $key ];
 					if ( $result instanceof \Exception ) {
 						throw $result;
 					}
-					return $this->ipIdMocks[ $ip ];
+					return $this->ipIdMocks[ $key ];
 				}
 
-				throw new \RuntimeException( 'Unexpected IP: '.$ip );
+				throw new \RuntimeException( 'Unexpected identity lookup: '.$key );
 			}
 
-			public function testResolve( string $ip ) :?array {
-				return $this->resolveIpIdentity( $ip );
+			public function testResolve( string $ip, ?string $userAgent = null ) :?array {
+				return $this->resolveIpIdentity( $ip, $userAgent );
 			}
 		};
 	}
 
 	public function test_same_ip_resolved_only_once() :void {
 		$builder = $this->createBuilder( [
-			'1.2.3.4' => [ IpID::VISITOR, 'Visitor' ],
+			'1.2.3.4|' => [ IpID::VISITOR, 'Visitor' ],
 		] );
 
 		$first = $builder->testResolve( '1.2.3.4' );
 		$second = $builder->testResolve( '1.2.3.4' );
 
 		$this->assertSame( $first, $second );
-		$this->assertSame( 1, $builder->callCounts->counts[ '1.2.3.4' ] );
+		$this->assertSame( 1, $builder->callCounts->counts[ '1.2.3.4|' ] );
 	}
 
 	public function test_different_ips_resolved_independently() :void {
 		$builder = $this->createBuilder( [
-			'1.2.3.4' => [ IpID::VISITOR, 'Visitor' ],
-			'5.6.7.8' => [ IpID::THIS_SERVER, 'Server' ],
+			'1.2.3.4|' => [ IpID::VISITOR, 'Visitor' ],
+			'5.6.7.8|' => [ IpID::THIS_SERVER, 'Server' ],
 		] );
 
 		$first = $builder->testResolve( '1.2.3.4' );
@@ -97,13 +98,13 @@ class IpIdCacheTest extends BaseUnitTest {
 
 		$this->assertSame( [ IpID::VISITOR, 'Visitor' ], $first );
 		$this->assertSame( [ IpID::THIS_SERVER, 'Server' ], $second );
-		$this->assertSame( 1, $builder->callCounts->counts[ '1.2.3.4' ] );
-		$this->assertSame( 1, $builder->callCounts->counts[ '5.6.7.8' ] );
+		$this->assertSame( 1, $builder->callCounts->counts[ '1.2.3.4|' ] );
+		$this->assertSame( 1, $builder->callCounts->counts[ '5.6.7.8|' ] );
 	}
 
 	public function test_exception_cached_and_not_retried() :void {
 		$builder = $this->createBuilder( [
-			'1.2.3.4' => new \RuntimeException( 'DNS failure' ),
+			'1.2.3.4|' => new \RuntimeException( 'DNS failure' ),
 		] );
 
 		$first = $builder->testResolve( '1.2.3.4' );
@@ -111,13 +112,13 @@ class IpIdCacheTest extends BaseUnitTest {
 
 		$this->assertNull( $first );
 		$this->assertNull( $second );
-		$this->assertSame( 1, $builder->callCounts->counts[ '1.2.3.4' ] );
+		$this->assertSame( 1, $builder->callCounts->counts[ '1.2.3.4|' ] );
 	}
 
 	public function test_many_rows_with_few_unique_ips() :void {
 		$ips = [];
 		for ( $i = 1; $i <= 5; $i++ ) {
-			$ips[ "10.0.0.$i" ] = [ IpID::UNKNOWN, "IP $i" ];
+			$ips[ "10.0.0.$i|" ] = [ IpID::UNKNOWN, "IP $i" ];
 		}
 		$builder = $this->createBuilder( $ips );
 
@@ -133,10 +134,10 @@ class IpIdCacheTest extends BaseUnitTest {
 
 	public function test_cache_is_per_instance() :void {
 		$builderA = $this->createBuilder( [
-			'1.2.3.4' => [ IpID::VISITOR, 'Visitor' ],
+			'1.2.3.4|' => [ IpID::VISITOR, 'Visitor' ],
 		] );
 		$builderB = $this->createBuilder( [
-			'1.2.3.4' => [ IpID::THIS_SERVER, 'Server' ],
+			'1.2.3.4|' => [ IpID::THIS_SERVER, 'Server' ],
 		] );
 
 		$resultA = $builderA->testResolve( '1.2.3.4' );
@@ -144,7 +145,22 @@ class IpIdCacheTest extends BaseUnitTest {
 
 		$this->assertSame( [ IpID::VISITOR, 'Visitor' ], $resultA );
 		$this->assertSame( [ IpID::THIS_SERVER, 'Server' ], $resultB );
-		$this->assertSame( 1, $builderA->callCounts->counts[ '1.2.3.4' ] );
-		$this->assertSame( 1, $builderB->callCounts->counts[ '1.2.3.4' ] );
+		$this->assertSame( 1, $builderA->callCounts->counts[ '1.2.3.4|' ] );
+		$this->assertSame( 1, $builderB->callCounts->counts[ '1.2.3.4|' ] );
+	}
+
+	public function test_same_ip_with_different_user_agents_resolves_independently() :void {
+		$builder = $this->createBuilder( [
+			'1.2.3.4|Googlebot/2.1' => [ 'google', 'GoogleBot' ],
+			'1.2.3.4|facebookexternalhit/1.1' => [ 'facebook', 'Facebook' ],
+		] );
+
+		$google = $builder->testResolve( '1.2.3.4', 'Googlebot/2.1' );
+		$facebook = $builder->testResolve( '1.2.3.4', 'facebookexternalhit/1.1' );
+
+		$this->assertSame( [ 'google', 'GoogleBot' ], $google );
+		$this->assertSame( [ 'facebook', 'Facebook' ], $facebook );
+		$this->assertSame( 1, $builder->callCounts->counts[ '1.2.3.4|Googlebot/2.1' ] );
+		$this->assertSame( 1, $builder->callCounts->counts[ '1.2.3.4|facebookexternalhit/1.1' ] );
 	}
 }

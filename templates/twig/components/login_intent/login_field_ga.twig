@@ -1,1 +1,43 @@
-{% extends '/components/login_intent/login_field.twig' %}
+<div class="mfa-pane-content">
+	<div class="mfa-pane-label">
+		<span>{{ strings.ga_heading }}</span>
+		<span class="mfa-pane-muted">{{ strings.ga_hint }}</span>
+	</div>
+
+	<div class="mfa-otp-group mfa-enhanced-otp"
+		 data-otp-group
+		 data-otp-target="{{ field.id }}"
+		 data-otp-mode="numeric"
+		 hidden>
+		{% for digit_index in 1..6 %}
+			{% if digit_index == 4 %}
+				<div class="mfa-otp-sep" aria-hidden="true"></div>
+			{% endif %}
+			<input type="text"
+				   maxlength="1"
+				   autocomplete="one-time-code"
+				   inputmode="numeric"
+				   data-otp
+				   aria-label="{{ strings.otp_digit_aria|format(digit_index) }}">
+		{% endfor %}
+	</div>
+
+	<div class="mfa-resend-row mfa-resend-row--static mfa-enhanced-helper" data-enhanced-only hidden>
+		{{ strings.ga_rotate_note }}
+	</div>
+
+	<div class="mfa-fallback-wrap">
+		<label class="mfa-fallback-label" for="{{ field.id }}">{{ field.text }}</label>
+		<input type="{{ field.type }}"
+			   name="{{ field.name }}"
+			   value="{{ field.value }}"
+			   class="mfa-fallback-input"
+			   id="{{ field.id }}"
+			   placeholder="{{ field.placeholder }}"
+			   autocomplete="off"
+			{% for datakey, dataval in field.datas %}
+				data-{{ datakey }}="{{ dataval }}"
+			{% endfor %}
+		/>
+	</div>
+</div>

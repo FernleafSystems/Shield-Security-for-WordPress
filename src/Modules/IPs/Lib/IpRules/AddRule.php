@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressCons
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use IPLib\Factory;
+use IPLib\Range\RangeInterface;
 use IPLib\Range\Type;
 
 class AddRule {
@@ -115,12 +116,8 @@ class AddRule {
 						}
 					}
 				}
-				if ( $ruleStatus->hasCrowdsecBlock() ) {
-					foreach ( $ruleStatus->getRulesForCrowdsec() as $rule ) {
-						if ( !$rule->is_range ) {
-							( new DeleteRule() )->byRecord( $rule );
-						}
-					}
+				if ( $ruleStatus->hasCrowdsecRule() ) {
+					$this->deleteExactCrowdsecRules( $ruleStatus, $parsedRange );
 				}
 				break;
 
@@ -131,7 +128,7 @@ class AddRule {
 				if ( $ruleStatus->hasManualBlock() ) {
 					throw new \Exception( sprintf( "IP (%s) is already manually blocked so we don't duplicate.", $ip ) );
 				}
-				if ( $ruleStatus->hasCrowdsecBlock() ) {
+				if ( $ruleStatus->hasCrowdsecRule() ) {
 					throw new \Exception( sprintf( 'IP (%s) is already on the CrowdSec list.', $ip ) );
 				}
 				if ( $ruleStatus->isAutoBlacklisted() ) {
@@ -162,8 +159,8 @@ class AddRule {
 				if ( $ruleStatus->hasManualBlock() ) {
 					throw new \Exception( sprintf( 'IP (%s) is already manually blocked.', $ip ) );
 				}
-				if ( $ruleStatus->hasCrowdsecBlock() ) {
-					( new DeleteRule() )->byRecords( $ruleStatus->getRulesForCrowdsec() );
+				if ( $ruleStatus->hasCrowdsecRule() ) {
+					$this->deleteExactCrowdsecRules( $ruleStatus, $parsedRange );
 				}
 
 				// 1. You can manually block an IP on the Auto list (it'll be replaced)
@@ -171,7 +168,7 @@ class AddRule {
 					( new DeleteRule() )->byRecord( $ruleStatus->getRuleForAutoBlock() );
 				}
 
-				if ( $parsedRange->getSize() > 1 && $ruleStatus->hasManualBlock() ) {
+				if ( $parsedRange->getSize() > 1 ) {
 					foreach ( $ruleStatus->getRulesForManualBlock() as $existingRule ) {
 						$parsedExistingRange = Factory::parseRangeString( $existingRule->ipAsSubnetRange() );
 
@@ -199,7 +196,7 @@ class AddRule {
 		$tmp = $dbh->getRecord();
 		$tmp->applyFromArray( $data );
 		$tmp->ip_ref = $ipRecord->id;
-		$tmp->cidr = \explode( '/', $parsedRange->asSubnet()->toString(), 2 )[ 1 ];
+		$tmp->cidr = (int)\explode( '/', $parsedRange->asSubnet()->toString(), 2 )[ 1 ];
 		$tmp->is_range = $parsedRange->getSize() > 1;
 		$tmp->type = $type;
 		/** Only whitelisted IPs may be exported */
@@ -227,11 +224,17 @@ class AddRule {
 		return $ipRuleRecord;
 	}
 
-	private function clearCaches( IpRulesDB\Record $record ) {
+	private function deleteExactCrowdsecRules( IpRuleStatus $ruleStatus, RangeInterface $parsedRange ) {
+		$targetSubnet = $parsedRange->asSubnet()->toString();
 
-		if ( $record->type === IpRulesDB\Handler::T_MANUAL_BYPASS ) {
-			IpRulesCache::Delete( IpRulesCache::COLLECTION_BYPASS, IpRulesCache::GROUP_COLLECTIONS );
+		foreach ( $ruleStatus->getRulesForCrowdsec() as $rule ) {
+			if ( $rule->ipAsSubnetRange( true ) === $targetSubnet ) {
+				( new DeleteRule() )->byRecord( $rule );
+			}
 		}
+	}
+
+	private function clearCaches( IpRulesDB\Record $record ) {
 		if ( $record->is_range ) {
 			IpRulesCache::ResetGroup( IpRulesCache::GROUP_NO_RULES );
 			IpRulesCache::Delete( IpRulesCache::COLLECTION_RANGES, IpRulesCache::GROUP_COLLECTIONS );

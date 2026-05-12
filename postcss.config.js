@@ -70,12 +70,6 @@ module.exports = {
 					'highlight',
 
 					// ===================
-					// TOASTIFY
-					// ===================
-					'toastify',
-					'on',
-
-					// ===================
 					// DATEPICKER
 					// ===================
 					'datepicker',
@@ -139,6 +133,8 @@ module.exports = {
 					/^offcanvas-(start|end|top|bottom)$/,
 					// Modal sizes
 					/^modal-(sm|lg|xl|fullscreen)/,
+					// Toast elements
+					/^toast-/,
 
 					// Bootstrap color variants (dynamically constructed in Twig/PHP)
 					// Used via: btn-{{ var }}, bg-{{ var }}, text-bg-{{ var }},
@@ -189,12 +185,6 @@ module.exports = {
 					/^introjsFloatingElement/,
 
 					// ===================
-					// TOASTIFY PATTERNS
-					// ===================
-					/^toastify-/,
-					/^toast-/,
-
-					// ===================
 					// DATEPICKER PATTERNS
 					// ===================
 					/^datepicker-/,
@@ -218,6 +208,19 @@ module.exports = {
 					// Visibility
 					/^visible/,
 					/^invisible/,
+
+					// ===================
+					// SHIELD DYNAMIC CLASSES (Twig variables resolve at runtime)
+					// ===================
+					/^shield-detail-row__status-icon--/,
+					/^shield-detail-row--/,
+					/^shield-rail-sidebar__pip--/,
+					/^shield-rail-sidebar__accent--/,
+					/^shield-detail-expansion__form--/,
+					/^shield-action-chip--/,
+					/^shield-file-status--/,
+					/^status-icon--/,
+					/^badge-/,
 				],
 
 				// Greedy patterns (matches any selector containing these)

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanItemConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\WordpressReleaseChannel;
 use FernleafSystems\Wordpress\Services\{
 	Services,
 	Utilities\WpOrg
@@ -64,7 +65,7 @@ class RepairItem {
 				if ( !Services::CoreFileHashes()->isCoreFile( $item->path_fragment ) ) {
 					throw new \Exception( __( 'Not a WordPress Core file', 'wp-simple-firewall' ) );
 				}
-				$canRepair = true;
+				$canRepair = !( new WordpressReleaseChannel() )->isDevelopmentBuild();
 			}
 			elseif ( $item->is_in_plugin ) {
 				$asset = Services::WpPlugins()->getPluginAsVo( $item->ptg_slug );

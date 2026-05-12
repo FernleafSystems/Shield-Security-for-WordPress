@@ -20,17 +20,11 @@ class ItemDeleteHandler {
 	 * @throws \Exception
 	 */
 	public function delete() :bool {
-		$FS = Services::WpFs();
-		$success = false;
-
+		$this->canDelete();
 		/** @var FileResultItem $item */
 		$item = $this->getScanItem();
-		if ( $this->canDelete() ) {
-			$FS->deleteFile( $item->path_full );
-			$success = !$FS->isAccessibleFile( $item->path_full );
-		}
-
-		return $success;
+		Services::WpFs()->deleteFile( $item->path_full );
+		return !Services::WpFs()->isAccessibleFile( $item->path_full );
 	}
 
 	protected function deleteSupported() :bool {

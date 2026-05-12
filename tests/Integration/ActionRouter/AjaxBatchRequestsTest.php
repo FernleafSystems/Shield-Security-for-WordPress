@@ -5,8 +5,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
+	Actions\AjaxRender,
 	Actions\AjaxBatchRequests,
 	Actions\PluginBadgeClose,
+	Actions\PluginImportExport_UpdateNotified,
 	Exceptions\ActionException,
 	Exceptions\UserAuthRequiredException
 };
@@ -17,10 +19,7 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		$userId = self::factory()->user->create( [
-			'role' => 'administrator',
-		] );
-		\wp_set_current_user( $userId );
+		$this->loginAsAdministrator();
 	}
 
 	private function processor() :ActionProcessor {
@@ -45,7 +44,7 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 
 	public function test_batch_rejects_request_count_above_limit() {
 		$requests = [];
-		for ( $i = 0; $i < 21; $i++ ) {
+		for ( $i = 0; $i < 51; $i++ ) {
 			$requests[] = [
 				'id'      => 'item_'.$i,
 				'request' => [],
@@ -103,9 +102,19 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 
 		$this->assertIsArray( $payload[ 'results' ][ 'valid' ][ 'data' ] );
 		$this->assertEquals( 200, $payload[ 'results' ][ 'valid' ][ 'status_code' ] );
+		$this->assertArrayHasKey( 'success', $payload[ 'results' ][ 'valid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'page_reload', $payload[ 'results' ][ 'valid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'message', $payload[ 'results' ][ 'valid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'error', $payload[ 'results' ][ 'valid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'html', $payload[ 'results' ][ 'valid' ][ 'data' ] );
 
 		$this->assertFalse( $payload[ 'results' ][ 'invalid' ][ 'success' ] );
 		$this->assertEquals( 401, $payload[ 'results' ][ 'invalid' ][ 'status_code' ] );
+		$this->assertArrayHasKey( 'success', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'page_reload', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'message', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'error', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
+		$this->assertArrayHasKey( 'html', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
 	}
 
 	public function test_batch_processes_only_last_duplicate_id_occurrence() {
@@ -226,5 +235,27 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 			'no action handler',
 			\strtolower( $payload[ 'results' ][ 'invalid_slug' ][ 'data' ][ 'error' ] ?? '' )
 		);
+	}
+
+	public function test_batch_ajax_render_subrequest_rejects_non_render_target() :void {
+		$subrequest = ActionData::Build( AjaxRender::class, true, [
+			'render_slug' => PluginImportExport_UpdateNotified::SLUG,
+		] );
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'invalid_render_target',
+					'request' => $subrequest,
+				],
+			],
+		] );
+
+		$payload = $response->payload();
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertArrayHasKey( 'invalid_render_target', $payload[ 'results' ] );
+		$this->assertFalse( $payload[ 'results' ][ 'invalid_render_target' ][ 'success' ] );
+		$this->assertSame( 400, $payload[ 'results' ][ 'invalid_render_target' ][ 'status_code' ] );
+		$this->assertArrayHasKey( 'error', $payload[ 'results' ][ 'invalid_render_target' ][ 'data' ] ?? [] );
 	}
 }

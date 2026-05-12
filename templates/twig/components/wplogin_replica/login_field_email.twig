@@ -2,5 +2,5 @@
 
 {% block after_login_field_input %}
 	{{ parent() }}
-	[ <a href="javascript:{}" id="ajax_intent_email_send" title="">{{ field.supp.send_email }}</a> ]
+	[ <button type="button" id="ajax_intent_email_send" class="shield-button-link" title="">{{ field.supp.send_email }}</button> ]
 {% endblock %}

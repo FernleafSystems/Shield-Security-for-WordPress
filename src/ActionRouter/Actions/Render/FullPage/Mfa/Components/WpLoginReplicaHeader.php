@@ -82,7 +82,9 @@ class WpLoginReplicaHeader extends Base {
 
 		$login_header_title = '';
 
-		$login_header_text = empty( $login_header_title ) ? __( 'Powered by WordPress', 'wp-simple-firewall' ) : $login_header_title;
+		// TODO: investigate why we has this empty() query
+//		$login_header_text = empty( $login_header_title ) ? __( 'Powered by WordPress', 'wp-simple-firewall' ) : $login_header_title;
+		$login_header_text = __( 'Powered by WordPress', 'wp-simple-firewall' );
 
 		/**
 		 * Filters the link text of the header logo above the login form.

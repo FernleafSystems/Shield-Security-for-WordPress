@@ -206,6 +206,7 @@ class Exporter {
 			}
 		}
 
+		// @phpstan-ignore booleanAnd.leftAlwaysFalse
 		if ( $tablesLocked && $this->cfg->has( 'lock-tables' ) ) {
 			if ( Services::WpDb()->doSql( 'UNLOCK TABLES;' ) === false ) {
 				throw new \Exception( 'Failed to unlock tables' );

@@ -9,9 +9,8 @@ class PluginSuperSearch extends BaseAction {
 	public const SLUG = 'super_search_select';
 
 	protected function exec() {
-		$this->response()->action_response_data = [
-			'success' => true,
+		$this->response()->setPayload( [
 			'results' => ( new SelectSearchData() )->build( $this->action_data[ 'search' ] ?? '' ),
-		];
+		] )->setPayloadSuccess( true );
 	}
 }

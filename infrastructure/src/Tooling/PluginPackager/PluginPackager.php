@@ -17,6 +17,8 @@ class PluginPackager {
 
 	private ?string $straussForkRepo = null;
 
+	private ?string $straussForkBranch = null;
+
 	/** @var callable */
 	private $logger;
 
@@ -29,6 +31,8 @@ class PluginPackager {
 	private VersionUpdater $versionUpdater;
 
 	private PostStraussCleanup $postStraussCleanup;
+
+	private LegacyPathCompatibilityPlan $legacyPathCompatibilityPlan;
 
 	private LegacyPathDuplicator $legacyPathDuplicator;
 
@@ -50,8 +54,9 @@ class PluginPackager {
 		$this->fileCopier = new PluginFileCopier( $this->projectRoot, $this->logger );
 		$this->versionUpdater = new VersionUpdater( $this->projectRoot, $this->logger );
 		$this->postStraussCleanup = new PostStraussCleanup( $this->directoryRemover, $this->logger );
-		$this->legacyPathDuplicator = new LegacyPathDuplicator( $this->logger );
-		$this->packageVerifier = new PackageVerifier( $this->logger );
+		$this->legacyPathCompatibilityPlan = LegacyPathCompatibilityPlan::current();
+		$this->legacyPathDuplicator = new LegacyPathDuplicator( $this->legacyPathCompatibilityPlan, $this->logger );
+		$this->packageVerifier = new PackageVerifier( $this->legacyPathCompatibilityPlan, $this->logger );
 	}
 
 	/**
@@ -63,6 +68,7 @@ class PluginPackager {
 		$options = $this->resolveOptions( $options );
 		$this->straussVersion = $this->resolveStraussVersion( $options );
 		$this->straussForkRepo = $options[ 'strauss_fork_repo' ] ?? null;
+		$this->straussForkBranch = $options[ 'strauss_fork_branch' ] ?? null;
 		$targetDir = $this->resolveOutputDirectory( $outputDir );
 		$this->log( sprintf( 'Packaging Shield plugin to: %s', $targetDir ) );
 
@@ -125,6 +131,7 @@ class PluginPackager {
 			$straussProvider = new StraussBinaryProvider(
 				$this->straussVersion,
 				$this->straussForkRepo,
+				$this->straussForkBranch,
 				$this->commandRunner,
 				$this->directoryRemover,
 				$this->logger
@@ -141,7 +148,7 @@ class PluginPackager {
 			$this->log( 'Skipping package dependency build (--skip-package-dependency-build enabled)' );
 		}
 
-		$this->removeComposerFiles( $targetDir );
+		$this->removePackagingOnlyFiles( $targetDir );
 
 		// Create legacy path duplicates for upgrade compatibility
 		$this->legacyPathDuplicator->createDuplicates( $targetDir );
@@ -228,6 +235,7 @@ class PluginPackager {
 			'skip_copy'                => false,
 			'strauss_version'          => null,
 			'strauss_fork_repo'        => null,
+			'strauss_fork_branch'      => null,
 			'version'                  => null,
 			'release_timestamp'        => null,
 			'build'                    => null,
@@ -391,12 +399,16 @@ class PluginPackager {
 	}
 
 	/**
-	 * Remove composer files from the package directory.
+	 * Remove packaging-only files from the package directory.
 	 * Called after all composer/Strauss operations are complete.
 	 * These files are needed during packaging but not at runtime.
 	 */
-	private function removeComposerFiles( string $targetDir ) :void {
-		$files = [ 'composer.json', 'composer.lock' ];
+	private function removePackagingOnlyFiles( string $targetDir ) :void {
+		$files = [
+			'composer.json',
+			'composer.lock',
+			Path::join( 'bin', 'patch-plugin-core-api-exception.php' ),
+		];
 		foreach ( $files as $file ) {
 			$path = Path::join( $targetDir, $file );
 			if ( \file_exists( $path ) ) {

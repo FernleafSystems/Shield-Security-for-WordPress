@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpMeta\{
 	IpMetaRecord,
 	LoadIpMeta
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IsHighReputationIP;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\TrustedServices;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Sessions\SessionVO;
@@ -62,8 +63,20 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 				}
 				break;
 
+			case 'is_ip_high_reputation':
+				if ( \is_null( $value ) ) {
+					$this->is_ip_high_reputation = $value = ( new IsHighReputationIP() )
+						->setIP( $this->ip )
+						->query();
+				}
+				break;
+
 			case 'is_ip_blocked_shield_auto':
-				$value = apply_filters( 'shield/is_ip_blocked_auto', $this->getIpStatus()->hasAutoBlock() );
+				$value = $this->getIpStatus()->hasAutoBlock();
+				if ( $value && $this->is_ip_high_reputation ) {
+					$value = false;
+				}
+				$value = apply_filters( 'shield/is_ip_blocked_auto', $value );
 				break;
 
 			case 'is_ip_blocked_crowdsec':
@@ -91,6 +104,26 @@ class ThisRequest extends \FernleafSystems\Wordpress\Services\Request\ThisReques
 
 	public function getIpStatus() :IpRuleStatus {
 		return $this->ipStatus ??= new IpRuleStatus( $this->ip );
+	}
+
+	/**
+	 * @see \WP_REST_Request::from_url()
+	 */
+	public function getRestRoute() :string {
+		$route = $this->request->request( 'rest_route', false, '' );
+		if ( empty( $route ) && $this->wp_is_permalinks_enabled ) {
+			$requestPath = \trim( (string)$this->request->getPath(), '/' );
+			$restBaseUrl = isset( $this->rest_api_root ) ? (string)$this->rest_api_root : '';
+			if ( $restBaseUrl === '' ) {
+				$restBaseUrl = (string)\rest_url( '/' );
+			}
+			$restBasePath = \trim( (string)\wp_parse_url( $restBaseUrl, \PHP_URL_PATH ), '/' );
+
+			if ( $requestPath !== '' && $restBasePath !== '' && \str_starts_with( $requestPath, $restBasePath ) ) {
+				$route = \substr( $requestPath, \strlen( $restBasePath ) );
+			}
+		}
+		return \trim( (string)$route, '/' );
 	}
 
 	public function getHostname() :string {

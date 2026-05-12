@@ -2290,16 +2290,6 @@ msgstr ""
 msgid "Critical"
 msgstr ""
 
-#: src/ActionRouter/Actions/Render/Components/Modals/IntroVideoModal.php:16
-#, php-format
-msgid "Demo: Important UI changes with %s v20"
-msgstr ""
-
-#: src/ActionRouter/Actions/Render/Components/Modals/IntroVideoModal.php:17
-#, php-format
-msgid "%s for WordPress v20 Introduction"
-msgstr ""
-
 #: src/ActionRouter/Actions/Render/Components/OffCanvas/FormReportCreate.php:15
 msgid "Create New Report"
 msgstr ""
@@ -4366,7 +4356,6 @@ msgid "Purge Provider IPs"
 msgstr ""
 
 #: src/ActionRouter/Actions/Render/PluginAdminPages/PageDebug.php:33
-#: src/ActionRouter/Actions/Render/PluginAdminPages/PageZone.php:41
 msgid "Reset CrowdSec Enrollment"
 msgstr ""
 
@@ -5153,7 +5142,6 @@ msgstr ""
 msgid "View and manage details of current user sessions on the site."
 msgstr ""
 
-#: src/ActionRouter/Actions/Render/PluginAdminPages/PageZone.php:31
 #: src/Zones/Zone/Secadmin.php:16
 msgid "Disable Security Admin"
 msgstr ""
@@ -13230,15 +13218,15 @@ msgstr ""
 msgid "Comments are auto-approved only if they have at least 1 other approved comment."
 msgstr ""
 
-#: src/Modules/Plugin/Lib/MeterAnalysis/Component/CommentSpamAntibot.php:21
+#: src/Modules/Plugin/Lib/MeterAnalysis/Component/CommentSpamSilentCaptcha.php:21
 msgid "Bot Comment SPAM"
 msgstr ""
 
-#: src/Modules/Plugin/Lib/MeterAnalysis/Component/CommentSpamAntibot.php:25
+#: src/Modules/Plugin/Lib/MeterAnalysis/Component/CommentSpamSilentCaptcha.php:25
 msgid "Your site is protected against automated Comment SPAM by Bots."
 msgstr ""
 
-#: src/Modules/Plugin/Lib/MeterAnalysis/Component/CommentSpamAntibot.php:29
+#: src/Modules/Plugin/Lib/MeterAnalysis/Component/CommentSpamSilentCaptcha.php:29
 msgid "Your site isn't protected against automated Comment SPAM by Bots."
 msgstr ""
 

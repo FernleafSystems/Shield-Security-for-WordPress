@@ -1,98 +1,30 @@
 <div class="shield-ipanalyse options_form_for--modern">
-	{% set rail_nav_items = [
-		{
-			target: '#tabIpInfoGeneral',
-			id: 'tab-navlink-ip-general',
-			controls: 'tabIpInfoGeneral',
-			label: strings.nav_general,
-			is_focus: true
-		},
-		{
-			target: '#tabIpInfoBotSignals',
-			id: 'tab-navlink-ip-signals',
-			controls: 'tabIpInfoBotSignals',
-			label: strings.nav_signals,
-			is_focus: false
-		},
-		{
-			target: '#tabIpInfoSessions',
-			id: 'tab-navlink-ip-sessions',
-			controls: 'tabIpInfoSessions',
-			label: strings.nav_sessions,
-			is_focus: false
-		},
-		{
-			target: '#tabIpInfoAudit',
-			id: 'tab-navlink-ip-audit',
-			controls: 'tabIpInfoAudit',
-			label: strings.nav_audit,
-			is_focus: false
-		},
-		{
-			target: '#tabIpInfoTraffic',
-			id: 'tab-navlink-ip-traffic',
-			controls: 'tabIpInfoTraffic',
-			label: strings.nav_traffic,
-			is_focus: false
-		}
-	] %}
+	{% if flags.render_inline_tabs %}
+		<div class="investigate-panel__tabs" data-investigate-panel-tabs="1"></div>
+	{% endif %}
 
 	<div class="shield-options-layout has-rail">
 		<aside class="shield-options-rail">
 			<div class="shield-options-rail-accent"></div>
 			{% include '/components/config/options_rail_tabs.twig' with {
-				nav_items: rail_nav_items,
+				nav_items: tabs,
 				nav_list_class: 'shield-ipanalyse-tabs'
 			} only %}
 		</aside>
 
 		<div class="shield-options-content">
 			<div class="tab-content shield-ipanalyse-content">
-				<section class="tab-pane shield-options-panel active show"
-						 id="tabIpInfoGeneral"
-						 role="tabpanel"
-						 aria-labelledby="tab-navlink-ip-general">
-					<div class="shield-options-panel-accent"></div>
-					<div class="shield-options-panel-body">
-						{{ content.general|default('no content')|raw }}
-					</div>
-				</section>
-				<section class="tab-pane shield-options-panel"
-						 id="tabIpInfoBotSignals"
-						 role="tabpanel"
-						 aria-labelledby="tab-navlink-ip-signals">
-					<div class="shield-options-panel-accent"></div>
-					<div class="shield-options-panel-body">
-						{{ content.signals|default('no content')|raw }}
-					</div>
-				</section>
-				<section class="tab-pane shield-options-panel"
-						 id="tabIpInfoSessions"
-						 role="tabpanel"
-						 aria-labelledby="tab-navlink-ip-sessions">
-					<div class="shield-options-panel-accent"></div>
-					<div class="shield-options-panel-body">
-						{{ content.sessions|default('no content')|raw }}
-					</div>
-				</section>
-				<section class="tab-pane shield-options-panel"
-						 id="tabIpInfoAudit"
-						 role="tabpanel"
-						 aria-labelledby="tab-navlink-ip-audit">
-					<div class="shield-options-panel-accent"></div>
-					<div class="shield-options-panel-body">
-						{{ content.activity|default('no content')|raw }}
-					</div>
-				</section>
-				<section class="tab-pane shield-options-panel"
-						 id="tabIpInfoTraffic"
-						 role="tabpanel"
-						 aria-labelledby="tab-navlink-ip-traffic">
-					<div class="shield-options-panel-accent"></div>
-					<div class="shield-options-panel-body">
-						{{ content.traffic|default('no content')|raw }}
-					</div>
-				</section>
+				{% for tab in tabs %}
+					<section class="tab-pane shield-options-panel {{ tab.is_focus ? 'active show' : '' }}"
+							 id="{{ tab.controls }}"
+							 role="tabpanel"
+							 aria-labelledby="{{ tab.id }}">
+						<div class="shield-options-panel-accent"></div>
+						<div class="shield-options-panel-body {{ tab.panel_body_class }}">
+							{{ attribute(content, tab.content_key)|raw }}
+						</div>
+					</section>
+				{% endfor %}
 			</div>
 		</div>
 	</div>

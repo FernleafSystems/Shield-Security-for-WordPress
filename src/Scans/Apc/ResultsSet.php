@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Apc;
 
+/**
+ * @extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet<ResultItem>
+ */
 class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet {
 
 	/**
@@ -10,7 +13,7 @@ class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	public function getItemForSlug( string $slug ) {
 		$theItem = null;
 		/** @var ResultItem $item */
-		foreach ( $this->getItems() as $item ) {
+		foreach ( $this->items as $item ) {
 			if ( $item->VO->item_id === $slug ) {
 				$theItem = $item;
 				break;

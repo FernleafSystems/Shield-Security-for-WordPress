@@ -2,11 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\ByPassIpBlock;
-
 class BlockIpAddressCrowdsec extends BlockIpAddressShield {
-
-	use ByPassIpBlock;
 
 	public const SLUG = 'render_block_ip_address_crowdsec';
 	public const TEMPLATE = '/pages/block/block_page_ip_crowdsec.twig';
@@ -19,11 +15,29 @@ class BlockIpAddressCrowdsec extends BlockIpAddressShield {
 		];
 	}
 
-	protected function renderAutoUnblock() :string {
-		return self::con()->action_router->render( Components\AutoUnblockCrowdsec::class );
+	protected function getBlockRecoveryPageKey() :string {
+		return 'ip-crowdsec';
 	}
 
-	protected function renderEmailMagicLinkContent() :string {
-		return '';
+	/**
+	 * @return list<array{recovery:array<string,mixed>,content:string}>
+	 */
+	protected function buildBlockRecoveryCandidates() :array {
+		$autoRecovery = $this->buildBlockRecoveryActionContract( $this->getBlockRecoveryPageKey(), 'auto-recover' );
+
+		return [
+			$this->buildBlockRecoveryCandidate(
+				$autoRecovery,
+				$this->renderAutoUnblock( $autoRecovery )
+			),
+		];
+	}
+
+	protected function renderAutoUnblock( array $recovery ) :string {
+		return self::con()->action_router->render( Components\AutoUnblockCrowdsec::class, [
+			'vars' => [
+				'recovery' => $recovery,
+			],
+		] );
 	}
 }

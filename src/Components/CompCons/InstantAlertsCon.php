@@ -46,18 +46,8 @@ class InstantAlertsCon {
 		$alertsData = $this->getAlertsData();
 		$this->setAlertsData( [] );
 		foreach ( $alertsData as $handlerClass => $alertGroupData ) {
-			if ( !empty( $alertGroupData ) ) {
-				foreach ( $this->getAlertHandlers() as $handler ) {
-					if ( \is_a( $handler, $handlerClass ) ) {
-						self::con()->email_con->sendVO(
-							EmailVO::Factory(
-								self::con()->comps->opts_lookup->getReportEmail(),
-								sprintf( '%s: %s', __( 'Alert', 'wp-simple-firewall' ), $handler->alertTitle() ),
-								self::con()->action_router->render( $handler->alertAction(), [ 'alert_data' => $alertGroupData ] )
-							)
-						);
-					}
-				}
+			if ( !empty( $alertGroupData ) && isset( $this->getAlertHandlers()[ $handlerClass ] ) ) {
+				$this->sendAlert( $this->getAlertHandlers()[ $handlerClass ], $alertGroupData );
 			}
 		}
 	}
@@ -77,18 +67,23 @@ class InstantAlertsCon {
 	/**
 	 * @param InstantAlerts\Handlers\AlertHandlerBase|mixed $handler
 	 */
-	public function updateAlertDataFor( $handler, array $alertGroupData ) :void {
+	public function updateAlertDataFor( $handler, array $alertGroupData ) :bool {
 		$dataForHandler = $this->getAlertsDataFor( $handler );
 		foreach ( $alertGroupData as $type => $alertGroupDatum ) {
-			$dataForHandler[ $type ] = \array_unique( \array_merge( $dataForHandler[ $type ] ?? [], $alertGroupDatum ) );
+			$dataForHandler[ $type ] = $this->mergeAlertGroupData(
+				$dataForHandler[ $type ] ?? [],
+				$alertGroupDatum
+			);
 		}
 		$dataForHandler = \array_filter( \array_intersect_key( $dataForHandler, \array_flip( $handler->alertDataKeys() ) ) );
 
 		$this->setAlertsData( \array_merge( $this->getAlertsData(), [ \get_class( $handler ) => $dataForHandler ] ) );
 
 		if ( $handler->isImmediateAlert() ) {
-			$this->sendAlerts();
+			return $this->sendAlertFor( $handler );
 		}
+
+		return false;
 	}
 
 	/**
@@ -117,8 +112,10 @@ class InstantAlertsCon {
 
 	private function enumHandlers() :array {
 		return [
+			'admin_login'        => InstantAlerts\Handlers\AlertHandlerAdminLogin::class,
 			'admins'             => InstantAlerts\Handlers\AlertHandlerAdmins::class,
 			'filelocker'         => InstantAlerts\Handlers\AlertHandlerFileLocker::class,
+			'firewall_block'     => InstantAlerts\Handlers\AlertHandlerFirewallBlock::class,
 			'vulnerabilities'    => InstantAlerts\Handlers\AlertHandlerVulnerabilities::class,
 			'shield_deactivated' => InstantAlerts\Handlers\AlertHandlerShieldDeactivated::class,
 		];
@@ -130,5 +127,52 @@ class InstantAlertsCon {
 
 	private function setAlertsData( array $data ) :void {
 		self::con()->opts->optSet( 'instant_alerts_data', \array_intersect_key( $data, $this->getAlertHandlers() ) );
+	}
+
+	/**
+	 * @param array<int|string,mixed> $existing
+	 * @param array<int|string,mixed> $incoming
+	 * @return array<int|string,mixed>
+	 */
+	private function mergeAlertGroupData( array $existing, array $incoming ) :array {
+		$shouldMergeAssociatively = ( $existing !== [] && !$this->isListArray( $existing ) )
+									|| ( $incoming !== [] && !$this->isListArray( $incoming ) );
+
+		if ( $shouldMergeAssociatively ) {
+			return \array_merge( $existing, $incoming );
+		}
+
+		return \array_values( \array_unique( \array_merge( $existing, $incoming ), \SORT_REGULAR ) );
+	}
+
+	/**
+	 * @param array<int|string,mixed> $items
+	 */
+	private function isListArray( array $items ) :bool {
+		return $items === [] || \array_keys( $items ) === \range( 0, \count( $items ) - 1 );
+	}
+
+	/**
+	 * @param InstantAlerts\Handlers\AlertHandlerBase|mixed $handler
+	 */
+	private function sendAlertFor( $handler ) :bool {
+		$allAlerts = $this->getAlertsData();
+		$handlerClass = \get_class( $handler );
+		$alertGroupData = $allAlerts[ $handlerClass ] ?? [];
+
+		unset( $allAlerts[ $handlerClass ] );
+		$this->setAlertsData( $allAlerts );
+
+		return !empty( $alertGroupData ) && $this->sendAlert( $handler, $alertGroupData );
+	}
+
+	private function sendAlert( InstantAlerts\Handlers\AlertHandlerBase $handler, array $alertGroupData ) :bool {
+		return self::con()->email_con->sendVO(
+			EmailVO::Factory(
+				self::con()->comps->opts_lookup->getReportEmail(),
+				sprintf( '%s: %s', __( 'Alert', 'wp-simple-firewall' ), $handler->alertTitle() ),
+				self::con()->action_router->render( $handler->alertAction(), [ 'alert_data' => $alertGroupData ] )
+			)
+		);
 	}
 }

@@ -6,7 +6,7 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
- * @property string[] $to
+ * @property string   $to
  * @property string[] $bcc
  * @property string[] $cc
  * @property string   $subject
@@ -17,8 +17,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @phpstan-consistent-constructor
  */
 class EmailVO extends DynPropertiesClass {
-
-	public static function Factory( string $to, string $subject, string $html = '', string $text = '' ) :EmailVO {
+	public static function Factory( string $to, string $subject, string $html = '', string $text = '' ): EmailVO {
 		$email = new static();
 		$email->to = $to;
 		$email->subject = $subject;
@@ -53,7 +52,7 @@ class EmailVO extends DynPropertiesClass {
 		return $value;
 	}
 
-	public function buildSubject() :string {
+	public function buildSubject(): string {
 		$WP = Services::WpGeneral();
 		return \implode( ' ', \array_filter( [
 			$this->is_alert ? '⚠️' : null,

@@ -28,8 +28,11 @@ class Info extends BaseComponent {
 						( new Repo() )->getVcsUrlForFileAndVersion( $item->path_fragment, $WP->getVersion(), false ) : ''
 				],
 				'vars'    => [
-					'path_fragment'    => $item->path_fragment,
-					'file_description' => $this->getFileDescriptionLines(),
+					'path_fragment'         => $item->path_fragment,
+					'file_full_path'        => $item->path_full,
+					'file_status'           => $this->getFileStatus(),
+					'file_description'      => $this->getFileDescriptionLines(),
+					'recommendations_lines' => $this->getFileRecommendations(),
 				],
 				'strings' => [
 					'info'                  => CommonDisplayStrings::get( 'info_label' ),
@@ -41,18 +44,11 @@ class Info extends BaseComponent {
 						__( "[False Positive] means the code looks like malware, but it's actually clean.", 'wp-simple-firewall' ),
 						__( "[Predicted] means the clean/malware status has been assessed by the MAL{ai} engine, but hasn't been manually reviewed (yet).", 'wp-simple-firewall' ),
 					],
-					'file_status'           => sprintf( '%s: %s',
-						__( 'File Status', 'wp-simple-firewall' ),
-						$this->getFileStatus()
-					),
-					'file_full_path'        => sprintf( '%s: <code>%s</code>',
-						__( 'Full Path To File', 'wp-simple-firewall' ),
-						$item->path_full
-					),
+					'file_status_label'      => __( 'File Status', 'wp-simple-firewall' ),
+					'file_full_path_label'   => __( 'Full Path To File', 'wp-simple-firewall' ),
 					'note'                  => __( 'Note', 'wp-simple-firewall' ),
 					'file_description'      => __( 'Description', 'wp-simple-firewall' ),
 					'recommendations'       => __( 'Recommendations', 'wp-simple-firewall' ),
-					'recommendations_lines' => $this->getFileRecommendations(),
 					'view_file_vcs'         => __( 'View Original File Contents', 'wp-simple-firewall' ),
 				],
 			];

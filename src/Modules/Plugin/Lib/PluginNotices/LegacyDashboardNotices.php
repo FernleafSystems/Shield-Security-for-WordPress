@@ -109,7 +109,7 @@ class LegacyDashboardNotices extends Base {
 					__( 'Click to see the RAW data that would be sent', 'wp-simple-firewall' )
 				),
 				sprintf(
-					'<a href="#" class="button button-primary me-3" id="icwpButtonPluginTrackingAgree">%s</a> <a target="_blank" href="%s" class="button me-3" id="icwpButtonPluginTrackingMore">%s</a> <a href="#" id="icwpButtonPluginTrackingDisagree">%s</a>',
+					'<button type="button" class="button button-primary me-3" id="icwpButtonPluginTrackingAgree">%s</button> <a target="_blank" href="%s" class="button me-3" id="icwpButtonPluginTrackingMore">%s</a> <button type="button" class="shield-button-link" id="icwpButtonPluginTrackingDisagree">%s</button>',
 					__( "Yes, I'd be happy share this info", 'wp-simple-firewall' ),
 					'https://clk.shldscrty.com/shieldtrackinginfo',
 					__( "I'd like to learn more, please", 'wp-simple-firewall' ),
@@ -160,7 +160,7 @@ class LegacyDashboardNotices extends Base {
 					sprintf( __( 'The email has been sent to you at blog admin address: %s', 'wp-simple-firewall' ), get_bloginfo( 'admin_email' ) )
 				),
 				sprintf(
-					'<a href="#" class="shield_admin_notice_action" data-notice_action="resend_verification_email">%s</a> / <a href="#" class="shield_admin_notice_action" data-notice_action="mfa_email_disable">%s</a>',
+					'<button type="button" class="shield_admin_notice_action shield-button-link" data-notice_action="resend_verification_email">%s</button> / <button type="button" class="shield_admin_notice_action shield-button-link" data-notice_action="mfa_email_disable">%s</button>',
 					__( 'Resend verification email', 'wp-simple-firewall' ),
 					__( 'Disable 2FA by email', 'wp-simple-firewall' )
 				)

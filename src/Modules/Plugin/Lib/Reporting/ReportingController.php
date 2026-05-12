@@ -50,7 +50,7 @@ class ReportingController {
 	 * @throws \Exception
 	 */
 	public function convertToPdf( int $reportID ) :string {
-		/** @var Record $report */
+		/** @var ?Record $report */
 		$report = self::con()->db_con->reports->getQuerySelector()->byId( $reportID );
 		if ( empty( $report ) ) {
 			throw new \Exception( 'Invalid report' );
@@ -108,20 +108,21 @@ class ReportingController {
 		$req = Services::Request();
 
 		$dbh = self::con()->db_con->activity_logs;
-		/** @var AuditDB\Record $firstAudit */
+		/** @var ?AuditDB\Record $firstAudit */
 		$firstAudit = $dbh->getQuerySelector()
 						  ->setOrderBy( 'created_at', 'ASC', true )
 						  ->first();
+		/** @var ?AuditDB\Record $lastAudit */
 		$lastAudit = $dbh->getQuerySelector()
 						 ->setOrderBy( 'created_at', 'DESC', true )
 						 ->first();
 
 		return [
-			'ajax'  => [
+			'ajax'    => [
 				'create_report'    => ActionData::Build( Actions\ReportCreateCustom::class ),
 				'render_offcanvas' => ActionData::BuildAjaxRender( Actions\Render\Components\OffCanvas\FormReportCreate::class ),
 			],
-			'flags' => [
+			'flags'   => [
 				'can_run_report' => !empty( $lastAudit ) && $lastAudit->id !== $firstAudit->id,
 			],
 			'strings' => [
@@ -131,7 +132,7 @@ class ReportingController {
 				'end_date'        => __( 'End Date', 'wp-simple-firewall' ),
 				'title'           => __( 'Report Title', 'wp-simple-firewall' ),
 			],
-			'vars'  => [
+			'vars'    => [
 				'earliest_date' => empty( $firstAudit ) ? $req->ts() :
 					$req->carbon( true )->setTimestamp( $firstAudit->created_at )->toIso8601String(),
 				'latest_date'   => empty( $lastAudit ) ? $req->ts() :

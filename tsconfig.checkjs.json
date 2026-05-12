@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "lib": ["DOM", "ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "skipLibCheck": true,
+    "strict": false,
+    "target": "ES2022",
+    "types": ["jquery"]
+  },
+  "files": [
+    "./assets/js/components/checked-js.globals.d.ts",
+    "./assets/js/components/BaseComponent.d.ts",
+    "./assets/js/components/services/AjaxService.d.ts",
+    "./assets/js/components/ui/OffCanvasService.d.ts",
+    "./assets/js/util/ObjectOps.d.ts",
+    "./assets/js/util/ObjectOps.js",
+    "./assets/js/components/general/MiscHooks.js",
+    "./assets/js/components/general/SilentCaptcha.js",
+    "./assets/js/plugin-silentcaptcha.js",
+    "./assets/js/components/general/PluginOnboarding.js",
+    "./assets/js/plugin-onboarding.js",
+    "./assets/js/components/ui/ShieldA11y.js",
+    "./assets/js/components/tables/ActivityLogMetaPopover.js",
+    "./assets/js/components/tables/ShieldTableBase.js",
+    "./assets/js/components/tables/ShieldTableActivityLog.js",
+    "./assets/js/components/tables/InvestigationTable.js",
+    "./assets/js/components/tables/ShieldTableIpRules.js",
+    "./assets/js/components/tables/ShieldTableSecurityRules.js",
+    "./assets/js/components/tables/ShieldTableSessions.js",
+    "./assets/js/components/mode/ConfigureExpandLoader.js",
+    "./assets/js/components/mode/StepTabsController.js",
+    "./assets/js/components/mode/ActionsQueueLandingController.js",
+    "./assets/js/components/mode/InvestigateLandingController.js"
+  ]
+}

@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -19,19 +18,7 @@ abstract class RetrieveBase extends DynPropertiesClass {
 
 	protected $additionalWheres = [];
 
-	protected $latestScanID;
-
 	abstract public function buildQuery( array $selectFields = [] ) :string;
-
-	protected function getLatestScanID() :int {
-		if ( !isset( $this->latestScanID ) ) {
-			/** @var ScansDB\Select $scansSelector */
-			$scansSelector = self::con()->db_con->scans->getQuerySelector();
-			$latest = $scansSelector->getLatestForScan( $this->getScanController()->getSlug() );
-			$this->latestScanID = empty( $latest ) ? -1 : $latest->id;
-		}
-		return $this->latestScanID;
-	}
 
 	abstract protected function getBaseQuery( bool $joinWithResultMeta = false ) :string;
 
@@ -47,7 +34,29 @@ abstract class RetrieveBase extends DynPropertiesClass {
 	 * @return $this
 	 */
 	public function addWheres( array $wheres, bool $merge = true ) {
+		$wheres = $this->sanitizeWheres( $wheres );
 		$this->wheres = $merge ? \array_merge( $this->getWheres(), $wheres ) : $wheres;
 		return $this;
+	}
+
+	/**
+	 * @template T
+	 * @param callable():T $callback
+	 * @return T
+	 */
+	protected function withMergedWheres( array $wheres, callable $callback ) {
+		$originalWheres = $this->getWheres();
+		$this->wheres = \array_merge( $originalWheres, $this->sanitizeWheres( $wheres ) );
+
+		try {
+			return $callback();
+		}
+		finally {
+			$this->wheres = $originalWheres;
+		}
+	}
+
+	private function sanitizeWheres( array $wheres ) :array {
+		return \array_filter( \array_map( '\trim', $wheres ) );
 	}
 }

@@ -1,10 +1,7 @@
-import { Base64 } from 'js-base64';
-import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
 import { Forms } from "../../util/Forms";
-import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
-import { ToasterService } from "../toast/ToasterService";
+import { sendEncodedOptionsSave } from "./OptionsSaveRequest";
 
 export class OptionsFormSubmit extends BaseComponent {
 
@@ -23,52 +20,38 @@ export class OptionsFormSubmit extends BaseComponent {
 				const confirmPass = this.form.querySelector( '#' + passwordField.id + '_confirm' );
 				if ( confirmPass && ( confirmPass.value.length === 0 || passwordField.value !== confirmPass.value ) ) {
 					confirmPass.classList.add( 'is-invalid' );
-					alert( 'Form not submitted due to error: security admin PIN and confirm PIN do not match.' );
+					shieldServices.dialog().message( {
+						message: 'Form not submitted due to error: security admin PIN and confirm PIN do not match.',
+						launcher: confirmPass,
+					} );
 					passwordsReady = false;
 				}
 			}
 		} );
 
 		if ( passwordsReady ) {
-			this.#sendForm( false );
+			this.#sendForm();
 		}
 	};
 
-	/**
-	 * First try with base64 and failover to lz-string upon abject failure.
-	 * This works around mod_security rules that even unpack b64 encoded params and look
-	 * for patterns within them.
-	 */
-	#sendForm( obscure = false ) {
-
-		let formData = Base64.encode( JSON.stringify( Forms.Serialize( this.form ) ) );
-
-		( new AjaxService() )
-		.send(
-			ObjectOps.Merge( this._base_data.ajax.form_save, {
-				form_params: obscure ? 'icwp-' + formData : formData,
-				form_enc: obscure ? [ 'obscure', 'b64', 'json' ] : [ 'b64', 'json' ],
-			} )
-		)
+	#sendForm() {
+		sendEncodedOptionsSave( this._base_data.ajax.form_save, Forms.Serialize( this.form ) )
 		.then( ( resp ) => {
 			setTimeout( () => {
-				if ( this.form.dataset[ 'context' ] !== 'offcanvas' || resp.data.page_reload ) {
-					window.location.reload();
+				if ( this.form.dataset[ 'context' ] === 'expansion' && !resp.data.page_reload ) {
+					this.form.dispatchEvent( new CustomEvent( 'shield:expansion-form-saved', {
+						bubbles: true
+					} ) );
+				}
+				else if ( this.form.dataset[ 'context' ] === 'offcanvas' && !resp.data.page_reload ) {
+					OffCanvasService.CloseCanvas();
 				}
 				else {
-					OffCanvasService.CloseCanvas();
+					window.location.reload();
 				}
 			}, 1000 );
 		} )
-		.catch( ( error ) => {
-			if ( obscure ) {
-				( new ToasterService() ).showMessage( 'Alternative failed.', false );
-			}
-			else {
-				( new ToasterService() ).showMessage( 'The request was blocked. Retrying an alternative...', false );
-				this.#sendForm( true );
-			}
-		} )
+		.catch( () => null )
 		.finally();
 	};
 }

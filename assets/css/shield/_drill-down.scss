@@ -1,0 +1,14 @@
+.drill-shell {
+	display: grid;
+	gap: 0.75rem;
+}
+
+.drill-layer--compact,
+.drill-layer--hidden {
+	display: none;
+}
+
+.drill-layer__body {
+	min-height: 0;
+	padding: 0;
+}

@@ -17,7 +17,7 @@ class SetRequestToBeLogged extends Base {
 				'label'   => __( 'Whether to log request', 'wp-simple-firewall' ),
 				'default' => true,
 			],
-			'hook_priority' => [
+			'priority'      => [
 				'type'    => EnumParameters::TYPE_INT,
 				'label'   => __( 'Filter Priority', 'wp-simple-firewall' ),
 				'default' => 10,

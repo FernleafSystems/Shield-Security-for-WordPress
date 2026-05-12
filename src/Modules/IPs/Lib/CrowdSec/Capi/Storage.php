@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Capi;
 
-use AptowebDeps\CrowdSec\CapiClient\Storage\StorageInterface;
+use CrowdSec\CapiClient\Storage\StorageInterface;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 

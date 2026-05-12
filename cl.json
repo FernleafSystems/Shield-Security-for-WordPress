@@ -1,4 +1,139 @@
 {
+  "22.0": {
+    "version":     "22.0",
+    "released_at": 1778580000,
+    "hrefs":       {
+      "release": "https://clk.shldscrty.com/shieldrelease220",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide220"
+    },
+    "title":       "Guided Security Workflows",
+    "description": [
+      "Shield 22.0 reshapes the plugin around clearer day-to-day security work: what needs attention, what to investigate, what to configure, and what your reports are telling you.",
+      "It also strengthens silentCAPTCHA bot protection and improves live monitoring, scan handling, 2FA and passkey upgrades, MainWP workflows, PHP 8.4 support, and admin action prompts."
+    ],
+    "items": [
+      {
+        "type":        "new",
+        "title":       "A Clearer Picture of What Needs Your Attention",
+        "description": [
+          "The dashboard guides you through your security work in a logical order: what to fix, what to investigate, what to configure, and what your reports are telling you.",
+          "The WordPress dashboard widget shows the same priority items as the Actions Queue, so you always know where things stand without digging."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Actions Queue: A New Workspace for Security Tasks",
+        "description": [
+          "The Actions Queue separates urgent issues from follow-up work, so you're not wading through a flat list to figure out what actually matters.",
+          "Scan findings, maintenance tasks, File Locker items, and quick actions are easier to review and act on from one place."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Investigate: A New Way To Find Answers",
+        "description": [
+          "Investigate has dedicated views for users, IPs, plugins, themes, core files, live traffic, and sessions, so you go straight to what you're looking for.",
+          "IP analysis shows more at a glance: clearer summaries, identity details, and the actions you actually need."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Configure: A New Way To Review Your Security Setup",
+        "description": [
+          "Configure shows security coverage, weak settings, and next steps in one place.",
+          "In-place search helps you find and open settings without losing your place."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Reports: A New Workspace for Security Reporting",
+        "description": [
+          "Reports gives you clearer summaries, trend charts, and cleaner report management.",
+          "It's also easier to review and clean up reports you've already run."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "silentCAPTCHA v3",
+        "description": [
+          "silentCAPTCHA now uses a stronger challenge system behind the scenes.",
+          "Real visitors still don't need to solve puzzles or click image challenges, while bots now face a stronger background challenge before Shield trusts them.",
+          "Challenge strength can be tuned for your site, with Adaptive mode balancing stronger bot protection against visitor device performance."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Live Monitoring and Logs: More Signal, Less Noise",
+        "description": [
+          "The dashboard shows a live activity feed so you can see what's happening on your site while you work.",
+          "Traffic and live logs show more useful detail about each request, while filtering out routine admin noise like AJAX and heartbeat traffic.",
+          "Less useful logs are cleared sooner, while more useful events are kept longer."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Scan Handling",
+        "description": [
+          "Scans are faster and more reliable, especially on larger sites and when reviewing results.",
+          "Scan result pages keep more context while you work through findings.",
+          "Shield is also better at recognising when scan queues have finished, reducing stuck or incomplete scan states."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Safer Admin Actions",
+        "description": [
+          "Sensitive admin actions now use clearer confirmation prompts, so it's easier to understand what will happen before you continue."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Better Keyboard Navigation and Admin Dialogs",
+        "description": [
+          "Keyboard focus is clearer and more consistent across Shield admin pages, tables, settings, dialogs, and MFA controls.",
+          "Messages, confirmations, and error prompts are easier to follow with keyboard navigation and screen readers."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "MainWP Site Actions",
+        "description": [
+          "MainWP site action controls are more reliable and easier to use, including with keyboard navigation.",
+          "Common site management actions from MainWP now feel more consistent with the rest of Shield."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "2FA: Smoother Login and Passkey Upgrades",
+        "description": [
+          "The 2FA verification portal is cleaner and easier to use.",
+          "Existing passkeys are handled more reliably during upgrades, so registered passkey logins keep working after Shield updates."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Improved PHP 8.4 Support",
+        "description": [
+          "Reduces PHP 8.4 deprecation warnings on sites running newer PHP versions."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Alerts and Reports",
+        "description": [
+          "Alerts are now properly distinguished from informational reports. They serve 2 completely different purposes and their content reflects this."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Release Stability Improved",
+        "description": [
+          "Automated tests and checks catch more issues before release."
+        ]
+      }
+    ],
+    "patches":     []
+  },
   "21.2": {
     "version":     "21.2",
     "released_at": 1770900000,

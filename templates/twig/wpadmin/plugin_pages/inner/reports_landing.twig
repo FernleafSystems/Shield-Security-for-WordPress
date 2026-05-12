@@ -1,0 +1,11 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="reports-landing" data-reports-landing="1">
+		<div class="reports-landing__drilldown" data-reports-section="drilldown">
+			{% include '/wpadmin/components/page/drill_down_shell.twig' with {
+				shell: vars.drill_shell
+			} only %}
+		</div>
+	</div>
+{% endblock %}

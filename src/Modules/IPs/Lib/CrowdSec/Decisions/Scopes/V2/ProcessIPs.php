@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\Decisions\Scopes\V2;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\CleanIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\{
 	IpRulesIterator,
 	LoadIpRules,
@@ -55,7 +56,7 @@ class ProcessIPs extends ProcessBase {
 				$DB->doSql( sprintf( 'INSERT IGNORE INTO `%s` (`ip`, `created_at`) VALUES %s;',
 					$ipTableName,
 					\implode( ',', \array_map(
-						fn( $ip ) => sprintf( "(INET6_ATON('%s'), %s)", $ip, $now ),
+						fn( $ip ) => sprintf( '(%s, %s)', IpAddressSql::literalFromIp( $ip ), $now ),
 						\array_keys( $slice )
 					) )
 				) );
@@ -64,7 +65,7 @@ class ProcessIPs extends ProcessBase {
 				$ipRecords = $DB->selectCustom(
 					sprintf( "SELECT `id`, INET6_NTOA(`ip`) as `ip` FROM `%s` WHERE `ip` IN (%s);",
 						$ipTableName,
-						\implode( ',', \array_map( fn( $ip ) => sprintf( "INET6_ATON('%s')", $ip ), \array_keys( $slice ) ) )
+						\implode( ',', IpAddressSql::literalsFromIps( \array_keys( $slice ) ) )
 					)
 				);
 
@@ -135,28 +136,30 @@ class ProcessIPs extends ProcessBase {
 //				} ) );
 
 				$singles = \array_keys( $slice );
-				if ( !empty( $singles ) ) {
-					$loader = new LoadIpRules();
-					$loader->wheres = [
-						sprintf( "`ips`.`ip` IN (%s)",
-							\implode( ',', \array_map( fn( $ip ) => sprintf( "INET6_ATON('%s')", $ip ), $singles ) )
-						),
-						sprintf( "`ir`.`type`='%s'", IpRulesDB\Handler::T_CROWDSEC )
-					];
+				$loader = new LoadIpRules();
+				$loader->wheres = [
+					sprintf( "`ips`.`ip` IN (%s)",
+						\implode( ',', IpAddressSql::literalsFromIps( $singles ) )
+					),
+					sprintf( "`ir`.`type` IN ('%s')", \implode( "','", [
+						IpRulesDB\Handler::T_CROWDSEC,
+						IpRulesDB\Handler::T_MANUAL_BLOCK,
+						IpRulesDB\Handler::T_MANUAL_BYPASS,
+					] ) )
+				];
 
-					foreach ( $loader->select() as $preExistingRule ) {
-						if ( \in_array( $preExistingRule->ip, $singles ) ) {
-							$duplicates[] = $preExistingRule->ip;
-						}
-						elseif ( \str_contains( $preExistingRule->ip, ':' ) ) {
-							$preExistingIPv6 = Factory::parseAddressString( $preExistingRule->ip )->toString( true );
-							// handle variance of IPv6 notation.
-							foreach ( $singles as $sliceIP ) {
-								if ( \str_contains( $sliceIP, ':' ) &&
-									 Factory::parseAddressString( $sliceIP )->toString( true ) === $preExistingIPv6 ) {
-									$duplicates[] = $sliceIP;
-									break;
-								}
+				foreach ( $loader->select() as $preExistingRule ) {
+					if ( \in_array( $preExistingRule->ip, $singles ) ) {
+						$duplicates[] = $preExistingRule->ip;
+					}
+					elseif ( \str_contains( $preExistingRule->ip, ':' ) ) {
+						$preExistingIPv6 = Factory::parseAddressString( $preExistingRule->ip )->toString( true );
+						// handle variance of IPv6 notation.
+						foreach ( $singles as $sliceIP ) {
+							if ( \str_contains( $sliceIP, ':' ) &&
+								 Factory::parseAddressString( $sliceIP )->toString( true ) === $preExistingIPv6 ) {
+								$duplicates[] = $sliceIP;
+								break;
 							}
 						}
 					}
@@ -181,9 +184,7 @@ class ProcessIPs extends ProcessBase {
 	protected function processDeleted() :int {
 
 		/** @var RangeInterface[] $ipsToDelete */
-		$ipsToDelete = \array_map( function ( $ip ) {
-			return Factory::parseRangeString( $ip );
-		}, $this->deletedDecisions );
+		$ipsToDelete = \array_map( fn ( $ip ) => Factory::parseRangeString( $ip ), $this->deletedDecisions );
 
 		$rulesIterator = new IpRulesIterator();
 		$loader = $rulesIterator->getLoader();

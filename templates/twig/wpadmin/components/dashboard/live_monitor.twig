@@ -1,0 +1,47 @@
+{% set is_collapsed = vars.is_collapsed|default(false) %}
+<section id="ShieldDashboardLiveMonitor"
+		 class="dashboard-live-monitor{{ is_collapsed ? ' is-collapsed' : '' }}"
+		 data-dashboard-live-monitor="1"
+		 data-shield-tour="dashboard-live-monitor"
+		 data-is-collapsed="{{ is_collapsed ? '1' : '0' }}"
+		 data-live-monitor-loading="{{ vars.loading|e('html_attr') }}"
+		 data-live-monitor-ready="{{ vars.ready|e('html_attr') }}"
+		 data-live-monitor-error="{{ vars.error|e('html_attr') }}">
+	<div class="screen-reader-text"
+		 role="status"
+		 aria-live="polite"
+		 aria-atomic="true"
+		 data-shield-status-region="1"></div>
+	<button type="button"
+			class="dashboard-live-monitor__header"
+			data-live-monitor-toggle="1"
+			aria-expanded="{{ is_collapsed ? 'false' : 'true' }}"
+			aria-controls="ShieldDashboardLiveMonitorBody">
+		<span class="dashboard-live-monitor__title-wrap">
+			<span class="dashboard-live-monitor__title">{{ vars.title|default('Live Monitor') }}</span>
+			<span class="dashboard-live-monitor__status-dot" aria-hidden="true"></span>
+		</span>
+		<i class="bi bi-chevron-down dashboard-live-monitor__chevron" aria-hidden="true"></i>
+	</button>
+	<div id="ShieldDashboardLiveMonitorBody"
+		 class="dashboard-live-monitor__body"
+		 data-live-monitor-body="1"
+		 aria-hidden="{{ is_collapsed ? 'true' : 'false' }}">
+		<div class="dashboard-live-monitor__lane">
+			<div class="dashboard-live-monitor__lane-title">{{ vars.activity|default('WP Activity') }}</div>
+			<div class="live_logs">
+				<div class="output w-100 shield-live-logs--light" data-live-monitor-output="ticker">
+					<div class="text-muted small">{{ vars.loading|default('Waiting for live updates...') }}</div>
+				</div>
+			</div>
+		</div>
+		<div class="dashboard-live-monitor__lane">
+			<div class="dashboard-live-monitor__lane-title">{{ vars.traffic|default('Live Traffic') }}</div>
+			<div class="live_logs">
+				<div class="output w-100 shield-live-logs--light" data-live-monitor-output="traffic">
+					<div class="text-muted small">{{ vars.loading|default('Waiting for live updates...') }}</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>

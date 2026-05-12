@@ -5,25 +5,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\C
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
- * @property string   $interval
- * @property string   $ticks
- * @property string[] $events
- * @property bool     $combine_events
- * @property array    $chart_params
+ * @property string   $period_key
+ * @property string[] $event_keys
  */
 class ChartRequestVO extends DynPropertiesClass {
 
-	public function __get( string $key ) {
-		$value = parent::__get( $key );
-		switch ( $key ) {
-			case 'interval':
-				if ( empty( $value ) ) {
-					$value = 'weekly';
-				}
-				break;
-			default:
-				break;
-		}
-		return $value;
+	public function applyFromArray( array $data, array $restrictedKeys = [] ) :self {
+		return parent::applyFromArray( [
+			'period_key' => ChartOptions::normalizePeriodKey( (string)( $data[ 'period_key' ] ?? '' ) ),
+			'event_keys' => ChartOptions::normalizeEventKeys( \is_array( $data[ 'event_keys' ] ?? null ) ? $data[ 'event_keys' ] : [] ),
+		], $restrictedKeys );
 	}
 }

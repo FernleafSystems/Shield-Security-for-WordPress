@@ -7,40 +7,42 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record;
 /**
  * @property int    $scan_id
  * @property string $scan
- * @property string $hash
  * @property int    $resultitem_id
- * @property int    $scanresult_id
  * @property string $item_type
  * @property string $item_id
+ * @property string $asset_type
+ * @property string $asset_key
  * @property array  $meta
- * @property int    $att
  * @property int    $ignored_at
  * @property int    $notified_at
  * @property int    $auto_filtered_at
  * @property int    $attempt_repair_at
- * @property int    $item_repaired_at
- * @property int    $item_deleted_at
+ * @property int    $last_seen_at
+ * @property int    $resolved_at
+ * @property string $resolution_reason
  * @property int    $created_at
  */
 class ScanResultVO extends Record {
 
-	/**
-	 * @return mixed
-	 */
 	public function __get( string $key ) {
-
 		$value = parent::__get( $key );
 
-		switch ( $key ) {
-			case 'scan_id':
-			case 'resultitem_id':
-			case 'scanresult_id':
-				$value = (int)$value;
-				break;
-			default:
-				break;
+		if ( \in_array( $key, [ 'scan_id', 'resultitem_id' ], true ) ) {
+			$value = (int)$value;
 		}
 
 		return $value;
+	}
+
+	public function isResolvedAs( string $reason ) :bool {
+		return (int)$this->resolved_at > 0 && $this->resolution_reason === $reason;
+	}
+
+	public function isDeleted() :bool {
+		return $this->isResolvedAs( 'deleted' );
+	}
+
+	public function isRepaired() :bool {
+		return $this->isResolvedAs( 'repaired' );
 	}
 }

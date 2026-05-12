@@ -23,6 +23,7 @@ class FluentForms extends Base {
 	}
 
 	protected static function ProviderMeetsRequirements() :bool {
+		// @phpstan-ignore-next-line
 		return @\method_exists( '\FluentForm\App\App', 'getInstance' );
 	}
 }

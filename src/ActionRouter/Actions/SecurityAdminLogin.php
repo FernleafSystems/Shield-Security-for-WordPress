@@ -15,9 +15,10 @@ class SecurityAdminLogin extends SecurityAdminBase {
 
 	protected function exec() {
 		$resp = $this->response();
+		$success = false;
 
 		if ( self::con()->comps->sec_admin->isCurrentlySecAdmin() ) {
-			$resp->success = true;
+			$success = true;
 			$resp->message = __( "You're already a Security Admin.", 'wp-simple-firewall' )
 							 .' '.__( 'Please wait a moment', 'wp-simple-firewall' ).' ...';
 		}
@@ -26,9 +27,9 @@ class SecurityAdminLogin extends SecurityAdminBase {
 			if ( empty( $pin ) ) {
 				$pin = FormParams::Retrieve()[ 'sec_admin_key' ] ?? '';
 			}
-			$resp->success = ( new VerifyPinRequest() )->run( $pin );
+			$success = ( new VerifyPinRequest() )->run( $pin );
 
-			if ( $resp->success ) {
+			if ( $success ) {
 				( new ToggleSecAdminStatus() )->turnOn();
 				$resp->message = \implode( ' ', [
 					__( 'Security Admin PIN Accepted.', 'wp-simple-firewall' ),
@@ -47,10 +48,10 @@ class SecurityAdminLogin extends SecurityAdminBase {
 			}
 		}
 
-		$resp->action_response_data = [
+		$resp->setPayload( [
 			'html'         => '',
 			'page_reload'  => true,
 			'redirect_url' => self::con()->plugin_urls->adminRefererOrHome(),
-		];
+		] )->setPayloadSuccess( $success );
 	}
 }

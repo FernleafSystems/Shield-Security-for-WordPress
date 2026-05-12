@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerFileLocker;
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
@@ -25,6 +25,7 @@ class FileLockerController {
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
+	public const ANALYSIS_COOLDOWN = 60;
 	public const CRON_DELAY = 60;
 
 	private ?array $locks = null;
@@ -42,8 +43,12 @@ class FileLockerController {
 	protected function run() {
 		add_action( 'wp_loaded', function () {
 
-			if ( !self::con()->this_req->wp_is_cron ) {
+			if ( !self::con()->this_req->wp_is_cron && $this->shouldRunAnalysisNow() ) {
+				$state = $this->getState();
+				$state[ 'last_analysis_started_at' ] = Services::Request()->ts();
+				$this->setState( $state );
 				$this->runAnalysis();
+				( new AlertHandlerFileLocker() )->captureOutstandingAlerts();
 			}
 
 			if ( wp_next_scheduled( $this->getCronHook() ) ) {
@@ -63,7 +68,7 @@ class FileLockerController {
 				'id'       => self::con()->prefix( 'filelocker_problems' ),
 				'title'    => __( 'File Locker', 'wp-simple-firewall' )
 							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $count ),
-				'href'     => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS ),
+				'href'     => self::con()->plugin_urls->actionsQueueScans(),
 				'warnings' => $count
 			];
 		}
@@ -95,6 +100,13 @@ class FileLockerController {
 
 	public function clearLocks() :void {
 		$this->locks = null;
+	}
+
+	public function reassessLocksNow() :void {
+		// User-triggered file actions must refresh persisted lock status immediately.
+		$this->clearLocks();
+		( new Ops\AssessLocks() )->run();
+		$this->clearLocks();
 	}
 
 	/**
@@ -174,6 +186,10 @@ class FileLockerController {
 		return self::con()->prefix( 'create_file_locks' );
 	}
 
+	private function shouldRunAnalysisNow() :bool {
+		return Services::Request()->ts() - (int)$this->getState()[ 'last_analysis_started_at' ] >= self::ANALYSIS_COOLDOWN;
+	}
+
 	/**
 	 * There's at least 60 seconds between each attempt to create a file lock.
 	 * This ensures our API isn't bombarded by sites that, for some reason, fail to store the lock in the DB.
@@ -222,6 +238,7 @@ class FileLockerController {
 	public function getState() :array {
 		return \array_merge( [
 			'abspath'                      => ABSPATH,
+			'last_analysis_started_at'     => 0,
 			'last_locks_created_at'        => 0,
 			'last_locks_created_failed_at' => 0,
 			'last_error'                   => '',

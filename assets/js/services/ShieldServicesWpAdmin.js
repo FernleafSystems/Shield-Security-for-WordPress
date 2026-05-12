@@ -1,8 +1,11 @@
-import { ToastifyService } from "../components/toast/ToastifyService";
+import { WpAdminToastService } from "../components/toast/WpAdminToastService";
+import { AccessibleAdminDialogService } from "./AccessibleAdminDialogService";
 
 export class ShieldServicesWpAdmin {
 
 	static me;
+	notificationService = null;
+	dialogService = null;
 
 	static Instance() {
 		if ( !ShieldServicesWpAdmin.me ) {
@@ -12,6 +15,16 @@ export class ShieldServicesWpAdmin {
 	}
 
 	notification() {
-		return new ToastifyService();
+		if ( this.notificationService === null ) {
+			this.notificationService = new WpAdminToastService();
+		}
+		return this.notificationService;
+	}
+
+	dialog() {
+		if ( this.dialogService === null ) {
+			this.dialogService = new AccessibleAdminDialogService();
+		}
+		return this.dialogService;
 	}
 }

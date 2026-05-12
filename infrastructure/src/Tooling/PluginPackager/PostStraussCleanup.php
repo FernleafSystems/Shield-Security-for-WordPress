@@ -31,24 +31,13 @@ class PostStraussCleanup {
 		// Remove Strauss fork directory if it exists (only when not in Docker)
 		// In Docker, we use /tmp which is ephemeral - no cleanup needed
 		if ( $straussForkRepo !== null && !StraussBinaryProvider::isRunningInDocker() ) {
-			$forkHash = \substr( \md5( $straussForkRepo ), 0, 12 );
-			$forkDir = Path::join( $targetDir, '_strauss-fork-'.$forkHash );
-			if ( is_dir( $forkDir ) ) {
-				$this->log( 'Removing Strauss fork directory...' );
-				try {
-					$this->directoryRemover->removeSubdirectoryOf( $forkDir, $targetDir );
-				}
-				catch ( \Exception $e ) {
-					// Non-critical cleanup - just warn
-					$this->log( sprintf( '  Warning: %s', $e->getMessage() ) );
-				}
-			}
+			$this->removeStraussForkDirectories( $targetDir );
 		}
 		elseif ( $straussForkRepo !== null && StraussBinaryProvider::isRunningInDocker() ) {
 			$this->log( 'Skipping Strauss fork cleanup (Docker /tmp is ephemeral)' );
 		}
 
-		// Directories to remove (duplicates after Strauss prefixing)
+		// Remove duplicate vendor libraries after Strauss prefixing.
 		$this->log( 'Removing duplicate libraries from main vendor...' );
 		$directoriesToRemove = [
 			Path::join( $targetDir, 'vendor', 'twig' ),
@@ -64,6 +53,36 @@ class PostStraussCleanup {
 				catch ( \Exception $e ) {
 					// Log but don't fail - these are cleanup operations
 					$this->log( sprintf( '  Warning: Could not remove directory: %s (%s)', $dir, $e->getMessage() ) );
+				}
+			}
+		}
+
+		// Remove temporary build inputs that must not ship in the final package.
+		$temporaryDirectoriesToRemove = [
+			Path::join( $targetDir, 'packages', 'thecodingmachine-safe' ),
+		];
+
+		foreach ( $temporaryDirectoriesToRemove as $dir ) {
+			if ( is_dir( $dir ) ) {
+				try {
+					$this->directoryRemover->removeSubdirectoryOf( $dir, $targetDir );
+				}
+				catch ( \Exception $e ) {
+					$this->log( sprintf( '  Warning: Could not remove directory: %s (%s)', $dir, $e->getMessage() ) );
+				}
+			}
+		}
+
+		$packagesDir = Path::join( $targetDir, 'packages' );
+		if ( \is_dir( $packagesDir ) ) {
+			$entries = \scandir( $packagesDir ) ?: [];
+			$entries = \array_values( \array_diff( $entries, [ '.', '..' ] ) );
+			if ( $entries === [] ) {
+				try {
+					$this->directoryRemover->removeSubdirectoryOf( $packagesDir, $targetDir );
+				}
+				catch ( \Exception $e ) {
+					$this->log( sprintf( '  Warning: Could not remove directory: %s (%s)', $packagesDir, $e->getMessage() ) );
 				}
 			}
 		}
@@ -84,6 +103,29 @@ class PostStraussCleanup {
 					// Log but don't fail - these are cleanup operations
 					$this->log( sprintf( '  Warning: Could not remove file: %s (%s)', $file, $e->getMessage() ) );
 				}
+			}
+		}
+	}
+
+	private function removeStraussForkDirectories( string $targetDir ) :void {
+		$entries = \scandir( $targetDir ) ?: [];
+		foreach ( $entries as $entry ) {
+			if ( \strpos( $entry, '_strauss-fork-' ) !== 0 ) {
+				continue;
+			}
+
+			$forkDir = Path::join( $targetDir, $entry );
+			if ( !\is_dir( $forkDir ) ) {
+				continue;
+			}
+
+			$this->log( 'Removing Strauss fork directory...' );
+			try {
+				$this->directoryRemover->removeSubdirectoryOf( $forkDir, $targetDir );
+			}
+			catch ( \Exception $e ) {
+				// Non-critical cleanup - just warn
+				$this->log( sprintf( '  Warning: %s', $e->getMessage() ) );
 			}
 		}
 	}

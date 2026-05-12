@@ -142,15 +142,4 @@ class EnumTablePrimaryKeys {
 			'wc_webhooks'                         => 'webhook_id',
 		];
 	}
-
-	private function wpStatistics() :array {
-		return [
-			'statistics_events'                => 'ID',
-			'statistics_pages'                 => 'page_id',
-			'statistics_useronline'            => 'ID',
-			'statistics_visit'                 => 'ID',
-			'statistics_visitor'               => 'ID',
-			'statistics_visitor_relationships' => 'ID',
-		];
-	}
 }

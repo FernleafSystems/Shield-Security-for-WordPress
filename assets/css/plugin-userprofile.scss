@@ -1,6 +1,10 @@
+@import './shield/focus-indicators';
+@import './shield/accessible-dialog';
+
 #ShieldUserProfileMFA {
 	margin-top: 1em;
 }
+
 #ShieldUserProfileMFA th {
 	text-align: left;
 	vertical-align: top;
@@ -9,9 +13,101 @@
 	line-height: 1.3;
 	font-weight: 600;
 }
+
 #ShieldUserProfileMFA td {
 	vertical-align: top;
-  padding: 20px 0;
+	padding: 20px 0;
+}
+
+#ShieldUserProfileMFA .switch {
+	display: inline-block;
+	height: 34px;
+	position: relative;
+	width: 60px;
+	margin: 0 20px;
+}
+
+#ShieldUserProfileMFA .switch.disabled {
+	opacity: 0.5;
+}
+
+/** https://www.sarasoueidan.com/blog/inclusively-hiding-and-styling-checkboxes-and-radio-buttons/#hiding-the-checkboxes-inclusively */
+#ShieldUserProfileMFA .switch input {
+	position: absolute;
+	opacity: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	z-index: 1;
+}
+
+#ShieldUserProfileMFA .shield_slider {
+	background-color: #ccc;
+	bottom: 0;
+	cursor: pointer;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+	transition: .4s;
+}
+
+#ShieldUserProfileMFA .shield_slider:before {
+	background-color: #fff;
+	bottom: 4px;
+	content: "";
+	height: 26px;
+	left: 4px;
+	position: absolute;
+	transition: .4s;
+	width: 26px;
+}
+
+#ShieldUserProfileMFA .switch input:checked + .shield_slider {
+	background-color: #66bb6a;
+}
+
+#ShieldUserProfileMFA .switch input:checked + .shield_slider:before {
+	transform: translateX(26px);
+}
+
+#ShieldUserProfileMFA .shield_slider.round {
+	border-radius: 34px;
+}
+
+#ShieldUserProfileMFA .shield_slider.round:before {
+	border-radius: 50%;
+}
+
+#shield_section_passkeys .shield-passkeys-register {
+	margin: 0 0 10px;
+}
+
+#shield_section_passkeys .shield-passkeys-heading {
+	margin: 0 0 6px;
+}
+
+#shield_section_passkeys .shield-passkeys-table {
+	max-width: 720px;
+	width: 100%;
+	border: 1px solid #c3c4c7;
+	border-collapse: collapse;
+}
+
+#shield_section_passkeys .shield-passkeys-table th,
+#shield_section_passkeys .shield-passkeys-table td {
+	padding: 6px 8px;
+	vertical-align: middle;
+	border-bottom: 1px solid #c3c4c7;
+}
+
+#shield_section_passkeys .shield-passkeys-table__action {
+	text-align: right;
+	width: 70px;
+}
+
+#shield_section_passkeys .shield_remove_passkey {
+	text-decoration: none;
 }
 
 .shield_ga_secret {

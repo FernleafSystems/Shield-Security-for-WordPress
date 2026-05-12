@@ -34,4 +34,12 @@ class FileEditingBlock extends Base {
 
 		return $status;
 	}
+
+	protected function postureWeight() :int {
+		return 4;
+	}
+
+	protected function configureTreatsBadStatusAsWarning() :bool {
+		return true;
+	}
 }

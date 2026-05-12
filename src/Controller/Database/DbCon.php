@@ -65,6 +65,8 @@ class DbCon extends DynPropertiesClass {
 	use PluginCronsConsumer;
 	use PluginControllerConsumer;
 
+	public const TABLE_READY_CACHE_LIFETIME = 3600;
+
 	public const MAP = [
 		'activity_logs'         => [
 			'slug'          => 'at_logs',
@@ -152,18 +154,23 @@ class DbCon extends DynPropertiesClass {
 		],
 	];
 
-	/**
-	 * @var ?|array
-	 */
-	private $dbHandlers = null;
+	private ?array $dbHandlers = null;
+
+	private bool $hasResetTableReadyCacheForRebuiltConfig = false;
 
 	protected function run() {
+		add_filter( 'apto/db/table_ready_cache_lifetime', [ $this, 'filterTableReadyCacheLifetime' ], 10, 2 );
 		$this->setupCronHooks();
+	}
+
+	public function filterTableReadyCacheLifetime( int $lifetime, ?Common\TableSchema $schema = null ) :int {
+		return \max( $lifetime, self::TABLE_READY_CACHE_LIFETIME );
 	}
 
 	public function runDailyCron() {
 		( new CleanDatabases() )->all();
 		( new TableIndices( $this->ip_rules->getTableSchema() ) )->applyFromSchema();
+		( new TableIndices( $this->mfa->getTableSchema() ) )->applyFromSchema();
 	}
 
 	public function runHourlyCron() {
@@ -174,6 +181,8 @@ class DbCon extends DynPropertiesClass {
 	 * @return array[]
 	 */
 	public function getHandlers() :array {
+		$this->resetTableReadyCacheForRebuiltConfig();
+
 		if ( $this->dbHandlers === null ) {
 			$this->dbHandlers = [];
 			$dbSpecs = self::con()->cfg->configuration->databases;
@@ -202,22 +211,29 @@ class DbCon extends DynPropertiesClass {
 
 	/**
 	 * @return Handler|mixed|null
+	 * @throws \Exception
 	 */
 	public function load( string $dbKey ) {
 		return $this->loadDbH( $this->getHandlers()[ $dbKey ][ 'slug' ] );
 	}
 
 	/**
-	 * @return Handler|mixed|null
+	 * @param string $dbSlug
+	 * @param bool   $reload
+	 * @return mixed
+	 * @throws \Exception
 	 */
 	public function loadDbH( string $dbSlug, bool $reload = false ) {
+		$this->resetTableReadyCacheForRebuiltConfig();
+
 		$con = self::con();
 
 		$dbKey = null;
+		$dbhSpec = null;
 		foreach ( $this->getHandlers() as $key => $handlerSpec ) {
 			if ( $handlerSpec[ 'slug' ] === $dbSlug ) {
 				$dbKey = $key;
-				$dbh = $handlerSpec;
+				$dbhSpec = $handlerSpec;
 				break;
 			}
 		}
@@ -226,12 +242,12 @@ class DbCon extends DynPropertiesClass {
 			throw new \Exception( '' );
 		}
 
-		if ( $reload || empty( $dbh[ 'handler' ] ) ) {
+		if ( $reload || empty( $dbhSpec[ 'handler' ] ) ) {
 			/**
 			 * We need to ensure that any dependent (foreign key references) tables are initiated before
 			 * attempting to initiate ourselves.
 			 */
-			$dbDef = $dbh[ 'def' ];
+			$dbDef = $dbhSpec[ 'def' ];
 			foreach ( $dbDef[ 'cols_custom' ] as $colDef ) {
 				if ( ( $colDef[ 'macro_type' ] ?? '' ) === Common\Types::MACROTYPE_FOREIGN_KEY_ID ) {
 					$table = $colDef[ 'foreign_key' ][ 'ref_table' ];
@@ -243,8 +259,9 @@ class DbCon extends DynPropertiesClass {
 
 			$dbDef[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
 
-			/** @var Handler|mixed $dbh */
-			$dbh = new $dbh[ 'handler_class' ]( $dbDef );
+			$dbhClass = $dbhSpec[ 'handler_class' ];
+			/** @var class-string<Handler> $dbhClass */
+			$dbh = new $dbhClass( $dbDef );
 			$dbh->use_table_ready_cache = !$con->plugin_reset
 										  && $con->comps->opts_lookup->getActivatedPeriod() > Common\TableReadyCache::READY_LIFETIME
 										  && ( Services::Request()->ts()
@@ -259,6 +276,19 @@ class DbCon extends DynPropertiesClass {
 
 	public function reset() :void {
 		$this->dbHandlers = null;
+	}
+
+	private function resetTableReadyCacheForRebuiltConfig() :void {
+		if ( $this->hasResetTableReadyCacheForRebuiltConfig || !self::con()->cfg->rebuilt ) {
+			return;
+		}
+
+		$this->hasResetTableReadyCacheForRebuiltConfig = true;
+
+		Services::WpGeneral()->deleteOption( Common\TableReadyCache::DB_STATUS_KEY );
+		Handler::GetTableReadyCache()->reset();
+		Services::WpDb()->clearResultShowTables();
+		$this->reset();
 	}
 
 	public function __get( string $key ) {

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties;
 
+use Base64Url\Base64Url;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops as MfaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Passkey;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -62,21 +63,29 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	 * @throws \Exception
 	 */
 	public function saveCredentialSource( PublicKeyCredentialSource $publicKeyCredentialSource ) :void {
-		$preExistingSource = $this->findOneByCredentialId( $publicKeyCredentialSource->getPublicKeyCredentialId() );
+		$this->saveCredentialData( $publicKeyCredentialSource->jsonSerialize() );
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function saveCredentialData( array $credentialData ) :void {
+		$credentialData = $this->normalizeCredentialData( $credentialData );
+		$preExistingSource = $this->getRecordFromCredentialData( $credentialData );
 		if ( empty( $preExistingSource ) ) {
 			/** @var MfaDB\Record $record */
 			$record = self::con()->db_con->mfa->getRecord();
 			$record->user_id = $this->getWpUser()->ID;
 			$record->slug = Passkey::ProviderSlug();
-			$record->unique_id = $this->normalisedSourceID( $publicKeyCredentialSource->getPublicKeyCredentialId() );
+			$record->unique_id = $this->normalisedSourceIDFromCredentialData( $credentialData );
 			$record->label = 'No Label';
-			$record->data = $publicKeyCredentialSource->jsonSerialize();
-			$record->passwordless = 1;
+			$record->data = $credentialData;
+			$record->passwordless = true;
 
 			( new MfaRecordsHandler() )->insert( $record );
 		}
 		else {
-			$this->updateSource( $publicKeyCredentialSource );
+			$this->updateCredentialData( $credentialData );
 		}
 	}
 
@@ -84,12 +93,20 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 	 * @throws \Exception
 	 */
 	public function updateSource( PublicKeyCredentialSource $publicKeyCredentialSource, array $data = [] ) :void {
-		$record = $this->getRecordFromSource( $publicKeyCredentialSource );
+		$this->updateCredentialData( $publicKeyCredentialSource->jsonSerialize(), $data );
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function updateCredentialData( array $credentialData, array $data = [] ) :void {
+		$credentialData = $this->normalizeCredentialData( $credentialData );
+		$record = $this->getRecordFromCredentialData( $credentialData );
 		if ( empty( $record ) ) {
 			throw new \Exception( 'Source does not exist.' );
 		}
 
-		$data[ 'data' ] = \base64_encode( \wp_json_encode( $publicKeyCredentialSource->jsonSerialize() ) );
+		$data[ 'data' ] = \base64_encode( \wp_json_encode( $credentialData ) );
 
 		( new MfaRecordsHandler() )->update( $record, $data );
 	}
@@ -107,8 +124,14 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 		return \base64_encode( $publicKeyCredentialId );
 	}
 
-	private function getRecordFromSource( PublicKeyCredentialSource $publicKeyCredentialSource ) :?MfaDB\Record {
-		return $this->getRecordFromSourceID( $publicKeyCredentialSource->getPublicKeyCredentialId() );
+	private function getRecordFromCredentialData( array $credentialData ) :?MfaDB\Record {
+		try {
+			$sourceId = Base64Url::decode( (string)( $credentialData[ 'publicKeyCredentialId' ] ?? '' ) );
+		}
+		catch ( \Throwable $e ) {
+			$sourceId = '';
+		}
+		return empty( $sourceId ) ? null : $this->getRecordFromSourceID( $sourceId );
 	}
 
 	private function getRecordFromSourceID( string $publicKeyCredentialId ) :?MfaDB\Record {
@@ -123,7 +146,9 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 
 	private function getSourceFromRecord( MfaDB\Record $record ) :?PublicKeyCredentialSource {
 		try {
-			$source = PublicKeyCredentialSource::createFromArray( $record->data );
+			$source = PublicKeyCredentialSource::createFromArray(
+				$this->normalizeCredentialData( $record->data )
+			);
 		}
 		catch ( \InvalidArgumentException $e ) {
 			$source = null;
@@ -141,5 +166,15 @@ class PasskeySourcesHandler implements PublicKeyCredentialSourceRepository {
 			},
 			$records
 		) );
+	}
+
+	private function normalisedSourceIDFromCredentialData( array $credentialData ) :string {
+		return $this->normalisedSourceID(
+			Base64Url::decode( (string)( $credentialData[ 'publicKeyCredentialId' ] ?? '' ) )
+		);
+	}
+
+	private function normalizeCredentialData( array $credentialData ) :array {
+		return ( new PasskeyCredentialDataNormalizer() )->normalize( $credentialData );
 	}
 }

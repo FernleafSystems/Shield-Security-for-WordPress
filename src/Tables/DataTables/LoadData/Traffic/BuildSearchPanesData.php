@@ -77,13 +77,6 @@ class BuildSearchPanesData extends BaseBuildSearchPanesData {
 		) ) );
 	}
 
-	private function buildForIPs() :array {
-		return \array_map(
-			fn( $ip ) => [ 'label' => $ip, 'value' => $ip, ],
-			( new LoadRequestLogs() )->getDistinctIPs()
-		);
-	}
-
 	/**
 	 * https://stackoverflow.com/questions/12188027/mysql-select-distinct-multiple-columns#answer-12188117
 	 */

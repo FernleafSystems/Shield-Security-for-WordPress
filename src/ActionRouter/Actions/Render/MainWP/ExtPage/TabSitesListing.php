@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\MainWP\ExtPage;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
 use FernleafSystems\Wordpress\Services\Services;
@@ -24,7 +23,7 @@ class TabSitesListing extends BaseSubPage {
 		];
 
 		$sites = \array_filter( \array_map(
-			function ( $site ) use ( $statsHead ) {
+			function ( $site ) {
 				try {
 					return $this->buildEntireSiteData( $site );
 				}
@@ -64,11 +63,8 @@ class TabSitesListing extends BaseSubPage {
 	 */
 	protected function buildEntireSiteData( array $site ) :array {
 		$mwpSite = $this->getSiteByID( (int)$site[ 'id' ] );
-		$sync = LoadShieldSyncData::Load( $mwpSite );
-
-		$status = ( new ClientPluginStatus() )
-			->setMwpSite( $mwpSite )
-			->detect();
+		$sync = $this->loadSyncData( $mwpSite );
+		$status = $this->detectClientPluginStatus( $mwpSite );
 
 		$shd = $sync->getRawData();
 
@@ -104,44 +100,29 @@ class TabSitesListing extends BaseSubPage {
 											 ->setTimestamp( $sync->meta->sync_at )
 											 ->diffForHumans();
 
-			$totalIssues = \array_sum( $sync->scan_issues ?? [] );
-			if ( $totalIssues === 0 ) {
-				$shd[ 'issues' ] = __( 'No Issues', 'wp-simple-firewall' );
-				$shd[ 'has_issues' ] = false;
-			}
-			else {
-				$shd[ 'has_issues' ] = true;
-				$shd[ 'issues' ] = $totalIssues;
-			}
+			$issueSummary = $sync->mainwpIssuesSummary();
+			$shd[ 'issues' ] = $issueSummary[ 'count' ];
+			$shd[ 'issues_button_class' ] = $issueSummary[ 'button_class' ];
+			$shd[ 'has_issues' ] = $issueSummary[ 'has_issues' ];
 
-			$shd[ 'href_issues' ] = $this->getJumpUrlFor(
-				(string)$site[ 'id' ],
-				self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RESULTS )
-			);
-			$gradeLetter = $sync->integrity[ 'totals' ][ 'letter_score' ] ?? '-';
-			$shd[ 'grades' ] = [
-				'href'      => $this->getJumpUrlFor( (string)$site[ 'id' ], self::con()->plugin_urls->adminHome() ),
-				'integrity' => $gradeLetter,
-				'good'      => \in_array( $gradeLetter, [ 'A', 'B' ] ),
-			];
-
-			$shd[ 'href_manage' ] = $this->createInternalExtensionHref( [
-				'tab'     => TabSiteManage::TAB,
-				'site_id' => $site[ 'id' ],
-			] );
+			$shd[ 'href_issues' ] = $this->getJumpUrlFor( (string)$site[ 'id' ], self::con()->plugin_urls->actionsQueueScans( '' ) );
 		}
 
 		$shd[ 'site_actions' ] = $this->determineSiteActions( $shd );
 
 		$site[ 'shield' ] = $shd;
-		$site[ 'hrefs' ] = [
-			'manage_site' => $this->createInternalExtensionHref( [
-				'tab'     => 'manage_site',
-				'site_id' => $site[ 'id' ],
-			] )
-		];
 
 		return $site;
+	}
+
+	protected function loadSyncData( $site ) {
+		return LoadShieldSyncData::Load( $site );
+	}
+
+	protected function detectClientPluginStatus( $site ) :array {
+		return ( new ClientPluginStatus() )
+			->setMwpSite( $site )
+			->detect();
 	}
 
 	private function determineSiteActions( array $flags ) :array {

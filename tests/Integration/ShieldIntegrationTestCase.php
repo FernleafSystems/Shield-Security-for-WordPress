@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\DbCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 
 /**
  * Enhanced base test case for Shield security-logic integration tests.
@@ -24,15 +25,25 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 
 	public function set_up() {
 		parent::set_up();
+		if ( static::con() !== null ) {
+			RuntimeTestState::resetRequestLoggerState();
+		}
 		$this->capturedEvents = [];
 		$this->resetIpCaches();
+		$this->resetScanResultCountMemoization();
 		$this->disablePremiumCapabilities();
 	}
 
 	public function tear_down() {
 		$this->disablePremiumCapabilities();
 		$this->truncateShieldTables();
+		if ( static::con() !== null ) {
+			RuntimeTestState::resetRequestLoggerState();
+		}
 		$this->resetIpCaches();
+		if ( static::con() !== null ) {
+			$this->resetScanResultCountMemoization();
+		}
 		parent::tear_down();
 	}
 
@@ -40,40 +51,33 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 	 * Enable premium mode for integration tests with only the requested capabilities.
 	 */
 	protected function enablePremiumCapabilities( array $capabilities = [] ) :void {
-		$con = $this->requireController();
-		$ts = \time();
-
-		$con->comps->license->updateLicenseData( [
-			'checksum'         => 'integration-test-license',
-			'success'          => true,
-			'license'          => 'valid',
-			'expires'          => 'lifetime',
-			'last_request_at'  => $ts,
-			'last_verified_at' => $ts,
-			'capabilities'     => \array_values( \array_unique( \array_filter(
-				$capabilities,
-				fn( $cap ) => \is_string( $cap ) && $cap !== ''
-			) ) ),
-			'lic_version'      => 1,
-		] );
-
-		$con->opts
-			->optSet( 'license_activated_at', $ts )
-			->optSet( 'license_deactivated_at', 0 );
+		$this->requireController();
+		RuntimeTestState::applyPremiumCapabilities( $capabilities );
 	}
 
 	protected function disablePremiumCapabilities() :void {
-		$con = static::con();
-		if ( $con === null ) {
+		if ( static::con() === null ) {
 			return;
 		}
-		$con->comps->license->updateLicenseData( [] );
-		$con->opts
-			->optSet( 'license_activated_at', 0 )
-			->optSet( 'license_deactivated_at', 0 );
+		RuntimeTestState::disablePremiumCapabilities();
 	}
 
-	// ── Controller helpers ─────────────────────────────────────────
+	protected function snapshotSelectedOptions( array $keys ) :array {
+		$this->requireController();
+		return RuntimeTestState::snapshotOptions( \array_map(
+			static fn( $key ) :string => (string)$key,
+			$keys
+		) );
+	}
+
+	protected function restoreSelectedOptions( array $snapshot, bool $store = true ) :void {
+		if ( static::con() === null ) {
+			return;
+		}
+		RuntimeTestState::restoreOptions( $snapshot, $store );
+	}
+
+	// Controller helpers.
 
 	protected function requireController() :Controller {
 		$con = static::con();
@@ -83,6 +87,22 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		return $con;
 	}
 
+	protected function isControllerConfigReady() :bool {
+		$con = static::con();
+		if ( !$con instanceof Controller ) {
+			return false;
+		}
+
+		try {
+			$cfg = $con->cfg;
+		}
+		catch ( \Throwable $e ) {
+			return false;
+		}
+
+		return \is_object( $cfg );
+	}
+
 	/**
 	 * Load a DB handler by its key in DbCon::MAP and assert it is ready.
 	 * Returns the handler or skips the test.
@@ -90,9 +110,9 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 	 * @return \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler|mixed
 	 */
 	protected function requireDb( string $dbKey ) {
-		$con = $this->requireController();
 		try {
-			$handler = $con->db_con->load( $dbKey );
+			$this->requireController();
+			$handler = RuntimeTestState::requireDbHandler( $dbKey );
 		}
 		catch ( \Exception $e ) {
 			$this->markTestSkipped( "DB handler '{$dbKey}' could not be loaded: ".$e->getMessage() );
@@ -103,13 +123,43 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		return $handler;
 	}
 
-	// ── Cache resets ───────────────────────────────────────────────
+	protected function setSecurityAdminContext( bool $enabled = true ) :void {
+		$this->requireController()->this_req->is_security_admin = $enabled;
+	}
+
+	protected function createAdministratorUser( array $userData = [] ) :int {
+		return self::factory()->user->create( \array_merge(
+			[
+				'role' => 'administrator',
+			],
+			$userData
+		) );
+	}
+
+	protected function loginAsAdministrator( array $userData = [] ) :int {
+		$userId = $this->createAdministratorUser( $userData );
+		\wp_set_current_user( $userId );
+		$this->setSecurityAdminContext( false );
+		return $userId;
+	}
+
+	protected function loginAsSecurityAdmin( array $userData = [] ) :int {
+		if ( $userData === [] ) {
+			return RuntimeTestState::loginAsSecurityAdmin();
+		}
+
+		$userId = $this->loginAsAdministrator( $userData );
+		$this->setSecurityAdminContext( true );
+		return $userId;
+	}
+
+	// Cache resets.
 
 	protected function resetIpCaches() :void {
 		// IpRuleStatus static caches
 		$ref = new \ReflectionClass( IpRuleStatus::class );
 
-		foreach ( [ 'cache', 'ranges', 'bypass' ] as $prop ) {
+		foreach ( [ 'cache', 'ranges', 'rangeMatchers' ] as $prop ) {
 			if ( $ref->hasProperty( $prop ) ) {
 				$p = $ref->getProperty( $prop );
 				$p->setAccessible( true );
@@ -163,11 +213,18 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 			}
 		}
 
-		// IpRulesCache (WP option-backed)
-		IpRulesCache::ResetAll();
+		// Keep setup noise low if bootstrap has already identified controller boot issues.
+		if ( $this->isControllerConfigReady() ) {
+			IpRulesCache::ResetAll();
+		}
 	}
 
-	// ── Event capture ──────────────────────────────────────────────
+	protected function resetScanResultCountMemoization() :void {
+		$this->requireController();
+		RuntimeTestState::resetScanResultCountMemoization();
+	}
+
+	// Event capture.
 
 	/**
 	 * Begin capturing shield/event firings. Call early in a test method.
@@ -202,7 +259,7 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		) );
 	}
 
-	// ── Table cleanup ──────────────────────────────────────────────
+	// Table cleanup.
 
 	/**
 	 * Truncate all Shield custom tables so every test starts clean.
@@ -223,5 +280,59 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 			$wpdb->query( "TRUNCATE TABLE `{$tableName}`" );
 		}
 		$wpdb->query( 'SET FOREIGN_KEY_CHECKS=1' );
+	}
+
+	protected function compactSnippet( string $value, int $limit = 180 ) :string {
+		$single_line = \preg_replace( '/\s+/', ' ', \trim( $value ) );
+		if ( !\is_string( $single_line ) ) {
+			$single_line = '';
+		}
+		return \strlen( $single_line ) > $limit ? \substr( $single_line, 0, $limit ).'...' : $single_line;
+	}
+
+	protected function htmlContainsMarker( string $marker, string $html ) :bool {
+		if ( \strpos( $html, $marker ) !== false ) {
+			return true;
+		}
+
+		$decodedHtml = $this->decodeHtmlEntities( $html );
+		if ( \strpos( $decodedHtml, $marker ) !== false ) {
+			return true;
+		}
+
+		$decodedMarker = $this->decodeHtmlEntities( $marker );
+		return $decodedMarker !== $marker
+			   && ( \strpos( $html, $decodedMarker ) !== false
+					|| \strpos( $decodedHtml, $decodedMarker ) !== false );
+	}
+
+	protected function decodeHtmlEntities( string $value ) :string {
+		return \html_entity_decode( $value, \ENT_QUOTES | \ENT_HTML5, 'UTF-8' );
+	}
+
+	protected function assertHtmlContainsMarker( string $marker, string $html, string $label ) :void {
+		$this->assertTrue(
+			$this->htmlContainsMarker( $marker, $html ),
+			\sprintf(
+				'%s missing marker "%s" (html_len=%d, html_head="%s")',
+				$label,
+				$marker,
+				\strlen( $html ),
+				$this->compactSnippet( $html )
+			)
+		);
+	}
+
+	protected function assertHtmlNotContainsMarker( string $marker, string $html, string $label ) :void {
+		$this->assertTrue(
+			!$this->htmlContainsMarker( $marker, $html ),
+			\sprintf(
+				'%s unexpectedly contains marker "%s" (html_len=%d, html_head="%s")',
+				$label,
+				$marker,
+				\strlen( $html ),
+				$this->compactSnippet( $html )
+			)
+		);
 	}
 }

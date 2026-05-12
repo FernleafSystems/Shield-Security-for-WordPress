@@ -1,6 +1,28 @@
-{% for row in vars.logs %}
-	<div class="m-0 font-monospace d-flex">
-		<div class="me-1">&gt;</div>
-		<div class="" style="word-break: break-all;">{{ row|raw }}</div>
-	</div>
-{% endfor %}
+{% set rows = vars.rows %}
+{% if rows is empty %}
+	<div class="shield-live-logs__empty">{{ vars.empty }}</div>
+{% else %}
+	{% for row in rows %}
+		<div class="shield-live-logs__row">
+			<div class="shield-live-logs__row-main">
+				<div class="shield-live-logs__timestamp">{{ row.timestamp }}</div>
+				{% if row.ip is not empty %}
+					<div class="shield-live-logs__ip">
+						{% if row.ip_href is not empty %}
+							<a href="{{ row.ip_href }}" class="offcanvas_ip_analysis" data-ip="{{ row.ip }}">{{ row.ip }}</a>
+						{% else %}
+							{{ row.ip }}
+						{% endif %}
+					</div>
+				{% endif %}
+				<div class="shield-live-logs__title">{{ row.title }}</div>
+				{% if row.description is not empty %}
+					<div class="shield-live-logs__description">{{ row.description }}</div>
+				{% endif %}
+				{% for badge in row.badges %}
+					<span class="badge rounded-pill shield-live-logs__badge {{ badge.class }}">{{ badge.label }}</span>
+				{% endfor %}
+			</div>
+		</div>
+	{% endfor %}
+{% endif %}

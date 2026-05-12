@@ -10,7 +10,8 @@ class SecAdminRemoveConfirm extends EmailBase {
 	protected function getBodyData() :array {
 		return [
 			'hrefs'   => [
-				'confirmation_link' => esc_url( $this->action_data[ 'confirmation_href' ] ), // Internally generated via noncedPluginAction(); template uses |raw
+				'confirmation_link' => esc_url( $this->action_data[ 'confirmation_href' ] ),
+				// Internally generated via noncedPluginAction(); template uses |raw
 			],
 			'strings' => [
 				'requested'            => sprintf( __( 'A WordPress user (%s) has requested to remove the Security Admin restriction.', 'wp-simple-firewall' ),

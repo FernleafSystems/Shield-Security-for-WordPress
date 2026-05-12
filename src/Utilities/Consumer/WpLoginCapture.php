@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 trait WpLoginCapture {
-
 	/**
 	 * @var bool
 	 */
@@ -29,11 +28,11 @@ trait WpLoginCapture {
 	/**
 	 * @var int
 	 */
-	private $capturedUserID = null;
+	private ?int $capturedUserID = null;
 
 	abstract protected function captureLogin( \WP_User $user );
 
-	protected function getLoginPassword() :string {
+	protected function getLoginPassword(): string {
 		$pass = '';
 		foreach ( [ 'pwd', 'pass1', 'password', 'edd_user_pass' ] as $key ) {
 			$maybe = Services::Request()->request( $key );
@@ -45,47 +44,43 @@ trait WpLoginCapture {
 		return $pass;
 	}
 
-	protected function getLoggedInCookie() :string {
+	protected function getLoggedInCookie(): string {
 		$cookie = empty( $this->loggedInCookie ) ?
 			Services::Request()->cookie( LOGGED_IN_COOKIE ) : $this->loggedInCookie;
 		return \is_string( $cookie ) ? $cookie : '';
 	}
 
-	protected function getCapturedUserID() :int {
-		return \is_int( $this->capturedUserID ) ? $this->capturedUserID : 0;
-	}
-
-	protected function isCaptureApplicationLogin() :bool {
+	protected function isCaptureApplicationLogin(): bool {
 		return $this->isCaptureApplicationLogin;
 	}
 
-	protected function isLoginCaptured() :bool {
+	protected function isLoginCaptured(): bool {
 		return $this->isLoginCaptured;
 	}
 
 	/**
 	 * By default, will only capture logins if it's not an API request, or it's set to capture api requests also.
 	 */
-	protected function isLoginToBeCaptured() :bool {
+	protected function isLoginToBeCaptured(): bool {
 		return !Services::WpGeneral()->isApplicationPasswordApiRequest() || $this->isCaptureApplicationLogin();
 	}
 
-	protected function setLoginCaptured( bool $captured = true ) :self {
+	protected function setLoginCaptured( bool $captured = true ): self {
 		$this->isLoginCaptured = $captured;
 		return $this;
 	}
 
-	protected function setLoggedInCookie( string $cookieValue ) :self {
+	protected function setLoggedInCookie( string $cookieValue ): self {
 		$this->loggedInCookie = $cookieValue;
 		return $this;
 	}
 
-	protected function setToCaptureApplicationLogin( bool $capture = true ) :self {
+	protected function setToCaptureApplicationLogin( bool $capture = true ): self {
 		$this->isCaptureApplicationLogin = $capture;
 		return $this;
 	}
 
-	protected function setAllowMultipleCapture( bool $multiple = true ) :self {
+	protected function setAllowMultipleCapture( bool $multiple = true ): self {
 		$this->allowMultipleCapture = $multiple;
 		return $this;
 	}
@@ -98,10 +93,10 @@ trait WpLoginCapture {
 	}
 
 	/**
-	 * @param string $cookie
-	 * @param int    $expire
-	 * @param int    $expiration
-	 * @param int    $userID
+	 * @param mixed|string $cookie
+	 * @param int          $expire
+	 * @param int          $expiration
+	 * @param int          $userID
 	 */
 	public function onWpSetLoggedInCookie( $cookie, $expire, $expiration, $userID ) {
 		$user = Services::WpUsers()->getUserById( $userID );
@@ -109,29 +104,36 @@ trait WpLoginCapture {
 			$this->setLoggedInCookie( $cookie );
 		}
 		if ( $user instanceof \WP_User
-			 && $this->isLoginToBeCaptured()
-			 && ( $this->allowMultipleCapture || !$this->isLoginCaptured() ) ) {
+		     && $this->isLoginToBeCaptured()
+		     && ( $this->allowMultipleCapture || !$this->isLoginCaptured() ) ) {
 			$this->setLoginCaptured();
-			$this->capturedUserID = $user->ID;
+			$this->capturedUserID = (int)$user->ID;
 			$this->captureLogin( $user );
 		}
 	}
 
 	/**
-	 * @param string   $username
-	 * @param \WP_User $user
+	 * @param string|mixed   $username
+	 * @param \WP_User|mixed $user
 	 */
 	public function onWpLogin( $username, $user ) {
 		if ( $user instanceof \WP_User
-			 && $this->isLoginToBeCaptured()
-			 && ( $this->allowMultipleCapture || !$this->isLoginCaptured() ) ) {
+		     && $this->isLoginToBeCaptured()
+		     && ( $this->allowMultipleCapture || !$this->isLoginCaptured() ) ) {
 			$this->setLoginCaptured();
-			$this->capturedUserID = $user->ID;
+			$this->capturedUserID = (int)$user->ID;
 			$this->captureLogin( $user );
 		}
 	}
 
-	protected function getHookPriority() :int {
+	protected function getHookPriority(): int {
 		return 10;
+	}
+
+	/**
+	 * @deprecated 22.0
+	 */
+	protected function getCapturedUserID(): int {
+		return \is_int( $this->capturedUserID ) ? $this->capturedUserID : 0;
 	}
 }

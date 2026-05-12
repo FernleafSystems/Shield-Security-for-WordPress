@@ -1,77 +1,5 @@
 [
     {
-        "key": "enable_admin_access_restriction",
-        "section": "section_hidden",
-        "type": "checkbox",
-        "default": "Y"
-    },
-    {
-        "key": "enable_audit_trail",
-        "section": "section_hidden",
-        "type": "checkbox",
-        "default": "Y"
-    },
-    {
-        "key": "enable_comments_filter",
-        "section": "section_hidden",
-        "type": "checkbox",
-        "default": "Y"
-    },
-    {
-        "key": "enable_firewall",
-        "section": "section_hidden",
-        "type": "checkbox",
-        "default": "Y"
-    },
-    {
-        "key": "enable_hack_protect",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
-        "key": "enable_headers",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
-        "key": "enable_integrations",
-        "section": "section_hidden",
-        "type": "checkbox",
-        "default": "Y"
-    },
-    {
-        "key": "enable_ips",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
-        "key": "enable_lockdown",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
-        "key": "enable_login_protect",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
-        "key": "enable_traffic",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
-        "key": "enable_user_management",
-        "section": "section_hidden",
-        "default": "Y",
-        "type": "checkbox"
-    },
-    {
         "key": "admin_access_key",
         "section": "section_security_admin_settings",
         "zone_comp_slugs": [
@@ -109,6 +37,7 @@
         "key": "sec_admin_users",
         "section": "section_security_admin_settings",
         "zone_comp_slugs": [
+            "secadmin_enabled",
             "module_secadmin"
         ],
         "sensitive": true,
@@ -126,6 +55,7 @@
         "key": "allow_email_override",
         "section": "section_security_admin_settings",
         "zone_comp_slugs": [
+            "secadmin_enabled",
             "module_secadmin"
         ],
         "default": "Y",
@@ -411,61 +341,10 @@
         "description": "The URL of the logo displayed in the main dashboard. Should be 128x128px"
     },
     {
-        "key": "log_level_db",
-        "section": "section_log_wordpress_activity",
-        "zone_comp_slugs": [
-            "activity_logging"
-        ],
-        "type": "multiple_select",
-        "default": [
-            "warning",
-            "notice"
-        ],
-        "value_options": [
-            {
-                "value_key": "disabled",
-                "text": "Logging Disabled"
-            },
-            {
-                "value_key": "warning",
-                "text": "Warning"
-            },
-            {
-                "value_key": "notice",
-                "text": "Notice"
-            },
-            {
-                "value_key": "info",
-                "text": "Info"
-            }
-        ],
-        "link_info": "",
-        "link_blog": "",
-        "beacon_id": 375,
-        "name": "Logging Level",
-        "summary": "Logging Level For DB-Based Logs",
-        "description": "Logging Level For DB-Based Logs"
-    },
-    {
-        "key": "audit_trail_auto_clean",
-        "section": "section_log_wordpress_activity",
-        "zone_comp_slugs": [
-            "activity_logging"
-        ],
-        "type": "integer",
-        "default": 7,
-        "min": 1,
-        "link_info": "https://clk.shldscrty.com/a2",
-        "link_blog": "https://clk.shldscrty.com/a1",
-        "beacon_id": 375,
-        "name": "Auto Clean",
-        "summary": "Enable Audit Auto Cleaning",
-        "description": "Events older than the number of days specified will be automatically cleaned from the database"
-    },
-    {
         "key": "update_delay",
         "section": "section_scan_wpv",
         "zone_comp_slugs": [
+            "vulnerability_scanning",
             "module_scans"
         ],
         "premium": true,
@@ -579,6 +458,7 @@
         "key": "trusted_commenter_minimum",
         "section": "section_bot_comment_spam_protection_filter",
         "zone_comp_slugs": [
+            "trusted_commenters",
             "module_spam"
         ],
         "type": "integer",
@@ -595,6 +475,7 @@
         "key": "trusted_user_roles",
         "section": "section_bot_comment_spam_protection_filter",
         "zone_comp_slugs": [
+            "trusted_commenters",
             "module_spam"
         ],
         "premium": true,
@@ -628,21 +509,6 @@
         "name": "Comments Cooldown",
         "summary": "Minimum Time Interval Between Comments (seconds)",
         "description": "Prevents comment floods and ensure a minimum period before any further comments are accepted on the site."
-    },
-    {
-        "key": "block_send_email",
-        "section": "section_firewall_blocking_options",
-        "zone_comp_slugs": [
-            "web_application_firewall",
-            "module_firewall"
-        ],
-        "default": "N",
-        "type": "checkbox",
-        "link_info": "",
-        "link_blog": "",
-        "name": "Send Email Report",
-        "summary": "Send Firewall Trigger Report Email",
-        "description": "Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host."
     },
     {
         "key": "page_params_whitelist",
@@ -887,6 +753,7 @@
         "key": "scan_path_exclusions",
         "section": "section_file_guard",
         "zone_comp_slugs": [
+            "file_scanning",
             "module_scans"
         ],
         "premium": true,
@@ -965,6 +832,7 @@
         "key": "scan_frequency",
         "section": "section_scan_options",
         "zone_comp_slugs": [
+            "scan_scheduling",
             "module_scans"
         ],
         "premium": true,
@@ -1020,37 +888,6 @@
         "description": "Default: Once every 24hrs. To improve security, increase the number of scans per day."
     },
     {
-        "key": "optimise_scan_speed",
-        "section": "section_scan_options",
-        "zone_comp_slugs": [
-            "module_scans"
-        ],
-        "premium": false,
-        "type": "checkbox",
-        "default": "Y",
-        "link_info": "",
-        "link_blog": "",
-        "name": "Optimise File Scans",
-        "summary": "Optimise File Scans",
-        "description": "Optimise file scans wherever possible."
-    },
-    {
-        "key": "ptg_reinstall_links",
-        "section": "section_scan_options",
-        "zone_comp_slugs": [
-            "module_scans"
-        ],
-        "premium": true,
-        "type": "checkbox",
-        "default": "Y",
-        "link_info": "https://clk.shldscrty.com/bp",
-        "link_blog": "",
-        "beacon_id": 135,
-        "name": "Show Re-Install Links",
-        "summary": "Show Re-Install Links For Plugins",
-        "description": "Show links to re-install plugins and offer re-install when activating plugins."
-    },
-    {
         "key": "shieldbackups_status",
         "section": "section_hidden",
         "type": "array",
@@ -1075,18 +912,18 @@
         "default": []
     },
     {
-        "key": "scans_to_build",
-        "section": "section_hidden",
-        "tracking_exclude": true,
-        "type": "array",
-        "default": []
-    },
-    {
         "key": "is_scan_cron",
         "section": "section_hidden",
         "tracking_exclude": true,
         "type": "boolean",
         "default": false
+    },
+    {
+        "key": "scan_findings_model_state",
+        "section": "section_hidden",
+        "tracking_exclude": true,
+        "type": "text",
+        "default": "ready"
     },
     {
         "key": "filelocker_state",
@@ -1096,11 +933,23 @@
         "default": []
     },
     {
-        "key": "scan_results_table_display",
+        "key": "ignored_maintenance_items",
         "section": "section_hidden",
         "tracking_exclude": true,
+        "transferable": false,
         "type": "array",
-        "default": []
+        "default": {
+            "default_admin_user": [],
+            "wp_updates": [],
+            "wp_plugins_updates": [],
+            "wp_themes_updates": [],
+            "wp_plugins_inactive": [],
+            "wp_themes_inactive": [],
+            "system_ssl_certificate": [],
+            "system_php_version": [],
+            "wp_db_password": [],
+            "system_lib_openssl": []
+        }
     },
     {
         "key": "translation_config",
@@ -1179,10 +1028,6 @@
                 "text": "None"
             },
             {
-                "value_key": "legacy",
-                "text": "Legacy"
-            },
-            {
                 "value_key": "adaptive",
                 "text": "Adaptive"
             },
@@ -1246,7 +1091,6 @@
         "section": "section_auto_black_list",
         "zone_comp_slugs": [
             "auto_ip_blocking",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "type": "integer",
@@ -1264,7 +1108,6 @@
         "section": "section_auto_black_list",
         "zone_comp_slugs": [
             "auto_ip_blocking",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "default": "hour",
@@ -1298,7 +1141,7 @@
         "key": "user_auto_recover",
         "section": "section_auto_black_list",
         "zone_comp_slugs": [
-            "ip_blocking_rules",
+            "auto_ip_blocking",
             "module_ips"
         ],
         "premium": true,
@@ -1326,7 +1169,7 @@
         "key": "request_whitelist",
         "section": "section_auto_black_list",
         "zone_comp_slugs": [
-            "ip_blocking_rules",
+            "auto_ip_blocking",
             "module_ips"
         ],
         "premium": true,
@@ -1344,7 +1187,6 @@
         "section": "section_crowdsec",
         "zone_comp_slugs": [
             "crowdsec_blocking",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "default": "block_with_unblock",
@@ -1374,7 +1216,7 @@
         "key": "cs_enroll_id",
         "section": "section_crowdsec",
         "zone_comp_slugs": [
-            "ip_blocking_rules",
+            "crowdsec_blocking",
             "module_ips"
         ],
         "sensitive": true,
@@ -1393,7 +1235,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "default": "transgression-single",
@@ -1432,8 +1273,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "xml_rpc_disable",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "default": "log",
@@ -1472,7 +1311,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "premium": true,
@@ -1515,7 +1353,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "premium": true,
@@ -1558,7 +1395,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "premium": true,
@@ -1601,7 +1437,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "premium": true,
@@ -1644,7 +1479,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "premium": true,
@@ -1687,7 +1521,6 @@
         "section": "section_bot_behaviours",
         "zone_comp_slugs": [
             "bot_actions",
-            "ip_blocking_rules",
             "module_ips"
         ],
         "premium": true,
@@ -1913,6 +1746,7 @@
         "key": "mfa_verify_page",
         "section": "section_twofactor_auth",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "default": "wp_login",
@@ -1938,6 +1772,7 @@
         "key": "mfa_user_setup_pages",
         "section": "section_twofactor_auth",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "type": "multiple_select",
@@ -1965,6 +1800,7 @@
         "key": "mfa_skip",
         "section": "section_twofactor_auth",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "premium": true,
@@ -1983,6 +1819,7 @@
         "key": "allow_backupcodes",
         "section": "section_twofactor_auth",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "premium": true,
@@ -2082,6 +1919,7 @@
         "key": "enable_email_auto_login",
         "section": "section_2fa_email",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "premium": true,
@@ -2099,6 +1937,7 @@
         "key": "two_factor_auth_user_roles",
         "section": "section_2fa_email",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "type": "array",
@@ -2119,6 +1958,7 @@
         "key": "email_any_user_set",
         "section": "section_2fa_email",
         "zone_comp_slugs": [
+            "two_factor_auth",
             "module_login"
         ],
         "premium": true,
@@ -2182,43 +2022,6 @@
         "description": "WordPress will process only ONE login attempt for every number of seconds specified. Zero (0) turns this off."
     },
     {
-        "key": "enable_antibot_check",
-        "section": "section_deprecated",
-        "default": "N",
-        "type": "checkbox",
-        "link_info": "https://clk.shldscrty.com/k0",
-        "link_blog": "https://clk.shldscrty.com/jo",
-        "beacon_id": 426,
-        "name": "Block Login Bots",
-        "summary": "Block Login Attempted By Automated Bots",
-        "description": "Use Shield's silentCAPTCHA To Block Bots and Brute Force Attacks"
-    },
-    {
-        "key": "enable_login_gasp_check",
-        "section": "section_deprecated",
-        "default": "N",
-        "type": "checkbox",
-        "link_info": "https://clk.shldscrty.com/3r",
-        "link_blog": "https://clk.shldscrty.com/9n",
-        "beacon_id": 313,
-        "name": "Bot Protection",
-        "summary": "Protect WP Login From Automated Login Attempts By Bots",
-        "description": "Adds a dynamically (Javascript) generated checkbox to the login form that prevents bots using automated login techniques. Recommended: ON."
-    },
-    {
-        "key": "antibot_form_ids",
-        "section": "section_deprecated",
-        "premium": true,
-        "type": "array",
-        "default": [],
-        "link_info": "https://clk.shldscrty.com/hg",
-        "link_blog": "",
-        "beacon_id": 144,
-        "name": "AntiBot Forms",
-        "summary": "Enter The IDs Of The 3rd Party Login Forms For Use With AntiBot JS",
-        "description": "For Use With AnitBot JS (above)."
-    },
-    {
         "key": "enable_passkeys",
         "section": "section_2fa_passkeys",
         "zone_comp_slugs": [
@@ -2242,6 +2045,14 @@
         "type": "integer",
         "default": 0,
         "min": 0
+    },
+    {
+        "key": "mfa_import_run",
+        "section": "section_hidden",
+        "tracking_exclude": true,
+        "transferable": false,
+        "type": "array",
+        "default": []
     },
     {
         "key": "form_spam_providers",
@@ -2559,15 +2370,29 @@
             "plugin_general",
             "module_plugin"
         ],
-        "default": "N",
-        "type": "checkbox",
+        "default": "disabled",
+        "type": "select",
+        "value_options": [
+            {
+                "value_key": "disabled",
+                "text": "Disabled"
+            },
+            {
+                "value_key": "light",
+                "text": "Light"
+            },
+            {
+                "value_key": "dark",
+                "text": "Dark"
+            }
+        ],
         "link_info": "https://clk.shldscrty.com/5v",
         "link_blog": "https://clk.shldscrty.com/wpsf20",
         "beacon_id": 130,
         "vimeo_id": "",
-        "name": "Show Plugin Badge",
-        "summary": "Display Plugin Security Badge On Your Site",
-        "description": "Enabling this option helps support the plugin by spreading the word about it on your website. The plugin badge also demonstrates to visitors that you take your website security seriously."
+        "name": "Plugin Badge",
+        "summary": "Choose Whether To Display The Plugin Security Badge",
+        "description": "Choose whether to display the plugin badge on your site, and select the light or dark badge style. The plugin badge helps support the plugin by spreading the word about it and shows visitors that you take website security seriously."
     },
     {
         "key": "enable_upgrade_admin_notice",
@@ -2821,7 +2646,7 @@
         "beacon_id": 233,
         "name": "Alert Reports Frequency",
         "summary": "How Often Should You Be Sent Reports With Important Alerts",
-        "description": "Decide when you should be sent reports with alerts about your site security."
+        "description": "Decide when you should be sent alert digests covering new critical issues and older unresolved critical issues on your site."
     },
     {
         "key": "frequency_info",
@@ -2862,7 +2687,7 @@
         "beacon_id": 232,
         "name": "Info Reports Frequency",
         "summary": "How Often Should You Be Sent Information Reports",
-        "description": "Decide when you should be sent non-critical information and reports about your site security."
+        "description": "Decide when you should be sent informational status reports covering current alert status, site activity, and broader security reporting detail."
     },
     {
         "key": "instant_alert_shield_deactivated",
@@ -2918,6 +2743,73 @@
         "name": "Admin Accounts",
         "summary": "Be alerted to any important change on any admin account",
         "description": "Be alerted to any important change on any admin account."
+    },
+    {
+        "key": "instant_alert_admin_login",
+        "section": "section_alerts",
+        "zone_comp_slugs": [
+            "instant_alerts",
+            "reporting"
+        ],
+        "type": "select",
+        "default": "disabled",
+        "value_options": [
+            {
+                "value_key": "disabled",
+                "text": "Disabled"
+            },
+            {
+                "value_key": "email",
+                "text": "Email"
+            }
+        ],
+        "beacon_id": 788,
+        "link_info": "",
+        "link_blog": "",
+        "name": "Admin Login",
+        "summary": "Be alerted when an administrator-level user logs in",
+        "description": "Be alerted when an administrator-level user logs in."
+    },
+    {
+        "key": "instant_alert_firewall_block",
+        "section": "section_alerts",
+        "zone_comp_slugs": [
+            "instant_alerts",
+            "reporting"
+        ],
+        "type": "select",
+        "default": "disabled",
+        "value_options": [
+            {
+                "value_key": "disabled",
+                "text": "Disabled"
+            },
+            {
+                "value_key": "email",
+                "text": "Email"
+            }
+        ],
+        "beacon_id": 788,
+        "link_info": "",
+        "link_blog": "",
+        "name": "Firewall Blocks",
+        "summary": "Be alerted when the firewall blocks a request",
+        "description": "Use with caution - if you get hit by automated bots you may send out too many emails and you could get blocked by your host."
+    },
+    {
+        "key": "block_send_email",
+        "section": "section_hidden",
+        "default": "N",
+        "type": "checkbox",
+        "transferable": false
+    },
+    {
+        "key": "enable_admin_login_email_notification",
+        "section": "section_hidden",
+        "sensitive": true,
+        "default": "",
+        "type": "text",
+        "transferable": false
     },
     {
         "key": "instant_alert_vulnerabilities",
@@ -3212,12 +3104,6 @@
         "default": []
     },
     {
-        "key": "sec_overview_prefs",
-        "section": "section_hidden",
-        "type": "array",
-        "default": []
-    },
-    {
         "key": "test_rest_data",
         "section": "section_hidden",
         "type": "array",
@@ -3234,12 +3120,6 @@
         "section": "section_hidden",
         "type": "array",
         "default": []
-    },
-    {
-        "key": "v20_intro_closed_at",
-        "section": "section_hidden",
-        "type": "integer",
-        "default": 0
     },
     {
         "key": "dismissed_notices",
@@ -3281,79 +3161,6 @@
         "name": "Live Logging",
         "summary": "Enable Live Logging Of All Traffic",
         "description": "Switch-on logging of all site traffic."
-    },
-    {
-        "key": "type_exclusions",
-        "section": "section_log_requests",
-        "zone_comp_slugs": [
-            "request_logging"
-        ],
-        "type": "multiple_select",
-        "default": [
-            "logged_in",
-            "server",
-            "cron",
-            "search",
-            "uptime"
-        ],
-        "value_options": [
-            {
-                "value_key": "logged_in",
-                "text": "Logged-In Users"
-            },
-            {
-                "value_key": "cron",
-                "text": "WP CRON"
-            },
-            {
-                "value_key": "server",
-                "text": "This Server"
-            },
-            {
-                "value_key": "search",
-                "text": "Search Engines"
-            },
-            {
-                "value_key": "uptime",
-                "text": "Uptime Monitoring Services"
-            }
-        ],
-        "link_info": "https://clk.shldscrty.com/eb",
-        "link_blog": "",
-        "beacon_id": 154,
-        "name": "Request Log Exclusions",
-        "summary": "Select Which Types Of Requests To Exclude",
-        "description": "Deselect any requests that you don't want to appear in the traffic viewer."
-    },
-    {
-        "key": "custom_exclusions",
-        "section": "section_log_requests",
-        "zone_comp_slugs": [
-            "request_logging"
-        ],
-        "default": [],
-        "type": "array",
-        "link_info": "https://clk.shldscrty.com/ec",
-        "link_blog": "",
-        "beacon_id": 154,
-        "name": "Custom Exclusions",
-        "summary": "Provide Custom Traffic Exclusions",
-        "description": "For each entry, if the text is present in either the User Agent or Page/Path, it will be excluded."
-    },
-    {
-        "key": "auto_clean",
-        "section": "section_log_requests",
-        "zone_comp_slugs": [
-            "request_logging"
-        ],
-        "type": "integer",
-        "default": 7,
-        "min": 1,
-        "link_info": "",
-        "link_blog": "",
-        "name": "Log Retention",
-        "summary": "Enable Traffic Log Auto Expiry",
-        "description": "Automated DB cleanup will delete logs older than this maximum value (in days)."
     },
     {
         "key": "enable_limiter",
@@ -3416,7 +3223,8 @@
         "key": "enable_user_login_email_notification",
         "section": "section_user_session_management",
         "zone_comp_slugs": [
-            "module_users"
+            "session_theft_protection",
+            "module_login"
         ],
         "sensitive": false,
         "default": "N",
@@ -3427,21 +3235,6 @@
         "name": "User Login Notification Email",
         "summary": "Send Email Notification To Each User Upon Successful Login",
         "description": "A notification is sent to each user when a successful login occurs for their account."
-    },
-    {
-        "key": "enable_admin_login_email_notification",
-        "section": "section_user_session_management",
-        "zone_comp_slugs": [
-            "module_users"
-        ],
-        "sensitive": true,
-        "default": "",
-        "type": "text",
-        "link_info": "",
-        "link_blog": "",
-        "name": "Admin Login Notification Email",
-        "summary": "Send An Notification Email When Administrator Logs In",
-        "description": "If you would like to be notified every time an administrator user logs into this WordPress site, enter a notification email address. No email address - No Notification."
     },
     {
         "key": "session_timeout_interval",
@@ -3608,7 +3401,6 @@
         "key": "pass_prevent_pwned",
         "section": "section_passwords",
         "zone_comp_slugs": [
-            "password_policies",
             "pwned_passwords",
             "module_users"
         ],
@@ -3626,7 +3418,6 @@
         "section": "section_passwords",
         "zone_comp_slugs": [
             "password_strength",
-            "password_policies",
             "module_users"
         ],
         "premium": true,
@@ -3705,6 +3496,7 @@
         "key": "manual_suspend",
         "section": "section_suspend",
         "zone_comp_slugs": [
+            "inactive_users",
             "module_users"
         ],
         "premium": true,
@@ -3722,6 +3514,7 @@
         "key": "auto_password",
         "section": "section_suspend",
         "zone_comp_slugs": [
+            "inactive_users",
             "module_users"
         ],
         "premium": true,

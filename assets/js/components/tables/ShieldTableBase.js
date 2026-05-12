@@ -7,6 +7,8 @@ import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
+import { BootstrapTooltips } from "../ui/BootstrapTooltips";
+import { announceStatus } from "../ui/ShieldA11y";
 
 export class ShieldTableBase extends BaseComponent {
 
@@ -39,6 +41,9 @@ export class ShieldTableBase extends BaseComponent {
 
 	setupDatatable() {
 		this.$table = this.$el.DataTable( this.buildDatatableConfig() );
+		this.markBusyStateLifecycleBound( this.$table );
+		this.bindFloatingUiLifecycle( this.$table );
+		this.applyGeneratedAccessibility( this.$table );
 		this.addButtons();
 		this.bindEvents();
 		this.ensureSearchDelay();
@@ -55,28 +60,33 @@ export class ShieldTableBase extends BaseComponent {
 		.unbind() // Unbind previous default bindings
 		.bind(
 			'input',
-			( delay( ( e ) => { // Bind our desired behavior
+			( this.buildDelayedCallback( ( e ) => { // Bind our desired behavior
 				this.$table.search( e.currentTarget.value ).draw();
 			}, 800 ) )
 		); // Set delay in milliseconds
+	}
 
-		function delay( callback, ms ) {
-			let timer = 0;
-			return function () {
-				let context = this, args = arguments;
-				clearTimeout( timer );
-				timer = setTimeout( function () {
-					callback.apply( context, args );
-				}, ms || 0 );
-			};
-		}
+	buildDelayedCallback( callback, ms ) {
+		/** @type {ReturnType<typeof globalThis.setTimeout>|undefined} */
+		let timer;
+		return function () {
+			let context = this, args = arguments;
+			clearTimeout( timer );
+			timer = setTimeout( function () {
+				callback.apply( context, args );
+			}, ms || 0 );
+		};
 	}
 
 	buildDatatableConfig() {
-		return $.extend(
-			this._base_data.vars.datatables_init,
-			this.getDefaultDatatableConfig()
+		const sourceConfig = this._base_data?.vars?.datatables_init || {};
+		const defaultConfig = this.getDefaultDatatableConfig();
+		const config = $.extend( {}, sourceConfig, defaultConfig );
+		config.on = this.buildDatatableEventConfig(
+			sourceConfig?.on,
+			defaultConfig?.on
 		);
+		return config;
 	}
 
 	datatablesAjaxRequest( data, callback, settings ) {
@@ -85,25 +95,18 @@ export class ShieldTableBase extends BaseComponent {
 		reqData.table_data = data;
 
 		return ( new AjaxService() )
-		.send( reqData )
+		.send( reqData, false, true )
 		.then( ( resp ) => {
-			if ( resp.success ) {
-				callback( resp.data.datatable_data );
-			}
-			else {
-				let msg = 'Communications error with site.';
-				if ( resp.data.message !== undefined ) {
-					msg = resp.data.message;
-				}
-				alert( msg );
-			}
+			this.handleDatatableAjaxResponse( resp, callback, settings );
 		} );
 	}
 
+	/** @returns {Record<string, any>} */
 	getDefaultDatatableConfig() {
 		return {
 			dom: 'PrBpftip',
 			serverSide: true,
+			processing: true,
 			searchDelay: 600,
 			ajax: ( data, callback, settings ) => this.datatablesAjaxRequest( data, callback, settings ),
 			deferRender: true,
@@ -128,9 +131,46 @@ export class ShieldTableBase extends BaseComponent {
 		};
 	}
 
+	buildDatatableEventConfig( sourceEvents, defaultEvents ) {
+		const events = {
+			...this.normalizeDatatableEvents( sourceEvents ),
+			...this.normalizeDatatableEvents( defaultEvents ),
+		};
+		const existingProcessingHandler = typeof events.processing === 'function'
+			? events.processing
+			: null;
+		const existingInitHandler = typeof events.init === 'function'
+			? events.init
+			: null;
+		const existingDrawHandler = typeof events.draw === 'function'
+			? events.draw
+			: null;
+
+		events.processing = ( e, settings, isBusy ) => {
+			this.handleDatatableProcessing( settings, isBusy );
+			existingProcessingHandler?.( e, settings, isBusy );
+		};
+		events.init = ( e, settings, json ) => {
+			existingInitHandler?.( e, settings, json );
+			this.applyGeneratedAccessibility( settings );
+		};
+		events.draw = ( e, settings ) => {
+			existingDrawHandler?.( e, settings );
+			this.applyGeneratedAccessibility( settings );
+		};
+
+		return events;
+	}
+
+	normalizeDatatableEvents( events ) {
+		return events && typeof events === 'object'
+			? events
+			: {};
+	}
+
 	addButtons() {
 		this.getButtons().forEach( ( button, idx ) => {
-			this.$table.button().add( idx, button );
+			this.$table.button().add( idx, /** @type {any} */ ( button ) );
 		} );
 	}
 
@@ -150,7 +190,10 @@ export class ShieldTableBase extends BaseComponent {
 				name: 'search-help',
 				className: 'action search-help btn-outline-info mb-2',
 				action: ( e, dt, node, config ) => {
-					OffCanvasService.RenderCanvas( this._base_data.ajax.render_offcanvas );
+					OffCanvasService.RenderCanvas(
+						this._base_data.ajax.render_offcanvas,
+						{ launcher: this.resolveButtonLauncher( node ) }
+					);
 				}
 			} );
 		}
@@ -158,8 +201,341 @@ export class ShieldTableBase extends BaseComponent {
 		return buttons;
 	}
 
+	resolveButtonLauncher( node ) {
+		if ( node instanceof HTMLElement ) {
+			return node;
+		}
+		if ( node?.[ 0 ] instanceof HTMLElement ) {
+			return node[ 0 ];
+		}
+		if ( typeof node?.get === 'function' && node.get( 0 ) instanceof HTMLElement ) {
+			return node.get( 0 );
+		}
+		return null;
+	}
+
 	rowSelectionChanged() {
 	};
+
+	resolveDatatable( datatableOrSettings = null ) {
+		if ( datatableOrSettings && typeof datatableOrSettings.table === 'function' ) {
+			return datatableOrSettings;
+		}
+
+		const tableNode = datatableOrSettings?.nTable || null;
+		if ( tableNode && $.fn.dataTable && $.fn.dataTable.isDataTable( tableNode ) ) {
+			return $( tableNode ).DataTable();
+		}
+
+		return this.$table || null;
+	}
+
+	resolveTableContainer( datatableOrSettings = null ) {
+		const datatable = this.resolveDatatable( datatableOrSettings );
+		const container = datatable?.table?.().container?.() || null;
+		return container instanceof HTMLElement ? container : null;
+	}
+
+	markBusyStateLifecycleBound( datatableOrSettings = null ) {
+		const container = this.resolveTableContainer( datatableOrSettings );
+		if ( container !== null ) {
+			container.dataset.shieldBusyLifecycleBound = '1';
+		}
+	}
+
+	bindBusyStateLifecycle( datatable ) {
+		const container = this.resolveTableContainer( datatable );
+		if ( container === null || container.dataset.shieldBusyLifecycleBound === '1' ) {
+			return;
+		}
+
+		container.dataset.shieldBusyLifecycleBound = '1';
+		datatable.on( 'processing.shieldBusyState', ( e, settings, isBusy ) => {
+			this.handleDatatableProcessing( settings, isBusy );
+		} );
+	}
+
+	bindFloatingUiLifecycle( datatable ) {
+		const container = this.resolveTableContainer( datatable );
+		if ( container === null || container.dataset.shieldFloatingUiLifecycleBound === '1' ) {
+			return;
+		}
+
+		const tableNode = datatable?.table?.().node?.() || null;
+		if ( !( tableNode instanceof HTMLTableElement ) ) {
+			return;
+		}
+
+		container.dataset.shieldFloatingUiLifecycleBound = '1';
+		datatable.on( 'preXhr.dt.shieldFloatingUi preDraw.dt.shieldFloatingUi destroy.dt.shieldFloatingUi', () => {
+			this.disposeFloatingUiWithinTable( datatable );
+		} );
+		datatable.on( 'draw.dt.shieldFloatingUi', () => {
+			BootstrapTooltips.RegisterNewTooltipsWithin( container );
+		} );
+		BootstrapTooltips.RegisterNewTooltipsWithin( container );
+	}
+
+	applyGeneratedAccessibility( datatableOrSettings = null ) {
+		const container = this.resolveTableContainer( datatableOrSettings );
+		if ( container === null ) {
+			return;
+		}
+
+		this.labelGeneratedSearchPaneInputs( container );
+		this.labelGeneratedPaginationLandmarks( container );
+	}
+
+	labelGeneratedSearchPaneInputs( container ) {
+		container.querySelectorAll( 'input.dtsp-paneInputButton.search' ).forEach( ( input ) => {
+			const label = String(
+				input.getAttribute( 'aria-label' )
+				|| input.getAttribute( 'title' )
+				|| input.getAttribute( 'placeholder' )
+				|| ''
+			).trim();
+			if ( label.length > 0 ) {
+				input.setAttribute( 'aria-label', label );
+			}
+		} );
+	}
+
+	labelGeneratedPaginationLandmarks( container ) {
+		const navs = Array.from( container.querySelectorAll( '.dt-paging nav' ) );
+		const labelBase = this.resolveTableLabelBase();
+		navs.forEach( ( nav, index ) => {
+			const suffix = navs.length > 1 ? ` ${index + 1}` : '';
+			nav.setAttribute( 'aria-label', `${labelBase} pagination${suffix}` );
+		} );
+	}
+
+	resolveTableLabelBase() {
+		return String( this.el?.id || 'Shield table' )
+		.replace( /^ShieldTable-?/, '' )
+		.replace( /[-_]+/g, ' ' )
+		.trim() || 'Shield table';
+	}
+
+	disposeFloatingUiWithinTable( datatableOrSettings = null ) {
+		BootstrapTooltips.DisposeFloatingUiWithin(
+			this.resolveTableContainer( datatableOrSettings )
+		);
+	}
+
+	handleDatatableProcessing( datatableOrSettings, isBusy ) {
+		if ( isBusy ) {
+			this.disposeFloatingUiWithinTable( datatableOrSettings );
+			this.announceTableLoading( datatableOrSettings );
+		}
+		ShieldTableBase.applyBusyStateToContainer(
+			this.resolveTableContainer( datatableOrSettings ),
+			isBusy
+		);
+	}
+
+	setTableBusy( datatableOrSettings, isBusy ) {
+		const datatable = this.resolveDatatable( datatableOrSettings );
+		const processingDatatable = /** @type {{processing?: ( isBusy: boolean ) => void}|null} */ ( datatable );
+		if ( processingDatatable === null || typeof processingDatatable.processing !== 'function' ) {
+			return false;
+		}
+
+		processingDatatable.processing( isBusy );
+		return true;
+	}
+
+	clearTableBusy( datatableOrSettings = null ) {
+		this.setTableBusy( datatableOrSettings, false );
+		ShieldTableBase.applyBusyStateToContainer(
+			this.resolveTableContainer( datatableOrSettings ),
+			false
+		);
+	}
+
+	static applyBusyStateToContainer( container, isBusy ) {
+		if ( !( container instanceof HTMLElement ) ) {
+			return false;
+		}
+
+		container.classList.toggle( 'shield-table-is-busy', isBusy );
+		container.setAttribute( 'aria-busy', isBusy ? 'true' : 'false' );
+		return true;
+	}
+
+	static resolveDatatableForTableElement( tableEl ) {
+		return tableEl instanceof HTMLTableElement
+			&& $.fn.dataTable
+			&& $.fn.dataTable.isDataTable( tableEl )
+			? $( tableEl ).DataTable()
+			: null;
+	}
+
+	static setBusyForTableElement( tableEl, isBusy ) {
+		const datatable = ShieldTableBase.resolveDatatableForTableElement( tableEl );
+		const processingDatatable = /** @type {{processing?: ( isBusy: boolean ) => void}|null} */ ( datatable );
+		if ( processingDatatable === null || typeof processingDatatable.processing !== 'function' ) {
+			return false;
+		}
+
+		processingDatatable.processing( isBusy );
+		return true;
+	}
+
+	extractResponseData( resp ) {
+		return ( resp && typeof resp === 'object' && resp.data && typeof resp.data === 'object' )
+			? resp.data
+			: {};
+	}
+
+	extractResponseMessage( resp, fallback = 'Communications error with site.' ) {
+		const responseData = this.extractResponseData( resp );
+		return ( typeof responseData.message === 'string' && responseData.message.length > 0 )
+			? responseData.message
+			: fallback;
+	}
+
+	handleDatatableAjaxResponse( resp, callback, datatableOrSettings, fallbackErrorMessage = 'Communications error with site.' ) {
+		if ( resp?.success ) {
+			callback( this.extractResponseData( resp ).datatable_data );
+			return true;
+		}
+
+		const message = this.extractResponseMessage( resp, fallbackErrorMessage );
+		this.clearTableBusy( datatableOrSettings );
+		this.announceTableError( datatableOrSettings, message );
+		this.showErrorMessage( message );
+		return false;
+	}
+
+	announceTableLoading( datatableOrSettings = null ) {
+		this.announceTableStatus(
+			datatableOrSettings,
+			normalizeShieldString( 'table_loading', 'Loading table data.' ),
+			{
+				politeness: 'polite',
+				allowRepeat: false,
+			}
+		);
+	}
+
+	announceTableSuccess( datatableOrSettings = null, message = '' ) {
+		this.announceTableStatus(
+			datatableOrSettings,
+			message,
+			{
+				politeness: 'polite',
+			}
+		);
+	}
+
+	announceTableError( datatableOrSettings = null, message = '' ) {
+		this.announceTableStatus(
+			datatableOrSettings,
+			message,
+			{
+				politeness: 'assertive',
+			}
+		);
+	}
+
+	announceTableStatus( datatableOrSettings = null, message = '', options = {} ) {
+		announceStatus(
+			this.resolveTableContainer( datatableOrSettings ) || this.el,
+			message,
+			options
+		);
+	}
+
+	showResponseMessage( message, success = true ) {
+		if ( typeof message !== 'string' || message.length < 1 ) {
+			return;
+		}
+
+		const notificationService = shieldServices?.notification?.();
+		if ( notificationService ) {
+			notificationService.showMessage( message, success );
+		}
+		else {
+			this.showTableMessage( message );
+		}
+	}
+
+	showTableMessage( message, launcher = null ) {
+		return shieldServices.dialog().message( {
+			title: normalizeShieldString( 'dialog_alert_title', 'Notice' ),
+			message,
+			confirmLabel: normalizeShieldString( 'close', 'Close' ),
+			launcher,
+		} );
+	}
+
+	showErrorMessage( message, launcher = null ) {
+		return shieldServices.dialog().message( {
+			title: normalizeShieldString( 'request_failed', 'Request Failed' ),
+			message,
+			confirmLabel: normalizeShieldString( 'close', 'Close' ),
+			launcher,
+			showTitle: true,
+		} );
+	}
+
+	dispatchTableActionSuccess( datatableOrSettings, reqData, responseData ) {
+		const container = this.resolveTableContainer( datatableOrSettings );
+		if ( container === null ) {
+			return;
+		}
+
+		container.dispatchEvent( new CustomEvent( 'shield:table-action-success', {
+			bubbles: true,
+			detail: {
+				request_data: reqData,
+				response_data: responseData,
+			}
+		} ) );
+	}
+
+	sendTableActionRequest( datatableOrSettings, reqData, fallbackErrorMessage = 'Communications error with site.', options = {} ) {
+		const datatable = this.resolveDatatable( datatableOrSettings );
+		if ( datatable === null || reqData === null || typeof reqData !== 'object' ) {
+			return Promise.resolve( null );
+		}
+
+		this.setTableBusy( datatable, true );
+
+		return ( new AjaxService() )
+		.send( reqData, false, true )
+		.then( ( resp ) => {
+			if ( resp?.success ) {
+				const responseData = this.extractResponseData( resp );
+				if ( responseData.table_reload || options.reloadTableOnSuccess ) {
+					this.tableReload( datatable, options );
+				}
+				else {
+					this.clearTableBusy( datatable );
+				}
+				const message = responseData.message || '';
+				this.announceTableSuccess( datatable, message );
+				this.showResponseMessage( message, true );
+				this.dispatchTableActionSuccess( datatable, reqData, responseData );
+			}
+			else {
+				const message = this.extractResponseMessage( resp, fallbackErrorMessage );
+				this.clearTableBusy( datatable );
+				this.announceTableError( datatable, message );
+				this.showErrorMessage(
+					message,
+					options.launcher
+				);
+			}
+			return resp;
+		} )
+		.catch( ( error ) => {
+			this.clearTableBusy( datatable );
+			this.announceTableError( datatable, fallbackErrorMessage );
+			this.showErrorMessage( fallbackErrorMessage, options.launcher );
+			throw error;
+		} );
+	}
 
 	bulkTableAction( action, RIDs = [] ) {
 		if ( RIDs.length === 0 ) {
@@ -173,19 +549,12 @@ export class ShieldTableBase extends BaseComponent {
 			data.sub_action = action;
 			data.rids = RIDs;
 
-			( new AjaxService() )
-			.send( data )
-			.then( ( resp ) => {
-				if ( resp.success ) {
-					this.tableReload();
-					shieldServices.notification().showMessage( resp.data.message, resp.success );
-				}
-				else {
-					alert( resp.data.message );
-					// console.log( resp );
-				}
-			} )
-			.catch( ( error ) => {
+			this.sendTableActionRequest(
+				this.$table,
+				data,
+				'Communications error with site.',
+				{ reloadTableOnSuccess: true }
+			).catch( ( error ) => {
 				console.log( error );
 			} );
 		}
@@ -203,7 +572,16 @@ export class ShieldTableBase extends BaseComponent {
 		return RIDs;
 	}
 
-	tableReload() {
-		this.$table.ajax.reload( null );
+	tableReload( datatableOrSettings = null, options = {} ) {
+		const datatable = this.resolveDatatable( datatableOrSettings );
+		if ( datatable !== null ) {
+			datatable.ajax.reload( null, options.resetPaging ?? true );
+		}
 	}
+}
+
+function normalizeShieldString( key, fallback ) {
+	return typeof shieldStrings !== 'undefined' && typeof shieldStrings.string === 'function'
+		? String( shieldStrings.string( key ) || '' ).trim() || fallback
+		: fallback;
 }

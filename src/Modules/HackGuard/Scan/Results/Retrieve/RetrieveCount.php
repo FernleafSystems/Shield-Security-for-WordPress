@@ -11,87 +11,81 @@ class RetrieveCount extends RetrieveBase {
 	public const CONTEXT_RESULTS_DISPLAY = 2;
 
 	public function buildQuery( array $selectFields = [] ) :string {
+		$wheres = $this->getWheres();
 		return sprintf(
-			$this->getBaseQuery(),
+			$this->getBaseQuery( $this->wheresNeedResultMetaJoin( $wheres ) ),
 			\implode( ',', $selectFields ),
-			\implode( ' AND ', $this->getWheres() )
+			\implode( ' AND ', $wheres )
 		);
 	}
 
 	public function count( int $context = self::CONTEXT_ACTIVE_PROBLEMS ) :int {
-		$count = 0;
+		$wheresBuilder = new LatestScanResultWheresBuilder();
+		$scanSlug = $this->getScanController()->getSlug();
+		switch ( $context ) {
+			case self::CONTEXT_NOT_YET_NOTIFIED:
+				$specificWheres = $wheresBuilder->forNotYetNotified( $scanSlug );
+				break;
 
-		$latestID = $this->getLatestScanID();
-		if ( $latestID >= 0 ) {
+			case self::CONTEXT_RESULTS_DISPLAY:
+				$specificWheres = $wheresBuilder->forResultsDisplay( $scanSlug );
+				break;
 
-			$this->addWheres( [
-				sprintf( "`sr`.`scan_ref`=%s", $latestID ),
-				"`ri`.`deleted_at`=0",
-			] );
-
-			switch ( $context ) {
-
-				case self::CONTEXT_NOT_YET_NOTIFIED:
-					$specificWheres = [
-						"`ri`.`auto_filtered_at`=0",
-						"`ri`.`ignored_at`=0",
-						"`ri`.`item_repaired_at`=0",
-						"`ri`.`item_deleted_at`=0",
-						"`ri`.`notified_at`=0",
-					];
-					break;
-
-				case self::CONTEXT_RESULTS_DISPLAY:
-					$specificWheres = [
-						"`ri`.`auto_filtered_at`=0",
-					];
-					$includes = self::con()->opts->optGet( 'scan_results_table_display' );
-					if ( !\in_array( 'include_ignored', $includes ) ) {
-						$specificWheres[] = "`ri`.`ignored_at`=0";
-					}
-					if ( !\in_array( 'include_repaired', $includes ) ) {
-						$specificWheres[] = "`ri`.`item_repaired_at`=0";
-					}
-					if ( !\in_array( 'include_deleted', $includes ) ) {
-						$specificWheres[] = "`ri`.`item_deleted_at`=0";
-					}
-					break;
-
-				case self::CONTEXT_ACTIVE_PROBLEMS:
-				default:
-					$specificWheres = [
-						"`ri`.`auto_filtered_at`=0",
-						"`ri`.`ignored_at`=0",
-						"`ri`.`item_repaired_at`=0",
-						"`ri`.`item_deleted_at`=0",
-					];
-					break;
-			}
-
-			$this->addWheres( $specificWheres );
-			$count = (int)Services::WpDb()->getVar( $this->buildQuery( [ 'COUNT(*)' ] ) );
+			case self::CONTEXT_ACTIVE_PROBLEMS:
+			default:
+				$specificWheres = $wheresBuilder->forActiveProblems( $scanSlug );
+				break;
 		}
 
-		return $count;
+		return $this->countForSpecificWheres( $specificWheres );
+	}
+
+	/**
+	 * @param array<string,mixed> $options
+	 */
+	public function countForResultsDisplay( array $options = [] ) :int {
+		return $this->countForSpecificWheres(
+			( new LatestScanResultWheresBuilder() )->forResultsDisplayWithOptions( $this->getScanController()->getSlug(), $options )
+		);
 	}
 
 	protected function getBaseQuery( bool $joinWithResultMeta = false ) :string {
 		$dbCon = self::con()->db_con;
 		return sprintf( "SELECT %%s
-						FROM `%s` as sr
-						INNER JOIN `%s` as `scans`
-							ON `sr`.scan_ref = `scans`.id
-						INNER JOIN `%s` as `ri`
-							ON `sr`.resultitem_ref = `ri`.id
-						INNER JOIN `%s` as %s
-							ON %s.`ri_ref` = `ri`.id
+						FROM `%s` as `ri`
+						%s
 						WHERE %%s;",
-			$dbCon->scan_results->getTable(),
-			$dbCon->scans->getTable(),
 			$dbCon->scan_result_items->getTable(),
-			$dbCon->scan_result_item_meta->getTable(),
-			self::ABBR_RESULTITEMMETA,
-			self::ABBR_RESULTITEMMETA
+			$joinWithResultMeta ? sprintf(
+				'INNER JOIN `%s` as %s
+							ON %s.`ri_ref` = `ri`.id',
+				$dbCon->scan_result_item_meta->getTable(),
+				self::ABBR_RESULTITEMMETA,
+				self::ABBR_RESULTITEMMETA
+			) : ''
+		);
+	}
+
+	/**
+	 * @param list<string> $wheres
+	 */
+	private function wheresNeedResultMetaJoin( array $wheres ) :bool {
+		foreach ( $wheres as $where ) {
+			if ( \strpos( $where, self::ABBR_RESULTITEMMETA ) !== false || \strpos( $where, 'rim.' ) !== false ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @param list<string> $specificWheres
+	 */
+	private function countForSpecificWheres( array $specificWheres ) :int {
+		return (int)$this->withMergedWheres(
+			$specificWheres,
+			fn() :int => (int)Services::WpDb()->getVar( $this->buildQuery( [ 'COUNT(*)' ] ) )
 		);
 	}
 }

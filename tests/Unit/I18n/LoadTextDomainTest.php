@@ -8,10 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class LoadTextDomainTest extends BaseUnitTest {
 
-	public function testClassExists() :void {
-		$this->assertTrue( \class_exists( LoadTextDomain::class ) );
-	}
-
 	public function testRunRegistersLoadTextdomainFilter() :void {
 		Functions\expect( 'add_filter' )
 				 ->once()

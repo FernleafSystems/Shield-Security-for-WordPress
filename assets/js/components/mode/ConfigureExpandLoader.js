@@ -1,0 +1,504 @@
+import { Collapse } from 'bootstrap';
+import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
+import { AjaxService } from "../services/AjaxService";
+import { AjaxBatchService } from "../services/AjaxBatchService";
+import { ObjectOps } from "../../util/ObjectOps";
+import { UiContentActivator } from "../ui/UiContentActivator";
+import { announceStatus } from "../ui/ShieldA11y";
+
+/**
+ * @typedef {{row_key: string, config_item: string}} ConfigureFocusRequest
+ */
+
+export class ConfigureExpandLoader extends BaseAutoExecComponent {
+
+	canRun() {
+		return !!this._base_data?.ajax?.offcanvas_zone_component_config;
+	}
+
+	run() {
+		this.ajaxBase = this._base_data.ajax.offcanvas_zone_component_config;
+		this.batchRequestData = this._base_data.ajax.batch_requests || {};
+		/** @type {ConfigureFocusRequest|null} */
+		this.pendingRequestedFocus = null;
+
+		shieldEventsHandler_Main.addHandler(
+			'shown.bs.collapse',
+			'[data-shield-expand-body="1"]',
+			( expansion ) => {
+				if ( this.getConfigureRoot()?.contains( expansion ) ) {
+					this.handleExpansionOpened( expansion );
+				}
+			},
+			false
+		);
+
+		shieldEventsHandler_Main.add_Click(
+			'.shield-detail-expansion__btn-save',
+			( button ) => this.handleSaveClick( button ),
+			false
+		);
+
+		this.initializeCurrentRoot();
+	}
+
+	initializeCurrentRoot() {
+		this.rootEl = this.getConfigureRoot();
+		if ( this.rootEl !== null ) {
+			this.maybeApplyRequestedFocus();
+			this.preloadExpansionForms();
+		}
+	}
+
+	getConfigureRoot() {
+		const root = document.querySelector( '[data-configure-landing="1"]' );
+		return root instanceof HTMLElement ? root : null;
+	}
+
+	handleExpansionOpened( expansion ) {
+		if ( this.expansionHasLoadedForm( expansion ) ) {
+			this.setSaveButtonDisabled( expansion, false );
+			UiContentActivator.activateCurrentSubtree( expansion );
+			this.maybeFocusRequestedConfigItem( expansion );
+			return;
+		}
+
+		const placeholder = this.getExpansionPlaceholder( expansion );
+		if ( placeholder === null ) {
+			return;
+		}
+
+		if ( this.isPlaceholderLoading( placeholder ) ) {
+			this.showExpansionLoadingState( expansion, placeholder );
+			return;
+		}
+
+		this.requestPlaceholderLoad( placeholder, {
+			showLoading: true
+		} );
+	}
+
+	injectForm( placeholder, responseHtml, expansion ) {
+		const tempDiv = document.createElement( 'div' );
+		tempDiv.innerHTML = responseHtml;
+
+		const form = tempDiv.querySelector( 'form.options_form_for' );
+		if ( !( form instanceof HTMLFormElement ) ) {
+			this.clearPendingRequestedFocusForExpansion( expansion );
+			this.renderLoadFailure( placeholder, expansion, 'No settings are available for this component.' );
+			return;
+		}
+
+		form.dataset.context = 'expansion';
+		form.querySelector( '.shield-options-rail-save' )?.remove();
+
+		const rail = form.querySelector( '.shield-options-rail' );
+		if ( rail instanceof HTMLElement ) {
+			rail.style.display = 'none';
+		}
+
+		placeholder.replaceWith( form );
+		this.setSaveButtonDisabled( expansion, false );
+		if ( expansion?.classList.contains( 'show' ) ) {
+			UiContentActivator.activateCurrentSubtree( expansion );
+			this.maybeFocusRequestedConfigItem( expansion );
+		}
+	}
+
+	preloadExpansionForms() {
+		const rootEl = this.rootEl instanceof HTMLElement ? this.rootEl : null;
+		if ( rootEl === null || ObjectOps.IsEmpty( this.batchRequestData ) ) {
+			return;
+		}
+		if ( rootEl.dataset.configurePreloadStarted === '1' ) {
+			return;
+		}
+
+		const placeholders = this.getPreloadablePlaceholders( rootEl );
+		if ( placeholders.length < 1 ) {
+			return;
+		}
+
+		rootEl.dataset.configurePreloadStarted = '1';
+		const batch = new AjaxBatchService( this.batchRequestData );
+
+		placeholders.forEach( ( placeholder, index ) => {
+			const requestData = this.preparePlaceholderRequest( placeholder );
+			if ( ObjectOps.IsEmpty( requestData ) ) {
+				return;
+			}
+
+			const expansion = this.getExpansionFromPlaceholder( placeholder );
+			batch.add( {
+				id: this.buildBatchItemID( placeholder, index ),
+				request: requestData,
+				onSuccess: ( result ) => this.handleBatchSuccess( placeholder, expansion, result ),
+				onError: () => this.handleBatchFailure( placeholder, expansion ),
+			} );
+		} );
+
+		batch.flush()
+		.finally( () => {
+			delete rootEl.dataset.configurePreloadStarted;
+		} );
+	}
+
+	maybeApplyRequestedFocus() {
+		const rootEl = this.rootEl instanceof HTMLElement ? this.rootEl : null;
+		if ( rootEl === null || rootEl.dataset.configureFocusHandled === '1' ) {
+			return;
+		}
+
+		rootEl.dataset.configureFocusHandled = '1';
+		this.applyFocusRequestFromJson( rootEl.dataset.configureFocusRequest || '' );
+	}
+
+	getPreloadablePlaceholders( root ) {
+		return [ ...root.querySelectorAll( '[data-configure-expand-ajax="1"]' ) ].filter( ( placeholder ) => {
+			return placeholder instanceof HTMLElement
+				&& !this.isPlaceholderLoading( placeholder )
+				&& !this.expansionHasLoadedForm( this.getExpansionFromPlaceholder( placeholder ) )
+				&& !ObjectOps.IsEmpty( this.buildRequestData( placeholder ) );
+		} );
+	}
+
+	parseFocusRequest( json = '' ) {
+		if ( typeof json !== 'string' || json.trim().length < 2 ) {
+			return null;
+		}
+
+		try {
+			const parsed = JSON.parse( json );
+			const rowKey = typeof parsed?.row_key === 'string' ? parsed.row_key : '';
+			if ( rowKey.length < 1 ) {
+				return null;
+			}
+
+			return {
+				row_key: rowKey,
+				config_item: typeof parsed?.config_item === 'string' ? parsed.config_item : '',
+			};
+		}
+		catch {
+			return null;
+		}
+	}
+
+	applyFocusRequestFromJson( json = '' ) {
+		const focus = this.parseFocusRequest( json );
+		return focus === null
+			? false
+			: this.applyFocusRequest( focus );
+	}
+
+	applyFocusRequest( focus ) {
+		const rootEl = this.rootEl instanceof HTMLElement ? this.rootEl : this.getConfigureRoot();
+		if ( !( rootEl instanceof HTMLElement ) || focus === null || focus.row_key.length < 1 ) {
+			return false;
+		}
+
+		this.rootEl = rootEl;
+		rootEl.dataset.configureFocusRequest = JSON.stringify( focus );
+		this.pendingRequestedFocus = focus;
+
+		const expansion = this.getRequestedFocusExpansion( rootEl, focus );
+		if ( !( expansion instanceof Element ) ) {
+			this.clearPendingRequestedFocus();
+			return false;
+		}
+
+		const collapse = Collapse.getOrCreateInstance( expansion, { toggle: false } );
+		collapse.show();
+		if ( expansion.classList.contains( 'show' ) ) {
+			this.handleExpansionOpened( expansion );
+		}
+
+		return true;
+	}
+
+	getRequestedFocusExpansion( root, focus ) {
+		if ( !( root instanceof HTMLElement ) || focus === null || focus.row_key.length < 1 ) {
+			return null;
+		}
+
+		const itemWrapper = root.querySelector( `[data-configure-row-key="${focus.row_key}"]` );
+		if ( !( itemWrapper instanceof HTMLElement ) ) {
+			return null;
+		}
+
+		const expansion = itemWrapper.querySelector( '[data-shield-expand-body="1"]' );
+		if ( !( expansion instanceof HTMLElement ) ) {
+			return null;
+		}
+
+		return root.contains( expansion )
+			? expansion
+			: null;
+	}
+
+	buildBatchItemID( placeholder, index ) {
+		const expansionId = this.getExpansionFromPlaceholder( placeholder )?.id?.trim() || '';
+		if ( expansionId.length > 0 ) {
+			return expansionId;
+		}
+
+		const zoneComponentSlug = ( placeholder.dataset.zoneComponentSlug || '' ).trim();
+		return `configure-expand-${zoneComponentSlug || 'item'}-${index}`;
+	}
+
+	requestPlaceholderLoad( placeholder, {
+		showLoading = false
+	} = {} ) {
+		const requestData = this.preparePlaceholderRequest( placeholder );
+		if ( ObjectOps.IsEmpty( requestData ) ) {
+			return;
+		}
+
+		const expansion = this.getExpansionFromPlaceholder( placeholder );
+		if ( showLoading && expansion !== null ) {
+			this.showExpansionLoadingState( expansion, placeholder );
+		}
+
+		( new AjaxService() )
+		.send( requestData, false, true )
+		.then( ( resp ) => {
+			if ( resp && resp.success && typeof resp.data?.html === 'string' ) {
+				this.injectForm( placeholder, resp.data.html, expansion );
+				return;
+			}
+			this.renderLoadFailure( placeholder, expansion, 'Unable to load these settings. Please try again.' );
+		} )
+		.catch( () => {
+			this.renderLoadFailure( placeholder, expansion, 'Unable to load these settings. Please try again.' );
+		} );
+	}
+
+	preparePlaceholderRequest( placeholder ) {
+		if ( this.isPlaceholderLoading( placeholder ) ) {
+			return {};
+		}
+
+		const expansion = this.getExpansionFromPlaceholder( placeholder );
+		if ( this.expansionHasLoadedForm( expansion ) ) {
+			return {};
+		}
+
+		const requestData = this.buildRequestData( placeholder );
+		if ( ObjectOps.IsEmpty( requestData ) ) {
+			return {};
+		}
+
+		placeholder.dataset.configureExpandLoading = '1';
+		this.setSaveButtonDisabled( expansion, true );
+		return requestData;
+	}
+
+	buildRequestData( placeholder ) {
+		const componentData = {};
+
+		for ( const key in placeholder.dataset ) {
+			if ( key !== 'configureExpandAjax' && key !== 'configureExpandLoading' ) {
+				componentData[ key ] = placeholder.dataset[ key ];
+			}
+		}
+
+		componentData.form_context = 'expansion';
+		return ObjectOps.Merge(
+			ObjectOps.ObjClone( this.ajaxBase ),
+			componentData
+		);
+	}
+
+	handleBatchSuccess( placeholder, expansion, result ) {
+		const html = result?.data?.html || '';
+		if ( result?.success && typeof html === 'string' && html.length > 0 ) {
+			this.injectForm( placeholder, html, expansion );
+			return;
+		}
+		this.handleBatchFailure( placeholder, expansion );
+	}
+
+	handleBatchFailure( placeholder, expansion ) {
+		delete placeholder.dataset.configureExpandLoading;
+		this.setSaveButtonDisabled( expansion, true );
+		this.clearPendingRequestedFocusForExpansion( expansion );
+
+		if ( expansion !== null && expansion.classList.contains( 'show' ) ) {
+			this.renderLoadFailure( placeholder, expansion, 'Unable to load these settings. Please try again.' );
+		}
+	}
+
+	renderLoadFailure( placeholder, expansion, message ) {
+		delete placeholder.dataset.configureExpandLoading;
+		this.clearPendingRequestedFocusForExpansion( expansion );
+		placeholder.innerHTML = `<div class="alert alert-warning mb-0">${this.escapeHtml( message )}</div>`;
+		this.setSaveButtonDisabled( expansion, true );
+		this.announceExpansionStatus( expansion || placeholder, message, {
+			politeness: 'assertive',
+		} );
+	}
+
+	showExpansionLoadingState( expansion, placeholder ) {
+		placeholder.innerHTML = this.buildLoadingMarkup();
+		this.setSaveButtonDisabled( expansion, true );
+		this.announceExpansionStatus( expansion || placeholder, this.getSettingsLoadingText(), {
+			politeness: 'polite',
+			allowRepeat: false,
+		} );
+	}
+
+	handleSaveClick( button ) {
+		const expansion = button.closest( '[data-shield-expand-body="1"]' );
+		if ( !( expansion instanceof HTMLElement ) ) {
+			return;
+		}
+
+		const form = expansion.querySelector( 'form.options_form_for' );
+		if ( form instanceof HTMLFormElement ) {
+			form.requestSubmit();
+		}
+	}
+
+	setSaveButtonDisabled( expansion, isDisabled ) {
+		if ( !( expansion instanceof HTMLElement ) ) {
+			return;
+		}
+
+		const button = expansion.querySelector( '.shield-detail-expansion__btn-save' );
+		if ( button instanceof HTMLButtonElement ) {
+			button.disabled = isDisabled;
+		}
+	}
+
+	buildLoadingMarkup() {
+		const spinner = document.getElementById( 'ShieldWaitSpinner' );
+		if ( spinner instanceof HTMLElement ) {
+			const clone = spinner.cloneNode( true );
+			if ( clone instanceof HTMLElement ) {
+				clone.id = '';
+				clone.classList.remove( 'd-none' );
+				return clone.outerHTML;
+			}
+		}
+
+		return '<div class="d-flex justify-content-center align-items-center"><div class="spinner-border text-success m-3" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+	}
+
+	announceExpansionStatus( context, message, options = {} ) {
+		announceStatus( context, message, options );
+	}
+
+	getSettingsLoadingText() {
+		return String( this.rootEl?.dataset?.configureSettingsLoading || '' ).trim();
+	}
+
+	getExpansionPlaceholder( expansion ) {
+		const placeholder = expansion instanceof HTMLElement
+			? expansion.querySelector( '[data-configure-expand-ajax="1"]' )
+			: null;
+		return placeholder instanceof HTMLElement ? placeholder : null;
+	}
+
+	getExpansionFromPlaceholder( placeholder ) {
+		const expansion = placeholder instanceof HTMLElement
+			? placeholder.closest( '[data-shield-expand-body="1"]' )
+			: null;
+		return expansion instanceof HTMLElement ? expansion : null;
+	}
+
+	expansionHasLoadedForm( expansion ) {
+		return expansion instanceof Element && expansion.querySelector( 'form.options_form_for' ) !== null;
+	}
+
+	isPlaceholderLoading( placeholder ) {
+		return placeholder.dataset.configureExpandLoading === '1';
+	}
+
+	escapeHtml( text = '' ) {
+		return String( text )
+		.replace( /&/g, '&amp;' )
+		.replace( /</g, '&lt;' )
+		.replace( />/g, '&gt;' )
+		.replace( /"/g, '&quot;' )
+		.replace( /'/g, '&#39;' );
+	}
+
+	maybeFocusRequestedConfigItem( expansion ) {
+		const focus = this.pendingRequestedFocus;
+		if ( focus === null || !( expansion instanceof HTMLElement ) || this.getExpansionRowKey( expansion ) !== focus.row_key ) {
+			return;
+		}
+
+		if ( !focus.config_item ) {
+			this.finalizePendingRequestedFocus();
+			return;
+		}
+
+		const field = expansion.querySelector( `[name="${focus.config_item}"]` ) || null;
+		if ( !( field instanceof HTMLElement ) ) {
+			this.clearPendingRequestedFocus();
+			return;
+		}
+
+		field.scrollIntoView( {
+			block: 'center',
+			behavior: 'auto',
+		} );
+
+		if ( typeof field.focus === 'function' ) {
+			field.focus( {
+				preventScroll: true,
+			} );
+		}
+
+		this.finalizePendingRequestedFocus();
+	}
+
+	clearPendingRequestedFocus() {
+		this.pendingRequestedFocus = null;
+	}
+
+	clearPendingRequestedFocusForExpansion( expansion ) {
+		if ( !( expansion instanceof HTMLElement ) ) {
+			return;
+		}
+
+		const focus = this.pendingRequestedFocus;
+		if ( focus !== null && this.getExpansionRowKey( expansion ) === focus.row_key ) {
+			this.clearPendingRequestedFocus();
+		}
+	}
+
+	finalizePendingRequestedFocus() {
+		const focus = this.pendingRequestedFocus;
+		const rootEl = this.rootEl instanceof HTMLElement ? this.rootEl : null;
+		this.pendingRequestedFocus = null;
+		if ( rootEl === null || focus === null ) {
+			return;
+		}
+
+		rootEl.dataset.configureFocusRequest = '';
+		this.cleanFocusQueryArgsFromUrl();
+	}
+
+	cleanFocusQueryArgsFromUrl() {
+		try {
+			const nextUrl = new URL( window.location.href );
+			nextUrl.searchParams.delete( 'row_key' );
+			nextUrl.searchParams.delete( 'config_item' );
+			window.history.replaceState( window.history.state || {}, '', nextUrl.toString() );
+		}
+		catch {
+			return;
+		}
+	}
+
+	getExpansionRowKey( expansion ) {
+		const itemWrapper = expansion instanceof HTMLElement
+			? expansion.closest( '[data-configure-row-key]' )
+			: null;
+		return itemWrapper instanceof HTMLElement
+			? itemWrapper.dataset.configureRowKey || ''
+			: '';
+	}
+}

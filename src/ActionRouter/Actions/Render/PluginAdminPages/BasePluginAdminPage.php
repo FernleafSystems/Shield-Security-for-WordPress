@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRend
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminAuthClear;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Navigation\BuildBreadCrumbs;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BasePluginAdminPage extends BaseRender {
 
@@ -36,6 +37,21 @@ abstract class BasePluginAdminPage extends BaseRender {
 		return $data;
 	}
 
+	/**
+	 * @throws ActionException
+	 */
+	protected function buildRenderData() :array {
+		$data = parent::buildRenderData();
+		$data[ 'hrefs' ][ 'inner_page_header_segments' ] = $this->buildInnerPageHeaderSegments(
+			$data[ 'hrefs' ][ 'breadcrumbs' ],
+			\array_key_exists( 'inner_page_title', $data[ 'strings' ] )
+				? $data[ 'strings' ][ 'inner_page_title' ]
+				: '',
+			$data[ 'strings' ][ 'no_inner_page_title' ]
+		);
+		return $data;
+	}
+
 	protected function getCommonAdminPageRenderData() :array {
 		$urls = self::con()->plugin_urls;
 
@@ -47,16 +63,88 @@ abstract class BasePluginAdminPage extends BaseRender {
 			];
 		}
 		$hrefs[] = $this->getPageContextualHrefs_Help();
+		$hrefs = \array_values( \array_map(
+			fn( array $href ) :array => $this->normalizePageContextualHref( $href ),
+			\array_filter( $hrefs )
+		) );
 
 		return [
 			'hrefs' => [
 				'breadcrumbs'                 => $this->getBreadCrumbs(),
-				'inner_page_contextual_hrefs' => \array_filter( $hrefs ),
+				'inner_page_contextual_hrefs' => $hrefs,
 			],
 		];
 	}
 
+	/**
+	 * @param array{
+	 *   title?:string,
+	 *   href?:string,
+	 *   id?:string,
+	 *   classes?:list<string>,
+	 *   new_window?:bool,
+	 *   data?:array<string,string>,
+	 *   disabled?:bool,
+	 *   is_action?:bool
+	 * } $href
+	 * @return array{
+	 *   title:string,
+	 *   href:string,
+	 *   id:string,
+	 *   classes:list<string>,
+	 *   new_window:bool,
+	 *   data:array<string,string>,
+	 *   disabled:bool,
+	 *   is_action:bool
+	 * }
+	 */
+	private function normalizePageContextualHref( array $href ) :array {
+		$isAction = (bool)( $href[ 'is_action' ] ?? false );
+
+		return [
+			'title'      => (string)( $href[ 'title' ] ?? '' ),
+			'href'       => $isAction ? '' : (string)( $href[ 'href' ] ?? '' ),
+			'id'         => (string)( $href[ 'id' ] ?? '' ),
+			'classes'    => \array_values( $href[ 'classes' ] ?? [] ),
+			'new_window' => !$isAction && (bool)( $href[ 'new_window' ] ?? false ),
+			'data'       => $href[ 'data' ] ?? [],
+			'disabled'   => (bool)( $href[ 'disabled' ] ?? false ),
+			'is_action'  => $isAction,
+		];
+	}
+
+	/**
+	 * @return list<array{text:string, title:string, href:string}>
+	 */
 	protected function getBreadCrumbs() :array {
 		return ( new BuildBreadCrumbs() )->current();
 	}
+
+	/**
+	 * @param list<array{text:string, title:string, href:string}> $breadcrumbs
+	 * @return list<array{text:string, title:string, href:string}>
+	 */
+	protected function buildInnerPageHeaderSegments( array $breadcrumbs, string $innerPageTitle, string $fallbackTitle ) :array {
+		$segments = $breadcrumbs;
+
+		$leafTitle = \trim( $innerPageTitle ) === '' ? $fallbackTitle : $innerPageTitle;
+		if ( !empty( $segments ) ) {
+			$lastSegment = \end( $segments );
+			$lastText = \trim( $lastSegment[ 'text' ] );
+			if ( \strtolower( $lastText ) === \strtolower( \trim( $leafTitle ) ) ) {
+				$leafTitle = '';
+			}
+		}
+
+		if ( \trim( $leafTitle ) !== '' ) {
+			$segments[] = [
+				'text'  => $leafTitle,
+				'href'  => '',
+				'title' => '',
+			];
+		}
+
+		return $segments;
+	}
+
 }

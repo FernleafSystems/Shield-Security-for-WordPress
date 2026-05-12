@@ -90,8 +90,12 @@ class CacheDirHandler {
 
 	public function buildSubDir( string $subDir ) :string {
 		$finalDir = '';
-		if ( $this->exists() ) {
-			$finalDir = path_join( $this->dir(), $subDir );
+		$rootDir = $this->dir();
+		if ( !empty( $rootDir ) && !Services::WpFs()->isDir( $rootDir ) ) {
+			$rootDir = $this->dir( true );
+		}
+		if ( !empty( $rootDir ) && Services::WpFs()->isDir( $rootDir ) ) {
+			$finalDir = path_join( $rootDir, $subDir );
 			if ( !Services::WpFs()->mkdir( $finalDir ) ) {
 				$finalDir = '';
 			}

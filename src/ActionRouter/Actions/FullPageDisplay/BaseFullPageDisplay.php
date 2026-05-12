@@ -35,7 +35,8 @@ abstract class BaseFullPageDisplay extends BaseAction {
 	}
 
 	protected function pushContent() {
-		echo $this->response()->action_response_data[ 'render_output' ];
+		$payload = $this->response()->payload();
+		echo (string)( $payload[ 'render_output' ] ?? '' );
 	}
 
 	protected function isCacheDisabled() :bool {
@@ -67,7 +68,8 @@ abstract class BaseFullPageDisplay extends BaseAction {
 	}
 
 	protected function isSuccess() :bool {
-		return $this->response()->success ?? false;
+		$payload = $this->response()->payload();
+		return (bool)( $payload[ 'success' ] ?? false );
 	}
 
 	protected function getRequiredDataKeys() :array {

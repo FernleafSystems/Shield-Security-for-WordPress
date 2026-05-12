@@ -101,7 +101,6 @@ class MerlinStep extends BaseRender {
 				'gopro'     => 'https://clk.shldscrty.com/ap',
 			],
 			'imgs'    => [
-				'play_button' => self::con()->urls->svg( 'play-circle' ),
 				'video_thumb' => $this->getVideoThumbnailUrl( $videoId )
 			],
 			'strings' => $strings,

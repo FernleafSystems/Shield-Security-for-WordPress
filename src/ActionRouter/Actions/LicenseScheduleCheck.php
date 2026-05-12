@@ -25,9 +25,8 @@ class LicenseScheduleCheck extends LicenseBase {
 
 		self::con()->comps->license->scheduleAdHocCheck( $delay );
 
-		$this->response()->action_response_data = [
-			'success' => true,
+		$this->response()->setPayload( [
 			'message' => __( 'License Check Scheduled', 'wp-simple-firewall' ),
-		];
+		] )->setPayloadSuccess( true );
 	}
 }

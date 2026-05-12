@@ -6,24 +6,24 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops as MfaDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class MfaRecordsHandler {
-
 	use PluginControllerConsumer;
 
 	/**
 	 * @var MfaDB\Record[][]
 	 */
-	private static $records = [];
+	private static array $records = [];
 
-	public function insert( MfaDB\Record $record ) {
-		self::con()
+	public function insert( MfaDB\Record $record ): bool {
+		$inserted = self::con()
 			->db_con
 			->mfa
 			->getQueryInserter()
 			->insert( $record );
 		unset( self::$records[ $record->user_id ] );
+		return (bool)$inserted;
 	}
 
-	public function update( MfaDB\Record $record, array $updateData ) {
+	public function update( MfaDB\Record $record, array $updateData ): void {
 		self::con()
 			->db_con
 			->mfa
@@ -41,28 +41,14 @@ class MfaRecordsHandler {
 		unset( self::$records[ $record->user_id ] );
 	}
 
-	public function deleteFor( \WP_User $user, string $providerSlug ) :void {
-		\array_map(
-			function ( $record ) {
-				$this->delete( $record );
-			},
-			$this->loadFor( $user, $providerSlug )
-		);
-	}
-
-	public function deleteAllForUser( \WP_User $user ) :void {
-		\array_map(
-			function ( $record ) {
-				$this->delete( $record );
-			},
-			$this->loadForUser( $user )
-		);
+	public function deleteFor( \WP_User $user, string $providerSlug ): void {
+		\array_map( fn( $record ) => $this->delete( $record ), $this->loadFor( $user, $providerSlug ) );
 	}
 
 	/**
 	 * @return MfaDB\Record[]
 	 */
-	public function loadFor( \WP_User $user, string $providerSlug ) :array {
+	public function loadFor( \WP_User $user, string $providerSlug ): array {
 		return \array_values( \array_filter(
 			$this->loadForUser( $user ),
 			function ( MfaDB\Record $record ) use ( $providerSlug ) {

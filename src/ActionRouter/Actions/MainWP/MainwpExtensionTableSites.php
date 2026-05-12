@@ -7,8 +7,6 @@ class MainwpExtensionTableSites extends MainwpBase {
 	public const SLUG = 'mainwp_ext_table';
 
 	protected function exec() {
-		$this->response()->action_response_data = [
-			'success' => true,
-		];
+		$this->response()->setPayload()->setPayloadSuccess( true );
 	}
 }

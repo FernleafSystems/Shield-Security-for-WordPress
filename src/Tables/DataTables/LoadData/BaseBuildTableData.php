@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\ResolvesIpIdentity;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\SearchPanes\BuildDataForDays;
 use FernleafSystems\Wordpress\Services\Services;
@@ -14,10 +15,9 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	use PluginControllerConsumer;
+	use ResolvesIpIdentity;
 
 	private const TOTAL_COUNT_CACHE_TTL = 10;
-
-	private array $ipIdCache = [];
 
 	private array $userCache = [];
 
@@ -40,7 +40,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			return [
 				'data'            => $data,
 				'recordsTotal'    => $totalCount,
-				'recordsFiltered' => empty( $this->buildWheresFromSearchParams() )
+				'recordsFiltered' => !$this->hasActiveFiltersForFilteredCount()
 					? $totalCount
 					: $this->countTotalRecordsFiltered(),
 				'searchPanes'     => $this->getSearchPanesData(),
@@ -94,9 +94,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 	}
 
 	protected function loadRecordsWithDirectQuery() :array {
-		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
-			$this->table_data[ 'searchPanes' ] = $this->validateSearchPanes( $this->table_data[ 'searchPanes' ] );
-		}
+		$this->sanitizeTableSearchPanes();
 
 		return $this->buildTableRowsFromRawRecords(
 			$this->getRecords(
@@ -112,9 +110,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		$length = (int)$this->table_data[ 'length' ];
 		$search = $this->parseSearchText()[ 'remaining' ];
 
-		if ( !empty( $this->table_data[ 'searchPanes' ] ) ) {
-			$this->table_data[ 'searchPanes' ] = $this->validateSearchPanes( $this->table_data[ 'searchPanes' ] );
-		}
+		$this->sanitizeTableSearchPanes();
 
 		$wheres = $this->buildWheresFromSearchParams();
 
@@ -158,7 +154,6 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 			$page++;
 		} while ( \count( $results ) < $start + $length );
 
-		$results = \array_values( $results );
 		if ( \count( $results ) < $start ) {
 			$results = [];
 		}
@@ -269,6 +264,18 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		return [];
 	}
 
+	protected function hasActiveFiltersForFilteredCount() :bool {
+		return !empty( $this->buildWheresFromSearchParams() );
+	}
+
+	protected function sanitizeTableSearchPanes() :void {
+		$tableData = \is_array( $this->table_data ?? null ) ? $this->table_data : [];
+		if ( \is_array( $tableData[ 'searchPanes' ] ?? null ) && !empty( $tableData[ 'searchPanes' ] ) ) {
+			$tableData[ 'searchPanes' ] = $this->validateSearchPanes( $tableData[ 'searchPanes' ] );
+			$this->table_data = $tableData;
+		}
+	}
+
 	protected function getOrderBy() :string {
 		$orderBy = '';
 		if ( !empty( $this->table_data[ 'order' ] ) ) {
@@ -305,23 +312,6 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		);
 	}
 
-	protected function resolveIpIdentity( string $ip ) :?array {
-		if ( !isset( $this->ipIdCache[ $ip ] ) ) {
-			try {
-				$this->ipIdCache[ $ip ] = $this->createIpIdentifier( $ip )->run();
-			}
-			catch ( \Exception $e ) {
-				$this->ipIdCache[ $ip ] = false;
-			}
-		}
-		$result = $this->ipIdCache[ $ip ];
-		return $result === false ? null : $result;
-	}
-
-	protected function createIpIdentifier( string $ip ) :IpID {
-		return new IpID( $ip );
-	}
-
 	protected function resolveUser( int $uid ) {
 		$this->userCache[ $uid ] ??= Services::WpUsers()->getUserById( $uid ) ?? false;
 		return $this->userCache[ $uid ] === false ? null : $this->userCache[ $uid ];
@@ -352,10 +342,12 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 				$id = '';
 			}
 
-			$deleteLink = sprintf( '<a href="javascript:{}" data-rid="%s" class="ip_delete text-danger svg-container" title="%s">%s</a>',
+			$deleteLabel = esc_attr__( 'Delete IP', 'wp-simple-firewall' );
+			$deleteLink = sprintf( '<button type="button" data-rid="%d" class="ip_delete shield-button-link text-danger svg-container" title="%s" aria-label="%s">%s</button>',
 				$recordDeleteID,
-				__( 'Delete IP', 'wp-simple-firewall' ),
-				self::con()->svgs->raw( 'trash3-fill.svg' )
+				$deleteLabel,
+				$deleteLabel,
+				sprintf( '<i class="%s" aria-hidden="true"></i>', self::con()->svgs->iconClass( 'trash3-fill.svg' ) )
 			);
 
 			$content = \implode( '', \array_filter( [
@@ -409,6 +401,26 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 		return [];
 	}
 
+	public function exportBuildTableRowsFromRawRecords( array $records ) :array {
+		return $this->buildTableRowsFromRawRecords( $records );
+	}
+
+	public function exportGetSearchableColumns() :array {
+		return $this->getSearchableColumns();
+	}
+
+	public function exportGetRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
+		return $this->getRecords( $wheres, $offset, $limit );
+	}
+
+	public function exportBuildWheresFromSearchParams() :array {
+		return $this->buildWheresFromSearchParams();
+	}
+
+	public function exportValidateSearchPanes( array $searchPanes ) :array {
+		return $this->validateSearchPanes( $searchPanes );
+	}
+
 	protected function buildSqlWhereForDaysSearch( array $selectedDays, string $tableAbbr, string $column = 'created_at' ) :string {
 		$splitDates = \array_map(
 			function ( $selectedDay ) use ( $tableAbbr, $column ) {
@@ -416,7 +428,7 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 					return sprintf( "(`%s`.`%s`=0)", $tableAbbr, $column );
 				}
 				else {
-					[ $year, $month, $day ] = \explode( '-', $selectedDay );
+					[ $year, $month, $day ] = \array_map( '\intval', \explode( '-', $selectedDay ) );
 					$carbon = Services::Request()->carbon( true )->setDate( $year, $month, $day );
 					return sprintf( "(`%s`.`%s`>%s AND `%s`.`%s`<%s)",
 						$tableAbbr,

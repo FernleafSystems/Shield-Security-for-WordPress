@@ -16,43 +16,55 @@ use FernleafSystems\Wordpress\Services\Utilities\Decorate\FormatBytes;
 use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 
 /**
- * @property int      $limit
- * @property int      $offset
- * @property string[] $wheres
- * @property string   $order_by
- * @property string   $order_dir
- * @property string   $search_text
- * @property array    $custom_record_retriever_wheres
+ * @property int                      $limit
+ * @property int                      $offset
+ * @property string[]                 $wheres
+ * @property string                   $order_by
+ * @property string                   $order_dir
+ * @property string                   $search_text
+ * @property array                    $custom_record_retriever_wheres
+ * @property array<string,mixed>|null $results_display_options
  */
 class LoadFileScanResultsTableData extends DynPropertiesClass {
-
 	use PluginControllerConsumer;
 
-	public function run() :array {
-		$results = $this->getRecordRetriever()->retrieveForResultsTables();
+	public function __get( string $key ) {
+		$value = parent::__get( $key );
+		switch ( $key ) {
+			case 'custom_record_retriever_wheres':
+				$value = \is_array( $value ) ? $value : [];
+				break;
+			default:
+				break;
+		}
+		return $value;
+	}
+
+	public function run(): array {
+		$resultsDisplayOptions = $this->getResultsDisplayOptions();
+		$results = $this->getRecordRetriever()->retrieveForResultsTables( $resultsDisplayOptions );
 
 		/**
 		 * Bulk update the malai statuses
 		 */
 		( new RetrieveMalwareMalaiStatus() )->updateRecords(
-			\array_map( fn( ResultItem $item ) => $item->getMalwareRecord(), $results->getMalware()->getItems() )
+			\array_filter(
+				\array_map( fn( ResultItem $item ) => $item->getMalwareRecord(), $results->getMalware()->getAllItems() )
+			)
 		);
 
-		/**
-		 * Attempt to clean these result items and then reload them if there's any update.
-		 */
 		$changed = false;
 		$AFS = self::con()->comps->scans->AFS();
 		/** @var ResultItem $item */
-		foreach ( $results->getItems() as $item ) {
+		foreach ( $results->getAllItems() as $item ) {
 			$changed = $AFS->cleanStaleResultItem( $item ) || $changed;
 		}
 		if ( $changed ) {
-			$results = $this->getRecordRetriever()->retrieveForResultsTables();
+			$results = $this->getRecordRetriever()->retrieveForResultsTables( $resultsDisplayOptions );
 		}
 
 		try {
-			$files = \array_map( fn( ResultItem $item ) => $this->getDataFromItem( $item ), $results->getItems() );
+			$files = \array_map( fn( ResultItem $item ) => $this->getDataFromItem( $item ), $results->getAllItems() );
 		}
 		catch ( \Exception $e ) {
 			$files = [];
@@ -60,21 +72,30 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return $files;
 	}
 
-	protected function getDataFromItem( ResultItem $item ) :array {
+	protected function getDataFromItem( ResultItem $item ): array {
+		$isIgnored = $item->VO->ignored_at > 0;
+		$actions = $this->getActions( $item );
 		$data = \array_merge( $item->getRawData(), [
-			'rid'              => $item->VO->scanresult_id,
+			'rid'              => $item->VO->resultitem_id,
 			'file'             => $item->path_fragment,
 			'created_at'       => $item->VO->created_at,
 			'detected_since'   => Services::Request()
-										  ->carbon( true )
-										  ->setTimestamp( $item->VO->created_at )
-										  ->diffForHumans(),
-			'file_as_href'     => $this->getColumnContent_FileAsHref( $item ),
-			'file_type'        => \strtoupper( Services::Data()->getExtension( $item->path_full ) ),
+			                              ->carbon( true )
+			                              ->setTimestamp( $item->VO->created_at )
+			                              ->diffForHumans(),
+			'file_as_href'     => $this->getColumnContent_FileAction( $item ),
+			'file_type'        => $this->column_fileTypeLabel( $item ),
 			'status_file_size' => $this->column_fileSize( $item ),
 			'status_file_type' => $this->column_fileType( $item ),
 			'status'           => $this->getColumnContent_FileStatus( $item ),
-			'actions'          => \implode( ' ', $this->getActions( $item ) ),
+			'actions'          => $this->getActionsMarkup( $actions ),
+			'action_ids'       => \array_column( $actions, 'key' ),
+			'is_ignored'       => $isIgnored,
+			'ignored_label'    => $isIgnored ? __( 'Ignored', 'wp-simple-firewall' ) : '',
+			'DT_RowClass'      => $isIgnored ? 'scan-result-row scan-result-row--ignored' : 'scan-result-row',
+			'DT_RowAttr'       => [
+				'data-scan-result-ignored' => $isIgnored ? '1' : '0',
+			],
 		] );
 
 		if ( $item->is_mal ) {
@@ -91,18 +112,21 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return $data;
 	}
 
-	public function countAll() :int {
-		return $this->getRecordCounter()->count( RetrieveCount::CONTEXT_RESULTS_DISPLAY );
+	public function countAll(): int {
+		$options = $this->getResultsDisplayOptions();
+		return \is_array( $options )
+			? $this->getRecordCounter()->countForResultsDisplay( $options )
+			: $this->getRecordCounter()->count( RetrieveCount::CONTEXT_RESULTS_DISPLAY );
 	}
 
-	protected function getRecordCounter() :RetrieveCount {
+	protected function getRecordCounter(): RetrieveCount {
 		$retriever = $this->getRecordRetriever();
 		return ( new RetrieveCount() )
 			->setScanController( $retriever->getScanController() )
 			->addWheres( $retriever->getWheres() );
 	}
 
-	protected function getRecordRetriever() :RetrieveItems {
+	protected function getRecordRetriever(): RetrieveItems {
 		$retriever = ( new RetrieveItems() )->setScanController( self::con()->comps->scans->AFS() );
 		$retriever->limit = $this->limit;
 		$retriever->offset = $this->offset;
@@ -132,43 +156,43 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			] );
 		}
 
-		if ( \is_array( $this->custom_record_retriever_wheres ) ) {
+		if ( \count( $this->custom_record_retriever_wheres ) > 0 ) {
 			$retriever->addWheres( $this->custom_record_retriever_wheres );
 		}
 
 		return $retriever;
 	}
 
-	protected function getActions( ResultItem $item ) :array {
+	/**
+	 * @return list<array{key:string,class:string,rid:int,label:string,icon_class:string}>
+	 */
+	protected function getActions( ResultItem $item ): array {
 		$con = self::con();
 		$actions = [];
 
-		$defaultButtonClasses = [
-			'btn',
-			'action',
-		];
-
 		$fileFragment = $item->path_fragment;
 		if ( !empty( $fileFragment ) ) {
-			$actions[] = sprintf( '<button class="action view-file btn-dark %s" title="%s" data-rid="%s">%s</button>',
-				\implode( ' ', $defaultButtonClasses ),
+			$actions[] = $this->buildAction(
+				'view',
+				'view-file',
+				$item->VO->resultitem_id,
 				__( 'View File Details', 'wp-simple-firewall' ),
-				$item->VO->scanresult_id,
-				$con->svgs->raw( 'zoom-in.svg' )
+				$con->svgs->iconClass( 'zoom-in.svg' )
 			);
 		}
 
-		if ( $item->VO->item_deleted_at === 0 && ( $item->is_unrecognised || $item->is_mal ) ) {
-			$actions[] = sprintf( '<button class="btn-danger delete %s" title="%s" data-rid="%s">%s</button>',
-				\implode( ' ', $defaultButtonClasses ),
+		if ( !$item->VO->isDeleted() && ( $item->is_unrecognised || $item->is_mal ) ) {
+			$actions[] = $this->buildAction(
+				'delete',
+				'delete',
+				$item->VO->resultitem_id,
 				__( 'Delete', 'wp-simple-firewall' ),
-				$item->VO->scanresult_id,
-				$con->svgs->raw( 'x-square.svg' )
+				$con->svgs->iconClass( 'x-square.svg' )
 			);
 		}
 
 		try {
-			if ( $item->VO->item_repaired_at === 0 && ( $item->is_checksumfail || $item->is_missing || $item->is_mal ) ) {
+			if ( !$item->VO->isRepaired() && ( $item->is_checksumfail || $item->is_missing || $item->is_mal ) ) {
 				$actionHandler = self::con()
 					->comps
 					->scans
@@ -176,11 +200,12 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 					->getItemActionHandler()
 					->setScanItem( $item );
 				if ( $actionHandler->getRepairHandler()->canRepairItem() ) {
-					$actions[] = sprintf( '<button class="btn-warning repair %s" title="%s" data-rid="%s">%s</button>',
-						\implode( ' ', $defaultButtonClasses ),
+					$actions[] = $this->buildAction(
+						'repair',
+						'repair',
+						$item->VO->resultitem_id,
 						__( 'Repair', 'wp-simple-firewall' ),
-						$item->VO->scanresult_id,
-						$con->svgs->raw( 'tools.svg' )
+						$con->svgs->iconClass( 'tools.svg' )
 					);
 				}
 			}
@@ -189,55 +214,87 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		}
 
 		if ( $item->VO->ignored_at === 0 ) {
-			$actions[] = sprintf( '<button class="btn-light ignore %s" title="%s" data-rid="%s">%s</button>',
-				\implode( ' ', $defaultButtonClasses ),
+			$actions[] = $this->buildAction(
+				'ignore',
+				'ignore',
+				$item->VO->resultitem_id,
 				__( 'Ignore', 'wp-simple-firewall' ),
-				$item->VO->scanresult_id,
-				$con->svgs->raw( 'eye-slash-fill.svg' )
+				$con->svgs->iconClass( 'eye-slash-fill.svg' )
+			);
+		}
+		else {
+			$actions[] = $this->buildAction(
+				'unignore',
+				'unignore',
+				$item->VO->resultitem_id,
+				__( 'Unignore', 'wp-simple-firewall' ),
+				$con->svgs->iconClass( 'eye-fill.svg' )
 			);
 		}
 
 		return $actions;
 	}
 
-	protected function column_fileSize( ResultItem $item ) :string {
+	/**
+	 * @param list<array{key:string,class:string,rid:int,label:string,icon_class:string}> $actions
+	 */
+	protected function getActionsMarkup( array $actions ): string {
+		return empty( $actions )
+			? ''
+			: sprintf(
+				'<div class="scan-results-row-actions">%s</div>',
+				\implode( '', \array_map( fn( array $action ): string => $this->buildActionButton( $action ), $actions ) )
+			);
+	}
+
+	protected function column_fileSize( ResultItem $item ): string {
 		$FS = Services::WpFs();
 		return $FS->isAccessibleFile( $item->path_full ) ? FormatBytes::Format( $FS->getFileSize( $item->path_full ) ) : '-';
 	}
 
-	protected function column_fileType( ResultItem $item ) :string {
-		$extension = \strtoupper( Paths::Ext( $item->path_full ) );
+	protected function column_fileType( ResultItem $item ): string {
+		$extension = $this->fileExtensionForDisplay( $item );
+		$extensionAttr = esc_attr( $extension );
+		$extensionHtml = $this->column_fileTypeLabel( $item );
 		if ( \strpos( $extension, 'PHP' ) !== false ) {
 			$type = sprintf( '<img src="%s" width="36px" alt="%s" title="%s" />',
-				self::con()->urls->forImage( 'icons/icon-php-elephant.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-php-elephant.png' ), $extensionAttr, $extensionAttr );
 		}
 		elseif ( $extension === 'JS' ) {
 			$type = sprintf( '<img src="%s" height="24px" alt="%s" title="%s" />',
-				self::con()->urls->forImage( 'icons/icon-javascript.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-javascript.png' ), $extensionAttr, $extensionAttr );
 		}
 		elseif ( $extension === 'CSS' ) {
 			$type = sprintf( '<img src="%s" height="24px" alt="%s" title="%s" />',
-				self::con()->urls->forImage( 'icons/icon-css.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-css.png' ), $extensionAttr, $extensionAttr );
 		}
 		elseif ( $extension === 'ICO' ) {
 			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
-				self::con()->urls->forImage( 'icons/icon-ico.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-ico.png' ), $extensionAttr, $extensionAttr );
 		}
 		elseif ( $extension === 'SVG' ) {
-			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
-				self::con()->urls->svg( 'filetype-svg' ), $extension, $extension );
+			$type = sprintf( '<i class="%s" title="%s" aria-label="%s"></i>',
+				self::con()->svgs->iconClass( 'filetype-svg' ), $extensionAttr, $extensionAttr );
 		}
 		elseif ( $extension === 'JSON' ) {
 			$type = sprintf( '<img src="%s" width="24px" alt="%s" title="%s" />',
-				self::con()->urls->forImage( 'icons/icon-json.png' ), $extension, $extension );
+				self::con()->urls->forImage( 'icons/icon-json.png' ), $extensionAttr, $extensionAttr );
 		}
 		else {
-			$type = $extension;
+			$type = $extensionHtml;
 		}
 		return $type;
 	}
 
-	protected function getColumnContent_MalwareDetailsForRecord( ResultItem $item, string $sig ) :string {
+	protected function fileExtensionForDisplay( ResultItem $item ) :string {
+		return \strtoupper( Paths::Ext( $item->path_full ) );
+	}
+
+	protected function column_fileTypeLabel( ResultItem $item ) :string {
+		return esc_html( $this->fileExtensionForDisplay( $item ) );
+	}
+
+	protected function getColumnContent_MalwareDetailsForRecord( ResultItem $item, string $sig ): string {
 		$record = $item->getMalwareRecord();
 
 		switch ( $record->malai_status ) {
@@ -264,15 +321,15 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 				sprintf( '%s: %s', __( 'Pattern Detected', 'wp-simple-firewall' ), $sig ),
 				sprintf( '%s: %s', __( 'Modified', 'wp-simple-firewall' ),
 					Services::Request()
-							->carbon()
-							->setTimestamp( Services::WpFs()->getModifiedTime( $item->path_full ) )
-							->diffForHumans()
+					        ->carbon()
+					        ->setTimestamp( Services::WpFs()->getModifiedTime( $item->path_full ) )
+					        ->diffForHumans()
 				)
 			] )
 		);
 	}
 
-	protected function getColumnContent_MalwareDetails( int $confidence, string $sig ) :string {
+	protected function getColumnContent_MalwareDetails( int $confidence, string $sig ): string {
 		return sprintf( '<ul style="list-style: square inside"><li>%s</li></ul>',
 			\implode( '</li><li>', [
 				sprintf( '%s: %s', __( 'False Positive Confidence', 'wp-simple-firewall' ), $confidence ),
@@ -281,11 +338,11 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		);
 	}
 
-	protected function getColumnContent_File( ResultItem $item ) :string {
-		return sprintf( '<div>%s</div>', $this->getColumnContent_FileAsHref( $item ) );
+	protected function getColumnContent_File( ResultItem $item ): string {
+		return sprintf( '<div>%s</div>', $this->getColumnContent_FileAction( $item ) );
 	}
 
-	protected function getColumnContent_FileStatus( ResultItem $item ) :string {
+	protected function getColumnContent_FileStatus( ResultItem $item ): string {
 		$FS = Services::WpFs();
 		$carbon = Services::Request()->carbon( true );
 
@@ -302,23 +359,23 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 				$meta[] = __( 'Obsolete WP core file', 'wp-simple-firewall' );
 			}
 		}
-		elseif ( $item->VO->item_deleted_at > 0 ) {
+		elseif ( $item->VO->isDeleted() ) {
 			$meta[] = \sprintf( '%s: %s', __( 'Deleted', 'wp-simple-firewall' ),
-				$carbon->setTimestamp( $item->VO->item_deleted_at )->diffForHumans()
+				$carbon->setTimestamp( $item->VO->resolved_at )->diffForHumans()
 			);
 		}
 
-		if ( $item->VO->item_repaired_at > 0 ) {
+		if ( $item->VO->isRepaired() ) {
 			$meta[] = \sprintf( '%s: %s', __( 'Repaired', 'wp-simple-firewall' ),
-				$carbon->setTimestamp( $item->VO->item_repaired_at )->diffForHumans()
+				$carbon->setTimestamp( $item->VO->resolved_at )->diffForHumans()
 			);
 		}
 
 		if ( $item->VO->ignored_at > 0 ) {
 			$meta[] = \sprintf( '%s: %s', __( 'Ignored', 'wp-simple-firewall' ),
 				Services::Request()->carbon( true )
-						->setTimestamp( $item->VO->ignored_at )
-						->diffForHumans()
+				        ->setTimestamp( $item->VO->ignored_at )
+				        ->diffForHumans()
 			);
 		}
 
@@ -329,7 +386,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return $content;
 	}
 
-	private function isOldWpCoreFile( ResultItem $item ) :bool {
+	private function isOldWpCoreFile( ResultItem $item ): bool {
 		$coreFile = path_join( ABSPATH, 'wp-admin/includes/update-core.php' );
 		if ( Services::WpFs()->isAccessibleFile( $coreFile ) ) {
 			include_once $coreFile;
@@ -338,11 +395,63 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return \is_array( $_old_files ) && \in_array( $item->path_fragment, $_old_files, true );
 	}
 
-	protected function getColumnContent_FileAsHref( ResultItem $item ) :string {
-		return sprintf( '<a href="#" title="%s" class="action view-file" data-rid="%s">%s</a>',
-			__( 'View File Contents', 'wp-simple-firewall' ),
-			$item->VO->scanresult_id,
-			esc_html( $item->path_fragment )
+	protected function getColumnContent_FileAction( ResultItem $item ): string {
+		return sprintf(
+			'<div class="scan-results-file-cell" data-scan-result-file-cell="1"><button type="button" title="%s" aria-label="%s" class="action view-file shield-button-link text-primary text-decoration-underline" data-rid="%d" data-scan-result-action="view">%s</button>%s</div>',
+			esc_attr__( 'View File Contents', 'wp-simple-firewall' ),
+			esc_attr( sprintf( __( 'View File Contents: %s', 'wp-simple-firewall' ), $item->path_fragment ) ),
+			$item->VO->resultitem_id,
+			esc_html( $item->path_fragment ),
+			$item->VO->ignored_at > 0
+				? sprintf(
+				' <span class="badge text-bg-secondary scan-results-ignored-badge" data-scan-result-ignored-badge="1">%s</span>',
+				esc_html__( 'Ignored', 'wp-simple-firewall' )
+			)
+				: ''
+		);
+	}
+
+	/**
+	 * @return array<string,mixed>|null
+	 */
+	private function getResultsDisplayOptions(): ?array {
+		return \is_array( $this->results_display_options )
+			? $this->results_display_options
+			: null;
+	}
+
+	/**
+	 * @return array{key:string,class:string,rid:int,label:string,icon_class:string}
+	 */
+	private function buildAction(
+		string $actionKey,
+		string $actionClass,
+		int $scanResultId,
+		string $label,
+		string $iconClass
+	): array {
+		return [
+			'key'        => $actionKey,
+			'class'      => $actionClass,
+			'rid'        => $scanResultId,
+			'label'      => $label,
+			'icon_class' => $iconClass,
+		];
+	}
+
+	/**
+	 * @param array{key:string,class:string,rid:int,label:string,icon_class:string} $action
+	 */
+	private function buildActionButton(
+		array $action
+	): string {
+		return sprintf(
+			'<button type="button" class="btn btn-sm btn-light action actions-landing__table-icon-action scan-results-row-action scan-results-row-action--%1$s %2$s" title="%3$s" aria-label="%3$s" data-bs-toggle="tooltip" data-bs-title="%3$s" data-rid="%4$s" data-scan-result-action="%1$s"><i class="%5$s" aria-hidden="true"></i><span class="visually-hidden">%3$s</span></button>',
+			esc_attr( $action[ 'key' ] ),
+			esc_attr( $action[ 'class' ] ),
+			esc_attr( $action[ 'label' ] ),
+			$action[ 'rid' ],
+			esc_attr( $action[ 'icon_class' ] )
 		);
 	}
 }

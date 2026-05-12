@@ -7,67 +7,48 @@ use FernleafSystems\Wordpress\Services\Services;
 class Themes extends PluginThemesBase {
 
 	public const SLUG = 'scanresults_themes';
-	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/section/assets/themes_index.twig';
+	public const TEMPLATE = '/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig';
+
+	protected function getRenderTemplate() :string {
+		return $this->isActionsQueueDisplayContext()
+			? '/wpadmin_pages/insights/scans/results/actions_queue_asset_cards.twig'
+			: parent::getRenderTemplate();
+	}
 
 	protected function getRenderData() :array {
-		$items = $this->buildThemesData();
-		\ksort( $items );
+		if ( $this->isActionsQueueDisplayContext() ) {
+			$pane = ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScansResultsViewBuilder() )
+				->buildActionsQueueThemesPane( $this->getActionsQueueExplicitResultsDisplayOptions() );
 
-		$hashes = [];
-		$abandoned = [];
-		$vulnerable = [];
-		$problems = [];
-		$inactive = [];
-		$warning = [];
-		foreach ( $items as $key => $item ) {
-			if ( $item[ 'flags' ][ 'has_guard_files' ] ) {
-				unset( $items[ $key ] );
-				$hashes[] = $item;
-			}
-			elseif ( $item[ 'flags' ][ 'is_vulnerable' ] ) {
-				unset( $items[ $key ] );
-				$vulnerable[] = $item;
-			}
-			elseif ( $item[ 'flags' ][ 'is_abandoned' ] ) {
-				unset( $items[ $key ] );
-				$abandoned[] = $item;
-			}
-			elseif ( $item[ 'flags' ][ 'has_issue' ] ) {
-				unset( $items[ $key ] );
-				$problems[] = $item;
-			}
-			elseif ( $item[ 'flags' ][ 'has_warning' ] ) {
-				unset( $items[ $key ] );
-				$warning[] = $item;
-			}
+			return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
+				'flags'   => [
+					'is_disabled' => $pane[ 'is_disabled' ],
+				],
+				'strings' => [
+					'no_issues'         => __( "Previous scans didn't detect any modified, missing, or unrecognised files in theme directories.", 'wp-simple-firewall' ),
+					'disabled_message'  => $pane[ 'disabled_message' ],
+					'select_asset_hint' => __( 'Select a theme above to review its file table.', 'wp-simple-firewall' ),
+				],
+				'vars'    => [
+					'asset_cards'      => $pane[ 'cards' ],
+					'count_items'      => \count( $pane[ 'cards' ] ),
+					'disabled_actions' => $pane[ 'disabled_actions' ],
+				],
+			] );
 		}
 
-		$items = \array_merge( $vulnerable, $hashes, $abandoned, $problems, $warning, $inactive, $items );
+		$pane = ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScansResultsViewBuilder() )
+			->buildRailPaneData( 'themes' );
 
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 			'strings' => [
-				'no_files'     => __( "Scans didn't detect any modified or unrecognised files in the Theme directories.", 'wp-simple-firewall' ),
-				'files_found'  => __( "Scans detected 1 or more modified or unrecognised files in the theme directory.", 'wp-simple-firewall' ),
-				'not_active'   => __( "This theme isn't active and should be uninstalled.", 'wp-simple-firewall' ),
-				'go_to_themes' => sprintf( __( 'Go To %s', 'wp-simple-firewall' ), __( 'Themes', 'wp-simple-firewall' ) ),
-			],
-			'hrefs'   => [
-				'page_themes' => Services::WpGeneral()->getAdminUrl_Themes()
+				'no_issues' => __( "Previous scans didn't detect any modified, missing, or unrecognised files in theme directories.", 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'count_items' => \count( $vulnerable ) + \count( $hashes )
-								 + \count( $abandoned ) + \count( $problems ),
-				'themes'      => \array_values( $items ),
-			]
+				'count_items' => $pane[ 'count_items' ],
+			],
+			'tab'     => $pane,
+			'content' => [],
 		] );
-	}
-
-	private function buildThemesData() :array {
-		return \array_map(
-			function ( $item ) {
-				return $this->buildThemeData( $item );
-			},
-			Services::WpThemes()->getThemesAsVo()
-		);
 	}
 }

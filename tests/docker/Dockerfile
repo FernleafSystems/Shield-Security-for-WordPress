@@ -6,7 +6,7 @@
 # BuildKit Cache Optimization:
 # This Dockerfile uses BuildKit cache mounts to speed up repeated builds.
 # Cache is automatic - created if missing, reused if present.
-# Requires: DOCKER_BUILDKIT=1 (set in run-docker-tests.sh)
+# Requires: DOCKER_BUILDKIT=1
 
 # Build arguments for matrix customization
 # Note: PHP_VERSION default should match DEFAULT_PHP in .github/config/matrix.conf
@@ -54,13 +54,14 @@ ARG PHP_VERSION
 ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
-# Add PHP repository with cache mount (only cache downloaded packages, not indexes)
+# Add PHP repository.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    add-apt-repository ppa:ondrej/php && apt-get update
+    add-apt-repository ppa:ondrej/php
 
-# Install PHP and required extensions with cache mount
+# Install PHP and required extensions with a fresh package index.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    apt-get install -y \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get update && apt-get install -y \
     php${PHP_VERSION} \
     php${PHP_VERSION}-cli \
     php${PHP_VERSION}-mysql \
@@ -105,9 +106,6 @@ RUN --mount=type=cache,target=/root/.composer/cache \
             phpunit/phpunit:^11.5 \
             yoast/phpunit-polyfills:^4.0; \
     fi
-
-# Configure Composer plugins
-RUN composer global config --no-interaction allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
 
 # Add composer global bin to PATH
 ENV PATH="/root/.composer/vendor/bin:${PATH}"

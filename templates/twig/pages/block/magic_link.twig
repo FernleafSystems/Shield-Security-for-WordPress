@@ -1,6 +1,6 @@
 {% if flags.is_available %}
 	<div>
-		<p>{{ strings.you_may }}</p>
+		<p id="{{ vars.recovery.ids.helper }}">{{ strings.you_may }}</p>
 		<ul>
 			<li>{{ strings.this_will_send }}</li>
 			<li><strong>{{ strings.same_browser }}</strong></li>
@@ -9,10 +9,19 @@
 			<li>{{ strings.limit_60 }}</li>
 		</ul>
 		<p class="text-center">
-			<a href="#"
-			   id="MagicLinkSendEmail"
-			   class="btn btn-warning"
-			>{{ strings.click_to_send }}<code class="ms-1">{{ vars.email }}</code></a>
+			<button type="button"
+			        id="{{ vars.recovery.ids.submit }}"
+			        class="btn btn-warning"
+			        data-shield-magic-link-send="1"
+			        aria-describedby="{{ vars.recovery.ids.helper }}">
+				{{ strings.click_to_send }}<span class="ms-1">{{ vars.email }}</span>
+			</button>
 		</p>
+		<p id="{{ vars.recovery.ids.status }}"
+		   class="mt-3"
+		   role="status"
+		   aria-live="polite"
+		   aria-atomic="true"
+		   data-shield-magic-link-status="1"></p>
 	</div>
 {% endif %}

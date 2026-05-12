@@ -3,8 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\Delete;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities\PluginReinstaller;
 
 class PluginReinstall extends ScansBase {
 
@@ -13,29 +12,12 @@ class PluginReinstall extends ScansBase {
 	public const SLUG = 'plugin_reinstall';
 
 	protected function exec() {
-		$success = false;
-
 		$file = sanitize_text_field( wp_unslash( $this->action_data[ 'file' ] ?? '' ) );
+		$success = ( new PluginReinstaller() )->reinstall( $file );
 
-		if ( $this->action_data[ 'reinstall' ] ?? false ) {
-			$WPP = Services::WpPlugins();
-			$plugin = $WPP->getPluginAsVo( $file );
-			if ( $plugin->isWpOrg() && $WPP->reinstall( $plugin->file ) ) {
-				try {
-					( new Delete() )
-						->setAsset( $plugin )
-						->run();
-					$success = true;
-				}
-				catch ( \Exception $e ) {
-				}
-			}
-		}
-
-		$this->response()->action_response_data = [
-			'success'     => $success,
+		$this->response()->setPayload( [
 			'message'     => $success ? __( 'Plugin re-installed. Reloading...', 'wp-simple-firewall' ) : __( 'Re-install failed.', 'wp-simple-firewall' ),
 			'page_reload' => $success
-		];
+		] )->setPayloadSuccess( $success );
 	}
 }

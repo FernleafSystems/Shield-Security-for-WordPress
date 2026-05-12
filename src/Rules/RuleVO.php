@@ -23,6 +23,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
  * @property string[]     $all_actions
  */
 class RuleVO extends DynPropertiesClass {
+	public function setConditionsRaw( array $conditions ): self {
+		$this->__set( 'conditions', $conditions );
+		return $this;
+	}
 
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
@@ -64,7 +68,7 @@ class RuleVO extends DynPropertiesClass {
 		return $value;
 	}
 
-	private function determineWpHook() :string {
+	private function determineWpHook(): string {
 		$hook = '';
 		if ( isset( $this->prerequisites[ 'is_logged_in' ] ) ) {
 			$hook = 'init';
@@ -72,7 +76,7 @@ class RuleVO extends DynPropertiesClass {
 		return $hook;
 	}
 
-	private function determineWpHookPriority() :int {
+	private function determineWpHookPriority(): int {
 		switch ( $this->wp_hook ) {
 			case 'init':
 				$priority = HookTimings::INIT_DEFAULT_RULES_HOOK;

@@ -7,8 +7,27 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class MfaRecordsForDisplay {
 
+	/**
+	 * @param Record[] $records
+	 * @return list<array{id:string,label:string,used_at:string,reg_at:string}>
+	 */
 	public function run( array $records ) :array {
+		return $this->build( $records, true );
+	}
 
+	/**
+	 * @param Record[] $records
+	 * @return list<array{id:string,label:string,used_at:string,reg_at:string}>
+	 */
+	public function runWithoutDateLabels( array $records ) :array {
+		return $this->build( $records, false );
+	}
+
+	/**
+	 * @param Record[] $records
+	 * @return list<array{id:string,label:string,used_at:string,reg_at:string}>
+	 */
+	private function build( array $records, bool $includeDateLabels ) :array {
 		/**
 		 * Order by most recently used first, then most recently registered.
 		 */
@@ -27,29 +46,35 @@ class MfaRecordsForDisplay {
 		} );
 
 		return \array_map(
-			function ( Record $record ) {
+			function ( Record $record ) use ( $includeDateLabels ) {
 				return [
 					'id'      => $record->unique_id,
 					'label'   => $record->label,
-					'used_at' => sprintf(
-						'%s: %s', __( 'Used', 'wp-simple-firewall' ),
-						$record->used_at === 0 ? __( 'Never', 'wp-simple-firewall' ) :
-							Services::Request()
-									->carbon( true )
-									->setTimestamp( $record->used_at )
-									->diffForHumans()
+					'used_at' => $this->formatRecordTimestamp(
+						(int)$record->used_at,
+						__( 'Used', 'wp-simple-firewall' ),
+						__( 'Never', 'wp-simple-firewall' ),
+						$includeDateLabels
 					),
-					'reg_at'  => sprintf(
-						'%s: %s', __( 'Registered', 'wp-simple-firewall' ),
-						$record->created_at === 0 ? __( 'Unknown', 'wp-simple-firewall' ) :
-							Services::Request()
-									->carbon( true )
-									->setTimestamp( $record->created_at )
-									->diffForHumans()
+					'reg_at'  => $this->formatRecordTimestamp(
+						(int)$record->created_at,
+						__( 'Registered', 'wp-simple-firewall' ),
+						__( 'Unknown', 'wp-simple-firewall' ),
+						$includeDateLabels
 					)
 				];
 			},
 			$records
 		);
+	}
+
+	private function formatRecordTimestamp( int $timestamp, string $label, string $emptyValue, bool $includeLabel ) :string {
+		$value = $timestamp === 0 ? $emptyValue :
+			Services::Request()
+					->carbon( true )
+					->setTimestamp( $timestamp )
+					->diffForHumans();
+
+		return $includeLabel ? sprintf( '%s: %s', $label, $value ) : $value;
 	}
 }

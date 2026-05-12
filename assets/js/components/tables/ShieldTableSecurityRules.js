@@ -1,7 +1,6 @@
 import Sortable from 'sortablejs';
 import { ShieldTableBase } from "./ShieldTableBase";
 import { ObjectOps } from "../../util/ObjectOps";
-import { AjaxService } from "../services/AjaxService";
 
 /**
  * Rows-Reorder extension for Datatables is terrible. When using server-side there's no way to gather
@@ -33,9 +32,12 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 			'input[type=checkbox].active-switch',
 			( evt ) => {
 				evt.preventDefault();
-				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-					this.bulkTableAction.call( this, evt.currentTarget.dataset.sub_action, [ evt.currentTarget.dataset.rid ] );
-				}
+				const target = evt.currentTarget;
+				confirmSecurityRuleAction( target, target.dataset.sub_action !== 'activate' ).then( ( confirmed ) => {
+					if ( confirmed ) {
+						this.bulkTableAction.call( this, target.dataset.sub_action, [ target.dataset.rid ] );
+					}
+				} );
 				return false;
 			}
 		);
@@ -45,9 +47,12 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 			'button',
 			( evt ) => {
 				evt.preventDefault();
-				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-					this.bulkTableAction.call( this, evt.currentTarget.dataset.sub_action, [ evt.currentTarget.dataset.rid ] );
-				}
+				const target = evt.currentTarget;
+				confirmSecurityRuleAction( target, true ).then( ( confirmed ) => {
+					if ( confirmed ) {
+						this.bulkTableAction.call( this, target.dataset.sub_action, [ target.dataset.rid ] );
+					}
+				} );
 				return false;
 			}
 		);
@@ -64,8 +69,8 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 				text: 'Deactivate All',
 				name: 'deactivate_all',
 				className: 'deactivate-all action btn-outline-warning mb-2',
-				action: ( e, dt, node, config ) => {
-					if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
+				action: async ( e, dt, node ) => {
+					if ( await confirmSecurityRuleAction( shieldServices.dialog().resolveLauncher( e, node ), true ) ) {
 						dt.rows().select();
 						this.bulkTableAction.call( this, 'deactivate_all' );
 					}
@@ -107,7 +112,9 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 						const items = [];
 						group.querySelectorAll( 'td.drag > div' )
 							 .forEach( ( item ) => {
-								 items.push( item.dataset.rid );
+								 if ( item instanceof HTMLElement ) {
+								 	items.push( item.dataset.rid );
+								 }
 							 } );
 						this.action( {
 							sub_action: 'reorder',
@@ -120,19 +127,21 @@ export class ShieldTableSecurityRules extends ShieldTableBase {
 	}
 
 	action( params = {} ) {
-		return ( new AjaxService() )
-		.send( ObjectOps.Merge( this._base_data.ajax.table_action, params ) )
-		.then( ( resp ) => {
-			if ( resp.success ) {
-				this.tableReload();
-				if ( resp.data.message.length > 0 ) {
-					shieldServices.notification().showMessage( resp.data.message, resp.success );
-				}
-			}
-			else {
-				alert( resp.data.message );
-				console.log( resp );
-			}
-		} );
+		return this.sendTableActionRequest(
+			this.$table,
+			ObjectOps.Merge( this._base_data.ajax.table_action, params ),
+			'Communications error with site.',
+			{ reloadTableOnSuccess: true }
+		);
 	}
+}
+
+function confirmSecurityRuleAction( launcher, danger = false ) {
+	const dialog = shieldServices.dialog();
+	return dialog.confirm( {
+		message: shieldStrings.string( 'are_you_sure' ),
+		confirmLabel: dialog.resolveConfirmLabel( launcher ),
+		danger,
+		launcher,
+	} );
 }

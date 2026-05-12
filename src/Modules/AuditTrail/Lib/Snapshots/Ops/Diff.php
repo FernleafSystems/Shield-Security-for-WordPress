@@ -47,6 +47,6 @@ class Diff {
 				];
 			}
 		}
-		return \array_filter( $items );
+		return $items;
 	}
 }

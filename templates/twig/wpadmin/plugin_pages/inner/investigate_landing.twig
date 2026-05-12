@@ -1,0 +1,14 @@
+{% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
+
+{% block inner_page_body %}
+	<div class="investigate-landing"
+		 data-investigate-landing="1"
+		 data-investigate-panel-loading="{{ strings.panel_loading }}"
+		 data-investigate-panel-error="{{ strings.panel_load_error }}">
+		<div class="investigate-landing__drilldown" data-investigate-section="drilldown">
+			{% include '/wpadmin/components/page/drill_down_shell.twig' with {
+				shell: vars.drill_shell
+			} only %}
+		</div>
+	</div>
+{% endblock %}

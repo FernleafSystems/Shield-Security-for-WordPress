@@ -9,15 +9,48 @@ abstract class Base {
 	use PluginControllerConsumer;
 
 	public const SLUG = '';
-	public const MINIMUM_EDITION = 'free';
 	public const WEIGHT = 3;
+	public const CHANNEL_CONFIG = 'config';
+	public const CHANNEL_ACTION = 'action';
 
 	protected ?bool $isProtected = null;
 
-	public function build() :array {
+	public static function normalizeChannelRaw( ?string $channel ) :string {
+		return \strtolower( \trim( (string)$channel ) );
+	}
+
+	public static function normalizeChannel( ?string $channel ) :?string {
+		$normalized = self::normalizeChannelRaw( $channel );
+		return $normalized === '' ? null : $normalized;
+	}
+
+	public static function isValidChannel( ?string $channel ) :bool {
+		if ( $channel === null ) {
+			return true;
+		}
+		return \in_array( $channel, [
+			self::CHANNEL_CONFIG,
+			self::CHANNEL_ACTION
+		], true );
+	}
+
+	public static function assertValidChannel(
+		?string $channel,
+		string $messageTemplate = 'Invalid channel: %s'
+	) :?string {
+		$normalized = self::normalizeChannel( $channel );
+		if ( !self::isValidChannel( $normalized ) ) {
+			throw new \InvalidArgumentException( \sprintf( $messageTemplate, (string)$normalized ) );
+		}
+		return $normalized;
+	}
+
+	public function build( ?string $meterChannel = null ) :array {
+		self::assertValidChannel( $meterChannel );
 		return \array_merge(
 			[
 				'slug'                   => $this->slug(),
+				'channel'                => $this->channel(),
 				'categories'             => $this->categories(),
 				'weight'                 => $this->weight(),
 				'score'                  => $this->score(),
@@ -33,6 +66,10 @@ abstract class Base {
 			],
 			$this->text(),
 		);
+	}
+
+	public function channel() :string {
+		return self::CHANNEL_CONFIG;
 	}
 
 	protected function text() :array {
@@ -116,9 +153,5 @@ abstract class Base {
 
 	protected function weight() :int {
 		return static::WEIGHT;
-	}
-
-	protected function isViewAsFree() :bool {
-		return ( self::con()->opts->optGet( 'sec_overview_prefs' )[ 'view_as' ] ?? 'free' ) === 'free';
 	}
 }

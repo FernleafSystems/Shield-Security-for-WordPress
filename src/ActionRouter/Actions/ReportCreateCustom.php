@@ -3,13 +3,15 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use Carbon\Carbon;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\CustomReportAreaNormalizer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Exceptions\ReportDataEmptyException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportGenerator;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportCreateCustom extends BaseAction {
+
+	use Traits\NonceVerifyRequired;
 
 	public const SLUG = 'report_create_custom';
 
@@ -32,11 +34,9 @@ class ReportCreateCustom extends BaseAction {
 				$startDate->timestamp,
 				$endDate->timestamp,
 				[
-					'areas' => [
-						Constants::REPORT_AREA_CHANGES => $form[ 'changes_zones' ] ?? [],
-						Constants::REPORT_AREA_STATS   => $form[ 'statistics_zones' ] ?? [],
-						Constants::REPORT_AREA_SCANS   => $form[ 'scans_zones' ] ?? [],
-					]
+					'areas' => ( new CustomReportAreaNormalizer(
+						self::con()->comps->reports->getReportAreas( true )
+					) )->normalize( $form ),
 				]
 			);
 			$msg = __( 'Custom report created, reloading reports page.', 'wp-simple-firewall' );
@@ -51,11 +51,10 @@ class ReportCreateCustom extends BaseAction {
 			$msg = $e->getMessage();
 		}
 
-		$this->response()->action_response_data = [
-			'success'     => $success,
+		$this->response()->setPayload( [
 			'message'     => $msg,
 			'page_reload' => $success
-		];
+		] )->setPayloadSuccess( $success );
 	}
 
 	private function carbonFromFormDate( string $date ) :Carbon {

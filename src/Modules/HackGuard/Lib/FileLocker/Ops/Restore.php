@@ -25,7 +25,7 @@ class Restore {
 			/** @var FileLockerDB\Update $update */
 			$update = self::con()->db_con->file_locker->getQueryUpdater();
 			$update->markReverted( $record );
-			self::con()->comps->file_locker->clearLocks();
+			self::con()->comps->file_locker->reassessLocksNow();
 		}
 
 		return $reverted;

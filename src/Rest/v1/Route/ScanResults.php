@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Route;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildScanFindings;
+
 class ScanResults extends ScanBase {
 
 	protected function getRouteArgsCustom() :array {
@@ -11,14 +13,7 @@ class ScanResults extends ScanBase {
 				'description' => '[Filter] Comma-separated scan item states to include.',
 				'type'        => 'string',
 				'required'    => false,
-				'pattern'     => sprintf( '^((%s),?)+$', \implode( '|', [
-					'is_checksumfail',
-					'is_unrecognised',
-					'is_mal',
-					'is_missing',
-					'is_abandoned',
-					'is_vulnerable',
-				] ) ),
+				'pattern'     => \sprintf( '^((%s),?)+$', \implode( '|', BuildScanFindings::SUPPORTED_STATES ) ),
 			],
 		];
 	}

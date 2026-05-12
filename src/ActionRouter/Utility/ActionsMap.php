@@ -12,7 +12,7 @@ class ActionsMap {
 	 * @return string|class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction>
 	 */
 	public static function ActionFromSlug( string $classOrSlug ) :string {
-		if ( !isset( self::$actions[ $classOrSlug ] ) ) {
+		if ( !empty( $classOrSlug ) && !isset( self::$actions[ $classOrSlug ] ) ) {
 			if ( \class_exists( $classOrSlug ) ) {
 				self::$actions[ $classOrSlug::SLUG ] = $classOrSlug;
 				$classOrSlug = $classOrSlug::SLUG;

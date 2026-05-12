@@ -1,11 +1,13 @@
-import $ from 'jquery';
 import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
+import { ScanProgressModal } from "./ScanProgressModal";
 
 export class ScansCheck extends BaseComponent {
 
 	init() {
 		this.scansRunning = false;
+		this.scanFailed = false;
+		this.scanCompleted = false;
 		this.exec();
 	}
 
@@ -19,28 +21,45 @@ export class ScansCheck extends BaseComponent {
 
 	check() {
 		( new AjaxService() )
-		.send( this._base_data.ajax.check, false )
+		.send( {
+			...this._base_data.ajax.check,
+			scan_ids: this._base_data.started_scan_ids || []
+		}, false, true )
 		.then( ( resp ) => {
-
-			if ( resp.data.success ) {
+			if ( !ScanProgressModal.HasModalResponse( resp ) ) {
+				this.scanFailed = true;
 				this.scansRunning = false;
-				if ( resp.data.running ) {
-					for ( const scanKey of Object.keys( resp.data.running ) ) {
-						if ( resp.data.running[ scanKey ] ) {
-							this.scansRunning = true;
-						}
-					}
-				}
-
-				let modal = $( '#ScanProgressModal' );
-				$( '.modal-body', modal ).html( resp.data.vars.progress_html );
-				modal.modal( 'show' );
+				this.scanCompleted = false;
+				ScanProgressModal.ShowError( this._base_data.strings || {}, ScanProgressModal.ExtractErrorMessage( resp ) );
+				return;
 			}
+
+			ScanProgressModal.ShowHtml( resp.data.modal_html );
+			const modalState = ScanProgressModal.ModalState( resp );
+			this.scanFailed = modalState === 'failed';
+			this.scansRunning = modalState === 'running' || modalState === 'initiating';
+			this.scanCompleted = modalState === 'completed';
+		} )
+		.catch( ( error ) => {
+			console.log( error );
+			this.scanFailed = true;
+			this.scansRunning = false;
+			this.scanCompleted = false;
+			ScanProgressModal.ShowError( this._base_data.strings || {} );
 		} )
 		.finally( () => {
-			this.scansRunning ?
-				setTimeout( () => this.check(), 3000 )
-				: setTimeout( () => window.location.href = this._base_data.hrefs.results, 1000 );
+			if ( this.scanFailed ) {
+				return;
+			}
+
+			if ( this.scansRunning ) {
+				setTimeout( () => this.check(), 3000 );
+				return;
+			}
+
+			if ( this.scanCompleted ) {
+				setTimeout( () => window.location.href = this._base_data.hrefs.actions_queue_scans, 1000 );
+			}
 		} );
 	};
 }

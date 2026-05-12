@@ -22,47 +22,29 @@ class ShieldLogRequest extends BuildRuleCoreShieldBase {
 
 	protected function getConditions() :array {
 		return [
-			'logic'      => Enum\EnumLogic::LOGIC_AND,
+			'logic'      => Enum\EnumLogic::LOGIC_OR,
 			'conditions' => [
 				[
-					'conditions' => Conditions\ShieldConfigurationOption::class,
-					'params'     => [
-						'name'        => 'enable_audit_trail',
-						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
-						'match_value' => 'Y',
-					]
-				],
-				[
-					'logic'      => Enum\EnumLogic::LOGIC_OR,
+					'logic'      => Enum\EnumLogic::LOGIC_AND,
 					'conditions' => [
 						[
-							'logic'      => Enum\EnumLogic::LOGIC_AND,
-							'conditions' => [
-								[
-									'conditions' => Conditions\ShieldConfigurationOption::class,
-									'params'     => [
-										'name'        => 'enable_logger',
-										'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
-										'match_value' => 'Y',
-									]
-								],
-								[
-									'conditions' => Conditions\ShieldConfigurationOption::class,
-									'params'     => [
-										'name'        => 'auto_clean',
-										'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_GREATER_THAN,
-										'match_value' => 0,
-									]
-								],
+							'conditions' => Conditions\ShieldConfigurationOption::class,
+							'params'     => [
+								'name'        => 'enable_logger',
+								'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
+								'match_value' => 'Y',
 							]
 						],
 						[
-							'conditions' => Conditions\ShieldConfigIsTrafficRateLimitingEnabled::class,
-						],
-						[
-							'conditions' => Conditions\ShieldConfigIsLiveLoggingEnabled::class,
+							'conditions' => Conditions\RequestHasAnyParameters::class,
 						],
 					]
+				],
+				[
+					'conditions' => Conditions\ShieldConfigIsTrafficRateLimitingEnabled::class,
+				],
+				[
+					'conditions' => Conditions\ShieldConfigIsLiveLoggingEnabled::class,
 				],
 			]
 		];

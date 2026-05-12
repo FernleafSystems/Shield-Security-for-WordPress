@@ -1,0 +1,248 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
+	function shield_security_get_plugin() {
+		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
+	}
+}
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
+
+use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Traffic\LiveLogRowsBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord as ActivityLogRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\LogRecord as RequestLogRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
+use FernleafSystems\Wordpress\Services\Core\Users;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
+
+class LiveLogRowsBuilderTest extends BaseUnitTest {
+
+	private array $servicesSnapshot = [];
+
+	protected function setUp() :void {
+		parent::setUp();
+
+		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'wp_date' )->alias(
+			static fn( string $format, int $timestamp ) :string => \gmdate( $format, $timestamp )
+		);
+
+		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->plugin_urls = new class {
+			public function ipAnalysis( string $ip ) :string {
+				return '/ip/'.$ip;
+			}
+		};
+		$controller->comps = new class {
+			public object $events;
+
+			public function __construct() {
+				$this->events = new class {
+					public function getEventName( string $event ) :string {
+						return $event === 'ip_blocked' ? 'IP Blocked' : $event;
+					}
+
+					public function getEventAuditStrings( string $event ) :array {
+						return $event === 'ip_blocked'
+							? [ 'IP address blocked by Shield.' ]
+							: [ $event ];
+					}
+
+					public function getEventDef( string $event ) :array {
+						return [
+							'audit_countable' => false,
+						];
+					}
+				};
+			}
+		};
+
+		PluginControllerInstaller::install( $controller );
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::installItems( [
+			'service_wpusers' => new class extends Users {
+				public function getUserById( $id ) {
+					return (object)[
+						'user_login' => 'admin-user',
+					];
+				}
+			},
+		] );
+	}
+
+	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
+		parent::tearDown();
+	}
+
+	public function test_compact_timestamp_uses_shorter_same_day_format_than_older_entries() :void {
+		$builder = new LiveLogRowsBuilder();
+		$sameDayTimestamp = $builder->buildCompactTimestamp( 1713278100, 1713290000 );
+		$olderDayTimestamp = $builder->buildCompactTimestamp( 1713278100, 1713380000 );
+
+		$this->assertNotSame( '', $sameDayTimestamp );
+		$this->assertNotSame( '', $olderDayTimestamp );
+		$this->assertLessThan( \strlen( $olderDayTimestamp ), \strlen( $sameDayTimestamp ) );
+	}
+
+	public function test_build_activity_row_maps_timestamp_ip_title_and_description() :void {
+		$builder = new LiveLogRowsBuilder();
+		$record = new ActivityLogRecord();
+		$record->event_slug = 'ip_blocked';
+		$record->created_at = 1713278100;
+		$record->ip = '198.51.100.40';
+		$record->meta_data = [];
+		$row = $builder->buildActivityRow( $record );
+
+		$this->assertSame(
+			[ 'timestamp', 'ip', 'ip_href', 'title', 'description', 'badges' ],
+			\array_keys( $row )
+		);
+		$this->assertSame( '198.51.100.40', $row[ 'ip' ] );
+		$this->assertSame( '/ip/198.51.100.40', $row[ 'ip_href' ] );
+		$this->assertIsString( $row[ 'timestamp' ] );
+		$this->assertNotSame( '', $row[ 'timestamp' ] );
+		$this->assertIsString( $row[ 'description' ] );
+		$this->assertNotSame( '', $row[ 'title' ] );
+		$this->assertNotSame( '', \trim( $row[ 'description' ] ) );
+		$this->assertSame( [], $row[ 'badges' ] );
+	}
+
+	public function test_build_traffic_row_maps_request_summary_ip_and_badges() :void {
+		$builder = $this->createBuilderWithIdentityResults( [
+			'203.0.113.55|Googlebot/2.1' => [ 'google', 'GoogleBot' ],
+		] );
+		$record = new RequestLogRecord();
+		$record->created_at = 1713278100;
+		$record->ip = '203.0.113.55';
+		$record->verb = 'POST';
+		$record->path = '/wp-login.php';
+		$record->code = 403;
+		$record->type = 'H';
+		$record->offense = true;
+		$record->uid = 8;
+		$record->meta = [
+			'query' => 'reauth=1',
+			'ua'    => 'Googlebot/2.1',
+		];
+		$row = $builder->buildTrafficRow( $record );
+
+		$this->assertSame(
+			[ 'timestamp', 'ip', 'ip_href', 'title', 'description', 'badges' ],
+			\array_keys( $row )
+		);
+		$this->assertSame( '203.0.113.55', $row[ 'ip' ] );
+		$this->assertSame( '/ip/203.0.113.55', $row[ 'ip_href' ] );
+		$this->assertNotSame( '', \trim( $row[ 'title' ] ) );
+		$this->assertNotSame( '', \trim( $row[ 'description' ] ) );
+		$this->assertSame(
+			[ 'HTTP', 'GoogleBot', 'admin-user', '403', 'Offense' ],
+			\array_column( $row[ 'badges' ], 'label' )
+		);
+		$this->assertSame( [ 'label', 'class' ], \array_keys( $row[ 'badges' ][ 0 ] ) );
+		$this->assertSame( 'shield-live-logs__badge--identity', $row[ 'badges' ][ 1 ][ 'class' ] );
+	}
+
+	public function test_build_traffic_row_suppresses_unknown_identity_badges() :void {
+		$builder = $this->createBuilderWithIdentityResults( [
+			'203.0.113.21|facebookexternalhit/1.1' => [ IpID::UNKNOWN, 'Unknown' ],
+		] );
+		$record = new RequestLogRecord();
+		$record->created_at = 1713278100;
+		$record->ip = '203.0.113.21';
+		$record->verb = 'GET';
+		$record->path = '/';
+		$record->code = 200;
+		$record->type = 'H';
+		$record->offense = false;
+		$record->uid = 0;
+		$record->meta = [
+			'ua' => 'facebookexternalhit/1.1',
+		];
+
+		$row = $builder->buildTrafficRow( $record );
+
+		$this->assertSame( [ 'HTTP', '200' ], \array_column( $row[ 'badges' ], 'label' ) );
+	}
+
+	public function test_build_traffic_row_passes_logged_user_agent_to_identity_resolver() :void {
+		$builder = $this->createBuilderWithIdentityResults( [
+			'198.51.100.19|Googlebot/2.1' => [ 'google', 'GoogleBot' ],
+		] );
+		$record = new RequestLogRecord();
+		$record->created_at = 1713278100;
+		$record->ip = '198.51.100.19';
+		$record->verb = 'GET';
+		$record->path = '/';
+		$record->code = 200;
+		$record->type = 'H';
+		$record->offense = false;
+		$record->uid = 0;
+		$record->meta = [
+			'ua' => 'Googlebot/2.1',
+		];
+
+		$builder->buildTrafficRow( $record );
+
+		$this->assertSame(
+			[
+				[
+					'ip' => '198.51.100.19',
+					'ua' => 'Googlebot/2.1',
+				]
+			],
+			$builder->identityCalls
+		);
+	}
+
+	private function createBuilderWithIdentityResults( array $identityResults ) :LiveLogRowsBuilder {
+		return new class( $identityResults ) extends LiveLogRowsBuilder {
+
+			private array $identityResults;
+
+			public array $identityCalls = [];
+
+			public function __construct( array $identityResults ) {
+				$this->identityResults = $identityResults;
+			}
+
+			protected function createIpIdentifier( string $ip, ?string $userAgent = null ) :IpID {
+				$this->identityCalls[] = [
+					'ip' => $ip,
+					'ua' => $userAgent,
+				];
+
+				$key = $ip.'|'.\trim( (string)$userAgent );
+				if ( !\array_key_exists( $key, $this->identityResults ) ) {
+					throw new \RuntimeException( 'Unexpected identity lookup for '.$key );
+				}
+
+				$result = $this->identityResults[ $key ];
+				if ( $result instanceof \Exception ) {
+					throw $result;
+				}
+
+				return new class( $result ) extends IpID {
+
+					private array $result;
+
+					public function __construct( array $result ) {
+						parent::__construct( '127.0.0.1' );
+						$this->result = $result;
+					}
+
+					public function run() :array {
+						return $this->result;
+					}
+				};
+			}
+		};
+	}
+}

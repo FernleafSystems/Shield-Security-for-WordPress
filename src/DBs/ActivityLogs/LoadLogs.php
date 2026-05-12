@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Components\IpAddressConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -18,6 +19,15 @@ class LoadLogs extends DynPropertiesClass {
 
 	use PluginControllerConsumer;
 	use IpAddressConsumer;
+
+	public function forUserId( int $userId ) :self {
+		if ( $userId > 0 ) {
+			$wheres = \is_array( $this->wheres ) ? $this->wheres : [];
+			$wheres[] = \sprintf( '`req`.`uid`=%d', $userId );
+			$this->wheres = $wheres;
+		}
+		return $this;
+	}
 
 	/**
 	 * @return LogRecord[]
@@ -76,7 +86,7 @@ class LoadLogs extends DynPropertiesClass {
 				$con->db_con->activity_logs->getTableSchema()->table,
 				$con->db_con->req_logs->getTableSchema()->table,
 				$con->db_con->ips->getTableSchema()->table,
-				empty( $this->getIP() ) ? '' : \sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
+				empty( $this->getIP() ) ? '' : \sprintf( 'AND %s', IpAddressSql::equality( 'ips.ip', $this->getIP() ) ),
 				empty( $this->wheres ) ? '' : 'WHERE '.\implode( ' AND ', $this->wheres ),
 				$this->buildOrderBy(),
 				isset( $this->limit ) ? \sprintf( 'LIMIT %s', $this->limit ) : '',
@@ -97,7 +107,7 @@ class LoadLogs extends DynPropertiesClass {
 				$con->db_con->activity_logs->getTable(),
 				$con->db_con->req_logs->getTable(),
 				$con->db_con->ips->getTable(),
-				empty( $this->getIP() ) ? '' : \sprintf( "AND ips.ip=INET6_ATON('%s')", $this->getIP() ),
+				empty( $this->getIP() ) ? '' : \sprintf( 'AND %s', IpAddressSql::equality( 'ips.ip', $this->getIP() ) ),
 				empty( $this->wheres ) ? '' : 'WHERE '.\implode( ' AND ', $this->wheres ),
 				'',
 				'',

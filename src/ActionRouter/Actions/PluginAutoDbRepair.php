@@ -14,7 +14,7 @@ class PluginAutoDbRepair extends BaseAction {
 		$dbCon = $con->db_con;
 
 		// 1. Forcefully re-run all checks:
-		$checks = $con->prechecks;
+		$checks = $con->getPrechecks();
 		$dbMisconfigured = \count( $checks[ 'dbs' ] ) !== \count( \array_filter( $checks[ 'dbs' ] ) );
 
 		if ( $dbMisconfigured ) {
@@ -51,10 +51,9 @@ class PluginAutoDbRepair extends BaseAction {
 			$msg = __( "Tables appear to be valid and haven't been repaired.", 'wp-simple-firewall' );
 		}
 
-		$this->response()->action_response_data = [
-			'success'     => true,
+		$this->response()->setPayload( [
 			'page_reload' => true,
 			'message'     => $msg
-		];
+		] )->setPayloadSuccess( true );
 	}
 }

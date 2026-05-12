@@ -247,6 +247,6 @@ class ConsolidateAllEvents {
 	protected function getAllEvents() :array {
 		/** @var EventsDB\Select $select */
 		$select = self::con()->db_con->events->getQuerySelector();
-		return \array_filter( $select->getAllEvents(), fn( $evt ) => !empty( $evt ) && \is_string( $evt ) );
+		return \array_filter( $select->getAllEvents(), fn( $evt ) => !empty( $evt ) );
 	}
 }

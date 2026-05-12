@@ -18,26 +18,6 @@ class Apc extends BaseForAssets {
 		];
 	}
 
-	public function getAdminMenuItems() :array {
-		$items = [];
-
-		$template = [
-			'id'    => self::con()->prefix( 'problems-'.$this->getSlug() ),
-			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
-		];
-
-		$count = self::con()->comps->scans->getScanResultsCount()->countAbandoned();
-		if ( $count > 0 ) {
-			$warning = $template;
-			$warning[ 'id' ] .= '-apc';
-			$warning[ 'title' ] = __( 'Abandoned Plugins', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
-			$warning[ 'warnings' ] = $count;
-			$items[] = $warning;
-		}
-
-		return $items;
-	}
-
 	public function getQueueGroupSize() :int {
 		return 100;
 	}
@@ -60,9 +40,9 @@ class Apc extends BaseForAssets {
 	/**
 	 * @throws \Exception
 	 */
-	public function buildScanAction() :Scans\Apc\ScanActionVO {
+	public function buildScanAction( ?Scans\Base\BaseScanActionVO $scanAction = null ) :Scans\Apc\ScanActionVO {
 		return ( new Scans\Apc\BuildScanAction() )
-			->setScanActionVO( $this->getScanActionVO() )
+			->setScanActionVO( $scanAction ?? $this->newScanActionVO() )
 			->build()
 			->getScanActionVO();
 	}

@@ -1,0 +1,11 @@
+<div class="configure-zones">
+	<section class="configure-zones__section">
+		<div class="configure-zones__grid">
+			{% for workspace in workspaces %}
+				{% include '/wpadmin/components/operator/tile_card.twig' with {
+					tile: workspace.tile
+				} only %}
+			{% endfor %}
+		</div>
+	</section>
+</div>

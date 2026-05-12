@@ -19,8 +19,8 @@ trait LoginWpUserConsumer {
 	 * @throws ActionException
 	 */
 	public function getLoginWPUser() :\WP_User {
-		$userID = (int)$this->action_data[ 'login_wp_user' ] ?? 0;
-		$loginNonce = (string)$this->action_data[ 'login_nonce' ] ?? '';
+		$userID = (int)( $this->action_data[ 'login_wp_user' ] ?? 0 );
+		$loginNonce = (string)( $this->action_data[ 'login_nonce' ] ?? '' );
 
 		if ( $userID < 1 || empty( $loginNonce ) ) {
 			throw new ActionException( __( 'Invalid login session.', 'wp-simple-firewall' ) );

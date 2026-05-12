@@ -3,6 +3,8 @@ import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
 import { PageQueryParam } from "../../util/PageQueryParam";
+import { InvestigateInlineTabs } from "../mode/InvestigateInlineTabs";
+import { InvestigateLookupSelect2 } from "../mode/InvestigateLookupSelect2";
 
 export class IpAnalyse extends BaseAutoExecComponent {
 
@@ -11,15 +13,28 @@ export class IpAnalyse extends BaseAutoExecComponent {
 	}
 
 	run() {
+		this.lookupSelect2 = new InvestigateLookupSelect2();
 		this.runAnalysisOnLoad();
 
 		shieldEventsHandler_Main.add_Click( '.offcanvas_ip_analysis', ( targetEl ) => {
-			this.render( targetEl.dataset[ 'ip' ] );
+			this.render( targetEl.dataset[ 'ip' ], { launcher: targetEl } ).finally();
 		} );
+		shieldEventsHandler_Main.add_Submit(
+			'.offcanvas.offcanvas_ipanalysis form[data-investigate-panel-form="1"]',
+			( form, evt ) => this.handleInvestigateLookupSubmit( form, evt ),
+			false
+		);
 
-		shieldEventsHandler_Main.add_Click( '.ip_analyse_action', ( targetEl ) => {
-			if ( confirm( 'Are you sure?' ) ) {
-				const dataset = targetEl.dataset;
+		shieldEventsHandler_Main.add_Click( '.ip_analyse_action', async ( targetEl ) => {
+			const dataset = targetEl.dataset;
+			const dialog = shieldServices.dialog();
+			const confirmed = await dialog.confirm( {
+				message: shieldStrings.string( 'are_you_sure' ),
+				confirmLabel: dialog.resolveConfirmLabel( targetEl ),
+				danger: isDangerousIpAction( dataset[ 'ip_action' ] ),
+				launcher: targetEl,
+			} );
+			if ( confirmed ) {
 				( new AjaxService() ).send(
 					ObjectOps.Merge( this._base_data.ajax.action, {
 						ip: dataset[ 'ip' ],
@@ -31,13 +46,47 @@ export class IpAnalyse extends BaseAutoExecComponent {
 	}
 
 	runAnalysisOnLoad() {
-		let theIP = PageQueryParam.Retrieve( 'analyse_ip' );
-		if ( theIP ) {
-			this.render( theIP );
+		const theIP = String( PageQueryParam.Retrieve( 'analyse_ip' ) || '' ).trim();
+		if ( theIP.length < 1 ) {
+			return;
 		}
+
+		const nav = PageQueryParam.Retrieve( 'nav' );
+		const subNav = PageQueryParam.Retrieve( 'nav_sub' );
+		const subject = PageQueryParam.Retrieve( 'subject' );
+		if (
+			( nav === 'activity' && subNav === 'by_ip' )
+			|| ( nav === 'activity' && subNav === 'overview' && subject === 'ip' )
+		) {
+			return;
+		}
+
+		this.render( theIP ).finally();
 	};
 
-	render( ip ) {
-		OffCanvasService.RenderCanvas( ObjectOps.Merge( this._base_data.ajax.render_offcanvas, { ip: ip } ) ).finally();
+	handleInvestigateLookupSubmit( form, evt ) {
+		evt.preventDefault();
+		this.render(
+			String( ( new FormData( form ) ).get( 'analyse_ip' ) || '' ),
+			{
+				historyMode: form.dataset.offcanvasHistoryMode || '',
+			}
+		).finally();
+	}
+
+	render( ip = '', options = {} ) {
+		return OffCanvasService.RenderCanvas(
+			ObjectOps.Merge( this._base_data.ajax.render_offcanvas, { ip: ip } ),
+			options
+		).then( ( rendered ) => {
+			if ( rendered !== false ) {
+				new InvestigateInlineTabs().initializeWithin( OffCanvasService.offCanvasEl );
+				this.lookupSelect2.initializeWithin( OffCanvasService.offCanvasEl );
+			}
+		} );
 	};
+}
+
+function isDangerousIpAction( action ) {
+	return [ 'block', 'bypass', 'reset_offenses', 'delete_notbot' ].includes( String( action || '' ).trim() );
 }

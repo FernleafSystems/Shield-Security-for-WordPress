@@ -1,6 +1,4 @@
 import { ShieldTableBase } from "./ShieldTableBase";
-import { ObjectOps } from "../../util/ObjectOps";
-import { AjaxService } from "../services/AjaxService";
 
 export class ShieldTableSessions extends ShieldTableBase {
 
@@ -35,29 +33,17 @@ export class ShieldTableSessions extends ShieldTableBase {
 				text: 'Delete Selected',
 				name: 'selected-delete',
 				className: 'select-all action btn-outline-warning mb-2',
-				action: ( e, dt, node, config ) => {
-					if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-
-						let data = ObjectOps.ObjClone( this._base_data.ajax.table_action )
-						data.sub_action = 'delete';
-						data.rids = this.getSelectedRIDs();
-
-						( new AjaxService() )
-						.send( data )
-						.then( ( resp ) => {
-
-							if ( resp.success ) {
-								this.tableReload();
-								shieldServices.notification().showMessage( resp.data.message, resp.success );
-							}
-							else {
-								alert( resp.data.message );
-								// console.log( resp );
-							}
-						} )
-						.catch( ( error ) => {
-							console.log( error );
-						} );
+				action: async ( e, dt, node ) => {
+					const dialog = shieldServices.dialog();
+					const launcher = dialog.resolveLauncher( e, node );
+					const confirmed = await dialog.confirm( {
+						message: shieldStrings.string( 'are_you_sure' ),
+						confirmLabel: dialog.resolveConfirmLabel( launcher ),
+						danger: true,
+						launcher,
+					} );
+					if ( confirmed ) {
+						this.bulkTableAction( 'delete' );
 					}
 				}
 			}

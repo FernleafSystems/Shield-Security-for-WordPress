@@ -2,23 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\DynamicLoad\Zone;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Wizards;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
-	ActivityLogging,
-	InstantAlerts,
-	IpBlockingRules,
 	LoginHide,
 	Modules\ModuleIntegrations,
-	Modules\ModulePlugin,
-	Modules\ModuleScans,
-	Reporting,
-	RequestLogging,
-	SilentCaptcha,
 	Whitelabel
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -27,211 +16,300 @@ class NavMenuBuilder {
 
 	use PluginControllerConsumer;
 
+	/**
+	 * @return array{
+	 *   back_item:array<string,mixed>|null,
+	 *   mode_items:list<array<string,mixed>>,
+	 *   tool_items:list<array<string,mixed>>,
+	 *   home_license_item:array<string,mixed>|null,
+	 *   home_connect_title:string,
+	 *   home_connect_items:list<array<string,mixed>>
+	 * }
+	 */
 	public function build() :array {
-		$menu = [
-			$this->dashboard(),
-			$this->zones(),
-			$this->ips(),
-			$this->scans(),
-			$this->activity(),
-			$this->rules(),
-			$this->tools(),
-			$this->reports(),
-			$this->gopro(),
-		];
+		$mode = $this->resolveCurrentMode();
+		$actionsSummary = $this->getActionsQueueSummary();
 
-		$isSecAdmin = self::con()->isPluginAdmin();
-		foreach ( $menu as $key => $item ) {
-			$item = Services::DataManipulation()->mergeArraysRecursive( [
-				'slug'      => 'no-slug',
-				'title'     => __( 'NO TITLE', 'wp-simple-firewall' ),
-				'href'      => 'javascript:{}',
-				'classes'   => [],
-				'id'        => '',
-				'active'    => $this->inav() === $item[ 'slug' ],
-				'sub_items' => [],
-				'target'    => '',
-				'data'      => [],
-				'badge'     => [],
-				'introjs'   => [],
-			], $item );
+		$modeItems = $this->normalizeItems( $this->buildModeItems( $mode, $actionsSummary ) );
 
-			if ( !empty( $item[ 'introjs' ] ) ) {
-				$item[ 'classes' ][] = 'tour-'.$this->getIntroJsTourID();
-				if ( empty( $item[ 'introjs' ][ 'title' ] ) ) {
-					$item[ 'introjs' ][ 'title' ] = $item[ 'title' ];
-				}
-			}
+		if ( empty( $mode ) ) {
+			$licenseItem = $this->buildHomeLicenseItem();
+			$connect = $this->buildHomeConnectItems();
 
-			if ( empty( $item[ 'sub_items' ] ) ) {
-				$item[ 'classes' ][] = 'body_content_link';
-			}
-			else {
-				$item[ 'sub_items' ] = \array_map( function ( $sub ) use ( $isSecAdmin ) {
-					if ( empty( $sub[ 'classes' ] ) ) {
-						$sub[ 'classes' ] = [];
-					}
-					if ( $sub[ 'active' ] ?? false ) {
-						$sub[ 'classes' ][] = 'active';
-					}
-					if ( !$isSecAdmin ) {
-						$sub[ 'classes' ][] = 'disabled';
-					}
-					return $sub;
-				}, $item[ 'sub_items' ] );
-
-				// Set parent active if any sub-items are active
-				if ( !$item[ 'active' ] ) {
-					$item[ 'active' ] = \count( \array_filter( $item[ 'sub_items' ], function ( $sub ) {
-						return $sub[ 'active' ] ?? false;
-					} ) );
-				}
-			}
-
-			if ( $item[ 'active' ] ) {
-				$item[ 'classes' ][] = 'active';
-			}
-
-			if ( !$isSecAdmin ) {
-				$item[ 'classes' ][] = 'disabled';
-			}
-
-			$menu[ $key ] = $item;
-		}
-
-		return $menu;
-	}
-
-	private function ips() :array {
-		$con = self::con();
-		return [
-			'slug'     => PluginNavs::NAV_IPS,
-			'title'    => __( 'Bots & IP Rules', 'wp-simple-firewall' ),
-			'subtitle' => __( "Blocked & Bypass IPs", 'wp-simple-firewall' ),
-			'img'      => $con->svgs->raw( 'diagram-3' ),
-			'href'     => $con->plugin_urls->adminIpRules(),
-			'active'   => $this->inav() === PluginNavs::NAV_IPS,
-			'introjs'  => [
-				'title' => __( 'IP Rules', 'wp-simple-firewall' ),
-				'body'  => __( "Review IP Rules that control whether a site visitor is blocked.", 'wp-simple-firewall' ),
-			],
-//			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_IPS,
-//				[
-//					IpBlockingRules::Slug(),
-//					SilentCaptcha::Slug(),
-//				],
-//				__( 'Edit IP block settings', 'wp-simple-firewall' )
-//			),
-		];
-	}
-
-	private function activity() :array {
-		$con = self::con();
-		return [
-			'slug'      => PluginNavs::NAV_ACTIVITY,
-			'title'     => __( 'Activity Logs', 'wp-simple-firewall' ),
-			'subtitle'  => __( "All WP Site Activity", 'wp-simple-firewall' ),
-			//			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-			'img'       => $con->svgs->raw( 'person-lines-fill' ),
-			'active'    => $this->inav() === PluginNavs::NAV_ACTIVITY,
-			'introjs'   => [
-				'title' => __( 'Activity Log', 'wp-simple-firewall' ),
-				'body'  => __( "Review all important activity on your site - see the Who, What, When and Where.", 'wp-simple-firewall' ),
-			],
-			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_ACTIVITY,
-				[
-					ActivityLogging::Slug(),
-					RequestLogging::Slug()
-				],
-				__( 'Edit logging settings', 'wp-simple-firewall' )
-			),
-			'sub_items' => [
-				$this->createSubItemForNavAndSub( __( 'WP Activity Log', 'wp-simple-firewall' ), PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_LOGS ),
-				$this->createSubItemForNavAndSub( __( 'HTTP Request Log', 'wp-simple-firewall' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS ),
-				$this->createSubItemForNavAndSub( __( 'Live HTTP Log', 'wp-simple-firewall' ), PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE ),
-			],
-		];
-	}
-
-	private function scans() :array {
-		$con = self::con();
-		return [
-			'slug'      => PluginNavs::NAV_SCANS,
-			'title'     => __( 'Scans', 'wp-simple-firewall' ),
-			'subtitle'  => __( 'Results & Manual Scans', 'wp-simple-firewall' ),
-			'img'       => $con->svgs->raw( 'shield-shaded' ),
-//			'config'    => $this->createConfigItemForNav( PluginNavs::NAV_SCANS,
-//				[ ModuleScans::Slug(), ],
-//				__( 'Edit all scan settings', 'wp-simple-firewall' )
-//			),
-			'sub_items' => [
-				$this->createSubItemForNavAndSub(
-					__( 'Results', 'wp-simple-firewall' ),
-					PluginNavs::NAV_SCANS,
-					PluginNavs::SUBNAV_SCANS_RESULTS
-				),
-				$this->createSubItemForNavAndSub(
-					__( 'Run', 'wp-simple-firewall' ),
-					PluginNavs::NAV_SCANS,
-					PluginNavs::SUBNAV_SCANS_RUN
-				),
-			],
-		];
-	}
-
-	private function dashboard() :array {
-		$con = self::con();
-		return [
-			'slug'     => PluginNavs::NAV_DASHBOARD,
-			'title'    => __( 'Dashboard', 'wp-simple-firewall' ),
-			'subtitle' => __( 'Security At A Glance', 'wp-simple-firewall' ),
-			'img'      => $con->svgs->raw( 'speedometer' ),
-			'href'     => $con->plugin_urls->adminHome(),
-			'introjs'  => [
-				'title' => __( 'Security Overview', 'wp-simple-firewall' ),
-				'body'  => sprintf( __( "Review your entire %s configuration at a glance to see what's working and what's not.", 'wp-simple-firewall' ), $con->labels->Name ),
-			],
-			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_DASHBOARD,
-				[ ModulePlugin::Slug() ],
-				__( 'Edit general plugin settings', 'wp-simple-firewall' )
-			),
-		];
-	}
-
-	private function zones() :array {
-		$con = self::con();
-
-		$subItems = [];
-		foreach ( $con->comps->zones->getZones() as $zone ) {
-			$slug = $zone::Slug();
-			$subItems[ $slug ] = [
-				'slug'    => PluginNavs::NAV_ZONES.'-'.$slug,
-				'title'   => $zone->title(),
-				'tooltip' => $zone->subtitle(),
-				'href'    => $con->plugin_urls->adminTopNav( PluginNavs::NAV_ZONES, $slug ),
-				'classes' => \array_filter( \array_merge( $this->getBaseDynamicLoadClasses(), [] ) ),
-				'config'  => $zone->getAction_Config(),
-				'data'    => [
-					'dynamic_page_load' => \wp_json_encode( [
-						'dynamic_load_slug' => Zone::SLUG,
-						'dynamic_load_data' => [
-							'zone_slug' => $slug,
-						],
-					] ),
-				],
-				'active'  => $this->inav() === PluginNavs::NAV_ZONES && $this->subnav() === $slug,
+			return [
+				'back_item'          => null,
+				'mode_items'         => $modeItems,
+				'tool_items'         => [],
+				'home_license_item'  => $licenseItem === null ? null : $this->normalizeItems( [ $licenseItem ] )[ 0 ],
+				'home_connect_title' => $connect[ 'title' ],
+				'home_connect_items' => $this->normalizeItems( $connect[ 'items' ] ),
 			];
 		}
 
+		$backItem = $this->buildBackItem();
 		return [
-			'slug'      => PluginNavs::NAV_ZONES,
-			'title'     => __( 'Security Zones', 'wp-simple-firewall' ),
-			'subtitle'  => __( 'Setup Your Security Zones', 'wp-simple-firewall' ),
-			'img'       => $con->svgs->raw( 'grid-1x2-fill' ),
-			'sub_items' => $subItems,
-			'introjs'   => [
-				'title' => __( 'Security Zones', 'wp-simple-firewall' ),
-				'body'  => sprintf( __( "Security Zones are the primary areas to configure your site security.", 'wp-simple-firewall' ), $con->labels->Name ),
+			'back_item'          => $this->normalizeItems( [ $backItem ] )[ 0 ],
+			'mode_items'         => $modeItems,
+			'tool_items'         => $this->normalizeItems( $this->toolsForMode( $mode ) ),
+			'home_license_item'  => null,
+			'home_connect_title' => '',
+			'home_connect_items' => [],
+		];
+	}
+
+	/**
+	 * @param array{has_items:bool,total_items:int,severity:string} $actionsSummary
+	 * @return list<array<string,mixed>>
+	 */
+	private function buildModeItems( string $currentMode, array $actionsSummary ) :array {
+		$items = [];
+		foreach ( PluginNavs::allOperatorModes() as $mode ) {
+			$entry = PluginNavs::defaultEntryForMode( $mode );
+			$item = [
+				'slug'    => 'mode-'.$mode,
+				'mode'    => $mode,
+				'title'   => PluginNavs::modeLabel( $mode ),
+				'img'     => $this->modeIconClass( $mode ),
+				'href'    => self::con()->plugin_urls->adminTopNav( $entry[ 'nav' ], $entry[ 'subnav' ] ),
+				'active'  => !empty( $currentMode ) && $currentMode === $mode,
+				'classes' => [ 'mode-item-link' ],
+			];
+			if ( $mode === PluginNavs::MODE_ACTIONS && $actionsSummary[ 'total_items' ] > 0 ) {
+				$item[ 'badge' ] = [
+					'text'   => (string)$actionsSummary[ 'total_items' ],
+					'status' => $actionsSummary[ 'severity' ],
+				];
+			}
+			$items[] = $item;
+		}
+		return $items;
+	}
+
+	private function modeIconClass( string $mode ) :string {
+		switch ( $mode ) {
+			case PluginNavs::MODE_ACTIONS:
+				$icon = 'exclamation-triangle-fill';
+				break;
+			case PluginNavs::MODE_INVESTIGATE:
+				$icon = 'search';
+				break;
+			case PluginNavs::MODE_REPORTS:
+				$icon = 'bar-chart-line';
+				break;
+			case PluginNavs::MODE_CONFIGURE:
+			default:
+				$icon = 'sliders';
+				break;
+		}
+		return self::con()->svgs->iconClass( $icon );
+	}
+
+	private function buildBackItem() :array {
+		return [
+			'slug'    => 'mode-selector-back',
+			'title'   => __( 'Dashboard', 'wp-simple-firewall' ),
+			'img'     => self::con()->svgs->iconClass( 'arrow-left' ),
+			'href'    => self::con()->plugin_urls->adminHome(),
+			'classes' => [ 'sidebar-back-link' ],
+		];
+	}
+
+	/**
+	 * @return list<array<string,mixed>>
+	 */
+	private function toolsForMode( string $mode ) :array {
+		switch ( $mode ) {
+			case PluginNavs::MODE_ACTIONS:
+				$items = $this->buildStaticToolItemsForMode( PluginNavs::MODE_ACTIONS );
+				break;
+
+			case PluginNavs::MODE_INVESTIGATE:
+				$items = $this->buildStaticToolItemsForMode( PluginNavs::MODE_INVESTIGATE );
+				break;
+
+			case PluginNavs::MODE_CONFIGURE:
+				$items = $this->buildConfigureTools();
+				break;
+
+			case PluginNavs::MODE_REPORTS:
+			default:
+				$items = [];
+				break;
+		}
+		return $items;
+	}
+
+	/**
+	 * @return list<array<string,mixed>>
+	 */
+	private function buildConfigureTools() :array {
+		$toolItemsById = [];
+		foreach ( StaticToolDefinitions::forMode( PluginNavs::MODE_CONFIGURE ) as $definition ) {
+			$toolItemsById[ $definition[ 'id' ] ] = $this->buildToolItemFromDefinition( $definition );
+		}
+
+		$toolItemsById[ 'tool_whitelabel' ] = $this->buildConfigureZoneToolItem(
+			Whitelabel::Slug(),
+			PluginNavs::NAV_TOOLS.'-whitelabel',
+			__( 'White Label', 'wp-simple-firewall' ),
+			'palette'
+		);
+		$toolItemsById[ 'tool_loginhide' ] = $this->buildConfigureZoneToolItem(
+			LoginHide::Slug(),
+			PluginNavs::NAV_TOOLS.'-loginhide',
+			__( 'Hide Login', 'wp-simple-firewall' ),
+			'person-lock'
+		);
+		$toolItemsById[ 'tool_integrations' ] = $this->buildConfigureZoneToolItem(
+			ModuleIntegrations::Slug(),
+			PluginNavs::NAV_TOOLS.'-integrations',
+			__( 'Integrations', 'wp-simple-firewall' ),
+			'puzzle'
+		);
+
+		// Configure sidebar mixes route links and zone offcanvas actions, so final UI order lives here.
+		return \array_map(
+			function ( string $toolId ) use ( $toolItemsById ) :array {
+				if ( !isset( $toolItemsById[ $toolId ] ) ) {
+					throw new \LogicException( sprintf( 'Missing configure sidebar tool definition: %s', $toolId ) );
+				}
+				return $toolItemsById[ $toolId ];
+			},
+			$this->configureToolOrder()
+		);
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function configureToolOrder() :array {
+		return [
+			'tool_rules_manage',
+			'tool_rules_build',
+			'tool_lockdown',
+			'tool_importexport',
+			'tool_whitelabel',
+			'tool_loginhide',
+			'tool_integrations',
+			'tool_guidedsetup',
+			'tool_debug',
+		];
+	}
+
+	private function buildConfigureZoneToolItem( string $componentSlug, string $slug, string $title, string $icon ) :array {
+		$action = self::con()->comps->zones->getZoneComponent( $componentSlug )->getActions()[ 'config' ];
+		return [
+			'slug'      => $slug,
+			'title'     => $title,
+			'img'       => self::con()->svgs->iconClass( $icon ),
+			'classes'   => $action[ 'classes' ],
+			'data'      => $action[ 'data' ],
+			'is_action' => true,
+		];
+	}
+
+	/**
+	 * @return list<array<string,mixed>>
+	 */
+	private function buildStaticToolItemsForMode( string $mode ) :array {
+		return \array_map(
+			fn( array $definition ) :array => $this->buildToolItemFromDefinition( $definition ),
+			StaticToolDefinitions::forMode( $mode )
+		);
+	}
+
+	/**
+	 * @param array{
+	 *   id:string,
+	 *   title:string,
+	 *   icon:string,
+	 *   nav:string,
+	 *   subnav:string
+	 * } $definition
+	 */
+	private function buildToolItemFromDefinition( array $definition ) :array {
+		return $this->buildToolItem(
+			$definition[ 'nav' ].'-'.$definition[ 'subnav' ],
+			$definition[ 'title' ],
+			$definition[ 'icon' ],
+			self::con()->plugin_urls->adminTopNav( $definition[ 'nav' ], $definition[ 'subnav' ] ),
+			$this->isCurrentRoute( $definition[ 'nav' ], $definition[ 'subnav' ] )
+		);
+	}
+
+	private function buildHomeLicenseItem() :?array {
+		$item = $this->gopro();
+		if ( empty( $item ) ) {
+			return null;
+		}
+		return [
+			'slug'    => $item[ 'slug' ] ?? PluginNavs::NAV_LICENSE,
+			'title'   => __( 'Shield Pro License', 'wp-simple-firewall' ),
+			'subtitle'=> (string)( $item[ 'subtitle' ] ?? '' ),
+			'img'     => (string)( $item[ 'img' ] ?? self::con()->svgs->iconClass( 'award' ) ),
+			'href'    => (string)( $item[ 'href' ] ?? self::con()->plugin_urls->licenseCheck() ),
+			'active'  => (bool)( $item[ 'active' ] ?? false ),
+			'classes' => [ 'sidebar-license-link' ],
+			'badge'   => [
+				'text'   => self::con()->isPremiumActive() ? 'PRO' : __( 'Go PRO!', 'wp-simple-firewall' ),
+				'status' => self::con()->isPremiumActive() ? 'good' : 'warning',
+			],
+		];
+	}
+
+	/**
+	 * @return array{title:string,items:list<array<string,mixed>>}
+	 */
+	private function buildHomeConnectItems() :array {
+		if ( self::con()->comps->whitelabel->isEnabled() ) {
+			return [
+				'title' => '',
+				'items' => [],
+			];
+		}
+
+		$connectMeta = $this->connectMetaItem();
+		return [
+			'title' => (string)( $connectMeta[ 'title' ] ?? __( 'Connect', 'wp-simple-firewall' ) ),
+			'items' => \array_values( $connectMeta[ 'sub_items' ] ?? [] ),
+		];
+	}
+
+	private function connectMetaItem() :array {
+		$links = new ExternalLinks();
+		return [
+			'slug'      => 'meta-connect',
+			'title'     => __( 'Connect', 'wp-simple-firewall' ),
+			'img'       => self::con()->svgs->iconClass( 'box-arrow-up-right' ),
+			'sub_items' => [
+				[
+					'slug'   => 'connect-home',
+					'title'  => __( 'Shield Home', 'wp-simple-firewall' ),
+					'img'    => self::con()->svgs->iconClass( 'house-door' ),
+					'href'   => $links->url( ExternalLinks::HOME ),
+					'target' => '_blank',
+				],
+				[
+					'slug'   => 'connect-facebook',
+					'title'  => __( 'Facebook Group', 'wp-simple-firewall' ),
+					'img'    => self::con()->svgs->iconClass( 'facebook' ),
+					'href'   => $links->url( ExternalLinks::FACEBOOK_GROUP ),
+					'target' => '_blank',
+				],
+				[
+					'slug'   => 'connect-helpdesk',
+					'title'  => __( 'Help Desk', 'wp-simple-firewall' ),
+					'img'    => self::con()->svgs->iconClass( 'life-preserver' ),
+					'href'   => $links->url( ExternalLinks::HELPDESK ),
+					'target' => '_blank',
+				],
+				[
+					'slug'   => 'connect-newsletter',
+					'title'  => __( 'Newsletter', 'wp-simple-firewall' ),
+					'img'    => self::con()->svgs->iconClass( 'envelope-paper' ),
+					'href'   => $links->url( ExternalLinks::NEWSLETTER ),
+					'target' => '_blank',
+				],
 			],
 		];
 	}
@@ -246,7 +324,7 @@ class NavMenuBuilder {
 				[
 					'slug'   => 'license-gopro',
 					'title'  => __( 'Check License', 'wp-simple-firewall' ),
-					'href'   => $con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE ),
+					'href'   => $con->plugin_urls->licenseCheck(),
 					'active' => $this->inav() === PluginNavs::NAV_LICENSE
 				],
 				[
@@ -268,162 +346,153 @@ class NavMenuBuilder {
 			'slug'      => PluginNavs::NAV_LICENSE,
 			'title'     => $con->isPremiumActive() ? self::con()->labels->Name : __( 'Go PRO!', 'wp-simple-firewall' ),
 			'subtitle'  => __( 'Supercharged Security', 'wp-simple-firewall' ),
-			'img'       => $con->svgs->raw( 'award' ),
-			'href'      => $con->plugin_urls->adminTopNav( PluginNavs::NAV_LICENSE ),
+			'img'       => $con->svgs->iconClass( 'award' ),
+			'href'      => $con->plugin_urls->licenseCheck(),
 			'sub_items' => $subItems,
+			'active'    => $this->inav() === PluginNavs::NAV_LICENSE,
 		];
 	}
 
-	private function rules() :array {
+	/**
+	 * @return array{has_items:bool,total_items:int,severity:string}
+	 */
+	private function getActionsQueueSummary() :array {
+		try {
+			$summary = $this->buildActionsQueueSummaryContract();
+		}
+		catch ( \Throwable $e ) {
+			$summary = [
+				'total_items'  => 0,
+				'severity'     => 'good',
+				'has_items'    => false,
+			];
+		}
 		return [
-			'slug'      => PluginNavs::NAV_RULES,
-			'title'     => __( 'Custom Rules', 'wp-simple-firewall' ),
-			'subtitle'  => __( 'Custom Security Rules', 'wp-simple-firewall' ),
-			'img'       => self::con()->svgs->raw( 'node-plus-fill' ),
-			'introjs'   => [
-				'title' => __( 'Security Rules', 'wp-simple-firewall' ),
-				'body'  => __( "Create and view all your custom security rules.", 'wp-simple-firewall' ),
-			],
-			'sub_items' => [
-				$this->createSubItemForNavAndSub(
-					__( 'Manage', 'wp-simple-firewall' ),
-					PluginNavs::NAV_RULES,
-					PluginNavs::SUBNAV_RULES_MANAGE
-				),
-				$this->createSubItemForNavAndSub(
-					__( 'New', 'wp-simple-firewall' ),
-					PluginNavs::NAV_RULES,
-					PluginNavs::SUBNAV_RULES_BUILD
-				),
-				$this->createSubItemForNavAndSub(
-					__( 'Summary', 'wp-simple-firewall' ),
-					PluginNavs::NAV_RULES,
-					PluginNavs::SUBNAV_RULES_SUMMARY
-				),
-			],
+			'has_items'   => (bool)$summary[ 'has_items' ],
+			'total_items' => (int)$summary[ 'total_items' ],
+			'severity'    => (string)$summary[ 'severity' ],
 		];
 	}
 
-	private function tools() :array {
-		$con = self::con();
-		$pageURLs = $con->plugin_urls;
-		$zoneCon = $con->comps->zones;
+	/**
+	 * @return array{has_items:bool,total_items:int,severity:string}
+	 */
+	protected function buildActionsQueueSummaryContract() :array {
+		$summary = self::con()->comps->site_query->attention()[ 'summary' ];
 		return [
-			'slug'      => PluginNavs::NAV_TOOLS,
-			'title'     => __( 'Tools', 'wp-simple-firewall' ),
-			'subtitle'  => __( "Import, Whitelabel, Wizard", 'wp-simple-firewall' ),
-			'img'       => $con->svgs->raw( 'tools' ),
-			'introjs'   => [
-				'title' => __( 'Security Tools', 'wp-simple-firewall' ),
-				'body'  => __( "Important security tools, such a import/export, whitelabel, debug.", 'wp-simple-firewall' ),
-			],
-			'sub_items' => [
-				$this->createSubItemForNavAndSub(
-					__( 'User Sessions', 'wp-simple-firewall' ),
-					PluginNavs::NAV_TOOLS,
-					PluginNavs::SUBNAV_TOOLS_SESSIONS
-				),
-				$this->createSubItemForNavAndSub(
-					__( 'Site Lockdown', 'wp-simple-firewall' ),
-					PluginNavs::NAV_TOOLS,
-					PluginNavs::SUBNAV_TOOLS_BLOCKDOWN
-				),
-				$this->createSubItemForNavAndSub(
-					__( 'Import/Export', 'wp-simple-firewall' ),
-					PluginNavs::NAV_TOOLS,
-					PluginNavs::SUBNAV_TOOLS_IMPORT
-				),
-				\array_merge(
-					$zoneCon->getZoneComponent( Whitelabel::Slug() )->getActions()[ 'config' ],
-					[
-						'slug'  => PluginNavs::NAV_TOOLS.'-whitelabel',
-						'title' => __( 'White Label', 'wp-simple-firewall' ),
-					]
-				),
-				\array_merge(
-					$zoneCon->getZoneComponent( LoginHide::Slug() )->getActions()[ 'config' ],
-					[
-						'slug'  => PluginNavs::NAV_TOOLS.'-loginhide',
-						'title' => __( 'Hide Login', 'wp-simple-firewall' ),
-					]
-				),
-				\array_merge(
-					$zoneCon->getZoneComponent( ModuleIntegrations::Slug() )->getActions()[ 'config' ],
-					[
-						'slug'  => PluginNavs::NAV_TOOLS.'-integrations',
-						'title' => __( 'Integrations', 'wp-simple-firewall' ),
-					]
-				),
-				[
-					'slug'   => PluginNavs::NAV_TOOLS.'-'.PluginNavs::NAV_WIZARD,
-					'title'  => __( 'Guided Setup', 'wp-simple-firewall' ),
-					'href'   => $pageURLs->wizard( Wizards::WIZARD_WELCOME ),
-					'active' => $this->inav() === PluginNavs::NAV_WIZARD
-				],
-				$this->createSubItemForNavAndSub(
-					__( 'Docs', 'wp-simple-firewall' ),
-					PluginNavs::NAV_TOOLS,
-					PluginNavs::SUBNAV_TOOLS_DOCS
-				),
-				$this->createSubItemForNavAndSub(
-					__( 'Debug Info', 'wp-simple-firewall' ),
-					PluginNavs::NAV_TOOLS,
-					PluginNavs::SUBNAV_TOOLS_DEBUG
-				),
-			],
+			'has_items'   => !$summary[ 'is_all_clear' ],
+			'total_items' => $summary[ 'total' ],
+			'severity'    => $summary[ 'severity' ],
 		];
 	}
 
-	private function reports() :array {
-		$con = self::con();
+	private function buildToolItem( string $slug, string $title, string $icon, string $href, bool $active ) :array {
 		return [
-			'slug'     => PluginNavs::NAV_REPORTS,
-			'title'    => __( 'Reports', 'wp-simple-firewall' ),
-			'subtitle' => __( "See What's Happening", 'wp-simple-firewall' ),
-			'img'      => $con->svgs->raw( 'clipboard-data-fill' ),
-			'href'     => $con->plugin_urls->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST ),
-			'active'   => $this->inav() === PluginNavs::NAV_REPORTS,
-			'introjs'  => [
-				'title' => __( 'Reports', 'wp-simple-firewall' ),
-				'body'  => __( "Security Reports.", 'wp-simple-firewall' ),
-			],
-			'config'   => $this->createConfigItemForNav( PluginNavs::NAV_REPORTS,
-				[
-					InstantAlerts::Slug(),
-					Reporting::Slug()
-				],
-				__( 'Edit reporting settings', 'wp-simple-firewall' )
-			),
+			'slug'   => $slug,
+			'title'  => $title,
+			'img'    => self::con()->svgs->iconClass( $icon ),
+			'href'   => $href,
+			'active' => $active,
 		];
 	}
 
-	private function createSubItemForNavAndSub( string $name, string $nav, string $subnav ) :array {
-		return [
-			'slug'   => $nav.'-'.$subnav,
-			'title'  => $name,
-			'href'   => self::con()->plugin_urls->adminTopNav( $nav, $subnav ),
-			'active' => $this->inav() === $nav && $this->subnav() === $subnav,
-		];
+	private function isCurrentRoute( string $nav, string $subnav = '' ) :bool {
+		return $this->inav() === $nav && $this->subnav() === $subnav;
 	}
 
-	private function createConfigItemForNav( string $primaryNavSlug, array $componentSlugs, string $tooltip = '' ) :array {
-		return [
-			'slug'    => $primaryNavSlug.'-config',
-			'title'   => __( 'Config', 'wp-simple-firewall' ),
-			'img'     => self::con()->svgs->raw( 'gear' ),
-			'tooltip' => empty( $tooltip ) ? __( 'Edit Settings', 'wp-simple-firewall' ) : $tooltip,
-			'classes' => [
-				'zone_component_action',
-			],
-			'data'    => [
-				'zone_component_action' => ZoneComponentConfig::SLUG,
-				'zone_component_slug'   => \implode( ',', $componentSlugs ),
-			],
-		];
+	private function normalizeItems( array $items ) :array {
+		$isSecAdmin = self::con()->isPluginAdmin();
+		return \array_values( \array_map(
+			fn( array $item ) :array => $this->normalizeItem( $item, $isSecAdmin ),
+			$items
+		) );
 	}
 
-	private function getIntroJsTourID() :string {
-		return 'navigation_v1';
+	private function normalizeItem( array $item, bool $isSecAdmin ) :array {
+		$item = Services::DataManipulation()->mergeArraysRecursive( [
+			'slug'      => 'no-slug',
+			'title'     => __( 'NO TITLE', 'wp-simple-firewall' ),
+			'href'      => '',
+			'is_action' => false,
+			'classes'   => [],
+			'id'        => '',
+			'active'    => false,
+			'sub_items' => [],
+			'target'    => '',
+			'data'      => [],
+			'badge'     => [],
+		], $item );
+
+		$item[ 'is_action' ] = (bool)$item[ 'is_action' ];
+		if ( $item[ 'is_action' ] ) {
+			$item[ 'href' ] = '';
+			$item[ 'target' ] = '';
+		}
+
+		if ( empty( $item[ 'sub_items' ] ) ) {
+			if ( !$item[ 'is_action' ] && \trim( (string)$item[ 'href' ] ) === '' ) {
+				throw new \LogicException( sprintf( 'Sidebar link item requires a non-empty href: %s', $item[ 'slug' ] ) );
+			}
+			$item[ 'classes' ][] = 'body_content_link';
+		}
+		else {
+			$item[ 'sub_items' ] = \array_values( \array_map( function ( $sub ) use ( $isSecAdmin ) {
+				$sub = Services::DataManipulation()->mergeArraysRecursive( [
+					'slug'      => 'no-slug',
+					'title'     => __( 'NO TITLE', 'wp-simple-firewall' ),
+					'href'      => '',
+					'is_action' => false,
+					'active'    => false,
+					'classes'   => [],
+					'data'      => [],
+					'target'    => '',
+				], $sub );
+				$sub[ 'is_action' ] = (bool)$sub[ 'is_action' ];
+				if ( $sub[ 'is_action' ] ) {
+					$sub[ 'href' ] = '';
+					$sub[ 'target' ] = '';
+				}
+				if ( !$sub[ 'is_action' ] && \trim( (string)$sub[ 'href' ] ) === '' ) {
+					throw new \LogicException( sprintf( 'Sidebar sub-link item requires a non-empty href: %s', $sub[ 'slug' ] ) );
+				}
+				if ( $sub[ 'active' ] ) {
+					$sub[ 'classes' ][] = 'active';
+				}
+				if ( !$isSecAdmin ) {
+					$sub[ 'classes' ][] = 'disabled';
+				}
+				$sub[ 'classes' ] = \array_values( \array_unique( \array_filter( $sub[ 'classes' ] ) ) );
+				return $sub;
+			}, $item[ 'sub_items' ] ) );
+
+			if ( !$item[ 'active' ] ) {
+				$item[ 'active' ] = \count( \array_filter( $item[ 'sub_items' ], fn( array $sub ) :bool => (bool)( $sub[ 'active' ] ?? false ) ) ) > 0;
+			}
+		}
+
+		if ( $item[ 'active' ] ) {
+			$item[ 'classes' ][] = 'active';
+		}
+		if ( !$isSecAdmin ) {
+			$item[ 'classes' ][] = 'disabled';
+		}
+
+		$item[ 'classes' ] = \array_values( \array_unique( \array_filter( $item[ 'classes' ] ) ) );
+		return $item;
+	}
+
+	private function resolveCurrentMode() :string {
+		$nav = $this->inav();
+		if ( empty( $nav ) ) {
+			return '';
+		}
+
+		$subNav = $this->subnav();
+		if ( $nav === PluginNavs::NAV_DASHBOARD && $subNav === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ) {
+			return '';
+		}
+
+		return PluginNavs::modeForRoute( $nav, $subNav );
 	}
 
 	private function inav() :string {
@@ -432,12 +501,5 @@ class NavMenuBuilder {
 
 	private function subnav() :string {
 		return (string)Services::Request()->query( Constants::NAV_SUB_ID );
-	}
-
-	private function getBaseDynamicLoadClasses() :array {
-		return [
-			'dynamic_body_load',
-			'body_content_link'
-		];
 	}
 }

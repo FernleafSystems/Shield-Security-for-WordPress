@@ -88,7 +88,12 @@ class RulesManagerTableAction extends BaseAction {
 			];
 		}
 
-		$this->response()->action_response_data = $response;
+		$payloadSuccess = (bool)( $response[ 'success' ] ?? false );
+		unset( $response[ 'success' ] );
+
+		$this->response()
+			 ->setPayload( $response )
+			 ->setPayloadSuccess( $payloadSuccess );
 	}
 
 	private function retrieveTableData() :array {

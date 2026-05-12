@@ -1,0 +1,43 @@
+{% set has_primary_action = row.action.href is not empty and row.action.label is not empty %}
+{% set primary_is_icon_only = has_primary_action and row.action.is_icon_only %}
+{% if has_primary_action %}
+	{% if primary_is_icon_only %}
+		<a href="{{ row.action.href }}"
+		   class="{{ primary_icon_button_class }}"
+		   {% if row.action.tooltip is not empty %}data-bs-toggle="tooltip"
+		   data-bs-title="{{ row.action.tooltip|e('html_attr') }}"{% endif %}
+		   {% if row.action.target is not empty %}target="{{ row.action.target }}"{% endif %}>
+			<i class="{{ row.action.icon }}" aria-hidden="true"></i>
+			<span class="visually-hidden">{{ row.action.label }}</span>
+		</a>
+	{% else %}
+		<a href="{{ row.action.href }}"
+		   class="{{ primary_button_class }}"
+		   {% if row.action.target is not empty %}target="{{ row.action.target }}"{% endif %}>
+			{{ row.action.label }}
+		</a>
+	{% endif %}
+{% endif %}
+{% for action in row.secondary_actions %}
+	{% set secondary_classes = secondary_button_class~(secondary_spacing_class is not empty and (has_primary_action or not loop.first) ? ' '~secondary_spacing_class : '') %}
+	{% if action.is_action %}
+		<button type="button"
+				class="{{ secondary_classes }}"
+				data-bs-toggle="tooltip"
+				data-bs-title="{{ action.tooltip|e('html_attr') }}"
+				{% if action.ajax_action_json is not empty %}data-actions-queue-maintenance-action="{{ action.ajax_action_json|e('html_attr') }}"{% endif %}>
+			<i class="{{ action.icon }}" aria-hidden="true"></i>
+			<span class="visually-hidden">{{ action.label }}</span>
+		</button>
+	{% elseif action.href is not empty %}
+		<a href="{{ action.href }}"
+		   class="{{ secondary_classes }}"
+		   data-bs-toggle="tooltip"
+		   data-bs-title="{{ action.tooltip|e('html_attr') }}"
+		   {% if action.target is not empty %}target="{{ action.target }}"{% endif %}
+		   {% if action.ajax_action_json is not empty %}data-actions-queue-maintenance-action="{{ action.ajax_action_json|e('html_attr') }}"{% endif %}>
+			<i class="{{ action.icon }}" aria-hidden="true"></i>
+			<span class="visually-hidden">{{ action.label }}</span>
+		</a>
+	{% endif %}
+{% endfor %}

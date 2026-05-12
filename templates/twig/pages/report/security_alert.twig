@@ -1,0 +1,321 @@
+{% extends '/pages/base.twig' %}
+
+{% block head_inline_styles %}
+	{{ parent() }}
+	<style>
+		:root {
+			--alert-critical: #c62f3e;
+			--alert-critical-soft: #fdeaec;
+			--alert-warning: #edb41d;
+			--alert-warning-soft: #fef6e6;
+			--alert-border: #e3d7d9;
+			--alert-surface: #f7f5f5;
+		}
+
+		body {
+			background-color: var(--alert-surface);
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+		}
+
+		body > main {
+			max-width: 1040px;
+			min-width: 600px;
+			margin: 30px auto;
+			background: #fff;
+			border-radius: 12px;
+			box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+			overflow: hidden;
+		}
+
+		body > main > .container-fluid {
+			padding: 0;
+		}
+
+		#PageHeaderTitle {
+			background: linear-gradient(135deg, #8f1221 0%, #c62f3e 65%, #dd5462 100%);
+			color: #fff;
+			padding: 32px 40px 28px;
+		}
+
+		#PageHeaderTitle h1 {
+			font-size: 1.6rem;
+			font-weight: 700;
+			margin: 0 0 4px;
+		}
+
+		#PageHeaderTitle .site-url {
+			opacity: 0.85;
+			font-size: 1rem;
+		}
+
+		.report-date-pill {
+			display: inline-block;
+			background: rgba(255,255,255,0.16);
+			border: 1px solid rgba(255,255,255,0.28);
+			border-radius: 20px;
+			padding: 4px 16px;
+			font-size: 0.85rem;
+			margin-top: 10px;
+			color: #fff;
+		}
+
+		.report-intro {
+			padding: 24px 40px 0;
+			color: #555;
+			font-size: 0.95rem;
+			line-height: 1.6;
+		}
+
+		.alert-summary {
+			margin: 24px 28px 0;
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 12px;
+		}
+
+		.alert-summary-card {
+			border: 1px solid var(--alert-border);
+			border-radius: 12px;
+			padding: 16px 18px;
+			background: #ffffff;
+			box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+		}
+
+		.alert-summary-card__label {
+			font-size: 0.72rem;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			color: #7d6f72;
+			margin-bottom: 6px;
+		}
+
+		.alert-summary-card__value {
+			font-size: 2rem;
+			font-weight: 700;
+			line-height: 1.1;
+			color: #222;
+		}
+
+		.alert-summary-card.is-critical .alert-summary-card__value {
+			color: var(--alert-critical);
+		}
+
+		.alert-summary-card.is-warning .alert-summary-card__value {
+			color: #b97a00;
+		}
+
+		.alert-actions {
+			margin: 20px 28px 0;
+		}
+
+		.alert-actions a {
+			display: inline-block;
+			padding: 11px 18px;
+			border-radius: 10px;
+			background: #222;
+			color: #fff;
+			text-decoration: none;
+			font-weight: 700;
+		}
+
+		.alert-row {
+			margin: 20px 28px 0;
+			border: 1px solid var(--alert-border);
+			border-radius: 12px;
+			overflow: hidden;
+			box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+		}
+
+		.alert-row__header {
+			padding: 16px 18px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 16px;
+			background: #fff;
+			border-left: 5px solid var(--alert-warning);
+		}
+
+		.alert-row__header.has-new {
+			background: #fff6f7;
+			border-left-color: var(--alert-critical);
+		}
+
+		.alert-row__title {
+			font-size: 1.05rem;
+			font-weight: 700;
+			margin: 0;
+			color: #222;
+		}
+
+		.alert-row__meta {
+			font-size: 0.84rem;
+			color: #666;
+			margin-top: 4px;
+		}
+
+		.alert-row__cta a {
+			display: inline-block;
+			padding: 9px 14px;
+			border-radius: 9px;
+			background: #222;
+			color: #fff;
+			text-decoration: none;
+			font-weight: 700;
+			font-size: 0.85rem;
+		}
+
+		.alert-row__body {
+			padding: 0 18px 14px;
+			background: #fff;
+		}
+
+		.alert-section {
+			margin-top: 14px;
+		}
+
+		.alert-section__heading {
+			font-size: 0.76rem;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+			font-weight: 700;
+			margin-bottom: 8px;
+		}
+
+		.alert-section__heading.is-critical {
+			color: var(--alert-critical);
+		}
+
+		.alert-section__heading.is-warning {
+			color: #b97a00;
+		}
+
+		.alert-item {
+			padding: 8px 12px;
+			border-radius: 8px;
+			background: #fafafa;
+			font-family: Consolas, "Courier New", monospace;
+			font-size: 0.84rem;
+			color: #333;
+			margin-bottom: 8px;
+		}
+
+		.alert-item.is-new {
+			background: var(--alert-critical-soft);
+		}
+
+		.new-badge {
+			display: inline-block;
+			margin-left: 8px;
+			padding: 2px 7px;
+			border-radius: 10px;
+			background: #fff;
+			color: var(--alert-critical);
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+			font-size: 0.68rem;
+			font-weight: 700;
+		}
+
+		.alert-extra {
+			font-size: 0.84rem;
+			color: #666;
+		}
+
+		.report-footer {
+			margin: 32px 28px 0;
+			padding: 20px 0 28px;
+			border-top: 1px solid var(--alert-border);
+			text-align: center;
+			font-size: 0.82rem;
+			color: #999;
+		}
+	</style>
+{% endblock %}
+
+{% block body_header %}
+	<div id="PageHeaderTitle">
+		<h1>{{ strings.report_header_title }}</h1>
+		<span class="site-url">{{ vars.site_url_host }}</span>
+		<div>
+			<span class="report-date-pill">
+				{% if vars.interval == 'hourly' %}
+					{{ vars.dates.report_date_full_start }} &ndash; {{ vars.dates.report_date_full_end }}
+				{% else %}
+					{{ vars.dates.report_date_start }} &ndash; {{ vars.dates.report_date_end }}
+				{% endif %}
+			</span>
+		</div>
+	</div>
+{% endblock %}
+
+{% block body_content_header %}
+	<div class="report-intro">
+		<p>{{ strings.intro }}</p>
+	</div>
+
+	<div class="alert-summary">
+		<div class="alert-summary-card is-critical">
+			<div class="alert-summary-card__label">{{ strings.new_issues }}</div>
+			<div class="alert-summary-card__value">{{ vars.digest.summary.new_total }}</div>
+		</div>
+		<div class="alert-summary-card is-warning">
+			<div class="alert-summary-card__label">{{ strings.outstanding_issues }}</div>
+			<div class="alert-summary-card__value">{{ vars.digest.summary.outstanding_total }}</div>
+		</div>
+		<div class="alert-summary-card">
+			<div class="alert-summary-card__label">{{ strings.current_issues }}</div>
+			<div class="alert-summary-card__value">{{ vars.digest.summary.current_total }}</div>
+		</div>
+	</div>
+
+	<div class="alert-actions">
+		<a href="{{ vars.digest.summary.actions_queue_href }}" target="_blank">{{ strings.review_scan_results }}</a>
+	</div>
+
+	{% for row in vars.digest.rows %}
+		<div class="alert-row">
+			<div class="alert-row__header {{ row.has_new ? 'has-new' : '' }}">
+				<div>
+					<h3 class="alert-row__title">{{ row.title }}</h3>
+					<div class="alert-row__meta">{{ row.count_summary }}</div>
+				</div>
+				<div class="alert-row__cta">
+					<a href="{{ row.review_href }}" target="_blank">{{ row.review_action }}</a>
+				</div>
+			</div>
+			<div class="alert-row__body">
+				{% if row.new_count > 0 %}
+					<div class="alert-section">
+						<div class="alert-section__heading is-critical">{{ strings.new_issues }}</div>
+						{% for item in row.new_items %}
+							<div class="alert-item is-new">{{ item.label }}<span class="new-badge">{{ strings.new_badge }}</span></div>
+						{% endfor %}
+						{% if row.hidden_new_count > 0 %}
+							<div class="alert-extra">{{ strings.and_x_more|format(row.hidden_new_count) }}</div>
+						{% endif %}
+					</div>
+				{% endif %}
+				{% if row.outstanding_count > 0 %}
+					<div class="alert-section">
+						<div class="alert-section__heading is-warning">{{ strings.outstanding_issues }}</div>
+						{% for item in row.outstanding_items %}
+							<div class="alert-item">{{ item.label }}</div>
+						{% endfor %}
+						{% if row.hidden_outstanding_count > 0 %}
+							<div class="alert-extra">{{ strings.and_x_more|format(row.hidden_outstanding_count) }}</div>
+						{% endif %}
+					</div>
+				{% endif %}
+			</div>
+		</div>
+	{% endfor %}
+{% endblock %}
+
+{% block body_content_main %}
+{% endblock %}
+
+{% block body_content_footer %}
+	<div class="report-footer">
+		{{ strings.generated_by_plugin }}
+	</div>
+{% endblock %}

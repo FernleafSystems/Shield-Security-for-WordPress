@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\I18n;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -45,7 +46,7 @@ class PrintfPlaceholdersValidationTest extends TestCase {
 		$languagesDir = $this->getPluginFilePath( 'languages' );
 		$this->assertDirectoryExists( $languagesDir, 'Languages directory is required for placeholder validation.' );
 
-		$potPath = $languagesDir.'/wp-simple-firewall.pot';
+		$potPath = Path::join( $languagesDir, 'wp-simple-firewall.pot' );
 		$this->assertFileExists( $potPath, 'POT catalogue is required for placeholder validation.' );
 		return $potPath;
 	}
@@ -202,6 +203,7 @@ class PrintfPlaceholdersValidationTest extends TestCase {
 	}
 
 	private function toRelativePath( string $absolutePath ) :string {
+		// Intentional manual join: relative matching here requires normalized forward-slash strings.
 		$root = \str_replace( '\\', '/', \rtrim( $this->getPluginRoot(), '/\\' ) ).'/';
 		$normalizedPath = \str_replace( '\\', '/', $absolutePath );
 		if ( \strpos( $normalizedPath, $root ) === 0 ) {

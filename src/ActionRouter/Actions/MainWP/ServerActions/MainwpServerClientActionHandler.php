@@ -19,7 +19,12 @@ class MainwpServerClientActionHandler extends MainwpBase {
 				'message' => $e->getMessage()
 			];
 		}
-		$this->response()->action_response_data = $response;
+		$payloadSuccess = (bool)( $response[ 'success' ] ?? false );
+		unset( $response[ 'success' ] );
+
+		$this->response()
+			->setPayload( $response )
+			->setPayloadSuccess( $payloadSuccess );
 	}
 
 	/**
@@ -33,7 +38,7 @@ class MainwpServerClientActionHandler extends MainwpBase {
 
 		return self::con()->action_router
 			->action( $clientSiteActionData[ 'site_action_slug' ], $actionParams )
-			->action_response_data;
+			->payload();
 	}
 
 	protected function getRequiredDataKeys() :array {

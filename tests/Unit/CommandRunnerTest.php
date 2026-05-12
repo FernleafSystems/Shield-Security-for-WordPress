@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\CommandRunner;
+use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Process\Process;
 
 /**
  * Unit tests for CommandRunner.
@@ -18,8 +21,32 @@ class CommandRunnerTest extends TestCase {
 		$this->projectRoot = dirname( dirname( __DIR__ ) );
 	}
 
-	private function createRunner() :CommandRunner {
-		return new CommandRunner( $this->projectRoot, function ( string $message ) {} );
+	private function createRunner( bool $silenceOutput = false ) :CommandRunner {
+		$processRunner = null;
+		if ( $silenceOutput ) {
+			$processRunner = new class extends ProcessRunner {
+				public function run(
+					array $command,
+					string $workingDir,
+					?callable $onOutput = null,
+					?array $envOverrides = null
+				) :Process {
+					return parent::run(
+						$command,
+						$workingDir,
+						$onOutput ?? static function () :void {
+						},
+						$envOverrides
+					);
+				}
+			};
+		}
+		return new CommandRunner(
+			$this->projectRoot,
+			static function ( string $message ) :void {
+			},
+			$processRunner
+		);
 	}
 
 	// =========================================================================
@@ -76,7 +103,7 @@ class CommandRunnerTest extends TestCase {
 		$this->expectException( \RuntimeException::class );
 		$this->expectExceptionMessage( 'Working directory does not exist' );
 
-		$runner->run( [ 'echo', 'test' ], '/path/that/does/not/exist/'.uniqid() );
+		$runner->run( [ 'echo', 'test' ], Path::join( '/path/that/does/not/exist', uniqid() ) );
 	}
 
 	/**
@@ -137,8 +164,7 @@ class CommandRunnerTest extends TestCase {
 	 * Test that run() includes stderr output in exception message when command fails
 	 */
 	public function testRunIncludesStderrInException() :void {
-		$this->expectOutputRegex( '/test stderr message/' );
-		$runner = $this->createRunner();
+		$runner = $this->createRunner( true );
 
 		try {
 			// Use PHP to write to stderr and exit with error - works on all platforms
@@ -158,5 +184,21 @@ class CommandRunnerTest extends TestCase {
 			$this->assertStringContainsString( 'test stderr message', $message );
 			$this->assertStringContainsString( 'Error output:', $message );
 		}
+	}
+
+	/**
+	 * Test that run() normalizes carriage returns in streamed output.
+	 */
+	public function testRunNormalizesCarriageReturnsInOutput() :void {
+		$runner = $this->createRunner();
+
+		$this->expectOutputString(
+			\implode( \PHP_EOL, [ 'line1', 'line2', 'line3', '' ] )
+		);
+		$runner->run( [
+			PHP_BINARY,
+			'-r',
+			'echo "line1\rline2\r\nline3\n";'
+		], $this->projectRoot );
 	}
 }

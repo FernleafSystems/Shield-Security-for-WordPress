@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-
 class SiteInLockdown extends Base {
 
 	public function check() :?array {
@@ -20,7 +18,7 @@ class SiteInLockdown extends Base {
 							sprintf( __( 'Your site is in lockdown.', 'wp-simple-firewall' ), $con->labels->Name )
 						),
 						sprintf( '<a href="%s">%s</a>',
-							$con->plugin_urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_BLOCKDOWN ),
+							$con->plugin_urls->lockdown(),
 							__( "Configure Lockdown", 'wp-simple-firewall' )
 						)
 					)

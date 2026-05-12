@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginDelete {
@@ -28,6 +29,13 @@ class PluginDelete {
 			] as $opt
 		) {
 			Services::WpGeneral()->deleteOption( $opt );
+		}
+
+		foreach ( [
+			self::con()->prefix( 'ip_rules_cache_'.\FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache::GROUP_NO_RULES, '_' ),
+			self::con()->prefix( 'ip_rules_cache_'.\FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache::GROUP_COLLECTIONS, '_' ),
+		] as $transient ) {
+			Transient::Delete( $transient );
 		}
 	}
 

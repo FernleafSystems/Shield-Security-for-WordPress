@@ -30,7 +30,6 @@ class Container extends BaseScans {
 
 		$common = CommonDisplayStrings::pick( [
 			'info_label',
-			'history_label',
 			'diff_label',
 			'contents_label'
 		] );
@@ -39,9 +38,6 @@ class Container extends BaseScans {
 		return [
 			'content' => [
 				'tab_info'         => $con->action_router->render( Info::class, [
-					'scan_item' => $item
-				] ),
-				'tab_history'      => $con->action_router->render( History::class, [
 					'scan_item' => $item
 				] ),
 				'tab_filecontents' => $con->action_router->render( Content::class, [
@@ -59,11 +55,14 @@ class Container extends BaseScans {
 				'can_query_malai' => self::con()->isPremiumActive() && !$item->is_mal,
 			],
 			'hrefs'   => [
-				'file_download' => $con->plugin_urls->fileDownload( 'scan_file', [ 'rid' => $item->VO->scanresult_id ] ),
+				'file_download' => $con->plugin_urls->fileDownload( 'scan_file', [ 'rid' => $item->VO->resultitem_id ] ),
+			],
+			'vars'    => [
+				'modal_title_id' => 'ShieldModalContainerLabel',
 			],
 			'imgs'    => [
 				'svgs' => [
-					'file_download' => $con->svgs->raw( 'download.svg' ),
+					'file_download' => $con->svgs->iconClass( 'download.svg' ),
 				],
 			],
 			'strings' => [
@@ -71,7 +70,6 @@ class Container extends BaseScans {
 				'modal_title'      => sprintf( __( '%1$s: %2$s', 'wp-simple-firewall' ), __( 'File', 'wp-simple-firewall' ), $item->path_fragment ),
 				'tab_filecontents' => $common[ 'contents_label' ],
 				'tab_diff'         => $common[ 'diff_label' ],
-				'tab_history'      => $common[ 'history_label' ],
 				'tab_info'         => $common[ 'info_label' ],
 				'tab_malai'        => __( 'MAL{ai} Lookup', 'wp-simple-firewall' ),
 				'file_download'    => __( 'Download File', 'wp-simple-firewall' ),

@@ -10,8 +10,6 @@ class PluginSetTracking extends BaseAction {
 		self::con()
 			->opts
 			->optSet( 'enable_tracking', ( $this->action_data[ 'agree' ] ?? false ) ? 'Y' : 'N' );
-		$this->response()->action_response_data = [
-			'success' => true,
-		];
+		$this->response()->setPayload()->setPayloadSuccess( true );
 	}
 }

@@ -7,6 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 	IsExcludedPhpTranslationFile,
 	IsFileContentExcluded
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\HashVerificationResult;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\TrustedFileContext;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -25,27 +27,58 @@ class FileScanner {
 		$fileExcluded = $this->isFileExcludedFromScans( $fullPath );
 
 		$validFile = false;
+		$skipMalwareScan = false;
+		$trustedFileContext = null;
+		$malwareScanClean = false;
+		$optimiser = new Processing\FileScanOptimiser();
 		try {
-			$validFile =
-				$fileExcluded
-				|| ( $scanCon->isEnabled() && ( new Scans\WpCoreFile( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() )
-				|| ( $scanCon->isEnabled() && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() )
-				|| ( $scanCon->isScanEnabledWpRoot() && ( new Scans\WpRootUnidentified( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() )
-				|| ( $scanCon->isScanEnabledPlugins() && ( new Scans\PluginFile( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() )
-				|| ( $scanCon->isScanEnabledThemes() && ( new Scans\ThemeFile( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() )
-				|| ( $scanCon->isScanEnabledWpContent() && ( new Scans\WpContentUnidentified( $fullPath ) )
-						->setScanActionVO( $action )
-						->isFileValid() );
+			if ( $fileExcluded ) {
+				$validFile = true;
+			}
+			if ( !$validFile && $scanCon->isEnabled() && ( new Scans\WpCoreFile( $fullPath ) )
+					->setScanActionVO( $action )
+					->isFileValid() ) {
+				$validFile = true;
+				$skipMalwareScan = true;
+				$trustedFileContext = $this->buildCoreTrustedFileContext( $fullPath );
+			}
+			if ( !$validFile && $scanCon->isEnabled() && ( new Scans\WpCoreUnrecognisedFile( $fullPath ) )
+					->setScanActionVO( $action )
+					->isFileValid() ) {
+				$validFile = true;
+			}
+			if ( !$validFile && $scanCon->isScanEnabledWpRoot() && ( new Scans\WpRootUnidentified( $fullPath ) )
+					->setScanActionVO( $action )
+					->isFileValid() ) {
+				$validFile = true;
+			}
+			if ( !$validFile && $scanCon->isScanEnabledPlugins() ) {
+				$pluginScan = ( new Scans\PluginFile( $fullPath ) )
+					->setScanActionVO( $action );
+				if ( $pluginScan->isFileValid() ) {
+					$validFile = true;
+					$skipMalwareScan = $pluginScan->isVerifiedHashTrustedSource();
+					if ( $skipMalwareScan ) {
+						$trustedFileContext = $this->buildAssetTrustedFileContext( $pluginScan->getHashVerificationResult() );
+					}
+				}
+			}
+			if ( !$validFile && $scanCon->isScanEnabledThemes() ) {
+				$themeScan = ( new Scans\ThemeFile( $fullPath ) )
+					->setScanActionVO( $action );
+				if ( $themeScan->isFileValid() ) {
+					$validFile = true;
+					$skipMalwareScan = $themeScan->isVerifiedHashTrustedSource();
+					if ( $skipMalwareScan ) {
+						$trustedFileContext = $this->buildAssetTrustedFileContext( $themeScan->getHashVerificationResult() );
+					}
+				}
+			}
+			if ( !$validFile && $scanCon->isScanEnabledWpContent() && ( new Scans\WpContentUnidentified( $fullPath ) )
+					->setScanActionVO( $action )
+					->isFileValid() ) {
+				$validFile = true;
+			}
 		}
 		catch ( Exceptions\WpCoreFileMissingException $me ) {
 			$item = $this->getResultItem( $fullPath );
@@ -102,11 +135,19 @@ class FileScanner {
 			//Never reached
 		}
 
-		if ( !$fileExcluded && $scanCon->isEnabledMalwareScanPHP() && ( empty( $item ) || !$item->is_missing ) ) {
+		$canRunMalwareScan = !$fileExcluded
+							  && $scanCon->isEnabledMalwareScanPHP()
+							  && ( empty( $item ) || !$item->is_missing );
+		if ( !$skipMalwareScan && $canRunMalwareScan && $optimiser->hasCleanMalwareVerdict( $fullPath, $action ) ) {
+			$skipMalwareScan = true;
+		}
+
+		if ( !$skipMalwareScan && $canRunMalwareScan ) {
 			try {
 				( new Scans\MalwareFile( $fullPath ) )
 					->setScanActionVO( $action )
 					->isFileValid();
+				$malwareScanClean = true;
 			}
 			catch ( Exceptions\MalwareFileException $mfe ) {
 				$item = $item ?? $this->getResultItem( $fullPath );
@@ -138,14 +179,32 @@ class FileScanner {
 			$item->checksum_sha256 = \hash_file( 'sha256', $fullPath );
 		}
 
-		// If there's no result item, and the file is marked as 'valid', we mark it for optimisation in future scans.
-		if ( empty( $item ) && $validFile ) {
-			$validFiles = \is_array( $action->valid_files ) ? $action->valid_files : [];
-			$validFiles[] = $fullPath;
-			$action->valid_files = $validFiles;
+		if ( empty( $item ) && $trustedFileContext instanceof TrustedFileContext ) {
+			$optimiser->recordKnownValidFile( $fullPath, $trustedFileContext );
+		}
+		if ( $malwareScanClean ) {
+			$optimiser->recordCleanMalwareVerdict( $fullPath, $action );
 		}
 
 		return $item;
+	}
+
+	private function buildCoreTrustedFileContext( string $fullPath ) :TrustedFileContext {
+		return new TrustedFileContext(
+			'core',
+			'core',
+			Services::WpGeneral()->getVersion(),
+			\str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $fullPath ) )
+		);
+	}
+
+	private function buildAssetTrustedFileContext( HashVerificationResult $verification ) :TrustedFileContext {
+		return new TrustedFileContext(
+			$verification->assetType,
+			$verification->assetKey,
+			$verification->assetVersion,
+			$verification->relativePath
+		);
 	}
 
 	private function getResultItem( string $fullPath ) :ResultItem {

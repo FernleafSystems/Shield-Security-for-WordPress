@@ -2,12 +2,27 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
-use AptowebDeps\Monolog\Handler\FilterHandler;
-use AptowebDeps\Monolog\Logger;
+use Monolog\Logger;
+use Monolog\Handler\AbstractProcessingHandler;
+use Monolog\Handler\FilterHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
+	ActivityLogs\Ops as ActivityLogsDB,
+	ActivityLogsMeta\Ops as ActivityLogsMetaDB,
+	IPs\IPRecords,
+	IPs\Ops as IPsDB,
+	ReqLogs\Ops as ReqLogsDB,
+	ReqLogs\RequestRecords
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsListener;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LocalDbWriter;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LocalDbWriter as ActivityLogDbWriter;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\{
+	LogHandlers\LocalDbWriter as RequestLogDbWriter,
+	RequestLogger,
+	RequestLogRetentionPolicy,
+	RequestLogSuppressor
+};
 
 class AuditLogger extends EventsListener {
 
@@ -16,10 +31,9 @@ class AuditLogger extends EventsListener {
 	private Logger $logger;
 
 	protected function init() {
-		if ( self::con()->comps->activity_log->isLogToDB() ) {
-			// The Request Logger is required to link up the DB entries.
-			self::con()->comps->requests_log->execute();
-		}
+		$this->primeUpgradeSensitiveLoggingClasses();
+		// The Request Logger is required to link up DB request references for activity entries.
+		self::con()->comps->requests_log->execute();
 	}
 
 	/**
@@ -44,18 +58,11 @@ class AuditLogger extends EventsListener {
 	}
 
 	protected function initLogger() {
-		$con = self::con();
-		$auditCon = $con->comps->activity_log;
-
 		if ( $this->isMonologLibrarySupported() ) {
-
-			if ( $auditCon->isLogToDB() ) {
-				$this->getLogger()
-					 ->pushHandler(
-						 new FilterHandler( new LocalDbWriter(), $auditCon->getLogLevelsDB() )
-					 );
-			}
-
+			$this->getLogger()->pushHandler( new FilterHandler(
+				new ActivityLogDbWriter(),
+				( new ActivityLogRetentionPolicy() )->dbWriteLevels()
+			) );
 			$this->pushCustomHandlers();
 		}
 	}
@@ -90,6 +97,48 @@ class AuditLogger extends EventsListener {
 			Processors\RequestMetaProcessor::class,
 			Processors\UserMetaProcessor::class,
 			Processors\WpMetaProcessor::class,
+		];
+	}
+
+	private function primeUpgradeSensitiveLoggingClasses() :void {
+		foreach ( $this->upgradeSensitiveLoggingClasses() as $class ) {
+			\class_exists( $class );
+		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function upgradeSensitiveLoggingClasses() :array {
+		return [
+			Logger::class,
+			AbstractProcessingHandler::class,
+			FilterHandler::class,
+			Monolog::class,
+			ActivityLogMessageBuilder::class,
+			ActivityLogRetentionPolicy::class,
+			ActivityLogDbWriter::class,
+			RequestLogDbWriter::class,
+			RequestLogger::class,
+			RequestLogRetentionPolicy::class,
+			RequestLogSuppressor::class,
+			Processors\ShieldMetaProcessor::class,
+			Processors\RequestMetaProcessor::class,
+			Processors\UserMetaProcessor::class,
+			Processors\WpMetaProcessor::class,
+			ActivityLogsDB\Insert::class,
+			ActivityLogsDB\Record::class,
+			ActivityLogsDB\Select::class,
+			ActivityLogsMetaDB\Insert::class,
+			ActivityLogsMetaDB\Record::class,
+			IPRecords::class,
+			IPsDB\Insert::class,
+			IPsDB\Record::class,
+			IPsDB\Select::class,
+			RequestRecords::class,
+			ReqLogsDB\Insert::class,
+			ReqLogsDB\Record::class,
+			ReqLogsDB\Select::class,
 		];
 	}
 

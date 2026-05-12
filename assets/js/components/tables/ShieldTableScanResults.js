@@ -1,26 +1,23 @@
-import $ from 'jquery';
-import hljs from 'highlight.js/lib/core';
-import bash from 'highlight.js/lib/languages/bash';
-import css from 'highlight.js/lib/languages/css';
-import javascript from 'highlight.js/lib/languages/javascript';
-import json from 'highlight.js/lib/languages/json';
-import php from 'highlight.js/lib/languages/php';
-import sql from 'highlight.js/lib/languages/sql';
-import xml from 'highlight.js/lib/languages/xml';
-import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
-import { ShieldOverlay } from "../ui/ShieldOverlay";
+import { AjaxService } from "../services/AjaxService";
 import { ShieldTableBase } from "./ShieldTableBase";
-
-hljs.registerLanguage( 'bash', bash );
-hljs.registerLanguage( 'css', css );
-hljs.registerLanguage( 'javascript', javascript );
-hljs.registerLanguage( 'json', json );
-hljs.registerLanguage( 'php', php );
-hljs.registerLanguage( 'sql', sql );
-hljs.registerLanguage( 'xml', xml );
+import {
+	bindScanResultsRowActions,
+	buildScanResultsButtons,
+	normalizeResultsDisplayOptions,
+	syncScanResultsDisplayButtons,
+	syncScanResultsSelectionButtons
+} from "./ScanResultsTableBehavior";
 
 export class ShieldTableScanResults extends ShieldTableBase {
+
+	run() {
+		this.resultsDisplayOptions = normalizeResultsDisplayOptions(
+			this.parseResultsDisplayOptionsDataset()
+		);
+		this.applyResultsDisplayOptions( this.resultsDisplayOptions );
+		super.run();
+	}
 
 	getTableSelector() {
 		return this._base_data.vars.table_selector;
@@ -29,163 +26,159 @@ export class ShieldTableScanResults extends ShieldTableBase {
 	buildDatatableConfig() {
 		let cfg = super.buildDatatableConfig();
 		cfg.dom = 'Brpftip';
+		cfg.language = {
+			...( cfg.language || {} ),
+			...this.getFilterAwareLanguage(),
+		};
 		return cfg;
 	}
 
 	bindEvents() {
 		super.bindEvents();
-
-		this.$el.on(
-			'click',
-			'td.actions > button.action.delete',
-			( evt ) => {
-				evt.preventDefault();
-				if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-					this.bulkTableAction.call( this, 'delete', [ evt.currentTarget.dataset.rid ] );
-				}
-				return false;
-			}
-		);
-
-		this.$el.on(
-			'click',
-			'td.actions > button.action.ignore',
-			( evt ) => {
-				evt.preventDefault();
-				this.bulkTableAction.call( this, 'ignore', ( 'rid' in evt.currentTarget.dataset ) ? [ evt.currentTarget.dataset.rid ] : [] );
-				return false;
-			}
-		);
-
-		this.$el.on(
-			'click',
-			'td.actions > button.action.repair',
-			( evt ) => {
-				evt.preventDefault();
-				this.$table.rows().deselect();
-				this.bulkTableAction.call( this, 'repair', [ evt.currentTarget.dataset.rid ] );
-				return false;
-			}
-		);
-
-		this.$el.on(
-			'click',
-			'.action.view-file',
-			( evt ) => {
-				evt.preventDefault();
-
-				const data = ObjectOps.ObjClone( this._base_data.ajax.render_item_analysis );
-				data[ 'rid' ] = evt.currentTarget.dataset.rid;
-
-				( new AjaxService() )
-				.send( data )
-				.then( ( resp ) => {
-					if ( resp.success ) {
-						const modal = document.getElementById( 'ShieldModalContainer' );
-						modal.querySelector( '.modal-content' ).innerHTML = resp.data.html;
-						$( modal ).modal( 'show' );
-						const unknownLanguageBlocks = [];
-						modal.querySelectorAll( 'pre.icwp-code-render code' ).forEach( ( el ) => {
-							const languageClass = Array.from( el.classList ).find( ( cls ) => cls.startsWith( 'language-' ) ) || '';
-							const language = languageClass ? languageClass.slice( 9 ) : '';
-							if ( language.length > 0 && hljs.getLanguage( language ) ) {
-								hljs.highlightElement( el );
-							}
-							else {
-								unknownLanguageBlocks.push( el );
-							}
-						} );
-
-						if ( unknownLanguageBlocks.length > 0 ) {
-							const detectedLanguage = hljs.highlightAuto(
-								unknownLanguageBlocks.map( ( el ) => el.textContent || '' ).join( "\n" )
-							).language || '';
-
-							unknownLanguageBlocks.forEach( ( el ) => {
-								if ( detectedLanguage.length > 0 && hljs.getLanguage( detectedLanguage ) ) {
-									const highlighted = hljs.highlight( el.textContent || '', {
-										language: detectedLanguage,
-										ignoreIllegals: true,
-									} );
-									el.innerHTML = highlighted.value;
-									el.classList.add( 'hljs', 'language-' + detectedLanguage );
-								}
-								else {
-									const highlighted = hljs.highlightAuto( el.textContent || '' );
-									el.innerHTML = highlighted.value;
-									el.classList.add( 'hljs' );
-									if ( highlighted.language ) {
-										el.classList.add( 'language-' + highlighted.language );
-									}
-								}
-							} );
-						}
-					}
-					else {
-						alert( resp.data.message );
-						// console.log( resp );
-					}
-				} )
-				.catch( ( error ) => {
-					console.log( error );
-				} )
-				.finally( () => ShieldOverlay.Hide() );
-
-				return false;
-			}
-		);
+		bindScanResultsRowActions( {
+			$tableElement: this.$el,
+			datatable: this.$table,
+			scanResultsAction: this._base_data.ajax.table_action,
+			renderItemAnalysis: this._base_data.ajax.render_item_analysis,
+			onAction: ( action, rids = [], launcher = null ) => this.bulkTableAction.call( this, action, rids, launcher ),
+			namespace: 'shieldScanResults',
+		} );
+		this.syncDynamicUi();
 	}
 
 	getButtons() {
-		let buttons = super.getButtons();
-		buttons.push(
-			{
-				text: 'De/Select All',
-				name: 'all-select',
-				className: 'select-all action btn-outline-secondary mb-2',
-				action: ( e, dt, node, config ) => {
-					let total = dt.rows().count()
-					if ( dt.rows( { selected: true } ).count() < total ) {
-						dt.rows().select();
-					}
-					else {
-						dt.rows().deselect();
-					}
-				}
-			},
-			{
-				text: 'Ignore Selected',
-				name: 'selected-ignore',
-				className: 'action selected-action ignore btn-outline-secondary mb-2',
-				action: ( e, dt, node, config ) => {
-					if ( confirm( shieldStrings.string( 'are_you_sure' ) ) ) {
-						this.bulkTableAction.call( this, 'ignore' );
-					}
-				}
-			},
-			{
-				text: 'Delete/Repair Selected',
-				name: 'selected-repair',
-				className: 'action selected-action repair btn-outline-secondary mb-2',
-				action: ( e, dt, node, config ) => {
-					if ( dt.rows( { selected: true } ).count() > 20 ) {
-						alert( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item." )
-					}
-					else if ( confirm( shieldStrings.string( 'absolutely_sure' ) ) ) {
-						this.bulkTableAction.call( this, 'repair-delete' );
-					}
-				}
-			}
+		const baseButtons = /** @type {any[]} */ ( super.getButtons() );
+		return baseButtons.concat(
+			buildScanResultsButtons( {
+				displayFilters: {
+					onToggle: ( optionKey ) => this.toggleResultsDisplayOption( optionKey ),
+				},
+				onBulkAction: ( action ) => this.bulkTableAction.call( this, action ),
+			} )
 		);
-		return buttons;
 	}
 
 	rowSelectionChanged() {
-		if ( this.$table.rows( { selected: true } ).count() > 0 ) {
-			this.$table.buttons( 'selected-ignore:name, selected-repair:name' ).enable();
+		syncScanResultsSelectionButtons( this.$table );
+		this.syncDynamicUi();
+	}
+
+	datatablesAjaxRequest( data, callback, settings ) {
+		const reqData = ObjectOps.ObjClone( this._base_data.ajax.table_action );
+		reqData.sub_action = 'retrieve_table_data';
+		reqData.table_data = data;
+		reqData.results_display_options = ObjectOps.ObjClone( this.resultsDisplayOptions );
+
+		return ( new AjaxService() )
+			.send( reqData, false, true )
+			.then( ( resp ) => {
+				this.handleDatatableAjaxResponse( resp, callback, settings );
+			} );
+	}
+
+	bulkTableAction( action, RIDs = [], launcher = null ) {
+		if ( RIDs.length === 0 ) {
+			RIDs = [ 'ignore', 'unignore' ].includes( action )
+				? this.getSelectedRIDsForScanResultAction( action )
+				: this.getSelectedRIDs();
 		}
-		else {
-			this.$table.buttons( 'selected-ignore:name, selected-repair:name' ).disable();
+
+		if ( RIDs.length > 0 ) {
+			const data = ObjectOps.ObjClone( this._base_data.ajax.table_action );
+			delete data.file;
+			delete data.type;
+			data.sub_action = action;
+			data.rids = RIDs;
+
+			this.sendTableActionRequest(
+				this.$table,
+				data,
+				'Communications error with site.',
+				{
+					resetPaging: false,
+					launcher,
+				}
+			);
 		}
-	};
+	}
+
+	getSelectedRIDsForScanResultAction( action ) {
+		const RIDs = [];
+		const targetIgnoredState = action === 'unignore';
+
+		this.$table
+			.rows( { selected: true } )
+			.every( function () {
+				const rowData = this.data() || {};
+				if ( Boolean( rowData.is_ignored ) === targetIgnoredState ) {
+					RIDs.push( rowData.rid );
+				}
+			} );
+
+		return RIDs;
+	}
+
+	toggleResultsDisplayOption( optionKey ) {
+		const nextOptions = {
+			...this.resultsDisplayOptions,
+			[ optionKey ]: !this.resultsDisplayOptions?.[ optionKey ],
+		};
+
+		if ( this.resultsDisplayOptions.ignored_only ) {
+			nextOptions.ignored_only = false;
+		}
+		if ( optionKey === 'include_ignored' && nextOptions.include_ignored === false ) {
+			nextOptions.ignored_only = false;
+		}
+
+		this.applyResultsDisplayOptions( nextOptions );
+		this.tableReload();
+	}
+
+	applyResultsDisplayOptions( options = {} ) {
+		this.resultsDisplayOptions = normalizeResultsDisplayOptions( options );
+		this._base_data.ajax.table_action.results_display_options = ObjectOps.ObjClone( this.resultsDisplayOptions );
+
+		if ( this.el instanceof HTMLTableElement ) {
+			this.el.dataset.resultsDisplayOptions = JSON.stringify( this.resultsDisplayOptions );
+		}
+
+		if ( this.$table ) {
+			const settings = this.$table.settings?.()[ 0 ] || null;
+			if ( settings && settings.oLanguage ) {
+				Object.assign( settings.oLanguage, this.getFilterAwareLanguage() );
+			}
+		}
+	}
+
+	syncResultsDisplayState() {
+		if ( this.$table ) {
+			syncScanResultsDisplayButtons( this.$table, this.resultsDisplayOptions );
+		}
+	}
+
+	syncDynamicUi() {
+		this.syncResultsDisplayState();
+	}
+
+	parseResultsDisplayOptionsDataset() {
+		if ( !( this.el instanceof HTMLTableElement ) ) {
+			return {};
+		}
+
+		try {
+			return JSON.parse( this.el.dataset.resultsDisplayOptions || '{}' );
+		}
+		catch ( e ) {
+			return {};
+		}
+	}
+
+	getFilterAwareLanguage() {
+		const message = 'No results match the current display filters. Use Display Results to show ignored, repaired, or deleted results.';
+		return {
+			emptyTable: message,
+			zeroRecords: message,
+		};
+	}
 }

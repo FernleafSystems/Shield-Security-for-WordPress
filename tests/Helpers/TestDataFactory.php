@@ -6,7 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Handler as IpRulesHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Handler as MalwareHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler as ReqLogsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -18,6 +21,39 @@ class TestDataFactory {
 
 	private static function con() :Controller {
 		return shield_security_get_plugin()->getController();
+	}
+
+	private static function lastInsertId() :int {
+		global $wpdb;
+		return (int)$wpdb->get_var( 'SELECT LAST_INSERT_ID()' );
+	}
+
+	/**
+	 * Insert a request log entry and return its ID.
+	 *
+	 * @param array<string,mixed> $overrides
+	 */
+	public static function insertRequestLog( string $ip = '198.51.100.10', array $overrides = [] ) :int {
+		$con = self::con();
+		$ipRecord = self::createIpRecord( $ip );
+		$reqRecord = ( new RequestRecords() )->loadReq(
+			(string)( $overrides[ 'rid' ] ?? \substr( \wp_generate_uuid4(), 0, 10 ) ),
+			$ipRecord->id
+		);
+
+		$con->db_con->req_logs->getQueryUpdater()->updateById( $reqRecord->id, [
+			'type'       => $overrides[ 'type' ] ?? ReqLogsHandler::TYPE_HTTP,
+			'verb'       => $overrides[ 'verb' ] ?? 'GET',
+			'path'       => $overrides[ 'path' ] ?? '/index.php',
+			'code'       => $overrides[ 'code' ] ?? 200,
+			'uid'        => $overrides[ 'uid' ] ?? 0,
+			'offense'    => empty( $overrides[ 'offense' ] ) ? 0 : 1,
+			'transient'  => empty( $overrides[ 'transient' ] ) ? 0 : 1,
+			'meta'       => \base64_encode( \wp_json_encode( $overrides[ 'meta' ] ?? [] ) ?: '{}' ),
+			'created_at' => $overrides[ 'created_at' ] ?? Services::Request()->ts(),
+		] );
+
+		return (int)$reqRecord->id;
 	}
 
 	// ── IP Records ─────────────────────────────────────────────────
@@ -130,23 +166,42 @@ class TestDataFactory {
 	 * Insert an activity log entry.
 	 */
 	public static function insertActivityLog( string $eventSlug, string $ip = '10.10.10.10', array $overrides = [] ) :int {
-		$con = self::con();
-		$dbh = $con->db_con->activity_logs;
 
 		// Create IP + request log records to satisfy FK constraint: ips → req_logs → at_logs
 		$ipRecord = self::createIpRecord( $ip );
 		$reqRecord = ( new RequestRecords() )->loadReq( \substr( \wp_generate_uuid4(), 0, 10 ), $ipRecord->id );
+		return self::insertActivityLogForRequest( $reqRecord->id, $eventSlug, $overrides );
+	}
+
+	/**
+	 * Insert an activity log entry for an existing request log row.
+	 *
+	 * @param array<string,mixed> $overrides
+	 */
+	public static function insertActivityLogForRequest( int $reqRef, string $eventSlug, array $overrides = [] ) :int {
+		$dbh = self::con()->db_con->activity_logs;
 
 		/** @var \FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\Ops\Record $record */
 		$record = $dbh->getRecord();
 		$record->event_slug = $eventSlug;
 		$record->site_id = $overrides[ 'site_id' ] ?? \get_current_blog_id();
-		$record->req_ref = $reqRecord->id;
+		$record->req_ref = $reqRef;
 
 		$dbh->getQueryInserter()->insert( $record );
 
-		global $wpdb;
-		return (int)$wpdb->get_var( 'SELECT LAST_INSERT_ID()' );
+		return self::lastInsertId();
+	}
+
+	/**
+	 * Insert a key/value metadata row for an existing activity log row.
+	 */
+	public static function insertActivityLogMeta( int $logId, string $metaKey, string $metaValue ) :void {
+		$dbh = self::con()->db_con->activity_logs_meta;
+		$record = $dbh->getRecord();
+		$record->log_ref = $logId;
+		$record->meta_key = $metaKey;
+		$record->meta_value = $metaValue;
+		$dbh->getQueryInserter()->insert( $record );
 	}
 
 	// ── Malware Records ───────────────────────────────────────────
@@ -173,7 +228,257 @@ class TestDataFactory {
 		return (int)$wpdb->get_var( 'SELECT LAST_INSERT_ID()' );
 	}
 
-	// ── MFA Records ────────────────────────────────────────────────
+	// Scan Result Fixtures
+
+	/**
+	 * Insert a completed scan record and return its ID.
+	 */
+	public static function insertCompletedScan( string $scanSlug, ?int $finishedAt = null ) :int {
+		$finishedAt ??= \time();
+		$dbh = self::con()->db_con->scans;
+		$record = $dbh->getRecord();
+		$record->scan = $scanSlug;
+		$record->status = 'completed';
+		$record->scope_type = 'full';
+		$record->scope_key = '';
+		$record->run_trigger = 'manual';
+		$record->started_at = \max( 1, $finishedAt - 60 );
+		$record->last_process_at = $finishedAt;
+		$record->ready_at = \max( 1, $finishedAt - 60 );
+		$record->finished_at = $finishedAt;
+		$dbh->getQueryInserter()->insert( $record );
+		return self::lastInsertId();
+	}
+
+	/**
+	 * Insert a scan result item, link it to a scan, and return the scan result ID.
+	 *
+	 * @param array<string,mixed> $meta
+	 */
+	public static function insertScanResultItem( int $scanId, array $meta = [] ) :int {
+		return self::insertScanResultItemTracked( $scanId, $meta )[ 'scan_result_id' ];
+	}
+
+	/**
+	 * Insert a scan result item with tracked row IDs for later cleanup.
+	 *
+	 * @param array<string,mixed> $meta
+	 * @return array{scan_result_id:int,result_item_id:int,meta_ids:list<int>}
+	 */
+	public static function insertScanResultItemTracked( int $scanId, array $meta = [] ) :array {
+		$scanSlug = self::scanSlugForScanId( $scanId );
+		$itemId = (string)( $meta[ 'item_id' ] ?? \uniqid( 'result-item-', true ) );
+		$itemScope = self::buildScanResultItemScope( $scanSlug, $itemId, $meta );
+
+		$resultItemsDb = self::con()->db_con->scan_result_items;
+		$item = $resultItemsDb->getRecord();
+		$item->scan = $scanSlug;
+		$item->item_type = $itemScope[ 'item_type' ];
+		$item->item_id = $itemId;
+		$item->asset_type = $itemScope[ 'asset_type' ];
+		$item->asset_key = $itemScope[ 'asset_key' ];
+		$item->ignored_at = 0;
+		$item->notified_at = 0;
+		$item->auto_filtered_at = 0;
+		$item->attempt_repair_at = 0;
+		$item->last_seen_at = Services::Request()->ts();
+		$item->resolved_at = 0;
+		$item->resolution_reason = '';
+		$resultItemsDb->getQueryInserter()->insert( $item );
+		$resultItemId = self::lastInsertId();
+
+		$scanResultsDb = self::con()->db_con->scan_results;
+		$scanResult = $scanResultsDb->getRecord();
+		$scanResult->scan_ref = $scanId;
+		$scanResult->resultitem_ref = $resultItemId;
+		$scanResultsDb->getQueryInserter()->insert( $scanResult );
+		$scanResultId = self::lastInsertId();
+
+		$metaDb = self::con()->db_con->scan_result_item_meta;
+		$metaIds = [];
+		foreach ( $meta as $metaKey => $metaValue ) {
+			if ( $metaKey === 'item_id' ) {
+				continue;
+			}
+
+			$metaRecord = $metaDb->getRecord();
+			$metaRecord->ri_ref = $resultItemId;
+			$metaRecord->meta_key = (string)$metaKey;
+			$metaRecord->meta_value = $metaValue;
+			$metaDb->getQueryInserter()->insert( $metaRecord );
+			$metaIds[] = self::lastInsertId();
+		}
+
+		return [
+			'scan_result_id' => $scanResultId,
+			'result_item_id' => $resultItemId,
+			'meta_ids'       => $metaIds,
+		];
+	}
+
+	private static function scanSlugForScanId( int $scanId ) :string {
+		$scanRecord = self::con()->db_con->scans->getQuerySelector()->byId( $scanId );
+		$scanSlug = \trim( (string)( $scanRecord->scan ?? '' ) );
+		if ( $scanSlug === '' ) {
+			throw new \RuntimeException( \sprintf( 'Cannot insert scan result item for unknown scan ID %d.', $scanId ) );
+		}
+
+		return $scanSlug;
+	}
+
+	/**
+	 * @param array<string,mixed> $meta
+	 * @return array{item_type:string,asset_type:string,asset_key:string}
+	 */
+	private static function buildScanResultItemScope( string $scanSlug, string $itemId, array $meta ) :array {
+		if ( $scanSlug === 'afs' ) {
+			return [
+				'item_type'  => ResultItemsHandler::ITEM_TYPE_FILE,
+				'asset_type' => self::afsAssetTypeFromMeta( $meta ),
+				'asset_key'  => self::afsAssetKeyFromMeta( $meta ),
+			];
+		}
+
+		if ( \in_array( $scanSlug, [ 'wpv', 'apc' ], true ) ) {
+			$isPlugin = !empty( Services::WpPlugins()->getPluginAsVo( $itemId, true ) );
+			return [
+				'item_type'  => $isPlugin ? ResultItemsHandler::ITEM_TYPE_PLUGIN : ResultItemsHandler::ITEM_TYPE_THEME,
+				'asset_type' => $isPlugin ? 'plugin' : 'theme',
+				'asset_key'  => $itemId,
+			];
+		}
+
+		return [
+			'item_type'  => ResultItemsHandler::ITEM_TYPE_FILE,
+			'asset_type' => '',
+			'asset_key'  => '',
+		];
+	}
+
+	/**
+	 * @param array<string,mixed> $meta
+	 */
+	private static function afsAssetTypeFromMeta( array $meta ) :string {
+		if ( !empty( $meta[ 'is_in_core' ] ) ) {
+			return 'core';
+		}
+		if ( !empty( $meta[ 'is_in_plugin' ] ) ) {
+			return 'plugin';
+		}
+		if ( !empty( $meta[ 'is_in_theme' ] ) ) {
+			return 'theme';
+		}
+
+		return 'other';
+	}
+
+	/**
+	 * @param array<string,mixed> $meta
+	 */
+	private static function afsAssetKeyFromMeta( array $meta ) :string {
+		if ( !empty( $meta[ 'is_in_core' ] ) ) {
+			return 'core';
+		}
+		if ( !empty( $meta[ 'is_in_plugin' ] ) || !empty( $meta[ 'is_in_theme' ] ) ) {
+			return (string)( $meta[ 'ptg_slug' ] ?? '' );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Insert an AFS file scan result using a real ABSPATH-relative file path for both
+	 * the persisted item identifier and the path fragment meta used by runtime cleanup.
+	 *
+	 * @param array<string,mixed> $meta
+	 * @return array{scan_result_id:int,result_item_id:int,meta_ids:list<int>}
+	 */
+	public static function insertAfsFileScanResultTracked( int $scanId, string $pathFragment, array $meta = [] ) :array {
+		$pathFragment = \ltrim( \wp_normalize_path( $pathFragment ), '/' );
+
+		return self::insertScanResultItemTracked( $scanId, \array_merge( [
+			'item_id'       => $pathFragment,
+			'path_fragment' => $pathFragment,
+		], $meta ) );
+	}
+
+	/**
+	 * @param array<string,mixed> $meta
+	 */
+	public static function insertAfsFileScanResult( int $scanId, string $pathFragment, array $meta = [] ) :int {
+		return self::insertAfsFileScanResultTracked( $scanId, $pathFragment, $meta )[ 'scan_result_id' ];
+	}
+
+	public static function pathFragmentFromAbsolutePath( string $absolutePath ) :string {
+		$absolutePath = \wp_normalize_path( $absolutePath );
+		$root = \trailingslashit( \wp_normalize_path( ABSPATH ) );
+
+		return \ltrim( \str_starts_with( $absolutePath, $root )
+			? \substr( $absolutePath, \strlen( $root ) )
+			: $absolutePath, '/' );
+	}
+
+	public static function markScanResultItemIgnored( int $resultItemId, int $ignoredAt = 0 ) :void {
+		self::con()->db_con->scan_result_items
+			->getQueryUpdater()
+			->updateById( $resultItemId, [
+				'ignored_at' => $ignoredAt > 0 ? $ignoredAt : \time(),
+			] );
+	}
+
+	/**
+	 * Insert a scan result item, link it to a scan, and add one meta flag.
+	 */
+	public static function insertScanResultMeta( int $scanId, string $metaKey ) :void {
+		self::insertScanResultItem( $scanId, [
+			$metaKey => 1,
+		] );
+	}
+
+	/**
+	 * Insert a file-lock record and return its ID.
+	 */
+	public static function insertFileLockRecord( string $type, string $path, int $detectedAt = 0 ) :int {
+		$dbh = self::con()->db_con->file_locker;
+		$record = $dbh->getRecord();
+		$record->type = $type;
+		$record->path = $path;
+		$record->hash_original = \sha1( $type.'-original' );
+		$record->hash_current = \sha1( $type.'-current' );
+		$record->public_key_id = 1;
+		$record->cipher = 'aes-256-cbc';
+		$record->content = 'encrypted-content-'.$type;
+		$record->detected_at = $detectedAt;
+		$dbh->getQueryInserter()->insert( $record );
+		return self::lastInsertId();
+	}
+
+	/**
+	 * Insert a report record and return its ID.
+	 *
+	 * @param array<string,mixed> $overrides
+	 */
+	public static function insertReport( string $title, array $overrides = [] ) :int {
+		$dbh = self::con()->db_con->reports;
+		$record = $dbh->getRecord();
+		$record->type = $overrides[ 'type' ] ?? ReportingConstants::REPORT_TYPE_INFO;
+		$record->interval_length = $overrides[ 'interval_length' ] ?? 'daily';
+		$record->unique_id = $overrides[ 'unique_id' ] ?? \wp_generate_uuid4();
+		$record->title = $title;
+		$record->content = \array_key_exists( 'content', $overrides )
+			? $overrides[ 'content' ]
+			: \gzdeflate( '<html><body>'.$title.'</body></html>' );
+		$record->protected = $overrides[ 'protected' ] ?? false;
+		$record->interval_start_at = $overrides[ 'interval_start_at' ] ?? 100;
+		$record->interval_end_at = $overrides[ 'interval_end_at' ] ?? 200;
+		$record->created_at = $overrides[ 'created_at' ] ?? Services::Request()->ts();
+
+		$dbh->getQueryInserter()->insert( $record );
+
+		return self::lastInsertId();
+	}
+
+	// MFA Records
 
 	/**
 	 * Insert an MFA record for a user.
@@ -189,6 +494,8 @@ class TestDataFactory {
 		$record->unique_id = $overrides[ 'unique_id' ] ?? \wp_generate_uuid4();
 		$record->label = $overrides[ 'label' ] ?? 'Test MFA';
 		$record->data = $data;
+		$record->passwordless = $overrides[ 'passwordless' ] ?? false;
+		$record->used_at = $overrides[ 'used_at' ] ?? 0;
 
 		$dbh->getQueryInserter()->insert( $record );
 

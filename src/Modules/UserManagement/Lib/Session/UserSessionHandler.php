@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\AdminLoginNotification;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\UserLoginNotice;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -11,12 +10,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Consumer\WpLoginCapture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class UserSessionHandler {
-
 	use ExecOnce;
 	use PluginControllerConsumer;
 	use WpLoginCapture;
 
-	protected function canRun() :bool {
+	protected function canRun(): bool {
 		return !self::con()->this_req->request_bypasses_all_restrictions;
 	}
 
@@ -37,12 +35,12 @@ class UserSessionHandler {
 	 * Only show Go To Admin link for Authors+
 	 * @param string|mixed $msg
 	 */
-	public function printLinkToAdmin( $msg = '' ) :string {
+	public function printLinkToAdmin( $msg = '' ): string {
 		$user = Services::WpUsers()->getCurrentWpUser();
 
 		if ( \in_array( Services::Request()->query( 'action' ), [ '', 'login' ] )
-			 && $user instanceof \WP_User
-			 && self::con()->comps->session->current()->valid
+		     && $user instanceof \WP_User
+		     && self::con()->comps->session->current()->valid
 		) {
 			$msg .= sprintf( '<p class="message">%s %s<br />%s</p>',
 				__( "You're already logged-in.", 'wp-simple-firewall' ),
@@ -56,19 +54,17 @@ class UserSessionHandler {
 	}
 
 	private function sendLoginNotifications( \WP_User $user ) {
-		$adminEmails = $this->getAdminLoginNotificationEmails();
-		$sendAdmin = \count( $adminEmails ) > 0;
+		$adminAlertData = self::con()->opts->optIs( 'instant_alert_admin_login', 'email' )
+			? ( new AdminLoginAlertContextBuilder() )->build( $user )
+			: null;
 		$sendUser = self::con()->opts->optIs( 'enable_user_login_email_notification', 'Y' );
 
-		// do some magic logic so we don't send both to the same person (the assumption being that the admin
-		// email recipient is actually an admin (or they'll maybe not get any).
-		if ( $sendAdmin && $sendUser && \in_array( \strtolower( $user->user_email ), $adminEmails ) ) {
+		if ( $adminAlertData !== null
+		     && $sendUser
+		     && \strtolower( $user->user_email ) === \strtolower( self::con()->comps->opts_lookup->getReportEmail() ) ) {
 			$sendUser = false;
 		}
 
-		if ( $sendAdmin ) {
-			$this->sendAdminLoginEmailNotification( $user );
-		}
 		if ( $sendUser ) {
 			if ( !self::con()->comps->mfa->isSubjectToLoginIntent( $user ) ) {
 				self::con()->email_con->sendVO(
@@ -80,87 +76,6 @@ class UserSessionHandler {
 							'username'  => $user->user_login,
 							'ip'        => self::con()->this_req->ip,
 							'timestamp' => Services::WpGeneral()->getTimeStampForDisplay(),
-						] )
-					)
-				);
-			}
-		}
-	}
-
-	/**
-	 * Should have no default email. If no email is set, no notification is sent.
-	 * @return string[]
-	 */
-	private function getAdminLoginNotificationEmails() :array {
-		$con = self::con();
-		$emails = [];
-
-		$rawEmails = $con->opts->optGet( 'enable_admin_login_email_notification' );
-		if ( !empty( $rawEmails ) ) {
-			$emails = \array_values( \array_unique( \array_filter(
-				\array_map(
-					function ( $email ) {
-						return \trim( \strtolower( $email ) );
-					},
-					\explode( ',', $rawEmails )
-				),
-				function ( $email ) {
-					return Services::Data()->validEmail( $email );
-				}
-			) ) );
-
-			if ( \count( $emails ) > 1 && !$con->isPremiumActive() ) {
-				$emails = \array_slice( $emails, 0, 1 );
-			}
-
-			$con->opts->optSet( 'enable_admin_login_email_notification', \implode( ', ', $emails ) );
-		}
-
-		return $emails;
-	}
-
-	private function sendAdminLoginEmailNotification( \WP_User $user ) {
-		$con = self::con();
-
-		$userCapToRolesMap = [
-			'network_admin' => 'manage_network',
-			'administrator' => 'manage_options',
-			'editor'        => 'edit_pages',
-			'author'        => 'publish_posts',
-			'contributor'   => 'delete_posts',
-			'subscriber'    => 'read',
-		];
-
-		$roleToCheck = \strtolower( apply_filters( $con->prefix( 'login-notification-email-role' ), 'administrator' ) );
-		if ( !\array_key_exists( $roleToCheck, $userCapToRolesMap ) ) {
-			$roleToCheck = 'administrator';
-		}
-		$roleName = \ucwords( \str_replace( '_', ' ', $roleToCheck ) ).'+';
-
-		$isUserSignificantEnough = false;
-		foreach ( $userCapToRolesMap as $role => $cap ) {
-			if ( isset( $user->allcaps[ $cap ] ) && $user->allcaps[ $cap ] ) {
-				$isUserSignificantEnough = true;
-			}
-			if ( $roleToCheck == $role ) {
-				break; // we've hit our role limit.
-			}
-		}
-		if ( $isUserSignificantEnough ) {
-			$homeURL = Services::WpGeneral()->getHomeUrl();
-			foreach ( $this->getAdminLoginNotificationEmails() as $to ) {
-				$con->email_con->sendVO(
-					EmailVO::Factory(
-						$to,
-						sprintf( '%s - %s', __( 'Notice', 'wp-simple-firewall' ), sprintf(
-							/* translators: %1$s: user role, %2$s: site URL */
-							__( '%1$s Just Logged Into %2$s', 'wp-simple-firewall' ), $roleName, $homeURL ) ),
-						$con->action_router->render( AdminLoginNotification::class, [
-							'role_name'  => $roleName,
-							'home_url'   => $homeURL,
-							'username'   => $user->user_login,
-							'user_email' => $user->user_email,
-							'ip'         => $con->this_req->ip,
 						] )
 					)
 				);
@@ -184,19 +99,17 @@ class UserSessionHandler {
 			}
 		}
 		catch ( \Exception $e ) {
-			if ( !$srvIP->isLoopback() ) {
-				$event = $e->getMessage();
+			$event = $e->getMessage();
 
-				$con->comps->events->fireEvent( $event, [
-					'audit_params' => [
-						'user_login' => Services::WpUsers()->getCurrentWpUser()->user_login
-					]
-				] );
+			$con->comps->events->fireEvent( $event, [
+				'audit_params' => [
+					'user_login' => Services::WpUsers()->getCurrentWpUser()->user_login
+				]
+			] );
 
-				$con->comps->session->terminateCurrentSession();
-				$WPU = Services::WpUsers();
-				is_admin() ? $WPU->forceUserRelogin( [ 'shield-forcelogout' => $event ] ) : $WPU->logoutUser( true );
-			}
+			$con->comps->session->terminateCurrentSession();
+			$WPU = Services::WpUsers();
+			is_admin() ? $WPU->forceUserRelogin( [ 'shield-forcelogout' => $event ] ) : $WPU->logoutUser( true );
 		}
 	}
 

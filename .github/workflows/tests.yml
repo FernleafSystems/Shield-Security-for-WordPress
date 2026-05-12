@@ -3,12 +3,9 @@ name: Tests
 on:
   push:
     branches: [ develop, main, master, docker-matrix-testing-research ]
+  pull_request:
+    branches: [ develop, main, master, docker-matrix-testing-research ]
   workflow_dispatch:
-    inputs:
-      run_phpcs:
-        type: boolean
-        default: false
-        description: 'Enable PHPCS code standards check'
 
 jobs:
   cache-cleanup-script-tests:
@@ -17,7 +14,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Run cache cleanup script regression tests
       run: |
@@ -31,10 +28,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: '20.10'
 
@@ -44,70 +41,33 @@ jobs:
         chmod +x .github/scripts/test-verify-admin-bundle-safety.sh
         ./.github/scripts/test-verify-admin-bundle-safety.sh
 
-  build-package:
-    name: 'Build Package'
+  js-static:
+    name: 'JS Static'
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        coverage: none
-        tools: composer:v2
+      uses: actions/checkout@v5
 
     - name: Setup Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: '20.10'
-        cache: 'npm'
+        cache: npm
 
-    - name: Install build dependencies
-      run: |
-        composer install --no-interaction --prefer-dist --optimize-autoloader
-        npm ci --no-audit --no-fund
+    - name: Install dependencies
+      run: npm ci --no-audit --no-fund
 
-    - name: Build assets
-      run: npm run build
+    - name: Run JS static checks
+      run: npm run test:js
 
-    - name: Verify admin bundle safety
-      run: |
-        chmod +x .github/scripts/verify-admin-bundle-safety.sh
-        ./.github/scripts/verify-admin-bundle-safety.sh
-
-    - name: Build plugin package
-      run: |
-        PACKAGE_DIR="${{ github.workspace }}/shield-package"
-        rm -rf "$PACKAGE_DIR" || true
-        composer package-plugin -- --output="$PACKAGE_DIR" --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build --skip-directory-clean
-
-    - name: Validate package artifact
-      run: |
-        PACKAGE_DIR="${{ github.workspace }}/shield-package"
-        test -d "$PACKAGE_DIR"
-        test -f "$PACKAGE_DIR/icwp-wpsf.php"
-        test -f "$PACKAGE_DIR/vendor/autoload.php"
-        test -d "$PACKAGE_DIR/assets/dist"
-        echo "Package artifact validation passed"
-
-    - name: Upload package artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: shield-package
-        path: ${{ github.workspace }}/shield-package/**
-        if-no-files-found: error
-
-  playground-package-smoke:
-    name: 'Playground Package Smoke'
+  source-static-analysis:
+    name: 'Source Static Analysis'
     runs-on: ubuntu-latest
-    needs: build-package
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -116,83 +76,96 @@ jobs:
         coverage: none
         tools: composer:v2
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.19'
-        cache: 'npm'
-
     - name: Install dependencies
-      run: |
-        composer install --no-interaction --prefer-dist --optimize-autoloader
-        npm ci --no-audit --no-fund
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-    - name: Download package artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: shield-package
-        path: ${{ github.workspace }}/shield-package
+    - name: Run source static analysis
+      run: composer analyze
 
-    - name: Run Playground package smoke check
-      run: |
-        php bin/run-playground-local.php --run-blueprint --plugin-root="${{ github.workspace }}/shield-package" --php=8.2 --wp=latest
+  unit-php74:
+    name: 'Unit PHP 7.4'
+    uses: ./.github/workflows/reusable-unit-tests.yml
+    with:
+      run_command: composer test:unit
+      php_version: '7.4'
 
-  test:
-    name: 'Test (PHP ${{ matrix.php }})'
+  unit-latest:
+    name: 'Unit Latest PHP'
+    uses: ./.github/workflows/reusable-unit-tests.yml
+    with:
+      run_command: composer test:unit
+      php_version: '8.4'
+
+  source-docker-runtime:
+    name: 'Source Docker Runtime'
     runs-on: ubuntu-latest
-    needs: build-package
-    
-    strategy:
-      fail-fast: false
-      matrix:
-        php: ['7.4']
-        # Full PHP matrix defined in .github/config/matrix.conf (used by docker-tests.yml)
-    
-    services:
-      mysql:
-        image: mysql:8.0
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: false
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
-    
+
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
-      
+      uses: actions/checkout@v5
+
+    - name: Verify required Docker test scripts are executable
+      shell: bash
+      run: bash .github/scripts/verify-docker-test-scripts.sh
+
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ matrix.php }}
+        php-version: '8.2'
         coverage: none
         tools: composer:v2
-        
-    - name: Display Environment Info
-      run: |
-        echo "PHP Version: $(php -v)"
-        echo "Composer Version: $(composer --version)"
-        
+
     - name: Install dependencies
-      run: |
-        composer install --no-interaction --prefer-dist --optimize-autoloader
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-    - name: Build plugin config
-      run: composer build:config
+    - name: Run source docker runtime checks
+      env:
+        SHIELD_SOURCE_RUNTIME_LOG_DIR: ${{ runner.temp }}/shield-source-runtime-logs
+      run: php bin/shield test:source --skip-unit-tests --show-docker-output
 
-    - name: Run static analysis
-      run: composer analyze
+    - name: Upload source docker runtime logs
+      if: failure()
+      uses: actions/upload-artifact@v7
+      with:
+        name: source-docker-runtime-logs
+        path: ${{ runner.temp }}/shield-source-runtime-logs
+        if-no-files-found: ignore
+
+  build-package:
+    name: 'Build Package'
+    uses: ./.github/workflows/reusable-build-package.yml
+    with:
+      artifact_name: shield-package
+      package_dir: shield-package
+
+  package-targeted-validation:
+    name: 'Package Targeted Validation'
+    runs-on: ubuntu-latest
+    needs: build-package
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Install dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
     - name: Load Strauss version
       run: |
         source .github/scripts/read-packager-config.sh
         echo "SHIELD_STRAUSS_VERSION=${SHIELD_STRAUSS_VERSION}" >> $GITHUB_ENV
-        echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
         echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}" >> $GITHUB_ENV
-        
+        echo "SHIELD_STRAUSS_FORK_BRANCH=${SHIELD_STRAUSS_FORK_BRANCH:-}" >> $GITHUB_ENV
+
     - name: Download package artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: shield-package
         path: ${{ github.workspace }}/shield-package
@@ -203,45 +176,11 @@ jobs:
         test -d "$PACKAGE_DIR"
         test -f "$PACKAGE_DIR/icwp-wpsf.php"
         test -f "$PACKAGE_DIR/vendor/autoload.php"
-        test -d "$PACKAGE_DIR/assets/dist"
+        test -d "$PACKAGE_DIR/vendor_prefixed"
         echo "Downloaded package validation passed"
-        
-    - name: Install WordPress Test Suite
-      run: |
-        sudo apt-get update && sudo apt-get install -y subversion
-        chmod +x ./bin/install-wp-tests.sh
-        ./bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
-        
-    - name: Run unit tests
-      env:
-        SHIELD_DEBUG_PATHS: '1'
-        SHIELD_PACKAGE_PATH: ''
-      run: php ./vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml --no-coverage
 
-    - name: Run integration tests
+    - name: Run package-targeted validation
       env:
-        SHIELD_DEBUG_PATHS: '1'
         SHIELD_PACKAGE_PATH: ${{ github.workspace }}/shield-package
-      run: php ./vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml --no-coverage
-
-  phpcs:
-    name: 'Code Standards'
-    if: github.event.inputs.run_phpcs == 'true'
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        coverage: none
-        tools: composer:v2
-        
-    - name: Install dependencies
-      run: composer install --no-interaction --prefer-dist --optimize-autoloader
-      
-    - name: Run PHPCS
-      run: composer phpcs
+      run: |
+        php bin/shield test:package-targeted --package-path="${{ github.workspace }}/shield-package"

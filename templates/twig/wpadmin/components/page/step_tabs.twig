@@ -1,0 +1,37 @@
+{% import "/common/macros.twig" as icwp_macros %}
+
+<nav class="operator-step-tabs"
+	 data-operator-step-tabs="1"
+	 data-shield-tour="breadcrumbs"
+	 aria-label="{{ strings.operator_path_label|default('')|e('html_attr') }}">
+	<div class="operator-step-tabs__list" data-operator-step-tabs-list="1"></div>
+
+	{% if hrefs.inner_page_contextual_hrefs|default([]) is not empty %}
+		<div class="operator-step-tabs__actions">
+			<div class="btn-group dropstart">
+				<button type="button"
+						class="btn btn-link dropdown-toggle page-action-menu-toggle"
+						data-bs-toggle="dropdown"
+						aria-label="{{ strings.actions_title|e('html_attr') }}"
+						title="{{ strings.actions_title|e('html_attr') }}"
+						aria-expanded="false"><i class="{{ imgs.svgs.menu }}" aria-hidden="true"></i></button>
+				<ul class="dropdown-menu">
+					{% for item in hrefs.inner_page_contextual_hrefs %}
+						<li>
+							{{ icwp_macros.tagAnchor(
+								item.href,
+								item.title,
+								item.id,
+								item.classes|merge(['dropdown-item']),
+								item.new_window,
+								item.data,
+								item.disabled,
+								item.is_action
+							) }}
+						</li>
+					{% endfor %}
+				</ul>
+			</div>
+		</div>
+	{% endif %}
+</nav>

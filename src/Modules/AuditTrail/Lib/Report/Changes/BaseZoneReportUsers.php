@@ -11,6 +11,9 @@ abstract class BaseZoneReportUsers extends BaseZoneReport {
 
 	protected function buildSummaryForLog( LogRecord $log ) :string {
 		switch ( $log->event_slug ) {
+			case 'user_password_reset':
+				$text = __( 'Password Reset', 'wp-simple-firewall' );
+				break;
 			case 'user_password_updated':
 				$text = __( 'Password Updated', 'wp-simple-firewall' );
 				break;
@@ -30,6 +33,7 @@ abstract class BaseZoneReportUsers extends BaseZoneReport {
 	protected function getLoadLogsWheres() :array {
 		return [
 			sprintf( "`log`.`event_slug` IN ('%s')", \implode( "','", [
+				'user_password_reset',
 				'user_password_updated',
 				'user_registered',
 				'user_deleted',

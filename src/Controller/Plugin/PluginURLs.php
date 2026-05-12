@@ -30,11 +30,54 @@ class PluginURLs {
 		return $this->adminTopNav( PluginNavs::NAV_DASHBOARD, PluginNavs::SUBNAV_DASHBOARD_OVERVIEW );
 	}
 
+	public function configureHome( string $zone = '' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW );
+		$zone = sanitize_key( $zone );
+		return empty( $zone ) ? $url : URL::Build( $url, [ 'zone' => $zone ] );
+	}
+
+	public function investigateHome() :string {
+		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW );
+	}
+
+	public function reportsHome() :string {
+		return $this->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW );
+	}
+
 	public function adminTopNav( string $nav, string $subNav = '' ) :string {
 		return URL::Build( $this->rootAdminPage(), [
 			Constants::NAV_ID     => sanitize_key( $nav ),
 			Constants::NAV_SUB_ID => sanitize_key( $subNav ),
 		] );
+	}
+
+	public function modeHome( string $mode ) :string {
+		switch ( sanitize_key( $mode ) ) {
+			case PluginNavs::MODE_ACTIONS:
+				return $this->actionsQueueScans();
+
+			case PluginNavs::MODE_INVESTIGATE:
+				return $this->investigateHome();
+
+			case PluginNavs::MODE_CONFIGURE:
+				return $this->configureHome();
+
+			case PluginNavs::MODE_REPORTS:
+				return $this->reportsHome();
+
+			default:
+				return $this->adminHome();
+		}
+	}
+
+	public function actionsQueueScans( string $zone = 'scans' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_OVERVIEW );
+		$zone = sanitize_key( $zone );
+		return empty( $zone ) ? $url : URL::Build( $url, [ 'zone' => $zone ] );
+	}
+
+	public function scansRun() :string {
+		return $this->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN );
 	}
 
 	/**
@@ -72,26 +115,98 @@ class PluginURLs {
 		return $this->adminTopNav( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES );
 	}
 
+	public function debugInfo() :string {
+		return $this->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_DEBUG );
+	}
+
+	public function lockdown() :string {
+		return $this->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_BLOCKDOWN );
+	}
+
 	public function ipAnalysis( string $ip ) :string {
 		return URL::Build( $this->adminIpRules(), [ 'analyse_ip' => $ip ] );
 	}
 
-	/**
-	 * @param string|mixed $componentSlug
-	 */
+	public function investigateByIp( string $ip = '' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
+		if ( !empty( $ip ) ) {
+			$url = URL::Build( $url, [ 'analyse_ip' => $ip ] );
+		}
+		return $url;
+	}
+
+	public function investigateByUser( string $lookup = '' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
+		if ( !empty( $lookup ) ) {
+			$url = URL::Build( $url, [ 'user_lookup' => $lookup ] );
+		}
+		return $url;
+	}
+
+	public function investigateUserSessions() :string {
+		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS );
+	}
+
+	public function investigateByPlugin( string $slug = '' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
+		if ( !empty( $slug ) ) {
+			$url = URL::Build( $url, [ 'plugin_slug' => $slug ] );
+		}
+		return $url;
+	}
+
+	public function investigateByTheme( string $slug = '' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
+		if ( !empty( $slug ) ) {
+			$url = URL::Build( $url, [ 'theme_slug' => $slug ] );
+		}
+		return $url;
+	}
+
+	public function investigatePluginVulnerabilities( string $pluginFile = '' ) :string {
+		return $this->investigateByPlugin( $pluginFile ).'#tab-navlink-plugin-vulnerabilities';
+	}
+
+	public function investigateThemeVulnerabilities( string $stylesheet = '' ) :string {
+		return $this->investigateByTheme( $stylesheet ).'#tab-navlink-theme-vulnerabilities';
+	}
+
+	public function vulnerabilityLookupByPlugin( string $pluginSlug, string $version = '' ) :string {
+		return URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
+			'type'    => 'plugin',
+			'slug'    => $pluginSlug,
+			'version' => $version,
+		] );
+	}
+
+	public function vulnerabilityLookupByTheme( string $stylesheet, string $version = '' ) :string {
+		return URL::Build( 'https://clk.shldscrty.com/shieldvulnerabilitylookup', [
+			'type'    => 'theme',
+			'slug'    => $stylesheet,
+			'version' => $version,
+		] );
+	}
+
+	public function investigateByCore() :string {
+		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_CORE );
+	}
+
+	public function trafficLog() :string {
+		return $this->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LOGS );
+	}
+
+	public function trafficLive() :string {
+		return $this->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE );
+	}
+
 	public function cfgForZoneComponent( string $componentSlug ) :string {
 		return $this->adminTopNav( PluginNavs::NAV_ZONE_COMPONENTS, $componentSlug );
 	}
 
-	/**
-	 * @param string|mixed $optKey
-	 */
 	public function cfgForOpt( string $optKey ) :string {
 		$def = self::con()->opts->optDef( $optKey );
 		if ( empty( $def ) || empty( $def[ 'zone_comp_slugs' ] ) ) {
 			$def = self::con()->opts->optDef( 'visitor_address_source' );
-			error_log( $optKey );
-			error_log( __METHOD__ );
 		}
 		return $this->cfgForZoneComponent( \current( $def[ 'zone_comp_slugs' ] ) );
 	}
@@ -122,7 +237,42 @@ class PluginURLs {
 		);
 	}
 
+	public function licenseCheck() :string {
+		return $this->adminTopNav( PluginNavs::NAV_LICENSE, PluginNavs::SUBNAV_LICENSE_CHECK );
+	}
+
+	public function rulesBuild() :string {
+		return $this->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD );
+	}
+
+	public function rulesManage() :string {
+		return $this->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE );
+	}
+
+	public function legacyAdminRouteRedirect( string $nav, string $subNav ) :?string {
+		$nav = sanitize_key( $nav );
+		$subNav = sanitize_key( $subNav );
+
+		if ( $nav === PluginNavs::NAV_SCANS ) {
+			switch ( $subNav ) {
+				case PluginNavs::SUBNAV_SCANS_RESULTS:
+				case PluginNavs::SUBNAV_SCANS_HISTORY:
+				case PluginNavs::SUBNAV_SCANS_STATE:
+					return $this->actionsQueueScans();
+			}
+		}
+		elseif ( $nav === PluginNavs::NAV_REPORTS ) {
+			switch ( $subNav ) {
+				case 'alerts':
+				case 'reporting':
+					return $this->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_SETTINGS );
+			}
+		}
+
+		return null;
+	}
+
 	public function zone( string $zoneSlug ) :string {
-		return $this->adminTopNav( PluginNavs::NAV_ZONES, $zoneSlug );
+		return $this->configureHome( $zoneSlug );
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Checks;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\SqlBackend;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -20,7 +21,7 @@ class Requirements {
 
 		// WordPress Playground uses a SQLite-backed database compatibility layer.
 		// MySQL utility commands like "HELP ..." are unsupported there.
-		if ( $this->isSqliteBackend( $mysqlInfo ) ) {
+		if ( SqlBackend::isSqlite() ) {
 			$supported = true;
 		}
 		else {
@@ -44,11 +45,5 @@ class Requirements {
 			}
 		}
 		return $supported;
-	}
-
-	private function isSqliteBackend( string $mysqlInfo ) :bool {
-		global $wpdb;
-		return ( \stripos( $mysqlInfo, 'sqlite' ) !== false )
-			   || ( \is_object( $wpdb ) && \stripos( \get_class( $wpdb ), 'sqlite' ) !== false );
 	}
 }

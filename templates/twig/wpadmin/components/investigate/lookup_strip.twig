@@ -1,0 +1,90 @@
+{% set is_panel_form = lookup_behavior.panel_form %}
+{% set is_select2 = lookup_behavior.use_select2 %}
+{% set is_auto_submit_on_change = lookup_behavior.auto_submit_on_change %}
+
+<section class="investigate-lookup-strip">
+	<form method="get"
+		  action="{{ action }}"
+		  class="investigate-lookup-strip__form"
+		  {% if is_panel_form %}
+		  data-investigate-panel-form="1"
+		  {% endif %}
+		  {% if offcanvas_history_mode is not empty %}
+		  data-offcanvas-history-mode="{{ offcanvas_history_mode|e('html_attr') }}"
+		  {% endif %}>
+		{% include '/wpadmin/components/investigate/lookup_route_hidden_inputs.twig' with {
+			lookup_route: lookup_route
+		} only %}
+
+		<div class="investigate-lookup-strip__field">
+			<div class="investigate-lookup-strip__label-row">
+				<label id="{{ lookup_field.label_id|e('html_attr') }}"
+					   class="form-label"
+					   for="{{ lookup_field.control_id|e('html_attr') }}">{{ label }}</label>
+				{% if shortcuts is not empty %}
+					<div class="investigate-lookup-strip__shortcuts">
+						{% for shortcut in shortcuts %}
+							<a href="{{ shortcut.href }}"
+							   class="shield-action-chip shield-action-chip--{{ shortcut.action_type }}">
+								{% if shortcut.icon_class is not empty %}
+									<i class="{{ shortcut.icon_class }}" aria-hidden="true"></i>
+								{% endif %}
+								{{ shortcut.label }}
+							</a>
+						{% endfor %}
+					</div>
+				{% endif %}
+			</div>
+			{% if input_type == 'select' %}
+				<select id="{{ lookup_field.control_id|e('html_attr') }}"
+						name="{{ input_name }}"
+						class="form-select{% if is_select2 %} investigate-lookup-select2{% endif %}"
+						{% if helper_text is not empty %}
+						aria-describedby="{{ lookup_field.helper_id|e('html_attr') }}"
+						{% endif %}
+						{% if is_select2 %}
+						data-investigate-select2="1"
+						data-investigate-select2-label="{{ lookup_field.label_id|e('html_attr') }}"
+						{% if helper_text is not empty %}
+						data-investigate-select2-description="{{ lookup_field.helper_id|e('html_attr') }}"
+						{% endif %}
+						{% endif %}
+						{% if is_select2 and lookup_ajax_attr != '' %}
+						data-investigate-select2-ajax="{{ lookup_ajax_attr|e('html_attr') }}"
+						{% endif %}
+						{% if is_auto_submit_on_change %}
+						data-investigate-auto-submit="1"
+						{% endif %}>
+					<option value="">{{ placeholder }}</option>
+					{% if input_value is not empty and options is empty %}
+						<option value="{{ input_value }}" selected>{{ selected_option_label }}</option>
+					{% endif %}
+					{% for option in options %}
+						<option value="{{ option.value }}" {{ input_value == option.value ? 'selected' : '' }}>
+							{{ option.label }}
+						</option>
+					{% endfor %}
+				</select>
+			{% else %}
+				<input type="text"
+					   id="{{ lookup_field.control_id|e('html_attr') }}"
+					   name="{{ input_name }}"
+					   value="{{ input_value }}"
+					   class="form-control"
+					   {% if helper_text is not empty %}
+					   aria-describedby="{{ lookup_field.helper_id|e('html_attr') }}"
+					   {% endif %}
+					   placeholder="{{ placeholder }}"/>
+			{% endif %}
+			{% if helper_text is not empty %}
+				<div id="{{ lookup_field.helper_id|e('html_attr') }}" class="form-text mt-1">{{ helper_text }}</div>
+			{% endif %}
+		</div>
+
+		{% if not is_auto_submit_on_change %}
+			<div class="investigate-lookup-strip__submit">
+				<button type="submit" class="btn btn-outline-primary">{{ submit_text }}</button>
+			</div>
+		{% endif %}
+	</form>
+</section>

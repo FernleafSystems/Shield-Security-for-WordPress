@@ -43,7 +43,7 @@
             "score",
             "minimum"
         ],
-        "level": "info",
+        "level": "notice",
         "stat": true
     },
     "app_incorrect_password": {
@@ -100,14 +100,6 @@
     "block_xml": {
         "level": "notice",
         "recent": true,
-        "offense": true
-    },
-    "botbox_fail": {
-        "audit_params": [
-            "user_login",
-            "action"
-        ],
-        "level": "warning",
         "offense": true
     },
     "bottrack_404": {
@@ -201,7 +193,7 @@
         ]
     },
     "comment_unmarkspam": {
-        "level": "info",
+        "level": "notice",
         "offense": false,
         "stat": false
     },
@@ -336,13 +328,6 @@
     "hide_login_url": {
         "level": "notice"
     },
-    "honeypot_fail": {
-        "audit_params": [
-            "user_login",
-            "action"
-        ],
-        "level": "warning"
-    },
     "import_notify_received": {
         "audit_params": [
             "master_site"
@@ -474,6 +459,15 @@
         "offense": false,
         "stat": false
     },
+    "mcp_ability_called": {
+        "audit_params": [
+            "ability",
+            "status"
+        ],
+        "level": "info",
+        "audit_multiple": true,
+        "stat": false
+    },
     "master_url_set": {
         "audit_params": [
             "site"
@@ -547,6 +541,7 @@
     },
     "plugin_file_edited": {
         "audit_params": [
+            "plugin",
             "file"
         ],
         "level": "warning"
@@ -561,7 +556,7 @@
         "audit_multiple": true
     },
     "plugin_option_changed": {
-        "level": "info",
+        "level": "notice",
         "audit_params": [
             "name",
             "key",
@@ -877,6 +872,7 @@
     },
     "theme_file_edited": {
         "audit_params": [
+            "theme",
             "file"
         ],
         "level": "warning"
@@ -981,6 +977,25 @@
             "user_login"
         ],
         "level": "warning"
+    },
+    "user_password_reset": {
+        "audit_params": [
+            "user_login"
+        ],
+        "level": "notice"
+    },
+    "user_password_reset_request_failed": {
+        "audit_params": [
+            "requested_login",
+            "reason"
+        ],
+        "level": "warning"
+    },
+    "user_password_reset_requested": {
+        "audit_params": [
+            "user_login"
+        ],
+        "level": "notice"
     },
     "user_password_updated": {
         "audit_params": [

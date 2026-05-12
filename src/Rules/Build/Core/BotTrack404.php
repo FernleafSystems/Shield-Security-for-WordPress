@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Conditions,
 	Enum,
@@ -18,6 +19,10 @@ class BotTrack404 extends BuildRuleIpsBase {
 
 	protected function getDescription() :string {
 		return 'Tracking HTTP 404 errors by bots probing a site';
+	}
+
+	protected function getWpHookPriority() :?int {
+		return HookTimings::TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS;
 	}
 
 	protected function getConditions() :array {
@@ -41,19 +46,6 @@ class BotTrack404 extends BuildRuleIpsBase {
 				],
 			];
 		}
-
-		$trackable404Conditions = \array_filter( [
-			empty( $notAllowlisted404Conditions ) ? null : [
-				'logic'      => Enum\EnumLogic::LOGIC_AND,
-				'conditions' => $notAllowlisted404Conditions,
-			],
-			[
-				'conditions' => Conditions\IsRequestToInvalidPlugin::class,
-			],
-			[
-				'conditions' => Conditions\IsRequestToInvalidTheme::class,
-			],
-		] );
 
 		return [
 			'logic'      => Enum\EnumLogic::LOGIC_AND,
@@ -80,7 +72,18 @@ class BotTrack404 extends BuildRuleIpsBase {
 				],
 				[
 					'logic'      => Enum\EnumLogic::LOGIC_OR,
-					'conditions' => $trackable404Conditions
+					'conditions' => [
+						[
+							'logic'      => Enum\EnumLogic::LOGIC_AND,
+							'conditions' => $notAllowlisted404Conditions,
+						],
+						[
+							'conditions' => Conditions\IsRequestToInvalidPlugin::class,
+						],
+						[
+							'conditions' => Conditions\IsRequestToInvalidTheme::class,
+						],
+					]
 				]
 			]
 		];

@@ -23,7 +23,7 @@ class ResponseAdapterFactory {
 				$adapter = new RestApiActionResponseAdapter();
 				break;
 			default:
-				throw new ActionTypeDoesNotExistException( $type );
+				throw new ActionTypeDoesNotExistException( sprintf( 'Action type does not exist: %s', $type ) );
 		}
 		return $adapter;
 	}

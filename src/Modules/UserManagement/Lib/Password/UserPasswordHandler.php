@@ -26,7 +26,9 @@ class UserPasswordHandler {
 			$this->setupLoginCaptureHooks();
 			add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 			add_filter( 'registration_errors', [ $this, 'checkPassword' ], 100 );
+			// @phpstan-ignore return.void
 			add_action( 'user_profile_update_errors', [ $this, 'checkPassword' ], 100 );
+			// @phpstan-ignore return.void
 			add_action( 'validate_password_reset', [ $this, 'checkPassword' ], 100 );
 		}
 	}
@@ -257,7 +259,7 @@ class UserPasswordHandler {
 
 		$body = \strtoupper( \trim( $req->lastResponse->body ) )."\n";
 		if ( \preg_match( sprintf( '#%s:([0-9]+)\s#', \substr( $passwordSHA1, 5 ) ), $body, $matches ) ) {
-			$countPwned = $matches[ 1 ];
+			$countPwned = (int)$matches[ 1 ];
 			throw new Exceptions\PasswordIsPwnedException(
 				\implode( ' ', [
 					__( 'Please supply a different password as this password has been pwned.', 'wp-simple-firewall' ),

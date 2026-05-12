@@ -31,4 +31,4 @@
 {{ strings.audit_explanation_2 }}
 
 {{ strings.audit_retention_sentence_1 }}
-{{ strings.audit_retention_sentence_2|format( audit_trail_days ) }}
+{{ strings.audit_retention_sentence_2|format( audit_retention.info_hours, audit_retention.notice_days, audit_retention.warning_days, audit_retention.high_value_days ) }}

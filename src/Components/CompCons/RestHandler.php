@@ -25,6 +25,10 @@ class RestHandler extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandle
 		return [
 			'shield_action' => Route\ShieldPluginAction::class,
 
+			'posture_overview'  => Route\PostureOverview::class,
+			'posture_attention' => Route\PostureAttention::class,
+			'activity_recent'   => Route\ActivityRecent::class,
+
 			'license_check'  => Route\LicenseCheck::class,
 			'license_status' => Route\LicenseStatus::class,
 

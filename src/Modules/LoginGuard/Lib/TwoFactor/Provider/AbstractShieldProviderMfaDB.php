@@ -7,11 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Uti
 
 abstract class AbstractShieldProviderMfaDB extends AbstractShieldProvider {
 
-	public function __construct( \WP_User $user ) {
-		parent::__construct( $user );
-		$this->maybeMigrate();
-	}
-
 	protected function getSecret() :?MfaDB\Record {
 		$rec = \current( $this->loadMfaRecords() );
 		return $rec instanceof MfaDB\Record ? $rec : null;
@@ -27,9 +22,6 @@ abstract class AbstractShieldProviderMfaDB extends AbstractShieldProvider {
 
 	protected function isValidSecret( $secret ) :bool {
 		return $secret instanceof MfaDB\Record;
-	}
-
-	protected function maybeMigrate() :void {
 	}
 
 	/**
@@ -48,7 +40,7 @@ abstract class AbstractShieldProviderMfaDB extends AbstractShieldProvider {
 		$record->unique_id = $secret;
 		$record->label = preg_replace( '#[^\sa-z0-9_-]#i', '', $label );
 		$record->data = $data;
-		return $dbh->getQueryInserter()->insert( $record );
+		return ( new MfaRecordsHandler() )->insert( $record );
 	}
 
 	public function removeFromProfile() :void {
@@ -57,5 +49,11 @@ abstract class AbstractShieldProviderMfaDB extends AbstractShieldProvider {
 
 	public function deleteAllSecrets() :void {
 		( new MfaRecordsHandler() )->deleteFor( $this->getUser(), static::ProviderSlug() );
+	}
+
+	/**
+	 * @deprecated 22.0
+	 */
+	protected function maybeMigrate() :void {
 	}
 }

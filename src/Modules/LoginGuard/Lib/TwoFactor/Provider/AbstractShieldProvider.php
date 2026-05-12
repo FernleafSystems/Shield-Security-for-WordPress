@@ -23,6 +23,7 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 				'err_no_label'        => __( 'Device registration may not proceed without a unique label.', 'wp-simple-firewall' ),
 				'err_invalid_label'   => __( 'Device label must contain letters, numbers, underscore, or hypen, and be no more than 16 characters.', 'wp-simple-firewall' ),
 				'label_prompt_dialog' => __( 'Please provide a label to identify the device.', 'wp-simple-firewall' ),
+				'label_prompt_label'  => __( 'Device Label', 'wp-simple-firewall' ),
 			]
 		];
 	}
@@ -92,7 +93,6 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 
 	/**
 	 * Only to be fired if and when Login has been completely verified.
-	 * @return void
 	 */
 	public function postSuccessActions() :void {
 		self::con()->user_metas->for( $this->getUser() )->record->last_2fa_verified_at = Services::Request()->ts();
@@ -113,7 +113,8 @@ abstract class AbstractShieldProvider extends AbstractOtpProvider {
 			],
 			'strings' => [
 				'is_enforced'   => __( 'This setting is enforced by your security administrator.', 'wp-simple-firewall' ),
-				'provider_name' => $this->getProviderName()
+				'provider_name' => $this->getProviderName(),
+				'remove_label'  => __( 'Remove', 'wp-simple-firewall' ),
 			],
 		];
 	}

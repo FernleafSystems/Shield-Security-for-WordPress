@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ResponseEnvelopeNormalizer;
 
 class ShieldPluginAction extends Base {
 
@@ -12,13 +13,10 @@ class ShieldPluginAction extends Base {
 		$params = $req->get_params();
 
 		try {
-			$response = self::con()
+			$routed = self::con()
 				->action_router
 				->action( $params[ 'ex' ], $params[ 'payload' ], ActionRoutingController::ACTION_REST );
-			$data = $response->action_response_data;
-			if ( !isset( $data[ 'success' ] ) ) {
-				$data[ 'success' ] = $response->success;
-			}
+			$data = $routed->payload();
 		}
 //		catch ( ActionDoesNotExistException $e ) {
 //		}
@@ -37,12 +35,8 @@ class ShieldPluginAction extends Base {
 
 		/** See AJAX normalised data */
 		return [
-			'success' => $data[ 'success' ],
-			'data'    => \array_merge( [
-				'page_reload' => false,
-				'message'     => '',
-				'html'        => '',
-			], $data )
+			'success' => (bool)( $data[ 'success' ] ?? false ),
+			'data'    => ResponseEnvelopeNormalizer::forRestProcess( $data )
 		];
 	}
 }

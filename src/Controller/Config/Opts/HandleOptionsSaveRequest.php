@@ -91,7 +91,10 @@ class HandleOptionsSaveRequest {
 				$optValue = \hash( 'md5', $tempValue );
 			}
 			elseif ( $optType == 'array' ) { //arrays are textareas, where each is separated by newline
-				$optValue = \array_filter( \explode( "\n", esc_textarea( $optValue ) ), '\trim' );
+				$optValue = \array_values( \array_filter(
+					\array_map( '\trim', \explode( "\n", esc_textarea( $optValue ) ) ),
+					static fn( string $value ) :bool => $value !== ''
+				) );
 			}
 
 			$optsCon->optSet( $optKey, $optValue );

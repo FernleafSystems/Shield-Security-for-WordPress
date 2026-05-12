@@ -12,6 +12,7 @@ class Users extends Base {
 
 	public function components() :array {
 		return [
+			Component\PasswordPolicies::class,
 			Component\PwnedPasswords::class,
 			Component\PasswordStrength::class,
 			Component\InactiveUsers::class,

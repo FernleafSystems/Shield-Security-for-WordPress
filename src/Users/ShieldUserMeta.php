@@ -54,6 +54,9 @@ class ShieldUserMeta extends UserMeta {
 					$this->record->first_seen_at
 				] );
 				break;
+			case 'ga_secret':
+				$value = (string)$value;
+				break;
 			case 'flags':
 			case 'login_intents':
 			case 'tours':

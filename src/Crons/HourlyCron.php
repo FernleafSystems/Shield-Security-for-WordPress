@@ -22,7 +22,7 @@ class HourlyCron extends BaseCron {
 		return Services::Request()
 					   ->carbon( true )
 					   ->addHour()
-					   ->minute( \rand( 1, 59 ) )
+					   ->minute( wp_rand( 1, 59 ) )
 					   ->second( 0 )->timestamp;
 	}
 

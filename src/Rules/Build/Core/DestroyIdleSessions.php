@@ -49,26 +49,18 @@ class DestroyIdleSessions extends Build\Core\BuildRuleCoreShieldBase {
 					],
 				],
 				[
-					'conditions' => Conditions\IsLoggedInNormal::class,
-				],
-				[
-					'conditions' => Conditions\ShieldHasValidCurrentSession::class,
-				],
-				[
-					'conditions' => Conditions\ShieldConfigurationOption::class,
-					'params'     => [
-						'name'        => 'enable_user_management',
-						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
-						'match_value' => 'Y',
-					]
-				],
-				[
 					'conditions' => Conditions\ShieldConfigurationOption::class,
 					'params'     => [
 						'name'        => 'session_idle_timeout_interval',
 						'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_GREATER_THAN,
 						'match_value' => 0,
 					]
+				],
+				[
+					'conditions' => Conditions\IsLoggedInNormal::class,
+				],
+				[
+					'conditions' => Conditions\ShieldHasValidCurrentSession::class,
 				],
 				[
 					'conditions' => Conditions\ShieldSessionParameterValueMatches::class,

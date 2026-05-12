@@ -4,8 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Snapshots\Ops\Record;
-use FernleafSystems\Wordpress\Plugin\Shield\Logging\NormaliseLogLevel;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Auditors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Exceptions\InconsistentDataException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\Snapshots\Ops;
@@ -13,7 +13,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AuditCon {
-
 	use ExecOnce;
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
@@ -30,12 +29,12 @@ class AuditCon {
 
 	private Snapshots\Queues\SnapshotDiscovery $snapshotDiscoveryQueue;
 
-	protected function canRun() :bool {
+	protected function canRun(): bool {
 		return self::con()->db_con->activity_logs->isReady();
 	}
 
 	protected function run() {
-		if ( Services::WpGeneral()->isCron() ) {
+		if ( self::con()->this_req->wp_is_cron ) {
 			$this->setupCronHooks();
 		}
 
@@ -44,7 +43,9 @@ class AuditCon {
 		\array_map( fn( $auditor ) => $auditor->execute(), $this->getAuditors() );
 
 		// Realtime Snapshotting
-		if ( self::con()->db_con->activity_snapshots->isReady() ) {
+		if ( self::con()->db_con->activity_snapshots->isReady()
+		     && ( self::con()->this_req->wp_is_admin || self::con()->this_req->wp_is_cron ) ) {
+			// @phpstan-ignore return.void
 			add_action( 'wp_loaded', fn() => \array_map(
 				fn( $auditor ) => $auditor->canSnapRealtime() ? $this->runSnapshotDiscovery( $auditor ) : null,
 				$this->getAuditors()
@@ -56,29 +57,32 @@ class AuditCon {
 		}
 	}
 
-	public function getAutoCleanDays() :int {
-		$con = self::con();
-		$days = (int)\min( $con->opts->optGet( 'audit_trail_auto_clean' ), $con->caps->getMaxLogRetentionDays() );
-		$con->opts->optSet( 'audit_trail_auto_clean', $days );
-		return $days;
+	public function isLogToDB(): bool {
+		$isReady = self::con()->db_con->activity_logs->isReady();
+		if ( $isReady ) {
+			try {
+				( new Monolog() )->assess();
+			}
+			catch ( \Exception $e ) {
+				$isReady = false;
+			}
+		}
+		return $isReady;
 	}
 
-	public function getLogLevelsDB() :array {
-		$optsCon = self::con()->opts;
-		$current = $optsCon->optGet( 'log_level_db' );
-		$levels = NormaliseLogLevel::forDbSelection( $current );
-		if ( empty( $levels ) ) {
-			$optsCon->optReset( 'log_level_db' );
-			$levels = NormaliseLogLevel::forDbSelection( $optsCon->optGet( 'log_level_db' ) );
-		}
-		elseif ( \serialize( $levels ) !== \serialize( $current ) ) {
-			$optsCon->optSet( 'log_level_db', $levels );
-		}
-		return $levels;
+	/**
+	 * @deprecated 21.3 Use ActivityLogRetentionPolicy::defaultRetentionSeconds()
+	 */
+	public function getAutoCleanDays(): int {
+		return \max( 1, (int)\ceil( ( new ActivityLogRetentionPolicy() )->defaultRetentionSeconds()/\DAY_IN_SECONDS ) );
 	}
 
-	public function isLogToDB() :bool {
-		return !\in_array( 'disabled', $this->getLogLevelsDB() );
+	/**
+	 * @return string[]
+	 * @deprecated 21.3 Activity logging now captures canonical event levels automatically.
+	 */
+	public function getLogLevelsDB(): array {
+		return ( new ActivityLogRetentionPolicy() )->canonicalLevels();
 	}
 
 	private function primeSnapshots() {
@@ -112,7 +116,7 @@ class AuditCon {
 	/**
 	 * @return Auditors\Base[]
 	 */
-	public function getAuditors() :array {
+	public function getAuditors(): array {
 		if ( empty( $this->auditors ) ) {
 			$this->auditors = [];
 			foreach ( \array_merge( Constants::AUDITORS, self::con()->caps->canThirdPartyActivityLog() ? Constants::THIRDPARTY_AUDITORS : [] ) as $auditor ) {
@@ -123,7 +127,7 @@ class AuditCon {
 		return $this->auditors;
 	}
 
-	public function runSnapshotDiscovery( Auditors\Base $auditor ) :void {
+	public function runSnapshotDiscovery( Auditors\Base $auditor ): void {
 		$auditor->setIsRunningSnapshotDiscovery( true );
 		try {
 			$diff = $this->getCurrentDiff( $auditor );
@@ -150,7 +154,7 @@ class AuditCon {
 	/**
 	 * @throws \Exception
 	 */
-	private function getCurrentDiff( Auditors\Base $auditor ) :Snapshots\DiffVO {
+	private function getCurrentDiff( Auditors\Base $auditor ): Snapshots\DiffVO {
 		$diff = new Snapshots\DiffVO();
 		$diff->slug = $auditor::Slug();
 
@@ -167,7 +171,7 @@ class AuditCon {
 			$store = true;
 		}
 		finally {
-			if ( $store ) {
+			if ( !empty( $store ) ) {
 				$this->updateStoredSnapshot( $auditor, $current ?? null );
 			}
 		}
@@ -178,14 +182,14 @@ class AuditCon {
 	/**
 	 * @throws \Exception
 	 */
-	public function getSnapshot( string $slug ) :Record {
+	public function getSnapshot( string $slug ): Record {
 		if ( empty( $this->getSnapshots()[ $slug ] ) ) {
 			throw new \Exception( sprintf( __( 'Snapshot could not be loaded for %s', 'wp-simple-firewall' ), $slug ) );
 		}
-		return $this->latestSnapshots[ $slug ];
+		return $this->getSnapshots()[ $slug ];
 	}
 
-	public function getSnapshots() :array {
+	public function getSnapshots(): array {
 		return $this->latestSnapshots ??= ( new Ops\Retrieve() )->all();
 	}
 
@@ -207,18 +211,16 @@ class AuditCon {
 				}
 			}
 
-			if ( !empty( $current ) ) {
-				$this->latestSnapshots = null;
-				( new Ops\Delete() )->delete( $slug );
-				( new Ops\Store() )->store( $current );
-			}
+			$this->latestSnapshots = null;
+			( new Ops\Delete() )->delete( $slug );
+			( new Ops\Store() )->store( $current );
 		}
 	}
 
 	/**
 	 * @param mixed $item - type depends on the zone, e.g. \WP_User, \WP_Comment
 	 */
-	public function updateItemOnSnapshot( Auditors\Base $auditor, $item ) :void {
+	public function updateItemOnSnapshot( Auditors\Base $auditor, $item ): void {
 		try {
 			// Clone: we don't to update our locally stored snapshot record. Instead, force it to be reloaded from DB as required.
 			$latest = clone $this->getSnapshot( $auditor::Slug() );
@@ -233,7 +235,7 @@ class AuditCon {
 	/**
 	 * @param mixed $item - type depends on the zone, e.g. \WP_User, \WP_Comment
 	 */
-	public function removeItemFromSnapshot( Auditors\Base $auditor, $item ) :void {
+	public function removeItemFromSnapshot( Auditors\Base $auditor, $item ): void {
 		try {
 			// Clone: we don't to update our locally stored snapshot record. Instead, force it to be reloaded from DB as required.
 			$latest = clone $this->getSnapshot( $auditor::Slug() );
@@ -252,11 +254,14 @@ class AuditCon {
 	private function runAsyncSnapshotDiscovery( bool $isDataPrime = false ) {
 		$q = $this->getSnapshotDiscoveryQueue();
 		foreach ( $this->getAuditors() as $auditor ) {
-			try {
-				$addToQ = !$isDataPrime || empty( $this->getSnapshot( $auditor::Slug() ) );
-			}
-			catch ( \Exception $e ) {
-				$addToQ = true;
+			$addToQ = !$isDataPrime;
+			if ( $isDataPrime ) {
+				try {
+					$this->getSnapshot( $auditor::Slug() );
+				}
+				catch ( \Exception $e ) {
+					$addToQ = true;
+				}
 			}
 			if ( $addToQ ) {
 				$q->push_to_queue( $auditor::Slug() );
@@ -265,7 +270,7 @@ class AuditCon {
 		$q->save()->dispatch();
 	}
 
-	public function flags() :AuditFlags {
+	public function flags(): AuditFlags {
 		return ( new AuditFlags() )->applyFromArray(
 			apply_filters( 'shield/auditing_flags', [
 				'users_audit_snapshot_admins_only' => Services::WpUsers()->count() > 10000,
@@ -273,7 +278,7 @@ class AuditCon {
 		);
 	}
 
-	private function getSnapshotDiscoveryQueue() :Snapshots\Queues\SnapshotDiscovery {
+	private function getSnapshotDiscoveryQueue(): Snapshots\Queues\SnapshotDiscovery {
 		return $this->snapshotDiscoveryQueue ??= new Snapshots\Queues\SnapshotDiscovery(
 			'snapshot_discovery', self::con()->prefix() );
 	}

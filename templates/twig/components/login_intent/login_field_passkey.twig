@@ -1,6 +1,28 @@
-{% extends '/components/login_intent/login_field.twig' %}
+<div class="mfa-pane-hero">
+	<div class="mfa-pane-hero-circle">
+		<i class="bi bi-fingerprint" aria-hidden="true"></i>
+	</div>
 
-{% block login_field_input %}
-	{{ parent() }}
+	<h3>{{ strings.passkey_heading }}</h3>
+	<p>{{ strings.passkey_body }}</p>
+
 	<input type="hidden" name="{{ field.hidden_input_name }}" value="">
-{% endblock %}
+
+	<button type="{{ field.type }}"
+			name="{{ field.name }}"
+			value="{{ field.value }}"
+			id="{{ field.id }}"
+			class="mfa-pane-hero-btn{% for class in field.classes %} {{ class }}{% endfor %}"
+		{% for datakey, dataval in field.datas %}
+			data-{{ datakey }}="{{ dataval }}"
+		{% endfor %}>
+		<span>{{ strings.passkey_cta }}</span>
+		<i class="bi bi-arrow-right" aria-hidden="true"></i>
+	</button>
+
+	<div class="mfa-chip-row" aria-hidden="true">
+		<span class="mfa-chip">Windows Hello</span>
+		<span class="mfa-chip">Touch ID</span>
+		<span class="mfa-chip">FIDO2</span>
+	</div>
+</div>

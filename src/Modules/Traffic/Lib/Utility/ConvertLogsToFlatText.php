@@ -12,7 +12,7 @@ class ConvertLogsToFlatText {
 
 	/**
 	 * @param LogRecord[] $records
-	 * @return array[]
+	 * @return string[]
 	 */
 	public function convert( array $records, bool $markUpHtml = false ) :array {
 		return \array_map( fn( LogRecord $record ) => $this->convertSingle( $record, $markUpHtml ), $records );

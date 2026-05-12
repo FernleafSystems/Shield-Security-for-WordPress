@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Ma
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\MWPSiteVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Common\{
+	MWPSiteVO,
+	SiteOpenUrlBuilder
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\ClientPluginStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Server\Data\LoadShieldSyncData;
 use FernleafSystems\Wordpress\Services\Services;
@@ -19,14 +22,12 @@ class SitesListTableColumn extends BaseRender {
 	protected function getRenderData() :array {
 		$workingSite = ( new MWPSiteVO() )->applyFromArray( $this->action_data[ 'raw_mainwp_site_data' ] );
 
-		$sync = LoadShieldSyncData::Load( $workingSite );
-		$status = ( new ClientPluginStatus() )
-			->setMwpSite( $workingSite )
-			->detect();
+		$sync = $this->loadSyncData( $workingSite );
+		$status = $this->detectClientPluginStatus( $workingSite );
 
 		$statusKey = \key( $status );
 		$isActive = $statusKey === ClientPluginStatus::ACTIVE;
-		$issuesCount = $isActive ? \array_sum( $sync->scan_issues ) : 0;
+		$issueSummary = $sync->mainwpIssuesSummary( $isActive );
 
 		return [
 			'flags'   => [
@@ -43,14 +44,16 @@ class SitesListTableColumn extends BaseRender {
 				] ),
 			],
 			'vars'    => [
-				'status_key'   => $statusKey,
-				'status_name'  => \current( $status ),
-				'issues_count' => $issuesCount,
-				'version'      => self::con()->cfg->version()
+				'status_key'          => $statusKey,
+				'status_name'         => \current( $status ),
+				'issues_count'        => $issueSummary[ 'count' ],
+				'issues_button_class' => $issueSummary[ 'button_class' ],
+				'version'             => self::con()->cfg->version()
 			],
 			'hrefs'   => [
 				'this_extension' => Services::WpGeneral()
 											->getUrl_AdminPage( self::con()->mwpVO->official_extension_data[ 'page' ] ),
+				'issues'         => $this->buildIssuesHref( $workingSite ),
 			],
 			'strings' => [
 				'tooltip_inactive'         => sprintf( __( "%s plugin is installed, but not active.", 'wp-simple-firewall' ), self::con()->labels->Name ),
@@ -69,5 +72,22 @@ class SitesListTableColumn extends BaseRender {
 		return [
 			'raw_mainwp_site_data'
 		];
+	}
+
+	protected function loadSyncData( MWPSiteVO $site ) {
+		return LoadShieldSyncData::Load( $site );
+	}
+
+	protected function detectClientPluginStatus( MWPSiteVO $site ) :array {
+		return ( new ClientPluginStatus() )
+			->setMwpSite( $site )
+			->detect();
+	}
+
+	protected function buildIssuesHref( MWPSiteVO $site ) :string {
+		return ( new SiteOpenUrlBuilder() )->build(
+			(string)$site->id,
+			self::con()->plugin_urls->actionsQueueScans( '' )
+		);
 	}
 }

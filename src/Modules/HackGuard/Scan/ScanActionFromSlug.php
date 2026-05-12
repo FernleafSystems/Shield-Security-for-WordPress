@@ -26,6 +26,9 @@ class ScanActionFromSlug {
 				$VO = new Wpv\ScanActionVO();
 				break;
 		}
+		if ( $VO === null ) {
+			throw new \InvalidArgumentException( sprintf( 'Unknown scan slug: %s', $slug ) );
+		}
 		$VO->scan = $slug;
 		return $VO;
 	}

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use Symfony\Component\Filesystem\Path;
 
 class PluginTestHelper {
 
@@ -19,7 +20,7 @@ class PluginTestHelper {
 			
 			// Ensure plugin is loaded
 			if ( !defined( 'ICWP_WPSF_FULL_PATH' ) ) {
-				define( 'ICWP_WPSF_FULL_PATH', dirname( __DIR__, 2 ).'/icwp-wpsf.php' );
+				define( 'ICWP_WPSF_FULL_PATH', Path::join( dirname( __DIR__, 2 ), 'icwp-wpsf.php' ) );
 			}
 
 			// Initialize controller

@@ -26,7 +26,7 @@ class LoginIntentFormFieldBase extends \FernleafSystems\Wordpress\Plugin\Shield\
 
 	protected function getRenderData() :array {
 		return [
-			'field' => $this->action_data[ 'vars' ][ 'field' ],
+			'field' => $this->normalizeField( $this->action_data[ 'vars' ][ 'field' ] ),
 		];
 	}
 
@@ -38,5 +38,37 @@ class LoginIntentFormFieldBase extends \FernleafSystems\Wordpress\Plugin\Shield\
 		return [
 			'vars',
 		];
+	}
+
+	private function normalizeField( array $field ) :array {
+		$field[ 'slug' ] = (string)( $field[ 'slug' ] ?? '' );
+		$field[ 'name' ] = (string)( $field[ 'name' ] ?? '' );
+		$field[ 'type' ] = (string)( $field[ 'type' ] ?? '' );
+		$field[ 'text' ] = (string)( $field[ 'text' ] ?? '' );
+		$field[ 'element' ] = $field[ 'element' ] ?? 'input';
+		$field[ 'hidden_input_name' ] = (string)( $field[ 'hidden_input_name' ] ?? '' );
+		$field[ 'id' ] = $field[ 'id' ] ?? $field[ 'name' ];
+		$field[ 'value' ] = (string)( $field[ 'value' ] ?? '' );
+		$field[ 'placeholder' ] = (string)( $field[ 'placeholder' ] ?? '' );
+		$field[ 'description' ] = (string)( $field[ 'description' ] ?? '' );
+		$field[ 'help_link' ] = (string)( $field[ 'help_link' ] ?? '' );
+		$field[ 'classes' ] = \array_values( \array_filter( \array_map(
+			'strval',
+			\is_array( $field[ 'classes' ] ?? null ) ? $field[ 'classes' ] : []
+		) ) );
+		$field[ 'datas' ] = \array_map(
+			'strval',
+			\array_filter(
+				\is_array( $field[ 'datas' ] ?? null ) ? $field[ 'datas' ] : [],
+				static fn( $key ) :bool => \is_string( $key ) && $key !== '',
+				\ARRAY_FILTER_USE_KEY
+			)
+		);
+		$field[ 'supp' ] = \array_map(
+			'strval',
+			\is_array( $field[ 'supp' ] ?? null ) ? $field[ 'supp' ] : []
+		);
+
+		return $field;
 	}
 }

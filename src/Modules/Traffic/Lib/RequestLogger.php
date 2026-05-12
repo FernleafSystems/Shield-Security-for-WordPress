@@ -2,31 +2,32 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
 
-use AptowebDeps\Monolog\Logger;
+use Monolog\Logger;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops as ReqLogsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class RequestLogger {
-
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	/**
-	 * @var Logger
-	 */
-	private $logger;
+	public const FILTER_BUILTIN_SUPPRESSIONS_ENABLED = 'shield/request_logs/built_in_suppressions_enabled';
+
+	private Logger $logger;
 
 	private bool $hasLogged = false;
 
 	private bool $isDependentLog = false;
 
-	protected function canRun() :bool {
+	private ?ReqLogsDB\Record $lastLoggedRecord = null;
+
+	protected function canRun(): bool {
 		$con = self::con();
 		return $con->comps->opts_lookup->enabledTrafficLogger()
-			   && !$con->this_req->wp_is_wpcli
-			   && $con->db_con->req_logs->isReady();
+		       && !$con->this_req->wp_is_wpcli
+		       && $con->db_con->req_logs->isReady();
 	}
 
 	/**
@@ -47,17 +48,26 @@ class RequestLogger {
 	 * There is a card in here against logging when it is your own upgrade, but this will log anyway if the Audit Log
 	 * is triggered.
 	 */
-	public function isLogged() :bool {
+	public function isLogged(): bool {
 		$con = self::con();
-		return !$con->plugin_deleting && !$con->is_my_upgrade && apply_filters( 'shield/is_log_traffic', false );
+		$isLogged = false;
+
+		if ( !$con->plugin_deleting && !$con->is_my_upgrade && apply_filters( 'shield/is_log_traffic', false ) ) {
+			$isLogged = $this->isDependentLog()
+			            || $con->comps->opts_lookup->getTrafficLiveLogTimeRemaining() > 0
+			            || !apply_filters( self::FILTER_BUILTIN_SUPPRESSIONS_ENABLED, true, $con->this_req )
+			            || !( new RequestLogSuppressor() )->shouldSuppress();
+		}
+
+		return $isLogged;
 	}
 
-	public function createDependentLog() :void {
+	public function createDependentLog(): ?ReqLogsDB\Record {
 		$this->isDependentLog = true;
-		$this->createLog();
+		return $this->createLog();
 	}
 
-	private function createLog() {
+	private function createLog() :?ReqLogsDB\Record {
 		if ( !$this->hasLogged ) {
 			try {
 				( new Monolog() )->assess();
@@ -71,49 +81,46 @@ class RequestLogger {
 				$this->hasLogged = true;
 			}
 		}
+		return $this->lastLoggedRecord;
 	}
 
 	private function initLogger() {
-		$this->getLogger()->pushHandler( new LogHandlers\LocalDbWriter() );
+		$handler = new LogHandlers\LocalDbWriter();
+		$handler->setRequestLogger( $this );
+		$this->getLogger()->pushHandler( $handler );
 		$this->pushCustomHandlers();
 	}
 
-	public function isDependentLog() :bool {
+	public function isDependentLog(): bool {
 		return $this->isDependentLog;
+	}
+
+	public function setLastLoggedRecord( ?ReqLogsDB\Record $record ) :void {
+		$this->lastLoggedRecord = $record;
 	}
 
 	private function pushCustomHandlers() {
 		if ( self::con()->caps->canActivityLogsSendToIntegrations() ) {
 			$custom = apply_filters( 'shield/custom_request_log_handlers', [] );
 			\array_map(
-				function ( $handler ) {
-					$this->getLogger()->pushHandler( $handler );
-				},
+				fn( $handler ) => $this->getLogger()->pushHandler( $handler ),
 				\is_array( $custom ) ? $custom : []
 			);
 		}
 	}
 
-	public function getAutoCleanDays() :int {
-		$con = self::con();
-		$days = $con->opts->optGet( 'auto_clean' );
-		if ( $days !== $con->caps->getMaxLogRetentionDays() ) {
-			$days = (int)\min( $days, $con->caps->getMaxLogRetentionDays() );
-			$con->opts->optSet( 'auto_clean', $days );
-		}
-		return $days;
+	/**
+	 * @deprecated 21.3 Use RequestLogRetentionPolicy::retentionDays()
+	 */
+	public function getAutoCleanDays(): int {
+		return ( new RequestLogRetentionPolicy() )->retentionDays()[ 'standard' ];
 	}
 
-	public function getLogger() :Logger {
-		if ( !isset( $this->logger ) ) {
-			$this->logger = new Logger( 'request', [], \array_map( function ( $processorClass ) {
-				return new $processorClass();
-			}, $this->enumMetaProcessors() ) );
-		}
-		return $this->logger;
+	public function getLogger(): Logger {
+		return $this->logger ??= new Logger( 'request', [], \array_map( fn( $class ) => new $class(), $this->enumMetaProcessors() ) );
 	}
 
-	protected function enumMetaProcessors() :array {
+	protected function enumMetaProcessors(): array {
 		return [
 			Processors\ShieldMetaProcessor::class,
 			Processors\RequestMetaProcessor::class,

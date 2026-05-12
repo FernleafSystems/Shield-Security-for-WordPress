@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\ConditionsVO;
 use FernleafSystems\Wordpress\Services\Services;
@@ -17,7 +16,7 @@ class PageRulesSummary extends PageRulesBase {
 		return [
 			[
 				'title' => __( 'Rules Builder', 'wp-simple-firewall' ),
-				'href'  => $con->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
+				'href'  => $con->plugin_urls->rulesBuild(),
 			],
 		];
 	}
@@ -65,14 +64,14 @@ class PageRulesSummary extends PageRulesBase {
 		$components[ 'hooks' ] = \array_unique( $components[ 'hooks' ] );
 
 		return [
-			'vars'     => [
+			'vars'    => [
 				'components' => $components,
 				'rules'      => $rules,
 			],
-				'strings' => [
-					'wp_hook_label'   => __( 'WP Hook', 'wp-simple-firewall' ),
-					'rule_conditions' => __( 'Rule Conditions', 'wp-simple-firewall' ),
-				],
+			'strings' => [
+				'wp_hook_label'   => __( 'WP Hook', 'wp-simple-firewall' ),
+				'rule_conditions' => __( 'Rule Conditions', 'wp-simple-firewall' ),
+			],
 		];
 	}
 

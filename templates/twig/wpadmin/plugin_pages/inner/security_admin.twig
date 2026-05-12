@@ -1,12 +1,10 @@
 {% extends '/wpadmin/plugin_pages/base_inner_page.twig' %}
 
 {% block inner_page_body %}
-	<div id="SecurityAdminOverlay" class="modal fade"
+	<div id="SecurityAdminOverlay" class="security-admin-overlay"
 		 role="dialog" tabindex="-1"
 		 aria-labelledby="SecurityAdminLabel"
-		 aria-hidden="true"
-		 data-bs-backdrop="static"
-		 data-bs-keyboard="false">
+		 aria-describedby="SecurityAdminDescription">
 		<div class="modal-dialog security-admin-dialog">
 			<div id="IcwpWpsfSecurityAdmin" class="modal-content rounded-3 shield-modal-content-raised">
 				<div class="modal-body p-4 p-md-5">
@@ -15,18 +13,19 @@
 
 						<div class="text-center mb-4">
 							<div class="shield-pin-icon text-secondary mb-2">
-								{{ imgs.icon_shield|raw }}
+								<i class="{{ imgs.icon_shield }}" aria-hidden="true"></i>
 							</div>
 							<h5 id="SecurityAdminLabel" class="mb-1 fw-semibold text-secondary">{{ strings.aar_enter_access_key }}</h5>
-							<p class="text-muted small mb-0">{{ strings.aar_to_manage_must_enter_key }}</p>
+							<p id="SecurityAdminDescription" class="text-muted small mb-0">{{ strings.aar_to_manage_must_enter_key }}</p>
 						</div>
 
 						<div class="mb-3">
+							<label for="sec_admin_key" class="visually-hidden">{{ strings.aar_enter_access_key }}</label>
 							<input type="password" name="sec_admin_key"
 								   class="form-control form-control-lg text-center rounded-3"
 								   id="sec_admin_key"
 								   placeholder="{{ strings.aar_enter_access_key }}"
-								   value="" autocomplete="off" autofocus />
+								   value="" autocomplete="off" />
 						</div>
 
 						<div class="d-grid mb-3">
@@ -38,7 +37,7 @@
 							<a class="text-muted small"
 							   href="{{ hrefs.aar_forget_key }}" target="_blank" rel="noopener noreferrer">
 								{{ strings.aar_forget_key }}?
-								<span class="icon-external-link">{{ imgs.icon_external_link|raw }}</span>
+								<span class="icon-external-link"><i class="{{ imgs.icon_external_link }}" aria-hidden="true"></i></span>
 							</a>
 						</div>
 
@@ -47,9 +46,9 @@
 					{% if flags.allow_email_override %}
 						<hr class="my-3">
 						<div class="text-center">
-							<a href="#" id="SecAdminRemoveConfirmEmail" class="small fw-semibold">
+							<button type="button" id="SecAdminRemoveConfirmEmail" class="small fw-semibold shield-button-link">
 								{{ strings.disable_security_admin }}
-							</a>
+							</button>
 							<p class="text-muted small mt-1 mb-0">
 								{{ strings.send_to_email }}
 							</p>

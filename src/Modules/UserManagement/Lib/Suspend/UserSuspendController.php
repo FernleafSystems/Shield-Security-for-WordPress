@@ -107,8 +107,8 @@ class UserSuspendController {
 		$manual = $this->isSuspendManualEnabled() ? $metaSelect->reset()->filterByHardSuspended()->count() : 0;
 		$passwords = $this->isSuspendAutoPasswordEnabled() ?
 			$metaSelect->reset()->filterByPassExpired( $ts - $expireTimeout )->count() : 0;
-		$idle = $this->isSuspendAutoPasswordEnabled() ?
-			$metaSelect->reset()->filterByPassExpired( $ts - $this->getSuspendAutoIdleTime() )->count() : 0;
+		$idle = $this->isSuspendAutoIdleEnabled() ?
+			$metaSelect->reset()->filterByIdle( $ts - $this->getSuspendAutoIdleTime() )->count() : 0;
 
 		if ( $manual + $passwords + $idle > 0 ) {
 			// Filter the user list database query
@@ -126,11 +126,11 @@ class UserSuspendController {
 					}
 					elseif ( $idle > 0 && $req->query( 'shield_users_idle' ) ) {
 						$filtered = true;
-						$metaSelect->filterByPassExpired( $ts - self::con()->comps->opts_lookup->getPassExpireTimeout() );
+						$metaSelect->filterByIdle( $ts - $this->getSuspendAutoIdleTime() );
 					}
 					elseif ( $passwords > 0 && $req->query( 'shield_users_pass' ) ) {
 						$filtered = true;
-						$metaSelect->filterByIdle( $ts - $this->getSuspendAutoIdleTime() );
+						$metaSelect->filterByPassExpired( $ts - self::con()->comps->opts_lookup->getPassExpireTimeout() );
 					}
 					else {
 						$filtered = false;

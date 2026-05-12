@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\ConfigMerger;
+use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 /**
@@ -25,8 +26,8 @@ class ConfigMergerTest extends TestCase {
 
 	protected function set_up() :void {
 		parent::set_up();
-		$this->specDir = dirname( dirname( __DIR__ ) ) . '/plugin-spec';
-		$this->tempOutputPath = sys_get_temp_dir() . '/plugin-json-test-' . uniqid() . '.json';
+		$this->specDir = Path::join( dirname( dirname( __DIR__ ) ), 'plugin-spec' );
+		$this->tempOutputPath = Path::join( sys_get_temp_dir(), 'plugin-json-test-'.uniqid().'.json' );
 	}
 
 	protected function tear_down() :void {
@@ -51,7 +52,7 @@ class ConfigMergerTest extends TestCase {
 		$this->assertGreaterThan( 0, \count( $manifest ), 'Should have spec files defined' );
 
 		foreach ( $manifest as $filename => $meta ) {
-			$filePath = $this->specDir . '/' . $filename;
+			$filePath = Path::join( $this->specDir, $filename );
 			$this->assertFileExists( $filePath, "Spec file must exist: {$filename}" );
 		}
 	}
@@ -210,6 +211,40 @@ class ConfigMergerTest extends TestCase {
 
 		// Verify structure of first option
 		$this->assertArrayHasKey( 'key', $options[0], 'Each option must have a key' );
+	}
+
+	/**
+	 * Test that ignored maintenance items option is present in merged config.
+	 */
+	public function testIgnoredMaintenanceItemsOptionIsPresentInMergedConfig() :void {
+		$merger = new ConfigMerger();
+		$config = $merger->merge( $this->specDir );
+
+		$options = $config['config_spec']['options'];
+		$matches = \array_values( \array_filter(
+			$options,
+			static fn( array $option ) :bool => $option['key'] === 'ignored_maintenance_items'
+		) );
+
+		$this->assertCount( 1, $matches );
+		$this->assertSame( 'section_hidden', $matches[0]['section'] );
+		$this->assertSame( 'array', $matches[0]['type'] );
+	}
+
+	/**
+	 * Test that the legacy security overview prefs option is absent from merged config.
+	 */
+	public function testSecurityOverviewPrefsOptionIsAbsentFromMergedConfig() :void {
+		$merger = new ConfigMerger();
+		$config = $merger->merge( $this->specDir );
+
+		$options = $config['config_spec']['options'];
+		$matches = \array_values( \array_filter(
+			$options,
+			static fn( array $option ) :bool => $option['key'] === 'sec_overview_prefs'
+		) );
+
+		$this->assertCount( 0, $matches );
 	}
 
 	/**

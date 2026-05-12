@@ -122,13 +122,15 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	public function test_no_stale_temporary_table_string_callbacks() :void {
 		global $wp_filter;
 
-		if ( !isset( $wp_filter['query'] ) ) {
-			$this->assertTrue( true, 'No query filters registered — safe.' );
+		$hasQueryFilter = \is_array( $wp_filter ) && isset( $wp_filter['query'] );
+		if ( !$hasQueryFilter ) {
+			$this->assertFalse( $hasQueryFilter, 'No query filters are registered, so there are no stale callbacks to validate.' );
 			return;
 		}
 
 		$hook = $wp_filter['query'];
 		$callbacks = ( $hook instanceof \WP_Hook ) ? $hook->callbacks : (array) $hook;
+		$this->assertIsArray( $callbacks, 'Query hook callbacks should be represented as an array for stale callback inspection.' );
 
 		foreach ( $callbacks as $priority => $funcs ) {
 			foreach ( $funcs as $key => $entry ) {
@@ -152,7 +154,6 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 			}
 		}
 
-		$this->assertTrue( true, 'No stale string callbacks found.' );
 	}
 
 	/**
@@ -229,55 +230,63 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	/**
 	 * @group smoke
 	 */
-	public function test_shield_static_cache_properties_exist() :void {
-		$checks = [
-			[
-				'class' => \FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus::class,
-				'props' => [ 'cache', 'ranges', 'bypass' ],
-			],
-			[
-				'class' => \FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords::class,
-				'props' => [ 'ips' ],
-			],
-			[
-				'class' => \FernleafSystems\Wordpress\Plugin\Shield\Rules\Processors\ProcessConditions::class,
-				'props' => [ 'ConditionsCache' ],
-			],
-			[
-				'class' => \FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\FirewallPatternFoundInRequest::class,
-				'props' => [ 'ParamsToAssess' ],
-			],
-			[
-				'class' => \FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\ExtractSubConditions::class,
-				'props' => [ 'ConditionDeps', 'AllConditions' ],
-			],
+	public function test_namespaced_integration_tests_extend_supported_base_classes() :void {
+		$integrationRoot = __DIR__;
+		$allowedStandalone = \array_filter( [
+			\realpath( __FILE__ ),
+			\realpath( __DIR__.'/Infrastructure/PluginPackagerStraussTest.php' ),
+		] );
+
+		$allowedParents = [
+			'ShieldIntegrationTestCase',
+			'ShieldWordPressTestCase',
+			'FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase',
+			'FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldWordPressTestCase',
 		];
 
-		foreach ( $checks as $check ) {
-			$class = $check['class'];
-			$this->assertTrue( \class_exists( $class ), "Class {$class} must exist." );
-			$ref = new \ReflectionClass( $class );
-			foreach ( $check['props'] as $prop ) {
-				$this->assertTrue(
-					$ref->hasProperty( $prop ),
-					"Class {$class} must have static property \${$prop}. "
-					.'If this property was renamed or removed, update ShieldIntegrationTestCase::resetIpCaches().'
-				);
-				$refProp = $ref->getProperty( $prop );
-				$this->assertTrue(
-					$refProp->isStatic(),
-					"Property {$class}::\${$prop} must be static."
-				);
+		$violations = [];
+
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $integrationRoot, \FilesystemIterator::SKIP_DOTS )
+		);
+		foreach ( $iterator as $file ) {
+			/** @var \SplFileInfo $file */
+			if ( !$file->isFile() ) {
+				continue;
+			}
+
+			$path = \realpath( $file->getPathname() );
+			if ( !\is_string( $path ) || !\preg_match( '#Test\.php$#', $path ) ) {
+				continue;
+			}
+
+			if ( \in_array( $path, $allowedStandalone, true ) ) {
+				continue;
+			}
+
+			$content = \file_get_contents( $path );
+			if ( !\is_string( $content ) ) {
+				$violations[] = $path.' (could not read file contents)';
+				continue;
+			}
+
+			if ( \strpos( $content, 'namespace FernleafSystems\\Wordpress\\Plugin\\Shield\\Tests\\Integration' ) === false ) {
+				$violations[] = $path.' (missing integration namespace)';
+				continue;
+			}
+
+			if ( \preg_match( '#class\s+\w+\s+extends\s+([\\\\A-Za-z0-9_]+)#', $content, $matches ) !== 1 ) {
+				$violations[] = $path.' (missing class extends declaration)';
+				continue;
+			}
+
+			$parent = \ltrim( (string)$matches[ 1 ], '\\' );
+			if ( !\in_array( $parent, $allowedParents, true ) ) {
+				$violations[] = $path.' (unsupported base class: '.$parent.')';
 			}
 		}
 
-		$cacheClass = \FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache::class;
-		$this->assertTrue( \class_exists( $cacheClass ), "Class {$cacheClass} must exist." );
-		$this->assertTrue(
-			\method_exists( $cacheClass, 'ResetAll' ),
-			"{$cacheClass}::ResetAll() must exist. "
-			.'If renamed or removed, update ShieldIntegrationTestCase::resetIpCaches().'
-		);
+		$this->assertSame( [], $violations, "Integration tests must extend Shield base test cases.\n".\implode( "\n", $violations ) );
 	}
 
 	/**
@@ -330,6 +339,23 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 		$this->assertEmpty(
 			$wpdb->last_error,
 			'SET autocommit must execute without error. Got: '.$wpdb->last_error
+		);
+	}
+
+
+	/**
+	 * @group smoke
+	 */
+	public function test_passkey_runtime_has_required_extension() :void {
+		$required = [
+			'bcmath',
+			'gmp',
+		];
+		$loaded = \array_values( \array_filter( $required, '\extension_loaded' ) );
+
+		$this->assertNotEmpty(
+			$loaded,
+			'Passkey integration runtime must load at least one required extension: '.\implode( ', ', $required ).'.'
 		);
 	}
 }

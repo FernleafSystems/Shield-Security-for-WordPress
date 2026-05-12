@@ -15,8 +15,11 @@ class RequestRecords {
 		/** @var ReqLogsDB\Record|null $record */
 		$record = $select->filterByReqID( $reqID )->first();
 
-		if ( empty( $record ) && $autoCreate && $this->addReq( $reqID, $ipRefID ) ) {
-			$record = $this->loadReq( $reqID, $ipRefID, false );
+		if ( empty( $record ) && $autoCreate ) {
+			$record = $this->createReq( $reqID, $ipRefID );
+			if ( empty( $record ) ) {
+				$record = $this->loadReq( $reqID, $ipRefID, false );
+			}
 		}
 
 		if ( !$record instanceof ReqLogsDB\Record ) {
@@ -27,6 +30,10 @@ class RequestRecords {
 	}
 
 	public function addReq( string $reqID, int $ipRef ) :bool {
+		return $this->createReq( $reqID, $ipRef ) instanceof ReqLogsDB\Record;
+	}
+
+	public function createReq( string $reqID, int $ipRef ) :?ReqLogsDB\Record {
 		$dbh = self::con()->db_con->req_logs;
 		/** @var ReqLogsDB\Insert $insert */
 		$insert = $dbh->getQueryInserter();
@@ -34,6 +41,6 @@ class RequestRecords {
 		$record = $dbh->getRecord();
 		$record->req_id = $reqID;
 		$record->ip_ref = $ipRef;
-		return $insert->insert( $record );
+		return $insert->insertGetRecord( $record );
 	}
 }

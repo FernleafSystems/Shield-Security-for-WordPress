@@ -1,9 +1,9 @@
 import $ from 'jquery';
 import 'select2';
 import { BaseComponent } from "../BaseComponent";
-import { Modal } from "bootstrap";
 import { ObjectOps } from "../../util/ObjectOps";
 import { SuperSearchResults } from "./SuperSearchResults";
+import { BootstrapModals } from "../ui/BootstrapModals";
 
 export class SuperSearchService extends BaseComponent {
 
@@ -33,7 +33,7 @@ export class SuperSearchService extends BaseComponent {
 				inputTooShort: () => this._base_data.strings.enter_at_least_3_chars
 			},
 			placeholder: this._base_data.strings.placeholder,
-			templateResult: ( val ) => ( typeof val.icon === 'undefined' ? '' : ' <span class="svg-container me-2">' + val.icon + '</span>' )
+			templateResult: ( val ) => ( typeof val.icon === 'undefined' ? '' : ' <span class="svg-container me-2"><i class="' + val.icon + '" aria-hidden="true"></i></span>' )
 				+ val.text,
 			escapeMarkup: ( content ) => content,
 			ajax: {
@@ -66,7 +66,7 @@ export class SuperSearchService extends BaseComponent {
 				this.theModal.addEventListener( 'hidden.bs.modal', evt => this.theModalDisplayed = false );
 				new SuperSearchResults( this._base_data )
 			}
-			( new Modal( this.theModal ) ).show();
+			BootstrapModals.Show( this.theModal );
 		}
 	}
 }

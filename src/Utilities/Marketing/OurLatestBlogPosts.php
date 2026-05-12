@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
+/**
+ *  https://plugins.svn.wordpress.org/wpuntexturize/trunk/wpuntexturize.php
+ */
 class OurLatestBlogPosts {
 
 	public function retrieve( int $limit = 2 ) :array {
@@ -42,21 +45,5 @@ class OurLatestBlogPosts {
 			Transient::Set( 'apto-shield-latest-blog-posts', $posts, \DAY_IN_SECONDS*2 );
 		}
 		return $posts;
-	}
-
-	/**
-	 * https://plugins.svn.wordpress.org/wpuntexturize/trunk/wpuntexturize.php
-	 */
-	private function getUntexturiseReplacements() :array {
-		return [
-			'&#8216;' => "'", // left single quotation mark
-			'&#8217;' => "'", // right single quotation mark
-			'&#8218;' => "'", // single low 9 quotation mark
-			'&#8220;' => '"', // left double quotation mark
-			'&#8221;' => '"', // right double quotation mark
-			'&#8222;' => '"', // double low 9 quotation mark
-			'&#8242;' => "'", // prime mark
-			'&#8243;' => '"', // double prime mark
-		];
 	}
 }

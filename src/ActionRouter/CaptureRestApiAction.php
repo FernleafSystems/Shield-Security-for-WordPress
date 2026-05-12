@@ -9,20 +9,15 @@ class CaptureRestApiAction extends CaptureActionBase {
 	}
 
 	protected function run() {
-		add_action( 'rest_api_init', function () {
-			$this->theRun();
-		} );
+		add_action( 'rest_api_init', fn() => $this->theRun() );
 	}
 
 	protected function theRun() {
-		$restHandler = self::con()->comps->rest;
-		if ( !empty( $restHandler ) ) {
-			$restHandler->publish = true;
-			try {
-				$restHandler->init();
-			}
-			catch ( \Exception $e ) {
-			}
+		self::con()->comps->rest->publish = true;
+		try {
+			self::con()->comps->rest->init();
+		}
+		catch ( \Exception $e ) {
 		}
 	}
 }

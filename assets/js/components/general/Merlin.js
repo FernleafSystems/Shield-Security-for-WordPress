@@ -1,5 +1,4 @@
 import { BaseComponent } from "../BaseComponent";
-import { ShieldOverlay } from "../ui/ShieldOverlay";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { Forms } from "../../util/Forms";
@@ -32,7 +31,7 @@ export class Merlin extends BaseComponent {
 			( targetEl ) => this.#runSettingUpdate( targetEl )
 		);
 		shieldEventsHandler_Main.add_Click(
-			'#merlin a.skip-step, #merlin .skip-link',
+			'#merlin .skip-step, #merlin .skip-link',
 			() => this.next()
 		);
 
@@ -113,12 +112,17 @@ export class Merlin extends BaseComponent {
 				this.next();
 			}
 			else {
-				alert( resp.data.message );
+				shieldServices.dialog().message( {
+					title: shieldStrings.string( 'request_failed' ),
+					message: resp.data.message,
+					launcher: form,
+					showTitle: true,
+				} );
 			}
 		} )
 		.catch( ( error ) => {
 			console.log( error );
 		} )
-		.finally( () => ShieldOverlay.Hide() );
+		.finally();
 	};
 }

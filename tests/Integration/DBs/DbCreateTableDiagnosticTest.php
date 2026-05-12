@@ -14,8 +14,13 @@ class DbCreateTableDiagnosticTest extends ShieldIntegrationTestCase {
 	/**
 	 * For every handler that reports isReady() === false, capture the
 	 * CREATE TABLE SQL and the MySQL error, then dump both.
+	 * @group diagnostics
 	 */
 	public function test_diagnose_table_creation_failures() {
+		if ( !$this->isVerbose() ) {
+			$this->markTestSkipped( 'DB diagnostics disabled. Set SHIELD_TEST_VERBOSE=1 to run this diagnostic test.' );
+		}
+
 		$con = $this->requireController();
 
 		global $wpdb;
@@ -96,8 +101,13 @@ class DbCreateTableDiagnosticTest extends ShieldIntegrationTestCase {
 
 	/**
 	 * Directly test that column names with MySQL reserved words are properly handled.
+	 * @group diagnostics
 	 */
 	public function test_reserved_word_column_detection() {
+		if ( !$this->isVerbose() ) {
+			$this->markTestSkipped( 'Reserved-word diagnostics disabled. Set SHIELD_TEST_VERBOSE=1 to run this diagnostic test.' );
+		}
+
 		// MySQL 8.0 reserved words that might appear as column names
 		$mysqlReservedWords = [
 			'event', 'condition', 'constraint', 'default', 'describe', 'distinct',

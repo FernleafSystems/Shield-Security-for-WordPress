@@ -1,0 +1,48 @@
+{% if group.card_type == 'category' %}
+	<div class="item-box{% if is_healthy %} item-box--good{% elseif bucket_selection.key == 'review' and group.status == 'warning' %} item-box--warning{% endif %}">
+		<div class="item-box__header">
+			<span class="item-box__header-icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
+			<span class="item-box__header-title">{{ group.label }}</span>
+			{% if group.management_link is not empty %}
+				<a class="item-box__header-link"
+				   href="{{ group.management_link.href }}"
+				   {% if group.management_link.target is not empty %}target="{{ group.management_link.target }}"{% endif %}
+				   {% if group.management_link.rel is not empty %}rel="{{ group.management_link.rel }}"{% endif %}>
+					{{ group.management_link.label }} <i class="bi {{ group.management_link.icon_class }}" aria-hidden="true"></i>
+				</a>
+			{% endif %}
+		</div>
+		<div class="item-box__grid">
+			{% if group.maintenance_rows is not empty %}
+				{% for row in group.maintenance_rows %}
+					{% include '/wpadmin/components/actions_queue/compact_summary_row.twig' with {
+						row: row
+					} only %}
+				{% endfor %}
+			{% elseif group.summary_row is not empty %}
+				{% include '/wpadmin/components/actions_queue/compact_summary_row.twig' with {
+					row: group.summary_row
+				} only %}
+			{% endif %}
+		</div>
+	</div>
+{% else %}
+	{% include '/wpadmin/components/operator/tile_card.twig' with {
+		tile: {
+			tag: group.card_type == 'linked' or not group.is_interactive ? 'div' : 'button',
+			status: group.status,
+			icon_class: group.icon_class,
+			title: group.label,
+			status_label: group.status_label,
+			oneliner: group.narrative,
+			data_drill_target: group.card_type == 'linked' or not group.is_interactive ? '' : 'detail',
+			data_drill_zone_selection: '',
+			data_drill_bucket_selection: group.card_type == 'linked' or not group.is_interactive ? '' : bucket_selection.selection_json,
+			data_drill_group_selection: group.card_type == 'linked' or not group.is_interactive ? '' : group.selection.selection_json,
+			data_reports_workspace_selection: '',
+			is_disabled: false,
+			class_name: '',
+			footer_links: group.card_type == 'linked' ? group.links : []
+		}
+	} only %}
+{% endif %}

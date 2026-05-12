@@ -10,18 +10,34 @@
     }
   ],
   "config":            {
-    "platform":      {
-      "php": "7.4"
+    "prepend-autoloader":  false,
+    "optimize-autoloader": true,
+    "audit":               {
+      "ignore": {
+        "PKSA-n72g-8zd8-6dm2": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support remains and a long-term passkey library strategy is finalized."
+        }
+      }
     },
-    "allow-plugins": {
-      "dealerdirect/phpcodesniffer-composer-installer": true
+    "platform":            {
+      "php": "7.4"
     }
   },
   "minimum-stability": "stable",
   "prefer-stable":     true,
+  "repositories":      [
+    {
+      "type":    "path",
+      "url":     "packages/thecodingmachine-safe",
+      "options": {
+        "symlink": false
+      }
+    }
+  ],
   "require":           {
     "php":                                   ">=7.4",
-    "crowdsec/capi-client":                  "v3.5",
+    "crowdsec/capi-client":                  "^3.5",
     "dolondro/google-authenticator":         "^2.2",
     "fernleafsystems/wordpress-plugin-core": "^2.4",
     "fernleafsystems/zxcvbn-php":            "^1.1",
@@ -39,19 +55,18 @@
     "ext-zip":                               "*"
   },
   "require-dev":       {
-    "phpunit/phpunit":                      "^9.6",
-    "yoast/phpunit-polyfills":              "^4.0",
-    "brain/monkey":                         "^2.6",
-    "mockery/mockery":                      "^1.6",
-    "phpstan/phpstan":                      "^2.1",
-    "php-stubs/wordpress-stubs":            "^6.0",
-    "squizlabs/php_codesniffer":            "^3.8",
-    "wp-coding-standards/wpcs":             "^3.0",
-    "phpcompatibility/phpcompatibility-wp": "^2.1",
-    "symfony/filesystem":                   "^5.4|^6.0|^7.0",
-    "symfony/process":                      "^5.4|^6.0|^7.0",
-    "szepeviktor/phpstan-wordpress":       "^2.0",
-    "php-stubs/wp-cli-stubs":              "^2.12"
+    "phpunit/phpunit":               "^9.6",
+    "yoast/phpunit-polyfills":       "^4.0",
+    "brain/monkey":                  "^2.6",
+    "brianium/paratest":             "^6.11.1",
+    "mockery/mockery":               "^1.6",
+    "phpstan/phpstan":               "^2.1",
+    "php-stubs/wordpress-stubs":     "^6.0",
+    "symfony/filesystem":            "^5.4|^6.0|^7.0",
+    "symfony/console":               "^5.4|^6.0|^7.0",
+    "symfony/process":               "^5.4|^6.0|^7.0",
+    "szepeviktor/phpstan-wordpress": "^2.0",
+    "php-stubs/wp-cli-stubs":        "^2.12"
   },
   "autoload":          {
     "psr-4": {
@@ -67,52 +82,52 @@
     "psr-4": {
       "FernleafSystems\\Wordpress\\Plugin\\Shield\\Tests\\Unit\\":        "tests/Unit/",
       "FernleafSystems\\Wordpress\\Plugin\\Shield\\Tests\\Integration\\": "tests/Integration/",
-      "FernleafSystems\\Wordpress\\Plugin\\Shield\\Tests\\Package\\":     "tests/Package/",
       "FernleafSystems\\Wordpress\\Plugin\\Shield\\Tests\\Helpers\\":     "tests/Helpers/",
       "FernleafSystems\\Wordpress\\Plugin\\Shield\\Tests\\Fixtures\\":    "tests/fixtures/"
     }
   },
   "scripts":           {
+    "post-install-cmd": [
+      "@php bin/patch-plugin-core-api-exception.php"
+    ],
+    "post-update-cmd": [
+      "@php bin/patch-plugin-core-api-exception.php"
+    ],
     "build:config":     "@php bin/build-config.php",
     "test":             [
       "@build:config",
       "@test:unit",
       "@test:integration"
     ],
-    "test:fast":        [
-      "@build:config",
-      "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Rules",
-      "@php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml tests/Integration/Rules tests/Integration/CrossSystem/RuleToEventToAuditFlowTest.php tests/Integration/Bots/BotEventListenerTest.php"
-    ],
     "test:unit":        [
       "@build:config",
-      "@php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml"
+      "@php bin/run-unit-tests.php --runner-mode=auto"
     ],
     "test:integration": [
+      "Composer\\Config::disableProcessTimeout",
       "@build:config",
-      "@php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml"
+      "@php bin/shield test:integration-local"
     ],
-    "test:ci":          [
-      "@build:config",
-      "@analyze",
-      "@test:unit",
-      "@test:integration"
+    "test:browser":     [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/shield test:browser"
     ],
-    "test:easy":        "@test:unit",
-    "analyze":          [
-      "@php bin/run-static-analysis.php"
+    "test:cross-site": [
+      "@php bin/shield test:cross-site"
     ],
-    "phpcs":            "phpcs",
-    "phpcs:fix":        "phpcbf",
+    "test:package":     [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/shield test:package-targeted"
+    ],
+    "analyze":          "@php bin/shield analyze:source",
     "package-plugin":   [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/package-plugin.php"
     ],
-    "build-zip":        "@php bin/build-zip.php",
-    "playground:local": "@php bin/run-playground-local.php",
-    "playground:local:check": "@php bin/run-playground-local.php --run-blueprint",
-    "playground:package:check": "@php bin/run-playground-local.php --run-blueprint --plugin-root=./shield-package",
-    "playground:local:clean": "@php bin/run-playground-local.php --clean",
+    "build-zip":        [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/build-zip.php"
+    ],
     "strauss:dev":      "@php bin/run-strauss-dev.php",
     "strauss:clean":    "@php bin/run-strauss-dev.php --clean"
   },
@@ -125,14 +140,39 @@
       "packages":                       [
         "monolog/monolog",
         "twig/twig",
-        "crowdsec/capi-client"
+        "crowdsec/capi-client",
+        "thecodingmachine/safe",
+        "web-auth/webauthn-lib",
+        "web-auth/cose-lib",
+        "web-auth/metadata-service",
+        "spomky-labs/base64url",
+        "spomky-labs/cbor-php",
+        "fgrosse/phpasn1",
+        "beberlei/assert",
+        "league/uri",
+        "league/uri-interfaces",
+        "nyholm/psr7",
+        "nyholm/psr7-server",
+        "symfony/process",
+        "dolondro/google-authenticator"
       ],
-      "update_call_sites":              false,
+      "update_call_sites":              [
+        "src"
+      ],
       "optimize_autoloader":            false,
       "override_autoload":              {},
       "exclude_from_copy":              {
         "packages":      [
           "psr/log",
+          "psr/cache",
+          "psr/http-client",
+          "psr/http-factory",
+          "psr/http-message",
+          "ramsey/uuid",
+          "ramsey/collection",
+          "brick/math",
+          "paragonie/random_compat",
+          "christian-riesen/base32",
           "symfony/deprecation-contracts",
           "symfony/polyfill-ctype",
           "symfony/polyfill-mbstring",

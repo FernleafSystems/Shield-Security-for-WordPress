@@ -2,7 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
+	RetrieveItems,
+	ScanResultsScopeResolver
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\BuildScanTableData;
 
 class ScanResultsTableAction extends ScansBase {
@@ -17,9 +21,13 @@ class ScanResultsTableAction extends ScansBase {
 					break;
 				case 'delete':
 				case 'ignore':
+				case 'unignore':
 				case 'repair':
 				case 'repair-delete':
-					$response = $this->doAction( $this->action_data[ 'sub_action' ] );
+					$response = $this->doAction( $this->action_data[ 'sub_action' ], $this->getItemIDs() );
+					break;
+				case 'ignore_all':
+					$response = $this->doScopedAction( 'ignore', ( new ScanResultsDisplayOptions() )->activeOnly() );
 					break;
 				default:
 					throw new \Exception( 'Not a supported scan tables sub_action: '.$this->action_data[ 'sub_action' ] );
@@ -33,34 +41,66 @@ class ScanResultsTableAction extends ScansBase {
 			];
 		}
 
-		$this->response()->action_response_data = $response;
+		$payloadSuccess = (bool)( $response[ 'success' ] ?? false );
+		unset( $response[ 'success' ] );
+
+		$this->response()
+			->setPayload( $response )
+			->setPayloadSuccess( $payloadSuccess );
 	}
 
 	/**
 	 * @throws \Exception
 	 */
-	private function doAction( string $action ) :array {
-		$items = $this->getItemIDs();
-
-		$scanSlugs = [];
-		$successfulItems = [];
+	private function doAction( string $action, array $items ) :array {
+		$itemCount = \count( $items );
+		$successfulItemCount = 0;
 		foreach ( $items as $itemID ) {
-			try {
-				$item = ( new RetrieveItems() )->byID( $itemID );
-				$scanSlugs[] = $item->VO->scan;
-				if ( self::con()->comps->scans->getScanCon( $item->VO->scan )->executeItemAction( $item, $action ) ) {
-					$successfulItems[] = $item->VO->scanresult_id;
-				}
-			}
-			catch ( \Exception $e ) {
-			}
+			$successfulItemCount += $this->executeActionForItemID( $itemID, $action ) ? 1 : 0;
 		}
 
-		foreach ( \array_unique( $scanSlugs ) as $slug ) {
-			self::con()->comps->scans->getScanCon( $slug )->cleanStalesResults();
+		if ( $successfulItemCount > 0 ) {
+			$scans = self::con()->comps->scans;
+			$scans->resetScanResultsCountMemoization();
+			$scans->getAdminBarScanSummaryCache()->refresh( $scans->getScanResultsCount() );
 		}
 
-		if ( \count( $successfulItems ) === \count( $items ) ) {
+		return $this->buildActionResponse( $action, $itemCount, $successfulItemCount );
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function doScopedAction( string $action, array $resultsDisplayOptions ) :array {
+		$itemIDs = $this->getScopedItemIDs( $resultsDisplayOptions );
+		return empty( $itemIDs )
+			? $this->buildNoMatchingItemsResponse()
+			: $this->doAction( $action, $itemIDs );
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function getScopedItemIDs( array $resultsDisplayOptions ) :array {
+		$type = \trim( (string)( $this->action_data[ 'type' ] ?? '' ) );
+		$file = \trim( (string)( $this->action_data[ 'file' ] ?? '' ) );
+		if ( $type === '' || $file === '' ) {
+			throw new \Exception( __( 'No scan results scope was provided.', 'wp-simple-firewall' ) );
+		}
+
+		$results = ( new RetrieveItems() )
+			->setScanController( self::con()->comps->scans->AFS() )
+			->addWheres( ( new ScanResultsScopeResolver() )->wheresForActionScope( $type, $file ) )
+			->retrieveForResultsTables( $resultsDisplayOptions );
+
+		return \array_values( \array_unique( \array_map(
+			static fn( $item ) :int => (int)$item->VO->resultitem_id,
+			$results->getAllItems()
+		) ) );
+	}
+
+	private function buildActionResponse( string $action, int $itemCount, int $successfulItemCount ) :array {
+		if ( $successfulItemCount === $itemCount ) {
 			$success = true;
 			switch ( $action ) {
 				case 'delete':
@@ -68,6 +108,9 @@ class ScanResultsTableAction extends ScansBase {
 					break;
 				case 'ignore':
 					$msg = __( 'Ignore Success', 'wp-simple-firewall' );
+					break;
+				case 'unignore':
+					$msg = __( 'Restore Success', 'wp-simple-firewall' );
 					break;
 				case 'repair':
 					$msg = __( 'Repair Success', 'wp-simple-firewall' );
@@ -79,7 +122,6 @@ class ScanResultsTableAction extends ScansBase {
 					$msg = __( 'Success', 'wp-simple-firewall' );
 					break;
 			}
-			$itemCount = \count( $items );
 			$msg = sprintf( '%s: %s', $msg,
 				sprintf( _n( '%s item processed', '%s items processed', $itemCount, 'wp-simple-firewall' ), $itemCount ) );
 		}
@@ -92,9 +134,28 @@ class ScanResultsTableAction extends ScansBase {
 		return [
 			'success'      => $success,
 			'page_reload'  => false,
-			'table_reload' => \in_array( $action, [ 'ignore', 'repair', 'delete', 'repair-delete' ] ),
+			'table_reload' => true,
 			'message'      => $msg,
 		];
+	}
+
+	private function buildNoMatchingItemsResponse() :array {
+		return [
+			'success'      => true,
+			'page_reload'  => false,
+			'table_reload' => true,
+			'message'      => __( 'No matching items remain in this view.', 'wp-simple-firewall' ),
+		];
+	}
+
+	private function executeActionForItemID( int $itemID, string $action ) :bool {
+		try {
+			$item = ( new RetrieveItems() )->byID( $itemID );
+			return self::con()->comps->scans->getScanCon( $item->VO->scan )->executeItemAction( $item, $action );
+		}
+		catch ( \Exception $e ) {
+			return false;
+		}
 	}
 
 	/**
@@ -123,9 +184,14 @@ class ScanResultsTableAction extends ScansBase {
 	 */
 	private function retrieveTableData() :array {
 		$builder = new BuildScanTableData();
+		$options = new ScanResultsDisplayOptions();
 		$builder->table_data = $this->action_data[ 'table_data' ] ?? [];
 		$builder->type = $this->action_data[ 'type' ] ?? '';
 		$builder->file = $this->action_data[ 'file' ] ?? '';
+		$explicitOptions = $options->explicitOptionsFromActionData( $this->action_data );
+		if ( $explicitOptions !== null ) {
+			$builder->results_display_options = $explicitOptions;
+		}
 		return [
 			'success'        => true,
 			'datatable_data' => $builder->build(),

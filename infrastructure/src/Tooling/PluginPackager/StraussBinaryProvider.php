@@ -16,6 +16,8 @@ class StraussBinaryProvider {
 
 	private ?string $forkRepo;
 
+	private string $forkBranch;
+
 	private CommandRunner $commandRunner;
 
 	private SafeDirectoryRemover $directoryRemover;
@@ -26,12 +28,14 @@ class StraussBinaryProvider {
 	public function __construct(
 		string $version,
 		?string $forkRepo,
+		?string $forkBranch,
 		CommandRunner $commandRunner,
 		SafeDirectoryRemover $directoryRemover,
 		?callable $logger = null
 	) {
 		$this->version = $version !== '' ? $version : self::FALLBACK_VERSION;
 		$this->forkRepo = $forkRepo;
+		$this->forkBranch = $this->normalizeForkBranch( $forkBranch );
 		$this->commandRunner = $commandRunner;
 		$this->directoryRemover = $directoryRemover;
 		$this->logger = $logger ?? static function ( string $message ) :void {
@@ -125,7 +129,8 @@ class StraussBinaryProvider {
 	 * @throws \RuntimeException if clone or setup fails
 	 */
 	private function cloneAndPrepareStraussFork( string $targetDir ) :string {
-		$forkHash = \substr( \md5( $this->forkRepo ), 0, 12 );
+		$checkoutBranch = $this->resolveCheckoutBranch();
+		$forkHash = \substr( \md5( $this->forkRepo.'#'.$checkoutBranch ), 0, 12 );
 
 		// In Docker/Linux: use /tmp (no cross-drive issues, ephemeral so no cleanup needed)
 		// On Windows: use target directory to avoid cross-drive path resolution issues
@@ -148,6 +153,7 @@ class StraussBinaryProvider {
 
 		// Clone fresh
 		$this->log( sprintf( 'Cloning Strauss fork: %s', $this->forkRepo ) );
+		$this->log( sprintf( 'Using Strauss fork branch: %s', $checkoutBranch ) );
 
 		if ( \is_dir( $forkDir ) ) {
 			// Pass appropriate base path for safety check
@@ -162,7 +168,7 @@ class StraussBinaryProvider {
 		}
 
 		$this->commandRunner->run( [ 'git', 'clone', $this->forkRepo, $forkDir ], $parentDir );
-		$this->commandRunner->run( [ 'git', 'checkout', 'develop' ], $forkDir );
+		$this->commandRunner->run( [ 'git', 'checkout', $checkoutBranch ], $forkDir );
 
 		// Install dependencies (--no-scripts skips phive/dev tool hooks we don't need)
 		$this->log( 'Installing Strauss fork dependencies...' );
@@ -195,6 +201,33 @@ class StraussBinaryProvider {
 		return $binPath;
 	}
 
+	private function normalizeForkBranch( ?string $forkBranch ) :string {
+		$normalized = \trim( (string)$forkBranch, " \t\n\r\0\x0B\"'" );
+		return $normalized !== '' ? $normalized : 'develop';
+	}
+
+	private function resolveCheckoutBranch() :string {
+		if ( $this->forkBranchExists( $this->forkBranch ) ) {
+			return $this->forkBranch;
+		}
+
+		if ( $this->forkBranch !== 'develop' ) {
+			$this->log( sprintf(
+				'Strauss fork branch "%s" not found; falling back to develop',
+				$this->forkBranch
+			) );
+		}
+
+		return 'develop';
+	}
+
+	private function forkBranchExists( string $branch ) :bool {
+		return $this->commandRunner->succeeds(
+			[ 'git', 'ls-remote', '--exit-code', '--heads', (string)$this->forkRepo, $branch ],
+			null
+		);
+	}
+
 	/**
 	 * Download Strauss phar file for namespace prefixing.
 	 *
@@ -221,6 +254,8 @@ class StraussBinaryProvider {
 				'and place it in the package directory.'
 			);
 		}
+
+		$this->assertOpenSslCaConfigValid( $downloadUrl, $targetPath );
 
 		// Create HTTP context for the download
 		$context = stream_context_create( [
@@ -335,6 +370,70 @@ class StraussBinaryProvider {
 
 		$this->log( '  ✓ strauss.phar downloaded' );
 		$this->log( '' );
+	}
+
+	private function assertOpenSslCaConfigValid( string $downloadUrl, string $targetPath ) :void {
+		$this->assertConfiguredOpenSslPathValid(
+			'openssl.cafile',
+			$this->normalizeIniPath( (string)\ini_get( 'openssl.cafile' ) ),
+			false,
+			$downloadUrl,
+			$targetPath
+		);
+		$this->assertConfiguredOpenSslPathValid(
+			'openssl.capath',
+			$this->normalizeIniPath( (string)\ini_get( 'openssl.capath' ) ),
+			true,
+			$downloadUrl,
+			$targetPath
+		);
+	}
+
+	private function assertConfiguredOpenSslPathValid(
+		string $settingName,
+		string $configuredPath,
+		bool $expectsDirectory,
+		string $downloadUrl,
+		string $targetPath
+	) :void {
+		if ( $configuredPath === '' ) {
+			return;
+		}
+
+		$isValidPath = $expectsDirectory
+			? \is_dir( $configuredPath ) && \is_readable( $configuredPath )
+			: \is_file( $configuredPath ) && \is_readable( $configuredPath );
+
+		if ( $isValidPath ) {
+			return;
+		}
+
+		$expectedType = $expectsDirectory ? 'directory' : 'file';
+		$phpIniPath = \php_ini_loaded_file();
+		$phpIniPath = \is_string( $phpIniPath ) && $phpIniPath !== '' ? $phpIniPath : '(unknown php.ini path)';
+
+		throw new \RuntimeException(
+			\sprintf(
+				'Strauss download failed: OpenSSL CA configuration is invalid. '.
+				'WHAT FAILED: PHP setting "%s" points to a missing or unreadable %s: %s. '.
+				'WHY: HTTPS downloads require a valid certificate authority path for TLS verification. '.
+				'HOW TO FIX: Update "%s" in php.ini (%s) to a valid readable %s, '.
+				'or clear the setting to use system defaults. Then retry packaging. '.
+				'If needed, manually download strauss.phar from %s and place it at: %s',
+				$settingName,
+				$expectedType,
+				$configuredPath,
+				$settingName,
+				$phpIniPath,
+				$expectedType,
+				$downloadUrl,
+				$targetPath
+			)
+		);
+	}
+
+	private function normalizeIniPath( string $value ) :string {
+		return \trim( $value, " \t\n\r\0\x0B\"'" );
 	}
 
 	/**

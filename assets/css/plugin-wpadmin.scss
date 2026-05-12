@@ -1,6 +1,7 @@
 @import './shield/dashboard-widget';
-@import './shield/toastify';
-@import './shield/micromodal';
+@import './shield/wpadmin-toast';
+@import './shield/focus-indicators';
+@import './shield/accessible-dialog';
 @import './components/notices';
 
 .plugin_update_message {

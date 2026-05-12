@@ -44,6 +44,7 @@ class EventsParser {
 			'user_demoted',
 			'user_deleted',
 			'user_email_updated',
+			'user_password_reset',
 			'user_password_updated',
 			'app_pass_created',
 		] );

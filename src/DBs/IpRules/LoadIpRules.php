@@ -25,6 +25,10 @@ class LoadIpRules extends \FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\Ba
 		return $this->getTableSchemaForJoinedTable()->getColumnNames();
 	}
 
+	protected function getFallbackOrderByColumn() :string {
+		return 'last_access_at';
+	}
+
 	protected function getTableSchemaForJoinedTable() :TableSchema {
 		return self::con()->db_con->ip_rules->getTableSchema();
 	}

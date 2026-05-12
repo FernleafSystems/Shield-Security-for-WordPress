@@ -15,7 +15,7 @@ export class ObjectOps {
 		// Merge the object into the extended object
 		const merge = function ( obj ) {
 			for ( const prop in obj ) {
-				if ( obj.hasOwnProperty( prop ) ) {
+				if ( Object.prototype.hasOwnProperty.call( obj, prop ) ) {
 					extended[ prop ] = obj[ prop ]; // Push each value from `obj` into `extended`
 				}
 			}
@@ -30,6 +30,6 @@ export class ObjectOps {
 	};
 
 	static IsEmpty( obj ) {
-		return typeof obj === 'object' && Object.keys( obj ).length === 0;
+		return obj == null || ( typeof obj === 'object' && Object.keys( obj ).length === 0 );
 	}
 }

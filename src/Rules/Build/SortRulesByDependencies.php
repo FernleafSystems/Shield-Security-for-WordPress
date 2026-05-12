@@ -17,11 +17,7 @@ class SortRulesByDependencies {
 	/**
 	 * @var RuleVO[]
 	 */
-	private $rules;
-
-	private $dependencies = [];
-
-	private $finalRulesOrder = [];
+	private array $rules;
 
 	public function __construct( array $rules ) {
 		$this->rules = $rules;
@@ -29,11 +25,10 @@ class SortRulesByDependencies {
 
 	/**
 	 * @return RuleVO[]
+	 * @throws \Exception
 	 */
 	public function run() :array {
 		$this->assignWpHooks();
-//		$this->verifyDependencies();
-//		$this->orderRules();
 		return $this->rules;
 	}
 

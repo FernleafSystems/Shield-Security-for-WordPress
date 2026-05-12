@@ -27,6 +27,10 @@ abstract class ItemActionHandler {
 				$success = $this->ignore();
 				break;
 
+			case 'unignore':
+				$success = $this->unignore();
+				break;
+
 			case 'repair':
 				$success = $this->repair();
 				break;
@@ -51,13 +55,8 @@ abstract class ItemActionHandler {
 			->setScanItem( $item )
 			->delete(); // Exception if can't delete
 		if ( $item->deleted ) {
-			self::con()
-				->db_con
-				->scan_result_items
-				->getQueryUpdater()
-				->updateById( $item->VO->resultitem_id, [
-					'item_deleted_at' => Services::Request()->ts()
-				] );
+			self::con()->db_con->scan_result_items->getQueryUpdater()->setItemDeleted( $item->VO->resultitem_id );
+			self::con()->comps->scans->resetScanResultsCountMemoization();
 			$item->repair_event_status = 'delete_success';
 		}
 
@@ -72,6 +71,15 @@ abstract class ItemActionHandler {
 		return ( new ItemIgnoreHandler() )
 			->setScanItem( $this->getScanItem() )
 			->ignore();
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function unignore() :bool {
+		return ( new ItemIgnoreHandler() )
+			->setScanItem( $this->getScanItem() )
+			->unignore();
 	}
 
 	/**
@@ -100,13 +108,17 @@ abstract class ItemActionHandler {
 				'attempt_repair_at' => Services::Request()->ts()
 			];
 			if ( $item->repaired ) {
-				$updateInfo[ 'item_repaired_at' ] = Services::Request()->ts();
+				$updateInfo[ 'resolved_at' ] = Services::Request()->ts();
+				$updateInfo[ 'resolution_reason' ] = 'repaired';
 			}
 			self::con()
 				->db_con
 				->scan_result_items
 				->getQueryUpdater()
 				->updateById( $item->VO->resultitem_id, $updateInfo );
+			if ( $item->repaired ) {
+				self::con()->comps->scans->resetScanResultsCountMemoization();
+			}
 
 			$item->repair_event_status = $item->repaired ? 'repair_success' : 'repair_fail';
 

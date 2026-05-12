@@ -21,7 +21,7 @@
 							{% for sub_item_text, sub_item_enabled in scans.afs.strings.sub_items %}
 								<li class="list-group-item {{ sub_item_enabled ? 'list-group-item-primary' : 'list-group-item-warning' }}">
 									<span class="svg-container">
-										{{ (sub_item_enabled ? imgs.icon_shield_check : imgs.icon_shield_x)|raw }}
+										<i class="{{ sub_item_enabled ? imgs.icon_shield_check : imgs.icon_shield_x }}" aria-hidden="true"></i>
 									</span>
 									{{ sub_item_text }}
 								</li>

@@ -28,11 +28,14 @@ class PluginFile extends BasePluginThemeFile {
 	 */
 	protected function runScan() :bool {
 		try {
-			if ( !( new Query() )->verifyHash( $this->pathFull ) ) {
+			$verification = ( new Query() )->verifyHashWithSource( $this->pathFull );
+			if ( !$verification->verified ) {
 				throw new Exceptions\PluginFileChecksumFailException( $this->pathFull, [
 					'slug' => $this->asset->unique_id,
 				] );
 			}
+			$this->hashVerificationResult = $verification;
+			$this->verifiedHashTrustedSource = $verification->trustedSource;
 			$valid = true;
 		}
 		catch ( UnrecognisedAssetFile $e ) {

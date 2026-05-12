@@ -1,0 +1,40 @@
+includes:
+	- vendor/szepeviktor/phpstan-wordpress/extension.neon
+	- phpstan-baseline.neon
+
+parameters:
+	level: 2
+	paths:
+		- infrastructure/src/Tooling/Cli
+		- infrastructure/src/Tooling/Output
+		- infrastructure/src/Tooling/Process
+		- infrastructure/src/Tooling/StaticAnalysis
+		- infrastructure/src/Tooling/Testing
+		- infrastructure/src/Tooling/ConfigMerger.php
+		- bin
+		- tests/Helpers/TempDirLifecycleTrait.php
+		- tests/Unit/PhpSyntaxLinterTest.php
+		- tests/Unit/ToolingAnalysisLaneTest.php
+		- tests/Unit/ShieldCliApplicationTest.php
+		- tests/Unit/ShieldCliCommandTest.php
+		- tests/Unit/SourceRuntimeTestLaneTest.php
+		- tests/Unit/SourceStaticAnalysisLaneTest.php
+		- tests/Unit/LocalIntegrationTestLaneTest.php
+		- tests/Unit/Support
+	bootstrapFiles:
+		- vendor/autoload.php
+		- tests/stubs/phpstan-project-constants.php
+		- tests/stubs/phpstan-optional-dependencies.php
+	scanFiles:
+		- vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
+		- vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php
+		- vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php
+		- vendor/php-stubs/wp-cli-stubs/wp-cli-tools-stubs.php
+	excludePaths:
+		analyse:
+			- */vendor/*
+			- */vendor_prefixed/*
+			- */node_modules/*
+	tmpDir: tmp/phpstan-tooling
+	universalObjectCratesClasses:
+		- FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass

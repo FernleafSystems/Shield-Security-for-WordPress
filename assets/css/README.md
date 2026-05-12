@@ -6,7 +6,6 @@
 assets/css/
   plugin-main.scss            Main entry point (compiled to shield-main.bundle.css)
   plugin-wpadmin.scss         WordPress admin dashboard widget styles
-  plugin-blockpage.scss       Block/lockout page overlay
   plugin-login2fa.scss        Two-factor authentication login form
   plugin-userprofile.scss     User profile MFA section
   plugin-mainwp-server.scss   MainWP server extension
@@ -18,7 +17,7 @@ assets/css/
     zones.scss                Security zone component cards
     merlin.scss               Merlin setup wizard
     meters.scss               Meter gauge styling
-    security-admin.scss       Security admin PIN modal
+    security-admin.scss       Security admin pane-scoped overlay/dialog
     options.scss              Module options pages
     ip_analyse.scss           IP analysis off-canvas (options-style rail layout)
     reports.scss              Security report styles (reference only — actual CSS is inline in Twig)
@@ -26,9 +25,8 @@ assets/css/
     dashboard-widget.scss     WP dashboard widget
     datatables.css            DataTables customisations
     dialog.css                Dialog/modal styling
-    micromodal.scss           Micro-modal overrides
     third-party-overrides.scss  Third-party library fixes
-    toastify.scss             Toast notifications
+    wpadmin-toast.scss        Shared wp-admin toast notifications
     video_modal.scss          Video modal
 
   components/
@@ -53,17 +51,28 @@ The import order in `plugin-main.scss` matters. Follow this sequence:
 
 1. **Bootstrap color overrides** (`$primary`, `$secondary`, `$info`, `$warning`, `$danger`)
 2. **Bootstrap framework** (`~bootstrap/scss/bootstrap`)
-3. **Third-party vendor CSS** (DataTables, Select2, Intro.js, etc.)
-4. **Shared status variables** (`shield/_status-colors`) -- must come before any shield component
-5. **Shield component styles** (`shield/*.scss`)
-6. **General component styles** (`components/*.scss`)
-7. **Page-level styles** (inline in plugin-main.scss)
+3. **Bootstrap Icons font** (`~bootstrap-icons/font/bootstrap-icons.css`)
+4. **Third-party vendor CSS** (DataTables, Select2, Intro.js, etc.)
+5. **Shared status variables** (`shield/_status-colors`) -- must come before any shield component
+6. **Shield component styles** (`shield/*.scss`)
+7. **General component styles** (`components/*.scss`)
+8. **Page-level styles** (inline in plugin-main.scss)
 
 When adding a new shield component file, import it in the shield section (after `_status-colors` and before `components/`).
 
 ## Shared Status Variables (_status-colors.scss)
 
 All status-related colours are defined in `shield/_status-colors.scss`. Use these variables instead of hardcoding hex values.
+
+## Operator Mode Palette (_mode-palette.scss)
+
+Operator-mode identity colours live separately in `assets/css/_mode-palette.scss`.
+Use these tokens for mode chrome only: sidebar mode items, operator step tabs,
+context rails, and other explicit mode accents.
+
+Do not use the mode palette for traffic-light semantics. Keep genuine
+`good`/`warning`/`critical`/`info` UI states on the shared status tokens in
+`shield/_status-colors.scss`.
 
 ### Status Accent Colours
 
@@ -165,6 +174,14 @@ When building a new card component that needs a status accent:
 5. Apply `$card-bg-*` variables for subtle card body background tints per status
 6. Set `overflow: hidden` on the card so the accent respects border-radius
 
+## Landing Status Strip Pattern
+
+Mode landing status strips reuse the shared card primitives and the shared
+`shield-mode-strip*` classes for the left-edge accent, chip, copy layout, and
+optional inline meter. The canonical reference implementation is the Actions
+Queue landing strip; Configure maps its posture payload into the same shared
+markup rather than owning a second strip design.
+
 ## Status Naming Conventions
 
 Different components use different status vocabulary. Map them to the shared colour variables:
@@ -217,7 +234,8 @@ Each SCSS file owns specific components. Do not style another file's components:
 | `ip_analyse.scss` | `#AptoOffcanvas.offcanvas_ipanalysis .shield-ipanalyse*` and IP-analysis-specific content styling inside the shared options-style rail/panel layout |
 | `reports.scss` (ref) | `.report-section`, `.scan-card`, `.stat-card`, `.change-card`, `.status-pill`, `.category-header`, `.repair-item`, `.scan-item` |
 | `merlin.scss` | `#MerlinOverlay`, `.merlin-modal-dialog`, `.stepper*`, `.wizard-card*`, `.wizard-step-pane`, `.profile-card*`, `.feature-list`, `.section-header`, `.feature-item`, `.merlin-form-footer` |
-| `security-admin.scss` | Security admin modal and PIN form |
+| `security-admin.scss` | Security admin pane-scoped overlay/dialog and PIN form |
+| `dashboard.scss` | shared reusable primitives including `.shield-card`, `.shield-card-accent`, `.shield-badge`, `.shield-stack`, `.shield-mode-strip*`, plus dashboard-specific components |
 
 ## Inline CSS Pattern (Reports)
 
@@ -249,7 +267,7 @@ The setup wizard (`merlin.scss`) uses a custom **Card Stepper** pattern with van
 
 ### Infrastructure
 
-**Bootstrap Icons font** is imported via `~bootstrap-icons/font/bootstrap-icons.css` in `plugin-main.scss`. This provides `<i class="bi bi-*">` icon classes used in the wizard stepper checkmarks and profile card feature icons. Webpack's `file-loader` rule emits the font files to `assets/dist/img/`.
+**Bootstrap Icons font** is imported via `~bootstrap-icons/font/bootstrap-icons.css` in entry bundles that render `<i class="bi bi-*">` icons, including `plugin-main.scss` for Shield admin UI and `plugin-login2fa.scss` for login/MFA UI. The WordPress dashboard widget deliberately avoids Bootstrap framework and Bootstrap Icons imports; its status marks are scoped CSS-only shapes in `shield/dashboard-widget.scss`. Webpack's `file-loader` rule emits Bootstrap Icons font files to `assets/dist/img/`.
 
 ### Custom Stepper
 

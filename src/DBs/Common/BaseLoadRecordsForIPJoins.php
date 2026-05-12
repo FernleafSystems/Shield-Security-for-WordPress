@@ -22,7 +22,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	use PluginControllerConsumer;
 	use IpAddressConsumer;
 
-	protected $includeIpMeta = false;
+	protected bool $includeIpMeta = false;
 
 	abstract public function select() :array;
 
@@ -38,24 +38,6 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 				''
 			)
 		);
-	}
-
-	public function getDistinctIPs() :array {
-		$results = Services::WpDb()->selectCustom(
-			sprintf( 'SELECT DISTINCT INET6_NTOA(`ips`.`ip`) as `ip`
-						FROM `%s` as `%s`
-						INNER JOIN `%s` as `ips` ON `ips`.`id` = `%s`.`ip_ref`;',
-				$this->getTableSchemaForJoinedTable()->table,
-				$this->getJoinedTableAbbreviation(),
-				self::con()->db_con->ips->getTableSchema()->table,
-				$this->getJoinedTableAbbreviation()
-			)
-		);
-
-		return \array_values( \array_filter( \array_map(
-			fn( $result ) => \is_array( $result ) ? ( $result[ 'ip' ] ?? null ) : null,
-			\is_array( $results ) ? $results : []
-		) ) );
 	}
 
 	/**
@@ -96,9 +78,45 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	}
 
 	protected function buildOrderBy() :string {
-		$orderBy = $this->order_by;
+		$requestedOrderBy = \trim( (string)( $this->order_by ?? '' ) );
+		if ( empty( $requestedOrderBy ) ) {
+			return '';
+		}
+
+		$orderBy = $this->normaliseOrderByColumn( $requestedOrderBy );
 		return empty( $orderBy ) ? ''
-			: sprintf( 'ORDER BY %s %s', sprintf( '`%s`.`%s`', $this->getJoinedTableAbbreviation(), $orderBy ), $this->order_dir ?? 'DESC' );
+			: sprintf( 'ORDER BY `%s`.`%s` %s',
+				$this->getJoinedTableAbbreviation(),
+				$orderBy,
+				$this->normaliseOrderDirection( (string)( $this->order_dir ?? '' ) )
+			);
+	}
+
+	protected function getFallbackOrderByColumn() :string {
+		return $this->getTableSchemaForJoinedTable()->getPrimaryKeyColumnName();
+	}
+
+	private function normaliseOrderByColumn( string $column ) :string {
+		$columns = [];
+		foreach ( $this->getTableSchemaForJoinedTable()->getColumnNames() as $schemaColumn ) {
+			$schemaColumn = \trim( (string)$schemaColumn );
+			if ( !empty( $schemaColumn ) ) {
+				$columns[ \strtolower( $schemaColumn ) ] = $schemaColumn;
+			}
+		}
+
+		$normalised = $columns[ \strtolower( \trim( $column ) ) ] ?? '';
+		if ( !empty( $normalised ) ) {
+			return $normalised;
+		}
+
+		$fallback = \trim( $this->getFallbackOrderByColumn() );
+		return empty( $fallback ) ? '' : ( $columns[ \strtolower( $fallback ) ] ?? '' );
+	}
+
+	private function normaliseOrderDirection( string $direction ) :string {
+		$direction = \strtoupper( \trim( $direction ) );
+		return \in_array( $direction, [ 'ASC', 'DESC' ], true ) ? $direction : 'DESC';
 	}
 
 	protected function getDefaultSelectFieldsForJoinedTable() :array {
@@ -140,7 +158,7 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 	protected function buildWheres() :array {
 		$wheres = \is_array( $this->wheres ) ? $this->wheres : [];
 		if ( !empty( $this->getIP() ) ) {
-			$wheres[] = sprintf( "`ips`.`ip`=INET6_ATON('%s')", $this->getIP() );
+			$wheres[] = IpAddressSql::equality( '`ips`.`ip`', $this->getIP() );
 		}
 		return $wheres;
 	}
@@ -159,10 +177,5 @@ abstract class BaseLoadRecordsForIPJoins extends DynPropertiesClass {
 			$this->getJoinedTableAbbreviation(),
 			$this->getJoinedTableAbbreviation()
 		);
-	}
-
-	public function setIncludeIpMeta() {
-		$this->includeIpMeta = true;
-		return $this;
 	}
 }

@@ -4,12 +4,29 @@ import { AjaxService } from "../services/AjaxService";
 export class DynamicActionButtons extends BaseComponent {
 
 	init() {
-		shieldEventsHandler_Main.add_Click( '.shield_dynamic_action_button', ( targetEl ) => {
-			let data = targetEl.dataset;
-			if ( !( data[ 'confirm' ] ?? false ) || confirm( 'Are you sure?' ) ) {
-				delete data[ 'confirm' ];
-				( new AjaxService() ).send( data ).finally();
+		shieldEventsHandler_Main.add_Click( '.shield_dynamic_action_button', async ( targetEl ) => {
+			const requestData = {
+				...targetEl.dataset,
+			};
+			const confirmValue = String( requestData.confirm || '' ).trim();
+			if ( confirmValue.length > 0 ) {
+				const confirmed = await shieldServices.dialog().confirm( {
+					message: normalizeConfirmMessage( confirmValue ),
+					danger: true,
+					launcher: targetEl,
+				} );
+				if ( !confirmed ) {
+					return;
+				}
 			}
+			delete requestData.confirm;
+			( new AjaxService() ).send( requestData ).finally();
 		} );
 	}
+}
+
+function normalizeConfirmMessage( confirmValue ) {
+	return [ '1', 'true', 'yes' ].includes( confirmValue.toLowerCase() )
+		? shieldStrings.string( 'are_you_sure' )
+		: confirmValue;
 }

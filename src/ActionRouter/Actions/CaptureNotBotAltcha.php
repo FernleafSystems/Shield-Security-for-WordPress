@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\AltCha\AltChaV2Pbkdf2;
+
 class CaptureNotBotAltcha extends BaseAction {
 
 	use Traits\AuthNotRequired;
@@ -9,6 +11,7 @@ class CaptureNotBotAltcha extends BaseAction {
 	public const SLUG = 'capture_not_bot_altcha';
 
 	protected function exec() {
+		$response = $this->response();
 		try {
 			self::con()->comps->events->fireEvent( 'bottrack_multiple', [
 				'data' => [
@@ -21,33 +24,27 @@ class CaptureNotBotAltcha extends BaseAction {
 
 			self::con()->comps->not_bot->sendNotBotFlagCookie();
 
-			$this->response()->success = true;
+			$response->setPayloadSuccess( true );
 		}
 		catch ( \Exception $e ) {
 			error_log( $e->getMessage() );
-			$this->response()->success = false;
+			$response->setPayloadSuccess( false );
 		}
 	}
 
 	private function verifyAltChaSolution( array $data ) :bool {
 		$verified = false;
 		$keys = [
-			'algorithm',
-			'salt',
-			'challenge',
-			'signature',
-			'number',
-			'expires',
+			'altcha_version',
+			'altcha_challenge',
+			'altcha_solution',
 		];
-		if ( \count( \array_intersect_key( $data, \array_flip( $keys ) ) ) === \count( $keys ) ) {
+		if ( \count( \array_intersect_key( $data, \array_flip( $keys ) ) ) === \count( $keys )
+			 && (string)$data[ 'altcha_version' ] === AltChaV2Pbkdf2::VERSION ) {
 			try {
 				$verified = self::con()->comps->altcha->verifySolution(
-					$data[ 'algorithm' ],
-					$data[ 'salt' ],
-					$data[ 'challenge' ],
-					$data[ 'signature' ],
-					$data[ 'number' ],
-					(int)$data[ 'expires' ]
+					(string)$data[ 'altcha_challenge' ],
+					(string)$data[ 'altcha_solution' ]
 				);
 			}
 			catch ( \Exception $e ) {

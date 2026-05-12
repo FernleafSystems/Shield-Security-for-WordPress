@@ -63,7 +63,7 @@
 		font-size: 2rem;
 		line-height: 1;
 
-		.svg-container svg {
+		.svg-container .bi {
 			width: 2rem;
 			height: 2rem;
 		}
@@ -142,7 +142,7 @@
 .stat-icon {
 	font-size: 1.1rem;
 
-	svg {
+	.bi {
 		width: 1.1rem;
 		height: 1.1rem;
 	}
@@ -171,13 +171,7 @@
 	border-radius: $card-border-radius;
 	box-shadow: $card-box-shadow;
 	overflow: hidden;
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
 	background: white;
-
-	&:hover {
-		transform: translateY(-3px);
-		box-shadow: $card-box-shadow-hover;
-	}
 }
 
 .meter-card-accent {
@@ -223,7 +217,7 @@
 	flex-shrink: 0;
 	font-size: 1.3rem;
 
-	.svg-container svg {
+	.svg-container .bi {
 		width: 1.3rem;
 		height: 1.3rem;
 	}
@@ -286,4 +280,3 @@
 	color: #646970;
 	font-weight: 500;
 }
-

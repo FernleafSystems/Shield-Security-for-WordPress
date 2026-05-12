@@ -145,6 +145,12 @@ class EventStrings {
 					__( 'Login page loaded', 'wp-simple-firewall' ),
 				],
 			],
+			'mcp_ability_called'          => [
+				'name'  => __( 'MCP Ability Called', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "MCP ability '{{ability}}' was called with status '{{status}}'.", 'wp-simple-firewall' ),
+				],
+			],
 			'test_cron_run'                => [
 				'name'  => __( 'Test Cron Run', 'wp-simple-firewall' ),
 				'audit' => [
@@ -195,15 +201,15 @@ class EventStrings {
 				],
 			],
 			'antibot_pass'                 => [
-				'name'  => __( 'AntiBot Pass', 'wp-simple-firewall' ),
+				'name'  => __( 'silentCAPTCHA Pass', 'wp-simple-firewall' ),
 				'audit' => [
-					__( "Request passed the AntiBot Test with a Visitor Score of '{{score}}' (minimum score: {{minimum}}).", 'wp-simple-firewall' ),
+					__( 'Request passed the silentCAPTCHA Test with a Visitor Score of {{score}} (minimum score: {{minimum}}).', 'wp-simple-firewall' ),
 				],
 			],
 			'antibot_fail'                 => [
-				'name'  => __( 'AntiBot Fail', 'wp-simple-firewall' ),
+				'name'  => __( 'silentCAPTCHA Fail', 'wp-simple-firewall' ),
 				'audit' => [
-					__( "Request failed the AntiBot Test with a Visitor Score of '{{score}}' (minimum score: {{minimum}}).", 'wp-simple-firewall' ),
+					__( 'Request failed the silentCAPTCHA Test with a Visitor Score of {{score}} (minimum score: {{minimum}}).', 'wp-simple-firewall' ),
 				],
 			],
 			'report_generated'             => [
@@ -250,22 +256,10 @@ class EventStrings {
 					__( 'Login successful.', 'wp-simple-firewall' ),
 				],
 			],
-			'botbox_fail'                  => [
-				'name'  => __( 'BotBox Fail', 'wp-simple-firewall' ),
-				'audit' => [
-					__( "User '{{user_login}}' attempted '{{action}}' but Bot checkbox was not found.", 'wp-simple-firewall' ),
-				],
-			],
 			'cooldown_fail'                => [
 				'name'  => __( 'Cooldown Fail', 'wp-simple-firewall' ),
 				'audit' => [
 					__( 'Login/Register request triggered cooldown and was blocked.', 'wp-simple-firewall' )
-				],
-			],
-			'honeypot_fail'                => [
-				'name'  => __( 'Honeypot Fail', 'wp-simple-firewall' ),
-				'audit' => [
-					__( "User '{{user_login}}' attempted {{action}} but they were caught by the honeypot.", 'wp-simple-firewall' )
 				],
 			],
 			'2fa_success'                  => [
@@ -668,7 +662,7 @@ class EventStrings {
 			'spam_block_antibot'           => [
 				'name'  => sprintf( '%s: %s', __( 'SPAM Blocked', 'wp-simple-firewall' ), $silentCaptcha ),
 				'audit' => [
-					__( 'Blocked SPAM comment that failed AntiBot tests.', 'wp-simple-firewall' )
+					__( 'Blocked SPAM comment that failed silentCAPTCHA tests.', 'wp-simple-firewall' )
 				],
 			],
 			'spam_block_human'             => [
@@ -984,6 +978,25 @@ class EventStrings {
 				'name'  => __( 'User Email Updated', 'wp-simple-firewall' ),
 				'audit' => [
 					__( "Email updated for user '{{user_login}}'.", 'wp-simple-firewall' )
+				],
+			],
+			'user_password_reset'          => [
+				'name'  => __( 'User Password Reset', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "Password reset for user '{{user_login}}'.", 'wp-simple-firewall' )
+				],
+			],
+			'user_password_reset_request_failed' => [
+				'name'  => __( 'User Password Reset Request Failed', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "Password reset requested for '{{requested_login}}' was not accepted.", 'wp-simple-firewall' ),
+					__( 'Reason: {{reason}}', 'wp-simple-firewall' )
+				],
+			],
+			'user_password_reset_requested' => [
+				'name'  => __( 'User Password Reset Requested', 'wp-simple-firewall' ),
+				'audit' => [
+					__( "Password reset requested for user '{{user_login}}'.", 'wp-simple-firewall' )
 				],
 			],
 			'user_password_updated'        => [

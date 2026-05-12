@@ -2,8 +2,12 @@
 	<span class="shieldpro"><strong>Shield</strong><span style="text-transform: uppercase">pro</span></span>
 {% endmacro %}
 
-{% macro svg(svg) %}
-	<span class="svg-container">{{ svg|raw }}</span>
+{% macro icon(icon_class, classes=[]) %}
+	<span class="svg-container {{ classes|join(' ') }}"><i class="{{ icon_class }}" aria-hidden="true"></i></span>
+{% endmacro %}
+
+{% macro renderAttributes(attributes={}) %}
+	{% for attr_name, attr_value in attributes %} {{ attr_name|e('html_attr') }}="{{ attr_value|e('html_attr') }}"{% endfor %}
 {% endmacro %}
 
 {% macro issues_wrapper(components, strings) %}
@@ -35,16 +39,31 @@
 	</div>
 {% endmacro %}
 
-{% macro tagAnchor(href,text,id='',classes=[],new_window=false,datas=[],disabled=false) %}
-	<a href="{{ disabled ? '#' : href }}"
-	   class="{{ classes|join(' ') }} {{ disabled ? 'disabled' : '' }}"
-	   {% if id is not empty %}id="{{ id }}"{% endif %}
-			{% if new_window %}target="_blank"{% endif %}
-			{% if datas is not empty %}
-				{% for data_key,data_value in datas %}data-{{ data_key }}="{{ data_value }}"{% endfor %}
-			{% endif %}
-			{{ disabled ? 'disabled="disabled"' : '' }}
-	>{{ text }}</a>
+{% macro tagAnchor(href,text,id='',classes=[],new_window=false,datas=[],disabled=false,is_action=false) %}
+	{% set attributes = {} %}
+	{% if id is not empty %}
+		{% set attributes = attributes|merge( { id: id } ) %}
+	{% endif %}
+	{% if new_window and not is_action %}
+		{% set attributes = attributes|merge( { target: '_blank' } ) %}
+	{% endif %}
+	{% if datas is not empty %}
+		{% for data_key,data_value in datas %}
+			{% set attributes = attributes|merge( { ('data-'~data_key): data_value } ) %}
+		{% endfor %}
+	{% endif %}
+	{% if disabled %}
+		{% set attributes = attributes|merge( { disabled: 'disabled' } ) %}
+	{% endif %}
+	{% if is_action %}
+		<button type="button"
+				class="{{ classes|join(' ') }} {{ disabled ? 'disabled' : '' }}"{{ _self.renderAttributes( attributes ) }}
+		>{{ text }}</button>
+	{% else %}
+		<a href="{{ disabled ? '#' : href }}"
+		   class="{{ classes|join(' ') }} {{ disabled ? 'disabled' : '' }}"{{ _self.renderAttributes( attributes ) }}
+		>{{ text }}</a>
+	{% endif %}
 {% endmacro %}
 
 {% macro slideTitle(content) %}

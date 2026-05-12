@@ -130,7 +130,10 @@ class Plugins extends Base {
 		) {
 			self::con()->comps->events->fireEvent(
 				'plugin_file_edited',
-				[ 'audit_params' => [ 'file' => sanitize_text_field( $req->post( 'file' ) ) ] ]
+				[ 'audit_params' => [
+					'plugin' => sanitize_text_field( $req->post( 'plugin' ) ),
+					'file'   => sanitize_text_field( $req->post( 'file' ) ),
+				] ]
 			);
 		}
 	}

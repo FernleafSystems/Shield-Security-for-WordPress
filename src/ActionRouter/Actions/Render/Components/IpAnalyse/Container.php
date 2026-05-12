@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\IpAnalyse;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Container extends Base {
 
@@ -12,13 +11,15 @@ class Container extends Base {
 
 	protected function getRenderData() :array {
 		$ip = $this->getAnalyseIP();
+		$tabs = $this->buildTabs();
 		$actionRouter = self::con()->action_router;
+
 		return [
+			'flags'   => [
+				'render_inline_tabs' => (bool)( $this->action_data[ 'render_inline_tabs' ] ?? false ),
+			],
 			'content' => [
 				'general'  => $actionRouter->render( General::class, [
-					'ip' => $ip,
-				] ),
-				'signals'  => $actionRouter->render( BotSignals::class, [
 					'ip' => $ip,
 				] ),
 				'sessions' => $actionRouter->render( Sessions::class, [
@@ -31,17 +32,85 @@ class Container extends Base {
 					'ip' => $ip,
 				] ),
 			],
-			'strings' => [
-				'title'        => sprintf( __( 'Info For IP Address %s', 'wp-simple-firewall' ), $ip ),
-				'nav_signals'  => __( 'Bot Signals', 'wp-simple-firewall' ),
-				'nav_general'  => __( 'General Info', 'wp-simple-firewall' ),
-				'nav_sessions' => CommonDisplayStrings::get( 'user_sessions_label' ),
-				'nav_audit'    => __( 'Activity Log', 'wp-simple-firewall' ),
-				'nav_traffic'  => __( 'Recent Traffic', 'wp-simple-firewall' ),
-			],
-			'vars'    => [
-				'ip' => $ip,
-			],
+			'tabs'    => $tabs,
+		];
+	}
+
+	/**
+	 * @return list<array{
+	 *   target:string,
+	 *   id:string,
+	 *   controls:string,
+	 *   label:string,
+	 *   is_focus:bool,
+	 *   content_key:string,
+	 *   panel_body_class:string
+	 * }>
+	 */
+	private function buildTabs() :array {
+		$instanceId = 'ipanalyse-'.\uniqid();
+		return [
+			$this->buildTab(
+				$instanceId,
+				'general',
+				__( 'Overview', 'wp-simple-firewall' ),
+				true,
+				'general',
+				'p-0'
+			),
+			$this->buildTab(
+				$instanceId,
+				'sessions',
+				CommonDisplayStrings::get( 'user_sessions_label' ),
+				false,
+				'sessions'
+			),
+			$this->buildTab(
+				$instanceId,
+				'audit',
+				__( 'Activity Log', 'wp-simple-firewall' ),
+				false,
+				'activity'
+			),
+			$this->buildTab(
+				$instanceId,
+				'traffic',
+				__( 'Recent Traffic', 'wp-simple-firewall' ),
+				false,
+				'traffic'
+			),
+		];
+	}
+
+	/**
+	 * @return array{
+	 *   target:string,
+	 *   id:string,
+	 *   controls:string,
+	 *   label:string,
+	 *   is_focus:bool,
+	 *   content_key:string,
+	 *   panel_body_class:string
+	 * }
+	 */
+	private function buildTab(
+		string $instanceId,
+		string $key,
+		string $label,
+		bool $isFocus,
+		string $contentKey,
+		string $panelBodyClass = ''
+	) :array {
+		$panelId = $instanceId.'-'.$key;
+
+		return [
+			'target'           => '#'.$panelId,
+			'id'               => $instanceId.'-nav-'.$key,
+			'controls'         => $panelId,
+			'label'            => $label,
+			'is_focus'         => $isFocus,
+			'content_key'      => $contentKey,
+			'panel_body_class' => $panelBodyClass,
 		];
 	}
 }

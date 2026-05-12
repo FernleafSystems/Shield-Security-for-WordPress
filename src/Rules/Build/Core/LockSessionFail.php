@@ -48,6 +48,35 @@ class LockSessionFail extends Build\Core\BuildRuleCoreShieldBase {
 					],
 				],
 				[
+					'logic'      => Enum\EnumLogic::LOGIC_OR,
+					'conditions' => [
+						[
+							'conditions' => Conditions\ShieldConfigurationOption::class,
+							'params'     => [
+								'name'        => 'session_lock',
+								'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS,
+								'match_value' => 'ip',
+							]
+						],
+						[
+							'conditions' => Conditions\ShieldConfigurationOption::class,
+							'params'     => [
+								'name'        => 'session_lock',
+								'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS,
+								'match_value' => 'useragent',
+							]
+						],
+						[
+							'conditions' => Conditions\ShieldConfigurationOption::class,
+							'params'     => [
+								'name'        => 'session_lock',
+								'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_CONTAINS,
+								'match_value' => 'host',
+							]
+						],
+					]
+				],
+				[
 					'conditions' => Conditions\IsLoggedInNormal::class,
 				],
 				[
@@ -59,14 +88,6 @@ class LockSessionFail extends Build\Core\BuildRuleCoreShieldBase {
 						[
 							'logic'      => Enum\EnumLogic::LOGIC_AND,
 							'conditions' => [
-								[
-									'conditions' => Conditions\ShieldConfigurationOption::class,
-									'params'     => [
-										'name'        => 'enable_user_management',
-										'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
-										'match_value' => 'Y',
-									]
-								],
 								[
 									'conditions' => Conditions\ShieldConfigurationOption::class,
 									'params'     => [

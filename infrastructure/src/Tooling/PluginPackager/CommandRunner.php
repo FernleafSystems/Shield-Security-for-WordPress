@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\ShieldPlatform\Tooling\PluginPackager;
 
+use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Process\Process;
 
 /**
  * Handles shell command execution using Symfony Process for cross-platform compatibility.
@@ -15,9 +15,12 @@ class CommandRunner {
 	/** @var callable */
 	private $logger;
 
-	public function __construct( string $projectRoot, callable $logger ) {
+	private ProcessRunner $processRunner;
+
+	public function __construct( string $projectRoot, callable $logger, ?ProcessRunner $processRunner = null ) {
 		$this->projectRoot = $projectRoot;
 		$this->logger = $logger;
+		$this->processRunner = $processRunner ?? new ProcessRunner();
 	}
 
 	/**
@@ -36,42 +39,20 @@ class CommandRunner {
 	public function run( array $parts, ?string $workingDir = null ) :void {
 		$cwd = $workingDir ?? $this->projectRoot;
 
-		// Pre-validate working directory with consistent error message
-		if ( !\is_dir( $cwd ) ) {
-			throw new \RuntimeException( \sprintf(
-				'Working directory does not exist: %s',
-				$cwd
-			) );
-		}
+		$this->log( '> '.\implode( ' ', $parts ) );
+		$this->processRunner->runOrThrow( $parts, $cwd );
+	}
+
+	/**
+	 * Execute a shell command and report whether it exits successfully.
+	 *
+	 * @param string[] $parts Command parts (first element is command, rest are arguments)
+	 */
+	public function succeeds( array $parts, ?string $workingDir = null ) :bool {
+		$cwd = $workingDir ?? $this->projectRoot;
 
 		$this->log( '> '.\implode( ' ', $parts ) );
-
-		$process = new Process(
-			$parts,
-			$cwd,
-			null,  // env - inherit from parent
-			null,  // input
-			null   // timeout - no limit
-		);
-
-		// Run with real-time output streaming to console
-		$exitCode = $process->run( function ( string $type, string $buffer ) :void {
-			// Stream output directly (both stdout and stderr)
-			echo $buffer;
-		} );
-
-		if ( $exitCode !== 0 ) {
-			$errorOutput = \trim( $process->getErrorOutput() );
-			$message = \sprintf(
-				'Command failed with exit code %d: %s',
-				$exitCode,
-				\implode( ' ', $parts )
-			);
-			if ( $errorOutput !== '' ) {
-				$message .= "\nError output: ".$errorOutput;
-			}
-			throw new \RuntimeException( $message );
-		}
+		return $this->processRunner->runForExitCode( $parts, $cwd ) === 0;
 	}
 
 	/**

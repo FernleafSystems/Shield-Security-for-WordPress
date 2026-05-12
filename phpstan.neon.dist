@@ -3,24 +3,23 @@ includes:
 	- phpstan-baseline.neon
 
 parameters:
-	level: 2
+	level: 5
+	treatPhpDocTypesAsCertain: false
 	paths:
 		- src
 		- icwp-wpsf.php
-		- plugin_autoload.php
 		- plugin_compatibility.php
 		- plugin_init.php
-		- uninstall.php
 		- unsupported.php
 	bootstrapFiles:
 		- vendor/autoload.php
 		- tests/stubs/phpstan-project-constants.php
+		- tests/stubs/phpstan-optional-dependencies.php
 	scanFiles:
 		- vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
 		- vendor/php-stubs/wp-cli-stubs/wp-cli-commands-stubs.php
 		- vendor/php-stubs/wp-cli-stubs/wp-cli-i18n-stubs.php
 		- vendor/php-stubs/wp-cli-stubs/wp-cli-tools-stubs.php
-		- tests/stubs/phpstan-optional-dependencies.php
 	excludePaths:
 		analyse:
 			- */vendor/*

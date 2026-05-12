@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PageRulesBuild extends PageRulesBase {
@@ -14,7 +13,7 @@ class PageRulesBuild extends PageRulesBase {
 		return [
 			[
 				'title' => __( 'Manage Rules', 'wp-simple-firewall' ),
-				'href'  => self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_MANAGE ),
+				'href'  => self::con()->plugin_urls->rulesManage(),
 			],
 		];
 	}

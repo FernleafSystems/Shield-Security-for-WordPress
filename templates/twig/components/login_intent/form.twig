@@ -1,60 +1,131 @@
-<style>
-	.input-group-addon a {
-	  font-weight: bold;
-	  display: block;
-  }
-  #countdown {
-	  font-weight: bolder;
-  }
-  #TimeRemaining {
-	  margin-top: 30px;
-	  padding: 10px;
-  }
-  #skip_mfa {
-	  margin: 10px 10px 5px 20px;
-  }
-</style>
+{% set preferred_order = [ 'email', 'passkey', 'ga', 'yubi', 'sms', 'u2f', 'backupcode' ] %}
+{% set ordered_login_fields = [] %}
 
-<div class="alert alert-{{ vars.message_type }}" role="alert">{{ strings.message|raw }}</div>
-
-<form action="{{ hrefs.form_action }}" method="post" class="form-horizontal" id="loginform" class="shield-2fa-custom">
-	{% for hidden_field_name,hidden_field_value in vars.form_hidden_fields %}
-		<input type="hidden" id="{{ hidden_field_name }}" name="{{ hidden_field_name }}" value="{{ hidden_field_value|raw }}" />
+{% for preferred_slug in preferred_order %}
+	{% for field in content.login_fields %}
+		{% if field.slug == preferred_slug %}
+			{% set ordered_login_fields = ordered_login_fields|merge( [ field ] ) %}
+		{% endif %}
 	{% endfor %}
+{% endfor %}
 
-	{% for login_field in content.login_fields %}
-		{{ login_field|raw }}
-	{% endfor %}
+{% for field in content.login_fields %}
+	{% if field.slug not in preferred_order %}
+		{% set ordered_login_fields = ordered_login_fields|merge( [ field ] ) %}
+	{% endif %}
+{% endfor %}
 
-	{% if flags.can_skip_mfa %}
-		<div class="row">
-			<div class="my-2">
-				<div class="input-group">
-					<label class="form-label" for="skip_mfa">
-						<input type="checkbox" value="Y" name="skip_mfa" id="skip_mfa">
-						{{ strings.skip_mfa }}</label>
+<div class="mfa-shell" role="region" aria-labelledby="mfa-title">
+	<aside class="mfa-brand">
+		<div class="mfa-brand-logo">
+			<img src="{{ imgs.logo_banner }}" alt="Shield Security">
+		</div>
+
+		<div class="mfa-brand-hero">
+			<span class="mfa-brand-badge">
+				<span class="mfa-brand-badge-dot"></span>
+				{{ strings.secure_session }}
+			</span>
+			<h2>{{ strings.hero_heading }}</h2>
+			<p>{{ strings.hero_body }}</p>
+
+			<div class="mfa-brand-stats">
+				<div class="mfa-brand-stat">
+					<div class="mfa-brand-stat-label">{{ strings.stat_session }}</div>
+					<div class="mfa-brand-stat-value">{{ strings.stat_session_value }}</div>
+				</div>
+				<div class="mfa-brand-stat">
+					<div class="mfa-brand-stat-label">{{ strings.stat_expires }}</div>
+					<div class="mfa-brand-stat-value" data-countdown-mirror>{{ strings.calculating }}</div>
 				</div>
 			</div>
 		</div>
-	{% endif %}
 
-	<div class="row submit mt-4">
-		<div class="col-6 order-2 text-end">
-			<button type="submit" id="mainSubmit" class="pull-right btn btn-success">
-				{{ strings.verify_my_login }}</button>
+		<div class="mfa-brand-foot">
+			<span>&nbsp;</span>
+			{% if flags.show_branded_links %}
+				<a href="{{ hrefs.what_is_this }}" target="_blank" rel="noopener noreferrer">{{ strings.what_is_this }}</a>
+			{% endif %}
 		</div>
-		<div class="col-6 order-1 text-start">
-			<button class="btn btn-outline-dark" name="cancel" value="1">
-				&larr; {{ strings.cancel }}</button>
-		</div>
-	</div>
-</form>
+	</aside>
 
-<div class="row justify-content-center">
-	<div class="col">
-		<p id="TimeRemaining" class="text-center text-dark">
-			{{ strings.time_remaining }}:
+	<section class="mfa-form">
+		<header class="mfa-form-head">
+			<h1 id="mfa-title" class="mfa-form-title">{{ strings.page_title }}</h1>
+			<p class="mfa-form-sub">{{ strings.page_subtitle }}</p>
+		</header>
+
+		{% if flags.show_message %}
+			<div class="mfa-alert mfa-alert-danger" role="alert">
+				<i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+				<span>{{ strings.message|raw }}</span>
+			</div>
+		{% endif %}
+
+		<form action="{{ hrefs.form_action }}"
+			  method="post"
+			  name="shield_2fa_verify"
+			  id="loginform"
+			  class="mfa-core-form shield-2fa-custom"
+			  autocomplete="off">
+
+			{% for hidden_field_name, hidden_field_value in vars.form_hidden_fields %}
+				<input type="hidden"
+					   id="{{ hidden_field_name }}"
+					   name="{{ hidden_field_name }}"
+					   value="{{ hidden_field_value|raw }}" />
+			{% endfor %}
+
+			<div class="mfa-tabs" role="tablist" aria-label="{{ strings.page_title }}">
+				{% for field in ordered_login_fields %}
+					<button type="button"
+							id="mfa-tab-{{ field.slug }}"
+							class="mfa-tab {{ loop.first ? 'active' : '' }}"
+							data-tab="{{ field.slug }}"
+							role="tab"
+							aria-selected="{{ loop.first ? 'true' : 'false' }}"
+							aria-controls="mfa-pane-{{ field.slug }}"
+							tabindex="{{ loop.first ? '0' : '-1' }}">
+						<i class="bi {{ field.tab_icon }} mfa-tab-icon" aria-hidden="true"></i>
+						<span class="mfa-tab-label">{{ field.tab_label }}</span>
+					</button>
+				{% endfor %}
+			</div>
+
+			<div class="mfa-panes">
+				{% for field in ordered_login_fields %}
+					<div id="mfa-pane-{{ field.slug }}"
+						 class="mfa-pane mfa-pane--{{ field.slug }} {{ loop.first ? 'active' : '' }}"
+						 data-pane="{{ field.slug }}"
+						 role="tabpanel"
+						 aria-labelledby="mfa-tab-{{ field.slug }}"
+						 aria-hidden="{{ loop.first ? 'false' : 'true' }}">
+						{{ field.html|raw }}
+					</div>
+				{% endfor %}
+			</div>
+
+			{% if flags.can_skip_mfa %}
+				<label class="mfa-skip" for="skip_mfa">
+					<input type="checkbox" value="Y" name="skip_mfa" id="skip_mfa">
+					<span>{{ strings.skip_mfa }}</span>
+				</label>
+			{% endif %}
+
+			<div class="mfa-actions">
+				<button type="submit" id="mainSubmit" class="mfa-btn mfa-btn-primary">
+					<span>{{ strings.verify_my_login }}</span>
+					<i class="bi bi-check2" aria-hidden="true"></i>
+				</button>
+				<button type="submit" class="mfa-btn mfa-btn-cancel" name="cancel" value="1">
+					<span aria-hidden="true">&larr;</span>
+					<span>{{ strings.cancel }}</span>
+				</button>
+			</div>
+		</form>
+
+		<div id="TimeRemaining" hidden aria-hidden="true">
 			<span class="countdown">{{ strings.calculating }}</span>
-		</p>
-	</div>
+		</div>
+	</section>
 </div>

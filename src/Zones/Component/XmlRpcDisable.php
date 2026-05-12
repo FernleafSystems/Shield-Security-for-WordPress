@@ -34,4 +34,12 @@ class XmlRpcDisable extends Base {
 
 		return $status;
 	}
+
+	protected function postureWeight() :int {
+		return 5;
+	}
+
+	protected function configureTreatsBadStatusAsWarning() :bool {
+		return true;
+	}
 }

@@ -15,6 +15,7 @@ class Spam extends Base {
 			Component\CommentSpamBlockBot::class,
 			Component\CommentSpamBlockHuman::class,
 			Component\ContactFormSpamBlockBot::class,
+			Component\TrustedCommenters::class,
 		];
 	}
 

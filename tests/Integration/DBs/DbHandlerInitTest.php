@@ -8,27 +8,40 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 class DbHandlerInitTest extends ShieldIntegrationTestCase {
 
 	/**
+	 * Optional handlers may be deliberately absent in a default runtime until a
+	 * feature is enabled and its storage is recreated on demand.
+	 */
+	private const OPTIONAL_HANDLER_KEYS = [
+		'file_locker',
+	];
+
+	/**
 	 * Every handler listed in DbCon::MAP can be loaded and reports isReady().
 	 * This is the one place where iterating the full list is justified:
 	 * we're testing the DB initialisation mechanism, not counting tables.
 	 */
 	public function test_all_handlers_load_and_are_ready() {
 		$con = $this->requireController();
-		$failedKeys = [];
+		$failedToLoad = [];
+		$failedReady = [];
 
 		foreach ( \array_keys( DbCon::MAP ) as $dbKey ) {
 			try {
 				$handler = $con->db_con->load( $dbKey );
 				if ( empty( $handler ) || !$handler->isReady() ) {
-					$failedKeys[] = $dbKey.' (not ready)';
+					if ( \in_array( $dbKey, self::OPTIONAL_HANDLER_KEYS, true ) ) {
+						continue;
+					}
+					$failedReady[] = $dbKey.' (not ready)';
 				}
 			}
 			catch ( \Exception $e ) {
-				$failedKeys[] = $dbKey.' ('.$e->getMessage().')';
+				$failedToLoad[] = $dbKey.' ('.$e->getMessage().')';
 			}
 		}
 
-		$this->assertEmpty( $failedKeys, 'These DB handlers failed to load or are not ready: '.\implode( ', ', $failedKeys ) );
+		$this->assertEmpty( $failedToLoad, 'These DB handlers failed to load: '.\implode( ', ', $failedToLoad ) );
+		$this->assertEmpty( $failedReady, 'These mandatory DB handlers are not ready: '.\implode( ', ', $failedReady ) );
 	}
 
 	/**
@@ -52,5 +65,15 @@ class DbHandlerInitTest extends ShieldIntegrationTestCase {
 		$ips = $con->db_con->load( 'ips' );
 		$this->assertNotEmpty( $ips );
 		$this->assertTrue( $ips->isReady() );
+	}
+
+	public function test_file_locker_handler_is_ready_when_feature_storage_is_enabled() :void {
+		$con = $this->requireController();
+
+		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] );
+		$handler = $con->db_con->loadDbH( DbCon::MAP[ 'file_locker' ][ 'slug' ], true );
+
+		$this->assertNotEmpty( $handler );
+		$this->assertTrue( $handler->isReady() );
 	}
 }

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class DashboardWidget {
 
@@ -13,6 +14,7 @@ class DashboardWidget {
 	protected function canRun() :bool {
 		$con = self::con();
 		return $con->isValidAdminArea() &&
+			   Services::WpUsers()->isUserAdmin() &&
 			   apply_filters( 'shield/show_dashboard_widget', $con->cfg->properties[ 'show_dashboard_widget' ] ?? true );
 	}
 
@@ -26,10 +28,12 @@ class DashboardWidget {
 		$con = self::con();
 		wp_add_dashboard_widget(
 			$con->prefix( 'dashboard_widget' ),
-			apply_filters( 'shield/dashboard_widget_title', sprintf( '%s: %s', $con->labels->Name, __( 'Overview', 'wp-simple-firewall' ) ) ),
+			apply_filters( 'shield/dashboard_widget_title', sprintf( '%s: %s', $con->labels->Name, __( 'Actions Queue', 'wp-simple-firewall' ) ) ),
 			function () {
-				echo sprintf( '<div id="ShieldDashboardWidget"><div class="spinner-border" role="status"><span class="visually-hidden">%s...</span></div></div>',
-					__( 'Loading', 'wp-simple-firewall' ) );
+				echo sprintf(
+					'<div id="ShieldDashboardWidget" aria-busy="true"><div class="shield-dashboard-widget__loading">%s...</div></div>',
+					esc_html__( 'Loading', 'wp-simple-firewall' )
+				);
 			}
 		);
 	}

@@ -5,44 +5,36 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\DeleteSession;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Sessions\BuildSessionsTableData;
 
-class SessionsTableAction extends BaseAction {
+class SessionsTableAction extends TableActionBase {
 
 	public const SLUG = 'sessionstable_action';
+	private const SUB_ACTION_DELETE = 'delete';
 
-	protected function exec() {
-		try {
-			switch ( $this->action_data[ 'sub_action' ] ) {
-				case 'retrieve_table_data':
-					$response = $this->retrieveTableData();
-					break;
-				case 'delete':
-					( new DeleteSession() )->byShieldIDs( $this->action_data[ 'rids' ] );
-					$response = [
-						'success'     => true,
-						'page_reload' => false,
-						'message'     => __( 'Selected Sessions Deleted.', 'wp-simple-firewall' ),
-					];
-					break;
-				default:
-					throw new \Exception( 'Not a supported Sessions table sub_action: '.$this->action_data[ 'sub_action' ] );
-			}
-		}
-		catch ( \Exception $e ) {
-			$response = [
-				'success'     => false,
-				'page_reload' => false,
-				'message'     => $e->getMessage(),
-			];
-		}
-		$this->response()->action_response_data = $response;
+	protected function getSubActionHandlers() :array {
+		return [
+			self::SUB_ACTION_RETRIEVE_TABLE_DATA => fn() => $this->retrieveTableData(),
+			self::SUB_ACTION_DELETE              => fn() => $this->deleteSelectedSessions(),
+		];
 	}
 
-	private function retrieveTableData() :array {
-		$builder = new BuildSessionsTableData();
-		$builder->table_data = $this->action_data[ 'table_data' ];
+	protected function getUnsupportedSubActionMessage( string $subAction ) :string {
+		return $this->buildUnsupportedSubActionMessage( 'Sessions', $subAction );
+	}
+
+	protected function isPageReloadOnFailure() :bool {
+		return false;
+	}
+
+	protected function retrieveTableData() :array {
+		return $this->buildRetrieveTableDataResponse( new BuildSessionsTableData() );
+	}
+
+	protected function deleteSelectedSessions() :array {
+		( new DeleteSession() )->byShieldIDs( $this->action_data[ 'rids' ] );
 		return [
-			'success'        => true,
-			'datatable_data' => $builder->build(),
+			'success'     => true,
+			'page_reload' => false,
+			'message'     => __( 'Selected Sessions Deleted.', 'wp-simple-firewall' ),
 		];
 	}
 }

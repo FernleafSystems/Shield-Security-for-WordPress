@@ -13,11 +13,13 @@ class VerifyPinRequest {
 
 		if ( !empty( $pin ) ) {
 			$hashedPIN = self::con()->comps->opts_lookup->getSecAdminPIN();
-			if ( wp_check_password( $pin, $hashedPIN ) ) {
+			if ( \hash_equals( $hashedPIN, \hash( 'md5', $pin ) ) ) {
+				self::con()->opts
+					->optSet( 'admin_access_key', wp_hash_password( $pin ) )
+					->store();
 				$valid = true;
 			}
-			elseif ( \hash_equals( $hashedPIN, \hash( 'md5', $pin ) ) ) {
-				self::con()->opts->optSet( 'admin_access_key', wp_hash_password( $pin ) );
+			elseif ( wp_check_password( $pin, $hashedPIN ) ) {
 				$valid = true;
 			}
 			self::con()->comps->events->fireEvent( $valid ? 'key_success' : 'key_fail' );

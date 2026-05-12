@@ -88,7 +88,7 @@ class Emails extends Base {
 	private function findEmailSenderBacktrace() :array {
 		$backtrace = [];
 		foreach ( \debug_backtrace( false ) as $item ) {
-			if ( isset( $item[ 'function' ] ) && 'wp_mail' === \strtolower( $item[ 'function' ] ) ) {
+			if ( 'wp_mail' === \strtolower( $item[ 'function' ] ) ) {
 				$backtrace = $item;
 				break;
 			}

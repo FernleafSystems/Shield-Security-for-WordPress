@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -9,12 +10,12 @@ class OptsLookup {
 
 	use PluginControllerConsumer;
 
-	public function enabledAntiBotCommentSpam() :bool {
+	public function enabledSilentCaptchaCommentSpam() :bool {
 		return self::con()->opts->optIs( 'enable_antibot_comments', 'Y' );
 	}
 
-	public function enabledAntiBotEngine() :bool {
-		return $this->getAntiBotMinScore() > 0;
+	public function enabledSilentCaptcha() :bool {
+		return $this->getSilentCaptchaBotThreshold() > 0;
 	}
 
 	public function enabledHumanCommentSpam() :bool {
@@ -35,6 +36,10 @@ class OptsLookup {
 
 	public function enabledIntegrationMainwp() :bool {
 		return self::con()->opts->optIs( 'enable_mainwp', 'Y' );
+	}
+
+	public function enabledPluginBadge() :bool {
+		return PluginBadgeMode::isEnabled( $this->getPluginBadgeMode() );
 	}
 
 	/**
@@ -64,8 +69,9 @@ class OptsLookup {
 		return Services::Request()->ts() - self::con()->opts->optGet( 'activated_at' );
 	}
 
-	public function getAntiBotMinScore() :int {
-		return (int)apply_filters( 'shield/antibot_score_minimum', self::con()->opts->optGet( 'antibot_minimum' ) );
+	public function getSilentCaptchaBotThreshold() :int {
+		return (int)apply_filters( 'shield/silent_captcha_bot_threshold',
+			apply_filters( 'shield/antibot_score_minimum', self::con()->opts->optGet( 'antibot_minimum' ) ) );
 	}
 
 	public function getBlockdownCfg() :array {
@@ -76,6 +82,10 @@ class OptsLookup {
 			'exclusions'   => [],
 			'whitelist_me' => '',
 		], self::con()->opts->optGet( 'blockdown_cfg' ) );
+	}
+
+	public function getPluginBadgeMode() :string {
+		return PluginBadgeMode::normalise( self::con()->opts->optGet( 'display_plugin_badge' ) );
 	}
 
 	public function getBotTrackOffenseCountFor( string $key ) :int {
@@ -147,6 +157,13 @@ class OptsLookup {
 
 	public function getInstalledAt() :int {
 		return (int)self::con()->opts->optGet( 'installation_time' );
+	}
+
+	public function getIpHighReputationMinimum() :int {
+		return (int)apply_filters(
+			'shield/high_reputation_ip_minimum',
+			self::con()->opts->optGet( 'antibot_high_reputation_minimum' )
+		);
 	}
 
 	public function getIpAutoBlockTTL() :int {
@@ -250,5 +267,19 @@ class OptsLookup {
 
 	public function isPassPreventPwned() :bool {
 		return $this->isPassPoliciesEnabled() && self::con()->opts->optIs( 'pass_prevent_pwned', 'Y' );
+	}
+
+	/**
+	 * @deprecated 21.2
+	 */
+	public function enabledAntiBotEngine() :bool {
+		return $this->getSilentCaptchaBotThreshold() > 0;
+	}
+
+	/**
+	 * @deprecated 21.2
+	 */
+	public function getAntiBotMinScore() :int {
+		return (int)apply_filters( 'shield/antibot_score_minimum', self::con()->opts->optGet( 'antibot_minimum' ) );
 	}
 }

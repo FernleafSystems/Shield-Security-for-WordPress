@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\I18n;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\LoadTextDomain;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\TranslationDownloadController;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
@@ -89,6 +90,10 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 
 	private function buildValidMoContent( string $payload ) :string {
 		return \pack( 'N', 0x950412de ).$payload.\str_repeat( "\x00", 20 );
+	}
+
+	private function buildLittleEndianMoContent( string $payload ) :string {
+		return \pack( 'V', 0x950412de ).$payload.\str_repeat( "\x00", 20 );
 	}
 
 	public function testHashMismatchRefreshesMetadataOnceAndRetrySucceeds() :void {
@@ -193,6 +198,7 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertCount( 0, $downloaded );
 		$this->assertCount( 1, $failed );
 		$this->assertSame( 'hash_mismatch', $failed[ 0 ][ 'meta' ][ 'audit_params' ][ 'reason' ] ?? '' );
+		$this->assertSame( [ $locale ], $controller->getQueue() );
 	}
 
 	public function testHashMismatchFailsWhenRefreshHasNoLocaleMeta() :void {
@@ -250,6 +256,61 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 		);
 	}
 
+	public function testHashMismatchFailsWhenRetryAfterMetadataRefreshStillMismatches() :void {
+		$controller = $this->controller();
+		$locale = 'es_ES';
+
+		$path = $this->ensureLocaleCachePathAvailable( $controller, $locale );
+		$this->clearLocaleMoFile( $path );
+
+		$downloadedContent = $this->buildValidMoContent( 'retry-still-mismatches' );
+		$freshHash = \hash( 'sha256', $this->buildValidMoContent( 'fresh-meta-points-elsewhere' ) );
+		$staleHash = \hash( 'sha256', 'retry-failure-stale-hash' );
+		$this->seedQueueConfig( $controller, $locale, $staleHash, \time() - 3700 );
+
+		$listCalls = 0;
+		$downloadCalls = 0;
+
+		$httpStub = function ( $pre, $args, $url ) use ( &$listCalls, &$downloadCalls, $locale, $freshHash, $downloadedContent ) {
+			if ( \str_contains( $url, '/translations/list' ) ) {
+				$listCalls++;
+				return $this->httpResponse( (string)\wp_json_encode( [
+					'error_code' => 0,
+					'locales'    => [
+						$locale => [
+							'hash'      => $freshHash,
+							'hash_type' => 'sha256',
+						],
+					],
+				] ) );
+			}
+			if ( \str_contains( $url, '/translations/download' ) ) {
+				$downloadCalls++;
+				return $this->httpResponse( $downloadedContent );
+			}
+			return $pre;
+		};
+
+		$this->captureShieldEvents();
+		add_filter( 'pre_http_request', $httpStub, 10, 3 );
+		try {
+			$controller->processQueue( true );
+		}
+		finally {
+			remove_filter( 'pre_http_request', $httpStub, 10 );
+		}
+
+		$this->assertSame( 1, $listCalls, 'Metadata refresh should run once after the first hash mismatch.' );
+		$this->assertSame( 2, $downloadCalls, 'Download should run initial attempt plus one retry.' );
+
+		$downloaded = $this->getCapturedEventsByKey( 'translation_downloaded' );
+		$failed = $this->getCapturedEventsByKey( 'translation_download_failed' );
+		$this->assertCount( 0, $downloaded );
+		$this->assertCount( 1, $failed );
+		$this->assertSame( 'hash_mismatch', $failed[ 0 ][ 'meta' ][ 'audit_params' ][ 'reason' ] ?? '' );
+		$this->assertSame( [ $locale ], $controller->getQueue() );
+	}
+
 	public function testInvalidFileFailureDoesNotTriggerRefresh() :void {
 		$controller = $this->controller();
 		$locale = 'es_ES';
@@ -293,6 +354,46 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertCount( 0, $downloaded );
 		$this->assertCount( 1, $failed );
 		$this->assertSame( 'invalid_file', $failed[ 0 ][ 'meta' ][ 'audit_params' ][ 'reason' ] ?? '' );
+	}
+
+	public function testLittleEndianMoFileIsAcceptedByDownloadFlow() :void {
+		$controller = $this->controller();
+		$locale = 'de_DE';
+
+		$path = $this->ensureLocaleCachePathAvailable( $controller, $locale );
+		$this->clearLocaleMoFile( $path );
+
+		$moContent = $this->buildLittleEndianMoContent( 'little-endian' );
+		$expectedHash = \hash( 'sha256', $moContent );
+		$this->seedQueueConfig( $controller, $locale, $expectedHash, \time() );
+
+		$listCalls = 0;
+		$downloadCalls = 0;
+		$httpStub = function ( $pre, $args, $url ) use ( &$listCalls, &$downloadCalls, $moContent ) {
+			if ( \str_contains( $url, '/translations/list' ) ) {
+				$listCalls++;
+			}
+			if ( \str_contains( $url, '/translations/download' ) ) {
+				$downloadCalls++;
+				return $this->httpResponse( $moContent );
+			}
+			return $pre;
+		};
+
+		$this->captureShieldEvents();
+		add_filter( 'pre_http_request', $httpStub, 10, 3 );
+		try {
+			$controller->processQueue( true );
+
+			$this->assertSame( 0, $listCalls, 'Fresh cached locale metadata should be reused.' );
+			$this->assertSame( 1, $downloadCalls );
+			$this->assertSame( [], $controller->getQueue() );
+			$this->assertSame( $expectedHash, \hash_file( 'sha256', (string)$controller->getLocaleMoFilePath( $locale ) ) );
+		}
+		finally {
+			remove_filter( 'pre_http_request', $httpStub, 10 );
+			$this->clearLocaleMoFile( $path );
+		}
 	}
 
 	public function testDailyRefreshQueuesStaleLocaleWithoutDownload() :void {
@@ -518,5 +619,28 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 
 		$count = \array_count_values( $controller->getQueue() )[ $locale ] ?? 0;
 		$this->assertSame( 1, $count );
+	}
+
+	public function testDynamicMoLookupQueuesLanguageFallbackLocaleDeterministically() :void {
+		$controller = $this->controller();
+		$this->addCfg( $controller, 'queue', [] );
+		$this->addCfg( $controller, 'locales', [
+			'ar' => [
+				'hash'      => \hash( 'sha256', 'ar-fallback-mo' ),
+				'hash_type' => 'sha256',
+			],
+		] );
+
+		$loader = new LoadTextDomain();
+		$reflection = new \ReflectionClass( $loader );
+		$findDynamicMo = $reflection->getMethod( 'findDynamicMo' );
+		$findDynamicMo->setAccessible( true );
+
+		$resolvedPath = $findDynamicMo->invoke( $loader, 'ar_EG' );
+		$this->assertNull( $resolvedPath, 'No cached MO should resolve before download.' );
+
+		$queue = $controller->getQueue();
+		$this->assertContains( 'ar', $queue, 'Language fallback locale should be queued.' );
+		$this->assertNotContains( 'ar_EG', $queue, 'Unavailable exact locale should not be queued.' );
 	}
 }

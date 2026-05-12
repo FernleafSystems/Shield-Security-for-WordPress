@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\SecurityRules;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\{
 	Ops as SecurityRulesDB,
 	RuleRecords
@@ -25,7 +24,7 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 	}
 
 	/**
-	 * @param array[] $records
+	 * @param SecurityRulesDB\Record[] $records
 	 */
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
 		return \array_values( \array_filter( \array_map(
@@ -79,13 +78,13 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 				],
 				'hrefs'   => [
 					'edit' => URL::Build(
-						self::con()->plugin_urls->adminTopNav( PluginNavs::NAV_RULES, PluginNavs::SUBNAV_RULES_BUILD ),
+						self::con()->plugin_urls->rulesBuild(),
 						[ 'edit_rule_id' => $rule->id, ]
 					),
 				],
 				'imgs'    => [
-					'icon_delete' => $con->svgs->raw( 'trash3-fill.svg' ),
-					'icon_edit'   => $con->svgs->raw( 'pencil-square.svg' ),
+					'icon_delete' => $con->svgs->iconClass( 'trash3-fill.svg' ),
+					'icon_edit'   => $con->svgs->iconClass( 'pencil-square.svg' ),
 				],
 				'vars'    => [
 					'rid' => $rule->id,
@@ -100,7 +99,9 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 
 	private function colDrag( SecurityRulesDB\Record $rule ) :string {
 		return sprintf( '<div class="h-100 d-flex justify-content-center align-items-center" data-rid="%s">%s</div>',
-			$rule->id, self::con()->svgs->raw( 'arrows-move.svg' ) );
+			$rule->id,
+			sprintf( '<i class="%s" aria-hidden="true"></i>', self::con()->svgs->iconClass( 'arrows-move.svg' ) )
+		);
 	}
 
 	protected function countTotalRecords() :int {
@@ -116,7 +117,7 @@ class BuildSecurityRulesTableData extends \FernleafSystems\Wordpress\Plugin\Shie
 	}
 
 	/**
-	 * @return array[]
+	 * @return SecurityRulesDB\Record[]
 	 */
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
 		$loader = $this->getRecordsLoader();

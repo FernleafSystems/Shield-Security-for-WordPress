@@ -47,10 +47,9 @@ class BlockdownDisableFormSubmit extends BaseAction {
 			$msg = $e->getMessage();
 		}
 
-		$this->response()->action_response_data = [
-			'success'     => $success,
+		$this->response()->setPayload( [
 			'page_reload' => true,
 			'message'     => $msg,
-		];
+		] )->setPayloadSuccess( $success );
 	}
 }

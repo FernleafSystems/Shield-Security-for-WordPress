@@ -18,6 +18,10 @@ class PasswordStrength extends Base {
 		return __( 'Edit settings to apply minimum password strength', 'wp-simple-firewall' );
 	}
 
+	protected function configItem() :string {
+		return 'pass_min_strength';
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -38,5 +42,9 @@ class PasswordStrength extends Base {
 		}
 
 		return $status;
+	}
+
+	protected function postureWeight() :int {
+		return 3;
 	}
 }

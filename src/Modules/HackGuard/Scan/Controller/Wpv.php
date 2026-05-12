@@ -12,15 +12,9 @@ class Wpv extends BaseForAssets {
 	protected function run() {
 		parent::run();
 
-		add_action( 'upgrader_process_complete', function () {
-			$this->scheduleOnDemandScan();
-		}, 10, 0 );
-		add_action( 'deleted_plugin', function () {
-			$this->scheduleOnDemandScan();
-		}, 10, 0 );
-		add_action( 'load-plugins.php', function () {
-			( new WpvAddPluginRows() )->execute();
-		}, 10, 2 );
+		add_action( 'upgrader_process_complete', fn() => $this->scheduleOnDemandScan(), 10, 0 );
+		add_action( 'deleted_plugin', fn() => $this->scheduleOnDemandScan(), 10, 0 );
+		add_action( 'load-plugins.php', fn() => ( new WpvAddPluginRows() )->execute(), 10, 0 );
 	}
 
 	/**
@@ -31,26 +25,6 @@ class Wpv extends BaseForAssets {
 			'name'     => __( 'Vulnerabilities', 'wp-simple-firewall' ),
 			'subtitle' => __( "Be alerted to plugins and themes with known security vulnerabilities", 'wp-simple-firewall' ),
 		];
-	}
-
-	public function getAdminMenuItems() :array {
-		$items = [];
-
-		$template = [
-			'id'    => self::con()->prefix( 'problems-'.$this->getSlug() ),
-			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
-		];
-
-		$count = self::con()->comps->scans->getScanResultsCount()->countVulnerableAssets();
-		if ( $count > 0 ) {
-			$warning = $template;
-			$warning[ 'id' ] .= '-wpv';
-			$warning[ 'title' ] = __( 'Vulnerable Plugins', 'wp-simple-firewall' ).sprintf( $warning[ 'title' ], $count );
-			$warning[ 'warnings' ] = $count;
-			$items[] = $warning;
-		}
-
-		return $items;
 	}
 
 	public function getQueueGroupSize() :int {
@@ -74,12 +48,14 @@ class Wpv extends BaseForAssets {
 	}
 
 	public function isEnabled() :bool {
-		return self::con()->opts->optIs( 'enable_wpvuln_scan', 'Y' ) && !$this->isRestricted();
+		return self::con()->opts->optIs( 'enable_wpvuln_scan', 'Y' )
+			   && !$this->isRestricted()
+			   && self::con()->caps->canScanVulnerabilities();
 	}
 
-	public function buildScanAction() :Scans\Wpv\ScanActionVO {
+	public function buildScanAction( ?Scans\Base\BaseScanActionVO $scanAction = null ) :Scans\Wpv\ScanActionVO {
 		return ( new Scans\Wpv\BuildScanAction() )
-			->setScanActionVO( $this->getScanActionVO() )
+			->setScanActionVO( $scanAction ?? $this->newScanActionVO() )
 			->build()
 			->getScanActionVO();
 	}

@@ -21,10 +21,7 @@ abstract class Base {
 
 	public const SCAN_SLUG = '';
 
-	/**
-	 * @var BaseScanActionVO
-	 */
-	private $scanActionVO;
+	private ?BaseScanActionVO $scanActionVO = null;
 
 	protected $latestResults;
 
@@ -38,22 +35,28 @@ abstract class Base {
 	protected function run() {
 		add_action(
 			self::con()->prefix( 'ondemand_scan_'.$this->getSlug() ),
-			fn() => self::con()->comps->scans->startNewScans( [ $this->getSlug() ] )
+			function () {
+				$result = self::con()->comps->scans->startNewScans( [ $this->getSlug() ] );
+				if ( $result->hasFailures() ) {
+					error_log( $result->getFailureLogMessage() );
+				}
+			}
 		);
-	}
-
-	public function getAdminMenuItems() :array {
-		return [];
 	}
 
 	public function getQueueGroupSize() :int {
 		return 1;
 	}
 
-	public function cleanStalesResults() {
-		foreach ( $this->getAllResults()->getItems() as $item ) {
-			$this->cleanStaleResultItem( $item );
+	public function cleanStalesResults() :bool {
+		$changed = false;
+		foreach ( $this->getAllResults()->getAllItems() as $item ) {
+			$changed = $this->cleanStaleResultItem( $item ) || $changed;
 		}
+		if ( $changed ) {
+			$this->handleResultsChanged();
+		}
+		return $changed;
 	}
 
 	/**
@@ -61,6 +64,9 @@ abstract class Base {
 	 */
 	public function cleanStaleResultItem( $item ) :bool {
 		return false;
+	}
+
+	protected function handleResultsChanged() :void {
 	}
 
 	/**
@@ -131,6 +137,13 @@ abstract class Base {
 	 */
 	public function getScanActionVO() {
 		return $this->scanActionVO ??= ScanActionFromSlug::GetAction( $this->getSlug() );
+	}
+
+	/**
+	 * @return Scans\Afs\ScanActionVO|Scans\Apc\ScanActionVO|BaseScanActionVO|Scans\Wpv\ScanActionVO
+	 */
+	public function newScanActionVO() {
+		return ScanActionFromSlug::GetAction( $this->getSlug() );
 	}
 
 	public function getScanName() :string {
@@ -236,7 +249,7 @@ abstract class Base {
 	/**
 	 * @return BaseScanActionVO|mixed
 	 */
-	abstract public function buildScanAction();
+	abstract public function buildScanAction( ?BaseScanActionVO $scanAction = null );
 
 	abstract public function buildScanResult( array $rawResult ) :\FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Record;
 }

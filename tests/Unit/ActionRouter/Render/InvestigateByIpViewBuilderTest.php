@@ -1,0 +1,253 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
+	function shield_security_get_plugin() {
+		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
+	}
+}
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
+
+use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\InvestigateByIpViewBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	ServicesState
+};
+use FernleafSystems\Wordpress\Services\Core\{
+	General,
+	Request,
+	Users
+};
+use FernleafSystems\Wordpress\Services\Utilities\IpUtils;
+
+class InvestigateByIpViewBuilderTest extends BaseUnitTest {
+
+	private object $capture;
+
+	private array $servicesSnapshot = [];
+
+	protected function setUp() :void {
+		parent::setUp();
+		Functions\when( 'sanitize_text_field' )->alias( static fn( $text ) => \is_string( $text ) ? \trim( $text ) : '' );
+		Functions\when( 'sanitize_key' )->alias( static fn( $text ) => \is_string( $text ) ? \strtolower( \trim( $text ) ) : '' );
+		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = '' ) :string => \hash( 'sha256', $scheme.'|'.$data )
+		);
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
+		);
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static function ( $value ) {
+				if ( \is_array( $value ) ) {
+					return \array_map(
+						static fn( $item ) :string => \rawurlencode( (string)$item ),
+						$value
+					);
+				}
+				return \rawurlencode( (string)$value );
+			}
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $params, string $url ) :string {
+				if ( empty( $params ) ) {
+					return $url;
+				}
+				$pieces = [];
+				foreach ( $params as $key => $value ) {
+					$pieces[] = $key.'='.$value;
+				}
+				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
+			}
+		);
+
+		$this->servicesSnapshot = ServicesState::snapshot();
+		$this->installControllerStub();
+	}
+
+	protected function tearDown() :void {
+		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
+		parent::tearDown();
+	}
+
+	public function test_valid_lookup_builds_expected_contract() :void {
+		$this->installServices( static fn( string $ip ) :bool => $ip === '203.0.113.88' );
+
+		$renderData = ( new InvestigateByIpViewBuilder() )->build( '203.0.113.88' );
+
+		$this->assertTrue( $renderData[ 'flags' ][ 'has_lookup' ] );
+		$this->assertTrue( $renderData[ 'flags' ][ 'has_subject' ] );
+		$this->assertSame( '/admin/activity/by_ip', $renderData[ 'hrefs' ][ 'by_ip' ] );
+		$this->assertSame( '203.0.113.88', $renderData[ 'vars' ][ 'analyse_ip' ] );
+		$this->assertSame( '203.0.113.88', $renderData[ 'vars' ][ 'subject_header' ][ 'title' ] );
+		$contextStep = \json_decode( $renderData[ 'vars' ][ 'subject_header' ][ 'context_step_json' ], true );
+		$this->assertSame( '203.0.113.88', $contextStep[ 'title' ] ?? '' );
+		$this->assertSame( '203.0.113.88', $contextStep[ 'breadcrumb_label' ] ?? '' );
+		$this->assertSame( 'Review sessions, activity, and request history for this IP address.', $contextStep[ 'summary' ] ?? '' );
+		$this->assertSame( 'Requests, activity logs, and sessions tied to one IP address.', $contextStep[ 'focus' ] ?? '' );
+		$this->assertSame( 'Use the tabs to switch between sessions, activity, and recent traffic.', $contextStep[ 'next_step' ] ?? '' );
+		$this->assertSame( 'IP activity', $contextStep[ 'badge' ] ?? '' );
+		$this->assertSame( 'info', $contextStep[ 'badge_status' ] ?? '' );
+		$this->assertSame( 'investigate', $contextStep[ 'color_key' ] ?? '' );
+		$this->assertNotSame( '', $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? '' );
+		$this->assertSame( '', $renderData[ 'vars' ][ 'offcanvas_history_mode' ] ?? 'missing' );
+		$shortcut = $renderData[ 'vars' ][ 'lookup_shortcuts' ][ 0 ] ?? [];
+		$this->assertSame( 'self', $shortcut[ 'key' ] ?? '' );
+		$this->assertSame( '/admin/activity/by_ip?analyse_ip=127.0.0.1', $shortcut[ 'href' ] ?? '' );
+		$this->assertSame( 'navigate', $shortcut[ 'action_type' ] ?? '' );
+		$this->assertSame( 'bi bi-globe2', $shortcut[ 'icon_class' ] ?? '' );
+		$this->assertNotSame( '', $shortcut[ 'label' ] ?? '' );
+		$this->assertSame(
+			[
+				'panel_form'            => true,
+				'use_select2'           => true,
+				'auto_submit_on_change' => true,
+			],
+			$renderData[ 'vars' ][ 'lookup_behavior' ]
+		);
+		$this->assertSame(
+			[
+				'control_id' => 'shield-investigate-ip-lookup-analyse_ip-control',
+				'label_id'   => 'shield-investigate-ip-lookup-analyse_ip-label',
+				'helper_id'  => 'shield-investigate-ip-lookup-analyse_ip-helper',
+			],
+			$renderData[ 'vars' ][ 'lookup_field' ] ?? []
+		);
+		$this->assertSame(
+			[
+				'show_subject_header'      => true,
+				'show_lookup_with_subject' => false,
+				'change_label'             => '',
+			],
+			$renderData[ 'display' ] ?? []
+		);
+		$this->assertSame( 'ip', $renderData[ 'vars' ][ 'lookup_ajax' ][ 'subject' ] );
+		$this->assertSame( 'rendered-ip:203.0.113.88', $renderData[ 'content' ][ 'ip_analysis' ] );
+		$this->assertSame(
+			[
+				'ip'                 => '203.0.113.88',
+				'render_inline_tabs' => false,
+			],
+			$this->capture->actionData
+		);
+	}
+
+	public function test_offcanvas_display_requests_standalone_inline_tabs() :void {
+		$this->installServices( static fn( string $ip ) :bool => $ip === '203.0.113.88' );
+
+		( new InvestigateByIpViewBuilder() )->build( '203.0.113.88', [
+			'show_lookup_with_subject' => true,
+			'show_subject_header'      => false,
+		] );
+
+		$this->assertSame(
+			[
+				'ip'                 => '203.0.113.88',
+				'render_inline_tabs' => true,
+			],
+			$this->capture->actionData
+		);
+	}
+
+	public function test_invalid_lookup_preserves_lookup_contract_without_ip_analysis_content() :void {
+		$this->installServices( static fn( string $ip ) :bool => false );
+
+		$renderData = ( new InvestigateByIpViewBuilder() )->build( 'not-an-ip' );
+
+		$this->assertTrue( $renderData[ 'flags' ][ 'has_lookup' ] );
+		$this->assertFalse( $renderData[ 'flags' ][ 'has_subject' ] );
+		$this->assertSame( 'not-an-ip', $renderData[ 'vars' ][ 'analyse_ip' ] );
+		$this->assertNotEmpty( $renderData[ 'vars' ][ 'lookup_shortcuts' ] ?? [] );
+		$this->assertNotSame( '', $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? '' );
+		$this->assertSame( '', $renderData[ 'content' ][ 'ip_analysis' ] );
+		$this->assertNotEmpty( $renderData[ 'vars' ][ 'lookup_ajax' ] );
+	}
+
+	private function installControllerStub() :void {
+		$this->capture = (object)[
+			'action'     => '',
+			'actionData' => [],
+		];
+
+		/** @var Controller $controller */
+		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->plugin_urls = new class {
+			public function rootAdminPageSlug() :string {
+				return 'icwp-wpsf-plugin';
+			}
+
+			public function investigateByIp( string $ip = '' ) :string {
+				return empty( $ip ) ? '/admin/activity/by_ip' : '/admin/activity/by_ip?analyse_ip='.$ip;
+			}
+		};
+		$controller->action_router = new class( $this->capture ) {
+			private object $capture;
+
+			public function __construct( object $capture ) {
+				$this->capture = $capture;
+			}
+
+			public function render( string $action, array $actionData = [] ) :string {
+				$this->capture->action = $action;
+				$this->capture->actionData = $actionData;
+				return 'rendered-ip:'.(string)( $actionData[ 'ip' ] ?? '' );
+			}
+		};
+		$controller->this_req = (object)[
+			'ip' => '127.0.0.1',
+		];
+
+		PluginControllerInstaller::install( $controller );
+	}
+
+	private function installServices( ?\Closure $ipValidator = null ) :void {
+		ServicesState::installItems( [
+			'service_request' => new class extends Request {
+				public function query( $key, $default = null ) {
+					return $default;
+				}
+
+				public function ip() :string {
+					return '127.0.0.1';
+				}
+
+				public function ts( bool $update = true ) :int {
+					return 1700000000;
+				}
+			},
+			'service_wpgeneral' => new class extends General {
+				public function ajaxURL() :string {
+					return '/admin-ajax.php';
+				}
+			},
+			'service_wpusers' => new class extends Users {
+				public function getCurrentWpUserId() {
+					return 1;
+				}
+			},
+			'service_ip' => new class( $ipValidator ) extends IpUtils {
+				private ?\Closure $validator;
+
+				public function __construct( ?\Closure $validator ) {
+					$this->validator = $validator;
+				}
+
+				public function isValidIp( $ip, $flags = null ) {
+					return (string)$ip === '127.0.0.1'
+						|| (
+							$this->validator instanceof \Closure
+								? (bool)( $this->validator )( (string)$ip )
+								: \filter_var( $ip, \FILTER_VALIDATE_IP ) !== false
+						);
+				}
+			},
+		] );
+	}
+}

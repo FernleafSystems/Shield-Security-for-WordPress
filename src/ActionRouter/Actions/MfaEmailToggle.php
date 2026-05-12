@@ -30,9 +30,8 @@ class MfaEmailToggle extends MfaUserConfigBase {
 			$msg = __( "Changing 2FA Email options isn't currently available to you.", 'wp-simple-firewall' );
 		}
 
-		$this->response()->action_response_data = [
-			'success' => $success,
+		$this->response()->setPayload( [
 			'message' => $msg,
-		];
+		] )->setPayloadSuccess( $success );
 	}
 }

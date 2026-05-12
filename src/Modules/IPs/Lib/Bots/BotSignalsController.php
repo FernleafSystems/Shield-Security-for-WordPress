@@ -23,6 +23,7 @@ class BotSignalsController {
 
 		if ( self::con()->this_req->ip_is_public || Services::Request()->query( 'force_notbot' ) ) {
 			$this->getEventListener()->execute();
+			// @phpstan-ignore return.void
 			add_action( 'init', fn() => \array_map( fn( $c ) => ( new $c() )->execute(), $this->enumerateBotTrackers() ) );
 			self::con()->comps->not_bot->execute();
 			$this->registerFrontPageLoad();
@@ -133,13 +134,12 @@ class BotSignalsController {
 	private function registerFrontPageLoad() {
 		add_action( 'wp_footer', function () {
 			if ( !self::con()->is_my_upgrade ) {
-				$req = Services::Request();
-				if ( $req->isGet() && ( is_page() || is_single() || is_front_page() || is_home() ) ) {
+				if ( $this->isFrontPageLoadTrackable() ) {
 					try {
 						$record = ( new BotSignalsRecord() )
 							->setIP( self::con()->this_req->ip )
 							->retrieve();
-						if ( $req->ts() - $record->frontpage_at > MINUTE_IN_SECONDS*30 ) {
+						if ( Services::Request()->ts() - $record->frontpage_at > MINUTE_IN_SECONDS*30 ) {
 							$this->getEventListener()->fireEventForIP( self::con()->this_req->ip, 'frontpage_load' );
 						}
 					}
@@ -148,6 +148,13 @@ class BotSignalsController {
 				}
 			}
 		}, \PHP_INT_MAX );
+	}
+
+	private function isFrontPageLoadTrackable() :bool {
+		$req = Services::Request();
+		return $req->isGet()
+			   && !Services::WpUsers()->isUserLoggedIn()
+			   && ( is_page() || is_single() || is_front_page() || is_home() );
 	}
 
 	private function registerLoginPageLoad() {

@@ -1,0 +1,56 @@
+{% set rows = table.rows %}
+
+{% if rows is empty %}
+	<div class="small text-muted">{{ table.empty_text }}</div>
+{% else %}
+	<div class="table-responsive">
+		<table class="table table-sm align-middle mb-0 actions-landing__maintenance-table">
+			<thead>
+			<tr>
+				<th>{{ table.columns.item }}</th>
+				<th>{{ table.columns.details }}</th>
+				<th class="text-end">{{ table.columns.action }}</th>
+			</tr>
+			</thead>
+			<tbody>
+			{% for row in rows %}
+				<tr{% if row.is_ignored %}
+					class="actions-landing__maintenance-row is-ignored"
+					data-actions-queue-maintenance-ignored="1"
+				{% endif %}>
+					<td>
+						<div class="actions-landing__maintenance-title">
+							<span class="fw-semibold">{{ row.title }}</span>
+							{% if row.ignored_label is not empty %}
+								<span class="shield-badge badge-info actions-landing__maintenance-ignored-badge">
+									{{ row.ignored_label }}
+								</span>
+							{% endif %}
+						</div>
+						{% if row.subtitle is not empty %}
+							<div class="small text-muted">{{ row.subtitle }}</div>
+						{% endif %}
+					</td>
+					<td>
+						{% if row.context is not empty %}
+							<div>{{ row.context }}</div>
+						{% endif %}
+						{% if row.identifier is not empty %}
+							<div class="small text-muted"><code>{{ row.identifier }}</code></div>
+						{% endif %}
+					</td>
+					<td class="text-end text-nowrap">
+						{% include '/wpadmin/components/actions_queue/maintenance_row_actions.twig' with {
+							row: row,
+							primary_button_class: 'btn btn-outline-secondary btn-sm',
+							primary_icon_button_class: 'btn btn-sm btn-light action actions-landing__table-icon-action',
+							secondary_button_class: 'btn btn-sm btn-light action actions-landing__table-icon-action',
+							secondary_spacing_class: 'ms-1'
+						} only %}
+					</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endif %}

@@ -19,7 +19,7 @@ class MfaPasskeyAuthenticationStart extends MfaLoginFlowBase {
 			$user = $this->getLoginWPUser();
 
 			$available = self::con()->comps->mfa->getProvidersAvailableToUser( $user );
-			/** @var Passkey $provider */
+			/** @var ?Passkey $provider */
 			$provider = $available[ Passkey::ProviderSlug() ] ?? null;
 
 			if ( empty( $provider ) ) {
@@ -40,7 +40,12 @@ class MfaPasskeyAuthenticationStart extends MfaLoginFlowBase {
 			$response[ 'message' ] = __( 'There was a problem preparing the Passkey Auth Challenge.', 'wp-simple-firewall' );
 		}
 
-		$this->response()->action_response_data = $response;
+		$payloadSuccess = $response[ 'success' ];
+		unset( $response[ 'success' ] );
+
+		$this->response()
+			 ->setPayload( $response )
+			 ->setPayloadSuccess( $payloadSuccess );
 	}
 
 	protected function getRequiredDataKeys() :array {

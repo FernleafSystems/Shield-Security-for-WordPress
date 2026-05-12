@@ -14,12 +14,13 @@ declare( strict_types=1 );
  *   php bin/run-strauss-dev.php --clean      # Remove vendor_prefixed/
  *   php bin/run-strauss-dev.php --strauss-version=0.26.3
  *   php bin/run-strauss-dev.php --strauss-fork-repo=https://github.com/user/strauss
+ *   php bin/run-strauss-dev.php --strauss-fork-branch=feature-branch
  */
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\CommandRunner;
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PackagerConfigResolver;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\SafeDirectoryRemover;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\StraussBinaryProvider;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PackagerConfig;
 use Symfony\Component\Filesystem\Path;
 
 require dirname( __DIR__ ).'/vendor/autoload.php';
@@ -28,6 +29,7 @@ $options = getopt( '', [
 	'clean',
 	'strauss-version::',
 	'strauss-fork-repo::',
+	'strauss-fork-branch::',
 	'help',
 ] );
 
@@ -56,6 +58,7 @@ Options:
   --clean                Remove vendor_prefixed/ directory
   --strauss-version      Specify Strauss version (e.g., 0.26.3)
   --strauss-fork-repo    Use a custom Strauss fork repository URL
+  --strauss-fork-branch  Use a custom Strauss fork branch (default: develop)
   --help                 Show this help message
 
 Examples:
@@ -63,6 +66,7 @@ Examples:
   php bin/run-strauss-dev.php --clean
   php bin/run-strauss-dev.php --strauss-version=0.26.3
   php bin/run-strauss-dev.php --strauss-fork-repo=https://github.com/paulgoodchild/strauss
+  php bin/run-strauss-dev.php --strauss-fork-repo=https://github.com/paulgoodchild/strauss --strauss-fork-branch=develop
 
 HELP;
 	exit( 0 );
@@ -84,6 +88,8 @@ if ( isset( $options[ 'clean' ] ) ) {
 	exit( 0 );
 }
 
+$packagerConfig = ( new PackagerConfigResolver() )->resolve( $projectRoot );
+
 // Verify vendor/ exists (composer install must have been run)
 $vendorDir = Path::join( $projectRoot, 'vendor' );
 if ( !\is_dir( $vendorDir ) ) {
@@ -98,7 +104,7 @@ if ( \is_string( $straussVersion ) && $straussVersion !== '' ) {
 	$resolvedStrauss = \ltrim( \trim( $straussVersion ), 'v' );
 }
 else {
-	$resolvedStrauss = PackagerConfig::getStraussVersion();
+	$resolvedStrauss = $packagerConfig[ 'strauss_version' ];
 }
 
 // Use fallback if nothing specified
@@ -109,7 +115,15 @@ if ( $resolvedStrauss === null || $resolvedStrauss === '' ) {
 // Resolve fork repo: CLI arg > env var/config file > null
 $straussForkRepo = $options[ 'strauss-fork-repo' ] ?? null;
 if ( !\is_string( $straussForkRepo ) || $straussForkRepo === '' ) {
-	$straussForkRepo = PackagerConfig::getStraussForkRepo();
+	$straussForkRepo = $packagerConfig[ 'strauss_fork_repo' ];
+}
+
+$straussForkBranch = null;
+if ( \is_string( $straussForkRepo ) && $straussForkRepo !== '' ) {
+	$straussForkBranch = $options[ 'strauss-fork-branch' ] ?? null;
+	if ( !\is_string( $straussForkBranch ) || $straussForkBranch === '' ) {
+		$straussForkBranch = $packagerConfig[ 'strauss_fork_branch' ] ?? 'develop';
+	}
 }
 
 try {
@@ -128,6 +142,7 @@ try {
 	$straussProvider = new StraussBinaryProvider(
 		$resolvedStrauss,
 		$straussForkRepo,
+		$straussForkBranch,
 		$commandRunner,
 		$directoryRemover,
 		$logger
@@ -155,7 +170,7 @@ try {
 		$logger( 'vendor_prefixed/ created alongside vendor/' );
 		$logger( '' );
 		$logger( 'AptowebDeps\\* prefixed classes are now available.' );
-		$logger( 'Both autoloaders will be loaded by plugin_autoload.php.' );
+		$logger( 'Both autoloaders will be loaded by icwp-wpsf.php.' );
 		$logger( '' );
 		$logger( 'To clean up later, run: php bin/run-strauss-dev.php --clean' );
 	}

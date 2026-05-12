@@ -36,7 +36,7 @@ class PluginScanner {
 		$slug = $plugin->slug;
 		if ( !empty( $slug ) ) {
 			if ( !\function_exists( 'plugins_api' ) ) {
-				require_once ABSPATH.'/wp-admin/includes/plugin-install.php';
+				require_once path_join( ABSPATH, 'wp-admin/includes/plugin-install.php' );
 			}
 			$api = plugins_api( 'plugin_information', [
 				'slug'   => $slug,

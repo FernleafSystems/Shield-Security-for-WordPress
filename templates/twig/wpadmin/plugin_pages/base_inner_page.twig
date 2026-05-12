@@ -1,20 +1,36 @@
 {% import "/common/macros.twig" as icwp_macros %}
+{% set mode_shell = vars.mode_shell|default({}) %}
+{% set mode_panel = vars.mode_panel|default({}) %}
+{% set is_mode_landing = mode_shell.is_mode_landing|default(false) %}
+{% set use_operator_chrome = is_mode_landing and mode_shell.use_operator_chrome|default(false) %}
+{% set mode_active_panel = mode_panel.active_target|default('') %}
 
 {% block inner_page_header %}
 
-	{% if strings.inner_page_title|default('') is not empty %}
-		<div class="row border-bottom mb-2 inner-page-header">
+	{% if not use_operator_chrome and strings.inner_page_title|default('') is not empty %}
+		{% if is_mode_landing %}
+			<div class="mode-landing-accent-bar mode-landing-accent-bar--{{ mode_shell.root_step.color_key }}"></div>
+		{% endif %}
+		<div class="row border-bottom mb-2 inner-page-header{% if is_mode_landing and mode_shell.header_density|default('default') == 'compact' %} inner-page-header-compact{% endif %}"
+			 data-mode-header-density="{{ is_mode_landing ? mode_shell.header_density|default('default') : 'default' }}">
 			<div class="col">
 				<h4 class="mb-2 inner-page-header-title d-flex align-items-center">
-					{{ imgs.inner_page_title_icon|default('')|raw }}
+					{% if imgs.inner_page_title_icon|default('') is not empty %}
+						<i class="{{ imgs.inner_page_title_icon }}" aria-hidden="true"></i>
+					{% endif %}
 					<div class="d-inline-block">
-						{% for breadcrumb in hrefs.breadcrumbs %}
-							<a href="{{ breadcrumb.href }}"
-							   title="{{ breadcrumb.title|default('') }}"
-							   class="border-bottom">{{ breadcrumb.text }}</a>
-							<span class="mx-1 fs-6" style="line-height: inherit">&raquo;</span>
+						{% for segment in hrefs.inner_page_header_segments|default([]) %}
+							{% if segment.href is not empty %}
+								<a href="{{ segment.href }}"
+								   title="{{ segment.title }}"
+								   class="border-bottom">{{ segment.text }}</a>
+							{% else %}
+								{{ segment.text }}
+							{% endif %}
+							{% if not loop.last %}
+								<span class="mx-1 fs-6" style="line-height: inherit">&raquo;</span>
+							{% endif %}
 						{% endfor %}
-						{{ strings.inner_page_title|default(strings.no_inner_page_title) }}
 					</div>
 					{% block inner_page_title_after %}{% endblock %}
 				</h4>
@@ -31,26 +47,25 @@
 
 				{% if hrefs.inner_page_contextual_hrefs|default([]) is not empty %}
 
-					<div class="btn-group dropstart tour-navigation_v1"
-						 data-introtitle="Action Menu"
-						 data-introposition="left"
-						 data-intro="Certain pages have their own specific actions. Use this menu for shortcuts to useful tools and options."
-					>
+					<div class="btn-group dropstart">
 						<button type="button"
-								class="btn btn-link dropdown-toggle"
+								class="btn btn-link dropdown-toggle page-action-menu-toggle"
 								data-bs-toggle="dropdown"
-								aria-expanded="false">{{ imgs.svgs.menu|raw }}</button>
+								aria-label="{{ strings.actions_title|e('html_attr') }}"
+								title="{{ strings.actions_title|e('html_attr') }}"
+								aria-expanded="false"><i class="{{ imgs.svgs.menu }}" aria-hidden="true"></i></button>
 							<ul class="dropdown-menu">
 								{% for item in hrefs.inner_page_contextual_hrefs %}
 									<li>
 										{{ icwp_macros.tagAnchor(
 											item.href,
 											item.title,
-											item.id|default(''),
-											item.classes|default([])|merge(['dropdown-item']),
-											item.new_window|default(false),
-											item.data|default([]),
-											item.disabled|default(false)
+											item.id,
+											item.classes|merge(['dropdown-item']),
+											item.new_window,
+											item.data,
+											item.disabled,
+											item.is_action
 										) }}
 									</li>
 								{% endfor %}
@@ -64,8 +79,57 @@
 
 {% endblock %}
 
-{% block inner_page_body %}
-	{% for element in content|default([]) %}
-		{{ element|raw }}
-	{% endfor %}
+{% block inner_page_body_shell %}
+	<div class="inner-page-body-shell{% if is_mode_landing %} is-mode-landing{% endif %}"
+		 data-inner-page-body-shell="1"
+		 {% if is_mode_landing %}
+		 data-mode-shell="1"
+		 data-mode="{{ mode_shell.mode }}"
+		 data-mode-interactive="{{ mode_shell.is_interactive ? '1' : '0' }}"
+		 {% if mode_active_panel is not empty %}
+		 data-mode-active-panel="{{ mode_active_panel }}"
+		 {% endif %}
+		 {% if use_operator_chrome %}
+		 data-operator-chrome="1"
+		 data-operator-home-href="{{ mode_shell.home_href|e('html_attr') }}"
+		 data-operator-home-label="{{ mode_shell.home_label|e('html_attr') }}"
+		 data-operator-root-step="{{ mode_shell.root_step_json|e('html_attr') }}"
+		 data-operator-context-focus="{{ strings.operator_context_focus|e('html_attr') }}"
+		 data-operator-context-next="{{ strings.operator_context_next|e('html_attr') }}"
+		 data-operator-context-actions="{{ strings.operator_context_actions|e('html_attr') }}"
+		 {% endif %}
+		 {% endif %}>
+		{% set inner_page_body_html %}
+			{% block inner_page_body %}
+				{% for element in content|default([]) %}
+					{{ element|raw }}
+				{% endfor %}
+			{% endblock %}
+		{% endset %}
+		{% if use_operator_chrome %}
+			{% set operator_body_html %}
+				{{ inner_page_body_html }}
+			{% endset %}
+			{% set operator_rail_html %}
+				{% include '/wpadmin/components/page/context_rail.twig' with {
+					step: mode_shell.root_step,
+					mode: mode_shell.mode,
+					label: strings.operator_context_label
+				} only %}
+			{% endset %}
+			{% include '/wpadmin/components/page/step_tabs.twig' with {
+				hrefs: hrefs,
+				imgs: imgs,
+				strings: strings
+			} only %}
+			{% include '/wpadmin/components/page/shield_rail_layout.twig' with { layout: {
+				class: 'shield-rail-layout--context-end',
+				content_first: true,
+				content_html: operator_body_html,
+				rail_html: operator_rail_html
+			} } only %}
+		{% else %}
+			{{ inner_page_body_html }}
+		{% endif %}
+	</div>
 {% endblock %}

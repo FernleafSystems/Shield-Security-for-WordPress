@@ -2,14 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
+use Symfony\Component\Filesystem\Path;
+
 class DebugLogger {
 
 	private bool $enabled;
 	private string $logFile;
 
 	public function __construct( ?bool $enabled = null ) {
-		$this->enabled = $enabled ?? ( ( $_ENV['SHIELD_DEBUG'] ?? '' ) === '1' );
-		$this->logFile = __DIR__.'/../../debug.log';
+		$this->enabled = $enabled ?? TestEnv::isVerbose();
+		$this->logFile = Path::join( __DIR__, '../../debug.log' );
 	}
 
 	public function log( string $message, string $level = 'INFO' ) :void {

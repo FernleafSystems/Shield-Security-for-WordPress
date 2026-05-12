@@ -2,6 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
+/**
+ * @extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet<ResultItem>
+ */
 class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet {
 
 	public function getMalware() :ResultsSet {
@@ -11,7 +14,7 @@ class ResultsSet extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 	private function filterByFieldEquals( string $field, $equals ) :ResultsSet {
 		$res = new ResultsSet();
 		/** @var ResultItem $item */
-		foreach ( $this->getItems() as $item ) {
+		foreach ( $this->items as $item ) {
 			if ( $item->{$field} == $equals ) {
 				$res->addItem( $item );
 			}

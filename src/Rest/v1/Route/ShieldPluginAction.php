@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Route;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+
 class ShieldPluginAction extends Base {
 
 	protected function getRouteArgsDefaults() :array {
@@ -37,7 +39,7 @@ class ShieldPluginAction extends Base {
 	}
 
 	public function getRoutePath() :string {
-		return '/action/(?P<ex>[a-z_-]{3,})';
+		return \sprintf( '/action/(?P<%s>%s)', ActionData::FIELD_EXECUTE, ActionData::EXECUTE_SLUG_PATTERN );
 	}
 
 	protected function getRequestProcessorClass() :string {

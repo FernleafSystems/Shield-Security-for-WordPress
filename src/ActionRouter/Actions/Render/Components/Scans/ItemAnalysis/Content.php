@@ -26,7 +26,7 @@ class Content extends BaseComponent {
 
 		return [
 			'code_language' => $this->getCodeLanguage( $path ),
-			'lines' => \explode( "\n",
+			'lines'         => \explode( "\n",
 				\str_replace( "\t", "    ", ( new ConvertLineEndings() )->fileDosToLinux( $path ) )
 			),
 		];

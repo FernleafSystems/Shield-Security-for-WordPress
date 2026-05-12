@@ -21,7 +21,7 @@ class MfaPasskeyRegistrationStart extends MfaUserConfigBase {
 		}
 		else {
 			$available = self::con()->comps->mfa->getProvidersAvailableToUser( $user );
-			/** @var Passkey $provider */
+			/** @var ?Passkey $provider */
 			$provider = $available[ Passkey::ProviderSlug() ] ?? null;
 
 			if ( empty( $provider ) ) {
@@ -42,6 +42,11 @@ class MfaPasskeyRegistrationStart extends MfaUserConfigBase {
 			}
 		}
 
-		$this->response()->action_response_data = $response;
+		$payloadSuccess = $response[ 'success' ];
+		unset( $response[ 'success' ] );
+
+		$this->response()
+			 ->setPayload( $response )
+			 ->setPayloadSuccess( $payloadSuccess );
 	}
 }

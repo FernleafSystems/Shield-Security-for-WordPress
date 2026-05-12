@@ -1,50 +1,41 @@
-import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
-import { ObjectOps } from "../../util/ObjectOps";
-import { ShieldOverlay } from "../ui/ShieldOverlay";
+import { AjaxService } from "../services/AjaxService";
 
 export class DashboardWidget extends BaseComponent {
 
 	init() {
-		this.widgetContainer = document.getElementById( 'ShieldDashboardWidget' ) || false;
+		this.widgetContainer = document.getElementById( 'ShieldDashboardWidget' );
 		this.exec();
 	}
 
 	canRun() {
-		return this.widgetContainer;
+		return this.widgetContainer !== null
+			&& typeof this._base_data?.ajax?.render === 'object'
+			&& typeof this._base_data?.strings?.load_failed === 'string';
 	}
 
 	run() {
-		shieldEventsHandler_Main.add_Click( `#${this.widgetContainer.id} a.refresh_widget`, () => this.renderWidget( true ) );
 		this.renderWidget();
 	}
 
-	renderWidget( refresh = false ) {
-
-		this.widgetContainer.style[ 'min-height' ] = '200px';
-
-		ShieldOverlay.Show( this.widgetContainer.id );
-
-		const data = ObjectOps.ObjClone( this._base_data.ajax.render );
-		data[ 'refresh' ] = refresh;
-
+	renderWidget() {
 		( new AjaxService() )
-		.bg( data, false, true )
+		.bg( this._base_data.ajax.render )
 		.then( ( resp ) => {
-			ShieldOverlay.Hide();
-			if ( resp.success ) {
+			if ( resp?.success && typeof resp?.data?.html === 'string' ) {
 				this.widgetContainer.innerHTML = resp.data.html;
+				this.widgetContainer.removeAttribute( 'aria-busy' );
 			}
 			else {
-				this.widgetContainer.textContent = 'There was a problem loading the content.';
+				this.showLoadFailure();
 			}
 			return resp;
 		} )
-		.catch( ( error ) => {
-			this.widgetContainer.textContent = 'There was a problem loading the content.';
-			console.log( error );
-			ShieldOverlay.Hide();
-		} )
-		.finally();
-	};
+		.catch( () => this.showLoadFailure() );
+	}
+
+	showLoadFailure() {
+		this.widgetContainer.removeAttribute( 'aria-busy' );
+		this.widgetContainer.textContent = this._base_data.strings.load_failed;
+	}
 }

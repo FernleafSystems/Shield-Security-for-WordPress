@@ -50,10 +50,10 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 			$statuses[] = 'unidentified';
 		}
 
-		if ( $this->VO->item_repaired_at > 0 ) {
+		if ( $this->VO->isRepaired() ) {
 			$statuses[] = 'repaired';
 		}
-		elseif ( $this->VO->item_deleted_at > 0 ) {
+		elseif ( $this->VO->isDeleted() ) {
 			$statuses[] = 'deleted';
 		}
 

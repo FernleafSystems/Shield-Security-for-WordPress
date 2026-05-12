@@ -46,6 +46,6 @@ class FormParams {
 			}
 		}
 
-		return \is_array( $formParams ) ? $formParams : [];
+		return $formParams;
 	}
 }

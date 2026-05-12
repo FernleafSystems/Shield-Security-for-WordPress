@@ -13,16 +13,18 @@ class FindSessions {
 		return $this->lookupFromUserMeta( [ "`user_meta`.`last_login_at`!=0" ], $limit );
 	}
 
-	public function byIP( string $ip ) :array {
+	public function byUser( int $userId ) :array {
 		$sessions = [];
-		foreach ( $this->lookupFromUserMeta( [ $this->getWhere_IPEquals( $ip ) ] ) as $userID => $userAtIP ) {
-			$sessions[ $userID ] = \array_map(
-				function ( $sess ) use ( $userAtIP ) {
-					$sess[ 'user_login' ] = $userAtIP[ 'user_login' ];
-					return $sess;
-				},
-				\WP_Session_Tokens::get_instance( $userAtIP[ 'user_id' ] )->get_all()
-			);
+		if ( $userId > 0 ) {
+			foreach ( $this->lookupFromUserMeta( [ \sprintf( '`user_meta`.`user_id`=%d', $userId ) ] ) as $userAtMeta ) {
+				$sessions[ (int)$userAtMeta[ 'user_id' ] ] = \array_map(
+					function ( $sess ) use ( $userAtMeta ) {
+						$sess[ 'user_login' ] = $userAtMeta[ 'user_login' ];
+						return $sess;
+					},
+					\WP_Session_Tokens::get_instance( (int)$userAtMeta[ 'user_id' ] )->get_all()
+				);
+			}
 		}
 		return $sessions;
 	}
@@ -58,9 +60,5 @@ class FindSessions {
 		}
 
 		return $byUserIDs;
-	}
-
-	private function getWhere_IPEquals( string $ip ) :string {
-		return sprintf( "`ips`.`ip`=INET6_ATON('%s')", $ip );
 	}
 }

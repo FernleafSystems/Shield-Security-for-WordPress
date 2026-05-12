@@ -27,12 +27,12 @@ class FindFromSlug {
 	}
 
 	/**
-	 * @return ?class-string<BaseConditionResponse>
+	 * @return null|class-string<Responses\Base>|class-string<Conditions\Base>
 	 */
 	private static function Find( string $slug, array $collection ) :?string {
 		$theClass = null;
 		foreach ( $collection as $item ) {
-			/** @var BaseConditionResponse|string $item */
+			/** @var null|class-string<Responses\Base>|class-string<Conditions\Base> $item */
 			if ( $item::Slug() === $slug ) {
 				$theClass = $item;
 				break;

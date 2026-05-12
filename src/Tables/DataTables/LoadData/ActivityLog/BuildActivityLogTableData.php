@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\{
 	LoadLogs,
 	LogRecord
 };
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForActivityLog;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData;
@@ -102,7 +103,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 						}
 						break;
 					case 'ip':
-						$wheres[] = sprintf( "`ips`.`ip`=INET6_ATON('%s')", \array_pop( $selected ) );
+						$wheres[] = IpAddressSql::equality( '`ips`.`ip`', \array_pop( $selected ) );
 						break;
 					case 'user':
 						if ( \count( $selected ) > 0 ) {
@@ -168,6 +169,10 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 			];
 		}
 		return $loader;
+	}
+
+	public function exportGetRecordsLoader() :LoadLogs {
+		return $this->getRecordsLoader();
 	}
 
 	private function buildSqlWhereForEventTextSearch() :string {
@@ -291,7 +296,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 			$label,
 			$label,
 			$this->log->rid,
-			sprintf( '<span class="meta-icon">%s</span>', self::con()->svgs->raw( 'tags.svg' ) )
+			sprintf( '<span class="meta-icon"><i class="%s" aria-hidden="true"></i></span>', self::con()->svgs->iconClass( 'tags.svg' ) )
 		);
 	}
 
@@ -314,7 +319,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 						];
 		$displayLevel = isset( $levelDetails[ $level ] ) ? $level : 'notice';
 		return sprintf( '<div class="severity-%s severity-icon">%s</div>', $displayLevel,
-			self::con()->svgs->raw( $levelDetails[ $displayLevel ][ 'icon' ] )
+			sprintf( '<i class="%s" aria-hidden="true"></i>', self::con()->svgs->iconClass( $levelDetails[ $displayLevel ][ 'icon' ] ) )
 		);
 	}
 }
