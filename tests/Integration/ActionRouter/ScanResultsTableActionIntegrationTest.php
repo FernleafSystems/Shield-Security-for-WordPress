@@ -382,6 +382,75 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 'view', 'delete', 'ignore' ], $row[ 'action_ids' ] );
 	}
 
+	public function test_delete_sub_action_deletes_fixture_owned_malware_file_and_marks_row_deleted() :void {
+		try {
+			$tracked = $this->seedDeletableMalwareResult( 'delete-action.php' );
+			$resultItemId = (int)$tracked[ 'result_item_id' ];
+			$path = (string)$tracked[ 'path_full' ];
+
+			$beforeActive = $this->retrieveMalwareRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
+			$this->assertSame( [ $resultItemId ], \array_column( $beforeActive[ 'datatable_data' ][ 'data' ] ?? [], 'rid' ) );
+
+			$payload = $this->processScanResultsAction( [
+				'sub_action' => 'delete',
+				'rids'       => [ $resultItemId ],
+			] );
+
+			$this->assertTrue( $payload[ 'success' ] ?? false );
+			$this->assertFalse( $payload[ 'page_reload' ] ?? true );
+			$this->assertTrue( $payload[ 'table_reload' ] ?? false );
+			$this->assertFalse( \is_file( $path ) );
+			$this->assertResultItemDeleted( $resultItemId );
+
+			$afterActive = $this->retrieveMalwareRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
+			$this->assertSame( 0, (int)( $afterActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+
+			$afterDeleted = $this->retrieveMalwareRows( [
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => true,
+				'ignored_only'     => false,
+			] );
+			$this->assertSame( [ $resultItemId ], \array_column( $afterDeleted[ 'datatable_data' ][ 'data' ] ?? [], 'rid' ) );
+		}
+		finally {
+			$this->deleteScanActionFixtureRoot();
+		}
+	}
+
+	public function test_repair_delete_sub_action_deletes_non_repairable_fixture_file_and_marks_row_deleted() :void {
+		try {
+			$tracked = $this->seedDeletableMalwareResult( 'repair-delete-action.php' );
+			$resultItemId = (int)$tracked[ 'result_item_id' ];
+			$path = (string)$tracked[ 'path_full' ];
+
+			$payload = $this->processScanResultsAction( [
+				'sub_action' => 'repair-delete',
+				'rids'       => [ $resultItemId ],
+			] );
+
+			$this->assertTrue( $payload[ 'success' ] ?? false );
+			$this->assertFalse( $payload[ 'page_reload' ] ?? true );
+			$this->assertTrue( $payload[ 'table_reload' ] ?? false );
+			$this->assertFalse( \is_file( $path ) );
+			$this->assertResultItemDeleted( $resultItemId );
+
+			$afterActive = $this->retrieveMalwareRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
+			$this->assertSame( 0, (int)( $afterActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+
+			$afterDeleted = $this->retrieveMalwareRows( [
+				'include_ignored'  => false,
+				'include_repaired' => false,
+				'include_deleted'  => true,
+				'ignored_only'     => false,
+			] );
+			$this->assertSame( [ $resultItemId ], \array_column( $afterDeleted[ 'datatable_data' ][ 'data' ] ?? [], 'rid' ) );
+		}
+		finally {
+			$this->deleteScanActionFixtureRoot();
+		}
+	}
+
 	/**
 	 * @param array<string,mixed> $params
 	 * @return array<string,mixed>
@@ -403,6 +472,13 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	 */
 	private function retrieveWordpressRows( array $resultsDisplayOptions, ?array $tableData = null ) :array {
 		return $this->retrieveRows( 'core', 'core', $resultsDisplayOptions, $tableData );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function retrieveMalwareRows( array $resultsDisplayOptions, ?array $tableData = null ) :array {
+		return $this->retrieveRows( 'malware', 'malware', $resultsDisplayOptions, $tableData );
 	}
 
 	/**
@@ -452,7 +528,88 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		if ( !\is_dir( $dir ) ) {
 			\wp_mkdir_p( $dir );
 		}
-		\file_put_contents( $path, "fixture\n" );
+		$this->assertNotFalse( \file_put_contents( $path, "fixture\n" ) );
+		$this->assertFileExists( $path );
+	}
+
+	/**
+	 * @return array{result_item_id:int,path_full:string}
+	 */
+	private function seedDeletableMalwareResult( string $fileName ) :array {
+		$this->deleteScanActionFixtureRoot();
+
+		$path = $this->scanActionFixturePath( $fileName );
+		$this->ensureFixtureFileExists( $path );
+		$resolvedPath = \realpath( $path );
+		$this->assertNotFalse( $resolvedPath );
+		$path = \wp_normalize_path( $resolvedPath );
+		$this->assertFixturePathIsOwned( $path );
+
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$tracked = TestDataFactory::insertAfsFileScanResultTracked(
+			$scanId,
+			TestDataFactory::pathFragmentFromAbsolutePath( $path ),
+			[
+				'is_mal'          => 1,
+				'is_unrecognised' => 1,
+			]
+		);
+
+		return [
+			'result_item_id' => (int)$tracked[ 'result_item_id' ],
+			'path_full'      => $path,
+		];
+	}
+
+	private function assertResultItemDeleted( int $resultItemId ) :void {
+		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( $resultItemId );
+		$this->assertNotEmpty( $item );
+		$this->assertGreaterThan( 0, (int)( $item->resolved_at ?? 0 ) );
+		$this->assertSame( 'deleted', (string)( $item->resolution_reason ?? '' ) );
+	}
+
+	private function scanActionFixturePath( string $fileName ) :string {
+		$fileName = \ltrim( $fileName, '/\\' );
+		$this->assertNotSame( '', $fileName );
+		$this->assertDoesNotMatchRegularExpression( '#[/\\\\]#', $fileName );
+
+		$path = \wp_normalize_path( $this->scanActionFixtureRoot().'/'.$fileName );
+		$this->assertFixturePathIsOwned( $path );
+		return $path;
+	}
+
+	private function scanActionFixtureRoot() :string {
+		return \wp_normalize_path( \trailingslashit( WP_CONTENT_DIR ).'shield-scan-action-fixture' );
+	}
+
+	private function deleteScanActionFixtureRoot() :void {
+		$root = $this->scanActionFixtureRoot();
+		if ( !\file_exists( $root ) ) {
+			return;
+		}
+
+		$resolvedRoot = \realpath( $root );
+		if ( $resolvedRoot === false ) {
+			return;
+		}
+		$resolvedRoot = \wp_normalize_path( $resolvedRoot );
+		$this->assertSame( $root, $resolvedRoot );
+		$this->assertDirectoryExists( $resolvedRoot );
+
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $resolvedRoot, \FilesystemIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+
+		foreach ( $iterator as $item ) {
+			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
+		}
+		@\rmdir( $resolvedRoot );
+	}
+
+	private function assertFixturePathIsOwned( string $path ) :void {
+		$root = \trailingslashit( $this->scanActionFixtureRoot() );
+		$this->assertStringStartsWith( $root, \wp_normalize_path( $path ) );
 	}
 
 	/**

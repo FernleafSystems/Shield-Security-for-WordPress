@@ -8,7 +8,6 @@ import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { announceStatus, announceWithin, focusElement, setElementBusy } from "../ui/ShieldA11y";
 import { getActiveLayerIndex, getLayersForShell, parseJsonAttribute } from "./DrillDownShared";
-import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
 export class InvestigateLandingController extends BaseAutoExecComponent {
 
@@ -266,9 +265,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		const confirmText = String( target.dataset.operatorContextActionConfirm || '' ).trim();
 		if ( confirmText.length > 0 ) {
-			const confirmed = await confirmDialog( {
+			const dialog = shieldServices.dialog();
+			const confirmed = await dialog.confirm( {
 				message: confirmText,
-				confirmLabel: resolveDialogConfirmLabel( target ),
+				confirmLabel: dialog.resolveConfirmLabel( target ),
 				danger: true,
 				launcher: target,
 			} );

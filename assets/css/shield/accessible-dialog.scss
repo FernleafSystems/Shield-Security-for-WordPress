@@ -1,5 +1,4 @@
-[data-shield-accessible-dialog="1"],
-[data-shield-mfa-dialog="1"] {
+[data-shield-accessible-dialog="1"] {
 	position: fixed;
 	inset: 0;
 	z-index: 100000;
@@ -9,20 +8,17 @@
 	padding: 24px;
 }
 
-[data-shield-accessible-dialog="1"][aria-hidden="true"],
-[data-shield-mfa-dialog="1"][aria-hidden="true"] {
+[data-shield-accessible-dialog="1"][aria-hidden="true"] {
 	display: none;
 }
 
-.shield-accessible-dialog__overlay,
-.shield-mfa-dialog__overlay {
+.shield-accessible-dialog__overlay {
 	position: fixed;
 	inset: 0;
 	background: rgba( 0, 0, 0, 0.46 );
 }
 
-.shield-accessible-dialog__surface,
-.shield-mfa-dialog__surface {
+.shield-accessible-dialog__surface {
 	position: relative;
 	width: min( 100%, 480px );
 	max-height: min( 620px, calc( 100vh - 48px ) );
@@ -34,93 +30,91 @@
 	padding: 24px;
 }
 
-.shield-accessible-dialog__title,
-.shield-mfa-dialog__title {
+.shield-accessible-dialog__title {
 	margin: 0 0 12px;
 	font-size: 1.35em;
 	line-height: 1.3;
 }
 
-.shield-accessible-dialog__message,
-.shield-mfa-dialog__message {
+.shield-accessible-dialog__title--hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect( 0, 0, 0, 0 );
+	clip-path: inset( 50% );
+	border: 0;
+	white-space: nowrap;
+}
+
+.shield-accessible-dialog__message {
 	margin: 0 0 16px;
 	line-height: 1.5;
 }
 
-.shield-accessible-dialog__field,
-.shield-mfa-dialog__field {
+.shield-accessible-dialog__field {
 	margin: 16px 0;
 }
 
-.shield-accessible-dialog__field label,
-.shield-mfa-dialog__field label {
+.shield-accessible-dialog__field label {
 	display: block;
 	font-weight: 600;
 	margin-bottom: 6px;
 }
 
-.shield-accessible-dialog__field input,
-.shield-mfa-dialog__field input {
+.shield-accessible-dialog__field input {
 	width: 100%;
 	max-width: 100%;
 }
 
-.shield-accessible-dialog__validation,
-.shield-mfa-dialog__validation {
+.shield-accessible-dialog__validation {
 	margin: 12px 0 0;
 	color: #8a2424;
 	font-weight: 600;
 }
 
-.shield-accessible-dialog__actions,
-.shield-mfa-dialog__actions {
+.shield-accessible-dialog__actions {
 	display: flex;
 	gap: 8px;
 	justify-content: flex-end;
 	margin-top: 20px;
 }
 
-.shield-accessible-dialog__actions .button[hidden],
-.shield-mfa-dialog__actions .button[hidden] {
+.shield-accessible-dialog__actions .button[hidden] {
 	display: none !important;
 }
 
-.shield-accessible-dialog--danger .shield-accessible-dialog__confirm.button-link-delete,
-.shield-mfa-dialog--danger .shield-mfa-dialog__confirm.button-link-delete {
+.shield-accessible-dialog--danger .shield-accessible-dialog__confirm.button-link-delete {
 	background: #b32d2e;
 	border-color: #8a2424;
 	color: #fff;
 }
 
 .shield-accessible-dialog--danger .shield-accessible-dialog__confirm.button-link-delete:hover,
-.shield-accessible-dialog--danger .shield-accessible-dialog__confirm.button-link-delete:focus,
-.shield-mfa-dialog--danger .shield-mfa-dialog__confirm.button-link-delete:hover,
-.shield-mfa-dialog--danger .shield-mfa-dialog__confirm.button-link-delete:focus {
+.shield-accessible-dialog--danger .shield-accessible-dialog__confirm.button-link-delete:focus {
 	background: #8a2424;
 	border-color: #691c1c;
 	color: #fff;
 }
 
 @media ( max-width: 480px ) {
-	[data-shield-accessible-dialog="1"],
-	[data-shield-mfa-dialog="1"] {
+	[data-shield-accessible-dialog="1"] {
 		align-items: flex-start;
 		padding: 16px;
 	}
 
-	.shield-accessible-dialog__surface,
-	.shield-mfa-dialog__surface {
+	.shield-accessible-dialog__surface {
 		max-height: calc( 100vh - 32px );
 		padding: 20px;
 	}
 
-	.shield-accessible-dialog__actions,
-	.shield-mfa-dialog__actions {
+	.shield-accessible-dialog__actions {
 		flex-direction: column-reverse;
 	}
 
-	.shield-accessible-dialog__actions .button,
-	.shield-mfa-dialog__actions .button {
+	.shield-accessible-dialog__actions .button {
 		width: 100%;
 		justify-content: center;
 	}

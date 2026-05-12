@@ -92,6 +92,10 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 		return \pack( 'N', 0x950412de ).$payload.\str_repeat( "\x00", 20 );
 	}
 
+	private function buildLittleEndianMoContent( string $payload ) :string {
+		return \pack( 'V', 0x950412de ).$payload.\str_repeat( "\x00", 20 );
+	}
+
 	public function testHashMismatchRefreshesMetadataOnceAndRetrySucceeds() :void {
 		$controller = $this->controller();
 		$locale = 'es_ES';
@@ -350,6 +354,46 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertCount( 0, $downloaded );
 		$this->assertCount( 1, $failed );
 		$this->assertSame( 'invalid_file', $failed[ 0 ][ 'meta' ][ 'audit_params' ][ 'reason' ] ?? '' );
+	}
+
+	public function testLittleEndianMoFileIsAcceptedByDownloadFlow() :void {
+		$controller = $this->controller();
+		$locale = 'de_DE';
+
+		$path = $this->ensureLocaleCachePathAvailable( $controller, $locale );
+		$this->clearLocaleMoFile( $path );
+
+		$moContent = $this->buildLittleEndianMoContent( 'little-endian' );
+		$expectedHash = \hash( 'sha256', $moContent );
+		$this->seedQueueConfig( $controller, $locale, $expectedHash, \time() );
+
+		$listCalls = 0;
+		$downloadCalls = 0;
+		$httpStub = function ( $pre, $args, $url ) use ( &$listCalls, &$downloadCalls, $moContent ) {
+			if ( \str_contains( $url, '/translations/list' ) ) {
+				$listCalls++;
+			}
+			if ( \str_contains( $url, '/translations/download' ) ) {
+				$downloadCalls++;
+				return $this->httpResponse( $moContent );
+			}
+			return $pre;
+		};
+
+		$this->captureShieldEvents();
+		add_filter( 'pre_http_request', $httpStub, 10, 3 );
+		try {
+			$controller->processQueue( true );
+
+			$this->assertSame( 0, $listCalls, 'Fresh cached locale metadata should be reused.' );
+			$this->assertSame( 1, $downloadCalls );
+			$this->assertSame( [], $controller->getQueue() );
+			$this->assertSame( $expectedHash, \hash_file( 'sha256', (string)$controller->getLocaleMoFilePath( $locale ) ) );
+		}
+		finally {
+			remove_filter( 'pre_http_request', $httpStub, 10 );
+			$this->clearLocaleMoFile( $path );
+		}
 	}
 
 	public function testDailyRefreshQueuesStaleLocaleWithoutDownload() :void {

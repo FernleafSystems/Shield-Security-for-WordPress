@@ -23,6 +23,10 @@ Supporting docs:
 
 `test:source`, `test:integration-local`, and `test:package-full` now default to reduced Docker output to keep signal dense. Add `--show-docker-output` when you need full compose output for a failing run.
 
+## Pre-commit checks
+
+`php bin/shield git:pre-commit --stdin --null` accepts NUL-delimited changed file paths from Git, filters changed PHP files, and feeds them into the existing syntax lint, PHPStan, and unit test tooling. A local pre-commit hook can stay thin by piping `git diff --cached --name-only --diff-filter=ACMR -z` into that command.
+
 ## Required PR CI local parity
 
 The required PR CI gate is [`.github/workflows/tests.yml`](.github/workflows/tests.yml). It is broader than `composer test` because CI also proves static analysis, JS checks, package build/validation, and a source Docker runtime lane. Use these local equivalents when you need to reproduce the required CI gate:
@@ -36,7 +40,7 @@ The required PR CI gate is [`.github/workflows/tests.yml`](.github/workflows/tes
 | Source Docker runtime | `php bin/shield test:source --skip-unit-tests --show-docker-output` | Mirrors required CI by focusing Docker on runtime/integration checks after the unit lanes have already run. |
 | Package-targeted validation | `composer package-plugin -- --output=tmp/shield-package-ci` then `php bin/shield test:package-targeted --package-path=tmp/shield-package-ci` | Mirrors CI's built-artifact validation path. |
 
-`composer test` remains the everyday local confidence gate: it builds config, runs unit tests, and runs the local Docker-backed integration lane. It is intentionally faster and narrower than required PR CI, while scheduled/manual browser, cross-site, and full package matrix workflows remain deeper coverage rather than default local requirements.
+`composer test` remains the everyday local confidence gate: it builds config, runs unit tests, and runs the local Docker-backed integration lane. It is intentionally faster and narrower than required PR CI, while scheduled/manual browser and cross-site workflows remain deeper coverage rather than default local requirements. Use `php bin/shield test:package-full` when you need the manual full packaged runtime lane.
 
 ## Internal Lane Ownership
 
@@ -50,7 +54,7 @@ These commands remain the owned internal lanes behind the public surface and CI 
 | `php bin/shield test:integration-local` | Local Docker-backed WordPress integration lane |
 | `php bin/shield test:cross-site` | Two-site Docker WordPress import/export sync lane |
 | `php bin/shield test:package-targeted` | Targeted package validation lane |
-| `php bin/shield test:package-full` | Scheduled/manual deep packaged runtime lane |
+| `php bin/shield test:package-full` | Manual local deep packaged runtime lane |
 | `php bin/run-unit-tests.php --runner-mode=serial` | Serial unit sentinel path |
 
 `test:source` and `analyze:source` cache setup state by default for faster local reruns. Use `--refresh-setup` when you need a clean setup pass.
@@ -240,7 +244,7 @@ Use these rules for every Playwright spec under `tests/browser/action-router`:
 Raw Playground is no longer part of the supported test surface. Keep the local helper only for standalone smoke or debugging work:
 
 ```bash
-npm install --prefix tools/playground --no-audit --no-fund
+npm ci --prefix tools/playground --no-audit --no-fund
 php bin/run-playground-local.php
 php bin/run-playground-local.php --run-blueprint
 php bin/run-playground-local.php --clean
@@ -264,12 +268,6 @@ Serial compatibility sentinel: [`.github/workflows/unit-serial-sentinel.yml`](.g
 1. Runs `php bin/run-unit-tests.php --runner-mode=serial`.
 2. Triggered by `workflow_dispatch`.
 3. Runs weekly at `0 5 * * 1` (05:00 UTC every Monday).
-
-Scheduled/manual packaged pathway: [`.github/workflows/docker-tests.yml`](.github/workflows/docker-tests.yml)
-
-1. Runs the full packaged matrix runtime checks.
-2. Runs packaged static analysis.
-3. Triggered by `workflow_dispatch` and the weekday schedule `0 6 * * 1-5` (06:00 UTC Monday through Friday).
 
 Scheduled/manual browser lane: [`.github/workflows/browser-tests.yml`](.github/workflows/browser-tests.yml)
 

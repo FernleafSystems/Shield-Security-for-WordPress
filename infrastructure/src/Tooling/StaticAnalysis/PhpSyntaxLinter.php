@@ -46,7 +46,7 @@ class PhpSyntaxLinter {
 	 * @param string[] $relativePaths
 	 * @return string[]
 	 */
-	private function discoverPhpFiles( string $rootDir, array $relativePaths ) :array {
+	public function discoverPhpFiles( string $rootDir, array $relativePaths ) :array {
 		$files = [];
 
 		foreach ( $relativePaths as $relativePath ) {

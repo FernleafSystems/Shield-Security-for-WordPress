@@ -1,4 +1,5 @@
 const { AxeBuilder, buildShieldUrl, test, expect, openShieldRoute } = require( './support/shield-test' );
+const { expectModalHiddenWithoutAriaModal } = require( './support/modal-accessibility' );
 
 function requestParams( request ) {
 	return new URLSearchParams( request.postData() || '' );
@@ -142,13 +143,13 @@ test( 'IP rules delete button opens accessible confirm and sends the stable rule
 
 		await deleteAction.focus();
 		await page.keyboard.press( 'Enter' );
-		const confirmModal = page.locator( '#AptoGeneralPurposeDialog.modal.show' );
+		const confirmModal = page.locator( '[data-shield-accessible-dialog="1"][aria-modal="true"]:not([aria-hidden="true"])' );
 		await expect( confirmModal ).toBeVisible();
 		await expectNamedDialog( page, confirmModal );
-		await expectNoAxeViolations( page, '#AptoGeneralPurposeDialog' );
+		await expectNoAxeViolations( page, '[data-shield-accessible-dialog="1"]' );
 
-		await confirmModal.locator( '[data-shield-dialog-cancel="1"]' ).click();
-		await expect( page.locator( '#AptoGeneralPurposeDialog' ) ).not.toHaveAttribute( 'aria-modal', 'true' );
+		await confirmModal.locator( '.shield-accessible-dialog__cancel' ).click();
+		await expectModalHiddenWithoutAriaModal( page, '[data-shield-accessible-dialog="1"]' );
 		await expect( deleteAction ).toBeFocused();
 
 		const deleteRequest = page.waitForRequest(
@@ -158,7 +159,7 @@ test( 'IP rules delete button opens accessible confirm and sends the stable rule
 		await deleteAction.click();
 		await expect( confirmModal ).toBeVisible();
 		await expectNamedDialog( page, confirmModal );
-		await confirmModal.locator( '[data-shield-dialog-confirm="1"]' ).click();
+		await confirmModal.locator( '.shield-accessible-dialog__confirm' ).click();
 		await deleteRequest;
 
 		expect( nativeDialogs ).toEqual( [] );

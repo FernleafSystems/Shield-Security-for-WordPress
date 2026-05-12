@@ -1,9 +1,32 @@
 declare const ajaxurl: string;
 
+type AccessibleDialogConfig = {
+	title?: string;
+	message?: string;
+	label?: string;
+	value?: string;
+	confirmLabel?: string;
+	cancelLabel?: string;
+	danger?: boolean;
+	launcher?: HTMLElement|null;
+	showTitle?: boolean;
+	validate?: ( value: string ) => true|string|boolean;
+};
+
+type AccessibleDialogService = {
+	confirm( config?: AccessibleDialogConfig ) :Promise<boolean>;
+	message( config?: AccessibleDialogConfig ) :Promise<void>;
+	prompt( config?: AccessibleDialogConfig ) :Promise<string|null>;
+	resolveConfirmLabel( launcher?: HTMLElement|null ) :string;
+	resolveLauncher( event?: Event|null, node?: any ) :HTMLElement|null;
+};
+
 declare const shieldServices: {
 	notification() :{
 		showMessage( message: string, success?: boolean ) :void;
 	};
+	dialog() :AccessibleDialogService;
+	container_ShieldPage?() :HTMLElement|false;
 };
 
 declare const shieldStrings: {
@@ -65,6 +88,20 @@ type ShieldPluginOnboardingGlobal = {
 	};
 };
 
+type ShieldSilentCaptchaBaseData = {
+	ajax: {
+		silentcaptcha: Record<string, any> & {
+			ajaxurl: string;
+		};
+	};
+};
+
+type ShieldSilentCaptchaGlobal = {
+	comps?: {
+		silentcaptcha?: ShieldSilentCaptchaBaseData;
+	};
+};
+
 interface Window {
 	shieldAppMain?: {
 		components?: Record<string, any>;
@@ -73,6 +110,7 @@ interface Window {
 		comps?: Record<string, any>;
 	};
 	shield_vars_plugin_onboarding?: ShieldPluginOnboardingGlobal;
+	shield_vars_silentcaptcha?: ShieldSilentCaptchaGlobal;
 	Vimeo?: {
 		Player: new ( iframe: HTMLIFrameElement ) => {
 			destroy?: () => Promise<void>;

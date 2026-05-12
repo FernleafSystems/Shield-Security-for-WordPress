@@ -1,6 +1,5 @@
 import { BaseComponent } from "../BaseComponent";
 import { AjaxService } from "../services/AjaxService";
-import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
 export class LicenseHandler extends BaseComponent {
 	init() {
@@ -18,9 +17,10 @@ export class LicenseHandler extends BaseComponent {
 			}
 
 			if ( action === 'clear' ) {
-				const confirmed = await confirmDialog( {
+				const dialog = shieldServices.dialog();
+				const confirmed = await dialog.confirm( {
 					message: shieldStrings.string( 'are_you_sure' ),
-					confirmLabel: resolveDialogConfirmLabel( targetEl ),
+					confirmLabel: dialog.resolveConfirmLabel( targetEl ),
 					danger: true,
 					launcher: targetEl,
 				} );

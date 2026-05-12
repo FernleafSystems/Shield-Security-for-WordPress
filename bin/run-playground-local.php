@@ -1098,7 +1098,7 @@ function findLocalPlaygroundBinary( string $projectRoot ) :?string {
 }
 
 function getPlaygroundInstallCommand() :string {
-	return 'npm install --prefix tools/playground --no-audit --no-fund';
+	return 'npm ci --prefix tools/playground --no-audit --no-fund';
 }
 
 function probeRuntimeEnvironment(
@@ -1311,6 +1311,6 @@ Examples:
 
 Notes:
   Local Playground workflows use the isolated tools/playground install first and fall back to the root node_modules bin only for legacy setups.
-  Install once: npm install --prefix tools/playground --no-audit --no-fund
+  Install once: npm ci --prefix tools/playground --no-audit --no-fund
 TXT;
 }

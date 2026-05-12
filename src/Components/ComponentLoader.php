@@ -11,6 +11,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\{
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\TranslationDownloadController;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsService;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\AltCha\AltChaHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\NotBotHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan\CommentSpamCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\FileLockerController;
@@ -19,8 +21,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\S
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\UserFormsController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\MainWP\Controller as MainwpCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsController;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\AltChaHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\NotBot\NotBotHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\CrowdSec\CrowdSecController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\OffenseTracker;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\LicenseHandler;

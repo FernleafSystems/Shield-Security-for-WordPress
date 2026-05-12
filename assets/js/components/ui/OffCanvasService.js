@@ -5,7 +5,6 @@ import { AjaxService } from "../services/AjaxService";
 import { UiContentActivator } from "./UiContentActivator";
 import { BootstrapTooltips } from "./BootstrapTooltips";
 import { focusElement } from "./ShieldA11y";
-import { messageDialog } from "./ShieldDialog";
 
 export class OffCanvasService extends BaseComponent {
 
@@ -173,10 +172,11 @@ export class OffCanvasService extends BaseComponent {
 	}
 
 	static handleRenderFailure( message ) {
-		const openMessage = () => messageDialog( {
+		const openMessage = () => shieldServices.dialog().message( {
 			title: OffCanvasService.localizedString( 'request_failed', 'Request Failed' ),
 			message: message,
 			launcher: OffCanvasService.resolveDialogLauncher(),
+			showTitle: true,
 		} ).then( () => false );
 
 		OffCanvasService.canvasTracker = [];

@@ -33,7 +33,21 @@ class SourceStaticAnalysisLaneTest extends TestCase {
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 1, $processRunner->calls );
 		$this->assertStringContainsString( 'phpstan', \implode( ' ', $processRunner->calls[ 0 ][ 'command' ] ) );
+		$this->assertContains( '--memory-limit=2G', $processRunner->calls[ 0 ][ 'command' ] );
 		$this->assertCount( 0, $setupCoordinator->persistCalls );
+	}
+
+	public function testSuppliedPhpStanPathsAreAppendedToAnalyzeCommand() :void {
+		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$setupCoordinator = $this->createSetupCoordinator( false, 'fingerprint-paths' );
+		$lane = new SourceStaticAnalysisLane( $processRunner, $setupCoordinator );
+
+		$exitCode = $this->runLaneSilencedWithPaths( $lane, false, [ 'src/Changed.php', 'plugin_init.php' ] );
+
+		$this->assertSame( 0, $exitCode );
+		$command = $processRunner->calls[ 0 ][ 'command' ];
+		$this->assertSame( 'src/Changed.php', $command[ \count( $command ) - 2 ] );
+		$this->assertSame( 'plugin_init.php', $command[ \count( $command ) - 1 ] );
 	}
 
 	public function testCacheMissRunsBuildConfigThenPhpStan() :void {
@@ -61,9 +75,16 @@ class SourceStaticAnalysisLaneTest extends TestCase {
 	}
 
 	private function runLaneSilenced( SourceStaticAnalysisLane $lane, bool $refreshSetup ) :int {
+		return $this->runLaneSilencedWithPaths( $lane, $refreshSetup, [] );
+	}
+
+	/**
+	 * @param string[] $paths
+	 */
+	private function runLaneSilencedWithPaths( SourceStaticAnalysisLane $lane, bool $refreshSetup, array $paths ) :int {
 		\ob_start();
 		try {
-			return $lane->run( $this->projectRoot, $refreshSetup );
+			return $lane->run( $this->projectRoot, $refreshSetup, $paths );
 		}
 		finally {
 			\ob_end_clean();

@@ -12,10 +12,10 @@ const {
 const SCAN_RESULTS_TABLE_SELECTOR = '[data-actions-queue-detail="1"] [data-scan-results-table="1"]';
 const SCAN_RESULT_DELETE_SELECTOR = '[data-scan-result-action="delete"]';
 const SCAN_RESULT_IGNORE_SELECTOR = '[data-scan-result-action="ignore"]';
-const CONFIRM_DIALOG_SELECTOR = '#AptoGeneralPurposeDialog';
-const CONFIRM_DIALOG_ACTIVE_SELECTOR = `${CONFIRM_DIALOG_SELECTOR}[aria-modal="true"]`;
-const CONFIRM_BUTTON_SELECTOR = '[data-shield-dialog-confirm="1"]';
-const CANCEL_BUTTON_SELECTOR = '[data-shield-dialog-cancel="1"]';
+const CONFIRM_DIALOG_SELECTOR = '[data-shield-accessible-dialog="1"]';
+const CONFIRM_DIALOG_ACTIVE_SELECTOR = `${CONFIRM_DIALOG_SELECTOR}[aria-modal="true"]:not([aria-hidden="true"])`;
+const CONFIRM_BUTTON_SELECTOR = '.shield-accessible-dialog__confirm';
+const CANCEL_BUTTON_SELECTOR = '.shield-accessible-dialog__cancel';
 
 async function openDirectScanResultsTable( page, fixture ) {
 	const actionsQueuePage = new ActionsQueuePage( page );
@@ -93,7 +93,7 @@ test( 'scan results row delete cancel uses accessible confirm without native dia
 
 		const confirmModal = page.locator( CONFIRM_DIALOG_ACTIVE_SELECTOR );
 		await expect( confirmModal ).toBeVisible();
-		await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
+		await expectNamedDialog( page, confirmModal );
 		await expectOptionalDescription( page, confirmModal );
 		await expect( confirmModal.locator( CANCEL_BUTTON_SELECTOR ) ).toBeFocused();
 
@@ -162,7 +162,7 @@ test( 'scan results row delete confirm uses one accessible confirm for rapid dup
 		const confirmModal = page.locator( CONFIRM_DIALOG_ACTIVE_SELECTOR );
 		await expect( confirmModal ).toHaveCount( 1 );
 		await expect( confirmModal ).toBeVisible();
-		await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
+		await expectNamedDialog( page, confirmModal );
 
 		await confirmModal.locator( CONFIRM_BUTTON_SELECTOR ).click();
 		await deleteRequest;

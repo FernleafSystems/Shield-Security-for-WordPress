@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTestTrait;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\GitPreCommitCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestCrossSiteCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
@@ -13,6 +14,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\CrossSiteTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageFullTestLane;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\PreCommitChangedFileLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceRuntimeTestLane;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -55,6 +57,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				'analyze:tooling',
 				'analyze:source',
 				'analyze:package',
+				'git:pre-commit',
 			] as $commandName
 		) {
 			$this->assertStringContainsString( $commandName, $output );
@@ -225,6 +228,18 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertStringContainsString( '--refresh-setup', $this->processOutput( $process ) );
 	}
 
+	public function testGitPreCommitCommandIncludesInputOptions() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$command = new GitPreCommitCommand(
+			$this->getPluginRoot(),
+			$this->createMock( PreCommitChangedFileLane::class )
+		);
+
+		$this->assertTrue( $command->getDefinition()->hasOption( 'stdin' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'null' ) );
+		$this->assertTrue( $command->getDefinition()->hasArgument( 'paths' ) );
+	}
+
 	/**
 	 * @return array<string,array{string}>
 	 */
@@ -250,6 +265,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			'analyze-tooling' => [ 'analyze:tooling' ],
 			'analyze-source' => [ 'analyze:source' ],
 			'analyze-package' => [ 'analyze:package' ],
+			'git-pre-commit' => [ 'git:pre-commit' ],
 		];
 	}
 }

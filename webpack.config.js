@@ -3,7 +3,6 @@ const CssMinimizerPlugin = require( "css-minimizer-webpack-plugin" );
 const TerserPlugin = require( "terser-webpack-plugin" );
 // const BrowserSyncPlugin = require( 'browser-sync-webpack-plugin' );
 const path = require( 'path' );
-const autoprefixer = require( 'autoprefixer' )
 
 // change these variables to fit your project
 const pathResources = './assets/js';
@@ -26,7 +25,7 @@ module.exports = {
 		'shield-badge': pathResources + '/plugin-badge.js',
 		'shield-blockpage': pathResources + '/plugin-blockpage.js',
 		'shield-login_2fa': pathResources + '/plugin-login_2fa.js',
-		'shield-notbot': pathResources + '/plugin-notbot.js',
+		'shield-silentcaptcha': pathResources + '/plugin-silentcaptcha.js',
 		'shield-reports': pathResources + '/plugin-reports.js',
 		'shield-wpadmin': pathResources + '/plugin-wpadmin.js',
 		'shield-userprofile': pathResources + '/plugin-userprofile.js',
@@ -90,18 +89,6 @@ module.exports = {
 				}
 			},
 			// {
-			// 	// Loader for webpack to process CSS with PostCSS
-			// 	test: /\.s?css$/i,
-			// 	loader: 'postcss-loader',
-			// 	options: {
-			// 		postcssOptions: {
-			// 			plugins: [
-			// 				autoprefixer
-			// 			]
-			// 		}
-			// 	}
-			// },
-			// {
 			// 	test: /\.sass$/i,
 			// 	use: [
 			// 		MiniCssExtractPlugin.loader,
@@ -114,10 +101,6 @@ module.exports = {
 			// 		},
 			// 	],
 			// },
-			// {
-			// 	test: /\.(jpg|jpeg|png|gif|woff|woff2|eot|ttf|svg)$/i,
-			// 	use: 'url-loader?limit=1024',
-			// },
 		]
 	},
 	optimization: {
@@ -127,6 +110,5 @@ module.exports = {
 	},
 	externals: {
 		"jquery": "jQuery",
-		"jquery-ui": "jquery-ui/jquery-ui.js",
 	}
 };

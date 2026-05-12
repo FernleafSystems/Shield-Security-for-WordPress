@@ -156,9 +156,10 @@ async function openShieldRoute( page, params = {} ) {
 	return url;
 }
 
-async function createFixtureApi( playwright, lane ) {
+async function createFixtureApi( playwright, lane, authStatePath ) {
 	const request = await playwright.request.newContext( {
 		baseURL: lane.baseUrl,
+		storageState: authStatePath,
 		extraHTTPHeaders: {
 			'X-Shield-Browser-Fixture-Token': lane.fixtureToken,
 		},
@@ -199,6 +200,25 @@ async function createFixtureApi( playwright, lane ) {
 					}
 				}
 			},
+			async inspectDashboardDefaultsFixture() {
+				return runFixture( 'dashboard-defaults', 'inspect' );
+			},
+			async resetDashboardDefaultsFixture() {
+				return runFixture( 'dashboard-defaults', 'reset-defaults' );
+			},
+			async withDashboardDefaultsFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'dashboard-defaults', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'dashboard-defaults', 'cleanup' );
+					}
+				}
+			},
 			async withImportExportFileFixture( runScenario ) {
 				let seeded = false;
 				try {
@@ -225,6 +245,9 @@ async function createFixtureApi( playwright, lane ) {
 					}
 				}
 			},
+			async inspectIpAnalysisActivityMetaFixture() {
+				return runFixture( 'ip-analysis-activity-meta', 'inspect' );
+			},
 			async withIpRulesTableFixture( runScenario ) {
 				let seeded = false;
 				try {
@@ -237,6 +260,9 @@ async function createFixtureApi( playwright, lane ) {
 						await runFixture( 'ip-rules-table', 'cleanup' );
 					}
 				}
+			},
+			async inspectIpRulesTableFixture() {
+				return runFixture( 'ip-rules-table', 'inspect' );
 			},
 			async withMainwpSitesFixture( runScenario ) {
 				let seeded = false;
@@ -277,6 +303,24 @@ async function createFixtureApi( playwright, lane ) {
 					}
 				}
 			},
+			async inspectNotBotAltchaFixture() {
+				return runFixture( 'notbot-altcha', 'inspect' );
+			},
+			async withNotBotAltchaFixture( ipOrRunScenario, maybeRunScenario ) {
+				let seeded = false;
+				const runScenario = typeof ipOrRunScenario === 'function' ? ipOrRunScenario : maybeRunScenario;
+				const args = typeof ipOrRunScenario === 'function' ? [] : [ String( ipOrRunScenario ) ];
+				try {
+					const contract = await runFixture( 'notbot-altcha', 'seed', args );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'notbot-altcha', 'cleanup' );
+					}
+				}
+			},
 			async withPublicBlockRecoveryFixture( scenario, runScenario ) {
 				let seeded = false;
 				try {
@@ -287,6 +331,41 @@ async function createFixtureApi( playwright, lane ) {
 				finally {
 					if ( seeded ) {
 						await runFixture( 'public-block-recovery', 'cleanup' );
+					}
+				}
+			},
+			async inspectSecurityAdminFixture() {
+				return runFixture( 'security-admin', 'inspect' );
+			},
+			async withSecurityAdminFixture( scenario, runScenario ) {
+				if ( typeof scenario !== 'string' || scenario.trim() === '' ) {
+					throw new Error( 'Security Admin fixture scenario is required.' );
+				}
+				if ( typeof runScenario !== 'function' ) {
+					throw new Error( 'Security Admin fixture callback is required.' );
+				}
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'security-admin', 'seed', [ scenario ] );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'security-admin', 'cleanup' );
+					}
+				}
+			},
+			async withSecurityHeadersFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'security-headers', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'security-headers', 'cleanup' );
 					}
 				}
 			},
@@ -309,8 +388,8 @@ const test = base.test.extend( {
 		{ scope: 'worker' },
 	],
 	fixtureApi: [
-		async ( { playwright, lane }, use ) => {
-			const api = await createFixtureApi( playwright, lane );
+		async ( { playwright, lane, authStatePath }, use ) => {
+			const api = await createFixtureApi( playwright, lane, authStatePath );
 			await api.cleanupAll();
 			try {
 				await use( api.fixtureApi );
@@ -323,6 +402,9 @@ const test = base.test.extend( {
 		{ scope: 'worker' },
 	],
 	context: async ( { browser, lane, authStatePath }, use ) => {
+		if ( !fs.existsSync( authStatePath ) ) {
+			await loginAndWriteStorageState( browser, lane );
+		}
 		const context = await browser.newContext( {
 			baseURL: lane.baseUrl,
 			storageState: authStatePath,

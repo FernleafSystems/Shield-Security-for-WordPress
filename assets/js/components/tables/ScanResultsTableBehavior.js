@@ -1,5 +1,4 @@
 import { ScanItemAnalysisModal } from "../scans/ScanItemAnalysisModal";
-import { confirmDialog, messageDialog, resolveDialogConfirmLabel, resolveDialogLauncher } from "../ui/ShieldDialog";
 
 /**
  * @typedef {object} ScanResultsRowActionOptions
@@ -100,7 +99,7 @@ export function buildScanResultsButtons( {
 			action: async ( e, dt, node ) => {
 				const confirmed = await confirmScanResultsBulkAction( {
 					message: shieldStrings.string( 'are_you_sure' ),
-					launcher: resolveDialogLauncher( e, node ),
+					launcher: shieldServices.dialog().resolveLauncher( e, node ),
 				} );
 
 				if ( confirmed ) {
@@ -115,7 +114,7 @@ export function buildScanResultsButtons( {
 			action: async ( e, dt, node ) => {
 				const confirmed = await confirmScanResultsBulkAction( {
 					message: shieldStrings.string( 'are_you_sure' ),
-					launcher: resolveDialogLauncher( e, node ),
+					launcher: shieldServices.dialog().resolveLauncher( e, node ),
 				} );
 
 				if ( confirmed ) {
@@ -128,10 +127,10 @@ export function buildScanResultsButtons( {
 			name: 'selected-repair',
 			className: 'action selected-action repair btn-outline-secondary mb-2',
 			action: async ( e, dt, node ) => {
-				const launcher = resolveDialogLauncher( e, node );
+				const launcher = shieldServices.dialog().resolveLauncher( e, node );
 				if ( dt.rows( { selected: true } ).count() > 20 ) {
-					await messageDialog( {
-						title: shieldStrings.string( 'message_title' ),
+					await shieldServices.dialog().message( {
+						title: shieldStrings.string( 'dialog_alert_title' ),
 						message: shieldStrings.string( 'scan_repair_limit_exceeded' ),
 						confirmLabel: shieldStrings.string( 'close' ),
 						launcher,
@@ -156,8 +155,8 @@ function confirmScanResultsBulkAction( {
 	danger = false,
 	launcher = null,
 } = {} ) {
-	return confirmDialog( {
-		title: shieldStrings.string( 'confirm_title' ),
+	return shieldServices.dialog().confirm( {
+		title: shieldStrings.string( 'dialog_confirm_title' ),
 		message,
 		confirmLabel: shieldStrings.string( 'confirm' ),
 		cancelLabel: shieldStrings.string( 'cancel' ),
@@ -195,10 +194,11 @@ export function bindScanResultsRowActions( {
 				const action = target.dataset.scanResultAction;
 
 				if ( action === 'delete' ) {
-					const confirmed = await confirmDialog( {
-						title: shieldStrings.string( 'confirm_title' ),
+					const dialog = shieldServices.dialog();
+					const confirmed = await dialog.confirm( {
+						title: shieldStrings.string( 'dialog_confirm_title' ),
 						message: shieldStrings.string( 'are_you_sure' ),
-						confirmLabel: resolveDialogConfirmLabel( target ),
+						confirmLabel: dialog.resolveConfirmLabel( target ),
 						cancelLabel: shieldStrings.string( 'cancel' ),
 						danger: true,
 						launcher: target,

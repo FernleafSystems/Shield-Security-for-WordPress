@@ -6,7 +6,6 @@
 assets/css/
   plugin-main.scss            Main entry point (compiled to shield-main.bundle.css)
   plugin-wpadmin.scss         WordPress admin dashboard widget styles
-  plugin-blockpage.scss       Block/lockout page overlay
   plugin-login2fa.scss        Two-factor authentication login form
   plugin-userprofile.scss     User profile MFA section
   plugin-mainwp-server.scss   MainWP server extension
@@ -27,7 +26,7 @@ assets/css/
     datatables.css            DataTables customisations
     dialog.css                Dialog/modal styling
     third-party-overrides.scss  Third-party library fixes
-    toastify.scss             Toast notifications
+    wpadmin-toast.scss        Shared wp-admin toast notifications
     video_modal.scss          Video modal
 
   components/

@@ -2,7 +2,6 @@ import Sortable from 'sortablejs';
 import { BaseAutoExecComponent } from "../BaseAutoExecComponent";
 import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
-import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
 export class RulesManager extends BaseAutoExecComponent {
 
@@ -86,9 +85,10 @@ export class RulesManager extends BaseAutoExecComponent {
 }
 
 function confirmRuleAction( launcher, danger = false ) {
-	return confirmDialog( {
+	const dialog = shieldServices.dialog();
+	return dialog.confirm( {
 		message: shieldStrings.string( 'are_you_sure' ),
-		confirmLabel: resolveDialogConfirmLabel( launcher ),
+		confirmLabel: dialog.resolveConfirmLabel( launcher ),
 		danger,
 		launcher,
 	} );

@@ -4,6 +4,10 @@
 	grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
 }
 
+.shield-rail-layout.shield-rail-layout--context-end > .shield-rail-layout__content {
+	overflow-x: auto;
+}
+
 .operator-step-tabs {
 	align-items: flex-start;
 	border-bottom: 1px solid $border-color-neutral-subtle;

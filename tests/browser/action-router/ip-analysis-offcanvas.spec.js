@@ -15,11 +15,20 @@ const {
 	getInlineTabByIndex,
 	getInlineTabByTableType,
 } = require( './support/investigate-inline-tabs' );
+const {
+	collectRuntimeErrors,
+	expectInvestigationTableInitialized,
+	expectNoRuntimeErrors,
+	expectRequestMetaPopover,
+	investigationTableResponseMatcher,
+	isAdminAjaxRequest,
+	requestPostParam,
+} = require( './support/security-assertions' );
 
-const CONFIRM_DIALOG_SELECTOR = '#AptoGeneralPurposeDialog';
-const CONFIRM_DIALOG_ACTIVE_SELECTOR = `${CONFIRM_DIALOG_SELECTOR}.modal.show[aria-modal="true"]`;
-const CONFIRM_BUTTON_SELECTOR = '[data-shield-dialog-confirm="1"]';
-const CANCEL_BUTTON_SELECTOR = '[data-shield-dialog-cancel="1"]';
+const CONFIRM_DIALOG_SELECTOR = '[data-shield-accessible-dialog="1"]';
+const CONFIRM_DIALOG_ACTIVE_SELECTOR = `${CONFIRM_DIALOG_SELECTOR}[aria-modal="true"]:not([aria-hidden="true"])`;
+const CONFIRM_BUTTON_SELECTOR = '.shield-accessible-dialog__confirm';
+const CANCEL_BUTTON_SELECTOR = '.shield-accessible-dialog__cancel';
 const IP_ANALYSIS_CONFIRM_ACTION_SELECTOR = [
 	'.ip_analyse_action[data-ip_action="block"]',
 	'.ip_analyse_action[data-ip_action="bypass"]',
@@ -27,48 +36,14 @@ const IP_ANALYSIS_CONFIRM_ACTION_SELECTOR = [
 	'.ip_analyse_action[data-ip_action="delete_notbot"]',
 ].join( ', ' );
 
-const investigationTableRequestMatcher = ( tableType ) => ( response ) => {
-	if ( !response.url().includes( '/admin-ajax.php' ) ) {
-		return false;
-	}
-
-	const request = response.request();
-	const postData = request.postData() || '';
-
-	return request.method() === 'POST'
-		&& postData.includes( 'sub_action=retrieve_table_data' )
-		&& postData.includes( `table_type=${tableType}` );
-};
-
-const requestMetaResponseMatcher = ( rid ) => ( response ) => {
-	if ( !response.url().includes( '/admin-ajax.php' ) ) {
-		return false;
-	}
-
-	const request = response.request();
-	const postData = request.postData() || '';
-
-	return request.method() === 'POST'
-		&& postData.includes( 'sub_action=get_request_meta' )
-		&& postData.includes( `rid=${rid}` );
-};
-
 const ipAnalysisOffcanvasRequestMatcher = ( request ) => {
-	if ( !request.url().includes( '/admin-ajax.php' ) ) {
-		return false;
-	}
-
-	const postData = request.postData() || '';
-	return request.method() === 'POST' && postData.includes( 'render_slug=offcanvas_ipanalysis' );
+	return isAdminAjaxRequest( request )
+		&& requestPostParam( request, 'render_slug' ) === 'offcanvas_ipanalysis';
 };
 
 const isIpAnalysisActionRequest = ( request, expectedAction ) => {
-	if ( !request.url().includes( '/admin-ajax.php' ) || request.method() !== 'POST' ) {
-		return false;
-	}
-
-	const params = new URLSearchParams( request.postData() || '' );
-	return params.get( 'ip_action' ) === expectedAction;
+	return isAdminAjaxRequest( request )
+		&& requestPostParam( request, 'ip_action' ) === expectedAction;
 };
 
 const openIpAnalysisOffcanvasFromClick = async ( page, ip ) => {
@@ -105,25 +80,12 @@ const openIpAnalysisOffcanvas = async ( page, ip ) => {
 	return { offcanvas };
 };
 
-const expectInvestigationTableInitialized = async ( offcanvas, tableType ) => {
-	const table = offcanvas.locator( `.tab-pane.active.show table[data-investigation-table="1"][data-table-type="${tableType}"]` ).first();
-	await expect( table ).toBeVisible();
-	await expect.poll(
-		async () => table.evaluate( ( el ) => {
-			return !!globalThis.jQuery?.fn?.dataTable?.isDataTable?.( el );
-		} ),
-		{
-			message: `Expected ${tableType} investigation table to be initialized by DataTables.`,
-		}
-	).toBe( true );
-};
-
 const reloadActiveInvestigationTable = async ( page, offcanvas, tableType ) => {
-	const table = offcanvas.locator( `.tab-pane.active.show table[data-investigation-table="1"][data-table-type="${tableType}"]` ).first();
+	const table = offcanvas.locator( `table[data-investigation-table="1"][data-table-type="${tableType}"]` ).first();
 	await expect( table ).toBeVisible();
 
 	await Promise.all( [
-		page.waitForResponse( investigationTableRequestMatcher( tableType ) ),
+		page.waitForResponse( investigationTableResponseMatcher( tableType ) ),
 		table.evaluate( ( element ) => {
 			globalThis.jQuery( element ).DataTable().ajax.reload( null, false );
 		} ),
@@ -135,23 +97,6 @@ const reloadActiveInvestigationTable = async ( page, offcanvas, tableType ) => {
 			return container?.getAttribute( 'aria-busy' ) === 'true' ? 'busy' : 'ready';
 		} );
 	}, { timeout: 20_000 } ).toBe( 'ready' );
-};
-
-const expectRequestMetaPopover = async ( page, offcanvas, rid, expectedMeta ) => {
-	const metaButton = offcanvas.locator( '.tab-pane.active.show td.meta > button[data-toggle="popover"]' ).first();
-	await expect( metaButton ).toBeVisible();
-
-	await Promise.all( [
-		page.waitForResponse( requestMetaResponseMatcher( rid ) ),
-		metaButton.click(),
-	] );
-
-	const popoverBody = offcanvas.locator( '.popover.show .popover-body' ).last();
-	await expect( popoverBody ).toBeVisible();
-
-	for ( const marker of expectedMeta ) {
-		await expect( popoverBody ).toContainText( marker );
-	}
 };
 
 test( 'clicked IP link opens the IP analysis offcanvas with the four investigation tabs', async ( { page, fixtureApi } ) => {
@@ -202,7 +147,7 @@ test( 'IP analysis actions use accessible confirm without native dialog', async 
 
 	const confirmModal = page.locator( CONFIRM_DIALOG_ACTIVE_SELECTOR );
 	await expect( confirmModal ).toBeVisible();
-	await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
+	await expectNamedDialog( page, confirmModal );
 	await expectOptionalDescription( page, confirmModal );
 
 	await confirmModal.locator( CANCEL_BUTTON_SELECTOR ).click();
@@ -226,7 +171,7 @@ test( 'IP analysis actions use accessible confirm without native dialog', async 
 
 	await expect( confirmModal ).toHaveCount( 1 );
 	await expect( confirmModal ).toBeVisible();
-	await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
+	await expectNamedDialog( page, confirmModal );
 	await confirmModal.locator( CONFIRM_BUTTON_SELECTOR ).click();
 	await actionRequest;
 
@@ -236,17 +181,14 @@ test( 'IP analysis actions use accessible confirm without native dialog', async 
 } );
 
 test( 'preloaded IP analysis offcanvas loads investigation tables without runtime errors', async ( { page } ) => {
-	const pageErrors = [];
-	page.on( 'pageerror', ( error ) => {
-		pageErrors.push( error.message );
-	} );
+	const runtimeErrors = collectRuntimeErrors( page );
 
 	const { offcanvas } = await openIpAnalysisOffcanvas( page, '198.51.100.20' );
 
 	for ( const tableType of [ 'sessions', 'activity', 'traffic' ] ) {
 		await expectInlineTabsContract( offcanvas );
 		const targetTab = await getInlineTabByTableType( offcanvas, tableType );
-		const tableResponsePromise = page.waitForResponse( investigationTableRequestMatcher( tableType ) );
+		const tableResponsePromise = page.waitForResponse( investigationTableResponseMatcher( tableType ) );
 
 		await targetTab.click();
 		await tableResponsePromise;
@@ -270,25 +212,39 @@ test( 'preloaded IP analysis offcanvas loads investigation tables without runtim
 	await expectKeyboardTabActivation( page, offcanvas, firstTab, 'End', lastTab );
 	await expectInvestigationTableInitialized( offcanvas, 'traffic' );
 
-	await expect.poll(
-		() => pageErrors,
-		{ message: `Expected no browser runtime errors while loading IP analysis investigation tables: ${pageErrors.join( '; ' )}` }
-	).toEqual( [] );
+	await expectNoRuntimeErrors( runtimeErrors, 'Expected no browser runtime errors while loading IP analysis investigation tables' );
 } );
 
 test( 'preloaded IP analysis offcanvas activity meta button loads request meta popover', async ( { page, fixtureApi } ) => {
-	const pageErrors = [];
-	page.on( 'pageerror', ( error ) => {
-		pageErrors.push( error.message );
-	} );
+	const runtimeErrors = collectRuntimeErrors( page );
 
 	await fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => {
+		const evidence = await fixtureApi.inspectIpAnalysisActivityMetaFixture();
+		expect( evidence.request_log ).toMatchObject( {
+			exists: true,
+			rid: fixture.rid,
+			ip: fixture.ip,
+			path: '/fixture/ip-analysis-meta',
+			verb: 'POST',
+			code: 418,
+			offense: false,
+			meta: {
+				ts: '1710000000',
+				ua: 'IP Analysis Browser Fixture/1.0',
+			},
+		} );
+		expect( evidence.activity_event ).toMatchObject( {
+			exists: true,
+			event_slug: 'user_login',
+			request_rid: fixture.rid,
+		} );
+
 		const { offcanvas } = await openIpAnalysisOffcanvas( page, fixture.ip );
 		await expectInlineTabsContract( offcanvas );
 		const targetTab = await getInlineTabByTableType( offcanvas, 'activity' );
 
 		await Promise.all( [
-			page.waitForResponse( investigationTableRequestMatcher( 'activity' ) ),
+			page.waitForResponse( investigationTableResponseMatcher( 'activity' ) ),
 			targetTab.click(),
 		] );
 
@@ -296,12 +252,9 @@ test( 'preloaded IP analysis offcanvas activity meta button loads request meta p
 		await expectInvestigationTableInitialized( offcanvas, 'activity' );
 		await expectRequestMetaPopover( page, offcanvas, fixture.rid, fixture.expected_meta );
 		await reloadActiveInvestigationTable( page, offcanvas, 'activity' );
-		await expect( offcanvas.locator( '.popover.show' ) ).toHaveCount( 0 );
+		await expect( page.locator( '[role="tooltip"]' ) ).toHaveCount( 0 );
 		await expectRequestMetaPopover( page, offcanvas, fixture.rid, fixture.expected_meta );
 	} );
 
-	await expect.poll(
-		() => pageErrors,
-		{ message: `Expected no browser runtime errors while opening the offcanvas request-meta popover: ${pageErrors.join( '; ' )}` }
-	).toEqual( [] );
+	await expectNoRuntimeErrors( runtimeErrors, 'Expected no browser runtime errors while opening the offcanvas request-meta popover' );
 } );

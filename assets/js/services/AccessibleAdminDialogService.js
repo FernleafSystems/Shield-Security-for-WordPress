@@ -13,6 +13,7 @@ export class AccessibleAdminDialogService {
 			datasetKey: 'shieldAccessibleDialog',
 			classPrefix: 'shield-accessible-dialog',
 			stringsProvider: () => window.shield_vars_wpadmin?.strings || {},
+			fallbackFocus: () => document.body,
 			errorContext: 'WordPress admin accessible dialog',
 		} );
 	}

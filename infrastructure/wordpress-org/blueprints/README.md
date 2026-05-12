@@ -63,7 +63,7 @@ Purpose in plain English:
 For deterministic local runs (no `npx` network fetch), install the isolated local Playground tools once:
 
 ```bash
-npm install --prefix tools/playground --no-audit --no-fund
+npm ci --prefix tools/playground --no-audit --no-fund
 ```
 
 The local helper looks in `tools/playground` first and only falls back to the root `node_modules` bin for legacy setups.

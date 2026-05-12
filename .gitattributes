@@ -122,6 +122,7 @@ yarn.lock text eol=lf
 /AGENTS.md export-ignore
 /CLAUDE.md export-ignore
 /.claude export-ignore
+/.codex export-ignore
 /.cursor export-ignore
 /.serena export-ignore
 
@@ -173,11 +174,8 @@ yarn.lock text eol=lf
 /eslint.config.js export-ignore
 /tsconfig.checkjs.json export-ignore
 
-# Packager-owned src/lib compatibility output should never be copied from source.
-# Keep this rule until the compatibility-packaging mechanism itself is removed.
-/src/lib export-ignore
-
 # Testing
+/src/Tests export-ignore
 /tests export-ignore
 /test-results export-ignore
 /patchwork.json export-ignore

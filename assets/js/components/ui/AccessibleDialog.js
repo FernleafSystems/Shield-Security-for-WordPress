@@ -13,13 +13,29 @@ const DEFAULT_OPTIONS = {
 	stringsProvider: () => ( {} ),
 	fallbackFocus: () => null,
 	errorContext: 'Accessible dialog',
-	alertTitleKeys: [ 'dialog_alert_title', 'message_title' ],
-	confirmTitleKeys: [ 'dialog_confirm_title', 'confirm_title' ],
+	alertTitleKeys: [ 'dialog_alert_title' ],
+	confirmTitleKeys: [ 'dialog_confirm_title' ],
 	promptTitleKeys: [ 'dialog_prompt_title', 'prompt_title' ],
 	alertConfirmLabelKeys: [ 'close', 'continue' ],
 	actionConfirmLabelKeys: [ 'confirm' ],
 	cancelLabelKeys: [ 'cancel' ],
 };
+
+export function resolveAccessibleDialogLauncher( event = null, node = null ) {
+	if ( event?.currentTarget instanceof HTMLElement ) {
+		return event.currentTarget;
+	}
+	if ( node?.[ 0 ] instanceof HTMLElement ) {
+		return node[ 0 ];
+	}
+	if ( node instanceof HTMLElement ) {
+		return node;
+	}
+	if ( typeof node?.get === 'function' && node.get( 0 ) instanceof HTMLElement ) {
+		return node.get( 0 );
+	}
+	return null;
+}
 
 export function resolveAccessibleDialogConfirmLabel( launcher = null ) {
 	if ( !( launcher instanceof HTMLElement ) ) {
@@ -176,9 +192,9 @@ export class AccessibleDialog {
 	normalizeDialogConfig( config ) {
 		const type = [ 'alert', 'confirm', 'prompt' ].includes( config.type ) ? config.type : 'alert';
 		const titleFallbacks = {
-			alert: this.localizedText( this.options.alertTitleKeys, 'Message' ),
+			alert: this.localizedText( this.options.alertTitleKeys, 'Notice' ),
 			confirm: this.localizedText( this.options.confirmTitleKeys, 'Confirm Action' ),
-			prompt: this.localizedText( this.options.promptTitleKeys, 'Enter Value' ),
+			prompt: this.localizedText( this.options.promptTitleKeys, 'Information Required' ),
 		};
 
 		const normalized = {
@@ -196,6 +212,7 @@ export class AccessibleDialog {
 			cancelLabel: type === 'alert' ? '' : normalizeText(
 				config.cancelLabel || this.localizedText( this.options.cancelLabelKeys, 'Cancel' )
 			),
+			showTitle: config.showTitle === true || ( config.showTitle !== false && type !== 'alert' ),
 		};
 
 		if ( normalized.title.length < 1 || normalized.confirmLabel.length < 1 ) {
@@ -222,8 +239,15 @@ export class AccessibleDialog {
 		} = this.options;
 
 		element.classList.toggle( `${classPrefix}--danger`, config.danger === true );
-		this.setText( `#${titleId}`, config.title );
+		const titleEl = this.setText( `#${titleId}`, config.title );
+		titleEl.classList.toggle( `${classPrefix}__title--hidden`, config.showTitle !== true );
 		this.setText( `#${messageId}`, config.message );
+		if ( config.message.length > 0 ) {
+			element.setAttribute( 'aria-describedby', messageId );
+		}
+		else {
+			element.removeAttribute( 'aria-describedby' );
+		}
 
 		const confirmButton = element.querySelector( `.${classPrefix}__confirm` );
 		this.setText( `.${classPrefix}__confirm`, config.confirmLabel );

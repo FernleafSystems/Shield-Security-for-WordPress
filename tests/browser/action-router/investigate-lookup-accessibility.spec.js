@@ -1,4 +1,8 @@
 const { test, expect, openShieldRoute } = require( './support/shield-test' );
+const {
+	expectReferenceTargetNonEmpty,
+	getIdReferenceTokens,
+} = require( './support/modal-accessibility' );
 
 const panelSelector = '[data-investigate-panel="1"]';
 
@@ -44,27 +48,12 @@ const returnToInvestigateLanding = async ( page ) => {
 	] );
 };
 
-const expectConnectedReference = async ( page, id ) => {
-	const target = page.locator( `#${id}` );
-	await expect( target ).toHaveCount( 1 );
-	expect(
-		await target.evaluate( ( element ) => element.isConnected && ( element.textContent || '' ).trim().length > 0 )
-	).toBe( true );
-};
-
-const getIdReferenceTokens = async ( locator, attribute ) => locator.evaluate(
-	( element, currentAttribute ) => String( element.getAttribute( currentAttribute ) || '' )
-		.split( /\s+/ )
-		.filter( ( id ) => id.length > 0 ),
-	attribute
-);
-
 const expectConnectedIdReferences = async ( page, locator, attribute ) => {
 	const ids = await getIdReferenceTokens( locator, attribute );
 	expect( ids.length ).toBeGreaterThan( 0 );
 
 	for ( const id of ids ) {
-		await expectConnectedReference( page, id );
+		await expectReferenceTargetNonEmpty( page, id );
 	}
 
 	return ids;
@@ -80,8 +69,8 @@ const expectLookupAccessibilityContract = async ( page, root, { subject, inputNa
 	await expect( select ).toHaveAttribute( 'data-investigate-select2-description', ids.helper );
 
 	await expect( root.locator( `#${ids.label}` ) ).toHaveAttribute( 'for', ids.control );
-	await expectConnectedReference( page, ids.label );
-	await expectConnectedReference( page, ids.helper );
+	await expectReferenceTargetNonEmpty( page, ids.label );
+	await expectReferenceTargetNonEmpty( page, ids.helper );
 
 	const select2Container = select.locator( 'xpath=following-sibling::*[1]' ).first();
 	await expect( select2Container ).toBeVisible();

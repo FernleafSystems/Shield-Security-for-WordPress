@@ -3,6 +3,27 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrowserFixtureRegistry;
 
 \add_filter( 'pre_http_request', 'shield_browser_fixture_filelocker_api_response', 10, 3 );
+\add_action( 'after_setup_theme', 'shield_browser_fixture_force_restrictions', \PHP_INT_MIN );
+
+function shield_browser_fixture_force_restrictions() :void {
+	if ( !\in_array( 'Y', [
+			\get_option( 'shield_browser_fixture_security_admin_force_restrictions' ),
+			\get_option( 'shield_browser_fixture_force_restrictions' ),
+		], true )
+		 || !\function_exists( 'shield_security_get_plugin' )
+	) {
+		return;
+	}
+
+	$plugin = \shield_security_get_plugin();
+	$controller = \is_object( $plugin ) && \method_exists( $plugin, 'getController' )
+		? $plugin->getController()
+		: null;
+	if ( \is_object( $controller ) && isset( $controller->this_req ) ) {
+		$controller->this_req->request_bypasses_all_restrictions = false;
+		$controller->this_req->request_subject_to_shield_restrictions = true;
+	}
+}
 
 \add_action( 'rest_api_init', static function () :void {
 	\register_rest_route( 'shield-browser-test/v1', '/fixture', [
@@ -134,13 +155,17 @@ function shield_browser_fixture_allowed_actions() :array {
 	return [
 		'__all__' => [ 'cleanup' ],
 		'actions-queue' => [ 'seed', 'cleanup', 'inspect' ],
+		'dashboard-defaults' => [ 'seed', 'cleanup', 'inspect', 'reset-defaults' ],
 		'import-export-file' => [ 'seed', 'cleanup' ],
-		'ip-analysis-activity-meta' => [ 'seed', 'cleanup' ],
-		'ip-rules-table' => [ 'seed', 'cleanup' ],
+		'ip-analysis-activity-meta' => [ 'seed', 'cleanup', 'inspect' ],
+		'ip-rules-table' => [ 'seed', 'cleanup', 'inspect' ],
 		'mainwp-sites' => [ 'seed', 'cleanup' ],
 		'merlin-welcome' => [ 'seed', 'cleanup' ],
 		'mfa-profile' => [ 'seed', 'cleanup' ],
+		'notbot-altcha' => [ 'seed', 'cleanup', 'inspect' ],
 		'public-block-recovery' => [ 'seed', 'cleanup' ],
+		'security-admin' => [ 'seed', 'cleanup', 'inspect' ],
+		'security-headers' => [ 'seed', 'cleanup' ],
 	];
 }
 
@@ -153,13 +178,18 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/ActionRouter/PluginAdminRouteRuntime.php',
 		'tests/Helpers/ActionRouter/ActionsQueueRuntimeProbe.php',
 		'tests/Helpers/ActionRouter/ActionsQueueFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/RawOptionStoreSnapshot.php',
+		'tests/Helpers/ActionRouter/DashboardDefaultsFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/ImportExportFileFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/IpAnalysisActivityMetaFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/IpRulesTableFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/MainwpSitesFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/MerlinWelcomeFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/MfaProfileFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/NotBotAltchaFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/PublicBlockRecoveryFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/SecurityAdminFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/SecurityHeadersFixtureBuilder.php',
 	] as $relativePath ) {
 		require_once $pluginRoot.'/'.$relativePath;
 	}

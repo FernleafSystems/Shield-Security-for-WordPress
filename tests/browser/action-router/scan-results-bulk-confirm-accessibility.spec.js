@@ -10,10 +10,10 @@ const {
 } = require( './support/modal-accessibility' );
 
 const SCAN_RESULTS_TABLE_SELECTOR = '[data-actions-queue-detail="1"] [data-scan-results-table="1"]';
-const CONFIRM_DIALOG_SELECTOR = '#AptoGeneralPurposeDialog';
-const CONFIRM_DIALOG_ACTIVE_SELECTOR = `${CONFIRM_DIALOG_SELECTOR}[aria-modal="true"]`;
-const CONFIRM_BUTTON_SELECTOR = '[data-shield-dialog-confirm="1"]';
-const CANCEL_BUTTON_SELECTOR = '[data-shield-dialog-cancel="1"]';
+const CONFIRM_DIALOG_SELECTOR = '[data-shield-accessible-dialog="1"]';
+const CONFIRM_DIALOG_ACTIVE_SELECTOR = `${CONFIRM_DIALOG_SELECTOR}[aria-modal="true"]:not([aria-hidden="true"])`;
+const CONFIRM_BUTTON_SELECTOR = '.shield-accessible-dialog__confirm';
+const CANCEL_BUTTON_SELECTOR = '.shield-accessible-dialog__cancel';
 
 async function openDirectScanResultsTable( page, fixture, { includeIgnored = false } = {} ) {
 	const actionsQueuePage = new ActionsQueuePage( page );
@@ -149,7 +149,7 @@ async function interceptBulkAction( page, expectedSubAction, expectedRids ) {
 async function assertAccessibleConfirmVisible( page ) {
 	const confirmModal = page.locator( CONFIRM_DIALOG_ACTIVE_SELECTOR );
 	await expect( confirmModal ).toBeVisible();
-	await expectNamedDialog( page, confirmModal, 'AptoGeneralPurposeDialogTitle' );
+	await expectNamedDialog( page, confirmModal );
 	await expectOptionalDescription( page, confirmModal );
 	return confirmModal;
 }

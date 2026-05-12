@@ -229,10 +229,10 @@ test( 'scan item analysis render failure opens accessible message dialog', async
 				await viewAction.click();
 				await expect.poll( failed.seen ).toBe( true );
 				const dialog = await expectAccessibleMessageDialog( page );
-				await expectNoAxeViolations( page, '#AptoGeneralPurposeDialog' );
+				await expectNoAxeViolations( page, '[data-shield-accessible-dialog="1"]' );
 				await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
-				await dialog.locator( '[data-shield-dialog-confirm="1"]' ).click();
-				await expectModalHiddenWithoutAriaModal( page, '#AptoGeneralPurposeDialog' );
+				await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+				await expectModalHiddenWithoutAriaModal( page, '[data-shield-accessible-dialog="1"]' );
 				await expect( viewAction ).toBeFocused();
 			} );
 		}
@@ -270,10 +270,10 @@ test( 'scan item analysis unnamed replacement opens accessible message dialog', 
 				await viewAction.click();
 				await expect.poll( malformed.seen ).toBe( true );
 				const dialog = await expectAccessibleMessageDialog( page );
-				await expectNoAxeViolations( page, '#AptoGeneralPurposeDialog' );
+				await expectNoAxeViolations( page, '[data-shield-accessible-dialog="1"]' );
 				await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
-				await dialog.locator( '[data-shield-dialog-confirm="1"]' ).click();
-				await expectModalHiddenWithoutAriaModal( page, '#AptoGeneralPurposeDialog' );
+				await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+				await expectModalHiddenWithoutAriaModal( page, '[data-shield-accessible-dialog="1"]' );
 				await expect( viewAction ).toBeFocused();
 			} );
 		}
@@ -347,10 +347,10 @@ test( 'IP analysis offcanvas render failure opens accessible message dialog', as
 				await launcher.click();
 				await expect.poll( failed.seen ).toBe( true );
 				const dialog = await expectAccessibleMessageDialog( page );
-				await expectNoAxeViolations( page, '#AptoGeneralPurposeDialog' );
+				await expectNoAxeViolations( page, '[data-shield-accessible-dialog="1"]' );
 				await expectModalHiddenWithoutAriaModal( page, '#AptoOffcanvas' );
-				await dialog.locator( '[data-shield-dialog-confirm="1"]' ).click();
-				await expectModalHiddenWithoutAriaModal( page, '#AptoGeneralPurposeDialog' );
+				await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+				await expectModalHiddenWithoutAriaModal( page, '[data-shield-accessible-dialog="1"]' );
 				await expect( launcher ).toBeFocused();
 			} );
 		}
@@ -383,10 +383,10 @@ test( 'IP analysis offcanvas unnamed replacement opens accessible message dialog
 				await launcher.click();
 				await expect.poll( malformed.seen ).toBe( true );
 				const dialog = await expectAccessibleMessageDialog( page );
-				await expectNoAxeViolations( page, '#AptoGeneralPurposeDialog' );
+				await expectNoAxeViolations( page, '[data-shield-accessible-dialog="1"]' );
 				await expectModalHiddenWithoutAriaModal( page, '#AptoOffcanvas' );
-				await dialog.locator( '[data-shield-dialog-confirm="1"]' ).click();
-				await expectModalHiddenWithoutAriaModal( page, '#AptoGeneralPurposeDialog' );
+				await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+				await expectModalHiddenWithoutAriaModal( page, '[data-shield-accessible-dialog="1"]' );
 				await expect( launcher ).toBeFocused();
 			} );
 		}

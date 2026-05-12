@@ -5,7 +5,6 @@ import { OffCanvasService } from "../ui/OffCanvasService";
 import { PageQueryParam } from "../../util/PageQueryParam";
 import { InvestigateInlineTabs } from "../mode/InvestigateInlineTabs";
 import { InvestigateLookupSelect2 } from "../mode/InvestigateLookupSelect2";
-import { confirmDialog, resolveDialogConfirmLabel } from "../ui/ShieldDialog";
 
 export class IpAnalyse extends BaseAutoExecComponent {
 
@@ -28,9 +27,10 @@ export class IpAnalyse extends BaseAutoExecComponent {
 
 		shieldEventsHandler_Main.add_Click( '.ip_analyse_action', async ( targetEl ) => {
 			const dataset = targetEl.dataset;
-			const confirmed = await confirmDialog( {
+			const dialog = shieldServices.dialog();
+			const confirmed = await dialog.confirm( {
 				message: shieldStrings.string( 'are_you_sure' ),
-				confirmLabel: resolveDialogConfirmLabel( targetEl ),
+				confirmLabel: dialog.resolveConfirmLabel( targetEl ),
 				danger: isDangerousIpAction( dataset[ 'ip_action' ] ),
 				launcher: targetEl,
 			} );

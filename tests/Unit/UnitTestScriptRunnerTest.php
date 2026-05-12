@@ -27,6 +27,26 @@ class UnitTestScriptRunnerTest extends TestCase {
 		$this->assertContains( './vendor/brianium/paratest/bin/paratest', $processRunner->calls[ 0 ][ 'command' ] );
 	}
 
+	public function testAutoModeRunsMultipleConcretePathsThroughSeparateParatestCommands() :void {
+		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
+		$runner = $this->newRunner( $processRunner );
+
+		$exitCode = $runner->run(
+			[
+				'tests/Unit/UnitTestExecutionSelectorTest.php',
+				'tests/Unit/UnitTestScriptRunnerTest.php',
+			],
+			$this->projectRoot
+		);
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 2, $processRunner->calls );
+		$this->assertContains( './vendor/brianium/paratest/bin/paratest', $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertContains( './vendor/brianium/paratest/bin/paratest', $processRunner->calls[ 1 ][ 'command' ] );
+		$this->assertSame( 'tests/Unit/UnitTestExecutionSelectorTest.php', $processRunner->calls[ 0 ][ 'command' ][ \count( $processRunner->calls[ 0 ][ 'command' ] ) - 1 ] );
+		$this->assertSame( 'tests/Unit/UnitTestScriptRunnerTest.php', $processRunner->calls[ 1 ][ 'command' ][ \count( $processRunner->calls[ 1 ][ 'command' ] ) - 1 ] );
+	}
+
 	public function testAutoModeFallsBackToSerialWithFilter() :void {
 		$processRunner = new RecordingProcessRunner( [ 0 ] );
 		$runner = $this->newRunner( $processRunner );

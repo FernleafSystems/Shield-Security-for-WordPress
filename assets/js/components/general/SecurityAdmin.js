@@ -82,7 +82,10 @@ export class SecurityAdmin extends BaseComponent {
 			setTimeout( () => {
 				ShieldOverlay.Hide();
 				shieldServices.dialog().message( {
-					message: this._base_data.strings.confirm,
+					title: this._base_data.strings.timeout_title,
+					message: this._base_data.strings.timeout_message,
+					confirmLabel: this._base_data.strings.timeout_reload,
+					showTitle: true,
 					launcher: document.getElementById( 'SecAdminDialog' ),
 				} ).finally( () => window.location.reload() );
 			}, 1500 );
