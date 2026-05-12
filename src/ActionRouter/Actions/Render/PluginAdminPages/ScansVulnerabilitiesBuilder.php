@@ -20,6 +20,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @phpstan-type VulnerabilityItem array{
  *   key:string,
  *   asset_key:string,
+ *   asset_type:'plugin'|'theme',
  *   label:string,
  *   description:string,
  *   count:int,
@@ -82,13 +83,30 @@ class ScansVulnerabilitiesBuilder {
 		}
 
 		$items = [];
-		foreach ( $results->getUniqueSlugs() as $slug ) {
-			$asset = $this->getAsset( $slug );
+		$itemsByTypedAsset = [];
+		foreach ( $results->getAllItems() as $item ) {
+			$itemType = (string)( $item->VO->item_type ?? '' );
+			$slug = (string)( $item->VO->item_id ?? '' );
+			if ( !$this->isKnownScanItemType( $itemType ) ) {
+				continue;
+			}
+
+			$groupKey = $itemType."\n".$slug;
+			$itemsByTypedAsset[ $groupKey ][ 'item_type' ] = $itemType;
+			$itemsByTypedAsset[ $groupKey ][ 'slug' ] = $slug;
+			$itemsByTypedAsset[ $groupKey ][ 'items' ][] = $item;
+		}
+
+		foreach ( $itemsByTypedAsset as $typedAsset ) {
+			$asset = $this->resolveAssetForScanItem(
+				(string)$typedAsset[ 'slug' ],
+				(string)$typedAsset[ 'item_type' ]
+			);
 			if ( $asset === null ) {
 				continue;
 			}
 
-			$count = \count( $results->getItemsForSlug( $slug ) );
+			$count = \count( $typedAsset[ 'items' ] );
 			$items[] = $this->buildAssetRow(
 				'vulnerability',
 				$asset,
@@ -117,7 +135,10 @@ class ScansVulnerabilitiesBuilder {
 
 		$items = [];
 		foreach ( $results->getAllItems() as $item ) {
-			$asset = $this->getAsset( (string)$item->VO->item_id );
+			$asset = $this->resolveAssetForScanItem(
+				(string)( $item->VO->item_id ?? '' ),
+				(string)( $item->VO->item_type ?? '' )
+			);
 			if ( $asset === null ) {
 				continue;
 			}
@@ -140,11 +161,13 @@ class ScansVulnerabilitiesBuilder {
 	 */
 	private function buildAssetRow( string $prefix, $asset, int $count, array $actions, string $description ) :array {
 		$isPlugin = $asset instanceof WpPluginVo;
+		$assetType = $isPlugin ? 'plugin' : 'theme';
 		$name = $isPlugin ? $asset->Title : $asset->Name;
 
 		return [
-			'key'         => $prefix.'-'.$asset->unique_id,
+			'key'         => $prefix.'-'.$assetType.'-'.$asset->unique_id,
 			'asset_key'   => (string)$asset->unique_id,
+			'asset_type'  => $assetType,
 			'label'       => (string)$name,
 			'description' => $description,
 			'count'       => $count,
@@ -167,10 +190,22 @@ class ScansVulnerabilitiesBuilder {
 	}
 
 	/**
+	 * @param string $itemType
 	 * @return WpPluginVo|WpThemeVo|null
 	 */
-	private function getAsset( string $slug ) {
-		return Services::WpPlugins()->getPluginAsVo( $slug, true ) ?? Services::WpThemes()->getThemeAsVo( $slug, true );
+	private function resolveAssetForScanItem( string $slug, string $itemType ) {
+		switch ( $itemType ) {
+			case 'p':
+				return Services::WpPlugins()->getPluginAsVo( $slug, true );
+			case 't':
+				return Services::WpThemes()->getThemeAsVo( $slug, true );
+			default:
+				return null;
+		}
+	}
+
+	private function isKnownScanItemType( string $itemType ) :bool {
+		return \in_array( $itemType, [ 'p', 't' ], true );
 	}
 
 	/**
@@ -253,7 +288,7 @@ class ScansVulnerabilitiesBuilder {
 	private function countDistinctAffectedAssets( array $vulnerableItems, array $abandonedItems ) :int {
 		$keys = [];
 		foreach ( [ ...$vulnerableItems, ...$abandonedItems ] as $item ) {
-			$keys[ $item[ 'asset_key' ] ] = true;
+			$keys[ $item[ 'asset_type' ]."\n".$item[ 'asset_key' ] ] = true;
 		}
 
 		return \count( $keys );
