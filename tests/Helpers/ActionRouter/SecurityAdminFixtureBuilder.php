@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	ModuleOptionsSave,
 	SecurityAdminAuthClear,
@@ -54,6 +55,12 @@ class SecurityAdminFixtureBuilder {
 	public const SCENARIO_LOCKED = 'locked';
 	public const SCENARIO_ACTIVE_SESSION = 'active-session';
 	public const SCENARIO_EXPIRED_SESSION = 'expired-session';
+	public const SCENARIO_DIRECT_DISABLE_READY = 'direct-disable-ready';
+	public const SCENARIO_EMAIL_OVERRIDE_ENABLED = 'email-override-enabled';
+	public const SCENARIO_EMAIL_OVERRIDE_DISABLED = 'email-override-disabled';
+	public const SCENARIO_RESTRICTION_ZONES_LOCKED = 'restriction-zones-locked';
+	public const SCENARIO_RESTRICTION_ZONES_ACTIVE_ADMIN = 'restriction-zones-active-admin';
+	public const SCENARIO_PERSISTENT_ADMIN = 'persistent-admin';
 
 	private const VALID_PIN = '123456';
 	private const INVALID_PIN = '654321';
@@ -67,6 +74,10 @@ class SecurityAdminFixtureBuilder {
 		'admin_access_timeout',
 		'sec_admin_users',
 		'admin_access_restrict_options',
+		'admin_access_restrict_admin_users',
+		'admin_access_restrict_plugins',
+		'admin_access_restrict_themes',
+		'admin_access_restrict_posts',
 		'allow_email_override',
 	];
 
@@ -249,6 +260,12 @@ class SecurityAdminFixtureBuilder {
 			self::SCENARIO_LOCKED,
 			self::SCENARIO_ACTIVE_SESSION,
 			self::SCENARIO_EXPIRED_SESSION,
+			self::SCENARIO_DIRECT_DISABLE_READY,
+			self::SCENARIO_EMAIL_OVERRIDE_ENABLED,
+			self::SCENARIO_EMAIL_OVERRIDE_DISABLED,
+			self::SCENARIO_RESTRICTION_ZONES_LOCKED,
+			self::SCENARIO_RESTRICTION_ZONES_ACTIVE_ADMIN,
+			self::SCENARIO_PERSISTENT_ADMIN,
 		];
 	}
 
@@ -257,17 +274,32 @@ class SecurityAdminFixtureBuilder {
 	 */
 	private function applyScenario( string $scenario, array $state ) :void {
 		\update_option( self::FORCE_RESTRICTIONS_OPTION, 'Y', false );
+		RuntimeTestState::applyPremiumCapabilities( [] );
 
 		$pinHash = $scenario === self::SCENARIO_PIN_UNSET
 			? ''
 			: \wp_hash_password( self::VALID_PIN );
+		$secAdminUsers = [];
+		if ( $scenario === self::SCENARIO_DIRECT_DISABLE_READY ) {
+			$secAdminUsers = [ 'shield_fixture_registered_admin' ];
+		}
+		elseif ( $scenario === self::SCENARIO_PERSISTENT_ADMIN ) {
+			$secAdminUsers = \array_values( \array_unique( [
+				$state[ 'session_snapshot' ][ 'username' ],
+				'admin',
+			] ) );
+		}
 		$updates = [
-			'global_enable_plugin_features' => 'Y',
-			'admin_access_key'              => $pinHash,
-			'admin_access_timeout'          => self::TIMEOUT_MINUTES,
-			'sec_admin_users'               => [],
-			'admin_access_restrict_options' => 'Y',
-			'allow_email_override'          => 'N',
+			'global_enable_plugin_features'       => 'Y',
+			'admin_access_key'                    => $pinHash,
+			'admin_access_timeout'                => self::TIMEOUT_MINUTES,
+			'sec_admin_users'                     => $secAdminUsers,
+			'admin_access_restrict_options'       => 'Y',
+			'admin_access_restrict_admin_users'   => 'Y',
+			'admin_access_restrict_plugins'       => [ 'activate_plugins', 'delete_plugins', 'install_plugins', 'update_plugins' ],
+			'admin_access_restrict_themes'        => [ 'switch_themes', 'edit_theme_options', 'install_themes', 'update_themes', 'delete_themes' ],
+			'admin_access_restrict_posts'         => [ 'edit', 'publish', 'delete' ],
+			'allow_email_override'                => $scenario === self::SCENARIO_EMAIL_OVERRIDE_ENABLED ? 'Y' : 'N',
 		];
 		$opts = RuntimeTestState::controller()->opts;
 		foreach ( $updates as $key => $value ) {
@@ -278,7 +310,7 @@ class SecurityAdminFixtureBuilder {
 		RuntimeTestState::resetOptionsRuntimeCache();
 
 		$timestamp = 0;
-		if ( $scenario === self::SCENARIO_ACTIVE_SESSION ) {
+		if ( \in_array( $scenario, [ self::SCENARIO_ACTIVE_SESSION, self::SCENARIO_DIRECT_DISABLE_READY, self::SCENARIO_RESTRICTION_ZONES_ACTIVE_ADMIN ], true ) ) {
 			$timestamp = Services::Request()->ts();
 		}
 		elseif ( $scenario === self::SCENARIO_EXPIRED_SESSION ) {
@@ -286,7 +318,11 @@ class SecurityAdminFixtureBuilder {
 		}
 
 		$this->setSessionSecAdminAt( $state[ 'session_snapshot' ], $timestamp );
-		RuntimeTestState::controller()->this_req->is_security_admin = $scenario === self::SCENARIO_ACTIVE_SESSION;
+		RuntimeTestState::controller()->this_req->is_security_admin = \in_array(
+			$scenario,
+			[ self::SCENARIO_ACTIVE_SESSION, self::SCENARIO_DIRECT_DISABLE_READY, self::SCENARIO_RESTRICTION_ZONES_ACTIVE_ADMIN ],
+			true
+		);
 	}
 
 	/**
@@ -321,15 +357,32 @@ class SecurityAdminFixtureBuilder {
 				'sec_admin_check'     => SecurityAdminCheck::SLUG,
 				'sec_admin_auth_clear' => SecurityAdminAuthClear::SLUG,
 			],
+			'boundary_action_slugs'      => [
+				'sec_admin_login'          => SecurityAdminLogin::SLUG,
+				'sec_admin_check'          => SecurityAdminCheck::SLUG,
+				'sec_admin_auth_clear'     => SecurityAdminAuthClear::SLUG,
+				'secadmin_remove_confirm'  => SecurityAdminRemove::SLUG,
+				'req_email_remove'         => SecurityAdminRequestRemoveByEmail::SLUG,
+			],
+			'boundary_actions'           => [
+				'direct_disable' => [
+					'slug'        => SecurityAdminRemove::SLUG,
+					'action_data' => ActionData::Build( SecurityAdminRemove::class, false ),
+				],
+				'email_override' => [
+					'slug'        => SecurityAdminRequestRemoveByEmail::SLUG,
+					'action_data' => ActionData::Build( SecurityAdminRequestRemoveByEmail::class ),
+				],
+				'auth_clear'      => [
+					'slug'        => SecurityAdminAuthClear::SLUG,
+					'action_data' => ActionData::Build( SecurityAdminAuthClear::class, false ),
+				],
+			],
 			'render_slugs'               => [
 				'dashboard_page'    => PageDashboardOverview::SLUG,
 				'configure_page'    => PageConfigureLanding::SLUG,
 				'restricted_page'   => PageSecurityAdminRestricted::SLUG,
 				'login_box'         => FormSecurityAdminLoginBox::SLUG,
-			],
-			'out_of_scope_action_slugs'  => [
-				'secadmin_remove_confirm' => SecurityAdminRemove::SLUG,
-				'req_email_remove'        => SecurityAdminRequestRemoveByEmail::SLUG,
 			],
 			'option_keys'                => self::OPTION_KEYS,
 			'options'                    => [
@@ -362,12 +415,18 @@ class SecurityAdminFixtureBuilder {
 				'options_form'        => 'form.options_form_for',
 				'page_action_menu'    => '.page-action-menu-toggle',
 				'end_session_action'  => 'a[href*="'.SecurityAdminAuthClear::SLUG.'"]',
+				'email_override'      => '#SecAdminRemoveConfirmEmail',
+				'wp_option_blogname'  => 'input[name="blogname"]',
 			],
 			'expected'                   => [
 				'enabled'                 => $scenario !== self::SCENARIO_PIN_UNSET,
-				'session_active'          => $scenario === self::SCENARIO_ACTIVE_SESSION,
-				'time_remaining_is_zero'  => \in_array( $scenario, [ self::SCENARIO_PIN_UNSET, self::SCENARIO_LOCKED, self::SCENARIO_EXPIRED_SESSION ], true ),
+				'session_active'          => \in_array( $scenario, [ self::SCENARIO_ACTIVE_SESSION, self::SCENARIO_DIRECT_DISABLE_READY, self::SCENARIO_RESTRICTION_ZONES_ACTIVE_ADMIN ], true ),
+				'time_remaining_is_zero'  => !\in_array( $scenario, [ self::SCENARIO_ACTIVE_SESSION, self::SCENARIO_DIRECT_DISABLE_READY, self::SCENARIO_RESTRICTION_ZONES_ACTIVE_ADMIN ], true ),
 				'pin_hash_format'         => $scenario === self::SCENARIO_PIN_UNSET ? 'empty' : 'wp_hash',
+				'email_override_allowed'  => $scenario === self::SCENARIO_EMAIL_OVERRIDE_ENABLED,
+				'registered_sec_admin'    => $scenario === self::SCENARIO_PERSISTENT_ADMIN,
+				'currently_sec_admin'     => \in_array( $scenario, [ self::SCENARIO_ACTIVE_SESSION, self::SCENARIO_DIRECT_DISABLE_READY, self::SCENARIO_RESTRICTION_ZONES_ACTIVE_ADMIN, self::SCENARIO_PERSISTENT_ADMIN ], true ),
+				'restrict_options'        => \in_array( $scenario, [ self::SCENARIO_LOCKED, self::SCENARIO_RESTRICTION_ZONES_LOCKED ], true ),
 			],
 		];
 	}
@@ -385,6 +444,8 @@ class SecurityAdminFixtureBuilder {
 		return [
 			'enabled'                        => RuntimeTestState::controller()->comps->sec_admin->isEnabledSecAdmin(),
 			'session_active'                 => $timeRemaining > 0,
+			'registered_sec_admin'           => RuntimeTestState::controller()->comps->sec_admin->isCurrentUserRegisteredSecAdmin(),
+			'currently_sec_admin'            => RuntimeTestState::controller()->comps->sec_admin->isCurrentlySecAdmin(),
 			'this_req_is_security_admin'     => (bool)RuntimeTestState::controller()->this_req->is_security_admin,
 			'secadmin_at'                    => $secAdminAt,
 			'time_remaining'                 => $timeRemaining,
