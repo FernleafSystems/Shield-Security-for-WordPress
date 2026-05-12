@@ -5,16 +5,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionRoutingController,
-	Actions\OperatorModeSwitch
+	Actions\SecurityAdminAuthClear
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 
 class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
-	use CurrentRequestFixture;
 
 	private array $requestSnapshot = [];
 
@@ -42,7 +40,7 @@ class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCas
 				'wp_is_ajax' => false,
 			]
 		);
-		$requestBagsSnapshot = $this->seedActionNonceContext( OperatorModeSwitch::class );
+		$requestBagsSnapshot = $this->seedActionNonceContext( SecurityAdminAuthClear::class );
 		$this->mergeCurrentRequestTransport( [
 			ActionData::FIELD_NONCE => 'invalid_nonce',
 		] );
@@ -57,9 +55,9 @@ class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCas
 
 		try {
 			$this->requireController()->action_router->action(
-				OperatorModeSwitch::SLUG,
+				SecurityAdminAuthClear::SLUG,
 				[
-					'mode' => 'default',
+					'leak_marker' => 'nonce-leak-marker',
 				],
 				ActionRoutingController::ACTION_SHIELD
 			);
@@ -71,8 +69,8 @@ class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCas
 			$this->assertNotSame( '', \trim( $message ) );
 			$this->assertStringNotContainsString( 'Action Slug:', $message );
 			$this->assertStringNotContainsString( 'Data:', $message );
-			$this->assertStringNotContainsString( OperatorModeSwitch::SLUG, $message );
-			$this->assertStringNotContainsString( 'default', $message );
+			$this->assertStringNotContainsString( SecurityAdminAuthClear::SLUG, $message );
+			$this->assertStringNotContainsString( 'nonce-leak-marker', $message );
 			$this->assertStringNotContainsString( ActionData::FIELD_NONCE, $message );
 		}
 		finally {

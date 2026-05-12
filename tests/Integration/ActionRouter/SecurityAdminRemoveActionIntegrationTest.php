@@ -22,6 +22,7 @@ class SecurityAdminRemoveActionIntegrationTest extends ShieldIntegrationTestCase
 
 	public function set_up() {
 		parent::set_up();
+		$this->enablePremiumCapabilities();
 		$this->securityAdminLogin = 'secadmin_remove_'.\bin2hex( \random_bytes( 4 ) );
 		$this->loginAsAdministrator( [
 			'user_login' => $this->securityAdminLogin,
@@ -80,6 +81,10 @@ class SecurityAdminRemoveActionIntegrationTest extends ShieldIntegrationTestCase
 
 		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
 		$this->assertCount( 1, $this->capturedMails() );
+		$mail = $this->lastCapturedMail();
+		$mailBody = (string)( $mail[ 'html_body' ] ?? '' );
+		$this->assertStringContainsString( SecurityAdminRemove::SLUG, $mailBody );
+		$this->assertStringContainsString( ActionData::FIELD_NONCE, $mailBody );
 	}
 
 	public function test_email_override_request_is_rejected_when_option_disabled() :void {
