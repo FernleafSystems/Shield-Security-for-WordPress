@@ -3,16 +3,21 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\DashboardDefaultsFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\RawOptionStoreSnapshot;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
+/**
+ * @phpstan-import-type RawOptionStoreState from RawOptionStoreSnapshot
+ */
 class DashboardDefaultsFixtureContractIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_fixture_contract_owns_routes_options_and_cleanup_restores_raw_option_stores() :void {
 		$this->ensureDefaultAdminUser();
-		$originalStores = $this->snapshotRawOptionStores();
-		$this->primeRawOptionStoreRows();
-		$beforeStores = $this->snapshotRawOptionStores();
+		$rawStores = new RawOptionStoreSnapshot();
+		$originalStores = $rawStores->snapshot();
+		$this->primeRawOptionStoreRows( $originalStores );
+		$beforeStores = $rawStores->snapshot();
 
 		try {
 			$builder = new DashboardDefaultsFixtureBuilder();
@@ -64,22 +69,23 @@ class DashboardDefaultsFixtureContractIntegrationTest extends ShieldIntegrationT
 				$builder->cleanup( $result[ 'state' ] );
 			}
 
-			$this->assertSame( $beforeStores, $this->snapshotRawOptionStores() );
+			$this->assertSame( $beforeStores, $rawStores->snapshot() );
 			$this->assertSame(
 				$result[ 'contract' ][ 'original_options' ],
 				RuntimeTestState::snapshotOptions( $result[ 'contract' ][ 'option_keys' ] )
 			);
 		}
 		finally {
-			$this->restoreRawOptionStores( $originalStores );
+			$rawStores->restore( $originalStores, 'Dashboard Defaults integration original stores' );
 		}
 	}
 
 	public function test_reset_defaults_uses_defaults_owner_and_cleanup_restores_raw_option_stores() :void {
 		$this->ensureDefaultAdminUser();
-		$originalStores = $this->snapshotRawOptionStores();
-		$this->primeRawOptionStoreRows();
-		$beforeStores = $this->snapshotRawOptionStores();
+		$rawStores = new RawOptionStoreSnapshot();
+		$originalStores = $rawStores->snapshot();
+		$this->primeRawOptionStoreRows( $originalStores );
+		$beforeStores = $rawStores->snapshot();
 
 		try {
 			$builder = new DashboardDefaultsFixtureBuilder();
@@ -104,10 +110,10 @@ class DashboardDefaultsFixtureContractIntegrationTest extends ShieldIntegrationT
 				$builder->cleanup( $result[ 'state' ] );
 			}
 
-			$this->assertSame( $beforeStores, $this->snapshotRawOptionStores() );
+			$this->assertSame( $beforeStores, $rawStores->snapshot() );
 		}
 		finally {
-			$this->restoreRawOptionStores( $originalStores );
+			$rawStores->restore( $originalStores, 'Dashboard Defaults integration original stores' );
 		}
 	}
 
@@ -124,24 +130,11 @@ class DashboardDefaultsFixtureContractIntegrationTest extends ShieldIntegrationT
 	}
 
 	/**
-	 * @return array<string,array{option_name:string,exists:bool,row:array{option_id:int,option_name:string,option_value:string,autoload:string}|null}>
+	 * @param array<string,RawOptionStoreState> $rawStores
 	 */
-	private function snapshotRawOptionStores() :array {
-		$this->requireController();
-		$snapshot = [];
-		foreach ( $this->optionStoreNames() as $key => $optionName ) {
-			$row = $this->fetchRawOptionRow( $optionName );
-			$snapshot[ $key ] = [
-				'option_name' => $optionName,
-				'exists'      => $row !== null,
-				'row'         => $row,
-			];
-		}
-		return $snapshot;
-	}
-
-	private function primeRawOptionStoreRows() :void {
-		foreach ( $this->optionStoreNames() as $key => $optionName ) {
+	private function primeRawOptionStoreRows( array $rawStores ) :void {
+		foreach ( $rawStores as $key => $store ) {
+			$optionName = $store[ 'option_name' ];
 			\delete_option( $optionName );
 			\add_option(
 				$optionName,
@@ -160,81 +153,5 @@ class DashboardDefaultsFixtureContractIntegrationTest extends ShieldIntegrationT
 			);
 		}
 		RuntimeTestState::resetOptionsRuntimeCache();
-	}
-
-	/**
-	 * @return array{opts_all:string,opts_free:string,opts_pro:string}
-	 */
-	private function optionStoreNames() :array {
-		$this->requireController();
-		return [
-			'opts_all'  => self::con()->prefix( 'opts_all', '_' ),
-			'opts_free' => self::con()->prefix( 'opts_free', '_' ),
-			'opts_pro'  => self::con()->prefix( 'opts_pro', '_' ),
-		];
-	}
-
-	/**
-	 * @return array{option_id:int,option_name:string,option_value:string,autoload:string}|null
-	 */
-	private function fetchRawOptionRow( string $optionName ) :?array {
-		global $wpdb;
-
-		$row = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT option_id, option_name, option_value, autoload FROM {$wpdb->options} WHERE option_name = %s LIMIT 1",
-				$optionName
-			),
-			\ARRAY_A
-		);
-
-		return \is_array( $row ) ? [
-			'option_id'    => (int)$row[ 'option_id' ],
-			'option_name'  => (string)$row[ 'option_name' ],
-			'option_value' => (string)$row[ 'option_value' ],
-			'autoload'     => (string)$row[ 'autoload' ],
-		] : null;
-	}
-
-	/**
-	 * @param array<string,array{option_name:string,exists:bool,row:array{option_id:int,option_name:string,option_value:string,autoload:string}|null}> $snapshot
-	 */
-	private function restoreRawOptionStores( array $snapshot ) :void {
-		global $wpdb;
-
-		foreach ( $snapshot as $store ) {
-			$optionName = (string)$store[ 'option_name' ];
-			if ( !(bool)$store[ 'exists' ] ) {
-				$wpdb->delete( $wpdb->options, [ 'option_name' => $optionName ], [ '%s' ] );
-				$this->clearRawOptionCaches( $optionName );
-				continue;
-			}
-
-			$row = $store[ 'row' ];
-			$wpdb->query(
-				$wpdb->prepare(
-					"DELETE FROM {$wpdb->options} WHERE option_name = %s OR option_id = %d",
-					$row[ 'option_name' ],
-					$row[ 'option_id' ]
-				)
-			);
-			$wpdb->query(
-				$wpdb->prepare(
-					"INSERT INTO {$wpdb->options} (option_id, option_name, option_value, autoload) VALUES (%d, %s, %s, %s)",
-					$row[ 'option_id' ],
-					$row[ 'option_name' ],
-					$row[ 'option_value' ],
-					$row[ 'autoload' ]
-				)
-			);
-			$this->clearRawOptionCaches( $row[ 'option_name' ] );
-		}
-		RuntimeTestState::resetOptionsRuntimeCache();
-	}
-
-	private function clearRawOptionCaches( string $optionName ) :void {
-		\wp_cache_delete( $optionName, 'options' );
-		\wp_cache_delete( 'alloptions', 'options' );
-		\wp_cache_delete( 'notoptions', 'options' );
 	}
 }

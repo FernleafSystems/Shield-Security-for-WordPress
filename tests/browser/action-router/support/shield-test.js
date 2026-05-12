@@ -334,10 +334,19 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 					}
 				}
 			},
-			async withSecurityAdminFixture( runScenario ) {
+			async inspectSecurityAdminFixture() {
+				return runFixture( 'security-admin', 'inspect' );
+			},
+			async withSecurityAdminFixture( scenario, runScenario ) {
+				if ( typeof scenario !== 'string' || scenario.trim() === '' ) {
+					throw new Error( 'Security Admin fixture scenario is required.' );
+				}
+				if ( typeof runScenario !== 'function' ) {
+					throw new Error( 'Security Admin fixture callback is required.' );
+				}
 				let seeded = false;
 				try {
-					const contract = await runFixture( 'security-admin', 'seed' );
+					const contract = await runFixture( 'security-admin', 'seed', [ scenario ] );
 					seeded = true;
 					return await runScenario( contract );
 				}

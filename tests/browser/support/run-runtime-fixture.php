@@ -6,6 +6,7 @@ require_once '/app/tests/Helpers/BrowserFixtureRegistry.php';
 require_once '/app/tests/Helpers/ActionRouter/PluginAdminRouteRuntime.php';
 require_once '/app/tests/Helpers/ActionRouter/ActionsQueueRuntimeProbe.php';
 require_once '/app/tests/Helpers/ActionRouter/ActionsQueueFixtureBuilder.php';
+require_once '/app/tests/Helpers/ActionRouter/RawOptionStoreSnapshot.php';
 require_once '/app/tests/Helpers/ActionRouter/DashboardDefaultsFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/ImportExportFileFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/IpAnalysisActivityMetaFixtureBuilder.php';

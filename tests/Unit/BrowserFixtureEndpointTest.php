@@ -121,6 +121,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 			$this->assertSame( [ 'seed', 'cleanup', 'inspect', 'reset-defaults' ], $actions[ 'dashboard-defaults' ] ?? null );
 			$this->assertSame( [ 'seed', 'cleanup', 'inspect' ], $actions[ 'ip-analysis-activity-meta' ] ?? null );
 			$this->assertSame( [ 'seed', 'cleanup', 'inspect' ], $actions[ 'ip-rules-table' ] ?? null );
+			$this->assertSame( [ 'seed', 'cleanup', 'inspect' ], $actions[ 'security-admin' ] ?? null );
 			$this->assertSame( [ 'seed', 'cleanup' ], $actions[ 'security-headers' ] ?? null );
 		}
 

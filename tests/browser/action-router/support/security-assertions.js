@@ -31,7 +31,12 @@ function requestActionSlug( request ) {
 }
 
 function requestPostParams( request ) {
-	return new URLSearchParams( request.postData() || '' );
+	const postData = request.postData();
+	if ( typeof postData !== 'string' ) {
+		return new URLSearchParams();
+	}
+
+	return new URLSearchParams( postData );
 }
 
 function requestPostParam( request, name ) {
@@ -274,6 +279,7 @@ module.exports = {
 	isShieldAjaxBatchRequestWithRenderSlugs,
 	openBlockRecoveryModal,
 	openPublicBlockPage,
+	parseShieldAjaxJson,
 	requestActionSlug,
 	requestBatchRenderSlugs,
 	requestMetaResponseMatcher,

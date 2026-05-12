@@ -164,7 +164,7 @@ function shield_browser_fixture_allowed_actions() :array {
 		'mfa-profile' => [ 'seed', 'cleanup' ],
 		'notbot-altcha' => [ 'seed', 'cleanup', 'inspect' ],
 		'public-block-recovery' => [ 'seed', 'cleanup' ],
-		'security-admin' => [ 'seed', 'cleanup' ],
+		'security-admin' => [ 'seed', 'cleanup', 'inspect' ],
 		'security-headers' => [ 'seed', 'cleanup' ],
 	];
 }
@@ -178,6 +178,7 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/ActionRouter/PluginAdminRouteRuntime.php',
 		'tests/Helpers/ActionRouter/ActionsQueueRuntimeProbe.php',
 		'tests/Helpers/ActionRouter/ActionsQueueFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/RawOptionStoreSnapshot.php',
 		'tests/Helpers/ActionRouter/DashboardDefaultsFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/ImportExportFileFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/IpAnalysisActivityMetaFixtureBuilder.php',

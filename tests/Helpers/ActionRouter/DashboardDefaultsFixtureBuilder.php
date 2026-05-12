@@ -23,10 +23,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMoni
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 
 /**
- * @phpstan-type RawOptionRow array{option_id:int,option_name:string,option_value:string,autoload:string}
- * @phpstan-type RawOptionStoreSnapshot array{option_name:string,exists:bool,row:RawOptionRow|null}
+ * @phpstan-import-type RawOptionStoreState from RawOptionStoreSnapshot
  * @phpstan-type FixtureState array{
- *   option_store_snapshot:array<string,RawOptionStoreSnapshot>,
+ *   option_store_snapshot:array<string,RawOptionStoreState>,
  *   selected_options_snapshot:array<string,mixed>,
  *   live_monitor_flags_snapshot:array<string,mixed>,
  *   user_id:int
@@ -171,7 +170,7 @@ class DashboardDefaultsFixtureBuilder {
 		}
 
 		RuntimeTestState::loginAsSecurityAdmin();
-		$this->restoreRawOptionStores( $state[ 'option_store_snapshot' ] );
+		$this->rawOptionStores()->restore( $state[ 'option_store_snapshot' ], 'Dashboard/defaults fixture' );
 		$this->restoreLiveMonitorFlags( $state );
 		RuntimeTestState::resetOptionsRuntimeCache();
 	}
@@ -181,7 +180,7 @@ class DashboardDefaultsFixtureBuilder {
 	 */
 	private function newFixtureState() :array {
 		return [
-			'option_store_snapshot'       => $this->snapshotRawOptionStores(),
+			'option_store_snapshot'       => $this->rawOptionStores()->snapshot(),
 			'selected_options_snapshot'  => $this->currentOptions(),
 			'live_monitor_flags_snapshot' => $this->currentUserFlags(),
 			'user_id'                     => \get_current_user_id(),
@@ -205,35 +204,12 @@ class DashboardDefaultsFixtureBuilder {
 	 * @return FixtureState
 	 */
 	private function normalizePersistedState( array $state ) :array {
-		$rawStores = [];
-		foreach ( \is_array( $state[ 'option_store_snapshot' ] ?? null ) ? $state[ 'option_store_snapshot' ] : [] as $storeKey => $snapshot ) {
-			if ( !\is_array( $snapshot ) ) {
-				continue;
-			}
-			$rawStores[ (string)$storeKey ] = [
-				'option_name' => (string)( $snapshot[ 'option_name' ] ?? '' ),
-				'exists'      => (bool)( $snapshot[ 'exists' ] ?? false ),
-				'row'         => $this->normalizeRawOptionRow(
-					\is_array( $snapshot[ 'row' ] ?? null ) ? $snapshot[ 'row' ] : null
-				),
-			];
-			if ( $rawStores[ (string)$storeKey ][ 'exists' ] && $rawStores[ (string)$storeKey ][ 'row' ] === null ) {
-				throw new \RuntimeException( 'Dashboard/defaults fixture state is missing raw option row metadata.' );
-			}
-		}
-		if ( $rawStores === [] && $state !== [] ) {
-			throw new \RuntimeException( 'Dashboard/defaults fixture state is missing raw option store metadata.' );
-		}
-		if ( $rawStores !== [] ) {
-			foreach ( $this->optionStoreNames() as $storeKey => $optionName ) {
-				if ( !isset( $rawStores[ $storeKey ] ) ) {
-					throw new \RuntimeException( 'Dashboard/defaults fixture state is missing raw option store metadata.' );
-				}
-				if ( $rawStores[ $storeKey ][ 'option_name' ] !== $optionName ) {
-					throw new \RuntimeException( 'Dashboard/defaults fixture state has mismatched raw option store metadata.' );
-				}
-			}
-		}
+		$rawStores = $state === []
+			? []
+			: $this->rawOptionStores()->normalize(
+				\is_array( $state[ 'option_store_snapshot' ] ?? null ) ? $state[ 'option_store_snapshot' ] : [],
+				'Dashboard/defaults fixture'
+			);
 
 		$selectedOptions = [];
 		foreach ( \is_array( $state[ 'selected_options_snapshot' ] ?? null ) ? $state[ 'selected_options_snapshot' ] : [] as $key => $value ) {
@@ -371,142 +347,8 @@ class DashboardDefaultsFixtureBuilder {
 		);
 	}
 
-	/**
-	 * @return array<string,RawOptionStoreSnapshot>
-	 */
-	private function snapshotRawOptionStores() :array {
-		$snapshot = [];
-
-		foreach ( $this->optionStoreNames() as $storeKey => $optionName ) {
-			$row = $this->fetchRawOptionRow( $optionName );
-			$snapshot[ $storeKey ] = [
-				'option_name' => $optionName,
-				'exists'      => $row !== null,
-				'row'         => $row,
-			];
-		}
-
-		return $snapshot;
-	}
-
-	/**
-	 * @param array<string,RawOptionStoreSnapshot> $snapshot
-	 */
-	private function restoreRawOptionStores( array $snapshot ) :void {
-		foreach ( \array_keys( $this->optionStoreNames() ) as $storeKey ) {
-			$store = $snapshot[ $storeKey ];
-			if ( (bool)$store[ 'exists' ] ) {
-				$row = $store[ 'row' ] ?? null;
-				if ( !\is_array( $row ) ) {
-					throw new \RuntimeException( 'Dashboard/defaults fixture state is missing raw option row metadata.' );
-				}
-				$this->restoreRawOptionRow( $row );
-			}
-			else {
-				$this->deleteRawOptionRow( $store[ 'option_name' ] );
-			}
-		}
-	}
-
-	/**
-	 * @param array<string,mixed>|null $row
-	 * @return RawOptionRow|null
-	 */
-	private function normalizeRawOptionRow( ?array $row ) :?array {
-		if ( $row === null ) {
-			return null;
-		}
-
-		$normalized = [
-			'option_id'    => (int)( $row[ 'option_id' ] ?? 0 ),
-			'option_name'  => (string)( $row[ 'option_name' ] ?? '' ),
-			'option_value' => (string)( $row[ 'option_value' ] ?? '' ),
-			'autoload'     => (string)( $row[ 'autoload' ] ?? '' ),
-		];
-		return $normalized[ 'option_id' ] > 0 && $normalized[ 'option_name' ] !== ''
-			? $normalized
-			: null;
-	}
-
-	/**
-	 * @return RawOptionRow|null
-	 */
-	private function fetchRawOptionRow( string $optionName ) :?array {
-		global $wpdb;
-
-		$row = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT option_id, option_name, option_value, autoload FROM {$wpdb->options} WHERE option_name = %s LIMIT 1",
-				$optionName
-			),
-			\ARRAY_A
-		);
-
-		return \is_array( $row ) ? $this->normalizeRawOptionRow( $row ) : null;
-	}
-
-	/**
-	 * @phpstan-param RawOptionRow $row
-	 */
-	private function restoreRawOptionRow( array $row ) :void {
-		global $wpdb;
-
-		$existing = $this->fetchRawOptionRow( $row[ 'option_name' ] );
-		if ( $existing === null ) {
-			$result = $wpdb->query(
-				$wpdb->prepare(
-					"INSERT INTO {$wpdb->options} (option_id, option_name, option_value, autoload) VALUES (%d, %s, %s, %s)",
-					$row[ 'option_id' ],
-					$row[ 'option_name' ],
-					$row[ 'option_value' ],
-					$row[ 'autoload' ]
-				)
-			);
-		}
-		else {
-			$result = $wpdb->query(
-				$wpdb->prepare(
-					"UPDATE {$wpdb->options} SET option_id = %d, option_value = %s, autoload = %s WHERE option_name = %s",
-					$row[ 'option_id' ],
-					$row[ 'option_value' ],
-					$row[ 'autoload' ],
-					$row[ 'option_name' ]
-				)
-			);
-		}
-
-		if ( $result === false ) {
-			throw new \RuntimeException( 'Failed to restore raw option row: '.$row[ 'option_name' ] );
-		}
-		$this->clearRawOptionCaches( $row[ 'option_name' ] );
-	}
-
-	private function deleteRawOptionRow( string $optionName ) :void {
-		global $wpdb;
-
-		$result = $wpdb->delete( $wpdb->options, [ 'option_name' => $optionName ], [ '%s' ] );
-		if ( $result === false ) {
-			throw new \RuntimeException( 'Failed to delete raw option row: '.$optionName );
-		}
-		$this->clearRawOptionCaches( $optionName );
-	}
-
-	private function clearRawOptionCaches( string $optionName ) :void {
-		\wp_cache_delete( $optionName, 'options' );
-		\wp_cache_delete( 'alloptions', 'options' );
-		\wp_cache_delete( 'notoptions', 'options' );
-	}
-
-	/**
-	 * @return array{opts_all:string,opts_free:string,opts_pro:string}
-	 */
-	private function optionStoreNames() :array {
-		$con = RuntimeTestState::controller();
-		return [
-			'opts_all'  => $con->prefix( 'opts_all', '_' ),
-			'opts_free' => $con->prefix( 'opts_free', '_' ),
-			'opts_pro'  => $con->prefix( 'opts_pro', '_' ),
-		];
+	private function rawOptionStores() :RawOptionStoreSnapshot {
+		return new RawOptionStoreSnapshot();
 	}
 
 	/**

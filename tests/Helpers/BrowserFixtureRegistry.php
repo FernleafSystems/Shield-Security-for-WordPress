@@ -48,7 +48,7 @@ class BrowserFixtureRegistry {
 			case 'public-block-recovery':
 				return self::runPublicBlockRecoveryFixture( $action, $args );
 			case 'security-admin':
-				return self::runSecurityAdminFixture( $action );
+				return self::runSecurityAdminFixture( $action, $args );
 			case 'security-headers':
 				return self::runSecurityHeadersFixture( $action );
 			default:
@@ -74,7 +74,7 @@ class BrowserFixtureRegistry {
 		self::runMfaProfileFixture( 'cleanup' );
 		self::runNotBotAltchaFixture( 'cleanup', [] );
 		self::runPublicBlockRecoveryFixture( 'cleanup', [] );
-		self::runSecurityAdminFixture( 'cleanup' );
+		self::runSecurityAdminFixture( 'cleanup', [] );
 		self::runSecurityHeadersFixture( 'cleanup' );
 		return [ 'cleaned' => true ];
 	}
@@ -403,9 +403,10 @@ class BrowserFixtureRegistry {
 	}
 
 	/**
+	 * @param list<string> $args
 	 * @return array<string,mixed>
 	 */
-	private static function runSecurityAdminFixture( string $action ) :array {
+	private static function runSecurityAdminFixture( string $action, array $args ) :array {
 		$builder = new SecurityAdminFixtureBuilder();
 		$optionKey = self::fixtureOptionKey( 'security-admin' );
 		$state = \get_option( $optionKey, [] );
@@ -417,13 +418,17 @@ class BrowserFixtureRegistry {
 				\delete_option( $optionKey );
 				return [ 'cleaned' => true ];
 
+			case 'inspect':
+				return $builder->inspect( $state );
+
 			case 'seed':
+				$scenario = self::requireScenario( $args );
 				if ( $state !== [] ) {
 					$builder->cleanup( $state );
 					\delete_option( $optionKey );
 				}
 
-				$result = $builder->seed();
+				$result = $builder->seed( $scenario );
 				\update_option( $optionKey, $result[ 'state' ], false );
 				return $result[ 'contract' ];
 
