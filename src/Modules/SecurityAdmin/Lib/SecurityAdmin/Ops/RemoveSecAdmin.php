@@ -4,9 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\Secu
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\SecAdminRemoveConfirm;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\SecAdminRemoveNotice;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\SecurityAdminRemove;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\SecurityAdminRemoveConfirmHrefBuilder;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RemoveSecAdmin {
@@ -36,10 +36,7 @@ class RemoveSecAdmin {
 	public function sendConfirmationEmail() {
 		$con = self::con();
 
-		$confirmationHref = $con->plugin_urls->noncedPluginAction(
-			SecurityAdminRemove::class,
-			Services::WpGeneral()->getAdminUrl()
-		);
+		$confirmationHref = ( new SecurityAdminRemoveConfirmHrefBuilder() )->build();
 
 		$con->email_con->sendVO(
 			EmailVO::Factory(

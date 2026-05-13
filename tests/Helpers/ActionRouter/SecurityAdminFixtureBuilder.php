@@ -621,9 +621,9 @@ class SecurityAdminFixtureBuilder {
 	 */
 	private function resolveCurrentSessionContext() :?array {
 		foreach ( [
-			'logged_in'   => \defined( 'LOGGED_IN_COOKIE' ) ? \LOGGED_IN_COOKIE : '',
 			'secure_auth' => \defined( 'SECURE_AUTH_COOKIE' ) ? \SECURE_AUTH_COOKIE : '',
 			'auth'        => \defined( 'AUTH_COOKIE' ) ? \AUTH_COOKIE : '',
+			'logged_in'   => \defined( 'LOGGED_IN_COOKIE' ) ? \LOGGED_IN_COOKIE : '',
 		] as $type => $cookieName ) {
 			$parsed = \wp_parse_auth_cookie( '', $type );
 			if ( !\is_array( $parsed ) || empty( $parsed[ 'username' ] ) || empty( $parsed[ 'token' ] ) ) {

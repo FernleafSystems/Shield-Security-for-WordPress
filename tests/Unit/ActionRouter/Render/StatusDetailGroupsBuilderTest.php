@@ -144,9 +144,9 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( [ 'critical', 'warning', 'good', 'neutral' ], \array_column( $groups, 'status' ) );
 		$this->assertSame( [ 'primary_control' ], \array_column( $groups[ 0 ][ 'rows' ] ?? [], 'key' ) );
-		$this->assertSame( [ 'Primary Control' ], \array_column( $groups[ 0 ][ 'rows' ] ?? [], 'title' ) );
-		$this->assertSame( [ 'Secondary Control', 'Another Warning' ], \array_column( $groups[ 1 ][ 'rows' ] ?? [], 'title' ) );
-		$this->assertSame( 'Configure', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'label' ] ?? '' );
+		$this->assertSame( [ 'secondary_control', 'another_warning' ], \array_column( $groups[ 1 ][ 'rows' ] ?? [], 'key' ) );
+		$this->assertSame( [ 'passive_logging' ], \array_column( $groups[ 2 ][ 'rows' ] ?? [], 'key' ) );
+		$this->assertSame( [ 'general_settings' ], \array_column( $groups[ 3 ][ 'rows' ] ?? [], 'key' ) );
 		$this->assertSame( '', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'href' ] ?? 'unexpected' );
 		$this->assertTrue( $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'is_action' ] ?? false );
 		$this->assertSame( 'offcanvas_zone_component_config', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'zone_component_action' ] ?? '' );

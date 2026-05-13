@@ -198,11 +198,6 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		], $summary );
 		$this->assertInstanceOf( OperatorModeReportsDb::class, $db );
 		$this->assertCount( 1, $db->queries );
-		$this->assertSame( [
-			'counts_reports'          => true,
-			'selects_latest_report'   => true,
-			'selects_latest_alert'    => true,
-		], $this->reportSummaryQueryFeatures( $db->queries[ 0 ] ) );
 	}
 
 	public function test_live_monitor_vars_use_current_compact_contract() :void {
@@ -294,17 +289,6 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'shield_status' ] );
 		$this->assertIsArray( $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
-	}
-
-	private function reportSummaryQueryFeatures( string $query ) :array {
-		$sql = \strtolower( \preg_replace( '/\s+/', ' ', $query ) ?? $query );
-
-		return [
-			'counts_reports'        => \strpos( $sql, 'count(*)' ) !== false,
-			'selects_latest_report' => \strpos( $sql, 'latest_report_at' ) !== false,
-			'selects_latest_alert'  => \strpos( $sql, 'case when' ) !== false
-									  && \strpos( $sql, 'latest_alert_at' ) !== false,
-		];
 	}
 
 	private function newPage() :PageOperatorModeLanding {

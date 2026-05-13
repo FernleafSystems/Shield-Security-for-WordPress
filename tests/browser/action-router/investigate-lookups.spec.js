@@ -372,7 +372,6 @@ test( 'investigate landing drill-back clears stale plugin breadcrumbs after a re
 		page,
 		'plugin_slug',
 		'shield',
-		/Shield/i,
 		( url ) => url.searchParams.get( 'subject' ) === 'plugin'
 			&& !!url.searchParams.get( 'plugin_slug' )
 	);
@@ -439,7 +438,6 @@ test( 'investigate landing reopens a cached generic user panel with a live selec
 		page,
 		'user_lookup',
 		'admin',
-		/admin/i,
 		( url ) => url.searchParams.get( 'subject' ) === 'user'
 			&& !!url.searchParams.get( 'user_lookup' )
 	);
@@ -538,7 +536,8 @@ test( 'investigate landing starts and stops live traffic polling with the live p
 		subject: 'live_traffic',
 		isLoaded: true,
 	} );
-	await expect( panel.locator( '.live-poll-marker' ) ).toHaveText( 'poll-1' );
+	await expect( panel.locator( '.live-poll-marker' ) ).toHaveCount( 1 );
+	expect( livePollCount ).toBe( 1 );
 
 	const maxPollCountAfterExit = livePollCount + 1;
 

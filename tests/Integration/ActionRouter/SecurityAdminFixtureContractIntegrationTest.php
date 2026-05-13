@@ -136,6 +136,55 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 		}
 	}
 
+	public function test_fixture_writes_security_admin_state_to_admin_auth_session_before_logged_in_session() :void {
+		$userId = $this->loginAsAdministrator();
+		$manager = \WP_Session_Tokens::get_instance( $userId );
+		$expiration = Services::Request()->ts() + \DAY_IN_SECONDS;
+		$loggedInToken = $manager->create( $expiration );
+		$adminToken = $manager->create( $expiration );
+		$loggedInCookieName = \defined( 'LOGGED_IN_COOKIE' ) ? \LOGGED_IN_COOKIE : '';
+		$adminCookieName = \defined( 'SECURE_AUTH_COOKIE' ) ? \SECURE_AUTH_COOKIE : '';
+		$loggedInCookieWasSet = $loggedInCookieName !== '' && \array_key_exists( $loggedInCookieName, $_COOKIE );
+		$adminCookieWasSet = $adminCookieName !== '' && \array_key_exists( $adminCookieName, $_COOKIE );
+		$loggedInCookie = $loggedInCookieWasSet ? (string)$_COOKIE[ $loggedInCookieName ] : null;
+		$adminCookie = $adminCookieWasSet ? (string)$_COOKIE[ $adminCookieName ] : null;
+		$builder = new SecurityAdminFixtureBuilder();
+		$result = null;
+
+		if ( $loggedInCookieName === '' || $adminCookieName === '' ) {
+			$this->markTestSkipped( 'WordPress auth cookie constants are unavailable.' );
+		}
+
+		try {
+			$_COOKIE[ $loggedInCookieName ] = \wp_generate_auth_cookie( $userId, $expiration, 'logged_in', $loggedInToken );
+			$_COOKIE[ $adminCookieName ] = \wp_generate_auth_cookie( $userId, $expiration, 'secure_auth', $adminToken );
+			$this->writeSessionSecAdminAt( $userId, $loggedInToken, 0 );
+			$this->writeSessionSecAdminAt( $userId, $adminToken, 0 );
+			unset( $this->requireController()->this_req->session );
+
+			$result = $builder->seed( SecurityAdminFixtureBuilder::SCENARIO_DIRECT_DISABLE_READY );
+
+			$this->assertGreaterThan( 0, $this->sessionSecAdminAt( $userId, $adminToken ) );
+			$this->assertSame( 0, $this->sessionSecAdminAt( $userId, $loggedInToken ) );
+
+			$builder->cleanup( $result[ 'state' ] );
+			$result = null;
+
+			$this->assertSame( 0, $this->sessionSecAdminAt( $userId, $adminToken ) );
+			$this->assertSame( 0, $this->sessionSecAdminAt( $userId, $loggedInToken ) );
+		}
+		finally {
+			if ( \is_array( $result ) ) {
+				$builder->cleanup( $result[ 'state' ] );
+			}
+			$manager->destroy( $loggedInToken );
+			$manager->destroy( $adminToken );
+			$this->restoreAuthCookie( $loggedInCookieName, $loggedInCookieWasSet, $loggedInCookie );
+			$this->restoreAuthCookie( $adminCookieName, $adminCookieWasSet, $adminCookie );
+			unset( $this->requireController()->this_req->session );
+		}
+	}
+
 	public function test_real_pin_save_login_and_migration_restore_cleanly() :void {
 		$this->loginAsAdministrator();
 		$builder = new SecurityAdminFixtureBuilder();

@@ -78,6 +78,8 @@ class ZoneComponentConfigBehaviorTest extends BaseUnitTest {
 			],
 			$this->renderCapture->calls[ 0 ][ 'action_data' ][ 'options' ] ?? []
 		);
+		$this->assertSame( '', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'config_item' ] ?? 'unexpected' );
+		$this->assertSame( 'offcanvas', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'form_context' ] ?? '' );
 	}
 
 	private function installControllerStub() :void {

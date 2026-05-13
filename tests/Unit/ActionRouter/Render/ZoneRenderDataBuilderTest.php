@@ -33,10 +33,10 @@ class ZoneRenderDataBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( [ 'secadmin', 'firewall' ], \array_keys( $indexed ) );
 		$this->assertSame( 'secadmin', $indexed[ 'secadmin' ][ 'slug' ] );
-		$this->assertSame( 'Security Admin', $indexed[ 'secadmin' ][ 'label' ] );
+		$this->assertArrayHasKey( 'label', $indexed[ 'secadmin' ] );
 		$this->assertSame( 'bi bi-shield-fill', $indexed[ 'secadmin' ][ 'icon_class' ] );
 		$this->assertSame( 'firewall', $indexed[ 'firewall' ][ 'slug' ] );
-		$this->assertSame( 'Firewall', $indexed[ 'firewall' ][ 'label' ] );
+		$this->assertArrayHasKey( 'label', $indexed[ 'firewall' ] );
 		$this->assertSame( 'bi bi-shield-shaded', $indexed[ 'firewall' ][ 'icon_class' ] );
 	}
 

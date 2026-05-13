@@ -38,7 +38,7 @@ class ActionsQueueAllClearDataBuilderTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_build_produces_expected_title_subtitle_and_zone_chips() :void {
+	public function test_build_produces_zone_chip_contract() :void {
 		$data = ( new ActionsQueueAllClearDataBuilder() )->build( [
 			'scans' => [
 				'slug'  => 'scans',
@@ -50,11 +50,16 @@ class ActionsQueueAllClearDataBuilderTest extends BaseUnitTest {
 			],
 		] );
 
-		$this->assertNotSame( '', \trim( $data[ 'title' ] ) );
-		$this->assertNotSame( '', \trim( $data[ 'subtitle' ] ) );
-		$this->assertSame( 'bi bi-shield-check', $data[ 'icon_class' ] );
+		$topLevelKeys = \array_keys( $data );
+		\sort( $topLevelKeys );
+		$this->assertSame( [ 'icon_class', 'subtitle', 'title', 'zone_chips' ], $topLevelKeys );
+		$this->assertCount( 2, $data[ 'zone_chips' ] );
+		foreach ( $data[ 'zone_chips' ] as $chip ) {
+			$chipKeys = \array_keys( $chip );
+			\sort( $chipKeys );
+			$this->assertSame( [ 'icon_class', 'label', 'severity', 'slug' ], $chipKeys );
+		}
 		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $data[ 'zone_chips' ], 'slug' ) );
-		$this->assertSame( [ 'Scans', 'Maintenance' ], \array_column( $data[ 'zone_chips' ], 'label' ) );
 		$this->assertSame( [ 'good', 'good' ], \array_column( $data[ 'zone_chips' ], 'severity' ) );
 	}
 }

@@ -7,8 +7,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\AjaxRender,
 	Actions\AjaxBatchRequests,
+	Actions\BaseAction,
+	Actions\MfaEmailDisable,
 	Actions\PluginBadgeClose,
 	Actions\PluginImportExport_UpdateNotified,
+	Actions\PluginReinstall,
 	Exceptions\ActionException,
 	Exceptions\UserAuthRequiredException
 };
@@ -75,6 +78,7 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 		$this->assertArrayHasKey( 'bad_nonce', $payload[ 'results' ] );
 		$this->assertFalse( $payload[ 'results' ][ 'bad_nonce' ][ 'success' ] );
 		$this->assertEquals( 401, $payload[ 'results' ][ 'bad_nonce' ][ 'status_code' ] );
+		$this->assertSame( AjaxBatchRequests::ERROR_INVALID_NONCE, $payload[ 'results' ][ 'bad_nonce' ][ 'error_code' ] ?? '' );
 	}
 
 	public function test_batch_processes_mixed_subrequests_independently() {
@@ -110,6 +114,7 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 
 		$this->assertFalse( $payload[ 'results' ][ 'invalid' ][ 'success' ] );
 		$this->assertEquals( 401, $payload[ 'results' ][ 'invalid' ][ 'status_code' ] );
+		$this->assertSame( AjaxBatchRequests::ERROR_INVALID_NONCE, $payload[ 'results' ][ 'invalid' ][ 'error_code' ] ?? '' );
 		$this->assertArrayHasKey( 'success', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
 		$this->assertArrayHasKey( 'page_reload', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
 		$this->assertArrayHasKey( 'message', $payload[ 'results' ][ 'invalid' ][ 'data' ] );
@@ -187,10 +192,8 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 		$this->assertArrayHasKey( 'nested', $payload[ 'results' ] );
 		$this->assertFalse( $payload[ 'results' ][ 'nested' ][ 'success' ] );
 		$this->assertEquals( 400, $payload[ 'results' ][ 'nested' ][ 'status_code' ] );
-		$this->assertStringContainsString(
-			'Nested batch requests',
-			$payload[ 'results' ][ 'nested' ][ 'data' ][ 'error' ] ?? ''
-		);
+		$this->assertSame( AjaxBatchRequests::ERROR_NESTED_BATCH_REQUEST, $payload[ 'results' ][ 'nested' ][ 'error_code' ] ?? '' );
+		$this->assertSame( AjaxBatchRequests::ERROR_NESTED_BATCH_REQUEST, $payload[ 'results' ][ 'nested' ][ 'data' ][ 'error_code' ] ?? '' );
 	}
 
 	public function test_batch_subresponse_does_not_expose_internal_action_data() {
@@ -231,10 +234,8 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $payload[ 'results' ][ 'invalid_slug' ][ 'success' ] );
 		$this->assertEquals( 400, $payload[ 'results' ][ 'invalid_slug' ][ 'status_code' ] );
 		$this->assertNotEquals( 500, $payload[ 'results' ][ 'invalid_slug' ][ 'status_code' ] );
-		$this->assertStringContainsString(
-			'no action handler',
-			\strtolower( $payload[ 'results' ][ 'invalid_slug' ][ 'data' ][ 'error' ] ?? '' )
-		);
+		$this->assertSame( AjaxBatchRequests::ERROR_ACTION_NOT_FOUND, $payload[ 'results' ][ 'invalid_slug' ][ 'error_code' ] ?? '' );
+		$this->assertSame( AjaxBatchRequests::ERROR_ACTION_NOT_FOUND, $payload[ 'results' ][ 'invalid_slug' ][ 'data' ][ 'error_code' ] ?? '' );
 	}
 
 	public function test_batch_ajax_render_subrequest_rejects_non_render_target() :void {
@@ -256,6 +257,115 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 		$this->assertArrayHasKey( 'invalid_render_target', $payload[ 'results' ] );
 		$this->assertFalse( $payload[ 'results' ][ 'invalid_render_target' ][ 'success' ] );
 		$this->assertSame( 400, $payload[ 'results' ][ 'invalid_render_target' ][ 'status_code' ] );
-		$this->assertArrayHasKey( 'error', $payload[ 'results' ][ 'invalid_render_target' ][ 'data' ] ?? [] );
+		$this->assertSame( AjaxBatchRequests::ERROR_ACTION_EXCEPTION, $payload[ 'results' ][ 'invalid_render_target' ][ 'error_code' ] ?? '' );
+		$this->assertSame( AjaxBatchRequests::ERROR_ACTION_EXCEPTION, $payload[ 'results' ][ 'invalid_render_target' ][ 'data' ][ 'error_code' ] ?? '' );
+	}
+
+	public function test_batch_malformed_item_returns_action_exception_error_code() :void {
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[ 'id' => 'missing_request' ],
+				'not_an_array',
+			],
+		] );
+
+		$payload = $response->payload();
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertBatchFailure(
+			$payload[ 'results' ][ 'missing_request' ] ?? [],
+			400,
+			AjaxBatchRequests::ERROR_ACTION_EXCEPTION
+		);
+		$this->assertBatchFailure(
+			$payload[ 'results' ][ 'item_1' ] ?? [],
+			400,
+			AjaxBatchRequests::ERROR_ACTION_EXCEPTION
+		);
+	}
+
+	public function test_batch_subrequest_reports_security_admin_requirement_as_machine_code() :void {
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'security_admin',
+					'request' => ActionData::Build( MfaEmailDisable::class ),
+				],
+			],
+		] );
+
+		$this->assertBatchFailure(
+			$response->payload()[ 'results' ][ 'security_admin' ] ?? [],
+			401,
+			AjaxBatchRequests::ERROR_SECURITY_ADMIN_REQUIRED
+		);
+	}
+
+	public function test_batch_subrequest_reports_user_auth_requirement_as_machine_code() :void {
+		$subscriber = self::factory()->user->create( [
+			'role' => 'subscriber',
+		] );
+		\wp_set_current_user( $subscriber );
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'auth_required',
+					'request' => ActionData::Build( PluginReinstall::class, true, [
+						'file' => 'plugin/plugin.php',
+					] ),
+				],
+			],
+		] );
+
+		$this->assertBatchFailure(
+			$response->payload()[ 'results' ][ 'auth_required' ] ?? [],
+			403,
+			AjaxBatchRequests::ERROR_USER_AUTH_REQUIRED
+		);
+	}
+
+	public function test_batch_subrequest_reports_unexpected_throwable_as_machine_code() :void {
+		$subrequest = ActionData::Build( AjaxBatchUnexpectedThrowableAction::class );
+		$subrequest[ ActionData::FIELD_EXECUTE ] = AjaxBatchUnexpectedThrowableAction::class;
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'unexpected',
+					'request' => $subrequest,
+				],
+			],
+		] );
+
+		$this->assertBatchFailure(
+			$response->payload()[ 'results' ][ 'unexpected' ] ?? [],
+			500,
+			AjaxBatchRequests::ERROR_UNEXPECTED
+		);
+	}
+
+	private function assertBatchFailure( array $result, int $statusCode, string $errorCode ) :void {
+		$this->assertFalse( (bool)( $result[ 'success' ] ?? true ) );
+		$this->assertSame( $statusCode, (int)( $result[ 'status_code' ] ?? 0 ) );
+		$this->assertSame( $errorCode, (string)( $result[ 'error_code' ] ?? '' ) );
+		$this->assertSame( $errorCode, (string)( $result[ 'data' ][ 'error_code' ] ?? '' ) );
+		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
+	}
+}
+
+class AjaxBatchUnexpectedThrowableAction extends BaseAction {
+
+	public const SLUG = 'ajax_batch_unexpected_throwable_test_action';
+
+	protected function getMinimumUserAuthCapability() :string {
+		return '';
+	}
+
+	protected function isNonceVerifyRequired() :bool {
+		return false;
+	}
+
+	protected function exec() {
+		throw new \RuntimeException( 'unexpected batch throwable' );
 	}
 }

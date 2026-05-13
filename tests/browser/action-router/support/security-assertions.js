@@ -184,7 +184,7 @@ async function expectRequestMetaPopover( page, root, rid, expectedMeta ) {
 	const metaButton = root.locator( 'td.meta > button[data-toggle="popover"]' ).first();
 	await expect( metaButton ).toBeVisible();
 
-	await Promise.all( [
+	const [ response ] = await Promise.all( [
 		page.waitForResponse( requestMetaResponseMatcher( rid ) ),
 		metaButton.click(),
 	] );
@@ -192,9 +192,9 @@ async function expectRequestMetaPopover( page, root, rid, expectedMeta ) {
 	const popover = page.locator( '[role="tooltip"]' ).last();
 	await expect( popover ).toBeVisible();
 
-	for ( const marker of expectedMeta ) {
-		await expect( popover ).toContainText( marker );
-	}
+	const payload = parseShieldAjaxJson( await response.text() );
+	const values = payload?.data?.request_meta?.values || {};
+	expect( Object.values( values ) ).toEqual( expect.arrayContaining( expectedMeta ) );
 }
 
 async function openPublicBlockPage( page, url ) {
@@ -235,9 +235,7 @@ async function expectAutoRecoverControls( page, ids ) {
 
 	await expect( checkbox ).toHaveAttribute( 'name', '_confirm' );
 	await expect( label ).toHaveCount( 1 );
-	expect( await label.evaluate( ( node ) => {
-		return node.isConnected && ( node.textContent || '' ).trim().length > 0;
-	} ) ).toBe( true );
+	await expect( checkbox ).toHaveAccessibleName( /\S/ );
 	await expectConnectedNonEmptyReference( page, submit, 'aria-describedby' );
 	await expect( submit ).toBeDisabled();
 	await checkbox.check();

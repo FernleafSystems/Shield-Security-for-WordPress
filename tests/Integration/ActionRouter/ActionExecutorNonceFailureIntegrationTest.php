@@ -4,8 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
+	ActionExecutor,
 	ActionRoutingController,
-	Actions\SecurityAdminAuthClear
+	Actions\SecurityAdminAuthClear,
+	Exceptions\InvalidActionNonceException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -46,9 +48,10 @@ class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCas
 		] );
 
 		$filter = static function () {
-			return static function ( $message ) :void {
-				$text = \is_scalar( $message ) ? (string)$message : ( \wp_json_encode( $message ) ?: 'wp_die' );
-				throw new ActionExecutorNonceFailureWpDieException( $text );
+			return static function ( $message, $title = '', $args = [] ) :void {
+				throw new ActionExecutorNonceFailureWpDieException(
+					\is_array( $args ) ? $args : []
+				);
 			};
 		};
 		\add_filter( 'wp_die_handler', $filter );
@@ -64,21 +67,64 @@ class ActionExecutorNonceFailureIntegrationTest extends ShieldIntegrationTestCas
 			$this->fail( 'Expected wp_die() for invalid non-AJAX nonce.' );
 		}
 		catch ( ActionExecutorNonceFailureWpDieException $e ) {
-			$message = $e->getMessage();
-			$this->assertIsString( $message );
-			$this->assertNotSame( '', \trim( $message ) );
-			$this->assertStringNotContainsString( 'Action Slug:', $message );
-			$this->assertStringNotContainsString( 'Data:', $message );
-			$this->assertStringNotContainsString( SecurityAdminAuthClear::SLUG, $message );
-			$this->assertStringNotContainsString( 'nonce-leak-marker', $message );
-			$this->assertStringNotContainsString( ActionData::FIELD_NONCE, $message );
+			$args = $e->args();
+			$this->assertSame( ActionExecutor::WP_DIE_INVALID_NONCE_CODE, $args[ 'code' ] ?? '' );
+			$this->assertSame( ActionExecutor::WP_DIE_INVALID_NONCE_STATUS, $args[ 'response' ] ?? 0 );
+			$this->assertArrayNotHasKey( 'action_data', $args );
+			$this->assertArrayNotHasKey( ActionData::FIELD_NONCE, $args );
 		}
 		finally {
 			\remove_filter( 'wp_die_handler', $filter );
 			$this->restoreActionNonceContext( $requestBagsSnapshot );
 		}
 	}
+
+	public function test_ajax_invalid_nonce_still_throws_nonce_exception() :void {
+		$this->applyCurrentRequestState(
+			[
+				'REQUEST_METHOD' => 'POST',
+				'REQUEST_URI'    => '/wp-admin/admin-ajax.php',
+			],
+			[],
+			[],
+			[
+				'path'       => '/wp-admin/admin-ajax.php',
+				'wp_is_ajax' => true,
+			]
+		);
+		$requestBagsSnapshot = $this->seedActionNonceContext( SecurityAdminAuthClear::class );
+		$this->mergeCurrentRequestTransport( [
+			ActionData::FIELD_NONCE => 'invalid_nonce',
+		] );
+		\add_filter( 'wp_doing_ajax', '__return_true', 1000 );
+
+		try {
+			$this->expectException( InvalidActionNonceException::class );
+			$this->requireController()->action_router->action(
+				SecurityAdminAuthClear::SLUG,
+				[
+					'leak_marker' => 'nonce-leak-marker',
+				],
+				ActionRoutingController::ACTION_AJAX
+			);
+		}
+		finally {
+			\remove_filter( 'wp_doing_ajax', '__return_true', 1000 );
+			$this->restoreActionNonceContext( $requestBagsSnapshot );
+		}
+	}
 }
 
 class ActionExecutorNonceFailureWpDieException extends \RuntimeException {
+
+	private array $args;
+
+	public function __construct( array $args ) {
+		parent::__construct();
+		$this->args = $args;
+	}
+
+	public function args() :array {
+		return $this->args;
+	}
 }

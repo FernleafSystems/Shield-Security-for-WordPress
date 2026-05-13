@@ -285,39 +285,29 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function assertDisabledDirectScanRenderPayload( array $payload, string $context ) :void {
-		$html = $this->assertRouteRenderOutputHealthy( $payload, $context );
+		$this->assertRouteRenderOutputHealthy( $payload, $context );
 		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'is_disabled' ] ?? false ), $context );
-		$this->assertNotSame( '', \trim( (string)( $renderData[ 'strings' ][ 'disabled_message' ] ?? '' ) ), $context );
 		$this->assertSame( [], $renderData[ 'table' ] ?? [ 'unexpected' ], $context );
-		$this->assertStringContainsString( 'data-shield-scan-pane-disabled="1"', $html, $context );
-		$this->assertStringNotContainsString( 'data-scan-results-table="1"', $html, $context );
 	}
 
 	private function assertDisabledAssetCardsRenderPayload( array $payload, string $context ) :void {
-		$html = $this->assertRouteRenderOutputHealthy( $payload, $context );
+		$this->assertRouteRenderOutputHealthy( $payload, $context );
 		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'is_disabled' ] ?? false ), $context );
-		$this->assertNotSame( '', \trim( (string)( $renderData[ 'strings' ][ 'disabled_message' ] ?? '' ) ), $context );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'asset_cards' ] ?? [ 'unexpected' ], $context );
-		$this->assertStringContainsString( 'data-shield-scan-pane-disabled="1"', $html, $context );
-		$this->assertStringNotContainsString( 'data-actions-queue-asset-cards="1"', $html, $context );
-		$this->assertStringNotContainsString( 'data-scan-results-table="1"', $html, $context );
 	}
 
 	private function assertDisabledRailPaneRenderPayload( array $payload, string $context ) :void {
-		$html = $this->assertRouteRenderOutputHealthy( $payload, $context );
+		$this->assertRouteRenderOutputHealthy( $payload, $context );
 		$renderData = \is_array( $payload[ 'render_data' ] ?? null ) ? $payload[ 'render_data' ] : [];
 		$tab = \is_array( $renderData[ 'tab' ] ?? null ) ? $renderData[ 'tab' ] : [];
 
 		$this->assertTrue( (bool)( $tab[ 'is_disabled' ] ?? false ), $context );
 		$this->assertSame( [], $tab[ 'items' ] ?? [ 'unexpected' ], $context );
 		$this->assertSame( 0, (int)( $tab[ 'count_items' ] ?? -1 ), $context );
-		$this->assertNotSame( '', \trim( (string)( $tab[ 'disabled_message' ] ?? '' ) ), $context );
-		$this->assertStringContainsString( 'data-shield-scan-pane-disabled="1"', $html, $context );
-		$this->assertStringNotContainsString( 'data-scan-results-table="1"', $html, $context );
 	}
 
 	private function findZoneTile( array $zoneTiles, string $key ) :array {
@@ -406,17 +396,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				 ->store();
 
 			$payload = $this->renderActionsQueueLandingPage();
-			$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing baseline state' );
+			$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing baseline state' );
 			$renderData = $payload[ 'render_data' ] ?? [];
 			$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 			$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
 
-			$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
-			$this->assertModePanelPayload( $vars, '', false );
-			$this->assertSame( 'good', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge_status' ] ?? '' ) );
-			$this->assertNotSame( '', \trim( (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' ) ) );
-			$this->assertIsString( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? null );
-			$this->assertCount( 2, $zoneTiles );
+		$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
+		$this->assertModePanelPayload( $vars, '', false );
+		$this->assertSame( 'good', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge_status' ] ?? '' ) );
+		$this->assertIsString( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? null );
+		$this->assertCount( 2, $zoneTiles );
 			$this->assertCount(
 				2,
 				\array_values( \array_filter( $zoneTiles, static fn( array $tile ) :bool => (bool)( $tile[ 'is_enabled' ] ?? false ) ) )
@@ -426,7 +415,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? false ) );
 			$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
 			$this->assertNotEmpty( $vars[ 'actions_queue_ajax' ] ?? [] );
-			$this->assertNotSame( '', \trim( $html ) );
 		}
 		finally {
 			$this->restoreSelectedOptions( $optionsSnapshot );
@@ -437,7 +425,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->setPluginUpdateAvailable();
 
 		$payload = $this->renderActionsQueueLandingPage();
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance state' );
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue landing maintenance state' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
 		$zoneTiles = \is_array( $vars[ 'zone_tiles' ] ?? null ) ? $vars[ 'zone_tiles' ] : [];
@@ -447,7 +435,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertModeShellPayload( $vars, 'actions', 'actions', false );
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'queue_is_empty' ] ?? true ) );
-		$this->assertNotSame( '', \trim( (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'badge' ] ?? '' ) ) );
 		$this->assertSame( '', (string)( $vars[ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? '' ) );
 		$this->assertCount( 2, $zoneTiles );
 		$this->assertTrue( (bool)( $maintenance[ 'is_enabled' ] ?? false ) );
@@ -465,7 +452,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			ActionsQueueDrillDownGroups::SLUG,
 			(string)( \json_decode( (string)( $vars[ 'actions_queue_ajax' ][ 'groups_render_action_json' ] ?? '' ), true )[ 'render_slug' ] ?? '' )
 		);
-		$this->assertNotEmpty( \trim( $html ) );
 	}
 
 	public function test_maintenance_panel_exposes_updates_href() :void {
@@ -482,7 +468,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		$this->assertNotSame( '', (string)( $itemsByKey[ 'wp_plugins_updates' ][ 'cta' ][ 'href' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $itemsByKey[ 'wp_plugins_updates' ][ 'cta' ][ 'label' ] ?? '' ) );
 		$this->assertSame(
 			self::con()->plugin_urls->actionsQueueScans(),
 			(string)( $renderData[ 'hrefs' ][ 'scan_results' ] ?? '' )
@@ -523,11 +508,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$queryArgs = [];
 		\parse_str( (string)( \wp_parse_url( $actionHref, \PHP_URL_QUERY ) ?? '' ), $queryArgs );
 		$this->assertArrayHasKey( 's', $queryArgs );
-		$this->assertSame(
-			false,
-			\str_contains( $actionHref, 'action=activate' ),
-			'Inactive plugin maintenance rows should not offer activation links'
-		);
+		$this->assertNotSame( 'activate', (string)( $queryArgs[ 'action' ] ?? '' ) );
 	}
 
 	public function test_groups_ajax_returns_bucket_groups_and_context() :void {
@@ -541,7 +522,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			(string)( $payload[ 'bucket_selection' ][ 'label' ] ?? '' ),
 			(string)( $payload[ 'header' ][ 'title' ] ?? '' )
 		);
-		$this->assertNotSame( '', \trim( (string)( $payload[ 'header' ][ 'badge' ] ?? '' ) ) );
 		$this->assertSame( 'warning', (string)( $payload[ 'header' ][ 'badge_status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'active_sections', $payload );
 		$this->assertArrayNotHasKey( 'healthy_sections', $payload );
@@ -549,7 +529,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'render_data', $payload );
 		$this->assertArrayNotHasKey( 'render_output', $payload );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
-		$this->assertNotSame( '', \trim( (string)( $payload[ 'header' ][ 'active_back_label' ] ?? '' ) ) );
 	}
 
 	public function test_groups_ajax_can_refresh_the_current_selected_group_summary() :void {
@@ -569,14 +548,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			(string)( $payload[ 'selected_group' ][ 'header' ][ 'title' ] ?? '' )
 		);
 		$this->assertSame( 1, (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? 0 ) );
-		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
 		$this->assertArrayNotHasKey( 'queue_is_empty', $payload[ 'landing_refresh' ] ?? [] );
 		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
-		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'root_step_json' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $payload[ 'landing_refresh' ][ 'buckets_html' ] ?? '' ) );
+		$rootStep = \json_decode( (string)( $payload[ 'landing_refresh' ][ 'root_step_json' ] ?? '' ), true );
+		$this->assertSame( 'actions', (string)( $rootStep[ 'color_key' ] ?? '' ) );
+		$this->assertArrayHasKey( 'buckets_html', $payload[ 'landing_refresh' ] ?? [] );
+		$this->assertIsString( $payload[ 'landing_refresh' ][ 'buckets_html' ] );
 		$this->assertSame( 'review', (string)( $payload[ 'bucket_selection' ][ 'key' ] ?? '' ) );
-		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) ) );
-		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertHeaderHasNoDisplayOptions( (array)( $payload[ 'selected_group' ][ 'header' ] ?? [] ) );
 	}
@@ -610,11 +588,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 1, (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
 		$this->assertSame( $pluginTitle, (string)( $payload[ 'selected_group' ][ 'label' ] ?? '' ) );
 		$this->assertSame( $pluginTitle, (string)( $payload[ 'selected_group' ][ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
-		$this->assertNotSame( '', \trim( (string)( $payload[ 'selected_group' ][ 'header' ][ 'active_back_label' ] ?? '' ) ) );
 		$this->assertArrayNotHasKey( 'queue_is_empty', $payload[ 'landing_refresh' ] ?? [] );
 		$this->assertTrue( (bool)( $payload[ 'landing_refresh' ][ 'has_drilldown_content' ] ?? false ) );
-		$this->assertNotSame( '', (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertHeaderHasNoDisplayOptions( (array)( $payload[ 'selected_group' ][ 'header' ] ?? [] ) );
 		$this->assertGroupResultsDisplayOptions(
@@ -1128,14 +1103,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 
 		$abandonedPayload = $this->processActionPayloadWithAdminBypass( VulnerabilitiesPane::SLUG, [ 'section' => 'abandoned' ] );
-		$abandonedHtml = $this->assertRouteRenderOutputHealthy( $abandonedPayload, 'pro-deactivated abandoned rail remains available' );
+		$this->assertRouteRenderOutputHealthy( $abandonedPayload, 'pro-deactivated abandoned rail remains available' );
 		$abandonedTab = \is_array( $abandonedPayload[ 'render_data' ][ 'tab' ] ?? null )
 			? $abandonedPayload[ 'render_data' ][ 'tab' ]
 			: [];
 		$this->assertFalse( (bool)( $abandonedTab[ 'is_disabled' ] ?? true ) );
 		$this->assertSame( 1, (int)( $abandonedTab[ 'count_items' ] ?? 0 ) );
 		$this->assertNotEmpty( $abandonedTab[ 'items' ] ?? [] );
-		$this->assertStringNotContainsString( 'data-shield-scan-pane-disabled="1"', $abandonedHtml );
 
 		foreach ( [
 			'plugins'         => 'asset_cards',

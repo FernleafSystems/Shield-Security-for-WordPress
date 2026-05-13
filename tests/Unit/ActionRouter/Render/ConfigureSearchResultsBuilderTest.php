@@ -263,16 +263,24 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 			[],
 			\array_diff( \array_column( $results, 'type' ), [ 'option', 'zone' ] )
 		);
-		$this->assertNotContains( 'Orphan Search Target', \array_column( $optionResults, 'label' ) );
-		$this->assertNotContains( 'Cooldown Shadow', \array_column( $optionResults, 'label' ) );
+		$configItems = \array_map(
+			static fn( array $result ) :string => (string)( \json_decode(
+				(string)( $result[ 'focus_request_json' ] ?? '' ),
+				true
+			)[ 'config_item' ] ?? '' ),
+			$optionResults
+		);
+		$this->assertNotContains( 'orphan_search_target', $configItems );
+		$this->assertNotContains( 'comments_cooldown_shadow', $configItems );
 		$this->assertResultHrefQueryMatches( $optionResults[ 0 ], [
 			'zone'        => 'spam',
 			'row_key'     => 'general_settings',
 			'config_item' => 'comments_cooldown',
 		] );
-		$this->assertStringNotContainsString( 'expand_id=', $optionResults[ 0 ][ 'href' ] ?? '' );
-		$this->assertStringNotContainsString( 'zone_component_slug=', $optionResults[ 0 ][ 'href' ] ?? '' );
-		$this->assertStringNotContainsString( 'option_keys=', $optionResults[ 0 ][ 'href' ] ?? '' );
+		$query = $this->hrefQuery( (string)( $optionResults[ 0 ][ 'href' ] ?? '' ) );
+		$this->assertArrayNotHasKey( 'expand_id', $query );
+		$this->assertArrayNotHasKey( 'zone_component_slug', $query );
+		$this->assertArrayNotHasKey( 'option_keys', $query );
 	}
 
 	public function test_shared_options_prefer_specific_component_rows_over_module_rows() :void {
@@ -1140,14 +1148,16 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 	}
 
 	private function assertResultHrefQueryMatches( array $result, array $expectedQuery ) :void {
-		$href = (string)( $result[ 'href' ] ?? '' );
-		$this->assertNotSame( '', $href );
-
-		$query = (string)( \parse_url( $href, \PHP_URL_QUERY ) ?? '' );
-		parse_str( $query, $queryArgs );
+		$queryArgs = $this->hrefQuery( (string)( $result[ 'href' ] ?? '' ) );
 
 		foreach ( $expectedQuery as $key => $value ) {
 			$this->assertSame( $value, (string)( $queryArgs[ $key ] ?? '' ) );
 		}
+	}
+
+	private function hrefQuery( string $href ) :array {
+		$query = (string)( \parse_url( $href, \PHP_URL_QUERY ) ?? '' );
+		parse_str( $query, $queryArgs );
+		return $queryArgs;
 	}
 }

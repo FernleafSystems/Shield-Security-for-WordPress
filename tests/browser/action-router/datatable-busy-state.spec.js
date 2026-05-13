@@ -143,8 +143,7 @@ test( 'datatable busy: actions queue reload button marks the direct table busy w
 			( request ) => ( request.postData() || '' ).includes( 'sub_action=retrieve_table_data' )
 		);
 
-		await page.locator( '[data-actions-queue-detail="1"] .dt-buttons button' )
-			.filter( { hasText: /^Reload Table$/ } )
+		await page.locator( '[data-actions-queue-detail="1"] .dt-buttons button.table-refresh' )
 			.first()
 			.click();
 
@@ -159,8 +158,7 @@ test( 'datatable busy: actions queue reload button marks the direct table busy w
 
 test( 'datatable busy: IP analysis tab loads show busy state from the first investigation-table request', async ( { page } ) => {
 	const offcanvas = await openIpAnalysisOffcanvas( page, '198.51.100.20' );
-	const activityTab = offcanvas.locator( '[data-investigate-panel-tabs="1"] [data-investigate-panel-tab="1"]' )
-		.filter( { hasText: /Activity Log/i } )
+	const activityTab = offcanvas.locator( '[data-investigate-panel-tabs="1"] [data-investigate-panel-tab="1"][aria-controls*="-audit"]' )
 		.first();
 
 	const delayedRequest = await delayNextMatchingAdminAjaxRequest(

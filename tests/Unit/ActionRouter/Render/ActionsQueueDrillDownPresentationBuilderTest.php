@@ -21,42 +21,28 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 
 		$selection = $builder->buildBucketSelection(
 			'critical',
-			'Fix now',
-			'Critical queue',
+			'fix_now',
+			'critical_queue',
 			'critical',
 			'bi bi-exclamation-triangle-fill',
 			2,
-			'Fix now contains 2 items that still need attention.'
+			'bucket_focus'
 		);
 
 		$this->assertSame( 'critical', $selection[ 'key' ] );
-		$this->assertSame( 'Fix now', $selection[ 'label' ] );
+		$this->assertSame( 'fix_now', $selection[ 'label' ] );
 		$this->assertSame( 'critical', $selection[ 'status' ] );
 		$this->assertSame( 'bi bi-exclamation-triangle-fill', $selection[ 'icon_class' ] );
 		$this->assertSame( 2, $selection[ 'item_count' ] );
-		$this->assertSame(
-			[
-				'compact_back_label' => 'Back to Fix now',
-				'active_back_label'  => 'Back to Actions Queue',
-				'meta'               => 'Critical queue',
-				'breadcrumb_label'   => 'Fix now',
-				'title'              => 'Fix now',
-				'summary'            => 'Fix now contains 2 items that still need attention.',
-				'focus'              => 'Critical queue',
-				'next_step'          => 'Choose one grouped finding to review the matching results.',
-				'icon_class'         => 'bi bi-exclamation-triangle-fill',
-				'badge'              => '2 items',
-				'badge_status'       => 'critical',
-				'color_key'          => 'critical',
-				'actions'            => [],
-			],
-			$selection[ 'header' ]
-		);
-		$this->assertSame( 'Back to Fix now', $builder->buildBackLabel( 'Fix now' ) );
+		$this->assertSame( 'critical_queue', $selection[ 'header' ][ 'meta' ] ?? '' );
+		$this->assertSame( 'bucket_focus', $selection[ 'header' ][ 'summary' ] ?? '' );
+		$this->assertSame( 'bi bi-exclamation-triangle-fill', $selection[ 'header' ][ 'icon_class' ] ?? '' );
+		$this->assertSame( 'critical', $selection[ 'header' ][ 'badge_status' ] ?? '' );
+		$this->assertSame( 'critical', $selection[ 'header' ][ 'color_key' ] ?? '' );
+		$this->assertSame( [], $selection[ 'header' ][ 'actions' ] ?? null );
 		$selectionForJson = $selection;
 		unset( $selectionForJson[ 'selection_json' ] );
 		$this->assertSame( $selectionForJson, \json_decode( $selection[ 'selection_json' ], true ) );
-		$this->assertSame( 'Fix now contains 2 items that still need attention.', $builder->buildBucketFocusText( 'Fix now', 2 ) );
 	}
 
 	public function test_build_bucket_selection_keeps_bucket_meta_when_bucket_is_good() :void {
@@ -64,15 +50,15 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 
 		$selection = $builder->buildBucketSelection(
 			'critical',
-			'Fix now',
-			'Critical queue',
+			'fix_now',
+			'critical_queue',
 			'good',
 			'bi bi-exclamation-triangle-fill',
 			0,
-			'Everything in this bucket is currently looking good.'
+			'bucket_focus'
 		);
 
-		$this->assertSame( 'Critical queue', $selection[ 'header' ][ 'meta' ] ?? '' );
+		$this->assertSame( 'critical_queue', $selection[ 'header' ][ 'meta' ] ?? '' );
 		$this->assertSame( 'good', $selection[ 'header' ][ 'badge_status' ] ?? '' );
 		$this->assertSame( [], $selection[ 'header' ][ 'actions' ] ?? null );
 	}
@@ -81,9 +67,9 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 		$builder = new ActionsQueueDrillDownPresentationBuilder();
 
 		$selection = $builder->buildGroupSelection(
-			'Review next',
+			'review_next',
 			'maintenance',
-			'Maintenance Items',
+			'maintenance_items',
 			'warning',
 			'bi bi-tools',
 			1,
@@ -91,34 +77,21 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 			[
 				'render_slug' => 'maintenance_render',
 			],
-			'1 maintenance item needs review.'
+			'maintenance_focus'
 		);
 
 		$this->assertSame( 'maintenance', $selection[ 'key' ] );
-		$this->assertSame( 'Maintenance Items', $selection[ 'label' ] );
+		$this->assertSame( 'maintenance_items', $selection[ 'label' ] );
 		$this->assertSame( 'warning', $selection[ 'status' ] );
 		$this->assertSame( 'bi bi-tools', $selection[ 'icon_class' ] );
 		$this->assertSame( 1, $selection[ 'item_count' ] );
 		$this->assertSame( 'maintenance', $selection[ 'detail_shell' ] );
 		$this->assertSame( [ 'render_slug' => 'maintenance_render' ], $selection[ 'detail_render_action' ] );
-		$this->assertSame(
-			[
-				'compact_back_label' => 'Back to Maintenance Items',
-				'active_back_label'  => 'Back to Review next',
-				'meta'               => '',
-				'breadcrumb_label'   => 'Maintenance Items',
-				'title'              => 'Maintenance Items',
-				'summary'            => '1 maintenance item needs review.',
-				'focus'              => '1 item',
-				'next_step'          => 'Review the scoped results and complete the next action.',
-				'icon_class'         => 'bi bi-tools',
-				'badge'              => '1 item',
-				'badge_status'       => 'warning',
-				'color_key'          => 'warning',
-				'actions'            => [],
-			],
-			$selection[ 'header' ]
-		);
+		$this->assertSame( 'maintenance_focus', $selection[ 'header' ][ 'summary' ] ?? '' );
+		$this->assertSame( 'bi bi-tools', $selection[ 'header' ][ 'icon_class' ] ?? '' );
+		$this->assertSame( 'warning', $selection[ 'header' ][ 'badge_status' ] ?? '' );
+		$this->assertSame( 'warning', $selection[ 'header' ][ 'color_key' ] ?? '' );
+		$this->assertSame( [], $selection[ 'header' ][ 'actions' ] ?? null );
 		$selectionForJson = $selection;
 		unset( $selectionForJson[ 'selection_json' ] );
 		$this->assertSame( $selectionForJson, \json_decode( $selection[ 'selection_json' ], true ) );
@@ -128,9 +101,9 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 		$builder = new ActionsQueueDrillDownPresentationBuilder();
 
 		$selection = $builder->buildGroupSelection(
-			'Fix now',
+			'fix_now',
 			'plugins:example-plugin/example-plugin.php',
-			'Example Plugin',
+			'example_plugin',
 			'critical',
 			'bi bi-plug-fill',
 			3,
@@ -138,20 +111,20 @@ class ActionsQueueDrillDownPresentationBuilderTest extends BaseUnitTest {
 			[
 				'render_slug' => 'actions_queue_asset_file_status_detail',
 			],
-			'3 files need review.',
+			'group_focus',
 			[
 				[
 					'kind'             => 'ajax',
-					'label'            => 'Ignore All Results',
+					'label'            => 'ignore_all_results',
 					'type'             => 'deactivate',
 					'icon_class'       => 'bi bi-eye-slash-fill',
 					'ajax_action_json' => '{"sub_action":"ignore_all"}',
-					'confirm_text'     => 'Ignore all active results for Example Plugin?',
+					'confirm_text'     => 'confirm_ignore_all_results',
 				],
 			]
 		);
 
-		$this->assertSame( 'Ignore All Results', $selection[ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertSame( 'ignore_all_results', $selection[ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
 		$this->assertSame( 'ajax', $selection[ 'header' ][ 'actions' ][ 0 ][ 'kind' ] ?? '' );
 		$this->assertSame(
 			$selection[ 'header' ][ 'actions' ],
