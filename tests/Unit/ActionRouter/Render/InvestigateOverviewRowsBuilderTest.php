@@ -33,23 +33,28 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 			);
 
 			$this->assertSame(
-				[ 'Username', 'Display Name', 'Email', 'Role', 'Last Login IP', 'Recent IPs', 'Shield Status', 'WordPress Profile' ],
-				\array_column( $rows, 'label' )
-			);
-			$this->assertSame(
 				[
-					'operator',
-					'Operator User',
-					'operator@example.com',
-					'Administrator',
-					'203.0.113.77',
-					'203.0.113.77, 198.51.100.12',
-					'Active',
-					'Open Profile',
+					'username',
+					'display_name',
+					'email',
+					'role',
+					'last_login_ip',
+					'recent_ips',
+					'shield_status',
+					'wp_profile',
 				],
-				\array_column( $rows, 'value' )
+				\array_column( $rows, 'key' )
 			);
-			$this->assertSame( '/wp-admin/user-edit.php?user_id=7', (string)( $rows[ 7 ][ 'value_href' ] ?? '' ) );
+			$rowsByKey = $this->rowsByKey( $rows );
+			$this->assertSame( 'operator', (string)( $rowsByKey[ 'username' ][ 'value' ] ?? '' ) );
+			$this->assertSame( 'operator@example.com', (string)( $rowsByKey[ 'email' ][ 'value' ] ?? '' ) );
+
+			$query = [];
+			\parse_str(
+				(string)\parse_url( (string)( $rowsByKey[ 'wp_profile' ][ 'value_href' ] ?? '' ), \PHP_URL_QUERY ),
+				$query
+			);
+			$this->assertSame( '7', (string)( $query[ 'user_id' ] ?? '' ) );
 		}
 
 		public function test_user_rows_omit_profile_row_when_profile_href_missing() :void {
@@ -70,10 +75,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 			);
 
 			$this->assertSame(
-				[ 'Username', 'Display Name', 'Email', 'Role', 'Last Login IP', 'Recent IPs', 'Shield Status' ],
-				\array_column( $rows, 'label' )
+				[ 'username', 'display_name', 'email', 'role', 'last_login_ip', 'recent_ips', 'shield_status' ],
+				\array_column( $rows, 'key' )
 			);
-			$this->assertNotContains( 'WordPress Profile', \array_column( $rows, 'label' ) );
+			$this->assertNotContains( 'wp_profile', \array_column( $rows, 'key' ) );
 		}
 
 		public function test_plugin_asset_rows_include_update_and_vulnerability_status() :void {
@@ -102,10 +107,21 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 			);
 
 			$this->assertSame(
-				[ 'Name', 'Slug', 'Version', 'Author', 'File', 'Install Directory', 'Installed', 'Active Status', 'Update Available Status', 'Vulnerability Status' ],
-				\array_column( $rows, 'label' )
+				[
+					'name',
+					'slug',
+					'version',
+					'author',
+					'asset_identifier',
+					'install_directory',
+					'installed_at',
+					'active_status',
+					'update_available_status',
+					'vulnerability_status',
+				],
+				\array_column( $rows, 'key' )
 			);
-			$this->assertSame( 'No Known Vulnerabilities', (string)( $rows[ 9 ][ 'value' ] ?? '' ) );
+			$this->assertSame( 'no_known_vulnerabilities', (string)( $rows[ 9 ][ 'value_key' ] ?? '' ) );
 		}
 
 		public function test_theme_asset_rows_include_child_theme_status() :void {
@@ -131,18 +147,26 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 				'Stylesheet'
 			);
 
-			$this->assertSame( 'Child Theme Status', (string)( $rows[ 8 ][ 'label' ] ?? '' ) );
-			$this->assertSame( 'Yes', (string)( $rows[ 8 ][ 'value' ] ?? '' ) );
+			$this->assertSame( 'child_theme_status', (string)( $rows[ 8 ][ 'key' ] ?? '' ) );
+			$this->assertSame( 'child_theme', (string)( $rows[ 8 ][ 'value_key' ] ?? '' ) );
 		}
 
 		public function test_core_rows_include_version_update_and_directory() :void {
 			$rows = ( new InvestigateOverviewRowsBuilder() )->forCore( '6.5.2', true, '/var/www/html/' );
 
 			$this->assertSame(
-				[ 'WordPress Version', 'Core Update Status', 'Install Directory' ],
-				\array_column( $rows, 'label' )
+				[ 'wordpress_version', 'core_update_status', 'install_directory' ],
+				\array_column( $rows, 'key' )
 			);
-			$this->assertSame( 'An update is available.', (string)( $rows[ 1 ][ 'value' ] ?? '' ) );
+			$this->assertSame( 'update_available', (string)( $rows[ 1 ][ 'value_key' ] ?? '' ) );
+		}
+
+		private function rowsByKey( array $rows ) :array {
+			$byKey = [];
+			foreach ( $rows as $row ) {
+				$byKey[ (string)( $row[ 'key' ] ?? '' ) ] = $row;
+			}
+			return $byKey;
 		}
 	}
 }

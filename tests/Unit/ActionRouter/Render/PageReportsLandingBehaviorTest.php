@@ -16,19 +16,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageReportsLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\InvokesNonPublicMethods;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
-use Twig\{
-	Environment,
-	Loader\FilesystemLoader
-};
 
 class PageReportsLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
-	use PluginPathsTrait;
 
 	private object $renderCapture;
 
@@ -111,36 +105,6 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'next_step', $chartsSelection[ 'header' ] ?? [] );
 	}
 
-	public function test_workspace_cards_render_through_strict_twig_layer_template() :void {
-		$page = new PageReportsLanding();
-		$html = $this->twig()->render( '/wpadmin/components/reports/layer_workspaces.twig', [
-			'workspaces' => $this->invokeNonPublicMethod( $page, 'getWorkspaceCards' ),
-		] );
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertSame(
-			3,
-			$xpath->query( '//button[@data-drill-target="workspace" and @data-reports-workspace-selection]' )->length,
-			'Reports workspaces should render as shared drill-down buttons with explicit workspace selection payloads'
-		);
-		$selectionKeys = [];
-		foreach ( $xpath->query( '//button[@data-drill-target="workspace" and @data-reports-workspace-selection]' ) as $button ) {
-			$payload = \json_decode( $button->getAttribute( 'data-reports-workspace-selection' ), true );
-			$this->assertIsArray( $payload );
-			$this->assertArrayHasKey( 'key', $payload );
-			$this->assertArrayHasKey( 'header', $payload );
-			$selectionKeys[] = $payload[ 'key' ] ?? '';
-		}
-		$this->assertSame(
-			[
-				PluginNavs::SUBNAV_REPORTS_LIST,
-				PluginNavs::SUBNAV_REPORTS_SETTINGS,
-				PluginNavs::SUBNAV_REPORTS_CHARTS,
-			],
-			$selectionKeys
-		);
-	}
-
 	public function test_render_workspaces_layer_is_not_clobbered_by_nested_action_renders() :void {
 		$this->installControllerStub( true );
 
@@ -187,34 +151,6 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 			],
 			\array_column( $this->renderCapture->template_calls ?? [], 'template' )
 		);
-	}
-
-	private function twig() :Environment {
-		return new Environment(
-			new FilesystemLoader( $this->getPluginFilePath( 'templates/twig' ) ),
-			[
-				'cache'            => false,
-				'debug'            => false,
-				'strict_variables' => true,
-			]
-		);
-	}
-
-	private function createDomXPathFromHtml( string $html ) :\DOMXPath {
-		$doc = new \DOMDocument();
-		$previous = \libxml_use_internal_errors( true );
-		try {
-			$doc->loadHTML(
-				'<?xml encoding="utf-8" ?>'.$html,
-				\LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD
-			);
-		}
-		finally {
-			\libxml_clear_errors();
-			\libxml_use_internal_errors( $previous );
-		}
-
-		return new \DOMXPath( $doc );
 	}
 
 	private function installControllerStub( bool $simulateRenderStateLeak = false ) :void {

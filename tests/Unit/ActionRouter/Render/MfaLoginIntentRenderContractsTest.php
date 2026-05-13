@@ -11,6 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaLoginVerifyStep;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\UserMfa\LoginIntent\LoginIntentFormFieldBase;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa\Components\{
 	BaseForm,
@@ -149,14 +150,18 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 
 		$this->assertFalse( $data[ 'flags' ][ 'show_branded_links' ] );
 		$this->assertTrue( $data[ 'flags' ][ 'can_skip_mfa' ] );
-		$this->assertSame( 'Remember me for 2 days', $data[ 'strings' ][ 'skip_mfa' ] );
+		$this->assertArrayHasKey( 'skip_mfa', $data[ 'strings' ] ?? [] );
 		$this->assertSame( '/target', $data[ 'vars' ][ 'form_hidden_fields' ][ 'redirect_to' ] );
 		$this->assertSame( '/wp-login.php', $data[ 'vars' ][ 'form_hidden_fields' ][ 'cancel_href' ] );
 		$this->assertSame( 42, $data[ 'vars' ][ 'form_hidden_fields' ][ 'wp_user_id' ] );
-		$this->assertStringStartsWith( '/wp-login.php?', $data[ 'hrefs' ][ 'form_action' ] );
-		$this->assertStringContainsString( 'action=shield_action', $data[ 'hrefs' ][ 'form_action' ] );
-		$this->assertStringContainsString( 'ex=', $data[ 'hrefs' ][ 'form_action' ] );
-		$this->assertStringContainsString( 'exnonce=', $data[ 'hrefs' ][ 'form_action' ] );
+		$formActionParts = \wp_parse_url( $data[ 'hrefs' ][ 'form_action' ] );
+		$formActionQuery = [];
+		\parse_str( (string)( $formActionParts[ 'query' ] ?? '' ), $formActionQuery );
+		$this->assertSame( '/wp-login.php', $formActionParts[ 'path' ] ?? '' );
+		$this->assertSame( 'shield_action', $formActionQuery[ 'action' ] ?? '' );
+		$this->assertSame( MfaLoginVerifyStep::SLUG, $formActionQuery[ 'ex' ] ?? '' );
+		$this->assertArrayHasKey( 'exnonce', $formActionQuery );
+		$this->assertIsString( $formActionQuery[ 'exnonce' ] );
 
 		$fields = $data[ 'content' ][ 'login_fields' ];
 		$this->assertCount( 2, $fields );
@@ -188,7 +193,7 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 
 		$defaultData = ( new LoginIntentFormShieldTestDouble( [] ) )->renderDataForTest();
 		$errorData = ( new LoginIntentFormShieldTestDouble( [
-			'msg_error' => 'Could not verify your 2FA codes',
+			'msg_error' => 'mfa_error_message',
 		] ) )->renderDataForTest();
 
 		$this->assertFalse( $defaultData[ 'flags' ][ 'show_message' ] );
@@ -200,7 +205,7 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( '/images/banner.png', $defaultData[ 'imgs' ][ 'logo_banner' ] );
 
 		$this->assertTrue( $errorData[ 'flags' ][ 'show_message' ] );
-		$this->assertSame( 'Could not verify your 2FA codes', $errorData[ 'strings' ][ 'message' ] );
+		$this->assertSame( 'mfa_error_message', $errorData[ 'strings' ][ 'message' ] );
 	}
 
 	private function installMfaEnvironment( array $providers, int $skipDays, bool $whitelabelEnabled ) :Controller {

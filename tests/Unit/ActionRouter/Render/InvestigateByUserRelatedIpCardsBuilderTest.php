@@ -14,11 +14,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\InvestigateByUserRelatedIpCardsBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	ServicesState,
+	UnitTestControllerFactory,
+	UnitTestPluginUrls
+};
 use FernleafSystems\Wordpress\Services\Core\{
 	General,
 	Request
@@ -27,6 +29,7 @@ use FernleafSystems\Wordpress\Services\Core\{
 class InvestigateByUserRelatedIpCardsBuilderTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
+	private RelatedIpCardsRecordingPluginUrls $pluginUrls;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -83,36 +86,34 @@ class InvestigateByUserRelatedIpCardsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ '198.51.100.4', '192.0.2.1', '203.0.113.9' ], \array_column( $cards, 'ip' ) );
 		$this->assertSame( [ 1700, 1600, 1500 ], \array_column( $cards, 'last_seen_ts' ) );
 		$this->assertSame( [ 'critical', 'warning', 'good' ], \array_column( $cards, 'status' ) );
-		$this->assertSame( [ 'Offense Detected', 'Requests Observed', 'Sessions Observed' ], \array_column( $cards, 'status_label' ) );
 
 		$this->assertSame(
-			[
-				'/admin/'.PluginNavs::NAV_IPS.'/'.PluginNavs::SUBNAV_IPS_RULES.'?analyse_ip=198.51.100.4',
-				'/admin/'.PluginNavs::NAV_IPS.'/'.PluginNavs::SUBNAV_IPS_RULES.'?analyse_ip=192.0.2.1',
-				'/admin/'.PluginNavs::NAV_IPS.'/'.PluginNavs::SUBNAV_IPS_RULES.'?analyse_ip=203.0.113.9',
-			],
-			\array_column( $cards, 'href' )
+			[ '198.51.100.4', '192.0.2.1', '203.0.113.9' ],
+			$this->queryValues( $cards, 'href', 'analyse_ip' )
 		);
 		$this->assertSame(
-			[
-				'/admin/activity/by_ip?analyse_ip=198.51.100.4',
-				'/admin/activity/by_ip?analyse_ip=192.0.2.1',
-				'/admin/activity/by_ip?analyse_ip=203.0.113.9',
-			],
-			\array_column( $cards, 'investigate_href' )
+			[ '198.51.100.4', '192.0.2.1', '203.0.113.9' ],
+			$this->queryValues( $cards, 'investigate_href', 'analyse_ip' )
 		);
-		$this->assertSame( [ 'display:1700', 'display:1600', 'display:1500' ], \array_column( $cards, 'last_seen_at' ) );
+		$expectedRouteIps = [ '192.0.2.1', '198.51.100.4', '203.0.113.9' ];
+		$ipAnalysisCalls = $this->pluginUrls->ipAnalysisCalls;
+		$investigateByIpCalls = $this->pluginUrls->investigateByIpCalls;
+		\sort( $ipAnalysisCalls );
+		\sort( $investigateByIpCalls );
+		$this->assertSame( $expectedRouteIps, $ipAnalysisCalls );
+		$this->assertSame( $expectedRouteIps, $investigateByIpCalls );
 		$this->assertSame( [ 0, 0, 2 ], \array_column( $cards, 'sessions_count' ) );
 		$this->assertSame( [ 1, 0, 1 ], \array_column( $cards, 'activity_count' ) );
 		$this->assertSame( [ 1, 1, 0 ], \array_column( $cards, 'requests_count' ) );
 
 		foreach ( $cards as $card ) {
 			$this->assertArrayNotHasKey( 'has_offense', $card );
-			$this->assertNotSame( '', (string)( $card[ 'last_seen_ago' ] ?? '' ) );
+			$this->assertArrayHasKey( 'last_seen_at', $card );
+			$this->assertArrayHasKey( 'last_seen_ago', $card );
 		}
 	}
 
-	public function test_build_maps_activity_only_ip_to_default_info_status_label() :void {
+	public function test_build_maps_activity_only_ip_to_default_info_status_contract() :void {
 		$cards = ( new InvestigateByUserRelatedIpCardsBuilder() )->build(
 			[],
 			[
@@ -127,25 +128,15 @@ class InvestigateByUserRelatedIpCardsBuilderTest extends BaseUnitTest {
 		$this->assertCount( 1, $cards );
 		$this->assertSame( '203.0.113.60', $cards[ 0 ][ 'ip' ] ?? '' );
 		$this->assertSame( 'info', $cards[ 0 ][ 'status' ] ?? '' );
-		$this->assertSame( 'No Recent Signals', $cards[ 0 ][ 'status_label' ] ?? '' );
+		$this->assertArrayHasKey( 'status_label', $cards[ 0 ] );
 		$this->assertSame( 1, $cards[ 0 ][ 'activity_count' ] ?? 0 );
 		$this->assertSame( 1234, $cards[ 0 ][ 'last_seen_ts' ] ?? 0 );
-		$this->assertSame( 'display:1234', $cards[ 0 ][ 'last_seen_at' ] ?? '' );
+		$this->assertArrayHasKey( 'last_seen_at', $cards[ 0 ] );
 	}
 
 	private function installControllerStub() :void {
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->plugin_urls = new class {
-			public function ipAnalysis( string $ip ) :string {
-				return '/admin/'.PluginNavs::NAV_IPS.'/'.PluginNavs::SUBNAV_IPS_RULES.'?analyse_ip='.$ip;
-			}
-
-			public function investigateByIp( string $ip = '' ) :string {
-				return empty( $ip ) ? '/admin/activity/by_ip' : '/admin/activity/by_ip?analyse_ip='.$ip;
-			}
-		};
-		PluginControllerInstaller::install( $controller );
+		$this->pluginUrls = new RelatedIpCardsRecordingPluginUrls();
+		UnitTestControllerFactory::install( $this->pluginUrls );
 	}
 
 	private function installServicesStub() :void {
@@ -161,6 +152,35 @@ class InvestigateByUserRelatedIpCardsBuilderTest extends BaseUnitTest {
 				}
 			},
 		] );
+	}
+
+	private function queryValues( array $cards, string $hrefKey, string $queryKey ) :array {
+		return \array_map(
+			fn( array $card ) :string => (string)( $this->hrefQuery( (string)( $card[ $hrefKey ] ?? '' ) )[ $queryKey ] ?? '' ),
+			$cards
+		);
+	}
+
+	private function hrefQuery( string $href ) :array {
+		$query = [];
+		\parse_str( (string)\parse_url( $href, \PHP_URL_QUERY ), $query );
+		return $query;
+	}
+}
+
+class RelatedIpCardsRecordingPluginUrls extends UnitTestPluginUrls {
+
+	public array $ipAnalysisCalls = [];
+	public array $investigateByIpCalls = [];
+
+	public function ipAnalysis( string $ip ) :string {
+		$this->ipAnalysisCalls[] = $ip;
+		return parent::ipAnalysis( $ip );
+	}
+
+	public function investigateByIp( string $ip = '' ) :string {
+		$this->investigateByIpCalls[] = $ip;
+		return parent::investigateByIp( $ip );
 	}
 }
 

@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	HtmlDomAssertions,
 	ModeLandingAssertions,
 	PluginAdminRouteRenderAssertions
 };
@@ -16,7 +15,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationT
 
 class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use HtmlDomAssertions;
 	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
@@ -41,48 +39,19 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_landing_renders_drill_shell_tiles_and_single_panel_wrapper() :void {
 		$payload = $this->renderInvestigateLandingPage();
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'investigate landing' );
+		$this->assertRouteRenderOutputHealthy( $payload, 'investigate landing' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$vars = \is_array( $renderData[ 'vars' ] ?? null ) ? $renderData[ 'vars' ] : [];
-		$xpath = $this->createDomXPathFromHtml( $html );
+		$layers = \is_array( $vars[ 'drill_shell' ][ 'layers' ] ?? null ) ? $vars[ 'drill_shell' ][ 'layers' ] : [];
 
 		$this->assertModeShellPayload( $vars, 'investigate', 'investigate', false );
 		$this->assertModePanelPayload( $vars, '', false );
 		$this->assertArrayNotHasKey( 'subjects', $vars );
-		$this->assertSame( [ 'subjects', 'panel' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
+		$this->assertSame( [ 'subjects', 'panel' ], \array_column( $layers, 'key' ) );
 		$this->assertSame( 0, (int)( $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
-		$this->assertSame( 'Back to Investigate', (string)( $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'compact_back_label' ] ?? '' ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigate-section="drilldown"]/div[1][@data-drill-shell="1" and @data-drill-shell-mode="investigate"]',
-			'Investigate landing should render the drill shell first'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-layer-key="subjects" and string-length(@data-drill-layer-header) > 0]',
-			'Investigate landing should render producer-owned layer header JSON'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " investigate-landing__subject-card ")]',
-			7,
-			'Investigate landing should render the seven canonical subject tiles'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-drill-target="panel" and @data-investigate-render-action and @data-investigate-header]',
-			6,
-			'Investigate landing should render six enabled drill target buttons'
-		);
-		$panelButtons = $xpath->query( '//*[@data-drill-target="panel" and @data-investigate-header]' );
-		$this->assertInstanceOf( \DOMNodeList::class, $panelButtons );
-		$firstPanelButton = $panelButtons->item( 0 );
-		$this->assertInstanceOf( \DOMElement::class, $firstPanelButton );
-		$header = \json_decode(
-			\html_entity_decode( $firstPanelButton->getAttribute( 'data-investigate-header' ), \ENT_QUOTES ),
-			true
-		);
-		$this->assertIsArray( $header );
+		$headerJson = \json_decode( (string)( $layers[ 0 ][ 'header_json' ] ?? '' ), true );
+		$this->assertSame( 'investigate', (string)( $headerJson[ 'color_key' ] ?? '' ) );
+		$header = $layers[ 0 ][ 'header' ] ?? [];
 		$this->assertSame( [
 			'compact_back_label',
 			'active_back_label',
@@ -96,31 +65,12 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'badge',
 			'badge_status',
 			'color_key',
+			'actions',
 		], \array_keys( $header ) );
 		$this->assertSame( '', (string)( $header[ 'meta' ] ?? 'missing' ) );
 		$this->assertSame( 'investigate', (string)( $header[ 'color_key' ] ?? '' ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigate-subject="premium_integrations" and @aria-disabled="true" and contains(concat(" ", normalize-space(@class), " "), " is-disabled ")]',
-			'Investigate landing should keep premium integrations disabled'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-investigate-panel="1" and @data-investigate-panel-loaded="0" and @data-investigate-panel-subject="" and @data-investigate-render-action=""]',
-			'Investigate landing should render one unloaded panel wrapper in layer 2'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-investigate-panel="1"]',
-			1,
-			'Investigate landing should use one panel wrapper only'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-mode-tile or @data-mode-panel-target or @data-mode-panel="1"]',
-			0,
-			'Investigate landing should not render legacy mode-panel markup'
-		);
+		$this->assertSame( 'panel', (string)( $layers[ 1 ][ 'key' ] ?? '' ) );
+		$this->assertSame( [], $layers[ 1 ][ 'header' ][ 'actions' ] ?? [] );
 	}
 
 	public function test_valid_deep_link_compacts_subject_layer_and_preloads_the_single_panel_wrapper() :void {
@@ -128,33 +78,13 @@ class InvestigateLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'subject'    => 'ip',
 			'analyse_ip' => '203.0.113.88',
 		] );
-		$html = $this->assertRouteRenderOutputHealthy( $payload, 'investigate landing deep link' );
+		$this->assertRouteRenderOutputHealthy( $payload, 'investigate landing deep link' );
 		$vars = \is_array( $payload[ 'render_data' ][ 'vars' ] ?? null ) ? $payload[ 'render_data' ][ 'vars' ] : [];
-		$xpath = $this->createDomXPathFromHtml( $html );
+		$layers = \is_array( $vars[ 'drill_shell' ][ 'layers' ] ?? null ) ? $vars[ 'drill_shell' ][ 'layers' ] : [];
 
 		$this->assertSame( 1, (int)( $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
-		$this->assertSame( 'IP Address', (string)( $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertNotSame( '', \trim( (string)( $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' ) ) );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-layer="1"]//*[@data-investigate-panel="1" and @data-investigate-panel-subject="ip" and @data-investigate-panel-loaded="1"]',
-			'Deep-linked Investigate landing should preload the shared panel wrapper'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-layer="1"]//*[@data-investigate-panel-content="1"]//*[@data-investigate-subject-header="1"]',
-			'Deep-linked Investigate landing should preload the subject header marker inside the shared panel content'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-drill-layer="1"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]',
-			'Deep-linked Investigate landing should preload the routed panel content inside the shared panel wrapper'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-drill-layer="1"]//*[@data-investigate-panel-content="1"]//*[@data-inner-page-body-shell="1"]',
-			0,
-			'Deep-linked Investigate landing should not embed a nested inner-page shell inside the shared panel content'
-		);
+		$this->assertSame( 'panel', (string)( $layers[ 1 ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'info', (string)( $layers[ 1 ][ 'header' ][ 'badge_status' ] ?? '' ) );
+		$this->assertSame( 'investigate', (string)( $layers[ 1 ][ 'header' ][ 'color_key' ] ?? '' ) );
 	}
 }

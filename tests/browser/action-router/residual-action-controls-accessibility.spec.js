@@ -69,9 +69,7 @@ async function expectNamedDialog( page, modal ) {
 	await expect( modal ).toHaveAttribute( 'aria-modal', 'true' );
 	const labelID = await modal.getAttribute( 'aria-labelledby' );
 	expect( labelID || '' ).not.toHaveLength( 0 );
-	expect( await page.locator( `#${ labelID }` ).evaluate(
-		( node ) => node.isConnected && ( node.textContent || '' ).trim().length > 0
-	) ).toBe( true );
+	await expect( page.locator( `#${ labelID }` ) ).toHaveAccessibleName( /\S/ );
 }
 
 async function visibleMerlinStepId( page ) {

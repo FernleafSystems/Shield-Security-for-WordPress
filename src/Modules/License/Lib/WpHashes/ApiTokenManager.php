@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\WpHashes;
 
@@ -42,20 +42,23 @@ class ApiTokenManager {
 		if ( self::con()->comps->license->getLicense()->isValid() ) {
 			$token = $this->loadToken();
 			if ( $this->isExpired() && $this->canRequestNewToken() ) {
-				$token = $this->loadToken();
+				$now = Services::Request()->ts();
+				$token[ 'attempt_at' ] = $now;
+				$token[ 'next_attempt_from' ] = $now + \HOUR_IN_SECONDS;
+				$this->storeToken( $token, true );
+
 				try {
-					$token = \array_merge( $token,
-						\array_intersect_key(
-							( new SolicitToken() )->send(),
-							\array_flip( [ 'token', 'expires_at', 'valid_license' ] )
-						)
+					$apiToken = \array_intersect_key(
+						( new SolicitToken() )->send(),
+						\array_flip( [ 'token', 'expires_at', 'valid_license' ] )
 					);
+					if ( !empty( $apiToken ) ) {
+						$token = \array_merge( $token, $apiToken );
+						$this->storeToken( $token, true );
+					}
 				}
 				catch ( \Exception $e ) {
 				}
-				$token[ 'attempt_at' ] = Services::Request()->ts();
-				$token[ 'next_attempt_from' ] = Services::Request()->ts() + \HOUR_IN_SECONDS;
-				$this->storeToken( $token );
 			}
 		}
 		else {
@@ -71,6 +74,8 @@ class ApiTokenManager {
 
 	/**
 	 * retrieve Token exactly as it's saved
+	 *
+	 * @return array{token:string, expires_at:int, attempt_at:int, next_attempt_from:int, valid_license:bool}
 	 */
 	private function loadToken() :array {
 		return \array_merge( [
@@ -114,11 +119,14 @@ class ApiTokenManager {
 		return Services::Request()->carbon()->addHours( 2 )->timestamp > $this->getExpiresAt();
 	}
 
-	private function storeToken( array $token ) {
+	private function storeToken( array $token, bool $persist = false ) :void {
 		self::con()->opts->optSet( 'wphashes_api_token', $token );
+		if ( $persist ) {
+			self::con()->opts->store();
+		}
 	}
 
-	private function clearToken() {
+	private function clearToken() :void {
 		$this->storeToken( [] );
 	}
 

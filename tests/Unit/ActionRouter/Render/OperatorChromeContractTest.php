@@ -17,29 +17,29 @@ class OperatorChromeContractTest extends BaseUnitTest {
 
 	public function test_normalize_header_keeps_only_supported_context_action_fields() :void {
 		$header = OperatorChromeContract::normalizeHeader( [
-			'title'           => 'Example Plugin',
+			'title'           => 'example_plugin_title',
 			'actions'         => [
 				[
-					'label'            => 'Ignore All Results',
+					'label'            => 'ignore_all_results_label',
 					'ajax_action_json' => '{"sub_action":"ignore_all"}',
 					'type'             => 'deactivate',
-					'confirm_text'     => 'Ignore all active results for Example Plugin?',
+					'confirm_text'     => 'confirm_ignore_all_results',
 					'unexpected'       => 'discard',
 				],
 			],
 		] );
 
-		$this->assertSame( 'Example Plugin', $header[ 'title' ] );
+		$this->assertSame( 'example_plugin_title', $header[ 'title' ] );
 		$this->assertSame(
 			[
 				[
 					'kind'             => 'ajax',
-					'label'            => 'Ignore All Results',
+					'label'            => 'ignore_all_results_label',
 					'type'             => 'deactivate',
 					'icon_class'       => '',
 					'href'             => '',
 					'ajax_action_json' => '{"sub_action":"ignore_all"}',
-					'confirm_text'     => 'Ignore all active results for Example Plugin?',
+					'confirm_text'     => 'confirm_ignore_all_results',
 				],
 			],
 			$header[ 'actions' ]
@@ -48,19 +48,19 @@ class OperatorChromeContractTest extends BaseUnitTest {
 
 	public function test_normalize_header_discards_context_actions_without_renderable_payload() :void {
 		$header = OperatorChromeContract::normalizeHeader( [
-			'title'   => 'Example Plugin',
+			'title'   => 'example_plugin_title',
 			'actions' => [
 				[
 					'kind'  => 'ajax',
-					'label' => 'Broken Ajax Action',
+					'label' => 'broken_ajax_action',
 				],
 				[
 					'kind'  => 'href',
-					'label' => 'Broken Href Action',
+					'label' => 'broken_href_action',
 				],
 				[
 					'kind'             => 'ajax',
-					'label'            => 'Ignore All Results',
+					'label'            => 'ignore_all_results_label',
 					'type'             => 'deactivate',
 					'ajax_action_json' => '{"sub_action":"ignore_all"}',
 				],
@@ -71,7 +71,7 @@ class OperatorChromeContractTest extends BaseUnitTest {
 			[
 				[
 					'kind'             => 'ajax',
-					'label'            => 'Ignore All Results',
+					'label'            => 'ignore_all_results_label',
 					'type'             => 'deactivate',
 					'icon_class'       => '',
 					'href'             => '',

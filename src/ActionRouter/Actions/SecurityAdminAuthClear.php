@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAd
 
 class SecurityAdminAuthClear extends SecurityAdminBase {
 
+	use Traits\NonceVerifyRequired;
+
 	public const SLUG = 'sec_admin_auth_clear';
 
 	protected function exec() {

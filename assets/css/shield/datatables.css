@@ -53,14 +53,50 @@ th.meta {
 	width: 60px !important;
 	max-width: 60px !important;
 }
-td.identity a.ipv6 {
-	letter-spacing: -1px;
-}
 th.identity,
 td.identity,
 th.ip_linked,
 td.ip_linked {
 	max-width: 150px !important;
+}
+.activity-log-identity {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	max-width: 100%;
+}
+.activity-log-identity__badge {
+	font-size: 0.68rem;
+	font-weight: 700;
+	max-width: 100%;
+}
+.activity-log-identity__badge a {
+	color: inherit;
+	text-decoration: none;
+}
+.activity-log-identity__badge a:hover,
+.activity-log-identity__badge a:focus-visible {
+	text-decoration: underline;
+}
+.activity-log-identity__badge--ip {
+	display: inline-block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	vertical-align: bottom;
+	white-space: nowrap;
+}
+.activity-log-identity__badge--ip a {
+	display: inline-block;
+	max-width: 10rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	vertical-align: bottom;
+	white-space: nowrap;
+}
+.activity-log-date {
+	cursor: help;
+	white-space: nowrap;
 }
 .shield-section-datatable th.severity {
 	padding: 0.5rem 0.2rem;

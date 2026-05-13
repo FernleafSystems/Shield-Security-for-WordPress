@@ -82,14 +82,14 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 
 	public function test_normalize_table_contract_applies_defaults_for_missing_keys() :void {
 		$normalized = ( new InvestigateRenderContractsTestDouble() )->normalizeTableContract( [
-			'title'  => 'Recent Sessions',
+			'title'  => 'recent_sessions',
 			'status' => 'good',
 		] );
 
-		$this->assertSame( 'Recent Sessions', $normalized[ 'title' ] ?? '' );
+		$this->assertSame( 'recent_sessions', $normalized[ 'title' ] ?? '' );
 		$this->assertSame( 'good', $normalized[ 'status' ] ?? '' );
-		$this->assertSame( 'Full Log', $normalized[ 'full_log_text' ] ?? '' );
-		$this->assertSame( 'btn btn-outline-secondary btn-sm', $normalized[ 'full_log_button_class' ] ?? '' );
+		$this->assertArrayHasKey( 'full_log_text', $normalized );
+		$this->assertArrayHasKey( 'full_log_button_class', $normalized );
 		$this->assertTrue( $normalized[ 'show_header' ] ?? false );
 		$this->assertFalse( $normalized[ 'is_flat' ] ?? true );
 		$this->assertFalse( $normalized[ 'is_empty' ] ?? true );
@@ -99,26 +99,26 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 
 	public function test_normalize_table_contract_preserves_explicit_overrides() :void {
 		$normalized = ( new InvestigateRenderContractsTestDouble() )->normalizeTableContract( [
-			'title'                  => 'Recent Requests',
+			'title'                  => 'recent_requests',
 			'status'                 => 'warning',
-			'full_log_text'          => 'Open Requests Log',
-			'full_log_button_class'  => 'btn btn-primary btn-sm',
+			'full_log_text'          => 'open_requests_log',
+			'full_log_button_class'  => 'button_class_primary',
 			'show_header'            => false,
 			'is_flat'                => true,
 			'is_empty'               => true,
 			'empty_status'           => 'warning',
-			'empty_text'             => 'No request logs were found.',
+			'empty_text'             => 'empty_requests',
 		] );
 
-		$this->assertSame( 'Recent Requests', $normalized[ 'title' ] ?? '' );
+		$this->assertSame( 'recent_requests', $normalized[ 'title' ] ?? '' );
 		$this->assertSame( 'warning', $normalized[ 'status' ] ?? '' );
-		$this->assertSame( 'Open Requests Log', $normalized[ 'full_log_text' ] ?? '' );
-		$this->assertSame( 'btn btn-primary btn-sm', $normalized[ 'full_log_button_class' ] ?? '' );
+		$this->assertSame( 'open_requests_log', $normalized[ 'full_log_text' ] ?? '' );
+		$this->assertSame( 'button_class_primary', $normalized[ 'full_log_button_class' ] ?? '' );
 		$this->assertFalse( $normalized[ 'show_header' ] ?? true );
 		$this->assertTrue( $normalized[ 'is_flat' ] ?? false );
 		$this->assertTrue( $normalized[ 'is_empty' ] ?? false );
 		$this->assertSame( 'warning', $normalized[ 'empty_status' ] ?? '' );
-		$this->assertSame( 'No request logs were found.', $normalized[ 'empty_text' ] ?? '' );
+		$this->assertSame( 'empty_requests', $normalized[ 'empty_text' ] ?? '' );
 	}
 
 	public function test_lookup_behavior_contract_defaults_and_overrides() :void {
@@ -161,7 +161,7 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 		$shortcut = $subject->lookupShortcut(
 			'self',
 			'/admin/activity/by_ip?analyse_ip=203.0.113.8',
-			'Look up yourself',
+			'lookup_self',
 			'navigate',
 			'bi bi-globe2'
 		);
@@ -202,12 +202,12 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 			[
 				'show_subject_header'      => false,
 				'show_lookup_with_subject' => true,
-				'change_label'             => 'Change IP address',
+				'change_label'             => 'change_ip',
 			],
 			$subject->lookupDisplay( [
 				'show_subject_header'      => false,
 				'show_lookup_with_subject' => true,
-				'change_label'             => 'Change IP address',
+				'change_label'             => 'change_ip',
 			] )
 		);
 	}
@@ -253,28 +253,28 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 				'target'    => '#tabOne',
 				'nav_id'    => 'tab-one',
 				'controls'  => 'tabOne',
-				'label'     => 'Overview',
+				'label'     => 'overview',
 				'is_active' => true,
 			],
 			[
 				'target'    => '#tabTwo',
 				'nav_id'    => 'tab-two',
 				'controls'  => 'tabTwo',
-				'label'     => 'Activity',
+				'label'     => 'activity',
 				'count'     => 4,
 				'is_active' => false,
 			],
 		] );
 
-		$this->assertSame( 'Overview', (string)( $items[ 0 ][ 'label' ] ?? '' ) );
-		$this->assertSame( 'Activity (4)', (string)( $items[ 1 ][ 'label' ] ?? '' ) );
+		$this->assertSame( 'overview', (string)( $items[ 0 ][ 'label' ] ?? '' ) );
+		$this->assertArrayHasKey( 'label', $items[ 1 ] );
 	}
 
 	public function test_with_empty_state_strips_table_metadata_when_records_do_not_exist() :void {
 		$subject = new InvestigateRenderContractsTestDouble();
 		$table = $subject->withEmptyState(
 			$subject->tableContainerContract(
-				'Recent Activity Logs',
+				'recent_activity_logs',
 				'warning',
 				'activity',
 				'user',
@@ -284,16 +284,13 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 				'/admin/activity/logs'
 			),
 			0,
-			'No activity records were found for this subject.',
+			'empty_activity',
 			'warning'
 		);
 
 		$this->assertTrue( (bool)( $table[ 'is_empty' ] ?? false ) );
 		$this->assertSame( 'warning', (string)( $table[ 'empty_status' ] ?? '' ) );
-		$this->assertSame(
-			'No activity records were found for this subject.',
-			(string)( $table[ 'empty_text' ] ?? '' )
-		);
+		$this->assertSame( 'empty_activity', (string)( $table[ 'empty_text' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'table_type', $table );
 		$this->assertArrayNotHasKey( 'subject_type', $table );
 		$this->assertArrayNotHasKey( 'subject_id', $table );
@@ -303,7 +300,7 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 
 	public function test_table_container_contract_omits_empty_full_log_href() :void {
 		$table = ( new InvestigateRenderContractsTestDouble() )->tableContainerContract(
-			'Recent Activity Logs',
+			'recent_activity_logs',
 			'warning',
 			'activity',
 			'plugin',
@@ -312,7 +309,7 @@ class InvestigateRenderContractsTest extends BaseUnitTest {
 			[ 'slug' => 'investigation_table' ]
 		);
 
-		$this->assertSame( 'Recent Activity Logs', (string)( $table[ 'title' ] ?? '' ) );
+		$this->assertSame( 'recent_activity_logs', (string)( $table[ 'title' ] ?? '' ) );
 		$this->assertSame( 'activity', (string)( $table[ 'table_type' ] ?? '' ) );
 		$this->assertSame( 'plugin', (string)( $table[ 'subject_type' ] ?? '' ) );
 		$this->assertSame( 'akismet/akismet.php', (string)( $table[ 'subject_id' ] ?? '' ) );

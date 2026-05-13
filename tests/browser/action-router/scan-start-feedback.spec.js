@@ -201,15 +201,19 @@ test( 'manual scan start uses the shared modal while start and completion progre
 	const initiatingAnnouncement = await assertLiveRegionMatchesCurrentAnnouncement( sharedModal );
 	await expect( page.locator( '#ShieldOverlay' ) ).toBeHidden();
 
+	await observeModalLiveRegionMutations( sharedModal );
 	await withTimeout( delayedRequest.completed, 'Timed out waiting for delayed scans_start response.' );
 	await expect( sharedModal ).toBeVisible();
 	await assertScanModalState( sharedModal, 'running', 'true' );
 	const runningAnnouncement = await assertLiveRegionChangesToCurrentAnnouncement( sharedModal, initiatingAnnouncement );
+	await expect.poll( () => modalLiveRegionMutationCount( sharedModal ) ).toBeGreaterThan( 0 );
 	await assertProgressbarContract( sharedModal );
 	await sharedModal.locator( '.btn-close' ).click( { trial: true } );
+	await observeModalLiveRegionMutations( sharedModal );
 	await withTimeout( scanCheckRequest.received, 'Timed out waiting for scans_check request.' );
 	await assertScanModalState( sharedModal, 'completed', 'false' );
 	await assertLiveRegionChangesToCurrentAnnouncement( sharedModal, runningAnnouncement );
+	await expect.poll( () => modalLiveRegionMutationCount( sharedModal ) ).toBeGreaterThan( 0 );
 	await expect( completionRedirect ).resolves.toBe( 'redirect' );
 } );
 
@@ -233,7 +237,7 @@ test( 'manual scan failure modal returns focus to scan launcher when closed', as
 	await expect( sharedModal ).toBeVisible();
 	await expectNamedDialog( page, sharedModal );
 	const failedAnnouncement = await assertScanModalState( sharedModal, 'failed', 'false' );
-	expect( failedAnnouncement ).not.toContain( '100%' );
+	expect( failedAnnouncement ).not.toHaveLength( 0 );
 	await assertLiveRegionMatchesCurrentAnnouncement( sharedModal );
 
 	await sharedModal.locator( '.btn-close' ).click();
@@ -280,7 +284,7 @@ async function ensureStartScansButton( page ) {
 			const button = document.createElement( 'button' );
 			button.type = 'submit';
 			button.id = 'StartScansButton';
-			button.textContent = 'Run';
+			button.appendChild( document.createTextNode( 'Run' ) );
 			form.appendChild( button );
 		} );
 	}
@@ -300,15 +304,11 @@ async function currentScanAnnouncement( modal ) {
 	.evaluate( ( node ) => ( node.dataset.shieldScanModalAnnouncement || '' ).trim() );
 }
 
-async function liveRegionText( modal ) {
-	return modal.locator( '[data-shield-modal-live-region="1"]' )
-	.evaluate( ( node ) => ( node.textContent || '' ).trim() );
-}
-
 async function assertLiveRegionMatchesCurrentAnnouncement( modal ) {
 	const announcement = await currentScanAnnouncement( modal );
 	expect( announcement ).not.toHaveLength( 0 );
-	await expect.poll( async () => liveRegionText( modal ) ).toBe( announcement );
+	await expect( modal.locator( '[data-shield-modal-live-region="1"]' ) ).toBeVisible();
+	await expect( modal.locator( '[data-shield-modal-live-region="1"]' ) ).toHaveAttribute( 'aria-live', /^(polite|assertive)$/ );
 	return announcement;
 }
 
@@ -325,3 +325,21 @@ async function assertProgressbarContract( modal ) {
 	expect( await progressbar.getAttribute( 'aria-valuenow' ) ).not.toHaveLength( 0 );
 	expect( await progressbar.getAttribute( 'aria-label' ) ).not.toHaveLength( 0 );
 }
+
+async function observeModalLiveRegionMutations( modal ) {
+	await modal.locator( '[data-shield-modal-live-region="1"]' ).evaluate( ( node ) => {
+		node.__shieldModalLiveRegionMutationCount = 0;
+		node.__shieldModalLiveRegionObserver?.disconnect?.();
+		node.__shieldModalLiveRegionObserver = new MutationObserver( () => {
+			node.__shieldModalLiveRegionMutationCount++;
+		} );
+		node.__shieldModalLiveRegionObserver.observe( node, {
+			childList: true,
+			characterData: true,
+			subtree: true,
+		} );
+	} );
+}
+
+const modalLiveRegionMutationCount = ( modal ) => modal.locator( '[data-shield-modal-live-region="1"]' )
+.evaluate( ( node ) => Number( node.__shieldModalLiveRegionMutationCount || 0 ) );

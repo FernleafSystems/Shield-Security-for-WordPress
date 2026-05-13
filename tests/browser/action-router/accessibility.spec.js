@@ -26,12 +26,9 @@ async function expectConnectedNonEmptyReference( page, locator, attribute ) {
 	expect( referenceValue ).not.toHaveLength( 0 );
 
 	for ( const referenceId of referenceValue.split( /\s+/ ) ) {
-		await expect( page.locator( `#${referenceId}` ) ).toHaveCount( 1 );
-		expect(
-			await page.locator( `#${referenceId}` ).evaluate(
-				( node ) => node.isConnected && ( node.textContent || '' ).trim().length > 0
-			)
-		).toBe( true );
+		const reference = page.locator( `#${referenceId}` );
+		await expect( reference ).toHaveCount( 1 );
+		await expect( reference ).toHaveAccessibleName( /\S/ );
 	}
 }
 
@@ -95,9 +92,7 @@ async function expectAccessibleAdminShell( page ) {
 	const shellTitle = page.locator( '#ShieldAdminShellTitle' );
 	await expect( shellTitle ).toHaveCount( 1 );
 	await expect( shellTitle ).not.toHaveCSS( 'display', 'none' );
-	expect(
-		await shellTitle.evaluate( ( node ) => ( node.textContent || '' ).trim().length > 0 )
-	).toBe( true );
+	await expect( shell ).toHaveAccessibleName( /\S/ );
 
 	const contentPane = page.locator( '#PageMainBody_Inner-Apto' );
 	await expect( contentPane ).toHaveCount( 1 );

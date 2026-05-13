@@ -128,18 +128,15 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 			$targetIp
 		) );
 		$rows = $datatable[ 'data' ] ?? [];
+		$userIds = \array_values( \array_map(
+			static fn( array $row ) :int => (int)( $row[ 'uid' ] ?? 0 ),
+			$rows
+		) );
 
 		$this->assertSame( 2, \count( $rows ) );
 		$this->assertSame( 2, (int)( $datatable[ 'recordsTotal' ] ?? 0 ) );
 		$this->assertSame( 2, (int)( $datatable[ 'recordsFiltered' ] ?? 0 ) );
-		$this->assertCount( 2, \array_filter(
-			$rows,
-			fn( array $row ) :bool => \strpos( (string)( $row[ 'details' ] ?? '' ), $targetIp ) !== false
-		) );
-		$this->assertCount( 0, \array_filter(
-			$rows,
-			fn( array $row ) :bool => \strpos( (string)( $row[ 'details' ] ?? '' ), $otherIp ) !== false
-		) );
+		$this->assertEqualsCanonicalizing( [ $primaryUserId, $secondaryUserId ], $userIds );
 	}
 
 	public function testValidSessionsIpPayloadHonorsUidSearchPaneFilter() :void {
@@ -173,10 +170,6 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame( 1, (int)( $datatable[ 'recordsFiltered' ] ?? 0 ) );
 		$this->assertCount( 1, $rows );
 		$this->assertSame( [ $secondaryUserId ], $userIds );
-		$this->assertCount( 1, \array_filter(
-			$rows,
-			fn( array $row ) :bool => \strpos( (string)( $row[ 'details' ] ?? '' ), $targetIp ) !== false
-		) );
 	}
 
 	public function testValidActivityIpPayloadReturnsOnlyRowsForInvestigatedIp() :void {
@@ -204,7 +197,7 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertFalse( \in_array( $otherIp, $ips, true ) );
 	}
 
-	public function testGetRequestMetaReturnsRequestMetaHtmlForInvestigatedActivityRequest() :void {
+	public function testGetRequestMetaReturnsStructuredMetaForInvestigatedActivityRequest() :void {
 		$rid = 'rqmeta1234';
 		$requestId = TestDataFactory::insertRequestLog( '203.0.113.103', [
 			'rid'  => $rid,
@@ -224,9 +217,31 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		] )->payload();
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$this->assertStringContainsString( '/fixture/request-meta', (string)( $payload[ 'html' ] ?? '' ) );
-		$this->assertStringContainsString( 'Investigation Integration Fixture/1.0', (string)( $payload[ 'html' ] ?? '' ) );
-		$this->assertStringContainsString( '418', (string)( $payload[ 'html' ] ?? '' ) );
+		$meta = \is_array( $payload[ 'request_meta' ] ?? null ) ? $payload[ 'request_meta' ] : [];
+		$this->assertTrue( (bool)( $meta[ 'is_valid' ] ?? false ) );
+		$this->assertSame( $rid, (string)( $meta[ 'rid' ] ?? '' ) );
+		$this->assertSame( '/fixture/request-meta', (string)( $meta[ 'values' ][ 'path' ] ?? '' ) );
+		$this->assertSame( '0', (string)( $meta[ 'values' ][ 'uid' ] ?? '' ) );
+		$this->assertArrayHasKey( 'ua', $meta[ 'values' ] ?? [] );
+		$this->assertSame( '418', (string)( $meta[ 'values' ][ 'code' ] ?? '' ) );
+		$this->assertSame( 'POST', (string)( $meta[ 'values' ][ 'verb' ] ?? '' ) );
+		$this->assertSame( [ 'rid', 'type', 'uid', 'ts', 'verb', 'path', 'code', 'ua' ], \array_column( $meta[ 'fields' ] ?? [], 'key' ) );
+		$this->assertArrayHasKey( 'html', $payload );
+	}
+
+	public function testGetRequestMetaReturnsInvalidStructuredContractForUnknownRid() :void {
+		$payload = $this->processor()->processAction( InvestigationTableAction::SLUG, [
+			InvestigationTableContract::REQ_KEY_SUB_ACTION => InvestigationTableContract::SUB_ACTION_GET_REQUEST_META,
+			InvestigationTableContract::REQ_KEY_RID        => 'missingrid01',
+		] )->payload();
+
+		$meta = \is_array( $payload[ 'request_meta' ] ?? null ) ? $payload[ 'request_meta' ] : [];
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertSame( 'missingrid01', (string)( $meta[ 'rid' ] ?? '' ) );
+		$this->assertFalse( (bool)( $meta[ 'is_valid' ] ?? true ) );
+		$this->assertSame( [], $meta[ 'values' ] ?? [ 'unexpected' ] );
+		$this->assertSame( [], $meta[ 'fields' ] ?? [ 'unexpected' ] );
+		$this->assertArrayHasKey( 'html', $payload );
 	}
 
 	public function testValidTrafficIpPayloadReturnsOnlyRowsForInvestigatedIp() :void {
@@ -257,10 +272,6 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame( [ $targetIp, $targetIp ], $ips );
 		$this->assertSame( 2, (int)( $datatable[ 'recordsTotal' ] ?? 0 ) );
 		$this->assertSame( 2, (int)( $datatable[ 'recordsFiltered' ] ?? 0 ) );
-		$this->assertCount( 0, \array_filter(
-			$rows,
-			fn( array $row ) :bool => \strpos( (string)( $row[ 'page' ] ?? '' ), '/other-ip' ) !== false
-		) );
 	}
 
 	public function testTrafficIpPayloadRejectsTamperedOrderColumnAtSqlSink() :void {
@@ -304,10 +315,6 @@ class InvestigationTableActionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame( [ $targetIp, $targetIp ], $ips );
 		$this->assertSame( 2, (int)( $datatable[ 'recordsTotal' ] ?? 0 ) );
 		$this->assertSame( 2, (int)( $datatable[ 'recordsFiltered' ] ?? 0 ) );
-		$this->assertCount( 0, \array_filter(
-			$rows,
-			fn( array $row ) :bool => \strpos( (string)( $row[ 'page' ] ?? '' ), '/other-order' ) !== false
-		) );
 	}
 
 	public function testValidActivityThemePayloadReturnsDatatableEnvelope() :void {

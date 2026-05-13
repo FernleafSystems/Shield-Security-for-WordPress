@@ -37,12 +37,13 @@ const activeElementSelectionKey = ( page, selectionAttr ) => page.evaluate( ( at
 
 const drillLiveRegion = ( page, rootSelector ) => page.locator( `${rootSelector} [data-drill-live-region="1"]` ).first();
 
-const liveRegionTextLength = ( page, rootSelector ) => drillLiveRegion( page, rootSelector ).evaluate( ( node ) => {
-	return String( node.textContent || '' ).trim().length;
-} );
-
-async function expectLiveRegionNonEmpty( page, rootSelector ) {
-	await expect.poll( () => liveRegionTextLength( page, rootSelector ) ).toBeGreaterThan( 0 );
+async function expectLiveRegionContract( page, rootSelector, { minMutations = null } = {} ) {
+	const region = drillLiveRegion( page, rootSelector );
+	await expect( region ).toBeVisible();
+	await expect( region ).toHaveAttribute( 'aria-live', /^(polite|assertive)$/ );
+	if ( minMutations !== null ) {
+		await expect.poll( () => liveRegionMutationCount( page ) ).toBeGreaterThanOrEqual( minMutations );
+	}
 }
 
 async function observeLiveRegionMutations( page, rootSelector ) {
@@ -78,22 +79,24 @@ async function callDrillController( shell, methodName, args = [] ) {
 	} );
 }
 
-async function expectNamedRegion( layer ) {
+async function expectNamedRegion( layer, { hidden = false } = {} ) {
 	await expect( layer ).toHaveAttribute( 'role', 'region' );
-	await expect.poll( () => layer.evaluate( ( element ) => {
-		const labelId = String( element.getAttribute( 'aria-labelledby' ) || '' ).trim();
-		const label = labelId.length > 0
-			? element.ownerDocument.getElementById( labelId )
-			: null;
-
-		return label instanceof HTMLElement
-			&& label.isConnected
-			&& String( label.textContent || '' ).trim().length > 0;
-	} ) ).toBe( true );
+	const labelRef = await layer.evaluate( ( element ) => {
+		const id = ( element.getAttribute( 'aria-labelledby' ) || '' ).trim();
+		return {
+			id,
+			exists: id !== '' && element.ownerDocument.getElementById( id ) !== null,
+		};
+	} );
+	expect( labelRef.id.length ).toBeGreaterThan( 0 );
+	expect( labelRef.exists ).toBe( true );
+	if ( !hidden ) {
+		await expect( layer ).toHaveAccessibleName( /\S/ );
+	}
 }
 
 async function expectLayerContract( layer, { hidden, busy = false } ) {
-	await expectNamedRegion( layer );
+	await expectNamedRegion( layer, { hidden } );
 	await expect( layer ).toHaveAttribute( 'tabindex', '-1' );
 	await expect( layer ).toHaveAttribute( 'aria-hidden', hidden ? 'true' : 'false' );
 	await expect( layer ).toHaveAttribute( 'aria-busy', busy ? 'true' : 'false' );
@@ -198,14 +201,14 @@ test( 'drill layers expose active state and restore focus to the launcher', asyn
 	const configureShell = page.locator( '[data-configure-landing="1"] [data-drill-shell="1"]' ).first();
 
 	await expectNamedRegion( rootLayer );
-	await expectNamedRegion( diagnosisLayer );
+	await expectNamedRegion( diagnosisLayer, { hidden: true } );
 	await expect( rootLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 	await expect( diagnosisLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 
 	await zoneLauncher.click();
 	await expect( diagnosisLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 	await expect( rootLayer ).toHaveAttribute( 'aria-hidden', 'true' );
-	await expectLiveRegionNonEmpty( page, '[data-configure-landing="1"]' );
+	await expectLiveRegionContract( page, '[data-configure-landing="1"]' );
 	await observeLiveRegionMutations( page, '[data-configure-landing="1"]' );
 	await callDrillController( configureShell, 'drillTo', [ 1 ] );
 	await page.waitForTimeout( 80 );
@@ -262,7 +265,7 @@ test( 'reports workspace drill keeps named regions, focus, and breadcrumb state'
 	const workspaceLauncher = page.locator( '[data-reports-landing="1"] [data-drill-target="workspace"]' ).first();
 
 	await expectNamedRegion( rootLayer );
-	await expectNamedRegion( workspaceLayer );
+	await expectNamedRegion( workspaceLayer, { hidden: true } );
 	await expect( rootLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 	await expect( workspaceLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 
@@ -271,7 +274,7 @@ test( 'reports workspace drill keeps named regions, focus, and breadcrumb state'
 	await expect( rootLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 	await expect.poll( () => activeElementDrillLayer( page ) ).toBe( '1' );
 	await expect( page.locator( '[data-mode-shell="1"][data-mode="reports"] [data-operator-step-tab="1"][aria-current="step"]' ) ).toHaveCount( 1 );
-	await expectLiveRegionNonEmpty( page, '[data-reports-landing="1"]' );
+	await expectLiveRegionContract( page, '[data-reports-landing="1"]' );
 	await expectNoAxeViolations( page, '[data-reports-section="drilldown"]' );
 } );
 
@@ -300,7 +303,7 @@ test( 'actions queue drill path keeps layer state, focus, announcements, and axe
 		await expect( groupsLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 		await expect.poll( () => activeElementDrillLayerKey( page ) ).toBe( 'groups' );
 		await expect.poll( () => liveRegionMutationCount( page ) ).toBeGreaterThan( 0 );
-		await expectLiveRegionNonEmpty( page, '[data-actions-landing="1"]' );
+		await expectLiveRegionContract( page, '[data-actions-landing="1"]', { minMutations: 1 } );
 		await expect( liveRegion ).toHaveAttribute( 'aria-live', 'polite' );
 		await expectNoAxeViolations(
 			page,
@@ -385,7 +388,7 @@ test( 'actions queue clears groups layer busy state without stale announcement w
 		await actionsQueuePage.clickElement( bucket );
 		await expect.poll( delayedGroups.seen ).toBe( true );
 		await expect( groupsLayer ).toHaveAttribute( 'aria-busy', 'true' );
-		await expectLiveRegionNonEmpty( page, '[data-actions-landing="1"]' );
+		await expectLiveRegionContract( page, '[data-actions-landing="1"]' );
 		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 		await expect( groupsLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect( groupsLayer ).toHaveAttribute( 'aria-busy', 'false' );
@@ -426,7 +429,7 @@ test( 'actions queue clears detail layer busy state without stale announcement w
 		await actionsQueuePage.clickElement( group );
 		await expect.poll( delayedDetail.seen ).toBe( true );
 		await expect( detailLayer ).toHaveAttribute( 'aria-busy', 'true' );
-		await expectLiveRegionNonEmpty( page, '[data-actions-landing="1"]' );
+		await expectLiveRegionContract( page, '[data-actions-landing="1"]' );
 		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
 		await expect( detailLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 		await expect( detailLayer ).toHaveAttribute( 'aria-busy', 'false' );
@@ -472,7 +475,7 @@ test( 'actions queue detail failure clears busy state and announces assertively'
 		await expect.poll( failedDetail.seen ).toBe( true );
 		await expect( detailLayer ).toHaveAttribute( 'aria-busy', 'false' );
 		await expect( liveRegion ).toHaveAttribute( 'aria-live', 'assertive' );
-		await expectLiveRegionNonEmpty( page, '[data-actions-landing="1"]' );
+		await expectLiveRegionContract( page, '[data-actions-landing="1"]' );
 		await expect.poll( () => activeElementDrillLayerKey( page ) ).toBe( 'detail' );
 
 		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
@@ -538,7 +541,7 @@ test( 'investigate panel failure clears busy state and announces assertively', a
 	await expect( panelContent ).toHaveAttribute( 'aria-busy', 'false' );
 	await expect( panel ).toHaveAttribute( 'data-investigate-panel-loaded', '0' );
 	await expect( liveRegion ).toHaveAttribute( 'aria-live', 'assertive' );
-	await expectLiveRegionNonEmpty( page, '[data-investigate-landing="1"]' );
+	await expectLiveRegionContract( page, '[data-investigate-landing="1"]' );
 	await expect.poll( () => activeElementDrillLayer( page ) ).toBe( '1' );
 	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 	await expect( panelLayer ).toHaveAttribute( 'aria-hidden', 'true' );

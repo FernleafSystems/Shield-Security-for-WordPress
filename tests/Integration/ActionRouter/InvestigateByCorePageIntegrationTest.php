@@ -8,16 +8,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	HtmlDomAssertions,
-	InvestigateRoutePanelAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class InvestigateByCorePageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use HtmlDomAssertions;
-	use InvestigateRoutePanelAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
@@ -60,23 +56,21 @@ class InvestigateByCorePageIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertSame( 'wordpress', $tableAction[ 'type' ] ?? '' );
 			$this->assertSame( 'wordpress', $tableAction[ 'file' ] ?? '' );
 		}
-
-		$this->assertInvestigateRoutePreloadsSubjectPanel(
-			$this->renderByCorePage(),
-			'activity by-core route',
-			'core',
-			'Core Files',
-			'//*[@data-drill-layer="1"]//*[@id="ShieldInvestigateByCoreTabsNav"]'
-		);
+		$routePayload = $this->renderByCorePage();
+		$this->assertRouteRenderOutputHealthy( $routePayload, 'activity by-core route' );
+		$this->assertPluginAdminShellRouteState( $routePayload, PluginNavs::SUBNAV_ACTIVITY_BY_CORE );
 	}
 
 	public function test_panel_body_action_renders_core_markup_contract() :void {
-		$panelHtml = $this->assertRouteRenderOutputHealthy(
-			$this->renderByCorePanelBody(),
+		$payload = $this->renderByCorePanelBody();
+		$this->assertRouteRenderOutputHealthy(
+			$payload,
 			'investigate by-core panel body action'
 		);
-		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $panelHtml );
-		$this->assertStringContainsString( 'ShieldInvestigateByCoreTabsNav', $panelHtml );
-		$this->assertStringNotContainsString( 'data-inner-page-body-shell="1"', $panelHtml );
+		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
+		$this->assertSame( '/wpadmin/components/investigate/core_body.twig', (string)( $payload[ 'render_template' ] ?? '' ) );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
+		$this->assertArrayHasKey( 'subject_header', (array)( $renderData[ 'vars' ] ?? [] ) );
+		$this->assertSame( [ 'file_status', 'activity' ], \array_keys( (array)( $renderData[ 'vars' ][ 'tables' ] ?? [] ) ) );
 	}
 }

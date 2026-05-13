@@ -34,34 +34,12 @@ use Symfony\Component\Process\Process;
  */
 class LocalSiteRuntimeRefresher {
 
-	private const STATE_SCHEMA_VERSION = 1;
+	private const STATE_SCHEMA_VERSION = LocalSiteRuntimeHostManifestProvider::STATE_SCHEMA_VERSION;
 	private const PLUGIN_ROOT = '/var/www/html/wp-content/plugins/wp-simple-firewall';
 	private const MANIFEST_FILE = '.shield-browser-runtime-manifest.json';
 	private const REQUIRED_SENTINELS = [
 		'icwp-wpsf.php',
 		'plugin.json',
-	];
-	// The local browser lane intentionally mirrors source runtime only.
-	// Packaged-only vendor_prefixed coverage belongs to packaged lanes.
-	private const MANAGED_ROOTS = [
-		'icwp-wpsf.php',
-		'plugin.json',
-		'plugin_compatibility.php',
-		'plugin_init.php',
-		'unsupported.php',
-		'src',
-		'templates',
-		'languages',
-		'vendor',
-		'assets/dist',
-		'assets/images',
-		'flags',
-		'tests/Helpers/RuntimeTestState.php',
-		'tests/Helpers/TestDataFactory.php',
-		'tests/Helpers/BrowserFixtureRegistry.php',
-		'tests/Helpers/ActionRouter',
-		'tests/Helpers/CrossSite',
-		'tests/browser/support/shield-browser-fixtures.php',
 	];
 	private const TEMP_DIR = 'tmp/.browser-runtime-refresh';
 	private const ARCHIVE_FILE = 'runtime-refresh.tar';
@@ -74,8 +52,14 @@ class LocalSiteRuntimeRefresher {
 
 	private ProcessRunner $processRunner;
 
-	public function __construct( ?ProcessRunner $processRunner = null ) {
+	private LocalSiteRuntimeHostManifestProvider $hostManifestProvider;
+
+	public function __construct(
+		?ProcessRunner $processRunner = null,
+		?LocalSiteRuntimeHostManifestProvider $hostManifestProvider = null
+	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
+		$this->hostManifestProvider = $hostManifestProvider ?? new LocalSiteRuntimeHostManifestProvider();
 	}
 
 	/**
@@ -109,10 +93,16 @@ class LocalSiteRuntimeRefresher {
 
 	/**
 	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 * @param RuntimeManifest|null $hostManifest
 	 */
-	public function refresh( string $rootDir, string $containerId, ?callable $onOutput = null ) :void {
+	public function refresh(
+		string $rootDir,
+		string $containerId,
+		?callable $onOutput = null,
+		?array $hostManifest = null
+	) :void {
 		$this->writeProgress( "Refreshing local browser plugin runtime", $onOutput );
-		$hostManifest = $this->scanHostManifest( $rootDir, $onOutput );
+		$hostManifest = $this->resolveHostManifest( $rootDir, $hostManifest, $onOutput );
 		$refreshPlan = $this->buildRefreshPlan( $rootDir, $containerId, $hostManifest, $onOutput );
 		if ( $refreshPlan[ 'mode' ] === 'skip' ) {
 			return;
@@ -139,49 +129,6 @@ class LocalSiteRuntimeRefresher {
 			$command[] = $composeFile;
 		}
 		return \array_merge( $command, $subCommand );
-	}
-
-	/**
-	 * @return RuntimeManifest
-	 */
-	private function buildHostManifest( string $rootDir ) :array {
-		$files = [];
-		foreach ( self::MANAGED_ROOTS as $relativePath ) {
-			$absolutePath = Path::join( $rootDir, $relativePath );
-			if ( !\file_exists( $absolutePath ) ) {
-				continue;
-			}
-
-			if ( \is_file( $absolutePath ) ) {
-				$files[ $this->normalizeRelativePath( $relativePath ) ] = $this->describeFile( $absolutePath );
-				continue;
-			}
-
-			$iterator = new \RecursiveIteratorIterator(
-				new \RecursiveDirectoryIterator( $absolutePath, \FilesystemIterator::SKIP_DOTS )
-			);
-			foreach ( $iterator as $fileInfo ) {
-				if ( !$fileInfo->isFile() ) {
-					continue;
-				}
-
-				$relativeFilePath = $this->normalizeRelativePath(
-					Path::makeRelative( $fileInfo->getPathname(), $rootDir )
-				);
-				$files[ $relativeFilePath ] = $this->describeFile( $fileInfo->getPathname() );
-			}
-		}
-
-		\ksort( $files );
-		if ( empty( $files ) ) {
-			throw new \RuntimeException( 'Local browser runtime manifest is empty; no managed runtime files were found.' );
-		}
-
-		return [
-			'schema_version' => self::STATE_SCHEMA_VERSION,
-			'generated_at_unix' => \time(),
-			'files' => $files,
-		];
 	}
 
 	/**
@@ -323,17 +270,24 @@ PHP;
 	 * @param callable|null $onOutput Receives (string $type, string $buffer)
 	 * @return RuntimeManifest
 	 */
-	private function scanHostManifest( string $rootDir, ?callable $onOutput = null ) :array {
-		$scanStartedAt = \microtime( true );
-		$hostManifest = $this->runPhase(
-			'scan',
-			fn() => $this->buildHostManifest( $rootDir )
-		);
+	private function resolveHostManifest( string $rootDir, ?array $hostManifest, ?callable $onOutput = null ) :array {
+		if ( $hostManifest === null ) {
+			return $this->runPhase(
+				'scan',
+				fn() => $this->hostManifestProvider->manifest(
+					$rootDir,
+					LocalSiteRuntimeHostManifestProvider::MODE_FULL,
+					$onOutput
+				)
+			);
+		}
+		if ( ( $hostManifest[ 'schema_version' ] ?? null ) !== self::STATE_SCHEMA_VERSION
+			|| !\is_array( $hostManifest[ 'files' ] ?? null )
+		) {
+			throw new \RuntimeException( 'Supplied local browser runtime host manifest is invalid.' );
+		}
 		$this->writeProgress(
-			'Runtime refresh scan: '
-			.\count( $hostManifest[ 'files' ] )
-			.' managed files in '
-			.$this->formatDuration( \microtime( true ) - $scanStartedAt ),
+			'Runtime refresh scan: using shared host manifest with '.\count( $hostManifest[ 'files' ] ).' managed files',
 			$onOutput
 		);
 
@@ -836,25 +790,6 @@ PHP;
 				'Local browser runtime verification failed. Missing required sentinels: '.\trim( $process->getErrorOutput() )
 			);
 		}
-	}
-
-	/**
-	 * @return array{sha256:string,size:int}
-	 */
-	private function describeFile( string $filePath ) :array {
-		$hash = \hash_file( 'sha256', $filePath );
-		if ( !\is_string( $hash ) ) {
-			throw new \RuntimeException( 'Failed to hash runtime file: '.$filePath );
-		}
-
-		return [
-			'sha256' => $hash,
-			'size' => (int)\filesize( $filePath ),
-		];
-	}
-
-	private function normalizeRelativePath( string $path ) :string {
-		return \str_replace( '\\', '/', Path::normalize( $path ) );
 	}
 
 	private function formatDuration( float $seconds ) :string {

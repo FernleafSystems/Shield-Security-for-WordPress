@@ -7,11 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItem
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemUnignore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageActionsQueueLanding;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActionNonceException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\SecurityAdminRequiredException;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -44,22 +41,22 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		$pluginFiles = $this->requireAtLeastInstalledPlugins( 2 );
 		$this->setPluginUpdatesAvailable( $pluginFiles );
 
-		$beforePayload = $this->renderActionsQueueLandingPage();
-		$beforeMaintenance = $this->maintenanceZoneTile( $beforePayload );
+		$beforeState = ( new MaintenanceIssueStateProvider() )->buildStates()[ 'wp_plugins_updates' ] ?? [];
 
 		$response = $this->processMaintenanceAction( MaintenanceItemIgnore::class, [
 			'maintenance_key' => 'wp_plugins_updates',
 			'identifier'      => $pluginFiles[ 0 ],
 		] );
 
-		$afterPayload = $this->renderActionsQueueLandingPage();
-		$afterMaintenance = $this->maintenanceZoneTile( $afterPayload );
+		$afterState = ( new MaintenanceIssueStateProvider() )->buildStates()[ 'wp_plugins_updates' ] ?? [];
 
 		$this->assertTrue( (bool)( $response[ 'success' ] ?? false ) );
 		$this->assertSame(
-			(int)( $beforeMaintenance[ 'total_issues' ] ?? 0 ) - 1,
-			(int)( $afterMaintenance[ 'total_issues' ] ?? 0 )
+			(int)( $beforeState[ 'count' ] ?? 0 ) - 1,
+			(int)( $afterState[ 'count' ] ?? 0 )
 		);
+		$this->assertSame( 1, (int)( $afterState[ 'ignored_count' ] ?? 0 ) );
+		$this->assertSame( [ $pluginFiles[ 0 ] ], $afterState[ 'ignored_identifiers' ] ?? [] );
 		$this->assertSame(
 			[ $pluginFiles[ 0 ] ],
 			$this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates']
@@ -97,8 +94,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 			'maintenance_key' => 'wp_plugins_updates',
 			'identifier'      => $pluginFiles[ 0 ],
 		] );
-		$ignoredPayload = $this->renderActionsQueueLandingPage();
-		$ignoredMaintenance = $this->maintenanceZoneTile( $ignoredPayload );
+		$ignoredState = ( new MaintenanceIssueStateProvider() )->buildStates()[ 'wp_plugins_updates' ] ?? [];
 
 		$firstRestore = $this->processMaintenanceAction( MaintenanceItemUnignore::class, [
 			'maintenance_key' => 'wp_plugins_updates',
@@ -109,15 +105,16 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 			'identifier'      => $pluginFiles[ 0 ],
 		] );
 
-		$restoredPayload = $this->renderActionsQueueLandingPage();
-		$restoredMaintenance = $this->maintenanceZoneTile( $restoredPayload );
+		$restoredState = ( new MaintenanceIssueStateProvider() )->buildStates()[ 'wp_plugins_updates' ] ?? [];
 
 		$this->assertTrue( (bool)( $firstRestore[ 'success' ] ?? false ) );
 		$this->assertTrue( (bool)( $secondRestore[ 'success' ] ?? false ) );
 		$this->assertSame(
-			(int)( $ignoredMaintenance[ 'total_issues' ] ?? 0 ) + 1,
-			(int)( $restoredMaintenance[ 'total_issues' ] ?? 0 )
+			(int)( $ignoredState[ 'count' ] ?? 0 ) + 1,
+			(int)( $restoredState[ 'count' ] ?? 0 )
 		);
+		$this->assertSame( 0, (int)( $restoredState[ 'ignored_count' ] ?? -1 ) );
+		$this->assertSame( [], $restoredState[ 'ignored_identifiers' ] ?? [ 'unexpected' ] );
 		$this->assertSame( [], $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates'] );
 	}
 
@@ -130,6 +127,7 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$this->assertFalse( (bool)( $response[ 'success' ] ?? true ) );
+		$this->assertSame( MaintenanceItemIgnore::ERROR_MISSING_IDENTIFIER, (string)( $response[ 'error_code' ] ?? '' ) );
 		$this->assertSame( [], $this->requireController()->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates'] );
 	}
 
@@ -233,25 +231,6 @@ class MaintenanceItemActionsIntegrationTest extends ShieldIntegrationTestCase {
 		finally {
 			$this->restoreActionNonceContext( $snapshot );
 		}
-	}
-
-	private function renderActionsQueueLandingPage() :array {
-		return $this->processActionPayloadWithAdminBypass( PageActionsQueueLanding::SLUG, [
-			Constants::NAV_ID     => PluginNavs::NAV_SCANS,
-			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_SCANS_OVERVIEW,
-		] );
-	}
-
-	private function maintenanceZoneTile( array $payload ) :array {
-		$zoneTiles = \is_array( $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ] ?? null )
-			? $payload[ 'render_data' ][ 'vars' ][ 'zone_tiles' ]
-			: [];
-		$matches = \array_values( \array_filter(
-			$zoneTiles,
-			static fn( array $tile ) :bool => (string)( $tile[ 'key' ] ?? '' ) === 'maintenance'
-		) );
-		$this->assertCount( 1, $matches );
-		return $matches[ 0 ] ?? [];
 	}
 
 	/**

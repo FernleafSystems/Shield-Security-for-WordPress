@@ -139,8 +139,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label' => 'Known Vulnerabilities',
 						'items' => [
 							[
-								'key'         => 'vulnerability-example-plugin',
+								'key'         => 'vulnerability-plugin-example-plugin',
 								'asset_key'   => 'example-plugin',
+								'asset_type'  => 'plugin',
 								'label'       => 'Example Plugin',
 								'description' => '1 known vulnerability needs review.',
 								'count'       => 1,
@@ -167,8 +168,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label' => 'Abandoned Assets',
 						'items' => [
 							[
-								'key'         => 'abandoned-example-theme',
+								'key'         => 'abandoned-theme-example-theme',
 								'asset_key'   => 'example-theme',
+								'asset_type'  => 'theme',
 								'label'       => 'Example Theme',
 								'description' => 'This asset appears to be abandoned and should be reviewed.',
 								'count'       => 1,
@@ -245,10 +247,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				'wordpress',
 				'malware',
 				'file_locker',
-				'vulnerabilities:vulnerability-example-plugin',
+				'vulnerabilities:vulnerability-plugin-example-plugin',
 				'plugins:example-plugin',
 				'themes:example-theme',
-				'abandoned:abandoned-example-theme',
+				'abandoned:abandoned-theme-example-theme',
 			],
 			\array_column( $groups, 'key' )
 		);
@@ -259,10 +261,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				[ 'wordpress', 'malware', 'file_locker' ],
-				[ 'vulnerabilities:vulnerability-example-plugin' ],
+				[ 'vulnerabilities:vulnerability-plugin-example-plugin' ],
 				[ 'plugins:example-plugin' ],
 				[ 'themes:example-theme' ],
-				[ 'abandoned:abandoned-example-theme' ],
+				[ 'abandoned:abandoned-theme-example-theme' ],
 			],
 			$this->sectionGroupKeys( $data[ 'active_sections' ] )
 		);
@@ -847,8 +849,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label' => 'Known Vulnerabilities',
 						'items' => [
 							[
-								'key'         => 'vulnerability-example-plugin',
+								'key'         => 'vulnerability-plugin-example-plugin',
 								'asset_key'   => 'example-plugin',
+								'asset_type'  => 'plugin',
 								'label'       => 'Example Plugin',
 								'description' => '1 known vulnerability needs review.',
 								'count'       => 1,
@@ -861,8 +864,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label' => 'Abandoned Assets',
 						'items' => [
 							[
-								'key'         => 'abandoned-example-theme',
+								'key'         => 'abandoned-theme-example-theme',
 								'asset_key'   => 'example-theme',
+								'asset_type'  => 'theme',
 								'label'       => 'Example Theme',
 								'description' => 'This asset appears to be abandoned and should be reviewed.',
 								'count'       => 1,
@@ -900,7 +904,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame(
-			[ 'vulnerabilities:vulnerability-example-plugin', 'abandoned:abandoned-example-theme' ],
+			[ 'vulnerabilities:vulnerability-plugin-example-plugin', 'abandoned:abandoned-theme-example-theme' ],
 			\array_column( $this->flattenLayerGroups( $data ), 'key' )
 		);
 		$this->assertSame( 1, $builder->getVulnerabilitiesPayloadCalls() );
@@ -1115,8 +1119,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'label' => 'Known Vulnerabilities',
 						'items' => [
 							[
-								'key'         => 'vulnerability-example-plugin',
+								'key'         => 'vulnerability-plugin-example-plugin',
 								'asset_key'   => 'example-plugin',
+								'asset_type'  => 'plugin',
 								'label'       => 'Example Plugin',
 								'description' => '1 known vulnerability needs review.',
 								'count'       => 1,
@@ -1170,10 +1175,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame( [ [ 'vulnerabilities:vulnerability-example-plugin' ] ], $this->sectionGroupKeys( $data[ 'active_sections' ] ) );
+		$this->assertSame( [ [ 'vulnerabilities:vulnerability-plugin-example-plugin' ] ], $this->sectionGroupKeys( $data[ 'active_sections' ] ) );
 		$this->assertSame( [ [ 'themes' ], [ 'abandoned' ] ], $this->sectionGroupKeys( $data[ 'healthy_sections' ] ) );
 		$this->assertSame(
-			[ 'vulnerabilities:vulnerability-example-plugin' ],
+			[ 'vulnerabilities:vulnerability-plugin-example-plugin' ],
 			\array_column( $data[ 'active_sections' ][ 0 ][ 'groups' ], 'key' )
 		);
 		$this->assertSame(

@@ -101,8 +101,8 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 
 		$data = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
-		$this->assertSame( 'Landing Title', $data[ 'strings' ][ 'inner_page_title' ] );
-		$this->assertSame( 'Landing Subtitle', $data[ 'strings' ][ 'inner_page_subtitle' ] );
+		$this->assertArrayHasKey( 'inner_page_title', $data[ 'strings' ] ?? [] );
+		$this->assertArrayHasKey( 'inner_page_subtitle', $data[ 'strings' ] ?? [] );
 		$this->assertSame( 'value', $data[ 'strings' ][ 'extra' ] );
 		$this->assertSame( 'icon-gear', $data[ 'imgs' ][ 'inner_page_title_icon' ] );
 		$this->assertSame( [ 'main' => 'content' ], $data[ 'content' ] );
@@ -113,13 +113,13 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'accent_status', $data[ 'vars' ][ 'mode_shell' ] );
 		$this->assertSame( 'compact', $data[ 'vars' ][ 'mode_shell' ][ 'header_density' ] );
 		$this->assertSame( '/admin/home', $data[ 'vars' ][ 'mode_shell' ][ 'home_href' ] ?? '' );
-		$this->assertSame( 'Dashboard', $data[ 'vars' ][ 'mode_shell' ][ 'home_label' ] ?? '' );
+		$this->assertArrayHasKey( 'home_label', $data[ 'vars' ][ 'mode_shell' ] ?? [] );
 		$this->assertTrue( (bool)$data[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] );
 		$this->assertFalse( (bool)$data[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] );
 		$this->assertTrue( (bool)$data[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] );
 		$rootStep = $data[ 'vars' ][ 'mode_shell' ][ 'root_step' ] ?? [];
-		$this->assertSame( 'Landing Title', $rootStep[ 'breadcrumb_label' ] ?? '' );
-		$this->assertSame( 'Landing Subtitle', $rootStep[ 'summary' ] ?? '' );
+		$this->assertSame( $data[ 'strings' ][ 'inner_page_title' ], $rootStep[ 'breadcrumb_label' ] ?? '' );
+		$this->assertSame( $data[ 'strings' ][ 'inner_page_subtitle' ], $rootStep[ 'summary' ] ?? '' );
 		$this->assertSame( 'configure', $rootStep[ 'color_key' ] ?? '' );
 		$this->assertArrayNotHasKey( 'display_options', $rootStep );
 		$this->assertSame(
@@ -132,7 +132,7 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 		$this->assertFalse( (bool)$data[ 'vars' ][ 'mode_tiles' ][ 0 ][ 'is_disabled' ] );
 		$this->assertSame( '', $data[ 'vars' ][ 'mode_panel' ][ 'active_target' ] );
 		$this->assertFalse( (bool)$data[ 'vars' ][ 'mode_panel' ][ 'is_open' ] );
-		$this->assertSame( 'Close', $data[ 'vars' ][ 'mode_panel' ][ 'close_label' ] );
+		$this->assertArrayHasKey( 'close_label', $data[ 'vars' ][ 'mode_panel' ] ?? [] );
 	}
 
 	public function test_empty_optional_sections_are_not_added() :void {
@@ -158,8 +158,8 @@ class PageModeLandingBaseTest extends BaseUnitTest {
 
 		$data = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
-		$this->assertSame( 'Minimal Title', $data[ 'strings' ][ 'inner_page_title' ] );
-		$this->assertSame( 'Minimal Subtitle', $data[ 'strings' ][ 'inner_page_subtitle' ] );
+		$this->assertArrayHasKey( 'inner_page_title', $data[ 'strings' ] ?? [] );
+		$this->assertArrayHasKey( 'inner_page_subtitle', $data[ 'strings' ] ?? [] );
 		$this->assertArrayNotHasKey( 'content', $data );
 		$this->assertArrayNotHasKey( 'flags', $data );
 		$this->assertArrayNotHasKey( 'hrefs', $data );

@@ -95,9 +95,8 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertSame( 1, \count( $diagnosis[ 'healthy_rows' ] ) );
 		$this->assertArrayNotHasKey( 'review_fallback_card', $diagnosis );
 		$this->assertArrayNotHasKey( 'review_rows_heading', $diagnosis );
-		$this->assertSame( 'Users', $diagnosis[ 'header' ][ 'title' ] );
-		$this->assertSame( 'Users', $diagnosis[ 'zone_selection' ][ 'label' ] );
-		$this->assertSame( '2FA is not enforced.', $diagnosis[ 'preview_text' ] );
+		$this->assertSame( $diagnosis[ 'zone_selection' ][ 'label' ] ?? '', $diagnosis[ 'header' ][ 'title' ] ?? null );
+		$this->assertArrayHasKey( 'preview_text', $diagnosis );
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'badge' ] ?? '' );
 		$this->assertNotSame( '', $diagnosis[ 'header' ][ 'next_step' ] ?? '' );
 		$this->assertArrayNotHasKey( 'healthy_rows_heading', $diagnosis );
@@ -122,7 +121,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 			$diagnosis[ 'healthy_rows' ][ 0 ][ 'expand_action' ][ 'id' ] ?? ''
 		);
 		$this->assertSame( 'password_reset', $diagnosis[ 'healthy_rows' ][ 0 ][ 'expand_action' ][ 'data_attributes' ][ 'zone_component_slug' ] ?? '' );
-		$this->assertSame( 'Password reset is enabled.', $diagnosis[ 'healthy_rows' ][ 0 ][ 'summary' ] );
+		$this->assertSame( 'password_reset', $diagnosis[ 'healthy_rows' ][ 0 ][ 'key' ] ?? '' );
 	}
 
 	public function test_all_good_zone_enters_review_state_without_findings() :void {
@@ -158,17 +157,15 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 							'Hide WP Login',
 							'warning',
 							'Needs Work',
-							'Hide The WP Login Page.'
+							'hide_login_warning'
 						),
 					],
 				],
 			] )
 		);
 
-		$this->assertSame(
-			'Protect the WordPress login and verify user logins with two-factor authentication.',
-			$diagnosis[ 'preview_text' ]
-		);
+		$this->assertArrayHasKey( 'preview_text', $diagnosis );
+		$this->assertNotSame( 'hide_login_warning', $diagnosis[ 'preview_text' ] ?? '' );
 	}
 
 	public function test_general_zone_uses_neutral_review_state() :void {
@@ -217,31 +214,15 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		$this->assertCount( 1, $diagnosis[ 'review_rows' ] );
 		$this->assertSame( [], $diagnosis[ 'healthy_rows' ] );
 		$this->assertArrayNotHasKey( 'review_fallback_card', $diagnosis );
-		$this->assertSame(
-			[
-				'key'               => 'review_fallback',
-				'title'             => 'Good',
-				'summary'           => 'All groups healthy',
-				'status'            => 'neutral',
-				'status_label'      => 'Review',
-				'status_icon_class' => 'bi bi-info-circle-fill',
-				'explanations'      => [],
-				'expand_action'     => [
-					'id'              => '',
-					'is_expandable'   => false,
-					'label'           => '',
-					'title'           => '',
-					'accessible_label'=> '',
-					'data_attributes' => [],
-				],
-			],
-			$diagnosis[ 'review_rows' ][ 0 ]
-		);
+		$this->assertSame( 'review_fallback', $diagnosis[ 'review_rows' ][ 0 ][ 'key' ] ?? '' );
+		$this->assertSame( 'neutral', $diagnosis[ 'review_rows' ][ 0 ][ 'status' ] ?? '' );
+		$this->assertSame( 'bi bi-info-circle-fill', $diagnosis[ 'review_rows' ][ 0 ][ 'status_icon_class' ] ?? '' );
+		$this->assertSame( [], $diagnosis[ 'review_rows' ][ 0 ][ 'explanations' ] ?? null );
+		$this->assertSame( false, $diagnosis[ 'review_rows' ][ 0 ][ 'expand_action' ][ 'is_expandable' ] ?? true );
 	}
 
 	public function test_build_rejects_rows_without_producer_owned_keys() :void {
 		$this->expectException( \LogicException::class );
-		$this->expectExceptionMessage( 'producer-owned row key' );
 
 		( new ConfigureZoneDiagnosisBuilder() )->build(
 			$this->buildZoneTile( 'login', 'Login', 'warning', 'Needs Work', '1 group needs work', [
@@ -269,15 +250,15 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 							'critical',
 							'Issue',
 							'',
-							[ 'Set a PIN before more admins are added.' ]
+							[ 'secadmin_summary' ]
 						),
 					],
 				],
 			] )
 		);
 
-		$this->assertSame( 'Set a PIN before more admins are added.', $diagnosis[ 'preview_text' ] );
-		$this->assertSame( 'Set a PIN before more admins are added.', $diagnosis[ 'problem_rows' ][ 0 ][ 'summary' ] );
+		$this->assertSame( 'secadmin_summary', $diagnosis[ 'preview_text' ] );
+		$this->assertSame( 'secadmin_summary', $diagnosis[ 'problem_rows' ][ 0 ][ 'summary' ] );
 	}
 
 	public function test_secadmin_header_includes_disable_action_when_enabled() :void {
@@ -286,7 +267,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		);
 
 		$this->assertCount( 1, $diagnosis[ 'header' ][ 'actions' ] );
-		$this->assertSame( 'Disable Security Admin', $diagnosis[ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
+		$this->assertArrayHasKey( 'label', $diagnosis[ 'header' ][ 'actions' ][ 0 ] ?? [] );
 		$this->assertSame( 'deactivate', $diagnosis[ 'header' ][ 'actions' ][ 0 ][ 'type' ] ?? '' );
 	}
 

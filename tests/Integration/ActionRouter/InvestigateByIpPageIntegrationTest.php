@@ -8,18 +8,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	HtmlDomAssertions,
-	InvestigateRoutePanelAssertions,
-	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use HtmlDomAssertions;
-	use InvestigateRoutePanelAssertions;
-	use LookupRouteFormAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
@@ -60,80 +54,34 @@ class InvestigateByIpPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
 		$this->assertSame( '203.0.113.88', (string)( $vars[ 'analyse_ip' ] ?? '' ) );
-
-		$this->assertInvestigateRoutePreloadsSubjectPanel(
-			$this->renderByIpPage( '203.0.113.88' ),
-			'activity by-ip route',
-			'ip',
-			'IP Address',
-			'//*[@data-drill-layer="1"]//*[@data-investigate-panel-content="1"]//*[contains(concat(" ", normalize-space(@class), " "), " investigate-inline-ipanalyse ")]'
-		);
+		$routePayload = $this->renderByIpPage( '203.0.113.88' );
+		$this->assertRouteRenderOutputHealthy( $routePayload, 'activity by-ip route' );
+		$this->assertPluginAdminShellRouteState( $routePayload, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
 	}
 
 	public function test_no_lookup_route_preloads_ip_panel_lookup_form() :void {
-		$this->assertInvestigateRoutePreloadsLookupPanel(
-			$this->renderByIpPage(),
-			'activity by-ip route without lookup',
-			'ip',
-			'IP Address',
-			'analyse_ip'
-		);
+		$routePayload = $this->renderByIpPage();
+		$this->assertRouteRenderOutputHealthy( $routePayload, 'activity by-ip route without lookup' );
+		$this->assertPluginAdminShellRouteState( $routePayload, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {
-		$payload = $this->renderByIpPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-
-		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
-		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
+		$renderData = (array)( $this->renderByIpPanelBody()[ 'render_data' ] ?? [] );
+		$this->assertSame( PluginNavs::SUBNAV_ACTIVITY_BY_IP, (string)( $renderData[ 'vars' ][ 'lookup_route' ][ Constants::NAV_SUB_ID ] ?? '' ) );
+		$this->assertSame( 'shield-investigate-ip-lookup-analyse_ip-control', (string)( $renderData[ 'vars' ][ 'lookup_field' ][ 'control_id' ] ?? '' ) );
 	}
 
-	public function test_panel_body_action_renders_ip_markup_contract() :void {
-		$panelHtml = $this->assertRouteRenderOutputHealthy(
-			$this->renderByIpPanelBody( '203.0.113.88' ),
+	public function test_panel_body_action_preserves_ip_subject_contract() :void {
+		$payload = $this->renderByIpPanelBody( '203.0.113.88' );
+		$this->assertRouteRenderOutputHealthy(
+			$payload,
 			'investigate by-ip panel body action'
 		);
-		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $panelHtml );
-		$this->assertStringContainsString( 'investigate-inline-ipanalyse', $panelHtml );
-		$this->assertStringNotContainsString( 'data-inner-page-body-shell="1"', $panelHtml );
-		$this->assertIpInvestigationTablesMarkup( $panelHtml, '203.0.113.88', 'investigate by-ip panel body action' );
-	}
-
-	private function assertIpInvestigationTablesMarkup( string $html, string $ip, string $label ) :void {
-		$xpath = $this->createDomXPathFromHtml( $html );
-
-		$this->assertXPathCount(
-			$xpath,
-			\sprintf(
-				'//*[@data-investigation-table="1" and @data-subject-type="ip" and @data-subject-id="%s"]',
-				$ip
-			),
-			3,
-			$label.' shared IP investigation tables'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			\sprintf(
-				'//*[@data-investigation-table="1" and @data-table-type="sessions" and @data-subject-type="ip" and @data-subject-id="%s"]',
-				$ip
-			),
-			$label.' sessions table marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			\sprintf(
-				'//*[@data-investigation-table="1" and @data-table-type="activity" and @data-subject-type="ip" and @data-subject-id="%s"]',
-				$ip
-			),
-			$label.' activity table marker'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			\sprintf(
-				'//*[@data-investigation-table="1" and @data-table-type="traffic" and @data-subject-type="ip" and @data-subject-id="%s"]',
-				$ip
-			),
-			$label.' traffic table marker'
-		);
+		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
+		$this->assertSame( '/wpadmin/components/investigate/ip_body.twig', (string)( $payload[ 'render_template' ] ?? '' ) );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
+		$this->assertSame( '203.0.113.88', (string)( $renderData[ 'vars' ][ 'analyse_ip' ] ?? '' ) );
+		$this->assertSame( '203.0.113.88', (string)( $renderData[ 'vars' ][ 'subject_header' ][ 'title' ] ?? '' ) );
+		$this->assertSame( 'ip', (string)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'subject' ] ?? '' ) );
 	}
 }

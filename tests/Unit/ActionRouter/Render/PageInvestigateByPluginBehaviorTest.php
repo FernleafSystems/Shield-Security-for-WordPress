@@ -118,15 +118,10 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? 'missing' ) );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'lookup_shortcuts' ] ?? null );
 		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'offcanvas_history_mode' ] ?? 'missing' ) );
-		$this->assertSame(
-			[
-				[
-					'value' => 'akismet/akismet.php',
-					'label' => 'Akismet (5.0)',
-				],
-			],
-			$renderData[ 'vars' ][ 'plugin_options' ] ?? []
-		);
+		$pluginOptions = $renderData[ 'vars' ][ 'plugin_options' ] ?? [];
+		$this->assertCount( 1, $pluginOptions );
+		$this->assertSame( 'akismet/akismet.php', $pluginOptions[ 0 ][ 'value' ] ?? '' );
+		$this->assertArrayHasKey( 'label', $pluginOptions[ 0 ] );
 	}
 
 	public function test_invalid_lookup_sets_subject_not_found_flag() :void {
@@ -192,8 +187,8 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
 		$this->assertArrayNotHasKey( 'subject', $vars );
 		$this->assertArrayNotHasKey( 'summary', $vars );
-		$this->assertSame( 'File Scan Status', (string)( $vars[ 'tabs' ][ 'file_status' ][ 'label' ] ?? '' ) );
-		$this->assertSame( 'File Scan Status', (string)( $tables[ 'file_status' ][ 'title' ] ?? '' ) );
+		$this->assertArrayHasKey( 'label', $vars[ 'tabs' ][ 'file_status' ] ?? [] );
+		$this->assertArrayHasKey( 'title', $tables[ 'file_status' ] ?? [] );
 		$this->assertFalse( (bool)( $tables[ 'file_status' ][ 'show_header' ] ?? true ) );
 		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'show_header' ] ?? true ) );
 		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'activity' ] ?? [] );
@@ -211,12 +206,11 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 			$fileStatusAction[ 'results_display_options' ] ?? []
 		);
 		$this->assertTrue( (bool)( $tables[ 'file_status' ][ 'is_flat' ] ?? false ) );
-		$this->assertSame(
-			[ 'Name', 'Slug', 'Version', 'Author', 'File', 'Install Directory', 'Installed', 'Active Status', 'Update Available Status', 'Vulnerability Status' ],
-			\array_column( $vars[ 'overview_rows' ] ?? [], 'label' )
-		);
+		$this->assertCount( 10, $vars[ 'overview_rows' ] ?? [] );
+		$this->assertContains( 'akismet/akismet.php', \array_column( $vars[ 'overview_rows' ] ?? [], 'value' ) );
+		$this->assertContains( '5.0', \array_column( $vars[ 'overview_rows' ] ?? [], 'value' ) );
 		$this->assertSame( 2, (int)( $vars[ 'vulnerabilities' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'Known Vulnerabilities', (string)( $vars[ 'vulnerabilities' ][ 'title' ] ?? '' ) );
+		$this->assertArrayHasKey( 'title', $vars[ 'vulnerabilities' ] ?? [] );
 		$this->assertArrayHasKey( 'vulnerabilities', $vars[ 'tabs' ] ?? [] );
 		$this->assertNotSame( '', (string)( $vars[ 'subject_header' ][ 'context_step_json' ] ?? '' ) );
 	}

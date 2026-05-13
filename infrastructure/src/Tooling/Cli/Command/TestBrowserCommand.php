@@ -54,6 +54,12 @@ class TestBrowserCommand extends Command {
 				null,
 				InputOption::VALUE_REQUIRED,
 				'Number of browser lanes available to this run.'
+			)
+			->addOption(
+				'runtime-refresh',
+				null,
+				InputOption::VALUE_REQUIRED,
+				'Browser runtime host manifest mode: full (default) or auto.'
 			);
 	}
 
@@ -78,10 +84,12 @@ class TestBrowserCommand extends Command {
 			}
 
 			$lanes = $input->getOption( 'lanes' );
+			$runtimeRefresh = $input->getOption( 'runtime-refresh' );
 			return $this->lane->run( $this->projectRoot, $playwrightArgs, [
 				'mode'              => $mode,
 				'lanes'             => \is_string( $lanes ) && $lanes !== '' ? $lanes : null,
 				'show_setup_output' => (bool)$input->getOption( 'show-setup-output' ),
+				'runtime_refresh'   => \is_string( $runtimeRefresh ) && $runtimeRefresh !== '' ? $runtimeRefresh : null,
 			] );
 		}
 		catch ( \Throwable $throwable ) {

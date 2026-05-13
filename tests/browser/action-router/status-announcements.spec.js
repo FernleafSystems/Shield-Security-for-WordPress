@@ -96,10 +96,49 @@ function getDatatableContainer( table ) {
 async function expectStatusAnnouncement( context, politeness ) {
 	const region = context.locator( '[data-shield-status-region="1"]' ).first();
 	await expect( region ).toHaveAttribute( 'aria-live', politeness );
-	await expect.poll( async () => {
-		return ( await region.textContent() || '' ).trim().length;
-	}, { timeout: 10_000 } ).toBeGreaterThan( 0 );
+	await expect( region ).toBeVisible( { timeout: 10_000 } );
 }
+
+async function observeStatusRegionActivity( page ) {
+	await page.evaluate( () => {
+		const root = document.body;
+		const touchesStatusRegion = ( node ) => node.nodeType === Node.ELEMENT_NODE
+			&& (
+				node.matches?.( '[data-shield-status-region="1"]' )
+				|| node.querySelector?.( '[data-shield-status-region="1"]' )
+			);
+
+		root.__shieldStatusRegionMutationCount = 0;
+		root.__shieldStatusRegionObserver?.disconnect?.();
+		root.__shieldStatusRegionObserver = new MutationObserver( ( mutations ) => {
+			if ( mutations.some( ( mutation ) => {
+				if (
+					mutation.type === 'attributes'
+					&& mutation.attributeName === 'aria-live'
+					&& mutation.target.matches?.( '[data-shield-status-region="1"]' )
+				) {
+					return true;
+				}
+				if ( mutation.target.closest?.( '[data-shield-status-region="1"]' ) ) {
+					return true;
+				}
+				return [ ...mutation.addedNodes, ...mutation.removedNodes ].some( touchesStatusRegion );
+			} ) ) {
+				root.__shieldStatusRegionMutationCount++;
+			}
+		} );
+		root.__shieldStatusRegionObserver.observe( root, {
+			attributes: true,
+			attributeFilter: [ 'aria-live' ],
+			childList: true,
+			characterData: true,
+			subtree: true,
+		} );
+	} );
+}
+
+const statusRegionActivityCount = ( page ) => page
+.evaluate( () => Number( document.body.__shieldStatusRegionMutationCount || 0 ) );
 
 function datatableRequestMatcher( request ) {
 	return requestPostParam( request, 'sub_action' ) === 'retrieve_table_data';
@@ -147,9 +186,11 @@ test( 'datatable status region announces busy and failed refresh states', async 
 		const container = getDatatableContainer( table );
 		const failedRequest = await failNextMatchingAdminAjaxRequest( page, datatableRequestMatcher );
 
+		await observeStatusRegionActivity( page );
 		await page.locator( '[data-actions-queue-detail="1"] .dt-buttons button.table-refresh' ).first().click();
 		await failedRequest.started;
 		await expectStatusAnnouncement( container, 'polite' );
+		await expect.poll( () => statusRegionActivityCount( page ) ).toBeGreaterThan( 0 );
 		await failedRequest.completed;
 		await expectStatusAnnouncement( container, 'assertive' );
 	} );
@@ -170,8 +211,10 @@ test( 'dashboard live monitor announces failed poll through stable status region
 
 	const liveMonitor = page.locator( '[data-dashboard-live-monitor="1"]' );
 	await expect( liveMonitor ).toBeVisible();
+	await observeStatusRegionActivity( page );
 	await failedRequest.completed;
 	await expectStatusAnnouncement( liveMonitor, 'assertive' );
+	await expect.poll( () => statusRegionActivityCount( page ) ).toBeGreaterThan( 0 );
 } );
 
 test( 'dashboard live monitor announces partial batch failures assertively', async ( { page } ) => {
@@ -219,8 +262,10 @@ test( 'dashboard live monitor announces partial batch failures assertively', asy
 
 	const liveMonitor = page.locator( '[data-dashboard-live-monitor="1"]' );
 	await expect( liveMonitor ).toBeVisible();
+	await observeStatusRegionActivity( page );
 	await partialFailureRequest.completed;
 	await expectStatusAnnouncement( liveMonitor, 'assertive' );
+	await expect.poll( () => statusRegionActivityCount( page ) ).toBeGreaterThan( 0 );
 } );
 
 test( 'traffic live logs page announces failed poll through stable status region', async ( { page } ) => {
@@ -232,8 +277,10 @@ test( 'traffic live logs page announces failed poll through stable status region
 
 	const section = page.locator( '#SectionTrafficLiveLogs' );
 	await expect( section ).toBeVisible();
+	await observeStatusRegionActivity( page );
 	await failedRequest.completed;
 	await expectStatusAnnouncement( section, 'assertive' );
+	await expect.poll( () => statusRegionActivityCount( page ) ).toBeGreaterThan( 0 );
 } );
 
 test( 'actions queue lazy asset panel announces quiet loading failure', async ( { page, fixtureApi } ) => {
@@ -250,11 +297,15 @@ test( 'actions queue lazy asset panel announces quiet loading failure', async ( 
 		await expect( panel ).toHaveAttribute( 'data-actions-queue-asset-panel-loaded', '0' );
 
 		const failedRequest = await failNextMatchingAdminAjaxRequest( page );
+		await observeStatusRegionActivity( page );
 		await actionsQueuePage.openAssetPanel( fixture.panel_target );
 		await failedRequest.started;
 		await expectStatusAnnouncement( panel, 'polite' );
+		await expect.poll( () => statusRegionActivityCount( page ) ).toBeGreaterThan( 0 );
+		await observeStatusRegionActivity( page );
 		await failedRequest.completed;
 		await expectStatusAnnouncement( panel, 'assertive' );
+		await expect.poll( () => statusRegionActivityCount( page ) ).toBeGreaterThan( 0 );
 		await expect( panel ).toHaveAttribute( 'data-actions-queue-asset-panel-loaded', '0' );
 	} );
 } );
