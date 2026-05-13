@@ -13,28 +13,14 @@ class FireEventsForChangedOpts {
 		if ( !empty( $changes ) ) {
 
 			$strings = new StringsOptions();
+			$valueFormatter = new OptionAuditValueFormatter();
 			foreach ( $changes as $opt => $oldValue ) {
 				$optDef = self::con()->cfg->configuration->options[ $opt ] ?? null;
 				if ( empty( $optDef ) || $optDef[ 'section' ] === 'section_hidden' ) {
 					continue;
 				}
 
-				$logValue = self::con()->opts->optGet( $opt );
-
-				if ( $optDef[ 'type' ] === 'checkbox' ) {
-					$logValue = $logValue === 'Y' ? 'on' : 'off';
-				}
-				elseif ( !\is_scalar( $logValue ) ) {
-					switch ( $optDef[ 'type' ] ) {
-						case 'array':
-						case 'multiple_select':
-							$logValue = \implode( ', ', $logValue );
-							break;
-						default:
-							$logValue = sprintf( __( '%s (JSON Encoded)', 'wp-simple-firewall' ), \wp_json_encode( $logValue ) );
-							break;
-					}
-				}
+				$logValue = $valueFormatter->format( $optDef, self::con()->opts->optGet( $opt ) );
 				try {
 					self::con()->comps->events->fireEvent( 'plugin_option_changed', [
 						'audit_params' => [
