@@ -161,7 +161,8 @@ class LocalSiteManager {
 		string $mode,
 		bool $requirePlaywright,
 		string $fixtureToken,
-		?callable $onOutput = null
+		?callable $onOutput = null,
+		?array $hostManifest = null
 	) :int {
 		$this->runPreflightChecks( $rootDir, $requirePlaywright );
 		if ( $this->definition->usesSharedDatabase() ) {
@@ -186,7 +187,7 @@ class LocalSiteManager {
 			if ( $this->definition->usesSharedDatabase() ) {
 				$this->resetSharedDatabase( $rootDir );
 			}
-			$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, true );
+			$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, true, $hostManifest );
 			return 0;
 		}
 
@@ -194,7 +195,7 @@ class LocalSiteManager {
 			throw new \InvalidArgumentException( 'Browser lane mode must be "clean" or "warm".' );
 		}
 
-		$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, false );
+		$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, false, $hostManifest );
 		return 0;
 	}
 
@@ -228,7 +229,8 @@ class LocalSiteManager {
 		?callable $onOutput = null,
 		bool $sharedDatabaseAlreadyReady = false,
 		?string $fixtureToken = null,
-		bool $forceProvision = true
+		bool $forceProvision = true,
+		?array $hostManifest = null
 	) :void {
 		if ( $this->definition->usesSharedDatabase() && !$sharedDatabaseAlreadyReady ) {
 			$this->ensureSharedDatabaseReady( $rootDir, $onOutput );
@@ -238,7 +240,7 @@ class LocalSiteManager {
 		$composeFiles = $this->buildComposeFiles();
 		$containerId = $this->resolveOrStartWordpressContainer( $rootDir, $composeFiles, $envOverrides, $onOutput );
 
-		$this->refreshRuntimeAndAssertHealthy( $rootDir, $containerId, $onOutput );
+		$this->refreshRuntimeAndAssertHealthy( $rootDir, $containerId, $onOutput, $hostManifest );
 		if ( $fixtureToken !== null ) {
 			$this->installBrowserFixtureEndpoint( $rootDir, $containerId, $fixtureToken, $onOutput );
 		}
@@ -718,9 +720,10 @@ class LocalSiteManager {
 	private function refreshRuntimeAndAssertHealthy(
 		string $rootDir,
 		string $containerId,
-		?callable $onOutput = null
+		?callable $onOutput = null,
+		?array $hostManifest = null
 	) :void {
-		$this->runtimeRefresher->refresh( $rootDir, $containerId, $onOutput );
+		$this->runtimeRefresher->refresh( $rootDir, $containerId, $onOutput, $hostManifest );
 		if ( !$this->probe->waitForHttpReady( $this->definition->siteUrl().'/wp-login.php', 30 ) ) {
 			throw new \RuntimeException(
 				$this->definition->label().' is unhealthy after runtime refresh. '

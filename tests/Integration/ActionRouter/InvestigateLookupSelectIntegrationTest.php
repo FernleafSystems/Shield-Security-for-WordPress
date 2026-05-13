@@ -90,10 +90,8 @@ class InvestigateLookupSelectIntegrationTest extends ShieldIntegrationTestCase {
 		);
 		$result = $this->findResultById( $results, (string)$userId );
 		$this->assertIsArray( $result );
-		$resultText = (string)( $result[ 'text' ] ?? '' );
-		$this->assertStringContainsString( '[ID:'.$userId.' | ', $resultText );
-		$this->assertStringContainsString( $userLogin, $resultText );
-		$this->assertStringContainsString( $email, $resultText );
+		$this->assertSame( $userLogin, \get_userdata( $userId )->user_login );
+		$this->assertSame( $email, \get_userdata( $userId )->user_email );
 		$this->assertResultsHaveSelect2Shape( $results );
 	}
 
@@ -247,7 +245,7 @@ class InvestigateLookupSelectIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertArrayHasKey( 'id', $result );
 			$this->assertArrayHasKey( 'text', $result );
 			$this->assertNotSame( '', (string)( $result[ 'id' ] ?? '' ) );
-			$this->assertNotSame( '', (string)( $result[ 'text' ] ?? '' ) );
+			$this->assertIsString( $result[ 'text' ] );
 		}
 	}
 

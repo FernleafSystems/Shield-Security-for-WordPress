@@ -49,14 +49,15 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 			function ( $log ) {
 				$this->log = $log;
 				$data = $this->log->getRawData();
+				$user = $this->getColumnContent_User();
 				$data[ 'ip' ] = $this->log->ip;
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
-				$data[ 'identity' ] = $this->getColumnContent_Identity();
+				$data[ 'identity' ] = $this->getColumnContent_Identity( $user );
 				$data[ 'event' ] = self::con()->comps->events->getEventName( $this->log->event_slug );
 				$this->log->created_at = \max( $this->log->updated_at, $this->log->created_at );
-				$data[ 'created_since' ] = $this->getColumnContent_Date( $this->log->created_at );
+				$data[ 'created_since' ] = $this->getColumnContent_ActivityDate( $this->log->created_at );
 				$data[ 'message' ] = $this->getColumnContent_Message();
-				$data[ 'user' ] = $this->getColumnContent_User();
+				$data[ 'user' ] = $user;
 				$data[ 'uid' ] = $this->getColumnContent_UserID();
 				$data[ 'level' ] = $this->getColumnContent_Level();
 				$data[ 'severity' ] = $this->getColumnContent_SeverityIcon();
@@ -225,47 +226,100 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	}
 
 	private function getColumnContent_UserID() :string {
-		return $this->log->meta_data[ 'uid' ] ?? '-';
+		return (string)( $this->log->meta_data[ 'uid' ] ?? '-' );
 	}
 
-	protected function getColumnContent_Identity() :string {
+	protected function getColumnContent_Identity( string $user ) :string {
 		$ip = (string)$this->log->ip;
 		if ( !empty( $ip ) ) {
-			$ipID = $this->resolveIpIdentity( $ip );
-			if ( $ipID !== null ) {
-				if ( $ipID[ 0 ] === IpID::THIS_SERVER ) {
-					$id = __( 'This Server', 'wp-simple-firewall' );
-				}
-				elseif ( $ipID[ 0 ] === IpID::VISITOR ) {
-					$id = __( 'Your Current IP', 'wp-simple-firewall' );
-				}
-				elseif ( $ipID[ 0 ] === IpID::UNKNOWN ) {
-					$id = __( 'Unidentified', 'wp-simple-firewall' );
-				}
-				else {
-					$id = sprintf( '<code>%s</code>', $ipID[ 1 ] );
-				}
-			}
-			else {
-				$id = '';
-			}
-
-			$loggedIn = \is_numeric( $this->getColumnContent_UserID() );
-			$content = \implode( '', \array_filter( [
-				sprintf( '%s',
-					$loggedIn ?
-						sprintf( '%s and authenticated as %s', $id, $this->getColumnContent_User() )
-						: sprintf( '%s and not authenticated', $id )
+			$ipBadges = [
+				$this->buildIpIdentityBadge( $ip ),
+				$this->renderIdentityBadge(
+					$this->getIpAnalysisLink( $ip ),
+					'activity-log-identity__badge--ip bg-secondary-subtle text-body-secondary border border-secondary-subtle',
+					[
+						'data-bs-toggle' => 'tooltip',
+						'data-bs-title'  => $ip,
+					]
 				),
-				sprintf( '<h6 class="text-nowrap mb-0">%s</h6>',
-					$this->getIpAnalysisLink( $ip )
-				),
-			] ) );
+			];
 		}
 		else {
-			$content = 'No IP';
+			$ipBadges = [
+				$this->renderIdentityBadge(
+					__( 'No IP', 'wp-simple-firewall' ),
+					'bg-light text-body-secondary border border-secondary-subtle'
+				),
+			];
 		}
-		return $content;
+
+		$badges = \array_filter( \array_merge(
+			$ipBadges,
+			[ $this->buildUserIdentityBadge( $user ) ]
+		) );
+
+		return sprintf( '<div class="activity-log-identity">%s</div>', \implode( '', $badges ) );
+	}
+
+	private function buildIpIdentityBadge( string $ip ) :string {
+		$ipID = $this->resolveIpIdentity( $ip );
+		if ( $ipID === null || $ipID[ 0 ] === IpID::UNKNOWN ) {
+			return '';
+		}
+
+		if ( $ipID[ 0 ] === IpID::THIS_SERVER ) {
+			$label = __( 'This Server', 'wp-simple-firewall' );
+		}
+		elseif ( $ipID[ 0 ] === IpID::VISITOR ) {
+			$label = __( 'Your IP', 'wp-simple-firewall' );
+		}
+		else {
+			$label = (string)$ipID[ 1 ];
+		}
+
+		return empty( $label ) ? '' : $this->renderIdentityBadge(
+			esc_html( $label ),
+			'activity-log-identity__badge--source bg-info-subtle text-info-emphasis border border-info-subtle'
+		);
+	}
+
+	private function buildUserIdentityBadge( string $user ) :string {
+		return $user === '-' ? '' : $this->renderIdentityBadge(
+			$user,
+			'activity-log-identity__badge--user bg-primary-subtle text-primary-emphasis border border-primary-subtle'
+		);
+	}
+
+	private function renderIdentityBadge( string $content, string $classes, array $attributes = [] ) :string {
+		$attributes[ 'class' ] = \trim( sprintf( 'badge rounded-pill activity-log-identity__badge %s', $classes ) );
+
+		return sprintf(
+			'<span%s>%s</span>',
+			$this->renderHtmlAttributes( $attributes ),
+			$content
+		);
+	}
+
+	private function getColumnContent_ActivityDate( int $ts ) :string {
+		return sprintf(
+			'<span class="activity-log-date" data-bs-toggle="tooltip" data-bs-title="%s">%s</span>',
+			esc_attr( Services::WpGeneral()->getTimeStringForDisplay( $ts ) ),
+			esc_html( Services::Request()
+			                  ->carbon( true )
+			                  ->setTimestamp( $ts )
+			                  ->diffForHumans() )
+		);
+	}
+
+	private function renderHtmlAttributes( array $attributes ) :string {
+		$rendered = [];
+		foreach ( $attributes as $key => $value ) {
+			if ( $value === null || $value === '' ) {
+				continue;
+			}
+			$rendered[] = sprintf( '%s="%s"', esc_attr( (string)$key ), esc_attr( (string)$value ) );
+		}
+		return empty( $rendered ) ? '' : ' '.\implode( ' ', $rendered );
 	}
 
 	protected function getColumnContent_User() :string {

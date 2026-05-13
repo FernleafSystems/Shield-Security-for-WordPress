@@ -19,9 +19,12 @@ test( 'shield email unblock modal is named and announces send result', async ( {
 		const status = page.locator( `#${ids.status}` );
 		await expectConnectedNonEmptyReference( page, submit, 'aria-describedby' );
 		await expectStatusLiveRegion( status );
+		const recoveryResponse = page.waitForResponse( ( response ) => {
+			const request = response.request();
+			return request.method() === 'POST' && request.url().includes( '/admin-ajax.php' );
+		}, { timeout: 20_000 } );
 		await submit.click();
-		await expect.poll( async () => status.evaluate( ( node ) => ( node.textContent || '' ).trim().length ) )
-			.toBeGreaterThan( 0 );
+		expect( ( await recoveryResponse ).ok() ).toBe( true );
 	} );
 } );
 

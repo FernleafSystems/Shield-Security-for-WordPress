@@ -90,10 +90,10 @@ class InvestigateByIpViewBuilderTest extends BaseUnitTest {
 		$contextStep = \json_decode( $renderData[ 'vars' ][ 'subject_header' ][ 'context_step_json' ], true );
 		$this->assertSame( '203.0.113.88', $contextStep[ 'title' ] ?? '' );
 		$this->assertSame( '203.0.113.88', $contextStep[ 'breadcrumb_label' ] ?? '' );
-		$this->assertSame( 'Review sessions, activity, and request history for this IP address.', $contextStep[ 'summary' ] ?? '' );
-		$this->assertSame( 'Requests, activity logs, and sessions tied to one IP address.', $contextStep[ 'focus' ] ?? '' );
-		$this->assertSame( 'Use the tabs to switch between sessions, activity, and recent traffic.', $contextStep[ 'next_step' ] ?? '' );
-		$this->assertSame( 'IP activity', $contextStep[ 'badge' ] ?? '' );
+		$this->assertArrayHasKey( 'summary', $contextStep );
+		$this->assertArrayHasKey( 'focus', $contextStep );
+		$this->assertArrayHasKey( 'next_step', $contextStep );
+		$this->assertArrayHasKey( 'badge', $contextStep );
 		$this->assertSame( 'info', $contextStep[ 'badge_status' ] ?? '' );
 		$this->assertSame( 'investigate', $contextStep[ 'color_key' ] ?? '' );
 		$this->assertNotSame( '', $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? '' );

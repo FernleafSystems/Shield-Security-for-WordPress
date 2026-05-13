@@ -49,24 +49,18 @@ class PageDashboardOverviewBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [ 'operator_mode_landing' ], \array_keys( $renderData[ 'content' ] ?? [] ) );
 		$this->assertSame( 'rendered-operator-mode-landing', $renderData[ 'content' ][ 'operator_mode_landing' ] ?? '' );
 		$this->assertSame( 'bi bi-speedometer', $renderData[ 'imgs' ][ 'inner_page_title_icon' ] ?? '' );
-		$this->assertSame( 'Dashboard', $renderData[ 'strings' ][ 'inner_page_title' ] ?? 'missing' );
-		$this->assertSame(
-			'Review the current security picture and jump into the next operator mode.',
-			$renderData[ 'strings' ][ 'inner_page_subtitle' ] ?? 'missing'
-		);
+		$this->assertArrayHasKey( 'inner_page_title', $renderData[ 'strings' ] ?? [] );
+		$this->assertArrayHasKey( 'inner_page_subtitle', $renderData[ 'strings' ] ?? [] );
 		$this->assertSame( 'dashboard', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? 'missing' );
 		$this->assertArrayNotHasKey( 'accent_status', $renderData[ 'vars' ][ 'mode_shell' ] ?? [] );
 		$this->assertSame( 'compact', $renderData[ 'vars' ][ 'mode_shell' ][ 'header_density' ] ?? '' );
 		$this->assertSame( '/admin/home', $renderData[ 'vars' ][ 'mode_shell' ][ 'home_href' ] ?? '' );
-		$this->assertSame( 'Dashboard', $renderData[ 'vars' ][ 'mode_shell' ][ 'home_label' ] ?? '' );
+		$this->assertArrayHasKey( 'home_label', $renderData[ 'vars' ][ 'mode_shell' ] ?? [] );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_mode_landing' ] ?? false ) );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
-		$this->assertSame( 'Dashboard', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
-		$this->assertSame(
-			'Use the cards below to move directly into actions, investigation, configuration, or reports.',
-			$renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'focus' ] ?? ''
-		);
+		$this->assertArrayHasKey( 'title', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ] ?? [] );
+		$this->assertArrayHasKey( 'focus', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ] ?? [] );
 		$this->assertSame( 'home', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 	}
 

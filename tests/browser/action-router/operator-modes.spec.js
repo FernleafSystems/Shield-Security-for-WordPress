@@ -61,11 +61,7 @@ async function expectNamedOffcanvas( page ) {
 	await expect( offcanvas ).toHaveAttribute( 'aria-modal', 'true' );
 	const labelId = await offcanvas.getAttribute( 'aria-labelledby' );
 	expect( labelId || '' ).not.toHaveLength( 0 );
-	expect(
-		await page.locator( `#${labelId}` ).evaluate(
-			( node ) => node.isConnected && ( node.textContent || '' ).trim().length > 0
-		)
-	).toBe( true );
+	await expect( page.locator( `#${labelId}` ) ).toHaveAccessibleName( /\S/ );
 	return offcanvas;
 }
 

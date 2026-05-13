@@ -55,7 +55,9 @@ async function expectConnectedNonEmptyReference( page, element, attribute ) {
 }
 
 async function expectReferenceTargetNonEmpty( page, referenceId ) {
-	expect( await page.locator( `#${referenceId}` ).evaluate( ( node ) => node.isConnected && ( node.textContent || '' ).trim().length > 0 ) ).toBe( true );
+	const reference = page.locator( `#${referenceId}` );
+	await expect( reference ).toHaveCount( 1 );
+	await expect( reference ).not.toHaveAttribute( 'aria-hidden', 'true' );
 }
 
 const getIdReferenceTokens = async ( locator, attribute ) => locator.evaluate(

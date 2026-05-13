@@ -609,7 +609,8 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function assertFixturePathIsOwned( string $path ) :void {
 		$root = \trailingslashit( $this->scanActionFixtureRoot() );
-		$this->assertStringStartsWith( $root, \wp_normalize_path( $path ) );
+		$normalized = \wp_normalize_path( $path );
+		$this->assertSame( $root, \substr( $normalized, 0, \strlen( $root ) ) );
 	}
 
 	/**

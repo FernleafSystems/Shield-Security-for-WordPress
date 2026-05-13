@@ -17,6 +17,8 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 	private const SNAPSHOT_KEYS = [
 		'enable_email_authentication',
 		'email_can_send_verified_at',
+		'enable_auto_integrations',
+		'auto_integrations_track',
 		'cs_block',
 		'transgression_limit',
 		'scan_frequency',
@@ -46,8 +48,15 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$con = static::con();
 		if ( $con !== null ) {
 			foreach ( $this->originalOptions as $key => $value ) {
+				if ( $key === 'auto_integrations_track' ) {
+					continue;
+				}
 				$con->opts->optSet( $key, $value );
 			}
+			if ( $con->opts->hasChanges() ) {
+				$con->opts->store();
+			}
+			$con->opts->optSet( 'auto_integrations_track', $this->originalOptions[ 'auto_integrations_track' ] );
 			if ( $con->opts->hasChanges() ) {
 				$con->opts->store();
 			}
@@ -85,6 +94,44 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $this->mails );
 		$this->assertContains( Services::WpGeneral()->getSiteAdminEmail(), $this->mailRecipients( $this->mails[ 0 ] ) );
 		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verified_at' ) );
+	}
+
+	public function test_auto_integrations_enabling_clears_detection_track() :void {
+		$con = $this->requireController();
+		$this->storeAutoIntegrationsBaseline( 'N', $this->autoIntegrationsTrackFixture() );
+
+		$con->opts->optSet( 'enable_auto_integrations', 'Y' )->store();
+
+		$this->assertSame( [], $con->opts->optGet( 'auto_integrations_track' ) );
+	}
+
+	public function test_auto_integrations_disabling_clears_detection_track() :void {
+		$con = $this->requireController();
+		$this->storeAutoIntegrationsBaseline( 'Y', $this->autoIntegrationsTrackFixture() );
+
+		$con->opts->optSet( 'enable_auto_integrations', 'N' )->store();
+
+		$this->assertSame( [], $con->opts->optGet( 'auto_integrations_track' ) );
+	}
+
+	public function test_auto_integrations_track_is_preserved_when_enabled_toggle_unchanged() :void {
+		$con = $this->requireController();
+		$track = $this->autoIntegrationsTrackFixture();
+		$this->storeAutoIntegrationsBaseline( 'Y', $track );
+
+		$con->opts->optSet( 'enable_auto_integrations', 'Y' )->store();
+
+		$this->assertSame( $track, $con->opts->optGet( 'auto_integrations_track' ) );
+	}
+
+	public function test_auto_integrations_track_is_preserved_when_disabled_toggle_unchanged() :void {
+		$con = $this->requireController();
+		$track = $this->autoIntegrationsTrackFixture();
+		$this->storeAutoIntegrationsBaseline( 'N', $track );
+
+		$con->opts->optSet( 'enable_auto_integrations', 'N' )->store();
+
+		$this->assertSame( $track, $con->opts->optGet( 'auto_integrations_track' ) );
 	}
 
 	public function test_disabling_crowdsec_block_deletes_crowdsec_rows() :void {
@@ -144,6 +191,19 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 			}
 		}
 		$this->fail( sprintf( 'No alternative value found for option %s.', $key ) );
+	}
+
+	private function autoIntegrationsTrackFixture() :array {
+		return [
+			'last_check_at' => 1234567890,
+			'profile_hash'  => 'existing-profile',
+		];
+	}
+
+	private function storeAutoIntegrationsBaseline( string $enabled, array $track ) :void {
+		$con = $this->requireController();
+		$con->opts->optSet( 'enable_auto_integrations', $enabled )->store();
+		$con->opts->optSet( 'auto_integrations_track', $track )->store();
 	}
 
 	/**

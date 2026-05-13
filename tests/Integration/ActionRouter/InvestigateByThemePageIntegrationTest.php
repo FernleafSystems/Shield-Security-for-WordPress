@@ -8,8 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	InvestigateRoutePanelAssertions,
-	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -17,8 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use InvestigateRoutePanelAssertions;
-	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
+	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -69,43 +66,36 @@ class InvestigateByThemePageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 		$this->assertArrayHasKey( 'vulnerabilities', $vars );
 
-		$this->assertInvestigateRoutePreloadsSubjectPanel(
-			$this->renderByThemePage( $themeSlug ),
-			'activity by-theme route',
-			'theme',
-			'Theme',
-			'//*[@data-drill-layer="1"]//*[@id="ShieldInvestigateByThemeTabsNav"]'
-		);
+		$routePayload = $this->renderByThemePage( $themeSlug );
+		$this->assertRouteRenderOutputHealthy( $routePayload, 'activity by-theme route' );
+		$this->assertPluginAdminShellRouteState( $routePayload, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
 	}
 
 	public function test_no_lookup_route_preloads_theme_panel_lookup_form() :void {
-		$this->assertInvestigateRoutePreloadsLookupPanel(
-			$this->renderByThemePage(),
-			'activity by-theme route without lookup',
-			'theme',
-			'Theme',
-			'theme_slug'
-		);
+		$routePayload = $this->renderByThemePage();
+		$this->assertRouteRenderOutputHealthy( $routePayload, 'activity by-theme route without lookup' );
+		$this->assertPluginAdminShellRouteState( $routePayload, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {
-		$payload = $this->renderByThemePage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-
-		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
-		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
+		$renderData = (array)( $this->renderByThemePanelBody()[ 'render_data' ] ?? [] );
+		$this->assertSame( PluginNavs::SUBNAV_ACTIVITY_BY_THEME, (string)( $renderData[ 'vars' ][ 'lookup_route' ][ Constants::NAV_SUB_ID ] ?? '' ) );
+		$this->assertSame( 'shield-investigate-theme-lookup-theme_slug-control', (string)( $renderData[ 'vars' ][ 'lookup_field' ][ 'control_id' ] ?? '' ) );
 	}
 
 	public function test_panel_body_action_renders_theme_markup_contract() :void {
 		$themeSlug = $this->firstInstalledThemeSlug();
 
-		$panelHtml = $this->assertRouteRenderOutputHealthy(
-			$this->renderByThemePanelBody( $themeSlug ),
+		$payload = $this->renderByThemePanelBody( $themeSlug );
+		$this->assertRouteRenderOutputHealthy(
+			$payload,
 			'investigate by-theme panel body action'
 		);
-		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $panelHtml );
-		$this->assertStringContainsString( 'ShieldInvestigateByThemeTabsNav', $panelHtml );
-		$this->assertStringNotContainsString( 'data-inner-page-body-shell="1"', $panelHtml );
+		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
+		$this->assertSame( '/wpadmin/components/investigate/theme_body.twig', (string)( $payload[ 'render_template' ] ?? '' ) );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
+		$this->assertSame( $themeSlug, (string)( $renderData[ 'vars' ][ 'theme_slug' ] ?? '' ) );
+		$this->assertArrayHasKey( 'context_step_json', (array)( $renderData[ 'vars' ][ 'subject_header' ] ?? [] ) );
 	}
 
 	private function firstInstalledThemeSlug() :string {

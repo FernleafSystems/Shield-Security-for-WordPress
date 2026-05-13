@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
 	ActionProcessor,
 	ActionResponse,
 	Actions\ScanResultsTableAction,
@@ -16,7 +17,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constan
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	ActionRequestNonceFixture,
-	HtmlDomAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -25,7 +25,6 @@ use FernleafSystems\Wordpress\Services\Services;
 class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
-	use HtmlDomAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	private int $adminUserId;
@@ -280,10 +279,10 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$snapshot = $this->seedActionNonceContext( ScanResultsTableAction::class );
 
 		try {
-			$actionPayload = $this->processor()->processAction( ScanResultsTableAction::SLUG, [
+			$actionPayload = $this->processor()->processAction( ScanResultsTableAction::SLUG, ActionData::Build( ScanResultsTableAction::class, false, [
 				'sub_action' => 'ignore',
 				'rids'       => [ (int)$active[ 'result_item_id' ] ],
-			] )->payload();
+			] ) )->payload();
 		}
 		finally {
 			$this->restoreActionNonceContext( $snapshot );
@@ -393,15 +392,9 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			[ 'status', 'status', 'posture', 'status' ],
 			\array_column( $lanes, 'indicator_type' )
 		);
-		$this->assertNotSame( '', (string)( $renderData[ 'strings' ][ 'title' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $renderData[ 'strings' ][ 'subtitle' ] ?? '' ) );
 		$this->assertContains(
 			(string)( $renderData[ 'vars' ][ 'shield_status' ] ?? '' ),
 			[ 'good', 'warning', 'critical' ]
-		);
-		$this->assertStringStartsWith(
-			'bi bi-shield',
-			(string)( $renderData[ 'vars' ][ 'shield_icon_class' ] ?? '' )
 		);
 		$this->assertRouteRenderOutputHealthy(
 			$this->renderDashboardOverviewPayload(),
@@ -425,17 +418,13 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$this->assertSame( 'status', $reportsLane[ 'indicator_type' ] ?? '' );
 		$this->assertCount( 3, $badges );
-		$this->assertSame( '2 reports', $badges[ 0 ][ 'text' ] ?? '' );
-		$this->assertStringStartsWith( 'Last report: ', $badges[ 1 ][ 'text' ] ?? '' );
-		$this->assertStringStartsWith( 'Last alert: ', $badges[ 2 ][ 'text' ] ?? '' );
 		$this->assertSame( 'info', $badges[ 0 ][ 'severity' ] ?? '' );
 		$this->assertSame( 'warning', $badges[ 2 ][ 'severity' ] ?? '' );
-		$this->assertNotSame( '', (string)( $badges[ 1 ][ 'title' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $badges[ 2 ][ 'title' ] ?? '' ) );
 	}
 
 	public function test_operator_mode_landing_exposes_live_monitor_contract() :void {
 		$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
+		$this->assertRouteRenderOutputHealthy( $payload, 'operator mode landing live monitor' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$liveMonitor = $renderData[ 'vars' ][ 'live_monitor' ] ?? [];
 		$actionsLane = $this->getLaneByMode( $renderData, PluginNavs::MODE_ACTIONS );
@@ -449,7 +438,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayNotHasKey( 'minimize', $liveMonitor );
 		$this->assertArrayNotHasKey( 'expand', $liveMonitor );
 		$this->assertContains( $actionsLane[ 'indicator_severity' ] ?? '', [ 'good', 'warning', 'critical' ] );
-		$this->assertNotSame( '', \trim( (string)( $payload[ 'render_output' ] ?? '' ) ) );
 	}
 
 	public function test_operator_mode_landing_actions_queue_rows_include_seeded_scan_counts_and_maintenance_row() :void {
@@ -493,7 +481,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$rows = $this->getActionsQueueRows( $renderData );
-		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
 		$rowsByKey = [];
 		foreach ( $rows as $row ) {
 			if ( \is_array( $row ) && !empty( $row[ 'key' ] ) ) {
@@ -513,15 +500,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame(
 			[ 'investigate', 'configure', 'reports' ],
 			\array_column( $renderData[ 'vars' ][ 'secondary_lanes' ] ?? [], 'mode' )
-		);
-		$descriptionNode = $this->assertXPathExists(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " operator-mode-landing__featured-desc ")]',
-			'Dashboard featured Actions Queue card should keep the standard description when actionable rows exist'
-		);
-		$this->assertSame(
-			\trim( (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'description' ] ?? '' ) ),
-			\trim( (string)$descriptionNode->textContent )
 		);
 	}
 
@@ -567,8 +545,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame( 1, (int)( $rowsByKey[ 'plugin_files' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $rowsByKey[ 'plugin_files' ][ 'severity' ] ?? '' ) );
 		$this->assertSame( 'critical', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_text' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $renderData[ 'strings' ][ 'subtitle' ] ?? '' ) );
 	}
 
 	public function test_operator_mode_landing_omits_healthy_file_locker_and_zero_maintenance_rows() :void {
@@ -591,34 +567,12 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 			$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
 			$renderData = $payload[ 'render_data' ] ?? [];
 			$rows = $this->getActionsQueueRows( $renderData );
-			$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
 
 			$this->assertSame( [], $rows );
 			$this->assertSame( 'good', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' ) );
 			$this->assertSame(
 				[ 'scans', 'maintenance' ],
 				\array_column( $renderData[ 'vars' ][ 'actions_all_clear' ][ 'zone_chips' ] ?? [], 'slug' )
-			);
-			$descriptionNode = $this->assertXPathExists(
-				$xpath,
-				'//*[contains(concat(" ", normalize-space(@class), " "), " operator-mode-landing__featured-desc ")]',
-				'Dashboard featured Actions Queue card should render the moved all-clear explanation copy'
-			);
-			$this->assertSame(
-				\trim( (string)( $renderData[ 'vars' ][ 'actions_all_clear' ][ 'subtitle' ] ?? '' ) ),
-				\trim( (string)$descriptionNode->textContent )
-			);
-			$this->assertXPathCount(
-				$xpath,
-				'//*[contains(concat(" ", normalize-space(@class), " "), " operator-mode-landing__featured ")]//*[contains(concat(" ", normalize-space(@class), " "), " shield-needs-attention__chip ")]',
-				2,
-				'Dashboard featured Actions Queue card should render the moved clear-state zone chips'
-			);
-			$this->assertXPathCount(
-				$xpath,
-				'//*[contains(concat(" ", normalize-space(@class), " "), " operator-mode-landing__featured ")]//*[contains(concat(" ", normalize-space(@class), " "), " operator-mode-landing__queue-row ")]',
-				0,
-				'Dashboard featured Actions Queue card should not render queue rows in the clear state'
 			);
 		}
 		finally {

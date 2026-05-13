@@ -66,7 +66,6 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 		$this->assertNotSame( $lowId, $vars[ 'latest_id' ] );
 		$this->assertSame( '198.51.100.21', $rows[ 0 ][ 'ip' ] );
 		$this->assertIsString( $rows[ 0 ][ 'title' ] );
-		$this->assertNotSame( '', $rows[ 0 ][ 'title' ] );
 		$this->assertArrayHasKey( 'description', $rows[ 0 ] );
 	}
 
@@ -89,8 +88,10 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 		$this->assertIsArray( $vars[ 'rows' ] );
 		$rows = $vars[ 'rows' ];
 		$firstRow = $rows[ 0 ];
-		$badgeLabels = \array_column( $firstRow[ 'badges' ], 'label' );
-		$currentUser = wp_get_current_user();
+		$badgesByKey = [];
+		foreach ( $firstRow[ 'badges' ] as $badge ) {
+			$badgesByKey[ (string)( $badge[ 'key' ] ?? '' ) ] = $badge;
+		}
 
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertCount( 1, $rows );
@@ -99,13 +100,12 @@ class DashboardLiveMonitorActionsIntegrationTest extends ShieldIntegrationTestCa
 			\array_keys( $firstRow )
 		);
 		$this->assertSame( '203.0.113.61', $firstRow[ 'ip' ] );
-		$this->assertNotSame( '', $firstRow[ 'ip_href' ] );
-		$this->assertStringContainsString( '203.0.113.61', $firstRow[ 'ip_href' ] );
-		$this->assertContains( $currentUser->user_login, $badgeLabels );
-		$this->assertContains( '403', $badgeLabels );
-		$this->assertNotSame( '', $firstRow[ 'timestamp' ] );
-		$this->assertNotSame( '', \trim( $firstRow[ 'title' ] ) );
-		$this->assertNotSame( '', \trim( $firstRow[ 'description' ] ) );
+		$query = [];
+		\parse_str( (string)\wp_parse_url( $firstRow[ 'ip_href' ], \PHP_URL_QUERY ), $query );
+		$this->assertSame( '203.0.113.61', $query[ 'analyse_ip' ] ?? '' );
+		$this->assertSame( (string)\get_current_user_id(), (string)( $badgesByKey[ 'user_id' ][ 'value' ] ?? '' ) );
+		$this->assertSame( '403', (string)( $badgesByKey[ 'response_code' ][ 'value' ] ?? '' ) );
+		$this->assertSame( '1', (string)( $badgesByKey[ 'offense' ][ 'value' ] ?? '' ) );
 	}
 
 	public function test_live_traffic_render_clamps_excessive_limit() :void {

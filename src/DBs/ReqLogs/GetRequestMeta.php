@@ -8,6 +8,38 @@ class GetRequestMeta {
 
 	use PluginControllerConsumer;
 
+	/**
+	 * @return array{rid: string, is_valid: bool, values: array<string, string>, fields: array<int, array{key: string, value: string}>}
+	 */
+	public function retrieveContract( string $reqID ) :array {
+		$reqID = sanitize_key( $reqID );
+		$meta = $this->getRawMeta( $reqID );
+
+		$values = [];
+		if ( !empty( $meta ) ) {
+			$meta[ 'rid' ] = $reqID;
+			foreach ( $this->getContractKeys() as $metaKey ) {
+				if ( \array_key_exists( $metaKey, $meta ) && $meta[ $metaKey ] !== null ) {
+					$values[ $metaKey ] = $this->normaliseContractValue( $metaKey, $meta[ $metaKey ] );
+				}
+			}
+		}
+
+		return [
+			'rid'      => $reqID,
+			'is_valid' => !empty( $meta ),
+			'values'   => $values,
+			'fields'   => \array_map(
+				static fn( string $key, string $value ) :array => [
+					'key'   => $key,
+					'value' => $value,
+				],
+				\array_keys( $values ),
+				\array_values( $values )
+			),
+		];
+	}
+
 	public function retrieve( string $reqID ) :string {
 		$reqID = sanitize_key( $reqID );
 		$meta = $this->getRawMeta( $reqID );
@@ -71,7 +103,27 @@ class GetRequestMeta {
 	}
 
 	/**
-	 * @return array[]
+	 * @return string[]
+	 */
+	private function getContractKeys() :array {
+		return [
+			'rid',
+			'type',
+			'uid',
+			'ts',
+			'verb',
+			'path',
+			'code',
+			'ua',
+		];
+	}
+
+	private function normaliseContractValue( string $key, $value ) :string {
+		return $key === 'verb' ? \strtoupper( (string)$value ) : (string)$value;
+	}
+
+	/**
+	 * @return array<string,mixed>
 	 */
 	private function getRawMeta( string $RID ) :array {
 		$meta = [];

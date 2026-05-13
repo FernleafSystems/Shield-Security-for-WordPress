@@ -16,6 +16,9 @@ abstract class BaseRender extends BaseAction {
 
 	public const TEMPLATE = '';
 	public const GO_PRO_URL = 'https://clk.shldscrty.com/shieldgoprofeature';
+	public const RENDER_ERROR_EXCEPTION = 'render_exception';
+
+	private string $renderErrorCode = '';
 
 	protected function exec() {
 		$this->render()->response();
@@ -30,8 +33,11 @@ abstract class BaseRender extends BaseAction {
 		$respData[ 'render_template' ] = $this->getRenderTemplate();
 		$respData[ 'render_data' ] = $this->buildRenderData();
 		$respData[ 'render_output' ] = $this->buildRenderOutput( $respData[ 'render_data' ] );
+		$respData[ 'render_error' ] = $this->renderErrorCode !== '';
+		$respData[ 'render_error_code' ] = $this->renderErrorCode;
 
-		$respData[ 'html' ] = $respData[ 'render_output' ]; // TODO: This is a hack to get the data into the AJAX response
+		// Existing AJAX render consumers still read html; render_output is the canonical render payload.
+		$respData[ 'html' ] = $respData[ 'render_output' ];
 		$payloadSuccess = (bool)( $respData[ 'success' ] ?? true );
 		unset( $respData[ 'success' ] );
 
@@ -50,6 +56,7 @@ abstract class BaseRender extends BaseAction {
 			throw new ActionException( 'No template provided for render' );
 		}
 
+		$this->renderErrorCode = '';
 		try {
 			$output = self::con()
 				->comps
@@ -60,6 +67,7 @@ abstract class BaseRender extends BaseAction {
 				->render();
 		}
 		catch ( \Exception $e ) {
+			$this->renderErrorCode = self::RENDER_ERROR_EXCEPTION;
 			$output = sprintf( 'Exception during render for %s: "%s"', static::SLUG, $e->getMessage() );
 		}
 		return $output;

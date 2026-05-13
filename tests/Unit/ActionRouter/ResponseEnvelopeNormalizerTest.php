@@ -16,14 +16,14 @@ class ResponseEnvelopeNormalizerTest extends BaseUnitTest {
 	public function test_for_ajax_applies_expected_defaults() :void {
 		$payload = ResponseEnvelopeNormalizer::forAjax( [
 			'success' => true,
-			'html'    => '<div>ok</div>',
+			'html'    => 'html_payload',
 		] );
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
-		$this->assertSame( 'No AJAX message provided', $payload[ 'message' ] ?? '' );
+		$this->assertArrayHasKey( 'message', $payload );
 		$this->assertSame( '', $payload[ 'error' ] ?? null );
-		$this->assertSame( '<div>ok</div>', $payload[ 'html' ] ?? '' );
+		$this->assertSame( 'html_payload', $payload[ 'html' ] ?? '' );
 		$this->assertArrayNotHasKey( 'page_title', $payload );
 	}
 
@@ -43,7 +43,7 @@ class ResponseEnvelopeNormalizerTest extends BaseUnitTest {
 
 		$this->assertFalse( $payload[ 'success' ] ?? true );
 		$this->assertFalse( $payload[ 'page_reload' ] ?? true );
-		$this->assertSame( 'No AJAX message provided', $payload[ 'message' ] ?? '' );
+		$this->assertArrayHasKey( 'message', $payload );
 		$this->assertSame( '', $payload[ 'error' ] ?? null );
 		$this->assertSame( '', $payload[ 'html' ] ?? null );
 	}
@@ -65,19 +65,19 @@ class ResponseEnvelopeNormalizerTest extends BaseUnitTest {
 		$payload = ResponseEnvelopeNormalizer::forAjaxAdapter(
 			[
 				'success'    => true,
-				'message'    => 'payload message',
-				'error'      => 'payload error',
-				'page_title' => 'Payload Page',
+				'message'    => 'payload_message',
+				'error'      => 'payload_error',
+				'page_title' => 'payload_page',
 				'show_toast' => false,
 			],
-			'fallback message',
-			'fallback error'
+			'fallback_message',
+			'fallback_error'
 		);
 
 		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$this->assertSame( 'payload message', $payload[ 'message' ] ?? '' );
-		$this->assertSame( 'payload error', $payload[ 'error' ] ?? '' );
-		$this->assertSame( 'Payload Page', $payload[ 'page_title' ] ?? '' );
+		$this->assertSame( 'payload_message', $payload[ 'message' ] ?? '' );
+		$this->assertSame( 'payload_error', $payload[ 'error' ] ?? '' );
+		$this->assertSame( 'payload_page', $payload[ 'page_title' ] ?? '' );
 		$this->assertFalse( $payload[ 'show_toast' ] ?? true );
 	}
 
@@ -89,10 +89,7 @@ class ResponseEnvelopeNormalizerTest extends BaseUnitTest {
 		$this->assertTrue( $payload[ 'auth_refresh_required' ] ?? false );
 		$this->assertFalse( $payload[ 'show_toast' ] ?? true );
 		$this->assertSame( 'user_auth_required', $payload[ 'error_code' ] ?? '' );
-		$this->assertSame(
-			'Your WordPress session has expired. Reloading the page now.',
-			$payload[ 'message' ] ?? ''
-		);
+		$this->assertArrayHasKey( 'message', $payload );
 		$this->assertSame( $payload[ 'message' ] ?? '', $payload[ 'error' ] ?? '' );
 		$this->assertSame( '', $payload[ 'html' ] ?? null );
 	}

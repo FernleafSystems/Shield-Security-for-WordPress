@@ -9,6 +9,9 @@ class MaintenanceItemIgnore extends BaseAction {
 	use Traits\NonceVerifyRequired;
 
 	public const SLUG = 'maintenance_item_ignore';
+	public const ERROR_IDENTIFIER_UNAVAILABLE = 'maintenance_identifier_unavailable';
+	public const ERROR_INVALID_KEY = 'maintenance_invalid_key';
+	public const ERROR_MISSING_IDENTIFIER = 'maintenance_missing_identifier';
 
 	protected function exec() {
 		$provider = $this->buildMaintenanceIssueStateProvider();
@@ -16,7 +19,7 @@ class MaintenanceItemIgnore extends BaseAction {
 		$identifier = \trim( (string)( $this->action_data[ 'identifier' ] ?? '' ) );
 
 		if ( !$provider->isKnownMaintenanceKey( $key ) ) {
-			$this->fail( __( 'Invalid maintenance item.', 'wp-simple-firewall' ) );
+			$this->fail( __( 'Invalid maintenance item.', 'wp-simple-firewall' ), self::ERROR_INVALID_KEY );
 			return;
 		}
 
@@ -25,18 +28,18 @@ class MaintenanceItemIgnore extends BaseAction {
 
 		if ( $provider->supportsSubItems( $key ) ) {
 			if ( $identifier === '' ) {
-				$this->fail( __( 'A specific maintenance item identifier is required.', 'wp-simple-firewall' ) );
+				$this->fail( __( 'A specific maintenance item identifier is required.', 'wp-simple-firewall' ), self::ERROR_MISSING_IDENTIFIER );
 				return;
 			}
 			if ( !\in_array( $identifier, $currentIssueIdentifiers, true ) ) {
-				$this->fail( __( 'The specified maintenance item cannot be ignored right now.', 'wp-simple-firewall' ) );
+				$this->fail( __( 'The specified maintenance item cannot be ignored right now.', 'wp-simple-firewall' ), self::ERROR_IDENTIFIER_UNAVAILABLE );
 				return;
 			}
 		}
 		else {
 			$identifier = MaintenanceIssueStateProvider::SINGLETON_TOKEN;
 			if ( !\in_array( $identifier, $currentIssueIdentifiers, true ) ) {
-				$this->fail( __( 'This maintenance item cannot be ignored right now.', 'wp-simple-firewall' ) );
+				$this->fail( __( 'This maintenance item cannot be ignored right now.', 'wp-simple-firewall' ), self::ERROR_IDENTIFIER_UNAVAILABLE );
 				return;
 			}
 		}
@@ -63,9 +66,10 @@ class MaintenanceItemIgnore extends BaseAction {
 		return new MaintenanceIssueStateProvider();
 	}
 
-	private function fail( string $message ) :void {
+	private function fail( string $message, string $errorCode ) :void {
 		$this->response()->setPayload( [
 			'page_reload' => false,
+			'error_code'  => $errorCode,
 			'message'     => $message,
 		] )->setPayloadSuccess( false );
 	}

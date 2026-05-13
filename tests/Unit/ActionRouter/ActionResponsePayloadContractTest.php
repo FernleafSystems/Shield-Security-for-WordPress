@@ -52,7 +52,7 @@ class ActionResponsePayloadContractTest extends BaseUnitTest {
 		$response = new ActionResponse();
 		$response->success = true;
 		$response->setPayload( [
-			'message' => 'no success key',
+			'message' => 'missing_success_key',
 		] );
 
 		$payload = ( new AjaxResponseAdapter() )
@@ -60,14 +60,14 @@ class ActionResponsePayloadContractTest extends BaseUnitTest {
 			->payload();
 
 		$this->assertFalse( $payload[ 'success' ] ?? true );
-		$this->assertSame( 'no success key', $payload[ 'message' ] ?? '' );
+		$this->assertSame( 'missing_success_key', $payload[ 'message' ] ?? '' );
 	}
 
 	public function test_rest_transport_does_not_promote_legacy_success_when_payload_missing() :void {
 		$response = new ActionResponse();
 		$response->success = true;
 		$response->setPayload( [
-			'message' => 'no success key',
+			'message' => 'missing_success_key',
 		] );
 
 		$payload = ( new RestApiActionResponseAdapter() )
@@ -75,6 +75,6 @@ class ActionResponsePayloadContractTest extends BaseUnitTest {
 			->payload();
 
 		$this->assertArrayNotHasKey( 'success', $payload );
-		$this->assertSame( 'no success key', $payload[ 'message' ] ?? '' );
+		$this->assertSame( 'missing_success_key', $payload[ 'message' ] ?? '' );
 	}
 }

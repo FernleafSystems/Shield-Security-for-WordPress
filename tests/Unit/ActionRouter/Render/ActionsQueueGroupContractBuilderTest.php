@@ -98,23 +98,23 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 			'plugin:example-plugin/example-plugin.php' => [
 				'subject_type' => 'plugin',
 				'subject_id'   => 'example-plugin/example-plugin.php',
-				'title'        => 'Example Plugin',
+				'title'        => 'example_plugin',
 				'icon_class'   => 'bi bi-plug-fill',
 				'has_update'   => false,
 			],
 			'theme:example-theme'                     => [
 				'subject_type' => 'theme',
 				'subject_id'   => 'example-theme',
-				'title'        => 'Example Theme',
+				'title'        => 'example_theme',
 				'icon_class'   => 'bi bi-palette-fill',
 				'has_update'   => false,
 			],
 		] );
 
-		$pluginGroup = $builder->buildEmptyGroup( 'plugins:example-plugin/example-plugin.php', 'Fix now' );
-		$themeGroup = $builder->buildEmptyGroup( 'themes:example-theme', 'Fix now' );
+		$pluginGroup = $builder->buildEmptyGroup( 'plugins:example-plugin/example-plugin.php', 'fix_now' );
+		$themeGroup = $builder->buildEmptyGroup( 'themes:example-theme', 'fix_now' );
 
-		$this->assertSame( 'Example Plugin', $pluginGroup[ 'label' ] );
+		$this->assertSame( 'example_plugin', $pluginGroup[ 'label' ] );
 		$this->assertSame( 'direct_table', $pluginGroup[ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $pluginGroup[ 'card_type' ] );
 		$this->assertSame( ActionsQueueAssetFileStatusDetail::class, $pluginGroup[ 'render_action_class' ] );
@@ -132,12 +132,12 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 			],
 			$pluginGroup[ 'render_action_data' ]
 		);
-		$this->assertSame( 'Example Plugin', $pluginGroup[ 'selection' ][ 'label' ] );
-		$this->assertSame( 'Example Plugin', $pluginGroup[ 'selection' ][ 'header' ][ 'title' ] );
+		$this->assertSame( 'example_plugin', $pluginGroup[ 'selection' ][ 'label' ] );
+		$this->assertSame( 'example_plugin', $pluginGroup[ 'selection' ][ 'header' ][ 'title' ] );
 		$this->assertSame( [], $pluginGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
 		$this->assertFalse( $pluginGroup[ 'is_interactive' ] );
 
-		$this->assertSame( 'Example Theme', $themeGroup[ 'label' ] );
+		$this->assertSame( 'example_theme', $themeGroup[ 'label' ] );
 		$this->assertSame( 'direct_table', $themeGroup[ 'detail_shell' ] );
 		$this->assertSame( 'actions_queue', $themeGroup[ 'render_action_data' ][ 'display_context' ] );
 		$this->assertSame(
@@ -151,14 +151,14 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'theme', $themeGroup[ 'render_action_data' ][ 'subject_type' ] );
 		$this->assertSame( 'example-theme', $themeGroup[ 'render_action_data' ][ 'subject_id' ] );
-		$this->assertSame( 'Example Theme', $themeGroup[ 'selection' ][ 'header' ][ 'title' ] );
+		$this->assertSame( 'example_theme', $themeGroup[ 'selection' ][ 'header' ][ 'title' ] );
 		$this->assertSame( [], $themeGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
 	}
 
 	public function test_build_empty_group_uses_generic_base_group_when_scoped_asset_cannot_be_resolved() :void {
 		$builder = $this->newBuilder();
 
-		$group = $builder->buildEmptyGroup( 'plugins:missing-plugin/missing-plugin.php', 'Fix now' );
+		$group = $builder->buildEmptyGroup( 'plugins:missing-plugin/missing-plugin.php', 'fix_now' );
 
 		$this->assertSame( 'asset_cards', $group[ 'detail_shell' ] );
 		$this->assertSame( Plugins::class, $group[ 'render_action_class' ] );

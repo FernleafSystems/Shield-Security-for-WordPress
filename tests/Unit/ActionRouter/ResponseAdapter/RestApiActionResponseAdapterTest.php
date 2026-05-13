@@ -26,7 +26,7 @@ class RestApiActionResponseAdapterTest extends BaseUnitTest {
 	public function test_adapt_does_not_inject_success_when_payload_missing_success_key() :void {
 		$response = ( new ActionResponse() )
 			->setPayload( [
-				'message' => 'no success key',
+				'message' => 'missing_success_key',
 			] );
 		$response->success = true;
 
@@ -34,7 +34,7 @@ class RestApiActionResponseAdapterTest extends BaseUnitTest {
 		$payload = $routed->payload();
 
 		$this->assertArrayNotHasKey( 'success', $payload );
-		$this->assertSame( 'no success key', $payload[ 'message' ] ?? '' );
+		$this->assertSame( 'missing_success_key', $payload[ 'message' ] ?? '' );
 		$this->assertSame( 200, $routed->statusCode() );
 	}
 }

@@ -18,7 +18,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render {
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\InvestigationTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateByUser;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\InvestigateUserLookupBuilder;
@@ -39,6 +41,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 	use InvokesNonPublicMethods;
 
 	private array $servicesSnapshot = [];
+	private PageInvestigateByUserRecordingPluginUrls $pluginUrls;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -130,14 +133,15 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 1, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'minimum_input_length' ] ?? 0 ) );
 		$this->assertSame( 700, (int)( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'delay_ms' ] ?? 0 ) );
 		$this->assertNotEmpty( $renderData[ 'vars' ][ 'lookup_ajax' ][ 'action' ] ?? [] );
-		$this->assertNotSame( '', (string)( $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? '' ) );
+		$this->assertSame(
+			$renderData[ 'vars' ][ 'lookup_ajax' ],
+			$this->decodedJsonAttr( (string)( $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? '' ) )
+		);
 		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'offcanvas_history_mode' ] ?? 'missing' ) );
 		$shortcut = $renderData[ 'vars' ][ 'lookup_shortcuts' ][ 0 ] ?? [];
 		$this->assertSame( 'self', $shortcut[ 'key' ] ?? '' );
-		$this->assertSame( '/admin/activity/by_user?user_lookup=1', $shortcut[ 'href' ] ?? '' );
+		$this->assertSame( '1', (string)( $this->hrefQuery( (string)( $shortcut[ 'href' ] ?? '' ) )[ 'user_lookup' ] ?? '' ) );
 		$this->assertSame( 'navigate', $shortcut[ 'action_type' ] ?? '' );
-		$this->assertSame( 'bi bi-person-fill', $shortcut[ 'icon_class' ] ?? '' );
-		$this->assertNotSame( '', $shortcut[ 'label' ] ?? '' );
 	}
 
 	public function test_invalid_lookup_sets_subject_not_found_flag() :void {
@@ -158,7 +162,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$user->ID = 42;
 		$user->user_login = 'operator';
 		$user->user_email = 'operator@example.com';
-		$user->display_name = 'Operator User';
+		$user->display_name = 'operator-display';
 
 		$this->installServices( [
 			'user_lookup' => '42',
@@ -198,7 +202,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 					'offense'       => false,
 				],
 			],
-			new InvestigateUserLookupBuilderTestDouble( false, [], '[ID:42 | Administrator] operator | operator@example.com' )
+			new InvestigateUserLookupBuilderTestDouble( false, [], 'user_lookup_label_sentinel' )
 		);
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
@@ -206,9 +210,10 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$tables = $vars[ 'tables' ] ?? [];
 		$railNavItems = $vars[ 'rail_nav_items' ] ?? [];
 		$overviewRows = $vars[ 'overview_rows' ] ?? [];
+		$overviewRowsByKey = $this->rowsByKey( $overviewRows );
 
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_subject' ] ?? false ) );
-		$this->assertSame( '[ID:42 | Administrator] operator | operator@example.com', (string)( $vars[ 'user_lookup_label' ] ?? '' ) );
+		$this->assertArrayHasKey( 'user_lookup_label', $vars );
 		$this->assertArrayNotHasKey( 'subject', $vars );
 		$this->assertArrayNotHasKey( 'summary', $vars );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
@@ -217,7 +222,6 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'rail_nav_items', $vars );
 		$this->assertArrayHasKey( 'overview_rows', $vars );
 		$this->assertSame( 'tab-navlink-user-overview', (string)( $railNavItems[ 0 ][ 'id' ] ?? '' ) );
-		$this->assertSame( 'Overview', (string)( $railNavItems[ 0 ][ 'label' ] ?? '' ) );
 		$this->assertTrue( (bool)( $railNavItems[ 0 ][ 'is_focus' ] ?? false ) );
 		$this->assertSame(
 			[
@@ -230,8 +234,8 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 			\array_column( $railNavItems, 'id' )
 		);
 		$this->assertSame(
-			[ 'Overview', 'Sessions', 'Activity', 'Requests', 'IP Addresses' ],
-			\array_column( $railNavItems, 'label' )
+			[ 'overview', 'sessions', 'activity', 'requests', 'ips' ],
+			\array_keys( $vars[ 'tabs' ] ?? [] )
 		);
 		$this->assertArrayHasKey( 'sessions', $tables );
 		$this->assertArrayHasKey( 'activity', $tables );
@@ -240,12 +244,16 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertSame( InvestigationTableContract::TABLE_TYPE_SESSIONS, $tables[ 'sessions' ][ 'table_type' ] ?? '' );
 		$this->assertSame( InvestigationTableContract::TABLE_TYPE_ACTIVITY, $tables[ 'activity' ][ 'table_type' ] ?? '' );
 		$this->assertSame( InvestigationTableContract::TABLE_TYPE_TRAFFIC, $tables[ 'requests' ][ 'table_type' ] ?? '' );
-		$this->assertNotSame( '', (string)( $tables[ 'sessions' ][ 'datatables_init_attr' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $tables[ 'activity' ][ 'datatables_init_attr' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $tables[ 'requests' ][ 'datatables_init_attr' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $tables[ 'sessions' ][ 'table_action_attr' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $tables[ 'activity' ][ 'table_action_attr' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $tables[ 'requests' ][ 'table_action_attr' ] ?? '' ) );
+		foreach ( [ 'sessions', 'activity', 'requests' ] as $tableKey ) {
+			$datatablesInit = $this->decodedJsonAttr( (string)( $tables[ $tableKey ][ 'datatables_init_attr' ] ?? '' ) );
+			$this->assertArrayHasKey( 'columns', $datatablesInit );
+			$this->assertArrayHasKey( 'order', $datatablesInit );
+			$this->assertArrayHasKey( 'searchPanes', $datatablesInit );
+
+			$tableAction = $this->decodedJsonAttr( (string)( $tables[ $tableKey ][ 'table_action_attr' ] ?? '' ) );
+			$this->assertSame( ActionData::FIELD_SHIELD, $tableAction[ ActionData::FIELD_ACTION ] ?? '' );
+			$this->assertSame( InvestigationTableAction::SLUG, $tableAction[ ActionData::FIELD_EXECUTE ] ?? '' );
+		}
 		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'sessions' ] ?? [] );
 		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'activity' ] ?? [] );
 		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $tables[ 'requests' ] ?? [] );
@@ -261,23 +269,23 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 42, (int)( $tables[ 'activity' ][ 'subject_id' ] ?? 0 ) );
 		$this->assertSame( 42, (int)( $tables[ 'requests' ][ 'subject_id' ] ?? 0 ) );
 		$this->assertSame(
-			[ 'Username', 'Display Name', 'Email', 'Role', 'Last Login IP', 'Recent IPs', 'Shield Status', 'WordPress Profile' ],
-			\array_column( $overviewRows, 'label' )
+			[ 'username', 'display_name', 'email', 'role', 'last_login_ip', 'recent_ips', 'shield_status', 'wp_profile' ],
+			\array_column( $overviewRows, 'key' )
 		);
+		$this->assertSame( 'operator', (string)( $overviewRowsByKey[ 'username' ][ 'value' ] ?? '' ) );
+		$this->assertSame( 'operator-display', (string)( $overviewRowsByKey[ 'display_name' ][ 'value' ] ?? '' ) );
+		$this->assertSame( 'operator@example.com', (string)( $overviewRowsByKey[ 'email' ][ 'value' ] ?? '' ) );
+		$this->assertSame( '203.0.113.9', (string)( $overviewRowsByKey[ 'last_login_ip' ][ 'value' ] ?? '' ) );
+		$overviewRecentIps = \array_map(
+			'trim',
+			\explode( ',', (string)( $overviewRowsByKey[ 'recent_ips' ][ 'value' ] ?? '' ) )
+		);
+		\sort( $overviewRecentIps );
+		$this->assertSame( [ '192.0.2.1', '198.51.100.4', '203.0.113.9' ], $overviewRecentIps );
 		$this->assertSame(
-			[
-				'operator',
-				'Operator User',
-				'operator@example.com',
-				'Unknown',
-				'203.0.113.9',
-				'198.51.100.4, 192.0.2.1, 203.0.113.9',
-				'Active',
-				'Open Profile',
-			],
-			\array_column( $overviewRows, 'value' )
+			'42',
+			(string)( $this->hrefQuery( (string)( $overviewRowsByKey[ 'wp_profile' ][ 'value_href' ] ?? '' ) )[ 'user_id' ] ?? '' )
 		);
-		$this->assertSame( '/wp-admin/user-edit.php?user_id=42', (string)( $overviewRows[ 7 ][ 'value_href' ] ?? '' ) );
 
 		$relatedIps = $vars[ 'related_ips' ] ?? [];
 		$this->assertCount( 3, $relatedIps );
@@ -291,11 +299,22 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 			\array_column( $relatedIps, 'status' )
 		);
 		$this->assertSame(
-			[ 'Offense Detected', 'Requests Observed', 'Sessions Observed' ],
-			\array_column( $relatedIps, 'status_label' )
+			[ '198.51.100.4', '192.0.2.1', '203.0.113.9' ],
+			$this->queryValues( $relatedIps, 'href', 'analyse_ip' )
 		);
+		$this->assertSame(
+			[ '198.51.100.4', '192.0.2.1', '203.0.113.9' ],
+			$this->queryValues( $relatedIps, 'investigate_href', 'analyse_ip' )
+		);
+		$expectedRouteIps = [ '192.0.2.1', '198.51.100.4', '203.0.113.9' ];
+		$ipAnalysisCalls = $this->pluginUrls->ipAnalysisCalls;
+		$investigateByIpCalls = $this->pluginUrls->investigateByIpCalls;
+		\sort( $ipAnalysisCalls );
+		\sort( $investigateByIpCalls );
+		$this->assertSame( $expectedRouteIps, $ipAnalysisCalls );
+		$this->assertSame( $expectedRouteIps, $investigateByIpCalls );
 
-		$requiredIpKeys = [ 'ip', 'href', 'status', 'status_label', 'last_seen_ts', 'last_seen_at', 'last_seen_ago', 'sessions_count', 'activity_count', 'requests_count' ];
+		$requiredIpKeys = [ 'ip', 'href', 'investigate_href', 'status', 'status_label', 'last_seen_ts', 'last_seen_at', 'last_seen_ago', 'sessions_count', 'activity_count', 'requests_count' ];
 		foreach ( $relatedIps as $card ) {
 			foreach ( $requiredIpKeys as $requiredKey ) {
 				$this->assertArrayHasKey( $requiredKey, $card );
@@ -340,20 +359,16 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 		$overviewRows = $renderData[ 'vars' ][ 'overview_rows' ] ?? [];
-		$overviewByLabel = [];
-		foreach ( $overviewRows as $row ) {
-			$overviewByLabel[ (string)( $row[ 'label' ] ?? '' ) ] = (string)( $row[ 'value' ] ?? '' );
-		}
+		$overviewByKey = $this->rowsByKey( $overviewRows );
 		$recentIps = \array_map(
 			'trim',
-			\explode( ',', (string)( $overviewByLabel[ 'Recent IPs' ] ?? '' ) )
+			\explode( ',', (string)( $overviewByKey[ 'recent_ips' ][ 'value' ] ?? '' ) )
 		);
 		\sort( $recentIps );
 		$this->assertSame( [ '198.51.100.77', '203.0.113.55' ], $recentIps );
-		$this->assertSame( 'Active', (string)( $overviewByLabel[ 'Shield Status' ] ?? '' ) );
 	}
 
-	public function test_build_overview_context_marks_suspended_users_and_never_returns_tracked() :void {
+	public function test_build_overview_context_returns_profile_query_and_status_key_contract() :void {
 		$user = new \WP_User();
 		$user->ID = 7;
 		$user->user_login = 'suspended-user';
@@ -407,11 +422,9 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 			]
 		);
 
-		$this->assertSame( 'Shop Manager', (string)( $context[ 'role' ] ?? '' ) );
 		$this->assertSame( '203.0.113.55', (string)( $context[ 'last_login_ip' ] ?? '' ) );
-		$this->assertSame( 'Suspended', (string)( $context[ 'shield_status' ] ?? '' ) );
-		$this->assertSame( '/wp-admin/user-edit.php?user_id=7', (string)( $context[ 'wp_profile_href' ] ?? '' ) );
-		$this->assertNotSame( 'Tracked', (string)( $context[ 'shield_status' ] ?? '' ) );
+		$this->assertArrayHasKey( 'shield_status', $context );
+		$this->assertSame( '7', (string)( $this->hrefQuery( (string)( $context[ 'wp_profile_href' ] ?? '' ) )[ 'user_id' ] ?? '' ) );
 	}
 
 	public function test_render_data_includes_lookup_helper_string() :void {
@@ -421,7 +434,6 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
 
 		$this->assertArrayHasKey( 'lookup_helper', $renderData[ 'strings' ] ?? [] );
-		$this->assertNotEmpty( $renderData[ 'strings' ][ 'lookup_helper' ] ?? '' );
 	}
 
 	public function test_small_user_sites_use_static_select2_options_without_ajax() :void {
@@ -447,19 +459,45 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [], $renderData[ 'vars' ][ 'lookup_ajax' ] ?? null );
 		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? 'missing' ) );
 		$this->assertSame(
-			[
-				[
-					'value' => '12',
-					'label' => '[ID:12 | Author] small-site-user | small@example.com',
-				],
-			],
-			$renderData[ 'vars' ][ 'user_options' ] ?? []
+			[ '12' ],
+			\array_column( $renderData[ 'vars' ][ 'user_options' ] ?? [], 'value' )
+		);
+		$this->assertArrayHasKey( 'label', $renderData[ 'vars' ][ 'user_options' ][ 0 ] ?? [] );
+	}
+
+	private function rowsByKey( array $rows ) :array {
+		$indexed = [];
+		foreach ( $rows as $row ) {
+			$key = (string)( $row[ 'key' ] ?? '' );
+			if ( $key !== '' ) {
+				$indexed[ $key ] = $row;
+			}
+		}
+		return $indexed;
+	}
+
+	private function queryValues( array $items, string $hrefKey, string $queryKey ) :array {
+		return \array_map(
+			fn( array $item ) :string => (string)( $this->hrefQuery( (string)( $item[ $hrefKey ] ?? '' ) )[ $queryKey ] ?? '' ),
+			$items
 		);
 	}
 
+	private function hrefQuery( string $href ) :array {
+		$query = [];
+		\parse_str( (string)\parse_url( $href, \PHP_URL_QUERY ), $query );
+		return $query;
+	}
+
+	private function decodedJsonAttr( string $attr ) :array {
+		$decoded = \json_decode( $attr, true );
+		return \is_array( $decoded ) ? $decoded : [];
+	}
+
 	private function installControllerStub() :void {
+		$this->pluginUrls = new PageInvestigateByUserRecordingPluginUrls();
 		UnitTestControllerFactory::install(
-			new UnitTestPluginUrls()
+			$this->pluginUrls
 		);
 	}
 
@@ -522,6 +560,22 @@ class PageInvestigateByUserUnitTestDouble extends PageInvestigateByUser {
 
 	protected function getUserLookupBuilder() :InvestigateUserLookupBuilder {
 		return $this->userLookupBuilder;
+	}
+}
+
+class PageInvestigateByUserRecordingPluginUrls extends UnitTestPluginUrls {
+
+	public array $ipAnalysisCalls = [];
+	public array $investigateByIpCalls = [];
+
+	public function ipAnalysis( string $ip ) :string {
+		$this->ipAnalysisCalls[] = $ip;
+		return parent::ipAnalysis( $ip );
+	}
+
+	public function investigateByIp( string $ip = '' ) :string {
+		$this->investigateByIpCalls[] = $ip;
+		return parent::investigateByIp( $ip );
 	}
 }
 

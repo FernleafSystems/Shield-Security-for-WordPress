@@ -423,6 +423,16 @@ class LocalSiteManagerTest extends TestCase {
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$probe = new RecordingLocalSiteProbe( [ true, true ], [ true ], [ false ] );
 		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
+		$hostManifest = [
+			'schema_version' => 1,
+			'generated_at_unix' => 1,
+			'files' => [
+				'icwp-wpsf.php' => [
+					'sha256' => \str_repeat( 'a', 64 ),
+					'size' => 1,
+				],
+			],
+		];
 
 		$manager = new LocalSiteManager(
 			LocalSiteDefinitions::browserLane( 1 ),
@@ -438,13 +448,15 @@ class LocalSiteManagerTest extends TestCase {
 			'warm',
 			true,
 			'fixture-token',
-			static function () :void {}
+			static function () :void {},
+			$hostManifest
 		);
 
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 1, $dockerComposeExecutor->calls );
 		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
+		$this->assertSame( $hostManifest, $runtimeRefresher->refreshCalls[ 0 ][ 'host_manifest' ] );
 		$this->assertSame(
 			[
 				'docker',

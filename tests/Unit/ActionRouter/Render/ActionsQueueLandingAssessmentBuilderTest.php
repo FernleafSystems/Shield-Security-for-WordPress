@@ -123,7 +123,8 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'system_php_version', $rows[ 'maintenance' ][ 0 ][ 'key' ] ?? '' );
 		$this->assertSame( 'review', $rows[ 'maintenance' ][ 0 ][ 'drill_bucket' ] ?? '' );
 		$this->assertSame( 'good', $rows[ 'maintenance' ][ 0 ][ 'status' ] ?? '' );
-		$this->assertStringContainsString( 'ignored', $rows[ 'maintenance' ][ 0 ][ 'description' ] ?? '' );
+		$this->assertArrayNotHasKey( 'count', $rows[ 'maintenance' ][ 0 ] );
+		$this->assertArrayNotHasKey( 'ignored_count', $rows[ 'maintenance' ][ 0 ] );
 	}
 
 	public function test_build_includes_only_plugin_files_when_only_plugin_scan_is_available() :void {

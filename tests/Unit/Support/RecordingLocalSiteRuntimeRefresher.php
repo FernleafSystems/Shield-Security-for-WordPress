@@ -9,7 +9,7 @@ class RecordingLocalSiteRuntimeRefresher extends LocalSiteRuntimeRefresher {
 	/** @var array<int,array{root_dir:string,compose_files:array,service_name:string,env_overrides:array}> */
 	public array $resolveCalls = [];
 
-	/** @var array<int,array{root_dir:string,container_id:string}> */
+	/** @var array<int,array{root_dir:string,container_id:string,host_manifest:?array}> */
 	public array $refreshCalls = [];
 
 	/** @var string[] */
@@ -39,10 +39,16 @@ class RecordingLocalSiteRuntimeRefresher extends LocalSiteRuntimeRefresher {
 		return (string)( \array_shift( $this->containerIds ) ?? '' );
 	}
 
-	public function refresh( string $rootDir, string $containerId, ?callable $onOutput = null ) :void {
+	public function refresh(
+		string $rootDir,
+		string $containerId,
+		?callable $onOutput = null,
+		?array $hostManifest = null
+	) :void {
 		$this->refreshCalls[] = [
 			'root_dir' => $rootDir,
 			'container_id' => $containerId,
+			'host_manifest' => $hostManifest,
 		];
 	}
 }

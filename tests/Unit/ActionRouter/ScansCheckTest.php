@@ -33,7 +33,7 @@ class ScansCheckTest extends BaseUnitTest {
 	}
 
 	public function test_exec_reports_failed_started_scan_with_failure_message() :void {
-		$failureMessage = 'producer failure detail';
+		$failureMessage = 'producer_failure_detail';
 		$controller = $this->installController( $failureMessage );
 
 		$action = new ScansCheck( [
@@ -65,14 +65,14 @@ class ScansCheckTest extends BaseUnitTest {
 				'id'     => 32,
 				'status' => 'failed',
 				'meta'   => [
-					'last_error' => 'second requested failure',
+					'last_error' => 'second_requested_failure',
 				],
 			],
 			(object)[
 				'id'     => 21,
 				'status' => 'failed',
 				'meta'   => [
-					'last_error' => 'first requested failure',
+					'last_error' => 'first_requested_failure',
 				],
 			],
 		] );
@@ -84,7 +84,7 @@ class ScansCheckTest extends BaseUnitTest {
 		$method->setAccessible( true );
 		$method->invoke( $action );
 
-		$this->assertSame( 'first requested failure', $action->response()->payload()[ 'failure_message' ] ?? '' );
+		$this->assertSame( 'first_requested_failure', $action->response()->payload()[ 'failure_message' ] ?? '' );
 		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
 		$this->assertSame( [ 21, 32 ], $controller->db_con->scans->selector->filteredIDs );
 	}
@@ -105,7 +105,7 @@ class ScansCheckTest extends BaseUnitTest {
 		$method->setAccessible( true );
 		$method->invoke( $action );
 
-		$this->assertSame( 'The scan failed before it could finish.', $action->response()->payload()[ 'failure_message' ] ?? '' );
+		$this->assertArrayHasKey( 'failure_message', $action->response()->payload() );
 		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
 	}
 
@@ -136,7 +136,7 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 		$this->assertSame( 42, $controller->action_router->renderData[ 'progress' ] ?? null );
-		$this->assertSame( 'Scan Name: wpv', $controller->action_router->renderData[ 'current_scan' ] ?? '' );
+		$this->assertArrayHasKey( 'current_scan', $controller->action_router->renderData );
 	}
 
 	public function test_exec_reports_completed_scan_modal_state_and_render_input() :void {

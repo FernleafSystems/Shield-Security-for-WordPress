@@ -40,8 +40,15 @@ class OrdinaryRequestFanoutReductionIntegrationTest extends ShieldIntegrationTes
 		$con = $this->requireController();
 
 		foreach ( $this->optionSnapshots as $key => $value ) {
+			if ( $key === 'auto_integrations_track' ) {
+				continue;
+			}
 			$con->opts->optSet( $key, $value );
 		}
+		if ( $con->opts->hasChanges() ) {
+			$con->opts->store();
+		}
+		$con->opts->optSet( 'auto_integrations_track', $this->optionSnapshots[ 'auto_integrations_track' ] );
 		if ( $con->opts->hasChanges() ) {
 			$con->opts->store();
 		}
@@ -76,14 +83,13 @@ class OrdinaryRequestFanoutReductionIntegrationTest extends ShieldIntegrationTes
 
 	public function test_public_request_does_not_run_auto_integrations() :void {
 		$con = $this->requireController();
+		$this->enablePremiumCapabilities();
 		$originalTrack = [
 			'last_check_at' => 0,
 			'profile_hash'  => '',
 		];
-		$con->opts
-			->optSet( 'enable_auto_integrations', 'Y' )
-			->optSet( 'auto_integrations_track', $originalTrack )
-			->store();
+		$con->opts->optSet( 'enable_auto_integrations', 'Y' )->store();
+		$con->opts->optSet( 'auto_integrations_track', $originalTrack )->store();
 
 		$this->applyCurrentRequestState( [
 			'REQUEST_METHOD' => 'GET',
@@ -94,6 +100,44 @@ class OrdinaryRequestFanoutReductionIntegrationTest extends ShieldIntegrationTes
 
 		$this->assertSame( $originalTrack, $con->opts->optGet( 'auto_integrations_track' ) );
 		$this->assertFalse( $con->opts->hasChanges() );
+	}
+
+	public function test_admin_request_runs_auto_integrations_when_track_cleared() :void {
+		$con = $this->requireController();
+		$this->enablePremiumCapabilities();
+		$con->opts
+			->optSet( 'enable_auto_integrations', 'Y' )
+			->optSet( 'auto_integrations_track', [] )
+			->store();
+
+		$this->applyCurrentRequestState(
+			[
+				'REQUEST_METHOD'  => 'GET',
+				'REQUEST_URI'     => '/wp-admin/admin.php?page=shield',
+				'SCRIPT_NAME'     => '/wp-admin/admin.php',
+				'SCRIPT_FILENAME' => '/wp-admin/admin.php',
+				'PHP_SELF'        => '/wp-admin/admin.php',
+			],
+			[],
+			[],
+			[
+				'path'        => '/wp-admin/admin.php',
+				'script_name' => 'admin.php',
+				'wp_is_admin' => true,
+				'wp_is_ajax'  => false,
+				'wp_is_cron'  => false,
+			]
+		);
+
+		$con->comps->integrations->resetExecution()->execute();
+
+		$track = $con->opts->optGet( 'auto_integrations_track' );
+		$this->assertIsArray( $track );
+		$this->assertArrayHasKey( 'last_check_at', $track );
+		$this->assertArrayHasKey( 'profile_hash', $track );
+		$this->assertGreaterThan( 0, (int)$track[ 'last_check_at' ] );
+		$this->assertIsString( $track[ 'profile_hash' ] );
+		$this->assertNotSame( '', $track[ 'profile_hash' ] );
 	}
 
 	public function test_store_real_install_date_is_idempotent_when_values_match() :void {

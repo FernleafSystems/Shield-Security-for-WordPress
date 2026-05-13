@@ -143,11 +143,16 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		$this->assertNotSame( '', \trim( $row[ 'title' ] ) );
 		$this->assertNotSame( '', \trim( $row[ 'description' ] ) );
 		$this->assertSame(
-			[ 'HTTP', 'GoogleBot', 'admin-user', '403', 'Offense' ],
-			\array_column( $row[ 'badges' ], 'label' )
+			[
+				'request_type'  => 'H',
+				'ip_identity'   => 'google',
+				'user_id'       => '8',
+				'response_code' => '403',
+				'offense'       => '1',
+			],
+			$this->badgeValuesByKey( $row[ 'badges' ] )
 		);
-		$this->assertSame( [ 'label', 'class' ], \array_keys( $row[ 'badges' ][ 0 ] ) );
-		$this->assertSame( 'shield-live-logs__badge--identity', $row[ 'badges' ][ 1 ][ 'class' ] );
+		$this->assertSame( [ 'key', 'value', 'label', 'class' ], \array_keys( $row[ 'badges' ][ 0 ] ) );
 	}
 
 	public function test_build_traffic_row_suppresses_unknown_identity_badges() :void {
@@ -169,7 +174,13 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 
 		$row = $builder->buildTrafficRow( $record );
 
-		$this->assertSame( [ 'HTTP', '200' ], \array_column( $row[ 'badges' ], 'label' ) );
+		$this->assertSame(
+			[
+				'request_type'  => 'H',
+				'response_code' => '200',
+			],
+			$this->badgeValuesByKey( $row[ 'badges' ] )
+		);
 	}
 
 	public function test_build_traffic_row_passes_logged_user_agent_to_identity_resolver() :void {
@@ -244,5 +255,13 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 				};
 			}
 		};
+	}
+
+	private function badgeValuesByKey( array $badges ) :array {
+		$values = [];
+		foreach ( $badges as $badge ) {
+			$values[ (string)( $badge[ 'key' ] ?? '' ) ] = (string)( $badge[ 'value' ] ?? '' );
+		}
+		return $values;
 	}
 }

@@ -153,6 +153,26 @@ class AuditLoggerDbWritePolicyIntegrationTest extends ShieldIntegrationTestCase 
 		], $this->latestActivityMeta() );
 	}
 
+	public function test_plugin_option_changed_redacted_value_is_persisted_as_structured_meta() :void {
+		$this->setWpDebug( false );
+
+		$this->writeAuditEvents( [
+			$this->eventSpec( 'plugin_option_changed', 'notice', [
+				'name'  => 'Sensitive Option',
+				'key'   => 'api_namespace_exclusions',
+				'value' => 'redacted',
+			] ),
+		] );
+
+		$meta = $this->latestActivityMeta();
+
+		$this->assertSame( [
+			'key'   => 'api_namespace_exclusions',
+			'name'  => 'Sensitive Option',
+			'value' => 'redacted',
+		], \array_intersect_key( $meta, \array_flip( [ 'key', 'name', 'value' ] ) ) );
+	}
+
 	private function writeAuditEvents( array $events ) :void {
 		$logger = $this->makeLogger();
 		foreach ( $events as $event ) {

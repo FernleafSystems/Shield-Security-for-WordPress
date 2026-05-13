@@ -4,10 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
+	ActionRoutingController,
+	Actions\Render\Components\Email\SecAdminRemoveConfirm,
 	Actions\SecurityAdminRemove,
 	Actions\SecurityAdminRequestRemoveByEmail,
 	Exceptions\ActionException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\SecurityAdminRemoveConfirmHrefBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdminRouteRuntime;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\LocalEmailCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -76,15 +79,41 @@ class SecurityAdminRemoveActionIntegrationTest extends ShieldIntegrationTestCase
 		$this->requireController()->opts
 			->optSet( 'allow_email_override', 'Y' )
 			->store();
+		$con = $this->requireController();
+		$originalActionRouter = $con->action_router;
+		$renderCalls = [];
+		$con->action_router = new SecurityAdminRemoveActionRenderCapture( $originalActionRouter, $renderCalls );
 
-		$payload = $this->processRequestRemoveByEmailAction();
+		try {
+			$payload = $this->processRequestRemoveByEmailAction();
+		}
+		finally {
+			$con->action_router = $originalActionRouter;
+		}
 
 		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
 		$this->assertCount( 1, $this->capturedMails() );
 		$mail = $this->lastCapturedMail();
-		$mailBody = (string)( $mail[ 'html_body' ] ?? '' );
-		$this->assertStringContainsString( SecurityAdminRemove::SLUG, $mailBody );
-		$this->assertStringContainsString( ActionData::FIELD_NONCE, $mailBody );
+		$this->assertArrayHasKey( 'html_body', $mail );
+
+		$confirmRenderCalls = \array_values( \array_filter(
+			$renderCalls,
+			static fn( array $call ) :bool => (string)( $call[ 'action' ] ?? '' ) === SecAdminRemoveConfirm::class
+		) );
+		$this->assertCount( 1, $confirmRenderCalls );
+		$this->assertSame(
+			$this->confirmationHrefQuery( ( new SecurityAdminRemoveConfirmHrefBuilder() )->build() ),
+			$this->confirmationHrefQuery( (string)( $confirmRenderCalls[ 0 ][ 'action_data' ][ 'confirmation_href' ] ?? '' ) )
+		);
+	}
+
+	public function test_email_override_confirmation_href_builder_returns_security_admin_remove_action_query() :void {
+		$query = $this->confirmationHrefQuery( ( new SecurityAdminRemoveConfirmHrefBuilder() )->build() );
+
+		$this->assertSame( ActionData::FIELD_SHIELD, (string)( $query[ ActionData::FIELD_ACTION ] ?? '' ) );
+		$this->assertSame( SecurityAdminRemove::SLUG, (string)( $query[ ActionData::FIELD_EXECUTE ] ?? '' ) );
+		$this->assertArrayHasKey( ActionData::FIELD_NONCE, $query );
+		$this->assertIsString( $query[ ActionData::FIELD_NONCE ] );
 	}
 
 	public function test_email_override_request_is_rejected_when_option_disabled() :void {
@@ -123,5 +152,37 @@ class SecurityAdminRemoveActionIntegrationTest extends ShieldIntegrationTestCase
 			SecurityAdminRequestRemoveByEmail::SLUG,
 			ActionData::Build( SecurityAdminRequestRemoveByEmail::class, false )
 		);
+	}
+
+	private function confirmationHrefQuery( string $href ) :array {
+		$query = [];
+		\parse_str(
+			(string)\wp_parse_url( $href, \PHP_URL_QUERY ),
+			$query
+		);
+		return $query;
+	}
+}
+
+class SecurityAdminRemoveActionRenderCapture {
+
+	private object $inner;
+	private array $calls;
+
+	public function __construct( object $inner, array &$calls ) {
+		$this->inner = $inner;
+		$this->calls = &$calls;
+	}
+
+	public function render( string $action, array $actionData = [] ) :string {
+		$this->calls[] = [
+			'action'      => $action,
+			'action_data' => $actionData,
+		];
+		return $this->inner->render( $action, $actionData );
+	}
+
+	public function action( string $classOrSlug, array $data = [], int $type = ActionRoutingController::ACTION_SHIELD ) {
+		return $this->inner->action( $classOrSlug, $data, $type );
 	}
 }

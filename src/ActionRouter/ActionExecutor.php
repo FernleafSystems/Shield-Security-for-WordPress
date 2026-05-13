@@ -14,6 +14,9 @@ use FernleafSystems\Wordpress\Services\Services;
  */
 class ActionExecutor {
 
+	public const WP_DIE_INVALID_NONCE_CODE = 'shield_action_invalid_nonce';
+	public const WP_DIE_INVALID_NONCE_STATUS = 400;
+
 	private ResponseAdapterFactory $factory;
 
 	public function __construct( ?ResponseAdapterFactory $factory = null ) {
@@ -44,7 +47,14 @@ class ActionExecutor {
 			if ( Services::WpGeneral()->isAjax() ) {
 				throw $iane;
 			}
-			wp_die( __( 'Unexpected data. Please try again.', 'wp-simple-firewall' ) );
+			wp_die(
+				__( 'Unexpected data. Please try again.', 'wp-simple-firewall' ),
+				'',
+				[
+					'code'     => self::WP_DIE_INVALID_NONCE_CODE,
+					'response' => self::WP_DIE_INVALID_NONCE_STATUS,
+				]
+			);
 		}
 
 		if ( !$routedResponse instanceof RoutedResponse ) {

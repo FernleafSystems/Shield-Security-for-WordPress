@@ -14,9 +14,9 @@ class BasePluginAdminPageHeaderSegmentsTest extends BaseUnitTest {
 		$segments = $this->buildSegments(
 			[
 				[
-					'text'  => 'Shield Security',
+					'text'  => 'shield_security',
 					'href'  => '/dashboard/overview',
-					'title' => 'Navigation: Mode Selector',
+					'title' => 'navigation_mode_selector',
 				],
 				[
 					'text'  => 'Investigate',
@@ -25,20 +25,20 @@ class BasePluginAdminPageHeaderSegmentsTest extends BaseUnitTest {
 				],
 			],
 			'investigate',
-			'No inner page title set'
+			'fallback_title'
 		);
 
 		$this->assertCount( 2, $segments );
-		$this->assertSame( [ 'Shield Security', 'Investigate' ], \array_column( $segments, 'text' ) );
+		$this->assertSame( [ 'shield_security', 'Investigate' ], \array_column( $segments, 'text' ) );
 	}
 
 	public function test_distinct_leaf_is_appended_as_non_link_segment() :void {
 		$segments = $this->buildSegments(
 			[
 				[
-					'text'  => 'Shield Security',
+					'text'  => 'shield_security',
 					'href'  => '/dashboard/overview',
-					'title' => 'Navigation: Mode Selector',
+					'title' => 'navigation_mode_selector',
 				],
 				[
 					'text'  => 'Investigate',
@@ -46,12 +46,12 @@ class BasePluginAdminPageHeaderSegmentsTest extends BaseUnitTest {
 					'title' => 'Navigation: Investigate',
 				],
 			],
-			'View Activity Logs',
-			'No inner page title set'
+			'view_activity_logs',
+			'fallback_title'
 		);
 
 		$this->assertCount( 3, $segments );
-		$this->assertSame( 'View Activity Logs', $segments[ 2 ][ 'text' ] ?? '' );
+		$this->assertSame( 'view_activity_logs', $segments[ 2 ][ 'text' ] ?? '' );
 		$this->assertSame( '', $segments[ 2 ][ 'href' ] ?? '' );
 		$this->assertSame( '', $segments[ 2 ][ 'title' ] ?? '' );
 	}
@@ -60,38 +60,38 @@ class BasePluginAdminPageHeaderSegmentsTest extends BaseUnitTest {
 		$segments = $this->buildSegments(
 			[
 				[
-					'text'  => 'Shield Security',
+					'text'  => 'shield_security',
 					'href'  => '/dashboard/overview',
-					'title' => 'Navigation: Mode Selector',
+					'title' => 'navigation_mode_selector',
 				],
 				[
-					'text'  => 'Actions Queue',
+					'text'  => 'actions_queue',
 					'href'  => '/scans/overview',
-					'title' => 'Navigation: Actions Queue',
+					'title' => 'navigation_actions_queue',
 				],
 			],
-			'Scan Results',
-			'No inner page title set'
+			'scan_results',
+			'fallback_title'
 		);
 
 		$this->assertSame( '/dashboard/overview', $segments[ 0 ][ 'href' ] ?? '' );
-		$this->assertSame( 'Navigation: Mode Selector', $segments[ 0 ][ 'title' ] ?? '' );
+		$this->assertSame( 'navigation_mode_selector', $segments[ 0 ][ 'title' ] ?? '' );
 		$this->assertSame( '/scans/overview', $segments[ 1 ][ 'href' ] ?? '' );
-		$this->assertSame( 'Navigation: Actions Queue', $segments[ 1 ][ 'title' ] ?? '' );
+		$this->assertSame( 'navigation_actions_queue', $segments[ 1 ][ 'title' ] ?? '' );
 	}
 
 	public function test_empty_breadcrumbs_with_leaf_yields_single_non_link_segment() :void {
-		$segments = $this->buildSegments( [], 'Investigate', 'No inner page title set' );
+		$segments = $this->buildSegments( [], 'investigate', 'fallback_title' );
 		$this->assertCount( 1, $segments );
-		$this->assertSame( 'Investigate', $segments[ 0 ][ 'text' ] ?? '' );
+		$this->assertSame( 'investigate', $segments[ 0 ][ 'text' ] ?? '' );
 		$this->assertSame( '', $segments[ 0 ][ 'href' ] ?? '' );
 		$this->assertSame( '', $segments[ 0 ][ 'title' ] ?? '' );
 	}
 
 	public function test_empty_leaf_uses_fallback_title() :void {
-		$segments = $this->buildSegments( [], '', 'No inner page title set' );
+		$segments = $this->buildSegments( [], '', 'fallback_title' );
 		$this->assertCount( 1, $segments );
-		$this->assertSame( 'No inner page title set', $segments[ 0 ][ 'text' ] ?? '' );
+		$this->assertSame( 'fallback_title', $segments[ 0 ][ 'text' ] ?? '' );
 	}
 
 	private function buildSegments( array $breadcrumbs, string $innerPageTitle, string $fallbackTitle ) :array {
@@ -106,4 +106,3 @@ class BasePluginAdminPageHeaderSegmentsTest extends BaseUnitTest {
 		] );
 	}
 }
-
