@@ -6,6 +6,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLanePool;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteManager;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalSiteRuntimeHostManifestProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -33,12 +34,15 @@ class BrowserTestLaneTest extends TestCase {
 		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-default-' );
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteManager = $this->buildSiteManagerMock( 2, 'warm' );
+		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager ) )->run( $projectRoot )
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run( $projectRoot )
 		);
 
 		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $hostManifestProvider->calls );
+		$this->assertSame( 'full', $hostManifestProvider->calls[ 0 ][ 'mode' ] );
 		$this->assertSame(
 			[
 				\PHP_BINARY,
@@ -71,12 +75,15 @@ class BrowserTestLaneTest extends TestCase {
 		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-ci-' );
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteManager = $this->buildSiteManagerMock( 1, 'clean' );
+		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager ) )->run( $projectRoot )
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run( $projectRoot )
 		);
 
 		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $hostManifestProvider->calls );
+		$this->assertSame( 'full', $hostManifestProvider->calls[ 0 ][ 'mode' ] );
 		$this->assertSame( '--workers=1', $playwrightRunner->calls[ 0 ][ 'command' ][ 4 ] );
 		$this->assertSame( [ 'SHIELD_BROWSER_LANE_MAP' ], \array_keys( $playwrightRunner->calls[ 0 ][ 'env_overrides' ] ) );
 		$this->assertLaneMapIsJsonObject( $playwrightRunner );
@@ -91,19 +98,23 @@ class BrowserTestLaneTest extends TestCase {
 		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-precedence-' );
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteManager = $this->buildSiteManagerMock( 2, 'warm' );
+		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager ) )->run(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run(
 				$projectRoot,
-				[ '--workers=2', '--list' ],
+				[ '--workers=2', '-g', 'flow' ],
 				[
-					'mode'  => 'warm',
-					'lanes' => '2',
+					'mode'            => 'warm',
+					'lanes'           => '2',
+					'runtime_refresh' => 'auto',
 				]
 			)
 		);
 
 		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $hostManifestProvider->calls );
+		$this->assertSame( 'auto', $hostManifestProvider->calls[ 0 ][ 'mode' ] );
 		$this->assertSame(
 			[
 				\PHP_BINARY,
@@ -111,7 +122,8 @@ class BrowserTestLaneTest extends TestCase {
 				'playwright',
 				'test',
 				'--workers=2',
-				'--list',
+				'-g',
+				'flow',
 			],
 			$playwrightRunner->calls[ 0 ][ 'command' ]
 		);
@@ -125,9 +137,10 @@ class BrowserTestLaneTest extends TestCase {
 		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-oversubscribe-' );
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteManager = $this->buildSiteManagerMock( 0, 'warm' );
+		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager ) )->run(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run(
 				$projectRoot,
 				[ '--workers=3' ],
 				[ 'lanes' => '2' ]
@@ -135,6 +148,85 @@ class BrowserTestLaneTest extends TestCase {
 		);
 
 		$this->assertSame( 1, $exitCode );
+		$this->assertCount( 0, $hostManifestProvider->calls );
+		$this->assertCount( 0, $playwrightRunner->calls );
+	}
+
+	public function testListRunSkipsLanePreparationAndWorkerLaneValidation() :void {
+		$this->clearBrowserEnvironment();
+		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-list-' );
+		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
+		$siteManager = $this->buildSiteManagerMock( 0, 'warm' );
+		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
+
+		$exitCode = $this->runQuietly(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run(
+				$projectRoot,
+				[ '--workers=3', '--list' ],
+				[ 'lanes' => '1' ]
+			)
+		);
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 0, $hostManifestProvider->calls );
+		$this->assertSame(
+			[
+				\PHP_BINARY,
+				'./bin/run-node-tool.php',
+				'playwright',
+				'test',
+				'--workers=3',
+				'--list',
+			],
+			$playwrightRunner->calls[ 0 ][ 'command' ]
+		);
+		$laneMap = $this->decodeLaneMap( $playwrightRunner );
+		$this->assertCount( 1, $laneMap );
+		$this->assertSame( 0, $laneMap[ 0 ][ 'laneIndex' ] );
+		$this->assertSame( 'http://127.0.0.1:0', $laneMap[ 0 ][ 'baseUrl' ] );
+	}
+
+	public function testCleanModeForcesFullRuntimeRefresh() :void {
+		$this->clearBrowserEnvironment();
+		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-clean-full-' );
+		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
+		$siteManager = $this->buildSiteManagerMock( 1, 'clean' );
+		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
+
+		$exitCode = $this->runQuietly(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run(
+				$projectRoot,
+				[],
+				[
+					'mode'            => 'clean',
+					'lanes'           => '1',
+					'runtime_refresh' => 'auto',
+				]
+			)
+		);
+
+		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $hostManifestProvider->calls );
+		$this->assertSame( 'full', $hostManifestProvider->calls[ 0 ][ 'mode' ] );
+	}
+
+	public function testInvalidRuntimeRefreshModeFailsClearly() :void {
+		$this->clearBrowserEnvironment();
+		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-invalid-refresh-' );
+		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
+		$siteManager = $this->buildSiteManagerMock( 0, 'warm' );
+		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
+
+		$exitCode = $this->runQuietly(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run(
+				$projectRoot,
+				[],
+				[ 'runtime_refresh' => 'metadata' ]
+			)
+		);
+
+		$this->assertSame( 1, $exitCode );
+		$this->assertCount( 0, $hostManifestProvider->calls );
 		$this->assertCount( 0, $playwrightRunner->calls );
 	}
 
@@ -153,7 +245,7 @@ class BrowserTestLaneTest extends TestCase {
 			->willThrowException( new \RuntimeException( 'prepare failed' ) );
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $lanePool ) )->run(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $lanePool, new RecordingLocalSiteRuntimeHostManifestProvider() ) )->run(
 				$projectRoot,
 				[],
 				[ 'lanes' => '2' ]
@@ -180,7 +272,7 @@ class BrowserTestLaneTest extends TestCase {
 			->willThrowException( new \RuntimeException( 'Playwright is not installed' ) );
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager ) )->run(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, new RecordingLocalSiteRuntimeHostManifestProvider() ) )->run(
 				$projectRoot,
 				[],
 				[ 'lanes' => '1' ]
@@ -206,7 +298,8 @@ class BrowserTestLaneTest extends TestCase {
 				$expectedMode,
 				true,
 				$this->callback( static fn( string $token ) :bool => \preg_match( '/^[a-f0-9]{48}$/', $token ) === 1 ),
-				$this->isType( 'callable' )
+				$this->isType( 'callable' ),
+				$this->isType( 'array' )
 			)
 			->willReturn( 0 );
 

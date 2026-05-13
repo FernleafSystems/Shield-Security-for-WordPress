@@ -10,6 +10,8 @@ class BrowserTestLane {
 	private const MODE_WARM = 'warm';
 	private const DEFAULT_LOCAL_LANES = 2;
 	private const DEFAULT_CI_LANES = 1;
+	private const RUNTIME_REFRESH_FULL = LocalSiteRuntimeHostManifestProvider::MODE_FULL;
+	private const RUNTIME_REFRESH_AUTO = LocalSiteRuntimeHostManifestProvider::MODE_AUTO;
 
 	private ProcessRunner $processRunner;
 
@@ -17,28 +19,47 @@ class BrowserTestLane {
 
 	private BrowserTestLanePool $lanePool;
 
+	private LocalSiteRuntimeHostManifestProvider $hostManifestProvider;
+
 	public function __construct(
 		?ProcessRunner $processRunner = null,
 		?LocalSiteManager $siteManager = null,
-		?BrowserTestLanePool $lanePool = null
+		?BrowserTestLanePool $lanePool = null,
+		?LocalSiteRuntimeHostManifestProvider $hostManifestProvider = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$this->providedSiteManager = $siteManager;
 		$this->lanePool = $lanePool ?? new BrowserTestLanePool();
+		$this->hostManifestProvider = $hostManifestProvider ?? new LocalSiteRuntimeHostManifestProvider();
 	}
 
 	/**
 	 * @param string[] $playwrightArgs
-	 * @param array{mode?:?string,lanes?:?string,show_setup_output?:bool} $options
+	 * @param array{mode?:?string,lanes?:?string,show_setup_output?:bool,runtime_refresh?:?string} $options
 	 */
 	public function run( string $rootDir, array $playwrightArgs = [], array $options = [] ) :int {
 		echo 'Mode: browser'.\PHP_EOL;
 
 		$playwrightArgs = $this->normalizePlaywrightArgs( $playwrightArgs );
 		$runMode = $this->resolveRunMode( $options[ 'mode' ] ?? null );
+		try {
+			$runtimeRefreshMode = $this->resolveRuntimeRefreshMode( $options[ 'runtime_refresh' ] ?? null, $runMode );
+		}
+		catch ( \Throwable $throwable ) {
+			$this->writeFailureDiagnostic( 'resolve runtime refresh mode', $throwable, null );
+			return 1;
+		}
+		$showSetupOutput = (bool)( $options[ 'show_setup_output' ] ?? false );
+		if ( $this->isListOnlyRun( $playwrightArgs ) ) {
+			return $this->runPlaywright(
+				$rootDir,
+				$playwrightArgs,
+				$this->inertLaneMap()
+			);
+		}
+
 		$laneCount = $this->resolveLaneCount( $options[ 'lanes' ] ?? null );
 		$workerCount = $this->resolveWorkerCount( $playwrightArgs, $laneCount );
-		$showSetupOutput = (bool)( $options[ 'show_setup_output' ] ?? false );
 		if ( $workerCount > $laneCount ) {
 			\fwrite(
 				\STDERR,
@@ -48,6 +69,18 @@ class BrowserTestLane {
 					$laneCount
 				).\PHP_EOL
 			);
+			return 1;
+		}
+
+		try {
+			$hostManifest = $this->hostManifestProvider->manifest(
+				$rootDir,
+				$runtimeRefreshMode,
+				$showSetupOutput ? null : static function () :void {}
+			);
+		}
+		catch ( \Throwable $throwable ) {
+			$this->writeFailureDiagnostic( 'build browser runtime host manifest', $throwable, null );
 			return 1;
 		}
 
@@ -87,7 +120,8 @@ class BrowserTestLane {
 					$runMode,
 					true,
 					$fixtureToken,
-					$showSetupOutput ? null : static function () :void {}
+					$showSetupOutput ? null : static function () :void {},
+					$hostManifest
 				);
 				$laneMap[ (string)$parallelIndex ] = [
 					'laneIndex'     => $lease->laneIndex(),
@@ -105,23 +139,11 @@ class BrowserTestLane {
 			}
 		}
 
-		echo 'Browser lane: run Playwright'.\PHP_EOL;
 		try {
-			return $this->processRunner->runForExitCode(
-				\array_merge(
-					[
-						\PHP_BINARY,
-						'./bin/run-node-tool.php',
-						'playwright',
-						'test',
-					],
-					$this->withResolvedWorkers( $playwrightArgs, $workerCount )
-				),
+			return $this->runPlaywright(
 				$rootDir,
-				null,
-				[
-					'SHIELD_BROWSER_LANE_MAP' => $this->encodeLaneMap( $laneMap ),
-				]
+				$this->withResolvedWorkers( $playwrightArgs, $workerCount ),
+				$laneMap
 			);
 		}
 		finally {
@@ -130,10 +152,35 @@ class BrowserTestLane {
 	}
 
 	/**
-	 * @param array<int,array<string,int|string>> $laneMap
+	 * @param array<int|string,array<string,int|string>> $laneMap
 	 */
 	private function encodeLaneMap( array $laneMap ) :string {
 		return \json_encode( (object)$laneMap, \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR );
+	}
+
+	/**
+	 * @param string[] $playwrightArgs
+	 * @param array<int|string,array<string,int|string>> $laneMap
+	 */
+	private function runPlaywright( string $rootDir, array $playwrightArgs, array $laneMap ) :int {
+		echo 'Browser lane: run Playwright'.\PHP_EOL;
+
+		return $this->processRunner->runForExitCode(
+			\array_merge(
+				[
+					\PHP_BINARY,
+					'./bin/run-node-tool.php',
+					'playwright',
+					'test',
+				],
+				$playwrightArgs
+			),
+			$rootDir,
+			null,
+			[
+				'SHIELD_BROWSER_LANE_MAP' => $this->encodeLaneMap( $laneMap ),
+			]
+		);
 	}
 
 	/**
@@ -170,6 +217,44 @@ class BrowserTestLane {
 			return $envMode;
 		}
 		return \getenv( 'CI' ) ? self::MODE_CLEAN : self::MODE_WARM;
+	}
+
+	private function resolveRuntimeRefreshMode( ?string $explicitMode, string $runMode ) :string {
+		if ( $explicitMode !== null && $explicitMode !== ''
+			&& $explicitMode !== self::RUNTIME_REFRESH_FULL
+			&& $explicitMode !== self::RUNTIME_REFRESH_AUTO
+		) {
+			throw new \InvalidArgumentException( 'Runtime refresh mode must be "full" or "auto".' );
+		}
+		if ( $runMode === self::MODE_CLEAN ) {
+			return self::RUNTIME_REFRESH_FULL;
+		}
+
+		return $explicitMode === self::RUNTIME_REFRESH_AUTO
+			? self::RUNTIME_REFRESH_AUTO
+			: self::RUNTIME_REFRESH_FULL;
+	}
+
+	/**
+	 * @param string[] $playwrightArgs
+	 */
+	private function isListOnlyRun( array $playwrightArgs ) :bool {
+		return \in_array( '--list', $playwrightArgs, true );
+	}
+
+	/**
+	 * @return array<string,array<string,int|string>>
+	 */
+	private function inertLaneMap() :array {
+		return [
+			'0' => [
+				'laneIndex' => 0,
+				'baseUrl' => 'http://127.0.0.1:0',
+				'fixtureToken' => 'list-only',
+				'authStatePath' => './test-results/playwright/list-only/.auth/admin.json',
+				'outputDir' => './test-results/playwright/list-only',
+			],
+		];
 	}
 
 	private function resolveLaneCount( ?string $explicitLaneCount ) :int {

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteRuntimeRefresher;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteRuntimeHostManifestProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptedProcessRunner;
 use PHPUnit\Framework\TestCase;
@@ -99,6 +100,47 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		$this->assertCount( 2, $runner->calls );
 	}
 
+	public function testRefreshUsesSuppliedHostManifestForLaneDiff() :void {
+		$hostManifest = $this->buildManifestForFixture();
+		$deployedManifest = $hostManifest;
+		$deployedManifest[ 'files' ][ 'src/Example.php' ][ 'sha256' ] = \str_repeat( 'b', 64 );
+		$runner = new ScriptedProcessRunner( [
+			[
+				'exit_code' => 0,
+				'stdout' => \json_encode( [
+					'manifest_exists' => true,
+					'sentinels' => [
+						'icwp-wpsf.php' => true,
+						'plugin.json' => true,
+					],
+					'all_required_sentinels_present' => true,
+					'has_any_required_sentinel' => true,
+				], \JSON_UNESCAPED_SLASHES ) ?: '',
+			],
+			[
+				'exit_code' => 0,
+				'stdout' => \json_encode( $deployedManifest, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES ) ?: '',
+			],
+		] );
+		$refresher = new LocalSiteRuntimeRefresher( $runner );
+
+		\ob_start();
+		try {
+			$refresher->refresh(
+				$this->projectRoot,
+				'wordpress-container',
+				null,
+				$hostManifest
+			);
+		}
+		finally {
+			\ob_end_clean();
+		}
+
+		$this->assertCount( 8, $runner->calls );
+		$this->assertSame( [ 'src/Example.php' ], $this->readRuntimeFileList() );
+	}
+
 	public function testRefreshFailsFastOnInconsistentRuntimeState() :void {
 		$runner = new ScriptedProcessRunner( [
 			[
@@ -179,6 +221,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		$this->assertStringContainsString( 'flags/obsolete.flag', $deleteList );
 		$this->assertStringContainsString( 'vendor_prefixed/autoload.php', $deleteList );
 		$this->assertStringContainsString( $staleAutoloadFile, $deleteList );
+		$this->assertFileDoesNotExist( Path::join( $this->runtimeWorkspace(), 'runtime-files.txt' ) );
 		$this->assertSame( 'docker', $runner->calls[ 2 ][ 'command' ][ 0 ] );
 		$this->assertSame( 'cp', $runner->calls[ 2 ][ 'command' ][ 1 ] );
 		$this->assertSame(
@@ -230,60 +273,29 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 	 * @return array{schema_version:int,generated_at_unix:int,files:array<string,array{sha256:string,size:int}>}
 	 */
 	private function buildManifestForFixture() :array {
-		$files = [];
-		$paths = [
-			'icwp-wpsf.php',
-			'plugin.json',
-			'plugin_compatibility.php',
-			'plugin_init.php',
-			'unsupported.php',
-			'src',
-			'templates',
-			'languages',
-			'vendor',
-			'assets/dist',
-			'assets/images',
-			'flags',
-			'tests/Helpers/RuntimeTestState.php',
-			'tests/Helpers/TestDataFactory.php',
-			'tests/Helpers/BrowserFixtureRegistry.php',
-			'tests/Helpers/ActionRouter',
-			'tests/Helpers/CrossSite',
-			'tests/browser/support/shield-browser-fixtures.php',
-		];
-		foreach ( $paths as $path ) {
-			$absolutePath = Path::join( $this->projectRoot, $path );
-			if ( !\file_exists( $absolutePath ) ) {
-				continue;
-			}
-			if ( \is_file( $absolutePath ) ) {
-				$files[ \str_replace( '\\', '/', $path ) ] = $this->describeFile( $absolutePath );
-				continue;
-			}
+		$manifest = ( new LocalSiteRuntimeHostManifestProvider() )->manifest(
+			$this->projectRoot,
+			LocalSiteRuntimeHostManifestProvider::MODE_FULL,
+			static function () :void {}
+		);
+		$manifest[ 'generated_at_unix' ] = 1;
 
-			$iterator = new \RecursiveIteratorIterator(
-				new \RecursiveDirectoryIterator( $absolutePath, \FilesystemIterator::SKIP_DOTS )
-			);
-			foreach ( $iterator as $fileInfo ) {
-				if ( !$fileInfo->isFile() ) {
-					continue;
-				}
-				$relativePath = \str_replace( '\\', '/', Path::makeRelative( $fileInfo->getPathname(), $this->projectRoot ) );
-				$files[ $relativePath ] = $this->describeFile( $fileInfo->getPathname() );
-			}
-		}
-
-		\ksort( $files );
-
-		return [
-			'schema_version' => 1,
-			'generated_at_unix' => 1,
-			'files' => $files,
-		];
+		return $manifest;
 	}
 
 	private function runtimeWorkspace() :string {
 		return Path::join( $this->projectRoot, 'tmp/.browser-runtime-refresh', \substr( \sha1( 'wordpress-container' ), 0, 12 ) );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function readRuntimeFileList() :array {
+		$content = (string)\file_get_contents( Path::join( $this->runtimeWorkspace(), 'runtime-files.txt' ) );
+		return \array_values( \array_filter(
+			\explode( "\n", \trim( $content ) ),
+			static fn( string $path ) :bool => $path !== ''
+		) );
 	}
 
 	/**
@@ -309,19 +321,6 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
-		];
-	}
-
-	/**
-	 * @return array{sha256:string,size:int}
-	 */
-	private function describeFile( string $filePath ) :array {
-		$hash = \hash_file( 'sha256', $filePath );
-		$this->assertIsString( $hash );
-
-		return [
-			'sha256' => $hash,
-			'size' => (int)\filesize( $filePath ),
 		];
 	}
 
