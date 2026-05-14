@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 class BotTrack404 extends BuildRuleIpsBase {
 
 	public const SLUG = 'shield/is_bot_probe_404';
+	private const FALLBACK_TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS = 1001;
 
 	protected function getName() :string {
 		return 'Bot-Track 404';
@@ -22,7 +23,10 @@ class BotTrack404 extends BuildRuleIpsBase {
 	}
 
 	protected function getWpHookPriority() :?int {
-		return HookTimings::TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS;
+		$hookTiming = HookTimings::class.'::TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS';
+		return \defined( $hookTiming )
+			? \constant( $hookTiming )
+			: self::FALLBACK_TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS;
 	}
 
 	protected function getConditions() :array {
