@@ -210,6 +210,44 @@ test( 'backup-code confirm sends expected action payload', async ( { page, fixtu
 	} );
 } );
 
+test( 'backup-code generate and delete mutate fixture-inspected records', async ( { page, fixtureApi } ) => {
+	const nativeDialogs = installNativeDialogGuard( page );
+	await fixtureApi.withMfaProfileFixture( async ( fixture ) => {
+		const renderData = await openMfaProfile( page, fixture );
+		const genPayload = renderData.vars.providers.backupcode.ajax.profile_backup_codes_gen;
+		const delPayload = renderData.vars.providers.backupcode.ajax.profile_backup_codes_del;
+
+		await page.locator( '.shield-gen-backup-login-code' ).click();
+		let dialog = await expectNamedMfaDialog( page );
+		const generateResponse = page.waitForResponse( ( response ) => {
+			return response.ok() && requestMatchesPayload( response.request(), genPayload );
+		}, { timeout: 20_000 } );
+		await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+		await generateResponse;
+
+		let inspected = await fixtureApi.inspectMfaProfileFixture();
+		expect( inspected.user_record_counts.backupcode ).toBe( 1 );
+
+		await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+		await expectMfaDialogHidden( page );
+
+		await page.locator( '.shield-del-backup-login-code' ).click();
+		dialog = await expectNamedMfaDialog( page );
+		const deleteResponse = page.waitForResponse( ( response ) => {
+			return response.ok() && requestMatchesPayload( response.request(), delPayload );
+		}, { timeout: 20_000 } );
+		await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+		await deleteResponse;
+
+		inspected = await fixtureApi.inspectMfaProfileFixture();
+		expect( inspected.user_record_counts.backupcode || 0 ).toBe( 0 );
+
+		await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+		await expectMfaDialogHidden( page );
+		expect( nativeDialogs ).toEqual( [] );
+	} );
+} );
+
 test( 'yubikey label prompt is labelled and validates inline', async ( { page, fixtureApi } ) => {
 	const nativeDialogs = installNativeDialogGuard( page );
 	await fixtureApi.withMfaProfileFixture( async ( fixture ) => {

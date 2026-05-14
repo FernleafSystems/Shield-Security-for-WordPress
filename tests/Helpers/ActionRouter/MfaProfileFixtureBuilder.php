@@ -26,6 +26,7 @@ class MfaProfileFixtureBuilder {
 		'enable_google_authenticator',
 		'enable_passkeys',
 		'enable_yubikey',
+		'global_enable_plugin_features',
 		'license_activated_at',
 		'license_data',
 		'license_deactivated_at',
@@ -58,18 +59,20 @@ class MfaProfileFixtureBuilder {
 			RuntimeTestState::controller()->opts
 				->optSet( 'allow_backupcodes', 'Y' )
 				->optSet( 'enable_email_authentication', 'Y' )
+				->optSet( 'global_enable_plugin_features', 'Y' )
 				->optSet( 'enable_yubikey', 'Y' )
 				->optSet( 'mfa_user_setup_pages', [ 'profile', 'dedicated' ] )
 				->optSet( 'yubikey_app_id', '12345' )
 				->optSet( 'yubikey_api_key', 'browser-fixture-yubikey-key' )
 				->store();
 			RuntimeTestState::forcePersistOptions( [
-				'allow_backupcodes'           => 'Y',
-				'enable_email_authentication' => 'Y',
-				'enable_yubikey'              => 'Y',
-				'mfa_user_setup_pages'        => [ 'profile', 'dedicated' ],
-				'yubikey_app_id'              => '12345',
-				'yubikey_api_key'             => 'browser-fixture-yubikey-key',
+				'allow_backupcodes'             => 'Y',
+				'enable_email_authentication'   => 'Y',
+				'global_enable_plugin_features' => 'Y',
+				'enable_yubikey'                => 'Y',
+				'mfa_user_setup_pages'          => [ 'profile', 'dedicated' ],
+				'yubikey_app_id'                => '12345',
+				'yubikey_api_key'               => 'browser-fixture-yubikey-key',
 			] );
 
 			$state[ 'mfa_record_ids' ][] = TestDataFactory::insertMfaRecord(
@@ -118,6 +121,23 @@ class MfaProfileFixtureBuilder {
 			$this->cleanup( $state );
 			throw $throwable;
 		}
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return array<string,mixed>
+	 */
+	public function inspect( array $state ) :array {
+		RuntimeTestState::ensureDb( [ 'mfa' ] );
+		$userID = (int)( $state[ 'user_id' ] ?? 0 );
+		$targetUserID = (int)( $state[ 'target_user_id' ] ?? 0 );
+
+		return [
+			'user_id'              => $userID,
+			'target_user_id'       => $targetUserID,
+			'user_record_counts'   => $this->recordCountsForUser( $userID ),
+			'target_record_counts' => $this->recordCountsForUser( $targetUserID ),
+		];
 	}
 
 	/**
@@ -184,5 +204,21 @@ class MfaProfileFixtureBuilder {
 		}
 
 		return (int)$userID;
+	}
+
+	/**
+	 * @return array<string,int>
+	 */
+	private function recordCountsForUser( int $userID ) :array {
+		if ( $userID <= 0 ) {
+			return [];
+		}
+
+		$counts = [];
+		foreach ( RuntimeTestState::controller()->db_con->mfa->getQuerySelector()->filterByUserID( $userID )->queryWithResult() as $record ) {
+			$slug = (string)$record->slug;
+			$counts[ $slug ] = ( $counts[ $slug ] ?? 0 ) + 1;
+		}
+		return $counts;
 	}
 }

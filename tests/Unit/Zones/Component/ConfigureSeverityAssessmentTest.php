@@ -26,8 +26,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	FileLocker,
 	FileScanning,
 	InactiveUsers,
+	LoginHide,
 	LoginProtectionForms,
 	Modules\ModuleFirewall,
+	Modules\ModuleLogin,
 	PasswordPolicies,
 	PasswordStrength,
 	PwnedPasswords,
@@ -36,6 +38,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	SecadminEnabled,
 	SecadminWpAdmins,
 	SecadminWpOptions,
+	SessionTheftProtection,
 	SilentCaptcha,
 	SpamUserRegisterBlock,
 	TrustedCommenters,
@@ -46,6 +49,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	XmlRpcDisable
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Firewall as FirewallZone;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Login as LoginZone;
 
 class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
@@ -245,6 +249,21 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertSame( ModuleFirewall::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
 	}
 
+	public function test_login_zone_owns_login_guard_components_and_module_config_scope() :void {
+		$this->installController();
+
+		$zone = new LoginZone();
+		$components = $zone->components();
+		$configAction = $zone->getAction_Config();
+
+		$this->assertContains( LoginProtectionForms::class, $components );
+		$this->assertContains( LoginHide::class, $components );
+		$this->assertContains( TwoFactorAuth::class, $components );
+		$this->assertContains( SessionTheftProtection::class, $components );
+		$this->assertSame( [ ModuleLogin::Slug() ], $zone->getConfigZoneComponentSlugs() );
+		$this->assertSame( ModuleLogin::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
+	}
+
 	public function test_firewall_core_component_statuses_and_signals_follow_options() :void {
 		$enabledOptions = [
 			'block_dir_traversal'    => 'Y',
@@ -419,6 +438,56 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertSame( [], $row[ 'explanations' ] ?? [] );
 	}
 
+	public function test_login_guard_configure_rows_expose_stable_contract_scopes() :void {
+		$this->installController( [
+			'bot_protection_locations'    => [ 'login', 'register', 'password' ],
+			'login_limit_interval'        => 30,
+			'rename_wplogin_path'         => 'shield-login',
+			'allow_backupcodes'           => 'Y',
+			'enable_email_authentication' => 'Y',
+			'email_can_send_verified_at'  => 12345,
+			'email_any_user_set'          => 'Y',
+			'enable_google_authenticator' => 'Y',
+			'enable_passkeys'             => 'N',
+		] );
+
+		$this->assertConfigureRowContract(
+			$this->findConfigureRowByKey( new LoginProtectionForms(), 'login_protection_forms' ),
+			'login_protection_forms',
+			EnumEnabledStatus::GOOD,
+			[ 'login_protection_forms' ],
+			[ 'bot_protection_locations', 'login_limit_interval' ]
+		);
+		$this->assertConfigureRowContract(
+			$this->findConfigureRowByKey( new LoginHide(), 'login_hide' ),
+			'login_hide',
+			EnumEnabledStatus::NEUTRAL,
+			[ 'login_hide' ],
+			[ 'rename_wplogin_path', 'rename_wplogin_redirect' ]
+		);
+		$this->assertConfigureRowContract(
+			$this->findConfigureRowByKey( new TwoFactorAuth(), 'two_factor_general' ),
+			'two_factor_general',
+			EnumEnabledStatus::GOOD,
+			[ 'two_factor_auth' ],
+			[ 'mfa_verify_page', 'allow_backupcodes' ]
+		);
+		$this->assertConfigureRowContract(
+			$this->findConfigureRowByKey( new TwoFactorAuth(), 'two_factor_email' ),
+			'two_factor_email',
+			EnumEnabledStatus::GOOD,
+			[ 'two_factor_auth' ],
+			[ 'enable_email_authentication', 'email_can_send_verified_at', 'two_factor_auth_user_roles' ]
+		);
+		$this->assertConfigureRowContract(
+			$this->findConfigureRowByKey( new TwoFactorAuth(), 'two_factor_otp_passkeys' ),
+			'two_factor_otp_passkeys',
+			EnumEnabledStatus::GOOD,
+			[ 'two_factor_auth' ],
+			[ 'enable_google_authenticator', 'enable_passkeys' ]
+		);
+	}
+
 	public function test_inactive_users_row_warns_when_only_manual_suspension_is_available() :void {
 		$this->installController(
 			[],
@@ -499,6 +568,21 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->fail( 'Failed to locate configure row: '.$rowKey );
 	}
 
+	private function assertConfigureRowContract(
+		array $row,
+		string $key,
+		string $enabledStatus,
+		array $zoneComponentSlugs,
+		array $optionKeys
+	) :void {
+		$this->assertSame( $key, $row[ 'key' ] ?? null );
+		$this->assertSame( $enabledStatus, $row[ 'enabled_status' ] ?? null );
+		$this->assertSame( $zoneComponentSlugs, $row[ 'config_scope' ][ 'zone_component_slugs' ] ?? null );
+		foreach ( $optionKeys as $optionKey ) {
+			$this->assertContains( $optionKey, $row[ 'config_scope' ][ 'option_keys' ] ?? [] );
+		}
+	}
+
 	/**
 	 * @param array<int,array<string,mixed>> $signals
 	 * @return array<string,array<string,mixed>>
@@ -536,7 +620,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		};
 		$controller->cfg = (object)[
 			'configuration' => (object)[
-				'options'  => [],
+				'options'  => $this->minimalConfigOptions(),
 				'sections' => [],
 			],
 		];
@@ -665,7 +749,34 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			public function getPassExpireTimeout() :int {
 				return $this->overrides[ 'getPassExpireTimeout' ] ?? 0;
 			}
+
+			public function getSessionIdleInterval() :int {
+				return $this->overrides[ 'getSessionIdleInterval' ] ?? 0;
+			}
 		};
+	}
+
+	private function minimalConfigOptions() :array {
+		$options = [];
+		foreach ( [
+			'bot_protection_locations' => [ 'login_protection_forms', '' ],
+			'login_limit_interval' => [ 'login_protection_forms', '' ],
+			'rename_wplogin_path' => [ 'login_hide', '' ],
+			'rename_wplogin_redirect' => [ 'login_hide', '' ],
+			'mfa_verify_page' => [ 'two_factor_auth', 'section_twofactor_auth' ],
+			'allow_backupcodes' => [ 'two_factor_auth', 'section_twofactor_auth' ],
+			'enable_email_authentication' => [ 'two_factor_auth', 'section_2fa_email' ],
+			'email_can_send_verified_at' => [ 'two_factor_auth', 'section_2fa_email' ],
+			'two_factor_auth_user_roles' => [ 'two_factor_auth', 'section_2fa_email' ],
+			'enable_google_authenticator' => [ 'two_factor_auth', 'section_2fa_otp' ],
+			'enable_passkeys' => [ 'two_factor_auth', 'section_2fa_passkeys' ],
+		] as $key => [ $slug, $section ] ) {
+			$options[ $key ] = [
+				'section'         => $section,
+				'zone_comp_slugs' => [ $slug ],
+			];
+		}
+		return $options;
 	}
 
 	private function buildScansComponent( array $overrides = [] ) :object {

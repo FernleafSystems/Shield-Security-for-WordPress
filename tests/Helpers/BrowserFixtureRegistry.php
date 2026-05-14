@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\Dashboard
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportFileFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpAnalysisActivityMetaFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpRulesTableFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\LoginGuardCoreFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MainwpSitesFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MerlinWelcomeFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MfaProfileFixtureBuilder;
@@ -37,6 +38,8 @@ class BrowserFixtureRegistry {
 				return self::runIpAnalysisActivityMetaFixture( $action );
 			case 'ip-rules-table':
 				return self::runIpRulesTableFixture( $action );
+			case 'login-guard-core':
+				return self::runLoginGuardCoreFixture( $action, $args );
 			case 'mainwp-sites':
 				return self::runMainwpSitesFixture( $action );
 			case 'merlin-welcome':
@@ -69,6 +72,7 @@ class BrowserFixtureRegistry {
 		self::runImportExportFileFixture( 'cleanup' );
 		self::runIpAnalysisActivityMetaFixture( 'cleanup' );
 		self::runIpRulesTableFixture( 'cleanup' );
+		self::runLoginGuardCoreFixture( 'cleanup', [] );
 		self::runMainwpSitesFixture( 'cleanup' );
 		self::runMerlinWelcomeFixture( 'cleanup' );
 		self::runMfaProfileFixture( 'cleanup' );
@@ -182,6 +186,41 @@ class BrowserFixtureRegistry {
 	}
 
 	/**
+	 * @param list<string> $args
+	 * @return array<string,mixed>
+	 */
+	private static function runLoginGuardCoreFixture( string $action, array $args ) :array {
+		$builder = new LoginGuardCoreFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'login-guard-core' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'inspect':
+				return $builder->inspect( $state );
+
+			case 'seed':
+				$scenario = self::requireScenario( $args );
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed( $scenario );
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
 	 * @return array<string,mixed>
 	 */
 	private static function runIpAnalysisActivityMetaFixture( string $action ) :array {
@@ -195,9 +234,6 @@ class BrowserFixtureRegistry {
 				$builder->cleanup( $state );
 				\delete_option( $optionKey );
 				return [ 'cleaned' => true ];
-
-			case 'inspect':
-				return $builder->inspect( $state );
 
 			case 'seed':
 				if ( $state !== [] ) {
@@ -321,6 +357,9 @@ class BrowserFixtureRegistry {
 				$builder->cleanup( $state );
 				\delete_option( $optionKey );
 				return [ 'cleaned' => true ];
+
+			case 'inspect':
+				return $builder->inspect( $state );
 
 			case 'seed':
 				if ( $state !== [] ) {
