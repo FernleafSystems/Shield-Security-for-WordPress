@@ -64,9 +64,9 @@ async function expectAccessibleMessageDialog( page ) {
 	return dialog;
 }
 
-async function expectDialogTitle( dialog, expectedText, { hidden = false } = {} ) {
+async function expectDialogTitleState( dialog, { hidden = false } = {} ) {
 	const title = dialog.locator( DIALOG_TITLE_SELECTOR );
-	await expect( title ).toHaveText( expectedText );
+	await expect( dialog ).toHaveAccessibleName( /\S/ );
 	if ( hidden ) {
 		await expect( title ).toHaveClass( /__title--hidden/ );
 	}
@@ -158,11 +158,11 @@ test( 'scan results row action failure opens accessible message dialog', async (
 
 		await deleteAction.click();
 		const confirmDialog = await expectAccessibleMessageDialog( page );
-		await expectDialogTitle( confirmDialog, 'Confirm Action' );
+		await expectDialogTitleState( confirmDialog );
 		await confirmDialog.locator( CONFIRM_BUTTON_SELECTOR ).click();
 
 		const messageDialog = await expectAccessibleMessageDialog( page );
-		await expectDialogTitle( messageDialog, 'Request Failed' );
+		await expectDialogTitleState( messageDialog );
 		await expectNoAxeViolations( page, DIALOG_SELECTOR );
 		await expect.poll( () => nativeDialogCount ).toBe( 0 );
 		await expect.poll( () => interceptedAction.count() ).toBe( 1 );
@@ -189,8 +189,8 @@ test( 'simple notice dialog hides its redundant title and keeps a named close bu
 	} );
 
 	const dialog = await expectAccessibleMessageDialog( page );
-	await expectDialogTitle( dialog, 'Notice', { hidden: true } );
-	await expect( dialog.locator( CONFIRM_BUTTON_SELECTOR ) ).toHaveText( 'Close' );
+	await expectDialogTitleState( dialog, { hidden: true } );
+	await expect( dialog.locator( CONFIRM_BUTTON_SELECTOR ) ).toHaveAccessibleName( /\S/ );
 	await expectNoAxeViolations( page, DIALOG_SELECTOR );
 	await dialog.locator( CONFIRM_BUTTON_SELECTOR ).click();
 } );

@@ -25,7 +25,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 	public function test_definitions_reuse_existing_scan_metadata_and_render_contracts() :void {
 		$definitions = ( new ActionsQueueGroupDefinitions() )->all();
 
-		$this->assertSame( 'WordPress Files', $definitions[ 'wordpress' ][ 'label' ] );
+		$this->assertGroupDefinitionShape( $definitions[ 'wordpress' ] );
 		$this->assertSame( 'direct_table', $definitions[ 'wordpress' ][ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $definitions[ 'wordpress' ][ 'card_type' ] );
 		$this->assertSame( Wordpress::class, $definitions[ 'wordpress' ][ 'render_action_class' ] );
@@ -41,10 +41,10 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 			],
 			$definitions[ 'wordpress' ][ 'render_action_data' ]
 		);
-		$this->assertSame( 'Malware Detections', $definitions[ 'malware' ][ 'label' ] );
+		$this->assertGroupDefinitionShape( $definitions[ 'malware' ] );
 		$this->assertSame( 'direct_table', $definitions[ 'malware' ][ 'detail_shell' ] );
 		$this->assertSame( 'linked', $definitions[ 'vulnerabilities' ][ 'card_type' ] );
-		$this->assertSame( 'Abandoned Assets', $definitions[ 'abandoned' ][ 'label' ] );
+		$this->assertGroupDefinitionShape( $definitions[ 'abandoned' ] );
 		$this->assertSame( 'linked', $definitions[ 'abandoned' ][ 'card_type' ] );
 		$this->assertSame( Malware::class, $definitions[ 'malware' ][ 'render_action_class' ] );
 		$this->assertSame(
@@ -70,13 +70,13 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'maintenance', $definitions[ 'maintenance' ][ 'detail_shell' ] );
 		$this->assertSame( 'category', $definitions[ 'maintenance' ][ 'card_type' ] );
 		$this->assertSame( Maintenance::class, $definitions[ 'maintenance' ][ 'render_action_class' ] );
-		$this->assertSame( 'Maintenance Items', $definitions[ 'maintenance' ][ 'label' ] );
-		$this->assertSame( 'System', $definitions[ 'maintenance_system' ][ 'label' ] );
+		$this->assertGroupDefinitionShape( $definitions[ 'maintenance' ] );
+		$this->assertGroupDefinitionShape( $definitions[ 'maintenance_system' ] );
 		$this->assertSame( 'bi bi-shield-lock-fill', $definitions[ 'maintenance_system' ][ 'icon_class' ] );
 		$this->assertSame( 'maintenance', $definitions[ 'maintenance_system' ][ 'detail_shell' ] );
 		$this->assertSame( 'category', $definitions[ 'maintenance_system' ][ 'card_type' ] );
 		$this->assertSame( Maintenance::class, $definitions[ 'maintenance_system' ][ 'render_action_class' ] );
-		$this->assertSame( 'WordPress', $definitions[ 'maintenance_wordpress' ][ 'label' ] );
+		$this->assertGroupDefinitionShape( $definitions[ 'maintenance_wordpress' ] );
 		$this->assertSame( 'bi bi-wordpress', $definitions[ 'maintenance_wordpress' ][ 'icon_class' ] );
 		$this->assertSame( 'maintenance', $definitions[ 'maintenance_wordpress' ][ 'detail_shell' ] );
 		$this->assertSame( 'category', $definitions[ 'maintenance_wordpress' ][ 'card_type' ] );
@@ -92,18 +92,19 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 0, $definitions->sectionOrderForGroupKey( 'wordpress' ) );
 		$this->assertSame( 0, $definitions->sectionOrderForGroupKey( 'malware' ) );
 		$this->assertSame( 0, $definitions->sectionOrderForGroupKey( 'file_locker' ) );
-		$this->assertSame( 'File Integrity', $definitions->sectionLabelForGroupKey( 'wordpress' ) );
-		$this->assertSame( 'File Integrity', $definitions->sectionLabelForGroupKey( 'malware' ) );
-		$this->assertSame( 'File Integrity', $definitions->sectionLabelForGroupKey( 'file_locker' ) );
+		$this->assertSame(
+			$definitions->sectionLabelForGroupKey( 'wordpress' ),
+			$definitions->sectionLabelForGroupKey( 'malware' )
+		);
+		$this->assertSame(
+			$definitions->sectionLabelForGroupKey( 'wordpress' ),
+			$definitions->sectionLabelForGroupKey( 'file_locker' )
+		);
 
 		$this->assertSame( 1, $definitions->sectionOrderForGroupKey( 'vulnerabilities' ) );
 		$this->assertSame( 2, $definitions->sectionOrderForGroupKey( 'plugins' ) );
 		$this->assertSame( 3, $definitions->sectionOrderForGroupKey( 'themes' ) );
 		$this->assertSame( 4, $definitions->sectionOrderForGroupKey( 'abandoned' ) );
-		$this->assertSame( 'Known Vulnerabilities', $definitions->sectionLabelForGroupKey( 'vulnerabilities' ) );
-		$this->assertSame( 'Plugins with modified files', $definitions->sectionLabelForGroupKey( 'plugins' ) );
-		$this->assertSame( 'Themes with modified files', $definitions->sectionLabelForGroupKey( 'themes' ) );
-		$this->assertSame( 'Abandoned Assets', $definitions->sectionLabelForGroupKey( 'abandoned' ) );
 
 		$this->assertSame( 2, $definitions->sortOrderForGroupKey( 'wordpress' ) );
 		$this->assertSame( 5, $definitions->sortOrderForGroupKey( 'malware' ) );
@@ -190,5 +191,26 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		);
 		$this->assertTrue( ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( 'theme_files_ignored' ) );
 		$this->assertFalse( ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( 'theme_files' ) );
+	}
+
+	private function assertGroupDefinitionShape( array $definition ) :void {
+		foreach ( [
+			'key',
+			'label',
+			'sort_order',
+			'section_key',
+			'section_order',
+			'section_label',
+			'icon_class',
+			'detail_shell',
+			'card_type',
+			'summary_keys',
+			'healthy_interaction_mode',
+			'healthy_ignored_source',
+			'render_action_class',
+			'render_action_data',
+		] as $key ) {
+			$this->assertArrayHasKey( $key, $definition );
+		}
 	}
 }

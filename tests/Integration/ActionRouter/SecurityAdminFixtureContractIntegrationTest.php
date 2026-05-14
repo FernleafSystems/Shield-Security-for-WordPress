@@ -12,13 +12,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\HandleOptions
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\RawOptionStoreSnapshot;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityAdminFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestCase {
 
-	use CurrentRequestFixture;
+	use ActionRequestNonceFixture;
 
 	public function test_fixture_contract_owns_scenarios_and_cleanup_restores_raw_option_stores() :void {
 		$this->loginAsAdministrator();
@@ -34,6 +34,12 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 				SecurityAdminFixtureBuilder::SCENARIO_LOCKED,
 				SecurityAdminFixtureBuilder::SCENARIO_ACTIVE_SESSION,
 				SecurityAdminFixtureBuilder::SCENARIO_EXPIRED_SESSION,
+				SecurityAdminFixtureBuilder::SCENARIO_DIRECT_DISABLE_READY,
+				SecurityAdminFixtureBuilder::SCENARIO_EMAIL_OVERRIDE_ENABLED,
+				SecurityAdminFixtureBuilder::SCENARIO_EMAIL_OVERRIDE_DISABLED,
+				SecurityAdminFixtureBuilder::SCENARIO_RESTRICTION_ZONES_LOCKED,
+				SecurityAdminFixtureBuilder::SCENARIO_RESTRICTION_ZONES_ACTIVE_ADMIN,
+				SecurityAdminFixtureBuilder::SCENARIO_PERSISTENT_ADMIN,
 			] as $scenario ) {
 				$result = $builder->seed( $scenario );
 
@@ -50,15 +56,22 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 					$this->assertSame( 'sec_admin_login', $contract[ 'action_slugs' ][ 'sec_admin_login' ] );
 					$this->assertSame( 'sec_admin_check', $contract[ 'action_slugs' ][ 'sec_admin_check' ] );
 					$this->assertSame( 'sec_admin_auth_clear', $contract[ 'action_slugs' ][ 'sec_admin_auth_clear' ] );
+					$this->assertSame( 'sec_admin_login', $contract[ 'boundary_action_slugs' ][ 'sec_admin_login' ] );
+					$this->assertSame( 'sec_admin_check', $contract[ 'boundary_action_slugs' ][ 'sec_admin_check' ] );
+					$this->assertSame( 'sec_admin_auth_clear', $contract[ 'boundary_action_slugs' ][ 'sec_admin_auth_clear' ] );
+					$this->assertSame( 'secadmin_remove_confirm', $contract[ 'boundary_action_slugs' ][ 'secadmin_remove_confirm' ] );
+					$this->assertSame( 'req_email_remove', $contract[ 'boundary_action_slugs' ][ 'req_email_remove' ] );
+					$this->assertSame( 'secadmin_remove_confirm', $contract[ 'boundary_actions' ][ 'direct_disable' ][ 'slug' ] );
+					$this->assertSame( 'req_email_remove', $contract[ 'boundary_actions' ][ 'email_override' ][ 'slug' ] );
 					$this->assertSame( 'admin_plugin_page_security_admin_restricted', $contract[ 'render_slugs' ][ 'restricted_page' ] );
 					$this->assertSame( 'render_form_security_admin_loginbox', $contract[ 'render_slugs' ][ 'login_box' ] );
-					$this->assertSame( 'secadmin_remove_confirm', $contract[ 'out_of_scope_action_slugs' ][ 'secadmin_remove_confirm' ] );
-					$this->assertSame( 'req_email_remove', $contract[ 'out_of_scope_action_slugs' ][ 'req_email_remove' ] );
 
 					$inspection = $builder->inspect( $result[ 'state' ] );
 					$this->assertTrue( $inspection[ 'fixture_state_present' ] );
 					$this->assertSame( $expected[ 'enabled' ], $inspection[ 'current' ][ 'enabled' ] );
 					$this->assertSame( $expected[ 'session_active' ], $inspection[ 'current' ][ 'session_active' ] );
+					$this->assertSame( $expected[ 'registered_sec_admin' ], $inspection[ 'current' ][ 'registered_sec_admin' ] );
+					$this->assertSame( $expected[ 'currently_sec_admin' ], $inspection[ 'current' ][ 'currently_sec_admin' ] );
 					$this->assertSame( $expected[ 'pin_hash_format' ], $inspection[ 'current' ][ 'admin_access_key_hash_format' ] );
 					if ( $expected[ 'time_remaining_is_zero' ] ) {
 						$this->assertSame( 0, $inspection[ 'current' ][ 'time_remaining' ] );
@@ -119,6 +132,55 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 			$manager->destroy( $token );
 			$this->restoreAuthCookie( $cookieName, $originalCookieWasSet, $originalCookie );
 			$this->requireController()->this_req->is_security_admin = $originalRequestSecurityAdmin;
+			unset( $this->requireController()->this_req->session );
+		}
+	}
+
+	public function test_fixture_writes_security_admin_state_to_admin_auth_session_before_logged_in_session() :void {
+		$userId = $this->loginAsAdministrator();
+		$manager = \WP_Session_Tokens::get_instance( $userId );
+		$expiration = Services::Request()->ts() + \DAY_IN_SECONDS;
+		$loggedInToken = $manager->create( $expiration );
+		$adminToken = $manager->create( $expiration );
+		$loggedInCookieName = \defined( 'LOGGED_IN_COOKIE' ) ? \LOGGED_IN_COOKIE : '';
+		$adminCookieName = \defined( 'SECURE_AUTH_COOKIE' ) ? \SECURE_AUTH_COOKIE : '';
+		$loggedInCookieWasSet = $loggedInCookieName !== '' && \array_key_exists( $loggedInCookieName, $_COOKIE );
+		$adminCookieWasSet = $adminCookieName !== '' && \array_key_exists( $adminCookieName, $_COOKIE );
+		$loggedInCookie = $loggedInCookieWasSet ? (string)$_COOKIE[ $loggedInCookieName ] : null;
+		$adminCookie = $adminCookieWasSet ? (string)$_COOKIE[ $adminCookieName ] : null;
+		$builder = new SecurityAdminFixtureBuilder();
+		$result = null;
+
+		if ( $loggedInCookieName === '' || $adminCookieName === '' ) {
+			$this->markTestSkipped( 'WordPress auth cookie constants are unavailable.' );
+		}
+
+		try {
+			$_COOKIE[ $loggedInCookieName ] = \wp_generate_auth_cookie( $userId, $expiration, 'logged_in', $loggedInToken );
+			$_COOKIE[ $adminCookieName ] = \wp_generate_auth_cookie( $userId, $expiration, 'secure_auth', $adminToken );
+			$this->writeSessionSecAdminAt( $userId, $loggedInToken, 0 );
+			$this->writeSessionSecAdminAt( $userId, $adminToken, 0 );
+			unset( $this->requireController()->this_req->session );
+
+			$result = $builder->seed( SecurityAdminFixtureBuilder::SCENARIO_DIRECT_DISABLE_READY );
+
+			$this->assertGreaterThan( 0, $this->sessionSecAdminAt( $userId, $adminToken ) );
+			$this->assertSame( 0, $this->sessionSecAdminAt( $userId, $loggedInToken ) );
+
+			$builder->cleanup( $result[ 'state' ] );
+			$result = null;
+
+			$this->assertSame( 0, $this->sessionSecAdminAt( $userId, $adminToken ) );
+			$this->assertSame( 0, $this->sessionSecAdminAt( $userId, $loggedInToken ) );
+		}
+		finally {
+			if ( \is_array( $result ) ) {
+				$builder->cleanup( $result[ 'state' ] );
+			}
+			$manager->destroy( $loggedInToken );
+			$manager->destroy( $adminToken );
+			$this->restoreAuthCookie( $loggedInCookieName, $loggedInCookieWasSet, $loggedInCookie );
+			$this->restoreAuthCookie( $adminCookieName, $adminCookieWasSet, $adminCookie );
 			unset( $this->requireController()->this_req->session );
 		}
 	}
@@ -236,13 +298,25 @@ class SecurityAdminFixtureContractIntegrationTest extends ShieldIntegrationTestC
 	 * @return array<string,mixed>
 	 */
 	private function runAction( string $actionSlug, array $actionData = [] ) :array {
+		$nonceSnapshot = null;
 		$this->requireController()->this_req->wp_is_ajax = false;
-		$routed = $this->requireController()->action_router->action(
-			$actionSlug,
-			$actionData,
-			ActionRoutingController::ACTION_REST
-		);
-		return $routed->payload();
+		if ( $actionSlug === SecurityAdminAuthClear::SLUG ) {
+			$nonceSnapshot = $this->seedActionNonceContext( SecurityAdminAuthClear::class );
+		}
+
+		try {
+			$routed = $this->requireController()->action_router->action(
+				$actionSlug,
+				$actionData,
+				ActionRoutingController::ACTION_REST
+			);
+			return $routed->payload();
+		}
+		finally {
+			if ( \is_array( $nonceSnapshot ) ) {
+				$this->restoreActionNonceContext( $nonceSnapshot );
+			}
+		}
 	}
 
 	private function writeSessionSecAdminAt( int $userId, string $token, int $timestamp ) :void {

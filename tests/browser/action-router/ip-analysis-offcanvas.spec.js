@@ -46,13 +46,100 @@ const isIpAnalysisActionRequest = ( request, expectedAction ) => {
 		&& requestPostParam( request, 'ip_action' ) === expectedAction;
 };
 
+const parseCssRgb = ( value ) => {
+	const match = String( value ).match( /^rgba?\(([^)]+)\)$/ );
+	expect( match, `Expected an rgb/rgba CSS color, got: ${value}` ).not.toBeNull();
+
+	const parts = match[ 1 ].split( ',' ).map( ( part ) => Number.parseFloat( part.trim() ) );
+	expect( parts.length, `Expected at least RGB components, got: ${value}` ).toBeGreaterThanOrEqual( 3 );
+
+	return {
+		r: parts[ 0 ],
+		g: parts[ 1 ],
+		b: parts[ 2 ],
+		a: parts.length > 3 ? parts[ 3 ] : 1,
+	};
+};
+
+const compositeOnWhite = ( color ) => {
+	if ( color.a >= 1 ) {
+		return color;
+	}
+	return {
+		r: color.r * color.a + 255 * ( 1 - color.a ),
+		g: color.g * color.a + 255 * ( 1 - color.a ),
+		b: color.b * color.a + 255 * ( 1 - color.a ),
+		a: 1,
+	};
+};
+
+const relativeLuminance = ( color ) => {
+	const channels = [ color.r, color.g, color.b ].map( ( channel ) => {
+		const normalized = channel / 255;
+		return normalized <= 0.03928
+			? normalized / 12.92
+			: Math.pow( ( normalized + 0.055 ) / 1.055, 2.4 );
+	} );
+
+	return 0.2126 * channels[ 0 ] + 0.7152 * channels[ 1 ] + 0.0722 * channels[ 2 ];
+};
+
+const contrastRatio = ( foreground, background ) => {
+	const foregroundLuminance = relativeLuminance( compositeOnWhite( foreground ) );
+	const backgroundLuminance = relativeLuminance( compositeOnWhite( background ) );
+	const lighter = Math.max( foregroundLuminance, backgroundLuminance );
+	const darker = Math.min( foregroundLuminance, backgroundLuminance );
+
+	return ( lighter + 0.05 ) / ( darker + 0.05 );
+};
+
+const expectReadableActivityIdentityBadges = async ( root ) => {
+	const badges = root.locator( '.activity-log-identity__badge:visible' );
+	const badgeCount = await badges.count();
+	expect( badgeCount ).toBeGreaterThan( 0 );
+
+	for ( let index = 0; index < badgeCount; index++ ) {
+		const styles = await badges.nth( index ).evaluate( ( element ) => {
+			const computed = window.getComputedStyle( element );
+			return {
+				backgroundColor: computed.backgroundColor,
+				className: element.className,
+				color: computed.color,
+			};
+		} );
+		expect( styles.className.split( /\s+/ ) ).not.toContain( 'badge' );
+		expect(
+			contrastRatio( parseCssRgb( styles.color ), parseCssRgb( styles.backgroundColor ) ),
+			JSON.stringify( styles )
+		).toBeGreaterThanOrEqual( 4.5 );
+	}
+};
+
+const expectActivityIdentityDisplay = async ( root, ip ) => {
+	await expect( root.locator( '.activity-log-identity' ) ).toBeVisible();
+	await expect( root.locator( `.activity-log-identity__ip .offcanvas_ip_analysis[data-ip="${ip}"]` ) ).toBeVisible();
+	await expectReadableActivityIdentityBadges( root );
+
+	const primary = root.locator( '.activity-log-identity__primary:visible' ).first();
+	if ( await primary.count() > 0 ) {
+		await expect.poll( async () => primary.evaluate( ( element ) => window.getComputedStyle( element ).flexWrap ) )
+			.toBe( 'nowrap' );
+	}
+};
+
 const openIpAnalysisOffcanvasFromClick = async ( page, ip ) => {
 	await openShieldRoute( page, {
 		nav: 'activity',
 		nav_sub: 'logs',
 	} );
 
-	const trigger = page.locator( `.offcanvas_ip_analysis[data-ip="${ip}"]` ).first();
+	const identityCell = page.locator( 'td.identity' )
+		.filter( { has: page.locator( `.offcanvas_ip_analysis[data-ip="${ip}"]` ) } )
+		.first();
+	await expect( identityCell ).toBeVisible();
+	await expectActivityIdentityDisplay( identityCell, ip );
+
+	const trigger = identityCell.locator( `.offcanvas_ip_analysis[data-ip="${ip}"]` ).first();
 	await expect( trigger ).toBeVisible();
 	await Promise.all( [
 		page.waitForResponse( ( response ) => ipAnalysisOffcanvasRequestMatcher( response.request() ) ),
@@ -97,6 +184,15 @@ const reloadActiveInvestigationTable = async ( page, offcanvas, tableType ) => {
 			return container?.getAttribute( 'aria-busy' ) === 'true' ? 'busy' : 'ready';
 		} );
 	}, { timeout: 20_000 } ).toBe( 'ready' );
+};
+
+const expectActivityIdentityColumn = async ( offcanvas, ip ) => {
+	const table = offcanvas.locator( 'table[data-investigation-table="1"][data-table-type="activity"]' ).first();
+	await expect( table.locator( 'thead th.identity' ) ).toBeVisible();
+
+	const identityCell = table.locator( 'tbody td.identity' ).first();
+	await expect( identityCell ).toBeVisible();
+	await expectActivityIdentityDisplay( identityCell, ip );
 };
 
 test( 'clicked IP link opens the IP analysis offcanvas with the four investigation tabs', async ( { page, fixtureApi } ) => {
@@ -250,8 +346,10 @@ test( 'preloaded IP analysis offcanvas activity meta button loads request meta p
 
 		await expectActiveInlineTabState( offcanvas, targetTab );
 		await expectInvestigationTableInitialized( offcanvas, 'activity' );
+		await expectActivityIdentityColumn( offcanvas, fixture.ip );
 		await expectRequestMetaPopover( page, offcanvas, fixture.rid, fixture.expected_meta );
 		await reloadActiveInvestigationTable( page, offcanvas, 'activity' );
+		await expectActivityIdentityColumn( offcanvas, fixture.ip );
 		await expect( page.locator( '[role="tooltip"]' ) ).toHaveCount( 0 );
 		await expectRequestMetaPopover( page, offcanvas, fixture.rid, fixture.expected_meta );
 	} );

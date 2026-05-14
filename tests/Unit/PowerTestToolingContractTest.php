@@ -112,6 +112,46 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( 'mainwp', $workflow );
 	}
 
+	public function testCiPathFiltersExposeRequiredGateGroups() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'GitHub workflows are excluded from packages (development-only)' );
+		}
+
+		$filters = $this->getPluginFileContents(
+			'.github/ci-path-filters.yml',
+			'CI path filters'
+		);
+
+		foreach ( [
+			'php:',
+			'js:',
+			'package:',
+			'browser:',
+			'ci_scripts:',
+			"'src/**/*.php'",
+			"'tests/docker/**'",
+			"'assets/js/**'",
+			"'src/ActionRouter/**'",
+			"'.github/workflows/browser-tests.yml'",
+		] as $contract ) {
+			$this->assertStringContainsString( $contract, $filters );
+		}
+
+		$phpFilter = $this->extractCiPathFilterBlock( $filters, 'php', 'js' );
+		$this->assertStringContainsString(
+			"'.github/scripts/verify-docker-test-scripts.sh'",
+			$phpFilter
+		);
+
+		$packageFilter = $this->extractCiPathFilterBlock( $filters, 'package', 'browser' );
+		foreach ( [
+			"'.github/scripts/verify-admin-bundle-safety.sh'",
+			"'.github/scripts/read-packager-config.sh'",
+		] as $contract ) {
+			$this->assertStringContainsString( $contract, $packageFilter );
+		}
+	}
+
 	public function testRequiredTestsWorkflowUsesExplicitParityCommands() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'GitHub workflows are excluded from packages (development-only)' );
@@ -122,6 +162,25 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 			'tests workflow'
 		);
 
+		$this->assertStringContainsString( 'changes:', $workflow );
+		$this->assertStringContainsString( 'uses: dorny/paths-filter@v4', $workflow );
+		$this->assertStringContainsString( 'fetch-depth: 0', $workflow );
+		$this->assertStringContainsString( 'filters: .github/ci-path-filters.yml', $workflow );
+		$this->assertStringContainsString( 'pull-requests: read', $workflow );
+		foreach ( [
+			'php: ${{ steps.filter.outputs.php }}',
+			'js: ${{ steps.filter.outputs.js }}',
+			'package: ${{ steps.filter.outputs.package }}',
+			'ci_scripts: ${{ steps.filter.outputs.ci_scripts }}',
+			"needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch'",
+			"needs.changes.outputs.js == 'true' || github.event_name == 'workflow_dispatch'",
+			"needs.changes.outputs.package == 'true' || github.event_name == 'workflow_dispatch'",
+			"needs.changes.outputs.ci_scripts == 'true' || github.event_name == 'workflow_dispatch'",
+			"always() && (needs.changes.outputs.package == 'true' || github.event_name == 'workflow_dispatch') && needs.build-package.result == 'success'",
+		] as $contract ) {
+			$this->assertStringContainsString( $contract, $workflow );
+		}
+
 		$this->assertStringContainsString( 'run: composer analyze', $workflow );
 		$this->assertStringNotContainsString( 'run: composer build:config', $workflow );
 		$this->assertStringContainsString(
@@ -129,6 +188,38 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 			$workflow
 		);
 		$this->assertStringNotContainsString( 'SHIELD_SKIP_UNIT_TESTS:', $workflow );
+	}
+
+	public function testBrowserWorkflowRunsPathGatedDevelopPushesWithTwoLanes() :void {
+		if ( $this->isTestingPackage() ) {
+			$this->markTestSkipped( 'GitHub workflows are excluded from packages (development-only)' );
+		}
+
+		$workflow = $this->getPluginFileContents(
+			'.github/workflows/browser-tests.yml',
+			'browser workflow'
+		);
+
+		foreach ( [
+			"push:\n    branches: [ develop ]",
+			'workflow_dispatch:',
+			'schedule:',
+			"cron: '30 6 * * 1-5'",
+			'uses: dorny/paths-filter@v4',
+			'fetch-depth: 0',
+			'filters: .github/ci-path-filters.yml',
+			"needs.changes.outputs.browser == 'true'",
+			'npm run playwright:install -- --with-deps --only-shell',
+			'composer test:browser -- --clean --lanes=2 -- --workers=2',
+			'shield-test-site-lane-${lane}',
+			'shield-browser-db',
+		] as $contract ) {
+			$this->assertStringContainsString( $contract, $workflow );
+		}
+
+		$this->assertStringNotContainsString( 'paths:', $workflow );
+		$this->assertStringNotContainsString( 'matrix:', $workflow );
+		$this->assertStringNotContainsString( '--shard', $workflow );
 	}
 
 	public function testIntegrationBootstrapFailsFastWhenParallelTokensArePresent() :void {
@@ -142,5 +233,20 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$process->run();
 		$this->assertSame( 1, $process->getExitCode() );
 		$this->assertStringContainsString( 'integration tests are serial-only', \strtolower( $process->getErrorOutput().$process->getOutput() ) );
+	}
+
+	private function extractCiPathFilterBlock( string $filters, string $filterName, string $nextFilterName ) :string {
+		$startMarker = $filterName.":\n";
+		$start = \strpos( $filters, $startMarker );
+		if ( $start === false ) {
+			$this->fail( \sprintf( 'CI path filter "%s" should exist.', $filterName ) );
+		}
+
+		$end = \strpos( $filters, "\n".$nextFilterName.":\n", $start );
+		if ( $end === false ) {
+			$this->fail( \sprintf( 'CI path filter "%s" should appear after "%s".', $nextFilterName, $filterName ) );
+		}
+
+		return \substr( $filters, $start, $end - $start );
 	}
 }

@@ -133,8 +133,8 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 		$this->assertSame( [], $layers[ 1 ][ 'header' ][ 'actions' ] ?? null );
 		$layerIDs = [];
 		foreach ( $layers as $layerIndex => $layer ) {
-			$this->assertMatchesRegularExpression(
-				\sprintf( '/^actions_drill_shell_layer_%d_[a-z0-9_]+$/', $layerIndex ),
+			$this->assertSame(
+				\sprintf( 'actions_drill_shell_layer_%d_%s', $layerIndex, $layer[ 'key' ] ?? '' ),
 				(string)( $layer[ 'id' ] ?? '' )
 			);
 			$this->assertNotContains( $layer[ 'id' ] ?? '', $layerIDs );
@@ -267,8 +267,8 @@ class PageDrillDownLandingBaseTest extends BaseUnitTest {
 		$titleIDs = [];
 		foreach ( $layers as $layerIndex => $layer ) {
 			$this->assertNotSame( '', $layer[ 'header' ][ 'title' ] ?? '' );
-			$this->assertMatchesRegularExpression(
-				\sprintf( '/^actions_drill_shell_layer_%d_valid_(one|two)$/', $layerIndex ),
+			$this->assertSame(
+				\sprintf( 'actions_drill_shell_layer_%d_%s', $layerIndex, $layer[ 'key' ] ?? '' ),
 				(string)( $layer[ 'id' ] ?? '' )
 			);
 			$ids[] = $layer[ 'id' ] ?? '';

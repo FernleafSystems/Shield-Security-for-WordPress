@@ -8,8 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	InvestigateRoutePanelAssertions,
-	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -17,8 +15,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use InvestigateRoutePanelAssertions;
-	use LookupRouteFormAssertions, PluginAdminRouteRenderAssertions;
+	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
 		parent::set_up();
@@ -70,43 +67,36 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 		$this->assertArrayHasKey( 'vulnerabilities', $vars );
 
-		$this->assertInvestigateRoutePreloadsSubjectPanel(
-			$this->renderByPluginPage( $pluginSlug ),
-			'activity by-plugin route',
-			'plugin',
-			'Plugin',
-			'//*[@data-drill-layer="1"]//*[@id="ShieldInvestigateByPluginTabsNav"]'
-		);
+		$routePayload = $this->renderByPluginPage( $pluginSlug );
+		$this->assertRouteRenderOutputHealthy( $routePayload, 'activity by-plugin route' );
+		$this->assertPluginAdminShellRouteState( $routePayload, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
 	}
 
 	public function test_no_lookup_route_preloads_plugin_panel_lookup_form() :void {
-		$this->assertInvestigateRoutePreloadsLookupPanel(
-			$this->renderByPluginPage(),
-			'activity by-plugin route without lookup',
-			'plugin',
-			'Plugin',
-			'plugin_slug'
-		);
+		$routePayload = $this->renderByPluginPage();
+		$this->assertRouteRenderOutputHealthy( $routePayload, 'activity by-plugin route without lookup' );
+		$this->assertPluginAdminShellRouteState( $routePayload, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {
-		$payload = $this->renderByPluginPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-
-		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
-		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
+		$renderData = (array)( $this->renderByPluginPanelBody()[ 'render_data' ] ?? [] );
+		$this->assertSame( PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN, (string)( $renderData[ 'vars' ][ 'lookup_route' ][ Constants::NAV_SUB_ID ] ?? '' ) );
+		$this->assertSame( 'shield-investigate-plugin-lookup-plugin_slug-control', (string)( $renderData[ 'vars' ][ 'lookup_field' ][ 'control_id' ] ?? '' ) );
 	}
 
 	public function test_panel_body_action_renders_plugin_markup_contract() :void {
 		$pluginSlug = $this->firstInstalledPluginSlug();
 
-		$panelHtml = $this->assertRouteRenderOutputHealthy(
-			$this->renderByPluginPanelBody( $pluginSlug ),
+		$payload = $this->renderByPluginPanelBody( $pluginSlug );
+		$this->assertRouteRenderOutputHealthy(
+			$payload,
 			'investigate by-plugin panel body action'
 		);
-		$this->assertStringContainsString( 'data-investigate-subject-header="1"', $panelHtml );
-		$this->assertStringContainsString( 'ShieldInvestigateByPluginTabsNav', $panelHtml );
-		$this->assertStringNotContainsString( 'data-inner-page-body-shell="1"', $panelHtml );
+		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
+		$this->assertSame( '/wpadmin/components/investigate/plugin_body.twig', (string)( $payload[ 'render_template' ] ?? '' ) );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'has_subject' ] ?? null );
+		$this->assertSame( $pluginSlug, (string)( $renderData[ 'vars' ][ 'plugin_slug' ] ?? '' ) );
+		$this->assertArrayHasKey( 'context_step_json', (array)( $renderData[ 'vars' ][ 'subject_header' ] ?? [] ) );
 	}
 
 	private function firstInstalledPluginSlug() :string {

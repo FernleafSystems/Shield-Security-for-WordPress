@@ -395,6 +395,90 @@ class PluginOptionsSchemaTest extends TestCase {
 		$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
 	}
 
+	public function testLegacyLogRetentionOptionsAreHiddenAndRetained() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [
+			'audit_trail_auto_clean',
+			'auto_clean',
+		] as $key ) {
+			$this->assertArrayHasKey( $key, $sourceOptions );
+			$this->assertArrayHasKey( $key, $this->options );
+
+			foreach ( [
+				'source'    => $sourceOptions[ $key ],
+				'generated' => $this->options[ $key ],
+			] as $context => $option ) {
+				$this->assertSame( 'section_hidden', $option[ 'section' ], sprintf( "%s option '%s' should be hidden.", $context, $key ) );
+				$this->assertSame( false, $option[ 'transferable' ] ?? true, sprintf( "%s option '%s' should not be transferable.", $context, $key ) );
+				$this->assertSame( true, $option[ 'tracking_exclude' ] ?? false, sprintf( "%s option '%s' should be excluded from tracking.", $context, $key ) );
+				$this->assertSame( 'integer', $option[ 'type' ], sprintf( "%s option '%s' should be an integer.", $context, $key ) );
+				$this->assertSame( 7, $option[ 'default' ], sprintf( "%s option '%s' should default to 7.", $context, $key ) );
+				$this->assertSame( 1, $option[ 'min' ], sprintf( "%s option '%s' should have minimum 1.", $context, $key ) );
+				$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
+				$this->assertArrayNotHasKey( 'value_options', $option );
+			}
+		}
+
+		foreach ( [
+			'log_level_db',
+			'type_exclusions',
+			'custom_exclusions',
+		] as $key ) {
+			$this->assertArrayNotHasKey( $key, $sourceOptions );
+			$this->assertArrayNotHasKey( $key, $this->options );
+		}
+	}
+
+	public function testSensitiveAuditOptionsAreMarkedInSourceAndGeneratedConfig() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+		$sensitiveKeys = [
+			'admin_access_key',
+			'sec_admin_users',
+			'api_namespace_exclusions',
+			'page_params_whitelist',
+			'scan_path_exclusions',
+			'request_whitelist',
+			'importexport_masterurl',
+			'preferred_temp_dir',
+			'xcsp_custom',
+			'instant_alerts_data',
+			'wphashes_api_token',
+			'import_id',
+			'import_url_ids',
+			'blockdown_cfg',
+			'importexport_secretkey',
+			'importexport_whitelist',
+			'yubikey_api_key',
+			'yubikey_app_id',
+			'cs_enroll_id',
+			'block_send_email_address',
+		];
+
+		foreach ( $sensitiveKeys as $key ) {
+			$this->assertSame( true, $sourceOptions[ $key ][ 'sensitive' ] ?? false, sprintf( "Source option '%s' should be sensitive.", $key ) );
+			$this->assertSame( true, $this->options[ $key ][ 'sensitive' ] ?? false, sprintf( "Generated option '%s' should be sensitive.", $key ) );
+		}
+	}
+
+	public function testPasswordOptionsAreSensitiveInSourceAndGeneratedConfig() :void {
+		foreach ( $this->sourceOptionsByKey() as $key => $option ) {
+			if ( ( $option[ 'type' ] ?? '' ) !== 'password' ) {
+				continue;
+			}
+
+			$this->assertSame( true, $option[ 'sensitive' ] ?? false, sprintf( "Source password option '%s' should be sensitive.", $key ) );
+			$this->assertSame( true, $this->options[ $key ][ 'sensitive' ] ?? false, sprintf( "Generated password option '%s' should be sensitive.", $key ) );
+		}
+	}
+
+	public function testImportExportWhitelistNotifyOptionIsNotSensitive() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		$this->assertNotSame( true, $sourceOptions[ 'importexport_whitelist_notify' ][ 'sensitive' ] ?? false );
+		$this->assertNotSame( true, $this->options[ 'importexport_whitelist_notify' ][ 'sensitive' ] ?? false );
+	}
+
 	public function testSecurityOverviewPrefsOptionIsAbsentFromGeneratedConfig() :void {
 		$this->assertArrayNotHasKey( 'sec_overview_prefs', $this->options );
 	}
@@ -494,5 +578,14 @@ class PluginOptionsSchemaTest extends TestCase {
 				);
 			}
 		}
+	}
+
+	private function sourceOptionsByKey() :array {
+		$options = $this->decodePluginJsonFile( 'plugin-spec/34_options.json', 'Source options spec' );
+		$byKey = [];
+		foreach ( $options as $option ) {
+			$byKey[ $option[ 'key' ] ] = $option;
+		}
+		return $byKey;
 	}
 }

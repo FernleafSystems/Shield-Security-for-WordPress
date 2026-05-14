@@ -13,6 +13,7 @@ class OptionSaveSideEffects {
 
 	public function run() :void {
 		$this->login();
+		$this->integrations();
 		$this->ips();
 		$this->securityAdmin();
 		$this->scanners();
@@ -25,6 +26,13 @@ class OptionSaveSideEffects {
 			}
 			catch ( \Exception $e ) {
 			}
+		}
+	}
+
+	private function integrations() :void {
+		$opts = self::con()->opts;
+		if ( $opts->optChanged( 'enable_auto_integrations' ) ) {
+			$opts->optSet( 'auto_integrations_track', [] );
 		}
 	}
 

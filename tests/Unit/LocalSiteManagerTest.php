@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingDockerCo
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalSiteProbe;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalSiteRuntimeRefresher;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingSourceGeneratedConfigReadiness;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingTestingEnvironmentResolver;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Path;
@@ -34,7 +35,9 @@ class LocalSiteManagerTest extends TestCase {
 		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
-		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] );
+		$events = [];
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ], $events );
+		$generatedConfigReadiness = new RecordingSourceGeneratedConfigReadiness( $events );
 
 		$manager = new LocalSiteManager(
 			LocalSiteDefinitions::dev(),
@@ -42,11 +45,14 @@ class LocalSiteManagerTest extends TestCase {
 			new RecordingTestingEnvironmentResolver(),
 			$dockerComposeExecutor,
 			$probe,
-			$runtimeRefresher
+			$runtimeRefresher,
+			null,
+			$generatedConfigReadiness
 		);
 
 		$manager->ensureReady( $this->projectRoot, true );
 
+		$this->assertSame( [ 'generated-config', 'runtime-refresh' ], $events );
 		$this->assertCount( 1, $dockerComposeExecutor->calls );
 		$this->assertSame(
 			[ 'up', '-d', 'db', 'wordpress' ],
@@ -58,10 +64,11 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertCount( 2, $runtimeRefresher->resolveCalls );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
 		$this->assertSame( 'wordpress-container', $runtimeRefresher->refreshCalls[ 0 ][ 'container_id' ] );
-		$this->assertCount( 2, $processRunner->calls );
-		$this->assertSame( [ \PHP_BINARY, './bin/build-config.php' ], $processRunner->calls[ 0 ][ 'command' ] );
-		$this->assertSame( 'docker', $processRunner->calls[ 1 ][ 'command' ][ 0 ] );
-		$this->assertContains( 'wp-cli', $processRunner->calls[ 1 ][ 'command' ] );
+		$this->assertCount( 1, $generatedConfigReadiness->calls );
+		$this->assertSame( 'local site tooling', $generatedConfigReadiness->calls[ 0 ][ 'failure_context' ] );
+		$this->assertCount( 1, $processRunner->calls );
+		$this->assertSame( 'docker', $processRunner->calls[ 0 ][ 'command' ][ 0 ] );
+		$this->assertContains( 'wp-cli', $processRunner->calls[ 0 ][ 'command' ] );
 	}
 
 	public function testEnsureReadyPassesTestProfileProvisioningMetadata() :void {
@@ -423,6 +430,16 @@ class LocalSiteManagerTest extends TestCase {
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$probe = new RecordingLocalSiteProbe( [ true, true ], [ true ], [ false ] );
 		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
+		$hostManifest = [
+			'schema_version' => 1,
+			'generated_at_unix' => 1,
+			'files' => [
+				'icwp-wpsf.php' => [
+					'sha256' => \str_repeat( 'a', 64 ),
+					'size' => 1,
+				],
+			],
+		];
 
 		$manager = new LocalSiteManager(
 			LocalSiteDefinitions::browserLane( 1 ),
@@ -438,13 +455,15 @@ class LocalSiteManagerTest extends TestCase {
 			'warm',
 			true,
 			'fixture-token',
-			static function () :void {}
+			static function () :void {},
+			$hostManifest
 		);
 
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 1, $dockerComposeExecutor->calls );
 		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
+		$this->assertSame( $hostManifest, $runtimeRefresher->refreshCalls[ 0 ][ 'host_manifest' ] );
 		$this->assertSame(
 			[
 				'docker',

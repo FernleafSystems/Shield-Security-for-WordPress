@@ -165,8 +165,8 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 		},
 	} );
 
-	async function runFixture( fixture, action, args = [] ) {
-		const response = await request.post( '/wp-json/shield-browser-test/v1/fixture', {
+	async function postFixtureRequest( requestContext, fixture, action, args = [] ) {
+		const response = await requestContext.post( '/wp-json/shield-browser-test/v1/fixture', {
 			data: {
 				fixture,
 				action,
@@ -181,6 +181,26 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 		}
 
 		return payload.data;
+	}
+
+	async function runFixture( fixture, action, args = [] ) {
+		if ( fixture !== 'security-admin' ) {
+			return postFixtureRequest( request, fixture, action, args );
+		}
+
+		const securityAdminRequest = await playwright.request.newContext( {
+			baseURL: lane.baseUrl,
+			storageState: authStatePath,
+			extraHTTPHeaders: {
+				'X-Shield-Browser-Fixture-Token': lane.fixtureToken,
+			},
+		} );
+		try {
+			return await postFixtureRequest( securityAdminRequest, fixture, action, args );
+		}
+		finally {
+			await securityAdminRequest.dispose();
+		}
 	}
 
 	return {

@@ -138,17 +138,19 @@ class AutoUpdatesCon {
 
 		if ( \is_object( $item ) && !empty( $item->plugin ) ) {
 			$con = self::con();
-			$WPV = $con->comps->scans->WPV();
-			if ( $WPV->isAutoupdatesEnabled() && $WPV->hasVulnerabilities( $item->plugin ) ) {
-				$autoupdate = true;
-			}
-			elseif ( $item->plugin === $con->base_file ) {
+			if ( $item->plugin === $con->base_file ) {
 				$auto = $con->opts->optGet( 'autoupdate_plugin_self' );
 				$autoupdate = $auto !== 'disabled'
 							  && ( $auto === 'immediate' || !$this->isDelayed( $item->plugin, 'plugins' ) );
 			}
-			elseif ( $this->isDelayed( $item->plugin, 'plugins' ) ) {
-				$autoupdate = false;
+			else {
+				$WPV = $con->comps->scans->WPV();
+				if ( $WPV->isAutoupdatesEnabled() && $WPV->hasVulnerabilities( $item->plugin ) ) {
+					$autoupdate = true;
+				}
+				elseif ( $this->isDelayed( $item->plugin, 'plugins' ) ) {
+					$autoupdate = false;
+				}
 			}
 		}
 
@@ -169,8 +171,13 @@ class AutoUpdatesCon {
 	 */
 	private function isDelayed( $slug, string $context ) :bool {
 		$delayed = false;
+		$con = self::con();
 
-		$delay = self::con()->opts->optGet( 'update_delay' );
+		$delay = $con->opts->optGet( 'update_delay' );
+		$isSelfPlugin = $context === 'plugins' && $slug === $con->base_file;
+		if ( $isSelfPlugin ) {
+			$delay = \max( $delay, (int)$con->cfg->properties[ 'autoupdate_days' ] );
+		}
 		if ( $delay > 0 ) {
 
 			$version = '';
@@ -182,16 +189,20 @@ class AutoUpdatesCon {
 			if ( $context == 'plugins' ) {
 				$pluginInfo = Services::WpPlugins()->getUpdateInfo( $slug );
 				$version = $pluginInfo->new_version ?? '';
-				if ( $slug === self::con()->base_file ) {
-					$delay = \max( $delay, self::con()->cfg->properties[ 'autoupdate_days' ] );
-				}
 			}
 			elseif ( $context == 'themes' ) {
 				$themeInfo = Services::WpThemes()->getUpdateInfo( $slug );
 				$version = $themeInfo[ 'new_version' ] ?? '';
 			}
 
-			$track = $this->getDelayTracking()[ $context ][ $slug ] ?? [];
+			$delayTracking = $this->getDelayTracking();
+			$track = $delayTracking[ $context ][ $slug ] ?? [];
+			if ( $isSelfPlugin && !empty( $version ) && !isset( $track[ $version ] ) ) {
+				$track[ $version ] = Services::Request()->ts();
+				$delayTracking[ $context ][ $slug ] = \array_slice( $track, -3 );
+				$con->opts->optSet( 'delay_tracking', $delayTracking );
+			}
+
 			$delayed = !empty( $version )
 					   && isset( $track[ $version ] )
 					   && ( Services::Request()->ts() - $track[ $version ] ) < $delay*DAY_IN_SECONDS;

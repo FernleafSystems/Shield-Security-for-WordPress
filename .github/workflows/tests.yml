@@ -8,9 +8,36 @@ on:
   workflow_dispatch:
 
 jobs:
+  changes:
+    name: 'Changed File Filters'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      php: ${{ steps.filter.outputs.php }}
+      js: ${{ steps.filter.outputs.js }}
+      package: ${{ steps.filter.outputs.package }}
+      ci_scripts: ${{ steps.filter.outputs.ci_scripts }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Detect changed file groups
+      id: filter
+      uses: dorny/paths-filter@v4
+      with:
+        base: ${{ github.ref_name }}
+        filters: .github/ci-path-filters.yml
+
   cache-cleanup-script-tests:
     name: 'Cache Cleanup Script Tests'
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.ci_scripts == 'true' || github.event_name == 'workflow_dispatch' }}
 
     steps:
     - name: Checkout code
@@ -25,6 +52,8 @@ jobs:
   admin-bundle-safety-script-tests:
     name: 'Admin Bundle Safety Script Tests'
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.ci_scripts == 'true' || github.event_name == 'workflow_dispatch' }}
 
     steps:
     - name: Checkout code
@@ -44,6 +73,8 @@ jobs:
   js-static:
     name: 'JS Static'
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.js == 'true' || github.event_name == 'workflow_dispatch' }}
 
     steps:
     - name: Checkout code
@@ -64,6 +95,8 @@ jobs:
   source-static-analysis:
     name: 'Source Static Analysis'
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
 
     steps:
     - name: Checkout code
@@ -84,6 +117,8 @@ jobs:
 
   unit-php74:
     name: 'Unit PHP 7.4'
+    needs: changes
+    if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/reusable-unit-tests.yml
     with:
       run_command: composer test:unit
@@ -91,6 +126,8 @@ jobs:
 
   unit-latest:
     name: 'Unit Latest PHP'
+    needs: changes
+    if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/reusable-unit-tests.yml
     with:
       run_command: composer test:unit
@@ -99,6 +136,8 @@ jobs:
   source-docker-runtime:
     name: 'Source Docker Runtime'
     runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
 
     steps:
     - name: Checkout code
@@ -133,6 +172,8 @@ jobs:
 
   build-package:
     name: 'Build Package'
+    needs: changes
+    if: ${{ needs.changes.outputs.package == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/reusable-build-package.yml
     with:
       artifact_name: shield-package
@@ -141,7 +182,8 @@ jobs:
   package-targeted-validation:
     name: 'Package Targeted Validation'
     runs-on: ubuntu-latest
-    needs: build-package
+    needs: [ changes, build-package ]
+    if: ${{ always() && (needs.changes.outputs.package == 'true' || github.event_name == 'workflow_dispatch') && needs.build-package.result == 'success' }}
 
     steps:
     - name: Checkout code

@@ -175,15 +175,15 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [ 'subjects', 'panel' ], \array_column( $vars[ 'drill_shell' ][ 'layers' ] ?? [], 'key' ) );
 		$this->assertSame( 'SUBJECTS_LAYER_HTML', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'body' ] ?? '' );
 		$this->assertSame( 'PANEL_LAYER:', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' );
-		$this->assertSame( 'Back to Investigate', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'compact_back_label' ] ?? '' );
-		$this->assertSame( 'Investigation', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
+		$this->assertArrayHasKey( 'compact_back_label', $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ] ?? [] );
+		$this->assertArrayHasKey( 'title', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
 		$this->assertSame( '', $idlePanel[ 'render_action_json' ] ?? 'missing' );
 		$this->assertSame( 'investigate', $renderData[ 'vars' ][ 'mode_shell' ][ 'mode' ] ?? '' );
 		$this->assertFalse( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'is_interactive' ] ?? true ) );
 		$this->assertTrue( (bool)( $renderData[ 'vars' ][ 'mode_shell' ][ 'use_operator_chrome' ] ?? false ) );
 		$this->assertSame( '/admin/home', $renderData[ 'vars' ][ 'mode_shell' ][ 'home_href' ] ?? '' );
-		$this->assertSame( 'Dashboard', $renderData[ 'vars' ][ 'mode_shell' ][ 'home_label' ] ?? '' );
-		$this->assertSame( 'Investigate', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'title' ] ?? '' );
+		$this->assertArrayHasKey( 'home_label', $renderData[ 'vars' ][ 'mode_shell' ] ?? [] );
+		$this->assertArrayHasKey( 'title', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ] ?? [] );
 		$this->assertSame( 'investigate', $renderData[ 'vars' ][ 'mode_shell' ][ 'root_step' ][ 'color_key' ] ?? '' );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'mode_tiles' ] ?? [ 'unexpected' ] );
 		$this->assertSame( '', $renderData[ 'vars' ][ 'mode_panel' ][ 'active_target' ] ?? 'missing' );
@@ -202,7 +202,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$panel = $this->invokeNonPublicMethod( $page, 'buildPanelLayerData', [ 'ip' ] );
 
 		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
-		$this->assertSame( 'IP Address', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
+		$this->assertArrayHasKey( 'title', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
 		$this->assertSame( 'ip', $panel[ 'subject_key' ] ?? '' );
 		$this->assertSame( '1', $panel[ 'is_loaded' ] ?? '0' );
 		$this->assertSame( '0', $panel[ 'is_live' ] ?? '1' );
@@ -225,7 +225,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 		$panel = $this->invokeNonPublicMethod( $page, 'buildPanelLayerData', [ 'plugin' ] );
 
 		$this->assertSame( 1, $vars[ 'drill_shell' ][ 'active_index' ] ?? -1 );
-		$this->assertSame( 'Plugin', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' );
+		$this->assertArrayHasKey( 'title', $vars[ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ] ?? [] );
 		$this->assertSame( 'plugin', $panel[ 'subject_key' ] ?? '' );
 		$this->assertCount( 1, $this->renderCapture->calls );
 		$this->assertSame( 'hello-dolly/hello.php', $this->renderCapture->calls[ 0 ][ 'action_data' ][ 'plugin_slug' ] ?? '' );

@@ -69,8 +69,74 @@ class MaintenanceItemActionsTest extends BaseUnitTest {
 		$action->process();
 
 		$this->assertFalse( (bool)( $action->response()->payload()[ 'success' ] ?? true ) );
-		$this->assertStringContainsString( 'identifier', (string)( $action->response()->payload()[ 'message' ] ?? '' ) );
+		$this->assertSame(
+			MaintenanceItemIgnore::ERROR_MISSING_IDENTIFIER,
+			$action->response()->payload()[ 'error_code' ] ?? ''
+		);
 		$this->assertSame( [], $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates'] );
+	}
+
+	public function test_ignore_rejects_invalid_key_without_mutating_state() :void {
+		$before = $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
+		$action = new MaintenanceItemIgnoreTestDouble(
+			[
+				'wp_plugins_updates' => [ 'plugin-one/plugin.php' ],
+			],
+			[
+				'wp_plugins_updates' => true,
+			],
+			[
+				'maintenance_key' => 'not_a_maintenance_key',
+				'identifier'      => 'plugin-one/plugin.php',
+			]
+		);
+
+		$action->process();
+
+		$this->assertFalse( (bool)( $action->response()->payload()[ 'success' ] ?? true ) );
+		$this->assertSame( MaintenanceItemIgnore::ERROR_INVALID_KEY, $action->response()->payload()[ 'error_code' ] ?? '' );
+		$this->assertSame( $before, $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) );
+	}
+
+	public function test_ignore_rejects_unavailable_sub_item_identifier_without_mutating_state() :void {
+		$before = $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
+		$action = new MaintenanceItemIgnoreTestDouble(
+			[
+				'wp_plugins_updates' => [ 'plugin-one/plugin.php' ],
+			],
+			[
+				'wp_plugins_updates' => true,
+			],
+			[
+				'maintenance_key' => 'wp_plugins_updates',
+				'identifier'      => 'plugin-two/plugin.php',
+			]
+		);
+
+		$action->process();
+
+		$this->assertFalse( (bool)( $action->response()->payload()[ 'success' ] ?? true ) );
+		$this->assertSame( MaintenanceItemIgnore::ERROR_IDENTIFIER_UNAVAILABLE, $action->response()->payload()[ 'error_code' ] ?? '' );
+		$this->assertSame( $before, $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) );
+	}
+
+	public function test_ignore_rejects_unavailable_singleton_without_mutating_state() :void {
+		$before = $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
+		$action = new MaintenanceItemIgnoreTestDouble(
+			[
+				'system_php_version' => [],
+			],
+			[],
+			[
+				'maintenance_key' => 'system_php_version',
+			]
+		);
+
+		$action->process();
+
+		$this->assertFalse( (bool)( $action->response()->payload()[ 'success' ] ?? true ) );
+		$this->assertSame( MaintenanceItemIgnore::ERROR_IDENTIFIER_UNAVAILABLE, $action->response()->payload()[ 'error_code' ] ?? '' );
+		$this->assertSame( $before, $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) );
 	}
 
 	public function test_ignore_stores_requested_sub_item_identifier() :void {
@@ -148,6 +214,49 @@ class MaintenanceItemActionsTest extends BaseUnitTest {
 
 		$this->assertTrue( (bool)( $action->response()->payload()[ 'success' ] ?? false ) );
 		$this->assertSame( [], $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY )['wp_plugins_updates'] );
+	}
+
+	public function test_unignore_rejects_invalid_key_without_mutating_state() :void {
+		$before = $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
+		$action = new MaintenanceItemUnignoreTestDouble(
+			[
+				'wp_plugins_updates' => [ 'plugin-one/plugin.php' ],
+			],
+			[
+				'wp_plugins_updates' => true,
+			],
+			[
+				'maintenance_key' => 'not_a_maintenance_key',
+				'identifier'      => 'plugin-one/plugin.php',
+			]
+		);
+
+		$action->process();
+
+		$this->assertFalse( (bool)( $action->response()->payload()[ 'success' ] ?? true ) );
+		$this->assertSame( MaintenanceItemUnignore::ERROR_INVALID_KEY, $action->response()->payload()[ 'error_code' ] ?? '' );
+		$this->assertSame( $before, $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) );
+	}
+
+	public function test_unignore_requires_identifier_for_sub_item_checks_without_mutating_state() :void {
+		$before = $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY );
+		$action = new MaintenanceItemUnignoreTestDouble(
+			[
+				'wp_plugins_updates' => [ 'plugin-one/plugin.php' ],
+			],
+			[
+				'wp_plugins_updates' => true,
+			],
+			[
+				'maintenance_key' => 'wp_plugins_updates',
+			]
+		);
+
+		$action->process();
+
+		$this->assertFalse( (bool)( $action->response()->payload()[ 'success' ] ?? true ) );
+		$this->assertSame( MaintenanceItemUnignore::ERROR_MISSING_IDENTIFIER, $action->response()->payload()[ 'error_code' ] ?? '' );
+		$this->assertSame( $before, $this->opts->optGet( MaintenanceIssueStateProvider::OPT_KEY ) );
 	}
 
 	private function installControllerStub() :void {

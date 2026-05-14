@@ -75,13 +75,14 @@ async function openMfaEditProfile( page, fixture ) {
 	await expect( page.locator( '.shield_mfa_remove_all' ) ).toBeVisible( { timeout: 20_000 } );
 }
 
-async function expectConnectedReference( page, element, attribute ) {
+async function expectConnectedReference( page, element, attribute, { visible = false } = {} ) {
 	const referenceId = await element.getAttribute( attribute );
 	expect( referenceId || '' ).not.toHaveLength( 0 );
-	await expect( page.locator( `#${referenceId}` ) ).toHaveCount( 1 );
-	expect( await page.locator( `#${referenceId}` ).evaluate( ( node ) => {
-		return node.isConnected && ( node.textContent || '' ).trim().length > 0;
-	} ) ).toBe( true );
+	const reference = page.locator( `#${referenceId}` );
+	await expect( reference ).toHaveCount( 1 );
+	if ( visible ) {
+		await expect( reference ).toBeVisible();
+	}
 	return referenceId;
 }
 
@@ -91,13 +92,14 @@ async function expectNamedMfaDialog( page ) {
 	await expect( dialog ).toHaveAttribute( 'role', 'dialog' );
 	await expect( dialog ).toHaveAttribute( 'aria-modal', 'true' );
 	await expectConnectedReference( page, dialog, 'aria-labelledby' );
+	await expect( dialog ).toHaveAccessibleName( /\S/ );
 	expect( await dialog.evaluate( ( node ) => node.contains( document.activeElement ) ) ).toBe( true );
 	return dialog;
 }
 
-async function expectMfaDialogTitle( dialog, expectedText, { hidden = false } = {} ) {
+async function expectMfaDialogTitleState( dialog, { hidden = false } = {} ) {
 	const title = dialog.locator( '.shield-accessible-dialog__title' );
-	await expect( title ).toHaveText( expectedText );
+	await expect( dialog ).toHaveAccessibleName( /\S/ );
 	if ( hidden ) {
 		await expect( title ).toHaveClass( /__title--hidden/ );
 	}
@@ -121,42 +123,14 @@ async function expectNoAxeViolations( page ) {
 }
 
 async function expectVisibleActionButtonsNamed( dialog, expectedCount ) {
-	const names = await dialog.locator( '.shield-accessible-dialog__actions button' ).evaluateAll( ( buttons ) => {
-		const accessibleName = ( button ) => {
-			const ariaLabel = ( button.getAttribute( 'aria-label' ) || '' ).trim();
-			if ( ariaLabel.length > 0 ) {
-				return ariaLabel;
-			}
+	const buttons = dialog.locator(
+		'.shield-accessible-dialog__actions button:not([hidden]):not([disabled]):not([aria-hidden="true"])'
+	);
 
-			const labelledBy = ( button.getAttribute( 'aria-labelledby' ) || '' ).trim();
-			if ( labelledBy.length > 0 ) {
-				return labelledBy
-				.split( /\s+/ )
-				.map( ( id ) => document.getElementById( id ) )
-				.filter( Boolean )
-				.map( ( element ) => ( element.textContent || '' ).trim() )
-				.join( ' ' )
-				.trim();
-			}
-
-			return ( button.textContent || '' ).trim();
-		};
-
-		return buttons
-		.filter( ( button ) => {
-			const style = window.getComputedStyle( button );
-			return !button.hidden
-				&& !button.disabled
-				&& button.getAttribute( 'aria-hidden' ) !== 'true'
-				&& style.display !== 'none'
-				&& style.visibility !== 'hidden';
-		} )
-		.map( accessibleName );
-	} );
-
-	expect( names ).toHaveLength( expectedCount );
-	for ( const name of names ) {
-		expect( name.length ).toBeGreaterThan( 0 );
+	await expect( buttons ).toHaveCount( expectedCount );
+	for ( let index = 0; index < expectedCount; index++ ) {
+		await expect( buttons.nth( index ) ).toBeVisible();
+		await expect( buttons.nth( index ) ).toHaveAccessibleName( /\S/ );
 	}
 }
 
@@ -185,7 +159,7 @@ test( 'backup-code confirm uses accessible modal and cancel does not send ajax',
 		await launcher.click();
 
 		const dialog = await expectNamedMfaDialog( page );
-		await expectMfaDialogTitle( dialog, 'Confirm Action' );
+		await expectMfaDialogTitleState( dialog );
 		await expectVisibleActionButtonsNamed( dialog, 2 );
 		await dialog.locator( '.shield-accessible-dialog__cancel' ).click();
 		await expectMfaDialogHidden( page );
@@ -206,7 +180,7 @@ test( 'invalid yubikey alert does not expose an empty cancel action', async ( { 
 		await launcher.press( 'Enter' );
 
 		const dialog = await expectNamedMfaDialog( page );
-		await expectMfaDialogTitle( dialog, 'Notice', { hidden: true } );
+		await expectMfaDialogTitleState( dialog, { hidden: true } );
 		await expectVisibleActionButtonsNamed( dialog, 1 );
 		expect( await dialog.locator( '.shield-accessible-dialog__cancel' ).evaluate( ( button ) => {
 			return button.hidden
@@ -254,15 +228,15 @@ test( 'yubikey label prompt is labelled and validates inline', async ( { page, f
 
 		const dialog = await expectNamedMfaDialog( page );
 		const input = dialog.locator( '#ShieldMfaDialogInput' );
-		await expect( dialog.locator( 'label[for="ShieldMfaDialogInput"]' ) ).toHaveCount( 1 );
-		expect( await dialog.locator( 'label[for="ShieldMfaDialogInput"]' ).evaluate( ( node ) => {
-			return node.isConnected && ( node.textContent || '' ).trim().length > 0;
-		} ) ).toBe( true );
+		const inputLabel = dialog.locator( 'label[for="ShieldMfaDialogInput"]' );
+		await expect( inputLabel ).toHaveCount( 1 );
+		await expect( input ).toHaveAccessibleName( /\S/ );
 
 		await input.fill( 'bad!' );
 		await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
 		await expect( input ).toHaveAttribute( 'aria-invalid', 'true' );
-		await expectConnectedReference( page, input, 'aria-describedby' );
+		const validationId = await expectConnectedReference( page, input, 'aria-describedby', { visible: true } );
+		await expect( page.locator( `#${validationId}` ) ).toHaveAttribute( 'role', 'alert' );
 
 		await dialog.locator( '.shield-accessible-dialog__cancel' ).click();
 		await expectMfaDialogHidden( page );

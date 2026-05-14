@@ -111,6 +111,29 @@ class IpRulesCachePersistenceIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $status->isBlocked() );
 	}
 
+	public function test_manual_bypass_add_clears_prior_single_ip_no_rules_miss() :void {
+		$this->requireDb( 'ip_rules' );
+		$this->requireDb( 'ips' );
+
+		$ip = '10.0.2.45';
+
+		$status = new IpRuleStatus( $ip );
+		$this->assertFalse( $status->hasRules() );
+		$this->assertTrue( IpRulesCache::Has( $ip, IpRulesCache::GROUP_NO_RULES ) );
+
+		( new AddRule() )
+			->setIP( $ip )
+			->toManualWhitelist( 'cache bypass' );
+
+		$this->assertFalse( IpRulesCache::Has( $ip, IpRulesCache::GROUP_NO_RULES ) );
+
+		$this->resetIpCaches();
+
+		$status = new IpRuleStatus( $ip );
+		$this->assertTrue( $status->isBypass() );
+		$this->assertFalse( $status->isBlocked() );
+	}
+
 	private function transientKeyForGroup( string $group ) :string {
 		return $this->requireController()->prefix( 'ip_rules_cache_'.$group, '_' );
 	}

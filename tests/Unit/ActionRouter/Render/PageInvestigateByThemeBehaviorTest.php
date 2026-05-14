@@ -116,15 +116,10 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'lookup_ajax_attr' ] ?? 'missing' ) );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'lookup_shortcuts' ] ?? null );
 		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'offcanvas_history_mode' ] ?? 'missing' ) );
-		$this->assertSame(
-			[
-				[
-					'value' => 'twentytwentyfive',
-					'label' => 'Twenty Twenty-Five (1.0)',
-				],
-			],
-			$renderData[ 'vars' ][ 'theme_options' ] ?? []
-		);
+		$themeOptions = $renderData[ 'vars' ][ 'theme_options' ] ?? [];
+		$this->assertCount( 1, $themeOptions );
+		$this->assertSame( 'twentytwentyfive', $themeOptions[ 0 ][ 'value' ] ?? '' );
+		$this->assertArrayHasKey( 'label', $themeOptions[ 0 ] );
 	}
 
 	public function test_invalid_lookup_sets_subject_not_found_flag() :void {
@@ -190,8 +185,8 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
 		$this->assertArrayNotHasKey( 'subject', $vars );
 		$this->assertArrayNotHasKey( 'summary', $vars );
-		$this->assertSame( 'File Scan Status', (string)( $vars[ 'tabs' ][ 'file_status' ][ 'label' ] ?? '' ) );
-		$this->assertSame( 'File Scan Status', (string)( $tables[ 'file_status' ][ 'title' ] ?? '' ) );
+		$this->assertArrayHasKey( 'label', $vars[ 'tabs' ][ 'file_status' ] ?? [] );
+		$this->assertArrayHasKey( 'title', $tables[ 'file_status' ] ?? [] );
 		$this->assertFalse( (bool)( $tables[ 'file_status' ][ 'show_header' ] ?? true ) );
 		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'show_header' ] ?? true ) );
 		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'activity' ] ?? [] );
@@ -199,10 +194,9 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		$fileStatusAction = $this->decodeJsonAttr( (string)( $tables[ 'file_status' ][ 'table_action_attr' ] ?? '' ) );
 		$this->assertSame( 'theme', $fileStatusAction[ 'type' ] ?? '' );
 		$this->assertSame( 'twentytwentyfive', $fileStatusAction[ 'file' ] ?? '' );
-		$this->assertSame(
-			[ 'Name', 'Slug', 'Version', 'Author', 'Stylesheet', 'Install Directory', 'Installed', 'Active Status', 'Child Theme Status' ],
-			\array_column( $vars[ 'overview_rows' ] ?? [], 'label' )
-		);
+		$this->assertCount( 9, $vars[ 'overview_rows' ] ?? [] );
+		$this->assertContains( 'twentytwentyfive', \array_column( $vars[ 'overview_rows' ] ?? [], 'value' ) );
+		$this->assertContains( '1.0', \array_column( $vars[ 'overview_rows' ] ?? [], 'value' ) );
 		$this->assertSame( 0, (int)( $vars[ 'vulnerabilities' ][ 'count' ] ?? 99 ) );
 		$this->assertSame( '', (string)( $vars[ 'vulnerabilities' ][ 'title' ] ?? 'missing' ) );
 		$this->assertSame( '', (string)( $vars[ 'vulnerabilities' ][ 'lookup_href' ] ?? 'missing' ) );

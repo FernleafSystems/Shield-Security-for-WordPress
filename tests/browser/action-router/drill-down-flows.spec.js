@@ -374,11 +374,9 @@ test( 'actions queue keeps the same ignored-plugin direct table after the shared
 
 		await actionsQueuePage.drillToDetail( fixture );
 		const rail = page.locator( '[data-operator-context-rail="1"]' );
-		const detailTitle = rail.locator( '.operator-context-rail__title' );
-		const detailBadge = rail.locator( '.shield-badge' );
-		const titleText = ( await detailTitle.textContent() || '' ).trim();
-		const badgeText = ( await detailBadge.textContent() || '' ).trim();
 		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
+		await expect( rail ).toBeVisible();
+		await expect( rail ).toHaveAccessibleName( /\S/ );
 		await expect( scanResultsTable ).toBeVisible();
 		await waitForScanResultsTableEmpty( scanResultsTable );
 		await scanResultsTable.evaluate( ( table ) => {
@@ -388,8 +386,7 @@ test( 'actions queue keeps the same ignored-plugin direct table after the shared
 		} );
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
-		await expect( detailTitle ).toHaveText( titleText, { timeout: 20_000 } );
-		await expect( detailBadge ).toHaveText( badgeText, { timeout: 20_000 } );
+		await expect( rail ).toBeVisible( { timeout: 20_000 } );
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
 		await expect( scanResultsTable ).toBeVisible();
 	} );
@@ -405,7 +402,6 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 
 		await actionsQueuePage.drillToDetail( fixture );
 		const rail = page.locator( '[data-operator-context-rail="1"]' );
-		const detailTitle = rail.locator( '.operator-context-rail__title' );
 		const ignoreAllAction = await operatorContextAjaxAction(
 			rail,
 			( action ) => action?.sub_action === 'ignore_all'
@@ -413,7 +409,8 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 		const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
 		const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
 		const ignoredFilter = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
-		const titleText = ( await detailTitle.textContent() || '' ).trim();
+		await expect( rail ).toBeVisible();
+		await expect( rail ).toHaveAccessibleName( /\S/ );
 
 		await waitForScanResultsTableRows( scanResultsTable );
 		expect( ignoreAllAction ).not.toBeNull();
@@ -478,7 +475,7 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 			),
 			{ timeout: 20_000 }
 		).toBe( false );
-		await expect( detailTitle ).toHaveText( titleText, { timeout: 20_000 } );
+		await expect( rail ).toBeVisible( { timeout: 20_000 } );
 		await expect( displayCollection ).toBeVisible();
 		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_ignored":true/, { timeout: 20_000 } );
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );

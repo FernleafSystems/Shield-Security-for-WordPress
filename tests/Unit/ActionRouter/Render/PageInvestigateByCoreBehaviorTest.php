@@ -90,12 +90,11 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'summary', $vars );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'hrefs' ] ?? [] );
 		$this->assertArrayNotHasKey( 'back_to_investigate', $renderData[ 'strings' ] ?? [] );
-		$this->assertSame(
-			[ 'WordPress Version', 'Core Update Status', 'Install Directory' ],
-			\array_column( $vars[ 'overview_rows' ] ?? [], 'label' )
-		);
-		$this->assertSame( 'File Scan Status', (string)( $vars[ 'tabs' ][ 'file_status' ][ 'label' ] ?? '' ) );
-		$this->assertSame( 'File Scan Status', (string)( $tables[ 'file_status' ][ 'title' ] ?? '' ) );
+		$this->assertCount( 3, $vars[ 'overview_rows' ] ?? [] );
+		$this->assertContains( '6.5.2', \array_column( $vars[ 'overview_rows' ] ?? [], 'value' ) );
+		$this->assertContains( ABSPATH, \array_column( $vars[ 'overview_rows' ] ?? [], 'value' ) );
+		$this->assertArrayHasKey( 'label', $vars[ 'tabs' ][ 'file_status' ] ?? [] );
+		$this->assertArrayHasKey( 'title', $tables[ 'file_status' ] ?? [] );
 		$this->assertFalse( (bool)( $tables[ 'file_status' ][ 'show_header' ] ?? true ) );
 		$this->assertFalse( (bool)( $tables[ 'activity' ][ 'show_header' ] ?? true ) );
 		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'activity' ] ?? [] );

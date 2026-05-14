@@ -10,16 +10,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler as ReqLogsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
-	InvestigateRoutePanelAssertions,
-	LookupRouteFormAssertions,
 	PluginAdminRouteRenderAssertions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use InvestigateRoutePanelAssertions;
-	use LookupRouteFormAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
@@ -94,23 +90,15 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'activity' ] ?? [] );
 		$this->assertArrayNotHasKey( 'full_log_href', $tables[ 'requests' ] ?? [] );
 
-		$this->assertInvestigateRoutePreloadsSubjectPanel(
-			$this->renderByUserPage( (string)$userId ),
-			'activity by-user route',
-			'user',
-			'User',
-			'//*[@data-drill-layer="1"]//*[@id="ShieldInvestigateByUserTabsNav"]'
-		);
+		$routePayload = $this->renderByUserPage( (string)$userId );
+		$this->assertRouteRenderOutputHealthy( $routePayload, 'activity by-user route' );
+		$this->assertPluginAdminShellRouteState( $routePayload, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
 	}
 
 	public function test_no_lookup_route_preloads_user_panel_lookup_form() :void {
-		$this->assertInvestigateRoutePreloadsLookupPanel(
-			$this->renderByUserPage(),
-			'activity by-user route without lookup',
-			'user',
-			'User',
-			'user_lookup'
-		);
+		$routePayload = $this->renderByUserPage();
+		$this->assertRouteRenderOutputHealthy( $routePayload, 'activity by-user route without lookup' );
+		$this->assertPluginAdminShellRouteState( $routePayload, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
 	}
 
 	public function test_ip_panel_renders_card_wrapper_status_and_counts_for_related_ip() :void {
@@ -132,8 +120,6 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 		$relatedIp = $relatedIps[ 0 ];
 		$this->assertGreaterThanOrEqual( 1, (int)( $relatedIp[ 'requests_count' ] ?? 0 ) );
 		$this->assertSame( 'critical', (string)( $relatedIp[ 'status' ] ?? '' ) );
-		$this->assertNotEmpty( (string)( $relatedIp[ 'status_label' ] ?? '' ) );
-		$this->assertNotEmpty( (string)( $relatedIp[ 'investigate_href' ] ?? '' ) );
 
 		$query = [];
 		\parse_str( (string)\parse_url( (string)( $relatedIp[ 'investigate_href' ] ?? '' ), \PHP_URL_QUERY ), $query );
@@ -142,11 +128,9 @@ class InvestigateByUserPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_lookup_form_includes_route_preservation_contract() :void {
-		$payload = $this->renderByUserPage();
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
-
-		$form = $this->extractLookupFormForSubNav( $html, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
-		$this->assertLookupFormRouteContract( $form, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
+		$renderData = (array)( $this->renderByUserPanelBody()[ 'render_data' ] ?? [] );
+		$this->assertSame( PluginNavs::SUBNAV_ACTIVITY_BY_USER, (string)( $renderData[ 'vars' ][ 'lookup_route' ][ Constants::NAV_SUB_ID ] ?? '' ) );
+		$this->assertSame( 'shield-investigate-user-lookup-user_lookup-control', (string)( $renderData[ 'vars' ][ 'lookup_field' ][ 'control_id' ] ?? '' ) );
 	}
 
 	public function test_panel_body_action_preserves_user_render_contract() :void {

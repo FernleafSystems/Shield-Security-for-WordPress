@@ -16,6 +16,8 @@ use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
 /**
  * @phpstan-type LiveLogBadge array{
+ *   key:string,
+ *   value:string,
  *   label:string,
  *   class:string
  * }
@@ -132,6 +134,8 @@ class LiveLogRowsBuilder {
 	private function buildTrafficBadges( RequestLogRecord $record ) :array {
 		$badges = [
 			[
+				'key'   => 'request_type',
+				'value' => (string)$record->type,
 				'label' => ReqLogsHandler::GetTypeName( $record->type ),
 				'class' => 'bg-secondary-subtle text-body-secondary border border-secondary-subtle',
 			],
@@ -144,6 +148,8 @@ class LiveLogRowsBuilder {
 
 		if ( $record->uid > 0 ) {
 			$badges[] = [
+				'key'   => 'user_id',
+				'value' => (string)$record->uid,
 				'label' => $this->buildTrafficUserLabel( $record ),
 				'class' => 'bg-primary-subtle text-primary-emphasis border border-primary-subtle',
 			];
@@ -151,6 +157,8 @@ class LiveLogRowsBuilder {
 
 		if ( $record->code > 0 ) {
 			$badges[] = [
+				'key'   => 'response_code',
+				'value' => (string)$record->code,
 				'label' => (string)$record->code,
 				'class' => $this->getResponseBadgeClass( $record->code ),
 			];
@@ -158,6 +166,8 @@ class LiveLogRowsBuilder {
 
 		if ( $record->offense ) {
 			$badges[] = [
+				'key'   => 'offense',
+				'value' => '1',
 				'label' => __( 'Offense', 'wp-simple-firewall' ),
 				'class' => 'bg-danger-subtle text-danger-emphasis border border-danger-subtle',
 			];
@@ -176,6 +186,8 @@ class LiveLogRowsBuilder {
 		}
 
 		return [
+			'key'   => 'ip_identity',
+			'value' => (string)$identity[ 0 ],
 			'label' => $identity[ 1 ],
 			'class' => 'shield-live-logs__badge--identity',
 		];

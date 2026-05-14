@@ -147,6 +147,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertStringContainsString( '--warm', $output );
 		$this->assertStringContainsString( '--show-setup-output', $output );
 		$this->assertStringContainsString( '--lanes', $output );
+		$this->assertStringContainsString( '--runtime-refresh', $output );
 	}
 
 	public function testBrowserCommandIncludesHarnessOptions() :void {
@@ -160,6 +161,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertTrue( $command->getDefinition()->hasOption( 'warm' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-setup-output' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'lanes' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'runtime-refresh' ) );
 	}
 
 	public function testCrossSiteCommandHelpIncludesHarnessOptions() :void {

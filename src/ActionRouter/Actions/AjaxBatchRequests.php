@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionNonce,
 	ActionProcessor,
 	Constants,
+	Exceptions\ActionDoesNotExistException,
 	Exceptions\ActionException,
 	Exceptions\InvalidActionNonceException,
 	Exceptions\SecurityAdminRequiredException,
@@ -26,6 +27,13 @@ class AjaxBatchRequests extends BaseAction {
 	use SecurityAdminNotRequired;
 
 	public const SLUG = 'ajax_batch_requests';
+	public const ERROR_ACTION_NOT_FOUND = 'action_not_found';
+	public const ERROR_ACTION_EXCEPTION = 'action_exception';
+	public const ERROR_INVALID_NONCE = 'invalid_nonce';
+	public const ERROR_NESTED_BATCH_REQUEST = 'nested_batch_request';
+	public const ERROR_SECURITY_ADMIN_REQUIRED = 'security_admin_required';
+	public const ERROR_UNEXPECTED = 'unexpected_error';
+	public const ERROR_USER_AUTH_REQUIRED = 'user_auth_required';
 	private const MAX_BATCH_SIZE = 50;
 
 	protected function exec() {
@@ -118,7 +126,11 @@ class AjaxBatchRequests extends BaseAction {
 			$subrequestPayload = $this->stripTransportFields( $actionRequestData );
 			$action = ( new ActionProcessor() )->getAction( $actionSlug, $subrequestPayload );
 			if ( $action::SLUG === self::SLUG ) {
-				throw new ActionException( __( 'Nested batch requests are not allowed.', 'wp-simple-firewall' ), 400 );
+				return $this->buildFailureResult(
+					__( 'Nested batch requests are not allowed.', 'wp-simple-firewall' ),
+					400,
+					self::ERROR_NESTED_BATCH_REQUEST
+				);
 			}
 
 			if ( !ActionNonce::Verify( $action::SLUG, $actionNonce ) ) {
@@ -137,7 +149,7 @@ class AjaxBatchRequests extends BaseAction {
 			];
 		}
 		catch ( InvalidActionNonceException $e ) {
-			return $this->buildFailureResult( __( 'Nonce Failed.', 'wp-simple-firewall' ), 401 );
+			return $this->buildFailureResult( __( 'Nonce Failed.', 'wp-simple-firewall' ), 401, self::ERROR_INVALID_NONCE );
 		}
 		catch ( SecurityAdminRequiredException $e ) {
 			return $this->buildFailureResult(
@@ -145,20 +157,32 @@ class AjaxBatchRequests extends BaseAction {
 					__( 'You must be authorised as a Security Admin to perform this action.', 'wp-simple-firewall' ),
 					__( 'You may need to reload this page to continue.', 'wp-simple-firewall' ),
 				] ),
-				401
+				401,
+				self::ERROR_SECURITY_ADMIN_REQUIRED
 			);
 		}
 		catch ( UserAuthRequiredException $e ) {
 			if ( AuthRefreshRequest::isRequested() ) {
 				throw $e;
 			}
-			return $this->buildFailureResult( $e->getMessage(), 403 );
+			return $this->buildFailureResult( $e->getMessage(), 403, self::ERROR_USER_AUTH_REQUIRED );
+		}
+		catch ( ActionDoesNotExistException $e ) {
+			return $this->buildFailureResult( $e->getMessage(), 400, self::ERROR_ACTION_NOT_FOUND );
 		}
 		catch ( ActionException $e ) {
-			return $this->buildFailureResult( $e->getMessage(), empty( $e->getCode() ) ? 400 : $e->getCode() );
+			return $this->buildFailureResult(
+				$e->getMessage(),
+				empty( $e->getCode() ) ? 400 : $e->getCode(),
+				self::ERROR_ACTION_EXCEPTION
+			);
 		}
 		catch ( \Throwable $e ) {
-			return $this->buildFailureResult( __( 'There was a problem processing the batched request.', 'wp-simple-firewall' ), 500 );
+			return $this->buildFailureResult(
+				__( 'There was a problem processing the batched request.', 'wp-simple-firewall' ),
+				500,
+				self::ERROR_UNEXPECTED
+			);
 		}
 	}
 
@@ -192,15 +216,17 @@ class AjaxBatchRequests extends BaseAction {
 		] ) );
 	}
 
-	private function buildFailureResult( string $message, int $statusCode ) :array {
+	private function buildFailureResult( string $message, int $statusCode, string $errorCode ) :array {
 		return [
 			'success'     => false,
 			'status_code' => $statusCode,
+			'error_code'  => $errorCode,
 			'error'       => $message,
 			'data'        => $this->normaliseAjaxPayload( [
-				'success' => false,
-				'error'   => $message,
-				'message' => $message,
+				'success'    => false,
+				'error_code' => $errorCode,
+				'error'      => $message,
+				'message'    => $message,
 			] ),
 		];
 	}

@@ -513,6 +513,7 @@
     {
         "key": "page_params_whitelist",
         "section": "section_firewall_blocking_options",
+        "sensitive": true,
         "zone_comp_slugs": [
             "web_application_firewall",
             "module_firewall"
@@ -752,6 +753,7 @@
     {
         "key": "scan_path_exclusions",
         "section": "section_file_guard",
+        "sensitive": true,
         "zone_comp_slugs": [
             "file_scanning",
             "module_scans"
@@ -909,7 +911,8 @@
         "key": "instant_alerts_data",
         "section": "section_hidden",
         "type": "array",
-        "default": []
+        "default": [],
+        "sensitive": true
     },
     {
         "key": "is_scan_cron",
@@ -1168,6 +1171,7 @@
     {
         "key": "request_whitelist",
         "section": "section_auto_black_list",
+        "sensitive": true,
         "zone_comp_slugs": [
             "auto_ip_blocking",
             "module_ips"
@@ -1604,6 +1608,7 @@
     {
         "key": "wphashes_api_token",
         "tracking_exclude": true,
+        "sensitive": true,
         "section": "section_hidden",
         "type": "array",
         "default": []
@@ -1642,6 +1647,7 @@
     {
         "key": "api_namespace_exclusions",
         "section": "section_apixml",
+        "sensitive": true,
         "zone_comp_slugs": [
             "anon_rest_api_disable",
             "module_firewall"
@@ -2490,6 +2496,7 @@
     {
         "key": "preferred_temp_dir",
         "section": "section_defaults",
+        "sensitive": true,
         "zone_comp_slugs": [
             "plugin_general",
             "module_plugin"
@@ -2557,6 +2564,7 @@
     {
         "key": "importexport_masterurl",
         "section": "section_importexport",
+        "sensitive": true,
         "zone_comp_slugs": [
             "import_export"
         ],
@@ -2590,7 +2598,6 @@
         "zone_comp_slugs": [
             "import_export"
         ],
-        "sensitive": true,
         "default": "N",
         "type": "checkbox",
         "link_info": "",
@@ -3006,6 +3013,7 @@
     {
         "key": "xcsp_custom",
         "section": "section_security_headers",
+        "sensitive": true,
         "zone_comp_slugs": [
             "headers_csp",
             "module_headers"
@@ -3095,13 +3103,15 @@
         "key": "import_id",
         "section": "section_hidden",
         "type": "text",
-        "default": ""
+        "default": "",
+        "sensitive": true
     },
     {
         "key": "import_url_ids",
         "section": "section_hidden",
         "type": "array",
-        "default": []
+        "default": [],
+        "sensitive": true
     },
     {
         "key": "test_rest_data",
@@ -3113,7 +3123,8 @@
         "key": "blockdown_cfg",
         "section": "section_hidden",
         "type": "array",
-        "default": []
+        "default": [],
+        "sensitive": true
     },
     {
         "key": "xfer_excluded",
@@ -3127,6 +3138,24 @@
         "type": "array",
         "default": [],
         "tracking_exclude": true
+    },
+    {
+        "key": "audit_trail_auto_clean",
+        "section": "section_hidden",
+        "transferable": false,
+        "tracking_exclude": true,
+        "type": "integer",
+        "default": 7,
+        "min": 1
+    },
+    {
+        "key": "auto_clean",
+        "section": "section_hidden",
+        "transferable": false,
+        "tracking_exclude": true,
+        "type": "integer",
+        "default": 7,
+        "min": 1
     },
     {
         "key": "enable_logger",

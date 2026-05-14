@@ -432,7 +432,7 @@ class CrossSitePairManagerTest extends TestCase {
 
 class CrossSiteRuntimeRefresherRecorder extends LocalSiteRuntimeRefresher {
 
-	/** @var array<int,array{container_id:string,has_output_callback:bool}> */
+	/** @var array<int,array{container_id:string,has_output_callback:bool,host_manifest:?array}> */
 	public array $refreshCalls = [];
 
 	public function resolveServiceContainerId(
@@ -444,10 +444,11 @@ class CrossSiteRuntimeRefresherRecorder extends LocalSiteRuntimeRefresher {
 		return $serviceName.'-container';
 	}
 
-	public function refresh( string $rootDir, string $containerId, ?callable $onOutput = null ) :void {
+	public function refresh( string $rootDir, string $containerId, ?callable $onOutput = null, ?array $hostManifest = null ) :void {
 		$this->refreshCalls[] = [
-			'container_id' => $containerId,
+			'container_id'         => $containerId,
 			'has_output_callback' => $onOutput !== null,
+			'host_manifest'       => $hostManifest,
 		];
 	}
 }

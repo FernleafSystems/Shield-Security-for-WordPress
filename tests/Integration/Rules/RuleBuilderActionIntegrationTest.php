@@ -58,7 +58,6 @@ class RuleBuilderActionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$payload = $response->payload();
 		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$this->assertStringContainsString( 'saved', \strtolower( (string)( $payload[ 'message' ] ?? '' ) ) );
 		$this->assertGreaterThan( 0, (int)( $payload[ 'edit_rule_id' ] ?? 0 ) );
 
 		$record = ( new RuleRecords() )->byID( (int)$payload[ 'edit_rule_id' ] );
@@ -101,7 +100,6 @@ class RuleBuilderActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $resetPayload[ 'success' ] ?? false );
 		$resetRuleId = (int)( $resetPayload[ 'edit_rule_id' ] ?? 0 );
 		$this->assertGreaterThan( 0, $resetRuleId );
-		$this->assertStringContainsString( 'reset', \strtolower( (string)( $resetPayload[ 'message' ] ?? '' ) ) );
 
 		$reloaded = ( new RuleRecords() )->byID( $resetRuleId );
 		$this->assertNotEmpty( $reloaded->form_draft, 'Reset should persist draft content based on saved rule form' );

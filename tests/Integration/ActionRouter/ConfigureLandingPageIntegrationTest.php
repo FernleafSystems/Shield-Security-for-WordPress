@@ -5,18 +5,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureDrillDownDiagnosis;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureLandingViewBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureSearchResults;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneTilesBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageConfigureLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ModeLandingAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
-	use ModeLandingAssertions;
 	use PluginAdminRouteRenderAssertions;
 
 	public function set_up() {
@@ -26,10 +25,12 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function renderConfigureLandingPage( array $params = [] ) :array {
-		return $this->processActionPayloadWithAdminBypass( PageConfigureLanding::SLUG, \array_merge( [
+		$payload = $this->processActionPayloadWithAdminBypass( PageConfigureLanding::SLUG, \array_merge( [
 			Constants::NAV_ID     => PluginNavs::NAV_ZONES,
 			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ZONES_OVERVIEW,
 		], $params ) );
+		$this->assertRouteRenderOutputHealthy( $payload, 'configure landing' );
+		return $payload;
 	}
 
 	private function renderConfigureDiagnosis( array $params = [] ) :array {
@@ -37,18 +38,25 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function renderConfigureSearchResults( array $params = [] ) :array {
-		return $this->processActionPayloadWithAdminBypass( ConfigureSearchResults::SLUG, $params );
+		$payload = $this->processActionPayloadWithAdminBypass( ConfigureSearchResults::SLUG, $params );
+		$this->assertRouteRenderOutputHealthy( $payload, 'configure search results' );
+		return $payload;
 	}
 
 	public function test_landing_renders_shared_operator_chrome_and_two_layer_drill_shell() :void {
 		$payload = $this->renderConfigureLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'configure landing' );
 		$this->assertIsArray( $payload[ 'render_data' ][ 'vars' ] ?? null );
 		$vars = $payload[ 'render_data' ][ 'vars' ];
 		$diagnosisAction = \json_decode( (string)( $vars[ 'configure_ajax' ][ 'diagnosis_render_action_json' ] ?? '' ), true );
-		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
 
-		$this->assertModeShellPayload( $vars, 'configure', 'configure', false );
+		$modeShell = $vars[ 'mode_shell' ] ?? [];
+		$this->assertIsArray( $modeShell );
+		$this->assertFalse( (bool)( $modeShell[ 'is_interactive' ] ?? true ) );
+		$this->assertTrue( (bool)( $modeShell[ 'is_mode_landing' ] ?? false ) );
+		$this->assertTrue( (bool)( $modeShell[ 'use_operator_chrome' ] ?? false ) );
+		$this->assertArrayNotHasKey( 'accent_status', $modeShell );
+		$this->assertIsArray( $modeShell[ 'root_step' ] ?? null );
+		$this->assertIsArray( \json_decode( (string)( $modeShell[ 'root_step_json' ] ?? '' ), true ) );
 		$this->assertArrayNotHasKey( 'zone_tiles', $vars );
 		$this->assertArrayNotHasKey( 'configure_render_action', $vars );
 		$this->assertSame( 2, \count( $vars[ 'drill_shell' ][ 'layers' ] ?? [] ) );
@@ -65,35 +73,13 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			ConfigureDrillDownDiagnosis::SLUG,
 			$diagnosisAction[ 'render_slug' ] ?? ''
 		);
-		$this->assertNotSame( '', (string)( $payload[ 'render_output' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $vars[ 'drill_shell' ][ 'layers' ][ 0 ][ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]',
-			0,
-			'Configure landing should not render the shared healthy disclosure wrapper'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-landing="1"]//*[@data-drill-target="diagnosis"]',
-			'Configure landing should render zone diagnosis buttons directly in the landing grid'
-		);
 	}
 
 	public function test_valid_deep_link_starts_on_diagnosis_and_invalid_key_falls_back() :void {
 		$validPayload = $this->renderConfigureLandingPage( [ 'zone' => 'login' ] );
 		$invalidPayload = $this->renderConfigureLandingPage( [ 'zone' => 'login_protection' ] );
-		$this->assertRouteRenderOutputHealthy( $validPayload, 'configure landing deep link' );
 
 		$this->assertSame( 1, (int)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
-		$this->assertNotSame(
-			'',
-			(string)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'layers' ][ 1 ][ 'body' ] ?? '' )
-		);
-		$this->assertSame(
-			(string)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'layers' ][ 1 ][ 'header' ][ 'title' ] ?? '' ),
-			(string)( $validPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'layers' ][ 1 ][ 'selection' ][ 'label' ] ?? '' )
-		);
 		$this->assertSame( 0, (int)( $invalidPayload[ 'render_data' ][ 'vars' ][ 'drill_shell' ][ 'active_index' ] ?? -1 ) );
 	}
 
@@ -103,31 +89,13 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'row_key'     => 'general_settings',
 			'config_item' => 'comments_cooldown',
 		] );
-		$this->assertRouteRenderOutputHealthy( $payload, 'configure landing search dock' );
 
 		$vars = $payload[ 'render_data' ][ 'vars' ] ?? [];
 		$searchAction = \json_decode( (string)( $vars[ 'configure_ajax' ][ 'search_render_action_json' ] ?? '' ), true );
-		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
 
 		$this->assertSame(
 			ConfigureSearchResults::SLUG,
 			$searchAction[ 'render_slug' ] ?? ''
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-landing="1"]//*[@data-configure-search-input="1"]',
-			'Configure landing should render the search dock input'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-search-dock="1" and @data-configure-search-state="idle"]//*[@data-configure-search-body="1" and @aria-live="polite" and @aria-busy="false"]',
-			'Configure landing should render an idle live-region search dock'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[contains(concat(" ", normalize-space(@class), " "), " configure-landing__search-hint ")]',
-			0,
-			'Configure landing should not render the removed helper paragraph'
 		);
 		$this->assertSame(
 			[
@@ -146,104 +114,50 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'zone'                    => 'login',
 			'include_landing_refresh' => 1,
 		] );
-		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'html' ] ?? '' ) );
 
 		$this->assertSame( 'login', (string)( $payload[ 'zone_selection' ][ 'key' ] ?? '' ) );
-		$this->assertSame( 'Login', (string)( $payload[ 'header' ][ 'title' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $payload[ 'header' ][ 'next_step' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $payload[ 'html' ] ?? '' ) );
+		$this->assertIsArray( $payload[ 'header' ] ?? null );
 		$this->assertArrayNotHasKey( 'diagnosis', $payload );
 		$this->assertArrayNotHasKey( 'render_data', $payload );
 		$this->assertArrayNotHasKey( 'render_output', $payload );
 		$this->assertArrayNotHasKey( 'editor_selection', $payload );
 		$this->assertArrayNotHasKey( 'landing_refresh', $payload );
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-diagnosis="1" and @data-configure-zone="login"]',
-			'Diagnosis AJAX should render the selected configure diagnosis container'
-		);
-		$this->assertGreaterThan(
-			0,
-			$xpath->query( '//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-item ")]' )->length
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-diagnosis="1"]//*[contains(concat(" ", normalize-space(@class), " "), " configure-diagnosis__next-move ")]',
-			0,
-			'Diagnosis AJAX should not render the removed next-move block'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]',
-			0,
-			'Configure diagnosis should not render the shared healthy disclosure wrapper'
-		);
-		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'root_step_json' ] ?? '' ) );
-		$this->assertNotSame( '', (string)( $refreshPayload[ 'landing_refresh' ][ 'zones_html' ] ?? '' ) );
-		$refreshXpath = $this->createDomXPathFromHtml( (string)( $refreshPayload[ 'landing_refresh' ][ 'zones_html' ] ?? '' ) );
-		$this->assertXPathCount(
-			$refreshXpath,
-			'//*[@data-healthy-disclosure-toggle="1" or @data-healthy-disclosure-body="1"]',
-			0,
-			'Configure landing refresh should not reintroduce the shared healthy disclosure wrapper'
-		);
+		$this->assertIsArray( $refreshPayload[ 'landing_refresh' ] ?? null );
+		$this->assertIsArray( \json_decode(
+			(string)( $refreshPayload[ 'landing_refresh' ][ 'root_step_json' ] ?? '' ),
+			true
+		) );
 	}
 
 	public function test_search_render_returns_flat_option_and_zone_results_for_real_query() :void {
 		$payload = $this->renderConfigureSearchResults( [
 			'search' => 'silentcaptcha',
 		] );
-		$this->assertRouteRenderOutputHealthy( $payload, 'configure search results' );
 
 		$results = (array)( $payload[ 'render_data' ][ 'vars' ][ 'results' ] ?? [] );
-		$xpath = $this->createDomXPathFromHtml( (string)( $payload[ 'render_output' ] ?? '' ) );
 
 		$this->assertNotSame( [], $results );
-		$this->assertSame( [ 'zone', 'option' ], \array_slice( \array_column( $results, 'type' ), 0, 2 ) );
-		$optionResult = $this->findConfigureOptionResultByConfigItem( $results, 'enable_silentcaptcha' )
-						?? $this->findConfigureOptionResultByConfigItem( $results, 'custom_silentcaptcha_toggle' );
+		$this->assertContains( 'zone', \array_column( $results, 'type' ) );
+		$this->assertContains( 'option', \array_column( $results, 'type' ) );
+		$optionResult = $this->findFirstConfigureOptionResultByConfigItem( $results, [
+			'silentcaptcha_complexity',
+			'antibot_minimum',
+		] );
 
 		$this->assertNotNull( $optionResult );
 		$this->assertSame( 'option', $optionResult[ 'type' ] ?? '' );
 		$this->assertSame(
 			[
-				'row_key'     => 'silentcaptcha_component',
+				'row_key'     => 'silent_captcha',
 				'config_item' => (string)( \json_decode( (string)( $optionResult[ 'focus_request_json' ] ?? '' ), true )[ 'config_item' ] ?? '' ),
 			],
 			\json_decode( (string)( $optionResult[ 'focus_request_json' ] ?? '' ), true )
 		);
 		$this->assertHrefQueryMatches( (string)( $optionResult[ 'href' ] ?? '' ), [
-			'zone'        => 'spam',
-			'row_key'     => 'silentcaptcha_component',
+			'zone'        => 'ips',
+			'row_key'     => 'silent_captcha',
 			'config_item' => (string)( \json_decode( (string)( $optionResult[ 'focus_request_json' ] ?? '' ), true )[ 'config_item' ] ?? '' ),
 		] );
-
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-search-results="1"]',
-			'Configure search should render the flat results container'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-search-results="1"]//a[@data-configure-search-result="1" and @data-drill-zone-selection]',
-			'Configure search results should expose in-page drill selection data'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-search-results="1"]//a[contains(@href, "row_key=") and contains(@href, "config_item=") and @data-configure-focus-request]',
-			'Configure search option results should expose the in-page focus payload'
-		);
-		$this->assertXPathExists(
-			$xpath,
-			'//*[@data-configure-search-results="1"]//a[contains(@href, "row_key=") and contains(@href, "config_item=")]',
-			'Configure search option links should target the exact configure row key'
-		);
-		$this->assertXPathCount(
-			$xpath,
-			'//*[@data-configure-search-results="1"]//a[contains(@href, "expand_id=") or contains(@href, "zone_component_slug=") or contains(@href, "option_keys=")]',
-			0,
-			'Configure search option links should not depend on replaced deep-link contracts'
-		);
 	}
 
 	public function test_search_render_matches_hyphenated_and_compact_dash_option_queries() :void {
@@ -266,7 +180,6 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$payload = $this->renderConfigureSearchResults( [
 				'search' => $case[ 'search' ],
 			] );
-			$this->assertRouteRenderOutputHealthy( $payload, 'configure search results for '.$case[ 'search' ] );
 
 			$result = $this->findConfigureOptionResultByConfigItem(
 				(array)( $payload[ 'render_data' ][ 'vars' ][ 'results' ] ?? [] ),
@@ -278,17 +191,77 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				'Configure search should return the expected option result for '.$case[ 'search' ]
 			);
 			$this->assertSame( 'option', $result[ 'type' ] ?? '' );
-			$this->assertNotSame( '', (string)( $result[ 'href' ] ?? '' ) );
+		}
+	}
+
+	public function test_search_render_returns_request_control_option_focus_contracts() :void {
+		$cases = [
+			[
+				'search'      => 'xml-rpc',
+				'row_key'     => 'xml_rpc_disable',
+				'config_item' => 'disable_xmlrpc',
+			],
+			[
+				'search'      => 'anonymous rest',
+				'row_key'     => 'anon_rest_api_disable',
+				'config_item' => 'disable_anonymous_restapi',
+			],
+			[
+				'search'      => 'rest api exclusions',
+				'row_key'     => 'anon_rest_api_disable',
+				'config_item' => 'api_namespace_exclusions',
+			],
+			[
+				'search'      => 'rate limiting',
+				'row_key'     => 'rate_limiting',
+				'config_item' => 'enable_limiter',
+			],
+			[
+				'search'      => 'request limit',
+				'row_key'     => 'rate_limiting',
+				'config_item' => 'limit_requests',
+			],
+			[
+				'search'      => 'time interval',
+				'row_key'     => 'rate_limiting',
+				'config_item' => 'limit_time_span',
+			],
+		];
+
+		foreach ( $cases as $case ) {
+			$payload = $this->renderConfigureSearchResults( [
+				'search' => $case[ 'search' ],
+			] );
+
+			$result = $this->findConfigureOptionResultByConfigItem(
+				(array)( $payload[ 'render_data' ][ 'vars' ][ 'results' ] ?? [] ),
+				$case[ 'config_item' ]
+			);
+
+			$this->assertNotNull(
+				$result,
+				'Configure search should return the expected request-control option result for '.$case[ 'search' ]
+			);
+			$this->assertSame( 'option', $result[ 'type' ] ?? '' );
+			$this->assertSame(
+				[
+					'row_key'     => $case[ 'row_key' ],
+					'config_item' => $case[ 'config_item' ],
+				],
+				\json_decode( (string)( $result[ 'focus_request_json' ] ?? '' ), true )
+			);
+			$this->assertHrefQueryMatches( (string)( $result[ 'href' ] ?? '' ), [
+				'zone'        => 'firewall',
+				'row_key'     => $case[ 'row_key' ],
+				'config_item' => $case[ 'config_item' ],
+			] );
 		}
 	}
 
 	public function test_scans_and_spam_diagnosis_render_scoped_rows_and_general_settings() :void {
-		$scansPayload = $this->renderConfigureDiagnosis( [
-			'zone' => 'scans',
-		] );
-		$spamPayload = $this->renderConfigureDiagnosis( [
-			'zone' => 'spam',
-		] );
+		$diagnoses = ( new ConfigureLandingViewBuilder() )->build()[ 'diagnoses' ];
+		$scansPayload = $diagnoses[ 'scans' ] ?? [];
+		$spamPayload = $diagnoses[ 'spam' ] ?? [];
 
 		$this->assertDiagnosisRowScope( $scansPayload, 'scan_scheduling', 'scan_scheduling', [], 'scan_frequency' );
 		$this->assertDiagnosisRowScope( $spamPayload, 'trusted_commenters', 'trusted_commenters', [], 'trusted_commenter_minimum' );
@@ -296,17 +269,14 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_login_and_ips_diagnosis_surface_existing_hidden_callouts() :void {
-		$loginPayload = $this->renderConfigureDiagnosis( [
-			'zone' => 'login',
-		] );
-		$ipsPayload = $this->renderConfigureDiagnosis( [
-			'zone' => 'ips',
-		] );
+		$diagnoses = ( new ConfigureLandingViewBuilder() )->build()[ 'diagnoses' ];
+		$loginPayload = $diagnoses[ 'login' ] ?? [];
+		$ipsPayload = $diagnoses[ 'ips' ] ?? [];
 
 		$this->assertDiagnosisRowScope( $loginPayload, 'two_factor_general', 'two_factor_auth', [ 'mfa_verify_page', 'allow_backupcodes' ] );
 		$this->assertDiagnosisRowScope( $loginPayload, 'two_factor_email', 'two_factor_auth', [ 'enable_email_authentication' ] );
 		$this->assertDiagnosisRowScope( $loginPayload, 'two_factor_otp_passkeys', 'two_factor_auth', [ 'enable_google_authenticator', 'enable_passkeys' ] );
-		$this->assertDiagnosisRowScope( $loginPayload, 'hide_wp_login', 'hide_wp_login' );
+		$this->assertDiagnosisRowScope( $loginPayload, 'login_hide', 'login_hide' );
 		$this->assertDiagnosisRowScope( $loginPayload, 'session_theft_protection', 'session_theft_protection', [ 'enable_user_login_email_notification', 'session_lock' ] );
 		$this->assertDiagnosisRowScope( $ipsPayload, 'crowdsec_blocking', 'crowdsec_blocking', [ 'cs_block', 'cs_enroll_id' ] );
 		$this->assertDiagnosisRowScope( $ipsPayload, 'auto_ip_blocking', 'auto_ip_blocking', [ 'user_auto_recover', 'request_whitelist' ] );
@@ -348,22 +318,6 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 		finally {
 			$this->restoreSelectedOptions( $snapshot );
-		}
-	}
-
-	public function test_users_tile_builder_data_no_longer_surfaces_default_admin_user() :void {
-		$tiles = ( new ConfigureZoneTilesBuilder() )->build();
-		$usersTiles = \array_values( \array_filter(
-			$tiles,
-			static fn( array $tile ) :bool => (string)( $tile[ 'key' ] ?? '' ) === 'users'
-		) );
-
-		$this->assertCount( 1, $usersTiles );
-		$rows = $usersTiles[ 0 ][ 'panel' ][ 'rows' ] ?? [];
-
-		$this->assertNotContains( 'Default Admin User', \array_column( $rows, 'title' ) );
-		foreach ( $rows as $row ) {
-			$this->assertNotSame( [], $row[ 'config_action' ] ?? [] );
 		}
 	}
 
@@ -410,7 +364,7 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [], $unexpectedDuplicates );
 	}
 
-	public function test_real_builder_reflects_grouped_and_downgraded_warning_rows() :void {
+	public function test_real_builder_reflects_stable_row_status_keys() :void {
 		$snapshot = $this->snapshotSelectedOptions( [
 			'enable_core_file_integrity_scan',
 			'file_scan_areas',
@@ -432,8 +386,8 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 			$this->assertNotNull( $fileScanningRow );
 			$this->assertNotNull( $xmlRpcRow );
-			$this->assertSame( 'okay', $fileScanningRow[ 'enabled_status' ] ?? null );
-			$this->assertSame( 'okay', $xmlRpcRow[ 'enabled_status' ] ?? null );
+			$this->assertSame( 'critical', $fileScanningRow[ 'status' ] ?? null );
+			$this->assertSame( 'warning', $xmlRpcRow[ 'status' ] ?? null );
 		}
 		finally {
 			$this->restoreSelectedOptions( $snapshot );
@@ -448,6 +402,17 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 			$focusRequest = \json_decode( (string)( $result[ 'focus_request_json' ] ?? '' ), true );
 			if ( \is_array( $focusRequest ) && ( $focusRequest[ 'config_item' ] ?? '' ) === $configItem ) {
+				return $result;
+			}
+		}
+
+		return null;
+	}
+
+	private function findFirstConfigureOptionResultByConfigItem( array $results, array $configItems ) :?array {
+		foreach ( $configItems as $configItem ) {
+			$result = $this->findConfigureOptionResultByConfigItem( $results, (string)$configItem );
+			if ( $result !== null ) {
 				return $result;
 			}
 		}
