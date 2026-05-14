@@ -4,8 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\Core\BotTrackFakeWebCrawler,
-	Processors\ProcessConditions
+	Processors\ProcessConditions,
+	Processors\ResponseProcessor,
+	RuleVO
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\OffenseTracker;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
@@ -38,6 +41,51 @@ class BotTrackFakeWebCrawlerRuleBehaviorTest extends ShieldIntegrationTestCase {
 	public function test_full_rule_rejects_strict_identity_false_positives( string $userAgent ) :void {
 		$this->prepareAnonymousRequest( $userAgent );
 
+		$this->assertFalse( $this->evaluateFullRule() );
+	}
+
+	/**
+	 * @dataProvider botTrackModeProvider
+	 */
+	public function test_fake_web_crawler_response_uses_bottrack_mode_contract(
+		string $mode,
+		int $expectedOffenseCount,
+		bool $expectedBlock
+	) :void {
+		$this->enablePremiumCapabilities();
+		$this->prepareAnonymousRequest( 'facebookexternalhit/1.1', $mode );
+		$this->assertTrue( $this->evaluateFullRule() );
+
+		$tracker = new OffenseTracker();
+		$initialOffenseCount = $tracker->getOffenseCount();
+		$this->captureShieldEvents();
+
+		( new ResponseProcessor( $this->getRule() ) )
+			->setThisRequest( $this->requireController()->this_req )
+			->run();
+
+		$events = $this->getCapturedEventsByKey( 'bottrack_fakewebcrawler' );
+		$this->assertCount( 1, $events );
+		$this->assertArrayHasKey( 'offense_count', $events[ 0 ][ 'meta' ] );
+		$this->assertArrayHasKey( 'block', $events[ 0 ][ 'meta' ] );
+		$this->assertSame( $expectedOffenseCount, (int)$events[ 0 ][ 'meta' ][ 'offense_count' ] );
+		$this->assertSame( $expectedBlock, (bool)$events[ 0 ][ 'meta' ][ 'block' ] );
+		$this->assertSame( $initialOffenseCount + $expectedOffenseCount, $tracker->getOffenseCount() );
+	}
+
+	public function test_fake_web_crawler_rule_does_not_match_disabled_or_bypassed_or_logged_in_requests() :void {
+		$this->enablePremiumCapabilities();
+
+		$this->prepareAnonymousRequest( 'facebookexternalhit/1.1', 'disabled' );
+		$this->assertFalse( $this->evaluateFullRule() );
+
+		$this->prepareAnonymousRequest( 'facebookexternalhit/1.1', 'log' );
+		$this->requireController()->this_req->request_bypasses_all_restrictions = true;
+		$this->assertFalse( $this->evaluateFullRule() );
+
+		$userId = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		$this->prepareAnonymousRequest( 'facebookexternalhit/1.1', 'log' );
+		\wp_set_current_user( $userId );
 		$this->assertFalse( $this->evaluateFullRule() );
 	}
 
@@ -74,6 +122,15 @@ class BotTrackFakeWebCrawlerRuleBehaviorTest extends ShieldIntegrationTestCase {
 		];
 	}
 
+	public function botTrackModeProvider() :array {
+		return [
+			'log'                  => [ 'log', 0, false ],
+			'transgression-single' => [ 'transgression-single', 1, false ],
+			'transgression-double' => [ 'transgression-double', 2, false ],
+			'block'                => [ 'block', 1, true ],
+		];
+	}
+
 	private function prepareAnonymousRequest( string $userAgent, string $trackOption = 'log' ) :void {
 		$con = $this->requireController();
 		\wp_set_current_user( 0 );
@@ -84,9 +141,13 @@ class BotTrackFakeWebCrawlerRuleBehaviorTest extends ShieldIntegrationTestCase {
 
 	private function evaluateFullRule() :bool {
 		$con = $this->requireController();
-		return ( new ProcessConditions( ( new BotTrackFakeWebCrawler() )->build()->conditions ) )
+		return ( new ProcessConditions( $this->getRule()->conditions ) )
 			->setThisRequest( $con->this_req )
 			->process();
+	}
+
+	private function getRule() :RuleVO {
+		return ( new BotTrackFakeWebCrawler() )->build();
 	}
 
 	private function seedCrawlerProviders( array $providers ) :void {

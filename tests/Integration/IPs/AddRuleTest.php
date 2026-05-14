@@ -103,6 +103,28 @@ class AddRuleTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $status->hasManualBlock(), 'Manual block should be removed when bypass is added' );
 	}
 
+	public function test_adding_bypass_removes_existing_auto_block() :void {
+		$this->requireDb( 'ip_rules' );
+		$this->requireDb( 'ips' );
+
+		$ip = '10.0.0.60';
+		TestDataFactory::insertAutoBlock( $ip, [
+			'offenses' => 6,
+		] );
+
+		$this->resetIpCaches();
+		$this->addRule()
+			 ->setIP( $ip )
+			 ->toManualWhitelist( 'override auto block' );
+
+		$this->resetIpCaches();
+		$status = new IpRuleStatus( $ip );
+		$this->assertTrue( $status->isBypass() );
+		$this->assertFalse( $status->isAutoBlacklisted() );
+		$this->assertFalse( $status->hasAutoBlock() );
+		$this->assertCount( 0, $this->loadRulesForIpByType( $ip, IpRulesHandler::T_AUTO_BLOCK ) );
+	}
+
 	public function test_manual_block_replaces_auto_unblocked_crowdsec_rule() {
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
