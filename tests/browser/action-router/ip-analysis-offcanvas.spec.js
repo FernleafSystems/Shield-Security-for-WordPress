@@ -99,6 +99,16 @@ const reloadActiveInvestigationTable = async ( page, offcanvas, tableType ) => {
 	}, { timeout: 20_000 } ).toBe( 'ready' );
 };
 
+const expectActivityIdentityColumn = async ( offcanvas, ip ) => {
+	const table = offcanvas.locator( 'table[data-investigation-table="1"][data-table-type="activity"]' ).first();
+	await expect( table.locator( 'thead th.identity' ) ).toBeVisible();
+
+	const identityCell = table.locator( 'tbody td.identity' ).first();
+	await expect( identityCell ).toBeVisible();
+	await expect( identityCell.locator( '.activity-log-identity' ) ).toBeVisible();
+	await expect( identityCell.locator( `.activity-log-identity__ip .offcanvas_ip_analysis[data-ip="${ip}"]` ) ).toBeVisible();
+};
+
 test( 'clicked IP link opens the IP analysis offcanvas with the four investigation tabs', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => {
 		let delayedOffcanvasRequest = false;
@@ -250,8 +260,10 @@ test( 'preloaded IP analysis offcanvas activity meta button loads request meta p
 
 		await expectActiveInlineTabState( offcanvas, targetTab );
 		await expectInvestigationTableInitialized( offcanvas, 'activity' );
+		await expectActivityIdentityColumn( offcanvas, fixture.ip );
 		await expectRequestMetaPopover( page, offcanvas, fixture.rid, fixture.expected_meta );
 		await reloadActiveInvestigationTable( page, offcanvas, 'activity' );
+		await expectActivityIdentityColumn( offcanvas, fixture.ip );
 		await expect( page.locator( '[role="tooltip"]' ) ).toHaveCount( 0 );
 		await expectRequestMetaPopover( page, offcanvas, fixture.rid, fixture.expected_meta );
 	} );

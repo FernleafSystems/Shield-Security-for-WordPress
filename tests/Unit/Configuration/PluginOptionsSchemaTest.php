@@ -395,6 +395,41 @@ class PluginOptionsSchemaTest extends TestCase {
 		$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
 	}
 
+	public function testLegacyLogRetentionOptionsAreHiddenAndRetained() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [
+			'audit_trail_auto_clean',
+			'auto_clean',
+		] as $key ) {
+			$this->assertArrayHasKey( $key, $sourceOptions );
+			$this->assertArrayHasKey( $key, $this->options );
+
+			foreach ( [
+				'source'    => $sourceOptions[ $key ],
+				'generated' => $this->options[ $key ],
+			] as $context => $option ) {
+				$this->assertSame( 'section_hidden', $option[ 'section' ], sprintf( "%s option '%s' should be hidden.", $context, $key ) );
+				$this->assertSame( false, $option[ 'transferable' ] ?? true, sprintf( "%s option '%s' should not be transferable.", $context, $key ) );
+				$this->assertSame( true, $option[ 'tracking_exclude' ] ?? false, sprintf( "%s option '%s' should be excluded from tracking.", $context, $key ) );
+				$this->assertSame( 'integer', $option[ 'type' ], sprintf( "%s option '%s' should be an integer.", $context, $key ) );
+				$this->assertSame( 7, $option[ 'default' ], sprintf( "%s option '%s' should default to 7.", $context, $key ) );
+				$this->assertSame( 1, $option[ 'min' ], sprintf( "%s option '%s' should have minimum 1.", $context, $key ) );
+				$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
+				$this->assertArrayNotHasKey( 'value_options', $option );
+			}
+		}
+
+		foreach ( [
+			'log_level_db',
+			'type_exclusions',
+			'custom_exclusions',
+		] as $key ) {
+			$this->assertArrayNotHasKey( $key, $sourceOptions );
+			$this->assertArrayNotHasKey( $key, $this->options );
+		}
+	}
+
 	public function testSensitiveAuditOptionsAreMarkedInSourceAndGeneratedConfig() :void {
 		$sourceOptions = $this->sourceOptionsByKey();
 		$sensitiveKeys = [

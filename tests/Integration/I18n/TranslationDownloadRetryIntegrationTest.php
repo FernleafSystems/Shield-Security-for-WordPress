@@ -47,6 +47,16 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 		$this->callPrivateMethod( $controller, 'addCfg', [ $key, $value ] );
 	}
 
+	private function listCacheTtl() :int {
+		return (int)( ( $this->requireController()->cfg->translations[ 'list_cache_hours' ] ?? 24 )*\HOUR_IN_SECONDS );
+	}
+
+	private function clearLocalesLookupCron() :string {
+		$hook = $this->requireController()->prefix( 'adhoc_locales_check' );
+		wp_clear_scheduled_hook( $hook );
+		return $hook;
+	}
+
 	private function seedQueueConfig(
 		TranslationDownloadController $controller,
 		string $locale,
@@ -396,6 +406,111 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 		}
 	}
 
+	public function testEmptyLocaleCacheFailureIsThrottledByLastFetchAt() :void {
+		$controller = $this->controller();
+		$this->addCfg( $controller, 'locales', [] );
+		$this->addCfg( $controller, 'last_fetch_at', 0 );
+
+		$listCalls = 0;
+
+		$httpStub = function ( $pre, $args, $url ) use ( &$listCalls ) {
+			if ( \str_contains( $url, '/translations/list' ) ) {
+				$listCalls++;
+				return $this->httpResponse( (string)\wp_json_encode( [
+					'error_code' => 1,
+					'locales'    => [],
+				] ) );
+			}
+			return $pre;
+		};
+
+		add_filter( 'pre_http_request', $httpStub, 10, 3 );
+		try {
+			$firstResult = $this->callPrivateMethod( $controller, 'getAvailableLocales' );
+			$lastFetchAt = $controller->cfg()[ 'last_fetch_at' ] ?? 0;
+			$secondResult = $this->callPrivateMethod( $controller, 'getAvailableLocales' );
+		}
+		finally {
+			remove_filter( 'pre_http_request', $httpStub, 10 );
+		}
+
+		$this->assertSame( [], $firstResult );
+		$this->assertSame( [], $secondResult );
+		$this->assertSame( 1, $listCalls );
+		$this->assertGreaterThan( 0, $lastFetchAt );
+		$this->assertSame( $lastFetchAt, $controller->cfg()[ 'last_fetch_at' ] ?? 0 );
+	}
+
+	public function testRecentEmptyLocaleFetchAttemptDoesNotScheduleAdhocLookup() :void {
+		$controller = $this->controller();
+		$hook = $this->clearLocalesLookupCron();
+
+		$this->addCfg( $controller, 'locales', [] );
+		$this->addCfg( $controller, 'last_fetch_at', Services::Request()->ts() );
+
+		try {
+			$this->callPrivateMethod( $controller, 'scheduleCrons' );
+			$this->assertFalse( wp_next_scheduled( $hook ) );
+		}
+		finally {
+			wp_clear_scheduled_hook( $hook );
+		}
+	}
+
+	public function testExpiredEmptyLocaleFetchAttemptSchedulesAdhocLookup() :void {
+		$controller = $this->controller();
+		$hook = $this->clearLocalesLookupCron();
+
+		$this->addCfg( $controller, 'locales', [] );
+		$this->addCfg( $controller, 'last_fetch_at', Services::Request()->ts() - $this->listCacheTtl() - 1 );
+
+		try {
+			$this->callPrivateMethod( $controller, 'scheduleCrons' );
+			$this->assertNotFalse( wp_next_scheduled( $hook ) );
+		}
+		finally {
+			wp_clear_scheduled_hook( $hook );
+		}
+	}
+
+	public function testSuccessfulMetadataRefreshUpdatesCachedLocales() :void {
+		$controller = $this->controller();
+		$freshLocales = [
+			'de_DE' => [
+				'hash'      => 'fresh-hash',
+				'hash_type' => 'sha256',
+			],
+		];
+		$this->addCfg( $controller, 'locales', [] );
+		$this->addCfg( $controller, 'last_fetch_at', 0 );
+
+		$listCalls = 0;
+
+		$httpStub = function ( $pre, $args, $url ) use ( &$listCalls, $freshLocales ) {
+			if ( \str_contains( $url, '/translations/list' ) ) {
+				$listCalls++;
+				return $this->httpResponse( (string)\wp_json_encode( [
+					'error_code' => 0,
+					'locales'    => $freshLocales,
+				] ) );
+			}
+			return $pre;
+		};
+
+		add_filter( 'pre_http_request', $httpStub, 10, 3 );
+		try {
+			$available = $this->callPrivateMethod( $controller, 'getAvailableLocales' );
+		}
+		finally {
+			remove_filter( 'pre_http_request', $httpStub, 10 );
+		}
+
+		$this->assertSame( 1, $listCalls );
+		$this->assertSame( $freshLocales, $available );
+		$this->assertSame( $freshLocales, $controller->getCachedLocales() );
+		$this->assertGreaterThan( 0, $controller->cfg()[ 'last_fetch_at' ] ?? 0 );
+	}
+
 	public function testDailyRefreshQueuesStaleLocaleWithoutDownload() :void {
 		$controller = $this->controller();
 		$locale = 'de_DE';
@@ -549,20 +664,22 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertNotContains( $locale, $controller->getQueue() );
 	}
 
-	public function testDailyRefreshSkipsOnMetadataFailureWithoutMutatingConfig() :void {
+	public function testDailyRefreshPreservesCacheAndQueueOnMetadataFailure() :void {
 		$controller = $this->controller();
 		$seededLocales = [
 			'it_IT' => [ 'hash' => 'seeded-hash', 'hash_type' => 'sha256', ],
 		];
 		$seededQueue = [ 'it_IT' ];
-		$seededLastFetchAt = \time() - 120;
+		$seededLastFetchAt = Services::Request()->ts() - $this->listCacheTtl() - 1;
+		$listCalls = 0;
 
 		$this->addCfg( $controller, 'locales', $seededLocales );
 		$this->addCfg( $controller, 'queue', $seededQueue );
 		$this->addCfg( $controller, 'last_fetch_at', $seededLastFetchAt );
 
-		$httpStub = function ( $pre, $args, $url ) {
+		$httpStub = function ( $pre, $args, $url ) use ( &$listCalls ) {
 			if ( \str_contains( $url, '/translations/list' ) ) {
+				$listCalls++;
 				return $this->httpResponse( (string)\wp_json_encode( [
 					'error_code' => 1,
 					'locales'    => [],
@@ -579,9 +696,10 @@ class TranslationDownloadRetryIntegrationTest extends ShieldIntegrationTestCase 
 			remove_filter( 'pre_http_request', $httpStub, 10 );
 		}
 
+		$this->assertSame( 1, $listCalls );
 		$this->assertSame( $seededLocales, $controller->getCachedLocales() );
 		$this->assertSame( $seededQueue, $controller->getQueue() );
-		$this->assertSame( $seededLastFetchAt, $controller->cfg()[ 'last_fetch_at' ] ?? 0 );
+		$this->assertGreaterThan( $seededLastFetchAt, $controller->cfg()[ 'last_fetch_at' ] ?? 0 );
 	}
 
 	public function testDailyRefreshQueueDeduplicatesLocale() :void {

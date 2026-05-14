@@ -3140,6 +3140,24 @@
         "tracking_exclude": true
     },
     {
+        "key": "audit_trail_auto_clean",
+        "section": "section_hidden",
+        "transferable": false,
+        "tracking_exclude": true,
+        "type": "integer",
+        "default": 7,
+        "min": 1
+    },
+    {
+        "key": "auto_clean",
+        "section": "section_hidden",
+        "transferable": false,
+        "tracking_exclude": true,
+        "type": "integer",
+        "default": 7,
+        "min": 1
+    },
+    {
         "key": "enable_logger",
         "section": "section_log_requests",
         "zone_comp_slugs": [
