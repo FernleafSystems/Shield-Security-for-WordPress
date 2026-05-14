@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class ThisRequestHighReputationBypassIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -13,14 +14,21 @@ class ThisRequestHighReputationBypassIntegrationTest extends ShieldIntegrationTe
 
 	private array $requestSnapshot = [];
 
+	private array $optionSnapshot = [];
+
 	public function set_up() {
 		parent::set_up();
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
-		add_filter( 'shield/high_reputation_ip_minimum', [ $this, 'filterHighReputationMinimum' ] );
+		$this->optionSnapshot = $this->snapshotSelectedOptions( [
+			'antibot_high_reputation_minimum',
+		] );
+		$this->requireController()->opts->optSet( 'antibot_high_reputation_minimum', 200 );
+		Transient::Delete( 'shield-bot-scoring-logic' );
 	}
 
 	public function tear_down() {
-		remove_filter( 'shield/high_reputation_ip_minimum', [ $this, 'filterHighReputationMinimum' ] );
+		Transient::Delete( 'shield-bot-scoring-logic' );
+		$this->restoreSelectedOptions( $this->optionSnapshot );
 		$this->restoreCurrentRequestState( $this->requestSnapshot );
 		parent::tear_down();
 	}
@@ -37,6 +45,7 @@ class ThisRequestHighReputationBypassIntegrationTest extends ShieldIntegrationTe
 		TestDataFactory::insertAutoBlock( $ip );
 		TestDataFactory::insertBotSignal( $ip, [
 			'auth_at'   => $now - 60,
+			'altcha_at' => $now - 45,
 			'notbot_at' => $now - 30,
 		] );
 
@@ -70,6 +79,7 @@ class ThisRequestHighReputationBypassIntegrationTest extends ShieldIntegrationTe
 		TestDataFactory::insertAutoBlock( $ip );
 		TestDataFactory::insertBotSignal( $ip, [
 			'auth_at'   => $now - 60,
+			'altcha_at' => $now - 45,
 			'notbot_at' => $now - 30,
 		] );
 
@@ -83,10 +93,6 @@ class ThisRequestHighReputationBypassIntegrationTest extends ShieldIntegrationTe
 		}
 	}
 
-
-	public function filterHighReputationMinimum() :int {
-		return 100;
-	}
 
 	private function applyRequestForIp( string $ip ) :void {
 		$this->resetIpCaches();

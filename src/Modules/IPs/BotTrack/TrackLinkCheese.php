@@ -43,6 +43,7 @@ class TrackLinkCheese extends Base {
 				return $robots;
 			}, \PHP_INT_MAX );
 
+			// Link cheese must run for anonymous visitors, including bypassed crawlers.
 			if ( !Services::WpUsers()->isUserLoggedIn() ) {
 				$this->doTransgression();
 			}

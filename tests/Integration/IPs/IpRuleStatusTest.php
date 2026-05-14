@@ -109,6 +109,47 @@ class IpRuleStatusTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $status->isBlockedByShield() );
 	}
 
+	public function test_bypass_overrides_active_auto_block() :void {
+		$this->requireDb( 'ip_rules' );
+		$this->requireDb( 'ips' );
+
+		$ip = '10.0.0.111';
+		$now = Services::Request()->ts();
+		TestDataFactory::insertAutoBlock( $ip, [
+			'blocked_at'   => $now,
+			'unblocked_at' => 0,
+			'offenses'     => 6,
+		] );
+		TestDataFactory::insertBypass( $ip );
+
+		$status = $this->makeStatus( $ip );
+		$this->assertTrue( $status->isBypass() );
+		$this->assertTrue( $status->hasAutoBlock() );
+		$this->assertSame( 6, $status->getOffenses() );
+		$this->assertFalse( $status->isBlockedByShield() );
+		$this->assertFalse( $status->isBlocked() );
+	}
+
+	public function test_bypass_overrides_accumulated_auto_offenses() :void {
+		$this->requireDb( 'ip_rules' );
+		$this->requireDb( 'ips' );
+
+		$ip = '10.0.0.112';
+		TestDataFactory::insertAutoBlock( $ip, [
+			'blocked_at'   => 0,
+			'unblocked_at' => 0,
+			'offenses'     => 5,
+		] );
+		TestDataFactory::insertBypass( $ip );
+
+		$status = $this->makeStatus( $ip );
+		$this->assertTrue( $status->isBypass() );
+		$this->assertTrue( $status->isAutoBlacklisted() );
+		$this->assertSame( 5, $status->getOffenses() );
+		$this->assertFalse( $status->isBlockedByShield() );
+		$this->assertFalse( $status->isBlocked() );
+	}
+
 	// ── CrowdSec block ────────────────────────────────────────────
 
 	public function test_crowdsec_block() {
