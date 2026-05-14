@@ -231,34 +231,25 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 
 	protected function getColumnContent_Identity( string $user ) :string {
 		$ip = (string)$this->log->ip;
-		if ( !empty( $ip ) ) {
-			$ipBadges = [
-				$this->buildIpIdentityBadge( $ip ),
-				$this->renderIdentityBadge(
-					$this->getIpAnalysisLink( $ip ),
-					'activity-log-identity__badge--ip bg-secondary-subtle text-body-secondary border border-secondary-subtle',
-					[
-						'data-bs-toggle' => 'tooltip',
-						'data-bs-title'  => $ip,
-					]
-				),
-			];
-		}
-		else {
-			$ipBadges = [
-				$this->renderIdentityBadge(
-					__( 'No IP', 'wp-simple-firewall' ),
-					'bg-light text-body-secondary border border-secondary-subtle'
-				),
-			];
+		$primaryBadges = \array_filter( [
+			empty( $ip ) ? '' : $this->buildIpIdentityBadge( $ip ),
+			$this->buildUserIdentityBadge( $user ),
+		] );
+
+		$rows = [];
+		if ( !empty( $primaryBadges ) ) {
+			$rows[] = \sprintf(
+				'<div class="activity-log-identity__primary">%s</div>',
+				\implode( '', $primaryBadges )
+			);
 		}
 
-		$badges = \array_filter( \array_merge(
-			$ipBadges,
-			[ $this->buildUserIdentityBadge( $user ) ]
-		) );
+		$rows[] = \sprintf(
+			'<div class="activity-log-identity__ip">%s</div>',
+			$this->buildIpAddressBadge( $ip )
+		);
 
-		return sprintf( '<div class="activity-log-identity">%s</div>', \implode( '', $badges ) );
+		return \sprintf( '<div class="activity-log-identity">%s</div>', \implode( '', $rows ) );
 	}
 
 	private function buildIpIdentityBadge( string $ip ) :string {
@@ -279,23 +270,51 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 
 		return empty( $label ) ? '' : $this->renderIdentityBadge(
 			esc_html( $label ),
-			'activity-log-identity__badge--source bg-info-subtle text-info-emphasis border border-info-subtle'
+			'activity-log-identity__badge--source',
+			self::con()->svgs->iconClass( 'cloud-check' )
 		);
 	}
 
 	private function buildUserIdentityBadge( string $user ) :string {
 		return $user === '-' ? '' : $this->renderIdentityBadge(
 			$user,
-			'activity-log-identity__badge--user bg-primary-subtle text-primary-emphasis border border-primary-subtle'
+			'activity-log-identity__badge--user',
+			self::con()->svgs->iconClass( 'person' )
 		);
 	}
 
-	private function renderIdentityBadge( string $content, string $classes, array $attributes = [] ) :string {
-		$attributes[ 'class' ] = \trim( sprintf( 'badge rounded-pill activity-log-identity__badge %s', $classes ) );
+	private function buildIpAddressBadge( string $ip ) :string {
+		if ( !empty( $ip ) ) {
+			return $this->renderIdentityBadge(
+				$this->getIpAnalysisLink( $ip ),
+				'activity-log-identity__badge--ip',
+				self::con()->svgs->iconClass( 'globe2' ),
+				[
+					'data-bs-toggle' => 'tooltip',
+					'data-bs-title'  => $ip,
+				]
+			);
+		}
+
+		return $this->renderIdentityBadge(
+			esc_html( __( 'No IP', 'wp-simple-firewall' ) ),
+			'activity-log-identity__badge--ip activity-log-identity__badge--no-ip',
+			self::con()->svgs->iconClass( 'globe2' )
+		);
+	}
+
+	private function renderIdentityBadge(
+		string $content,
+		string $classes,
+		string $iconClass,
+		array $attributes = []
+	) :string {
+		$attributes[ 'class' ] = \trim( sprintf( 'badge activity-log-identity__badge %s', $classes ) );
 
 		return sprintf(
-			'<span%s>%s</span>',
+			'<span%s><i class="%s activity-log-identity__badge-icon" aria-hidden="true"></i>%s</span>',
 			$this->renderHtmlAttributes( $attributes ),
+			esc_attr( $iconClass ),
 			$content
 		);
 	}

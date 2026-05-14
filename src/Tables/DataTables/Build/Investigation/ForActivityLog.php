@@ -9,19 +9,4 @@ class ForActivityLog extends BaseInvestigationTable {
 	protected function getSourceBuilderClass() :string {
 		return FullActivityLogTable::class;
 	}
-
-	protected function getSubjectFilterColumns() :array {
-		switch ( $this->subjectType ) {
-			case 'user':
-				$hidden = [ 'uid', 'user' ];
-				break;
-			case 'ip':
-				$hidden = [ 'ip', 'identity' ];
-				break;
-			default:
-				$hidden = [];
-				break;
-		}
-		return $hidden;
-	}
 }
