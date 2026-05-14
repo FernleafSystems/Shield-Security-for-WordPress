@@ -75,12 +75,14 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 
 		$identity = (string)$row[ 'identity' ];
 		$xpath = $this->identityXPath( $identity );
+		$this->assertIdentityBadgesDoNotUseBootstrapBadge( $xpath );
 		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity', 'div' ), $xpath );
 		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__primary', 'div' ), $xpath );
 		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__ip', 'div' ), $xpath );
-		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__badge--source', 'span' ), $xpath );
-		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__badge--user', 'span' ), $xpath );
-		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__badge--ip', 'span' ), $xpath );
+		$this->assertXPathCount( 1, $this->descendantClassQuery( 'activity-log-identity__primary', 'activity-log-identity__badge--source', 'div', 'span' ), $xpath );
+		$this->assertXPathCount( 1, $this->descendantClassQuery( 'activity-log-identity__primary', 'activity-log-identity__badge--user', 'div', 'span' ), $xpath );
+		$this->assertXPathCount( 1, $this->descendantClassQuery( 'activity-log-identity__ip', 'activity-log-identity__badge--ip', 'div', 'span' ), $xpath );
+		$this->assertXPathCount( 3, $this->classQuery( 'activity-log-identity__badge-label', 'span' ), $xpath );
 		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__badge--source', 'span' ).'//i[contains(@class, "bi-cloud-check")]', $xpath );
 		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__badge--user', 'span' ).'//i[contains(@class, "bi-person")]', $xpath );
 		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__badge--ip', 'span' ).'//i[contains(@class, "bi-globe2")]', $xpath );
@@ -107,8 +109,9 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 
 		$identity = (string)$row[ 'identity' ];
 		$xpath = $this->identityXPath( $identity );
+		$this->assertIdentityBadgesDoNotUseBootstrapBadge( $xpath );
 		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__primary', 'div' ), $xpath );
-		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__badge--source', 'span' ), $xpath );
+		$this->assertXPathCount( 1, $this->descendantClassQuery( 'activity-log-identity__primary', 'activity-log-identity__badge--source', 'div', 'span' ), $xpath );
 		$this->assertXPathCount( 0, $this->classQuery( 'activity-log-identity__badge--user', 'span' ), $xpath );
 		$this->assertXPathContainsText( 'Googlebot', $this->classQuery( 'activity-log-identity__primary', 'div' ), $xpath );
 		$this->assertXPathContainsText( '203.0.113.44', $this->classQuery( 'activity-log-identity__ip', 'div' ), $xpath );
@@ -126,8 +129,9 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 
 		$identity = (string)$row[ 'identity' ];
 		$xpath = $this->identityXPath( $identity );
+		$this->assertIdentityBadgesDoNotUseBootstrapBadge( $xpath );
 		$this->assertXPathCount( 0, $this->classQuery( 'activity-log-identity__badge--source', 'span' ), $xpath );
-		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__badge--user', 'span' ), $xpath );
+		$this->assertXPathCount( 1, $this->descendantClassQuery( 'activity-log-identity__primary', 'activity-log-identity__badge--user', 'div', 'span' ), $xpath );
 		$this->assertXPathContainsText( 'WP Cron', $this->classQuery( 'activity-log-identity__primary', 'div' ), $xpath );
 		$this->assertStringNotContainsString( 'and authenticated as', $identity );
 		$this->assertStringNotContainsString( 'and not authenticated', $identity );
@@ -143,8 +147,10 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 
 		$identity = (string)$row[ 'identity' ];
 		$xpath = $this->identityXPath( $identity );
+		$this->assertIdentityBadgesDoNotUseBootstrapBadge( $xpath );
 		$this->assertXPathCount( 0, $this->classQuery( 'activity-log-identity__primary', 'div' ), $xpath );
 		$this->assertXPathCount( 0, $this->classQuery( 'activity-log-identity__badge--source', 'span' ), $xpath );
+		$this->assertXPathCount( 1, $this->descendantClassQuery( 'activity-log-identity__ip', 'activity-log-identity__badge--ip', 'div', 'span' ), $xpath );
 		$this->assertXPathContainsText( '198.51.100.20', $this->classQuery( 'activity-log-identity__ip', 'div' ), $xpath );
 		$this->assertXPathTextNotContains( 'Unknown', $this->classQuery( 'activity-log-identity', 'div' ), $xpath );
 		$this->assertXPathTextNotContains( 'Unidentified', $this->classQuery( 'activity-log-identity', 'div' ), $xpath );
@@ -158,9 +164,10 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 
 		$identity = (string)$row[ 'identity' ];
 		$xpath = $this->identityXPath( $identity );
+		$this->assertIdentityBadgesDoNotUseBootstrapBadge( $xpath );
 		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__primary', 'div' ), $xpath );
-		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__badge--user', 'span' ), $xpath );
-		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__badge--no-ip', 'span' ), $xpath );
+		$this->assertXPathCount( 1, $this->descendantClassQuery( 'activity-log-identity__primary', 'activity-log-identity__badge--user', 'div', 'span' ), $xpath );
+		$this->assertXPathCount( 1, $this->descendantClassQuery( 'activity-log-identity__ip', 'activity-log-identity__badge--no-ip', 'div', 'span' ), $xpath );
 		$this->assertXPathContainsText( 'WP Cron', $this->classQuery( 'activity-log-identity__primary', 'div' ), $xpath );
 		$this->assertXPathContainsText( 'No IP', $this->classQuery( 'activity-log-identity__ip', 'div' ), $xpath );
 		$this->assertStringNotContainsString( 'and authenticated as', $identity );
@@ -192,9 +199,11 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 		);
 
 		$xpath = $this->identityXPath( (string)$row[ 'identity' ] );
+		$this->assertIdentityBadgesDoNotUseBootstrapBadge( $xpath );
 		$this->assertXPathContainsText( 'This Server', $this->classQuery( 'activity-log-identity__primary', 'div' ), $xpath );
-		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__badge--source', 'span' ), $xpath );
+		$this->assertXPathCount( 1, $this->descendantClassQuery( 'activity-log-identity__primary', 'activity-log-identity__badge--source', 'div', 'span' ), $xpath );
 		$this->assertXPathCount( 1, $this->classQuery( 'activity-log-identity__ip', 'div' ), $xpath );
+		$this->assertXPathCount( 0, $this->classQuery( 'investigate-ip-deeplink', 'a' ), $xpath );
 		$this->assertStringContainsString( 'data-bs-title="display:1713278100"', $row[ 'created_since' ] );
 	}
 
@@ -213,6 +222,31 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 			$node,
 			$class
 		);
+	}
+
+	private function descendantClassQuery(
+		string $ancestorClass,
+		string $descendantClass,
+		string $ancestorNode = '*',
+		string $descendantNode = '*'
+	) :string {
+		return \sprintf(
+			'%s//%s[contains(concat(" ", normalize-space(@class), " "), " %s ")]',
+			$this->classQuery( $ancestorClass, $ancestorNode ),
+			$descendantNode,
+			$descendantClass
+		);
+	}
+
+	private function assertIdentityBadgesDoNotUseBootstrapBadge( DOMXPath $xpath ) :void {
+		$badges = $xpath->query( $this->classQuery( 'activity-log-identity__badge', 'span' ) );
+		foreach ( $badges as $badge ) {
+			$this->assertNotContains(
+				'badge',
+				\preg_split( '#\s+#', \trim( $badge->getAttribute( 'class' ) ) ) ?: [],
+				'Activity Log identity badges must not use Bootstrap badge styling.'
+			);
+		}
 	}
 
 	private function assertXPathCount( int $expected, string $query, DOMXPath $xpath ) :void {

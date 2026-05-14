@@ -232,7 +232,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 	protected function getColumnContent_Identity( string $user ) :string {
 		$ip = (string)$this->log->ip;
 		$primaryBadges = \array_filter( [
-			empty( $ip ) ? '' : $this->buildIpIdentityBadge( $ip ),
+			empty( $ip ) ? '' : $this->buildSourceIdentityBadge( $ip ),
 			$this->buildUserIdentityBadge( $user ),
 		] );
 
@@ -246,13 +246,13 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 
 		$rows[] = \sprintf(
 			'<div class="activity-log-identity__ip">%s</div>',
-			$this->buildIpAddressBadge( $ip )
+			$this->buildRawIpBadge( $ip )
 		);
 
 		return \sprintf( '<div class="activity-log-identity">%s</div>', \implode( '', $rows ) );
 	}
 
-	private function buildIpIdentityBadge( string $ip ) :string {
+	private function buildSourceIdentityBadge( string $ip ) :string {
 		$ipID = $this->resolveIpIdentity( $ip );
 		if ( $ipID === null || $ipID[ 0 ] === IpID::UNKNOWN ) {
 			return '';
@@ -283,10 +283,10 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		);
 	}
 
-	private function buildIpAddressBadge( string $ip ) :string {
+	private function buildRawIpBadge( string $ip ) :string {
 		if ( !empty( $ip ) ) {
 			return $this->renderIdentityBadge(
-				$this->getIpAnalysisLink( $ip ),
+				$this->getIdentityRawIpLink( $ip ),
 				'activity-log-identity__badge--ip',
 				self::con()->svgs->iconClass( 'globe2' ),
 				[
@@ -309,14 +309,19 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 		string $iconClass,
 		array $attributes = []
 	) :string {
-		$attributes[ 'class' ] = \trim( sprintf( 'badge activity-log-identity__badge %s', $classes ) );
+		$attributes[ 'class' ] = \trim( sprintf( 'activity-log-identity__badge %s', $classes ) );
 
 		return sprintf(
-			'<span%s><i class="%s activity-log-identity__badge-icon" aria-hidden="true"></i>%s</span>',
+			'<span%s><i class="%s activity-log-identity__badge-icon" aria-hidden="true"></i><span class="activity-log-identity__badge-label">%s</span></span>',
 			$this->renderHtmlAttributes( $attributes ),
 			esc_attr( $iconClass ),
 			$content
 		);
+	}
+
+	private function getIdentityRawIpLink( string $ip ) :string {
+		// Keep the identity badge contract identical for full and investigation Activity Log tables.
+		return parent::getIpAnalysisLink( $ip );
 	}
 
 	private function getColumnContent_ActivityDate( int $ts ) :string {
