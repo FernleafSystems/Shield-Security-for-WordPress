@@ -8,6 +8,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteManager;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalSiteRuntimeHostManifestProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingSourceGeneratedConfigReadiness;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -34,13 +35,17 @@ class BrowserTestLaneTest extends TestCase {
 		$projectRoot = $this->createTrackedTempDir( 'shield-browser-lane-default-' );
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteManager = $this->buildSiteManagerMock( 2, 'warm' );
-		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
+		$events = [];
+		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider( null, $events );
+		$generatedConfigReadiness = new RecordingSourceGeneratedConfigReadiness( $events );
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run( $projectRoot )
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness ) )->run( $projectRoot )
 		);
 
 		$this->assertSame( 0, $exitCode );
+		$this->assertSame( [ 'generated-config', 'host-manifest' ], $events );
+		$this->assertCount( 1, $generatedConfigReadiness->calls );
 		$this->assertCount( 1, $hostManifestProvider->calls );
 		$this->assertSame( 'full', $hostManifestProvider->calls[ 0 ][ 'mode' ] );
 		$this->assertSame(
@@ -76,12 +81,14 @@ class BrowserTestLaneTest extends TestCase {
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteManager = $this->buildSiteManagerMock( 1, 'clean' );
 		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
+		$generatedConfigReadiness = new RecordingSourceGeneratedConfigReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run( $projectRoot )
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness ) )->run( $projectRoot )
 		);
 
 		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $generatedConfigReadiness->calls );
 		$this->assertCount( 1, $hostManifestProvider->calls );
 		$this->assertSame( 'full', $hostManifestProvider->calls[ 0 ][ 'mode' ] );
 		$this->assertSame( '--workers=1', $playwrightRunner->calls[ 0 ][ 'command' ][ 4 ] );
@@ -99,9 +106,10 @@ class BrowserTestLaneTest extends TestCase {
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteManager = $this->buildSiteManagerMock( 2, 'warm' );
 		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
+		$generatedConfigReadiness = new RecordingSourceGeneratedConfigReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness ) )->run(
 				$projectRoot,
 				[ '--workers=2', '-g', 'flow' ],
 				[
@@ -113,6 +121,7 @@ class BrowserTestLaneTest extends TestCase {
 		);
 
 		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $generatedConfigReadiness->calls );
 		$this->assertCount( 1, $hostManifestProvider->calls );
 		$this->assertSame( 'auto', $hostManifestProvider->calls[ 0 ][ 'mode' ] );
 		$this->assertSame(
@@ -138,9 +147,10 @@ class BrowserTestLaneTest extends TestCase {
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteManager = $this->buildSiteManagerMock( 0, 'warm' );
 		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
+		$generatedConfigReadiness = new RecordingSourceGeneratedConfigReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness ) )->run(
 				$projectRoot,
 				[ '--workers=3' ],
 				[ 'lanes' => '2' ]
@@ -148,6 +158,7 @@ class BrowserTestLaneTest extends TestCase {
 		);
 
 		$this->assertSame( 1, $exitCode );
+		$this->assertCount( 0, $generatedConfigReadiness->calls );
 		$this->assertCount( 0, $hostManifestProvider->calls );
 		$this->assertCount( 0, $playwrightRunner->calls );
 	}
@@ -158,9 +169,10 @@ class BrowserTestLaneTest extends TestCase {
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteManager = $this->buildSiteManagerMock( 0, 'warm' );
 		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
+		$generatedConfigReadiness = new RecordingSourceGeneratedConfigReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness ) )->run(
 				$projectRoot,
 				[ '--workers=3', '--list' ],
 				[ 'lanes' => '1' ]
@@ -168,6 +180,7 @@ class BrowserTestLaneTest extends TestCase {
 		);
 
 		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 0, $generatedConfigReadiness->calls );
 		$this->assertCount( 0, $hostManifestProvider->calls );
 		$this->assertSame(
 			[
@@ -192,9 +205,10 @@ class BrowserTestLaneTest extends TestCase {
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteManager = $this->buildSiteManagerMock( 1, 'clean' );
 		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
+		$generatedConfigReadiness = new RecordingSourceGeneratedConfigReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness ) )->run(
 				$projectRoot,
 				[],
 				[
@@ -206,6 +220,7 @@ class BrowserTestLaneTest extends TestCase {
 		);
 
 		$this->assertSame( 0, $exitCode );
+		$this->assertCount( 1, $generatedConfigReadiness->calls );
 		$this->assertCount( 1, $hostManifestProvider->calls );
 		$this->assertSame( 'full', $hostManifestProvider->calls[ 0 ][ 'mode' ] );
 	}
@@ -216,9 +231,10 @@ class BrowserTestLaneTest extends TestCase {
 		$playwrightRunner = new RecordingProcessRunner( [ 0 ] );
 		$siteManager = $this->buildSiteManagerMock( 0, 'warm' );
 		$hostManifestProvider = new RecordingLocalSiteRuntimeHostManifestProvider();
+		$generatedConfigReadiness = new RecordingSourceGeneratedConfigReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider ) )->run(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, $hostManifestProvider, $generatedConfigReadiness ) )->run(
 				$projectRoot,
 				[],
 				[ 'runtime_refresh' => 'metadata' ]
@@ -226,6 +242,7 @@ class BrowserTestLaneTest extends TestCase {
 		);
 
 		$this->assertSame( 1, $exitCode );
+		$this->assertCount( 0, $generatedConfigReadiness->calls );
 		$this->assertCount( 0, $hostManifestProvider->calls );
 		$this->assertCount( 0, $playwrightRunner->calls );
 	}
@@ -243,9 +260,10 @@ class BrowserTestLaneTest extends TestCase {
 		$siteManager->expects( $this->once() )
 			->method( 'prepareBrowserLane' )
 			->willThrowException( new \RuntimeException( 'prepare failed' ) );
+		$generatedConfigReadiness = new RecordingSourceGeneratedConfigReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $lanePool, new RecordingLocalSiteRuntimeHostManifestProvider() ) )->run(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, $lanePool, new RecordingLocalSiteRuntimeHostManifestProvider(), $generatedConfigReadiness ) )->run(
 				$projectRoot,
 				[],
 				[ 'lanes' => '2' ]
@@ -253,6 +271,7 @@ class BrowserTestLaneTest extends TestCase {
 		);
 
 		$this->assertSame( 1, $exitCode );
+		$this->assertCount( 1, $generatedConfigReadiness->calls );
 		$this->assertCount( 0, $playwrightRunner->calls );
 		$lease = $lanePool->acquire( $projectRoot, static function () :void {}, [], 2 );
 		$this->assertSame( 1, $lease->laneIndex() );
@@ -270,9 +289,10 @@ class BrowserTestLaneTest extends TestCase {
 		$siteManager->expects( $this->once() )
 			->method( 'prepareBrowserLane' )
 			->willThrowException( new \RuntimeException( 'Playwright is not installed' ) );
+		$generatedConfigReadiness = new RecordingSourceGeneratedConfigReadiness();
 
 		$exitCode = $this->runQuietly(
-			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, new RecordingLocalSiteRuntimeHostManifestProvider() ) )->run(
+			static fn() :int => ( new BrowserTestLane( $playwrightRunner, $siteManager, null, new RecordingLocalSiteRuntimeHostManifestProvider(), $generatedConfigReadiness ) )->run(
 				$projectRoot,
 				[],
 				[ 'lanes' => '1' ]
@@ -280,6 +300,7 @@ class BrowserTestLaneTest extends TestCase {
 		);
 
 		$this->assertSame( 1, $exitCode );
+		$this->assertCount( 1, $generatedConfigReadiness->calls );
 		$this->assertCount( 0, $playwrightRunner->calls );
 	}
 

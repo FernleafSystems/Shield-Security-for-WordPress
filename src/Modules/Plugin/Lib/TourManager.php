@@ -119,12 +119,13 @@ class TourManager {
 	 * }
 	 */
 	private function getDashboardVideoModal(): array {
+		$embedURL = $this->normaliseVimeoEmbedUrl(
+			(string)( self::con()->cfg->configuration->def( self::DEF_DASHBOARD_INTRO_VIDEO_URL ) ?? '' )
+		);
+
 		return [
-			// Hold dashboard intro video for release while keeping payload ready for quick re-enable later.
-			'is_enabled'     => false,
-			'embed_url'      => $this->normaliseVimeoEmbedUrl(
-				(string)( self::con()->cfg->configuration->def( self::DEF_DASHBOARD_INTRO_VIDEO_URL ) ?? '' )
-			),
+			'is_enabled'     => !empty( $embedURL ),
+			'embed_url'      => $embedURL,
 			'modal_title'    => __( 'Welcome To Shield Security', 'wp-simple-firewall' ),
 			'video_title'    => __( 'Shield Security Dashboard Introduction', 'wp-simple-firewall' ),
 			'body_copy'      => __( 'Start with this short overview, then continue through the dashboard tour.', 'wp-simple-firewall' ),

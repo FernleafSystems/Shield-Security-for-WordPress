@@ -21,16 +21,20 @@ class BrowserTestLane {
 
 	private LocalSiteRuntimeHostManifestProvider $hostManifestProvider;
 
+	private SourceGeneratedConfigReadiness $generatedConfigReadiness;
+
 	public function __construct(
 		?ProcessRunner $processRunner = null,
 		?LocalSiteManager $siteManager = null,
 		?BrowserTestLanePool $lanePool = null,
-		?LocalSiteRuntimeHostManifestProvider $hostManifestProvider = null
+		?LocalSiteRuntimeHostManifestProvider $hostManifestProvider = null,
+		?SourceGeneratedConfigReadiness $generatedConfigReadiness = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$this->providedSiteManager = $siteManager;
 		$this->lanePool = $lanePool ?? new BrowserTestLanePool();
 		$this->hostManifestProvider = $hostManifestProvider ?? new LocalSiteRuntimeHostManifestProvider();
+		$this->generatedConfigReadiness = $generatedConfigReadiness ?? new SourceGeneratedConfigReadiness( $this->processRunner );
 	}
 
 	/**
@@ -69,6 +73,17 @@ class BrowserTestLane {
 					$laneCount
 				).\PHP_EOL
 			);
+			return 1;
+		}
+
+		try {
+			$this->generatedConfigReadiness->ensureReady(
+				$rootDir,
+				$showSetupOutput ? null : static function () :void {}
+			);
+		}
+		catch ( \Throwable $throwable ) {
+			$this->writeFailureDiagnostic( 'prepare generated config', $throwable, null );
 			return 1;
 		}
 

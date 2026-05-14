@@ -30,6 +30,8 @@ class LocalSiteManager {
 
 	private SourceSetupCacheCoordinator $setupCacheCoordinator;
 
+	private SourceGeneratedConfigReadiness $generatedConfigReadiness;
+
 	private LocalSiteDefinition $definition;
 
 	public function __construct(
@@ -39,7 +41,8 @@ class LocalSiteManager {
 		?DockerComposeExecutor $dockerComposeExecutor = null,
 		?LocalSiteProbe $probe = null,
 		?LocalSiteRuntimeRefresher $runtimeRefresher = null,
-		?SourceSetupCacheCoordinator $setupCacheCoordinator = null
+		?SourceSetupCacheCoordinator $setupCacheCoordinator = null,
+		?SourceGeneratedConfigReadiness $generatedConfigReadiness = null
 	) {
 		$this->definition = $definition;
 		$this->processRunner = $processRunner ?? new ProcessRunner();
@@ -48,6 +51,8 @@ class LocalSiteManager {
 		$this->probe = $probe ?? new LocalSiteProbe();
 		$this->runtimeRefresher = $runtimeRefresher ?? new LocalSiteRuntimeRefresher( $this->processRunner );
 		$this->setupCacheCoordinator = $setupCacheCoordinator ?? new SourceSetupCacheCoordinator();
+		$this->generatedConfigReadiness = $generatedConfigReadiness
+			?? new SourceGeneratedConfigReadiness( $this->processRunner, $this->setupCacheCoordinator );
 	}
 
 	public function definition() :LocalSiteDefinition {
@@ -366,105 +371,7 @@ class LocalSiteManager {
 			}
 		}
 
-		$this->ensureGeneratedConfigReady( $rootDir );
-	}
-
-	private function ensureGeneratedConfigReady( string $rootDir ) :void {
-		$setup = $this->setupCacheCoordinator->evaluateAnalyzeSetup( $rootDir );
-		if ( $setup[ 'needs_build_config' ] ) {
-			$process = $this->processRunner->run(
-				[ \PHP_BINARY, './bin/build-config.php' ],
-				$rootDir
-			);
-			$exitCode = $process->getExitCode() ?? 1;
-			if ( $exitCode !== 0 ) {
-				$errorOutput = \trim( $process->getErrorOutput() );
-				throw new \RuntimeException(
-					'Failed to regenerate plugin.json for local site tooling.'
-					.( $errorOutput !== '' ? ' '.$errorOutput : '' )
-				);
-			}
-			$this->setupCacheCoordinator->persistBuildConfigState( $rootDir, $setup[ 'fingerprint' ] );
-		}
-
-		$this->assertMetadataConsistency( $rootDir );
-	}
-
-	private function assertMetadataConsistency( string $rootDir ) :void {
-		$sourceProperties = $this->decodeJsonFile(
-			Path::join( $rootDir, 'plugin-spec', '01_properties.json' ),
-			'Source properties spec'
-		);
-		$pluginConfig = $this->decodeJsonFile(
-			Path::join( $rootDir, 'plugin.json' ),
-			'Generated plugin config'
-		);
-		$headerVersion = $this->extractPluginHeaderVersion(
-			Path::join( $rootDir, 'icwp-wpsf.php' )
-		);
-
-		$sourceVersion = (string)( $sourceProperties[ 'version' ] ?? '' );
-		$sourceBuild = (string)( $sourceProperties[ 'build' ] ?? '' );
-		$configVersion = (string)( $pluginConfig[ 'properties' ][ 'version' ] ?? '' );
-		$configBuild = (string)( $pluginConfig[ 'properties' ][ 'build' ] ?? '' );
-
-		if ( $sourceVersion === '' || $configVersion === '' ) {
-			throw new \RuntimeException(
-				'Local source metadata is incomplete: plugin-spec/01_properties.json and plugin.json must define version.'
-			);
-		}
-		if ( $sourceVersion !== $configVersion || $sourceBuild !== $configBuild ) {
-			throw new \RuntimeException(
-				'Generated plugin.json is out of sync with plugin-spec/01_properties.json. '
-				."Run 'composer build:config' and keep generated config current before local site or browser runs."
-			);
-		}
-		if ( $headerVersion === '' || $headerVersion !== $configVersion ) {
-			throw new \RuntimeException(
-				'Generated plugin.json and icwp-wpsf.php plugin header are out of sync. '
-				.'Update source release metadata so active artifacts agree before local site or browser runs.'
-			);
-		}
-	}
-
-	/**
-	 * @return array<string,mixed>
-	 */
-	private function decodeJsonFile( string $path, string $label ) :array {
-		if ( !\is_file( $path ) ) {
-			throw new \RuntimeException( $label.' is missing: '.$path );
-		}
-
-		$content = \file_get_contents( $path );
-		if ( !\is_string( $content ) || $content === '' ) {
-			throw new \RuntimeException( $label.' could not be read: '.$path );
-		}
-
-		$decoded = \json_decode( $content, true );
-		if ( !\is_array( $decoded ) ) {
-			throw new \RuntimeException(
-				$label.' is invalid JSON: '.$path.' ('.\json_last_error_msg().')'
-			);
-		}
-
-		return $decoded;
-	}
-
-	private function extractPluginHeaderVersion( string $path ) :string {
-		if ( !\is_file( $path ) ) {
-			throw new \RuntimeException( 'Plugin root file icwp-wpsf.php is missing.' );
-		}
-
-		$content = \file_get_contents( $path );
-		if ( !\is_string( $content ) || $content === '' ) {
-			throw new \RuntimeException( 'Failed to read icwp-wpsf.php plugin header.' );
-		}
-
-		if ( !\preg_match( '/^\s*\*\s*Version:\s*(\S+)\s*$/mi', $content, $matches ) ) {
-			throw new \RuntimeException( 'Failed to parse Version from icwp-wpsf.php plugin header.' );
-		}
-
-		return \trim( (string)$matches[ 1 ] );
+		$this->generatedConfigReadiness->ensureReady( $rootDir, null, 'local site tooling' );
 	}
 
 	private function isSiteHealthy() :bool {
