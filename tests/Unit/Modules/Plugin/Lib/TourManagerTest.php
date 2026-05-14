@@ -123,6 +123,7 @@ class TourManagerTest extends BaseUnitTest {
 		$query = [];
 		\parse_str( (string)( $urlParts[ 'query' ] ?? '' ), $query );
 
+		$this->assertTrue( $videoModal[ 'is_enabled' ] );
 		$this->assertSame( 'player.vimeo.com', $urlParts[ 'host' ] ?? '' );
 		$this->assertSame( '/video/986378588', $urlParts[ 'path' ] ?? '' );
 		$this->assertSame( 'fde2b1c5f7', $query[ 'h' ] ?? '' );
@@ -138,6 +139,7 @@ class TourManagerTest extends BaseUnitTest {
 		$tour = ( new TourManager() )->getTour();
 
 		$this->assertTrue( $tour[ 'is_available' ] );
+		$this->assertFalse( $tour[ 'video_modal' ][ 'is_enabled' ] );
 		$this->assertSame( '', $tour[ 'video_modal' ][ 'embed_url' ] );
 	}
 
@@ -148,6 +150,7 @@ class TourManagerTest extends BaseUnitTest {
 		$tour = ( new TourManager() )->getTour();
 
 		$this->assertTrue( $tour[ 'is_available' ] );
+		$this->assertFalse( $tour[ 'video_modal' ][ 'is_enabled' ] );
 		$this->assertSame( '', $tour[ 'video_modal' ][ 'embed_url' ] );
 	}
 
