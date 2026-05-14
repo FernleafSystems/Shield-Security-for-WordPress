@@ -15,12 +15,20 @@ class RecordingLocalSiteRuntimeRefresher extends LocalSiteRuntimeRefresher {
 	/** @var string[] */
 	private array $containerIds;
 
+	/** @var string[] */
+	private array $events = [];
+
 	/**
 	 * @param string[] $containerIds
+	 * @param string[]|null $events
 	 */
-	public function __construct( array $containerIds = [ '' ] ) {
+	public function __construct( array $containerIds = [ '' ], ?array &$events = null ) {
 		parent::__construct();
 		$this->containerIds = $containerIds;
+		if ( $events === null ) {
+			$events = [];
+		}
+		$this->events = &$events;
 	}
 
 	public function resolveServiceContainerId(
@@ -45,6 +53,7 @@ class RecordingLocalSiteRuntimeRefresher extends LocalSiteRuntimeRefresher {
 		?callable $onOutput = null,
 		?array $hostManifest = null
 	) :void {
+		$this->events[] = 'runtime-refresh';
 		$this->refreshCalls[] = [
 			'root_dir' => $rootDir,
 			'container_id' => $containerId,
