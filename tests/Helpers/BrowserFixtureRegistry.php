@@ -235,6 +235,9 @@ class BrowserFixtureRegistry {
 				\delete_option( $optionKey );
 				return [ 'cleaned' => true ];
 
+			case 'inspect':
+				return $builder->inspect( $state );
+
 			case 'seed':
 				if ( $state !== [] ) {
 					$builder->cleanup( $state );
