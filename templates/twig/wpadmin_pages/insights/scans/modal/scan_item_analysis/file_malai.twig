@@ -20,6 +20,7 @@
 
 		<form id="FileScanMalaiQuery" autocomplete="off" method="post"
 			  action="#"
+			  data-scan-item-malai-query-action="{{ vars.malai_query_action|e('html_attr') }}"
 			  enctype="multipart/form-data">
 			{% for input_name,input_value in vars.form %}
 				<input type="hidden" name="{{ input_name }}" value="{{ input_value }}" />

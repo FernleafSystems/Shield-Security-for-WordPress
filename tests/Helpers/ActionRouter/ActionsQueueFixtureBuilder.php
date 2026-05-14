@@ -24,7 +24,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
  *   group_section:'active'|'healthy',
  *   detail_shell:string,
  *   panel_target:string,
- *   is_lazy_panel:bool
+ *   is_lazy_panel:bool,
+ *   context?:array<string,mixed>
  * }
  * @phpstan-type ScenarioDefinition array{
  *   scenario:string,
@@ -32,7 +33,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
  *   expected_detail_shell:string,
  *   expected_lazy_panel:bool,
  *   require_scan_results_table:bool,
- *   require_populated_scan_results_table:bool
+ *   require_populated_scan_results_table:bool,
+ *   context?:array<string,mixed>
  * }
  */
 class ActionsQueueFixtureBuilder {
@@ -173,6 +175,8 @@ class ActionsQueueFixtureBuilder {
 		switch ( $scenario ) {
 			case 'direct_table':
 				return $this->seedDirectTable( $state );
+			case 'malai_lookup_contexts':
+				return $this->seedMalaiLookupContexts( $state );
 			case 'malware_direct_table':
 				return $this->seedMalwareDirectTable( $state );
 			case 'ignored_plugin_direct_table':
@@ -243,6 +247,87 @@ class ActionsQueueFixtureBuilder {
 			'expected_lazy_panel'         => false,
 			'require_scan_results_table'  => true,
 			'require_populated_scan_results_table' => true,
+		];
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return ScenarioDefinition
+	 */
+	private function seedMalaiLookupContexts( array &$state ) :array {
+		RuntimeTestState::applyPremiumCapabilities( [
+			'scan_file_areas',
+			'scan_malware_malai',
+			'scan_pluginsthemes_local',
+		] );
+
+		RuntimeTestState::controller()->opts
+			->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			->optSet( 'enabled_scan_apc', 'Y' )
+			->optSet( 'preferred_temp_dir', WP_CONTENT_DIR )
+			->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes' ] )
+			->store();
+		RuntimeTestState::forcePersistOptions( [
+			'enable_core_file_integrity_scan' => 'Y',
+			'enabled_scan_apc'                => 'Y',
+			'preferred_temp_dir'              => WP_CONTENT_DIR,
+			'file_scan_areas'                 => [ 'wp', 'plugins', 'themes' ],
+		] );
+		RuntimeTestState::primeCacheSubDir( 'browser-fixtures-actions-queue' );
+
+		$pluginSlug = RuntimeTestState::controller()->base_file;
+		$themeSlug = (string)\wp_get_theme()->get_stylesheet();
+		$themeFile = 'functions.php';
+		if ( $themeSlug === '' || !\is_file( \get_theme_root().'/'.$themeSlug.'/'.$themeFile ) ) {
+			throw new \RuntimeException( 'Unable to locate an active theme functions.php file for the MAL{ai} fixture.' );
+		}
+
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$this->trackId( $state, 'scan_ids', $scanId );
+
+		$pluginTracked = TestDataFactory::insertAfsFileScanResultTracked(
+			$scanId,
+			$this->pluginMainPathFragment( $pluginSlug ),
+			[
+				'is_in_plugin'    => 1,
+				'is_unrecognised' => 1,
+				'ptg_slug'        => $pluginSlug,
+			]
+		);
+		$this->trackScanResult( $state, $pluginTracked );
+
+		$themeTracked = TestDataFactory::insertAfsFileScanResultTracked(
+			$scanId,
+			$this->themeFilePathFragment( $themeSlug, $themeFile ),
+			[
+				'is_in_theme'     => 1,
+				'is_unrecognised' => 1,
+				'ptg_slug'        => $themeSlug,
+			]
+		);
+		$this->trackScanResult( $state, $themeTracked );
+
+		$corePathFragment = 'wp-includes/version.php';
+		$coreTracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $corePathFragment, [
+			'is_in_core'      => 1,
+			'is_unrecognised' => 1,
+		] );
+		$this->trackScanResult( $state, $coreTracked );
+
+		return [
+			'scenario'                    => 'malai_lookup_contexts',
+			'target_group_key'            => 'plugins:'.$pluginSlug,
+			'expected_detail_shell'       => 'direct_table',
+			'expected_lazy_panel'         => false,
+			'require_scan_results_table'  => true,
+			'require_populated_scan_results_table' => true,
+			'context'                     => [
+				'plugin_slug' => $pluginSlug,
+				'theme_slug'  => $themeSlug,
+				'plugin_rid'  => (int)$pluginTracked[ 'result_item_id' ],
+				'theme_rid'   => (int)$themeTracked[ 'result_item_id' ],
+				'core_rid'    => (int)$coreTracked[ 'result_item_id' ],
+			],
 		];
 	}
 
@@ -675,7 +760,7 @@ class ActionsQueueFixtureBuilder {
 			) );
 		}
 
-		return [
+		$contract = [
 			'scenario'      => $definition[ 'scenario' ],
 			'bucket_key'    => $groupContext[ 'bucket_key' ],
 			'group_key'     => $groupContext[ 'group_key' ],
@@ -684,6 +769,12 @@ class ActionsQueueFixtureBuilder {
 			'panel_target'  => $detail[ 'panel_target' ],
 			'is_lazy_panel' => $detail[ 'is_lazy_panel' ],
 		];
+
+		if ( \is_array( $definition[ 'context' ] ?? null ) ) {
+			$contract[ 'context' ] = $definition[ 'context' ];
+		}
+
+		return $contract;
 	}
 
 	/**
