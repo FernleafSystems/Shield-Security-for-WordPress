@@ -107,6 +107,7 @@ class BuildForStats extends BuildBase {
 			'ip_offense',
 			'ip_blocked',
 			'conn_kill',
+			'request_policy_block',
 			'firewall_block',
 			'bottrack_404',
 			'bottrack_fakewebcrawler',

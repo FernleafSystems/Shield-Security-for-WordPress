@@ -21,26 +21,30 @@ class RequestPolicyEvaluator {
 
 	public function evaluate(
 		string $mode,
+		string $sensitivity,
 		RequestProfile $profile,
 		ActorTrust $actorTrust,
 		PolicyState $state,
 		PolicyEvidence $evidence
 	) :PolicyDecision {
 		$mode = self::normaliseMode( $mode );
-		$risk = $this->riskBand( $state, $evidence );
-
 		if ( $mode === self::MODE_LEGACY ) {
 			return $this->decision(
 				$mode,
+				'',
 				$evidence,
 				$profile,
 				$actorTrust,
-				$risk[ 'band' ],
+				PolicyState::BAND_NORMAL,
+				'legacy_mode',
 				PolicyDecision::DECISION_LEGACY,
 				'legacy_mode',
-				$risk[ 'counters' ]
+				[]
 			);
 		}
+
+		$sensitivity = PolicyRiskThresholds::normaliseSensitivity( $sensitivity );
+		$risk = $this->riskBand( $state, $evidence, $sensitivity );
 
 		switch ( $evidence->detector ) {
 			case PolicyEvidence::DETECTOR_FIREWALL:
@@ -63,10 +67,12 @@ class RequestPolicyEvaluator {
 
 		return $this->decision(
 			$mode,
+			$sensitivity,
 			$evidence,
 			$profile,
 			$actorTrust,
 			$risk[ 'band' ],
+			$risk[ 'reason' ],
 			$decision,
 			$reason,
 			$risk[ 'counters' ]
@@ -79,7 +85,7 @@ class RequestPolicyEvaluator {
 		string $riskBand,
 		PolicyEvidence $evidence
 	) :array {
-		$category = (string)( $evidence->condition_meta[ 'match_category' ] ?? '' );
+		$category = (string)( $evidence->condition_meta[ 'match_category' ] ?? $evidence->condition_meta[ 'scan' ] ?? '' );
 
 		if ( $evidence->isFirewallCritical() || \in_array( $category, self::CRITICAL_FIREWALL_CATEGORIES, true ) ) {
 			return [ PolicyDecision::DECISION_BLOCK_REQUEST, 'firewall_critical' ];
@@ -112,8 +118,7 @@ class RequestPolicyEvaluator {
 		}
 
 		if ( $profile->surface === RequestProfile::SURFACE_AUTH_ATTEMPT
-			 && $state->counter( PolicyEvidence::TYPE_AUTH_FAILURE, '15m' ) === 0
-			 && $state->counter( PolicyEvidence::TYPE_AUTH_INVALID_USER, '15m' ) === 0 ) {
+			 && $state->counter( PolicyEvidence::TYPE_AUTH_ABUSE, '15m' ) === 0 ) {
 			return [ PolicyDecision::DECISION_ALLOW, 'crowdsec_clean_auth_attempt' ];
 		}
 
@@ -136,57 +141,70 @@ class RequestPolicyEvaluator {
 		return [ PolicyDecision::DECISION_BLOCK_REQUEST, 'shield_auto_sensitive_request' ];
 	}
 
-	private function riskBand( PolicyState $state, PolicyEvidence $evidence ) :array {
+	private function riskBand( PolicyState $state, PolicyEvidence $evidence, string $sensitivity ) :array {
 		$counters = $this->countersUsed( $state );
 
-		$hostile = $state->risk_band === PolicyState::BAND_HOSTILE
-				   || $evidence->isFirewallCritical()
-				   || $evidence->type === PolicyEvidence::TYPE_SHIELD_MANUAL_BLOCK
-				   || $counters[ 'auth_failure_15m' ] >= 3
-				   || $counters[ 'username_fishing_24h' ] >= 1
-				   || $counters[ 'xmlrpc_15m' ] >= 3
-				   || $counters[ 'rate_limit_15m' ] >= 1
-				   || $counters[ 'firewall_block_24h' ] >= 2
-				   || $counters[ 'ip_blocked_24h' ] >= 1;
-
-		if ( $hostile ) {
-			return [
-				'band'     => PolicyState::BAND_HOSTILE,
-				'counters' => $counters,
-			];
+		if ( $evidence->type === PolicyEvidence::TYPE_SHIELD_MANUAL_BLOCK ) {
+			return $this->risk( PolicyState::BAND_HOSTILE, 'manual_ip_block', $counters );
 		}
 
-		$suspicious = $state->risk_band === PolicyState::BAND_SUSPICIOUS
-					  || $evidence->type === PolicyEvidence::TYPE_CROWDSEC
-					  || $evidence->type === PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK
-					  || $counters[ 'auth_failure_15m' ] >= 1
-					  || $counters[ 'auth_invalid_user_24h' ] >= 1
-					  || $counters[ 'xmlrpc_24h' ] >= 1
-					  || $counters[ 'rate_limit_24h' ] >= 1
-					  || $counters[ 'firewall_log_24h' ] >= 1
-					  || $counters[ 'ip_offense_24h' ] >= 1;
+		if ( $state->risk_band === PolicyState::BAND_HOSTILE ) {
+			return $this->risk( PolicyState::BAND_HOSTILE, 'persisted_hostile', $counters );
+		}
 
-		return [
-			'band'     => $suspicious ? PolicyState::BAND_SUSPICIOUS : PolicyState::BAND_NORMAL,
-			'counters' => $counters,
-		];
+		if ( $evidence->severity === PolicyEvidence::SEVERITY_CRITICAL ) {
+			return $this->risk(
+				PolicyState::BAND_HOSTILE,
+				$evidence->isFirewallCritical() ? 'critical_firewall' : 'critical_evidence',
+				$counters
+			);
+		}
+
+		if ( $evidence->type === PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK
+			 && $sensitivity === PolicyRiskThresholds::SENSITIVITY_AGGRESSIVE ) {
+			return $this->risk( PolicyState::BAND_HOSTILE, 'shield_auto_block_aggressive', $counters );
+		}
+
+		foreach ( PolicyRiskThresholds::CATEGORY_WINDOWS as $category => $window ) {
+			if ( $state->counter( $category, $window ) >= PolicyRiskThresholds::threshold( $sensitivity, $category, 'hostile' ) ) {
+				return $this->risk( PolicyState::BAND_HOSTILE, 'threshold_'.$category, $counters );
+			}
+		}
+
+		if ( $state->risk_band === PolicyState::BAND_SUSPICIOUS ) {
+			return $this->risk( PolicyState::BAND_SUSPICIOUS, 'persisted_suspicious', $counters );
+		}
+
+		foreach ( PolicyRiskThresholds::CATEGORY_WINDOWS as $category => $window ) {
+			if ( $state->counter( $category, $window ) >= PolicyRiskThresholds::threshold( $sensitivity, $category, 'suspicious' ) ) {
+				return $this->risk( PolicyState::BAND_SUSPICIOUS, 'threshold_'.$category, $counters );
+			}
+		}
+
+		if ( $evidence->type === PolicyEvidence::TYPE_CROWDSEC ) {
+			return $this->risk( PolicyState::BAND_SUSPICIOUS, 'crowdsec_signal', $counters );
+		}
+
+		if ( $evidence->type === PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK ) {
+			return $this->risk( PolicyState::BAND_SUSPICIOUS, 'shield_auto_block', $counters );
+		}
+
+		return $this->risk( PolicyState::BAND_NORMAL, 'none', $counters );
 	}
 
 	private function countersUsed( PolicyState $state ) :array {
+		$counters = [];
+		foreach ( PolicyRiskThresholds::CATEGORY_WINDOWS as $category => $window ) {
+			$counters[ $category.'_'.$window ] = $state->counter( $category, $window );
+		}
+		return $counters;
+	}
+
+	private function risk( string $band, string $reason, array $counters ) :array {
 		return [
-			'auth_failure_15m'      => $state->counter( PolicyEvidence::TYPE_AUTH_FAILURE, '15m' ),
-			'auth_invalid_user_15m' => $state->counter( PolicyEvidence::TYPE_AUTH_INVALID_USER, '15m' ),
-			'auth_invalid_user_24h' => $state->counter( PolicyEvidence::TYPE_AUTH_INVALID_USER, '24h' ),
-			'username_fishing_24h'  => $state->counter( PolicyEvidence::TYPE_USERNAME_FISHING, '24h' ),
-			'xmlrpc_15m'            => $state->counter( PolicyEvidence::TYPE_XMLRPC, '15m' ),
-			'xmlrpc_24h'            => $state->counter( PolicyEvidence::TYPE_XMLRPC, '24h' ),
-			'rate_limit_15m'        => $state->counter( PolicyEvidence::TYPE_RATE_LIMIT, '15m' ),
-			'rate_limit_24h'        => $state->counter( PolicyEvidence::TYPE_RATE_LIMIT, '24h' ),
-			'firewall_block_24h'    => $state->counter( PolicyEvidence::TYPE_FIREWALL_NOISY, '24h' )
-									   + $state->counter( PolicyEvidence::TYPE_FIREWALL_CRITICAL, '24h' ),
-			'firewall_log_24h'      => $state->counter( PolicyEvidence::TYPE_FIREWALL_LOG, '24h' ),
-			'ip_offense_24h'        => $state->counter( PolicyEvidence::TYPE_IP_OFFENSE, '24h' ),
-			'ip_blocked_24h'        => $state->counter( PolicyEvidence::TYPE_IP_BLOCKED, '24h' ),
+			'band'     => $band,
+			'reason'   => $reason,
+			'counters' => $counters,
 		];
 	}
 
@@ -198,24 +216,67 @@ class RequestPolicyEvaluator {
 
 	private function decision(
 		string $mode,
+		string $sensitivity,
 		PolicyEvidence $evidence,
 		RequestProfile $profile,
 		ActorTrust $actorTrust,
 		string $riskBand,
+		string $riskReason,
 		string $decision,
 		string $reason,
 		array $counters
 	) :PolicyDecision {
 		return new PolicyDecision( [
 			'mode'                   => $mode,
+			'sensitivity'            => $sensitivity,
 			'detector'               => $evidence->detector,
 			'surface'                => $profile->surface,
 			'actor_trust_flags'      => $actorTrust->flags(),
 			'risk_band'              => $riskBand,
+			'risk_reason'            => $riskReason,
 			'decision'               => $decision,
 			'reason'                 => $reason,
+			'block_category'         => $this->blockCategory( $decision, $reason, $riskBand, $riskReason, $evidence ),
 			'evidence_counters_used' => $counters,
 			'rule_slug'              => $evidence->rule_slug,
 		] );
+	}
+
+	private function blockCategory(
+		string $decision,
+		string $reason,
+		string $riskBand,
+		string $riskReason,
+		PolicyEvidence $evidence
+	) :string {
+		if ( $decision !== PolicyDecision::DECISION_BLOCK_REQUEST ) {
+			return '';
+		}
+
+		if ( $evidence->type === PolicyEvidence::TYPE_SHIELD_MANUAL_BLOCK || $reason === 'shield_manual_block' ) {
+			return PolicyDecision::BLOCK_CATEGORY_MANUAL_IP_BLOCK;
+		}
+
+		if ( $reason === 'firewall_critical' ) {
+			return PolicyDecision::BLOCK_CATEGORY_CRITICAL_FIREWALL;
+		}
+
+		if ( \strpos( $riskReason, 'threshold_' ) === 0 ) {
+			return PolicyDecision::BLOCK_CATEGORY_REPEATED_SUSPICIOUS_ACTIVITY;
+		}
+
+		if ( $reason === 'firewall_untrusted_actor' ) {
+			return PolicyDecision::BLOCK_CATEGORY_UNTRUSTED_ACTOR;
+		}
+
+		if ( \in_array( $reason, [ 'crowdsec_sensitive_request', 'shield_auto_sensitive_request' ], true ) ) {
+			return PolicyDecision::BLOCK_CATEGORY_SENSITIVE_REQUEST;
+		}
+
+		if ( $riskBand === PolicyState::BAND_HOSTILE ) {
+			return PolicyDecision::BLOCK_CATEGORY_HOSTILE_IP;
+		}
+
+		return PolicyDecision::BLOCK_CATEGORY_SENSITIVE_REQUEST;
 	}
 }

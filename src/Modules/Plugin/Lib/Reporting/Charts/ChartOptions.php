@@ -22,6 +22,10 @@ class ChartOptions {
 				'label'       => __( 'Connections Killed', 'wp-simple-firewall' ),
 				'description' => __( 'Connections terminated from blocked IP addresses.', 'wp-simple-firewall' ),
 			],
+			'request_policy_block'    => [
+				'label'       => __( 'Request Policy Blocks', 'wp-simple-firewall' ),
+				'description' => __( 'Requests blocked by adaptive request policy.', 'wp-simple-firewall' ),
+			],
 			'ip_blocked'              => [
 				'label'       => __( 'IP Blocks', 'wp-simple-firewall' ),
 				'description' => __( 'IP addresses added to block list after exceeding limits.', 'wp-simple-firewall' ),

@@ -711,15 +711,38 @@
     "request_policy_decision": {
         "audit_params": [
             "mode",
+            "sensitivity",
             "detector",
             "decision",
             "reason",
             "surface",
             "risk_band",
+            "risk_reason",
+            "block_category",
             "rule"
         ],
         "level": "notice",
         "recent": true,
+        "audit": false,
+        "stat": false,
+        "offense": false
+    },
+    "request_policy_block": {
+        "audit_params": [
+            "mode",
+            "sensitivity",
+            "detector",
+            "surface",
+            "risk_band",
+            "risk_reason",
+            "block_category",
+            "reason",
+            "rule",
+            "enforced"
+        ],
+        "level": "warning",
+        "recent": true,
+        "audit_countable": true,
         "offense": false
     },
     "scan_item_delete_success": {

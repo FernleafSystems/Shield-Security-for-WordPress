@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\RequestPolicy\{
 	ActorTrust,
 	PolicyDecision,
 	PolicyEvidence,
+	PolicyRiskThresholds,
 	PolicyState,
 	RequestPolicyEvaluator,
 	RequestProfile
@@ -20,6 +21,7 @@ class RequestPolicyEvaluatorTest extends BaseUnitTest {
 	public function testDeterministicPolicyDecisions( array $scenario ) :void {
 		$decision = ( new RequestPolicyEvaluator() )->evaluate(
 			$scenario[ 'mode' ],
+			$scenario[ 'sensitivity' ],
 			new RequestProfile( $scenario[ 'profile' ] ),
 			new ActorTrust( $scenario[ 'actor' ] ),
 			new PolicyState( [
@@ -29,37 +31,50 @@ class RequestPolicyEvaluatorTest extends BaseUnitTest {
 			new PolicyEvidence( $scenario[ 'evidence' ] )
 		);
 
+		$this->assertSame( $scenario[ 'expected_mode' ] ?? $scenario[ 'mode' ], $decision->mode );
+		$this->assertSame( $scenario[ 'expected_sensitivity' ] ?? $scenario[ 'sensitivity' ], $decision->sensitivity );
 		$this->assertSame( $scenario[ 'expected_decision' ], $decision->decision );
 		$this->assertSame( $scenario[ 'expected_reason' ], $decision->reason );
 		$this->assertSame( $scenario[ 'expected_risk_band' ], $decision->risk_band );
-		$this->assertSame( $scenario[ 'mode' ], $decision->mode );
+		$this->assertSame( $scenario[ 'expected_risk_reason' ], $decision->risk_reason );
+		$this->assertSame( $scenario[ 'expected_block_category' ] ?? '', $decision->block_category );
 		$this->assertSame( $scenario[ 'evidence' ][ 'detector' ], $decision->detector );
 		$this->assertSame( $scenario[ 'profile' ][ 'surface' ], $decision->surface );
+
+		foreach ( $scenario[ 'expected_counters' ] ?? [] as $key => $value ) {
+			$this->assertSame( $value, $decision->evidence_counters_used[ $key ] ?? null, $key );
+		}
 	}
 
 	public function provideDecisionScenarios() :array {
-		$firewallNoisy = [
-			'detector'       => PolicyEvidence::DETECTOR_FIREWALL,
-			'type'           => PolicyEvidence::TYPE_FIREWALL_NOISY,
-			'severity'       => PolicyEvidence::SEVERITY_NOISY,
-			'rule_slug'      => 'shield/firewall',
-			'condition_meta' => [
-				'match_category' => 'sql_queries',
-			],
-		];
-
-		$firewallCritical = $firewallNoisy;
-		$firewallCritical[ 'type' ] = PolicyEvidence::TYPE_FIREWALL_CRITICAL;
-		$firewallCritical[ 'severity' ] = PolicyEvidence::SEVERITY_CRITICAL;
-		$firewallCritical[ 'condition_meta' ][ 'match_category' ] = 'php_code';
-
 		$scenarios = [
-			'legacy firewall keeps current enforcement'                => $this->scenario( [
-				'mode'              => RequestPolicyEvaluator::MODE_LEGACY,
-				'evidence'          => $firewallNoisy,
-				'ip_status'         => 'none',
-				'expected_decision' => PolicyDecision::DECISION_LEGACY,
-				'expected_reason'   => 'legacy_mode',
+			'legacy firewall keeps current enforcement and no sensitivity trace' => $this->scenario( [
+				'mode'                    => RequestPolicyEvaluator::MODE_LEGACY,
+				'sensitivity'             => PolicyRiskThresholds::SENSITIVITY_AGGRESSIVE,
+				'evidence'                => $this->firewallEvidence(),
+				'ip_status'               => 'none',
+				'expected_mode'           => RequestPolicyEvaluator::MODE_LEGACY,
+				'expected_sensitivity'    => '',
+				'expected_decision'       => PolicyDecision::DECISION_LEGACY,
+				'expected_reason'         => 'legacy_mode',
+				'expected_risk_band'      => PolicyState::BAND_NORMAL,
+				'expected_risk_reason'    => 'legacy_mode',
+				'expected_block_category' => '',
+			] ),
+			'invalid mode normalizes to legacy'                         => $this->scenario( [
+				'mode'                    => 'not-a-mode',
+				'sensitivity'             => PolicyRiskThresholds::SENSITIVITY_AGGRESSIVE,
+				'expected_mode'           => RequestPolicyEvaluator::MODE_LEGACY,
+				'expected_sensitivity'    => '',
+				'expected_decision'       => PolicyDecision::DECISION_LEGACY,
+				'expected_reason'         => 'legacy_mode',
+				'expected_risk_band'      => PolicyState::BAND_NORMAL,
+				'expected_risk_reason'    => 'legacy_mode',
+				'expected_block_category' => '',
+			] ),
+			'invalid sensitivity normalizes to balanced'                 => $this->scenario( [
+				'sensitivity'          => 'not-a-sensitivity',
+				'expected_sensitivity' => PolicyRiskThresholds::SENSITIVITY_BALANCED,
 			] ),
 			'shadow computes adaptive firewall result without owning enforcement' => $this->scenario( [
 				'mode'              => RequestPolicyEvaluator::MODE_SHADOW,
@@ -67,219 +82,254 @@ class RequestPolicyEvaluatorTest extends BaseUnitTest {
 				'actor'             => [ 'is_logged_in' => true, 'is_security_admin' => true ],
 				'actor_key'         => 'logged-in trusted',
 				'ip_status'         => 'none',
-				'evidence'          => $firewallNoisy,
+				'evidence'          => $this->firewallEvidence(),
 				'expected_decision' => PolicyDecision::DECISION_LOG_ONLY,
 				'expected_reason'   => 'firewall_trusted_mutation_log_only',
+				'expected_risk_band' => PolicyState::BAND_NORMAL,
+				'expected_risk_reason' => 'none',
 			] ),
 			'trusted logged-in mutation with noisy firewall is log-only' => $this->scenario( [
 				'profile'           => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_CONTENT_MUTATION ],
 				'actor'             => [ 'is_logged_in' => true, 'is_high_reputation_ip' => true ],
 				'actor_key'         => 'logged-in trusted',
 				'ip_status'         => 'none',
-				'evidence'          => $firewallNoisy,
+				'evidence'          => $this->firewallEvidence(),
 				'expected_decision' => PolicyDecision::DECISION_LOG_ONLY,
 				'expected_reason'   => 'firewall_trusted_mutation_log_only',
+				'expected_risk_band' => PolicyState::BAND_NORMAL,
+				'expected_risk_reason' => 'none',
 			] ),
 			'anonymous noisy firewall blocks'                           => $this->scenario( [
-				'profile'           => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_CONTENT_MUTATION ],
-				'ip_status'         => 'none',
-				'evidence'          => $firewallNoisy,
-				'expected_decision' => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'   => 'firewall_untrusted_actor',
+				'profile'                 => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_CONTENT_MUTATION ],
+				'ip_status'               => 'none',
+				'evidence'                => $this->firewallEvidence(),
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'firewall_untrusted_actor',
+				'expected_risk_band'      => PolicyState::BAND_NORMAL,
+				'expected_risk_reason'    => 'none',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_UNTRUSTED_ACTOR,
 			] ),
 			'logged-in low trust noisy firewall still blocks'            => $this->scenario( [
-				'profile'           => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_CONTENT_MUTATION ],
-				'actor'             => [ 'is_logged_in' => true ],
-				'actor_key'         => 'logged-in low trust',
-				'ip_status'         => 'none',
-				'evidence'          => $firewallNoisy,
-				'expected_decision' => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'   => 'firewall_untrusted_actor',
+				'profile'                 => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_CONTENT_MUTATION ],
+				'actor'                   => [ 'is_logged_in' => true ],
+				'actor_key'               => 'logged-in low trust',
+				'ip_status'               => 'none',
+				'evidence'                => $this->firewallEvidence(),
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'firewall_untrusted_actor',
+				'expected_risk_band'      => PolicyState::BAND_NORMAL,
+				'expected_risk_reason'    => 'none',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_UNTRUSTED_ACTOR,
 			] ),
 			'trusted service api mutation with noisy firewall is log-only' => $this->scenario( [
 				'profile'           => [ 'method' => 'PUT', 'surface' => RequestProfile::SURFACE_API_MUTATION ],
 				'actor'             => [ 'is_trusted_service' => true ],
 				'actor_key'         => 'trusted service',
 				'ip_status'         => 'none',
-				'evidence'          => $firewallNoisy,
+				'evidence'          => $this->firewallEvidence(),
 				'expected_decision' => PolicyDecision::DECISION_LOG_ONLY,
 				'expected_reason'   => 'firewall_trusted_mutation_log_only',
+				'expected_risk_band' => PolicyState::BAND_NORMAL,
+				'expected_risk_reason' => 'none',
 			] ),
 			'critical firewall always blocks trusted actor'              => $this->scenario( [
-				'profile'            => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_CONTENT_MUTATION ],
-				'actor'              => [ 'is_logged_in' => true, 'is_security_admin' => true ],
-				'evidence'           => $firewallCritical,
-				'actor_key'          => 'logged-in trusted',
-				'ip_status'          => 'none',
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'firewall_critical',
-				'expected_risk_band' => PolicyState::BAND_HOSTILE,
+				'profile'                 => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_CONTENT_MUTATION ],
+				'actor'                   => [ 'is_logged_in' => true, 'is_security_admin' => true ],
+				'evidence'                => $this->firewallEvidence( 'php_code', PolicyEvidence::SEVERITY_CRITICAL ),
+				'actor_key'               => 'logged-in trusted',
+				'ip_status'               => 'none',
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'firewall_critical',
+				'expected_risk_band'      => PolicyState::BAND_HOSTILE,
+				'expected_risk_reason'    => 'critical_firewall',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_CRITICAL_FIREWALL,
 			] ),
 			'crowdsec adaptive allows public read'                       => $this->scenario( [
-				'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'expected_decision'  => PolicyDecision::DECISION_ALLOW,
-				'expected_reason'    => 'crowdsec_safe_read',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
+				'profile'              => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
+				'evidence'             => $this->crowdsecEvidence(),
+				'expected_decision'    => PolicyDecision::DECISION_ALLOW,
+				'expected_reason'      => 'crowdsec_safe_read',
+				'expected_risk_band'   => PolicyState::BAND_SUSPICIOUS,
+				'expected_risk_reason' => 'crowdsec_signal',
 			] ),
 			'crowdsec adaptive allows api read'                          => $this->scenario( [
-				'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_API_READ ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'expected_decision'  => PolicyDecision::DECISION_ALLOW,
-				'expected_reason'    => 'crowdsec_safe_read',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
+				'profile'              => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_API_READ ],
+				'evidence'             => $this->crowdsecEvidence(),
+				'expected_decision'    => PolicyDecision::DECISION_ALLOW,
+				'expected_reason'      => 'crowdsec_safe_read',
+				'expected_risk_band'   => PolicyState::BAND_SUSPICIOUS,
+				'expected_risk_reason' => 'crowdsec_signal',
 			] ),
 			'crowdsec adaptive allows clean auth attempt'                 => $this->scenario( [
-				'profile'            => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_AUTH_ATTEMPT ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'expected_decision'  => PolicyDecision::DECISION_ALLOW,
-				'expected_reason'    => 'crowdsec_clean_auth_attempt',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
+				'profile'              => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_AUTH_ATTEMPT ],
+				'evidence'             => $this->crowdsecEvidence(),
+				'expected_decision'    => PolicyDecision::DECISION_ALLOW,
+				'expected_reason'      => 'crowdsec_clean_auth_attempt',
+				'expected_risk_band'   => PolicyState::BAND_SUSPICIOUS,
+				'expected_risk_reason' => 'crowdsec_signal',
 			] ),
-			'crowdsec adaptive blocks auth attempt with recent auth failure' => $this->scenario( [
-				'profile'            => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_AUTH_ATTEMPT ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'counters'           => [
-					PolicyEvidence::TYPE_AUTH_FAILURE => [ '15m' => 1 ],
+			'crowdsec adaptive blocks auth attempt with recent auth abuse' => $this->scenario( [
+				'profile'                 => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_AUTH_ATTEMPT ],
+				'evidence'                => $this->crowdsecEvidence(),
+				'counters'                => [
+					PolicyEvidence::TYPE_AUTH_ABUSE => [ '15m' => 1 ],
 				],
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'crowdsec_sensitive_request',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
-			] ),
-			'crowdsec adaptive blocks auth attempt with recent invalid username' => $this->scenario( [
-				'profile'            => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_AUTH_ATTEMPT ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'counters'           => [
-					PolicyEvidence::TYPE_AUTH_INVALID_USER => [ '15m' => 1 ],
-				],
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'crowdsec_sensitive_request',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'crowdsec_sensitive_request',
+				'expected_risk_band'      => PolicyState::BAND_SUSPICIOUS,
+				'expected_risk_reason'    => 'threshold_auth_abuse',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_REPEATED_SUSPICIOUS_ACTIVITY,
+				'expected_counters'       => [ 'auth_abuse_15m' => 1 ],
 			] ),
 			'crowdsec adaptive blocks hostile IP'                         => $this->scenario( [
-				'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'counters'           => [
-					PolicyEvidence::TYPE_AUTH_FAILURE => [ '15m' => 3 ],
+				'profile'                 => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
+				'evidence'                => $this->crowdsecEvidence(),
+				'counters'                => [
+					PolicyEvidence::TYPE_AUTH_ABUSE => [ '15m' => 3 ],
 				],
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'crowdsec_hostile_risk',
-				'expected_risk_band' => PolicyState::BAND_HOSTILE,
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'crowdsec_hostile_risk',
+				'expected_risk_band'      => PolicyState::BAND_HOSTILE,
+				'expected_risk_reason'    => 'threshold_auth_abuse',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_REPEATED_SUSPICIOUS_ACTIVITY,
 			] ),
 			'crowdsec adaptive blocks mutation surfaces'                  => $this->scenario( [
-				'profile'            => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_CONTENT_MUTATION ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'crowdsec_sensitive_request',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
-			] ),
-			'crowdsec adaptive blocks delete shield action'               => $this->scenario( [
-				'profile'            => [ 'method' => 'DELETE', 'surface' => RequestProfile::SURFACE_SHIELD_ACTION ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'crowdsec_sensitive_request',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
+				'profile'                 => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_CONTENT_MUTATION ],
+				'evidence'                => $this->crowdsecEvidence(),
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'crowdsec_sensitive_request',
+				'expected_risk_band'      => PolicyState::BAND_SUSPICIOUS,
+				'expected_risk_reason'    => 'crowdsec_signal',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_SENSITIVE_REQUEST,
 			] ),
 			'crowdsec adaptive blocks xmlrpc surface'                     => $this->scenario( [
-				'profile'            => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_XMLRPC ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'crowdsec_sensitive_request',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
+				'profile'                 => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_XMLRPC ],
+				'evidence'                => $this->crowdsecEvidence(),
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'crowdsec_sensitive_request',
+				'expected_risk_band'      => PolicyState::BAND_SUSPICIOUS,
+				'expected_risk_reason'    => 'crowdsec_signal',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_SENSITIVE_REQUEST,
+			] ),
+			'crowdsec adaptive blocks shield action surface'              => $this->scenario( [
+				'profile'                 => [ 'method' => 'DELETE', 'surface' => RequestProfile::SURFACE_SHIELD_ACTION ],
+				'evidence'                => $this->crowdsecEvidence(),
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'crowdsec_sensitive_request',
+				'expected_risk_band'      => PolicyState::BAND_SUSPICIOUS,
+				'expected_risk_reason'    => 'crowdsec_signal',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_SENSITIVE_REQUEST,
+			] ),
+			'crowdsec adaptive blocks api mutation surface'               => $this->scenario( [
+				'profile'                 => [ 'method' => 'PATCH', 'surface' => RequestProfile::SURFACE_API_MUTATION ],
+				'evidence'                => $this->crowdsecEvidence(),
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'crowdsec_sensitive_request',
+				'expected_risk_band'      => PolicyState::BAND_SUSPICIOUS,
+				'expected_risk_reason'    => 'crowdsec_signal',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_SENSITIVE_REQUEST,
 			] ),
 			'crowdsec adaptive blocks probe surface'                      => $this->scenario( [
-				'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PROBE ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'crowdsec_sensitive_request',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
+				'profile'                 => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PROBE ],
+				'evidence'                => $this->crowdsecEvidence(),
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'crowdsec_sensitive_request',
+				'expected_risk_band'      => PolicyState::BAND_SUSPICIOUS,
+				'expected_risk_reason'    => 'crowdsec_signal',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_SENSITIVE_REQUEST,
 			] ),
 			'shield manual block always blocks'                           => $this->scenario( [
-				'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
-				'evidence'           => $this->shieldEvidence( PolicyEvidence::TYPE_SHIELD_MANUAL_BLOCK ),
-				'ip_status'          => 'Shield manual block',
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'shield_manual_block',
-				'expected_risk_band' => PolicyState::BAND_HOSTILE,
+				'profile'                 => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
+				'evidence'                => $this->shieldEvidence( PolicyEvidence::TYPE_SHIELD_MANUAL_BLOCK ),
+				'ip_status'               => 'Shield manual block',
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'shield_manual_block',
+				'expected_risk_band'      => PolicyState::BAND_HOSTILE,
+				'expected_risk_reason'    => 'manual_ip_block',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_MANUAL_IP_BLOCK,
 			] ),
-			'shield auto block allows safe read'                          => $this->scenario( [
-				'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
-				'evidence'           => $this->shieldEvidence( PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK ),
-				'ip_status'          => 'Shield auto-block',
-				'expected_decision'  => PolicyDecision::DECISION_ALLOW,
-				'expected_reason'    => 'shield_auto_safe_read',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
+			'shield auto block allows safe read in balanced'              => $this->scenario( [
+				'profile'              => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
+				'evidence'             => $this->shieldEvidence( PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK ),
+				'ip_status'            => 'Shield auto-block',
+				'expected_decision'    => PolicyDecision::DECISION_ALLOW,
+				'expected_reason'      => 'shield_auto_safe_read',
+				'expected_risk_band'   => PolicyState::BAND_SUSPICIOUS,
+				'expected_risk_reason' => 'shield_auto_block',
 			] ),
-			'shield auto block blocks sensitive mutation'                  => $this->scenario( [
-				'profile'            => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_ADMIN_MUTATION ],
-				'evidence'           => $this->shieldEvidence( PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK ),
-				'ip_status'          => 'Shield auto-block',
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'shield_auto_sensitive_request',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
+			'shield auto block blocks safe read in aggressive'            => $this->scenario( [
+				'sensitivity'             => PolicyRiskThresholds::SENSITIVITY_AGGRESSIVE,
+				'profile'                 => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
+				'evidence'                => $this->shieldEvidence( PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK ),
+				'ip_status'               => 'Shield auto-block',
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'shield_auto_hostile_risk',
+				'expected_risk_band'      => PolicyState::BAND_HOSTILE,
+				'expected_risk_reason'    => 'shield_auto_block_aggressive',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_HOSTILE_IP,
 			] ),
-			'shield auto patch api mutation blocks sensitive request'      => $this->scenario( [
-				'profile'            => [ 'method' => 'PATCH', 'surface' => RequestProfile::SURFACE_API_MUTATION ],
-				'evidence'           => $this->shieldEvidence( PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK ),
-				'ip_status'          => 'Shield auto-block',
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'shield_auto_sensitive_request',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
+			'shield auto block blocks sensitive mutation'                 => $this->scenario( [
+				'profile'                 => [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_ADMIN_MUTATION ],
+				'evidence'                => $this->shieldEvidence( PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK ),
+				'ip_status'               => 'Shield auto-block',
+				'expected_decision'       => PolicyDecision::DECISION_BLOCK_REQUEST,
+				'expected_reason'         => 'shield_auto_sensitive_request',
+				'expected_risk_band'      => PolicyState::BAND_SUSPICIOUS,
+				'expected_risk_reason'    => 'shield_auto_block',
+				'expected_block_category' => PolicyDecision::BLOCK_CATEGORY_SENSITIVE_REQUEST,
 			] ),
-			'shield auto block blocks hostile read'                        => $this->scenario( [
-				'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
-				'evidence'           => $this->shieldEvidence( PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK ),
-				'ip_status'          => 'Shield auto-block',
-				'counters'           => [
-					PolicyEvidence::TYPE_RATE_LIMIT => [ '15m' => 1 ],
-				],
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'shield_auto_hostile_risk',
-				'expected_risk_band' => PolicyState::BAND_HOSTILE,
-			] ),
-			'unknown detector with no evidence allows no decision'         => $this->scenario( [
-				'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
-				'evidence'           => [
+			'unknown detector with no evidence allows no decision'        => $this->scenario( [
+				'profile'              => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
+				'evidence'             => [
 					'detector' => PolicyEvidence::DETECTOR_EVENT,
 					'type'     => PolicyEvidence::TYPE_NONE,
 					'severity' => PolicyEvidence::SEVERITY_INFO,
 				],
-				'ip_status'          => 'none',
-				'expected_decision'  => PolicyDecision::DECISION_NO_DECISION,
-				'expected_reason'    => 'insufficient_information',
-				'expected_risk_band' => PolicyState::BAND_NORMAL,
-			] ),
-			'username fishing counter makes request hostile'               => $this->scenario( [
-				'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'counters'           => [
-					PolicyEvidence::TYPE_USERNAME_FISHING => [ '24h' => 1 ],
-				],
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'crowdsec_hostile_risk',
-				'expected_risk_band' => PolicyState::BAND_HOSTILE,
-			] ),
-			'invalid username counter makes request suspicious'            => $this->scenario( [
-				'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'counters'           => [
-					PolicyEvidence::TYPE_AUTH_INVALID_USER => [ '24h' => 1 ],
-				],
-				'expected_decision'  => PolicyDecision::DECISION_ALLOW,
-				'expected_reason'    => 'crowdsec_safe_read',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
-			] ),
-			'xmlrpc counter can make request hostile'                      => $this->scenario( [
-				'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
-				'evidence'           => $this->crowdsecEvidence(),
-				'counters'           => [
-					PolicyEvidence::TYPE_XMLRPC => [ '15m' => 3 ],
-				],
-				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'    => 'crowdsec_hostile_risk',
-				'expected_risk_band' => PolicyState::BAND_HOSTILE,
+				'ip_status'            => 'none',
+				'expected_decision'    => PolicyDecision::DECISION_NO_DECISION,
+				'expected_reason'      => 'insufficient_information',
+				'expected_risk_band'   => PolicyState::BAND_NORMAL,
+				'expected_risk_reason' => 'none',
 			] ),
 		];
+
+		foreach ( PolicyRiskThresholds::CATEGORY_WINDOWS as $category => $window ) {
+			foreach ( $this->sensitivityThresholds()[ $category ] as $sensitivity => $thresholds ) {
+				$below = \max( 0, $thresholds[ 'suspicious' ] - 1 );
+				$scenarios[ "{$category} {$sensitivity} below suspicious" ] = $this->thresholdScenario(
+					$category,
+					$window,
+					$sensitivity,
+					$below,
+					PolicyState::BAND_SUSPICIOUS,
+					PolicyState::BAND_SUSPICIOUS,
+					'crowdsec_signal',
+					$below
+				);
+				if ( $thresholds[ 'suspicious' ] < $thresholds[ 'hostile' ] ) {
+					$scenarios[ "{$category} {$sensitivity} exactly suspicious" ] = $this->thresholdScenario(
+						$category,
+						$window,
+						$sensitivity,
+						$thresholds[ 'suspicious' ],
+						PolicyState::BAND_SUSPICIOUS,
+						PolicyState::BAND_SUSPICIOUS,
+						'threshold_'.$category,
+						$thresholds[ 'suspicious' ]
+					);
+				}
+				$scenarios[ "{$category} {$sensitivity} exactly hostile" ] = $this->thresholdScenario(
+					$category,
+					$window,
+					$sensitivity,
+					$thresholds[ 'hostile' ],
+					PolicyState::BAND_HOSTILE,
+					PolicyState::BAND_HOSTILE,
+					'threshold_'.$category,
+					$thresholds[ 'hostile' ]
+				);
+			}
+		}
 
 		return \array_map( static fn( array $scenario ) :array => [ $scenario ], $scenarios );
 	}
@@ -311,7 +361,16 @@ class RequestPolicyEvaluatorTest extends BaseUnitTest {
 	public function testScenarioManifestCoversRequiredAxes() :void {
 		$scenarios = \array_map( static fn( array $row ) :array => $row[ 0 ], $this->provideDecisionScenarios() );
 
-		$this->assertCoverageContains( [ RequestPolicyEvaluator::MODE_LEGACY, RequestPolicyEvaluator::MODE_SHADOW, RequestPolicyEvaluator::MODE_ADAPTIVE ], \array_column( $scenarios, 'mode' ) );
+		$this->assertCoverageContains( [
+			RequestPolicyEvaluator::MODE_LEGACY,
+			RequestPolicyEvaluator::MODE_SHADOW,
+			RequestPolicyEvaluator::MODE_ADAPTIVE,
+		], \array_column( $scenarios, 'mode' ) );
+		$this->assertCoverageContains( [
+			PolicyRiskThresholds::SENSITIVITY_LENIENT,
+			PolicyRiskThresholds::SENSITIVITY_BALANCED,
+			PolicyRiskThresholds::SENSITIVITY_AGGRESSIVE,
+		], \array_column( $scenarios, 'sensitivity' ) );
 		$this->assertCoverageContains( [ 'GET', 'POST', 'PUT', 'PATCH', 'DELETE' ], \array_map( static fn( array $scenario ) :string => $scenario[ 'profile' ][ 'method' ], $scenarios ) );
 		$this->assertCoverageContains( [
 			RequestProfile::SURFACE_PUBLIC_READ,
@@ -327,65 +386,93 @@ class RequestPolicyEvaluatorTest extends BaseUnitTest {
 		$this->assertCoverageContains( [ 'anonymous', 'logged-in low trust', 'logged-in trusted', 'trusted service' ], \array_column( $scenarios, 'actor_key' ) );
 		$this->assertCoverageContains( [ 'none', 'CrowdSec', 'Shield auto-block', 'Shield manual block' ], \array_column( $scenarios, 'ip_status' ) );
 		$this->assertCoverageContains( [
-			PolicyEvidence::TYPE_NONE,
-			PolicyEvidence::TYPE_AUTH_FAILURE,
-			PolicyEvidence::TYPE_AUTH_INVALID_USER,
-			PolicyEvidence::TYPE_XMLRPC,
-			PolicyEvidence::TYPE_USERNAME_FISHING,
-			PolicyEvidence::TYPE_RATE_LIMIT,
-			PolicyEvidence::TYPE_FIREWALL_NOISY,
-			PolicyEvidence::TYPE_FIREWALL_CRITICAL,
+			PolicyEvidence::TYPE_AUTH_ABUSE,
+			PolicyEvidence::TYPE_PROBE_ABUSE,
+			PolicyEvidence::TYPE_RATE_ABUSE,
+			PolicyEvidence::TYPE_FIREWALL_ABUSE,
+			PolicyEvidence::TYPE_CONTENT_ABUSE,
+			PolicyEvidence::TYPE_IP_ENFORCEMENT,
 		], $this->coveredEvidenceTypes( $scenarios ) );
 	}
 
-	public function testDecisionTraceIncludesCountersUsedByEvaluator() :void {
-		$decision = ( new RequestPolicyEvaluator() )->evaluate(
-			RequestPolicyEvaluator::MODE_ADAPTIVE,
-			new RequestProfile( [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_AUTH_ATTEMPT ] ),
-			new ActorTrust( [ 'is_logged_in' => false ] ),
-			new PolicyState( [
-				'meta' => $this->stateMetaFromCounters( [
-					PolicyEvidence::TYPE_AUTH_INVALID_USER => [ '15m' => 1 ],
-				] ),
-			] ),
-			new PolicyEvidence( $this->crowdsecEvidence() )
-		);
-
-		$this->assertSame( 1, $decision->evidence_counters_used[ 'auth_invalid_user_15m' ] ?? null );
-	}
-
-	public function test_invalid_policy_mode_normalizes_to_legacy_decision() :void {
-		$decision = ( new RequestPolicyEvaluator() )->evaluate(
-			'not-a-mode',
-			new RequestProfile( [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ] ),
-			new ActorTrust( [] ),
-			new PolicyState(),
-			new PolicyEvidence( [
-				'detector' => PolicyEvidence::DETECTOR_CROWDSEC,
-				'type'     => PolicyEvidence::TYPE_CROWDSEC,
-				'severity' => PolicyEvidence::SEVERITY_SIGNAL,
-			] )
-		);
-
-		$this->assertSame( RequestPolicyEvaluator::MODE_LEGACY, $decision->mode );
-		$this->assertSame( PolicyDecision::DECISION_LEGACY, $decision->decision );
-		$this->assertSame( 'legacy_mode', $decision->reason );
+	private function thresholdScenario(
+		string $category,
+		string $window,
+		string $sensitivity,
+		int $count,
+		string $expectedDecisionRiskBand,
+		string $expectedRiskBand,
+		string $expectedRiskReason,
+		int $expectedCounter
+	) :array {
+		$hostile = $expectedDecisionRiskBand === PolicyState::BAND_HOSTILE;
+		return $this->scenario( [
+			'sensitivity'             => $sensitivity,
+			'evidence'                => $this->crowdsecEvidence(),
+			'counters'                => $count > 0 ? [
+				$category => [ $window => $count ],
+			] : [],
+			'expected_decision'       => $hostile ? PolicyDecision::DECISION_BLOCK_REQUEST : PolicyDecision::DECISION_ALLOW,
+			'expected_reason'         => $hostile ? 'crowdsec_hostile_risk' : 'crowdsec_safe_read',
+			'expected_risk_band'      => $expectedRiskBand,
+			'expected_risk_reason'    => $expectedRiskReason,
+			'expected_block_category' => $hostile ? PolicyDecision::BLOCK_CATEGORY_REPEATED_SUSPICIOUS_ACTIVITY : '',
+			'expected_counters'       => [ $category.'_'.$window => $expectedCounter ],
+		] );
 	}
 
 	private function scenario( array $override ) :array {
 		return \array_replace_recursive( [
-			'mode'               => RequestPolicyEvaluator::MODE_ADAPTIVE,
-			'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
-			'actor'              => [ 'is_logged_in' => false ],
-			'actor_key'          => 'anonymous',
-			'ip_status'          => 'CrowdSec',
-			'evidence'           => $this->crowdsecEvidence(),
-			'counters'           => [],
-			'risk_band'          => PolicyState::BAND_NORMAL,
-			'expected_decision'  => PolicyDecision::DECISION_ALLOW,
-			'expected_reason'    => 'crowdsec_safe_read',
-			'expected_risk_band' => PolicyState::BAND_NORMAL,
+			'mode'                    => RequestPolicyEvaluator::MODE_ADAPTIVE,
+			'sensitivity'             => PolicyRiskThresholds::SENSITIVITY_BALANCED,
+			'profile'                 => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
+			'actor'                   => [ 'is_logged_in' => false ],
+			'actor_key'               => 'anonymous',
+			'ip_status'               => 'CrowdSec',
+			'evidence'                => $this->crowdsecEvidence(),
+			'counters'                => [],
+			'risk_band'               => PolicyState::BAND_NORMAL,
+			'expected_decision'       => PolicyDecision::DECISION_ALLOW,
+			'expected_reason'         => 'crowdsec_safe_read',
+			'expected_risk_band'      => PolicyState::BAND_SUSPICIOUS,
+			'expected_risk_reason'    => 'crowdsec_signal',
+			'expected_block_category' => '',
 		], $override );
+	}
+
+	private function sensitivityThresholds() :array {
+		return [
+			PolicyEvidence::TYPE_AUTH_ABUSE     => [
+				PolicyRiskThresholds::SENSITIVITY_LENIENT    => [ 'suspicious' => 2, 'hostile' => 5 ],
+				PolicyRiskThresholds::SENSITIVITY_BALANCED   => [ 'suspicious' => 1, 'hostile' => 3 ],
+				PolicyRiskThresholds::SENSITIVITY_AGGRESSIVE => [ 'suspicious' => 1, 'hostile' => 2 ],
+			],
+			PolicyEvidence::TYPE_PROBE_ABUSE    => [
+				PolicyRiskThresholds::SENSITIVITY_LENIENT    => [ 'suspicious' => 4, 'hostile' => 8 ],
+				PolicyRiskThresholds::SENSITIVITY_BALANCED   => [ 'suspicious' => 2, 'hostile' => 4 ],
+				PolicyRiskThresholds::SENSITIVITY_AGGRESSIVE => [ 'suspicious' => 1, 'hostile' => 2 ],
+			],
+			PolicyEvidence::TYPE_RATE_ABUSE     => [
+				PolicyRiskThresholds::SENSITIVITY_LENIENT    => [ 'suspicious' => 2, 'hostile' => 4 ],
+				PolicyRiskThresholds::SENSITIVITY_BALANCED   => [ 'suspicious' => 1, 'hostile' => 2 ],
+				PolicyRiskThresholds::SENSITIVITY_AGGRESSIVE => [ 'suspicious' => 1, 'hostile' => 1 ],
+			],
+			PolicyEvidence::TYPE_FIREWALL_ABUSE => [
+				PolicyRiskThresholds::SENSITIVITY_LENIENT    => [ 'suspicious' => 2, 'hostile' => 5 ],
+				PolicyRiskThresholds::SENSITIVITY_BALANCED   => [ 'suspicious' => 1, 'hostile' => 2 ],
+				PolicyRiskThresholds::SENSITIVITY_AGGRESSIVE => [ 'suspicious' => 1, 'hostile' => 1 ],
+			],
+			PolicyEvidence::TYPE_CONTENT_ABUSE  => [
+				PolicyRiskThresholds::SENSITIVITY_LENIENT    => [ 'suspicious' => 2, 'hostile' => 5 ],
+				PolicyRiskThresholds::SENSITIVITY_BALANCED   => [ 'suspicious' => 1, 'hostile' => 3 ],
+				PolicyRiskThresholds::SENSITIVITY_AGGRESSIVE => [ 'suspicious' => 1, 'hostile' => 2 ],
+			],
+			PolicyEvidence::TYPE_IP_ENFORCEMENT => [
+				PolicyRiskThresholds::SENSITIVITY_LENIENT    => [ 'suspicious' => 4, 'hostile' => 8 ],
+				PolicyRiskThresholds::SENSITIVITY_BALANCED   => [ 'suspicious' => 2, 'hostile' => 4 ],
+				PolicyRiskThresholds::SENSITIVITY_AGGRESSIVE => [ 'suspicious' => 1, 'hostile' => 1 ],
+			],
+		];
 	}
 
 	private function assertCoverageContains( array $expected, array $actual ) :void {
@@ -420,6 +507,18 @@ class RequestPolicyEvaluatorTest extends BaseUnitTest {
 			'severity' => $type === PolicyEvidence::TYPE_SHIELD_MANUAL_BLOCK
 				? PolicyEvidence::SEVERITY_CRITICAL
 				: PolicyEvidence::SEVERITY_SIGNAL,
+		];
+	}
+
+	private function firewallEvidence( string $category = 'sql_queries', string $severity = PolicyEvidence::SEVERITY_NOISY ) :array {
+		return [
+			'detector'       => PolicyEvidence::DETECTOR_FIREWALL,
+			'type'           => PolicyEvidence::TYPE_FIREWALL_ABUSE,
+			'severity'       => $severity,
+			'rule_slug'      => 'shield/firewall',
+			'condition_meta' => [
+				'match_category' => $category,
+			],
 		];
 	}
 

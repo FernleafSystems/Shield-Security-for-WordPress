@@ -16,20 +16,22 @@ class PolicyEvidenceRecorder {
 
 	private PolicyStateRepository $repository;
 
+	private PolicyEvidenceMapper $mapper;
+
 	/**
 	 * @var array<string, PolicyState>
 	 */
 	private array $dirty = [];
 
-	public function __construct( ?PolicyStateRepository $repository = null ) {
+	public function __construct( ?PolicyStateRepository $repository = null, ?PolicyEvidenceMapper $mapper = null ) {
 		$this->repository = $repository ?? new PolicyStateRepository();
+		$this->mapper = $mapper ?? new PolicyEvidenceMapper();
 		add_action( self::con()->prefix( 'plugin_shutdown' ), [ $this, 'flush' ], 100 );
 	}
 
 	protected function run() {
 		add_action( 'shield/event', function ( string $event, array $meta = [] ) {
-			$evidence = $this->evidenceFromEvent( $event, $meta );
-			if ( $evidence instanceof PolicyEvidence ) {
+			foreach ( $this->mapper->fromEvent( $event, $meta ) as $evidence ) {
 				$this->record( self::con()->this_req->ip, $evidence );
 			}
 		}, 10, 2 );
@@ -37,7 +39,7 @@ class PolicyEvidenceRecorder {
 
 	public function record( string $ip, PolicyEvidence $evidence ) :PolicyState {
 		$state = $this->repository->forIp( $ip );
-		$now = Services::Request()->ts();
+		$now = $this->now();
 
 		foreach ( [
 			self::WINDOW_15M => MINUTE_IN_SECONDS*15,
@@ -61,6 +63,7 @@ class PolicyEvidenceRecorder {
 			'detector' => $evidence->detector,
 			'rule'     => $evidence->rule_slug,
 			'severity' => $evidence->severity,
+			'event'    => $evidence->source_event,
 		];
 		$state->last_evidence_at = $now;
 		$state->expires_at = $now + DAY_IN_SECONDS*2;
@@ -79,51 +82,13 @@ class PolicyEvidenceRecorder {
 		}
 	}
 
-	private function evidenceFromEvent( string $event, array $meta ) :?PolicyEvidence {
-		if ( $event === 'request_policy_decision' ) {
-			return null;
-		}
-
-		$map = [
-			'bottrack_loginfailed'   => PolicyEvidence::TYPE_AUTH_FAILURE,
-			'bottrack_logininvalid'  => PolicyEvidence::TYPE_AUTH_INVALID_USER,
-			'bottrack_xmlrpc'        => PolicyEvidence::TYPE_XMLRPC,
-			'block_xml'              => PolicyEvidence::TYPE_XMLRPC,
-			'block_author_fishing'   => PolicyEvidence::TYPE_USERNAME_FISHING,
-			'request_limit_exceeded' => PolicyEvidence::TYPE_RATE_LIMIT,
-			'ip_offense'             => PolicyEvidence::TYPE_IP_OFFENSE,
-			'ip_blocked'             => PolicyEvidence::TYPE_IP_BLOCKED,
-		];
-
-		if ( $event === 'firewall_block' ) {
-			$category = (string)( $meta[ 'audit_params' ][ 'scan' ] ?? '' );
-			$isCritical = \in_array( $category, RequestPolicyEvaluator::CRITICAL_FIREWALL_CATEGORIES, true );
-			return new PolicyEvidence( [
-				'detector'       => PolicyEvidence::DETECTOR_FIREWALL,
-				'type'           => $isCritical ? PolicyEvidence::TYPE_FIREWALL_CRITICAL : PolicyEvidence::TYPE_FIREWALL_NOISY,
-				'severity'       => $isCritical ? PolicyEvidence::SEVERITY_CRITICAL : PolicyEvidence::SEVERITY_NOISY,
-				'condition_meta' => $meta[ 'audit_params' ] ?? [],
-			] );
-		}
-
-		$type = $map[ $event ] ?? '';
-		return empty( $type ) ? null : new PolicyEvidence( [
-			'detector' => PolicyEvidence::DETECTOR_EVENT,
-			'type'     => $type,
-			'severity' => \in_array( $type, [
-				PolicyEvidence::TYPE_USERNAME_FISHING,
-				PolicyEvidence::TYPE_RATE_LIMIT,
-				PolicyEvidence::TYPE_IP_BLOCKED,
-			], true ) ? PolicyEvidence::SEVERITY_CRITICAL : PolicyEvidence::SEVERITY_SIGNAL,
-		] );
-	}
-
 	private function applyEvidenceRisk( PolicyState $state, PolicyEvidence $evidence ) :void {
 		if ( $evidence->severity === PolicyEvidence::SEVERITY_CRITICAL ) {
 			$state->risk_band = PolicyState::BAND_HOSTILE;
 		}
-		elseif ( $state->risk_band !== PolicyState::BAND_HOSTILE && $evidence->severity !== PolicyEvidence::SEVERITY_INFO ) {
-			$state->risk_band = PolicyState::BAND_SUSPICIOUS;
-		}
+	}
+
+	protected function now() :int {
+		return Services::Request()->ts();
 	}
 }

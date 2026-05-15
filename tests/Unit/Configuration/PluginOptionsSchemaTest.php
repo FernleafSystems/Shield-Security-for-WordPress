@@ -77,6 +77,11 @@ class PluginOptionsSchemaTest extends TestCase {
 			[ 'legacy', 'shadow', 'adaptive' ],
 			\array_column( $this->options[ 'request_policy_mode' ][ 'value_options' ] ?? [], 'value_key' )
 		);
+		$this->assertSame( 'balanced', $this->options[ 'request_policy_sensitivity' ][ 'default' ] ?? null );
+		$this->assertSame(
+			[ 'lenient', 'balanced', 'aggressive' ],
+			\array_column( $this->options[ 'request_policy_sensitivity' ][ 'value_options' ] ?? [], 'value_key' )
+		);
 
 		$crowdSecPolicyModeOptions = \array_filter(
 			$this->options,

@@ -91,8 +91,12 @@ class EventStrings {
 			],
 			'request_policy_decision'      => [
 				'name'  => __( 'Request Policy Decision', 'wp-simple-firewall' ),
+				'audit' => [],
+			],
+			'request_policy_block'         => [
+				'name'  => __( 'Request Policy Block', 'wp-simple-firewall' ),
 				'audit' => [
-					__( 'Request policy {{mode}} mode returned {{decision}} for {{detector}} on {{surface}}. Reason: {{reason}}; risk: {{risk_band}}; rule: {{rule}}.', 'wp-simple-firewall' ),
+					__( 'Request policy blocked a request on {{surface}}. Category: {{block_category}}; reason: {{reason}}; risk: {{risk_band}}.', 'wp-simple-firewall' ),
 				],
 			],
 			'key_success'                  => [

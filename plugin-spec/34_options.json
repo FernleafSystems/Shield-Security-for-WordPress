@@ -2321,6 +2321,37 @@
         "description": "Legacy preserves current behaviour. Shadow records adaptive decisions without enforcing them. Adaptive applies the policy gate where explicitly used."
     },
     {
+        "key": "request_policy_sensitivity",
+        "section": "section_global_security_options",
+        "zone_comp_slugs": [
+            "global_plugin_enable",
+            "plugin_general",
+            "module_plugin"
+        ],
+        "default": "balanced",
+        "type": "select",
+        "value_options": [
+            {
+                "value_key": "lenient",
+                "text": "Lenient"
+            },
+            {
+                "value_key": "balanced",
+                "text": "Balanced"
+            },
+            {
+                "value_key": "aggressive",
+                "text": "Aggressive"
+            }
+        ],
+        "link_info": "",
+        "link_blog": "",
+        "beacon_id": 389,
+        "name": "Request Policy Sensitivity",
+        "summary": "Choose Adaptive Request Policy Sensitivity",
+        "description": "Balanced is the default. Lenient requires more repeated evidence before hostile classification. Aggressive reacts to fewer repeated signals."
+    },
+    {
         "key": "visitor_address_source",
         "section": "section_defaults",
         "zone_comp_slugs": [

@@ -10,19 +10,15 @@ class PolicyEvidence {
 	public const DETECTOR_EVENT = 'event';
 
 	public const TYPE_NONE = 'none';
-	public const TYPE_AUTH_FAILURE = 'auth_failure';
-	public const TYPE_AUTH_INVALID_USER = 'auth_invalid_user';
-	public const TYPE_XMLRPC = 'xmlrpc';
-	public const TYPE_USERNAME_FISHING = 'username_fishing';
-	public const TYPE_RATE_LIMIT = 'rate_limit';
-	public const TYPE_FIREWALL_NOISY = 'firewall_noisy';
-	public const TYPE_FIREWALL_CRITICAL = 'firewall_critical';
-	public const TYPE_FIREWALL_LOG = 'firewall_log';
-	public const TYPE_IP_OFFENSE = 'ip_offense';
-	public const TYPE_IP_BLOCKED = 'ip_blocked';
 	public const TYPE_CROWDSEC = 'crowdsec';
 	public const TYPE_SHIELD_AUTO_BLOCK = 'shield_auto_block';
 	public const TYPE_SHIELD_MANUAL_BLOCK = 'shield_manual_block';
+	public const TYPE_AUTH_ABUSE = 'auth_abuse';
+	public const TYPE_PROBE_ABUSE = 'probe_abuse';
+	public const TYPE_RATE_ABUSE = 'rate_abuse';
+	public const TYPE_FIREWALL_ABUSE = 'firewall_abuse';
+	public const TYPE_CONTENT_ABUSE = 'content_abuse';
+	public const TYPE_IP_ENFORCEMENT = 'ip_enforcement';
 
 	public const SEVERITY_INFO = 'info';
 	public const SEVERITY_SIGNAL = 'signal';
@@ -37,6 +33,8 @@ class PolicyEvidence {
 
 	public string $rule_slug = '';
 
+	public string $source_event = '';
+
 	public array $condition_meta = [];
 
 	public function __construct( array $data = [] ) {
@@ -48,6 +46,6 @@ class PolicyEvidence {
 	}
 
 	public function isFirewallCritical() :bool {
-		return $this->type === self::TYPE_FIREWALL_CRITICAL || $this->severity === self::SEVERITY_CRITICAL;
+		return $this->detector === self::DETECTOR_FIREWALL && $this->severity === self::SEVERITY_CRITICAL;
 	}
 }

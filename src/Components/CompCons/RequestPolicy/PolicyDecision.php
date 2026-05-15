@@ -10,7 +10,16 @@ class PolicyDecision {
 	public const DECISION_LEGACY = 'legacy';
 	public const DECISION_NO_DECISION = 'no_decision';
 
+	public const BLOCK_CATEGORY_MANUAL_IP_BLOCK = 'manual_ip_block';
+	public const BLOCK_CATEGORY_CRITICAL_FIREWALL = 'critical_firewall';
+	public const BLOCK_CATEGORY_REPEATED_SUSPICIOUS_ACTIVITY = 'repeated_suspicious_activity';
+	public const BLOCK_CATEGORY_HOSTILE_IP = 'hostile_ip';
+	public const BLOCK_CATEGORY_SENSITIVE_REQUEST = 'sensitive_request';
+	public const BLOCK_CATEGORY_UNTRUSTED_ACTOR = 'untrusted_actor';
+
 	public string $mode = 'legacy';
+
+	public string $sensitivity = '';
 
 	public string $detector = '';
 
@@ -20,9 +29,13 @@ class PolicyDecision {
 
 	public string $risk_band = PolicyState::BAND_NORMAL;
 
+	public string $risk_reason = 'none';
+
 	public string $decision = self::DECISION_LEGACY;
 
 	public string $reason = 'legacy_mode';
+
+	public string $block_category = '';
 
 	public array $evidence_counters_used = [];
 
