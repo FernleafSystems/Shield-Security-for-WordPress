@@ -8,8 +8,9 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Decide which test lanes are relevant for this change without skipping the required workflow itself.
   changes:
-    name: 'Changed File Filters'
+    name: 'Detect Changed Test Inputs'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -33,8 +34,9 @@ jobs:
         base: ${{ github.ref_name }}
         filters: .github/ci-path-filters.yml
 
+  # Prove GitHub Actions helper scripts still behave as expected when CI tooling changes.
   cache-cleanup-script-tests:
-    name: 'Cache Cleanup Script Tests'
+    name: 'CI Cache Cleanup Script Regression'
     runs-on: ubuntu-latest
     needs: changes
     if: ${{ needs.changes.outputs.ci_scripts == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -50,7 +52,7 @@ jobs:
         ./.github/scripts/test-cleanup-actions-cache.sh
 
   admin-bundle-safety-script-tests:
-    name: 'Admin Bundle Safety Script Tests'
+    name: 'Admin Bundle Safety Script Regression'
     runs-on: ubuntu-latest
     needs: changes
     if: ${{ needs.changes.outputs.ci_scripts == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -70,8 +72,9 @@ jobs:
         chmod +x .github/scripts/test-verify-admin-bundle-safety.sh
         ./.github/scripts/test-verify-admin-bundle-safety.sh
 
+  # Run fast static checks that do not need a WordPress runtime.
   js-static:
-    name: 'JS Static'
+    name: 'JavaScript Static Checks'
     runs-on: ubuntu-latest
     needs: changes
     if: ${{ needs.changes.outputs.js == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -93,7 +96,7 @@ jobs:
       run: npm run test:js
 
   source-static-analysis:
-    name: 'Source Static Analysis'
+    name: 'PHPStan Source Analysis (PHP 7.4)'
     runs-on: ubuntu-latest
     needs: changes
     if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -115,8 +118,9 @@ jobs:
     - name: Run source static analysis
       run: composer analyze
 
+  # Exercise the PHPUnit unit suite on the minimum and latest supported PHP runtimes.
   unit-php74:
-    name: 'Unit PHP 7.4'
+    name: 'PHP Unit Tests (PHP 7.4)'
     needs: changes
     if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/reusable-unit-tests.yml
@@ -125,7 +129,7 @@ jobs:
       php_version: '7.4'
 
   unit-latest:
-    name: 'Unit Latest PHP'
+    name: 'PHP Unit Tests (PHP 8.4)'
     needs: changes
     if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/reusable-unit-tests.yml
@@ -133,8 +137,9 @@ jobs:
       run_command: composer test:unit
       php_version: '8.4'
 
+  # Run source-tree integration checks inside Docker against supported WordPress versions.
   source-docker-runtime:
-    name: 'Source Docker Runtime'
+    name: 'WordPress Runtime Integration (Source)'
     runs-on: ubuntu-latest
     needs: changes
     if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
@@ -170,8 +175,9 @@ jobs:
         path: ${{ runner.temp }}/shield-source-runtime-logs
         if-no-files-found: ignore
 
+  # Build and validate the packaged plugin artifact, including prefixed dependencies.
   build-package:
-    name: 'Build Package'
+    name: 'Build Packaged Plugin Artifact'
     needs: changes
     if: ${{ needs.changes.outputs.package == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/reusable-build-package.yml
@@ -180,7 +186,7 @@ jobs:
       package_dir: shield-package
 
   package-targeted-validation:
-    name: 'Package Targeted Validation'
+    name: 'Validate Packaged Plugin Artifact'
     runs-on: ubuntu-latest
     needs: [ changes, build-package ]
     if: ${{ always() && (needs.changes.outputs.package == 'true' || github.event_name == 'workflow_dispatch') && needs.build-package.result == 'success' }}

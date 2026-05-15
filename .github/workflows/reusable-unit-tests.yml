@@ -20,7 +20,7 @@ on:
 
 jobs:
   unit-tests:
-    name: Unit Tests
+    name: Run Unit Test Command
     runs-on: ubuntu-latest
 
     steps:
