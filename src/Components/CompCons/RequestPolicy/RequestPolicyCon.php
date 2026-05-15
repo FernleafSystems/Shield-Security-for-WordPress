@@ -35,7 +35,7 @@ class RequestPolicyCon {
 		}
 
 		$evidence = $this->evidenceForRule( $rule, $detector );
-		$decision = $this->evaluate( $mode, $evidence );
+		$decision = $this->evaluate( $mode, $this->requestPolicySensitivity(), $evidence );
 		$this->decisionEnforcer()->enforce( $decision, $evidence, $rule, $legacyResponses );
 	}
 
@@ -52,6 +52,7 @@ class RequestPolicyCon {
 
 		$decision = $this->evaluator()->evaluate(
 			$mode,
+			$this->requestPolicySensitivity(),
 			$profile,
 			( new ActorTrustResolver() )->resolve(),
 			$this->stateRepository()->forIp( self::con()->this_req->ip ),
@@ -77,9 +78,10 @@ class RequestPolicyCon {
 		return $this->legacyDispatcher ??= new PolicyLegacyResponseDispatcher();
 	}
 
-	private function evaluate( string $mode, PolicyEvidence $evidence ) :PolicyDecision {
+	private function evaluate( string $mode, string $sensitivity, PolicyEvidence $evidence ) :PolicyDecision {
 		return $this->evaluator()->evaluate(
 			$mode,
+			$sensitivity,
 			( new RequestProfileBuilder() )->build(),
 			( new ActorTrustResolver() )->resolve(),
 			$this->stateRepository()->forIp( self::con()->this_req->ip ),
@@ -98,7 +100,7 @@ class RequestPolicyCon {
 		if ( $detector === PolicyEvidence::DETECTOR_FIREWALL ) {
 			$category = (string)( $conditionMeta[ 'match_category' ] ?? '' );
 			$isCritical = \in_array( $category, RequestPolicyEvaluator::CRITICAL_FIREWALL_CATEGORIES, true );
-			$evidence[ 'type' ] = $isCritical ? PolicyEvidence::TYPE_FIREWALL_CRITICAL : PolicyEvidence::TYPE_FIREWALL_NOISY;
+			$evidence[ 'type' ] = PolicyEvidence::TYPE_FIREWALL_ABUSE;
 			$evidence[ 'severity' ] = $isCritical ? PolicyEvidence::SEVERITY_CRITICAL : PolicyEvidence::SEVERITY_NOISY;
 		}
 		elseif ( $detector === PolicyEvidence::DETECTOR_CROWDSEC ) {
@@ -145,5 +147,9 @@ class RequestPolicyCon {
 
 	private function requestPolicyMode() :string {
 		return RequestPolicyEvaluator::normaliseMode( (string)self::con()->opts->optGet( 'request_policy_mode' ) );
+	}
+
+	private function requestPolicySensitivity() :string {
+		return PolicyRiskThresholds::normaliseSensitivity( (string)self::con()->opts->optGet( 'request_policy_sensitivity' ) );
 	}
 }

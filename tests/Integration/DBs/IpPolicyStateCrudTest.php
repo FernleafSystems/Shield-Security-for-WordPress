@@ -83,7 +83,7 @@ class IpPolicyStateCrudTest extends ShieldIntegrationTestCase {
 		$state->expires_at = $now + DAY_IN_SECONDS;
 		$state->meta = [
 			'evidence' => [
-				PolicyEvidence::TYPE_AUTH_FAILURE => [
+				PolicyEvidence::TYPE_AUTH_ABUSE => [
 					'15m' => [
 						'started_at' => $now,
 						'count'      => 2,
@@ -97,7 +97,7 @@ class IpPolicyStateCrudTest extends ShieldIntegrationTestCase {
 
 		$reloaded = ( new PolicyStateRepository() )->forIp( $ip );
 		$this->assertSame( PolicyState::BAND_SUSPICIOUS, $reloaded->risk_band );
-		$this->assertSame( 2, $reloaded->counter( PolicyEvidence::TYPE_AUTH_FAILURE, '15m' ) );
+		$this->assertSame( 2, $reloaded->counter( PolicyEvidence::TYPE_AUTH_ABUSE, '15m' ) );
 		$this->assertSame( [
 			'record_id',
 			'ip',

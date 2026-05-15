@@ -33,7 +33,7 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 			$this->decision( PolicyDecision::DECISION_LOG_ONLY, 'firewall_trusted_mutation_log_only' ),
 			new PolicyEvidence( [
 				'detector'       => PolicyEvidence::DETECTOR_FIREWALL,
-				'type'           => PolicyEvidence::TYPE_FIREWALL_NOISY,
+				'type'           => PolicyEvidence::TYPE_FIREWALL_ABUSE,
 				'severity'       => PolicyEvidence::SEVERITY_NOISY,
 				'rule_slug'      => 'shield/firewall',
 				'condition_meta' => [
@@ -44,7 +44,7 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 			[]
 		);
 
-		$this->assertSame( [ PolicyEvidence::TYPE_FIREWALL_LOG ], $recorder->recordedTypes );
+		$this->assertSame( [ PolicyEvidence::TYPE_FIREWALL_ABUSE ], $recorder->recordedTypes );
 		$this->assertSame( [ 'request_policy_decision' ], $events->events );
 	}
 
@@ -64,7 +64,7 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 			[]
 		);
 
-		$this->assertSame( [ PolicyEvidence::TYPE_CROWDSEC ], $recorder->recordedTypes );
+		$this->assertSame( [ PolicyEvidence::TYPE_IP_ENFORCEMENT ], $recorder->recordedTypes );
 	}
 
 	public function test_shadow_crowdsec_policy_block_records_evidence_without_global_listener() :void {
@@ -83,7 +83,7 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 			[]
 		);
 
-		$this->assertSame( [ PolicyEvidence::TYPE_CROWDSEC ], $recorder->recordedTypes );
+		$this->assertSame( [ PolicyEvidence::TYPE_IP_ENFORCEMENT ], $recorder->recordedTypes );
 	}
 
 	public function test_firewall_policy_block_does_not_direct_record_firewall_evidence() :void {
@@ -94,7 +94,7 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 			$this->decision( PolicyDecision::DECISION_BLOCK_REQUEST, 'firewall_untrusted_actor' ),
 			new PolicyEvidence( [
 				'detector'  => PolicyEvidence::DETECTOR_FIREWALL,
-				'type'      => PolicyEvidence::TYPE_FIREWALL_NOISY,
+				'type'      => PolicyEvidence::TYPE_FIREWALL_ABUSE,
 				'severity'  => PolicyEvidence::SEVERITY_NOISY,
 				'rule_slug' => 'shield/firewall',
 			] ),
@@ -208,8 +208,34 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 		);
 
 		$this->assertFalse( $allowed );
-		$this->assertSame( [ PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK ], $recorder->recordedTypes );
-		$this->assertSame( [ 'request_policy_decision' ], $events->events );
+		$this->assertSame( [ PolicyEvidence::TYPE_IP_ENFORCEMENT ], $recorder->recordedTypes );
+		$this->assertSame( [ 'request_policy_decision', 'request_policy_block' ], $events->events );
+		$this->assertSame( false, $events->auditParamsByEvent[ 'request_policy_block' ][ 0 ][ 'enforced' ] ?? null );
+	}
+
+	public function test_manual_shield_block_fires_block_event_without_recording_policy_state() :void {
+		$events = new PolicyDecisionEnforcerEventsStub();
+		$recorder = new PolicyDecisionEnforcerRecorderStub();
+		$this->installController( $events );
+
+		( new PolicyDecisionEnforcer( $recorder ) )->enforce(
+			$this->decision(
+				PolicyDecision::DECISION_BLOCK_REQUEST,
+				'shield_manual_block',
+				PolicyEvidence::DETECTOR_SHIELD_IP
+			),
+			new PolicyEvidence( [
+				'detector'  => PolicyEvidence::DETECTOR_SHIELD_IP,
+				'type'      => PolicyEvidence::TYPE_SHIELD_MANUAL_BLOCK,
+				'severity'  => PolicyEvidence::SEVERITY_CRITICAL,
+				'rule_slug' => 'shield/is_ip_blocked_shield',
+			] ),
+			$this->rule(),
+			[]
+		);
+
+		$this->assertSame( [], $recorder->recordedTypes );
+		$this->assertSame( [ 'request_policy_decision', 'request_policy_block' ], $events->events );
 	}
 
 	private function installController( PolicyDecisionEnforcerEventsStub $events ) :void {
@@ -230,12 +256,20 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 		string $mode = RequestPolicyEvaluator::MODE_ADAPTIVE
 	) :PolicyDecision {
 		return new PolicyDecision( [
-			'mode'      => $mode,
-			'detector'  => $detector,
-			'surface'   => RequestProfile::SURFACE_CONTENT_MUTATION,
-			'decision'  => $decision,
-			'reason'    => $reason,
-			'rule_slug' => 'test/rule',
+			'mode'           => $mode,
+			'sensitivity'    => 'balanced',
+			'detector'       => $detector,
+			'surface'        => RequestProfile::SURFACE_CONTENT_MUTATION,
+			'risk_band'      => $decision === PolicyDecision::DECISION_BLOCK_REQUEST
+				? \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\RequestPolicy\PolicyState::BAND_SUSPICIOUS
+				: \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\RequestPolicy\PolicyState::BAND_NORMAL,
+			'risk_reason'    => $decision === PolicyDecision::DECISION_BLOCK_REQUEST ? 'crowdsec_signal' : 'none',
+			'decision'       => $decision,
+			'reason'         => $reason,
+			'block_category' => $decision === PolicyDecision::DECISION_BLOCK_REQUEST
+				? PolicyDecision::BLOCK_CATEGORY_SENSITIVE_REQUEST
+				: '',
+			'rule_slug'      => 'test/rule',
 		] );
 	}
 
@@ -250,9 +284,11 @@ class PolicyDecisionEnforcerEventsStub {
 
 	public array $events = [];
 
+	public array $auditParamsByEvent = [];
+
 	public function fireEvent( string $event, array $meta = [] ) :void {
-		unset( $meta );
 		$this->events[] = $event;
+		$this->auditParamsByEvent[ $event ][] = $meta[ 'audit_params' ] ?? [];
 	}
 }
 

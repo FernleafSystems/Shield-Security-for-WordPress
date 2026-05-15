@@ -29,19 +29,33 @@ class ActivityLogLevelsConfigTest extends TestCase {
 		}
 	}
 
-	public function test_request_policy_decision_event_is_audit_only_contract() :void {
+	public function test_request_policy_decision_event_is_internal_trace_contract() :void {
 		$event = $this->config[ 'config_spec' ][ 'events' ][ 'request_policy_decision' ] ?? [];
+
+		$this->assertSame( false, $event[ 'audit' ] ?? null );
+		$this->assertSame( false, $event[ 'stat' ] ?? null );
+		$this->assertSame( false, $event[ 'offense' ] ?? null );
+		$this->assertSame( 'notice', $event[ 'level' ] ?? '' );
+	}
+
+	public function test_request_policy_block_event_contract() :void {
+		$event = $this->config[ 'config_spec' ][ 'events' ][ 'request_policy_block' ] ?? [];
 
 		$this->assertSame( [
 			'mode',
+			'sensitivity',
 			'detector',
-			'decision',
-			'reason',
 			'surface',
 			'risk_band',
+			'risk_reason',
+			'block_category',
+			'reason',
 			'rule',
+			'enforced',
 		], $event[ 'audit_params' ] ?? [] );
 		$this->assertSame( false, $event[ 'offense' ] ?? null );
-		$this->assertSame( 'notice', $event[ 'level' ] ?? '' );
+		$this->assertSame( true, $event[ 'recent' ] ?? null );
+		$this->assertSame( true, $event[ 'audit_countable' ] ?? null );
+		$this->assertSame( 'warning', $event[ 'level' ] ?? '' );
 	}
 }

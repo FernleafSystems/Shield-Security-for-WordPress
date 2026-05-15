@@ -5,6 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\C
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\RequestPolicy\{
 	PolicyDecision,
 	PolicyEvidence,
+	PolicyEvidenceRecorder,
+	PolicyRiskThresholds,
 	PolicyStateRepository,
 	RequestPolicyEvaluator,
 	RequestProfile
@@ -30,6 +32,7 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 		parent::set_up();
 		$this->optionSnapshot = $this->snapshotSelectedOptions( [
 			'request_policy_mode',
+			'request_policy_sensitivity',
 		] );
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
 		$this->requireDb( 'ip_policy_state' );
@@ -81,6 +84,7 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [], $this->getCapturedEventsByKey( 'firewall_block' ) );
 		$this->assertSame( [], $this->getCapturedEventsByKey( 'ip_offense' ) );
 		$this->assertSame( [], $this->getCapturedEventsByKey( 'ip_blocked' ) );
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'request_policy_block' ) );
 	}
 
 	public function test_shadow_mode_records_policy_decision_and_enforces_legacy_block_event() :void {
@@ -111,6 +115,7 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( PolicyDecision::DECISION_ALLOW, $decision[ 'decision' ] ?? '' );
 		$this->assertSame( 'crowdsec_safe_read', $decision[ 'reason' ] ?? '' );
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( 'conn_kill_crowdsec' ) );
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'request_policy_block' ) );
 	}
 
 	public function test_adaptive_crowdsec_public_read_allows_without_legacy_block_event() :void {
@@ -142,6 +147,7 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'crowdsec_safe_read', $decision[ 'reason' ] ?? '' );
 		$this->assertSame( RequestProfile::SURFACE_PUBLIC_READ, $decision[ 'surface' ] ?? '' );
 		$this->assertSame( [], $this->getCapturedEventsByKey( 'conn_kill_crowdsec' ) );
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'request_policy_block' ) );
 		$this->assertSame( $policyStateRowsBefore, $this->countPolicyStateRows() );
 	}
 
@@ -173,13 +179,14 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'shield_auto_safe_read', $decision[ 'reason' ] ?? '' );
 		$this->assertSame( RequestProfile::SURFACE_PUBLIC_READ, $decision[ 'surface' ] ?? '' );
 		$this->assertSame( [], $this->getCapturedEventsByKey( 'conn_kill' ) );
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'request_policy_block' ) );
 	}
 
 	public function test_adaptive_crowdsec_login_with_recent_auth_failure_blocks() :void {
 		$this->requireController()->opts->optSet( 'request_policy_mode', RequestPolicyEvaluator::MODE_ADAPTIVE );
 		\wp_set_current_user( 0 );
 		$ip = '198.51.100.205';
-		$this->seedPolicyStateCounter( $ip, PolicyEvidence::TYPE_AUTH_FAILURE, '15m', 1 );
+		$this->seedPolicyStateCounter( $ip, PolicyEvidence::TYPE_AUTH_ABUSE, '15m', 1 );
 		$this->applyCurrentRequestState(
 			[
 				'REMOTE_ADDR'    => $ip,
@@ -209,6 +216,9 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'crowdsec_sensitive_request', $decision[ 'reason' ] ?? '' );
 		$this->assertSame( RequestProfile::SURFACE_AUTH_ATTEMPT, $decision[ 'surface' ] ?? '' );
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( 'conn_kill_crowdsec' ) );
+		$block = $this->latestPolicyBlock();
+		$this->assertSame( PolicyDecision::BLOCK_CATEGORY_REPEATED_SUSPICIOUS_ACTIVITY, $block[ 'block_category' ] ?? '' );
+		$this->assertSame( true, $block[ 'enforced' ] ?? null );
 	}
 
 	public function test_adaptive_shield_manual_block_always_blocks() :void {
@@ -241,6 +251,165 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( PolicyDecision::DECISION_BLOCK_REQUEST, $decision[ 'decision' ] ?? '' );
 		$this->assertSame( 'shield_manual_block', $decision[ 'reason' ] ?? '' );
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( 'conn_kill' ) );
+		$block = $this->latestPolicyBlock();
+		$this->assertSame( PolicyDecision::BLOCK_CATEGORY_MANUAL_IP_BLOCK, $block[ 'block_category' ] ?? '' );
+	}
+
+	public function test_aggressive_single_offense_makes_crowdsec_public_read_hostile() :void {
+		$this->requireController()->opts->optSet( 'request_policy_mode', RequestPolicyEvaluator::MODE_ADAPTIVE );
+		$this->requireController()->opts->optSet( 'request_policy_sensitivity', PolicyRiskThresholds::SENSITIVITY_AGGRESSIVE );
+		$ip = '198.51.100.207';
+		$this->seedPolicyStateCounter( $ip, PolicyEvidence::TYPE_IP_ENFORCEMENT, '24h', 1 );
+		\wp_set_current_user( 0 );
+		$this->applyCurrentRequestState(
+			[
+				'REMOTE_ADDR'    => $ip,
+				'REQUEST_METHOD' => 'GET',
+				'REQUEST_URI'    => '/blog/aggressive-offense/',
+			],
+			[],
+			[],
+			[
+				'ip' => $ip,
+			]
+		);
+		$this->captureShieldEvents();
+
+		$this->execPolicyGate(
+			PolicyEvidence::DETECTOR_CROWDSEC,
+			$this->ruleWithMeta( [], 'shield/is_ip_blocked_crowdsec' ),
+			$this->safeLegacyEventResponses( 'conn_kill_crowdsec' )
+		);
+
+		$decision = $this->latestPolicyDecision();
+		$this->assertSame( PolicyDecision::DECISION_BLOCK_REQUEST, $decision[ 'decision' ] ?? '' );
+		$this->assertSame( 'threshold_ip_enforcement', $decision[ 'risk_reason' ] ?? '' );
+		$this->assertSame( PolicyDecision::BLOCK_CATEGORY_REPEATED_SUSPICIOUS_ACTIVITY, $this->latestPolicyBlock()[ 'block_category' ] ?? '' );
+	}
+
+	public function test_balanced_single_offense_does_not_make_crowdsec_public_read_hostile() :void {
+		$this->requireController()->opts->optSet( 'request_policy_mode', RequestPolicyEvaluator::MODE_ADAPTIVE );
+		$this->requireController()->opts->optSet( 'request_policy_sensitivity', PolicyRiskThresholds::SENSITIVITY_BALANCED );
+		$ip = '198.51.100.208';
+		$this->seedPolicyStateCounter( $ip, PolicyEvidence::TYPE_IP_ENFORCEMENT, '24h', 1 );
+		\wp_set_current_user( 0 );
+		$this->applyCurrentRequestState(
+			[
+				'REMOTE_ADDR'    => $ip,
+				'REQUEST_METHOD' => 'GET',
+				'REQUEST_URI'    => '/blog/balanced-offense/',
+			],
+			[],
+			[],
+			[
+				'ip' => $ip,
+			]
+		);
+		$this->captureShieldEvents();
+
+		$this->execPolicyGate(
+			PolicyEvidence::DETECTOR_CROWDSEC,
+			$this->ruleWithMeta( [], 'shield/is_ip_blocked_crowdsec' ),
+			$this->safeLegacyEventResponses( 'conn_kill_crowdsec' )
+		);
+
+		$decision = $this->latestPolicyDecision();
+		$this->assertSame( PolicyDecision::DECISION_ALLOW, $decision[ 'decision' ] ?? '' );
+		$this->assertSame( 'crowdsec_signal', $decision[ 'risk_reason' ] ?? '' );
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'request_policy_block' ) );
+	}
+
+	public function test_request_limit_evidence_makes_policy_state_hostile() :void {
+		$this->requireController()->opts->optSet( 'request_policy_mode', RequestPolicyEvaluator::MODE_ADAPTIVE );
+		$ip = '198.51.100.209';
+		$recorder = new PolicyEvidenceRecorder( new PolicyStateRepository() );
+		$recorder->record( $ip, new PolicyEvidence( [
+			'type'         => PolicyEvidence::TYPE_RATE_ABUSE,
+			'severity'     => PolicyEvidence::SEVERITY_CRITICAL,
+			'source_event' => 'request_limit_exceeded',
+		] ) );
+		$recorder->flush();
+		\wp_set_current_user( 0 );
+		$this->applyCurrentRequestState(
+			[
+				'REMOTE_ADDR'    => $ip,
+				'REQUEST_METHOD' => 'GET',
+				'REQUEST_URI'    => '/blog/rate-limit/',
+			],
+			[],
+			[],
+			[
+				'ip' => $ip,
+			]
+		);
+		$this->captureShieldEvents();
+
+		$this->execPolicyGate(
+			PolicyEvidence::DETECTOR_CROWDSEC,
+			$this->ruleWithMeta( [], 'shield/is_ip_blocked_crowdsec' ),
+			$this->safeLegacyEventResponses( 'conn_kill_crowdsec' )
+		);
+
+		$decision = $this->latestPolicyDecision();
+		$this->assertSame( PolicyDecision::DECISION_BLOCK_REQUEST, $decision[ 'decision' ] ?? '' );
+		$this->assertSame( 'persisted_hostile', $decision[ 'risk_reason' ] ?? '' );
+		$this->assertSame( PolicyDecision::BLOCK_CATEGORY_HOSTILE_IP, $this->latestPolicyBlock()[ 'block_category' ] ?? '' );
+	}
+
+	public function test_shadow_block_fires_policy_block_without_adaptive_enforcement() :void {
+		$this->requireController()->opts->optSet( 'request_policy_mode', RequestPolicyEvaluator::MODE_SHADOW );
+		$ip = '198.51.100.210';
+		\wp_set_current_user( 0 );
+		$this->applyCurrentRequestState(
+			[
+				'REMOTE_ADDR'    => $ip,
+				'REQUEST_METHOD' => 'POST',
+				'REQUEST_URI'    => '/wp-admin/admin.php',
+			],
+			[],
+			[],
+			[
+				'ip' => $ip,
+			]
+		);
+		$this->captureShieldEvents();
+
+		$this->execPolicyGate(
+			PolicyEvidence::DETECTOR_CROWDSEC,
+			$this->ruleWithMeta( [], 'shield/is_ip_blocked_crowdsec' ),
+			$this->safeLegacyEventResponses( 'conn_kill_crowdsec' )
+		);
+
+		$block = $this->latestPolicyBlock();
+		$this->assertSame( false, $block[ 'enforced' ] ?? null );
+		$this->assertNotEmpty( $this->getCapturedEventsByKey( 'conn_kill_crowdsec' ) );
+	}
+
+	public function test_legacy_mode_fires_no_policy_observability_events() :void {
+		$this->requireController()->opts->optSet( 'request_policy_mode', RequestPolicyEvaluator::MODE_LEGACY );
+		\wp_set_current_user( 0 );
+		$this->applyCurrentRequestState(
+			[
+				'REMOTE_ADDR'    => '198.51.100.211',
+				'REQUEST_METHOD' => 'GET',
+				'REQUEST_URI'    => '/blog/legacy/',
+			],
+			[],
+			[],
+			[
+				'ip' => '198.51.100.211',
+			]
+		);
+		$this->captureShieldEvents();
+
+		$this->execPolicyGate(
+			PolicyEvidence::DETECTOR_CROWDSEC,
+			$this->ruleWithMeta( [], 'shield/is_ip_blocked_crowdsec' ),
+			$this->safeLegacyEventResponses( 'conn_kill_crowdsec' )
+		);
+
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'request_policy_decision' ) );
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'request_policy_block' ) );
 	}
 
 	private function execPolicyGate( string $detector, RuleVO $rule, array $legacyResponses ) :void {
@@ -295,6 +464,12 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function latestPolicyDecision() :array {
 		$events = $this->getCapturedEventsByKey( 'request_policy_decision' );
+		$this->assertNotEmpty( $events );
+		return $events[ \count( $events ) - 1 ][ 'meta' ][ 'audit_params' ] ?? [];
+	}
+
+	private function latestPolicyBlock() :array {
+		$events = $this->getCapturedEventsByKey( 'request_policy_block' );
 		$this->assertNotEmpty( $events );
 		return $events[ \count( $events ) - 1 ][ 'meta' ][ 'audit_params' ] ?? [];
 	}
