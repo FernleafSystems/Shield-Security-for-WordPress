@@ -7,6 +7,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 	}
 
 	use Brain\Monkey\Functions;
+	use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
+	use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
 	use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
@@ -317,6 +319,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 
 		public int $stores = 0;
 
+		public array $mod_opts_all;
+
 		private bool $changed = true;
 
 		private array $values = [
@@ -324,8 +328,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			'instant_alert_admin_login'             => 'disabled',
 			'instant_alert_firewall_block'          => 'disabled',
 			'block_send_email'                      => 'N',
+			'allow_backupcodes'                     => 'N',
 			'display_plugin_badge'                  => 'disabled',
+			'silentcaptcha_complexity'              => SilentCaptchaComplexity::MEDIUM,
 		];
+
+		public function __construct() {
+			$this->mod_opts_all = [
+				'values' => [
+					OptsHandler::TYPE_FREE => $this->values,
+					OptsHandler::TYPE_PRO  => [],
+				],
+			];
+		}
 
 		public function hasChanges() :bool {
 			return $this->changed;
@@ -343,6 +358,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			if ( ( $this->values[ $key ] ?? null ) !== $value ) {
 				$this->changed = true;
 				$this->values[ $key ] = $value;
+				$this->mod_opts_all[ 'values' ][ OptsHandler::TYPE_FREE ][ $key ] = $value;
 			}
 			return $this;
 		}
