@@ -89,6 +89,12 @@ class EventStrings {
 					__( 'Rate limit ({{count}}) was exceeded with {{requests}} requests within {{span}} seconds.', 'wp-simple-firewall' ),
 				],
 			],
+			'request_policy_decision'      => [
+				'name'  => __( 'Request Policy Decision', 'wp-simple-firewall' ),
+				'audit' => [
+					__( 'Request policy {{mode}} mode returned {{decision}} for {{detector}} on {{surface}}. Reason: {{reason}}; risk: {{risk_band}}; rule: {{rule}}.', 'wp-simple-firewall' ),
+				],
+			],
 			'key_success'                  => [
 				'name'  => __( 'Security PIN Pass', 'wp-simple-firewall' ),
 				'audit' => [

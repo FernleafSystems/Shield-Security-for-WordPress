@@ -35,6 +35,7 @@ class Processor {
 		if ( $components->opts_lookup->isPluginEnabled() ) {
 
 			if ( !$con->this_req->is_force_off ) {
+				$components->request_policy->execute();
 				$components->requests_log->execute();
 				$components->activity_log->execute();
 				$components->instant_alerts->execute();

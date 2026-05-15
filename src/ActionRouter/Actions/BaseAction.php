@@ -75,7 +75,16 @@ abstract class BaseAction extends DynPropertiesClass {
 		$con = self::con();
 		$thisReq = $con->this_req;
 		if ( !$thisReq->request_bypasses_all_restrictions && $thisReq->is_ip_blocked && !$this->canBypassIpAddressBlock() ) {
-			throw new IpBlockedException( sprintf( __( 'IP Address blocked so cannot process action: %s', 'wp-simple-firewall' ), static::SLUG ) );
+			try {
+				$isAllowedByPolicy = $con->comps->request_policy->isActionRouterIpAllowed();
+			}
+			catch ( \Exception $e ) {
+				$isAllowedByPolicy = false;
+			}
+
+			if ( !$isAllowedByPolicy ) {
+				throw new IpBlockedException( sprintf( __( 'IP Address blocked so cannot process action: %s', 'wp-simple-firewall' ), static::SLUG ) );
+			}
 		}
 
 		$WPU = Services::WpUsers();

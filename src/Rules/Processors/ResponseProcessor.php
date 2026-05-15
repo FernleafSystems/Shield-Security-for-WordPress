@@ -28,26 +28,40 @@ class ResponseProcessor {
 	}
 
 	public function run() {
+		[ $nonTerminating, $terminating ] = $this->buildResponses( $this->rule->responses );
+		$this->dispatchResponses( $nonTerminating, true );
+
+		try {
+			// We always fire the default event.
+			$defaultEventResponse = new Responses\EventFireDefault();
+			$defaultEventResponse->setThisRequest( $this->req )
+								 ->setRule( $this->rule )
+								 ->setParams( [
+									 'rule_slug' => $this->rule->slug
+								 ] );
+			$this->dispatchResponse( $defaultEventResponse, true );
+		}
+		catch ( \Exception $e ) {
+		}
+
+		$this->dispatchResponses( $terminating, true );
+	}
+
+	public function runResponsesOnly( array $responses ) :void {
+		[ $nonTerminating, $terminating ] = $this->buildResponses( $responses );
+		$this->dispatchResponses( $nonTerminating, false );
+		$this->dispatchResponses( $terminating, false );
+	}
+
+	/**
+	 * @return array{0:array<Responses\Base>,1:array<Responses\Base>}
+	 */
+	private function buildResponses( array $responses ) :array {
 		$nonTerminating = [];
 		$terminating = [];
-		foreach ( $this->rule->responses as $respDef ) {
-			try {
-				$responseClass = $respDef[ 'response' ] ?? null;
-				if ( empty( $responseClass ) ) {
-					throw new NoResponseActionDefinedException( 'No Response Handler defined for: '.var_export( $respDef, true ) );
-				}
-				if ( !\class_exists( $responseClass ) ) {
-					throw new NoSuchResponseHandlerException( 'No Such Response Handler Class: '.$responseClass );
-				}
-
-				$params = $respDef[ 'params' ] ?? [];
-				/** @var class-string<Responses\Base> $responseClass */
-				$response = new $responseClass();
-				$params = ( new Utility\ResponseParamsNormalizer() )->normalize( $responseClass, $params );
-				$params = ( new Utility\VerifyParams() )->verifyParams( $params, $response->getParamsDef() );
-				$response->setThisRequest( $this->req )
-						 ->setRule( $this->rule )
-						 ->setParams( $params );
+		foreach ( $responses as $respDef ) {
+			$response = $this->buildResponse( $respDef );
+			if ( $response instanceof Responses\Base ) {
 				if ( $response->isTerminating() ) {
 					$terminating[] = $response;
 				}
@@ -55,40 +69,53 @@ class ResponseProcessor {
 					$nonTerminating[] = $response;
 				}
 			}
-			catch ( NoResponseActionDefinedException|NoSuchResponseHandlerException $e ) {
-				error_log( $e->getMessage() );
-			}
-			catch ( ParametersException|\Exception $e ) {
-//				error_log( $e->getMessage() );
-			}
 		}
-		foreach ( $nonTerminating as $response ) {
-			$this->execResponse( $response );
-		}
+		return [ $nonTerminating, $terminating ];
+	}
 
+	private function buildResponse( array $respDef ) :?Responses\Base {
 		try {
-			// We always fire the default event
-			$defaultEventResponse = new Responses\EventFireDefault();
-			$defaultEventResponse->setThisRequest( $this->req )
-								 ->setRule( $this->rule )
-								 ->setParams( [
-									 'rule_slug' => $this->rule->slug
-								 ] );
-			$this->execResponse( $defaultEventResponse );
+			$responseClass = $respDef[ 'response' ] ?? null;
+			if ( empty( $responseClass ) ) {
+				throw new NoResponseActionDefinedException( 'No Response Handler defined for: '.var_export( $respDef, true ) );
+			}
+			if ( !\class_exists( $responseClass ) ) {
+				throw new NoSuchResponseHandlerException( 'No Such Response Handler Class: '.$responseClass );
+			}
+
+			$params = $respDef[ 'params' ] ?? [];
+			/** @var class-string<Responses\Base> $responseClass */
+			$response = new $responseClass();
+			$params = ( new Utility\ResponseParamsNormalizer() )->normalize( $responseClass, $params );
+			$params = ( new Utility\VerifyParams() )->verifyParams( $params, $response->getParamsDef() );
+			return $response->setThisRequest( $this->req )
+							->setRule( $this->rule )
+							->setParams( $params );
 		}
-		catch ( \Exception $e ) {
+		catch ( NoResponseActionDefinedException|NoSuchResponseHandlerException $e ) {
+			error_log( $e->getMessage() );
 		}
-		foreach ( $terminating as $response ) {
-			$this->execResponse( $response );
+		catch ( ParametersException|\Exception $e ) {
+//			error_log( $e->getMessage() );
+		}
+		return null;
+	}
+
+	/**
+	 * @param array<Responses\Base> $responses
+	 */
+	private function dispatchResponses( array $responses, bool $respectTiming ) :void {
+		foreach ( $responses as $response ) {
+			$this->dispatchResponse( $response, $respectTiming );
 		}
 	}
 
 	/**
 	 * @param Responses\Base $response
 	 */
-	private function execResponse( Responses\Base $response ) :void {
+	private function dispatchResponse( Responses\Base $response, bool $respectTiming ) :void {
 		$con = self::con();
-		if ( $this->rule->immediate_exec_response || did_action( $con->prefix( 'after_run_processors' ) ) ) {
+		if ( !$respectTiming || $this->rule->immediate_exec_response || did_action( $con->prefix( 'after_run_processors' ) ) ) {
 			try {
 				$response->execResponse();
 			}

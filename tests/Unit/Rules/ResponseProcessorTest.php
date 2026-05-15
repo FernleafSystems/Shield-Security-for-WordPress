@@ -17,6 +17,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Processors\ResponseProcessor,
 	Responses\Base,
 	Responses\DisplayBlockPage,
+	Responses\DoAction,
+	Responses\EventFire,
 	Responses\FirewallBlock,
 	Responses\HookAddAction,
 	Responses\HookAddFilter,
@@ -156,6 +158,109 @@ class ResponseProcessorTest extends BaseUnitTest {
 		$this->addToAssertionCount( 1 );
 	}
 
+	public function test_run_responses_only_executes_supplied_response_immediately_without_default_event() :void {
+		$events = new class() {
+			public array $fired = [];
+
+			public function fireEvent( string $event ) :void {
+				$this->fired[] = $event;
+			}
+
+			public function getEventNames() :array {
+				return [
+					'policy_safe_event' => 'Policy Safe Event',
+				];
+			}
+
+			public function getEventDef( string $event ) :array {
+				unset( $event );
+				return [];
+			}
+		};
+		$this->installController( $events );
+
+		Functions\expect( 'do_action' )
+			->once()
+			->with( 'policy_safe_action' );
+
+		$rule = ( new RuleVO() )->applyFromArray( [
+			'slug'                    => 'test_response_only_rule',
+			'immediate_exec_response' => false,
+		] );
+
+		( new ResponseProcessor( $rule ) )
+			->setThisRequest( new ThisRequest() )
+			->runResponsesOnly( [
+				[
+					'response' => DoAction::class,
+					'params'   => [
+						'hook' => 'policy_safe_action',
+					],
+				],
+			] );
+
+		$this->assertSame( [], $events->fired );
+	}
+
+	public function test_run_responses_only_uses_response_param_normalization_and_verification() :void {
+		$events = new class() {
+			public array $fired = [];
+
+			public function fireEvent( string $event ) :void {
+				$this->fired[] = $event;
+			}
+
+			public function getEventNames() :array {
+				return [
+					'policy_safe_event' => 'Policy Safe Event',
+				];
+			}
+
+			public function getEventDef( string $event ) :array {
+				unset( $event );
+				return [];
+			}
+		};
+		$this->installController( $events );
+
+		$rule = ( new RuleVO() )->applyFromArray( [
+			'slug'                    => 'test_response_only_event_rule',
+			'immediate_exec_response' => false,
+		] );
+
+		( new ResponseProcessor( $rule ) )
+			->setThisRequest( new ThisRequest() )
+			->runResponsesOnly( [
+				[
+					'response' => EventFire::class,
+					'params'   => [
+						'event' => 'policy_safe_event',
+					],
+				],
+			] );
+
+		$this->assertSame( [ 'policy_safe_event' ], $events->fired );
+	}
+
+	public function test_run_responses_only_executes_non_terminators_before_terminators_without_default_event() :void {
+		$rule = ( new RuleVO() )->applyFromArray( [
+			'slug'                    => 'response_only_ordering_rule',
+			'immediate_exec_response' => false,
+		] );
+
+		( new ResponseProcessor( $rule ) )
+			->setThisRequest( new ThisRequest() )
+			->runResponsesOnly( [
+				[ 'response' => RecordingTerminatingResponseOne::class ],
+				[ 'response' => RecordingNonTerminatingResponseOne::class ],
+			] );
+
+		$this->assertSame( [
+			'non-terminating-one',
+			'terminating-one',
+		], ResponseProcessorExecutionRecorder::$executed );
+	}
+
 	public function test_non_terminating_and_default_responses_run_before_stably_ordered_terminators() :void {
 		$rule = ( new RuleVO() )->applyFromArray( [
 			'slug'                    => 'ordering_rule',
@@ -195,7 +300,7 @@ class ResponseProcessorTest extends BaseUnitTest {
 		$this->assertFalse( ( new HookAddAction() )->isTerminating() );
 	}
 
-	private function installController() :void {
+	private function installController( object $events = null ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->cfg = (object)[
@@ -205,9 +310,18 @@ class ResponseProcessorTest extends BaseUnitTest {
 			],
 		];
 		$controller->comps = (object)[
-			'events' => new class() {
+			'events' => $events ?? new class() {
 				public function fireEvent( string $event ) :void {
 					ResponseProcessorExecutionRecorder::$executed[] = 'default:'.$event;
+				}
+
+				public function getEventNames() :array {
+					return [];
+				}
+
+				public function getEventDef( string $event ) :array {
+					unset( $event );
+					return [];
 				}
 			},
 		];

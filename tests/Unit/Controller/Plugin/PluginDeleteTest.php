@@ -164,6 +164,7 @@ class PluginDeleteTest extends BaseUnitTest {
 			'malware',
 			'crowdsec_signals',
 			'bot_signals',
+			'ip_policy_state',
 			'ip_rules',
 			'mfa',
 			'req_logs',

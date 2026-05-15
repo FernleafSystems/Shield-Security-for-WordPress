@@ -2,9 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\McpCon;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Request\RequestTypeResolver;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
@@ -30,43 +29,10 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 			$hasParams = !empty( $_GET ) || !empty( $_POST );
 		}
 
-		$isCron = false;
-		if ( $isWpCli ) {
-			$type = Handler::TYPE_WPCLI;
-		}
-		elseif ( $WP->isAjax() ) {
-			$type = Handler::TYPE_AJAX;
-		}
-		elseif ( Services::Rest()->isRest() ) {
-			$type = $this->isShieldMcpRoute( self::con()->this_req->getRestRoute() )
-				? Handler::TYPE_MCP
-				: Handler::TYPE_REST;
-		}
-		elseif ( $WP->isXmlrpc() ) {
-			$type = Handler::TYPE_XMLRPC;
-		}
-		elseif ( $WP->isCron() ) {
-			$isCron = true;
-			$type = Handler::TYPE_CRON;
-		}
-		elseif ( $WP->isLoginRequest() ) {
-			$type = Handler::TYPE_LOGIN;
-		}
-		elseif ( $WP->isLoginUrl()
-				 && $req->isPost()
-				 && $req->query( ActionData::FIELD_EXECUTE ) === ActionData::FIELD_SHIELD.'-wp_login_2fa_verify'
-		) {
-			$type = Handler::TYPE_2FA;
-		}
-		elseif ( Services::WpComments()->isCommentSubmission() ) {
-			$type = Handler::TYPE_COMMENT;
-		}
-		else {
-			$type = Handler::TYPE_HTTP;
-		}
+		$type = ( new RequestTypeResolver() )->resolve();
 
 		$ip = $isWpCli ? '127.0.0.1' : $req->ip();
-		$isPhpCliCron = !$isWpCli && $isCron && $this->isPhpCli();
+		$isPhpCliCron = !$isWpCli && $type === Handler::TYPE_CRON && $this->isPhpCli();
 		if ( $isPhpCliCron && \trim( $ip ) === '' ) {
 			$ip = '127.0.0.1';
 			if ( \trim( $path ) === '' ) {
@@ -125,15 +91,5 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 	private function isPhpCli() :bool {
 		$sapi = \defined( 'PHP_SAPI' ) ? \PHP_SAPI : ( \function_exists( 'php_sapi_name' ) ? \php_sapi_name() : null );
 		return $sapi === 'cli';
-	}
-
-	private function isShieldMcpRoute( string $restRoute ) :bool {
-		$restRoute = \trim( $restRoute, '/' );
-
-		return $restRoute !== ''
-			   && \preg_match(
-				   '#(?:^|/)'.\preg_quote( McpCon::ROUTE_NAMESPACE, '#' ).'/.*/?'.\preg_quote( McpCon::ROUTE_SEGMENT, '#' ).'$#',
-				   $restRoute
-			   ) === 1;
 	}
 }
