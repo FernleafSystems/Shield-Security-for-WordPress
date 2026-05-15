@@ -17,7 +17,7 @@ Current summary:
 
 | Group | Total | Automated | Partial evidence | Pending evidence | Manual/external-blocked |
 |---|---:|---:|---:|---:|---:|
-| Original checklist items | 61 | 39 | 11 | 11 | 0 |
+| Original checklist items | 61 | 41 | 11 | 9 | 0 |
 | Supplemental items | 6 | 4 | 1 | 1 | 0 |
 
 ## Slice Status
@@ -36,7 +36,7 @@ Current summary:
 | Login and User Controls | SHI-278 | Done | BT-06-05, BT-06-06, BT-06-07, BT-07, BT-07-01, BT-07-02 |
 | Users, Content, Headers, Traffic | SHI-279 | Done | BT-07-03, BT-08, BT-09, SUP-06 |
 | Import/Export Cross-Site | SHI-280 | Done | BT-11, BT-11-01, BT-11-02 |
-| Integration Discovery | SHI-281 | Todo | BT-12, BT-12-01 |
+| Integration Discovery | SHI-281 | Done | BT-12, BT-12-01 |
 | Forms, Email, Localization | SHI-282 | Todo | BT-12-02, BT-12-03, BT-12-04, SUP-02 |
 | Custom Rules | SHI-283 | Todo | BT-13, BT-13-01 |
 | Tools, Reports, UI Sweep | SHI-284 | Todo | BT-14, BT-14-03, BT-14-04, BT-14-05 |
@@ -93,8 +93,8 @@ Current summary:
 | BT-11 | SHI-232 | SHI-280 Import/Export Cross-Site | Done | full local | automated | cross-site/integration | `composer test:integration -- -- tests/Integration/Modules/Plugin/Lib/ImportExport/ImportExportContractsIntegrationTest.php`<br>`composer test:integration -- -- tests/Integration/ActionRouter/ImportExportPageRenderContractIntegrationTest.php`<br>`composer test:integration -- -- tests/Integration/Modules/Plugin/Lib/ImportExport/ImportExportSyncHardeningIntegrationTest.php`<br>`php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Modules/Plugin/Lib/ImportExport/ImportExportSyncHardeningTest.php`<br>`composer test:cross-site -- --clean` | Shield-owned import/export contracts are covered by producer payload keys, `xfer_excluded` export/import behavior, file import contracts, capability render-data flags, stable event keys, manual bypass `ip_rules` import, and clean Shield-to-Shield cross-site sync evidence. |
 | BT-11-01 | SHI-233 | SHI-280 Import/Export Cross-Site | Done | full local | automated | integration | `composer test:integration -- -- tests/Integration/Modules/Plugin/Lib/ImportExport/ImportExportContractsIntegrationTest.php` | Import-from-file behavior is covered with `Export::toStandardArray()` content imported through `Import::fromFile()`, invalid-file no-mutation failures, delete behavior, importer-side `xfer_excluded`, `options_imported`, and DB-level manual bypass `ip_rules` re-import for the exported IP. |
 | BT-11-02 | SHI-234 | SHI-280 Import/Export Cross-Site | Done | full local | automated | cross-site/integration | `composer test:integration -- -- tests/Integration/Modules/Plugin/Lib/ImportExport/ImportExportSyncHardeningIntegrationTest.php`<br>`php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Modules/Plugin/Lib/ImportExport/ImportExportSyncHardeningTest.php`<br>`composer test:cross-site -- --clean` | Import-from-site behavior is covered by the clean two-site Docker lane: slave imports from master with the master secret, master whitelist and slave master URL state are asserted, master notify cron and queue processing schedule slave import cron, and master/slave exported options match after explicit local/runtime exclusions. |
-| BT-12 | SHI-235 | SHI-281 Integration Discovery | Todo | partial/external | pending evidence | browser/integration | TBD | Real third-party plugin installs remain external unless local doubles/fixtures are added. |
-| BT-12-01 | SHI-236 | SHI-281 Integration Discovery | Todo | partial/external | pending evidence | browser/integration | TBD | Auto-integration discovery for supported plugins needs local doubles or manual remainder. |
+| BT-12 | SHI-235 | SHI-281 Integration Discovery | Done | full local | automated | unit/integration | `php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Modules/Integrations/BotProviderRegistryContractTest.php`<br>`composer test:integration -- -- tests/Integration/Components/CompCons/IntegrationsConIntegrationTest.php` | Shield-owned discovery contracts are locally covered for provider registry/schema alignment, handler slug parity, no spam/user-form slug overlap, machine payload keys, enabled/available states, provider names, and capability booleans using isolated local doubles. Real third-party install UX and submission behavior remain outside SHI-281. |
+| BT-12-01 | SHI-236 | SHI-281 Integration Discovery | Done | full local | automated | integration | `composer test:integration -- -- tests/Integration/Components/CompCons/IntegrationsConIntegrationTest.php`<br>`composer test:integration -- -- tests/Integration/Config/OptionSaveSideEffectsIntegrationTest.php`<br>`composer test:integration -- -- tests/Integration/Bootstrap/OrdinaryRequestFanoutReductionIntegrationTest.php` | Auto-integration behavior is locally covered for disabled no-op, track updates, unchanged-profile throttle, capability-gated provider enablement, persisted selections after runtime cache refresh, duplicate normalization, option side-effect reset, and admin/request gating. Real third-party install UX remains outside SHI-281. |
 | BT-12-02 | SHI-237 | SHI-282 Forms, Email, Localization | Todo | partial/external | pending evidence | browser/integration | TBD | Contact Form 7 install/submission remains external until local fixture exists. |
 | BT-12-03 | SHI-238 | SHI-282 Forms, Email, Localization | Todo | partial/external | pending evidence | browser/integration | TBD | WooCommerce install/submission remains external until local fixture exists. |
 | BT-12-04 | SHI-239 | SHI-282 Forms, Email, Localization | Todo | partial/external | pending evidence | browser/integration | TBD | Live SureSend delivery remains external; local doubles should prove Shield-owned contract. |

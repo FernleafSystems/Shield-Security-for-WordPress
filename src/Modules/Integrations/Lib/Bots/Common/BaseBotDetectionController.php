@@ -42,6 +42,13 @@ abstract class BaseBotDetectionController {
 	abstract public function getSelectedProvidersOptKey() :string;
 
 	/**
+	 * @return array<int,array{value_key:string,text:string}>
+	 */
+	public function providerOptions() :array {
+		return self::con()->opts->optDef( $this->getSelectedProvidersOptKey() )[ 'value_options' ] ?? [];
+	}
+
+	/**
 	 * @return BaseHandler[]|string[]
 	 */
 	public function enumProviders() :array {

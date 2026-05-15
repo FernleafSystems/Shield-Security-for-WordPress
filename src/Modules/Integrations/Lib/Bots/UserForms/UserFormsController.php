@@ -33,6 +33,7 @@ class UserFormsController extends \FernleafSystems\Wordpress\Plugin\Shield\Modul
 			Find::PAID_MEMBER_SUBSCRIPTIONS => Handlers\PaidMemberSubscriptions::class,
 			'paidmembershipspro'            => Handlers\PaidMembershipsPro::class,
 			Find::PROFILE_BUILDER           => Handlers\ProfileBuilder::class,
+			Find::PROFILEPRESS              => Handlers\ProfilePress::class,
 			Find::RESTRICT_CONTENT_PRO      => Handlers\RestrictContentPro::class,
 			Find::SIMPLE_MEMBERSHIP         => Handlers\SimpleMembership::class,
 			Find::ULTIMATE_MEMBER           => Handlers\UltimateMember::class,

@@ -4,6 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 
 class ArmemberLite extends Base {
 
+	public static function Slug() :string {
+		return \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Find::ARMEMBER_LITE;
+	}
+
 	protected function register() {
 		add_filter( 'armember_validate_spam_filter_fields', [ $this, 'checkArmemberForm' ] );
 	}
