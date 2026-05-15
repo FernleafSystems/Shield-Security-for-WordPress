@@ -60,16 +60,9 @@ class CommentSpamScannerIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$this->captureShieldEvents();
 
-		$forceBot = fn() => 101;
-		add_filter( 'shield/antibot_score_minimum', $forceBot );
-		try {
-			$result = $this->scanAndInsertComment(
-				$this->commentData( $postId, 'bot-commenter@example.test', 'ordinary comment body' )
-			);
-		}
-		finally {
-			remove_filter( 'shield/antibot_score_minimum', $forceBot );
-		}
+		$result = $this->scanAndInsertForcedBotComment(
+			$this->commentData( $postId, 'bot-commenter@example.test', 'ordinary comment body' )
+		);
 
 		$this->assertSame( 'spam', $result[ 'status' ] );
 		$this->assertSame( '1', get_comment_meta( $result[ 'id' ], $this->requireController()->prefix( 'spam_antibot' ), true ) );
@@ -175,6 +168,60 @@ class CommentSpamScannerIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [], $this->getCapturedEventsByKey( 'comment_spam_block' ) );
 	}
 
+	public function test_disabled_antibot_allows_enabled_human_spam_for_bot_scored_comment() :void {
+		$postId = $this->createCommentablePost();
+		$this->seedSpamList( [ self::SPAM_WORD ] );
+		$this->configureCommentSpamOptions( [
+			'enable_antibot_comments'           => 'N',
+			'comments_default_action_spam_bot'  => 'spam',
+			'enable_comments_human_spam_filter' => 'Y',
+			'comments_default_action_human_spam'=> 'spam',
+			'trusted_commenter_minimum'         => 100,
+			'comments_cooldown'                 => 0,
+		] );
+		$this->captureShieldEvents();
+
+		$result = $this->scanAndInsertForcedBotComment(
+			$this->commentData( $postId, 'disabled-antibot-human@example.test', 'contains '.self::SPAM_WORD )
+		);
+
+		$this->assertSame( 'spam', $result[ 'status' ] );
+		$this->assertSame( '1', get_comment_meta( $result[ 'id' ], $this->requireController()->prefix( 'spam_human' ), true ) );
+		$this->assertSame( '', get_comment_meta( $result[ 'id' ], $this->requireController()->prefix( 'spam_antibot' ), true ) );
+
+		$events = $this->getCapturedEventsByKey( 'spam_block_human' );
+		$this->assertCount( 1, $events );
+		$this->assertSame( self::SPAM_WORD, $events[ 0 ][ 'meta' ][ 'audit_params' ][ 'word' ] ?? null );
+		$this->assertSame( 'comment_content', $events[ 0 ][ 'meta' ][ 'audit_params' ][ 'key' ] ?? null );
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'spam_block_antibot' ) );
+		$this->assertCount( 1, $this->getCapturedEventsByKey( 'comment_spam_block' ) );
+	}
+
+	public function test_enabled_antibot_takes_precedence_over_human_spam_for_bot_scored_comment() :void {
+		$postId = $this->createCommentablePost();
+		$this->seedSpamList( [ self::SPAM_WORD ] );
+		$this->configureCommentSpamOptions( [
+			'enable_antibot_comments'           => 'Y',
+			'comments_default_action_spam_bot'  => 'spam',
+			'enable_comments_human_spam_filter' => 'Y',
+			'comments_default_action_human_spam'=> 'spam',
+			'trusted_commenter_minimum'         => 100,
+			'comments_cooldown'                 => 0,
+		] );
+		$this->captureShieldEvents();
+
+		$result = $this->scanAndInsertForcedBotComment(
+			$this->commentData( $postId, 'enabled-antibot-human@example.test', 'contains '.self::SPAM_WORD )
+		);
+
+		$this->assertSame( 'spam', $result[ 'status' ] );
+		$this->assertSame( '1', get_comment_meta( $result[ 'id' ], $this->requireController()->prefix( 'spam_antibot' ), true ) );
+		$this->assertSame( '', get_comment_meta( $result[ 'id' ], $this->requireController()->prefix( 'spam_human' ), true ) );
+		$this->assertCount( 1, $this->getCapturedEventsByKey( 'spam_block_antibot' ) );
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'spam_block_human' ) );
+		$this->assertCount( 1, $this->getCapturedEventsByKey( 'comment_spam_block' ) );
+	}
+
 	public function test_disabled_antibot_filter_does_not_mark_or_fire_bot_events() :void {
 		$postId = $this->createCommentablePost();
 		$this->configureCommentSpamOptions( [
@@ -186,16 +233,9 @@ class CommentSpamScannerIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$this->captureShieldEvents();
 
-		$forceBot = fn() => 101;
-		add_filter( 'shield/antibot_score_minimum', $forceBot );
-		try {
-			$result = $this->scanAndInsertComment(
-				$this->commentData( $postId, 'disabled-bot@example.test', 'ordinary comment body' )
-			);
-		}
-		finally {
-			remove_filter( 'shield/antibot_score_minimum', $forceBot );
-		}
+		$result = $this->scanAndInsertForcedBotComment(
+			$this->commentData( $postId, 'disabled-bot@example.test', 'ordinary comment body' )
+		);
 
 		$this->assertSame( '1', $result[ 'status' ] );
 		$this->assertSame( '', get_comment_meta( $result[ 'id' ], $this->requireController()->prefix( 'spam_antibot' ), true ) );
@@ -264,6 +304,19 @@ class CommentSpamScannerIntegrationTest extends ShieldIntegrationTestCase {
 			'id'     => (int)$commentId,
 			'status' => (string)get_comment( $commentId )->comment_approved,
 		];
+	}
+
+	private function scanAndInsertForcedBotComment( array $commentData ) :array {
+		$forceBot = fn() => 101;
+		$this->resetBotSignalCache();
+		add_filter( 'shield/antibot_score_minimum', $forceBot );
+		try {
+			return $this->scanAndInsertComment( $commentData );
+		}
+		finally {
+			remove_filter( 'shield/antibot_score_minimum', $forceBot );
+			$this->resetBotSignalCache();
+		}
 	}
 
 	private function insertApprovedComment( int $postId, string $email ) :void {
