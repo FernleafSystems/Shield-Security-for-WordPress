@@ -248,6 +248,65 @@ test( 'backup-code generate and delete mutate fixture-inspected records', async 
 	} );
 } );
 
+test( 'google authenticator setup and removal use action payloads and mutate inspected records', async ( { page, fixtureApi } ) => {
+	const nativeDialogs = installNativeDialogGuard( page );
+	await fixtureApi.withMfaProfileFixture( async ( fixture ) => {
+		const renderData = await openMfaProfile( page, fixture );
+		const gaProvider = renderData.vars.providers[ fixture.ga_provider_slug ];
+		expect( gaProvider ).toBeDefined();
+		expect( gaProvider.ajax.profile_ga_toggle.ex ).toBe( fixture.ga_action.slug );
+		for ( const key of fixture.ga_action.payload_keys ) {
+			expect( Object.prototype.hasOwnProperty.call( gaProvider.ajax.profile_ga_toggle, key ) ).toBe( true );
+		}
+
+		let inspected = await fixtureApi.inspectMfaProfileFixture();
+		expect( inspected.google_auth.provider_slug ).toBe( fixture.ga_provider_slug );
+		expect( inspected.google_auth.temp_secret ).toMatch( /^[A-Z2-7]{32}$/ );
+		expect( inspected.google_auth.current_otp ).toMatch( /^\d{6}$/ );
+
+		const activatePayload = {
+			...gaProvider.ajax.profile_ga_toggle,
+			ga_otp: inspected.google_auth.current_otp,
+		};
+		const activateResponse = page.waitForResponse( ( response ) => {
+			return response.ok() && requestMatchesPayload( response.request(), activatePayload );
+		}, { timeout: 20_000 } );
+
+		const otpInput = page.locator( 'input.shield_gacode' );
+		await expect( otpInput ).toBeVisible();
+		await otpInput.fill( '' );
+		await otpInput.pressSequentially( inspected.google_auth.current_otp );
+		await activateResponse;
+
+		let dialog = await expectNamedMfaDialog( page );
+		await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+		await expectMfaDialogHidden( page );
+
+		inspected = await fixtureApi.inspectMfaProfileFixture();
+		expect( inspected.user_record_counts[ fixture.ga_provider_slug ] ).toBe( 1 );
+
+		const removeLauncher = page.locator( '.shield_ga_remove' );
+		await expect( removeLauncher ).toBeVisible();
+		await removeLauncher.click();
+		dialog = await expectNamedMfaDialog( page );
+		await expectVisibleActionButtonsNamed( dialog, 2 );
+
+		const removeResponse = page.waitForResponse( ( response ) => {
+			return response.ok() && requestMatchesPayload( response.request(), gaProvider.ajax.profile_ga_toggle );
+		}, { timeout: 20_000 } );
+		await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+		await removeResponse;
+
+		dialog = await expectNamedMfaDialog( page );
+		await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+		await expectMfaDialogHidden( page );
+
+		inspected = await fixtureApi.inspectMfaProfileFixture();
+		expect( inspected.user_record_counts[ fixture.ga_provider_slug ] || 0 ).toBe( 0 );
+		expect( nativeDialogs ).toEqual( [] );
+	} );
+} );
+
 test( 'yubikey label prompt is labelled and validates inline', async ( { page, fixtureApi } ) => {
 	const nativeDialogs = installNativeDialogGuard( page );
 	await fixtureApi.withMfaProfileFixture( async ( fixture ) => {

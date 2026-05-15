@@ -224,7 +224,7 @@ class LoginGuardCoreFixtureBuilder {
 		\delete_option( self::RUNTIME_OPTION );
 		\wp_set_current_user( 0 );
 		$con->this_req->is_security_admin = false;
-		$this->resetMfaProviderCache();
+		RuntimeTestState::resetMfaProviderCache();
 	}
 
 	/**
@@ -302,7 +302,7 @@ class LoginGuardCoreFixtureBuilder {
 			'unique_id' => $state[ 'ga_secret' ],
 		] );
 		$this->clearMfaCache( $user );
-		$this->resetMfaProviderCache();
+		RuntimeTestState::resetMfaProviderCache();
 
 		return [
 			'user_id'        => $user->ID,
@@ -354,7 +354,7 @@ class LoginGuardCoreFixtureBuilder {
 			'mfa_verify_page'             => 'custom_shield',
 		] );
 		$this->clearMfaCache( $user );
-		$this->resetMfaProviderCache();
+		RuntimeTestState::resetMfaProviderCache();
 
 		return [
 			'user_id'        => $user->ID,
@@ -439,15 +439,6 @@ class LoginGuardCoreFixtureBuilder {
 
 	private function clearMfaCache( \WP_User $user ) :void {
 		( new MfaRecordsHandler() )->clearForUser( $user );
-	}
-
-	private function resetMfaProviderCache() :void {
-		$ref = new \ReflectionClass( RuntimeTestState::controller()->comps->mfa );
-		if ( $ref->hasProperty( 'providers' ) ) {
-			$prop = $ref->getProperty( 'providers' );
-			$prop->setAccessible( true );
-			$prop->setValue( RuntimeTestState::controller()->comps->mfa, [] );
-		}
 	}
 
 	/**

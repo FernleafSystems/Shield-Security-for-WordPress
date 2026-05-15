@@ -30,6 +30,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 	LoginProtectionForms,
 	Modules\ModuleFirewall,
 	Modules\ModuleLogin,
+	Modules\ModuleUsers,
 	PasswordPolicies,
 	PasswordStrength,
 	PwnedPasswords,
@@ -50,6 +51,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Firewall as FirewallZone;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Login as LoginZone;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Users as UsersZone;
 
 class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
@@ -262,6 +264,23 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertContains( SessionTheftProtection::class, $components );
 		$this->assertSame( [ ModuleLogin::Slug() ], $zone->getConfigZoneComponentSlugs() );
 		$this->assertSame( ModuleLogin::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
+	}
+
+	public function test_users_zone_owns_user_management_components_and_module_config_scope() :void {
+		$this->installController();
+
+		$zone = new UsersZone();
+		$configAction = $zone->getAction_Config();
+
+		$this->assertSame( [
+			PasswordPolicies::class,
+			PwnedPasswords::class,
+			PasswordStrength::class,
+			InactiveUsers::class,
+			SpamUserRegisterBlock::class,
+		], $zone->components() );
+		$this->assertSame( [ ModuleUsers::Slug() ], $zone->getConfigZoneComponentSlugs() );
+		$this->assertSame( ModuleUsers::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
 	}
 
 	public function test_firewall_core_component_statuses_and_signals_follow_options() :void {
@@ -485,6 +504,75 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			EnumEnabledStatus::GOOD,
 			[ 'two_factor_auth' ],
 			[ 'enable_google_authenticator', 'enable_passkeys' ]
+		);
+	}
+
+	public function test_users_configure_rows_expose_stable_contract_scopes() :void {
+		$this->installController(
+			[
+				'enable_password_policies' => 'Y',
+				'pass_prevent_pwned'       => 'Y',
+				'pass_min_strength'        => 3,
+				'manual_suspend'           => 'Y',
+				'auto_password'            => 'Y',
+				'auto_idle_days'           => 14,
+			],
+			[
+				'opts_lookup'  => $this->buildOptsLookupStub( [
+					'isPassPoliciesEnabled' => true,
+					'getEmailValidateChecks' => [ 'syntax' ],
+					'getPassExpireTimeout'  => 90,
+				] ),
+				'user_suspend' => new class {
+					public function isSuspendManualEnabled() :bool {
+						return true;
+					}
+
+					public function isSuspendAutoIdleEnabled() :bool {
+						return true;
+					}
+
+					public function isSuspendAutoPasswordEnabled() :bool {
+						return true;
+					}
+				},
+			]
+		);
+
+		$this->assertConfigureRowContract(
+			$this->findConfigureRowByKey( new PasswordPolicies(), 'password_policies' ),
+			'password_policies',
+			EnumEnabledStatus::GOOD,
+			[ 'password_policies' ],
+			[ 'enable_password_policies' ]
+		);
+		$this->assertConfigureRowContract(
+			$this->findConfigureRowByKey( new PwnedPasswords(), 'pwned_passwords' ),
+			'pwned_passwords',
+			EnumEnabledStatus::GOOD,
+			[ 'pwned_passwords' ],
+			[ 'enable_password_policies', 'pass_prevent_pwned' ]
+		);
+		$this->assertConfigureRowContract(
+			$this->findConfigureRowByKey( new PasswordStrength(), 'password_strength' ),
+			'password_strength',
+			EnumEnabledStatus::GOOD,
+			[ 'password_strength' ],
+			[ 'enable_password_policies', 'pass_min_strength' ]
+		);
+		$this->assertConfigureRowContract(
+			$this->findConfigureRowByKey( new InactiveUsers(), 'inactive_users' ),
+			'inactive_users',
+			EnumEnabledStatus::GOOD,
+			[ 'inactive_users' ],
+			[ 'manual_suspend', 'auto_password', 'auto_idle_days' ]
+		);
+		$this->assertConfigureRowContract(
+			$this->findConfigureRowByKey( new SpamUserRegisterBlock(), 'spam_user_register_block' ),
+			'spam_user_register_block',
+			EnumEnabledStatus::GOOD,
+			[ 'spam_user_register_block' ],
+			[ 'reg_email_validate', 'email_checks' ]
 		);
 	}
 
@@ -770,10 +858,20 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			'two_factor_auth_user_roles' => [ 'two_factor_auth', 'section_2fa_email' ],
 			'enable_google_authenticator' => [ 'two_factor_auth', 'section_2fa_otp' ],
 			'enable_passkeys' => [ 'two_factor_auth', 'section_2fa_passkeys' ],
+			'enable_password_policies' => [ 'password_policies,password_strength,pwned_passwords,module_users', 'section_passwords' ],
+			'pass_prevent_pwned' => [ 'pwned_passwords,module_users', 'section_passwords' ],
+			'pass_min_strength' => [ 'password_strength,module_users', 'section_passwords' ],
+			'pass_expire' => [ 'password_policies,module_users', 'section_passwords' ],
+			'pass_force_existing' => [ 'password_policies,module_users', 'section_passwords' ],
+			'manual_suspend' => [ 'inactive_users,module_users', 'section_suspend' ],
+			'auto_password' => [ 'inactive_users,module_users', 'section_suspend' ],
+			'auto_idle_days' => [ 'inactive_users,module_users', 'section_suspend' ],
+			'reg_email_validate' => [ 'spam_user_register_block,module_users', 'section_user_reg' ],
+			'email_checks' => [ 'spam_user_register_block,module_users', 'section_user_reg' ],
 		] as $key => [ $slug, $section ] ) {
 			$options[ $key ] = [
 				'section'         => $section,
-				'zone_comp_slugs' => [ $slug ],
+				'zone_comp_slugs' => \explode( ',', $slug ),
 			];
 		}
 		return $options;

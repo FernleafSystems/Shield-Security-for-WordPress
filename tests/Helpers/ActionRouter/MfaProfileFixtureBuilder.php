@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter;
 
+use Dolondro\GoogleAuthenticator\GoogleAuthenticator as OtpGenerator;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaGoogleAuthToggle;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\GoogleAuth;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 	RuntimeTestState,
@@ -14,6 +18,7 @@ use FernleafSystems\Wordpress\Services\Services;
  *   options_snapshot:array<string,mixed>,
  *   created_user_id:int,
  *   mfa_record_ids:list<int>,
+ *   original_user_mfa_record_ids:list<int>,
  *   target_user_id:int,
  *   user_id:int
  * }
@@ -46,19 +51,20 @@ class MfaProfileFixtureBuilder {
 			'created_user_id'  => 0,
 			'options_snapshot' => RuntimeTestState::snapshotOptions( self::OPTION_KEYS ),
 			'mfa_record_ids'   => [],
-			'target_user_id'   => 0,
-			'user_id'          => $userID,
+			'original_user_mfa_record_ids' => $this->mfaRecordIdsForUser( $userID ),
+			'target_user_id'               => 0,
+			'user_id'                      => $userID,
 		];
 
 		try {
 			RuntimeTestState::applyPremiumCapabilities( [
-				'2fa_login_backup_codes',
 				'2fa_multi_yubikey',
 				'2fa_webauthn',
 			] );
 			RuntimeTestState::controller()->opts
 				->optSet( 'allow_backupcodes', 'Y' )
 				->optSet( 'enable_email_authentication', 'Y' )
+				->optSet( 'enable_google_authenticator', 'Y' )
 				->optSet( 'global_enable_plugin_features', 'Y' )
 				->optSet( 'enable_yubikey', 'Y' )
 				->optSet( 'mfa_user_setup_pages', [ 'profile', 'dedicated' ] )
@@ -68,12 +74,14 @@ class MfaProfileFixtureBuilder {
 			RuntimeTestState::forcePersistOptions( [
 				'allow_backupcodes'             => 'Y',
 				'enable_email_authentication'   => 'Y',
+				'enable_google_authenticator'   => 'Y',
 				'global_enable_plugin_features' => 'Y',
 				'enable_yubikey'                => 'Y',
 				'mfa_user_setup_pages'          => [ 'profile', 'dedicated' ],
 				'yubikey_app_id'                => '12345',
 				'yubikey_api_key'               => 'browser-fixture-yubikey-key',
 			] );
+			RuntimeTestState::resetMfaProviderCache();
 
 			$state[ 'mfa_record_ids' ][] = TestDataFactory::insertMfaRecord(
 				$userID,
@@ -107,12 +115,18 @@ class MfaProfileFixtureBuilder {
 			);
 			$this->clearMfaCache( $userID );
 			$this->clearMfaCache( $targetUserID );
+			RuntimeTestState::resetMfaProviderCache();
 
 			return [
 				'contract' => [
-					'user_id'      => $userID,
-					'profile_path' => '/wp-admin/profile.php',
-					'edit_path'    => '/wp-admin/user-edit.php?user_id='.$targetUserID,
+					'user_id'          => $userID,
+					'profile_path'     => '/wp-admin/profile.php',
+					'edit_path'        => '/wp-admin/user-edit.php?user_id='.$targetUserID,
+					'ga_provider_slug' => GoogleAuth::ProviderSlug(),
+					'ga_action'        => [
+						'slug'         => MfaGoogleAuthToggle::SLUG,
+						'payload_keys' => \array_values( \array_keys( ActionData::Build( MfaGoogleAuthToggle::class, false ) ) ),
+					],
 				],
 				'state'    => $state,
 			];
@@ -137,6 +151,7 @@ class MfaProfileFixtureBuilder {
 			'target_user_id'       => $targetUserID,
 			'user_record_counts'   => $this->recordCountsForUser( $userID ),
 			'target_record_counts' => $this->recordCountsForUser( $targetUserID ),
+			'google_auth'          => $this->googleAuthInspectionForUser( $userID ),
 		];
 	}
 
@@ -162,13 +177,21 @@ class MfaProfileFixtureBuilder {
 			$user = Services::WpUsers()->getUserById( $userID );
 			if ( $user instanceof \WP_User ) {
 				$meta = RuntimeTestState::controller()->user_metas->for( $user );
+				unset( $meta->ga_temp_secret );
 				$meta->sms_registration = [];
+				$originalRecordIDs = \is_array( $state[ 'original_user_mfa_record_ids' ] ?? null )
+					? \array_map( static fn( $recordID ) :int => (int)$recordID, $state[ 'original_user_mfa_record_ids' ] )
+					: [];
+				$this->deleteMfaRecordsForUserExcept( $userID, $originalRecordIDs );
 				$this->clearMfaCache( $userID );
+				RuntimeTestState::resetMfaProviderCache();
 			}
 		}
 		$targetUserID = (int)( $state[ 'target_user_id' ] ?? 0 );
 		if ( $targetUserID > 0 ) {
+			$this->deleteMfaRecordsForUserExcept( $targetUserID, [] );
 			$this->clearMfaCache( $targetUserID );
+			RuntimeTestState::resetMfaProviderCache();
 		}
 		$createdUserID = (int)( $state[ 'created_user_id' ] ?? 0 );
 		if ( $createdUserID > 0 ) {
@@ -190,6 +213,61 @@ class MfaProfileFixtureBuilder {
 		if ( $user instanceof \WP_User ) {
 			( new MfaRecordsHandler() )->clearForUser( $user );
 		}
+	}
+
+	/**
+	 * @param list<int> $keepRecordIDs
+	 */
+	private function deleteMfaRecordsForUserExcept( int $userID, array $keepRecordIDs ) :void {
+		if ( $userID <= 0 ) {
+			return;
+		}
+
+		$keepRecordIDs = \array_flip( $keepRecordIDs );
+		$con = RuntimeTestState::controller();
+		foreach ( $con->db_con->mfa->getQuerySelector()->filterByUserID( $userID )->queryWithResult() as $record ) {
+			if ( isset( $keepRecordIDs[ (int)$record->id ] ) ) {
+				continue;
+			}
+			$con->db_con->mfa->getQueryDeleter()->deleteRecord( $record );
+		}
+	}
+
+	/**
+	 * @return list<int>
+	 */
+	private function mfaRecordIdsForUser( int $userID ) :array {
+		if ( $userID <= 0 ) {
+			return [];
+		}
+
+		return \array_values( \array_map(
+			static fn( $record ) :int => (int)$record->id,
+			RuntimeTestState::controller()->db_con->mfa->getQuerySelector()->filterByUserID( $userID )->queryWithResult()
+		) );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function googleAuthInspectionForUser( int $userID ) :array {
+		$user = Services::WpUsers()->getUserById( $userID );
+		if ( !$user instanceof \WP_User ) {
+			return [
+				'provider_slug' => GoogleAuth::ProviderSlug(),
+				'temp_secret'   => '',
+				'current_otp'   => '',
+			];
+		}
+
+		$tempSecret = (string)RuntimeTestState::controller()->user_metas->for( $user )->ga_temp_secret;
+		return [
+			'provider_slug' => GoogleAuth::ProviderSlug(),
+			'temp_secret'   => $tempSecret,
+			'current_otp'   => GoogleAuth::IsValidBase32Secret( $tempSecret )
+				? ( new OtpGenerator() )->calculateCode( $tempSecret )
+				: '',
+		];
 	}
 
 	private function createTargetUser() :int {
