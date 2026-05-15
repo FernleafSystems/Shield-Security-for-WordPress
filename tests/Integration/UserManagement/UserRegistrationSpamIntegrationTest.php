@@ -187,7 +187,13 @@ class UserRegistrationSpamIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'block_register' ) );
 	}
 
-	public function test_wordpress_registration_bot_check_requires_capability() :void {
+	public function test_wordpress_user_forms_provider_is_enabled_without_third_party_capability_when_selected() :void {
+		$this->configureWordPressRegistrationBotProtection( false );
+
+		$this->assertTrue( ( new WordPress() )->isEnabled() );
+	}
+
+	public function test_wordpress_registration_bot_check_does_not_require_third_party_capability() :void {
 		$this->configureWordPressRegistrationBotProtection( false );
 		$this->captureShieldEvents();
 
@@ -205,8 +211,8 @@ class UserRegistrationSpamIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		$this->assertInstanceOf( \WP_Error::class, $errors );
-		$this->assertSame( [], $errors->get_error_codes() );
-		$this->assertSame( [], $this->getCapturedEventsByKey( 'block_register' ) );
+		$this->assertContains( 'shield-fail-login', $errors->get_error_codes() );
+		$this->assertCount( 1, $this->getCapturedEventsByKey( 'block_register' ) );
 	}
 
 	private function configureEmailValidation( string $mode, array $checks ) :void {

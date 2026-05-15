@@ -6,10 +6,6 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class WordPress extends Base {
 
-	public function isEnabled() :bool {
-		return parent::isEnabled() && \in_array( static::Slug(), $this->getHandlerController()->getSelectedProviders() );
-	}
-
 	protected function login() {
 		// Priority of 10 so that we jump in before WordPress does its own validation.
 		add_filter( 'authenticate', [ $this, 'checkLogin_WP' ], 10, 2 );

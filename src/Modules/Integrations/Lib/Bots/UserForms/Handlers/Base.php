@@ -29,7 +29,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Int
 	}
 
 	public function isEnabled() :bool {
-		return parent::isEnabled() && self::con()->caps->canThirdPartyScanUsers();
+		return parent::isEnabled() && ( !$this->isProOnly() || self::con()->caps->canThirdPartyScanUsers() );
 	}
 
 	protected function login() {
