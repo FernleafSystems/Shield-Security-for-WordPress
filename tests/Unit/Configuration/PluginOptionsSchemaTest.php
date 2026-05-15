@@ -71,18 +71,20 @@ class PluginOptionsSchemaTest extends TestCase {
 		}
 	}
 
-	public function test_request_policy_options_default_to_legacy_hard_modes() :void {
+	public function test_request_policy_mode_option_contract() :void {
 		$this->assertSame( 'legacy', $this->options[ 'request_policy_mode' ][ 'default' ] ?? null );
 		$this->assertSame(
 			[ 'legacy', 'shadow', 'adaptive' ],
 			\array_column( $this->options[ 'request_policy_mode' ][ 'value_options' ] ?? [], 'value_key' )
 		);
 
-		$this->assertSame( 'hard', $this->options[ 'crowdsec_policy_mode' ][ 'default' ] ?? null );
-		$this->assertSame(
-			[ 'hard', 'adaptive_signal' ],
-			\array_column( $this->options[ 'crowdsec_policy_mode' ][ 'value_options' ] ?? [], 'value_key' )
+		$crowdSecPolicyModeOptions = \array_filter(
+			$this->options,
+			static fn( array $option, string $key ) :bool => ( $option[ 'section' ] ?? '' ) === 'section_crowdsec'
+															&& \substr( $key, -11 ) === 'policy_mode',
+			ARRAY_FILTER_USE_BOTH
 		);
+		$this->assertSame( [], \array_keys( $crowdSecPolicyModeOptions ) );
 	}
 
 	public function testCheckboxOptionsHaveValidDefaults() :void {

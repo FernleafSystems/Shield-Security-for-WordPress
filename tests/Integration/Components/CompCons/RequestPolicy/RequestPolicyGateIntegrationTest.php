@@ -30,7 +30,6 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 		parent::set_up();
 		$this->optionSnapshot = $this->snapshotSelectedOptions( [
 			'request_policy_mode',
-			'crowdsec_policy_mode',
 		] );
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
 		$this->requireDb( 'ip_policy_state' );
@@ -86,7 +85,6 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_shadow_mode_records_policy_decision_and_enforces_legacy_block_event() :void {
 		$this->requireController()->opts->optSet( 'request_policy_mode', RequestPolicyEvaluator::MODE_SHADOW );
-		$this->requireController()->opts->optSet( 'crowdsec_policy_mode', RequestPolicyEvaluator::CROWDSEC_MODE_ADAPTIVE_SIGNAL );
 		\wp_set_current_user( 0 );
 		$this->applyCurrentRequestState(
 			[
@@ -117,7 +115,7 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_adaptive_crowdsec_public_read_allows_without_legacy_block_event() :void {
 		$this->requireController()->opts->optSet( 'request_policy_mode', RequestPolicyEvaluator::MODE_ADAPTIVE );
-		$this->requireController()->opts->optSet( 'crowdsec_policy_mode', RequestPolicyEvaluator::CROWDSEC_MODE_ADAPTIVE_SIGNAL );
+		$policyStateRowsBefore = $this->countPolicyStateRows();
 		\wp_set_current_user( 0 );
 		$this->applyCurrentRequestState(
 			[
@@ -144,6 +142,7 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'crowdsec_safe_read', $decision[ 'reason' ] ?? '' );
 		$this->assertSame( RequestProfile::SURFACE_PUBLIC_READ, $decision[ 'surface' ] ?? '' );
 		$this->assertSame( [], $this->getCapturedEventsByKey( 'conn_kill_crowdsec' ) );
+		$this->assertSame( $policyStateRowsBefore, $this->countPolicyStateRows() );
 	}
 
 	public function test_adaptive_shield_auto_block_public_read_allows_without_legacy_block_event() :void {
@@ -178,7 +177,6 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_adaptive_crowdsec_login_with_recent_auth_failure_blocks() :void {
 		$this->requireController()->opts->optSet( 'request_policy_mode', RequestPolicyEvaluator::MODE_ADAPTIVE );
-		$this->requireController()->opts->optSet( 'crowdsec_policy_mode', RequestPolicyEvaluator::CROWDSEC_MODE_ADAPTIVE_SIGNAL );
 		\wp_set_current_user( 0 );
 		$ip = '198.51.100.205';
 		$this->seedPolicyStateCounter( $ip, PolicyEvidence::TYPE_AUTH_FAILURE, '15m', 1 );
@@ -319,5 +317,11 @@ class RequestPolicyGateIntegrationTest extends ShieldIntegrationTestCase {
 		];
 		$state->dirty = true;
 		$this->assertTrue( $repository->save( $state ) );
+	}
+
+	private function countPolicyStateRows() :int {
+		return (int)Services::WpDb()->getVar(
+			sprintf( 'SELECT COUNT(*) FROM `%s`;', $this->requireController()->db_con->ip_policy_state->getTableSchema()->table )
+		);
 	}
 }

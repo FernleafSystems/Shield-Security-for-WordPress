@@ -20,7 +20,6 @@ class RequestPolicyEvaluatorTest extends BaseUnitTest {
 	public function testDeterministicPolicyDecisions( array $scenario ) :void {
 		$decision = ( new RequestPolicyEvaluator() )->evaluate(
 			$scenario[ 'mode' ],
-			$scenario[ 'crowdsec_mode' ],
 			new RequestProfile( $scenario[ 'profile' ] ),
 			new ActorTrust( $scenario[ 'actor' ] ),
 			new PolicyState( [
@@ -115,14 +114,6 @@ class RequestPolicyEvaluatorTest extends BaseUnitTest {
 				'expected_decision'  => PolicyDecision::DECISION_BLOCK_REQUEST,
 				'expected_reason'    => 'firewall_critical',
 				'expected_risk_band' => PolicyState::BAND_HOSTILE,
-			] ),
-			'crowdsec hard mode blocks public read'                      => $this->scenario( [
-				'profile'           => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
-				'evidence'          => $this->crowdsecEvidence(),
-				'crowdsec_mode'     => RequestPolicyEvaluator::CROWDSEC_MODE_HARD,
-				'expected_decision' => PolicyDecision::DECISION_BLOCK_REQUEST,
-				'expected_reason'   => 'crowdsec_hard_mode',
-				'expected_risk_band' => PolicyState::BAND_SUSPICIOUS,
 			] ),
 			'crowdsec adaptive allows public read'                       => $this->scenario( [
 				'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
@@ -350,7 +341,6 @@ class RequestPolicyEvaluatorTest extends BaseUnitTest {
 	public function testDecisionTraceIncludesCountersUsedByEvaluator() :void {
 		$decision = ( new RequestPolicyEvaluator() )->evaluate(
 			RequestPolicyEvaluator::MODE_ADAPTIVE,
-			RequestPolicyEvaluator::CROWDSEC_MODE_ADAPTIVE_SIGNAL,
 			new RequestProfile( [ 'method' => 'POST', 'surface' => RequestProfile::SURFACE_AUTH_ATTEMPT ] ),
 			new ActorTrust( [ 'is_logged_in' => false ] ),
 			new PolicyState( [
@@ -367,7 +357,6 @@ class RequestPolicyEvaluatorTest extends BaseUnitTest {
 	public function test_invalid_policy_mode_normalizes_to_legacy_decision() :void {
 		$decision = ( new RequestPolicyEvaluator() )->evaluate(
 			'not-a-mode',
-			RequestPolicyEvaluator::CROWDSEC_MODE_ADAPTIVE_SIGNAL,
 			new RequestProfile( [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ] ),
 			new ActorTrust( [] ),
 			new PolicyState(),
@@ -386,7 +375,6 @@ class RequestPolicyEvaluatorTest extends BaseUnitTest {
 	private function scenario( array $override ) :array {
 		return \array_replace_recursive( [
 			'mode'               => RequestPolicyEvaluator::MODE_ADAPTIVE,
-			'crowdsec_mode'      => RequestPolicyEvaluator::CROWDSEC_MODE_ADAPTIVE_SIGNAL,
 			'profile'            => [ 'method' => 'GET', 'surface' => RequestProfile::SURFACE_PUBLIC_READ ],
 			'actor'              => [ 'is_logged_in' => false ],
 			'actor_key'          => 'anonymous',

@@ -8,9 +8,6 @@ class RequestPolicyEvaluator {
 	public const MODE_SHADOW = 'shadow';
 	public const MODE_ADAPTIVE = 'adaptive';
 
-	public const CROWDSEC_MODE_HARD = 'hard';
-	public const CROWDSEC_MODE_ADAPTIVE_SIGNAL = 'adaptive_signal';
-
 	public const CRITICAL_FIREWALL_CATEGORIES = [
 		'php_code',
 		'dir_traversal',
@@ -24,7 +21,6 @@ class RequestPolicyEvaluator {
 
 	public function evaluate(
 		string $mode,
-		string $crowdsecMode,
 		RequestProfile $profile,
 		ActorTrust $actorTrust,
 		PolicyState $state,
@@ -52,7 +48,7 @@ class RequestPolicyEvaluator {
 				break;
 
 			case PolicyEvidence::DETECTOR_CROWDSEC:
-				[ $decision, $reason ] = $this->crowdsecDecision( $crowdsecMode, $profile, $risk[ 'band' ], $state );
+				[ $decision, $reason ] = $this->crowdsecDecision( $profile, $risk[ 'band' ], $state );
 				break;
 
 			case PolicyEvidence::DETECTOR_SHIELD_IP:
@@ -103,15 +99,10 @@ class RequestPolicyEvaluator {
 	}
 
 	private function crowdsecDecision(
-		string $crowdsecMode,
 		RequestProfile $profile,
 		string $riskBand,
 		PolicyState $state
 	) :array {
-		if ( $crowdsecMode !== self::CROWDSEC_MODE_ADAPTIVE_SIGNAL ) {
-			return [ PolicyDecision::DECISION_BLOCK_REQUEST, 'crowdsec_hard_mode' ];
-		}
-
 		if ( $riskBand === PolicyState::BAND_HOSTILE ) {
 			return [ PolicyDecision::DECISION_BLOCK_REQUEST, 'crowdsec_hostile_risk' ];
 		}

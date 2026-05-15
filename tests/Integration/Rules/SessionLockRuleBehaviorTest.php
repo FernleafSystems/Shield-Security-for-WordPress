@@ -76,7 +76,7 @@ class SessionLockRuleBehaviorTest extends ShieldIntegrationTestCase {
 		);
 
 		$this->captureShieldEvents();
-		( new ResponseProcessor( $this->eventOnlyRule( $eventResponse ) ) )
+		( new ResponseProcessor( $this->eventOnlyRule( $eventResponse, $meta ) ) )
 			->setThisRequest( $this->requireController()->this_req )
 			->run();
 
@@ -180,13 +180,14 @@ class SessionLockRuleBehaviorTest extends ShieldIntegrationTestCase {
 			->run();
 	}
 
-	private function eventOnlyRule( array $eventResponse ) :RuleVO {
+	private function eventOnlyRule( array $eventResponse, array $conditionMeta ) :RuleVO {
 		return ( new RuleVO() )->applyFromArray( [
 			'slug'                    => 'test_session_lock_event_contract',
 			'name'                    => 'Test Session Lock Event Contract',
 			'conditions'              => fn() => true,
 			'responses'               => [ $eventResponse ],
 			'immediate_exec_response' => true,
+			'condition_meta'          => $conditionMeta,
 		] );
 	}
 }

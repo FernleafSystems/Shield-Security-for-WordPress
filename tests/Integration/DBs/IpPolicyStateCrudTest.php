@@ -41,7 +41,6 @@ class IpPolicyStateCrudTest extends ShieldIntegrationTestCase {
 		$repository = new PolicyStateRepository();
 		$seed = $repository->forIp( '192.0.2.92' );
 		$seed->risk_band = PolicyState::BAND_HOSTILE;
-		$seed->risk_score = 95;
 		$seed->dirty = true;
 		$this->assertTrue( $repository->save( $seed ) );
 		$ipRowsBefore = $this->countIpRows();
@@ -80,7 +79,6 @@ class IpPolicyStateCrudTest extends ShieldIntegrationTestCase {
 		$state = $repository->forIp( $ip );
 		$this->assertSame( 0, $state->ip_ref );
 		$state->risk_band = PolicyState::BAND_SUSPICIOUS;
-		$state->risk_score = 45;
 		$state->last_evidence_at = $now;
 		$state->expires_at = $now + DAY_IN_SECONDS;
 		$state->meta = [
@@ -99,11 +97,19 @@ class IpPolicyStateCrudTest extends ShieldIntegrationTestCase {
 
 		$reloaded = ( new PolicyStateRepository() )->forIp( $ip );
 		$this->assertSame( PolicyState::BAND_SUSPICIOUS, $reloaded->risk_band );
-		$this->assertSame( 45, $reloaded->risk_score );
 		$this->assertSame( 2, $reloaded->counter( PolicyEvidence::TYPE_AUTH_FAILURE, '15m' ) );
+		$this->assertSame( [
+			'record_id',
+			'ip',
+			'ip_ref',
+			'risk_band',
+			'last_evidence_at',
+			'expires_at',
+			'meta',
+			'dirty',
+		], \array_keys( \get_object_vars( $reloaded ) ) );
 
 		$reloaded->risk_band = PolicyState::BAND_HOSTILE;
-		$reloaded->risk_score = 95;
 		$reloaded->dirty = true;
 		$this->assertTrue( ( new PolicyStateRepository() )->save( $reloaded ) );
 
