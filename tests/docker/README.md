@@ -34,6 +34,7 @@ php bin/shield --help
 | `SHIELD_TEST_VERBOSE` | `0` | Canonical verbose flag; enables debug behavior |
 | `SHIELD_UNIT_TEST_MODE` | `parallel` | Unit runner mode in Docker runtime lanes (`auto`, `parallel`, or `serial`) |
 | `SHIELD_SKIP_UNIT_TESTS` | `0` | Low-level fallback to skip the Docker unit stage and run integration-only runtime checks |
+| `SHIELD_INTEGRATION_LANE_WAIT_SECONDS` | `600` | Seconds `test:integration-local` waits for the machine-scoped lane lock |
 | `SHIELD_DEBUG` / `SHIELD_DEBUG_PATHS` | unset | Legacy verbose aliases |
 | `DEBUG_MODE` | `false` | Optional extra bash/process monitoring for custom local debug runs |
 
@@ -79,7 +80,9 @@ Local sidecar mode (`test:integration-local`):
 1. Uses `tests/docker/docker-compose.local-db.yml` (DB-only compose file).
 2. Uses `COMPOSE_PROJECT_NAME=shield-local-db` and port `3311` for isolation.
 3. Keeps the DB container running for repeat local runs.
-4. Teardown is explicit with `php bin/shield test:integration-local --db-down`.
+4. Serializes every run and `--db-down` through `<system-temp>/shield-test-locks/integration-local.lock` because the Docker project, port, database, and WordPress test config are fixed machine-wide.
+5. Teardown is explicit with `php bin/shield test:integration-local --db-down`.
+6. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses the lane lock; use the `php bin/shield test:integration-local` or `composer test:integration` wrappers for local runs.
 
 Local site mode (`dev:site:*` / `test:site:*`):
 

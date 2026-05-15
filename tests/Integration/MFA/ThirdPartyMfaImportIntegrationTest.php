@@ -45,7 +45,6 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 	public function set_up() :void {
 		parent::set_up();
 		$this->requireDb( 'mfa' );
-		$this->enablePremiumCapabilities( [ '2fa_login_backup_codes' ] );
 		$this->clearThirdPartyMfaFixtureState();
 		$this->resetMfaProviderCache();
 

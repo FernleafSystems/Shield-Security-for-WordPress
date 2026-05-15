@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\Handlers\Base as SpamBase;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\SpamController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers\Base as UserFormsBase;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers\WordPress;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\UserFormsController;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
@@ -24,6 +25,12 @@ class BotProviderRegistryContractTest extends TestCase {
 			( new UserFormsController() )->enumProviders(),
 			UserFormsBase::class
 		);
+	}
+
+	public function testWordPressUserFormsProviderIsAlwaysAvailable() :void {
+		$this->assertSame( 'wordpress', WordPress::Slug() );
+		$this->assertTrue( WordPress::IsProviderInstalled() );
+		$this->assertTrue( WordPress::IsProviderAvailable() );
 	}
 
 	/**
@@ -70,4 +77,3 @@ class BotProviderRegistryContractTest extends TestCase {
 		}
 	}
 }
-

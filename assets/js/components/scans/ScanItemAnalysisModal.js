@@ -9,6 +9,7 @@ import xml from 'highlight.js/lib/languages/xml';
 import { AjaxService } from "../services/AjaxService";
 import { BootstrapModals } from "../ui/BootstrapModals";
 import { ObjectOps } from "../../util/ObjectOps";
+import { ScanItemMalaiForm } from "./ScanItemMalaiForm";
 
 hljs.registerLanguage( 'bash', bash );
 hljs.registerLanguage( 'css', css );
@@ -59,6 +60,7 @@ export class ScanItemAnalysisModal {
 					);
 				}
 				ScanItemAnalysisModal.highlightModalCodeBlocks( modal );
+				ScanItemMalaiForm.initializeWithin( modalContent );
 				activeRequestToken = '';
 				return;
 			}

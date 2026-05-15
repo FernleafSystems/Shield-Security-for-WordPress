@@ -33,12 +33,12 @@ The required PR CI gate is [`.github/workflows/tests.yml`](.github/workflows/tes
 
 | CI lane | Local equivalent | Notes |
 |---|---|---|
-| Source static analysis | `composer analyze` | CI runs this on PHP 7.4; use a PHP 7.4 shell when reproducing parse-compatibility exactly. |
-| JS static checks | `npm run test:js` | Static policy, ESLint, and checkJs only. |
-| Unit PHP 7.4 | `composer test:unit` | Run under PHP 7.4 for exact CI parity. |
-| Unit latest PHP | `composer test:unit` | Run under the latest supported CI PHP version. |
-| Source Docker runtime | `php bin/shield test:source --skip-unit-tests --show-docker-output` | Mirrors required CI by focusing Docker on runtime/integration checks after the unit lanes have already run. |
-| Package-targeted validation | `composer package-plugin -- --output=tmp/shield-package-ci` then `php bin/shield test:package-targeted --package-path=tmp/shield-package-ci` | Mirrors CI's built-artifact validation path. |
+| PHPStan Source Analysis (PHP 7.4) | `composer analyze` | CI runs this on PHP 7.4; use a PHP 7.4 shell when reproducing parse-compatibility exactly. |
+| JavaScript Static Checks | `npm run test:js` | Static policy, ESLint, and checkJs only. |
+| PHP Unit Tests (PHP 7.4) | `composer test:unit` | Run under PHP 7.4 for exact CI parity. |
+| PHP Unit Tests (PHP 8.4) | `composer test:unit` | Run under the latest supported CI PHP version. |
+| WordPress Runtime Integration (Source) | `php bin/shield test:source --skip-unit-tests --show-docker-output` | Mirrors required CI by focusing Docker on runtime/integration checks after the unit lanes have already run. |
+| Validate Packaged Plugin Artifact | `composer package-plugin -- --output=tmp/shield-package-ci` then `php bin/shield test:package-targeted --package-path=tmp/shield-package-ci` | Mirrors CI's built-artifact validation path. |
 
 The workflow starts for the configured branch events, then uses job-level changed-file filters from [`.github/ci-path-filters.yml`](.github/ci-path-filters.yml) to skip expensive lanes when their inputs were not touched. This deliberately avoids workflow-level `paths` filters for the required gate, because skipped workflows can leave required checks pending while skipped jobs report a successful skipped state. Manual `workflow_dispatch` runs execute the full required gate.
 
@@ -90,6 +90,17 @@ Automated CI workflows can enforce noisy mode by invoking the command form direc
 ```bash
 php bin/shield test:source --skip-unit-tests --show-docker-output
 ```
+
+## Local integration lane serialization
+
+`composer test`, `composer test:integration`, and `php bin/shield test:integration-local` are serialized across local terminals, agents, and worktrees with a machine-scoped `flock()` lock. The lock protects the fixed local sidecar resources: Compose project `shield-local-db`, MySQL port `127.0.0.1:3311`, database `wordpress_test_local`, and the shared WordPress test-library config.
+
+- Lock file: `<system-temp>/shield-test-locks/integration-local.lock`.
+- Default wait: 600 seconds.
+- Override wait: `SHIELD_INTEGRATION_LANE_WAIT_SECONDS=<positive-integer>`.
+- `--db-down` uses the same lock, so teardown cannot remove the sidecar while another integration run is active.
+
+The lock file may remain after a run and contains diagnostic metadata for the last acquired lease. Do not delete it as stale cleanup; `flock()` releases automatically when the owning process exits. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses this guard and is not part of the supported local integration command surface.
 
 ## Local Browser Lane
 
@@ -267,12 +278,12 @@ Required source-first gate: [`.github/workflows/tests.yml`](.github/workflows/te
 
 The required workflow is job-level path gated by [`.github/ci-path-filters.yml`](.github/ci-path-filters.yml). A docs-only change should normally run only the lightweight changed-file detector, while manual dispatch runs the full gate.
 
-1. Source static analysis on PHP 7.4 via `composer analyze`.
-2. JS static checks via `npm run test:js`.
-3. Unit tests on PHP 7.4 and latest supported PHP via `composer test:unit`.
-4. Source Docker runtime checks focused on runtime and integration coverage via `php bin/shield test:source --skip-unit-tests --show-docker-output`.
-5. Source Docker runtime in CI skips its unit stage because the dedicated unit lanes have already run.
-6. Package-targeted validation against the built artifact.
+1. `PHPStan Source Analysis (PHP 7.4)` runs `composer analyze`.
+2. `JavaScript Static Checks` runs `npm run test:js`.
+3. `PHP Unit Tests (PHP 7.4)` and `PHP Unit Tests (PHP 8.4)` run `composer test:unit`.
+4. `WordPress Runtime Integration (Source)` runs `php bin/shield test:source --skip-unit-tests --show-docker-output`.
+5. `WordPress Runtime Integration (Source)` skips its unit stage because the dedicated unit lanes have already run.
+6. `Build Packaged Plugin Artifact` builds the plugin package, then `Validate Packaged Plugin Artifact` runs package-targeted validation against the built artifact.
 
 Do not use `php bin/shield analyze:tooling` as a source compatibility gate. Source PHP compatibility belongs to `composer analyze` / `php bin/shield analyze:source`.
 

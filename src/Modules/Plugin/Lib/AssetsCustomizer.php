@@ -417,8 +417,6 @@ class AssetsCustomizer {
 					'ajax'  => [
 						'check'            => ActionData::Build( Actions\ScansCheck::class ),
 						'start'            => ActionData::Build( Actions\ScansStart::class ),
-						'results_action'   => ActionData::Build( Actions\ScanResultsTableAction::class ),
-						'malai_file_query' => ActionData::Build( Actions\ScansMalaiFileQuery::class ),
 					],
 					'flags' => [
 						'initial_check' => $con->comps->scans_queue->hasRunningScans(),

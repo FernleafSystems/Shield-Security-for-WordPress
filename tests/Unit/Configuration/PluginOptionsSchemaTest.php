@@ -321,6 +321,24 @@ class PluginOptionsSchemaTest extends TestCase {
 		$this->assertSame( PluginBadgeMode::VALID_MODES, \array_column( $option['value_options'] ?? [], 'value_key' ) );
 	}
 
+	public function testBackupCodesOptionIsFreeOptInMfaOptionInSourceAndGeneratedConfig() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+		$this->assertArrayHasKey( 'allow_backupcodes', $sourceOptions );
+		$this->assertArrayHasKey( 'allow_backupcodes', $this->options );
+
+		foreach ( [
+			'source'    => $sourceOptions[ 'allow_backupcodes' ],
+			'generated' => $this->options[ 'allow_backupcodes' ],
+		] as $context => $option ) {
+			$this->assertSame( 'section_twofactor_auth', $option[ 'section' ], sprintf( '%s backup-code option should remain in Login Guard MFA.', $context ) );
+			$this->assertSame( [ 'two_factor_auth', 'module_login' ], $option[ 'zone_comp_slugs' ], sprintf( '%s backup-code option should stay in the MFA zone.', $context ) );
+			$this->assertSame( 'checkbox', $option[ 'type' ], sprintf( '%s backup-code option should be a checkbox.', $context ) );
+			$this->assertSame( 'N', $option[ 'default' ], sprintf( '%s backup-code option should stay opt-in.', $context ) );
+			$this->assertArrayNotHasKey( 'premium', $option, sprintf( '%s backup-code option should not be premium-only.', $context ) );
+			$this->assertArrayNotHasKey( 'cap', $option, sprintf( '%s backup-code option should not require a premium capability.', $context ) );
+		}
+	}
+
 	public function testAdminLoginInstantAlertOptionIsGroupedWithInstantAlertsInSourceSpec() :void {
 		$options = $this->decodePluginJsonFile( 'plugin-spec/34_options.json', 'Source options spec' );
 		$keys = \array_column( $options, 'key' );
@@ -393,6 +411,41 @@ class PluginOptionsSchemaTest extends TestCase {
 		$this->assertSame( true, $option['sensitive'] );
 		$this->assertSame( false, $option['transferable'] ?? true );
 		$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
+	}
+
+	public function testLegacyLogRetentionOptionsAreHiddenAndRetained() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [
+			'audit_trail_auto_clean',
+			'auto_clean',
+		] as $key ) {
+			$this->assertArrayHasKey( $key, $sourceOptions );
+			$this->assertArrayHasKey( $key, $this->options );
+
+			foreach ( [
+				'source'    => $sourceOptions[ $key ],
+				'generated' => $this->options[ $key ],
+			] as $context => $option ) {
+				$this->assertSame( 'section_hidden', $option[ 'section' ], sprintf( "%s option '%s' should be hidden.", $context, $key ) );
+				$this->assertSame( false, $option[ 'transferable' ] ?? true, sprintf( "%s option '%s' should not be transferable.", $context, $key ) );
+				$this->assertSame( true, $option[ 'tracking_exclude' ] ?? false, sprintf( "%s option '%s' should be excluded from tracking.", $context, $key ) );
+				$this->assertSame( 'integer', $option[ 'type' ], sprintf( "%s option '%s' should be an integer.", $context, $key ) );
+				$this->assertSame( 7, $option[ 'default' ], sprintf( "%s option '%s' should default to 7.", $context, $key ) );
+				$this->assertSame( 1, $option[ 'min' ], sprintf( "%s option '%s' should have minimum 1.", $context, $key ) );
+				$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
+				$this->assertArrayNotHasKey( 'value_options', $option );
+			}
+		}
+
+		foreach ( [
+			'log_level_db',
+			'type_exclusions',
+			'custom_exclusions',
+		] as $key ) {
+			$this->assertArrayNotHasKey( $key, $sourceOptions );
+			$this->assertArrayNotHasKey( $key, $this->options );
+		}
 	}
 
 	public function testSensitiveAuditOptionsAreMarkedInSourceAndGeneratedConfig() :void {

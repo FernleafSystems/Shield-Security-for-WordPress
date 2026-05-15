@@ -61,7 +61,6 @@ type ShieldPluginOnboardingVideoModalData = {
 	modal_title: string;
 	video_title: string;
 	body_copy: string;
-	continue_label: string;
 	skip_label: string;
 };
 

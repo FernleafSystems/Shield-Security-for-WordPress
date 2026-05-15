@@ -14,7 +14,9 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\AjaxRender,
-	Actions\Render\Components\Widgets\WpDashboardSummary
+	Actions\Render\Components\Widgets\WpDashboardSummary,
+	Actions\ScansCheck,
+	Actions\ScansStart
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
@@ -142,6 +144,18 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertNotSame( '', $dashboardWidgetComp[ 'data' ][ 'strings' ][ 'load_failed' ] ?? '' );
 	}
 
+	public function test_scans_component_localizes_only_scan_page_ajax_actions() :void {
+		$this->installEnvironment();
+
+		$scansComp = $this->getComponentDefinition( 'scans' );
+		$scansData = \is_callable( $scansComp[ 'data' ] ?? null ) ? \call_user_func( $scansComp[ 'data' ] ) : [];
+		$ajax = \is_array( $scansData[ 'ajax' ] ?? null ) ? $scansData[ 'ajax' ] : [];
+
+		$this->assertEqualsCanonicalizing( [ 'check', 'start' ], \array_keys( $ajax ) );
+		$this->assertSame( ScansCheck::SLUG, $ajax[ 'check' ][ ActionData::FIELD_EXECUTE ] ?? null );
+		$this->assertSame( ScansStart::SLUG, $ajax[ 'start' ][ ActionData::FIELD_EXECUTE ] ?? null );
+	}
+
 	private function installEnvironment( array $query = [], array $completedTours = [] ) :void {
 		$query = \array_merge( [
 			'page'                  => 'icwp-wpsf-plugin',
@@ -216,6 +230,18 @@ class AssetsCustomizerControllerStub extends Controller {
 				'dashboard_intro_video_url_v22' => $dashboardVideoURL,
 			] ),
 		];
+		$this->comps = (object)[
+			'scans_queue' => new class {
+				public function hasRunningScans() :bool {
+					return false;
+				}
+			},
+		];
+		$this->plugin_urls = new class {
+			public function actionsQueueScans() :string {
+				return '/wp-admin/admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview';
+			}
+		};
 	}
 
 	public function isPluginAdminPageRequest() :bool {

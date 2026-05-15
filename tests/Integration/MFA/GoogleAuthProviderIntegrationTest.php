@@ -3,11 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA;
 
 use Dolondro\GoogleAuthenticator\GoogleAuthenticator as OtpGenerator;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaGoogleAuthToggle;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
 	LoginIntentRequestValidate
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\GoogleAuth;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
+	ActionRouter\PluginAdminRouteRuntime,
 	RuntimeTestState,
 	TestDataFactory
 };
@@ -56,11 +59,39 @@ class GoogleAuthProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$user = \get_user_by( 'id', $this->createAdministratorUser() );
 		$provider = new GoogleAuth( $user );
 
+		$this->assertSame( 'ga', GoogleAuth::ProviderSlug() );
+
 		$secret = $provider->resetSecret();
 
 		$this->assertSame( 32, \strlen( $secret ) );
 		$this->assertTrue( GoogleAuth::IsValidBase32Secret( $secret ) );
 		$this->assertSame( $secret, (string)$this->requireController()->user_metas->for( $user )->ga_temp_secret );
+	}
+
+	public function test_enable_google_authenticator_option_gates_provider_availability() :void {
+		$user = \get_user_by( 'id', $this->createAdministratorUser() );
+
+		RuntimeTestState::restoreOptions( [
+			'enable_google_authenticator' => 'N',
+		], true );
+		RuntimeTestState::resetMfaProviderCache();
+
+		$this->assertFalse( GoogleAuth::ProviderEnabled() );
+		$this->assertArrayNotHasKey(
+			GoogleAuth::ProviderSlug(),
+			$this->requireController()->comps->mfa->getProvidersAvailableToUser( $user )
+		);
+
+		RuntimeTestState::restoreOptions( [
+			'enable_google_authenticator' => 'Y',
+		], true );
+		RuntimeTestState::resetMfaProviderCache();
+
+		$this->assertTrue( GoogleAuth::ProviderEnabled() );
+		$this->assertArrayHasKey(
+			GoogleAuth::ProviderSlug(),
+			$this->requireController()->comps->mfa->getProvidersAvailableToUser( $user )
+		);
 	}
 
 	public function test_activate_ga_persists_new_32_character_secret() :void {
@@ -74,6 +105,58 @@ class GoogleAuthProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $this->loadRecordsForSlug( $user->ID, GoogleAuth::ProviderSlug() ) );
 		$this->assertSame( $secret, $this->loadRecordsForSlug( $user->ID, GoogleAuth::ProviderSlug() )[ 0 ]->unique_id );
 		$this->assertEmpty( $this->requireController()->user_metas->for( $user )->ga_temp_secret );
+	}
+
+	/**
+	 * @dataProvider invalidActivationOtpProvider
+	 */
+	public function test_invalid_activation_otp_fails_without_creating_record( string $otp ) :void {
+		$user = \get_user_by( 'id', $this->createAdministratorUser() );
+		$provider = new GoogleAuth( $user );
+
+		$provider->resetSecret();
+		$result = $provider->activateGA( $otp );
+
+		$this->assertFalse( $result->success );
+		$this->assertCount( 0, $this->loadRecordsForSlug( $user->ID, GoogleAuth::ProviderSlug() ) );
+		$this->assertEmpty( $this->requireController()->user_metas->for( $user )->ga_temp_secret );
+	}
+
+	public function invalidActivationOtpProvider() :array {
+		return [
+			'wrong six digits' => [ '000000' ],
+			'malformed'        => [ 'not-an-otp' ],
+		];
+	}
+
+	public function test_profile_toggle_action_activates_and_removes_google_auth_record() :void {
+		$userId = $this->loginAsAdministrator();
+		$user = \get_user_by( 'id', $userId );
+		$provider = new GoogleAuth( $user );
+		$secret = $provider->resetSecret();
+		$actionData = ActionData::Build( MfaGoogleAuthToggle::class, false );
+
+		$this->assertSame( MfaGoogleAuthToggle::SLUG, (string)( $actionData[ ActionData::FIELD_EXECUTE ] ?? '' ) );
+
+		$activatePayload = ( new PluginAdminRouteRuntime() )->processActionPayloadWithAdminBypass(
+			MfaGoogleAuthToggle::SLUG,
+			\array_merge( $actionData, [
+				'ga_otp' => $this->calculateOtp( $secret ),
+			] )
+		);
+
+		$this->assertTrue( (bool)( $activatePayload[ 'success' ] ?? false ) );
+		$this->assertArrayHasKey( 'message', $activatePayload );
+		$this->assertCount( 1, $this->loadRecordsForSlug( $user->ID, GoogleAuth::ProviderSlug() ) );
+
+		$removePayload = ( new PluginAdminRouteRuntime() )->processActionPayloadWithAdminBypass(
+			MfaGoogleAuthToggle::SLUG,
+			$actionData
+		);
+
+		$this->assertTrue( (bool)( $removePayload[ 'success' ] ?? false ) );
+		$this->assertArrayHasKey( 'message', $removePayload );
+		$this->assertCount( 0, $this->loadRecordsForSlug( $user->ID, GoogleAuth::ProviderSlug() ) );
 	}
 
 	public function test_new_32_character_secret_validates_through_login_flow() :void {
@@ -164,6 +247,7 @@ class GoogleAuthProviderIntegrationTest extends ShieldIntegrationTestCase {
 			GoogleAuth::ProviderSlug(),
 			$this->requireController()->comps->mfa->getProvidersActiveForUser( $user )
 		);
+		$this->assertTrue( $this->requireController()->comps->mfa->isSubjectToLoginIntent( $user ) );
 	}
 
 	private function seedLoginIntent( \WP_User $user, string $plainNonce ) :void {

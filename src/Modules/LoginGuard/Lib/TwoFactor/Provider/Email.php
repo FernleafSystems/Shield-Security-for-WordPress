@@ -165,6 +165,7 @@ class Email extends AbstractShieldProviderMfaDB {
 
 	private function generate2faCode( string $hashedLoginNonce ) :string {
 		$otp = apply_filters( 'shield/2fa_email_otp', PasswordGenerator::Gen( 6, true, false, false ) );
+		$this->deleteAllSecrets();
 		$this->createNewSecretRecord( wp_hash_password( $otp ), 'Email 2FA', [
 			'hashed_login_nonce' => $hashedLoginNonce
 		] );

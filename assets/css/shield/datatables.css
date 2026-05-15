@@ -59,40 +59,82 @@ th.ip_linked,
 td.ip_linked {
 	max-width: 150px !important;
 }
-.activity-log-identity {
+.shield-section-datatable .activity-log-identity {
+	display: block;
+	max-width: 100%;
+	min-width: 0;
+}
+.shield-section-datatable .activity-log-identity__primary,
+.shield-section-datatable .activity-log-identity__ip {
 	align-items: center;
 	display: flex;
-	flex-wrap: wrap;
 	gap: 0.25rem;
 	max-width: 100%;
+	min-width: 0;
+	overflow: hidden;
 }
-.activity-log-identity__badge {
+.shield-section-datatable .activity-log-identity__primary {
+	flex-wrap: nowrap;
+}
+.shield-section-datatable .activity-log-identity__ip {
+	margin-top: 0.2rem;
+}
+.shield-section-datatable .activity-log-identity__badge {
+	align-items: center;
+	background-color: #f8f9fa;
+	border: 1px solid #dee2e6;
+	border-radius: 0.25rem;
+	color: #343a40;
+	display: inline-flex;
+	flex: 0 1 auto;
 	font-size: 0.68rem;
 	font-weight: 700;
+	gap: 0.25rem;
+	line-height: 1.2;
 	max-width: 100%;
+	min-width: 0;
+	overflow: hidden;
+	padding: 0.22rem 0.4rem;
+	text-align: left;
+	vertical-align: middle;
+	white-space: nowrap;
 }
-.activity-log-identity__badge a {
+.shield-section-datatable .activity-log-identity__badge-icon {
+	flex: 0 0 auto;
+	font-size: 0.75rem;
+	line-height: 1;
+	opacity: 0.72;
+}
+.shield-section-datatable .activity-log-identity__badge-label {
+	display: inline-block;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.shield-section-datatable .activity-log-identity__badge a {
 	color: inherit;
+	min-width: 0;
 	text-decoration: none;
 }
-.activity-log-identity__badge a:hover,
-.activity-log-identity__badge a:focus-visible {
+.shield-section-datatable .activity-log-identity__badge a:hover,
+.shield-section-datatable .activity-log-identity__badge a:focus-visible {
 	text-decoration: underline;
 }
-.activity-log-identity__badge--ip {
-	display: inline-block;
+.shield-section-datatable .activity-log-identity__badge-label a {
+	display: block;
+	max-width: 100%;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	vertical-align: bottom;
 	white-space: nowrap;
 }
-.activity-log-identity__badge--ip a {
-	display: inline-block;
-	max-width: 10rem;
+.shield-section-datatable .activity-log-identity__badge--ip {
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+.shield-section-datatable .activity-log-identity__badge--ip a {
+	max-width: min(10rem, 100%);
 	vertical-align: bottom;
-	white-space: nowrap;
 }
 .activity-log-date {
 	cursor: help;

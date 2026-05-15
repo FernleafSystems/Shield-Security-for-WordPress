@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Enum\EnumLogic,
 	Processors\ProcessConditions,
 	Processors\ResponseProcessor,
+	RuleVO,
 	WPHooksOrder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\OffenseTracker;
@@ -50,7 +51,7 @@ class BotTrack404RuleBehaviorTest extends ShieldIntegrationTestCase {
 			->process();
 	}
 
-	private function getRule() :\FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO {
+	private function getRule() :RuleVO {
 		return ( new BotTrack404() )->build();
 	}
 
@@ -157,13 +158,28 @@ class BotTrack404RuleBehaviorTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $this->evaluateFullRule() );
 	}
 
-	public function test_normal_404_response_fires_bottrack_event_with_offense_count() {
+	public function test_full_rule_does_not_match_bypassed_request_on_404() :void {
+		$this->prepareAnonymous404Request( '/definitely/missing/for-bypassed-request.php', 'log' );
+		$this->requireController()->this_req->request_bypasses_all_restrictions = true;
+
+		$this->assertTrue( \is_404(), 'Request should be a 404 for this scenario.' );
+		$this->assertFalse( $this->evaluateFullRule() );
+	}
+
+	/**
+	 * @dataProvider botTrackModeProvider
+	 */
+	public function test_normal_404_response_uses_bottrack_mode_contract(
+		string $mode,
+		int $expectedOffenseCount,
+		bool $expectedBlock
+	) :void {
 		$this->enablePremiumCapabilities();
-		$this->prepareAnonymous404Request( '/definitely/missing/for-offense.php', 'transgression-single' );
+		$this->prepareAnonymous404Request( '/definitely/missing/for-offense.php', $mode );
 		$this->assertSame(
-			1,
+			$expectedOffenseCount,
 			self::con()->comps->opts_lookup->getBotTrackOffenseCountFor( 'track_404' ),
-			'track_404 transgression-single should map to offense count of 1 in premium mode.'
+			'track_404 mode should map to the expected offense count in premium mode.'
 		);
 		$this->assertTrue( \is_404(), 'Request should be a 404 for this scenario.' );
 		$this->assertTrue( $this->evaluateFullRule(), 'Full BotTrack404 rule should match this request.' );
@@ -179,7 +195,26 @@ class BotTrack404RuleBehaviorTest extends ShieldIntegrationTestCase {
 		$events = $this->getCapturedEventsByKey( 'bottrack_404' );
 		$this->assertNotEmpty( $events, 'BotTrack404 response should fire bottrack_404 event.' );
 		$this->assertArrayHasKey( 'offense_count', $events[ 0 ][ 'meta' ] );
-		$this->assertSame( 1, (int)$events[ 0 ][ 'meta' ][ 'offense_count' ] );
-		$this->assertSame( $initialOffenseCount + 1, $tracker->getOffenseCount() );
+		$this->assertArrayHasKey( 'block', $events[ 0 ][ 'meta' ] );
+		$this->assertSame( $expectedOffenseCount, (int)$events[ 0 ][ 'meta' ][ 'offense_count' ] );
+		$this->assertSame( $expectedBlock, (bool)$events[ 0 ][ 'meta' ][ 'block' ] );
+		$this->assertSame( $initialOffenseCount + $expectedOffenseCount, $tracker->getOffenseCount() );
+	}
+
+	public function test_normal_404_rule_does_not_match_when_tracking_disabled() :void {
+		$this->enablePremiumCapabilities();
+		$this->prepareAnonymous404Request( '/definitely/missing/disabled.php', 'disabled' );
+
+		$this->assertTrue( \is_404(), 'Request should be a 404 for this scenario.' );
+		$this->assertFalse( $this->evaluateFullRule() );
+	}
+
+	public function botTrackModeProvider() :array {
+		return [
+			'log'                  => [ 'log', 0, false ],
+			'transgression-single' => [ 'transgression-single', 1, false ],
+			'transgression-double' => [ 'transgression-double', 2, false ],
+			'block'                => [ 'block', 1, true ],
+		];
 	}
 }
