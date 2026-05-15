@@ -45,7 +45,6 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( [ PolicyEvidence::TYPE_FIREWALL_LOG ], $recorder->recordedTypes );
-		$this->assertSame( [ PolicyDecision::DECISION_LOG_ONLY ], $recorder->decisions );
 		$this->assertSame( [ 'request_policy_decision' ], $events->events );
 	}
 
@@ -66,7 +65,6 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( [ PolicyEvidence::TYPE_CROWDSEC ], $recorder->recordedTypes );
-		$this->assertSame( [ PolicyDecision::DECISION_BLOCK_REQUEST ], $recorder->decisions );
 	}
 
 	public function test_shadow_crowdsec_policy_block_records_evidence_without_global_listener() :void {
@@ -86,7 +84,6 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( [ PolicyEvidence::TYPE_CROWDSEC ], $recorder->recordedTypes );
-		$this->assertSame( [ PolicyDecision::DECISION_BLOCK_REQUEST ], $recorder->decisions );
 	}
 
 	public function test_firewall_policy_block_does_not_direct_record_firewall_evidence() :void {
@@ -106,12 +103,54 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( [], $recorder->recordedTypes );
-		$this->assertSame( [ PolicyDecision::DECISION_BLOCK_REQUEST ], $recorder->decisions );
 	}
 
-	public function test_action_router_allow_records_suppressed_ip_evidence_and_allows_request() :void {
+	public function test_rule_allow_fires_decision_event_without_recording_evidence() :void {
+		$events = new PolicyDecisionEnforcerEventsStub();
 		$recorder = new PolicyDecisionEnforcerRecorderStub();
-		$this->installController( new PolicyDecisionEnforcerEventsStub() );
+		$this->installController( $events );
+
+		( new PolicyDecisionEnforcer( $recorder ) )->enforce(
+			$this->decision( PolicyDecision::DECISION_ALLOW, 'test_allow', PolicyEvidence::DETECTOR_EVENT ),
+			new PolicyEvidence( [
+				'detector'  => PolicyEvidence::DETECTOR_EVENT,
+				'type'      => PolicyEvidence::TYPE_NONE,
+				'severity'  => PolicyEvidence::SEVERITY_INFO,
+				'rule_slug' => 'test/rule',
+			] ),
+			$this->rule(),
+			[]
+		);
+
+		$this->assertSame( [], $recorder->recordedTypes );
+		$this->assertSame( [ 'request_policy_decision' ], $events->events );
+	}
+
+	public function test_rule_no_decision_fires_decision_event_without_recording_evidence() :void {
+		$events = new PolicyDecisionEnforcerEventsStub();
+		$recorder = new PolicyDecisionEnforcerRecorderStub();
+		$this->installController( $events );
+
+		( new PolicyDecisionEnforcer( $recorder ) )->enforce(
+			$this->decision( PolicyDecision::DECISION_NO_DECISION, 'insufficient_information', PolicyEvidence::DETECTOR_EVENT ),
+			new PolicyEvidence( [
+				'detector'  => PolicyEvidence::DETECTOR_EVENT,
+				'type'      => PolicyEvidence::TYPE_NONE,
+				'severity'  => PolicyEvidence::SEVERITY_INFO,
+				'rule_slug' => 'test/rule',
+			] ),
+			$this->rule(),
+			[]
+		);
+
+		$this->assertSame( [], $recorder->recordedTypes );
+		$this->assertSame( [ 'request_policy_decision' ], $events->events );
+	}
+
+	public function test_action_router_allow_fires_decision_event_without_recording_evidence_and_allows_request() :void {
+		$events = new PolicyDecisionEnforcerEventsStub();
+		$recorder = new PolicyDecisionEnforcerRecorderStub();
+		$this->installController( $events );
 
 		$allowed = ( new PolicyDecisionEnforcer( $recorder ) )->allowsActionRouterRequest(
 			$this->decision( PolicyDecision::DECISION_ALLOW, 'shield_auto_safe_read', PolicyEvidence::DETECTOR_SHIELD_IP ),
@@ -124,13 +163,14 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 		);
 
 		$this->assertTrue( $allowed );
-		$this->assertSame( [ PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK ], $recorder->recordedTypes );
-		$this->assertSame( [ PolicyDecision::DECISION_ALLOW ], $recorder->decisions );
+		$this->assertSame( [], $recorder->recordedTypes );
+		$this->assertSame( [ 'request_policy_decision' ], $events->events );
 	}
 
-	public function test_action_router_no_decision_records_evidence_but_does_not_allow_request() :void {
+	public function test_action_router_no_decision_fires_decision_event_without_recording_evidence_and_denies_request() :void {
+		$events = new PolicyDecisionEnforcerEventsStub();
 		$recorder = new PolicyDecisionEnforcerRecorderStub();
-		$this->installController( new PolicyDecisionEnforcerEventsStub() );
+		$this->installController( $events );
 
 		$allowed = ( new PolicyDecisionEnforcer( $recorder ) )->allowsActionRouterRequest(
 			$this->decision( PolicyDecision::DECISION_NO_DECISION, 'insufficient_information', PolicyEvidence::DETECTOR_EVENT ),
@@ -143,8 +183,8 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 		);
 
 		$this->assertFalse( $allowed );
-		$this->assertSame( [ PolicyEvidence::TYPE_NONE ], $recorder->recordedTypes );
-		$this->assertSame( [ PolicyDecision::DECISION_NO_DECISION ], $recorder->decisions );
+		$this->assertSame( [], $recorder->recordedTypes );
+		$this->assertSame( [ 'request_policy_decision' ], $events->events );
 	}
 
 	public function test_shadow_action_router_block_records_evidence_and_denies_request() :void {
@@ -169,7 +209,6 @@ class PolicyDecisionEnforcerTest extends BaseUnitTest {
 
 		$this->assertFalse( $allowed );
 		$this->assertSame( [ PolicyEvidence::TYPE_SHIELD_AUTO_BLOCK ], $recorder->recordedTypes );
-		$this->assertSame( [ PolicyDecision::DECISION_BLOCK_REQUEST ], $recorder->decisions );
 		$this->assertSame( [ 'request_policy_decision' ], $events->events );
 	}
 
@@ -221,8 +260,6 @@ class PolicyDecisionEnforcerRecorderStub extends PolicyEvidenceRecorder {
 
 	public array $recordedTypes = [];
 
-	public array $decisions = [];
-
 	public function __construct() {
 	}
 
@@ -230,10 +267,5 @@ class PolicyDecisionEnforcerRecorderStub extends PolicyEvidenceRecorder {
 		unset( $ip );
 		$this->recordedTypes[] = $evidence->type;
 		return new \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\RequestPolicy\PolicyState();
-	}
-
-	public function markDecision( string $ip, PolicyDecision $decision ) :void {
-		unset( $ip );
-		$this->decisions[] = $decision->decision;
 	}
 }

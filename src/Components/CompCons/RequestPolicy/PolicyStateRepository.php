@@ -53,9 +53,7 @@ class PolicyStateRepository {
 			$data = [
 				'ip_ref'           => $state->ip_ref,
 				'risk_band'        => $state->risk_band,
-				'risk_score'       => $state->risk_score,
 				'last_evidence_at' => $state->last_evidence_at,
-				'last_decision_at' => $state->last_decision_at,
 				'expires_at'       => $state->expires_at,
 				'meta'             => $meta,
 				'updated_at'       => Services::Request()->ts(),
@@ -108,9 +106,7 @@ class PolicyStateRepository {
 				'ip'               => $ip,
 				'ip_ref'           => $record->ip_ref,
 				'risk_band'        => $record->risk_band,
-				'risk_score'       => $record->risk_score,
 				'last_evidence_at' => $record->last_evidence_at,
-				'last_decision_at' => $record->last_decision_at,
 				'expires_at'       => $record->expires_at,
 				'meta'             => $record->meta,
 			] );
@@ -133,7 +129,6 @@ class PolicyStateRepository {
 			'ip'         => $ip,
 			'ip_ref'     => $ipRef,
 			'risk_band'  => PolicyState::BAND_NORMAL,
-			'risk_score' => 0,
 			'expires_at' => Services::Request()->ts() + self::DEFAULT_TTL,
 			'meta'       => [],
 		] );

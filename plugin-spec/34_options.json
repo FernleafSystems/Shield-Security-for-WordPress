@@ -1217,32 +1217,6 @@
         "description": "How should Shield block requests from IP address that are found on CrowdSec's list of malicious IP addresses."
     },
     {
-        "key": "crowdsec_policy_mode",
-        "section": "section_crowdsec",
-        "zone_comp_slugs": [
-            "crowdsec_blocking",
-            "module_ips"
-        ],
-        "default": "hard",
-        "type": "select",
-        "value_options": [
-            {
-                "value_key": "hard",
-                "text": "Hard Block"
-            },
-            {
-                "value_key": "adaptive_signal",
-                "text": "Adaptive Signal"
-            }
-        ],
-        "link_info": "",
-        "link_blog": "",
-        "beacon_id": 471,
-        "name": "CrowdSec Policy Mode",
-        "summary": "Choose How CrowdSec IP Status Feeds Request Policy",
-        "description": "Choose whether CrowdSec should hard-block matching IPs or act as one signal in adaptive request policy."
-    },
-    {
         "key": "cs_enroll_id",
         "section": "section_crowdsec",
         "zone_comp_slugs": [

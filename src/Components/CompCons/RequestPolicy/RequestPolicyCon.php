@@ -52,7 +52,6 @@ class RequestPolicyCon {
 
 		$decision = $this->evaluator()->evaluate(
 			$mode,
-			$this->crowdsecPolicyMode(),
 			$profile,
 			( new ActorTrustResolver() )->resolve(),
 			$this->stateRepository()->forIp( self::con()->this_req->ip ),
@@ -81,7 +80,6 @@ class RequestPolicyCon {
 	private function evaluate( string $mode, PolicyEvidence $evidence ) :PolicyDecision {
 		return $this->evaluator()->evaluate(
 			$mode,
-			$this->crowdsecPolicyMode(),
 			( new RequestProfileBuilder() )->build(),
 			( new ActorTrustResolver() )->resolve(),
 			$this->stateRepository()->forIp( self::con()->this_req->ip ),
@@ -147,9 +145,5 @@ class RequestPolicyCon {
 
 	private function requestPolicyMode() :string {
 		return RequestPolicyEvaluator::normaliseMode( (string)self::con()->opts->optGet( 'request_policy_mode' ) );
-	}
-
-	private function crowdsecPolicyMode() :string {
-		return (string)self::con()->opts->optGet( 'crowdsec_policy_mode' );
 	}
 }

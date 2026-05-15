@@ -71,13 +71,6 @@ class PolicyEvidenceRecorder {
 		return $state;
 	}
 
-	public function markDecision( string $ip, PolicyDecision $decision ) :void {
-		$state = $this->repository->forIp( $ip );
-		$state->touchDecision( Services::Request()->ts() );
-		$state->risk_band = $decision->risk_band;
-		$this->dirty[ $ip ] = $state;
-	}
-
 	public function flush() :void {
 		foreach ( $this->dirty as $ip => $state ) {
 			if ( $this->repository->save( $state ) ) {
@@ -128,11 +121,9 @@ class PolicyEvidenceRecorder {
 	private function applyEvidenceRisk( PolicyState $state, PolicyEvidence $evidence ) :void {
 		if ( $evidence->severity === PolicyEvidence::SEVERITY_CRITICAL ) {
 			$state->risk_band = PolicyState::BAND_HOSTILE;
-			$state->risk_score = \max( $state->risk_score, 90 );
 		}
 		elseif ( $state->risk_band !== PolicyState::BAND_HOSTILE && $evidence->severity !== PolicyEvidence::SEVERITY_INFO ) {
 			$state->risk_band = PolicyState::BAND_SUSPICIOUS;
-			$state->risk_score = \max( $state->risk_score, $evidence->severity === PolicyEvidence::SEVERITY_NOISY ? 50 : 30 );
 		}
 	}
 }

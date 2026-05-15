@@ -386,20 +386,9 @@
                     "length": 16,
                     "comment": "Risk Band"
                 },
-                "risk_score": {
-                    "macro_type": "unsigned_int",
-                    "type": "tinyint",
-                    "length": 3,
-                    "default": 0,
-                    "comment": "Risk Score"
-                },
                 "last_evidence_at": {
                     "macro_type": "timestamp",
                     "comment": "Last Evidence"
-                },
-                "last_decision_at": {
-                    "macro_type": "timestamp",
-                    "comment": "Last Decision"
                 },
                 "expires_at": {
                     "macro_type": "timestamp",
@@ -413,13 +402,6 @@
                 {
                     "key_name": "expires_at",
                     "columns": [
-                        "expires_at"
-                    ]
-                },
-                {
-                    "key_name": "risk_band_expires_at",
-                    "columns": [
-                        "risk_band",
                         "expires_at"
                     ]
                 }
