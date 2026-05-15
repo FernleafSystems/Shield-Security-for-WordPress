@@ -363,6 +363,68 @@
                 }
             }
         },
+        "ip_policy_state": {
+            "name": "IP Policy State",
+            "slug": "ip_policy_state",
+            "is_core": true,
+            "autoexpire": 0,
+            "has_updated_at": true,
+            "col_older_than": "updated_at",
+            "cols_custom": {
+                "ip_ref": {
+                    "macro_type": "foreign_key_id",
+                    "foreign_key": {
+                        "ref_table": "icwp_wpsf_ips"
+                    },
+                    "attr": [
+                        "UNSIGNED",
+                        "UNIQUE"
+                    ]
+                },
+                "risk_band": {
+                    "macro_type": "varchar",
+                    "length": 16,
+                    "comment": "Risk Band"
+                },
+                "risk_score": {
+                    "macro_type": "unsigned_int",
+                    "type": "tinyint",
+                    "length": 3,
+                    "default": 0,
+                    "comment": "Risk Score"
+                },
+                "last_evidence_at": {
+                    "macro_type": "timestamp",
+                    "comment": "Last Evidence"
+                },
+                "last_decision_at": {
+                    "macro_type": "timestamp",
+                    "comment": "Last Decision"
+                },
+                "expires_at": {
+                    "macro_type": "timestamp",
+                    "comment": "Expires At"
+                },
+                "meta": {
+                    "macro_type": "meta"
+                }
+            },
+            "indices": [
+                {
+                    "key_name": "expires_at",
+                    "columns": [
+                        "expires_at"
+                    ]
+                },
+                {
+                    "key_name": "risk_band_expires_at",
+                    "columns": [
+                        "risk_band",
+                        "expires_at"
+                    ]
+                }
+            ]
+        },
         "ip_rules": {
             "name": "IP Rules",
             "slug": "ip_rules",

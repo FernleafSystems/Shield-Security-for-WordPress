@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
  * @property int          $wp_hook_priority
  * @property bool         $result
  * @property bool         $immediate_exec_response
+ * @property array        $condition_meta
  * @property string[]     $flags
  * @property string[]     $prerequisites
  * @property ConditionsVO $conditions
@@ -49,6 +50,7 @@ class RuleVO extends DynPropertiesClass {
 			case 'flags':
 			case 'prerequisites':
 			case 'responses':
+			case 'condition_meta':
 				if ( !\is_array( $value ) ) {
 					$value = [];
 				}

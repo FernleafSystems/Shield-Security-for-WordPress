@@ -22,8 +22,10 @@ class EventFire extends Base {
 					$params[ 'audit_params' ] = [];
 				}
 
-				$conditionMeta = self::con()->rules->getConditionMeta();
-				$params[ 'audit_params' ] = \array_merge( $params[ 'audit_params' ], $conditionMeta->getRawData() );
+				$params[ 'audit_params' ] = \array_merge(
+					$params[ 'audit_params' ],
+					$this->rule->condition_meta
+				);
 				foreach ( $params[ 'audit_params_map' ] as $paramKey => $metaKey ) {
 					if ( isset( $params[ 'audit_params' ][ $metaKey ] ) ) {
 						$params[ 'audit_params' ][ $paramKey ] = $params[ 'audit_params' ][ $metaKey ];

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerAdmins;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerFirewallBlock;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\RuleVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\FirewallBlock;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\LocalEmailCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -55,10 +56,14 @@ class FirewallInstantAlertIntegrationTest extends ShieldIntegrationTestCase {
 
 		$duplicateValue = 'dup-marker-77';
 		$con->this_req->ip = '203.0.113.10';
-		$con->rules->getConditionMeta()->match_name = 'Firewall Rule';
-		$con->rules->getConditionMeta()->match_pattern = $duplicateValue;
-		$con->rules->getConditionMeta()->match_request_param = $duplicateValue;
-		$con->rules->getConditionMeta()->match_request_value = $duplicateValue;
+		$rule = ( new RuleVO() )->applyFromArray( [
+			'condition_meta' => [
+				'match_name'          => 'Firewall Rule',
+				'match_pattern'       => $duplicateValue,
+				'match_request_param' => $duplicateValue,
+				'match_request_value' => $duplicateValue,
+			],
+		] );
 
 		$this->captureShieldEvents();
 		add_action( 'shield/firewall_pre_block', [ $this, 'captureFirewallPreBlock' ] );
@@ -68,7 +73,7 @@ class FirewallInstantAlertIntegrationTest extends ShieldIntegrationTestCase {
 		$method->setAccessible( true );
 		$payloadMethod = $reflection->getMethod( 'buildAlertPayload' );
 		$payloadMethod->setAccessible( true );
-		$response = ( new FirewallBlock() )->setThisRequest( $con->this_req );
+		$response = ( new FirewallBlock() )->setThisRequest( $con->this_req )->setRule( $rule );
 		$originalRequestUri = $_SERVER['REQUEST_URI'] ?? null;
 		$_SERVER['REQUEST_URI'] = '/blocked-request';
 		try {

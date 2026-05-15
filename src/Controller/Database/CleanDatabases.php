@@ -20,6 +20,7 @@ class CleanDatabases {
 	public function all() {
 		( new CleanIpRules() )->all();
 		$this->cleanBotSignals();
+		$this->cleanPolicyState();
 		$this->cleanUserMeta();
 		$this->cleanOldEmail2FA();
 		$this->cleanStaleReports();
@@ -36,6 +37,16 @@ class CleanDatabases {
 			->bot_signals
 			->getQueryDeleter()
 			->addWhereOlderThan( Services::Request()->carbon( true )->subWeeks( 2 )->timestamp, 'updated_at' )
+			->query();
+	}
+
+	private function cleanPolicyState() :void {
+		$now = Services::Request()->ts();
+		self::con()
+			->db_con
+			->ip_policy_state
+			->getQueryDeleter()
+			->addWhereOlderThan( $now, 'expires_at' )
 			->query();
 	}
 
@@ -151,6 +162,7 @@ class CleanDatabases {
 			[
 				$con->db_con->req_logs->getQuerySelector(),
 				$con->db_con->bot_signals->getQuerySelector(),
+				$con->db_con->ip_policy_state->getQuerySelector(),
 				$con->db_con->ip_rules->getQuerySelector(),
 				$con->db_con->user_meta->getQuerySelector(),
 			] as $dbSelector

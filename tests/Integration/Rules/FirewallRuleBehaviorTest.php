@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rules;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\RequestPolicy\PolicyEvidence;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\Core\Firewall as FirewallRuleBuilder,
 	Conditions\FirewallPatternFoundInRequest,
@@ -130,12 +131,36 @@ class FirewallRuleBehaviorTest extends ShieldIntegrationTestCase {
 
 		$firewallRule = ( new FirewallRuleBuilder() )->build();
 		$this->assertSame( FirewallRuleBuilder::SLUG, $firewallRule->slug );
-		$eventResponse = $this->responseDefinition( $firewallRule->responses, Responses\EventFire::class );
-		$this->responseDefinition( $firewallRule->responses, Responses\FirewallBlock::class );
-		$this->assertSame( 'firewall_block', $eventResponse[ 'params' ][ 'event' ] ?? '' );
-		foreach ( [ 'name', 'term', 'param', 'value', 'scan', 'type' ] as $auditParam ) {
-			$this->assertArrayHasKey( $auditParam, $eventResponse[ 'params' ][ 'audit_params_map' ] ?? [] );
-		}
+		$policyGate = $this->responseDefinition( $firewallRule->responses, Responses\RequestPolicyGate::class );
+		$this->assertSame( [
+			'response' => Responses\RequestPolicyGate::class,
+			'params'   => [
+				'detector'         => PolicyEvidence::DETECTOR_FIREWALL,
+				'legacy_responses' => [
+					[
+						'response' => Responses\EventFire::class,
+						'params'   => [
+							'event'            => 'firewall_block',
+							'offense_count'    => 1,
+							'block'            => false,
+							'audit_params_map' => [
+								'crawler' => 'matched_useragent',
+								'name'    => 'match_name',
+								'term'    => 'match_pattern',
+								'param'   => 'match_request_param',
+								'value'   => 'match_request_value',
+								'scan'    => 'match_category',
+								'type'    => 'match_type',
+							],
+						],
+					],
+					[
+						'response' => Responses\FirewallBlock::class,
+						'params'   => [],
+					],
+				],
+			],
+		], $policyGate );
 	}
 
 	public function test_disabled_directory_traversal_rule_does_not_match_request_param() {
@@ -243,18 +268,31 @@ class FirewallRuleBehaviorTest extends ShieldIntegrationTestCase {
 		];
 		$this->assertTrue( $this->runRequestTriggersFirewall() );
 
-		$firewallRule = ( new FirewallRuleBuilder() )->build();
-		$eventResponse = \current( \array_filter(
-			$firewallRule->responses,
-			fn( array $resp ) => ( $resp[ 'response' ] ?? '' ) === \FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\EventFire::class
-		) );
-		$this->assertNotEmpty( $eventResponse, 'Firewall rule must define an EventFire response' );
+		$meta = $con->rules->getConditionMeta()->getRawData();
 
 		$rule = ( new RuleVO() )->applyFromArray( [
 			'slug'                    => 'test_firewall_event_contract',
 			'name'                    => 'Test Firewall Event Contract',
 			'conditions'              => fn() => true,
-			'responses'               => [ $eventResponse ],
+			'condition_meta'          => $meta,
+			'responses'               => [
+				[
+					'response' => Responses\EventFire::class,
+					'params'   => [
+						'event'            => 'firewall_block',
+						'offense_count'    => 1,
+						'block'            => false,
+						'audit_params_map' => [
+							'name'  => 'match_name',
+							'term'  => 'match_pattern',
+							'param' => 'match_request_param',
+							'value' => 'match_request_value',
+							'scan'  => 'match_category',
+							'type'  => 'match_type',
+						],
+					],
+				]
+			],
 			'immediate_exec_response' => true,
 		] );
 

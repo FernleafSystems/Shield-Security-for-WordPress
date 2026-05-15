@@ -2,9 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\McpCon;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Request\RequestTypeResolver;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RequestMetaProcessor extends BaseMetaProcessor {
@@ -28,38 +26,7 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 			$hasParams = !empty( $_GET ) || !empty( $_POST );
 		}
 
-		if ( $isWpCli ) {
-			$type = Handler::TYPE_WPCLI;
-		}
-		elseif ( $WP->isAjax() ) {
-			$type = Handler::TYPE_AJAX;
-		}
-		elseif ( Services::Rest()->isRest() ) {
-			$type = $this->isShieldMcpRoute( self::con()->this_req->getRestRoute() )
-				? Handler::TYPE_MCP
-				: Handler::TYPE_REST;
-		}
-		elseif ( $WP->isXmlrpc() ) {
-			$type = Handler::TYPE_XMLRPC;
-		}
-		elseif ( $WP->isCron() ) {
-			$type = Handler::TYPE_CRON;
-		}
-		elseif ( $WP->isLoginRequest() ) {
-			$type = Handler::TYPE_LOGIN;
-		}
-		elseif ( $WP->isLoginUrl()
-				 && $req->isPost()
-				 && $req->query( ActionData::FIELD_EXECUTE ) === ActionData::FIELD_SHIELD.'-wp_login_2fa_verify'
-		) {
-			$type = Handler::TYPE_2FA;
-		}
-		elseif ( Services::WpComments()->isCommentSubmission() ) {
-			$type = Handler::TYPE_COMMENT;
-		}
-		else {
-			$type = Handler::TYPE_HTTP;
-		}
+		$type = ( new RequestTypeResolver() )->resolve();
 
 		$data = [
 			'ip'   => $isWpCli ? '127.0.0.1' : $req->ip(),
@@ -81,15 +48,5 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 		$records[ 'extra' ][ 'meta_request' ] = $data;
 
 		return $records;
-	}
-
-	private function isShieldMcpRoute( string $restRoute ) :bool {
-		$restRoute = \trim( $restRoute, '/' );
-
-		return $restRoute !== ''
-			   && \preg_match(
-				   '#(?:^|/)'.\preg_quote( McpCon::ROUTE_NAMESPACE, '#' ).'/.*/?'.\preg_quote( McpCon::ROUTE_SEGMENT, '#' ).'$#',
-				   $restRoute
-			   ) === 1;
 	}
 }

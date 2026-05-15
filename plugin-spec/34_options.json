@@ -1217,6 +1217,32 @@
         "description": "How should Shield block requests from IP address that are found on CrowdSec's list of malicious IP addresses."
     },
     {
+        "key": "crowdsec_policy_mode",
+        "section": "section_crowdsec",
+        "zone_comp_slugs": [
+            "crowdsec_blocking",
+            "module_ips"
+        ],
+        "default": "hard",
+        "type": "select",
+        "value_options": [
+            {
+                "value_key": "hard",
+                "text": "Hard Block"
+            },
+            {
+                "value_key": "adaptive_signal",
+                "text": "Adaptive Signal"
+            }
+        ],
+        "link_info": "",
+        "link_blog": "",
+        "beacon_id": 471,
+        "name": "CrowdSec Policy Mode",
+        "summary": "Choose How CrowdSec IP Status Feeds Request Policy",
+        "description": "Choose whether CrowdSec should hard-block matching IPs or act as one signal in adaptive request policy."
+    },
+    {
         "key": "cs_enroll_id",
         "section": "section_crowdsec",
         "zone_comp_slugs": [
@@ -2288,6 +2314,37 @@
         "name": "Enable/Disable All Plugin Modules",
         "summary": "Global Plugin On/Off Switch",
         "description": "Uncheck this option to disable all Shield features"
+    },
+    {
+        "key": "request_policy_mode",
+        "section": "section_global_security_options",
+        "zone_comp_slugs": [
+            "global_plugin_enable",
+            "plugin_general",
+            "module_plugin"
+        ],
+        "default": "legacy",
+        "type": "select",
+        "value_options": [
+            {
+                "value_key": "legacy",
+                "text": "Legacy"
+            },
+            {
+                "value_key": "shadow",
+                "text": "Shadow"
+            },
+            {
+                "value_key": "adaptive",
+                "text": "Adaptive"
+            }
+        ],
+        "link_info": "",
+        "link_blog": "",
+        "beacon_id": 389,
+        "name": "Request Policy Mode",
+        "summary": "Choose How Request Policy Decisions Are Applied",
+        "description": "Legacy preserves current behaviour. Shadow records adaptive decisions without enforcing them. Adaptive applies the policy gate where explicitly used."
     },
     {
         "key": "visitor_address_source",

@@ -164,6 +164,7 @@ class RateLimitRuleBehaviorTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( ( new ProcessConditions( $rule->conditions ) )
 			->setThisRequest( $this->requireController()->this_req )
 			->process() );
+		$rule->condition_meta = $this->requireController()->rules->getConditionMeta()->getRawData();
 
 		$this->captureShieldEvents();
 		( new ResponseProcessor( $rule ) )

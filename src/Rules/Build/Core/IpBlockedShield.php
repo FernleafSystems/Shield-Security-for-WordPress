@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\BlockIpAddressShield;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\RequestPolicy\PolicyEvidence;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\RuleTraits,
@@ -34,24 +35,33 @@ class IpBlockedShield extends BuildRuleIpsBase {
 	protected function getResponses() :array {
 		return [
 			[
-				'response' => Responses\UpdateIpRuleLastAccessAt::class,
-			],
-			[
-				'response' => Responses\EventFire::class,
+				'response' => Responses\RequestPolicyGate::class,
 				'params'   => [
-					'event' => 'conn_kill',
-				],
-			],
-			[
-				'response' => Responses\DoAction::class,
-				'params'   => [
-					'hook' => 'shield/maybe_intercept_block_shield',
-				],
-			],
-			[
-				'response' => Responses\DisplayBlockPage::class,
-				'params'   => [
-					'block_page_slug' => BlockIpAddressShield::SLUG,
+					'detector'         => PolicyEvidence::DETECTOR_SHIELD_IP,
+					'legacy_responses' => [
+						[
+							'response' => Responses\UpdateIpRuleLastAccessAt::class,
+							'params'   => [],
+						],
+						[
+							'response' => Responses\EventFire::class,
+							'params'   => [
+								'event' => 'conn_kill',
+							],
+						],
+						[
+							'response' => Responses\DoAction::class,
+							'params'   => [
+								'hook' => 'shield/maybe_intercept_block_shield',
+							],
+						],
+						[
+							'response' => Responses\DisplayBlockPage::class,
+							'params'   => [
+								'block_page_slug' => BlockIpAddressShield::SLUG,
+							],
+						],
+					],
 				],
 			],
 		];

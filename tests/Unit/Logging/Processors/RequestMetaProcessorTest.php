@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Logging\Processors;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors\RequestMetaProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -125,5 +126,95 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 
 		$controller->this_req->restRoute = 'wp/v2/users/me';
 		$this->assertSame( 'R', $processor( $records )[ 'extra' ][ 'meta_request' ][ 'type' ] );
+	}
+
+	public function test_2fa_request_classification_uses_query_execute_value_only() :void {
+		McpTestControllerFactory::install()->this_req = new class {
+			public function getRestRoute() :string {
+				return '';
+			}
+		};
+
+		$request = new class extends Request {
+			public function getPath() :string {
+				return '/wp-login.php';
+			}
+
+			public function getID( bool $sub = false, int $length = 10 ) :string {
+				unset( $sub, $length );
+				return 'requestid02';
+			}
+
+			public function ip() :string {
+				return '198.51.100.26';
+			}
+
+			public function getUserAgent() :string {
+				return 'phpunit';
+			}
+
+			public function getMethod() :string {
+				return 'POST';
+			}
+
+			public function isPost() :bool {
+				return true;
+			}
+
+			public function query( $key, $default = null ) {
+				return $key === ActionData::FIELD_EXECUTE ? ActionData::FIELD_SHIELD.'-wp_login_2fa_verify' : $default;
+			}
+
+			public function request( $key, $includeCookies = false, $default = null ) {
+				unset( $includeCookies );
+				return $key === ActionData::FIELD_EXECUTE ? 'wrong-post-value' : $default;
+			}
+		};
+
+		ServicesState::installItems( [
+			'service_request'    => $request,
+			'service_rest'       => new class extends Rest {
+				public function isRest() :bool {
+					return false;
+				}
+			},
+			'service_wpgeneral'  => new class extends General {
+				public function isWpCli() :bool {
+					return false;
+				}
+
+				public function isMultisite_SubdomainInstall() :bool {
+					return false;
+				}
+
+				public function isAjax() :bool {
+					return false;
+				}
+
+				public function isXmlrpc() :bool {
+					return false;
+				}
+
+				public function isCron() :bool {
+					return false;
+				}
+
+				public function isLoginRequest() :bool {
+					return false;
+				}
+
+				public function isLoginUrl() :bool {
+					return true;
+				}
+			},
+			'service_wpcomments' => new class extends Comments {
+				public function isCommentSubmission() :bool {
+					return false;
+				}
+			},
+		] );
+
+		$records = [ 'extra' => [] ];
+		$this->assertSame( '2', ( new RequestMetaProcessor() )( $records )[ 'extra' ][ 'meta_request' ][ 'type' ] );
 	}
 }

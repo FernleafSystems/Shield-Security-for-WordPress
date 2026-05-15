@@ -28,4 +28,20 @@ class ActivityLogLevelsConfigTest extends TestCase {
 			}
 		}
 	}
+
+	public function test_request_policy_decision_event_is_audit_only_contract() :void {
+		$event = $this->config[ 'config_spec' ][ 'events' ][ 'request_policy_decision' ] ?? [];
+
+		$this->assertSame( [
+			'mode',
+			'detector',
+			'decision',
+			'reason',
+			'surface',
+			'risk_band',
+			'rule',
+		], $event[ 'audit_params' ] ?? [] );
+		$this->assertSame( false, $event[ 'offense' ] ?? null );
+		$this->assertSame( 'notice', $event[ 'level' ] ?? '' );
+	}
 }

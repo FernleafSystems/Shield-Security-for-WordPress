@@ -69,6 +69,7 @@ class PluginDelete {
 				$dbCon->malware,
 				$dbCon->crowdsec_signals,
 				$dbCon->bot_signals,
+				$dbCon->ip_policy_state,
 				$dbCon->ip_rules,
 				$dbCon->mfa,
 				$dbCon->req_logs,

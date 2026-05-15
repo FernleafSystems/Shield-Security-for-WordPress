@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage
 	BlockIpAddressCrowdsec,
 	BlockIpAddressShield
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\RequestPolicy\PolicyEvidence;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Build\Core\HighReputationIp,
 	Build\Core\IpBlockedCrowdsec,
@@ -68,11 +70,36 @@ class IpDecisionRulesBehaviorTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( IpBlockedShield::SLUG, $rule->slug );
 		$this->assertTrue( $this->evaluateRule( $rule ) );
-		$this->assertSame( 'conn_kill', $this->responseParam( $rule, Responses\EventFire::class, 'event' ) );
-		$this->assertSame(
-			BlockIpAddressShield::SLUG,
-			$this->responseParam( $rule, Responses\DisplayBlockPage::class, 'block_page_slug' )
-		);
+		$this->assertSame( [
+			'response' => Responses\RequestPolicyGate::class,
+			'params'   => [
+				'detector'         => PolicyEvidence::DETECTOR_SHIELD_IP,
+				'legacy_responses' => [
+					[
+						'response' => Responses\UpdateIpRuleLastAccessAt::class,
+						'params'   => [],
+					],
+					[
+						'response' => Responses\EventFire::class,
+						'params'   => [
+							'event' => 'conn_kill',
+						],
+					],
+					[
+						'response' => Responses\DoAction::class,
+						'params'   => [
+							'hook' => 'shield/maybe_intercept_block_shield',
+						],
+					],
+					[
+						'response' => Responses\DisplayBlockPage::class,
+						'params'   => [
+							'block_page_slug' => BlockIpAddressShield::SLUG,
+						],
+					],
+				],
+			],
+		], $this->responseDefinition( $rule, Responses\RequestPolicyGate::class ) );
 	}
 
 	public function test_shield_block_rule_does_not_match_bypassed_blocked_ip() :void {
@@ -96,11 +123,38 @@ class IpDecisionRulesBehaviorTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( IpBlockedCrowdsec::SLUG, $rule->slug );
 		$this->assertTrue( $this->evaluateRule( $rule ) );
-		$this->assertSame( 'conn_kill_crowdsec', $this->responseParam( $rule, Responses\EventFire::class, 'event' ) );
-		$this->assertSame(
-			BlockIpAddressCrowdsec::SLUG,
-			$this->responseParam( $rule, Responses\DisplayBlockPage::class, 'block_page_slug' )
-		);
+		$this->assertSame( [
+			'response' => Responses\RequestPolicyGate::class,
+			'params'   => [
+				'detector'         => PolicyEvidence::DETECTOR_CROWDSEC,
+				'legacy_responses' => [
+					[
+						'response' => Responses\UpdateIpRuleLastAccessAt::class,
+						'params'   => [],
+					],
+					[
+						'response' => Responses\DoAction::class,
+						'params'   => [
+							'hook' => 'shield/maybe_intercept_block_crowdsec',
+						],
+					],
+					[
+						'response' => Responses\EventFire::class,
+						'params'   => [
+							'event' => 'conn_kill_crowdsec',
+						],
+					],
+					[
+						'response' => Responses\DisplayBlockPage::class,
+						'params'   => [
+							'block_page_slug' => BlockIpAddressCrowdsec::SLUG,
+							'hook'            => 'init',
+							'priority'        => HookTimings::INIT_RULES_RESPONSE_IP_BLOCK_REQUEST_CROWDSEC,
+						],
+					],
+				],
+			],
+		], $this->responseDefinition( $rule, Responses\RequestPolicyGate::class ) );
 
 		$this->requireController()->opts->optSet( 'cs_block', 'disabled' );
 		$this->applyRequestForIp( $ip, [
@@ -243,10 +297,4 @@ class IpDecisionRulesBehaviorTest extends ShieldIntegrationTestCase {
 		$this->fail( 'Rule must define response: '.$responseClass );
 	}
 
-	private function responseParam( RuleVO $rule, string $responseClass, string $paramKey ) :mixed {
-		$response = $this->responseDefinition( $rule, $responseClass );
-		$this->assertArrayHasKey( 'params', $response );
-		$this->assertArrayHasKey( $paramKey, $response[ 'params' ] );
-		return $response[ 'params' ][ $paramKey ];
-	}
 }

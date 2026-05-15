@@ -87,6 +87,8 @@ class RulesController {
 	 */
 	private function processRule( RuleVO $rule ) {
 		if ( !isset( $rule->result ) ) {
+			$this->resetConditionMeta();
+
 			$conditions = $rule->conditions ?? null;
 			if ( $conditions !== null ) {
 				$processor = new Processors\ProcessConditions( $conditions );
@@ -98,6 +100,8 @@ class RulesController {
 			}
 
 			if ( $rule->result ) {
+				$rule->condition_meta = $this->getConditionMeta()->getRawData();
+				do_action( 'shield/rules/rule_matched', $rule, $rule->condition_meta, $this->req );
 				( new Processors\ResponseProcessor( $rule ) )
 					->setThisRequest( $this->req )
 					->run();
@@ -123,5 +127,9 @@ class RulesController {
 
 	public function getConditionMeta() :ConditionMetaStore {
 		return $this->conditionMeta ??= new ConditionMetaStore();
+	}
+
+	private function resetConditionMeta() :void {
+		$this->conditionMeta = new ConditionMetaStore();
 	}
 }

@@ -28,7 +28,7 @@ class FirewallBlock extends Base {
 		self::con()->action_router->action( Actions\FullPageDisplay\DisplayBlockPage::class, [
 			'render_slug' => Actions\Render\FullPage\Block\BlockFirewall::SLUG,
 			'render_data' => [
-				'block_meta_data' => self::con()->rules->getConditionMeta()->getRawData(),
+				'block_meta_data' => $this->getBlockMeta(),
 			],
 		] );
 		die();
@@ -66,7 +66,7 @@ class FirewallBlock extends Base {
 	 * }
 	 */
 	private function buildAlertPayload() :array {
-		$blockMeta = self::con()->rules->getConditionMeta()->getRawData();
+		$blockMeta = $this->getBlockMeta();
 		$fallback = static fn( string $value, string $default = 'Unavailable' ) :string => $value !== '' ? $value : $default;
 
 		return [
@@ -77,5 +77,9 @@ class FirewallBlock extends Base {
 			'match_request_param' => $fallback( (string)( $blockMeta[ 'match_request_param' ] ?? '' ) ),
 			'match_request_value' => $fallback( (string)( $blockMeta[ 'match_request_value' ] ?? '' ) ),
 		];
+	}
+
+	private function getBlockMeta() :array {
+		return $this->rule->condition_meta;
 	}
 }

@@ -708,6 +708,20 @@
         "level": "warning",
         "offense": true
     },
+    "request_policy_decision": {
+        "audit_params": [
+            "mode",
+            "detector",
+            "decision",
+            "reason",
+            "surface",
+            "risk_band",
+            "rule"
+        ],
+        "level": "notice",
+        "recent": true,
+        "offense": false
+    },
     "scan_item_delete_success": {
         "audit_params": [
             "path_full"

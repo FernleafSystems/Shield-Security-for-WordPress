@@ -28,7 +28,28 @@ class ResponseProcessor {
 	}
 
 	public function run() {
-		foreach ( $this->rule->responses as $respDef ) {
+		$this->processResponses( $this->rule->responses, true );
+
+		try {
+			// We always fire the default event
+			$defaultEventResponse = new Responses\EventFireDefault();
+			$defaultEventResponse->setThisRequest( $this->req )
+								 ->setRule( $this->rule )
+								 ->setParams( [
+									 'rule_slug' => $this->rule->slug
+								 ] );
+			$this->dispatchResponse( $defaultEventResponse, true );
+		}
+		catch ( \Exception $e ) {
+		}
+	}
+
+	public function runResponsesOnly( array $responses ) :void {
+		$this->processResponses( $responses, false );
+	}
+
+	private function processResponses( array $responses, bool $respectTiming ) :void {
+		foreach ( $responses as $respDef ) {
 			try {
 				$responseClass = $respDef[ 'response' ] ?? null;
 				if ( empty( $responseClass ) ) {
@@ -46,7 +67,7 @@ class ResponseProcessor {
 				$response->setThisRequest( $this->req )
 						 ->setRule( $this->rule )
 						 ->setParams( $params );
-				$this->execResponse( $response );
+				$this->dispatchResponse( $response, $respectTiming );
 			}
 			catch ( NoResponseActionDefinedException|NoSuchResponseHandlerException $e ) {
 				error_log( $e->getMessage() );
@@ -55,27 +76,14 @@ class ResponseProcessor {
 //				error_log( $e->getMessage() );
 			}
 		}
-
-		try {
-			// We always fire the default event
-			$defaultEventResponse = new Responses\EventFireDefault();
-			$defaultEventResponse->setThisRequest( $this->req )
-								 ->setRule( $this->rule )
-								 ->setParams( [
-									 'rule_slug' => $this->rule->slug
-								 ] );
-			$this->execResponse( $defaultEventResponse );
-		}
-		catch ( \Exception $e ) {
-		}
 	}
 
 	/**
 	 * @param Responses\Base $response
 	 */
-	private function execResponse( Responses\Base $response ) :void {
+	private function dispatchResponse( Responses\Base $response, bool $respectTiming ) :void {
 		$con = self::con();
-		if ( $this->rule->immediate_exec_response || did_action( $con->prefix( 'after_run_processors' ) ) ) {
+		if ( !$respectTiming || $this->rule->immediate_exec_response || did_action( $con->prefix( 'after_run_processors' ) ) ) {
 			try {
 				$response->execResponse();
 			}
