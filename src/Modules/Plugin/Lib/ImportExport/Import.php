@@ -233,12 +233,14 @@ class Import {
 			foreach ( $data[ 'ip_rules' ] as $rule ) {
 				try {
 					if ( ( $rule[ 'type' ] ?? '' ) === $dbh::T_MANUAL_BYPASS ) {
-						( new AddRule() )->toManualWhitelist(
-							sprintf( '%s- %s', __( 'Imported', 'wp-simple-firewall' ), $rule[ 'label' ] ),
-							[
-								'imported_at' => $now,
-							]
-						);
+						( new AddRule() )
+							->setIP( (string)( $rule[ 'ip' ] ?? '' ) )
+							->toManualWhitelist(
+								sprintf( '%s- %s', __( 'Imported', 'wp-simple-firewall' ), $rule[ 'label' ] ),
+								[
+									'imported_at' => $now,
+								]
+							);
 					}
 				}
 				catch ( \Exception $e ) {
