@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\VerifySecurityAdminList;
@@ -12,6 +13,7 @@ class OptionsCorrections {
 	use PluginControllerConsumer;
 
 	public function run() :void {
+		$this->backupCodesFreeOption();
 		$this->audit();
 		$this->alerts();
 		$this->comments();
@@ -27,6 +29,7 @@ class OptionsCorrections {
 	}
 
 	public function runUpgradeMigrations() :void {
+		$this->backupCodesFreeOption();
 		$this->alerts();
 		$this->pluginBadgeMode();
 		$this->silentCaptcha();
@@ -325,6 +328,28 @@ class OptionsCorrections {
 
 	private function hasLegacyFirewallBlockEmailAlertEnabled() :bool {
 		return self::con()->opts->optIs( 'block_send_email', 'Y' );
+	}
+
+	private function backupCodesFreeOption() :void {
+		$con = self::con();
+		$opts = $con->opts;
+		$all = $opts->mod_opts_all;
+		$values = \is_array( $all[ 'values' ] ?? null ) ? $all[ 'values' ] : [];
+		$free = \is_array( $values[ OptsHandler::TYPE_FREE ] ?? null ) ? $values[ OptsHandler::TYPE_FREE ] : [];
+		$pro = \is_array( $values[ OptsHandler::TYPE_PRO ] ?? null ) ? $values[ OptsHandler::TYPE_PRO ] : [];
+
+		if ( !\array_key_exists( 'allow_backupcodes', $pro ) ) {
+			return;
+		}
+
+		$free[ 'allow_backupcodes' ] = $pro[ 'allow_backupcodes' ];
+		unset( $pro[ 'allow_backupcodes' ] );
+
+		$all[ 'values' ][ OptsHandler::TYPE_FREE ] = $free;
+		$all[ 'values' ][ OptsHandler::TYPE_PRO ] = $pro;
+		$opts->mod_opts_all = $all;
+		$opts->optSet( 'allow_backupcodes', $free[ 'allow_backupcodes' ] );
+		Services::WpGeneral()->updateOption( $con->prefix( 'opts_all', '_' ), $all );
 	}
 
 	private function pluginBadgeMode() :void {

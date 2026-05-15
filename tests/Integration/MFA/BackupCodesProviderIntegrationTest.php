@@ -37,7 +37,6 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 	public function set_up() :void {
 		parent::set_up();
 		$this->requireDb( 'mfa' );
-		$this->enablePremiumCapabilities( [ '2fa_login_backup_codes' ] );
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			'allow_backupcodes',
 			'enable_google_authenticator',
@@ -65,6 +64,9 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_allow_backupcodes_gates_provider_without_making_backup_only_users_subject_to_mfa() :void {
+		$this->assertFalse( $this->requireController()->isPremiumActive() );
+		$this->assertTrue( $this->requireController()->caps->canLogin2faBackupCodes() );
+
 		$user = $this->createBackupCodeOnlyUser();
 
 		RuntimeTestState::restoreOptions( [

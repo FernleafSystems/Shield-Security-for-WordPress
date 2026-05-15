@@ -38,6 +38,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'enable_admin_login_email_notification',
 		'instant_alert_firewall_block',
 		'block_send_email',
+		'allow_backupcodes',
 		'display_plugin_badge',
 		'silentcaptcha_complexity',
 	];
@@ -278,6 +279,49 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$con->cfg->previous_version = $previousVersion;
 	}
 
+	public function test_legacy_backup_codes_pro_option_migrates_to_free_during_store() :void {
+		$con = $this->requireController();
+
+		$this->replaceStoredOptionBuckets(
+			[ 'allow_backupcodes' => 'N' ],
+			[ 'allow_backupcodes' => 'Y' ]
+		);
+
+		$con->opts->store();
+		$stored = $this->storedOptionsAll();
+
+		$this->assertSame( 'Y', $con->opts->optGet( 'allow_backupcodes' ) );
+		$this->assertSame( 'Y', $stored[ 'values' ][ OptsHandler::TYPE_FREE ][ 'allow_backupcodes' ] ?? null );
+		$this->assertArrayNotHasKey(
+			'allow_backupcodes',
+			$stored[ 'values' ][ OptsHandler::TYPE_PRO ] ?? []
+		);
+	}
+
+	public function test_legacy_backup_codes_pro_option_migrates_to_free_during_upgrade_hook() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+
+		$this->replaceStoredOptionBuckets(
+			[ 'allow_backupcodes' => 'N' ],
+			[ 'allow_backupcodes' => 'Y' ]
+		);
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+		$stored = $this->storedOptionsAll();
+
+		$this->assertSame( 'Y', $con->opts->optGet( 'allow_backupcodes' ) );
+		$this->assertSame( 'Y', $stored[ 'values' ][ OptsHandler::TYPE_FREE ][ 'allow_backupcodes' ] ?? null );
+		$this->assertArrayNotHasKey(
+			'allow_backupcodes',
+			$stored[ 'values' ][ OptsHandler::TYPE_PRO ] ?? []
+		);
+
+		$con->cfg->previous_version = $previousVersion;
+	}
+
 	public function test_legacy_plugin_badge_enabled_migrates_to_light_during_store() :void {
 		$con = $this->requireController();
 		$this->replaceStoredOptionValues( [
@@ -411,6 +455,14 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 	 * @param array<string,mixed> $values
 	 */
 	private function replaceStoredOptionValues( array $values ) :void {
+		$this->replaceStoredOptionBuckets( $values, $values );
+	}
+
+	/**
+	 * @param array<string,mixed> $freeValues
+	 * @param array<string,mixed> $proValues
+	 */
+	private function replaceStoredOptionBuckets( array $freeValues, array $proValues ) :void {
 		$con = $this->requireController();
 		$all = Services::WpGeneral()->getOption( $this->optsAllOptionName() );
 		if ( !\is_array( $all ) ) {
@@ -423,14 +475,27 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 				'xfer_excluded' => [],
 			];
 		}
+		$all[ 'values' ][ OptsHandler::TYPE_FREE ] = \is_array( $all[ 'values' ][ OptsHandler::TYPE_FREE ] ?? null )
+			? $all[ 'values' ][ OptsHandler::TYPE_FREE ]
+			: [];
+		$all[ 'values' ][ OptsHandler::TYPE_PRO ] = \is_array( $all[ 'values' ][ OptsHandler::TYPE_PRO ] ?? null )
+			? $all[ 'values' ][ OptsHandler::TYPE_PRO ]
+			: [];
 
-		foreach ( $values as $key => $value ) {
+		foreach ( $freeValues as $key => $value ) {
 			$all[ 'values' ][ OptsHandler::TYPE_FREE ][ $key ] = $value;
+		}
+		foreach ( $proValues as $key => $value ) {
 			$all[ 'values' ][ OptsHandler::TYPE_PRO ][ $key ] = $value;
 		}
 
 		Services::WpGeneral()->updateOption( $this->optsAllOptionName(), $all );
 		$con->opts = new OptsHandler();
+	}
+
+	private function storedOptionsAll() :array {
+		$stored = Services::WpGeneral()->getOption( $this->optsAllOptionName() );
+		return \is_array( $stored ) ? $stored : [];
 	}
 
 	private function optsAllOptionName() :string {

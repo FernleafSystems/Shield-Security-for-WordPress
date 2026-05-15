@@ -321,6 +321,24 @@ class PluginOptionsSchemaTest extends TestCase {
 		$this->assertSame( PluginBadgeMode::VALID_MODES, \array_column( $option['value_options'] ?? [], 'value_key' ) );
 	}
 
+	public function testBackupCodesOptionIsFreeOptInMfaOptionInSourceAndGeneratedConfig() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+		$this->assertArrayHasKey( 'allow_backupcodes', $sourceOptions );
+		$this->assertArrayHasKey( 'allow_backupcodes', $this->options );
+
+		foreach ( [
+			'source'    => $sourceOptions[ 'allow_backupcodes' ],
+			'generated' => $this->options[ 'allow_backupcodes' ],
+		] as $context => $option ) {
+			$this->assertSame( 'section_twofactor_auth', $option[ 'section' ], sprintf( '%s backup-code option should remain in Login Guard MFA.', $context ) );
+			$this->assertSame( [ 'two_factor_auth', 'module_login' ], $option[ 'zone_comp_slugs' ], sprintf( '%s backup-code option should stay in the MFA zone.', $context ) );
+			$this->assertSame( 'checkbox', $option[ 'type' ], sprintf( '%s backup-code option should be a checkbox.', $context ) );
+			$this->assertSame( 'N', $option[ 'default' ], sprintf( '%s backup-code option should stay opt-in.', $context ) );
+			$this->assertArrayNotHasKey( 'premium', $option, sprintf( '%s backup-code option should not be premium-only.', $context ) );
+			$this->assertArrayNotHasKey( 'cap', $option, sprintf( '%s backup-code option should not require a premium capability.', $context ) );
+		}
+	}
+
 	public function testAdminLoginInstantAlertOptionIsGroupedWithInstantAlertsInSourceSpec() :void {
 		$options = $this->decodePluginJsonFile( 'plugin-spec/34_options.json', 'Source options spec' );
 		$keys = \array_column( $options, 'key' );
