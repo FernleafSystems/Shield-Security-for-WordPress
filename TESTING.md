@@ -91,6 +91,17 @@ Automated CI workflows can enforce noisy mode by invoking the command form direc
 php bin/shield test:source --skip-unit-tests --show-docker-output
 ```
 
+## Local integration lane serialization
+
+`composer test`, `composer test:integration`, and `php bin/shield test:integration-local` are serialized across local terminals, agents, and worktrees with a machine-scoped `flock()` lock. The lock protects the fixed local sidecar resources: Compose project `shield-local-db`, MySQL port `127.0.0.1:3311`, database `wordpress_test_local`, and the shared WordPress test-library config.
+
+- Lock file: `<system-temp>/shield-test-locks/integration-local.lock`.
+- Default wait: 600 seconds.
+- Override wait: `SHIELD_INTEGRATION_LANE_WAIT_SECONDS=<positive-integer>`.
+- `--db-down` uses the same lock, so teardown cannot remove the sidecar while another integration run is active.
+
+The lock file may remain after a run and contains diagnostic metadata for the last acquired lease. Do not delete it as stale cleanup; `flock()` releases automatically when the owning process exits. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses this guard and is not part of the supported local integration command surface.
+
 ## Local Browser Lane
 
 Use this lane for ActionRouter interaction and accessibility checks that now live in Playwright instead of PHPUnit DOM assertions. Browser tests run against an automatically leased isolated Docker WordPress lane, while `dev:site:*` continues to manage the persistent manual development site.
