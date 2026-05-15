@@ -115,7 +115,7 @@ class OptsLookup {
 
 	public function getEmailValidateChecks() :array {
 		$con = self::con();
-		return ( $con->opts->optGet( 'reg_email_validate' ) !== 'disabled' && $con->isPremiumActive() ) ? $con->opts->optGet( 'email_checks' ) : [];
+		return ( $con->opts->optGet( 'reg_email_validate' ) !== 'disabled' && $con->caps->canUserBlockSpamReg() ) ? $con->opts->optGet( 'email_checks' ) : [];
 	}
 
 	/**

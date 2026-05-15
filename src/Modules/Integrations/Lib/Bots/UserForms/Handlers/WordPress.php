@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class WordPress extends Base {
 
 	public function isEnabled() :bool {
-		return \in_array( static::Slug(), $this->getHandlerController()->getSelectedProviders() );
+		return parent::isEnabled() && \in_array( static::Slug(), $this->getHandlerController()->getSelectedProviders() );
 	}
 
 	protected function login() {
