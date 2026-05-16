@@ -4,6 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\
 
 class ArformsLite extends Base {
 
+	public static function Slug() :string {
+		return \FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Find::ARFORMS_LITE;
+	}
+
 	protected function run() {
 		add_filter( 'arflite_is_to_validate_spam_filter', function ( $validate ) {
 			if ( $validate && $this->isBotBlockRequired() ) {

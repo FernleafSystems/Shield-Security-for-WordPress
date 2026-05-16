@@ -100,24 +100,28 @@ class FileScanner {
 			$item->is_in_plugin = true;
 			$item->is_unrecognised = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
+			$item->asset_version = $e->getScanFileData()[ 'asset_version' ] ?? '';
 		}
 		catch ( Exceptions\PluginFileChecksumFailException $e ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_plugin = true;
 			$item->is_checksumfail = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
+			$item->asset_version = $e->getScanFileData()[ 'asset_version' ] ?? '';
 		}
 		catch ( Exceptions\ThemeFileUnrecognisedException $e ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_theme = true;
 			$item->is_unrecognised = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
+			$item->asset_version = $e->getScanFileData()[ 'asset_version' ] ?? '';
 		}
 		catch ( Exceptions\ThemeFileChecksumFailException $e ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_theme = true;
 			$item->is_checksumfail = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
+			$item->asset_version = $e->getScanFileData()[ 'asset_version' ] ?? '';
 		}
 		catch ( Exceptions\WpRootFileUnidentifiedException $e ) {
 			$item = $this->getResultItem( $fullPath );

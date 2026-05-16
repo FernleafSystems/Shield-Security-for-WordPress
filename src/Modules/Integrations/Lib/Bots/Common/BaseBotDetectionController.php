@@ -10,6 +10,9 @@ abstract class BaseBotDetectionController {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
+	/**
+	 * @var array<string,class-string<BaseHandler>>
+	 */
 	private array $installedProviders;
 
 	protected function canRun() :bool {
@@ -18,10 +21,13 @@ abstract class BaseBotDetectionController {
 	}
 
 	/**
-	 * @return BaseHandler[]|string[]
+	 * @return array<string,class-string<BaseHandler>>
 	 */
 	public function getInstalled() :array {
-		return $this->installedProviders ??= \array_filter( $this->enumProviders(), fn( string $p ) => $p::IsProviderAvailable() );
+		return $this->installedProviders ??= \array_filter(
+			$this->enumProviders(),
+			static fn( string $p ) => $p::IsProviderAvailable()
+		);
 	}
 
 	protected function run() {
@@ -42,7 +48,14 @@ abstract class BaseBotDetectionController {
 	abstract public function getSelectedProvidersOptKey() :string;
 
 	/**
-	 * @return BaseHandler[]|string[]
+	 * @return array<int,array{value_key:string,text:string}>
+	 */
+	public function providerOptions() :array {
+		return self::con()->opts->optDef( $this->getSelectedProvidersOptKey() )[ 'value_options' ] ?? [];
+	}
+
+	/**
+	 * @return array<string,class-string<BaseHandler>>
 	 */
 	public function enumProviders() :array {
 		return [];

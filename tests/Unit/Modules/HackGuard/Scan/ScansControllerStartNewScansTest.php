@@ -144,6 +144,28 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( 1, $queue->dispatches );
 	}
 
+	public function test_afs_core_asset_change_scan_uses_core_scope_contract() :void {
+		$scansDb = new StartScansFakeScansDb();
+		$queue = new StartScansFakeQueue();
+		$this->installController( $scansDb, $queue );
+		ServicesState::installItems( [
+			'service_wpgeneral' => new StartScansFakeGeneral( false ),
+			'service_wpdb'      => new StartScansFakeWpDb( $scansDb ),
+			'service_request'   => new UnitTestRequest(),
+		] );
+
+		$started = ( new StartScansControllerTestDouble( [
+			'afs' => new StartScansTestAfsController( true ),
+		] ) )->startAfsAssetScan( 'core', '' );
+
+		$this->assertTrue( $started );
+		$record = $scansDb->insertedRecords[ 101 ];
+		$this->assertSame( 'core', $record->scope_type );
+		$this->assertSame( 'core', $record->scope_key );
+		$this->assertInsertedScanRunTrigger( $record, 'asset_change' );
+		$this->assertSame( 1, $queue->dispatches );
+	}
+
 	private function assertInsertedScanRunTrigger( Record $record, string $expectedRunTrigger ) :void {
 		$this->assertSame( $expectedRunTrigger, $record->run_trigger );
 		$this->assertArrayHasKey( 'run_trigger', $record->getRawData() );

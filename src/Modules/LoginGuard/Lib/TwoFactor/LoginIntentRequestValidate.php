@@ -45,6 +45,9 @@ class LoginIntentRequestValidate {
 		}
 
 		$validatedSlug = null;
+		/** @var OtpVerificationFailedException|null $failedOtpException */
+		$failedOtpException = null;
+		$failedProviderName = '';
 		foreach ( $providers as $provider ) {
 			try {
 				\ob_start();
@@ -60,9 +63,11 @@ class LoginIntentRequestValidate {
 			catch ( Exceptions\OtpNotPresentException|Exceptions\ProviderNotActiveForUserException $e ) {
 				// Nothing to do here.
 			}
-			catch ( Exceptions\OtpVerificationFailedException $e ) {
-				$this->auditLoginIntent( false, $provider->getProviderName() );
-				throw $e;
+			catch ( OtpVerificationFailedException $e ) {
+				if ( !$failedOtpException instanceof OtpVerificationFailedException ) {
+					$failedOtpException = $e;
+					$failedProviderName = $provider->getProviderName();
+				}
 			}
 			finally {
 				\ob_end_clean();
@@ -70,6 +75,10 @@ class LoginIntentRequestValidate {
 		}
 
 		if ( empty( $validatedSlug ) ) {
+			if ( $failedOtpException instanceof OtpVerificationFailedException ) {
+				$this->auditLoginIntent( false, $failedProviderName );
+				throw $failedOtpException;
+			}
 			throw new CouldNotValidate2FA();
 		}
 

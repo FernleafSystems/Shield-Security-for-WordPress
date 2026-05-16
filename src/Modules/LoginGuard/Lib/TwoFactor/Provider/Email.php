@@ -60,7 +60,7 @@ class Email extends AbstractShieldProviderMfaDB {
 			'slug'        => static::ProviderSlug(),
 			'name'        => $this->getLoginIntentFormParameter(),
 			'type'        => 'text',
-			'value'       => $this->fetchOtpFromRequest(),
+			'value'       => '',
 			'placeholder' => __( 'A1B2C3', 'wp-simple-firewall' ),
 			'text'        => __( 'Email OTP', 'wp-simple-firewall' ),
 			'description' => __( 'Enter code sent to your email', 'wp-simple-firewall' ),
