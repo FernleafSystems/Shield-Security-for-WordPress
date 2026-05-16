@@ -22,7 +22,7 @@ class BuildScanItems {
 
 		$action->valid_files = [];
 		$rootDirs = [];
-		if ( $action->scope_type === 'plugin' || $action->scope_type === 'theme' ) {
+		if ( \in_array( $action->scope_type, [ 'core', 'plugin', 'theme' ], true ) ) {
 			$rootDirs = $this->buildScopedRootDirs( $action );
 		}
 		else {
@@ -104,7 +104,7 @@ class BuildScanItems {
 			\array_unique( \array_merge(
 				$this->buildExplicitValidFiles(),
 				$this->buildFilesFromDisk(),
-				$action->scope_type === 'full' ? $this->buildFilesFromWpHashes() : []
+				\in_array( $action->scope_type, [ 'core', 'full' ], true ) ? $this->buildFilesFromWpHashes() : []
 			) ),
 			fn( $path ) => !$this->isWhitelistedPath( $path ),
 		);
@@ -170,6 +170,19 @@ class BuildScanItems {
 	}
 
 	private function buildScopedRootDirs( ScanActionVO $action ): array {
+		if ( $action->scope_type === 'core' ) {
+			$scanCon = self::con()->comps->scans->AFS();
+			$rootDirs = [];
+			if ( \in_array( 'wproot', $scanCon->getFileScanAreas(), true ) && self::con()->caps->canScanAllFiles() ) {
+				$rootDirs[ ABSPATH ] = 1;
+			}
+			if ( \in_array( 'wp', $scanCon->getFileScanAreas(), true ) ) {
+				$rootDirs[ path_join( ABSPATH, WPINC ) ] = 0;
+				$rootDirs[ path_join( ABSPATH, 'wp-admin' ) ] = 0;
+			}
+			return $rootDirs;
+		}
+
 		if ( $action->scope_type === 'plugin' ) {
 			$plugin = Services::WpPlugins()->getPluginAsVo( $action->scope_key, true );
 			if ( !empty( $plugin ) ) {

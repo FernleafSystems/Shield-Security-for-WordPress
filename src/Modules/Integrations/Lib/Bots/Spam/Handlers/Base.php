@@ -3,10 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\Handlers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\CoolDownHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseBotDetectionController;
 
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler {
 
-	public function getHandlerController() {
+	public function getHandlerController() :BaseBotDetectionController {
 		return self::con()->comps->forms_spam;
 	}
 

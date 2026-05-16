@@ -69,10 +69,10 @@ class ScheduleBuildAll extends BaseExec {
 			( new FindAssetsToSnap() )->run(),
 			function ( $asset ) {
 				try {
-					( new Load() )
+					$store = ( new Load() )
 						->setAsset( $asset )
 						->run();
-					$needBuilt = false;
+					$needBuilt = !$store->verify();
 				}
 				catch ( \Exception $e ) {
 					$needBuilt = true;

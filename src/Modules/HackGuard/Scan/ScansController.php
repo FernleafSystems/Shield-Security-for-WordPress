@@ -248,8 +248,8 @@ class ScansController {
 			return false;
 		}
 
-		$assetType = \in_array( $assetType, [ 'plugin', 'theme' ], true ) ? $assetType : '';
-		$assetKey = trim( $assetKey );
+		$assetType = \in_array( $assetType, [ 'core', 'plugin', 'theme' ], true ) ? $assetType : '';
+		$assetKey = $assetType === 'core' ? 'core' : trim( $assetKey );
 		if ( $assetType === '' || $assetKey === '' ) {
 			return false;
 		}

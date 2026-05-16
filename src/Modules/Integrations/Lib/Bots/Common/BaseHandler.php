@@ -18,13 +18,10 @@ abstract class BaseHandler {
 	protected bool $suppressCooldownCheck = false;
 
 	protected function canRun() :bool {
-		return static::ProviderMeetsRequirements();
+		return $this->isEnabled() && static::ProviderMeetsRequirements();
 	}
 
-	/**
-	 * @return BaseBotDetectionController|mixed
-	 */
-	abstract public function getHandlerController();
+	abstract public function getHandlerController() :BaseBotDetectionController;
 
 	public static function Slug() :string {
 		try {
