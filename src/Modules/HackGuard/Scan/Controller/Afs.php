@@ -23,6 +23,9 @@ class Afs extends Base {
 		parent::run();
 		$this->setupCronHooks();
 		( new StoreAction\ScheduleBuildAll() )->execute();
+		$assetCleanup = new Scan\AssetChange\Cleanup();
+		add_action( $assetCleanup->getHook(), [ $assetCleanup, 'run' ], 10, 3 );
+		add_action( '_core_updated_successfully', [ $this, 'queueCoreAssetScan' ], 10, 1 );
 		add_action( 'upgrader_process_complete', [ $this, 'queueAssetScansFromUpgraderProcessComplete' ], 10, 2 );
 		add_filter( 'upgrader_post_install', [ $this, 'queueAssetScansFromUpgraderPostInstall' ], 10, 2 );
 		add_action( 'pre_uninstall_plugin', [ $this, 'queuePluginAssetScan' ] );
@@ -56,6 +59,7 @@ class Afs extends Base {
 		if ( !empty( $rawResult[ 'is_in_core' ] ) ) {
 			$record->asset_type = 'core';
 			$record->asset_key = 'core';
+			$rawResult[ 'asset_version' ] = Services::WpGeneral()->getVersion();
 		}
 		elseif ( !empty( $rawResult[ 'is_in_plugin' ] ) ) {
 			$record->asset_type = 'plugin';
@@ -250,28 +254,31 @@ class Afs extends Base {
 
 	public function queueAssetScansFromUpgraderPostInstall( $response, $hookExtra ) {
 		if ( \is_array( $hookExtra ) && ( !empty( $hookExtra[ 'plugin' ] ) || !empty( $hookExtra[ 'theme' ] ) ) ) {
-			add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () use ( $hookExtra ) {
-				if ( !empty( $hookExtra[ 'plugin' ] ) ) {
-					$this->queuePluginAssetScan( (string)$hookExtra[ 'plugin' ] );
-				}
-				if ( !empty( $hookExtra[ 'theme' ] ) ) {
-					$this->queueThemeAssetScan( (string)$hookExtra[ 'theme' ], true );
-				}
-			} );
+			if ( !empty( $hookExtra[ 'plugin' ] ) ) {
+				$this->queuePluginAssetScan( (string)$hookExtra[ 'plugin' ] );
+			}
+			if ( !empty( $hookExtra[ 'theme' ] ) ) {
+				$this->queueThemeAssetScan( (string)$hookExtra[ 'theme' ], true );
+			}
 		}
 		return $response;
 	}
 
 	public function queuePluginAssetScan( string $plugin ) :void {
 		if ( $plugin !== '' ) {
-			self::con()->comps->scans->startAfsAssetScan( 'plugin', $plugin );
+			( new Scan\AssetChange\Cleanup() )->schedule( 'plugin', $plugin );
 		}
 	}
 
 	public function queueThemeAssetScan( string $stylesheet, bool $wasDeleted = true ) :void {
 		if ( $wasDeleted && $stylesheet !== '' ) {
-			self::con()->comps->scans->startAfsAssetScan( 'theme', $stylesheet );
+			( new Scan\AssetChange\Cleanup() )->schedule( 'theme', $stylesheet );
 		}
+	}
+
+	public function queueCoreAssetScan( $newVersion = '' ) :void {
+		unset( $newVersion );
+		( new Scan\AssetChange\Cleanup() )->schedule( 'core', 'core' );
 	}
 
 	/**

@@ -128,7 +128,7 @@ class SetScanCompleted {
 		$scanSlug = \preg_replace( '/[^a-z0-9_]/i', '', $scanRecord->scan ) ?? '';
 		$scopeWhere = $this->buildScopeWhere( $scanRecord );
 		$reason = $scanSlug === 'afs'
-		          && \in_array( $scanRecord->scope_type, [ 'plugin', 'theme' ], true )
+		          && \in_array( $scanRecord->scope_type, [ 'core', 'plugin', 'theme' ], true )
 		          && $scanRecord->run_trigger === 'asset_change'
 			? 'asset_replaced'
 			: 'clean_rescan';
@@ -169,6 +169,22 @@ class SetScanCompleted {
 				" AND `asset_type`='%s' AND `asset_key`='%s'",
 				esc_sql( $scanRecord->scope_type ),
 				esc_sql( $scanRecord->scope_key )
+			);
+		}
+
+		if ( $scanRecord->scope_type === 'core' ) {
+			return sprintf(
+				" AND `asset_type`='core' AND `asset_key`='core'
+				  AND EXISTS (
+					SELECT 1
+					FROM `%s` AS `rim_scope`
+					WHERE `rim_scope`.`ri_ref`=`%s`.`id`
+					  AND `rim_scope`.`meta_key` IN ('is_checksumfail','is_missing')
+					  AND `rim_scope`.`meta_value`!=''
+					  AND `rim_scope`.`meta_value`!='0'
+				  )",
+				self::con()->db_con->scan_result_item_meta->getTable(),
+				self::con()->db_con->scan_result_items->getTable()
 			);
 		}
 

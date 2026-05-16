@@ -20,6 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  * @property bool   $is_mal
  * @property int    $malware_record_id
  * @property string $ptg_slug
+ * @property string $asset_version
  * @property string $checksum_sha256
  */
 class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {

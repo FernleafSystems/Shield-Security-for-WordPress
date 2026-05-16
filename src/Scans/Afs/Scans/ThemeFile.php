@@ -31,7 +31,8 @@ class ThemeFile extends BasePluginThemeFile {
 			$verification = ( new Query() )->verifyHashWithSource( $this->pathFull );
 			if ( !$verification->verified ) {
 				throw new Exceptions\ThemeFileChecksumFailException( $this->pathFull, [
-					'slug' => $this->asset->unique_id,
+					'slug'          => $this->asset->unique_id,
+					'asset_version' => (string)$this->asset->Version,
 				] );
 			}
 			$this->hashVerificationResult = $verification;
@@ -40,7 +41,8 @@ class ThemeFile extends BasePluginThemeFile {
 		}
 		catch ( UnrecognisedAssetFile $e ) {
 			throw new Exceptions\ThemeFileUnrecognisedException( $this->pathFull, [
-				'slug' => $this->asset->unique_id,
+				'slug'          => $this->asset->unique_id,
+				'asset_version' => (string)$this->asset->Version,
 			] );
 		}
 		catch ( \InvalidArgumentException|AssetHashesNotFound|NonAssetFileException $e ) {
