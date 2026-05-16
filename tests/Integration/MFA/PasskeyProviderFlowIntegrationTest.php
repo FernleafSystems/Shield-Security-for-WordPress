@@ -4,7 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\OtpVerificationFailedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\LoginIntentRequestValidate;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Passkey;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\{
+	Email,
+	Passkey
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA\Support\{
 	PasskeyFixtureLoader,
 	PasskeyTestEnvironmentTrait
@@ -230,6 +234,61 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
 		$this->assertGreaterThan( 0, (int)$this->requireController()->user_metas->for( $user )->record->last_2fa_verified_at );
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_success' ) );
+	}
+
+	public function test_login_intent_validation_accepts_passkey_when_stale_invalid_email_otp_is_also_submitted() :void {
+		$this->captureShieldEvents();
+		$emailOptionSnapshot = $this->snapshotSelectedOptions( [
+			'enable_email_authentication',
+			'email_can_send_verified_at',
+			'email_any_user_set',
+			'two_factor_auth_user_roles',
+			'suresend_emails',
+		] );
+
+		try {
+			$this->requireController()->opts
+				->optSet( 'enable_email_authentication', 'Y' )
+				->optSet( 'email_can_send_verified_at', \time() )
+				->optSet( 'email_any_user_set', 'Y' )
+				->optSet( 'two_factor_auth_user_roles', [ 'administrator' ] )
+				->optSet( 'suresend_emails', [] )
+				->store();
+
+			$userId = $this->createAdministratorUser();
+			$user = \get_user_by( 'id', $userId );
+			$this->seedLegacyPasskey( $user );
+			$this->seedPasskeyAuthenticationOptions( $user );
+			$this->seedLoginIntent( $user, 'fixture-email-passkey-login' );
+
+			$hashedNonce = $this->requireController()->comps->mfa
+				->findHashedNonce( $user, 'fixture-email-passkey-login' );
+			TestDataFactory::insertMfaRecord( $user->ID, Email::ProviderSlug(), [
+				'hashed_login_nonce' => $hashedNonce,
+			], [
+				'unique_id' => \wp_hash_password( 'AA11BB' ),
+				'label'     => 'Fixture Email',
+			] );
+
+			$emailProvider = new Email( $user );
+			$passkeyProvider = $this->assertPasskeyProviderActiveFor( $user );
+			$this->mergeCurrentRequestTransport( [
+				$emailProvider->getLoginIntentFormParameter()   => 'ZZ99YY',
+				$passkeyProvider->getLoginIntentFormParameter() => \base64_encode( PasskeyFixtureLoader::authenticationResponse() ),
+			] );
+
+			$validatedSlug = ( new LoginIntentRequestValidate() )
+				->setWpUser( $user )
+				->run( 'fixture-email-passkey-login' );
+
+			$this->assertSame( Passkey::ProviderSlug(), $validatedSlug );
+			$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
+			$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_success' ) );
+			$this->assertSame( [], $this->getCapturedEventsByKey( '2fa_verify_fail' ) );
+		}
+		finally {
+			$this->restoreSelectedOptions( $emailOptionSnapshot );
+		}
 	}
 
 	/**

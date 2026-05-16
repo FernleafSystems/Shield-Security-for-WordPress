@@ -2,16 +2,24 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA;
 
+use Dolondro\GoogleAuthenticator\GoogleAuthenticator as OtpGenerator;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MfaEmailAutoLogin,
 	MfaEmailSendIntent
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\OtpVerificationFailedException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Email;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
+	Exceptions\OtpVerificationFailedException,
+	LoginIntentRequestValidate,
+	Provider\BackupCodes,
+	Provider\Email,
+	Provider\GoogleAuth,
+	Utilties\MfaRecordsHandler
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 	ActionRouter\PluginAdminRouteRuntime,
-	RuntimeTestState
+	RuntimeTestState,
+	TestDataFactory
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\LocalEmailCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -38,6 +46,8 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 			'enable_email_auto_login',
 			'email_can_send_verified_at',
 			'email_any_user_set',
+			'allow_backupcodes',
+			'enable_google_authenticator',
 			'two_factor_auth_user_roles',
 			'suresend_emails',
 		] );
@@ -47,6 +57,8 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 			'enable_email_auto_login'     => 'Y',
 			'email_can_send_verified_at'  => \time(),
 			'email_any_user_set'          => 'Y',
+			'allow_backupcodes'           => 'N',
+			'enable_google_authenticator' => 'N',
 			'two_factor_auth_user_roles'  => [ 'administrator' ],
 			'suresend_emails'             => [],
 		], true );
@@ -95,6 +107,102 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 			Email::ProviderSlug(),
 			$this->requireController()->comps->mfa->getProvidersActiveForUser( $user )
 		);
+	}
+
+	public function test_email_login_form_field_does_not_rehydrate_submitted_otp() :void {
+		$user = \get_user_by( 'id', $this->createAdministratorUser() );
+		$provider = new Email( $user );
+
+		$this->mergeCurrentRequestTransport( [
+			$provider->getLoginIntentFormParameter() => 'AA11BB',
+		] );
+
+		$field = $provider->getFormField();
+
+		$this->assertArrayHasKey( 'name', $field );
+		$this->assertArrayHasKey( 'value', $field );
+		$this->assertSame( $provider->getLoginIntentFormParameter(), $field[ 'name' ] );
+		$this->assertSame( '', $field[ 'value' ] );
+	}
+
+	public function test_valid_ga_login_succeeds_when_stale_invalid_email_otp_is_also_submitted() :void {
+		$this->captureShieldEvents();
+		RuntimeTestState::restoreOptions( [
+			'enable_google_authenticator' => 'Y',
+		], true );
+
+		$user = \get_user_by( 'id', $this->createAdministratorUser() );
+		$secret = 'JBSWY3DPEHPK3PXP';
+		$this->seedLoginIntent( $user, 'email-ga-login' );
+		$hashedNonce = $this->requireController()->comps->mfa->findHashedNonce( $user, 'email-ga-login' );
+		TestDataFactory::insertMfaRecord( $user->ID, Email::ProviderSlug(), [
+			'hashed_login_nonce' => $hashedNonce,
+		], [
+			'unique_id' => \wp_hash_password( 'AA11BB' ),
+			'label'     => 'Fixture Email',
+		] );
+		TestDataFactory::insertMfaRecord( $user->ID, GoogleAuth::ProviderSlug(), [], [
+			'unique_id' => $secret,
+			'label'     => 'Fixture GA',
+		] );
+		$this->clearMfaRecordsCache( $user );
+		$this->resetMfaProviderCache();
+
+		$this->mergeCurrentRequestTransport( [
+			( new Email( $user ) )->getLoginIntentFormParameter()      => 'ZZ99YY',
+			( new GoogleAuth( $user ) )->getLoginIntentFormParameter() => $this->calculateOtp( $secret ),
+		] );
+
+		$validatedSlug = ( new LoginIntentRequestValidate() )
+			->setWpUser( $user )
+			->run( 'email-ga-login' );
+
+		$this->assertSame( GoogleAuth::ProviderSlug(), $validatedSlug );
+		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
+		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_success' ) );
+		$this->assertSame( [], $this->getCapturedEventsByKey( '2fa_verify_fail' ) );
+	}
+
+	public function test_valid_backup_code_login_succeeds_when_stale_invalid_email_otp_is_also_submitted() :void {
+		$this->captureShieldEvents();
+		RuntimeTestState::restoreOptions( [
+			'allow_backupcodes' => 'Y',
+		], true );
+
+		$user = \get_user_by( 'id', $this->createAdministratorUser( [
+			'user_email' => 'email-backup-user@example.test',
+		] ) );
+		$this->seedLoginIntent( $user, 'email-backup-login' );
+		$hashedNonce = $this->requireController()->comps->mfa->findHashedNonce( $user, 'email-backup-login' );
+		TestDataFactory::insertMfaRecord( $user->ID, Email::ProviderSlug(), [
+			'hashed_login_nonce' => $hashedNonce,
+		], [
+			'unique_id' => \wp_hash_password( 'AA11BB' ),
+			'label'     => 'Fixture Email',
+		] );
+		TestDataFactory::insertMfaRecord( $user->ID, BackupCodes::ProviderSlug(), [], [
+			'unique_id' => \wp_hash_password( 'abc123def456' ),
+			'label'     => 'Fixture Backup Code',
+		] );
+		$this->clearMfaRecordsCache( $user );
+		$this->resetMfaProviderCache();
+
+		$this->mergeCurrentRequestTransport( [
+			( new Email( $user ) )->getLoginIntentFormParameter()       => 'ZZ99YY',
+			( new BackupCodes( $user ) )->getLoginIntentFormParameter() => 'ABC123- DEF456',
+		] );
+
+		$validatedSlug = ( new LoginIntentRequestValidate() )
+			->setWpUser( $user )
+			->run( 'email-backup-login' );
+
+		$this->assertSame( BackupCodes::ProviderSlug(), $validatedSlug );
+		$this->assertSame( [], $this->loadRecordsForSlug( $user->ID, BackupCodes::ProviderSlug() ) );
+		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
+		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_success' ) );
+		$this->assertSame( [], $this->getCapturedEventsByKey( '2fa_verify_fail' ) );
+		$this->assertCount( 1, $this->capturedMails() );
+		$this->assertSame( [ 'email-backup-user@example.test' ], (array)( $this->lastCapturedMail()[ 'to' ] ?? [] ) );
 	}
 
 	public function test_send_intent_creates_latest_email_record_marks_intent_and_exposes_auto_login_query() :void {
@@ -195,6 +303,30 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 0, $this->capturedMails() );
 	}
 
+	public function test_login_intent_validation_still_rejects_invalid_email_otp_without_valid_fallback() :void {
+		$user = \get_user_by( 'id', $this->createAdministratorUser() );
+		$this->seedLoginIntent( $user, 'invalid-email-login' );
+		$hashedNonce = $this->requireController()->comps->mfa->findHashedNonce( $user, 'invalid-email-login' );
+		TestDataFactory::insertMfaRecord( $user->ID, Email::ProviderSlug(), [
+			'hashed_login_nonce' => $hashedNonce,
+		], [
+			'unique_id' => \wp_hash_password( 'AA11BB' ),
+			'label'     => 'Fixture Email',
+		] );
+		$this->clearMfaRecordsCache( $user );
+		$this->resetMfaProviderCache();
+
+		$this->mergeCurrentRequestTransport( [
+			( new Email( $user ) )->getLoginIntentFormParameter() => 'ZZ99YY',
+		] );
+
+		$this->expectException( OtpVerificationFailedException::class );
+
+		( new LoginIntentRequestValidate() )
+			->setWpUser( $user )
+			->run( 'invalid-email-login' );
+	}
+
 	public function nextEmailOtp() :string {
 		return \array_shift( $this->otpSequence ) ?? 'ZZ99YY';
 	}
@@ -223,9 +355,13 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function loadEmailRecords( int $userId ) :array {
+		return $this->loadRecordsForSlug( $userId, Email::ProviderSlug() );
+	}
+
+	private function loadRecordsForSlug( int $userId, string $slug ) :array {
 		return \array_values( \array_filter(
 			$this->requireController()->db_con->mfa->getQuerySelector()->filterByUserID( $userId )->queryWithResult(),
-			static fn( $record ) => $record->slug === Email::ProviderSlug()
+			static fn( $record ) => $record->slug === $slug
 		) );
 	}
 
@@ -251,5 +387,13 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 			$prop->setAccessible( true );
 			$prop->setValue( $this->requireController()->comps->mfa, [] );
 		}
+	}
+
+	private function clearMfaRecordsCache( \WP_User $user ) :void {
+		( new MfaRecordsHandler() )->clearForUser( $user );
+	}
+
+	private function calculateOtp( string $secret ) :string {
+		return ( new OtpGenerator() )->calculateCode( $secret );
 	}
 }

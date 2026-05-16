@@ -32,6 +32,15 @@ async function fillOtp( page, fieldName, otp ) {
 	}
 }
 
+async function otpSegmentsValue( page, fieldName ) {
+	const input = page.locator( `input[name="${ fieldName }"]` ).first();
+	await input.waitFor( { state: 'attached', timeout: 20_000 } );
+	const inputId = await input.getAttribute( 'id' );
+	const segments = page.locator( `[data-otp-group][data-otp-target="${ inputId }"] input[data-otp]` );
+	await expect( segments ).toHaveCount( 6 );
+	return segments.evaluateAll( ( inputs ) => inputs.map( ( input ) => input.value ).join( '' ) );
+}
+
 async function submitMfaForm( page ) {
 	await Promise.all( [
 		page.waitForNavigation( { waitUntil: 'domcontentloaded' } ).catch( () => null ),
@@ -49,6 +58,24 @@ async function waitForInspection( fixtureApi, predicate, label ) {
 	}
 
 	throw new Error( `Timed out waiting for fixture inspection: ${ label }` );
+}
+
+async function submitInvalidEmailOtpAndAssertCleared( page, fixtureApi, fixture, label ) {
+	await page.locator( '#ajax_intent_email_send' ).click();
+	const firstMail = await waitForInspection(
+		fixtureApi,
+		( inspected ) => inspected.mail_count === 1 && inspected.mfa_record_counts.email === 1,
+		label
+	);
+	const emailOtp = firstMail.latest_email_query[ fixture.email_otp_field_name ];
+	expect( emailOtp ).toBeTruthy();
+	const invalidEmailOtp = emailOtp === 'AAAAAA' ? 'BBBBBB' : 'AAAAAA';
+
+	await fillOtp( page, fixture.email_otp_field_name, invalidEmailOtp );
+	await submitMfaForm( page );
+
+	await expect( page.locator( `input[name="${ fixture.email_otp_field_name }"]` ).first() ).toHaveValue( '' );
+	expect( await otpSegmentsValue( page, fixture.email_otp_field_name ) ).toBe( '' );
 }
 
 test( 'hide-login contrasts custom path with blocked old login and disabled state', async ( { browser, lane, fixtureApi } ) => {
@@ -124,6 +151,87 @@ test( 'remember-me checkbox creates skip state and suppresses the next login int
 		}
 		finally {
 			await runtime.context.close();
+		}
+	} );
+} );
+
+test( 'authenticator verification works from multi-provider login with email untouched', async ( { browser, lane, fixtureApi } ) => {
+	await fixtureApi.withLoginGuardCoreFixture( 'email-plus-ga-login', async ( fixture ) => {
+		const { context, page } = await anonymousPage( browser, lane );
+		try {
+			await submitWpLogin( page, fixture.login_path, fixture.user_login, fixture.user_pass );
+
+			await page.locator( 'button[data-tab="ga"]' ).click();
+			const inspected = await fixtureApi.inspectLoginGuardCoreFixture();
+			await fillOtp( page, fixture.ga_otp_field_name, inspected.current_otp || fixture.current_ga_otp );
+			await submitMfaForm( page );
+			await expect( page ).toHaveURL( /\/wp-admin\// );
+
+			const afterLogin = await fixtureApi.inspectLoginGuardCoreFixture();
+			expect( afterLogin.login_intents_count ).toBe( 0 );
+			expect( afterLogin.event_counts[ '2fa_success' ] ).toBeGreaterThanOrEqual( 1 );
+			expect( afterLogin.event_counts[ '2fa_verify_success' ] ).toBeGreaterThanOrEqual( 1 );
+		}
+		finally {
+			await context.close();
+		}
+	} );
+} );
+
+test( 'email OTP failure clears stale email input before authenticator verification', async ( { browser, lane, fixtureApi } ) => {
+	await fixtureApi.withLoginGuardCoreFixture( 'email-plus-ga-login', async ( fixture ) => {
+		const { context, page } = await anonymousPage( browser, lane );
+		try {
+			await submitWpLogin( page, fixture.login_path, fixture.user_login, fixture.user_pass );
+
+			await submitInvalidEmailOtpAndAssertCleared(
+				page,
+				fixtureApi,
+				fixture,
+				'email OTP for email-plus-GA login'
+			);
+			await page.locator( 'button[data-tab="ga"]' ).click();
+			const inspected = await fixtureApi.inspectLoginGuardCoreFixture();
+			await fillOtp( page, fixture.ga_otp_field_name, inspected.current_otp || fixture.current_ga_otp );
+			await submitMfaForm( page );
+			await expect( page ).toHaveURL( /\/wp-admin\// );
+
+			const afterLogin = await fixtureApi.inspectLoginGuardCoreFixture();
+			expect( afterLogin.login_intents_count ).toBe( 0 );
+			expect( afterLogin.event_counts[ '2fa_success' ] ).toBeGreaterThanOrEqual( 1 );
+			expect( afterLogin.event_counts[ '2fa_verify_success' ] ).toBeGreaterThanOrEqual( 1 );
+		}
+		finally {
+			await context.close();
+		}
+	} );
+} );
+
+test( 'email OTP failure clears stale email input before backup code verification', async ( { browser, lane, fixtureApi } ) => {
+	await fixtureApi.withLoginGuardCoreFixture( 'email-plus-backup-login', async ( fixture ) => {
+		const { context, page } = await anonymousPage( browser, lane );
+		try {
+			await submitWpLogin( page, fixture.login_path, fixture.user_login, fixture.user_pass );
+
+			await submitInvalidEmailOtpAndAssertCleared(
+				page,
+				fixtureApi,
+				fixture,
+				'email OTP for email-plus-backup login'
+			);
+			await page.locator( 'button[data-tab="backupcode"]' ).click();
+			await fillOtp( page, fixture.backup_otp_field_name, fixture.backup_code );
+			await submitMfaForm( page );
+			await expect( page ).toHaveURL( /\/wp-admin\// );
+
+			const afterLogin = await fixtureApi.inspectLoginGuardCoreFixture();
+			expect( afterLogin.login_intents_count ).toBe( 0 );
+			expect( afterLogin.mfa_record_counts.backupcode || 0 ).toBe( 0 );
+			expect( afterLogin.event_counts[ '2fa_success' ] ).toBeGreaterThanOrEqual( 1 );
+			expect( afterLogin.event_counts[ '2fa_verify_success' ] ).toBeGreaterThanOrEqual( 1 );
+		}
+		finally {
+			await context.close();
 		}
 	} );
 } );

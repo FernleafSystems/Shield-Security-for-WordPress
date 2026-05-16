@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter;
 
 use Dolondro\GoogleAuthenticator\GoogleAuthenticator as OtpGenerator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\{
+	BackupCodes,
 	Email,
 	GoogleAuth
 };
@@ -26,7 +27,8 @@ use FernleafSystems\Wordpress\Services\Services;
  *   user_id:int,
  *   user_login:string,
  *   user_pass:string,
- *   ga_secret:string
+ *   ga_secret:string,
+ *   backup_code:string
  * }
  */
 class LoginGuardCoreFixtureBuilder {
@@ -75,6 +77,7 @@ class LoginGuardCoreFixtureBuilder {
 			'user_login'                         => '',
 			'user_pass'                          => '',
 			'ga_secret'                          => '',
+			'backup_code'                        => '',
 		];
 
 		try {
@@ -82,7 +85,11 @@ class LoginGuardCoreFixtureBuilder {
 			\update_option( self::FORCE_RESTRICTIONS_OPTION, 'Y', false );
 			$this->setRuntimeState( [
 				'capture_events' => true,
-				'capture_mail'   => $scenario === 'email-auth-login',
+				'capture_mail'   => \in_array(
+					$scenario,
+					[ 'email-auth-login', 'email-plus-ga-login', 'email-plus-backup-login' ],
+					true
+				),
 				'events'         => [],
 				'mails'          => [],
 			] );
@@ -110,6 +117,14 @@ class LoginGuardCoreFixtureBuilder {
 
 				case 'email-auth-login':
 					$contract = $this->seedEmailAuthLogin( $state );
+					break;
+
+				case 'email-plus-ga-login':
+					$contract = $this->seedEmailPlusGaLogin( $state );
+					break;
+
+				case 'email-plus-backup-login':
+					$contract = $this->seedEmailPlusBackupLogin( $state );
 					break;
 
 				default:
@@ -326,33 +341,7 @@ class LoginGuardCoreFixtureBuilder {
 		$state[ 'user_login' ] = $user->user_login;
 		$state[ 'user_pass' ] = 'shield-browser-pass';
 
-		RuntimeTestState::applyPremiumCapabilities( [
-			'2fa_webauthn',
-		] );
-		RuntimeTestState::controller()->opts
-			->optSet( 'enable_email_authentication', 'Y' )
-			->optSet( 'enable_email_auto_login', 'Y' )
-			->optSet( 'email_can_send_verified_at', $verifiedAt )
-			->optSet( 'email_any_user_set', 'Y' )
-			->optSet( 'two_factor_auth_user_roles', [ 'administrator' ] )
-			->optSet( 'enable_google_authenticator', 'N' )
-			->optSet( 'allow_backupcodes', 'N' )
-			->optSet( 'suresend_emails', [] )
-			->optSet( 'mfa_skip', 0 )
-			->optSet( 'mfa_verify_page', 'custom_shield' )
-			->store();
-		RuntimeTestState::forcePersistOptions( [
-			'enable_email_authentication' => 'Y',
-			'enable_email_auto_login'     => 'Y',
-			'email_can_send_verified_at'  => $verifiedAt,
-			'email_any_user_set'          => 'Y',
-			'two_factor_auth_user_roles'  => [ 'administrator' ],
-			'enable_google_authenticator' => 'N',
-			'allow_backupcodes'           => 'N',
-			'suresend_emails'             => [],
-			'mfa_skip'                    => 0,
-			'mfa_verify_page'             => 'custom_shield',
-		] );
+		$this->configureEmailLoginOptions( $verifiedAt, false, false );
 		$this->clearMfaCache( $user );
 		RuntimeTestState::resetMfaProviderCache();
 
@@ -363,6 +352,112 @@ class LoginGuardCoreFixtureBuilder {
 			'login_path'     => '/wp-login.php',
 			'otp_field_name' => ( new Email( $user ) )->getLoginIntentFormParameter(),
 		];
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return array<string,mixed>
+	 */
+	private function seedEmailPlusGaLogin( array &$state ) :array {
+		$user = $this->createFixtureUser( 'email-ga' );
+		$verifiedAt = \time();
+		$state[ 'user_id' ] = $user->ID;
+		$state[ 'created_user_ids' ][] = $user->ID;
+		$state[ 'user_login' ] = $user->user_login;
+		$state[ 'user_pass' ] = 'shield-browser-pass';
+		$state[ 'ga_secret' ] = 'JBSWY3DPEHPK3PXP';
+
+		$this->configureEmailLoginOptions( $verifiedAt, true, false );
+		$state[ 'mfa_record_ids' ][] = TestDataFactory::insertMfaRecord( $user->ID, GoogleAuth::ProviderSlug(), [], [
+			'label'     => 'Browser GA',
+			'unique_id' => $state[ 'ga_secret' ],
+		] );
+		$this->clearMfaCache( $user );
+		RuntimeTestState::resetMfaProviderCache();
+
+		return [
+			'user_id'              => $user->ID,
+			'user_login'           => $state[ 'user_login' ],
+			'user_pass'            => $state[ 'user_pass' ],
+			'login_path'           => '/wp-login.php',
+			'email_otp_field_name' => ( new Email( $user ) )->getLoginIntentFormParameter(),
+			'ga_otp_field_name'    => ( new GoogleAuth( $user ) )->getLoginIntentFormParameter(),
+			'current_ga_otp'       => $this->currentGoogleOtp( $state[ 'ga_secret' ] ),
+		];
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return array<string,mixed>
+	 */
+	private function seedEmailPlusBackupLogin( array &$state ) :array {
+		$user = $this->createFixtureUser( 'email-backup' );
+		$verifiedAt = \time();
+		$state[ 'user_id' ] = $user->ID;
+		$state[ 'created_user_ids' ][] = $user->ID;
+		$state[ 'user_login' ] = $user->user_login;
+		$state[ 'user_pass' ] = 'shield-browser-pass';
+		$state[ 'backup_code' ] = 'abc123def456';
+
+		$this->configureEmailLoginOptions( $verifiedAt, false, true );
+		$state[ 'mfa_record_ids' ][] = TestDataFactory::insertMfaRecord(
+			$user->ID,
+			BackupCodes::ProviderSlug(),
+			[],
+			[
+				'label'     => 'Browser Backup Code',
+				'unique_id' => \wp_hash_password( $state[ 'backup_code' ] ),
+			]
+		);
+		$this->clearMfaCache( $user );
+		RuntimeTestState::resetMfaProviderCache();
+
+		return [
+			'user_id'               => $user->ID,
+			'user_login'            => $state[ 'user_login' ],
+			'user_pass'             => $state[ 'user_pass' ],
+			'login_path'            => '/wp-login.php',
+			'email_otp_field_name'  => ( new Email( $user ) )->getLoginIntentFormParameter(),
+			'backup_otp_field_name' => ( new BackupCodes( $user ) )->getLoginIntentFormParameter(),
+			'backup_code'           => $state[ 'backup_code' ],
+		];
+	}
+
+	private function configureEmailLoginOptions(
+		int $verifiedAt,
+		bool $enableGoogleAuth,
+		bool $allowBackupCodes
+	) :void {
+		$enableGoogleAuthOpt = $enableGoogleAuth ? 'Y' : 'N';
+		$allowBackupCodesOpt = $allowBackupCodes ? 'Y' : 'N';
+
+		RuntimeTestState::applyPremiumCapabilities( [
+			'2fa_webauthn',
+		] );
+		RuntimeTestState::controller()->opts
+			->optSet( 'enable_email_authentication', 'Y' )
+			->optSet( 'enable_email_auto_login', 'Y' )
+			->optSet( 'email_can_send_verified_at', $verifiedAt )
+			->optSet( 'email_any_user_set', 'Y' )
+			->optSet( 'two_factor_auth_user_roles', [ 'administrator' ] )
+			->optSet( 'enable_google_authenticator', $enableGoogleAuthOpt )
+			->optSet( 'allow_backupcodes', $allowBackupCodesOpt )
+			->optSet( 'suresend_emails', [] )
+			->optSet( 'mfa_skip', 0 )
+			->optSet( 'mfa_verify_page', 'custom_shield' )
+			->store();
+		RuntimeTestState::forcePersistOptions( [
+			'enable_email_authentication' => 'Y',
+			'enable_email_auto_login'     => 'Y',
+			'email_can_send_verified_at'  => $verifiedAt,
+			'email_any_user_set'          => 'Y',
+			'two_factor_auth_user_roles'  => [ 'administrator' ],
+			'enable_google_authenticator' => $enableGoogleAuthOpt,
+			'allow_backupcodes'           => $allowBackupCodesOpt,
+			'suresend_emails'             => [],
+			'mfa_skip'                    => 0,
+			'mfa_verify_page'             => 'custom_shield',
+		] );
 	}
 
 	private function createFixtureUser( string $prefix ) :\WP_User {
