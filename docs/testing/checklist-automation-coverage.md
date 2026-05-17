@@ -8,7 +8,7 @@ Rows distinguish Linear state from automation evidence. A checklist row is not c
 Status key:
 
 - `automated`: stable local behavior automation exists, evidence has been run, and no manual remainder is known.
-- `partial evidence`: at least one local behavior check exists, but the row still has a documented remainder or needs final verification/Linear closure.
+- `partial evidence`: at least one local behavior check exists, but the row still has a documented manual, external, or deeper-verification remainder.
 - `pending evidence`: Linear work exists, but this matrix has no accepted behavior evidence yet.
 - `manual/external-blocked`: a concrete external-only blocker remains and no local double is currently planned.
 - `framework complete`: reusable harness/tracking work is complete; this is not checklist behavior coverage by itself.
@@ -122,13 +122,13 @@ Current summary:
 
 | Item | Linear | Linear state | Coverage status | Evidence / note |
 |---|---|---|---|---|
-| Coordinate Shield manual checklist automation | SHI-180 | In Progress | tracking open | Project coordinator remains open until slices and convergence finish. |
+| Coordinate Shield manual checklist automation | SHI-180 | Done | framework complete | All planned behavior slices and final convergence cleanup are complete; no pending tracker rows remain, and accepted partial/manual remainders are recorded explicitly. |
 | FWK-01 - Checklist scenario registry | SHI-181 | Done | framework complete | Existing reusable browser fixture registry/scenario foundation. |
 | FWK-02 - Shared security and offense assertions | SHI-182 | Done | framework complete | Covered by shared assertion helpers and fixture inspection contracts. |
 | FWK-03 - Coverage matrix and reporting | SHI-183 | Done | framework complete | This file is the rebuilt matrix; keep it updated with each slice. |
 | FWK-04 - External service and email doubles | SHI-184 | Done | framework complete | Local doubles policy established; per-slice behavior evidence still required. |
 | FWK-05 - Package and upgrade automation lane | SHI-185 | Done | framework complete | Package/upgrade lane exists; checklist rows still need evidence. |
-| FWK-06 - Final convergence cleanup | SHI-186 | Todo | pending evidence | Run only after behavior slices complete. |
+| FWK-06 - Final convergence cleanup | SHI-186 | Done | framework complete | Final convergence cleanup is complete in Linear; all behavior slices have accepted evidence, with partial/manual remainders preserved explicitly in checklist rows. |
 | Slice: Recovery and Evidence Rules | SHI-267 | Done | framework complete | Restored truthful closure rule: no evidence, no completion. |
 | Slice: Shared Assertion Readiness | SHI-268 | Done | framework complete | Latest committed shared assertion/fixture work supports later behavior slices. |
 | Convergence cleanup: Shared Assertion Readiness | SHI-313 | Done | framework complete | Cleanup for SHI-268 completed. |
