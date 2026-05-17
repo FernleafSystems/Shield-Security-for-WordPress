@@ -8,22 +8,50 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\LicenseClear
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\LocalEmailCapture;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class LicenseClearIntegrationTest extends ShieldIntegrationTestCase {
 
+	use CurrentRequestFixture;
 	use LocalEmailCapture;
+
+	private array $requestSnapshot = [];
 
 	public function set_up() {
 		parent::set_up();
 		$this->loginAsSecurityAdmin();
-		$this->requireController()->this_req->wp_is_ajax = true;
-		$this->startLocalEmailCapture();
+		$this->requestSnapshot = $this->snapshotCurrentRequestState();
+
+		try {
+			$this->applyCurrentShieldAjaxRequest( ActionData::Build( LicenseClear::class ), true );
+			$this->startLocalEmailCapture();
+		}
+		catch ( \Throwable $throwable ) {
+			try {
+				$this->stopLocalEmailCapture();
+			}
+			finally {
+				$this->restoreCurrentRequestState( $this->requestSnapshot );
+			}
+			throw $throwable;
+		}
 	}
 
 	public function tear_down() {
-		$this->stopLocalEmailCapture();
-		parent::tear_down();
+		try {
+			$this->stopLocalEmailCapture();
+		}
+		finally {
+			try {
+				if ( $this->requestSnapshot !== [] ) {
+					$this->restoreCurrentRequestState( $this->requestSnapshot );
+				}
+			}
+			finally {
+				parent::tear_down();
+			}
+		}
 	}
 
 	public function test_license_clear_deactivates_active_pro_state_without_email() :void {
