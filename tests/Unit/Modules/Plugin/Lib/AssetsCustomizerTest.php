@@ -14,9 +14,14 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\AjaxRender,
+	Actions\BlockdownDisableFormSubmit,
+	Actions\BlockdownFormSubmit,
+	Actions\LicenseClear,
+	Actions\ReportingChartTrends,
 	Actions\Render\Components\Widgets\WpDashboardSummary,
 	Actions\ScansCheck,
-	Actions\ScansStart
+	Actions\ScansStart,
+	Actions\ToolPurgeProviderIPs
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
@@ -156,6 +161,24 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertSame( ScansStart::SLUG, $ajax[ 'start' ][ ActionData::FIELD_EXECUTE ] ?? null );
 	}
 
+	public function test_tools_and_license_components_expose_stable_action_payloads() :void {
+		$this->installEnvironment( [
+			PluginNavs::FIELD_NAV    => PluginNavs::NAV_LICENSE,
+			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_LICENSE_CHECK,
+		] );
+
+		$blockdownAjax = $this->componentAjax( 'blockdown' );
+		$debugAjax = $this->componentAjax( 'debug_tools' );
+		$licenseAjax = $this->componentAjax( 'license' );
+		$reportsTrendsAjax = $this->componentAjax( 'reports_trends' );
+
+		$this->assertSame( BlockdownFormSubmit::SLUG, $blockdownAjax[ BlockdownFormSubmit::SLUG ][ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( BlockdownDisableFormSubmit::SLUG, $blockdownAjax[ BlockdownDisableFormSubmit::SLUG ][ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( ToolPurgeProviderIPs::SLUG, $debugAjax[ ToolPurgeProviderIPs::SLUG ][ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( LicenseClear::SLUG, $licenseAjax[ 'clear' ][ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( ReportingChartTrends::SLUG, $reportsTrendsAjax[ 'render_chart' ][ ActionData::FIELD_EXECUTE ] ?? '' );
+	}
+
 	private function installEnvironment( array $query = [], array $completedTours = [] ) :void {
 		$query = \array_merge( [
 			'page'                  => 'icwp-wpsf-plugin',
@@ -213,6 +236,12 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$method->setAccessible( true );
 		$components = $method->invoke( new AssetsCustomizer() );
 		return \is_array( $components[ $key ] ?? null ) ? $components[ $key ] : [];
+	}
+
+	private function componentAjax( string $key ) :array {
+		$component = $this->getComponentDefinition( $key );
+		$data = \is_callable( $component[ 'data' ] ?? null ) ? \call_user_func( $component[ 'data' ] ) : ( $component[ 'data' ] ?? [] );
+		return \is_array( $data[ 'ajax' ] ?? null ) ? $data[ 'ajax' ] : [];
 	}
 }
 

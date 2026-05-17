@@ -284,6 +284,22 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			async inspectIpRulesTableFixture() {
 				return runFixture( 'ip-rules-table', 'inspect' );
 			},
+			async inspectLicenseClearFixture() {
+				return runFixture( 'license-clear', 'inspect' );
+			},
+			async withLicenseClearFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'license-clear', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'license-clear', 'cleanup' );
+					}
+				}
+			},
 			async withMainwpSitesFixture( runScenario ) {
 				let seeded = false;
 				try {

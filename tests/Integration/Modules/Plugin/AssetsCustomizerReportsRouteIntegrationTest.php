@@ -2,6 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plugin;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	ReportTableAction,
+	ReportingChartTrends
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -111,11 +116,19 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 	private function assertReportsTableLocalized( array $comps ) :void {
 		$this->assertArrayHasKey( 'reports', $comps[ 'tables' ] ?? [] );
 		$this->assertArrayHasKey( 'table_action', $comps[ 'tables' ][ 'reports' ][ 'ajax' ] ?? [] );
+		$this->assertSame(
+			ReportTableAction::SLUG,
+			$comps[ 'tables' ][ 'reports' ][ 'ajax' ][ 'table_action' ][ ActionData::FIELD_EXECUTE ] ?? ''
+		);
 	}
 
 	private function assertReportsTrendsLocalized( array $comps ) :void {
 		$this->assertArrayHasKey( 'reports_trends', $comps );
 		$this->assertArrayHasKey( 'render_chart', $comps[ 'reports_trends' ][ 'ajax' ] ?? [] );
+		$this->assertSame(
+			ReportingChartTrends::SLUG,
+			$comps[ 'reports_trends' ][ 'ajax' ][ 'render_chart' ][ ActionData::FIELD_EXECUTE ] ?? ''
+		);
 		$this->assertArrayHasKey( 'selection_none', $comps[ 'reports_trends' ][ 'strings' ] ?? [] );
 		$this->assertArrayHasKey( 'selection_one', $comps[ 'reports_trends' ][ 'strings' ] ?? [] );
 		$this->assertArrayHasKey( 'selection_many', $comps[ 'reports_trends' ][ 'strings' ] ?? [] );
