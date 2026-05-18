@@ -1,0 +1,54 @@
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: testpass
+      MYSQL_DATABASE: ${SHIELD_LOCAL_SITE_DB_NAME:-shield_upgrade_public}
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
+    volumes:
+      - site-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  wordpress:
+    image: wordpress:php${PHP_VERSION:-8.2}-apache
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: testpass
+      WORDPRESS_DB_NAME: ${SHIELD_LOCAL_SITE_DB_NAME:-shield_upgrade_public}
+    ports:
+      - "${SHIELD_LOCAL_SITE_PORT:-8894}:80"
+    volumes:
+      - site-wp:/var/www/html
+      - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-upgrade-public-runtime.ini:ro
+    networks:
+      default:
+        aliases:
+          - wordpress.test
+
+  wp-cli:
+    image: wordpress:cli-php${PHP_VERSION:-8.2}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: testpass
+      WORDPRESS_DB_NAME: ${SHIELD_LOCAL_SITE_DB_NAME:-shield_upgrade_public}
+    volumes:
+      - site-wp:/var/www/html
+      - ../../:/app
+      - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-upgrade-public-runtime.ini:ro
+
+volumes:
+  site-db:
+  site-wp:

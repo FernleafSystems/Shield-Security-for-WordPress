@@ -36,6 +36,10 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertContains( 'Composer\\Config::disableProcessTimeout', $packageCommands );
 		$this->assertContains( '@php bin/shield test:package-targeted', $packageCommands );
 
+		$upgradePublicCommands = $this->getComposerScriptCommands( 'test:upgrade-public' );
+		$this->assertContains( 'Composer\\Config::disableProcessTimeout', $upgradePublicCommands );
+		$this->assertContains( '@php bin/shield test:upgrade-public', $upgradePublicCommands );
+
 		$analyzeCommands = $this->getComposerScriptCommands( 'analyze' );
 		$this->assertSame( [ '@php bin/shield analyze:source' ], $analyzeCommands );
 

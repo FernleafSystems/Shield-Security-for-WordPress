@@ -18,6 +18,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalComma
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageTargetedCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestSourceCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestUpgradePublicCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\CrossSiteTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
@@ -28,6 +29,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\PackagePathResolver;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageStaticAnalysisLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageTargetedTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PreCommitChangedFileLane;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\PublicUpgradeTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceRuntimeTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceStaticAnalysisLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\TestingEnvironmentResolver;
@@ -113,6 +115,12 @@ class ShieldCliApplication {
 					return new TestPackageFullCommand(
 						$projectRoot,
 						new PackageFullTestLane( null, $packagePathResolver, $environmentResolver )
+					);
+				},
+				'test:upgrade-public' => static function () use ( $projectRoot, $environmentResolver ) :Command {
+					return new TestUpgradePublicCommand(
+						$projectRoot,
+						new PublicUpgradeTestLane( null, $environmentResolver )
 					);
 				},
 				'analyze:source' => static function () use ( $projectRoot ) :Command {
