@@ -3,15 +3,22 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\CreateNewScan;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	QueueItems,
 	QueueMaintenance,
 	QueueProcessor,
+	QueueRecovery,
 	QueueWatchdog,
+	ReconcileQueue,
 	RunState
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
@@ -161,6 +168,160 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, $item->finished_at );
 	}
 
+	public function testWatchdogMarksStaleBuildingScanFailedInRealDb() :void {
+		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
+		$scanID = $this->createScan( 'afs', 'building', [
+			'created_at'      => $staleAt,
+			'last_process_at' => $staleAt,
+		] );
+
+		( new QueueWatchdog() )->run();
+
+		/** @var ScansDB\Record $scan */
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$this->assertSame( 'failed', $scan->status );
+		$this->assertGreaterThan( 0, $scan->finished_at );
+		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $scan->meta[ RunState::META_KEY_LAST_ERROR ] ?? '' );
+	}
+
+	public function testWatchdogRecoversStaleQueuedScanThroughRealSelectors() :void {
+		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
+		$scanID = $this->createScan( 'afs', 'queued', [
+			'created_at' => $staleAt,
+		] );
+		$watchdog = new QueueWatchdog();
+
+		$watchdog->runIfStale();
+
+		/** @var ScansDB\Record $scan */
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$this->assertSame( 'queued', $scan->status );
+		$this->assertSame( 0, $scan->finished_at );
+		$this->assertSame(
+			1,
+			$this->requireDb( 'scans' )->getQuerySelector()
+				 ->filterByScan( 'afs' )
+				 ->filterByScope( 'full', '' )
+				 ->filterByNotFinished()
+				 ->count()
+		);
+		$this->assertNotFalse( \wp_next_scheduled( $watchdog->hook() ) );
+	}
+
+	public function testWatchdogResetsStaleClaimedItemInRealDb() :void {
+		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
+		$scanID = $this->createScan( 'afs', 'running', [
+			'ready_at'        => $staleAt,
+			'started_at'      => $staleAt,
+			'last_process_at' => $staleAt,
+		] );
+		$itemID = $this->createScanItem(
+			$scanID,
+			[ 'example.php' ],
+			$staleAt,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+
+		( new QueueWatchdog() )->run();
+
+		/** @var ScansDB\Record $scan */
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		/** @var ScanItemsDB\Record $item */
+		$item = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $itemID );
+		$this->assertSame( 'running', $scan->status );
+		$this->assertSame( 0, $item->started_at );
+		$this->assertSame( QueueRecovery::MAX_ITEM_ATTEMPTS - 1, $item->attempts );
+	}
+
+	public function testWatchdogFailsExhaustedStaleRunningScanAndDeletesUnfinishedItemsInRealDb() :void {
+		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
+		$scanID = $this->createScan( 'afs', 'running', [
+			'ready_at'        => $staleAt,
+			'started_at'      => $staleAt,
+			'last_process_at' => $staleAt,
+		] );
+		$this->createScanItem(
+			$scanID,
+			[ 'example.php' ],
+			$staleAt,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS
+		);
+
+		( new QueueWatchdog() )->run();
+
+		/** @var ScansDB\Record $scan */
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$this->assertSame( 'failed', $scan->status );
+		$this->assertGreaterThan( 0, $scan->finished_at );
+		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $scan->meta[ RunState::META_KEY_LAST_ERROR ] ?? '' );
+		$this->assertSame(
+			0,
+			$this->requireDb( 'scan_items' )->getQuerySelector()
+				 ->filterByScan( $scanID )
+				 ->filterByNotFinished()
+				 ->count()
+		);
+	}
+
+	public function testFailedStaleRowIsNotCountedAsActiveBlockerForSameSlug() :void {
+		$scanID = $this->createScan( 'afs', 'failed', [
+			'finished_at' => \time() - 60,
+		] );
+
+		$count = $this->requireDb( 'scans' )->getQuerySelector()
+					  ->filterByScan( 'afs' )
+					  ->filterByScope( 'full', '' )
+					  ->filterByNotFinished()
+					  ->count();
+
+		$this->assertSame( 0, $count );
+		/** @var ScansDB\Record $scan */
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$this->assertSame( 'failed', $scan->status );
+	}
+
+	public function testPriorReleaseStalledRowsDoNotRemainPermanentActiveBlockersInRealDb() :void {
+		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
+		foreach ( [ 'afs', 'apc', 'wpv' ] as $slug ) {
+			$scanID = $this->createScan( $slug, 'running', [
+				'ready_at'        => $staleAt,
+				'started_at'      => $staleAt,
+				'last_process_at' => $staleAt,
+			] );
+			$this->createScanItem( $scanID, [ $slug.'-a' ], $staleAt, 0, QueueRecovery::MAX_ITEM_ATTEMPTS );
+		}
+		$controller = new IntegrationScansControllerTestDouble( [
+			'afs' => new IntegrationScanControllerTestDouble( 'afs' ),
+			'apc' => new IntegrationScanControllerTestDouble( 'apc' ),
+			'wpv' => new IntegrationScanControllerTestDouble( 'wpv' ),
+		] );
+
+		$firstResult = $controller->startNewScans( [ 'afs', 'apc', 'wpv' ] );
+		$secondResult = $controller->startNewScans( [ 'afs', 'apc', 'wpv' ] );
+
+		$this->assertNotSame(
+			[
+				StartScansResult::REASON_ALREADY_EXISTS,
+				StartScansResult::REASON_ALREADY_EXISTS,
+				StartScansResult::REASON_ALREADY_EXISTS,
+			],
+			\array_column( $firstResult->getFailures(), 'reason' )
+		);
+		$startedSlugs = \array_values( \array_unique( \array_merge(
+			$firstResult->getStartedSlugs(),
+			$secondResult->getStartedSlugs()
+		) ) );
+		\sort( $startedSlugs );
+		$this->assertSame( [ 'afs', 'apc', 'wpv' ], $startedSlugs );
+		foreach ( [ 'afs', 'apc', 'wpv' ] as $slug ) {
+			$rows = $this->scanRowsForSlug( $slug );
+			$this->assertSame( 'failed', $rows[ 0 ]->status );
+			$this->assertSame( 'queued', $rows[ 1 ]->status );
+		}
+	}
+
 	private function createScan( string $slug, string $status, array $overrides = [] ) :int {
 		/** @var ScansDB\Handler $scans */
 		$scans = $this->requireDb( 'scans' );
@@ -193,5 +354,61 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$record->finished_at = $finishedAt;
 		$this->assertTrue( $scanItems->getQueryInserter()->insert( $record ) );
 		return (int)$GLOBALS[ 'wpdb' ]->insert_id;
+	}
+
+	private function scanRowsForSlug( string $slug ) :array {
+		return $this->requireDb( 'scans' )->getQuerySelector()
+					->filterByScan( $slug )
+					->filterByScope( 'full', '' )
+					->setOrderBy( 'id', 'ASC', true )
+					->queryWithResult();
+	}
+}
+
+class IntegrationScansControllerTestDouble extends ScansController {
+
+	private array $scanCons;
+
+	public function __construct( array $scanCons ) {
+		$this->scanCons = $scanCons;
+	}
+
+	public function getScanCon( string $slug ) {
+		return $this->scanCons[ $slug ] ?? null;
+	}
+
+	public function canStartScans( bool $isCli = false ) :bool {
+		unset( $isCli );
+		return true;
+	}
+}
+
+class IntegrationScanControllerTestDouble extends Base {
+
+	private string $slug;
+
+	public function __construct( string $slug ) {
+		$this->slug = $slug;
+	}
+
+	public function getSlug() :string {
+		return $this->slug;
+	}
+
+	public function isReady() :bool {
+		return true;
+	}
+
+	protected function newItemActionHandler() {
+		return null;
+	}
+
+	public function buildScanAction( ?BaseScanActionVO $scanAction = null ) {
+		return $scanAction ?? $this->newScanActionVO();
+	}
+
+	public function buildScanResult( array $rawResult ) :ResultItemsDB\Record {
+		unset( $rawResult );
+		return new ResultItemsDB\Record();
 	}
 }

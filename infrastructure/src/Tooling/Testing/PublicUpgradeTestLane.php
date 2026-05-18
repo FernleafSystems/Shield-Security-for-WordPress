@@ -21,6 +21,7 @@ class PublicUpgradeTestLane {
 	private const REMOTE_PACKAGE_DIR = '/var/www/html/wp-content/uploads/shield-upgrade-test';
 	private const REMOTE_PACKAGE_PATH = self::REMOTE_PACKAGE_DIR.'/wp-simple-firewall-current.zip';
 	private const INTERNAL_PACKAGE_URL = 'http://wordpress.test/wp-content/uploads/shield-upgrade-test/wp-simple-firewall-current.zip';
+	private const REMOTE_ARTIFACT_MISSING_EXIT = 44;
 
 	private ProcessRunner $processRunner;
 
@@ -62,6 +63,7 @@ class PublicUpgradeTestLane {
 		$summary = $this->baseSummary( $artifacts );
 		$envOverrides = null;
 		$exitCode = self::EXIT_SETUP_FAILURE;
+		$runtimeArtifactsCollected = false;
 
 		try {
 			echo 'Mode: upgrade-public'.\PHP_EOL;
@@ -143,7 +145,8 @@ class PublicUpgradeTestLane {
 				);
 			}
 
-			$this->collectRuntimeArtifacts( $rootDir, $envOverrides, $artifacts, false );
+			$this->collectRuntimeArtifacts( $rootDir, $envOverrides, $artifacts, false, true );
+			$runtimeArtifactsCollected = true;
 			$summary[ 'log_findings' ] = $this->scanArtifacts( $artifacts, false );
 			if ( $summary[ 'log_findings' ] !== [] ) {
 				throw new PublicUpgradeTestFailureException( 'Upgrade logs contain fatal or Shield-scoped error output.' );
@@ -177,7 +180,9 @@ class PublicUpgradeTestLane {
 		finally {
 			if ( \is_array( $envOverrides ) ) {
 				$includeDockerLogs = $exitCode !== self::EXIT_PASS;
-				$this->collectRuntimeArtifacts( $rootDir, $envOverrides, $artifacts, $includeDockerLogs );
+				if ( !$runtimeArtifactsCollected ) {
+					$this->collectRuntimeArtifacts( $rootDir, $envOverrides, $artifacts, $includeDockerLogs, false );
+				}
 				if ( !isset( $summary[ 'log_findings' ] ) ) {
 					$summary[ 'log_findings' ] = $this->scanArtifacts( $artifacts, $includeDockerLogs );
 				}
@@ -703,37 +708,47 @@ class PublicUpgradeTestLane {
 		string $rootDir,
 		array $envOverrides,
 		PublicUpgradeArtifacts $artifacts,
-		bool $includeDockerLogs
+		bool $includeDockerLogs,
+		bool $strictRuntimeArtifacts
 	) :void {
-		$this->copyContainerFile(
+		$this->copyOptionalRuntimeArtifact(
 			$rootDir,
 			$envOverrides,
+			$artifacts,
 			self::REMOTE_ARTIFACT_DIR.'/'.PublicUpgradeArtifacts::WORDPRESS_DEBUG_LOG_FILE,
-			$artifacts->path( PublicUpgradeArtifacts::WORDPRESS_DEBUG_LOG_FILE )
+			PublicUpgradeArtifacts::WORDPRESS_DEBUG_LOG_FILE,
+			$strictRuntimeArtifacts
 		);
-		$this->copyContainerFile(
+		$this->copyOptionalRuntimeArtifact(
 			$rootDir,
 			$envOverrides,
+			$artifacts,
 			self::REMOTE_ARTIFACT_DIR.'/'.PublicUpgradeArtifacts::ERROR_EVENTS_FILE,
-			$artifacts->path( PublicUpgradeArtifacts::ERROR_EVENTS_FILE )
+			PublicUpgradeArtifacts::ERROR_EVENTS_FILE,
+			$strictRuntimeArtifacts
 		);
-		$artifacts->ensureFileExists( PublicUpgradeArtifacts::WORDPRESS_DEBUG_LOG_FILE );
-		$artifacts->ensureFileExists( PublicUpgradeArtifacts::ERROR_EVENTS_FILE );
 
 		if ( !$includeDockerLogs ) {
 			return;
 		}
 
-		$process = $this->processRunner->run(
-			$this->buildComposeCommand( [ 'logs', '--no-color', self::WORDPRESS_SERVICE, 'db' ] ),
-			$rootDir,
-			static function () :void {},
-			$envOverrides
-		);
-		if ( ( $process->getExitCode() ?? 1 ) === 0 ) {
-			\file_put_contents(
-				$artifacts->path( PublicUpgradeArtifacts::DOCKER_LOG_FILE ),
-				$process->getOutput().$process->getErrorOutput()
+		try {
+			$process = $this->processRunner->run(
+				$this->buildComposeCommand( [ 'logs', '--no-color', self::WORDPRESS_SERVICE, 'db' ] ),
+				$rootDir,
+				static function () :void {},
+				$envOverrides
+			);
+			if ( ( $process->getExitCode() ?? 1 ) === 0 ) {
+				\file_put_contents(
+					$artifacts->path( PublicUpgradeArtifacts::DOCKER_LOG_FILE ),
+					$process->getOutput().$process->getErrorOutput()
+				);
+			}
+		}
+		catch ( \Throwable $e ) {
+			$artifacts->appendWpCliLog(
+				\PHP_EOL.'Warning: Docker log collection failed: '.$e->getMessage().\PHP_EOL
 			);
 		}
 	}
@@ -741,18 +756,98 @@ class PublicUpgradeTestLane {
 	/**
 	 * @param array<string,string|false> $envOverrides
 	 */
-	private function copyContainerFile(
+	private function copyOptionalRuntimeArtifact(
 		string $rootDir,
 		array $envOverrides,
+		PublicUpgradeArtifacts $artifacts,
 		string $remotePath,
-		string $localPath
+		string $artifactFile,
+		bool $strict
 	) :void {
-		$this->processRunner->run(
-			$this->buildComposeCommand( [ 'cp', self::WORDPRESS_SERVICE.':'.$remotePath, $localPath ] ),
-			$rootDir,
-			static function () :void {},
-			$envOverrides
-		);
+		try {
+			$probe = $this->processRunner->run(
+				$this->buildComposeCommand( [
+					'exec',
+					'-T',
+					self::WORDPRESS_SERVICE,
+					'sh',
+					'-c',
+					'test -f "$1" || exit '.self::REMOTE_ARTIFACT_MISSING_EXIT,
+					'sh',
+					$remotePath,
+				] ),
+				$rootDir,
+				static function () :void {},
+				$envOverrides
+			);
+		}
+		catch ( \Throwable $e ) {
+			$this->handleRuntimeArtifactCollectionFailure(
+				$strict,
+				$artifacts,
+				$artifactFile,
+				'remote file probe could not run: '.$e->getMessage()
+			);
+			return;
+		}
+
+		$probeExit = $probe->getExitCode() ?? 1;
+		if ( $probeExit === self::REMOTE_ARTIFACT_MISSING_EXIT ) {
+			$artifacts->ensureFileExists( $artifactFile );
+			return;
+		}
+		if ( $probeExit !== 0 ) {
+			$this->handleRuntimeArtifactCollectionFailure(
+				$strict,
+				$artifacts,
+				$artifactFile,
+				'remote file probe failed with exit code '.$probeExit.'.'
+			);
+			return;
+		}
+
+		try {
+			$copy = $this->processRunner->run(
+				$this->buildComposeCommand( [ 'cp', self::WORDPRESS_SERVICE.':'.$remotePath, $artifacts->path( $artifactFile ) ] ),
+				$rootDir,
+				static function () :void {},
+				$envOverrides
+			);
+		}
+		catch ( \Throwable $e ) {
+			$this->handleRuntimeArtifactCollectionFailure(
+				$strict,
+				$artifacts,
+				$artifactFile,
+				'remote file copy could not run: '.$e->getMessage()
+			);
+			return;
+		}
+
+		$copyExit = $copy->getExitCode() ?? 1;
+		if ( $copyExit !== 0 ) {
+			$this->handleRuntimeArtifactCollectionFailure(
+				$strict,
+				$artifacts,
+				$artifactFile,
+				'remote file copy failed with exit code '.$copyExit.'.'
+			);
+		}
+	}
+
+	private function handleRuntimeArtifactCollectionFailure(
+		bool $strict,
+		PublicUpgradeArtifacts $artifacts,
+		string $artifactFile,
+		string $message
+	) :void {
+		$message = 'Runtime artifact collection failed for '.$artifactFile.': '.$message;
+		if ( $strict ) {
+			throw new PublicUpgradeTestFailureException( $message );
+		}
+
+		$artifacts->appendWpCliLog( \PHP_EOL.'Warning: '.$message.\PHP_EOL );
+		$artifacts->ensureFileExists( $artifactFile );
 	}
 
 	/**

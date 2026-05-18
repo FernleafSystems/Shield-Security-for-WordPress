@@ -161,6 +161,18 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertSame( ScansStart::SLUG, $ajax[ 'start' ][ ActionData::FIELD_EXECUTE ] ?? null );
 	}
 
+	public function test_scans_component_sets_initial_check_when_scan_queue_is_running() :void {
+		$this->installEnvironment( [
+			PluginNavs::FIELD_NAV    => PluginNavs::NAV_SCANS,
+			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_SCANS_OVERVIEW,
+		], [], true );
+
+		$scansComp = $this->getComponentDefinition( 'scans' );
+		$scansData = \is_callable( $scansComp[ 'data' ] ?? null ) ? \call_user_func( $scansComp[ 'data' ] ) : [];
+
+		$this->assertTrue( $scansData[ 'flags' ][ 'initial_check' ] ?? false );
+	}
+
 	public function test_tools_and_license_components_expose_stable_action_payloads() :void {
 		$this->installEnvironment( [
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_LICENSE,
@@ -179,7 +191,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertSame( ReportingChartTrends::SLUG, $reportsTrendsAjax[ 'render_chart' ][ ActionData::FIELD_EXECUTE ] ?? '' );
 	}
 
-	private function installEnvironment( array $query = [], array $completedTours = [] ) :void {
+	private function installEnvironment( array $query = [], array $completedTours = [], bool $hasRunningScans = false ) :void {
 		$query = \array_merge( [
 			'page'                  => 'icwp-wpsf-plugin',
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_DASHBOARD,
@@ -205,7 +217,8 @@ class AssetsCustomizerTest extends BaseUnitTest {
 				true,
 				true,
 				new AssetsCustomizerUserMetasStub( (object)[ 'tours' => $completedTours ] ),
-				self::VALID_VIDEO_URL
+				self::VALID_VIDEO_URL,
+				$hasRunningScans
 			)
 		);
 
@@ -250,7 +263,13 @@ class AssetsCustomizerControllerStub extends Controller {
 	private bool $pluginAdminPage;
 	private bool $pluginAdmin;
 
-	public function __construct( bool $pluginAdminPage, bool $pluginAdmin, object $userMetas, string $dashboardVideoURL ) {
+	public function __construct(
+		bool $pluginAdminPage,
+		bool $pluginAdmin,
+		object $userMetas,
+		string $dashboardVideoURL,
+		bool $hasRunningScans = false
+	) {
 		$this->pluginAdminPage = $pluginAdminPage;
 		$this->pluginAdmin = $pluginAdmin;
 		$this->user_metas = $userMetas;
@@ -260,9 +279,15 @@ class AssetsCustomizerControllerStub extends Controller {
 			] ),
 		];
 		$this->comps = (object)[
-			'scans_queue' => new class {
+			'scans_queue' => new class( $hasRunningScans ) {
+				private bool $hasRunningScans;
+
+				public function __construct( bool $hasRunningScans ) {
+					$this->hasRunningScans = $hasRunningScans;
+				}
+
 				public function hasRunningScans() :bool {
-					return false;
+					return $this->hasRunningScans;
 				}
 			},
 		];
