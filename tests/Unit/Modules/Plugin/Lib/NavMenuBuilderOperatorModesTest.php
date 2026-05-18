@@ -117,10 +117,20 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
 		$toolItems = $this->createBuilder()->build()[ 'tool_items' ];
 
-		$this->assertNotNull( $this->findItemBySlug( $toolItems, PluginNavs::NAV_WIZARD.'-'.PluginNavs::SUBNAV_WIZARD_WELCOME ) );
-		$this->assertNotNull( $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-whitelabel' ) );
-		$this->assertNotNull( $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-loginhide' ) );
-		$this->assertNotNull( $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-integrations' ) );
+		$this->assertSame(
+			[
+				PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_MANAGE,
+				PluginNavs::NAV_RULES.'-'.PluginNavs::SUBNAV_RULES_BUILD,
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_BLOCKDOWN,
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_IMPORT,
+				PluginNavs::NAV_TOOLS.'-whitelabel',
+				PluginNavs::NAV_TOOLS.'-loginhide',
+				PluginNavs::NAV_TOOLS.'-integrations',
+				PluginNavs::NAV_WIZARD.'-'.PluginNavs::SUBNAV_WIZARD_WELCOME,
+				PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG,
+			],
+			\array_column( $toolItems, 'slug' )
+		);
 
 		$debugTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG );
 		$this->assertTrue( (bool)( $debugTool[ 'active' ] ?? false ) );

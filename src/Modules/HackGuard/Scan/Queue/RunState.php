@@ -11,6 +11,7 @@ class RunState {
 	use PluginControllerConsumer;
 
 	public const META_KEY_LAST_ERROR = 'last_error';
+	public const META_KEY_WATCHDOG_RECOVERY = 'watchdog_recovery';
 
 	public function markBuilding( Record $scan ) :void {
 		$now = Services::Request()->ts();
@@ -82,14 +83,16 @@ class RunState {
 			$update[ 'started_at' ] = $now;
 		}
 		$meta = $item->meta;
-		if ( isset( $meta[ self::META_KEY_LAST_ERROR ] ) ) {
+		if ( isset( $meta[ self::META_KEY_LAST_ERROR ] ) || isset( $meta[ self::META_KEY_WATCHDOG_RECOVERY ] ) ) {
 			unset( $meta[ self::META_KEY_LAST_ERROR ] );
+			unset( $meta[ self::META_KEY_WATCHDOG_RECOVERY ] );
 			$item->meta = $meta;
 			$scan = new Record();
 			$scan->meta = $meta;
 			$update[ 'meta' ] = $scan->getRawData()[ 'meta' ];
 		}
 		self::con()->db_con->scans->getQueryUpdater()->updateById( $item->scan_id, $update );
+		QueueHeartbeat::prime( $item->scan_id, $now );
 	}
 
 	public function markUnfinishedRunsFailed() :void {

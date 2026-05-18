@@ -16,6 +16,8 @@ class Controller {
 
 	private ?QueueProcessor $queueProcessor = null;
 
+	private ?QueueWatchdog $queueWatchdog = null;
+
 	protected function run() :void {
 		add_action( 'wp_loaded', [ $this, 'onWpLoaded' ] );
 	}
@@ -23,6 +25,7 @@ class Controller {
 	public function onWpLoaded() :void {
 		$this->getQueueBuilder();
 		$this->getQueueProcessor();
+		$this->getQueueWatchdog()->register();
 	}
 
 	/**
@@ -82,5 +85,9 @@ class Controller {
 
 	public function getQueueProcessor() :QueueProcessor {
 		return $this->queueProcessor ??= new QueueProcessor();
+	}
+
+	public function getQueueWatchdog() :QueueWatchdog {
+		return $this->queueWatchdog ??= new QueueWatchdog();
 	}
 }

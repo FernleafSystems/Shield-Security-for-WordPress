@@ -136,9 +136,6 @@ class QueueProcessor extends Utilities\BackgroundProcessing\BackgroundProcess {
 	}
 
 	public function handleExpiredItems() {
-		( new CleanQueue() )->execute();
-		if ( !$this->is_queue_empty() ) {
-			$this->schedule_event();
-		}
+		( new QueueWatchdog() )->runScheduled();
 	}
 }

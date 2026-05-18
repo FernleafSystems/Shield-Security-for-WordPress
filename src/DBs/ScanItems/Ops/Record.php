@@ -6,6 +6,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops;
  * @property int   $scan_ref
  * @property array $items
  * @property int   $started_at
+ * @property int   $attempts
  * @property int   $finished_at
  */
 class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Record {
@@ -27,6 +28,13 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 				if ( !\is_array( $value ) ) {
 					$value = [];
 				}
+				break;
+
+			case 'scan_ref':
+			case 'started_at':
+			case 'attempts':
+			case 'finished_at':
+				$value = (int)$value;
 				break;
 
 			default:

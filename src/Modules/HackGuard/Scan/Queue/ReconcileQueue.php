@@ -82,8 +82,12 @@ class ReconcileQueue {
 						FROM `%s` as `scans`
 						WHERE `scans`.`status`='building'
 						  AND `scans`.`finished_at`=0
-						  AND `scans`.`last_process_at`<%d;",
+						  AND (
+							( `scans`.`last_process_at`>0 AND `scans`.`last_process_at`<%d )
+							OR ( `scans`.`last_process_at`=0 AND `scans`.`created_at`<%d )
+						  );",
 				self::con()->db_con->scans->getTable(),
+				$cutoff,
 				$cutoff
 			)
 		) ?: [] );
