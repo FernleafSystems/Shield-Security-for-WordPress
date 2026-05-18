@@ -24,6 +24,7 @@ class ScanFromFileMap {
 
 		if ( \is_array( $action->items ) ) {
 			foreach ( $action->items as $fullPath ) {
+				$action->tickProgress();
 				$fullPath = \base64_decode( $fullPath );
 
 				$canScan = !empty( $fullPath )
@@ -40,6 +41,7 @@ class ScanFromFileMap {
 					}
 				}
 			}
+			$action->tickProgress();
 		}
 
 		return $results;

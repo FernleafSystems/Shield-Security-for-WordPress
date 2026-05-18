@@ -78,6 +78,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		], \array_column( $result->getFailures(), 'reason' ) );
 		$this->assertInsertedScanRunTrigger( $scansDb->insertedRecords[ 101 ], 'manual' );
 		$this->assertSame( 1, $queue->dispatches );
+		$this->assertSame( 1, $queue->watchdogSchedules );
 		$this->assertSame( 0, $wpDb->writeCount );
 	}
 
@@ -99,6 +100,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 
 		$this->assertTrue( $result->isPartialSuccess() );
 		$this->assertSame( 1, $queue->dispatches );
+		$this->assertSame( 1, $queue->watchdogSchedules );
 		$this->assertSame( 1, $wpDb->writeCount );
 	}
 
@@ -119,6 +121,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertFalse( $result->hasStarted() );
 		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $result->getFailures(), 'reason' ) );
 		$this->assertSame( 0, $queue->dispatches );
+		$this->assertSame( 0, $queue->watchdogSchedules );
 	}
 
 	public function test_afs_asset_change_scan_creation_uses_run_trigger_contract() :void {
@@ -142,6 +145,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( 'akismet/akismet.php', $record->scope_key );
 		$this->assertInsertedScanRunTrigger( $record, 'asset_change' );
 		$this->assertSame( 1, $queue->dispatches );
+		$this->assertSame( 1, $queue->watchdogSchedules );
 	}
 
 	public function test_afs_core_asset_change_scan_uses_core_scope_contract() :void {
@@ -164,6 +168,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( 'core', $record->scope_key );
 		$this->assertInsertedScanRunTrigger( $record, 'asset_change' );
 		$this->assertSame( 1, $queue->dispatches );
+		$this->assertSame( 1, $queue->watchdogSchedules );
 	}
 
 	private function assertInsertedScanRunTrigger( Record $record, string $expectedRunTrigger ) :void {
@@ -348,6 +353,8 @@ class StartScansFakeQueue {
 
 	public int $dispatches = 0;
 
+	public int $watchdogSchedules = 0;
+
 	public function getQueueBuilder() :object {
 		return new class( $this ) {
 			private StartScansFakeQueue $queue;
@@ -358,6 +365,20 @@ class StartScansFakeQueue {
 
 			public function dispatch() :void {
 				$this->queue->dispatches++;
+			}
+		};
+	}
+
+	public function getQueueWatchdog() :object {
+		return new class( $this ) {
+			private StartScansFakeQueue $queue;
+
+			public function __construct( StartScansFakeQueue $queue ) {
+				$this->queue = $queue;
+			}
+
+			public function scheduleIfActive() :void {
+				$this->queue->watchdogSchedules++;
 			}
 		};
 	}

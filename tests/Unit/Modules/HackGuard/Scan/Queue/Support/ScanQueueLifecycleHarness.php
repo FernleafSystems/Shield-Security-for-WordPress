@@ -10,7 +10,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Build\QueueBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Controller as QueueController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueWatchdog;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -31,6 +33,8 @@ class ScanQueueLifecycleHarness {
 	public LifecycleScansDb $scansDb;
 
 	public LifecycleScanItemsDb $scanItemsDb;
+
+	public LifecycleActionRouter $actionRouter;
 
 	private LifecycleQueueComponent $queueComponent;
 
@@ -56,6 +60,7 @@ class ScanQueueLifecycleHarness {
 		$this->scansDb = new LifecycleScansDb( $this->sql );
 		$this->scanItemsDb = new LifecycleScanItemsDb( $this->sql );
 		$this->queueComponent = new LifecycleQueueComponent();
+		$this->actionRouter = new LifecycleActionRouter();
 	}
 
 	public function install() :self {
@@ -83,11 +88,12 @@ class ScanQueueLifecycleHarness {
 		return $this->sql->insertScan( $data );
 	}
 
-	public function insertScanItem( int $scanID, array $items, int $startedAt = 0, int $finishedAt = 0 ) :int {
+	public function insertScanItem( int $scanID, array $items, int $startedAt = 0, int $finishedAt = 0, ?int $attempts = null ) :int {
 		return $this->sql->insertScanItem( [
 			'scan_ref'    => $scanID,
 			'items'       => \base64_encode( \json_encode( $items ) ?: '[]' ),
 			'started_at'  => $startedAt,
+			'attempts'    => $attempts ?? ( $startedAt > 0 ? 1 : 0 ),
 			'finished_at' => $finishedAt,
 		] );
 	}
@@ -135,6 +141,7 @@ class ScanQueueLifecycleHarness {
 			'file_locker'  => new LifecycleFileLocker(),
 		];
 		$controller->opts = new LifecycleOpts();
+		$controller->action_router = $this->actionRouter;
 		PluginControllerInstaller::install( $controller );
 	}
 
@@ -361,6 +368,7 @@ class LifecycleSqliteDb extends Db {
 			'scan_ref'    => 0,
 			'items'       => \base64_encode( '[]' ),
 			'started_at'  => 0,
+			'attempts'    => 0,
 			'finished_at' => 0,
 		], $data );
 		$this->insertRow( 'scan_items', $data );
@@ -498,6 +506,7 @@ class LifecycleSqliteDb extends Db {
 			`scan_ref` INTEGER NOT NULL,
 			`items` TEXT NOT NULL DEFAULT "",
 			`started_at` INTEGER NOT NULL DEFAULT 0,
+			`attempts` INTEGER NOT NULL DEFAULT 0,
 			`finished_at` INTEGER NOT NULL DEFAULT 0
 		)' );
 		$this->pdo->exec( 'CREATE TABLE `scan_results` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `scan_ref` INTEGER, `resultitem_ref` INTEGER)' );
@@ -672,6 +681,10 @@ class LifecycleScansSelector {
 		return $this->addWhereEquals( 'status', $status );
 	}
 
+	public function filterByIDs( array $ids ) :self {
+		return $this->addWhereIn( 'id', \array_map( '\intval', $ids ) );
+	}
+
 	public function filterByNotFinished() :self {
 		return $this->addWhereEquals( 'finished_at', 0 );
 	}
@@ -785,7 +798,15 @@ class LifecycleScanItemsSelector {
 	}
 
 	public function countProgressForEachScan() :array {
-		return [];
+		$rows = $this->db->selectCustom( 'SELECT `scan_ref`, COUNT(*) as count_all, SUM(CASE WHEN `finished_at`=0 THEN 1 ELSE 0 END) as count_unfinished FROM `scan_items` GROUP BY `scan_ref`' );
+		$counts = [];
+		foreach ( \is_array( $rows ) ? $rows : [] as $row ) {
+			$counts[ $row[ 'scan_ref' ] ] = [
+				'total'      => (int)$row[ 'count_all' ],
+				'unfinished' => (int)$row[ 'count_unfinished' ],
+			];
+		}
+		return $counts;
 	}
 }
 
@@ -1084,11 +1105,13 @@ class LifecycleScanController extends Base {
 	}
 }
 
-class LifecycleQueueComponent {
+class LifecycleQueueComponent extends QueueController {
 
 	public QueueBuilder $builder;
 
 	public QueueProcessor $processor;
+
+	public ?QueueWatchdog $watchdog = null;
 
 	public function getQueueBuilder() :QueueBuilder {
 		return $this->builder;
@@ -1096,6 +1119,21 @@ class LifecycleQueueComponent {
 
 	public function getQueueProcessor() :QueueProcessor {
 		return $this->processor;
+	}
+
+	public function getQueueWatchdog() :QueueWatchdog {
+		return $this->watchdog ??= new QueueWatchdog();
+	}
+}
+
+class LifecycleActionRouter {
+
+	public array $renderData = [];
+
+	public function render( string $unused, array $data ) :string {
+		unset( $unused );
+		$this->renderData = $data;
+		return '';
 	}
 }
 

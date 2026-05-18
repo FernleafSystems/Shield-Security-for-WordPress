@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib\Utility\CleanOutOldGuardFiles,
-	Scan\Queue\CleanQueue,
+	Scan\Queue\QueueMaintenance,
 	Scan\Queue\ProcessQueueWpcli,
 	Scan\Results\Update
 };
@@ -60,7 +60,8 @@ class ScansController {
 	}
 
 	public function runHourlyCron() {
-		( new CleanQueue() )->execute();
+		( new QueueMaintenance() )->run();
+		self::con()->comps->scans_queue->getQueueWatchdog()->scheduleIfActive();
 		( new ReportToMalai() )->run();
 	}
 
@@ -232,6 +233,7 @@ class ScansController {
 		}
 
 		if ( $result->hasStarted() ) {
+			self::con()->comps->scans_queue->getQueueWatchdog()->scheduleIfActive();
 			if ( Services::WpGeneral()->isWpCli() ) {
 				( new ProcessQueueWpcli() )->execute();
 			}
@@ -278,9 +280,11 @@ class ScansController {
 		}
 
 		if ( Services::WpGeneral()->isWpCli() ) {
+			self::con()->comps->scans_queue->getQueueWatchdog()->scheduleIfActive();
 			( new ProcessQueueWpcli() )->execute();
 		}
 		else {
+			self::con()->comps->scans_queue->getQueueWatchdog()->scheduleIfActive();
 			self::con()->comps->scans_queue->getQueueBuilder()->dispatch();
 		}
 

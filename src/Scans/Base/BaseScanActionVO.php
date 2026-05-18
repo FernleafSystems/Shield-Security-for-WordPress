@@ -14,10 +14,18 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
  * @property string[] $items
  * @property array[]  $results
  * @property int      $usleep
+ * @property callable $progress_callback
  */
 abstract class BaseScanActionVO extends DynPropertiesClass {
 
 	public const DEFAULT_SLEEP_SECONDS = 0;
+
+	public function tickProgress() :void {
+		$callback = $this->progress_callback;
+		if ( \is_callable( $callback ) ) {
+			$callback();
+		}
+	}
 
 	public function getScanNamespace() :string {
 		try {
