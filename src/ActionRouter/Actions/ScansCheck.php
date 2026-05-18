@@ -11,6 +11,7 @@ class ScansCheck extends ScansBase {
 
 	protected function exec() {
 		$con = self::con();
+		$con->comps->scans_queue->getQueueWatchdog()->runIfStale();
 		$failedScan = $this->getFailedStartedScan();
 		$hasFailedScan = !empty( $failedScan );
 		$failureMessage = $hasFailedScan ? $failedScan[ 'message' ] : '';

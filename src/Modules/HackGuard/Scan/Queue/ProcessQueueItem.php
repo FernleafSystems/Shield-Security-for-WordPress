@@ -14,10 +14,6 @@ class ProcessQueueItem {
 	use PluginControllerConsumer;
 
 	public function run( QueueItemVO $item ) {
-		$now = Services::Request()->ts();
-		self::con()->db_con->scan_items->getQueryUpdater()->updateById( $item->qitem_id, [
-			'started_at' => $now
-		] );
 		( new RunState() )->markRunning( $item );
 
 		try {
@@ -55,6 +51,10 @@ class ProcessQueueItem {
 			[ 'scan' => $item->scan ]
 		) );
 		$action->items = $item->items;
+		$heartbeat = new QueueHeartbeat();
+		$action->progress_callback = static function () use ( $heartbeat, $item ) :void {
+			$heartbeat->tick( $item->scan_id );
+		};
 
 		$this->getScanner( $action )
 			 ->setScanActionVO( $action )

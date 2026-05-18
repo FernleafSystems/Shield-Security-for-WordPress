@@ -1169,6 +1169,10 @@
                     "macro_type": "timestamp",
                     "comment": "Started Scanning Items At"
                 },
+                "attempts": {
+                    "macro_type": "unsigned_int",
+                    "comment": "Queue Item Processing Attempts"
+                },
                 "finished_at": {
                     "macro_type": "timestamp",
                     "comment": "Finished Scanning Items At"

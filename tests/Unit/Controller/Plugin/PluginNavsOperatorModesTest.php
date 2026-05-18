@@ -144,6 +144,36 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		}
 	}
 
+	public function test_tools_hierarchy_keeps_canonical_tool_handlers() :void {
+		$toolsSubNavs = PluginNavs::GetNavHierarchy()[ PluginNavs::NAV_TOOLS ][ 'sub_navs' ];
+
+		$this->assertSame(
+			[
+				PluginNavs::SUBNAV_TOOLS_BLOCKDOWN,
+				PluginNavs::SUBNAV_TOOLS_SESSIONS,
+				PluginNavs::SUBNAV_TOOLS_DEBUG,
+				PluginNavs::SUBNAV_TOOLS_IMPORT,
+			],
+			\array_keys( $toolsSubNavs )
+		);
+		$this->assertSame(
+			PluginAdminPages\PageToolLockdown::class,
+			$toolsSubNavs[ PluginNavs::SUBNAV_TOOLS_BLOCKDOWN ][ 'handler' ] ?? ''
+		);
+		$this->assertSame(
+			PluginAdminPages\PageUserSessions::class,
+			$toolsSubNavs[ PluginNavs::SUBNAV_TOOLS_SESSIONS ][ 'handler' ] ?? ''
+		);
+		$this->assertSame(
+			PluginAdminPages\PageDebug::class,
+			$toolsSubNavs[ PluginNavs::SUBNAV_TOOLS_DEBUG ][ 'handler' ] ?? ''
+		);
+		$this->assertSame(
+			PluginAdminPages\PageImportExport::class,
+			$toolsSubNavs[ PluginNavs::SUBNAV_TOOLS_IMPORT ][ 'handler' ] ?? ''
+		);
+	}
+
 	public function test_configure_hierarchy_keeps_overview_only_zones_and_live_zone_component_routes() :void {
 		$zoneComponentSlugs = [
 			'module_plugin' => true,
