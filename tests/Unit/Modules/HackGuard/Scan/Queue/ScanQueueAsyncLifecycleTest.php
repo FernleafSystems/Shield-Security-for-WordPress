@@ -107,6 +107,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			$this->assertSame( 'manual', $rawInsert[ 'run_trigger' ] ?? null );
 			$this->assertSame( [], \json_decode( \base64_decode( (string)( $rawInsert[ 'meta' ] ?? '' ) ), true ) );
 		}
+		$this->assertSame( 0, $this->queryLogCount( $harness->sql->queryLog(), 'SELECT `id`, `scan`' ) );
 		$this->assertFalse( $this->queryLogContains( $harness->sql->queryLog(), 'SELECT * FROM `scans` WHERE `id`' ) );
 	}
 
@@ -126,6 +127,30 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 'queued', $harness->scanRow( $scanID )[ 'status' ] );
 		$this->assertQueueTransportDispatched( $harness );
 		$this->assertTrue( $harness->async->hasScheduledHook( ( new QueueWatchdog() )->hook() ) );
+	}
+
+	public function test_start_new_scans_probes_non_stale_duplicate_once_without_recovery_or_item_queries() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'ready_at'        => 1699999950,
+			'last_process_at' => 1699999950,
+		] );
+		$harness->insertScanItem( $scanID, [ 'afs-a' ] );
+		$harness->sql->resetQueryLog();
+		$harness->async->resetTransport();
+
+		$result = ( new LifecycleScansControllerTestDouble() )->startNewScans( [ 'afs' ] );
+		$queries = $harness->sql->queryLog();
+
+		$this->assertFalse( $result->hasStarted() );
+		$this->assertSame( [ StartScansResult::REASON_ALREADY_EXISTS ], \array_column( $result->getFailures(), 'reason' ) );
+		$this->assertSame( 1, $this->queryLogCount( $queries, 'SELECT `id`, `scan`' ) );
+		$this->assertFalse( $this->queryLogContains( $queries, 'FROM `scan_items`' ) );
+		$this->assertSame( [], $harness->async->remotePosts );
+		$this->assertSame( [], $harness->async->scheduled );
+		$this->assertSame( [ $scanID ], $this->scanIDsForSlug( $harness, 'afs' ) );
 	}
 
 	public function test_start_new_scans_fails_stale_building_blocker_then_creates_replacement_scan() :void {
@@ -218,15 +243,47 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			'last_process_at' => 1699999000,
 		] );
 		$harness->insertScanItem( $staleScanID, [ 'apc-a' ] );
+		$harness->sql->resetQueryLog();
 
 		$result = ( new LifecycleScansControllerTestDouble() )->startNewScans( [ 'afs', 'apc' ] );
+		$queries = $harness->sql->queryLog();
 
-		$this->assertSame( [ 'afs' ], $result->getStartedSlugs() );
+		$this->assertSame( [ 'afs', 'apc' ], $result->getStartedSlugs() );
+		$this->assertContains( $staleScanID, $result->getStartedScanIDs() );
 		$this->assertFalse( $result->hasFailures(), 'A mixed fresh/stale start should not report recoverable stale blockers as hard failures.' );
 		$this->assertSame( [ $staleScanID ], $this->scanIDsForSlug( $harness, 'apc' ) );
 		$this->assertArrayHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $staleScanID ) ) );
+		$this->assertSame( 1, $this->queryLogCount( $queries, 'SELECT `id`, `scan`' ) );
 		$this->assertTrue( $harness->async->hasScheduledHook( ( new QueueWatchdog() )->hook() ) );
 		$this->assertSame( 1, $harness->async->scheduledHookAttempts( ( new QueueWatchdog() )->hook() ) );
+	}
+
+	public function test_repeated_start_after_recoverable_intervention_is_throttled_inside_stale_window() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$harness->insertScanItem( $scanID, [ 'afs-a' ] );
+
+		$firstResult = ( new LifecycleScansControllerTestDouble() )->startNewScans( [ 'afs' ] );
+		$this->assertSame( [ 'afs' ], $firstResult->getStartedSlugs() );
+		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'last_process_at' ] );
+
+		$harness->sql->resetQueryLog();
+		$harness->async->resetTransport();
+
+		$secondResult = ( new LifecycleScansControllerTestDouble() )->startNewScans( [ 'afs' ] );
+		$queries = $harness->sql->queryLog();
+
+		$this->assertFalse( $secondResult->hasStarted() );
+		$this->assertSame( [ StartScansResult::REASON_ALREADY_EXISTS ], \array_column( $secondResult->getFailures(), 'reason' ) );
+		$this->assertSame( 1, $this->queryLogCount( $queries, 'SELECT `id`, `scan`' ) );
+		$this->assertFalse( $this->queryLogContains( $queries, 'FROM `scan_items`' ) );
+		$this->assertSame( [], $harness->async->remotePosts );
+		$this->assertSame( [], $harness->async->scheduled );
 	}
 
 	public function test_repeated_start_after_exhausted_prior_release_rows_does_not_remain_all_already_exists_forever() :void {

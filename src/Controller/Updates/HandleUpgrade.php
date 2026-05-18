@@ -65,7 +65,10 @@ class HandleUpgrade {
 			static fn( $scanCon ) :bool => $scanCon->isReady()
 		) ) );
 		if ( $result->hasFailures() ) {
-			error_log( $result->getFailureLogMessage() );
+			$message = $result->getFailureLogMessage( [ Modules\HackGuard\Scan\StartScansResult::REASON_ALREADY_EXISTS ] );
+			if ( $message !== '' ) {
+				error_log( $message );
+			}
 		}
 	}
 

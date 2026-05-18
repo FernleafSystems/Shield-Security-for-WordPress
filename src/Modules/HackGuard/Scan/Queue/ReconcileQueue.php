@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\SetScanCompleted;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -80,13 +81,14 @@ class ReconcileQueue {
 		return $this->idsFromRows( Services::WpDb()->selectCustom(
 			sprintf( "SELECT DISTINCT `scans`.`id`
 						FROM `%s` as `scans`
-						WHERE `scans`.`status`='building'
+						WHERE `scans`.`status`='%s'
 						  AND `scans`.`finished_at`=0
 						  AND (
 							( `scans`.`last_process_at`>0 AND `scans`.`last_process_at`<%d )
 							OR ( `scans`.`last_process_at`=0 AND `scans`.`created_at`<%d )
 						  );",
 				self::con()->db_con->scans->getTable(),
+				ScanStatus::BUILDING,
 				$cutoff,
 				$cutoff
 			)
@@ -96,14 +98,31 @@ class ReconcileQueue {
 	private function readyWhere( ?int $cutoff ) :string {
 		return \is_int( $cutoff )
 			? sprintf( "(
-							( `scans`.`status`='built' AND ( `scans`.`ready_at`<%d OR `scans`.`last_process_at`<%d ) )
-							OR ( `scans`.`status`='running' AND `scans`.`last_process_at`<%d )
+							( `scans`.`status`='%s'
+							  AND `scans`.`ready_at`>0
+							  AND (
+								( `scans`.`last_process_at`>0 AND `scans`.`last_process_at`<%d )
+								OR ( `scans`.`last_process_at`=0 AND `scans`.`ready_at`<%d )
+							  )
+							)
+							OR ( `scans`.`status`='%s'
+							  AND `scans`.`ready_at`>0
+							  AND (
+								( `scans`.`last_process_at`>0 AND `scans`.`last_process_at`<%d )
+								OR ( `scans`.`last_process_at`=0 AND `scans`.`created_at`<%d )
+							  )
+							)
 						)",
+				ScanStatus::BUILT,
 				$cutoff,
+				$cutoff,
+				ScanStatus::RUNNING,
 				$cutoff,
 				$cutoff
 			)
-			: "( `scans`.`status` IN ('built','running') AND `scans`.`ready_at`>0 )";
+			: sprintf( "( `scans`.`status` IN (%s) AND `scans`.`ready_at`>0 )",
+				ScanStatus::sqlList( ScanStatus::READY )
+			);
 	}
 
 	private function idsFromRows( array $rows ) :array {

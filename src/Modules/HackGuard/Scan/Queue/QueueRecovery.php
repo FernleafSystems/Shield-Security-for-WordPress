@@ -58,6 +58,7 @@ class QueueRecovery {
 			)
 		);
 
+		$this->touchScan( $scanID );
 		self::con()->comps->scans_queue->getQueueProcessor()->dispatch();
 	}
 
@@ -85,10 +86,19 @@ class QueueRecovery {
 		];
 		$scan->meta = $meta;
 		self::con()->db_con->scans->getQueryUpdater()->updateById( (int)$scan->id, [
-			'meta' => $scan->getRawData()[ 'meta' ],
+			'last_process_at' => $now,
+			'meta'            => $scan->getRawData()[ 'meta' ],
 		] );
 
 		self::con()->comps->scans_queue->getQueueProcessor()->dispatch();
+	}
+
+	private function touchScan( int $scanID ) :void {
+		if ( $scanID > 0 ) {
+			self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
+				'last_process_at' => Services::Request()->ts(),
+			] );
+		}
 	}
 
 	private function startedUnfinishedItem( int $scanID ) :array {

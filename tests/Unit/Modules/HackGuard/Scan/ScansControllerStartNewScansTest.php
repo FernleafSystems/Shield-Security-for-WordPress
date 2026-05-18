@@ -70,7 +70,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 
 		$this->assertSame( [ 'afs', 'apc', 'wpv', 'missing', 'bad' ], $result->getRequestedSlugs() );
 		$this->assertSame( [ 101 ], $result->getStartedScanIDs() );
-		$this->assertSame( [
+		$this->assertEqualsCanonicalizing( [
 			StartScansResult::REASON_ALREADY_EXISTS,
 			StartScansResult::REASON_CREATE_FAILED,
 			StartScansResult::REASON_UNKNOWN_SCAN,
@@ -79,6 +79,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertInsertedScanRunTrigger( $scansDb->insertedRecords[ 101 ], 'manual' );
 		$this->assertSame( 1, $queue->dispatches );
 		$this->assertSame( 1, $queue->watchdogSchedules );
+		$this->assertSame( 1, $queue->staleStartBlockerChecks );
 		$this->assertSame( 0, $wpDb->writeCount );
 	}
 
@@ -143,6 +144,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( [], $scansDb->insertedRecords );
 		$this->assertSame( 0, $queue->dispatches );
 		$this->assertSame( 0, $queue->watchdogSchedules );
+		$this->assertSame( 1, $queue->staleStartBlockerChecks );
 	}
 
 	public function test_cron_start_uses_cron_run_trigger() :void {
@@ -185,6 +187,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertInsertedScanRunTrigger( $scansDb->insertedRecords[ 101 ], 'cli' );
 		$this->assertSame( 0, $queue->dispatches );
 		$this->assertSame( 1, $queue->watchdogSchedules );
+		$this->assertSame( 0, $queue->staleStartBlockerChecks );
 	}
 
 	public function test_afs_asset_change_scan_creation_uses_run_trigger_contract() :void {
@@ -417,6 +420,11 @@ class StartScansFakeScansDb {
 				return $this;
 			}
 
+			public function addWhereIn( string $column, array $values ) :self {
+				unset( $column, $values );
+				return $this;
+			}
+
 			public function setOrderBy( string $column, string $direction = 'DESC', bool $overwrite = false ) :self {
 				unset( $column, $direction, $overwrite );
 				return $this;
@@ -446,6 +454,8 @@ class StartScansFakeQueue {
 
 	public int $watchdogSchedules = 0;
 
+	public int $staleStartBlockerChecks = 0;
+
 	public function getQueueBuilder() :object {
 		return new class( $this ) {
 			private StartScansFakeQueue $queue;
@@ -470,6 +480,12 @@ class StartScansFakeQueue {
 
 			public function scheduleIfActive() :void {
 				$this->queue->watchdogSchedules++;
+			}
+
+			public function runForStaleStartBlockers( array $slugs, string $scopeType = 'full', string $scopeKey = '' ) :array {
+				unset( $slugs, $scopeType, $scopeKey );
+				$this->queue->staleStartBlockerChecks++;
+				return [];
 			}
 		};
 	}

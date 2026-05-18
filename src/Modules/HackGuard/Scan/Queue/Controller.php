@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class Controller {
@@ -75,7 +76,7 @@ class Controller {
 	public function hasRunningScans() :bool {
 		return self::con()->db_con->scans->getQuerySelector()
 				   ->filterByNotFinished()
-				   ->addWhereIn( 'status', [ 'queued', 'building', 'built', 'running' ] )
+				   ->addWhereIn( 'status', ScanStatus::ACTIVE )
 				   ->count() > 0;
 	}
 
