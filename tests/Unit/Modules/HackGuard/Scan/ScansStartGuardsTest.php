@@ -102,6 +102,8 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		$this->assertFalse( $payload[ 'success' ] ?? true );
 		$this->assertSame( StartScansResult::CODE_START_FAILED, $payload[ 'error_code' ] ?? '' );
 		$this->assertSame( [ StartScansResult::REASON_ALREADY_EXISTS ], \array_column( $payload[ 'start_failures' ] ?? [], 'reason' ) );
+		$this->assertSame( [ [ 'afs' ] ], $controller->comps->scans->startCalls );
+		$this->assertSame( [ false ], $controller->comps->scans->resetIgnoreCalls );
 		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] ?? '' );
 		$this->assertNotSame( '', (string)( $payload[ 'modal_html' ] ?? '' ) );
 		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
@@ -134,6 +136,8 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		$this->assertSame( [ 31 ], $payload[ 'scan_ids' ] ?? [] );
 		$this->assertSame( StartScansResult::CODE_PARTIAL_START, $payload[ 'error_code' ] ?? '' );
 		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $payload[ 'start_failures' ] ?? [], 'reason' ) );
+		$this->assertSame( [ [ 'afs', 'wpv' ] ], $controller->comps->scans->startCalls );
+		$this->assertSame( [ false ], $controller->comps->scans->resetIgnoreCalls );
 		$this->assertTrue( $payload[ 'page_reload' ] ?? false );
 		$this->assertSame( '/actions-queue-scans/', $payload[ 'redirect_url' ] ?? '' );
 		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] ?? '' );
@@ -141,6 +145,28 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] ?? null );
+	}
+
+	public function test_action_router_start_passes_reset_ignore_flag_to_central_start() :void {
+		$request = new UnitTestRequest();
+		$request->post = [ 'afs' => 'Y', 'opt_clear_ignore' => 'Y' ];
+		ServicesState::installItems( [
+			'service_request' => $request,
+		] );
+
+		$controller = $this->installActionController(
+			true,
+			[],
+			StartScansResult::fromRequested( [ 'afs' ] )->addStarted( 'afs', 31 )
+		);
+
+		$action = new ScansStart();
+		$method = new \ReflectionMethod( ScansStart::class, 'exec' );
+		$method->setAccessible( true );
+		$method->invoke( $action );
+
+		$this->assertSame( [ [ 'afs' ] ], $controller->comps->scans->startCalls );
+		$this->assertSame( [ true ], $controller->comps->scans->resetIgnoreCalls );
 	}
 
 	private function assertModalRenderInputDoesNotCarryDerivedFlags( array $renderData ) :void {
@@ -177,6 +203,9 @@ class ScansStartGuardsTest extends BaseUnitTest {
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->comps = (object)[
 			'scans' => new class( $canStart, $blockedReasons, $startResult ) {
+				public array $startCalls = [];
+				public array $resetIgnoreCalls = [];
+
 				private bool $canStart;
 				private array $blockedReasons;
 				private StartScansResult $startResult;
@@ -206,7 +235,8 @@ class ScansStartGuardsTest extends BaseUnitTest {
 				}
 
 				public function startNewScans( array $scans, bool $resetIgnored = false ) :StartScansResult {
-					unset( $scans, $resetIgnored );
+					$this->startCalls[] = $scans;
+					$this->resetIgnoreCalls[] = $resetIgnored;
 					return $this->startResult;
 				}
 			},

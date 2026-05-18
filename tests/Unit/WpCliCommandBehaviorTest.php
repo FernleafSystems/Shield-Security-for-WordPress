@@ -242,6 +242,36 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 
 			$this->assertSame( [ [ 'afs', 'wpv' ] ], $state->scans->startedScans );
 			$this->assertSame( [ 'warning' ], \array_column( \WP_CLI::$events, 'type' ) );
+			$this->assertSame( 'Shield scan start failures: wpv:scan_unavailable', \WP_CLI::$events[ 0 ][ 'message' ] ?? '' );
+		}
+
+		public function test_scans_run_selected_flags_delegate_only_selected_scans() :void {
+			$state = $this->installController(
+				StartScansResult::fromRequested( [ 'afs' ] )->addStarted( 'afs', 44 )
+			);
+
+			( new ScansRun() )->execCmd( [], [ 'afs' => true ] );
+
+			$this->assertSame( [ [ 'afs' ] ], $state->scans->startedScans );
+			$this->assertSame( [], \WP_CLI::$events );
+		}
+
+		public function test_scans_run_no_start_result_exits_with_error_after_central_start_attempt() :void {
+			$state = $this->installController(
+				StartScansResult::fromRequested( [ 'afs' ] )
+					->addFailure( 'afs', StartScansResult::REASON_ALREADY_EXISTS )
+			);
+
+			try {
+				( new ScansRun() )->execCmd( [], [ 'afs' => true ] );
+				$this->fail( 'Expected WP-CLI error when central start starts no scans.' );
+			}
+			catch ( \WP_CLI\ExitException $e ) {
+				$this->assertSame( 1, $e->getCode() );
+			}
+
+			$this->assertSame( [ [ 'afs' ] ], $state->scans->startedScans );
+			$this->assertSame( [ 'error' ], \array_column( \WP_CLI::$events, 'type' ) );
 		}
 
 		private function installController( ?StartScansResult $scanResult = null ) :object {

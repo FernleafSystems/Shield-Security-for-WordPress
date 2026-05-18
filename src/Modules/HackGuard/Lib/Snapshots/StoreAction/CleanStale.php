@@ -10,10 +10,15 @@ class CleanStale extends BaseExec {
 
 	protected function run() {
 		try {
+			$hashDir = ( new HashesStorageDir() )->getTempDir( false );
+			if ( empty( $hashDir ) ) {
+				return;
+			}
+
 			$boundary = Services::Request()
 								->carbon()
 								->subDay()->timestamp;
-			foreach ( StandardDirectoryIterator::create( ( new HashesStorageDir() )->getTempDir() ) as $file ) {
+			foreach ( StandardDirectoryIterator::create( $hashDir ) as $file ) {
 				/** @var \SplFileInfo $file */
 				if ( $boundary > $file->getMTime() ) {
 					Services::WpFs()->deleteFile( $file->getPathname() );

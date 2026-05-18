@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItemVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -36,7 +37,7 @@ class SetScanCompleted {
 		$completed = (int)Services::WpDb()->doSql(
 				sprintf( "UPDATE `%s`
 						SET `finished_at`=%d,
-							`status`='completed',
+							`status`='%s',
 							`last_process_at`=%d
 							%s
 						WHERE `id`=%d
@@ -49,6 +50,7 @@ class SetScanCompleted {
 						  );",
 					$dbCon->scans->getTable(),
 					$now,
+					ScanStatus::COMPLETED,
 					$now,
 					$metaUpdate,
 					$scanID,

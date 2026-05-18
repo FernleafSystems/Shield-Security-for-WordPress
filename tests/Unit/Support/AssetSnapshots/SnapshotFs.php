@@ -14,6 +14,26 @@ class SnapshotFs extends Fs {
 		return \is_dir( $path ) || @mkdir( $path, 0777, true );
 	}
 
+	public function isDir( string $path ) :bool {
+		return \is_dir( $path );
+	}
+
+	public function isAccessibleFile( string $path ) :bool {
+		return $path !== '' && \is_file( $path );
+	}
+
+	public function getAllFilesInDir( $dir, $includeDirs = true ) {
+		$items = [];
+		if ( \is_dir( (string)$dir ) ) {
+			foreach ( new \DirectoryIterator( (string)$dir ) as $item ) {
+				if ( !$item->isDot() && ( $item->isFile() || $includeDirs ) ) {
+					$items[] = \str_replace( '\\', '/', $item->getPathname() );
+				}
+			}
+		}
+		return $items;
+	}
+
 	public function getFileContent( $path, $uncompress = false ) {
 		$contents = \file_get_contents( $path );
 		if ( \is_string( $contents ) && $uncompress ) {

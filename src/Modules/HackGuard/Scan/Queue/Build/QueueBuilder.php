@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Build;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\RunState;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueInit;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -23,7 +24,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function get_batch() {
 		$scan = self::con()->db_con->scans->getQuerySelector()
-					->filterByStatus( 'queued' )
+					->filterByStatus( ScanStatus::QUEUED )
 					->filterByNotFinished()
 					->setOrderBy( 'created_at', 'ASC', true )
 					->first();
@@ -117,7 +118,7 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function is_queue_empty() {
 		return self::con()->db_con->scans->getQuerySelector()
-				   ->filterByStatus( 'queued' )
+				   ->filterByStatus( ScanStatus::QUEUED )
 				   ->filterByNotFinished()
 				   ->count() < 1;
 	}

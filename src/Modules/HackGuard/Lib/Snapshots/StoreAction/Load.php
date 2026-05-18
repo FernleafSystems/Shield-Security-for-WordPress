@@ -11,11 +11,11 @@ class Load extends BaseAction {
 	 * @throws \Exception
 	 */
 	public function run() :Snapshots\Store {
-		$store = $this->getNewStore();
+		$store = $this->getNewStore( false );
 
 		foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {
 			if ( !Services::WpFs()->exists( $path ) ) {
-				throw new \Exception( __( 'Critical store file does not exist: ', 'wp-simple-firewall' ).$path );
+				throw new \Exception( sprintf( __( 'Critical store file does not exist: %s', 'wp-simple-firewall' ), $path ) );
 			}
 		}
 		return $store;

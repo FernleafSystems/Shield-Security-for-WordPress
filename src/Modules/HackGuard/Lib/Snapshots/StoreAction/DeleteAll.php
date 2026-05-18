@@ -8,6 +8,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class DeleteAll extends BaseExec {
 
 	protected function run() {
-		Services::WpFs()->deleteDir( ( new HashesStorageDir() )->getTempDir() );
+		$hashDir = ( new HashesStorageDir() )->getTempDir( false );
+		if ( !empty( $hashDir ) ) {
+			Services::WpFs()->deleteDir( $hashDir );
+		}
 	}
 }

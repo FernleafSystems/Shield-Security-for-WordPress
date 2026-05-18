@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -16,7 +17,7 @@ class RunState {
 	public function markBuilding( Record $scan ) :void {
 		$now = Services::Request()->ts();
 		$update = [
-			'status'          => 'building',
+			'status'          => ScanStatus::BUILDING,
 			'last_process_at' => $now,
 		];
 		$meta = \is_array( $scan->meta ) ? $scan->meta : [];
@@ -32,7 +33,7 @@ class RunState {
 	public function markBuilt( Record $scan ) :void {
 		$now = Services::Request()->ts();
 		$update = [
-			'status'          => 'built',
+			'status'          => ScanStatus::BUILT,
 			'ready_at'        => $now,
 			'last_process_at' => $now,
 		];
@@ -52,7 +53,7 @@ class RunState {
 		) );
 		$update = [
 			'finished_at'     => $now,
-			'status'          => 'failed',
+			'status'          => ScanStatus::FAILED,
 			'last_process_at' => $now,
 		];
 		/** @var ?Record $scan */
@@ -76,7 +77,7 @@ class RunState {
 	public function markRunning( QueueItemVO $item ) :void {
 		$now = Services::Request()->ts();
 		$update = [
-			'status'          => 'running',
+			'status'          => ScanStatus::RUNNING,
 			'last_process_at' => $now,
 		];
 		if ( $item->scan_started_at === 0 ) {

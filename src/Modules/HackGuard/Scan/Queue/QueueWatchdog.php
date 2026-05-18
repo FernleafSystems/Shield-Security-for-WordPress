@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -27,6 +28,18 @@ class QueueWatchdog {
 			$this->run();
 			$this->scheduleIfActive();
 		}
+	}
+
+	/**
+	 * @return array<string,int>
+	 */
+	public function runForStaleStartBlockers( array $slugs, string $scopeType = 'full', string $scopeKey = '' ) :array {
+		$blockers = $this->staleStartBlockerIDsBySlug( $slugs, $scopeType, $scopeKey );
+		if ( !empty( $blockers ) ) {
+			$this->run();
+			$this->scheduleIfActive();
+		}
+		return $blockers;
 	}
 
 	public function run() :void {
@@ -67,7 +80,7 @@ class QueueWatchdog {
 	}
 
 	private function recoverQueuedScan( ScansDB\Record $scan ) :void {
-		unset( $scan );
+		$this->touchLastProcessAt( (int)$scan->id );
 		self::con()->comps->scans_queue->getQueueBuilder()->dispatch();
 	}
 
@@ -76,9 +89,10 @@ class QueueWatchdog {
 			sprintf( "SELECT 1
 					FROM `%s`
 					WHERE `finished_at`=0
-					  AND `status` IN ('queued','building','built','running')
+					  AND `status` IN (%s)
 					LIMIT 1;",
-				self::con()->db_con->scans->getTable()
+				self::con()->db_con->scans->getTable(),
+				ScanStatus::sqlList( ScanStatus::ACTIVE )
 			)
 		) === 1;
 	}
@@ -89,26 +103,10 @@ class QueueWatchdog {
 			sprintf( "SELECT 1
 					FROM `%s`
 					WHERE `finished_at`=0
-					  AND (
-						( `status`='queued' AND `created_at`<%d )
-						OR ( `status`='building' AND (
-							( `last_process_at`>0 AND `last_process_at`<%d )
-							OR ( `last_process_at`=0 AND `created_at`<%d )
-						) )
-						OR ( `status`='built' AND `ready_at`>0 AND `ready_at`<%d )
-						OR ( `status`='running' AND (
-							( `last_process_at`>0 AND `last_process_at`<%d )
-							OR ( `last_process_at`=0 AND `created_at`<%d )
-						) )
-					  )
+					  AND %s
 					LIMIT 1;",
 				self::con()->db_con->scans->getTable(),
-				$cutoff,
-				$cutoff,
-				$cutoff,
-				$cutoff,
-				$cutoff,
-				$cutoff
+				$this->staleActiveWhere( $cutoff )
 			)
 		) === 1;
 	}
@@ -117,40 +115,146 @@ class QueueWatchdog {
 	 * @return ScansDB\Record[]
 	 */
 	private function staleQueuedScans( int $cutoff ) :array {
-		return self::con()->db_con->scans->getQuerySelector()
-				   ->filterByStatus( 'queued' )
-				   ->filterByNotFinished()
-				   ->addWhereOlderThan( $cutoff, 'created_at' )
-				   ->queryWithResult();
+		return $this->recordsFromRows( Services::WpDb()->selectCustom(
+			sprintf( "SELECT `id`
+					FROM `%s`
+					WHERE `finished_at`=0
+					  AND %s
+					ORDER BY `created_at` ASC, `id` ASC;",
+				self::con()->db_con->scans->getTable(),
+				$this->staleActiveWhere( $cutoff, [ ScanStatus::QUEUED ] )
+			)
+		) ?: [] );
 	}
 
 	/**
 	 * @return ScansDB\Record[]
 	 */
 	private function staleReadyScans( int $cutoff ) :array {
-		$rows = Services::WpDb()->selectCustom(
-			sprintf( "SELECT *
+		return $this->recordsFromRows( Services::WpDb()->selectCustom(
+			sprintf( "SELECT `id`, `meta`
 					FROM `%s`
 					WHERE `finished_at`=0
-					  AND (
-						( `status`='built' AND `ready_at`>0 AND `ready_at`<%d )
-						OR ( `status`='running' AND (
-							( `last_process_at`>0 AND `last_process_at`<%d )
-							OR ( `last_process_at`=0 AND `created_at`<%d )
-						) )
-					  )
+					  AND %s
 					ORDER BY `created_at` ASC, `id` ASC;",
 				self::con()->db_con->scans->getTable(),
-				$cutoff,
-				$cutoff,
-				$cutoff
+				$this->staleActiveWhere( $cutoff, ScanStatus::READY )
 			)
-		) ?: [];
+		) ?: [] );
+	}
 
+	/**
+	 * @return ScansDB\Record[]
+	 */
+	private function recordsFromRows( array $rows ) :array {
 		return \array_map(
 			static fn( array $row ) :ScansDB\Record => new ScansDB\Record( $row ),
 			\array_filter( $rows, 'is_array' )
 		);
+	}
+
+	/**
+	 * @return array<string,int>
+	 */
+	private function staleStartBlockerIDsBySlug( array $slugs, string $scopeType, string $scopeKey ) :array {
+		$slugs = $this->normalizeSlugs( $slugs );
+		if ( empty( $slugs ) ) {
+			return [];
+		}
+
+		$rows = Services::WpDb()->selectCustom(
+			sprintf( "SELECT `id`, `scan`
+					FROM `%s`
+					WHERE `finished_at`=0
+					  AND `scan` IN (%s)
+					  AND `scope_type`='%s'
+					  AND `scope_key`='%s'
+					  AND %s
+					ORDER BY `created_at` ASC, `id` ASC;",
+				self::con()->db_con->scans->getTable(),
+				$this->sqlStringList( $slugs ),
+				esc_sql( $scopeType ),
+				esc_sql( $scopeKey ),
+				$this->staleActiveWhere( $this->cutoff() )
+			)
+		) ?: [];
+
+		$blockers = [];
+		foreach ( $rows as $row ) {
+			$scan = (string)( \is_array( $row ) ? ( $row[ 'scan' ] ?? '' ) : ( $row->scan ?? '' ) );
+			$id = (int)( \is_array( $row ) ? ( $row[ 'id' ] ?? 0 ) : ( $row->id ?? 0 ) );
+			if ( $scan !== '' && $id > 0 && !isset( $blockers[ $scan ] ) ) {
+				$blockers[ $scan ] = $id;
+			}
+		}
+		return $blockers;
+	}
+
+	private function touchLastProcessAt( int $scanID ) :void {
+		if ( $scanID > 0 ) {
+			self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
+				'last_process_at' => Services::Request()->ts(),
+			] );
+		}
+	}
+
+	private function staleActiveWhere( int $cutoff, array $statuses = [] ) :string {
+		$statuses = empty( $statuses )
+			? ScanStatus::ACTIVE
+			: \array_values( \array_intersect( ScanStatus::ACTIVE, $statuses ) );
+		$clauses = [];
+		if ( \in_array( ScanStatus::QUEUED, $statuses, true ) ) {
+			$clauses[] = sprintf( "( `status`='%s' AND %s )",
+				ScanStatus::QUEUED,
+				$this->staleTimestampWhere( 'last_process_at', 'created_at', $cutoff )
+			);
+		}
+		if ( \in_array( ScanStatus::BUILDING, $statuses, true ) ) {
+			$clauses[] = sprintf( "( `status`='%s' AND %s )",
+				ScanStatus::BUILDING,
+				$this->staleTimestampWhere( 'last_process_at', 'created_at', $cutoff )
+			);
+		}
+		if ( \in_array( ScanStatus::BUILT, $statuses, true ) ) {
+			$clauses[] = sprintf( "( `status`='%s' AND `ready_at`>0 AND %s )",
+				ScanStatus::BUILT,
+				$this->staleTimestampWhere( 'last_process_at', 'ready_at', $cutoff )
+			);
+		}
+		if ( \in_array( ScanStatus::RUNNING, $statuses, true ) ) {
+			$clauses[] = sprintf( "( `status`='%s' AND `ready_at`>0 AND %s )",
+				ScanStatus::RUNNING,
+				$this->staleTimestampWhere( 'last_process_at', 'created_at', $cutoff )
+			);
+		}
+		return empty( $clauses ) ? '0=1' : '( '.\implode( ' OR ', $clauses ).' )';
+	}
+
+	private function staleTimestampWhere( string $lastProcessColumn, string $fallbackColumn, int $cutoff ) :string {
+		return sprintf(
+			"( ( `%s`>0 AND `%s`<%d ) OR ( `%s`=0 AND `%s`<%d ) )",
+			$lastProcessColumn,
+			$lastProcessColumn,
+			$cutoff,
+			$lastProcessColumn,
+			$fallbackColumn,
+			$cutoff
+		);
+	}
+
+	private function sqlStringList( array $values ) :string {
+		return "'".\implode( "','", \array_map( 'esc_sql', $values ) )."'";
+	}
+
+	private function normalizeSlugs( array $slugs ) :array {
+		$normalized = [];
+		foreach ( $slugs as $slug ) {
+			$slug = \is_string( $slug ) ? trim( $slug ) : '';
+			if ( $slug !== '' && !\in_array( $slug, $normalized, true ) ) {
+				$normalized[] = $slug;
+			}
+		}
+		return $normalized;
 	}
 
 	private function cutoff() :int {

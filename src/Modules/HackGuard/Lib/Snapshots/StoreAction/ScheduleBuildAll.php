@@ -12,6 +12,10 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ScheduleBuildAll extends BaseExec {
 
+	protected function canRun() :bool {
+		return true;
+	}
+
 	protected function run() {
 		$hook = self::con()->prefix( 'ptg_build_snapshots' );
 

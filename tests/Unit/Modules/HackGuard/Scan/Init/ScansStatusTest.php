@@ -65,8 +65,81 @@ class ScansStatusTest extends BaseUnitTest {
 		$this->assertCount( 1, $wpdb->queries );
 		$this->assertStringContainsString( 'SELECT `scans`.`scan`, `scans`.`status`, `scans`.`created_at`', $wpdb->queries[ 0 ] );
 		$this->assertStringContainsString( "`scans`.`status` IN ('queued','building','built','running')", $wpdb->queries[ 0 ] );
+		$this->assertStringContainsString( '`scans`.`finished_at`=0', $wpdb->queries[ 0 ] );
 		$this->assertStringContainsString( "CASE WHEN `scans`.`status` IN ('building','built','running')", $wpdb->queries[ 0 ] );
 		$this->assertStringContainsString( '`scans`.`id` ASC', $wpdb->queries[ 0 ] );
+	}
+
+	/**
+	 * @dataProvider activeCurrentStatusProvider
+	 */
+	public function test_active_snapshot_reports_unfinished_active_status_as_current_before_queued_scan( string $activeStatus ) :void {
+		$wpdb = new class( $activeStatus ) extends Db {
+			private string $activeStatus;
+
+			public function __construct( string $activeStatus ) {
+				$this->activeStatus = $activeStatus;
+			}
+
+			public function selectCustom( $query, $format = null ) {
+				unset( $query, $format );
+				return [
+					[
+						'scan'       => 'afs',
+						'status'     => $this->activeStatus,
+						'created_at' => 10,
+					],
+					[
+						'scan'       => 'wpv',
+						'status'     => 'queued',
+						'created_at' => 20,
+					],
+				];
+			}
+		};
+
+		ServicesState::installItems( [
+			'service_wpdb' => $wpdb,
+		] );
+		$this->installController();
+
+		$status = ( new ScansStatus() )->activeSnapshot();
+
+		$this->assertSame( 'afs', $status[ 'current' ] );
+		$this->assertSame( [ 'afs', 'wpv' ], $status[ 'enqueued' ] );
+	}
+
+	public function test_active_snapshot_reports_queued_scan_when_no_started_scan_exists() :void {
+		$wpdb = new class extends Db {
+			public function selectCustom( $query, $format = null ) {
+				unset( $query, $format );
+				return [
+					[
+						'scan'       => 'afs',
+						'status'     => 'queued',
+						'created_at' => 10,
+					],
+				];
+			}
+		};
+
+		ServicesState::installItems( [
+			'service_wpdb' => $wpdb,
+		] );
+		$this->installController();
+
+		$status = ( new ScansStatus() )->activeSnapshot();
+
+		$this->assertSame( 'afs', $status[ 'current' ] );
+		$this->assertSame( [ 'afs' ], $status[ 'enqueued' ] );
+	}
+
+	public static function activeCurrentStatusProvider() :array {
+		return [
+			'building' => [ 'building' ],
+			'built'    => [ 'built' ],
+			'running'  => [ 'running' ],
+		];
 	}
 
 	public function test_snapshot_ignores_blank_scan_rows_and_keeps_distinct_enqueued_order() :void {

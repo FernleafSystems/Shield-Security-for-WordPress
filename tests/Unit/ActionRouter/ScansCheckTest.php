@@ -205,7 +205,7 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertSame( 100, $harness->actionRouter->renderData[ 'progress' ] ?? null );
 	}
 
-	public function test_exec_runs_real_watchdog_recovery_for_reported_dead_scan_shape_without_heartbeat_write() :void {
+	public function test_exec_runs_real_watchdog_recovery_for_reported_dead_scan_shape_and_throttles_repeat_recovery() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'            => 'afs',
@@ -227,7 +227,7 @@ class ScansCheckTest extends BaseUnitTest {
 		$meta = $this->scanMeta( $scan );
 		$this->assertSame( 'running', $scan[ 'status' ] );
 		$this->assertSame( 0, (int)$scan[ 'finished_at' ] );
-		$this->assertSame( 1699999000, (int)$scan[ 'last_process_at' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'last_process_at' ] );
 		$this->assertSame( 0, (int)$item[ 'started_at' ] );
 		$this->assertSame( 0, (int)$item[ 'finished_at' ] );
 		$this->assertSame( 0, (int)$item[ 'attempts' ] );
