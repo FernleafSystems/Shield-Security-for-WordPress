@@ -23,6 +23,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\CacheStoreTestCacheDir;
 use FernleafSystems\Wordpress\Services\Core\{
 	Fs,
 	Request
@@ -39,6 +40,8 @@ class ScansControllerDailyCronTest extends BaseUnitTest {
 		$this->servicesSnapshot = ServicesState::snapshot();
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalisePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
 		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => \json_encode( $data ) );
+		Functions\when( 'wp_normalize_path' )->alias( fn( string $path ) :string => $this->normalisePath( $path ) );
+		Functions\when( 'untrailingslashit' )->alias( fn( string $path ) :string => \rtrim( $this->normalisePath( $path ), '/' ) );
 	}
 
 	protected function tearDown() :void {
@@ -80,7 +83,7 @@ class ScansControllerDailyCronTest extends BaseUnitTest {
 
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->cache_dir_handler = new ScansDailyCronCacheDir( $cacheDir );
+		$controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheDir );
 		PluginControllerInstaller::install( $controller );
 	}
 
@@ -128,27 +131,6 @@ class ScansControllerDailyCronTest extends BaseUnitTest {
 			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
 		}
 		@\rmdir( $dir );
-	}
-}
-
-class ScansDailyCronCacheDir {
-	private string $dir;
-
-	public function __construct( string $dir ) {
-		$this->dir = $dir;
-	}
-
-	public function exists() :bool {
-		return \is_dir( $this->dir ) && \is_writable( $this->dir );
-	}
-
-	public function buildSubDir( string $subDir ) :string {
-		$path = $this->dir.'/'.$subDir;
-		return ( \is_dir( $path ) || @\mkdir( $path, 0777, true ) ) ? $path : '';
-	}
-
-	public function dir() :string {
-		return $this->dir;
 	}
 }
 

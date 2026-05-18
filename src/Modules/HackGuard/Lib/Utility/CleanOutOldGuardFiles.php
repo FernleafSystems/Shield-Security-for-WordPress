@@ -15,10 +15,10 @@ class CleanOutOldGuardFiles {
 	protected function run( int $limit = 50 ) {
 		$FS = Services::WpFs();
 
-		$firstAcceptableDir = null;
 		$count = 0;
 		$root = self::con()->cache_dir_handler->dir();
 		if ( !empty( $root ) ) {
+			$activeDir = untrailingslashit( wp_normalize_path( ( new HashesStorageDir() )->getTempDir( false ) ) );
 			foreach ( $FS->getAllFilesInDir( $root ) as $fileItem ) {
 				if ( $FS->isDir( $fileItem ) ) {
 					$dirBase = \basename( $fileItem );
@@ -26,10 +26,8 @@ class CleanOutOldGuardFiles {
 						$FS->deleteDir( $fileItem );
 					}
 					elseif ( \preg_match( sprintf( '#^ptguard-[a-z0-9]{%s}$#i', HashesStorageDir::SUFFIX_LENGTH ), $dirBase ) ) {
-						if ( empty( $firstAcceptableDir ) ) {
-							$firstAcceptableDir = $fileItem;
-						}
-						else {
+						$fileItem = untrailingslashit( wp_normalize_path( $fileItem ) );
+						if ( !empty( $activeDir ) && $fileItem !== $activeDir ) {
 							$count++;
 							$FS->deleteDir( $fileItem );
 						}
