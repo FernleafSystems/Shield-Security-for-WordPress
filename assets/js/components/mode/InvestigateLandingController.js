@@ -7,7 +7,12 @@ import { UiContentActivator } from "../ui/UiContentActivator";
 import { InvestigateInlineTabs } from "./InvestigateInlineTabs";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { announceStatus, announceWithin, focusElement, setElementBusy } from "../ui/ShieldA11y";
-import { getActiveLayerIndex, getLayersForShell, parseJsonAttribute } from "./DrillDownShared";
+import {
+	getActiveLayerIndex,
+	getLayersForShell,
+	openOperatorContextProcessingDialog,
+	parseJsonAttribute
+} from "./DrillDownShared";
 
 export class InvestigateLandingController extends BaseAutoExecComponent {
 
@@ -280,6 +285,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.rootEl = root;
 		this.shellEl = this.getShell( root );
 		this.panelEl = this.getPanel( root );
+		const processingDialog = openOperatorContextProcessingDialog( target );
 		target.disabled = true;
 
 		( new AjaxService() )
@@ -289,10 +295,12 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 					return resp;
 				}
 				target.disabled = false;
+				processingDialog?.close();
 				return resp;
 			} )
 			.catch( () => {
 				target.disabled = false;
+				processingDialog?.close();
 				return null;
 			} );
 	}

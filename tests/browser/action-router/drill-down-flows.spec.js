@@ -1,6 +1,7 @@
 const { openShieldRoute, test, expect } = require( './support/shield-test' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const {
+	expectFocusWithin,
 	expectModalHiddenWithoutAriaModal,
 	expectNamedDialog,
 	expectOptionalDescription,
@@ -59,6 +60,14 @@ async function delay( milliseconds ) {
 	return new Promise( ( resolve ) => setTimeout( resolve, milliseconds ) );
 }
 
+function createDeferred() {
+	let resolve = () => null;
+	const promise = new Promise( ( resolver ) => {
+		resolve = resolver;
+	} );
+	return { promise, resolve };
+}
+
 function isConfigureSearchRequest( request, searchTerm ) {
 	const postData = request.postData() || '';
 	const params = new URLSearchParams( postData );
@@ -82,6 +91,14 @@ function isIgnoreAllRequest( request ) {
 	return request.method() === 'POST'
 		&& request.url().includes( '/admin-ajax.php' )
 		&& params.get( 'sub_action' ) === 'ignore_all';
+}
+
+function isPluginReinstallRequest( request ) {
+	const params = new URLSearchParams( request.postData() || '' );
+	return request.method() === 'POST'
+		&& request.url().includes( '/admin-ajax.php' )
+		&& params.get( 'action' ) === 'shield_action'
+		&& params.get( 'ex' ) === 'plugin_reinstall';
 }
 
 function isFileLockerActionRequest( request, expectedPayload ) {
@@ -482,6 +499,89 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 		await waitForScanResultsTableRows( scanResultsTable );
 		await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 1 );
 		await expect( scanResultsTable.locator( 'tbody tr[data-scan-result-ignored="1"]' ) ).toHaveCount( 1 );
+	} );
+} );
+
+test( 'actions queue plugin reinstall shows a blocking processing dialog', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
+		const actionsQueuePage = new ActionsQueuePage( page );
+		const reinstallDeferred = createDeferred();
+		let nativeDialogCount = 0;
+		let reinstallRequestCount = 0;
+		const ajaxHandler = async ( route ) => {
+			if ( isPluginReinstallRequest( route.request() ) ) {
+				reinstallRequestCount++;
+				await reinstallDeferred.promise;
+				await route.fulfill( {
+					status: 200,
+					contentType: 'application/json',
+					body: JSON.stringify( {
+						success: false,
+						data: {
+							message: 'plugin-reinstall-failed',
+							page_reload: false,
+							show_toast: false,
+						},
+					} ),
+				} );
+				return;
+			}
+
+			await route.continue();
+		};
+
+		page.on( 'dialog', async ( dialog ) => {
+			nativeDialogCount++;
+			await dialog.dismiss();
+		} );
+		await page.route( '**/admin-ajax.php*', ajaxHandler );
+
+		try {
+			await openShieldRoute( page, {
+				nav: 'scans',
+				nav_sub: 'overview',
+			} );
+
+			await actionsQueuePage.drillToDetail( fixture );
+			const rail = page.locator( '[data-operator-context-rail="1"]' );
+			const reinstallAction = await operatorContextAjaxAction(
+				rail,
+				( action ) => action?.ex === 'plugin_reinstall'
+			);
+			expect( reinstallAction ).not.toBeNull();
+			const processingText = await reinstallAction.getAttribute( 'data-operator-context-action-processing' );
+			expect( processingText || '' ).not.toHaveLength( 0 );
+
+			await reinstallAction.click();
+			const dialog = page.locator( '[data-shield-accessible-dialog="1"][aria-modal="true"]:not([aria-hidden="true"])' );
+			await expect( dialog ).toBeVisible();
+			await expectNamedDialog( page, dialog );
+			await dialog.locator( '.shield-accessible-dialog__confirm' ).click();
+
+			await expect.poll( () => reinstallRequestCount ).toBe( 1 );
+			await expect( dialog ).toBeVisible();
+			await expectNamedDialog( page, dialog );
+			await expectOptionalDescription( page, dialog );
+			await expectFocusWithin( dialog );
+			await expect( dialog ).toHaveAttribute( 'aria-busy', 'true' );
+			await expect( dialog ).toContainText( processingText );
+			await expect( dialog.locator( '.shield-accessible-dialog__actions' ) ).toBeHidden();
+			await expect( dialog.locator( '.shield-accessible-dialog__cancel' ) ).toBeHidden();
+			await expect( dialog.locator( '.shield-accessible-dialog__confirm' ) ).toBeHidden();
+
+			await page.keyboard.press( 'Escape' );
+			await expect( dialog ).toBeVisible();
+			await dialog.locator( '.shield-accessible-dialog__overlay' ).click( { force: true } );
+			await expect( dialog ).toBeVisible();
+
+			reinstallDeferred.resolve();
+			await expectModalHiddenWithoutAriaModal( page, '[data-shield-accessible-dialog="1"]' );
+			await expect.poll( () => nativeDialogCount ).toBe( 0 );
+		}
+		finally {
+			reinstallDeferred.resolve();
+			await page.unroute( '**/admin-ajax.php*', ajaxHandler ).catch( () => null );
+		}
 	} );
 } );
 
