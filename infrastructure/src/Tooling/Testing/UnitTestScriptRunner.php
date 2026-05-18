@@ -25,10 +25,11 @@ class UnitTestScriptRunner {
 	public function run( array $args, string $rootDir ) :int {
 		[ $mode, $forwardArgs ] = $this->extractModeAndArgs( $args );
 
-		if ( $this->shouldRunParallelPathsIndividually( $forwardArgs, $mode, $rootDir ) ) {
-			foreach ( $forwardArgs as $pathArg ) {
+		$splitArgs = $this->splitParatestConcretePathRuns( $forwardArgs, $mode, $rootDir );
+		if ( $splitArgs !== null ) {
+			foreach ( $splitArgs as $runArgs ) {
 				$exitCode = $this->processRunner->runForExitCode(
-					$this->selector->buildCommand( [ $pathArg ], $mode ),
+					$this->selector->buildCommand( $runArgs, $mode ),
 					$rootDir
 				);
 				if ( $exitCode !== 0 ) {
@@ -45,23 +46,116 @@ class UnitTestScriptRunner {
 	}
 
 	/**
-	 * Paratest accepts a single positional path. When callers provide a list of concrete
-	 * test paths, keep using the existing Paratest command and run it once per path.
+	 * Paratest accepts a single positional path. When callers provide multiple
+	 * concrete test paths, preserve any options and run once per path.
 	 *
 	 * @param string[] $args
+	 * @return array<int,string[]>|null
 	 */
-	private function shouldRunParallelPathsIndividually( array $args, string $mode, string $rootDir ) :bool {
-		if ( \count( $args ) < 2 || $this->selector->shouldUseSerialPhpUnit( $args, $mode ) ) {
-			return false;
+	private function splitParatestConcretePathRuns( array $args, string $mode, string $rootDir ) :?array {
+		$strategy = $this->selector->selectStrategy( $args, $mode );
+		if ( !$this->selector->isParatestStrategy( $strategy ) ) {
+			return null;
 		}
 
-		foreach ( $args as $arg ) {
-			if ( \strpos( $arg, '-' ) === 0 || !\file_exists( Path::join( $rootDir, $arg ) ) ) {
-				return false;
+		$pathIndexes = $this->concretePathArgumentIndexes( $args, $rootDir );
+		if ( \count( $pathIndexes ) < 2 ) {
+			return null;
+		}
+
+		$splitArgs = [];
+		foreach ( $pathIndexes as $pathIndex ) {
+			$runArgs = [];
+			foreach ( $args as $index => $arg ) {
+				if ( \in_array( $index, $pathIndexes, true ) && $index !== $pathIndex ) {
+					continue;
+				}
+				$runArgs[] = $arg;
 			}
+			$splitArgs[] = $runArgs;
 		}
 
-		return true;
+		return $splitArgs;
+	}
+
+	/**
+	 * @param string[] $args
+	 * @return int[]
+	 */
+	private function concretePathArgumentIndexes( array $args, string $rootDir ) :array {
+		$pathIndexes = [];
+		for ( $index = 0; $index < \count( $args ); $index++ ) {
+			$arg = $args[ $index ];
+			if ( $arg === '--' ) {
+				continue;
+			}
+
+			if ( $this->isOptionWithInlineValue( $arg ) || $this->isFlagOption( $arg ) ) {
+				continue;
+			}
+
+			if ( $this->isOptionWithSeparateValue( $arg ) ) {
+				$index++;
+				continue;
+			}
+
+			if ( !\file_exists( Path::join( $rootDir, $arg ) ) ) {
+				return [];
+			}
+
+			$pathIndexes[] = $index;
+		}
+
+		return $pathIndexes;
+	}
+
+	private function isOptionWithInlineValue( string $arg ) :bool {
+		return \strpos( $arg, '--' ) === 0 && \strpos( $arg, '=' ) !== false;
+	}
+
+	private function isFlagOption( string $arg ) :bool {
+		return \strpos( $arg, '-' ) === 0 && !$this->isOptionWithSeparateValue( $arg );
+	}
+
+	private function isOptionWithSeparateValue( string $arg ) :bool {
+		return \in_array(
+			$arg,
+			[
+				'--bootstrap',
+				'--colors',
+				'-c',
+				'--configuration',
+				'--coverage-clover',
+				'--coverage-cobertura',
+				'--coverage-crap4j',
+				'--coverage-html',
+				'--coverage-php',
+				'--coverage-test-limit',
+				'--coverage-text',
+				'--coverage-xml',
+				'--exclude-group',
+				'--filter',
+				'-g',
+				'--group',
+				'--log-junit',
+				'--log-teamcity',
+				'-m',
+				'--max-batch-size',
+				'--order-by',
+				'--passthru',
+				'--passthru-php',
+				'--path',
+				'-p',
+				'--processes',
+				'--random-order-seed',
+				'--repeat',
+				'--runner',
+				'--testsuite',
+				'--tmp-dir',
+				'--whitelist',
+			],
+			true
+		);
 	}
 
 	/**

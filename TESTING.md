@@ -23,6 +23,19 @@ Supporting docs:
 
 `test:source`, `test:integration-local`, and `test:package-full` now default to reduced Docker output to keep signal dense. Add `--show-docker-output` when you need full compose output for a failing run.
 
+### Unit test narrowing
+
+Use `composer test:unit` for normal unit work, including full-suite, path-focused, and filtered runs:
+
+```bash
+composer test:unit
+composer test:unit -- tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php
+composer test:unit -- --filter PluginNavsOperatorModesTest
+composer test:unit -- --filter testSomeMethod tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php
+```
+
+The unit runner auto-selects ParaTest. Full-suite and path-only runs use ParaTest `WrapperRunner`; ordinary `--filter` and `--filter=...` runs use ParaTest functional mode so standard Composer/PHPUnit-style focused commands stay parallel by default. Native PHPUnit dataset shortcut filters such as `testMethod@dataset` and `testMethod#2` use the serial PHPUnit path in auto mode to preserve PHPUnit parity. Use `php bin/run-unit-tests.php --runner-mode=serial` only for diagnostic work and the serial sentinel lane.
+
 ## Pre-commit checks
 
 `php bin/shield git:pre-commit --stdin --null` accepts NUL-delimited changed file paths from Git, filters changed PHP files, and feeds them into the existing syntax lint, PHPStan, and unit test tooling. A local pre-commit hook can stay thin by piping `git diff --cached --name-only --diff-filter=ACMR -z` into that command.
@@ -316,14 +329,15 @@ php bin/shield --help
 composer run-script --list
 ```
 
-For a single focused unit file or a small set of unit files, run PHPUnit directly by path instead of going through the composer suite wrappers:
+For focused unit work, use the supported Composer wrapper unless you are deliberately diagnosing raw PHPUnit or ParaTest behavior:
 
 ```bash
-php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php
-php vendor/phpunit/phpunit/phpunit -c phpunit-unit.xml tests/Unit/ActionRouter/Render/ScansResultsViewBuilderSummaryRailTest.php
+composer test:unit -- tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php
+composer test:unit -- --filter PluginNavsOperatorModesTest
+composer test:unit -- --filter testSomeMethod tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php
 ```
 
-Use direct file paths for targeted unit work when you need deterministic, serial execution of a specific suite and clear per-file failure output.
+Direct vendor PHPUnit/ParaTest commands are diagnostic tools, not normal workflow entry points.
 
 For GitHub authentication issues during Docker or source runs, use the troubleshooting steps in [`tests/docker/README.md`](tests/docker/README.md).
 
