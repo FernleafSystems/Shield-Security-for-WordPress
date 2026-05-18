@@ -6,15 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
 
 class ScansStart extends ScanBase {
 
-	public const SUBCODE_ALREADY_RUNNING = 1;
 	public const SUBCODE_NO_SELECTION = 2;
 	public const SUBCODE_START_BLOCKED = 3;
 	public const SUBCODE_START_FAILED = 4;
 
 	protected function process() :array {
-		if ( $this->getScansStatus()[ 'enqueued_count' ] > 0 ) {
-			throw new ApiException( 'Scans are already running.', 409, self::SUBCODE_ALREADY_RUNNING );
-		}
 		$blocked = self::con()->comps->scans->getStartBlockedMessage();
 		if ( $blocked !== '' ) {
 			throw new ApiException( $blocked, 503, self::SUBCODE_START_BLOCKED );

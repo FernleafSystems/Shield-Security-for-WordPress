@@ -26,6 +26,8 @@ use FernleafSystems\Wordpress\Services\Core\{
 
 class ScanQueueLifecycleHarness {
 
+	public Controller $controller;
+
 	public AsyncQueueHarness $async;
 
 	public LifecycleSqliteDb $sql;
@@ -84,6 +86,11 @@ class ScanQueueLifecycleHarness {
 		return $this->queueComponent->processor;
 	}
 
+	public function failBuildFor( string $slug ) :self {
+		$this->queueComponent->scansComponent->failBuildFor( $slug );
+		return $this;
+	}
+
 	public function insertScan( array $data ) :int {
 		return $this->sql->insertScan( $data );
 	}
@@ -133,8 +140,9 @@ class ScanQueueLifecycleHarness {
 			'scan_result_items'     => new LifecycleEmptyDbHandler( 'scan_result_items' ),
 			'scan_result_item_meta' => new LifecycleEmptyDbHandler( 'scan_result_item_meta' ),
 		];
+		$this->queueComponent->scansComponent = new LifecycleScansComponent( $this->itemsByScan );
 		$controller->comps = (object)[
-			'scans'        => new LifecycleScansComponent( $this->itemsByScan ),
+			'scans'        => $this->queueComponent->scansComponent,
 			'scans_queue'  => $this->queueComponent,
 			'events'       => new LifecycleEventsComponent(),
 			'opts_lookup'  => new LifecycleOptsLookup(),
@@ -142,6 +150,7 @@ class ScanQueueLifecycleHarness {
 		];
 		$controller->opts = new LifecycleOpts();
 		$controller->action_router = $this->actionRouter;
+		$this->controller = $controller;
 		PluginControllerInstaller::install( $controller );
 	}
 
@@ -217,12 +226,12 @@ class ScanQueueLifecycleHarness {
 			}
 		);
 		Functions\when( 'wp_remote_post' )->alias(
-			static function ( string $url, array $args = [] ) use ( $async ) :array {
+			static function ( string $url, array $args = [] ) use ( $async ) {
 				$async->remotePosts[] = [
 					'url'  => $url,
 					'args' => $args,
 				];
-				return [ 'response' => [ 'code' => 200 ] ];
+				return $async->remotePostResponse;
 			}
 		);
 		Functions\when( 'wp_create_nonce' )->justReturn( 'unit-nonce' );
@@ -260,9 +269,19 @@ class AsyncQueueHarness {
 	public array $remotePosts = [];
 
 	/**
+	 * @var array|false
+	 */
+	public $remotePostResponse = [ 'response' => [ 'code' => 200 ] ];
+
+	/**
 	 * @var array<int,array{hook:string,args:array}>
 	 */
 	public array $didActions = [];
+
+	/**
+	 * @var array<string,int>
+	 */
+	private array $scheduleAttempts = [];
 
 	public function addAction( string $hook, $callback, int $priority, int $acceptedArgs ) :void {
 		$this->actions[ $hook ][] = [
@@ -284,6 +303,7 @@ class AsyncQueueHarness {
 	}
 
 	public function scheduleEvent( int $timestamp, string $hook, string $recurrence ) :void {
+		$this->scheduleAttempts[ $hook ] = ( $this->scheduleAttempts[ $hook ] ?? 0 ) + 1;
 		if ( $this->nextScheduled( $hook ) !== false ) {
 			return;
 		}
@@ -321,9 +341,14 @@ class AsyncQueueHarness {
 		return $this->nextScheduled( $hook ) !== false;
 	}
 
+	public function scheduledHookAttempts( string $hook ) :int {
+		return $this->scheduleAttempts[ $hook ] ?? 0;
+	}
+
 	public function resetTransport() :void {
 		$this->scheduled = [];
 		$this->remotePosts = [];
+		$this->scheduleAttempts = [];
 	}
 }
 
@@ -1035,6 +1060,12 @@ class LifecycleScansComponent {
 		}
 	}
 
+	public function failBuildFor( string $slug ) :void {
+		if ( isset( $this->controllers[ $slug ] ) ) {
+			$this->controllers[ $slug ]->failBuild();
+		}
+	}
+
 	public function getScanCon( string $slug ) :?LifecycleScanController {
 		return $this->controllers[ $slug ] ?? null;
 	}
@@ -1055,6 +1086,7 @@ class LifecycleScanController extends Base {
 	 */
 	private string $slug;
 	private array $items;
+	private bool $failBuild = false;
 
 	public function __construct( string $slug, array $items ) {
 		$this->slug = $slug;
@@ -1093,10 +1125,17 @@ class LifecycleScanController extends Base {
 	}
 
 	public function buildScanAction( ?BaseScanActionVO $scanAction = null ) {
+		if ( $this->failBuild ) {
+			throw new \RuntimeException( 'builder unavailable' );
+		}
 		$scanAction ??= $this->newScanActionVO();
 		$scanAction->items = $this->items;
 		$scanAction->usleep = 0;
 		return $scanAction;
+	}
+
+	public function failBuild() :void {
+		$this->failBuild = true;
 	}
 
 	public function buildScanResult( array $rawResult ) :ResultItemsDB\Record {
@@ -1112,6 +1151,8 @@ class LifecycleQueueComponent extends QueueController {
 	public QueueProcessor $processor;
 
 	public ?QueueWatchdog $watchdog = null;
+
+	public LifecycleScansComponent $scansComponent;
 
 	public function getQueueBuilder() :QueueBuilder {
 		return $this->builder;

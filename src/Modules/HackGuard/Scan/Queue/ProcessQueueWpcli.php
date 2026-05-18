@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use WP_CLI;
@@ -25,7 +26,7 @@ class ProcessQueueWpcli {
 			$queuedScan = null;
 			if ( !( new QueueItems() )->hasNextItem() ) {
 				$queuedScan = $con->db_con->scans->getQuerySelector()
-							 ->filterByStatus( 'queued' )
+							 ->filterByStatus( ScanStatus::QUEUED )
 							 ->filterByNotFinished()
 							 ->setOrderBy( 'created_at', 'ASC', true )
 							 ->first();

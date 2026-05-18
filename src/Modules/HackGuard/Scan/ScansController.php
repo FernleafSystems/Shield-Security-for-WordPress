@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\StandardCron;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record as ScansRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\{
 	ScanCreateException,
 	ScanExistsException
@@ -182,6 +183,10 @@ class ScansController {
 	public function startNewScans( array $scans, bool $resetIgnored = false ) :StartScansResult {
 		$normalized = $this->normalizeStartScanSlugs( $scans );
 		$result = StartScansResult::fromRequested( $normalized );
+		$readyScans = [];
+		$staleStartBlockers = null;
+		$createdScan = false;
+		$resumedScan = false;
 
 		if ( !$this->canStartScans( Services::WpGeneral()->isWpCli() ) ) {
 			return $result->addFailures( $normalized, StartScansResult::REASON_SCAN_UNAVAILABLE );
@@ -204,25 +209,48 @@ class ScansController {
 				$result->addFailure( $slug, StartScansResult::REASON_SCAN_UNAVAILABLE );
 				continue;
 			}
+			$readyScans[ $slug ] = $scanCon;
+		}
 
+		foreach ( $readyScans as $slug => $scanCon ) {
 			try {
-				$scan = ( new Init\CreateNewScan() )->run(
-					$scanCon->getSlug(),
-					'full',
-					'',
-					Services::WpGeneral()->isWpCli() ? 'cli' : ( self::con()->opts->optGet( 'is_scan_cron' ) ? 'cron' : 'manual' )
-				);
-				if ( !empty( $scan ) ) {
-					$result->addStarted( $scanCon->getSlug(), (int)$scan->id );
-				}
-				if ( $resetIgnored ) {
-					( new Update() )
-						->setScanController( $scanCon )
-						->clearIgnored();
-				}
+				$scan = $this->createFullScanRecord( $scanCon );
+				$result->addStarted( $scanCon->getSlug(), (int)$scan->id );
+				$createdScan = true;
+				$this->clearIgnoredForScan( $scanCon, $resetIgnored );
 			}
 			catch ( ScanExistsException $e ) {
-				$result->addFailure( $slug, StartScansResult::REASON_ALREADY_EXISTS, $e->getMessage() );
+				if ( $staleStartBlockers === null ) {
+					$staleStartBlockers = self::con()
+						->comps
+						->scans_queue
+						->getQueueWatchdog()
+						->runForStaleStartBlockers( \array_keys( $readyScans ) );
+				}
+
+				if ( isset( $staleStartBlockers[ $slug ] ) ) {
+					try {
+						$scan = $this->createFullScanRecord( $scanCon );
+						$result->addStarted( $scanCon->getSlug(), (int)$scan->id );
+						$createdScan = true;
+						$this->clearIgnoredForScan( $scanCon, $resetIgnored );
+					}
+					catch ( ScanExistsException $retryException ) {
+						unset( $retryException );
+						$result->addResumed( $scanCon->getSlug(), (int)$staleStartBlockers[ $slug ] );
+						$resumedScan = true;
+						$this->clearIgnoredForScan( $scanCon, $resetIgnored );
+					}
+					catch ( ScanCreateException $retryException ) {
+						$result->addFailure( $slug, StartScansResult::REASON_CREATE_FAILED, $retryException->getMessage() );
+					}
+					catch ( \Exception $retryException ) {
+						$result->addFailure( $slug, StartScansResult::REASON_CREATE_FAILED, $retryException->getMessage() );
+					}
+				}
+				else {
+					$result->addFailure( $slug, StartScansResult::REASON_ALREADY_EXISTS, $e->getMessage() );
+				}
 			}
 			catch ( ScanCreateException $e ) {
 				$result->addFailure( $slug, StartScansResult::REASON_CREATE_FAILED, $e->getMessage() );
@@ -232,17 +260,40 @@ class ScansController {
 			}
 		}
 
-		if ( $result->hasStarted() ) {
-			self::con()->comps->scans_queue->getQueueWatchdog()->scheduleIfActive();
+		if ( $createdScan || $resumedScan ) {
+			$watchdog = self::con()->comps->scans_queue->getQueueWatchdog();
+			if ( empty( $staleStartBlockers ) || ( $createdScan && !wp_next_scheduled( $watchdog->hook() ) ) ) {
+				$watchdog->scheduleIfActive();
+			}
 			if ( Services::WpGeneral()->isWpCli() ) {
 				( new ProcessQueueWpcli() )->execute();
 			}
-			else {
+			elseif ( $createdScan ) {
 				self::con()->comps->scans_queue->getQueueBuilder()->dispatch();
 			}
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @throws ScanCreateException|ScanExistsException
+	 */
+	private function createFullScanRecord( Controller\Base $scanCon ) :ScansRecord {
+		return ( new Init\CreateNewScan() )->run(
+			$scanCon->getSlug(),
+			'full',
+			'',
+			Services::WpGeneral()->isWpCli() ? 'cli' : ( self::con()->opts->optGet( 'is_scan_cron' ) ? 'cron' : 'manual' )
+		);
+	}
+
+	private function clearIgnoredForScan( Controller\Base $scanCon, bool $resetIgnored ) :void {
+		if ( $resetIgnored ) {
+			( new Update() )
+				->setScanController( $scanCon )
+				->clearIgnored();
+		}
 	}
 
 	public function startAfsAssetScan( string $assetType, string $assetKey, bool $resetIgnored = false ) :bool {

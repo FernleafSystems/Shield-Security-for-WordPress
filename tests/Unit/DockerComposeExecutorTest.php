@@ -186,6 +186,29 @@ class DockerComposeExecutorTest extends TestCase {
 		$this->assertTrue( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
 	}
 
+	public function testRunIgnoringFailureSuppressesOutputWhenRequested() :void {
+		$this->expectOutputString( '' );
+
+		$processRunner = new RecordingProcessRunner( [
+			[
+				'exit_code' => 5,
+				'stdout'    => 'compose noise',
+			],
+		] );
+		$executor = new DockerComposeExecutor( $processRunner );
+
+		$executor->runIgnoringFailure(
+			$this->projectRoot,
+			[ 'tests/docker/docker-compose.yml' ],
+			[ 'down', '-v', '--remove-orphans' ],
+			null,
+			false
+		);
+
+		$this->assertCount( 1, $processRunner->calls );
+		$this->assertTrue( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
+	}
+
 	private function composeServiceBlock( string $content, string $service ) :string {
 		$pattern = \sprintf(
 			'/^  %s:\R(?<block>(?:    .*(?:\R|$))*)/m',

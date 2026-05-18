@@ -13,7 +13,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\S
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Record as ResultItemRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\HashesStorageDir;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -32,11 +31,9 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
-		$this->resetHashesStorageDir();
 	}
 
 	protected function tearDown() :void {
-		$this->resetHashesStorageDir();
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
 		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
@@ -132,7 +129,6 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 	public function test_run_registers_asset_change_cleanup_and_core_update_hooks() :void {
 		$actions = [];
 		$filters = [];
-		$this->setHashesStorageDir( $this->makeTempDir( 'hashes' ) );
 		Functions\when( 'is_main_network' )->justReturn( false );
 		Functions\when( 'wp_next_scheduled' )->alias(
 			static function ( string $hook, array $args = [] ) :bool {
@@ -245,18 +241,6 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 				return true;
 			}
 		);
-	}
-
-	private function setHashesStorageDir( string $dir ) :void {
-		$property = ( new \ReflectionClass( HashesStorageDir::class ) )->getProperty( 'dir' );
-		$property->setAccessible( true );
-		$property->setValue( null, $dir );
-	}
-
-	private function resetHashesStorageDir() :void {
-		$property = ( new \ReflectionClass( HashesStorageDir::class ) )->getProperty( 'dir' );
-		$property->setAccessible( true );
-		$property->setValue( null, null );
 	}
 
 	private function makeTempDir( string $suffix ) :string {

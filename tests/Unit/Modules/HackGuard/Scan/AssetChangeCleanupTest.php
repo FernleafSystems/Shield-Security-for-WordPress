@@ -23,6 +23,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\AssetSnapshots\{
 	SnapshotThemeVo,
 	SnapshotWpGeneral
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
+	CacheStoreTestCacheDir,
+	CacheStoreTestFs,
+	CacheStoreTestRequest
+};
 use FernleafSystems\Wordpress\Services\Core\{
 	CoreFileHashes,
 	Db,
@@ -53,8 +58,12 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		);
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalizePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
 		Functions\when( 'trailingslashit' )->alias( fn( string $path ) :string => \rtrim( $this->normalizePath( $path ), '/' ).'/' );
+		Functions\when( 'untrailingslashit' )->alias( fn( string $path ) :string => \rtrim( $this->normalizePath( $path ), '/' ) );
 		Functions\when( 'wp_http_validate_url' )->justReturn( true );
 		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => \json_encode( $data ) );
+		Functions\when( 'wp_generate_password' )->alias(
+			static fn( int $length, bool $specialChars = true ) :string => \substr( \str_repeat( 'a', $length ), 0, $length )
+		);
 		Functions\when( 'wp_normalize_path' )->alias( fn( string $path ) :string => $this->normalizePath( $path ) );
 		Functions\when( 'wp_remote_request' )->alias(
 			static fn() :array => [
@@ -217,6 +226,31 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( '2.0.0', $store->getSnapMeta()[ 'version' ] );
 		$this->assertStringContainsString( "`asset_type`='plugin'", $wpDb->queries[ 0 ] );
 		$this->assertStringContainsString( "`asset_key`='cleanup-plugin/cleanup-plugin.php'", $wpDb->queries[ 0 ] );
+	}
+
+	public function test_plugin_cleanup_uses_selected_snapshot_root() :void {
+		$plugin = new SnapshotPluginVo( 'cleanup-root-plugin/cleanup-root-plugin.php', '2.1.0' );
+		$this->writeFile( WP_PLUGIN_DIR.'/'.$plugin->file, "<?php\n" );
+		$uploadsRoot = $this->makeTempDir( 'uploads-root' );
+		$cacheRoot = $this->makeTempDir( 'cache-root' );
+		$this->makeDir( $cacheRoot.'/ptguard-cccccccccccccccc' );
+
+		$scans = new AssetChangeCleanupScans();
+		$this->installController( $scans );
+		$this->installSnapshotEnvironmentWithCacheRoot(
+			new SnapshotPlugins( [ $plugin ] ),
+			new SnapshotThemes( [] ),
+			$uploadsRoot
+		);
+		ServicesState::mergeItems( [
+			'service_wpdb' => new AssetChangeCleanupWpDb(),
+		] );
+
+		( new Cleanup() )->run( 'plugin', $plugin->file );
+
+		$this->assertSame( [ [ 'plugin', $plugin->file ] ], $scans->startedAssets );
+		$this->assertNotSame( [], \glob( $uploadsRoot.'/ptguard-*/plugins/cleanup-root-plugin-2.1.0.txt' ) ?: [] );
+		$this->assertSame( [], \glob( $cacheRoot.'/ptguard-*/plugins/cleanup-root-plugin-2.1.0.txt' ) ?: [] );
 	}
 
 	public function test_theme_cleanup_builds_current_local_snapshot_then_starts_scoped_scan() :void {
@@ -397,7 +431,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 	}
 
 	private function installSnapshotEnvironment( Plugins $plugins, Themes $themes ) :void {
-		$this->setHashesStorageDir( $this->makeTempDir( 'hashes' ) );
+		$cacheRoot = $this->makeTempDir( 'root' );
 		ServicesState::mergeItems( [
 			'service_request'   => new UnitTestRequest( [], '127.0.0.1', 1700000400 ),
 			'service_wpfs'      => new SnapshotFs(),
@@ -405,6 +439,23 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			'service_wpplugins' => $plugins,
 			'service_wpthemes'  => $themes,
 		] );
+		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin
+			->getController()
+			->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
+	}
+
+	private function installSnapshotEnvironmentWithCacheRoot( Plugins $plugins, Themes $themes, string $cacheRoot ) :void {
+		$this->resetHashesStorageDir();
+		ServicesState::mergeItems( [
+			'service_request'   => new CacheStoreTestRequest( 1700000400 ),
+			'service_wpfs'      => new CacheStoreTestFs(),
+			'service_wpgeneral' => new SnapshotWpGeneral(),
+			'service_wpplugins' => $plugins,
+			'service_wpthemes'  => $themes,
+		] );
+		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin
+			->getController()
+			->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
 	}
 
 	private function installCronMocks( array &$scheduled ) :void {
@@ -426,16 +477,15 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		);
 	}
 
-	private function setHashesStorageDir( string $dir ) :void {
-		$property = ( new \ReflectionClass( HashesStorageDir::class ) )->getProperty( 'dir' );
-		$property->setAccessible( true );
-		$property->setValue( null, $dir );
-	}
-
 	private function resetHashesStorageDir() :void {
-		$property = ( new \ReflectionClass( HashesStorageDir::class ) )->getProperty( 'dir' );
-		$property->setAccessible( true );
-		$property->setValue( null, null );
+		$reflection = new \ReflectionClass( HashesStorageDir::class );
+		foreach ( [ 'dir', 'rootDir' ] as $propertyName ) {
+			if ( $reflection->hasProperty( $propertyName ) ) {
+				$property = $reflection->getProperty( $propertyName );
+				$property->setAccessible( true );
+				$property->setValue( null, null );
+			}
+		}
 	}
 
 	private function resetHashMemoization() :void {
@@ -455,6 +505,12 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		}
 		\file_put_contents( $path, $content );
 		$this->trackWrittenFixtureFile( $path );
+	}
+
+	private function makeDir( string $dir ) :void {
+		if ( !\is_dir( $dir ) ) {
+			@\mkdir( $dir, 0777, true );
+		}
 	}
 
 	private function makeTempDir( string $suffix ) :string {

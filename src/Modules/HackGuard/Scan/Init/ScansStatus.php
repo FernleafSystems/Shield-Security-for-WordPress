@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -33,12 +34,14 @@ class ScansStatus {
 		$rows = Services::WpDb()->selectCustom(
 			sprintf( "SELECT `scans`.`scan`, `scans`.`status`, `scans`.`created_at`
 						FROM `%s` as `scans`
-						WHERE `scans`.`status` IN ('queued','building','built','running')
+						WHERE `scans`.`status` IN (%s)
 						  AND `scans`.`finished_at`=0
-						ORDER BY CASE WHEN `scans`.`status` IN ('building','built','running') THEN 0 ELSE 1 END ASC,
+						ORDER BY CASE WHEN `scans`.`status` IN (%s) THEN 0 ELSE 1 END ASC,
 								 `scans`.`created_at` ASC,
 								 `scans`.`id` ASC;",
-				self::con()->db_con->scans->getTable()
+				self::con()->db_con->scans->getTable(),
+				ScanStatus::sqlList( ScanStatus::ACTIVE ),
+				ScanStatus::sqlList( ScanStatus::CURRENT )
 			)
 		) ?: [];
 

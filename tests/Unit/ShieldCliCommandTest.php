@@ -10,11 +10,13 @@ use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestCrossSiteCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestSourceCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestUpgradePublicCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\CrossSiteTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageFullTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PreCommitChangedFileLane;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\PublicUpgradeTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceRuntimeTestLane;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -54,6 +56,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				'test:integration-local',
 				'test:package-targeted',
 				'test:package-full',
+				'test:upgrade-public',
 				'analyze:tooling',
 				'analyze:source',
 				'analyze:package',
@@ -132,6 +135,36 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			$this->createMock( PackageFullTestLane::class )
 		);
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
+	}
+
+	public function testUpgradePublicCommandIncludesCiReadyOptions() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$command = new TestUpgradePublicCommand(
+			$this->getPluginRoot(),
+			$this->createMock( PublicUpgradeTestLane::class )
+		);
+
+		$this->assertTrue( $command->getDefinition()->hasOption( 'package-zip' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'artifact-dir' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
+	}
+
+	public function testUpgradePublicCommandForwardsOptions() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$lane = $this->createMock( PublicUpgradeTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), 'builds/shield.zip', 'tmp/upgrade-artifacts', true )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestUpgradePublicCommand( $this->getPluginRoot(), $lane ) );
+		$exitCode = $tester->execute( [
+			'--package-zip' => 'builds/shield.zip',
+			'--artifact-dir' => 'tmp/upgrade-artifacts',
+			'--show-docker-output' => true,
+		] );
+
+		$this->assertSame( 0, $exitCode );
 	}
 
 	public function testBrowserCommandHelpIncludesPlaywrightForwardingHint() :void {
@@ -264,6 +297,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			'test-site-status' => [ 'test:site:status' ],
 			'test-package-targeted' => [ 'test:package-targeted' ],
 			'test-package-full' => [ 'test:package-full' ],
+			'test-upgrade-public' => [ 'test:upgrade-public' ],
 			'analyze-tooling' => [ 'analyze:tooling' ],
 			'analyze-source' => [ 'analyze:source' ],
 			'analyze-package' => [ 'analyze:package' ],

@@ -55,6 +55,10 @@ class StartScansResult {
 		return $this;
 	}
 
+	public function addResumed( string $slug, int $scanID ) :self {
+		return $this->addStarted( $slug, $scanID );
+	}
+
 	public function addFailure( string $slug, string $reason, string $message = '' ) :self {
 		$slug = trim( $slug );
 		if ( $slug !== '' ) {
@@ -141,21 +145,25 @@ class StartScansResult {
 		return __( 'No scans were selected', 'wp-simple-firewall' );
 	}
 
-	public function getFailureLogMessage() :string {
+	public function getFailureLogMessage( array $ignoreReasons = [] ) :string {
 		if ( !$this->hasFailures() ) {
 			return '';
 		}
 
+		$ignoreReasons = \array_values( \array_filter( \array_map( 'strval', $ignoreReasons ) ) );
 		$failures = \array_map(
 			static fn( array $failure ) :string => sprintf(
 				'%s:%s',
 				(string)$failure[ 'scan' ],
 				(string)$failure[ 'reason' ]
 			),
-			$this->getFailures()
+			\array_filter(
+				$this->getFailures(),
+				static fn( array $failure ) :bool => !\in_array( (string)$failure[ 'reason' ], $ignoreReasons, true )
+			)
 		);
 
-		return sprintf( 'Shield scan start failures: %s', \implode( ', ', $failures ) );
+		return empty( $failures ) ? '' : sprintf( 'Shield scan start failures: %s', \implode( ', ', $failures ) );
 	}
 
 	private static function normalizeSlugs( array $slugs ) :array {

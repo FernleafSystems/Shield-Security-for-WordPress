@@ -70,7 +70,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 
 		$this->assertSame( [ 'afs', 'apc', 'wpv', 'missing', 'bad' ], $result->getRequestedSlugs() );
 		$this->assertSame( [ 101 ], $result->getStartedScanIDs() );
-		$this->assertSame( [
+		$this->assertEqualsCanonicalizing( [
 			StartScansResult::REASON_ALREADY_EXISTS,
 			StartScansResult::REASON_CREATE_FAILED,
 			StartScansResult::REASON_UNKNOWN_SCAN,
@@ -79,6 +79,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertInsertedScanRunTrigger( $scansDb->insertedRecords[ 101 ], 'manual' );
 		$this->assertSame( 1, $queue->dispatches );
 		$this->assertSame( 1, $queue->watchdogSchedules );
+		$this->assertSame( 1, $queue->staleStartBlockerChecks );
 		$this->assertSame( 0, $wpDb->writeCount );
 	}
 
@@ -122,6 +123,71 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $result->getFailures(), 'reason' ) );
 		$this->assertSame( 0, $queue->dispatches );
 		$this->assertSame( 0, $queue->watchdogSchedules );
+	}
+
+	public function test_existing_active_scan_returns_already_exists_without_duplicate_or_forced_failure() :void {
+		$scansDb = new StartScansFakeScansDb( [ 'afs' ] );
+		$queue = new StartScansFakeQueue();
+		$this->installController( $scansDb, $queue );
+		ServicesState::installItems( [
+			'service_wpgeneral' => new StartScansFakeGeneral( false ),
+			'service_wpdb'      => new StartScansFakeWpDb( $scansDb ),
+			'service_request'   => new UnitTestRequest(),
+		] );
+
+		$result = ( new StartScansControllerTestDouble( [
+			'afs' => new StartScansTestScanController( 'afs', true ),
+		] ) )->startNewScans( [ 'afs' ] );
+
+		$this->assertFalse( $result->hasStarted() );
+		$this->assertSame( [ StartScansResult::REASON_ALREADY_EXISTS ], \array_column( $result->getFailures(), 'reason' ) );
+		$this->assertSame( [], $scansDb->insertedRecords );
+		$this->assertSame( 0, $queue->dispatches );
+		$this->assertSame( 0, $queue->watchdogSchedules );
+		$this->assertSame( 1, $queue->staleStartBlockerChecks );
+	}
+
+	public function test_cron_start_uses_cron_run_trigger() :void {
+		$scansDb = new StartScansFakeScansDb();
+		$queue = new StartScansFakeQueue();
+		$this->installController( $scansDb, $queue, true );
+		ServicesState::installItems( [
+			'service_wpgeneral' => new StartScansFakeGeneral( false ),
+			'service_wpdb'      => new StartScansFakeWpDb( $scansDb ),
+			'service_request'   => new UnitTestRequest(),
+		] );
+
+		$result = ( new StartScansControllerTestDouble( [
+			'afs' => new StartScansTestScanController( 'afs', true ),
+		] ) )->startNewScans( [ 'afs' ] );
+
+		$this->assertTrue( $result->hasStarted() );
+		$this->assertSame( [ 101 ], $result->getStartedScanIDs() );
+		$this->assertInsertedScanRunTrigger( $scansDb->insertedRecords[ 101 ], 'cron' );
+		$this->assertSame( 1, $queue->dispatches );
+		$this->assertSame( 1, $queue->watchdogSchedules );
+	}
+
+	public function test_cli_start_uses_cli_run_trigger_and_processes_without_builder_dispatch() :void {
+		$scansDb = new StartScansFakeScansDb();
+		$queue = new StartScansFakeQueue();
+		$this->installController( $scansDb, $queue );
+		ServicesState::installItems( [
+			'service_wpgeneral' => new StartScansFakeGeneral( true ),
+			'service_wpdb'      => new StartScansFakeWpDb( $scansDb ),
+			'service_request'   => new UnitTestRequest(),
+		] );
+
+		$result = ( new StartScansControllerTestDouble( [
+			'afs' => new StartScansTestScanController( 'afs', true ),
+		] ) )->startNewScans( [ 'afs' ] );
+
+		$this->assertTrue( $result->hasStarted() );
+		$this->assertSame( [ 101 ], $result->getStartedScanIDs() );
+		$this->assertInsertedScanRunTrigger( $scansDb->insertedRecords[ 101 ], 'cli' );
+		$this->assertSame( 0, $queue->dispatches );
+		$this->assertSame( 1, $queue->watchdogSchedules );
+		$this->assertSame( 0, $queue->staleStartBlockerChecks );
 	}
 
 	public function test_afs_asset_change_scan_creation_uses_run_trigger_contract() :void {
@@ -177,21 +243,31 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'trigger', $record->getRawData() );
 	}
 
-	private function installController( StartScansFakeScansDb $scansDb, StartScansFakeQueue $queue ) :void {
+	private function installController( StartScansFakeScansDb $scansDb, StartScansFakeQueue $queue, bool $isScanCron = false ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->db_con = (object)[
 			'scans'             => $scansDb,
+			'scan_items'        => new class {
+				public function getTable() :string {
+					return 'scan_items';
+				}
+			},
 			'scan_result_items' => new class {
 				public function getTable() :string {
 					return 'scan_result_items';
 				}
 			},
 		];
-		$controller->opts = new class {
+		$controller->opts = new class( $isScanCron ) {
+			private bool $isScanCron;
+
+			public function __construct( bool $isScanCron ) {
+				$this->isScanCron = $isScanCron;
+			}
+
 			public function optGet( string $key ) {
-				unset( $key );
-				return false;
+				return $key === 'is_scan_cron' ? $this->isScanCron : false;
 			}
 		};
 		$controller->comps = (object)[
@@ -292,6 +368,10 @@ class StartScansFakeScansDb {
 		return new Record();
 	}
 
+	public function getTable() :string {
+		return 'scans';
+	}
+
 	public function getQueryInserter() :object {
 		return new class( $this ) {
 			private StartScansFakeScansDb $db;
@@ -335,6 +415,25 @@ class StartScansFakeScansDb {
 				return $this;
 			}
 
+			public function filterByStatus( string $status ) :self {
+				unset( $status );
+				return $this;
+			}
+
+			public function addWhereIn( string $column, array $values ) :self {
+				unset( $column, $values );
+				return $this;
+			}
+
+			public function setOrderBy( string $column, string $direction = 'DESC', bool $overwrite = false ) :self {
+				unset( $column, $direction, $overwrite );
+				return $this;
+			}
+
+			public function first() {
+				return null;
+			}
+
 			public function count() :int {
 				return \in_array( $this->scan, $this->db->existingScans, true ) ? 1 : 0;
 			}
@@ -354,6 +453,8 @@ class StartScansFakeQueue {
 	public int $dispatches = 0;
 
 	public int $watchdogSchedules = 0;
+
+	public int $staleStartBlockerChecks = 0;
 
 	public function getQueueBuilder() :object {
 		return new class( $this ) {
@@ -380,6 +481,12 @@ class StartScansFakeQueue {
 			public function scheduleIfActive() :void {
 				$this->queue->watchdogSchedules++;
 			}
+
+			public function runForStaleStartBlockers( array $slugs, string $scopeType = 'full', string $scopeKey = '' ) :array {
+				unset( $slugs, $scopeType, $scopeKey );
+				$this->queue->staleStartBlockerChecks++;
+				return [];
+			}
 		};
 	}
 }
@@ -395,8 +502,11 @@ class StartScansFakeWpDb extends Db {
 	}
 
 	public function getVar( $sql ) {
+		if ( \stripos( (string)$sql, 'LAST_INSERT_ID()' ) !== false ) {
+			return $this->scansDb->lastID;
+		}
 		unset( $sql );
-		return $this->scansDb->lastID;
+		return 0;
 	}
 
 	public function doSql( string $sqlQuery ) {

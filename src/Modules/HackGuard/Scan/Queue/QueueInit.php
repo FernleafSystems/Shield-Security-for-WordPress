@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\PopulateScanItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class QueueInit {
@@ -41,7 +42,7 @@ class QueueInit {
 			throw new \Exception( sprintf( 'Scan record %d could not be loaded.', $scanID ) );
 		}
 
-		if ( $scanRecord->status !== 'queued' || (int)$scanRecord->finished_at > 0 ) {
+		if ( $scanRecord->status !== ScanStatus::QUEUED || (int)$scanRecord->finished_at > 0 ) {
 			error_log( \sprintf(
 				'Shield scan build skipped: scan_id=%d status=%s finished_at=%d',
 				$scanID,

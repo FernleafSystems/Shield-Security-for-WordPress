@@ -52,14 +52,16 @@ class DockerComposeExecutor {
 		$this->processRunner->run(
 			$this->buildCommand( $composeFiles, $subCommand, $showDockerOutput ),
 			$rootDir,
-			static function ( string $type, string $buffer ) :void {
-				if ( $type === Process::ERR ) {
-					\fwrite( \STDERR, $buffer );
+			$showDockerOutput
+				? static function ( string $type, string $buffer ) :void {
+					if ( $type === Process::ERR ) {
+						\fwrite( \STDERR, $buffer );
+					}
+					else {
+						echo $buffer;
+					}
 				}
-				else {
-					echo $buffer;
-				}
-			},
+				: static function () :void {},
 			$envOverrides
 		);
 	}

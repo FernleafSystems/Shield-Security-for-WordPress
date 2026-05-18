@@ -1,5 +1,13 @@
 <?php declare( strict_types=1 );
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules;
+
+if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
+	function shield_security_get_plugin() {
+		return \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin;
+	}
+}
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
 use Brain\Monkey\Functions;
@@ -10,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\ScheduleBuildAll;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
 	ServicesState,
 	UnitTestRequest
 };
@@ -20,25 +29,56 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\AssetSnapshots\{
 	SnapshotThemes,
 	SnapshotThemeVo
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
+	CacheStoreTestCacheDir,
+	CacheStoreTestController,
+	CacheStoreTestFs,
+	CacheStoreTestOptions,
+	CacheStoreTestRequest,
+	CacheStoreWordPressFunctions
+};
+
+function error_log( string $message ) :bool {
+	ScheduleBuildAllTest::$capturedErrorLogs[] = $message;
+	return true;
+}
 
 class ScheduleBuildAllTest extends BaseUnitTest {
+
+	use CacheStoreWordPressFunctions;
+
+	public static array $capturedErrorLogs = [];
 
 	private array $servicesSnapshot = [];
 
 	private array $tempDirs = [];
 
+	private array $fixtureFiles = [];
+
 	protected function setUp() :void {
 		parent::setUp();
+		self::$capturedErrorLogs = [];
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->resetHashesStorageDir();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalizePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
 		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => \json_encode( $data ) );
+		Functions\when( 'wp_normalize_path' )->alias( fn( string $path ) :string => $this->normalizePath( $path ) );
+		Functions\when( 'wp_generate_password' )->alias(
+			static fn( int $length, bool $specialChars = true ) :string => \substr( \str_repeat( 'a', $length ), 0, $length )
+		);
+		Functions\when( 'untrailingslashit' )->alias( fn( string $path ) :string => \rtrim( $this->normalizePath( $path ), '/' ) );
+		Functions\when( 'trailingslashit' )->alias( fn( string $path ) :string => \rtrim( $this->normalizePath( $path ), '/' ).'/' );
 	}
 
 	protected function tearDown() :void {
 		$this->resetHashesStorageDir();
 		ServicesState::restore( $this->servicesSnapshot );
+		PluginControllerInstaller::reset();
+		foreach ( \array_reverse( $this->fixtureFiles ) as $file ) {
+			@\unlink( $file );
+			@\rmdir( \dirname( $file ) );
+		}
 		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
 			$this->removeDir( $dir );
 		}
@@ -111,18 +151,105 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertSame( [ 'snapshot-stale-theme' ], $this->assetKeysThatNeedBuilt() );
 	}
 
+	public function test_discovery_does_not_log_missing_snapshot_errors() :void {
+		$asset = new SnapshotPluginVo( 'snapshot-missing-no-log/plugin.php', '1.0.0' );
+		$this->installEnvironment( [ $asset ] );
+
+		$this->assertSame( [ 'snapshot-missing-no-log/plugin.php' ], $this->assetKeysThatNeedBuilt() );
+		$this->assertSame( [], self::$capturedErrorLogs );
+	}
+
+	public function test_discovery_does_not_create_hash_dir_for_missing_snapshot() :void {
+		$asset = new SnapshotPluginVo( 'snapshot-missing-no-create/plugin.php', '1.0.0' );
+		$root = $this->makeTempDir( 'root' );
+		$this->installBuildEnvironment( [ $asset ], $root );
+
+		$this->assertSame( [ 'snapshot-missing-no-create/plugin.php' ], $this->assetKeysThatNeedBuilt() );
+		$this->assertSame( [], \glob( $root.'/ptguard-*' ) ?: [] );
+		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
+	}
+
+	public function test_build_writes_and_loads_under_selected_uploads_root_only() :void {
+		$asset = new SnapshotPluginVo( 'snapshot-build-root/plugin.php', '1.0.0' );
+		$uploadsRoot = $this->makeTempDir( 'uploads-root' );
+		$cacheRoot = $this->makeTempDir( 'cache-root' );
+		$this->installBuildEnvironment( [ $asset ], $uploadsRoot );
+		$this->writeFile( WP_PLUGIN_DIR.'/'.$asset->file, "<?php\n// snapshot build root\n" );
+		$this->mkdir( $cacheRoot.'/ptguard-cccccccccccccccc' );
+
+		$this->invokeBuild();
+
+		$this->assertNotSame( [], \glob( $uploadsRoot.'/ptguard-*/plugins/snapshot-build-root-1.0.0.txt' ) ?: [] );
+		$this->assertSame( [], \glob( $cacheRoot.'/ptguard-*/plugins/snapshot-build-root-1.0.0.txt' ) ?: [] );
+		$this->assertSame( [], $this->assetKeysThatNeedBuilt() );
+	}
+
 	/**
 	 * @param SnapshotPluginVo[] $plugins
 	 * @param SnapshotThemeVo[]  $themes
 	 */
 	private function installEnvironment( array $plugins, array $themes = [] ) :void {
-		$this->setHashesStorageDir( $this->makeTempDir( 'hashes' ) );
+		$cacheRoot = $this->makeTempDir( 'root' );
 		ServicesState::installItems( [
 			'service_request'   => new UnitTestRequest( [], '127.0.0.1', 1700000500 ),
 			'service_wpfs'      => new SnapshotFs(),
 			'service_wpplugins' => new SnapshotPlugins( $plugins ),
 			'service_wpthemes'  => new SnapshotThemes( $themes ),
 		] );
+		$controller = CacheStoreTestController::install(
+			new CacheStoreTestOptions(),
+			new class {
+				public array $properties = [
+					'slug_parent' => 'icwp',
+					'slug_plugin' => 'wpsf',
+				];
+
+				public function version() :string {
+					return '20.0.0';
+				}
+			}
+		);
+		$controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
+	}
+
+	/**
+	 * @param SnapshotPluginVo[] $plugins
+	 */
+	private function installBuildEnvironment( array $plugins, string $cacheRoot ) :void {
+		$this->resetHashesStorageDir();
+		$fs = new CacheStoreTestFs();
+		$this->registerCacheStoreWordPressFunctions( $fs, $this->makeTempDir( 'tmp' ) );
+		ServicesState::installItems( [
+			'service_request'   => new CacheStoreTestRequest( 1700000500 ),
+			'service_wpfs'      => $fs,
+			'service_wpplugins' => new SnapshotPlugins( $plugins ),
+			'service_wpthemes'  => new SnapshotThemes( [] ),
+		] );
+		$controller = CacheStoreTestController::install(
+			new CacheStoreTestOptions(),
+			new class {
+				public array $properties = [
+					'slug_parent' => 'icwp',
+					'slug_plugin' => 'wpsf',
+				];
+
+				public array $paths = [
+					'cache' => 'shield',
+				];
+
+				public function version() :string {
+					return '20.0.0';
+				}
+			}
+		);
+		$controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
+		$controller->comps = (object)[
+			'license' => new class {
+				public function hasValidWorkingLicense() :bool {
+					return false;
+				}
+			},
+		];
 	}
 
 	/**
@@ -149,16 +276,21 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		) );
 	}
 
-	private function setHashesStorageDir( string $dir ) :void {
-		$property = ( new \ReflectionClass( HashesStorageDir::class ) )->getProperty( 'dir' );
-		$property->setAccessible( true );
-		$property->setValue( null, $dir );
+	private function invokeBuild() :void {
+		$method = new \ReflectionMethod( ScheduleBuildAll::class, 'build' );
+		$method->setAccessible( true );
+		$method->invoke( new ScheduleBuildAll() );
 	}
 
 	private function resetHashesStorageDir() :void {
-		$property = ( new \ReflectionClass( HashesStorageDir::class ) )->getProperty( 'dir' );
-		$property->setAccessible( true );
-		$property->setValue( null, null );
+		$reflection = new \ReflectionClass( HashesStorageDir::class );
+		foreach ( [ 'dir', 'rootDir' ] as $propertyName ) {
+			if ( $reflection->hasProperty( $propertyName ) ) {
+				$property = $reflection->getProperty( $propertyName );
+				$property->setAccessible( true );
+				$property->setValue( null, null );
+			}
+		}
 	}
 
 	private function makeTempDir( string $suffix ) :string {
@@ -170,6 +302,19 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 
 	private function normalizePath( string $path ) :string {
 		return \str_replace( '\\', '/', $path );
+	}
+
+	private function mkdir( string $dir ) :void {
+		if ( !\is_dir( $dir ) ) {
+			@\mkdir( $dir, 0777, true );
+		}
+	}
+
+	private function writeFile( string $path, string $content ) :void {
+		$path = $this->normalizePath( $path );
+		$this->mkdir( \dirname( $path ) );
+		\file_put_contents( $path, $content );
+		$this->fixtureFiles[] = $path;
 	}
 
 	private function removeDir( string $dir ) :void {

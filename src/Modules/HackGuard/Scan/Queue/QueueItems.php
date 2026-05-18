@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -33,13 +34,14 @@ class QueueItems {
 							ON `si`.`scan_ref` = `scans`.`id` 
 							AND `si`.`started_at`=0
 							AND `si`.`finished_at`=0
-						WHERE `scans`.`status` IN ('built','running')
+						WHERE `scans`.`status` IN (%s)
 						  AND `scans`.`ready_at` > 0
 						  AND `scans`.`finished_at`=0
 						ORDER BY `scans`.`created_at` ASC, `si`.`id` ASC
 						LIMIT 1;",
 					self::con()->db_con->scans->getTable(),
-					self::con()->db_con->scan_items->getTable()
+					self::con()->db_con->scan_items->getTable(),
+					ScanStatus::sqlList( ScanStatus::READY )
 				)
 			);
 			if ( empty( $result ) ) {
@@ -64,12 +66,13 @@ class QueueItems {
 							ON `si`.`scan_ref` = `scans`.`id`
 							AND `si`.`started_at`=0
 							AND `si`.`finished_at`=0
-						WHERE `scans`.`status` IN ('built','running')
+						WHERE `scans`.`status` IN (%s)
 						  AND `scans`.`ready_at` > 0
 						  AND `scans`.`finished_at`=0
 						LIMIT 1;",
 				self::con()->db_con->scans->getTable(),
-				self::con()->db_con->scan_items->getTable()
+				self::con()->db_con->scan_items->getTable(),
+				ScanStatus::sqlList( ScanStatus::READY )
 			)
 		) === 1;
 	}

@@ -38,10 +38,6 @@ class PreStore {
 			$opts->optSet( 'tracking_permission_set_at', Services::Request()->ts() );
 		}
 
-		$tmp = $opts->optGet( 'preferred_temp_dir' );
-		if ( !empty( $tmp ) && !Services::WpFs()->isAccessibleDir( $tmp ) ) {
-			$opts->optSet( 'preferred_temp_dir', '' );
-		}
 	}
 
 	private function scanKeepers() :void {

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\{
 	ScanCreateException,
 	ScanExistsException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -32,7 +33,7 @@ class CreateNewScan {
 		/** @var ScansDB\Record $record */
 		$record = $dbh->getRecord();
 		$record->scan = $slug;
-		$record->status = 'queued';
+		$record->status = ScanStatus::QUEUED;
 		$record->scope_type = $scopeType;
 		$record->scope_key = $scopeKey;
 		$record->run_trigger = $runTrigger;
@@ -57,6 +58,7 @@ class CreateNewScan {
 		return $selector->filterByScan( $slug )
 						->filterByScope( $scopeType, $scopeKey )
 						->filterByNotFinished()
+						->addWhereIn( 'status', ScanStatus::ACTIVE )
 						->count() > 0;
 	}
 

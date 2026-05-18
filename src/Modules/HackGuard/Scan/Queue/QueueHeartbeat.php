@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -29,11 +30,12 @@ class QueueHeartbeat {
 					SET `last_process_at`=%d
 					WHERE `id`=%d
 					  AND `finished_at`=0
-					  AND `status`='running'
+					  AND `status`='%s'
 					  AND `last_process_at`<%d;",
 				self::con()->db_con->scans->getTable(),
 				$now,
 				$scanID,
+				ScanStatus::RUNNING,
 				$now - self::MIN_INTERVAL
 			)
 		) > 0;

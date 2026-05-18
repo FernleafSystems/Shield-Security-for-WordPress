@@ -12,6 +12,6 @@ class BaseExec {
 	use PluginControllerConsumer;
 
 	protected function canRun() :bool {
-		return !empty( ( new HashesStorageDir() )->getTempDir() );
+		return !empty( ( new HashesStorageDir() )->getTempDir( false ) );
 	}
 }

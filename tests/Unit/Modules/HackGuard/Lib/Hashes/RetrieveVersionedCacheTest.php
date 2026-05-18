@@ -22,6 +22,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\CacheStoreTestCacheDir;
 use FernleafSystems\Wordpress\Services\Core\{
 	Fs,
 	Request
@@ -41,6 +42,8 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalizePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
 		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => \json_encode( $data ) );
+		Functions\when( 'wp_normalize_path' )->alias( fn( string $path ) :string => $this->normalizePath( $path ) );
+		Functions\when( 'untrailingslashit' )->alias( fn( string $path ) :string => \rtrim( $this->normalizePath( $path ), '/' ) );
 	}
 
 	protected function tearDown() :void {
@@ -55,8 +58,9 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 	}
 
 	public function test_hash_cache_is_scoped_by_asset_version_in_one_request() :void {
-		$hashDir = $this->makeTempDir( 'hashes' );
-		$this->setHashesStorageDir( $hashDir );
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
 		ServicesState::installItems( [
 			'service_wpfs'     => new RetrieveVersionedCacheTestFs(),
 			'service_request'  => new class extends Request {
@@ -66,7 +70,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 				}
 			},
 		] );
-		$this->installController();
+		$this->installController( $cacheRoot );
 
 		$versionOne = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '1.0.0' );
 		$versionTwo = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '1.1.0' );
@@ -100,7 +104,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 			->save();
 	}
 
-	private function installController() :void {
+	private function installController( string $cacheRoot ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->caps = new class {
@@ -108,6 +112,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 				return false;
 			}
 		};
+		$controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
 
 		PluginControllerInstaller::install( $controller );
 	}
@@ -122,15 +127,14 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 	}
 
 	private function resetHashesStorageDir() :void {
-		$property = ( new \ReflectionClass( HashesStorageDir::class ) )->getProperty( 'dir' );
-		$property->setAccessible( true );
-		$property->setValue( null, null );
-	}
-
-	private function setHashesStorageDir( string $dir ) :void {
-		$property = ( new \ReflectionClass( HashesStorageDir::class ) )->getProperty( 'dir' );
-		$property->setAccessible( true );
-		$property->setValue( null, $dir );
+		$reflection = new \ReflectionClass( HashesStorageDir::class );
+		foreach ( [ 'dir', 'rootDir' ] as $propertyName ) {
+			if ( $reflection->hasProperty( $propertyName ) ) {
+				$property = $reflection->getProperty( $propertyName );
+				$property->setAccessible( true );
+				$property->setValue( null, null );
+			}
+		}
 	}
 
 	private function makeTempDir( string $suffix ) :string {
@@ -167,6 +171,26 @@ class RetrieveVersionedCacheTestFs extends Fs {
 
 	public function mkdir( $path ) {
 		return \is_dir( $path ) || @mkdir( $path, 0777, true );
+	}
+
+	public function isDir( string $path ) :bool {
+		return \is_dir( $path );
+	}
+
+	public function isAccessibleFile( string $path ) :bool {
+		return $path !== '' && \is_file( $path );
+	}
+
+	public function getAllFilesInDir( $dir, $includeDirs = true ) {
+		$items = [];
+		if ( \is_dir( (string)$dir ) ) {
+			foreach ( new \DirectoryIterator( (string)$dir ) as $item ) {
+				if ( !$item->isDot() && ( $item->isFile() || $includeDirs ) ) {
+					$items[] = \str_replace( '\\', '/', $item->getPathname() );
+				}
+			}
+		}
+		return $items;
 	}
 
 	public function getFileContent( $path, $uncompress = false ) {
