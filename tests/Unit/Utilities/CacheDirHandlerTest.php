@@ -87,6 +87,86 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_locate_existing_dir_with_missing_preferred_root_does_not_create_or_fall_back() :void {
+		$preferredBase = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads/missing-preferred' );
+
+		$this->assertSame( '', ( new CacheDirHandler( '', $preferredBase ) )->locateExistingDir() );
+		$this->assertFalse( \is_dir( $preferredBase ) );
+		$this->assertFalse( \is_dir( $preferredBase.'/shield' ) );
+		$this->assertFalse( \is_dir( $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/shield' ) ) );
+	}
+
+	public function test_locate_existing_dir_with_existing_configured_root_does_not_write_setup_files() :void {
+		$preferred = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads/shield' );
+		$this->mkdir( $preferred );
+
+		$this->assertSame( $preferred, ( new CacheDirHandler( '', $preferred ) )->locateExistingDir() );
+		$this->assertFileDoesNotExist( $preferred.'/assessed.flag' );
+		$this->assertFileDoesNotExist( $preferred.'/.htaccess' );
+		$this->assertFileDoesNotExist( $preferred.'/index.php' );
+		$this->assertFileDoesNotExist( $preferred.'/README.txt' );
+	}
+
+	public function test_locate_existing_dir_prefers_active_marker_without_writing_setup_files() :void {
+		$cacheRoot = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/cache/shield' );
+		$uploadsRoot = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads/shield' );
+		$this->mkdir( $cacheRoot.'/ptguard-cccccccccccccccc' );
+		$this->mkdir( $uploadsRoot.'/ptguard-bbbbbbbbbbbbbbbb' );
+		\file_put_contents( $uploadsRoot.'/ptguard-active.txt', 'ptguard-bbbbbbbbbbbbbbbb' );
+		\touch( $cacheRoot.'/ptguard-cccccccccccccccc', 1700000100 );
+		\touch( $uploadsRoot.'/ptguard-bbbbbbbbbbbbbbbb', 1700000000 );
+
+		$this->assertSame( $uploadsRoot, ( new CacheDirHandler() )->locateExistingDir() );
+		$this->assertFileDoesNotExist( $uploadsRoot.'/assessed.flag' );
+		$this->assertFileDoesNotExist( $uploadsRoot.'/README.txt' );
+	}
+
+	public function test_locate_existing_dir_prefers_newest_hash_dir_without_writing_marker() :void {
+		$cacheRoot = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/cache/shield' );
+		$uploadsRoot = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads/shield' );
+		$this->mkdir( $cacheRoot.'/ptguard-cccccccccccccccc' );
+		$this->mkdir( $uploadsRoot.'/ptguard-dddddddddddddddd' );
+		\touch( $cacheRoot.'/ptguard-cccccccccccccccc', 1700000000 );
+		\touch( $uploadsRoot.'/ptguard-dddddddddddddddd', 1700000100 );
+
+		$this->assertSame( $uploadsRoot, ( new CacheDirHandler() )->locateExistingDir() );
+		$this->assertFileDoesNotExist( $uploadsRoot.'/ptguard-active.txt' );
+		$this->assertFileDoesNotExist( $uploadsRoot.'/README.txt' );
+	}
+
+	public function test_locate_existing_dir_returns_first_existing_discovery_root_without_writing_setup_files() :void {
+		$root = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/shield' );
+		$this->mkdir( $root );
+
+		$this->assertSame( $root, ( new CacheDirHandler() )->locateExistingDir() );
+		$this->assertFileDoesNotExist( $root.'/assessed.flag' );
+		$this->assertFileDoesNotExist( $root.'/.htaccess' );
+		$this->assertFileDoesNotExist( $root.'/index.php' );
+		$this->assertFileDoesNotExist( $root.'/README.txt' );
+	}
+
+	public function test_locate_existing_dir_without_discovery_root_does_not_create_roots() :void {
+		( new CacheDirHandler() )->locateExistingDir();
+
+		$this->assertFalse( \is_dir( $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/shield' ) ) );
+		$this->assertFalse( \is_dir( $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads/shield' ) ) );
+		$this->assertFalse( \is_dir( $this->normaliseCacheStorePath( $this->cacheStoreTmpDir.'/shield' ) ) );
+	}
+
+	public function test_write_mode_does_not_rewrite_current_readme() :void {
+		$preferred = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads/shield' );
+		$this->mkdir( $preferred );
+		$this->assertSame( $preferred, ( new CacheDirHandler( '', $preferred ) )->dir() );
+
+		$readme = $preferred.'/README.txt';
+		$this->assertFileExists( $readme );
+		\touch( $readme, 1600000000 );
+		$mtime = \filemtime( $readme );
+
+		$this->assertSame( $preferred, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertSame( $mtime, \filemtime( $readme ) );
+	}
+
 	public function test_failed_candidate_directory_is_not_deleted() :void {
 		$preferredRoot = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads/shield' );
 		$this->mkdir( $preferredRoot );

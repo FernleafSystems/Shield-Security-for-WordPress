@@ -18,7 +18,8 @@ class HashesStorageDir {
 	private static ?string $rootDir = null;
 
 	public function getTempDir( bool $create = true ) :string {
-		$rootDir = untrailingslashit( wp_normalize_path( self::con()->cache_dir_handler->dir() ) );
+		$cacheDirHandler = self::con()->cache_dir_handler;
+		$rootDir = untrailingslashit( wp_normalize_path( $create ? $cacheDirHandler->dir() : $cacheDirHandler->locateExistingDir() ) );
 		if ( empty( $rootDir ) ) {
 			self::$dir = null;
 			self::$rootDir = null;
@@ -29,6 +30,9 @@ class HashesStorageDir {
 			 && self::$rootDir === $rootDir
 			 && $this->isUsableHashDir( self::$dir, $rootDir )
 		) {
+			if ( $create ) {
+				$this->writeActiveMarker( $rootDir, \basename( self::$dir ) );
+			}
 			return self::$dir;
 		}
 
@@ -39,14 +43,15 @@ class HashesStorageDir {
 
 		$dir = untrailingslashit( wp_normalize_path( (string)$dir ) );
 		if ( $this->isUsableHashDir( $dir, $rootDir ) ) {
-			$this->writeActiveMarker( $rootDir, \basename( $dir ) );
+			if ( $create ) {
+				$this->writeActiveMarker( $rootDir, \basename( $dir ) );
+			}
 			self::$dir = $dir;
 			self::$rootDir = $rootDir;
 		}
 		else {
 			self::$dir = null;
 			self::$rootDir = null;
-			$dir = '';
 		}
 
 		return self::$dir ?? '';
@@ -105,7 +110,13 @@ class HashesStorageDir {
 
 	private function writeActiveMarker( string $rootDir, string $hashDirBasename ) :void {
 		if ( $this->isHashDirBasename( $hashDirBasename ) ) {
-			Services::WpFs()->putFileContent( path_join( $rootDir, self::ACTIVE_MARKER ), $hashDirBasename );
+			$marker = path_join( $rootDir, self::ACTIVE_MARKER );
+			$FS = Services::WpFs();
+			if ( !$FS->isAccessibleFile( $marker )
+				 || \trim( (string)$FS->getFileContent( $marker ) ) !== $hashDirBasename
+			) {
+				$FS->putFileContent( $marker, $hashDirBasename );
+			}
 		}
 	}
 }

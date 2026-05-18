@@ -72,7 +72,7 @@ class CleanOutOldGuardFilesTest extends BaseUnitTest {
 		$this->assertDirectoryDoesNotExist( $root.'/ptguard' );
 	}
 
-	public function test_cleanup_establishes_active_dir_before_deleting_duplicates() :void {
+	public function test_cleanup_uses_newest_existing_dir_without_writing_marker() :void {
 		$root = $this->installRoot();
 		$old = $root.'/ptguard-cccccccccccccccc';
 		$new = $root.'/ptguard-dddddddddddddddd';
@@ -85,7 +85,7 @@ class CleanOutOldGuardFilesTest extends BaseUnitTest {
 
 		$this->assertDirectoryExists( $new );
 		$this->assertDirectoryDoesNotExist( $old );
-		$this->assertSame( 'ptguard-dddddddddddddddd', \trim( (string)\file_get_contents( $root.'/ptguard-active.txt' ) ) );
+		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
 	}
 
 	public function test_cleanup_does_not_create_hash_dir_when_root_has_no_hash_dirs() :void {
@@ -95,6 +95,17 @@ class CleanOutOldGuardFilesTest extends BaseUnitTest {
 
 		$this->assertSame( [], \glob( $root.'/ptguard-*' ) ?: [] );
 		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
+	}
+
+	public function test_cleanup_does_not_create_missing_cache_root() :void {
+		$root = $this->makeTempDir( 'missing-root' );
+		$this->removeDir( $root );
+		$controller = CacheStoreTestController::install( new CacheStoreTestOptions() );
+		$controller->cache_dir_handler = new CacheStoreTestCacheDir( $root );
+
+		( new CleanOutOldGuardFiles() )->execute();
+
+		$this->assertDirectoryDoesNotExist( $root );
 	}
 
 	private function installRoot() :string {
