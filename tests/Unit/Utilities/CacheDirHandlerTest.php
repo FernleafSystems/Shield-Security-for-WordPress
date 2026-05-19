@@ -154,17 +154,35 @@ class CacheDirHandlerTest extends BaseUnitTest {
 	}
 
 	public function test_write_mode_does_not_rewrite_current_readme() :void {
-		$preferred = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads/shield' );
-		$this->mkdir( $preferred );
+		$preferred = $this->makeNonTmpCacheRoot( 'readme' );
 		$this->assertSame( $preferred, ( new CacheDirHandler( '', $preferred ) )->dir() );
 
 		$readme = $preferred.'/README.txt';
 		$this->assertFileExists( $readme );
 		\touch( $readme, 1600000000 );
+		\clearstatcache( true, $readme );
 		$mtime = \filemtime( $readme );
 
 		$this->assertSame( $preferred, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		\clearstatcache( true, $readme );
 		$this->assertSame( $mtime, \filemtime( $readme ) );
+	}
+
+	public function test_write_mode_skips_protection_files_for_tmp_cache_root() :void {
+		if ( \DIRECTORY_SEPARATOR === '\\' ) {
+			$this->markTestSkipped( 'The literal /tmp cache-root guard is Unix-specific.' );
+		}
+
+		$base = $this->normaliseCacheStorePath( '/tmp/shield-cache-dir-handler-tmp-skip-'.\uniqid() );
+		$preferred = $base.'/shield';
+		$this->mkdir( $preferred );
+		$this->tempDirs[] = $base;
+
+		$this->assertSame( $preferred, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertFileExists( $preferred.'/assessed.flag' );
+		$this->assertFileDoesNotExist( $preferred.'/.htaccess' );
+		$this->assertFileDoesNotExist( $preferred.'/index.php' );
+		$this->assertFileDoesNotExist( $preferred.'/README.txt' );
 	}
 
 	public function test_failed_candidate_directory_is_not_deleted() :void {
@@ -243,6 +261,22 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->mkdir( $dir );
 		$this->tempDirs[] = $dir;
 		return $dir;
+	}
+
+	private function makeNonTmpCacheRoot( string $suffix ) :string {
+		$cwd = \getcwd();
+		$base = $this->normaliseCacheStorePath(
+			( \is_string( $cwd ) && $cwd !== '' ? $cwd : \sys_get_temp_dir() )
+			.'/tmp/shield-cache-dir-handler-'.$suffix.'-'.\uniqid()
+		);
+		if ( \strpos( $base, '/tmp/' ) === 0 ) {
+			$base = $this->normaliseCacheStorePath( '/var/tmp/shield-cache-dir-handler-'.$suffix.'-'.\uniqid() );
+		}
+
+		$root = $base.'/shield';
+		$this->mkdir( $root );
+		$this->tempDirs[] = $base;
+		return $root;
 	}
 
 	private function mkdir( string $dir ) :void {
