@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\Table;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\SqlIdentifier;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TableHelper {
@@ -11,6 +12,7 @@ class TableHelper {
 	private ?array $columns = null;
 
 	public function __construct( string $table ) {
+		SqlIdentifier::assertSafe( $table, 'Table name' );
 		$this->table = $table;
 	}
 
@@ -31,8 +33,11 @@ class TableHelper {
 	 */
 	public function showColumns() :array {
 		if ( $this->columns === null ) {
-			$colResults = Services::WpDb()->selectCustom( sprintf( "SHOW FULL COLUMNS FROM `%s`", esc_sql( $this->table ) ) );
-			if ( !\is_array( $colResults ) ) {
+			$colResults = Services::WpDb()->selectCustom( \sprintf(
+				'SHOW FULL COLUMNS FROM %s',
+				SqlIdentifier::quote( $this->table, 'Table name' )
+			) );
+			if ( !\is_array( $colResults ) || empty( $colResults ) ) {
 				throw new \Exception( 'No columns in results' );
 			}
 			$this->columns = [];
@@ -47,7 +52,18 @@ class TableHelper {
 	 * @throws \Exception
 	 */
 	public function hasColumn( string $column ) :bool {
+		SqlIdentifier::assertSafe( $column, 'Column name' );
 		return isset( $this->showColumns()[ $column ] );
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	public function getPrimaryKeyColumns() :array {
+		return \array_keys( \array_filter(
+			$this->showColumns(),
+			fn( array $column ) => !empty( $column[ 'Key' ] ) && \strtolower( $column[ 'Key' ] ) === 'pri'
+		) );
 	}
 
 	/**
@@ -75,7 +91,10 @@ class TableHelper {
 	 */
 	public function showCreate() :array {
 		$tableCreateSQL = Services::WpDb()
-								  ->selectCustom( sprintf( 'SHOW CREATE TABLE `%s`', esc_sql( $this->table ) ) );
+								  ->selectCustom( \sprintf(
+									  'SHOW CREATE TABLE %s',
+									  SqlIdentifier::quote( $this->table, 'Table name' )
+								  ) );
 		if ( !\is_array( $tableCreateSQL ) || \count( $tableCreateSQL ) !== 1 ) {
 			throw new \Exception( sprintf( 'show create table failed for %s', $this->table ) );
 		}

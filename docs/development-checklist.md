@@ -13,11 +13,11 @@
 ### 2. Shield-Specific Path Handling
 - [ ] Check for environment variables specific to Shield (SHIELD_PACKAGE_PATH)
 - [ ] Verify paths within Shield's complex directory structure
-- [ ] Test with Shield's plugin directory structure (`src/lib/src/Modules/`, etc.)
+- [ ] Test with Shield's plugin directory structure (`src/Modules/`, etc.)
 
 ### 3. Shield Configuration & Testing
-- [ ] Run Shield smoke tests: `composer test:smoke` (< 10 seconds)
-- [ ] After plugin.json changes: ALWAYS run `composer test:smoke:json` to validate structure
+- [ ] Run the focused supported lane for the touched code; use `composer test` for full local confidence
+- [ ] After plugin-spec changes: run `composer build:config` and the relevant focused tests
 - [ ] Test with Shield's premium feature detection
 - [ ] Verify Shield-specific debug logging integration
 
@@ -31,8 +31,8 @@
 Before typing `git commit`:
 1. Review WordPress Plugin Development Checklist (general practices)
 2. Review EVERY Shield-specific item above
-3. Run smoke tests: `composer test:smoke` (MANDATORY - takes < 10 seconds)
-4. Run Shield-specific tests if changes affect plugin.json: `composer test:smoke:json`
+3. Run the focused supported test lane for the changed slice
+4. Use `composer test` when the change needs full local confidence
 5. Test in Shield development environment if possible
 
 ## Shield-Specific Development Reminders
@@ -52,8 +52,8 @@ Before typing `git commit`:
 3. **Before using Shield tools**: Check version and compatibility with Shield
 4. **Before pushing Shield changes**: Test with Shield's test suite
 5. **When Shield features fail**: Add Shield-specific debug logging first
-6. **Before ANY commit**: Run smoke tests - they validate critical functionality in seconds
-7. **After plugin.json changes**: ALWAYS run `composer test:smoke:json` to validate structure
+6. **Before ANY commit**: Run the focused supported test lane for the changed slice
+7. **After plugin-spec changes**: run `composer build:config` and relevant focused tests
 
 ### The Golden Rule for Shield Development
 **If uncertain about Shield's architecture or patterns, RESEARCH the existing codebase first, don't ASSUME**

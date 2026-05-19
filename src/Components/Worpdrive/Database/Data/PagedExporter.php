@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Data;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\SqlIdentifier;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Exc\TimeLimitReachedException;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -14,6 +15,9 @@ class PagedExporter {
 	private int $stopAtTS;
 
 	public function __construct( string $dumpFileDir, ExportMap $exportMap, int $stopAtTS ) {
+		if ( !\is_dir( $dumpFileDir ) || !\is_writable( $dumpFileDir ) ) {
+			throw new \InvalidArgumentException( 'Dump file directory is not writable.' );
+		}
 		$this->dumpFileDir = $dumpFileDir;
 		$this->exportMap = $exportMap;
 		$this->stopAtTS = $stopAtTS;
@@ -27,12 +31,15 @@ class PagedExporter {
 		foreach ( \array_filter( $this->exportMap->status(), fn( array $s ) => empty( $s[ 'completed_at' ] ) ) as $table => $status ) {
 			do {
 				$dumpFile = \fopen( $this->dumpFileFor( $table, $status[ 'page' ] ), 'w' );
+				if ( !\is_resource( $dumpFile ) ) {
+					throw new \Exception( \sprintf( 'Failed to open dump file for table: %s', $table ) );
+				}
 				try {
 					$chunkExportStatus = ( new ChunkedExporter(
 						$dumpFile,
 						$table,
 						$status[ 'offset' ],
-						$status[ 'max_page_rows' ] ?? 1000,
+						$status[ 'max_page_rows' ],
 						$status[ 'chunk_size' ]
 					) )->run();
 
@@ -56,6 +63,7 @@ class PagedExporter {
 	}
 
 	private function dumpFileFor( string $table, int $page ) :string {
+		SqlIdentifier::assertSafe( $table, 'Table name' );
 		$file = path_join(
 			$this->dumpFileDir,
 			sprintf( 'data_%s_%s.sql',

@@ -7,12 +7,11 @@ Shield Security uses a simplified, industry-standard CI/CD approach following th
 ## Workflow Structure
 
 ### Single Workflow File
-- **File**: `.github/workflows/minimal.yml`
-- **Lines**: 89 (under 100-line target)
-- **Jobs**: 2 (test + code-quality)
+- **File**: `.github/workflows/tests.yml`
+- **Jobs**: source analysis, unit tests, integration runtime, package build, package validation
 
 ### Test Matrix
-- **PHP Versions**: 7.4, 8.0, 8.1
+- **PHP Versions**: 7.4 and latest supported PHP in CI
 - **WordPress**: Latest (via WordPress Test Suite)
 - **Database**: MySQL 8.0
 
@@ -28,14 +27,14 @@ composer test
 composer test:unit
 composer test:integration
 
-# Code quality checks
-composer phpcs
+# Source static analysis
+composer analyze
 ```
 
 ## Job Breakdown
 
 ### 1. Test Job (`test`)
-- Runs on PHP matrix (7.4, 8.0, 8.1)
+- Runs on the configured PHP matrix
 - Includes MySQL service for integration tests
 - Uses `composer test` for all testing
 - Builds plugin package once, tests against it
@@ -49,10 +48,10 @@ composer phpcs
 6. Install WordPress Test Suite
 7. Run tests via `composer test`
 
-### 2. Code Quality Job (`code-quality`)
-- Runs on PHP 7.4 only
-- Uses `composer phpcs` for code standards
-- Lightweight and fast
+### 2. Source Analysis Job
+- Runs source static analysis under the CI PHP target
+- Uses `composer analyze`
+- PHPCS is not part of the active verification surface
 
 ## Key Improvements
 
@@ -86,7 +85,7 @@ composer phpcs
 ## Integration
 
 The workflow integrates with:
-- **Package building**: Uses existing `./bin/build-package.sh`
+- **Package building**: Uses `composer package-plugin`
 - **WordPress Test Suite**: Uses existing `bin/install-wp-tests.sh`
 - **Asset building**: Uses existing npm build process
 - **Composer scripts**: Leverages project's composer.json

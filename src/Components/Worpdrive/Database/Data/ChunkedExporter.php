@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\{
 	Config,
 	Exporter,
+	SqlIdentifier,
 	Table\TableDataExport,
 	Table\TableHelper
 };
@@ -31,6 +32,16 @@ class ChunkedExporter {
 		if ( !\is_resource( $dumpFile ) ) {
 			throw new \Exception( 'Dump file is not a valid resource' );
 		}
+		SqlIdentifier::assertSafe( $table, 'Table name' );
+		if ( $startingOffset < 0 ) {
+			throw new \InvalidArgumentException( 'Starting offset must be zero or greater.' );
+		}
+		if ( $maxPageRows < 1 ) {
+			throw new \InvalidArgumentException( 'Maximum page rows must be one or greater.' );
+		}
+		if ( $chunkSize < 1 ) {
+			throw new \InvalidArgumentException( 'Chunk size must be one or greater.' );
+		}
 		$this->dumpFile = $dumpFile;
 		$this->table = $table;
 		$this->maxPageRows = $maxPageRows;
@@ -49,14 +60,22 @@ class ChunkedExporter {
 		$exporter = new Exporter( $cfg );
 
 		$tableDataExp = new TableDataExport( $this->table, $cfg );
-		$primaryOrderColumn = ( new TableHelper( $this->table ) )->getAppropriatePrimaryKeyForOrdering();
+		$tableHelper = new TableHelper( $this->table );
+		$primaryOrderColumn = $tableHelper->getAppropriatePrimaryKeyForOrdering();
 		if ( empty( $primaryOrderColumn ) ) {
 			// when no obvious PK is available, offset queries are slower; reduce page size to lower timeout risk
-			$orderBy = '';
+			$orderColumns = $tableHelper->getPrimaryKeyColumns();
+			$orderBy = empty( $orderColumns ) ? '' : \sprintf( 'ORDER BY %s', \implode(
+				', ',
+				\array_map(
+					fn( string $column ) => SqlIdentifier::quote( $column, 'Primary key column' ).' ASC',
+					$orderColumns
+				)
+			) );
 			$this->maxPageRows = (int)\max( 1, \round( 2*$this->maxPageRows/3 ) );
 		}
 		else {
-			$orderBy = sprintf( 'ORDER BY `%s` ASC', $primaryOrderColumn );
+			$orderBy = \sprintf( 'ORDER BY %s ASC', SqlIdentifier::quote( $primaryOrderColumn, 'Primary key column' ) );
 		}
 
 		$pageExportComplete = false;
@@ -103,7 +122,12 @@ class ChunkedExporter {
 
 				$tableDataExp->buildDataRows(
 					[
-						sprintf( '`%s` %s %s', $primaryOrderColumn, $offset == 0 ? '>=' : '>', $offset )
+						\sprintf(
+							'%s %s %s',
+							SqlIdentifier::quote( $primaryOrderColumn, 'Primary key column' ),
+							$offset == 0 ? '>=' : '>',
+							$offset
+						)
 					],
 					$orderBy,
 					$this->chunkSize
@@ -115,9 +139,9 @@ class ChunkedExporter {
 				$currentOffsetForResponse = !empty( $tableDataExp->getMostRecentRow() ) ? $lastProcessedPrimaryKey : $offset;
 			}
 
-			if ( $tableDataExp->getPreviousDataRowsCount() === 0 || $tableDataExp->getTotalDataRowsCount() >= $this->maxPageRows ) {
+			if ( $tableDataExp->getPreviousDataRowsCount() === 0 ) {
 				$pageExportComplete = true;
-				$tableExportComplete = $tableDataExp->getPreviousDataRowsCount() === 0;
+				$tableExportComplete = true;
 				$this->writeDump(
 					$exporter->buildTableDataStructureEnd( $this->table )
 							 ->buildFooter()
@@ -126,11 +150,19 @@ class ChunkedExporter {
 			}
 			else {
 				$this->writeDump( $tableDataExp->getContent( true ) );
+				if ( $tableDataExp->getTotalDataRowsCount() >= $this->maxPageRows ) {
+					$pageExportComplete = true;
+					$tableExportComplete = false;
+					$this->writeDump(
+						$exporter->buildTableDataStructureEnd( $this->table )
+								 ->buildFooter()
+								 ->getContent( true )
+					);
+				}
 			}
 		} while ( !$pageExportComplete && $tableDataExp->getTotalDataRowsCount() < $this->maxPageRows );
 
-		// CRITICAL: If export is not complete, offset MUST have advanced
-		// Otherwise we'll get infinite loops at the server level
+		// Incomplete exports must advance so the caller cannot loop forever on the same map.
 		if ( !$tableExportComplete && $currentOffsetForResponse <= $this->startingOffset ) {
 			throw new \Exception( sprintf(
 				'Export failed to make progress for table %s - offset did not advance from %d',
@@ -148,6 +180,8 @@ class ChunkedExporter {
 	}
 
 	private function writeDump( array $raw ) :void {
-		\fwrite( $this->dumpFile, \implode( "\n", $raw ) );
+		if ( \fwrite( $this->dumpFile, \implode( "\n", $raw ) ) === false ) {
+			throw new \Exception( 'Failed to write Worpdrive database dump content.' );
+		}
 	}
 }

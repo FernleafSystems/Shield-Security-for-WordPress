@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators;
 
@@ -88,7 +88,7 @@ class Config {
 	}
 
 	public function applyDumpDataOptions() :Config {
-		$this->settings = array_merge( $this->settings, [
+		$this->settings = \array_merge( $this->settings, [
 			'add-locks'            => true,
 			'create-options'       => true,
 			'disable-keys'         => true,
@@ -98,6 +98,7 @@ class Config {
 			'no-create-db'         => true,
 			'no-create-info'       => true,
 			'hex-blob'             => true,
+			'complete-insert'      => true,
 			'skip-extended-insert' => true,
 			'comments'             => true
 			//'order-by-primary' => true

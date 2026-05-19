@@ -9,10 +9,10 @@
 - **Follow Global Standards**: Adhere to `D:\Work\Dev\AI\Projects\CLAUDE.md` mandatory PHP standards
 
 ### Common File Patterns
-- **Modules**: `src/lib/src/Modules/[ModuleName]/`
-- **Actions**: `src/lib/src/ActionRouter/Actions/`
-- **Rules**: `src/lib/src/Rules/Conditions/`
-- **Database**: `src/lib/src/DBs/`
+- **Modules**: `src/Modules/[ModuleName]/`
+- **Actions**: `src/ActionRouter/Actions/`
+- **Rules**: `src/Rules/Conditions/`
+- **Database**: `src/DBs/`
 
 ### Critical Architecture Flow
 - **Entry Flow**: `icwp-wpsf.php` → `plugin_init.php` → `Controller\Controller`
@@ -21,7 +21,7 @@
 - **Rules Engine**: Complex condition-based security rule system
 
 ## Key Development Files
-- **Main Controller**: `src/lib/src/Controller/Controller.php`
+- **Main Controller**: `src/Controller/Controller.php`
 - **Configuration**: `plugin.json` (6,673 lines)
 - **Tests**: PHPUnit configuration present (`phpunit.xml`)
 - **Build**: Webpack for assets (`webpack.config.js`)

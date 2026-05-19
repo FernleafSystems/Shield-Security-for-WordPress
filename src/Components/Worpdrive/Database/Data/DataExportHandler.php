@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Data;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\TableEnum;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Exc\TimeLimitReachedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesystem\ZipCreate\Zipper;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility\{
@@ -33,8 +34,9 @@ class DataExportHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Compone
 	 * @throws \Exception
 	 */
 	public function run() :array {
-		$map = new ExportMap( $this->tableExportMap );
+		$map = new ExportMap();
 		try {
+			$map = new ExportMap( $this->tableExportMap, \array_keys( ( new TableEnum() )->enum() ) );
 			// Allow 2s for ZIP.
 			( new PagedExporter( $this->dumpDir(), $map, $this->stopAtTS - 2 ) )->run();
 			$exportSuccess = true;

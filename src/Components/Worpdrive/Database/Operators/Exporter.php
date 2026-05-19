@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\Table\TableHelper;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\Table\TableRowsSqlBuilder;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Exporter {
@@ -86,6 +87,7 @@ class Exporter {
 	}
 
 	public function buildTableDataStructureStart( string $table ) :self {
+		$quotedTable = SqlIdentifier::quote( $table, 'Table name' );
 		if ( !$this->cfg->has( 'skip-comments' ) ) {
 			$this->addContent( [
 				'',
@@ -96,10 +98,10 @@ class Exporter {
 			] );
 		}
 		if ( $this->cfg->has( 'add-locks' ) ) {
-			$this->addLine( sprintf( "LOCK TABLES `%s` WRITE;", $table ) );
+			$this->addLine( \sprintf( 'LOCK TABLES %s WRITE;', $quotedTable ) );
 		}
 		if ( $this->cfg->has( 'disable-keys' ) ) {
-			$this->addLine( "/*!40000 ALTER TABLE `$table` DISABLE KEYS */;" );
+			$this->addLine( \sprintf( '/*!40000 ALTER TABLE %s DISABLE KEYS */;', $quotedTable ) );
 			//"SET FOREIGN_KEY_CHECKS = 0;";
 		}
 		$this->addLine( '' );
@@ -107,9 +109,10 @@ class Exporter {
 	}
 
 	public function buildTableDataStructureEnd( string $table ) :self {
+		$quotedTable = SqlIdentifier::quote( $table, 'Table name' );
 		$this->addContent( \array_filter( [
 			'',
-			$this->cfg->has( 'disable-keys' ) ? sprintf( "/*!40000 ALTER TABLE `%s` ENABLE KEYS */;", $table ) : null,
+			$this->cfg->has( 'disable-keys' ) ? \sprintf( '/*!40000 ALTER TABLE %s ENABLE KEYS */;', $quotedTable ) : null,
 			$this->cfg->has( 'add-locks' ) ? 'UNLOCK TABLES;' : null,
 			'',
 		], fn( $line ) => $line !== null ) );
@@ -123,13 +126,14 @@ class Exporter {
 
 		// Select all the Rows
 		$rows = Services::WpDb()->selectCustom( sprintf(
-			"SELECT * FROM `%s` %s;", $table, $this->cfg->has( 'where' ) ? ' WHERE '.$this->cfg->get( 'where' ) : ''
+			'SELECT * FROM %s %s;', SqlIdentifier::quote( $table, 'Table name' ), $this->cfg->has( 'where' ) ? ' WHERE '.$this->cfg->get( 'where' ) : ''
 		) );
-
-		$this->previousDataRows = \is_array( $rows ) ? \count( $rows ) : null;
-		if ( $this->previousDataRows !== null ) {
-			$this->totalDataRows += $this->previousDataRows;
+		if ( !\is_array( $rows ) ) {
+			throw new \Exception( \sprintf( 'Database query failed for table: %s', $table ) );
 		}
+
+		$this->previousDataRows = \count( $rows );
+		$this->totalDataRows = ( $this->totalDataRows ?? 0 ) + $this->previousDataRows;
 		if ( empty( $rows ) ) {
 			return;
 		}
@@ -140,76 +144,15 @@ class Exporter {
 			}
 		}
 
-		$tablesLocked = false; // $this->cfg->has( 'lock-tables' ) && $DB->doSql( sprintf( 'LOCK TABLES `%s` READ LOCAL', $table ) );
-
-		// Describing the table allows us to do smarter things with the values
-		$colResults = Services::WpDb()->selectCustom( sprintf( "SHOW FULL COLUMNS FROM `%s`", $table ) );
-		if ( !\is_array( $colResults ) ) {
-			throw new \Exception( 'No columns in results' );
-		}
-		$columns = [];
-		foreach ( $colResults as $colResult ) {
-			$columns[ $colResult[ 'Field' ] ] = $colResult[ 'Type' ];
-		}
-
-		// Build the INSERT prefix according to configuration:
-		$insertPrefix = $this->cfg->has( 'replace' ) ? 'REPLACE' : 'INSERT';
-		if ( $this->cfg->has( 'ignore-insert' ) ) {
-			$insertPrefix .= ' IGNORE';
-		}
-		if ( $this->cfg->has( 'delayed-insert' ) ) {
-			$insertPrefix .= ' DELAYED';
-		}
-		$insertPrefix .= sprintf( ' INTO `%s`', $table );
-		if ( $this->cfg->has( 'complete-insert' ) ) {
-			$insertPrefix .= ' (`'.\implode( '`, `', \array_keys( $columns ) ).'`)';
-		}
-		$insertPrefix .= ' VALUES ';
-
-		if ( $this->cfg->has( 'extended-insert' ) ) {
-			// We attempt to build the insert statement to stay until query size limit.
-
-			$maxQuerySize = $this->cfg->get( 'max-query-size', 10000 );
-			$rowsToInsert = [];
-			foreach ( \array_map( fn( $row ) => $this->convertRawRowToSqlValues( $row, $columns ), $rows ) as $row ) {
-
-				$thisLine = sprintf( "(%s)", \implode( ',', $row ) );
-
-				if ( \strlen( $insertPrefix.\implode( ',', $rowsToInsert ) ).$thisLine > $maxQuerySize ) {
-					// Don't include the current line and create the insert
-					$this->addLine( sprintf( '%s%s ;', $insertPrefix, \implode( ",\n", $rowsToInsert ) ) );
-					$rowsToInsert = [];
-				}
-				else {
-					// Add the current statement to the block
-					$rowsToInsert[] = $thisLine;
-				}
-			}
-
-			if ( !empty( $rowsToInsert ) ) {
-				$this->addLine( sprintf( '%s%s ;', $insertPrefix, \implode( ",\n", $rowsToInsert ) ) );
-			}
-		}
-		else {
-			\array_map(
-				fn( $row ) => $this->addLine(
-					sprintf( "%s(%s);", $insertPrefix, \implode( ',', $this->convertRawRowToSqlValues( $row, $columns ) ) )
-				),
-				$rows
-			);
-		}
-		$this->addLine( '' );
+		$this->addContent( ( new TableRowsSqlBuilder( $this->cfg ) )->buildInsertLines(
+			$table,
+			$rows,
+			( new TableHelper( $table ) )->showColumns()
+		) );
 
 		if ( $this->cfg->has( 'single-transaction' ) ) {
 			if ( Services::WpDb()->doSql( 'COMMIT;' ) === false ) {
 				throw new \Exception( 'Failed to commit transaction' );
-			}
-		}
-
-		// @phpstan-ignore booleanAnd.leftAlwaysFalse
-		if ( $tablesLocked && $this->cfg->has( 'lock-tables' ) ) {
-			if ( Services::WpDb()->doSql( 'UNLOCK TABLES;' ) === false ) {
-				throw new \Exception( 'Failed to unlock tables' );
 			}
 		}
 	}
@@ -221,28 +164,6 @@ class Exporter {
 		$this->buildTableDataStructureStart( $table );
 		$this->buildTableDataStructureRows( $table );
 		$this->buildTableDataStructureEnd( $table );
-	}
-
-	private function convertRawRowToSqlValues( array $row, array $columns ) :array {
-		$rowValues = [];
-		foreach ( $columns as $field => $type ) {
-			if ( \preg_match( '#^int|bigint|mediumint|smallint|tinyint|bool|decimal|float|double|bit#i', $type ) ) {
-				$rowValues[] = \is_null( $row[ $field ] ) ? 'NULL' : $row[ $field ];
-			}
-			elseif ( $this->cfg->has( 'hex-blob' ) && \preg_match( '#^blob|longblob|mediumblob|tinyblob|binary|varbinary#i', $type ) ) {
-				if ( \preg_match( '#^bit#i', $type ) ) {
-					$rowValues[] = '0x'.\bin2hex( $row[ $field ] );
-				}
-				else {
-					$rowValues[] = $row[ $field ] == '' ? "''" : '0x'.\bin2hex( $row[ $field ] );
-				}
-			}
-			else {
-				$rowValues[] = \is_null( $row[ $field ] ) ?
-					'NULL' : "'".Services::WpDb()->loadWpdb()->_real_escape( $row[ $field ] )."'";
-			}
-		}
-		return $rowValues;
 	}
 
 	public function addDropDatabase() :void {
@@ -327,6 +248,7 @@ class Exporter {
 	}
 
 	public function buildTableStructure( string $table, string $createInfo ) :void {
+		$quotedTable = SqlIdentifier::quote( $table, 'Table name' );
 		if ( !$this->cfg->has( 'skip-comments' ) ) {
 			$this->addContent( [
 				'',
@@ -338,7 +260,7 @@ class Exporter {
 		}
 
 		if ( $this->cfg->has( 'add-drop-table' ) ) {
-			$this->addLine( "DROP TABLE IF EXISTS `$table`;" );
+			$this->addLine( \sprintf( 'DROP TABLE IF EXISTS %s;', $quotedTable ) );
 		}
 
 		$isWrapSetNames = $this->cfg->has( 'set-charset' ) && $this->cfg->get( 'default-character-set' );

@@ -49,10 +49,10 @@ MySQL Database
 
 | File | Purpose |
 |------|---------|
-| `src/lib/src/Components/Worpdrive/Database/Data/ChunkedExporter.php` | Main chunking logic, returns current_offset |
-| `src/lib/src/Components/Worpdrive/Database/Data/PagedExporter.php` | Orchestrates multiple chunks into pages |
-| `src/lib/src/Components/Worpdrive/Database/Operators/Table/TableDataExport.php` | Executes SQL queries, tracks row counts |
-| `src/lib/src/Components/Worpdrive/Database/Operators/Exporter.php` | Builds SQL structure (headers/footers) |
+| `src/Components/Worpdrive/Database/Data/ChunkedExporter.php` | Main chunking logic, returns current_offset |
+| `src/Components/Worpdrive/Database/Data/PagedExporter.php` | Orchestrates multiple chunks into pages |
+| `src/Components/Worpdrive/Database/Operators/Table/TableDataExport.php` | Executes SQL queries, tracks row counts |
+| `src/Components/Worpdrive/Database/Operators/Exporter.php` | Builds SQL structure (headers/footers) |
 
 ---
 
@@ -436,7 +436,7 @@ class ChunkedExporterTest extends BaseUnitTest {
      * TableHelper::showColumns() which does:
      *   $this->columns[ $colResult['Field'] ] = $colResult;
      * 
-     * TableDataExport::convertRawRowToSqlValues() iterates as:
+     * Row serialization iterates over the shared column metadata as:
      *   foreach ($columns as $field => $col)
      * expecting $field to be 'id', 'data', etc.
      */
@@ -964,7 +964,7 @@ composer test:unit -- --filter ChunkedExporterTest --process-isolation
 
 #### Fix 1: Add Query Error Detection
 
-**File:** `src/lib/src/Components/Worpdrive/Database/Operators/Table/TableDataExport.php`
+**File:** `src/Components/Worpdrive/Database/Operators/Table/TableDataExport.php`
 
 **Location:** After line 66 (after the `selectCustom` call)
 
@@ -1027,7 +1027,7 @@ if ( empty( $rows ) ) {
 
 #### Fix 2: Fix Loop Condition Counter
 
-**File:** `src/lib/src/Components/Worpdrive/Database/Data/ChunkedExporter.php`
+**File:** `src/Components/Worpdrive/Database/Data/ChunkedExporter.php`
 
 **Location:** Line 117
 
@@ -1049,7 +1049,7 @@ if ( empty( $rows ) ) {
 
 #### Fix 3: Add Infinite Loop Guard
 
-**File:** `src/lib/src/Components/Worpdrive/Database/Data/ChunkedExporter.php`
+**File:** `src/Components/Worpdrive/Database/Data/ChunkedExporter.php`
 
 **Location:** Inside `run()` method, around line 62-68
 
@@ -1106,7 +1106,7 @@ do {
 
 #### Fix 4: Ensure Offset Advances
 
-**File:** `src/lib/src/Components/Worpdrive/Database/Data/ChunkedExporter.php`
+**File:** `src/Components/Worpdrive/Database/Data/ChunkedExporter.php`
 
 **Location:** Before the return statement (around line 119-124)
 
@@ -1198,8 +1198,8 @@ After automated tests pass, verify with real database:
 
 | File | Total Changes |
 |------|---------------|
-| `src/lib/src/Components/Worpdrive/Database/Operators/Table/TableDataExport.php` | 1 change (query error detection) |
-| `src/lib/src/Components/Worpdrive/Database/Data/ChunkedExporter.php` | 3 changes (loop counter, iteration guard, offset check) |
+| `src/Components/Worpdrive/Database/Operators/Table/TableDataExport.php` | 1 change (query error detection) |
+| `src/Components/Worpdrive/Database/Data/ChunkedExporter.php` | 3 changes (loop counter, iteration guard, offset check) |
 
 ---
 
@@ -2588,4 +2588,3 @@ Integration tests automatically run as part of the existing matrix testing workf
 5. **Multiple WordPress Versions:** Docker matrix tests both latest and previous WordPress versions.
 
 6. **Edge Cases:** Empty tables, PK gaps, composite keys, continuation from offset all covered.
-
