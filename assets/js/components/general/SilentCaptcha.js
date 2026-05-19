@@ -23,7 +23,7 @@ import { PageQueryParam } from "../../util/PageQueryParam";
  *   altcha_solution?: string
  * }} SilentCaptchaAltchaRequestData
  *
- * @typedef {{ data?: { altcha_data?: SilentCaptchaAltchaRequestData } }} SilentCaptchaAjaxPayload
+ * @typedef {{ data?: unknown }} SilentCaptchaAjaxPayload
  */
 
 export class SilentCaptcha extends BaseAutoExecComponent {
@@ -39,9 +39,15 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 		this.request_count = 0;
 		this.failed_request_count = 0;
 
-		this.shield_ajaxurl = this._base_data.ajax.silentcaptcha.ajaxurl;
+		/** @type {SilentCaptchaRequestData|null} */
+		this.silentCaptchaAjaxData = this.resolveSilentCaptchaAjaxData();
+		this.shield_ajaxurl = this.silentCaptchaAjaxData?.ajaxurl || '';
 
 		super.init();
+	}
+
+	canRun() {
+		return typeof this.shield_ajaxurl === 'string' && this.shield_ajaxurl.length > 0;
 	}
 
 	run() {
@@ -92,16 +98,16 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 					 return fetch( this.shield_ajaxurl, this.constructFetchRequestData( reqData ) )
 					 .then( raw => raw.text() )
 					 .then( rawText => {
-						 if ( ObjectOps.IsEmpty( AjaxParseResponseService.ParseIt( rawText ) ) ) {
+						 const parsed = /** @type {SilentCaptchaAjaxPayload} */ ( AjaxParseResponseService.ParseIt( rawText ) );
+						 if ( this.resolveAjaxPayloadData( parsed ) === null ) {
 							 throw new Error( 'Data in the altcha request could not be parsed.' );
 						 }
 						 return rawText;
 					 } )
 					 .then( () => this.reFire() );
 				 } )
-				 .catch( error => {
+				 .catch( () => {
 					 this.failed_request_count++;
-					 console.log( 'hasAltchaChallengeData() error: ' + error );
 				 } )
 				 .finally( () => {
 					 this.altchaChallengeRequestData = null;
@@ -124,11 +130,9 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 		window.setTimeout( () => {
 
 			if ( reFireTimeout === 0 || this.windowHasHadFocus() ) {
-				//console.log( reFireTimeout === 0 ? 'forced refire timeout=0' : "debug: had focus: fire()" );
 				this.fire();
 			}
 			else {
-				//console.log( "debug: window had no focus so re-firing in 2.5 seconds" );
 				this.reFire( 2500 );
 			}
 
@@ -190,16 +194,54 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 	}
 
 	canSolveAltchaChallenge() {
-		return !!( window.crypto && window.crypto.subtle );
+		try {
+			return !!( window.crypto && window.crypto.subtle );
+		}
+		catch {
+			return false;
+		}
 	}
 
 	isBasicSignalRequired() {
-		return PageQueryParam.Retrieve( 'force_notbot' ) === '1' || !this.getNonRequiredFlagsFromCookie().includes( 'notbot' );
+		return this.isForceNotbotRequested() || this.isCookieSignalRequired( 'notbot' );
 	}
 
 	isAltchaChallengeRequired() {
 		return !this.altchaUnsupported
-			   && ( PageQueryParam.Retrieve( 'force_notbot' ) === '1' || !this.getNonRequiredFlagsFromCookie().includes( 'altcha' ) );
+			   && ( this.isForceNotbotRequested() || this.isCookieSignalRequired( 'altcha' ) );
+	}
+
+	isCookieSignalRequired( signal ) {
+		return !this.getNonRequiredFlagsFromCookie().includes( signal );
+	}
+
+	isForceNotbotRequested() {
+		try {
+			return PageQueryParam.Retrieve( 'force_notbot' ) === '1';
+		}
+		catch {
+			return false;
+		}
+	}
+
+	/**
+	 * @returns {SilentCaptchaRequestData|null}
+	 */
+	resolveSilentCaptchaAjaxData() {
+		try {
+			const requestData = this._base_data?.ajax?.silentcaptcha;
+			if ( requestData === null || typeof requestData !== 'object' || Array.isArray( requestData ) ) {
+				return null;
+			}
+			if ( typeof requestData.ajaxurl !== 'string' || requestData.ajaxurl.length < 1 ) {
+				return null;
+			}
+
+			return /** @type {SilentCaptchaRequestData} */ ( requestData );
+		}
+		catch {
+			return null;
+		}
 	}
 
 	/**
@@ -208,23 +250,54 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 	 * informing the script that the known cookie status has expired.
 	 */
 	getNonRequiredFlagsFromCookie() {
-		let parts = [];
-		const current = GetCookie.Get( 'icwp-wpsf-notbot' );
-		let maybeParts = ( ( typeof current === typeof undefined || current === undefined || current === '' ) ? '' : current ).split( 'Z' );
-		let expiry = maybeParts.pop();
-		if ( expiry ) {
-			let regResult = /^exp-([0-9]+)$/.exec( expiry );
-			if ( regResult && ( Math.round( Date.now() / 1000 ) < Number( regResult[ 1 ] ) ) ) {
-				parts = maybeParts;
+		try {
+			let parts = [];
+			const current = GetCookie.Get( 'icwp-wpsf-notbot' );
+			let maybeParts = ( ( typeof current === typeof undefined || current === undefined || current === '' ) ? '' : current ).split( 'Z' );
+			let expiry = maybeParts.pop();
+			if ( expiry ) {
+				let regResult = /^exp-([0-9]+)$/.exec( expiry );
+				if ( regResult && ( Math.round( Date.now() / 1000 ) < Number( regResult[ 1 ] ) ) ) {
+					parts = maybeParts;
+				}
 			}
+			return parts;
 		}
-		return parts;
+		catch {
+			return [];
+		}
+	}
+
+	/**
+	 * @param {SilentCaptchaAjaxPayload} parsed
+	 * @returns {Record<string, any>|null}
+	 */
+	resolveAjaxPayloadData( parsed ) {
+		if ( parsed === null || typeof parsed !== 'object' || Array.isArray( parsed ) ) {
+			return null;
+		}
+		if ( !Object.prototype.hasOwnProperty.call( parsed, 'data' ) ) {
+			return null;
+		}
+
+		const data = parsed.data;
+		return data !== null && typeof data === 'object' && !Array.isArray( data ) ? /** @type {Record<string, any>} */ ( data ) : null;
 	}
 
 	async fetchSilentCaptcha() {
 		this.request_count++;
 
-		const reqData = /** @type {SilentCaptchaRequestData} */ ( ObjectOps.ObjClone( this._base_data.ajax.silentcaptcha ) );
+		let reqData = {};
+		try {
+			if ( this.silentCaptchaAjaxData === null ) {
+				throw new Error( 'silentCAPTCHA request data is unavailable.' );
+			}
+			reqData = /** @type {SilentCaptchaRequestData} */ ( ObjectOps.ObjClone( this.silentCaptchaAjaxData ) );
+		}
+		catch {
+			this.failed_request_count++;
+			return null;
+		}
 		delete reqData.ajaxurl;
 		delete reqData._rest_url;
 		/** todo: remove after switch to REST */
@@ -234,21 +307,24 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 		.then( raw => raw.text() )
 		.then( rawText => {
 			const parsed = /** @type {SilentCaptchaAjaxPayload} */ ( AjaxParseResponseService.ParseIt( rawText ) );
-			if ( ObjectOps.IsEmpty( parsed ) || !( 'data' in parsed ) ) {
+			const data = this.resolveAjaxPayloadData( parsed );
+			if ( data === null ) {
 				throw new Error( 'Data in the silentCAPTCHA request could not be parsed.' );
 			}
-			else if ( ( 'altcha_data' in parsed.data ) && this.verifyAltchaChallengeData( parsed.data.altcha_data ) ) {
-				this.altchaChallengeRequestData = parsed.data.altcha_data;
+			else if ( this.verifyAltchaChallengeData( data.altcha_data ) ) {
+				this.altchaChallengeRequestData = data.altcha_data;
+				this.reFire( 0 );
 			}
-			else if ( this.isAltchaChallengeRequired() ) {
+			else if ( !this.altchaUnsupported && this.isCookieSignalRequired( 'altcha' ) ) {
 				throw new Error( 'Could not verify the altcha challenge data in response.' );
+			}
+			else {
+				this.reFire();
 			}
 			return parsed;
 		} )
-		.then( () => this.reFire( 0 ) )
-		.catch( error => {
+		.catch( () => {
 			this.failed_request_count++;
-			console.log( 'fetchSilentCaptcha() error: ' + error );
 		} );
 	}
 
