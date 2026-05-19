@@ -74,11 +74,13 @@ class ModConCacheDirHandlerTest extends BaseUnitTest {
 		$handler = $this->buildHandler( $options );
 
 		$this->assertSame( $this->baseUploads().'/shield', $handler->dir() );
-		$this->assertSame( $this->baseUploads(), $options->values[ 'last_known_cache_basedirs' ][ '_default' ] );
-		$this->assertSame( $this->baseUploads(), $options->values[ 'last_known_cache_basedirs' ][ 'https://first.example/' ] );
+		$this->assertSame( [
+			'_default'               => $this->baseUploads(),
+			'https://first.example/' => $this->baseCache(),
+		], $options->values[ 'last_known_cache_basedirs' ] );
 	}
 
-	public function test_current_url_legacy_value_migrates_to_default() :void {
+	public function test_legacy_url_value_seeds_handler_without_migrating_on_build() :void {
 		$options = new CacheStoreTestOptions( [
 			'preferred_temp_dir'       => '',
 			'last_known_cache_basedirs' => [
@@ -87,11 +89,28 @@ class ModConCacheDirHandlerTest extends BaseUnitTest {
 		] );
 
 		$this->assertSame( $this->baseUploads().'/shield', $this->buildHandler( $options )->dir() );
-		$this->assertSame( $this->baseUploads(), $options->values[ 'last_known_cache_basedirs' ][ '_default' ] );
-		$this->assertSame( $this->baseUploads(), $options->values[ 'last_known_cache_basedirs' ][ 'https://first.example/' ] );
+		$this->assertSame( [
+			'https://first.example/' => $this->baseUploads(),
+		], $options->values[ 'last_known_cache_basedirs' ] );
 	}
 
-	public function test_second_request_with_different_url_reuses_default() :void {
+	public function test_invalid_default_key_falls_back_to_legacy_string_without_migrating_on_build() :void {
+		$options = new CacheStoreTestOptions( [
+			'preferred_temp_dir'       => '',
+			'last_known_cache_basedirs' => [
+				'_default'               => [ 'invalid' ],
+				'https://first.example/' => $this->baseUploads(),
+			],
+		] );
+
+		$this->assertSame( $this->baseUploads().'/shield', $this->buildHandler( $options )->dir() );
+		$this->assertSame( [
+			'_default'               => [ 'invalid' ],
+			'https://first.example/' => $this->baseUploads(),
+		], $options->values[ 'last_known_cache_basedirs' ] );
+	}
+
+	public function test_second_request_with_different_url_does_not_create_url_key() :void {
 		$options = new CacheStoreTestOptions( [
 			'preferred_temp_dir'       => '',
 			'last_known_cache_basedirs' => [
@@ -103,11 +122,12 @@ class ModConCacheDirHandlerTest extends BaseUnitTest {
 		$this->wpGeneral->url = 'https://second.example/';
 
 		$this->assertSame( $this->baseUploads().'/shield', $this->buildHandler( $options )->dir() );
-		$this->assertSame( $this->baseUploads(), $options->values[ 'last_known_cache_basedirs' ][ '_default' ] );
-		$this->assertSame( $this->baseUploads(), $options->values[ 'last_known_cache_basedirs' ][ 'https://second.example/' ] );
+		$this->assertSame( [
+			'https://first.example/' => $this->baseUploads(),
+		], $options->values[ 'last_known_cache_basedirs' ] );
 	}
 
-	public function test_existing_snapshot_root_is_persisted_when_no_option_exists() :void {
+	public function test_existing_snapshot_root_is_selected_without_persisting_on_build() :void {
 		$activeRoot = $this->baseUploads().'/shield';
 		$this->mkdir( $activeRoot.'/ptguard-eeeeeeeeeeeeeeee' );
 		\file_put_contents( $activeRoot.'/ptguard-active.txt', 'ptguard-eeeeeeeeeeeeeeee' );
@@ -117,7 +137,20 @@ class ModConCacheDirHandlerTest extends BaseUnitTest {
 		] );
 
 		$this->assertSame( $activeRoot, $this->buildHandler( $options )->dir() );
-		$this->assertSame( $this->baseUploads(), $options->values[ 'last_known_cache_basedirs' ][ '_default' ] );
+		$this->assertSame( [], $options->values[ 'last_known_cache_basedirs' ] );
+	}
+
+	public function test_handler_construction_does_not_mutate_options() :void {
+		$options = $this->trackedOptions( [
+			'preferred_temp_dir'       => '',
+			'last_known_cache_basedirs' => [
+				'https://first.example/' => $this->baseUploads(),
+			],
+		] );
+
+		$this->buildHandler( $options );
+
+		$this->assertSame( [], $options->setCalls );
 	}
 
 	private function buildHandler( CacheStoreTestOptions $options ) :CacheDirHandler {
@@ -128,6 +161,20 @@ class ModConCacheDirHandlerTest extends BaseUnitTest {
 		};
 		CacheStoreTestController::install( $options, null, null, $plugin );
 		return $plugin->buildForTest();
+	}
+
+	private function trackedOptions( array $values ) :CacheStoreTestOptions {
+		return new class( $values ) extends CacheStoreTestOptions {
+			public array $setCalls = [];
+
+			public function optSet( string $key, $value ) :CacheStoreTestOptions {
+				$this->setCalls[] = [
+					'key'   => $key,
+					'value' => $value,
+				];
+				return parent::optSet( $key, $value );
+			}
+		};
 	}
 
 	private function baseUploads() :string {

@@ -80,6 +80,8 @@ class PluginReinstallContextActionBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'bi bi-arrow-clockwise', $actions[ 0 ][ 'icon_class' ] ?? '' );
 		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
 		$this->assertNotEmpty( $actions[ 0 ][ 'confirm_text' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 0 ][ 'processing_text' ] ?? '' );
+		$this->assertStringContainsString( 'Akismet', $actions[ 0 ][ 'processing_text' ] ?? '' );
 
 		$actionData = \json_decode( (string)( $actions[ 0 ][ 'ajax_action_json' ] ?? '' ), true, 512, \JSON_THROW_ON_ERROR );
 		$this->assertSame( PluginReinstall::SLUG, $actionData[ 'ex' ] ?? '' );

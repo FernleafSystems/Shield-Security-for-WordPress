@@ -46,7 +46,7 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 
 		$con->opts
 			->optSet( 'preferred_temp_dir', $preferredTempDir )
-			->optSet( 'last_known_cache_basedirs', [ Services::WpGeneral()->getWpUrl() => '' ] );
+			->optSet( 'last_known_cache_basedirs', [] );
 		$con->opts->store();
 		$this->resetCacheDirHandlerState();
 
@@ -67,6 +67,27 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( Services::WpFs()->isDir( $resolvedCacheDir ) );
 		$this->assertTrue( Services::WpFs()->isDir( \path_join( $resolvedCacheDir, 'languages' ) ) );
+	}
+
+	public function test_legacy_url_keyed_cache_dir_still_seeds_handler_without_migration() :void {
+		$con = $this->requireController();
+		$legacyBaseDir = $this->createRuntimeTrackedTempDir( 'shield-cache-legacy-base-' );
+
+		$con->opts
+			->optSet( 'preferred_temp_dir', '' )
+			->optSet( 'last_known_cache_basedirs', [
+				'https://legacy.example/' => $legacyBaseDir,
+			] );
+		$con->opts->store();
+		$this->resetCacheDirHandlerState();
+
+		$this->assertSame(
+			\wp_normalize_path( \path_join( $legacyBaseDir, (string)$con->cfg->paths[ 'cache' ] ) ),
+			$con->cache_dir_handler->dir()
+		);
+		$this->assertSame( [
+			'https://legacy.example/' => $legacyBaseDir,
+		], $con->opts->optGet( 'last_known_cache_basedirs' ) );
 	}
 
 	private function resetCacheDirHandlerState() :void {

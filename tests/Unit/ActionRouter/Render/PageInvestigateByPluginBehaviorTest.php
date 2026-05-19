@@ -255,6 +255,7 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertCount( 1, $actions );
 		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] ?? '' );
 		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 0 ][ 'processing_text' ] ?? '' );
 
 		$actionData = $this->decodeJsonAttr( (string)( $actions[ 0 ][ 'ajax_action_json' ] ?? '' ) );
 		$this->assertSame( 'plugin_reinstall', $actionData[ 'ex' ] ?? '' );

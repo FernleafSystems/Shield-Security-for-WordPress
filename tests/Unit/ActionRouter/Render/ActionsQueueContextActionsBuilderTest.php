@@ -107,6 +107,7 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'ajax', $actions[ 1 ][ 'kind' ] ?? '' );
 		$this->assertSame( 'update', $actions[ 1 ][ 'type' ] ?? '' );
 		$this->assertSame( 'reinstall-json', $actions[ 1 ][ 'ajax_action_json' ] ?? '' );
+		$this->assertSame( 'Processing reinstall', $actions[ 1 ][ 'processing_text' ] ?? '' );
 		$this->assertNotEmpty( $actions[ 1 ][ 'label' ] ?? '' );
 	}
 
@@ -248,6 +249,7 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 							'icon_class'       => 'bi bi-arrow-clockwise',
 							'ajax_action_json' => 'reinstall-json',
 							'confirm_text'     => 'Confirm reinstall',
+							'processing_text'  => 'Processing reinstall',
 						],
 					]
 					: [];
