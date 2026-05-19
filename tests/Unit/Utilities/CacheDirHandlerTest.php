@@ -112,7 +112,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$uploadsRoot = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads/shield' );
 		$this->mkdir( $cacheRoot.'/ptguard-cccccccccccccccc' );
 		$this->mkdir( $uploadsRoot.'/ptguard-bbbbbbbbbbbbbbbb' );
-		\file_put_contents( $uploadsRoot.'/ptguard-active.txt', 'ptguard-bbbbbbbbbbbbbbbb' );
+		\file_put_contents( $uploadsRoot.'/.ptguard-active.txt', 'ptguard-bbbbbbbbbbbbbbbb' );
 		\touch( $cacheRoot.'/ptguard-cccccccccccccccc', 1700000100 );
 		\touch( $uploadsRoot.'/ptguard-bbbbbbbbbbbbbbbb', 1700000000 );
 
@@ -130,7 +130,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		\touch( $uploadsRoot.'/ptguard-dddddddddddddddd', 1700000100 );
 
 		$this->assertSame( $uploadsRoot, ( new CacheDirHandler() )->locateExistingDir() );
-		$this->assertFileDoesNotExist( $uploadsRoot.'/ptguard-active.txt' );
+		$this->assertFileDoesNotExist( $uploadsRoot.'/.ptguard-active.txt' );
 		$this->assertFileDoesNotExist( $uploadsRoot.'/README.txt' );
 	}
 
@@ -201,7 +201,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$uploadsRoot = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads/shield' );
 		$activeDir = $uploadsRoot.'/ptguard-bbbbbbbbbbbbbbbb';
 		$this->mkdir( $activeDir );
-		\file_put_contents( $uploadsRoot.'/ptguard-active.txt', 'ptguard-bbbbbbbbbbbbbbbb' );
+		\file_put_contents( $uploadsRoot.'/.ptguard-active.txt', 'ptguard-bbbbbbbbbbbbbbbb' );
 
 		$this->assertSame( $uploadsRoot, ( new CacheDirHandler() )->dir() );
 	}
