@@ -130,7 +130,7 @@ class ModConCacheDirHandlerTest extends BaseUnitTest {
 	public function test_existing_snapshot_root_is_selected_without_persisting_on_build() :void {
 		$activeRoot = $this->baseUploads().'/shield';
 		$this->mkdir( $activeRoot.'/ptguard-eeeeeeeeeeeeeeee' );
-		\file_put_contents( $activeRoot.'/ptguard-active.txt', 'ptguard-eeeeeeeeeeeeeeee' );
+		\file_put_contents( $activeRoot.'/.ptguard-active.txt', 'ptguard-eeeeeeeeeeeeeeee' );
 		$options = new CacheStoreTestOptions( [
 			'preferred_temp_dir'       => '',
 			'last_known_cache_basedirs' => [],

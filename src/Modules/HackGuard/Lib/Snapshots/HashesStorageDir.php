@@ -9,7 +9,7 @@ class HashesStorageDir {
 
 	use PluginControllerConsumer;
 
-	public const ACTIVE_MARKER = 'ptguard-active.txt';
+	public const ACTIVE_MARKER = '.ptguard-active.txt';
 
 	public const SUFFIX_LENGTH = 16;
 
