@@ -4,6 +4,7 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
 use FernleafSystems\ShieldPlatform\Tooling\Process\BashCommandResolver;
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
+use Symfony\Component\Filesystem\Path;
 
 class LocalIntegrationTestLane {
 
@@ -16,6 +17,9 @@ class LocalIntegrationTestLane {
 	private const DB_HOST = '127.0.0.1:3311';
 	private const WP_VERSION = 'latest';
 	private const SKIP_DB_CREATE = true;
+	private const LOCK_DIR_NAME = 'shield-test-locks';
+	private const LOCK_FILE = 'integration-local.lock';
+	private const DEFAULT_WAIT_SECONDS = 600;
 
 	private ProcessRunner $processRunner;
 
@@ -25,12 +29,15 @@ class LocalIntegrationTestLane {
 
 	private LocalWpTestsInstallerCommandBuilder $installerCommandBuilder;
 
+	private ?string $lockDir;
+
 	public function __construct(
 		?ProcessRunner $processRunner = null,
 		?TestingEnvironmentResolver $environmentResolver = null,
 		?DockerComposeExecutor $dockerComposeExecutor = null,
 		?BashCommandResolver $bashCommandResolver = null,
-		?LocalWpTestsInstallerCommandBuilder $installerCommandBuilder = null
+		?LocalWpTestsInstallerCommandBuilder $installerCommandBuilder = null,
+		?string $lockDir = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$resolvedBashCommandResolver = $bashCommandResolver ?? new BashCommandResolver();
@@ -42,6 +49,7 @@ class LocalIntegrationTestLane {
 		$this->installerCommandBuilder = $installerCommandBuilder ?? new LocalWpTestsInstallerCommandBuilder(
 			$resolvedBashCommandResolver
 		);
+		$this->lockDir = $lockDir;
 	}
 
 	/**
@@ -50,6 +58,15 @@ class LocalIntegrationTestLane {
 	public function run( string $rootDir, bool $dbDown = false, array $phpunitArgs = [], bool $showDockerOutput = false ) :int {
 		echo 'Mode: integration-local'.\PHP_EOL;
 
+		return $this->withLaneLock( $rootDir, function () use ( $rootDir, $dbDown, $phpunitArgs, $showDockerOutput ) :int {
+			return $this->runWithLock( $rootDir, $dbDown, $phpunitArgs, $showDockerOutput );
+		} );
+	}
+
+	/**
+	 * @param string[] $phpunitArgs
+	 */
+	private function runWithLock( string $rootDir, bool $dbDown, array $phpunitArgs, bool $showDockerOutput ) :int {
 		$this->environmentResolver->assertDockerReady( $rootDir );
 		$composeFiles = $this->buildComposeFiles();
 		$envOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
@@ -94,6 +111,104 @@ class LocalIntegrationTestLane {
 			null,
 			$phpUnitEnvOverrides
 		);
+	}
+
+	/**
+	 * @param callable():int $callback
+	 */
+	private function withLaneLock( string $rootDir, callable $callback ) :int {
+		$waitSeconds = $this->waitSeconds();
+		$lockDir = $this->resolveLockDir();
+		if ( !\is_dir( $lockDir ) && !@\mkdir( $lockDir, 0777, true ) && !\is_dir( $lockDir ) ) {
+			throw new \RuntimeException( 'Failed to create integration lane lock directory: '.$lockDir );
+		}
+
+		$lockPath = Path::join( $lockDir, self::LOCK_FILE );
+		$handle = \fopen( $lockPath, 'c+' );
+		if ( $handle === false ) {
+			throw new \RuntimeException( 'Failed to open integration lane lock file: '.$lockPath );
+		}
+
+		$startedAt = \time();
+		$reportedWaiting = false;
+		try {
+			do {
+				if ( \flock( $handle, \LOCK_EX | \LOCK_NB ) ) {
+					$this->writeLeaseMetadata( $handle, $rootDir );
+					echo 'Integration lane: acquired lock'.\PHP_EOL;
+					return $callback();
+				}
+				if ( !$reportedWaiting ) {
+					echo 'Integration lane: waiting for lock'.\PHP_EOL;
+					$reportedWaiting = true;
+				}
+				\usleep( 500000 );
+			} while ( \time() - $startedAt < $waitSeconds );
+
+			throw new \RuntimeException(
+				'No integration-local test lane became available within '.$waitSeconds.' seconds. '
+				.'Lock: '.$lockPath.'. '
+				.'Metadata: '.$this->readLockMetadata( $handle )
+			);
+		}
+		finally {
+			if ( \is_resource( $handle ) ) {
+				@\flock( $handle, \LOCK_UN );
+				@\fclose( $handle );
+			}
+		}
+	}
+
+	private function resolveLockDir() :string {
+		if ( $this->lockDir !== null ) {
+			return $this->lockDir;
+		}
+
+		return Path::join( \rtrim( \sys_get_temp_dir(), "\\/" ), self::LOCK_DIR_NAME );
+	}
+
+	private function waitSeconds() :int {
+		$value = \getenv( 'SHIELD_INTEGRATION_LANE_WAIT_SECONDS' );
+		if ( $value === false || $value === '' ) {
+			return self::DEFAULT_WAIT_SECONDS;
+		}
+		if ( !\ctype_digit( $value ) || (int)$value < 1 ) {
+			throw new \InvalidArgumentException( 'SHIELD_INTEGRATION_LANE_WAIT_SECONDS must be a positive integer.' );
+		}
+
+		return (int)$value;
+	}
+
+	/**
+	 * @param resource $handle
+	 */
+	private function writeLeaseMetadata( $handle, string $rootDir ) :void {
+		\rewind( $handle );
+		\ftruncate( $handle, 0 );
+		\fwrite( $handle, \json_encode( [
+			'resource' => 'integration-local',
+			'compose_project' => self::COMPOSE_PROJECT_NAME,
+			'db_name' => self::DB_NAME,
+			'db_host' => self::DB_HOST,
+			'pid' => \getmypid(),
+			'cwd' => (string)\getcwd(),
+			'root_dir' => $rootDir,
+			'acquired_at_unix' => \time(),
+		], \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES ).\PHP_EOL );
+		\fflush( $handle );
+	}
+
+	/**
+	 * @param resource $handle
+	 */
+	private function readLockMetadata( $handle ) :string {
+		\rewind( $handle );
+		$metadata = @\stream_get_contents( $handle );
+		if ( $metadata === false || \trim( $metadata ) === '' ) {
+			return 'unavailable';
+		}
+
+		return \trim( $metadata );
 	}
 
 	/**

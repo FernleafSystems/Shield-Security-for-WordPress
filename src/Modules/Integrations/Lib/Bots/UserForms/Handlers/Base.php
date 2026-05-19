@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\UserForms\Handlers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\CoolDownHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseBotDetectionController;
 
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Common\BaseHandler {
 
@@ -29,7 +30,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Int
 	}
 
 	public function isEnabled() :bool {
-		return parent::isEnabled() && self::con()->caps->canThirdPartyScanUsers();
+		return parent::isEnabled() && ( !$this->isProOnly() || self::con()->caps->canThirdPartyScanUsers() );
 	}
 
 	protected function login() {
@@ -52,7 +53,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Modules\Int
 		return empty( $this->auditUser ) ? 'unknown' : $this->auditUser;
 	}
 
-	public function getHandlerController() {
+	public function getHandlerController() :BaseBotDetectionController {
 		return self::con()->comps->forms_users;
 	}
 

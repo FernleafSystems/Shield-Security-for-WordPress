@@ -199,21 +199,40 @@ class RuntimeTestState {
 			return;
 		}
 
-		$optionKey = self::controller()->prefix( 'opts_all', '_' );
+		$con = self::controller();
+		$optionKey = $con->prefix( 'opts_all', '_' );
 		$stored = \get_option( $optionKey, [] );
 		$stored = \is_array( $stored ) ? $stored : [];
 		$stored = \array_merge( [
 			'values' => [
-				'free' => [],
-				'pro'  => [],
+				OptsHandler::TYPE_FREE => [],
+				OptsHandler::TYPE_PRO  => [],
 			],
 		], $stored );
-		$stored[ 'values' ][ 'free' ] = \is_array( $stored[ 'values' ][ 'free' ] ?? null )
-			? $stored[ 'values' ][ 'free' ]
+		$stored[ 'values' ][ OptsHandler::TYPE_FREE ] = \is_array( $stored[ 'values' ][ OptsHandler::TYPE_FREE ] ?? null )
+			? $stored[ 'values' ][ OptsHandler::TYPE_FREE ]
+			: [];
+		$stored[ 'values' ][ OptsHandler::TYPE_PRO ] = \is_array( $stored[ 'values' ][ OptsHandler::TYPE_PRO ] ?? null )
+			? $stored[ 'values' ][ OptsHandler::TYPE_PRO ]
 			: [];
 
 		foreach ( $updates as $key => $value ) {
-			$stored[ 'values' ][ 'free' ][ (string)$key ] = $value;
+			$key = (string)$key;
+			$optionDef = $con->cfg->configuration->options[ $key ] ?? [];
+			if ( ( $optionDef[ 'premium' ] ?? false ) === true ) {
+				$default = $optionDef[ 'default' ] ?? null;
+				$stored[ 'values' ][ OptsHandler::TYPE_FREE ][ $key ] = $default;
+				if ( \serialize( $value ) === \serialize( $default ) ) {
+					unset( $stored[ 'values' ][ OptsHandler::TYPE_PRO ][ $key ] );
+				}
+				else {
+					$stored[ 'values' ][ OptsHandler::TYPE_PRO ][ $key ] = $value;
+				}
+				continue;
+			}
+
+			$stored[ 'values' ][ OptsHandler::TYPE_FREE ][ $key ] = $value;
+			unset( $stored[ 'values' ][ OptsHandler::TYPE_PRO ][ $key ] );
 		}
 
 		\update_option( $optionKey, $stored, false );
@@ -238,6 +257,20 @@ class RuntimeTestState {
 		}
 
 		unset( $opts->mod_opts_all, $opts->mod_opts_free, $opts->mod_opts_pro );
+	}
+
+	public static function resetMfaProviderCache() :void {
+		$mfa = self::controller()->comps->mfa ?? null;
+		if ( !\is_object( $mfa ) ) {
+			return;
+		}
+
+		$reflection = new \ReflectionClass( $mfa );
+		if ( $reflection->hasProperty( 'providers' ) ) {
+			$property = $reflection->getProperty( 'providers' );
+			$property->setAccessible( true );
+			$property->setValue( $mfa, [] );
+		}
 	}
 
 	public static function resetRequestLoggerState() :void {

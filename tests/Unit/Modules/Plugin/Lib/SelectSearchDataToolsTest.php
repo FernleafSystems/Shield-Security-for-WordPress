@@ -51,13 +51,18 @@ class SelectSearchDataToolsTest extends BaseUnitTest {
 			$definitionsById[ $definition[ 'id' ] ] = $definition;
 		}
 
-		foreach ( [ 'tool_guidedsetup', 'tool_reports' ] as $toolId ) {
+		$this->assertSame( \array_keys( $definitionsById ), \array_keys( $childrenById ) );
+
+		foreach ( $definitionsById as $toolId => $definition ) {
 			$this->assertArrayHasKey( $toolId, $definitionsById );
 			$this->assertArrayHasKey( $toolId, $childrenById );
 			$this->assertSame(
-				$pluginUrls->adminTopNav( $definitionsById[ $toolId ][ 'nav' ], $definitionsById[ $toolId ][ 'subnav' ] ),
+				$pluginUrls->adminTopNav( $definition[ 'nav' ], $definition[ 'subnav' ] ),
 				$childrenById[ $toolId ][ 'link' ][ 'href' ] ?? ''
 			);
+			$this->assertSame( (string)$definition[ 'search_tokens' ], $childrenById[ $toolId ][ 'tokens' ] ?? '' );
+			$this->assertSame( 'icon-'.$definition[ 'icon' ].'.svg', $childrenById[ $toolId ][ 'icon' ] ?? '' );
+			$this->assertNotSame( '', \trim( (string)( $childrenById[ $toolId ][ 'text' ] ?? '' ) ) );
 		}
 	}
 

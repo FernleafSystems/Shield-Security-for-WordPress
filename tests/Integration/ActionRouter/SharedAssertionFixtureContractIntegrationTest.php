@@ -6,10 +6,58 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Handler as IpRulesHa
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpAnalysisActivityMetaFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpRulesTableFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityHeadersFixtureBuilder;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
+	BrowserFixtureRegistry,
+	RuntimeTestState
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class SharedAssertionFixtureContractIntegrationTest extends ShieldIntegrationTestCase {
+
+	public function test_ip_analysis_fixture_registry_dispatches_inspection() :void {
+		$this->ensureDefaultAdminUser();
+		$seeded = false;
+
+		try {
+			$contract = BrowserFixtureRegistry::run( 'ip-analysis-activity-meta', 'seed' );
+			$seeded = true;
+			$inspection = BrowserFixtureRegistry::run( 'ip-analysis-activity-meta', 'inspect' );
+
+			$this->assertSame( [
+				'exists'  => true,
+				'rid'     => $contract[ 'rid' ],
+				'ip'      => $contract[ 'ip' ],
+				'path'    => '/fixture/ip-analysis-meta',
+				'verb'    => 'POST',
+				'code'    => 418,
+				'offense' => false,
+				'meta'    => [
+					'ts' => '1710000000',
+					'ua' => 'IP Analysis Browser Fixture/1.0',
+				],
+			], \array_diff_key( $inspection[ 'request_log' ], [ 'id' => true ] ) );
+			$this->assertGreaterThan( 0, $inspection[ 'request_log' ][ 'id' ] );
+			$this->assertSame( [
+				'exists'      => true,
+				'event_slug'  => 'user_login',
+				'request_rid' => $contract[ 'rid' ],
+			], \array_intersect_key( $inspection[ 'activity_event' ], [
+				'exists'      => true,
+				'event_slug'  => true,
+				'request_rid' => true,
+			] ) );
+			$this->assertGreaterThan( 0, $inspection[ 'activity_event' ][ 'id' ] );
+			$this->assertSame(
+				$inspection[ 'request_log' ][ 'id' ],
+				$inspection[ 'activity_event' ][ 'req_ref' ]
+			);
+		}
+		finally {
+			if ( $seeded ) {
+				BrowserFixtureRegistry::run( 'ip-analysis-activity-meta', 'cleanup' );
+			}
+		}
+	}
 
 	public function test_ip_analysis_fixture_inspection_uses_normalized_contract() :void {
 		$this->ensureDefaultAdminUser();
@@ -77,6 +125,45 @@ class SharedAssertionFixtureContractIntegrationTest extends ShieldIntegrationTes
 		}
 	}
 
+	/**
+	 * @dataProvider noScenarioInspectableFixtureProvider
+	 * @param list<string> $seedArgs
+	 */
+	public function test_no_scenario_inspectable_fixtures_dispatch_through_registry(
+		string $fixture,
+		array $seedArgs,
+		string $assertionMethod
+	) :void {
+		$this->ensureDefaultAdminUser();
+		$seeded = false;
+
+		try {
+			$contract = BrowserFixtureRegistry::run( $fixture, 'seed', $seedArgs );
+			$seeded = true;
+			$inspection = BrowserFixtureRegistry::run( $fixture, 'inspect' );
+
+			$this->{$assertionMethod}( $contract, $inspection );
+		}
+		finally {
+			if ( $seeded ) {
+				BrowserFixtureRegistry::run( $fixture, 'cleanup' );
+			}
+		}
+	}
+
+	/**
+	 * @return array<string,array{string,list<string>,string}>
+	 */
+	public function noScenarioInspectableFixtureProvider() :array {
+		return [
+			'dashboard-defaults'         => [ 'dashboard-defaults', [], 'assertDashboardDefaultsRegistryInspection' ],
+			'ip-analysis-activity-meta' => [ 'ip-analysis-activity-meta', [], 'assertIpAnalysisRegistryInspection' ],
+			'ip-rules-table'            => [ 'ip-rules-table', [], 'assertIpRulesRegistryInspection' ],
+			'mfa-profile'               => [ 'mfa-profile', [], 'assertMfaProfileRegistryInspection' ],
+			'notbot-altcha'             => [ 'notbot-altcha', [ '203.0.113.188' ], 'assertNotBotAltchaRegistryInspection' ],
+		];
+	}
+
 	public function test_ip_rules_fixture_inspection_uses_normalized_contract() :void {
 		$builder = new IpRulesTableFixtureBuilder();
 		$result = $builder->seed();
@@ -139,6 +226,48 @@ class SharedAssertionFixtureContractIntegrationTest extends ShieldIntegrationTes
 		}
 
 		$this->assertSame( $before, RuntimeTestState::snapshotOptions( $optionKeys ) );
+	}
+
+	private function assertDashboardDefaultsRegistryInspection( array $contract, array $inspection ) :void {
+		$this->assertTrue( $inspection[ 'fixture_state_present' ] );
+		$this->assertSame( $contract[ 'original_options' ], $inspection[ 'original_options' ] );
+		$this->assertSame( $contract[ 'mutated_options' ], $inspection[ 'current_options' ] );
+		$this->assertSame( \array_keys( $inspection[ 'options' ] ), $inspection[ 'option_keys' ] );
+		$this->assertArrayHasKey( 'action_slugs', $inspection );
+	}
+
+	private function assertIpAnalysisRegistryInspection( array $contract, array $inspection ) :void {
+		$this->assertTrue( $inspection[ 'request_log' ][ 'exists' ] );
+		$this->assertSame( $contract[ 'rid' ], $inspection[ 'request_log' ][ 'rid' ] );
+		$this->assertSame( $contract[ 'ip' ], $inspection[ 'request_log' ][ 'ip' ] );
+		$this->assertSame( $contract[ 'rid' ], $inspection[ 'activity_event' ][ 'request_rid' ] );
+		$this->assertGreaterThan( 0, $inspection[ 'request_log' ][ 'id' ] );
+		$this->assertGreaterThan( 0, $inspection[ 'activity_event' ][ 'id' ] );
+	}
+
+	private function assertIpRulesRegistryInspection( array $contract, array $inspection ) :void {
+		$this->assertSame( $contract[ 'ip' ], $inspection[ 'ip' ] );
+		$this->assertCount( 1, $inspection[ 'rules' ] );
+		$this->assertTrue( $inspection[ 'rules' ][ 0 ][ 'exists' ] );
+		$this->assertSame( $contract[ 'rule_id' ], $inspection[ 'rules' ][ 0 ][ 'id' ] );
+		$this->assertSame( $contract[ 'ip' ], $inspection[ 'rules' ][ 0 ][ 'ip' ] );
+	}
+
+	private function assertMfaProfileRegistryInspection( array $contract, array $inspection ) :void {
+		$this->assertSame( $contract[ 'user_id' ], $inspection[ 'user_id' ] );
+		$this->assertGreaterThan( 0, $inspection[ 'target_user_id' ] );
+		$this->assertSame(
+			$contract[ 'ga_provider_slug' ],
+			$inspection[ 'google_auth' ][ 'provider_slug' ]
+		);
+		$this->assertIsArray( $inspection[ 'user_record_counts' ] );
+		$this->assertIsArray( $inspection[ 'target_record_counts' ] );
+	}
+
+	private function assertNotBotAltchaRegistryInspection( array $contract, array $inspection ) :void {
+		$this->assertSame( $contract[ 'ip' ], $inspection[ 'ip' ] );
+		$this->assertIsInt( $inspection[ 'notbot_at' ] );
+		$this->assertIsInt( $inspection[ 'altcha_at' ] );
 	}
 
 	private function ensureDefaultAdminUser() :void {

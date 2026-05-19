@@ -35,8 +35,12 @@ class BaseAction {
 	/**
 	 * @throws \Exception
 	 */
-	protected function getNewStore() :Snapshots\Store {
+	protected function getNewStore( bool $createWorkingDir = true ) :Snapshots\Store {
+		$workingDir = ( new Snapshots\HashesStorageDir() )->getTempDir( $createWorkingDir );
+		if ( empty( $workingDir ) ) {
+			throw new \Exception( __( 'Snapshot store directory is unavailable.', 'wp-simple-firewall' ) );
+		}
 		return ( new Snapshots\Store( $this->getAsset(), true ) )
-			->setWorkingDir( ( new Snapshots\HashesStorageDir() )->getTempDir() );
+			->setWorkingDir( $workingDir );
 	}
 }

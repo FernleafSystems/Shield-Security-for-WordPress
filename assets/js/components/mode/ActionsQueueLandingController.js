@@ -5,6 +5,7 @@ import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
 import { ShieldTableBase } from "../tables/ShieldTableBase";
 import { announceStatus } from "../ui/ShieldA11y";
+import { openOperatorContextProcessingDialog } from "./DrillDownShared";
 
 export class ActionsQueueLandingController extends DrillDownAsyncControllerBase {
 
@@ -556,6 +557,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		}
 
 		const busyTable = this.getCurrentDirectTable();
+		const processingDialog = openOperatorContextProcessingDialog( target );
 		this.setDirectTableBusy( busyTable, true );
 
 		( new AjaxService() )
@@ -563,6 +565,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			.then( ( resp ) => {
 				if ( !resp?.success ) {
 					this.setDirectTableBusy( busyTable, false );
+					processingDialog?.close();
 					return null;
 				}
 				if ( resp?.data?.page_reload ) {
@@ -573,6 +576,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 				return this.refreshAfterNestedAction( reloadDetail ).then( ( refreshResult ) => {
 					if ( refreshResult === null ) {
 						this.setDirectTableBusy( busyTable, false );
+						processingDialog?.close();
 						return refreshResult;
 					}
 
@@ -580,11 +584,13 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 						this.setDirectTableBusy( busyTable, false );
 					}
 
+					processingDialog?.close();
 					return refreshResult;
 				} );
 			} )
 			.catch( () => {
 				this.setDirectTableBusy( busyTable, false );
+				processingDialog?.close();
 				return null;
 			} );
 	}

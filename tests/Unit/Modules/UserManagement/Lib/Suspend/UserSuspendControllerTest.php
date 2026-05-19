@@ -99,6 +99,109 @@ class UserSuspendControllerTest extends BaseUnitTest {
 		$this->assertCount( 3, $userMeta->selectors );
 		$this->assertSame( [ [ 'pass', 1699999100 ] ], $userMeta->selectors[ 2 ]->filterCalls );
 	}
+
+	public function test_suspend_option_gates_require_their_owned_options() :void {
+		$this->installControllerWithOptions( [
+			'manual_suspend'  => 'Y',
+			'auto_idle_days'  => 7,
+			'auto_idle_roles' => [ 'subscriber' ],
+			'auto_password'   => 'Y',
+		], true, 900 );
+
+		$enabled = new UserSuspendController();
+		$this->assertTrue( $enabled->isSuspendManualEnabled() );
+		$this->assertTrue( $enabled->isSuspendAutoIdleEnabled() );
+		$this->assertTrue( $enabled->isSuspendAutoPasswordEnabled() );
+
+		$this->installControllerWithOptions( [
+			'manual_suspend'  => 'N',
+			'auto_idle_days'  => 0,
+			'auto_idle_roles' => [ 'subscriber' ],
+			'auto_password'   => 'Y',
+		], true, 900 );
+
+		$disabledIdle = new UserSuspendController();
+		$this->assertFalse( $disabledIdle->isSuspendManualEnabled() );
+		$this->assertFalse( $disabledIdle->isSuspendAutoIdleEnabled() );
+
+		$this->installControllerWithOptions( [
+			'manual_suspend'  => 'Y',
+			'auto_idle_days'  => 7,
+			'auto_idle_roles' => [],
+			'auto_password'   => 'Y',
+		], true, 900 );
+
+		$this->assertFalse( ( new UserSuspendController() )->isSuspendAutoIdleEnabled() );
+
+		$this->installControllerWithOptions( [
+			'manual_suspend'  => 'Y',
+			'auto_idle_days'  => 7,
+			'auto_idle_roles' => [ 'subscriber' ],
+			'auto_password'   => 'N',
+		], true, 900 );
+
+		$this->assertFalse( ( new UserSuspendController() )->isSuspendAutoPasswordEnabled() );
+
+		$this->installControllerWithOptions( [
+			'manual_suspend'  => 'Y',
+			'auto_idle_days'  => 7,
+			'auto_idle_roles' => [ 'subscriber' ],
+			'auto_password'   => 'Y',
+		], false, 900 );
+
+		$this->assertFalse( ( new UserSuspendController() )->isSuspendAutoPasswordEnabled() );
+
+		$this->installControllerWithOptions( [
+			'manual_suspend'  => 'Y',
+			'auto_idle_days'  => 7,
+			'auto_idle_roles' => [ 'subscriber' ],
+			'auto_password'   => 'Y',
+		], true, 0 );
+
+		$this->assertFalse( ( new UserSuspendController() )->isSuspendAutoPasswordEnabled() );
+	}
+
+	private function installControllerWithOptions( array $options, bool $passPoliciesEnabled, int $passExpireTimeout ) :void {
+		/** @var Controller $controller */
+		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->opts = new class( $options ) {
+			private array $options;
+
+			public function __construct( array $options ) {
+				$this->options = $options;
+			}
+
+			public function optGet( string $key ) {
+				return $this->options[ $key ] ?? null;
+			}
+
+			public function optIs( string $key, $value ) :bool {
+				return $this->optGet( $key ) == $value;
+			}
+		};
+		$controller->comps = (object)[
+			'opts_lookup' => new class( $passPoliciesEnabled, $passExpireTimeout ) {
+				private bool $passPoliciesEnabled;
+
+				private int $passExpireTimeout;
+
+				public function __construct( bool $passPoliciesEnabled, int $passExpireTimeout ) {
+					$this->passPoliciesEnabled = $passPoliciesEnabled;
+					$this->passExpireTimeout = $passExpireTimeout;
+				}
+
+				public function isPassPoliciesEnabled() :bool {
+					return $this->passPoliciesEnabled;
+				}
+
+				public function getPassExpireTimeout() :int {
+					return $this->passExpireTimeout;
+				}
+			},
+		];
+
+		PluginControllerInstaller::install( $controller );
+	}
 }
 
 class UserSuspendControllerForTest extends UserSuspendController {

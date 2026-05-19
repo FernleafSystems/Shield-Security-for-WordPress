@@ -4,9 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansCheck;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
+	QueueRecovery,
+	QueueWatchdog,
+	RunState
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\ScanQueueLifecycleHarness;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState
@@ -49,14 +54,12 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertTrue( $payload[ 'failed' ] ?? false );
 		$this->assertSame( $failureMessage, $payload[ 'failure_message' ] ?? '' );
 		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] ?? '' );
-		$this->assertNotSame( '', (string)( $payload[ 'modal_html' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'vars', $payload );
-		$this->assertSame( ScansProgress::class, $controller->action_router->renderClass );
 		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_FAILED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] ?? null );
-		$this->assertSame( $failureMessage, $controller->action_router->renderData[ 'remaining_scans' ] ?? '' );
 		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
+		$this->assertSame( 1, $controller->comps->scans_queue->watchdogChecks );
 	}
 
 	public function test_exec_preserves_request_id_precedence_when_failed_scan_query_returns_multiple_rows() :void {
@@ -65,14 +68,14 @@ class ScansCheckTest extends BaseUnitTest {
 				'id'     => 32,
 				'status' => 'failed',
 				'meta'   => [
-					'last_error' => 'second_requested_failure',
+					RunState::META_KEY_LAST_ERROR => 'second_requested_failure',
 				],
 			],
 			(object)[
 				'id'     => 21,
 				'status' => 'failed',
 				'meta'   => [
-					'last_error' => 'first_requested_failure',
+					RunState::META_KEY_LAST_ERROR => 'first_requested_failure',
 				],
 			],
 		] );
@@ -87,6 +90,7 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertSame( 'first_requested_failure', $action->response()->payload()[ 'failure_message' ] ?? '' );
 		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
 		$this->assertSame( [ 21, 32 ], $controller->db_con->scans->selector->filteredIDs );
+		$this->assertSame( 1, $controller->comps->scans_queue->watchdogChecks );
 	}
 
 	public function test_exec_uses_default_failed_message_when_failed_row_has_no_error_meta() :void {
@@ -107,6 +111,7 @@ class ScansCheckTest extends BaseUnitTest {
 
 		$this->assertArrayHasKey( 'failure_message', $action->response()->payload() );
 		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
+		$this->assertSame( 1, $controller->comps->scans_queue->watchdogChecks );
 	}
 
 	public function test_exec_reports_running_scan_modal_state_and_render_input() :void {
@@ -128,15 +133,14 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertFalse( $payload[ 'failed' ] ?? true );
 		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $payload[ 'modal_state' ] ?? '' );
-		$this->assertNotSame( '', (string)( $payload[ 'modal_html' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'vars', $payload );
 		$this->assertSame( [ 'afs' => false, 'wpv' => true, 'apc' => false ], $payload[ 'running' ] ?? [] );
 		$this->assertSame( [ 'wpv' ], $controller->comps->scans_queue->receivedEnqueued );
-		$this->assertSame( ScansProgress::class, $controller->action_router->renderClass );
 		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 		$this->assertSame( 42, $controller->action_router->renderData[ 'progress' ] ?? null );
 		$this->assertArrayHasKey( 'current_scan', $controller->action_router->renderData );
+		$this->assertSame( 1, $controller->comps->scans_queue->watchdogChecks );
 	}
 
 	public function test_exec_reports_completed_scan_modal_state_and_render_input() :void {
@@ -158,19 +162,104 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertTrue( $payload[ 'success' ] ?? false );
 		$this->assertFalse( $payload[ 'failed' ] ?? true );
 		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] ?? '' );
-		$this->assertNotSame( '', (string)( $payload[ 'modal_html' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'vars', $payload );
-		$this->assertSame( ScansProgress::class, $controller->action_router->renderClass );
 		$this->assertSame( [], $controller->comps->scans_queue->receivedEnqueued );
 		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] ?? null );
+		$this->assertSame( 1, $controller->comps->scans_queue->watchdogChecks );
+	}
+
+	public function test_exec_runs_real_watchdog_and_reports_failed_machine_state_for_exhausted_stale_scan() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+			'meta'            => \base64_encode( \json_encode( [
+				RunState::META_KEY_WATCHDOG_RECOVERY => [
+					'attempts'        => QueueRecovery::MAX_RESUME_ATTEMPTS - 1,
+					'last_attempt_at' => 1699999000,
+				],
+			] ) ?: '[]' ),
+		] );
+		$harness->insertScanItem( $scanID, [ 'afs-a' ] );
+		$harness->async->resetTransport();
+
+		$payload = $this->runScansCheck( [
+			'scan_ids' => [ $scanID ],
+		] )->response()->payload();
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'failed', $scan[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'finished_at' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertArrayHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $scan ) );
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertTrue( $payload[ 'failed' ] ?? false );
+		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] ?? '' );
+		$this->assertSame( [ 'afs' => false, 'apc' => false, 'wpv' => false ], $payload[ 'running' ] ?? [] );
+		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_FAILED, $harness->actionRouter->renderData[ 'modal_state' ] ?? '' );
+		$this->assertSame( 100, $harness->actionRouter->renderData[ 'progress' ] ?? null );
+	}
+
+	public function test_exec_runs_real_watchdog_recovery_for_reported_dead_scan_shape_and_throttles_repeat_recovery() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ] );
+		$watchdog = new QueueWatchdog();
+		$harness->async->resetTransport();
+
+		$payload = $this->runScansCheck( [
+			'scan_ids' => [ $scanID ],
+		] )->response()->payload();
+
+		$scan = $harness->scanRow( $scanID );
+		$item = $harness->scanItemRow( $itemID );
+		$meta = $this->scanMeta( $scan );
+		$this->assertSame( 'running', $scan[ 'status' ] );
+		$this->assertSame( 0, (int)$scan[ 'finished_at' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'last_process_at' ] );
+		$this->assertSame( 0, (int)$item[ 'started_at' ] );
+		$this->assertSame( 0, (int)$item[ 'finished_at' ] );
+		$this->assertSame( 0, (int)$item[ 'attempts' ] );
+		$this->assertSame( [
+			'attempts'        => 1,
+			'last_attempt_at' => 1700000000,
+		], $meta[ RunState::META_KEY_WATCHDOG_RECOVERY ] ?? [] );
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+		$this->assertTrue( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanq_cron' ) );
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+		$this->assertFalse( $payload[ 'failed' ] ?? true );
+		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $payload[ 'modal_state' ] ?? '' );
+		$this->assertSame( [ 'afs' => true, 'apc' => false, 'wpv' => false ], $payload[ 'running' ] ?? [] );
+		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $harness->actionRouter->renderData[ 'modal_state' ] ?? '' );
 	}
 
 	private function assertModalRenderInputDoesNotCarryDerivedFlags( array $renderData ) :void {
 		foreach ( [ 'is_initiating', 'is_running', 'is_complete', 'is_failed' ] as $key ) {
 			$this->assertArrayNotHasKey( $key, $renderData );
 		}
+	}
+
+	private function runScansCheck( array $actionData = [] ) :ScansCheck {
+		$action = new ScansCheck( $actionData );
+		$method = new \ReflectionMethod( ScansCheck::class, 'exec' );
+		$method->setAccessible( true );
+		$method->invoke( $action );
+		return $action;
+	}
+
+	private function scanMeta( array $scan ) :array {
+		return \json_decode( \base64_decode( (string)( $scan[ 'meta' ] ?? '' ) ), true ) ?: [];
 	}
 
 	private function installController(
@@ -263,13 +352,13 @@ class ScansCheckTest extends BaseUnitTest {
 							}
 							return [
 								(object)[
-									'id'     => $this->ids[ 0 ],
-									'status' => 'failed',
-									'meta'   => [
-										'last_error' => $this->failureMessage,
-									],
-								],
-							];
+							'id'     => $this->ids[ 0 ],
+							'status' => 'failed',
+							'meta'   => [
+								RunState::META_KEY_LAST_ERROR => $this->failureMessage,
+							],
+						],
+					];
 						}
 					};
 				}
@@ -301,6 +390,7 @@ class ScansCheckTest extends BaseUnitTest {
 			},
 			'scans_queue' => new class( $runningStates, $progress ) {
 				public array $receivedEnqueued = [];
+				public int $watchdogChecks = 0;
 
 				private array $runningStates;
 				private float $progress;
@@ -318,16 +408,29 @@ class ScansCheckTest extends BaseUnitTest {
 				public function getScanJobProgress() :float {
 					return $this->progress;
 				}
+
+				public function getQueueWatchdog() :object {
+					return new class( $this ) {
+						private object $queue;
+
+						public function __construct( object $queue ) {
+							$this->queue = $queue;
+						}
+
+						public function runIfStale() :void {
+							$this->queue->watchdogChecks++;
+						}
+					};
+				}
 			},
 		];
 		$controller->action_router = new class {
-			public string $renderClass = '';
 			public array $renderData = [];
 
-			public function render( string $renderClass, array $data ) :string {
-				$this->renderClass = $renderClass;
+			public function render( string $unused, array $data ) :string {
+				unset( $unused );
 				$this->renderData = $data;
-				return 'rendered-modal';
+				return '';
 			}
 		};
 

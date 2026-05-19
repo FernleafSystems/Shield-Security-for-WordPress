@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -11,11 +12,12 @@ class RunState {
 	use PluginControllerConsumer;
 
 	public const META_KEY_LAST_ERROR = 'last_error';
+	public const META_KEY_WATCHDOG_RECOVERY = 'watchdog_recovery';
 
 	public function markBuilding( Record $scan ) :void {
 		$now = Services::Request()->ts();
 		$update = [
-			'status'          => 'building',
+			'status'          => ScanStatus::BUILDING,
 			'last_process_at' => $now,
 		];
 		$meta = \is_array( $scan->meta ) ? $scan->meta : [];
@@ -31,7 +33,7 @@ class RunState {
 	public function markBuilt( Record $scan ) :void {
 		$now = Services::Request()->ts();
 		$update = [
-			'status'          => 'built',
+			'status'          => ScanStatus::BUILT,
 			'ready_at'        => $now,
 			'last_process_at' => $now,
 		];
@@ -51,7 +53,7 @@ class RunState {
 		) );
 		$update = [
 			'finished_at'     => $now,
-			'status'          => 'failed',
+			'status'          => ScanStatus::FAILED,
 			'last_process_at' => $now,
 		];
 		/** @var ?Record $scan */
@@ -75,21 +77,23 @@ class RunState {
 	public function markRunning( QueueItemVO $item ) :void {
 		$now = Services::Request()->ts();
 		$update = [
-			'status'          => 'running',
+			'status'          => ScanStatus::RUNNING,
 			'last_process_at' => $now,
 		];
 		if ( $item->scan_started_at === 0 ) {
 			$update[ 'started_at' ] = $now;
 		}
 		$meta = $item->meta;
-		if ( isset( $meta[ self::META_KEY_LAST_ERROR ] ) ) {
+		if ( isset( $meta[ self::META_KEY_LAST_ERROR ] ) || isset( $meta[ self::META_KEY_WATCHDOG_RECOVERY ] ) ) {
 			unset( $meta[ self::META_KEY_LAST_ERROR ] );
+			unset( $meta[ self::META_KEY_WATCHDOG_RECOVERY ] );
 			$item->meta = $meta;
 			$scan = new Record();
 			$scan->meta = $meta;
 			$update[ 'meta' ] = $scan->getRawData()[ 'meta' ];
 		}
 		self::con()->db_con->scans->getQueryUpdater()->updateById( $item->scan_id, $update );
+		QueueHeartbeat::prime( $item->scan_id, $now );
 	}
 
 	public function markUnfinishedRunsFailed() :void {

@@ -20,7 +20,6 @@ import { BootstrapModals } from "../ui/BootstrapModals";
  * @property {string} modal_title
  * @property {string} video_title
  * @property {string} body_copy
- * @property {string} continue_label
  * @property {string} skip_label
  */
 
@@ -129,7 +128,6 @@ export class PluginOnboarding extends BaseComponent {
 		};
 
 		modal.addEventListener( 'hidden.bs.modal', startTour, { once: true } );
-		modalEls.continueButton.addEventListener( 'click', () => BootstrapModals.Hide( modal ) );
 		modalEls.skipButton.addEventListener( 'click', () => BootstrapModals.Hide( modal ) );
 		BootstrapModals.Show( modal );
 
@@ -143,7 +141,6 @@ export class PluginOnboarding extends BaseComponent {
 	 *   body: HTMLDivElement,
 	 *   footer: HTMLDivElement,
 	 *   iframe: HTMLIFrameElement,
-	 *   continueButton: HTMLButtonElement,
 	 *   skipButton: HTMLButtonElement
 	 * }}
 	 */
@@ -192,18 +189,11 @@ export class PluginOnboarding extends BaseComponent {
 		skipButton.textContent = videoModal.skip_label;
 		footer.appendChild( skipButton );
 
-		const continueButton = document.createElement( 'button' );
-		continueButton.type = 'button';
-		continueButton.className = 'btn btn-primary';
-		continueButton.textContent = videoModal.continue_label;
-		footer.appendChild( continueButton );
-
 		return {
 			header: header,
 			body: body,
 			footer: footer,
 			iframe: iframe,
-			continueButton: continueButton,
 			skipButton: skipButton
 		};
 	}

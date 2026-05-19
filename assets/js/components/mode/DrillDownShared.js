@@ -48,6 +48,20 @@ export function parseJsonAttribute( rawValue, fallback = {} ) {
 	}
 }
 
+export function openOperatorContextProcessingDialog( actionEl ) {
+	if ( !( actionEl instanceof HTMLElement ) ) {
+		return null;
+	}
+
+	const processingText = String( actionEl.dataset.operatorContextActionProcessing || '' ).trim();
+	return processingText.length > 0
+		? shieldServices.dialog().processing( {
+			message: processingText,
+			launcher: actionEl,
+		} )
+		: null;
+}
+
 export function updateOperatorRootStep( rootEl, rootStepJson ) {
 	if ( !( rootEl instanceof Element ) || typeof rootStepJson !== 'string' || rootStepJson.length < 1 ) {
 		return;

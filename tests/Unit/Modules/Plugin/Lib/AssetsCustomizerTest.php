@@ -14,7 +14,14 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions\AjaxRender,
-	Actions\Render\Components\Widgets\WpDashboardSummary
+	Actions\BlockdownDisableFormSubmit,
+	Actions\BlockdownFormSubmit,
+	Actions\LicenseClear,
+	Actions\ReportingChartTrends,
+	Actions\Render\Components\Widgets\WpDashboardSummary,
+	Actions\ScansCheck,
+	Actions\ScansStart,
+	Actions\ToolPurgeProviderIPs
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
@@ -142,7 +149,49 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertNotSame( '', $dashboardWidgetComp[ 'data' ][ 'strings' ][ 'load_failed' ] ?? '' );
 	}
 
-	private function installEnvironment( array $query = [], array $completedTours = [] ) :void {
+	public function test_scans_component_localizes_only_scan_page_ajax_actions() :void {
+		$this->installEnvironment();
+
+		$scansComp = $this->getComponentDefinition( 'scans' );
+		$scansData = \is_callable( $scansComp[ 'data' ] ?? null ) ? \call_user_func( $scansComp[ 'data' ] ) : [];
+		$ajax = \is_array( $scansData[ 'ajax' ] ?? null ) ? $scansData[ 'ajax' ] : [];
+
+		$this->assertEqualsCanonicalizing( [ 'check', 'start' ], \array_keys( $ajax ) );
+		$this->assertSame( ScansCheck::SLUG, $ajax[ 'check' ][ ActionData::FIELD_EXECUTE ] ?? null );
+		$this->assertSame( ScansStart::SLUG, $ajax[ 'start' ][ ActionData::FIELD_EXECUTE ] ?? null );
+	}
+
+	public function test_scans_component_sets_initial_check_when_scan_queue_is_running() :void {
+		$this->installEnvironment( [
+			PluginNavs::FIELD_NAV    => PluginNavs::NAV_SCANS,
+			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_SCANS_OVERVIEW,
+		], [], true );
+
+		$scansComp = $this->getComponentDefinition( 'scans' );
+		$scansData = \is_callable( $scansComp[ 'data' ] ?? null ) ? \call_user_func( $scansComp[ 'data' ] ) : [];
+
+		$this->assertTrue( $scansData[ 'flags' ][ 'initial_check' ] ?? false );
+	}
+
+	public function test_tools_and_license_components_expose_stable_action_payloads() :void {
+		$this->installEnvironment( [
+			PluginNavs::FIELD_NAV    => PluginNavs::NAV_LICENSE,
+			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_LICENSE_CHECK,
+		] );
+
+		$blockdownAjax = $this->componentAjax( 'blockdown' );
+		$debugAjax = $this->componentAjax( 'debug_tools' );
+		$licenseAjax = $this->componentAjax( 'license' );
+		$reportsTrendsAjax = $this->componentAjax( 'reports_trends' );
+
+		$this->assertSame( BlockdownFormSubmit::SLUG, $blockdownAjax[ BlockdownFormSubmit::SLUG ][ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( BlockdownDisableFormSubmit::SLUG, $blockdownAjax[ BlockdownDisableFormSubmit::SLUG ][ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( ToolPurgeProviderIPs::SLUG, $debugAjax[ ToolPurgeProviderIPs::SLUG ][ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( LicenseClear::SLUG, $licenseAjax[ 'clear' ][ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( ReportingChartTrends::SLUG, $reportsTrendsAjax[ 'render_chart' ][ ActionData::FIELD_EXECUTE ] ?? '' );
+	}
+
+	private function installEnvironment( array $query = [], array $completedTours = [], bool $hasRunningScans = false ) :void {
 		$query = \array_merge( [
 			'page'                  => 'icwp-wpsf-plugin',
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_DASHBOARD,
@@ -168,7 +217,8 @@ class AssetsCustomizerTest extends BaseUnitTest {
 				true,
 				true,
 				new AssetsCustomizerUserMetasStub( (object)[ 'tours' => $completedTours ] ),
-				self::VALID_VIDEO_URL
+				self::VALID_VIDEO_URL,
+				$hasRunningScans
 			)
 		);
 
@@ -200,6 +250,12 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$components = $method->invoke( new AssetsCustomizer() );
 		return \is_array( $components[ $key ] ?? null ) ? $components[ $key ] : [];
 	}
+
+	private function componentAjax( string $key ) :array {
+		$component = $this->getComponentDefinition( $key );
+		$data = \is_callable( $component[ 'data' ] ?? null ) ? \call_user_func( $component[ 'data' ] ) : ( $component[ 'data' ] ?? [] );
+		return \is_array( $data[ 'ajax' ] ?? null ) ? $data[ 'ajax' ] : [];
+	}
 }
 
 class AssetsCustomizerControllerStub extends Controller {
@@ -207,7 +263,13 @@ class AssetsCustomizerControllerStub extends Controller {
 	private bool $pluginAdminPage;
 	private bool $pluginAdmin;
 
-	public function __construct( bool $pluginAdminPage, bool $pluginAdmin, object $userMetas, string $dashboardVideoURL ) {
+	public function __construct(
+		bool $pluginAdminPage,
+		bool $pluginAdmin,
+		object $userMetas,
+		string $dashboardVideoURL,
+		bool $hasRunningScans = false
+	) {
 		$this->pluginAdminPage = $pluginAdminPage;
 		$this->pluginAdmin = $pluginAdmin;
 		$this->user_metas = $userMetas;
@@ -216,6 +278,24 @@ class AssetsCustomizerControllerStub extends Controller {
 				'dashboard_intro_video_url_v22' => $dashboardVideoURL,
 			] ),
 		];
+		$this->comps = (object)[
+			'scans_queue' => new class( $hasRunningScans ) {
+				private bool $hasRunningScans;
+
+				public function __construct( bool $hasRunningScans ) {
+					$this->hasRunningScans = $hasRunningScans;
+				}
+
+				public function hasRunningScans() :bool {
+					return $this->hasRunningScans;
+				}
+			},
+		];
+		$this->plugin_urls = new class {
+			public function actionsQueueScans() :string {
+				return '/wp-admin/admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview';
+			}
+		};
 	}
 
 	public function isPluginAdminPageRequest() :bool {

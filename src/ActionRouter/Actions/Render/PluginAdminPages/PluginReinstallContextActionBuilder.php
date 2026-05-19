@@ -47,6 +47,10 @@ class PluginReinstallContextActionBuilder {
 					__( 'Reinstall %s from WordPress.org?', 'wp-simple-firewall' ),
 					$name
 				),
+				'processing_text'  => \sprintf(
+					__( 'Reinstalling %s. Keep this page open until it completes.', 'wp-simple-firewall' ),
+					$name
+				),
 			],
 		];
 	}

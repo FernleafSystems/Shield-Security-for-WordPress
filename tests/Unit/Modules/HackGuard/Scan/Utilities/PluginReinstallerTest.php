@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities\PluginReinstaller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\Plugins;
@@ -50,21 +51,28 @@ class PluginReinstallerTest extends BaseUnitTest {
 			'plugin_vos' => [
 				'akismet/akismet.php' => new PluginReinstallerTestPluginVo( 'akismet/akismet.php', true ),
 				'update/plugin.php'   => new PluginReinstallerTestPluginVo( 'update/plugin.php', true ),
+				'fail/plugin.php'     => new PluginReinstallerTestPluginVo( 'fail/plugin.php', true ),
 			],
 			'updates'    => [
 				'update/plugin.php' => (object)[ 'new_version' => '2.0' ],
+			],
+			'reinstall_results' => [
+				'fail/plugin.php' => false,
 			],
 		] );
 		ServicesState::installItems( [
 			'service_wpplugins' => $plugins,
 		] );
 
-		$reinstaller = new PluginReinstallerTestSubject();
+		$cleanup = new PluginReinstallerTestCleanup();
+		$reinstaller = new PluginReinstallerTestSubject( $cleanup );
 
 		$this->assertTrue( $reinstaller->reinstall( 'akismet/akismet.php' ) );
 		$this->assertFalse( $reinstaller->reinstall( 'update/plugin.php' ) );
-		$this->assertSame( [ 'akismet/akismet.php' ], $plugins->reinstallCalls );
+		$this->assertFalse( $reinstaller->reinstall( 'fail/plugin.php' ) );
+		$this->assertSame( [ 'akismet/akismet.php', 'fail/plugin.php' ], $plugins->reinstallCalls );
 		$this->assertSame( [ 'akismet/akismet.php' ], $reinstaller->snapshotDeletes );
+		$this->assertSame( [ [ 'plugin', 'akismet/akismet.php', 0 ] ], $cleanup->runs );
 	}
 }
 
@@ -77,6 +85,15 @@ class PluginReinstallerTestSubject extends PluginReinstaller {
 	}
 }
 
+class PluginReinstallerTestCleanup extends Cleanup {
+
+	public array $runs = [];
+
+	public function run( string $assetType, string $assetKey, int $retry = 0 ) :void {
+		$this->runs[] = [ $assetType, $assetKey, $retry ];
+	}
+}
+
 class PluginReinstallerTestPluginsService extends Plugins {
 
 	public array $reinstallCalls = [];
@@ -85,8 +102,9 @@ class PluginReinstallerTestPluginsService extends Plugins {
 
 	public function __construct( array $fixture ) {
 		$this->fixture = \array_merge( [
-			'plugin_vos' => [],
-			'updates'    => [],
+			'plugin_vos'        => [],
+			'updates'           => [],
+			'reinstall_results' => [],
 		], $fixture );
 	}
 
@@ -100,7 +118,7 @@ class PluginReinstallerTestPluginsService extends Plugins {
 
 	public function reinstall( string $file, bool $useBackup = false ) :bool {
 		$this->reinstallCalls[] = $file;
-		return true;
+		return $this->fixture[ 'reinstall_results' ][ $file ] ?? true;
 	}
 }
 

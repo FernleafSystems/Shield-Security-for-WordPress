@@ -1,4 +1,4 @@
-import { AccessibleDialog, resolveAccessibleDialogConfirmLabel } from "../components/ui/AccessibleDialog";
+import { AccessibleDialog, resolveAccessibleDialogConfirmLabel, resolveAccessibleDialogLauncher } from "../components/ui/AccessibleDialog";
 
 export class AccessibleAdminDialogService {
 
@@ -30,7 +30,15 @@ export class AccessibleAdminDialogService {
 		return this.dialog.prompt( config );
 	}
 
+	processing( config = {} ) {
+		return this.dialog.processing( config );
+	}
+
 	resolveConfirmLabel( launcher = null ) {
 		return resolveAccessibleDialogConfirmLabel( launcher );
+	}
+
+	resolveLauncher( event = null, node = null ) {
+		return resolveAccessibleDialogLauncher( event, node );
 	}
 }

@@ -99,7 +99,7 @@ class Scanner {
 		$con = self::con();
 		$errors = new \WP_Error();
 
-		if ( $con->comps->bot_signals->isBot() ) {
+		if ( $con->comps->opts_lookup->enabledSilentCaptchaCommentSpam() && $con->comps->bot_signals->isBot() ) {
 			$errors->add( 'antibot', __( 'Failed AntiBot Verification', 'wp-simple-firewall' ) );
 		}
 		elseif ( $con->comps->opts_lookup->enabledHumanCommentSpam() ) {

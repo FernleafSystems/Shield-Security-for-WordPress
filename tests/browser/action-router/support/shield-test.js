@@ -284,6 +284,22 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			async inspectIpRulesTableFixture() {
 				return runFixture( 'ip-rules-table', 'inspect' );
 			},
+			async inspectLicenseClearFixture() {
+				return runFixture( 'license-clear', 'inspect' );
+			},
+			async withLicenseClearFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'license-clear', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'license-clear', 'cleanup' );
+					}
+				}
+			},
 			async withMainwpSitesFixture( runScenario ) {
 				let seeded = false;
 				try {
@@ -309,6 +325,31 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 						await runFixture( 'merlin-welcome', 'cleanup' );
 					}
 				}
+			},
+			async inspectLoginGuardCoreFixture() {
+				return runFixture( 'login-guard-core', 'inspect' );
+			},
+			async withLoginGuardCoreFixture( scenario, runScenario ) {
+				if ( typeof scenario !== 'string' || scenario.trim() === '' ) {
+					throw new Error( 'Login Guard Core fixture scenario is required.' );
+				}
+				if ( typeof runScenario !== 'function' ) {
+					throw new Error( 'Login Guard Core fixture callback is required.' );
+				}
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'login-guard-core', 'seed', [ scenario ] );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'login-guard-core', 'cleanup' );
+					}
+				}
+			},
+			async inspectMfaProfileFixture() {
+				return runFixture( 'mfa-profile', 'inspect' );
 			},
 			async withMfaProfileFixture( runScenario ) {
 				let seeded = false;

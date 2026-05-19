@@ -16,7 +16,7 @@ on:
 
 jobs:
   build-package:
-    name: Build Package Artifact
+    name: Run Package Build
     runs-on: ubuntu-latest
 
     steps:

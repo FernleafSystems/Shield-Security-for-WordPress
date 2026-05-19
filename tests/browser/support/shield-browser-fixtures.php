@@ -3,6 +3,8 @@
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrowserFixtureRegistry;
 
 \add_filter( 'pre_http_request', 'shield_browser_fixture_filelocker_api_response', 10, 3 );
+\add_filter( 'pre_wp_mail', 'shield_browser_fixture_login_guard_mail_capture', 10, 2 );
+\add_action( 'shield/event', 'shield_browser_fixture_login_guard_event_capture', 10, 3 );
 \add_action( 'after_setup_theme', 'shield_browser_fixture_force_restrictions', \PHP_INT_MIN );
 
 function shield_browser_fixture_force_restrictions() :void {
@@ -148,6 +150,77 @@ function shield_browser_fixture_http_response( array $body ) :array {
 	];
 }
 
+function shield_browser_fixture_login_guard_runtime_option_key() :string {
+	return 'shield_browser_fixture_login_guard_core_runtime';
+}
+
+function shield_browser_fixture_login_guard_runtime() :array {
+	$runtime = \get_option( shield_browser_fixture_login_guard_runtime_option_key(), [] );
+	return \is_array( $runtime ) ? $runtime : [];
+}
+
+function shield_browser_fixture_login_guard_store_runtime( array $runtime ) :void {
+	\update_option( shield_browser_fixture_login_guard_runtime_option_key(), $runtime, false );
+}
+
+/**
+ * @param mixed $preempt
+ * @param array<string,mixed> $atts
+ * @return mixed
+ */
+function shield_browser_fixture_login_guard_mail_capture( $preempt, array $atts ) {
+	$runtime = shield_browser_fixture_login_guard_runtime();
+	if ( ( $runtime[ 'capture_mail' ] ?? false ) !== true ) {
+		return $preempt;
+	}
+
+	$mails = \is_array( $runtime[ 'mails' ] ?? null ) ? $runtime[ 'mails' ] : [];
+	$to = $atts[ 'to' ] ?? [];
+	$to = \is_array( $to ) ? \array_values( \array_map( 'strval', $to ) ) : [ (string)$to ];
+	$mails[] = [
+		'to'               => \array_values( \array_filter( $to ) ),
+		'auto_login_query' => shield_browser_fixture_login_guard_auto_login_query(
+			(string)( $atts[ 'message' ] ?? '' )
+		),
+	];
+	$runtime[ 'mails' ] = $mails;
+	shield_browser_fixture_login_guard_store_runtime( $runtime );
+
+	return true;
+}
+
+/**
+ * @param mixed $meta
+ * @param mixed $def
+ */
+function shield_browser_fixture_login_guard_event_capture( $event, $meta = [], $def = [] ) :void {
+	unset( $meta, $def );
+	$runtime = shield_browser_fixture_login_guard_runtime();
+	if ( ( $runtime[ 'capture_events' ] ?? false ) !== true ) {
+		return;
+	}
+
+	$events = \is_array( $runtime[ 'events' ] ?? null ) ? $runtime[ 'events' ] : [];
+	$events[] = (string)$event;
+	$runtime[ 'events' ] = $events;
+	shield_browser_fixture_login_guard_store_runtime( $runtime );
+}
+
+function shield_browser_fixture_login_guard_auto_login_query( string $message ) :array {
+	$message = \html_entity_decode( $message, \ENT_QUOTES | \ENT_HTML5, 'UTF-8' );
+	\preg_match_all( '#https?://[^"\'<>\s]+#', $message, $matches );
+
+	foreach ( $matches[ 0 ] ?? [] as $url ) {
+		$query = [];
+		\parse_str( (string)\wp_parse_url( $url, \PHP_URL_QUERY ), $query );
+		if ( (string)( $query[ 'ex' ] ?? '' ) === 'mfa_email_auto_login' ) {
+			return $query;
+		}
+	}
+
+	return [];
+}
+
 /**
  * @return array<string,list<string>>
  */
@@ -159,9 +232,11 @@ function shield_browser_fixture_allowed_actions() :array {
 		'import-export-file' => [ 'seed', 'cleanup' ],
 		'ip-analysis-activity-meta' => [ 'seed', 'cleanup', 'inspect' ],
 		'ip-rules-table' => [ 'seed', 'cleanup', 'inspect' ],
+		'license-clear' => [ 'seed', 'cleanup', 'inspect' ],
+		'login-guard-core' => [ 'seed', 'cleanup', 'inspect' ],
 		'mainwp-sites' => [ 'seed', 'cleanup' ],
 		'merlin-welcome' => [ 'seed', 'cleanup' ],
-		'mfa-profile' => [ 'seed', 'cleanup' ],
+		'mfa-profile' => [ 'seed', 'cleanup', 'inspect' ],
 		'notbot-altcha' => [ 'seed', 'cleanup', 'inspect' ],
 		'public-block-recovery' => [ 'seed', 'cleanup' ],
 		'security-admin' => [ 'seed', 'cleanup', 'inspect' ],
@@ -183,6 +258,8 @@ function shield_browser_fixture_require_helpers() :void {
 		'tests/Helpers/ActionRouter/ImportExportFileFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/IpAnalysisActivityMetaFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/IpRulesTableFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/LicenseClearFixtureBuilder.php',
+		'tests/Helpers/ActionRouter/LoginGuardCoreFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/MainwpSitesFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/MerlinWelcomeFixtureBuilder.php',
 		'tests/Helpers/ActionRouter/MfaProfileFixtureBuilder.php',

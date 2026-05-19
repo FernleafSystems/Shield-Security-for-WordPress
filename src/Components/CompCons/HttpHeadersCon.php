@@ -117,7 +117,7 @@ class HttpHeadersCon {
 
 	private function setContentSecurityPolicyHeader() :array {
 		$opts = self::con()->opts;
-		$rules = ( $opts->optIs( 'enable_x_content_security_policy', 'Y' ) && self::con()->isPremiumActive() ) ?
+		$rules = ( $opts->optIs( 'enable_x_content_security_policy', 'Y' ) && self::con()->caps->canHttpHeadersCSP() ) ?
 			\array_filter( \array_map( '\trim', $opts->optGet( 'xcsp_custom' ) ) ) : [];
 		return empty( $rules ) ? [] : [ 'Content-Security-Policy' => \implode( ' ', $rules ) ];
 	}

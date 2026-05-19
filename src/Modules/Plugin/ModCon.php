@@ -22,6 +22,8 @@ class ModCon {
 
 	public const SLUG = \FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules::PLUGIN;
 
+	private const CACHE_BASE_OPTION_KEY = '_default';
+
 	private bool $is_booted = false;
 
 	private ?CacheDirHandler $cacheDirHandler = null;
@@ -71,24 +73,31 @@ class ModCon {
 
 	protected function buildCacheDirHandler(): CacheDirHandler {
 		$con = self::con();
-		$url = Services::WpGeneral()->getWpUrl();
 
 		$lastKnownDirs = $con->opts->optGet( 'last_known_cache_basedirs' );
-		$lastKnownDirs = \array_merge( [
-			$url => '',
-		], \is_array( $lastKnownDirs ) ? $lastKnownDirs : [] );
+		$lastKnownDirs = \is_array( $lastKnownDirs ) ? $lastKnownDirs : [];
+		$preferredTempDir = $con->opts->optGet( 'preferred_temp_dir' );
 
-		$cacheDirFinder = new CacheDirHandler( $lastKnownDirs[ $url ], $con->opts->optGet( 'preferred_temp_dir' ) );
-		$resolvedDir = $cacheDirFinder->dir();
-		if ( !empty( $resolvedDir ) ) {
-			$lastKnownDir = \dirname( $resolvedDir );
-			if ( $lastKnownDirs[ $url ] !== $lastKnownDir ) {
-				$lastKnownDirs[ $url ] = $lastKnownDir;
-				$con->opts->optSet( 'last_known_cache_basedirs', $lastKnownDirs );
-			}
-		}
+		$cacheDirFinder = new CacheDirHandler(
+			$this->resolveLastKnownCacheBaseDir( $lastKnownDirs ),
+			\is_string( $preferredTempDir ) ? $preferredTempDir : ''
+		);
 		$con->cache_dir_handler = $cacheDirFinder;
 		return $cacheDirFinder;
+	}
+
+	private function resolveLastKnownCacheBaseDir( array $lastKnownDirs ) :string {
+		$lastKnownDir = $lastKnownDirs[ self::CACHE_BASE_OPTION_KEY ] ?? '';
+		if ( !\is_string( $lastKnownDir ) || $lastKnownDir === '' ) {
+			$lastKnownDir = '';
+			foreach ( $lastKnownDirs as $maybeDir ) {
+				if ( \is_string( $maybeDir ) && !empty( $maybeDir ) ) {
+					$lastKnownDir = $maybeDir;
+					break;
+				}
+			}
+		}
+		return $lastKnownDir;
 	}
 
 	/**

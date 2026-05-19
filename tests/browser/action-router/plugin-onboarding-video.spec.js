@@ -8,7 +8,7 @@ const {
 test.setTimeout( 180_000 );
 
 async function rerunDashboardOnboarding( page, videoEnabled ) {
-	await page.evaluate( ( isEnabled ) => {
+	return page.evaluate( ( isEnabled ) => {
 		const onboarding = window.shield_vars_plugin_onboarding?.comps?.plugin_onboarding;
 		if ( !onboarding?.vars?.tour ) {
 			throw new Error( 'Missing plugin onboarding localized data.' );
@@ -21,6 +21,8 @@ async function rerunDashboardOnboarding( page, videoEnabled ) {
 			: '';
 
 		window.dispatchEvent( new Event( 'load' ) );
+
+		return onboarding.vars.tour.video_modal.skip_label;
 	}, videoEnabled );
 }
 
@@ -31,17 +33,21 @@ test( 'dashboard onboarding shows intro video modal when video feature is enable
 		force_tour: '1',
 	} );
 
-	await rerunDashboardOnboarding( page, true );
+	const skipVideoLabel = await rerunDashboardOnboarding( page, true );
 
 	const modal = page.locator( '#ShieldModalContainer.modal.show' );
+	const footerActions = modal.locator( '.modal-footer' ).getByRole( 'button' );
 	await expect( modal ).toBeVisible();
 	await expectNamedDialog( page, modal );
 	expect( await modal.evaluate( ( node ) => node.contains( document.activeElement ) ) ).toBe( true );
 	await expect( modal.locator( '.shield-video-modal' ) ).toBeVisible();
 	await expect( modal.locator( 'iframe' ) ).toHaveAttribute( 'src', /player\.vimeo\.com\/video\/123456789/ );
+	await expect( footerActions ).toHaveCount( 1 );
+	await expect( footerActions.first() ).toHaveText( skipVideoLabel );
 	await expect( page.locator( '.introjs-overlay' ) ).toHaveCount( 0 );
-	await modal.locator( '.btn-close' ).click();
+	await footerActions.first().click();
 	await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
+	await expect( page.locator( '.introjs-overlay' ).first() ).toBeVisible();
 } );
 
 test( 'dashboard onboarding skips intro video modal when video feature is disabled', async ( { page } ) => {

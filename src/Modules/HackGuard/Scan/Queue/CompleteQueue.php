@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -23,7 +24,7 @@ class CompleteQueue {
 
 		$activeCounts = $this->activeStatusCounts();
 		if ( \array_sum( $activeCounts ) > 0 ) {
-			if ( ( $activeCounts[ 'queued' ] ?? 0 ) > 0 ) {
+			if ( ( $activeCounts[ ScanStatus::QUEUED ] ?? 0 ) > 0 ) {
 				$con->comps->scans_queue->getQueueBuilder()->dispatch();
 			}
 			return;
@@ -44,9 +45,10 @@ class CompleteQueue {
 			sprintf( "SELECT `status`, COUNT(*) as `count`
 						FROM `%s`
 						WHERE `finished_at`=0
-						  AND `status` IN ('queued','building','built','running')
+						  AND `status` IN (%s)
 						GROUP BY `status`;",
-				self::con()->db_con->scans->getTable()
+				self::con()->db_con->scans->getTable(),
+				ScanStatus::sqlList( ScanStatus::ACTIVE )
 			)
 		) ?: [] as $row ) {
 			$status = (string)( \is_array( $row ) ? ( $row[ 'status' ] ?? '' ) : ( $row->status ?? '' ) );

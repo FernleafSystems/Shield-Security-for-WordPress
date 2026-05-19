@@ -25,13 +25,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record as ScanRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\SetScanCompleted;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	Build\QueueBuilder,
-	CleanQueue,
 	CompleteQueue,
 	Controller as QueueController,
 	ProcessQueueItem,
+	QueueHeartbeat,
 	QueueItemVO,
 	QueueItems,
+	QueueMaintenance,
 	QueueProcessor,
+	QueueWatchdog,
 	RunState
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -54,6 +56,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		QueueLifecycleLogSpy::reset();
+		QueueHeartbeat::resetRuntimeCache();
 	}
 
 	protected function tearDown() :void {
@@ -299,6 +302,32 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_mark_running_primes_heartbeat_throttle_without_scan_item_writes() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000 );
+		$item = ( new QueueItemVO() )->applyFromArray( [
+			'scan_id'         => $scanID,
+			'qitem_id'        => $itemID,
+			'scan'            => 'afs',
+			'scan_started_at' => '0',
+			'meta'            => [],
+			'items'           => [ 'afs-a' ],
+		] );
+
+		( new RunState() )->markRunning( $item );
+		$harness->sql->resetQueryLog();
+
+		$this->assertFalse( ( new QueueHeartbeat() )->tick( $scanID ) );
+		$this->assertSame( [], $harness->sql->queryLog() );
+		$this->assertSame( 1699999000, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
+	}
+
 	public function test_process_queue_item_logs_processing_exception_without_failing_scan() :void {
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700002000 ),
@@ -429,14 +458,10 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
 		( new ProcessQueueItem() )->run( $item );
 
-		$this->assertCount( 1, $scanItemUpdates );
-		$this->assertSame( 7, $scanItemUpdates[ 0 ][ 'id' ] );
-		$this->assertSame( 1700002000, $scanItemUpdates[ 0 ][ 'data' ][ 'started_at' ] ?? null );
+		$this->assertSame( [], $scanItemUpdates );
 		$this->assertCount( 1, $scanUpdates );
 		$this->assertSame( 'running', $scanUpdates[ 0 ][ 'data' ][ 'status' ] ?? null );
 		$this->assertSame( [], $deletedScanItems );
-		$this->assertTrue( QueueLifecycleLogSpy::contains( 'scan_id=99' ) );
-		$this->assertTrue( QueueLifecycleLogSpy::contains( 'qitem_id=7' ) );
 	}
 
 	public function test_complete_queue_dispatches_next_builder_without_firing_queue_completed_when_backlog_remains() :void {
@@ -766,6 +791,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	public function test_queue_items_selects_built_and_running_scans_only() :void {
 		$queries = [];
 		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700003600 ),
 			'service_wpdb' => new class( $queries ) extends Db {
 				public array $queries;
 
@@ -781,8 +807,14 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 						'scan'     => 'afs',
 						'meta'     => base64_encode( json_encode( [ 'scan_meta' => 'value' ] ) ),
 						'qitem_id' => 8,
+						'attempts' => 0,
 						'items'    => base64_encode( json_encode( [ 'item-a' ] ) ),
 					];
+				}
+
+				public function doSql( string $sqlQuery ) {
+					$this->queries[] = $sqlQuery;
+					return 1;
 				}
 			},
 		] );
@@ -810,10 +842,14 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertStringContainsString( "`si`.`finished_at`=0", $queries[ 0 ] );
 		$this->assertStringNotContainsString( "'building','running'", $queries[ 0 ] );
 		$this->assertStringNotContainsString( "'queued'", $queries[ 0 ] );
+		$this->assertTrue( $this->queryLogContains( $queries, '`attempts`=`attempts`+1' ) );
+		$this->assertTrue( $this->queryLogContains( $queries, '`started_at`=0' ) );
+		$this->assertTrue( $this->queryLogContains( $queries, '`finished_at`=0' ) );
 	}
 
 	public function test_queue_items_next_supplies_scan_runtime_contract() :void {
 		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700003600 ),
 			'service_wpdb' => new class extends Db {
 				public function selectRow( string $query, $format = null ) {
 					unset( $query, $format );
@@ -826,8 +862,14 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 						'scan_started_at' => '1700000100',
 						'meta'            => base64_encode( json_encode( [ 'scan_meta' => 'value' ] ) ),
 						'qitem_id'        => '8',
+						'attempts'        => '1',
 						'items'           => base64_encode( json_encode( [ 'item-a' ] ) ),
 					];
+				}
+
+				public function doSql( string $sqlQuery ) {
+					unset( $sqlQuery );
+					return 1;
 				}
 			},
 		] );
@@ -856,6 +898,62 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 1700000100, $item->scan_started_at );
 		$this->assertSame( [ 'scan_meta' => 'value' ], $item->meta );
 		$this->assertSame( [ 'item-a' ], $item->items );
+		$this->assertSame( 2, $item->attempts );
+	}
+
+	public function test_queue_items_next_retries_when_selected_row_was_already_claimed() :void {
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700003600 ),
+			'service_wpdb' => $wpdb = new class extends Db {
+				public int $selects = 0;
+				public int $claims = 0;
+
+				public function selectRow( string $query, $format = null ) {
+					unset( $query, $format );
+					$this->selects++;
+					return [
+						'scan_id'         => '71',
+						'scan'            => 'afs',
+						'scope_type'      => 'full',
+						'scope_key'       => '',
+						'run_trigger'     => 'manual',
+						'scan_started_at' => '0',
+						'meta'            => base64_encode( json_encode( [] ) ),
+						'qitem_id'        => (string)( 7 + $this->selects ),
+						'attempts'        => '0',
+						'items'           => base64_encode( json_encode( [ 'item-'.$this->selects ] ) ),
+					];
+				}
+
+				public function doSql( string $sqlQuery ) {
+					unset( $sqlQuery );
+					$this->claims++;
+					return $this->claims === 1 ? 0 : 1;
+				}
+			},
+		] );
+		$this->installController( [
+			'db_con' => (object)[
+				'scans' => new class {
+					public function getTable() :string {
+						return 'shield_scans';
+					}
+				},
+				'scan_items' => new class {
+					public function getTable() :string {
+						return 'shield_scan_items';
+					}
+				},
+			],
+		] );
+
+		$item = ( new QueueItems() )->next();
+
+		$this->assertSame( 2, $wpdb->selects );
+		$this->assertSame( 2, $wpdb->claims );
+		$this->assertSame( 9, $item->qitem_id );
+		$this->assertSame( [ 'item-2' ], $item->items );
+		$this->assertSame( 1, $item->attempts );
 	}
 
 	public function test_has_next_item_uses_existence_query_without_loading_queue_payload() :void {
@@ -901,7 +999,64 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( '`meta`', $queries[ 0 ] );
 	}
 
-	public function test_clean_queue_does_not_fail_stale_queued_scan_while_active_scan_exists() :void {
+	public function test_heartbeat_updates_running_scan_by_scan_id_without_touching_items() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'started_at'      => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000 );
+		$harness->sql->resetQueryLog();
+
+		$this->assertTrue( ( new QueueHeartbeat() )->tick( $scanID ) );
+
+		$queries = $harness->sql->queryLog();
+		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'last_process_at' ] );
+		$this->assertSame( 1699999000, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
+		$this->assertTrue( $this->queryLogContains( $queries, 'UPDATE `scans`' ) );
+		$this->assertFalse( $this->queryLogContains( $queries, 'scan_items' ) );
+	}
+
+	public function test_repeated_heartbeats_inside_throttle_window_do_not_write_again() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'started_at'      => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$harness->sql->resetQueryLog();
+
+		$this->assertTrue( ( new QueueHeartbeat() )->tick( $scanID ) );
+		$this->assertFalse( ( new QueueHeartbeat() )->tick( $scanID ) );
+
+		$this->assertSame( 1, $this->queryLogCount( $harness->sql->queryLog(), 'UPDATE `scans`' ) );
+	}
+
+	public function test_heartbeat_refuses_finished_scan() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'started_at'      => 1699999000,
+			'last_process_at' => 1699999000,
+			'finished_at'     => 1699999900,
+		] );
+		$harness->sql->resetQueryLog();
+
+		$this->assertFalse( ( new QueueHeartbeat() )->tick( $scanID ) );
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 1699999000, (int)$scan[ 'last_process_at' ] );
+		$this->assertSame( 1699999900, (int)$scan[ 'finished_at' ] );
+	}
+
+	public function test_watchdog_does_not_fail_stale_queued_scan_while_builder_can_resume_it() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'            => 'afs',
@@ -910,13 +1065,13 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			'last_process_at' => 1699999000,
 		] );
 
-		( new CleanQueue() )->execute();
+		( new QueueWatchdog() )->run();
 
 		$this->assertSame( 'queued', $harness->scanRow( $scanID )[ 'status' ] );
 		$this->assertSame( 0, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
 	}
 
-	public function test_clean_queue_does_not_fail_stale_built_scan_with_queue_items() :void {
+	public function test_watchdog_resumes_stale_built_scan_with_unstarted_items_without_resetting_items() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'            => 'afs',
@@ -924,14 +1079,43 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			'ready_at'        => 1699999000,
 			'last_process_at' => 1699999000,
 		] );
-		$harness->insertScanItem( $scanID, [ 'afs-a' ] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ] );
 		$harness->sql->resetQueryLog();
 
-		( new CleanQueue() )->execute();
+		( new QueueWatchdog() )->run();
 
 		$this->assertSame( 'built', $harness->scanRow( $scanID )[ 'status' ] );
 		$this->assertSame( 0, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
-		$this->assertFalse( $this->queryLogContains( $harness->sql->queryLog(), 'COUNT(*) FROM `scan_items`' ) );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
+		$this->assertFalse( $this->queryLogContains( $harness->sql->queryLog(), 'UPDATE `scan_items` SET `started_at`=0' ) );
+	}
+
+	public function test_queue_maintenance_completes_all_finished_ready_scan_without_resetting_active_items() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$completedScanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$activeScanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$harness->insertScanItem( $completedScanID, [ 'wpv-a' ], 0, 1699999000 );
+		$activeItemID = $harness->insertScanItem( $activeScanID, [ 'afs-a' ], 1699999000 );
+		$harness->sql->resetQueryLog();
+
+		( new QueueMaintenance() )->run();
+
+		$this->assertSame( 'completed', $harness->scanRow( $completedScanID )[ 'status' ] );
+		$this->assertSame( 'running', $harness->scanRow( $activeScanID )[ 'status' ] );
+		$this->assertSame( 1699999000, (int)$harness->scanItemRow( $activeItemID )[ 'started_at' ] );
+		$this->assertFalse( $this->queryLogContains( $harness->sql->queryLog(), 'UPDATE `scan_items` SET `started_at`=0' ) );
 	}
 
 	public function test_on_wp_loaded_registers_queue_workers_without_scan_db_connection() :void {
@@ -952,9 +1136,11 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
 		$builder = $this->readObjectProperty( $controller, 'queueBuilder' );
 		$processor = $this->readObjectProperty( $controller, 'queueProcessor' );
+		$watchdog = $this->readObjectProperty( $controller, 'queueWatchdog' );
 
 		$this->assertInstanceOf( QueueBuilder::class, $builder );
 		$this->assertInstanceOf( QueueProcessor::class, $processor );
+		$this->assertInstanceOf( QueueWatchdog::class, $watchdog );
 		$this->assertSame( 'icwp_wpsf_shield_scanqbuild_cron_interval', $this->readObjectProperty( $builder, 'cron_interval_identifier' ) );
 		$this->assertSame( 'icwp_wpsf_shield_scanq_cron_interval', $this->readObjectProperty( $processor, 'cron_interval_identifier' ) );
 	}
@@ -1000,12 +1186,17 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	}
 
 	private function queryLogContains( array $queries, string $needle ) :bool {
+		return $this->queryLogCount( $queries, $needle ) > 0;
+	}
+
+	private function queryLogCount( array $queries, string $needle ) :int {
+		$count = 0;
 		foreach ( $queries as $query ) {
 			if ( \strpos( $query, $needle ) !== false ) {
-				return true;
+				$count++;
 			}
 		}
-		return false;
+		return $count;
 	}
 
 	private function readObjectProperty( object $object, string $property ) {

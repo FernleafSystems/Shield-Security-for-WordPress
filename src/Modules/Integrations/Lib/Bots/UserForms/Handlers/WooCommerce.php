@@ -23,8 +23,14 @@ class WooCommerce extends Base {
 	 */
 	public function checkCheckout_WooRestApi( $cartErrors ) :void {
 		if ( is_wp_error( $cartErrors ) ) {
+			$wasSuppressed = $this->suppressCooldownCheck;
 			$this->suppressCooldownCheck = true;
-			$this->check( 'checkout', $cartErrors );
+			try {
+				$this->check( 'checkout', $cartErrors );
+			}
+			finally {
+				$this->suppressCooldownCheck = $wasSuppressed;
+			}
 		}
 	}
 
@@ -41,7 +47,7 @@ class WooCommerce extends Base {
 	/**
 	 * @param null|\WP_User|\WP_Error $wpError
 	 * @param string|mixed            $username
-	 * @return \WP_User|\WP_Error
+	 * @return null|\WP_User|\WP_Error
 	 */
 	public function checkLogin_Woo( $wpError, $username ) {
 		if ( \is_string( $username ) && is_wp_error( $wpError ) ) {
@@ -53,7 +59,6 @@ class WooCommerce extends Base {
 	/**
 	 * @param \WP_Error|mixed $wpError
 	 * @param string|mixed    $username
-	 * @return \WP_Error|mixed
 	 */
 	public function checkRegister_Woo( $wpError, $username ) {
 		if ( \is_string( $username ) && is_wp_error( $wpError ) ) {
@@ -63,12 +68,33 @@ class WooCommerce extends Base {
 	}
 
 	private function check( string $context, \WP_Error $wpError, ?string $username = null ) :void {
-		if ( !$wpError->has_errors() && $this->setAuditAction( $context )->isBotBlockRequired() ) {
-			$this->fireEventBlockRegister();
-			if ( !empty( $username ) ) {
-				$this->setAuditUser( $username );
-			}
+		$this->setAuditAction( $context );
+		if ( !empty( $username ) ) {
+			$this->setAuditUser( $username );
+		}
+		else {
+			$this->setAuditUser( '' );
+		}
+
+		if ( !$wpError->has_errors() && $this->isBotBlockRequired() ) {
+			$this->fireBlockEventForContext( $context );
 			$wpError->add( 'shield-user-'.$context, $this->getErrorMessage() );
+		}
+	}
+
+	private function fireBlockEventForContext( string $context ) :void {
+		switch ( $context ) {
+			case 'login':
+				$this->fireEventBlockLogin();
+				break;
+
+			case 'checkout':
+				$this->fireEventBlockCheckout();
+				break;
+
+			case 'register':
+				$this->fireEventBlockRegister();
+				break;
 		}
 	}
 

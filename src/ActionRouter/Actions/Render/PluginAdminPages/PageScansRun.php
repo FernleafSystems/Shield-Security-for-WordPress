@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\CleanQueue;
 
 class PageScansRun extends PageScansBase {
 
@@ -21,8 +20,6 @@ class PageScansRun extends PageScansBase {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-
-		( new CleanQueue() )->execute();
 
 		// Can Scan Checks:
 		$reasonsCantScan = $con->comps->scans->getReasonsScansCantExecute();

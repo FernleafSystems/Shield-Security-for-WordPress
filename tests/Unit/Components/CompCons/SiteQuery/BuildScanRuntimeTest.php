@@ -110,6 +110,51 @@ class BuildScanRuntimeTest extends BaseUnitTest {
 		$this->assertSame( [], $scanCalls->received_enqueued );
 	}
 
+	public function test_build_reports_failed_or_completed_scan_snapshot_as_not_running() :void {
+		$scanCalls = (object)[
+			'requested_slugs' => [],
+		];
+		$this->installRuntimeEnvironment(
+			'',
+			[],
+			[ 'afs' => false, 'wpv' => false, 'apc' => false ],
+			'Failed Scan',
+			0.0,
+			$scanCalls
+		);
+
+		$runtime = ( new BuildScanRuntime() )->build();
+
+		$this->assertFalse( $runtime[ 'is_running' ] );
+		$this->assertSame( 0, $runtime[ 'enqueued_count' ] );
+		$this->assertSame( '', $runtime[ 'current_slug' ] );
+		$this->assertSame( '', $runtime[ 'current_name' ] );
+		$this->assertSame( [], $scanCalls->requested_slugs );
+	}
+
+	public function test_build_keeps_stale_active_scan_visible_for_admin_polling_recovery() :void {
+		$scanCalls = (object)[
+			'requested_slugs' => [],
+		];
+		$this->installRuntimeEnvironment(
+			'afs',
+			[ 'afs' ],
+			[ 'afs' => false, 'wpv' => false, 'apc' => false ],
+			'File Scanner',
+			0.0,
+			$scanCalls
+		);
+
+		$runtime = ( new BuildScanRuntime() )->build();
+
+		$this->assertTrue( $runtime[ 'is_running' ] );
+		$this->assertSame( 1, $runtime[ 'enqueued_count' ] );
+		$this->assertSame( 'afs', $runtime[ 'current_slug' ] );
+		$this->assertSame( 'File Scanner', $runtime[ 'current_name' ] );
+		$this->assertSame( [ 'afs' ], $scanCalls->received_enqueued );
+		$this->assertSame( [ 'afs' ], $scanCalls->requested_slugs );
+	}
+
 	private function installRuntimeEnvironment(
 		string $currentSlug,
 		array $enqueuedScans,

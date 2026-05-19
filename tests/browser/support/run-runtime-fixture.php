@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 require_once '/app/tests/Helpers/RuntimeTestState.php';
 require_once '/app/tests/Helpers/TestDataFactory.php';
@@ -11,6 +11,7 @@ require_once '/app/tests/Helpers/ActionRouter/DashboardDefaultsFixtureBuilder.ph
 require_once '/app/tests/Helpers/ActionRouter/ImportExportFileFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/IpAnalysisActivityMetaFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/IpRulesTableFixtureBuilder.php';
+require_once '/app/tests/Helpers/ActionRouter/LoginGuardCoreFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/MainwpSitesFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/MerlinWelcomeFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/MfaProfileFixtureBuilder.php';

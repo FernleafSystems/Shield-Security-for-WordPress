@@ -30,15 +30,6 @@ class ScansStartTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_process_uses_conflict_for_already_running_scans() :void {
-		$this->installController( StartScansResult::fromRequested( [] ), 1 );
-
-		$exception = $this->captureProcessException( [ 'scan_slugs' => [ 'afs' ] ] );
-
-		$this->assertSame( 409, $exception->getCode() );
-		$this->assertSame( ScansStart::SUBCODE_ALREADY_RUNNING, $exception->getSubErrorCode() );
-	}
-
 	public function test_process_uses_bad_request_for_empty_selection() :void {
 		$this->installController( StartScansResult::fromRequested( [] ) );
 
@@ -58,7 +49,7 @@ class ScansStartTest extends BaseUnitTest {
 	}
 
 	public function test_process_uses_conflict_when_selection_cannot_start() :void {
-		$this->installController(
+		$state = $this->installController(
 			StartScansResult::fromRequested( [ 'afs' ] )
 							 ->addFailure( 'afs', StartScansResult::REASON_ALREADY_EXISTS )
 		);
@@ -67,10 +58,25 @@ class ScansStartTest extends BaseUnitTest {
 
 		$this->assertSame( 409, $exception->getCode() );
 		$this->assertSame( ScansStart::SUBCODE_START_FAILED, $exception->getSubErrorCode() );
+		$this->assertSame( [ [ 'afs' ] ], $state->scans->startCalls );
+	}
+
+	public function test_process_delegates_active_scan_conflict_to_central_start_policy() :void {
+		$state = $this->installController(
+			StartScansResult::fromRequested( [ 'afs' ] )
+							 ->addFailure( 'afs', StartScansResult::REASON_ALREADY_EXISTS ),
+			1
+		);
+
+		$exception = $this->captureProcessException( [ 'scan_slugs' => [ 'afs' ] ] );
+
+		$this->assertSame( 409, $exception->getCode() );
+		$this->assertSame( ScansStart::SUBCODE_START_FAILED, $exception->getSubErrorCode() );
+		$this->assertSame( [ [ 'afs' ] ], $state->scans->startCalls );
 	}
 
 	public function test_process_preserves_status_payload_shape_on_partial_success() :void {
-		$this->installController(
+		$state = $this->installController(
 			StartScansResult::fromRequested( [ 'afs', 'wpv' ] )
 							 ->addStarted( 'afs', 51 )
 							 ->addFailure( 'wpv', StartScansResult::REASON_CREATE_FAILED )
@@ -84,6 +90,7 @@ class ScansStartTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'current_name', $payload );
 		$this->assertArrayHasKey( 'progress', $payload );
 		$this->assertArrayHasKey( 'message', $payload );
+		$this->assertSame( [ [ 'afs', 'wpv' ] ], $state->scans->startCalls );
 	}
 
 	private function captureProcessException( array $params ) :ApiException {
@@ -110,28 +117,31 @@ class ScansStartTest extends BaseUnitTest {
 		StartScansResult $result,
 		int $enqueuedCount = 0,
 		bool $blocked = false
-	) :void {
+	) :object {
+		$scans = new class( $result, $blocked ) {
+			public array $startCalls = [];
+
+			private StartScansResult $result;
+			private bool $blocked;
+
+			public function __construct( StartScansResult $result, bool $blocked ) {
+				$this->result = $result;
+				$this->blocked = $blocked;
+			}
+
+			public function getStartBlockedMessage() :string {
+				return $this->blocked ? 'blocked' : '';
+			}
+
+			public function startNewScans( array $scans ) :StartScansResult {
+				$this->startCalls[] = $scans;
+				return $this->result;
+			}
+		};
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->comps = (object)[
-			'scans'     => new class( $result, $blocked ) {
-				private StartScansResult $result;
-				private bool $blocked;
-
-				public function __construct( StartScansResult $result, bool $blocked ) {
-					$this->result = $result;
-					$this->blocked = $blocked;
-				}
-
-				public function getStartBlockedMessage() :string {
-					return $this->blocked ? 'blocked' : '';
-				}
-
-				public function startNewScans( array $scans ) :StartScansResult {
-					unset( $scans );
-					return $this->result;
-				}
-			},
+			'scans'     => $scans,
 			'site_query' => new class( $enqueuedCount ) {
 				private int $enqueuedCount;
 
@@ -152,5 +162,8 @@ class ScansStartTest extends BaseUnitTest {
 		];
 
 		PluginControllerInstaller::install( $controller );
+		return (object)[
+			'scans' => $scans,
+		];
 	}
 }

@@ -37,25 +37,64 @@ class StaticToolDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( $ids, \array_values( \array_unique( $ids ) ) );
 
 		foreach ( $definitions as $definition ) {
+			foreach ( [ 'id', 'title', 'icon', 'nav', 'subnav', 'modes' ] as $key ) {
+				$this->assertArrayHasKey( $key, $definition );
+			}
+			$this->assertNotSame( '', \trim( (string)$definition[ 'id' ] ) );
+			$this->assertNotSame( '', \trim( (string)$definition[ 'icon' ] ) );
+			$this->assertIsArray( $definition[ 'modes' ] );
 			$this->assertTrue(
 				PluginNavs::NavExists( $definition[ 'nav' ], $definition[ 'subnav' ] ),
 				sprintf( 'Invalid route for %s', $definition[ 'id' ] )
 			);
+			foreach ( $definition[ 'modes' ] as $mode ) {
+				$this->assertContains( $mode, PluginNavs::allOperatorModes() );
+			}
 		}
 	}
 
-	public function test_search_filter_includes_canonical_reports_and_guided_setup_routes() :void {
+	public function test_search_filter_exposes_only_searchable_tool_contracts() :void {
 		$definitionsById = [];
 		foreach ( StaticToolDefinitions::forSearch() as $definition ) {
 			$definitionsById[ $definition[ 'id' ] ] = $definition;
 		}
+		$searchableIds = \array_column(
+			\array_filter(
+				StaticToolDefinitions::all(),
+				static fn( array $definition ) :bool => (bool)( $definition[ 'show_in_search' ] ?? false )
+			),
+			'id'
+		);
 
-		$this->assertArrayHasKey( 'tool_reports', $definitionsById );
-		$this->assertArrayHasKey( 'tool_guidedsetup', $definitionsById );
+		$this->assertSame( $searchableIds, \array_keys( $definitionsById ) );
 		$this->assertSame( PluginNavs::NAV_REPORTS, $definitionsById[ 'tool_reports' ][ 'nav' ] ?? '' );
 		$this->assertSame( PluginNavs::SUBNAV_REPORTS_OVERVIEW, $definitionsById[ 'tool_reports' ][ 'subnav' ] ?? '' );
 		$this->assertSame( PluginNavs::NAV_WIZARD, $definitionsById[ 'tool_guidedsetup' ][ 'nav' ] ?? '' );
 		$this->assertSame( PluginNavs::SUBNAV_WIZARD_WELCOME, $definitionsById[ 'tool_guidedsetup' ][ 'subnav' ] ?? '' );
+
+		foreach ( $definitionsById as $definition ) {
+			$this->assertNotSame( '', \trim( (string)( $definition[ 'search_tokens' ] ?? '' ) ) );
+			$this->assertTrue( PluginNavs::NavExists( $definition[ 'nav' ], $definition[ 'subnav' ] ) );
+		}
+		$this->assertArrayNotHasKey( 'tool_lockdown', $definitionsById );
+	}
+
+	public function test_mode_filters_use_static_tool_modes_without_cross_mode_leaks() :void {
+		foreach ( PluginNavs::allOperatorModes() as $mode ) {
+			$definitions = StaticToolDefinitions::forMode( $mode );
+			foreach ( $definitions as $definition ) {
+				$this->assertContains( $mode, $definition[ 'modes' ] );
+			}
+		}
+
+		$this->assertSame(
+			[ 'tool_scan_run' ],
+			\array_column( StaticToolDefinitions::forMode( PluginNavs::MODE_ACTIONS ), 'id' )
+		);
+		$this->assertSame(
+			[ 'tool_ip_manager', 'tool_activity_log', 'tool_traffic_log', 'tool_sessions' ],
+			\array_column( StaticToolDefinitions::forMode( PluginNavs::MODE_INVESTIGATE ), 'id' )
+		);
 	}
 
 	private function installControllerStubs() :void {

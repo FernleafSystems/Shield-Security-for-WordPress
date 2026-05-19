@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItemVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -36,7 +37,7 @@ class SetScanCompleted {
 		$completed = (int)Services::WpDb()->doSql(
 				sprintf( "UPDATE `%s`
 						SET `finished_at`=%d,
-							`status`='completed',
+							`status`='%s',
 							`last_process_at`=%d
 							%s
 						WHERE `id`=%d
@@ -49,6 +50,7 @@ class SetScanCompleted {
 						  );",
 					$dbCon->scans->getTable(),
 					$now,
+					ScanStatus::COMPLETED,
 					$now,
 					$metaUpdate,
 					$scanID,
@@ -128,7 +130,7 @@ class SetScanCompleted {
 		$scanSlug = \preg_replace( '/[^a-z0-9_]/i', '', $scanRecord->scan ) ?? '';
 		$scopeWhere = $this->buildScopeWhere( $scanRecord );
 		$reason = $scanSlug === 'afs'
-		          && \in_array( $scanRecord->scope_type, [ 'plugin', 'theme' ], true )
+		          && \in_array( $scanRecord->scope_type, [ 'core', 'plugin', 'theme' ], true )
 		          && $scanRecord->run_trigger === 'asset_change'
 			? 'asset_replaced'
 			: 'clean_rescan';
@@ -169,6 +171,22 @@ class SetScanCompleted {
 				" AND `asset_type`='%s' AND `asset_key`='%s'",
 				esc_sql( $scanRecord->scope_type ),
 				esc_sql( $scanRecord->scope_key )
+			);
+		}
+
+		if ( $scanRecord->scope_type === 'core' ) {
+			return sprintf(
+				" AND `asset_type`='core' AND `asset_key`='core'
+				  AND EXISTS (
+					SELECT 1
+					FROM `%s` AS `rim_scope`
+					WHERE `rim_scope`.`ri_ref`=`%s`.`id`
+					  AND `rim_scope`.`meta_key` IN ('is_checksumfail','is_missing')
+					  AND `rim_scope`.`meta_value`!=''
+					  AND `rim_scope`.`meta_value`!='0'
+				  )",
+				self::con()->db_con->scan_result_item_meta->getTable(),
+				self::con()->db_con->scan_result_items->getTable()
 			);
 		}
 

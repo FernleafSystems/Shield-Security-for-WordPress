@@ -383,6 +383,10 @@ export class StepTabsController extends BaseAutoExecComponent {
 			if ( confirmText.length > 0 ) {
 				el.dataset.operatorContextActionConfirm = confirmText;
 			}
+			const processingText = this.readText( action?.processing_text );
+			if ( processingText.length > 0 ) {
+				el.dataset.operatorContextActionProcessing = processingText;
+			}
 		}
 		else {
 			el.href = this.readText( action?.href ) || '#';

@@ -30,7 +30,6 @@ class TourManager {
 	 *     modal_title:string,
 	 *     video_title:string,
 	 *     body_copy:string,
-	 *     continue_label:string,
 	 *     skip_label:string
 	 *   }
 	 * }
@@ -114,7 +113,6 @@ class TourManager {
 	 *   modal_title:string,
 	 *   video_title:string,
 	 *   body_copy:string,
-	 *   continue_label:string,
 	 *   skip_label:string
 	 * }
 	 */
@@ -129,7 +127,6 @@ class TourManager {
 			'modal_title'    => __( 'Welcome To Shield Security', 'wp-simple-firewall' ),
 			'video_title'    => __( 'Shield Security Dashboard Introduction', 'wp-simple-firewall' ),
 			'body_copy'      => __( 'Start with this short overview, then continue through the dashboard tour.', 'wp-simple-firewall' ),
-			'continue_label' => __( 'Continue', 'wp-simple-firewall' ),
 			'skip_label'     => __( 'Skip Video', 'wp-simple-firewall' ),
 		];
 	}

@@ -24,7 +24,10 @@ class OperatorChromeContractTest extends BaseUnitTest {
 					'ajax_action_json' => '{"sub_action":"ignore_all"}',
 					'type'             => 'deactivate',
 					'confirm_text'     => 'confirm_ignore_all_results',
-					'unexpected'       => 'discard',
+					'processing_text'    => 'processing_ignore_all_results',
+					'processing_message' => 'discard',
+					'running_text'       => 'discard',
+					'unexpected'         => 'discard',
 				],
 			],
 		] );
@@ -40,6 +43,7 @@ class OperatorChromeContractTest extends BaseUnitTest {
 					'href'             => '',
 					'ajax_action_json' => '{"sub_action":"ignore_all"}',
 					'confirm_text'     => 'confirm_ignore_all_results',
+					'processing_text'  => 'processing_ignore_all_results',
 				],
 			],
 			$header[ 'actions' ]
@@ -77,6 +81,7 @@ class OperatorChromeContractTest extends BaseUnitTest {
 					'href'             => '',
 					'ajax_action_json' => '{"sub_action":"ignore_all"}',
 					'confirm_text'     => '',
+					'processing_text'  => '',
 				],
 			],
 			$header[ 'actions' ]
