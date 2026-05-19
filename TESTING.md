@@ -19,10 +19,11 @@ Supporting docs:
 | Cross-site sync lane | `composer test:cross-site` | Two Docker WordPress sites exercising Shield import/export master/slave sync |
 | Package validation | `composer test:package` | Public wrapper around targeted package validation |
 | Public-to-current upgrade smoke lane | `composer test:upgrade-public` | Manual release-confidence lane: install latest public Shield, prime options, upgrade through WordPress updater to a current package zip, and fail on Shield-scoped errors |
+| Popular plugin compatibility smoke lane | `composer test:popular-plugins` | Manual release-confidence lane: install and activate the pinned known-good popular plugin set, then install current packaged Shield and fail on fatal or Shield-scoped errors |
 | Source static analysis | `composer analyze` | Public wrapper around source static analysis |
 | JS static checks | `npm run test:js` | Policy, ESLint, and checkJs TypeScript validation only |
 
-`test:source`, `test:integration-local`, `test:package-full`, and `test:upgrade-public` default to reduced Docker output to keep signal dense. Add `--show-docker-output` when you need full compose output for a failing run.
+`test:source`, `test:integration-local`, `test:package-full`, `test:upgrade-public`, and `test:popular-plugins` default to reduced Docker output to keep signal dense. Add `--show-docker-output` when you need full compose output for a failing run.
 
 ### Unit test narrowing
 
@@ -120,6 +121,61 @@ This lane depends on Docker and WordPress.org availability, so it is intentional
 composer test:upgrade-public -- --package-zip="$ZIP_PATH" --artifact-dir="$RUNNER_TEMP/shield-upgrade-public"
 ```
 
+## Popular Plugin Compatibility Lane
+
+Use this lane before publishing a release package when you need confidence that current packaged Shield can activate alongside the pinned high-popularity WordPress.org plugin stack without library/autoload/runtime conflicts.
+
+```bash
+composer test:popular-plugins
+composer test:popular-plugins -- --package-zip=tmp/wp-simple-firewall-current.zip --artifact-dir=tmp/popular-plugin-compat
+php bin/shield test:popular-plugins --package-zip=tmp/wp-simple-firewall-current.zip --artifact-dir=tmp/popular-plugin-compat --show-docker-output
+```
+
+What it proves:
+
+1. Starts a clean Docker WordPress site dedicated to this lane.
+2. Installs test-only MU fixtures to collect PHP/log errors using the same collector and scanner as the public upgrade lane.
+3. Reads the pinned 20-plugin known-good manifest from `tests/fixtures/popular-plugin-compat/plugin-slugs.json`; the original captured 100-plugin list is archived at `tests/fixtures/popular-plugin-compat/plugin-slugs-popular-100.json`.
+4. Installs and activates each companion plugin one at a time from WordPress.org.
+5. Collects a companion-only baseline and exits as a baseline failure if that stack is already broken before Shield is active.
+6. Builds or uses the current Shield package zip, publishes it into the shared WordPress volume, and installs it with `wp plugin install <package-zip-path> --activate`.
+7. Runs an active-plugin probe, a basic bootstrap probe, and due cron.
+8. Fails on Shield install/activation failure, non-zero WP-CLI failure, fatal errors, or Shield-scoped warnings/notices/deprecations/errors/exceptions in collected logs.
+
+Options and environment:
+
+| Contract | Meaning |
+|---|---|
+| `--package-zip=<path>` | Use an existing release zip. If omitted, the lane builds one with `bin/build-zip.php`. |
+| `--artifact-dir=<path>` | Write lane artifacts here. Overrides `SHIELD_POPULAR_PLUGIN_TEST_ARTIFACT_DIR`. |
+| `--show-docker-output` | Mirror Docker/WP-CLI output to the terminal while still writing artifacts. |
+| `SHIELD_POPULAR_PLUGIN_TEST_ARTIFACT_DIR` | Default artifact directory when `--artifact-dir` is omitted. |
+| `SHIELD_POPULAR_PLUGIN_TEST_COMPOSE_PROJECT` | Override the Docker Compose project. Default: `shield-popular-plugins`. |
+| `SHIELD_POPULAR_PLUGIN_TEST_SITE_PORT` | Override the host WordPress port. Default: `8895`. |
+
+Artifacts:
+
+| Artifact | Contents |
+|---|---|
+| `popular-plugin-compat-summary.json` | Overall status, package details, companion count, activation results, active plugins, and log findings. |
+| `companion-plugins.json` | The pinned companion plugin slugs used for the run. |
+| `activation-results.json` | Per-plugin install and activation statuses, with bounded WP-CLI output for each install/activation step. |
+| `wp-cli.log` | WP-CLI and compose command output. |
+| `wordpress-debug.log` | WordPress/PHP debug log; present even when empty. |
+| `error-events.jsonl` | PHP error/exception/shutdown-fatal events; present even when empty. |
+| `docker.log` | Docker service logs, collected on failure. |
+
+Exit codes:
+
+| Code | Meaning |
+|---|---|
+| `0` | Compatibility lane passed and no fatal or Shield-scoped error output was found. |
+| `1` | Shield compatibility failure, including Shield activation failure or collected Shield-scoped errors. |
+| `2` | Setup/environment failure, such as Docker unavailable or WordPress setup failure. |
+| `4` | Companion plugin baseline failure before Shield was installed or activated. |
+
+This lane depends on Docker and WordPress.org availability, so it is intentionally manual and outside the default PR gate.
+
 ## Internal Lane Ownership
 
 These commands remain the owned internal lanes behind the public surface and CI workflows. Do not add new public wrappers for them.
@@ -134,6 +190,7 @@ These commands remain the owned internal lanes behind the public surface and CI 
 | `php bin/shield test:package-targeted` | Targeted package validation lane |
 | `php bin/shield test:package-full` | Manual local deep packaged runtime lane |
 | `php bin/shield test:upgrade-public` | Manual public-to-current package upgrade smoke lane |
+| `php bin/shield test:popular-plugins` | Manual packaged Shield compatibility lane against a pinned popular plugin stack |
 | `php bin/run-unit-tests.php --runner-mode=serial` | Serial unit sentinel path |
 
 `test:source` and `analyze:source` cache setup state by default for faster local reruns. Use `--refresh-setup` when you need a clean setup pass.
@@ -148,6 +205,7 @@ Default behavior for Docker-backed lanes is intentionally quieter:
 - `php bin/shield test:integration-local`
 - `php bin/shield test:package-full`
 - `php bin/shield test:upgrade-public`
+- `php bin/shield test:popular-plugins`
 
 To get full Docker compose output during a troubleshooting run, append `--show-docker-output`:
 
