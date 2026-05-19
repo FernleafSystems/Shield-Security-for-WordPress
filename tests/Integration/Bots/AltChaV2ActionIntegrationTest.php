@@ -134,18 +134,59 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->comps->altcha->generateChallenge();
 	}
 
-	public function test_generated_challenge_uses_v2_scalar_contract() :void {
+	public function test_low_complexity_with_recent_page_signal_uses_low_profile_and_v2_contract() :void {
+		$this->applyAjaxRequestContext( '198.51.100.222' );
+		$this->seedCurrentIpBotSignal( [
+			'frontpage_at' => Services::Request()->ts(),
+		] );
+
 		$data = $this->requireController()->comps->altcha->generateChallenge();
+		$challenge = $this->decodeChallengeData( $data );
 
 		$this->assertSame( AltChaV2Pbkdf2::VERSION, $data[ 'altcha_version' ] ?? '' );
 		$this->assertIsString( $data[ 'altcha_challenge' ] ?? null );
+		$this->assertSame( 1000, $challenge[ 'parameters' ][ 'cost' ] ?? null );
 		foreach ( [ 'algorithm', 'challenge', 'maxnumber', 'number', 'salt', 'signature', 'expires' ] as $legacyKey ) {
 			$this->assertArrayNotHasKey( $legacyKey, $data );
 		}
 	}
 
+	public function test_medium_complexity_without_recent_page_signal_escalates_to_high_profile() :void {
+		$this->requireController()->opts->optSet( 'silentcaptcha_complexity', SilentCaptchaComplexity::MEDIUM );
+		$this->applyAjaxRequestContext( '198.51.100.223' );
+		$this->seedCurrentIpBotSignal( [
+			'frontpage_at' => Services::Request()->ts() - HOUR_IN_SECONDS - 1,
+			'loginpage_at' => 0,
+		] );
+
+		$this->assertGeneratedChallengeCost( 5000 );
+	}
+
+	public function test_medium_complexity_with_recent_frontpage_signal_stays_medium_profile() :void {
+		$this->requireController()->opts->optSet( 'silentcaptcha_complexity', SilentCaptchaComplexity::MEDIUM );
+		$this->applyAjaxRequestContext( '198.51.100.224' );
+		$this->seedCurrentIpBotSignal( [
+			'frontpage_at' => Services::Request()->ts(),
+			'loginpage_at' => 0,
+		] );
+
+		$this->assertGeneratedChallengeCost( 2500 );
+	}
+
+	public function test_medium_complexity_with_recent_loginpage_signal_stays_medium_profile() :void {
+		$this->requireController()->opts->optSet( 'silentcaptcha_complexity', SilentCaptchaComplexity::MEDIUM );
+		$this->applyAjaxRequestContext( '198.51.100.225' );
+		$this->seedCurrentIpBotSignal( [
+			'frontpage_at' => 0,
+			'loginpage_at' => Services::Request()->ts(),
+		] );
+
+		$this->assertGeneratedChallengeCost( 2500 );
+	}
+
 	private function runAltchaAction( array $data ) :\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\RoutedResponse {
-		$this->applyCurrentShieldAjaxRequest( $data, false );
+		$ip = (string)( self::con()->this_req->ip ?? '' );
+		$this->applyAjaxRequestContext( $ip === '' ? '198.51.100.25' : $ip, $data );
 		return $this->requireController()->action_router->action(
 			CaptureNotBotAltcha::SLUG,
 			$data,
@@ -154,22 +195,7 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function runNotBotAction( array $data, string $ip ) :\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\RoutedResponse {
-		$this->applyCurrentRequestState(
-			[
-				'REMOTE_ADDR'     => $ip,
-				'REQUEST_METHOD'  => 'POST',
-				'REQUEST_URI'     => '/wp-admin/admin-ajax.php',
-			],
-			[],
-			$data,
-			[
-				'ip'                => $ip,
-				'ip_is_public'      => true,
-				'is_security_admin' => false,
-				'path'              => '/wp-admin/admin-ajax.php',
-				'wp_is_ajax'        => true,
-			]
-		);
+		$this->applyAjaxRequestContext( $ip, $data );
 		return $this->requireController()->action_router->action(
 			CaptureNotBot::SLUG,
 			$data,
@@ -178,6 +204,11 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function buildValidV2ActionData() :array {
+		$this->applyAjaxRequestContext( '198.51.100.230' );
+		$this->seedCurrentIpBotSignal( [
+			'frontpage_at' => Services::Request()->ts(),
+		] );
+
 		$challengeData = $this->requireController()->comps->altcha->generateChallenge();
 		$protocol = new AltChaV2Pbkdf2();
 		$challenge = $protocol->decodeChallenge( (string)$challengeData[ 'altcha_challenge' ] );
@@ -229,6 +260,44 @@ class AltChaV2ActionIntegrationTest extends ShieldIntegrationTestCase {
 			}
 		}
 		$this->fail( 'Unable to solve generated ALTCHA v2 challenge within low complexity bounds.' );
+	}
+
+	private function applyAjaxRequestContext( string $ip, array $post = [] ) :void {
+		$this->applyCurrentRequestState(
+			[
+				'REMOTE_ADDR'     => $ip,
+				'REQUEST_METHOD'  => 'POST',
+				'REQUEST_URI'     => '/wp-admin/admin-ajax.php',
+			],
+			[],
+			$post,
+			[
+				'ip'                => $ip,
+				'ip_is_public'      => true,
+				'is_security_admin' => false,
+				'path'              => '/wp-admin/admin-ajax.php',
+				'wp_is_ajax'        => true,
+			]
+		);
+	}
+
+	private function seedCurrentIpBotSignal( array $signals ) :void {
+		$this->requireDb( 'bot_signals' );
+		$this->requireDb( 'ips' );
+
+		TestDataFactory::insertBotSignal( (string)self::con()->this_req->ip, $signals );
+	}
+
+	private function assertGeneratedChallengeCost( int $expectedCost ) :void {
+		$this->assertSame(
+			$expectedCost,
+			$this->decodeChallengeData( $this->requireController()->comps->altcha->generateChallenge() )[ 'parameters' ][ 'cost' ] ?? null
+		);
+	}
+
+	private function decodeChallengeData( array $challengeData ) :array {
+		$protocol = new AltChaV2Pbkdf2();
+		return $protocol->decodeChallenge( (string)$challengeData[ 'altcha_challenge' ] );
 	}
 
 	/**
