@@ -75,7 +75,7 @@ class HashesStorageDirTest extends BaseUnitTest {
 		$other = $root.'/ptguard-cccccccccccccccc';
 		$this->mkdir( $marked );
 		$this->mkdir( $other );
-		\file_put_contents( $root.'/ptguard-active.txt', 'ptguard-bbbbbbbbbbbbbbbb' );
+		\file_put_contents( $root.'/.ptguard-active.txt', 'ptguard-bbbbbbbbbbbbbbbb' );
 		$this->cacheRoot->root = $root;
 
 		$this->assertSame( $marked, ( new HashesStorageDir() )->getTempDir() );
@@ -92,29 +92,29 @@ class HashesStorageDirTest extends BaseUnitTest {
 		$this->cacheRoot->root = $root;
 
 		$this->assertSame( $new, ( new HashesStorageDir() )->getTempDir() );
-		$this->assertSame( 'ptguard-eeeeeeeeeeeeeeee', \trim( (string)\file_get_contents( $root.'/ptguard-active.txt' ) ) );
+		$this->assertSame( 'ptguard-eeeeeeeeeeeeeeee', \trim( (string)\file_get_contents( $root.'/.ptguard-active.txt' ) ) );
 	}
 
 	public function test_invalid_marker_is_replaced_inside_current_root() :void {
 		$root = $this->makeTempDir( 'root' );
 		$valid = $root.'/ptguard-ffffffffffffffff';
 		$this->mkdir( $valid );
-		\file_put_contents( $root.'/ptguard-active.txt', '../outside' );
+		\file_put_contents( $root.'/.ptguard-active.txt', '../outside' );
 		$this->cacheRoot->root = $root;
 
 		$this->assertSame( $valid, ( new HashesStorageDir() )->getTempDir() );
-		$this->assertSame( 'ptguard-ffffffffffffffff', \trim( (string)\file_get_contents( $root.'/ptguard-active.txt' ) ) );
+		$this->assertSame( 'ptguard-ffffffffffffffff', \trim( (string)\file_get_contents( $root.'/.ptguard-active.txt' ) ) );
 	}
 
 	public function test_existing_only_lookup_does_not_repair_invalid_marker() :void {
 		$root = $this->makeTempDir( 'root' );
 		$valid = $root.'/ptguard-ffffffffffffffff';
 		$this->mkdir( $valid );
-		\file_put_contents( $root.'/ptguard-active.txt', '../outside' );
+		\file_put_contents( $root.'/.ptguard-active.txt', '../outside' );
 		$this->cacheRoot->root = $root;
 
 		$this->assertSame( $valid, ( new HashesStorageDir() )->getTempDir( false ) );
-		$this->assertSame( '../outside', \trim( (string)\file_get_contents( $root.'/ptguard-active.txt' ) ) );
+		$this->assertSame( '../outside', \trim( (string)\file_get_contents( $root.'/.ptguard-active.txt' ) ) );
 	}
 
 	public function test_static_dir_is_invalidated_when_cache_root_changes() :void {
@@ -140,7 +140,7 @@ class HashesStorageDirTest extends BaseUnitTest {
 		$this->cacheRoot->root = $root;
 
 		$this->assertSame( $current, ( new HashesStorageDir() )->getTempDir() );
-		$this->assertSame( 'ptguard-dddddddddddddddd', \trim( (string)\file_get_contents( $root.'/ptguard-active.txt' ) ) );
+		$this->assertSame( 'ptguard-dddddddddddddddd', \trim( (string)\file_get_contents( $root.'/.ptguard-active.txt' ) ) );
 	}
 
 	public function test_static_dir_is_invalidated_when_directory_is_deleted() :void {
@@ -160,7 +160,8 @@ class HashesStorageDirTest extends BaseUnitTest {
 		$this->cacheRoot->root = $root;
 
 		$this->assertSame( $root.'/ptguard-aaaaaaaaaaaaaaaa', ( new HashesStorageDir() )->getTempDir() );
-		$this->assertSame( 'ptguard-aaaaaaaaaaaaaaaa', \trim( (string)\file_get_contents( $root.'/ptguard-active.txt' ) ) );
+		$this->assertSame( 'ptguard-aaaaaaaaaaaaaaaa', \trim( (string)\file_get_contents( $root.'/.ptguard-active.txt' ) ) );
+		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
 	}
 
 	public function test_existing_only_lookup_does_not_create_hash_dir() :void {
@@ -169,7 +170,7 @@ class HashesStorageDirTest extends BaseUnitTest {
 
 		$this->assertSame( '', ( new HashesStorageDir() )->getTempDir( false ) );
 		$this->assertSame( [], \glob( $root.'/ptguard-*' ) ?: [] );
-		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
+		$this->assertFileDoesNotExist( $root.'/.ptguard-active.txt' );
 	}
 
 	public function test_existing_only_lookup_with_real_cache_handler_does_not_create_missing_cache_root() :void {
@@ -183,7 +184,7 @@ class HashesStorageDirTest extends BaseUnitTest {
 		$this->assertDirectoryDoesNotExist( $cacheRoot );
 		$this->assertFileDoesNotExist( $cacheRoot.'/assessed.flag' );
 		$this->assertFileDoesNotExist( $cacheRoot.'/README.txt' );
-		$this->assertFileDoesNotExist( $cacheRoot.'/ptguard-active.txt' );
+		$this->assertFileDoesNotExist( $cacheRoot.'/.ptguard-active.txt' );
 	}
 
 	public function test_existing_only_lookup_selects_newest_without_writing_marker() :void {
@@ -197,7 +198,7 @@ class HashesStorageDirTest extends BaseUnitTest {
 		$this->cacheRoot->root = $root;
 
 		$this->assertSame( $new, ( new HashesStorageDir() )->getTempDir( false ) );
-		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
+		$this->assertFileDoesNotExist( $root.'/.ptguard-active.txt' );
 	}
 
 	public function test_write_mode_after_existing_only_lookup_writes_active_marker() :void {
@@ -208,10 +209,11 @@ class HashesStorageDirTest extends BaseUnitTest {
 		$storage = new HashesStorageDir();
 
 		$this->assertSame( $hashDir, $storage->getTempDir( false ) );
-		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
+		$this->assertFileDoesNotExist( $root.'/.ptguard-active.txt' );
 
 		$this->assertSame( $hashDir, $storage->getTempDir() );
-		$this->assertSame( 'ptguard-eeeeeeeeeeeeeeee', \trim( (string)\file_get_contents( $root.'/ptguard-active.txt' ) ) );
+		$this->assertSame( 'ptguard-eeeeeeeeeeeeeeee', \trim( (string)\file_get_contents( $root.'/.ptguard-active.txt' ) ) );
+		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
 	}
 
 	private function resetHashesStorageDir() :void {
