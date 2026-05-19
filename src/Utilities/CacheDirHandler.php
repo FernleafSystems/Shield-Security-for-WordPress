@@ -12,7 +12,7 @@ class CacheDirHandler {
 
 	private const ACTIVE_HASH_DIR_MARKER = 'ptguard-active.txt';
 
-	private $cacheDir;
+	private ?string $cacheDir = null;
 
 	private string $lastKnownBaseDir;
 
@@ -24,7 +24,7 @@ class CacheDirHandler {
 	}
 
 	public function dir( bool $retest = false ) :string {
-		if ( !isset( $this->cacheDir ) || $retest ) {
+		if ( $this->cacheDir === null || $retest ) {
 			$this->cacheDir = '';
 
 			$dir = $this->resolveConfiguredDir();
@@ -49,7 +49,31 @@ class CacheDirHandler {
 		return $this->cacheDir;
 	}
 
+	public function locateExistingDir() :string {
+		$FS = Services::WpFs();
+		if ( !empty( $this->cacheDir ) && $FS->isDir( $this->cacheDir ) ) {
+			return $this->cacheDir;
+		}
+
+		$configuredCandidates = $this->getConfiguredCandidates();
+		if ( !empty( $configuredCandidates ) ) {
+			return $this->locateExistingCandidate( $configuredCandidates );
+		}
+
+		$candidates = $this->buildCandidates( $this->getDiscoveryBaseDirCandidates( false ) );
+		$rankedCandidates = $this->getExistingSnapshotRootCandidates( $candidates );
+
+		return $this->locateExistingCandidate(
+			\array_merge( $rankedCandidates, $candidates, $this->getTempFallbackCandidates() )
+		);
+	}
+
 	private function resolveConfiguredDir() :?string {
+		$configuredCandidates = $this->getConfiguredCandidates();
+		return empty( $configuredCandidates ) ? null : ( $this->assessCandidates( $configuredCandidates ) ?? '' );
+	}
+
+	private function getConfiguredCandidates() :array {
 		$configuredCandidates = [];
 		if ( !empty( $this->preferredDir ) ) {
 			$configuredCandidates = $this->buildConfiguredCandidates( [ $this->preferredDir ] );
@@ -57,7 +81,7 @@ class CacheDirHandler {
 		elseif ( !empty( $this->lastKnownBaseDir ) ) {
 			$configuredCandidates = $this->buildConfiguredCandidates( [ $this->lastKnownBaseDir ] );
 		}
-		return empty( $configuredCandidates ) ? null : ( $this->assessCandidates( $configuredCandidates ) ?? '' );
+		return $configuredCandidates;
 	}
 
 	private function assessCandidates( array $candidates ) :?string {
@@ -159,8 +183,11 @@ class CacheDirHandler {
 			$FS->putFileContent( $index, $indexContent );
 		}
 
-		$FS->putFileContent( path_join( $cacheDir, 'README.txt' ),
-			sprintf( "This is a temporary caching folder used by the %s plugin. You can safely delete it, but it'll be recreated if required.\n", self::con()->labels->Name ) );
+		$readme = path_join( $cacheDir, 'README.txt' );
+		$readmeContent = sprintf( "This is a temporary caching folder used by the %s plugin. You can safely delete it, but it'll be recreated if required.\n", self::con()->labels->Name );
+		if ( !$FS->exists( $readme ) || !\hash_equals( \hash( 'sha256', $readmeContent ), \hash_file( 'sha256', $readme ) ) ) {
+			$FS->putFileContent( $readme, $readmeContent );
+		}
 
 		return true;
 	}
@@ -255,6 +282,36 @@ class CacheDirHandler {
 		return $mtime;
 	}
 
+	private function locateExistingCandidate( array $candidates ) :string {
+		$dir = '';
+		$FS = Services::WpFs();
+		foreach ( \array_unique( $candidates ) as $candidate ) {
+			$candidate = untrailingslashit( wp_normalize_path( $candidate ) );
+			if ( !empty( $candidate ) && $FS->isDir( $candidate ) ) {
+				$dir = $candidate;
+				break;
+			}
+		}
+		return $dir;
+	}
+
+	private function getTempFallbackCandidates() :array {
+		$candidates = [];
+		if ( empty( \ini_get( 'open_basedir' ) ) ) {
+			$candidates = $this->buildCandidates( \array_filter(
+				\array_unique( \array_map(
+					fn( $path ) => untrailingslashit( wp_normalize_path( $path ) ),
+					\array_filter( [
+						get_temp_dir(),
+						'/tmp',
+					] )
+				) ),
+				fn( $path ) => Services::WpFs()->isAccessibleDir( $path )
+			) );
+		}
+		return $candidates;
+	}
+
 	private function isHashDirBasename( string $basename ) :bool {
 		return \preg_match( '#^ptguard-[a-z0-9]{16}$#i', $basename ) === 1;
 	}
@@ -270,7 +327,7 @@ class CacheDirHandler {
 			: $dir;
 	}
 
-	private function getDiscoveryBaseDirCandidates() :array {
+	private function getDiscoveryBaseDirCandidates( bool $requireWritable = true ) :array {
 		return \array_filter(
 			\array_unique( \array_map(
 				fn( $path ) => untrailingslashit( wp_normalize_path( $path ) ),
@@ -283,7 +340,7 @@ class CacheDirHandler {
 					get_temp_dir(),
 				] )
 			) ),
-			fn( $path ) => Services::WpFs()->isAccessibleDir( $path ) && wp_is_writable( $path )
+			fn( $path ) => Services::WpFs()->isAccessibleDir( $path ) && ( !$requireWritable || wp_is_writable( $path ) )
 		);
 	}
 }

@@ -24,6 +24,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
 	CacheStoreTestRequest,
 	CacheStoreWordPressFunctions
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\CacheDirHandler;
 
 class HashesStorageDirTest extends BaseUnitTest {
 
@@ -105,6 +106,17 @@ class HashesStorageDirTest extends BaseUnitTest {
 		$this->assertSame( 'ptguard-ffffffffffffffff', \trim( (string)\file_get_contents( $root.'/ptguard-active.txt' ) ) );
 	}
 
+	public function test_existing_only_lookup_does_not_repair_invalid_marker() :void {
+		$root = $this->makeTempDir( 'root' );
+		$valid = $root.'/ptguard-ffffffffffffffff';
+		$this->mkdir( $valid );
+		\file_put_contents( $root.'/ptguard-active.txt', '../outside' );
+		$this->cacheRoot->root = $root;
+
+		$this->assertSame( $valid, ( new HashesStorageDir() )->getTempDir( false ) );
+		$this->assertSame( '../outside', \trim( (string)\file_get_contents( $root.'/ptguard-active.txt' ) ) );
+	}
+
 	public function test_static_dir_is_invalidated_when_cache_root_changes() :void {
 		$rootA = $this->makeTempDir( 'root-a' );
 		$rootB = $this->makeTempDir( 'root-b' );
@@ -158,6 +170,48 @@ class HashesStorageDirTest extends BaseUnitTest {
 		$this->assertSame( '', ( new HashesStorageDir() )->getTempDir( false ) );
 		$this->assertSame( [], \glob( $root.'/ptguard-*' ) ?: [] );
 		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
+	}
+
+	public function test_existing_only_lookup_with_real_cache_handler_does_not_create_missing_cache_root() :void {
+		$preferredBase = $this->makeTempDir( 'preferred-base' );
+		$cacheRoot = $preferredBase.'/shield';
+		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin
+			->getController()
+			->cache_dir_handler = new CacheDirHandler( '', $preferredBase );
+
+		$this->assertSame( '', ( new HashesStorageDir() )->getTempDir( false ) );
+		$this->assertDirectoryDoesNotExist( $cacheRoot );
+		$this->assertFileDoesNotExist( $cacheRoot.'/assessed.flag' );
+		$this->assertFileDoesNotExist( $cacheRoot.'/README.txt' );
+		$this->assertFileDoesNotExist( $cacheRoot.'/ptguard-active.txt' );
+	}
+
+	public function test_existing_only_lookup_selects_newest_without_writing_marker() :void {
+		$root = $this->makeTempDir( 'root' );
+		$old = $root.'/ptguard-dddddddddddddddd';
+		$new = $root.'/ptguard-eeeeeeeeeeeeeeee';
+		$this->mkdir( $old );
+		$this->mkdir( $new );
+		\touch( $old, 1700000000 );
+		\touch( $new, 1700000100 );
+		$this->cacheRoot->root = $root;
+
+		$this->assertSame( $new, ( new HashesStorageDir() )->getTempDir( false ) );
+		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
+	}
+
+	public function test_write_mode_after_existing_only_lookup_writes_active_marker() :void {
+		$root = $this->makeTempDir( 'root' );
+		$hashDir = $root.'/ptguard-eeeeeeeeeeeeeeee';
+		$this->mkdir( $hashDir );
+		$this->cacheRoot->root = $root;
+		$storage = new HashesStorageDir();
+
+		$this->assertSame( $hashDir, $storage->getTempDir( false ) );
+		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
+
+		$this->assertSame( $hashDir, $storage->getTempDir() );
+		$this->assertSame( 'ptguard-eeeeeeeeeeeeeeee', \trim( (string)\file_get_contents( $root.'/ptguard-active.txt' ) ) );
 	}
 
 	private function resetHashesStorageDir() :void {

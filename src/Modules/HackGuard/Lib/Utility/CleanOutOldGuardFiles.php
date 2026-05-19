@@ -16,7 +16,7 @@ class CleanOutOldGuardFiles {
 		$FS = Services::WpFs();
 
 		$count = 0;
-		$root = self::con()->cache_dir_handler->dir();
+		$root = self::con()->cache_dir_handler->locateExistingDir();
 		if ( !empty( $root ) ) {
 			$activeDir = untrailingslashit( wp_normalize_path( ( new HashesStorageDir() )->getTempDir( false ) ) );
 			foreach ( $FS->getAllFilesInDir( $root ) as $fileItem ) {

@@ -30,6 +30,10 @@ export class ShieldAdminDialogService {
 		return this.dialog.prompt( config );
 	}
 
+	processing( config = {} ) {
+		return this.dialog.processing( config );
+	}
+
 	resolveConfirmLabel( launcher = null ) {
 		return resolveAccessibleDialogConfirmLabel( launcher );
 	}

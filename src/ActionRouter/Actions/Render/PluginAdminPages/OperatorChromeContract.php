@@ -10,7 +10,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   icon_class?:string,
  *   href?:string,
  *   ajax_action_json?:string,
- *   confirm_text?:string
+ *   confirm_text?:string,
+ *   processing_text?:string
  * }
  * @phpstan-type OperatorChromeAction array{
  *   kind:string,
@@ -19,7 +20,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   icon_class:string,
  *   href:string,
  *   ajax_action_json:string,
- *   confirm_text:string
+ *   confirm_text:string,
+ *   processing_text:string
  * }
  * @phpstan-type OperatorChromeStepInput array{
  *   breadcrumb_label?:string,
@@ -178,6 +180,7 @@ final class OperatorChromeContract {
 			'href'             => $kind === 'href' ? $href : '',
 			'ajax_action_json' => $kind === 'ajax' ? $ajaxActionJson : '',
 			'confirm_text'     => self::normalizeText( $action[ 'confirm_text' ] ?? '' ),
+			'processing_text'  => self::normalizeText( $action[ 'processing_text' ] ?? '' ),
 		];
 	}
 

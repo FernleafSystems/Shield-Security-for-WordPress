@@ -236,6 +236,7 @@ class Collate {
 	private function getShieldSummary() :array {
 		$con = self::con();
 		$wpHashes = $con->comps->api_token;
+		$cacheDir = $con->cache_dir_handler->dir();
 
 		$nPrevAttempt = $wpHashes->getPreviousAttemptAt();
 		if ( empty( $nPrevAttempt ) ) {
@@ -254,7 +255,9 @@ class Collate {
 			__( 'WP Hashes Token', 'wp-simple-firewall' )        => ( $wpHashes->hasToken() ? $wpHashes->getToken() : '' ).' ('.$sPrev.')',
 			__( 'Security Admin Enabled', 'wp-simple-firewall' ) => $this->yesNo( $con->comps->sec_admin->isEnabledSecAdmin() ),
 			__( 'CrowdSec API Status', 'wp-simple-firewall' )    => 'TODO', // $con->comps->crowdsec->getApi()->getAuthStatus(),
-			__( 'TMP Dir', 'wp-simple-firewall' )                => $con->cache_dir_handler->dir(),
+			__( 'Current Cache Directory Path', 'wp-simple-firewall' ) => empty( $cacheDir ) ?
+				__( 'Unavailable', 'wp-simple-firewall' ) :
+				sprintf( '<code>%s</code>', \htmlspecialchars( $cacheDir, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8' ) ),
 		];
 
 		$source = __( 'unknown', 'wp-simple-firewall' );

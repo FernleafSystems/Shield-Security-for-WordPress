@@ -73,36 +73,23 @@ class ModCon {
 
 	protected function buildCacheDirHandler(): CacheDirHandler {
 		$con = self::con();
-		$url = Services::WpGeneral()->getWpUrl();
 
 		$lastKnownDirs = $con->opts->optGet( 'last_known_cache_basedirs' );
 		$lastKnownDirs = \is_array( $lastKnownDirs ) ? $lastKnownDirs : [];
+		$preferredTempDir = $con->opts->optGet( 'preferred_temp_dir' );
 
 		$cacheDirFinder = new CacheDirHandler(
-			$this->resolveLastKnownCacheBaseDir( $lastKnownDirs, $url ),
-			$con->opts->optGet( 'preferred_temp_dir' )
+			$this->resolveLastKnownCacheBaseDir( $lastKnownDirs ),
+			\is_string( $preferredTempDir ) ? $preferredTempDir : ''
 		);
-		$resolvedDir = $cacheDirFinder->dir();
-		if ( !empty( $resolvedDir ) ) {
-			$lastKnownDir = \dirname( $resolvedDir );
-			if ( ( $lastKnownDirs[ self::CACHE_BASE_OPTION_KEY ] ?? '' ) !== $lastKnownDir
-				 || ( $lastKnownDirs[ $url ] ?? '' ) !== $lastKnownDir
-			) {
-				$lastKnownDirs[ self::CACHE_BASE_OPTION_KEY ] = $lastKnownDir;
-				$lastKnownDirs[ $url ] = $lastKnownDir;
-				$con->opts->optSet( 'last_known_cache_basedirs', $lastKnownDirs );
-			}
-		}
 		$con->cache_dir_handler = $cacheDirFinder;
 		return $cacheDirFinder;
 	}
 
-	private function resolveLastKnownCacheBaseDir( array $lastKnownDirs, string $url ) :string {
-		$lastKnownDir = (string)( $lastKnownDirs[ self::CACHE_BASE_OPTION_KEY ] ?? '' );
-		if ( empty( $lastKnownDir ) ) {
-			$lastKnownDir = (string)( $lastKnownDirs[ $url ] ?? '' );
-		}
-		if ( empty( $lastKnownDir ) ) {
+	private function resolveLastKnownCacheBaseDir( array $lastKnownDirs ) :string {
+		$lastKnownDir = $lastKnownDirs[ self::CACHE_BASE_OPTION_KEY ] ?? '';
+		if ( !\is_string( $lastKnownDir ) || $lastKnownDir === '' ) {
+			$lastKnownDir = '';
 			foreach ( $lastKnownDirs as $maybeDir ) {
 				if ( \is_string( $maybeDir ) && !empty( $maybeDir ) ) {
 					$lastKnownDir = $maybeDir;

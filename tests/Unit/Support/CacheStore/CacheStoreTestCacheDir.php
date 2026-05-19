@@ -19,6 +19,10 @@ class CacheStoreTestCacheDir {
 		return $this->root;
 	}
 
+	public function locateExistingDir() :string {
+		return \is_dir( $this->root ) ? $this->root : '';
+	}
+
 	public function buildSubDir( string $subDir ) :string {
 		if ( $this->root === '' ) {
 			return '';

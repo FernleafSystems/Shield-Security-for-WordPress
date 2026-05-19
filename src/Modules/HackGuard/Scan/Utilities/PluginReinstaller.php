@@ -3,10 +3,17 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\Delete;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
 
 class PluginReinstaller {
+
+	private Cleanup $assetCleanup;
+
+	public function __construct( ?Cleanup $assetCleanup = null ) {
+		$this->assetCleanup = $assetCleanup ?? new Cleanup();
+	}
 
 	public function eligiblePlugin( string $file ) :?WpPluginVo {
 		$file = \trim( $file );
@@ -33,6 +40,7 @@ class PluginReinstaller {
 		}
 
 		$this->deleteSnapshot( $plugin );
+		$this->assetCleanup->run( 'plugin', $plugin->file );
 
 		return true;
 	}

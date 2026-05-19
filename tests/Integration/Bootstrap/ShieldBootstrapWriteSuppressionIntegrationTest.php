@@ -148,6 +148,10 @@ class ShieldBootstrapWriteSuppressionIntegrationTest extends ShieldIntegrationTe
 		$con->cfg->persist_required = false;
 		$this->setControllerPrechecks( null );
 		$con->comps->assets_customizer->execute();
+		$this->primePlainFrontendDefaults();
+		if ( $con->opts->hasChanges() ) {
+			$con->opts->store();
+		}
 	}
 
 	private function shieldTrackedOptionKeys() :array {
@@ -157,6 +161,28 @@ class ShieldBootstrapWriteSuppressionIntegrationTest extends ShieldIntegrationTe
 			$con->prefix( 'ip_rules_cache', '_' ),
 			'aptoweb_controller_'.\substr( \hash( 'md5', \get_class( $con ) ), 0, 6 ),
 		];
+	}
+
+	private function primePlainFrontendDefaults() :void {
+		$opts = $this->requireController()->opts;
+		foreach ( [
+			'block_aggressive',
+			'block_dir_traversal',
+			'block_field_truncation',
+			'block_php_code',
+			'block_sql_queries',
+			'global_enable_plugin_features',
+			'last_known_cache_basedirs',
+			'limit_requests',
+			'limit_time_span',
+			'preferred_temp_dir',
+			'track_404',
+			'track_fakewebcrawler',
+			'track_invalidscript',
+			'track_xmlrpc',
+		] as $key ) {
+			$opts->optGet( $key );
+		}
 	}
 
 	private function setControllerPrechecks( ?array $prechecks ) :void {

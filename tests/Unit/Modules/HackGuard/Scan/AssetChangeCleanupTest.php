@@ -224,8 +224,14 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertTrue( $store->verify() );
 		$this->assertNotEmpty( $store->getSnapData() );
 		$this->assertSame( '2.0.0', $store->getSnapMeta()[ 'version' ] );
+		$this->assertSame( 1, $scans->memoizationResets );
+		$this->assertStringContainsString( "`resolution_reason`='asset_replaced'", $wpDb->queries[ 0 ] );
 		$this->assertStringContainsString( "`asset_type`='plugin'", $wpDb->queries[ 0 ] );
 		$this->assertStringContainsString( "`asset_key`='cleanup-plugin/cleanup-plugin.php'", $wpDb->queries[ 0 ] );
+		$this->assertStringContainsString( "'is_checksumfail','is_missing'", $wpDb->queries[ 0 ] );
+		$this->assertStringNotContainsString( 'is_unrecognised', $wpDb->queries[ 0 ] );
+		$this->assertStringNotContainsString( 'is_unidentified', $wpDb->queries[ 0 ] );
+		$this->assertStringNotContainsString( 'is_mal', $wpDb->queries[ 0 ] );
 	}
 
 	public function test_plugin_cleanup_uses_selected_snapshot_root() :void {

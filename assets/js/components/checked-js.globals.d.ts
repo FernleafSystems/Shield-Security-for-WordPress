@@ -13,10 +13,15 @@ type AccessibleDialogConfig = {
 	validate?: ( value: string ) => true|string|boolean;
 };
 
+type AccessibleDialogProcessingHandle = {
+	close() :void;
+};
+
 type AccessibleDialogService = {
 	confirm( config?: AccessibleDialogConfig ) :Promise<boolean>;
 	message( config?: AccessibleDialogConfig ) :Promise<void>;
 	prompt( config?: AccessibleDialogConfig ) :Promise<string|null>;
+	processing( config?: AccessibleDialogConfig ) :AccessibleDialogProcessingHandle;
 	resolveConfirmLabel( launcher?: HTMLElement|null ) :string;
 	resolveLauncher( event?: Event|null, node?: any ) :HTMLElement|null;
 };
