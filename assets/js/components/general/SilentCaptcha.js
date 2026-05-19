@@ -125,7 +125,7 @@ export class SilentCaptcha extends BaseAutoExecComponent {
 		}
 	}
 
-	reFire( reFireTimeout = 120000 ) {
+	reFire( reFireTimeout = 15000 ) {
 		this.start_refire_at = Date.now();
 		window.setTimeout( () => {
 

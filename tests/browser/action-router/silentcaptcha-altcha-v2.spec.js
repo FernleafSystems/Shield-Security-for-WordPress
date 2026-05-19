@@ -4,12 +4,15 @@ const {
 	collectShieldAjaxActionUrls,
 	expectNoRuntimeErrors,
 	expectShieldAjaxSuccess,
+	isAdminAjaxRequest,
 	requestActionSlug,
+	requestPostParam,
 	waitForShieldAjaxAction,
 } = require( './support/security-assertions' );
 
 const PUBLIC_VISITOR_IP = '93.184.216.34';
 const NOTBOT_COOKIE_NAME = 'icwp-wpsf-notbot';
+const THIRD_PARTY_AJAX_ACTION = 'shield_browser_third_party_ping';
 
 async function withAnonymousContext( browser, lane, publicVisitorIp, runScenario ) {
 	const context = await browser.newContext( {
@@ -126,7 +129,7 @@ async function holdFirstCaptureNotBotResponse( page ) {
 	};
 }
 
-async function suppressDocumentNotBotSetCookie( page ) {
+async function suppressDocumentNotBotSetCookie( page, restoreNotBotCookie = null ) {
 	await page.route( '**/*', async ( route ) => {
 		if ( route.request().resourceType() !== 'document' ) {
 			await route.fallback();
@@ -143,12 +146,58 @@ async function suppressDocumentNotBotSetCookie( page ) {
 		}
 		// route.fetch() can apply Set-Cookie before the filtered document response is fulfilled.
 		await page.context().clearCookies( { name: NOTBOT_COOKIE_NAME } );
+		if ( restoreNotBotCookie !== null ) {
+			await setNotBotCookie( page.context(), restoreNotBotCookie.lane, restoreNotBotCookie.value );
+		}
 		await route.fulfill( {
 			body: await response.body(),
 			headers,
 			status: response.status(),
 		} );
 	} );
+}
+
+function waitForThirdPartyAjaxPing( page ) {
+	return page.waitForResponse( ( response ) => {
+		const request = response.request();
+		return isAdminAjaxRequest( request )
+			&& requestPostParam( request, 'action' ) === THIRD_PARTY_AJAX_ACTION;
+	} );
+}
+
+async function triggerThirdPartyAjaxPing( page ) {
+	return page.evaluate( async ( action ) => {
+		const response = await fetch( '/wp-admin/admin-ajax.php', {
+			method: 'POST',
+			credentials: 'same-origin',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+				'X-Requested-With': 'XMLHttpRequest',
+			},
+			body: new URLSearchParams( { action } ).toString(),
+		} );
+
+		return {
+			ok: response.ok,
+			payload: await response.json(),
+		};
+	}, THIRD_PARTY_AJAX_ACTION );
+}
+
+async function responseSetCookieHeader( response ) {
+	if ( typeof response.headerValues === 'function' ) {
+		const values = await response.headerValues( 'set-cookie' );
+		if ( Array.isArray( values ) && values.length > 0 ) {
+			return values.join( "\n" );
+		}
+	}
+	if ( typeof response.headerValue === 'function' ) {
+		const value = await response.headerValue( 'set-cookie' );
+		if ( typeof value === 'string' && value.length > 0 ) {
+			return value;
+		}
+	}
+	return response.headers()[ 'set-cookie' ] || '';
 }
 
 function collectSilentCaptchaConsoleMessages( page ) {
@@ -300,6 +349,66 @@ test( 'server Set-Cookie overrides a stale full NotBot cookie when checks are re
 			await expectNotBotLocalStorageUnused( page );
 			await expectNoRuntimeErrors( runtimeErrors, 'server cookie overrides stale full cookie' );
 			await expectNoSilentCaptchaConsoleMessages( consoleMessages, 'server cookie overrides stale full cookie' );
+		} );
+	} );
+} );
+
+test( 'third-party AJAX refreshes stale NotBot cookie and client follows refreshed state', async ( { browser, lane, fixtureApi } ) => {
+	const future = Math.floor( Date.now() / 1000 ) + 600;
+	const staleCookieValue = `notbotZaltchaZexp-${future}`;
+
+	await fixtureApi.withNotBotAltchaFixture( PUBLIC_VISITOR_IP, async () => {
+		await withAnonymousContext( browser, lane, PUBLIC_VISITOR_IP, async ( context ) => {
+			await setNotBotCookie( context, lane, staleCookieValue );
+			const page = await context.newPage();
+			await suppressDocumentNotBotSetCookie( page, {
+				lane,
+				value: staleCookieValue,
+			} );
+			const runtimeErrors = collectRuntimeErrors( page );
+			const consoleMessages = collectSilentCaptchaConsoleMessages( page );
+			const notbotResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot' );
+			const altchaResponses = collectShieldAjaxActionUrls( page, 'capture_not_bot_altcha' );
+
+			await page.goto( '/', { waitUntil: 'load' } );
+			await page.waitForLoadState( 'networkidle' );
+			await page.waitForTimeout( 1000 );
+
+			expect( notbotResponses ).toEqual( [] );
+			expect( altchaResponses ).toEqual( [] );
+			expect( ( await readNotBotCookie( page ) )?.value ).toBe( staleCookieValue );
+
+			const thirdPartyResponse = waitForThirdPartyAjaxPing( page );
+			const notbotResponse = waitForShieldAjaxAction( page, 'capture_not_bot' );
+			const altchaResponse = waitForShieldAjaxAction( page, 'capture_not_bot_altcha' );
+			const thirdPartyResult = await triggerThirdPartyAjaxPing( page );
+			const thirdPartyAjaxResponse = await thirdPartyResponse;
+			const thirdPartySetCookie = await responseSetCookieHeader( thirdPartyAjaxResponse );
+
+			expect( thirdPartyResult ).toEqual( {
+				ok: true,
+				payload: {
+					ok: true,
+					fixture: 'third-party-ajax',
+				},
+			} );
+			expect( Object.prototype.hasOwnProperty.call( thirdPartyResult.payload, 'client_state' ) ).toBe( false );
+			expect( thirdPartySetCookie ).toContain( NOTBOT_COOKIE_NAME );
+
+			await expect.poll( async () => ( await readNotBotCookie( page ) )?.value || '' ).not.toBe( staleCookieValue );
+			await expectNotBotCookie( page, [] );
+
+			await expectShieldAjaxSuccess( await notbotResponse );
+			await expectShieldAjaxSuccess( await altchaResponse );
+			await page.waitForLoadState( 'networkidle' );
+			await page.waitForTimeout( 1000 );
+
+			expect( notbotResponses ).toHaveLength( 1 );
+			expect( altchaResponses ).toHaveLength( 1 );
+			await expectNotBotCookie( page, [ 'notbot', 'altcha' ] );
+			await expectNotBotLocalStorageUnused( page );
+			await expectNoRuntimeErrors( runtimeErrors, 'third-party AJAX stale NotBot cookie refresh' );
+			await expectNoSilentCaptchaConsoleMessages( consoleMessages, 'third-party AJAX stale NotBot cookie refresh' );
 		} );
 	} );
 } );
