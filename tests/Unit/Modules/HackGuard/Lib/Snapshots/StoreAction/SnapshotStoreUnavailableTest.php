@@ -103,7 +103,7 @@ class SnapshotStoreUnavailableTest extends BaseUnitTest {
 
 		$this->assertStringContainsString( 'Snapshot store directory is unavailable', $exceptionMessage );
 		$this->assertSame( [], \glob( $root.'/ptguard-*' ) ?: [] );
-		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
+		$this->assertFileDoesNotExist( $root.'/.ptguard-active.txt' );
 	}
 
 	private function resetHashesStorageDir() :void {

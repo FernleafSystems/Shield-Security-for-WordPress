@@ -166,7 +166,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 
 		$this->assertSame( [ 'snapshot-missing-no-create/plugin.php' ], $this->assetKeysThatNeedBuilt() );
 		$this->assertSame( [], \glob( $root.'/ptguard-*' ) ?: [] );
-		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
+		$this->assertFileDoesNotExist( $root.'/.ptguard-active.txt' );
 	}
 
 	public function test_build_writes_and_loads_under_selected_uploads_root_only() :void {
