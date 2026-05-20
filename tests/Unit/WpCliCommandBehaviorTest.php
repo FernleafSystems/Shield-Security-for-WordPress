@@ -259,7 +259,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 		public function test_scans_run_no_start_result_exits_with_error_after_central_start_attempt() :void {
 			$state = $this->installController(
 				StartScansResult::fromRequested( [ 'afs' ] )
-					->addFailure( 'afs', StartScansResult::REASON_ALREADY_EXISTS )
+					->addFailure( 'afs', StartScansResult::REASON_CREATE_FAILED )
 			);
 
 			try {
@@ -272,6 +272,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 
 			$this->assertSame( [ [ 'afs' ] ], $state->scans->startedScans );
 			$this->assertSame( [ 'error' ], \array_column( \WP_CLI::$events, 'type' ) );
+		}
+
+		public function test_scans_run_treats_active_duplicate_resumed_result_as_success() :void {
+			$state = $this->installController(
+				StartScansResult::fromRequested( [ 'afs' ] )
+					->addResumed( 'afs', 501 )
+			);
+
+			( new ScansRun() )->execCmd( [], [ 'afs' => true ] );
+
+			$this->assertSame( [ [ 'afs' ] ], $state->scans->startedScans );
+			$this->assertSame( [], \WP_CLI::$events );
 		}
 
 		private function installController( ?StartScansResult $scanResult = null ) :object {
