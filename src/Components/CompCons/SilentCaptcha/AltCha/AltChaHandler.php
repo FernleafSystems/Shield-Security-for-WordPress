@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\AltCha;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -12,19 +13,19 @@ class AltChaHandler {
 
 	private const COMPLEXITY_PROFILES = [
 		SilentCaptchaComplexity::LOW    => [
-			'cost'        => 250,
-			'counter_min' => 200,
-			'counter_max' => 600,
+			'cost'        => 1000,
+			'counter_min' => 400,
+			'counter_max' => 1000,
 		],
 		SilentCaptchaComplexity::MEDIUM => [
-			'cost'        => 500,
-			'counter_min' => 600,
-			'counter_max' => 1600,
+			'cost'        => 2500,
+			'counter_min' => 1000,
+			'counter_max' => 2500,
 		],
 		SilentCaptchaComplexity::HIGH   => [
-			'cost'        => 1000,
-			'counter_min' => 1600,
-			'counter_max' => 3500,
+			'cost'        => 5000,
+			'counter_min' => 2000,
+			'counter_max' => 5000,
 		],
 	];
 
@@ -83,7 +84,7 @@ class AltChaHandler {
 	public function generateChallenge() :array {
 		$protocol = $this->protocol();
 		$hmacKey = $this->hmacKey();
-		$complexity = $this->complexityLevel();
+		$complexity = $this->effectiveComplexityLevel();
 		if ( !isset( self::COMPLEXITY_PROFILES[ $complexity ] ) ) {
 			throw new \Exception( 'ALTCHA challenge generation is disabled.' );
 		}
@@ -106,4 +107,39 @@ class AltChaHandler {
 	private function protocol() :AltChaV2Pbkdf2 {
 		return new AltChaV2Pbkdf2();
 	}
+
+	private function effectiveComplexityLevel() :string {
+		$complexity = $this->complexityLevel();
+		if ( \in_array( $complexity, [
+			SilentCaptchaComplexity::NONE,
+			SilentCaptchaComplexity::HIGH,
+		], true ) ) {
+			return $complexity;
+		}
+
+		if ( $this->hasRecentPageLoadSignal() ) {
+			return $complexity;
+		}
+
+		if ( $complexity === SilentCaptchaComplexity::LOW ) {
+			return SilentCaptchaComplexity::MEDIUM;
+		}
+
+		return SilentCaptchaComplexity::HIGH;
+	}
+
+	private function hasRecentPageLoadSignal() :bool {
+		try {
+			$record = ( new BotSignalsRecord() )
+				->setIP( self::con()->this_req->ip )
+				->retrieve();
+			$lastPageLoadAt = \max( (int)$record->frontpage_at, (int)$record->loginpage_at );
+		}
+		catch ( \Exception $e ) {
+			$lastPageLoadAt = 0;
+		}
+
+		return $lastPageLoadAt > 0 && Services::Request()->ts() - $lastPageLoadAt <= HOUR_IN_SECONDS;
+	}
+
 }

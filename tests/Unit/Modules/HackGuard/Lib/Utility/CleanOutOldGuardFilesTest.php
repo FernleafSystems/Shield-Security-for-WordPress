@@ -63,7 +63,7 @@ class CleanOutOldGuardFilesTest extends BaseUnitTest {
 		$this->mkdir( $old );
 		$this->mkdir( $active );
 		$this->mkdir( $root.'/ptguard' );
-		\file_put_contents( $root.'/ptguard-active.txt', 'ptguard-bbbbbbbbbbbbbbbb' );
+		\file_put_contents( $root.'/.ptguard-active.txt', 'ptguard-bbbbbbbbbbbbbbbb' );
 
 		( new CleanOutOldGuardFiles() )->execute();
 
@@ -85,7 +85,7 @@ class CleanOutOldGuardFilesTest extends BaseUnitTest {
 
 		$this->assertDirectoryExists( $new );
 		$this->assertDirectoryDoesNotExist( $old );
-		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
+		$this->assertFileDoesNotExist( $root.'/.ptguard-active.txt' );
 	}
 
 	public function test_cleanup_does_not_create_hash_dir_when_root_has_no_hash_dirs() :void {
@@ -94,7 +94,7 @@ class CleanOutOldGuardFilesTest extends BaseUnitTest {
 		( new CleanOutOldGuardFiles() )->execute();
 
 		$this->assertSame( [], \glob( $root.'/ptguard-*' ) ?: [] );
-		$this->assertFileDoesNotExist( $root.'/ptguard-active.txt' );
+		$this->assertFileDoesNotExist( $root.'/.ptguard-active.txt' );
 	}
 
 	public function test_cleanup_does_not_create_missing_cache_root() :void {

@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\AltCha\AltChaV2Pbkdf2;
 
 class CaptureNotBotAltcha extends BaseAction {
-
 	use Traits\AuthNotRequired;
 
 	public const SLUG = 'capture_not_bot_altcha';
@@ -32,7 +31,7 @@ class CaptureNotBotAltcha extends BaseAction {
 		}
 	}
 
-	private function verifyAltChaSolution( array $data ) :bool {
+	private function verifyAltChaSolution( array $data ): bool {
 		$verified = false;
 		$keys = [
 			'altcha_version',

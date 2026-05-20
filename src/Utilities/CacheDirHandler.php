@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\HashesStorageDir;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\File\AssessDirWrite;
@@ -9,8 +10,6 @@ use FernleafSystems\Wordpress\Services\Utilities\File\AssessDirWrite;
 class CacheDirHandler {
 
 	use PluginControllerConsumer;
-
-	private const ACTIVE_HASH_DIR_MARKER = 'ptguard-active.txt';
 
 	private ?string $cacheDir = null;
 
@@ -260,7 +259,7 @@ class CacheDirHandler {
 	private function getValidActiveMarkerMTime( string $candidate ) :int {
 		$FS = Services::WpFs();
 		$mtime = 0;
-		$marker = path_join( $candidate, self::ACTIVE_HASH_DIR_MARKER );
+		$marker = path_join( $candidate, HashesStorageDir::ACTIVE_MARKER );
 		if ( $FS->isAccessibleFile( $marker ) ) {
 			$activeDirBasename = \trim( (string)$FS->getFileContent( $marker ) );
 			$activeDir = path_join( $candidate, $activeDirBasename );
