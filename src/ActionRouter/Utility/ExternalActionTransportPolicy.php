@@ -36,6 +36,13 @@ class ExternalActionTransportPolicy {
 			case Actions\FullPageDisplay\FullPageDisplayNonTerminating::SLUG:
 				return false;
 
+			case Actions\FullPageDisplay\DisplayReport::SLUG:
+				return $type === ActionRoutingController::ACTION_SHIELD;
+
+			case Actions\FullPageDisplay\DisplayReportAdmin::SLUG:
+				return $type === ActionRoutingController::ACTION_SHIELD
+					   && ( \is_admin() || \is_network_admin() );
+
 			default:
 				return true;
 		}

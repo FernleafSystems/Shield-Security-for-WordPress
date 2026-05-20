@@ -2,11 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
+use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionRoutingController,
 	Actions\AjaxRender,
 	Actions\FullPageDisplay\DisplayBlockPage,
+	Actions\FullPageDisplay\DisplayReport,
+	Actions\FullPageDisplay\DisplayReportAdmin,
 	Actions\FullPageDisplay\FullPageDisplayDynamic,
 	Actions\FullPageDisplay\FullPageDisplayNonTerminating,
 	Actions\Render,
@@ -19,7 +22,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class ExternalActionTransportPolicyTest extends BaseUnitTest {
 
+	private static bool $isAdminContext = false;
 
+	protected function setUp() :void {
+		parent::setUp();
+		self::$isAdminContext = false;
+		Functions\when( 'is_admin' )->alias( static fn() :bool => self::$isAdminContext );
+		Functions\when( 'is_network_admin' )->justReturn( false );
+	}
 
 	public function test_render_is_never_allowed_from_external_transports() :void {
 		$policy = new ExternalActionTransportPolicy();
@@ -87,7 +97,25 @@ class ExternalActionTransportPolicyTest extends BaseUnitTest {
 		}
 	}
 
+	public function test_report_transport_is_only_allowed_from_normal_shield_transport() :void {
+		$policy = new ExternalActionTransportPolicy();
 
+		$this->assertTrue( $policy->isAllowed( DisplayReport::SLUG, [], ActionRoutingController::ACTION_SHIELD ) );
+		$this->assertFalse( $policy->isAllowed( DisplayReport::SLUG, [], ActionRoutingController::ACTION_AJAX ) );
+		$this->assertFalse( $policy->isAllowed( DisplayReport::SLUG, [], ActionRoutingController::ACTION_REST ) );
+	}
+
+	public function test_admin_report_transport_is_allowed_only_from_admin_shield_transport() :void {
+		$policy = new ExternalActionTransportPolicy();
+
+		self::$isAdminContext = true;
+		$this->assertTrue( $policy->isAllowed( DisplayReportAdmin::SLUG, [], ActionRoutingController::ACTION_SHIELD ) );
+		$this->assertFalse( $policy->isAllowed( DisplayReportAdmin::SLUG, [], ActionRoutingController::ACTION_AJAX ) );
+		$this->assertFalse( $policy->isAllowed( DisplayReportAdmin::SLUG, [], ActionRoutingController::ACTION_REST ) );
+
+		self::$isAdminContext = false;
+		$this->assertFalse( $policy->isAllowed( DisplayReportAdmin::SLUG, [], ActionRoutingController::ACTION_SHIELD ) );
+	}
 
 	public function test_unlisted_actions_keep_the_existing_transport_behaviour() :void {
 		$this->assertTrue( ( new ExternalActionTransportPolicy() )->isAllowed(
