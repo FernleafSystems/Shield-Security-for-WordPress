@@ -9,12 +9,14 @@ use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestCrossSiteCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPopularPluginsCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestSourceCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestUpgradePublicCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\CrossSiteTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageFullTestLane;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\PopularPluginsCompatibilityTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PreCommitChangedFileLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PublicUpgradeTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceRuntimeTestLane;
@@ -57,6 +59,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				'test:package-targeted',
 				'test:package-full',
 				'test:upgrade-public',
+				'test:popular-plugins',
 				'analyze:tooling',
 				'analyze:source',
 				'analyze:package',
@@ -161,6 +164,36 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$exitCode = $tester->execute( [
 			'--package-zip' => 'builds/shield.zip',
 			'--artifact-dir' => 'tmp/upgrade-artifacts',
+			'--show-docker-output' => true,
+		] );
+
+		$this->assertSame( 0, $exitCode );
+	}
+
+	public function testPopularPluginsCommandIncludesCiReadyOptions() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$command = new TestPopularPluginsCommand(
+			$this->getPluginRoot(),
+			$this->createMock( PopularPluginsCompatibilityTestLane::class )
+		);
+
+		$this->assertTrue( $command->getDefinition()->hasOption( 'package-zip' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'artifact-dir' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
+	}
+
+	public function testPopularPluginsCommandForwardsOptions() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$lane = $this->createMock( PopularPluginsCompatibilityTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), 'builds/shield.zip', 'tmp/popular-artifacts', true )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestPopularPluginsCommand( $this->getPluginRoot(), $lane ) );
+		$exitCode = $tester->execute( [
+			'--package-zip' => 'builds/shield.zip',
+			'--artifact-dir' => 'tmp/popular-artifacts',
 			'--show-docker-output' => true,
 		] );
 
@@ -298,6 +331,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			'test-package-targeted' => [ 'test:package-targeted' ],
 			'test-package-full' => [ 'test:package-full' ],
 			'test-upgrade-public' => [ 'test:upgrade-public' ],
+			'test-popular-plugins' => [ 'test:popular-plugins' ],
 			'analyze-tooling' => [ 'analyze:tooling' ],
 			'analyze-source' => [ 'analyze:source' ],
 			'analyze-package' => [ 'analyze:package' ],

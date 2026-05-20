@@ -2,5 +2,5 @@
 
 namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
-class PublicUpgradeTestFailureException extends PackageRuntimeTestFailureException {
+class PackageRuntimeTestFailureException extends \RuntimeException {
 }

@@ -17,6 +17,42 @@
         "PKSA-n72g-8zd8-6dm2": {
           "apply":  "block",
           "reason": "Temporary exception while PHP 7.4 support remains and a long-term passkey library strategy is finalized."
+        },
+        "PKSA-sjvz-tbbr-vwth": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not use the spaceless filter and will move to Twig 3.26+ with PHP 8.1+."
+        },
+        "PKSA-h8hf-ytnd-5t9q": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; bundled templates do not use the Twig use tag and render targets are constrained."
+        },
+        "PKSA-wwb1-81rc-pd65": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig profiler HtmlDumper in production rendering."
+        },
+        "PKSA-kvv6-36cr-fkzb": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing for untrusted templates."
+        },
+        "PKSA-n14z-jjjg-g8vd": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing or use the column filter."
+        },
+        "PKSA-3mcc-k66d-pydb": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing for untrusted templates."
+        },
+        "PKSA-gw7n-z4yx-7xjt": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not configure Twig SourcePolicyInterface sandboxing."
+        },
+        "PKSA-dpx1-78wg-1kqs": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing for untrusted templates."
+        },
+        "PKSA-21g2-dzjv-sky5": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable StringLoaderExtension or template_from_string."
         }
       }
     },
@@ -122,6 +158,10 @@
     "test:upgrade-public": [
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:upgrade-public"
+    ],
+    "test:popular-plugins": [
+      "Composer\\Config::disableProcessTimeout",
+      "@php bin/shield test:popular-plugins"
     ],
     "analyze":          "@php bin/shield analyze:source",
     "package-plugin":   [
