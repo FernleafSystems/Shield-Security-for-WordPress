@@ -23,18 +23,22 @@ class BrowserTestLane {
 
 	private SourceGeneratedConfigReadiness $generatedConfigReadiness;
 
+	private SourceAssetBuildReadiness $assetBuildReadiness;
+
 	public function __construct(
 		?ProcessRunner $processRunner = null,
 		?LocalSiteManager $siteManager = null,
 		?BrowserTestLanePool $lanePool = null,
 		?LocalSiteRuntimeHostManifestProvider $hostManifestProvider = null,
-		?SourceGeneratedConfigReadiness $generatedConfigReadiness = null
+		?SourceGeneratedConfigReadiness $generatedConfigReadiness = null,
+		?SourceAssetBuildReadiness $assetBuildReadiness = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$this->providedSiteManager = $siteManager;
 		$this->lanePool = $lanePool ?? new BrowserTestLanePool();
 		$this->hostManifestProvider = $hostManifestProvider ?? new LocalSiteRuntimeHostManifestProvider();
 		$this->generatedConfigReadiness = $generatedConfigReadiness ?? new SourceGeneratedConfigReadiness( $this->processRunner );
+		$this->assetBuildReadiness = $assetBuildReadiness ?? new SourceAssetBuildReadiness( $this->processRunner );
 	}
 
 	/**
@@ -84,6 +88,18 @@ class BrowserTestLane {
 		}
 		catch ( \Throwable $throwable ) {
 			$this->writeFailureDiagnostic( 'prepare generated config', $throwable, null );
+			return 1;
+		}
+
+		try {
+			$this->assetBuildReadiness->ensureReady(
+				$rootDir,
+				$showSetupOutput ? null : static function () :void {},
+				'browser tests'
+			);
+		}
+		catch ( \Throwable $throwable ) {
+			$this->writeFailureDiagnostic( 'build browser assets', $throwable, null );
 			return 1;
 		}
 

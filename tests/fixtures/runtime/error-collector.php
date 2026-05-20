@@ -1,24 +1,24 @@
 <?php declare( strict_types=1 );
 
 /**
- * Plugin Name: Shield Upgrade Test Error Collector
- * Description: Test-only PHP error collector for the public-to-current Shield upgrade lane.
+ * Plugin Name: Shield Runtime Test Error Collector
+ * Description: Test-only PHP error collector for Shield package runtime lanes.
  */
 
-if ( !\function_exists( 'shield_upgrade_test_error_dir' ) ) {
-	function shield_upgrade_test_error_dir() :string {
+if ( !\function_exists( 'shield_runtime_test_error_dir' ) ) {
+	function shield_runtime_test_error_dir() :string {
 		return \defined( 'WP_CONTENT_DIR' )
-			? WP_CONTENT_DIR.'/shield-upgrade-test'
+			? WP_CONTENT_DIR.'/shield-runtime-test'
 			: '';
 	}
 }
 
-if ( !\function_exists( 'shield_upgrade_test_record_event' ) ) {
+if ( !\function_exists( 'shield_runtime_test_record_event' ) ) {
 	/**
 	 * @param array<string,mixed> $event
 	 */
-	function shield_upgrade_test_record_event( array $event ) :void {
-		$dir = shield_upgrade_test_error_dir();
+	function shield_runtime_test_record_event( array $event ) :void {
+		$dir = shield_runtime_test_error_dir();
 		if ( $dir === '' ) {
 			return;
 		}
@@ -40,17 +40,17 @@ if ( !\function_exists( 'shield_upgrade_test_record_event' ) ) {
 }
 
 if ( \defined( 'WP_CONTENT_DIR' ) ) {
-	$shieldUpgradeTestDir = shield_upgrade_test_error_dir();
-	if ( $shieldUpgradeTestDir !== '' && ( \is_dir( $shieldUpgradeTestDir ) || \mkdir( $shieldUpgradeTestDir, 0777, true ) || \is_dir( $shieldUpgradeTestDir ) ) ) {
+	$shieldRuntimeTestDir = shield_runtime_test_error_dir();
+	if ( $shieldRuntimeTestDir !== '' && ( \is_dir( $shieldRuntimeTestDir ) || \mkdir( $shieldRuntimeTestDir, 0777, true ) || \is_dir( $shieldRuntimeTestDir ) ) ) {
 		\ini_set( 'log_errors', '1' );
 		\ini_set( 'display_errors', '0' );
-		\ini_set( 'error_log', $shieldUpgradeTestDir.'/wordpress-debug.log' );
+		\ini_set( 'error_log', $shieldRuntimeTestDir.'/wordpress-debug.log' );
 		\error_reporting( E_ALL );
 	}
 
 	\set_error_handler(
 		static function ( int $severity, string $message, string $file = '', int $line = 0 ) :bool {
-			shield_upgrade_test_record_event( [
+			shield_runtime_test_record_event( [
 				'type'     => 'php-error',
 				'severity' => $severity,
 				'message'  => $message,
@@ -63,7 +63,7 @@ if ( \defined( 'WP_CONTENT_DIR' ) ) {
 
 	\set_exception_handler(
 		static function ( \Throwable $throwable ) :void {
-			shield_upgrade_test_record_event( [
+			shield_runtime_test_record_event( [
 				'type'    => 'uncaught-exception',
 				'class'   => \get_class( $throwable ),
 				'message' => $throwable->getMessage(),
@@ -83,7 +83,7 @@ if ( \defined( 'WP_CONTENT_DIR' ) ) {
 			if ( !\in_array( (int)( $error[ 'type' ] ?? 0 ), [ E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR ], true ) ) {
 				return;
 			}
-			shield_upgrade_test_record_event( [
+			shield_runtime_test_record_event( [
 				'type'     => 'shutdown-fatal',
 				'severity' => (int)( $error[ 'type' ] ?? 0 ),
 				'message'  => (string)( $error[ 'message' ] ?? '' ),

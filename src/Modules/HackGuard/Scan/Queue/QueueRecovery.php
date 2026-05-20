@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -26,8 +27,9 @@ class QueueRecovery {
 			return;
 		}
 
-		if ( $this->hasUnstartedUnfinishedItems( $scanID ) ) {
-			$this->resumeUnstartedWork( $scan );
+		$unstartedItemID = $this->unstartedUnfinishedItemID( $scanID );
+		if ( $unstartedItemID > 0 ) {
+			$this->resumeUnstartedWork( $scan, $unstartedItemID );
 		}
 	}
 
@@ -62,7 +64,12 @@ class QueueRecovery {
 		self::con()->comps->scans_queue->getQueueProcessor()->dispatch();
 	}
 
-	private function resumeUnstartedWork( ScansDB\Record $scan ) :void {
+	private function resumeUnstartedWork( ScansDB\Record $scan, int $unstartedItemID ) :void {
+		if ( $this->hasEarlierUnfinishedReadyWork( $scan, $unstartedItemID ) ) {
+			$this->touchScan( (int)$scan->id );
+			return;
+		}
+
 		$now = Services::Request()->ts();
 		$meta = \is_array( $scan->meta ) ? $scan->meta : [];
 		$recovery = \is_array( $meta[ RunState::META_KEY_WATCHDOG_RECOVERY ] ?? null )
@@ -117,16 +124,53 @@ class QueueRecovery {
 		return \is_array( $row ) ? $row : [];
 	}
 
-	private function hasUnstartedUnfinishedItems( int $scanID ) :bool {
+	private function unstartedUnfinishedItemID( int $scanID ) :int {
 		return (int)Services::WpDb()->getVar(
-			sprintf( "SELECT 1
+			sprintf( "SELECT `id`
 					FROM `%s`
 					WHERE `scan_ref`=%d
 					  AND `finished_at`=0
 					  AND `started_at`=0
+					ORDER BY `id` ASC
 					LIMIT 1;",
 				self::con()->db_con->scan_items->getTable(),
 				$scanID
+			)
+		);
+	}
+
+	private function hasEarlierUnfinishedReadyWork( ScansDB\Record $scan, int $unstartedItemID ) :bool {
+		$scanID = (int)$scan->id;
+		$createdAt = (int)$scan->created_at;
+		if ( $scanID < 1 || $unstartedItemID < 1 ) {
+			return false;
+		}
+
+		return (int)Services::WpDb()->getVar(
+			sprintf( "SELECT 1
+					FROM `%s` AS `blocker`
+					INNER JOIN `%s` AS `blocker_item`
+						ON `blocker_item`.`scan_ref`=`blocker`.`id`
+						AND `blocker_item`.`finished_at`=0
+					WHERE `blocker`.`id`<>%d
+					  AND `blocker`.`finished_at`=0
+					  AND `blocker`.`status` IN (%s)
+					  AND `blocker`.`ready_at`>0
+					  AND (
+						`blocker`.`created_at`<%d
+						OR (
+							`blocker`.`created_at`=%d
+							AND `blocker_item`.`id`<%d
+						)
+					  )
+					LIMIT 1;",
+				self::con()->db_con->scans->getTable(),
+				self::con()->db_con->scan_items->getTable(),
+				$scanID,
+				ScanStatus::sqlList( ScanStatus::READY ),
+				$createdAt,
+				$createdAt,
+				$unstartedItemID
 			)
 		) === 1;
 	}

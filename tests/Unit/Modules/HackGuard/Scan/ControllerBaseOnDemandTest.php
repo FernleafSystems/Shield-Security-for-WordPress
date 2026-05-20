@@ -1,5 +1,14 @@
 <?php declare( strict_types=1 );
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
+
+if ( !\function_exists( __NAMESPACE__.'\\error_log' ) ) {
+	function error_log( string $message ) :bool {
+		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\ControllerBaseOnDemandLogSpy::record( $message );
+		return true;
+	}
+}
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan;
 
 use Brain\Monkey\Functions;
@@ -15,6 +24,7 @@ class ControllerBaseOnDemandTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		ControllerBaseOnDemandLogSpy::reset();
 		Functions\when( '__' )->returnArg();
 	}
 
@@ -39,13 +49,55 @@ class ControllerBaseOnDemandTest extends BaseUnitTest {
 		$this->assertSame( [ [ 'afs' ] ], $state->scans->startCalls );
 	}
 
-	private function installController() :object {
-		$scans = new class {
+	public function test_on_demand_scan_hook_logs_nothing_for_existing_active_scan_resumed_by_central_start() :void {
+		$actions = [];
+		Functions\when( 'add_action' )->alias(
+			static function ( string $hook, callable $callback ) use ( &$actions ) :bool {
+				$actions[ $hook ] = $callback;
+				return true;
+			}
+		);
+		$this->installController(
+			StartScansResult::fromRequested( [ 'afs' ] )->addResumed( 'afs', 501 )
+		);
+
+		( new OnDemandScanControllerTestDouble() )->execute();
+		$actions[ 'icwp-wpsf-ondemand_scan_afs' ]();
+
+		$this->assertSame( [], ControllerBaseOnDemandLogSpy::$messages );
+	}
+
+	public function test_on_demand_scan_hook_still_logs_real_start_failures() :void {
+		$actions = [];
+		Functions\when( 'add_action' )->alias(
+			static function ( string $hook, callable $callback ) use ( &$actions ) :bool {
+				$actions[ $hook ] = $callback;
+				return true;
+			}
+		);
+		$this->installController(
+			StartScansResult::fromRequested( [ 'afs' ] )->addFailure( 'afs', StartScansResult::REASON_CREATE_FAILED )
+		);
+
+		( new OnDemandScanControllerTestDouble() )->execute();
+		$actions[ 'icwp-wpsf-ondemand_scan_afs' ]();
+
+		$this->assertSame( [ 'Shield scan start failures: afs:create_failed' ], ControllerBaseOnDemandLogSpy::$messages );
+	}
+
+	private function installController( ?StartScansResult $startResult = null ) :object {
+		$scans = new class( $startResult ) {
 			public array $startCalls = [];
+
+			private ?StartScansResult $startResult;
+
+			public function __construct( ?StartScansResult $startResult ) {
+				$this->startResult = $startResult;
+			}
 
 			public function startNewScans( array $scans ) :StartScansResult {
 				$this->startCalls[] = $scans;
-				return StartScansResult::fromRequested( $scans )->addStarted( $scans[ 0 ], 31 );
+				return $this->startResult ?? StartScansResult::fromRequested( $scans )->addStarted( $scans[ 0 ], 31 );
 			}
 		};
 
@@ -65,6 +117,19 @@ class ControllerBaseOnDemandTest extends BaseUnitTest {
 		return (object)[
 			'scans' => $scans,
 		];
+	}
+}
+
+class ControllerBaseOnDemandLogSpy {
+
+	public static array $messages = [];
+
+	public static function reset() :void {
+		self::$messages = [];
+	}
+
+	public static function record( string $message ) :void {
+		self::$messages[] = $message;
 	}
 }
 
