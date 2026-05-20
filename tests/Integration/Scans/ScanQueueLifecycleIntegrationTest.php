@@ -357,6 +357,56 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'failed', $scan->status );
 	}
 
+	public function testRealDbRepeatedWpvStartReturnsExistingActiveScanWithoutReplacement() :void {
+		$wpvID = $this->createScan( 'wpv', 'running', [
+			'ready_at'        => \time(),
+			'started_at'      => \time(),
+			'last_process_at' => \time(),
+		] );
+		$controller = new IntegrationScansControllerTestDouble( [
+			'wpv' => new IntegrationScanControllerTestDouble( 'wpv' ),
+		] );
+
+		$result = $controller->startNewScans( [ 'wpv' ] );
+
+		$this->assertSame( [ $wpvID ], $result->getStartedScanIDs() );
+		$this->assertSame( [], $result->getFailures() );
+		$rows = $this->scanRowsForSlug( 'wpv' );
+		$this->assertCount( 1, $rows );
+		$this->assertSame( $wpvID, (int)$rows[ 0 ]->id );
+		$this->assertSame( 'running', $rows[ 0 ]->status );
+	}
+
+	public function testRealDbRepeatedAllScansStartWithActiveRowsIsQuietAndDoesNotDuplicateRows() :void {
+		$activeIDs = [
+			'afs' => $this->createScan( 'afs', 'running', [
+				'ready_at'        => \time(),
+				'started_at'      => \time(),
+				'last_process_at' => \time(),
+			] ),
+			'apc' => $this->createScan( 'apc', 'built', [
+				'ready_at'        => \time(),
+				'last_process_at' => \time(),
+			] ),
+			'wpv' => $this->createScan( 'wpv', 'queued' ),
+		];
+		$controller = new IntegrationScansControllerTestDouble( [
+			'afs' => new IntegrationScanControllerTestDouble( 'afs' ),
+			'apc' => new IntegrationScanControllerTestDouble( 'apc' ),
+			'wpv' => new IntegrationScanControllerTestDouble( 'wpv' ),
+		] );
+
+		$result = $controller->startNewScans( [ 'afs', 'apc', 'wpv' ] );
+
+		$this->assertSame( \array_values( $activeIDs ), $result->getStartedScanIDs() );
+		$this->assertSame( [], $result->getFailures() );
+		foreach ( $activeIDs as $slug => $id ) {
+			$rows = $this->scanRowsForSlug( $slug );
+			$this->assertCount( 1, $rows );
+			$this->assertSame( $id, (int)$rows[ 0 ]->id );
+		}
+	}
+
 	public function testPriorReleaseStalledRowsDoNotRemainPermanentActiveBlockersInRealDb() :void {
 		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
 		foreach ( [ 'afs', 'apc', 'wpv' ] as $slug ) {

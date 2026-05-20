@@ -144,8 +144,9 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$result = ( new LifecycleScansControllerTestDouble() )->startNewScans( [ 'afs' ] );
 		$queries = $harness->sql->queryLog();
 
-		$this->assertFalse( $result->hasStarted() );
-		$this->assertSame( [ StartScansResult::REASON_ALREADY_EXISTS ], \array_column( $result->getFailures(), 'reason' ) );
+		$this->assertSame( [ $scanID ], $result->getStartedScanIDs() );
+		$this->assertSame( [], $result->getFailures() );
+		$this->assertSame( 1, $this->queryLogCount( $queries, 'SELECT `id` FROM `scans`' ) );
 		$this->assertSame( 1, $this->queryLogCount( $queries, 'SELECT `id`, `scan`' ) );
 		$this->assertFalse( $this->queryLogContains( $queries, 'FROM `scan_items`' ) );
 		$this->assertSame( [], $harness->async->remotePosts );
@@ -278,8 +279,9 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$secondResult = ( new LifecycleScansControllerTestDouble() )->startNewScans( [ 'afs' ] );
 		$queries = $harness->sql->queryLog();
 
-		$this->assertFalse( $secondResult->hasStarted() );
-		$this->assertSame( [ StartScansResult::REASON_ALREADY_EXISTS ], \array_column( $secondResult->getFailures(), 'reason' ) );
+		$this->assertSame( [ $scanID ], $secondResult->getStartedScanIDs() );
+		$this->assertSame( [], $secondResult->getFailures() );
+		$this->assertSame( 1, $this->queryLogCount( $queries, 'SELECT `id` FROM `scans`' ) );
 		$this->assertSame( 1, $this->queryLogCount( $queries, 'SELECT `id`, `scan`' ) );
 		$this->assertFalse( $this->queryLogContains( $queries, 'FROM `scan_items`' ) );
 		$this->assertSame( [], $harness->async->remotePosts );

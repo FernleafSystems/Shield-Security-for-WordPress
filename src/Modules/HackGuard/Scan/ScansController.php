@@ -249,7 +249,13 @@ class ScansController {
 					}
 				}
 				else {
-					$result->addFailure( $slug, StartScansResult::REASON_ALREADY_EXISTS, $e->getMessage() );
+					$existingScanID = $e->getExistingScanID();
+					if ( $existingScanID > 0 ) {
+						$result->addResumed( $scanCon->getSlug(), $existingScanID );
+					}
+					else {
+						$result->addFailure( $slug, StartScansResult::REASON_ALREADY_EXISTS, $e->getMessage() );
+					}
 				}
 			}
 			catch ( ScanCreateException $e ) {

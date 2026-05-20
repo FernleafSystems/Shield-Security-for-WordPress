@@ -58,7 +58,34 @@ class ScansControllerCronStartTest extends BaseUnitTest {
 		$this->assertSame( [], ScansCronStartLogSpy::$messages );
 	}
 
-	private function installController() :object {
+	public function test_run_cron_logs_nothing_when_all_requested_scans_are_already_active() :void {
+		$state = $this->installController(
+			StartScansResult::fromRequested( [ 'afs', 'apc', 'wpv' ] )
+				->addResumed( 'afs', 501 )
+				->addResumed( 'apc', 502 )
+				->addResumed( 'wpv', 503 )
+		);
+		$scans = new CronScansControllerTestDouble();
+
+		$scans->runCron();
+
+		$this->assertSame( [ $state->scanCons ], $scans->startCalls );
+		$this->assertSame( [], ScansCronStartLogSpy::$messages );
+	}
+
+	public function test_run_cron_still_logs_real_start_failures() :void {
+		$this->installController(
+			StartScansResult::fromRequested( [ 'afs', 'apc', 'wpv' ] )
+				->addFailure( 'wpv', StartScansResult::REASON_CREATE_FAILED )
+		);
+		$scans = new CronScansControllerTestDouble();
+
+		$scans->runCron();
+
+		$this->assertSame( [ 'Shield scan start failures: wpv:create_failed' ], ScansCronStartLogSpy::$messages );
+	}
+
+	private function installController( ?StartScansResult $startResult = null ) :object {
 		$opts = new CronStartTestOptions();
 		$scanCons = [
 			new CronStartTestScanCon( 'afs' ),
@@ -75,6 +102,7 @@ class ScansControllerCronStartTest extends BaseUnitTest {
 
 		PluginControllerInstaller::install( $controller );
 		CronScansControllerTestDouble::$scanCons = $scanCons;
+		CronScansControllerTestDouble::$startResult = $startResult;
 		return (object)[
 			'opts'     => $opts,
 			'scanCons' => $scanCons,
@@ -98,6 +126,7 @@ class ScansCronStartLogSpy {
 class CronScansControllerTestDouble extends ScansController {
 
 	public static array $scanCons = [];
+	public static ?StartScansResult $startResult = null;
 
 	public array $startCalls = [];
 
@@ -112,10 +141,10 @@ class CronScansControllerTestDouble extends ScansController {
 	public function startNewScans( array $scans, bool $resetIgnored = false ) :StartScansResult {
 		unset( $resetIgnored );
 		$this->startCalls[] = $scans;
-		return StartScansResult::fromRequested( [ 'afs', 'apc', 'wpv' ] )
-							   ->addStarted( 'afs', 31 )
-							   ->addStarted( 'apc', 32 )
-							   ->addStarted( 'wpv', 33 );
+		return self::$startResult ?? StartScansResult::fromRequested( [ 'afs', 'apc', 'wpv' ] )
+											  ->addStarted( 'afs', 31 )
+											  ->addStarted( 'apc', 32 )
+											  ->addStarted( 'wpv', 33 );
 	}
 }
 
