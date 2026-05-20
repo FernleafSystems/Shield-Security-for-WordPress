@@ -6,6 +6,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrowserFixtureRegistry
 \add_filter( 'pre_wp_mail', 'shield_browser_fixture_login_guard_mail_capture', 10, 2 );
 \add_action( 'shield/event', 'shield_browser_fixture_login_guard_event_capture', 10, 3 );
 \add_action( 'after_setup_theme', 'shield_browser_fixture_force_restrictions', \PHP_INT_MIN );
+\add_action( 'wp_ajax_nopriv_shield_browser_third_party_ping', 'shield_browser_fixture_third_party_ping' );
+
+function shield_browser_fixture_third_party_ping() :void {
+	\wp_send_json( [
+		'ok'      => true,
+		'fixture' => 'third-party-ajax',
+	] );
+}
 
 function shield_browser_fixture_force_restrictions() :void {
 	if ( !\in_array( 'Y', [

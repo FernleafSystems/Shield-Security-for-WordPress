@@ -22,6 +22,17 @@ class RunNodeToolScriptTest extends BaseUnitTest {
 		$this->assertSame( 0, $process->getExitCode() ?? 1 );
 		$output = $process->getOutput().$process->getErrorOutput();
 		$this->assertStringContainsString( 'playwright', $output );
+		$this->assertStringContainsString( 'webpack', $output );
 		$this->assertStringContainsString( 'SHIELD_NODE_BINARY', $output );
+	}
+
+	public function testRunNodeToolScriptUnsupportedToolShowsSupportedTools() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$process = $this->runPhpScript( 'bin/run-node-tool.php', [ 'bogus-tool' ] );
+
+		$this->assertSame( 2, $process->getExitCode() ?? 0 );
+		$output = $process->getOutput().$process->getErrorOutput();
+		$this->assertStringContainsString( 'Unsupported tool', $output );
+		$this->assertStringContainsString( 'playwright, webpack', $output );
 	}
 }

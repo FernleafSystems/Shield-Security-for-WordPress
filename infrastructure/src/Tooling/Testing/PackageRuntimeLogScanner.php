@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
-class PublicUpgradeLogScanner {
+class PackageRuntimeLogScanner {
 
 	private const GLOBAL_FATAL_PATTERN = '/\b(fatal error|parse error|uncaught|segmentation fault)\b/i';
 	private const SHIELD_MARKER_PATTERN = '#(wp-simple-firewall|icwp-wpsf\.php|wp-content/plugins/wp-simple-firewall|FernleafSystems\\\\Wordpress\\\\Plugin\\\\Shield|FernleafSystems/Wordpress/Plugin/Shield|vendor_prefixed|AptowebDeps)#i';
@@ -42,6 +42,18 @@ class PublicUpgradeLogScanner {
 		}
 
 		return $findings;
+	}
+
+	/**
+	 * @param array<int,array{file:string,line:int,reason:string,message:string}> $findings
+	 */
+	public function hasGlobalFatalFinding( array $findings ) :bool {
+		foreach ( $findings as $finding ) {
+			if ( ( $finding[ 'reason' ] ?? '' ) === 'global-fatal' ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private function classifyLine( string $line ) :?string {

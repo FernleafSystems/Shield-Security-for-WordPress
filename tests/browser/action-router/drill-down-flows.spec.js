@@ -86,27 +86,66 @@ function isConfigureDiagnosisDirectRequest( request, zoneKey ) {
 		&& params.get( 'zone' ) === zoneKey;
 }
 
-function isIgnoreAllRequest( request ) {
-	const params = new URLSearchParams( request.postData() || '' );
+function actionRouterParams( request ) {
+	return new URLSearchParams( request.postData() || '' );
+}
+
+function isAdminAjaxPost( request ) {
 	return request.method() === 'POST'
-		&& request.url().includes( '/admin-ajax.php' )
+		&& request.url().includes( '/admin-ajax.php' );
+}
+
+function isIgnoreAllRequest( request ) {
+	const params = actionRouterParams( request );
+	return isAdminAjaxPost( request )
 		&& params.get( 'sub_action' ) === 'ignore_all';
 }
 
+function isActionsQueueGroupsRefreshRequest( request, fixture ) {
+	const params = actionRouterParams( request );
+	return isAdminAjaxPost( request )
+		&& params.get( 'render_slug' ) === 'actions_queue_drill_down_groups'
+		&& params.get( 'bucket' ) === fixture.bucket_key
+		&& params.get( 'group' ) === fixture.group_key
+		&& params.get( 'include_landing_refresh' ) === '1';
+}
+
+function isScanResultsTableReloadRequest( request ) {
+	const params = actionRouterParams( request );
+	return isAdminAjaxPost( request )
+		&& params.get( 'sub_action' ) === 'retrieve_table_data';
+}
+
+async function waitForIgnoreAllRefreshResponses( page, fixture ) {
+	await Promise.all( [
+		page.waitForResponse(
+			( response ) => response.ok() && isIgnoreAllRequest( response.request() ),
+			{ timeout: 20_000 }
+		),
+		page.waitForResponse(
+			( response ) => response.ok() && isActionsQueueGroupsRefreshRequest( response.request(), fixture ),
+			{ timeout: 20_000 }
+		),
+		page.waitForResponse(
+			( response ) => response.ok() && isScanResultsTableReloadRequest( response.request() ),
+			{ timeout: 20_000 }
+		),
+	] );
+}
+
 function isPluginReinstallRequest( request ) {
-	const params = new URLSearchParams( request.postData() || '' );
-	return request.method() === 'POST'
-		&& request.url().includes( '/admin-ajax.php' )
+	const params = actionRouterParams( request );
+	return isAdminAjaxPost( request )
 		&& params.get( 'action' ) === 'shield_action'
 		&& params.get( 'ex' ) === 'plugin_reinstall';
 }
 
 function isFileLockerActionRequest( request, expectedPayload ) {
-	if ( request.method() !== 'POST' || !request.url().includes( '/admin-ajax.php' ) ) {
+	if ( !isAdminAjaxPost( request ) ) {
 		return false;
 	}
 
-	const params = new URLSearchParams( request.postData() || '' );
+	const params = actionRouterParams( request );
 	return params.get( 'action' ) === 'shield_action'
 		&& params.get( 'ex' ) === 'filelocker_fileaction'
 		&& Object.entries( expectedPayload ).every( ( [ key, value ] ) => params.get( key ) === String( value ) );
@@ -471,7 +510,6 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 			{ timeout: 1000 }
 		).toBe( true );
 
-		const ignoreAllRequest = page.waitForRequest( isIgnoreAllRequest, { timeout: 20_000 } );
 		const requestsBeforeConfirm = ignoreAllRequestCount;
 		await ignoreAllAction.evaluate( ( action ) => {
 			action.click();
@@ -479,8 +517,9 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 		} );
 		await expect( confirmModal ).toBeVisible();
 		await expectNamedDialog( page, confirmModal );
+		const ignoreAllRefreshResponses = waitForIgnoreAllRefreshResponses( page, fixture );
 		await confirmModal.locator( '.shield-accessible-dialog__confirm' ).click();
-		await ignoreAllRequest;
+		await ignoreAllRefreshResponses;
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 		await expect.poll( () => nativeDialogCount ).toBe( 0 );
@@ -604,12 +643,12 @@ test( 'actions queue ignores all malware results from the context rail without r
 		await waitForScanResultsTableRows( scanResultsTable );
 		expect( ignoreAllAction ).not.toBeNull();
 
-		const ignoreAllRequest = page.waitForRequest( isIgnoreAllRequest, { timeout: 20_000 } );
 		await ignoreAllAction.click();
 		const confirmModal = page.locator( '[data-shield-accessible-dialog="1"][aria-modal="true"]:not([aria-hidden="true"])' );
 		await expect( confirmModal ).toBeVisible();
+		const ignoreAllRefreshResponses = waitForIgnoreAllRefreshResponses( page, fixture );
 		await confirmModal.locator( '.shield-accessible-dialog__confirm' ).click();
-		await ignoreAllRequest;
+		await ignoreAllRefreshResponses;
 
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 		await expect( page.locator( '[data-actions-queue-detail="1"] .shield-scan-pane-empty' ) ).toHaveCount( 0 );

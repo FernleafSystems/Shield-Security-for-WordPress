@@ -17,7 +17,7 @@ class PublicUpgradeUpdateProviderFixtureTest extends TestCase {
 			'slug'        => 'wp-simple-firewall',
 			'id'          => 'wp-simple-firewall',
 			'new_version' => '9.8.7',
-			'package'     => 'http://wordpress.test/wp-content/uploads/shield-upgrade-test/wp-simple-firewall-current.zip',
+			'package'     => 'http://wordpress.test/wp-content/uploads/shield-package-runtime-test/wp-simple-firewall-current.zip',
 			'url'         => 'https://wordpress.org/plugins/wp-simple-firewall/',
 		];
 
@@ -39,9 +39,9 @@ class PublicUpgradeUpdateProviderFixtureTest extends TestCase {
 			\shield_upgrade_test_allow_package_host(
 				false,
 				'wordpress.test',
-				'http://wordpress.test/wp-content/uploads/shield-upgrade-test/wp-simple-firewall-current.zip',
+				'http://wordpress.test/wp-content/uploads/shield-package-runtime-test/wp-simple-firewall-current.zip',
 				[
-					'package' => 'http://wordpress.test/wp-content/uploads/shield-upgrade-test/wp-simple-firewall-current.zip',
+					'package' => 'http://wordpress.test/wp-content/uploads/shield-package-runtime-test/wp-simple-firewall-current.zip',
 				]
 			)
 		);
@@ -51,7 +51,7 @@ class PublicUpgradeUpdateProviderFixtureTest extends TestCase {
 				'example.test',
 				'http://example.test/wp-simple-firewall-current.zip',
 				[
-					'package' => 'http://wordpress.test/wp-content/uploads/shield-upgrade-test/wp-simple-firewall-current.zip',
+					'package' => 'http://wordpress.test/wp-content/uploads/shield-package-runtime-test/wp-simple-firewall-current.zip',
 				]
 			)
 		);
