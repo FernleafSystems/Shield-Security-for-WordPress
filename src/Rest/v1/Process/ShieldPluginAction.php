@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalActionTransportPolicy;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ResponseEnvelopeNormalizer;
 
 class ShieldPluginAction extends Base {
@@ -11,11 +12,16 @@ class ShieldPluginAction extends Base {
 	protected function process() :array {
 		$req = $this->getWpRestRequest();
 		$params = $req->get_params();
+		$actionSlug = (string)( $params[ 'ex' ] ?? '' );
+		$payload = \is_array( $params[ 'payload' ] ?? null ) ? $params[ 'payload' ] : [];
 
 		try {
+			if ( !( new ExternalActionTransportPolicy() )->isAllowed( $actionSlug, $payload, ActionRoutingController::ACTION_REST ) ) {
+				throw new Exceptions\ActionException( __( 'Action transport is not allowed.', 'wp-simple-firewall' ) );
+			}
 			$routed = self::con()
 				->action_router
-				->action( $params[ 'ex' ], $params[ 'payload' ], ActionRoutingController::ACTION_REST );
+				->action( $actionSlug, $payload, ActionRoutingController::ACTION_REST );
 			$data = $routed->payload();
 		}
 //		catch ( ActionDoesNotExistException $e ) {

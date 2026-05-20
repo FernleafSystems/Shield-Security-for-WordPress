@@ -2,7 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rest;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\OperatorModeSwitch;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	FullPageDisplay\FullPageDisplayDynamic,
+	OperatorModeSwitch,
+	Render,
+	Render\FullPage\Mfa\ShieldLoginIntentPage
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process\ShieldPluginAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
@@ -50,6 +55,34 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 		$this->assertFalse( (bool)$result[ 'data' ][ 'page_reload' ] );
 		$this->assertIsString( $result[ 'data' ][ 'message' ] );
 		$this->assertIsString( $result[ 'data' ][ 'html' ] );
+	}
+
+	public function test_process_rejects_public_render_transport() :void {
+		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
+			'ex'      => Render::SLUG,
+			'payload' => [
+				'render_action_slug' => ShieldLoginIntentPage::SLUG,
+				'render_action_data' => [
+					'msg_error' => '<img src=x onerror=alert(1)>',
+				],
+			],
+		] );
+
+		$this->assertFalse( (bool)$result[ 'success' ] );
+		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
+	}
+
+	public function test_process_rejects_blocked_full_page_transport() :void {
+		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
+			'ex'      => FullPageDisplayDynamic::SLUG,
+			'payload' => [
+				'render_slug' => ShieldLoginIntentPage::SLUG,
+				'render_data' => [],
+			],
+		] );
+
+		$this->assertFalse( (bool)$result[ 'success' ] );
+		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
 	}
 }
 

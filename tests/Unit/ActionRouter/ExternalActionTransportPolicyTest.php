@@ -1,0 +1,109 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
+
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	ActionRoutingController,
+	Actions\AjaxRender,
+	Actions\FullPageDisplay\DisplayBlockPage,
+	Actions\FullPageDisplay\FullPageDisplayDynamic,
+	Actions\FullPageDisplay\FullPageDisplayNonTerminating,
+	Actions\Render,
+	Actions\Render\FullPage\Block\BlockFirewall,
+	Actions\Render\FullPage\Block\BlockTrafficRateLimitExceeded,
+	Actions\Render\FullPage\Mfa\ShieldLoginIntentPage,
+	Utility\ExternalActionTransportPolicy
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+
+class ExternalActionTransportPolicyTest extends BaseUnitTest {
+
+
+
+	public function test_render_is_never_allowed_from_external_transports() :void {
+		$policy = new ExternalActionTransportPolicy();
+
+		foreach ( $this->externalTransportTypes() as $type ) {
+			$this->assertFalse( $policy->isAllowed( Render::SLUG, [], $type ) );
+			$this->assertFalse( $policy->isAllowed( Render::class, [], $type ) );
+		}
+	}
+
+	public function test_ajax_render_is_only_allowed_from_ajax_transport() :void {
+		$policy = new ExternalActionTransportPolicy();
+
+		$this->assertFalse( $policy->isAllowed( AjaxRender::SLUG, [], ActionRoutingController::ACTION_SHIELD ) );
+		$this->assertTrue( $policy->isAllowed( AjaxRender::SLUG, [], ActionRoutingController::ACTION_AJAX ) );
+		$this->assertFalse( $policy->isAllowed( AjaxRender::SLUG, [], ActionRoutingController::ACTION_REST ) );
+	}
+
+	public function test_block_page_transport_allows_only_public_block_render_targets_without_render_data() :void {
+		$policy = new ExternalActionTransportPolicy();
+
+		$this->assertTrue( $policy->isAllowed( DisplayBlockPage::SLUG, [
+			'render_slug' => BlockTrafficRateLimitExceeded::SLUG,
+		], ActionRoutingController::ACTION_SHIELD ) );
+		$this->assertTrue( $policy->isAllowed( DisplayBlockPage::SLUG, [
+			'render_slug' => BlockFirewall::class,
+		], ActionRoutingController::ACTION_SHIELD ) );
+		$this->assertFalse( $policy->isAllowed( DisplayBlockPage::SLUG, [
+			'render_slug' => ShieldLoginIntentPage::SLUG,
+		], ActionRoutingController::ACTION_SHIELD ) );
+		$this->assertFalse( $policy->isAllowed( DisplayBlockPage::SLUG, [
+			'render_slug' => BlockTrafficRateLimitExceeded::SLUG,
+			'render_data' => [
+				'external' => 'not-allowed',
+			],
+		], ActionRoutingController::ACTION_SHIELD ) );
+		$this->assertFalse( $policy->isAllowed( DisplayBlockPage::SLUG, [
+			'render_slug' => BlockTrafficRateLimitExceeded::SLUG,
+		], ActionRoutingController::ACTION_REST ) );
+	}
+
+	public function test_dynamic_full_page_transport_is_denied_for_non_mainwp_shapes() :void {
+		$policy = new ExternalActionTransportPolicy();
+
+		$this->assertFalse( $policy->isAllowed( FullPageDisplayDynamic::SLUG, [
+			'render_slug' => ShieldLoginIntentPage::SLUG,
+			'render_data' => [],
+		], ActionRoutingController::ACTION_SHIELD ) );
+		$this->assertFalse( $policy->isAllowed( FullPageDisplayDynamic::SLUG, [
+			'render_slug' => ShieldLoginIntentPage::SLUG,
+			'render_data' => [],
+		], ActionRoutingController::ACTION_AJAX ) );
+		$this->assertFalse( $policy->isAllowed( FullPageDisplayDynamic::SLUG, [
+			'render_slug' => ShieldLoginIntentPage::SLUG,
+			'render_data' => [],
+		], ActionRoutingController::ACTION_REST ) );
+	}
+
+	public function test_non_terminating_full_page_transport_is_never_allowed_externally() :void {
+		$policy = new ExternalActionTransportPolicy();
+
+		foreach ( $this->externalTransportTypes() as $type ) {
+			$this->assertFalse( $policy->isAllowed( FullPageDisplayNonTerminating::SLUG, [], $type ) );
+			$this->assertFalse( $policy->isAllowed( FullPageDisplayNonTerminating::class, [], $type ) );
+		}
+	}
+
+
+
+	public function test_unlisted_actions_keep_the_existing_transport_behaviour() :void {
+		$this->assertTrue( ( new ExternalActionTransportPolicy() )->isAllowed(
+			'operator_mode_switch',
+			[
+				ActionData::FIELD_EXECUTE => 'operator_mode_switch',
+			],
+			ActionRoutingController::ACTION_REST
+		) );
+	}
+
+	private function externalTransportTypes() :array {
+		return [
+			ActionRoutingController::ACTION_SHIELD,
+			ActionRoutingController::ACTION_AJAX,
+			ActionRoutingController::ACTION_REST,
+		];
+	}
+}
