@@ -132,7 +132,7 @@ class QueueWatchdog {
 	 */
 	private function staleReadyScans( int $cutoff ) :array {
 		return $this->recordsFromRows( Services::WpDb()->selectCustom(
-			sprintf( "SELECT `id`, `meta`
+			sprintf( "SELECT `id`, `meta`, `created_at`
 					FROM `%s`
 					WHERE `finished_at`=0
 					  AND %s

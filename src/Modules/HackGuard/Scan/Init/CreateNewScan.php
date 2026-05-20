@@ -24,8 +24,9 @@ class CreateNewScan {
 		string $scopeKey = '',
 		string $runTrigger = 'manual'
 	) :?ScansDB\Record {
-		if ( $this->scanExists( $slug, $scopeType, $scopeKey ) ) {
-			throw new ScanExistsException( $slug );
+		$existingScanID = $this->existingActiveScanID( $slug, $scopeType, $scopeKey );
+		if ( $existingScanID > 0 ) {
+			throw new ScanExistsException( $slug, $existingScanID );
 		}
 
 		$dbh = self::con()->db_con->scans;
@@ -52,14 +53,17 @@ class CreateNewScan {
 		return $record;
 	}
 
-	private function scanExists( string $slug, string $scopeType, string $scopeKey ) :bool {
+	private function existingActiveScanID( string $slug, string $scopeType, string $scopeKey ) :int {
 		/** @var ScansDB\Select $selector */
 		$selector = self::con()->db_con->scans->getQuerySelector();
-		return $selector->filterByScan( $slug )
-						->filterByScope( $scopeType, $scopeKey )
-						->filterByNotFinished()
-						->addWhereIn( 'status', ScanStatus::ACTIVE )
-						->count() > 0;
+		$record = $selector->setColumnsToSelect( [ 'id' ] )
+						   ->filterByScan( $slug )
+						   ->filterByScope( $scopeType, $scopeKey )
+						   ->filterByNotFinished()
+						   ->addWhereIn( 'status', ScanStatus::ACTIVE )
+						   ->first();
+
+		return (int)( $record->id ?? 0 );
 	}
 
 	private function lastInsertID() :int {

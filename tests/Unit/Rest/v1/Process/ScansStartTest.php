@@ -51,7 +51,7 @@ class ScansStartTest extends BaseUnitTest {
 	public function test_process_uses_conflict_when_selection_cannot_start() :void {
 		$state = $this->installController(
 			StartScansResult::fromRequested( [ 'afs' ] )
-							 ->addFailure( 'afs', StartScansResult::REASON_ALREADY_EXISTS )
+							 ->addFailure( 'afs', StartScansResult::REASON_CREATE_FAILED )
 		);
 
 		$exception = $this->captureProcessException( [ 'scan_slugs' => [ 'afs' ] ] );
@@ -61,17 +61,16 @@ class ScansStartTest extends BaseUnitTest {
 		$this->assertSame( [ [ 'afs' ] ], $state->scans->startCalls );
 	}
 
-	public function test_process_delegates_active_scan_conflict_to_central_start_policy() :void {
+	public function test_process_accepts_active_duplicate_as_resumed_by_central_start_policy() :void {
 		$state = $this->installController(
 			StartScansResult::fromRequested( [ 'afs' ] )
-							 ->addFailure( 'afs', StartScansResult::REASON_ALREADY_EXISTS ),
+							 ->addResumed( 'afs', 44 ),
 			1
 		);
 
-		$exception = $this->captureProcessException( [ 'scan_slugs' => [ 'afs' ] ] );
+		$payload = $this->invokeProcess( [ 'scan_slugs' => [ 'afs' ] ] );
 
-		$this->assertSame( 409, $exception->getCode() );
-		$this->assertSame( ScansStart::SUBCODE_START_FAILED, $exception->getSubErrorCode() );
+		$this->assertArrayHasKey( 'enqueued_count', $payload );
 		$this->assertSame( [ [ 'afs' ] ], $state->scans->startCalls );
 	}
 

@@ -424,8 +424,12 @@ class LifecycleSqliteDb extends Db {
 		return $stmt->execute( $params );
 	}
 
-	public function fetchRows( string $table, array $wheres = [], array $params = [], string $orderBy = '', int $limit = 0 ) :array {
-		$sql = sprintf( 'SELECT * FROM `%s` %s', $table, empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ) );
+	public function fetchRows( string $table, array $wheres = [], array $params = [], string $orderBy = '', int $limit = 0, array $columns = [] ) :array {
+		$select = empty( $columns ) ? '*' : \implode( ', ', \array_map(
+			static fn( string $column ) :string => sprintf( '`%s`', $column ),
+			$columns
+		) );
+		$sql = sprintf( 'SELECT %s FROM `%s` %s', $select, $table, empty( $wheres ) ? '' : 'WHERE '.\implode( ' AND ', $wheres ) );
 		if ( $orderBy !== '' ) {
 			$sql .= ' ORDER BY '.$orderBy;
 		}
@@ -680,6 +684,8 @@ class LifecycleScansSelector {
 
 	private int $limit = 0;
 
+	private array $columnsToSelect = [];
+
 	private LifecycleSqliteDb $db;
 
 	public function __construct( LifecycleSqliteDb $db ) {
@@ -691,6 +697,7 @@ class LifecycleScansSelector {
 		$this->resetWhereBuilder();
 		$this->orderBy = '';
 		$this->limit = 0;
+		$this->columnsToSelect = [];
 		return $this;
 	}
 
@@ -729,6 +736,14 @@ class LifecycleScansSelector {
 		return $this;
 	}
 
+	public function setColumnsToSelect( array $columns ) :self {
+		$this->columnsToSelect = \array_values( \array_filter(
+			\array_map( '\strval', $columns ),
+			static fn( string $column ) :bool => $column !== ''
+		) );
+		return $this;
+	}
+
 	public function count() :int {
 		$count = $this->db->countRows( 'scans', $this->wheres, $this->params );
 		$this->reset();
@@ -762,7 +777,7 @@ class LifecycleScansSelector {
 	}
 
 	private function queryRows() :array {
-		$rows = $this->db->fetchRows( 'scans', $this->wheres, $this->params, $this->orderBy, $this->limit );
+		$rows = $this->db->fetchRows( 'scans', $this->wheres, $this->params, $this->orderBy, $this->limit, $this->columnsToSelect );
 		$this->reset();
 		return $rows;
 	}
