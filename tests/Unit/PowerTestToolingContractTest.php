@@ -228,6 +228,7 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( 'paths:', $workflow );
 		$this->assertStringNotContainsString( 'matrix:', $workflow );
 		$this->assertStringNotContainsString( '--shard', $workflow );
+		$this->assertStringNotContainsString( 'npm run build', $workflow );
 	}
 
 	public function testIntegrationBootstrapFailsFastWhenParallelTokensArePresent() :void {

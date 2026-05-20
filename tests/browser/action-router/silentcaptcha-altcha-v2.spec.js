@@ -165,6 +165,23 @@ function waitForThirdPartyAjaxPing( page ) {
 	} );
 }
 
+function waitForShieldAjaxRequest( page, actionSlug ) {
+	return page.waitForRequest( ( request ) => {
+		return isAdminAjaxRequest( request )
+			&& requestActionSlug( request ) === actionSlug;
+	} );
+}
+
+function collectShieldAjaxActionRequests( page, actionSlug ) {
+	const requests = [];
+	page.on( 'request', ( request ) => {
+		if ( isAdminAjaxRequest( request ) && requestActionSlug( request ) === actionSlug ) {
+			requests.push( request.url() );
+		}
+	} );
+	return requests;
+}
+
 async function triggerThirdPartyAjaxPing( page ) {
 	return page.evaluate( async ( action ) => {
 		const response = await fetch( '/wp-admin/admin-ajax.php', {
@@ -353,11 +370,16 @@ test( 'server Set-Cookie overrides a stale full NotBot cookie when checks are re
 	} );
 } );
 
-test( 'third-party AJAX refreshes stale NotBot cookie and client follows refreshed state', async ( { browser, lane, fixtureApi } ) => {
+test( 'third-party AJAX closes stale NotBot cookie IP-change window through refreshed cookie state', async ( { browser, lane, fixtureApi } ) => {
 	const future = Math.floor( Date.now() / 1000 ) + 600;
 	const staleCookieValue = `notbotZaltchaZexp-${future}`;
 
 	await fixtureApi.withNotBotAltchaFixture( PUBLIC_VISITOR_IP, async () => {
+		const seededState = await fixtureApi.inspectNotBotAltchaFixture();
+		expect( seededState.ip ).toBe( PUBLIC_VISITOR_IP );
+		expect( seededState.notbot_at ).toBe( 0 );
+		expect( seededState.altcha_at ).toBe( 0 );
+
 		await withAnonymousContext( browser, lane, PUBLIC_VISITOR_IP, async ( context ) => {
 			await setNotBotCookie( context, lane, staleCookieValue );
 			const page = await context.newPage();
@@ -409,6 +431,86 @@ test( 'third-party AJAX refreshes stale NotBot cookie and client follows refresh
 			await expectNotBotLocalStorageUnused( page );
 			await expectNoRuntimeErrors( runtimeErrors, 'third-party AJAX stale NotBot cookie refresh' );
 			await expectNoSilentCaptchaConsoleMessages( consoleMessages, 'third-party AJAX stale NotBot cookie refresh' );
+		} );
+	} );
+} );
+
+test( 'silentCAPTCHA handles capture_not_bot transport failure without frontend noise or retry storm', async ( { browser, lane, fixtureApi } ) => {
+	await fixtureApi.withNotBotAltchaFixture( PUBLIC_VISITOR_IP, async () => {
+		await withAnonymousPage( browser, lane, PUBLIC_VISITOR_IP, async ( page ) => {
+			await page.route( '**/wp-admin/admin-ajax.php', async ( route ) => {
+				const request = route.request();
+				if ( request.method() === 'POST' && requestActionSlug( request ) === 'capture_not_bot' ) {
+					await route.abort( 'failed' );
+					return;
+				}
+
+				await route.fallback();
+			} );
+
+			const runtimeErrors = collectRuntimeErrors( page );
+			const consoleMessages = collectSilentCaptchaConsoleMessages( page );
+			const notbotRequests = collectShieldAjaxActionRequests( page, 'capture_not_bot' );
+			const altchaRequests = collectShieldAjaxActionRequests( page, 'capture_not_bot_altcha' );
+			const notbotRequest = waitForShieldAjaxRequest( page, 'capture_not_bot' );
+
+			await page.goto( '/?force_notbot=1', { waitUntil: 'load' } );
+			await notbotRequest;
+			await page.waitForLoadState( 'networkidle' );
+			await page.waitForTimeout( 1000 );
+
+			expect( notbotRequests ).toHaveLength( 1 );
+			expect( altchaRequests ).toEqual( [] );
+			await expectNotBotLocalStorageUnused( page );
+			await expectNoRuntimeErrors( runtimeErrors, 'capture_not_bot transport failure' );
+			await expectNoSilentCaptchaConsoleMessages( consoleMessages, 'capture_not_bot transport failure' );
+		} );
+	} );
+} );
+
+test( 'silentCAPTCHA handles malformed capture_not_bot_altcha response without frontend noise or retry storm', async ( { browser, lane, fixtureApi } ) => {
+	await fixtureApi.withNotBotAltchaFixture( PUBLIC_VISITOR_IP, async () => {
+		await withAnonymousPage( browser, lane, PUBLIC_VISITOR_IP, async ( page ) => {
+			await page.route( '**/wp-admin/admin-ajax.php', async ( route ) => {
+				const request = route.request();
+				if ( request.method() === 'POST' && requestActionSlug( request ) === 'capture_not_bot_altcha' ) {
+					await route.fulfill( {
+						status: 200,
+						contentType: 'text/html; charset=UTF-8',
+						body: '<html>broken</html>',
+					} );
+					return;
+				}
+
+				await route.fallback();
+			} );
+
+			const runtimeErrors = collectRuntimeErrors( page );
+			const consoleMessages = collectSilentCaptchaConsoleMessages( page );
+			const notbotRequests = collectShieldAjaxActionRequests( page, 'capture_not_bot' );
+			const altchaRequests = collectShieldAjaxActionRequests( page, 'capture_not_bot_altcha' );
+			const notbotResponse = waitForShieldAjaxAction( page, 'capture_not_bot' );
+			const altchaResponse = page.waitForResponse( ( response ) => {
+				const request = response.request();
+				return isAdminAjaxRequest( request )
+					&& requestActionSlug( request ) === 'capture_not_bot_altcha';
+			} );
+
+			await page.goto( '/?force_notbot=1', { waitUntil: 'load' } );
+			await expectShieldAjaxSuccess( await notbotResponse );
+			const malformedResponse = await altchaResponse;
+			expect( malformedResponse.status() ).toBe( 200 );
+			await page.waitForLoadState( 'networkidle' );
+			await page.waitForTimeout( 1000 );
+
+			const state = await fixtureApi.inspectNotBotAltchaFixture();
+			expect( state.notbot_at ).toBeGreaterThan( 0 );
+			expect( state.altcha_at ).toBe( 0 );
+			expect( notbotRequests ).toHaveLength( 1 );
+			expect( altchaRequests ).toHaveLength( 1 );
+			await expectNotBotLocalStorageUnused( page );
+			await expectNoRuntimeErrors( runtimeErrors, 'malformed capture_not_bot_altcha response' );
+			await expectNoSilentCaptchaConsoleMessages( consoleMessages, 'malformed capture_not_bot_altcha response' );
 		} );
 	} );
 } );
