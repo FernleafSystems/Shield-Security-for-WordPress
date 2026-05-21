@@ -16,7 +16,6 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 	public const TEMPLATE = '/wpadmin/components/widget/dashboard_actions_queue.twig';
 
 	protected function getRenderData() :array {
-		$con = self::con();
 		$queueCard = $this->buildActionsQueueCardData();
 
 		return [
@@ -24,8 +23,7 @@ class WpDashboardSummary extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 				'actions_queue' => $queueCard[ 'actions_lane' ][ 'href' ],
 			],
 			'flags'   => [
-				'has_items'           => $queueCard[ 'summary' ][ 'has_items' ],
-				'show_internal_links' => $con->isPluginAdmin(),
+				'has_items' => $queueCard[ 'summary' ][ 'has_items' ],
 			],
 			'strings' => [
 				'status_label'       => $queueCard[ 'actions_lane' ][ 'indicator_text' ],
