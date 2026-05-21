@@ -90,12 +90,18 @@ class AbilitiesRegistrationIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->registerShieldAbilities();
 
-		\add_filter( 'shield/rest_api_verify_permission', [ $this, 'denyRestPermissionFilter' ], 10, 2 );
 		$ability = \wp_get_ability( AbilityDefinitions::NAME_POSTURE_OVERVIEW );
-		$permissionResult = $ability->check_permissions();
-		$this->setExpectedIncorrectUsage( 'WP_Ability::execute' );
-		$result = $ability->execute();
-		\remove_filter( 'shield/rest_api_verify_permission', [ $this, 'denyRestPermissionFilter' ], 10 );
+		$this->assertInstanceOf( \WP_Ability::class, $ability );
+
+		\add_filter( 'shield/rest_api_verify_permission', [ $this, 'denyRestPermissionFilter' ], 10, 2 );
+		try {
+			$permissionResult = $ability->check_permissions();
+			$this->setExpectedIncorrectUsage( 'WP_Ability::execute' );
+			$result = $ability->execute();
+		}
+		finally {
+			\remove_filter( 'shield/rest_api_verify_permission', [ $this, 'denyRestPermissionFilter' ], 10 );
+		}
 
 		$this->assertInstanceOf( \WP_Error::class, $permissionResult );
 		$this->assertSame( 'shield_rest_denied', $permissionResult->get_error_code() );

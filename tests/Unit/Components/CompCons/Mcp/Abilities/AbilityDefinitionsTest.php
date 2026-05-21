@@ -75,6 +75,12 @@ class AbilityDefinitionsTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
+	public function test_ability_names_are_compatible_with_wordpress_abilities_api() :void {
+		foreach ( AbilityDefinitions::MCP_ABILITY_NAMES as $abilityName ) {
+			$this->assertMatchesRegularExpression( '#^[a-z0-9-]+/[a-z0-9-]+$#', $abilityName );
+		}
+	}
+
 	public function test_build_returns_expected_ability_names_and_callbacks() :void {
 		$definitions = ( new AbilityDefinitions() )->build();
 

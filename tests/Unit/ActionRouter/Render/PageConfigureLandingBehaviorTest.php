@@ -8,14 +8,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 	}
 }
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
-
-if ( !\function_exists( __NAMESPACE__.'\\wp_hash' ) ) {
-	function wp_hash( $data, $scheme = 'auth', $algo = 'md5' ) {
-		return \md5( (string)$data.'|'.$scheme.'|'.$algo );
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
@@ -66,6 +58,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			static fn( $text ) :string => \is_string( $text ) ? \trim( $text ) : ''
 		);
 		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = '' ) :string => \hash( 'sha256', $scheme.'|'.$data )
+		);
 		Functions\when( 'get_rest_url' )->alias(
 			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
 		);
