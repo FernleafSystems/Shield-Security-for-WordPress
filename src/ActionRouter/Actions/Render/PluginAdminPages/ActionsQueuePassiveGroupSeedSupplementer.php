@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  * @phpstan-import-type GroupSeed from ActionsQueueGroupContractBuilder
  * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
+ * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
  */
 class ActionsQueuePassiveGroupSeedSupplementer {
 
@@ -63,12 +64,25 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 			$this->maintenanceSource->itemsForBucket( $bucketSource, $bucketKey ),
 			$bucketKey
 		) as $groupKey => $maintenanceItems ) {
-			if ( isset( $existingGroupKeys[ $groupKey ] ) ) {
+			$hasActiveBaseGroup = isset( $existingGroupKeys[ $groupKey ] );
+			$useHealthyCompanionKey = $hasActiveBaseGroup
+				&& $this->groupDefinitions->isReviewMaintenanceAggregateGroupKey( $groupKey );
+			if ( $hasActiveBaseGroup && !$useHealthyCompanionKey ) {
 				continue;
 			}
 
-			$seeds[] = $this->maintenanceSeedBuilder->build( $groupKey, $maintenanceItems, true );
-			$existingGroupKeys[ $groupKey ] = true;
+			$seed = $this->maintenanceSeedBuilder->build(
+				$groupKey,
+				$maintenanceItems,
+				true,
+				$useHealthyCompanionKey
+			);
+			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
+				continue;
+			}
+
+			$seeds[] = $seed;
+			$existingGroupKeys[ $seed[ 'key' ] ] = true;
 		}
 
 		return $seeds;
@@ -283,20 +297,20 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	}
 
 	/**
-	 * @param list<array<string,mixed>> $maintenanceItems
-	 * @return array<string,list<array<string,mixed>>>
+	 * @param list<MaintenanceQueueItem> $maintenanceItems
+	 * @return array<string,list<MaintenanceQueueItem>>
 	 */
 	private function groupHealthyMaintenanceItemsByGroupKey( array $maintenanceItems, string $bucketKey ) :array {
 		$grouped = [];
 
 		foreach ( $maintenanceItems as $maintenanceItem ) {
-			if ( ( $maintenanceItem[ 'severity' ] ?? '' ) !== 'good'
-				|| ( $maintenanceItem[ 'drill_bucket' ] ?? '' ) !== $bucketKey ) {
+			if ( $maintenanceItem[ 'severity' ] !== 'good'
+				|| $maintenanceItem[ 'drill_bucket' ] !== $bucketKey ) {
 				continue;
 			}
 
 			$grouped[ $this->groupDefinitions->reviewMaintenanceGroupKeyForItemKey(
-				(string)$maintenanceItem[ 'key' ]
+				$maintenanceItem[ 'key' ]
 			) ][] = $maintenanceItem;
 		}
 

@@ -11,6 +11,10 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Plugin;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Actions\FullPageDisplay\DisplayReportAdmin
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -56,6 +60,10 @@ class PluginURLsTest extends BaseUnitTest {
 			'service_wpgeneral' => new class extends General {
 				public function getUrl_AdminPage( string $page = '', bool $networkAdmin = false ) :string {
 					return '/shield-admin.php?page='.$page;
+				}
+
+				public function getAdminUrl( string $path = '', bool $wpmsOnly = false ) :string {
+					return '/wp-admin/'.$path;
 				}
 			},
 		] );
@@ -124,6 +132,19 @@ class PluginURLsTest extends BaseUnitTest {
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=license&nav_sub=check', $urls->licenseCheck() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=build', $urls->rulesBuild() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=manage', $urls->rulesManage() );
+	}
+
+	public function test_report_view_builds_admin_shield_action_without_signature_or_nonce() :void {
+		$query = [];
+		$url = ( new PluginURLs() )->reportView( '4b340366-8e93-43d5-9da8-b37947f9f751' );
+		\parse_str( (string)( \parse_url( $url, \PHP_URL_QUERY ) ?? '' ), $query );
+
+		$this->assertSame( '/wp-admin/', \parse_url( $url, \PHP_URL_PATH ) );
+		$this->assertSame( ActionData::FIELD_SHIELD, $query[ ActionData::FIELD_ACTION ] ?? null );
+		$this->assertSame( DisplayReportAdmin::SLUG, $query[ ActionData::FIELD_EXECUTE ] ?? null );
+		$this->assertSame( '4b340366-8e93-43d5-9da8-b37947f9f751', $query[ 'report_unique_id' ] ?? null );
+		$this->assertArrayNotHasKey( 'report_sig', $query );
+		$this->assertArrayNotHasKey( ActionData::FIELD_NONCE, $query );
 	}
 
 	public function test_legacy_admin_route_redirect_maps_obsolete_routes_to_canonical_destinations() :void {

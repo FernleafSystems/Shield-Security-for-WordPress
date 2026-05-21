@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsTableContractBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\{
@@ -13,6 +14,8 @@ use FernleafSystems\Wordpress\Services\Core\{
 };
 
 class ScanResultsTableContractBuilderTest extends BaseUnitTest {
+
+	use AjaxRenderPolicyAssertions;
 
 	private array $servicesSnapshot = [];
 
@@ -123,6 +126,7 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 		);
 		$this->assertNotSame( '', (string)( $tableAction[ 'ex' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $renderItemAnalysis[ 'render_slug' ] ?? '' ) );
+		$this->assertAjaxRenderPayloadAllowedByPolicy( $renderItemAnalysis, 'scan item analysis render' );
 	}
 
 	public function testFileStatusBuilderDefaultsToExplicitActiveOnlyFilters() :void {

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ScanResultsTableContractBuilder,
 	ScansResultsViewBuilder
@@ -286,12 +287,6 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 	}
 
 	protected function buildAjaxRenderActionData( string $actionClass, array $aux = [] ) :array {
-		$slug = $actionClass === \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansFileLockerDiff::class
-			? 'filelocker_showdiff'
-			: 'render_action';
-
-		return \array_merge( [
-			'render_slug' => $slug,
-		], $aux );
+		return ActionData::BuildAjaxRender( $actionClass, $aux );
 	}
 }

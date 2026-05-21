@@ -83,30 +83,30 @@
 	margin: 0 0 10px;
 }
 
-#shield_section_passkeys .shield-passkeys-heading {
+#ShieldUserProfileMFA .shield-mfa-records-heading {
 	margin: 0 0 6px;
 }
 
-#shield_section_passkeys .shield-passkeys-table {
+#ShieldUserProfileMFA .shield-mfa-records-table {
 	max-width: 720px;
 	width: 100%;
 	border: 1px solid #c3c4c7;
 	border-collapse: collapse;
 }
 
-#shield_section_passkeys .shield-passkeys-table th,
-#shield_section_passkeys .shield-passkeys-table td {
+#ShieldUserProfileMFA .shield-mfa-records-table th,
+#ShieldUserProfileMFA .shield-mfa-records-table td {
 	padding: 6px 8px;
 	vertical-align: middle;
 	border-bottom: 1px solid #c3c4c7;
 }
 
-#shield_section_passkeys .shield-passkeys-table__action {
+#ShieldUserProfileMFA .shield-mfa-records-table__action {
 	text-align: right;
 	width: 70px;
 }
 
-#shield_section_passkeys .shield_remove_passkey {
+#ShieldUserProfileMFA .shield-mfa-records-table .shield-button-link {
 	text-decoration: none;
 }
 

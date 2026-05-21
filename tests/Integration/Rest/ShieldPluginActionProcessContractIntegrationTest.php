@@ -2,7 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rest;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\OperatorModeSwitch;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	FullPageDisplay\FullPageDisplayDynamic,
+	OperatorModeSwitch,
+	Render,
+	Render\Components\Reports\Components\ReportAreaChanges,
+	Render\Components\Scans\Results\Wordpress,
+	Render\FullPage\Block\BlockFirewall,
+	Render\FullPage\Mfa\Components\LoginIntentFormShield,
+	Render\FullPage\Mfa\ShieldLoginIntentPage,
+	Render\FullPage\Report\SecurityReport
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process\ShieldPluginAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
@@ -50,6 +60,104 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 		$this->assertFalse( (bool)$result[ 'data' ][ 'page_reload' ] );
 		$this->assertIsString( $result[ 'data' ][ 'message' ] );
 		$this->assertIsString( $result[ 'data' ][ 'html' ] );
+	}
+
+	public function test_process_rejects_public_render_transport() :void {
+		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
+			'ex'      => Render::SLUG,
+			'payload' => [
+				'render_action_slug' => ShieldLoginIntentPage::SLUG,
+				'render_action_data' => [
+					'msg_error' => '<img src=x onerror=alert(1)>',
+				],
+			],
+		] );
+
+		$this->assertFalse( (bool)$result[ 'success' ] );
+		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
+	}
+
+	public function test_process_rejects_blocked_full_page_transport() :void {
+		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
+			'ex'      => FullPageDisplayDynamic::SLUG,
+			'payload' => [
+				'render_slug' => ShieldLoginIntentPage::SLUG,
+				'render_data' => [],
+			],
+		] );
+
+		$this->assertFalse( (bool)$result[ 'success' ] );
+		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
+	}
+
+	/**
+	 * @dataProvider directRenderRestRequestProvider
+	 */
+	public function test_process_rejects_direct_render_action_slugs( string $renderSlug, array $payload ) :void {
+		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
+			'ex'      => $renderSlug,
+			'payload' => $payload,
+		] );
+
+		$this->assertFalse( (bool)$result[ 'success' ] );
+		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
+	}
+
+	public function directRenderRestRequestProvider() :array {
+		$reportPayload = [
+			'report' => [
+				'type'       => 'info',
+				'interval'   => 'daily',
+				'start_at'   => 1,
+				'end_at'     => 2,
+				'areas'      => [
+					'changes' => true,
+				],
+				'areas_data' => [
+					'changes' => [
+						'wordpress' => [
+							'total' => 0,
+						],
+					],
+				],
+			],
+		];
+
+		return [
+			[
+				SecurityReport::SLUG,
+				$reportPayload,
+			],
+			[
+				ReportAreaChanges::SLUG,
+				$reportPayload,
+			],
+			[
+				BlockFirewall::SLUG,
+				[
+					'block_meta_data' => [
+						'match_category'      => 'test',
+						'match_request_param' => 'payload',
+						'match_request_value' => 'blocked',
+						'match_pattern'       => 'blocked',
+					],
+				],
+			],
+			[
+				LoginIntentFormShield::SLUG,
+				[
+					'user_id'           => 1,
+					'plain_login_nonce' => 'nonce',
+					'rememberme'        => '',
+				],
+			],
+			[
+				Wordpress::SLUG,
+				[
+					'display_context' => 'actions_queue',
+				],
+			],
+		];
 	}
 }
 

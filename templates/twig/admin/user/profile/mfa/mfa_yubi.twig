@@ -3,33 +3,18 @@
 		<label for="{{ vars.otp_field_name }}" class="form-label">{{ strings.title }}</label>
 	</th>
 	<td>
-		{% if flags.is_profile_active %}
-			{% if flags.show_explanatory_text %}
-				<p>{{ strings.registered_yubi_ids }}</p>
-			{% endif %}
-
-			<ul style=" list-style: circle inside; ">
-				{% for reg in vars.yubikeys %}
-					<li style="margin: 10px 0 0;">
-						<code>{{ reg.label }} ({{ reg.id }})</code>
-						<button type="button"
-								class="shield_remove_yubi shield-button-link"
-								style="text-decoration: none;"
-								title="{{ strings.remove_label }}"
-								aria-label="{{ strings.remove_label }} {{ reg.label }}"
-								data-yubikeyid="{{ reg.id }}">&#10006;</button>
-						<ul style="list-style: none; margin-left: 20px; margin-top: 0;">
-							<li style="margin: 0;">{{ reg.used_at }}</li>
-							<li>{{ reg.reg_at }}</li>
-						</ul>
-					</li>
-				{% endfor %}
-			</ul>
-		{% else %}
-			{% if flags.show_explanatory_text %}
-				<p>{{ strings.no_active_yubi_ids }}</p>
-			{% endif %}
-		{% endif %}
+		{% include '/admin/user/profile/mfa/mfa_records_table.twig' with {
+			records: vars.yubikeys,
+			heading: strings.registered_yubi_ids,
+			empty_message: strings.no_active_yubi_ids,
+			label_header: strings.yubikey,
+			used_header: strings.used,
+			registered_header: strings.registered,
+			action_header: strings.action,
+			remove_label: strings.remove_label,
+			remove_button_class: 'shield_remove_yubi',
+			remove_data_attribute: 'data-yubikeyid'
+		} only %}
 
 		{% if flags.show_explanatory_text %}
 			<p style="margin-bottom: 5px">{{ strings.enter_otp }}</p>

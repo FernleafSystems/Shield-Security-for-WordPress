@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueGroupsBuilder,
 	ScansResultsRailTabAvailability
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	MaintenancePluginsService,
@@ -32,6 +33,8 @@ use FernleafSystems\Wordpress\Services\Core\{
  * @phpstan-import-type GroupSectionData from ActionsQueueGroupsBuilder
  */
 class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
+
+	use AjaxRenderPolicyAssertions;
 
 	private array $servicesSnapshot = [];
 
@@ -238,6 +241,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 
 		$groups = $this->flattenLayerGroups( $data );
+		$this->assertGroupDetailRenderActionsAllowedByPolicy( $groups, 'critical action queue groups' );
 
 		$this->assertSame( 'critical', $data[ 'bucket_selection' ][ 'key' ] );
 		$this->assertSame( 'critical', $data[ 'bucket_selection' ][ 'status' ] );
@@ -653,6 +657,25 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'expansion'     => [],
 				],
 				[
+					'key'           => 'default_admin_user',
+					'zone'          => 'maintenance',
+					'label'         => 'Default Admin User',
+					'icon_class'    => 'bi bi-person-fill-lock',
+					'count'         => 0,
+					'severity'      => 'good',
+					'drill_bucket'  => 'review',
+					'description'   => 'The default admin user is no longer available.',
+					'href'          => '/wp-admin/users.php',
+					'action'        => 'Manage Users',
+					'target'        => '',
+					'cta'           => [
+						'href'  => '/wp-admin/users.php',
+						'label' => 'Manage Users',
+					],
+					'toggle_action' => [],
+					'expansion'     => [],
+				],
+				[
 					'key'           => 'wp_db_password',
 					'zone'          => 'maintenance',
 					'label'         => 'MySQL DB Password',
@@ -758,6 +781,15 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'status_icon_class' => 'bi bi-check-circle-fill',
 					],
 					[
+						'key'               => 'default_admin_user',
+						'label'             => 'Default Admin User',
+						'description'       => 'The default admin user is no longer available.',
+						'drill_bucket'      => 'review',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-check-circle-fill',
+					],
+					[
 						'key'               => 'wp_db_password',
 						'label'             => 'MySQL DB Password',
 						'description'       => 'The database password is strong.',
@@ -774,7 +806,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		foreach ( $this->flattenSections( $data[ 'active_sections' ] ) as $group ) {
 			$activeGroups[ $group[ 'key' ] ] = $group;
 		}
-		$healthyGroupKeys = \array_column( $this->flattenSections( $data[ 'healthy_sections' ] ), 'key' );
+		$healthyGroups = [];
+		foreach ( $this->flattenSections( $data[ 'healthy_sections' ] ) as $group ) {
+			$healthyGroups[ $group[ 'key' ] ] = $group;
+		}
 
 		$activeGroupKeys = \array_keys( $activeGroups );
 		\sort( $activeGroupKeys );
@@ -783,34 +818,60 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$activeGroupKeys
 		);
 		$this->assertNotContains( 'maintenance', \array_keys( $activeGroups ) );
-		$this->assertNotContains( 'maintenance_system', $healthyGroupKeys );
-		$this->assertNotContains( 'maintenance_wordpress', $healthyGroupKeys );
+		$healthyGroupKeys = \array_keys( $healthyGroups );
+		\sort( $healthyGroupKeys );
+		$this->assertSame(
+			[ 'maintenance_system:healthy', 'maintenance_wordpress:healthy' ],
+			$healthyGroupKeys
+		);
 
 		$systemGroup = $activeGroups[ 'maintenance_system' ];
 		$this->assertArrayHasKey( 'icon_class', $systemGroup );
 		$this->assertSame( [], $systemGroup[ 'management_link' ] );
+		$this->assertSame( 'warning', $systemGroup[ 'status' ] );
 		$this->assertSame( 1, $systemGroup[ 'item_count' ] );
 		$systemRows = \array_values( $systemGroup[ 'maintenance_rows' ] );
-		$this->assertCount( 2, $systemRows );
+		$this->assertCount( 1, $systemRows );
+		$this->assertSame( 'SSL Certificate', $systemRows[ 0 ][ 'title' ] );
 		$this->assertSame( '', $systemRows[ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] );
-		$this->assertFalse( $systemRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] ?? true );
+		$this->assertFalse( $systemRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] );
 		$this->assertFalse( $systemRows[ 0 ][ 'is_ignored' ] );
-		$this->assertTrue( $systemRows[ 1 ][ 'is_ignored' ] );
-		$this->assertSame( '', $systemRows[ 1 ][ 'actions' ][ 0 ][ 'href' ] ?? 'unexpected' );
-		$this->assertTrue( $systemRows[ 1 ][ 'actions' ][ 0 ][ 'is_action' ] ?? false );
+
+		$systemHealthyGroup = $healthyGroups[ 'maintenance_system:healthy' ];
+		$this->assertSame( 'System', $systemHealthyGroup[ 'label' ] );
+		$this->assertSame( 'good', $systemHealthyGroup[ 'status' ] );
+		$this->assertSame( 1, $systemHealthyGroup[ 'item_count' ] );
+		$systemHealthyRows = \array_values( $systemHealthyGroup[ 'maintenance_rows' ] );
+		$this->assertCount( 1, $systemHealthyRows );
+		$this->assertSame( 'PHP Version', $systemHealthyRows[ 0 ][ 'title' ] );
+		$this->assertTrue( $systemHealthyRows[ 0 ][ 'is_ignored' ] );
+		$this->assertSame( '', $systemHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertTrue( $systemHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] );
 		$this->assertSame(
 			'maintenance_item_unignore',
-			$this->decodeAjaxAction( $systemRows[ 1 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] )[ 'ex' ] ?? ''
+			$this->decodeAjaxAction( $systemHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] )[ 'ex' ]
 		);
 
 		$wordpressGroup = $activeGroups[ 'maintenance_wordpress' ];
 		$this->assertSame( [], $wordpressGroup[ 'management_link' ] );
+		$this->assertSame( 'warning', $wordpressGroup[ 'status' ] );
 		$this->assertSame( 1, $wordpressGroup[ 'item_count' ] );
 		$wordpressRows = \array_values( $wordpressGroup[ 'maintenance_rows' ] );
-		$this->assertCount( 2, $wordpressRows );
-		$this->assertSame( '/wp-admin/update-core.php', $wordpressRows[ 0 ][ 'actions' ][ 0 ][ 'href' ] ?? '' );
-		$this->assertFalse( $wordpressRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] ?? true );
-		$this->assertSame( [], $wordpressRows[ 1 ][ 'actions' ] ?? [] );
+		$this->assertCount( 1, $wordpressRows );
+		$this->assertSame( 'WordPress Version', $wordpressRows[ 0 ][ 'title' ] );
+		$this->assertSame( '/wp-admin/update-core.php', $wordpressRows[ 0 ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertFalse( $wordpressRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] );
+
+		$wordpressHealthyGroup = $healthyGroups[ 'maintenance_wordpress:healthy' ];
+		$this->assertSame( 'WordPress', $wordpressHealthyGroup[ 'label' ] );
+		$this->assertSame( 'good', $wordpressHealthyGroup[ 'status' ] );
+		$this->assertSame( 2, $wordpressHealthyGroup[ 'item_count' ] );
+		$wordpressHealthyRows = \array_values( $wordpressHealthyGroup[ 'maintenance_rows' ] );
+		$this->assertCount( 2, $wordpressHealthyRows );
+		$this->assertSame( [ 'Default Admin User', 'MySQL DB Password' ], \array_column( $wordpressHealthyRows, 'title' ) );
+		$this->assertSame( '/wp-admin/users.php', $wordpressHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertFalse( $wordpressHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] );
+		$this->assertSame( [], $wordpressHealthyRows[ 1 ][ 'actions' ] );
 
 		$pluginUpdatesGroup = $activeGroups[ 'wp_plugins_updates' ];
 		$this->assertSame(
@@ -1525,6 +1586,18 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			static fn( array $section ) :array => $section[ 'groups' ],
 			$sections
 		) );
+	}
+
+	private function assertGroupDetailRenderActionsAllowedByPolicy( array $groups, string $context ) :void {
+		foreach ( $groups as $group ) {
+			$detailRenderAction = $group[ 'selection' ][ 'detail_render_action' ] ?? [];
+			if ( \is_array( $detailRenderAction ) && !empty( $detailRenderAction ) ) {
+				$this->assertAjaxRenderPayloadAllowedByPolicy(
+					$detailRenderAction,
+					$context.':'.(string)( $group[ 'key' ] ?? '' )
+				);
+			}
+		}
 	}
 
 	/**

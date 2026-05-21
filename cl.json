@@ -132,7 +132,60 @@
         ]
       }
     ],
-    "patches":     []
+    "patches":     [
+      {
+        "version":     "5",
+        "released_at": 1779350000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "Public Shield Screens Hardened",
+            "description": [
+              "Shield now rejects unsafe attempts to load internal screens from public routes while preserving legitimate block pages, report views, MainWP flows, and MFA login screens.",
+              "MFA login messages are treated as plain text, reducing the risk of untrusted content appearing in sensitive login flows."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "Report Access Hardened",
+            "description": [
+              "Stored security reports now open through an authenticated Shield admin page, so report content is only shown after the proper admin access checks.",
+              "Older report links redirect into the safer admin report view."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "Upgrade Reliability Improved",
+            "description": [
+              "In-place upgrades are more reliable, reducing the chance of fatal errors when WordPress briefly has old and new Shield code loaded together."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "Actions Queue Display Fixed",
+            "description": [
+              "The WordPress dashboard widget now consistently links to the Actions Queue, even when Security Admin is locked.",
+              "Review maintenance groups now separate items that need attention from healthy items, making mixed results clearer to act on.",
+              "Warning badges use stronger contrast in the dashboard and reports."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "MFA Device Tables Improved",
+            "description": [
+              "Passkey and YubiKey records now use matching columns and clearer device details, making profile review and device removal more consistent."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "MCP Support Fixed",
+            "description": [
+              "WordPress can now register Shield MCP abilities reliably, so supported integrations can discover and use them correctly."
+            ]
+          }
+        ]
+      }
+    ]
   },
   "21.2": {
     "version":     "21.2",

@@ -2,30 +2,34 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops as ReportDB;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	BaseAction,
+	Traits\AuthNotRequired,
+	Traits\NonceVerifyNotRequired
+};
 
-class DisplayReport extends FullPageDisplayStatic {
+class DisplayReport extends BaseAction {
+
+	use AuthNotRequired;
+	use NonceVerifyNotRequired;
 
 	public const SLUG = 'display_full_page_report';
 
-	/**
-	 * @throws ActionException
-	 */
-	protected function retrieveContent() :string {
-		/** @var ReportDB\Select $select */
-		$select = self::con()->db_con->reports->getQuerySelector();
-		/** @var ?ReportDB\Record $report */
-		$report = $select->filterByReportID( $this->action_data[ 'report_unique_id' ] )->first();
-		if ( empty( $report ) ) {
-			throw new ActionException( __( 'Report could not be found.', 'wp-simple-firewall' ) );
-		}
-		return \gzinflate( $report->content );
+	protected function exec() {
+		$reportID = \trim( (string)( $this->action_data[ 'report_unique_id' ] ?? '' ) );
+		$redirectURL = $this->isReportIDValid( $reportID ) ?
+			self::con()->plugin_urls->reportView( $reportID )
+			: self::con()->plugin_urls->reportsHome();
+
+		$this->response()
+			 ->setPayloadRedirectNextStep( $redirectURL )
+			 ->setPayloadSuccess( true );
 	}
 
-	protected function getRequiredDataKeys() :array {
-		return [
-			'report_unique_id'
-		];
+	private function isReportIDValid( string $reportID ) :bool {
+		return \preg_match(
+			'/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i',
+			$reportID
+		) === 1;
 	}
 }

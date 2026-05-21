@@ -2,6 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Block\{
+	BlockAuthorFishing,
+	BlockFirewall,
+	BlockIpAddressCrowdsec,
+	BlockIpAddressShield,
+	BlockPageSiteBlockdown,
+	BlockTrafficRateLimitExceeded
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\ByPassIpBlock;
 
 class DisplayBlockPage extends BaseFullPageDisplay {
@@ -12,5 +20,16 @@ class DisplayBlockPage extends BaseFullPageDisplay {
 
 	protected function getSuccessCode() :int {
 		return 503;
+	}
+
+	public static function allowedRenderSlugs() :array {
+		return [
+			BlockIpAddressShield::SLUG,
+			BlockIpAddressCrowdsec::SLUG,
+			BlockFirewall::SLUG,
+			BlockAuthorFishing::SLUG,
+			BlockPageSiteBlockdown::SLUG,
+			BlockTrafficRateLimitExceeded::SLUG,
+		];
 	}
 }

@@ -12,12 +12,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
 	MfaProfilesController,
 	Provider\Provider2faInterface
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 
 class MfaProfilesControllerAssetsIntegrationTest extends ShieldIntegrationTestCase {
 
 	use CurrentRequestFixture;
+	use AjaxRenderPolicyAssertions;
 
 	private array $requestSnapshot = [];
 
@@ -139,6 +141,7 @@ class MfaProfilesControllerAssetsIntegrationTest extends ShieldIntegrationTestCa
 
 		try {
 			$request = ActionData::BuildAjaxRender( ConfigForm::class );
+			$this->assertAjaxRenderPayloadAllowedByPolicy( $request, 'mfa profile render request' );
 			$this->applyCurrentShieldAjaxRequest( $request, false );
 			$payload = $this->requireController()->action_router->action(
 				AjaxRender::SLUG,
@@ -219,6 +222,7 @@ class MfaProfilesControllerAssetsIntegrationTest extends ShieldIntegrationTestCa
 	private function assertInitialLocalisationIsLightweight( array $data ) :void {
 		$this->assertArrayHasKey( 'ajax', $data );
 		$this->assertArrayHasKey( 'render_profile', $data[ 'ajax' ] );
+		$this->assertAjaxRenderPayloadAllowedByPolicy( $data[ 'ajax' ][ 'render_profile' ], 'mfa render_profile' );
 		$this->assertArrayHasKey( 'mfa_remove_all', $data[ 'ajax' ] );
 		$this->assertArrayHasKey( 'vars', $data );
 		$this->assertArrayNotHasKey( 'providers', $data[ 'vars' ] );
