@@ -9,25 +9,28 @@ class MfaRecordsForDisplay {
 
 	/**
 	 * @param Record[] $records
-	 * @return list<array{id:string,label:string,used_at:string,reg_at:string}>
+	 * @param null|callable(Record):string $displayLabelBuilder
+	 * @return list<array{id:string,display_label:string,used_at:string,reg_at:string}>
 	 */
-	public function run( array $records ) :array {
-		return $this->build( $records, true );
+	public function run( array $records, ?callable $displayLabelBuilder = null ) :array {
+		return $this->build( $records, true, $displayLabelBuilder );
 	}
 
 	/**
 	 * @param Record[] $records
-	 * @return list<array{id:string,label:string,used_at:string,reg_at:string}>
+	 * @param null|callable(Record):string $displayLabelBuilder
+	 * @return list<array{id:string,display_label:string,used_at:string,reg_at:string}>
 	 */
-	public function runWithoutDateLabels( array $records ) :array {
-		return $this->build( $records, false );
+	public function runWithoutDateLabels( array $records, ?callable $displayLabelBuilder = null ) :array {
+		return $this->build( $records, false, $displayLabelBuilder );
 	}
 
 	/**
 	 * @param Record[] $records
-	 * @return list<array{id:string,label:string,used_at:string,reg_at:string}>
+	 * @param null|callable(Record):string $displayLabelBuilder
+	 * @return list<array{id:string,display_label:string,used_at:string,reg_at:string}>
 	 */
-	private function build( array $records, bool $includeDateLabels ) :array {
+	private function build( array $records, bool $includeDateLabels, ?callable $displayLabelBuilder ) :array {
 		/**
 		 * Order by most recently used first, then most recently registered.
 		 */
@@ -46,17 +49,17 @@ class MfaRecordsForDisplay {
 		} );
 
 		return \array_map(
-			function ( Record $record ) use ( $includeDateLabels ) {
+			function ( Record $record ) use ( $includeDateLabels, $displayLabelBuilder ) {
 				return [
-					'id'      => $record->unique_id,
-					'label'   => $record->label,
-					'used_at' => $this->formatRecordTimestamp(
+					'id'            => $record->unique_id,
+					'display_label' => $displayLabelBuilder === null ? $record->label : $displayLabelBuilder( $record ),
+					'used_at'       => $this->formatRecordTimestamp(
 						(int)$record->used_at,
 						__( 'Used', 'wp-simple-firewall' ),
 						__( 'Never', 'wp-simple-firewall' ),
 						$includeDateLabels
 					),
-					'reg_at'  => $this->formatRecordTimestamp(
+					'reg_at'        => $this->formatRecordTimestamp(
 						(int)$record->created_at,
 						__( 'Registered', 'wp-simple-firewall' ),
 						__( 'Unknown', 'wp-simple-firewall' ),

@@ -8,8 +8,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueScanResultsTableBuilder,
 	ScansResultsViewBuilder
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 
 class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBuilderTestCase {
+
+	use AjaxRenderPolicyAssertions;
 
 	public function test_actions_queue_plugin_pane_passes_caller_supplied_ignored_only_display_options_to_real_asset_card_tables() :void {
 		$assetMetadataResolver = new class extends ActionsQueueAssetMetadataResolver {
@@ -201,13 +204,13 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertFalse( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( '0', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
 		$this->assertSame( '1', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
-		$this->assertSame(
-			[
-				'render_slug' => 'filelocker_showdiff',
-				'rid'         => 14,
-			],
-			\json_decode( (string)( $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-render-action' ] ?? '' ), true )
+		$fileDiffRenderAction = \json_decode(
+			(string)( $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-render-action' ] ?? '' ),
+			true
 		);
+		$this->assertSame( 'filelocker_showdiff', $fileDiffRenderAction[ 'render_slug' ] ?? '' );
+		$this->assertSame( 14, $fileDiffRenderAction[ 'rid' ] ?? 0 );
+		$this->assertAjaxRenderPayloadAllowedByPolicy( $fileDiffRenderAction, 'file locker diff render' );
 		$this->assertSame( '1', $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
 		$this->assertSame( '0', $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
 		$this->assertSame( [], \json_decode( (string)( $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-render-action' ] ?? '[]' ), true ) );

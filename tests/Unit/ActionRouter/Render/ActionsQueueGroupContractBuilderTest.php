@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueGroupContractBuilder,
 	ActionsQueueGroupDefinitions
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\{
@@ -21,6 +22,8 @@ use FernleafSystems\Wordpress\Services\Core\{
 };
 
 class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
+
+	use AjaxRenderPolicyAssertions;
 
 	private array $servicesSnapshot = [];
 
@@ -135,6 +138,10 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'example_plugin', $pluginGroup[ 'selection' ][ 'label' ] );
 		$this->assertSame( 'example_plugin', $pluginGroup[ 'selection' ][ 'header' ][ 'title' ] );
 		$this->assertSame( [], $pluginGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
+		$this->assertAjaxRenderPayloadAllowedByPolicy(
+			$pluginGroup[ 'selection' ][ 'detail_render_action' ] ?? [],
+			'plugin scoped asset detail render'
+		);
 		$this->assertFalse( $pluginGroup[ 'is_interactive' ] );
 
 		$this->assertSame( 'example_theme', $themeGroup[ 'label' ] );
@@ -153,6 +160,10 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'example-theme', $themeGroup[ 'render_action_data' ][ 'subject_id' ] );
 		$this->assertSame( 'example_theme', $themeGroup[ 'selection' ][ 'header' ][ 'title' ] );
 		$this->assertSame( [], $themeGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
+		$this->assertAjaxRenderPayloadAllowedByPolicy(
+			$themeGroup[ 'selection' ][ 'detail_render_action' ] ?? [],
+			'theme scoped asset detail render'
+		);
 	}
 
 	public function test_build_empty_group_uses_generic_base_group_when_scoped_asset_cannot_be_resolved() :void {
@@ -164,6 +175,10 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( Plugins::class, $group[ 'render_action_class' ] );
 		$this->assertSame( $group[ 'label' ], $group[ 'selection' ][ 'label' ] );
 		$this->assertSame( $group[ 'label' ], $group[ 'selection' ][ 'header' ][ 'title' ] );
+		$this->assertAjaxRenderPayloadAllowedByPolicy(
+			$group[ 'selection' ][ 'detail_render_action' ] ?? [],
+			'generic group detail render'
+		);
 	}
 
 	/**

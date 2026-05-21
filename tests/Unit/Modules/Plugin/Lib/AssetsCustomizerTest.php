@@ -28,6 +28,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\AssetsCustomizer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TourManager;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -38,6 +39,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 use FernleafSystems\Wordpress\Services\Core\General;
 
 class AssetsCustomizerTest extends BaseUnitTest {
+
+	use AjaxRenderPolicyAssertions;
 
 	private const VALID_VIDEO_URL = 'https://vimeo.com/123456789';
 
@@ -145,8 +148,26 @@ class AssetsCustomizerTest extends BaseUnitTest {
 
 		$this->assertSame( AjaxRender::SLUG, $renderAjax[ ActionData::FIELD_EXECUTE ] ?? '' );
 		$this->assertSame( WpDashboardSummary::SLUG, $renderAjax[ 'render_slug' ] ?? '' );
+		$this->assertAjaxRenderPayloadAllowedByPolicy( $renderAjax, 'dashboard_widget render' );
 		$this->assertIsString( $dashboardWidgetComp[ 'data' ][ 'strings' ][ 'load_failed' ] ?? null );
 		$this->assertNotSame( '', $dashboardWidgetComp[ 'data' ][ 'strings' ][ 'load_failed' ] ?? '' );
+	}
+
+	/**
+	 * @dataProvider ajaxRenderComponentProvider
+	 */
+	public function test_component_ajax_render_payloads_are_policy_allowed(
+		array $query,
+		string $componentKey,
+		int $minimumPayloads
+	) :void {
+		$this->installEnvironment( $query );
+
+		$this->assertAjaxRenderPayloadsAllowedByPolicy(
+			$this->componentData( $componentKey ),
+			$componentKey.':'.(string)( $query[ PluginNavs::FIELD_NAV ] ?? '' ).':'.(string)( $query[ PluginNavs::FIELD_SUBNAV ] ?? '' ),
+			$minimumPayloads
+		);
 	}
 
 	public function test_scans_component_localizes_only_scan_page_ajax_actions() :void {
@@ -252,9 +273,91 @@ class AssetsCustomizerTest extends BaseUnitTest {
 	}
 
 	private function componentAjax( string $key ) :array {
+		$data = $this->componentData( $key );
+		return \is_array( $data[ 'ajax' ] ?? null ) ? $data[ 'ajax' ] : [];
+	}
+
+	private function componentData( string $key ) :array {
 		$component = $this->getComponentDefinition( $key );
 		$data = \is_callable( $component[ 'data' ] ?? null ) ? \call_user_func( $component[ 'data' ] ) : ( $component[ 'data' ] ?? [] );
-		return \is_array( $data[ 'ajax' ] ?? null ) ? $data[ 'ajax' ] : [];
+		return \is_array( $data ) ? $data : [];
+	}
+
+	public function ajaxRenderComponentProvider() :array {
+		return [
+			'dashboard live monitor' => [
+				[
+					PluginNavs::FIELD_NAV    => PluginNavs::NAV_DASHBOARD,
+					PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
+				],
+				'dashboard_live_monitor',
+				2,
+			],
+			'dashboard wpadmin handle' => [
+				[
+					PluginNavs::FIELD_NAV    => PluginNavs::NAV_DASHBOARD,
+					PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
+				],
+				'dashboard_widget',
+				1,
+			],
+			'file locker diff' => [
+				[],
+				'file_locker',
+				1,
+			],
+			'ip analysis offcanvas' => [
+				[],
+				'ip_analyse',
+				1,
+			],
+			'ip rule add offcanvas' => [
+				[],
+				'ip_rules',
+				1,
+			],
+			'rule builder' => [
+				[],
+				'rule_builder',
+				1,
+			],
+			'rules manager' => [
+				[],
+				'rules_manager',
+				1,
+			],
+			'super search' => [
+				[],
+				'super_search',
+				1,
+			],
+			'traffic live render' => [
+				[],
+				'traffic',
+				1,
+			],
+			'zones manager' => [
+				[],
+				'zones_manager',
+				1,
+			],
+			'activity logs table help' => [
+				[
+					PluginNavs::FIELD_NAV    => PluginNavs::NAV_ACTIVITY,
+					PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_LOGS,
+				],
+				'tables',
+				1,
+			],
+			'traffic logs table help' => [
+				[
+					PluginNavs::FIELD_NAV    => PluginNavs::NAV_TRAFFIC,
+					PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_LOGS,
+				],
+				'tables',
+				1,
+			],
+		];
 	}
 }
 

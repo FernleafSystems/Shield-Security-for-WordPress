@@ -95,7 +95,9 @@ class ActionsQueueGroupSeedCollector {
 				case 'maintenance':
 					if ( $maintenanceItemsByGroupKey === null ) {
 						$maintenanceItemsByGroupKey = $this->groupMaintenanceItemsByGroupKey(
-							$this->maintenanceSource->itemsForBucket( $bucketSource, $bucketKey )
+							$this->activeMaintenanceItems(
+								$this->maintenanceSource->itemsForBucket( $bucketSource, $bucketKey )
+							)
 						);
 					}
 					$groupKey = $this->groupDefinitions->reviewMaintenanceGroupKeyForItemKey( $item[ 'key' ] );
@@ -331,6 +333,21 @@ class ActionsQueueGroupSeedCollector {
 			];
 		}
 		return $links;
+	}
+
+	/**
+	 * @param list<MaintenanceQueueItem> $maintenanceItems
+	 * @return list<MaintenanceQueueItem>
+	 */
+	private function activeMaintenanceItems( array $maintenanceItems ) :array {
+		return \array_values( \array_filter(
+			$maintenanceItems,
+			static fn( array $maintenanceItem ) :bool => \in_array(
+				StatusPriority::normalize( $maintenanceItem[ 'severity' ], 'good' ),
+				[ 'critical', 'warning' ],
+				true
+			)
+		) );
 	}
 
 	/**

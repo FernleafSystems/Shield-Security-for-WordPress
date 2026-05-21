@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider;
 
 use FernleafSystems\Utilities\Data\Response\StdResponse;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Mfa\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Actions
@@ -53,11 +54,18 @@ class Yubikey extends AbstractShieldProviderMfaDB {
 			parent::getUserProfileFormRenderData(),
 			[
 				'vars'    => [
-					'yubikeys' => ( new MfaRecordsForDisplay() )->run( $this->loadMfaRecords() ),
+					'yubikeys' => ( new MfaRecordsForDisplay() )->runWithoutDateLabels(
+						$this->loadMfaRecords(),
+						static fn( Record $record ) :string => sprintf( '%s (%s)', $record->label, $record->unique_id )
+					),
 				],
 				'strings' => [
 					'registered_yubi_ids'   => __( 'Registered Yubikey devices', 'wp-simple-firewall' ),
 					'no_active_yubi_ids'    => __( 'There are no registered Yubikey devices on this profile.', 'wp-simple-firewall' ),
+					'yubikey'               => __( 'YubiKey', 'wp-simple-firewall' ),
+					'used'                  => __( 'Used', 'wp-simple-firewall' ),
+					'registered'            => __( 'Registered', 'wp-simple-firewall' ),
+					'action'                => __( 'Action', 'wp-simple-firewall' ),
 					'placeholder_enter_otp' => __( 'Enter One Time Password From Yubikey', 'wp-simple-firewall' ),
 					'enter_otp'             => __( 'To register a new Yubikey device, enter a One Time Password from the Yubikey.', 'wp-simple-firewall' ),
 					'to_remove_device'      => __( 'To remove a Yubikey device, enter the registered device ID and save.', 'wp-simple-firewall' ),

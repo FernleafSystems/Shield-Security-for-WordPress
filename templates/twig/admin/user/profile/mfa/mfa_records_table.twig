@@ -1,0 +1,31 @@
+{% if records|length > 0 %}
+	<h4 class="shield-mfa-records-heading">{{ heading }}</h4>
+	<table class="widefat striped shield-mfa-records-table">
+		<thead>
+			<tr>
+				<th scope="col">{{ label_header }}</th>
+				<th scope="col">{{ used_header }}</th>
+				<th scope="col">{{ registered_header }}</th>
+				<th scope="col" class="shield-mfa-records-table__action">{{ action_header }}</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for reg in records %}
+				<tr>
+					<td><code>{{ reg.display_label }}</code></td>
+					<td>{{ reg.used_at }}</td>
+					<td>{{ reg.reg_at }}</td>
+					<td class="shield-mfa-records-table__action">
+						<button type="button"
+								class="{{ remove_button_class }} shield-button-link"
+								title="{{ remove_label }}"
+								aria-label="{{ remove_label }} {{ reg.display_label }}"
+								{{ remove_data_attribute }}="{{ reg.id }}">&#10006;</button>
+					</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+{% else %}
+	<p>{{ empty_message }}</p>
+{% endif %}

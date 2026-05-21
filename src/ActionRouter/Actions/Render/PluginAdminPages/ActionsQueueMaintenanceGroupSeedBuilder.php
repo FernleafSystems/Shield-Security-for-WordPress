@@ -16,6 +16,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  */
 class ActionsQueueMaintenanceGroupSeedBuilder {
 
+	private const HEALTHY_COMPANION_KEY_SUFFIX = ':healthy';
+
 	private ActionsQueueGroupDefinitions $groupDefinitions;
 	private ActionsQueueCompactSummaryRowBuilder $summaryRowBuilder;
 
@@ -31,9 +33,14 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 	 * @param list<MaintenanceQueueItem> $maintenanceItems
 	 * @phpstan-return GroupSeed
 	 */
-	public function build( string $groupKey, array $maintenanceItems, bool $isHealthy = false ) :array {
+	public function build(
+		string $groupKey,
+		array $maintenanceItems,
+		bool $isHealthy = false,
+		bool $useHealthyCompanionKey = false
+	) :array {
 		return $this->groupDefinitions->isReviewMaintenanceAggregateGroupKey( $groupKey )
-			? $this->buildAggregateSeed( $groupKey, $maintenanceItems, $isHealthy )
+			? $this->buildAggregateSeed( $groupKey, $maintenanceItems, $isHealthy, $useHealthyCompanionKey )
 			: $this->buildSingleItemSeed( $maintenanceItems[ 0 ], $isHealthy );
 	}
 
@@ -70,12 +77,17 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 	 * @param list<MaintenanceQueueItem> $maintenanceItems
 	 * @phpstan-return GroupSeed
 	 */
-	private function buildAggregateSeed( string $groupKey, array $maintenanceItems, bool $isHealthy ) :array {
+	private function buildAggregateSeed(
+		string $groupKey,
+		array $maintenanceItems,
+		bool $isHealthy,
+		bool $useHealthyCompanionKey
+	) :array {
 		$definition = $this->groupDefinitions->definitionForGroupKey( $groupKey );
 		$itemCount = $this->aggregateItemCount( $maintenanceItems, $isHealthy );
 
 		return [
-			'key'              => $groupKey,
+			'key'              => $this->seedKey( $groupKey, $isHealthy, $useHealthyCompanionKey ),
 			'definition_key'   => $groupKey,
 			'label'            => $definition[ 'label' ],
 			'item_count'       => $itemCount,
@@ -89,6 +101,12 @@ class ActionsQueueMaintenanceGroupSeedBuilder {
 			'maintenance_rows' => $this->projectAggregateRows( $maintenanceItems ),
 			'summary_row'      => [],
 		];
+	}
+
+	private function seedKey( string $groupKey, bool $isHealthy, bool $useHealthyCompanionKey ) :string {
+		return $isHealthy && $useHealthyCompanionKey
+			? $groupKey.self::HEALTHY_COMPANION_KEY_SUFFIX
+			: $groupKey;
 	}
 
 	/**

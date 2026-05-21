@@ -80,62 +80,9 @@ function extractSelect2Results( payload ) {
 	return Array.isArray( results ) ? results : [];
 }
 
-async function fetchShieldRenderedHtml( page, renderSlug, extraData = {} ) {
-	return page.evaluate( async ( { currentRenderSlug, currentExtraData } ) => {
-		const findAjaxRenderPayload = ( value ) => {
-			if ( value && typeof value === 'object' ) {
-				if ( value.ex === 'ajax_render' && typeof value.ajaxurl === 'string' ) {
-					return value;
-				}
-
-				for ( const child of Object.values( value ) ) {
-					const found = findAjaxRenderPayload( child );
-					if ( found ) {
-						return found;
-					}
-				}
-			}
-
-			return null;
-		};
-
-		const renderRequest = findAjaxRenderPayload( window.shield_vars_main?.comps ?? null );
-		if ( !renderRequest ) {
-			throw new Error( 'Missing browser-authenticated ajax_render payload for Shield render fetch.' );
-		}
-
-		const requestData = {
-			...renderRequest,
-			render_slug: currentRenderSlug,
-			...currentExtraData,
-		};
-		delete requestData.limit;
-
-		const response = await fetch( requestData.ajaxurl, {
-			method: 'POST',
-			credentials: 'same-origin',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-			},
-			body: new URLSearchParams( requestData ),
-		} );
-		const payload = await response.json();
-
-		if ( !response.ok || !payload?.data?.html ) {
-			throw new Error( `Failed to load Shield render HTML for slug: ${currentRenderSlug}` );
-		}
-
-		return payload.data.html;
-	}, {
-		currentRenderSlug: renderSlug,
-		currentExtraData: extraData,
-	} );
-}
-
 module.exports = {
 	buildShieldUrl,
 	dismissBlockingDialogs,
-	fetchShieldRenderedHtml,
 	openShieldRoute,
 	selectSelect2Option,
 	waitForShieldPage,

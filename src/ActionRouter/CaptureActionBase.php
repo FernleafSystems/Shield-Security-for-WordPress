@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalActionTransportPolicy;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -34,7 +35,12 @@ class CaptureActionBase {
 
 		return $action === ActionData::FIELD_SHIELD
 			   && $slug !== ''
-			   && ActionData::isValidActionSlug( $slug );
+			   && ActionData::isValidActionSlug( $slug )
+			   && ( new ExternalActionTransportPolicy() )->isAllowed( $slug, $transport, $this->actionType() );
+	}
+
+	protected function actionType() :int {
+		return ActionRoutingController::ACTION_SHIELD;
 	}
 
 	protected function extractActionSlugFromTransport( array $transport ) :string {
