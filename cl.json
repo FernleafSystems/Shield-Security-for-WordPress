@@ -54,6 +54,13 @@
       },
       {
         "type":        "improved",
+        "title":       "Report Security Hardening",
+        "description": [
+          "Report change details are rendered more safely, and Shield's internal REST action endpoint now accepts fewer externally routed actions."
+        ]
+      },
+      {
+        "type":        "improved",
         "title":       "silentCAPTCHA v3",
         "description": [
           "silentCAPTCHA now uses a stronger challenge system behind the scenes.",

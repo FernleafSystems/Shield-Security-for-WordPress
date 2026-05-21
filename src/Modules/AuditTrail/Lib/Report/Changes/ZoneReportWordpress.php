@@ -6,77 +6,78 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord;
 
 class ZoneReportWordpress extends BaseZoneReport {
 
-	protected function buildSummaryForLog( LogRecord $log ) :string {
+	protected function buildSummaryLinesForLog( LogRecord $log ) :array {
 		switch ( $log->event_slug ) {
 			case 'core_updated':
 				/* translators: %1$s: old version, %2$s: new version */
-				$text = sprintf( __( 'Core Upgraded: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					$log->meta_data[ 'from' ], $log->meta_data[ 'to' ] );
+				$text = sprintf( __( 'Core Upgraded: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'from' ] ?? __( 'missing data', 'wp-simple-firewall' ),
+					$log->meta_data[ 'to' ] ?? __( 'missing data', 'wp-simple-firewall' ) );
 				break;
 			case 'core_reinstalled':
-				$text = sprintf( __( 'Core Reinstalled: v%s', 'wp-simple-firewall' ), $log->meta_data[ 'version' ] );
+				$text = sprintf( __( 'Core Reinstalled: v%s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'version' ] ?? __( 'missing data', 'wp-simple-firewall' ) );
 				break;
 			case 'permalinks_structure':
 				/* translators: %1$s: from, %2$s: to */
-				$text = sprintf( __( 'Permalinks changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
+				$text = sprintf( __( 'Permalinks changed: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'from' ] ?? __( 'missing data', 'wp-simple-firewall' ),
+					$log->meta_data[ 'to' ] ?? __( 'missing data', 'wp-simple-firewall' )
 				);
 				break;
 			case 'wp_option_admin_email':
 				/* translators: %1$s: from, %2$s: to */
-				$text = sprintf( __( 'Site email changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
+				$text = sprintf( __( 'Site email changed: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'from' ] ?? __( 'missing data', 'wp-simple-firewall' ),
+					$log->meta_data[ 'to' ] ?? __( 'missing data', 'wp-simple-firewall' )
 				);
 				break;
 			case 'wp_option_blogname':
 				/* translators: %1$s: from, %2$s: to */
-				$text = sprintf( __( 'Title changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
+				$text = sprintf( __( 'Title changed: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'from' ] ?? __( 'missing data', 'wp-simple-firewall' ),
+					$log->meta_data[ 'to' ] ?? __( 'missing data', 'wp-simple-firewall' )
 				);
 				break;
 			case 'wp_option_blogdescription':
 				/* translators: %1$s: from, %2$s: to */
-				$text = sprintf( __( 'Tagline changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
+				$text = sprintf( __( 'Tagline changed: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'from' ] ?? __( 'missing data', 'wp-simple-firewall' ),
+					$log->meta_data[ 'to' ] ?? __( 'missing data', 'wp-simple-firewall' )
 				);
 				break;
 			case 'wp_option_home':
 				/* translators: %1$s: from, %2$s: to */
-				$text = sprintf( __( 'Home URL changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
+				$text = sprintf( __( 'Home URL changed: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'from' ] ?? __( 'missing data', 'wp-simple-firewall' ),
+					$log->meta_data[ 'to' ] ?? __( 'missing data', 'wp-simple-firewall' )
 				);
 				break;
 			case 'wp_option_siteurl':
 				/* translators: %1$s: from, %2$s: to */
-				$text = sprintf( __( 'Site URL changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
+				$text = sprintf( __( 'Site URL changed: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'from' ] ?? __( 'missing data', 'wp-simple-firewall' ),
+					$log->meta_data[ 'to' ] ?? __( 'missing data', 'wp-simple-firewall' )
 				);
 				break;
 			case 'wp_option_default_role':
 				/* translators: %1$s: from, %2$s: to */
-				$text = sprintf( __( 'Default user role changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
+				$text = sprintf( __( 'Default user role changed: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'from' ] ?? __( 'missing data', 'wp-simple-firewall' ),
+					$log->meta_data[ 'to' ] ?? __( 'missing data', 'wp-simple-firewall' )
 				);
 				break;
 			case 'wp_option_users_can_register':
 				/* translators: %1$s: from, %2$s: to */
-				$text = sprintf( __( 'Anyone can register changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] )
+				$text = sprintf( __( 'Anyone can register changed: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'from' ] ?? __( 'missing data', 'wp-simple-firewall' ),
+					$log->meta_data[ 'to' ] ?? __( 'missing data', 'wp-simple-firewall' )
 				);
 				break;
 			default:
-				$text = parent::buildSummaryForLog( $log );
-				break;
+				return parent::buildSummaryLinesForLog( $log );
 		}
-		return $text;
+		return [ (string)$text ];
 	}
 
 	public function getZoneName() :string {

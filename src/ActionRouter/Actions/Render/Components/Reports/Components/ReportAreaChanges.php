@@ -15,7 +15,10 @@ class ReportAreaChanges extends ReportAreaBase {
 			$this->report()->areas_data[ Constants::REPORT_AREA_CHANGES ],
 			function ( array $zone ) {
 				// Only display zones that have changes
-				return $zone[ 'total' ] > 0;
+				return isset( $zone[ 'title' ], $zone[ 'total' ], $zone[ 'detailed' ] )
+					   && \is_array( $zone[ 'detailed' ] )
+					   && (int)$zone[ 'total' ] > 0
+					   && !empty( $zone[ 'detailed' ] );
 			}
 		);
 

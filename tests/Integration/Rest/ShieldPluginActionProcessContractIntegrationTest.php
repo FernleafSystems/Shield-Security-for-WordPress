@@ -11,8 +11,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	Render\FullPage\Block\BlockFirewall,
 	Render\FullPage\Mfa\Components\LoginIntentFormShield,
 	Render\FullPage\Mfa\ShieldLoginIntentPage,
-	Render\FullPage\Report\SecurityReport
+	Render\FullPage\Report\SecurityReport,
+	TestRestFetchRequests
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\OperatorModePreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process\ShieldPluginAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
@@ -21,18 +24,18 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 	public function set_up() {
 		parent::set_up();
 		$this->loginAsAdministrator();
+		$this->requireController()->this_req->is_security_admin = true;
 	}
 
 	public function test_process_returns_payload_driven_envelope_for_valid_action() :void {
 		$process = new ShieldPluginActionProcessTestDouble();
 		$result = $process->processForTest( [
-			'ex'      => OperatorModeSwitch::SLUG,
-			'payload' => [
-				'mode' => 'default',
-			],
+			'ex'      => TestRestFetchRequests::SLUG,
+			'payload' => [],
 		] );
 
 		$this->assertArrayHasKey( 'success', $result );
+		$this->assertTrue( (bool)$result[ 'success' ] );
 		$this->assertArrayHasKey( 'data', $result );
 		$this->assertIsArray( $result[ 'data' ] );
 		$this->assertArrayHasKey( 'success', $result[ 'data' ] );
@@ -43,6 +46,27 @@ class ShieldPluginActionProcessContractIntegrationTest extends ShieldIntegration
 		$this->assertFalse( (bool)$result[ 'data' ][ 'page_reload' ] );
 		$this->assertIsString( $result[ 'data' ][ 'message' ] );
 		$this->assertIsString( $result[ 'data' ][ 'html' ] );
+		$restData = $this->requireController()->opts->optGet( TestRestFetchRequests::OPT_KEY );
+		$this->assertGreaterThan( 0, (int)( $restData[ TestRestFetchRequests::DATA_SUCCESS_TEST_AT ] ?? 0 ) );
+	}
+
+	public function test_process_rejects_unlisted_rest_action_without_mutating_state() :void {
+		$userID = \get_current_user_id();
+		\update_user_meta( $userID, OperatorModePreference::META_KEY_DEFAULT_MODE, PluginNavs::MODE_ACTIONS );
+
+		$result = ( new ShieldPluginActionProcessTestDouble() )->processForTest( [
+			'ex'      => OperatorModeSwitch::SLUG,
+			'payload' => [
+				'mode' => PluginNavs::MODE_REPORTS,
+			],
+		] );
+
+		$this->assertFalse( (bool)$result[ 'success' ] );
+		$this->assertFalse( (bool)( $result[ 'data' ][ 'success' ] ?? true ) );
+		$this->assertSame(
+			PluginNavs::MODE_ACTIONS,
+			\get_user_meta( $userID, OperatorModePreference::META_KEY_DEFAULT_MODE, true )
+		);
 	}
 
 	public function test_process_returns_failure_envelope_for_action_exception() :void {

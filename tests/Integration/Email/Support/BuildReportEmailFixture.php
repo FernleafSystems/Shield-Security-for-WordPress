@@ -109,14 +109,24 @@ trait BuildReportEmailFixture {
 								'text' => 'View',
 							],
 							'rows' => [
-								'Updated from 1.0.0 to 1.1.0',
-								'Automatic update completed',
+								[
+									'lines' => [ 'Updated from 1.0.0 to 1.1.0' ],
+									'count' => 1,
+								],
+								[
+									'lines' => [ 'Automatic update completed' ],
+									'count' => 1,
+								],
 							],
 						],
 						[
 							'name' => 'Malware Cleanup Plugin',
+							'link' => [],
 							'rows' => [
-								'Activated',
+								[
+									'lines' => [ 'Activated' ],
+									'count' => 1,
+								],
 							],
 						],
 					],
@@ -127,9 +137,16 @@ trait BuildReportEmailFixture {
 					'detailed' => [
 						[
 							'name' => 'New Administrator',
+							'link' => [],
 							'rows' => [
-								'Registered',
-								'Role: Administrator',
+								[
+									'lines' => [ 'Registered' ],
+									'count' => 1,
+								],
+								[
+									'lines' => [ 'Role: Administrator' ],
+									'count' => 1,
+								],
 							],
 						],
 					],

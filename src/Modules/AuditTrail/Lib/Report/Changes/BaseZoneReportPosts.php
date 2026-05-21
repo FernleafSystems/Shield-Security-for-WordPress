@@ -14,7 +14,7 @@ abstract class BaseZoneReportPosts extends BaseZoneReport {
 		return \array_filter( $logs, fn( $log ) => ( $log->meta_data[ 'type' ] ?? 'post' ) === $this->loadLogsFilterPostType() );
 	}
 
-	protected function buildSummaryForLog( LogRecord $log ) :string {
+	protected function buildSummaryLinesForLog( LogRecord $log ) :array {
 		switch ( $log->event_slug ) {
 			case 'post_created':
 				$text = __( 'Created', 'wp-simple-firewall' );
@@ -39,9 +39,9 @@ abstract class BaseZoneReportPosts extends BaseZoneReport {
 				break;
 			case 'post_updated_title':
 				/* translators: %1$s: old title, %2$s: new title */
-				$text = sprintf( __( 'Title Updated: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'title_old' ] ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'title_new' ] )
+				$text = sprintf( __( 'Title Updated: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'title_old' ] ?? __( 'missing data', 'wp-simple-firewall' ),
+					$log->meta_data[ 'title_new' ] ?? __( 'missing data', 'wp-simple-firewall' )
 				);
 				break;
 			case 'post_updated_content':
@@ -49,16 +49,15 @@ abstract class BaseZoneReportPosts extends BaseZoneReport {
 				break;
 			case 'post_updated_slug':
 				/* translators: %1$s: old slug, %2$s: new slug */
-				$text = sprintf( __( 'Slug Updated: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'slug_old' ] ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'slug_new' ] )
+				$text = sprintf( __( 'Slug Updated: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'slug_old' ] ?? __( 'missing data', 'wp-simple-firewall' ),
+					$log->meta_data[ 'slug_new' ] ?? __( 'missing data', 'wp-simple-firewall' )
 				);
 				break;
 			default:
-				$text = parent::buildSummaryForLog( $log );
-				break;
+				return parent::buildSummaryLinesForLog( $log );
 		}
-		return $text;
+		return [ (string)$text ];
 	}
 
 	protected function getLinkForLog( LogRecord $log ) :array {
