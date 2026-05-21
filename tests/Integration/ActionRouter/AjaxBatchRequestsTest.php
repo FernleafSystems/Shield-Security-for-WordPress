@@ -8,10 +8,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\AjaxRender,
 	Actions\AjaxBatchRequests,
 	Actions\BaseAction,
+	Actions\FullPageDisplay\DisplayBlockPage,
+	Actions\FullPageDisplay\FullPageDisplayNonTerminating,
 	Actions\MfaEmailDisable,
 	Actions\PluginBadgeClose,
 	Actions\PluginImportExport_UpdateNotified,
 	Actions\PluginReinstall,
+	Actions\Render,
+	Actions\Render\Components\Scans\Results\Wordpress,
+	Actions\Render\Components\ToastPlaceholder,
+	Actions\Render\FullPage\Block\BlockTrafficRateLimitExceeded,
 	Exceptions\ActionException,
 	Exceptions\UserAuthRequiredException
 };
@@ -259,6 +265,153 @@ class AjaxBatchRequestsTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 400, $payload[ 'results' ][ 'invalid_render_target' ][ 'status_code' ] );
 		$this->assertSame( AjaxBatchRequests::ERROR_ACTION_EXCEPTION, $payload[ 'results' ][ 'invalid_render_target' ][ 'error_code' ] ?? '' );
 		$this->assertSame( AjaxBatchRequests::ERROR_ACTION_EXCEPTION, $payload[ 'results' ][ 'invalid_render_target' ][ 'data' ][ 'error_code' ] ?? '' );
+	}
+
+	public function test_batch_rejects_generic_render_subrequest_by_transport_policy() :void {
+		$subrequest = ActionData::Build( Render::class, true, [
+			'render_action_slug' => ToastPlaceholder::SLUG,
+			'render_action_data' => [],
+		] );
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'generic_render',
+					'request' => $subrequest,
+				],
+			],
+		] );
+
+		$this->assertBatchFailure(
+			$response->payload()[ 'results' ][ 'generic_render' ] ?? [],
+			400,
+			AjaxBatchRequests::ERROR_ACTION_TRANSPORT_NOT_ALLOWED
+		);
+	}
+
+	public function test_batch_rejects_direct_render_subrequest_by_transport_policy() :void {
+		$subrequest = ActionData::Build( ToastPlaceholder::class );
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'direct_render',
+					'request' => $subrequest,
+				],
+			],
+		] );
+
+		$this->assertBatchFailure(
+			$response->payload()[ 'results' ][ 'direct_render' ] ?? [],
+			400,
+			AjaxBatchRequests::ERROR_ACTION_TRANSPORT_NOT_ALLOWED
+		);
+	}
+
+	public function test_batch_rejects_direct_render_class_name_subrequest_by_transport_policy() :void {
+		$subrequest = ActionData::Build( ToastPlaceholder::class );
+		$subrequest[ ActionData::FIELD_EXECUTE ] = ToastPlaceholder::class;
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'direct_render_class',
+					'request' => $subrequest,
+				],
+			],
+		] );
+
+		$this->assertBatchFailure(
+			$response->payload()[ 'results' ][ 'direct_render_class' ] ?? [],
+			400,
+			AjaxBatchRequests::ERROR_ACTION_TRANSPORT_NOT_ALLOWED
+		);
+	}
+
+	public function test_batch_rejects_blocked_full_page_subrequest_by_transport_policy() :void {
+		$subrequest = ActionData::Build( FullPageDisplayNonTerminating::class, true, [
+			'render_slug' => ToastPlaceholder::SLUG,
+		] );
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'full_page',
+					'request' => $subrequest,
+				],
+			],
+		] );
+
+		$this->assertBatchFailure(
+			$response->payload()[ 'results' ][ 'full_page' ] ?? [],
+			400,
+			AjaxBatchRequests::ERROR_ACTION_TRANSPORT_NOT_ALLOWED
+		);
+	}
+
+	public function test_batch_rejects_public_block_page_subrequest_over_ajax_transport() :void {
+		$subrequest = ActionData::Build( DisplayBlockPage::class, true, [
+			'render_slug' => BlockTrafficRateLimitExceeded::SLUG,
+		] );
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'block_page',
+					'request' => $subrequest,
+				],
+			],
+		] );
+
+		$this->assertBatchFailure(
+			$response->payload()[ 'results' ][ 'block_page' ] ?? [],
+			400,
+			AjaxBatchRequests::ERROR_ACTION_TRANSPORT_NOT_ALLOWED
+		);
+	}
+
+	public function test_batch_ajax_render_subrequest_rejects_blocked_render_target() :void {
+		$subrequest = ActionData::BuildAjaxRender( ToastPlaceholder::class );
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'blocked_ajax_render_target',
+					'request' => $subrequest,
+				],
+			],
+		] );
+
+		$this->assertBatchFailure(
+			$response->payload()[ 'results' ][ 'blocked_ajax_render_target' ] ?? [],
+			400,
+			AjaxBatchRequests::ERROR_ACTION_EXCEPTION
+		);
+	}
+
+	public function test_batch_ajax_render_subrequest_allows_policy_approved_render_target() :void {
+		$subrequest = ActionData::BuildAjaxRender( Wordpress::class, [
+			'display_context' => 'actions_queue',
+		] );
+
+		$response = $this->processor()->processAction( AjaxBatchRequests::SLUG, [
+			'requests' => [
+				[
+					'id'      => 'allowed_ajax_render_target',
+					'request' => $subrequest,
+				],
+			],
+		] );
+
+		$payload = $response->payload();
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertArrayHasKey( 'allowed_ajax_render_target', $payload[ 'results' ] );
+		$this->assertTrue( (bool)( $payload[ 'results' ][ 'allowed_ajax_render_target' ][ 'success' ] ?? false ) );
+		$this->assertSame( 200, (int)( $payload[ 'results' ][ 'allowed_ajax_render_target' ][ 'status_code' ] ?? 0 ) );
+		$this->assertNotSame(
+			'',
+			\trim( (string)( $payload[ 'results' ][ 'allowed_ajax_render_target' ][ 'data' ][ 'html' ] ?? '' ) )
+		);
 	}
 
 	public function test_batch_malformed_item_returns_action_exception_error_code() :void {

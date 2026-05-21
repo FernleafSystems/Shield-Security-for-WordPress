@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
+	Actions\Render\Components\ToastPlaceholder,
 	Actions\Render\Components\Scans\Results\Wordpress,
 	CaptureAjaxAction
 };
@@ -40,6 +41,20 @@ class CaptureAjaxActionTransportConsistencyIntegrationTest extends ShieldIntegra
 		$this->assertTrue( (bool)( $issuePayload[ 'data' ][ 'success' ] ?? false ) );
 		$this->assertNotSame( '', \trim( (string)( $issuePayload[ 'data' ][ 'html' ] ?? '' ) ) );
 		$this->assertArrayNotHasKey( 'action_data', $issuePayload[ 'data' ] ?? [] );
+	}
+
+	public function test_direct_render_action_slug_does_not_make_ajax_capture_runnable() :void {
+		$request = ActionData::Build( ToastPlaceholder::class );
+		$this->applyCurrentShieldAjaxRequest( $request, false );
+
+		$this->assertFalse( ( new CaptureAjaxActionTransportConsistencyTestDouble() )->canRunForTest() );
+	}
+
+	public function test_ajax_render_allowed_target_slug_does_not_make_direct_ajax_capture_runnable() :void {
+		$request = ActionData::Build( Wordpress::class );
+		$this->applyCurrentShieldAjaxRequest( $request, false );
+
+		$this->assertFalse( ( new CaptureAjaxActionTransportConsistencyTestDouble() )->canRunForTest() );
 	}
 
 	public function test_query_only_transport_does_not_make_ajax_capture_runnable() :void {

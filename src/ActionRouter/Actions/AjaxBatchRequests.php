@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionNonce,
 	ActionProcessor,
+	ActionRoutingController,
 	Constants,
 	Exceptions\ActionDoesNotExistException,
 	Exceptions\ActionException,
@@ -14,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Exceptions\UserAuthRequiredException,
 	ResponseAdapter\AjaxResponseAdapter,
 	Utility\AuthRefreshRequest,
+	Utility\ExternalActionTransportPolicy,
 	Utility\ResponseEnvelopeNormalizer
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\{
@@ -31,6 +33,7 @@ class AjaxBatchRequests extends BaseAction {
 	public const ERROR_ACTION_EXCEPTION = 'action_exception';
 	public const ERROR_INVALID_NONCE = 'invalid_nonce';
 	public const ERROR_NESTED_BATCH_REQUEST = 'nested_batch_request';
+	public const ERROR_ACTION_TRANSPORT_NOT_ALLOWED = 'action_transport_not_allowed';
 	public const ERROR_SECURITY_ADMIN_REQUIRED = 'security_admin_required';
 	public const ERROR_UNEXPECTED = 'unexpected_error';
 	public const ERROR_USER_AUTH_REQUIRED = 'user_auth_required';
@@ -121,6 +124,18 @@ class AjaxBatchRequests extends BaseAction {
 			$actionNonce = (string)( $actionRequestData[ ActionData::FIELD_NONCE ] ?? '' );
 			if ( empty( $actionSlug ) || empty( $actionNonce ) ) {
 				throw new ActionException( __( 'Missing action slug or nonce in batched request.', 'wp-simple-firewall' ) );
+			}
+
+			if ( !( new ExternalActionTransportPolicy() )->isAllowed(
+				$actionSlug,
+				$actionRequestData,
+				ActionRoutingController::ACTION_AJAX
+			) ) {
+				return $this->buildFailureResult(
+					__( 'Action transport is not allowed.', 'wp-simple-firewall' ),
+					400,
+					self::ERROR_ACTION_TRANSPORT_NOT_ALLOWED
+				);
 			}
 
 			$subrequestPayload = $this->stripTransportFields( $actionRequestData );

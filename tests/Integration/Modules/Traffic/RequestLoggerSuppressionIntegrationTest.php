@@ -9,9 +9,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\PluginBadgeClose,
 	Actions\PluginAutoDbRepair,
 	Actions\RuleBuilderAction,
-	Actions\Render\Components\ToastPlaceholder,
 	Actions\Render\Components\UserMfa\ConfigForm,
 	Actions\Render\Components\Widgets\DashboardLiveMonitorTicker,
+	Actions\Render\Components\Widgets\WpDashboardSummary,
 	Actions\ScansStart,
 	Actions\SecurityAdminAuthClear,
 	Actions\SecurityAdminRemove,
@@ -139,7 +139,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 	public function test_generic_shield_admin_ajax_render_requests_are_suppressed() :void {
 		$this->loginAsSecurityAdmin();
 		$this->applyCurrentShieldAjaxRequest(
-			ActionData::BuildAjaxRender( ToastPlaceholder::class ),
+			ActionData::BuildAjaxRender( WpDashboardSummary::class ),
 			true
 		);
 

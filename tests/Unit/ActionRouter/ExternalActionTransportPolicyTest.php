@@ -12,10 +12,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\FullPageDisplay\DisplayReportAdmin,
 	Actions\FullPageDisplay\FullPageDisplayDynamic,
 	Actions\FullPageDisplay\FullPageDisplayNonTerminating,
+	Actions\OperatorModeSwitch,
 	Actions\Render,
+	Actions\Render\Components\Reports\Components\ReportAreaChanges,
+	Actions\Render\Components\Scans\Results\Wordpress,
+	Actions\Render\Components\ToastPlaceholder,
 	Actions\Render\FullPage\Block\BlockFirewall,
 	Actions\Render\FullPage\Block\BlockTrafficRateLimitExceeded,
+	Actions\Render\FullPage\Mfa\Components\LoginIntentFormShield,
 	Actions\Render\FullPage\Mfa\ShieldLoginIntentPage,
+	Actions\Render\FullPage\Report\SecurityReport,
 	Utility\ExternalActionTransportPolicy
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -117,14 +123,37 @@ class ExternalActionTransportPolicyTest extends BaseUnitTest {
 		$this->assertFalse( $policy->isAllowed( DisplayReportAdmin::SLUG, [], ActionRoutingController::ACTION_SHIELD ) );
 	}
 
+	/**
+	 * @dataProvider directRenderActionProvider
+	 */
+	public function test_direct_render_actions_are_denied_from_external_transports( string $actionClass ) :void {
+		$policy = new ExternalActionTransportPolicy();
+
+		foreach ( $this->externalTransportTypes() as $type ) {
+			$this->assertFalse( $policy->isAllowed( $actionClass::SLUG, [], $type ) );
+			$this->assertFalse( $policy->isAllowed( $actionClass, [], $type ) );
+		}
+	}
+
 	public function test_unlisted_actions_keep_the_existing_transport_behaviour() :void {
 		$this->assertTrue( ( new ExternalActionTransportPolicy() )->isAllowed(
-			'operator_mode_switch',
+			OperatorModeSwitch::SLUG,
 			[
-				ActionData::FIELD_EXECUTE => 'operator_mode_switch',
+				ActionData::FIELD_EXECUTE => OperatorModeSwitch::SLUG,
 			],
 			ActionRoutingController::ACTION_REST
 		) );
+	}
+
+	public function directRenderActionProvider() :array {
+		return [
+			[ SecurityReport::class ],
+			[ ReportAreaChanges::class ],
+			[ BlockFirewall::class ],
+			[ LoginIntentFormShield::class ],
+			[ ToastPlaceholder::class ],
+			[ Wordpress::class ],
+		];
 	}
 
 	private function externalTransportTypes() :array {

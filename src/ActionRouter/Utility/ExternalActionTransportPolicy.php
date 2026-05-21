@@ -44,8 +44,24 @@ class ExternalActionTransportPolicy {
 					   && ( \is_admin() || \is_network_admin() );
 
 			default:
-				return true;
+				return !\is_a( $action, Actions\Render\BaseRender::class, true )
+					   || $this->isAllowedDirectRenderTransport( $actionSlug, $type );
 		}
+	}
+
+	private function isAllowedDirectRenderTransport( string $actionSlug, int $type ) :bool {
+		return \in_array(
+			$type,
+			$this->directRenderExternalTransportAllowlist()[ $actionSlug ] ?? [],
+			true
+		);
+	}
+
+	/**
+	 * @return array<string,list<int>>
+	 */
+	private function directRenderExternalTransportAllowlist() :array {
+		return [];
 	}
 
 	private function isAllowedMainwpDynamicIframeTransport( array $transport, int $type ) :bool {

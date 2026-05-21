@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueGroupsBuilder,
 	ScansResultsRailTabAvailability
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	MaintenancePluginsService,
@@ -32,6 +33,8 @@ use FernleafSystems\Wordpress\Services\Core\{
  * @phpstan-import-type GroupSectionData from ActionsQueueGroupsBuilder
  */
 class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
+
+	use AjaxRenderPolicyAssertions;
 
 	private array $servicesSnapshot = [];
 
@@ -238,6 +241,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 
 		$groups = $this->flattenLayerGroups( $data );
+		$this->assertGroupDetailRenderActionsAllowedByPolicy( $groups, 'critical action queue groups' );
 
 		$this->assertSame( 'critical', $data[ 'bucket_selection' ][ 'key' ] );
 		$this->assertSame( 'critical', $data[ 'bucket_selection' ][ 'status' ] );
@@ -1582,6 +1586,18 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			static fn( array $section ) :array => $section[ 'groups' ],
 			$sections
 		) );
+	}
+
+	private function assertGroupDetailRenderActionsAllowedByPolicy( array $groups, string $context ) :void {
+		foreach ( $groups as $group ) {
+			$detailRenderAction = $group[ 'selection' ][ 'detail_render_action' ] ?? [];
+			if ( \is_array( $detailRenderAction ) && !empty( $detailRenderAction ) ) {
+				$this->assertAjaxRenderPayloadAllowedByPolicy(
+					$detailRenderAction,
+					$context.':'.(string)( $group[ 'key' ] ?? '' )
+				);
+			}
+		}
 	}
 
 	/**

@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageInvestigateLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ActionsMap;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -32,6 +33,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
+	use AjaxRenderPolicyAssertions;
 
 	private object $renderCapture;
 	private array $servicesSnapshot = [];
@@ -131,6 +133,10 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				$this->assertSame(
 					$expectedAction,
 					ActionsMap::ActionFromSlug( (string)( $tile[ 'render_action' ][ 'render_slug' ] ?? '' ) )
+				);
+				$this->assertAjaxRenderPayloadAllowedByPolicy(
+					$tile[ 'render_action' ],
+					'investigate subject '.$tile[ 'key' ]
 				);
 			}
 		}
@@ -303,9 +309,10 @@ class PageInvestigateLandingUnitTestDouble extends PageInvestigateLanding {
 	}
 
 	protected function buildAjaxRenderActionData( string $renderAction, array $auxData = [] ) :array {
-		return \array_merge( [
-			'render_slug' => $renderAction::SLUG,
-		], $auxData );
+		return \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData::BuildAjaxRender(
+			$renderAction,
+			$auxData
+		);
 	}
 }
 

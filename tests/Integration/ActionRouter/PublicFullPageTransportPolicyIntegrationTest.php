@@ -122,6 +122,18 @@ class PublicFullPageTransportPolicyIntegrationTest extends ShieldIntegrationTest
 		$this->assertFalse( ( new PublicFullPagePluginCaptureTestDouble() )->canRunForTest() );
 	}
 
+	public function test_mainwp_render_slug_is_not_a_direct_external_endpoint() :void {
+		$this->loginAsAdministrator();
+		$request = ActionData::Build( TabManageSitePage::class, false, [
+			'site_id' => 123,
+		] );
+		$this->applyCurrentRequestState( [
+			'REQUEST_URI' => '/wp-admin/?'.\http_build_query( $request ),
+		], $request );
+
+		$this->assertFalse( ( new PublicFullPagePluginCaptureTestDouble() )->canRunForTest() );
+	}
+
 	public function test_mainwp_dynamic_iframe_transport_rejects_invalid_site_id() :void {
 		$this->loginAsAdministrator();
 		$request = ActionData::Build( FullPageDisplayDynamic::class, false, [

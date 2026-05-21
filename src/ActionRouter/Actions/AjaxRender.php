@@ -2,10 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	Exceptions\ActionException
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AnyUserAuthRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\RenderActionTarget;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\{
+	AjaxRenderTargetPolicy,
+	RenderActionTarget
+};
 
 class AjaxRender extends BaseAction {
 
@@ -16,6 +22,10 @@ class AjaxRender extends BaseAction {
 
 	protected function exec() {
 		$renderAction = RenderActionTarget::require( (string)$this->action_data[ 'render_slug' ] );
+		if ( !( new AjaxRenderTargetPolicy() )->isAllowed( $renderAction ) ) {
+			throw new ActionException( __( 'Render target is not allowed.', 'wp-simple-firewall' ) );
+		}
+
 		$routedResponse = self::con()->action_router->action(
 			$renderAction,
 			$this->getParamsMinusAjax()

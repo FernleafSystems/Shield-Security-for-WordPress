@@ -29,6 +29,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	StatusDetailGroupsBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -44,6 +45,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
+	use AjaxRenderPolicyAssertions;
 
 	private array $servicesSnapshot = [];
 	private object $secAdminController;
@@ -178,10 +180,12 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			PluginNavs::NAV_ZONES,
 			$diagnosisAction[ Constants::NAV_ID ] ?? ''
 		);
+		$this->assertAjaxRenderPayloadAllowedByPolicy( $diagnosisAction, 'configure diagnosis render' );
 		$this->assertSame(
 			ConfigureSearchResults::SLUG,
 			$searchAction[ 'render_slug' ] ?? ''
 		);
+		$this->assertAjaxRenderPayloadAllowedByPolicy( $searchAction, 'configure search render' );
 		$this->assertSame( '', $vars[ 'configure_focus_request_json' ] ?? 'missing' );
 	}
 
@@ -531,12 +535,8 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 	}
 
 	protected function buildAjaxRenderActionData( string $renderAction, array $auxData = [] ) :array {
-		return \array_merge(
-			[
-				'action'      => 'shield_action',
-				'ex'          => 'ajax_render',
-				'render_slug' => $renderAction::SLUG,
-			],
+		return \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData::BuildAjaxRender(
+			$renderAction,
 			$auxData
 		);
 	}
