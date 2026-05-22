@@ -14,10 +14,7 @@ class ActionsQueueGroupScanSource {
 	private ScanResultsDisplayOptions $queueScanResultsOptions;
 	private ?array $activePluginSummaries = null;
 	private ?array $activeThemeSummaries = null;
-	private array $fullyIgnoredAssetSummaries = [];
 	private ?array $vulnerabilitiesPayload = null;
-	private ?int $ignoredWordpressCount = null;
-	private ?int $ignoredMalwareCount = null;
 
 	public function __construct(
 		ActionsQueueScanAssetCardsBuilder $scanAssetCardsBuilder,
@@ -41,45 +38,6 @@ class ActionsQueueGroupScanSource {
 		}
 
 		return [];
-	}
-
-	public function ignoredCountForSource( string $ignoredSource ) :int {
-		if ( $ignoredSource === 'wordpress' ) {
-			return $this->ignoredWordpressCount();
-		}
-		if ( $ignoredSource === 'malware' ) {
-			return $this->ignoredMalwareCount();
-		}
-		if ( $ignoredSource === 'plugins' ) {
-			return $this->countQueueAssetSummaryResults( $this->fullyIgnoredAssetSummariesForSource( 'plugins' ) );
-		}
-		if ( $ignoredSource === 'themes' ) {
-			return $this->countQueueAssetSummaryResults( $this->fullyIgnoredAssetSummariesForSource( 'themes' ) );
-		}
-
-		return 0;
-	}
-
-	/**
-	 * @return list<QueueAssetSummaryRecord>
-	 */
-	public function fullyIgnoredAssetSummariesForSource( string $assetSource ) :array {
-		$assetType = $assetSource === 'plugins'
-			? 'plugin'
-			: ( $assetSource === 'themes' ? 'theme' : '' );
-		if ( $assetType === '' ) {
-			return [];
-		}
-
-		if ( !isset( $this->fullyIgnoredAssetSummaries[ $assetSource ] ) ) {
-			$activeSummaries = $assetSource === 'plugins'
-				? $this->activePluginSummaries()
-				: $this->activeThemeSummaries();
-			$this->fullyIgnoredAssetSummaries[ $assetSource ] = $this->scanAssetCardsBuilder
-				->buildFullyIgnoredSummaryRecords( $assetType, $activeSummaries );
-		}
-
-		return $this->fullyIgnoredAssetSummaries[ $assetSource ];
 	}
 
 	/**
@@ -129,41 +87,4 @@ class ActionsQueueGroupScanSource {
 		return $this->activeThemeSummaries;
 	}
 
-	private function ignoredWordpressCount() :int {
-		if ( $this->ignoredWordpressCount === null ) {
-			$this->ignoredWordpressCount = $this->buildScanResultsTableBuilder()->countForScope(
-				'wordpress',
-				'wordpress',
-				$this->queueScanResultsOptions->ignoredOnly()
-			);
-		}
-
-		return $this->ignoredWordpressCount;
-	}
-
-	private function ignoredMalwareCount() :int {
-		if ( $this->ignoredMalwareCount === null ) {
-			$this->ignoredMalwareCount = $this->buildScanResultsTableBuilder()->countForScope(
-				'malware',
-				'malware',
-				$this->queueScanResultsOptions->ignoredOnly()
-			);
-		}
-
-		return $this->ignoredMalwareCount;
-	}
-
-	/**
-	 * @param list<QueueAssetSummaryRecord> $summaries
-	 */
-	private function countQueueAssetSummaryResults( array $summaries ) :int {
-		return (int)\array_sum( \array_map(
-			static fn( array $summary ) :int => $summary[ 'count_badge' ],
-			$summaries
-		) );
-	}
-
-	private function buildScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
-		return new ActionsQueueScanResultsTableBuilder( null, $this->queueScanResultsOptions );
-	}
 }

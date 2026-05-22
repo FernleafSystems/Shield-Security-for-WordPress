@@ -27,7 +27,9 @@ async function openDirectScanResultsTable( page, fixture, { includeIgnored = fal
 	if ( includeIgnored ) {
 		await showIgnoredResults( page );
 	}
-	await waitForScanResultsData( table );
+	await waitForScanResultsData( table, {
+		rowState: includeIgnored ? 'ignored' : 'any',
+	} );
 	return table;
 }
 
@@ -46,15 +48,19 @@ async function showIgnoredResults( page ) {
 	await tableReload;
 }
 
-async function waitForScanResultsData( table ) {
+async function waitForScanResultsData( table, { rowState = 'any' } = {} ) {
 	await expect( table ).toBeVisible();
-	await expect.poll( async () => table.evaluate( ( element ) => {
+	await expect.poll( async () => table.evaluate( ( element, state ) => {
 		const jQuery = globalThis.jQuery;
 		if ( !jQuery?.fn?.dataTable?.isDataTable?.( element ) ) {
 			return 0;
 		}
-		return jQuery( element ).DataTable().rows().data().toArray().length;
-	} ), { timeout: 20_000 } ).toBeGreaterThan( 0 );
+		const rows = jQuery( element ).DataTable().rows().data().toArray();
+		if ( state === 'ignored' ) {
+			return rows.filter( ( data ) => Boolean( data?.is_ignored ) ).length;
+		}
+		return rows.length;
+	}, rowState ), { timeout: 20_000 } ).toBeGreaterThan( 0 );
 }
 
 async function selectScanResultsRows( table, rowState ) {

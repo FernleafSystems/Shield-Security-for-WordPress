@@ -67,7 +67,6 @@ class ActionsQueueCardDataBuilder {
 	 * @return ActionsQueueCardData
 	 */
 	public function build( array $attentionQuery ) :array {
-		$attentionQuery = ( new DashboardAttentionQueryFilter() )->filter( $attentionQuery );
 		$queueSummary = $this->getQueueSummary( $attentionQuery );
 		$zoneGroups = $this->getQueueZoneGroups( $attentionQuery );
 		$shieldStatus = $this->normalizeSeverity( $queueSummary[ 'severity' ] );

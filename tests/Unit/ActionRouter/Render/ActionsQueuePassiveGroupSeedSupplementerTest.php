@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueCompactSummaryRowBuilder,
 	ActionsQueueGroupDefinitions,
 	ActionsQueueGroupMaintenanceSource,
-	ActionsQueueGroupScanSource,
 	ActionsQueueMaintenanceGroupSeedBuilder,
 	ActionsQueuePassiveGroupSeedSupplementer
 };
@@ -30,9 +29,6 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			$definitions,
 			new ActionsQueueCompactSummaryRowBuilder()
 		);
-		$scanSource = $this->getMockBuilder( ActionsQueueGroupScanSource::class )
-						   ->disableOriginalConstructor()
-						   ->getMock();
 		$maintenanceSource = $this->getMockBuilder( ActionsQueueGroupMaintenanceSource::class )
 								  ->disableOriginalConstructor()
 								  ->onlyMethods( [ 'itemsForBucket' ] )
@@ -42,7 +38,6 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 		$supplementer = new class(
 			$definitions,
 			$maintenanceSeedBuilder,
-			$scanSource,
 			$maintenanceSource
 		) extends ActionsQueuePassiveGroupSeedSupplementer {
 			protected function getPendingFileLockerCount() :int {
@@ -88,9 +83,6 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 			$definitions,
 			new ActionsQueueCompactSummaryRowBuilder()
 		);
-		$scanSource = $this->getMockBuilder( ActionsQueueGroupScanSource::class )
-						   ->disableOriginalConstructor()
-						   ->getMock();
 		$maintenanceSource = $this->getMockBuilder( ActionsQueueGroupMaintenanceSource::class )
 								  ->disableOriginalConstructor()
 								  ->onlyMethods( [ 'itemsForBucket' ] )
@@ -136,7 +128,6 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 		$supplementer = new ActionsQueuePassiveGroupSeedSupplementer(
 			$definitions,
 			$maintenanceSeedBuilder,
-			$scanSource,
 			$maintenanceSource
 		);
 		$bucketSource = [

@@ -272,7 +272,6 @@ class ActionsQueueGroupsBuilder {
 			$this->passiveSeedSupplementer = new ActionsQueuePassiveGroupSeedSupplementer(
 				$this->groupDefinitions(),
 				$this->maintenanceSeedBuilder(),
-				$this->groupScanSource(),
 				$this->groupMaintenanceSource()
 			);
 		}

@@ -72,7 +72,9 @@ export class ShieldTableScanResults extends ShieldTableBase {
 		return ( new AjaxService() )
 			.send( reqData, false, true )
 			.then( ( resp ) => {
-				this.handleDatatableAjaxResponse( resp, callback, settings );
+				if ( this.handleDatatableAjaxResponse( resp, callback, settings ) ) {
+					this.dispatchScanResultsChangedIfNeeded( resp );
+				}
 			} );
 	}
 
@@ -172,6 +174,20 @@ export class ShieldTableScanResults extends ShieldTableBase {
 		catch ( e ) {
 			return {};
 		}
+	}
+
+	dispatchScanResultsChangedIfNeeded( resp ) {
+		const datatableData = this.extractResponseData( resp ).datatable_data || {};
+		if ( datatableData.scan_results_changed !== true || !( this.el instanceof HTMLTableElement ) ) {
+			return;
+		}
+
+		this.el.dispatchEvent( new CustomEvent( 'shield:scan-results-changed', {
+			bubbles: true,
+			detail: {
+				datatable_data: datatableData,
+			}
+		} ) );
 	}
 
 	getFilterAwareLanguage() {
