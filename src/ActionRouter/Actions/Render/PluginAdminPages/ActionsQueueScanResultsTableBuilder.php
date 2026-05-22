@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\ScanResultsScopeResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\LoadFileScanResultsTableData;
 
 class ActionsQueueScanResultsTableBuilder {
 
@@ -76,19 +75,6 @@ class ActionsQueueScanResultsTableBuilder {
 			$this->buildFullLogHref(),
 			$this->buildTableActionData( $options )
 		);
-	}
-
-	/**
-	 * @param array<string,mixed> $options
-	 */
-	public function countForScope( string $type, string $file, array $options ) :int {
-		$loader = new LoadFileScanResultsTableData();
-		$loader->custom_record_retriever_wheres = $this->scopeResolver->wheresForActionScope(
-			$type,
-			$file
-		);
-		$loader->results_display_options = $this->displayOptions->normalize( $options );
-		return $loader->countAll();
 	}
 
 	protected function buildFullLogHref() :string {

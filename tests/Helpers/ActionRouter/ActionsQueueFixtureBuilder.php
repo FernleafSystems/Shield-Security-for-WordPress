@@ -357,10 +357,20 @@ class ActionsQueueFixtureBuilder {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		$this->trackId( $state, 'scan_ids', $scanId );
 
-		foreach ( [ 1, 2 ] as $_ ) {
+		$active = TestDataFactory::insertAfsFileScanResultTracked(
+			$scanId,
+			$this->pluginMainPathFragment( $pluginSlug ),
+			[
+				'is_in_plugin' => 1,
+				'ptg_slug'     => $pluginSlug,
+			]
+		);
+		$this->trackScanResult( $state, $active );
+
+		foreach ( [ 'ignored-a.php', 'ignored-b.php' ] as $file ) {
 			$tracked = TestDataFactory::insertAfsFileScanResultTracked(
 				$scanId,
-				$this->pluginMainPathFragment( $pluginSlug ),
+				$this->pluginFilePathFragment( $pluginSlug, $file ),
 				[
 					'is_in_plugin' => 1,
 					'ptg_slug'     => $pluginSlug,
@@ -376,7 +386,7 @@ class ActionsQueueFixtureBuilder {
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
 			'require_scan_results_table'  => true,
-			'require_populated_scan_results_table' => false,
+			'require_populated_scan_results_table' => true,
 		];
 	}
 
@@ -404,6 +414,11 @@ class ActionsQueueFixtureBuilder {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		$this->trackId( $state, 'scan_ids', $scanId );
 
+		$active = TestDataFactory::insertAfsFileScanResultTracked( $scanId, 'wp-admin/includes/plugin.php', [
+			'is_in_core' => 1,
+		] );
+		$this->trackScanResult( $state, $active );
+
 		foreach ( [ 'wp-admin/admin.php', 'wp-includes/version.php' ] as $pathFragment ) {
 			$tracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $pathFragment, [
 				'is_in_core' => 1,
@@ -418,7 +433,7 @@ class ActionsQueueFixtureBuilder {
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
 			'require_scan_results_table'  => true,
-			'require_populated_scan_results_table' => false,
+			'require_populated_scan_results_table' => true,
 		];
 	}
 
@@ -452,6 +467,16 @@ class ActionsQueueFixtureBuilder {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		$this->trackId( $state, 'scan_ids', $scanId );
 
+		$active = TestDataFactory::insertAfsFileScanResultTracked(
+			$scanId,
+			$this->themeFilePathFragment( $themeSlug, 'index.php' ),
+			[
+				'is_in_theme' => 1,
+				'ptg_slug'    => $themeSlug,
+			]
+		);
+		$this->trackScanResult( $state, $active );
+
 		foreach ( [ 'style.css', 'functions.php' ] as $file ) {
 			$tracked = TestDataFactory::insertAfsFileScanResultTracked(
 				$scanId,
@@ -471,7 +496,7 @@ class ActionsQueueFixtureBuilder {
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
 			'require_scan_results_table'  => true,
-			'require_populated_scan_results_table' => false,
+			'require_populated_scan_results_table' => true,
 		];
 	}
 
@@ -497,6 +522,11 @@ class ActionsQueueFixtureBuilder {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		$this->trackId( $state, 'scan_ids', $scanId );
 
+		$active = TestDataFactory::insertAfsFileScanResultTracked( $scanId, 'wp-admin/includes/plugin.php', [
+			'is_mal' => 1,
+		] );
+		$this->trackScanResult( $state, $active );
+
 		foreach ( [ 'wp-config.php', 'index.php' ] as $pathFragment ) {
 			$tracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $pathFragment, [
 				'is_mal' => 1,
@@ -511,7 +541,7 @@ class ActionsQueueFixtureBuilder {
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
 			'require_scan_results_table'  => true,
-			'require_populated_scan_results_table' => false,
+			'require_populated_scan_results_table' => true,
 		];
 	}
 
@@ -813,6 +843,10 @@ class ActionsQueueFixtureBuilder {
 
 	private function pluginMainPathFragment( string $pluginSlug ) :string {
 		return TestDataFactory::pathFragmentFromAbsolutePath( WP_PLUGIN_DIR.'/'.$pluginSlug );
+	}
+
+	private function pluginFilePathFragment( string $pluginSlug, string $file ) :string {
+		return TestDataFactory::pathFragmentFromAbsolutePath( WP_PLUGIN_DIR.'/'.\dirname( $pluginSlug ).'/'.$file );
 	}
 
 	private function themeFilePathFragment( string $themeSlug, string $file ) :string {

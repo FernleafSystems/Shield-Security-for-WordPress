@@ -14,7 +14,6 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueScanStateBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueScanAssetCardsBuilder,
-	ActionsQueueScanResultsTableBuilder,
 	ScansResultsRailTabAvailability
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
@@ -68,7 +67,7 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
-		$assetBuilder = $this->newScanAssetCardsBuilderStub( [], [
+		$assetBuilder = $this->newScanAssetCardsBuilderStub( [
 			'plugin' => [
 				$this->assetSummary( 'plugin-a/plugin-a.php' ),
 				$this->assetSummary( 'plugin-b/plugin-b.php' ),
@@ -84,11 +83,9 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$this->assertSame( 4, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
 		$this->assertSame( [ 'plugin_files' ], \array_column( $state[ 'rows' ], 'key' ) );
 		$this->assertSame( [ 'plugin' ], $assetBuilder->buildSummaryCalls );
-		$this->assertSame( [ 'plugin-a/plugin-a.php', 'plugin-b/plugin-b.php', 'plugin-c/plugin-c.php', 'plugin-d/plugin-d.php' ],
-			\array_column( $assetBuilder->fullyIgnoredActiveSummaryArgs[ 'plugin' ], 'key' ) );
 	}
 
-	public function test_build_routes_fully_ignored_plugins_to_fix_now_as_warning_items() :void {
+	public function test_build_ignores_fully_ignored_plugins_when_no_active_results() :void {
 		$availability = new class extends ScansResultsRailTabAvailability {
 			public function build( string $tabKey ) :array {
 				return $tabKey === 'plugins'
@@ -109,33 +106,19 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
-		$this->setPrivateProperty( $builder, 'scanAssetCardsBuilder', $this->newScanAssetCardsBuilderStub( [
-			[
-				'key'          => 'ignored-plugin/ignored-plugin.php',
-				'status'       => 'warning',
-				'icon_class'   => 'ignored-plugin-icon',
-				'title'        => 'Ignored Plugin',
-				'stat_text'    => '2 discovered files are currently ignored.',
-				'meta_text'    => 'ignored-plugin/ignored-plugin.php',
-				'count_badge'  => 2,
-				'subject_type' => 'plugin',
-				'subject_id'   => 'ignored-plugin/ignored-plugin.php',
-				'has_update'   => false,
-			],
-		] ) );
+		$this->setPrivateProperty( $builder, 'scanAssetCardsBuilder', $this->newScanAssetCardsBuilderStub() );
 
 		$state = $builder->build();
 
-		$this->assertSame( 1, $state[ 'tabs' ][ 'plugins' ][ 'count' ] );
-		$this->assertSame( 'warning', $state[ 'tabs' ][ 'plugins' ][ 'status' ] );
-		$this->assertSame( 1, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
-		$this->assertSame( 'warning', $state[ 'tabs' ][ 'summary' ][ 'status' ] );
-		$this->assertSame( 'warning', $state[ 'rail_accent_status' ] );
-		$this->assertSame( [ 'plugin_files_ignored' ], \array_column( $state[ 'rows' ], 'key' ) );
-		$this->assertSame( 'warning', $state[ 'rows' ][ 0 ][ 'severity' ] );
+		$this->assertSame( 0, $state[ 'tabs' ][ 'plugins' ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'tabs' ][ 'plugins' ][ 'status' ] );
+		$this->assertSame( 0, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'tabs' ][ 'summary' ][ 'status' ] );
+		$this->assertSame( 'good', $state[ 'rail_accent_status' ] );
+		$this->assertSame( [], $state[ 'rows' ] );
 	}
 
-	public function test_build_routes_fully_ignored_themes_to_fix_now_as_warning_items() :void {
+	public function test_build_ignores_fully_ignored_themes_when_no_active_results() :void {
 		$availability = new class extends ScansResultsRailTabAvailability {
 			public function build( string $tabKey ) :array {
 				return $tabKey === 'themes'
@@ -157,32 +140,19 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'tabAvailability', $availability );
 		$this->setPrivateProperty( $builder, 'scanAssetCardsBuilder', $this->newScanAssetCardsBuilderStub( [
-			'theme' => [
-				[
-					'key'          => 'ignored-theme',
-					'status'       => 'warning',
-					'icon_class'   => 'bi bi-palette-fill',
-					'title'        => 'asset-title-ignored',
-					'stat_text'    => 'ignored',
-					'meta_text'    => 'ignored-theme',
-					'count_badge'  => 2,
-					'subject_type' => 'theme',
-					'subject_id'   => 'ignored-theme',
-					'has_update'   => false,
-				],
-			],
+			'theme' => [],
 		] ) );
 
 		$state = $builder->build();
 
-		$this->assertSame( 1, $state[ 'tabs' ][ 'themes' ][ 'count' ] );
-		$this->assertSame( 'warning', $state[ 'tabs' ][ 'themes' ][ 'status' ] );
-		$this->assertSame( 1, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
-		$this->assertSame( [ 'theme_files_ignored' ], \array_column( $state[ 'rows' ], 'key' ) );
-		$this->assertSame( 'warning', $state[ 'rows' ][ 0 ][ 'severity' ] );
+		$this->assertSame( 0, $state[ 'tabs' ][ 'themes' ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'tabs' ][ 'themes' ][ 'status' ] );
+		$this->assertSame( 0, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'tabs' ][ 'summary' ][ 'status' ] );
+		$this->assertSame( [], $state[ 'rows' ] );
 	}
 
-	public function test_build_routes_ignored_wordpress_results_to_warning_when_no_active_results() :void {
+	public function test_build_treats_ignored_wordpress_results_as_clear_when_no_active_results() :void {
 		$this->installWpVersion( '6.8.1' );
 
 		$counts = $this->getMockBuilder( Counts::class )
@@ -194,16 +164,13 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
 		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTab( 'wordpress' ) );
-		$this->setPrivateProperty( $builder, 'scanResultsTableBuilder', $this->newScanResultsTableBuilderStub( [
-			'wordpress:wordpress' => 2,
-		] ) );
 
 		$state = $builder->build();
 
-		$this->assertSame( 2, $state[ 'tabs' ][ 'wordpress' ][ 'count' ] );
-		$this->assertSame( 'warning', $state[ 'tabs' ][ 'wordpress' ][ 'status' ] );
-		$this->assertSame( [ 'wp_files_ignored' ], \array_column( $state[ 'rows' ], 'key' ) );
-		$this->assertSame( 'warning', $state[ 'rows' ][ 0 ][ 'severity' ] );
+		$this->assertSame( 0, $state[ 'tabs' ][ 'wordpress' ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'tabs' ][ 'wordpress' ][ 'status' ] );
+		$this->assertSame( 0, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
+		$this->assertSame( [], $state[ 'rows' ] );
 	}
 
 	public function test_build_keeps_active_wordpress_results_critical_when_ignored_results_exist() :void {
@@ -218,9 +185,6 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
 		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTab( 'wordpress' ) );
-		$this->setPrivateProperty( $builder, 'scanResultsTableBuilder', $this->newScanResultsTableBuilderStub( [
-			'wordpress:wordpress' => 2,
-		] ) );
 
 		$state = $builder->build();
 
@@ -230,7 +194,7 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'critical', $state[ 'rows' ][ 0 ][ 'severity' ] );
 	}
 
-	public function test_build_routes_ignored_malware_results_to_warning_when_no_active_results() :void {
+	public function test_build_treats_ignored_malware_results_as_clear_when_no_active_results() :void {
 		$counts = $this->getMockBuilder( Counts::class )
 					   ->disableOriginalConstructor()
 					   ->onlyMethods( [ 'countMalware' ] )
@@ -240,16 +204,13 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$builder = new ActionsQueueScanStateBuilder();
 		$this->setPrivateProperty( $builder, 'displayCounts', $counts );
 		$this->setPrivateProperty( $builder, 'tabAvailability', $this->newAvailabilityForTab( 'malware' ) );
-		$this->setPrivateProperty( $builder, 'scanResultsTableBuilder', $this->newScanResultsTableBuilderStub( [
-			'malware:malware' => 3,
-		] ) );
 
 		$state = $builder->build();
 
-		$this->assertSame( 3, $state[ 'tabs' ][ 'malware' ][ 'count' ] );
-		$this->assertSame( 'warning', $state[ 'tabs' ][ 'malware' ][ 'status' ] );
-		$this->assertSame( [ 'malware_ignored' ], \array_column( $state[ 'rows' ], 'key' ) );
-		$this->assertSame( 'warning', $state[ 'rows' ][ 0 ][ 'severity' ] );
+		$this->assertSame( 0, $state[ 'tabs' ][ 'malware' ][ 'count' ] );
+		$this->assertSame( 'good', $state[ 'tabs' ][ 'malware' ][ 'status' ] );
+		$this->assertSame( 0, $state[ 'tabs' ][ 'summary' ][ 'count' ] );
+		$this->assertSame( [], $state[ 'rows' ] );
 	}
 
 	public function test_build_routes_abandoned_assets_to_separate_abandoned_tab_and_deduped_summary() :void {
@@ -438,42 +399,26 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 		$propertyReflection->setValue( $subject, $value );
 	}
 
-	private function newScanAssetCardsBuilderStub( array $fullyIgnoredSummaries = [], array $activeSummaries = [] ) :ActionsQueueScanAssetCardsBuilder {
-		if ( !isset( $fullyIgnoredSummaries[ 'plugin' ] ) && !isset( $fullyIgnoredSummaries[ 'theme' ] ) ) {
-			$fullyIgnoredSummaries = [
-				'plugin' => $fullyIgnoredSummaries,
-			];
-		}
+	private function newScanAssetCardsBuilderStub( array $activeSummaries = [] ) :ActionsQueueScanAssetCardsBuilder {
 		if ( !isset( $activeSummaries[ 'plugin' ] ) && !isset( $activeSummaries[ 'theme' ] ) ) {
 			$activeSummaries = [
 				'plugin' => $activeSummaries,
 			];
 		}
 
-		return new class( $fullyIgnoredSummaries, $activeSummaries ) extends ActionsQueueScanAssetCardsBuilder {
-			/** @var array<string,array> */
-			private $fullyIgnoredSummaries;
-
+		return new class( $activeSummaries ) extends ActionsQueueScanAssetCardsBuilder {
 			/** @var array<string,array> */
 			private $activeSummaries;
 
 			public array $buildSummaryCalls = [];
 
-			public array $fullyIgnoredActiveSummaryArgs = [];
-
-			public function __construct( array $fullyIgnoredSummaries, array $activeSummaries ) {
-				$this->fullyIgnoredSummaries = $fullyIgnoredSummaries;
+			public function __construct( array $activeSummaries ) {
 				$this->activeSummaries = $activeSummaries;
 			}
 
 			public function buildSummaryRecords( string $assetType, array $resultsDisplayOptions = [] ) :array {
 				$this->buildSummaryCalls[] = $assetType;
 				return $this->activeSummaries[ $assetType ] ?? [];
-			}
-
-			public function buildFullyIgnoredSummaryRecords( string $assetType, array $activeSummaries ) :array {
-				$this->fullyIgnoredActiveSummaryArgs[ $assetType ] = $activeSummaries;
-				return $this->fullyIgnoredSummaries[ $assetType ] ?? [];
 			}
 		};
 	}
@@ -491,20 +436,6 @@ class ActionsQueueScanStateBuilderTest extends BaseUnitTest {
 			'subject_id'   => $key,
 			'has_update'   => false,
 		];
-	}
-
-	private function newScanResultsTableBuilderStub( array $countsByScope ) :ActionsQueueScanResultsTableBuilder {
-		return new class( $countsByScope ) extends ActionsQueueScanResultsTableBuilder {
-			private array $countsByScope;
-
-			public function __construct( array $countsByScope ) {
-				$this->countsByScope = $countsByScope;
-			}
-
-			public function countForScope( string $type, string $file, array $options ) :int {
-				return (int)( $this->countsByScope[ $type.':'.$file ] ?? 0 );
-			}
-		};
 	}
 
 	private function newAvailabilityForTab( string $availableTabKey ) :ScansResultsRailTabAvailability {

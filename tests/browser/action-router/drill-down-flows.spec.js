@@ -420,7 +420,7 @@ test( 'configure search keeps the newest results and deep-links into the matchin
 	await expect( page.locator( `[data-configure-row-key="${targetRowKey}"] [data-shield-expand-body="1"].show` ) ).toHaveCount( 0 );
 } );
 
-test( 'actions queue keeps the same ignored-plugin direct table after the shared table success event', async ( { page, fixtureApi } ) => {
+test( 'actions queue refreshes the same direct table after a scan-results cleanup signal', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'ignored_plugin_direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		await openShieldRoute( page, {
@@ -434,9 +434,9 @@ test( 'actions queue keeps the same ignored-plugin direct table after the shared
 		await expect( rail ).toBeVisible();
 		await expect( rail ).toHaveAccessibleName( /\S/ );
 		await expect( scanResultsTable ).toBeVisible();
-		await waitForScanResultsTableEmpty( scanResultsTable );
+		await waitForScanResultsTableRows( scanResultsTable );
 		await scanResultsTable.evaluate( ( table ) => {
-			table.dispatchEvent( new CustomEvent( 'shield:table-action-success', {
+			table.dispatchEvent( new CustomEvent( 'shield:scan-results-changed', {
 				bubbles: true,
 			} ) );
 		} );
@@ -671,7 +671,7 @@ test( 'actions queue ignores all malware results from the context rail without r
 	{ name: 'WordPress', fixture: 'ignored_wordpress_direct_table' },
 	{ name: 'malware', fixture: 'ignored_malware_direct_table' },
 ].forEach( ( scenario ) => {
-	test( `actions queue ${ scenario.name } direct table starts active-only when all scoped results are ignored`, async ( { page, fixtureApi } ) => {
+	test( `actions queue ${ scenario.name } direct table reveals ignored rows only from the display filter`, async ( { page, fixtureApi } ) => {
 		await fixtureApi.withActionsQueueFixture( scenario.fixture, async ( fixture ) => {
 			const actionsQueuePage = new ActionsQueuePage( page );
 			await openShieldRoute( page, {
@@ -684,7 +684,7 @@ test( 'actions queue ignores all malware results from the context rail without r
 			const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
 			const ignoredToggle = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
 
-			await waitForScanResultsTableEmpty( scanResultsTable );
+			await waitForScanResultsTableRows( scanResultsTable );
 			await expect( displayCollection ).toBeVisible();
 			await expectScanResultsDisplayOptions( scanResultsTable, {
 				ignored_only: false,
@@ -718,7 +718,7 @@ test( 'actions queue ignores all malware results from the context rail without r
 
 			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 			await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );
-			await waitForScanResultsTableEmpty( scanResultsTable );
+			await waitForScanResultsTableRows( scanResultsTable );
 			await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 0 );
 			await expectScanResultsDisplayOptions( scanResultsTable, {
 				include_ignored: false,

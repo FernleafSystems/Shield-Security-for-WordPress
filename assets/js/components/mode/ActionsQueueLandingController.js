@@ -81,6 +81,7 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.hasBoundTableActionHandlers = true;
 
 		document.addEventListener( 'shield:table-action-success', ( evt ) => this.handleTableActionSuccess( evt ) );
+		document.addEventListener( 'shield:scan-results-changed', ( evt ) => this.handleScanResultsChanged( evt ) );
 	}
 
 	initializeCurrentRoot() {
@@ -323,6 +324,14 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 	}
 
 	handleTableActionSuccess( evt ) {
+		this.refreshAfterNestedTableEvent( evt );
+	}
+
+	handleScanResultsChanged( evt ) {
+		this.refreshAfterNestedTableEvent( evt );
+	}
+
+	refreshAfterNestedTableEvent( evt ) {
 		const root = this.rootEl || this.getRoot();
 		const eventTarget = evt.target instanceof HTMLElement ? evt.target : null;
 		if ( root === null || eventTarget === null || this.selectedBucket === null || !root.contains( eventTarget ) ) {

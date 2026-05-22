@@ -13,6 +13,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\BaseFo
  * @property array<string,mixed>|null $results_display_options
  */
 class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
+	private bool $scanResultsChanged = false;
+	private bool $scanResultsCountMemoizationReset = false;
+
+	public function build(): array {
+		$this->scanResultsChanged = false;
+		$this->scanResultsCountMemoizationReset = false;
+		$data = parent::build();
+		$data[ 'scan_results_changed' ] = $this->scanResultsChanged;
+		return $data;
+	}
+
 	protected function getTotalCountCacheKey(): string {
 		return '';
 	}
@@ -81,7 +92,12 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 		$loader->wheres = $wheres;
 		$loader->limit = $limit;
 		$loader->offset = $offset;
-		return $loader->run();
+		$records = $loader->run();
+		if ( $loader->hasScanResultsChanged() ) {
+			$this->scanResultsChanged = true;
+			$this->resetScanResultsCountMemoizationOnce();
+		}
+		return $records;
 	}
 
 	protected function getRecordsLoader(): LoadFileScanResultsTableData {
@@ -110,5 +126,14 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 
 		return ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions() )
 			->normalize( $this->results_display_options );
+	}
+
+	private function resetScanResultsCountMemoizationOnce() :void {
+		if ( $this->scanResultsCountMemoizationReset ) {
+			return;
+		}
+
+		self::con()->comps->scans->resetScanResultsCountMemoization();
+		$this->scanResultsCountMemoizationReset = true;
 	}
 }
