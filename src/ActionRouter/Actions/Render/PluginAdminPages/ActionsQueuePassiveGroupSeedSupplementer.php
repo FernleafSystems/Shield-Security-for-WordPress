@@ -166,7 +166,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'key'                         => $definitionKey,
 				'definition_key'              => $definitionKey,
 				'label'                       => $definition[ 'label' ],
-				'item_count'                  => $interaction[ 'item_count_override' ] ?? \count( $rows ),
+				'item_count'                  => $interaction[ 'item_count_override' ],
 				'status'                      => 'good',
 				'narrative'                   => $this->combineHealthyAssessmentNarratives( $rows ),
 				'detail_shell'                => $definition[ 'detail_shell' ],
@@ -235,7 +235,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	/**
 	 * @return array{
 	 *   is_interactive:bool,
-	 *   item_count_override:int|null,
+	 *   item_count_override:int,
 	 *   render_action_data:array<string,mixed>,
 	 *   suppress_context_actions:bool
 	 * }
@@ -253,9 +253,9 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 
 		return [
 			'is_interactive'      => false,
-			'item_count_override' => null,
+			'item_count_override' => 0,
 			'render_action_data'  => [],
-			'suppress_context_actions' => false,
+			'suppress_context_actions' => true,
 		];
 	}
 

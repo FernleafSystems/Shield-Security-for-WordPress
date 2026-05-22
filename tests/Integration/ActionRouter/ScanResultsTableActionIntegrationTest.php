@@ -201,6 +201,55 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_ignore_all_sub_action_ignores_full_active_malware_scope_without_page_reload() :void {
+		try {
+			$this->enablePremiumCapabilities( [
+				'scan_malware_local',
+			] );
+			$this->requireController()->opts
+				 ->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
+				 ->store();
+			$this->resetScanResultCountMemoization();
+
+			$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+			$activeOne = $this->seedExistingMalwareResultForScan( $scanId, 'active-malware-a.php' );
+			$activeTwo = $this->seedExistingMalwareResultForScan( $scanId, 'active-malware-b.php' );
+			$alreadyIgnored = $this->seedExistingMalwareResultForScan( $scanId, 'ignored-malware.php' );
+			TestDataFactory::markScanResultItemIgnored( (int)$alreadyIgnored[ 'result_item_id' ] );
+			$this->resetScanResultCountMemoization();
+
+			$beforeActive = $this->retrieveMalwareRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
+			$this->assertSame( 2, (int)( $beforeActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+
+			$payload = $this->processScanResultsAction( [
+				'sub_action' => 'ignore_all',
+				'type'       => 'malware',
+				'file'       => 'malware',
+			] );
+
+			$this->assertTrue( $payload[ 'success' ] ?? false );
+			$this->assertFalse( $payload[ 'page_reload' ] ?? true );
+			$this->assertTrue( $payload[ 'table_reload' ] ?? false );
+
+			$afterActive = $this->retrieveMalwareRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
+			$this->assertSame( 0, (int)( $afterActive[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+
+			$afterIgnored = $this->retrieveMalwareRows( ( new ScanResultsDisplayOptions() )->ignoredOnly() );
+			$this->assertSame( 3, (int)( $afterIgnored[ 'datatable_data' ][ 'recordsTotal' ] ?? -1 ) );
+			$this->assertEqualsCanonicalizing(
+				[
+					(int)$activeOne[ 'result_item_id' ],
+					(int)$activeTwo[ 'result_item_id' ],
+					(int)$alreadyIgnored[ 'result_item_id' ],
+				],
+				\array_column( $afterIgnored[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
+			);
+		}
+		finally {
+			$this->deleteScanActionFixtureRoot();
+		}
+	}
+
 	public function test_ignore_all_sub_action_rejects_invalid_scope_without_mutating_wordpress_results() :void {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		$activeOne = $this->seedWordpressScanResultForScan( $scanId );
@@ -538,15 +587,35 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	private function seedDeletableMalwareResult( string $fileName ) :array {
 		$this->deleteScanActionFixtureRoot();
 
+		$path = $this->createOwnedScanActionFixtureFile( $fileName );
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$tracked = $this->insertTrackedMalwareResultForPath( $scanId, $path );
+
+		return [
+			'result_item_id' => (int)$tracked[ 'result_item_id' ],
+			'path_full'      => $path,
+		];
+	}
+
+	private function seedExistingMalwareResultForScan( int $scanId, string $fileName ) :array {
+		return $this->insertTrackedMalwareResultForPath(
+			$scanId,
+			$this->createOwnedScanActionFixtureFile( $fileName )
+		);
+	}
+
+	private function createOwnedScanActionFixtureFile( string $fileName ) :string {
 		$path = $this->scanActionFixturePath( $fileName );
 		$this->ensureFixtureFileExists( $path );
 		$resolvedPath = \realpath( $path );
 		$this->assertNotFalse( $resolvedPath );
 		$path = \wp_normalize_path( $resolvedPath );
 		$this->assertFixturePathIsOwned( $path );
+		return $path;
+	}
 
-		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
-		$tracked = TestDataFactory::insertAfsFileScanResultTracked(
+	private function insertTrackedMalwareResultForPath( int $scanId, string $path ) :array {
+		return TestDataFactory::insertAfsFileScanResultTracked(
 			$scanId,
 			TestDataFactory::pathFragmentFromAbsolutePath( $path ),
 			[
@@ -554,11 +623,6 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 				'is_unrecognised' => 1,
 			]
 		);
-
-		return [
-			'result_item_id' => (int)$tracked[ 'result_item_id' ],
-			'path_full'      => $path,
-		];
 	}
 
 	private function assertResultItemDeleted( int $resultItemId ) :void {
