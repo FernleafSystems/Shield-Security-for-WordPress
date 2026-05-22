@@ -176,7 +176,11 @@ class FileScanOptimiser {
 			return '';
 		}
 		$dir = \path_join( $root, $type );
-		if ( !\is_dir( $dir ) && !@\mkdir( $dir, 0777, true ) && !\is_dir( $dir ) ) {
+		$FS = Services::WpFs();
+		if ( !$FS->isDir( $dir ) ) {
+			$FS->mkdir( $dir );
+		}
+		if ( !$FS->isDir( $dir ) ) {
 			return '';
 		}
 		return \path_join( $dir, \substr( $key, 0, 2 ).'.jsonl' );

@@ -90,6 +90,50 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFileDoesNotExist( $this->normalisePath( $cacheDir.'/afs-file-optimiser' ) );
 	}
 
+	public function test_known_valid_shard_dir_is_created_through_wp_filesystem_service() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
+		$fs = new OptimiserFs();
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [], [], null, true, null, $fs );
+
+		( new FileScanOptimiser() )->recordKnownValidFile( $path, $this->coreContext( 'wp-admin/core.php' ) );
+
+		$this->assertContains(
+			$this->normalisePath( $cacheDir.'/afs-file-optimiser/known-valid' ),
+			$fs->mkdirCalls()
+		);
+	}
+
+	public function test_malware_clean_shard_dir_is_created_through_wp_filesystem_service() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$path = $this->writeFile( ABSPATH.'wp-content/uploads/clean.php', '<?php clean();' );
+		$fs = new OptimiserFs();
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [], [], null, true, null, $fs );
+
+		( new FileScanOptimiser() )->recordCleanMalwareVerdict( $path, $this->newAction( [ 'bad_token' ] ) );
+
+		$this->assertContains(
+			$this->normalisePath( $cacheDir.'/afs-file-optimiser/malware-clean' ),
+			$fs->mkdirCalls()
+		);
+	}
+
+	public function test_shard_dir_service_mkdir_failure_fails_open_without_cache_hit() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
+		$shardDir = $this->normalisePath( $cacheDir.'/afs-file-optimiser/known-valid' );
+		$fs = new OptimiserFs();
+		$fs->failMkdirFor( $shardDir );
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [], [], null, true, null, $fs );
+		$optimiser = new FileScanOptimiser();
+
+		$optimiser->recordKnownValidFile( $path, $this->coreContext( 'wp-admin/core.php' ) );
+
+		$this->assertContains( $shardDir, $fs->mkdirCalls() );
+		$this->assertFileDoesNotExist( $shardDir );
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
+	}
+
 	public function test_exact_known_valid_context_hit_skips_file() :void {
 		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
 		$this->installEnvironment( $this->makeTempDir( 'cache' ) );
@@ -378,12 +422,13 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		array $themes = [],
 		?OptimiserRequest $request = null,
 		bool $cacheBuildable = true,
-		?OptimiserAfsComponent $afsComponent = null
+		?OptimiserAfsComponent $afsComponent = null,
+		?OptimiserFs $fs = null
 	) :void {
 		ServicesState::installItems( [
 			'service_corefilehashes' => new OptimiserCoreHashes(),
 			'service_request'        => $request ?? new OptimiserRequest( 1700000000 ),
-			'service_wpfs'           => new OptimiserFs(),
+			'service_wpfs'           => $fs ?? new OptimiserFs(),
 			'service_wpgeneral'      => new OptimiserGeneral( $wpVersion ),
 			'service_wpplugins'      => new OptimiserPlugins( $pluginFiles ),
 			'service_wpthemes'       => new OptimiserThemes( $themes ),
@@ -468,7 +513,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 	private function writeFile( string $path, string $content ) :string {
 		$path = $this->normalisePath( $path );
 		if ( !\is_dir( \dirname( $path ) ) ) {
-			@\mkdir( \dirname( $path ), 0777, true );
+			@\mkdir( \dirname( $path ), 0755, true );
 		}
 		\file_put_contents( $path, $content );
 		return $path;
@@ -476,7 +521,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 
 	private function makeTempDir( string $suffix ) :string {
 		$dir = $this->normalisePath( \sys_get_temp_dir().'/shield-optimiser-'.$suffix.'-'.\uniqid() );
-		@\mkdir( $dir, 0777, true );
+		@\mkdir( $dir, 0755, true );
 		$this->tempDirs[] = $dir;
 		return $dir;
 	}
@@ -520,7 +565,7 @@ class OptimiserCacheDir {
 			return '';
 		}
 		$path = $this->dir.'/'.$subDir;
-		return ( \is_dir( $path ) || @\mkdir( $path, 0777, true ) ) ? $path : '';
+		return ( \is_dir( $path ) || @\mkdir( $path, 0755, true ) ) ? $path : '';
 	}
 }
 
@@ -538,12 +583,41 @@ class OptimiserRequest extends Request {
 }
 
 class OptimiserFs extends Fs {
+	private array $mkdirCalls = [];
+
+	private array $mkdirFailures = [];
+
+	public function mkdirCalls() :array {
+		return $this->mkdirCalls;
+	}
+
+	public function failMkdirFor( string $path ) :void {
+		$this->mkdirFailures[] = $this->normalisePath( $path );
+	}
+
+	public function mkdir( $path ) {
+		$path = $this->normalisePath( (string)$path );
+		$this->mkdirCalls[] = $path;
+		if ( \in_array( $path, $this->mkdirFailures, true ) ) {
+			return false;
+		}
+		return \is_dir( $path ) || @\mkdir( $path, 0755, true );
+	}
+
+	public function isDir( string $path ) :bool {
+		return \is_dir( $path );
+	}
+
 	public function isAccessibleFile( string $file ) :bool {
 		return \is_file( $file ) && \is_readable( $file );
 	}
 
 	public function isAbsPath( $path ) {
 		return \preg_match( '#^([A-Z]:)?/#i', \str_replace( '\\', '/', (string)$path ) ) === 1;
+	}
+
+	private function normalisePath( string $path ) :string {
+		return \str_replace( '\\', '/', $path );
 	}
 }
 
