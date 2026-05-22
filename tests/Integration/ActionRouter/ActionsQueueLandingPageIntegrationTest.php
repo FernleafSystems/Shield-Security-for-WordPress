@@ -108,11 +108,16 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 	}
 
-	private function loadSelectedGroupPayload( string $bucket, string $groupKey ) :array {
-		return $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, [
+	private function loadSelectedGroupPayload( string $bucket, string $groupKey, bool $includeLandingRefresh = false ) :array {
+		$actionData = [
 			'bucket' => $bucket,
 			'group'  => $groupKey,
-		] );
+		];
+		if ( $includeLandingRefresh ) {
+			$actionData[ 'include_landing_refresh' ] = 1;
+		}
+
+		return $this->processActionPayloadWithAdminBypass( ActionsQueueDrillDownGroups::SLUG, $actionData );
 	}
 
 	private function enableAssetScanFixture( array $scanAreas ) :void {
@@ -206,6 +211,21 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertIsArray( $payload[ 'datatable_data' ] ?? null );
 
 		return $payload[ 'datatable_data' ];
+	}
+
+	private function ignoreAllMalwareResults() :array {
+		$snapshot = $this->seedActionNonceContext( ScanResultsTableAction::class );
+
+		try {
+			return $this->processActionPayloadWithAdminBypass( ScanResultsTableAction::SLUG, [
+				'sub_action' => 'ignore_all',
+				'type'       => 'malware',
+				'file'       => 'malware',
+			] );
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+		}
 	}
 
 	private function prepareFileLockerRuntime( array $lockTypes = [ 'wpconfig' ] ) {
@@ -689,6 +709,43 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				'file' => 'malware',
 			]
 		);
+	}
+
+	public function test_selected_malware_group_refresh_after_ignore_all_has_zero_items_and_no_context_actions() :void {
+		$this->enablePremiumCapabilities( [
+			'scan_malware_local',
+		] );
+
+		$this->requireController()->opts
+			 ->optSet( 'enable_core_file_integrity_scan', 'Y' )
+			 ->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
+			 ->store();
+		$this->resetScanResultCountMemoization();
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertAfsFileScanResultTracked( $afsId, 'wp-content/uploads/active-malware.php', [
+			'is_mal' => 1,
+		] );
+		$this->resetScanResultCountMemoization();
+
+		$activePayload = $this->loadSelectedGroupPayload( 'critical', 'malware' );
+		$this->assertSame( 1, (int)( $activePayload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
+		$this->assertIgnoreAllHeaderAction( (array)( $activePayload[ 'selected_group' ][ 'header' ] ?? [] ), [
+			'type' => 'malware',
+			'file' => 'malware',
+		] );
+
+		$ignorePayload = $this->ignoreAllMalwareResults();
+		$this->assertTrue( $ignorePayload[ 'success' ] ?? false );
+		$this->assertFalse( $ignorePayload[ 'page_reload' ] ?? true );
+		$this->assertTrue( $ignorePayload[ 'table_reload' ] ?? false );
+
+		$refreshPayload = $this->loadSelectedGroupPayload( 'critical', 'malware', true );
+
+		$this->assertSame( 'malware', (string)( $refreshPayload[ 'selected_group' ][ 'key' ] ?? '' ) );
+		$this->assertSame( 'good', (string)( $refreshPayload[ 'selected_group' ][ 'status' ] ?? '' ) );
+		$this->assertSame( 0, (int)( $refreshPayload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
+		$this->assertSame( [], $refreshPayload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
 	}
 
 	public function test_fully_ignored_malware_results_do_not_create_actions_queue_group() :void {
