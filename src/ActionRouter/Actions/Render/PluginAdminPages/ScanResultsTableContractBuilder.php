@@ -14,18 +14,48 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\{
 	ForWordpress
 };
 
+/**
+ * @phpstan-import-type ScanResultsDisplayNotice from ActionsQueueScanResultScopeStateBuilder
+ * @phpstan-type ScanResultsTableContract array{
+ *   title:string,
+ *   status:string,
+ *   table_id?:string,
+ *   datatables_init_attr?:string,
+ *   table_action_attr?:string,
+ *   results_display_options_attr:string,
+ *   render_item_analysis_attr?:string,
+ *   full_log_href:string,
+ *   full_log_text:string,
+ *   full_log_button_class:string,
+ *   display_notice:ScanResultsDisplayNotice,
+ *   show_header:bool,
+ *   is_flat:bool,
+ *   is_empty:bool,
+ *   empty_status:string,
+ *   empty_text:string
+ * }
+ */
 class ScanResultsTableContractBuilder {
 
 	private ScanResultsScopeResolver $scopeResolver;
 	private ScanResultsDisplayOptions $displayOptions;
+	private ActionsQueueScanResultScopeStateBuilder $scopeStateBuilder;
 
-	public function __construct( ?ScanResultsScopeResolver $scopeResolver = null, ?ScanResultsDisplayOptions $displayOptions = null ) {
+	public function __construct(
+		?ScanResultsScopeResolver $scopeResolver = null,
+		?ScanResultsDisplayOptions $displayOptions = null,
+		?ActionsQueueScanResultScopeStateBuilder $scopeStateBuilder = null
+	) {
 		$this->scopeResolver = $scopeResolver ?? new ScanResultsScopeResolver();
 		$this->displayOptions = $displayOptions ?? new ScanResultsDisplayOptions();
+		$this->scopeStateBuilder = $scopeStateBuilder ?? new ActionsQueueScanResultScopeStateBuilder(
+			$this->scopeResolver,
+			$this->displayOptions
+		);
 	}
 
 	/**
-	 * @return array<string,mixed>
+	 * @phpstan-return ScanResultsTableContract
 	 * @throws \InvalidArgumentException
 	 */
 	public function buildFileStatus(
@@ -60,12 +90,14 @@ class ScanResultsTableContractBuilder {
 			$datatablesInit,
 			ActionData::Build( ScanResultsTableAction::class, true, $tableActionData ),
 			$fullLogHref,
-			__( 'Full Scan Results', 'wp-simple-firewall' )
+			__( 'Full Scan Results', 'wp-simple-firewall' ),
+			$this->buildDisplayNotice( $scope, $tableActionData )
 		);
 	}
 
 	/**
-	 * @return array<string,mixed>
+	 * @phpstan-return ScanResultsTableContract
+	 * @throws \InvalidArgumentException
 	 */
 	public function buildFileStatusWithEmptyState(
 		string $subjectType,
@@ -85,7 +117,7 @@ class ScanResultsTableContractBuilder {
 	}
 
 	/**
-	 * @return array<string,mixed>
+	 * @phpstan-return ScanResultsTableContract
 	 */
 	public function buildMalware( string $fullLogHref, array $scanResultsActionData = [] ) :array {
 		$scope = $this->scopeResolver->normalizeActionScope(
@@ -105,14 +137,16 @@ class ScanResultsTableContractBuilder {
 			( new ForMalware() )->buildRaw(),
 			ActionData::Build( ScanResultsTableAction::class, true, $tableActionData ),
 			$fullLogHref,
-			__( 'Full Scan Results', 'wp-simple-firewall' )
+			__( 'Full Scan Results', 'wp-simple-firewall' ),
+			$this->buildDisplayNotice( $scope, $tableActionData )
 		);
 	}
 
 	/**
 	 * @param array<string,mixed> $datatablesInit
 	 * @param array<string,mixed> $tableAction
-	 * @return array<string,mixed>
+	 * @phpstan-param ScanResultsDisplayNotice $displayNotice
+	 * @phpstan-return ScanResultsTableContract
 	 */
 	private function buildTableContract(
 		string $title,
@@ -121,7 +155,8 @@ class ScanResultsTableContractBuilder {
 		array $datatablesInit,
 		array $tableAction,
 		string $fullLogHref,
-		string $fullLogText
+		string $fullLogText,
+		array $displayNotice
 	) :array {
 		return [
 			'title'                     => $title,
@@ -136,6 +171,7 @@ class ScanResultsTableContractBuilder {
 			'full_log_href'             => $fullLogHref,
 			'full_log_text'             => $fullLogText,
 			'full_log_button_class'     => 'btn btn-primary btn-sm',
+			'display_notice'            => $displayNotice,
 			'show_header'               => false,
 			'is_flat'                   => true,
 			'is_empty'                  => false,
@@ -145,8 +181,8 @@ class ScanResultsTableContractBuilder {
 	}
 
 	/**
-	 * @param array<string,mixed> $table
-	 * @return array<string,mixed>
+	 * @phpstan-param ScanResultsTableContract $table
+	 * @phpstan-return ScanResultsTableContract
 	 */
 	private function withEmptyState( array $table, int $count, string $emptyText, string $emptyStatus ) :array {
 		if ( $count > 0 ) {
@@ -171,5 +207,24 @@ class ScanResultsTableContractBuilder {
 	 */
 	private function encodeJsonAttr( array $data ) :string {
 		return empty( $data ) ? '' : ( \is_string( $encoded = \json_encode( $data ) ) ? $encoded : '' );
+	}
+
+	/**
+	 * @param array{type:string,file:string} $scope
+	 * @param array<string,mixed>            $tableActionData
+	 * @phpstan-return ScanResultsDisplayNotice
+	 */
+	private function buildDisplayNotice( array $scope, array $tableActionData ) :array {
+		if ( (string)( $tableActionData[ 'scan_results_notice_context' ] ?? '' )
+			 !== ActionsQueueScanResultScopeStateBuilder::NOTICE_CONTEXT_ACTIONS_QUEUE ) {
+			return $this->scopeStateBuilder->hiddenDisplayNotice();
+		}
+
+		return $this->scopeStateBuilder->buildForActionScope(
+			$scope[ 'type' ],
+			$scope[ 'file' ],
+			$this->displayOptions->currentOptionsFromActionData( $tableActionData ),
+			true
+		)[ 'display_notice' ];
 	}
 }

@@ -56,6 +56,18 @@ async function expectScanResultsDisplayOptions( table, expectedOptions ) {
 	expect( options ).toMatchObject( expectedOptions );
 }
 
+async function expectScanResultsDisplayNotice( page, expectedMode, expectedIgnoredCount ) {
+	const notice = page.locator( '[data-actions-queue-detail="1"] [data-scan-results-display-notice="1"]' ).first();
+	await expect( notice ).toHaveAttribute( 'data-scan-results-display-notice-mode', expectedMode, { timeout: 20_000 } );
+	await expect( notice ).toHaveAttribute( 'data-scan-results-display-notice-ignored-count', String( expectedIgnoredCount ) );
+	if ( expectedMode === 'none' ) {
+		await expect( notice ).toBeHidden();
+	}
+	else {
+		await expect( notice ).toBeVisible();
+	}
+}
+
 async function delay( milliseconds ) {
 	return new Promise( ( resolve ) => setTimeout( resolve, milliseconds ) );
 }
@@ -641,10 +653,15 @@ test( 'actions queue ignores all malware results from the context rail without r
 			} );
 
 			await actionsQueuePage.drillToDetail( fixture );
+			const rail = page.locator( '[data-operator-context-rail="1"]' );
 			const scanResultsTable = page.locator( '[data-scan-results-table="1"]' ).first();
 			const displayCollection = page.locator( '[data-scan-results-display-collection="1"]' ).first();
 			const ignoredToggle = page.locator( '[data-scan-results-display-filter="1"][data-scan-results-display-option="include_ignored"]' ).first();
 
+			await expect( rail ).toBeVisible();
+			if ( scenario.name === 'plugin' ) {
+				await expect( rail ).toContainText( /ignored/i );
+			}
 			await waitForScanResultsTableRows( scanResultsTable );
 			await expect( displayCollection ).toBeVisible();
 			await expectScanResultsDisplayOptions( scanResultsTable, {
@@ -653,6 +670,7 @@ test( 'actions queue ignores all malware results from the context rail without r
 				include_repaired: false,
 				include_deleted: false,
 			} );
+			await expectScanResultsDisplayNotice( page, 'hidden_ignored', 2 );
 			await expect( scanResultsTable.locator( '[data-scan-result-ignored-badge="1"]' ) ).toHaveCount( 0 );
 
 			const showIgnoredReload = page.waitForRequest(
@@ -668,6 +686,7 @@ test( 'actions queue ignores all malware results from the context rail without r
 				include_ignored: true,
 				ignored_only: false,
 			} );
+			await expectScanResultsDisplayNotice( page, 'including_ignored', 2 );
 			await expect( scanResultsTable.locator( 'tbody tr[data-scan-result-ignored="1"]' ) ).toHaveCount( 2 );
 
 			const hideIgnoredReload = page.waitForRequest(
@@ -685,6 +704,7 @@ test( 'actions queue ignores all malware results from the context rail without r
 				include_ignored: false,
 				ignored_only: false,
 			} );
+			await expectScanResultsDisplayNotice( page, 'hidden_ignored', 2 );
 			await expect( displayCollection ).toBeVisible();
 			await expect( page.locator( '[data-actions-queue-retry]' ) ).toHaveCount( 0 );
 			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();

@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueScanResultsTableBuilder,
+	ActionsQueueScanResultScopeStateBuilder,
 	ScanResultsDisplayOptions,
 	ScanResultsTableContractBuilder
 };
@@ -18,7 +19,11 @@ class ActionsQueueScanResultsTableBuilderTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $table[ 'is_empty' ] ?? true ) );
 		$this->assertSame(
 			( new ScanResultsDisplayOptions() )->activeOnly(),
-			$table[ 'action_data' ][ 'results_display_options' ] ?? []
+			$table[ 'action_data' ][ 'results_display_options' ]
+		);
+		$this->assertSame(
+			ActionsQueueScanResultScopeStateBuilder::NOTICE_CONTEXT_ACTIONS_QUEUE,
+			$table[ 'action_data' ][ 'scan_results_notice_context' ]
 		);
 	}
 
@@ -29,7 +34,11 @@ class ActionsQueueScanResultsTableBuilderTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $table[ 'is_empty' ] ?? true ) );
 		$this->assertSame(
 			( new ScanResultsDisplayOptions() )->activeOnly(),
-			$table[ 'action_data' ][ 'results_display_options' ] ?? []
+			$table[ 'action_data' ][ 'results_display_options' ]
+		);
+		$this->assertSame(
+			ActionsQueueScanResultScopeStateBuilder::NOTICE_CONTEXT_ACTIONS_QUEUE,
+			$table[ 'action_data' ][ 'scan_results_notice_context' ]
 		);
 	}
 

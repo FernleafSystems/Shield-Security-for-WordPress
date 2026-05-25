@@ -6,6 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\I
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\ScanResultsScopeResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
+/**
+ * @phpstan-import-type ScanResultsTableContract from ScanResultsTableContractBuilder
+ */
 class ActionsQueueScanResultsTableBuilder {
 
 	use PluginControllerConsumer;
@@ -29,7 +32,7 @@ class ActionsQueueScanResultsTableBuilder {
 
 	/**
 	 * @param array<string,mixed>|null $options
-	 * @return array<string,mixed>
+	 * @phpstan-return ScanResultsTableContract
 	 */
 	public function buildWordpressTable( ?array $options = null ) :array {
 		return $this->tableContractBuilder->buildFileStatus(
@@ -42,7 +45,7 @@ class ActionsQueueScanResultsTableBuilder {
 
 	/**
 	 * @param array<string,mixed>|null $options
-	 * @return array<string,mixed>
+	 * @phpstan-return ScanResultsTableContract
 	 */
 	public function buildPluginTable( string $pluginFile, ?array $options = null ) :array {
 		return $this->tableContractBuilder->buildFileStatus(
@@ -55,7 +58,7 @@ class ActionsQueueScanResultsTableBuilder {
 
 	/**
 	 * @param array<string,mixed>|null $options
-	 * @return array<string,mixed>
+	 * @phpstan-return ScanResultsTableContract
 	 */
 	public function buildThemeTable( string $stylesheet, ?array $options = null ) :array {
 		return $this->tableContractBuilder->buildFileStatus(
@@ -68,7 +71,7 @@ class ActionsQueueScanResultsTableBuilder {
 
 	/**
 	 * @param array<string,mixed>|null $options
-	 * @return array<string,mixed>
+	 * @phpstan-return ScanResultsTableContract
 	 */
 	public function buildMalwareTable( ?array $options = null ) :array {
 		return $this->tableContractBuilder->buildMalware(
@@ -85,6 +88,7 @@ class ActionsQueueScanResultsTableBuilder {
 	 * @param array<string,mixed>|null $options
 	 * @return array{
 	 *   display_context:string,
+	 *   scan_results_notice_context:string,
 	 *   results_display_options:array{
 	 *     include_ignored:bool,
 	 *     include_repaired:bool,
@@ -95,8 +99,11 @@ class ActionsQueueScanResultsTableBuilder {
 	 */
 	private function buildTableActionData( ?array $options = null ) :array {
 		$normalized = $this->displayOptions->normalize( $options ?? $this->displayOptions->activeOnly() );
-		return $normalized === $this->displayOptions->activeOnly()
+		$actionData = $normalized === $this->displayOptions->activeOnly()
 			? $this->displayOptions->buildDisplayContextActionData()
 			: $this->displayOptions->buildExplicitActionData( $normalized );
+
+		$actionData[ 'scan_results_notice_context' ] = ActionsQueueScanResultScopeStateBuilder::NOTICE_CONTEXT_ACTIONS_QUEUE;
+		return $actionData;
 	}
 }
