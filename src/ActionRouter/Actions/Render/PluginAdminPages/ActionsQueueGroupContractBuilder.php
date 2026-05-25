@@ -601,11 +601,9 @@ class ActionsQueueGroupContractBuilder {
 		}
 
 		try {
-			$state = $this->scanResultScopeStateBuilder->buildForActionScope(
+			$counts = $this->scanResultScopeStateBuilder->buildCountsForActionScope(
 				$scope[ 'type' ],
-				$scope[ 'file' ],
-				$this->queueScanResultsOptions->activeOnly(),
-				false
+				$scope[ 'file' ]
 			);
 		}
 		catch ( \InvalidArgumentException $e ) {
@@ -613,8 +611,8 @@ class ActionsQueueGroupContractBuilder {
 		}
 
 		return $this->buildIgnoredHeaderOverridesFromState(
-			(int)$state[ 'active_count' ],
-			(int)$state[ 'ignored_count' ]
+			$counts[ 'active_count' ],
+			$counts[ 'ignored_count' ]
 		);
 	}
 

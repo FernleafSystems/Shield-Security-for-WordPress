@@ -12,9 +12,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
 	ActionsQueueBucketsBuilder,
+	ActionsQueueDrillDownPresentationBuilder,
+	ActionsQueueGroupContractBuilder,
+	ActionsQueueGroupDefinitions,
 	ActionsQueueGroupMaintenanceSource,
 	ActionsQueueGroupScanSource,
 	ActionsQueueGroupsBuilder,
+	ActionsQueueScanResultScopeStateBuilder,
+	ScanResultsDisplayOptions,
 	ScansResultsRailTabAvailability
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
@@ -1529,6 +1534,28 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						], $state );
 					}
 				};
+			}
+
+			protected function buildContractBuilder() :ActionsQueueGroupContractBuilder {
+				return new ActionsQueueGroupContractBuilder(
+					new ActionsQueueGroupDefinitions( new ScanResultsDisplayOptions() ),
+					new ActionsQueueDrillDownPresentationBuilder(),
+					null,
+					null,
+					null,
+					new class extends ActionsQueueScanResultScopeStateBuilder {
+						public function buildCountsForActionScope( string $type, string $file ) :array {
+							return [
+								'scope'         => [
+									'type' => $type,
+									'file' => $file,
+								],
+								'active_count'  => 0,
+								'ignored_count' => 0,
+							];
+						}
+					}
+				);
 			}
 
 			protected function buildGroupScanSource() :ActionsQueueGroupScanSource {

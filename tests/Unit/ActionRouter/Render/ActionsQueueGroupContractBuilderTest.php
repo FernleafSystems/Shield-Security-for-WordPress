@@ -140,9 +140,9 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'example_plugin', $pluginGroup[ 'selection' ][ 'label' ] );
 		$this->assertSame( 'example_plugin', $pluginGroup[ 'selection' ][ 'header' ][ 'title' ] );
-		$this->assertSame( [], $pluginGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
+		$this->assertSame( [], $pluginGroup[ 'selection' ][ 'header' ][ 'actions' ] );
 		$this->assertAjaxRenderPayloadAllowedByPolicy(
-			$pluginGroup[ 'selection' ][ 'detail_render_action' ] ?? [],
+			$pluginGroup[ 'selection' ][ 'detail_render_action' ],
 			'plugin scoped asset detail render'
 		);
 		$this->assertFalse( $pluginGroup[ 'is_interactive' ] );
@@ -157,14 +157,14 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 				'include_deleted'  => false,
 				'ignored_only'     => false,
 			],
-			$themeGroup[ 'render_action_data' ][ 'results_display_options' ] ?? []
+			$themeGroup[ 'render_action_data' ][ 'results_display_options' ]
 		);
 		$this->assertSame( 'theme', $themeGroup[ 'render_action_data' ][ 'subject_type' ] );
 		$this->assertSame( 'example-theme', $themeGroup[ 'render_action_data' ][ 'subject_id' ] );
 		$this->assertSame( 'example_theme', $themeGroup[ 'selection' ][ 'header' ][ 'title' ] );
-		$this->assertSame( [], $themeGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
+		$this->assertSame( [], $themeGroup[ 'selection' ][ 'header' ][ 'actions' ] );
 		$this->assertAjaxRenderPayloadAllowedByPolicy(
-			$themeGroup[ 'selection' ][ 'detail_render_action' ] ?? [],
+			$themeGroup[ 'selection' ][ 'detail_render_action' ],
 			'theme scoped asset detail render'
 		);
 	}
@@ -179,7 +179,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( $group[ 'label' ], $group[ 'selection' ][ 'label' ] );
 		$this->assertSame( $group[ 'label' ], $group[ 'selection' ][ 'header' ][ 'title' ] );
 		$this->assertAjaxRenderPayloadAllowedByPolicy(
-			$group[ 'selection' ][ 'detail_render_action' ] ?? [],
+			$group[ 'selection' ][ 'detail_render_action' ],
 			'generic group detail render'
 		);
 	}
@@ -205,21 +205,23 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 			] ),
 		] );
 
-		$group = $groups[ 'groups_indexed' ][ 'plugins:example-plugin/example-plugin.php' ] ?? [];
+		$this->assertArrayHasKey( 'plugins:example-plugin/example-plugin.php', $groups[ 'groups_indexed' ] );
+		$group = $groups[ 'groups_indexed' ][ 'plugins:example-plugin/example-plugin.php' ];
+		$header = $group[ 'selection' ][ 'header' ];
 
-		$this->assertSame( 1, (int)( $group[ 'item_count' ] ?? 0 ) );
-		$this->assertSame( 'warning', (string)( $group[ 'status' ] ?? '' ) );
+		$this->assertSame( 1, $group[ 'item_count' ] );
+		$this->assertSame( 'warning', $group[ 'status' ] );
 		$this->assertStringContainsString(
 			'ignored',
-			\strtolower( (string)( $group[ 'selection' ][ 'header' ][ 'summary' ] ?? '' ) )
+			\strtolower( $header[ 'summary' ] )
 		);
 		$this->assertStringContainsString(
 			'ignored',
-			\strtolower( (string)( $group[ 'selection' ][ 'header' ][ 'focus' ] ?? '' ) )
+			\strtolower( $header[ 'focus' ] )
 		);
 		$this->assertStringContainsString(
 			'ignored',
-			\strtolower( (string)( $group[ 'selection' ][ 'header' ][ 'next_step' ] ?? '' ) )
+			\strtolower( $header[ 'next_step' ] )
 		);
 	}
 
@@ -238,17 +240,18 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		);
 
 		$group = $builder->buildEmptyGroup( 'plugins:example-plugin/example-plugin.php', 'Fix now' );
+		$header = $group[ 'selection' ][ 'header' ];
 
-		$this->assertSame( 'good', (string)( $group[ 'status' ] ?? '' ) );
-		$this->assertSame( 0, (int)( $group[ 'item_count' ] ?? -1 ) );
-		$this->assertSame( [], $group[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
+		$this->assertSame( 'good', $group[ 'status' ] );
+		$this->assertSame( 0, $group[ 'item_count' ] );
+		$this->assertSame( [], $header[ 'actions' ] );
 		$this->assertStringContainsString(
 			'ignored',
-			\strtolower( (string)( $group[ 'selection' ][ 'header' ][ 'summary' ] ?? '' ) )
+			\strtolower( $header[ 'summary' ] )
 		);
 		$this->assertStringContainsString(
 			'ignored',
-			\strtolower( (string)( $group[ 'selection' ][ 'header' ][ 'next_step' ] ?? '' ) )
+			\strtolower( $header[ 'next_step' ] )
 		);
 	}
 
@@ -302,21 +305,14 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 				$this->ignoredCount = $ignoredCount;
 			}
 
-			public function buildForActionScope(
-				string $type,
-				string $file,
-				?array $currentOptions = null,
-				bool $displayNotice = false
-			) :array {
+			public function buildCountsForActionScope( string $type, string $file ) :array {
 				return [
-					'scope'          => [
+					'scope'         => [
 						'type' => $type,
 						'file' => $file,
 					],
-					'active_count'   => $this->activeCount,
-					'ignored_count'  => $this->ignoredCount,
-					'current_count'  => $this->activeCount,
-					'display_notice' => $this->hiddenDisplayNotice(),
+					'active_count'  => $this->activeCount,
+					'ignored_count' => $this->ignoredCount,
 				];
 			}
 		};
