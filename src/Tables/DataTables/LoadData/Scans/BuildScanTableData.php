@@ -2,15 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueScanResultScopeStateBuilder,
+	ScanResultsDisplayOptions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Common\IpAddressSql;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\ScanResultsScopeResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\Scans\BaseForScan;
 
 /**
+ * @phpstan-import-type ScanResultsDisplayNotice from ActionsQueueScanResultScopeStateBuilder
  * @property string                   $type
  * @property string                   $file
  * @property array<string,mixed>|null $results_display_options
+ * @property string                   $scan_results_notice_context
  */
 class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 	private bool $scanResultsChanged = false;
@@ -21,6 +27,7 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 		$this->scanResultsCountMemoizationReset = false;
 		$data = parent::build();
 		$data[ 'scan_results_changed' ] = $this->scanResultsChanged;
+		$data[ 'display_notice' ] = $this->buildDisplayNotice();
 		return $data;
 	}
 
@@ -124,8 +131,7 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 			return null;
 		}
 
-		return ( new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions() )
-			->normalize( $this->results_display_options );
+		return ( new ScanResultsDisplayOptions() )->normalize( $this->results_display_options );
 	}
 
 	private function resetScanResultsCountMemoizationOnce() :void {
@@ -135,5 +141,28 @@ class BuildScanTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables
 
 		self::con()->comps->scans->resetScanResultsCountMemoization();
 		$this->scanResultsCountMemoizationReset = true;
+	}
+
+	/**
+	 * @phpstan-return ScanResultsDisplayNotice
+	 */
+	private function buildDisplayNotice() :array {
+		$scopeStateBuilder = new ActionsQueueScanResultScopeStateBuilder();
+		if ( (string)( $this->scan_results_notice_context ?? '' )
+			 !== ActionsQueueScanResultScopeStateBuilder::NOTICE_CONTEXT_ACTIONS_QUEUE ) {
+			return $scopeStateBuilder->hiddenDisplayNotice();
+		}
+
+		try {
+			return $scopeStateBuilder->buildForActionScope(
+				(string)( $this->type ?? '' ),
+				(string)( $this->file ?? '' ),
+				$this->getExplicitResultsDisplayOptions() ?? ( new ScanResultsDisplayOptions() )->activeOnly(),
+				true
+			)[ 'display_notice' ];
+		}
+		catch ( \InvalidArgumentException $e ) {
+			return $scopeStateBuilder->hiddenDisplayNotice();
+		}
 	}
 }

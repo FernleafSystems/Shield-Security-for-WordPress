@@ -8,7 +8,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\ScanResultsTableAction,
 	Exceptions\InvalidActionNonceException
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueScanResultScopeStateBuilder,
+	ScanResultsDisplayOptions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdminRouteRuntime;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
@@ -343,6 +346,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			'type'                    => 'core',
 			'file'                    => 'core',
 			'display_context'         => ScanResultsDisplayOptions::DISPLAY_CONTEXT,
+			'scan_results_notice_context' => ActionsQueueScanResultScopeStateBuilder::NOTICE_CONTEXT_ACTIONS_QUEUE,
 			'results_display_options' => [
 				'include_ignored'  => '1',
 				'include_repaired' => 'false',
@@ -358,6 +362,15 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame(
 			[ (int)$ignored[ 'result_item_id' ] ],
 			\array_column( $payload[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
+		);
+		$this->assertArrayHasKey( 'display_notice', $payload[ 'datatable_data' ] );
+		$this->assertSame(
+			ActionsQueueScanResultScopeStateBuilder::MODE_SHOWING_IGNORED,
+			(string)$payload[ 'datatable_data' ][ 'display_notice' ][ 'mode' ]
+		);
+		$this->assertSame(
+			1,
+			(int)$payload[ 'datatable_data' ][ 'display_notice' ][ 'ignored_count' ]
 		);
 		$this->assertNotContains(
 			(int)$active[ 'result_item_id' ],

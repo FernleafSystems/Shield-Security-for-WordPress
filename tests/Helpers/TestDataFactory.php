@@ -426,6 +426,23 @@ class TestDataFactory {
 			] );
 	}
 
+	public static function markScanResultItemResolved( int $resultItemId, string $reason, int $resolvedAt = 0 ) :void {
+		self::con()->db_con->scan_result_items
+			->getQueryUpdater()
+			->updateById( $resultItemId, [
+				'resolved_at'       => $resolvedAt > 0 ? $resolvedAt : \time(),
+				'resolution_reason' => $reason,
+			] );
+	}
+
+	public static function markScanResultItemAutoFiltered( int $resultItemId, int $autoFilteredAt = 0 ) :void {
+		self::con()->db_con->scan_result_items
+			->getQueryUpdater()
+			->updateById( $resultItemId, [
+				'auto_filtered_at' => $autoFilteredAt > 0 ? $autoFilteredAt : \time(),
+			] );
+	}
+
 	/**
 	 * Insert a scan result item, link it to a scan, and add one meta flag.
 	 */

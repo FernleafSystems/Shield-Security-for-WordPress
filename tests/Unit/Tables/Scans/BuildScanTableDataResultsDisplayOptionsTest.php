@@ -93,6 +93,16 @@ class BuildScanTableDataResultsDisplayOptionsTest extends BaseUnitTest {
 		$data = $builder->build();
 
 		$this->assertTrue( $data[ 'scan_results_changed' ] );
+		$this->assertSame(
+			[
+				'is_visible'    => false,
+				'mode'          => 'none',
+				'status'        => 'info',
+				'text'          => '',
+				'ignored_count' => 0,
+			],
+			$data[ 'display_notice' ]
+		);
 		$this->assertSame( [ [ 'rid' => 123 ] ], $data[ 'data' ] );
 		$this->assertSame( 1, $calls->scanResetCalls );
 		$this->assertSame( [ 1 ], $calls->countResetSnapshots );
