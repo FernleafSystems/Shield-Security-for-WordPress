@@ -16,6 +16,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   text:string,
  *   ignored_count:int
  * }
+ * @phpstan-type ActionsQueueScopeCounts array{
+ *   scope:array{type:string,file:string},
+ *   active_count:int,
+ *   ignored_count:int
+ * }
  * @phpstan-type ActionsQueueScopeState array{
  *   scope:array{type:string,file:string},
  *   active_count:int,
@@ -48,7 +53,7 @@ class ActionsQueueScanResultScopeStateBuilder {
 
 	/**
 	 * @param array<string,mixed>|null $currentOptions
-	 * @return ActionsQueueScopeState
+	 * @phpstan-return ActionsQueueScopeState
 	 * @throws \InvalidArgumentException
 	 */
 	public function buildForActionScope(
@@ -57,24 +62,66 @@ class ActionsQueueScanResultScopeStateBuilder {
 		?array $currentOptions = null,
 		bool $displayNotice = false
 	) :array {
-		$scope = $this->scopeResolver->normalizeActionScope( $type, $file );
 		$options = $this->displayOptions->normalize( $currentOptions ?? $this->displayOptions->activeOnly() );
-		$scopeWheres = $this->scopeResolver->wheresForActionScope( $scope[ 'type' ], $scope[ 'file' ] );
-
-		$counter = ( new RetrieveCount() )
-			->setScanController( self::con()->comps->scans->AFS() )
-			->addWheres( $scopeWheres );
-		$activeCount = $counter->countForResultsDisplay( $this->displayOptions->activeOnly() );
-		$ignoredCount = $counter->countForResultsDisplay( $this->displayOptions->ignoredOnly() );
-		$currentCount = $counter->countForResultsDisplay( $options );
+		$counts = $this->buildCountsForActionScope( $type, $file );
+		$currentCount = $this->countForCurrentOptions( $counts, $options );
 
 		return [
-			'scope'          => $scope,
-			'active_count'   => $activeCount,
-			'ignored_count'  => $ignoredCount,
+			'scope'          => $counts[ 'scope' ],
+			'active_count'   => $counts[ 'active_count' ],
+			'ignored_count'  => $counts[ 'ignored_count' ],
 			'current_count'  => $currentCount,
-			'display_notice' => $this->buildDisplayNotice( $options, $ignoredCount, $displayNotice ),
+			'display_notice' => $this->buildDisplayNotice( $options, $counts[ 'ignored_count' ], $displayNotice ),
 		];
+	}
+
+	/**
+	 * @phpstan-return ActionsQueueScopeCounts
+	 * @throws \InvalidArgumentException
+	 */
+	public function buildCountsForActionScope( string $type, string $file ) :array {
+		$scope = $this->scopeResolver->normalizeActionScope( $type, $file );
+		$counter = $this->buildCounterForScope( $scope );
+
+		return [
+			'scope'         => $scope,
+			'active_count'  => $counter->countForResultsDisplay( $this->displayOptions->activeOnly() ),
+			'ignored_count' => $counter->countForResultsDisplay( $this->displayOptions->ignoredOnly() ),
+		];
+	}
+
+	/**
+	 * @phpstan-param ActionsQueueScopeCounts $counts
+	 * @param array{
+	 *   include_ignored:bool,
+	 *   include_repaired:bool,
+	 *   include_deleted:bool,
+	 *   ignored_only:bool
+	 * } $options
+	 */
+	private function countForCurrentOptions( array $counts, array $options ) :int {
+		if ( $options === $this->displayOptions->activeOnly() ) {
+			return $counts[ 'active_count' ];
+		}
+
+		if ( $options === $this->displayOptions->ignoredOnly() ) {
+			return $counts[ 'ignored_count' ];
+		}
+
+		if ( $options === $this->displayOptions->activeAndIgnored() ) {
+			return $counts[ 'active_count' ] + $counts[ 'ignored_count' ];
+		}
+
+		return $this->buildCounterForScope( $counts[ 'scope' ] )->countForResultsDisplay( $options );
+	}
+
+	/**
+	 * @param array{type:string,file:string} $scope
+	 */
+	protected function buildCounterForScope( array $scope ) :RetrieveCount {
+		return ( new RetrieveCount() )
+			->setScanController( self::con()->comps->scans->AFS() )
+			->addWheres( $this->scopeResolver->wheresForActionScope( $scope[ 'type' ], $scope[ 'file' ] ) );
 	}
 
 	/**
