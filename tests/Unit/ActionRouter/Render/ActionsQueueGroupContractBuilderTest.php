@@ -10,7 +10,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueContextActionsBuilder,
 	ActionsQueueDrillDownPresentationBuilder,
 	ActionsQueueGroupContractBuilder,
-	ActionsQueueGroupDefinitions
+	ActionsQueueGroupDefinitions,
+	ActionsQueueScanResultScopeStateBuilder,
+	ScanResultsDisplayOptions
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -36,6 +38,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
+		Functions\when( 'number_format_i18n' )->alias( static fn( $number ) :string => (string)$number );
 		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
 		Functions\when( 'wp_hash' )->alias(
 			static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$scheme.'-'.$data
@@ -137,9 +140,9 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'example_plugin', $pluginGroup[ 'selection' ][ 'label' ] );
 		$this->assertSame( 'example_plugin', $pluginGroup[ 'selection' ][ 'header' ][ 'title' ] );
-		$this->assertSame( [], $pluginGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
+		$this->assertSame( [], $pluginGroup[ 'selection' ][ 'header' ][ 'actions' ] );
 		$this->assertAjaxRenderPayloadAllowedByPolicy(
-			$pluginGroup[ 'selection' ][ 'detail_render_action' ] ?? [],
+			$pluginGroup[ 'selection' ][ 'detail_render_action' ],
 			'plugin scoped asset detail render'
 		);
 		$this->assertFalse( $pluginGroup[ 'is_interactive' ] );
@@ -154,14 +157,14 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 				'include_deleted'  => false,
 				'ignored_only'     => false,
 			],
-			$themeGroup[ 'render_action_data' ][ 'results_display_options' ] ?? []
+			$themeGroup[ 'render_action_data' ][ 'results_display_options' ]
 		);
 		$this->assertSame( 'theme', $themeGroup[ 'render_action_data' ][ 'subject_type' ] );
 		$this->assertSame( 'example-theme', $themeGroup[ 'render_action_data' ][ 'subject_id' ] );
 		$this->assertSame( 'example_theme', $themeGroup[ 'selection' ][ 'header' ][ 'title' ] );
-		$this->assertSame( [], $themeGroup[ 'selection' ][ 'header' ][ 'actions' ] ?? null );
+		$this->assertSame( [], $themeGroup[ 'selection' ][ 'header' ][ 'actions' ] );
 		$this->assertAjaxRenderPayloadAllowedByPolicy(
-			$themeGroup[ 'selection' ][ 'detail_render_action' ] ?? [],
+			$themeGroup[ 'selection' ][ 'detail_render_action' ],
 			'theme scoped asset detail render'
 		);
 	}
@@ -176,15 +179,89 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( $group[ 'label' ], $group[ 'selection' ][ 'label' ] );
 		$this->assertSame( $group[ 'label' ], $group[ 'selection' ][ 'header' ][ 'title' ] );
 		$this->assertAjaxRenderPayloadAllowedByPolicy(
-			$group[ 'selection' ][ 'detail_render_action' ] ?? [],
+			$group[ 'selection' ][ 'detail_render_action' ],
 			'generic group detail render'
+		);
+	}
+
+	public function test_active_direct_scan_group_indicates_ignored_results_without_changing_active_count() :void {
+		$builder = $this->newBuilder(
+			[],
+			$this->newScopeStateBuilder( 1, 2 )
+		);
+
+		$groups = $builder->buildResolvedGroups( 'Fix now', [
+			$this->groupSeed( [
+				'key'                         => 'plugins:example-plugin/example-plugin.php',
+				'definition_key'              => 'plugins',
+				'label'                       => 'Example Plugin',
+				'item_count'                  => 1,
+				'detail_shell'                => 'direct_table',
+				'render_action_class_override' => ActionsQueueAssetFileStatusDetail::class,
+				'render_action_data_override' => ( new ScanResultsDisplayOptions() )->buildSubjectActionData(
+					'plugin',
+					'example-plugin/example-plugin.php'
+				),
+			] ),
+		] );
+
+		$this->assertArrayHasKey( 'plugins:example-plugin/example-plugin.php', $groups[ 'groups_indexed' ] );
+		$group = $groups[ 'groups_indexed' ][ 'plugins:example-plugin/example-plugin.php' ];
+		$header = $group[ 'selection' ][ 'header' ];
+
+		$this->assertSame( 1, $group[ 'item_count' ] );
+		$this->assertSame( 'warning', $group[ 'status' ] );
+		$this->assertStringContainsString(
+			'ignored',
+			\strtolower( $header[ 'summary' ] )
+		);
+		$this->assertStringContainsString(
+			'ignored',
+			\strtolower( $header[ 'focus' ] )
+		);
+		$this->assertStringContainsString(
+			'ignored',
+			\strtolower( $header[ 'next_step' ] )
+		);
+	}
+
+	public function test_empty_scoped_asset_group_with_only_ignored_results_uses_good_zero_header_without_actions() :void {
+		$builder = $this->newBuilder(
+			[
+				'plugin:example-plugin/example-plugin.php' => [
+					'subject_type' => 'plugin',
+					'subject_id'   => 'example-plugin/example-plugin.php',
+					'title'        => 'Example Plugin',
+					'icon_class'   => 'bi bi-plug-fill',
+					'has_update'   => false,
+				],
+			],
+			$this->newScopeStateBuilder( 0, 2 )
+		);
+
+		$group = $builder->buildEmptyGroup( 'plugins:example-plugin/example-plugin.php', 'Fix now' );
+		$header = $group[ 'selection' ][ 'header' ];
+
+		$this->assertSame( 'good', $group[ 'status' ] );
+		$this->assertSame( 0, $group[ 'item_count' ] );
+		$this->assertSame( [], $header[ 'actions' ] );
+		$this->assertStringContainsString(
+			'ignored',
+			\strtolower( $header[ 'summary' ] )
+		);
+		$this->assertStringContainsString(
+			'ignored',
+			\strtolower( $header[ 'next_step' ] )
 		);
 	}
 
 	/**
 	 * @param array<string,array<string,mixed>> $metadataByAsset
 	 */
-	private function newBuilder( array $metadataByAsset = [] ) :ActionsQueueGroupContractBuilder {
+	private function newBuilder(
+		array $metadataByAsset = [],
+		?ActionsQueueScanResultScopeStateBuilder $scopeStateBuilder = null
+	) :ActionsQueueGroupContractBuilder {
 		$resolver = new class( $metadataByAsset ) extends ActionsQueueAssetMetadataResolver {
 
 			private array $metadataByAsset;
@@ -213,7 +290,49 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 				) :array {
 					return [];
 				}
-			}
+			},
+			$scopeStateBuilder ?? $this->newScopeStateBuilder( 0, 0 )
 		);
+	}
+
+	private function newScopeStateBuilder( int $activeCount, int $ignoredCount ) :ActionsQueueScanResultScopeStateBuilder {
+		return new class( $activeCount, $ignoredCount ) extends ActionsQueueScanResultScopeStateBuilder {
+			private int $activeCount;
+			private int $ignoredCount;
+
+			public function __construct( int $activeCount, int $ignoredCount ) {
+				$this->activeCount = $activeCount;
+				$this->ignoredCount = $ignoredCount;
+			}
+
+			public function buildCountsForActionScope( string $type, string $file ) :array {
+				return [
+					'scope'         => [
+						'type' => $type,
+						'file' => $file,
+					],
+					'active_count'  => $this->activeCount,
+					'ignored_count' => $this->ignoredCount,
+				];
+			}
+		};
+	}
+
+	private function groupSeed( array $overrides = [] ) :array {
+		return \array_merge( [
+			'key'             => 'wordpress',
+			'definition_key'  => 'wordpress',
+			'label'           => 'WordPress Files',
+			'item_count'      => 1,
+			'status'          => 'warning',
+			'narrative'       => '',
+			'detail_shell'    => 'direct_table',
+			'links'           => [],
+			'management_link' => [],
+			'detail_table'    => [],
+			'attention_items' => [],
+			'maintenance_rows' => [],
+			'summary_row'     => [],
+		], $overrides );
 	}
 }

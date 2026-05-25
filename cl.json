@@ -184,6 +184,28 @@
             ]
           }
         ]
+      },
+      {
+        "version":     "7",
+        "released_at": 1779715000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "Malware Scan Accuracy Improved",
+            "description": [
+              "Shield now handles official WordPress plugin and theme files more accurately before malware checks, reducing false positives for files that match trusted source hashes.",
+              "Scan preparation is also more reliable on sites with stricter filesystem handling."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "Actions Queue Scan Results Fixed",
+            "description": [
+              "Ignored scan results no longer fill the active Actions Queue, so admins can focus on findings that still need review.",
+              "Scan result drill-downs now make it clearer when ignored results are hidden, included, or shown separately."
+            ]
+          }
+        ]
       }
     ]
   },

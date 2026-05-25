@@ -15,18 +15,15 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 
 	private ActionsQueueGroupDefinitions $groupDefinitions;
 	private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder;
-	private ActionsQueueGroupScanSource $scanSource;
 	private ActionsQueueGroupMaintenanceSource $maintenanceSource;
 
 	public function __construct(
 		ActionsQueueGroupDefinitions $groupDefinitions,
 		ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
-		ActionsQueueGroupScanSource $scanSource,
 		ActionsQueueGroupMaintenanceSource $maintenanceSource
 	) {
 		$this->groupDefinitions = $groupDefinitions;
 		$this->maintenanceSeedBuilder = $maintenanceSeedBuilder;
-		$this->scanSource = $scanSource;
 		$this->maintenanceSource = $maintenanceSource;
 	}
 
@@ -163,17 +160,13 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		$seeds = [];
 		$pendingFileLockerCount = $this->getPendingFileLockerCount();
 		foreach ( $rowsByDefinitionKey as $definitionKey => $rows ) {
-			if ( $this->bucketHasIgnoredOnlyAttentionForDefinition( $bucketSource, $definitionKey ) ) {
-				continue;
-			}
-
 			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
 			$interaction = $this->buildHealthyScanInteraction( $definitionKey );
 			$seed = [
 				'key'                         => $definitionKey,
 				'definition_key'              => $definitionKey,
 				'label'                       => $definition[ 'label' ],
-				'item_count'                  => $interaction[ 'item_count_override' ] ?? \count( $rows ),
+				'item_count'                  => $interaction[ 'item_count_override' ],
 				'status'                      => 'good',
 				'narrative'                   => $this->combineHealthyAssessmentNarratives( $rows ),
 				'detail_shell'                => $definition[ 'detail_shell' ],
@@ -228,21 +221,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	}
 
 	/**
-	 * @phpstan-param BucketSource $bucketSource
-	 */
-	private function bucketHasIgnoredOnlyAttentionForDefinition( array $bucketSource, string $definitionKey ) :bool {
-		foreach ( $bucketSource[ 'attention_items' ] as $item ) {
-			$itemKey = (string)( $item[ 'key' ] ?? '' );
-			if ( ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( $itemKey )
-				&& $this->groupDefinitions->groupKeyForSummaryKey( $itemKey ) === $definitionKey ) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
 	 * @param list<AssessmentRow> $rows
 	 */
 	private function combineHealthyAssessmentNarratives( array $rows ) :string {
@@ -257,7 +235,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	/**
 	 * @return array{
 	 *   is_interactive:bool,
-	 *   item_count_override:int|null,
+	 *   item_count_override:int,
 	 *   render_action_data:array<string,mixed>,
 	 *   suppress_context_actions:bool
 	 * }
@@ -273,26 +251,11 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 			];
 		}
 
-		if ( $interactionMode !== 'ignored_only' ) {
-			return [
-				'is_interactive'      => false,
-				'item_count_override' => null,
-				'render_action_data'  => [],
-				'suppress_context_actions' => false,
-			];
-		}
-
-		$ignoredCount = $this->scanSource->ignoredCountForSource(
-			$this->groupDefinitions->healthyIgnoredSourceForGroupKey( $definitionKey )
-		);
-
 		return [
-			'is_interactive'      => $ignoredCount > 0,
-			'item_count_override' => $ignoredCount > 0 ? $ignoredCount : null,
-			'render_action_data'  => $ignoredCount > 0
-				? $this->groupDefinitions->definitionForGroupKey( $definitionKey )[ 'render_action_data' ]
-				: [],
-			'suppress_context_actions' => $ignoredCount > 0,
+			'is_interactive'      => false,
+			'item_count_override' => 0,
+			'render_action_data'  => [],
+			'suppress_context_actions' => true,
 		];
 	}
 

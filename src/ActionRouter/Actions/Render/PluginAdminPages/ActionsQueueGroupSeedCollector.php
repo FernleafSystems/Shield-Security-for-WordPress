@@ -151,14 +151,8 @@ class ActionsQueueGroupSeedCollector {
 			$item[ 'severity' ],
 		], 'good' );
 		$seeds[ $seedKey ][ 'attention_items' ][] = $item;
-
-		if ( ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( $item[ 'key' ] ) ) {
-			$seeds[ $seedKey ][ 'context_actions_override' ] = [];
-		}
-		else {
-			unset( $seeds[ $seedKey ][ 'render_action_data_override' ] );
-			unset( $seeds[ $seedKey ][ 'context_actions_override' ] );
-		}
+		unset( $seeds[ $seedKey ][ 'render_action_data_override' ] );
+		unset( $seeds[ $seedKey ][ 'context_actions_override' ] );
 	}
 
 	/**
@@ -166,58 +160,28 @@ class ActionsQueueGroupSeedCollector {
 	 * @return list<GroupSeed>
 	 */
 	private function buildAssetSeeds( string $definitionKey, string $assetSource, array $attentionItems ) :array {
-		$activeItem = null;
-		$ignoredItem = null;
-
-		foreach ( $attentionItems as $item ) {
-			if ( ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( $item[ 'key' ] ) ) {
-				$ignoredItem = $item;
-			}
-			else {
-				$activeItem = $item;
-			}
+		if ( $attentionItems === [] ) {
+			return [];
 		}
 
+		$activeItem = $attentionItems[ 0 ];
 		$seeds = [];
-		if ( $activeItem !== null ) {
-			foreach ( $this->scanSource->activeAssetSummariesForSource( $assetSource ) as $summary ) {
-				$fileCount = \max( 0, (int)( $summary[ 'count_badge' ] ?? 0 ) );
-				if ( $fileCount < 1 ) {
-					continue;
-				}
-
-				$seeds[] = $this->buildScopedAssetSeed(
-					$definitionKey,
-					$summary,
-					StatusPriority::normalize( $activeItem[ 'severity' ], 'warning' ),
-					$this->queueScanResultsOptions->buildSubjectActionData(
-						$summary[ 'subject_type' ],
-						$summary[ 'subject_id' ]
-					),
-					[ $activeItem ]
-				);
+		foreach ( $this->scanSource->activeAssetSummariesForSource( $assetSource ) as $summary ) {
+			$fileCount = \max( 0, (int)( $summary[ 'count_badge' ] ?? 0 ) );
+			if ( $fileCount < 1 ) {
+				continue;
 			}
-		}
 
-		if ( $ignoredItem !== null ) {
-			foreach ( $this->scanSource->fullyIgnoredAssetSummariesForSource( $assetSource ) as $summary ) {
-				$fileCount = \max( 0, (int)( $summary[ 'count_badge' ] ?? 0 ) );
-				if ( $fileCount < 1 ) {
-					continue;
-				}
-
-				$seeds[] = $this->buildScopedAssetSeed(
-					$definitionKey,
-					$summary,
-					StatusPriority::normalize( $ignoredItem[ 'severity' ], 'warning' ),
-					$this->queueScanResultsOptions->buildSubjectActionData(
-						$summary[ 'subject_type' ],
-						$summary[ 'subject_id' ]
-					),
-					[ $ignoredItem ],
-					true
-				);
-			}
+			$seeds[] = $this->buildScopedAssetSeed(
+				$definitionKey,
+				$summary,
+				StatusPriority::normalize( $activeItem[ 'severity' ], 'warning' ),
+				$this->queueScanResultsOptions->buildSubjectActionData(
+					$summary[ 'subject_type' ],
+					$summary[ 'subject_id' ]
+				),
+				[ $activeItem ]
+			);
 		}
 
 		return $seeds;
@@ -279,12 +243,11 @@ class ActionsQueueGroupSeedCollector {
 		array $summary,
 		string $status,
 		array $renderActionData,
-		array $attentionItems,
-		bool $suppressContextActions = false
+		array $attentionItems
 	) :array {
 		$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
 
-		$seed = [
+		return [
 			'key'              => $definitionKey.':'.$summary[ 'key' ],
 			'definition_key'   => $definitionKey,
 			'label'            => $summary[ 'title' ],
@@ -301,12 +264,6 @@ class ActionsQueueGroupSeedCollector {
 			'maintenance_rows' => [],
 			'summary_row'      => [],
 		];
-
-		if ( $suppressContextActions ) {
-			$seed[ 'context_actions_override' ] = [];
-		}
-
-		return $seed;
 	}
 
 	/**

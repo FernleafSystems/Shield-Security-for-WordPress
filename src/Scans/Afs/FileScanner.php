@@ -7,7 +7,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 	IsExcludedPhpTranslationFile,
 	IsFileContentExcluded
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\HashVerificationResult;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
+	AssetFileContext,
+	AssetTrustResolver,
+	Exceptions\NonAssetFileException,
+	HashVerificationResult
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\TrustedFileContext;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -29,8 +34,24 @@ class FileScanner {
 		$validFile = false;
 		$skipMalwareScan = false;
 		$trustedFileContext = null;
+		$assetContext = null;
+		$assetContextResolved = false;
+		$assetVerification = null;
 		$malwareScanClean = false;
 		$optimiser = new Processing\FileScanOptimiser();
+		$assetResolver = new AssetTrustResolver();
+		$resolveAssetContext = function () use ( $fullPath, $assetResolver, &$assetContext, &$assetContextResolved ) :?AssetFileContext {
+			if ( !$assetContextResolved ) {
+				try {
+					$assetContext = $assetResolver->resolveContext( $fullPath );
+				}
+				catch ( NonAssetFileException $e ) {
+					$assetContext = null;
+				}
+				$assetContextResolved = true;
+			}
+			return $assetContext;
+		};
 		try {
 			if ( $fileExcluded ) {
 				$validFile = true;
@@ -53,24 +74,34 @@ class FileScanner {
 				$validFile = true;
 			}
 			if ( !$validFile && $scanCon->isScanEnabledPlugins() ) {
-				$pluginScan = ( new Scans\PluginFile( $fullPath ) )
-					->setScanActionVO( $action );
-				if ( $pluginScan->isFileValid() ) {
-					$validFile = true;
-					$skipMalwareScan = $pluginScan->isVerifiedHashTrustedSource();
-					if ( $skipMalwareScan ) {
-						$trustedFileContext = $this->buildAssetTrustedFileContext( $pluginScan->getHashVerificationResult() );
+				$assetContext = $resolveAssetContext();
+				if ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'plugin' ) {
+					$pluginScan = ( new Scans\PluginFile( $fullPath ) )
+						->setAssetContext( $assetContext )
+						->setScanActionVO( $action );
+					if ( $pluginScan->isFileValid() ) {
+						$validFile = true;
+						$assetVerification = $pluginScan->getHashVerificationResult();
+						$skipMalwareScan = $assetVerification->trustedSource;
+						if ( $skipMalwareScan ) {
+							$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
+						}
 					}
 				}
 			}
 			if ( !$validFile && $scanCon->isScanEnabledThemes() ) {
-				$themeScan = ( new Scans\ThemeFile( $fullPath ) )
-					->setScanActionVO( $action );
-				if ( $themeScan->isFileValid() ) {
-					$validFile = true;
-					$skipMalwareScan = $themeScan->isVerifiedHashTrustedSource();
-					if ( $skipMalwareScan ) {
-						$trustedFileContext = $this->buildAssetTrustedFileContext( $themeScan->getHashVerificationResult() );
+				$assetContext = $resolveAssetContext();
+				if ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'theme' ) {
+					$themeScan = ( new Scans\ThemeFile( $fullPath ) )
+						->setAssetContext( $assetContext )
+						->setScanActionVO( $action );
+					if ( $themeScan->isFileValid() ) {
+						$validFile = true;
+						$assetVerification = $themeScan->getHashVerificationResult();
+						$skipMalwareScan = $assetVerification->trustedSource;
+						if ( $skipMalwareScan ) {
+							$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
+						}
 					}
 				}
 			}
@@ -142,6 +173,23 @@ class FileScanner {
 		$canRunMalwareScan = !$fileExcluded
 							  && $scanCon->isEnabledMalwareScanPHP()
 							  && ( empty( $item ) || !$item->is_missing );
+		if ( !$skipMalwareScan && $canRunMalwareScan && empty( $item ) && !( $assetVerification instanceof HashVerificationResult )
+			 && ( !$scanCon->isScanEnabledPlugins() || !$scanCon->isScanEnabledThemes() ) ) {
+			$assetContext = $resolveAssetContext();
+			if ( $assetContext instanceof AssetFileContext
+				 && ( ( $assetContext->assetType === 'plugin' && !$scanCon->isScanEnabledPlugins() )
+					  || ( $assetContext->assetType === 'theme' && !$scanCon->isScanEnabledThemes() ) ) ) {
+				try {
+					$assetVerification = $assetResolver->verifyContext( $fullPath, $assetContext );
+					if ( $assetVerification->trustedSource ) {
+						$skipMalwareScan = true;
+						$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
+					}
+				}
+				catch ( \Exception $e ) {
+				}
+			}
+		}
 		if ( !$skipMalwareScan && $canRunMalwareScan && $optimiser->hasCleanMalwareVerdict( $fullPath, $action ) ) {
 			$skipMalwareScan = true;
 		}
