@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	PageActionsQueueLanding
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Labels;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -37,6 +38,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 	use MaintenanceAssetFixtures;
+	use AjaxRenderPolicyAssertions;
 
 	private object $capture;
 	private array $servicesSnapshot = [];
@@ -144,10 +146,12 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'drill_context_card', $vars );
 		$this->assertCount( 2, $vars[ 'zone_tiles' ] );
 		$this->assertArrayNotHasKey( 'groups_render_action', $vars[ 'actions_queue_ajax' ] );
+		$groupsRenderAction = \json_decode( $vars[ 'actions_queue_ajax' ][ 'groups_render_action_json' ] ?? '', true );
 		$this->assertSame(
 			ActionsQueueDrillDownGroups::SLUG,
-			\json_decode( $vars[ 'actions_queue_ajax' ][ 'groups_render_action_json' ] ?? '', true )[ 'render_slug' ] ?? ''
+			$groupsRenderAction[ 'render_slug' ] ?? ''
 		);
+		$this->assertAjaxRenderPayloadAllowedByPolicy( $groupsRenderAction, 'actions queue groups render' );
 		$this->assertArrayHasKey( 'groups_loading', $renderData[ 'strings' ] ?? [] );
 		$this->assertArrayHasKey( 'detail_loading', $renderData[ 'strings' ] ?? [] );
 		$this->assertArrayNotHasKey( 'scans_results', $vars );

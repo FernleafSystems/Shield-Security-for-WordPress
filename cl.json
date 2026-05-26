@@ -1,7 +1,7 @@
 {
   "22.0": {
     "version":     "22.0",
-    "released_at": 1779270000,
+    "released_at": 1779283000,
     "hrefs":       {
       "release": "https://clk.shldscrty.com/shieldrelease220",
       "upgrade": "https://clk.shldscrty.com/shieldupgradeguide220"
@@ -50,6 +50,13 @@
         "description": [
           "Reports gives you clearer summaries, trend charts, and cleaner report management.",
           "It's also easier to review and clean up reports you've already run."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Report Security Hardening",
+        "description": [
+          "Report change details are rendered more safely, and Shield's internal REST action endpoint now accepts fewer externally routed actions."
         ]
       },
       {
@@ -132,7 +139,82 @@
         ]
       }
     ],
-    "patches":     []
+    "patches":     [
+      {
+        "version":     "5",
+        "released_at": 1779350000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "Public Shield Screens Hardened",
+            "description": [
+              "Shield now rejects unsafe attempts to load internal screens from public routes while preserving legitimate block pages, report views, MainWP flows, and MFA login screens.",
+              "MFA login messages are treated as plain text, reducing the risk of untrusted content appearing in sensitive login flows."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "Report Access Hardened",
+            "description": [
+              "Stored security reports now open through an authenticated Shield admin page, so report content is only shown after the proper admin access checks.",
+              "Older report links redirect into the safer admin report view."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "Upgrade Reliability Improved",
+            "description": [
+              "In-place upgrades are more reliable, reducing the chance of fatal errors when WordPress briefly has old and new Shield code loaded together."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "Actions Queue Display Fixed",
+            "description": [
+              "The WordPress dashboard widget now consistently links to the Actions Queue, even when Security Admin is locked.",
+              "Review maintenance groups now separate items that need attention from healthy items, making mixed results clearer to act on.",
+              "Warning badges use stronger contrast in the dashboard and reports."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "MFA Device Tables Improved",
+            "description": [
+              "Passkey and YubiKey records now use matching columns and clearer device details, making profile review and device removal more consistent."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "MCP Support Fixed",
+            "description": [
+              "WordPress can now register Shield MCP abilities reliably, so supported integrations can discover and use them correctly."
+            ]
+          }
+        ]
+      },
+      {
+        "version":     "7",
+        "released_at": 1779715000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "Malware Scan Accuracy Improved",
+            "description": [
+              "Shield now handles official WordPress plugin and theme files more accurately before malware checks, reducing false positives for files that match trusted source hashes.",
+              "Scan preparation is also more reliable on sites with stricter filesystem handling."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "Actions Queue Scan Results Fixed",
+            "description": [
+              "Ignored scan results no longer fill the active Actions Queue, so admins can focus on findings that still need review.",
+              "Scan result drill-downs now make it clearer when ignored results are hidden, included, or shown separately."
+            ]
+          }
+        ]
+      }
+    ]
   },
   "21.2": {
     "version":     "21.2",

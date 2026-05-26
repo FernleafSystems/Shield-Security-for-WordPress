@@ -1,7 +1,14 @@
 {% set panel_status = table.status %}
 {% set full_log_button_class = table.full_log_button_class %}
+{% set table_notice = table.display_notice %}
 
 {% set table_markup %}
+	<div class="alert alert-{{ table_notice.status|e('html_attr') }} mb-2{% if not table_notice.is_visible %} d-none{% endif %}"
+		 data-scan-results-display-notice="1"
+		 data-scan-results-display-notice-mode="{{ table_notice.mode|e('html_attr') }}"
+		 data-scan-results-display-notice-ignored-count="{{ table_notice.ignored_count|e('html_attr') }}">
+		{{ table_notice.text }}
+	</div>
 	<div class="row shield-section-datatable">
 		<div class="col">
 			{% if table.is_empty %}

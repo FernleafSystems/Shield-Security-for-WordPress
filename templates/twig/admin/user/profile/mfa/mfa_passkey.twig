@@ -12,37 +12,18 @@
 			</button>
 		</p>
 
-		{% if vars.passkeys|length > 0 %}
-			<h4 class="shield-passkeys-heading">{{ strings.registered_devices }}</h4>
-			<table class="widefat striped shield-passkeys-table">
-				<thead>
-					<tr>
-						<th scope="col">{{ strings.passkey }}</th>
-						<th scope="col">{{ strings.used }}</th>
-						<th scope="col">{{ strings.registered }}</th>
-						<th scope="col" class="shield-passkeys-table__action">{{ strings.action }}</th>
-					</tr>
-				</thead>
-				<tbody>
-					{% for reg in vars.passkeys %}
-						<tr>
-							<td><code>{{ reg.label }}</code></td>
-							<td>{{ reg.used_at }}</td>
-							<td>{{ reg.reg_at }}</td>
-							<td class="shield-passkeys-table__action">
-								<button type="button"
-										class="shield_remove_passkey shield-button-link"
-										title="{{ strings.remove_label }}"
-										aria-label="{{ strings.remove_label }} {{ reg.label }}"
-										data-wan_source_id="{{ reg.id }}">&#10006;</button>
-							</td>
-						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-		{% else %}
-			<p>There are no passkeys registered to this account.</p>
-		{% endif %}
+		{% include '/admin/user/profile/mfa/mfa_records_table.twig' with {
+			records: vars.passkeys,
+			heading: strings.registered_devices,
+			empty_message: strings.no_registered_devices,
+			label_header: strings.passkey,
+			used_header: strings.used,
+			registered_header: strings.registered,
+			action_header: strings.action,
+			remove_label: strings.remove_label,
+			remove_button_class: 'shield_remove_passkey',
+			remove_data_attribute: 'data-wan_source_id'
+		} only %}
 
 		{% if flags.show_explanatory_text %}
 			<p class="description">{{ strings.prompt }}</p>

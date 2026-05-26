@@ -3,11 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\AssetTrustResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalwarePatternFingerprint;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files as PluginFiles;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Theme\Files as ThemeFiles;
 
 class FileScanOptimiser {
 
@@ -133,36 +132,17 @@ class FileScanOptimiser {
 				);
 			}
 
-			if ( $scanCon->isScanEnabledPlugins() ) {
-				$pluginFiles = new PluginFiles();
-				$asset = $pluginFiles->findPluginFromFile( $path );
-				if ( !empty( $asset ) ) {
-					return new TrustedFileContext(
-						'plugin',
-						(string)$asset->unique_id,
-						(string)$asset->Version,
-						$pluginFiles->getRelativeFilePathFromItsInstallDir( $path )
-					);
-				}
-			}
-
-			if ( $scanCon->isScanEnabledThemes() ) {
-				$themeFiles = new ThemeFiles();
-				$asset = $themeFiles->findThemeFromFile( $path );
-				if ( !empty( $asset ) ) {
-					return new TrustedFileContext(
-						'theme',
-						(string)$asset->unique_id,
-						(string)$asset->Version,
-						$themeFiles->getRelativeFilePathFromItsInstallDir( $path )
-					);
-				}
-			}
+			$context = ( new AssetTrustResolver() )->resolveContext( $path );
+			return new TrustedFileContext(
+				$context->assetType,
+				$context->assetKey,
+				$context->assetVersion,
+				$context->relativePath
+			);
 		}
 		catch ( \Throwable $e ) {
 			return null;
 		}
-		return null;
 	}
 
 	private function isAccessibleSupportedFile( string $path, ScanActionVO $action ) :bool {
@@ -196,7 +176,11 @@ class FileScanOptimiser {
 			return '';
 		}
 		$dir = \path_join( $root, $type );
-		if ( !\is_dir( $dir ) && !@\mkdir( $dir, 0777, true ) && !\is_dir( $dir ) ) {
+		$FS = Services::WpFs();
+		if ( !$FS->isDir( $dir ) ) {
+			$FS->mkdir( $dir );
+		}
+		if ( !$FS->isDir( $dir ) ) {
 			return '';
 		}
 		return \path_join( $dir, \substr( $key, 0, 2 ).'.jsonl' );

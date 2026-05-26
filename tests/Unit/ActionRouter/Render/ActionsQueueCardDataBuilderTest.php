@@ -134,14 +134,9 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$this->assertIsString( $data[ 'actions_lane' ][ 'href' ] );
 	}
 
-	public function test_build_marks_all_clear_when_ignored_scan_items_are_the_only_attention_items() :void {
+	public function test_build_marks_all_clear_when_attention_query_is_empty() :void {
 		$data = $this->buildCardData(
-			$this->attentionQuery( [
-				$this->attentionItem( 'wp_files_ignored', 'scans', 2, 'warning', 'ignored-wp-label' ),
-				$this->attentionItem( 'plugin_files_ignored', 'scans', 1, 'warning', 'ignored-plugin-label' ),
-				$this->attentionItem( 'theme_files_ignored', 'scans', 3, 'warning', 'ignored-theme-label' ),
-				$this->attentionItem( 'malware_ignored', 'scans', 4, 'warning', 'ignored-malware-label' ),
-			] )
+			$this->attentionQuery( [] )
 		);
 
 		$this->assertFalse( $data[ 'summary' ][ 'has_items' ] );

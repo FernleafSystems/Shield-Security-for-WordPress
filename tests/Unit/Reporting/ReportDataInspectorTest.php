@@ -28,12 +28,29 @@ class ReportDataInspectorTest extends BaseUnitTest {
 			],
 			Constants::REPORT_AREA_CHANGES => [
 				'plugins' => [
-					'title' => 'Plugins',
-					'total' => 1,
+					'title'    => 'Plugins',
+					'total'    => 1,
+					'detailed' => [
+						[
+							'name' => 'Plugin',
+							'link' => [],
+							'rows' => [
+								[
+									'lines' => [ 'Updated' ],
+									'count' => 1,
+								],
+							],
+						],
+					],
 				],
 				'users'   => [
 					'title' => 'Users',
 					'total' => 0,
+				],
+				'empty'   => [
+					'title'    => 'Empty',
+					'total'    => 1,
+					'detailed' => [],
 				],
 			],
 		] );

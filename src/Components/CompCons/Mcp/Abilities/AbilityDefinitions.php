@@ -11,10 +11,10 @@ class AbilityDefinitions {
 	use PluginControllerConsumer;
 
 	public const CATEGORY_SLUG = 'shield-security';
-	public const NAME_POSTURE_OVERVIEW = 'shield/posture/overview/get';
-	public const NAME_POSTURE_ATTENTION = 'shield/posture/attention/get';
-	public const NAME_ACTIVITY_RECENT = 'shield/activity/recent/get';
-	public const NAME_SCAN_FINDINGS = 'shield/scan/findings/get';
+	public const NAME_POSTURE_OVERVIEW = 'shield-security/posture-overview-get';
+	public const NAME_POSTURE_ATTENTION = 'shield-security/posture-attention-get';
+	public const NAME_ACTIVITY_RECENT = 'shield-security/activity-recent-get';
+	public const NAME_SCAN_FINDINGS = 'shield-security/scan-findings-get';
 	public const MCP_ABILITY_NAMES = [
 		self::NAME_POSTURE_OVERVIEW,
 		self::NAME_POSTURE_ATTENTION,

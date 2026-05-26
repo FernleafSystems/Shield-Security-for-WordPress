@@ -210,6 +210,15 @@ class ActionsQueueGroupsBuilder {
 		return new ScansResultsRailTabAvailability();
 	}
 
+	protected function buildContractBuilder() :ActionsQueueGroupContractBuilder {
+		return new ActionsQueueGroupContractBuilder(
+			$this->groupDefinitions(),
+			$this->presentation(),
+			$this->assetMetadataResolver(),
+			$this->queueScanResultsOptions()
+		);
+	}
+
 	private function groupDefinitions() :ActionsQueueGroupDefinitions {
 		if ( $this->groupDefinitions === null ) {
 			$this->groupDefinitions = new ActionsQueueGroupDefinitions( $this->queueScanResultsOptions() );
@@ -272,7 +281,6 @@ class ActionsQueueGroupsBuilder {
 			$this->passiveSeedSupplementer = new ActionsQueuePassiveGroupSeedSupplementer(
 				$this->groupDefinitions(),
 				$this->maintenanceSeedBuilder(),
-				$this->groupScanSource(),
 				$this->groupMaintenanceSource()
 			);
 		}
@@ -298,12 +306,7 @@ class ActionsQueueGroupsBuilder {
 
 	private function contractBuilder() :ActionsQueueGroupContractBuilder {
 		if ( $this->contractBuilder === null ) {
-			$this->contractBuilder = new ActionsQueueGroupContractBuilder(
-				$this->groupDefinitions(),
-				$this->presentation(),
-				$this->assetMetadataResolver(),
-				$this->queueScanResultsOptions()
-			);
+			$this->contractBuilder = $this->buildContractBuilder();
 		}
 
 		return $this->contractBuilder;

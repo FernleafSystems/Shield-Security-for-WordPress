@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
+	Actions\FullPageDisplay\DisplayReportAdmin,
 	Actions\ReportTableAction,
 	Exceptions\InvalidActionNonceException
 };
@@ -50,6 +51,14 @@ class ReportTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame(
 			[ $betaId, $alphaId ],
 			\array_column( $payload[ 'datatable_data' ][ 'data' ] ?? [], 'rid' )
+		);
+		$this->assertStringContainsString(
+			DisplayReportAdmin::SLUG,
+			(string)( $payload[ 'datatable_data' ][ 'data' ][ 0 ][ 'actions' ] ?? '' )
+		);
+		$this->assertStringNotContainsString(
+			'report_sig=',
+			(string)( $payload[ 'datatable_data' ][ 'data' ][ 0 ][ 'actions' ] ?? '' )
 		);
 
 		$searchPayload = $this->processReportTableAction( [

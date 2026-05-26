@@ -12,11 +12,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
 	ActionsQueueBucketsBuilder,
+	ActionsQueueDrillDownPresentationBuilder,
+	ActionsQueueGroupContractBuilder,
+	ActionsQueueGroupDefinitions,
 	ActionsQueueGroupMaintenanceSource,
 	ActionsQueueGroupScanSource,
 	ActionsQueueGroupsBuilder,
+	ActionsQueueScanResultScopeStateBuilder,
+	ScanResultsDisplayOptions,
 	ScansResultsRailTabAvailability
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	MaintenancePluginsService,
@@ -32,6 +38,8 @@ use FernleafSystems\Wordpress\Services\Core\{
  * @phpstan-import-type GroupSectionData from ActionsQueueGroupsBuilder
  */
 class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
+
+	use AjaxRenderPolicyAssertions;
 
 	private array $servicesSnapshot = [];
 
@@ -238,6 +246,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		);
 
 		$groups = $this->flattenLayerGroups( $data );
+		$this->assertGroupDetailRenderActionsAllowedByPolicy( $groups, 'critical action queue groups' );
 
 		$this->assertSame( 'critical', $data[ 'bucket_selection' ][ 'key' ] );
 		$this->assertSame( 'critical', $data[ 'bucket_selection' ][ 'status' ] );
@@ -417,9 +426,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			[],
 			[],
 			[],
-			[],
-			[],
-			0,
 			[
 				'wordpress' => [
 					'is_available'     => false,
@@ -470,9 +476,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			[],
 			[],
 			[],
-			[],
-			[],
-			0,
 			[
 				'plugins' => [
 					'is_available'     => false,
@@ -550,9 +553,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			[],
 			[],
 			[],
-			[],
-			[],
-			0,
 			[
 				'vulnerabilities' => [
 					'is_available'     => false,
@@ -648,6 +648,25 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					'cta'           => [
 						'href'  => '/wp-admin/update-core.php',
 						'label' => 'Manage Updates',
+					],
+					'toggle_action' => [],
+					'expansion'     => [],
+				],
+				[
+					'key'           => 'default_admin_user',
+					'zone'          => 'maintenance',
+					'label'         => 'Default Admin User',
+					'icon_class'    => 'bi bi-person-fill-lock',
+					'count'         => 0,
+					'severity'      => 'good',
+					'drill_bucket'  => 'review',
+					'description'   => 'The default admin user is no longer available.',
+					'href'          => '/wp-admin/users.php',
+					'action'        => 'Manage Users',
+					'target'        => '',
+					'cta'           => [
+						'href'  => '/wp-admin/users.php',
+						'label' => 'Manage Users',
 					],
 					'toggle_action' => [],
 					'expansion'     => [],
@@ -758,6 +777,15 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'status_icon_class' => 'bi bi-check-circle-fill',
 					],
 					[
+						'key'               => 'default_admin_user',
+						'label'             => 'Default Admin User',
+						'description'       => 'The default admin user is no longer available.',
+						'drill_bucket'      => 'review',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-check-circle-fill',
+					],
+					[
 						'key'               => 'wp_db_password',
 						'label'             => 'MySQL DB Password',
 						'description'       => 'The database password is strong.',
@@ -774,7 +802,10 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		foreach ( $this->flattenSections( $data[ 'active_sections' ] ) as $group ) {
 			$activeGroups[ $group[ 'key' ] ] = $group;
 		}
-		$healthyGroupKeys = \array_column( $this->flattenSections( $data[ 'healthy_sections' ] ), 'key' );
+		$healthyGroups = [];
+		foreach ( $this->flattenSections( $data[ 'healthy_sections' ] ) as $group ) {
+			$healthyGroups[ $group[ 'key' ] ] = $group;
+		}
 
 		$activeGroupKeys = \array_keys( $activeGroups );
 		\sort( $activeGroupKeys );
@@ -783,34 +814,60 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$activeGroupKeys
 		);
 		$this->assertNotContains( 'maintenance', \array_keys( $activeGroups ) );
-		$this->assertNotContains( 'maintenance_system', $healthyGroupKeys );
-		$this->assertNotContains( 'maintenance_wordpress', $healthyGroupKeys );
+		$healthyGroupKeys = \array_keys( $healthyGroups );
+		\sort( $healthyGroupKeys );
+		$this->assertSame(
+			[ 'maintenance_system:healthy', 'maintenance_wordpress:healthy' ],
+			$healthyGroupKeys
+		);
 
 		$systemGroup = $activeGroups[ 'maintenance_system' ];
 		$this->assertArrayHasKey( 'icon_class', $systemGroup );
 		$this->assertSame( [], $systemGroup[ 'management_link' ] );
+		$this->assertSame( 'warning', $systemGroup[ 'status' ] );
 		$this->assertSame( 1, $systemGroup[ 'item_count' ] );
 		$systemRows = \array_values( $systemGroup[ 'maintenance_rows' ] );
-		$this->assertCount( 2, $systemRows );
+		$this->assertCount( 1, $systemRows );
+		$this->assertSame( 'SSL Certificate', $systemRows[ 0 ][ 'title' ] );
 		$this->assertSame( '', $systemRows[ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] );
-		$this->assertFalse( $systemRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] ?? true );
+		$this->assertFalse( $systemRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] );
 		$this->assertFalse( $systemRows[ 0 ][ 'is_ignored' ] );
-		$this->assertTrue( $systemRows[ 1 ][ 'is_ignored' ] );
-		$this->assertSame( '', $systemRows[ 1 ][ 'actions' ][ 0 ][ 'href' ] ?? 'unexpected' );
-		$this->assertTrue( $systemRows[ 1 ][ 'actions' ][ 0 ][ 'is_action' ] ?? false );
+
+		$systemHealthyGroup = $healthyGroups[ 'maintenance_system:healthy' ];
+		$this->assertSame( 'System', $systemHealthyGroup[ 'label' ] );
+		$this->assertSame( 'good', $systemHealthyGroup[ 'status' ] );
+		$this->assertSame( 1, $systemHealthyGroup[ 'item_count' ] );
+		$systemHealthyRows = \array_values( $systemHealthyGroup[ 'maintenance_rows' ] );
+		$this->assertCount( 1, $systemHealthyRows );
+		$this->assertSame( 'PHP Version', $systemHealthyRows[ 0 ][ 'title' ] );
+		$this->assertTrue( $systemHealthyRows[ 0 ][ 'is_ignored' ] );
+		$this->assertSame( '', $systemHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertTrue( $systemHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] );
 		$this->assertSame(
 			'maintenance_item_unignore',
-			$this->decodeAjaxAction( $systemRows[ 1 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] )[ 'ex' ] ?? ''
+			$this->decodeAjaxAction( $systemHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'ajax_action_json' ] )[ 'ex' ]
 		);
 
 		$wordpressGroup = $activeGroups[ 'maintenance_wordpress' ];
 		$this->assertSame( [], $wordpressGroup[ 'management_link' ] );
+		$this->assertSame( 'warning', $wordpressGroup[ 'status' ] );
 		$this->assertSame( 1, $wordpressGroup[ 'item_count' ] );
 		$wordpressRows = \array_values( $wordpressGroup[ 'maintenance_rows' ] );
-		$this->assertCount( 2, $wordpressRows );
-		$this->assertSame( '/wp-admin/update-core.php', $wordpressRows[ 0 ][ 'actions' ][ 0 ][ 'href' ] ?? '' );
-		$this->assertFalse( $wordpressRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] ?? true );
-		$this->assertSame( [], $wordpressRows[ 1 ][ 'actions' ] ?? [] );
+		$this->assertCount( 1, $wordpressRows );
+		$this->assertSame( 'WordPress Version', $wordpressRows[ 0 ][ 'title' ] );
+		$this->assertSame( '/wp-admin/update-core.php', $wordpressRows[ 0 ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertFalse( $wordpressRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] );
+
+		$wordpressHealthyGroup = $healthyGroups[ 'maintenance_wordpress:healthy' ];
+		$this->assertSame( 'WordPress', $wordpressHealthyGroup[ 'label' ] );
+		$this->assertSame( 'good', $wordpressHealthyGroup[ 'status' ] );
+		$this->assertSame( 2, $wordpressHealthyGroup[ 'item_count' ] );
+		$wordpressHealthyRows = \array_values( $wordpressHealthyGroup[ 'maintenance_rows' ] );
+		$this->assertCount( 2, $wordpressHealthyRows );
+		$this->assertSame( [ 'Default Admin User', 'MySQL DB Password' ], \array_column( $wordpressHealthyRows, 'title' ) );
+		$this->assertSame( '/wp-admin/users.php', $wordpressHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertFalse( $wordpressHealthyRows[ 0 ][ 'actions' ][ 0 ][ 'is_action' ] );
+		$this->assertSame( [], $wordpressHealthyRows[ 1 ][ 'actions' ] );
 
 		$pluginUpdatesGroup = $activeGroups[ 'wp_plugins_updates' ];
 		$this->assertSame(
@@ -1227,55 +1284,12 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'scanresults_filelocker', $payload[ 'selected_group' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
 	}
 
-	public function test_build_critical_bucket_uses_explicit_asset_groups_for_fully_ignored_assets() :void {
-		$builder = $this->createBuilder(
-			[],
-			[],
-			[],
-			[],
-			[
-				\array_merge(
-					$this->makeQueueAssetSummary( 'ignored-plugin', 'asset-title-plugin-ignored', 2, 'plugin', 'ignored-plugin/ignored-plugin.php' ),
-					[
-						'stat_text' => 'ignored',
-					]
-				),
-			],
-			[
-				\array_merge(
-					$this->makeQueueAssetSummary( 'ignored-theme', 'asset-title-ignored', 4, 'theme', 'ignored-theme' ),
-					[
-						'stat_text' => 'ignored',
-					]
-				),
-			],
-			3
-		);
+	public function test_build_critical_bucket_does_not_load_asset_sources_for_healthy_scan_rows() :void {
+		$builder = $this->createBuilder();
 
 		$data = $builder->build(
 			'critical',
-			[
-				'items' => [
-					[
-						'key'      => 'plugin_files_ignored',
-						'count'    => 1,
-						'severity' => 'warning',
-						'zone'     => 'scans',
-					],
-					[
-						'key'      => 'theme_files_ignored',
-						'count'    => 1,
-						'severity' => 'warning',
-						'zone'     => 'scans',
-					],
-					[
-						'key'      => 'malware_ignored',
-						'count'    => 5,
-						'severity' => 'warning',
-						'zone'     => 'scans',
-					],
-				],
-			],
+			[ 'items' => [] ],
 			[
 				'scans'       => [
 					[
@@ -1310,124 +1324,13 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$groups = [];
-		foreach ( $this->flattenSections( $data[ 'healthy_sections' ] ) as $group ) {
-			$groups[ $group[ 'key' ] ] = $group;
-		}
-		$activeGroups = [];
-		foreach ( $this->flattenSections( $data[ 'active_sections' ] ) as $group ) {
-			$activeGroups[ $group[ 'key' ] ] = $group;
-		}
-
-		$this->assertTrue( $groups[ 'wordpress' ][ 'is_interactive' ] );
-		$this->assertSame(
-			[
-				'display_context'         => 'actions_queue',
-				'results_display_options' => [
-					'include_ignored'  => false,
-					'include_repaired' => false,
-					'include_deleted'  => false,
-					'ignored_only'     => false,
-				],
-			],
-			$groups[ 'wordpress' ][ 'render_action_data' ]
-		);
-		$this->assertSame( 3, $groups[ 'wordpress' ][ 'item_count' ] );
-		$this->assertSame( [], $groups[ 'wordpress' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertSame( 'scanresults_wordpress', $groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
-		$this->assertSame( 'actions_queue', $groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' );
-		$this->assertSame(
-			[
-				'include_ignored'  => false,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-				'ignored_only'     => false,
-			],
-			$groups[ 'wordpress' ][ 'selection' ][ 'detail_render_action' ][ 'results_display_options' ] ?? []
-		);
-		$this->assertArrayNotHasKey( 'plugins', $groups );
-		$this->assertArrayNotHasKey( 'themes', $groups );
-		$this->assertArrayHasKey( 'plugins:ignored-plugin', $activeGroups );
-		$this->assertSame( 'warning', $activeGroups[ 'plugins:ignored-plugin' ][ 'status' ] );
-		$this->assertSame( 2, $activeGroups[ 'plugins:ignored-plugin' ][ 'item_count' ] );
-		$this->assertNotSame( '', $activeGroups[ 'plugins:ignored-plugin' ][ 'narrative' ] );
-		$this->assertSame( [], $activeGroups[ 'plugins:ignored-plugin' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertSame(
-			'actions_queue_asset_file_status_detail',
-			$activeGroups[ 'plugins:ignored-plugin' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? ''
-		);
-		$this->assertSame(
-			[
-				'include_ignored'  => false,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-				'ignored_only'     => false,
-			],
-			$activeGroups[ 'plugins:ignored-plugin' ][ 'selection' ][ 'detail_render_action' ][ 'results_display_options' ] ?? []
-		);
-		$this->assertSame(
-			[
-				'include_ignored'  => false,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-				'ignored_only'     => false,
-			],
-			$activeGroups[ 'plugins:ignored-plugin' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
-		);
-		$this->assertArrayHasKey( 'themes:ignored-theme', $activeGroups );
-		$this->assertSame( 'warning', $activeGroups[ 'themes:ignored-theme' ][ 'status' ] );
-		$this->assertSame( 4, $activeGroups[ 'themes:ignored-theme' ][ 'item_count' ] );
-		$this->assertSame( [], $activeGroups[ 'themes:ignored-theme' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertSame(
-			'actions_queue_asset_file_status_detail',
-			$activeGroups[ 'themes:ignored-theme' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? ''
-		);
-		$this->assertSame(
-			[
-				'include_ignored'  => false,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-				'ignored_only'     => false,
-			],
-			$activeGroups[ 'themes:ignored-theme' ][ 'selection' ][ 'detail_render_action' ][ 'results_display_options' ] ?? []
-		);
-		$this->assertSame(
-			[
-				'include_ignored'  => false,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-				'ignored_only'     => false,
-			],
-			$activeGroups[ 'themes:ignored-theme' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
-		);
-		$this->assertArrayHasKey( 'malware', $activeGroups );
-		$this->assertTrue( $activeGroups[ 'malware' ][ 'is_interactive' ] );
-		$this->assertSame( 'direct_table', $activeGroups[ 'malware' ][ 'detail_shell' ] );
-		$this->assertSame( 'scanresults_malware', $activeGroups[ 'malware' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
-		$this->assertSame( 'actions_queue', $activeGroups[ 'malware' ][ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' );
-		$this->assertSame(
-			[
-				'include_ignored'  => false,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-				'ignored_only'     => false,
-			],
-			$activeGroups[ 'malware' ][ 'selection' ][ 'detail_render_action' ][ 'results_display_options' ] ?? []
-		);
-		$this->assertSame(
-			[
-				'include_ignored'  => false,
-				'include_repaired' => false,
-				'include_deleted'  => false,
-				'ignored_only'     => false,
-			],
-			$activeGroups[ 'malware' ][ 'render_action_data' ][ 'results_display_options' ] ?? []
-		);
-		$this->assertSame( [], $activeGroups[ 'malware' ][ 'selection' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertSame( [ [ 'wordpress' ] ], $this->sectionGroupKeys( $data[ 'healthy_sections' ] ) );
+		$this->assertSame( [], $data[ 'active_sections' ] );
+		$this->assertSame( [ [ 'wordpress' ], [ 'plugins' ], [ 'themes' ] ], $this->sectionGroupKeys( $data[ 'healthy_sections' ] ) );
+		$this->assertSame( [], $builder->getPluginPaneCalls() );
+		$this->assertSame( [], $builder->getThemePaneCalls() );
 	}
 
-	public function test_build_reuses_shared_active_and_ignored_pane_options_for_scan_groups() :void {
+	public function test_build_reuses_shared_active_pane_options_for_scan_groups() :void {
 		$builder = $this->createBuilder(
 			[
 				$this->makeQueueAssetSummary( 'example-plugin', 'Example Plugin', 3, 'plugin', 'example-plugin/example-plugin.php' ),
@@ -1435,14 +1338,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			[
 				$this->makeQueueAssetSummary( 'example-theme', 'Example Theme', 1, 'theme', 'example-theme' ),
 			],
-			[],
-			[],
-			[
-				$this->makeQueueAssetSummary( 'ignored-plugin', 'asset-title-plugin-ignored', 2, 'plugin', 'ignored-plugin/ignored-plugin.php' ),
-			],
-			[
-				$this->makeQueueAssetSummary( 'ignored-theme', 'asset-title-ignored', 4, 'theme', 'ignored-theme' ),
-			]
+			[]
 		);
 
 		$builder->build(
@@ -1456,21 +1352,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						'zone'     => 'scans',
 					],
 					[
-						'key'      => 'plugin_files_ignored',
-						'count'    => 1,
-						'severity' => 'warning',
-						'zone'     => 'scans',
-					],
-					[
 						'key'      => 'theme_files',
 						'count'    => 1,
 						'severity' => 'critical',
-						'zone'     => 'scans',
-					],
-					[
-						'key'      => 'theme_files_ignored',
-						'count'    => 1,
-						'severity' => 'warning',
 						'zone'     => 'scans',
 					],
 				],
@@ -1503,14 +1387,12 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				[ 'include_ignored' => false, 'include_repaired' => false, 'include_deleted' => false, 'ignored_only' => false ],
-				[ 'include_ignored' => true, 'include_repaired' => false, 'include_deleted' => false, 'ignored_only' => true ],
 			],
 			$builder->getPluginPaneCalls()
 		);
 		$this->assertSame(
 			[
 				[ 'include_ignored' => false, 'include_repaired' => false, 'include_deleted' => false, 'ignored_only' => false ],
-				[ 'include_ignored' => true, 'include_repaired' => false, 'include_deleted' => false, 'ignored_only' => true ],
 			],
 			$builder->getThemePaneCalls()
 		);
@@ -1525,6 +1407,18 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			static fn( array $section ) :array => $section[ 'groups' ],
 			$sections
 		) );
+	}
+
+	private function assertGroupDetailRenderActionsAllowedByPolicy( array $groups, string $context ) :void {
+		foreach ( $groups as $group ) {
+			$detailRenderAction = $group[ 'selection' ][ 'detail_render_action' ] ?? [];
+			if ( \is_array( $detailRenderAction ) && !empty( $detailRenderAction ) ) {
+				$this->assertAjaxRenderPayloadAllowedByPolicy(
+					$detailRenderAction,
+					$context.':'.(string)( $group[ 'key' ] ?? '' )
+				);
+			}
+		}
 	}
 
 	/**
@@ -1580,9 +1474,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		array $themeCards = [],
 		array $vulnerabilities = [],
 		array $maintenanceItems = [],
-		array $ignoredPluginCards = [],
-		array $ignoredThemeCards = [],
-		int $ignoredWordpressCount = 0,
 		array $tabAvailability = []
 	) :ActionsQueueGroupsBuilder {
 		return new class(
@@ -1590,9 +1481,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$themeCards,
 			$vulnerabilities,
 			$maintenanceItems,
-			$ignoredPluginCards,
-			$ignoredThemeCards,
-			$ignoredWordpressCount,
 			$tabAvailability
 		) extends ActionsQueueGroupsBuilder {
 
@@ -1602,9 +1490,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			private array $themeCards;
 			private array $vulnerabilities;
 			private array $maintenanceItems;
-			private array $ignoredPluginCards;
-			private array $ignoredThemeCards;
-			private int $ignoredWordpressCount;
 			private array $tabAvailability;
 
 			public function __construct(
@@ -1612,18 +1497,12 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				array $themeCards,
 				array $vulnerabilities,
 				array $maintenanceItems,
-				array $ignoredPluginCards,
-				array $ignoredThemeCards,
-				int $ignoredWordpressCount,
 				array $tabAvailability
 			) {
 				$this->pluginCards = $pluginCards;
 				$this->themeCards = $themeCards;
 				$this->vulnerabilities = $vulnerabilities;
 				$this->maintenanceItems = $maintenanceItems;
-				$this->ignoredPluginCards = $ignoredPluginCards;
-				$this->ignoredThemeCards = $ignoredThemeCards;
-				$this->ignoredWordpressCount = $ignoredWordpressCount;
 				$this->tabAvailability = $tabAvailability;
 			}
 
@@ -1657,43 +1536,52 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				};
 			}
 
+			protected function buildContractBuilder() :ActionsQueueGroupContractBuilder {
+				return new ActionsQueueGroupContractBuilder(
+					new ActionsQueueGroupDefinitions( new ScanResultsDisplayOptions() ),
+					new ActionsQueueDrillDownPresentationBuilder(),
+					null,
+					null,
+					null,
+					new class extends ActionsQueueScanResultScopeStateBuilder {
+						public function buildCountsForActionScope( string $type, string $file ) :array {
+							return [
+								'scope'         => [
+									'type' => $type,
+									'file' => $file,
+								],
+								'active_count'  => 0,
+								'ignored_count' => 0,
+							];
+						}
+					}
+				);
+			}
+
 			protected function buildGroupScanSource() :ActionsQueueGroupScanSource {
 				if ( $this->scanSource === null ) {
 					$this->scanSource = new class(
 						$this->pluginCards,
 						$this->themeCards,
-						$this->vulnerabilities,
-						$this->ignoredPluginCards,
-						$this->ignoredThemeCards,
-						$this->ignoredWordpressCount
+						$this->vulnerabilities
 					) extends ActionsQueueGroupScanSource {
 
 						private int $vulnerabilitiesPayloadCalls = 0;
 						private array $pluginPaneCalls = [];
 						private array $themePaneCalls = [];
 						private ?array $vulnerabilitiesPayload = null;
-						private array $fullyIgnoredSummariesLoaded = [];
 						private array $pluginCards;
 						private array $themeCards;
 						private array $vulnerabilities;
-						private array $ignoredPluginCards;
-						private array $ignoredThemeCards;
-						private int $ignoredWordpressCount;
 
 						public function __construct(
 							array $pluginCards,
 							array $themeCards,
-							array $vulnerabilities,
-							array $ignoredPluginCards,
-							array $ignoredThemeCards,
-							int $ignoredWordpressCount
+							array $vulnerabilities
 						) {
 							$this->pluginCards = $pluginCards;
 							$this->themeCards = $themeCards;
 							$this->vulnerabilities = $vulnerabilities;
-							$this->ignoredPluginCards = $ignoredPluginCards;
-							$this->ignoredThemeCards = $ignoredThemeCards;
-							$this->ignoredWordpressCount = $ignoredWordpressCount;
 						}
 
 						public function activeAssetSummariesForSource( string $assetSource ) :array {
@@ -1715,65 +1603,6 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 									'ignored_only'     => false,
 								];
 								return $this->themeCards;
-							}
-
-							return [];
-						}
-
-						public function ignoredCountForSource( string $ignoredSource ) :int {
-							if ( $ignoredSource === 'wordpress' ) {
-								return $this->ignoredWordpressCount;
-							}
-
-							if ( $ignoredSource === 'plugins' ) {
-								$this->pluginPaneCalls[] = [
-									'include_ignored'  => true,
-									'include_repaired' => false,
-									'include_deleted'  => false,
-									'ignored_only'     => true,
-								];
-								return (int)\array_sum( \array_column( $this->ignoredPluginCards, 'count_badge' ) );
-							}
-
-							if ( $ignoredSource === 'themes' ) {
-								$this->themePaneCalls[] = [
-									'include_ignored'  => true,
-									'include_repaired' => false,
-									'include_deleted'  => false,
-									'ignored_only'     => true,
-								];
-								return (int)\array_sum( \array_column( $this->ignoredThemeCards, 'count_badge' ) );
-							}
-
-							return 0;
-						}
-
-						public function fullyIgnoredAssetSummariesForSource( string $assetSource ) :array {
-							if ( !isset( $this->fullyIgnoredSummariesLoaded[ $assetSource ] ) ) {
-								$this->fullyIgnoredSummariesLoaded[ $assetSource ] = true;
-								if ( $assetSource === 'plugins' ) {
-									$this->pluginPaneCalls[] = [
-										'include_ignored'  => true,
-										'include_repaired' => false,
-										'include_deleted'  => false,
-										'ignored_only'     => true,
-									];
-								}
-								if ( $assetSource === 'themes' ) {
-									$this->themePaneCalls[] = [
-										'include_ignored'  => true,
-										'include_repaired' => false,
-										'include_deleted'  => false,
-										'ignored_only'     => true,
-									];
-								}
-							}
-
-							if ( $assetSource === 'plugins' ) {
-								return $this->ignoredPluginCards;
-							}
-							if ( $assetSource === 'themes' ) {
-								return $this->ignoredThemeCards;
 							}
 
 							return [];

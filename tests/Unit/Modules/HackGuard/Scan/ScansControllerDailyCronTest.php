@@ -169,6 +169,10 @@ class ScansDailyCronFs extends Fs {
 		return \is_dir( $path );
 	}
 
+	public function mkdir( $path ) {
+		return \is_dir( $path ) || @\mkdir( $path, 0777, true );
+	}
+
 	public function deleteDir( $dir ) {
 		return @\rmdir( $dir );
 	}

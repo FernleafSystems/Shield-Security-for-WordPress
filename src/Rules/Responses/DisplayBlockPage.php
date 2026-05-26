@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\FullPageDisplay\DisplayBlockPage as DisplayBlockPageAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\{
 	Block,
 };
@@ -27,12 +27,13 @@ class DisplayBlockPage extends Base {
 	}
 
 	private function displayPage() {
-		self::con()->action_router->action( FullPageDisplay\DisplayBlockPage::class, [
+		self::con()->action_router->action( DisplayBlockPageAction::class, [
 			'render_slug' => $this->p->block_page_slug,
 		] );
 	}
 
 	public function getParamsDef() :array {
+		$blockPageSlugs = DisplayBlockPageAction::allowedRenderSlugs();
 		$blockPages = [
 			Block\BlockIpAddressShield::SLUG          => 'IP Block Page (Shield)',
 			Block\BlockIpAddressCrowdsec::SLUG        => 'IP Block Page (CrowdSec)',
@@ -44,8 +45,8 @@ class DisplayBlockPage extends Base {
 		return [
 			'block_page_slug' => [
 				'type'        => EnumParameters::TYPE_ENUM,
-				'type_enum'   => \array_keys( $blockPages ),
-				'enum_labels' => $blockPages,
+				'type_enum'   => $blockPageSlugs,
+				'enum_labels' => \array_intersect_key( $blockPages, \array_flip( $blockPageSlugs ) ),
 				'label'       => __( 'Block Page', 'wp-simple-firewall' ),
 			],
 			'hook'            => [

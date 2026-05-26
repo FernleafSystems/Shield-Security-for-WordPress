@@ -114,6 +114,7 @@ class Constants {
 		Actions\FullPageDisplay\FullPageDisplayDynamic::class,
 		Actions\FullPageDisplay\FullPageDisplayNonTerminating::class,
 		Actions\FullPageDisplay\DisplayReport::class,
+		Actions\FullPageDisplay\DisplayReportAdmin::class,
 
 		Actions\AjaxRender::class,
 		Actions\AjaxBatchRequests::class,

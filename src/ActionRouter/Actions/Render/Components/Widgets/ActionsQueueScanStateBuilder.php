@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
-	ActionsQueueScanResultsTableBuilder,
 	ActionsQueueScanAssetCardsBuilder,
 	ScanResultsDisplayOptions,
 	ScansResultsRailTabAvailability
@@ -55,7 +54,6 @@ class ActionsQueueScanStateBuilder {
 	private ?ScansResultsRailTabAvailability $tabAvailability = null;
 	private ?Counts $displayCounts = null;
 	private ?ActionsQueueScanAssetCardsBuilder $scanAssetCardsBuilder = null;
-	private ?ActionsQueueScanResultsTableBuilder $scanResultsTableBuilder = null;
 	private ?ScanResultsDisplayOptions $queueScanResultsOptions = null;
 
 	/**
@@ -102,11 +100,9 @@ class ActionsQueueScanStateBuilder {
 		}
 
 		$count = $this->getDisplayCounts()->countWPFiles();
-		$ignoredCount = $count === 0 ? $this->countIgnoredResultsForScope( 'wordpress', 'wordpress' ) : 0;
-		$displayCount = $count > 0 ? $count : $ignoredCount;
-		$status = $count > 0 ? 'critical' : ( $ignoredCount > 0 ? 'warning' : 'good' );
+		$status = $count > 0 ? 'critical' : 'good';
 		$tabs[ 'wordpress' ] = [
-			'count'  => $displayCount,
+			'count'  => $count,
 			'status' => $status,
 		];
 		$accentStatuses[] = $status;
@@ -127,23 +123,6 @@ class ActionsQueueScanStateBuilder {
 		if ( $row !== null ) {
 			$rows[] = $row;
 		}
-
-		if ( $count === 0 ) {
-			$ignoredRow = $this->buildScanRow(
-				'wp_files_ignored',
-				$this->scanSectionLabel( 'wp_files_ignored', __( 'WordPress Files', 'wp-simple-firewall' ) ),
-				$ignoredCount,
-				'warning',
-				\sprintf(
-					_n( '%s WordPress core file is currently ignored.', '%s WordPress core files are currently ignored.', $ignoredCount, 'wp-simple-firewall' ),
-					$ignoredCount
-				),
-				__( 'Review', 'wp-simple-firewall' )
-			);
-			if ( $ignoredRow !== null ) {
-				$rows[] = $ignoredRow;
-			}
-		}
 	}
 
 	/**
@@ -163,22 +142,14 @@ class ActionsQueueScanStateBuilder {
 		}
 
 		$assetType = $tabKey === 'plugins' ? 'plugin' : 'theme';
-		$ignoredSummaryKey = $tabKey === 'plugins' ? 'plugin_files_ignored' : 'theme_files_ignored';
 		$activeSummaries = $this->getScanAssetCardsBuilder()->buildSummaryRecords(
 			$assetType,
 			$this->getQueueScanResultsOptions()->activeOnly()
 		);
 		$count = \count( $activeSummaries );
-		$fullyIgnoredCount = \count( $this->getScanAssetCardsBuilder()->buildFullyIgnoredSummaryRecords(
-			$assetType,
-			$activeSummaries
-		) );
-		$totalCount = $count + $fullyIgnoredCount;
-		$status = $count > 0
-			? 'critical'
-			: ( $fullyIgnoredCount > 0 ? 'warning' : 'good' );
+		$status = $count > 0 ? 'critical' : 'good';
 		$tabs[ $tabKey ] = [
-			'count'  => $totalCount,
+			'count'  => $count,
 			'status' => $status,
 		];
 		$accentStatuses[] = $tabs[ $tabKey ][ 'status' ];
@@ -206,35 +177,6 @@ class ActionsQueueScanStateBuilder {
 		);
 		if ( $row !== null ) {
 			$rows[] = $row;
-		}
-
-		$ignoredRow = $this->buildScanRow(
-			$ignoredSummaryKey,
-			$this->scanSectionLabel(
-				$ignoredSummaryKey,
-				$tabKey === 'plugins'
-					? __( 'Plugin Files', 'wp-simple-firewall' )
-					: __( 'Theme Files', 'wp-simple-firewall' )
-			),
-			$fullyIgnoredCount,
-			'warning',
-			\sprintf(
-				_n(
-					$tabKey === 'plugins'
-						? '%s plugin has discovered files currently ignored.'
-						: '%s theme has discovered files currently ignored.',
-					$tabKey === 'plugins'
-						? '%s plugins have discovered files currently ignored.'
-						: '%s themes have discovered files currently ignored.',
-					$fullyIgnoredCount,
-					'wp-simple-firewall'
-				),
-				$fullyIgnoredCount
-			),
-			__( 'Review', 'wp-simple-firewall' )
-		);
-		if ( $ignoredRow !== null ) {
-			$rows[] = $ignoredRow;
 		}
 	}
 
@@ -338,11 +280,9 @@ class ActionsQueueScanStateBuilder {
 		}
 
 		$count = $this->getDisplayCounts()->countMalware();
-		$ignoredCount = $count === 0 ? $this->countIgnoredResultsForScope( 'malware', 'malware' ) : 0;
-		$displayCount = $count > 0 ? $count : $ignoredCount;
-		$status = $count > 0 ? 'critical' : ( $ignoredCount > 0 ? 'warning' : 'good' );
+		$status = $count > 0 ? 'critical' : 'good';
 		$tabs[ 'malware' ] = [
-			'count'  => $displayCount,
+			'count'  => $count,
 			'status' => $status,
 		];
 		$accentStatuses[] = $status;
@@ -360,23 +300,6 @@ class ActionsQueueScanStateBuilder {
 		);
 		if ( $row !== null ) {
 			$rows[] = $row;
-		}
-
-		if ( $count === 0 ) {
-			$ignoredRow = $this->buildScanRow(
-				'malware_ignored',
-				$this->scanSectionLabel( 'malware_ignored', __( 'Malware', 'wp-simple-firewall' ) ),
-				$ignoredCount,
-				'warning',
-				\sprintf(
-					_n( '%s malware result is currently ignored.', '%s malware results are currently ignored.', $ignoredCount, 'wp-simple-firewall' ),
-					$ignoredCount
-				),
-				__( 'Review', 'wp-simple-firewall' )
-			);
-			if ( $ignoredRow !== null ) {
-				$rows[] = $ignoredRow;
-			}
 		}
 	}
 
@@ -506,22 +429,6 @@ class ActionsQueueScanStateBuilder {
 		}
 
 		return $this->scanAssetCardsBuilder;
-	}
-
-	private function countIgnoredResultsForScope( string $type, string $file ) :int {
-		return $this->getScanResultsTableBuilder()->countForScope(
-			$type,
-			$file,
-			$this->getQueueScanResultsOptions()->ignoredOnly()
-		);
-	}
-
-	private function getScanResultsTableBuilder() :ActionsQueueScanResultsTableBuilder {
-		if ( $this->scanResultsTableBuilder === null ) {
-			$this->scanResultsTableBuilder = new ActionsQueueScanResultsTableBuilder();
-		}
-
-		return $this->scanResultsTableBuilder;
 	}
 
 	private function getQueueScanResultsOptions() :ScanResultsDisplayOptions {

@@ -3,7 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsTableContractBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
+	ActionsQueueScanResultScopeStateBuilder,
+	ScanResultsTableContractBuilder
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
 use FernleafSystems\Wordpress\Services\Core\{
@@ -13,6 +17,8 @@ use FernleafSystems\Wordpress\Services\Core\{
 };
 
 class ScanResultsTableContractBuilderTest extends BaseUnitTest {
+
+	use AjaxRenderPolicyAssertions;
 
 	private array $servicesSnapshot = [];
 
@@ -103,6 +109,16 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $table[ 'show_header' ] ?? true ) );
 		$this->assertTrue( (bool)( $table[ 'is_flat' ] ?? false ) );
 		$this->assertFalse( (bool)( $table[ 'is_empty' ] ?? true ) );
+		$this->assertSame(
+			[
+				'is_visible'    => false,
+				'mode'          => ActionsQueueScanResultScopeStateBuilder::MODE_NONE,
+				'status'        => 'info',
+				'text'          => '',
+				'ignored_count' => 0,
+			],
+			$table[ 'display_notice' ]
+		);
 		$this->assertNotSame( '', (string)( $table[ 'table_id' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $table[ 'datatables_init_attr' ] ?? '' ) );
 
@@ -123,6 +139,7 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 		);
 		$this->assertNotSame( '', (string)( $tableAction[ 'ex' ] ?? '' ) );
 		$this->assertNotSame( '', (string)( $renderItemAnalysis[ 'render_slug' ] ?? '' ) );
+		$this->assertAjaxRenderPayloadAllowedByPolicy( $renderItemAnalysis, 'scan item analysis render' );
 	}
 
 	public function testFileStatusBuilderDefaultsToExplicitActiveOnlyFilters() :void {
@@ -187,10 +204,83 @@ class ScanResultsTableContractBuilderTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $table[ 'is_empty' ] ?? false ) );
 		$this->assertArrayHasKey( 'empty_text', $table );
 		$this->assertSame( $href, $table[ 'full_log_href' ] ?? '' );
+		$this->assertArrayHasKey( 'display_notice', $table );
+		$this->assertFalse( (bool)$table[ 'display_notice' ][ 'is_visible' ] );
 		$this->assertArrayNotHasKey( 'table_id', $table );
 		$this->assertArrayNotHasKey( 'datatables_init_attr', $table );
 		$this->assertArrayNotHasKey( 'table_action_attr', $table );
 		$this->assertArrayNotHasKey( 'render_item_analysis_attr', $table );
+	}
+
+	public function testActionsQueueNoticeIsVisibleOnlyWhenExplicitNoticeContextIsPassed() :void {
+		$scopeStateBuilder = new class extends ActionsQueueScanResultScopeStateBuilder {
+			public function buildForActionScope(
+				string $type,
+				string $file,
+				?array $currentOptions = null,
+				bool $displayNotice = false
+			) :array {
+				return [
+					'scope'          => [
+						'type' => $type,
+						'file' => $file,
+					],
+					'active_count'   => 1,
+					'ignored_count'  => 2,
+					'current_count'  => 1,
+					'display_notice' => [
+						'is_visible'    => $displayNotice,
+						'mode'          => ActionsQueueScanResultScopeStateBuilder::MODE_HIDDEN_IGNORED,
+						'status'        => 'info',
+						'text'          => 'ignored notice sentinel',
+						'ignored_count' => 2,
+					],
+				];
+			}
+		};
+
+		$builder = new ScanResultsTableContractBuilder( null, null, $scopeStateBuilder );
+		$withoutNoticeContext = $builder->buildFileStatus(
+			'plugin',
+			'akismet/akismet.php',
+			'/queue/scans',
+			[
+				'display_context' => 'actions_queue',
+			]
+		);
+		$withNoticeContext = $builder->buildFileStatus(
+			'plugin',
+			'akismet/akismet.php',
+			'/queue/scans',
+			[
+				'display_context'              => 'actions_queue',
+				'scan_results_notice_context'  => ActionsQueueScanResultScopeStateBuilder::NOTICE_CONTEXT_ACTIONS_QUEUE,
+				'results_display_options'      => [
+					'include_ignored'  => false,
+					'include_repaired' => false,
+					'include_deleted'  => false,
+					'ignored_only'     => false,
+				],
+			]
+		);
+
+		$this->assertFalse( (bool)$withoutNoticeContext[ 'display_notice' ][ 'is_visible' ] );
+		$this->assertSame(
+			[
+				'is_visible'    => true,
+				'mode'          => ActionsQueueScanResultScopeStateBuilder::MODE_HIDDEN_IGNORED,
+				'status'        => 'info',
+				'text'          => 'ignored notice sentinel',
+				'ignored_count' => 2,
+			],
+			$withNoticeContext[ 'display_notice' ]
+		);
+
+		$tableAction = $this->decodeJsonAttr( (string)( $withNoticeContext[ 'table_action_attr' ] ?? '' ) );
+		$this->assertSame(
+			ActionsQueueScanResultScopeStateBuilder::NOTICE_CONTEXT_ACTIONS_QUEUE,
+			$tableAction[ 'scan_results_notice_context' ]
+		);
 	}
 
 	public function testMalwareBuilderUsesDedicatedTableActionContract() :void {

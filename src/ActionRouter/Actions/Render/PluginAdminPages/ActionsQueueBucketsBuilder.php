@@ -228,9 +228,7 @@ class ActionsQueueBucketsBuilder {
 	 * @phpstan-param AttentionItem $item
 	 */
 	private function bucketKeyForAttentionItem( array $item ) :string {
-		return ActionsQueueGroupDefinitions::isIgnoredOnlySummaryKey( (string)( $item[ 'key' ] ?? '' ) )
-			? 'critical'
-			: $this->bucketKeyForStatus( (string)( $item[ 'severity' ] ?? '' ) );
+		return $this->bucketKeyForStatus( (string)( $item[ 'severity' ] ?? '' ) );
 	}
 
 	/**

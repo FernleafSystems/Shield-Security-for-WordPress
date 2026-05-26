@@ -195,6 +195,23 @@ test( 'invalid yubikey alert does not expose an empty cancel action', async ( { 
 	} );
 } );
 
+test( 'yubikey records use the shared MFA records table shape', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withMfaProfileFixture( async ( fixture ) => {
+		await openMfaProfile( page, fixture );
+
+		const removeButton = page.locator( '.shield_remove_yubi[data-yubikeyid="cccccccccccc"]' );
+		await expect( removeButton ).toBeVisible();
+
+		const row = removeButton.locator( 'xpath=ancestor::tr[1]' );
+		await expect( row.locator( 'td' ) ).toHaveCount( 4 );
+		await expect( row.locator( 'td' ).first() ).toContainText( 'cccccccccccc' );
+
+		const table = row.locator( 'xpath=ancestor::table[1]' );
+		await expect( table ).toHaveClass( /shield-mfa-records-table/ );
+		await expect( table.locator( 'thead th' ) ).toHaveCount( 4 );
+	} );
+} );
+
 test( 'backup-code confirm sends expected action payload', async ( { page, fixtureApi } ) => {
 	const nativeDialogs = installNativeDialogGuard( page );
 	await fixtureApi.withMfaProfileFixture( async ( fixture ) => {

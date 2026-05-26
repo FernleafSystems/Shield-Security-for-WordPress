@@ -144,33 +144,6 @@ class ActionsQueueScanAssetCardsBuilder {
 
 	/**
 	 * @phpstan-param AssetType $assetType
-	 * @param list<QueueAssetSummaryRecord> $activeSummaries
-	 * @return list<QueueAssetSummaryRecord>
-	 */
-	public function buildFullyIgnoredSummaryRecords( string $assetType, array $activeSummaries ) :array {
-		$activeSlugs = \array_fill_keys(
-			\array_column( $activeSummaries, 'key' ),
-			true
-		);
-
-		return \array_values( \array_map(
-			fn( array $summary ) :array => \array_merge(
-				$summary,
-				[
-					'stat_text' => $this->buildQueueAssetDiscoveredIgnoredStatText(
-						$summary[ 'count_badge' ]
-					),
-				]
-			),
-			\array_filter(
-				$this->buildSummaryRecords( $assetType, $this->queueScanResultsOptions->ignoredOnly() ),
-				static fn( array $summary ) :bool => !isset( $activeSlugs[ $summary[ 'key' ] ] )
-			)
-		) );
-	}
-
-	/**
-	 * @phpstan-param AssetType $assetType
 	 * @param array{
 	 *   include_ignored:bool,
 	 *   include_repaired:bool,
@@ -267,18 +240,6 @@ class ActionsQueueScanAssetCardsBuilder {
 
 		return \sprintf(
 			_n( '%s file needs review', '%s files need review', $fileCount, 'wp-simple-firewall' ),
-			$fileCount
-		);
-	}
-
-	protected function buildQueueAssetDiscoveredIgnoredStatText( int $fileCount ) :string {
-		return \sprintf(
-			_n(
-				'%s discovered file is currently ignored.',
-				'%s discovered files are currently ignored.',
-				$fileCount,
-				'wp-simple-firewall'
-			),
 			$fileCount
 		);
 	}

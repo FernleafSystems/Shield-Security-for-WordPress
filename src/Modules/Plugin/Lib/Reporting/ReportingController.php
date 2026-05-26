@@ -59,9 +59,7 @@ class ReportingController {
 	}
 
 	public function getReportURL( string $uniqueReportID ) :string {
-		return self::con()->plugin_urls->noncedPluginAction( Actions\FullPageDisplay\DisplayReport::class, null, [
-			'report_unique_id' => $uniqueReportID,
-		] );
+		return self::con()->plugin_urls->reportView( $uniqueReportID );
 	}
 
 	public function getReportTypeName( string $type ) :string {

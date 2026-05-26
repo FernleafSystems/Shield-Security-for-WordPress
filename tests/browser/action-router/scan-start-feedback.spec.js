@@ -1,5 +1,5 @@
 const { test, expect } = require( './support/shield-test' );
-const { fetchShieldRenderedHtml, openShieldRoute } = require( './support/shield-browser' );
+const { openShieldRoute } = require( './support/shield-browser' );
 const {
 	expectModalHiddenWithoutAriaModal,
 	expectNamedDialog,
@@ -184,8 +184,8 @@ test( 'manual scan start uses the shared modal while start and completion progre
 		.includes( 'form#StartScans' );
 	}, null, { timeout: 10000 } );
 
-	const runningModalHtml = await scanProgressHtml( page, 'running', 37 );
-	const completedModalHtml = await scanProgressHtml( page, 'completed', 100 );
+	const runningModalHtml = scanProgressHtml( 'running', 37 );
+	const completedModalHtml = scanProgressHtml( 'completed', 100 );
 	const delayedRequest = await delayScanStartRequest( page, runningModalHtml );
 	const scanCheckRequest = await completeNextScanCheckRequest( page, completedModalHtml );
 	const completionRedirect = waitForScanOverviewRedirect( page );
@@ -228,7 +228,7 @@ test( 'manual scan failure modal returns focus to scan launcher when closed', as
 	}, null, { timeout: 10000 } );
 	await ensureStartScansButton( page );
 
-	const failedModalHtml = await scanProgressHtml( page, 'failed', 100 );
+	const failedModalHtml = scanProgressHtml( 'failed', 100 );
 	await failNextScanStartRequest( page, failedModalHtml );
 
 	await page.locator( '#StartScansButton' ).first().click();
@@ -269,13 +269,49 @@ test( 'manual scan start shows local error modal when response lacks modal contr
 	await expect( page.locator( '#StartScansButton' ).first() ).toBeFocused();
 } );
 
-async function scanProgressHtml( page, modalState, progress ) {
-	return fetchShieldRenderedHtml( page, 'render_scans_progress', {
-		modal_state: modalState,
-		current_scan: 'scan-contract-current',
-		remaining_scans: 'scan-contract-remaining',
-		progress,
-	} );
+function scanProgressHtml( modalState, progress ) {
+	const isInitiating = modalState === 'initiating';
+	const isFailed = modalState === 'failed';
+	const isComplete = modalState === 'completed';
+	const isRunning = isInitiating || modalState === 'running';
+	const currentScan = 'scan-contract-current';
+	const remainingScans = 'scan-contract-remaining';
+	const statusText = isFailed ? 'Scan failed.'
+		: ( isComplete ? 'Scans completed.'
+			: ( isInitiating ? 'Preparing scans.' : `Current Scan: ${currentScan}` ) );
+	const announcement = isFailed
+		? `${statusText} ${remainingScans}`
+		: `${statusText} ${progress}%`;
+	const heading = isComplete ? `${statusText} Reloading page...` : statusText;
+
+	return `<div class="modal-header">
+		<h5 class="modal-title" id="ShieldModalContainerLabel">Scan Progress</h5>
+		<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+	</div>
+	<div class="modal-body">
+		<div data-shield-scan-modal-state="${escapeHtml( modalState )}"
+			 aria-busy="${isRunning ? 'true' : 'false'}"
+			 data-shield-scan-modal-announcement="${escapeHtml( announcement )}">
+			<h6>${escapeHtml( heading )}</h6>
+			<p>${escapeHtml( remainingScans )}</p>
+			${isFailed ? '' : `<div class="progress">
+				<div class="progress-bar" role="progressbar"
+					 style="width: ${progress}%"
+					 aria-label="Scan progress"
+					 aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
+			</div>`}
+		</div>
+	</div>
+	<div class="modal-footer"></div>`;
+}
+
+function escapeHtml( text = '' ) {
+	return String( text )
+	.replace( /&/g, '&amp;' )
+	.replace( /</g, '&lt;' )
+	.replace( />/g, '&gt;' )
+	.replace( /"/g, '&quot;' )
+	.replace( /'/g, '&#39;' );
 }
 
 async function ensureStartScansButton( page ) {

@@ -6,7 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord;
 
 abstract class BaseZoneReportPluginsThemes extends BaseZoneReport {
 
-	protected function buildSummaryForLog( LogRecord $log ) :string {
+	protected function buildSummaryLinesForLog( LogRecord $log ) :array {
 		$version = $log->meta_data[ 'version' ] ?? ' ??';
 		switch ( $log->event_slug ) {
 			case 'plugin_activated':
@@ -27,23 +27,22 @@ abstract class BaseZoneReportPluginsThemes extends BaseZoneReport {
 			case 'plugin_upgraded':
 			case 'theme_upgraded':
 				/* translators: %1$s: old version, %2$s: new version */
-				$text = sprintf( __( 'Upgraded: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ?? '??' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] ?? '??' )
+				$text = sprintf( __( 'Upgraded: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'from' ] ?? '??',
+					$log->meta_data[ 'to' ] ?? '??'
 				);
 				break;
 			case 'plugin_downgraded':
 			case 'theme_downgraded':
 				/* translators: %1$s: old version, %2$s: new version */
-				$text = sprintf( __( 'Downgraded: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'from' ] ?? '??' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'to' ] ?? '??' )
+				$text = sprintf( __( 'Downgraded: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'from' ] ?? '??',
+					$log->meta_data[ 'to' ] ?? '??'
 				);
 				break;
 			default:
-				$text = parent::buildSummaryForLog( $log );
-				break;
+				return parent::buildSummaryLinesForLog( $log );
 		}
-		return $text;
+		return [ (string)$text ];
 	}
 }

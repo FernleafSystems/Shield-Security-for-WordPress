@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
+	Actions\FullPageDisplay\DisplayReportAdmin,
 	Actions\FileDownload,
 	Actions\FileDownloadAsStream,
 	Constants
@@ -42,6 +43,22 @@ class PluginURLs {
 
 	public function reportsHome() :string {
 		return $this->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW );
+	}
+
+	public function reportView( string $reportID ) :string {
+		$reportID = \trim( $reportID );
+
+		return URL::Build(
+			Services::WpGeneral()->getAdminUrl(
+				'',
+				(bool)self::con()->cfg->properties[ 'wpms_network_admin_only' ]
+			),
+			[
+				ActionData::FIELD_ACTION  => ActionData::FIELD_SHIELD,
+				ActionData::FIELD_EXECUTE => DisplayReportAdmin::SLUG,
+				'report_unique_id'        => $reportID,
+			]
+		);
 	}
 
 	public function adminTopNav( string $nav, string $subNav = '' ) :string {
