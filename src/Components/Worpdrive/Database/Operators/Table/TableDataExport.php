@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\Table;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\Config;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\{
+	Config,
+	SqlDumpValueEscaper
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class TableDataExport {
@@ -146,6 +149,7 @@ class TableDataExport {
 
 	private function convertRawRowToSqlValues( array $row, array $columns ) :array {
 		$rowValues = [];
+		$escaper = new SqlDumpValueEscaper();
 		foreach ( $columns as $field => $col ) {
 			if ( \preg_match( '#^int|bigint|mediumint|smallint|tinyint|bool|decimal|float|double|bit#i', $col[ 'Type' ] ) ) {
 				$rowValues[] = \is_null( $row[ $field ] ) ? 'NULL' : $row[ $field ];
@@ -160,7 +164,7 @@ class TableDataExport {
 			}
 			else {
 				$rowValues[] = \is_null( $row[ $field ] ) ?
-					'NULL' : "'".Services::WpDb()->loadWpdb()->_real_escape( $row[ $field ] )."'";
+					'NULL' : $escaper->escape( $row[ $field ] );
 			}
 		}
 		return $rowValues;

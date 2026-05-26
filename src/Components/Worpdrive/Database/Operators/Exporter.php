@@ -225,6 +225,7 @@ class Exporter {
 
 	private function convertRawRowToSqlValues( array $row, array $columns ) :array {
 		$rowValues = [];
+		$escaper = new SqlDumpValueEscaper();
 		foreach ( $columns as $field => $type ) {
 			if ( \preg_match( '#^int|bigint|mediumint|smallint|tinyint|bool|decimal|float|double|bit#i', $type ) ) {
 				$rowValues[] = \is_null( $row[ $field ] ) ? 'NULL' : $row[ $field ];
@@ -239,7 +240,7 @@ class Exporter {
 			}
 			else {
 				$rowValues[] = \is_null( $row[ $field ] ) ?
-					'NULL' : "'".Services::WpDb()->loadWpdb()->_real_escape( $row[ $field ] )."'";
+					'NULL' : $escaper->escape( $row[ $field ] );
 			}
 		}
 		return $rowValues;
