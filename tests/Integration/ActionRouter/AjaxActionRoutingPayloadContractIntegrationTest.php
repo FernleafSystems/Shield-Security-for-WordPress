@@ -6,7 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionRoutingController,
 	Actions\AjaxRender,
-	Actions\Render\Components\Scans\Results\Wordpress
+	Actions\Render\Components\Scans\Results\Wordpress,
+	Actions\Render\Components\ToastPlaceholder,
+	Exceptions\ActionException,
+	Exceptions\UserAuthRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
@@ -45,6 +48,36 @@ class AjaxActionRoutingPayloadContractIntegrationTest extends ShieldIntegrationT
 		$this->assertArrayHasKey( 'html', $payload );
 		$this->assertNotSame( '', \trim( (string)( $payload[ 'html' ] ?? '' ) ) );
 		$this->assertSame( 200, $routed->statusCode() );
+	}
+
+	public function test_ajax_render_rejects_blocked_render_target() :void {
+		$request = ActionData::BuildAjaxRender( ToastPlaceholder::class );
+
+		$this->applyCurrentShieldAjaxRequest( $request, false );
+
+		$this->expectException( ActionException::class );
+		$this->requireController()->action_router->action(
+			AjaxRender::SLUG,
+			$request,
+			ActionRoutingController::ACTION_AJAX
+		);
+	}
+
+	public function test_low_privilege_user_cannot_ajax_render_admin_render_target() :void {
+		$user = self::factory()->user->create( [
+			'role' => 'subscriber',
+		] );
+		\wp_set_current_user( $user );
+
+		$request = $this->buildScanResultsRenderRequest();
+		$this->applyCurrentShieldAjaxRequest( $request, false );
+
+		$this->expectException( UserAuthRequiredException::class );
+		$this->requireController()->action_router->action(
+			AjaxRender::SLUG,
+			$request,
+			ActionRoutingController::ACTION_AJAX
+		);
 	}
 
 	private function buildScanResultsRenderRequest() :array {

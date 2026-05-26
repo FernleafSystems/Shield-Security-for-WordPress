@@ -8,14 +8,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 	}
 }
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter;
-
-if ( !\function_exists( __NAMESPACE__.'\\wp_hash' ) ) {
-	function wp_hash( $data, $scheme = 'auth', $algo = 'md5' ) {
-		return \md5( (string)$data.'|'.$scheme.'|'.$algo );
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
@@ -29,6 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	StatusDetailGroupsBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -44,6 +37,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
+	use AjaxRenderPolicyAssertions;
 
 	private array $servicesSnapshot = [];
 	private object $secAdminController;
@@ -64,6 +58,9 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			static fn( $text ) :string => \is_string( $text ) ? \trim( $text ) : ''
 		);
 		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = '' ) :string => \hash( 'sha256', $scheme.'|'.$data )
+		);
 		Functions\when( 'get_rest_url' )->alias(
 			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
 		);
@@ -178,10 +175,12 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 			PluginNavs::NAV_ZONES,
 			$diagnosisAction[ Constants::NAV_ID ] ?? ''
 		);
+		$this->assertAjaxRenderPayloadAllowedByPolicy( $diagnosisAction, 'configure diagnosis render' );
 		$this->assertSame(
 			ConfigureSearchResults::SLUG,
 			$searchAction[ 'render_slug' ] ?? ''
 		);
+		$this->assertAjaxRenderPayloadAllowedByPolicy( $searchAction, 'configure search render' );
 		$this->assertSame( '', $vars[ 'configure_focus_request_json' ] ?? 'missing' );
 	}
 
@@ -531,12 +530,8 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 	}
 
 	protected function buildAjaxRenderActionData( string $renderAction, array $auxData = [] ) :array {
-		return \array_merge(
-			[
-				'action'      => 'shield_action',
-				'ex'          => 'ajax_render',
-				'render_slug' => $renderAction::SLUG,
-			],
+		return \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData::BuildAjaxRender(
+			$renderAction,
 			$auxData
 		);
 	}

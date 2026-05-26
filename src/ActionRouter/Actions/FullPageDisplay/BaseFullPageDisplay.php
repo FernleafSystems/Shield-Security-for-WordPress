@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\BaseAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\AuthNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\NonceVerifyNotRequired;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\RenderActionTarget;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseFullPageDisplay extends BaseAction {
@@ -76,5 +78,24 @@ abstract class BaseFullPageDisplay extends BaseAction {
 		return [
 			'render_slug'
 		];
+	}
+
+	/**
+	 * @throws ActionException
+	 */
+	protected function checkAvailableData() {
+		parent::checkAvailableData();
+		if ( \array_key_exists( 'render_slug', $this->action_data ) && !$this->isAllowedRenderSlug( (string)$this->action_data[ 'render_slug' ] ) ) {
+			throw new ActionException( __( 'Invalid full page render target.', 'wp-simple-firewall' ) );
+		}
+	}
+
+	protected function isAllowedRenderSlug( string $renderSlugOrClass ) :bool {
+		$renderAction = RenderActionTarget::resolve( $renderSlugOrClass );
+		return !empty( $renderAction ) && \in_array( $renderAction::SLUG, static::allowedRenderSlugs(), true );
+	}
+
+	public static function allowedRenderSlugs() :array {
+		return [];
 	}
 }

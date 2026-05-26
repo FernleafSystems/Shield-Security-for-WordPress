@@ -192,8 +192,9 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 		$this->installMfaEnvironment( [], 0, false );
 
 		$defaultData = ( new LoginIntentFormShieldTestDouble( [] ) )->renderDataForTest();
+		$payload = '<img src=x onerror=alert(1)>';
 		$errorData = ( new LoginIntentFormShieldTestDouble( [
-			'msg_error' => 'mfa_error_message',
+			'msg_error' => $payload,
 		] ) )->renderDataForTest();
 
 		$this->assertFalse( $defaultData[ 'flags' ][ 'show_message' ] );
@@ -205,7 +206,7 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( '/images/banner.png', $defaultData[ 'imgs' ][ 'logo_banner' ] );
 
 		$this->assertTrue( $errorData[ 'flags' ][ 'show_message' ] );
-		$this->assertSame( 'mfa_error_message', $errorData[ 'strings' ][ 'message' ] );
+		$this->assertSame( $payload, $errorData[ 'strings' ][ 'message' ] );
 	}
 
 	private function installMfaEnvironment( array $providers, int $skipDays, bool $whitelabelEnabled ) :Controller {

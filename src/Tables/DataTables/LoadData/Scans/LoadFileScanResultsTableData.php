@@ -28,6 +28,8 @@ use FernleafSystems\Wordpress\Services\Utilities\File\Paths;
 class LoadFileScanResultsTableData extends DynPropertiesClass {
 	use PluginControllerConsumer;
 
+	private bool $scanResultsChanged = false;
+
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {
@@ -41,6 +43,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	}
 
 	public function run(): array {
+		$this->scanResultsChanged = false;
 		$resultsDisplayOptions = $this->getResultsDisplayOptions();
 		$results = $this->getRecordRetriever()->retrieveForResultsTables( $resultsDisplayOptions );
 
@@ -60,6 +63,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			$changed = $AFS->cleanStaleResultItem( $item ) || $changed;
 		}
 		if ( $changed ) {
+			$this->scanResultsChanged = true;
 			$results = $this->getRecordRetriever()->retrieveForResultsTables( $resultsDisplayOptions );
 		}
 
@@ -70,6 +74,10 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 			$files = [];
 		}
 		return $files;
+	}
+
+	public function hasScanResultsChanged(): bool {
+		return $this->scanResultsChanged;
 	}
 
 	protected function getDataFromItem( ResultItem $item ): array {

@@ -8,15 +8,6 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 	}
 }
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
-
-if ( !\function_exists( __NAMESPACE__.'\\error_log' ) ) {
-	function error_log( string $message ) :bool {
-		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\QueueLifecycleLogSpy::record( $message );
-		return true;
-	}
-}
-
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
@@ -38,10 +29,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	RunState
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\{
-	QueueLifecycleLogSpy,
-	ScanQueueLifecycleHarness
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\ScanQueueLifecycleHarness;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState
@@ -54,7 +42,6 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
-		QueueLifecycleLogSpy::reset();
 	}
 
 	protected function tearDown() :void {
@@ -823,7 +810,6 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			$this->assertSame( 1, $meta[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'attempts' ] ?? null );
 			$this->assertSame( $createdAt, $meta[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'last_attempt_at' ] ?? null );
 			$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $meta );
-			$this->assertFalse( QueueLifecycleLogSpy::contains( 'scan_id='.(int)$scanID.' message='.ReconcileQueue::MESSAGE_TIMED_OUT ) );
 		}
 	}
 
@@ -1002,7 +988,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( [ $apcID ], $this->scanIDsForSlug( $harness, 'apc' ) );
 		$this->assertSame( 'built', $harness->scanRow( $apcID )[ 'status' ] );
 		$this->assertSame( 0, (int)$harness->scanRow( $apcID )[ 'finished_at' ] );
-		$this->assertFalse( QueueLifecycleLogSpy::contains( 'scan_id='.$apcID.' message='.ReconcileQueue::MESSAGE_TIMED_OUT ) );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $harness->scanRow( $apcID ) ) );
 	}
 
 	public function test_later_running_scan_does_not_protect_older_unblocked_stale_scan() :void {
@@ -1030,7 +1016,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 
 		$this->assertSame( 'failed', $harness->scanRow( $apcID )[ 'status' ] );
 		$this->assertSame( 0, $harness->countScanItems( $apcID ) );
-		$this->assertTrue( QueueLifecycleLogSpy::contains( 'scan_id='.$apcID.' message='.ReconcileQueue::MESSAGE_TIMED_OUT ) );
+		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $this->scanMeta( $harness->scanRow( $apcID ) )[ RunState::META_KEY_LAST_ERROR ] ?? '' );
 	}
 
 	public function test_exhausted_claimed_item_still_fails_even_when_other_active_work_exists() :void {

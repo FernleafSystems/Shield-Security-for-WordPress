@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Scans\Afs\Processin
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\AssetTrustResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
 	FileScanOptimiser,
 	TrustedFileContext
@@ -44,6 +45,9 @@ class FileScanOptimiserTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
+		AssetTrustResolver::resetMemoization();
+		OptimiserPlugins::$installedPluginFilesCalls = 0;
+		OptimiserThemes::$getThemesCalls = 0;
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalisePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
 		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => \json_encode( $data ) );
 		Functions\when( 'wp_normalize_path' )->alias( fn( string $path ) :string => $this->normalisePath( $path ) );
@@ -52,6 +56,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 
 	protected function tearDown() :void {
 		ServicesState::restore( $this->servicesSnapshot );
+		AssetTrustResolver::resetMemoization();
 		PluginControllerInstaller::reset();
 		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
 			$this->removeDir( $dir );
@@ -83,6 +88,50 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $action ) );
 		$this->assertFalse( $optimiser->hasCleanMalwareVerdict( $path, $action ) );
 		$this->assertFileDoesNotExist( $this->normalisePath( $cacheDir.'/afs-file-optimiser' ) );
+	}
+
+	public function test_known_valid_shard_dir_is_created_through_wp_filesystem_service() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
+		$fs = new OptimiserFs();
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [], [], null, true, null, $fs );
+
+		( new FileScanOptimiser() )->recordKnownValidFile( $path, $this->coreContext( 'wp-admin/core.php' ) );
+
+		$this->assertContains(
+			$this->normalisePath( $cacheDir.'/afs-file-optimiser/known-valid' ),
+			$fs->mkdirCalls()
+		);
+	}
+
+	public function test_malware_clean_shard_dir_is_created_through_wp_filesystem_service() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$path = $this->writeFile( ABSPATH.'wp-content/uploads/clean.php', '<?php clean();' );
+		$fs = new OptimiserFs();
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [], [], null, true, null, $fs );
+
+		( new FileScanOptimiser() )->recordCleanMalwareVerdict( $path, $this->newAction( [ 'bad_token' ] ) );
+
+		$this->assertContains(
+			$this->normalisePath( $cacheDir.'/afs-file-optimiser/malware-clean' ),
+			$fs->mkdirCalls()
+		);
+	}
+
+	public function test_shard_dir_service_mkdir_failure_fails_open_without_cache_hit() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
+		$shardDir = $this->normalisePath( $cacheDir.'/afs-file-optimiser/known-valid' );
+		$fs = new OptimiserFs();
+		$fs->failMkdirFor( $shardDir );
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [], [], null, true, null, $fs );
+		$optimiser = new FileScanOptimiser();
+
+		$optimiser->recordKnownValidFile( $path, $this->coreContext( 'wp-admin/core.php' ) );
+
+		$this->assertContains( $shardDir, $fs->mkdirCalls() );
+		$this->assertFileDoesNotExist( $shardDir );
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 	}
 
 	public function test_exact_known_valid_context_hit_skips_file() :void {
@@ -129,7 +178,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $beta, $this->newAction() ) );
 	}
 
-	public function test_branch_disabled_contexts_do_not_skip_known_valid_files() :void {
+	public function test_disabled_integrity_scan_areas_still_skip_known_valid_asset_files() :void {
 		$cacheDir = $this->makeTempDir( 'cache' );
 		$core = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
 		$plugin = $this->writeFile( WP_PLUGIN_DIR.'/alpha/dup.php', '<?php plugin();' );
@@ -175,7 +224,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 			true,
 			new OptimiserAfsComponent( true, false, true )
 		);
-		$this->assertFalse( $optimiser->canSkipKnownValidFile( $plugin, $this->newAction() ) );
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $plugin, $this->newAction() ) );
 
 		$this->installEnvironment(
 			$cacheDir,
@@ -187,7 +236,44 @@ class FileScanOptimiserTest extends BaseUnitTest {
 			true,
 			new OptimiserAfsComponent( true, true, false )
 		);
-		$this->assertFalse( $optimiser->canSkipKnownValidFile( $theme, $this->newAction() ) );
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $theme, $this->newAction() ) );
+	}
+
+	public function test_known_valid_plugin_context_reuses_asset_directory_resolution() :void {
+		$first = $this->writeFile( WP_PLUGIN_DIR.'/alpha/one.php', '<?php one();' );
+		$second = $this->writeFile( WP_PLUGIN_DIR.'/alpha/two.php', '<?php two();' );
+		$this->installEnvironment(
+			$this->makeTempDir( 'cache' ),
+			true,
+			'6.5.0',
+			[ 'alpha/alpha.php' ]
+		);
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile( $first, new TrustedFileContext( 'plugin', 'alpha/alpha.php', '1.0.0', 'one.php' ) );
+		$optimiser->recordKnownValidFile( $second, new TrustedFileContext( 'plugin', 'alpha/alpha.php', '1.0.0', 'two.php' ) );
+
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $first, $this->newAction() ) );
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $second, $this->newAction() ) );
+		$this->assertSame( 1, OptimiserPlugins::$installedPluginFilesCalls );
+	}
+
+	public function test_known_valid_theme_context_reuses_asset_directory_resolution() :void {
+		$first = $this->writeFile( WP_CONTENT_DIR.'/themes/clean/one.php', '<?php one();' );
+		$second = $this->writeFile( WP_CONTENT_DIR.'/themes/clean/two.php', '<?php two();' );
+		$this->installEnvironment(
+			$this->makeTempDir( 'cache' ),
+			true,
+			'6.5.0',
+			[],
+			[ 'clean' ]
+		);
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile( $first, new TrustedFileContext( 'theme', 'clean', '1.0.0', 'one.php' ) );
+		$optimiser->recordKnownValidFile( $second, new TrustedFileContext( 'theme', 'clean', '1.0.0', 'two.php' ) );
+
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $first, $this->newAction() ) );
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $second, $this->newAction() ) );
+		$this->assertSame( 1, OptimiserThemes::$getThemesCalls );
 	}
 
 	/**
@@ -336,12 +422,13 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		array $themes = [],
 		?OptimiserRequest $request = null,
 		bool $cacheBuildable = true,
-		?OptimiserAfsComponent $afsComponent = null
+		?OptimiserAfsComponent $afsComponent = null,
+		?OptimiserFs $fs = null
 	) :void {
 		ServicesState::installItems( [
 			'service_corefilehashes' => new OptimiserCoreHashes(),
 			'service_request'        => $request ?? new OptimiserRequest( 1700000000 ),
-			'service_wpfs'           => new OptimiserFs(),
+			'service_wpfs'           => $fs ?? new OptimiserFs(),
 			'service_wpgeneral'      => new OptimiserGeneral( $wpVersion ),
 			'service_wpplugins'      => new OptimiserPlugins( $pluginFiles ),
 			'service_wpthemes'       => new OptimiserThemes( $themes ),
@@ -426,7 +513,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 	private function writeFile( string $path, string $content ) :string {
 		$path = $this->normalisePath( $path );
 		if ( !\is_dir( \dirname( $path ) ) ) {
-			@\mkdir( \dirname( $path ), 0777, true );
+			@\mkdir( \dirname( $path ), 0755, true );
 		}
 		\file_put_contents( $path, $content );
 		return $path;
@@ -434,7 +521,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 
 	private function makeTempDir( string $suffix ) :string {
 		$dir = $this->normalisePath( \sys_get_temp_dir().'/shield-optimiser-'.$suffix.'-'.\uniqid() );
-		@\mkdir( $dir, 0777, true );
+		@\mkdir( $dir, 0755, true );
 		$this->tempDirs[] = $dir;
 		return $dir;
 	}
@@ -478,7 +565,7 @@ class OptimiserCacheDir {
 			return '';
 		}
 		$path = $this->dir.'/'.$subDir;
-		return ( \is_dir( $path ) || @\mkdir( $path, 0777, true ) ) ? $path : '';
+		return ( \is_dir( $path ) || @\mkdir( $path, 0755, true ) ) ? $path : '';
 	}
 }
 
@@ -496,12 +583,41 @@ class OptimiserRequest extends Request {
 }
 
 class OptimiserFs extends Fs {
+	private array $mkdirCalls = [];
+
+	private array $mkdirFailures = [];
+
+	public function mkdirCalls() :array {
+		return $this->mkdirCalls;
+	}
+
+	public function failMkdirFor( string $path ) :void {
+		$this->mkdirFailures[] = $this->normalisePath( $path );
+	}
+
+	public function mkdir( $path ) {
+		$path = $this->normalisePath( (string)$path );
+		$this->mkdirCalls[] = $path;
+		if ( \in_array( $path, $this->mkdirFailures, true ) ) {
+			return false;
+		}
+		return \is_dir( $path ) || @\mkdir( $path, 0755, true );
+	}
+
+	public function isDir( string $path ) :bool {
+		return \is_dir( $path );
+	}
+
 	public function isAccessibleFile( string $file ) :bool {
 		return \is_file( $file ) && \is_readable( $file );
 	}
 
 	public function isAbsPath( $path ) {
 		return \preg_match( '#^([A-Z]:)?/#i', \str_replace( '\\', '/', (string)$path ) ) === 1;
+	}
+
+	private function normalisePath( string $path ) :string {
+		return \str_replace( '\\', '/', $path );
 	}
 }
 
@@ -549,6 +665,8 @@ class OptimiserAfsComponent {
 }
 
 class OptimiserPlugins extends Plugins {
+	public static int $installedPluginFilesCalls = 0;
+
 	private array $pluginFiles;
 
 	public function __construct( array $pluginFiles ) {
@@ -556,6 +674,7 @@ class OptimiserPlugins extends Plugins {
 	}
 
 	public function getInstalledPluginFiles() :array {
+		self::$installedPluginFilesCalls++;
 		return $this->pluginFiles;
 	}
 
@@ -588,6 +707,8 @@ class OptimiserPluginVo extends WpPluginVo {
 }
 
 class OptimiserThemes extends Themes {
+	public static int $getThemesCalls = 0;
+
 	private array $themes;
 
 	public function __construct( array $themes ) {
@@ -595,6 +716,7 @@ class OptimiserThemes extends Themes {
 	}
 
 	public function getThemes() :array {
+		self::$getThemesCalls++;
 		return \array_map(
 			static fn( string $stylesheet ) => new class( $stylesheet ) {
 				private string $stylesheet;

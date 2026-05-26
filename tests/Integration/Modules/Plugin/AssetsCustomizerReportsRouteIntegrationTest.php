@@ -9,10 +9,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
 class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestCase {
+
+	use AjaxRenderPolicyAssertions;
 
 	private array $originalQuery = [];
 	private $localisationsFilterBackup = null;
@@ -48,6 +51,7 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 
 		$this->assertReportsTableLocalized( $comps );
 		$this->assertReportsTrendsLocalized( $comps );
+		$this->assertReportsCreateFormLocalized( $comps );
 	}
 
 	public function test_reports_table_is_not_localized_for_reports_settings() :void {
@@ -133,5 +137,14 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 		$this->assertArrayHasKey( 'selection_one', $comps[ 'reports_trends' ][ 'strings' ] ?? [] );
 		$this->assertArrayHasKey( 'selection_many', $comps[ 'reports_trends' ][ 'strings' ] ?? [] );
 		$this->assertArrayHasKey( 'select_events_error', $comps[ 'reports_trends' ][ 'strings' ] ?? [] );
+	}
+
+	private function assertReportsCreateFormLocalized( array $comps ) :void {
+		$this->assertArrayHasKey( 'reports', $comps );
+		$this->assertArrayHasKey( 'render_offcanvas', $comps[ 'reports' ][ 'ajax' ] ?? [] );
+		$this->assertAjaxRenderPayloadAllowedByPolicy(
+			$comps[ 'reports' ][ 'ajax' ][ 'render_offcanvas' ],
+			'reports render_offcanvas'
+		);
 	}
 }

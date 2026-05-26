@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\ScanResultsScopeResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
@@ -61,19 +62,25 @@ class ActionsQueueGroupContractBuilder {
 	private ActionsQueueAssetMetadataResolver $assetMetadataResolver;
 	private ScanResultsDisplayOptions $queueScanResultsOptions;
 	private ActionsQueueContextActionsBuilder $contextActionsBuilder;
+	private ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder;
 
 	public function __construct(
 		ActionsQueueGroupDefinitions $groupDefinitions,
 		ActionsQueueDrillDownPresentationBuilder $presentation,
 		?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null,
 		?ScanResultsDisplayOptions $queueScanResultsOptions = null,
-		?ActionsQueueContextActionsBuilder $contextActionsBuilder = null
+		?ActionsQueueContextActionsBuilder $contextActionsBuilder = null,
+		?ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder = null
 	) {
 		$this->groupDefinitions = $groupDefinitions;
 		$this->presentation = $presentation;
 		$this->assetMetadataResolver = $assetMetadataResolver ?? new ActionsQueueAssetMetadataResolver();
 		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ScanResultsDisplayOptions();
 		$this->contextActionsBuilder = $contextActionsBuilder ?? new ActionsQueueContextActionsBuilder(
+			$this->queueScanResultsOptions
+		);
+		$this->scanResultScopeStateBuilder = $scanResultScopeStateBuilder ?? new ActionsQueueScanResultScopeStateBuilder(
+			null,
 			$this->queueScanResultsOptions
 		);
 	}
@@ -111,6 +118,10 @@ class ActionsQueueGroupContractBuilder {
 		$definition = $this->groupDefinitions->definitionForGroupKey( $groupKey );
 		$narrative = __( 'No matching items remain in this group.', 'wp-simple-firewall' );
 		$renderActionData = $definition[ 'render_action_data' ];
+		$headerOverrides = $this->buildIgnoredHeaderOverridesForGroup(
+			$definition[ 'key' ],
+			$renderActionData
+		);
 		$selection = $this->presentation->buildGroupSelection(
 			$bucketLabel,
 			$groupKey,
@@ -124,7 +135,8 @@ class ActionsQueueGroupContractBuilder {
 				$renderActionData
 			),
 			$narrative,
-			[]
+			[],
+			$headerOverrides
 		);
 
 		return [
@@ -170,6 +182,10 @@ class ActionsQueueGroupContractBuilder {
 			$metadata[ 'subject_type' ],
 			$metadata[ 'subject_id' ]
 		);
+		$headerOverrides = $this->buildIgnoredHeaderOverridesForGroup(
+			$definitionKey,
+			$renderActionData
+		);
 		$selection = $this->presentation->buildGroupSelection(
 			$bucketLabel,
 			$groupKey,
@@ -183,7 +199,8 @@ class ActionsQueueGroupContractBuilder {
 				$renderActionData
 			),
 			$narrative,
-			[]
+			[],
+			$headerOverrides
 		);
 
 		return [
@@ -268,7 +285,7 @@ class ActionsQueueGroupContractBuilder {
 				$seed[ 'item_count' ],
 				$renderActionData
 			);
-		$headerOverrides = \array_filter( [
+		$seedHeaderOverrides = \array_filter( [
 			'summary'      => $seed[ 'header_summary_override' ] ?? '',
 			'focus'        => $seed[ 'header_focus_override' ] ?? '',
 			'next_step'    => $seed[ 'header_next_step_override' ] ?? '',
@@ -276,6 +293,10 @@ class ActionsQueueGroupContractBuilder {
 			'badge_status' => $seed[ 'header_badge_status_override' ] ?? '',
 			'color_key'    => $seed[ 'header_color_key_override' ] ?? '',
 		], static fn( string $value ) :bool => $value !== '' );
+		$headerOverrides = \array_merge(
+			$this->buildIgnoredHeaderOverridesForGroup( $seed[ 'definition_key' ], $renderActionData ),
+			$seedHeaderOverrides
+		);
 		$selection = $this->presentation->buildGroupSelection(
 			$bucketLabel,
 			$seed[ 'key' ],
@@ -567,6 +588,109 @@ class ActionsQueueGroupContractBuilder {
 				|| !empty( $seed[ 'render_action_data_override' ] )
 				|| $seed[ 'item_count' ] > 0
 			);
+	}
+
+	/**
+	 * @param array<string,mixed> $renderActionData
+	 * @return array<string,string>
+	 */
+	private function buildIgnoredHeaderOverridesForGroup( string $definitionKey, array $renderActionData ) :array {
+		$scope = $this->determineScanResultsScopeForGroup( $definitionKey, $renderActionData );
+		if ( empty( $scope ) ) {
+			return [];
+		}
+
+		try {
+			$counts = $this->scanResultScopeStateBuilder->buildCountsForActionScope(
+				$scope[ 'type' ],
+				$scope[ 'file' ]
+			);
+		}
+		catch ( \InvalidArgumentException $e ) {
+			return [];
+		}
+
+		return $this->buildIgnoredHeaderOverridesFromState(
+			$counts[ 'active_count' ],
+			$counts[ 'ignored_count' ]
+		);
+	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	private function buildIgnoredHeaderOverridesFromState( int $activeCount, int $ignoredCount ) :array {
+		if ( $ignoredCount < 1 ) {
+			return [];
+		}
+
+		if ( $activeCount > 0 ) {
+			return [
+				'summary'   => \sprintf(
+					_n(
+						'%s active result needs review. Ignored results are hidden from active Actions Queue work.',
+						'%s active results need review. Ignored results are hidden from active Actions Queue work.',
+						$activeCount,
+						'wp-simple-firewall'
+					),
+					\number_format_i18n( $activeCount )
+				),
+				'focus'     => \sprintf(
+					__( '%1$s active; %2$s ignored hidden from active work.', 'wp-simple-firewall' ),
+					\number_format_i18n( $activeCount ),
+					\number_format_i18n( $ignoredCount )
+				),
+				'next_step' => __( 'Review the active results. Use Display Results to include ignored results if needed.', 'wp-simple-firewall' ),
+			];
+		}
+
+		return [
+			'summary'   => __( 'No active results remain in this group. Ignored results are hidden from active Actions Queue work.', 'wp-simple-firewall' ),
+			'focus'     => \sprintf(
+				_n(
+					'%s ignored result is available.',
+					'%s ignored results are available.',
+					$ignoredCount,
+					'wp-simple-firewall'
+				),
+				\number_format_i18n( $ignoredCount )
+			),
+			'next_step' => __( 'Use Display Results to show ignored results in the table.', 'wp-simple-firewall' ),
+		];
+	}
+
+	/**
+	 * @param array<string,mixed> $renderActionData
+	 * @return array{type:string,file:string}|array{}
+	 */
+	private function determineScanResultsScopeForGroup( string $definitionKey, array $renderActionData ) :array {
+		$scopeResolver = new ScanResultsScopeResolver();
+		switch ( $definitionKey ) {
+			case 'wordpress':
+				return $scopeResolver->normalizeActionScope(
+					ScanResultsScopeResolver::SCOPE_TYPE_WORDPRESS,
+					ScanResultsScopeResolver::SCOPE_FILE_WORDPRESS
+				);
+			case 'malware':
+				return $scopeResolver->normalizeActionScope(
+					ScanResultsScopeResolver::SCOPE_TYPE_MALWARE,
+					ScanResultsScopeResolver::SCOPE_TYPE_MALWARE
+				);
+			case 'plugins':
+				$subjectId = \trim( (string)( $renderActionData[ 'subject_id' ] ?? '' ) );
+				return $subjectId === '' ? [] : $scopeResolver->canonicalActionDataForSubject(
+					ScanResultsScopeResolver::SCOPE_TYPE_PLUGIN,
+					$subjectId
+				);
+			case 'themes':
+				$subjectId = \trim( (string)( $renderActionData[ 'subject_id' ] ?? '' ) );
+				return $subjectId === '' ? [] : $scopeResolver->canonicalActionDataForSubject(
+					ScanResultsScopeResolver::SCOPE_TYPE_THEME,
+					$subjectId
+				);
+			default:
+				return [];
+		}
 	}
 
 	/**

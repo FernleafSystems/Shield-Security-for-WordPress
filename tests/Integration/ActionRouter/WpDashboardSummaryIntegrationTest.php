@@ -73,6 +73,8 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayHasKey( 'render_data', $payload );
 		$this->assertIsArray( $payload[ 'render_data' ] );
 		$this->assertArrayHasKey( 'render_template', $payload );
+		$this->assertArrayHasKey( 'render_output', $payload );
+		$this->assertIsString( $payload[ 'render_output' ] );
 
 		return $payload;
 	}
@@ -139,9 +141,8 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$renderData = $payload[ 'render_data' ];
 
 		$this->assertSame( '/wpadmin/components/widget/dashboard_actions_queue.twig', $payload[ 'render_template' ] );
-		$this->assertTrue( $renderData[ 'flags' ][ 'show_internal_links' ] );
+		$this->assertArrayNotHasKey( 'show_internal_links', $renderData[ 'flags' ] );
 		$this->assertSame( $this->expectedActionsQueueHref(), $renderData[ 'hrefs' ][ 'actions_queue' ] );
-		$this->assertIsBool( $renderData[ 'flags' ][ 'show_internal_links' ] );
 	}
 
 	public function test_all_clear_renders_green_widget_contract_when_no_items_exist() :void {
@@ -188,7 +189,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertGreaterThan( 0, $rows[ 0 ][ 'count' ] );
 	}
 
-	public function test_wp_admin_without_security_admin_session_can_render_without_internal_links() :void {
+	public function test_wp_admin_without_security_admin_session_renders_actions_queue_link() :void {
 		\wp_set_current_user( $this->adminUserId );
 		$this->setSecurityAdminContext( false );
 
@@ -196,16 +197,49 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		\add_filter( self::con()->prefix( 'is_plugin_admin' ), $forceNotPluginAdmin, \PHP_INT_MAX );
 
 		try {
-			$renderData = $this->renderSummaryData();
+			$payload = $this->renderSummaryPayload();
+			$renderData = $payload[ 'render_data' ];
+			$expectedHref = $this->expectedActionsQueueHref();
+			$xpath = $this->dashboardWidgetXPath( $payload[ 'render_output' ] );
 
-			$this->assertFalse( $renderData[ 'flags' ][ 'show_internal_links' ] );
+			$this->assertArrayNotHasKey( 'show_internal_links', $renderData[ 'flags' ] );
 			$this->assertArrayHasKey( 'actions_queue', $renderData[ 'hrefs' ] );
-			$this->assertIsString( $renderData[ 'hrefs' ][ 'actions_queue' ] );
-			$this->assertNotSame( '', $renderData[ 'hrefs' ][ 'actions_queue' ] );
+			$this->assertSame( $expectedHref, $renderData[ 'hrefs' ][ 'actions_queue' ] );
+			$this->assertSame(
+				1,
+				$xpath->query(
+					'//a[@href='.$this->xpathLiteral( $expectedHref ).' and contains(concat(" ", normalize-space(@class), " "), " shield-dashboard-widget__cta ")]'
+				)->length
+			);
+			$this->assertSame(
+				0,
+				$xpath->query(
+					'//*[contains(concat(" ", normalize-space(@class), " "), " shield-dashboard-widget__cta ") and contains(concat(" ", normalize-space(@class), " "), " is-static ")]'
+				)->length
+			);
 		}
 		finally {
 			\remove_filter( self::con()->prefix( 'is_plugin_admin' ), $forceNotPluginAdmin, \PHP_INT_MAX );
 		}
+	}
+
+	private function dashboardWidgetXPath( string $html ) :\DOMXPath {
+		$dom = new \DOMDocument();
+		$previous = \libxml_use_internal_errors( true );
+		try {
+			$dom->loadHTML( '<?xml encoding="utf-8" ?><div>'.$html.'</div>', \LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD );
+		}
+		finally {
+			\libxml_clear_errors();
+			\libxml_use_internal_errors( $previous );
+		}
+		return new \DOMXPath( $dom );
+	}
+
+	private function xpathLiteral( string $value ) :string {
+		return \strpos( $value, "'" ) !== false
+			? 'concat(\''.implode( '\',"\'",\'', \explode( "'", $value ) ).'\')'
+			: '\''.$value.'\'';
 	}
 
 	public function test_non_admin_user_cannot_render_dashboard_summary() :void {

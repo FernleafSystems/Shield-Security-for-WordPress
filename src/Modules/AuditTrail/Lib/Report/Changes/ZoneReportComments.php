@@ -7,27 +7,26 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class ZoneReportComments extends BaseZoneReport {
 
-	protected function buildSummaryForLog( LogRecord $log ) :string {
+	protected function buildSummaryLinesForLog( LogRecord $log ) :array {
 		switch ( $log->event_slug ) {
 			case 'comment_created':
 				$text = sprintf( __( 'Created with status %s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'status' ] ) );
+					$log->meta_data[ 'status' ] ?? __( 'missing data', 'wp-simple-firewall' ) );
 				break;
 			case 'comment_status_updated':
 				/* translators: %1$s: old status, %2$s: new status */
-				$text = sprintf( __( 'Status changed: %1$s&rarr;%2$s', 'wp-simple-firewall' ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'status_old' ] ),
-					sprintf( '<code>%s</code>', $log->meta_data[ 'status_new' ] )
+				$text = sprintf( __( 'Status changed: %1$s -> %2$s', 'wp-simple-firewall' ),
+					$log->meta_data[ 'status_old' ] ?? __( 'missing data', 'wp-simple-firewall' ),
+					$log->meta_data[ 'status_new' ] ?? __( 'missing data', 'wp-simple-firewall' )
 				);
 				break;
 			case 'comment_deleted':
 				$text = __( 'Deleted', 'wp-simple-firewall' );
 				break;
 			default:
-				$text = parent::buildSummaryForLog( $log );
-				break;
+				return parent::buildSummaryLinesForLog( $log );
 		}
-		return $text;
+		return [ (string)$text ];
 	}
 
 	public function getZoneName() :string {

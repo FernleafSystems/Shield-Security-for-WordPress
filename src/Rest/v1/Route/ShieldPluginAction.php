@@ -39,7 +39,11 @@ class ShieldPluginAction extends Base {
 	}
 
 	public function getRoutePath() :string {
-		return \sprintf( '/action/(?P<%s>%s)', ActionData::FIELD_EXECUTE, ActionData::EXECUTE_SLUG_PATTERN );
+		$executeSlugPattern = \defined( ActionData::class.'::EXECUTE_SLUG_PATTERN' )
+			? ActionData::EXECUTE_SLUG_PATTERN
+			: '[a-z0-9_.:\-]+';
+
+		return \sprintf( '/action/(?P<%s>%s)', ActionData::FIELD_EXECUTE, $executeSlugPattern );
 	}
 
 	protected function getRequestProcessorClass() :string {

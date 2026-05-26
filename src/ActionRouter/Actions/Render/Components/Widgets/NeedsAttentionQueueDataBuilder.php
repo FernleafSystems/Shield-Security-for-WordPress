@@ -99,7 +99,7 @@ class NeedsAttentionQueueDataBuilder {
 	 * }
 	 */
 	private function buildBaseData() :array {
-		$attention = ( new DashboardAttentionQueryFilter() )->filter( self::con()->comps->site_query->attention() );
+		$attention = self::con()->comps->site_query->attention();
 		$warning = ( new ScanResultsLagWarning() )->getText();
 		$latestScanAt = (int)\max( self::con()->comps->site_query->latestCompletedScanTimestamps() );
 		$lastScanSubtext = $latestScanAt > 0

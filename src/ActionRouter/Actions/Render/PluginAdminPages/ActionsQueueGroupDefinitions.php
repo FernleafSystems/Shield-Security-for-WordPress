@@ -27,8 +27,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
  *   card_type:'expandable'|'linked'|'category',
  *   summary_keys:list<string>,
- *   healthy_interaction_mode:'none'|'ignored_only'|'default_detail',
- *   healthy_ignored_source:''|'wordpress'|'plugins'|'themes'|'malware',
+ *   healthy_interaction_mode:'none'|'default_detail',
  *   render_action_class:class-string<BaseRender>,
  *   render_action_data:array<string,mixed>
  * }
@@ -38,8 +37,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   section_order:int,
  *   detail_shell:'asset_cards'|'direct_table'|'maintenance',
  *   card_type:'expandable'|'linked'|'category',
- *   healthy_interaction_mode:'none'|'ignored_only'|'default_detail',
- *   healthy_ignored_source:''|'wordpress'|'plugins'|'themes'|'malware',
+ *   healthy_interaction_mode:'none'|'default_detail',
  *   render_action_class:class-string<BaseRender>,
  *   render_action_data:'none'|'scan_results'|array<string,mixed>
  * }
@@ -52,23 +50,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  */
 class ActionsQueueGroupDefinitions {
 
-	private const IGNORED_ONLY_SUMMARY_KEYS = [
-		'wp_files_ignored'     => [
-			'definition_key' => 'wordpress',
-		],
-		'plugin_files_ignored' => [
-			'definition_key' => 'plugins',
-			'asset_source'   => 'plugins',
-		],
-		'theme_files_ignored'  => [
-			'definition_key' => 'themes',
-			'asset_source'   => 'themes',
-		],
-		'malware_ignored'      => [
-			'definition_key' => 'malware',
-		],
-	];
-
 	/**
 	 * @var array<string,GroupMetadata>
 	 */
@@ -79,8 +60,7 @@ class ActionsQueueGroupDefinitions {
 			'section_order'            => 0,
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
-			'healthy_interaction_mode' => 'ignored_only',
-			'healthy_ignored_source'   => 'wordpress',
+			'healthy_interaction_mode' => 'none',
 			'render_action_class'      => Wordpress::class,
 			'render_action_data'       => 'scan_results',
 		],
@@ -90,8 +70,7 @@ class ActionsQueueGroupDefinitions {
 			'section_order'            => 2,
 			'detail_shell'             => 'asset_cards',
 			'card_type'                => 'expandable',
-			'healthy_interaction_mode' => 'ignored_only',
-			'healthy_ignored_source'   => 'plugins',
+			'healthy_interaction_mode' => 'none',
 			'render_action_class'      => Plugins::class,
 			'render_action_data'       => 'scan_results',
 		],
@@ -101,8 +80,7 @@ class ActionsQueueGroupDefinitions {
 			'section_order'            => 3,
 			'detail_shell'             => 'asset_cards',
 			'card_type'                => 'expandable',
-			'healthy_interaction_mode' => 'ignored_only',
-			'healthy_ignored_source'   => 'themes',
+			'healthy_interaction_mode' => 'none',
 			'render_action_class'      => Themes::class,
 			'render_action_data'       => 'scan_results',
 		],
@@ -113,7 +91,6 @@ class ActionsQueueGroupDefinitions {
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'linked',
 			'healthy_interaction_mode' => 'none',
-			'healthy_ignored_source'   => '',
 			'render_action_class'      => Vulnerabilities::class,
 			'render_action_data'       => [
 				'section' => 'vulnerable',
@@ -126,7 +103,6 @@ class ActionsQueueGroupDefinitions {
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'linked',
 			'healthy_interaction_mode' => 'none',
-			'healthy_ignored_source'   => '',
 			'render_action_class'      => Vulnerabilities::class,
 			'render_action_data'       => [
 				'section' => 'abandoned',
@@ -138,8 +114,7 @@ class ActionsQueueGroupDefinitions {
 			'section_order'            => 0,
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
-			'healthy_interaction_mode' => 'ignored_only',
-			'healthy_ignored_source'   => 'malware',
+			'healthy_interaction_mode' => 'none',
 			'render_action_class'      => Malware::class,
 			'render_action_data'       => 'scan_results',
 		],
@@ -150,7 +125,6 @@ class ActionsQueueGroupDefinitions {
 			'detail_shell'             => 'asset_cards',
 			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'default_detail',
-			'healthy_ignored_source'   => '',
 			'render_action_class'      => FileLocker::class,
 			'render_action_data'       => 'scan_results',
 		],
@@ -162,7 +136,6 @@ class ActionsQueueGroupDefinitions {
 			'detail_shell'             => 'maintenance',
 			'card_type'                => 'category',
 			'healthy_interaction_mode' => 'none',
-			'healthy_ignored_source'   => '',
 			'render_action_class'      => Maintenance::class,
 			'render_action_data'       => 'none',
 		],
@@ -246,7 +219,6 @@ class ActionsQueueGroupDefinitions {
 				'card_type'                => $metadata[ 'card_type' ],
 				'summary_keys'             => $scanDefinition[ 'summary_keys' ],
 				'healthy_interaction_mode' => $metadata[ 'healthy_interaction_mode' ],
-				'healthy_ignored_source'   => $metadata[ 'healthy_ignored_source' ],
 				'render_action_class'      => $metadata[ 'render_action_class' ],
 				'render_action_data'       => $this->renderActionDataForMode( $metadata[ 'render_action_data' ] ),
 			];
@@ -278,7 +250,6 @@ class ActionsQueueGroupDefinitions {
 			'card_type'                => $maintenance[ 'card_type' ],
 			'summary_keys'             => [],
 			'healthy_interaction_mode' => 'none',
-			'healthy_ignored_source'   => '',
 			'render_action_class'      => $maintenance[ 'render_action_class' ],
 			'render_action_data'       => [],
 		];
@@ -297,7 +268,6 @@ class ActionsQueueGroupDefinitions {
 				'card_type'                => $maintenance[ 'card_type' ],
 				'summary_keys'             => [],
 				'healthy_interaction_mode' => 'none',
-				'healthy_ignored_source'   => '',
 				'render_action_class'      => $maintenance[ 'render_action_class' ],
 				'render_action_data'       => [],
 			];
@@ -309,17 +279,6 @@ class ActionsQueueGroupDefinitions {
 
 	public function groupKeyForSummaryKey( string $summaryKey ) :string {
 		return $this->summaryBehaviourForKey( $summaryKey )[ 'definition_key' ];
-	}
-
-	/**
-	 * @return list<string>
-	 */
-	public static function ignoredOnlySummaryKeys() :array {
-		return \array_keys( self::IGNORED_ONLY_SUMMARY_KEYS );
-	}
-
-	public static function isIgnoredOnlySummaryKey( string $summaryKey ) :bool {
-		return isset( self::IGNORED_ONLY_SUMMARY_KEYS[ $summaryKey ] );
 	}
 
 	/**
@@ -369,21 +328,6 @@ class ActionsQueueGroupDefinitions {
 	 * @return SummaryBehaviour
 	 */
 	public function summaryBehaviourForKey( string $summaryKey ) :array {
-		if ( isset( self::IGNORED_ONLY_SUMMARY_KEYS[ $summaryKey ] ) ) {
-			$ignoredDefinition = self::IGNORED_ONLY_SUMMARY_KEYS[ $summaryKey ];
-			$behaviour = [
-				'definition_key' => $ignoredDefinition[ 'definition_key' ],
-				'seed_strategy'  => isset( $ignoredDefinition[ 'asset_source' ] )
-					? 'asset_cards'
-					: 'attention_aggregate',
-			];
-			if ( isset( $ignoredDefinition[ 'asset_source' ] ) ) {
-				$behaviour[ 'asset_source' ] = $ignoredDefinition[ 'asset_source' ];
-			}
-
-			return $behaviour;
-		}
-
 		if ( isset( self::SUMMARY_BEHAVIOUR_OVERRIDES[ $summaryKey ] ) ) {
 			return self::SUMMARY_BEHAVIOUR_OVERRIDES[ $summaryKey ];
 		}
@@ -400,10 +344,6 @@ class ActionsQueueGroupDefinitions {
 			'definition_key' => 'maintenance',
 			'seed_strategy'  => 'maintenance',
 		];
-	}
-
-	public function healthyIgnoredSourceForGroupKey( string $groupKey ) :string {
-		return $this->definitionForGroupKey( $groupKey )[ 'healthy_ignored_source' ];
 	}
 
 	public function healthyInteractionModeForGroupKey( string $groupKey ) :string {

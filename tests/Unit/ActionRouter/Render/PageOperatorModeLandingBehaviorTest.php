@@ -214,11 +214,11 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'expand', $vars );
 	}
 
-	public function test_render_data_filters_dashboard_attention_summary_and_keeps_visible_maintenance_items() :void {
-		$ignoredPluginFiles = $this->attentionItem( 'plugin_files_ignored', 'scans', 1, 'warning', 'Plugin Files' );
+	public function test_render_data_uses_producer_owned_attention_summary_and_keeps_maintenance_items() :void {
+		$pluginFiles = $this->attentionItem( 'plugin_files', 'scans', 1, 'warning', 'Plugin Files' );
 		$wpUpdates = $this->attentionItem( 'wp_updates', 'maintenance', 1, 'warning', 'WordPress Version' );
 		$page = new PageOperatorModeLandingTestDouble(
-			$this->attentionQuery( [ $ignoredPluginFiles ], [ $wpUpdates ] ),
+			$this->attentionQuery( [ $pluginFiles ], [ $wpUpdates ] ),
 			[],
 			200000
 		);
@@ -227,17 +227,19 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$actionsQueueRows = $renderData[ 'vars' ][ 'actions_queue_rows' ];
 
 		$this->assertSame(
-			[ 'maintenance' ],
+			[ 'plugin_files', 'maintenance' ],
 			\array_column( $actionsQueueRows, 'key' )
 		);
 		$this->assertSame(
 			[
+				'plugin_files' => 1,
 				'maintenance' => 1,
 			],
 			\array_combine( \array_column( $actionsQueueRows, 'key' ), \array_column( $actionsQueueRows, 'count' ) )
 		);
 		$this->assertSame(
 			[
+				'plugin_files' => 'warning',
 				'maintenance' => 'warning',
 			],
 			\array_combine( \array_column( $actionsQueueRows, 'key' ), \array_column( $actionsQueueRows, 'severity' ) )
@@ -273,14 +275,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertNull( $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
 	}
 
-	public function test_render_data_ignores_ignored_only_scan_items_when_they_are_the_only_dashboard_issues() :void {
+	public function test_render_data_marks_actions_all_clear_when_attention_query_is_empty() :void {
 		$renderData = $this->invokeNonPublicMethod( new PageOperatorModeLandingTestDouble(
-			$this->attentionQuery( [
-				$this->attentionItem( 'wp_files_ignored', 'scans', 2, 'warning', 'ignored-wp-label' ),
-				$this->attentionItem( 'plugin_files_ignored', 'scans', 1, 'warning', 'ignored-plugin-label' ),
-				$this->attentionItem( 'theme_files_ignored', 'scans', 3, 'warning', 'ignored-theme-label' ),
-				$this->attentionItem( 'malware_ignored', 'scans', 4, 'warning', 'ignored-malware-label' ),
-			] ),
+			$this->attentionQuery( [] ),
 			[],
 			200000
 		), 'getRenderData' );

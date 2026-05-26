@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
 
@@ -6,15 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Excepti
 	AssetHashesNotFound,
 	NonAssetFileException,
 	UnrecognisedAssetFile
-};
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
-	WpPluginVo,
-	WpThemeVo
-};
-use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg\{
-	Plugin,
-	Theme
 };
 
 class Query {
@@ -27,30 +18,7 @@ class Query {
 	 * @throws \Exception
 	 */
 	public function getHashDataForFile( string $path ) :array {
-
-		$vo = $this->findAssetFromPath( $path );
-
-		if ( $vo->asset_type === 'plugin' ) {
-			$fragment = ( new Plugin\Files() )->getRelativeFilePathFromItsInstallDir( $path );
-		}
-		else {
-			$fragment = ( new Theme\Files() )->getRelativeFilePathFromItsInstallDir( $path );
-		}
-
-		$hashSource = ( new Retrieve() )->byVOWithSource( $vo );
-		$hash = $hashSource[ 'hashes' ][ $fragment ] ?? ( $hashSource[ 'hashes' ][ \strtolower( $fragment ) ] ?? null );
-		if ( empty( $hash ) ) {
-			throw new UnrecognisedAssetFile( sprintf( __( 'No hashes exist for file: %s', 'wp-simple-firewall' ), $path ) );
-		}
-
-		return [
-			'hashes'         => \is_array( $hash ) ? $hash : [ $hash ],
-			'trusted_source' => $hashSource[ 'trusted_source' ],
-			'asset_type'     => (string)$vo->asset_type,
-			'asset_key'      => (string)$vo->unique_id,
-			'asset_version'  => (string)$vo->Version,
-			'relative_path'  => $fragment,
-		];
+		return ( new AssetTrustResolver() )->getHashDataForFile( $path );
 	}
 
 	/**
@@ -61,21 +29,6 @@ class Query {
 	 */
 	public function getHashesForFile( string $path ) :array {
 		return $this->getHashDataForFile( $path )[ 'hashes' ];
-	}
-
-	/**
-	 * @return WpPluginVo|WpThemeVo
-	 * @throws NonAssetFileException
-	 */
-	private function findAssetFromPath( string $path ) {
-		$vo = ( new Plugin\Files() )->findPluginFromFile( $path );
-		if ( empty( $vo ) ) {
-			$vo = ( new Theme\Files() )->findThemeFromFile( $path );
-		if ( empty( $vo ) ) {
-				throw new NonAssetFileException( __( 'Not a plugin or theme file path.', 'wp-simple-firewall' ) );
-			}
-		}
-		return $vo;
 	}
 
 	/**
@@ -100,24 +53,7 @@ class Query {
 	 * @throws \InvalidArgumentException
 	 */
 	public function verifyHashWithSource( string $fullPath ) :HashVerificationResult {
-		$verified = false;
-		$hashData = $this->getHashDataForFile( $fullPath );
-		$compare = new CompareHash();
-		foreach ( $hashData[ 'hashes' ] as $hash ) {
-			if ( $compare->isEqualFile( $fullPath, $hash ) ) {
-				$verified = true;
-				break;
-			}
-		}
-
-		return new HashVerificationResult(
-			$verified,
-			$verified && $hashData[ 'trusted_source' ],
-			$hashData[ 'asset_type' ],
-			$hashData[ 'asset_key' ],
-			$hashData[ 'asset_version' ],
-			$hashData[ 'relative_path' ]
-		);
+		return ( new AssetTrustResolver() )->verifyPath( $fullPath );
 	}
 
 	/**

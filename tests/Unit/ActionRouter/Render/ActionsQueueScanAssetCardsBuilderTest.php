@@ -111,7 +111,7 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'theme' ], $builder->tableBuildRoutes() );
 	}
 
-	public function test_build_fully_ignored_summary_records_filters_out_assets_with_active_results() :void {
+	public function test_build_summary_records_honors_explicit_ignored_only_display_options() :void {
 		$builder = $this->newBuilder(
 			[
 				[ 'slug' => 'active-plugin/active-plugin.php', 'file_count' => 2 ],
@@ -138,83 +138,19 @@ class ActionsQueueScanAssetCardsBuilderTest extends BaseUnitTest {
 			]
 		);
 
-		$records = $builder->buildFullyIgnoredSummaryRecords(
-			'plugin',
-			$builder->buildSummaryRecords( 'plugin' )
+		$records = $builder->buildSummaryRecords( 'plugin', [
+			'include_ignored'  => true,
+			'include_repaired' => false,
+			'include_deleted'  => false,
+			'ignored_only'     => true,
+		] );
+
+		$this->assertSame(
+			[ 'ignored-plugin/ignored-plugin.php', 'active-plugin/active-plugin.php' ],
+			\array_column( $records, 'key' )
 		);
-
-		$this->assertSame( [ 'ignored-plugin/ignored-plugin.php' ], \array_column( $records, 'key' ) );
-		$this->assertSame( [ 3 ], \array_column( $records, 'count_badge' ) );
-	}
-
-	public function test_build_fully_ignored_summary_records_reuses_precomputed_active_summaries() :void {
-		$builder = $this->newBuilder(
-			[
-				[ 'slug' => 'active-plugin/active-plugin.php', 'file_count' => 2 ],
-			],
-			[
-				'active-plugin/active-plugin.php'  => [
-					'subject_type' => 'plugin',
-					'subject_id'   => 'active-plugin/active-plugin.php',
-					'title'        => 'Active Plugin',
-					'icon_class'   => 'bi bi-plug-fill',
-					'has_update'   => false,
-				],
-				'ignored-plugin/ignored-plugin.php' => [
-					'subject_type' => 'plugin',
-					'subject_id'   => 'ignored-plugin/ignored-plugin.php',
-					'title'        => 'Ignored Plugin',
-					'icon_class'   => 'bi bi-plug-fill',
-					'has_update'   => false,
-				],
-			],
-			[
-				[ 'slug' => 'active-plugin/active-plugin.php', 'file_count' => 1 ],
-				[ 'slug' => 'ignored-plugin/ignored-plugin.php', 'file_count' => 3 ],
-			]
-		);
-
-		$activeSummaries = $builder->buildSummaryRecords( 'plugin' );
-		$records = $builder->buildFullyIgnoredSummaryRecords( 'plugin', $activeSummaries );
-
-		$this->assertSame( [ 'ignored-plugin/ignored-plugin.php' ], \array_column( $records, 'key' ) );
-		$this->assertSame( [ 'active', 'ignored' ], $builder->retrieveCalls );
-	}
-
-	public function test_build_fully_ignored_summary_records_supports_theme_assets() :void {
-		$builder = $this->newBuilder(
-			[
-				[ 'slug' => 'active-theme', 'file_count' => 2 ],
-			],
-			[
-				'active-theme' => [
-					'subject_type' => 'theme',
-					'subject_id'   => 'active-theme',
-					'title'        => 'asset-title-active',
-					'icon_class'   => 'bi bi-palette-fill',
-					'has_update'   => false,
-				],
-				'ignored-theme' => [
-					'subject_type' => 'theme',
-					'subject_id'   => 'ignored-theme',
-					'title'        => 'asset-title-ignored',
-					'icon_class'   => 'bi bi-palette-fill',
-					'has_update'   => false,
-				],
-			],
-			[
-				[ 'slug' => 'active-theme', 'file_count' => 1 ],
-				[ 'slug' => 'ignored-theme', 'file_count' => 4 ],
-			]
-		);
-
-		$records = $builder->buildFullyIgnoredSummaryRecords(
-			'theme',
-			$builder->buildSummaryRecords( 'theme' )
-		);
-
-		$this->assertSame( [ 'ignored-theme' ], \array_column( $records, 'key' ) );
-		$this->assertSame( [ 4 ], \array_column( $records, 'count_badge' ) );
+		$this->assertSame( [ 3, 1 ], \array_column( $records, 'count_badge' ) );
+		$this->assertSame( [ 'ignored' ], $builder->retrieveCalls );
 	}
 
 	/**

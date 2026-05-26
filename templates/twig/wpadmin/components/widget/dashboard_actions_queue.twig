@@ -33,14 +33,10 @@
 			{% endif %}
 
 			<div class="shield-dashboard-widget__footer">
-				{% if flags.show_internal_links %}
-					<a href="{{ hrefs.actions_queue }}" class="shield-dashboard-widget__cta">
-						{{ strings.open_actions_queue }}
-						<span class="shield-dashboard-widget__cta-arrow" aria-hidden="true"></span>
-					</a>
-				{% else %}
-					<span class="shield-dashboard-widget__cta is-static">{{ strings.open_actions_queue }}</span>
-				{% endif %}
+				<a href="{{ hrefs.actions_queue }}" class="shield-dashboard-widget__cta">
+					{{ strings.open_actions_queue }}
+					<span class="shield-dashboard-widget__cta-arrow" aria-hidden="true"></span>
+				</a>
 			</div>
 		</div>
 	</div>

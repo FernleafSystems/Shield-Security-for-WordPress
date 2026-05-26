@@ -72,7 +72,10 @@ export class ShieldTableScanResults extends ShieldTableBase {
 		return ( new AjaxService() )
 			.send( reqData, false, true )
 			.then( ( resp ) => {
-				this.handleDatatableAjaxResponse( resp, callback, settings );
+				if ( this.handleDatatableAjaxResponse( resp, callback, settings ) ) {
+					this.updateDisplayNoticeFromResponse( resp );
+					this.dispatchScanResultsChangedIfNeeded( resp );
+				}
 			} );
 	}
 
@@ -172,6 +175,46 @@ export class ShieldTableScanResults extends ShieldTableBase {
 		catch ( e ) {
 			return {};
 		}
+	}
+
+	dispatchScanResultsChangedIfNeeded( resp ) {
+		const datatableData = this.extractResponseData( resp ).datatable_data || {};
+		if ( datatableData.scan_results_changed !== true || !( this.el instanceof HTMLTableElement ) ) {
+			return;
+		}
+
+		this.el.dispatchEvent( new CustomEvent( 'shield:scan-results-changed', {
+			bubbles: true,
+			detail: {
+				datatable_data: datatableData,
+			}
+		} ) );
+	}
+
+	updateDisplayNoticeFromResponse( resp ) {
+		if ( !( this.el instanceof HTMLTableElement ) ) {
+			return;
+		}
+
+		const notice = this.extractResponseData( resp ).datatable_data?.display_notice || null;
+		const container = this.el
+			.closest( '.investigate-table-panel, .shield-card' )
+			?.querySelector( '[data-scan-results-display-notice="1"]' );
+		if ( !( container instanceof HTMLElement ) || notice === null || typeof notice !== 'object' ) {
+			return;
+		}
+
+		const status = typeof notice.status === 'string' && notice.status !== '' ? notice.status : 'info';
+		container.classList.forEach( ( className ) => {
+			if ( className.indexOf( 'alert-' ) === 0 ) {
+				container.classList.remove( className );
+			}
+		} );
+		container.classList.add( `alert-${ status }` );
+		container.classList.toggle( 'd-none', notice.is_visible !== true );
+		container.dataset.scanResultsDisplayNoticeMode = typeof notice.mode === 'string' ? notice.mode : 'none';
+		container.dataset.scanResultsDisplayNoticeIgnoredCount = String( notice.ignored_count ?? 0 );
+		container.textContent = typeof notice.text === 'string' ? notice.text : '';
 	}
 
 	getFilterAwareLanguage() {

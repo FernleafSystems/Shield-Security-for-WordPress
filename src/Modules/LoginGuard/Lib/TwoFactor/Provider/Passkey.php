@@ -122,14 +122,15 @@ class Passkey extends AbstractShieldProviderMfaDB {
 			parent::getUserProfileFormRenderData(),
 			[
 				'strings' => [
-					'title'              => __( 'Passkeys', 'wp-simple-firewall' ),
-					'button_reg_key'     => __( 'Register New Passkey', 'wp-simple-firewall' ),
-					'prompt'             => __( 'Click To Register A Passkey.', 'wp-simple-firewall' ),
-					'registered_devices' => __( 'Registered Passkeys', 'wp-simple-firewall' ),
-					'passkey'            => __( 'Passkey', 'wp-simple-firewall' ),
-					'used'               => __( 'Used', 'wp-simple-firewall' ),
-					'registered'         => __( 'Registered', 'wp-simple-firewall' ),
-					'action'             => __( 'Action', 'wp-simple-firewall' ),
+					'title'                 => __( 'Passkeys', 'wp-simple-firewall' ),
+					'button_reg_key'        => __( 'Register New Passkey', 'wp-simple-firewall' ),
+					'prompt'                => __( 'Click To Register A Passkey.', 'wp-simple-firewall' ),
+					'registered_devices'    => __( 'Registered Passkeys', 'wp-simple-firewall' ),
+					'no_registered_devices' => __( 'There are no passkeys registered to this account.', 'wp-simple-firewall' ),
+					'passkey'               => __( 'Passkey', 'wp-simple-firewall' ),
+					'used'                  => __( 'Used', 'wp-simple-firewall' ),
+					'registered'            => __( 'Registered', 'wp-simple-firewall' ),
+					'action'                => __( 'Action', 'wp-simple-firewall' ),
 				],
 				'flags'   => [
 					'is_validated' => $this->hasValidatedProfile(),
