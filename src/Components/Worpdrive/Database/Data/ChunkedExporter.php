@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\{
 	Config,
 	Exporter,
+	SqlDumpIdentifierEscaper,
 	Table\TableDataExport,
 	Table\TableHelper
 };
@@ -50,6 +51,7 @@ class ChunkedExporter {
 
 		$tableDataExp = new TableDataExport( $this->table, $cfg );
 		$primaryOrderColumn = ( new TableHelper( $this->table ) )->getAppropriatePrimaryKeyForOrdering();
+		$idEscaper = new SqlDumpIdentifierEscaper();
 		if ( empty( $primaryOrderColumn ) ) {
 			// when the query isn't optimised, offset queries are slower, we reduce the page size
 			// to reduce a likelihood that the export request exceeds the server request timeout.
@@ -57,7 +59,7 @@ class ChunkedExporter {
 			$this->maxPageRows = (int)\max( 1, \round( 2*$this->maxPageRows/3 ) );
 		}
 		else {
-			$orderBy = sprintf( 'ORDER BY `%s` ASC', $primaryOrderColumn );
+			$orderBy = sprintf( 'ORDER BY %s ASC', $idEscaper->escape( $primaryOrderColumn ) );
 		}
 
 		$pageExportComplete = false;
@@ -88,7 +90,7 @@ class ChunkedExporter {
 
 				$tableDataExp->buildDataRows(
 					[
-						sprintf( '`%s` %s %s', $primaryOrderColumn, $offset == 0 ? '>=' : '>', $offset )
+						sprintf( '%s %s %s', $idEscaper->escape( $primaryOrderColumn ), $offset == 0 ? '>=' : '>', $offset )
 					],
 					$orderBy,
 					$this->chunkSize

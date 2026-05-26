@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\{
 	Config,
+	SqlDumpBitValueFormatter,
+	SqlDumpIdentifierEscaper,
 	SqlDumpValueEscaper
 };
 use FernleafSystems\Wordpress\Services\Services;
@@ -52,6 +54,7 @@ class TableDataExport {
 	 */
 	public function buildDataRows( array $where = [], string $orderBy = '', int $limit = 0, int $offset = 0 ) :void {
 		$DB = Services::WpDb();
+		$idEscaper = new SqlDumpIdentifierEscaper();
 
 //		error_log( sprintf(
 //			"SELECT * FROM `%s` %s %s %s;",
@@ -61,8 +64,8 @@ class TableDataExport {
 //			empty( $limit ) ? '' : sprintf( ' LIMIT %s OFFSET %s', $limit, $offset )
 //		) );
 		$rows = $DB->selectCustom( sprintf(
-			"SELECT * FROM `%s` %s %s %s;",
-			$this->table,
+			"SELECT * FROM %s %s %s %s;",
+			$idEscaper->escape( $this->table ),
 			empty( $where ) ? '' : sprintf( ' WHERE %s', \implode( ' AND ', $where ) ),
 			$orderBy,
 			empty( $limit ) ? '' : sprintf( ' LIMIT %s OFFSET %s', $limit, $offset )
@@ -93,9 +96,9 @@ class TableDataExport {
 		if ( $this->cfg->has( 'delayed-insert' ) ) {
 			$insertPrefix .= ' DELAYED';
 		}
-		$insertPrefix .= sprintf( ' INTO `%s`', $this->table );
+		$insertPrefix .= sprintf( ' INTO %s', $idEscaper->escape( $this->table ) );
 		if ( $this->cfg->has( 'complete-insert' ) ) {
-			$insertPrefix .= ' (`'.\implode( '`, `', \array_keys( $columns ) ).'`)';
+			$insertPrefix .= ' ('.\implode( ', ', $idEscaper->escapeAll( \array_keys( $columns ) ) ).')';
 		}
 		$insertPrefix .= ' VALUES ';
 
@@ -150,17 +153,16 @@ class TableDataExport {
 	private function convertRawRowToSqlValues( array $row, array $columns ) :array {
 		$rowValues = [];
 		$escaper = new SqlDumpValueEscaper();
+		$bitFormatter = new SqlDumpBitValueFormatter();
 		foreach ( $columns as $field => $col ) {
-			if ( \preg_match( '#^int|bigint|mediumint|smallint|tinyint|bool|decimal|float|double|bit#i', $col[ 'Type' ] ) ) {
+			if ( \preg_match( '#^bit#i', $col[ 'Type' ] ) ) {
+				$rowValues[] = \is_null( $row[ $field ] ) ? 'NULL' : $bitFormatter->format( $row[ $field ], $col[ 'Type' ] );
+			}
+			elseif ( \preg_match( '#^int|bigint|mediumint|smallint|tinyint|bool|decimal|float|double#i', $col[ 'Type' ] ) ) {
 				$rowValues[] = \is_null( $row[ $field ] ) ? 'NULL' : $row[ $field ];
 			}
 			elseif ( $this->cfg->has( 'hex-blob' ) && \preg_match( '#^blob|longblob|mediumblob|tinyblob|binary|varbinary#i', $col[ 'Type' ] ) ) {
-				if ( \preg_match( '#^bit#i', $col[ 'Type' ] ) ) {
-					$rowValues[] = '0x'.\bin2hex( $row[ $field ] );
-				}
-				else {
-					$rowValues[] = $row[ $field ] == '' ? "''" : '0x'.\bin2hex( $row[ $field ] );
-				}
+				$rowValues[] = $row[ $field ] == '' ? "''" : '0x'.\bin2hex( $row[ $field ] );
 			}
 			else {
 				$rowValues[] = \is_null( $row[ $field ] ) ?

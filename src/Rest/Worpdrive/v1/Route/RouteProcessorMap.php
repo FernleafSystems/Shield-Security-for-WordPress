@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\{
 	Filesystem\Map,
 	Filesystem\Zip\ZipHandler
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility\Base64PayloadDecoder;
 use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\Utility\BuildTimeLimit;
@@ -65,7 +66,7 @@ class RouteProcessorMap {
 			FilesystemZip::class => fn( Req $req ) => $this->wrapProcessor(
 				$req,
 				fn( Req $req ) => ( new ZipHandler(
-					\array_map( '\base64_decode', $req->get_param( 'file_paths' ) ),
+					( new Base64PayloadDecoder() )->decodeRequiredList( $req->get_param( 'file_paths' ) ),
 					$req->get_param( 'dir' ),
 					$req->get_param( 'uuid' ),
 					BuildTimeLimit::Build( $req->get_param( 'time_limit' ) )

@@ -22,6 +22,7 @@ class Zipper {
 	 * @throws \Exception
 	 */
 	public function create() {
+		$this->validateFilePaths();
 		try {
 			if ( !\class_exists( '\ZipArchive' ) ) {
 				throw new \Exception( 'ZipArchive not supported, falling back to PclZip' );
@@ -103,6 +104,13 @@ class Zipper {
 	private function preCreate() :void {
 		if ( Services::WpFs()->isFile( $this->targetZip ) ) {
 			Services::WpFs()->deleteFile( $this->targetZip );
+		}
+	}
+
+	private function validateFilePaths() :void {
+		$guard = new RelativeZipPathGuard();
+		foreach ( $this->filePaths as $path ) {
+			$guard->assertValid( $path );
 		}
 	}
 }

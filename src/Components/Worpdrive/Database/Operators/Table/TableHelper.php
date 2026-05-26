@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\Table;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Database\Operators\SqlDumpIdentifierEscaper;
 use FernleafSystems\Wordpress\Services\Services;
 
 class TableHelper {
@@ -31,7 +32,9 @@ class TableHelper {
 	 */
 	public function showColumns() :array {
 		if ( $this->columns === null ) {
-			$colResults = Services::WpDb()->selectCustom( sprintf( "SHOW FULL COLUMNS FROM `%s`", esc_sql( $this->table ) ) );
+			$colResults = Services::WpDb()->selectCustom(
+				sprintf( 'SHOW FULL COLUMNS FROM %s', ( new SqlDumpIdentifierEscaper() )->escape( $this->table ) )
+			);
 			if ( !\is_array( $colResults ) ) {
 				throw new \Exception( 'No columns in results' );
 			}
@@ -75,7 +78,9 @@ class TableHelper {
 	 */
 	public function showCreate() :array {
 		$tableCreateSQL = Services::WpDb()
-								  ->selectCustom( sprintf( 'SHOW CREATE TABLE `%s`', esc_sql( $this->table ) ) );
+								  ->selectCustom(
+									  sprintf( 'SHOW CREATE TABLE %s', ( new SqlDumpIdentifierEscaper() )->escape( $this->table ) )
+								  );
 		if ( !\is_array( $tableCreateSQL ) || \count( $tableCreateSQL ) !== 1 ) {
 			throw new \Exception( sprintf( 'show create table failed for %s', $this->table ) );
 		}

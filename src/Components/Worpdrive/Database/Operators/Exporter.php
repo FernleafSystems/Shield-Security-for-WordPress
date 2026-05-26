@@ -86,6 +86,7 @@ class Exporter {
 	}
 
 	public function buildTableDataStructureStart( string $table ) :self {
+		$idEscaper = new SqlDumpIdentifierEscaper();
 		if ( !$this->cfg->has( 'skip-comments' ) ) {
 			$this->addContent( [
 				'',
@@ -96,10 +97,10 @@ class Exporter {
 			] );
 		}
 		if ( $this->cfg->has( 'add-locks' ) ) {
-			$this->addLine( sprintf( "LOCK TABLES `%s` WRITE;", $table ) );
+			$this->addLine( sprintf( 'LOCK TABLES %s WRITE;', $idEscaper->escape( $table ) ) );
 		}
 		if ( $this->cfg->has( 'disable-keys' ) ) {
-			$this->addLine( "/*!40000 ALTER TABLE `$table` DISABLE KEYS */;" );
+			$this->addLine( sprintf( '/*!40000 ALTER TABLE %s DISABLE KEYS */;', $idEscaper->escape( $table ) ) );
 			//"SET FOREIGN_KEY_CHECKS = 0;";
 		}
 		$this->addLine( '' );
@@ -107,9 +108,10 @@ class Exporter {
 	}
 
 	public function buildTableDataStructureEnd( string $table ) :self {
+		$idEscaper = new SqlDumpIdentifierEscaper();
 		$this->addContent( \array_filter( [
 			'',
-			$this->cfg->has( 'disable-keys' ) ? sprintf( "/*!40000 ALTER TABLE `%s` ENABLE KEYS */;", $table ) : null,
+			$this->cfg->has( 'disable-keys' ) ? sprintf( '/*!40000 ALTER TABLE %s ENABLE KEYS */;', $idEscaper->escape( $table ) ) : null,
 			$this->cfg->has( 'add-locks' ) ? 'UNLOCK TABLES;' : null,
 			'',
 		], fn( $line ) => $line !== null ) );
@@ -120,10 +122,11 @@ class Exporter {
 	 * @throws \Exception
 	 */
 	public function buildTableDataStructureRows( string $table ) :void {
+		$idEscaper = new SqlDumpIdentifierEscaper();
 
 		// Select all the Rows
 		$rows = Services::WpDb()->selectCustom( sprintf(
-			"SELECT * FROM `%s` %s;", $table, $this->cfg->has( 'where' ) ? ' WHERE '.$this->cfg->get( 'where' ) : ''
+			'SELECT * FROM %s %s;', $idEscaper->escape( $table ), $this->cfg->has( 'where' ) ? ' WHERE '.$this->cfg->get( 'where' ) : ''
 		) );
 
 		$this->previousDataRows = \is_array( $rows ) ? \count( $rows ) : null;
@@ -143,7 +146,7 @@ class Exporter {
 		$tablesLocked = false; // $this->cfg->has( 'lock-tables' ) && $DB->doSql( sprintf( 'LOCK TABLES `%s` READ LOCAL', $table ) );
 
 		// Describing the table allows us to do smarter things with the values
-		$colResults = Services::WpDb()->selectCustom( sprintf( "SHOW FULL COLUMNS FROM `%s`", $table ) );
+		$colResults = Services::WpDb()->selectCustom( sprintf( 'SHOW FULL COLUMNS FROM %s', $idEscaper->escape( $table ) ) );
 		if ( !\is_array( $colResults ) ) {
 			throw new \Exception( 'No columns in results' );
 		}
@@ -160,9 +163,9 @@ class Exporter {
 		if ( $this->cfg->has( 'delayed-insert' ) ) {
 			$insertPrefix .= ' DELAYED';
 		}
-		$insertPrefix .= sprintf( ' INTO `%s`', $table );
+		$insertPrefix .= sprintf( ' INTO %s', $idEscaper->escape( $table ) );
 		if ( $this->cfg->has( 'complete-insert' ) ) {
-			$insertPrefix .= ' (`'.\implode( '`, `', \array_keys( $columns ) ).'`)';
+			$insertPrefix .= ' ('.\implode( ', ', $idEscaper->escapeAll( \array_keys( $columns ) ) ).')';
 		}
 		$insertPrefix .= ' VALUES ';
 
@@ -226,17 +229,16 @@ class Exporter {
 	private function convertRawRowToSqlValues( array $row, array $columns ) :array {
 		$rowValues = [];
 		$escaper = new SqlDumpValueEscaper();
+		$bitFormatter = new SqlDumpBitValueFormatter();
 		foreach ( $columns as $field => $type ) {
-			if ( \preg_match( '#^int|bigint|mediumint|smallint|tinyint|bool|decimal|float|double|bit#i', $type ) ) {
+			if ( \preg_match( '#^bit#i', $type ) ) {
+				$rowValues[] = \is_null( $row[ $field ] ) ? 'NULL' : $bitFormatter->format( $row[ $field ], $type );
+			}
+			elseif ( \preg_match( '#^int|bigint|mediumint|smallint|tinyint|bool|decimal|float|double#i', $type ) ) {
 				$rowValues[] = \is_null( $row[ $field ] ) ? 'NULL' : $row[ $field ];
 			}
 			elseif ( $this->cfg->has( 'hex-blob' ) && \preg_match( '#^blob|longblob|mediumblob|tinyblob|binary|varbinary#i', $type ) ) {
-				if ( \preg_match( '#^bit#i', $type ) ) {
-					$rowValues[] = '0x'.\bin2hex( $row[ $field ] );
-				}
-				else {
-					$rowValues[] = $row[ $field ] == '' ? "''" : '0x'.\bin2hex( $row[ $field ] );
-				}
+				$rowValues[] = $row[ $field ] == '' ? "''" : '0x'.\bin2hex( $row[ $field ] );
 			}
 			else {
 				$rowValues[] = \is_null( $row[ $field ] ) ?
@@ -328,6 +330,7 @@ class Exporter {
 	}
 
 	public function buildTableStructure( string $table, string $createInfo ) :void {
+		$idEscaper = new SqlDumpIdentifierEscaper();
 		if ( !$this->cfg->has( 'skip-comments' ) ) {
 			$this->addContent( [
 				'',
@@ -339,7 +342,7 @@ class Exporter {
 		}
 
 		if ( $this->cfg->has( 'add-drop-table' ) ) {
-			$this->addLine( "DROP TABLE IF EXISTS `$table`;" );
+			$this->addLine( sprintf( 'DROP TABLE IF EXISTS %s;', $idEscaper->escape( $table ) ) );
 		}
 
 		$isWrapSetNames = $this->cfg->has( 'set-charset' ) && $this->cfg->get( 'default-character-set' );

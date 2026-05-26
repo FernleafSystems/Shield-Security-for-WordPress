@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesyste
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Exc\TimeLimitReachedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesystem\Map\Listing\AbstractFileListing;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility\FileNameFor;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility\{
+	Base64PayloadDecoder,
+	FileNameFor
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class MapHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Filesystem\BaseFsHandler {
@@ -30,15 +33,16 @@ class MapHandler extends \FernleafSystems\Wordpress\Plugin\Shield\Components\Wor
 	 */
 	public function run() :array {
 		$completed = false;
+		$payloadDecoder = new Base64PayloadDecoder();
 
 		$this->filter = new FileFilter(
 			\array_merge(
-				\array_map( '\base64_decode', $this->mapVO->exclusions[ 'contains' ] ?? [] ),
+				$payloadDecoder->decodeOptionalList( $this->mapVO->exclusions[ 'contains' ] ?? [] ),
 				[
 					\str_replace( wp_normalize_path( ABSPATH ), '', \dirname( $this->workingDir() ) ),
 				]
 			),
-			\array_map( '\base64_decode', $this->mapVO->exclusions[ 'regex' ] ?? [] ),
+			$payloadDecoder->decodeOptionalList( $this->mapVO->exclusions[ 'regex' ] ?? [] ),
 			$this->mapVO->maxFileSize,
 			$this->mapVO->newerThanTS,
 			$this->mapVO->olderThanTS
