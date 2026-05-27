@@ -25,6 +25,43 @@ Supporting docs:
 
 `test:source`, `test:integration-local`, `test:package-full`, `test:upgrade-public`, and `test:popular-plugins` default to reduced Docker output to keep signal dense. Add `--show-docker-output` when you need full compose output for a failing run.
 
+## Private Packagist Composer Auth
+
+Shield consumes the private Composer package `fernleafsystems/worpdrive-client` from the Fernleaf Systems Private Packagist repository at `https://repo.packagist.com/fernleafsystems/`. Any lane that runs Composer install, update, package build, or a Composer-backed test command needs Private Packagist auth before Composer starts.
+
+CI uses the repository secret `PACKAGIST_TOKEN`. The workflow step `Prepare Private Packagist Composer auth` runs `.github/scripts/prepare-packagist-composer-auth.php` before Composer commands. If `PACKAGIST_TOKEN` is missing or blank, the helper exits before dependency install with a clear Packagist-token error. It writes `COMPOSER_AUTH` to `$GITHUB_ENV` and does not print the token or auth JSON.
+
+Use a read-only Private Packagist org token for CI installs after `composer.lock` is committed. Use an update-capable org token or user token only when intentionally generating or updating lock files.
+
+Local preflight:
+
+```bash
+export PACKAGIST_TOKEN='<private-packagist-token>'
+php .github/scripts/prepare-packagist-composer-auth.php --check-only
+```
+
+```powershell
+$env:PACKAGIST_TOKEN='<private-packagist-token>'
+php .github/scripts/prepare-packagist-composer-auth.php --check-only
+```
+
+Local Composer commands also need `COMPOSER_AUTH` or Composer's global auth configured for `repo.packagist.com`. Keep secrets out of shell history, committed files, and command output. Do not commit `auth.json` or literal `COMPOSER_AUTH` JSON.
+
+Auth-required public Composer lanes:
+
+| Lane | Why auth is required |
+|---|---|
+| `composer install` / `composer update` | Resolves `fernleafsystems/worpdrive-client` from Private Packagist |
+| `composer test`, `composer test:unit`, `composer test:integration` | Composer-backed PHP test lanes depend on installed private packages |
+| `composer test:browser`, `composer test:cross-site` | Install dependencies before Docker/browser runtime work |
+| `composer test:package`, `composer package-plugin`, `composer build-zip` | Package build/validation installs and packages Composer dependencies |
+| `composer test:upgrade-public`, `composer test:popular-plugins` | Release-confidence package lanes build or consume the current package |
+| `composer analyze` | Source analysis depends on Composer-installed dependencies |
+
+Auth-required internal lanes are the Composer-backed source, package, Docker, browser, cross-site, release, and analysis paths listed in this file, including `test:source`, `test:integration-local`, `test:package-targeted`, `test:package-full`, `analyze:source`, `analyze:package`, `git:pre-commit`, `dev:site:*`, and `test:site:*` when they invoke Composer-installed tooling. JS-only checks, cache-cleanup script regression tests, and admin-bundle-safety script regression tests do not need Packagist auth unless Composer commands are added to those jobs later.
+
+Auth preflight is wired into the Composer-bearing CI workflows: `.github/workflows/tests.yml`, `.github/workflows/reusable-unit-tests.yml`, `.github/workflows/reusable-build-package.yml`, `.github/workflows/unit-serial-sentinel.yml`, `.github/workflows/browser-tests.yml`, `.github/workflows/cross-site-tests.yml`, and `.github/workflows/release.yml`. `.github/workflows/cache-cleanup.yml`, JS-only jobs, and standalone shell script regression jobs are intentionally outside the Packagist-auth path until they start running Composer.
+
 ### Unit test narrowing
 
 Use `composer test:unit` for normal unit work, including full-suite, path-focused, and filtered runs:
