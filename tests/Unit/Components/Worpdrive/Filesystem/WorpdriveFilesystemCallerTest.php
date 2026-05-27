@@ -159,7 +159,8 @@ class WorpdriveFilesystemCallerTest extends BaseUnitTest {
 
 		$this->assertSame( 1, $result[ 'map_count' ] );
 		$this->assertCount( 1, $listing->paths() );
-		$this->assertStringEndsWith( '/z-keep.txt', $this->normalizePath( $listing->paths()[ 0 ] ) );
+		$this->assertSame( 'z-keep.txt', \basename( $this->normalizePath( $listing->paths()[ 0 ] ) ) );
+		$this->assertStringNotContainsString( 'a-skip.txt', $this->normalizePath( $listing->paths()[ 0 ] ) );
 	}
 
 	private function tempDir( string $prefix ) :string {
