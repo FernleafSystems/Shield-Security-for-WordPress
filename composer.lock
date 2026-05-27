@@ -627,16 +627,16 @@
         },
         {
             "name": "fernleafsystems/worpdrive-client",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "source": {
                 "type": "git",
                 "url": "git@github.com:FernleafSystems/worpdrive-client.git",
-                "reference": "54b5a96c88aa3236ab2c83c83d9776e93c0dcf09"
+                "reference": "a8c516ae7dbdcdcfc4d66bc15e6380158a8c8a99"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FernleafSystems/worpdrive-client/zipball/54b5a96c88aa3236ab2c83c83d9776e93c0dcf09",
-                "reference": "54b5a96c88aa3236ab2c83c83d9776e93c0dcf09",
+                "url": "https://api.github.com/repos/FernleafSystems/worpdrive-client/zipball/a8c516ae7dbdcdcfc4d66bc15e6380158a8c8a99",
+                "reference": "a8c516ae7dbdcdcfc4d66bc15e6380158a8c8a99",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -695,10 +695,10 @@
             ],
             "description": "The WorpDrive Client Library",
             "support": {
-                "source": "https://github.com/FernleafSystems/worpdrive-client/tree/0.1.0",
+                "source": "https://github.com/FernleafSystems/worpdrive-client/tree/0.1.1",
                 "issues": "https://github.com/FernleafSystems/worpdrive-client/issues"
             },
-            "time": "2026-05-27T11:19:21+00:00"
+            "time": "2026-05-27T15:16:12+00:00"
         },
         {
             "name": "fernleafsystems/zxcvbn-php",
