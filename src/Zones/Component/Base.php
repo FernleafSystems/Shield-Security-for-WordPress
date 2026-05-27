@@ -135,7 +135,7 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	 *   weight:int,
 	 *   score:int,
 	 *   is_protected:bool,
-	 *   severity:string,
+	 *   severity:'good'|'warning'|'critical',
 	 *   explanation:list<string>,
 	 *   config_action:array<string,mixed>
 	 * }>
@@ -340,13 +340,14 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 
 	/**
 	 * @param string[] $explanation
+	 * @param 'good'|'warning'|'critical' $severity
 	 * @return array{
 	 *   slug:string,
 	 *   title:string,
 	 *   weight:int,
 	 *   score:int,
 	 *   is_protected:bool,
-	 *   severity:string,
+	 *   severity:'good'|'warning'|'critical',
 	 *   explanation:list<string>,
 	 *   config_action:array<string,mixed>
 	 * }
