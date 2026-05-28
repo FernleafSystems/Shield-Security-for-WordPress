@@ -32,12 +32,23 @@ class SiteHealthControllerTest extends BaseUnitTest {
 
 	private bool $isNetworkAdmin = false;
 
+	private bool $showSiteHealth = true;
+
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
+		$this->showSiteHealth = true;
 
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
-		Functions\when( 'apply_filters' )->alias( static fn( string $hook, $value ) => $value );
+		Functions\when( '_n' )->alias( static fn( string $single, string $plural, int $number ) :string => $number === 1 ? $single : $plural );
+		Functions\when( 'admin_url' )->alias( static fn( string $path = '' ) :string => '/wp-admin/'.$path );
+		Functions\when( 'apply_filters' )->alias(
+			fn( string $hook, $value ) => $hook === 'shield/show_site_health' ? $this->showSiteHealth : $value
+		);
+		Functions\when( 'esc_html' )->alias(
+			static fn( string $text ) :string => \htmlspecialchars( $text, \ENT_QUOTES )
+		);
+		Functions\when( 'esc_url' )->alias( static fn( string $url ) :string => $url );
 		Functions\when( 'is_admin' )->alias( fn() :bool => $this->isAdmin );
 		Functions\when( 'is_network_admin' )->alias( fn() :bool => $this->isNetworkAdmin );
 	}
@@ -48,31 +59,64 @@ class SiteHealthControllerTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_execute_registers_native_site_health_hooks_for_admin_context() :void {
+	public function test_execute_registers_status_tab_and_capability_hooks_for_admin_context() :void {
 		$this->isAdmin = true;
 		$this->installSiteHealthRuntime();
 
 		$registered = [];
-		$this->trackRegisteredFilters( $registered );
+		$this->trackRegisteredHooks( $registered );
 
 		( new SiteHealthController() )->execute();
 
-		$this->assertContains(
-			[
-				'hook'          => 'site_status_tests',
-				'priority'      => 10,
-				'accepted_args' => 1,
-			],
-			$registered
-		);
-		$this->assertContains(
-			[
-				'hook'          => 'user_has_cap',
-				'priority'      => 20,
-				'accepted_args' => 4,
-			],
-			$registered
-		);
+		$this->assertContains( $this->hookRecord( 'filter', 'site_status_tests' ), $registered );
+		$this->assertContains( $this->hookRecord( 'filter', 'site_health_navigation_tabs', 11 ), $registered );
+		$this->assertContains( $this->hookRecord( 'action', 'site_health_tab_content' ), $registered );
+		$this->assertContains( $this->hookRecord( 'filter', 'user_has_cap', 20, 4 ), $registered );
+	}
+
+	public function test_site_health_display_filter_disables_admin_display_hooks_but_preserves_capability_filter() :void {
+		$this->isAdmin = true;
+		$this->showSiteHealth = false;
+		$this->installSiteHealthRuntime();
+
+		$registered = [];
+		$this->trackRegisteredHooks( $registered );
+
+		( new SiteHealthController() )->execute();
+
+		$this->assertNotContains( $this->hookRecord( 'filter', 'site_status_tests' ), $registered );
+		$this->assertNotContains( $this->hookRecord( 'filter', 'site_health_navigation_tabs', 11 ), $registered );
+		$this->assertNotContains( $this->hookRecord( 'action', 'site_health_tab_content' ), $registered );
+		$this->assertContains( $this->hookRecord( 'filter', 'user_has_cap', 20, 4 ), $registered );
+	}
+
+	public function test_execute_registers_status_and_capability_hooks_without_tab_hooks_for_ajax_context() :void {
+		$this->installSiteHealthRuntime( true );
+
+		$registered = [];
+		$this->trackRegisteredHooks( $registered );
+
+		( new SiteHealthController() )->execute();
+
+		$this->assertContains( $this->hookRecord( 'filter', 'site_status_tests' ), $registered );
+		$this->assertNotContains( $this->hookRecord( 'filter', 'site_health_navigation_tabs', 11 ), $registered );
+		$this->assertNotContains( $this->hookRecord( 'action', 'site_health_tab_content' ), $registered );
+		$this->assertContains( $this->hookRecord( 'filter', 'user_has_cap', 20, 4 ), $registered );
+	}
+
+	public function test_site_health_display_filter_disables_ajax_status_tests_but_preserves_capability_filter() :void {
+		$this->showSiteHealth = false;
+		$this->installSiteHealthRuntime( true );
+
+		$registered = [];
+		$this->trackRegisteredHooks( $registered );
+
+		( new SiteHealthController() )->execute();
+
+		$this->assertNotContains( $this->hookRecord( 'filter', 'site_status_tests' ), $registered );
+		$this->assertNotContains( $this->hookRecord( 'filter', 'site_health_navigation_tabs', 11 ), $registered );
+		$this->assertNotContains( $this->hookRecord( 'action', 'site_health_tab_content' ), $registered );
+		$this->assertContains( $this->hookRecord( 'filter', 'user_has_cap', 20, 4 ), $registered );
 	}
 
 	public function test_execute_registers_only_capability_filter_for_site_health_rest_context() :void {
@@ -83,26 +127,14 @@ class SiteHealthControllerTest extends BaseUnitTest {
 		);
 
 		$registered = [];
-		$this->trackRegisteredFilters( $registered );
+		$this->trackRegisteredHooks( $registered );
 
 		( new SiteHealthController() )->execute();
 
-		$this->assertNotContains(
-			[
-				'hook'          => 'site_status_tests',
-				'priority'      => 10,
-				'accepted_args' => 1,
-			],
-			$registered
-		);
-		$this->assertContains(
-			[
-				'hook'          => 'user_has_cap',
-				'priority'      => 20,
-				'accepted_args' => 4,
-			],
-			$registered
-		);
+		$this->assertNotContains( $this->hookRecord( 'filter', 'site_status_tests' ), $registered );
+		$this->assertNotContains( $this->hookRecord( 'filter', 'site_health_navigation_tabs', 11 ), $registered );
+		$this->assertNotContains( $this->hookRecord( 'action', 'site_health_tab_content' ), $registered );
+		$this->assertContains( $this->hookRecord( 'filter', 'user_has_cap', 20, 4 ), $registered );
 	}
 
 	public function test_can_run_for_site_health_rest_async_test_route() :void {
@@ -145,7 +177,14 @@ class SiteHealthControllerTest extends BaseUnitTest {
 		$this->assertFalse( ( new ExposedSiteHealthController() )->exposeCanRun() );
 	}
 
-	public function test_add_site_status_tests_preserves_existing_direct_tests() :void {
+	public function test_can_run_requires_wordpress_58() :void {
+		$this->isAdmin = true;
+		$this->installSiteHealthRuntime( false, false, '', true, false );
+
+		$this->assertFalse( ( new ExposedSiteHealthController() )->exposeCanRun() );
+	}
+
+	public function test_add_site_status_tests_preserves_existing_direct_tests_and_adds_only_aggregate_shield_test() :void {
 		$tests = ( new SiteHealthController() )->addSiteStatusTests( [
 			'direct' => [
 				'wordpress_test' => [
@@ -155,8 +194,18 @@ class SiteHealthControllerTest extends BaseUnitTest {
 		] );
 
 		$this->assertArrayHasKey( 'wordpress_test', $tests[ 'direct' ] );
-		$this->assertArrayHasKey( 'shield_security_firewall', $tests[ 'direct' ] );
-		$this->assertIsCallable( $tests[ 'direct' ][ 'shield_security_firewall' ][ 'test' ] );
+		$this->assertArrayHasKey( 'shield_security', $tests[ 'direct' ] );
+		$this->assertArrayNotHasKey( 'shield_security_firewall', $tests[ 'direct' ] );
+		$this->assertIsCallable( $tests[ 'direct' ][ 'shield_security' ][ 'test' ] );
+	}
+
+	public function test_add_site_health_navigation_tab_positions_security_after_status() :void {
+		$tabs = ( new SiteHealthController() )->addSiteHealthNavigationTab( [
+			''      => 'Status',
+			'debug' => 'Info',
+		] );
+
+		$this->assertSame( [ '', 'shield_security', 'debug' ], \array_keys( $tabs ) );
 	}
 
 	public function test_security_admin_access_grants_site_health_capability() :void {
@@ -213,10 +262,22 @@ class SiteHealthControllerTest extends BaseUnitTest {
 		$this->assertSame( $allCaps, $result );
 	}
 
-	private function trackRegisteredFilters( array &$registered ) :void {
+	private function trackRegisteredHooks( array &$registered ) :void {
 		Functions\when( 'add_filter' )->alias(
 			static function ( string $hook, callable $callback, int $priority = 10, int $acceptedArgs = 1 ) use ( &$registered ) :bool {
 				$registered[] = [
+					'type'          => 'filter',
+					'hook'          => $hook,
+					'priority'      => $priority,
+					'accepted_args' => $acceptedArgs,
+				];
+				return true;
+			}
+		);
+		Functions\when( 'add_action' )->alias(
+			static function ( string $hook, callable $callback, int $priority = 10, int $acceptedArgs = 1 ) use ( &$registered ) :bool {
+				$registered[] = [
+					'type'          => 'action',
 					'hook'          => $hook,
 					'priority'      => $priority,
 					'accepted_args' => $acceptedArgs,
@@ -226,27 +287,40 @@ class SiteHealthControllerTest extends BaseUnitTest {
 		);
 	}
 
+	private function hookRecord( string $type, string $hook, int $priority = 10, int $acceptedArgs = 1 ) :array {
+		return [
+			'type'          => $type,
+			'hook'          => $hook,
+			'priority'      => $priority,
+			'accepted_args' => $acceptedArgs,
+		];
+	}
+
 	private function installSiteHealthRuntime(
 		bool $isAjax = false,
 		bool $isRest = false,
 		string $restRoute = '',
-		bool $pluginEnabled = true
+		bool $pluginEnabled = true,
+		bool $wpAtLeastVersion = true
 	) :void {
-		$this->installServices( $isAjax, $isRest );
+		$this->installServices( $isAjax, $isRest, $wpAtLeastVersion );
 		$this->installController( true, true, $pluginEnabled, $restRoute );
 	}
 
-	private function installServices( bool $isAjax, bool $isRest ) :void {
+	private function installServices( bool $isAjax, bool $isRest, bool $wpAtLeastVersion ) :void {
 		ServicesState::installItems( [
-			'service_wpgeneral' => new class( $isAjax ) extends General {
+			'service_wpgeneral' => new class( $isAjax, $wpAtLeastVersion ) extends General {
 				private bool $isAjax;
 
-				public function __construct( bool $isAjax ) {
+				private bool $wpAtLeastVersion;
+
+				public function __construct( bool $isAjax, bool $wpAtLeastVersion ) {
 					$this->isAjax = $isAjax;
+					$this->wpAtLeastVersion = $wpAtLeastVersion;
 				}
 
 				public function getWordpressIsAtLeastVersion( string $version, bool $ignoreCP = true ) :bool {
-					return true;
+					return $version === '5.8' && $this->wpAtLeastVersion;
 				}
 
 				public function isAjax() :bool {

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZoneSignals;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 
 /**
+ * @phpstan-type SiteHealthStatus 'good'|'recommended'|'critical'
  * @phpstan-type ZoneSignal array{
  *   slug:string,
  *   title:string,
@@ -18,12 +19,36 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
  *   config_action:array<string,mixed>,
  *   zone:string
  * }
+ * @phpstan-type SiteHealthResult array{
+ *   label:string,
+ *   status:SiteHealthStatus,
+ *   badge:array{label:string,color:string},
+ *   description:string,
+ *   actions:string,
+ *   test:string
+ * }
+ * @phpstan-type ZoneStatus array{
+ *   slug:string,
+ *   title:string,
+ *   status:SiteHealthStatus,
+ *   status_label:string,
+ *   description:string,
+ *   actions:string,
+ *   panel_id:string
+ * }
+ * @phpstan-type TabGroup array{
+ *   status:SiteHealthStatus,
+ *   title:string,
+ *   description:string,
+ *   items:list<ZoneStatus>
+ * }
  */
 class SiteHealthSecurityStatusBuilder {
 
 	use PluginControllerConsumer;
 
-	public const TEST_KEY_PREFIX = 'shield_security_';
+	public const TEST_KEY = 'shield_security';
+	public const TAB_SLUG = 'shield_security';
 
 	/**
 	 * @var ?array<string,list<ZoneSignal>>
@@ -38,59 +63,134 @@ class SiteHealthSecurityStatusBuilder {
 	/**
 	 * @return array<string,array{label:string,test:callable,skip_cron:bool}>
 	 */
-	public function buildTests() :array {
-		$tests = [];
-		foreach ( $this->zoneTitles() as $zoneSlug => $zoneTitle ) {
-			$testKey = $this->testKeyForZone( $zoneSlug );
-			$tests[ $testKey ] = [
-				'label'     => $zoneTitle,
-				'test'      => fn() :array => $this->buildZoneResult( $zoneSlug ),
+	public function buildTests( string $detailsUrl ) :array {
+		return [
+			self::TEST_KEY => [
+				'label'     => __( 'Shield Security', 'wp-simple-firewall' ),
+				'test'      => fn() :array => $this->buildAggregateResult( $detailsUrl ),
 				'skip_cron' => true,
-			];
-		}
-		return $tests;
+			],
+		];
 	}
 
 	/**
-	 * @return array{
-	 *   label:string,
-	 *   status:'good'|'recommended'|'critical',
-	 *   badge:array{label:string,color:string},
-	 *   description:string,
-	 *   actions:string,
-	 *   test:string
-	 * }
+	 * @return SiteHealthResult
 	 */
-	public function buildZoneResult( string $zoneSlug ) :array {
+	public function buildAggregateResult( string $detailsUrl ) :array {
+		$zoneStatuses = $this->buildZoneStatuses();
+		$status = $this->aggregateStatusForZones( $zoneStatuses );
+		return [
+			'label'       => __( 'Shield Security', 'wp-simple-firewall' ),
+			'status'      => $status,
+			'badge'       => [
+				'label' => __( 'Security', 'wp-simple-firewall' ),
+				'color' => 'blue',
+			],
+			'description' => $this->buildAggregateDescription( $status, $zoneStatuses ),
+			'actions'     => $this->buildAggregateActions( $detailsUrl ),
+			'test'        => self::TEST_KEY,
+		];
+	}
+
+	/**
+	 * @return array{critical:TabGroup,recommended:TabGroup,good:TabGroup}
+	 */
+	public function buildTabGroups() :array {
+		$groups = [
+			'critical'    => $this->newTabGroup(
+				'critical',
+				__( 'Critical security areas', 'wp-simple-firewall' ),
+				__( 'These Shield security areas need attention as soon as possible.', 'wp-simple-firewall' )
+			),
+			'recommended' => $this->newTabGroup(
+				'recommended',
+				__( 'Recommended security improvements', 'wp-simple-firewall' ),
+				__( 'These Shield security areas can be improved.', 'wp-simple-firewall' )
+			),
+			'good'        => $this->newTabGroup(
+				'good',
+				__( 'Passed security areas', 'wp-simple-firewall' ),
+				__( 'These Shield security areas are currently reporting no high-level issues.', 'wp-simple-firewall' )
+			),
+		];
+
+		foreach ( $this->buildZoneStatuses() as $zoneStatus ) {
+			$groups[ $zoneStatus[ 'status' ] ][ 'items' ][] = $zoneStatus;
+		}
+
+		return $groups;
+	}
+
+	/**
+	 * @param SiteHealthStatus $status
+	 * @return TabGroup
+	 */
+	private function newTabGroup( string $status, string $title, string $description ) :array {
+		return [
+			'status'      => $status,
+			'title'       => $title,
+			'description' => $description,
+			'items'       => [],
+		];
+	}
+
+	/**
+	 * @return list<ZoneStatus>
+	 */
+	public function buildZoneStatuses() :array {
+		$zones = [];
+		foreach ( $this->zoneTitles() as $zoneSlug => $zoneTitle ) {
+			$zones[] = $this->buildZoneStatus( $zoneSlug, $zoneTitle );
+		}
+		return $zones;
+	}
+
+	/**
+	 * @return ZoneStatus
+	 */
+	private function buildZoneStatus( string $zoneSlug, string $zoneTitle ) :array {
 		$zoneSlug = sanitize_key( $zoneSlug );
-		$zoneTitle = $this->zoneTitles()[ $zoneSlug ] ?? null;
-		if ( $zoneTitle === null ) {
-			throw new \InvalidArgumentException( sprintf( 'Unknown Shield security zone: %s', $zoneSlug ) );
+		if ( $zoneSlug === '' ) {
+			throw new \InvalidArgumentException( 'Shield security zone slug is empty.' );
 		}
 
 		$signals = $this->signalsByZone()[ $zoneSlug ] ?? [];
 		$status = $this->statusForSignals( $signals );
 
 		return [
-			'label'       => $zoneTitle,
+			'slug'        => $zoneSlug,
+			'title'       => $zoneTitle,
 			'status'      => $status,
-			'badge'       => [
-				'label' => __( 'Security', 'wp-simple-firewall' ),
-				'color' => 'blue',
-			],
-			'description' => $this->buildDescription( $zoneTitle, $status, $signals ),
-			'actions'     => $this->buildActions( $zoneSlug ),
-			'test'        => $this->testKeyForZone( $zoneSlug ),
+			'status_label' => $this->statusLabel( $status ),
+			'description' => $this->buildZoneDescription( $zoneTitle, $status, $signals ),
+			'actions'     => $this->buildZoneActions( $zoneSlug ),
+			'panel_id'    => 'health-check-accordion-block-shield_'.$zoneSlug,
 		];
 	}
 
-	private function testKeyForZone( string $zoneSlug ) :string {
-		return self::TEST_KEY_PREFIX.sanitize_key( $zoneSlug );
+	/**
+	 * @param list<ZoneStatus> $zones
+	 * @return SiteHealthStatus
+	 */
+	private function aggregateStatusForZones( array $zones ) :string {
+		foreach ( $zones as $zone ) {
+			if ( $zone[ 'status' ] === 'critical' ) {
+				return 'critical';
+			}
+		}
+
+		foreach ( $zones as $zone ) {
+			if ( $zone[ 'status' ] === 'recommended' ) {
+				return 'recommended';
+			}
+		}
+
+		return 'good';
 	}
 
 	/**
 	 * @param list<ZoneSignal> $signals
-	 * @return 'good'|'recommended'|'critical'
+	 * @return SiteHealthStatus
 	 */
 	private function statusForSignals( array $signals ) :string {
 		foreach ( $signals as $signal ) {
@@ -108,11 +208,61 @@ class SiteHealthSecurityStatusBuilder {
 		return 'good';
 	}
 
+	private function statusLabel( string $status ) :string {
+		switch ( $status ) {
+			case 'critical':
+				return __( 'Critical', 'wp-simple-firewall' );
+			case 'recommended':
+				return __( 'Recommended', 'wp-simple-firewall' );
+			default:
+				return __( 'Good', 'wp-simple-firewall' );
+		}
+	}
+
 	/**
-	 * @param 'good'|'recommended'|'critical' $status
-	 * @param list<ZoneSignal>                $signals
+	 * @param SiteHealthStatus $status
+	 * @param list<ZoneStatus> $zones
 	 */
-	private function buildDescription( string $zoneTitle, string $status, array $signals ) :string {
+	private function buildAggregateDescription( string $status, array $zones ) :string {
+		if ( $status === 'good' ) {
+			return sprintf(
+				'<p>%s</p>',
+				esc_html( __( 'Shield reports no high-level security issues across its security zones.', 'wp-simple-firewall' ) )
+			);
+		}
+
+		$countIssues = \count( \array_filter(
+			$zones,
+			static fn( array $zone ) :bool => $zone[ 'status' ] !== 'good'
+		) );
+
+		return sprintf(
+			'<p>%s</p>',
+			esc_html( sprintf(
+				_n(
+					'Shield found %s security area that needs attention.',
+					'Shield found %s security areas that need attention.',
+					$countIssues,
+					'wp-simple-firewall'
+				),
+				(string)$countIssues
+			) )
+		);
+	}
+
+	private function buildAggregateActions( string $detailsUrl ) :string {
+		return sprintf(
+			'<p><a href="%s">%s</a></p>',
+			esc_url( $detailsUrl ),
+			esc_html( __( 'Review Shield security details', 'wp-simple-firewall' ) )
+		);
+	}
+
+	/**
+	 * @param SiteHealthStatus $status
+	 * @param list<ZoneSignal> $signals
+	 */
+	private function buildZoneDescription( string $zoneTitle, string $status, array $signals ) :string {
 		if ( $status === 'good' ) {
 			return sprintf(
 				'<p>%s</p>',
@@ -138,7 +288,7 @@ class SiteHealthSecurityStatusBuilder {
 		);
 	}
 
-	private function buildActions( string $zoneSlug ) :string {
+	private function buildZoneActions( string $zoneSlug ) :string {
 		return sprintf(
 			'<p><a href="%s">%s</a></p>',
 			esc_url( self::con()->plugin_urls->zone( $zoneSlug ) ),

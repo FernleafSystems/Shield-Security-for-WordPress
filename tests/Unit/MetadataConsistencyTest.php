@@ -50,6 +50,35 @@ class MetadataConsistencyTest extends TestCase {
 		$this->assertSame( $textDomain, $headerTextDomain, 'Text domain in plugin.json should match icwp-wpsf.php header text domain' );
 	}
 
+	public function testWordpressMinimumRequirementIsConsistentAcrossActiveArtifacts() :void {
+		$config = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
+		$wpMinimum = (string)( $config[ 'requirements' ][ 'wordpress' ] ?? '' );
+		$this->assertSame( '5.7', $wpMinimum, 'Plugin-wide WordPress minimum should remain 5.7' );
+
+		if ( !$this->isTestingPackage() ) {
+			$sourceRequirements = $this->decodePluginJsonFile( 'plugin-spec/04_requirements.json', 'Source requirements spec' );
+			$this->assertSame(
+				$wpMinimum,
+				(string)( $sourceRequirements[ 'wordpress' ] ?? '' ),
+				'WordPress minimum in plugin-spec/04_requirements.json should match plugin.json'
+			);
+		}
+
+		$pluginHeader = $this->getPluginFileContents( 'icwp-wpsf.php', 'Main plugin file' );
+		$this->assertSame(
+			$wpMinimum,
+			$this->extractPluginHeaderValue( $pluginHeader, 'Requires at least' ),
+			'WordPress minimum in plugin.json should match icwp-wpsf.php header'
+		);
+
+		$readme = $this->getPluginFileContents( 'readme.txt', 'Plugin readme file' );
+		$this->assertSame(
+			$wpMinimum,
+			$this->extractReadmeHeaderValue( $readme, 'Requires at least' ),
+			'WordPress minimum in plugin.json should match readme.txt'
+		);
+	}
+
 	private function extractPluginHeaderValue( string $pluginContent, string $headerName ) :string {
 		$pattern = sprintf(
 			'/^\s*\*\s*%s:\s*(\S+)\s*$/mi',
@@ -66,6 +95,19 @@ class MetadataConsistencyTest extends TestCase {
 	private function extractReadmeStableTag( string $readmeContent ) :string {
 		if ( !preg_match( '/^Stable tag:\s*(\S+)\s*$/mi', $readmeContent, $matches ) ) {
 			$this->fail( 'Failed to parse "Stable tag" from readme.txt' );
+		}
+
+		return trim( (string)$matches[ 1 ] );
+	}
+
+	private function extractReadmeHeaderValue( string $readmeContent, string $headerName ) :string {
+		$pattern = sprintf(
+			'/^%s:\s*(\S+)\s*$/mi',
+			preg_quote( $headerName, '/' )
+		);
+
+		if ( !preg_match( $pattern, $readmeContent, $matches ) ) {
+			$this->fail( sprintf( 'Failed to parse "%s" from readme.txt', $headerName ) );
 		}
 
 		return trim( (string)$matches[ 1 ] );
