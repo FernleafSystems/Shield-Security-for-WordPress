@@ -28,6 +28,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'scan_result_items' );
 		$this->requireDb( 'scan_result_item_meta' );
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
+			'admin_access_key',
 			MaintenanceIssueStateProvider::OPT_KEY,
 		] );
 
@@ -141,8 +142,11 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 		$renderData = $payload[ 'render_data' ];
 
 		$this->assertSame( '/wpadmin/components/widget/dashboard_actions_queue.twig', $payload[ 'render_template' ] );
-		$this->assertArrayNotHasKey( 'show_internal_links', $renderData[ 'flags' ] );
-		$this->assertSame( $this->expectedActionsQueueHref(), $renderData[ 'hrefs' ][ 'actions_queue' ] );
+		$this->assertFalse( $renderData[ 'flags' ][ 'is_security_admin_restricted' ] );
+		$this->assertTrue( $renderData[ 'flags' ][ 'show_issue_count' ] );
+		$this->assertTrue( $renderData[ 'flags' ][ 'show_issue_details' ] );
+		$this->assertSame( $this->expectedActionsQueueHref(), $renderData[ 'hrefs' ][ 'cta' ] );
+		$this->assertArrayNotHasKey( 'summary', $renderData[ 'vars' ] );
 	}
 
 	public function test_all_clear_renders_green_widget_contract_when_no_items_exist() :void {
@@ -152,7 +156,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertFalse( $renderData[ 'flags' ][ 'has_items' ] );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'shield_status' ] );
-		$this->assertSame( 0, $renderData[ 'vars' ][ 'summary' ][ 'total_items' ] );
+		$this->assertSame( 0, $renderData[ 'vars' ][ 'issue_count' ] );
 		$this->assertSame( [], $renderData[ 'vars' ][ 'rows' ] );
 	}
 
@@ -169,6 +173,7 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( $renderData[ 'flags' ][ 'has_items' ] );
 		$this->assertSame( 'critical', $renderData[ 'vars' ][ 'shield_status' ] );
+		$this->assertSame( 3, $renderData[ 'vars' ][ 'issue_count' ] );
 		$this->assertArrayHasKey( 'malware', $rowsByKey );
 		$this->assertArrayHasKey( 'vulnerable_assets', $rowsByKey );
 		$this->assertSame( 2, $rowsByKey[ 'malware' ][ 'count' ] );
@@ -185,11 +190,15 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertTrue( $renderData[ 'flags' ][ 'has_items' ] );
 		$this->assertSame( 'warning', $renderData[ 'vars' ][ 'shield_status' ] );
+		$this->assertGreaterThan( 0, $renderData[ 'vars' ][ 'issue_count' ] );
 		$this->assertSame( [ 'maintenance' ], \array_column( $rows, 'key' ) );
 		$this->assertGreaterThan( 0, $rows[ 0 ][ 'count' ] );
 	}
 
-	public function test_wp_admin_without_security_admin_session_renders_actions_queue_link() :void {
+	public function test_wp_admin_without_security_admin_feature_renders_actions_queue_link() :void {
+		self::con()->opts
+			->optSet( 'admin_access_key', '' )
+			->store();
 		\wp_set_current_user( $this->adminUserId );
 		$this->setSecurityAdminContext( false );
 
@@ -202,19 +211,66 @@ class WpDashboardSummaryIntegrationTest extends ShieldIntegrationTestCase {
 			$expectedHref = $this->expectedActionsQueueHref();
 			$xpath = $this->dashboardWidgetXPath( $payload[ 'render_output' ] );
 
-			$this->assertArrayNotHasKey( 'show_internal_links', $renderData[ 'flags' ] );
-			$this->assertArrayHasKey( 'actions_queue', $renderData[ 'hrefs' ] );
-			$this->assertSame( $expectedHref, $renderData[ 'hrefs' ][ 'actions_queue' ] );
+			$this->assertFalse( $renderData[ 'flags' ][ 'is_security_admin_restricted' ] );
+			$this->assertTrue( $renderData[ 'flags' ][ 'show_issue_count' ] );
+			$this->assertTrue( $renderData[ 'flags' ][ 'show_issue_details' ] );
+			$this->assertArrayHasKey( 'cta', $renderData[ 'hrefs' ] );
+			$this->assertSame( $expectedHref, $renderData[ 'hrefs' ][ 'cta' ] );
 			$this->assertSame(
 				1,
 				$xpath->query(
 					'//a[@href='.$this->xpathLiteral( $expectedHref ).' and contains(concat(" ", normalize-space(@class), " "), " shield-dashboard-widget__cta ")]'
 				)->length
 			);
+		}
+		finally {
+			\remove_filter( self::con()->prefix( 'is_plugin_admin' ), $forceNotPluginAdmin, \PHP_INT_MAX );
+		}
+	}
+
+	public function test_wp_admin_without_security_admin_session_receives_restricted_widget_contract() :void {
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
+		TestDataFactory::insertScanResultMeta( $afsId, 'is_mal' );
+
+		self::con()->opts
+			->optSet( 'admin_access_key', \wp_hash_password( 'dashboard-widget-pin' ) )
+			->store();
+		\wp_set_current_user( $this->adminUserId );
+		$this->setSecurityAdminContext( false );
+
+		$forceNotPluginAdmin = static fn() :bool => false;
+		\add_filter( self::con()->prefix( 'is_plugin_admin' ), $forceNotPluginAdmin, \PHP_INT_MAX );
+
+		try {
+			$payload = $this->renderSummaryPayload();
+			$renderData = $payload[ 'render_data' ];
+			$expectedHref = self::con()->plugin_urls->adminHome();
+			$xpath = $this->dashboardWidgetXPath( $payload[ 'render_output' ] );
+
+			$this->assertTrue( $renderData[ 'flags' ][ 'has_items' ] );
+			$this->assertTrue( $renderData[ 'flags' ][ 'is_security_admin_restricted' ] );
+			$this->assertFalse( $renderData[ 'flags' ][ 'show_issue_count' ] );
+			$this->assertFalse( $renderData[ 'flags' ][ 'show_issue_details' ] );
+			$this->assertSame( $expectedHref, $renderData[ 'hrefs' ][ 'cta' ] );
+			$this->assertSame( 'warning', $renderData[ 'vars' ][ 'shield_status' ] );
+			$this->assertSame( 0, $renderData[ 'vars' ][ 'issue_count' ] );
+			$this->assertSame( [], $renderData[ 'vars' ][ 'rows' ] );
+			$this->assertArrayNotHasKey( 'summary', $renderData[ 'vars' ] );
+			$this->assertSame(
+				1,
+				$xpath->query( '//a[@href='.$this->xpathLiteral( $expectedHref ).']' )->length
+			);
 			$this->assertSame(
 				0,
 				$xpath->query(
-					'//*[contains(concat(" ", normalize-space(@class), " "), " shield-dashboard-widget__cta ") and contains(concat(" ", normalize-space(@class), " "), " is-static ")]'
+					'//*[contains(concat(" ", normalize-space(@class), " "), " shield-dashboard-widget__count ")]'
+				)->length
+			);
+			$this->assertSame(
+				0,
+				$xpath->query(
+					'//*[contains(concat(" ", normalize-space(@class), " "), " shield-dashboard-widget__row ")]'
 				)->length
 			);
 		}

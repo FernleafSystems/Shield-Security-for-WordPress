@@ -213,6 +213,48 @@
             ]
           }
         ]
+      },
+      {
+        "version":     "8",
+        "released_at": 1779965000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "Dashboard Widget Access Hardened",
+            "description": [
+              "When Security Admin is enabled, WordPress admins without an active Shield Security Admin session now see a limited dashboard widget instead of detailed security issue counts."
+            ]
+          },
+          {
+            "type":        "improved",
+            "title":       "WordPress Site Health Checks Restored",
+            "description": [
+              "Shield security zones now appear as native WordPress Site Health checks, with clearer status results and direct links back to the relevant Shield settings.",
+              "Site Health access now respects Shield Security Admin controls."
+            ]
+          },
+          {
+            "type":        "new",
+            "title":       "Future PHP Requirement Notice",
+            "description": [
+              "Admins are now warned when a site is below Shield's future PHP requirement, with a lighter reminder to move PHP 8.2 sites toward PHP 8.3 or newer."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "Dashboard Icon Fonts Fixed",
+            "description": [
+              "Shield dashboard icon fonts now load correctly on sites where direct plugin asset access is restricted."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "Security Report Email Compatibility",
+            "description": [
+              "Security report emails now cooperate more cleanly with SMTP and email delivery plugins, reducing the risk of delivery problems after Shield sends a report."
+            ]
+          }
+        ]
       }
     ]
   },

@@ -141,6 +141,28 @@ class MultipartPlainTextEmailTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $plainText, (string)$this->lastCapturedMail()[ 'alt_body' ] );
 	}
 
+	public function test_send_vo_preserves_existing_global_phpmailer_instance() :void {
+		global $phpmailer;
+		$originalPhpMailer = $phpmailer ?? null;
+		$sentinelMailer = (object)[ 'shield_test_marker' => __METHOD__ ];
+		$phpmailer = $sentinelMailer;
+
+		try {
+			$this->requireController()->email_con->sendVO(
+				EmailVO::Factory(
+					'recipient@example.com',
+					'Global PHPMailer preservation test',
+					'<html><body><p>HTML body.</p></body></html>'
+				)
+			);
+
+			$this->assertSame( $sentinelMailer, $phpmailer );
+		}
+		finally {
+			$phpmailer = $originalPhpMailer;
+		}
+	}
+
 	public function test_send_vo_does_not_leave_phpmailer_alt_body_hook_active() :void {
 		$con = $this->requireController();
 		$html = $con->action_router->render( EmailInstantAlertAdminLogin::class, [
