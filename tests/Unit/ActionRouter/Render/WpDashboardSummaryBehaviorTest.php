@@ -24,6 +24,8 @@ class WpDashboardSummaryBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 
+	private object $controller;
+
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
@@ -34,7 +36,7 @@ class WpDashboardSummaryBehaviorTest extends BaseUnitTest {
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
 		);
 		Functions\when( 'did_action' )->justReturn( 0 );
-		UnitTestControllerFactory::install(
+		$this->controller = UnitTestControllerFactory::install(
 			new UnitTestPluginUrls(),
 			null,
 			(object)[
@@ -44,6 +46,7 @@ class WpDashboardSummaryBehaviorTest extends BaseUnitTest {
 							return [ 'is_running' => false ];
 						}
 					},
+					'sec_admin'  => new WpDashboardSummarySecAdminStub( false ),
 				],
 				'db_con' => (object)[],
 				'cfg'    => (object)[
@@ -52,6 +55,9 @@ class WpDashboardSummaryBehaviorTest extends BaseUnitTest {
 						'slug_plugin'      => 'security',
 						'base_permissions' => 'manage_options',
 					],
+				],
+				'this_req' => (object)[
+					'is_security_admin' => false,
 				],
 				'user_can_base_permissions' => true,
 			]
@@ -63,17 +69,50 @@ class WpDashboardSummaryBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_render_data_uses_attention_contract_without_calling_scan_state_builder_path() :void {
+	public function test_security_admin_disabled_renders_full_detail_for_wp_admin_request() :void {
+		$this->setSecurityAdminState( false, false );
+
 		$renderData = $this->invokeNonPublicMethod(
-			new WpDashboardSummaryNoScanStateTestDouble( $this->attentionQuery( [
+			new WpDashboardSummaryAttentionQueryTestDouble( $this->attentionQuery( [
 				$this->attentionItem( 'malware', 'scans', 2, 'critical', 'Malware' ),
 			] ) ),
 			'getRenderData'
 		);
 
-		$this->assertTrue( $renderData[ 'flags' ][ 'has_items' ] );
-		$this->assertSame( 'critical', $renderData[ 'vars' ][ 'shield_status' ] );
-		$this->assertSame( [ 'malware' ], \array_column( $renderData[ 'vars' ][ 'rows' ], 'key' ) );
+		$this->assertFullDetailContract( $renderData, [ 'malware' ] );
+	}
+
+	public function test_security_admin_request_renders_full_detail_when_security_admin_enabled() :void {
+		$this->setSecurityAdminState( true, true );
+
+		$renderData = $this->invokeNonPublicMethod(
+			new WpDashboardSummaryAttentionQueryTestDouble( $this->attentionQuery( [
+				$this->attentionItem( 'malware', 'scans', 2, 'critical', 'Malware' ),
+			] ) ),
+			'getRenderData'
+		);
+
+		$this->assertFullDetailContract( $renderData, [ 'malware' ] );
+	}
+
+	public function test_security_admin_enabled_without_security_admin_request_renders_restricted_contract() :void {
+		$this->setSecurityAdminState( true, false );
+
+		$renderData = $this->invokeNonPublicMethod(
+			new WpDashboardSummaryRestrictedNoCardBuilderTestDouble( $this->attentionQuery( [
+				$this->attentionItem( 'malware', 'scans', 2, 'critical', 'Malware' ),
+			] ) ),
+			'getRenderData'
+		);
+
+		$this->assertRestrictedContract( $renderData, true, 'warning' );
+
+		$renderData = $this->invokeNonPublicMethod(
+			new WpDashboardSummaryRestrictedNoCardBuilderTestDouble( $this->attentionQuery( [] ) ),
+			'getRenderData'
+		);
+
+		$this->assertRestrictedContract( $renderData, false, 'good' );
 	}
 
 	private function attentionQuery( array $scanItems, array $maintenanceItems = [] ) :array {
@@ -120,9 +159,37 @@ class WpDashboardSummaryBehaviorTest extends BaseUnitTest {
 			'supports_sub_items' => false,
 		];
 	}
+
+	private function setSecurityAdminState( bool $enabled, bool $isSecurityAdmin ) :void {
+		$this->controller->comps->sec_admin->enabled = $enabled;
+		$this->controller->this_req->is_security_admin = $isSecurityAdmin;
+	}
+
+	private function assertFullDetailContract( array $renderData, array $expectedRowKeys ) :void {
+		$this->assertTrue( $renderData[ 'flags' ][ 'has_items' ] );
+		$this->assertFalse( $renderData[ 'flags' ][ 'is_security_admin_restricted' ] );
+		$this->assertTrue( $renderData[ 'flags' ][ 'show_issue_count' ] );
+		$this->assertTrue( $renderData[ 'flags' ][ 'show_issue_details' ] );
+		$this->assertSame( 'critical', $renderData[ 'vars' ][ 'shield_status' ] );
+		$this->assertSame( 2, $renderData[ 'vars' ][ 'issue_count' ] );
+		$this->assertSame( $expectedRowKeys, \array_column( $renderData[ 'vars' ][ 'rows' ], 'key' ) );
+		$this->assertArrayNotHasKey( 'summary', $renderData[ 'vars' ] );
+	}
+
+	private function assertRestrictedContract( array $renderData, bool $hasItems, string $expectedStatus ) :void {
+		$this->assertSame( $hasItems, $renderData[ 'flags' ][ 'has_items' ] );
+		$this->assertTrue( $renderData[ 'flags' ][ 'is_security_admin_restricted' ] );
+		$this->assertFalse( $renderData[ 'flags' ][ 'show_issue_count' ] );
+		$this->assertFalse( $renderData[ 'flags' ][ 'show_issue_details' ] );
+		$this->assertSame( '/admin/home', $renderData[ 'hrefs' ][ 'cta' ] );
+		$this->assertSame( $expectedStatus, $renderData[ 'vars' ][ 'shield_status' ] );
+		$this->assertSame( 0, $renderData[ 'vars' ][ 'issue_count' ] );
+		$this->assertSame( [], $renderData[ 'vars' ][ 'rows' ] );
+		$this->assertArrayNotHasKey( 'summary', $renderData[ 'vars' ] );
+	}
 }
 
-class WpDashboardSummaryNoScanStateTestDouble extends WpDashboardSummary {
+class WpDashboardSummaryAttentionQueryTestDouble extends WpDashboardSummary {
 
 	private array $attentionQuery;
 
@@ -133,8 +200,25 @@ class WpDashboardSummaryNoScanStateTestDouble extends WpDashboardSummary {
 	protected function buildAttentionQuery() :array {
 		return $this->attentionQuery;
 	}
+}
 
-	protected function buildScanState() :array {
-		throw new \RuntimeException( 'Dashboard summary must not build scan state directly.' );
+class WpDashboardSummaryRestrictedNoCardBuilderTestDouble extends WpDashboardSummaryAttentionQueryTestDouble {
+
+	protected function buildActionsQueueCardData( array $attentionQuery ) :array {
+		unset( $attentionQuery );
+		throw new \RuntimeException( 'Restricted widget must not build full actions queue card data.' );
+	}
+}
+
+class WpDashboardSummarySecAdminStub {
+
+	public bool $enabled;
+
+	public function __construct( bool $enabled ) {
+		$this->enabled = $enabled;
+	}
+
+	public function isEnabledSecAdmin() :bool {
+		return $this->enabled;
 	}
 }
