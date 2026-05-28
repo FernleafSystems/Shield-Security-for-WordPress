@@ -20,7 +20,7 @@
         },
         "PKSA-sjvz-tbbr-vwth": {
           "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not use the spaceless filter and will move to Twig 3.26+ with PHP 8.1+."
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not use the spaceless filter and will move to Twig 3.27+ with PHP 8.1+."
         },
         "PKSA-h8hf-ytnd-5t9q": {
           "apply":  "block",
@@ -53,6 +53,26 @@
         "PKSA-21g2-dzjv-sky5": {
           "apply":  "block",
           "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable StringLoaderExtension or template_from_string."
+        },
+        "PKSA-fbvq-z33h-r2np": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing or SourcePolicyInterface and does not use the column filter."
+        },
+        "PKSA-g9zw-qxh8-pq8w": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing or call the deprecated twig_* helper wrappers."
+        },
+        "PKSA-yd6k-t2gh-1m43": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing and creates a fresh Twig Environment for each render."
+        },
+        "PKSA-1tmc-rt7x-12w6": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing for untrusted templates."
+        },
+        "PKSA-xx6c-6d96-db2w": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing for untrusted templates."
         }
       }
     },
