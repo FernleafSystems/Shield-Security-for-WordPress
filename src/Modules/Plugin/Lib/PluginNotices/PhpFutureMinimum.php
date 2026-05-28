@@ -10,6 +10,7 @@ class PhpFutureMinimum extends Base {
 	public const MORE_INFO_URL = 'https://clk.shldscrty.com/shieldfutureminimumphp82';
 	public const SNOOZE_USER_META = 'php_future_minimum_snoozed_at';
 
+	private const CURRENT_MINIMUM_PHP = '7.4';
 	private const FUTURE_MINIMUM_PHP = '8.2';
 	private const RECOMMENDED_PHP = '8.3';
 	private const SNOOZE_SECONDS = 30 * 86400;
@@ -25,14 +26,23 @@ class PhpFutureMinimum extends Base {
 		if ( !Services::Data()->getPhpVersionIsAtLeast( self::FUTURE_MINIMUM_PHP ) ) {
 			return $this->buildIssue(
 				'danger',
-				__( 'This is the final major release of Shield that supports PHP 7.4; future Shield releases will require PHP 8.2 or newer.', 'wp-simple-firewall' ),
+				sprintf(
+					/* translators: %1$s: current minimum PHP version, %2$s: future minimum PHP version */
+					__( 'This is the final major release of Shield that supports PHP %1$s; future Shield releases will require PHP %2$s or newer.', 'wp-simple-firewall' ),
+					self::CURRENT_MINIMUM_PHP,
+					self::FUTURE_MINIMUM_PHP
+				),
 				false
 			);
 		}
 
 		return $this->isSnoozed() ? null : $this->buildIssue(
 			'info',
-			__( 'Your site meets the next Shield PHP requirement, but we recommend upgrading to PHP 8.3 or newer.', 'wp-simple-firewall' ),
+			sprintf(
+				/* translators: %s: recommended PHP version */
+				__( 'Your site meets the next Shield PHP requirement, but we recommend upgrading to PHP %s or newer.', 'wp-simple-firewall' ),
+				self::RECOMMENDED_PHP
+			),
 			true
 		);
 	}
