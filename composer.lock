@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1c9722f9f8dddc85ec4f4a544eb2b77a",
+    "content-hash": "0bb10cb658d3dd785e571e400f70717b",
     "packages": [
         {
             "name": "beberlei/assert",
@@ -627,16 +627,16 @@
         },
         {
             "name": "fernleafsystems/worpdrive-client",
-            "version": "0.1.1",
+            "version": "0.2.1",
             "source": {
                 "type": "git",
                 "url": "git@github.com:FernleafSystems/worpdrive-client.git",
-                "reference": "a8c516ae7dbdcdcfc4d66bc15e6380158a8c8a99"
+                "reference": "114f3396df987a098d0bd464bbd1e36fa5bbcbb8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FernleafSystems/worpdrive-client/zipball/a8c516ae7dbdcdcfc4d66bc15e6380158a8c8a99",
-                "reference": "a8c516ae7dbdcdcfc4d66bc15e6380158a8c8a99",
+                "url": "https://api.github.com/repos/FernleafSystems/worpdrive-client/zipball/114f3396df987a098d0bd464bbd1e36fa5bbcbb8",
+                "reference": "114f3396df987a098d0bd464bbd1e36fa5bbcbb8",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -654,6 +654,8 @@
             },
             "require-dev": {
                 "brain/monkey": "^2.6",
+                "ext-mysqli": "*",
+                "ext-pdo_mysql": "*",
                 "phpunit/phpunit": "^9.6",
                 "yoast/phpunit-polyfills": "^4.0"
             },
@@ -683,6 +685,15 @@
                     "@lint",
                     "@scan:php-compat",
                     "@phpunit"
+                ],
+                "test:mysql": [
+                    "phpunit --configuration phpunit.xml.dist tests/Integration/Database"
+                ],
+                "test:mysql:matrix": [
+                    "@php bin/mysql-test-matrix.php"
+                ],
+                "test:mysql:profile": [
+                    "@php bin/profile-mysql-tests.php"
                 ]
             },
             "license": [
@@ -695,10 +706,10 @@
             ],
             "description": "The WorpDrive Client Library",
             "support": {
-                "source": "https://github.com/FernleafSystems/worpdrive-client/tree/0.1.1",
+                "source": "https://github.com/FernleafSystems/worpdrive-client/tree/0.2.1",
                 "issues": "https://github.com/FernleafSystems/worpdrive-client/issues"
             },
-            "time": "2026-05-27T15:16:12+00:00"
+            "time": "2026-06-01T12:44:51+00:00"
         },
         {
             "name": "fernleafsystems/zxcvbn-php",
@@ -4535,11 +4546,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.56",
+            "version": "2.2.1",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/93a603c9fc3be8c3c93bbc8d22170ad766685537",
-                "reference": "93a603c9fc3be8c3c93bbc8d22170ad766685537",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/dea9c8f2d25cc849391042b71e429c1a4bf82660",
+                "reference": "dea9c8f2d25cc849391042b71e429c1a4bf82660",
                 "shasum": ""
             },
             "require": {
@@ -4561,6 +4572,17 @@
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ondřej Mirtes"
+                },
+                {
+                    "name": "Markus Staab"
+                },
+                {
+                    "name": "Vincent Langlet"
+                }
             ],
             "description": "PHPStan - PHP Static Analysis Tool",
             "keywords": [
@@ -4584,7 +4606,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-05-26T17:04:57+00:00"
+            "time": "2026-05-28T14:44:12+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -5126,7 +5148,6 @@
                     "type": "github"
                 }
             ],
-            "abandoned": true,
             "time": "2020-10-26T13:08:54+00:00"
         },
         {
@@ -5182,7 +5203,6 @@
                     "type": "github"
                 }
             ],
-            "abandoned": true,
             "time": "2020-09-28T05:30:19+00:00"
         },
         {
