@@ -8,6 +8,13 @@ class WorpdriveTestDb extends Db {
 
 	public array $calls = [];
 
+	private ?array $tableStatus = null;
+
+	public function setTableStatus( array $tableStatus ) :self {
+		$this->tableStatus = $tableStatus;
+		return $this;
+	}
+
 	public function getPrefix( bool $siteBase = true ) :string {
 		$this->calls[] = [ 'getPrefix', $siteBase ];
 		return $siteBase ? 'wp_' : 'wp_site_';
@@ -35,7 +42,7 @@ class WorpdriveTestDb extends Db {
 
 	public function showTableStatus( $format = \OBJECT ) {
 		$this->calls[] = [ 'showTableStatus', $format ];
-		return [
+		return $this->tableStatus ?? [
 			[ 'Name' => 'wp_posts' ],
 		];
 	}

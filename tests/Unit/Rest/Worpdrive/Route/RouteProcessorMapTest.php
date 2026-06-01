@@ -5,12 +5,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rest\Worpdrive\Rout
 use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\Host\ShieldWorpdriveHost;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Route\{
+	DatabaseSchema,
 	FilesystemMap,
 	FilesystemZip,
 	RouteProcessorMap
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rest\Worpdrive\Fixtures\WorpdriveTestFilesystemService;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rest\Worpdrive\Fixtures\{
+	WorpdriveTestDb,
+	WorpdriveTestFilesystemService
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rest\Worpdrive\WorpdriveUnitTestCase;
 use FernleafSystems\WorpdriveClient\Host\WorpdriveRuntime;
 
@@ -24,6 +28,7 @@ class RouteProcessorMapTest extends WorpdriveUnitTestCase {
 		$this->pluginRoot = $this->tempDir( 'worpdrive-route-plugin' );
 		$this->installController( $this->pluginRoot, $this->tempDir( 'worpdrive-route-cache' ) );
 		ServicesState::mergeItems( [
+			'service_wpdb' => new WorpdriveTestDb(),
 			'service_wpfs' => new WorpdriveTestFilesystemService(),
 		] );
 	}
@@ -84,6 +89,29 @@ class RouteProcessorMapTest extends WorpdriveUnitTestCase {
 
 		$this->assertSame( '', $row[ 'hash' ] );
 		$this->assertSame( '', $row[ 'hash_alt' ] );
+	}
+
+	public function test_database_schema_route_converts_package_exceptions_to_api_exceptions() :void {
+		ServicesState::mergeItems( [
+			'service_wpdb' => ( new WorpdriveTestDb() )->setTableStatus( [
+				[
+					'Engine' => 'InnoDB',
+					'Rows'   => 1,
+				],
+			] ),
+		] );
+		$request = new \WP_REST_Request( [
+			'dump_method' => 'direct',
+			'uuid'        => 'route-schema-exception',
+			'time_limit'  => 30,
+		] );
+
+		$this->expectException( ApiException::class );
+
+		WorpdriveRuntime::withHost(
+			new ShieldWorpdriveHost(),
+			fn() => ( ( new RouteProcessorMap() )->map()[ DatabaseSchema::class ] )( $request )
+		);
 	}
 
 	private function runFilesystemMapRoute( string $uuid, string $type, string $dir ) :array {

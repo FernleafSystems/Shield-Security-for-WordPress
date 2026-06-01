@@ -5,10 +5,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rest\Worpdrive\Rout
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Route\{
 	BaseWorpdrive,
 	Clean as CleanRoute,
+	DatabaseData,
 	FilesystemZip
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rest\Worpdrive\Fixtures\WorpdriveTestFilesystemService;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rest\Worpdrive\Fixtures\{
+	WorpdriveTestDb,
+	WorpdriveTestFilesystemService
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rest\Worpdrive\WorpdriveUnitTestCase;
 
 class BaseWorpdriveRuntimeTest extends WorpdriveUnitTestCase {
@@ -16,6 +20,7 @@ class BaseWorpdriveRuntimeTest extends WorpdriveUnitTestCase {
 	protected function setUp() :void {
 		parent::setUp();
 		ServicesState::mergeItems( [
+			'service_wpdb' => new WorpdriveTestDb(),
 			'service_wpfs' => new WorpdriveTestFilesystemService(),
 		] );
 	}
@@ -48,6 +53,35 @@ class BaseWorpdriveRuntimeTest extends WorpdriveUnitTestCase {
 		$this->assertSame( 1, $response[ 'error_code' ] );
 		$this->assertSame( 500, $response[ 'http_status' ] );
 		$this->assertSame( 'Invalid encoded WorpDrive payload.', $response[ 'message' ] );
+		$this->assertRuntimeReset();
+	}
+
+	public function test_process_request_preserves_database_data_structured_error_status() :void {
+		$response = $this->invokeProcessRequest(
+			new DatabaseData( [ 'strict_parameters' => false ] ),
+			new \WP_REST_Request( [
+				'table_export_map' => [
+					'wp_unknown' => [
+						'offset'        => 0,
+						'page'          => 0,
+						'completed_at'  => 0,
+						'exported_rows' => 0,
+						'max_page_rows' => 10,
+						'chunk_size'    => 2,
+					],
+				],
+				'uuid'             => 'runtime-db-structured-error',
+				'time_limit'       => 30,
+			] )
+		);
+
+		$this->assertSame( 0, $response[ 'error_code' ] );
+		$this->assertSame( '', $response[ 'status' ][ 'href' ] );
+		$this->assertSame( [], $response[ 'status' ][ 'table_export_map' ] );
+		$this->assertSame( 'db_export_invalid_map', $response[ 'status' ][ 'error' ][ 'code' ] );
+		$this->assertSame( 'database_data', $response[ 'status' ][ 'error' ][ 'stage' ] );
+		$this->assertTrue( $response[ 'status' ][ 'error' ][ 'retryable' ] );
+		$this->assertIsArray( $response[ 'status' ][ 'error_context' ][ 'table_export_map' ] );
 		$this->assertRuntimeReset();
 	}
 
