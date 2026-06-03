@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionRoutingController,
+	Actions\TestRestFetchRequests,
 	Constants,
 	Actions\Render\BaseRender,
 	Utility\ExternalActionTransportPolicy
@@ -42,6 +43,34 @@ class ExternalActionTransportPolicyCoverageTest extends BaseUnitTest {
 		}
 
 		$this->assertGreaterThan( 100, $renderActionCount );
+		$this->assertSame( [], $failures );
+	}
+
+	public function test_registered_actions_are_denied_from_rest_unless_explicitly_allowlisted() :void {
+		$policy = new ExternalActionTransportPolicy();
+		$allowed = [
+			TestRestFetchRequests::SLUG,
+		];
+		$failures = [];
+		$actionCount = 0;
+
+		foreach ( Constants::ACTIONS as $actionClass ) {
+			$reflector = new \ReflectionClass( $actionClass );
+			if ( $reflector->isAbstract() || empty( $actionClass::SLUG ) ) {
+				continue;
+			}
+			$actionCount++;
+
+			$expected = \in_array( $actionClass::SLUG, $allowed, true );
+			if ( $policy->isAllowed( $actionClass::SLUG, [], ActionRoutingController::ACTION_REST ) !== $expected ) {
+				$failures[] = $actionClass::SLUG.':slug';
+			}
+			if ( $policy->isAllowed( $actionClass, [], ActionRoutingController::ACTION_REST ) !== $expected ) {
+				$failures[] = $actionClass::SLUG.':class';
+			}
+		}
+
+		$this->assertGreaterThan( 100, $actionCount );
 		$this->assertSame( [], $failures );
 	}
 

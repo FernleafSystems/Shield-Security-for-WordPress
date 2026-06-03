@@ -119,7 +119,6 @@
 		</table>
 		{% include '/email/reports/areas/changes.twig' with {
 			changes: report.areas_data.changes,
-			strings: body.strings,
 			detail_level: body.vars.detail_level
 		} only %}
 	{% endif %}

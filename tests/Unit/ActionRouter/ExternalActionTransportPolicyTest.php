@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
-	ActionData,
 	ActionRoutingController,
 	Actions\AjaxRender,
 	Actions\FullPageDisplay\DisplayBlockPage,
@@ -22,6 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\FullPage\Mfa\Components\LoginIntentFormShield,
 	Actions\Render\FullPage\Mfa\ShieldLoginIntentPage,
 	Actions\Render\FullPage\Report\SecurityReport,
+	Actions\TestRestFetchRequests,
 	Utility\ExternalActionTransportPolicy
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -135,12 +135,32 @@ class ExternalActionTransportPolicyTest extends BaseUnitTest {
 		}
 	}
 
-	public function test_unlisted_actions_keep_the_existing_transport_behaviour() :void {
-		$this->assertTrue( ( new ExternalActionTransportPolicy() )->isAllowed(
+	public function test_rest_transport_allows_only_explicit_allowlisted_actions() :void {
+		$policy = new ExternalActionTransportPolicy();
+
+		$this->assertTrue( $policy->isAllowed(
+			TestRestFetchRequests::SLUG,
+			[],
+			ActionRoutingController::ACTION_REST
+		) );
+		$this->assertTrue( $policy->isAllowed(
+			TestRestFetchRequests::class,
+			[],
+			ActionRoutingController::ACTION_REST
+		) );
+	}
+
+	public function test_unlisted_actions_are_denied_from_rest_transport() :void {
+		$policy = new ExternalActionTransportPolicy();
+
+		$this->assertFalse( $policy->isAllowed(
 			OperatorModeSwitch::SLUG,
-			[
-				ActionData::FIELD_EXECUTE => OperatorModeSwitch::SLUG,
-			],
+			[],
+			ActionRoutingController::ACTION_REST
+		) );
+		$this->assertFalse( $policy->isAllowed(
+			OperatorModeSwitch::class,
+			[],
 			ActionRoutingController::ACTION_REST
 		) );
 	}

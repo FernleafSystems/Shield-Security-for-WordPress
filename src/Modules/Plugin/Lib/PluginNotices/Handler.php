@@ -23,6 +23,7 @@ class Handler {
 				IpStatus::class,
 				LicenseStatus::class,
 				RulesEngine::class,
+				PhpFutureMinimum::class,
 				SelfVersion::class,
 				GoPro::class,
 			]
@@ -38,10 +39,10 @@ class Handler {
 			}
 			else {
 				$normalised[ $issue[ 'id' ] ] = \array_merge( [
-					'type'      => 'warning',
-					'text'      => 'no text provided',
-					'locations' => [],
-					'flags'     => [],
+					'type'        => 'warning',
+					'text'        => [ 'no text provided' ],
+					'locations'   => [],
+					'flags'       => [],
 					'can_dismiss' => false,
 				], $issue );
 			}

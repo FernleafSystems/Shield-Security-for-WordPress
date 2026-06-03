@@ -55,6 +55,14 @@ abstract class BaseZoneReport {
 
 	abstract protected function getLoadLogsWheres() :array;
 
+	/**
+	 * @return array<string,array{
+	 *     uniq:string,
+	 *     rows:list<array{lines:list<string>,count:int,detail_time?:string,detail_who?:string}>,
+	 *     link:array{href:string,text:string}|array{},
+	 *     name:string
+	 * }>
+	 */
 	protected function changesFromLogs() :array {
 		$changes = [];
 		foreach ( $this->loadLogs() as $log ) {
@@ -63,28 +71,29 @@ abstract class BaseZoneReport {
 				$changes[ $uniq ] = [
 					'uniq' => $uniq,
 					'rows' => [],
-					'link' => $this->getLinkForLog( $log ),
-					'name' => $this->getNameForLog( $log ),
+					'link' => $this->normaliseLinkForLog( $log ),
+					'name' => (string)$this->getNameForLog( $log ),
 				];
 			}
 
-			$changes[ $uniq ][ 'rows' ][] = $this->isSummary ? $this->buildSummaryForLog( $log ) : $this->buildDetailsForLog( $log );
+			$changes[ $uniq ][ 'rows' ][] = $this->buildReportRowForLog( $log );
 		}
 
 		if ( $this->isSummary ) {
 			foreach ( $changes as &$itemChanges ) {
 				$uniqueChanges = [];
 				foreach ( $itemChanges[ 'rows' ] as $row ) {
-					if ( !isset( $uniqueChanges[ $row ] ) ) {
-						$uniqueChanges[ $row ] = 0;
+					$rowKey = \implode( "\n", $row[ 'lines' ] );
+					if ( !isset( $uniqueChanges[ $rowKey ] ) ) {
+						$uniqueChanges[ $rowKey ] = [
+							'lines' => $row[ 'lines' ],
+							'count' => 0,
+						];
 					}
-					$uniqueChanges[ $row ]++;
+					$uniqueChanges[ $rowKey ][ 'count' ]++;
 				}
 
-				$itemChanges[ 'rows' ] = [];
-				foreach ( $uniqueChanges as $uniqueChange => $count ) {
-					$itemChanges[ 'rows' ][] = $count > 1 ? sprintf( '%s (x%s)', $uniqueChange, $count ) : $uniqueChange;
-				}
+				$itemChanges[ 'rows' ] = \array_values( $uniqueChanges );
 			}
 		}
 
@@ -95,17 +104,36 @@ abstract class BaseZoneReport {
 		return \count( $this->loadLogs() );
 	}
 
-	protected function buildSummaryForLog( LogRecord $log ) :string {
-		return \implode( '<br/>', ActivityLogMessageBuilder::BuildFromLogRecord( $log ) );
+	/**
+	 * @return list<string>
+	 */
+	protected function buildSummaryLinesForLog( LogRecord $log ) :array {
+		return \array_map(
+			static fn( $line ) :string => (string)$line,
+			ActivityLogMessageBuilder::BuildFromLogRecord( $log )
+		);
 	}
 
-	protected function buildDetailsForLog( LogRecord $log ) :string {
-		return $this->buildDetailedRow( $log, $this->buildSummaryForLog( $log ) );
+	/**
+	 * @return array{lines:list<string>,count:int,detail_time?:string,detail_who?:string}
+	 */
+	protected function buildReportRowForLog( LogRecord $log ) :array {
+		$row = [
+			'lines' => $this->buildSummaryLinesForLog( $log ),
+			'count' => 1,
+		];
+
+		if ( !$this->isSummary ) {
+			$row[ 'detail_time' ] = Services::WpGeneral()->getTimeStringForDisplay( $log->created_at, false );
+			$row[ 'detail_who' ] = $this->buildDetailWhoForLog( $log );
+		}
+
+		return $row;
 	}
 
-	protected function buildDetailedRow( LogRecord $log, string $rowBody ) :string {
+	protected function buildDetailWhoForLog( LogRecord $log ) :string {
 		if ( $log->meta_data[ 'snapshot_discovery' ] ?? false ) {
-			$who = sprintf( '<span class="badge text-bg-warning">%s</span>', __( 'Discovered', 'wp-simple-firewall' ) );
+			$who = __( 'Discovered', 'wp-simple-firewall' );
 		}
 		else {
 			$user = Services::WpUsers()->getUserById( $log->meta_data[ 'uid' ] ?? 0 );
@@ -113,11 +141,7 @@ abstract class BaseZoneReport {
 			/* translators: %1$s: IP address, %2$s: username */
 			$who = sprintf( __( '[%1$s] [%2$s]', 'wp-simple-firewall' ), $log->ip, \strtolower( $username ) );
 		}
-		return sprintf( '%s<div class="detailed d-none"><small class="">[%s] %s</small></div>',
-			$rowBody,
-			Services::WpGeneral()->getTimeStringForDisplay( $log->created_at, false ),
-			$who
-		);
+		return $who;
 	}
 
 	abstract protected function getUniqFromLog( LogRecord $log ) :string;
@@ -128,6 +152,20 @@ abstract class BaseZoneReport {
 
 	protected function getLinkForLog( LogRecord $log ) :array {
 		return [];
+	}
+
+	/**
+	 * @return array{href:string,text:string}|array{}
+	 */
+	protected function normaliseLinkForLog( LogRecord $log ) :array {
+		$link = $this->getLinkForLog( $log );
+		$href = esc_url_raw( (string)( $link[ 'href' ] ?? '' ) );
+		$text = (string)( $link[ 'text' ] ?? '' );
+
+		return empty( $href ) || empty( $text ) ? [] : [
+			'href' => $href,
+			'text' => $text,
+		];
 	}
 
 	abstract public function getZoneName() :string;

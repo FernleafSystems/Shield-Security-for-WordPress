@@ -59,7 +59,6 @@ class EmailCon {
 		finally {
 			$this->emailFilters( false );
 			$this->plainTextBody = null;
-			$this->resetPhpMailer();
 		}
 		return (bool)$result;
 	}
@@ -152,10 +151,5 @@ class EmailCon {
 		}
 
 		return ( new ConvertHtmlToText() )->run( $vo->html );
-	}
-
-	private function resetPhpMailer() :void {
-		global $phpmailer;
-		$phpmailer = null;
 	}
 }

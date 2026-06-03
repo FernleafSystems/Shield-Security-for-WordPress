@@ -20,6 +20,10 @@ class ExternalActionTransportPolicy {
 			$actionSlug = $action::SLUG;
 		}
 
+		if ( $type === ActionRoutingController::ACTION_REST && !$this->isAllowedRestTransport( $actionSlug ) ) {
+			return false;
+		}
+
 		switch ( $actionSlug ) {
 			case Actions\Render::SLUG:
 				return false;
@@ -55,6 +59,19 @@ class ExternalActionTransportPolicy {
 			$this->directRenderExternalTransportAllowlist()[ $actionSlug ] ?? [],
 			true
 		);
+	}
+
+	private function isAllowedRestTransport( string $actionSlug ) :bool {
+		return \in_array( $actionSlug, $this->restExternalTransportAllowlist(), true );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function restExternalTransportAllowlist() :array {
+		return [
+			Actions\TestRestFetchRequests::SLUG,
+		];
 	}
 
 	/**

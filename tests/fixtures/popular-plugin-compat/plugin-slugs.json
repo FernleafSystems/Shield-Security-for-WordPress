@@ -1,0 +1,24 @@
+{
+  "slugs": [
+    "wordpress-seo",
+    "contact-form-7",
+    "classic-editor",
+    "autoptimize",
+    "woocommerce",
+    "wpforms-lite",
+    "wordfence",
+    "wp-mail-smtp",
+    "updraftplus",
+    "really-simple-ssl",
+    "advanced-custom-fields",
+    "wp-super-cache",
+    "duplicator",
+    "wp-fastest-cache",
+    "wp-optimize",
+    "mainwp",
+    "mainwp-child",
+    "worker",
+    "iwp-client",
+    "easy-digital-downloads"
+  ]
+}

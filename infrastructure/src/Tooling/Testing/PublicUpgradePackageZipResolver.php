@@ -22,7 +22,7 @@ class PublicUpgradePackageZipResolver {
 	public function resolve(
 		string $rootDir,
 		?string $packageZip,
-		PublicUpgradeArtifacts $artifacts,
+		WordPressPackageRuntimeArtifacts $artifacts,
 		?callable $onOutput = null
 	) :PublicUpgradePackageZipMetadata {
 		$zipPath = $this->normalizeOptionalPath( $rootDir, $packageZip );

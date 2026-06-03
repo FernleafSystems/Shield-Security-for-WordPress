@@ -52,6 +52,7 @@ class PluginPackagerStraussTest extends TestCase {
 	];
 
 	private const REQUIRED_UNPREFIXED_PACKAGES = [
+		'fernleafsystems/worpdrive-client',
 		'psr/log',
 		'psr/cache',
 		'psr/http-client',
@@ -62,6 +63,7 @@ class PluginPackagerStraussTest extends TestCase {
 		'brick/math',
 		'paragonie/random_compat',
 		'christian-riesen/base32',
+		'symfony/polyfill-php80',
 	];
 
 	private const EXPECTED_NAMESPACE_REWRITES = [
@@ -119,6 +121,7 @@ class PluginPackagerStraussTest extends TestCase {
 		$this->assertSame( 'vendor_prefixed', $strauss[ 'target_directory' ] ?? null );
 		$this->assertSame( self::STRAUSS_NAMESPACE_PREFIX, $strauss[ 'namespace_prefix' ] ?? null );
 		$this->assertSame( self::EXPECTED_STRAUSS_PACKAGES, $strauss[ 'packages' ] ?? null );
+		$this->assertNotContains( 'fernleafsystems/worpdrive-client', $strauss[ 'packages' ] ?? [] );
 		$this->assertSame( [ 'src' ], $strauss[ 'update_call_sites' ] ?? null );
 		$this->assertSame(
 			self::EXPECTED_EXCLUDED_PACKAGES,
@@ -373,6 +376,34 @@ class PluginPackagerStraussTest extends TestCase {
 
 		$process = new \AptowebDeps\Symfony\Component\Process\Process( [ 'php', '-v' ] );
 		$this->assertInstanceOf( \AptowebDeps\Symfony\Component\Process\Process::class, $process );
+	}
+
+	/** @group package-targeted */
+	public function testPackagedWorpdriveClientAutoloadsFromUnprefixedVendor() :void {
+		$autoloadPath = $this->packagePathJoin( 'vendor/autoload.php' );
+		$this->assertFileExists( $autoloadPath );
+		$autoload = \realpath( $autoloadPath );
+		$this->assertNotFalse( $autoload );
+
+		$classes = [
+			'FernleafSystems\\WorpdriveClient\\Host\\WorpdriveRuntime',
+			'FernleafSystems\\WorpdriveClient\\Utility\\Base64PayloadDecoder',
+			'FernleafSystems\\WorpdriveClient\\Database\\Data\\DataExportHandler',
+		];
+		$code = sprintf(
+			'require %s; foreach ( %s as $class ) { if ( !class_exists( $class ) ) { fwrite( STDERR, "Missing class: ".$class.PHP_EOL ); exit( 1 ); } }',
+			var_export( $autoload, true ),
+			var_export( $classes, true )
+		);
+
+		$process = new \Symfony\Component\Process\Process( [ \PHP_BINARY, '-r', $code ], $this->packagePath );
+		$process->run();
+
+		$this->assertSame(
+			0,
+			$process->getExitCode(),
+			trim( $process->getErrorOutput()."\n".$process->getOutput() )
+		);
 	}
 
 	/** @group package-targeted */

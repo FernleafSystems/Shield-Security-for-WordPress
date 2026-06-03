@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Route;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\Utility\EnumTypes;
+use FernleafSystems\WorpdriveClient\Utility\EnumTypes;
 
 class Download extends BaseWorpdrive {
 

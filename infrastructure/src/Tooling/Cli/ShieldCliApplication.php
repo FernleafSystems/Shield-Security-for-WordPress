@@ -17,6 +17,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestCrossSiteCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageTargetedCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPopularPluginsCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestSourceCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestUpgradePublicCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\BrowserTestLane;
@@ -28,6 +29,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageFullTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackagePathResolver;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageStaticAnalysisLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageTargetedTestLane;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\PopularPluginsCompatibilityTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PreCommitChangedFileLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PublicUpgradeTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceRuntimeTestLane;
@@ -121,6 +123,12 @@ class ShieldCliApplication {
 					return new TestUpgradePublicCommand(
 						$projectRoot,
 						new PublicUpgradeTestLane( null, $environmentResolver )
+					);
+				},
+				'test:popular-plugins' => static function () use ( $projectRoot, $environmentResolver ) :Command {
+					return new TestPopularPluginsCommand(
+						$projectRoot,
+						new PopularPluginsCompatibilityTestLane( null, $environmentResolver )
 					);
 				},
 				'analyze:source' => static function () use ( $projectRoot ) :Command {

@@ -57,12 +57,7 @@ async function loginAndWriteStorageState( browser, lane ) {
 	await page.goto( '/wp-admin/', { waitUntil: 'load' } );
 	const loginForm = page.locator( '#loginform' );
 	if ( await loginForm.count() ) {
-		await page.locator( '#user_login' ).fill( 'admin' );
-		await page.locator( '#user_pass' ).fill( 'password' );
-		await Promise.all( [
-			page.waitForNavigation( { waitUntil: 'domcontentloaded' } ),
-			page.locator( '#wp-submit' ).click(),
-		] );
+		await submitWordPressLogin( page );
 	}
 
 	await context.storageState( { path: lane.authStatePath } );
@@ -129,12 +124,50 @@ async function loginIfNeeded( page ) {
 		return;
 	}
 
-	await page.locator( '#user_login' ).fill( 'admin' );
-	await page.locator( '#user_pass' ).fill( 'password' );
+	await submitWordPressLogin( page );
+}
+
+async function submitWordPressLogin( page ) {
+	const loginForm = page.locator( '#loginform' );
+	const submit = loginForm.locator( '#wp-submit' );
+
+	await base.expect( loginForm ).toBeVisible( { timeout: 20_000 } );
+	await fillWordPressLoginForm( loginForm );
 	await Promise.all( [
-		page.waitForNavigation( { waitUntil: 'domcontentloaded' } ),
-		page.locator( '#wp-submit' ).click(),
+		page.waitForURL(
+			( url ) => url.pathname.includes( '/wp-admin/' ),
+			{ waitUntil: 'domcontentloaded', timeout: 20_000 }
+		),
+		submit.click(),
 	] );
+}
+
+async function fillWordPressLoginForm( loginForm ) {
+	for ( let attempt = 0; attempt < 3; attempt++ ) {
+		const values = await loginForm.evaluate( ( form ) => {
+			const setValue = ( selector, value ) => {
+				const input = form.querySelector( selector );
+				if ( input === null ) {
+					throw new Error( `Unable to locate WordPress login field "${selector}".` );
+				}
+				input.value = value;
+				input.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+				input.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+				return input.value;
+			};
+
+			return {
+				username: setValue( '#user_login', 'admin' ),
+				password: setValue( '#user_pass', 'password' ),
+			};
+		} );
+
+		if ( values.username === 'admin' && values.password === 'password' ) {
+			return;
+		}
+	}
+
+	throw new Error( 'Unable to populate WordPress login credentials.' );
 }
 
 async function waitForShieldPage( page ) {

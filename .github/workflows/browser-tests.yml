@@ -60,13 +60,15 @@ jobs:
         node-version: '20.10'
         cache: npm
 
+    - name: Prepare Private Packagist Composer auth
+      env:
+        PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+      run: php .github/scripts/prepare-packagist-composer-auth.php
+
     - name: Install dependencies
       run: |
         composer install --no-interaction --prefer-dist --optimize-autoloader
         npm ci --no-audit --no-fund
-
-    - name: Build admin assets
-      run: npm run build
 
     - name: Install Playwright Chromium headless shell
       run: npm run playwright:install -- --with-deps --only-shell

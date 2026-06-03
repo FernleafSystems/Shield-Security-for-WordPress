@@ -9,7 +9,7 @@ abstract class BaseZoneReportUsers extends BaseZoneReport {
 
 	private array $admins = [];
 
-	protected function buildSummaryForLog( LogRecord $log ) :string {
+	protected function buildSummaryLinesForLog( LogRecord $log ) :array {
 		switch ( $log->event_slug ) {
 			case 'user_password_reset':
 				$text = __( 'Password Reset', 'wp-simple-firewall' );
@@ -24,10 +24,9 @@ abstract class BaseZoneReportUsers extends BaseZoneReport {
 				$text = __( 'Deleted', 'wp-simple-firewall' );
 				break;
 			default:
-				$text = parent::buildSummaryForLog( $log );
-				break;
+				return parent::buildSummaryLinesForLog( $log );
 		}
-		return $text;
+		return [ (string)$text ];
 	}
 
 	protected function getLoadLogsWheres() :array {

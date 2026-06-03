@@ -63,7 +63,11 @@ class ReportDataInspector {
 	public function getChangesForEmailDisplay() :array {
 		return \array_filter(
 			$this->data[ Constants::REPORT_AREA_CHANGES ] ?? [],
-			static fn( $changeZone ) :bool => \is_array( $changeZone ) && ( (int)( $changeZone[ 'total' ] ?? 0 ) > 0 )
+			static fn( $changeZone ) :bool => \is_array( $changeZone )
+				&& isset( $changeZone[ 'title' ], $changeZone[ 'total' ], $changeZone[ 'detailed' ] )
+				&& \is_array( $changeZone[ 'detailed' ] )
+				&& (int)$changeZone[ 'total' ] > 0
+				&& !empty( $changeZone[ 'detailed' ] )
 		);
 	}
 

@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\Testing\DockerComposeExecutor;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PublicUpgradeArtifacts;
-use FernleafSystems\ShieldPlatform\Tooling\Testing\PublicUpgradeLogScanner;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\PackageRuntimeLogScanner;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PublicUpgradePackageZipMetadata;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PublicUpgradePackageZipResolver;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PublicUpgradeTestLane;
@@ -71,7 +71,7 @@ class PublicUpgradeTestLaneTest extends TestCase {
 		$runner = new PublicUpgradeArtifactCopyProcessRunner(
 			$this->successfulUpgradeQueue( [ 0, 0, 44 ] ),
 			[
-				'wordpress:/var/www/html/wp-content/shield-upgrade-test/wordpress-debug.log'
+				'wordpress:/var/www/html/wp-content/shield-runtime-test/wordpress-debug.log'
 					=> 'PHP Deprecated: Thing in wp-content/plugins/wp-simple-firewall/icwp-wpsf.php'.\PHP_EOL,
 			]
 		);
@@ -141,6 +141,8 @@ class PublicUpgradeTestLaneTest extends TestCase {
 			0,
 			0,
 			0,
+			0,
+			0,
 			[ 'exit_code' => 0, 'stdout' => '{"slug":"wp-simple-firewall","version":"21.2.6","download_link":"https://downloads.wordpress.org/plugin/wp-simple-firewall.zip"}' ],
 			0,
 			[ 'exit_code' => 0, 'stdout' => "21.2.6\n" ],
@@ -180,7 +182,7 @@ class PublicUpgradeTestLaneTest extends TestCase {
 			$docker,
 			new RecordingLocalSiteProbe( [ true ], [ true ], [ false ] ),
 			$packageResolver,
-			new PublicUpgradeLogScanner()
+			new PackageRuntimeLogScanner()
 		);
 	}
 
@@ -205,13 +207,15 @@ class PublicUpgradeTestLaneTest extends TestCase {
 			0,
 			0,
 			0,
+			0,
+			0,
 			[ 'exit_code' => 0, 'stdout' => '{"slug":"wp-simple-firewall","version":"21.2.6","download_link":"https://downloads.wordpress.org/plugin/wp-simple-firewall.zip"}' ],
 			0,
 			[ 'exit_code' => 0, 'stdout' => "21.2.6\n" ],
 			0,
 			0,
 			[ 'exit_code' => 0, 'stdout' => '{"ok":true,"plugin":"wp-simple-firewall/icwp-wpsf.php","version":"21.2.7"}' ],
-			[ 'exit_code' => 0, 'stdout' => '{"ok":true,"url":"http://wordpress.test/wp-content/uploads/shield-upgrade-test/wp-simple-firewall-current.zip","status":200}' ],
+			[ 'exit_code' => 0, 'stdout' => '{"ok":true,"url":"http://wordpress.test/wp-content/uploads/shield-package-runtime-test/wp-simple-firewall-current.zip","status":200}' ],
 			[ 'exit_code' => 0, 'stdout' => '{"profile":"strong","applied":["global_enable_plugin_features"],"skipped":[],"excluded":[],"safety_resets":[],"errors":[]}' ],
 			[ 'exit_code' => 0, 'stdout' => '[{"name":"wp-simple-firewall","old_version":"21.2.6","new_version":"21.2.7","status":"Updated"}]' ],
 			0,

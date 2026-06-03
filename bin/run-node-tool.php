@@ -24,6 +24,11 @@ if ( empty( $args ) || in_array( $args[0], [ '--help', '-h' ], true ) ) {
 
 $tool = (string)array_shift( $args );
 $projectRoot = dirname( __DIR__ );
+if ( !array_key_exists( $tool, supportedToolScripts( $projectRoot ) ) ) {
+	fwrite( STDERR, "Unsupported tool '{$tool}'. Supported tools: ".implode( ', ', supportedToolNames( $projectRoot ) ).".\n" );
+	exit( EXIT_ENV );
+}
+
 $nodeVersion = readPinnedNodeVersion( $projectRoot );
 $currentNode = findCurrentNodeBinary( $nodeVersion );
 $nodeBinary = $currentNode ?? findPinnedNodeBinary( $nodeVersion );
@@ -41,7 +46,7 @@ if ( $nodeBinary === null ) {
 
 $toolCommand = resolveToolCommand( $projectRoot, $tool, $args );
 if ( $toolCommand === null ) {
-	fwrite( STDERR, "Unsupported tool '{$tool}'. Supported tools: playwright.\n" );
+	fwrite( STDERR, "Supported tool '{$tool}' is unavailable. Run 'npm ci' first.\n" );
 	exit( EXIT_ENV );
 }
 
@@ -63,11 +68,7 @@ exit( $process->getExitCode() ?? EXIT_FAIL );
  * @return array{script:string,args:string[]}|null
  */
 function resolveToolCommand( string $projectRoot, string $tool, array $args ) :?array {
-	$toolMap = [
-		'playwright' => $projectRoot.'/node_modules/@playwright/test/cli.js',
-	];
-
-	$script = $toolMap[ $tool ] ?? null;
+	$script = supportedToolScripts( $projectRoot )[ $tool ] ?? null;
 	if ( $script === null || !is_file( $script ) ) {
 		return null;
 	}
@@ -76,6 +77,23 @@ function resolveToolCommand( string $projectRoot, string $tool, array $args ) :?
 		'script' => $script,
 		'args' => array_values( array_map( 'strval', $args ) ),
 	];
+}
+
+/**
+ * @return array<string,string>
+ */
+function supportedToolScripts( string $projectRoot ) :array {
+	return [
+		'playwright' => $projectRoot.'/node_modules/@playwright/test/cli.js',
+		'webpack'    => $projectRoot.'/node_modules/webpack/bin/webpack.js',
+	];
+}
+
+/**
+ * @return string[]
+ */
+function supportedToolNames( string $projectRoot ) :array {
+	return array_keys( supportedToolScripts( $projectRoot ) );
 }
 
 /**
@@ -266,7 +284,7 @@ function normalizePath( string $path ) :string {
 function usage() :string {
 	return <<<TXT
 Usage:
-  php bin/run-node-tool.php <playwright> [args...]
+  php bin/run-node-tool.php <playwright|webpack> [args...]
 
 Purpose:
   Run browser and tooling commands with the repo's supported Node version from .nvmrc
@@ -278,5 +296,6 @@ Environment:
 Examples:
   php bin/run-node-tool.php playwright test --workers=1
   php bin/run-node-tool.php playwright install chromium
+  php bin/run-node-tool.php webpack --config webpack.config.js --mode production
 TXT;
 }

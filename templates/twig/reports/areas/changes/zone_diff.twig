@@ -1,31 +1,31 @@
-{% if zone_changes is empty %}
-	{% if flags.show_empty_zones %}
-		<div class="alert alert-secondary d-inline-block">
-			There were no changes detected for this zone.
-		</div>
-	{% endif %}
-{% else %}
-	<div class="row g-3">
-		{% for item in zone_changes %}
-			<div class="col-md-6 col-lg-4">
-				<div class="change-card">
-					<div class="change-card-header">
-						<h6>{{ item.name|raw }}</h6>
-					</div>
-					<ul class="list-group list-group-flush">
-						{% for row in item.rows %}
-							<li class="list-group-item">
-								{{ row|raw }}
-							</li>
-						{% endfor %}
-					</ul>
-					{% if item.link|default([]) is not empty %}
-						<div class="card-footer">
-							<a href="{{ item.link.href|raw }}" target="_blank" class="card-link" style="font-size: 0.85rem; color: var(--status-good);">{{ item.link.text }} &rarr;</a>
-						</div>
-					{% endif %}
+<div class="row g-3">
+	{% for item in zone_changes %}
+		<div class="col-md-6 col-lg-4">
+			<div class="change-card">
+				<div class="change-card-header">
+					<h6>{{ item.name }}</h6>
 				</div>
+				<ul class="list-group list-group-flush">
+					{% for row in item.rows %}
+						<li class="list-group-item">
+							{% for line in row.lines %}
+								{{ line }}{% if not loop.last %}<br>{% endif %}
+							{% endfor %}
+							{% if row.count > 1 %}
+								<span class="ms-1 text-muted">(x{{ row.count }})</span>
+							{% endif %}
+							{% if row.detail_time is defined and row.detail_who is defined %}
+								<div class="detailed d-none"><small>[{{ row.detail_time }}] {{ row.detail_who }}</small></div>
+							{% endif %}
+						</li>
+					{% endfor %}
+				</ul>
+				{% if item.link is not empty %}
+					<div class="card-footer">
+						<a href="{{ item.link.href }}" target="_blank" class="card-link" style="font-size: 0.85rem; color: var(--status-good);">{{ item.link.text }} &rarr;</a>
+					</div>
+				{% endif %}
 			</div>
-		{% endfor %}
-	</div>
-{% endif %}
+		</div>
+	{% endfor %}
+</div>

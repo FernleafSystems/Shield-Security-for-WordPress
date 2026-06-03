@@ -14,6 +14,7 @@ php:
   - 'phpstan*.neon*'
   - 'phpunit*.xml'
   - 'tests/docker/**'
+  - '.github/scripts/prepare-packagist-composer-auth.php'
   - '.github/scripts/verify-docker-test-scripts.sh'
   - '.github/workflows/tests.yml'
   - '.github/workflows/reusable-unit-tests.yml'

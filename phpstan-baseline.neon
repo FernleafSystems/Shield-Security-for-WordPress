@@ -11,15 +11,3 @@ parameters:
 			identifier: varTag.differentVariable
 			count: 1
 			path: plugin_init.php
-
-		-
-			message: '#^Method PclZip\:\:add\(\) invoked with 3 parameters, 1 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: src/Components/Worpdrive/Filesystem/ZipCreate/Zipper.php
-
-		-
-			message: '#^Method PclZip\:\:create\(\) invoked with 3 parameters, 1 required\.$#'
-			identifier: arguments.count
-			count: 1
-			path: src/Components/Worpdrive/Filesystem/ZipCreate/Zipper.php
