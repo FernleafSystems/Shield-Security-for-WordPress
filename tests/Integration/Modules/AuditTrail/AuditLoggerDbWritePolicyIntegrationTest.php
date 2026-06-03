@@ -2,9 +2,19 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
+	IPs\IPRecords,
+	ReqLogs\Ops as ReqLogsDB,
+	ReqLogs\RequestRecords
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\{
 	ActivityLogRetentionPolicy,
 	AuditLogger
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers\LocalDbWriter as ActivityLogDbWriter;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\{
+	LogHandlers\LocalDbWriter as RequestLogDbWriter,
+	RequestLogger
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -83,9 +93,22 @@ class AuditLoggerDbWritePolicyIntegrationTest extends ShieldIntegrationTestCase 
 
 	public function test_audit_logger_primes_upgrade_sensitive_logging_classes() :void {
 		$logger = $this->makeLogger();
+		$classes = $this->upgradeSensitiveLoggingClasses( $logger );
+
+		$this->assertUpgradeSensitiveLoggingClassesInclude( [
+			ActivityLogDbWriter::class,
+			RequestLogDbWriter::class,
+			RequestLogger::class,
+			RequestRecords::class,
+			IPRecords::class,
+			ReqLogsDB\Insert::class,
+			ReqLogsDB\Record::class,
+			ReqLogsDB\Select::class,
+		], $classes );
+
 		$this->runAuditLoggerInit( $logger );
 
-		foreach ( $this->upgradeSensitiveLoggingClasses( $logger ) as $class ) {
+		foreach ( $classes as $class ) {
 			$this->assertTrue( \class_exists( $class, false ), $class.' should be loaded.' );
 		}
 	}
@@ -225,6 +248,12 @@ class AuditLoggerDbWritePolicyIntegrationTest extends ShieldIntegrationTestCase 
 		$method = new \ReflectionMethod( $logger, 'upgradeSensitiveLoggingClasses' );
 		$method->setAccessible( true );
 		return $method->invoke( $logger );
+	}
+
+	private function assertUpgradeSensitiveLoggingClassesInclude( array $requiredClasses, array $classes ) :void {
+		foreach ( $requiredClasses as $class ) {
+			$this->assertContains( $class, $classes, $class.' must remain preloaded for same-request upgrades.' );
+		}
 	}
 
 	private function rowCount( string $dbKey ) :int {
