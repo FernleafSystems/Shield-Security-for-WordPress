@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Zones\Component;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockKeyApplicability;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
@@ -198,10 +199,10 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			]
 		);
 
-		$row = $this->firstConfigureRow( new FileLocker() );
+		$row = $this->firstConfigureRow( $this->fileLockerForEnvironment() );
 
-		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] ?? null );
-		$this->assertCount( 1, $row[ 'explanations' ] ?? [] );
+		$this->assertSame( EnumEnabledStatus::BAD, $row[ 'enabled_status' ] );
+		$this->assertCount( 1, $row[ 'explanations' ] );
 
 		$this->installController(
 			[],
@@ -214,11 +215,70 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 			]
 		);
 
-		$signals = ( new FileLocker() )->postureSignals();
+		$signals = $this->fileLockerForEnvironment()->postureSignals();
 
 		$this->assertSame(
 			[ 'good', 'good', 'good', 'good', 'good' ],
 			\array_column( $signals, 'severity' )
+		);
+	}
+
+	public function test_file_locker_ignores_non_applicable_webconfig_in_configure_score_and_signals() :void {
+		$this->installController(
+			[],
+			[
+				'file_locker' => new class {
+					public function getFilesToLock() :array {
+						return [ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index' ];
+					}
+				},
+			]
+		);
+
+		$fileLocker = $this->fileLockerForEnvironment( false, true );
+		$row = $this->firstConfigureRow( $fileLocker );
+		$signals = $this->indexSignalsBySlug( $fileLocker->postureSignals() );
+
+		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
+		$this->assertSame( [], $row[ 'explanations' ] );
+		$this->assertArrayNotHasKey( 'scan_enabled_filelocker_webconfig', $signals );
+		$this->assertSame( 4, \count( $signals ) );
+	}
+
+	public function test_file_locker_ignores_non_applicable_theme_functions_in_configure_score_and_signals() :void {
+		$this->installController(
+			[],
+			[
+				'file_locker' => new class {
+					public function getFilesToLock() :array {
+						return [ 'wpconfig', 'root_htaccess', 'root_index', 'root_webconfig' ];
+					}
+				},
+			]
+		);
+
+		$fileLocker = $this->fileLockerForEnvironment( true, false );
+		$row = $this->firstConfigureRow( $fileLocker );
+		$signals = $this->indexSignalsBySlug( $fileLocker->postureSignals() );
+
+		$this->assertSame( EnumEnabledStatus::GOOD, $row[ 'enabled_status' ] );
+		$this->assertSame( [], $row[ 'explanations' ] );
+		$this->assertArrayNotHasKey( 'scan_enabled_filelocker_theme_functions', $signals );
+		$this->assertSame( 4, \count( $signals ) );
+	}
+
+	public function test_file_locker_applicability_removes_only_non_applicable_known_stored_keys() :void {
+		$applicability = new FileLockKeyApplicability( false, false );
+
+		$this->assertSame(
+			[ 'wpconfig', 'root_htaccess', 'unknown_file' ],
+			$applicability->removeNonApplicableKnownKeys( [
+				'wpconfig',
+				'root_webconfig',
+				'root_htaccess',
+				'theme_functions',
+				'unknown_file',
+			] )
 		);
 	}
 
@@ -842,6 +902,15 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 				return $this->overrides[ 'getSessionIdleInterval' ] ?? 0;
 			}
 		};
+	}
+
+	private function fileLockerForEnvironment(
+		bool $isWindows = true,
+		bool $themeFunctionsAccessible = true
+	) :FileLocker {
+		return new FileLocker(
+			new FileLockKeyApplicability( $isWindows, $themeFunctionsAccessible )
+		);
 	}
 
 	private function minimalConfigOptions() :array {

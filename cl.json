@@ -83,7 +83,22 @@
         ]
       }
     ],
-    "patches":     []
+    "patches":     [
+      {
+        "version":     "1",
+        "released_at": 1780494000,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "File Locker Configuration Scoring Fixed",
+            "description": [
+              "File Locker now ignores unavailable file targets, such as Web.Config on non-Windows servers or inaccessible theme functions.php files, when calculating Configure scores and posture results.",
+              "Greyed File Locker options no longer make an otherwise complete setup look incomplete."
+            ]
+          }
+        ]
+      }
+    ]
   },
   "22.0": {
     "version":     "22.0",
