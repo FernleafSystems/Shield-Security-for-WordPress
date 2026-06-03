@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Route;
 use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\Utility\BuildTimeLimit;
+use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Process\DatabaseDataStatusNormalizer;
 use FernleafSystems\WorpdriveClient\{
 	Clean as WdClean,
 	CompatibilityChecks as WdCheck,
@@ -85,11 +86,13 @@ class RouteProcessorMap {
 
 			DatabaseData::class => fn( Req $req ) => $this->wrapProcessor(
 				$req,
-				fn( Req $req ) => ( new DataExportHandler(
-					$req->get_param( 'table_export_map' ),
-					$req->get_param( 'uuid' ),
-					BuildTimeLimit::Build( $req->get_param( 'time_limit' ) )
-				) )->run()
+				fn( Req $req ) => ( new DatabaseDataStatusNormalizer() )->normalize(
+					( new DataExportHandler(
+						$req->get_param( 'table_export_map' ),
+						$req->get_param( 'uuid' ),
+						BuildTimeLimit::Build( $req->get_param( 'time_limit' ) )
+					) )->run()
+				)
 			),
 		];
 	}

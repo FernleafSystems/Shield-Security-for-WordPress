@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rest\Worpdrive\Rout
 use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\Host\ShieldWorpdriveHost;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Route\{
+	DatabaseData,
 	DatabaseSchema,
 	FilesystemMap,
 	FilesystemZip,
@@ -114,6 +115,64 @@ class RouteProcessorMapTest extends WorpdriveUnitTestCase {
 		);
 	}
 
+	public function test_database_data_route_creates_valid_export_zip_under_current_client() :void {
+		$db = ( new WorpdriveTestDb() )->setTableStatus( [
+			[
+				'Name'           => 'wp_options',
+				'Engine'         => 'InnoDB',
+				'Rows'           => 1,
+				'Avg_row_length' => 128,
+				'Data_length'    => 128,
+				'Index_length'   => 64,
+			],
+		] );
+		ServicesState::mergeItems( [
+			'service_wpdb' => $db,
+		] );
+		$uuid = 'route-db-export';
+		$request = new \WP_REST_Request( [
+			'table_export_map' => [
+				'wp_options' => [
+					'offset'        => 0,
+					'page'          => 1,
+					'completed_at'  => 0,
+					'exported_rows' => 0,
+					'max_page_rows' => 10,
+					'chunk_size'    => 2,
+				],
+			],
+			'uuid'             => $uuid,
+			'time_limit'       => 30,
+		] );
+
+		$result = WorpdriveRuntime::withHost(
+			new ShieldWorpdriveHost(),
+			fn() => ( ( new RouteProcessorMap() )->map()[ DatabaseData::class ] )( $request )
+		);
+
+		$this->assertStringStartsWith(
+			'https://shield.test/plugin/tmp/archive-route-db-export/',
+			$result[ 'href' ]
+		);
+		$this->assertStringEndsWith( '_zipped_db_exp.archive', $result[ 'href' ] );
+
+		$this->assertArrayHasKey( 'table_export_map', $result );
+		$this->assertArrayHasKey( 'wp_options', $result[ 'table_export_map' ] );
+		$tableStatus = $result[ 'table_export_map' ][ 'wp_options' ];
+		$this->assertSame( 1, $tableStatus[ 'offset' ] );
+		$this->assertSame( 2, $tableStatus[ 'page' ] );
+		$this->assertSame( 1, $tableStatus[ 'exported_rows' ] );
+		$this->assertSame( 10, $tableStatus[ 'max_page_rows' ] );
+		$this->assertSame( 2, $tableStatus[ 'chunk_size' ] );
+		$this->assertGreaterThan( 0, $tableStatus[ 'completed_at' ] );
+
+		$sql = $this->zipEntryContents( $this->singleDbExportArchiveFor( $uuid ), 'data_options_1.sql' );
+		$this->assertStringContainsString( 'INSERT INTO `wp_options`', $sql );
+		$this->assertStringContainsString( '`option_id`, `option_name`, `option_value`, `autoload`', $sql );
+		$this->assertStringContainsString( "'siteurl'", $sql );
+		$this->assertStringContainsString( "'https://shield.test'", $sql );
+	}
+
 	private function runFilesystemMapRoute( string $uuid, string $type, string $dir ) :array {
 		$request = new \WP_REST_Request( [
 			'type'            => $type,
@@ -145,5 +204,21 @@ class RouteProcessorMapTest extends WorpdriveUnitTestCase {
 		}
 		$db->close();
 		return [];
+	}
+
+	private function singleDbExportArchiveFor( string $uuid ) :string {
+		$files = \glob( \sprintf( '%s/tmp/archive-%s/*_zipped_db_exp.archive', $this->pluginRoot, $uuid ) ) ?: [];
+		$this->assertCount( 1, $files );
+		return $files[ 0 ];
+	}
+
+	private function zipEntryContents( string $archivePath, string $entryName ) :string {
+		$zip = new \ZipArchive();
+		$this->assertTrue( $zip->open( $archivePath ) === true );
+		$contents = $zip->getFromName( $entryName );
+		$zip->close();
+
+		$this->assertIsString( $contents );
+		return $contents;
 	}
 }
