@@ -1,7 +1,7 @@
 {
   "22.1": {
     "version":     "22.1",
-    "released_at": 1780482000,
+    "released_at": 1780570000,
     "hrefs":       {
       "release": "https://clk.shldscrty.com/shieldrelease221",
       "upgrade": "https://clk.shldscrty.com/shieldupgradeguide221"
@@ -76,26 +76,24 @@
         ]
       },
       {
+        "type":        "fixed",
+        "title":       "File Locker Configuration Scoring Fixed",
+        "description": [
+          "File Locker now ignores unavailable file targets, such as Web.Config on non-Windows servers or inaccessible theme functions.php files, when calculating Configure scores and posture results.",
+          "Greyed File Locker options no longer make an otherwise complete setup look incomplete."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Contextual Help Text Fixed",
+        "description": [
+        ]
+      },
+      {
         "type":        "improved",
         "title":       "Release Reliability Improved",
         "description": [
           "Release checks now cover more real-world upgrade and plugin compatibility situations before each release."
-        ]
-      }
-    ],
-    "patches":     [
-      {
-        "version":     "1",
-        "released_at": 1780494000,
-        "items":       [
-          {
-            "type":        "fixed",
-            "title":       "File Locker Configuration Scoring Fixed",
-            "description": [
-              "File Locker now ignores unavailable file targets, such as Web.Config on non-Windows servers or inaccessible theme functions.php files, when calculating Configure scores and posture results.",
-              "Greyed File Locker options no longer make an otherwise complete setup look incomplete."
-            ]
-          }
         ]
       }
     ]
