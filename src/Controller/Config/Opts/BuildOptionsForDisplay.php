@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\{
 	StringsOptions,
 	StringsSections
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockKeyApplicability;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -234,11 +235,15 @@ class BuildOptionsForDisplay {
 				break;
 
 			case 'file_locker':
-				if ( !Services::Data()->isWindows() ) {
+				$applicability = FileLockKeyApplicability::fromCurrentEnvironment();
+				/** @var array<array-key,mixed> $fileLockerValue */
+				$fileLockerValue = $option[ 'value' ];
+				$option[ 'value' ] = $applicability->removeNonApplicableKnownKeys( $fileLockerValue );
+				if ( !$applicability->isApplicable( 'root_webconfig' ) ) {
 					$option[ 'value_options' ][ 'root_webconfig' ][ 'name' ] .= sprintf( ' (%s)', __( 'IIS only', 'wp-simple-firewall' ) );
 					$option[ 'value_options' ][ 'root_webconfig' ][ 'is_available' ] = false;
 				}
-				if ( !Services::WpFs()->isAccessibleFile( path_join( get_stylesheet_directory(), 'functions.php' ) ) ) {
+				if ( !$applicability->isApplicable( 'theme_functions' ) ) {
 					$option[ 'value_options' ][ 'theme_functions' ][ 'is_available' ] = false;
 				}
 				break;

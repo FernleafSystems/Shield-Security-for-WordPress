@@ -17,6 +17,9 @@ on:
         required: false
         default: false
         type: boolean
+    secrets:
+      PACKAGIST_TOKEN:
+        required: true
 
 jobs:
   unit-tests:
@@ -33,6 +36,11 @@ jobs:
         php-version: ${{ inputs.php_version }}
         coverage: none
         tools: composer:v2
+
+    - name: Prepare Private Packagist Composer auth
+      env:
+        PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+      run: php .github/scripts/prepare-packagist-composer-auth.php
 
     - name: Install dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader

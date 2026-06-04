@@ -1,4 +1,103 @@
 {
+  "22.1": {
+    "version":     "22.1",
+    "released_at": 1780570000,
+    "hrefs":       {
+      "release": "https://clk.shldscrty.com/shieldrelease221",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide221"
+    },
+    "title":       "Stronger Admin Boundaries and Backup Reliability",
+    "description": [
+      "Shield 22.1 tightens Security Admin boundaries, restores native WordPress Site Health security checks, and improves backup and export reliability.",
+      "It also adds clearer PHP upgrade guidance, safer reports, more reliable silentCAPTCHA background checks, and stronger release checks."
+    ],
+    "items":       [
+      {
+        "type":        "improved",
+        "title":       "Backup and Export Reliability Improved",
+        "description": [
+          "Backup and DB export handling is more reliable, especially when checking site file access, building archives, and tracking progress during backup work."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "WordPress Site Health Checks Restored",
+        "description": [
+          "Shield security zones now appear as native WordPress Site Health checks, with clearer results and links back to the relevant Shield settings."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Security Admin Boundaries Tightened",
+        "description": [
+          "When Security Admin is enabled, WordPress admins without an active Shield Security Admin session see less sensitive detail in the dashboard widget and Site Health areas."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Future PHP Requirement Notice",
+        "description": [
+          "Admins are warned when a site is below Shield's future PHP requirement, with a lighter reminder for PHP 8.2 sites to move toward PHP 8.3 or newer."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Security Reports and Admin Actions Hardened",
+        "description": [
+          "Security report details are handled more safely, and Shield is stricter about which admin actions can be started outside normal admin screens."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Security Report Email Compatibility",
+        "description": [
+          "Security report emails now cooperate more cleanly with SMTP and email delivery plugins."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Dashboard Icon Fonts Fixed",
+        "description": [
+          "Shield dashboard icon fonts now load correctly on sites where direct plugin asset access is restricted."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "silentCAPTCHA Reliability Improved",
+        "description": [
+          "silentCAPTCHA is better at remembering trusted visitors and handling failed background checks without noisy errors or extra challenges."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Safer Log Diagnostics",
+        "description": [
+          "When request or activity logging runs into problems, Shield now records cleaner diagnostic details without exposing sensitive request data."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "File Locker Configuration Scoring Fixed",
+        "description": [
+          "File Locker now ignores unavailable file targets, such as Web.Config on non-Windows servers or inaccessible theme functions.php files, when calculating Configure scores and posture results.",
+          "Greyed File Locker options no longer make an otherwise complete setup look incomplete."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Contextual Help Text Fixed",
+        "description": [
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Release Reliability Improved",
+        "description": [
+          "Release checks now cover more real-world upgrade and plugin compatibility situations before each release."
+        ]
+      }
+    ]
+  },
   "22.0": {
     "version":     "22.0",
     "released_at": 1779283000,
@@ -50,13 +149,6 @@
         "description": [
           "Reports gives you clearer summaries, trend charts, and cleaner report management.",
           "It's also easier to review and clean up reports you've already run."
-        ]
-      },
-      {
-        "type":        "improved",
-        "title":       "Report Security Hardening",
-        "description": [
-          "Report change details are rendered more safely, and Shield's internal REST action endpoint now accepts fewer externally routed actions."
         ]
       },
       {

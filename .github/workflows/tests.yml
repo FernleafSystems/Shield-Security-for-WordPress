@@ -112,6 +112,11 @@ jobs:
         coverage: none
         tools: composer:v2
 
+    - name: Prepare Private Packagist Composer auth
+      env:
+        PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+      run: php .github/scripts/prepare-packagist-composer-auth.php
+
     - name: Install dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
@@ -127,6 +132,7 @@ jobs:
     with:
       run_command: composer test:unit
       php_version: '7.4'
+    secrets: inherit
 
   unit-latest:
     name: 'PHP Unit Tests (PHP 8.4)'
@@ -136,6 +142,7 @@ jobs:
     with:
       run_command: composer test:unit
       php_version: '8.4'
+    secrets: inherit
 
   # Run source-tree integration checks inside Docker against supported WordPress versions.
   source-docker-runtime:
@@ -158,6 +165,11 @@ jobs:
         php-version: '8.2'
         coverage: none
         tools: composer:v2
+
+    - name: Prepare Private Packagist Composer auth
+      env:
+        PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+      run: php .github/scripts/prepare-packagist-composer-auth.php
 
     - name: Install dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
@@ -184,6 +196,7 @@ jobs:
     with:
       artifact_name: shield-package
       package_dir: shield-package
+    secrets: inherit
 
   package-targeted-validation:
     name: 'Validate Packaged Plugin Artifact'
@@ -201,6 +214,11 @@ jobs:
         php-version: '7.4'
         coverage: none
         tools: composer:v2
+
+    - name: Prepare Private Packagist Composer auth
+      env:
+        PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+      run: php .github/scripts/prepare-packagist-composer-auth.php
 
     - name: Install dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader

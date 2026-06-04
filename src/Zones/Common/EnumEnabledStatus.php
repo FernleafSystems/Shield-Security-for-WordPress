@@ -10,6 +10,9 @@ class EnumEnabledStatus {
 	public const NEUTRAL = 'neutral';
 	public const NEUTRAL_ENABLED = 'neutral_enabled';
 
+	/**
+	 * @return 'good'|'warning'|'critical'
+	 */
 	public static function toSeverity( string $enabledStatus, string $defaultSeverity = 'good' ) :string {
 		$defaultSeverity = \in_array( $defaultSeverity, [ 'good', 'warning', 'critical' ], true )
 			? $defaultSeverity

@@ -1,0 +1,370 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\LogHandlers {
+	function error_log( string $message ) :bool {
+		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail\Support\RequestLogDiagnosticSpy::record( 'traffic', $message );
+		return true;
+	}
+}
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\LogHandlers {
+	function error_log( string $message ) :bool {
+		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail\Support\RequestLogDiagnosticSpy::record( 'audit', $message );
+		return true;
+	}
+}
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail\Support {
+	class RequestLogDiagnosticSpy {
+
+		private static array $messages = [
+			'audit'   => [],
+			'traffic' => [],
+		];
+
+		public static function record( string $source, string $message ) :void {
+			self::$messages[ $source ][] = $message;
+		}
+
+		public static function reset() :void {
+			self::$messages = [
+				'audit'   => [],
+				'traffic' => [],
+			];
+		}
+
+		public static function messages( string $source ) :array {
+			return self::$messages[ $source ] ?? [];
+		}
+	}
+}
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail {
+	use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
+	use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops as ReqLogsDB;
+	use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
+	use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditLogger;
+	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
+	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail\Support\RequestLogDiagnosticSpy;
+	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
+
+	class AuditRequestLogFailureDiagnosticsIntegrationTest extends ShieldIntegrationTestCase {
+
+		use CurrentRequestFixture;
+
+		private array $requestSnapshot = [];
+
+		public function set_up() {
+			parent::set_up();
+
+			\remove_filter( 'shield/is_log_traffic', '__return_true', \PHP_INT_MAX );
+
+			$this->requireDb( 'ips' );
+			$this->requireDb( 'req_logs' );
+			$this->requireDb( 'activity_logs' );
+			$this->requireDb( 'activity_logs_meta' );
+
+			$this->requestSnapshot = $this->snapshotCurrentRequestState();
+			$this->requireController()->opts
+				->optSet( 'enable_logger', 'Y' )
+				->optSet( 'enable_live_log', 'N' )
+				->optSet( 'enable_limiter', 'N' )
+				->optSet( 'live_log_started_at', 0 );
+
+			RequestLogDiagnosticSpy::reset();
+			RuntimeTestState::resetRequestLoggerState();
+		}
+
+		public function tear_down() {
+			RequestLogDiagnosticSpy::reset();
+			RuntimeTestState::resetRequestLoggerState();
+			\remove_filter( 'shield/is_log_traffic', '__return_true', \PHP_INT_MAX );
+			$this->restoreCurrentRequestState( $this->requestSnapshot );
+			parent::tear_down();
+		}
+
+		public function test_request_record_insert_failure_logs_precise_traffic_line_without_activity_row() :void {
+			$corrupted = 0;
+			$filter = $this->reqLogInsertFailureFilter( $corrupted );
+			$restoreDbErrors = $this->suppressWpDbErrors();
+			add_filter( 'query', $filter, 999 );
+
+			try {
+				$this->applySnapshotDiscoveryRequest();
+				$this->writeAuditEvent();
+			}
+			finally {
+				remove_filter( 'query', $filter, 999 );
+				$restoreDbErrors();
+			}
+
+			$this->assertGreaterThan( 0, $corrupted );
+			$line = $this->singleTrafficLine();
+			$this->assertSame( 'request_record_insert', $this->fieldValue( $line, 'stage' ) );
+			$this->assertNotSame( '', $this->fieldValue( $line, 'db_error' ) );
+			$this->assertNotSame( '', $this->fieldValue( $line, 'req_id' ) );
+			$this->assertNotSame( '', $this->fieldValue( $line, 'type' ) );
+			$this->assertSame( '198.51.100.91', $this->fieldValue( $line, 'ip' ) );
+			$this->assertSame( '/wp-admin/admin-ajax.php', $this->fieldValue( $line, 'path' ) );
+			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'audit' ) );
+			$this->assertSame( 0, $this->rowCount( 'activity_logs' ) );
+			$this->assertSame( 0, $this->rowCount( 'req_logs' ) );
+			$this->assertDiagnosticLineIsPrivate( $line );
+		}
+
+		public function test_activity_log_meta_insert_failure_logs_audit_line_and_keeps_request_logging_enabled() :void {
+			$corrupted = 0;
+			$filter = $this->activityLogMetaInsertFailureFilter( $corrupted );
+			$restoreDbErrors = $this->suppressWpDbErrors();
+			add_filter( 'query', $filter, 999 );
+
+			try {
+				$this->applySnapshotDiscoveryRequest();
+				$this->writeAuditEvent( [
+					'meta_failure_key' => 'meta-failure-value',
+				] );
+			}
+			finally {
+				remove_filter( 'query', $filter, 999 );
+				$restoreDbErrors();
+			}
+
+			$this->assertGreaterThan( 0, $corrupted );
+			$line = $this->singleAuditLine();
+			$this->assertSame( 'Failed to insert activity log metadata', $this->fieldValue( $line, 'message' ) );
+			$this->assertNotSame( '', $this->fieldValue( $line, 'db_error' ) );
+			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'traffic' ) );
+			$this->assertSame( 1, $this->rowCount( 'activity_logs' ) );
+			$this->assertSame( 0, $this->rowCount( 'activity_logs_meta' ) );
+			$this->assertSame( \PHP_INT_MAX, \has_filter( 'shield/is_log_traffic', '__return_true' ) );
+			$this->assertDiagnosticLineIsPrivate( $line );
+		}
+
+		public function test_request_record_failure_state_is_cleared_after_successful_direct_create() :void {
+			$ipRecord = ( new IPRecords() )->loadIP( '198.51.100.92' );
+			$requestRecords = new RequestRecords();
+			$corrupted = 0;
+			$filter = $this->reqLogInsertFailureFilter( $corrupted );
+			$restoreDbErrors = $this->suppressWpDbErrors();
+			add_filter( 'query', $filter, 999 );
+
+			try {
+				$this->assertNull( $requestRecords->createReq( 'failed-diagnostic-create', $ipRecord->id ) );
+			}
+			finally {
+				remove_filter( 'query', $filter, 999 );
+				$restoreDbErrors();
+			}
+
+			$this->assertSame( 'request_record_insert', $requestRecords->getLastFailure()[ 'stage' ] ?? '' );
+
+			$created = $requestRecords->createReq( 'successful-diagnostic-create', $ipRecord->id );
+			$this->assertInstanceOf( ReqLogsDB\Record::class, $created );
+			$this->assertSame( [], $requestRecords->getLastFailure() );
+		}
+
+		public function test_request_record_update_failure_logs_precise_line_and_preserves_fallback_linking() :void {
+			$corrupted = 0;
+			$filter = $this->reqLogUpdateFailureFilter( $corrupted );
+			$restoreDbErrors = $this->suppressWpDbErrors();
+			add_filter( 'query', $filter, 999 );
+
+			try {
+				$this->applySnapshotDiscoveryRequest();
+				$this->writeAuditEvent();
+			}
+			finally {
+				remove_filter( 'query', $filter, 999 );
+				$restoreDbErrors();
+			}
+
+			$this->assertGreaterThan( 0, $corrupted );
+			$line = $this->singleTrafficLine();
+			$this->assertSame( 'request_record_update', $this->fieldValue( $line, 'stage' ) );
+			$this->assertNotSame( '', $this->fieldValue( $line, 'db_error' ) );
+			$this->assertNotSame( '', $this->fieldValue( $line, 'type' ) );
+			$this->assertSame( '/wp-admin/admin-ajax.php', $this->fieldValue( $line, 'path' ) );
+			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'audit' ) );
+			$this->assertSame( 1, $this->rowCount( 'activity_logs' ) );
+			$this->assertSame( 1, $this->rowCount( 'req_logs' ) );
+			$this->assertSame( $this->reqLogIds(), $this->activityLogRequestRefs() );
+			$this->assertDiagnosticLineIsPrivate( $line );
+		}
+
+		public function test_ip_record_failure_logs_precise_traffic_line_without_audit_duplicate() :void {
+			$this->applySnapshotDiscoveryRequest( 'not-an-ip' );
+			$this->writeAuditEvent();
+
+			$line = $this->singleTrafficLine();
+			$this->assertSame( 'ip_record_load', $this->fieldValue( $line, 'stage' ) );
+			$this->assertNotSame( '', $this->fieldValue( $line, 'type' ) );
+			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'audit' ) );
+			$this->assertSame( 0, $this->rowCount( 'activity_logs' ) );
+			$this->assertSame( 0, $this->rowCount( 'req_logs' ) );
+			$this->assertDiagnosticLineIsPrivate( $line );
+		}
+
+		private function applySnapshotDiscoveryRequest( string $ip = '198.51.100.91' ) :void {
+			$this->applyCurrentRequestState(
+				[
+					'REQUEST_METHOD'  => 'POST',
+					'REQUEST_URI'     => '/wp-admin/admin-ajax.php?action=icwp-wpsf_snapshot_discovery&secret=private-query',
+					'HTTP_USER_AGENT' => 'private-user-agent',
+					'REMOTE_ADDR'     => $ip,
+				],
+				[
+					'action' => 'icwp-wpsf_snapshot_discovery',
+					'secret' => 'private-query',
+				],
+				[
+					'payload' => 'private-body',
+				],
+				[
+					'path'       => '/wp-admin/admin-ajax.php',
+					'wp_is_ajax' => true,
+				]
+			);
+		}
+
+		private function writeAuditEvent( array $auditParams = [] ) :void {
+			$logger = $this->makeLogger();
+			$this->captureEvent( $logger, 'lic_activation_success', [
+				'audit_params' => $auditParams,
+			], [
+				'audit'           => true,
+				'audit_countable' => false,
+				'audit_multiple'  => true,
+				'level'           => 'notice',
+			] );
+			$this->shutdownLogger( $logger );
+		}
+
+		private function reqLogInsertFailureFilter( int &$corrupted ) :callable {
+			$table = $this->requireController()->db_con->req_logs->getTable();
+			return function ( string $query ) use ( &$corrupted, $table ) :string {
+				if ( \str_starts_with( \ltrim( $query ), 'INSERT' )
+					 && \str_contains( $query, '`'.$table.'`' )
+					 && \str_contains( $query, '`req_id`' )
+					 && \str_contains( $query, '`ip_ref`' )
+					 && !\str_contains( $query, '`path`' ) ) {
+					$corrupted++;
+					return 'INSERT INTO `shield_missing_req_logs_table` (`id`) VALUES (1)';
+				}
+				return $query;
+			};
+		}
+
+		private function reqLogUpdateFailureFilter( int &$corrupted ) :callable {
+			$table = $this->requireController()->db_con->req_logs->getTable();
+			return function ( string $query ) use ( &$corrupted, $table ) :string {
+				if ( \str_starts_with( \ltrim( $query ), 'UPDATE' )
+					 && \str_contains( $query, '`'.$table.'`' )
+					 && \str_contains( $query, '`path`' ) ) {
+					$corrupted++;
+					return 'UPDATE `shield_missing_req_logs_table` SET `id`=1';
+				}
+				return $query;
+			};
+		}
+
+		private function activityLogMetaInsertFailureFilter( int &$corrupted ) :callable {
+			$table = $this->requireController()->db_con->activity_logs_meta->getTable();
+			return function ( string $query ) use ( &$corrupted, $table ) :string {
+				if ( \str_starts_with( \ltrim( $query ), 'INSERT' )
+					 && \str_contains( $query, '`'.$table.'`' )
+					 && \str_contains( $query, '`log_ref`' )
+					 && \str_contains( $query, '`meta_key`' )
+					 && \str_contains( $query, '`meta_value`' ) ) {
+					$corrupted++;
+					return 'INSERT INTO `shield_missing_activity_logs_meta_table` (`id`) VALUES (1)';
+				}
+				return $query;
+			};
+		}
+
+		private function suppressWpDbErrors() :callable {
+			global $wpdb;
+			$previous = $wpdb->suppress_errors( true );
+			return function () use ( $wpdb, $previous ) :void {
+				$wpdb->suppress_errors( $previous );
+			};
+		}
+
+		private function singleTrafficLine() :string {
+			$messages = RequestLogDiagnosticSpy::messages( 'traffic' );
+			$this->assertCount( 1, $messages );
+			$line = (string)$messages[ 0 ];
+			$this->assertStringStartsWith( 'Shield request log write failed: ', $line );
+			$this->assertStringNotContainsString( 'DEBUG::'.'EXCEPTION', $line );
+			return $line;
+		}
+
+		private function singleAuditLine() :string {
+			$messages = RequestLogDiagnosticSpy::messages( 'audit' );
+			$this->assertCount( 1, $messages );
+			$line = (string)$messages[ 0 ];
+			$this->assertStringStartsWith( 'Shield activity log write failed: ', $line );
+			$this->assertStringNotContainsString( 'DEBUG::'.'EXCEPTION', $line );
+			return $line;
+		}
+
+		private function assertDiagnosticLineIsPrivate( string $line ) :void {
+			$this->assertStringNotContainsString( 'secret=private-query', $line );
+			$this->assertStringNotContainsString( 'private-body', $line );
+			$this->assertStringNotContainsString( 'private-user-agent', $line );
+			$this->assertStringNotContainsString( 'INSERT INTO', $line );
+			$this->assertStringNotContainsString( 'UPDATE `', $line );
+		}
+
+		private function fieldValue( string $line, string $field ) :string {
+			$pattern = '/(?:^|[:;] )'.\preg_quote( $field, '/' ).'=([^;]*)/';
+			$this->assertMatchesRegularExpression( $pattern, $line );
+			\preg_match( $pattern, $line, $matches );
+			return (string)( $matches[ 1 ] ?? '' );
+		}
+
+		private function makeLogger() :AuditLogger {
+			$ref = new \ReflectionClass( AuditLogger::class );
+			/** @var AuditLogger $logger */
+			$logger = $ref->newInstanceWithoutConstructor();
+			return $logger;
+		}
+
+		private function captureEvent( AuditLogger $logger, string $event, array $meta, array $def ) :void {
+			$method = new \ReflectionMethod( $logger, 'captureEvent' );
+			$method->setAccessible( true );
+			$method->invoke( $logger, $event, $meta, $def );
+		}
+
+		private function shutdownLogger( AuditLogger $logger ) :void {
+			$method = new \ReflectionMethod( $logger, 'onShutdown' );
+			$method->setAccessible( true );
+			$method->invoke( $logger );
+		}
+
+		private function rowCount( string $dbKey ) :int {
+			global $wpdb;
+			return (int)$wpdb->get_var( \sprintf(
+				'SELECT COUNT(*) FROM `%s`',
+				$this->requireController()->db_con->{$dbKey}->getTable()
+			) );
+		}
+
+		private function activityLogRequestRefs() :array {
+			global $wpdb;
+			return \array_map( 'intval', (array)$wpdb->get_col( \sprintf(
+				'SELECT `req_ref` FROM `%s` ORDER BY `id` ASC',
+				$this->requireController()->db_con->activity_logs->getTable()
+			) ) );
+		}
+
+		private function reqLogIds() :array {
+			global $wpdb;
+			return \array_map( 'intval', (array)$wpdb->get_col( \sprintf(
+				'SELECT `id` FROM `%s` ORDER BY `id` ASC',
+				$this->requireController()->db_con->req_logs->getTable()
+			) ) );
+		}
+	}
+}

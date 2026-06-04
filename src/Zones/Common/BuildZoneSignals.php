@@ -7,7 +7,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 class BuildZoneSignals {
 
 	/**
-	 * @return list<array<string,mixed>>
+	 * @return list<array{
+	 *   slug:string,
+	 *   title:string,
+	 *   weight:int,
+	 *   score:int,
+	 *   is_protected:bool,
+	 *   severity:'good'|'warning'|'critical',
+	 *   explanation:list<string>,
+	 *   config_action:array<string,mixed>,
+	 *   zone:string
+	 * }>
 	 */
 	public function build() :array {
 		$signals = [];

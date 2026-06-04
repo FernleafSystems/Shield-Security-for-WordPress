@@ -11,3 +11,4 @@ jobs:
     uses: ./.github/workflows/reusable-unit-tests.yml
     with:
       run_command: php bin/run-unit-tests.php --runner-mode=serial
+    secrets: inherit

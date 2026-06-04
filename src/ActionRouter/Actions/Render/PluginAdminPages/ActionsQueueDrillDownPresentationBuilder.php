@@ -45,7 +45,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 
 	public function buildLaneBadge( int $itemCount ) :string {
 		return \sprintf(
-			_n( '%s lane', '%s lanes', $itemCount, 'wp-simple-firewall' ),
+			_n( '%s protection', '%s protections', $itemCount, 'wp-simple-firewall' ),
 			$itemCount
 		);
 	}
@@ -60,8 +60,8 @@ class ActionsQueueDrillDownPresentationBuilder {
 	public function buildBucketFocusText( string $bucketLabel, int $itemCount ) :string {
 		return \sprintf(
 			_n(
-				'%1$s contains %2$s item that still needs attention.',
-				'%1$s contains %2$s items that still need attention.',
+				'%1$s has %2$s item that still needs attention.',
+				'%1$s has %2$s items that still need attention.',
 				$itemCount,
 				'wp-simple-firewall'
 			),
@@ -171,7 +171,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'meta'               => $meta,
 			'summary'            => $overrides[ 'summary' ] ?? $summary,
 			'focus'              => $overrides[ 'focus' ] ?? $meta,
-			'next_step'          => $overrides[ 'next_step' ] ?? __( 'Choose one grouped finding to review the matching results.', 'wp-simple-firewall' ),
+			'next_step'          => $overrides[ 'next_step' ] ?? __( 'Choose one issue group to review matching results.', 'wp-simple-firewall' ),
 			'icon_class'         => $iconClass,
 			'badge'              => $overrides[ 'badge' ] ?? $this->buildItemBadge( $itemCount ),
 			'badge_status'       => $overrides[ 'badge_status' ] ?? $status,
@@ -200,7 +200,7 @@ class ActionsQueueDrillDownPresentationBuilder {
 			'title'              => $label,
 			'summary'            => $overrides[ 'summary' ] ?? $summary,
 			'focus'              => $overrides[ 'focus' ] ?? $this->buildItemBadge( $itemCount ),
-			'next_step'          => $overrides[ 'next_step' ] ?? __( 'Review the scoped results and complete the next action.', 'wp-simple-firewall' ),
+			'next_step'          => $overrides[ 'next_step' ] ?? __( 'Review the results and complete the next action.', 'wp-simple-firewall' ),
 			'icon_class'         => $iconClass,
 			'badge'              => $overrides[ 'badge' ] ?? $this->buildItemBadge( $itemCount ),
 			'badge_status'       => $overrides[ 'badge_status' ] ?? $status,

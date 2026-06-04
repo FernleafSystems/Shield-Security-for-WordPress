@@ -23,6 +23,11 @@ jobs:
         coverage: none
         tools: composer:v2
 
+    - name: Prepare Private Packagist Composer auth
+      env:
+        PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+      run: php .github/scripts/prepare-packagist-composer-auth.php
+
     - name: Display Environment Info
       run: |
         echo "PHP Version: $(php -v)"
