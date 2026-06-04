@@ -239,12 +239,12 @@ class ActionsQueueBucketsBuilder {
 
 		if ( empty( $summaryParts ) ) {
 			if ( $bucketSource[ 'healthy_item_count' ] > 0 ) {
-				return __( 'Everything in this bucket is currently looking good.', 'wp-simple-firewall' );
+				return __( 'Everything here is currently looking good.', 'wp-simple-firewall' );
 			}
 			if ( $bucketSource[ 'disabled_item_count' ] > 0 ) {
 				return $this->buildDisabledSummaryText( $bucketSource );
 			}
-			return __( 'No items in this bucket.', 'wp-simple-firewall' );
+			return __( 'No items to review here.', 'wp-simple-firewall' );
 		}
 
 		return \implode( ', ', \array_slice( $summaryParts, 0, 2 ) );
@@ -395,14 +395,14 @@ class ActionsQueueBucketsBuilder {
 		}
 
 		if ( $bucketSource[ 'healthy_item_count' ] > 0 ) {
-			return __( 'Everything in this bucket is currently looking good.', 'wp-simple-firewall' );
+			return __( 'Everything here is currently looking good.', 'wp-simple-firewall' );
 		}
 
 		if ( $bucketSource[ 'disabled_item_count' ] > 0 ) {
 			return $this->buildDisabledSummaryText( $bucketSource );
 		}
 
-		return __( 'There is nothing to review in this bucket right now.', 'wp-simple-firewall' );
+		return __( 'There is nothing to review here right now.', 'wp-simple-firewall' );
 	}
 
 	private function buildBucketStateLabel( string $status, array $bucketSource ) :string {
@@ -435,9 +435,9 @@ class ActionsQueueBucketsBuilder {
 
 		return [
 			'focus'        => $bucketSource[ 'disabled_upgrade_count' ] === $bucketSource[ 'disabled_item_count' ]
-				? __( 'Upgrade available protections in this bucket.', 'wp-simple-firewall' )
-				: __( 'Available protections in this bucket still need setup.', 'wp-simple-firewall' ),
-			'next_step'    => __( 'Open a lane to switch on protection or review the upgrade path.', 'wp-simple-firewall' ),
+				? __( 'Upgrade your plan to unlock these protections.', 'wp-simple-firewall' )
+				: __( 'Set up these protections before they can run.', 'wp-simple-firewall' ),
+			'next_step'    => __( 'Open a protection to switch it on or review the upgrade option.', 'wp-simple-firewall' ),
 			'badge'        => $this->presentation()->buildLaneBadge( $bucketSource[ 'disabled_item_count' ] ),
 			'badge_status' => 'neutral',
 			'color_key'    => 'neutral',
@@ -449,14 +449,14 @@ class ActionsQueueBucketsBuilder {
 	 */
 	private function buildDisabledSummaryText( array $bucketSource ) :string {
 		if ( $bucketSource[ 'disabled_upgrade_count' ] === $bucketSource[ 'disabled_item_count' ] ) {
-			return __( 'Some protections in this bucket require a Pro plan before they can run.', 'wp-simple-firewall' );
+			return __( 'Some protections here require a Pro plan before they can run.', 'wp-simple-firewall' );
 		}
 
 		if ( $bucketSource[ 'disabled_upgrade_count' ] > 0 ) {
-			return __( 'Some protections in this bucket need setup or a Pro plan before they can run.', 'wp-simple-firewall' );
+			return __( 'Some protections here need setup or a Pro plan before they can run.', 'wp-simple-firewall' );
 		}
 
-		return __( 'Some protections in this bucket are available but not enabled yet.', 'wp-simple-firewall' );
+		return __( 'Some protections here are available but not enabled yet.', 'wp-simple-firewall' );
 	}
 
 	/**
