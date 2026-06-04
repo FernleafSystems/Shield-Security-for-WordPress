@@ -28,6 +28,7 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 			$hasParams = !empty( $_GET ) || !empty( $_POST );
 		}
 
+		$isCron = false;
 		if ( $isWpCli ) {
 			$type = Handler::TYPE_WPCLI;
 		}
@@ -43,6 +44,7 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 			$type = Handler::TYPE_XMLRPC;
 		}
 		elseif ( $WP->isCron() ) {
+			$isCron = true;
 			$type = Handler::TYPE_CRON;
 		}
 		elseif ( $WP->isLoginRequest() ) {
@@ -61,8 +63,17 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 			$type = Handler::TYPE_HTTP;
 		}
 
+		$ip = $isWpCli ? '127.0.0.1' : $req->ip();
+		$isPhpCliCron = !$isWpCli && $isCron && $this->isPhpCli();
+		if ( $isPhpCliCron && \trim( $ip ) === '' ) {
+			$ip = '127.0.0.1';
+			if ( \trim( $path ) === '' ) {
+				$path = '/wp-cron.php';
+			}
+		}
+
 		$data = [
-			'ip'   => $isWpCli ? '127.0.0.1' : $req->ip(),
+			'ip'   => $ip,
 			'rid'  => $req->getID( true ),
 			'ts'   => \microtime( true ),
 			'path' => $path,
@@ -81,6 +92,11 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 		$records[ 'extra' ][ 'meta_request' ] = $data;
 
 		return $records;
+	}
+
+	private function isPhpCli() :bool {
+		$sapi = \defined( 'PHP_SAPI' ) ? \PHP_SAPI : ( \function_exists( 'php_sapi_name' ) ? \php_sapi_name() : null );
+		return $sapi === 'cli';
 	}
 
 	private function isShieldMcpRoute( string $restRoute ) :bool {

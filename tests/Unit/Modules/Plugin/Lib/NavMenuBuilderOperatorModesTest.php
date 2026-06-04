@@ -53,11 +53,24 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertNull( $sidebar[ 'back_item' ] );
 		$this->assertSame( PluginNavs::allOperatorModes(), \array_column( $sidebar[ 'mode_items' ], 'mode' ) );
 		$this->assertSame( [], $sidebar[ 'tool_items' ] );
-		$this->assertSame( PluginNavs::NAV_LICENSE, $sidebar[ 'home_license_item' ][ 'slug' ] ?? '' );
-		$this->assertSame( 'warning', $sidebar[ 'home_license_item' ][ 'badge' ][ 'status' ] ?? '' );
+		$this->assertIsArray( $sidebar[ 'home_license_item' ] );
+		$this->assertSame( PluginNavs::NAV_LICENSE, $sidebar[ 'home_license_item' ][ 'slug' ] );
+		$this->assertSame( [], $sidebar[ 'home_license_item' ][ 'badge' ] );
 		$this->assertNotSame( '', $sidebar[ 'home_connect_title' ] );
 		$this->assertCount( 4, $sidebar[ 'home_connect_items' ] );
 		$this->assertNotNull( $this->findItemBySlug( $sidebar[ 'home_connect_items' ], 'connect-helpdesk' ) );
+	}
+
+	public function test_premium_home_route_keeps_pro_license_badge() :void {
+		$this->installController( false, true );
+		$this->installRequest();
+
+		$sidebar = $this->createBuilder()->build();
+
+		$this->assertIsArray( $sidebar[ 'home_license_item' ] );
+		$this->assertSame( PluginNavs::NAV_LICENSE, $sidebar[ 'home_license_item' ][ 'slug' ] );
+		$this->assertSame( 'PRO', $sidebar[ 'home_license_item' ][ 'badge' ][ 'text' ] );
+		$this->assertSame( 'good', $sidebar[ 'home_license_item' ][ 'badge' ][ 'status' ] );
 	}
 
 	public function test_actions_route_marks_current_mode_and_tool_and_shows_summary_badge() :void {
@@ -73,18 +86,21 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			'severity'    => 'critical',
 		] )->build();
 
-		$this->assertSame( 'mode-selector-back', $sidebar[ 'back_item' ][ 'slug' ] ?? '' );
-		$this->assertSame( '/admin/home', $sidebar[ 'back_item' ][ 'href' ] ?? '' );
+		$this->assertIsArray( $sidebar[ 'back_item' ] );
+		$this->assertSame( 'mode-selector-back', $sidebar[ 'back_item' ][ 'slug' ] );
+		$this->assertSame( '/admin/home', $sidebar[ 'back_item' ][ 'href' ] );
 		$this->assertSame( '', $sidebar[ 'home_connect_title' ] );
 		$this->assertNull( $sidebar[ 'home_license_item' ] );
 
 		$actionsMode = $this->findItemBySlug( $sidebar[ 'mode_items' ], 'mode-actions' );
-		$this->assertTrue( (bool)( $actionsMode[ 'active' ] ?? false ) );
-		$this->assertSame( '7', $actionsMode[ 'badge' ][ 'text' ] ?? '' );
-		$this->assertSame( 'critical', $actionsMode[ 'badge' ][ 'status' ] ?? '' );
+		$this->assertIsArray( $actionsMode );
+		$this->assertTrue( $actionsMode[ 'active' ] );
+		$this->assertSame( '7', $actionsMode[ 'badge' ][ 'text' ] );
+		$this->assertSame( 'critical', $actionsMode[ 'badge' ][ 'status' ] );
 
 		$scanTool = $this->findItemBySlug( $sidebar[ 'tool_items' ], PluginNavs::NAV_SCANS.'-'.PluginNavs::SUBNAV_SCANS_RUN );
-		$this->assertTrue( (bool)( $scanTool[ 'active' ] ?? false ) );
+		$this->assertIsArray( $scanTool );
+		$this->assertTrue( $scanTool[ 'active' ] );
 	}
 
 	public function test_investigate_mode_shows_peer_tools_without_reintroducing_parent_activity_item() :void {
@@ -95,6 +111,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		] );
 
 		$toolItems = $this->createBuilder()->build()[ 'tool_items' ];
+		$activityTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_LOGS );
 
 		$this->assertSame(
 			[
@@ -105,7 +122,8 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			],
 			\array_column( $toolItems, 'slug' )
 		);
-		$this->assertTrue( (bool)( $this->findItemBySlug( $toolItems, PluginNavs::NAV_ACTIVITY.'-'.PluginNavs::SUBNAV_LOGS )[ 'active' ] ?? false ) );
+		$this->assertIsArray( $activityTool );
+		$this->assertTrue( $activityTool[ 'active' ] );
 	}
 
 	public function test_configure_mode_keeps_static_tools_and_configure_only_zone_component_entries() :void {
@@ -133,25 +151,28 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		);
 
 		$debugTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-'.PluginNavs::SUBNAV_TOOLS_DEBUG );
-		$this->assertTrue( (bool)( $debugTool[ 'active' ] ?? false ) );
-		$this->assertFalse( (bool)( $debugTool[ 'is_action' ] ?? true ) );
-		$this->assertNotSame( '', $debugTool[ 'href' ] ?? '' );
+		$this->assertIsArray( $debugTool );
+		$this->assertTrue( $debugTool[ 'active' ] );
+		$this->assertFalse( $debugTool[ 'is_action' ] );
+		$this->assertNotSame( '', $debugTool[ 'href' ] );
 
 		$wizardTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_WIZARD.'-'.PluginNavs::SUBNAV_WIZARD_WELCOME );
-		$this->assertFalse( (bool)( $wizardTool[ 'active' ] ?? true ) );
-		$this->assertFalse( (bool)( $wizardTool[ 'is_action' ] ?? true ) );
-		$this->assertNotSame( '', $wizardTool[ 'href' ] ?? '' );
+		$this->assertIsArray( $wizardTool );
+		$this->assertFalse( $wizardTool[ 'active' ] );
+		$this->assertFalse( $wizardTool[ 'is_action' ] );
+		$this->assertNotSame( '', $wizardTool[ 'href' ] );
 
 		$whitelabelTool = $this->findItemBySlug( $toolItems, PluginNavs::NAV_TOOLS.'-whitelabel' );
-		$this->assertTrue( (bool)( $whitelabelTool[ 'is_action' ] ?? false ) );
-		$this->assertSame( '', $whitelabelTool[ 'href' ] ?? null );
-		$this->assertSame( '', $whitelabelTool[ 'target' ] ?? null );
-		$this->assertContains( 'zone_component_action', $whitelabelTool[ 'classes' ] ?? [] );
+		$this->assertIsArray( $whitelabelTool );
+		$this->assertTrue( $whitelabelTool[ 'is_action' ] );
+		$this->assertSame( '', $whitelabelTool[ 'href' ] );
+		$this->assertSame( '', $whitelabelTool[ 'target' ] );
+		$this->assertContains( 'zone_component_action', $whitelabelTool[ 'classes' ] );
 		$this->assertSame(
 			'offcanvas_zone_component_config',
-			$whitelabelTool[ 'data' ][ 'zone_component_action' ] ?? ''
+			$whitelabelTool[ 'data' ][ 'zone_component_action' ]
 		);
-		$this->assertSame( Whitelabel::Slug(), $whitelabelTool[ 'data' ][ 'zone_component_slug' ] ?? '' );
+		$this->assertSame( Whitelabel::Slug(), $whitelabelTool[ 'data' ][ 'zone_component_slug' ] );
 	}
 
 	public function test_whitelabel_hides_home_connect_items() :void {
@@ -210,7 +231,7 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
 	private function findItemBySlug( array $items, string $slug ) :?array {
 		foreach ( $items as $item ) {
-			if ( ( $item[ 'slug' ] ?? '' ) === $slug ) {
+			if ( $item[ 'slug' ] === $slug ) {
 				return $item;
 			}
 		}

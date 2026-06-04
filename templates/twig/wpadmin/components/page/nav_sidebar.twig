@@ -1,9 +1,9 @@
-{% set sidebar = vars.nav_sidebar|default({}) %}
+{% set sidebar = vars.nav_sidebar %}
 
 <nav id="NavSideBar" class="d-flex flex-column flex-fill"
 	 aria-label="{{ strings.admin_shell_navigation_label|e('html_attr') }}">
 
-	{% if sidebar.back_item|default(null) is not empty %}
+	{% if sidebar.back_item is not empty %}
 		{% set back = sidebar.back_item %}
 		<a href="{{ back.href }}"
 		   class="sidebar-back-item {{ back.classes|join(' ') }}"
@@ -18,7 +18,7 @@
 	{% endif %}
 
 	<div class="shield-mode-selector" data-shield-tour="sidebar-menu">
-		{% for mode_item in sidebar.mode_items|default([]) %}
+		{% for mode_item in sidebar.mode_items %}
 			<a href="{{ mode_item.href }}"
 			   class="mode-item {{ mode_item.active ? 'active' : '' }} {{ mode_item.classes|join(' ') }}"
 			   data-mode="{{ mode_item.mode }}"
@@ -30,7 +30,7 @@
 				<span class="mode-icon"><i class="{{ mode_item.img }}" aria-hidden="true"></i></span>
 				<span class="mode-label">{{ mode_item.title }}</span>
 				{% if mode_item.badge is not empty %}
-					<span class="mode-badge {{ mode_item.badge.status is not empty ? 'status-' ~ mode_item.badge.status : '' }}">
+					<span class="mode-badge status-{{ mode_item.badge.status }}">
 						{{ mode_item.badge.text }}
 					</span>
 				{% endif %}
@@ -38,15 +38,15 @@
 		{% endfor %}
 	</div>
 
-	{% set has_dynamic_sections = sidebar.tool_items|default([]) is not empty
-		or sidebar.home_license_item|default(null) is not empty
-		or sidebar.home_connect_items|default([]) is not empty %}
+	{% set has_dynamic_sections = sidebar.tool_items is not empty
+		or sidebar.home_license_item is not empty
+		or sidebar.home_connect_items is not empty %}
 
 	{% if has_dynamic_sections %}
 		<div class="sidebar-sep"></div>
 	{% endif %}
 
-	{% if sidebar.home_license_item|default(null) is not empty %}
+	{% if sidebar.home_license_item is not empty %}
 		{% set license = sidebar.home_license_item %}
 		<a href="{{ license.href }}"
 		   class="sidebar-license-item {{ license.classes|join(' ') }}"
@@ -58,17 +58,15 @@
 			<span class="sidebar-license-icon"><i class="{{ license.img }}" aria-hidden="true"></i></span>
 			<span class="sidebar-license-content">
 				<span class="sidebar-license-title">{{ license.title }}</span>
-				{% if license.subtitle is not empty %}
-					<span class="sidebar-license-subtitle">{{ license.subtitle }}</span>
-				{% endif %}
+				<span class="sidebar-license-subtitle">{{ license.subtitle }}</span>
 			</span>
 			{% if license.badge is not empty %}
-				<span class="sidebar-license-badge {{ license.badge.status is not empty ? 'status-' ~ license.badge.status : '' }}">{{ license.badge.text }}</span>
+				<span class="sidebar-license-badge status-{{ license.badge.status }}">{{ license.badge.text }}</span>
 			{% endif %}
 		</a>
 	{% endif %}
 
-	{% if sidebar.tool_items|default([]) is not empty %}
+	{% if sidebar.tool_items is not empty %}
 		<div class="sidebar-tools">
 			{% for tool in sidebar.tool_items %}
 				{% set tool_classes = "tool-item " ~ (tool.active ? 'active ' : '') ~ tool.classes|join(' ') %}
@@ -102,9 +100,9 @@
 		</div>
 	{% endif %}
 
-	{% if sidebar.home_connect_items|default([]) is not empty %}
+	{% if sidebar.home_connect_items is not empty %}
 		<div class="sidebar-connect">
-			<div class="sidebar-connect-title">{{ sidebar.home_connect_title|default('Connect') }}</div>
+			<div class="sidebar-connect-title">{{ sidebar.home_connect_title }}</div>
 			<div class="sidebar-connect-grid">
 				{% for link in sidebar.home_connect_items %}
 					<a href="{{ link.href }}"
