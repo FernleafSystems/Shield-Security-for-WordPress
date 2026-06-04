@@ -3,7 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plugin\Lib\ImportExport;
 
 use Carbon\Carbon;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ImportExportSitesTableAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Enable;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Ops\LoadConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
@@ -14,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Expo
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\{
 	PingSender,
 	QueueRunner,
+	QueueScheduler,
 	SiteRepository
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
@@ -34,6 +37,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		parent::set_up();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
+			'importexport_enable',
 			'importexport_whitelist',
 			'import_url_ids',
 			'importexport_sites_migrated_at',
@@ -53,6 +57,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		}
 		$this->clearImportExportSitesReadyCache();
 		$this->clearOldQueueState();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 		$this->restoreSelectedOptions( $this->optionsSnapshot );
 		if ( $this->storedConfigOptionSnapshot === false ) {
 			Services::WpGeneral()->deleteOption( $this->configStoreKey );
@@ -166,13 +171,16 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$con = $this->requireController();
 		$previousVersion = $con->cfg->previous_version;
 		$url = 'https://upgrade-import.example.com';
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
 			->optSet( 'importexport_whitelist', [ $url ] )
 			->optSet( 'import_url_ids', [
 				\hash( 'md5', $url ) => 'upgrade-import-id',
 			] )
 			->store();
 		$this->dropImportExportSitesTable();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 
 		try {
 			$con->cfg->previous_version = '0.0.1';
@@ -188,19 +196,23 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 'upgrade-import-id', $row->import_id );
 		$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
 		$this->assertSame( 'upgrade-import-id', $con->opts->optGet( 'import_url_ids' )[ \hash( 'md5', $url ) ] ?? '' );
+		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
 	public function test_config_rebuild_imports_legacy_settings_into_registry_without_upgrade_cron() :void {
 		$con = $this->requireController();
 		$previousRebuilt = $con->cfg->rebuilt;
 		$url = 'https://config-rebuild-import.example.com';
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
 			->optSet( 'importexport_whitelist', [ $url ] )
 			->optSet( 'import_url_ids', [
 				\hash( 'md5', $url ) => 'config-rebuild-import-id',
 			] )
 			->store();
 		$this->dropImportExportSitesTable();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 
 		try {
 			$con->cfg->rebuilt = true;
@@ -214,6 +226,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
 		$this->assertSame( 'config-rebuild-import-id', $row->import_id );
 		$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
+		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
 	public function test_same_version_config_signature_rebuild_imports_legacy_settings_into_registry() :void {
@@ -274,6 +287,224 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$after = $this->requireSite( $url );
 		$this->assertSame( $row->updated_at, $after->updated_at );
 		$this->assertSame( $migratedAt, (int)$con->opts->optGet( 'importexport_sites_migrated_at' ) );
+	}
+
+	/**
+	 * @dataProvider importExportSitesBatchEdgeCountProvider
+	 */
+	public function test_legacy_import_batches_edge_counts( int $count ) :void {
+		$urls = $this->generatedImportExportUrls( $count, 'batch-import' );
+		$urlIds = $this->importIdsForUrls( $urls, 'batch-import-id' );
+		$this->setLegacyImportOptions( $urls, $urlIds );
+
+		$queries = $this->captureImportExportSiteQueries( function () :void {
+			$this->repo()->ensureLegacyImported( false );
+		} );
+
+		$this->assertCount( $count, $this->repo()->selectActiveRows() );
+		foreach ( $urls as $position => $url ) {
+			$this->assertSame(
+				$this->importIdAtPosition( 'batch-import-id', $position + 1 ),
+				$this->requireSite( $url )->import_id
+			);
+		}
+		$expectedChunks = (int)\ceil( $count/20 );
+		$this->assertSame( $expectedChunks, $this->queryFamilyCount( $queries, 'select_by_hashes' ) );
+		$this->assertSame( $expectedChunks, $this->queryFamilyCount( $queries, 'insert_ignore' ) );
+		$this->assertSame( 0, $this->queryFamilyCount( $queries, 'case_update' ) );
+	}
+
+	public function test_legacy_import_handles_three_hundred_sites_in_bounded_sql_chunks() :void {
+		$urls = $this->generatedImportExportUrls( 300, 'large-import' );
+		$urlIds = $this->importIdsForUrls( $urls, 'large-import-id' );
+		$this->setLegacyImportOptions( $urls, $urlIds );
+
+		$queries = $this->captureImportExportSiteQueries( function () :void {
+			$this->repo()->ensureLegacyImported( false );
+		} );
+
+		$this->assertCount( 300, $this->repo()->selectActiveRows() );
+		$this->assertSame( $this->importIdAtPosition( 'large-import-id', 1 ), $this->requireSite( $urls[ 0 ] )->import_id );
+		$this->assertSame( $this->importIdAtPosition( 'large-import-id', 150 ), $this->requireSite( $urls[ 149 ] )->import_id );
+		$this->assertSame( $this->importIdAtPosition( 'large-import-id', 300 ), $this->requireSite( $urls[ 299 ] )->import_id );
+		$this->assertSame( 15, $this->queryFamilyCount( $queries, 'select_by_hashes' ) );
+		$this->assertSame( 15, $this->queryFamilyCount( $queries, 'insert_ignore' ) );
+		$this->assertSame( 0, $this->queryFamilyCount( $queries, 'case_update' ) );
+		$this->assertSame( 1, $this->queryFamilyCount( $queries, 'select_active' ) );
+	}
+
+	public function test_legacy_import_mixes_unchanged_changed_deleted_and_missing_rows_in_chunks() :void {
+		$repo = $this->repo();
+		$urls = $this->generatedImportExportUrls( 21, 'mixed-import' );
+		$urlIds = $this->importIdsForUrls( $urls, 'mixed-import-id' );
+		$unchangedUrls = \array_slice( $urls, 0, 5 );
+		$changedUrls = \array_slice( $urls, 5, 5 );
+		$deletedUrls = \array_slice( $urls, 10, 5 );
+		$missingUrls = \array_slice( $urls, 15, 6 );
+
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], 1712620800 ),
+		] );
+		foreach ( $unchangedUrls as $position => $url ) {
+			$repo->upsertActive( $url, SitesDB::SOURCE_MANUAL, $this->importIdAtPosition( 'mixed-import-id', $position + 1 ) );
+		}
+		foreach ( $changedUrls as $url ) {
+			$repo->upsertActive( $url, SitesDB::SOURCE_MANUAL, 'old-import-id' );
+		}
+		foreach ( $deletedUrls as $url ) {
+			$repo->upsertActive( $url, SitesDB::SOURCE_MANUAL, 'deleted-import-id' );
+			$repo->softDeleteUrl( $url );
+		}
+		$unchangedRows = [];
+		foreach ( $unchangedUrls as $url ) {
+			$unchangedRows[ $url ] = $this->requireSite( $url, true );
+		}
+
+		$this->setLegacyImportOptions( $urls, $urlIds );
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], 1712707200 ),
+		] );
+
+		$queries = $this->captureImportExportSiteQueries( function () use ( $repo ) :void {
+			$repo->ensureLegacyImported( false );
+		} );
+
+		foreach ( $unchangedUrls as $url ) {
+			$row = $this->requireSite( $url );
+			$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+			$this->assertSame( $unchangedRows[ $url ]->updated_at, $row->updated_at );
+		}
+		foreach ( $changedUrls as $url ) {
+			$this->assertSame( $urlIds[ \hash( 'md5', $url ) ], $this->requireSite( $url )->import_id );
+		}
+		foreach ( $deletedUrls as $url ) {
+			$row = $this->requireSite( $url, true );
+			$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+			$this->assertSame( 0, $row->deleted_at );
+			$this->assertSame( $urlIds[ \hash( 'md5', $url ) ], $row->import_id );
+		}
+		foreach ( $missingUrls as $url ) {
+			$this->assertSame( SitesDB::STATUS_ACTIVE, $this->requireSite( $url )->status );
+		}
+
+		$this->assertSame( 2, $this->queryFamilyCount( $queries, 'select_by_hashes' ) );
+		$this->assertSame( 1, $this->queryFamilyCount( $queries, 'insert_ignore' ) );
+		$this->assertSame( 1, $this->queryFamilyCount( $queries, 'case_update' ) );
+		$updateSql = $this->querySqlForFamily( $queries, 'case_update' );
+		foreach ( $unchangedUrls as $url ) {
+			$this->assertStringNotContainsString( \hash( 'md5', $url ), $updateSql );
+		}
+		foreach ( \array_merge( $changedUrls, $deletedUrls ) as $url ) {
+			$this->assertStringContainsString( \hash( 'md5', $url ), $updateSql );
+		}
+	}
+
+	/**
+	 * @dataProvider importExportSitesBatchEdgeCountProvider
+	 */
+	public function test_find_by_urls_batches_edge_counts( int $count ) :void {
+		$repo = $this->repo();
+		$urls = $this->generatedImportExportUrls( $count, 'lookup-batch' );
+		foreach ( $urls as $url ) {
+			$repo->upsertActive( $url, SitesDB::SOURCE_MANUAL );
+		}
+
+		$found = [];
+		$queries = $this->captureImportExportSiteQueries( function () use ( $repo, $urls, &$found ) :void {
+			$found = $repo->findByUrls( $urls );
+		} );
+
+		$this->assertCount( $count, $found );
+		foreach ( $urls as $url ) {
+			$this->assertArrayHasKey( $url, $found );
+		}
+		$this->assertSame( (int)\ceil( $count/20 ), $this->queryFamilyCount( $queries, 'select_by_hashes' ) );
+	}
+
+	public function test_find_by_urls_ignores_invalid_duplicates_and_excludes_deleted_by_default() :void {
+		$repo = $this->repo();
+		$activeUrl = 'https://lookup-active.example.com';
+		$deletedUrl = 'https://lookup-deleted.example.com';
+		$repo->upsertActive( $activeUrl, SitesDB::SOURCE_MANUAL );
+		$repo->upsertActive( $deletedUrl, SitesDB::SOURCE_MANUAL );
+		$repo->softDeleteUrl( $deletedUrl );
+
+		$found = $repo->findByUrls( [
+			'not-a-url',
+			$activeUrl,
+			$activeUrl,
+			'',
+			$deletedUrl,
+		] );
+		$this->assertSame( [ $activeUrl ], \array_keys( $found ) );
+
+		$withDeleted = $repo->findByUrls( [ $activeUrl, $deletedUrl ], true );
+		$this->assertArrayHasKey( $activeUrl, $withDeleted );
+		$this->assertArrayHasKey( $deletedUrl, $withDeleted );
+		$this->assertSame( SitesDB::STATUS_DELETED, $withDeleted[ $deletedUrl ]->status );
+	}
+
+	public function test_queue_site_ids_batches_active_rows_and_ignores_deleted_or_missing_ids() :void {
+		$repo = $this->repo();
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], 1712620800 ),
+		] );
+		$activeIds = [];
+		foreach ( $this->generatedImportExportUrls( 21, 'queue-selected' ) as $url ) {
+			$activeIds[] = $repo->upsertActive( $url, SitesDB::SOURCE_MANUAL, '', true )->id;
+		}
+		$deleted = $repo->upsertActive( 'https://queue-selected-deleted.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$repo->softDeleteUrl( $deleted->url );
+
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], 1712707200 ),
+		] );
+		$queuedCount = 0;
+		$queries = $this->captureImportExportSiteQueries( function () use ( $repo, $activeIds, $deleted, &$queuedCount ) :void {
+			$queuedCount = $repo->queueSiteIds( \array_merge( $activeIds, [ $deleted->id, 9999999 ] ) );
+		} );
+
+		$this->assertSame( 21, $queuedCount );
+		foreach ( $activeIds as $id ) {
+			$row = $repo->findById( $id, true );
+			$this->assertSame( SitesDB::QUEUE_QUEUED, $row->queue_status );
+			$this->assertSame( 1712707200, $row->queued_at );
+			$this->assertSame( 1712707200, $row->next_ping_at );
+		}
+		$deleted = $repo->findById( $deleted->id, true );
+		$this->assertSame( SitesDB::STATUS_DELETED, $deleted->status );
+		$this->assertSame( SitesDB::QUEUE_IDLE, $deleted->queue_status );
+		$this->assertSame( 2, $this->queryFamilyCount( $queries, 'queue_update' ) );
+	}
+
+	public function test_claim_due_rows_batches_claim_updates_and_refreshes_returned_rows_in_memory() :void {
+		$repo = $this->repo();
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], 1712620800 ),
+		] );
+		foreach ( $this->generatedImportExportUrls( 21, 'claim-due' ) as $url ) {
+			$repo->upsertActive( $url, SitesDB::SOURCE_MANUAL, '', true );
+		}
+
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], 1712707200 ),
+		] );
+		$claimedRows = [];
+		$queries = $this->captureImportExportSiteQueries( function () use ( $repo, &$claimedRows ) :void {
+			$claimedRows = $repo->claimDueRows( 21, 1712707800 );
+		} );
+
+		$this->assertCount( 21, $claimedRows );
+		foreach ( $claimedRows as $row ) {
+			$this->assertSame( SitesDB::QUEUE_PROCESSING, $row->queue_status );
+			$this->assertSame( 1712707200, $row->picked_at );
+			$this->assertSame( 1712707800, $row->lock_until );
+			$persisted = $repo->findById( $row->id, true );
+			$this->assertSame( SitesDB::QUEUE_PROCESSING, $persisted->queue_status );
+			$this->assertSame( 1712707200, $persisted->picked_at );
+			$this->assertSame( 1712707800, $persisted->lock_until );
+		}
+		$this->assertSame( 2, $this->queryFamilyCount( $queries, 'claim_update' ) );
 	}
 
 	public function test_same_request_legacy_import_does_not_repeat_until_legacy_inputs_change() :void {
@@ -428,6 +659,9 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 	}
 
 	public function test_manual_action_queues_only_selected_site() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 		$repo = $this->repo();
 		$first = $repo->upsertActive( 'https://manual-one.example.com', SitesDB::SOURCE_MANUAL, '', true );
 		$second = $repo->upsertActive( 'https://manual-two.example.com', SitesDB::SOURCE_MANUAL, '', true );
@@ -449,6 +683,65 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( SitesDB::QUEUE_IDLE, $first->queue_status );
 		$this->assertSame( SitesDB::QUEUE_QUEUED, $second->queue_status );
 		$this->assertTrue( $action->response()->payload()[ 'success' ] ?? false );
+		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+	}
+
+	public function test_manual_queue_action_rejects_disabled_import_export_without_scheduling() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://manual-disabled.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$repo->recordExportSuccess( $row->url, SitesDB::EXPORT_RESULT_SUCCESS );
+
+		$action = new ImportExportSitesTableAction( [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
+			'rids'       => [ $row->id ],
+		] );
+		$method = new \ReflectionMethod( $action, 'exec' );
+		$method->setAccessible( true );
+		$method->invoke( $action );
+
+		$row = $repo->findById( $row->id, true );
+		$this->assertSame( SitesDB::QUEUE_IDLE, $row->queue_status );
+		$this->assertFalse( $action->response()->payload()[ 'success' ] ?? true );
+		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+	}
+
+	public function test_enable_action_turns_on_import_export_and_schedules_queue() :void {
+		$this->loginAsSecurityAdmin();
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$con = $this->requireController();
+		$con->opts->optSet( 'importexport_enable', 'N' )->store();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$this->repo()->upsertActive( 'https://enable-action.example.com', SitesDB::SOURCE_MANUAL, '', true );
+
+		$payload = ( new ActionProcessor() )->processAction( PluginImportExport_Enable::SLUG )->payload();
+
+		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$this->assertTrue( (bool)( $payload[ 'page_reload' ] ?? false ) );
+		$this->assertSame( 'Y', (string)$con->opts->optGet( 'importexport_enable' ) );
+		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+	}
+
+	public function test_queue_scheduler_registers_callback_without_scheduling_disabled_sync() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
+		$scheduler = new QueueScheduler();
+		$hook = $scheduler->hook();
+		\remove_all_actions( $hook );
+		\wp_clear_scheduled_hook( $hook );
+
+		try {
+			$scheduler->setup( static fn() :bool => false );
+
+			$this->assertNotFalse( \has_action( $hook ) );
+			$this->assertFalse( \wp_next_scheduled( $hook ) );
+		}
+		finally {
+			\remove_all_actions( $hook );
+			\wp_clear_scheduled_hook( $hook );
+		}
 	}
 
 	public function test_add_only_schema_alignment_preserves_populated_rows_and_extra_columns() :void {
@@ -476,6 +769,114 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$row = $this->repo()->findByUrl( $url, $includeDeleted );
 		$this->assertInstanceOf( Record::class, $row );
 		return $row;
+	}
+
+	public static function importExportSitesBatchEdgeCountProvider() :array {
+		return [
+			'zero'       => [ 0 ],
+			'one'        => [ 1 ],
+			'nineteen'   => [ 19 ],
+			'twenty'     => [ 20 ],
+			'twenty-one' => [ 21 ],
+		];
+	}
+
+	private function generatedImportExportUrls( int $count, string $prefix ) :array {
+		$urls = [];
+		for ( $i = 1; $i <= $count; $i++ ) {
+			$urls[] = \sprintf( 'https://%s-%03d.example.com', $prefix, $i );
+		}
+		return $urls;
+	}
+
+	private function importIdsForUrls( array $urls, string $prefix ) :array {
+		$urlIds = [];
+		foreach ( $urls as $position => $url ) {
+			$urlIds[ \hash( 'md5', $url ) ] = $this->importIdAtPosition( $prefix, $position + 1 );
+		}
+		return $urlIds;
+	}
+
+	private function importIdAtPosition( string $prefix, int $position ) :string {
+		return \sprintf( '%s-%03d', $prefix, $position );
+	}
+
+	private function setLegacyImportOptions( array $urls, array $urlIds = [] ) :void {
+		$this->requireController()->opts
+			->optSet( 'importexport_whitelist', $urls )
+			->optSet( 'import_url_ids', $urlIds )
+			->store();
+	}
+
+	private function captureImportExportSiteQueries( callable $callback ) :array {
+		$table = $this->requireController()->db_con->import_export_sites->getTable();
+		$queries = [];
+		$filter = function ( $query ) use ( $table, &$queries ) {
+			$query = (string)$query;
+			if ( \stripos( $query, $table ) !== false ) {
+				$family = $this->classifyImportExportSiteQuery( $query );
+				if ( !empty( $family ) ) {
+					$queries[] = [
+						'family' => $family,
+						'sql'    => $this->compactSql( $query ),
+					];
+				}
+			}
+			return $query;
+		};
+
+		\add_filter( 'query', $filter, \PHP_INT_MAX, 1 );
+		try {
+			$callback();
+		}
+		finally {
+			\remove_filter( 'query', $filter, \PHP_INT_MAX );
+		}
+
+		return $queries;
+	}
+
+	private function classifyImportExportSiteQuery( string $query ) :?string {
+		$compact = \strtoupper( $this->compactSql( $query ) );
+		if ( \strpos( $compact, 'SELECT ' ) === 0 && \strpos( $compact, '`URL_HASH` IN' ) !== false ) {
+			return 'select_by_hashes';
+		}
+		if ( \strpos( $compact, 'SELECT ' ) === 0
+			 && \strpos( $compact, '`URL_HASH` IN' ) === false
+			 && \preg_match( "/`STATUS`\\s*=\\s*'ACTIVE'/", $compact ) === 1 ) {
+			return 'select_active';
+		}
+		if ( \strpos( $compact, 'INSERT IGNORE INTO ' ) === 0 ) {
+			return 'insert_ignore';
+		}
+		if ( \strpos( $compact, 'UPDATE ' ) === 0 && \strpos( $compact, 'CASE `URL_HASH`' ) !== false ) {
+			return 'case_update';
+		}
+		if ( \strpos( $compact, 'UPDATE ' ) === 0
+			 && \preg_match( "/`QUEUE_STATUS`\\s*=\\s*'QUEUED'/", $compact ) === 1 ) {
+			return 'queue_update';
+		}
+		if ( \strpos( $compact, 'UPDATE ' ) === 0
+			 && \preg_match( "/`QUEUE_STATUS`\\s*=\\s*'PROCESSING'/", $compact ) === 1 ) {
+			return 'claim_update';
+		}
+
+		return null;
+	}
+
+	private function queryFamilyCount( array $queries, string $family ) :int {
+		return \count( \array_filter( $queries, static fn( array $query ) :bool => $query[ 'family' ] === $family ) );
+	}
+
+	private function querySqlForFamily( array $queries, string $family ) :string {
+		return \implode( "\n", \array_map(
+			static fn( array $query ) :string => $query[ 'sql' ],
+			\array_filter( $queries, static fn( array $query ) :bool => $query[ 'family' ] === $family )
+		) );
+	}
+
+	private function compactSql( string $query ) :string {
+		return (string)\preg_replace( '/\s+/', ' ', \trim( $query ) );
 	}
 
 	private function pushOldQueueUrls( array $urls ) :void {

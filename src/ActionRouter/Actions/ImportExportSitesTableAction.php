@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExportSites\BuildImportExportSitesTableData;
 
 class ImportExportSitesTableAction extends TableActionBase {
@@ -33,9 +33,17 @@ class ImportExportSitesTableAction extends TableActionBase {
 	}
 
 	protected function queueSync() :array {
+		$importExport = new ImportExportController();
+		if ( !$importExport->isSyncAvailable() ) {
+			throw new \RuntimeException( __( 'Import/export sync is not available on this plan.', 'wp-simple-firewall' ) );
+		}
+		if ( !$importExport->isSyncEnabled() ) {
+			throw new \RuntimeException( __( 'Import and export is not enabled.', 'wp-simple-firewall' ) );
+		}
+
 		$count = ( new SiteRepository() )->queueSiteIds( \is_array( $this->action_data[ 'rids' ] ?? null ) ? $this->action_data[ 'rids' ] : [] );
 		if ( $count > 0 ) {
-			( new QueueScheduler() )->scheduleSoon();
+			$importExport->scheduleQueueSoonIfSyncEnabled();
 		}
 		return [
 			'success'      => true,

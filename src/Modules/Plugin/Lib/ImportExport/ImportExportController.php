@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -17,21 +18,25 @@ class ImportExportController {
 	use PluginCronsConsumer;
 
 	protected function canRun(): bool {
-		return self::con()->opts->optIs( 'importexport_enable', 'Y' );
+		$scheduler = new QueueScheduler();
+		return $this->isSyncAvailable()
+			   || $scheduler->hasScheduledEvent()
+			   || self::con()->opts->optIs( 'importexport_enable', 'Y' );
 	}
 
 	protected function run() {
-		$this->setupHooks();
+		$scheduler = new QueueScheduler();
+		if ( $this->isSyncAvailable() || $scheduler->hasScheduledEvent() ) {
+			$scheduler->setup( fn() :bool => $this->isSyncEnabled() );
+		}
+		$this->ensureSitesRegistryImported();
+		if ( $this->isSyncEnabled() ) {
+			$this->setupHooks();
+		}
 		$this->setupCronHooks();
 	}
 
 	private function setupHooks() {
-		try {
-			( new SiteRepository() )->ensureLegacyImported();
-		}
-		catch ( \Throwable $e ) {
-		}
-
 		( new NotifyWhitelist() )->execute();
 
 		add_action( 'shield/plugin_activated', fn() => $this->importFromFlag() );
@@ -43,6 +48,42 @@ class ImportExportController {
 				fn() => ( new Import() )->autoImportFromMaster()
 			);
 		}
+	}
+
+	public function isSyncAvailable() :bool {
+		try {
+			return self::con()->caps->canImportExportSync();
+		}
+		catch ( \Throwable $e ) {
+			return false;
+		}
+	}
+
+	public function isSyncEnabled() :bool {
+		return $this->isSyncAvailable() && self::con()->opts->optIs( 'importexport_enable', 'Y' );
+	}
+
+	public function ensureSitesRegistryImported( bool $includeOldQueueState = true ) :void {
+		try {
+			( new SiteRepository() )->ensureLegacyImported( $includeOldQueueState );
+		}
+		catch ( \Throwable $e ) {
+		}
+	}
+
+	public function scheduleQueueSoonIfSyncEnabled( int $delay = 30 ) :void {
+		$scheduler = new QueueScheduler();
+		if ( $this->isSyncEnabled() ) {
+			$scheduler->scheduleSoon( $delay );
+		}
+		elseif ( $this->isSyncAvailable() ) {
+			wp_clear_scheduled_hook( $scheduler->hook() );
+		}
+	}
+
+	public function refreshRegistryAndScheduleQueueIfEnabled( bool $includeOldQueueState = true ) :void {
+		$this->ensureSitesRegistryImported( $includeOldQueueState );
+		$this->scheduleQueueSoonIfSyncEnabled();
 	}
 
 	public function addUrlToImportExportWhitelistUrls( string $url ) {
@@ -120,7 +161,7 @@ class ImportExportController {
 	 */
 	public function runOptionsUpdateNotified() {
 		$con = self::con();
-		if ( $con->opts->optIs( 'importexport_enable', 'Y' ) && !empty( $this->getImportExportMasterImportUrl() ) ) {
+		if ( $this->isSyncEnabled() && !empty( $this->getImportExportMasterImportUrl() ) ) {
 			$cronHook = $con->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
 			if ( !wp_next_scheduled( $cronHook ) ) {
 				wp_schedule_single_event( Services::Request()->ts() + \wp_rand( 30, 180 ), $cronHook );
@@ -134,6 +175,8 @@ class ImportExportController {
 	}
 
 	public function runDailyCron() {
-		( new Import() )->autoImportFromMaster();
+		if ( $this->isSyncEnabled() ) {
+			( new Import() )->autoImportFromMaster();
+		}
 	}
 }

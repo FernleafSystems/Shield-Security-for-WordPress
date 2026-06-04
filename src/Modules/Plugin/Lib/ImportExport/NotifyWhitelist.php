@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -17,32 +16,35 @@ class NotifyWhitelist {
 	}
 
 	protected function run() {
-		$scheduler = new QueueScheduler();
-		$scheduler->setup();
 		$legacyCronHook = self::con()->prefix( SiteRepository::OLD_NOTIFY_CRON );
 
-		add_action( 'shield/after_form_submit_options_save', function () use ( $scheduler ) {
+		add_action( 'shield/after_form_submit_options_save', function () {
 			// auto-import notify: ONLY when the options are being updated with a MANUAL save.
-			$this->queueActiveSitesForSync( $scheduler );
+			$this->queueActiveSitesForSync();
 		}, 10, 0 );
 
-		add_action( 'shield/event', function ( string $event ) use ( $scheduler ) {
+		add_action( 'shield/event', function ( string $event ) {
 			if ( $event === 'ip_bypass_add' ) {
-				$this->queueActiveSitesForSync( $scheduler );
+				$this->queueActiveSitesForSync();
 			}
 		} );
 
-		add_action( $legacyCronHook, function () use ( $scheduler ) {
-			$this->queueActiveSitesForSync( $scheduler );
+		add_action( $legacyCronHook, function () {
+			$this->queueActiveSitesForSync();
 		} );
 	}
 
-	private function queueActiveSitesForSync( QueueScheduler $scheduler ) :void {
+	private function queueActiveSitesForSync() :void {
+		$importExport = new ImportExportController();
+		if ( !$importExport->isSyncEnabled() ) {
+			return;
+		}
+
 		try {
 			$repo = new SiteRepository();
-			$repo->ensureLegacyImported();
+			$importExport->ensureSitesRegistryImported();
 			if ( $repo->queueAllActive() > 0 ) {
-				$scheduler->scheduleSoon();
+				$importExport->scheduleQueueSoonIfSyncEnabled();
 			}
 		}
 		catch ( \Throwable $e ) {

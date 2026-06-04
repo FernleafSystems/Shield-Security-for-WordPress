@@ -12,14 +12,24 @@ class QueueScheduler {
 	public const HOOK = 'importexport_sites_queue';
 	public const INTERVAL = 300;
 
-	public function setup() :void {
+	public function setup( callable $isSyncEnabled ) :void {
 		$hook = $this->hook();
-		add_action( $hook, function () {
+		add_action( $hook, function () use ( $isSyncEnabled ) {
+			if ( !$isSyncEnabled() ) {
+				wp_clear_scheduled_hook( $this->hook() );
+				return;
+			}
+
 			( new QueueRunner() )->run();
 			$this->scheduleNext();
 		}, 10, 0 );
 
-		$this->scheduleNext();
+		if ( $isSyncEnabled() ) {
+			$this->scheduleNext();
+		}
+		else {
+			wp_clear_scheduled_hook( $hook );
+		}
 	}
 
 	public function scheduleSoon( int $delay = 30 ) :void {
@@ -41,5 +51,9 @@ class QueueScheduler {
 
 	public function hook() :string {
 		return self::con()->prefix( self::HOOK );
+	}
+
+	public function hasScheduledEvent() :bool {
+		return !empty( wp_next_scheduled( $this->hook() ) );
 	}
 }

@@ -78,6 +78,7 @@ class Constants {
 		Actions\PluginDeleteForceOff::class,
 		Actions\TranslationsForceDownload::class,
 		Actions\PluginDumpTelemetry::class,
+		Actions\PluginImportExport_Enable::class,
 		Actions\PluginImportExport_UpdateNotified::class,
 		Actions\PluginImportExport_Export::class,
 		Actions\PluginImportExport_HandshakeConfirm::class,

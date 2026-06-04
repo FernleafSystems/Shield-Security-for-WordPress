@@ -381,6 +381,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				'cfg'                   => $cfg,
 				'plugin'                => $plugin,
 				'opts'                  => $opts,
+				'caps'                  => new class {
+					public function canImportExportSync() :bool {
+						return false;
+					}
+				},
 				'extensions_controller' => new HandleUpgradeTestExtensionsController( $extensions ),
 				'comps'                 => (object)[
 					'scans' => $scans,
@@ -426,6 +431,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$controller->cfg = $cfg;
 			$controller->plugin = $plugin;
 			$controller->opts = $opts;
+			$controller->caps = new class {
+				public function canImportExportSync() :bool {
+					return false;
+				}
+			};
 			$controller->extensions_controller = new HandleUpgradeTestExtensionsController( [
 				new HandleUpgradeTestExtension( $extensionHandler ),
 			] );

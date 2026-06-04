@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\OptionsCorrections;
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -40,10 +40,11 @@ class HandleUpgrade {
 
 	private function runScheduledUpgrade() :void {
 		$con = self::con();
+		$importExport = new ImportExportController();
 
 		( new OptionsCorrections() )->runUpgradeMigrations();
-		$this->runUpgradeSideEffect( 'import/export site registry legacy import', function () {
-			( new SiteRepository() )->ensureLegacyImported();
+		$this->runUpgradeSideEffect( 'import/export site registry legacy import', function () use ( $importExport ) {
+			$importExport->ensureSitesRegistryImported();
 		} );
 		if ( $con->opts->hasChanges() ) {
 			$con->opts->store();
@@ -51,6 +52,9 @@ class HandleUpgrade {
 
 		Services::ServiceProviders()->clearProviders();
 		$con->plugin->deleteAllPluginCrons();
+		$this->runUpgradeSideEffect( 'import/export sites queue schedule', function () use ( $importExport ) {
+			$importExport->scheduleQueueSoonIfSyncEnabled();
+		} );
 		$this->clearCaches();
 
 		if ( $con->extensions_controller->canRunExtensions() ) {

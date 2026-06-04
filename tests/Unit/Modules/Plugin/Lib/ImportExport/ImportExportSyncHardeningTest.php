@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\PingSender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -61,6 +62,12 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		Functions\when( 'wp_schedule_single_event' )->alias(
 			static function ( int $timestamp, string $hook ) use ( &$scheduledEvents ) :bool {
 				$scheduledEvents[ $hook ] = $timestamp;
+				return true;
+			}
+		);
+		Functions\when( 'wp_clear_scheduled_hook' )->alias(
+			static function ( string $hook ) use ( &$scheduledEvents ) :bool {
+				unset( $scheduledEvents[ $hook ] );
 				return true;
 			}
 		);
@@ -196,6 +203,55 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertCount( 1, $this->events->byKey( 'import_notify_received' ) );
 	}
 
+	public function test_sync_availability_is_false_when_caps_are_missing() :void {
+		$this->installControllerStub( new class {} );
+
+		$this->assertFalse( ( new ImportExportController() )->isSyncAvailable() );
+	}
+
+	public function test_schedule_queue_soon_noops_when_caps_are_unavailable() :void {
+		$this->installControllerStub( new class {
+			public function canImportExportSync() :bool {
+				return false;
+			}
+		} );
+		$this->opts->optSet( 'importexport_enable', 'Y' )->store();
+
+		( new ImportExportController() )->scheduleQueueSoonIfSyncEnabled();
+
+		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
+	public function test_schedule_queue_soon_noops_when_caps_throw() :void {
+		$this->installControllerStub( new class {
+			public function canImportExportSync() :bool {
+				throw new \RuntimeException( 'license unavailable' );
+			}
+		} );
+		$this->opts->optSet( 'importexport_enable', 'Y' )->store();
+
+		( new ImportExportController() )->scheduleQueueSoonIfSyncEnabled();
+
+		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
+	public function test_schedule_queue_soon_schedules_when_enabled_and_available() :void {
+		$this->opts->optSet( 'importexport_enable', 'Y' )->store();
+
+		( new ImportExportController() )->scheduleQueueSoonIfSyncEnabled( 45 );
+
+		$this->assertSame( 1712620845, $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
+	public function test_schedule_queue_soon_clears_existing_event_when_available_but_disabled() :void {
+		$this->scheduledEvents[ $this->queueCronHook() ] = 1712620900;
+		$this->opts->optSet( 'importexport_enable', 'N' )->store();
+
+		( new ImportExportController() )->scheduleQueueSoonIfSyncEnabled();
+
+		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
 	public function test_ping_sender_allows_external_hosts_only_around_request() :void {
 		$events = [];
 		$sender = $this->buildPingSenderWithRecordedFilters( $events );
@@ -233,7 +289,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertScopedExternalHostFilterEvents( $events );
 	}
 
-	private function installControllerStub() :void {
+	private function installControllerStub( ?object $caps = null ) :void {
 		$this->controller = UnitTestControllerFactory::install(
 			null,
 			null,
@@ -245,6 +301,11 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 					],
 				],
 				'opts' => $this->opts,
+				'caps' => $caps ?? new class {
+					public function canImportExportSync() :bool {
+						return true;
+					}
+				},
 				'comps' => (object)[
 					'events'      => $this->events,
 					'opts_lookup' => new class {
@@ -259,6 +320,10 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 
 	private function notifyCronHook() :string {
 		return $this->controller->prefix( PluginImportExport_UpdateNotified::SLUG );
+	}
+
+	private function queueCronHook() :string {
+		return ( new QueueScheduler() )->hook();
 	}
 
 	/**
