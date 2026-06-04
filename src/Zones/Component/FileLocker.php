@@ -2,9 +2,16 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockKeyApplicability;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 
 class FileLocker extends Base {
+
+	private ?FileLockKeyApplicability $fileLockKeyApplicability;
+
+	public function __construct( ?FileLockKeyApplicability $fileLockKeyApplicability = null ) {
+		$this->fileLockKeyApplicability = $fileLockKeyApplicability;
+	}
 
 	public function title() :string {
 		return __( 'FileLocker: wp-config.php Protection', 'wp-simple-firewall' );
@@ -31,7 +38,7 @@ class FileLocker extends Base {
 			$status[ 'exp' ][] = __( "wp-config.php isn't protected against tampering.", 'wp-simple-firewall' );
 		}
 
-		foreach ( $this->fileLockDefinitions() as $fileKey => $definition ) {
+		foreach ( $this->applicableFileLockDefinitions() as $fileKey => $definition ) {
 			if ( $fileKey !== 'wpconfig' && !\in_array( $fileKey, $toLock, true ) ) {
 				$status[ 'exp' ][] = $definition[ 'disabled_message' ];
 			}
@@ -71,7 +78,7 @@ class FileLocker extends Base {
 	public function postureSignals() :array {
 		$toLock = $this->selectedLockedFiles();
 		$signals = [];
-		foreach ( $this->fileLockDefinitions() as $fileKey => $definition ) {
+		foreach ( $this->applicableFileLockDefinitions() as $fileKey => $definition ) {
 			$enabled = \in_array( $fileKey, $toLock, true );
 			$signals[] = $this->buildPostureSignal(
 				$definition[ 'slug' ],
@@ -88,6 +95,14 @@ class FileLocker extends Base {
 			);
 		}
 		return $signals;
+	}
+
+	/**
+	 * @return array<string,array{slug:string,title:string,weight:int,severity:string,disabled_message:string}>
+	 */
+	protected function applicableFileLockDefinitions() :array {
+		return ( $this->fileLockKeyApplicability ?? FileLockKeyApplicability::fromCurrentEnvironment() )
+			->filterApplicableDefinitions( $this->fileLockDefinitions() );
 	}
 
 	/**

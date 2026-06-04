@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockKeyApplicability;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\SecurityAdmin\Lib\SecurityAdmin\VerifySecurityAdminList;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -216,8 +217,8 @@ class OptionsCorrections {
 
 		if ( $opts->optChanged( 'file_locker' ) ) {
 			$lockFiles = $opts->optGet( 'file_locker' );
-			if ( !empty( $lockFiles ) && \in_array( 'root_webconfig', $lockFiles, true ) && !Services::Data()->isWindows() ) {
-				unset( $lockFiles[ \array_search( 'root_webconfig', $lockFiles, true ) ] );
+			if ( \is_array( $lockFiles ) && !empty( $lockFiles ) ) {
+				$lockFiles = FileLockKeyApplicability::fromCurrentEnvironment()->removeNonApplicableKnownKeys( $lockFiles );
 			}
 			$opts->optSet( 'file_locker', $lockFiles );
 		}
