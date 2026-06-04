@@ -118,11 +118,11 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'status_label_override'   => $statusLabel,
 				'header_summary_override' => $availability[ 'disabled_message' ],
 				'header_focus_override'   => $availability[ 'disabled_reason' ] === 'upgrade_required'
-					? __( 'Upgrade this plan to unlock this protection.', 'wp-simple-firewall' )
-					: __( 'Open settings to switch on this protection.', 'wp-simple-firewall' ),
+					? __( 'Upgrade your plan to unlock this protection.', 'wp-simple-firewall' )
+					: __( 'Open this protection\'s settings to switch it on.', 'wp-simple-firewall' ),
 				'header_next_step_override' => $availability[ 'disabled_reason' ] === 'upgrade_required'
-					? __( 'Use the action below to review the upgrade path for this protection.', 'wp-simple-firewall' )
-					: __( 'Use the action below to open the relevant settings and switch this protection on.', 'wp-simple-firewall' ),
+					? __( 'Review the upgrade option for this protection.', 'wp-simple-firewall' )
+					: __( 'Review this protection\'s settings and switch it on.', 'wp-simple-firewall' ),
 				'header_badge_override'      => $statusLabel,
 				'header_badge_status_override' => 'neutral',
 				'header_color_key_override'    => 'neutral',
