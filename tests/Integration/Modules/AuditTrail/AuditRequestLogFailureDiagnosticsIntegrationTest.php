@@ -42,12 +42,17 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail {
 	use FernleafSystems\Wordpress\Plugin\Shield\DBs\IPs\IPRecords;
 	use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops as ReqLogsDB;
+	use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler as ReqLogsHandler;
 	use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\RequestRecords;
 	use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditLogger;
-	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
+	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
+		RuntimeTestState,
+		ServicesState
+	};
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail\Support\RequestLogDiagnosticSpy;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
+	use FernleafSystems\Wordpress\Services\Core\General;
 
 	class AuditRequestLogFailureDiagnosticsIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -205,6 +210,22 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 			$this->assertDiagnosticLineIsPrivate( $line );
 		}
 
+		public function test_php_cli_cron_without_request_identity_creates_linked_logs_without_diagnostic() :void {
+			$this->applyPhpCliCronRequestWithoutTransport();
+			$this->writeAuditEvent();
+
+			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'traffic' ) );
+			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'audit' ) );
+			$this->assertSame( 1, $this->rowCount( 'activity_logs' ) );
+			$this->assertSame( 1, $this->rowCount( 'req_logs' ) );
+			$this->assertSame( $this->reqLogIds(), $this->activityLogRequestRefs() );
+
+			$requestRow = $this->latestRequestLogRow();
+			$this->assertSame( ReqLogsHandler::TYPE_CRON, (string)$requestRow[ 'type' ] );
+			$this->assertSame( '/wp-cron.php', (string)$requestRow[ 'path' ] );
+			$this->assertSame( '127.0.0.1', $this->requestLogIpHuman( (int)$requestRow[ 'ip_ref' ] ) );
+		}
+
 		private function applySnapshotDiscoveryRequest( string $ip = '198.51.100.91' ) :void {
 			$this->applyCurrentRequestState(
 				[
@@ -225,6 +246,56 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 					'wp_is_ajax' => true,
 				]
 			);
+		}
+
+		private function applyPhpCliCronRequestWithoutTransport() :void {
+			$this->applyCurrentRequestState(
+				[
+					'REQUEST_METHOD'  => '',
+					'REQUEST_URI'     => '',
+					'HTTP_USER_AGENT' => '',
+					'REMOTE_ADDR'     => '',
+				],
+				[],
+				[],
+				[
+					'path'       => '',
+					'wp_is_ajax' => false,
+					'wp_is_cron' => true,
+				]
+			);
+
+			ServicesState::mergeItems( [
+				'service_wpgeneral' => new class extends General {
+					public function isWpCli() :bool {
+						return false;
+					}
+
+					public function isMultisite_SubdomainInstall() :bool {
+						return false;
+					}
+
+					public function isAjax() :bool {
+						return false;
+					}
+
+					public function isXmlrpc() :bool {
+						return false;
+					}
+
+					public function isCron() :bool {
+						return true;
+					}
+
+					public function isLoginRequest() :bool {
+						return false;
+					}
+
+					public function isLoginUrl() :bool {
+						return false;
+					}
+				},
+			] );
 		}
 
 		private function writeAuditEvent( array $auditParams = [] ) :void {
@@ -365,6 +436,31 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 				'SELECT `id` FROM `%s` ORDER BY `id` ASC',
 				$this->requireController()->db_con->req_logs->getTable()
 			) ) );
+		}
+
+		private function latestRequestLogRow() :array {
+			global $wpdb;
+			return (array)$wpdb->get_row( \sprintf(
+				'SELECT * FROM `%s` ORDER BY `id` DESC LIMIT 1',
+				$this->requireController()->db_con->req_logs->getTable()
+			), \ARRAY_A );
+		}
+
+		private function requestLogIpHuman( int $ipRef ) :string {
+			global $wpdb;
+			$ip = (string)$wpdb->get_var( $wpdb->prepare(
+				\sprintf(
+					'SELECT `ip` FROM `%s` WHERE `id`=%%d',
+					$this->requireController()->db_con->ips->getTable()
+				),
+				$ipRef
+			) );
+
+			$unpacked = \function_exists( 'inet_ntop' ) && \in_array( \strlen( $ip ), [ 4, 16 ], true )
+				? \inet_ntop( $ip )
+				: false;
+
+			return \is_string( $unpacked ) ? $unpacked : $ip;
 		}
 	}
 }
