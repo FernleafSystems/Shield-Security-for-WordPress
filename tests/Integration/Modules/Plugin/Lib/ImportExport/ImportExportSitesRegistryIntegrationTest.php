@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plug
 
 use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ImportExportSitesTableAction;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Ops\LoadConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Handler as SitesDB,
@@ -25,6 +26,8 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 
 	private array $optionsSnapshot = [];
 	private array $servicesSnapshot = [];
+	private string $configStoreKey = '';
+	private $storedConfigOptionSnapshot;
 	private ?string $extraColumnTable = null;
 
 	public function set_up() {
@@ -35,6 +38,8 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			'import_url_ids',
 			'importexport_sites_migrated_at',
 		] );
+		$this->configStoreKey = 'aptoweb_controller_'.\substr( \hash( 'md5', \get_class( $this->requireController() ) ), 0, 6 );
+		$this->storedConfigOptionSnapshot = Services::WpGeneral()->getOption( $this->configStoreKey );
 		$this->requireDb( SitesDB::DB_KEY );
 		$this->clearOldQueueState();
 	}
@@ -49,6 +54,12 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->clearImportExportSitesReadyCache();
 		$this->clearOldQueueState();
 		$this->restoreSelectedOptions( $this->optionsSnapshot );
+		if ( $this->storedConfigOptionSnapshot === false ) {
+			Services::WpGeneral()->deleteOption( $this->configStoreKey );
+		}
+		else {
+			Services::WpGeneral()->updateOption( $this->configStoreKey, $this->storedConfigOptionSnapshot );
+		}
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tear_down();
 	}
@@ -177,6 +188,128 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 'upgrade-import-id', $row->import_id );
 		$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
 		$this->assertSame( 'upgrade-import-id', $con->opts->optGet( 'import_url_ids' )[ \hash( 'md5', $url ) ] ?? '' );
+	}
+
+	public function test_config_rebuild_imports_legacy_settings_into_registry_without_upgrade_cron() :void {
+		$con = $this->requireController();
+		$previousRebuilt = $con->cfg->rebuilt;
+		$url = 'https://config-rebuild-import.example.com';
+		$con->opts
+			->optSet( 'importexport_whitelist', [ $url ] )
+			->optSet( 'import_url_ids', [
+				\hash( 'md5', $url ) => 'config-rebuild-import-id',
+			] )
+			->store();
+		$this->dropImportExportSitesTable();
+
+		try {
+			$con->cfg->rebuilt = true;
+			$this->runConfigRebuildImport();
+		}
+		finally {
+			$con->cfg->rebuilt = $previousRebuilt;
+		}
+
+		$row = $this->requireSite( $url );
+		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+		$this->assertSame( 'config-rebuild-import-id', $row->import_id );
+		$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
+	}
+
+	public function test_same_version_config_signature_rebuild_imports_legacy_settings_into_registry() :void {
+		$con = $this->requireController();
+		$stored = $con->cfg->getRawData();
+		$stored[ 'hash' ] = 'stale-signature';
+		$stored[ 'properties' ][ 'version' ] = $con->cfg->properties[ 'version' ];
+		Services::WpGeneral()->updateOption( $this->configStoreKey, $stored );
+
+		$cfg = ( new LoadConfig( $con->paths->forPluginItem( 'plugin.json' ), $this->configStoreKey ) )->run();
+
+		$this->assertTrue( $cfg->rebuilt );
+		$this->assertSame( $con->cfg->properties[ 'version' ], $cfg->properties[ 'version' ] );
+
+		$previousRebuilt = $con->cfg->rebuilt;
+		$url = 'https://same-version-rebuild.example.com';
+		$con->opts
+			->optSet( 'importexport_whitelist', [ $url ] )
+			->optSet( 'import_url_ids', [
+				\hash( 'md5', $url ) => 'same-version-rebuild-id',
+			] )
+			->store();
+		$this->dropImportExportSitesTable();
+
+		try {
+			$con->cfg->rebuilt = $cfg->rebuilt;
+			$this->runConfigRebuildImport();
+		}
+		finally {
+			$con->cfg->rebuilt = $previousRebuilt;
+		}
+
+		$row = $this->requireSite( $url );
+		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+		$this->assertSame( 'same-version-rebuild-id', $row->import_id );
+	}
+
+	public function test_legacy_import_does_not_rewrite_existing_active_rows_when_nothing_changes() :void {
+		$con = $this->requireController();
+		$url = 'https://idempotent-legacy-import.example.com';
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], 1712620800 ),
+		] );
+		$con->opts
+			->optSet( 'importexport_whitelist', [ $url ] )
+			->optSet( 'import_url_ids', [] )
+			->store();
+
+		$this->repo()->ensureLegacyImported( false );
+		$row = $this->requireSite( $url );
+		$migratedAt = (int)$con->opts->optGet( 'importexport_sites_migrated_at' );
+
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], 1712707200 ),
+		] );
+		$this->repo()->ensureLegacyImported( false );
+
+		$after = $this->requireSite( $url );
+		$this->assertSame( $row->updated_at, $after->updated_at );
+		$this->assertSame( $migratedAt, (int)$con->opts->optGet( 'importexport_sites_migrated_at' ) );
+	}
+
+	public function test_same_request_legacy_import_does_not_repeat_until_legacy_inputs_change() :void {
+		$con = $this->requireController();
+		$first = 'https://same-request-import-one.example.com';
+		$second = 'https://same-request-import-two.example.com';
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], 1712620800 ),
+		] );
+		$con->opts
+			->optSet( 'importexport_whitelist', [ $first ] )
+			->optSet( 'import_url_ids', [
+				\hash( 'md5', $first ) => 'same-request-one-id',
+			] )
+			->store();
+
+		$repo = $this->repo();
+		$repo->ensureLegacyImported();
+		$firstRow = $this->requireSite( $first );
+		$con->db_con->import_export_sites->getQueryUpdater()->updateById( $firstRow->id, [
+			'status'       => SitesDB::STATUS_DELETED,
+			'queue_status' => SitesDB::QUEUE_IDLE,
+			'deleted_at'   => 1712620801,
+		] );
+
+		$repo->ensureLegacyImported();
+
+		$this->assertNull( $repo->findByUrl( $first ) );
+
+		$con->opts
+			->optSet( 'importexport_whitelist', [ $first, $second ] )
+			->store();
+		$repo->ensureLegacyImported();
+
+		$this->assertSame( SitesDB::STATUS_ACTIVE, $this->requireSite( $first )->status );
+		$this->assertSame( SitesDB::STATUS_ACTIVE, $this->requireSite( $second )->status );
 	}
 
 	public function test_queue_runner_processes_bounded_batch_and_keeps_sync_success_separate_from_ping() :void {
@@ -388,6 +521,12 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			$this->requireController()->db_con->reset();
 		}
 	}
+
+	private function runConfigRebuildImport() :void {
+		$method = new \ReflectionMethod( $this->requireController(), 'importExportSitesRegistryOnConfigRebuild' );
+		$method->setAccessible( true );
+		$method->invoke( $this->requireController() );
+	}
 }
 
 class ImportExportQueueRunnerTestDouble extends QueueRunner {
@@ -426,7 +565,10 @@ class ImportExportPingSenderTestDouble extends PingSender {
 
 class ImportExportSitesExportRequestStub extends Request {
 
-	public function __construct( array $queryData ) {
+	private int $timestamp = 1712620800;
+
+	public function __construct( array $queryData, int $timestamp = 1712620800 ) {
+		$this->timestamp = $timestamp;
 		parent::__construct();
 		$this->query = $queryData;
 		$this->post = [];
@@ -437,7 +579,7 @@ class ImportExportSitesExportRequestStub extends Request {
 	}
 
 	public function ts( bool $update = true ) :int {
-		return 1712620800;
+		return $this->timestamp;
 	}
 }
 

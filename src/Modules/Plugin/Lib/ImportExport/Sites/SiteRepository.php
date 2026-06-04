@@ -17,32 +17,68 @@ class SiteRepository {
 	public const MIGRATED_AT_OPTION = 'importexport_sites_migrated_at';
 	public const OLD_NOTIFY_CRON = 'importexport_notify';
 	public const OLD_QUEUE_ACTION = 'whitelist_notify_urls';
+	private const REQUEST_IMPORT_STATE_KEY = 'shield_import_export_sites_legacy_import_state';
 
 	public function ensureLegacyImported( bool $includeOldQueueState = true ) :void {
-		$dbh = $this->db();
-		if ( !$dbh->isReady() ) {
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
+			return;
+		}
+		if ( !$this->hasConfigHandler() ) {
 			return;
 		}
 
 		$fallbackUrls = $this->canonicalLegacyWhitelistUrls();
-		$oldQueuedUrls = $includeOldQueueState ? $this->canonicalOldQueueUrls( $fallbackUrls ) : [];
 		$urlIds = $this->legacyImportIds();
+		if ( $this->legacyImportAlreadyHandledForRequest( $fallbackUrls, $urlIds, $includeOldQueueState ) ) {
+			return;
+		}
+
+		$oldQueuedUrls = $includeOldQueueState ? $this->canonicalOldQueueUrls( $fallbackUrls ) : [];
+		$changed = false;
 
 		foreach ( $fallbackUrls as $url ) {
+			$row = $this->findByUrl( $url, true );
+			$markDue = \in_array( $url, $oldQueuedUrls, true );
+			$importID = (string)( $urlIds[ \hash( 'md5', $url ) ] ?? '' );
+			$changed = $changed || !( $row instanceof Record )
+			           || $this->rowNeedsUpdate( $row, $this->buildActiveUpsertData(
+					$row,
+					$url,
+					SitesDB::SOURCE_LEGACY_OPTION,
+					$importID,
+					$markDue,
+					Services::Request()->ts()
+				) );
 			$this->upsertActive(
 				$url,
 				SitesDB::SOURCE_LEGACY_OPTION,
-				(string)( $urlIds[ \hash( 'md5', $url ) ] ?? '' ),
-				\in_array( $url, $oldQueuedUrls, true )
+				$importID,
+				$markDue
 			);
 		}
+
+		$beforeFallbackUrls = self::con()->opts->optGet( 'importexport_whitelist' );
+		$beforeImportIds = self::con()->opts->optGet( 'import_url_ids' );
 
 		$this->mirrorActiveRowsToFallback();
 		$this->mirrorImportIdsToFallback();
 
-		self::con()->opts->optSet( self::MIGRATED_AT_OPTION, Services::Request()->ts() );
+		$changed = $changed
+		           || $beforeFallbackUrls !== self::con()->opts->optGet( 'importexport_whitelist' )
+		           || $beforeImportIds !== self::con()->opts->optGet( 'import_url_ids' );
+
+		if ( $changed ) {
+			self::con()->opts->optSet( self::MIGRATED_AT_OPTION, Services::Request()->ts() );
+		}
 		$this->storeOptionsIfChanged();
 		$this->clearOldQueueState();
+		$this->markLegacyImportHandledForRequest( $fallbackUrls, $urlIds, $includeOldQueueState );
+		$this->markLegacyImportHandledForRequest(
+			$this->canonicalLegacyWhitelistUrls(),
+			$this->legacyImportIds(),
+			$includeOldQueueState
+		);
 	}
 
 	public function canonicalizeUrl( string $url ) :string {
@@ -56,36 +92,25 @@ class SiteRepository {
 
 	public function upsertActive( string $url, string $source, string $importID = '', bool $markDue = false ) :?Record {
 		$url = $this->canonicalizeUrl( $url );
-		if ( empty( $url ) || !$this->db()->isReady() ) {
+		$dbh = $this->dbOrNull();
+		if ( empty( $url ) || !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
 			return null;
 		}
 
 		$now = Services::Request()->ts();
 		$row = $this->findByUrl( $url, true );
-		$data = [
-			'url'          => $url,
-			'url_hash'     => \hash( 'md5', $url ),
-			'status'       => SitesDB::STATUS_ACTIVE,
-			'deleted_at'   => 0,
-			'updated_at'   => $now,
-		];
-
-		if ( !empty( $source ) && ( empty( $row ) || empty( $row->source ) ) ) {
-			$data[ 'source' ] = $source;
-		}
-		if ( !empty( $importID ) ) {
-			$data[ 'import_id' ] = $importID;
-		}
-		if ( empty( $row ) || $markDue || ( $row->next_ping_at <= 0 && $row->queue_status !== SitesDB::QUEUE_WAITING_EXPORT ) ) {
-			$data = \array_merge( $data, $this->buildQueueDueData( $now ) );
-		}
+		$data = $this->buildActiveUpsertData( $row, $url, $source, $importID, $markDue, $now );
 
 		if ( $row instanceof Record ) {
+			if ( !$this->rowNeedsUpdate( $row, $data ) ) {
+				return $row;
+			}
+			$data[ 'updated_at' ] = $now;
 			$this->updateById( $row->id, $data );
 			return $this->findById( $row->id, true );
 		}
 
-		$record = $this->db()->getRecord();
+		$record = $dbh->getRecord();
 		foreach ( \array_merge( [
 			'import_id'               => '',
 			'source'                  => $source,
@@ -109,11 +134,12 @@ class SiteRepository {
 			'ping_attempts_total'     => 0,
 			'consecutive_failures'    => 0,
 			'meta'                    => [],
+			'updated_at'              => $now,
 		], $data ) as $key => $value ) {
 			$record->{$key} = $value;
 		}
 
-		$this->db()->getQueryInserter()->setUseHelper()->insert( $record );
+		$dbh->getQueryInserter()->setUseHelper()->insert( $record );
 		return $this->findByUrl( $url, true );
 	}
 
@@ -376,7 +402,8 @@ class SiteRepository {
 	}
 
 	public function findByUrl( string $url, bool $includeDeleted = false ) :?Record {
-		if ( !$this->db()->isReady() ) {
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
 			return null;
 		}
 		$url = $this->canonicalizeUrl( $url );
@@ -384,10 +411,11 @@ class SiteRepository {
 	}
 
 	public function findById( int $id, bool $includeDeleted = false ) :?Record {
-		if ( !$this->db()->isReady() ) {
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
 			return null;
 		}
-		return $this->db()
+		return $dbh
 					->getQuerySelector()
 					->setIncludeSoftDeleted( $includeDeleted )
 					->addWhereEquals( 'id', $id )
@@ -395,7 +423,11 @@ class SiteRepository {
 	}
 
 	private function findByHash( string $hash, bool $includeDeleted = false ) :?Record {
-		return $this->db()
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
+			return null;
+		}
+		return $dbh
 					->getQuerySelector()
 					->setIncludeSoftDeleted( $includeDeleted )
 					->addWhereEquals( 'url_hash', $hash )
@@ -455,6 +487,46 @@ class SiteRepository {
 		return \is_array( $ids ) ? $ids : [];
 	}
 
+	private function legacyImportAlreadyHandledForRequest( array $fallbackUrls, array $urlIds, bool $includeOldQueueState ) :bool {
+		$state = $this->legacyImportRequestState();
+		$fingerprint = $this->legacyImportFingerprint( $fallbackUrls, $urlIds );
+		$fingerprintState = \is_array( $state[ $fingerprint ] ?? null ) ? $state[ $fingerprint ] : [];
+
+		return !empty( $fingerprintState[ 'with_old_queue_state' ] )
+			   || ( !$includeOldQueueState && !empty( $fingerprintState[ 'without_old_queue_state' ] ) );
+	}
+
+	private function markLegacyImportHandledForRequest( array $fallbackUrls, array $urlIds, bool $includeOldQueueState ) :void {
+		$request = Services::Request();
+		$state = $this->legacyImportRequestState();
+		$fingerprint = $this->legacyImportFingerprint( $fallbackUrls, $urlIds );
+		$fingerprintState = \is_array( $state[ $fingerprint ] ?? null ) ? $state[ $fingerprint ] : [];
+		$fingerprintState[ $includeOldQueueState ? 'with_old_queue_state' : 'without_old_queue_state' ] = true;
+		$state[ $fingerprint ] = $fingerprintState;
+		$request->{self::REQUEST_IMPORT_STATE_KEY} = $state;
+	}
+
+	private function legacyImportRequestState() :array {
+		$state = Services::Request()->{self::REQUEST_IMPORT_STATE_KEY};
+		return \is_array( $state ) ? $state : [];
+	}
+
+	private function legacyImportFingerprint( array $fallbackUrls, array $urlIds ) :string {
+		$relevantUrlIds = [];
+		foreach ( $fallbackUrls as $url ) {
+			$hash = \hash( 'md5', $url );
+			if ( isset( $urlIds[ $hash ] ) ) {
+				$relevantUrlIds[ $hash ] = (string)$urlIds[ $hash ];
+			}
+		}
+		\ksort( $relevantUrlIds );
+
+		return \hash( 'sha256', \serialize( [
+			'fallback_urls' => $fallbackUrls,
+			'import_ids'    => $relevantUrlIds,
+		] ) );
+	}
+
 	private function canonicalOldQueueUrls( array $fallbackUrls ) :array {
 		if ( empty( $fallbackUrls ) ) {
 			return [];
@@ -503,11 +575,64 @@ class SiteRepository {
 		];
 	}
 
-	private function updateById( int $id, array $data ) :bool {
-		if ( isset( $data[ 'meta' ] ) && \is_array( $data[ 'meta' ] ) ) {
-			$data[ 'meta' ] = $this->db()->getRecord()->arrayDataWrap( $data[ 'meta' ] ) ?? '';
+	private function buildActiveUpsertData(
+		?Record $row,
+		string $url,
+		string $source,
+		string $importID,
+		bool $markDue,
+		int $now
+	) :array {
+		$data = [
+			'url'        => $url,
+			'url_hash'   => \hash( 'md5', $url ),
+			'status'     => SitesDB::STATUS_ACTIVE,
+			'deleted_at' => 0,
+		];
+
+		if ( !empty( $source ) && ( !$row instanceof Record || empty( $row->source ) ) ) {
+			$data[ 'source' ] = $source;
 		}
-		return $this->db()
+		if ( !empty( $importID ) ) {
+			$data[ 'import_id' ] = $importID;
+		}
+		if ( !$row instanceof Record || $markDue || ( $row->next_ping_at <= 0 && $row->queue_status !== SitesDB::QUEUE_WAITING_EXPORT ) ) {
+			$data = \array_merge( $data, $this->buildQueueDueData( $now ) );
+		}
+
+		return $data;
+	}
+
+	private function rowNeedsUpdate( Record $row, array $data ) :bool {
+		foreach ( $data as $key => $value ) {
+			$current = $row->{$key};
+			if ( \is_int( $current ) ) {
+				if ( $current !== (int)$value ) {
+					return true;
+				}
+			}
+			elseif ( \is_array( $current ) || \is_array( $value ) ) {
+				if ( $current !== $value ) {
+					return true;
+				}
+			}
+			elseif ( (string)$current !== (string)$value ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private function updateById( int $id, array $data ) :bool {
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
+			return false;
+		}
+		if ( isset( $data[ 'meta' ] ) && \is_array( $data[ 'meta' ] ) ) {
+			$data[ 'meta' ] = $dbh->getRecord()->arrayDataWrap( $data[ 'meta' ] ) ?? '';
+		}
+		return $dbh
 					->getQueryUpdater()
 					->updateById( $id, $data );
 	}
@@ -549,5 +674,28 @@ class SiteRepository {
 
 	private function db() :SitesDB {
 		return self::con()->db_con->import_export_sites;
+	}
+
+	private function dbOrNull() :?SitesDB {
+		try {
+			return $this->db();
+		}
+		catch ( \Throwable $e ) {
+			return null;
+		}
+	}
+
+	private function hasConfigHandler() :bool {
+		try {
+			$opts = self::con()->opts;
+			return \is_object( $opts )
+				   && \method_exists( $opts, 'optGet' )
+				   && \method_exists( $opts, 'optSet' )
+				   && \method_exists( $opts, 'hasChanges' )
+				   && \method_exists( $opts, 'store' );
+		}
+		catch ( \Throwable $e ) {
+			return false;
+		}
 	}
 }
