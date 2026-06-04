@@ -45,11 +45,15 @@ class LocalDbWriter extends AbstractProcessingHandler {
 
 			/** @var MetaDB\Insert $metaInserter */
 			$metaInserter = self::con()->db_con->activity_logs_meta->getQueryInserter();
-			$metaInserter->insertManyForLog( $log->id, $metas );
+			if ( !$metaInserter->insertManyForLog( $log->id, $metas ) ) {
+				$this->logActivityFailureMessage( 'Failed to insert activity log metadata' );
+			}
 			$this->triggerRequestLogger();
 		}
 		catch ( \Exception $e ) {
-			error_log( 'DEBUG::EXCEPTION: '.$e->getMessage() );
+			if ( !$this->isDependentRequestRecordException( $e ) ) {
+				$this->logActivityFailure( $e );
+			}
 		}
 	}
 
@@ -138,5 +142,61 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		catch ( \Exception $e ) {
 			return null;
 		}
+	}
+
+	private function isDependentRequestRecordException( \Exception $e ) :bool {
+		return $e->getMessage() === __( 'No dependent request record found or created.', 'wp-simple-firewall' );
+	}
+
+	private function logActivityFailure( \Exception $e ) :void {
+		$this->logActivityFailureMessage( $e->getMessage() );
+	}
+
+	private function logActivityFailureMessage( string $message ) :void {
+		error_log( 'Shield activity log write failed: '.$this->formatLogContext( \array_merge(
+			[
+				'message'  => $message,
+				'db_error' => $this->currentDbError(),
+			],
+			$this->buildRequestContext()
+		) ) );
+	}
+
+	private function buildRequestContext() :array {
+		$requestMeta = \is_array( $this->log[ 'extra' ][ 'meta_request' ] ?? null )
+			? $this->log[ 'extra' ][ 'meta_request' ]
+			: [];
+
+		return [
+			'event'  => $this->log[ 'context' ][ 'event_slug' ] ?? '',
+			'req_id' => $requestMeta[ 'rid' ] ?? '',
+			'path'   => $requestMeta[ 'path' ] ?? '',
+			'ip'     => $requestMeta[ 'ip' ] ?? '',
+		];
+	}
+
+	private function formatLogContext( array $context ) :string {
+		$parts = [];
+		foreach ( [ 'message', 'db_error', 'event', 'req_id', 'path', 'ip' ] as $key ) {
+			$parts[] = \sprintf( '%s=%s', $key, $this->normaliseLogValue( $context[ $key ] ?? '' ) );
+		}
+		return \implode( '; ', $parts );
+	}
+
+	private function normaliseLogValue( $value ) :string {
+		$value = \is_scalar( $value ) ? (string)$value : '';
+		$value = \preg_replace( '/[\r\n\t;]+/', ' ', \trim( $value ) );
+		if ( \is_string( $value ) ) {
+			$queryPos = \strpos( $value, '?' );
+			if ( $queryPos !== false && \str_starts_with( $value, '/' ) ) {
+				$value = \substr( $value, 0, $queryPos );
+			}
+		}
+		return \is_string( $value ) ? \substr( $value, 0, 300 ) : '';
+	}
+
+	private function currentDbError() :string {
+		$wpdb = Services::WpDb()->loadWpdb();
+		return (string)$wpdb->last_error;
 	}
 }

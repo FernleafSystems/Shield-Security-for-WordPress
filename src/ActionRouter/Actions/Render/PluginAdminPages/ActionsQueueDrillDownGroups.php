@@ -53,7 +53,7 @@ class ActionsQueueDrillDownGroups extends DrillDownAjaxRenderBase {
 
 		$data = [
 			'bucket_selection' => $groups[ 'bucket_selection' ],
-			'empty_message'    => __( 'Everything in this bucket has already been cleared.', 'wp-simple-firewall' ),
+			'empty_message'    => __( 'Everything here has already been cleared.', 'wp-simple-firewall' ),
 			'active_sections'  => $groups[ 'active_sections' ],
 			'healthy_sections' => $groups[ 'healthy_sections' ],
 			'header'           => $groups[ 'header' ],

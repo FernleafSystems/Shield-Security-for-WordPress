@@ -2,18 +2,21 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Route;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\Worpdrive\{
+use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\Utility\BuildTimeLimit;
+use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Process\DatabaseDataStatusNormalizer;
+use FernleafSystems\WorpdriveClient\{
 	Clean as WdClean,
 	CompatibilityChecks as WdCheck,
 	Database\Data\DataExportHandler,
 	Database\Schema\SchemaHandler,
 	Download as WdDownload,
-	Filesystem\Map,
-	Filesystem\Zip\ZipHandler
+	Filesystem\Map\MapHandler,
+	Filesystem\Map\MapVO,
+	Filesystem\Zip\ZipHandler,
+	Utility\Base64PayloadDecoder
 };
-use FernleafSystems\Wordpress\Plugin\Core\Rest\Exceptions\ApiException;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\Utility\BuildTimeLimit;
 use WP_REST_Request as Req;
 
 class RouteProcessorMap {
@@ -46,7 +49,7 @@ class RouteProcessorMap {
 			FilesystemMap::class => fn( Req $req ) => $this->wrapProcessor(
 				$req,
 				function ( Req $req ) {
-					$mapVO = new Map\MapVO();
+					$mapVO = new MapVO();
 					$mapVO->type = $req->get_param( 'type' ) === 'map' ? 'full' : $req->get_param( 'type' );
 					$mapVO->dir = $req->get_param( 'dir' );
 					$mapVO->exclusions = $req->get_param( 'file_exclusions' );
@@ -54,7 +57,7 @@ class RouteProcessorMap {
 					if ( $mapVO->type === 'hashless' ) {
 						$mapVO->hashAlgo = '';
 					}
-					return ( new Map\MapHandler(
+					return ( new MapHandler(
 						$mapVO,
 						$req->get_param( 'uuid' ),
 						BuildTimeLimit::Build( $req->get_param( 'time_limit' ) )
@@ -65,7 +68,7 @@ class RouteProcessorMap {
 			FilesystemZip::class => fn( Req $req ) => $this->wrapProcessor(
 				$req,
 				fn( Req $req ) => ( new ZipHandler(
-					\array_map( '\base64_decode', $req->get_param( 'file_paths' ) ),
+					( new Base64PayloadDecoder() )->decodeRequiredList( $req->get_param( 'file_paths' ) ),
 					$req->get_param( 'dir' ),
 					$req->get_param( 'uuid' ),
 					BuildTimeLimit::Build( $req->get_param( 'time_limit' ) )
@@ -83,11 +86,13 @@ class RouteProcessorMap {
 
 			DatabaseData::class => fn( Req $req ) => $this->wrapProcessor(
 				$req,
-				fn( Req $req ) => ( new DataExportHandler(
-					$req->get_param( 'table_export_map' ),
-					$req->get_param( 'uuid' ),
-					BuildTimeLimit::Build( $req->get_param( 'time_limit' ) )
-				) )->run()
+				fn( Req $req ) => ( new DatabaseDataStatusNormalizer() )->normalize(
+					( new DataExportHandler(
+						$req->get_param( 'table_export_map' ),
+						$req->get_param( 'uuid' ),
+						BuildTimeLimit::Build( $req->get_param( 'time_limit' ) )
+					) )->run()
+				)
 			),
 		];
 	}

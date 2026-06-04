@@ -32,7 +32,7 @@ class RootHtaccess {
 		if ( $hadFile && !$couldAccess ) {
 			$this->deleteHtaccess();
 		}
-		elseif ( !$hadFile && $couldAccess ) {
+		elseif ( $couldAccess && ( !$hadFile || !$this->isHtaccessCurrent() ) ) {
 			// Create the file and test you can access it. If not, delete it again.
 			if ( $this->createHtaccess() && !$this->testCanAccessURL() ) {
 				$this->deleteHtaccess();
@@ -57,16 +57,27 @@ class RootHtaccess {
 		Services::WpFs()->deleteFile( $this->getPathToHtaccess() );
 	}
 
+	private function isHtaccessCurrent() :bool {
+		$content = Services::WpFs()->getFileContent( $this->getPathToHtaccess() );
+		return \is_string( $content ) && \hash_equals(
+			\hash( 'sha256', $this->getHtaccessContent() ),
+			\hash( 'sha256', $content )
+		);
+	}
+
 	private function createHtaccess() :bool {
 		return Services::WpFs()->putFileContent(
 			$this->getPathToHtaccess(),
-			\implode( "\n", [
-				'Order Allow,Deny',
-				'<FilesMatch "^.*\.(zip|archive|sqlite3|css|js|png|jpg|svg)$" >',
-				' Allow from all',
-				'</FilesMatch>',
-			] )
+			$this->getHtaccessContent()
 		);
 	}
-}
 
+	private function getHtaccessContent() :string {
+		return \implode( "\n", [
+			'Order Allow,Deny',
+			'<FilesMatch "^.*\.(zip|archive|sqlite3|css|js|png|jpg|svg|woff|woff2)$" >',
+			' Allow from all',
+			'</FilesMatch>',
+		] );
+	}
+}

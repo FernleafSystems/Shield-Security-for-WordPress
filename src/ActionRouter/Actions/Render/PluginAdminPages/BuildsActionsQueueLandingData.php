@@ -138,7 +138,7 @@ trait BuildsActionsQueueLandingData {
 			'summary'          => $statusOverview[ 'summary_text' ],
 			'focus'            => $statusOverview[ 'subtext' ],
 			'next_step'        => $this->hasDrilldownContent()
-				? __( 'Open a bucket to review grouped findings and run the next action.', 'wp-simple-firewall' )
+				? __( 'Choose Fix now or Review next to see the issues that need your attention.', 'wp-simple-firewall' )
 				: __( 'Nothing requires your action right now.', 'wp-simple-firewall' ),
 			'icon_class'       => $summary[ 'icon_class' ],
 			'badge'            => $summary[ 'has_items' ]
