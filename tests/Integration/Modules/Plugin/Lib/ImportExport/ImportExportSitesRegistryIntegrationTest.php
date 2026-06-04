@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Record
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\{
 	PingSender,
 	QueueRunner,
@@ -199,6 +200,36 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
+	public function test_scheduled_upgrade_imports_registry_without_scheduling_disabled_sync() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+		$url = 'https://upgrade-import-disabled.example.com';
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$con->opts
+			->optSet( 'importexport_enable', 'N' )
+			->optSet( 'importexport_whitelist', [ $url ] )
+			->optSet( 'import_url_ids', [
+				\hash( 'md5', $url ) => 'upgrade-import-disabled-id',
+			] )
+			->store();
+		$this->dropImportExportSitesTable();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+
+		try {
+			$con->cfg->previous_version = '0.0.1';
+			( new HandleUpgrade() )->execute();
+			do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+		}
+		finally {
+			$con->cfg->previous_version = $previousVersion;
+		}
+
+		$row = $this->requireSite( $url );
+		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+		$this->assertSame( 'upgrade-import-disabled-id', $row->import_id );
+		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+	}
+
 	public function test_config_rebuild_imports_legacy_settings_into_registry_without_upgrade_cron() :void {
 		$con = $this->requireController();
 		$previousRebuilt = $con->cfg->rebuilt;
@@ -227,6 +258,35 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 'config-rebuild-import-id', $row->import_id );
 		$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
 		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+	}
+
+	public function test_config_rebuild_imports_registry_without_scheduling_disabled_sync() :void {
+		$con = $this->requireController();
+		$previousRebuilt = $con->cfg->rebuilt;
+		$url = 'https://config-rebuild-disabled.example.com';
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$con->opts
+			->optSet( 'importexport_enable', 'N' )
+			->optSet( 'importexport_whitelist', [ $url ] )
+			->optSet( 'import_url_ids', [
+				\hash( 'md5', $url ) => 'config-rebuild-disabled-id',
+			] )
+			->store();
+		$this->dropImportExportSitesTable();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+
+		try {
+			$con->cfg->rebuilt = true;
+			$this->runConfigRebuildImport();
+		}
+		finally {
+			$con->cfg->rebuilt = $previousRebuilt;
+		}
+
+		$row = $this->requireSite( $url );
+		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+		$this->assertSame( 'config-rebuild-disabled-id', $row->import_id );
+		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
 	public function test_same_version_config_signature_rebuild_imports_legacy_settings_into_registry() :void {
@@ -680,9 +740,12 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 
 		$first = $repo->findById( $first->id, true );
 		$second = $repo->findById( $second->id, true );
+		$payload = $action->response()->payload();
+
 		$this->assertSame( SitesDB::QUEUE_IDLE, $first->queue_status );
 		$this->assertSame( SitesDB::QUEUE_QUEUED, $second->queue_status );
-		$this->assertTrue( $action->response()->payload()[ 'success' ] ?? false );
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
@@ -703,8 +766,49 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$method->invoke( $action );
 
 		$row = $repo->findById( $row->id, true );
+		$payload = $action->response()->payload();
+
 		$this->assertSame( SitesDB::QUEUE_IDLE, $row->queue_status );
-		$this->assertFalse( $action->response()->payload()[ 'success' ] ?? true );
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertFalse( $payload[ 'success' ] );
+		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+	}
+
+	public function test_controller_queues_all_active_sites_and_schedules_when_enabled() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$repo = $this->repo();
+		$first = $repo->upsertActive( 'https://all-active-one.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$second = $repo->upsertActive( 'https://all-active-two.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$repo->recordExportSuccess( $first->url, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $second->url, SitesDB::EXPORT_RESULT_SUCCESS );
+
+		$count = ( new ImportExportController() )->queueAllActiveSitesForSync();
+
+		$this->assertSame( 2, $count );
+		$this->assertSame( SitesDB::QUEUE_QUEUED, $repo->findById( $first->id, true )->queue_status );
+		$this->assertSame( SitesDB::QUEUE_QUEUED, $repo->findById( $second->id, true )->queue_status );
+		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+	}
+
+	public function test_controller_rejects_queue_all_active_when_disabled_without_scheduling() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://all-active-disabled.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$repo->recordExportSuccess( $row->url, SitesDB::EXPORT_RESULT_SUCCESS );
+
+		try {
+			( new ImportExportController() )->queueAllActiveSitesForSync();
+			$this->fail( 'Expected disabled import/export queue-all to fail.' );
+		}
+		catch ( \RuntimeException $e ) {
+			$this->assertSame( 'Import and export is not enabled.', $e->getMessage() );
+		}
+
+		$this->assertSame( SitesDB::QUEUE_IDLE, $repo->findById( $row->id, true )->queue_status );
 		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
@@ -712,31 +816,70 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->loginAsSecurityAdmin();
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$con = $this->requireController();
-		$con->opts->optSet( 'importexport_enable', 'N' )->store();
+		$url = 'https://enable-action.example.com';
+		$con->opts
+			->optSet( 'importexport_enable', 'N' )
+			->optSet( 'importexport_whitelist', [ $url ] )
+			->optSet( 'import_url_ids', [
+				\hash( 'md5', $url ) => 'enable-action-id',
+			] )
+			->store();
+		$this->pushOldQueueUrls( [ $url ] );
 		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
-		$this->repo()->upsertActive( 'https://enable-action.example.com', SitesDB::SOURCE_MANUAL, '', true );
 
 		$payload = ( new ActionProcessor() )->processAction( PluginImportExport_Enable::SLUG )->payload();
 
-		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
-		$this->assertTrue( (bool)( $payload[ 'page_reload' ] ?? false ) );
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
+		$this->assertTrue( (bool)$payload[ 'success' ] );
+		$this->assertTrue( (bool)$payload[ 'page_reload' ] );
 		$this->assertSame( 'Y', (string)$con->opts->optGet( 'importexport_enable' ) );
+		$row = $this->requireSite( $url );
+		$this->assertSame( 'enable-action-id', $row->import_id );
+		$this->assertSame( SitesDB::QUEUE_QUEUED, $row->queue_status );
 		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
 	public function test_queue_scheduler_registers_callback_without_scheduling_disabled_sync() :void {
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
+		$scheduler = new QueueScheduler( static fn() :bool => false );
+		$hook = $scheduler->hook();
+		\remove_all_actions( $hook );
+		\wp_clear_scheduled_hook( $hook );
+
+		try {
+			$scheduler->setup();
+
+			$this->assertNotFalse( \has_action( $hook ) );
+			$this->assertFalse( \wp_next_scheduled( $hook ) );
+
+			\wp_schedule_single_event( Services::Request()->ts() + 30, $hook );
+			$this->assertNotFalse( \wp_next_scheduled( $hook ) );
+
+			do_action( $hook );
+
+			$this->assertFalse( \wp_next_scheduled( $hook ) );
+		}
+		finally {
+			\remove_all_actions( $hook );
+			\wp_clear_scheduled_hook( $hook );
+		}
+	}
+
+	public function test_controller_registers_queue_scheduler_when_sync_is_available() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
 		$scheduler = new QueueScheduler();
 		$hook = $scheduler->hook();
 		\remove_all_actions( $hook );
 		\wp_clear_scheduled_hook( $hook );
 
 		try {
-			$scheduler->setup( static fn() :bool => false );
+			( new ImportExportController() )->execute();
 
 			$this->assertNotFalse( \has_action( $hook ) );
-			$this->assertFalse( \wp_next_scheduled( $hook ) );
+			$this->assertNotFalse( \wp_next_scheduled( $hook ) );
 		}
 		finally {
 			\remove_all_actions( $hook );

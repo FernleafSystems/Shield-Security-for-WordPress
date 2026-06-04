@@ -35,17 +35,8 @@ class NotifyWhitelist {
 	}
 
 	private function queueActiveSitesForSync() :void {
-		$importExport = new ImportExportController();
-		if ( !$importExport->isSyncEnabled() ) {
-			return;
-		}
-
 		try {
-			$repo = new SiteRepository();
-			$importExport->ensureSitesRegistryImported();
-			if ( $repo->queueAllActive() > 0 ) {
-				$importExport->scheduleQueueSoonIfSyncEnabled();
-			}
+			( new ImportExportController() )->queueAllActiveSitesForSync();
 		}
 		catch ( \Throwable $e ) {
 		}

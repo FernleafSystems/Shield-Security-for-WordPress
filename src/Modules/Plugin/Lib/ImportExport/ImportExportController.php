@@ -17,17 +17,21 @@ class ImportExportController {
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
 
+	public const SYNC_STATE_UNAVAILABLE = 'unavailable';
+	public const SYNC_STATE_DISABLED = 'disabled';
+	public const SYNC_STATE_ENABLED = 'enabled';
+
 	protected function canRun(): bool {
-		$scheduler = new QueueScheduler();
+		$scheduler = $this->queueScheduler();
 		return $this->isSyncAvailable()
 			   || $scheduler->hasScheduledEvent()
 			   || self::con()->opts->optIs( 'importexport_enable', 'Y' );
 	}
 
 	protected function run() {
-		$scheduler = new QueueScheduler();
+		$scheduler = $this->queueScheduler();
 		if ( $this->isSyncAvailable() || $scheduler->hasScheduledEvent() ) {
-			$scheduler->setup( fn() :bool => $this->isSyncEnabled() );
+			$scheduler->setup();
 		}
 		$this->ensureSitesRegistryImported();
 		if ( $this->isSyncEnabled() ) {
@@ -63,6 +67,13 @@ class ImportExportController {
 		return $this->isSyncAvailable() && self::con()->opts->optIs( 'importexport_enable', 'Y' );
 	}
 
+	public function syncSitesState() :string {
+		if ( !$this->isSyncAvailable() ) {
+			return self::SYNC_STATE_UNAVAILABLE;
+		}
+		return self::con()->opts->optIs( 'importexport_enable', 'Y' ) ? self::SYNC_STATE_ENABLED : self::SYNC_STATE_DISABLED;
+	}
+
 	public function ensureSitesRegistryImported( bool $includeOldQueueState = true ) :void {
 		try {
 			( new SiteRepository() )->ensureLegacyImported( $includeOldQueueState );
@@ -72,18 +83,45 @@ class ImportExportController {
 	}
 
 	public function scheduleQueueSoonIfSyncEnabled( int $delay = 30 ) :void {
-		$scheduler = new QueueScheduler();
-		if ( $this->isSyncEnabled() ) {
-			$scheduler->scheduleSoon( $delay );
-		}
-		elseif ( $this->isSyncAvailable() ) {
-			wp_clear_scheduled_hook( $scheduler->hook() );
+		if ( $this->isSyncAvailable() ) {
+			$this->queueScheduler()->scheduleSoon( $delay );
 		}
 	}
 
 	public function refreshRegistryAndScheduleQueueIfEnabled( bool $includeOldQueueState = true ) :void {
 		$this->ensureSitesRegistryImported( $includeOldQueueState );
 		$this->scheduleQueueSoonIfSyncEnabled();
+	}
+
+	public function enableAutomaticImportExport() :void {
+		$this->assertSyncAvailable();
+		self::con()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$this->refreshRegistryAndScheduleQueueIfEnabled();
+	}
+
+	public function queueSitesForSync( array $ids ) :int {
+		$this->assertSyncEnabled();
+
+		$ids = \array_values( \array_unique( \array_filter(
+			\array_map( 'intval', $ids ),
+			static fn( int $id ) :bool => $id > 0
+		) ) );
+		$count = ( new SiteRepository() )->queueSiteIds( $ids );
+		if ( $count > 0 ) {
+			$this->scheduleQueueSoonIfSyncEnabled();
+		}
+		return $count;
+	}
+
+	public function queueAllActiveSitesForSync() :int {
+		$this->assertSyncEnabled();
+
+		$this->ensureSitesRegistryImported();
+		$count = ( new SiteRepository() )->queueAllActive();
+		if ( $count > 0 ) {
+			$this->scheduleQueueSoonIfSyncEnabled();
+		}
+		return $count;
 	}
 
 	public function addUrlToImportExportWhitelistUrls( string $url ) {
@@ -177,6 +215,23 @@ class ImportExportController {
 	public function runDailyCron() {
 		if ( $this->isSyncEnabled() ) {
 			( new Import() )->autoImportFromMaster();
+		}
+	}
+
+	private function queueScheduler() :QueueScheduler {
+		return new QueueScheduler( fn() :bool => $this->isSyncEnabled() );
+	}
+
+	private function assertSyncAvailable() :void {
+		if ( !$this->isSyncAvailable() ) {
+			throw new \RuntimeException( __( 'Import/export sync is not available on this plan.', 'wp-simple-firewall' ) );
+		}
+	}
+
+	private function assertSyncEnabled() :void {
+		$this->assertSyncAvailable();
+		if ( !self::con()->opts->optIs( 'importexport_enable', 'Y' ) ) {
+			throw new \RuntimeException( __( 'Import and export is not enabled.', 'wp-simple-firewall' ) );
 		}
 	}
 }

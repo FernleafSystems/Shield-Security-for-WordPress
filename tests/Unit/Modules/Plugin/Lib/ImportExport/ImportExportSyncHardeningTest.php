@@ -209,6 +209,33 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertFalse( ( new ImportExportController() )->isSyncAvailable() );
 	}
 
+	public function test_unavailable_sync_rejects_enable_and_queue_without_scheduling() :void {
+		$this->installControllerStub( new class {
+			public function canImportExportSync() :bool {
+				return false;
+			}
+		} );
+
+		try {
+			( new ImportExportController() )->enableAutomaticImportExport();
+			$this->fail( 'Expected unavailable sync enable to fail.' );
+		}
+		catch ( \RuntimeException $e ) {
+			$this->assertSame( 'Import/export sync is not available on this plan.', $e->getMessage() );
+		}
+
+		try {
+			( new ImportExportController() )->queueSitesForSync( [ 1 ] );
+			$this->fail( 'Expected unavailable sync queue to fail.' );
+		}
+		catch ( \RuntimeException $e ) {
+			$this->assertSame( 'Import/export sync is not available on this plan.', $e->getMessage() );
+		}
+
+		$this->assertSame( 'N', (string)$this->opts->optGet( 'importexport_enable' ) );
+		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
 	public function test_schedule_queue_soon_noops_when_caps_are_unavailable() :void {
 		$this->installControllerStub( new class {
 			public function canImportExportSync() :bool {
@@ -233,6 +260,26 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		( new ImportExportController() )->scheduleQueueSoonIfSyncEnabled();
 
 		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
+	public function test_default_queue_scheduler_cannot_schedule_without_predicate() :void {
+		( new QueueScheduler() )->scheduleSoon();
+
+		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
+	public function test_queue_scheduler_false_predicate_clears_existing_event() :void {
+		$this->scheduledEvents[ $this->queueCronHook() ] = 1712620900;
+
+		( new QueueScheduler( static fn() :bool => false ) )->scheduleSoon();
+
+		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
+	public function test_queue_scheduler_true_predicate_schedules_promptly() :void {
+		( new QueueScheduler( static fn() :bool => true ) )->scheduleSoon( 45 );
+
+		$this->assertSame( 1712620845, $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
 	}
 
 	public function test_schedule_queue_soon_schedules_when_enabled_and_available() :void {

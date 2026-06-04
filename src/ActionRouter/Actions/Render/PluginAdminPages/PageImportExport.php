@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Enable;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFromFileUpload;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
@@ -24,7 +25,8 @@ class PageImportExport extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$importMasterURL = $con->comps->import_export->getImportExportMasterImportUrl();
+		$importExport = $con->comps->import_export;
+		$importMasterURL = $importExport->getImportExportMasterImportUrl();
 		return [
 			'content' => [
 				'import_export_config' => $con->action_router->render( OptionsFormFor::class, [
@@ -32,10 +34,11 @@ class PageImportExport extends BasePluginAdminPage {
 				] ),
 			],
 			'flags'   => [
-				'can_importexport'      => $con->caps->canImportExportFile() || $con->caps->canImportExportSync(),
-				'can_importexport_file' => $con->caps->canImportExportFile(),
-				'can_importexport_sync' => $con->caps->canImportExportSync(),
-				'has_master_url'        => !empty( $importMasterURL ),
+				'can_importexport'       => $con->caps->canImportExportFile() || $importExport->isSyncAvailable(),
+				'can_importexport_file'  => $con->caps->canImportExportFile(),
+				'can_importexport_sync'  => $importExport->isSyncAvailable(),
+				'has_master_url'         => !empty( $importMasterURL ),
+				'sync_sites_state'       => $importExport->syncSitesState(),
 			],
 			'hrefs'   => [
 				'export_file_download' => $con->plugin_urls->fileDownload( 'plugin_export' ),
@@ -44,10 +47,11 @@ class PageImportExport extends BasePluginAdminPage {
 				'inner_page_title_icon' => $con->svgs->iconClass( 'arrow-down-up' ),
 			],
 			'vars'    => [
-				'file_upload_nonce'  => ActionData::Build( PluginImportFromFileUpload::class, true, [
+				'file_upload_nonce'         => ActionData::Build( PluginImportFromFileUpload::class, true, [
 					'notification_type' => 'wp_admin_notice'
 				] ),
-				'current_master_url' => $importMasterURL,
+				'current_master_url'        => $importMasterURL,
+				'sync_sites_disabled_pane' => $this->buildSyncSitesDisabledPane(),
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Import/Export', 'wp-simple-firewall' ),
@@ -96,5 +100,33 @@ class PageImportExport extends BasePluginAdminPage {
 				'import_options'   => __( 'Import Options', 'wp-simple-firewall' ),
 			]
 		];
+	}
+
+	private function buildSyncSitesDisabledPane() :array {
+		return [
+			'message' => __( 'Import and export is not enabled. Click to enable it.', 'wp-simple-firewall' ),
+			'actions' => [
+				[
+					'is_action'    => true,
+					'type'         => 'navigate',
+					'label'        => __( 'Enable Import/Export', 'wp-simple-firewall' ),
+					'icon_class'   => 'bi bi-power',
+					'class_name'   => 'shield_dynamic_action_button',
+					'attributes'   => $this->buildDataAttributes( ActionData::Build( PluginImportExport_Enable::class, true, [
+						'notification_type' => 'wp_admin_notice',
+					] ) ),
+				],
+			],
+		];
+	}
+
+	private function buildDataAttributes( array $data ) :array {
+		$attributes = [];
+		foreach ( $data as $key => $value ) {
+			if ( \is_scalar( $value ) || $value === null ) {
+				$attributes[ 'data-'.$key ] = (string)$value;
+			}
+		}
+		return $attributes;
 	}
 }
