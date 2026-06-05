@@ -1,0 +1,78 @@
+<section id="{{ file_transfer.section_id }}"
+		 class="import-export-file-transfer"
+		 data-import-export-file-transfer="1">
+	<div class="import-export-action-grid">
+		<div class="import-export-action-panel import-export-action-panel--export configure-zone-card status-info">
+			<div class="import-export-action-panel__head">
+				<span class="configure-zone-card__icon import-export-action-panel__icon">
+					<i class="{{ file_transfer.export.icon_class }}" aria-hidden="true"></i>
+				</span>
+				<div class="configure-zone-card__body">
+					<h5 class="configure-zone-card__title import-export-action-panel__title">{{ file_transfer.export.title }}</h5>
+					<p class="configure-zone-card__oneliner import-export-action-panel__summary">{{ file_transfer.export.summary }}</p>
+				</div>
+			</div>
+			<div class="import-export-action-panel__footer">
+				<a id="ExportDownload"
+				   href="{{ file_transfer.export.href }}"
+				   class="btn btn-primary import-export-primary-action">
+					<i class="{{ file_transfer.export.icon_class }}" aria-hidden="true"></i>
+					<span>{{ file_transfer.export.action_label }}</span>
+				</a>
+			</div>
+		</div>
+
+		<div class="import-export-action-panel import-export-action-panel--import configure-zone-card status-warning">
+			<div class="import-export-action-panel__head">
+				<span class="configure-zone-card__icon import-export-action-panel__icon">
+					<i class="{{ file_transfer.import.icon_class }}" aria-hidden="true"></i>
+				</span>
+				<div class="configure-zone-card__body">
+					<h5 class="configure-zone-card__title import-export-action-panel__title">{{ file_transfer.import.title }}</h5>
+					<p class="configure-zone-card__oneliner import-export-action-panel__summary">{{ file_transfer.import.summary }}</p>
+				</div>
+			</div>
+
+			<form id="{{ file_transfer.import.form_id }}"
+				  autocomplete="off"
+				  method="post"
+				  action="{{ file_transfer.import.form_action }}"
+				  class="icwp-form-dynamic-action import-export-upload-form"
+				  enctype="multipart/form-data">
+				{% for input_name,input_value in file_transfer.import.action_data %}
+					<input type="hidden" name="{{ input_name }}" value="{{ input_value }}" />
+				{% endfor %}
+
+				<div class="mb-3">
+					<label for="{{ file_transfer.import.file_input.id }}" class="form-label">{{ file_transfer.import.file_input.label }}</label>
+					<input name="{{ file_transfer.import.file_input.name }}"
+						   type="file"
+						   class="form-control"
+						   id="{{ file_transfer.import.file_input.id }}"
+						   accept="{{ file_transfer.import.file_input.accept }}">
+				</div>
+
+				<div class="form-check mb-3">
+					<input type="checkbox"
+						   class="form-check-input"
+						   name="{{ file_transfer.import.confirmation.name }}"
+						   id="{{ file_transfer.import.confirmation.id }}"
+						   value="{{ file_transfer.import.confirmation.value }}" />
+					<label for="{{ file_transfer.import.confirmation.id }}" class="form-check-label">
+						{{ file_transfer.import.confirmation.label }}
+					</label>
+					<div class="form-text">{{ file_transfer.import.confirmation.help }}</div>
+				</div>
+
+				<div class="import-export-action-panel__footer">
+					<button id="{{ file_transfer.import.submit.id }}"
+							class="btn btn-primary import-export-primary-action"
+							type="submit">
+						<i class="{{ file_transfer.import.submit.icon_class }}" aria-hidden="true"></i>
+						<span>{{ file_transfer.import.submit.label }}</span>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</section>

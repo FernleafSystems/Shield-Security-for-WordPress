@@ -17,6 +17,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			'importexport_enable',
 			'importexport_masterurl',
+			'importexport_whitelist',
 		] );
 	}
 
@@ -37,9 +38,62 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 
 		$con->opts->optSet( 'importexport_masterurl', '' )->store();
 		$this->assertFalse( (bool)$this->renderFlags()[ 'has_master_url' ] );
+		$this->assertFalse( (bool)$this->renderVars()[ 'network_setup' ][ 'has_master_url' ] );
 
 		$con->opts->optSet( 'importexport_masterurl', 'https://master.example.com' )->store();
 		$this->assertTrue( (bool)$this->renderFlags()[ 'has_master_url' ] );
+		$this->assertTrue( (bool)$this->renderVars()[ 'network_setup' ][ 'has_master_url' ] );
+		$this->assertSame( 'https://master.example.com', $this->renderVars()[ 'network_setup' ][ 'current_master_url' ] );
+	}
+
+	public function test_tabs_contract_uses_three_machine_tabs_and_file_default() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_1', 'import_export_level_2' ] );
+
+		$tabs = $this->renderVars()[ 'import_export_tabs' ];
+		$this->assertSame( [ 'file', 'network_setup', 'sync_sites' ], \array_column( $tabs, 'key' ) );
+		$this->assertSame( [ true, false, false ], \array_column( $tabs, 'is_active' ) );
+		$this->assertSame( [ true, true, true ], \array_column( $tabs, 'is_available' ) );
+		$this->assertSame( 'Network Setup', $tabs[ 1 ][ 'label' ] );
+
+		$html = ( new PageImportExportContractProbe() )->renderOutputForTest();
+		$this->assertStringContainsString( 'data-import-export-tab="file"', $html );
+		$this->assertStringContainsString( 'data-import-export-tab="network_setup"', $html );
+		$this->assertStringContainsString( 'data-import-export-tab="sync_sites"', $html );
+		$this->assertStringContainsString( 'data-import-export-panel="file"', $html );
+		$this->assertStringContainsString( 'data-import-export-panel="network_setup"', $html );
+		$this->assertStringContainsString( 'data-import-export-panel="sync_sites"', $html );
+		$this->assertStringContainsString( 'id="ImportExportFileForm"', $html );
+		$this->assertStringContainsString( 'id="ImportFile"', $html );
+		$this->assertStringContainsString( 'id="SubmitForm"', $html );
+		$this->assertStringContainsString( 'id="ExportDownload"', $html );
+	}
+
+	public function test_sync_only_capability_makes_network_setup_the_active_tab() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+
+		$tabs = $this->renderVars()[ 'import_export_tabs' ];
+
+		$this->assertSame( [ false, true, false ], \array_column( $tabs, 'is_active' ) );
+		$this->assertSame( [ false, true, true ], \array_column( $tabs, 'is_available' ) );
+	}
+
+	public function test_network_setup_contract_reflects_authorised_urls() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts
+								  ->optSet( 'importexport_masterurl', '' )
+								  ->optSet( 'importexport_whitelist', [
+									  'https://child-one.example.com',
+									  'https://child-two.example.com',
+								  ] )
+								  ->store();
+
+		$networkSetup = $this->renderVars()[ 'network_setup' ];
+
+		$this->assertSame( 2, $networkSetup[ 'authorised_url_count' ] );
+		$this->assertSame( [ false, false, true ], \array_column( $networkSetup[ 'status_cards' ], 'is_active' ) );
+		$this->assertSame( 'Y', $networkSetup[ 'setup_form' ][ 'network_options' ][ 0 ][ 'value' ] );
+		$this->assertSame( 'N', $networkSetup[ 'setup_form' ][ 'network_options' ][ 1 ][ 'value' ] );
+		$this->assertSame( 'NC', $networkSetup[ 'setup_form' ][ 'network_options' ][ 2 ][ 'value' ] );
 	}
 
 	public function test_sync_sites_disabled_gate_replaces_table_for_licensed_disabled_sync() :void {
@@ -47,11 +101,12 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
 
 		$data = $this->renderData();
-		$pane = $data[ 'vars' ][ 'sync_sites_disabled_pane' ];
+		$pane = $data[ 'vars' ][ 'sync_sites' ][ 'disabled_pane' ];
 		$action = $pane[ 'actions' ][ 0 ];
 
 		$this->assertSame( ImportExportController::SYNC_STATE_DISABLED, $data[ 'flags' ][ 'sync_sites_state' ] );
-		$this->assertSame( 'Import and export is not enabled. Click to enable it.', $pane[ 'message' ] );
+		$this->assertSame( ImportExportController::SYNC_STATE_DISABLED, $data[ 'vars' ][ 'sync_sites' ][ 'sync_state' ] );
+		$this->assertNotSame( '', $pane[ 'message' ] );
 		$this->assertSame( PluginImportExport_Enable::SLUG, $action[ 'attributes' ][ 'data-ex' ] );
 
 		$html = ( new PageImportExportContractProbe() )->renderOutputForTest();
@@ -64,6 +119,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
 
 		$this->assertSame( ImportExportController::SYNC_STATE_ENABLED, $this->renderFlags()[ 'sync_sites_state' ] );
+		$this->assertTrue( (bool)$this->renderVars()[ 'sync_sites' ][ 'is_enabled' ] );
 
 		$html = ( new PageImportExportContractProbe() )->renderOutputForTest();
 
@@ -76,6 +132,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
 
 		$this->assertSame( ImportExportController::SYNC_STATE_UNAVAILABLE, $this->renderFlags()[ 'sync_sites_state' ] );
+		$this->assertTrue( (bool)$this->renderVars()[ 'sync_sites' ][ 'is_unavailable' ] );
 
 		$html = ( new PageImportExportContractProbe() )->renderOutputForTest();
 
@@ -102,6 +159,12 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$data = $this->renderData();
 		$this->assertIsArray( $data[ 'flags' ] );
 		return $data[ 'flags' ];
+	}
+
+	private function renderVars() :array {
+		$data = $this->renderData();
+		$this->assertIsArray( $data[ 'vars' ] );
+		return $data[ 'vars' ];
 	}
 
 	private function renderData() :array {

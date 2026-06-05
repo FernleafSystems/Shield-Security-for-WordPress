@@ -56,7 +56,7 @@ async function expectActionButton( locator ) {
 	expect( await locator.getAttribute( 'href' ) ).toBeNull();
 }
 
-async function expectSubmitInputWithoutHref( locator ) {
+async function expectSubmitControlWithoutHref( locator ) {
 	await expect( locator ).toBeVisible();
 	await expect( locator ).toBeEnabled();
 	await expect( locator ).toHaveAttribute( 'type', 'submit' );
@@ -200,10 +200,10 @@ test( 'import file submit control stays usable without an invalid href', async (
 			nav_sub: 'importexport',
 		} );
 
-		await page.locator( 'a[data-bs-toggle="tab"][href="#byFile"]' ).click();
-		await expect( page.locator( '#byFile' ) ).toBeVisible();
-		await expectSubmitInputWithoutHref(
-			page.locator( '#ImportExportFileForm input#SubmitForm[type="submit"]' )
+		await expect( page.locator( '[data-import-export-panel="file"]' ) ).toBeVisible();
+		await expect( page.locator( '[data-import-export-tab="file"]' ) ).toHaveClass( /active/ );
+		await expectSubmitControlWithoutHref(
+			page.locator( '#ImportExportFileForm #SubmitForm[type="submit"]' )
 		);
 		await expectNoAxeViolations( page, '#SectionImportExportFile', [ 'heading-order' ] );
 	} );
