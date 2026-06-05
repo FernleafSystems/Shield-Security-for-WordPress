@@ -21,6 +21,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
 	SiteRepository
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForImportExportSites;
+use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExportSites\{
+	BuildImportExportSitesTableData,
+	SiteSyncStatusBuilder
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Core\Request;
@@ -904,8 +909,106 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertTrue( $this->requireController()->db_con->import_export_sites->isReady() );
 	}
 
+	public function test_table_search_panes_filter_rows_and_counts_with_text_search() :void {
+		$ids = $this->seedSearchPaneImportExportSites();
+
+		$problem = $this->retrieveImportExportSitesTableData( 'sync-pane-filter', [
+			'sync_state' => [ SiteSyncStatusBuilder::STATE_PROBLEM ],
+		] );
+		$this->assertSame( 1, (int)$problem[ 'recordsFiltered' ] );
+		$this->assertSame( [ $ids[ 'problem' ] ], \array_column( $problem[ 'data' ], 'rid' ) );
+
+		$deleted = $this->retrieveImportExportSitesTableData( 'sync-pane-filter', [
+			'status_key' => [ SitesDB::STATUS_DELETED ],
+		] );
+		$this->assertSame( 1, (int)$deleted[ 'recordsFiltered' ] );
+		$this->assertSame( [ $ids[ 'deleted' ] ], \array_column( $deleted[ 'data' ], 'rid' ) );
+
+		$queued = $this->retrieveImportExportSitesTableData( 'sync-pane-filter', [
+			'queue_status_key' => [ SitesDB::QUEUE_QUEUED ],
+		] );
+		$queuedIds = \array_column( $queued[ 'data' ], 'rid' );
+		\sort( $queuedIds );
+		$expectedQueued = [ $ids[ 'pending' ], $ids[ 'problem' ] ];
+		\sort( $expectedQueued );
+		$this->assertSame( 2, (int)$queued[ 'recordsFiltered' ] );
+		$this->assertSame( $expectedQueued, $queuedIds );
+
+		$mismatch = $this->retrieveImportExportSitesTableData( 'sync-pane-filter-pending', [
+			'sync_state' => [ SiteSyncStatusBuilder::STATE_PROBLEM ],
+		] );
+		$this->assertSame( 0, (int)$mismatch[ 'recordsFiltered' ] );
+		$this->assertSame( [], $mismatch[ 'data' ] );
+
+		$invalid = $this->retrieveImportExportSitesTableData( 'sync-pane-filter', [
+			'sync_state'       => [ 'bad-state' ],
+			'status_key'       => [ 'bad-status' ],
+			'queue_status_key' => [ 'bad-queue' ],
+		] );
+		$allIds = \array_column( $invalid[ 'data' ], 'rid' );
+		\sort( $allIds );
+		$expectedAll = \array_values( $ids );
+		\sort( $expectedAll );
+		$this->assertSame( 4, (int)$invalid[ 'recordsFiltered' ] );
+		$this->assertSame( $expectedAll, $allIds );
+	}
+
 	private function repo() :SiteRepository {
 		return new SiteRepository();
+	}
+
+	private function seedSearchPaneImportExportSites() :array {
+		$repo = $this->repo();
+		$working = $repo->upsertActive( 'https://sync-pane-filter-working.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$repo->recordExportSuccess( $working->url, SitesDB::EXPORT_RESULT_SUCCESS );
+
+		$problem = $repo->upsertActive( 'https://sync-pane-filter-problem.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$repo->recordPingFailure( $problem, 503, 'service unavailable' );
+
+		$pending = $repo->upsertActive( 'https://sync-pane-filter-pending.example.com', SitesDB::SOURCE_MANUAL, '', true );
+
+		$deleted = $repo->upsertActive( 'https://sync-pane-filter-deleted.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$repo->softDeleteUrl( $deleted->url );
+		$deleted = $repo->findById( $deleted->id, true );
+
+		return [
+			'working' => $working->id,
+			'problem' => $problem->id,
+			'pending' => $pending->id,
+			'deleted' => $deleted->id,
+		];
+	}
+
+	private function retrieveImportExportSitesTableData( string $search, array $searchPanes ) :array {
+		\delete_transient( 'shield_dt_total_'.\md5( BuildImportExportSitesTableData::class ) );
+
+		$builder = new BuildImportExportSitesTableData();
+		$builder->table_data = $this->buildImportExportSitesTableDataRequest( $search, [
+			'searchPanes' => $searchPanes,
+		] );
+
+		return $builder->build();
+	}
+
+	private function buildImportExportSitesTableDataRequest( string $search = '', array $overrides = [] ) :array {
+		$tableData = ( new ForImportExportSites() )->buildRaw();
+		$tableData[ 'order' ] = \array_values( \array_map(
+			static fn( array $order ) :array => [
+				'column' => (int)( $order[ 0 ] ?? 0 ),
+				'dir'    => (string)( $order[ 1 ] ?? 'desc' ),
+			],
+			\is_array( $tableData[ 'order' ] ?? null ) ? $tableData[ 'order' ] : []
+		) );
+
+		return \array_merge( $tableData, [
+			'draw'   => 1,
+			'start'  => 0,
+			'length' => 25,
+			'search' => [
+				'value' => $search,
+				'regex' => false,
+			],
+		], $overrides );
 	}
 
 	private function requireSite( string $url, bool $includeDeleted = false ) :Record {

@@ -2,11 +2,17 @@ import { ShieldTableBase } from "./ShieldTableBase";
 import { AjaxService } from "../services/AjaxService";
 import { OffCanvasService } from "../ui/OffCanvasService";
 import { ObjectOps } from "../../util/ObjectOps";
+import { Popover } from "bootstrap";
 
 export class ShieldTableImportExportSites extends ShieldTableBase {
 
 	getTableSelector() {
 		return '#ShieldTable-ImportExportSites';
+	}
+
+	run() {
+		super.run();
+		this.bindSyncDetailsPopovers();
 	}
 
 	getButtons() {
@@ -76,6 +82,44 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 			this.authoriseUrlsRequestRunning = false;
 			if ( submitButton instanceof HTMLButtonElement ) {
 				submitButton.disabled = false;
+			}
+		} );
+	}
+
+	bindSyncDetailsPopovers() {
+		const container = this.resolveTableContainer();
+		if ( !( container instanceof HTMLElement ) || container.dataset.shieldSyncDetailsPopoverBound === '1' ) {
+			return;
+		}
+
+		container.dataset.shieldSyncDetailsPopoverBound = '1';
+		container.addEventListener( 'click', ( event ) => {
+			const target = event.target instanceof Element
+				? event.target.closest( '[data-shield-sync-details-trigger="1"]' )
+				: null;
+			if ( !( target instanceof HTMLElement ) || !container.contains( target ) ) {
+				return;
+			}
+
+			event.preventDefault();
+			this.hideOtherSyncDetailsPopovers( container, target );
+			Popover.getOrCreateInstance( target, {
+				trigger: 'manual',
+				html: true,
+				sanitize: false,
+				placement: 'left',
+				container: document.body,
+				customClass: 'import-export-sync-details-popover',
+				title: target.dataset.shieldSyncDetailsTitle,
+				content: target.dataset.shieldSyncDetails,
+			} ).toggle();
+		} );
+	}
+
+	hideOtherSyncDetailsPopovers( container, currentTarget ) {
+		container.querySelectorAll( '[data-shield-sync-details-trigger="1"]' ).forEach( ( target ) => {
+			if ( target !== currentTarget ) {
+				Popover.getInstance( target )?.hide();
 			}
 		} );
 	}

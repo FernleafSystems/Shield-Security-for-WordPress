@@ -321,20 +321,27 @@ class SiteRepository {
 		return $this->countRowsWithSql();
 	}
 
-	public function countFilteredRows( string $search = '' ) :int {
-		return $this->countRowsWithSql( $this->buildSearchWhere( $search ) );
+	public function countFilteredRows( string $search = '', array $wheres = [] ) :int {
+		return $this->countRowsWithSql( $this->buildFilteredWhere( $search, $wheres ) );
 	}
 
 	/**
 	 * @return Record[]
 	 */
-	public function selectFilteredRows( string $search, int $offset, int $limit, string $orderBy, string $orderDir ) :array {
+	public function selectFilteredRows(
+		string $search,
+		int $offset,
+		int $limit,
+		string $orderBy,
+		string $orderDir,
+		array $wheres = []
+	) :array {
 		$allowedOrder = \array_flip( $this->db()->getTableSchema()->getColumnNames() );
 		$orderBy = isset( $allowedOrder[ $orderBy ] ) ? $orderBy : 'updated_at';
 		$orderDir = \strtoupper( $orderDir ) === 'ASC' ? 'ASC' : 'DESC';
 
 		return $this->selectFilteredRowsWithSql(
-			$this->buildSearchWhere( $search ),
+			$this->buildFilteredWhere( $search, $wheres ),
 			\max( 0, $offset ),
 			\max( 1, $limit ),
 			$orderBy,
@@ -944,7 +951,24 @@ class SiteRepository {
 					->updateById( $id, $data );
 	}
 
-	private function buildSearchWhere( string $search ) :string {
+	private function buildFilteredWhere( string $search, array $wheres = [] ) :string {
+		$clauses = \array_values( \array_filter( \array_map(
+			static fn( $where ) :string => \trim( (string)$where ),
+			$wheres
+		) ) );
+
+		$searchClause = $this->buildSearchWhereClause( $search );
+		if ( !empty( $searchClause ) ) {
+			$clauses[] = $searchClause;
+		}
+
+		return empty( $clauses ) ? '' : 'WHERE '.\implode( ' AND ', \array_map(
+			static fn( string $clause ) :string => \sprintf( '(%s)', $clause ),
+			$clauses
+		) );
+	}
+
+	private function buildSearchWhereClause( string $search ) :string {
 		$search = \trim( $search );
 		if ( empty( $search ) ) {
 			return '';
@@ -953,7 +977,7 @@ class SiteRepository {
 		global $wpdb;
 		$like = '%'.$wpdb->esc_like( $search ).'%';
 		return $this->prepareSql(
-			'WHERE `url` LIKE %s OR `status` LIKE %s OR `queue_status` LIKE %s OR `last_ping_error` LIKE %s OR `last_export_error` LIKE %s',
+			'`url` LIKE %s OR `status` LIKE %s OR `queue_status` LIKE %s OR `last_ping_error` LIKE %s OR `last_export_error` LIKE %s',
 			\array_fill( 0, 5, $like )
 		);
 	}
