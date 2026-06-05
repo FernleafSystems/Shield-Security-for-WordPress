@@ -16,8 +16,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\AjaxRender,
 	Actions\BlockdownDisableFormSubmit,
 	Actions\BlockdownFormSubmit,
+	Actions\ImportExportSitesAuthoriseUrlsSubmit,
+	Actions\ImportExportSitesTableAction,
 	Actions\LicenseClear,
 	Actions\ReportingChartTrends,
+	Actions\Render\Components\OffCanvas\ImportExportSitesAuthoriseUrls,
 	Actions\Render\Components\Widgets\WpDashboardSummary,
 	Actions\ScansCheck,
 	Actions\ScansStart,
@@ -212,6 +215,39 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertSame( ReportingChartTrends::SLUG, $reportsTrendsAjax[ 'render_chart' ][ ActionData::FIELD_EXECUTE ] ?? '' );
 	}
 
+	public function test_import_export_sites_table_localizes_authorise_url_payloads() :void {
+		$this->installEnvironment( [
+			PluginNavs::FIELD_NAV    => PluginNavs::NAV_TOOLS,
+			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_TOOLS_IMPORT,
+		] );
+
+		$tables = $this->componentData( 'tables' );
+		$this->assertArrayHasKey( 'import_export_sites', $tables );
+
+		$sites = $tables[ 'import_export_sites' ];
+		$this->assertArrayHasKey( 'ajax', $sites );
+		$this->assertArrayHasKey( 'strings', $sites );
+		$this->assertArrayHasKey( 'vars', $sites );
+
+		$ajax = $sites[ 'ajax' ];
+		$this->assertArrayHasKey( 'table_action', $ajax );
+		$this->assertArrayHasKey( 'authorise_urls_submit', $ajax );
+		$this->assertArrayHasKey( 'render_authorise_urls_offcanvas', $ajax );
+
+		$this->assertSame( ImportExportSitesTableAction::SLUG, $ajax[ 'table_action' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame( ImportExportSitesAuthoriseUrlsSubmit::SLUG, $ajax[ 'authorise_urls_submit' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame(
+			ImportExportSitesAuthoriseUrls::SLUG,
+			$ajax[ 'render_authorise_urls_offcanvas' ][ 'render_slug' ]
+		);
+		$this->assertAjaxRenderPayloadAllowedByPolicy(
+			$ajax[ 'render_authorise_urls_offcanvas' ],
+			'import export sites authorise urls offcanvas'
+		);
+		$this->assertArrayHasKey( 'add_authorised_urls', $sites[ 'strings' ] );
+		$this->assertArrayHasKey( 'datatables_init', $sites[ 'vars' ] );
+	}
+
 	private function installEnvironment( array $query = [], array $completedTours = [], bool $hasRunningScans = false ) :void {
 		$query = \array_merge( [
 			'page'                  => 'icwp-wpsf-plugin',
@@ -353,6 +389,14 @@ class AssetsCustomizerTest extends BaseUnitTest {
 				[
 					PluginNavs::FIELD_NAV    => PluginNavs::NAV_TRAFFIC,
 					PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_LOGS,
+				],
+				'tables',
+				1,
+			],
+			'import export sites authorise offcanvas' => [
+				[
+					PluginNavs::FIELD_NAV    => PluginNavs::NAV_TOOLS,
+					PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_TOOLS_IMPORT,
 				],
 				'tables',
 				1,

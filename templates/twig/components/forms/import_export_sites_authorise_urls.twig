@@ -1,0 +1,21 @@
+<form class="form" id="ImportExportSitesAuthoriseUrlsForm" autocomplete="off">
+
+	<div class="mb-3">
+		<label for="ImportExportSitesAuthoriseUrls" class="form-label">{{ strings.urls }}</label>
+		<textarea name="urls" class="form-control" id="ImportExportSitesAuthoriseUrls"
+		          aria-describedby="ImportExportSitesAuthoriseUrlsHelp"
+		          rows="8"
+		          placeholder="{{ strings.urls_placeholder }}"></textarea>
+		<div id="ImportExportSitesAuthoriseUrlsHelp" class="form-text">{{ strings.urls_help }}</div>
+	</div>
+
+	<div class="form-check mb-3">
+		<input name="confirm" value="Y" class="form-check-input" type="checkbox" id="ImportExportSitesAuthoriseConfirm">
+		<label class="form-check-label" for="ImportExportSitesAuthoriseConfirm">
+			{{ strings.confirm }}
+		</label>
+	</div>
+
+	<button type="submit" class="btn btn-primary mb-3">{{ strings.submit }}</button>
+
+</form>

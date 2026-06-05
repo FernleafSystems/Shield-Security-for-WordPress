@@ -478,7 +478,12 @@ class AssetsCustomizer {
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ) ) {
 						$data[ 'import_export_sites' ] = [
 							'ajax' => [
-								'table_action' => ActionData::Build( Actions\ImportExportSitesTableAction::class ),
+								'authorise_urls_submit'             => ActionData::Build( Actions\ImportExportSitesAuthoriseUrlsSubmit::class ),
+								'render_authorise_urls_offcanvas'   => ActionData::BuildAjaxRender( Components\OffCanvas\ImportExportSitesAuthoriseUrls::class ),
+								'table_action'                      => ActionData::Build( Actions\ImportExportSitesTableAction::class ),
+							],
+							'strings' => [
+								'add_authorised_urls' => __( 'Add Authorised URLs', 'wp-simple-firewall' ),
 							],
 							'vars' => [
 								'datatables_init' => ( new ForImportExportSites() )->buildRaw(),

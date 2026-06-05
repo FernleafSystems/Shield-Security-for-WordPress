@@ -124,6 +124,83 @@ class ImportExportController {
 		return $count;
 	}
 
+	/**
+	 * @return array{
+	 *     authorised_urls:string[],
+	 *     already_authorised_urls:string[],
+	 *     authorised_count:int,
+	 *     already_authorised_count:int,
+	 *     total_count:int
+	 * }
+	 */
+	public function authoriseUrlsForSyncSites( array $rawUrls ) :array {
+		$this->assertSyncEnabled();
+		$this->ensureSitesRegistryImported();
+
+		$repo = new SiteRepository();
+		$validUrls = [];
+		$invalidUrls = [];
+		foreach ( $rawUrls as $rawUrl ) {
+			$rawUrl = \trim( (string)$rawUrl );
+			if ( $rawUrl === '' ) {
+				continue;
+			}
+
+			$url = $repo->canonicalizeUrl( $rawUrl );
+			if ( $url === '' ) {
+				$invalidUrls[] = $rawUrl;
+				continue;
+			}
+
+			$validUrls[] = $url;
+		}
+
+		$validUrls = \array_values( \array_unique( $validUrls ) );
+		$invalidUrls = \array_values( \array_unique( $invalidUrls ) );
+		if ( !empty( $invalidUrls ) ) {
+			throw new \RuntimeException( sprintf(
+				_n(
+					'%s URL is invalid. Please provide HTTP or HTTPS URLs only.',
+					'%s URLs are invalid. Please provide HTTP or HTTPS URLs only.',
+					\count( $invalidUrls ),
+					'wp-simple-firewall'
+				),
+				\count( $invalidUrls )
+			) );
+		}
+		if ( empty( $validUrls ) ) {
+			throw new \RuntimeException( __( 'Please provide at least one valid URL.', 'wp-simple-firewall' ) );
+		}
+
+		$activeRowsBefore = $repo->findByUrls( $validUrls );
+		$authorisedUrls = [];
+		$alreadyAuthorisedUrls = [];
+		foreach ( $validUrls as $url ) {
+			if ( isset( $activeRowsBefore[ $url ] ) ) {
+				$alreadyAuthorisedUrls[] = $url;
+				continue;
+			}
+
+			if ( !$repo->upsertActive( $url, ImportExportSitesDB::SOURCE_MANUAL, '', true ) ) {
+				throw new \RuntimeException( __( 'The site URL could not be authorised.', 'wp-simple-firewall' ) );
+			}
+			$authorisedUrls[] = $url;
+		}
+
+		$repo->syncFallbackSettings();
+		if ( !empty( $authorisedUrls ) ) {
+			$this->scheduleQueueSoonIfSyncEnabled();
+		}
+
+		return [
+			'authorised_urls'          => $authorisedUrls,
+			'already_authorised_urls'  => $alreadyAuthorisedUrls,
+			'authorised_count'         => \count( $authorisedUrls ),
+			'already_authorised_count' => \count( $alreadyAuthorisedUrls ),
+			'total_count'              => \count( $validUrls ),
+		];
+	}
+
 	public function addUrlToImportExportWhitelistUrls( string $url ) {
 		$url = Services::Data()->validateSimpleHttpUrl( $url );
 		if ( $url !== false ) {
