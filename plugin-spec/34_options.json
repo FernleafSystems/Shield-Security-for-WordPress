@@ -2576,10 +2576,7 @@
     },
     {
         "key": "importexport_whitelist",
-        "section": "section_importexport",
-        "zone_comp_slugs": [
-            "import_export"
-        ],
+        "section": "section_hidden",
         "transferable": false,
         "sensitive": true,
         "default": [],
@@ -2592,10 +2589,7 @@
     },
     {
         "key": "importexport_whitelist_notify",
-        "section": "section_importexport",
-        "zone_comp_slugs": [
-            "import_export"
-        ],
+        "section": "section_hidden",
         "default": "N",
         "type": "checkbox",
         "link_info": "",
@@ -3116,6 +3110,13 @@
         "section": "section_hidden",
         "type": "integer",
         "default": 0
+    },
+    {
+        "key": "importexport_pending_network_invites",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "sensitive": true
     },
     {
         "key": "test_rest_data",

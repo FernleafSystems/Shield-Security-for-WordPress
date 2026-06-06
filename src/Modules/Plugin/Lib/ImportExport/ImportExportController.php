@@ -10,6 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteInviteSender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ImportExportController {
@@ -46,7 +48,7 @@ class ImportExportController {
 		add_action( 'shield/plugin_activated', fn() => $this->importFromFlag() );
 
 		if ( !empty( $this->getImportExportMasterImportUrl() ) ) {
-			// For auto update whitelist notifications:
+			// For auto update sync notifications:
 			add_action(
 				self::con()->prefix( Actions\PluginImportExport_UpdateNotified::SLUG ),
 				fn() => ( new Import() )->autoImportFromMaster()
@@ -138,6 +140,7 @@ class ImportExportController {
 		$this->ensureSitesRegistryImported();
 
 		$repo = new SiteRepository();
+		$validator = new SyncSiteUrlValidator();
 		$validUrls = [];
 		$invalidUrls = [];
 		foreach ( $rawUrls as $rawUrl ) {
@@ -146,8 +149,10 @@ class ImportExportController {
 				continue;
 			}
 
-			$url = $repo->canonicalizeUrl( $rawUrl );
-			if ( $url === '' ) {
+			try {
+				$url = $validator->validatePublicOutbound( $rawUrl );
+			}
+			catch ( \Throwable $e ) {
 				$invalidUrls[] = $rawUrl;
 				continue;
 			}
@@ -160,8 +165,8 @@ class ImportExportController {
 		if ( !empty( $invalidUrls ) ) {
 			throw new \RuntimeException( sprintf(
 				_n(
-					'%s URL is invalid. Please provide HTTP or HTTPS URLs only.',
-					'%s URLs are invalid. Please provide HTTP or HTTPS URLs only.',
+					'%s URL is invalid. Please provide public HTTP or HTTPS URLs only.',
+					'%s URLs are invalid. Please provide public HTTP or HTTPS URLs only.',
 					\count( $invalidUrls ),
 					'wp-simple-firewall'
 				),
@@ -187,9 +192,13 @@ class ImportExportController {
 			$authorisedUrls[] = $url;
 		}
 
-		$repo->syncFallbackSettings();
 		if ( !empty( $authorisedUrls ) ) {
 			$this->scheduleQueueSoonIfSyncEnabled();
+		}
+
+		$sender = new SyncSiteInviteSender();
+		foreach ( $authorisedUrls as $url ) {
+			$sender->send( $url );
 		}
 
 		return [
@@ -201,51 +210,22 @@ class ImportExportController {
 		];
 	}
 
-	public function addUrlToImportExportWhitelistUrls( string $url ) {
-		$url = Services::Data()->validateSimpleHttpUrl( $url );
-		if ( $url !== false ) {
-			self::con()
-				->opts
-				->optSet(
-					'importexport_whitelist', \array_unique( \array_merge( $this->getImportExportWhitelist(), [ $url ] ) )
-				)
-				->store();
-
-			try {
-				$repo = new SiteRepository();
-				$repo->upsertActive( $url, ImportExportSitesDB::SOURCE_MANUAL, '', true );
-				$repo->syncFallbackSettings();
-			}
-			catch ( \Throwable $e ) {
-			}
-		}
-	}
-
-	public function removeUrlFromImportExportWhitelistUrls( string $url ) {
-		$url = Services::Data()->validateSimpleHttpUrl( $url );
-		if ( $url !== false ) {
-			self::con()
-				->opts
-				->optSet( 'importexport_whitelist', \array_diff( $this->getImportExportWhitelist(), [ $url ] ) )
-				->store();
-
-			try {
-				( new SiteRepository() )->softDeleteUrl( $url );
-			}
-			catch ( \Throwable $e ) {
-			}
-		}
-	}
-
 	public function getImportExportMasterImportUrl(): string {
 		return self::con()->opts->optGet( 'importexport_masterurl' );
 	}
 
-	/**
-	 * @return string[]
-	 */
-	public function getImportExportWhitelist(): array {
-		return self::con()->opts->optGet( 'importexport_whitelist' );
+	public function addSyncSiteExportUrl( string $url, string $importID = '' ) :void {
+		$url = Services::Data()->validateSimpleHttpUrl( $url );
+		if ( $url !== false ) {
+			( new SiteRepository() )->upsertActive( $url, ImportExportSitesDB::SOURCE_EXPORT, $importID, true );
+		}
+	}
+
+	public function removeSyncSiteExportUrl( string $url ) :void {
+		$url = Services::Data()->validateSimpleHttpUrl( $url );
+		if ( $url !== false ) {
+			( new SiteRepository() )->softDeleteUrl( $url );
+		}
 	}
 
 	public function getImportExportSecretKey(): string {

@@ -16,9 +16,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\AjaxRender,
 	Actions\BlockdownDisableFormSubmit,
 	Actions\BlockdownFormSubmit,
+	Actions\ImportExportNetworkInviteAccept,
+	Actions\ImportExportNetworkInviteReject,
 	Actions\ImportExportSitesAuthoriseUrlsSubmit,
 	Actions\ImportExportSitesTableAction,
 	Actions\LicenseClear,
+	Actions\PluginImportFromSite,
 	Actions\ReportingChartTrends,
 	Actions\Render\Components\OffCanvas\ImportExportSitesAuthoriseUrls,
 	Actions\Render\Components\Widgets\WpDashboardSummary,
@@ -51,6 +54,9 @@ class AssetsCustomizerTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
+			\define( 'HOUR_IN_SECONDS', 3600 );
+		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \preg_replace( '/[^a-z0-9_\-]/', '', $text ) ) : ''
@@ -213,6 +219,16 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertSame( ToolPurgeProviderIPs::SLUG, $debugAjax[ ToolPurgeProviderIPs::SLUG ][ ActionData::FIELD_EXECUTE ] ?? '' );
 		$this->assertSame( LicenseClear::SLUG, $licenseAjax[ 'clear' ][ ActionData::FIELD_EXECUTE ] ?? '' );
 		$this->assertSame( ReportingChartTrends::SLUG, $reportsTrendsAjax[ 'render_chart' ][ ActionData::FIELD_EXECUTE ] ?? '' );
+	}
+
+	public function test_import_component_localizes_network_invite_payloads() :void {
+		$this->installEnvironment();
+
+		$ajax = $this->componentAjax( 'import' );
+
+		$this->assertSame( PluginImportFromSite::SLUG, $ajax[ 'import_from_site' ][ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( ImportExportNetworkInviteAccept::SLUG, $ajax[ 'network_invite_accept' ][ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( ImportExportNetworkInviteReject::SLUG, $ajax[ 'network_invite_reject' ][ ActionData::FIELD_EXECUTE ] ?? '' );
 	}
 
 	public function test_import_export_sites_table_localizes_authorise_url_payloads() :void {

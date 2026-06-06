@@ -100,7 +100,10 @@ try {
 			return [
 				'home_url' => Services::WpGeneral()->getHomeUrl(),
 				'master_url' => (string)$con->opts->optGet( 'importexport_masterurl' ),
-				'whitelist' => \array_values( $con->comps->import_export->getImportExportWhitelist() ),
+				'sync_site_urls' => \array_values( \array_map(
+					static fn( array $row ) :string => (string)$row[ 'url' ],
+					$this->registryRows()
+				) ),
 				'import_enabled' => (string)$con->opts->optGet( 'importexport_enable' ),
 				'notify_hook' => $this->notifyHook(),
 				'import_hook' => $this->importHook(),

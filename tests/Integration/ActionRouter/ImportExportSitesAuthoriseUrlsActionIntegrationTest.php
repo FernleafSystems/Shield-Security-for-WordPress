@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\ImportExportSitesAuthoriseUrlsSubmit,
+	Actions\PluginImportExport_NetworkInviteRequest,
 	Exceptions\SecurityAdminRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
@@ -15,27 +16,44 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
 	QueueScheduler,
 	SiteRepository
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Core\VOs\WpHttpResponseVo;
+use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
 
 class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrationTestCase {
 
+	private const AUTHORISE_ONE = 'https://93.184.216.61/path';
+	private const AUTHORISE_TWO = 'https://93.184.216.62';
+	private const INVITE_FAILS = 'https://93.184.216.63';
+	private const NO_CONFIRM = 'https://93.184.216.64';
+	private const NOT_SECURITY_ADMIN = 'https://93.184.216.65';
+	private const VALID_MIXED_WITH_INVALID = 'https://93.184.216.66';
+	private const DISABLED_SYNC = 'https://93.184.216.67';
+	private const UNAVAILABLE_SYNC = 'https://93.184.216.68';
+	private const EXISTING = 'https://93.184.216.69';
+	private const REACTIVATED = 'https://93.184.216.70';
+
 	private array $optionsSnapshot = [];
+	private array $servicesSnapshot = [];
+	private ImportExportSitesInviteHttpRequestRecorder $inviteHttp;
 
 	public function set_up() {
 		parent::set_up();
 		$this->requireDb( SitesDB::DB_KEY );
+		$this->servicesSnapshot = ServicesState::snapshot();
+		$this->inviteHttp = new ImportExportSitesInviteHttpRequestRecorder();
+		ServicesState::mergeItems( [
+			'service_httprequest' => $this->inviteHttp,
+		] );
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			'importexport_enable',
-			'importexport_whitelist',
-			'import_url_ids',
 			'importexport_sites_migrated_at',
 		] );
 		$this->requireController()->opts
-			->optSet( 'importexport_enable', 'N' )
-			->optSet( 'importexport_whitelist', [] )
-			->optSet( 'import_url_ids', [] )
-			->optSet( 'importexport_sites_migrated_at', 0 )
-			->store();
+								  ->optSet( 'importexport_enable', 'N' )
+								  ->optSet( 'importexport_sites_migrated_at', 0 )
+								  ->store();
 		$this->loginAsSecurityAdmin();
 		$this->clearQueueSchedule();
 	}
@@ -43,15 +61,16 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 	public function tear_down() {
 		$this->clearQueueSchedule();
 		$this->restoreSelectedOptions( $this->optionsSnapshot );
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tear_down();
 	}
 
-	public function test_authorise_urls_submit_adds_multiple_canonical_urls_and_schedules_queue() :void {
+	public function test_authorise_urls_submit_adds_multiple_canonical_urls_schedules_queue_and_sends_invites() :void {
 		$this->enableSync();
 		$this->captureShieldEvents();
 
 		$payload = $this->submitAuthoriseUrls(
-			"https://authorise-one.example.com/path/?utm=1\n\nhttps://authorise-two.example.com/\nhttps://authorise-one.example.com/path/"
+			self::AUTHORISE_ONE."/?utm=1\n\n".self::AUTHORISE_TWO."/\n".self::AUTHORISE_ONE."/"
 		);
 
 		$this->assertArrayHasKey( 'success', $payload );
@@ -59,36 +78,51 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertArrayHasKey( 'authorised_count', $payload );
 		$this->assertArrayHasKey( 'already_authorised_count', $payload );
 		$this->assertArrayHasKey( 'total_count', $payload );
+		$this->assertArrayNotHasKey( 'invite_attempted_count', $payload );
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertFalse( $payload[ 'page_reload' ] );
 		$this->assertSame( 2, $payload[ 'authorised_count' ] );
 		$this->assertSame( 0, $payload[ 'already_authorised_count' ] );
 		$this->assertSame( 2, $payload[ 'total_count' ] );
 
-		$one = $this->requireSite( 'https://authorise-one.example.com/path' );
-		$two = $this->requireSite( 'https://authorise-two.example.com' );
+		$one = $this->requireSite( self::AUTHORISE_ONE );
+		$two = $this->requireSite( self::AUTHORISE_TWO );
 		$this->assertSame( SitesDB::STATUS_ACTIVE, $one->status );
 		$this->assertSame( SitesDB::QUEUE_QUEUED, $one->queue_status );
 		$this->assertSame( SitesDB::SOURCE_MANUAL, $one->source );
 		$this->assertSame( SitesDB::STATUS_ACTIVE, $two->status );
-		$this->assertSame(
-			[ 'https://authorise-one.example.com/path', 'https://authorise-two.example.com' ],
-			$this->requireController()->opts->optGet( 'importexport_whitelist' )
-		);
 		$this->assertNotFalse( \wp_next_scheduled( $this->queueHook() ) );
+		$this->assertCount( 2, $this->inviteHttp->requests );
+		$this->assertTrue( $this->inviteHttp->requests[ 0 ][ 'reject_unsafe_urls' ] );
+		$this->assertTrue( $this->inviteHttp->requests[ 1 ][ 'reject_unsafe_urls' ] );
+		$this->assertStringContainsString( PluginImportExport_NetworkInviteRequest::SLUG, $this->inviteHttp->requests[ 0 ][ 'url' ] );
+		$this->assertStringContainsString( PluginImportExport_NetworkInviteRequest::SLUG, $this->inviteHttp->requests[ 1 ][ 'url' ] );
 		$this->assertCount( 2, $this->getCapturedEventsByKey( 'whitelist_site_added' ) );
+	}
+
+	public function test_authorise_urls_submit_invite_failure_does_not_roll_back_site_row() :void {
+		$this->enableSync();
+		$this->inviteHttp->failRequests();
+
+		$payload = $this->submitAuthoriseUrls( self::INVITE_FAILS );
+
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( 1, $payload[ 'authorised_count' ] );
+		$this->assertCount( 1, $this->inviteHttp->requests );
+		$this->assertTrue( $this->inviteHttp->requests[ 0 ][ 'reject_unsafe_urls' ] );
+		$this->assertSame( SitesDB::STATUS_ACTIVE, $this->requireSite( self::INVITE_FAILS )->status );
 	}
 
 	public function test_authorise_urls_submit_requires_confirmation_without_mutation() :void {
 		$this->enableSync();
 
-		$payload = $this->submitAuthoriseUrls( 'https://authorise-no-confirm.example.com', false );
+		$payload = $this->submitAuthoriseUrls( self::NO_CONFIRM, false );
 
 		$this->assertArrayHasKey( 'success', $payload );
 		$this->assertFalse( $payload[ 'success' ] );
-		$this->assertNoSite( 'https://authorise-no-confirm.example.com' );
-		$this->assertSame( [], $this->requireController()->opts->optGet( 'importexport_whitelist' ) );
+		$this->assertNoSite( self::NO_CONFIRM );
 		$this->assertFalse( \wp_next_scheduled( $this->queueHook() ) );
+		$this->assertCount( 0, $this->inviteHttp->requests );
 	}
 
 	public function test_authorise_urls_submit_requires_security_admin_without_mutation() :void {
@@ -97,11 +131,10 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 
 		try {
 			$this->expectException( SecurityAdminRequiredException::class );
-			$this->submitAuthoriseUrls( 'https://authorise-not-security-admin.example.com' );
+			$this->submitAuthoriseUrls( self::NOT_SECURITY_ADMIN );
 		}
 		finally {
-			$this->assertNoSite( 'https://authorise-not-security-admin.example.com' );
-			$this->assertSame( [], $this->requireController()->opts->optGet( 'importexport_whitelist' ) );
+			$this->assertNoSite( self::NOT_SECURITY_ADMIN );
 			$this->assertFalse( \wp_next_scheduled( $this->queueHook() ) );
 		}
 	}
@@ -109,46 +142,61 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 	public function test_authorise_urls_submit_rejects_mixed_invalid_input_without_mutation() :void {
 		$this->enableSync();
 
-		$payload = $this->submitAuthoriseUrls( "https://authorise-valid.example.com\nnot-a-url" );
+		$payload = $this->submitAuthoriseUrls( self::VALID_MIXED_WITH_INVALID."\nnot-a-url" );
 
 		$this->assertArrayHasKey( 'success', $payload );
 		$this->assertFalse( $payload[ 'success' ] );
-		$this->assertNoSite( 'https://authorise-valid.example.com' );
-		$this->assertSame( [], $this->requireController()->opts->optGet( 'importexport_whitelist' ) );
+		$this->assertNoSite( self::VALID_MIXED_WITH_INVALID );
 		$this->assertFalse( \wp_next_scheduled( $this->queueHook() ) );
+		$this->assertCount( 0, $this->inviteHttp->requests );
+	}
+
+	public function test_authorise_urls_submit_rejects_private_url_without_mutation() :void {
+		$this->enableSync();
+
+		$payload = $this->submitAuthoriseUrls( 'https://10.0.0.25/private-client' );
+
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertFalse( $payload[ 'success' ] );
+		$this->assertNoSite( 'https://10.0.0.25/private-client' );
+		$this->assertFalse( \wp_next_scheduled( $this->queueHook() ) );
+		$this->assertCount( 0, $this->inviteHttp->requests );
 	}
 
 	public function test_authorise_urls_submit_rejects_disabled_sync_without_mutation() :void {
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
 
-		$payload = $this->submitAuthoriseUrls( 'https://authorise-disabled.example.com' );
+		$payload = $this->submitAuthoriseUrls( self::DISABLED_SYNC );
 
 		$this->assertArrayHasKey( 'success', $payload );
 		$this->assertFalse( $payload[ 'success' ] );
-		$this->assertNoSite( 'https://authorise-disabled.example.com' );
+		$this->assertNoSite( self::DISABLED_SYNC );
 		$this->assertFalse( \wp_next_scheduled( $this->queueHook() ) );
+		$this->assertCount( 0, $this->inviteHttp->requests );
 	}
 
 	public function test_authorise_urls_submit_rejects_unavailable_sync_without_mutation() :void {
 		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
 
-		$payload = $this->submitAuthoriseUrls( 'https://authorise-unavailable.example.com' );
+		$payload = $this->submitAuthoriseUrls( self::UNAVAILABLE_SYNC );
 
 		$this->assertArrayHasKey( 'success', $payload );
 		$this->assertFalse( $payload[ 'success' ] );
-		$this->assertNoSite( 'https://authorise-unavailable.example.com' );
+		$this->assertNoSite( self::UNAVAILABLE_SYNC );
 		$this->assertFalse( \wp_next_scheduled( $this->queueHook() ) );
+		$this->assertCount( 0, $this->inviteHttp->requests );
 	}
 
 	public function test_existing_active_url_is_not_requeued_or_scheduled_by_duplicate_submit() :void {
 		$this->enableSync();
 		$repo = $this->repo();
-		$row = $repo->upsertActive( 'https://authorise-existing.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$row = $repo->upsertActive( self::EXISTING, SitesDB::SOURCE_MANUAL, '', true );
 		$repo->recordExportSuccess( $row->url, SitesDB::EXPORT_RESULT_SUCCESS );
 		$this->clearQueueSchedule();
+		$this->inviteHttp->clearRequests();
 
-		$payload = $this->submitAuthoriseUrls( 'https://authorise-existing.example.com/' );
+		$payload = $this->submitAuthoriseUrls( self::EXISTING.'/' );
 
 		$this->assertArrayHasKey( 'success', $payload );
 		$this->assertArrayHasKey( 'authorised_count', $payload );
@@ -156,10 +204,28 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertSame( 0, $payload[ 'authorised_count' ] );
 		$this->assertSame( 1, $payload[ 'already_authorised_count' ] );
-		$row = $repo->findByUrl( 'https://authorise-existing.example.com', true );
+		$row = $repo->findByUrl( self::EXISTING, true );
 		$this->assertInstanceOf( Record::class, $row );
 		$this->assertSame( SitesDB::QUEUE_IDLE, $row->queue_status );
+		$this->assertCount( 0, $this->inviteHttp->requests );
 		$this->assertFalse( \wp_next_scheduled( $this->queueHook() ) );
+	}
+
+	public function test_deleted_url_reactivation_sends_one_invite_attempt() :void {
+		$this->enableSync();
+		$repo = $this->repo();
+		$repo->upsertActive( self::REACTIVATED, SitesDB::SOURCE_MANUAL, '', true );
+		$repo->softDeleteUrl( self::REACTIVATED );
+		$this->clearQueueSchedule();
+		$this->inviteHttp->clearRequests();
+
+		$payload = $this->submitAuthoriseUrls( self::REACTIVATED );
+
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( 1, $payload[ 'authorised_count' ] );
+		$row = $this->requireSite( self::REACTIVATED, true );
+		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+		$this->assertCount( 1, $this->inviteHttp->requests );
 	}
 
 	private function submitAuthoriseUrls( string $urls, bool $confirmed = true ) :array {
@@ -200,5 +266,41 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 
 	private function queueHook() :string {
 		return ( new QueueScheduler() )->hook();
+	}
+}
+
+class ImportExportSitesInviteHttpRequestRecorder extends HttpRequest {
+
+	public array $requests = [];
+	private bool $failRequests = false;
+
+	public function failRequests() :void {
+		$this->failRequests = true;
+	}
+
+	public function clearRequests() :void {
+		$this->requests = [];
+	}
+
+	public function post( string $url, $args = [] ) :bool {
+		$this->requests[] = [
+			'url'                => $url,
+			'body'               => \is_array( $args[ 'body' ] ?? null ) ? $args[ 'body' ] : [],
+			'reject_unsafe_urls' => (bool)( $args[ 'reject_unsafe_urls' ] ?? false ),
+		];
+
+		if ( $this->failRequests ) {
+			$this->lastError = new \WP_Error( 'invite_failed', 'Invite failed' );
+			$this->lastResponse = null;
+			return false;
+		}
+
+		$this->lastResponse = ( new WpHttpResponseVo() )->applyFromArray( [
+			'response' => [
+				'code'    => 200,
+				'message' => 'OK',
+			],
+		] );
+		return true;
 	}
 }

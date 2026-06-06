@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Delete;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class OptionSaveSideEffects {
@@ -14,6 +15,7 @@ class OptionSaveSideEffects {
 	public function run() :void {
 		$this->login();
 		$this->integrations();
+		$this->importExport();
 		$this->ips();
 		$this->securityAdmin();
 		$this->scanners();
@@ -33,6 +35,13 @@ class OptionSaveSideEffects {
 		$opts = self::con()->opts;
 		if ( $opts->optChanged( 'enable_auto_integrations' ) ) {
 			$opts->optSet( 'auto_integrations_track', [] );
+		}
+	}
+
+	private function importExport() :void {
+		$opts = self::con()->opts;
+		if ( $opts->optChanged( 'importexport_enable' ) && $opts->optIs( 'importexport_enable', 'N' ) ) {
+			( new NetworkInviteRepository() )->clearAll( false );
 		}
 	}
 

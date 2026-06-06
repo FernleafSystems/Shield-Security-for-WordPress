@@ -18,7 +18,6 @@ class SiteRepository {
 	public const OLD_NOTIFY_CRON = 'importexport_notify';
 	public const OLD_QUEUE_ACTION = 'whitelist_notify_urls';
 	private const SQL_BATCH_SIZE = 20;
-	private const REQUEST_IMPORT_STATE_KEY = 'shield_import_export_sites_legacy_import_state';
 
 	public function ensureLegacyImported( bool $includeOldQueueState = true ) :void {
 		$dbh = $this->dbOrNull();
@@ -28,12 +27,12 @@ class SiteRepository {
 		if ( !$this->hasConfigHandler() ) {
 			return;
 		}
+		if ( (int)self::con()->opts->optGet( self::MIGRATED_AT_OPTION ) > 0 ) {
+			return;
+		}
 
 		$fallbackUrls = $this->canonicalLegacyWhitelistUrls();
 		$urlIds = $this->legacyImportIds();
-		if ( $this->legacyImportAlreadyHandledForRequest( $fallbackUrls, $urlIds, $includeOldQueueState ) ) {
-			return;
-		}
 
 		$now = Services::Request()->ts();
 		$oldQueuedUrls = $includeOldQueueState ? $this->canonicalOldQueueUrls( $fallbackUrls ) : [];
@@ -69,31 +68,12 @@ class SiteRepository {
 			}
 		}
 
-		$changed = !empty( $insertRows ) || !empty( $updateRowsByHash );
 		$this->bulkInsertRows( $insertRows );
 		$this->bulkUpdateRowsByHash( $updateRowsByHash );
 
-		$beforeFallbackUrls = self::con()->opts->optGet( 'importexport_whitelist' );
-		$beforeImportIds = self::con()->opts->optGet( 'import_url_ids' );
-		$activeRows = $this->selectActiveRows();
-
-		$this->mirrorFallbackSettingsFromActiveRows( $activeRows );
-
-		$changed = $changed
-		           || $beforeFallbackUrls !== self::con()->opts->optGet( 'importexport_whitelist' )
-		           || $beforeImportIds !== self::con()->opts->optGet( 'import_url_ids' );
-
-		if ( $changed ) {
-			self::con()->opts->optSet( self::MIGRATED_AT_OPTION, Services::Request()->ts() );
-		}
+		self::con()->opts->optSet( self::MIGRATED_AT_OPTION, $now );
 		$this->storeOptionsIfChanged();
 		$this->clearOldQueueState();
-		$this->markLegacyImportHandledForRequest( $fallbackUrls, $urlIds, $includeOldQueueState );
-		$this->markLegacyImportHandledForRequest(
-			$this->canonicalLegacyWhitelistUrls(),
-			$this->legacyImportIds(),
-			$includeOldQueueState
-		);
 	}
 
 	public function canonicalizeUrl( string $url ) :string {
@@ -144,7 +124,6 @@ class SiteRepository {
 				'expected_export_by' => 0,
 			] );
 		}
-		$this->syncFallbackSettings();
 	}
 
 	public function queueSiteIds( array $ids ) :int {
@@ -153,11 +132,6 @@ class SiteRepository {
 
 	public function queueAllActive() :int {
 		return $this->queueRows( $this->selectActiveRows() );
-	}
-
-	public function syncFallbackSettings() :void {
-		$this->mirrorFallbackSettingsFromActiveRows( $this->selectActiveRows() );
-		$this->storeOptionsIfChanged();
 	}
 
 	/**
@@ -274,8 +248,6 @@ class SiteRepository {
 			$data[ 'import_id' ] = $importID;
 		}
 		$this->updateById( $row->id, $data );
-		$this->mirrorImportIdsToFallback( $this->selectActiveRows() );
-		$this->storeOptionsIfChanged();
 	}
 
 	public function recordExportFailure( string $url, string $resultCode, string $error ) :void {
@@ -319,6 +291,17 @@ class SiteRepository {
 
 	public function countAllRows() :int {
 		return $this->countRowsWithSql();
+	}
+
+	public function countActiveRows() :int {
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
+			return 0;
+		}
+
+		return $this->countRowsWithSql( $this->buildFilteredWhere( '', [
+			sprintf( "`status`='%s' AND `deleted_at`=0", SitesDB::STATUS_ACTIVE ),
+		] ) );
 	}
 
 	public function countFilteredRows( string $search = '', array $wheres = [] ) :int {
@@ -419,36 +402,6 @@ class SiteRepository {
 		return $rows;
 	}
 
-	private function mirrorFallbackSettingsFromActiveRows( array $rows ) :void {
-		$this->mirrorActiveRowsToFallback( $rows );
-		$this->mirrorImportIdsToFallback( $rows );
-	}
-
-	/**
-	 * @param Record[] $rows
-	 */
-	private function mirrorActiveRowsToFallback( array $rows ) :void {
-		$urls = \array_values( \array_unique( \array_map(
-			static fn( Record $row ) :string => $row->url,
-			$rows
-		) ) );
-		self::con()->opts->optSet( 'importexport_whitelist', $urls );
-	}
-
-	/**
-	 * @param Record[]|null $rows
-	 */
-	private function mirrorImportIdsToFallback( ?array $rows = null ) :void {
-		$rows = $rows ?? $this->selectActiveRows();
-		$urlIds = [];
-		foreach ( $rows as $row ) {
-			if ( !empty( $row->import_id ) ) {
-				$urlIds[ \hash( 'md5', $row->url ) ] = $row->import_id;
-			}
-		}
-		self::con()->opts->optSet( 'import_url_ids', $urlIds );
-	}
-
 	private function storeOptionsIfChanged() :void {
 		if ( self::con()->opts->hasChanges() ) {
 			self::con()->opts->store();
@@ -470,46 +423,6 @@ class SiteRepository {
 	private function legacyImportIds() :array {
 		$ids = self::con()->opts->optGet( 'import_url_ids' );
 		return \is_array( $ids ) ? $ids : [];
-	}
-
-	private function legacyImportAlreadyHandledForRequest( array $fallbackUrls, array $urlIds, bool $includeOldQueueState ) :bool {
-		$state = $this->legacyImportRequestState();
-		$fingerprint = $this->legacyImportFingerprint( $fallbackUrls, $urlIds );
-		$fingerprintState = \is_array( $state[ $fingerprint ] ?? null ) ? $state[ $fingerprint ] : [];
-
-		return !empty( $fingerprintState[ 'with_old_queue_state' ] )
-			   || ( !$includeOldQueueState && !empty( $fingerprintState[ 'without_old_queue_state' ] ) );
-	}
-
-	private function markLegacyImportHandledForRequest( array $fallbackUrls, array $urlIds, bool $includeOldQueueState ) :void {
-		$request = Services::Request();
-		$state = $this->legacyImportRequestState();
-		$fingerprint = $this->legacyImportFingerprint( $fallbackUrls, $urlIds );
-		$fingerprintState = \is_array( $state[ $fingerprint ] ?? null ) ? $state[ $fingerprint ] : [];
-		$fingerprintState[ $includeOldQueueState ? 'with_old_queue_state' : 'without_old_queue_state' ] = true;
-		$state[ $fingerprint ] = $fingerprintState;
-		$request->{self::REQUEST_IMPORT_STATE_KEY} = $state;
-	}
-
-	private function legacyImportRequestState() :array {
-		$state = Services::Request()->{self::REQUEST_IMPORT_STATE_KEY};
-		return \is_array( $state ) ? $state : [];
-	}
-
-	private function legacyImportFingerprint( array $fallbackUrls, array $urlIds ) :string {
-		$relevantUrlIds = [];
-		foreach ( $fallbackUrls as $url ) {
-			$hash = \hash( 'md5', $url );
-			if ( isset( $urlIds[ $hash ] ) ) {
-				$relevantUrlIds[ $hash ] = (string)$urlIds[ $hash ];
-			}
-		}
-		\ksort( $relevantUrlIds );
-
-		return \hash( 'sha256', \serialize( [
-			'fallback_urls' => $fallbackUrls,
-			'import_ids'    => $relevantUrlIds,
-		] ) );
 	}
 
 	private function canonicalOldQueueUrls( array $fallbackUrls ) :array {

@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PageAdmi
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -117,6 +118,17 @@ class PageAdminPluginBehaviorTest extends BaseUnitTest {
 		$this->assertSame( PluginNavs::NAV_DASHBOARD, $route[ 'nav' ] );
 		$this->assertSame( PluginNavs::SUBNAV_DASHBOARD_OVERVIEW, $route[ 'subnav' ] );
 		$this->assertSame( PluginAdminPages\PageDashboardOverview::class, $route[ 'delegate_action' ] );
+	}
+
+	public function test_tools_import_route_preserves_network_invite_id() :void {
+		$route = $this->resolve( [
+			Constants::NAV_ID                        => PluginNavs::NAV_TOOLS,
+			Constants::NAV_SUB_ID                    => PluginNavs::SUBNAV_TOOLS_IMPORT,
+			NetworkInviteRepository::REVIEW_QUERY_KEY => 'INVITE-ID',
+		] );
+
+		$this->assertSame( PluginAdminPages\PageImportExport::class, $route[ 'delegate_action' ] );
+		$this->assertSame( 'invite-id', $route[ 'delegate_payload' ][ NetworkInviteRepository::REVIEW_QUERY_KEY ] ?? '' );
 	}
 
 	public function test_non_admin_route_resolves_to_restricted_page() :void {

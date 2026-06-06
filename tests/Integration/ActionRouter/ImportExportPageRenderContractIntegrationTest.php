@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Enable;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageImportExport;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTestCase {
@@ -14,10 +17,11 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 	public function set_up() {
 		parent::set_up();
 		$this->loginAsSecurityAdmin();
+		$this->requireDb( SitesDB::DB_KEY );
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			'importexport_enable',
 			'importexport_masterurl',
-			'importexport_whitelist',
+			'importexport_pending_network_invites',
 		] );
 	}
 
@@ -77,15 +81,12 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertSame( [ false, true, true ], \array_column( $tabs, 'is_available' ) );
 	}
 
-	public function test_network_setup_contract_reflects_authorised_urls() :void {
+	public function test_network_setup_contract_reflects_active_sync_site_rows() :void {
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
-		$this->requireController()->opts
-								  ->optSet( 'importexport_masterurl', '' )
-								  ->optSet( 'importexport_whitelist', [
-									  'https://child-one.example.com',
-									  'https://child-two.example.com',
-								  ] )
-								  ->store();
+		$this->requireController()->opts->optSet( 'importexport_masterurl', '' )->store();
+		$repo = new SiteRepository();
+		$repo->upsertActive( 'https://child-one.example.com', SitesDB::SOURCE_MANUAL );
+		$repo->upsertActive( 'https://child-two.example.com', SitesDB::SOURCE_MANUAL );
 
 		$networkSetup = $this->renderVars()[ 'network_setup' ];
 
@@ -139,6 +140,27 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertStringNotContainsString( 'data-shield-scan-pane-disabled="1"', $html );
 		$this->assertStringNotContainsString( 'data-ex="'.PluginImportExport_Enable::SLUG.'"', $html );
 		$this->assertStringNotContainsString( 'ShieldTable-ImportExportSites', $html );
+	}
+
+	public function test_network_invite_review_mode_renders_focused_review_surface() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$invite = ( new NetworkInviteRepository() )->receive( 'https://93.184.216.42/review-master' );
+		$page = new PageImportExportContractProbe( [
+			NetworkInviteRepository::REVIEW_QUERY_KEY => $invite[ 'id' ],
+		] );
+
+		$data = $page->renderDataForTest();
+		$review = $data[ 'vars' ][ 'network_invite_review' ];
+
+		$this->assertTrue( (bool)$data[ 'flags' ][ 'has_network_invite_review' ] );
+		$this->assertSame( $invite[ 'id' ], $review[ 'invite' ][ 'id' ] );
+		$this->assertArrayNotHasKey( 'actions', $review );
+
+		$html = $page->renderOutputForTest();
+		$this->assertStringContainsString( 'data-import-export-network-invite-review="1"', $html );
+		$this->assertStringContainsString( 'ImportExportNetworkInviteAcceptForm', $html );
+		$this->assertStringNotContainsString( 'data-import-export-tab="file"', $html );
 	}
 
 	private function assertCapabilityFlags(

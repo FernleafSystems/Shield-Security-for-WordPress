@@ -51,6 +51,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 				? ( \parse_url( $url ) ?: false )
 				: \parse_url( $url, $component )
 		);
+		Functions\when( 'wp_http_validate_url' )->alias( static fn( string $url ) :string => $url );
 		Functions\when( 'wp_generate_password' )->justReturn( 'uniq' );
 		Functions\when( 'add_filter' )->justReturn( true );
 		Functions\when( 'remove_filter' )->justReturn( true );
@@ -164,6 +165,104 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 
 		$this->assertSame( 'Y', (string)$this->opts->optGet( 'importexport_enable' ) );
 		$this->assertSame( '', (string)$this->opts->optGet( 'importexport_masterurl' ) );
+	}
+
+	public function test_from_site_legacy_private_mode_wraps_export_request_with_external_host_filter() :void {
+		$events = [];
+		$this->recordExternalHostFilterEvents( $events );
+		$this->httpRequest->setOnGetContent( static function () use ( &$events ) :void {
+			$events[] = [
+				'operation' => 'http_get_content',
+			];
+		} );
+
+		( new Import() )->fromSite( 'http://wordpress-master' );
+
+		$this->assertLegacyImportFilterEvents( $events );
+		$this->assertSame( [], $this->httpRequest->lastContentArgs() );
+	}
+
+	public function test_from_site_legacy_private_mode_removes_external_filter_when_export_request_fails() :void {
+		$events = [];
+		$this->recordExternalHostFilterEvents( $events );
+		$this->httpRequest->setOnGetContent( static function () use ( &$events ) :void {
+			$events[] = [
+				'operation' => 'http_get_content',
+			];
+		} );
+		$this->httpRequest->throwOnGetContent( new \RuntimeException( 'export failed' ) );
+
+		try {
+			( new Import() )->fromSite( 'http://wordpress-master' );
+			$this->fail( 'Expected import request failure.' );
+		}
+		catch ( \Throwable $e ) {
+			$this->assertSame( 'export failed', $e->getMessage() );
+		}
+
+		$this->assertLegacyImportFilterEvents( $events );
+	}
+
+	public function test_from_site_public_only_mode_does_not_add_external_host_filter_and_rejects_unsafe_urls() :void {
+		$events = [];
+		$this->recordExternalHostFilterEvents( $events );
+		$this->httpRequest->setOnGetContent( static function () use ( &$events ) :void {
+			$events[] = [
+				'operation' => 'http_get_content',
+			];
+		} );
+
+		( new Import() )->fromSite( 'https://93.184.216.34', '', true, Import::REQUEST_SAFETY_PUBLIC_ONLY );
+
+		$this->assertSame( [
+			[
+				'operation' => 'http_get_content',
+			],
+		], $events );
+		$this->assertTrue( (bool)( $this->httpRequest->lastContentArgs()[ 'reject_unsafe_urls' ] ?? false ) );
+		$this->assertSame( 'https://93.184.216.34', (string)$this->opts->optGet( 'importexport_masterurl' ) );
+	}
+
+	public function test_from_site_public_only_validation_failure_leaves_sync_state_unchanged() :void {
+		$this->opts
+			->optSet( 'importexport_enable', 'N' )
+			->optSet( 'importexport_masterurl', 'https://current-master.example.com' )
+			->optSet( 'importexport_handshake_expires_at', 0 )
+			->store();
+
+		try {
+			( new Import() )->fromSite( 'https://10.0.0.25', '', true, Import::REQUEST_SAFETY_PUBLIC_ONLY );
+			$this->fail( 'Expected public-only import URL validation to fail.' );
+		}
+		catch ( \Exception $e ) {
+			$this->assertSame( 4, $e->getCode() );
+		}
+
+		$this->assertSame( 'N', (string)$this->opts->optGet( 'importexport_enable' ) );
+		$this->assertSame( 'https://current-master.example.com', (string)$this->opts->optGet( 'importexport_masterurl' ) );
+		$this->assertSame( 0, (int)$this->opts->optGet( 'importexport_handshake_expires_at' ) );
+		$this->assertSame( '', $this->httpRequest->lastRequestedUrl() );
+	}
+
+	public function test_from_site_rejects_unknown_request_safety_mode_without_mutation() :void {
+		$this->opts
+			->optSet( 'importexport_enable', 'N' )
+			->optSet( 'importexport_masterurl', 'https://current-master.example.com' )
+			->optSet( 'importexport_handshake_expires_at', 0 )
+			->store();
+
+		try {
+			( new Import() )->fromSite( 'https://93.184.216.34', '', true, 'typo_public_only' );
+			$this->fail( 'Expected unknown import request safety mode to fail.' );
+		}
+		catch ( \InvalidArgumentException $e ) {
+			$this->assertSame( 'Invalid import request safety mode.', $e->getMessage() );
+		}
+
+		$this->assertSame( 'N', (string)$this->opts->optGet( 'importexport_enable' ) );
+		$this->assertSame( 'https://current-master.example.com', (string)$this->opts->optGet( 'importexport_masterurl' ) );
+		$this->assertSame( 0, (int)$this->opts->optGet( 'importexport_handshake_expires_at' ) );
+		$this->assertSame( '', $this->httpRequest->lastRequestedUrl() );
 	}
 
 	/**
@@ -378,8 +477,15 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 	 */
 	private function buildPingSenderWithRecordedFilters( array &$events ) :PingSender {
 		Functions\when( 'add_action' )->justReturn( true );
+		$this->recordExternalHostFilterEvents( $events, true );
+
+		$events = [];
+		return new PingSender();
+	}
+
+	private function recordExternalHostFilterEvents( array &$events, bool $probePingTarget = false ) :void {
 		Functions\when( 'add_filter' )->alias(
-			static function ( $tag, $callback, $priority = 10, $acceptedArgs = 1 ) use ( &$events ) :bool {
+			static function ( $tag, $callback, $priority = 10, $acceptedArgs = 1 ) use ( &$events, $probePingTarget ) :bool {
 				$event = [
 					'operation'     => 'add_filter',
 					'tag'           => (string)$tag,
@@ -388,7 +494,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 					'priority'      => (int)$priority,
 					'accepted_args' => (int)$acceptedArgs,
 				];
-				if ( (string)$tag === 'http_request_host_is_external' && \is_callable( $callback ) ) {
+				if ( $probePingTarget && (string)$tag === 'http_request_host_is_external' && \is_callable( $callback ) ) {
 					$event[ 'allows_target_host' ] = $callback( false, 'wordpress-slave' );
 					$event[ 'allows_other_host' ] = $callback( false, 'wordpress-other' );
 					$event[ 'preserves_existing_external_host' ] = $callback( true, 'wordpress-other' );
@@ -409,9 +515,24 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 				return true;
 			}
 		);
+	}
 
-		$events = [];
-		return new PingSender();
+	/**
+	 * @param array<int,array<string,mixed>> $events
+	 */
+	private function assertLegacyImportFilterEvents( array $events ) :void {
+		$this->assertCount( 3, $events );
+		$this->assertSame( 'add_filter', $events[ 0 ][ 'operation' ] ?? '' );
+		$this->assertSame( 'http_request_host_is_external', $events[ 0 ][ 'tag' ] ?? '' );
+		$this->assertSame( '\__return_true', $events[ 0 ][ 'callback' ] ?? '' );
+		$this->assertSame( 11, $events[ 0 ][ 'priority' ] ?? 0 );
+
+		$this->assertSame( 'http_get_content', $events[ 1 ][ 'operation' ] ?? '' );
+
+		$this->assertSame( 'remove_filter', $events[ 2 ][ 'operation' ] ?? '' );
+		$this->assertSame( 'http_request_host_is_external', $events[ 2 ][ 'tag' ] ?? '' );
+		$this->assertSame( '\__return_true', $events[ 2 ][ 'callback' ] ?? '' );
+		$this->assertSame( 11, $events[ 2 ][ 'priority' ] ?? 0 );
 	}
 
 	/**
@@ -499,8 +620,11 @@ class ImportExportHttpRequestStub extends HttpRequest {
 	private array $responseOptions = [];
 	private string $lastRequestedUrl = '';
 	private string $lastGetRequestedUrl = '';
+	private array $lastContentArgs = [];
 	private ?\Throwable $getException = null;
+	private ?\Throwable $getContentException = null;
 	private $onGet = null;
+	private $onGetContent = null;
 
 	public function setResponseOptions( array $options ) :void {
 		$this->responseOptions = $options;
@@ -514,12 +638,24 @@ class ImportExportHttpRequestStub extends HttpRequest {
 		return $this->lastGetRequestedUrl;
 	}
 
+	public function lastContentArgs() :array {
+		return $this->lastContentArgs;
+	}
+
 	public function throwOnGet( \Throwable $throwable ) :void {
 		$this->getException = $throwable;
 	}
 
+	public function throwOnGetContent( \Throwable $throwable ) :void {
+		$this->getContentException = $throwable;
+	}
+
 	public function setOnGet( callable $callback ) :void {
 		$this->onGet = $callback;
+	}
+
+	public function setOnGetContent( callable $callback ) :void {
+		$this->onGetContent = $callback;
 	}
 
 	public function get( $url, $args = [] ) :bool {
@@ -535,6 +671,13 @@ class ImportExportHttpRequestStub extends HttpRequest {
 
 	public function getContent( string $url, $args = [] ) :string {
 		$this->lastRequestedUrl = $url;
+		$this->lastContentArgs = \is_array( $args ) ? $args : [];
+		if ( \is_callable( $this->onGetContent ) ) {
+			( $this->onGetContent )( $url, $args );
+		}
+		if ( $this->getContentException !== null ) {
+			throw $this->getContentException;
+		}
 
 		return (string)\json_encode( [
 			'success' => true,

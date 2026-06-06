@@ -7,7 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExp
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFromFileUpload;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\GetOptionsForZoneComponents;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ImportExport;
 
@@ -111,6 +113,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ImportExport;
  *   is_disabled:bool,
  *   is_enabled:bool
  * }
+ * @phpstan-type NetworkInviteReviewContract array{
+ *   invite:array{id:string,master_url:string,created_at:int,updated_at:int,review_url:string},
+ *   strings:array<string,string>
+ * }
  * @phpstan-type ImportExportRenderData array{
  *   content:array{import_export_config:string},
  *   flags:array{
@@ -118,6 +124,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ImportExport;
  *     can_importexport_file:bool,
  *     can_importexport_sync:bool,
  *     has_master_url:bool,
+ *     has_network_invite_review:bool,
  *     sync_sites_state:SyncState
  *   },
  *   imgs:array{inner_page_title_icon:string},
@@ -125,7 +132,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ImportExport;
  *     import_export_tabs:list<ImportExportTab>,
  *     file_transfer:FileTransferContract,
  *     network_setup:NetworkSetupContract,
- *     sync_sites:SyncSitesContract
+ *     sync_sites:SyncSitesContract,
+ *     network_invite_review:NetworkInviteReviewContract|array{}
  *   },
  *   strings:array{inner_page_title:string,inner_page_subtitle:string}
  * }
@@ -153,7 +161,8 @@ class PageImportExport extends BasePluginAdminPage {
 		$canImportExportFile = $con->caps->canImportExportFile();
 		$canImportExportSync = $importExport->isSyncAvailable();
 		$syncSitesState = $importExport->syncSitesState();
-		$authorisedURLCount = \count( $importExport->getImportExportWhitelist() );
+		$authorisedURLCount = ( new SiteRepository() )->countActiveRows();
+		$networkInviteReview = $this->buildNetworkInviteReview();
 		$activeTab = $canImportExportFile ? 'file' : ( $canImportExportSync ? 'network_setup' : 'file' );
 		return [
 			'content' => [
@@ -166,6 +175,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'can_importexport_file'  => $canImportExportFile,
 				'can_importexport_sync'  => $canImportExportSync,
 				'has_master_url'         => !empty( $importMasterURL ),
+				'has_network_invite_review' => !empty( $networkInviteReview ),
 				'sync_sites_state'       => $syncSitesState,
 			],
 			'imgs'    => [
@@ -176,6 +186,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'file_transfer'      => $this->buildFileTransfer(),
 				'network_setup'      => $this->buildNetworkSetup( $importMasterURL, $authorisedURLCount ),
 				'sync_sites'         => $this->buildSyncSites( $syncSitesState, $authorisedURLCount ),
+				'network_invite_review' => $networkInviteReview,
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Import/Export', 'wp-simple-firewall' ),
@@ -314,7 +325,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'submit_icon_class'      => 'bi bi-cloud-download',
 			],
 			'advanced_settings_title'   => __( 'Advanced Settings', 'wp-simple-firewall' ),
-			'advanced_settings_summary' => __( 'Manage automatic import/export options, the secret key, and authorised export URLs.', 'wp-simple-firewall' ),
+			'advanced_settings_summary' => __( 'Manage automatic import/export options and the secret key.', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -329,7 +340,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'icon_class'   => 'bi bi-pc-display-horizontal',
 				'title'        => __( 'Standalone', 'wp-simple-firewall' ),
 				'status_label' => $isStandalone ? __( 'Active', 'wp-simple-firewall' ) : __( 'Inactive', 'wp-simple-firewall' ),
-				'oneliner'     => $isStandalone ? __( 'No master site or authorised sync sites are configured.', 'wp-simple-firewall' ) : __( 'Network settings are configured for this site.', 'wp-simple-firewall' ),
+				'oneliner'     => $isStandalone ? __( 'No master site or sync sites are configured.', 'wp-simple-firewall' ) : __( 'Network settings are configured for this site.', 'wp-simple-firewall' ),
 				'is_active'    => $isStandalone,
 			],
 			[
@@ -347,8 +358,8 @@ class PageImportExport extends BasePluginAdminPage {
 				'status_label' => $authorisedURLCount > 0 ? __( 'Active', 'wp-simple-firewall' ) : __( 'Not Configured', 'wp-simple-firewall' ),
 				'oneliner'     => sprintf(
 					_n(
-						'%s authorised site may export settings from this site.',
-						'%s authorised sites may export settings from this site.',
+						'%s sync site may export settings from this site.',
+						'%s sync sites may export settings from this site.',
 						$authorisedURLCount,
 						'wp-simple-firewall'
 					),
@@ -380,13 +391,38 @@ class PageImportExport extends BasePluginAdminPage {
 				$authorisedURLCount
 			),
 			'title'                       => __( 'Sync Sites', 'wp-simple-firewall' ),
-			'summary'                     => __( 'Manage sites authorised to export settings from this master/source site.', 'wp-simple-firewall' ),
+			'summary'                     => __( 'Manage sites that may export settings from this master/source site after normal sync verification.', 'wp-simple-firewall' ),
 			'enabled_title'               => __( 'Master Site Queue', 'wp-simple-firewall' ),
 			'current_summary'             => $authorisedURLCount > 0 ? $enabledSummary : $emptySummary,
 			'disabled_pane'               => $this->buildSyncSitesDisabledPane(),
 			'is_unavailable'              => $syncSitesState === ImportExportController::SYNC_STATE_UNAVAILABLE,
 			'is_disabled'                 => $syncSitesState === ImportExportController::SYNC_STATE_DISABLED,
 			'is_enabled'                  => $syncSitesState === ImportExportController::SYNC_STATE_ENABLED,
+		];
+	}
+
+	/**
+	 * @return NetworkInviteReviewContract|array{}
+	 */
+	private function buildNetworkInviteReview() :array {
+		$invite = ( new NetworkInviteRepository() )->find(
+			(string)( $this->action_data[ NetworkInviteRepository::REVIEW_QUERY_KEY ] ?? '' )
+		);
+		if ( empty( $invite ) ) {
+			return [];
+		}
+
+		return [
+			'invite'  => $invite,
+			'strings' => [
+				'title'          => __( 'Review Network Invite', 'wp-simple-firewall' ),
+				'summary'        => __( 'A Shield site has invited this site to join its import/export network.', 'wp-simple-firewall' ),
+				'master_url'     => __( 'Master Site URL', 'wp-simple-firewall' ),
+				'implications'   => __( 'Accepting will import transferable Shield settings from the master site and set this site to import from that master during normal sync.', 'wp-simple-firewall' ),
+				'confirm_label'  => __( 'I understand this will import Shield settings from the master site and set it as this site\'s master.', 'wp-simple-firewall' ),
+				'accept_button'  => __( 'Accept Invite', 'wp-simple-firewall' ),
+				'reject_button'  => __( 'Reject Invite', 'wp-simple-firewall' ),
+			],
 		];
 	}
 

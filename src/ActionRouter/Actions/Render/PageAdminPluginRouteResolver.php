@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 
 class PageAdminPluginRouteResolver {
 
@@ -73,6 +74,13 @@ class PageAdminPluginRouteResolver {
 			$canonicalSubjectKey = PluginNavs::investigateSubjectKeyForSubNav( $subNav );
 			if ( !empty( $canonicalSubjectKey ) ) {
 				$data[ 'subject' ] = $canonicalSubjectKey;
+			}
+		}
+		elseif ( $nav === PluginNavs::NAV_TOOLS && $subNav === PluginNavs::SUBNAV_TOOLS_IMPORT ) {
+			if ( \array_key_exists( NetworkInviteRepository::REVIEW_QUERY_KEY, $actionData ) ) {
+				$data[ NetworkInviteRepository::REVIEW_QUERY_KEY ] = sanitize_key(
+					(string)$actionData[ NetworkInviteRepository::REVIEW_QUERY_KEY ]
+				);
 			}
 		}
 

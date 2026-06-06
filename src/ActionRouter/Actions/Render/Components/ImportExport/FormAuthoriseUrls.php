@@ -13,9 +13,9 @@ class FormAuthoriseUrls extends BaseRender {
 		return [
 			'strings' => [
 				'urls'             => __( 'Site URLs', 'wp-simple-firewall' ),
-				'urls_help'        => __( 'Enter one URL per line.', 'wp-simple-firewall' ),
+				'urls_help'        => __( 'Enter one public HTTP or HTTPS site URL per line.', 'wp-simple-firewall' ),
 				'urls_placeholder' => "https://example.com\nhttps://example.org/",
-				'confirm'          => __( 'I understand that these URLs will be authorised to export settings from this site.', 'wp-simple-firewall' ),
+				'confirm'          => __( 'I understand these sites will be authorised to export settings from this site and sent one network invite request.', 'wp-simple-firewall' ),
 				'submit'           => __( 'Authorise New URLs', 'wp-simple-firewall' ),
 			],
 		];

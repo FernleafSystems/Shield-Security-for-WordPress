@@ -51,6 +51,9 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->configStoreKey = 'aptoweb_controller_'.\substr( \hash( 'md5', \get_class( $this->requireController() ) ), 0, 6 );
 		$this->storedConfigOptionSnapshot = Services::WpGeneral()->getOption( $this->configStoreKey );
 		$this->requireDb( SitesDB::DB_KEY );
+		$this->requireController()->opts
+								  ->optSet( 'importexport_sites_migrated_at', 0 )
+								  ->store();
 		$this->clearOldQueueState();
 	}
 
@@ -96,23 +99,22 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 'import-one', $one->import_id );
 		$this->assertSame( '', $two->import_id );
 		$this->assertSame(
-			[ 'https://slave-one.example.com', 'https://slave-two.example.com' ],
+			[ 'https://slave-one.example.com', 'https://slave-one.example.com', 'https://slave-two.example.com' ],
 			$con->opts->optGet( 'importexport_whitelist' )
 		);
 		$this->assertSame( 'import-one', $con->opts->optGet( 'import_url_ids' )[ \hash( 'md5', 'https://slave-one.example.com' ) ] ?? '' );
+		$this->assertGreaterThan( 0, (int)$con->opts->optGet( 'importexport_sites_migrated_at' ) );
 	}
 
 	public function test_old_queue_only_marks_matching_active_fallback_urls_due() :void {
 		$con = $this->requireController();
+		$removed = $this->repo()->upsertActive( 'https://removed.example.com', SitesDB::SOURCE_MANUAL );
+		$this->repo()->softDeleteUrl( $removed->url );
 		$con->opts
 			->optSet( 'importexport_whitelist', [
 				'https://active.example.com',
-				'https://removed.example.com',
 			] )
 			->store();
-		$this->repo()->ensureLegacyImported( false );
-		$this->repo()->softDeleteUrl( 'https://removed.example.com' );
-		$con->opts->optSet( 'importexport_whitelist', [ 'https://active.example.com' ] )->store();
 		$this->pushOldQueueUrls( [
 			'https://active.example.com',
 			'https://removed.example.com',
@@ -395,7 +397,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 15, $this->queryFamilyCount( $queries, 'select_by_hashes' ) );
 		$this->assertSame( 15, $this->queryFamilyCount( $queries, 'insert_ignore' ) );
 		$this->assertSame( 0, $this->queryFamilyCount( $queries, 'case_update' ) );
-		$this->assertSame( 1, $this->queryFamilyCount( $queries, 'select_active' ) );
+		$this->assertSame( 0, $this->queryFamilyCount( $queries, 'select_active' ) );
 	}
 
 	public function test_legacy_import_mixes_unchanged_changed_deleted_and_missing_rows_in_chunks() :void {
@@ -572,7 +574,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 2, $this->queryFamilyCount( $queries, 'claim_update' ) );
 	}
 
-	public function test_same_request_legacy_import_does_not_repeat_until_legacy_inputs_change() :void {
+	public function test_legacy_import_does_not_repeat_after_migrated_at_even_when_legacy_inputs_change() :void {
 		$con = $this->requireController();
 		$first = 'https://same-request-import-one.example.com';
 		$second = 'https://same-request-import-two.example.com';
@@ -604,8 +606,8 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			->store();
 		$repo->ensureLegacyImported();
 
-		$this->assertSame( SitesDB::STATUS_ACTIVE, $this->requireSite( $first )->status );
-		$this->assertSame( SitesDB::STATUS_ACTIVE, $this->requireSite( $second )->status );
+		$this->assertNull( $repo->findByUrl( $first ) );
+		$this->assertNull( $repo->findByUrl( $second, true ) );
 	}
 
 	public function test_queue_runner_processes_bounded_batch_and_keeps_sync_success_separate_from_ping() :void {

@@ -205,7 +205,9 @@ class AssetsCustomizer {
 				],
 				'data'    => fn() => [
 					'ajax' => [
-						'import_from_site' => ActionData::Build( Actions\PluginImportFromSite::class ),
+						'import_from_site'       => ActionData::Build( Actions\PluginImportFromSite::class ),
+						'network_invite_accept'  => ActionData::Build( Actions\ImportExportNetworkInviteAccept::class ),
+						'network_invite_reject'  => ActionData::Build( Actions\ImportExportNetworkInviteReject::class ),
 					],
 				],
 			],
@@ -478,9 +480,9 @@ class AssetsCustomizer {
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ) ) {
 						$data[ 'import_export_sites' ] = [
 							'ajax' => [
-								'authorise_urls_submit'             => ActionData::Build( Actions\ImportExportSitesAuthoriseUrlsSubmit::class ),
-								'render_authorise_urls_offcanvas'   => ActionData::BuildAjaxRender( Components\OffCanvas\ImportExportSitesAuthoriseUrls::class ),
-								'table_action'                      => ActionData::Build( Actions\ImportExportSitesTableAction::class ),
+								'authorise_urls_submit'           => ActionData::Build( Actions\ImportExportSitesAuthoriseUrlsSubmit::class ),
+								'render_authorise_urls_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\ImportExportSitesAuthoriseUrls::class ),
+								'table_action'                    => ActionData::Build( Actions\ImportExportSitesTableAction::class ),
 							],
 							'strings' => [
 								'add_authorised_urls' => __( 'Add Authorised URLs', 'wp-simple-firewall' ),

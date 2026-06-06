@@ -464,6 +464,7 @@ class PluginOptionsSchemaTest extends TestCase {
 			'wphashes_api_token',
 			'import_id',
 			'import_url_ids',
+			'importexport_pending_network_invites',
 			'blockdown_cfg',
 			'importexport_secretkey',
 			'importexport_whitelist',
@@ -495,6 +496,17 @@ class PluginOptionsSchemaTest extends TestCase {
 
 		$this->assertNotSame( true, $sourceOptions[ 'importexport_whitelist_notify' ][ 'sensitive' ] ?? false );
 		$this->assertNotSame( true, $this->options[ 'importexport_whitelist_notify' ][ 'sensitive' ] ?? false );
+	}
+
+	public function testLegacyImportExportWhitelistOptionsAreHidden() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [ 'importexport_whitelist', 'importexport_whitelist_notify' ] as $key ) {
+			$this->assertSame( 'section_hidden', $sourceOptions[ $key ][ 'section' ] ?? null );
+			$this->assertSame( 'section_hidden', $this->options[ $key ][ 'section' ] ?? null );
+			$this->assertArrayNotHasKey( 'zone_comp_slugs', $sourceOptions[ $key ] );
+			$this->assertArrayNotHasKey( 'zone_comp_slugs', $this->options[ $key ] );
+		}
 	}
 
 	public function testSecurityOverviewPrefsOptionIsAbsentFromGeneratedConfig() :void {

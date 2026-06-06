@@ -194,8 +194,8 @@ class CrossSitePairManager {
 		$masterState = $network[ 'master' ];
 		$slaveState = $network[ 'slave' ];
 		if ( !\is_array( $masterState )
-			 || !\in_array( self::SLAVE_INTERNAL_URL, $masterState[ 'whitelist' ] ?? [], true ) ) {
-			throw new \RuntimeException( 'Master whitelist does not contain the slave internal URL.' );
+			 || !\in_array( self::SLAVE_INTERNAL_URL, $masterState[ 'sync_site_urls' ] ?? [], true ) ) {
+			throw new \RuntimeException( 'Master sync-sites registry does not contain the slave internal URL.' );
 		}
 		$this->assertRegistryContainsSlave( $masterState, 'after slave connection' );
 		if ( !\is_array( $slaveState ) || ( $slaveState[ 'master_url' ] ?? '' ) !== self::MASTER_INTERNAL_URL ) {
@@ -306,12 +306,12 @@ class CrossSitePairManager {
 
 		$whitelist = (array)( $legacyMigration[ 'whitelist' ] ?? [] );
 		if ( !\in_array( $slaveUrl, $whitelist, true ) || !\in_array( $extraUrl, $whitelist, true ) ) {
-			throw new \RuntimeException( 'Legacy registry migration did not mirror active rows back to the fallback whitelist.' );
+			throw new \RuntimeException( 'Legacy registry migration unexpectedly changed the fallback whitelist.' );
 		}
 		$importIds = (array)( $legacyMigration[ 'import_url_ids' ] ?? [] );
 		if ( ( $importIds[ \md5( $slaveUrl ) ] ?? '' ) !== 'legacy-slave-id'
 			 || ( $importIds[ \md5( $extraUrl ) ] ?? '' ) !== 'legacy-extra-id' ) {
-			throw new \RuntimeException( 'Legacy registry migration did not mirror import IDs back to fallback settings.' );
+			throw new \RuntimeException( 'Legacy registry migration unexpectedly changed fallback import IDs.' );
 		}
 	}
 
