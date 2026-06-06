@@ -9,9 +9,10 @@ class ContainerRenderer {
 	use PluginControllerConsumer;
 
 	public function render( string $ip, bool $renderInlineTabs = false ) :string {
-		return self::con()->action_router->render(
+		return ( new SectionRenderFallback() )->render(
 			Container::class,
-			$this->buildActionData( $ip, $renderInlineTabs )
+			$this->buildActionData( $ip, $renderInlineTabs ),
+			__( 'IP Analysis', 'wp-simple-firewall' )
 		);
 	}
 

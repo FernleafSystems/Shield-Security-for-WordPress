@@ -12,25 +12,25 @@ class Container extends Base {
 	protected function getRenderData() :array {
 		$ip = $this->getAnalyseIP();
 		$tabs = $this->buildTabs();
-		$actionRouter = self::con()->action_router;
+		$renderer = new SectionRenderFallback();
 
 		return [
 			'flags'   => [
 				'render_inline_tabs' => (bool)( $this->action_data[ 'render_inline_tabs' ] ?? false ),
 			],
 			'content' => [
-				'general'  => $actionRouter->render( General::class, [
+				'general'  => $renderer->render( General::class, [
 					'ip' => $ip,
-				] ),
-				'sessions' => $actionRouter->render( Sessions::class, [
+				], __( 'Overview', 'wp-simple-firewall' ) ),
+				'sessions' => $renderer->render( Sessions::class, [
 					'ip' => $ip,
-				] ),
-				'activity' => $actionRouter->render( Activity::class, [
+				], CommonDisplayStrings::get( 'user_sessions_label' ) ),
+				'activity' => $renderer->render( Activity::class, [
 					'ip' => $ip,
-				] ),
-				'traffic'  => $actionRouter->render( Traffic::class, [
+				], __( 'Activity Log', 'wp-simple-firewall' ) ),
+				'traffic'  => $renderer->render( Traffic::class, [
 					'ip' => $ip,
-				] ),
+				], __( 'Recent Traffic', 'wp-simple-firewall' ) ),
 			],
 			'tabs'    => $tabs,
 		];
