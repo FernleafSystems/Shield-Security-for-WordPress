@@ -27,4 +27,31 @@ class UnitTestActionRouter {
 
 		return '';
 	}
+
+	public function action( string $action, array $actionData = [] ) {
+		unset( $action );
+
+		$renderAction = (string)( $actionData[ 'render_action_slug' ] ?? '' );
+		$renderActionData = \is_array( $actionData[ 'render_action_data' ] ?? null )
+			? $actionData[ 'render_action_data' ]
+			: [];
+		$output = $this->render( $renderAction, $renderActionData );
+
+		return new class( $output ) {
+			private string $output;
+
+			public function __construct( string $output ) {
+				$this->output = $output;
+			}
+
+			public function payload() :array {
+				return [
+					'render_output'     => $this->output,
+					'html'              => $this->output,
+					'render_error'      => false,
+					'render_error_code' => '',
+				];
+			}
+		};
+	}
 }
