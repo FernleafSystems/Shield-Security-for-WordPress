@@ -379,6 +379,88 @@ class PluginPackagerStraussTest extends TestCase {
 	}
 
 	/** @group package-targeted */
+	public function testPackagedCrowdSecWatcherBatchesSignalsInPrefixedRuntime() :void {
+		$prefixedAutoload = $this->packagePathJoin( 'vendor_prefixed/autoload.php' );
+		$this->assertFileExists( $prefixedAutoload );
+		require_once $prefixedAutoload;
+
+		$storage = new class implements \AptowebDeps\CrowdSec\CapiClient\Storage\StorageInterface {
+			public function retrieveMachineId() :?string {
+				return 'test-machine-id';
+			}
+
+			public function retrievePassword() :?string {
+				return 'test-password';
+			}
+
+			public function retrieveScenarios() :?array {
+				return [ 'shield/offense' ];
+			}
+
+			public function retrieveToken() :?string {
+				return 'test-token';
+			}
+
+			public function storeMachineId( string $machineId ) :bool {
+				return true;
+			}
+
+			public function storePassword( string $password ) :bool {
+				return true;
+			}
+
+			public function storeScenarios( array $scenarios ) :bool {
+				return true;
+			}
+
+			public function storeToken( string $token ) :bool {
+				return true;
+			}
+		};
+
+		$handler = new class implements \AptowebDeps\CrowdSec\CapiClient\Client\CapiHandler\CapiHandlerInterface {
+			/**
+			 * @var \AptowebDeps\CrowdSec\Common\Client\HttpMessage\Request[]
+			 */
+			public array $requests = [];
+
+			public function getListDecisions( string $url, array $headers = [] ) :string {
+				return '';
+			}
+
+			public function handle( \AptowebDeps\CrowdSec\Common\Client\HttpMessage\Request $request ) :\AptowebDeps\CrowdSec\Common\Client\HttpMessage\Response {
+				$this->requests[] = $request;
+
+				return new \AptowebDeps\CrowdSec\Common\Client\HttpMessage\Response( '{}', 200 );
+			}
+		};
+
+		$watcher = new \AptowebDeps\CrowdSec\CapiClient\Watcher(
+			[
+				'env'               => \AptowebDeps\CrowdSec\CapiClient\Constants::ENV_DEV,
+				'machine_id_prefix' => 'test',
+				'scenarios'         => [ 'shield/offense' ],
+			],
+			$storage,
+			$handler
+		);
+
+		$signals = [];
+		for ( $i = 1; $i <= 51; $i++ ) {
+			$signals[] = [ 'signal_id' => $i ];
+		}
+
+		$watcher->pushSignals( $signals );
+
+		$this->assertCount( 2, $handler->requests );
+		$this->assertCount( 50, $handler->requests[ 0 ]->getParams() );
+		$this->assertCount( 1, $handler->requests[ 1 ]->getParams() );
+		$this->assertSame( 1, $handler->requests[ 0 ]->getParams()[ 0 ][ 'signal_id' ] );
+		$this->assertSame( 50, $handler->requests[ 0 ]->getParams()[ 49 ][ 'signal_id' ] );
+		$this->assertSame( 51, $handler->requests[ 1 ]->getParams()[ 0 ][ 'signal_id' ] );
+	}
+
+	/** @group package-targeted */
 	public function testPackagedWorpdriveClientAutoloadsFromUnprefixedVendor() :void {
 		$autoloadPath = $this->packagePathJoin( 'vendor/autoload.php' );
 		$this->assertFileExists( $autoloadPath );

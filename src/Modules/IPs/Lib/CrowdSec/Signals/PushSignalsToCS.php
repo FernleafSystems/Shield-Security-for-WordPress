@@ -16,7 +16,7 @@ class PushSignalsToCS {
 	use ExecOnce;
 	use PluginControllerConsumer;
 
-	public const LIMIT = 100;
+	public const LIMIT = 50;
 
 	private ?array $distinctScopes = null;
 
