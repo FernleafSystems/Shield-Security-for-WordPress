@@ -154,6 +154,7 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 		$this->assertXPathContainsText( '198.51.100.20', $this->classQuery( 'activity-log-identity__ip', 'div' ), $xpath );
 		$this->assertXPathTextNotContains( 'Unknown', $this->classQuery( 'activity-log-identity', 'div' ), $xpath );
 		$this->assertXPathTextNotContains( 'Unidentified', $this->classQuery( 'activity-log-identity', 'div' ), $xpath );
+		$this->assertStringNotContainsString( 'shield-ipanalyse-section-fallback', $identity );
 	}
 
 	public function test_activity_identity_keeps_actor_badge_when_ip_is_missing() :void {

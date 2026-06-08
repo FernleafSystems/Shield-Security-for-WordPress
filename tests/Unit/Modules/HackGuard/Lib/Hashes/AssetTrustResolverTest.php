@@ -136,8 +136,12 @@ class AssetTrustResolverTest extends BaseUnitTest {
 
 	public static function unknownAssetDirectoryProvider() :array {
 		return [
-			'unknown plugin directory' => [ WP_PLUGIN_DIR.'/missing/file.php' ],
-			'unknown theme directory'  => [ WP_CONTENT_DIR.'/themes/missing/file.php' ],
+			'unknown plugin directory'      => [ WP_PLUGIN_DIR.'/missing/file.php' ],
+			'unknown theme directory'       => [ WP_CONTENT_DIR.'/themes/missing/file.php' ],
+			'plugin root sibling prefix'    => [ WP_PLUGIN_DIR.'alpha/file.php' ],
+			'plugin root sibling backslash' => [ \str_replace( '/', '\\', WP_PLUGIN_DIR.'alpha/file.php' ) ],
+			'theme root sibling prefix'     => [ WP_CONTENT_DIR.'/themesclean/file.php' ],
+			'theme root sibling backslash'  => [ \str_replace( '/', '\\', WP_CONTENT_DIR.'/themesclean/file.php' ) ],
 		];
 	}
 

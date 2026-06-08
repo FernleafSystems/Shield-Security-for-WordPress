@@ -66,16 +66,20 @@ abstract class BaseWorpdrive extends \FernleafSystems\Wordpress\Plugin\Shield\Re
 	protected function customValidateRequestArg( $value, \WP_REST_Request $request, string $reqArgKey ) {
 		switch ( $reqArgKey ) {
 			case 'dir':
-				// Validate against split paths. If no split paths, then no \dirname()
 				$valid = new \WP_Error( 'Directory provided does not appear to be valid.' );
-				foreach (
-					\array_filter( [
-						'/'.\trim( wp_normalize_path( ABSPATH ) ),
-						\dirname( wp_normalize_path( ABSPATH ) )
-					] ) as $root
-				) {
-					if ( \str_starts_with( $value, $root ) ) {
-						$valid = true;
+				if ( \is_string( $value ) ) {
+					$dir = \trailingslashit( wp_normalize_path( $value ) );
+					$normAbs = wp_normalize_path( ABSPATH );
+					foreach (
+						\array_filter( [
+							\trailingslashit( $normAbs ),
+							\trailingslashit( \dirname( $normAbs ) ),
+						] ) as $root
+					) {
+						if ( $dir === $root ) {
+							$valid = true;
+							break;
+						}
 					}
 				}
 				break;

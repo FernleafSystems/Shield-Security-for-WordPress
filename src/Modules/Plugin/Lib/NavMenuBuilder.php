@@ -12,6 +12,24 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 };
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-type SidebarBadge array{text:string,status:string}
+ * @phpstan-type SidebarLicenseItem array{
+ *   slug:string,
+ *   title:string,
+ *   subtitle:string,
+ *   img:string,
+ *   href:string,
+ *   is_action:bool,
+ *   classes:list<string>,
+ *   id:string,
+ *   active:bool,
+ *   sub_items:list<array<string,mixed>>,
+ *   target:string,
+ *   data:array<string,mixed>,
+ *   badge:array{}|SidebarBadge
+ * }
+ */
 class NavMenuBuilder {
 
 	use PluginControllerConsumer;
@@ -21,7 +39,7 @@ class NavMenuBuilder {
 	 *   back_item:array<string,mixed>|null,
 	 *   mode_items:list<array<string,mixed>>,
 	 *   tool_items:list<array<string,mixed>>,
-	 *   home_license_item:array<string,mixed>|null,
+	 *   home_license_item:SidebarLicenseItem|null,
 	 *   home_connect_title:string,
 	 *   home_connect_items:list<array<string,mixed>>
 	 * }
@@ -33,14 +51,13 @@ class NavMenuBuilder {
 		$modeItems = $this->normalizeItems( $this->buildModeItems( $mode, $actionsSummary ) );
 
 		if ( empty( $mode ) ) {
-			$licenseItem = $this->buildHomeLicenseItem();
 			$connect = $this->buildHomeConnectItems();
 
 			return [
 				'back_item'          => null,
 				'mode_items'         => $modeItems,
 				'tool_items'         => [],
-				'home_license_item'  => $licenseItem === null ? null : $this->normalizeItems( [ $licenseItem ] )[ 0 ],
+				'home_license_item'  => $this->normalizeItems( [ $this->buildHomeLicenseItem() ] )[ 0 ],
 				'home_connect_title' => $connect[ 'title' ],
 				'home_connect_items' => $this->normalizeItems( $connect[ 'items' ] ),
 			];
@@ -237,23 +254,33 @@ class NavMenuBuilder {
 		);
 	}
 
-	private function buildHomeLicenseItem() :?array {
-		$item = $this->gopro();
-		if ( empty( $item ) ) {
-			return null;
-		}
+	/**
+	 * @return array{
+	 *   slug:string,
+	 *   title:string,
+	 *   subtitle:string,
+	 *   img:string,
+	 *   href:string,
+	 *   active:bool,
+	 *   classes:list<string>,
+	 *   badge:array{}|SidebarBadge
+	 * }
+	 */
+	private function buildHomeLicenseItem() :array {
+		$con = self::con();
+
 		return [
-			'slug'    => $item[ 'slug' ] ?? PluginNavs::NAV_LICENSE,
+			'slug'    => PluginNavs::NAV_LICENSE,
 			'title'   => __( 'Shield Pro License', 'wp-simple-firewall' ),
-			'subtitle'=> (string)( $item[ 'subtitle' ] ?? '' ),
-			'img'     => (string)( $item[ 'img' ] ?? self::con()->svgs->iconClass( 'award' ) ),
-			'href'    => (string)( $item[ 'href' ] ?? self::con()->plugin_urls->licenseCheck() ),
-			'active'  => (bool)( $item[ 'active' ] ?? false ),
+			'subtitle'=> __( 'Supercharged Security', 'wp-simple-firewall' ),
+			'img'     => $con->svgs->iconClass( 'award' ),
+			'href'    => $con->plugin_urls->licenseCheck(),
+			'active'  => $this->inav() === PluginNavs::NAV_LICENSE,
 			'classes' => [ 'sidebar-license-link' ],
-			'badge'   => [
-				'text'   => self::con()->isPremiumActive() ? 'PRO' : __( 'Go PRO!', 'wp-simple-firewall' ),
-				'status' => self::con()->isPremiumActive() ? 'good' : 'warning',
-			],
+			'badge'   => $con->isPremiumActive() ? [
+				'text'   => 'PRO',
+				'status' => 'good',
+			] : [],
 		];
 	}
 
@@ -270,11 +297,19 @@ class NavMenuBuilder {
 
 		$connectMeta = $this->connectMetaItem();
 		return [
-			'title' => (string)( $connectMeta[ 'title' ] ?? __( 'Connect', 'wp-simple-firewall' ) ),
-			'items' => \array_values( $connectMeta[ 'sub_items' ] ?? [] ),
+			'title' => $connectMeta[ 'title' ],
+			'items' => $connectMeta[ 'sub_items' ],
 		];
 	}
 
+	/**
+	 * @return array{
+	 *   slug:string,
+	 *   title:string,
+	 *   img:string,
+	 *   sub_items:list<array{slug:string,title:string,img:string,href:string,target:string}>
+	 * }
+	 */
 	private function connectMetaItem() :array {
 		$links = new ExternalLinks();
 		return [
@@ -311,45 +346,6 @@ class NavMenuBuilder {
 					'target' => '_blank',
 				],
 			],
-		];
-	}
-
-	private function gopro() :array {
-		$con = self::con();
-		if ( $con->isPremiumActive() ) {
-			$subItems = [];
-		}
-		else {
-			$subItems = [
-				[
-					'slug'   => 'license-gopro',
-					'title'  => __( 'Check License', 'wp-simple-firewall' ),
-					'href'   => $con->plugin_urls->licenseCheck(),
-					'active' => $this->inav() === PluginNavs::NAV_LICENSE
-				],
-				[
-					'slug'   => 'license-trial',
-					'title'  => __( 'Free Trial', 'wp-simple-firewall' ),
-					'href'   => 'https://clk.shldscrty.com/shieldfreetrialinplugin',
-					'target' => '_blank',
-				],
-				[
-					'slug'   => 'license-features',
-					'href'   => 'https://clk.shldscrty.com/gp',
-					'title'  => sprintf( __( '%s Features', 'wp-simple-firewall' ), self::con()->labels->Name ),
-					'target' => '_blank',
-				],
-			];
-		}
-
-		return [
-			'slug'      => PluginNavs::NAV_LICENSE,
-			'title'     => $con->isPremiumActive() ? self::con()->labels->Name : __( 'Go PRO!', 'wp-simple-firewall' ),
-			'subtitle'  => __( 'Supercharged Security', 'wp-simple-firewall' ),
-			'img'       => $con->svgs->iconClass( 'award' ),
-			'href'      => $con->plugin_urls->licenseCheck(),
-			'sub_items' => $subItems,
-			'active'    => $this->inav() === PluginNavs::NAV_LICENSE,
 		];
 	}
 
