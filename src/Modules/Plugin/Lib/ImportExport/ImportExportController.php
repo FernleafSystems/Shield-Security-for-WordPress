@@ -240,7 +240,8 @@ class ImportExportController {
 	}
 
 	public function verifySecretKey( string $secret ): bool {
-		return !empty( $secret ) && $this->getImportExportSecretKey() == $secret;
+		$stored = $this->getImportExportSecretKey();
+		return $secret !== '' && $stored !== '' && \hash_equals( $stored, $secret );
 	}
 
 	private function importFromFlag() {

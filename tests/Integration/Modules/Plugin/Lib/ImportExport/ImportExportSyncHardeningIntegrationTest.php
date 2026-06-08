@@ -29,6 +29,8 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 			'importexport_masterurl',
 			'importexport_handshake_expires_at',
 			'import_id',
+			'importexport_secretkey',
+			'importexport_secretkey_expires_at',
 		] );
 		$this->notifyCronHook = $this->requireController()->prefix( PluginImportExport_UpdateNotified::SLUG );
 		\wp_clear_scheduled_hook( $this->notifyCronHook );
@@ -147,6 +149,35 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'import_notify_received' ) );
 	}
 
+	public function test_secret_key_verification_accepts_exact_match() :void {
+		$this->seedSecretKey( 'fixture-import-export-secret' );
+
+		$this->assertTrue(
+			$this->requireController()->comps->import_export->verifySecretKey( 'fixture-import-export-secret' )
+		);
+	}
+
+	/**
+	 * @dataProvider invalidSecretProvider
+	 */
+	public function test_secret_key_verification_rejects_non_exact_values( string $stored, string $provided ) :void {
+		$this->seedSecretKey( $stored );
+
+		$this->assertFalse(
+			$this->requireController()->comps->import_export->verifySecretKey( $provided )
+		);
+	}
+
+	public static function invalidSecretProvider() :array {
+		return [
+			'empty provided secret'   => [ 'fixture-import-export-secret', '' ],
+			'mismatched secret'       => [ 'fixture-import-export-secret', 'fixture-import-export-secret-2' ],
+			'numeric-looking secret'  => [ '12345', '12346' ],
+			'zero exponent loose hit' => [ '0e123456789', '0' ],
+			'zero exponent mismatch'  => [ '0e123456789', '0e987654321' ],
+		];
+	}
+
 	private function forceCronMode( bool $isCron ) :void {
 		ServicesState::mergeItems( [
 			'service_wpgeneral' => new class( $isCron ) extends General {
@@ -198,5 +229,12 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 		};
 
 		add_filter( 'pre_http_request', $this->httpStub, 10, 3 );
+	}
+
+	private function seedSecretKey( string $secret ) :void {
+		$this->requireController()->opts
+			->optSet( 'importexport_secretkey', $secret )
+			->optSet( 'importexport_secretkey_expires_at', \time() + \DAY_IN_SECONDS )
+			->store();
 	}
 }
