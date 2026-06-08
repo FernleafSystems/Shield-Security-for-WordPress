@@ -5,7 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Exceptions\OtpVerificationFailedException;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\LoginIntentRequestValidate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\{
+	BackupCodes,
 	Email,
+	GoogleAuth,
 	Passkey
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
@@ -179,6 +181,26 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( PasskeyFixtureLoader::legacyRecordCounter(), (int)( $record->data[ 'counter' ] ?? 0 ) );
 	}
 
+	public function test_authentication_verification_rejects_mismatched_user_handle() :void {
+		$userId = $this->createAdministratorUser();
+		$user = \get_user_by( 'id', $userId );
+		$recordId = $this->seedLegacyPasskey( $user );
+		$this->seedPasskeyAuthenticationOptions( $user );
+		$this->mergePasskeyMeta( $user, [
+			'user_key' => \bin2hex( \random_bytes( 16 ) ),
+		] );
+
+		$provider = $this->assertPasskeyProviderActiveFor( $user );
+		$result = $provider->verifyAuthResponse( PasskeyFixtureLoader::authenticationResponse() );
+
+		$this->assertFalse( $result->success );
+		$this->assertStringContainsString( 'Invalid user handle', $result->error_text );
+
+		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
+		$this->assertSame( 0, (int)$record->used_at );
+		$this->assertSame( PasskeyFixtureLoader::legacyRecordCounter(), (int)( $record->data[ 'counter' ] ?? 0 ) );
+	}
+
 	public function test_authentication_verification_rejects_unknown_credential() :void {
 		$userId = $this->createAdministratorUser();
 		$user = \get_user_by( 'id', $userId );
@@ -288,6 +310,50 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		}
 		finally {
 			$this->restoreSelectedOptions( $emailOptionSnapshot );
+		}
+	}
+
+	public function test_login_intent_validation_accepts_passkey_when_authenticator_and_backup_codes_are_active() :void {
+		$this->captureShieldEvents();
+		$optionSnapshot = $this->snapshotSelectedOptions( [
+			'enable_google_authenticator',
+			'allow_backupcodes',
+		] );
+
+		try {
+			$this->requireController()->opts
+				 ->optSet( 'enable_google_authenticator', 'Y' )
+				 ->optSet( 'allow_backupcodes', 'Y' )
+				 ->store();
+
+			$userId = $this->createAdministratorUser();
+			$user = \get_user_by( 'id', $userId );
+			$this->seedLegacyPasskey( $user );
+			$this->seedPasskeyAuthenticationOptions( $user );
+			TestDataFactory::insertMfaRecord( $user->ID, GoogleAuth::ProviderSlug(), [], [
+				'unique_id' => 'JBSWY3DPEHPK3PXP',
+				'label'     => 'Google Auth',
+			] );
+			TestDataFactory::insertMfaRecord( $user->ID, BackupCodes::ProviderSlug(), [], [
+				'unique_id' => \wp_hash_password( 'backup-code' ),
+				'label'     => 'Backup Code',
+			] );
+			$this->seedLoginIntent( $user, 'fixture-passkey-login' );
+
+			$provider = $this->assertPasskeyProviderActiveFor( $user );
+			$this->setPasskeyLoginOtpRequest( $provider, PasskeyFixtureLoader::authenticationResponse() );
+
+			$validatedSlug = ( new LoginIntentRequestValidate() )
+				->setWpUser( $user )
+				->run( 'fixture-passkey-login' );
+
+			$this->assertSame( Passkey::ProviderSlug(), $validatedSlug );
+			$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
+			$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_success' ) );
+			$this->assertSame( [], $this->getCapturedEventsByKey( '2fa_verify_fail' ) );
+		}
+		finally {
+			$this->restoreSelectedOptions( $optionSnapshot );
 		}
 	}
 
