@@ -2,13 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Config;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\HandleOptionsSaveRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 
 class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
+
+	use CurrentRequestFixture;
 
 	private const PREMIUM_CAPABILITIES = [
 		'scan_file_locker',
@@ -18,6 +22,8 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 	private const SNAPSHOT_KEYS = [
 		'enable_email_authentication',
 		'email_can_send_verified_at',
+		'email_can_send_verification_sent_at',
+		'block_send_email_address',
 		'enable_auto_integrations',
 		'auto_integrations_track',
 		'cs_block',
@@ -30,6 +36,8 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 
 	private array $originalOptions = [];
 
+	private array $requestSnapshot = [];
+
 	/**
 	 * @var array<int,array<string,mixed>>
 	 */
@@ -38,6 +46,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 	public function set_up() {
 		parent::set_up();
 		$this->enablePremiumCapabilities( self::PREMIUM_CAPABILITIES );
+		$this->requestSnapshot = $this->snapshotCurrentRequestState();
 		$con = $this->requireController();
 		foreach ( self::SNAPSHOT_KEYS as $key ) {
 			$this->originalOptions[ $key ] = $con->opts->optGet( $key );
@@ -66,6 +75,9 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 				$con->opts->store();
 			}
 		}
+		if ( !empty( $this->requestSnapshot ) ) {
+			$this->restoreCurrentRequestState( $this->requestSnapshot );
+		}
 		$this->mails = [];
 		parent::tear_down();
 	}
@@ -78,27 +90,79 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		return true;
 	}
 
-	public function test_email_authentication_toggle_triggers_single_verification_send() :void {
+	public function test_direct_email_authentication_toggle_does_not_send_verification_mail() :void {
 		$con = $this->requireController();
-		$this->loginAsSecurityAdmin( [
-			'user_login' => 'secadmin',
-			'user_email' => 'secadmin@example.com',
-		] );
+		$this->loginAsSecurityAdmin();
 
 		$con->opts
 			->optSet( 'enable_email_authentication', 'N' )
 			->optSet( 'email_can_send_verified_at', 0 )
+			->optSet( 'email_can_send_verification_sent_at', 0 )
 			->store();
 
 		$this->mails = [];
-		$con->opts->optSet( 'enable_email_authentication', 'N' )->store();
-		$this->assertCount( 0, $this->mails );
-
 		$con->opts->optSet( 'enable_email_authentication', 'Y' )->store();
 
-		$this->assertCount( 1, $this->mails );
-		$this->assertContains( Services::WpGeneral()->getSiteAdminEmail(), $this->mailRecipients( $this->mails[ 0 ] ) );
+		$this->assertCount( 0, $this->mails );
 		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verified_at' ) );
+		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->assertSame( EmailDeliveryVerification::STATUS_UNSENT, ( new EmailDeliveryVerification() )->status() );
+	}
+
+	public function test_direct_email_authentication_disable_clears_pending_sent_timestamp() :void {
+		$con = $this->requireController();
+		$this->loginAsSecurityAdmin();
+		$con->opts
+			->optSet( 'enable_email_authentication', 'Y' )
+			->optSet( 'email_can_send_verified_at', 0 )
+			->optSet( 'email_can_send_verification_sent_at', \time() - 60 )
+			->store();
+
+		$con->opts->optSet( 'enable_email_authentication', 'N' )->store();
+
+		$this->assertSame( 'N', $con->opts->optGet( 'enable_email_authentication' ) );
+		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->assertSame( EmailDeliveryVerification::STATUS_DISABLED, ( new EmailDeliveryVerification() )->status() );
+	}
+
+	public function test_manual_email_authentication_save_sends_verification_to_report_email() :void {
+		$con = $this->requireController();
+		$this->prepareEmailVerificationOptions( 'N', 0, 0 );
+
+		$this->mails = [];
+		$this->assertTrue( $this->manualEmailAuthSave( 'Y' ) );
+
+		$this->assertCount( 1, $this->mails );
+		$this->assertContains( 'mfa-report@example.com', $this->mailRecipients( $this->mails[ 0 ] ) );
+		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verified_at' ) );
+		$this->assertGreaterThan( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->assertSame( EmailDeliveryVerification::STATUS_PENDING, ( new EmailDeliveryVerification() )->status() );
+	}
+
+	public function test_manual_email_authentication_save_does_not_duplicate_pending_verification() :void {
+		$sentAt = \time() - 60;
+		$con = $this->requireController();
+		$this->prepareEmailVerificationOptions( 'Y', 0, $sentAt );
+
+		$this->mails = [];
+		$this->assertTrue( $this->manualEmailAuthSave( 'Y' ) );
+
+		$this->assertCount( 0, $this->mails );
+		$this->assertSame( $sentAt, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->assertSame( EmailDeliveryVerification::STATUS_PENDING, ( new EmailDeliveryVerification() )->status() );
+	}
+
+	public function test_manual_email_authentication_save_resends_stale_verification() :void {
+		$sentAt = \time() - \DAY_IN_SECONDS - 60;
+		$con = $this->requireController();
+		$this->prepareEmailVerificationOptions( 'Y', 0, $sentAt );
+
+		$this->mails = [];
+		$this->assertTrue( $this->manualEmailAuthSave( 'Y' ) );
+
+		$this->assertCount( 1, $this->mails );
+		$this->assertGreaterThan( $sentAt, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->assertSame( EmailDeliveryVerification::STATUS_PENDING, ( new EmailDeliveryVerification() )->status() );
 	}
 
 	public function test_auto_integrations_enabling_clears_detection_track() :void {
@@ -247,6 +311,43 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$con = $this->requireController();
 		$con->opts->optSet( 'enable_auto_integrations', $enabled )->store();
 		$con->opts->optSet( 'auto_integrations_track', $track )->store();
+	}
+
+	private function prepareEmailVerificationOptions( string $enabled, int $verifiedAt, int $sentAt ) :void {
+		$this->loginAsSecurityAdmin();
+		$this->requireController()->opts
+			->optSet( 'block_send_email_address', 'mfa-report@example.com' )
+			->optSet( 'enable_email_authentication', $enabled )
+			->optSet( 'email_can_send_verified_at', $verifiedAt )
+			->optSet( 'email_can_send_verification_sent_at', $sentAt )
+			->store();
+	}
+
+	private function manualEmailAuthSave( string $enabled ) :bool {
+		$this->applyCurrentRequestState(
+			[
+				'REQUEST_METHOD' => 'POST',
+				'REQUEST_URI'    => '/wp-admin/admin-ajax.php',
+			],
+			[],
+			[
+				'all_opts_keys'               => 'enable_email_authentication',
+				'enable_email_authentication' => $enabled,
+			],
+			[
+				'path'              => '/wp-admin/admin-ajax.php',
+				'is_security_admin' => true,
+			]
+		);
+
+		$bypass = static fn() :bool => true;
+		\add_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), $bypass, 1000 );
+		try {
+			return ( new HandleOptionsSaveRequest() )->handleSave();
+		}
+		finally {
+			\remove_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), $bypass, 1000 );
+		}
 	}
 
 	/**

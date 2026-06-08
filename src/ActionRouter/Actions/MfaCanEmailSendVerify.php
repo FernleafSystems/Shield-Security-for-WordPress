@@ -2,7 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
 
 class MfaCanEmailSendVerify extends MfaUserConfigBase {
 
@@ -10,15 +10,12 @@ class MfaCanEmailSendVerify extends MfaUserConfigBase {
 
 	protected function exec() {
 		$con = self::con();
-		if ( $con->opts->optGet( 'email_can_send_verified_at' ) < 1 ) {
-			$con->opts
-				->optSet( 'email_can_send_verified_at', Services::Request()->ts() )
-				->store();
-			$con->admin_notices->addFlash(
-				__( 'Email verification completed successfully.', 'wp-simple-firewall' ),
-				$this->getActiveWPUser()
-			);
-		}
+		( new EmailDeliveryVerification() )->markVerified();
+		$con->opts->store();
+		$con->admin_notices->addFlash(
+			__( 'Email verification completed successfully.', 'wp-simple-firewall' ),
+			$this->getActiveWPUser()
+		);
 
 		$this->response()->setPayload( [
 			'message'  => __( 'Email verification completed successfully.', 'wp-simple-firewall' ),

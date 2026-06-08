@@ -46,14 +46,84 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 			'user_email' => 'secadmin@example.com',
 		] );
 		$con->opts
+			->optSet( 'block_send_email_address', 'mfa-report@example.com' )
 			->optSet( 'enable_email_authentication', 'Y' )
-			->optSet( 'email_can_send_verified_at', 0 );
+			->optSet( 'email_can_send_verified_at', 0 )
+			->optSet( 'email_can_send_verification_sent_at', 0 );
 
-		$con->action_router->action( MfaEmailSendVerification::class );
+		$payload = $con->action_router->action( MfaEmailSendVerification::class )->payload();
 
 		$mail = $this->lastMail();
-		$this->assertStringContainsString( 'Email Sending Verification', (string)( $mail[ 'subject' ] ?? '' ) );
-		$this->assertStringContainsString( 'Click the verify link:', (string)( $mail[ 'message' ] ?? '' ) );
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
+		$this->assertTrue( (bool)$payload[ 'success' ] );
+		$this->assertTrue( (bool)$payload[ 'page_reload' ] );
+		$this->assertArrayHasKey( 'subject', $mail );
+		$this->assertStringContainsString( 'Email Sending Verification', (string)$mail[ 'subject' ] );
+		$this->assertContains( 'mfa-report@example.com', $this->mailRecipients( $mail ) );
+		$this->assertGreaterThan( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+	}
+
+	public function testMfaEmailVerificationSendFailsWhenEmailAuthDisabled() :void {
+		$con = $this->requireController();
+		$this->loginAsSecurityAdmin();
+		$con->opts
+			->optSet( 'enable_email_authentication', 'N' )
+			->optSet( 'email_can_send_verified_at', 0 )
+			->optSet( 'email_can_send_verification_sent_at', 0 );
+
+		$payload = $con->action_router->action( MfaEmailSendVerification::class )->payload();
+
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
+		$this->assertFalse( (bool)$payload[ 'success' ] );
+		$this->assertFalse( (bool)$payload[ 'page_reload' ] );
+		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->assertCount( 0, $this->mails );
+	}
+
+	public function testMfaEmailVerificationSendIsNoopWhenAlreadyVerified() :void {
+		$con = $this->requireController();
+		$this->loginAsSecurityAdmin();
+		$con->opts
+			->optSet( 'enable_email_authentication', 'Y' )
+			->optSet( 'email_can_send_verified_at', \time() )
+			->optSet( 'email_can_send_verification_sent_at', 0 );
+
+		$payload = $con->action_router->action( MfaEmailSendVerification::class )->payload();
+
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
+		$this->assertArrayHasKey( 'status', $payload );
+		$this->assertTrue( (bool)$payload[ 'success' ] );
+		$this->assertFalse( (bool)$payload[ 'page_reload' ] );
+		$this->assertSame( 'verified', $payload[ 'status' ] );
+		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->assertCount( 0, $this->mails );
+	}
+
+	public function testMfaEmailVerificationSendFailureDoesNotStoreSentTimestamp() :void {
+		$con = $this->requireController();
+		$this->loginAsSecurityAdmin();
+		$con->opts
+			->optSet( 'enable_email_authentication', 'Y' )
+			->optSet( 'email_can_send_verified_at', 0 )
+			->optSet( 'email_can_send_verification_sent_at', 0 );
+		$failMail = static fn() :bool => false;
+		\add_filter( 'pre_wp_mail', $failMail, 20 );
+
+		try {
+			$payload = $con->action_router->action( MfaEmailSendVerification::class )->payload();
+		}
+		finally {
+			\remove_filter( 'pre_wp_mail', $failMail, 20 );
+		}
+
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
+		$this->assertFalse( (bool)$payload[ 'success' ] );
+		$this->assertFalse( (bool)$payload[ 'page_reload' ] );
+		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
 	}
 
 	public function testLicenseWarningEmailRespectsThrottle() :void {
@@ -168,6 +238,18 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 	private function lastMail() :array {
 		$this->assertNotEmpty( $this->mails, 'Expected at least one captured email.' );
 		return $this->mails[ \count( $this->mails ) - 1 ];
+	}
+
+	/**
+	 * @param array<string,mixed> $mail
+	 * @return string[]
+	 */
+	private function mailRecipients( array $mail ) :array {
+		$to = $mail[ 'to' ] ?? [];
+		if ( \is_string( $to ) ) {
+			$to = [ $to ];
+		}
+		return \array_values( \array_filter( \array_map( 'strval', \is_array( $to ) ? $to : [] ) ) );
 	}
 
 	private function resetInstantAlertsCache() :void {
