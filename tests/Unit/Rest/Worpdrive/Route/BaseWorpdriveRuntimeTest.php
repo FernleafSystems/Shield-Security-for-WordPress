@@ -85,9 +85,64 @@ class BaseWorpdriveRuntimeTest extends WorpdriveUnitTestCase {
 		$this->assertRuntimeReset();
 	}
 
+	/**
+	 * @dataProvider validDirProvider
+	 */
+	public function test_dir_validation_accepts_exact_supported_roots( string $dir ) :void {
+		$this->assertTrue( $this->invokeValidateRequestArg(
+			new FilesystemZip( [ 'strict_parameters' => false ] ),
+			$dir,
+			'dir'
+		) );
+	}
+
+	public static function validDirProvider() :array {
+		return [
+			'abspath'               => [ ABSPATH ],
+			'abspath without slash' => [ \rtrim( ABSPATH, '/\\' ) ],
+			'abspath backslashes'   => [ \str_replace( '/', '\\', ABSPATH ) ],
+			'parent'                => [ \dirname( ABSPATH ) ],
+			'parent with slash'     => [ \rtrim( \dirname( ABSPATH ), '/\\' ).'/' ],
+		];
+	}
+
+	/**
+	 * @dataProvider invalidDirProvider
+	 */
+	public function test_dir_validation_rejects_sibling_prefixes( string $dir ) :void {
+		$this->assertInstanceOf(
+			\WP_Error::class,
+			$this->invokeValidateRequestArg(
+				new FilesystemZip( [ 'strict_parameters' => false ] ),
+				$dir,
+				'dir'
+			)
+		);
+	}
+
+	public static function invalidDirProvider() :array {
+		$abspathSibling = \rtrim( ABSPATH, '/\\' ).'2';
+		$parentSibling = \dirname( ABSPATH ).'2';
+		return [
+			'abspath sibling prefix'             => [ $abspathSibling ],
+			'abspath sibling prefix backslashes' => [ \str_replace( '/', '\\', $abspathSibling ) ],
+			'parent sibling prefix'              => [ $parentSibling ],
+			'child path under abspath'            => [ \rtrim( ABSPATH, '/\\' ).'/wp-content' ],
+		];
+	}
+
 	private function invokeProcessRequest( BaseWorpdrive $route, \WP_REST_Request $request ) :array {
 		$method = new \ReflectionMethod( BaseWorpdrive::class, 'processRequest' );
 		$method->setAccessible( true );
 		return $method->invoke( $route, $request );
+	}
+
+	/**
+	 * @return bool|\WP_Error
+	 */
+	private function invokeValidateRequestArg( BaseWorpdrive $route, string $value, string $key ) {
+		$method = new \ReflectionMethod( BaseWorpdrive::class, 'customValidateRequestArg' );
+		$method->setAccessible( true );
+		return $method->invoke( $route, $value, new \WP_REST_Request(), $key );
 	}
 }

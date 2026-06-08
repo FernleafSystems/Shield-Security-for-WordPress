@@ -92,6 +92,34 @@ class RouteProcessorMapTest extends WorpdriveUnitTestCase {
 		$this->assertSame( '', $row[ 'hash_alt' ] );
 	}
 
+	public function test_filesystem_map_with_abspath_still_includes_parent_wp_config() :void {
+		$parentWpConfig = $this->writeParentWpConfigForTest( 'parent map config' );
+		$uuid = 'route-map-parent-wp-config';
+
+		$this->runFilesystemMapRoute( $uuid, 'map', ABSPATH );
+
+		$this->assertNotEmpty( $this->fetchMapRow( $uuid, 'full', 'wp-config.php' ) );
+		$this->assertSame( 'parent map config', \file_get_contents( $parentWpConfig ) );
+	}
+
+	public function test_filesystem_zip_with_abspath_still_includes_parent_wp_config() :void {
+		$this->writeParentWpConfigForTest( 'parent zip config' );
+		$uuid = 'route-zip-parent-wp-config';
+		$request = new \WP_REST_Request( [
+			'file_paths' => [ \base64_encode( 'wp-config.php' ) ],
+			'dir'        => ABSPATH,
+			'uuid'       => $uuid,
+			'time_limit' => 30,
+		] );
+
+		WorpdriveRuntime::withHost(
+			new ShieldWorpdriveHost(),
+			fn() => ( ( new RouteProcessorMap() )->map()[ FilesystemZip::class ] )( $request )
+		);
+
+		$this->assertSame( 'parent zip config', $this->zipEntryContents( $this->singleFilesZipArchiveFor( $uuid ), 'wp-config.php' ) );
+	}
+
 	public function test_database_schema_route_converts_package_exceptions_to_api_exceptions() :void {
 		ServicesState::mergeItems( [
 			'service_wpdb' => ( new WorpdriveTestDb() )->setTableStatus( [
@@ -212,6 +240,12 @@ class RouteProcessorMapTest extends WorpdriveUnitTestCase {
 		return $files[ 0 ];
 	}
 
+	private function singleFilesZipArchiveFor( string $uuid ) :string {
+		$files = \glob( \sprintf( '%s/tmp/archive-%s/*_zipped_files.archive', $this->pluginRoot, $uuid ) ) ?: [];
+		$this->assertCount( 1, $files );
+		return $files[ 0 ];
+	}
+
 	private function zipEntryContents( string $archivePath, string $entryName ) :string {
 		$zip = new \ZipArchive();
 		$this->assertTrue( $zip->open( $archivePath ) === true );
@@ -220,5 +254,13 @@ class RouteProcessorMapTest extends WorpdriveUnitTestCase {
 
 		$this->assertIsString( $contents );
 		return $contents;
+	}
+
+	private function writeParentWpConfigForTest( string $contents ) :string {
+		$parentWpConfig = $this->normalizePath( \dirname( wp_normalize_path( ABSPATH ) ).'/wp-config.php' );
+		if ( \file_exists( $parentWpConfig ) ) {
+			$this->markTestSkipped( 'Parent wp-config.php already exists in the unit test parent directory.' );
+		}
+		return $this->writeFile( $parentWpConfig, $contents );
 	}
 }
