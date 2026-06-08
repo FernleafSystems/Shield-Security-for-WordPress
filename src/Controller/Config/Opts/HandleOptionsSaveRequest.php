@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
+	EmailDeliveryVerification,
+	EmailDeliveryVerificationMailer
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
@@ -44,13 +48,25 @@ class HandleOptionsSaveRequest {
 	/**
 	 * @throws \Exception
 	 */
-	private function storeOptions() {
+	private function storeOptions() :void {
+		$submittedKeys = $this->applyFormValues();
+		$this->sendEmailVerificationIfRequired( $submittedKeys );
+
+		self::con()->opts->store();
+	}
+
+	/**
+	 * @return string[]
+	 * @throws \Exception
+	 */
+	private function applyFormValues() :array {
 		// standard options use b64 and fail-over to lz-string
 		$form = $this->getForm();
 
 		$optsCon = self::con()->opts;
+		$submittedKeys = \explode( ',', $form[ 'all_opts_keys' ] );
 
-		foreach ( \explode( ',', $form[ 'all_opts_keys' ] ?? [] ) as $optKey ) {
+		foreach ( $submittedKeys as $optKey ) {
 
 			if ( !$optsCon->optExists( $optKey ) || $optsCon->optDef( $optKey )[ 'section' ] === 'section_hidden' ) {
 				continue;
@@ -100,6 +116,20 @@ class HandleOptionsSaveRequest {
 			$optsCon->optSet( $optKey, $optValue );
 		}
 
-		$optsCon->store();
+		return $submittedKeys;
+	}
+
+	/**
+	 * @param string[] $submittedKeys
+	 */
+	private function sendEmailVerificationIfRequired( array $submittedKeys ) :void {
+		if ( !\in_array( 'enable_email_authentication', $submittedKeys, true ) ) {
+			return;
+		}
+
+		$verification = new EmailDeliveryVerification();
+		if ( $verification->needsVerificationSend() && ( new EmailDeliveryVerificationMailer() )->send() ) {
+			$verification->markSent();
+		}
 	}
 }

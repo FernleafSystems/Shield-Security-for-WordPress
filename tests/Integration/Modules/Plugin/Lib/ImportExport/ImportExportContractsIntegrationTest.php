@@ -36,6 +36,9 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			'importexport_handshake_expires_at',
 			'import_id',
 			'import_url_ids',
+			'enable_email_authentication',
+			'email_can_send_verified_at',
+			'email_can_send_verification_sent_at',
 			'xfer_excluded',
 			'display_plugin_badge',
 			'visitor_address_source',
@@ -120,6 +123,47 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'REMOTE_ADDR', $con->opts->optGet( 'visitor_address_source' ) );
 		$this->assertSame( 'N', $con->opts->optGet( 'enable_tracking' ) );
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'options_imported' ) );
+	}
+
+	public function test_import_enabling_email_authentication_does_not_send_verification_mail() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'enable_email_authentication', 'Y' )
+			->optSet( 'email_can_send_verified_at', 0 )
+			->optSet( 'email_can_send_verification_sent_at', 0 )
+			->optSet( 'xfer_excluded', [] )
+			->store();
+		$export = ( new Export() )->getExportData();
+
+		$con->opts
+			->optSet( 'enable_email_authentication', 'N' )
+			->optSet( 'email_can_send_verified_at', 0 )
+			->optSet( 'email_can_send_verification_sent_at', 0 )
+			->store();
+
+		$mails = [];
+		$capture = static function ( $pre, array $atts ) use ( &$mails ) :bool {
+			$mails[] = $atts;
+			return true;
+		};
+		\add_filter( 'pre_wp_mail', $capture, 10, 2 );
+
+		try {
+			$file = $this->writeTempFile( \implode( "\n", [
+				'# email 2fa import fixture',
+				\wp_json_encode( $export ),
+			] ) );
+
+			( new Import() )->fromFile( $file, true );
+		}
+		finally {
+			\remove_filter( 'pre_wp_mail', $capture, 10 );
+		}
+
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_email_authentication' ) );
+		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verified_at' ) );
+		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->assertCount( 0, $mails );
 	}
 
 	public function test_invalid_file_inputs_fail_without_changing_options() :void {

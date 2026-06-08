@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\{
 	Integrations\Lib\Bots\Common\BaseHandler,
 	IPs\Lib\IpRules\IpRuleStatus,
+	LoginGuard\Lib\TwoFactor\EmailDeliveryVerification,
 	LoginGuard\Lib\TwoFactor\Utilties\PasskeyCompatibilityCheck,
 	PluginControllerConsumer
 };
@@ -47,11 +48,27 @@ class SectionNotices {
 		switch ( $section ) {
 
 			case 'section_2fa_email':
-				if ( $opts->optIs( 'enable_email_authentication', 'Y' ) && $opts->optGet( 'email_can_send_verified_at' ) < 1 ) {
-					$notices[] = \implode( ' ', [
-						__( "The ability of this site to send email hasn't been verified.", 'wp-simple-firewall' ),
-						__( 'Please re-save your settings to trigger another verification email.', 'wp-simple-firewall' )
-					] );
+				switch ( ( new EmailDeliveryVerification() )->status() ) {
+					case EmailDeliveryVerification::STATUS_UNSENT:
+						$notices[] = \implode( ' ', [
+							__( "Email-based 2FA isn't active until this site sends a verification email.", 'wp-simple-firewall' ),
+							__( 'Use the dashboard notice to send the verification email.', 'wp-simple-firewall' )
+						] );
+						break;
+					case EmailDeliveryVerification::STATUS_PENDING:
+						$notices[] = \implode( ' ', [
+							__( "Email-based 2FA isn't active until you click the link in the verification email.", 'wp-simple-firewall' ),
+							__( 'Use the dashboard notice to resend the email or disable email 2FA.', 'wp-simple-firewall' )
+						] );
+						break;
+					case EmailDeliveryVerification::STATUS_STALE:
+						$notices[] = \implode( ' ', [
+							__( 'The previous email 2FA verification request is stale.', 'wp-simple-firewall' ),
+							__( 'Use the dashboard notice to send a new verification email or disable email 2FA.', 'wp-simple-firewall' )
+						] );
+						break;
+					default:
+						break;
 				}
 
 				$notices[] = \implode( '<br/>', [

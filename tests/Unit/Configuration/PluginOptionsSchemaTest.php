@@ -273,6 +273,41 @@ class PluginOptionsSchemaTest extends TestCase {
 		);
 	}
 
+	public function testEmailDeliveryVerificationOptionsUseHiddenNonTransferableContract() :void {
+		foreach ( [ 'email_can_send_verified_at', 'email_can_send_verification_sent_at' ] as $optionKey ) {
+			$this->assertArrayHasKey( $optionKey, $this->options );
+			$generated = $this->options[ $optionKey ];
+
+			foreach ( [ 'section', 'type', 'default', 'transferable', 'tracking_exclude' ] as $contractKey ) {
+				$this->assertArrayHasKey( $contractKey, $generated );
+			}
+			$this->assertSame( 'section_hidden', $generated[ 'section' ] );
+			$this->assertSame( 'integer', $generated[ 'type' ] );
+			$this->assertSame( 0, $generated[ 'default' ] );
+			$this->assertSame( false, $generated[ 'transferable' ] );
+			$this->assertSame( true, $generated[ 'tracking_exclude' ] );
+		}
+
+		$options = $this->decodePluginJsonFile( 'plugin-spec/34_options.json', 'Source options spec' );
+		foreach ( [ 'email_can_send_verified_at', 'email_can_send_verification_sent_at' ] as $optionKey ) {
+			$matches = \array_values( \array_filter(
+				$options,
+				static fn( array $option ) :bool => ( $option[ 'key' ] ?? '' ) === $optionKey
+			) );
+
+			$this->assertCount( 1, $matches );
+			$source = $matches[ 0 ];
+			foreach ( [ 'section', 'type', 'default', 'transferable', 'tracking_exclude' ] as $contractKey ) {
+				$this->assertArrayHasKey( $contractKey, $source );
+			}
+			$this->assertSame( 'section_hidden', $source[ 'section' ] );
+			$this->assertSame( 'integer', $source[ 'type' ] );
+			$this->assertSame( 0, $source[ 'default' ] );
+			$this->assertSame( false, $source[ 'transferable' ] );
+			$this->assertSame( true, $source[ 'tracking_exclude' ] );
+		}
+	}
+
 	public function testAdminLoginInstantAlertOptionUsesAlertsReportingContract() :void {
 		$this->assertArrayHasKey( 'instant_alert_admin_login', $this->options );
 		$option = $this->options['instant_alert_admin_login'];

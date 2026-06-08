@@ -2046,6 +2046,17 @@
     {
         "key": "email_can_send_verified_at",
         "section": "section_hidden",
+        "tracking_exclude": true,
+        "transferable": false,
+        "type": "integer",
+        "default": 0,
+        "min": 0
+    },
+    {
+        "key": "email_can_send_verification_sent_at",
+        "section": "section_hidden",
+        "tracking_exclude": true,
+        "transferable": false,
         "type": "integer",
         "default": 0,
         "min": 0

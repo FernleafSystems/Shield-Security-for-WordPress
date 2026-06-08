@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Delete;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class OptionSaveSideEffects {
@@ -20,12 +20,9 @@ class OptionSaveSideEffects {
 	}
 
 	private function login() :void {
-		if ( self::con()->opts->optChanged( 'enable_email_authentication' ) ) {
-			try {
-				self::con()->action_router->action( MfaEmailSendVerification::class );
-			}
-			catch ( \Exception $e ) {
-			}
+		$opts = self::con()->opts;
+		if ( $opts->optChanged( 'enable_email_authentication' ) && $opts->optIs( 'enable_email_authentication', 'N' ) ) {
+			( new EmailDeliveryVerification() )->clearSent();
 		}
 	}
 

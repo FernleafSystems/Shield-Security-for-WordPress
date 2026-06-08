@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginDumpTelemetry;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\NoticeVO;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -64,8 +65,7 @@ class LegacyDashboardNotices extends Base {
 				$needed = false;
 				break;
 			case 'email-verification-sent':
-				$needed = $con->opts->optIs( 'enable_email_authentication', 'Y' )
-						  && $con->opts->optGet( 'email_can_send_verified_at' ) < 1;
+				$needed = ( new EmailDeliveryVerification() )->needsVerificationAction();
 				break;
 			default:
 				$needed = false;
@@ -148,26 +148,48 @@ class LegacyDashboardNotices extends Base {
 	}
 
 	private function buildEmailVerificationPayload( NoticeVO $notice ) :array {
+		$con = self::con();
+		$status = ( new EmailDeliveryVerification() )->status();
+		$recipient = $con->comps->opts_lookup->getReportEmail();
+
+		switch ( $status ) {
+			case EmailDeliveryVerification::STATUS_UNSENT:
+				$summary = __( "Email 2FA is enabled, but it isn't active until this site sends and verifies a delivery email.", 'wp-simple-firewall' );
+				$action = __( 'Send verification email', 'wp-simple-firewall' );
+				break;
+			case EmailDeliveryVerification::STATUS_STALE:
+				$summary = __( 'The previous email 2FA verification email is stale, so email 2FA is still inactive.', 'wp-simple-firewall' );
+				$action = __( 'Send verification email', 'wp-simple-firewall' );
+				break;
+			case EmailDeliveryVerification::STATUS_PENDING:
+				$summary = __( 'A verification email has been sent. Email 2FA is inactive until you click the link in that email.', 'wp-simple-firewall' );
+				$action = __( 'Resend verification email', 'wp-simple-firewall' );
+				break;
+			default:
+				return [];
+		}
+
 		return [
 			'id'          => $notice->id,
 			'type'        => $this->normaliseNoticeType( (string)$notice->type ),
 			'text'        => [
 				sprintf(
 					'<strong>%s</strong> %s %s %s',
-					sprintf( '%s: %s', self::con()->labels->Name, __( 'Please verify email has been received', 'wp-simple-firewall' ) ),
-					__( "Before we can activate email 2-factor authentication, we need you to confirm your website can send emails.", 'wp-simple-firewall' ),
-					__( 'Please click the link in the email you received.', 'wp-simple-firewall' ),
-					sprintf( __( 'The email has been sent to you at blog admin address: %s', 'wp-simple-firewall' ), get_bloginfo( 'admin_email' ) )
+					sprintf( '%s: %s', $con->labels->Name, __( 'Email 2FA verification required', 'wp-simple-firewall' ) ),
+					$summary,
+					__( 'Verification email recipient:', 'wp-simple-firewall' ),
+					\esc_html( $recipient )
 				),
 				sprintf(
 					'<button type="button" class="shield_admin_notice_action shield-button-link" data-notice_action="resend_verification_email">%s</button> / <button type="button" class="shield_admin_notice_action shield-button-link" data-notice_action="mfa_email_disable">%s</button>',
-					__( 'Resend verification email', 'wp-simple-firewall' ),
+					$action,
 					__( 'Disable 2FA by email', 'wp-simple-firewall' )
 				)
 			],
 			'locations'   => [
 				'shield_admin_top_page',
 			],
+			'email_verification_status' => $status,
 			'can_dismiss' => (bool)$notice->can_dismiss,
 		];
 	}
