@@ -80,6 +80,9 @@ class LocalDbWriter extends AbstractProcessingHandler {
 		);
 
 		$recordData = \array_intersect_key( $meta, \array_flip( [ 'verb', 'code', 'path', 'type', 'uid', 'offense' ] ) );
+		if ( \array_key_exists( 'path', $recordData ) ) {
+			$recordData[ 'path' ] = $this->normalisePathForStorage( $recordData[ 'path' ] );
+		}
 		$recordData[ 'req_id' ] = $reqID;
 		$recordData[ 'ip_ref' ] = $ipRecord->id;
 		$recordData[ 'meta' ] = \base64_encode( \wp_json_encode( \array_diff_key( $meta, $recordData ) ) );
@@ -158,6 +161,20 @@ class LocalDbWriter extends AbstractProcessingHandler {
 
 	private function hasLoggedFailure() :bool {
 		return $this->failureLogged;
+	}
+
+	private function normalisePathForStorage( $path ) :string {
+		$path = \wp_check_invalid_utf8( (string)$path, true );
+		$limit = $this->requestLogPathStorageLimit();
+		if ( \mb_strlen( $path, 'UTF-8' ) > $limit ) {
+			$path = \mb_substr( $path, 0, $limit - 3, 'UTF-8' ).'...';
+		}
+		return $path;
+	}
+
+	private function requestLogPathStorageLimit() :int {
+		$limit = (int)( self::con()->db_con->req_logs->getTableSchema()->getColumnDef( 'path' )[ 'length' ] ?? 512 );
+		return $limit > 3 ? $limit : 512;
 	}
 
 	private function buildFailureContext( string $stage, string $message, array $requestContext, array $context = [] ) :array {

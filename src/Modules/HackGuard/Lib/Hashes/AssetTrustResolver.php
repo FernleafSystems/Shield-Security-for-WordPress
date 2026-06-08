@@ -145,6 +145,10 @@ class AssetTrustResolver {
 	 * @throws NonAssetFileException
 	 */
 	private function resolvePluginContext( string $path ) :AssetFileContext {
+		if ( !$this->isPathInRoot( $path, WP_PLUGIN_DIR ) ) {
+			throw new NonAssetFileException( 'Not a plugin file path.' );
+		}
+
 		$pluginFiles = new Plugin\Files();
 		$fragment = $pluginFiles->getPluginPathFragmentFromPath( $path );
 		if ( !\is_string( $fragment ) || \strpos( $fragment, '/' ) === false ) {
@@ -169,6 +173,10 @@ class AssetTrustResolver {
 	 * @throws NonAssetFileException
 	 */
 	private function resolveThemeContext( string $path ) :AssetFileContext {
+		if ( !$this->isPathInRoot( $path, get_theme_root() ) ) {
+			throw new NonAssetFileException( 'Not a theme file path.' );
+		}
+
 		$themeFiles = new Theme\Files();
 		$fragment = $themeFiles->getThemePathFragmentFromPath( $path );
 		if ( !\is_string( $fragment ) || \strpos( $fragment, '/' ) === false ) {
@@ -195,6 +203,16 @@ class AssetTrustResolver {
 			self::$relativePathsByPath[ $cacheKey ] = \substr( $fragment, \strpos( $fragment, '/' ) + 1 );
 		}
 		return self::$relativePathsByPath[ $cacheKey ];
+	}
+
+	private function isPathInRoot( string $path, string $root ) :bool {
+		$path = wp_normalize_path( $path );
+		if ( \preg_match( '#^(?:[A-Z]:)?/#i', $path ) !== 1 ) {
+			$path = wp_normalize_path( path_join( ABSPATH, $path ) );
+		}
+
+		$root = \rtrim( wp_normalize_path( $root ), '/' ).'/';
+		return \str_starts_with( $path, $root );
 	}
 
 	private function pluginFromDir( string $dir ) :?WpPluginVo {
