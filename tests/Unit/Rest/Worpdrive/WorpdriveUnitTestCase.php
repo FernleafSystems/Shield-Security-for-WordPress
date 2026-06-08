@@ -72,7 +72,12 @@ abstract class WorpdriveUnitTestCase extends BaseUnitTest {
 	}
 
 	protected function tempDir( string $prefix ) :string {
-		$dir = $this->normalizePath( \sys_get_temp_dir().'/'.$prefix.'-'.\uniqid() );
+		$tempPathSuffix = \sprintf(
+			'%d-%s',
+			\getmypid() ?: 0,
+			\bin2hex( \random_bytes( 8 ) )
+		);
+		$dir = $this->normalizePath( \sys_get_temp_dir().'/'.$prefix.'-'.$tempPathSuffix );
 		\mkdir( $dir, 0777, true );
 		$this->tempPaths[] = $dir;
 		return $dir;
