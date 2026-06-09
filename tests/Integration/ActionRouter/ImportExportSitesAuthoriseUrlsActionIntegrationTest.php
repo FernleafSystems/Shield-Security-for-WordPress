@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
 	QueueScheduler,
 	SiteRepository
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpHttpResponseVo;
@@ -48,10 +49,14 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		] );
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			'importexport_enable',
+			'importexport_pending_network_invites',
+			'importexport_network_invite_block_until',
 			'importexport_sites_migrated_at',
 		] );
 		$this->requireController()->opts
 								  ->optSet( 'importexport_enable', 'N' )
+								  ->optSet( NetworkInviteRepository::OPTION_KEY, [] )
+								  ->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, 0 )
 								  ->optSet( 'importexport_sites_migrated_at', 0 )
 								  ->store();
 		$this->loginAsSecurityAdmin();
@@ -67,6 +72,7 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 
 	public function test_authorise_urls_submit_adds_multiple_canonical_urls_schedules_queue_and_sends_invites() :void {
 		$this->enableSync();
+		$this->seedPendingInvite( 'https://93.184.216.90/pending-master' );
 		$this->captureShieldEvents();
 
 		$payload = $this->submitAuthoriseUrls(
@@ -98,6 +104,8 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertStringContainsString( PluginImportExport_NetworkInviteRequest::SLUG, $this->inviteHttp->requests[ 0 ][ 'url' ] );
 		$this->assertStringContainsString( PluginImportExport_NetworkInviteRequest::SLUG, $this->inviteHttp->requests[ 1 ][ 'url' ] );
 		$this->assertCount( 2, $this->getCapturedEventsByKey( 'whitelist_site_added' ) );
+		$this->assertSame( [], $this->requireController()->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+		$this->assertSame( 0, (int)$this->requireController()->opts->optGet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY ) );
 	}
 
 	public function test_authorise_urls_submit_invite_failure_does_not_roll_back_site_row() :void {
@@ -266,6 +274,18 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 
 	private function queueHook() :string {
 		return ( new QueueScheduler() )->hook();
+	}
+
+	private function seedPendingInvite( string $masterUrl ) :void {
+		$id = \hash( 'sha256', $masterUrl );
+		$this->requireController()->opts->optSet( NetworkInviteRepository::OPTION_KEY, [
+			$id => [
+				'id'         => $id,
+				'master_url' => $masterUrl,
+				'created_at' => 1712620800,
+				'updated_at' => 1712620800,
+			],
+		] )->store();
 	}
 }
 

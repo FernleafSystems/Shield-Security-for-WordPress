@@ -24,6 +24,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 			'importexport_enable',
 			'importexport_masterurl',
 			'importexport_pending_network_invites',
+			'importexport_network_invite_block_until',
 		] );
 	}
 
@@ -255,6 +256,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$review = $data[ 'vars' ][ 'network_invite_review' ];
 
 		$this->assertTrue( (bool)$data[ 'flags' ][ 'has_network_invite_review' ] );
+		$this->assertNotNull( $review );
 		$this->assertSame( $invite[ 'id' ], $review[ 'invite' ][ 'id' ] );
 		$this->assertArrayNotHasKey( 'actions', $review );
 
@@ -263,6 +265,24 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertStringContainsString( 'ImportExportNetworkInviteAcceptForm', $html );
 		$this->assertStringNotContainsString( 'data-import-export-tab="file"', $html );
 		$this->assertStringNotContainsString( 'data-import-export-tab="network_sync"', $html );
+	}
+
+	public function test_network_invite_review_mode_hides_stale_invite_when_master_url_exists() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://master.example.com' )
+			->store();
+		$invite = $this->seedPendingInvite( 'https://93.184.216.42/stale-review-master' );
+		$page = new PageImportExportContractProbe( [
+			NetworkInviteRepository::REVIEW_QUERY_KEY => $invite[ 'id' ],
+		] );
+
+		$data = $page->renderDataForTest();
+
+		$this->assertFalse( (bool)$data[ 'flags' ][ 'has_network_invite_review' ] );
+		$this->assertNull( $data[ 'vars' ][ 'network_invite_review' ] );
 	}
 
 	private function assertCapabilityFlags(
@@ -293,6 +313,20 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 
 	private function renderData() :array {
 		return ( new PageImportExportContractProbe() )->renderDataForTest();
+	}
+
+	private function seedPendingInvite( string $masterUrl ) :array {
+		$id = \hash( 'sha256', $masterUrl );
+		$invite = [
+			'id'         => $id,
+			'master_url' => $masterUrl,
+			'created_at' => 1712620800,
+			'updated_at' => 1712620800,
+		];
+		$this->requireController()->opts->optSet( NetworkInviteRepository::OPTION_KEY, [
+			$id => $invite,
+		] )->store();
+		return $invite;
 	}
 }
 

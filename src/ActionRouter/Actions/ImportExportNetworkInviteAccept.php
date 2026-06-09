@@ -24,9 +24,12 @@ class ImportExportNetworkInviteAccept extends BaseAction {
 			if ( !( new ImportExportController() )->isSyncEnabled() ) {
 				throw new \RuntimeException( __( 'Import and export is not enabled.', 'wp-simple-firewall' ) );
 			}
+			if ( !$repo->canReviewInvites() ) {
+				throw new \RuntimeException( __( 'Network invite is no longer available.', 'wp-simple-firewall' ) );
+			}
 
 			$invite = $repo->find( (string)( $form[ 'invite_id' ] ?? '' ) );
-			if ( empty( $invite ) ) {
+			if ( $invite === null ) {
 				throw new \RuntimeException( __( 'Network invite was not found.', 'wp-simple-firewall' ) );
 			}
 

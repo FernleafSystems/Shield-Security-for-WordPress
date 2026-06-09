@@ -46,6 +46,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			'importexport_secretkey_expires_at',
 			'importexport_handshake_expires_at',
 			'importexport_pending_network_invites',
+			'importexport_network_invite_block_until',
 			'importexport_sites_migrated_at',
 			'import_id',
 			'import_url_ids',
@@ -101,6 +102,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 					'updated_at' => 1712620800,
 				],
 			] )
+			->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, 1713225600 )
 			->optSet( 'xfer_excluded', [ 'enable_tracking' ] )
 			->store();
 
@@ -123,6 +125,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'enable_tracking', $export[ 'options' ] );
 		$this->assertArrayNotHasKey( 'xfer_excluded', $export[ 'options' ] );
 		$this->assertArrayNotHasKey( NetworkInviteRepository::OPTION_KEY, $export[ 'options' ] );
+		$this->assertArrayNotHasKey( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, $export[ 'options' ] );
 	}
 
 	public function test_standard_file_import_applies_transferable_options_respects_exclusions_and_deletes_file() :void {
@@ -249,6 +252,8 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$con->opts
 			->optSet( 'importexport_whitelist', [] )
 			->optSet( 'import_url_ids', [] )
+			->optSet( NetworkInviteRepository::OPTION_KEY, $this->pendingNetworkInviteFixture() )
+			->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, 1713225600 )
 			->optSet( 'importexport_sites_migrated_at', 1 )
 			->store();
 		$secret = $con->comps->import_export->getImportExportSecretKey();
@@ -267,6 +272,8 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( self::SLAVE_IMPORT_ID, $row->import_id );
 		$this->assertSame( [], $con->opts->optGet( 'import_url_ids' ) );
 		$this->assertSame( [], $con->opts->optGet( 'importexport_whitelist' ) );
+		$this->assertSame( [], $con->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+		$this->assertSame( 1713225600, (int)$con->opts->optGet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY ) );
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'options_exported' ) );
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'whitelist_site_added' ) );
 
@@ -475,6 +482,19 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$row = ( new SiteRepository() )->upsertActive( $url, $source, $importID );
 		$this->assertInstanceOf( SiteRecord::class, $row );
 		return $row;
+	}
+
+	private function pendingNetworkInviteFixture() :array {
+		$url = 'https://93.184.216.92/pending-master';
+		$id = \hash( 'sha256', $url );
+		return [
+			$id => [
+				'id'         => $id,
+				'master_url' => $url,
+				'created_at' => 1712620800,
+				'updated_at' => 1712620800,
+			],
+		];
 	}
 
 	private function captureExportJson( array $query ) :array {

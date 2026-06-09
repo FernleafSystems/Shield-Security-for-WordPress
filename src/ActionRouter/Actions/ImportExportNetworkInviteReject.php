@@ -14,7 +14,7 @@ class ImportExportNetworkInviteReject extends BaseAction {
 
 	protected function exec() {
 		$form = $this->formData();
-		( new NetworkInviteRepository() )->clear( (string)( $form[ 'invite_id' ] ?? '' ) );
+		( new NetworkInviteRepository() )->reject( (string)( $form[ 'invite_id' ] ?? '' ) );
 
 		$this->response()->setPayload( [
 			'message'      => __( 'Network invite rejected.', 'wp-simple-firewall' ),

@@ -108,7 +108,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *     import_export_tabs:list<ImportExportTab>,
  *     file_transfer:FileTransferContract,
  *     network_sync:NetworkSyncContract,
- *     network_invite_review:NetworkInviteReviewContract|array{}
+ *     network_invite_review:NetworkInviteReviewContract|null
  *   },
  *   strings:array{inner_page_title:string,inner_page_subtitle:string}
  * }
@@ -145,7 +145,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'can_importexport'          => $canImportExportFile || $canImportExportSync,
 				'can_importexport_file'     => $canImportExportFile,
 				'can_importexport_sync'     => $canImportExportSync,
-				'has_network_invite_review' => !empty( $networkInviteReview ),
+				'has_network_invite_review' => $networkInviteReview !== null,
 				'network_sync_state'        => $networkSyncState,
 			],
 			'imgs'    => [
@@ -371,14 +371,14 @@ class PageImportExport extends BasePluginAdminPage {
 	}
 
 	/**
-	 * @return NetworkInviteReviewContract|array{}
+	 * @return NetworkInviteReviewContract|null
 	 */
-	private function buildNetworkInviteReview() :array {
+	private function buildNetworkInviteReview() :?array {
 		$invite = ( new NetworkInviteRepository() )->find(
 			(string)( $this->action_data[ NetworkInviteRepository::REVIEW_QUERY_KEY ] ?? '' )
 		);
-		if ( empty( $invite ) ) {
-			return [];
+		if ( $invite === null ) {
+			return null;
 		}
 
 		return [

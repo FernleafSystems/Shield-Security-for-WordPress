@@ -40,6 +40,9 @@ class OptionSaveSideEffects {
 		if ( $opts->optChanged( 'importexport_enable' ) && $opts->optIs( 'importexport_enable', 'N' ) ) {
 			( new NetworkInviteRepository() )->clearAll( false );
 		}
+		if ( $opts->optChanged( 'importexport_masterurl' ) && \trim( (string)$opts->optGet( 'importexport_masterurl' ) ) !== '' ) {
+			( new NetworkInviteRepository() )->clearAll( false );
+		}
 	}
 
 	private function ips() :void {

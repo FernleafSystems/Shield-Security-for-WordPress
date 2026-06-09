@@ -208,6 +208,7 @@ class ImportExportController {
 		}
 
 		if ( !empty( $authorisedUrls ) ) {
+			( new NetworkInviteRepository() )->clearAll();
 			$this->scheduleQueueSoonIfSyncEnabled();
 		}
 
@@ -232,7 +233,9 @@ class ImportExportController {
 	public function addSyncSiteExportUrl( string $url, string $importID = '' ) :void {
 		$url = Services::Data()->validateSimpleHttpUrl( $url );
 		if ( $url !== false ) {
-			( new SiteRepository() )->upsertActive( $url, ImportExportSitesDB::SOURCE_EXPORT, $importID, true );
+			if ( ( new SiteRepository() )->upsertActive( $url, ImportExportSitesDB::SOURCE_EXPORT, $importID, true ) ) {
+				( new NetworkInviteRepository() )->clearAll();
+			}
 		}
 	}
 

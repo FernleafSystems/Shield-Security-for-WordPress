@@ -11,7 +11,7 @@ class ImportExportNetworkInvite extends Base {
 	 */
 	public function check() :?array {
 		$invite = ( new NetworkInviteRepository() )->first();
-		if ( empty( $invite ) ) {
+		if ( $invite === null ) {
 			return null;
 		}
 

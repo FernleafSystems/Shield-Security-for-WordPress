@@ -16,9 +16,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\ImportExportNetworkInvite;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -35,6 +37,12 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 	private const AJAX_MASTER_URL = 'https://93.184.216.39/ajax-master';
 	private const DIRECT_MASTER_URL = 'https://93.184.216.40/direct-master';
 	private const GET_MASTER_URL = 'https://93.184.216.41/get-master';
+	private const SECOND_MASTER_URL = 'https://93.184.216.42/second-master';
+	private const CONNECTED_MASTER_URL = 'https://93.184.216.43/connected-master';
+	private const ACTIVE_CLIENT_MASTER_URL = 'https://93.184.216.44/active-client-master';
+	private const LEGACY_CLIENT_MASTER_URL = 'https://93.184.216.45/legacy-client-master';
+	private const COOLDOWN_MASTER_URL = 'https://93.184.216.46/cooldown-master';
+	private const STALE_MASTER_URL = 'https://93.184.216.47/stale-master';
 
 	private array $optionsSnapshot = [];
 	private array $requestSnapshot = [];
@@ -48,7 +56,10 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			'importexport_enable',
 			'importexport_masterurl',
+			'importexport_whitelist',
 			'importexport_pending_network_invites',
+			'importexport_network_invite_block_until',
+			'importexport_sites_migrated_at',
 			'importexport_handshake_expires_at',
 			'import_id',
 			'xfer_excluded',
@@ -56,7 +67,10 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->requireController()->opts
 								  ->optSet( 'importexport_enable', 'N' )
 								  ->optSet( 'importexport_masterurl', '' )
+								  ->optSet( 'importexport_whitelist', [] )
 								  ->optSet( NetworkInviteRepository::OPTION_KEY, [] )
+								  ->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, 0 )
+								  ->optSet( 'importexport_sites_migrated_at', 1 )
 								  ->store();
 		\add_filter( 'pre_http_request', [ $this, 'mockMasterExportResponse' ], 10, 3 );
 	}
@@ -142,18 +156,57 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( '', (string)$this->requireController()->opts->optGet( 'importexport_masterurl' ) );
 	}
 
-	public function test_pending_invites_dedupe_and_cap_at_five() :void {
+	public function test_pending_invites_are_single_and_ignore_followup_requests() :void {
 		$this->enableSync();
 		$repo = new NetworkInviteRepository();
-		for ( $i = 1; $i <= 6; $i++ ) {
-			$repo->receive( sprintf( 'https://93.184.216.%d/master-%d', 50 + $i, $i ) );
-		}
-		$repo->receive( 'https://93.184.216.51/master-1' );
+		$first = $repo->receive( self::MASTER_INVITE_URL );
+		$duplicate = $repo->receive( self::MASTER_INVITE_URL );
+		$second = $repo->receive( self::SECOND_MASTER_URL );
 
 		$pending = $repo->pending();
-		$this->assertCount( 5, $pending );
-		$this->assertSame( 'https://93.184.216.51/master-1', $pending[ 0 ][ 'master_url' ] );
-		$this->assertNull( $repo->find( \hash( 'sha256', 'https://93.184.216.56/master-6' ) ) );
+		$this->assertIsArray( $first );
+		$this->assertNull( $duplicate );
+		$this->assertNull( $second );
+		$this->assertCount( 1, $pending );
+		$this->assertSame( self::MASTER_INVITE_URL, $pending[ 0 ][ 'master_url' ] );
+		$this->assertSame( $first[ 'updated_at' ], $pending[ 0 ][ 'updated_at' ] );
+		$this->assertNull( $repo->find( \hash( 'sha256', self::SECOND_MASTER_URL ) ) );
+	}
+
+	public function test_anonymous_invite_request_rejects_when_site_already_has_master_url_without_mutation_or_payload() :void {
+		$this->enableSync();
+		$this->requireController()->opts->optSet( 'importexport_masterurl', 'https://master.example.com' )->store();
+
+		$payload = $this->submitAnonymousInvite( self::CONNECTED_MASTER_URL );
+
+		$this->assertSame( [], $payload );
+		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
+		$this->assertSame( [], $this->requireController()->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+	}
+
+	public function test_anonymous_invite_request_rejects_when_site_has_active_client_rows_without_mutation_or_payload() :void {
+		$this->enableSync();
+		( new SiteRepository() )->upsertActive( 'https://93.184.216.72/client-site', SitesDB::SOURCE_MANUAL, '', true );
+
+		$payload = $this->submitAnonymousInvite( self::ACTIVE_CLIENT_MASTER_URL );
+
+		$this->assertSame( [], $payload );
+		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
+		$this->assertSame( [], $this->requireController()->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+	}
+
+	public function test_anonymous_invite_request_rejects_when_legacy_client_rows_import_as_active_without_payload() :void {
+		$this->enableSync();
+		$this->requireController()->opts
+								  ->optSet( 'importexport_sites_migrated_at', 0 )
+								  ->optSet( 'importexport_whitelist', [ 'https://93.184.216.73/legacy-client' ] )
+								  ->store();
+
+		$payload = $this->submitAnonymousInvite( self::LEGACY_CLIENT_MASTER_URL );
+
+		$this->assertSame( [], $payload );
+		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
+		$this->assertGreaterThan( 0, ( new SiteRepository() )->countActiveRows() );
 	}
 
 	public function test_notice_is_non_dismissible_and_links_to_review() :void {
@@ -180,8 +233,32 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
+		$this->assertGreaterThan( Services::Request()->ts(), (int)$this->requireController()->opts->optGet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY ) );
 		$this->assertSame( '', (string)$this->requireController()->opts->optGet( 'importexport_masterurl' ) );
 		$this->assertSame( 'Y', (string)$this->requireController()->opts->optGet( 'importexport_enable' ) );
+	}
+
+	public function test_rejected_invite_blocks_future_invites_for_one_week() :void {
+		$this->enableSync();
+		$repo = new NetworkInviteRepository();
+		$invite = $repo->receive( self::REJECT_MASTER_URL );
+		( new ActionProcessor() )->processAction( ImportExportNetworkInviteReject::SLUG, [
+			'form_params' => [
+				'invite_id' => $invite[ 'id' ],
+			],
+		] );
+
+		$blockedPayload = $this->submitAnonymousInvite( self::COOLDOWN_MASTER_URL );
+		$this->assertSame( [], $blockedPayload );
+		$this->assertSame( [], $repo->pending() );
+		$this->assertSame( [], $this->requireController()->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+
+		$this->requireController()->opts->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, Services::Request()->ts() - 1 )->store();
+		$expiredPayload = $this->submitAnonymousInvite( self::COOLDOWN_MASTER_URL );
+
+		$this->assertSame( [], $expiredPayload );
+		$this->assertCount( 1, $repo->pending() );
+		$this->assertSame( self::COOLDOWN_MASTER_URL, $repo->first()[ 'master_url' ] );
 	}
 
 	public function test_accept_requires_checkbox_and_keeps_invite_on_failure() :void {
@@ -233,6 +310,41 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
 		$this->assertSame( $master, (string)$this->requireController()->opts->optGet( 'importexport_masterurl' ) );
 		$this->assertSame( 'Y', (string)$this->requireController()->opts->optGet( 'importexport_enable' ) );
+	}
+
+	public function test_accept_rejects_stale_invite_after_site_gets_master_url_without_import() :void {
+		$this->enableSync();
+		$invite = ( new NetworkInviteRepository() )->receive( self::STALE_MASTER_URL );
+		$this->requireController()->opts->optSet( 'importexport_masterurl', 'https://existing-master.example.com' )->store();
+
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+			'form_params' => [
+				'invite_id' => $invite[ 'id' ],
+				'confirm'   => 'Y',
+			],
+		] )->payload();
+
+		$this->assertFalse( $payload[ 'success' ] );
+		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
+		$this->assertSame( 0, (int)$this->requireController()->opts->optGet( 'importexport_handshake_expires_at' ) );
+	}
+
+	public function test_accept_rejects_stale_invite_after_site_gets_active_client_row_without_import_or_clear() :void {
+		$this->enableSync();
+		$invite = ( new NetworkInviteRepository() )->receive( self::STALE_MASTER_URL );
+		( new SiteRepository() )->upsertActive( 'https://93.184.216.74/client-site', SitesDB::SOURCE_MANUAL, '', true );
+
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+			'form_params' => [
+				'invite_id' => $invite[ 'id' ],
+				'confirm'   => 'Y',
+			],
+		] )->payload();
+
+		$this->assertFalse( $payload[ 'success' ] );
+		$this->assertArrayHasKey( $invite[ 'id' ], $this->requireController()->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+		$this->assertSame( '', (string)$this->requireController()->opts->optGet( 'importexport_masterurl' ) );
+		$this->assertSame( 0, (int)$this->requireController()->opts->optGet( 'importexport_handshake_expires_at' ) );
 	}
 
 	public function test_accept_rejects_private_invite_without_import_or_clear() :void {
@@ -300,10 +412,21 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( '', $storedOutput );
 		$this->assertCount( 1, ( new NetworkInviteRepository() )->pending() );
 
+		$duplicateOutput = $this->captureDirectInviteRequestOutput( self::SECOND_MASTER_URL );
+		$this->assertSame( '', $duplicateOutput );
+		$this->assertCount( 1, ( new NetworkInviteRepository() )->pending() );
+
 		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
 		$rejectedOutput = $this->captureDirectInviteRequestOutput( 'http://127.0.0.1' );
 
 		$this->assertSame( '', $rejectedOutput );
+		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
+
+		$this->enableSync();
+		$this->requireController()->opts->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, Services::Request()->ts() + \WEEK_IN_SECONDS )->store();
+		$cooldownOutput = $this->captureDirectInviteRequestOutput( self::COOLDOWN_MASTER_URL );
+
+		$this->assertSame( '', $cooldownOutput );
 		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
 	}
 

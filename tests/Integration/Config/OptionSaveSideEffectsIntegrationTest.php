@@ -28,7 +28,9 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		'auto_integrations_track',
 		'cs_block',
 		'importexport_enable',
+		'importexport_masterurl',
 		'importexport_pending_network_invites',
+		'importexport_network_invite_block_until',
 		'transgression_limit',
 		'scan_frequency',
 		'file_locker',
@@ -209,11 +211,13 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$con->opts
 			->optSet( 'importexport_enable', 'Y' )
 			->optSet( NetworkInviteRepository::OPTION_KEY, $this->pendingNetworkInviteFixture() )
+			->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, 1713225600 )
 			->store();
 
 		$con->opts->optSet( 'importexport_enable', 'N' )->store();
 
 		$this->assertSame( [], $con->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+		$this->assertSame( 1713225600, (int)$con->opts->optGet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY ) );
 	}
 
 	public function test_import_export_noop_enabled_save_preserves_pending_network_invites() :void {
@@ -228,6 +232,22 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$con->opts->optSet( 'importexport_enable', 'Y' )->store();
 
 		$this->assertSame( $invites, $con->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+	}
+
+	public function test_master_url_save_clears_pending_network_invites_without_cooldown_change() :void {
+		$this->enableImportExportSyncCapability();
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', '' )
+			->optSet( NetworkInviteRepository::OPTION_KEY, $this->pendingNetworkInviteFixture() )
+			->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, 1713225600 )
+			->store();
+
+		$con->opts->optSet( 'importexport_masterurl', 'https://master.example.com' )->store();
+
+		$this->assertSame( [], $con->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+		$this->assertSame( 1713225600, (int)$con->opts->optGet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY ) );
 	}
 
 	public function test_disabling_crowdsec_block_deletes_crowdsec_rows() :void {
