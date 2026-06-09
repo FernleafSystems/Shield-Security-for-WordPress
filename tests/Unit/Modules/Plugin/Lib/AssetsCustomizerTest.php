@@ -21,6 +21,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\ImportExportSitesAuthoriseUrlsSubmit,
 	Actions\ImportExportSitesTableAction,
 	Actions\LicenseClear,
+	Actions\PluginImportExport_DisconnectMaster,
+	Actions\PluginImportExport_SetEnabled,
 	Actions\PluginImportFromSite,
 	Actions\ReportingChartTrends,
 	Actions\Render\Components\OffCanvas\ImportExportSitesAuthoriseUrls,
@@ -226,9 +228,19 @@ class AssetsCustomizerTest extends BaseUnitTest {
 
 		$ajax = $this->componentAjax( 'import' );
 
-		$this->assertSame( PluginImportFromSite::SLUG, $ajax[ 'import_from_site' ][ ActionData::FIELD_EXECUTE ] ?? '' );
-		$this->assertSame( ImportExportNetworkInviteAccept::SLUG, $ajax[ 'network_invite_accept' ][ ActionData::FIELD_EXECUTE ] ?? '' );
-		$this->assertSame( ImportExportNetworkInviteReject::SLUG, $ajax[ 'network_invite_reject' ][ ActionData::FIELD_EXECUTE ] ?? '' );
+		$this->assertSame( PluginImportFromSite::SLUG, $ajax[ 'import_from_site' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame( PluginImportExport_DisconnectMaster::SLUG, $ajax[ 'disconnect_master' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame( PluginImportExport_SetEnabled::SLUG, $ajax[ 'set_enabled' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame( ImportExportNetworkInviteAccept::SLUG, $ajax[ 'network_invite_accept' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame( ImportExportNetworkInviteReject::SLUG, $ajax[ 'network_invite_reject' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame(
+			ImportExportSitesAuthoriseUrls::SLUG,
+			$ajax[ 'render_authorise_urls_offcanvas' ][ 'render_slug' ]
+		);
+		$this->assertAjaxRenderPayloadAllowedByPolicy(
+			$ajax[ 'render_authorise_urls_offcanvas' ],
+			'import export add client sites offcanvas'
+		);
 	}
 
 	public function test_import_export_sites_table_localizes_authorise_url_payloads() :void {
@@ -242,25 +254,14 @@ class AssetsCustomizerTest extends BaseUnitTest {
 
 		$sites = $tables[ 'import_export_sites' ];
 		$this->assertArrayHasKey( 'ajax', $sites );
-		$this->assertArrayHasKey( 'strings', $sites );
 		$this->assertArrayHasKey( 'vars', $sites );
 
 		$ajax = $sites[ 'ajax' ];
 		$this->assertArrayHasKey( 'table_action', $ajax );
 		$this->assertArrayHasKey( 'authorise_urls_submit', $ajax );
-		$this->assertArrayHasKey( 'render_authorise_urls_offcanvas', $ajax );
 
 		$this->assertSame( ImportExportSitesTableAction::SLUG, $ajax[ 'table_action' ][ ActionData::FIELD_EXECUTE ] );
 		$this->assertSame( ImportExportSitesAuthoriseUrlsSubmit::SLUG, $ajax[ 'authorise_urls_submit' ][ ActionData::FIELD_EXECUTE ] );
-		$this->assertSame(
-			ImportExportSitesAuthoriseUrls::SLUG,
-			$ajax[ 'render_authorise_urls_offcanvas' ][ 'render_slug' ]
-		);
-		$this->assertAjaxRenderPayloadAllowedByPolicy(
-			$ajax[ 'render_authorise_urls_offcanvas' ],
-			'import export sites authorise urls offcanvas'
-		);
-		$this->assertArrayHasKey( 'add_authorised_urls', $sites[ 'strings' ] );
 		$this->assertArrayHasKey( 'datatables_init', $sites[ 'vars' ] );
 	}
 
@@ -409,12 +410,12 @@ class AssetsCustomizerTest extends BaseUnitTest {
 				'tables',
 				1,
 			],
-			'import export sites authorise offcanvas' => [
+			'import page add client sites offcanvas' => [
 				[
 					PluginNavs::FIELD_NAV    => PluginNavs::NAV_TOOLS,
 					PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_TOOLS_IMPORT,
 				],
-				'tables',
+				'import',
 				1,
 			],
 		];

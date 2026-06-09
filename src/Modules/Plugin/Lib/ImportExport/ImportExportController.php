@@ -69,7 +69,7 @@ class ImportExportController {
 		return $this->isSyncAvailable() && self::con()->opts->optIs( 'importexport_enable', 'Y' );
 	}
 
-	public function syncSitesState() :string {
+	public function networkSyncState() :string {
 		if ( !$this->isSyncAvailable() ) {
 			return self::SYNC_STATE_UNAVAILABLE;
 		}
@@ -99,6 +99,21 @@ class ImportExportController {
 		$this->assertSyncAvailable();
 		self::con()->opts->optSet( 'importexport_enable', 'Y' )->store();
 		$this->refreshRegistryAndScheduleQueueIfEnabled();
+	}
+
+	public function setAutomaticImportExportEnabled( bool $enabled ) :void {
+		if ( $enabled ) {
+			$this->enableAutomaticImportExport();
+		}
+		else {
+			$this->assertSyncAvailable();
+			self::con()->opts->optSet( 'importexport_enable', 'N' )->store();
+		}
+	}
+
+	public function disconnectMasterSite() :void {
+		$this->assertSyncAvailable();
+		self::con()->opts->optSet( 'importexport_masterurl', '' )->store();
 	}
 
 	public function queueSitesForSync( array $ids ) :int {

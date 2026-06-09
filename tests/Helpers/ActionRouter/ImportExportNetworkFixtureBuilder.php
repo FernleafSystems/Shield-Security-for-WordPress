@@ -8,7 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 /**
  * @phpstan-type FixtureState array{options_snapshot:array<string,mixed>}
  */
-class ImportExportFileFixtureBuilder {
+class ImportExportNetworkFixtureBuilder {
 
 	private const OPTION_KEYS = [
 		'license_activated_at',
@@ -28,12 +28,14 @@ class ImportExportFileFixtureBuilder {
 		];
 
 		try {
-			RuntimeTestState::applyPremiumCapabilities( [ 'import_export_level_1' ] );
-			RuntimeTestState::controller()->opts
-				->optSet( 'importexport_enable', 'N' )
+			RuntimeTestState::applyPremiumCapabilities( [ 'import_export_level_1', 'import_export_level_2' ] );
+			$con = RuntimeTestState::controller();
+			$con->opts
+				->optSet( 'importexport_enable', 'Y' )
 				->optSet( 'importexport_masterurl', '' )
 				->optSet( NetworkInviteRepository::OPTION_KEY, [] )
 				->store();
+
 			return [
 				'contract' => [],
 				'state'    => $state,

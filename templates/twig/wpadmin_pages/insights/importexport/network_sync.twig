@@ -1,0 +1,192 @@
+<section id="{{ network_sync.section_id }}"
+		 class="import-export-network-sync"
+		 data-import-export-network-sync="1"
+		 data-import-export-sync-state="{{ network_sync.sync_state }}">
+	<div class="import-export-sync-topbar{% if network_sync.is_enabled %} is-enabled{% endif %}">
+		<div class="import-export-sync-topbar__state">
+			<span class="import-export-sync-topbar__dot" aria-hidden="true"></span>
+			<div class="import-export-sync-topbar__copy">
+				<h5>{{ network_sync.status.title }}</h5>
+				<p>{{ network_sync.status.summary }}</p>
+			</div>
+		</div>
+
+		<div class="form-check form-switch import-export-sync-toggle">
+			<input class="form-check-input"
+				   type="checkbox"
+				   role="switch"
+				   id="{{ network_sync.toggle.id }}"
+				   data-import-export-sync-toggle="1"
+				   {% if network_sync.toggle.is_checked %}checked{% endif %}>
+			<label class="form-check-label" for="{{ network_sync.toggle.id }}">
+				{{ network_sync.toggle.label }}
+			</label>
+		</div>
+	</div>
+
+	{% if network_sync.is_disabled %}
+		<div class="import-export-network-disabled" data-import-export-network-disabled="1">
+			<i class="bi bi-toggle-off" aria-hidden="true"></i>
+			<div>
+				<h5>{{ network_sync.disabled.title }}</h5>
+				<p>{{ network_sync.disabled.summary }}</p>
+			</div>
+		</div>
+	{% elseif network_sync.is_enabled %}
+		<div class="import-export-workbench" data-import-export-workbench="1">
+			<div class="import-export-rail">
+				<div class="import-export-rail__status">
+					<span class="import-export-rail__eyebrow">{{ network_sync.status.connection_label }}</span>
+					<strong>{{ network_sync.clients.count_label }}</strong>
+					<small>{{ network_sync.status.rail_summary }}</small>
+				</div>
+
+				<div class="import-export-task-list" role="tablist" aria-orientation="vertical">
+					{% for task in network_sync.tasks %}
+						<button type="button"
+								class="import-export-task{% if task.is_active %} active{% endif %}"
+								data-import-export-task="{{ task.key }}"
+								role="tab"
+								aria-selected="{{ task.is_active ? 'true' : 'false' }}">
+							<i class="{{ task.icon_class }}" aria-hidden="true"></i>
+							<span>
+								<strong>{{ task.title }}</strong>
+								<small>{{ task.summary }}</small>
+							</span>
+						</button>
+					{% endfor %}
+				</div>
+			</div>
+
+			<div class="import-export-detail">
+				<div class="import-export-pane active"
+					 data-import-export-pane="connect"
+					 role="tabpanel">
+					<header class="import-export-pane__header">
+						<div>
+							<h5>{{ network_sync.connect.title }}</h5>
+							<p>{{ network_sync.connect.summary }}</p>
+						</div>
+						{% if network_sync.connect.disconnect.is_available %}
+							<button type="button"
+									class="btn btn-outline-secondary btn-sm"
+									data-import-export-disconnect="1">
+								<i class="bi bi-x-lg" aria-hidden="true"></i>
+								<span>{{ network_sync.connect.disconnect.label }}</span>
+							</button>
+						{% endif %}
+					</header>
+
+					<form id="{{ network_sync.connect.form_id }}" class="import-export-connect-form" autocomplete="off">
+						<div class="mb-3">
+							<label class="form-label" for="{{ network_sync.connect.master_site_url_id }}">
+								{{ network_sync.connect.master_site_url_label }}
+							</label>
+							<input class="form-control"
+								   id="{{ network_sync.connect.master_site_url_id }}"
+								   name="{{ network_sync.connect.master_site_url_name }}"
+								   type="url"
+								   placeholder="{{ network_sync.connect.master_site_url_placeholder }}"
+								   value="{{ network_sync.current_master_url }}">
+						</div>
+
+						<fieldset class="import-export-choice-group">
+							<legend>{{ network_sync.connect.import_mode_label }}</legend>
+							<div class="import-export-choice-group__options">
+								{% for option in network_sync.connect.import_mode_options %}
+									<label class="import-export-choice" for="{{ option.id }}">
+										<input class="form-check-input"
+											   type="radio"
+											   id="{{ option.id }}"
+											   name="ShieldNetwork"
+											   value="{{ option.value }}"
+											   data-import-export-link-choice="1"
+											   data-action-label="{{ option.value == 'Y' ? network_sync.connect.submit_label_network : network_sync.connect.submit_label_once }}"
+											   {% if option.is_checked %}checked{% endif %}>
+										<span>
+											<strong>{{ option.label }}</strong>
+											<small>{{ option.summary }}</small>
+										</span>
+									</label>
+								{% endfor %}
+							</div>
+						</fieldset>
+
+						<fieldset class="import-export-choice-group" data-import-export-verification-box="1">
+							<legend>{{ network_sync.connect.verification_label }}</legend>
+							<div class="import-export-choice-group__options">
+								{% for option in network_sync.connect.verification_options %}
+									<label class="import-export-choice" for="{{ option.id }}">
+										<input class="form-check-input"
+											   type="radio"
+											   id="{{ option.id }}"
+											   name="MasterSiteVerification"
+											   value="{{ option.value }}"
+											   data-import-export-auth-choice="{{ option.value }}"
+											   {% if option.is_checked %}checked{% endif %}>
+										<span>
+											<strong>{{ option.label }}</strong>
+											<small>{{ option.summary }}</small>
+										</span>
+									</label>
+								{% endfor %}
+							</div>
+							<div class="import-export-secret-field d-none" data-import-export-secret-field="1">
+								<label class="form-label" for="{{ network_sync.connect.secret_key_id }}">
+									{{ network_sync.connect.secret_key_label }}
+								</label>
+								<input class="form-control"
+									   id="{{ network_sync.connect.secret_key_id }}"
+									   name="{{ network_sync.connect.secret_key_name }}"
+									   type="text"
+									   placeholder="{{ network_sync.connect.secret_key_placeholder }}"
+									   disabled>
+							</div>
+						</fieldset>
+
+						<div class="import-export-connect-form__footer">
+							<div class="form-check import-export-confirm-check">
+								<input type="checkbox"
+									   class="form-check-input"
+									   name="{{ network_sync.connect.confirm_name }}"
+									   id="{{ network_sync.connect.confirm_id }}"
+									   value="{{ network_sync.connect.confirm_value }}" />
+								<label for="{{ network_sync.connect.confirm_id }}" class="form-check-label">
+									{{ network_sync.connect.confirm_label }}
+								</label>
+								<div class="form-text">{{ network_sync.connect.confirm_help }}</div>
+							</div>
+
+							<button type="submit"
+									class="btn btn-primary import-export-primary-action"
+									data-import-export-primary-action="1">
+								<i class="{{ network_sync.connect.submit_icon_class }}" aria-hidden="true"></i>
+								<span>{{ network_sync.connect.submit_label_once }}</span>
+							</button>
+						</div>
+					</form>
+				</div>
+
+				<div class="import-export-pane"
+					 data-import-export-pane="clients"
+					 role="tabpanel"
+					 hidden>
+					<header class="import-export-pane__header">
+						<div>
+							<h5>{{ network_sync.clients.title }}</h5>
+							<p>{{ network_sync.clients.summary }}</p>
+						</div>
+						<button type="button"
+								class="btn btn-primary btn-sm"
+								data-import-export-add-clients="1">
+							<i class="bi bi-plus-lg" aria-hidden="true"></i>
+							<span>{{ network_sync.clients.add_label }}</span>
+						</button>
+					</header>
+
+					<table id="{{ network_sync.clients.table_id }}" class="table table-striped table-bordered import-export-sites-table"></table>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+</section>

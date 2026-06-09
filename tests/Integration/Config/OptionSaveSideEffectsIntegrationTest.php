@@ -204,6 +204,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_disabling_import_export_clears_pending_network_invites() :void {
+		$this->enableImportExportSyncCapability();
 		$con = $this->requireController();
 		$con->opts
 			->optSet( 'importexport_enable', 'Y' )
@@ -216,6 +217,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_import_export_noop_enabled_save_preserves_pending_network_invites() :void {
+		$this->enableImportExportSyncCapability();
 		$con = $this->requireController();
 		$invites = $this->pendingNetworkInviteFixture();
 		$con->opts
@@ -311,6 +313,10 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$con = $this->requireController();
 		$con->opts->optSet( 'enable_auto_integrations', $enabled )->store();
 		$con->opts->optSet( 'auto_integrations_track', $track )->store();
+	}
+
+	private function enableImportExportSyncCapability() :void {
+		$this->enablePremiumCapabilities( \array_merge( self::PREMIUM_CAPABILITIES, [ 'import_export_level_2' ] ) );
 	}
 
 	private function prepareEmailVerificationOptions( string $enabled, int $verifiedAt, int $sentAt ) :void {

@@ -9,7 +9,7 @@
 	border-bottom: 1px solid $border-color-neutral-subtle;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.35rem;
+	gap: 0.4rem;
 	padding-bottom: 0.75rem;
 }
 
@@ -19,17 +19,17 @@
 
 .import-export-tabs__tab {
 	align-items: center;
-	background: #ffffff;
+	background: $surface-color-neutral-raised;
 	border: 1px solid $border-color-neutral-subtle !important;
-	border-radius: 6px !important;
-	color: #1d2327;
+	border-radius: 8px !important;
+	color: var(--bs-body-color);
 	display: inline-flex;
 	font-size: 0.85rem;
-	font-weight: 600;
-	gap: 0.4rem;
+	font-weight: 650;
+	gap: 0.45rem;
 	line-height: 1.2;
 	min-height: 2.25rem;
-	padding: 0.5rem 0.8rem;
+	padding: 0.52rem 0.85rem;
 	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 	white-space: nowrap;
 }
@@ -40,14 +40,18 @@
 	color: $mode-configure;
 }
 
+.import-export-tabs__tab:focus-visible {
+	@include shield-focus-ring(1px);
+}
+
 .import-export-tabs__tab.active {
-	background: $mode-configure;
-	border-color: $mode-configure !important;
-	color: #ffffff !important;
+	background: $mode-configure-light;
+	border-color: $mode-configure-border !important;
+	color: $mode-configure !important;
 }
 
 .import-export-tabs__tab.is-unavailable:not(.active) {
-	color: #687281;
+	color: var(--bs-secondary-color);
 }
 
 .import-export-tabs__tab .bi {
@@ -55,74 +59,9 @@
 	line-height: 1;
 }
 
-.import-export-panels {
-	min-width: 0;
-}
-
+.import-export-panels,
 .import-export-panels > .tab-pane {
 	min-width: 0;
-}
-
-.import-export-action-grid,
-.import-export-status-grid {
-	display: grid;
-	gap: 0.9rem;
-	grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-}
-
-.import-export-page .configure-zone-card {
-	cursor: default;
-}
-
-.import-export-page .configure-zone-card:hover,
-.import-export-page .configure-zone-card:focus-visible {
-	box-shadow: none;
-	transform: none;
-}
-
-.import-export-action-panel {
-	display: grid;
-	gap: 1rem;
-	padding: 1rem;
-}
-
-.import-export-action-panel__head {
-	align-items: flex-start;
-	display: flex;
-	gap: 0.875rem;
-	min-width: 0;
-}
-
-.import-export-action-panel__icon {
-	color: $mode-configure;
-}
-
-.import-export-action-panel__title,
-.import-export-panel-heading h5,
-.import-export-section-intro h5,
-.import-export-sync-sites__ready h5 {
-	font-size: 0.95rem;
-	font-weight: 700;
-	line-height: 1.3;
-	margin: 0 0 0.25rem;
-}
-
-.import-export-action-panel__summary,
-.import-export-panel-heading p,
-.import-export-section-intro p,
-.import-export-sync-sites__ready p {
-	color: #5f6974;
-	font-size: 0.8rem;
-	line-height: 1.5;
-	margin: 0;
-	overflow-wrap: anywhere;
-}
-
-.import-export-action-panel__footer {
-	align-items: center;
-	display: flex;
-	justify-content: flex-end;
-	margin-top: auto;
 }
 
 .import-export-primary-action {
@@ -134,142 +73,385 @@
 	white-space: normal;
 }
 
-.import-export-upload-form {
-	display: grid;
-	gap: 0.2rem;
+.import-export-file-list {
+	background: var(--bs-white);
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	overflow: hidden;
 }
 
-.import-export-section-intro {
-	align-items: flex-start;
-	background: #ffffff;
+.import-export-file-row {
+	align-items: center;
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	min-width: 0;
+	padding: 1rem;
+}
+
+.import-export-file-row + .import-export-file-row {
+	border-top: 1px solid $border-color-neutral-subtle;
+}
+
+.import-export-file-row__icon {
+	align-items: center;
+	background: $mode-configure-light;
+	border: 1px solid $mode-configure-border;
+	border-radius: 8px;
+	color: $mode-configure;
+	display: inline-flex;
+	font-size: 1.1rem;
+	height: 2.25rem;
+	justify-content: center;
+	width: 2.25rem;
+}
+
+.import-export-file-row__body {
+	min-width: 0;
+}
+
+.import-export-file-row h5,
+.import-export-sync-topbar h5,
+.import-export-network-disabled h5,
+.import-export-pane__header h5 {
+	font-size: 0.95rem;
+	font-weight: 700;
+	line-height: 1.3;
+	margin: 0 0 0.25rem;
+}
+
+.import-export-file-row p,
+.import-export-sync-topbar p,
+.import-export-network-disabled p,
+.import-export-pane__header p {
+	color: var(--bs-secondary-color);
+	font-size: 0.82rem;
+	line-height: 1.45;
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.import-export-file-row__action {
+	align-items: center;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.import-export-upload-form__controls {
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: minmax(220px, 0.7fr) minmax(220px, 1fr);
+	margin-top: 0.75rem;
+}
+
+.import-export-sync-topbar {
+	align-items: center;
+	background: $surface-color-neutral-raised;
 	border: 1px solid $border-color-neutral-subtle;
 	border-radius: $card-border-radius;
 	display: flex;
 	gap: 1rem;
 	justify-content: space-between;
-	margin-bottom: 0.9rem;
-	padding: 0.9rem 1rem;
-}
-
-.import-export-status-grid {
-	margin-bottom: 0.9rem;
-}
-
-.import-export-status-card {
-	padding: 0.9rem 1rem;
-}
-
-.import-export-status-card.is-active {
-	background: $card-bg-info;
-}
-
-.import-export-network-layout {
-	display: grid;
-	gap: 1rem;
-	grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
-}
-
-.import-export-setup-panel,
-.import-export-settings-panel {
-	background: #ffffff;
-	border: 1px solid $border-color-neutral-subtle;
-	border-radius: $card-border-radius;
-	min-width: 0;
-	padding: 1rem;
-}
-
-.import-export-panel-heading {
-	border-bottom: 1px solid $border-color-neutral-subtle;
 	margin-bottom: 1rem;
-	padding-bottom: 0.8rem;
+	padding: 0.9rem 1rem;
 }
 
-.import-export-current-master {
+.import-export-sync-topbar.is-enabled {
+	border-color: $accent-color-salt-green;
+}
+
+.import-export-sync-topbar__state {
 	align-items: center;
 	display: flex;
+	gap: 0.75rem;
+	min-width: 0;
+}
+
+.import-export-sync-topbar__dot {
+	background: $status-color-warning;
+	border-radius: 50%;
+	box-shadow: 0 0 0 0.24rem $status-bg-warning-light;
+	flex: 0 0 auto;
+	height: 0.65rem;
+	width: 0.65rem;
+}
+
+.import-export-sync-topbar.is-enabled .import-export-sync-topbar__dot {
+	background: $status-color-good;
+	box-shadow: 0 0 0 0.24rem $status-bg-good-light;
+}
+
+.import-export-sync-toggle {
+	align-items: center;
+	display: flex;
+	flex: 0 0 auto;
 	gap: 0.45rem;
+	margin: 0;
 }
 
-.import-export-network-choice {
-	border: 1px solid $border-color-neutral-subtle;
-	border-radius: 8px;
-	padding: 0.75rem 0.9rem;
+.import-export-sync-toggle .form-check-input {
+	margin-left: 0;
 }
 
-.import-export-network-choice legend {
-	float: none;
-	font-weight: 700;
-	margin-bottom: 0.5rem;
-	width: auto;
-}
-
-.import-export-network-choice__options {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.6rem 1rem;
-}
-
-.import-export-count-pill {
+.import-export-network-disabled {
 	align-items: center;
-	background: $status-bg-info-light;
-	border: 1px solid $panel-border-info-subtle;
-	border-radius: 999px;
-	color: $badge-info-color;
-	display: inline-flex;
-	flex-shrink: 0;
-	font-size: 0.78rem;
-	font-weight: 700;
-	gap: 0.35rem;
-	line-height: 1;
-	padding: 0.45rem 0.65rem;
-}
-
-.import-export-sync-sites__ready {
-	align-items: flex-start;
-	background: #ffffff;
+	background: var(--bs-white);
 	border: 1px solid $border-color-neutral-subtle;
 	border-radius: $card-border-radius;
 	display: flex;
 	gap: 0.75rem;
-	margin-bottom: 0.9rem;
-	padding: 0.9rem 1rem;
+	padding: 1rem;
 }
 
-.import-export-sync-sites__ready > .bi {
-	color: $mode-configure;
+.import-export-network-disabled > .bi {
+	color: $status-text-color-warning;
 	flex: 0 0 auto;
 	font-size: 1.25rem;
-	line-height: 1;
-	margin-top: 0.05rem;
+}
+
+.import-export-workbench {
+	background: var(--bs-white);
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	display: grid;
+	grid-template-columns: minmax(220px, 0.34fr) minmax(0, 1fr);
+	min-width: 0;
+	overflow: hidden;
+}
+
+.import-export-rail {
+	background: $surface-color-neutral-raised;
+	border-right: 1px solid $border-color-neutral-subtle;
+	display: grid;
+	gap: 0.85rem;
+	grid-auto-rows: min-content;
+	min-width: 0;
+	padding: 1rem;
+}
+
+.import-export-rail__status {
+	display: grid;
+	gap: 0.22rem;
+	min-width: 0;
+}
+
+.import-export-rail__eyebrow,
+.import-export-rail__status small,
+.import-export-task small {
+	color: var(--bs-secondary-color);
+	font-size: 0.76rem;
+	line-height: 1.35;
+}
+
+.import-export-rail__eyebrow {
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+.import-export-rail__status strong {
+	color: var(--bs-body-color);
+	font-size: 0.9rem;
+	line-height: 1.25;
+}
+
+.import-export-task-list {
+	display: grid;
+	gap: 0.45rem;
+}
+
+.import-export-task {
+	align-items: flex-start;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 8px;
+	color: var(--bs-body-color);
+	display: flex;
+	gap: 0.65rem;
+	padding: 0.7rem;
+	text-align: left;
+	width: 100%;
+}
+
+.import-export-task:hover,
+.import-export-task:focus-visible {
+	background: var(--bs-white);
+	border-color: $border-color-neutral-subtle;
+}
+
+.import-export-task:focus-visible {
+	@include shield-focus-ring(1px);
+}
+
+.import-export-task.active {
+	background: var(--bs-white);
+	border-color: $mode-configure-border;
+	box-shadow: inset 3px 0 0 $mode-configure;
+	color: $mode-configure;
+}
+
+.import-export-task .bi {
+	flex: 0 0 auto;
+	font-size: 1.05rem;
+	line-height: 1.2;
+	margin-top: 0.1rem;
+}
+
+.import-export-task span {
+	display: grid;
+	gap: 0.16rem;
+	min-width: 0;
+}
+
+.import-export-task strong {
+	font-size: 0.86rem;
+	line-height: 1.25;
+}
+
+.import-export-detail {
+	min-width: 0;
+	padding: 1rem;
+}
+
+.import-export-pane[hidden] {
+	display: none;
+}
+
+.import-export-pane__header {
+	align-items: flex-start;
+	border-bottom: 1px solid $border-color-neutral-subtle;
+	display: flex;
+	gap: 1rem;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+	min-width: 0;
+	padding-bottom: 0.9rem;
+}
+
+.import-export-connect-form {
+	display: grid;
+	gap: 0.9rem;
+}
+
+.import-export-choice-group {
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 8px;
+	margin: 0;
+	padding: 0.85rem;
+}
+
+.import-export-choice-group legend {
+	float: none;
+	font-size: 0.86rem;
+	font-weight: 700;
+	line-height: 1.2;
+	margin-bottom: 0.7rem;
+	width: auto;
+}
+
+.import-export-choice-group__options {
+	display: grid;
+	gap: 0.5rem;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.import-export-choice {
+	align-items: flex-start;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 8px;
+	display: flex;
+	gap: 0.55rem;
+	margin: 0;
+	min-width: 0;
+	padding: 0.65rem;
+}
+
+.import-export-choice:hover,
+.import-export-choice:focus-within {
+	border-color: $mode-configure-border;
+}
+
+.import-export-choice .form-check-input {
+	flex: 0 0 auto;
+	margin: 0.15rem 0 0;
+}
+
+.import-export-choice span {
+	display: grid;
+	gap: 0.16rem;
+	min-width: 0;
+}
+
+.import-export-choice strong {
+	font-size: 0.86rem;
+	line-height: 1.25;
+}
+
+.import-export-choice small {
+	color: var(--bs-secondary-color);
+	font-size: 0.76rem;
+	line-height: 1.35;
+}
+
+.import-export-secret-field {
+	margin-top: 0.75rem;
+}
+
+.import-export-connect-form__footer {
+	align-items: flex-end;
+	display: flex;
+	gap: 1rem;
+	justify-content: space-between;
+}
+
+.import-export-confirm-check {
+	margin: 0;
+	min-width: 0;
 }
 
 .import-export-sites-table {
-	background: #ffffff;
+	background: var(--bs-white);
 	width: 100% !important;
 }
 
 @media (max-width: 991px) {
-	.import-export-network-layout {
+	.import-export-workbench,
+	.import-export-upload-form__controls,
+	.import-export-choice-group__options {
 		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.import-export-rail {
+		border-bottom: 1px solid $border-color-neutral-subtle;
+		border-right: 0;
 	}
 }
 
 @media (max-width: 640px) {
+	.import-export-tabs .nav-item,
 	.import-export-tabs__tab {
-		justify-content: center;
 		width: 100%;
 	}
 
-	.import-export-tabs .nav-item {
-		flex: 1 1 100%;
+	.import-export-tabs__tab {
+		justify-content: center;
 	}
 
-	.import-export-section-intro {
+	.import-export-file-row,
+	.import-export-sync-topbar,
+	.import-export-pane__header,
+	.import-export-connect-form__footer {
 		align-items: stretch;
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.import-export-file-row,
+	.import-export-sync-topbar,
+	.import-export-pane__header,
+	.import-export-connect-form__footer {
 		flex-direction: column;
 	}
 
-	.import-export-count-pill {
-		align-self: flex-start;
+	.import-export-file-row__action {
+		justify-content: flex-start;
 	}
 }

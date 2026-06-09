@@ -285,6 +285,19 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 					}
 				}
 			},
+			async withImportExportNetworkFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'import-export-network', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'import-export-network', 'cleanup' );
+					}
+				}
+			},
 			async withIpAnalysisActivityMetaFixture( runScenario ) {
 				let seeded = false;
 				try {

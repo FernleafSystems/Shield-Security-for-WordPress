@@ -64,6 +64,18 @@ async function expectSubmitControlWithoutHref( locator ) {
 	expect( await locator.evaluate( ( element ) => element.form instanceof HTMLFormElement ) ).toBe( true );
 }
 
+async function expectNetworkSyncWorkbenchVisible( page ) {
+	await expect( page.locator( '[data-import-export-workbench="1"]' ) ).toBeVisible( { timeout: 15_000 } );
+	await expect( page.locator( '#ShieldTable-ImportExportSites' ) ).toHaveCount( 1 );
+	await expect( page.locator( '[data-import-export-network-disabled="1"]' ) ).toHaveCount( 0 );
+}
+
+async function expectNetworkSyncDisabledStateVisible( page ) {
+	await expect( page.locator( '[data-import-export-network-disabled="1"]' ) ).toBeVisible( { timeout: 15_000 } );
+	await expect( page.locator( '[data-import-export-workbench="1"]' ) ).toHaveCount( 0 );
+	await expect( page.locator( '#ShieldTable-ImportExportSites' ) ).toHaveCount( 0 );
+}
+
 async function expectNamedDialog( page, modal ) {
 	await expect( modal ).toHaveAttribute( 'role', 'dialog' );
 	await expect( modal ).toHaveAttribute( 'aria-modal', 'true' );
@@ -201,10 +213,76 @@ test( 'import file submit control stays usable without an invalid href', async (
 		} );
 
 		await expect( page.locator( '[data-import-export-panel="file"]' ) ).toBeVisible();
-		await expect( page.locator( '[data-import-export-tab="file"]' ) ).toHaveClass( /active/ );
+		await expect( page.locator( '[data-import-export-sync-toggle]' ) ).toHaveCount( 0 );
 		await expectSubmitControlWithoutHref(
 			page.locator( '#ImportExportFileForm #SubmitForm[type="submit"]' )
 		);
 		await expectNoAxeViolations( page, '#SectionImportExportFile', [ 'heading-order' ] );
+	} );
+} );
+
+test( 'network verification radios reveal and clear master key field', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withImportExportNetworkFixture( async () => {
+		await openShieldRoute( page, {
+			nav: 'tools',
+			nav_sub: 'importexport',
+		} );
+
+		const networkPanel = page.locator( '[data-import-export-panel="network_sync"]' );
+		const secretField = page.locator( '[data-import-export-secret-field]' );
+		const secretInput = page.locator( '#MasterSiteSecretKey' );
+
+		await expect( networkPanel ).toBeVisible();
+		await expect( secretField ).toBeHidden();
+		await expect( secretInput ).toBeDisabled();
+
+		await page.locator( '[data-import-export-link-choice][value="Y"]' ).check();
+		await expect( page.locator( '[data-import-export-link-choice][value="Y"]' ) ).toBeChecked();
+
+		await page.locator( '[data-import-export-auth-choice="key"]' ).check();
+		await expect( secretField ).toBeVisible();
+		await expect( secretInput ).toBeEnabled();
+		await secretInput.fill( 'master-secret-fixture' );
+
+		await page.locator( '[data-import-export-auth-choice="trusted"]' ).check();
+		await expect( secretField ).toBeHidden();
+		await expect( secretInput ).toBeDisabled();
+		await expect( secretInput ).toHaveValue( '' );
+		await expectNoAxeViolations( page, '#SectionImportExportNetworkSync', [ 'heading-order' ] );
+	} );
+} );
+
+test( 'network sync toggle switches the pro workbench off and on', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withImportExportNetworkFixture( async () => {
+		await openShieldRoute( page, {
+			nav: 'tools',
+			nav_sub: 'importexport',
+		} );
+
+		const toggle = page.locator( '[data-import-export-sync-toggle]' );
+
+		await expect( page.locator( '[data-import-export-panel="network_sync"]' ) ).toBeVisible();
+		await expect( toggle ).toBeChecked();
+		await expectNetworkSyncWorkbenchVisible( page );
+
+		const disableRequest = page.waitForRequest(
+			( request ) => isShieldActionRequest( request, 'importexport_set_enabled', { enabled: 'N' } ),
+			{ timeout: 20_000 }
+		);
+		await toggle.uncheck();
+		await disableRequest;
+
+		await expect( toggle ).not.toBeChecked( { timeout: 15_000 } );
+		await expectNetworkSyncDisabledStateVisible( page );
+
+		const enableRequest = page.waitForRequest(
+			( request ) => isShieldActionRequest( request, 'importexport_set_enabled', { enabled: 'Y' } ),
+			{ timeout: 20_000 }
+		);
+		await toggle.check();
+		await enableRequest;
+
+		await expect( toggle ).toBeChecked( { timeout: 15_000 } );
+		await expectNetworkSyncWorkbenchVisible( page );
 	} );
 } );

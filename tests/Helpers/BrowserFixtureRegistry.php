@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQueueFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\DashboardDefaultsFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportFileFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportNetworkFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpAnalysisActivityMetaFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpRulesTableFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\LicenseClearFixtureBuilder;
@@ -35,6 +36,8 @@ class BrowserFixtureRegistry {
 				return self::runDashboardDefaultsFixture( $action );
 			case 'import-export-file':
 				return self::runImportExportFileFixture( $action );
+			case 'import-export-network':
+				return self::runImportExportNetworkFixture( $action );
 			case 'ip-analysis-activity-meta':
 				return self::runIpAnalysisActivityMetaFixture( $action );
 			case 'ip-rules-table':
@@ -73,6 +76,7 @@ class BrowserFixtureRegistry {
 		self::runActionsQueueFixture( 'cleanup', [] );
 		self::runDashboardDefaultsFixture( 'cleanup' );
 		self::runImportExportFileFixture( 'cleanup' );
+		self::runImportExportNetworkFixture( 'cleanup' );
 		self::runIpAnalysisActivityMetaFixture( 'cleanup' );
 		self::runIpRulesTableFixture( 'cleanup' );
 		self::runLicenseClearFixture( 'cleanup' );
@@ -198,6 +202,36 @@ class BrowserFixtureRegistry {
 	private static function runImportExportFileFixture( string $action ) :array {
 		$builder = new ImportExportFileFixtureBuilder();
 		$optionKey = self::fixtureOptionKey( 'import-export-file' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runImportExportNetworkFixture( string $action ) :array {
+		$builder = new ImportExportNetworkFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'import-export-network' );
 		$state = \get_option( $optionKey, [] );
 		$state = \is_array( $state ) ? $state : [];
 

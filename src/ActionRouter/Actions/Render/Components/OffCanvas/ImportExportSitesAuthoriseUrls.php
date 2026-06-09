@@ -12,7 +12,7 @@ class ImportExportSitesAuthoriseUrls extends OffCanvasBase {
 	public const SLUG = 'offcanvas_import_export_sites_authorise_urls';
 
 	protected function buildCanvasTitle() :string {
-		return __( 'Add Authorised URLs', 'wp-simple-firewall' );
+		return __( 'Add Client Sites', 'wp-simple-firewall' );
 	}
 
 	protected function buildCanvasBody() :string {

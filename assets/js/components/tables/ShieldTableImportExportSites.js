@@ -18,17 +18,6 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 	getButtons() {
 		let buttons = super.getButtons();
 		buttons.push( {
-			text: this._base_data.strings.add_authorised_urls,
-			name: 'authorise-urls',
-			className: 'action authorise-urls btn-outline-primary mb-2',
-			action: ( e, dt, node ) => {
-				OffCanvasService.RenderCanvas(
-					this._base_data.ajax.render_authorise_urls_offcanvas,
-					{ launcher: this.resolveButtonLauncher( node ) }
-				).finally();
-			}
-		} );
-		buttons.push( {
 			text: 'Queue Sync',
 			name: 'queue-sync',
 			className: 'action selected-action queue-sync btn-outline-primary mb-2',

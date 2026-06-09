@@ -42,20 +42,13 @@
 								{% else %}
 									{% include '/wpadmin/components/feature_unavailable.twig' %}
 								{% endif %}
-							{% elseif tab.key == 'network_setup' %}
+							{% elseif tab.key == 'network_sync' %}
 								{% if flags.can_importexport_sync %}
-									{% include '/wpadmin_pages/insights/importexport/network_setup.twig' with {
-										network_setup: vars.network_setup,
-										import_export_config: content.import_export_config
+									{% include '/wpadmin_pages/insights/importexport/network_sync.twig' with {
+										network_sync: vars.network_sync
 									} only %}
 								{% else %}
 									{% include '/wpadmin/components/feature_unavailable.twig' %}
-								{% endif %}
-							{% elseif tab.key == 'sync_sites' %}
-								{% if vars.sync_sites.is_unavailable %}
-									{% include '/wpadmin/components/feature_unavailable.twig' %}
-								{% else %}
-									{% include '/wpadmin_pages/insights/importexport/sync_sites.twig' with { sync_sites: vars.sync_sites } only %}
 								{% endif %}
 							{% endif %}
 						</div>

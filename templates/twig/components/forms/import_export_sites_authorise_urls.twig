@@ -1,6 +1,16 @@
 <form class="form" id="ImportExportSitesAuthoriseUrlsForm" autocomplete="off">
 
 	<div class="mb-3">
+		<label for="ImportExportClientSecretKey" class="form-label">{{ strings.client_secret_key }}</label>
+		<input type="text"
+			   class="form-control"
+			   id="ImportExportClientSecretKey"
+			   value="{{ vars.client_secret_key }}"
+			   readonly>
+		<div class="form-text">{{ strings.client_secret_help }}</div>
+	</div>
+
+	<div class="mb-3">
 		<label for="ImportExportSitesAuthoriseUrls" class="form-label">{{ strings.urls }}</label>
 		<textarea name="urls" class="form-control" id="ImportExportSitesAuthoriseUrls"
 		          aria-describedby="ImportExportSitesAuthoriseUrlsHelp"
