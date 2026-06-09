@@ -40,6 +40,24 @@ class PageAdminPluginRouteResolver {
 		];
 	}
 
+	/**
+	 * @return array{nav:string,nav_sub:string,network_invite?:string}
+	 */
+	public function buildAdminPageActionData( array $actionData ) :array {
+		$nav = $this->resolveNav( $actionData, true );
+		$subNav = $this->resolveSubNav( $actionData, $nav );
+
+		return $this->withNetworkInviteReviewData(
+			[
+				Constants::NAV_ID     => $nav,
+				Constants::NAV_SUB_ID => $subNav,
+			],
+			$actionData,
+			$nav,
+			$subNav
+		);
+	}
+
 	private function resolveNav( array $actionData, bool $isPluginAdmin ) :string {
 		if ( !$isPluginAdmin ) {
 			return PluginNavs::NAV_RESTRICTED;
@@ -76,12 +94,21 @@ class PageAdminPluginRouteResolver {
 				$data[ 'subject' ] = $canonicalSubjectKey;
 			}
 		}
-		elseif ( $nav === PluginNavs::NAV_TOOLS && $subNav === PluginNavs::SUBNAV_TOOLS_IMPORT ) {
-			if ( \array_key_exists( NetworkInviteRepository::REVIEW_QUERY_KEY, $actionData ) ) {
-				$data[ NetworkInviteRepository::REVIEW_QUERY_KEY ] = sanitize_key(
-					(string)$actionData[ NetworkInviteRepository::REVIEW_QUERY_KEY ]
-				);
-			}
+
+		return $this->withNetworkInviteReviewData( $data, $actionData, $nav, $subNav );
+	}
+
+	/**
+	 * @param array<string,mixed> $data
+	 * @return array<string,mixed>
+	 */
+	private function withNetworkInviteReviewData( array $data, array $actionData, string $nav, string $subNav ) :array {
+		if ( $nav === PluginNavs::NAV_TOOLS
+			 && $subNav === PluginNavs::SUBNAV_TOOLS_IMPORT
+			 && \array_key_exists( NetworkInviteRepository::REVIEW_QUERY_KEY, $actionData ) ) {
+			$data[ NetworkInviteRepository::REVIEW_QUERY_KEY ] = sanitize_key(
+				(string)$actionData[ NetworkInviteRepository::REVIEW_QUERY_KEY ]
+			);
 		}
 
 		return $data;

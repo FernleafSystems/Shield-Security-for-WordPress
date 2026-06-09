@@ -79,11 +79,14 @@ class PageAdminPluginBehaviorTest extends BaseUnitTest {
 			'user_lookup'         => '33',
 			'subject'             => 'ip',
 		] );
-		$data = $route[ 'delegate_payload' ];
 
 		$this->assertSame( PluginAdminPages\PageInvestigateLanding::class, $route[ 'delegate_action' ] );
-		$this->assertSame( '33', $data[ 'user_lookup' ] ?? '' );
-		$this->assertSame( 'ip', $data[ 'subject' ] ?? '' );
+		$this->assertSame( [
+			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_OVERVIEW,
+			'user_lookup'         => '33',
+			'subject'             => 'ip',
+		], $route[ 'delegate_payload' ] );
 	}
 
 	public function test_activity_by_user_route_overrides_subject_with_canonical_user_key() :void {
@@ -93,10 +96,13 @@ class PageAdminPluginBehaviorTest extends BaseUnitTest {
 			'user_lookup'         => 'admin@example.com',
 			'subject'             => 'ip',
 		] );
-		$data = $route[ 'delegate_payload' ];
 
-		$this->assertSame( 'admin@example.com', $data[ 'user_lookup' ] ?? '' );
-		$this->assertSame( 'user', $data[ 'subject' ] ?? '' );
+		$this->assertSame( [
+			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_USER,
+			'user_lookup'         => 'admin@example.com',
+			'subject'             => 'user',
+		], $route[ 'delegate_payload' ] );
 	}
 
 	public function test_activity_by_core_route_sets_canonical_core_subject_without_lookup() :void {
@@ -104,9 +110,12 @@ class PageAdminPluginBehaviorTest extends BaseUnitTest {
 			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
 			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_CORE,
 		] );
-		$data = $route[ 'delegate_payload' ];
 
-		$this->assertSame( 'core', $data[ 'subject' ] ?? '' );
+		$this->assertSame( [
+			Constants::NAV_ID     => PluginNavs::NAV_ACTIVITY,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_ACTIVITY_BY_CORE,
+			'subject'             => 'core',
+		], $route[ 'delegate_payload' ] );
 	}
 
 	public function test_invalid_route_falls_back_to_dashboard_default_route() :void {
@@ -128,7 +137,35 @@ class PageAdminPluginBehaviorTest extends BaseUnitTest {
 		] );
 
 		$this->assertSame( PluginAdminPages\PageImportExport::class, $route[ 'delegate_action' ] );
-		$this->assertSame( 'invite-id', $route[ 'delegate_payload' ][ NetworkInviteRepository::REVIEW_QUERY_KEY ] ?? '' );
+		$this->assertArrayHasKey( NetworkInviteRepository::REVIEW_QUERY_KEY, $route[ 'delegate_payload' ] );
+		$this->assertSame( 'invite-id', $route[ 'delegate_payload' ][ NetworkInviteRepository::REVIEW_QUERY_KEY ] );
+	}
+
+	public function test_admin_page_action_data_only_preserves_network_invite_for_tools_import_route() :void {
+		$subject = new PageAdminPluginRouteResolver();
+		$payload = $subject->buildAdminPageActionData( [
+			Constants::NAV_ID                        => PluginNavs::NAV_TOOLS,
+			Constants::NAV_SUB_ID                    => PluginNavs::SUBNAV_TOOLS_IMPORT,
+			NetworkInviteRepository::REVIEW_QUERY_KEY => 'INVITE-ID',
+			'unrelated'                             => 'drop-me',
+		] );
+
+		$this->assertSame( [
+			Constants::NAV_ID                        => PluginNavs::NAV_TOOLS,
+			Constants::NAV_SUB_ID                    => PluginNavs::SUBNAV_TOOLS_IMPORT,
+			NetworkInviteRepository::REVIEW_QUERY_KEY => 'invite-id',
+		], $payload );
+
+		$nonImportPayload = $subject->buildAdminPageActionData( [
+			Constants::NAV_ID                        => PluginNavs::NAV_REPORTS,
+			Constants::NAV_SUB_ID                    => PluginNavs::SUBNAV_REPORTS_OVERVIEW,
+			NetworkInviteRepository::REVIEW_QUERY_KEY => 'INVITE-ID',
+		] );
+
+		$this->assertSame( [
+			Constants::NAV_ID     => PluginNavs::NAV_REPORTS,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_REPORTS_OVERVIEW,
+		], $nonImportPayload );
 	}
 
 	public function test_non_admin_route_resolves_to_restricted_page() :void {

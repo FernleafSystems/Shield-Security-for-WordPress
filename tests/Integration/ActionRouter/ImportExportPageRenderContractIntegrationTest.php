@@ -3,10 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginAdmin\PluginAdminPageHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_DisconnectMaster;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_SetEnabled;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\ImportExport\FormAuthoriseUrls;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageImportExport;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
@@ -320,6 +323,23 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertStringNotContainsString( 'data-import-export-tab="network_sync"', $html );
 	}
 
+	public function test_network_invite_review_mode_renders_from_plugin_admin_page_callback() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$invite = ( new NetworkInviteRepository() )->receive( 'https://93.184.216.42/callback-review-master' );
+
+		$html = $this->capturePluginAdminPageCallbackOutput( [
+			Constants::NAV_ID                        => PluginNavs::NAV_TOOLS,
+			Constants::NAV_SUB_ID                    => PluginNavs::SUBNAV_TOOLS_IMPORT,
+			NetworkInviteRepository::REVIEW_QUERY_KEY => $invite[ 'id' ],
+			'unrelated'                             => 'drop-me',
+		] );
+
+		$this->assertStringContainsString( 'data-import-export-network-invite-review="1"', $html );
+		$this->assertStringNotContainsString( 'data-import-export-tab="file"', $html );
+		$this->assertStringNotContainsString( 'data-import-export-tab="network_sync"', $html );
+	}
+
 	public function test_network_invite_review_mode_hides_stale_invite_when_master_url_exists() :void {
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$con = $this->requireController();
@@ -380,6 +400,30 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 			$id => $invite,
 		] )->store();
 		return $invite;
+	}
+
+	private function capturePluginAdminPageCallbackOutput( array $actionData ) :string {
+		$con = $this->requireController();
+		$filter = $con->prefix( 'bypass_is_plugin_admin' );
+		$isSecurityAdminSnapshot = $con->this_req->is_security_admin;
+		$wpIsAjaxSnapshot = $con->this_req->wp_is_ajax;
+		$level = \ob_get_level();
+		\add_filter( $filter, '__return_true', 1000 );
+		$con->this_req->is_security_admin = true;
+		$con->this_req->wp_is_ajax = false;
+		\ob_start();
+		try {
+			( new PluginAdminPageHandler( $actionData ) )->displayModuleAdminPage();
+			return (string)\ob_get_clean();
+		}
+		finally {
+			while ( \ob_get_level() > $level ) {
+				\ob_end_clean();
+			}
+			$con->this_req->is_security_admin = $isSecurityAdminSnapshot;
+			$con->this_req->wp_is_ajax = $wpIsAjaxSnapshot;
+			\remove_filter( $filter, '__return_true', 1000 );
+		}
 	}
 }
 
