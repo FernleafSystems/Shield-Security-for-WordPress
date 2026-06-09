@@ -75,45 +75,45 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'secadmin', 'firewall', 'login', 'general' ], \array_column( $view[ 'tiles' ], 'key' ) );
 		$this->assertSame( [ 'secadmin', 'firewall', 'login', 'general' ], \array_keys( $view[ 'tile_lookup' ] ) );
 		$this->assertSame( [ 'secadmin', 'firewall', 'login', 'general' ], \array_keys( $view[ 'diagnoses' ] ) );
-		$this->assertNotEmpty( $view[ 'tiles' ][ 0 ][ 'panel' ][ 'detail_groups' ] ?? [] );
+		$this->assertNotEmpty( $view[ 'tiles' ][ 0 ][ 'panel' ][ 'detail_groups' ] );
 		$this->assertSame(
 			[ 'critical', 'warning', 'general', 'healthy' ],
 			\array_column( $view[ 'sections' ], 'key' )
 		);
 		$this->assertSame(
 			[ 'secadmin' ],
-			\array_column( $view[ 'sections' ][ 0 ][ 'cards' ] ?? [], 'key' )
+			\array_column( $view[ 'sections' ][ 0 ][ 'cards' ], 'key' )
 		);
 		$this->assertSame(
 			[ 'login' ],
-			\array_column( $view[ 'sections' ][ 1 ][ 'cards' ] ?? [], 'key' )
+			\array_column( $view[ 'sections' ][ 1 ][ 'cards' ], 'key' )
 		);
 		$this->assertSame(
 			[ 'general' ],
-			\array_column( $view[ 'sections' ][ 2 ][ 'cards' ] ?? [], 'key' )
+			\array_column( $view[ 'sections' ][ 2 ][ 'cards' ], 'key' )
 		);
 		$this->assertSame(
 			[ 'firewall' ],
-			\array_column( $view[ 'sections' ][ 3 ][ 'cards' ] ?? [], 'key' )
+			\array_column( $view[ 'sections' ][ 3 ][ 'cards' ], 'key' )
 		);
 		$this->assertSame(
-			$view[ 'tiles' ][ 0 ][ 'summary' ] ?? '',
-			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ] ?? ''
+			$view[ 'tiles' ][ 0 ][ 'summary' ],
+			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ]
 		);
 		$this->assertNotSame(
-			$view[ 'diagnoses' ][ 'secadmin' ][ 'preview_text' ] ?? '',
-			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ] ?? ''
+			$view[ 'diagnoses' ][ 'secadmin' ][ 'preview_text' ],
+			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ]
 		);
-		$this->assertCount( 1, $view[ 'diagnoses' ][ 'secadmin' ][ 'header' ][ 'actions' ] ?? [] );
-		$this->assertNotEmpty( $view[ 'diagnoses' ][ 'secadmin' ][ 'header' ][ 'actions' ][ 0 ][ 'label' ] ?? '' );
-		$this->assertSame( 'warning', $view[ 'posture_summary' ][ 'status' ] ?? '' );
-		$this->assertSame( 78, $view[ 'posture_summary' ][ 'meter' ][ 'percentage' ] ?? 0 );
-		$this->assertSame( '78%', $view[ 'root_step' ][ 'badge' ] ?? '' );
-		$this->assertSame( 'warning', $view[ 'root_step' ][ 'badge_status' ] ?? '' );
-		$this->assertSame( 'configure', $view[ 'root_step' ][ 'color_key' ] ?? '' );
+		$this->assertCount( 1, $view[ 'diagnoses' ][ 'secadmin' ][ 'header' ][ 'actions' ] );
+		$this->assertNotEmpty( $view[ 'diagnoses' ][ 'secadmin' ][ 'header' ][ 'actions' ][ 0 ][ 'label' ] );
+		$this->assertSame( 'warning', $view[ 'posture_summary' ][ 'status' ] );
+		$this->assertSame( 78, $view[ 'posture_summary' ][ 'meter' ][ 'percentage' ] );
+		$this->assertSame( '78%', $view[ 'root_step' ][ 'badge' ] );
+		$this->assertSame( 'warning', $view[ 'root_step' ][ 'badge_status' ] );
+		$this->assertSame( 'configure', $view[ 'root_step' ][ 'color_key' ] );
 		$this->assertSame(
 			$view[ 'root_step' ],
-			\json_decode( $view[ 'root_step_json' ] ?? '', true )
+			\json_decode( $view[ 'root_step_json' ], true )
 		);
 	}
 

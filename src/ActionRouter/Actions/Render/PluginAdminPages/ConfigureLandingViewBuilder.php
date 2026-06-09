@@ -79,7 +79,7 @@ class ConfigureLandingViewBuilder {
 	 */
 	private function attachDetailGroups( array $zoneTile ) :array {
 		$zoneTile[ 'panel' ][ 'detail_groups' ] = $this->detailGroupsBuilder->buildForConfigure(
-			\array_values( $zoneTile[ 'panel' ][ 'rows' ] ?? [] )
+			$zoneTile[ 'panel' ][ 'rows' ]
 		);
 		return $zoneTile;
 	}
@@ -98,7 +98,7 @@ class ConfigureLandingViewBuilder {
 		];
 
 		foreach ( $tiles as $zoneTile ) {
-			$cardsByBand[ $this->normalizeZoneBand( $zoneTile[ 'status' ] ) ][] = $this->buildZoneCard(
+			$cardsByBand[ $zoneTile[ 'status' ] ][] = $this->buildZoneCard(
 				$zoneTile,
 				$diagnoses[ $zoneTile[ 'key' ] ]
 			);
@@ -145,12 +145,6 @@ class ConfigureLandingViewBuilder {
 			'selection_json' => $diagnosis[ 'zone_selection_json' ],
 			'is_disabled'    => $zoneTile[ 'is_disabled' ],
 		];
-	}
-
-	private function normalizeZoneBand( string $status ) :string {
-		return \in_array( $status, [ 'critical', 'warning', 'good', 'neutral' ], true )
-			? $status
-			: 'good';
 	}
 
 	/**
