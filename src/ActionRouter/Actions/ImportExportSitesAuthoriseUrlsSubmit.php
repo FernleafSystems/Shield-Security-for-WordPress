@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 
 class ImportExportSitesAuthoriseUrlsSubmit extends BaseAction {
 
@@ -12,6 +13,7 @@ class ImportExportSitesAuthoriseUrlsSubmit extends BaseAction {
 	public const SLUG = 'importexport_sites_authorise_urls_submit';
 
 	protected function exec() {
+		$activeClientCountBefore = 0;
 		try {
 			$form = $this->action_data[ 'form_data' ] ?? [];
 			if ( empty( $form ) || !\is_array( $form ) ) {
@@ -21,6 +23,7 @@ class ImportExportSitesAuthoriseUrlsSubmit extends BaseAction {
 				throw new \RuntimeException( __( 'Please check the box to confirm this action', 'wp-simple-firewall' ) );
 			}
 
+			$activeClientCountBefore = ( new SiteRepository() )->countActiveRows();
 			$result = ( new ImportExportController() )->authoriseUrlsForSyncSites(
 				\preg_split( '#\R#', (string)( $form[ 'urls' ] ?? '' ) ) ?: []
 			);
@@ -69,7 +72,7 @@ class ImportExportSitesAuthoriseUrlsSubmit extends BaseAction {
 		}
 
 		$this->response()->setPayload( \array_merge( [
-			'page_reload' => false,
+			'page_reload' => $success && $result[ 'authorised_count' ] > 0 && $activeClientCountBefore === 0,
 			'message'     => $message,
 		], $result ) )->setPayloadSuccess( $success );
 	}

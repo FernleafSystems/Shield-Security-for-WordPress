@@ -41,6 +41,10 @@ export class ConfigImport extends BaseComponent {
 		shieldEventsHandler_Main.add_Click( '[data-import-export-add-clients]', ( targetEl ) => {
 			this.openAddClientSites( targetEl );
 		} );
+		shieldEventsHandler_Main.add_Submit(
+			'#ImportExportSitesAuthoriseUrlsForm',
+			( targetEl ) => this.submitAuthoriseUrlsForm( targetEl )
+		);
 
 		document.querySelectorAll( 'form#ImportSiteForm' ).forEach( ( form ) => this.syncConnectionFormState( form ) );
 	}
@@ -143,5 +147,34 @@ export class ConfigImport extends BaseComponent {
 			this._base_data.ajax.render_authorise_urls_offcanvas,
 			{ launcher: button instanceof HTMLElement ? button : null }
 		).finally();
+	}
+
+	submitAuthoriseUrlsForm( form ) {
+		if ( !( form instanceof HTMLFormElement ) || this.authoriseUrlsRequestRunning ) {
+			return;
+		}
+
+		this.authoriseUrlsRequestRunning = true;
+		const submitButton = form.querySelector( 'button[type="submit"]' );
+		if ( submitButton instanceof HTMLButtonElement ) {
+			submitButton.disabled = true;
+		}
+
+		( new AjaxService() )
+		.send( ObjectOps.Merge(
+			this._base_data.ajax.authorise_urls_submit,
+			{ 'form_data': Object.fromEntries( new FormData( form ) ) }
+		) )
+		.then( ( resp ) => {
+			if ( resp?.success ) {
+				OffCanvasService.CloseCanvas();
+			}
+		} )
+		.finally( () => {
+			this.authoriseUrlsRequestRunning = false;
+			if ( submitButton instanceof HTMLButtonElement ) {
+				submitButton.disabled = false;
+			}
+		} );
 	}
 }

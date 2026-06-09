@@ -201,7 +201,9 @@
 						</button>
 					</header>
 
-					<table id="{{ network_sync.clients.table_id }}" class="table table-striped table-bordered import-export-sites-table"></table>
+					{% if network_sync.clients.has_connected_sites %}
+						<table id="{{ network_sync.clients.table_id }}" class="table table-striped table-bordered import-export-sites-table"></table>
+					{% endif %}
 				</div>
 			</div>
 		</div>

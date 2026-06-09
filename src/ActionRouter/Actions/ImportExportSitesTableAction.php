@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExportSites\BuildImportExportSitesTableData;
 
 class ImportExportSitesTableAction extends TableActionBase {
@@ -48,9 +49,11 @@ class ImportExportSitesTableAction extends TableActionBase {
 		if ( $count > 0 ) {
 			\delete_transient( 'shield_dt_total_'.\md5( BuildImportExportSitesTableData::class ) );
 		}
+		$shouldReloadPage = $count > 0 && ( new SiteRepository() )->countActiveRows() === 0;
 		return [
 			'success'      => true,
-			'table_reload' => true,
+			'table_reload' => !$shouldReloadPage,
+			'page_reload'  => $shouldReloadPage,
 			'message'      => sprintf( _n( '%s site removed.', '%s sites removed.', $count, 'wp-simple-firewall' ), $count ),
 		];
 	}

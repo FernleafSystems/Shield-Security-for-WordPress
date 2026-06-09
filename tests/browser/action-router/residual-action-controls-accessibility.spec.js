@@ -66,7 +66,6 @@ async function expectSubmitControlWithoutHref( locator ) {
 
 async function expectNetworkSyncWorkbenchVisible( page ) {
 	await expect( page.locator( '[data-import-export-workbench="1"]' ) ).toBeVisible( { timeout: 15_000 } );
-	await expect( page.locator( '#ShieldTable-ImportExportSites' ) ).toHaveCount( 1 );
 	await expect( page.locator( '[data-import-export-network-disabled="1"]' ) ).toHaveCount( 0 );
 }
 

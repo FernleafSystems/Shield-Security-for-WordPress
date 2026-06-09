@@ -223,7 +223,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertSame( ReportingChartTrends::SLUG, $reportsTrendsAjax[ 'render_chart' ][ ActionData::FIELD_EXECUTE ] ?? '' );
 	}
 
-	public function test_import_component_localizes_network_invite_payloads() :void {
+	public function test_import_component_localizes_network_import_and_client_site_payloads() :void {
 		$this->installEnvironment();
 
 		$ajax = $this->componentAjax( 'import' );
@@ -231,6 +231,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertSame( PluginImportFromSite::SLUG, $ajax[ 'import_from_site' ][ ActionData::FIELD_EXECUTE ] );
 		$this->assertSame( PluginImportExport_DisconnectMaster::SLUG, $ajax[ 'disconnect_master' ][ ActionData::FIELD_EXECUTE ] );
 		$this->assertSame( PluginImportExport_SetEnabled::SLUG, $ajax[ 'set_enabled' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame( ImportExportSitesAuthoriseUrlsSubmit::SLUG, $ajax[ 'authorise_urls_submit' ][ ActionData::FIELD_EXECUTE ] );
 		$this->assertSame( ImportExportNetworkInviteAccept::SLUG, $ajax[ 'network_invite_accept' ][ ActionData::FIELD_EXECUTE ] );
 		$this->assertSame( ImportExportNetworkInviteReject::SLUG, $ajax[ 'network_invite_reject' ][ ActionData::FIELD_EXECUTE ] );
 		$this->assertSame(
@@ -243,7 +244,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_import_export_sites_table_localizes_authorise_url_payloads() :void {
+	public function test_import_export_sites_table_localizes_table_payload_without_authorise_urls_submit() :void {
 		$this->installEnvironment( [
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_TOOLS,
 			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_TOOLS_IMPORT,
@@ -259,10 +260,9 @@ class AssetsCustomizerTest extends BaseUnitTest {
 
 		$ajax = $sites[ 'ajax' ];
 		$this->assertArrayHasKey( 'table_action', $ajax );
-		$this->assertArrayHasKey( 'authorise_urls_submit', $ajax );
+		$this->assertArrayNotHasKey( 'authorise_urls_submit', $ajax );
 
 		$this->assertSame( ImportExportSitesTableAction::SLUG, $ajax[ 'table_action' ][ ActionData::FIELD_EXECUTE ] );
-		$this->assertSame( ImportExportSitesAuthoriseUrlsSubmit::SLUG, $ajax[ 'authorise_urls_submit' ][ ActionData::FIELD_EXECUTE ] );
 		$this->assertArrayHasKey( 'remove_site_confirm', $sites[ 'strings' ] );
 		$this->assertIsString( $sites[ 'strings' ][ 'remove_site_confirm' ] );
 		$this->assertNotSame( '', $sites[ 'strings' ][ 'remove_site_confirm' ] );

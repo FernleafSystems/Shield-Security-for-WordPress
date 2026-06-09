@@ -507,7 +507,10 @@ export class ShieldTableBase extends BaseComponent {
 		.then( ( resp ) => {
 			if ( resp?.success ) {
 				const responseData = this.extractResponseData( resp );
-				if ( responseData.table_reload || options.reloadTableOnSuccess ) {
+				if ( responseData.page_reload ) {
+					this.clearTableBusy( datatable );
+				}
+				else if ( responseData.table_reload || options.reloadTableOnSuccess ) {
 					this.tableReload( datatable, options );
 				}
 				else {

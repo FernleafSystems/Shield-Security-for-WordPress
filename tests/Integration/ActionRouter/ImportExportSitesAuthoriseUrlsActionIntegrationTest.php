@@ -88,7 +88,7 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertArrayHasKey( 'total_count', $payload );
 		$this->assertArrayNotHasKey( 'invite_attempted_count', $payload );
 		$this->assertTrue( $payload[ 'success' ] );
-		$this->assertFalse( $payload[ 'page_reload' ] );
+		$this->assertTrue( $payload[ 'page_reload' ] );
 		$this->assertSame( 2, $payload[ 'authorised_count' ] );
 		$this->assertSame( 0, $payload[ 'already_authorised_count' ] );
 		$this->assertSame( 2, $payload[ 'total_count' ] );
@@ -218,6 +218,18 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertCount( 0, $this->inviteHttp->requests );
 	}
 
+	public function test_authorise_urls_submit_does_not_reload_page_when_active_client_already_exists() :void {
+		$this->enableSync();
+		$this->repo()->upsertActive( 'https://93.184.216.71', SitesDB::SOURCE_MANUAL, '', true );
+
+		$payload = $this->submitAuthoriseUrls( 'https://93.184.216.72' );
+
+		$this->assertArrayHasKey( 'page_reload', $payload );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertFalse( $payload[ 'page_reload' ] );
+		$this->assertSame( 1, $payload[ 'authorised_count' ] );
+	}
+
 	public function test_existing_active_url_is_not_requeued_or_scheduled_by_duplicate_submit() :void {
 		$this->enableSync();
 		$repo = $this->repo();
@@ -229,9 +241,11 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$payload = $this->submitAuthoriseUrls( self::EXISTING.'/' );
 
 		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
 		$this->assertArrayHasKey( 'authorised_count', $payload );
 		$this->assertArrayHasKey( 'already_authorised_count', $payload );
 		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertFalse( $payload[ 'page_reload' ] );
 		$this->assertSame( 0, $payload[ 'authorised_count' ] );
 		$this->assertSame( 1, $payload[ 'already_authorised_count' ] );
 		$row = $repo->findByUrl( self::EXISTING, true );

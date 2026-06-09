@@ -103,7 +103,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *     title:string,
  *     summary:string,
  *     add_label:string,
- *     table_id:string
+ *     table_id:string,
+ *     active_count:int,
+ *     has_connected_sites:bool
  *   }
  * }
  * @phpstan-type NetworkInviteReviewContract array{
@@ -151,7 +153,7 @@ class PageImportExport extends BasePluginAdminPage {
 		$canImportExportFile = $con->caps->canImportExportFile();
 		$canImportExportSync = $importExport->isSyncAvailable();
 		$networkSyncState = $importExport->networkSyncState();
-		$authorisedURLCount = ( new SiteRepository() )->countActiveRows();
+		$activeClientCount = ( new SiteRepository() )->countActiveRows();
 		$networkInviteReview = $this->buildNetworkInviteReview();
 		$activeTab = $canImportExportSync ? 'network_sync' : 'file';
 
@@ -169,7 +171,7 @@ class PageImportExport extends BasePluginAdminPage {
 			'vars'    => [
 				'import_export_tabs'    => $this->buildImportExportTabs( $activeTab, $canImportExportFile, $canImportExportSync ),
 				'file_transfer'         => $this->buildFileTransfer(),
-				'network_sync'          => $this->buildNetworkSync( $networkSyncState, $importMasterURL, $authorisedURLCount ),
+				'network_sync'          => $this->buildNetworkSync( $networkSyncState, $importMasterURL, $activeClientCount ),
 				'network_invite_review' => $networkInviteReview,
 			],
 			'strings' => [
@@ -254,7 +256,7 @@ class PageImportExport extends BasePluginAdminPage {
 	 * @param SyncState $networkSyncState
 	 * @return NetworkSyncContract
 	 */
-	private function buildNetworkSync( string $networkSyncState, string $importMasterURL, int $authorisedURLCount ) :array {
+	private function buildNetworkSync( string $networkSyncState, string $importMasterURL, int $activeClientCount ) :array {
 		$hasMasterURL = !empty( $importMasterURL );
 		$isEnabled = $networkSyncState === ImportExportController::SYNC_STATE_ENABLED;
 		$isDisabled = $networkSyncState === ImportExportController::SYNC_STATE_DISABLED;
@@ -266,13 +268,13 @@ class PageImportExport extends BasePluginAdminPage {
 			'is_enabled'           => $isEnabled,
 			'status'               => [
 				'title'            => $isEnabled ? __( 'Network sync enabled', 'wp-simple-firewall' ) : __( 'Network sync disabled', 'wp-simple-firewall' ),
-				'summary'          => $this->buildNetworkSummary( $isEnabled, $hasMasterURL, $authorisedURLCount ),
+				'summary'          => $this->buildNetworkSummary( $isEnabled, $hasMasterURL, $activeClientCount ),
 			],
 			'rail'                 => [
 				'connection_label'   => $hasMasterURL ? __( 'Connected to master', 'wp-simple-firewall' ) : __( 'No master connected', 'wp-simple-firewall' ),
 				'client_count_label' => sprintf(
-					_n( '%s client site', '%s client sites', $authorisedURLCount, 'wp-simple-firewall' ),
-					$authorisedURLCount
+					_n( '%s client site', '%s client sites', $activeClientCount, 'wp-simple-firewall' ),
+					$activeClientCount
 				),
 			],
 			'toggle'               => [
@@ -306,6 +308,8 @@ class PageImportExport extends BasePluginAdminPage {
 				'summary'            => __( 'Share this site\'s settings with approved Shield sites.', 'wp-simple-firewall' ),
 				'add_label'          => __( 'Add client sites', 'wp-simple-firewall' ),
 				'table_id'           => 'ShieldTable-ImportExportSites',
+				'active_count'       => $activeClientCount,
+				'has_connected_sites' => $activeClientCount > 0,
 			],
 		];
 	}
@@ -405,14 +409,14 @@ class PageImportExport extends BasePluginAdminPage {
 		return empty( $host ) ? $url : $host;
 	}
 
-	private function buildNetworkSummary( bool $isEnabled, bool $hasMasterURL, int $authorisedURLCount ) :string {
+	private function buildNetworkSummary( bool $isEnabled, bool $hasMasterURL, int $activeClientCount ) :string {
 		if ( !$isEnabled ) {
 			return __( 'This site stays fully local.', 'wp-simple-firewall' );
 		}
 		if ( $hasMasterURL ) {
 			return __( 'Linked to a master site.', 'wp-simple-firewall' );
 		}
-		return $authorisedURLCount > 0
+		return $activeClientCount > 0
 			? __( 'Not importing from a master site. Client sites may import from here.', 'wp-simple-firewall' )
 			: __( 'Not importing from a master site. Connect to a network, or manage client sites.', 'wp-simple-firewall' );
 	}

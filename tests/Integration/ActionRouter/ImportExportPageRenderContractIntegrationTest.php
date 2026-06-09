@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTestCase {
@@ -135,7 +136,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertStringNotContainsString( 'ShieldTable-ImportExportSites', $html );
 	}
 
-	public function test_enabled_sync_renders_workbench_table_and_new_controls() :void {
+	public function test_enabled_sync_without_connected_clients_hides_client_table() :void {
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$this->requireController()->opts
 			->optSet( 'importexport_enable', 'Y' )
@@ -143,20 +144,41 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 			->store();
 
 		$this->assertSame( ImportExportController::SYNC_STATE_ENABLED, $this->renderFlags()[ 'network_sync_state' ] );
-		$this->assertTrue( (bool)$this->renderVars()[ 'network_sync' ][ 'is_enabled' ] );
+		$networkSync = $this->renderVars()[ 'network_sync' ];
+		$this->assertTrue( (bool)$networkSync[ 'is_enabled' ] );
+		$this->assertSame( 0, $networkSync[ 'clients' ][ 'active_count' ] );
+		$this->assertFalse( (bool)$networkSync[ 'clients' ][ 'has_connected_sites' ] );
 
 		$html = ( new PageImportExportContractProbe() )->renderOutputForTest();
 
 		$this->assertStringContainsString( 'data-import-export-workbench="1"', $html );
 		$this->assertStringContainsString( 'data-import-export-task="connect"', $html );
 		$this->assertStringContainsString( 'data-import-export-task="clients"', $html );
-		$this->assertStringContainsString( 'ShieldTable-ImportExportSites', $html );
+		$this->assertStringNotContainsString( 'ShieldTable-ImportExportSites', $html );
 		$this->assertStringContainsString( 'name="ShieldNetwork"', $html );
 		$this->assertStringContainsString( 'value="NC"', $html );
 		$this->assertStringContainsString( 'value="Y"', $html );
 		$this->assertStringContainsString( 'data-import-export-auth-choice="trusted"', $html );
 		$this->assertStringContainsString( 'data-import-export-auth-choice="key"', $html );
 		$this->assertStringNotContainsString( 'id="ImportExportClientSecretKey"', $html );
+	}
+
+	public function test_enabled_sync_with_connected_clients_renders_client_table() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', '' )
+			->store();
+		( new SiteRepository() )->upsertActive( 'https://connected-client.example.com', SitesDB::SOURCE_MANUAL );
+
+		$networkSync = $this->renderVars()[ 'network_sync' ];
+
+		$this->assertSame( 1, $networkSync[ 'clients' ][ 'active_count' ] );
+		$this->assertTrue( (bool)$networkSync[ 'clients' ][ 'has_connected_sites' ] );
+		$this->assertStringContainsString(
+			'ShieldTable-ImportExportSites',
+			( new PageImportExportContractProbe() )->renderOutputForTest()
+		);
 	}
 
 	public function test_connected_sync_renders_master_summary_without_connect_form() :void {

@@ -776,8 +776,35 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertInstanceOf( Record::class, $repo->findById( $first->id, true ) );
 		$this->assertNull( $repo->findById( $second->id, true ) );
 		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'table_reload', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertTrue( $payload[ 'table_reload' ] );
+		$this->assertFalse( $payload[ 'page_reload' ] );
+	}
+
+	public function test_manual_delete_action_reloads_page_when_final_site_is_removed() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$row = $this->repo()->upsertActive( 'https://delete-final.example.com', SitesDB::SOURCE_MANUAL, '', true );
+
+		$action = new ImportExportSitesTableAction( [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_DELETE_SITE,
+			'rids'       => [ $row->id ],
+		] );
+		$method = new \ReflectionMethod( $action, 'exec' );
+		$method->setAccessible( true );
+		$method->invoke( $action );
+
+		$payload = $action->response()->payload();
+
+		$this->assertNull( $this->repo()->findById( $row->id, true ) );
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'table_reload', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertFalse( $payload[ 'table_reload' ] );
+		$this->assertTrue( $payload[ 'page_reload' ] );
 	}
 
 	public function test_manual_queue_action_rejects_disabled_import_export_without_scheduling() :void {

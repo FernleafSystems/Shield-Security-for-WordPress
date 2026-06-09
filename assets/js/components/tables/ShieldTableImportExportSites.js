@@ -1,7 +1,4 @@
 import { ShieldTableBase } from "./ShieldTableBase";
-import { AjaxService } from "../services/AjaxService";
-import { OffCanvasService } from "../ui/OffCanvasService";
-import { ObjectOps } from "../../util/ObjectOps";
 import { Popover } from "bootstrap";
 
 export class ShieldTableImportExportSites extends ShieldTableBase {
@@ -31,10 +28,6 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 		shieldEventsHandler_Main.add_Click( '[data-import-export-site-delete]', async ( targetEl ) => {
 			await this.deleteManagedSite( targetEl );
 		} );
-		shieldEventsHandler_Main.add_Submit(
-			'#ImportExportSitesAuthoriseUrlsForm',
-			( targetEl ) => this.submitAuthoriseUrlsForm( targetEl )
-		);
 		shieldEventsHandler_Main.addHandler(
 			'hidden.bs.offcanvas',
 			'.offcanvas.offcanvas_import_export_sites_authorise_urls',
@@ -72,35 +65,6 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 		}
 
 		this.bulkTableAction( 'delete_site', [ rid ] );
-	}
-
-	submitAuthoriseUrlsForm( form ) {
-		if ( !( form instanceof HTMLFormElement ) || this.authoriseUrlsRequestRunning ) {
-			return;
-		}
-
-		this.authoriseUrlsRequestRunning = true;
-		const submitButton = form.querySelector( 'button[type="submit"]' );
-		if ( submitButton instanceof HTMLButtonElement ) {
-			submitButton.disabled = true;
-		}
-
-		( new AjaxService() )
-		.send( ObjectOps.Merge(
-			this._base_data.ajax.authorise_urls_submit,
-			{ 'form_data': Object.fromEntries( new FormData( form ) ) }
-		) )
-		.then( ( resp ) => {
-			if ( resp?.success ) {
-				OffCanvasService.CloseCanvas();
-			}
-		} )
-		.finally( () => {
-			this.authoriseUrlsRequestRunning = false;
-			if ( submitButton instanceof HTMLButtonElement ) {
-				submitButton.disabled = false;
-			}
-		} );
 	}
 
 	bindSyncDetailsPopovers() {
