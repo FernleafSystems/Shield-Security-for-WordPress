@@ -45,6 +45,8 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 	private const STALE_MASTER_URL = 'https://93.184.216.47/stale-master';
 	private const SAME_HOST_HOME = 'https://93.184.216.48/import4';
 	private const SAME_HOST_MASTER_URL = 'https://93.184.216.48/import3';
+	private const ROOT_SAME_HOST_HOME = 'https://93.184.216.49';
+	private const ROOT_SAME_HOST_MASTER_URL = 'https://93.184.216.49/import4';
 
 	private array $optionsSnapshot = [];
 	private array $requestSnapshot = [];
@@ -335,6 +337,37 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertTrue( $payload[ 'success' ], (string)\wp_json_encode( $payload ) );
 		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
 		$this->assertSame( self::SAME_HOST_MASTER_URL, (string)$this->requireController()->opts->optGet( 'importexport_masterurl' ) );
+	}
+
+	public function test_accept_allows_same_host_child_master_for_root_home() :void {
+		$this->enableSync();
+		$homeFilter = static fn() :string => self::ROOT_SAME_HOST_HOME;
+		\add_filter( 'home_url', $homeFilter );
+
+		try {
+			$repo = new NetworkInviteRepository();
+			$invite = $repo->receive( self::ROOT_SAME_HOST_MASTER_URL );
+			$pending = $repo->pending();
+
+			$this->assertIsArray( $invite );
+			$this->assertCount( 1, $pending );
+			$this->assertSame( self::ROOT_SAME_HOST_MASTER_URL, $pending[ 0 ][ 'master_url' ] );
+			$this->assertNotNull( $repo->find( $invite[ 'id' ] ) );
+
+			$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+				'form_params' => [
+					'invite_id' => $invite[ 'id' ],
+					'confirm'   => 'Y',
+				],
+			] )->payload();
+		}
+		finally {
+			\remove_filter( 'home_url', $homeFilter );
+		}
+
+		$this->assertTrue( $payload[ 'success' ], (string)\wp_json_encode( $payload ) );
+		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
+		$this->assertSame( self::ROOT_SAME_HOST_MASTER_URL, (string)$this->requireController()->opts->optGet( 'importexport_masterurl' ) );
 	}
 
 	public function test_accept_rejects_stale_invite_after_site_gets_master_url_without_import() :void {

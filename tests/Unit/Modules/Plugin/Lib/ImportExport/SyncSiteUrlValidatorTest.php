@@ -101,6 +101,23 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		$this->validatorWithResolvedIps( [] )->validateTrustedSyncUrl( 'https://client.example.com' );
 	}
 
+	public function test_trusted_sync_allows_same_host_child_path_for_root_home() :void {
+		$this->installHomeUrl( 'https://testing.aptotechnologies.com/' );
+
+		$this->assertSame(
+			'https://testing.aptotechnologies.com/import4',
+			$this->validatorWithResolvedIps( [ '104.21.20.141' ] )
+				 ->validateTrustedSyncUrl( 'https://testing.aptotechnologies.com/import4' )
+		);
+	}
+
+	public function test_strict_validation_rejects_same_host_child_path_for_root_home() :void {
+		$this->installHomeUrl( 'https://testing.aptotechnologies.com/' );
+		$this->expectException( \InvalidArgumentException::class );
+
+		( new SyncSiteUrlValidator() )->validate( 'https://testing.aptotechnologies.com/import4' );
+	}
+
 	/**
 	 * @dataProvider trustedSyncUnsafeUrlProvider
 	 */
@@ -146,7 +163,7 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 
 	public function sameHostSelfUrlProvider() :array {
 		return [
-			'root home rejects sibling path' => [ 'https://local.example.com', 'https://local.example.com/import4' ],
+			'root home rejects exact self' => [ 'https://local.example.com', 'https://local.example.com' ],
 			'subdirectory home rejects base' => [ 'https://local.example.com/import3', 'https://local.example.com/import3' ],
 			'subdirectory home rejects child' => [ 'https://local.example.com/import3', 'https://local.example.com/import3/child' ],
 		];

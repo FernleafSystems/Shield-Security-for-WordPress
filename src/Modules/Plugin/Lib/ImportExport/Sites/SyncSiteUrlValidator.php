@@ -68,7 +68,11 @@ class SyncSiteUrlValidator {
 	}
 
 	public function validateTrustedSyncUrl( string $url, bool $rejectSelf = true ) :string {
-		$url = $this->validate( $url, $rejectSelf );
+		$url = $this->validate( $url, false );
+
+		if ( $rejectSelf && $this->isTrustedSyncSelfUrl( $url ) ) {
+			throw new \InvalidArgumentException( __( 'This site cannot invite itself.', 'wp-simple-firewall' ) );
+		}
 
 		$parts = $this->parse( $url );
 		$host = $this->normaliseHost( (string)( $parts[ 'host' ] ?? '' ) );
@@ -217,29 +221,60 @@ class SyncSiteUrlValidator {
 	}
 
 	private function isSelfUrl( string $url ) :bool {
+		$paths = $this->selfUrlPaths( $url );
+		if ( $paths === null ) {
+			return false;
+		}
+
+		$homePath = $paths[ 'home_path' ];
+		if ( $homePath === '/' ) {
+			return true;
+		}
+
+		return $this->isSameOrChildSitePath( $paths[ 'url_path' ], $homePath );
+	}
+
+	private function isTrustedSyncSelfUrl( string $url ) :bool {
+		$paths = $this->selfUrlPaths( $url );
+		if ( $paths === null ) {
+			return false;
+		}
+
+		$urlPath = $paths[ 'url_path' ];
+		$homePath = $paths[ 'home_path' ];
+		return $homePath === '/' ?
+			$urlPath === '/'
+			: $this->isSameOrChildSitePath( $urlPath, $homePath );
+	}
+
+	/**
+	 * @return array{url_path:string,home_path:string}|null
+	 */
+	private function selfUrlPaths( string $url ) :?array {
 		$home = $this->canonicalize( Services::WpGeneral()->getHomeUrl() );
 		if ( $home === '' ) {
-			return false;
+			return null;
 		}
 
 		$urlParts = $this->parse( $url );
 		$homeParts = $this->parse( $home );
 		if ( $this->normaliseHost( (string)( $urlParts[ 'host' ] ?? '' ) )
 			 !== $this->normaliseHost( (string)( $homeParts[ 'host' ] ?? '' ) ) ) {
-			return false;
+			return null;
 		}
 
-		$homePath = $this->normaliseSitePath( (string)( $homeParts[ 'path' ] ?? '' ) );
-		if ( $homePath === '/' ) {
-			return true;
-		}
-
-		$urlPath = $this->normaliseSitePath( (string)( $urlParts[ 'path' ] ?? '' ) );
-		return $urlPath === $homePath || \str_starts_with( $urlPath.'/', $homePath.'/' );
+		return [
+			'url_path'  => $this->normaliseSitePath( (string)( $urlParts[ 'path' ] ?? '' ) ),
+			'home_path' => $this->normaliseSitePath( (string)( $homeParts[ 'path' ] ?? '' ) ),
+		];
 	}
 
 	private function normaliseSitePath( string $path ) :string {
 		$path = '/'.\trim( $path, '/' );
 		return $path === '/' ? '/' : \rtrim( $path, '/' );
+	}
+
+	private function isSameOrChildSitePath( string $urlPath, string $homePath ) :bool {
+		return $urlPath === $homePath || \str_starts_with( $urlPath.'/', $homePath.'/' );
 	}
 }

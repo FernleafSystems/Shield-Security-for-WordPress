@@ -36,6 +36,8 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 	private const REACTIVATED = 'https://93.184.216.70';
 	private const SAME_HOST_HOME = 'https://93.184.216.60/import3';
 	private const SAME_HOST_CLIENT = 'https://93.184.216.60/import4';
+	private const ROOT_SAME_HOST_HOME = 'https://93.184.216.73';
+	private const ROOT_SAME_HOST_CLIENT = 'https://93.184.216.73/import4';
 
 	private array $optionsSnapshot = [];
 	private array $servicesSnapshot = [];
@@ -127,7 +129,28 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertSame( SitesDB::STATUS_ACTIVE, $this->requireSite( self::SAME_HOST_CLIENT )->status );
 		$this->assertCount( 1, $this->inviteHttp->requests );
 		$this->assertTrue( $this->inviteHttp->requests[ 0 ][ 'reject_unsafe_urls' ] );
-		$this->assertSame( self::SAME_HOST_HOME, $this->inviteHttp->requests[ 0 ][ 'body' ][ 'master_url' ] ?? '' );
+		$this->assertSame( self::SAME_HOST_HOME, $this->inviteHttp->requests[ 0 ][ 'body' ][ 'master_url' ] );
+	}
+
+	public function test_authorise_urls_submit_allows_same_host_child_path_for_root_home() :void {
+		$this->enableSync();
+		$homeFilter = static fn() :string => self::ROOT_SAME_HOST_HOME;
+		\add_filter( 'home_url', $homeFilter );
+
+		try {
+			$payload = $this->submitAuthoriseUrls( self::ROOT_SAME_HOST_CLIENT.'/?utm=1' );
+		}
+		finally {
+			\remove_filter( 'home_url', $homeFilter );
+		}
+
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( 1, $payload[ 'authorised_count' ] );
+		$this->assertSame( SitesDB::STATUS_ACTIVE, $this->requireSite( self::ROOT_SAME_HOST_CLIENT )->status );
+		$this->assertCount( 1, $this->inviteHttp->requests );
+		$this->assertTrue( $this->inviteHttp->requests[ 0 ][ 'reject_unsafe_urls' ] );
+		$this->assertSame( '/import4', \wp_parse_url( $this->inviteHttp->requests[ 0 ][ 'url' ], \PHP_URL_PATH ) );
+		$this->assertSame( self::ROOT_SAME_HOST_HOME, $this->inviteHttp->requests[ 0 ][ 'body' ][ 'master_url' ] );
 	}
 
 	public function test_authorise_urls_submit_invite_failure_does_not_roll_back_site_row() :void {

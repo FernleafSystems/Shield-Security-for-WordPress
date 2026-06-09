@@ -194,7 +194,7 @@ class NetworkInviteRepository {
 	private function normaliseInvite( string $key, array $invite ) :?array {
 		$masterUrl = (string)( $invite[ 'master_url' ] ?? '' );
 		try {
-			$masterUrl = ( new SyncSiteUrlValidator() )->validate( $masterUrl );
+			$masterUrl = ( new SyncSiteUrlValidator() )->validateTrustedSyncUrl( $masterUrl );
 		}
 		catch ( \Throwable $e ) {
 			return null;
