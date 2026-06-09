@@ -37,6 +37,7 @@ class SafeReplacementTest extends TestCase {
 		$pluginRoot = $this->getSourceRoot();
 		$script = <<<'PHP'
 <?php declare(strict_types=1);
+ini_set('display_errors', '0');
 require %s;
 try {
     \Safe\unlink(%s);
