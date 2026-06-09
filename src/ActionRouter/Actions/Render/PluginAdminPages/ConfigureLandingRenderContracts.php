@@ -8,6 +8,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * @phpstan-import-type DetailGroup from StatusDetailGroupsBuilder
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  * @phpstan-import-type OperatorChromeStep from OperatorChromeContract
+ * @phpstan-import-type ConfigureStatus from ConfigureZoneTilesBuilder
  * @phpstan-type ConfigureLandingTile array{
  *   key:string,
  *   panel_target:string,
@@ -17,13 +18,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   label:string,
  *   icon_class:string,
  *   summary:string,
- *   status:string,
+ *   status:ConfigureStatus,
  *   status_label:string,
  *   status_icon_class:string,
  *   stat_line:string,
  *   panel:array{
  *     title:string,
- *     status:string,
+ *     status:ConfigureStatus,
  *     status_label:string,
  *     rows:list<ConfigureRowContract>,
  *     detail_groups:list<DetailGroup>
@@ -33,7 +34,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   key:string,
  *   label:string,
  *   icon_class:string,
- *   status:string,
+ *   status:ConfigureStatus,
  *   status_label:string,
  *   summary:string,
  *   selection_json:string,
@@ -44,14 +45,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   cards:list<ZoneCard>
  * }
  * @phpstan-type ConfigurePostureSummary array{
- *   status:string,
+ *   status:'good'|'warning'|'critical',
  *   chip_label:string,
  *   icon_class:string,
  *   eyebrow:string,
  *   summary:string,
  *   meter:array{
  *     percentage:int,
- *     status:string,
+ *     status:'good'|'warning'|'critical',
  *     aria_label:string,
  *     aria_value_text:string
  *   }
@@ -59,7 +60,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  * @phpstan-type DrillSelection array{
  *   key:string,
  *   label:string,
- *   status:string,
+ *   status:ConfigureStatus,
  *   icon_class:string,
  *   header:DrillLayerHeader
  * }
@@ -85,7 +86,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   zone_key:string,
  *   zone_label:string,
  *   zone_icon_class:string,
- *   zone_status:string,
+ *   zone_status:ConfigureStatus,
  *   zone_status_label:string,
  *   preview_text:string,
  *   risk_context:string,

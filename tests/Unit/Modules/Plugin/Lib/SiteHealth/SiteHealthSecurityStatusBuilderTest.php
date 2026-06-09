@@ -11,6 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Plugin\Lib\SiteHealth;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneTilesBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteHealth\{
 	SiteHealthSecurityStatusBuilder,
 	SiteHealthSecurityTabRenderer
@@ -35,6 +36,15 @@ class SiteHealthSecurityStatusBuilderTest extends BaseUnitTest {
 			static fn( string $text ) :string => \htmlspecialchars( $text, \ENT_QUOTES )
 		);
 		Functions\when( 'esc_url' )->alias( static fn( string $url ) :string => $url );
+		Functions\when( 'sanitize_key' )->alias(
+			static function ( $text ) :string {
+				if ( !\is_string( $text ) ) {
+					return '';
+				}
+				$normalized = \preg_replace( '/[^a-z0-9_-]/', '', \strtolower( \trim( $text ) ) );
+				return $normalized === null ? '' : $normalized;
+			}
+		);
 
 		UnitTestControllerFactory::install( new UnitTestPluginUrls() );
 	}
@@ -45,13 +55,10 @@ class SiteHealthSecurityStatusBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_build_tests_registers_one_aggregate_callback() :void {
-		$tests = $this->builder(
-			[
-				'secadmin' => 'Security Admin',
-				'firewall' => 'Firewall',
-			],
-			[]
-		)->buildTests( '/wp-admin/site-health.php?tab=shield_security' );
+		$tests = $this->builder( [
+			$this->tile( 'secadmin', 'Security Admin', 'good' ),
+			$this->tile( 'firewall', 'Firewall', 'good' ),
+		] )->buildTests( '/wp-admin/site-health.php?tab=shield_security' );
 
 		$this->assertSame( [ 'shield_security' ], \array_keys( $tests ) );
 		$this->assertSame( 'Shield Security', $tests[ 'shield_security' ][ 'label' ] );
@@ -66,53 +73,50 @@ class SiteHealthSecurityStatusBuilderTest extends BaseUnitTest {
 	}
 
 	public function test_aggregate_status_uses_highest_zone_status() :void {
-		$criticalResult = $this->builder(
-			[
-				'firewall' => 'Firewall',
-				'login'    => 'Login',
-			],
-			[
-				$this->signal( 'firewall', 'WAF', 'critical', false ),
-				$this->signal( 'login', 'Login protection', 'warning', true ),
-			]
-		)->buildAggregateResult( '/details' );
+		$criticalResult = $this->builder( [
+			$this->tile( 'firewall', 'Firewall', 'critical', [
+				$this->row( 'WAF Rules', 'critical', 'Primary WAF rules are disabled.' ),
+			] ),
+			$this->tile( 'login', 'Login', 'warning', [
+				$this->row( 'Login protection', 'warning', 'Login protection needs review.' ),
+			] ),
+		] )->buildAggregateResult( '/details' );
 
-		$recommendedResult = $this->builder(
-			[
-				'login' => 'Login',
-				'users' => 'Users',
-			],
-			[
-				$this->signal( 'login', 'Login protection', 'warning', true ),
-				$this->signal( 'users', 'Password policy', 'good', true ),
-			]
-		)->buildAggregateResult( '/details' );
+		$recommendedResult = $this->builder( [
+			$this->tile( 'login', 'Login', 'warning', [
+				$this->row( 'Login protection', 'warning', 'Login protection needs review.' ),
+			] ),
+			$this->tile( 'users', 'Users', 'good' ),
+		] )->buildAggregateResult( '/details' );
 
-		$goodResult = $this->builder(
-			[ 'headers' => 'HTTP Headers' ],
-			[
-				$this->signal( 'headers', 'Security headers', 'good', true ),
-			]
-		)->buildAggregateResult( '/details' );
+		$goodResult = $this->builder( [
+			$this->tile( 'headers', 'HTTP Headers', 'good' ),
+		] )->buildAggregateResult( '/details' );
 
 		$this->assertSame( 'critical', $criticalResult[ 'status' ] );
 		$this->assertSame( 'recommended', $recommendedResult[ 'status' ] );
 		$this->assertSame( 'good', $goodResult[ 'status' ] );
 	}
 
+	public function test_build_zone_statuses_excludes_non_posture_tiles() :void {
+		$zones = $this->builder( [
+			$this->tile( 'general', 'General', 'neutral', [], false ),
+			$this->tile( 'firewall', 'Firewall', 'good' ),
+		] )->buildZoneStatuses();
+
+		$this->assertSame( [ 'firewall' ], \array_column( $zones, 'slug' ) );
+	}
+
 	public function test_tab_groups_use_zone_results_and_escape_descriptions() :void {
-		$groups = $this->builder(
-			[
-				'firewall' => 'Firewall',
-				'login'    => 'Login',
-				'headers'  => 'HTTP Headers',
-			],
-			[
-				$this->signal( 'firewall', 'WAF <script>', 'critical', false, [ 'Enable <script>' ] ),
-				$this->signal( 'login', 'Login protection', 'warning', true ),
-				$this->signal( 'headers', 'Security headers', 'good', true ),
-			]
-		)->buildTabGroups();
+		$groups = $this->builder( [
+			$this->tile( 'firewall', 'Firewall', 'critical', [
+				$this->row( 'WAF <script>', 'critical', '', [ 'Enable <script>' ] ),
+			] ),
+			$this->tile( 'login', 'Login', 'warning', [
+				$this->row( 'Login protection', 'warning', 'Login protection needs review.' ),
+			] ),
+			$this->tile( 'headers', 'HTTP Headers', 'good' ),
+		] )->buildTabGroups();
 
 		$this->assertSame( [ 'critical', 'recommended', 'good' ], \array_keys( $groups ) );
 		$this->assertSame( 'firewall', $groups[ 'critical' ][ 'items' ][ 0 ][ 'slug' ] );
@@ -123,13 +127,12 @@ class SiteHealthSecurityStatusBuilderTest extends BaseUnitTest {
 		$this->assertStringContainsString( '&lt;script&gt;', $groups[ 'critical' ][ 'items' ][ 0 ][ 'description' ] );
 	}
 
-	public function test_renderer_outputs_stable_panels_without_unescaped_signal_text() :void {
-		$html = ( new SiteHealthSecurityTabRenderer( $this->builder(
-			[ 'firewall' => 'Firewall' ],
-			[
-				$this->signal( 'firewall', 'WAF <script>', 'critical', false, [ 'Enable <script>' ] ),
-			]
-		) ) )->render();
+	public function test_renderer_outputs_stable_panels_without_unescaped_row_text() :void {
+		$html = ( new SiteHealthSecurityTabRenderer( $this->builder( [
+			$this->tile( 'firewall', 'Firewall', 'critical', [
+				$this->row( 'WAF <script>', 'critical', '', [ 'Enable <script>' ] ),
+			] ),
+		] ) ) )->render();
 
 		$this->assertStringContainsString( 'health-check-accordion-block-shield_firewall', $html );
 		$this->assertStringContainsString( 'WAF &lt;script&gt;', $html );
@@ -137,44 +140,66 @@ class SiteHealthSecurityStatusBuilderTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( 'Enable <script>', $html );
 	}
 
-	private function builder( array $zoneTitles, array $signals ) :SiteHealthSecurityStatusBuilder {
-		return new class( $zoneTitles, $signals ) extends SiteHealthSecurityStatusBuilder {
-			private array $testZoneTitles;
+	private function builder( array $tiles ) :SiteHealthSecurityStatusBuilder {
+		return new SiteHealthSecurityStatusBuilder(
+			new class( $tiles ) extends ConfigureZoneTilesBuilder {
+				private array $tiles;
 
-			private array $testSignals;
+				public function __construct( array $tiles ) {
+					$this->tiles = $tiles;
+				}
 
-			public function __construct( array $zoneTitles, array $signals ) {
-				$this->testZoneTitles = $zoneTitles;
-				$this->testSignals = $signals;
+				public function build() :array {
+					return $this->tiles;
+				}
 			}
-
-			protected function zoneTitles() :array {
-				return $this->testZoneTitles;
-			}
-
-			protected function buildZoneSignals() :array {
-				return $this->testSignals;
-			}
-		};
+		);
 	}
 
-	private function signal(
-		string $zone,
-		string $title,
-		string $severity,
-		bool $isProtected,
-		array $explanation = []
+	private function tile(
+		string $key,
+		string $label,
+		string $status,
+		array $rows = [],
+		bool $includeInPosture = true
 	) :array {
 		return [
-			'slug'          => sanitize_key( $title ),
-			'title'         => $title,
-			'weight'        => 1,
-			'score'         => $isProtected ? 1 : 0,
-			'is_protected'  => $isProtected,
-			'severity'      => $severity,
-			'explanation'   => $explanation,
-			'config_action' => [],
-			'zone'          => $zone,
+			'key'                => $key,
+			'panel_target'       => $key,
+			'is_enabled'         => true,
+			'is_disabled'        => false,
+			'include_in_posture' => $includeInPosture,
+			'label'              => $label,
+			'icon_class'         => 'bi bi-shield',
+			'summary'            => $label.' summary',
+			'status'             => $status,
+			'status_label'       => $status,
+			'status_icon_class'  => 'bi bi-check-circle-fill',
+			'stat_line'          => 'All groups healthy',
+			'panel'              => [
+				'title'        => $label,
+				'status'       => $status,
+				'status_label' => $status,
+				'rows'         => $rows,
+			],
+		];
+	}
+
+	private function row(
+		string $title,
+		string $status,
+		string $note = '',
+		array $explanations = []
+	) :array {
+		return [
+			'key'               => sanitize_key( $title ),
+			'title'             => $title,
+			'status'            => $status,
+			'status_label'      => $status,
+			'status_icon_class' => 'bi bi-exclamation-triangle-fill',
+			'note'              => $note,
+			'explanations'      => $explanations,
+			'config_action'     => [],
 		];
 	}
 }

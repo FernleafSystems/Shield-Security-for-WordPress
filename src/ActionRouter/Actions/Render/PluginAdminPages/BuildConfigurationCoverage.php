@@ -5,8 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
- * @phpstan-import-type ConfigureZoneTileContract from ConfigureZoneTilesBuilder
- * @phpstan-import-type ConfigureRowContract from ConfigureZoneTilesBuilder
  * @phpstan-type CoverageCounts array{
  *   total:int,
  *   good:int,
@@ -38,17 +36,17 @@ class BuildConfigurationCoverage {
 		$zoneSeverities = [];
 
 		foreach ( $this->tilesBuilder->build() as $tile ) {
-			if ( empty( $tile[ 'include_in_posture' ] ) ) {
+			if ( $tile[ 'include_in_posture' ] !== true ) {
 				continue;
 			}
 
-			$zoneStatus = $this->normalizeCoverageStatus( (string)( $tile[ 'status' ] ?? '' ) );
+			$zoneStatus = $this->coverageZoneStatus( $tile[ 'status' ] );
 			$zoneCounts[ 'total' ]++;
 			$zoneCounts[ $zoneStatus ]++;
 			$zoneSeverities[] = $zoneStatus;
 
-			foreach ( $tile[ 'panel' ][ 'rows' ] ?? [] as $row ) {
-				$rowStatus = $this->normalizeCoverageStatus( (string)( $row[ 'status' ] ?? '' ) );
+			foreach ( $tile[ 'panel' ][ 'rows' ] as $row ) {
+				$rowStatus = $row[ 'status' ];
 				if ( $rowStatus === 'neutral' ) {
 					continue;
 				}
@@ -84,26 +82,26 @@ class BuildConfigurationCoverage {
 	}
 
 	/**
-	 * @param list<string> $zoneSeverities
+	 * @param list<'good'|'warning'|'critical'> $zoneSeverities
 	 * @return 'good'|'warning'|'critical'
 	 */
 	private function determineCoverageSeverity( array $zoneSeverities ) :string {
 		$severity = StatusPriority::highest( $zoneSeverities, 'good' );
-		return \in_array( $severity, [ 'good', 'warning', 'critical' ], true )
-			? $severity
-			: 'good';
+		/** @var 'good'|'warning'|'critical' $severity */
+		return $severity;
 	}
 
 	/**
-	 * @return 'critical'|'warning'|'good'|'neutral'
+	 * @param 'good'|'warning'|'critical'|'neutral' $status
+	 * @return 'good'|'warning'|'critical'
 	 */
-	private function normalizeCoverageStatus( string $status ) :string {
-		$status = \strtolower( \trim( $status ) );
-		return \in_array( $status, [ 'critical', 'warning', 'good', 'neutral' ], true )
-			? $status
-			: 'good';
+	private function coverageZoneStatus( string $status ) :string {
+		return $status === 'neutral' ? 'good' : $status;
 	}
 
+	/**
+	 * @param 'good'|'warning'|'critical' $status
+	 */
 	private function pointsForStatus( string $status ) :float {
 		switch ( $status ) {
 			case 'warning':
