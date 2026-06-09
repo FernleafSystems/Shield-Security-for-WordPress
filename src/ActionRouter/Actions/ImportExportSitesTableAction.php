@@ -9,17 +9,20 @@ class ImportExportSitesTableAction extends TableActionBase {
 
 	public const SLUG = 'importexport_sites_table_action';
 	public const SUB_ACTION_QUEUE_SYNC = 'queue_sync';
+	public const SUB_ACTION_DELETE_SITE = 'delete_site';
 
 	protected function getSubActionHandlers() :array {
 		return [
 			self::SUB_ACTION_RETRIEVE_TABLE_DATA => fn() => $this->retrieveTableData(),
 			self::SUB_ACTION_QUEUE_SYNC          => fn() => $this->queueSync(),
+			self::SUB_ACTION_DELETE_SITE         => fn() => $this->deleteSite(),
 		];
 	}
 
 	protected function getSubActionRequiredDataKeysMap() :array {
 		return [
-			self::SUB_ACTION_QUEUE_SYNC => [ 'rids' ],
+			self::SUB_ACTION_QUEUE_SYNC  => [ 'rids' ],
+			self::SUB_ACTION_DELETE_SITE => [ 'rids' ],
 		];
 	}
 
@@ -32,13 +35,29 @@ class ImportExportSitesTableAction extends TableActionBase {
 	}
 
 	protected function queueSync() :array {
-		$count = ( new ImportExportController() )
-			->queueSitesForSync( \is_array( $this->action_data[ 'rids' ] ?? null ) ? $this->action_data[ 'rids' ] : [] );
+		$count = ( new ImportExportController() )->queueSitesForSync( $this->ridsFromActionData() );
 		return [
 			'success'      => true,
 			'table_reload' => true,
 			'message'      => sprintf( _n( '%s site queued for sync.', '%s sites queued for sync.', $count, 'wp-simple-firewall' ), $count ),
 		];
+	}
+
+	protected function deleteSite() :array {
+		$count = ( new ImportExportController() )->deleteSitesById( $this->ridsFromActionData() );
+		if ( $count > 0 ) {
+			\delete_transient( 'shield_dt_total_'.\md5( BuildImportExportSitesTableData::class ) );
+		}
+		return [
+			'success'      => true,
+			'table_reload' => true,
+			'message'      => sprintf( _n( '%s site removed.', '%s sites removed.', $count, 'wp-simple-firewall' ), $count ),
+		];
+	}
+
+	private function ridsFromActionData() :array {
+		$rids = $this->action_data[ 'rids' ] ?? [];
+		return \is_array( $rids ) ? $rids : [];
 	}
 
 	protected function isPageReloadOnFailure() :bool {

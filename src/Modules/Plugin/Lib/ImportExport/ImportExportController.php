@@ -119,15 +119,17 @@ class ImportExportController {
 	public function queueSitesForSync( array $ids ) :int {
 		$this->assertSyncEnabled();
 
-		$ids = \array_values( \array_unique( \array_filter(
-			\array_map( 'intval', $ids ),
-			static fn( int $id ) :bool => $id > 0
-		) ) );
 		$count = ( new SiteRepository() )->queueSiteIds( $ids );
 		if ( $count > 0 ) {
 			$this->scheduleQueueSoonIfSyncEnabled();
 		}
 		return $count;
+	}
+
+	public function deleteSitesById( array $ids ) :int {
+		$this->assertSyncEnabled();
+
+		return ( new SiteRepository() )->deleteByIds( $ids );
 	}
 
 	public function queueAllActiveSitesForSync() :int {

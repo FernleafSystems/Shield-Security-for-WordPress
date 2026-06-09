@@ -17,6 +17,7 @@ class ForImportExportSites extends Base {
 			'sync_state',
 			'status_key',
 			'queue_status_key',
+			'actions',
 			'updated_at',
 		];
 	}
@@ -94,6 +95,15 @@ class ForImportExportSites extends Base {
 				'searchable'  => false,
 				'visible'     => false,
 				'searchPanes' => [ 'show' => true ],
+			],
+			'actions'                 => [
+				'data'        => 'actions',
+				'title'       => '',
+				'className'   => 'actions text-end',
+				'orderable'   => false,
+				'searchable'  => false,
+				'visible'     => true,
+				'searchPanes' => [ 'show' => false ],
 			],
 			'updated_at'              => [
 				'data'        => 'updated_at',

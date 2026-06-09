@@ -53,6 +53,7 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 	 *   queue_status_key:string,
 	 *   sync_status:string,
 	 *   sync_state:string,
+	 *   actions:string,
 	 *   updated_at:int
 	 * }>
 	 */
@@ -71,6 +72,7 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 				'queue_status_key' => $record->queue_status,
 				'sync_status'      => $syncStatus[ 'summary_html' ],
 				'sync_state'       => $syncStatus[ 'state_key' ],
+				'actions'          => $this->actionsHtml( $record->id ),
 				'updated_at'       => $record->updated_at,
 			];
 		}, $records ) );
@@ -151,6 +153,15 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 
 	private function statusBuilder() :SiteSyncStatusBuilder {
 		return $this->statusBuilder ??= new SiteSyncStatusBuilder();
+	}
+
+	private function actionsHtml( int $id ) :string {
+		$label = esc_attr( __( 'Remove site', 'wp-simple-firewall' ) );
+		return sprintf(
+			'<button type="button" class="btn btn-link text-danger p-0 import-export-site-delete" title="%1$s" aria-label="%1$s" data-rid="%2$d" data-import-export-site-delete="1"><i class="bi bi-trash3" aria-hidden="true"></i></button>',
+			$label,
+			$id
+		);
 	}
 
 	private function repository() :SiteRepository {

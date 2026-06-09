@@ -130,6 +130,22 @@ class SiteRepository {
 		return $this->queueRows( $this->findActiveByIds( $ids ) );
 	}
 
+	public function deleteByIds( array $ids ) :int {
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
+			return 0;
+		}
+
+		$deleted = 0;
+		foreach ( $this->sanitiseIds( $ids ) as $id ) {
+			if ( $this->findById( $id, true ) instanceof Record
+				 && $dbh->getQueryDeleter()->deleteById( $id ) ) {
+				$deleted++;
+			}
+		}
+		return $deleted;
+	}
+
 	public function queueAllActive() :int {
 		return $this->queueRows( $this->selectActiveRows() );
 	}
@@ -385,7 +401,7 @@ class SiteRepository {
 	 * @return Record[]
 	 */
 	private function findActiveByIds( array $ids ) :array {
-		$ids = \array_values( \array_unique( \array_filter( \array_map( '\intval', $ids ), static fn( int $id ) :bool => $id > 0 ) ) );
+		$ids = $this->sanitiseIds( $ids );
 		if ( empty( $ids ) ) {
 			return [];
 		}
@@ -400,6 +416,10 @@ class SiteRepository {
 		}
 
 		return $rows;
+	}
+
+	private function sanitiseIds( array $ids ) :array {
+		return \array_values( \array_unique( \array_filter( \array_map( '\intval', $ids ), static fn( int $id ) :bool => $id > 0 ) ) );
 	}
 
 	private function storeOptionsIfChanged() :void {

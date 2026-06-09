@@ -44,10 +44,10 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$con = $this->requireController();
 
 		$con->opts->optSet( 'importexport_masterurl', '' )->store();
-		$this->assertSame( '', $this->renderVars()[ 'network_sync' ][ 'current_master_url' ] );
+		$this->assertSame( '', $this->renderVars()[ 'network_sync' ][ 'connect' ][ 'form' ][ 'master_site_url_value' ] );
 
 		$con->opts->optSet( 'importexport_masterurl', 'https://master.example.com' )->store();
-		$this->assertSame( 'https://master.example.com', $this->renderVars()[ 'network_sync' ][ 'current_master_url' ] );
+		$this->assertSame( 'https://master.example.com', $this->renderVars()[ 'network_sync' ][ 'connect' ][ 'connected' ][ 'master_url' ] );
 	}
 
 	public function test_tabs_contract_uses_two_machine_tabs_and_network_default() :void {
@@ -93,8 +93,13 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 
 		$this->assertSame( ImportExportController::SYNC_STATE_ENABLED, $networkSync[ 'sync_state' ] );
 		$this->assertSame( [ 'connect', 'clients' ], \array_column( $networkSync[ 'tasks' ], 'key' ) );
-		$this->assertSame( [ 'NC', 'Y' ], \array_column( $networkSync[ 'connect' ][ 'import_mode_options' ], 'value' ) );
-		$this->assertSame( [ 'trusted', 'key' ], \array_column( $networkSync[ 'connect' ][ 'verification_options' ], 'value' ) );
+		$connect = $networkSync[ 'connect' ];
+		$this->assertFalse( (bool)$connect[ 'is_connected' ] );
+		$this->assertArrayHasKey( 'form', $connect );
+		$this->assertArrayNotHasKey( 'connected', $connect );
+		$this->assertArrayHasKey( 'rail', $networkSync );
+		$this->assertSame( [ 'NC', 'Y' ], \array_column( $connect[ 'form' ][ 'import_mode_options' ], 'value' ) );
+		$this->assertSame( [ 'trusted', 'key' ], \array_column( $connect[ 'form' ][ 'verification_options' ], 'value' ) );
 	}
 
 	public function test_disconnect_control_appears_only_when_master_url_exists() :void {
@@ -102,12 +107,15 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$con = $this->requireController();
 
 		$con->opts->optSet( 'importexport_masterurl', '' )->store();
-		$this->assertFalse( (bool)$this->renderVars()[ 'network_sync' ][ 'connect' ][ 'disconnect' ][ 'is_available' ] );
+		$connect = $this->renderVars()[ 'network_sync' ][ 'connect' ];
+		$this->assertFalse( (bool)$connect[ 'is_connected' ] );
+		$this->assertArrayNotHasKey( 'disconnect', $connect );
 
 		$con->opts->optSet( 'importexport_masterurl', 'https://master.example.com' )->store();
-		$disconnect = $this->renderVars()[ 'network_sync' ][ 'connect' ][ 'disconnect' ];
+		$connect = $this->renderVars()[ 'network_sync' ][ 'connect' ];
 
-		$this->assertTrue( (bool)$disconnect[ 'is_available' ] );
+		$this->assertTrue( (bool)$connect[ 'is_connected' ] );
+		$this->assertArrayHasKey( 'label', $connect[ 'disconnect' ] );
 	}
 
 	public function test_disabled_sync_hides_workbench_and_table() :void {
@@ -129,7 +137,10 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 
 	public function test_enabled_sync_renders_workbench_table_and_new_controls() :void {
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
-		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$this->requireController()->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', '' )
+			->store();
 
 		$this->assertSame( ImportExportController::SYNC_STATE_ENABLED, $this->renderFlags()[ 'network_sync_state' ] );
 		$this->assertTrue( (bool)$this->renderVars()[ 'network_sync' ][ 'is_enabled' ] );
@@ -146,6 +157,26 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertStringContainsString( 'data-import-export-auth-choice="trusted"', $html );
 		$this->assertStringContainsString( 'data-import-export-auth-choice="key"', $html );
 		$this->assertStringNotContainsString( 'id="ImportExportClientSecretKey"', $html );
+	}
+
+	public function test_connected_sync_renders_master_summary_without_connect_form() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://master.example.com/import' )
+			->store();
+
+		$connect = $this->renderVars()[ 'network_sync' ][ 'connect' ];
+		$this->assertTrue( (bool)$connect[ 'is_connected' ] );
+		$this->assertSame( 'https://master.example.com/import', $connect[ 'connected' ][ 'master_url' ] );
+		$this->assertSame( 'master.example.com', $connect[ 'connected' ][ 'master_host' ] );
+		$this->assertArrayNotHasKey( 'form', $connect );
+
+		$html = ( new PageImportExportContractProbe() )->renderOutputForTest();
+
+		$this->assertStringContainsString( 'data-import-export-connected-master="1"', $html );
+		$this->assertStringContainsString( 'data-import-export-disconnect="1"', $html );
+		$this->assertStringNotContainsString( 'id="ImportSiteForm"', $html );
 	}
 
 	public function test_sync_pro_gate_is_not_replaced_by_disabled_gate() :void {

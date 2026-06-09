@@ -756,6 +756,30 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
+	public function test_manual_delete_action_hard_deletes_only_selected_site() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$repo = $this->repo();
+		$first = $repo->upsertActive( 'https://delete-keep.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$second = $repo->upsertActive( 'https://delete-remove.example.com', SitesDB::SOURCE_MANUAL, '', true );
+
+		$action = new ImportExportSitesTableAction( [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_DELETE_SITE,
+			'rids'       => [ $second->id ],
+		] );
+		$method = new \ReflectionMethod( $action, 'exec' );
+		$method->setAccessible( true );
+		$method->invoke( $action );
+
+		$payload = $action->response()->payload();
+
+		$this->assertInstanceOf( Record::class, $repo->findById( $first->id, true ) );
+		$this->assertNull( $repo->findById( $second->id, true ) );
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertTrue( $payload[ 'table_reload' ] );
+	}
+
 	public function test_manual_queue_action_rejects_disabled_import_export_without_scheduling() :void {
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();

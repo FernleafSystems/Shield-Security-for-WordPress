@@ -42,52 +42,67 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *   summary:string,
  *   is_checked:bool
  * }
+ * @phpstan-type NetworkSyncConnectedMaster array{
+ *   master_url:string,
+ *   master_host:string,
+ *   label:string,
+ *   summary:string,
+ *   graphic_label:string
+ * }
+ * @phpstan-type NetworkSyncConnectForm array{
+ *   id:string,
+ *   master_site_url_id:string,
+ *   master_site_url_name:string,
+ *   master_site_url_label:string,
+ *   master_site_url_placeholder:string,
+ *   master_site_url_value:string,
+ *   import_mode_label:string,
+ *   import_mode_options:list<ChoiceOption>,
+ *   verification_label:string,
+ *   verification_options:list<ChoiceOption>,
+ *   secret_key_id:string,
+ *   secret_key_name:string,
+ *   secret_key_label:string,
+ *   secret_key_placeholder:string,
+ *   confirm_id:string,
+ *   confirm_name:string,
+ *   confirm_value:string,
+ *   confirm_label:string,
+ *   confirm_help:string,
+ *   submit_label_once:string,
+ *   submit_label_network:string,
+ *   submit_icon_class:string
+ * }
+ * @phpstan-type NetworkSyncConnect array{
+ *   title:string,
+ *   summary:string,
+ *   is_connected:true,
+ *   connected:NetworkSyncConnectedMaster,
+ *   disconnect:array{label:string}
+ * }|array{
+ *   title:string,
+ *   summary:string,
+ *   is_connected:false,
+ *   form:NetworkSyncConnectForm
+ * }
  * @phpstan-type NetworkSyncContract array{
  *   section_id:string,
  *   sync_state:SyncState,
  *   is_disabled:bool,
  *   is_enabled:bool,
- *   current_master_url:string,
  *   status:array{
  *     title:string,
- *     summary:string,
- *     connection_label:string,
- *     rail_summary:string
+ *     summary:string
  *   },
+ *   rail:array{connection_label:string,client_count_label:string},
  *   toggle:array{id:string,label:string,is_checked:bool},
  *   disabled:array{title:string,summary:string},
  *   tasks:list<array{key:'connect'|'clients',title:string,summary:string,icon_class:string,is_active:bool}>,
- *   connect:array{
- *     title:string,
- *     summary:string,
- *     form_id:string,
- *     master_site_url_id:string,
- *     master_site_url_name:string,
- *     master_site_url_label:string,
- *     master_site_url_placeholder:string,
- *     import_mode_label:string,
- *     import_mode_options:list<ChoiceOption>,
- *     verification_label:string,
- *     verification_options:list<ChoiceOption>,
- *     secret_key_id:string,
- *     secret_key_name:string,
- *     secret_key_label:string,
- *     secret_key_placeholder:string,
- *     confirm_id:string,
- *     confirm_name:string,
- *     confirm_value:string,
- *     confirm_label:string,
- *     confirm_help:string,
- *     submit_label_once:string,
- *     submit_label_network:string,
- *     submit_icon_class:string,
- *     disconnect:array{is_available:bool,label:string}
- *   },
+ *   connect:NetworkSyncConnect,
  *   clients:array{
  *     title:string,
  *     summary:string,
  *     add_label:string,
- *     count_label:string,
  *     table_id:string
  *   }
  * }
@@ -249,17 +264,16 @@ class PageImportExport extends BasePluginAdminPage {
 			'sync_state'           => $networkSyncState,
 			'is_disabled'          => $isDisabled,
 			'is_enabled'           => $isEnabled,
-			'current_master_url'   => $importMasterURL,
 			'status'               => [
 				'title'            => $isEnabled ? __( 'Network sync enabled', 'wp-simple-firewall' ) : __( 'Network sync disabled', 'wp-simple-firewall' ),
-				'summary'          => $this->buildNetworkSummary( $isEnabled, $hasMasterURL, $importMasterURL, $authorisedURLCount ),
-				'connection_label' => $hasMasterURL ? __( 'Connected to master', 'wp-simple-firewall' ) : __( 'Not connected to master', 'wp-simple-firewall' ),
-				'rail_summary'     => $authorisedURLCount > 0
-					? sprintf(
-						_n( '%s client site can import from here.', '%s client sites can import from here.', $authorisedURLCount, 'wp-simple-firewall' ),
-						$authorisedURLCount
-					)
-					: __( 'No client sites currently import from here.', 'wp-simple-firewall' ),
+				'summary'          => $this->buildNetworkSummary( $isEnabled, $hasMasterURL, $authorisedURLCount ),
+			],
+			'rail'                 => [
+				'connection_label'   => $hasMasterURL ? __( 'Connected to master', 'wp-simple-firewall' ) : __( 'No master connected', 'wp-simple-firewall' ),
+				'client_count_label' => sprintf(
+					_n( '%s client site', '%s client sites', $authorisedURLCount, 'wp-simple-firewall' ),
+					$authorisedURLCount
+				),
 			],
 			'toggle'               => [
 				'id'          => 'ImportExportNetworkToggle',
@@ -286,84 +300,117 @@ class PageImportExport extends BasePluginAdminPage {
 					'is_active'  => false,
 				],
 			],
-			'connect'              => [
-				'title'                       => __( 'Connect to network', 'wp-simple-firewall' ),
-				'summary'                     => __( 'Use master site URL. Choose import type and trust method.', 'wp-simple-firewall' ),
-				'form_id'                     => 'ImportSiteForm',
-				'master_site_url_id'          => 'MasterSiteUrl',
-				'master_site_url_name'        => 'MasterSiteUrl',
-				'master_site_url_label'       => __( 'Master site URL', 'wp-simple-firewall' ),
-				'master_site_url_placeholder' => $hasMasterURL ? $importMasterURL : 'https://www...',
-				'import_mode_label'           => __( 'Import type', 'wp-simple-firewall' ),
-				'import_mode_options'         => [
-					[
-						'id'         => 'ShieldNetworkImportOnce',
-						'value'      => 'NC',
-						'label'      => __( 'Import once', 'wp-simple-firewall' ),
-						'summary'    => __( 'Do not stay linked.', 'wp-simple-firewall' ),
-						'is_checked' => true,
-					],
-					[
-						'id'         => 'ShieldNetworkJoin',
-						'value'      => 'Y',
-						'label'      => __( 'Join network', 'wp-simple-firewall' ),
-						'summary'    => __( 'Keep automatic imports linked.', 'wp-simple-firewall' ),
-						'is_checked' => false,
-					],
-				],
-				'verification_label'          => __( 'Master site verification', 'wp-simple-firewall' ),
-				'verification_options'        => [
-					[
-						'id'         => 'MasterSiteTrusted',
-						'value'      => 'trusted',
-						'label'      => __( 'Master site already trusts this site', 'wp-simple-firewall' ),
-						'summary'    => __( 'No secret key needed.', 'wp-simple-firewall' ),
-						'is_checked' => true,
-					],
-					[
-						'id'         => 'MasterSiteUseKey',
-						'value'      => 'key',
-						'label'      => __( 'Use master site secret key', 'wp-simple-firewall' ),
-						'summary'    => __( 'Paste key from master site.', 'wp-simple-firewall' ),
-						'is_checked' => false,
-					],
-				],
-				'secret_key_id'               => 'MasterSiteSecretKey',
-				'secret_key_name'             => 'MasterSiteSecretKey',
-				'secret_key_label'            => __( 'Master site secret key', 'wp-simple-firewall' ),
-				'secret_key_placeholder'      => __( 'Paste secret key from master site', 'wp-simple-firewall' ),
-				'confirm_id'                  => '_confirm_site',
-				'confirm_name'                => 'confirm',
-				'confirm_value'               => 'Y',
-				'confirm_label'               => __( 'I understand existing options will be overwritten.', 'wp-simple-firewall' ),
-				'confirm_help'                => __( 'This action cannot be undone.', 'wp-simple-firewall' ),
-				'submit_label_once'           => __( 'Import settings', 'wp-simple-firewall' ),
-				'submit_label_network'        => __( 'Join network', 'wp-simple-firewall' ),
-				'submit_icon_class'           => 'bi bi-cloud-download',
-				'disconnect'                  => [
-					'is_available' => $hasMasterURL,
-					'label'        => __( 'Disconnect', 'wp-simple-firewall' ),
-				],
-			],
+			'connect'              => $this->buildNetworkConnect( $hasMasterURL, $importMasterURL ),
 			'clients'              => [
 				'title'              => __( 'Manage client sites', 'wp-simple-firewall' ),
 				'summary'            => __( 'Share this site\'s settings with approved Shield sites.', 'wp-simple-firewall' ),
 				'add_label'          => __( 'Add client sites', 'wp-simple-firewall' ),
-				'count_label'        => sprintf(
-					_n( '%s client site', '%s client sites', $authorisedURLCount, 'wp-simple-firewall' ),
-					$authorisedURLCount
-				),
 				'table_id'           => 'ShieldTable-ImportExportSites',
 			],
 		];
 	}
 
-	private function buildNetworkSummary( bool $isEnabled, bool $hasMasterURL, string $importMasterURL, int $authorisedURLCount ) :string {
+	/**
+	 * @return NetworkSyncConnect
+	 */
+	private function buildNetworkConnect( bool $hasMasterURL, string $importMasterURL ) :array {
+		if ( $hasMasterURL ) {
+			return [
+				'title'        => __( 'Connected to master site', 'wp-simple-firewall' ),
+				'summary'      => __( 'Current master connection.', 'wp-simple-firewall' ),
+				'is_connected' => true,
+				'connected'    => [
+					'master_url'    => $importMasterURL,
+					'master_host'   => $this->hostFromUrl( $importMasterURL ),
+					'label'         => __( 'Master site', 'wp-simple-firewall' ),
+					'summary'       => __( 'Automatic imports are active.', 'wp-simple-firewall' ),
+					'graphic_label' => __( 'Client site connected to master site', 'wp-simple-firewall' ),
+				],
+				'disconnect'   => [
+					'label' => __( 'Disconnect', 'wp-simple-firewall' ),
+				],
+			];
+		}
+
+		return [
+			'title'        => __( 'Connect to network', 'wp-simple-firewall' ),
+			'summary'      => __( 'Use master site URL. Choose import type and trust method.', 'wp-simple-firewall' ),
+			'is_connected' => false,
+			'form'         => $this->buildNetworkConnectForm( $importMasterURL ),
+		];
+	}
+
+	/**
+	 * @return NetworkSyncConnectForm
+	 */
+	private function buildNetworkConnectForm( string $importMasterURL ) :array {
+		return [
+			'id'                          => 'ImportSiteForm',
+			'master_site_url_id'          => 'MasterSiteUrl',
+			'master_site_url_name'        => 'MasterSiteUrl',
+			'master_site_url_label'       => __( 'Master site URL', 'wp-simple-firewall' ),
+			'master_site_url_placeholder' => 'https://www...',
+			'master_site_url_value'       => $importMasterURL,
+			'import_mode_label'           => __( 'Import type', 'wp-simple-firewall' ),
+			'import_mode_options'         => [
+				[
+					'id'         => 'ShieldNetworkImportOnce',
+					'value'      => 'NC',
+					'label'      => __( 'Import once', 'wp-simple-firewall' ),
+					'summary'    => __( 'Do not stay linked.', 'wp-simple-firewall' ),
+					'is_checked' => true,
+				],
+				[
+					'id'         => 'ShieldNetworkJoin',
+					'value'      => 'Y',
+					'label'      => __( 'Join network', 'wp-simple-firewall' ),
+					'summary'    => __( 'Keep automatic imports linked.', 'wp-simple-firewall' ),
+					'is_checked' => false,
+				],
+			],
+			'verification_label'          => __( 'Master site verification', 'wp-simple-firewall' ),
+			'verification_options'        => [
+				[
+					'id'         => 'MasterSiteTrusted',
+					'value'      => 'trusted',
+					'label'      => __( 'Master site already trusts this site', 'wp-simple-firewall' ),
+					'summary'    => __( 'No secret key needed.', 'wp-simple-firewall' ),
+					'is_checked' => true,
+				],
+				[
+					'id'         => 'MasterSiteUseKey',
+					'value'      => 'key',
+					'label'      => __( 'Use master site secret key', 'wp-simple-firewall' ),
+					'summary'    => __( 'Paste key from master site.', 'wp-simple-firewall' ),
+					'is_checked' => false,
+				],
+			],
+			'secret_key_id'               => 'MasterSiteSecretKey',
+			'secret_key_name'             => 'MasterSiteSecretKey',
+			'secret_key_label'            => __( 'Master site secret key', 'wp-simple-firewall' ),
+			'secret_key_placeholder'      => __( 'Paste secret key from master site', 'wp-simple-firewall' ),
+			'confirm_id'                  => '_confirm_site',
+			'confirm_name'                => 'confirm',
+			'confirm_value'               => 'Y',
+			'confirm_label'               => __( 'I understand existing options will be overwritten.', 'wp-simple-firewall' ),
+			'confirm_help'                => __( 'This action cannot be undone.', 'wp-simple-firewall' ),
+			'submit_label_once'           => __( 'Import settings', 'wp-simple-firewall' ),
+			'submit_label_network'        => __( 'Join network', 'wp-simple-firewall' ),
+			'submit_icon_class'           => 'bi bi-cloud-download',
+		];
+	}
+
+	private function hostFromUrl( string $url ) :string {
+		$host = (string)\parse_url( $url, \PHP_URL_HOST );
+		return empty( $host ) ? $url : $host;
+	}
+
+	private function buildNetworkSummary( bool $isEnabled, bool $hasMasterURL, int $authorisedURLCount ) :string {
 		if ( !$isEnabled ) {
 			return __( 'This site stays fully local.', 'wp-simple-firewall' );
 		}
 		if ( $hasMasterURL ) {
-			return sprintf( __( 'Importing settings from %s.', 'wp-simple-firewall' ), $importMasterURL );
+			return __( 'Linked to a master site.', 'wp-simple-firewall' );
 		}
 		return $authorisedURLCount > 0
 			? __( 'Not importing from a master site. Client sites may import from here.', 'wp-simple-firewall' )

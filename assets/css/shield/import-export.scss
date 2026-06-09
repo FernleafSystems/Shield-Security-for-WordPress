@@ -236,7 +236,6 @@
 }
 
 .import-export-rail__eyebrow,
-.import-export-rail__status small,
 .import-export-task small {
 	color: var(--bs-secondary-color);
 	font-size: 0.76rem;
@@ -408,9 +407,87 @@
 	min-width: 0;
 }
 
+.import-export-connected-master {
+	align-items: center;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 8px;
+	display: flex;
+	gap: 1rem;
+	min-width: 0;
+	padding: 1rem;
+}
+
+.import-export-connected-master__graphic {
+	align-items: center;
+	color: $mode-configure;
+	display: grid;
+	flex: 0 0 auto;
+	grid-template-columns: 0.9rem 3rem 0.9rem;
+	justify-items: center;
+}
+
+.import-export-connected-master__node {
+	background: var(--bs-white);
+	border: 2px solid $mode-configure;
+	border-radius: 50%;
+	box-shadow: 0 0 0 0.25rem $mode-configure-light;
+	display: block;
+	height: 0.9rem;
+	width: 0.9rem;
+}
+
+.import-export-connected-master__node.is-master {
+	background: $mode-configure;
+}
+
+.import-export-connected-master__line {
+	background: $mode-configure-border;
+	display: block;
+	height: 2px;
+	width: 100%;
+}
+
+.import-export-connected-master__copy {
+	display: grid;
+	gap: 0.18rem;
+	min-width: 0;
+}
+
+.import-export-connected-master__copy span {
+	color: var(--bs-secondary-color);
+	font-size: 0.76rem;
+	font-weight: 700;
+	line-height: 1.35;
+	text-transform: uppercase;
+}
+
+.import-export-connected-master__copy strong {
+	font-size: 0.95rem;
+	line-height: 1.25;
+}
+
+.import-export-connected-master__copy small,
+.import-export-connected-master__copy p {
+	color: var(--bs-secondary-color);
+	font-size: 0.8rem;
+	line-height: 1.35;
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
 .import-export-sites-table {
 	background: var(--bs-white);
 	width: 100% !important;
+}
+
+.import-export-sites-table td.actions,
+.import-export-sites-table th.actions {
+	text-align: right;
+	width: 2.5rem;
+}
+
+.import-export-site-delete {
+	line-height: 1;
 }
 
 @media (max-width: 991px) {
@@ -439,6 +516,7 @@
 	.import-export-file-row,
 	.import-export-sync-topbar,
 	.import-export-pane__header,
+	.import-export-connected-master,
 	.import-export-connect-form__footer {
 		align-items: stretch;
 		grid-template-columns: minmax(0, 1fr);

@@ -36,9 +36,8 @@
 		<div class="import-export-workbench" data-import-export-workbench="1">
 			<div class="import-export-rail">
 				<div class="import-export-rail__status">
-					<span class="import-export-rail__eyebrow">{{ network_sync.status.connection_label }}</span>
-					<strong>{{ network_sync.clients.count_label }}</strong>
-					<small>{{ network_sync.status.rail_summary }}</small>
+					<span class="import-export-rail__eyebrow">{{ network_sync.rail.connection_label }}</span>
+					<strong>{{ network_sync.rail.client_count_label }}</strong>
 				</div>
 
 				<div class="import-export-task-list" role="tablist" aria-orientation="vertical">
@@ -67,7 +66,7 @@
 							<h5>{{ network_sync.connect.title }}</h5>
 							<p>{{ network_sync.connect.summary }}</p>
 						</div>
-						{% if network_sync.connect.disconnect.is_available %}
+						{% if network_sync.connect.is_connected %}
 							<button type="button"
 									class="btn btn-outline-secondary btn-sm"
 									data-import-export-disconnect="1">
@@ -77,94 +76,112 @@
 						{% endif %}
 					</header>
 
-					<form id="{{ network_sync.connect.form_id }}" class="import-export-connect-form" autocomplete="off">
-						<div class="mb-3">
-							<label class="form-label" for="{{ network_sync.connect.master_site_url_id }}">
-								{{ network_sync.connect.master_site_url_label }}
-							</label>
-							<input class="form-control"
-								   id="{{ network_sync.connect.master_site_url_id }}"
-								   name="{{ network_sync.connect.master_site_url_name }}"
-								   type="url"
-								   placeholder="{{ network_sync.connect.master_site_url_placeholder }}"
-								   value="{{ network_sync.current_master_url }}">
+					{% if network_sync.connect.is_connected %}
+						<div class="import-export-connected-master" data-import-export-connected-master="1">
+							<div class="import-export-connected-master__graphic"
+								 role="img"
+								 aria-label="{{ network_sync.connect.connected.graphic_label }}">
+								<span class="import-export-connected-master__node" aria-hidden="true"></span>
+								<span class="import-export-connected-master__line" aria-hidden="true"></span>
+								<span class="import-export-connected-master__node is-master" aria-hidden="true"></span>
+							</div>
+							<div class="import-export-connected-master__copy">
+								<span>{{ network_sync.connect.connected.label }}</span>
+								<strong>{{ network_sync.connect.connected.master_host }}</strong>
+								<small>{{ network_sync.connect.connected.master_url }}</small>
+								<p>{{ network_sync.connect.connected.summary }}</p>
+							</div>
 						</div>
-
-						<fieldset class="import-export-choice-group">
-							<legend>{{ network_sync.connect.import_mode_label }}</legend>
-							<div class="import-export-choice-group__options">
-								{% for option in network_sync.connect.import_mode_options %}
-									<label class="import-export-choice" for="{{ option.id }}">
-										<input class="form-check-input"
-											   type="radio"
-											   id="{{ option.id }}"
-											   name="ShieldNetwork"
-											   value="{{ option.value }}"
-											   data-import-export-link-choice="1"
-											   data-action-label="{{ option.value == 'Y' ? network_sync.connect.submit_label_network : network_sync.connect.submit_label_once }}"
-											   {% if option.is_checked %}checked{% endif %}>
-										<span>
-											<strong>{{ option.label }}</strong>
-											<small>{{ option.summary }}</small>
-										</span>
-									</label>
-								{% endfor %}
-							</div>
-						</fieldset>
-
-						<fieldset class="import-export-choice-group" data-import-export-verification-box="1">
-							<legend>{{ network_sync.connect.verification_label }}</legend>
-							<div class="import-export-choice-group__options">
-								{% for option in network_sync.connect.verification_options %}
-									<label class="import-export-choice" for="{{ option.id }}">
-										<input class="form-check-input"
-											   type="radio"
-											   id="{{ option.id }}"
-											   name="MasterSiteVerification"
-											   value="{{ option.value }}"
-											   data-import-export-auth-choice="{{ option.value }}"
-											   {% if option.is_checked %}checked{% endif %}>
-										<span>
-											<strong>{{ option.label }}</strong>
-											<small>{{ option.summary }}</small>
-										</span>
-									</label>
-								{% endfor %}
-							</div>
-							<div class="import-export-secret-field d-none" data-import-export-secret-field="1">
-								<label class="form-label" for="{{ network_sync.connect.secret_key_id }}">
-									{{ network_sync.connect.secret_key_label }}
+					{% else %}
+						<form id="{{ network_sync.connect.form.id }}" class="import-export-connect-form" autocomplete="off">
+							<div class="mb-3">
+								<label class="form-label" for="{{ network_sync.connect.form.master_site_url_id }}">
+									{{ network_sync.connect.form.master_site_url_label }}
 								</label>
 								<input class="form-control"
-									   id="{{ network_sync.connect.secret_key_id }}"
-									   name="{{ network_sync.connect.secret_key_name }}"
-									   type="text"
-									   placeholder="{{ network_sync.connect.secret_key_placeholder }}"
-									   disabled>
-							</div>
-						</fieldset>
-
-						<div class="import-export-connect-form__footer">
-							<div class="form-check import-export-confirm-check">
-								<input type="checkbox"
-									   class="form-check-input"
-									   name="{{ network_sync.connect.confirm_name }}"
-									   id="{{ network_sync.connect.confirm_id }}"
-									   value="{{ network_sync.connect.confirm_value }}" />
-								<label for="{{ network_sync.connect.confirm_id }}" class="form-check-label">
-									{{ network_sync.connect.confirm_label }}
-								</label>
-								<div class="form-text">{{ network_sync.connect.confirm_help }}</div>
+									   id="{{ network_sync.connect.form.master_site_url_id }}"
+									   name="{{ network_sync.connect.form.master_site_url_name }}"
+									   type="url"
+									   placeholder="{{ network_sync.connect.form.master_site_url_placeholder }}"
+									   value="{{ network_sync.connect.form.master_site_url_value }}">
 							</div>
 
-							<button type="submit"
-									class="btn btn-primary import-export-primary-action"
-									data-import-export-primary-action="1">
-								<i class="{{ network_sync.connect.submit_icon_class }}" aria-hidden="true"></i>
-								<span>{{ network_sync.connect.submit_label_once }}</span>
-							</button>
-						</div>
-					</form>
+							<fieldset class="import-export-choice-group">
+								<legend>{{ network_sync.connect.form.import_mode_label }}</legend>
+								<div class="import-export-choice-group__options">
+									{% for option in network_sync.connect.form.import_mode_options %}
+										<label class="import-export-choice" for="{{ option.id }}">
+											<input class="form-check-input"
+												   type="radio"
+												   id="{{ option.id }}"
+												   name="ShieldNetwork"
+												   value="{{ option.value }}"
+												   data-import-export-link-choice="1"
+												   data-action-label="{{ option.value == 'Y' ? network_sync.connect.form.submit_label_network : network_sync.connect.form.submit_label_once }}"
+												   {% if option.is_checked %}checked{% endif %}>
+											<span>
+												<strong>{{ option.label }}</strong>
+												<small>{{ option.summary }}</small>
+											</span>
+										</label>
+									{% endfor %}
+								</div>
+							</fieldset>
+
+							<fieldset class="import-export-choice-group" data-import-export-verification-box="1">
+								<legend>{{ network_sync.connect.form.verification_label }}</legend>
+								<div class="import-export-choice-group__options">
+									{% for option in network_sync.connect.form.verification_options %}
+										<label class="import-export-choice" for="{{ option.id }}">
+											<input class="form-check-input"
+												   type="radio"
+												   id="{{ option.id }}"
+												   name="MasterSiteVerification"
+												   value="{{ option.value }}"
+												   data-import-export-auth-choice="{{ option.value }}"
+												   {% if option.is_checked %}checked{% endif %}>
+											<span>
+												<strong>{{ option.label }}</strong>
+												<small>{{ option.summary }}</small>
+											</span>
+										</label>
+									{% endfor %}
+								</div>
+								<div class="import-export-secret-field d-none" data-import-export-secret-field="1">
+									<label class="form-label" for="{{ network_sync.connect.form.secret_key_id }}">
+										{{ network_sync.connect.form.secret_key_label }}
+									</label>
+									<input class="form-control"
+										   id="{{ network_sync.connect.form.secret_key_id }}"
+										   name="{{ network_sync.connect.form.secret_key_name }}"
+										   type="text"
+										   placeholder="{{ network_sync.connect.form.secret_key_placeholder }}"
+										   disabled>
+								</div>
+							</fieldset>
+
+							<div class="import-export-connect-form__footer">
+								<div class="form-check import-export-confirm-check">
+									<input type="checkbox"
+										   class="form-check-input"
+										   name="{{ network_sync.connect.form.confirm_name }}"
+										   id="{{ network_sync.connect.form.confirm_id }}"
+										   value="{{ network_sync.connect.form.confirm_value }}" />
+									<label for="{{ network_sync.connect.form.confirm_id }}" class="form-check-label">
+										{{ network_sync.connect.form.confirm_label }}
+									</label>
+									<div class="form-text">{{ network_sync.connect.form.confirm_help }}</div>
+								</div>
+
+								<button type="submit"
+										class="btn btn-primary import-export-primary-action"
+										data-import-export-primary-action="1">
+									<i class="{{ network_sync.connect.form.submit_icon_class }}" aria-hidden="true"></i>
+									<span>{{ network_sync.connect.form.submit_label_once }}</span>
+								</button>
+							</div>
+						</form>
+					{% endif %}
 				</div>
 
 				<div class="import-export-pane"

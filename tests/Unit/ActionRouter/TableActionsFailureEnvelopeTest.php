@@ -96,7 +96,11 @@ class TableActionsFailureEnvelopeTest extends BaseUnitTest {
 			],
 			[
 				'action' => new ImportExportSitesTableActionTestDouble( [] ),
-				'keys'   => [ 'retrieve_table_data', ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC ],
+				'keys'   => [
+					'retrieve_table_data',
+					ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
+					ImportExportSitesTableAction::SUB_ACTION_DELETE_SITE,
+				],
 			],
 			[
 				'action' => new InvestigationTableActionTestDouble( [] ),

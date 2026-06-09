@@ -254,6 +254,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 
 		$sites = $tables[ 'import_export_sites' ];
 		$this->assertArrayHasKey( 'ajax', $sites );
+		$this->assertArrayHasKey( 'strings', $sites );
 		$this->assertArrayHasKey( 'vars', $sites );
 
 		$ajax = $sites[ 'ajax' ];
@@ -262,6 +263,9 @@ class AssetsCustomizerTest extends BaseUnitTest {
 
 		$this->assertSame( ImportExportSitesTableAction::SLUG, $ajax[ 'table_action' ][ ActionData::FIELD_EXECUTE ] );
 		$this->assertSame( ImportExportSitesAuthoriseUrlsSubmit::SLUG, $ajax[ 'authorise_urls_submit' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertArrayHasKey( 'remove_site_confirm', $sites[ 'strings' ] );
+		$this->assertIsString( $sites[ 'strings' ][ 'remove_site_confirm' ] );
+		$this->assertNotSame( '', $sites[ 'strings' ][ 'remove_site_confirm' ] );
 		$this->assertArrayHasKey( 'datatables_init', $sites[ 'vars' ] );
 	}
 

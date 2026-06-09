@@ -28,6 +28,9 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 
 	bindEvents() {
 		super.bindEvents();
+		shieldEventsHandler_Main.add_Click( '[data-import-export-site-delete]', async ( targetEl ) => {
+			await this.deleteManagedSite( targetEl );
+		} );
 		shieldEventsHandler_Main.add_Submit(
 			'#ImportExportSitesAuthoriseUrlsForm',
 			( targetEl ) => this.submitAuthoriseUrlsForm( targetEl )
@@ -44,6 +47,31 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 		cfg.dom = 'rBpftip';
 		cfg.pageLength = 100;
 		return cfg;
+	}
+
+	async deleteManagedSite( targetEl ) {
+		const button = targetEl instanceof Element ? targetEl.closest( '[data-import-export-site-delete]' ) : null;
+		if ( !( button instanceof HTMLElement ) ) {
+			return;
+		}
+
+		const rid = button.dataset.rid;
+		if ( typeof rid !== 'string' || rid.length < 1 ) {
+			return;
+		}
+
+		const dialog = shieldServices.dialog();
+		const confirmed = await dialog.confirm( {
+			message: this._base_data.strings.remove_site_confirm,
+			confirmLabel: dialog.resolveConfirmLabel( button ),
+			danger: true,
+			launcher: button,
+		} );
+		if ( !confirmed ) {
+			return;
+		}
+
+		this.bulkTableAction( 'delete_site', [ rid ] );
 	}
 
 	submitAuthoriseUrlsForm( form ) {
