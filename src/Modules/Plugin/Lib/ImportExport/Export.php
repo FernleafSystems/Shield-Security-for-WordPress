@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\ScopedTargetHostRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
@@ -209,7 +210,7 @@ class Export {
 		}
 
 		try {
-			( new SyncSiteUrlValidator() )->validatePublicOutbound( $url );
+			( new SyncSiteUrlValidator() )->validateTrustedSyncUrl( $url );
 			return true;
 		}
 		catch ( \Throwable $e ) {
@@ -218,10 +219,12 @@ class Export {
 	}
 
 	private function handshake( string $url, bool $rejectUnsafeUrls = false ) :bool {
-		$raw = Services::HttpRequest()->getContent(
-			URL::Build( $url, ActionData::Build( PluginImportExport_HandshakeConfirm::class, false, [], true ) ),
+		$targetUrl = URL::Build( $url, ActionData::Build( PluginImportExport_HandshakeConfirm::class, false, [], true ) );
+		$request = static fn() :string => Services::HttpRequest()->getContent(
+			$targetUrl,
 			$rejectUnsafeUrls ? [ 'reject_unsafe_urls' => true ] : []
 		);
+		$raw = $rejectUnsafeUrls ? ( new ScopedTargetHostRequest() )->run( $targetUrl, $request ) : $request();
 		$dec = @\json_decode( $raw, true );
 		return \is_array( $dec ) && isset( $dec[ 'success' ] ) && ( $dec[ 'success' ] === true );
 	}

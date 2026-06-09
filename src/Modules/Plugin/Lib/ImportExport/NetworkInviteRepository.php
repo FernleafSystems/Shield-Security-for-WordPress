@@ -31,7 +31,7 @@ class NetworkInviteRepository {
 		}
 
 		try {
-			$masterUrl = ( new SyncSiteUrlValidator() )->validatePublicOutbound( $masterUrl );
+			$masterUrl = ( new SyncSiteUrlValidator() )->validateTrustedSyncUrl( $masterUrl );
 		}
 		catch ( \Throwable $e ) {
 			return null;

@@ -23,13 +23,9 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		);
 		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::installItems( [
-			'service_data'      => new Data(),
-			'service_wpgeneral' => new class extends General {
-				public function getHomeUrl( string $path = '', bool $wpms = false ) :string {
-					return 'https://local.example.com';
-				}
-			},
+			'service_data' => new Data(),
 		] );
+		$this->installHomeUrl( 'https://local.example.com' );
 	}
 
 	protected function tearDown() :void {
@@ -91,6 +87,71 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 			 ->validatePublicOutbound( 'https://client.example.com' );
 	}
 
+	public function test_trusted_sync_allows_hostname_that_resolves_to_private_ip() :void {
+		$this->assertSame(
+			'https://client.example.com/path',
+			$this->validatorWithResolvedIps( [ '10.0.0.25' ] )
+				 ->validateTrustedSyncUrl( 'https://client.example.com/path/?utm=1' )
+		);
+	}
+
+	public function test_trusted_sync_rejects_unresolved_hostname() :void {
+		$this->expectException( \InvalidArgumentException::class );
+
+		$this->validatorWithResolvedIps( [] )->validateTrustedSyncUrl( 'https://client.example.com' );
+	}
+
+	/**
+	 * @dataProvider trustedSyncUnsafeUrlProvider
+	 */
+	public function test_trusted_sync_rejects_unsafe_url_inputs( string $url ) :void {
+		$this->expectException( \InvalidArgumentException::class );
+
+		$this->validatorWithResolvedIps( [ '10.0.0.25' ] )->validateTrustedSyncUrl( $url );
+	}
+
+	public function trustedSyncUnsafeUrlProvider() :array {
+		return [
+			'credentials'  => [ 'https://user:pass@client.example.com' ],
+			'private ip'   => [ 'https://10.0.0.10' ],
+			'localhost'    => [ 'https://localhost' ],
+			'single host'  => [ 'https://wordpress-slave' ],
+			'local tld'    => [ 'https://client.local' ],
+			'exact self'   => [ 'https://local.example.com' ],
+			'bad scheme'   => [ 'ftp://client.example.com' ],
+			'malformed'    => [ 'not-a-url' ],
+			'bad hostname' => [ 'https://client..example.com' ],
+		];
+	}
+
+	public function test_same_host_sibling_path_is_allowed_for_subdirectory_home() :void {
+		$this->installHomeUrl( 'https://local.example.com/import3' );
+
+		$this->assertSame(
+			'https://local.example.com/import4',
+			$this->validatorWithResolvedIps( [ '10.0.0.25' ] )
+				 ->validateTrustedSyncUrl( 'https://local.example.com/import4' )
+		);
+	}
+
+	/**
+	 * @dataProvider sameHostSelfUrlProvider
+	 */
+	public function test_same_host_current_site_paths_are_rejected( string $homeUrl, string $targetUrl ) :void {
+		$this->installHomeUrl( $homeUrl );
+		$this->expectException( \InvalidArgumentException::class );
+
+		$this->validatorWithResolvedIps( [ '10.0.0.25' ] )->validateTrustedSyncUrl( $targetUrl );
+	}
+
+	public function sameHostSelfUrlProvider() :array {
+		return [
+			'root home rejects sibling path' => [ 'https://local.example.com', 'https://local.example.com/import4' ],
+			'subdirectory home rejects base' => [ 'https://local.example.com/import3', 'https://local.example.com/import3' ],
+			'subdirectory home rejects child' => [ 'https://local.example.com/import3', 'https://local.example.com/import3/child' ],
+		];
+	}
+
 	/**
 	 * @dataProvider invalidUrlProvider
 	 */
@@ -123,5 +184,18 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 
 	private function validatorWithResolvedIps( array $ips ) :SyncSiteUrlValidator {
 		return new SyncSiteUrlValidator( static fn() :array => $ips );
+	}
+
+	private function installHomeUrl( string $homeUrl ) :void {
+		ServicesState::mergeItems( [
+			'service_wpgeneral' => new class( $homeUrl ) extends General {
+				public function __construct( private string $homeUrl ) {
+				}
+
+				public function getHomeUrl( string $path = '', bool $wpms = false ) :string {
+					return $this->homeUrl;
+				}
+			},
+		] );
 	}
 }

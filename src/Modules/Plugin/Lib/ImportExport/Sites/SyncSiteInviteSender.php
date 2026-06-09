@@ -17,20 +17,23 @@ class SyncSiteInviteSender {
 		$http = Services::HttpRequest();
 		try {
 			$validator = new SyncSiteUrlValidator();
-			$clientUrl = $validator->validatePublicOutbound( $clientUrl );
+			$clientUrl = $validator->validateTrustedSyncUrl( $clientUrl );
 			$targetUrl = self::con()->plugin_urls->noncedPluginAction(
 				PluginImportExport_NetworkInviteRequest::class,
 				$clientUrl
 			);
-			$masterUrl = $validator->validatePublicOutbound( Services::WpGeneral()->getHomeUrl(), false );
-			$success = $http->post( $targetUrl, [
-				'timeout'            => $timeout,
-				'redirection'        => 1,
-				'reject_unsafe_urls' => true,
-				'body'               => [
-					'master_url' => $masterUrl,
-				],
-			] );
+			$masterUrl = $validator->validateTrustedSyncUrl( Services::WpGeneral()->getHomeUrl(), false );
+			$success = ( new ScopedTargetHostRequest() )->run(
+				$targetUrl,
+				static fn() :bool => $http->post( $targetUrl, [
+					'timeout'            => $timeout,
+					'redirection'        => 1,
+					'reject_unsafe_urls' => true,
+					'body'               => [
+						'master_url' => $masterUrl,
+					],
+				] )
+			);
 			$code = $http->lastResponse ? (int)$http->lastResponse->getCode() : 0;
 			$error = $success ? '' : ( $http->lastError ? $http->lastError->get_error_message() : 'invite_request_failed' );
 		}

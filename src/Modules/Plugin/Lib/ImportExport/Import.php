@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\ScopedTargetHostRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -14,6 +15,7 @@ class Import {
 
 	public const REQUEST_SAFETY_LEGACY_PRIVATE_ALLOWED = 'legacy_private_allowed';
 	public const REQUEST_SAFETY_PUBLIC_ONLY = 'public_only';
+	public const REQUEST_SAFETY_TRUSTED_SYNC = 'trusted_sync';
 
 	/**
 	 * @throws \Exception
@@ -251,9 +253,12 @@ class Import {
 	}
 
 	private function validateMasterUrlForImport( string $masterURL, string $requestSafety ) :string {
-		if ( $requestSafety === self::REQUEST_SAFETY_PUBLIC_ONLY ) {
+		if ( \in_array( $requestSafety, [ self::REQUEST_SAFETY_PUBLIC_ONLY, self::REQUEST_SAFETY_TRUSTED_SYNC ], true ) ) {
 			try {
-				return ( new SyncSiteUrlValidator() )->validatePublicOutbound( $masterURL );
+				$validator = new SyncSiteUrlValidator();
+				return $requestSafety === self::REQUEST_SAFETY_PUBLIC_ONLY ?
+					$validator->validatePublicOutbound( $masterURL )
+					: $validator->validateTrustedSyncUrl( $masterURL );
 			}
 			catch ( \Throwable $e ) {
 				throw new \Exception( $e->getMessage(), 4, $e );
@@ -289,6 +294,14 @@ class Import {
 				'reject_unsafe_urls' => true,
 			] );
 		}
+		if ( $requestSafety === self::REQUEST_SAFETY_TRUSTED_SYNC ) {
+			return ( new ScopedTargetHostRequest() )->run(
+				$targetExportURL,
+				static fn() :string => Services::HttpRequest()->getContent( $targetExportURL, [
+					'reject_unsafe_urls' => true,
+				] )
+			);
+		}
 
 		add_filter( 'http_request_host_is_external', '\__return_true', 11 );
 		try {
@@ -305,6 +318,7 @@ class Import {
 			[
 				self::REQUEST_SAFETY_LEGACY_PRIVATE_ALLOWED,
 				self::REQUEST_SAFETY_PUBLIC_ONLY,
+				self::REQUEST_SAFETY_TRUSTED_SYNC,
 			],
 			true
 		) ) {

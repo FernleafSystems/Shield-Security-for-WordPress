@@ -19,7 +19,7 @@ class FormAuthoriseUrls extends BaseRender {
 				'client_secret_key' => __( 'Client site secret key', 'wp-simple-firewall' ),
 				'client_secret_help' => __( 'Use this key only when a client site is not already trusted by URL.', 'wp-simple-firewall' ),
 				'urls'             => __( 'Client site URLs', 'wp-simple-firewall' ),
-				'urls_help'        => __( 'Enter one public HTTP or HTTPS site URL per line.', 'wp-simple-firewall' ),
+				'urls_help'        => __( 'Enter one HTTP or HTTPS site URL per line. Localhost and private IP addresses are not allowed.', 'wp-simple-firewall' ),
 				'urls_placeholder' => "https://example.com\nhttps://example.org/",
 				'confirm'          => __( 'I understand these client sites will be authorised to export settings from this site and sent one network invite request.', 'wp-simple-firewall' ),
 				'submit'           => __( 'Add Client Sites', 'wp-simple-firewall' ),

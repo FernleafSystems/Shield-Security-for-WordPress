@@ -165,7 +165,7 @@ class ImportExportController {
 			}
 
 			try {
-				$url = $validator->validatePublicOutbound( $rawUrl );
+				$url = $validator->validateTrustedSyncUrl( $rawUrl );
 			}
 			catch ( \Throwable $e ) {
 				$invalidUrls[] = $rawUrl;
@@ -180,8 +180,8 @@ class ImportExportController {
 		if ( !empty( $invalidUrls ) ) {
 			throw new \RuntimeException( sprintf(
 				_n(
-					'%s URL is invalid. Please provide public HTTP or HTTPS URLs only.',
-					'%s URLs are invalid. Please provide public HTTP or HTTPS URLs only.',
+					'%s URL is invalid. Please provide normal HTTP or HTTPS site URLs only; localhost and private IP addresses are not allowed.',
+					'%s URLs are invalid. Please provide normal HTTP or HTTPS site URLs only; localhost and private IP addresses are not allowed.',
 					\count( $invalidUrls ),
 					'wp-simple-firewall'
 				),

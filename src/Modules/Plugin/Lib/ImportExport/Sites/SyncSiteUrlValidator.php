@@ -67,6 +67,18 @@ class SyncSiteUrlValidator {
 		return $url;
 	}
 
+	public function validateTrustedSyncUrl( string $url, bool $rejectSelf = true ) :string {
+		$url = $this->validate( $url, $rejectSelf );
+
+		$parts = $this->parse( $url );
+		$host = $this->normaliseHost( (string)( $parts[ 'host' ] ?? '' ) );
+		if ( empty( $this->resolveHostIps( $host ) ) ) {
+			throw new \InvalidArgumentException( __( 'Site URLs must resolve to valid IP addresses.', 'wp-simple-firewall' ) );
+		}
+
+		return $url;
+	}
+
 	public function canonicalize( string $url ) :string {
 		$validated = Services::Data()->validateSimpleHttpUrl( \trim( $url ) );
 		return $validated === false ? '' : (string)$validated;
@@ -212,7 +224,22 @@ class SyncSiteUrlValidator {
 
 		$urlParts = $this->parse( $url );
 		$homeParts = $this->parse( $home );
-		return $this->normaliseHost( (string)( $urlParts[ 'host' ] ?? '' ) )
-			   === $this->normaliseHost( (string)( $homeParts[ 'host' ] ?? '' ) );
+		if ( $this->normaliseHost( (string)( $urlParts[ 'host' ] ?? '' ) )
+			 !== $this->normaliseHost( (string)( $homeParts[ 'host' ] ?? '' ) ) ) {
+			return false;
+		}
+
+		$homePath = $this->normaliseSitePath( (string)( $homeParts[ 'path' ] ?? '' ) );
+		if ( $homePath === '/' ) {
+			return true;
+		}
+
+		$urlPath = $this->normaliseSitePath( (string)( $urlParts[ 'path' ] ?? '' ) );
+		return $urlPath === $homePath || \str_starts_with( $urlPath.'/', $homePath.'/' );
+	}
+
+	private function normaliseSitePath( string $path ) :string {
+		$path = '/'.\trim( $path, '/' );
+		return $path === '/' ? '/' : \rtrim( $path, '/' );
 	}
 }

@@ -12,12 +12,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Plugin\Lib\
 
 use Brain\Monkey\Functions;
 use Carbon\Carbon;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_UpdateNotified;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	PluginImportExport_NetworkInviteRequest,
+	PluginImportExport_UpdateNotified
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\PingSender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteInviteSender;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -242,6 +246,62 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertSame( 'https://current-master.example.com', (string)$this->opts->optGet( 'importexport_masterurl' ) );
 		$this->assertSame( 0, (int)$this->opts->optGet( 'importexport_handshake_expires_at' ) );
 		$this->assertSame( '', $this->httpRequest->lastRequestedUrl() );
+	}
+
+	public function test_from_site_trusted_sync_mode_wraps_export_request_with_scoped_filter() :void {
+		$events = [];
+		$this->recordExternalHostFilterEvents( $events, '93.184.216.34' );
+		$this->httpRequest->setOnGetContent( static function () use ( &$events ) :void {
+			$events[] = [
+				'operation' => 'http_get_content',
+			];
+		} );
+
+		( new Import() )->fromSite( 'https://93.184.216.34', '', true, Import::REQUEST_SAFETY_TRUSTED_SYNC );
+
+		$this->assertScopedExternalHostFilterEvents( $events, 'http_get_content' );
+		$this->assertTrue( (bool)( $this->httpRequest->lastContentArgs()[ 'reject_unsafe_urls' ] ?? false ) );
+		$this->assertSame( 'https://93.184.216.34', (string)$this->opts->optGet( 'importexport_masterurl' ) );
+	}
+
+	public function test_from_site_trusted_sync_mode_removes_scoped_filter_when_export_request_fails() :void {
+		$events = [];
+		$this->recordExternalHostFilterEvents( $events, '93.184.216.34' );
+		$this->httpRequest->setOnGetContent( static function () use ( &$events ) :void {
+			$events[] = [
+				'operation' => 'http_get_content',
+			];
+		} );
+		$this->httpRequest->throwOnGetContent( new \RuntimeException( 'trusted export failed' ) );
+
+		try {
+			( new Import() )->fromSite( 'https://93.184.216.34', '', true, Import::REQUEST_SAFETY_TRUSTED_SYNC );
+			$this->fail( 'Expected trusted sync import request failure.' );
+		}
+		catch ( \Throwable $e ) {
+			$this->assertSame( 'trusted export failed', $e->getMessage() );
+		}
+
+		$this->assertScopedExternalHostFilterEvents( $events, 'http_get_content' );
+	}
+
+	public function test_invite_sender_trusted_sync_mode_wraps_post_with_scoped_filter() :void {
+		$this->wpGeneral->setHomeUrl( 'https://93.184.216.35' );
+		$events = [];
+		$this->recordExternalHostFilterEvents( $events, '93.184.216.36' );
+		$this->httpRequest->setOnPost( static function () use ( &$events ) :void {
+			$events[] = [
+				'operation' => 'http_post',
+			];
+		} );
+
+		$result = ( new SyncSiteInviteSender() )->send( 'https://93.184.216.36/client-site' );
+
+		$this->assertTrue( $result[ 'success' ] ?? false );
+		$this->assertScopedExternalHostFilterEvents( $events, 'http_post' );
+		$this->assertStringContainsString( PluginImportExport_NetworkInviteRequest::SLUG, $this->httpRequest->lastPostRequestedUrl() );
+		$this->assertTrue( (bool)( $this->httpRequest->lastPostArgs()[ 'reject_unsafe_urls' ] ?? false ) );
+		$this->assertSame( 'https://93.184.216.35', $this->httpRequest->lastPostArgs()[ 'body' ][ 'master_url' ] ?? '' );
 	}
 
 	public function test_from_site_rejects_unknown_request_safety_mode_without_mutation() :void {
@@ -477,15 +537,15 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 	 */
 	private function buildPingSenderWithRecordedFilters( array &$events ) :PingSender {
 		Functions\when( 'add_action' )->justReturn( true );
-		$this->recordExternalHostFilterEvents( $events, true );
+		$this->recordExternalHostFilterEvents( $events, 'wordpress-slave' );
 
 		$events = [];
 		return new PingSender();
 	}
 
-	private function recordExternalHostFilterEvents( array &$events, bool $probePingTarget = false ) :void {
+	private function recordExternalHostFilterEvents( array &$events, string $probeTargetHost = '' ) :void {
 		Functions\when( 'add_filter' )->alias(
-			static function ( $tag, $callback, $priority = 10, $acceptedArgs = 1 ) use ( &$events, $probePingTarget ) :bool {
+			static function ( $tag, $callback, $priority = 10, $acceptedArgs = 1 ) use ( &$events, $probeTargetHost ) :bool {
 				$event = [
 					'operation'     => 'add_filter',
 					'tag'           => (string)$tag,
@@ -494,8 +554,8 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 					'priority'      => (int)$priority,
 					'accepted_args' => (int)$acceptedArgs,
 				];
-				if ( $probePingTarget && (string)$tag === 'http_request_host_is_external' && \is_callable( $callback ) ) {
-					$event[ 'allows_target_host' ] = $callback( false, 'wordpress-slave' );
+				if ( $probeTargetHost !== '' && (string)$tag === 'http_request_host_is_external' && \is_callable( $callback ) ) {
+					$event[ 'allows_target_host' ] = $callback( false, $probeTargetHost );
 					$event[ 'allows_other_host' ] = $callback( false, 'wordpress-other' );
 					$event[ 'preserves_existing_external_host' ] = $callback( true, 'wordpress-other' );
 				}
@@ -538,7 +598,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 	/**
 	 * @param array<int,array<string,mixed>> $events
 	 */
-	private function assertScopedExternalHostFilterEvents( array $events ) :void {
+	private function assertScopedExternalHostFilterEvents( array $events, string $requestOperation = 'http_get' ) :void {
 		$this->assertCount( 3, $events );
 		$this->assertSame( 'add_filter', $events[ 0 ][ 'operation' ] ?? '' );
 		$this->assertSame( 'http_request_host_is_external', $events[ 0 ][ 'tag' ] ?? '' );
@@ -549,7 +609,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertFalse( $events[ 0 ][ 'allows_other_host' ] ?? true );
 		$this->assertTrue( $events[ 0 ][ 'preserves_existing_external_host' ] ?? false );
 
-		$this->assertSame( 'http_get', $events[ 1 ][ 'operation' ] ?? '' );
+		$this->assertSame( $requestOperation, $events[ 1 ][ 'operation' ] ?? '' );
 
 		$this->assertSame( 'remove_filter', $events[ 2 ][ 'operation' ] ?? '' );
 		$this->assertSame( 'http_request_host_is_external', $events[ 2 ][ 'tag' ] ?? '' );
@@ -620,11 +680,14 @@ class ImportExportHttpRequestStub extends HttpRequest {
 	private array $responseOptions = [];
 	private string $lastRequestedUrl = '';
 	private string $lastGetRequestedUrl = '';
+	private string $lastPostRequestedUrl = '';
 	private array $lastContentArgs = [];
+	private array $lastPostArgs = [];
 	private ?\Throwable $getException = null;
 	private ?\Throwable $getContentException = null;
 	private $onGet = null;
 	private $onGetContent = null;
+	private $onPost = null;
 
 	public function setResponseOptions( array $options ) :void {
 		$this->responseOptions = $options;
@@ -638,8 +701,16 @@ class ImportExportHttpRequestStub extends HttpRequest {
 		return $this->lastGetRequestedUrl;
 	}
 
+	public function lastPostRequestedUrl() :string {
+		return $this->lastPostRequestedUrl;
+	}
+
 	public function lastContentArgs() :array {
 		return $this->lastContentArgs;
+	}
+
+	public function lastPostArgs() :array {
+		return $this->lastPostArgs;
 	}
 
 	public function throwOnGet( \Throwable $throwable ) :void {
@@ -656,6 +727,10 @@ class ImportExportHttpRequestStub extends HttpRequest {
 
 	public function setOnGetContent( callable $callback ) :void {
 		$this->onGetContent = $callback;
+	}
+
+	public function setOnPost( callable $callback ) :void {
+		$this->onPost = $callback;
 	}
 
 	public function get( $url, $args = [] ) :bool {
@@ -687,14 +762,24 @@ class ImportExportHttpRequestStub extends HttpRequest {
 			],
 		] );
 	}
+
+	public function post( string $url, $args = [] ) :bool {
+		$this->lastPostRequestedUrl = $url;
+		$this->lastPostArgs = \is_array( $args ) ? $args : [];
+		if ( \is_callable( $this->onPost ) ) {
+			( $this->onPost )( $url, $args );
+		}
+		return true;
+	}
 }
 
 class ImportExportGeneralStub extends General {
 
 	private bool $isCron = false;
+	private string $homeUrl = 'https://local.example.com';
 
 	public function getHomeUrl( string $path = '', bool $wpms = false ) :string {
-		return 'https://local.example.com';
+		return $this->homeUrl;
 	}
 
 	public function isCron() :bool {
@@ -703,6 +788,10 @@ class ImportExportGeneralStub extends General {
 
 	public function setIsCron( bool $isCron ) :void {
 		$this->isCron = $isCron;
+	}
+
+	public function setHomeUrl( string $homeUrl ) :void {
+		$this->homeUrl = $homeUrl;
 	}
 }
 

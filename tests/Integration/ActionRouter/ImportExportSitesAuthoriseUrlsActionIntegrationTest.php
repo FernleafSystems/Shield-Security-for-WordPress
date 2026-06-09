@@ -34,6 +34,8 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 	private const UNAVAILABLE_SYNC = 'https://93.184.216.68';
 	private const EXISTING = 'https://93.184.216.69';
 	private const REACTIVATED = 'https://93.184.216.70';
+	private const SAME_HOST_HOME = 'https://93.184.216.60/import3';
+	private const SAME_HOST_CLIENT = 'https://93.184.216.60/import4';
 
 	private array $optionsSnapshot = [];
 	private array $servicesSnapshot = [];
@@ -106,6 +108,26 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertCount( 2, $this->getCapturedEventsByKey( 'whitelist_site_added' ) );
 		$this->assertSame( [], $this->requireController()->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
 		$this->assertSame( 0, (int)$this->requireController()->opts->optGet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY ) );
+	}
+
+	public function test_authorise_urls_submit_allows_same_host_sibling_path_for_subdirectory_home() :void {
+		$this->enableSync();
+		$homeFilter = static fn() :string => self::SAME_HOST_HOME;
+		\add_filter( 'home_url', $homeFilter );
+
+		try {
+			$payload = $this->submitAuthoriseUrls( self::SAME_HOST_CLIENT.'/?utm=1' );
+		}
+		finally {
+			\remove_filter( 'home_url', $homeFilter );
+		}
+
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( 1, $payload[ 'authorised_count' ] );
+		$this->assertSame( SitesDB::STATUS_ACTIVE, $this->requireSite( self::SAME_HOST_CLIENT )->status );
+		$this->assertCount( 1, $this->inviteHttp->requests );
+		$this->assertTrue( $this->inviteHttp->requests[ 0 ][ 'reject_unsafe_urls' ] );
+		$this->assertSame( self::SAME_HOST_HOME, $this->inviteHttp->requests[ 0 ][ 'body' ][ 'master_url' ] ?? '' );
 	}
 
 	public function test_authorise_urls_submit_invite_failure_does_not_roll_back_site_row() :void {

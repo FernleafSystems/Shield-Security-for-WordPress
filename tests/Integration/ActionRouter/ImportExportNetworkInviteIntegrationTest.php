@@ -43,6 +43,8 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 	private const LEGACY_CLIENT_MASTER_URL = 'https://93.184.216.45/legacy-client-master';
 	private const COOLDOWN_MASTER_URL = 'https://93.184.216.46/cooldown-master';
 	private const STALE_MASTER_URL = 'https://93.184.216.47/stale-master';
+	private const SAME_HOST_HOME = 'https://93.184.216.48/import4';
+	private const SAME_HOST_MASTER_URL = 'https://93.184.216.48/import3';
 
 	private array $optionsSnapshot = [];
 	private array $requestSnapshot = [];
@@ -310,6 +312,29 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
 		$this->assertSame( $master, (string)$this->requireController()->opts->optGet( 'importexport_masterurl' ) );
 		$this->assertSame( 'Y', (string)$this->requireController()->opts->optGet( 'importexport_enable' ) );
+	}
+
+	public function test_accept_allows_same_host_sibling_master_for_subdirectory_home() :void {
+		$this->enableSync();
+		$homeFilter = static fn() :string => self::SAME_HOST_HOME;
+		\add_filter( 'home_url', $homeFilter );
+
+		try {
+			$invite = ( new NetworkInviteRepository() )->receive( self::SAME_HOST_MASTER_URL );
+			$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+				'form_params' => [
+					'invite_id' => $invite[ 'id' ],
+					'confirm'   => 'Y',
+				],
+			] )->payload();
+		}
+		finally {
+			\remove_filter( 'home_url', $homeFilter );
+		}
+
+		$this->assertTrue( $payload[ 'success' ], (string)\wp_json_encode( $payload ) );
+		$this->assertSame( [], ( new NetworkInviteRepository() )->pending() );
+		$this->assertSame( self::SAME_HOST_MASTER_URL, (string)$this->requireController()->opts->optGet( 'importexport_masterurl' ) );
 	}
 
 	public function test_accept_rejects_stale_invite_after_site_gets_master_url_without_import() :void {

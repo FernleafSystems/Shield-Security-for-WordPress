@@ -33,7 +33,7 @@ class ImportExportNetworkInviteAccept extends BaseAction {
 				throw new \RuntimeException( __( 'Network invite was not found.', 'wp-simple-firewall' ) );
 			}
 
-			( new Import() )->fromSite( (string)$invite[ 'master_url' ], '', true, Import::REQUEST_SAFETY_PUBLIC_ONLY );
+			( new Import() )->fromSite( (string)$invite[ 'master_url' ], '', true, Import::REQUEST_SAFETY_TRUSTED_SYNC );
 			$repo->clear( (string)$invite[ 'id' ] );
 			$success = true;
 			$message = __( 'Network invite accepted.', 'wp-simple-firewall' );
