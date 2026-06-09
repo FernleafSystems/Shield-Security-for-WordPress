@@ -37,10 +37,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  *   stat_line:string
  * }
  * @phpstan-type TileDefinition StandardTileDefinition|ForcedNeutralTileDefinition
+ * @phpstan-type ConfigureStatus 'good'|'warning'|'critical'|'neutral'
  * @phpstan-type ConfigureRowContract array{
  *   key:string,
  *   title:string,
- *   status:string,
+ *   status:ConfigureStatus,
  *   status_label:string,
  *   status_icon_class:string,
  *   note:string,
@@ -56,13 +57,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  *   label:string,
  *   icon_class:string,
  *   summary:string,
- *   status:string,
+ *   status:ConfigureStatus,
  *   status_label:string,
  *   status_icon_class:string,
  *   stat_line:string,
  *   panel:array{
  *     title:string,
- *     status:string,
+ *     status:ConfigureStatus,
  *     status_label:string,
  *     rows:list<ConfigureRowContract>
  *   }
@@ -262,14 +263,17 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	/**
-	 * @param list<array{title:string,status:string,status_label:string,note:string}> $rows
+	 * @param list<array{title:string,status:ConfigureStatus,status_label:string,note:string}> $rows
+	 * @return 'good'|'warning'|'critical'
 	 */
 	private function aggregateTileStatus( array $rows ) :string {
-		return StatusPriority::highest( \array_column( $rows, 'status' ), 'good' );
+		$status = StatusPriority::highest( \array_column( $rows, 'status' ), 'good' );
+		/** @var 'good'|'warning'|'critical' $status */
+		return $status;
 	}
 
 	/**
-	 * @param list<array{title:string,status:string,status_label:string,note:string}> $rows
+	 * @param list<array{title:string,status:ConfigureStatus,status_label:string,note:string}> $rows
 	 */
 	private function buildTileStatLine( array $rows ) :string {
 		$criticalCount = 0;
@@ -313,6 +317,9 @@ class ConfigureZoneTilesBuilder {
 		return __( 'All groups healthy', 'wp-simple-firewall' );
 	}
 
+	/**
+	 * @param ConfigureStatus $status
+	 */
 	private function tileStatusLabel( string $status ) :string {
 		switch ( $status ) {
 			case 'critical':
@@ -327,10 +334,16 @@ class ConfigureZoneTilesBuilder {
 		}
 	}
 
+	/**
+	 * @param ConfigureStatus $status
+	 */
 	private function tileStatusIconClass( string $status ) :string {
 		return $this->standardStatusIconClass( $status, 'exclamation-triangle-fill' );
 	}
 
+	/**
+	 * @param ConfigureStatus $status
+	 */
 	private function componentStatusLabel( string $status ) :string {
 		switch ( $status ) {
 			case 'critical':
@@ -345,6 +358,9 @@ class ConfigureZoneTilesBuilder {
 		}
 	}
 
+	/**
+	 * @return ConfigureStatus
+	 */
 	private function componentStatusToConfigureStatus( string $componentStatus ) :string {
 		if ( $componentStatus === EnumEnabledStatus::NEUTRAL ) {
 			return 'neutral';

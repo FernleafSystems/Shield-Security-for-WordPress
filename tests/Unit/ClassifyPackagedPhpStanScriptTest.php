@@ -3,12 +3,19 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTestTrait;
 
 class ClassifyPackagedPhpStanScriptTest extends BaseUnitTest {
 
 	use PluginPathsTrait;
 	use ScriptCommandTestTrait;
+	use TempDirLifecycleTrait;
+
+	protected function tearDown() :void {
+		$this->cleanupTrackedTempDirs();
+		parent::tearDown();
+	}
 
 	public function testClassifierScriptHasValidSyntax() :void {
 		$this->skipIfPackageScriptUnavailable();
@@ -73,26 +80,19 @@ class ClassifyPackagedPhpStanScriptTest extends BaseUnitTest {
 	private function runClassifierScript( string $content, int $phpstanExitCode ) :array {
 		$this->skipIfPackageScriptUnavailable();
 
-		$tempFile = \tempnam( \sys_get_temp_dir(), 'shield-phpstan-' );
-		$this->assertNotFalse( $tempFile );
-		\file_put_contents( $tempFile, $content );
+		$tempFile = $this->createTrackedTempFile( 'shield-phpstan-', '.json', $content );
 
-		try {
-			$process = $this->runPhpScript(
-				'bin/classify-packaged-phpstan.php',
-				[
-					$tempFile,
-					(string)$phpstanExitCode,
-				]
-			);
+		$process = $this->runPhpScript(
+			'bin/classify-packaged-phpstan.php',
+			[
+				$tempFile,
+				(string)$phpstanExitCode,
+			]
+		);
 
-			return [
-				'exit_code' => $process->getExitCode() ?? 1,
-				'output' => $process->getOutput().$process->getErrorOutput(),
-			];
-		}
-		finally {
-			@unlink( $tempFile );
-		}
+		return [
+			'exit_code' => $process->getExitCode() ?? 1,
+			'output' => $process->getOutput().$process->getErrorOutput(),
+		];
 	}
 }

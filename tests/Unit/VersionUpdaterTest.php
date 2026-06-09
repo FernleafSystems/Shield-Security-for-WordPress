@@ -2,8 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
-use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\FileSystemUtils;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\VersionUpdater;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempPathJoinTrait;
 use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
@@ -14,6 +14,7 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 class VersionUpdaterTest extends TestCase {
 
 	use TempPathJoinTrait;
+	use TempDirLifecycleTrait;
 
 	private string $projectRoot;
 
@@ -22,14 +23,11 @@ class VersionUpdaterTest extends TestCase {
 	protected function set_up() :void {
 		parent::set_up();
 		$this->projectRoot = \dirname( \dirname( __DIR__ ) );
-		$this->tempDir = Path::join( \sys_get_temp_dir(), 'version-updater-test-'.\uniqid() );
-		\mkdir( $this->tempDir, 0755, true );
+		$this->tempDir = $this->createTrackedTempDir( 'version-updater-test-' );
 	}
 
 	protected function tear_down() :void {
-		if ( \is_dir( $this->tempDir ) ) {
-			FileSystemUtils::removeDirectoryRecursive( $this->tempDir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tear_down();
 	}
 
@@ -593,4 +591,3 @@ PHP;
 		);
 	}
 }
-

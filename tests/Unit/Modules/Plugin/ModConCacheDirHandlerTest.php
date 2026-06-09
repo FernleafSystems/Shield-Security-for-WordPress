@@ -11,6 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\ModCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -29,10 +30,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\CacheDirHandler;
 class ModConCacheDirHandlerTest extends BaseUnitTest {
 
 	use CacheStoreWordPressFunctions;
+	use TempDirLifecycleTrait;
 
 	private array $servicesSnapshot = [];
-
-	private array $tempDirs = [];
 
 	private CacheStoreTestFs $fs;
 
@@ -56,9 +56,7 @@ class ModConCacheDirHandlerTest extends BaseUnitTest {
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -203,10 +201,7 @@ class ModConCacheDirHandlerTest extends BaseUnitTest {
 	}
 
 	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normaliseCacheStorePath( \sys_get_temp_dir().'/shield-modcon-cache-'.$suffix.'-'.\uniqid() );
-		$this->mkdir( $dir );
-		$this->tempDirs[] = $dir;
-		return $dir;
+		return $this->normaliseCacheStorePath( $this->createTrackedTempDir( 'shield-modcon-cache-'.$suffix.'-' ) );
 	}
 
 	private function mkdir( string $dir ) :void {

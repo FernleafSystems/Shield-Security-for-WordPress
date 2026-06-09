@@ -18,10 +18,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
 	Processing\FileScanOptimiser,
 	ScanActionVO
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
-	ServicesState
+	ServicesState,
+	WrittenFixtureFiles
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\CacheStoreTestCacheDir;
 use FernleafSystems\Wordpress\Services\Core\{
@@ -31,9 +33,10 @@ use FernleafSystems\Wordpress\Services\Core\{
 
 class ScansControllerDailyCronTest extends BaseUnitTest {
 
-	private array $servicesSnapshot = [];
+	use TempDirLifecycleTrait;
+	use WrittenFixtureFiles;
 
-	private array $tempDirs = [];
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -47,9 +50,8 @@ class ScansControllerDailyCronTest extends BaseUnitTest {
 	protected function tearDown() :void {
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
+		$this->removeWrittenFixtureFiles();
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -105,32 +107,15 @@ class ScansControllerDailyCronTest extends BaseUnitTest {
 			@\mkdir( \dirname( $path ), 0777, true );
 		}
 		\file_put_contents( $path, $content );
-		return $path;
+		return $this->trackWrittenFixtureFile( $path );
 	}
 
 	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normalisePath( \sys_get_temp_dir().'/shield-scans-daily-cron-'.$suffix.'-'.\uniqid() );
-		@\mkdir( $dir, 0777, true );
-		$this->tempDirs[] = $dir;
-		return $dir;
+		return $this->normalisePath( $this->createTrackedTempDir( 'shield-scans-daily-cron-'.$suffix.'-' ) );
 	}
 
 	private function normalisePath( string $path ) :string {
 		return \str_replace( '\\', '/', $path );
-	}
-
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $iterator as $item ) {
-			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
-		}
-		@\rmdir( $dir );
 	}
 }
 

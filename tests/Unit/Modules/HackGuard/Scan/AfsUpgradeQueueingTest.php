@@ -26,8 +26,6 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
 
-	private array $tempDirs = [];
-
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
@@ -36,9 +34,6 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 	protected function tearDown() :void {
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
 		parent::tearDown();
 	}
 
@@ -243,26 +238,6 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 		);
 	}
 
-	private function makeTempDir( string $suffix ) :string {
-		$dir = \str_replace( '\\', '/', \sys_get_temp_dir().'/shield-afs-run-'.$suffix.'-'.\uniqid() );
-		@mkdir( $dir, 0777, true );
-		$this->tempDirs[] = $dir;
-		return $dir;
-	}
-
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $iterator as $item ) {
-			$item->isDir() ? @rmdir( $item->getPathname() ) : @unlink( $item->getPathname() );
-		}
-		@rmdir( $dir );
-	}
 }
 
 class AfsUpgradeQueueingRecordingScans {

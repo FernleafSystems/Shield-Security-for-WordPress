@@ -297,6 +297,21 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertCount( 4, $row[ 'explanations' ] ?? [] );
 	}
 
+	public function test_waf_aggressive_rule_disabled_is_warning_when_primary_rules_are_enabled() :void {
+		$this->installController( [
+			'block_dir_traversal'    => 'Y',
+			'block_sql_queries'      => 'Y',
+			'block_field_truncation' => 'Y',
+			'block_php_code'         => 'Y',
+			'block_aggressive'       => 'N',
+		] );
+
+		$row = $this->firstConfigureRow( new WebApplicationFirewall() );
+
+		$this->assertSame( EnumEnabledStatus::OKAY, $row[ 'enabled_status' ] );
+		$this->assertCount( 1, $row[ 'explanations' ] );
+	}
+
 	public function test_firewall_zone_owns_core_rule_components_and_module_config_scope() :void {
 		$this->installController();
 

@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Retriev
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\HashesStorageDir;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\Load;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -37,11 +38,10 @@ use FernleafSystems\Wordpress\Services\Core\{
 
 class AssetChangeCleanupTest extends BaseUnitTest {
 
+	use TempDirLifecycleTrait;
 	use WrittenFixtureFiles;
 
 	private array $servicesSnapshot = [];
-
-	private array $tempDirs = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -82,9 +82,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
 		$this->removeWrittenFixtureFiles();
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -520,28 +518,11 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 	}
 
 	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normalizePath( \sys_get_temp_dir().'/shield-asset-cleanup-'.$suffix.'-'.\uniqid() );
-		@mkdir( $dir, 0777, true );
-		$this->tempDirs[] = $dir;
-		return $dir;
+		return $this->normalizePath( $this->createTrackedTempDir( 'shield-asset-cleanup-'.$suffix.'-' ) );
 	}
 
 	private function normalizePath( string $path ) :string {
 		return \str_replace( '\\', '/', $path );
-	}
-
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $iterator as $item ) {
-			$item->isDir() ? @rmdir( $item->getPathname() ) : @unlink( $item->getPathname() );
-		}
-		@rmdir( $dir );
 	}
 }
 

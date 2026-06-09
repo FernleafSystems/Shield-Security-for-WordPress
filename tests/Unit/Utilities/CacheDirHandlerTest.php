@@ -10,6 +10,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Utilities;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -28,10 +29,9 @@ use FernleafSystems\Wordpress\Services\Services;
 class CacheDirHandlerTest extends BaseUnitTest {
 
 	use CacheStoreWordPressFunctions;
+	use TempDirLifecycleTrait;
 
 	private array $servicesSnapshot = [];
-
-	private array $tempDirs = [];
 
 	private CacheStoreTestFs $fs;
 
@@ -52,9 +52,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -173,10 +171,9 @@ class CacheDirHandlerTest extends BaseUnitTest {
 			$this->markTestSkipped( 'The literal /tmp cache-root guard is Unix-specific.' );
 		}
 
-		$base = $this->normaliseCacheStorePath( '/tmp/shield-cache-dir-handler-tmp-skip-'.\uniqid() );
+		$base = $this->normaliseCacheStorePath( $this->createTrackedTempDir( 'shield-cache-dir-handler-tmp-skip-', '/tmp' ) );
 		$preferred = $base.'/shield';
 		$this->mkdir( $preferred );
-		$this->tempDirs[] = $base;
 
 		$this->assertSame( $preferred, ( new CacheDirHandler( '', $preferred ) )->dir() );
 		$this->assertFileExists( $preferred.'/assessed.flag' );
@@ -257,25 +254,18 @@ class CacheDirHandlerTest extends BaseUnitTest {
 	}
 
 	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normaliseCacheStorePath( \sys_get_temp_dir().'/shield-cache-dir-handler-'.$suffix.'-'.\uniqid() );
-		$this->mkdir( $dir );
-		$this->tempDirs[] = $dir;
-		return $dir;
+		return $this->normaliseCacheStorePath( $this->createTrackedTempDir( 'shield-cache-dir-handler-'.$suffix.'-' ) );
 	}
 
 	private function makeNonTmpCacheRoot( string $suffix ) :string {
-		$cwd = \getcwd();
-		$base = $this->normaliseCacheStorePath(
-			( \is_string( $cwd ) && $cwd !== '' ? $cwd : \sys_get_temp_dir() )
-			.'/tmp/shield-cache-dir-handler-'.$suffix.'-'.\uniqid()
-		);
-		if ( \strpos( $base, '/tmp/' ) === 0 ) {
-			$base = $this->normaliseCacheStorePath( '/var/tmp/shield-cache-dir-handler-'.$suffix.'-'.\uniqid() );
+		$parent = $this->normaliseCacheStorePath( \dirname( __DIR__, 3 ) );
+		if ( $parent === '/tmp' || \strpos( $parent, '/tmp/' ) === 0 ) {
+			$parent = '/var/tmp';
 		}
 
+		$base = $this->normaliseCacheStorePath( $this->createTrackedTempDir( 'shield-cache-dir-handler-'.$suffix.'-', $parent ) );
 		$root = $base.'/shield';
 		$this->mkdir( $root );
-		$this->tempDirs[] = $base;
 		return $root;
 	}
 
