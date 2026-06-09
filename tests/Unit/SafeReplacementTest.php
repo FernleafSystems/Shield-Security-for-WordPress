@@ -2,12 +2,15 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
 class SafeReplacementTest extends TestCase {
+
+	use TempDirLifecycleTrait;
 
 	private Filesystem $fs;
 
@@ -16,16 +19,21 @@ class SafeReplacementTest extends TestCase {
 		$this->fs = new Filesystem();
 	}
 
+	protected function tearDown() :void {
+		$this->cleanupTrackedTempDirs();
+		parent::tearDown();
+	}
+
 	public function testJsonDecodeThrowsJsonExceptionOnInvalidJson() :void {
 		$this->expectException( \Safe\Exceptions\JsonException::class );
 		\Safe\json_decode( '{invalid json' );
 	}
 
 	public function testUnlinkThrowsFilesystemExceptionForMissingFile() :void {
-		$missingFile = Path::join( \sys_get_temp_dir(), 'shield-safe-missing-'.\uniqid().'.tmp' );
+		$missingFile = $this->createTrackedTempPath( 'shield-safe-missing-', '.tmp' );
 		$this->assertFileDoesNotExist( $missingFile );
 
-		$scriptPath = Path::join( \sys_get_temp_dir(), 'shield-safe-unlink-'.\uniqid().'.php' );
+		$scriptPath = $this->createTrackedTempPath( 'shield-safe-unlink-', '.php' );
 		$pluginRoot = $this->getSourceRoot();
 		$script = <<<'PHP'
 <?php declare(strict_types=1);
@@ -48,18 +56,11 @@ PHP;
 			)
 		);
 
-		try {
-			$process = new Process( [ PHP_BINARY, $scriptPath ], $pluginRoot );
-			$process->run();
+		$process = new Process( [ PHP_BINARY, $scriptPath ], $pluginRoot );
+		$process->run();
 
-			$this->assertSame( 0, $process->getExitCode(), $process->getErrorOutput() );
-			$this->assertSame( 'ok', \trim( $process->getOutput() ) );
-		}
-		finally {
-			if ( \file_exists( $scriptPath ) ) {
-				$this->fs->remove( $scriptPath );
-			}
-		}
+		$this->assertSame( 0, $process->getExitCode(), $process->getErrorOutput() );
+		$this->assertSame( 'ok', \trim( $process->getOutput() ) );
 	}
 
 	public function testDateTimeImmutableSetTimestampReturnsSafeSubclass() :void {
@@ -70,7 +71,7 @@ PHP;
 	}
 
 	public function testSafeBootstrapCanBeRequiredMultipleTimes() :void {
-		$scriptPath = Path::join( \sys_get_temp_dir(), 'shield-safe-bootstrap-'.\uniqid().'.php' );
+		$scriptPath = $this->createTrackedTempPath( 'shield-safe-bootstrap-', '.php' );
 		$pluginRoot = $this->getSourceRoot();
 		$vendorAutoload = Path::join( $pluginRoot, 'vendor', 'autoload.php' );
 		$safeBootstrap = Path::join( $pluginRoot, 'vendor', 'thecodingmachine', 'safe', 'src', 'functions.php' );
@@ -93,18 +94,11 @@ PHP;
 			)
 		);
 
-		try {
-			$process = new Process( [ PHP_BINARY, $scriptPath ], $pluginRoot );
-			$process->run();
+		$process = new Process( [ PHP_BINARY, $scriptPath ], $pluginRoot );
+		$process->run();
 
-			$this->assertSame( 0, $process->getExitCode(), $process->getErrorOutput() );
-			$this->assertSame( 'ok', \trim( $process->getOutput() ) );
-		}
-		finally {
-			if ( \file_exists( $scriptPath ) ) {
-				$this->fs->remove( $scriptPath );
-			}
-		}
+		$this->assertSame( 0, $process->getExitCode(), $process->getErrorOutput() );
+		$this->assertSame( 'ok', \trim( $process->getOutput() ) );
 	}
 
 	private function getSourceRoot() :string {

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTestTrait;
 
 /**
@@ -12,6 +13,12 @@ class RunPlaygroundLocalScriptTest extends BaseUnitTest {
 
 	use PluginPathsTrait;
 	use ScriptCommandTestTrait;
+	use TempDirLifecycleTrait;
+
+	protected function tearDown() :void {
+		$this->cleanupTrackedTempDirs();
+		parent::tearDown();
+	}
 
 	public function testRunPlaygroundScriptHasValidSyntax() :void {
 		$this->skipIfPackageScriptUnavailable();
@@ -95,7 +102,7 @@ class RunPlaygroundLocalScriptTest extends BaseUnitTest {
 
 	public function testRunPlaygroundCheckFailsFastForMissingPluginRoot() :void {
 		$this->skipIfPackageScriptUnavailable();
-		$missingPluginRoot = sys_get_temp_dir().DIRECTORY_SEPARATOR.'shield-playground-missing-'.bin2hex( random_bytes( 4 ) );
+		$missingPluginRoot = $this->createTrackedTempPath( 'shield-playground-missing-' );
 		$this->assertDirectoryDoesNotExist( $missingPluginRoot );
 
 		$output = [];

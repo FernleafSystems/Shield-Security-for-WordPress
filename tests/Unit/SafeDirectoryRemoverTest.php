@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\SafeDirectoryRemover;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Symfony\Component\Filesystem\Path;
@@ -13,11 +14,18 @@ use Symfony\Component\Filesystem\Path;
  */
 class SafeDirectoryRemoverTest extends TestCase {
 
+	use TempDirLifecycleTrait;
+
 	private string $projectRoot;
 
 	protected function setUp() :void {
 		parent::setUp();
 		$this->projectRoot = dirname( dirname( __DIR__ ) );
+	}
+
+	protected function tearDown() :void {
+		$this->cleanupTrackedTempDirs();
+		parent::tearDown();
 	}
 
 	private function invokePrivateMethod( object $object, string $methodName, array $args = [] ) {
@@ -80,29 +88,14 @@ class SafeDirectoryRemoverTest extends TestCase {
 	 */
 	public function testRemoveSubdirectoryRequiresValidParent() :void {
 		$remover = $this->createRemover();
-		$tempDir = sys_get_temp_dir();
 
-		// Create a temp test directory
-		$parentDir = Path::join( $tempDir, 'shield-test-parent-'.uniqid() );
+		$parentDir = $this->createTrackedTempDir( 'shield-test-parent-' );
 		$childDir = Path::join( $parentDir, 'child' );
 
-		mkdir( $parentDir, 0777, true );
 		mkdir( $childDir, 0777, true );
 
-		try {
-			// This should work - child is inside parent
-			$remover->removeSubdirectoryOf( $childDir, $parentDir );
-			$this->assertDirectoryDoesNotExist( $childDir );
-		}
-		finally {
-			// Cleanup
-			if ( is_dir( $childDir ) ) {
-				rmdir( $childDir );
-			}
-			if ( is_dir( $parentDir ) ) {
-				rmdir( $parentDir );
-			}
-		}
+		$remover->removeSubdirectoryOf( $childDir, $parentDir );
+		$this->assertDirectoryDoesNotExist( $childDir );
 	}
 
 	/**
@@ -110,31 +103,13 @@ class SafeDirectoryRemoverTest extends TestCase {
 	 */
 	public function testRemoveSubdirectoryBlocksOutsideParent() :void {
 		$remover = $this->createRemover();
-		$tempDir = sys_get_temp_dir();
 
-		// Create two unrelated directories
-		$dir1 = Path::join( $tempDir, 'shield-test-dir1-'.uniqid() );
-		$dir2 = Path::join( $tempDir, 'shield-test-dir2-'.uniqid() );
+		$dir1 = $this->createTrackedTempDir( 'shield-test-dir1-' );
+		$dir2 = $this->createTrackedTempDir( 'shield-test-dir2-' );
 
-		mkdir( $dir1, 0777, true );
-		mkdir( $dir2, 0777, true );
-
-		try {
-			$this->expectException( \RuntimeException::class );
-			$this->expectExceptionMessage( 'SAFETY CHECK FAILED' );
-
-			// Try to remove dir1 claiming it's a subdirectory of dir2 (it's not)
-			$remover->removeSubdirectoryOf( $dir1, $dir2 );
-		}
-		finally {
-			// Cleanup
-			if ( is_dir( $dir1 ) ) {
-				rmdir( $dir1 );
-			}
-			if ( is_dir( $dir2 ) ) {
-				rmdir( $dir2 );
-			}
-		}
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'SAFETY CHECK FAILED' );
+		$remover->removeSubdirectoryOf( $dir1, $dir2 );
 	}
 
 	/**
@@ -142,22 +117,11 @@ class SafeDirectoryRemoverTest extends TestCase {
 	 */
 	public function testRemoveTempDirectoryWorksInSystemTemp() :void {
 		$remover = $this->createRemover();
-		$tempDir = sys_get_temp_dir();
 
-		// Create a temp test directory
-		$testDir = Path::join( $tempDir, 'shield-test-temp-'.uniqid() );
-		mkdir( $testDir, 0777, true );
+		$testDir = $this->createTrackedTempDir( 'shield-test-temp-' );
 
-		try {
-			$remover->removeTempDirectory( $testDir );
-			$this->assertDirectoryDoesNotExist( $testDir );
-		}
-		finally {
-			// Cleanup if test failed
-			if ( is_dir( $testDir ) ) {
-				rmdir( $testDir );
-			}
-		}
+		$remover->removeTempDirectory( $testDir );
+		$this->assertDirectoryDoesNotExist( $testDir );
 	}
 
 	/**
@@ -179,10 +143,8 @@ class SafeDirectoryRemoverTest extends TestCase {
 	public function testRemoveSafelyHandlesNonExistentDirectory() :void {
 		$remover = $this->createRemover();
 
-		// This should not throw - just return silently
-		$remover->removeSafely( Path::join( '/path/that/does/not/exist', uniqid() ) );
+		$remover->removeSafely( $this->createTrackedTempPath( 'shield-missing-safe-dir-' ) );
 
 		$this->assertTrue( true ); // If we got here, no exception was thrown
 	}
 }
-

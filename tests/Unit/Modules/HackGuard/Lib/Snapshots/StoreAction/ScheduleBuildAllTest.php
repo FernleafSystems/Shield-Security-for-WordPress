@@ -16,11 +16,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 	Store
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\ScheduleBuildAll;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState,
-	UnitTestRequest
+	UnitTestRequest,
+	WrittenFixtureFiles
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\AssetSnapshots\{
 	SnapshotFs,
@@ -46,14 +48,12 @@ function error_log( string $message ) :bool {
 class ScheduleBuildAllTest extends BaseUnitTest {
 
 	use CacheStoreWordPressFunctions;
+	use TempDirLifecycleTrait;
+	use WrittenFixtureFiles;
 
 	public static array $capturedErrorLogs = [];
 
 	private array $servicesSnapshot = [];
-
-	private array $tempDirs = [];
-
-	private array $fixtureFiles = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -75,13 +75,8 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->resetHashesStorageDir();
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
-		foreach ( \array_reverse( $this->fixtureFiles ) as $file ) {
-			@\unlink( $file );
-			@\rmdir( \dirname( $file ) );
-		}
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
+		$this->removeWrittenFixtureFiles();
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -294,10 +289,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 	}
 
 	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normalizePath( \sys_get_temp_dir().'/shield-schedule-build-'.$suffix.'-'.\uniqid() );
-		@mkdir( $dir, 0777, true );
-		$this->tempDirs[] = $dir;
-		return $dir;
+		return $this->normalizePath( $this->createTrackedTempDir( 'shield-schedule-build-'.$suffix.'-' ) );
 	}
 
 	private function normalizePath( string $path ) :string {
@@ -314,20 +306,6 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$path = $this->normalizePath( $path );
 		$this->mkdir( \dirname( $path ) );
 		\file_put_contents( $path, $content );
-		$this->fixtureFiles[] = $path;
-	}
-
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $iterator as $item ) {
-			$item->isDir() ? @rmdir( $item->getPathname() ) : @unlink( $item->getPathname() );
-		}
-		@rmdir( $dir );
+		$this->trackWrittenFixtureFile( $path );
 	}
 }

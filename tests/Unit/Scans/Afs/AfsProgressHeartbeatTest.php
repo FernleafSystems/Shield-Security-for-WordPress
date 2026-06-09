@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
 	ScanFromFileMap
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans\MalwareFile;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -27,14 +28,13 @@ use FernleafSystems\Wordpress\Services\Core\Fs;
 
 class AfsProgressHeartbeatTest extends BaseUnitTest {
 
+	use TempDirLifecycleTrait;
+
 	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
-		if ( !\defined( 'ABSPATH' ) ) {
-			\define( 'ABSPATH', \sys_get_temp_dir().\DIRECTORY_SEPARATOR );
-		}
 		Functions\when( 'wp_normalize_path' )->alias(
 			static fn( string $path ) :string => \str_replace( '\\', '/', $path )
 		);
@@ -46,6 +46,7 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 	protected function tearDown() :void {
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -71,41 +72,32 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 
 	public function test_malware_signature_loop_ticks_progress_through_bounded_callback() :void {
 		$ticks = 0;
-		$file = \tempnam( \sys_get_temp_dir(), 'shield-afs-' );
-		$this->assertIsString( $file );
-		$phpFile = $file.'.php';
-		\rename( $file, $phpFile );
-		\file_put_contents( $phpFile, '<?php echo "clean";' );
+		$phpFile = $this->createTrackedTempFile( 'shield-afs-', '.php', '<?php echo "clean";' );
 
-		try {
-			ServicesState::installItems( [
-				'service_wpfs' => new class extends Fs {
-					public function isAccessibleFile( string $path ) :bool {
-						return \is_file( $path );
-					}
+		ServicesState::installItems( [
+			'service_wpfs' => new class extends Fs {
+				public function isAccessibleFile( string $path ) :bool {
+					return \is_file( $path );
+				}
 
-					public function getFileContent( $path, $uncompress = false ) {
-						unset( $uncompress );
-						return (string)\file_get_contents( $path );
-					}
-				},
-			] );
+				public function getFileContent( $path, $uncompress = false ) {
+					unset( $uncompress );
+					return (string)\file_get_contents( $path );
+				}
+			},
+		] );
 
-			$action = new ScanActionVO();
-			$action->patterns_raw = \array_fill( 0, 60, 'not-present-signature' );
-			$action->patterns_iraw = [];
-			$action->patterns_regex = [];
-			$action->patterns_keywords = [];
-			$action->patterns_functions = [];
-			$action->progress_callback = static function () use ( &$ticks ) :void {
-				$ticks++;
-			};
+		$action = new ScanActionVO();
+		$action->patterns_raw = \array_fill( 0, 60, 'not-present-signature' );
+		$action->patterns_iraw = [];
+		$action->patterns_regex = [];
+		$action->patterns_keywords = [];
+		$action->patterns_functions = [];
+		$action->progress_callback = static function () use ( &$ticks ) :void {
+			$ticks++;
+		};
 
-			$this->assertTrue( ( new MalwareFile( $phpFile ) )->setScanActionVO( $action )->isFileValid() );
-		}
-		finally {
-			@\unlink( $phpFile );
-		}
+		$this->assertTrue( ( new MalwareFile( $phpFile ) )->setScanActionVO( $action )->isFileValid() );
 
 		$this->assertGreaterThanOrEqual( 3, $ticks );
 		$this->assertLessThan( 60, $ticks );

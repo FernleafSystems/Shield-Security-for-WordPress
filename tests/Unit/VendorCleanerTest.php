@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\VendorCleaner;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -12,29 +13,18 @@ use ReflectionClass;
  */
 class VendorCleanerTest extends TestCase {
 
+	use TempDirLifecycleTrait;
+
 	private string $testDir;
 
 	protected function setUp() :void {
 		parent::setUp();
-		$this->testDir = sys_get_temp_dir().DIRECTORY_SEPARATOR.'vendor_cleaner_test_'.\uniqid();
-		\mkdir( $this->testDir, 0755, true );
+		$this->testDir = $this->createTrackedTempDir( 'vendor-cleaner-test-' );
 	}
 
 	protected function tearDown() :void {
-		$this->removeDirectory( $this->testDir );
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
-	}
-
-	private function removeDirectory( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-		$files = \array_diff( \scandir( $dir ), [ '.', '..' ] );
-		foreach ( $files as $file ) {
-			$path = $dir.DIRECTORY_SEPARATOR.$file;
-			\is_dir( $path ) ? $this->removeDirectory( $path ) : \unlink( $path );
-		}
-		\rmdir( $dir );
 	}
 
 	private function createVendorStructure( array $structure ) :void {
