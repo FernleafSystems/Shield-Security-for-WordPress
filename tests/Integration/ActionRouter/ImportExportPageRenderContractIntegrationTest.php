@@ -319,6 +319,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$html = $page->renderOutputForTest();
 		$this->assertStringContainsString( 'data-import-export-network-invite-review="1"', $html );
 		$this->assertStringContainsString( 'ImportExportNetworkInviteAcceptForm', $html );
+		$this->assertStringContainsString( 'ImportExportNetworkInviteRejectForm', $html );
 		$this->assertStringNotContainsString( 'data-import-export-tab="file"', $html );
 		$this->assertStringNotContainsString( 'data-import-export-tab="network_sync"', $html );
 	}

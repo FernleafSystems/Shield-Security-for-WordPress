@@ -1,47 +1,61 @@
 <section class="import-export-network-invite-review" data-import-export-network-invite-review="1">
-	<div class="import-export-section-intro">
-		<div>
-			<h5>{{ network_invite_review.strings.title }}</h5>
-			<p>{{ network_invite_review.strings.summary }}</p>
-		</div>
-	</div>
-
-	<div class="import-export-setup-panel">
-		<div class="import-export-panel-heading">
-			<h5>{{ network_invite_review.strings.master_url }}</h5>
-			<p><code>{{ network_invite_review.invite.master_url }}</code></p>
+	<div class="import-export-workbench">
+		<div class="import-export-rail">
+			<div class="import-export-rail__status import-export-network-invite-review__status">
+				<span class="import-export-network-invite-review__icon" aria-hidden="true">
+					<i class="bi bi-envelope-check"></i>
+				</span>
+				<span class="import-export-rail__eyebrow">{{ network_invite_review.strings.master_url }}</span>
+				<strong>{{ network_invite_review.invite.master_url }}</strong>
+			</div>
 		</div>
 
-		<div class="alert alert-warning">
-			<i class="bi bi-shield-exclamation" aria-hidden="true"></i>
-			<span>{{ network_invite_review.strings.implications }}</span>
-		</div>
+		<div class="import-export-detail">
+			<header class="import-export-pane__header">
+				<div>
+					<h5>{{ network_invite_review.strings.title }}</h5>
+					<p>{{ network_invite_review.strings.summary }}</p>
+				</div>
+			</header>
 
-		<form id="ImportExportNetworkInviteAcceptForm" class="form-horizontal import-export-network-form">
-			<input type="hidden" name="invite_id" value="{{ network_invite_review.invite.id }}">
-			<div class="form-check mb-3">
-				<input type="checkbox"
-					   class="form-check-input"
-					   name="confirm"
-					   id="ImportExportNetworkInviteAcceptConfirm"
-					   value="Y" />
-				<label for="ImportExportNetworkInviteAcceptConfirm" class="form-check-label">
-					{{ network_invite_review.strings.confirm_label }}
-				</label>
+			<div class="import-export-network-invite-review__master">
+				<span>{{ network_invite_review.strings.master_url }}</span>
+				<code>{{ network_invite_review.invite.master_url }}</code>
 			</div>
 
-			<button type="submit" class="btn btn-primary import-export-primary-action">
-				<i class="bi bi-check2-circle" aria-hidden="true"></i>
-				<span>{{ network_invite_review.strings.accept_button }}</span>
-			</button>
-		</form>
+			<div class="import-export-network-invite-review__notice">
+				<i class="bi bi-shield-exclamation" aria-hidden="true"></i>
+				<span>{{ network_invite_review.strings.implications }}</span>
+			</div>
 
-		<form id="ImportExportNetworkInviteRejectForm" class="form-horizontal mt-3">
-			<input type="hidden" name="invite_id" value="{{ network_invite_review.invite.id }}">
-			<button type="submit" class="btn btn-outline-secondary">
-				<i class="bi bi-x-circle" aria-hidden="true"></i>
-				<span>{{ network_invite_review.strings.reject_button }}</span>
-			</button>
-		</form>
+			<form id="ImportExportNetworkInviteAcceptForm" class="import-export-connect-form import-export-network-invite-review__accept-form">
+				<input type="hidden" name="invite_id" value="{{ network_invite_review.invite.id }}">
+				<div class="import-export-connect-form__footer import-export-network-invite-review__footer">
+					<div class="form-check import-export-confirm-check">
+						<input type="checkbox"
+							   class="form-check-input"
+							   name="confirm"
+							   id="ImportExportNetworkInviteAcceptConfirm"
+							   value="Y" />
+						<label for="ImportExportNetworkInviteAcceptConfirm" class="form-check-label">
+							{{ network_invite_review.strings.confirm_label }}
+						</label>
+					</div>
+
+					<button type="submit" class="btn btn-primary import-export-primary-action">
+						<i class="bi bi-check2-circle" aria-hidden="true"></i>
+						<span>{{ network_invite_review.strings.accept_button }}</span>
+					</button>
+				</div>
+			</form>
+
+			<form id="ImportExportNetworkInviteRejectForm" class="import-export-network-invite-review__reject-form">
+				<input type="hidden" name="invite_id" value="{{ network_invite_review.invite.id }}">
+				<button type="submit" class="btn btn-outline-secondary import-export-primary-action">
+					<i class="bi bi-x-circle" aria-hidden="true"></i>
+					<span>{{ network_invite_review.strings.reject_button }}</span>
+				</button>
+			</form>
+		</div>
 	</div>
 </section>
