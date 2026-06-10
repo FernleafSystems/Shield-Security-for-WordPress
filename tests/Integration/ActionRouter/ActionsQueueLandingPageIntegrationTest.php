@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansFileLockerEnableFile;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
@@ -1256,6 +1257,106 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 'neutral', (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge_status' ] ?? '' ) );
 		$this->assertNotSame( '', \trim( (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'badge' ] ?? '' ) ) );
+
+		$detailPayload = $this->renderSelectedGroupDetail( $groupsPayload );
+		$this->assertRouteRenderOutputHealthy( $detailPayload, 'non-premium file locker disabled detail' );
+		$renderData = \is_array( $detailPayload[ 'render_data' ] ?? null ) ? $detailPayload[ 'render_data' ] : [];
+		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'is_disabled' ] ?? false ) );
+		$this->assertNotEmpty( $renderData[ 'vars' ][ 'disabled_actions' ] ?? [] );
+	}
+
+	public function test_premium_inactive_file_locker_uses_asset_cards_without_configuration_action() :void {
+		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+		RuntimeTestState::primeShieldNetHandshake();
+		$this->requireController()->opts
+			 ->optSet( 'file_locker', [] )
+			 ->store();
+		$this->requireDb( 'file_locker' );
+		self::con()->comps->file_locker->clearLocks();
+
+		$groupsPayload = $this->loadSelectedGroupPayload( 'critical', 'file_locker' );
+		$selectedGroup = $groupsPayload[ 'selected_group' ];
+		$this->assertSame( 'file_locker', (string)$selectedGroup[ 'key' ] );
+		$this->assertSame( 'asset_cards', (string)$selectedGroup[ 'detail_shell' ] );
+		$this->assertSame( [], $selectedGroup[ 'header' ][ 'actions' ] );
+		$this->assertStringNotContainsString(
+			'settings',
+			\strtolower( (string)$selectedGroup[ 'header' ][ 'focus' ] )
+		);
+		$this->assertStringNotContainsString(
+			'settings',
+			\strtolower( (string)$selectedGroup[ 'header' ][ 'next_step' ] )
+		);
+
+		$detailPayload = $this->renderSelectedGroupDetail( $groupsPayload );
+		$this->assertRouteRenderOutputHealthy( $detailPayload, 'premium inactive file locker asset cards' );
+		$renderData = $detailPayload[ 'render_data' ];
+		$this->assertIsArray( $renderData );
+
+		$this->assertFalse( (bool)$renderData[ 'flags' ][ 'is_disabled' ] );
+		$this->assertSame( [], $renderData[ 'vars' ][ 'disabled_actions' ] );
+		$cards = $renderData[ 'vars' ][ 'asset_cards' ];
+		$this->assertIsArray( $cards );
+		$this->assertNotEmpty( $cards );
+		$inactiveCards = \array_values( \array_filter(
+			$cards,
+			static fn( array $card ) :bool => $card[ 'is_inactive' ]
+		) );
+		$this->assertNotEmpty( $inactiveCards );
+		$inactiveCard = $inactiveCards[ 0 ];
+		$this->assertStringStartsWith( 'inactive:', $inactiveCard[ 'key' ] );
+		$action = $inactiveCard[ 'actions' ][ 0 ];
+		$this->assertSame( '1', $action[ 'attributes' ][ 'data-operator-context-action-ajax' ] );
+		$actionData = \json_decode(
+			$action[ 'attributes' ][ 'data-operator-context-action-json' ],
+			true,
+			512,
+			\JSON_THROW_ON_ERROR
+		);
+		$this->assertSame( ScansFileLockerEnableFile::SLUG, $actionData[ 'ex' ] );
+	}
+
+	public function test_file_locker_enable_file_action_adds_key_and_refreshes_to_pending_card() :void {
+		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
+		RuntimeTestState::primeShieldNetHandshake();
+		$this->requireController()->opts
+			 ->optSet( 'file_locker', [] )
+			 ->store();
+		$this->requireDb( 'file_locker' );
+		self::con()->comps->file_locker->clearLocks();
+
+		$snapshot = $this->seedActionNonceContext( ScansFileLockerEnableFile::class );
+		try {
+			$payload = $this->processActionPayloadWithAdminBypass( ScansFileLockerEnableFile::SLUG, [
+				'file_key' => 'root_index',
+			] );
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+		}
+
+		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$this->assertFalse( (bool)( $payload[ 'page_reload' ] ?? true ) );
+		$this->assertSame( [ 'root_index' ], self::con()->opts->optGet( 'file_locker' ) );
+
+		$detailPayload = $this->processActionPayloadWithAdminBypass( FileLockerPane::SLUG, [
+			'display_context' => 'actions_queue',
+		] );
+		$this->assertRouteRenderOutputHealthy( $detailPayload, 'file locker pending after enable action' );
+		$renderData = $detailPayload[ 'render_data' ];
+		$this->assertIsArray( $renderData );
+		$cards = $renderData[ 'vars' ][ 'asset_cards' ];
+		$this->assertIsArray( $cards );
+
+		$this->assertContains( 'pending:root_index', \array_column( $cards, 'key' ) );
+		$pendingCards = \array_values( \array_filter(
+			$cards,
+			static fn( array $card ) :bool => $card[ 'key' ] === 'pending:root_index'
+		) );
+		$this->assertNotEmpty( $pendingCards );
+		$pendingCard = $pendingCards[ 0 ];
+		$this->assertSame( 'actions-queue-filelocker-pending-root_index', $pendingCard[ 'panel_target' ] );
+		$this->assertFalse( $pendingCard[ 'is_inactive' ] );
 	}
 
 	public function test_actions_queue_scan_groups_return_exact_counts_for_enabled_sources() :void {

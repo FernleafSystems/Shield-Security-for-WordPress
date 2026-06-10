@@ -219,14 +219,7 @@ class ScansResultsRailTabAvailability {
 						? $this->buildDisabledState(
 							'not_enabled',
 							$this->buildNotEnabledMessage( __( 'File Locker', 'wp-simple-firewall' ) ),
-							[
-								$this->buildZoneComponentAction(
-									__( 'Protect Files', 'wp-simple-firewall' ),
-									'file_locker',
-									[ 'file_locker' ],
-									'file_locker'
-								),
-							]
+							[]
 						)
 						: $this->buildDisabledState(
 							'upgrade_required',
