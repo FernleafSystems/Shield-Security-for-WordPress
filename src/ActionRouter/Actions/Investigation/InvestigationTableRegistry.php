@@ -27,6 +27,8 @@ class InvestigationTableRegistry {
 					InvestigationTableContract::SUBJECT_TYPE_IP,
 					InvestigationTableContract::SUBJECT_TYPE_PLUGIN,
 					InvestigationTableContract::SUBJECT_TYPE_THEME,
+					InvestigationTableContract::SUBJECT_TYPE_ALL_PLUGINS,
+					InvestigationTableContract::SUBJECT_TYPE_ALL_THEMES,
 					InvestigationTableContract::SUBJECT_TYPE_CORE,
 				],
 			],

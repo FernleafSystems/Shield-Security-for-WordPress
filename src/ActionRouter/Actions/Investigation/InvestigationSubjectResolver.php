@@ -73,6 +73,10 @@ class InvestigationSubjectResolver {
 			case InvestigationTableContract::SUBJECT_TYPE_THEME:
 				$normalizedSubjectId = $this->normalizeAssetSubjectIdentifier( $subjectType, $subjectId );
 				break;
+			case InvestigationTableContract::SUBJECT_TYPE_ALL_PLUGINS:
+			case InvestigationTableContract::SUBJECT_TYPE_ALL_THEMES:
+				$normalizedSubjectId = InvestigationTableContract::SUBJECT_ID_ALL;
+				break;
 			case InvestigationTableContract::SUBJECT_TYPE_CORE:
 				$normalizedSubjectId = InvestigationTableContract::SUBJECT_TYPE_CORE;
 				break;

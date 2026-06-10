@@ -119,9 +119,11 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [], $renderData[ 'vars' ][ 'lookup_shortcuts' ] ?? null );
 		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'offcanvas_history_mode' ] ?? 'missing' ) );
 		$pluginOptions = $renderData[ 'vars' ][ 'plugin_options' ] ?? [];
-		$this->assertCount( 1, $pluginOptions );
-		$this->assertSame( 'akismet/akismet.php', $pluginOptions[ 0 ][ 'value' ] ?? '' );
+		$this->assertCount( 2, $pluginOptions );
+		$this->assertSame( PageInvestigateByPlugin::LOOKUP_ALL_PLUGINS, $pluginOptions[ 0 ][ 'value' ] ?? '' );
 		$this->assertArrayHasKey( 'label', $pluginOptions[ 0 ] );
+		$this->assertSame( 'akismet/akismet.php', $pluginOptions[ 1 ][ 'value' ] ?? '' );
+		$this->assertArrayHasKey( 'label', $pluginOptions[ 1 ] );
 	}
 
 	public function test_invalid_lookup_sets_subject_not_found_flag() :void {
@@ -213,6 +215,58 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'title', $vars[ 'vulnerabilities' ] ?? [] );
 		$this->assertArrayHasKey( 'vulnerabilities', $vars[ 'tabs' ] ?? [] );
 		$this->assertNotSame( '', (string)( $vars[ 'subject_header' ][ 'context_step_json' ] ?? '' ) );
+	}
+
+	public function test_all_plugins_lookup_builds_aggregate_vulnerability_and_activity_contracts() :void {
+		$this->installServices( [ 'plugin_slug' => PageInvestigateByPlugin::LOOKUP_ALL_PLUGINS ] );
+		$page = new PageInvestigateByPluginUnitTestDouble(
+			null,
+			[],
+			0,
+			5,
+			2
+		);
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$this->assertArrayHasKey( 'flags', $renderData );
+		$this->assertArrayHasKey( 'vars', $renderData );
+		$flags = $renderData[ 'flags' ];
+		$vars = $renderData[ 'vars' ];
+		$tabs = $vars[ 'tabs' ];
+		$tables = $vars[ 'tables' ];
+
+		$this->assertTrue( $flags[ 'has_lookup' ] );
+		$this->assertTrue( $flags[ 'has_all_subjects' ] );
+		$this->assertFalse( $flags[ 'has_subject' ] );
+		$this->assertFalse( $flags[ 'subject_not_found' ] );
+		$this->assertSame( [ 'vulnerabilities', 'activity' ], \array_keys( $tabs ) );
+		$this->assertArrayNotHasKey( 'overview', $tabs );
+		$this->assertArrayNotHasKey( 'file_status', $tabs );
+		$this->assertArrayNotHasKey( 'overview', $tables );
+		$this->assertArrayNotHasKey( 'file_status', $tables );
+		$this->assertArrayHasKey( 'overview_rows', $vars );
+		$this->assertSame( [], $vars[ 'overview_rows' ] );
+		$this->assertSame( 'all_plugins', $tables[ 'activity' ][ 'subject_type' ] );
+		$this->assertSame( 'all', $tables[ 'activity' ][ 'subject_id' ] );
+		$this->assertSame( 'activity', $tables[ 'activity' ][ 'table_type' ] );
+		$this->assertFalse( $tables[ 'activity' ][ 'show_header' ] );
+		$this->assertTrue( $tables[ 'activity' ][ 'is_flat' ] );
+		$this->assertFalse( $tables[ 'activity' ][ 'is_empty' ] );
+		$this->assertTrue( $tabs[ 'vulnerabilities' ][ 'is_active' ] );
+		$this->assertFalse( $tabs[ 'activity' ][ 'is_active' ] );
+		$this->assertSame( 2, $tabs[ 'vulnerabilities' ][ 'count' ] );
+		$this->assertSame( 5, $tabs[ 'activity' ][ 'count' ] );
+		$this->assertArrayHasKey( 'vulnerability_pane', $vars );
+		$this->assertArrayHasKey( 'tab', $vars[ 'vulnerability_pane' ] );
+		$this->assertArrayHasKey( 'pane_id', $vars[ 'vulnerability_pane' ][ 'tab' ] );
+		$this->assertNotSame( '', (string)$tabs[ 'vulnerabilities' ][ 'pane_id' ] );
+		$this->assertSame(
+			$tabs[ 'vulnerabilities' ][ 'pane_id' ],
+			$vars[ 'vulnerability_pane' ][ 'tab' ][ 'pane_id' ]
+		);
+		$this->assertSame( 2, (int)$vars[ 'vulnerability_pane' ][ 'tab' ][ 'count_items' ] );
+		$this->assertArrayHasKey( 'no_issues', $vars[ 'vulnerability_pane' ][ 'strings' ] );
+		$this->assertCount( 2, $vars[ 'rail_nav_items' ] );
 	}
 
 	public function test_valid_lookup_includes_reinstall_context_action_for_wporg_plugin() :void {
@@ -380,7 +434,25 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 
 	private function installControllerStub() :void {
 		UnitTestControllerFactory::install(
-			new UnitTestPluginUrls()
+			new UnitTestPluginUrls(),
+			null,
+			(object)[
+				'comps' => (object)[
+					'scans' => new class {
+						public function AFS() :object {
+							return new \stdClass();
+						}
+
+						public function WPV() :object {
+							return new class {
+								public function isEnabled() :bool {
+									return true;
+								}
+							};
+						}
+					},
+				],
+			]
 		);
 	}
 
@@ -488,6 +560,28 @@ class PageInvestigateByPluginUnitTestDouble extends PageInvestigateByPlugin {
 			'summary'     => 'Summary',
 			'lookup_href' => $hasVulnerabilities ? $lookupHref : '',
 			'lookup_text' => $hasVulnerabilities ? 'Lookup' : '',
+		];
+	}
+
+	protected function buildAggregateVulnerabilitiesPayload() :array {
+		$hasVulnerabilities = $this->vulnerabilityCount > 0;
+		return [
+			'count'    => $this->vulnerabilityCount,
+			'status'   => $hasVulnerabilities ? 'critical' : 'good',
+			'sections' => [
+				'vulnerable' => [
+					'label'  => 'Known Vulnerabilities',
+					'count'  => $this->vulnerabilityCount,
+					'status' => $hasVulnerabilities ? 'critical' : 'good',
+					'items'  => [],
+				],
+				'abandoned'  => [
+					'label'  => 'Abandoned Assets',
+					'count'  => 0,
+					'status' => 'good',
+					'items'  => [],
+				],
+			],
 		];
 	}
 

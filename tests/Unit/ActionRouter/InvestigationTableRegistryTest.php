@@ -23,7 +23,7 @@ class InvestigationTableRegistryTest extends BaseUnitTest {
 
 	public function testActivityAllowsUserIpPluginThemeAndCoreSubjects() :void {
 		$this->assertSame(
-			[ 'user', 'ip', 'plugin', 'theme', 'core' ],
+			[ 'user', 'ip', 'plugin', 'theme', 'all_plugins', 'all_themes', 'core' ],
 			InvestigationTableRegistry::getAllowedSubjectTypes( 'activity' )
 		);
 	}

@@ -86,6 +86,36 @@ class InvestigationSubjectWheresTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( "`meta_theme_file`.`meta_value` LIKE '%twentytwentyfive%'", $wheres[ 1 ] );
 	}
 
+	public function testAllPluginsActivityWheresUseOnlyPluginEventFamily() :void {
+		$this->assertSame(
+			[
+				"`log`.`event_slug` LIKE 'plugin_%'",
+			],
+			InvestigationSubjectWheres::forAllPluginsActivitySubject()
+		);
+		$this->assertSame(
+			[
+				"`log`.`event_slug` LIKE 'plugin_%'",
+			],
+			InvestigationSubjectWheres::forActivitySubject( 'all_plugins', 'all', 'wp_activity_meta' )
+		);
+	}
+
+	public function testAllThemesActivityWheresUseOnlyThemeEventFamily() :void {
+		$this->assertSame(
+			[
+				"`log`.`event_slug` LIKE 'theme_%'",
+			],
+			InvestigationSubjectWheres::forAllThemesActivitySubject()
+		);
+		$this->assertSame(
+			[
+				"`log`.`event_slug` LIKE 'theme_%'",
+			],
+			InvestigationSubjectWheres::forActivitySubject( 'all_themes', 'all', 'wp_activity_meta' )
+		);
+	}
+
 	public function testActivityFileFallbackEscapesSqlLikeWildcardsInTokens() :void {
 		$wheres = InvestigationSubjectWheres::forPluginActivitySubject( 'foo_%\main.php', 'wp_activity_meta' );
 
