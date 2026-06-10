@@ -540,7 +540,7 @@ export class ShieldTableBase extends BaseComponent {
 		} );
 	}
 
-	bulkTableAction( action, RIDs = [] ) {
+	bulkTableAction( action, RIDs = [], options = {} ) {
 		if ( RIDs.length === 0 ) {
 			RIDs = this.getSelectedRIDs();
 		}
@@ -556,7 +556,7 @@ export class ShieldTableBase extends BaseComponent {
 				this.$table,
 				data,
 				'Communications error with site.',
-				{ reloadTableOnSuccess: true }
+				{ reloadTableOnSuccess: true, ...options }
 			).catch( ( error ) => {
 				console.log( error );
 			} );

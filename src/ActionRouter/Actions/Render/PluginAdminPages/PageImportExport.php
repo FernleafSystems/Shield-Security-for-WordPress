@@ -43,14 +43,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *   is_checked:bool
  * }
  * @phpstan-type NetworkSyncConnectedMaster array{
- *   master_url:string,
  *   master_host:string,
  *   label:string,
- *   summary:string,
  *   graphic_label:string
+ * }
+ * @phpstan-type NetworkSyncStandaloneSite array{
+ *   label:string,
+ *   title:string,
+ *   summary:string,
+ *   graphic_label:string,
+ *   action_label:string
  * }
  * @phpstan-type NetworkSyncConnectForm array{
  *   id:string,
+ *   panel_id:string,
+ *   reveal_id:string,
  *   master_site_url_id:string,
  *   master_site_url_name:string,
  *   master_site_url_label:string,
@@ -75,7 +82,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  * }
  * @phpstan-type NetworkSyncConnect array{
  *   title:string,
- *   summary:string,
  *   is_connected:true,
  *   connected:NetworkSyncConnectedMaster,
  *   disconnect:array{label:string}
@@ -83,6 +89,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *   title:string,
  *   summary:string,
  *   is_connected:false,
+ *   standalone:NetworkSyncStandaloneSite,
  *   form:NetworkSyncConnectForm
  * }
  * @phpstan-type NetworkSyncContract array{
@@ -103,6 +110,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *     title:string,
  *     summary:string,
  *     add_label:string,
+ *     empty_message:string,
  *     table_id:string,
  *     active_count:int,
  *     has_connected_sites:bool
@@ -307,6 +315,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'title'              => __( 'Manage client sites', 'wp-simple-firewall' ),
 				'summary'            => __( 'Share this site\'s settings with approved Shield sites.', 'wp-simple-firewall' ),
 				'add_label'          => __( 'Add client sites', 'wp-simple-firewall' ),
+				'empty_message'      => __( 'No client sites are connected. Click Add client sites to connect sites.', 'wp-simple-firewall' ),
 				'table_id'           => 'ShieldTable-ImportExportSites',
 				'active_count'       => $activeClientCount,
 				'has_connected_sites' => $activeClientCount > 0,
@@ -321,13 +330,10 @@ class PageImportExport extends BasePluginAdminPage {
 		if ( $hasMasterURL ) {
 			return [
 				'title'        => __( 'Connected to master site', 'wp-simple-firewall' ),
-				'summary'      => __( 'Current master connection.', 'wp-simple-firewall' ),
 				'is_connected' => true,
 				'connected'    => [
-					'master_url'    => $importMasterURL,
 					'master_host'   => $this->hostFromUrl( $importMasterURL ),
 					'label'         => __( 'Master site', 'wp-simple-firewall' ),
-					'summary'       => __( 'Automatic imports are active.', 'wp-simple-firewall' ),
 					'graphic_label' => __( 'Client site connected to master site', 'wp-simple-firewall' ),
 				],
 				'disconnect'   => [
@@ -340,6 +346,13 @@ class PageImportExport extends BasePluginAdminPage {
 			'title'        => __( 'Connect to network', 'wp-simple-firewall' ),
 			'summary'      => __( 'Use master site URL. Choose import type and trust method.', 'wp-simple-firewall' ),
 			'is_connected' => false,
+			'standalone'   => [
+				'label'         => __( 'Standalone site', 'wp-simple-firewall' ),
+				'title'         => __( 'No master site connected', 'wp-simple-firewall' ),
+				'summary'       => __( 'This site is not importing settings from another Shield site.', 'wp-simple-firewall' ),
+				'graphic_label' => __( 'Standalone site not connected to a master site', 'wp-simple-firewall' ),
+				'action_label'  => __( 'Connect this site to a master site', 'wp-simple-firewall' ),
+			],
 			'form'         => $this->buildNetworkConnectForm( $importMasterURL ),
 		];
 	}
@@ -350,6 +363,8 @@ class PageImportExport extends BasePluginAdminPage {
 	private function buildNetworkConnectForm( string $importMasterURL ) :array {
 		return [
 			'id'                          => 'ImportSiteForm',
+			'panel_id'                    => 'ImportSiteFormPanel',
+			'reveal_id'                   => 'ImportSiteFormReveal',
 			'master_site_url_id'          => 'MasterSiteUrl',
 			'master_site_url_name'        => 'MasterSiteUrl',
 			'master_site_url_label'       => __( 'Master site URL', 'wp-simple-firewall' ),

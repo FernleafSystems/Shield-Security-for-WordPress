@@ -266,7 +266,19 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'remove_site_confirm', $sites[ 'strings' ] );
 		$this->assertIsString( $sites[ 'strings' ][ 'remove_site_confirm' ] );
 		$this->assertNotSame( '', $sites[ 'strings' ][ 'remove_site_confirm' ] );
+		$this->assertArrayHasKey( 'remove_selected_sites_confirm', $sites[ 'strings' ] );
+		$this->assertIsString( $sites[ 'strings' ][ 'remove_selected_sites_confirm' ] );
+		$this->assertNotSame( '', $sites[ 'strings' ][ 'remove_selected_sites_confirm' ] );
 		$this->assertArrayHasKey( 'datatables_init', $sites[ 'vars' ] );
+		$this->assertArrayHasKey( 'columns', $sites[ 'vars' ][ 'datatables_init' ] );
+		$this->assertIsArray( $sites[ 'vars' ][ 'datatables_init' ][ 'columns' ] );
+		$columns = $sites[ 'vars' ][ 'datatables_init' ][ 'columns' ];
+		$actionColumns = \array_values( \array_filter(
+			$columns,
+			static fn( array $column ) :bool => $column[ 'data' ] === 'actions'
+		) );
+		$this->assertCount( 1, $actionColumns );
+		$this->assertSame( '3rem', $actionColumns[ 0 ][ 'width' ] );
 	}
 
 	private function installEnvironment( array $query = [], array $completedTours = [], bool $hasRunningScans = false ) :void {

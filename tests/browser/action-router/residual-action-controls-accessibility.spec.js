@@ -228,10 +228,28 @@ test( 'network verification radios reveal and clear master key field', async ( {
 		} );
 
 		const networkPanel = page.locator( '[data-import-export-panel="network_sync"]' );
+		const formPanel = page.locator( '[data-import-export-connect-form-panel="1"]' );
+		const revealButton = page.locator( '[data-import-export-connect-reveal="1"]' );
 		const secretField = page.locator( '[data-import-export-secret-field]' );
 		const secretInput = page.locator( '#MasterSiteSecretKey' );
+		const masterUrlInput = page.locator( '#MasterSiteUrl' );
 
 		await expect( networkPanel ).toBeVisible();
+		await expect( formPanel ).toBeHidden();
+		await expect( revealButton ).toHaveAttribute( 'aria-expanded', 'false' );
+
+		const unexpectedImportRequest = page.waitForRequest(
+			( request ) => isShieldActionRequest( request, 'import_from_site' ),
+			{ timeout: 750 }
+		)
+		.then( () => true )
+		.catch( () => false );
+		await revealButton.click();
+		await expect( formPanel ).toBeVisible();
+		await expect( revealButton ).toHaveAttribute( 'aria-expanded', 'true' );
+		await expect( masterUrlInput ).toBeFocused();
+		expect( await unexpectedImportRequest ).toBe( false );
+
 		await expect( secretField ).toBeHidden();
 		await expect( secretInput ).toBeDisabled();
 

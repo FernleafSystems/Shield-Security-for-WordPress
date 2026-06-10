@@ -756,16 +756,17 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
-	public function test_manual_delete_action_hard_deletes_only_selected_site() :void {
+	public function test_manual_delete_action_hard_deletes_only_selected_sites() :void {
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
 		$repo = $this->repo();
 		$first = $repo->upsertActive( 'https://delete-keep.example.com', SitesDB::SOURCE_MANUAL, '', true );
-		$second = $repo->upsertActive( 'https://delete-remove.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$second = $repo->upsertActive( 'https://delete-remove-one.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$third = $repo->upsertActive( 'https://delete-remove-two.example.com', SitesDB::SOURCE_MANUAL, '', true );
 
 		$action = new ImportExportSitesTableAction( [
 			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_DELETE_SITE,
-			'rids'       => [ $second->id ],
+			'rids'       => [ $second->id, $third->id ],
 		] );
 		$method = new \ReflectionMethod( $action, 'exec' );
 		$method->setAccessible( true );
@@ -775,6 +776,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 
 		$this->assertInstanceOf( Record::class, $repo->findById( $first->id, true ) );
 		$this->assertNull( $repo->findById( $second->id, true ) );
+		$this->assertNull( $repo->findById( $third->id, true ) );
 		$this->assertArrayHasKey( 'success', $payload );
 		$this->assertArrayHasKey( 'table_reload', $payload );
 		$this->assertArrayHasKey( 'page_reload', $payload );

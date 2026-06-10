@@ -51,7 +51,9 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertSame( '', $this->renderVars()[ 'network_sync' ][ 'connect' ][ 'form' ][ 'master_site_url_value' ] );
 
 		$con->opts->optSet( 'importexport_masterurl', 'https://master.example.com' )->store();
-		$this->assertSame( 'https://master.example.com', $this->renderVars()[ 'network_sync' ][ 'connect' ][ 'connected' ][ 'master_url' ] );
+		$connected = $this->renderVars()[ 'network_sync' ][ 'connect' ][ 'connected' ];
+		$this->assertSame( 'master.example.com', $connected[ 'master_host' ] );
+		$this->assertArrayNotHasKey( 'master_url', $connected );
 	}
 
 	public function test_tabs_contract_uses_two_machine_tabs_and_network_default() :void {
@@ -100,8 +102,11 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$connect = $networkSync[ 'connect' ];
 		$this->assertFalse( (bool)$connect[ 'is_connected' ] );
 		$this->assertArrayHasKey( 'form', $connect );
+		$this->assertArrayHasKey( 'standalone', $connect );
 		$this->assertArrayNotHasKey( 'connected', $connect );
 		$this->assertArrayHasKey( 'rail', $networkSync );
+		$this->assertSame( 'ImportSiteFormPanel', $connect[ 'form' ][ 'panel_id' ] );
+		$this->assertSame( 'ImportSiteFormReveal', $connect[ 'form' ][ 'reveal_id' ] );
 		$this->assertSame( [ 'NC', 'Y' ], \array_column( $connect[ 'form' ][ 'import_mode_options' ], 'value' ) );
 		$this->assertSame( [ 'trusted', 'key' ], \array_column( $connect[ 'form' ][ 'verification_options' ], 'value' ) );
 	}
@@ -151,12 +156,24 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertTrue( (bool)$networkSync[ 'is_enabled' ] );
 		$this->assertSame( 0, $networkSync[ 'clients' ][ 'active_count' ] );
 		$this->assertFalse( (bool)$networkSync[ 'clients' ][ 'has_connected_sites' ] );
+		$this->assertSame(
+			'No client sites are connected. Click Add client sites to connect sites.',
+			$networkSync[ 'clients' ][ 'empty_message' ]
+		);
 
 		$html = ( new PageImportExportContractProbe() )->renderOutputForTest();
 
 		$this->assertStringContainsString( 'data-import-export-workbench="1"', $html );
 		$this->assertStringContainsString( 'data-import-export-task="connect"', $html );
 		$this->assertStringContainsString( 'data-import-export-task="clients"', $html );
+		$this->assertStringContainsString( 'data-import-export-standalone-site="1"', $html );
+		$this->assertStringContainsString( 'data-import-export-connect-reveal="1"', $html );
+		$this->assertStringContainsString( 'data-import-export-connect-form-panel="1"', $html );
+		$this->assertMatchesRegularExpression(
+			'#<div[^>]+data-import-export-connect-form-panel="1"[^>]+hidden#',
+			$html
+		);
+		$this->assertStringContainsString( $networkSync[ 'clients' ][ 'empty_message' ], $html );
 		$this->assertStringNotContainsString( 'ShieldTable-ImportExportSites', $html );
 		$this->assertStringContainsString( 'name="ShieldNetwork"', $html );
 		$this->assertStringContainsString( 'value="NC"', $html );
@@ -184,7 +201,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		);
 	}
 
-	public function test_connected_sync_renders_master_summary_without_connect_form() :void {
+	public function test_connected_sync_renders_master_host_without_connect_form() :void {
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$this->requireController()->opts
 			->optSet( 'importexport_enable', 'Y' )
@@ -193,14 +210,19 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 
 		$connect = $this->renderVars()[ 'network_sync' ][ 'connect' ];
 		$this->assertTrue( (bool)$connect[ 'is_connected' ] );
-		$this->assertSame( 'https://master.example.com/import', $connect[ 'connected' ][ 'master_url' ] );
 		$this->assertSame( 'master.example.com', $connect[ 'connected' ][ 'master_host' ] );
+		$this->assertArrayNotHasKey( 'master_url', $connect[ 'connected' ] );
+		$this->assertArrayNotHasKey( 'summary', $connect );
+		$this->assertArrayNotHasKey( 'summary', $connect[ 'connected' ] );
 		$this->assertArrayNotHasKey( 'form', $connect );
 
 		$html = ( new PageImportExportContractProbe() )->renderOutputForTest();
 
 		$this->assertStringContainsString( 'data-import-export-connected-master="1"', $html );
 		$this->assertStringContainsString( 'data-import-export-disconnect="1"', $html );
+		$this->assertStringContainsString( 'master.example.com', $html );
+		$this->assertStringNotContainsString( 'https://master.example.com/import', $html );
+		$this->assertStringNotContainsString( 'Current master connection', $html );
 		$this->assertStringNotContainsString( 'id="ImportSiteForm"', $html );
 	}
 
@@ -320,6 +342,11 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertStringContainsString( 'data-import-export-network-invite-review="1"', $html );
 		$this->assertStringContainsString( 'ImportExportNetworkInviteAcceptForm', $html );
 		$this->assertStringContainsString( 'ImportExportNetworkInviteRejectForm', $html );
+		$rejectPosition = \strpos( $html, 'id="ImportExportNetworkInviteRejectForm"' );
+		$acceptPosition = \strpos( $html, 'form="ImportExportNetworkInviteAcceptForm"' );
+		$this->assertIsInt( $rejectPosition );
+		$this->assertIsInt( $acceptPosition );
+		$this->assertLessThan( $acceptPosition, $rejectPosition );
 		$this->assertStringNotContainsString( 'data-import-export-tab="file"', $html );
 		$this->assertStringNotContainsString( 'data-import-export-tab="network_sync"', $html );
 	}

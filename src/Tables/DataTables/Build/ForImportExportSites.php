@@ -100,6 +100,7 @@ class ForImportExportSites extends Base {
 				'data'        => 'actions',
 				'title'       => '',
 				'className'   => 'actions text-end',
+				'width'       => '3rem',
 				'orderable'   => false,
 				'searchable'  => false,
 				'visible'     => true,

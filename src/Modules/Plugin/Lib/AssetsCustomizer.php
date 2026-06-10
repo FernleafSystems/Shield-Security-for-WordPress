@@ -487,7 +487,8 @@ class AssetsCustomizer {
 								'table_action' => ActionData::Build( Actions\ImportExportSitesTableAction::class ),
 							],
 							'strings' => [
-								'remove_site_confirm' => __( 'Remove this site from managed client sites?', 'wp-simple-firewall' ),
+								'remove_site_confirm'          => __( 'Remove this site from managed client sites?', 'wp-simple-firewall' ),
+								'remove_selected_sites_confirm' => __( 'Remove selected sites from managed client sites?', 'wp-simple-firewall' ),
 							],
 							'vars' => [
 								'datatables_init' => ( new ForImportExportSites() )->buildRaw(),

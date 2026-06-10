@@ -19,6 +19,11 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 			name: 'queue-sync',
 			className: 'action selected-action queue-sync btn-outline-primary mb-2',
 			action: () => this.bulkTableAction( 'queue_sync' )
+		}, {
+			text: 'Bulk Remove',
+			name: 'bulk-remove',
+			className: 'action selected-action bulk-remove btn-outline-warning mb-2',
+			action: async ( e, dt, node ) => this.bulkRemoveManagedSites( this.resolveButtonLauncher( node ) )
 		} );
 		return buttons;
 	}
@@ -64,7 +69,27 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 			return;
 		}
 
-		this.bulkTableAction( 'delete_site', [ rid ] );
+		this.bulkTableAction( 'delete_site', [ rid ], { launcher: button } );
+	}
+
+	async bulkRemoveManagedSites( launcher = null ) {
+		const rids = this.getSelectedRIDs();
+		if ( rids.length < 1 ) {
+			return;
+		}
+
+		const dialog = shieldServices.dialog();
+		const confirmed = await dialog.confirm( {
+			message: this._base_data.strings.remove_selected_sites_confirm,
+			confirmLabel: dialog.resolveConfirmLabel( launcher ),
+			danger: true,
+			launcher,
+		} );
+		if ( !confirmed ) {
+			return;
+		}
+
+		this.bulkTableAction( 'delete_site', rids, { launcher } );
 	}
 
 	bindSyncDetailsPopovers() {
@@ -107,15 +132,22 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 
 	addButtons() {
 		super.addButtons();
-		this.$table.buttons( 'queue-sync:name' ).disable();
+		this.syncSelectedActionButtons();
 	}
 
 	rowSelectionChanged() {
-		if ( this.$table.rows( { selected: true } ).count() > 0 ) {
-			this.$table.buttons( 'queue-sync:name' ).enable();
-		}
-		else {
-			this.$table.buttons( 'queue-sync:name' ).disable();
-		}
+		this.syncSelectedActionButtons();
+	}
+
+	syncSelectedActionButtons() {
+		const hasSelection = this.$table.rows( { selected: true } ).count() > 0;
+		[ 'queue-sync:name', 'bulk-remove:name' ].forEach( ( selector ) => {
+			if ( hasSelection ) {
+				this.$table.buttons( selector ).enable();
+			}
+			else {
+				this.$table.buttons( selector ).disable();
+			}
+		} );
 	}
 }

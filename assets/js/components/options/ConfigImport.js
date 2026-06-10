@@ -26,6 +26,9 @@ export class ConfigImport extends BaseComponent {
 		shieldEventsHandler_Main.add_Click( '[data-import-export-task]', ( targetEl ) => {
 			this.selectNetworkTask( targetEl );
 		} );
+		shieldEventsHandler_Main.add_Click( '[data-import-export-connect-reveal]', ( targetEl ) => {
+			this.revealConnectionForm( targetEl );
+		} );
 		shieldEventsHandler_Main.add_Change( '[data-import-export-link-choice]', ( targetEl ) => {
 			this.updatePrimaryActionLabel( targetEl );
 		} );
@@ -47,6 +50,31 @@ export class ConfigImport extends BaseComponent {
 		);
 
 		document.querySelectorAll( 'form#ImportSiteForm' ).forEach( ( form ) => this.syncConnectionFormState( form ) );
+	}
+
+	revealConnectionForm( targetEl ) {
+		const button = targetEl instanceof Element ? targetEl.closest( '[data-import-export-connect-reveal]' ) : null;
+		if ( !( button instanceof HTMLButtonElement ) ) {
+			return;
+		}
+
+		const panelID = button.getAttribute( 'aria-controls' ) || '';
+		const panel = panelID.length > 0 ? document.getElementById( panelID ) : null;
+		if ( !( panel instanceof HTMLElement ) ) {
+			return;
+		}
+
+		panel.hidden = false;
+		button.setAttribute( 'aria-expanded', 'true' );
+
+		const form = panel.querySelector( 'form#ImportSiteForm' );
+		if ( form instanceof HTMLFormElement ) {
+			this.syncConnectionFormState( form );
+		}
+		const masterUrl = panel.querySelector( '#MasterSiteUrl' );
+		if ( masterUrl instanceof HTMLInputElement ) {
+			masterUrl.focus();
+		}
 	}
 
 	selectNetworkTask( targetEl ) {
