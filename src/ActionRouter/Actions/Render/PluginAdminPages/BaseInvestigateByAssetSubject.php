@@ -2,27 +2,39 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
+
 abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 
 	protected function getRenderData() :array {
 		$con = self::con();
 		$strings = $this->getPageStrings();
 		$lookup = $this->getLookupValue( $this->getLookupQueryKey() );
-		$subject = $this->resolveSubject( $lookup );
 		$lookupAjax = $this->buildLookupAjaxPayload();
 
 		$hasLookup = !empty( $lookup );
-		$hasSubject = !empty( $subject );
-		$subjectNotFound = $hasLookup && !$hasSubject;
+		$hasAllSubjects = $this->isAggregateLookupValue( $lookup );
+		$subject = $hasAllSubjects ? null : $this->resolveSubject( $lookup );
+		$hasSubject = !$hasAllSubjects && !empty( $subject );
+		$subjectNotFound = $hasLookup && !$hasAllSubjects && !$hasSubject;
 
 		$tabs = [];
 		$railNavItems = [];
 		$tables = [];
 		$overviewRows = [];
 		$vulnerabilities = $this->normalizeVulnerabilityPanelContract();
+		$vulnerabilityPane = [];
 		$subjectHeader = [];
 
-		if ( $hasSubject ) {
+		if ( $hasAllSubjects ) {
+			$aggregateRenderContracts = $this->buildAggregateRenderContracts();
+			$tabs = $aggregateRenderContracts[ 'tabs' ];
+			$railNavItems = $aggregateRenderContracts[ 'rail_nav_items' ];
+			$tables = $aggregateRenderContracts[ 'tables' ];
+			$subjectHeader = $aggregateRenderContracts[ 'subject_header' ];
+			$vulnerabilityPane = $aggregateRenderContracts[ 'vulnerability_pane' ];
+		}
+		elseif ( $hasSubject ) {
 			$assetData = $this->buildSubjectAssetData( $subject );
 			$subjectId = $this->extractAssetSubjectId( $assetData );
 			$subjectTitle = $this->extractAssetSubjectTitle( $assetData );
@@ -62,6 +74,7 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 		return [
 			'flags'   => [
 				'has_lookup'        => $hasLookup,
+				'has_all_subjects'  => $hasAllSubjects,
 				'has_subject'       => $hasSubject,
 				'subject_not_found' => $subjectNotFound,
 			],
@@ -88,12 +101,112 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 				'tables'                        => $tables,
 				'overview_rows'                 => $overviewRows,
 				'vulnerabilities'               => $vulnerabilities,
+				'vulnerability_pane'            => $vulnerabilityPane,
 			],
 		];
 	}
 
+	/**
+	 * @return array{
+	 *   tabs:array<string,array<string,mixed>>,
+	 *   rail_nav_items:list<array<string,mixed>>,
+	 *   tables:array{activity:array<string,mixed>},
+	 *   subject_header:array<string,string>,
+	 *   vulnerability_pane:array{tab:array<string,mixed>,strings:array<string,string>}
+	 * }
+	 */
+	protected function buildAggregateRenderContracts() :array {
+		$subjectType = $this->getAggregateSubjectType();
+		$subjectId = InvestigationTableContract::SUBJECT_ID_ALL;
+		$vulnerabilities = $this->buildAggregateVulnerabilitiesPayload();
+		$activityCount = $this->countActivityForSubject( $subjectType, $subjectId );
+
+		$tabs = $this->buildAggregateAssetTabsPayload(
+			$subjectType,
+			[
+				'vulnerabilities' => $this->extractKnownVulnerabilityCount( $vulnerabilities ),
+				'activity'        => $activityCount,
+			]
+		);
+
+		return [
+			'tabs'               => $tabs,
+			'rail_nav_items'     => $this->buildRailNavItemsFromTabs( $tabs ),
+			'tables'             => [
+				'activity' => $this->withEmptyStateTableContract(
+					$this->buildActivityTableContract( $subjectType, $subjectId ),
+					$activityCount,
+					$this->getAggregateActivityEmptyText()
+				),
+			],
+			'subject_header'     => $this->buildSubjectHeaderContract(
+				$this->getAggregateTitle(),
+				$this->getAggregateMeta()
+			),
+			'vulnerability_pane' => $this->buildAggregateVulnerabilityPane( $tabs, $vulnerabilities ),
+		];
+	}
+
+	protected function buildAggregateVulnerabilitiesPayload() :array {
+		return ( new ScansVulnerabilitiesBuilder() )->buildForAssetType( $this->getAggregateAssetType() );
+	}
+
+	protected function buildAggregateVulnerabilityPane( array $tabs, array $vulnerabilities ) :array {
+		$tab = ( new ScansResultsViewBuilder() )->buildRailPaneData(
+			'vulnerabilities',
+			$vulnerabilities,
+			'vulnerable'
+		);
+		$tab[ 'pane_id' ] = $tabs[ 'vulnerabilities' ][ 'pane_id' ];
+
+		return [
+			'tab'     => $tab,
+			'strings' => [
+				'no_issues'    => $this->getAggregateVulnerabilityNoIssuesText(),
+				'pane_loading' => __( 'Loading scan details...', 'wp-simple-firewall' ),
+			],
+		];
+	}
+
+	protected function buildAggregateAssetTabsPayload( string $subjectKey, array $counts ) :array {
+		$subjectKey = \strtolower( \trim( $subjectKey ) );
+		$idPrefix = 'tabInvestigate'.\str_replace( ' ', '', \ucwords( \str_replace( '_', ' ', $subjectKey ) ) );
+
+		$tabs = [
+			'vulnerabilities' => [
+				'pane_id'   => $idPrefix.'Vulnerabilities',
+				'nav_id'    => 'tab-navlink-'.$subjectKey.'-vulnerabilities',
+				'label'     => __( 'Known Vulnerabilities', 'wp-simple-firewall' ),
+				'count'     => (int)$counts[ 'vulnerabilities' ],
+				'is_active' => true,
+			],
+			'activity'        => [
+				'pane_id'   => $idPrefix.'Activity',
+				'nav_id'    => 'tab-navlink-'.$subjectKey.'-activity',
+				'label'     => __( 'Activity', 'wp-simple-firewall' ),
+				'count'     => (int)$counts[ 'activity' ],
+				'is_active' => false,
+			],
+		];
+
+		foreach ( $tabs as $key => $tab ) {
+			$tabs[ $key ][ 'target' ] = '#'.$tab[ 'pane_id' ];
+			$tabs[ $key ][ 'controls' ] = $tab[ 'pane_id' ];
+		}
+
+		return $tabs;
+	}
+
+	private function extractKnownVulnerabilityCount( array $vulnerabilities ) :int {
+		return (int)$vulnerabilities[ 'sections' ][ 'vulnerable' ][ 'count' ];
+	}
+
 	protected function buildLookupOptionsPayload() :array {
 		return $this->buildLookupOptions();
+	}
+
+	protected function isAggregateLookupValue( string $lookup ) :bool {
+		return $lookup !== '' && \hash_equals( $this->getAggregateLookupValue(), $lookup );
 	}
 
 	protected function buildLookupAjaxPayload() :array {
@@ -122,6 +235,20 @@ abstract class BaseInvestigateByAssetSubject extends BaseInvestigateAsset {
 	}
 
 	abstract protected function getSubjectType() :string;
+
+	abstract protected function getAggregateLookupValue() :string;
+
+	abstract protected function getAggregateTitle() :string;
+
+	abstract protected function getAggregateMeta() :string;
+
+	abstract protected function getAggregateAssetType() :string;
+
+	abstract protected function getAggregateSubjectType() :string;
+
+	abstract protected function getAggregateVulnerabilityNoIssuesText() :string;
+
+	abstract protected function getAggregateActivityEmptyText() :string;
 
 	abstract protected function getLookupQueryKey() :string;
 

@@ -172,13 +172,17 @@ class FileLockerController {
 			( new Ops\AssessLocks() )->run();
 
 			// 3. Create any outstanding locks.
-			if ( is_main_network()
-				 && !wp_next_scheduled( $this->getCronHook() )
-				 && !Services::WpGeneral()->isCron()
-				 && !empty( ( new Ops\GetFileLocksToCreate() )->run() )
-			) {
-				wp_schedule_single_event( Services::Request()->ts() + self::CRON_DELAY, $this->getCronHook() );
-			}
+			$this->scheduleLocksCreationIfNeeded();
+		}
+	}
+
+	public function scheduleLocksCreationIfNeeded() :void {
+		if ( is_main_network()
+			 && !wp_next_scheduled( $this->getCronHook() )
+			 && !Services::WpGeneral()->isCron()
+			 && !empty( ( new Ops\GetFileLocksToCreate() )->run() )
+		) {
+			wp_schedule_single_event( Services::Request()->ts() + self::CRON_DELAY, $this->getCronHook() );
 		}
 	}
 

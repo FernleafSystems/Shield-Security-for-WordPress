@@ -19,7 +19,7 @@
 		<div class="investigate-landing__subject-grid actions-queue-asset-cards__grid" data-mode-tiles="1">
 			{% for item in vars.asset_cards %}
 				<button type="button"
-						class="investigate-landing__subject-card actions-queue-asset-card status-{{ item.status }}"
+						class="investigate-landing__subject-card actions-queue-asset-card status-{{ item.status }}{% if item.is_inactive %} is-inactive{% endif %}"
 						data-mode-tile="1"
 						data-mode-tile-key="{{ item.key|e('html_attr') }}"
 						data-mode-panel-target="{{ item.panel_target|e('html_attr') }}"

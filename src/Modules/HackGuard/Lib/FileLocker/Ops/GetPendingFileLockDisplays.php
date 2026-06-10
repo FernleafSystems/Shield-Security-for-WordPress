@@ -3,11 +3,8 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
 /**
- * @phpstan-type PendingFileLockDisplay array{
- *   file_key:string,
- *   title:string,
- *   path:string
- * }
+ * @phpstan-import-type FileLockCandidateDisplay from GetFileLockCandidateDisplays
+ * @phpstan-type PendingFileLockDisplay FileLockCandidateDisplay
  */
 class GetPendingFileLockDisplays {
 
@@ -16,8 +13,9 @@ class GetPendingFileLockDisplays {
 	 */
 	public function run() :array {
 		$records = [];
+		$candidateDisplays = new GetFileLockCandidateDisplays();
 		foreach ( $this->pendingFileKeys() as $fileKey ) {
-			$display = $this->buildDisplayForFileKey( $fileKey );
+			$display = $candidateDisplays->forFileKey( $fileKey );
 			if ( $display !== null ) {
 				$records[] = $display;
 			}
@@ -54,29 +52,6 @@ class GetPendingFileLockDisplays {
 		}
 		catch ( \Throwable $e ) {
 			return [];
-		}
-	}
-
-	/**
-	 * @return PendingFileLockDisplay|null
-	 */
-	private function buildDisplayForFileKey( string $fileKey ) :?array {
-		try {
-			$file = ( new BuildFileFromFileKey() )->build( $fileKey );
-			$path = (string)( $file->getExistingPossiblePaths()[ 0 ] ?? '' );
-			if ( $path === '' ) {
-				return null;
-			}
-
-			$path = wp_normalize_path( $path );
-			return [
-				'file_key' => $fileKey,
-				'title'    => \basename( $path ),
-				'path'     => $path,
-			];
-		}
-		catch ( \Throwable $e ) {
-			return null;
 		}
 	}
 }

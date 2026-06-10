@@ -55,6 +55,12 @@ class InvestigationSubjectWheres {
 			case 'theme':
 				$wheres = self::forThemeActivitySubject( $subjectId, $activityMetaTable );
 				break;
+			case 'all_plugins':
+				$wheres = self::forAllPluginsActivitySubject();
+				break;
+			case 'all_themes':
+				$wheres = self::forAllThemesActivitySubject();
+				break;
 			case 'core':
 				$wheres = self::forCoreActivitySubject();
 				break;
@@ -108,6 +114,18 @@ class InvestigationSubjectWheres {
 		return [
 			"`log`.`event_slug` LIKE 'theme_%'",
 			$metaWhere,
+		];
+	}
+
+	public static function forAllPluginsActivitySubject() :array {
+		return [
+			"`log`.`event_slug` LIKE 'plugin_%'",
+		];
+	}
+
+	public static function forAllThemesActivitySubject() :array {
+		return [
+			"`log`.`event_slug` LIKE 'theme_%'",
 		];
 	}
 

@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansFileLockerEnableFile;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetMetadataResolver,
 	ActionsQueueScanAssetCardsBuilder,
@@ -81,8 +82,11 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 				return [
 					'is_available'          => true,
 					'show_in_actions_queue' => true,
+					'show_in_fix_now'       => true,
+					'disabled_reason'       => '',
 					'disabled_message'      => '',
 					'disabled_status'       => 'neutral',
+					'disabled_actions'      => [],
 				];
 			}
 
@@ -144,8 +148,10 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( '', $queuePane[ 'cards' ][ 0 ][ 'body_notice' ] );
 		$this->assertSame( '', $queuePane[ 'cards' ][ 0 ][ 'body_notice_variant' ] );
 		$this->assertSame( '/wp-admin/plugins.php', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'href' ] );
-		$this->assertSame( '1', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
-		$this->assertSame( '0', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
+		$this->assertSame( 'bi bi-power', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'icon_class' ] );
+		$this->assertSame( 'Go to plugins', $queuePane[ 'cards' ][ 0 ][ 'actions' ][ 0 ][ 'tooltip_attr' ] );
+		$this->assertSame( '1', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
+		$this->assertSame( '0', $queuePane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
 		$queueTableAction = $this->decodeJsonAttr( $queuePane[ 'cards' ][ 0 ][ 'table' ][ 'table_action_attr' ] );
 		$railTableAction = $this->decodeJsonAttr( $railPane[ 'items' ][ 0 ][ 'expansion' ][ 'table' ][ 'table_action_attr' ] );
 		$this->assertSame( 'plugin', $queueTableAction[ 'type' ] ?? '' );
@@ -202,18 +208,18 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( 'actions-queue-filelocker-14', $pane[ 'cards' ][ 0 ][ 'panel_target' ] );
 		$this->assertSame( '/wp-config.php', $pane[ 'cards' ][ 0 ][ 'meta_text' ] );
 		$this->assertFalse( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
-		$this->assertSame( '0', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
-		$this->assertSame( '1', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
+		$this->assertSame( '0', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
+		$this->assertSame( '1', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
 		$fileDiffRenderAction = \json_decode(
-			(string)( $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-render-action' ] ?? '' ),
+			$pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-render-action' ],
 			true
 		);
-		$this->assertSame( 'filelocker_showdiff', $fileDiffRenderAction[ 'render_slug' ] ?? '' );
-		$this->assertSame( 14, $fileDiffRenderAction[ 'rid' ] ?? 0 );
+		$this->assertSame( 'filelocker_showdiff', $fileDiffRenderAction[ 'render_slug' ] );
+		$this->assertSame( 14, $fileDiffRenderAction[ 'rid' ] );
 		$this->assertAjaxRenderPayloadAllowedByPolicy( $fileDiffRenderAction, 'file locker diff render' );
-		$this->assertSame( '1', $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] ?? '' );
-		$this->assertSame( '0', $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] ?? '' );
-		$this->assertSame( [], \json_decode( (string)( $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-render-action' ] ?? '[]' ), true ) );
+		$this->assertSame( '1', $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
+		$this->assertSame( '0', $pane[ 'cards' ][ 1 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
+		$this->assertArrayNotHasKey( 'actions-queue-asset-render-action', $pane[ 'cards' ][ 1 ][ 'panel_data' ] );
 		$this->assertSame( '/index.php', $pane[ 'cards' ][ 1 ][ 'meta_text' ] );
 		$this->assertSame( 'info', $pane[ 'cards' ][ 1 ][ 'body_notice_variant' ] );
 	}
@@ -232,12 +238,72 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		] );
 
 		$pane = $builder->buildActionsQueueFileLockerPane();
-		$items = $pane[ 'cards' ] ?? [];
+		$items = $pane[ 'cards' ];
 
 		$this->assertCount( 3, $items );
-		$this->assertSame( 'warning', $items[ 0 ][ 'status' ] ?? '' );
-		$this->assertSame( 'neutral', $items[ 1 ][ 'status' ] ?? '' );
-		$this->assertSame( 'good', $items[ 2 ][ 'status' ] ?? '' );
+		$this->assertSame( 'warning', $items[ 0 ][ 'status' ] );
+		$this->assertSame( 'neutral', $items[ 1 ][ 'status' ] );
+		$this->assertSame( 'good', $items[ 2 ][ 'status' ] );
+	}
+
+	public function test_file_locker_not_enabled_premium_state_renders_inactive_cards_without_configuration_action() :void {
+		$builder = $this->createBuilder( [
+			'tabAvailability' => [
+				'file_locker' => [
+					'is_available'          => false,
+					'show_in_actions_queue' => false,
+					'show_in_fix_now'       => true,
+					'disabled_reason'       => 'not_enabled',
+					'disabled_message'      => 'not-enabled-sentinel',
+					'disabled_status'       => 'neutral',
+					'disabled_actions'      => [],
+				],
+			],
+			'inactiveFileLockDisplays' => [
+				[
+					'file_key' => 'wpconfig',
+					'title'    => 'wp-config.php',
+					'path'     => '/wp-config.php',
+				],
+				[
+					'file_key' => 'root_index',
+					'title'    => 'index.php',
+					'path'     => '/index.php',
+				],
+			],
+		] );
+
+		$pane = $builder->buildActionsQueueFileLockerPane();
+
+		$this->assertFalse( $pane[ 'is_disabled' ] );
+		$this->assertSame( [], $pane[ 'disabled_actions' ] );
+		$this->assertCount( 2, $pane[ 'cards' ] );
+		$this->assertSame( [ 'inactive:wpconfig', 'inactive:root_index' ], \array_column( $pane[ 'cards' ], 'key' ) );
+		$this->assertSame(
+			[ 'actions-queue-filelocker-pending-wpconfig', 'actions-queue-filelocker-pending-root_index' ],
+			\array_column( $pane[ 'cards' ], 'panel_target' )
+		);
+		$this->assertTrue( $pane[ 'cards' ][ 0 ][ 'is_inactive' ] );
+		$this->assertSame( 'secondary', $pane[ 'cards' ][ 0 ][ 'body_notice_variant' ] );
+		$this->assertFalse( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
+		$this->assertSame( '1', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
+		$this->assertSame( '0', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
+
+		$action = $pane[ 'cards' ][ 0 ][ 'actions' ][ 0 ];
+		$this->assertTrue( $action[ 'is_action' ] );
+		$this->assertSame( 'update', $action[ 'type' ] );
+		$this->assertSame( 'bi bi-shield-lock-fill', $action[ 'icon_class' ] );
+		$this->assertSame( '1', $action[ 'attributes' ][ 'data-operator-context-action-ajax' ] );
+		$this->assertNotSame( '', $action[ 'attributes' ][ 'data-operator-context-action-confirm' ] );
+		$actionData = \json_decode(
+			$action[ 'attributes' ][ 'data-operator-context-action-json' ],
+			true,
+			512,
+			\JSON_THROW_ON_ERROR
+		);
+		$this->assertSame( ScansFileLockerEnableFile::SLUG, $actionData[ 'ex' ] );
+		$this->assertSame( 'wpconfig', $actionData[ 'file_key' ] );
+		$this->assertArrayHasKey( 'exnonce', $actionData );
 	}
 
 	public function test_file_locker_returns_empty_when_disabled() :void {

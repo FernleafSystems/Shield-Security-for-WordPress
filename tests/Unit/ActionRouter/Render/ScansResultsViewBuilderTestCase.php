@@ -134,6 +134,7 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 				'actions-queue-asset-panel-loaded' => '1',
 				'actions-queue-asset-panel-lazy'   => '0',
 			],
+			'is_inactive'       => false,
 			'actions'           => [
 				[
 					'type'         => 'deactivate',
@@ -176,7 +177,8 @@ abstract class ScansResultsViewBuilderTestCase extends BaseUnitTest {
 			$overrides[ 'themeRailItems' ] ?? [],
 			$overrides[ 'pluginIssueRecords' ] ?? [],
 			$overrides[ 'themeIssueRecords' ] ?? [],
-			$overrides[ 'tabAvailability' ] ?? []
+			$overrides[ 'tabAvailability' ] ?? [],
+			$overrides[ 'inactiveFileLockDisplays' ] ?? []
 		);
 	}
 }
@@ -195,6 +197,7 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 	private array $pluginIssueRecords;
 	private array $themeIssueRecords;
 	private array $tabAvailability;
+	private array $inactiveFileLockDisplays;
 
 	public function __construct(
 		array $vulnerabilities,
@@ -208,7 +211,8 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		array $themeRailItems = [],
 		array $pluginIssueRecords = [],
 		array $themeIssueRecords = [],
-		array $tabAvailability = []
+		array $tabAvailability = [],
+		array $inactiveFileLockDisplays = []
 	) {
 		$this->vulnerabilities = $vulnerabilities;
 		$this->pluginsEnabled = $pluginsEnabled;
@@ -222,6 +226,7 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		$this->pluginIssueRecords = $pluginIssueRecords;
 		$this->themeIssueRecords = $themeIssueRecords;
 		$this->tabAvailability = $tabAvailability;
+		$this->inactiveFileLockDisplays = $inactiveFileLockDisplays;
 	}
 
 	protected function buildVulnerabilities() :array {
@@ -240,6 +245,10 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 		return $this->pendingFileLockDisplays;
 	}
 
+	protected function getInactiveFileLockDisplays() :array {
+		return $this->inactiveFileLockDisplays;
+	}
+
 	protected function buildPluginThemeRailItemsDirect( string $assetType ) :array {
 		$items = $assetType === 'plugin' ? $this->pluginRailItems : $this->themeRailItems;
 		return !empty( $items ) ? $items : parent::buildPluginThemeRailItemsDirect( $assetType );
@@ -251,7 +260,7 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 
 	protected function getRailTabAvailability( string $tabKey ) :array {
 		if ( isset( $this->tabAvailability[ $tabKey ] ) ) {
-			return $this->tabAvailability[ $tabKey ];
+			return \array_replace( $this->defaultRailTabAvailability( false ), $this->tabAvailability[ $tabKey ] );
 		}
 
 		switch ( $tabKey ) {
@@ -275,10 +284,17 @@ class ScansResultsViewBuilderTestDouble extends ScansResultsViewBuilder {
 				break;
 		}
 
-		return [
-			'is_available'          => $isAvailable,
+		return \array_replace( $this->defaultRailTabAvailability( $isAvailable ), [
 			'show_in_actions_queue' => \in_array( $tabKey, [ 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'malware', 'file_locker' ], true ),
 			'show_in_fix_now'       => \in_array( $tabKey, [ 'wordpress', 'plugins', 'themes', 'vulnerabilities', 'abandoned', 'malware', 'file_locker' ], true ),
+		] );
+	}
+
+	private function defaultRailTabAvailability( bool $isAvailable ) :array {
+		return [
+			'is_available'          => $isAvailable,
+			'show_in_actions_queue' => false,
+			'show_in_fix_now'       => false,
 			'disabled_reason'       => '',
 			'disabled_message'      => '',
 			'disabled_status'       => 'neutral',

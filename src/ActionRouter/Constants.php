@@ -108,6 +108,7 @@ class Constants {
 		Actions\SecurityAdminRemove::class,
 		Actions\ScansCheck::class,
 		Actions\ScansFileLockerAction::class,
+		Actions\ScansFileLockerEnableFile::class,
 		Actions\ScansMalaiFileQuery::class,
 		Actions\ScansStart::class,
 		Actions\ScanResultsTableAction::class,
