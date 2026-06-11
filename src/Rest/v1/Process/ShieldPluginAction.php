@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	ActionData,
+	ActionRoutingController
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ExternalActionTransportPolicy;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Utility\ResponseEnvelopeNormalizer;
@@ -12,8 +15,11 @@ class ShieldPluginAction extends Base {
 	protected function process() :array {
 		$req = $this->getWpRestRequest();
 		$params = $req->get_params();
-		$actionSlug = (string)( $params[ 'ex' ] ?? '' );
+		$actionSlug = (string)( $params[ ActionData::FIELD_EXECUTE ] ?? '' );
 		$payload = \is_array( $params[ 'payload' ] ?? null ) ? $params[ 'payload' ] : [];
+		if ( isset( $params[ ActionData::FIELD_NONCE ] ) ) {
+			$payload[ ActionData::FIELD_NONCE ] = (string)$params[ ActionData::FIELD_NONCE ];
+		}
 
 		try {
 			if ( !( new ExternalActionTransportPolicy() )->isAllowed( $actionSlug, $payload, ActionRoutingController::ACTION_REST ) ) {

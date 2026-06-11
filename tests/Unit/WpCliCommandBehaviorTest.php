@@ -114,6 +114,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 		ObservationPresenter,
 		SyncObservation
 	};
+	use FernleafSystems\Wordpress\Plugin\Shield\Rest\ShieldCentral\Support\PairingTokenStore;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 		PluginControllerInstaller,
 		ServicesState,
@@ -125,7 +126,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 		ConfigOptSet,
 		ConfigOptsList,
 		PluginReset,
-		ScansRun
+		ScansRun,
+		ShieldCentralPairingToken
 	};
 	use FernleafSystems\Wordpress\Services\Core\{
 		Fs,
@@ -168,6 +170,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 				new ConfigOptSet(),
 				new PluginReset(),
 				new ScansRun(),
+				new ShieldCentralPairingToken(),
 			] as $command ) {
 				$command->execute();
 			}
@@ -194,6 +197,27 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 				'all',
 				\array_column( \WP_CLI::$commands[ 'shield scans run' ][ 'args' ][ 'synopsis' ], 'name' )
 			);
+			$this->assertArrayHasKey( 'shield shieldcentral pairing-token', \WP_CLI::$commands );
+		}
+
+		public function test_shieldcentral_pairing_token_command_issues_usable_token() :void {
+			$this->installController();
+
+			( new ShieldCentralPairingToken() )->execCmd( [], [] );
+
+			$this->assertArrayHasKey( 0, \WP_CLI\Utils\Recorder::$formattedItems );
+			$this->assertArrayHasKey( 0, \WP_CLI\Utils\Recorder::$formattedItems[ 0 ][ 'items' ] );
+
+			$item = \WP_CLI\Utils\Recorder::$formattedItems[ 0 ][ 'items' ][ 0 ];
+			$this->assertSame( 'json', \WP_CLI\Utils\Recorder::$formattedItems[ 0 ][ 'format' ] ?? null );
+			$this->assertArrayHasKey( 'pairing_token', $item );
+			$this->assertArrayHasKey( 'ttl_seconds', $item );
+			$this->assertArrayHasKey( 'expires_at', $item );
+			$this->assertMatchesRegularExpression( '/^[a-f0-9]{64}$/', $item[ 'pairing_token' ] );
+			$this->assertSame( 900, $item[ 'ttl_seconds' ] );
+			$this->assertNotEmpty( $item[ 'expires_at' ] );
+			$this->assertTrue( ( new PairingTokenStore() )->isValid( (string)$item[ 'pairing_token' ] ) );
+			$this->assertContains( 'success', \array_column( \WP_CLI::$events, 'type' ) );
 		}
 
 		public function test_config_option_commands_read_list_and_write_option_state() :void {

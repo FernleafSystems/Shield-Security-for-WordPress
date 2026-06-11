@@ -70,6 +70,25 @@ class RetrieveItemsFindingsQueryTest extends BaseUnitTest {
 		$this->assertSame( 1, \substr_count( $queries[ 0 ], "meta_key`='isbad'" ) );
 	}
 
+	public function test_retrieve_active_problem_findings_uses_active_problem_filters_with_requested_states() :void {
+		$queries = [];
+		$this->installControllerAndDb( $queries );
+
+		$results = ( new RetrieveItems() )
+			->setScanController( $this->newScanController() )
+			->retrieveActiveProblemFindings( [ 'is_vulnerable', 'is_abandoned', 'is_vulnerable' ] );
+
+		$this->assertInstanceOf( ResultsSet::class, $results );
+		$this->assertCount( 1, $queries );
+		$this->assertStringContainsString( "`ri`.`scan`='wpv'", $queries[ 0 ] );
+		$this->assertStringContainsString( "`ri`.`auto_filtered_at`=0", $queries[ 0 ] );
+		$this->assertStringContainsString( "`ri`.`ignored_at`=0", $queries[ 0 ] );
+		$this->assertStringContainsString( "`ri`.`resolved_at`=0", $queries[ 0 ] );
+		$this->assertStringContainsString( 'EXISTS (SELECT 1', $queries[ 0 ] );
+		$this->assertSame( 1, \substr_count( $queries[ 0 ], "meta_key`='is_vulnerable'" ) );
+		$this->assertSame( 1, \substr_count( $queries[ 0 ], "meta_key`='is_abandoned'" ) );
+	}
+
 	public function test_retrieve_for_results_tables_preserves_existing_wheres_without_accumulating_duplicates() :void {
 		$queries = [];
 		$this->installControllerAndDb( $queries );

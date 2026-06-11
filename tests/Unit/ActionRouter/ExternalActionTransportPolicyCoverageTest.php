@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionRoutingController,
+	Actions\ShieldCentralCreatePairingToken,
 	Actions\TestRestFetchRequests,
 	Constants,
 	Actions\Render\BaseRender,
@@ -49,6 +50,7 @@ class ExternalActionTransportPolicyCoverageTest extends BaseUnitTest {
 	public function test_registered_actions_are_denied_from_rest_unless_explicitly_allowlisted() :void {
 		$policy = new ExternalActionTransportPolicy();
 		$allowed = [
+			ShieldCentralCreatePairingToken::SLUG,
 			TestRestFetchRequests::SLUG,
 		];
 		$failures = [];
