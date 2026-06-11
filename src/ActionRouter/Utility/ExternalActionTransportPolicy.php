@@ -73,6 +73,7 @@ class ExternalActionTransportPolicy {
 	 */
 	private function restExternalTransportAllowlist() :array {
 		return [
+			Actions\ShieldCentralCreatePairingToken::SLUG,
 			Actions\TestRestFetchRequests::SLUG,
 		];
 	}

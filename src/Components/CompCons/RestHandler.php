@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Rest\ShieldCentral\v1\Route as ShieldCentralRoutes;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Route;
 use FernleafSystems\Wordpress\Plugin\Shield\Rest\Worpdrive\v1\Route as WorpdriveRoutes;
 
@@ -55,6 +56,13 @@ class RestHandler extends \FernleafSystems\Wordpress\Plugin\Core\Rest\RestHandle
 			'worpdrive_fs_zip'   => WorpdriveRoutes\FilesystemZip::class,
 			'worpdrive_db'       => WorpdriveRoutes\DatabaseSchema::class,
 			'worpdrive_data'     => WorpdriveRoutes\DatabaseData::class,
+
+			'shieldcentral_pair_bootstrap' => ShieldCentralRoutes\PairBootstrap::class,
+			'shieldcentral_pair_health'    => ShieldCentralRoutes\PairHealth::class,
+			'shieldcentral_pair_finalize'  => ShieldCentralRoutes\PairFinalize::class,
+			'shieldcentral_pair_cleanup'   => ShieldCentralRoutes\PairCleanup::class,
+			'shieldcentral_site_unpair'    => ShieldCentralRoutes\SiteUnpair::class,
+			'shieldcentral_sync_collect'   => ShieldCentralRoutes\SyncCollect::class,
 		];
 	}
 }
