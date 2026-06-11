@@ -16,15 +16,18 @@ class ActionsQueueContextActionsBuilder {
 	private ScanResultsDisplayOptions $queueScanResultsOptions;
 	private ScanResultsScopeResolver $scopeResolver;
 	private PluginReinstallContextActionBuilder $pluginReinstallActionBuilder;
+	private ThemeReinstallContextActionBuilder $themeReinstallActionBuilder;
 
 	public function __construct(
 		?ScanResultsDisplayOptions $queueScanResultsOptions = null,
 		?ScanResultsScopeResolver $scopeResolver = null,
-		?PluginReinstallContextActionBuilder $pluginReinstallActionBuilder = null
+		?PluginReinstallContextActionBuilder $pluginReinstallActionBuilder = null,
+		?ThemeReinstallContextActionBuilder $themeReinstallActionBuilder = null
 	) {
 		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ScanResultsDisplayOptions();
 		$this->scopeResolver = $scopeResolver ?? new ScanResultsScopeResolver();
 		$this->pluginReinstallActionBuilder = $pluginReinstallActionBuilder ?? new PluginReinstallContextActionBuilder();
+		$this->themeReinstallActionBuilder = $themeReinstallActionBuilder ?? new ThemeReinstallContextActionBuilder();
 	}
 
 	/**
@@ -77,6 +80,12 @@ class ActionsQueueContextActionsBuilder {
 			$actions = \array_merge(
 				$actions,
 				$this->pluginReinstallActionBuilder->buildForPluginFile( $scope[ 'file' ], $label )
+			);
+		}
+		if ( $definitionKey === 'themes' && $scope[ 'type' ] === ScanResultsScopeResolver::SCOPE_TYPE_THEME ) {
+			$actions = \array_merge(
+				$actions,
+				$this->themeReinstallActionBuilder->buildForThemeStylesheet( $scope[ 'file' ], $label )
 			);
 		}
 
