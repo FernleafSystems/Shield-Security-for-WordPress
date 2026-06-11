@@ -116,4 +116,26 @@ class PageInvestigateByTheme extends BaseInvestigateByAssetSubject {
 		return [];
 	}
 
+	protected function buildSubjectContextStepJson( string $subjectId, string $subjectTitle ) :string {
+		if ( $subjectId === '' ) {
+			return '';
+		}
+
+		$definition = PluginNavs::investigateLandingSubjectDefinitions()[ 'theme' ];
+		$title = \trim( $subjectTitle );
+
+		return OperatorChromeContract::encodeJson( OperatorChromeContract::normalizeStep( [
+			'breadcrumb_label' => $title !== '' ? $title : $definition[ 'label' ],
+			'title'            => $title !== '' ? $title : $definition[ 'label' ],
+			'summary'          => $definition[ 'context_summary' ],
+			'focus'            => $definition[ 'context_focus' ],
+			'next_step'        => $definition[ 'context_next_step' ],
+			'icon_class'       => $definition[ 'icon_class' ],
+			'badge'            => $definition[ 'context_badge' ],
+			'badge_status'     => $definition[ 'status' ],
+			'color_key'        => 'investigate',
+			'actions'          => ( new ThemeReinstallContextActionBuilder() )->buildForThemeStylesheet( $subjectId, $title ),
+		] ) );
+	}
+
 }

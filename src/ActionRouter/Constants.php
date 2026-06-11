@@ -93,6 +93,7 @@ class Constants {
 		Actions\PluginIpDetect::class,
 		Actions\PluginMarkTourFinished::class,
 		Actions\PluginReinstall::class,
+		Actions\ThemeReinstall::class,
 		Actions\Render\Components\OffCanvas\OffCanvasBase::class,
 		Actions\PluginSuperSearch::class,
 		Actions\PluginSetTracking::class,

@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueContextActionsBuilder,
-	PluginReinstallContextActionBuilder
+	PluginReinstallContextActionBuilder,
+	ThemeReinstallContextActionBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
@@ -139,8 +140,13 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 		$this->assertIgnoreAllAction( $actions, 'malware', 'malware' );
 	}
 
-	public function test_build_for_active_theme_direct_table_emits_ignore_all_action() :void {
-		$actions = ( new ActionsQueueContextActionsBuilder() )->buildForGroup(
+	public function test_build_for_active_theme_direct_table_emits_ignore_and_reinstall_actions() :void {
+		$actions = ( new ActionsQueueContextActionsBuilder(
+			null,
+			null,
+			null,
+			$this->buildThemeReinstallActionBuilder()
+		) )->buildForGroup(
 			'themes',
 			'Example Theme',
 			'direct_table',
@@ -152,14 +158,21 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 			]
 		);
 
+		$this->assertCount( 2, $actions );
 		$this->assertIgnoreAllAction( $actions, 'theme', 'example-theme' );
+		$this->assertSame( 'ajax', $actions[ 1 ][ 'kind' ] ?? '' );
+		$this->assertSame( 'update', $actions[ 1 ][ 'type' ] ?? '' );
+		$this->assertSame( 'theme-reinstall-json', $actions[ 1 ][ 'ajax_action_json' ] ?? '' );
+		$this->assertSame( 'Processing theme reinstall', $actions[ 1 ][ 'processing_text' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 1 ][ 'label' ] ?? '' );
 	}
 
 	public function test_plugin_and_theme_scopes_are_derived_from_group_key_not_render_subject_type() :void {
 		$builder = new ActionsQueueContextActionsBuilder(
 			null,
 			null,
-			$this->buildPluginReinstallActionBuilder()
+			$this->buildPluginReinstallActionBuilder(),
+			$this->buildThemeReinstallActionBuilder()
 		);
 
 		$pluginActions = $builder->buildForGroup(
@@ -250,6 +263,26 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 							'ajax_action_json' => 'reinstall-json',
 							'confirm_text'     => 'Confirm reinstall',
 							'processing_text'  => 'Processing reinstall',
+						],
+					]
+					: [];
+			}
+		};
+	}
+
+	private function buildThemeReinstallActionBuilder() :ThemeReinstallContextActionBuilder {
+		return new class extends ThemeReinstallContextActionBuilder {
+			public function buildForThemeStylesheet( string $stylesheet, string $displayName = '' ) :array {
+				return $stylesheet === 'example-theme' && $displayName === 'Example Theme'
+					? [
+						[
+							'kind'             => 'ajax',
+							'label'            => 'context-action',
+							'type'             => 'update',
+							'icon_class'       => 'bi bi-arrow-clockwise',
+							'ajax_action_json' => 'theme-reinstall-json',
+							'confirm_text'     => 'Confirm theme reinstall',
+							'processing_text'  => 'Processing theme reinstall',
 						],
 					]
 					: [];

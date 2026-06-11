@@ -24,6 +24,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	UnitTestRequest,
 	UnitTestUsers
 };
+use FernleafSystems\Wordpress\Services\Core\Themes;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 
 class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 
@@ -204,6 +206,7 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '', (string)( $vars[ 'vulnerabilities' ][ 'lookup_href' ] ?? 'missing' ) );
 		$this->assertSame( '', (string)( $vars[ 'vulnerabilities' ][ 'lookup_text' ] ?? 'missing' ) );
 		$this->assertArrayHasKey( 'vulnerabilities', $vars[ 'tabs' ] ?? [] );
+		$this->assertNotSame( '', (string)( $vars[ 'subject_header' ][ 'context_step_json' ] ?? '' ) );
 	}
 
 	public function test_all_themes_lookup_builds_aggregate_vulnerability_and_activity_contracts() :void {
@@ -256,6 +259,93 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 1, (int)$vars[ 'vulnerability_pane' ][ 'tab' ][ 'count_items' ] );
 		$this->assertArrayHasKey( 'no_issues', $vars[ 'vulnerability_pane' ][ 'strings' ] );
 		$this->assertCount( 2, $vars[ 'rail_nav_items' ] );
+	}
+
+	public function test_valid_lookup_includes_reinstall_context_action_for_wporg_theme() :void {
+		$this->installServices(
+			[ 'theme_slug' => 'twentytwentyfive' ],
+			[
+				'twentytwentyfive' => new PageInvestigateByThemeTestThemeVo( 'twentytwentyfive', true ),
+			]
+		);
+		$page = new PageInvestigateByThemeUnitTestDouble(
+			(object)[ 'stylesheet' => 'twentytwentyfive' ],
+			[
+				'info'  => [
+					'name'    => 'Twenty Twenty-Five',
+					'slug'    => 'twentytwentyfive',
+					'file'    => 'twentytwentyfive',
+					'version' => '1.0',
+					'author'  => 'WordPress.org',
+					'author_url' => '',
+					'dir' => '/wp-content/themes/twentytwentyfive',
+					'installed_at' => '2026-02-27',
+				],
+				'flags' => [
+					'is_active' => true,
+					'is_child'  => false,
+				],
+				'hrefs' => [
+					'vul_info' => '',
+				],
+				'vars'  => [
+					'count_items' => 0,
+				],
+			]
+		);
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$contextStep = $this->decodeJsonAttr( (string)( $renderData[ 'vars' ][ 'subject_header' ][ 'context_step_json' ] ?? '' ) );
+		$actions = $contextStep[ 'actions' ] ?? [];
+
+		$this->assertCount( 1, $actions );
+		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 0 ][ 'processing_text' ] ?? '' );
+
+		$actionData = $this->decodeJsonAttr( (string)( $actions[ 0 ][ 'ajax_action_json' ] ?? '' ) );
+		$this->assertSame( 'theme_reinstall', $actionData[ 'ex' ] ?? '' );
+		$this->assertSame( 'twentytwentyfive', $actionData[ 'stylesheet' ] ?? '' );
+		$this->assertArrayNotHasKey( 'reinstall', $actionData );
+	}
+
+	public function test_valid_lookup_omits_reinstall_context_action_for_non_wporg_theme() :void {
+		$this->installServices(
+			[ 'theme_slug' => 'premium-theme' ],
+			[
+				'premium-theme' => new PageInvestigateByThemeTestThemeVo( 'premium-theme', false ),
+			]
+		);
+		$page = new PageInvestigateByThemeUnitTestDouble(
+			(object)[ 'stylesheet' => 'premium-theme' ],
+			[
+				'info'  => [
+					'name'    => 'Premium Theme',
+					'slug'    => 'premium-theme',
+					'file'    => 'premium-theme',
+					'version' => '1.0',
+					'author'  => 'Vendor',
+					'author_url' => '',
+					'dir' => '/wp-content/themes/premium-theme',
+					'installed_at' => '2026-02-27',
+				],
+				'flags' => [
+					'is_active' => true,
+					'is_child'  => false,
+				],
+				'hrefs' => [
+					'vul_info' => '',
+				],
+				'vars'  => [
+					'count_items' => 0,
+				],
+			]
+		);
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$contextStep = $this->decodeJsonAttr( (string)( $renderData[ 'vars' ][ 'subject_header' ][ 'context_step_json' ] ?? '' ) );
+
+		$this->assertSame( [], $contextStep[ 'actions' ] ?? null );
 	}
 
 	public function test_zero_counts_build_empty_table_contracts() :void {
@@ -359,14 +449,57 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		);
 	}
 
-	private function installServices( array $query = [] ) :void {
+	private function installServices( array $query = [], array $themeVos = [], array $updates = [] ) :void {
 		ServicesState::installItems( [
 			'service_request'   => new UnitTestRequest( $query ),
 			'service_wpgeneral' => new UnitTestGeneral(),
 			'service_wpusers'   => new UnitTestUsers(),
+			'service_wpthemes'  => new PageInvestigateByThemeTestThemesService( $themeVos, $updates ),
 		] );
 	}
 
+}
+
+class PageInvestigateByThemeTestThemesService extends Themes {
+
+	private array $themeVos;
+
+	private array $updates;
+
+	public function __construct( array $themeVos, array $updates = [] ) {
+		$this->themeVos = $themeVos;
+		$this->updates = $updates;
+	}
+
+	public function getThemeAsVo( string $stylesheet, bool $reload = false ) :?WpThemeVo {
+		return $this->themeVos[ $stylesheet ] ?? null;
+	}
+
+	public function isUpdateAvailable( string $slug ) :bool {
+		return !empty( $this->updates[ $slug ] );
+	}
+}
+
+class PageInvestigateByThemeTestThemeVo extends WpThemeVo {
+
+	public string $stylesheet;
+	public string $Name;
+
+	private bool $isWpOrg;
+
+	public function __construct( string $stylesheet, bool $isWpOrg ) {
+		$this->stylesheet = $stylesheet;
+		$this->Name = 'Test Theme';
+		$this->isWpOrg = $isWpOrg;
+	}
+
+	public function __get( string $key ) {
+		return $key === 'asset_type' ? 'theme' : ( $this->{$key} ?? null );
+	}
+
+	public function isWpOrg() :bool {
+		return $this->isWpOrg;
+	}
 }
 
 class PageInvestigateByThemeUnitTestDouble extends PageInvestigateByTheme {
