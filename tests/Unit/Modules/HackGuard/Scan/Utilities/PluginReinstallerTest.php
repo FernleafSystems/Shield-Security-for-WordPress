@@ -25,12 +25,13 @@ class PluginReinstallerTest extends BaseUnitTest {
 
 	public function test_eligible_plugin_requires_installed_wporg_plugin_without_pending_update() :void {
 		$eligiblePlugin = new PluginReinstallerTestPluginVo( 'akismet/akismet.php', true );
+		$updatePlugin = new PluginReinstallerTestPluginVo( 'update/plugin.php', true );
 		ServicesState::installItems( [
 			'service_wpplugins' => new PluginReinstallerTestPluginsService( [
 				'plugin_vos' => [
 					'akismet/akismet.php' => $eligiblePlugin,
 					'premium/plugin.php'  => new PluginReinstallerTestPluginVo( 'premium/plugin.php', false ),
-					'update/plugin.php'   => new PluginReinstallerTestPluginVo( 'update/plugin.php', true ),
+					'update/plugin.php'   => $updatePlugin,
 				],
 				'updates'    => [
 					'update/plugin.php' => (object)[ 'new_version' => '2.0' ],
@@ -44,6 +45,9 @@ class PluginReinstallerTest extends BaseUnitTest {
 		$this->assertNull( $reinstaller->eligiblePlugin( 'missing/plugin.php' ) );
 		$this->assertNull( $reinstaller->eligiblePlugin( 'premium/plugin.php' ) );
 		$this->assertNull( $reinstaller->eligiblePlugin( 'update/plugin.php' ) );
+		$this->assertSame( $eligiblePlugin, $reinstaller->wpOrgPlugin( 'akismet/akismet.php' ) );
+		$this->assertSame( $updatePlugin, $reinstaller->wpOrgPlugin( 'update/plugin.php' ) );
+		$this->assertNull( $reinstaller->wpOrgPlugin( 'premium/plugin.php' ) );
 	}
 
 	public function test_reinstall_runs_only_for_eligible_plugin() :void {

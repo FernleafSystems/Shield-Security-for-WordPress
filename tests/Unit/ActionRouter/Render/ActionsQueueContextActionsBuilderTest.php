@@ -112,6 +112,31 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 		$this->assertNotEmpty( $actions[ 1 ][ 'label' ] ?? '' );
 	}
 
+	public function test_build_for_active_plugin_direct_table_preserves_update_link_action() :void {
+		$actions = ( new ActionsQueueContextActionsBuilder(
+			null,
+			null,
+			$this->buildPluginUpdateActionBuilder()
+		) )->buildForGroup(
+			'plugins',
+			'Example Plugin',
+			'direct_table',
+			3,
+			[
+				'display_context' => 'actions_queue',
+				'subject_type'    => 'plugin',
+				'subject_id'      => 'example-plugin/example-plugin.php',
+			]
+		);
+
+		$this->assertCount( 2, $actions );
+		$this->assertIgnoreAllAction( $actions, 'plugin', 'example-plugin/example-plugin.php' );
+		$this->assertSame( 'href', $actions[ 1 ][ 'kind' ] );
+		$this->assertSame( 'update', $actions[ 1 ][ 'type' ] );
+		$this->assertSame( '/wp-admin/update-core.php', $actions[ 1 ][ 'href' ] );
+		$this->assertNotEmpty( $actions[ 1 ][ 'label' ] );
+	}
+
 	public function test_build_for_active_wordpress_direct_table_emits_ignore_all_action() :void {
 		$actions = ( new ActionsQueueContextActionsBuilder() )->buildForGroup(
 			'wordpress',
@@ -289,6 +314,24 @@ class ActionsQueueContextActionsBuilderTest extends BaseUnitTest {
 							'ajax_action_json' => 'reinstall-json',
 							'confirm_text'     => 'Confirm reinstall',
 							'processing_text'  => 'Processing reinstall',
+						],
+					]
+					: [];
+			}
+		};
+	}
+
+	private function buildPluginUpdateActionBuilder() :PluginReinstallContextActionBuilder {
+		return new class extends PluginReinstallContextActionBuilder {
+			public function buildForPluginFile( string $file, string $displayName = '' ) :array {
+				return $file === 'example-plugin/example-plugin.php' && $displayName === 'Example Plugin'
+					? [
+						[
+							'kind'       => 'href',
+							'label'      => 'context-action',
+							'type'       => 'update',
+							'icon_class' => 'bi bi-arrow-up-circle-fill',
+							'href'       => '/wp-admin/update-core.php',
 						],
 					]
 					: [];

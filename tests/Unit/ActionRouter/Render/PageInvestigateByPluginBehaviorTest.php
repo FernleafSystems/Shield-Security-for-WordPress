@@ -303,7 +303,7 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		);
 
 		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
-		$contextStep = $this->decodeJsonAttr( (string)( $renderData[ 'vars' ][ 'subject_header' ][ 'context_step_json' ] ?? '' ) );
+		$contextStep = $this->decodeJsonAttr( (string)$renderData[ 'vars' ][ 'subject_header' ][ 'context_step_json' ] );
 		$actions = $contextStep[ 'actions' ] ?? [];
 
 		$this->assertCount( 1, $actions );
@@ -315,6 +315,55 @@ class PageInvestigateByPluginBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'plugin_reinstall', $actionData[ 'ex' ] ?? '' );
 		$this->assertSame( 'akismet/akismet.php', $actionData[ 'file' ] ?? '' );
 		$this->assertArrayNotHasKey( 'reinstall', $actionData );
+	}
+
+	public function test_valid_lookup_includes_update_context_action_for_wporg_plugin_with_pending_update() :void {
+		$this->installServices(
+			[ 'plugin_slug' => 'akismet/akismet.php' ],
+			[
+				'akismet/akismet.php' => new PageInvestigateByPluginTestPluginVo( 'akismet/akismet.php', true ),
+			],
+			[
+				'akismet/akismet.php' => true,
+			]
+		);
+		$page = new PageInvestigateByPluginUnitTestDouble(
+			(object)[ 'file' => 'akismet/akismet.php' ],
+			[
+				'info'  => [
+					'name'         => 'Akismet',
+					'slug'         => 'akismet',
+					'file'         => 'akismet/akismet.php',
+					'version'      => '5.0',
+					'author'       => 'Automattic',
+					'author_url'   => '',
+					'dir'          => '/wp-content/plugins/akismet',
+					'installed_at' => '2026-02-27',
+				],
+				'flags' => [
+					'is_active'  => true,
+					'has_update' => true,
+				],
+				'hrefs' => [
+					'vul_info' => '',
+				],
+				'vars'  => [
+					'count_items' => 0,
+				],
+			]
+		);
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$contextStep = $this->decodeJsonAttr( (string)$renderData[ 'vars' ][ 'subject_header' ][ 'context_step_json' ] );
+		$actions = $contextStep[ 'actions' ];
+
+		$this->assertCount( 1, $actions );
+		$this->assertSame( 'href', $actions[ 0 ][ 'kind' ] );
+		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] );
+		$this->assertSame( 'bi bi-arrow-up-circle-fill', $actions[ 0 ][ 'icon_class' ] );
+		$this->assertSame( '/wp-admin/update-core.php', $actions[ 0 ][ 'href' ] );
+		$this->assertSame( '', $actions[ 0 ][ 'ajax_action_json' ] );
+		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] );
 	}
 
 	public function test_valid_lookup_omits_reinstall_context_action_for_non_wporg_plugin() :void {
