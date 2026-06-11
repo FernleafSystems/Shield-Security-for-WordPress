@@ -471,7 +471,7 @@
 	min-width: 0;
 }
 
-.import-export-network-state__copy span {
+.import-export-network-state__copy > span {
 	color: var(--bs-secondary-color);
 	font-size: 0.76rem;
 	font-weight: 700;
@@ -479,17 +479,22 @@
 	text-transform: uppercase;
 }
 
-.import-export-network-state__copy strong {
+.import-export-network-state__copy > strong {
 	font-size: 0.95rem;
 	line-height: 1.25;
 }
 
-.import-export-network-state__copy small {
+.import-export-network-state__copy > small {
 	color: var(--bs-secondary-color);
 	font-size: 0.8rem;
 	line-height: 1.35;
 	margin: 0;
 	overflow-wrap: anywhere;
+}
+
+.import-export-network-state__copy [data-import-export-sync-now] {
+	justify-self: start;
+	margin-top: 0.35rem;
 }
 
 .import-export-network-state [data-import-export-connect-reveal] {
@@ -665,6 +670,10 @@
 
 	.import-export-network-state [data-import-export-connect-reveal] {
 		margin-left: 0;
+	}
+
+	.import-export-network-state__copy [data-import-export-sync-now] {
+		width: 100%;
 	}
 
 	.import-export-file-row__action {

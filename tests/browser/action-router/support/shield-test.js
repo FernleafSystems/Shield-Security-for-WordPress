@@ -285,10 +285,10 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 					}
 				}
 			},
-			async withImportExportNetworkFixture( runScenario ) {
+			async withImportExportNetworkFixture( runScenario, args = [] ) {
 				let seeded = false;
 				try {
-					const contract = await runFixture( 'import-export-network', 'seed' );
+					const contract = await runFixture( 'import-export-network', 'seed', args );
 					seeded = true;
 					return await runScenario( contract );
 				}

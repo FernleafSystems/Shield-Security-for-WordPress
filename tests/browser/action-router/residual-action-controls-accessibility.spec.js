@@ -269,6 +269,60 @@ test( 'network verification radios reveal and clear master key field', async ( {
 	} );
 } );
 
+test( 'connected master sync-now button sends existing import request', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withImportExportNetworkFixture( async () => {
+		await openShieldRoute( page, {
+			nav: 'tools',
+			nav_sub: 'importexport',
+		} );
+
+		const connectedState = page.locator( '[data-import-export-connected-master="1"]' );
+		const syncButton = page.locator( '[data-import-export-sync-now="1"]' );
+
+		await expect( connectedState ).toBeVisible( { timeout: 15_000 } );
+		await expectActionButton( syncButton );
+		await expect( syncButton ).toHaveText( /Sync settings now/ );
+
+		await page.route( '**/admin-ajax.php*', async ( route ) => {
+			const request = route.request();
+			if ( isShieldActionRequest( request, 'import_from_site' ) ) {
+				await route.fulfill( {
+					status: 200,
+					contentType: 'application/json',
+					body: JSON.stringify( {
+						success: true,
+						data: {
+							message: '',
+							page_reload: false,
+							show_toast: false,
+						},
+					} ),
+				} );
+				return;
+			}
+
+			await route.continue();
+		} );
+
+		const syncRequest = page.waitForRequest( ( request ) => {
+			if ( !isShieldActionRequest( request, 'import_from_site' ) ) {
+				return false;
+			}
+
+			const params = requestParams( request );
+			return params.get( 'form_params[confirm]' ) === 'Y'
+				&& params.get( 'form_params[MasterSiteUrl]' ) === ''
+				&& params.get( 'form_params[MasterSiteSecretKey]' ) === ''
+				&& params.get( 'form_params[ShieldNetwork]' ) === 'NC';
+		}, { timeout: 20_000 } );
+
+		await syncButton.click();
+		await syncRequest;
+		await expect( syncButton ).toBeEnabled( { timeout: 15_000 } );
+		await expectNoAxeViolations( page, '#SectionImportExportNetworkSync', [ 'heading-order' ] );
+	}, [ 'connected-master' ] );
+} );
+
 test( 'network sync toggle switches the pro workbench off and on', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withImportExportNetworkFixture( async () => {
 		await openShieldRoute( page, {

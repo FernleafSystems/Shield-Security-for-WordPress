@@ -104,6 +104,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertArrayHasKey( 'form', $connect );
 		$this->assertArrayHasKey( 'standalone', $connect );
 		$this->assertArrayNotHasKey( 'connected', $connect );
+		$this->assertArrayNotHasKey( 'sync_now', $connect );
 		$this->assertArrayHasKey( 'rail', $networkSync );
 		$this->assertSame( 'ImportSiteFormPanel', $connect[ 'form' ][ 'panel_id' ] );
 		$this->assertSame( 'ImportSiteFormReveal', $connect[ 'form' ][ 'reveal_id' ] );
@@ -211,6 +212,8 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$connect = $this->renderVars()[ 'network_sync' ][ 'connect' ];
 		$this->assertTrue( (bool)$connect[ 'is_connected' ] );
 		$this->assertSame( 'master.example.com', $connect[ 'connected' ][ 'master_host' ] );
+		$this->assertSame( 'ImportExportSyncNow', $connect[ 'sync_now' ][ 'id' ] );
+		$this->assertSame( 'Sync settings now', $connect[ 'sync_now' ][ 'label' ] );
 		$this->assertArrayNotHasKey( 'master_url', $connect[ 'connected' ] );
 		$this->assertArrayNotHasKey( 'summary', $connect );
 		$this->assertArrayNotHasKey( 'summary', $connect[ 'connected' ] );
@@ -220,10 +223,19 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 
 		$this->assertStringContainsString( 'data-import-export-connected-master="1"', $html );
 		$this->assertStringContainsString( 'data-import-export-disconnect="1"', $html );
+		$this->assertStringContainsString( 'data-import-export-sync-now="1"', $html );
+		$this->assertStringContainsString( 'id="ImportExportSyncNow"', $html );
+		$this->assertStringContainsString( 'Sync settings now', $html );
 		$this->assertStringContainsString( 'master.example.com', $html );
 		$this->assertStringNotContainsString( 'https://master.example.com/import', $html );
 		$this->assertStringNotContainsString( 'Current master connection', $html );
 		$this->assertStringNotContainsString( 'id="ImportSiteForm"', $html );
+
+		$masterPosition = \strpos( $html, 'master.example.com' );
+		$syncPosition = \strpos( $html, 'data-import-export-sync-now="1"' );
+		$this->assertIsInt( $masterPosition );
+		$this->assertIsInt( $syncPosition );
+		$this->assertLessThan( $syncPosition, $masterPosition );
 	}
 
 	public function test_sync_pro_gate_is_not_replaced_by_disabled_gate() :void {

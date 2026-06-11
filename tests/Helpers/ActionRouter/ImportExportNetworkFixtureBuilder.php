@@ -20,9 +20,10 @@ class ImportExportNetworkFixtureBuilder {
 	];
 
 	/**
+	 * @param list<string> $args
 	 * @return array{contract:array<string,mixed>,state:FixtureState}
 	 */
-	public function seed() :array {
+	public function seed( array $args = [] ) :array {
 		$state = [
 			'options_snapshot' => RuntimeTestState::snapshotOptions( self::OPTION_KEYS ),
 		];
@@ -30,9 +31,10 @@ class ImportExportNetworkFixtureBuilder {
 		try {
 			RuntimeTestState::applyPremiumCapabilities( [ 'import_export_level_1', 'import_export_level_2' ] );
 			$con = RuntimeTestState::controller();
+			$masterUrl = \in_array( 'connected-master', $args, true ) ? 'https://master.example.com/import' : '';
 			$con->opts
 				->optSet( 'importexport_enable', 'Y' )
-				->optSet( 'importexport_masterurl', '' )
+				->optSet( 'importexport_masterurl', $masterUrl )
 				->optSet( NetworkInviteRepository::OPTION_KEY, [] )
 				->store();
 

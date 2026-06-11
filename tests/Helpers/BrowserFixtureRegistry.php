@@ -37,7 +37,7 @@ class BrowserFixtureRegistry {
 			case 'import-export-file':
 				return self::runImportExportFileFixture( $action );
 			case 'import-export-network':
-				return self::runImportExportNetworkFixture( $action );
+				return self::runImportExportNetworkFixture( $action, $args );
 			case 'ip-analysis-activity-meta':
 				return self::runIpAnalysisActivityMetaFixture( $action );
 			case 'ip-rules-table':
@@ -227,9 +227,10 @@ class BrowserFixtureRegistry {
 	}
 
 	/**
+	 * @param list<string> $args
 	 * @return array<string,mixed>
 	 */
-	private static function runImportExportNetworkFixture( string $action ) :array {
+	private static function runImportExportNetworkFixture( string $action, array $args = [] ) :array {
 		$builder = new ImportExportNetworkFixtureBuilder();
 		$optionKey = self::fixtureOptionKey( 'import-export-network' );
 		$state = \get_option( $optionKey, [] );
@@ -247,7 +248,7 @@ class BrowserFixtureRegistry {
 					\delete_option( $optionKey );
 				}
 
-				$result = $builder->seed();
+				$result = $builder->seed( $args );
 				\update_option( $optionKey, $result[ 'state' ], false );
 				return $result[ 'contract' ];
 

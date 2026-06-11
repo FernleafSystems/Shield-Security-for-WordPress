@@ -41,6 +41,9 @@ export class ConfigImport extends BaseComponent {
 		shieldEventsHandler_Main.add_Click( '[data-import-export-disconnect]', () => {
 			this.disconnectMasterSite();
 		} );
+		shieldEventsHandler_Main.add_Click( '[data-import-export-sync-now]', ( targetEl ) => {
+			this.syncNowFromConnectedMaster( targetEl );
+		} );
 		shieldEventsHandler_Main.add_Click( '[data-import-export-add-clients]', ( targetEl ) => {
 			this.openAddClientSites( targetEl );
 		} );
@@ -167,6 +170,35 @@ export class ConfigImport extends BaseComponent {
 		( new AjaxService() )
 		.send( this._base_data.ajax.disconnect_master )
 		.finally();
+	}
+
+	syncNowFromConnectedMaster( targetEl ) {
+		const button = targetEl instanceof Element ? targetEl.closest( '[data-import-export-sync-now]' ) : null;
+		if ( !( button instanceof HTMLButtonElement ) || this.syncNowRequestRunning ) {
+			return;
+		}
+
+		this.syncNowRequestRunning = true;
+		button.disabled = true;
+		button.setAttribute( 'aria-busy', 'true' );
+
+		( new AjaxService() )
+		.send( ObjectOps.Merge(
+			this._base_data.ajax.import_from_site,
+			{
+				form_params: {
+					confirm: 'Y',
+					MasterSiteUrl: '',
+					MasterSiteSecretKey: '',
+					ShieldNetwork: 'NC',
+				}
+			}
+		) )
+		.finally( () => {
+			this.syncNowRequestRunning = false;
+			button.disabled = false;
+			button.removeAttribute( 'aria-busy' );
+		} );
 	}
 
 	openAddClientSites( targetEl ) {
