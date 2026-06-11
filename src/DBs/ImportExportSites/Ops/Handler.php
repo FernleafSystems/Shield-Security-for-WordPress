@@ -16,6 +16,8 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 	public const QUEUE_QUEUED = 'queued';
 	public const QUEUE_PROCESSING = 'processing';
 	public const QUEUE_WAITING_EXPORT = 'waiting_export';
+	public const QUEUE_PENDING_INVITE = 'pending_invite';
+	public const QUEUE_PENDING_CONNECTION = 'pending_connection';
 
 	public const SOURCE_LEGACY_OPTION = 'legacy_option';
 	public const SOURCE_MANUAL = 'manual';

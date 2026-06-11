@@ -24,8 +24,10 @@ class ImportExportSitesAuthoriseUrlsSubmit extends BaseAction {
 			}
 
 			$activeClientCountBefore = ( new SiteRepository() )->countActiveRows();
+			$sendInvites = ( $form[ 'send_invites' ] ?? 'Y' ) === 'Y';
 			$result = ( new ImportExportController() )->authoriseUrlsForSyncSites(
-				\preg_split( '#\R#', (string)( $form[ 'urls' ] ?? '' ) ) ?: []
+				\preg_split( '#\R#', (string)( $form[ 'urls' ] ?? '' ) ) ?: [],
+				$sendInvites
 			);
 
 			foreach ( $result[ 'authorised_urls' ] as $url ) {

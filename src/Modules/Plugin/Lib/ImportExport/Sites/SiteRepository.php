@@ -111,6 +111,32 @@ class SiteRepository {
 		return $this->findByUrl( $url, true );
 	}
 
+	public function upsertPendingClientSite( string $url, string $source, bool $sendInvite ) :?Record {
+		$url = $this->canonicalizeUrl( $url );
+		$dbh = $this->dbOrNull();
+		if ( empty( $url ) || !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
+			return null;
+		}
+
+		$now = Services::Request()->ts();
+		$row = $this->findByUrl( $url, true );
+		$data = $this->buildPendingClientSiteUpsertData( $row, $url, $source, $sendInvite, $now );
+
+		if ( $row instanceof Record ) {
+			if ( !$this->rowNeedsUpdate( $row, $data ) ) {
+				return $row;
+			}
+			$data[ 'updated_at' ] = $now;
+			$this->updateById( $row->id, $data );
+			return $this->findById( $row->id, true );
+		}
+
+		$this->bulkInsertRows( [
+			$this->buildPendingClientSiteInsertData( $url, $source, $sendInvite, $now ),
+		] );
+		return $this->findByUrl( $url, true );
+	}
+
 	public function softDeleteUrl( string $url ) :void {
 		$row = $this->findByUrl( $url, true );
 		if ( $row instanceof Record ) {
@@ -177,8 +203,57 @@ class SiteRepository {
 	/**
 	 * @return Record[]
 	 */
+	public function claimDueInviteRows( int $limit, int $lockUntil ) :array {
+		$now = Services::Request()->ts();
+		$rows = $this->selectDueInviteRowsForClaim( $now, $limit );
+
+		$data = [
+			'picked_at'  => $now,
+			'lock_until' => $lockUntil,
+		];
+		$data = $this->withUpdatedAt( $data, $now );
+		$this->bulkUpdateRowsByIds( \array_map( static fn( Record $row ) :int => $row->id, $rows ), $data );
+
+		foreach ( $rows as $row ) {
+			foreach ( $data as $key => $value ) {
+				$row->{$key} = $value;
+			}
+		}
+
+		return $rows;
+	}
+
+	public function recoverExpiredProcessingRows( int $limit ) :int {
+		$now = Services::Request()->ts();
+		$rows = $this->selectExpiredProcessingRowsForRecovery( $now, $limit );
+		if ( empty( $rows ) ) {
+			return 0;
+		}
+
+		$this->bulkUpdateRowsByIds(
+			\array_map( static fn( Record $row ) :int => $row->id, $rows ),
+			$this->buildQueueDueData( $now )
+		);
+
+		return \count( $rows );
+	}
+
+	/**
+	 * @return Record[]
+	 */
 	public function selectExpiredWaitingExportRows( int $limit ) :array {
 		return $this->selectExpiredWaitingExportRowsWithSql( Services::Request()->ts(), $limit );
+	}
+
+	public function recordInviteProcessed( Record $row ) :void {
+		$this->updateById( $row->id, [
+			'queue_status'        => SitesDB::QUEUE_PENDING_CONNECTION,
+			'consecutive_failures' => 0,
+			'next_ping_at'        => 0,
+			'lock_until'          => 0,
+			'picked_at'           => 0,
+			'expected_export_by'  => 0,
+		] );
 	}
 
 	public function recordPingAttempt( Record $row ) :void {
@@ -493,6 +568,17 @@ class SiteRepository {
 		];
 	}
 
+	private function buildPendingInviteDueData( int $now ) :array {
+		return [
+			'queue_status'       => SitesDB::QUEUE_PENDING_INVITE,
+			'queued_at'          => $now,
+			'next_ping_at'       => $now,
+			'picked_at'          => 0,
+			'lock_until'         => 0,
+			'expected_export_by' => 0,
+		];
+	}
+
 	private function buildActiveUpsertData(
 		?Record $row,
 		string $url,
@@ -516,6 +602,35 @@ class SiteRepository {
 		}
 		if ( !$row instanceof Record || $markDue || ( $row->next_ping_at <= 0 && $row->queue_status !== SitesDB::QUEUE_WAITING_EXPORT ) ) {
 			$data = \array_merge( $data, $this->buildQueueDueData( $now ) );
+		}
+
+		return $data;
+	}
+
+	private function buildPendingClientSiteUpsertData(
+		?Record $row,
+		string $url,
+		string $source,
+		bool $sendInvite,
+		int $now
+	) :array {
+		$queueStatus = $sendInvite ? SitesDB::QUEUE_PENDING_INVITE : SitesDB::QUEUE_PENDING_CONNECTION;
+		$data = [
+			'url'                  => $url,
+			'url_hash'             => \hash( 'md5', $url ),
+			'status'               => SitesDB::STATUS_ACTIVE,
+			'queue_status'         => $queueStatus,
+			'deleted_at'           => 0,
+			'queued_at'            => $now,
+			'picked_at'            => 0,
+			'lock_until'           => 0,
+			'next_ping_at'         => $sendInvite ? $now : 0,
+			'expected_export_by'   => 0,
+			'consecutive_failures' => 0,
+		];
+
+		if ( !empty( $source ) && ( !$row instanceof Record || empty( $row->source ) ) ) {
+			$data[ 'source' ] = $source;
 		}
 
 		return $data;
@@ -556,17 +671,48 @@ class SiteRepository {
 		], $this->buildActiveUpsertData( null, $url, $source, $importID, $markDue, $now ) );
 	}
 
+	private function buildPendingClientSiteInsertData(
+		string $url,
+		string $source,
+		bool $sendInvite,
+		int $now
+	) :array {
+		return \array_merge(
+			$this->buildActiveInsertData( $url, $source, '', false, $now ),
+			$this->buildPendingClientSiteUpsertData( null, $url, $source, $sendInvite, $now )
+		);
+	}
+
 	private function queueRows( array $rows ) :int {
 		if ( empty( $rows ) ) {
 			return 0;
 		}
 
+		$syncRows = [];
+		$inviteRows = [];
+		foreach ( $rows as $row ) {
+			if ( $row->queue_status === SitesDB::QUEUE_PENDING_INVITE ) {
+				$inviteRows[] = $row;
+			}
+			elseif ( $row->queue_status === SitesDB::QUEUE_PENDING_CONNECTION ) {
+				continue;
+			}
+			else {
+				$syncRows[] = $row;
+			}
+		}
+
+		$now = Services::Request()->ts();
 		$this->bulkUpdateRowsByIds(
-			\array_map( static fn( Record $row ) :int => $row->id, $rows ),
-			$this->buildQueueDueData( Services::Request()->ts() )
+			\array_map( static fn( Record $row ) :int => $row->id, $syncRows ),
+			$this->buildQueueDueData( $now )
+		);
+		$this->bulkUpdateRowsByIds(
+			\array_map( static fn( Record $row ) :int => $row->id, $inviteRows ),
+			$this->buildPendingInviteDueData( $now )
 		);
 
-		return \count( $rows );
+		return \count( $syncRows ) + \count( $inviteRows );
 	}
 
 	private function bulkInsertRows( array $rows ) :bool {
@@ -709,6 +855,58 @@ class SiteRepository {
 				SitesDB::QUEUE_IDLE,
 				SitesDB::QUEUE_QUEUED,
 				(int)$now,
+				(int)$now,
+				\max( 1, (int)$limit ),
+			]
+		) );
+	}
+
+	/**
+	 * @return Record[]
+	 */
+	private function selectDueInviteRowsForClaim( int $now, int $limit ) :array {
+		return $this->selectRowsWithSql( $this->prepareSql(
+			sprintf(
+				"SELECT * FROM `%s`
+				 WHERE `deleted_at`=0
+				   AND `status`=%%s
+				   AND `queue_status`=%%s
+				   AND `next_ping_at`>0
+				   AND `next_ping_at`<=%%d
+				   AND (`lock_until`=0 OR `lock_until`<=%%d)
+				 ORDER BY `priority` DESC, `next_ping_at` ASC, `id` ASC
+				 LIMIT %%d",
+				$this->db()->getTable()
+			),
+			[
+				SitesDB::STATUS_ACTIVE,
+				SitesDB::QUEUE_PENDING_INVITE,
+				(int)$now,
+				(int)$now,
+				\max( 1, (int)$limit ),
+			]
+		) );
+	}
+
+	/**
+	 * @return Record[]
+	 */
+	private function selectExpiredProcessingRowsForRecovery( int $now, int $limit ) :array {
+		return $this->selectRowsWithSql( $this->prepareSql(
+			sprintf(
+				"SELECT * FROM `%s`
+				 WHERE `deleted_at`=0
+				   AND `status`=%%s
+				   AND `queue_status`=%%s
+				   AND `lock_until`>0
+				   AND `lock_until`<=%%d
+				 ORDER BY `lock_until` ASC, `id` ASC
+				 LIMIT %%d",
+				$this->db()->getTable()
+			),
+			[
+				SitesDB::STATUS_ACTIVE,
+				SitesDB::QUEUE_PROCESSING,
 				(int)$now,
 				\max( 1, (int)$limit ),
 			]

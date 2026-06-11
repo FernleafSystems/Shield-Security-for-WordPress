@@ -34,6 +34,8 @@ class SiteSyncStatusBuilder {
 		SitesDB::QUEUE_QUEUED,
 		SitesDB::QUEUE_PROCESSING,
 		SitesDB::QUEUE_WAITING_EXPORT,
+		SitesDB::QUEUE_PENDING_INVITE,
+		SitesDB::QUEUE_PENDING_CONNECTION,
 	];
 
 	private int $now;
@@ -71,6 +73,13 @@ class SiteSyncStatusBuilder {
 
 		if ( $this->isExpiredWaitingExportProblem( $record ) ) {
 			return self::STATE_PROBLEM;
+		}
+
+		if ( \in_array( $record->queue_status, [
+			SitesDB::QUEUE_PENDING_INVITE,
+			SitesDB::QUEUE_PENDING_CONNECTION,
+		], true ) ) {
+			return self::STATE_PENDING;
 		}
 
 		if ( $record->queue_status === SitesDB::QUEUE_PROCESSING
@@ -186,6 +195,8 @@ class SiteSyncStatusBuilder {
 				   SitesDB::QUEUE_QUEUED         => $this->text( 'Queued' ),
 				   SitesDB::QUEUE_PROCESSING     => $this->text( 'Processing' ),
 				   SitesDB::QUEUE_WAITING_EXPORT => $this->text( 'Waiting for export' ),
+				   SitesDB::QUEUE_PENDING_INVITE => $this->text( 'Pending invite' ),
+				   SitesDB::QUEUE_PENDING_CONNECTION => $this->text( 'Pending connection' ),
 			   ][ $queueStatus ] ?? $this->formatKey( $queueStatus );
 	}
 
@@ -200,6 +211,8 @@ class SiteSyncStatusBuilder {
 					SitesDB::QUEUE_QUEUED         => 'warning',
 					SitesDB::QUEUE_PROCESSING     => 'primary',
 					SitesDB::QUEUE_WAITING_EXPORT => 'info',
+					SitesDB::QUEUE_PENDING_INVITE => 'warning',
+					SitesDB::QUEUE_PENDING_CONNECTION => 'warning',
 				][ $queueStatus ] ?? 'secondary';
 		return $this->badgeHtml( $this->queueLabel( $queueStatus ), $tone );
 	}
@@ -279,6 +292,10 @@ class SiteSyncStatusBuilder {
 				return $this->text( 'A sync ping is currently being processed.' );
 			case SitesDB::QUEUE_WAITING_EXPORT:
 				return $this->text( 'Ping succeeded; waiting for this site to send its export.' );
+			case SitesDB::QUEUE_PENDING_INVITE:
+				return $this->text( 'This site is queued for a network invite.' );
+			case SitesDB::QUEUE_PENDING_CONNECTION:
+				return $this->text( 'Waiting for this client site to initiate a connection.' );
 			case SitesDB::QUEUE_QUEUED:
 				return $this->text( 'This site is queued for its next sync ping.' );
 			default:
@@ -417,8 +434,10 @@ class SiteSyncStatusBuilder {
 					$this->sqlQueuedOrIdleProblem()
 				);
 			case self::STATE_PENDING:
-				return \sprintf( '(%s AND (`queue_status`=%s OR (`queue_status`=%s AND NOT (%s)) OR (`queue_status`=%s AND NOT (%s))))',
+				return \sprintf( '(%s AND (`queue_status` IN (%s,%s) OR `queue_status`=%s OR (`queue_status`=%s AND NOT (%s)) OR (`queue_status`=%s AND NOT (%s))))',
 					$this->sqlActive(),
+					$this->sqlValue( SitesDB::QUEUE_PENDING_INVITE ),
+					$this->sqlValue( SitesDB::QUEUE_PENDING_CONNECTION ),
 					$this->sqlValue( SitesDB::QUEUE_PROCESSING ),
 					$this->sqlValue( SitesDB::QUEUE_WAITING_EXPORT ),
 					$this->sqlExpiredWaitingExportProblem(),

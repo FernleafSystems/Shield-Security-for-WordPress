@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteInviteSender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -152,7 +151,7 @@ class ImportExportController {
 	 *     total_count:int
 	 * }
 	 */
-	public function authoriseUrlsForSyncSites( array $rawUrls ) :array {
+	public function authoriseUrlsForSyncSites( array $rawUrls, bool $sendInvites = true ) :array {
 		$this->assertSyncEnabled();
 		$this->ensureSitesRegistryImported();
 
@@ -203,7 +202,7 @@ class ImportExportController {
 				continue;
 			}
 
-			if ( !$repo->upsertActive( $url, ImportExportSitesDB::SOURCE_MANUAL, '', true ) ) {
+			if ( !$repo->upsertPendingClientSite( $url, ImportExportSitesDB::SOURCE_MANUAL, $sendInvites ) ) {
 				throw new \RuntimeException( __( 'The site URL could not be authorised.', 'wp-simple-firewall' ) );
 			}
 			$authorisedUrls[] = $url;
@@ -211,12 +210,9 @@ class ImportExportController {
 
 		if ( !empty( $authorisedUrls ) ) {
 			( new NetworkInviteRepository() )->clearAll();
-			$this->scheduleQueueSoonIfSyncEnabled();
-		}
-
-		$sender = new SyncSiteInviteSender();
-		foreach ( $authorisedUrls as $url ) {
-			$sender->send( $url );
+			if ( $sendInvites ) {
+				$this->scheduleQueueSoonIfSyncEnabled();
+			}
 		}
 
 		return [

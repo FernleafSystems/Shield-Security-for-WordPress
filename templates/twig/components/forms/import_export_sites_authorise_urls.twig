@@ -20,6 +20,14 @@
 	</div>
 
 	<div class="form-check mb-3">
+		<input name="send_invites" value="N" type="hidden">
+		<input name="send_invites" value="Y" class="form-check-input" type="checkbox" id="ImportExportSitesSendInvites" checked>
+		<label class="form-check-label" for="ImportExportSitesSendInvites">
+			{{ strings.send_invites }}
+		</label>
+	</div>
+
+	<div class="form-check mb-3">
 		<input name="confirm" value="Y" class="form-check-input" type="checkbox" id="ImportExportSitesAuthoriseConfirm">
 		<label class="form-check-label" for="ImportExportSitesAuthoriseConfirm">
 			{{ strings.confirm }}

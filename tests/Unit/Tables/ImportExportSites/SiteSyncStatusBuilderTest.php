@@ -76,6 +76,17 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, $this->builder()->stateForRecord( $record ) );
 	}
 
+	/**
+	 * @dataProvider pendingQueueStatusProvider
+	 */
+	public function test_pending_invite_and_connection_queue_states_are_pending( string $queueStatus ) :void {
+		$record = $this->record( [
+			'queue_status' => $queueStatus,
+		] );
+
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, $this->builder()->stateForRecord( $record ) );
+	}
+
 	public function test_queued_after_failure_is_problem() :void {
 		$record = $this->record( [
 			'queue_status'          => SitesDB::QUEUE_QUEUED,
@@ -174,11 +185,11 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertSame( [
 			'sync_state'       => [ SiteSyncStatusBuilder::STATE_PROBLEM ],
 			'status_key'       => [ SitesDB::STATUS_ACTIVE ],
-			'queue_status_key' => [ SitesDB::QUEUE_QUEUED ],
+			'queue_status_key' => [ SitesDB::QUEUE_QUEUED, SitesDB::QUEUE_PENDING_INVITE ],
 		], $builder->exportValidateSearchPanes( [
 			'sync_state'       => [ SiteSyncStatusBuilder::STATE_PROBLEM, 'bad-state', [ 'nested-bad-state' ] ],
 			'status_key'       => [ SitesDB::STATUS_ACTIVE, 'bad-status', [ 'nested-bad-status' ] ],
-			'queue_status_key' => [ SitesDB::QUEUE_QUEUED, 'bad-queue', [ 'nested-bad-queue' ] ],
+			'queue_status_key' => [ SitesDB::QUEUE_QUEUED, SitesDB::QUEUE_PENDING_INVITE, 'bad-queue', [ 'nested-bad-queue' ] ],
 			'unknown'          => [ 'anything' ],
 		] ) );
 	}
@@ -203,6 +214,13 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 
 	private function builder() :SiteSyncStatusBuilder {
 		return new SiteSyncStatusBuilder( self::NOW );
+	}
+
+	public static function pendingQueueStatusProvider() :array {
+		return [
+			'pending invite' => [ SitesDB::QUEUE_PENDING_INVITE ],
+			'pending connection' => [ SitesDB::QUEUE_PENDING_CONNECTION ],
+		];
 	}
 
 	private function record( array $overrides = [] ) :Record {

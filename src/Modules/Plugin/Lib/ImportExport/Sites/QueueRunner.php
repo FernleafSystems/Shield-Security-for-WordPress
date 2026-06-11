@@ -12,13 +12,25 @@ class QueueRunner {
 	public function run() :void {
 		$repo = $this->repository();
 		$repo->ensureLegacyImported();
+		$repo->recoverExpiredProcessingRows( self::BATCH_SIZE );
 
 		foreach ( $repo->selectExpiredWaitingExportRows( self::BATCH_SIZE ) as $row ) {
 			$repo->recordExportTimeout( $row );
 		}
 
 		$now = \FernleafSystems\Wordpress\Services\Services::Request()->ts();
-		foreach ( $repo->claimDueRows( self::BATCH_SIZE, $now + self::LOCK_TIMEOUT ) as $row ) {
+		$remaining = self::BATCH_SIZE;
+		foreach ( $repo->claimDueInviteRows( $remaining, $now + self::LOCK_TIMEOUT ) as $row ) {
+			$this->inviteSender()->send( $row->url, self::PING_TIMEOUT );
+			$repo->recordInviteProcessed( $row );
+			$remaining--;
+		}
+
+		if ( $remaining <= 0 ) {
+			return;
+		}
+
+		foreach ( $repo->claimDueRows( $remaining, $now + self::LOCK_TIMEOUT ) as $row ) {
 			$repo->recordPingAttempt( $row );
 			$result = $this->pingSender()->send( $row->url, self::PING_TIMEOUT );
 			if ( (bool)( $result[ 'success' ] ?? false ) ) {
@@ -36,5 +48,9 @@ class QueueRunner {
 
 	protected function pingSender() :PingSender {
 		return new PingSender();
+	}
+
+	protected function inviteSender() :SyncSiteInviteSender {
+		return new SyncSiteInviteSender();
 	}
 }

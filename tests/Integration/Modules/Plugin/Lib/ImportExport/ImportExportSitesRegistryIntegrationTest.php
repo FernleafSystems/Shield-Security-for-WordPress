@@ -18,7 +18,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
 	PingSender,
 	QueueRunner,
 	QueueScheduler,
-	SiteRepository
+	SiteRepository,
+	SyncSiteInviteSender
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForImportExportSites;
@@ -635,6 +636,70 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 2, $stillDue );
 	}
 
+	public function test_queue_runner_sends_pending_invite_once_and_waits_for_connection() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertPendingClientSite( 'https://invite-queued.example.com', SitesDB::SOURCE_MANUAL, true );
+		$inviteSender = new ImportExportInviteSenderTestDouble();
+
+		( new ImportExportQueueRunnerTestDouble(
+			new ImportExportPingSenderTestDouble( true, 204, '' ),
+			$inviteSender
+		) )->run();
+
+		$row = $repo->findById( $row->id, true );
+		$this->assertSame( [ 'https://invite-queued.example.com' ], $inviteSender->urls );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $row->queue_status );
+		$this->assertSame( 0, $row->next_ping_at );
+		$this->assertSame( 0, $row->last_ping_attempt_at );
+	}
+
+	public function test_queue_runner_leaves_passive_pending_connection_unsent() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertPendingClientSite( 'https://invite-passive.example.com', SitesDB::SOURCE_MANUAL, false );
+		$inviteSender = new ImportExportInviteSenderTestDouble();
+
+		( new ImportExportQueueRunnerTestDouble(
+			new ImportExportPingSenderTestDouble( true, 204, '' ),
+			$inviteSender
+		) )->run();
+
+		$row = $repo->findById( $row->id, true );
+		$this->assertSame( [], $inviteSender->urls );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $row->queue_status );
+		$this->assertSame( 0, $row->last_ping_attempt_at );
+	}
+
+	public function test_expired_processing_row_recovers_to_sync_queue() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://recover-processing.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$claimed = $repo->claimDueRows( 1, Services::Request()->ts() - 1 );
+		$this->assertSame( [ $row->id ], \array_map( static fn( Record $claimedRow ) :int => $claimedRow->id, $claimed ) );
+
+		$recovered = $repo->recoverExpiredProcessingRows( 10 );
+
+		$row = $repo->findById( $row->id, true );
+		$this->assertSame( 1, $recovered );
+		$this->assertSame( SitesDB::QUEUE_QUEUED, $row->queue_status );
+		$this->assertSame( 0, $row->lock_until );
+		$this->assertSame( 0, $row->picked_at );
+	}
+
+	public function test_manual_queue_does_not_convert_pending_connection_to_sync_ping() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$repo = $this->repo();
+		$row = $repo->upsertPendingClientSite( 'https://manual-passive.example.com', SitesDB::SOURCE_MANUAL, false );
+
+		$count = ( new ImportExportController() )->queueSitesForSync( [ $row->id ] );
+
+		$row = $repo->findById( $row->id, true );
+		$this->assertSame( 0, $count );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $row->queue_status );
+		$this->assertSame( 0, $row->next_ping_at );
+		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+	}
+
 	public function test_failed_ping_records_ping_failure_without_export_success() :void {
 		$repo = $this->repo();
 		$row = $repo->upsertActive( 'https://fail-ping.example.com', SitesDB::SOURCE_MANUAL, '', true );
@@ -1234,13 +1299,19 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 class ImportExportQueueRunnerTestDouble extends QueueRunner {
 
 	private PingSender $sender;
+	private ?SyncSiteInviteSender $inviteSender;
 
-	public function __construct( PingSender $sender ) {
+	public function __construct( PingSender $sender, ?SyncSiteInviteSender $inviteSender = null ) {
 		$this->sender = $sender;
+		$this->inviteSender = $inviteSender;
 	}
 
 	protected function pingSender() :PingSender {
 		return $this->sender;
+	}
+
+	protected function inviteSender() :SyncSiteInviteSender {
+		return $this->inviteSender ?? parent::inviteSender();
 	}
 }
 
@@ -1261,6 +1332,20 @@ class ImportExportPingSenderTestDouble extends PingSender {
 			'success'   => $this->success,
 			'http_code' => $this->httpCode,
 			'error'     => $this->error,
+		];
+	}
+}
+
+class ImportExportInviteSenderTestDouble extends SyncSiteInviteSender {
+
+	public array $urls = [];
+
+	public function send( string $url, int $timeout = 2 ) :array {
+		$this->urls[] = $url;
+		return [
+			'success'   => true,
+			'http_code' => 200,
+			'error'     => '',
 		];
 	}
 }

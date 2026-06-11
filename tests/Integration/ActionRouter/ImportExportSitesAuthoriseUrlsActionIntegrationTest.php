@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
 	Actions\ImportExportSitesAuthoriseUrlsSubmit,
-	Actions\PluginImportExport_NetworkInviteRequest,
 	Exceptions\SecurityAdminRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
@@ -38,6 +37,7 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 	private const SAME_HOST_CLIENT = 'https://93.184.216.60/import4';
 	private const ROOT_SAME_HOST_HOME = 'https://93.184.216.73';
 	private const ROOT_SAME_HOST_CLIENT = 'https://93.184.216.73/import4';
+	private const SKIP_INVITE = 'https://93.184.216.74';
 
 	private array $optionsSnapshot = [];
 	private array $servicesSnapshot = [];
@@ -74,7 +74,7 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		parent::tear_down();
 	}
 
-	public function test_authorise_urls_submit_adds_multiple_canonical_urls_schedules_queue_and_sends_invites() :void {
+	public function test_authorise_urls_submit_adds_multiple_canonical_urls_and_queues_invites() :void {
 		$this->enableSync();
 		$this->seedPendingInvite( 'https://93.184.216.90/pending-master' );
 		$this->captureShieldEvents();
@@ -88,7 +88,6 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertArrayHasKey( 'authorised_count', $payload );
 		$this->assertArrayHasKey( 'already_authorised_count', $payload );
 		$this->assertArrayHasKey( 'total_count', $payload );
-		$this->assertArrayNotHasKey( 'invite_attempted_count', $payload );
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertTrue( $payload[ 'page_reload' ] );
 		$this->assertSame( 2, $payload[ 'authorised_count' ] );
@@ -98,18 +97,29 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$one = $this->requireSite( self::AUTHORISE_ONE );
 		$two = $this->requireSite( self::AUTHORISE_TWO );
 		$this->assertSame( SitesDB::STATUS_ACTIVE, $one->status );
-		$this->assertSame( SitesDB::QUEUE_QUEUED, $one->queue_status );
+		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $one->queue_status );
 		$this->assertSame( SitesDB::SOURCE_MANUAL, $one->source );
 		$this->assertSame( SitesDB::STATUS_ACTIVE, $two->status );
+		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $two->queue_status );
 		$this->assertNotFalse( \wp_next_scheduled( $this->queueHook() ) );
-		$this->assertCount( 2, $this->inviteHttp->requests );
-		$this->assertTrue( $this->inviteHttp->requests[ 0 ][ 'reject_unsafe_urls' ] );
-		$this->assertTrue( $this->inviteHttp->requests[ 1 ][ 'reject_unsafe_urls' ] );
-		$this->assertStringContainsString( PluginImportExport_NetworkInviteRequest::SLUG, $this->inviteHttp->requests[ 0 ][ 'url' ] );
-		$this->assertStringContainsString( PluginImportExport_NetworkInviteRequest::SLUG, $this->inviteHttp->requests[ 1 ][ 'url' ] );
+		$this->assertCount( 0, $this->inviteHttp->requests );
 		$this->assertCount( 2, $this->getCapturedEventsByKey( 'whitelist_site_added' ) );
 		$this->assertSame( [], $this->requireController()->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
 		$this->assertSame( 0, (int)$this->requireController()->opts->optGet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY ) );
+	}
+
+	public function test_authorise_urls_submit_can_skip_invite_queueing() :void {
+		$this->enableSync();
+
+		$payload = $this->submitAuthoriseUrls( self::SKIP_INVITE, true, false );
+
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( 1, $payload[ 'authorised_count' ] );
+		$row = $this->requireSite( self::SKIP_INVITE );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $row->queue_status );
+		$this->assertSame( 0, $row->next_ping_at );
+		$this->assertFalse( \wp_next_scheduled( $this->queueHook() ) );
+		$this->assertCount( 0, $this->inviteHttp->requests );
 	}
 
 	public function test_authorise_urls_submit_allows_same_host_sibling_path_for_subdirectory_home() :void {
@@ -127,9 +137,8 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertSame( 1, $payload[ 'authorised_count' ] );
 		$this->assertSame( SitesDB::STATUS_ACTIVE, $this->requireSite( self::SAME_HOST_CLIENT )->status );
-		$this->assertCount( 1, $this->inviteHttp->requests );
-		$this->assertTrue( $this->inviteHttp->requests[ 0 ][ 'reject_unsafe_urls' ] );
-		$this->assertSame( self::SAME_HOST_HOME, $this->inviteHttp->requests[ 0 ][ 'body' ][ 'master_url' ] );
+		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $this->requireSite( self::SAME_HOST_CLIENT )->queue_status );
+		$this->assertCount( 0, $this->inviteHttp->requests );
 	}
 
 	public function test_authorise_urls_submit_allows_same_host_child_path_for_root_home() :void {
@@ -147,13 +156,11 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertSame( 1, $payload[ 'authorised_count' ] );
 		$this->assertSame( SitesDB::STATUS_ACTIVE, $this->requireSite( self::ROOT_SAME_HOST_CLIENT )->status );
-		$this->assertCount( 1, $this->inviteHttp->requests );
-		$this->assertTrue( $this->inviteHttp->requests[ 0 ][ 'reject_unsafe_urls' ] );
-		$this->assertSame( '/import4', \wp_parse_url( $this->inviteHttp->requests[ 0 ][ 'url' ], \PHP_URL_PATH ) );
-		$this->assertSame( self::ROOT_SAME_HOST_HOME, $this->inviteHttp->requests[ 0 ][ 'body' ][ 'master_url' ] );
+		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $this->requireSite( self::ROOT_SAME_HOST_CLIENT )->queue_status );
+		$this->assertCount( 0, $this->inviteHttp->requests );
 	}
 
-	public function test_authorise_urls_submit_invite_failure_does_not_roll_back_site_row() :void {
+	public function test_authorise_urls_submit_does_not_send_invite_inline() :void {
 		$this->enableSync();
 		$this->inviteHttp->failRequests();
 
@@ -161,9 +168,10 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertSame( 1, $payload[ 'authorised_count' ] );
-		$this->assertCount( 1, $this->inviteHttp->requests );
-		$this->assertTrue( $this->inviteHttp->requests[ 0 ][ 'reject_unsafe_urls' ] );
-		$this->assertSame( SitesDB::STATUS_ACTIVE, $this->requireSite( self::INVITE_FAILS )->status );
+		$row = $this->requireSite( self::INVITE_FAILS );
+		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $row->queue_status );
+		$this->assertCount( 0, $this->inviteHttp->requests );
 	}
 
 	public function test_authorise_urls_submit_requires_confirmation_without_mutation() :void {
@@ -278,7 +286,7 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertFalse( \wp_next_scheduled( $this->queueHook() ) );
 	}
 
-	public function test_deleted_url_reactivation_sends_one_invite_attempt() :void {
+	public function test_deleted_url_reactivation_queues_one_invite() :void {
 		$this->enableSync();
 		$repo = $this->repo();
 		$repo->upsertActive( self::REACTIVATED, SitesDB::SOURCE_MANUAL, '', true );
@@ -292,15 +300,20 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertSame( 1, $payload[ 'authorised_count' ] );
 		$row = $this->requireSite( self::REACTIVATED, true );
 		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
-		$this->assertCount( 1, $this->inviteHttp->requests );
+		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $row->queue_status );
+		$this->assertNotFalse( \wp_next_scheduled( $this->queueHook() ) );
+		$this->assertCount( 0, $this->inviteHttp->requests );
 	}
 
-	private function submitAuthoriseUrls( string $urls, bool $confirmed = true ) :array {
+	private function submitAuthoriseUrls( string $urls, bool $confirmed = true, ?bool $sendInvites = null ) :array {
 		$formData = [
 			'urls' => $urls,
 		];
 		if ( $confirmed ) {
 			$formData[ 'confirm' ] = 'Y';
+		}
+		if ( $sendInvites !== null ) {
+			$formData[ 'send_invites' ] = $sendInvites ? 'Y' : 'N';
 		}
 
 		return ( new ActionProcessor() )->processAction( ImportExportSitesAuthoriseUrlsSubmit::SLUG, [
