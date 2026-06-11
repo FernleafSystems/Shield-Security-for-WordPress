@@ -25,12 +25,13 @@ class ThemeReinstallerTest extends BaseUnitTest {
 
 	public function test_eligible_theme_requires_installed_wporg_theme_without_pending_update() :void {
 		$eligibleTheme = new ThemeReinstallerTestThemeVo( 'twentytwentyfive', true );
+		$updateTheme = new ThemeReinstallerTestThemeVo( 'update-theme', true );
 		ServicesState::installItems( [
 			'service_wpthemes' => new ThemeReinstallerTestThemesService( [
 				'theme_vos' => [
 					'twentytwentyfive' => $eligibleTheme,
 					'premium-theme'    => new ThemeReinstallerTestThemeVo( 'premium-theme', false ),
-					'update-theme'     => new ThemeReinstallerTestThemeVo( 'update-theme', true ),
+					'update-theme'     => $updateTheme,
 				],
 				'updates'   => [
 					'update-theme' => (object)[ 'new_version' => '2.0' ],
@@ -44,6 +45,9 @@ class ThemeReinstallerTest extends BaseUnitTest {
 		$this->assertNull( $reinstaller->eligibleTheme( 'missing-theme' ) );
 		$this->assertNull( $reinstaller->eligibleTheme( 'premium-theme' ) );
 		$this->assertNull( $reinstaller->eligibleTheme( 'update-theme' ) );
+		$this->assertSame( $eligibleTheme, $reinstaller->wpOrgTheme( 'twentytwentyfive' ) );
+		$this->assertSame( $updateTheme, $reinstaller->wpOrgTheme( 'update-theme' ) );
+		$this->assertNull( $reinstaller->wpOrgTheme( 'premium-theme' ) );
 	}
 
 	public function test_reinstall_runs_only_for_eligible_theme() :void {

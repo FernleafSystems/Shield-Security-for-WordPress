@@ -16,6 +16,15 @@ class ThemeReinstaller {
 	}
 
 	public function eligibleTheme( string $stylesheet ) :?WpThemeVo {
+		$theme = $this->wpOrgTheme( $stylesheet );
+		if ( !$theme instanceof WpThemeVo || Services::WpThemes()->isUpdateAvailable( $theme->stylesheet ) ) {
+			return null;
+		}
+
+		return $theme;
+	}
+
+	public function wpOrgTheme( string $stylesheet ) :?WpThemeVo {
 		$stylesheet = \trim( $stylesheet );
 		if ( $stylesheet === '' ) {
 			return null;
@@ -25,8 +34,7 @@ class ThemeReinstaller {
 		$theme = $themes->getThemeAsVo( $stylesheet );
 		if ( !$theme instanceof WpThemeVo
 			 || $theme->asset_type !== 'theme'
-			 || !$theme->isWpOrg()
-			 || $themes->isUpdateAvailable( $theme->stylesheet ) ) {
+			 || !$theme->isWpOrg() ) {
 			return null;
 		}
 
