@@ -309,6 +309,55 @@ class PageInvestigateByThemeBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'reinstall', $actionData );
 	}
 
+	public function test_valid_lookup_includes_update_context_action_for_wporg_theme_with_pending_update() :void {
+		$this->installServices(
+			[ 'theme_slug' => 'twentytwentyfive' ],
+			[
+				'twentytwentyfive' => new PageInvestigateByThemeTestThemeVo( 'twentytwentyfive', true ),
+			],
+			[
+				'twentytwentyfive' => true,
+			]
+		);
+		$page = new PageInvestigateByThemeUnitTestDouble(
+			(object)[ 'stylesheet' => 'twentytwentyfive' ],
+			[
+				'info'  => [
+					'name'         => 'Twenty Twenty-Five',
+					'slug'         => 'twentytwentyfive',
+					'file'         => 'twentytwentyfive',
+					'version'      => '1.0',
+					'author'       => 'WordPress.org',
+					'author_url'   => '',
+					'dir'          => '/wp-content/themes/twentytwentyfive',
+					'installed_at' => '2026-02-27',
+				],
+				'flags' => [
+					'is_active' => true,
+					'is_child'  => false,
+				],
+				'hrefs' => [
+					'vul_info' => '',
+				],
+				'vars'  => [
+					'count_items' => 0,
+				],
+			]
+		);
+
+		$renderData = $this->invokeNonPublicMethod( $page, 'getRenderData' );
+		$contextStep = $this->decodeJsonAttr( (string)( $renderData[ 'vars' ][ 'subject_header' ][ 'context_step_json' ] ?? '' ) );
+		$actions = $contextStep[ 'actions' ] ?? [];
+
+		$this->assertCount( 1, $actions );
+		$this->assertSame( 'href', $actions[ 0 ][ 'kind' ] ?? '' );
+		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] ?? '' );
+		$this->assertSame( 'bi bi-arrow-up-circle-fill', $actions[ 0 ][ 'icon_class' ] ?? '' );
+		$this->assertSame( '/wp-admin/update-core.php', $actions[ 0 ][ 'href' ] ?? '' );
+		$this->assertSame( '', $actions[ 0 ][ 'ajax_action_json' ] ?? 'missing' );
+		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
+	}
+
 	public function test_valid_lookup_omits_reinstall_context_action_for_non_wporg_theme() :void {
 		$this->installServices(
 			[ 'theme_slug' => 'premium-theme' ],

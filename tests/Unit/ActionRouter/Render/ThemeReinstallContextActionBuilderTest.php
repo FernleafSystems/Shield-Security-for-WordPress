@@ -96,9 +96,6 @@ class ThemeReinstallContextActionBuilderTest extends BaseUnitTest {
 			'service_wpusers'   => new UnitTestUsers(),
 			'service_wpthemes'  => new ThemeReinstallContextActionBuilderTestThemesService( [
 				'premium-theme' => new ThemeReinstallContextActionBuilderTestThemeVo( 'premium-theme', false ),
-				'update-theme'  => new ThemeReinstallContextActionBuilderTestThemeVo( 'update-theme', true ),
-			], [
-				'update-theme' => true,
 			] ),
 		] );
 
@@ -106,7 +103,30 @@ class ThemeReinstallContextActionBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( [], $builder->buildForThemeStylesheet( 'missing-theme' ) );
 		$this->assertSame( [], $builder->buildForThemeStylesheet( 'premium-theme' ) );
-		$this->assertSame( [], $builder->buildForThemeStylesheet( 'update-theme' ) );
+	}
+
+	public function test_build_for_theme_stylesheet_returns_update_link_for_wporg_theme_with_pending_update() :void {
+		ServicesState::installItems( [
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_request'   => new UnitTestRequest(),
+			'service_wpusers'   => new UnitTestUsers(),
+			'service_wpthemes'  => new ThemeReinstallContextActionBuilderTestThemesService( [
+				'update-theme' => new ThemeReinstallContextActionBuilderTestThemeVo( 'update-theme', true ),
+			], [
+				'update-theme' => true,
+			] ),
+		] );
+
+		$actions = ( new ThemeReinstallContextActionBuilder( new ThemeReinstaller() ) )
+			->buildForThemeStylesheet( 'update-theme', 'Update Theme' );
+
+		$this->assertCount( 1, $actions );
+		$this->assertSame( 'href', $actions[ 0 ][ 'kind' ] ?? '' );
+		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] ?? '' );
+		$this->assertSame( 'bi bi-arrow-up-circle-fill', $actions[ 0 ][ 'icon_class' ] ?? '' );
+		$this->assertSame( '/wp-admin/update-core.php', $actions[ 0 ][ 'href' ] ?? '' );
+		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] ?? '' );
+		$this->assertArrayNotHasKey( 'ajax_action_json', $actions[ 0 ] );
 	}
 }
 
