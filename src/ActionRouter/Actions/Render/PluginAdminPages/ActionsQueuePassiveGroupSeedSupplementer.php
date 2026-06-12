@@ -16,15 +16,18 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	private ActionsQueueGroupDefinitions $groupDefinitions;
 	private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder;
 	private ActionsQueueGroupMaintenanceSource $maintenanceSource;
+	private ?GetPendingFileLockDisplays $pendingFileLockDisplays;
 
 	public function __construct(
 		ActionsQueueGroupDefinitions $groupDefinitions,
 		ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
-		ActionsQueueGroupMaintenanceSource $maintenanceSource
+		ActionsQueueGroupMaintenanceSource $maintenanceSource,
+		?GetPendingFileLockDisplays $pendingFileLockDisplays = null
 	) {
 		$this->groupDefinitions = $groupDefinitions;
 		$this->maintenanceSeedBuilder = $maintenanceSeedBuilder;
 		$this->maintenanceSource = $maintenanceSource;
+		$this->pendingFileLockDisplays = $pendingFileLockDisplays;
 	}
 
 	/**
@@ -164,7 +167,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		}
 
 		$seeds = [];
-		$pendingFileLockerCount = $this->getPendingFileLockerCount();
 		foreach ( $rowsByDefinitionKey as $definitionKey => $rows ) {
 			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
 			$interaction = $this->buildHealthyScanInteraction( $definitionKey );
@@ -185,29 +187,34 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'maintenance_rows'            => [],
 				'summary_row'                 => [],
 			];
-			if ( $definitionKey === 'file_locker' && $pendingFileLockerCount > 0 ) {
-				$seed = \array_merge(
-					$seed,
-					[
-						'status'                        => 'neutral',
-						'narrative'                     => $this->describePendingFileLockerState( $pendingFileLockerCount ),
-						'status_label_override'         => __( 'Pending', 'wp-simple-firewall' ),
-						'header_summary_override'       => $this->describePendingFileLockerState( $pendingFileLockerCount ),
-						'header_focus_override'         => \sprintf(
-							_n(
-								'%s protected file is still waiting for its first lock.',
-								'%s protected files are still waiting for their first lock.',
-								$pendingFileLockerCount,
-								'wp-simple-firewall'
+			if ( $definitionKey === 'file_locker' ) {
+				$pendingFileLockerCount = $this->getPendingFileLockerCount();
+				if ( $pendingFileLockerCount > 0 ) {
+					$pendingFileLockerState = $this->describePendingFileLockerState( $pendingFileLockerCount );
+					$pendingStatusLabel = __( 'Pending', 'wp-simple-firewall' );
+					$seed = \array_merge(
+						$seed,
+						[
+							'status'                        => 'neutral',
+							'narrative'                     => $pendingFileLockerState,
+							'status_label_override'         => $pendingStatusLabel,
+							'header_summary_override'       => $pendingFileLockerState,
+							'header_focus_override'         => \sprintf(
+								_n(
+									'%s protected file is still waiting for its first lock.',
+									'%s protected files are still waiting for their first lock.',
+									$pendingFileLockerCount,
+									'wp-simple-firewall'
+								),
+								$pendingFileLockerCount
 							),
-							$pendingFileLockerCount
-						),
-						'header_next_step_override'     => __( 'Open this view to monitor the files still waiting for their first lock.', 'wp-simple-firewall' ),
-						'header_badge_override'         => __( 'Pending', 'wp-simple-firewall' ),
-						'header_badge_status_override'  => 'neutral',
-						'header_color_key_override'     => 'neutral',
-					]
-				);
+							'header_next_step_override'     => __( 'Open this view to monitor the files still waiting for their first lock.', 'wp-simple-firewall' ),
+							'header_badge_override'         => $pendingStatusLabel,
+							'header_badge_status_override'  => 'neutral',
+							'header_color_key_override'     => 'neutral',
+						]
+					);
+				}
 			}
 			if ( $interaction[ 'suppress_context_actions' ] ) {
 				$seed[ 'context_actions_override' ] = [];
@@ -218,7 +225,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 		return $seeds;
 	}
 
-	protected function getPendingFileLockerCount() :int {
+	private function getPendingFileLockerCount() :int {
 		return $this->pendingFileLockDisplays()->count();
 	}
 
@@ -287,6 +294,10 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	}
 
 	private function pendingFileLockDisplays() :GetPendingFileLockDisplays {
-		return new GetPendingFileLockDisplays();
+		if ( $this->pendingFileLockDisplays === null ) {
+			$this->pendingFileLockDisplays = new GetPendingFileLockDisplays();
+		}
+
+		return $this->pendingFileLockDisplays;
 	}
 }

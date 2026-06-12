@@ -8,14 +8,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLock
  */
 class GetPendingFileLockDisplays {
 
+	private ?GetFileLockCandidateDisplays $candidateDisplays;
+
+	public function __construct( ?GetFileLockCandidateDisplays $candidateDisplays = null ) {
+		$this->candidateDisplays = $candidateDisplays;
+	}
+
 	/**
 	 * @return list<PendingFileLockDisplay>
 	 */
 	public function run() :array {
 		$records = [];
-		$candidateDisplays = new GetFileLockCandidateDisplays();
 		foreach ( $this->pendingFileKeys() as $fileKey ) {
-			$display = $candidateDisplays->forFileKey( $fileKey );
+			$display = $this->candidateDisplays()->forFileKey( $fileKey );
 			if ( $display !== null ) {
 				$records[] = $display;
 			}
@@ -53,5 +58,13 @@ class GetPendingFileLockDisplays {
 		catch ( \Throwable $e ) {
 			return [];
 		}
+	}
+
+	private function candidateDisplays() :GetFileLockCandidateDisplays {
+		if ( $this->candidateDisplays === null ) {
+			$this->candidateDisplays = new GetFileLockCandidateDisplays();
+		}
+
+		return $this->candidateDisplays;
 	}
 }
