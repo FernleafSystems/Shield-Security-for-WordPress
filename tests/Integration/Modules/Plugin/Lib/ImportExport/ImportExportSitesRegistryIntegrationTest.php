@@ -1029,6 +1029,40 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertTrue( $this->requireController()->db_con->import_export_sites->isReady() );
 	}
 
+	public function test_table_url_ordering_ignores_www() :void {
+		$repo = $this->repo();
+		$repo->upsertActive( 'https://url-order-ignore-www-bravo.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$repo->upsertActive( 'https://www.url-order-ignore-www-alpha.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$repo->upsertActive( 'https://www.url-order-ignore-www-charlie.example.com', SitesDB::SOURCE_MANUAL, '', true );
+
+		$table = $this->retrieveImportExportSitesTableData( 'url-order-ignore-www', [] );
+
+		$this->assertSame( 3, (int)$table[ 'recordsFiltered' ] );
+		$this->assertSame( [
+			'https://www.url-order-ignore-www-alpha.example.com',
+			'https://url-order-ignore-www-bravo.example.com',
+			'https://www.url-order-ignore-www-charlie.example.com',
+		], \array_column( $table[ 'data' ], 'url' ) );
+	}
+
+	public function test_table_url_search_ignores_www_and_excludes_non_url_fields() :void {
+		$repo = $this->repo();
+		$withWww = $repo->upsertActive( 'https://www.url-search-ignore-www-alpha.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$withoutWww = $repo->upsertActive( 'https://url-search-ignore-www-beta.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$errorOnly = $repo->upsertActive( 'https://url-search-ignore-www-hidden.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$repo->recordPingFailure( $errorOnly, 503, 'url-search-hidden-token' );
+
+		$withoutPrefixSearch = $this->retrieveImportExportSitesTableData( 'url-search-ignore-www-alpha.example.com', [] );
+		$this->assertSame( [ $withWww->id ], \array_column( $withoutPrefixSearch[ 'data' ], 'rid' ) );
+
+		$withPrefixSearch = $this->retrieveImportExportSitesTableData( 'www.url-search-ignore-www-beta.example.com', [] );
+		$this->assertSame( [ $withoutWww->id ], \array_column( $withPrefixSearch[ 'data' ], 'rid' ) );
+
+		$nonUrlSearch = $this->retrieveImportExportSitesTableData( 'url-search-hidden-token', [] );
+		$this->assertSame( 0, (int)$nonUrlSearch[ 'recordsFiltered' ] );
+		$this->assertSame( [], $nonUrlSearch[ 'data' ] );
+	}
+
 	public function test_table_search_panes_filter_rows_and_counts_with_text_search() :void {
 		$ids = $this->seedSearchPaneImportExportSites();
 

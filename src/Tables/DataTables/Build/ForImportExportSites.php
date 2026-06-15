@@ -5,7 +5,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build;
 class ForImportExportSites extends Base {
 
 	protected function getOrderColumnSlug() :string {
-		return 'updated_at';
+		return 'url';
+	}
+
+	protected function getOrderMethod() :string {
+		return 'asc';
 	}
 
 	protected function getColumnsToDisplay() :array {
