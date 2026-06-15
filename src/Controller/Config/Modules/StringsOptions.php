@@ -1081,6 +1081,14 @@ class StringsOptions {
 					sprintf( __( "Be alerted when the %s plugin is deactivated", 'wp-simple-firewall' ), $pluginName ),
 				];
 				break;
+			case 'instant_alert_hidden_plugins':
+				$name = __( 'Hidden Plugins', 'wp-simple-firewall' );
+				$summary = __( 'Be alerted when a plugin is hidden from the WordPress admin list', 'wp-simple-firewall' );
+				$desc = [
+					__( 'This alert compares raw plugin files on disk against the plugins visible in the WordPress admin area.', 'wp-simple-firewall' ),
+					__( 'It ignores inert placeholder PHP files so alerts focus on plugin files that can execute code.', 'wp-simple-firewall' ),
+				];
+				break;
 			case 'instant_alert_vulnerabilities':
 				$name = __( 'Vulnerabilities', 'wp-simple-firewall' );
 				$summary = __( 'Be alerted to vulnerable plugins/themes when vulnerability scanning is enabled', 'wp-simple-firewall' );

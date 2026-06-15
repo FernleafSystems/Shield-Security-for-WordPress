@@ -116,6 +116,7 @@ class InstantAlertsCon {
 			'admins'             => InstantAlerts\Handlers\AlertHandlerAdmins::class,
 			'filelocker'         => InstantAlerts\Handlers\AlertHandlerFileLocker::class,
 			'firewall_block'     => InstantAlerts\Handlers\AlertHandlerFirewallBlock::class,
+			'hidden_plugins'     => InstantAlerts\Handlers\AlertHandlerHiddenPlugins::class,
 			'vulnerabilities'    => InstantAlerts\Handlers\AlertHandlerVulnerabilities::class,
 			'shield_deactivated' => InstantAlerts\Handlers\AlertHandlerShieldDeactivated::class,
 		];
