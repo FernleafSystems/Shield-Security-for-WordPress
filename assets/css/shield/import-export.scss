@@ -1,0 +1,692 @@
+@import '../mode-palette';
+
+.import-export-page {
+	display: grid;
+	gap: 1rem;
+}
+
+.import-export-tabs {
+	border-bottom: 1px solid $border-color-neutral-subtle;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem;
+	padding-bottom: 0.75rem;
+}
+
+.import-export-tabs .nav-item {
+	margin: 0;
+}
+
+.import-export-tabs__tab {
+	align-items: center;
+	background: $surface-color-neutral-raised;
+	border: 1px solid $border-color-neutral-subtle !important;
+	border-radius: 8px !important;
+	color: var(--bs-body-color);
+	display: inline-flex;
+	font-size: 0.85rem;
+	font-weight: 650;
+	gap: 0.45rem;
+	line-height: 1.2;
+	min-height: 2.25rem;
+	padding: 0.52rem 0.85rem;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+	white-space: nowrap;
+}
+
+.import-export-tabs__tab:hover,
+.import-export-tabs__tab:focus-visible {
+	border-color: $mode-configure-border !important;
+	color: $mode-configure;
+}
+
+.import-export-tabs__tab:focus-visible {
+	@include shield-focus-ring(1px);
+}
+
+.import-export-tabs__tab.active {
+	background: $mode-configure-light;
+	border-color: $mode-configure-border !important;
+	color: $mode-configure !important;
+}
+
+.import-export-tabs__tab.is-unavailable:not(.active) {
+	color: var(--bs-secondary-color);
+}
+
+.import-export-tabs__tab .bi {
+	font-size: 1rem;
+	line-height: 1;
+}
+
+.import-export-panels,
+.import-export-panels > .tab-pane {
+	min-width: 0;
+}
+
+.import-export-primary-action {
+	align-items: center;
+	display: inline-flex;
+	gap: 0.4rem;
+	justify-content: center;
+	line-height: 1.2;
+	white-space: normal;
+}
+
+.import-export-file-list {
+	background: var(--bs-white);
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	overflow: hidden;
+}
+
+.import-export-file-row {
+	align-items: center;
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: auto minmax(0, 1fr) auto;
+	min-width: 0;
+	padding: 1rem;
+}
+
+.import-export-file-row + .import-export-file-row {
+	border-top: 1px solid $border-color-neutral-subtle;
+}
+
+.import-export-file-row__icon {
+	align-items: center;
+	background: $mode-configure-light;
+	border: 1px solid $mode-configure-border;
+	border-radius: 8px;
+	color: $mode-configure;
+	display: inline-flex;
+	font-size: 1.1rem;
+	height: 2.25rem;
+	justify-content: center;
+	width: 2.25rem;
+}
+
+.import-export-file-row__body {
+	min-width: 0;
+}
+
+.import-export-file-row h5,
+.import-export-sync-topbar h5,
+.import-export-network-disabled h5,
+.import-export-pane__header h5 {
+	font-size: 0.95rem;
+	font-weight: 700;
+	line-height: 1.3;
+	margin: 0 0 0.25rem;
+}
+
+.import-export-file-row p,
+.import-export-sync-topbar p,
+.import-export-network-disabled p,
+.import-export-pane__header p {
+	color: var(--bs-secondary-color);
+	font-size: 0.82rem;
+	line-height: 1.45;
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.import-export-file-row__action {
+	align-items: center;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.import-export-upload-form__controls {
+	display: grid;
+	gap: 0.75rem;
+	grid-template-columns: minmax(220px, 0.7fr) minmax(220px, 1fr);
+	margin-top: 0.75rem;
+}
+
+.import-export-sync-topbar {
+	align-items: center;
+	background: $surface-color-neutral-raised;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	display: flex;
+	gap: 1rem;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+	padding: 0.9rem 1rem;
+}
+
+.import-export-sync-topbar.is-enabled {
+	border-color: $accent-color-salt-green;
+}
+
+.import-export-sync-topbar__state {
+	align-items: center;
+	display: flex;
+	gap: 0.75rem;
+	min-width: 0;
+}
+
+.import-export-sync-topbar__dot {
+	background: $status-color-warning;
+	border-radius: 50%;
+	box-shadow: 0 0 0 0.24rem $status-bg-warning-light;
+	flex: 0 0 auto;
+	height: 0.65rem;
+	width: 0.65rem;
+}
+
+.import-export-sync-topbar.is-enabled .import-export-sync-topbar__dot {
+	background: $status-color-good;
+	box-shadow: 0 0 0 0.24rem $status-bg-good-light;
+}
+
+.import-export-sync-toggle {
+	align-items: center;
+	display: flex;
+	flex: 0 0 auto;
+	gap: 0.45rem;
+	margin: 0;
+}
+
+.import-export-sync-toggle .form-check-input {
+	margin-left: 0;
+}
+
+.import-export-network-disabled {
+	align-items: center;
+	background: var(--bs-white);
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	display: flex;
+	gap: 0.75rem;
+	padding: 1rem;
+}
+
+.import-export-network-disabled > .bi {
+	color: $status-text-color-warning;
+	flex: 0 0 auto;
+	font-size: 1.25rem;
+}
+
+.import-export-workbench {
+	background: var(--bs-white);
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	display: grid;
+	grid-template-columns: minmax(220px, 0.34fr) minmax(0, 1fr);
+	min-width: 0;
+	overflow: hidden;
+}
+
+.import-export-rail {
+	background: $surface-color-neutral-raised;
+	border-right: 1px solid $border-color-neutral-subtle;
+	display: grid;
+	gap: 0.85rem;
+	grid-auto-rows: min-content;
+	min-width: 0;
+	padding: 1rem;
+}
+
+.import-export-rail__status {
+	display: grid;
+	gap: 0.22rem;
+	min-width: 0;
+}
+
+.import-export-rail__eyebrow,
+.import-export-task small {
+	color: var(--bs-secondary-color);
+	font-size: 0.76rem;
+	line-height: 1.35;
+}
+
+.import-export-rail__eyebrow {
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+.import-export-rail__status strong {
+	color: var(--bs-body-color);
+	font-size: 0.9rem;
+	line-height: 1.25;
+}
+
+.import-export-task-list {
+	display: grid;
+	gap: 0.45rem;
+}
+
+.import-export-task {
+	align-items: flex-start;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 8px;
+	color: var(--bs-body-color);
+	display: flex;
+	gap: 0.65rem;
+	padding: 0.7rem;
+	text-align: left;
+	width: 100%;
+}
+
+.import-export-task:hover,
+.import-export-task:focus-visible {
+	background: var(--bs-white);
+	border-color: $border-color-neutral-subtle;
+}
+
+.import-export-task:focus-visible {
+	@include shield-focus-ring(1px);
+}
+
+.import-export-task.active {
+	background: var(--bs-white);
+	border-color: $mode-configure-border;
+	box-shadow: inset 3px 0 0 $mode-configure;
+	color: $mode-configure;
+}
+
+.import-export-task .bi {
+	flex: 0 0 auto;
+	font-size: 1.05rem;
+	line-height: 1.2;
+	margin-top: 0.1rem;
+}
+
+.import-export-task span {
+	display: grid;
+	gap: 0.16rem;
+	min-width: 0;
+}
+
+.import-export-task strong {
+	font-size: 0.86rem;
+	line-height: 1.25;
+}
+
+.import-export-detail {
+	min-width: 0;
+	padding: 1rem;
+}
+
+.import-export-pane[hidden] {
+	display: none;
+}
+
+.import-export-pane__header {
+	align-items: flex-start;
+	border-bottom: 1px solid $border-color-neutral-subtle;
+	display: flex;
+	gap: 1rem;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+	min-width: 0;
+	padding-bottom: 0.9rem;
+}
+
+.import-export-connect-form {
+	display: grid;
+	gap: 0.9rem;
+}
+
+.import-export-choice-group {
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 8px;
+	margin: 0;
+	padding: 0.85rem;
+}
+
+.import-export-choice-group legend {
+	float: none;
+	font-size: 0.86rem;
+	font-weight: 700;
+	line-height: 1.2;
+	margin-bottom: 0.7rem;
+	width: auto;
+}
+
+.import-export-choice-group__options {
+	display: grid;
+	gap: 0.5rem;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.import-export-choice {
+	align-items: flex-start;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 8px;
+	display: flex;
+	gap: 0.55rem;
+	margin: 0;
+	min-width: 0;
+	padding: 0.65rem;
+}
+
+.import-export-choice:hover,
+.import-export-choice:focus-within {
+	border-color: $mode-configure-border;
+}
+
+.import-export-choice .form-check-input {
+	flex: 0 0 auto;
+	margin: 0.15rem 0 0;
+}
+
+.import-export-choice span {
+	display: grid;
+	gap: 0.16rem;
+	min-width: 0;
+}
+
+.import-export-choice strong {
+	font-size: 0.86rem;
+	line-height: 1.25;
+}
+
+.import-export-choice small {
+	color: var(--bs-secondary-color);
+	font-size: 0.76rem;
+	line-height: 1.35;
+}
+
+.import-export-secret-field {
+	margin-top: 0.75rem;
+}
+
+.import-export-connect-form__footer {
+	align-items: flex-end;
+	display: flex;
+	gap: 1rem;
+	justify-content: space-between;
+}
+
+.import-export-confirm-check {
+	margin: 0;
+	min-width: 0;
+}
+
+.import-export-connect-form-panel {
+	margin-top: 1rem;
+}
+
+.import-export-network-state {
+	align-items: center;
+	display: flex;
+	gap: 1rem;
+	min-width: 0;
+}
+
+.import-export-network-state.is-standalone {
+	flex-wrap: wrap;
+}
+
+.import-export-network-state__graphic {
+	align-items: center;
+	color: $mode-configure;
+	display: grid;
+	flex: 0 0 auto;
+	grid-template-columns: 0.9rem 3rem 0.9rem;
+	justify-items: center;
+}
+
+.import-export-network-state.is-standalone .import-export-network-state__graphic {
+	grid-template-columns: 2.2rem;
+	width: 4.8rem;
+}
+
+.import-export-network-state__node {
+	background: var(--bs-white);
+	border: 2px solid $mode-configure;
+	border-radius: 50%;
+	box-shadow: 0 0 0 0.25rem $mode-configure-light;
+	display: block;
+	height: 0.9rem;
+	width: 0.9rem;
+}
+
+.import-export-network-state__node.is-master {
+	background: $mode-configure;
+}
+
+.import-export-network-state__node.is-standalone {
+	background: $surface-color-neutral-raised;
+	border-color: $border-color-neutral-strong;
+	box-shadow: 0 0 0 0.25rem $surface-color-neutral-raised;
+	height: 1.2rem;
+	width: 1.2rem;
+}
+
+.import-export-network-state__line {
+	background: $mode-configure-border;
+	display: block;
+	height: 2px;
+	width: 100%;
+}
+
+.import-export-network-state__copy {
+	display: grid;
+	gap: 0.18rem;
+	min-width: 0;
+}
+
+.import-export-network-state__copy > span {
+	color: var(--bs-secondary-color);
+	font-size: 0.76rem;
+	font-weight: 700;
+	line-height: 1.35;
+	text-transform: uppercase;
+}
+
+.import-export-network-state__copy > strong {
+	font-size: 0.95rem;
+	line-height: 1.25;
+}
+
+.import-export-network-state__copy > small {
+	color: var(--bs-secondary-color);
+	font-size: 0.8rem;
+	line-height: 1.35;
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.import-export-network-state__copy [data-import-export-sync-now] {
+	justify-self: start;
+	margin-top: 0.35rem;
+}
+
+.import-export-network-state [data-import-export-connect-reveal] {
+	flex: 0 0 auto;
+	margin-left: auto;
+}
+
+.import-export-empty-state {
+	color: var(--bs-secondary-color);
+	font-size: 0.88rem;
+	line-height: 1.45;
+	margin: 1.5rem auto 0;
+	max-width: 30rem;
+	text-align: center;
+}
+
+.import-export-warning-action,
+.dt-buttons .bulk-remove {
+	border-color: rgba($status-color-warning, 0.75) !important;
+	color: $status-text-color-warning !important;
+}
+
+.import-export-warning-action:hover,
+.import-export-warning-action:focus-visible,
+.import-export-warning-action:active,
+.dt-buttons .bulk-remove:hover,
+.dt-buttons .bulk-remove:focus-visible,
+.dt-buttons .bulk-remove:active {
+	background: $status-color-warning !important;
+	border-color: $status-color-warning !important;
+	color: $badge-warning-color !important;
+}
+
+.import-export-network-invite-review__status {
+	gap: 0.45rem;
+}
+
+.import-export-network-invite-review__status strong {
+	overflow-wrap: anywhere;
+}
+
+.import-export-network-invite-review__icon {
+	align-items: center;
+	background: $mode-configure-light;
+	border: 1px solid $mode-configure-border;
+	border-radius: 8px;
+	color: $mode-configure;
+	display: inline-flex;
+	font-size: 1.1rem;
+	height: 2.25rem;
+	justify-content: center;
+	margin-bottom: 0.2rem;
+	width: 2.25rem;
+}
+
+.import-export-network-invite-review__master {
+	background: $surface-color-neutral-raised;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: 8px;
+	display: grid;
+	gap: 0.28rem;
+	margin-bottom: 0.9rem;
+	padding: 0.85rem;
+}
+
+.import-export-network-invite-review__master span {
+	color: var(--bs-secondary-color);
+	font-size: 0.76rem;
+	font-weight: 700;
+	line-height: 1.35;
+	text-transform: uppercase;
+}
+
+.import-export-network-invite-review__master code {
+	color: var(--bs-body-color);
+	font-size: 0.82rem;
+	overflow-wrap: anywhere;
+	white-space: normal;
+}
+
+.import-export-network-invite-review__notice {
+	align-items: flex-start;
+	background: $status-bg-warning-light;
+	border: 1px solid rgba($status-color-warning, 0.35);
+	border-radius: 8px;
+	display: flex;
+	gap: 0.6rem;
+	line-height: 1.45;
+	margin-bottom: 0.9rem;
+	padding: 0.8rem;
+}
+
+.import-export-network-invite-review__notice > .bi {
+	color: $status-text-color-warning;
+	flex: 0 0 auto;
+	font-size: 1.05rem;
+	line-height: 1.4;
+}
+
+.import-export-network-invite-review__accept-form {
+	border-top: 1px solid $border-color-neutral-subtle;
+	padding-top: 0.9rem;
+}
+
+.import-export-network-invite-review__actions {
+	display: flex;
+	gap: 0.65rem;
+	justify-content: flex-end;
+	margin-top: 0.75rem;
+}
+
+.import-export-network-invite-review__reject-form {
+	margin: 0;
+}
+
+.import-export-sites-table {
+	background: var(--bs-white);
+	width: 100% !important;
+}
+
+.import-export-sites-table td.actions,
+.import-export-sites-table th.actions {
+	max-width: 3rem;
+	min-width: 3rem;
+	white-space: nowrap;
+	text-align: right;
+	width: 3rem;
+}
+
+.import-export-site-delete {
+	line-height: 1;
+}
+
+@media (max-width: 991px) {
+	.import-export-workbench,
+	.import-export-upload-form__controls,
+	.import-export-choice-group__options {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.import-export-rail {
+		border-bottom: 1px solid $border-color-neutral-subtle;
+		border-right: 0;
+	}
+}
+
+@media (max-width: 640px) {
+	.import-export-tabs .nav-item,
+	.import-export-tabs__tab {
+		width: 100%;
+	}
+
+	.import-export-tabs__tab {
+		justify-content: center;
+	}
+
+	.import-export-file-row,
+	.import-export-sync-topbar,
+	.import-export-pane__header,
+	.import-export-network-state,
+	.import-export-connect-form__footer {
+		align-items: stretch;
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.import-export-file-row,
+	.import-export-sync-topbar,
+	.import-export-pane__header,
+	.import-export-network-state,
+	.import-export-connect-form__footer {
+		flex-direction: column;
+	}
+
+	.import-export-network-state [data-import-export-connect-reveal] {
+		margin-left: 0;
+	}
+
+	.import-export-network-state__copy [data-import-export-sync-now] {
+		width: 100%;
+	}
+
+	.import-export-file-row__action {
+		justify-content: flex-start;
+	}
+
+	.import-export-network-invite-review__actions,
+	.import-export-network-invite-review__actions .btn,
+	.import-export-network-invite-review__reject-form {
+		width: 100%;
+	}
+
+	.import-export-network-invite-review__actions {
+		flex-direction: column;
+	}
+}

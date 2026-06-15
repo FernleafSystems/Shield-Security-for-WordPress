@@ -507,7 +507,10 @@ export class ShieldTableBase extends BaseComponent {
 		.then( ( resp ) => {
 			if ( resp?.success ) {
 				const responseData = this.extractResponseData( resp );
-				if ( responseData.table_reload || options.reloadTableOnSuccess ) {
+				if ( responseData.page_reload ) {
+					this.clearTableBusy( datatable );
+				}
+				else if ( responseData.table_reload || options.reloadTableOnSuccess ) {
 					this.tableReload( datatable, options );
 				}
 				else {
@@ -537,7 +540,7 @@ export class ShieldTableBase extends BaseComponent {
 		} );
 	}
 
-	bulkTableAction( action, RIDs = [] ) {
+	bulkTableAction( action, RIDs = [], options = {} ) {
 		if ( RIDs.length === 0 ) {
 			RIDs = this.getSelectedRIDs();
 		}
@@ -553,7 +556,7 @@ export class ShieldTableBase extends BaseComponent {
 				this.$table,
 				data,
 				'Communications error with site.',
-				{ reloadTableOnSuccess: true }
+				{ reloadTableOnSuccess: true, ...options }
 			).catch( ( error ) => {
 				console.log( error );
 			} );

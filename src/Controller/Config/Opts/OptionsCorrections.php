@@ -199,15 +199,6 @@ class OptionsCorrections {
 
 		$this->pluginBadgeMode();
 
-		if ( $opts->optChanged( 'importexport_whitelist' ) ) {
-			$opts->optSet( 'importexport_whitelist', \array_unique( \array_filter( \array_map(
-				function ( $url ) {
-					return Services::Data()->validateSimpleHttpUrl( $url );
-				},
-				$opts->optGet( 'importexport_whitelist' )
-			) ) ) );
-		}
-
 		$url = Services::Data()->validateSimpleHttpUrl( $opts->optGet( 'importexport_masterurl' ) );
 		$opts->optSet( 'importexport_masterurl', $url === false ? '' : $url );
 	}

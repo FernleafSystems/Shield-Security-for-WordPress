@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Config;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\HandleOptionsSaveRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
@@ -26,6 +27,10 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		'enable_auto_integrations',
 		'auto_integrations_track',
 		'cs_block',
+		'importexport_enable',
+		'importexport_masterurl',
+		'importexport_pending_network_invites',
+		'importexport_network_invite_block_until',
 		'transgression_limit',
 		'scan_frequency',
 		'file_locker',
@@ -57,7 +62,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$con = static::con();
 		if ( $con !== null ) {
 			foreach ( $this->originalOptions as $key => $value ) {
-				if ( $key === 'auto_integrations_track' ) {
+				if ( \in_array( $key, [ 'auto_integrations_track', NetworkInviteRepository::OPTION_KEY ], true ) ) {
 					continue;
 				}
 				$con->opts->optSet( $key, $value );
@@ -65,7 +70,9 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 			if ( $con->opts->hasChanges() ) {
 				$con->opts->store();
 			}
-			$con->opts->optSet( 'auto_integrations_track', $this->originalOptions[ 'auto_integrations_track' ] );
+			$con->opts
+				->optSet( 'auto_integrations_track', $this->originalOptions[ 'auto_integrations_track' ] )
+				->optSet( NetworkInviteRepository::OPTION_KEY, $this->originalOptions[ NetworkInviteRepository::OPTION_KEY ] );
 			if ( $con->opts->hasChanges() ) {
 				$con->opts->store();
 			}
@@ -198,6 +205,51 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( $track, $con->opts->optGet( 'auto_integrations_track' ) );
 	}
 
+	public function test_disabling_import_export_clears_pending_network_invites() :void {
+		$this->enableImportExportSyncCapability();
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( NetworkInviteRepository::OPTION_KEY, $this->pendingNetworkInviteFixture() )
+			->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, 1713225600 )
+			->store();
+
+		$con->opts->optSet( 'importexport_enable', 'N' )->store();
+
+		$this->assertSame( [], $con->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+		$this->assertSame( 1713225600, (int)$con->opts->optGet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY ) );
+	}
+
+	public function test_import_export_noop_enabled_save_preserves_pending_network_invites() :void {
+		$this->enableImportExportSyncCapability();
+		$con = $this->requireController();
+		$invites = $this->pendingNetworkInviteFixture();
+		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( NetworkInviteRepository::OPTION_KEY, $invites )
+			->store();
+
+		$con->opts->optSet( 'importexport_enable', 'Y' )->store();
+
+		$this->assertSame( $invites, $con->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+	}
+
+	public function test_master_url_save_clears_pending_network_invites_without_cooldown_change() :void {
+		$this->enableImportExportSyncCapability();
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', '' )
+			->optSet( NetworkInviteRepository::OPTION_KEY, $this->pendingNetworkInviteFixture() )
+			->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, 1713225600 )
+			->store();
+
+		$con->opts->optSet( 'importexport_masterurl', 'https://master.example.com' )->store();
+
+		$this->assertSame( [], $con->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+		$this->assertSame( 1713225600, (int)$con->opts->optGet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY ) );
+	}
+
 	public function test_disabling_crowdsec_block_deletes_crowdsec_rows() :void {
 		$con = $this->requireController();
 		$dbh = $this->requireDb( 'ip_rules' );
@@ -264,10 +316,27 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		];
 	}
 
+	private function pendingNetworkInviteFixture() :array {
+		$url = 'https://93.184.216.88/pending-master';
+		$id = \hash( 'sha256', $url );
+		return [
+			$id => [
+				'id'         => $id,
+				'master_url' => $url,
+				'created_at' => 1712620800,
+				'updated_at' => 1712620800,
+			],
+		];
+	}
+
 	private function storeAutoIntegrationsBaseline( string $enabled, array $track ) :void {
 		$con = $this->requireController();
 		$con->opts->optSet( 'enable_auto_integrations', $enabled )->store();
 		$con->opts->optSet( 'auto_integrations_track', $track )->store();
+	}
+
+	private function enableImportExportSyncCapability() :void {
+		$this->enablePremiumCapabilities( \array_merge( self::PREMIUM_CAPABILITIES, [ 'import_export_level_2' ] ) );
 	}
 
 	private function prepareEmailVerificationOptions( string $enabled, int $verifiedAt, int $sentAt ) :void {

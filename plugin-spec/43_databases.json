@@ -307,6 +307,173 @@
                 }
             }
         },
+        "import_export_sites": {
+            "name": "Import/Export Sites",
+            "slug": "importexport_sites",
+            "is_core": false,
+            "autoexpire": 0,
+            "has_updated_at": true,
+            "has_created_at": true,
+            "has_deleted_at": true,
+            "col_older_than": "created_at",
+            "cols_custom": {
+                "url": {
+                    "macro_type": "url",
+                    "length": 512,
+                    "comment": "Canonical Site URL"
+                },
+                "url_hash": {
+                    "macro_type": "varchar",
+                    "length": 32,
+                    "attr": [
+                        "NOT NULL",
+                        "UNIQUE"
+                    ],
+                    "comment": "Canonical URL Hash"
+                },
+                "import_id": {
+                    "macro_type": "varchar",
+                    "length": 64,
+                    "comment": "Slave Import ID"
+                },
+                "source": {
+                    "macro_type": "varchar",
+                    "length": 32,
+                    "comment": "Registration Source"
+                },
+                "status": {
+                    "macro_type": "varchar",
+                    "length": 32,
+                    "default": "active",
+                    "comment": "Registration Status"
+                },
+                "queue_status": {
+                    "macro_type": "varchar",
+                    "length": 32,
+                    "default": "idle",
+                    "comment": "Queue Status"
+                },
+                "priority": {
+                    "macro_type": "unsigned_int",
+                    "type": "smallint",
+                    "length": 5,
+                    "default": 0,
+                    "comment": "Queue Priority"
+                },
+                "last_ping_http_code": {
+                    "macro_type": "unsigned_int",
+                    "type": "smallint",
+                    "length": 3,
+                    "default": 0,
+                    "comment": "Last Ping HTTP Code"
+                },
+                "last_ping_error": {
+                    "macro_type": "mediumtext",
+                    "comment": "Last Ping Error"
+                },
+                "last_export_result_code": {
+                    "macro_type": "varchar",
+                    "length": 32,
+                    "comment": "Last Export Result Code"
+                },
+                "last_export_error": {
+                    "macro_type": "mediumtext",
+                    "comment": "Last Export Error"
+                },
+                "ping_attempts_total": {
+                    "macro_type": "unsigned_int",
+                    "length": 11,
+                    "default": 0,
+                    "comment": "Total Ping Attempts"
+                },
+                "consecutive_failures": {
+                    "macro_type": "unsigned_int",
+                    "length": 11,
+                    "default": 0,
+                    "comment": "Consecutive Failures"
+                },
+                "meta": {
+                    "macro_type": "meta"
+                }
+            },
+            "cols_timestamps": {
+                "queued_at": {
+                    "comment": "Queued At"
+                },
+                "picked_at": {
+                    "comment": "Picked At"
+                },
+                "lock_until": {
+                    "comment": "Lock Until"
+                },
+                "next_ping_at": {
+                    "comment": "Next Ping At"
+                },
+                "expected_export_by": {
+                    "comment": "Expected Export By"
+                },
+                "last_ping_attempt_at": {
+                    "comment": "Last Ping Attempt At"
+                },
+                "last_ping_success_at": {
+                    "comment": "Last Ping Success At"
+                },
+                "last_ping_failure_at": {
+                    "comment": "Last Ping Failure At"
+                },
+                "last_export_request_at": {
+                    "comment": "Last Export Request At"
+                },
+                "last_export_success_at": {
+                    "comment": "Last Export Success At"
+                },
+                "last_export_failure_at": {
+                    "comment": "Last Export Failure At"
+                }
+            },
+            "indices": [
+                {
+                    "key_name": "due_queue",
+                    "columns": [
+                        "status",
+                        "queue_status",
+                        "next_ping_at",
+                        "lock_until"
+                    ]
+                },
+                {
+                    "key_name": "waiting_export",
+                    "columns": [
+                        "queue_status",
+                        "expected_export_by"
+                    ]
+                },
+                {
+                    "key_name": "last_ping_success",
+                    "columns": [
+                        "last_ping_success_at"
+                    ]
+                },
+                {
+                    "key_name": "last_ping_failure",
+                    "columns": [
+                        "last_ping_failure_at"
+                    ]
+                },
+                {
+                    "key_name": "last_export_success",
+                    "columns": [
+                        "last_export_success_at"
+                    ]
+                },
+                {
+                    "key_name": "last_export_failure",
+                    "columns": [
+                        "last_export_failure_at"
+                    ]
+                }
+            ]
+        },
         "ips": {
             "name": "IP Addresses",
             "slug": "ips",

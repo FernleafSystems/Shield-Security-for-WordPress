@@ -102,6 +102,25 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( self::SOURCE_MASTER_URL, (string)$con->opts->optGet( 'importexport_masterurl' ) );
 	}
 
+	public function test_legacy_import_from_site_still_allows_private_master_url() :void {
+		$con = $this->requireController();
+		$privateMaster = 'http://10.0.0.25/private-master';
+		$con->opts
+			->optSet( 'importexport_enable', 'N' )
+			->optSet( 'importexport_masterurl', '' )
+			->store();
+
+		$this->stubImportResponse( [
+			'importexport_enable'    => 'N',
+			'importexport_masterurl' => '',
+		] );
+
+		( new Import() )->fromSite( $privateMaster, '', true );
+
+		$this->assertSame( 'Y', (string)$con->opts->optGet( 'importexport_enable' ) );
+		$this->assertSame( $privateMaster, (string)$con->opts->optGet( 'importexport_masterurl' ) );
+	}
+
 	public function test_notify_noops_when_local_sync_is_disabled() :void {
 		$con = $this->requireController();
 		$con->opts

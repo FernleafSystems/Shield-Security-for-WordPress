@@ -32,7 +32,6 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'enable_x_content_security_policy',
 		'page_params_whitelist',
 		'request_whitelist',
-		'importexport_whitelist',
 		'file_locker',
 		'instant_alert_admin_login',
 		'enable_admin_login_email_notification',
@@ -124,7 +123,6 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 			->optSet( 'enable_x_content_security_policy', 'Y' )
 			->optSet( 'xcsp_custom', [ '', '   ' ] )
 			->optSet( 'request_whitelist', [ '/', '/custom-path', home_url( '/' ) ] )
-			->optSet( 'importexport_whitelist', [ 'https://allowed.example.com', 'invalid-value' ] )
 			->optSet( 'file_locker', [ 'wpconfig', 'root_webconfig' ] )
 			->store();
 
@@ -134,7 +132,6 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$requestWhitelist = $con->opts->optGet( 'request_whitelist' );
 		$this->assertContains( '/custom-path', $requestWhitelist );
 		$this->assertNotContains( '/', $requestWhitelist );
-		$this->assertSame( [ 'https://allowed.example.com' ], $con->opts->optGet( 'importexport_whitelist' ) );
 
 		$fileLocker = $con->opts->optGet( 'file_locker' );
 		$this->assertContains( 'wpconfig', $fileLocker );

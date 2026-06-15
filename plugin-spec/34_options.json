@@ -2587,10 +2587,7 @@
     },
     {
         "key": "importexport_whitelist",
-        "section": "section_importexport",
-        "zone_comp_slugs": [
-            "import_export"
-        ],
+        "section": "section_hidden",
         "transferable": false,
         "sensitive": true,
         "default": [],
@@ -2603,10 +2600,7 @@
     },
     {
         "key": "importexport_whitelist_notify",
-        "section": "section_importexport",
-        "zone_comp_slugs": [
-            "import_export"
-        ],
+        "section": "section_hidden",
         "default": "N",
         "type": "checkbox",
         "link_info": "",
@@ -3121,6 +3115,27 @@
         "type": "array",
         "default": [],
         "sensitive": true
+    },
+    {
+        "key": "importexport_sites_migrated_at",
+        "section": "section_hidden",
+        "type": "integer",
+        "default": 0
+    },
+    {
+        "key": "importexport_pending_network_invites",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "sensitive": true
+    },
+    {
+        "key": "importexport_network_invite_block_until",
+        "section": "section_hidden",
+        "type": "integer",
+        "default": 0,
+        "transferable": false,
+        "tracking_exclude": true
     },
     {
         "key": "test_rest_data",

@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	CrowdSecSignals,
 	Event,
 	FileLocker,
+	ImportExportSites,
 	IpMeta,
 	IpRules,
 	IPs,
@@ -44,6 +45,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property CrowdSecSignals\Ops\Handler  $crowdsec_signals
  * @property Event\Ops\Handler            $events
  * @property FileLocker\Ops\Handler       $file_locker
+ * @property ImportExportSites\Ops\Handler $import_export_sites
  * @property IPs\Ops\Handler              $ips
  * @property IpMeta\Ops\Handler           $ip_meta
  * @property IpRules\Ops\Handler          $ip_rules
@@ -95,6 +97,10 @@ class DbCon extends DynPropertiesClass {
 		'file_locker'           => [
 			'slug'          => 'file_locker',
 			'handler_class' => FileLocker\Ops\Handler::class,
+		],
+		'import_export_sites'   => [
+			'slug'          => 'importexport_sites',
+			'handler_class' => ImportExportSites\Ops\Handler::class,
 		],
 		'ips'                   => [
 			'slug'          => 'ips',

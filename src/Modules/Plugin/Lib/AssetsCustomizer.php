@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
+	ForImportExportSites,
 	ForIpRules,
 	ForReports,
 	ForSecurityRules,
@@ -204,7 +205,13 @@ class AssetsCustomizer {
 				],
 				'data'    => fn() => [
 					'ajax' => [
-						'import_from_site' => ActionData::Build( Actions\PluginImportFromSite::class ),
+						'disconnect_master'     => ActionData::Build( Actions\PluginImportExport_DisconnectMaster::class ),
+						'import_from_site'       => ActionData::Build( Actions\PluginImportFromSite::class ),
+						'network_invite_accept'  => ActionData::Build( Actions\ImportExportNetworkInviteAccept::class ),
+						'network_invite_reject'  => ActionData::Build( Actions\ImportExportNetworkInviteReject::class ),
+						'authorise_urls_submit'  => ActionData::Build( Actions\ImportExportSitesAuthoriseUrlsSubmit::class ),
+						'render_authorise_urls_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\ImportExportSitesAuthoriseUrls::class ),
+						'set_enabled'            => ActionData::Build( Actions\PluginImportExport_SetEnabled::class ),
 					],
 				],
 			],
@@ -471,6 +478,20 @@ class AssetsCustomizer {
 							],
 							'vars' => [
 								'datatables_init' => ( new ForActivityLog() )->buildRaw(),
+							]
+						];
+					}
+					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ) ) {
+						$data[ 'import_export_sites' ] = [
+							'ajax' => [
+								'table_action' => ActionData::Build( Actions\ImportExportSitesTableAction::class ),
+							],
+							'strings' => [
+								'remove_site_confirm'          => __( 'Remove this site from managed client sites?', 'wp-simple-firewall' ),
+								'remove_selected_sites_confirm' => __( 'Remove selected sites from managed client sites?', 'wp-simple-firewall' ),
+							],
+							'vars' => [
+								'datatables_init' => ( new ForImportExportSites() )->buildRaw(),
 							]
 						];
 					}

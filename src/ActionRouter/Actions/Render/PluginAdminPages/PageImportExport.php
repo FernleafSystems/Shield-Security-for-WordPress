@@ -4,11 +4,141 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFromFileUpload;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\GetOptionsForZoneComponents;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\ImportExport;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 
+/**
+ * @phpstan-type SyncState 'unavailable'|'disabled'|'enabled'
+ * @phpstan-type ImportExportTab array{
+ *   key:'network_sync'|'file',
+ *   label:string,
+ *   icon_class:string,
+ *   panel_id:string,
+ *   tab_id:string,
+ *   is_active:bool,
+ *   is_available:bool
+ * }
+ * @phpstan-type FileTransferContract array{
+ *   section_id:string,
+ *   export:array{title:string,summary:string,action_label:string,href:string,icon_class:string},
+ *   import:array{
+ *     title:string,
+ *     summary:string,
+ *     form_id:string,
+ *     form_action:string,
+ *     action_data:array<string,scalar|null>,
+ *     file_input:array{id:string,name:string,accept:string,label:string},
+ *     confirmation:array{id:string,name:string,value:string,label:string,help:string},
+ *     submit:array{id:string,label:string,icon_class:string},
+ *     icon_class:string
+ *   }
+ * }
+ * @phpstan-type ChoiceOption array{
+ *   id:string,
+ *   value:string,
+ *   label:string,
+ *   summary:string,
+ *   is_checked:bool
+ * }
+ * @phpstan-type NetworkSyncConnectedMaster array{
+ *   master_host:string,
+ *   label:string,
+ *   graphic_label:string
+ * }
+ * @phpstan-type NetworkSyncStandaloneSite array{
+ *   label:string,
+ *   title:string,
+ *   summary:string,
+ *   graphic_label:string,
+ *   action_label:string
+ * }
+ * @phpstan-type NetworkSyncConnectForm array{
+ *   id:string,
+ *   panel_id:string,
+ *   reveal_id:string,
+ *   master_site_url_id:string,
+ *   master_site_url_name:string,
+ *   master_site_url_label:string,
+ *   master_site_url_placeholder:string,
+ *   master_site_url_value:string,
+ *   import_mode_label:string,
+ *   import_mode_options:list<ChoiceOption>,
+ *   verification_label:string,
+ *   verification_options:list<ChoiceOption>,
+ *   secret_key_id:string,
+ *   secret_key_name:string,
+ *   secret_key_label:string,
+ *   secret_key_placeholder:string,
+ *   confirm_id:string,
+ *   confirm_name:string,
+ *   confirm_value:string,
+ *   confirm_label:string,
+ *   confirm_help:string,
+ *   submit_label_once:string,
+ *   submit_label_network:string,
+ *   submit_icon_class:string
+ * }
+ * @phpstan-type NetworkSyncConnect array{
+ *   title:string,
+ *   is_connected:true,
+ *   connected:NetworkSyncConnectedMaster,
+ *   disconnect:array{label:string},
+ *   sync_now:array{id:string,label:string,icon_class:string}
+ * }|array{
+ *   title:string,
+ *   summary:string,
+ *   is_connected:false,
+ *   standalone:NetworkSyncStandaloneSite,
+ *   form:NetworkSyncConnectForm
+ * }
+ * @phpstan-type NetworkSyncContract array{
+ *   section_id:string,
+ *   sync_state:SyncState,
+ *   is_disabled:bool,
+ *   is_enabled:bool,
+ *   status:array{
+ *     title:string,
+ *     summary:string
+ *   },
+ *   rail:array{connection_label:string,client_count_label:string},
+ *   toggle:array{id:string,label:string,is_checked:bool},
+ *   disabled:array{title:string,summary:string},
+ *   tasks:list<array{key:'connect'|'clients',title:string,summary:string,icon_class:string,is_active:bool}>,
+ *   connect:NetworkSyncConnect,
+ *   clients:array{
+ *     title:string,
+ *     summary:string,
+ *     add_label:string,
+ *     empty_message:string,
+ *     table_id:string,
+ *     active_count:int,
+ *     has_connected_sites:bool
+ *   }
+ * }
+ * @phpstan-type NetworkInviteReviewContract array{
+ *   invite:array{id:string,master_url:string,created_at:int,updated_at:int,review_url:string},
+ *   strings:array<string,string>
+ * }
+ * @phpstan-type ImportExportRenderData array{
+ *   flags:array{
+ *     can_importexport:bool,
+ *     can_importexport_file:bool,
+ *     can_importexport_sync:bool,
+ *     has_network_invite_review:bool,
+ *     network_sync_state:SyncState
+ *   },
+ *   imgs:array{inner_page_title_icon:string},
+ *   vars:array{
+ *     import_export_tabs:list<ImportExportTab>,
+ *     file_transfer:FileTransferContract,
+ *     network_sync:NetworkSyncContract,
+ *     network_invite_review:NetworkInviteReviewContract|null
+ *   },
+ *   strings:array{inner_page_title:string,inner_page_subtitle:string}
+ * }
+ */
 class PageImportExport extends BasePluginAdminPage {
 
 	public const SLUG = 'admin_plugin_page_importexport';
@@ -22,78 +152,318 @@ class PageImportExport extends BasePluginAdminPage {
 		];
 	}
 
+	/**
+	 * @return ImportExportRenderData
+	 */
 	protected function getRenderData() :array {
 		$con = self::con();
-		$importMasterURL = $con->comps->import_export->getImportExportMasterImportUrl();
+		$importExport = $con->comps->import_export;
+		$importMasterURL = $importExport->getImportExportMasterImportUrl();
+		$canImportExportFile = $con->caps->canImportExportFile();
+		$canImportExportSync = $importExport->isSyncAvailable();
+		$networkSyncState = $importExport->networkSyncState();
+		$activeClientCount = ( new SiteRepository() )->countActiveRows();
+		$networkInviteReview = $this->buildNetworkInviteReview();
+		$activeTab = $canImportExportSync ? 'network_sync' : 'file';
+
 		return [
-			'content' => [
-				'import_export_config' => $con->action_router->render( OptionsFormFor::class, [
-					'options' => ( new GetOptionsForZoneComponents() )->run( [ ImportExport::Slug() ] )
-				] ),
-			],
 			'flags'   => [
-				'can_importexport'      => $con->caps->canImportExportFile() || $con->caps->canImportExportSync(),
-				'can_importexport_file' => $con->caps->canImportExportFile(),
-				'can_importexport_sync' => $con->caps->canImportExportSync(),
-				'has_master_url'        => !empty( $importMasterURL ),
-			],
-			'hrefs'   => [
-				'export_file_download' => $con->plugin_urls->fileDownload( 'plugin_export' ),
+				'can_importexport'          => $canImportExportFile || $canImportExportSync,
+				'can_importexport_file'     => $canImportExportFile,
+				'can_importexport_sync'     => $canImportExportSync,
+				'has_network_invite_review' => $networkInviteReview !== null,
+				'network_sync_state'        => $networkSyncState,
 			],
 			'imgs'    => [
 				'inner_page_title_icon' => $con->svgs->iconClass( 'arrow-down-up' ),
 			],
 			'vars'    => [
-				'file_upload_nonce'  => ActionData::Build( PluginImportFromFileUpload::class, true, [
-					'notification_type' => 'wp_admin_notice'
-				] ),
-				'current_master_url' => $importMasterURL,
+				'import_export_tabs'    => $this->buildImportExportTabs( $activeTab, $canImportExportFile, $canImportExportSync ),
+				'file_transfer'         => $this->buildFileTransfer(),
+				'network_sync'          => $this->buildNetworkSync( $networkSyncState, $importMasterURL, $activeClientCount ),
+				'network_invite_review' => $networkInviteReview,
 			],
 			'strings' => [
 				'inner_page_title'    => __( 'Import/Export', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => __( 'Quickly setup your site by importing from another site or a backup.', 'wp-simple-firewall' ),
-
-				'tab_by_file'        => __( 'Import From File', 'wp-simple-firewall' ),
-				'tab_by_site'        => __( 'Run Import From Another Site', 'wp-simple-firewall' ),
-				'tab_to_file'        => __( 'Export To File', 'wp-simple-firewall' ),
-				'tab_config'         => __( 'Edit Settings', 'wp-simple-firewall' ),
-				'title_import_file'  => __( 'Import From File', 'wp-simple-firewall' ),
-				'select_import_file' => __( 'Select file to import options from', 'wp-simple-firewall' ),
-				'i_understand'       => __( 'I Understand Existing Options Will Be Overwritten', 'wp-simple-firewall' ),
-				'be_sure'            => __( 'Please be sure that this is what you want.', 'wp-simple-firewall' ),
-				'not_undone'         => __( "This action can't be undone.", 'wp-simple-firewall' ),
-				'title_import_site'  => __( "Import From Site", 'wp-simple-firewall' ),
-
-				'currently_in_network' => sprintf( __( 'This site appears to be part of a %s Network.', 'wp-simple-firewall' ), $con->labels->Name ),
-				'master_url_is'        => __( "Master Site URL", 'wp-simple-firewall' ),
-
-				'title_download_file'    => __( 'Download Options Export File', 'wp-simple-firewall' ),
-				'subtitle_download_file' => __( 'Use this file to copy options from this site into another site', 'wp-simple-firewall' ),
-
-				'master_site_url'  => __( 'Master Site URL', 'wp-simple-firewall' ),
-				'remember_include' => sprintf(
-				/* translators: %1$s: https protocol, %2$s: http protocol */
-					__( 'Remember to include %1$s or %2$s', 'wp-simple-firewall' ),
-					'<code>https://</code>',
-					'<code>http://</code>'
-				),
-				'secret_key'       => __( 'Secret Key', 'wp-simple-firewall' ),
-				'master_site_key'  => __( 'Master Site Secret Key', 'wp-simple-firewall' ),
-				'create_network'   => sprintf( __( 'Create %s Network', 'wp-simple-firewall' ), $con->labels->Name ),
-				'key_found_under'  => sprintf( __( 'The secret key is found in: %s', 'wp-simple-firewall' ),
-					/* translators: %1$s: top-level, %2$s: 2nd-level; %3$s: 3rd level */
-					\ucwords( sprintf( __( '%1$s > %2$s > %3$s', 'wp-simple-firewall' ), __( 'General Settings', 'wp-simple-firewall' ), __( 'Import/Export', 'wp-simple-firewall' ), __( 'Secret Key', 'wp-simple-firewall' ) ) )
-				),
-				'turn_on'          => __( 'Turn On', 'wp-simple-firewall' ),
-				'turn_off'         => __( 'Turn Off', 'wp-simple-firewall' ),
-				'no_change'        => __( 'No Change', 'wp-simple-firewall' ),
-				'network_explain'  => [
-					__( 'Checking this option on will link this site to Master site.', 'wp-simple-firewall' ),
-					__( 'Options will be automatically imported from the Master site each night', 'wp-simple-firewall' ),
-					__( 'When you adjust options on the Master site, they will be reflected in this site after the automatic import', 'wp-simple-firewall' ),
-				],
-				'import_options'   => __( 'Import Options', 'wp-simple-firewall' ),
+				'inner_page_subtitle' => __( 'Import, export, and network sync settings between Shield sites.', 'wp-simple-firewall' ),
 			]
+		];
+	}
+
+	/**
+	 * @return list<ImportExportTab>
+	 */
+	private function buildImportExportTabs( string $activeTab, bool $canImportExportFile, bool $canImportExportSync ) :array {
+		return [
+			$this->buildTab( 'network_sync', __( 'Network Sync', 'wp-simple-firewall' ), 'bi bi-diagram-3', $activeTab === 'network_sync', $canImportExportSync ),
+			$this->buildTab( 'file', __( 'Import/Export File', 'wp-simple-firewall' ), 'bi bi-arrow-down-up', $activeTab === 'file', $canImportExportFile ),
+		];
+	}
+
+	/**
+	 * @param 'network_sync'|'file' $key
+	 * @return ImportExportTab
+	 */
+	private function buildTab( string $key, string $label, string $iconClass, bool $active, bool $available ) :array {
+		return [
+			'key'          => $key,
+			'label'        => $label,
+			'icon_class'   => $iconClass,
+			'panel_id'     => 'ImportExportPanel-'.\str_replace( '_', '-', $key ),
+			'tab_id'       => 'ImportExportTab-'.\str_replace( '_', '-', $key ),
+			'is_active'    => $active,
+			'is_available' => $available,
+		];
+	}
+
+	/**
+	 * @return FileTransferContract
+	 */
+	private function buildFileTransfer() :array {
+		$con = self::con();
+		return [
+			'section_id' => 'SectionImportExportFile',
+			'export'     => [
+				'title'        => __( 'Export settings', 'wp-simple-firewall' ),
+				'summary'      => __( 'Download current Shield configuration.', 'wp-simple-firewall' ),
+				'action_label' => __( 'Download', 'wp-simple-firewall' ),
+				'href'         => $con->plugin_urls->fileDownload( 'plugin_export' ),
+				'icon_class'   => 'bi bi-download',
+			],
+			'import'     => [
+				'title'        => __( 'Import settings', 'wp-simple-firewall' ),
+				'summary'      => __( 'Upload a Shield export file.', 'wp-simple-firewall' ),
+				'form_id'      => 'ImportExportFileForm',
+				'form_action'  => '#',
+				'action_data'  => ActionData::Build( PluginImportFromFileUpload::class, true, [
+					'notification_type' => 'wp_admin_notice'
+				] ),
+				'file_input'   => [
+					'id'     => 'ImportFile',
+					'name'   => 'import_file',
+					'accept' => '.json',
+					'label'  => __( 'Select export file', 'wp-simple-firewall' ),
+				],
+				'confirmation' => [
+					'id'    => '_confirm_file',
+					'name'  => 'confirm',
+					'value' => 'Y',
+					'label' => __( 'I understand existing options will be overwritten.', 'wp-simple-firewall' ),
+					'help'  => __( 'This action cannot be undone.', 'wp-simple-firewall' ),
+				],
+				'submit'       => [
+					'id'         => 'SubmitForm',
+					'label'      => __( 'Import Options', 'wp-simple-firewall' ),
+					'icon_class' => 'bi bi-upload',
+				],
+				'icon_class'   => 'bi bi-upload',
+			],
+		];
+	}
+
+	/**
+	 * @param SyncState $networkSyncState
+	 * @return NetworkSyncContract
+	 */
+	private function buildNetworkSync( string $networkSyncState, string $importMasterURL, int $activeClientCount ) :array {
+		$hasMasterURL = !empty( $importMasterURL );
+		$isEnabled = $networkSyncState === ImportExportController::SYNC_STATE_ENABLED;
+		$isDisabled = $networkSyncState === ImportExportController::SYNC_STATE_DISABLED;
+
+		return [
+			'section_id'           => 'SectionImportExportNetworkSync',
+			'sync_state'           => $networkSyncState,
+			'is_disabled'          => $isDisabled,
+			'is_enabled'           => $isEnabled,
+			'status'               => [
+				'title'            => $isEnabled ? __( 'Network sync enabled', 'wp-simple-firewall' ) : __( 'Network sync disabled', 'wp-simple-firewall' ),
+				'summary'          => $this->buildNetworkSummary( $isEnabled, $hasMasterURL, $activeClientCount ),
+			],
+			'rail'                 => [
+				'connection_label'   => $hasMasterURL ? __( 'Connected to master', 'wp-simple-firewall' ) : __( 'No master connected', 'wp-simple-firewall' ),
+				'client_count_label' => sprintf(
+					_n( '%s client site', '%s client sites', $activeClientCount, 'wp-simple-firewall' ),
+					$activeClientCount
+				),
+			],
+			'toggle'               => [
+				'id'          => 'ImportExportNetworkToggle',
+				'label'       => __( 'Automatic Network Import/Export', 'wp-simple-firewall' ),
+				'is_checked'  => $isEnabled,
+			],
+			'disabled'             => [
+				'title'   => __( 'Network import/export is off', 'wp-simple-firewall' ),
+				'summary' => __( 'Turn it on to connect this site or manage client sites.', 'wp-simple-firewall' ),
+			],
+			'tasks'                => [
+				[
+					'key'        => 'connect',
+					'title'      => __( 'Connect to network', 'wp-simple-firewall' ),
+					'summary'    => __( 'Import settings from a master site.', 'wp-simple-firewall' ),
+					'icon_class' => 'bi bi-link-45deg',
+					'is_active'  => true,
+				],
+				[
+					'key'        => 'clients',
+					'title'      => __( 'Manage client sites', 'wp-simple-firewall' ),
+					'summary'    => __( 'Let other Shield sites import from here.', 'wp-simple-firewall' ),
+					'icon_class' => 'bi bi-display',
+					'is_active'  => false,
+				],
+			],
+			'connect'              => $this->buildNetworkConnect( $hasMasterURL, $importMasterURL ),
+			'clients'              => [
+				'title'              => __( 'Manage client sites', 'wp-simple-firewall' ),
+				'summary'            => __( 'Share this site\'s settings with approved Shield sites.', 'wp-simple-firewall' ),
+				'add_label'          => __( 'Add client sites', 'wp-simple-firewall' ),
+				'empty_message'      => __( 'No client sites are connected. Click Add client sites to connect sites.', 'wp-simple-firewall' ),
+				'table_id'           => 'ShieldTable-ImportExportSites',
+				'active_count'       => $activeClientCount,
+				'has_connected_sites' => $activeClientCount > 0,
+			],
+		];
+	}
+
+	/**
+	 * @return NetworkSyncConnect
+	 */
+	private function buildNetworkConnect( bool $hasMasterURL, string $importMasterURL ) :array {
+		if ( $hasMasterURL ) {
+			return [
+				'title'        => __( 'Connected to master site', 'wp-simple-firewall' ),
+				'is_connected' => true,
+				'connected'    => [
+					'master_host'   => $this->hostFromUrl( $importMasterURL ),
+					'label'         => __( 'Master site', 'wp-simple-firewall' ),
+					'graphic_label' => __( 'Client site connected to master site', 'wp-simple-firewall' ),
+				],
+				'disconnect'   => [
+					'label' => __( 'Disconnect', 'wp-simple-firewall' ),
+				],
+				'sync_now'     => [
+					'id'         => 'ImportExportSyncNow',
+					'label'      => __( 'Sync settings now', 'wp-simple-firewall' ),
+					'icon_class' => 'bi bi-arrow-clockwise',
+				],
+			];
+		}
+
+		return [
+			'title'        => __( 'Connect to network', 'wp-simple-firewall' ),
+			'summary'      => __( 'Use master site URL. Choose import type and trust method.', 'wp-simple-firewall' ),
+			'is_connected' => false,
+			'standalone'   => [
+				'label'         => __( 'Standalone site', 'wp-simple-firewall' ),
+				'title'         => __( 'No master site connected', 'wp-simple-firewall' ),
+				'summary'       => __( 'This site is not importing settings from another Shield site.', 'wp-simple-firewall' ),
+				'graphic_label' => __( 'Standalone site not connected to a master site', 'wp-simple-firewall' ),
+				'action_label'  => __( 'Connect this site to a master site', 'wp-simple-firewall' ),
+			],
+			'form'         => $this->buildNetworkConnectForm( $importMasterURL ),
+		];
+	}
+
+	/**
+	 * @return NetworkSyncConnectForm
+	 */
+	private function buildNetworkConnectForm( string $importMasterURL ) :array {
+		return [
+			'id'                          => 'ImportSiteForm',
+			'panel_id'                    => 'ImportSiteFormPanel',
+			'reveal_id'                   => 'ImportSiteFormReveal',
+			'master_site_url_id'          => 'MasterSiteUrl',
+			'master_site_url_name'        => 'MasterSiteUrl',
+			'master_site_url_label'       => __( 'Master site URL', 'wp-simple-firewall' ),
+			'master_site_url_placeholder' => 'https://www...',
+			'master_site_url_value'       => $importMasterURL,
+			'import_mode_label'           => __( 'Import type', 'wp-simple-firewall' ),
+			'import_mode_options'         => [
+				[
+					'id'         => 'ShieldNetworkImportOnce',
+					'value'      => 'NC',
+					'label'      => __( 'Import once', 'wp-simple-firewall' ),
+					'summary'    => __( 'Do not stay linked.', 'wp-simple-firewall' ),
+					'is_checked' => true,
+				],
+				[
+					'id'         => 'ShieldNetworkJoin',
+					'value'      => 'Y',
+					'label'      => __( 'Join network', 'wp-simple-firewall' ),
+					'summary'    => __( 'Keep automatic imports linked.', 'wp-simple-firewall' ),
+					'is_checked' => false,
+				],
+			],
+			'verification_label'          => __( 'Master site verification', 'wp-simple-firewall' ),
+			'verification_options'        => [
+				[
+					'id'         => 'MasterSiteTrusted',
+					'value'      => 'trusted',
+					'label'      => __( 'Master site already trusts this site', 'wp-simple-firewall' ),
+					'summary'    => __( 'No secret key needed.', 'wp-simple-firewall' ),
+					'is_checked' => true,
+				],
+				[
+					'id'         => 'MasterSiteUseKey',
+					'value'      => 'key',
+					'label'      => __( 'Use master site secret key', 'wp-simple-firewall' ),
+					'summary'    => __( 'Paste key from master site.', 'wp-simple-firewall' ),
+					'is_checked' => false,
+				],
+			],
+			'secret_key_id'               => 'MasterSiteSecretKey',
+			'secret_key_name'             => 'MasterSiteSecretKey',
+			'secret_key_label'            => __( 'Master site secret key', 'wp-simple-firewall' ),
+			'secret_key_placeholder'      => __( 'Paste secret key from master site', 'wp-simple-firewall' ),
+			'confirm_id'                  => '_confirm_site',
+			'confirm_name'                => 'confirm',
+			'confirm_value'               => 'Y',
+			'confirm_label'               => __( 'I understand existing options will be overwritten.', 'wp-simple-firewall' ),
+			'confirm_help'                => __( 'This action cannot be undone.', 'wp-simple-firewall' ),
+			'submit_label_once'           => __( 'Import settings', 'wp-simple-firewall' ),
+			'submit_label_network'        => __( 'Join network', 'wp-simple-firewall' ),
+			'submit_icon_class'           => 'bi bi-cloud-download',
+		];
+	}
+
+	private function hostFromUrl( string $url ) :string {
+		$host = (string)\parse_url( $url, \PHP_URL_HOST );
+		return empty( $host ) ? $url : $host;
+	}
+
+	private function buildNetworkSummary( bool $isEnabled, bool $hasMasterURL, int $activeClientCount ) :string {
+		if ( !$isEnabled ) {
+			return __( 'This site stays fully local.', 'wp-simple-firewall' );
+		}
+		if ( $hasMasterURL ) {
+			return __( 'Linked to a master site.', 'wp-simple-firewall' );
+		}
+		return $activeClientCount > 0
+			? __( 'Not importing from a master site. Client sites may import from here.', 'wp-simple-firewall' )
+			: __( 'Not importing from a master site. Connect to a network, or manage client sites.', 'wp-simple-firewall' );
+	}
+
+	/**
+	 * @return NetworkInviteReviewContract|null
+	 */
+	private function buildNetworkInviteReview() :?array {
+		$invite = ( new NetworkInviteRepository() )->find(
+			(string)( $this->action_data[ NetworkInviteRepository::REVIEW_QUERY_KEY ] ?? '' )
+		);
+		if ( $invite === null ) {
+			return null;
+		}
+
+		return [
+			'invite'  => $invite,
+			'strings' => [
+				'title'          => __( 'Review Network Invite', 'wp-simple-firewall' ),
+				'summary'        => __( 'A Shield site has invited this site to join its import/export network.', 'wp-simple-firewall' ),
+				'master_url'     => __( 'Master Site URL', 'wp-simple-firewall' ),
+				'implications'   => __( 'Accepting will import transferable Shield settings from the master site and set this site to import from that master during normal sync.', 'wp-simple-firewall' ),
+				'confirm_label'  => __( 'I understand this will import Shield settings from the master site and set it as this site\'s master.', 'wp-simple-firewall' ),
+				'accept_button'  => __( 'Accept Invite', 'wp-simple-firewall' ),
+				'reject_button'  => __( 'Reject Invite', 'wp-simple-firewall' ),
+			],
 		];
 	}
 }

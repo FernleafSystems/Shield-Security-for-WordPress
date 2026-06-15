@@ -3,10 +3,16 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plugin\Lib\ImportExport;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
+	Handler as SitesDB,
+	Record as SiteRecord
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 
@@ -16,6 +22,10 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 
 	private const SLAVE_URL = 'https://slave.example.com';
 	private const SLAVE_IMPORT_ID = 'shi280-slave-import-id';
+	private const MANUAL_PUBLIC_URL = 'https://93.184.216.71/manual-public-slave';
+	private const MANUAL_PRIVATE_URL = 'https://10.0.0.25/manual-private-slave';
+	private const LEGACY_PRIVATE_URL = 'https://10.0.0.26/legacy-private-slave';
+	private const EXPORT_PRIVATE_URL = 'https://10.0.0.27/export-private-slave';
 
 	private array $optionsSnapshot = [];
 	private array $requestSnapshot = [];
@@ -26,6 +36,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->enablePremiumCapabilities( [ 'import_export_level_1', 'import_export_level_2' ] );
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
+		$this->requireDb( SitesDB::DB_KEY );
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			'importexport_enable',
@@ -34,6 +45,9 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			'importexport_secretkey',
 			'importexport_secretkey_expires_at',
 			'importexport_handshake_expires_at',
+			'importexport_pending_network_invites',
+			'importexport_network_invite_block_until',
+			'importexport_sites_migrated_at',
 			'import_id',
 			'import_url_ids',
 			'enable_email_authentication',
@@ -64,10 +78,14 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$probe = new ImportExportControllerContractProbe();
 
 		$con->opts->optSet( 'importexport_enable', 'N' )->store();
-		$this->assertFalse( $probe->canRunForTest() );
+		$this->assertTrue( $probe->canRunForTest() );
 
 		$con->opts->optSet( 'importexport_enable', 'Y' )->store();
 		$this->assertTrue( $probe->canRunForTest() );
+
+		$this->disablePremiumCapabilities();
+		$con->opts->optSet( 'importexport_enable', 'N' )->store();
+		$this->assertFalse( $probe->canRunForTest() );
 	}
 
 	public function test_export_payload_contains_machine_contract_and_excludes_transfer_opt_outs() :void {
@@ -76,6 +94,15 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			->optSet( 'display_plugin_badge', 'light' )
 			->optSet( 'visitor_address_source', 'REMOTE_ADDR' )
 			->optSet( 'enable_tracking', 'Y' )
+			->optSet( NetworkInviteRepository::OPTION_KEY, [
+				\hash( 'sha256', 'https://93.184.216.91/pending-master' ) => [
+					'id'         => \hash( 'sha256', 'https://93.184.216.91/pending-master' ),
+					'master_url' => 'https://93.184.216.91/pending-master',
+					'created_at' => 1712620800,
+					'updated_at' => 1712620800,
+				],
+			] )
+			->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, 1713225600 )
 			->optSet( 'xfer_excluded', [ 'enable_tracking' ] )
 			->store();
 
@@ -91,10 +118,14 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertIsString( $export[ 'version' ] );
 		$this->assertIsArray( $export[ 'options' ] );
 		$this->assertIsArray( $export[ 'ip_rules' ] );
-		$this->assertSame( 'light', $export[ 'options' ][ 'display_plugin_badge' ] ?? null );
-		$this->assertSame( 'REMOTE_ADDR', $export[ 'options' ][ 'visitor_address_source' ] ?? null );
+		$this->assertArrayHasKey( 'display_plugin_badge', $export[ 'options' ] );
+		$this->assertArrayHasKey( 'visitor_address_source', $export[ 'options' ] );
+		$this->assertSame( 'light', $export[ 'options' ][ 'display_plugin_badge' ] );
+		$this->assertSame( 'REMOTE_ADDR', $export[ 'options' ][ 'visitor_address_source' ] );
 		$this->assertArrayNotHasKey( 'enable_tracking', $export[ 'options' ] );
 		$this->assertArrayNotHasKey( 'xfer_excluded', $export[ 'options' ] );
+		$this->assertArrayNotHasKey( NetworkInviteRepository::OPTION_KEY, $export[ 'options' ] );
+		$this->assertArrayNotHasKey( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, $export[ 'options' ] );
 	}
 
 	public function test_standard_file_import_applies_transferable_options_respects_exclusions_and_deletes_file() :void {
@@ -221,6 +252,9 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$con->opts
 			->optSet( 'importexport_whitelist', [] )
 			->optSet( 'import_url_ids', [] )
+			->optSet( NetworkInviteRepository::OPTION_KEY, $this->pendingNetworkInviteFixture() )
+			->optSet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, 1713225600 )
+			->optSet( 'importexport_sites_migrated_at', 1 )
 			->store();
 		$secret = $con->comps->import_export->getImportExportSecretKey();
 		$this->captureShieldEvents();
@@ -233,9 +267,13 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$this->assertExportJsonPayload( $addPayload );
-		$urlIDs = $con->opts->optGet( 'import_url_ids' );
-		$this->assertSame( self::SLAVE_IMPORT_ID, $urlIDs[ \hash( 'md5', self::SLAVE_URL ) ] ?? '' );
-		$this->assertContains( self::SLAVE_URL, $con->comps->import_export->getImportExportWhitelist() );
+		$row = ( new SiteRepository() )->findByUrl( self::SLAVE_URL );
+		$this->assertInstanceOf( SiteRecord::class, $row );
+		$this->assertSame( self::SLAVE_IMPORT_ID, $row->import_id );
+		$this->assertSame( [], $con->opts->optGet( 'import_url_ids' ) );
+		$this->assertSame( [], $con->opts->optGet( 'importexport_whitelist' ) );
+		$this->assertSame( [], $con->opts->optGet( NetworkInviteRepository::OPTION_KEY ) );
+		$this->assertSame( 1713225600, (int)$con->opts->optGet( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY ) );
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'options_exported' ) );
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'whitelist_site_added' ) );
 
@@ -247,9 +285,161 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$this->assertExportJsonPayload( $removePayload );
-		$this->assertNotContains( self::SLAVE_URL, $con->comps->import_export->getImportExportWhitelist() );
+		$row = ( new SiteRepository() )->findByUrl( self::SLAVE_URL, true );
+		$this->assertInstanceOf( SiteRecord::class, $row );
+		$this->assertSame( SitesDB::STATUS_DELETED, $row->status );
+		$this->assertSame( [], $con->opts->optGet( 'importexport_whitelist' ) );
 		$this->assertCount( 2, $this->getCapturedEventsByKey( 'options_exported' ) );
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'whitelist_site_removed' ) );
+	}
+
+	public function test_export_json_succeeds_through_active_sync_site_import_id_without_secret() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+
+		$payload = $this->captureExportJson( [
+			'url' => self::MANUAL_PUBLIC_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+
+		$this->assertExportJsonPayload( $payload );
+	}
+
+	public function test_export_json_manual_sync_site_handshake_rejects_unsafe_redirects() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL );
+		$handshakeRejectUnsafeFlags = [];
+		$filter = static function ( $preempt, array $args, string $url ) use ( &$handshakeRejectUnsafeFlags ) {
+			if ( \str_contains( $url, '93.184.216.71' ) ) {
+				$handshakeRejectUnsafeFlags[] = $args[ 'reject_unsafe_urls' ] ?? null;
+				return [
+					'headers'  => [],
+					'body'     => \wp_json_encode( [ 'success' => true ] ),
+					'response' => [
+						'code'    => 200,
+						'message' => 'OK',
+					],
+					'cookies'  => [],
+					'filename' => null,
+				];
+			}
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$payload = $this->captureExportJson( [
+				'url' => self::MANUAL_PUBLIC_URL,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$this->assertExportJsonPayload( $payload );
+		$this->assertSame( [ true ], $handshakeRejectUnsafeFlags );
+	}
+
+	public function test_export_json_rejects_manual_private_sync_site_even_with_matching_import_id() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$this->seedActiveSyncSite( self::MANUAL_PRIVATE_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+
+		$payload = $this->captureExportJson( [
+			'url' => self::MANUAL_PRIVATE_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+
+		$this->assertExportJsonVerifyFailurePayload( $payload );
+	}
+
+	public function test_export_json_rejects_manual_private_sync_site_before_handshake() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$this->seedActiveSyncSite( self::MANUAL_PRIVATE_URL, SitesDB::SOURCE_MANUAL );
+		$outboundPrivateRequests = [];
+		$filter = static function ( $preempt, array $args, string $url ) use ( &$outboundPrivateRequests ) {
+			if ( \str_contains( $url, '10.0.0.25' ) ) {
+				$outboundPrivateRequests[] = $url;
+				return [
+					'headers'  => [],
+					'body'     => \wp_json_encode( [ 'success' => true ] ),
+					'response' => [
+						'code'    => 200,
+						'message' => 'OK',
+					],
+					'cookies'  => [],
+					'filename' => null,
+				];
+			}
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$payload = $this->captureExportJson( [
+				'url' => self::MANUAL_PRIVATE_URL,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$this->assertExportJsonVerifyFailurePayload( $payload );
+		$this->assertSame( [], $outboundPrivateRequests );
+	}
+
+	public function test_export_json_preserves_legacy_private_sync_site_import_id_trust() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$this->seedActiveSyncSite( self::LEGACY_PRIVATE_URL, SitesDB::SOURCE_LEGACY_OPTION, self::SLAVE_IMPORT_ID );
+
+		$payload = $this->captureExportJson( [
+			'url' => self::LEGACY_PRIVATE_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+
+		$this->assertExportJsonPayload( $payload );
+	}
+
+	public function test_export_json_preserves_export_source_private_sync_site_import_id_trust() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$this->seedActiveSyncSite( self::EXPORT_PRIVATE_URL, SitesDB::SOURCE_EXPORT, self::SLAVE_IMPORT_ID );
+
+		$payload = $this->captureExportJson( [
+			'url' => self::EXPORT_PRIVATE_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+
+		$this->assertExportJsonPayload( $payload );
+	}
+
+	public function test_export_json_secret_key_trust_bypasses_manual_row_public_guard() :void {
+		$con = $this->requireController();
+		$con->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$this->seedActiveSyncSite( self::MANUAL_PRIVATE_URL, SitesDB::SOURCE_MANUAL );
+
+		$payload = $this->captureExportJson( [
+			'url'    => self::MANUAL_PRIVATE_URL,
+			'secret' => $con->comps->import_export->getImportExportSecretKey(),
+		] );
+
+		$this->assertExportJsonPayload( $payload );
+	}
+
+	public function test_export_json_fails_when_only_legacy_options_contain_url_after_migration() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'importexport_sites_migrated_at', 1 )
+			->optSet( 'importexport_whitelist', [ self::SLAVE_URL ] )
+			->optSet( 'import_url_ids', [
+				\hash( 'md5', self::SLAVE_URL ) => self::SLAVE_IMPORT_ID,
+			] )
+			->store();
+
+		$payload = $this->captureExportJson( [
+			'url' => self::SLAVE_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+
+		$this->assertExportJsonVerifyFailurePayload( $payload );
 	}
 
 	private function assertFileImportFailsWithoutOptionChanges( string $path ) :void {
@@ -269,13 +459,42 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function assertExportJsonPayload( array $payload ) :void {
-		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
-		$this->assertSame( 0, $payload[ 'code' ] ?? null );
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'code', $payload );
+		$this->assertArrayHasKey( 'data', $payload );
+		$this->assertTrue( (bool)$payload[ 'success' ] );
+		$this->assertSame( 0, $payload[ 'code' ] );
 		$this->assertArrayHasKey( 'message', $payload );
-		$this->assertIsArray( $payload[ 'data' ] ?? null );
+		$this->assertIsArray( $payload[ 'data' ] );
 		foreach ( [ 'site_url', 'exported_at', 'exported_date', 'slug', 'version', 'options' ] as $key ) {
 			$this->assertArrayHasKey( $key, $payload[ 'data' ] );
 		}
+	}
+
+	private function assertExportJsonVerifyFailurePayload( array $payload ) :void {
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'code', $payload );
+		$this->assertFalse( (bool)$payload[ 'success' ] );
+		$this->assertSame( 3, $payload[ 'code' ] );
+	}
+
+	private function seedActiveSyncSite( string $url, string $source, string $importID = '' ) :SiteRecord {
+		$row = ( new SiteRepository() )->upsertActive( $url, $source, $importID );
+		$this->assertInstanceOf( SiteRecord::class, $row );
+		return $row;
+	}
+
+	private function pendingNetworkInviteFixture() :array {
+		$url = 'https://93.184.216.92/pending-master';
+		$id = \hash( 'sha256', $url );
+		return [
+			$id => [
+				'id'         => $id,
+				'master_url' => $url,
+				'created_at' => 1712620800,
+				'updated_at' => 1712620800,
+			],
+		];
 	}
 
 	private function captureExportJson( array $query ) :array {
