@@ -206,7 +206,10 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 	private function installHomeUrl( string $homeUrl ) :void {
 		ServicesState::mergeItems( [
 			'service_wpgeneral' => new class( $homeUrl ) extends General {
-				public function __construct( private string $homeUrl ) {
+				private string $homeUrl;
+
+				public function __construct( string $homeUrl ) {
+					$this->homeUrl = $homeUrl;
 				}
 
 				public function getHomeUrl( string $path = '', bool $wpms = false ) :string {
