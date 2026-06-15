@@ -61,4 +61,22 @@ class HiddenPluginFindingTest extends BaseUnitTest {
 			'version'   => '',
 		], $finding->toAuditParams() );
 	}
+
+	public function testPluginEntryRejectsUnsupportedType() :void {
+		$this->expectException( \InvalidArgumentException::class );
+
+		new PluginEntry( 'unsupported-type', 'hidden/hidden.php', 'Hidden', '1.0', '/plugins/hidden/hidden.php' );
+	}
+
+	public function testFindingRejectsUnsupportedHiddenReason() :void {
+		$this->expectException( \InvalidArgumentException::class );
+
+		new HiddenPluginFinding(
+			new PluginEntry( PluginType::Standard, 'hidden/hidden.php', 'Hidden Plugin', '1.2.3', '/plugins/hidden/hidden.php' ),
+			[ 'unsupported-reason' ],
+			true,
+			false,
+			123456
+		);
+	}
 }

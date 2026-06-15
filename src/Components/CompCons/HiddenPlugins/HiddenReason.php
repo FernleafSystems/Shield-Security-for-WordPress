@@ -2,18 +2,47 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins;
 
-enum HiddenReason :string {
-	case WpDiscoveryCacheGap = 'wp_discovery_cache_gap';
-	case AllPlugins = 'all_plugins';
-	case ShowAdvancedPlugins = 'show_advanced_plugins';
-	case PluginsList = 'plugins_list';
+final class HiddenReason {
 
-	public function label() :string {
-		return match ( $this ) {
-			self::WpDiscoveryCacheGap => __( 'Missing From WordPress Discovery Cache', 'wp-simple-firewall' ),
-			self::AllPlugins          => __( 'Removed By all_plugins Filter', 'wp-simple-firewall' ),
-			self::ShowAdvancedPlugins => __( 'Must-Use Plugins Hidden', 'wp-simple-firewall' ),
-			self::PluginsList         => __( 'Removed From Final Plugins List', 'wp-simple-firewall' ),
-		};
+	public const WpDiscoveryCacheGap = 'wp_discovery_cache_gap';
+
+	public const AllPlugins = 'all_plugins';
+
+	public const ShowAdvancedPlugins = 'show_advanced_plugins';
+
+	public const PluginsList = 'plugins_list';
+
+	public const ALL = [
+		self::WpDiscoveryCacheGap,
+		self::AllPlugins,
+		self::ShowAdvancedPlugins,
+		self::PluginsList,
+	];
+
+	/**
+	 * @phpstan-param value-of<self::ALL> $reason
+	 */
+	public static function label( string $reason ) :string {
+		self::assertValid( $reason );
+
+		switch ( $reason ) {
+			case self::WpDiscoveryCacheGap:
+				return __( 'Missing From WordPress Discovery Cache', 'wp-simple-firewall' );
+			case self::AllPlugins:
+				return __( 'Removed By all_plugins Filter', 'wp-simple-firewall' );
+			case self::ShowAdvancedPlugins:
+				return __( 'Must-Use Plugins Hidden', 'wp-simple-firewall' );
+			case self::PluginsList:
+				return __( 'Removed From Final Plugins List', 'wp-simple-firewall' );
+		}
+	}
+
+	/**
+	 * @phpstan-assert value-of<self::ALL> $reason
+	 */
+	public static function assertValid( string $reason ) :void {
+		if ( !\in_array( $reason, self::ALL, true ) ) {
+			throw new \InvalidArgumentException( \sprintf( 'Unsupported hidden plugin reason: %s', $reason ) );
+		}
 	}
 }

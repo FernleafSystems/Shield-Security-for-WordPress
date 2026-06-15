@@ -4,10 +4,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlug
 
 class RawPluginInventory {
 
+	private ?string $pluginDir;
+
+	private ?string $muPluginDir;
+
 	public function __construct(
-		private ?string $pluginDir = null,
-		private ?string $muPluginDir = null
+		?string $pluginDir = null,
+		?string $muPluginDir = null
 	) {
+		$this->pluginDir = $pluginDir;
+		$this->muPluginDir = $muPluginDir;
 	}
 
 	/**

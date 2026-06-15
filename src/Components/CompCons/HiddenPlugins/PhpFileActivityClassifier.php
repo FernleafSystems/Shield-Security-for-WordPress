@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlug
 
 class PhpFileActivityClassifier {
 
-	public function classify( string $path ) :PhpFileActivity {
+	/**
+	 * @phpstan-return value-of<PhpFileActivity::ALL>
+	 */
+	public function classify( string $path ) :string {
 		if ( !\is_readable( $path ) ) {
 			return PhpFileActivity::Unreadable;
 		}
@@ -22,7 +25,7 @@ class PhpFileActivityClassifier {
 		try {
 			$tokens = \token_get_all( $content, \defined( 'TOKEN_PARSE' ) ? TOKEN_PARSE : 0 );
 		}
-		catch ( \ParseError ) {
+		catch ( \ParseError $e ) {
 			return PhpFileActivity::Invalid;
 		}
 
@@ -59,7 +62,7 @@ class PhpFileActivityClassifier {
 	/**
 	 * @param array{0:int,1:string}|string $token
 	 */
-	private function isInertToken( array|string $token ) :bool {
+	private function isInertToken( $token ) :bool {
 		if ( !\is_array( $token ) ) {
 			return \trim( $token ) === '';
 		}
