@@ -418,8 +418,7 @@ class SiteRepository {
 			$this->buildFilteredWhere( $search, $wheres ),
 			\max( 0, $offset ),
 			\max( 1, $limit ),
-			$orderBy,
-			$orderDir
+			$this->buildFilteredRowsOrderBySql( $orderBy, $orderDir )
 		);
 	}
 
@@ -954,18 +953,29 @@ class SiteRepository {
 		string $where,
 		int $offset,
 		int $limit,
-		string $orderBy,
-		string $orderDir
+		string $orderBySql
 	) :array {
 		return $this->selectRowsWithSql( sprintf(
-			"SELECT * FROM `%s` %s ORDER BY `%s` %s, `id` DESC LIMIT %d OFFSET %d",
+			"SELECT * FROM `%s` %s ORDER BY %s LIMIT %d OFFSET %d",
 			$this->db()->getTable(),
 			$where,
-			$orderBy,
-			$orderDir,
+			$orderBySql,
 			\max( 1, $limit ),
 			\max( 0, $offset )
 		) );
+	}
+
+	private function buildFilteredRowsOrderBySql( string $orderBy, string $orderDir ) :string {
+		if ( $orderBy === 'url' ) {
+			return \sprintf(
+				'%s %s, LOWER(`url`) %s, `id` DESC',
+				$this->normalisedUrlSqlExpression(),
+				$orderDir,
+				$orderDir
+			);
+		}
+
+		return \sprintf( '`%s` %s, `id` DESC', $this->sqlColumnName( $orderBy ), $orderDir );
 	}
 
 	/**
@@ -1100,7 +1110,7 @@ class SiteRepository {
 	}
 
 	private function buildSearchWhereClause( string $search ) :string {
-		$search = \trim( $search );
+		$search = $this->normaliseUrlForLookup( $search );
 		if ( empty( $search ) ) {
 			return '';
 		}
@@ -1108,8 +1118,33 @@ class SiteRepository {
 		global $wpdb;
 		$like = '%'.$wpdb->esc_like( $search ).'%';
 		return $this->prepareSql(
-			'`url` LIKE %s OR `status` LIKE %s OR `queue_status` LIKE %s OR `last_ping_error` LIKE %s OR `last_export_error` LIKE %s',
-			\array_fill( 0, 5, $like )
+			$this->normalisedUrlSqlExpression().' LIKE %s',
+			[ $like ]
+		);
+	}
+
+	private function normaliseUrlForLookup( string $url ) :string {
+		$url = \strtolower( \trim( $url ) );
+		foreach ( [ 'https://', 'http://' ] as $scheme ) {
+			if ( \str_starts_with( $url, $scheme ) ) {
+				$url = \substr( $url, \strlen( $scheme ) );
+				break;
+			}
+		}
+
+		return \str_starts_with( $url, 'www.' ) ? \substr( $url, 4 ) : $url;
+	}
+
+	private function normalisedUrlSqlExpression() :string {
+		$lowerUrl = 'LOWER(`url`)';
+		$withoutScheme = \sprintf(
+			"(CASE WHEN %1\$s LIKE 'https://%%' THEN SUBSTRING(%1\$s, 9) WHEN %1\$s LIKE 'http://%%' THEN SUBSTRING(%1\$s, 8) ELSE %1\$s END)",
+			$lowerUrl
+		);
+
+		return \sprintf(
+			"(CASE WHEN %1\$s LIKE 'www.%%' THEN SUBSTRING(%1\$s, 5) ELSE %1\$s END)",
+			$withoutScheme
 		);
 	}
 
