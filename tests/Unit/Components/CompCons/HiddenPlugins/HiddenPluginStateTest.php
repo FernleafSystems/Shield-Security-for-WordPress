@@ -76,11 +76,11 @@ class HiddenPluginStateOptionsStub {
 		HiddenPluginState::OPT_KEY => [],
 	];
 
-	public function optGet( string $key ) {
+	public function optGet( string $key ) :mixed {
 		return $this->values[ $key ] ?? [];
 	}
 
-	public function optSet( string $key, $value ) :self {
+	public function optSet( string $key, mixed $value ) :self {
 		$this->values[ $key ] = $value;
 		return $this;
 	}

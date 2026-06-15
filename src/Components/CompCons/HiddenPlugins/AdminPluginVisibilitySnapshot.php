@@ -2,42 +2,18 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins;
 
-class AdminPluginVisibilitySnapshot {
-
-	public array $wpDiscoveredPlugins;
-
-	public array $adminAllPlugins;
-
-	public array $wpDiscoveredMuPlugins;
-
-	public bool $showMustUsePlugins;
-
-	public array $adminMustUsePlugins;
-
-	public ?array $finalPluginsList;
-
-	public array $activePlugins;
-
-	public array $networkActivePlugins;
+readonly class AdminPluginVisibilitySnapshot {
 
 	public function __construct(
-		array $wpDiscoveredPlugins,
-		array $adminAllPlugins,
-		array $wpDiscoveredMuPlugins,
-		bool $showMustUsePlugins,
-		array $adminMustUsePlugins,
-		?array $finalPluginsList,
-		array $activePlugins,
-		array $networkActivePlugins
+		public array $wpDiscoveredPlugins,
+		public array $adminAllPlugins,
+		public array $wpDiscoveredMuPlugins,
+		public bool $showMustUsePlugins,
+		public array $adminMustUsePlugins,
+		public ?array $finalPluginsList,
+		public array $activePlugins,
+		public array $networkActivePlugins
 	) {
-		$this->wpDiscoveredPlugins = $wpDiscoveredPlugins;
-		$this->adminAllPlugins = $adminAllPlugins;
-		$this->wpDiscoveredMuPlugins = $wpDiscoveredMuPlugins;
-		$this->showMustUsePlugins = $showMustUsePlugins;
-		$this->adminMustUsePlugins = $adminMustUsePlugins;
-		$this->finalPluginsList = $finalPluginsList;
-		$this->activePlugins = $activePlugins;
-		$this->networkActivePlugins = $networkActivePlugins;
 	}
 
 	public function isActive( string $file ) :bool {

@@ -32,7 +32,7 @@ class PluginVisibilityComparator {
 	}
 
 	/**
-	 * @phpstan-return list<value-of<HiddenReason::ALL>>
+	 * @return list<HiddenReason>
 	 */
 	private function standardHiddenReasons( PluginEntry $entry, AdminPluginVisibilitySnapshot $visibility ) :array {
 		$reasons = [];
@@ -52,7 +52,7 @@ class PluginVisibilityComparator {
 	}
 
 	/**
-	 * @phpstan-return list<value-of<HiddenReason::ALL>>
+	 * @return list<HiddenReason>
 	 */
 	private function mustUseHiddenReasons( PluginEntry $entry, AdminPluginVisibilitySnapshot $visibility ) :array {
 		$reasons = [];

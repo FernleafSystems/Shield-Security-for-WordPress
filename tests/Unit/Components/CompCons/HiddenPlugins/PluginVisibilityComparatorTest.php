@@ -17,7 +17,7 @@ class PluginVisibilityComparatorTest extends BaseUnitTest {
 	public function testReportsStandardPluginMissingFromWordpressDiscovery() :void {
 		$finding = $this->compareOne(
 			new PluginEntry( PluginType::Standard, 'hidden/hidden.php', 'Hidden', '1.0', '/plugins/hidden/hidden.php' ),
-			$this->snapshot( [], [], [], true, [ 'all' => [] ] )
+			$this->snapshot( wp: [], admin: [], final: [ 'all' => [] ] )
 		);
 
 		$this->assertSame( [ HiddenReason::WpDiscoveryCacheGap ], $finding->hiddenReasons );
@@ -28,11 +28,9 @@ class PluginVisibilityComparatorTest extends BaseUnitTest {
 		$finding = $this->compareOne(
 			new PluginEntry( PluginType::Standard, 'hidden/hidden.php', 'Hidden', '1.0', '/plugins/hidden/hidden.php' ),
 			$this->snapshot(
-				[ 'hidden/hidden.php' => [ 'Name' => 'Hidden' ] ],
-				[],
-				[],
-				true,
-				[ 'all' => [] ]
+				wp: [ 'hidden/hidden.php' => [ 'Name' => 'Hidden' ] ],
+				admin: [],
+				final: [ 'all' => [] ]
 			)
 		);
 
@@ -43,11 +41,9 @@ class PluginVisibilityComparatorTest extends BaseUnitTest {
 		$finding = $this->compareOne(
 			new PluginEntry( PluginType::Standard, 'hidden/hidden.php', 'Hidden', '1.0', '/plugins/hidden/hidden.php' ),
 			$this->snapshot(
-				[ 'hidden/hidden.php' => [ 'Name' => 'Hidden' ] ],
-				[ 'hidden/hidden.php' => [ 'Name' => 'Hidden' ] ],
-				[],
-				true,
-				[ 'all' => [], 'active' => [], 'inactive' => [] ]
+				wp: [ 'hidden/hidden.php' => [ 'Name' => 'Hidden' ] ],
+				admin: [ 'hidden/hidden.php' => [ 'Name' => 'Hidden' ] ],
+				final: [ 'all' => [], 'active' => [], 'inactive' => [] ]
 			)
 		);
 
@@ -58,11 +54,9 @@ class PluginVisibilityComparatorTest extends BaseUnitTest {
 		$finding = $this->compareOne(
 			new PluginEntry( PluginType::MustUse, 'hidden-mu.php', 'Hidden MU', '', '/mu/hidden-mu.php' ),
 			$this->snapshot(
-				[],
-				[],
-				[ 'hidden-mu.php' => [ 'Name' => 'Hidden MU' ] ],
-				false,
-				[ 'mustuse' => [] ]
+				mu: [ 'hidden-mu.php' => [ 'Name' => 'Hidden MU' ] ],
+				showMu: false,
+				final: [ 'mustuse' => [] ]
 			)
 		);
 

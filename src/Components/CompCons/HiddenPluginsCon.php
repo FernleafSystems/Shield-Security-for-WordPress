@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins\{
 	AdminPluginVisibility,
 	HiddenPluginFinding,
 	HiddenPluginState,
-	PhpFileActivity,
 	PhpFileActivityClassifier,
 	PluginEntry,
 	PluginVisibilityComparator,
@@ -38,12 +37,12 @@ class HiddenPluginsCon {
 		add_filter( 'plugins_list', [ $this, 'observePluginsList' ], \PHP_INT_MAX );
 	}
 
-	public function triggerDetection( ...$args ) :void {
+	public function triggerDetection( mixed ...$args ) :void {
 		unset( $args );
 		$this->detect();
 	}
 
-	public function observePluginsList( $plugins ) {
+	public function observePluginsList( mixed $plugins ) :mixed {
 		if ( \is_array( $plugins ) && !$this->isDetecting && $this->isNeutralPluginListContext() ) {
 			$this->detect( $plugins );
 		}
@@ -64,7 +63,7 @@ class HiddenPluginsCon {
 			$classifier = new PhpFileActivityClassifier();
 			$entries = \array_values( \array_filter(
 				( new RawPluginInventory() )->scan(),
-				static fn( PluginEntry $entry ) :bool => PhpFileActivity::isAlertable( $classifier->classify( $entry->path ) )
+				static fn( PluginEntry $entry ) :bool => $classifier->classify( $entry->path )->isAlertable()
 			) );
 
 			$findings = ( new PluginVisibilityComparator() )->compare(
