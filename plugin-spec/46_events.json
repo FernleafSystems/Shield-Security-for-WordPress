@@ -555,6 +555,18 @@
         "level": "warning",
         "audit_multiple": true
     },
+    "plugin_hidden_detected": {
+        "audit_params": [
+            "plugin",
+            "type",
+            "hidden_by",
+            "status",
+            "name",
+            "version"
+        ],
+        "level": "warning",
+        "audit_multiple": true
+    },
     "plugin_option_changed": {
         "level": "notice",
         "audit_params": [

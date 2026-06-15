@@ -915,6 +915,15 @@
         "sensitive": true
     },
     {
+        "key": "hidden_plugins_alert_state",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "transferable": false,
+        "tracking_exclude": true,
+        "sensitive": true
+    },
+    {
         "key": "is_scan_cron",
         "section": "section_hidden",
         "tracking_exclude": true,
@@ -2724,6 +2733,32 @@
         "name": "Shield Deactivated",
         "summary": "Be alerted when the Shield plugin is deactivated",
         "description": "Be alerted when the Shield plugin is deactivated."
+    },
+    {
+        "key": "instant_alert_hidden_plugins",
+        "section": "section_alerts",
+        "zone_comp_slugs": [
+            "instant_alerts",
+            "reporting"
+        ],
+        "type": "select",
+        "default": "email",
+        "value_options": [
+            {
+                "value_key": "disabled",
+                "text": "Disabled"
+            },
+            {
+                "value_key": "email",
+                "text": "Email"
+            }
+        ],
+        "beacon_id": 788,
+        "link_info": "",
+        "link_blog": "",
+        "name": "Hidden Plugins",
+        "summary": "Be alerted when a plugin is hidden from the WordPress admin list",
+        "description": "Be alerted when a plugin or must-use plugin exists on disk but is hidden from the WordPress admin plugin list."
     },
     {
         "key": "instant_alert_admins",
