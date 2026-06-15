@@ -32,11 +32,19 @@ class PasskeyWebauthnLibAdapterStartIntegrationTest extends ShieldIntegrationTes
 		$challenge = $provider->startNewRegistration();
 
 		$this->assertSame( $challenge, $this->requireController()->user_metas->for( $user )->passkeys[ 'reg_start' ] );
-		$this->assertNotEmpty( $challenge[ 'challenge' ] ?? '' );
-		$this->assertSame( PasskeyFixtureLoader::requestHost(), $challenge[ 'rp' ][ 'id' ] ?? '' );
+		$this->assertArrayHasKey( 'challenge', $challenge );
+		$this->assertNotSame( '', $challenge[ 'challenge' ] );
+		$this->assertArrayHasKey( 'rp', $challenge );
+		$this->assertIsArray( $challenge[ 'rp' ] );
+		$this->assertArrayHasKey( 'id', $challenge[ 'rp' ] );
+		$this->assertSame( PasskeyFixtureLoader::requestHost(), $challenge[ 'rp' ][ 'id' ] );
+		$this->assertArrayHasKey( 'excludeCredentials', $challenge );
+		$this->assertIsArray( $challenge[ 'excludeCredentials' ] );
+		$this->assertArrayHasKey( 0, $challenge[ 'excludeCredentials' ] );
+		$this->assertArrayHasKey( 'id', $challenge[ 'excludeCredentials' ][ 0 ] );
 		$this->assertSame(
 			PasskeyFixtureLoader::credentialId(),
-			$challenge[ 'excludeCredentials' ][ 0 ][ 'id' ] ?? ''
+			$challenge[ 'excludeCredentials' ][ 0 ][ 'id' ]
 		);
 	}
 
@@ -49,11 +57,17 @@ class PasskeyWebauthnLibAdapterStartIntegrationTest extends ShieldIntegrationTes
 		$challenge = $provider->startNewAuth();
 
 		$this->assertSame( $challenge, $this->requireController()->user_metas->for( $user )->passkeys[ 'auth_challenge' ] );
-		$this->assertNotEmpty( $challenge[ 'challenge' ] ?? '' );
-		$this->assertSame( PasskeyFixtureLoader::requestHost(), $challenge[ 'rpId' ] ?? '' );
+		$this->assertArrayHasKey( 'challenge', $challenge );
+		$this->assertNotSame( '', $challenge[ 'challenge' ] );
+		$this->assertArrayHasKey( 'rpId', $challenge );
+		$this->assertSame( PasskeyFixtureLoader::requestHost(), $challenge[ 'rpId' ] );
+		$this->assertArrayHasKey( 'allowCredentials', $challenge );
+		$this->assertIsArray( $challenge[ 'allowCredentials' ] );
+		$this->assertArrayHasKey( 0, $challenge[ 'allowCredentials' ] );
+		$this->assertArrayHasKey( 'id', $challenge[ 'allowCredentials' ][ 0 ] );
 		$this->assertSame(
 			PasskeyFixtureLoader::credentialId(),
-			$challenge[ 'allowCredentials' ][ 0 ][ 'id' ] ?? ''
+			$challenge[ 'allowCredentials' ][ 0 ][ 'id' ]
 		);
 	}
 }

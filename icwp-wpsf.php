@@ -9,7 +9,7 @@
  * Author: Shield Security
  * Author URI: https://clk.shldscrty.com/bv
  * Requires at least: 5.7
- * Requires PHP: 7.4
+ * Requires PHP: 8.2
  */
 
 /**
@@ -31,7 +31,7 @@
  */
 
 if ( defined( 'ABSPATH' ) ) {
-	if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
+	if ( version_compare( PHP_VERSION, '8.2', '<' ) ) {
 		global $sIcwpWpsfPluginFile;
 		$sIcwpWpsfPluginFile = plugin_basename( __FILE__ );
 		include_once( dirname( __FILE__ ).'/unsupported.php' );

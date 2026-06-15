@@ -16,71 +16,96 @@ class PluginPackagerStraussTest extends TestCase {
 		'monolog/monolog',
 		'twig/twig',
 		'crowdsec/capi-client',
-		'thecodingmachine/safe',
 		'web-auth/webauthn-lib',
 		'web-auth/cose-lib',
-		'web-auth/metadata-service',
-		'spomky-labs/base64url',
 		'spomky-labs/cbor-php',
-		'fgrosse/phpasn1',
-		'beberlei/assert',
-		'league/uri',
-		'league/uri-interfaces',
-		'nyholm/psr7',
-		'nyholm/psr7-server',
-		'symfony/process',
+		'spomky-labs/pki-framework',
+		'paragonie/constant_time_encoding',
+		'symfony/serializer',
+		'symfony/property-info',
+		'symfony/property-access',
+		'symfony/type-info',
+		'symfony/clock',
+		'symfony/uid',
+		'phpdocumentor/reflection-docblock',
+		'phpdocumentor/type-resolver',
+		'phpdocumentor/reflection-common',
+		'phpstan/phpdoc-parser',
+		'webmozart/assert',
 		'dolondro/google-authenticator',
 	];
 
 	private const EXPECTED_EXCLUDED_PACKAGES = [
 		'psr/log',
 		'psr/cache',
-		'psr/http-client',
-		'psr/http-factory',
-		'psr/http-message',
+		'psr/clock',
+		'psr/container',
+		'psr/event-dispatcher',
 		'ramsey/uuid',
 		'ramsey/collection',
 		'brick/math',
+		'doctrine/deprecations',
 		'paragonie/random_compat',
 		'christian-riesen/base32',
 		'symfony/deprecation-contracts',
+		'symfony/translation-contracts',
 		'symfony/polyfill-ctype',
+		'symfony/polyfill-iconv',
+		'symfony/polyfill-intl-grapheme',
+		'symfony/polyfill-intl-normalizer',
 		'symfony/polyfill-mbstring',
-		'symfony/polyfill-php81',
 		'symfony/polyfill-php80',
+		'symfony/polyfill-php83',
+		'symfony/polyfill-php84',
 		'symfony/polyfill-uuid',
+		'symfony/string',
 	];
 
 	private const REQUIRED_UNPREFIXED_PACKAGES = [
 		'fernleafsystems/worpdrive-client',
 		'psr/log',
 		'psr/cache',
-		'psr/http-client',
-		'psr/http-factory',
-		'psr/http-message',
+		'psr/clock',
+		'psr/container',
+		'psr/event-dispatcher',
 		'ramsey/uuid',
 		'ramsey/collection',
 		'brick/math',
+		'doctrine/deprecations',
 		'paragonie/random_compat',
 		'christian-riesen/base32',
+		'symfony/deprecation-contracts',
+		'symfony/translation-contracts',
+		'symfony/polyfill-ctype',
+		'symfony/polyfill-iconv',
+		'symfony/polyfill-intl-grapheme',
+		'symfony/polyfill-intl-normalizer',
+		'symfony/polyfill-mbstring',
 		'symfony/polyfill-php80',
+		'symfony/polyfill-php83',
+		'symfony/polyfill-php84',
+		'symfony/polyfill-uuid',
+		'symfony/string',
 	];
 
 	private const EXPECTED_NAMESPACE_REWRITES = [
 		'Monolog\\'                       => 'AptowebDeps\\Monolog\\',
 		'Twig\\'                          => 'AptowebDeps\\Twig\\',
 		'CrowdSec\\CapiClient\\'          => 'AptowebDeps\\CrowdSec\\CapiClient\\',
-		'Safe\\'                          => 'AptowebDeps\\Safe\\',
 		'Webauthn\\'                      => 'AptowebDeps\\Webauthn\\',
 		'Cose\\'                          => 'AptowebDeps\\Cose\\',
-		'Base64Url\\'                     => 'AptowebDeps\\Base64Url\\',
 		'CBOR\\'                          => 'AptowebDeps\\CBOR\\',
-		'FG\\'                            => 'AptowebDeps\\FG\\',
-		'Assert\\'                        => 'AptowebDeps\\Assert\\',
-		'League\\Uri\\'                   => 'AptowebDeps\\League\\Uri\\',
-		'Nyholm\\Psr7\\'                  => 'AptowebDeps\\Nyholm\\Psr7\\',
-		'Nyholm\\Psr7Server\\'            => 'AptowebDeps\\Nyholm\\Psr7Server\\',
-		'Symfony\\Component\\Process\\'   => 'AptowebDeps\\Symfony\\Component\\Process\\',
+		'SpomkyLabs\\Pki\\'               => 'AptowebDeps\\SpomkyLabs\\Pki\\',
+		'ParagonIE\\ConstantTime\\'        => 'AptowebDeps\\ParagonIE\\ConstantTime\\',
+		'Symfony\\Component\\Serializer\\' => 'AptowebDeps\\Symfony\\Component\\Serializer\\',
+		'Symfony\\Component\\PropertyInfo\\' => 'AptowebDeps\\Symfony\\Component\\PropertyInfo\\',
+		'Symfony\\Component\\PropertyAccess\\' => 'AptowebDeps\\Symfony\\Component\\PropertyAccess\\',
+		'Symfony\\Component\\TypeInfo\\'   => 'AptowebDeps\\Symfony\\Component\\TypeInfo\\',
+		'Symfony\\Component\\Clock\\'      => 'AptowebDeps\\Symfony\\Component\\Clock\\',
+		'Symfony\\Component\\Uid\\'        => 'AptowebDeps\\Symfony\\Component\\Uid\\',
+		'phpDocumentor\\Reflection\\'      => 'AptowebDeps\\phpDocumentor\\Reflection\\',
+		'PHPStan\\PhpDocParser\\'          => 'AptowebDeps\\PHPStan\\PhpDocParser\\',
+		'Webmozart\\Assert\\'              => 'AptowebDeps\\Webmozart\\Assert\\',
 		'Dolondro\\GoogleAuthenticator\\' => 'AptowebDeps\\Dolondro\\GoogleAuthenticator\\',
 	];
 
@@ -118,15 +143,19 @@ class PluginPackagerStraussTest extends TestCase {
 	public function testSourceStraussConfigMatchesPackageContract() :void {
 		$strauss = $this->getSourceComposerStraussConfig();
 
-		$this->assertSame( 'vendor_prefixed', $strauss[ 'target_directory' ] ?? null );
-		$this->assertSame( self::STRAUSS_NAMESPACE_PREFIX, $strauss[ 'namespace_prefix' ] ?? null );
-		$this->assertSame( self::EXPECTED_STRAUSS_PACKAGES, $strauss[ 'packages' ] ?? null );
-		$this->assertNotContains( 'fernleafsystems/worpdrive-client', $strauss[ 'packages' ] ?? [] );
-		$this->assertSame( [ 'src' ], $strauss[ 'update_call_sites' ] ?? null );
-		$this->assertSame(
-			self::EXPECTED_EXCLUDED_PACKAGES,
-			$strauss[ 'exclude_from_copy' ][ 'packages' ] ?? null
-		);
+		$this->assertArrayHasKey( 'target_directory', $strauss );
+		$this->assertSame( 'vendor_prefixed', $strauss[ 'target_directory' ] );
+		$this->assertArrayHasKey( 'namespace_prefix', $strauss );
+		$this->assertSame( self::STRAUSS_NAMESPACE_PREFIX, $strauss[ 'namespace_prefix' ] );
+		$this->assertArrayHasKey( 'packages', $strauss );
+		$this->assertSame( self::EXPECTED_STRAUSS_PACKAGES, $strauss[ 'packages' ] );
+		$this->assertNotContains( 'fernleafsystems/worpdrive-client', $strauss[ 'packages' ] );
+		$this->assertArrayHasKey( 'update_call_sites', $strauss );
+		$this->assertSame( [ 'src' ], $strauss[ 'update_call_sites' ] );
+		$this->assertArrayHasKey( 'exclude_from_copy', $strauss );
+		$this->assertIsArray( $strauss[ 'exclude_from_copy' ] );
+		$this->assertArrayHasKey( 'packages', $strauss[ 'exclude_from_copy' ] );
+		$this->assertSame( self::EXPECTED_EXCLUDED_PACKAGES, $strauss[ 'exclude_from_copy' ][ 'packages' ] );
 	}
 
 	/** @group package-targeted */
@@ -253,7 +282,10 @@ class PluginPackagerStraussTest extends TestCase {
 
 	/** @group package-targeted */
 	public function testPrefixedAutoloadsHaveNoVendorLeaks() :void {
-		$autoloadFiles = glob( $this->packagePathJoin( 'vendor_prefixed/autoload*.php' ) ) ?: [];
+		$autoloadFiles = \array_merge(
+			glob( $this->packagePathJoin( 'vendor_prefixed/autoload*.php' ) ) ?: [],
+			glob( $this->packagePathJoin( 'vendor_prefixed/composer/autoload*.php' ) ) ?: []
+		);
 		$this->assertNotSame( [], $autoloadFiles, 'No prefixed autoload files found to inspect.' );
 
 		$leaks = [];
@@ -351,16 +383,33 @@ class PluginPackagerStraussTest extends TestCase {
 
 		$this->assertTrue( class_exists( $crowdSecClass ) );
 
-		$this->assertTrue( \function_exists( 'AptowebDeps\\Safe\\json_encode' ) );
-		$this->assertSame( '{"ok":true}', \AptowebDeps\Safe\json_encode( [ 'ok' => true ] ) );
-
-		$dateTime = new \AptowebDeps\Safe\DateTimeImmutable( 'now' );
-		$this->assertInstanceOf( \AptowebDeps\Safe\DateTimeImmutable::class, $dateTime->setTimestamp( 123 ) );
-
 		$attestationManager = new \AptowebDeps\Webauthn\AttestationStatement\AttestationStatementSupportManager();
-		$attestationLoader = new \AptowebDeps\Webauthn\AttestationStatement\AttestationObjectLoader( $attestationManager );
-		$credentialLoader = new \AptowebDeps\Webauthn\PublicKeyCredentialLoader( $attestationLoader );
-		$this->assertInstanceOf( \AptowebDeps\Webauthn\PublicKeyCredentialLoader::class, $credentialLoader );
+		$serializer = ( new \AptowebDeps\Webauthn\Denormalizer\WebauthnSerializerFactory( $attestationManager ) )
+			->create();
+		$this->assertInstanceOf( \AptowebDeps\Symfony\Component\Serializer\SerializerInterface::class, $serializer );
+
+		$credentialData = $this->loadPasskeyLegacyRecordFixture();
+		$credentialData[ 'trustPath' ] = [];
+		$credentialRecord = $serializer->denormalize(
+			$credentialData,
+			\AptowebDeps\Webauthn\CredentialRecord::class
+		);
+		$this->assertInstanceOf( \AptowebDeps\Webauthn\CredentialRecord::class, $credentialRecord );
+		$normalizedRecord = $serializer->normalize( $credentialRecord );
+		$this->assertIsArray( $normalizedRecord );
+		$this->assertArrayHasKey( 'publicKeyCredentialId', $normalizedRecord );
+		$this->assertSame( $credentialData[ 'publicKeyCredentialId' ], $normalizedRecord[ 'publicKeyCredentialId' ] );
+
+		$ceremonyFactory = new \AptowebDeps\Webauthn\CeremonyStep\CeremonyStepManagerFactory();
+		$validator = new \AptowebDeps\Webauthn\AuthenticatorAttestationResponseValidator(
+			$ceremonyFactory->creationCeremony()
+		);
+		$this->assertInstanceOf( \AptowebDeps\Webauthn\AuthenticatorAttestationResponseValidator::class, $validator );
+
+		$this->assertSame(
+			'dGVzdA',
+			\AptowebDeps\ParagonIE\ConstantTime\Base64UrlSafe::encodeUnpadded( 'test' )
+		);
 
 		$googleAuthenticator = new \AptowebDeps\Dolondro\GoogleAuthenticator\GoogleAuthenticator();
 		$this->assertInstanceOf(
@@ -368,14 +417,15 @@ class PluginPackagerStraussTest extends TestCase {
 			$googleAuthenticator
 		);
 
-		$psr17Factory = new \AptowebDeps\Nyholm\Psr7\Factory\Psr17Factory();
-		$this->assertInstanceOf( \AptowebDeps\Nyholm\Psr7\Factory\Psr17Factory::class, $psr17Factory );
+		$clock = new \AptowebDeps\Symfony\Component\Clock\NativeClock();
+		$this->assertInstanceOf( \AptowebDeps\Symfony\Component\Clock\NativeClock::class, $clock );
 
-		$base64Url = new \AptowebDeps\Base64Url\Base64Url();
-		$this->assertInstanceOf( \AptowebDeps\Base64Url\Base64Url::class, $base64Url );
+		$propertyAccessor = \AptowebDeps\Symfony\Component\PropertyAccess\PropertyAccess::createPropertyAccessor();
+		$this->assertInstanceOf(
+			\AptowebDeps\Symfony\Component\PropertyAccess\PropertyAccessorInterface::class,
+			$propertyAccessor
+		);
 
-		$process = new \AptowebDeps\Symfony\Component\Process\Process( [ 'php', '-v' ] );
-		$this->assertInstanceOf( \AptowebDeps\Symfony\Component\Process\Process::class, $process );
 	}
 
 	/** @group package-targeted */
@@ -499,11 +549,18 @@ class PluginPackagerStraussTest extends TestCase {
 			$credentialData = $legacyRecord;
 			$credentialData[ 'trustPath' ][ 'type' ] = $type;
 
-			$normalized = $normalizer->normalize( $credentialData );
+			$normalized = $normalizer->normalizeForStorage( $credentialData );
 
-			$this->assertSame( 'empty', $normalized[ 'trustPath' ][ 'type' ] ?? null, $case );
-			$source = \AptowebDeps\Webauthn\PublicKeyCredentialSource::createFromArray( $normalized );
-			$this->assertInstanceOf( \AptowebDeps\Webauthn\PublicKeyCredentialSource::class, $source, $case );
+			$this->assertArrayHasKey( 'trustPath', $normalized, $case );
+			$this->assertIsArray( $normalized[ 'trustPath' ], $case );
+			$this->assertArrayHasKey( 'type', $normalized[ 'trustPath' ], $case );
+			$this->assertSame( 'empty', $normalized[ 'trustPath' ][ 'type' ], $case );
+			$webauthnRecordData = $normalizer->normalizeForWebauthn( $normalized );
+			$serializer = ( new \AptowebDeps\Webauthn\Denormalizer\WebauthnSerializerFactory(
+				new \AptowebDeps\Webauthn\AttestationStatement\AttestationStatementSupportManager()
+			) )->create();
+			$source = $serializer->denormalize( $webauthnRecordData, \AptowebDeps\Webauthn\CredentialRecord::class );
+			$this->assertInstanceOf( \AptowebDeps\Webauthn\CredentialRecord::class, $source, $case );
 		}
 	}
 
@@ -592,7 +649,10 @@ class PluginPackagerStraussTest extends TestCase {
 
 		$decoded = json_decode( (string)$content, true );
 		$this->assertIsArray( $decoded, 'Source composer.json must decode to an array.' );
-		$this->assertIsArray( $decoded[ 'extra' ][ 'strauss' ] ?? null, 'Source composer.json missing extra.strauss config.' );
+		$this->assertArrayHasKey( 'extra', $decoded, 'Source composer.json missing extra config.' );
+		$this->assertIsArray( $decoded[ 'extra' ], 'Source composer.json extra config must be an array.' );
+		$this->assertArrayHasKey( 'strauss', $decoded[ 'extra' ], 'Source composer.json missing extra.strauss config.' );
+		$this->assertIsArray( $decoded[ 'extra' ][ 'strauss' ], 'Source composer.json extra.strauss config must be an array.' );
 
 		return $decoded[ 'extra' ][ 'strauss' ];
 	}
@@ -661,7 +721,8 @@ class PluginPackagerStraussTest extends TestCase {
 
 		$decoded = \json_decode( (string)\file_get_contents( $fixturePath ), true );
 		$this->assertIsArray( $decoded );
-		$this->assertIsArray( $decoded[ 'legacy_record' ] ?? null );
+		$this->assertArrayHasKey( 'legacy_record', $decoded );
+		$this->assertIsArray( $decoded[ 'legacy_record' ] );
 
 		return $decoded[ 'legacy_record' ];
 	}

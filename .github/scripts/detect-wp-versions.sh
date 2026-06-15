@@ -8,7 +8,7 @@
 # - WordPress.org API integration (primary and secondary endpoints)
 # - Local API response caching for resilience
 # - 3-level fallback hierarchy for reliability with low complexity
-# - PHP compatibility matrix filtering (PHP 7.4-8.4)
+# - PHP compatibility matrix filtering (Shield PHP 8.2-8.4)
 # - Retry logic with exponential backoff
 # - Comprehensive error handling and edge case management
 #
@@ -41,11 +41,12 @@ if [[ -f "$MATRIX_CONFIG" ]]; then
     read -ra PHP_SUPPORTED_VERSIONS <<< "$PHP_VERSIONS"
 else
     # Fallback if config not found
-    PHP_SUPPORTED_VERSIONS=("7.4" "8.0" "8.1" "8.2" "8.3" "8.4")
+    PHP_SUPPORTED_VERSIONS=("8.2" "8.3" "8.4")
 fi
 readonly PHP_SUPPORTED_VERSIONS
 
-# WordPress minimum requirements by version
+# WordPress core minimum PHP requirements by version.
+# These values intentionally describe WordPress core, not Shield's PHP floor.
 declare -A WP_MIN_PHP_VERSIONS=(
     ["6.8"]="7.4"
     ["6.7"]="7.4"
@@ -567,7 +568,7 @@ filter_php_compatible_versions() {
     local latest="$1"
     local previous="$2"
     
-    log_info "Filtering versions for PHP compatibility (PHP 7.4-8.4)"
+    log_info "Filtering versions for Shield PHP compatibility (PHP 8.2-8.4)"
     
     local compatible_latest="$latest"
     local compatible_previous="$previous"

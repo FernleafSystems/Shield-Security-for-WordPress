@@ -12,84 +12,13 @@
   "config":            {
     "prepend-autoloader":  false,
     "optimize-autoloader": true,
-    "audit":               {
-      "ignore": {
-        "PKSA-n72g-8zd8-6dm2": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support remains and a long-term passkey library strategy is finalized."
-        },
-        "PKSA-sjvz-tbbr-vwth": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not use the spaceless filter and will move to Twig 3.27+ with PHP 8.1+."
-        },
-        "PKSA-h8hf-ytnd-5t9q": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; bundled templates do not use the Twig use tag and render targets are constrained."
-        },
-        "PKSA-wwb1-81rc-pd65": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig profiler HtmlDumper in production rendering."
-        },
-        "PKSA-kvv6-36cr-fkzb": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing for untrusted templates."
-        },
-        "PKSA-n14z-jjjg-g8vd": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing or use the column filter."
-        },
-        "PKSA-3mcc-k66d-pydb": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing for untrusted templates."
-        },
-        "PKSA-gw7n-z4yx-7xjt": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not configure Twig SourcePolicyInterface sandboxing."
-        },
-        "PKSA-dpx1-78wg-1kqs": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing for untrusted templates."
-        },
-        "PKSA-21g2-dzjv-sky5": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable StringLoaderExtension or template_from_string."
-        },
-        "PKSA-fbvq-z33h-r2np": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing or SourcePolicyInterface and does not use the column filter."
-        },
-        "PKSA-g9zw-qxh8-pq8w": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing or call the deprecated twig_* helper wrappers."
-        },
-        "PKSA-yd6k-t2gh-1m43": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing and creates a fresh Twig Environment for each render."
-        },
-        "PKSA-1tmc-rt7x-12w6": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing for untrusted templates."
-        },
-        "PKSA-xx6c-6d96-db2w": {
-          "apply":  "block",
-          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing for untrusted templates."
-        }
-      }
-    },
     "platform":            {
-      "php": "7.4"
+      "php": "8.2"
     }
   },
   "minimum-stability": "stable",
   "prefer-stable":     true,
   "repositories":      [
-    {
-      "type":    "path",
-      "url":     "packages/thecodingmachine-safe",
-      "options": {
-        "symlink": false
-      }
-    },
     {
       "type": "composer",
       "url":  "https://repo.packagist.com/fernleafsystems/",
@@ -99,18 +28,17 @@
     }
   ],
   "require":           {
-    "php":                                   ">=7.4",
+    "php":                                   ">=8.2",
     "crowdsec/capi-client":                  "^3.5",
     "dolondro/google-authenticator":         "^2.2",
     "fernleafsystems/wordpress-plugin-core": "^2.4",
     "fernleafsystems/worpdrive-client":      "^0.3",
     "fernleafsystems/zxcvbn-php":            "^1.1",
     "monolog/monolog":                       "^2.10",
-    "nyholm/psr7":                           "^1.8",
-    "nyholm/psr7-server":                    "^1.1",
+    "paragonie/constant_time_encoding":      "^3.0",
     "symfony/polyfill-iconv":                "^1.29",
-    "twig/twig":                             "^3.11",
-    "web-auth/webauthn-lib":                 "^3.3",
+    "twig/twig":                             "^3.27",
+    "web-auth/webauthn-lib":                 "^5.3",
     "ext-json":                              "*",
     "ext-openssl":                           "*",
     "ext-zlib":                              "*",
@@ -213,19 +141,22 @@
         "monolog/monolog",
         "twig/twig",
         "crowdsec/capi-client",
-        "thecodingmachine/safe",
         "web-auth/webauthn-lib",
         "web-auth/cose-lib",
-        "web-auth/metadata-service",
-        "spomky-labs/base64url",
         "spomky-labs/cbor-php",
-        "fgrosse/phpasn1",
-        "beberlei/assert",
-        "league/uri",
-        "league/uri-interfaces",
-        "nyholm/psr7",
-        "nyholm/psr7-server",
-        "symfony/process",
+        "spomky-labs/pki-framework",
+        "paragonie/constant_time_encoding",
+        "symfony/serializer",
+        "symfony/property-info",
+        "symfony/property-access",
+        "symfony/type-info",
+        "symfony/clock",
+        "symfony/uid",
+        "phpdocumentor/reflection-docblock",
+        "phpdocumentor/type-resolver",
+        "phpdocumentor/reflection-common",
+        "phpstan/phpdoc-parser",
+        "webmozart/assert",
         "dolondro/google-authenticator"
       ],
       "update_call_sites":              [
@@ -237,20 +168,27 @@
         "packages":      [
           "psr/log",
           "psr/cache",
-          "psr/http-client",
-          "psr/http-factory",
-          "psr/http-message",
+          "psr/clock",
+          "psr/container",
+          "psr/event-dispatcher",
           "ramsey/uuid",
           "ramsey/collection",
           "brick/math",
+          "doctrine/deprecations",
           "paragonie/random_compat",
           "christian-riesen/base32",
           "symfony/deprecation-contracts",
+          "symfony/translation-contracts",
           "symfony/polyfill-ctype",
+          "symfony/polyfill-iconv",
+          "symfony/polyfill-intl-grapheme",
+          "symfony/polyfill-intl-normalizer",
           "symfony/polyfill-mbstring",
-          "symfony/polyfill-php81",
           "symfony/polyfill-php80",
-          "symfony/polyfill-uuid"
+          "symfony/polyfill-php83",
+          "symfony/polyfill-php84",
+          "symfony/polyfill-uuid",
+          "symfony/string"
         ],
         "namespaces":    [],
         "file_patterns": []

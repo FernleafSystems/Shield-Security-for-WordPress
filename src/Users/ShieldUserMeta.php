@@ -80,7 +80,7 @@ class ShieldUserMeta extends UserMeta {
 				break;
 		}
 
-		if ( \function_exists( 'str_ends_with' ) && \str_ends_with( $key, '_at' ) ) {
+		if ( \str_ends_with( $key, '_at' ) ) {
 			$value = (int)$value;
 		}
 

@@ -119,7 +119,7 @@ class PluginPackager {
 		// Generate plugin.json from updated spec files
 		$this->buildPluginJson( $targetDir );
 
-		// Synchronize package-specific files (readme.txt, icwp-wpsf.php) from generated plugin.json.
+		// Synchronize package version metadata after plugin.json generation.
 		$this->updatePackageFiles( $targetDir );
 
 		$requiredPrefixedPackages = [];
@@ -141,8 +141,8 @@ class PluginPackager {
 			// Clean vendor files after successful Strauss prefixing.
 			( new VendorCleaner( $this->logger ) )->clean( $targetDir );
 
-			$this->postStraussCleanup->cleanPackageFiles( $targetDir, $this->straussForkRepo );
-			$this->postStraussCleanup->cleanAutoloadFiles( $targetDir );
+			$this->postStraussCleanup->cleanPackageFiles( $targetDir, $this->straussForkRepo, $requiredPrefixedPackages );
+			$this->postStraussCleanup->cleanAutoloadFiles( $targetDir, $requiredPrefixedPackages );
 		}
 		else {
 			$this->log( 'Skipping package dependency build (--skip-package-dependency-build enabled)' );
@@ -310,12 +310,12 @@ class PluginPackager {
 	}
 
 	/**
-	 * Synchronize package-specific files (readme.txt, icwp-wpsf.php) from generated plugin.json.
+	 * Synchronize package version metadata in readme.txt and icwp-wpsf.php from generated plugin.json.
 	 */
 	private function updatePackageFiles( string $targetDir ) :void {
 		$derivedVersion = $this->readGeneratedPackageVersion( $targetDir );
 
-		$this->log( sprintf( 'Synchronizing package files to plugin.json version: %s', $derivedVersion ) );
+		$this->log( sprintf( 'Synchronizing package version metadata to plugin.json version: %s', $derivedVersion ) );
 		$this->versionUpdater->updateReadmeTxt( $targetDir, $derivedVersion );
 		$this->versionUpdater->updatePluginHeader( $targetDir, $derivedVersion );
 		$this->log( '  Package files synchronized' );

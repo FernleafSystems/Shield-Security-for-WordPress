@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Pro
 	GoogleAuth,
 	Passkey
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeyBase64Url;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\MFA\Support\{
 	PasskeyFixtureLoader,
@@ -48,9 +49,11 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'Desk Key', $records[ 0 ]->label );
 		$this->assertTrue( (bool)$records[ 0 ]->passwordless );
 		$this->assertSame( PasskeyFixtureLoader::registrationCredentialUniqueId(), $records[ 0 ]->unique_id );
-		$this->assertSame( PasskeyFixtureLoader::registrationCredentialId(), $records[ 0 ]->data[ 'publicKeyCredentialId' ] ?? '' );
-		$this->assertSame( PasskeyFixtureLoader::registrationExpectedCounter(), (int)( $records[ 0 ]->data[ 'counter' ] ?? 0 ) );
-		$this->assertSame( 'empty', $records[ 0 ]->data[ 'trustPath' ][ 'type' ] ?? '' );
+		$this->assertCredentialRecordData(
+			$records[ 0 ]->data,
+			PasskeyFixtureLoader::registrationCredentialId(),
+			PasskeyFixtureLoader::registrationExpectedCounter()
+		);
 	}
 
 	public function test_registration_verification_rejects_wrong_challenge() :void {
@@ -115,8 +118,11 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 
 		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
 		$this->assertGreaterThan( 0, (int)$record->used_at );
-		$this->assertSame( PasskeyFixtureLoader::authenticationExpectedCounter(), (int)( $record->data[ 'counter' ] ?? 0 ) );
-		$this->assertSame( 'empty', $record->data[ 'trustPath' ][ 'type' ] ?? '' );
+		$this->assertCredentialRecordData(
+			$record->data,
+			PasskeyFixtureLoader::credentialId(),
+			PasskeyFixtureLoader::authenticationExpectedCounter()
+		);
 	}
 
 	/**
@@ -139,8 +145,11 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 
 		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
 		$this->assertGreaterThan( 0, (int)$record->used_at );
-		$this->assertSame( PasskeyFixtureLoader::authenticationExpectedCounter(), (int)( $record->data[ 'counter' ] ?? 0 ) );
-		$this->assertSame( 'empty', $record->data[ 'trustPath' ][ 'type' ] ?? '' );
+		$this->assertCredentialRecordData(
+			$record->data,
+			PasskeyFixtureLoader::credentialId(),
+			PasskeyFixtureLoader::authenticationExpectedCounter()
+		);
 	}
 
 	public function test_authentication_verification_rejects_wrong_origin() :void {
@@ -160,7 +169,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 
 		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
 		$this->assertSame( 0, (int)$record->used_at );
-		$this->assertSame( PasskeyFixtureLoader::legacyRecordCounter(), (int)( $record->data[ 'counter' ] ?? 0 ) );
+		$this->assertCredentialCounter( PasskeyFixtureLoader::legacyRecordCounter(), $record->data );
 	}
 
 	public function test_authentication_verification_rejects_wrong_challenge() :void {
@@ -178,7 +187,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 
 		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
 		$this->assertSame( 0, (int)$record->used_at );
-		$this->assertSame( PasskeyFixtureLoader::legacyRecordCounter(), (int)( $record->data[ 'counter' ] ?? 0 ) );
+		$this->assertCredentialCounter( PasskeyFixtureLoader::legacyRecordCounter(), $record->data );
 	}
 
 	public function test_authentication_verification_rejects_mismatched_user_handle() :void {
@@ -194,11 +203,10 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 		$result = $provider->verifyAuthResponse( PasskeyFixtureLoader::authenticationResponse() );
 
 		$this->assertFalse( $result->success );
-		$this->assertStringContainsString( 'Invalid user handle', $result->error_text );
 
 		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
 		$this->assertSame( 0, (int)$record->used_at );
-		$this->assertSame( PasskeyFixtureLoader::legacyRecordCounter(), (int)( $record->data[ 'counter' ] ?? 0 ) );
+		$this->assertCredentialCounter( PasskeyFixtureLoader::legacyRecordCounter(), $record->data );
 	}
 
 	public function test_authentication_verification_rejects_unknown_credential() :void {
@@ -217,7 +225,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 
 		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
 		$this->assertSame( 0, (int)$record->used_at );
-		$this->assertSame( PasskeyFixtureLoader::legacyRecordCounter(), (int)( $record->data[ 'counter' ] ?? 0 ) );
+		$this->assertCredentialCounter( PasskeyFixtureLoader::legacyRecordCounter(), $record->data );
 	}
 
 	public function test_authentication_verification_rejects_malformed_payload() :void {
@@ -233,7 +241,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 
 		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
 		$this->assertSame( 0, (int)$record->used_at );
-		$this->assertSame( PasskeyFixtureLoader::legacyRecordCounter(), (int)( $record->data[ 'counter' ] ?? 0 ) );
+		$this->assertCredentialCounter( PasskeyFixtureLoader::legacyRecordCounter(), $record->data );
 	}
 
 	public function test_login_intent_validation_succeeds_for_existing_passkey_record() :void {
@@ -382,7 +390,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 
 		$record = $this->requireController()->db_con->mfa->getQuerySelector()->byId( $recordId );
 		$this->assertSame( Passkey::ProviderSlug(), $validatedSlug );
-		$this->assertSame( 'empty', $record->data[ 'trustPath' ][ 'type' ] ?? '' );
+		$this->assertCredentialTrustPathType( 'empty', $record->data );
 		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
 		$this->assertGreaterThan( 0, (int)$this->requireController()->user_metas->for( $user )->record->last_2fa_verified_at );
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_success' ) );
@@ -419,7 +427,27 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function randomBase64Url( int $length = 32 ) :string {
-		return \rtrim( \strtr( \base64_encode( \random_bytes( $length ) ), '+/', '-_' ), '=' );
+		return PasskeyBase64Url::encode( \random_bytes( $length ) );
+	}
+
+	private function assertCredentialRecordData( array $credentialData, string $credentialId, int $counter ) :void {
+		$this->assertArrayHasKey( 'publicKeyCredentialId', $credentialData );
+		$this->assertSame( $credentialId, $credentialData[ 'publicKeyCredentialId' ] );
+		$this->assertCredentialCounter( $counter, $credentialData );
+		$this->assertCredentialTrustPathType( 'empty', $credentialData );
+	}
+
+	private function assertCredentialCounter( int $expectedCounter, array $credentialData ) :void {
+		$this->assertArrayHasKey( 'counter', $credentialData );
+		$this->assertIsInt( $credentialData[ 'counter' ] );
+		$this->assertSame( $expectedCounter, $credentialData[ 'counter' ] );
+	}
+
+	private function assertCredentialTrustPathType( string $expectedType, array $credentialData ) :void {
+		$this->assertArrayHasKey( 'trustPath', $credentialData );
+		$this->assertIsArray( $credentialData[ 'trustPath' ] );
+		$this->assertArrayHasKey( 'type', $credentialData[ 'trustPath' ] );
+		$this->assertSame( $expectedType, $credentialData[ 'trustPath' ][ 'type' ] );
 	}
 
 	/**

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Extensions;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\MinimumRequirements;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Files;
@@ -105,7 +106,7 @@ abstract class BaseExtension {
 	protected function requirements() :array {
 		return [
 			'php'    => [
-				'min' => '7.4',
+				'min' => MinimumRequirements::PHP,
 			],
 			'shield' => [
 				'min' => '20.0',

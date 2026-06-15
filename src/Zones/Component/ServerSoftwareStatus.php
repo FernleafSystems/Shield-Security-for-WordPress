@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Component;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\MinimumRequirements;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\SslStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 use FernleafSystems\Wordpress\Services\Services;
@@ -27,10 +28,11 @@ class ServerSoftwareStatus extends Base {
 	protected function status() :array {
 		$status = parent::status();
 		$status[ 'level' ] = EnumEnabledStatus::GOOD;
+		$phpMinimum = MinimumRequirements::PHP;
 
-		if ( !Services::Data()->getPhpVersionIsAtLeast( '7.4' ) ) {
+		if ( !Services::Data()->getPhpVersionIsAtLeast( $phpMinimum ) ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
-			$status[ 'exp' ][] = sprintf( __( "PHP version should ideally be at least %s.", 'wp-simple-firewall' ), '7.4' );
+			$status[ 'exp' ][] = sprintf( __( "PHP version should ideally be at least %s.", 'wp-simple-firewall' ), $phpMinimum );
 		}
 		if ( SslStatus::Check() !== 'ssl_valid' ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;

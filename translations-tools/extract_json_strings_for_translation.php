@@ -8,7 +8,7 @@
  * 
  * Usage: php extract_json_strings_for_translation.php
  * 
- * @requires PHP 7.4+
+ * @requires PHP 8.2+
  */
 
 class JsonStringExtractor {

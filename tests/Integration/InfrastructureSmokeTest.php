@@ -346,16 +346,12 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	/**
 	 * @group smoke
 	 */
-	public function test_passkey_runtime_has_required_extension() :void {
-		$required = [
-			'bcmath',
-			'gmp',
-		];
-		$loaded = \array_values( \array_filter( $required, '\extension_loaded' ) );
+	public function test_passkey_runtime_has_required_capabilities() :void {
+		$checker = new \FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeyCompatibilityCheck();
 
-		$this->assertNotEmpty(
-			$loaded,
-			'Passkey integration runtime must load at least one required extension: '.\implode( ', ', $required ).'.'
+		$this->assertTrue(
+			$checker->run(),
+			'Passkey integration runtime must provide required extensions/functions.'
 		);
 	}
 }

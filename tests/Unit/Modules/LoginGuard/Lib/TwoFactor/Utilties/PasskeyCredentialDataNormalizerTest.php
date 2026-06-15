@@ -11,24 +11,64 @@ class PasskeyCredentialDataNormalizerTest extends BaseUnitTest {
 	 * @dataProvider classLikeTrustPathTypesProvider
 	 */
 	public function test_class_like_trust_path_types_without_trust_material_normalize_to_empty( string $type ) :void {
-		$normalized = $this->normalizer()->normalize( [
+		$normalized = $this->normalizer()->normalizeForStorage( [
 			'trustPath' => [
 				'type' => $type,
 			],
 		] );
 
-		$this->assertSame( 'empty', $normalized[ 'trustPath' ][ 'type' ] ?? null );
+		$this->assertTrustPathType( 'empty', $normalized );
 	}
 
 	/**
 	 * @dataProvider trustMaterialProvider
 	 */
 	public function test_trust_material_normalizes_to_alias_independent_of_type( array $trustPath, string $expected ) :void {
-		$normalized = $this->normalizer()->normalize( [
+		$normalized = $this->normalizer()->normalizeForStorage( [
 			'trustPath' => $trustPath,
 		] );
 
-		$this->assertSame( $expected, $normalized[ 'trustPath' ][ 'type' ] ?? null );
+		$this->assertTrustPathType( $expected, $normalized );
+	}
+
+	public function test_empty_v5_trust_path_normalizes_to_storage_alias() :void {
+		$normalized = $this->normalizer()->normalizeForStorage( [
+			'trustPath' => [],
+		] );
+
+		$this->assertTrustPathType( 'empty', $normalized );
+	}
+
+	public function test_empty_storage_alias_normalizes_to_v5_trust_path() :void {
+		$normalized = $this->normalizer()->normalizeForWebauthn( [
+			'trustPath' => [
+				'type' => 'empty',
+			],
+		] );
+
+		$this->assertEmptyTrustPath( $normalized );
+	}
+
+	public function test_ecdaa_storage_alias_normalizes_to_v5_empty_trust_path() :void {
+		$normalized = $this->normalizer()->normalizeForWebauthn( [
+			'trustPath' => [
+				'type'       => 'ecdaa_key_id',
+				'ecdaaKeyId' => 'legacy-ecdaa-key-id',
+			],
+		] );
+
+		$this->assertEmptyTrustPath( $normalized );
+	}
+
+	public function test_legacy_ecdaa_material_normalizes_to_v5_empty_trust_path() :void {
+		$normalized = $this->normalizer()->normalizeForWebauthn( [
+			'trustPath' => [
+				'type'       => 'Webauthn\\TrustPath\\EcdaaKeyIdTrustPath',
+				'ecdaaKeyId' => 'legacy-ecdaa-key-id',
+			],
+		] );
+
+		$this->assertEmptyTrustPath( $normalized );
 	}
 
 	public function test_normalize_only_changes_trust_path_type() :void {
@@ -44,9 +84,9 @@ class PasskeyCredentialDataNormalizerTest extends BaseUnitTest {
 			],
 		];
 
-		$normalized = $this->normalizer()->normalize( $credentialData );
+		$normalized = $this->normalizer()->normalizeForStorage( $credentialData );
 
-		$this->assertSame( 'x5c', $normalized[ 'trustPath' ][ 'type' ] ?? null );
+		$this->assertTrustPathType( 'x5c', $normalized );
 		unset( $credentialData[ 'trustPath' ][ 'type' ], $normalized[ 'trustPath' ][ 'type' ] );
 		$this->assertSame( $credentialData, $normalized );
 	}
@@ -115,7 +155,7 @@ class PasskeyCredentialDataNormalizerTest extends BaseUnitTest {
 	 * @dataProvider unchangedCredentialDataProvider
 	 */
 	public function test_unmapped_or_malformed_credential_data_is_unchanged( array $credentialData ) :void {
-		$this->assertSame( $credentialData, $this->normalizer()->normalize( $credentialData ) );
+		$this->assertSame( $credentialData, $this->normalizer()->normalizeForStorage( $credentialData ) );
 	}
 
 	/**
@@ -154,11 +194,6 @@ class PasskeyCredentialDataNormalizerTest extends BaseUnitTest {
 					'trustPath' => 'not-an-array',
 				],
 			],
-			'missing trust path type and material' => [
-				[
-					'trustPath' => [],
-				],
-			],
 			'non-string trust path type' => [
 				[
 					'trustPath' => [
@@ -192,5 +227,17 @@ class PasskeyCredentialDataNormalizerTest extends BaseUnitTest {
 
 	private function normalizer() :PasskeyCredentialDataNormalizer {
 		return new PasskeyCredentialDataNormalizer();
+	}
+
+	private function assertTrustPathType( string $expected, array $credentialData ) :void {
+		$this->assertArrayHasKey( 'trustPath', $credentialData );
+		$this->assertIsArray( $credentialData[ 'trustPath' ] );
+		$this->assertArrayHasKey( 'type', $credentialData[ 'trustPath' ] );
+		$this->assertSame( $expected, $credentialData[ 'trustPath' ][ 'type' ] );
+	}
+
+	private function assertEmptyTrustPath( array $credentialData ) :void {
+		$this->assertArrayHasKey( 'trustPath', $credentialData );
+		$this->assertSame( [], $credentialData[ 'trustPath' ] );
 	}
 }

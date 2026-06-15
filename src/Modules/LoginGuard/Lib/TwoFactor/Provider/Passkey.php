@@ -23,7 +23,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 
 	protected const SLUG = 'passkey';
 
-	private $sourceRepo = null;
+	private ?PasskeySourcesHandler $sourceRepo = null;
 
 	private ?PasskeyAdapterInterface $adapter = null;
 
@@ -63,30 +63,19 @@ class Passkey extends AbstractShieldProviderMfaDB {
 	}
 
 	public function getFormField() :array {
-		$fieldData = [];
-		try {
-
-			$fieldData = [
-				'slug'              => static::ProviderSlug(),
-				'name'              => 'icwp_wpsf_start_passkey',
-				'hidden_input_name' => $this->getLoginIntentFormParameter(),
-				'element'           => 'button',
-				'type'              => 'button',
-				'value'             => '',
-				'text'              => __( 'Verify Passkey', 'wp-simple-firewall' ),
-				'classes'           => [ 'button', 'btn', 'btn-light' ],
-				'help_link'         => '',
-				'description'       => 'Passkey, Windows Hello, FIDO2, Yubikey, Titan',
-				'datas'             => [
-					'auth_challenge' => \base64_encode( \wp_json_encode( $this->startNewAuth() ) ),
-				]
-			];
-		}
-		catch ( \Exception $e ) {
-			error_log( $e->getMessage() );
-		}
-
-		return $fieldData;
+		return [
+			'slug'              => static::ProviderSlug(),
+			'name'              => 'icwp_wpsf_start_passkey',
+			'hidden_input_name' => $this->getLoginIntentFormParameter(),
+			'element'           => 'button',
+			'type'              => 'button',
+			'value'             => '',
+			'text'              => __( 'Verify Passkey', 'wp-simple-firewall' ),
+			'classes'           => [ 'button', 'btn', 'btn-light' ],
+			'help_link'         => '',
+			'description'       => 'Passkey, Windows Hello, FIDO2, Yubikey, Titan',
+			'datas'             => [],
+		];
 	}
 
 	/**
@@ -150,7 +139,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 		try {
 			$credentialData = $this->getPasskeyAdapter()->verifyAuthentication(
 				$rawJsonEncodedWanResponse,
-				$this->getPasskeysData()[ 'auth_challenge' ] ?? [],
+				$this->getStoredPasskeyOptions( 'auth_challenge' ),
 				$this->getPasskeyAdapterContext(),
 				$this->getSourceRepo()
 			);
@@ -177,7 +166,7 @@ class Passkey extends AbstractShieldProviderMfaDB {
 		try {
 			$credentialData = $this->getPasskeyAdapter()->verifyRegistration(
 				$rawJsonEncodedWanResponse,
-				$this->getPasskeysData()[ 'reg_start' ] ?? [],
+				$this->getStoredPasskeyOptions( 'reg_start' ),
 				$this->getPasskeyAdapterContext(),
 				$this->getSourceRepo()
 			);
@@ -200,28 +189,31 @@ class Passkey extends AbstractShieldProviderMfaDB {
 	}
 
 	protected function processOtp( string $otp ) :bool {
-		return $this->verifyAuthResponse( \base64_decode( $otp ) )->success;
+		$decoded = \base64_decode( $otp, true );
+		return \is_string( $decoded ) && $this->verifyAuthResponse( $decoded )->success;
 	}
 
 	public function isProviderEnabled() :bool {
-		return static::ProviderEnabled() && ( new PasskeyCompatibilityCheck() )->run();
+		return static::ProviderEnabled();
 	}
 
 	public static function ProviderName() :string {
 		return __( 'Passkeys', 'wp-simple-firewall' );
 	}
 
-	public function deleteSource( string $encodedID ) :bool {
-		return $this->getSourceRepo()->deleteSource( $encodedID );
+	public function deleteSource( string $uniqueID ) :bool {
+		return $this->getSourceRepo()->deleteSource( $uniqueID );
 	}
 
 	private function getUserWanKey() :string {
 		$WAN = $this->getPasskeysData();
-		if ( empty( $WAN[ 'user_key' ] ) ) {
+		$userKey = $WAN[ 'user_key' ] ?? null;
+		if ( !\is_string( $userKey ) || $userKey === '' ) {
 			$WAN[ 'user_key' ] = \bin2hex( \random_bytes( 16 ) );
 			$this->setPasskeysData( $WAN );
+			$userKey = $WAN[ 'user_key' ];
 		}
-		return $WAN[ 'user_key' ];
+		return $userKey;
 	}
 
 	private function getPasskeysData() :array {
@@ -239,7 +231,9 @@ class Passkey extends AbstractShieldProviderMfaDB {
 
 	private function getPasskeyAdapterContext() :PasskeyAdapterContext {
 		$user = $this->getUser();
-		$rpId = (string)\wp_parse_url( Services::WpGeneral()->getHomeUrl(), \PHP_URL_HOST );
+		$homeUrl = Services::WpGeneral()->getHomeUrl();
+		$rpId = (string)\wp_parse_url( $homeUrl, \PHP_URL_HOST );
+		$avatarUrl = get_avatar_url( $user->user_email, [ "scheme" => "https" ] );
 
 		return new PasskeyAdapterContext(
 			$rpId,
@@ -247,8 +241,20 @@ class Passkey extends AbstractShieldProviderMfaDB {
 			$user->user_login,
 			$this->getUserWanKey(),
 			$user->display_name,
-			get_avatar_url( $user->user_email, [ "scheme" => "https" ] )
+			\is_string( $avatarUrl ) ? $avatarUrl : '',
+			$this->originFromUrl( $homeUrl )
 		);
+	}
+
+	private function originFromUrl( string $url ) :?string {
+		$scheme = (string)\wp_parse_url( $url, \PHP_URL_SCHEME );
+		$host = (string)\wp_parse_url( $url, \PHP_URL_HOST );
+		if ( $scheme === '' || $host === '' ) {
+			return null;
+		}
+
+		$port = \wp_parse_url( $url, \PHP_URL_PORT );
+		return sprintf( '%s://%s%s', $scheme, $host, \is_int( $port ) ? ':'.$port : '' );
 	}
 
 	public function removeFromProfile() :void {
@@ -258,6 +264,15 @@ class Passkey extends AbstractShieldProviderMfaDB {
 
 	private function setPasskeysData( array $WAN ) :void {
 		$this->con()->user_metas->for( $this->getUser() )->passkeys = $WAN;
+	}
+
+	private function getStoredPasskeyOptions( string $key ) :array {
+		$passkeys = $this->getPasskeysData();
+		if ( !\array_key_exists( $key, $passkeys ) || !\is_array( $passkeys[ $key ] ) ) {
+			throw new \InvalidArgumentException( 'Passkey challenge is unavailable.' );
+		}
+
+		return $passkeys[ $key ];
 	}
 
 	private function getSourceRepo() :PasskeySourcesHandler {

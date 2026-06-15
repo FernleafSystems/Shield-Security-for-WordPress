@@ -10,7 +10,7 @@ on:
       php_version:
         description: PHP version used for the unit lane
         required: false
-        default: '7.4'
+        default: '8.2'
         type: string
       allow_failure:
         description: Mark command failures as advisory warnings

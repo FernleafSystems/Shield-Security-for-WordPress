@@ -85,9 +85,9 @@ The required PR CI gate is [`.github/workflows/tests.yml`](.github/workflows/tes
 
 | CI lane | Local equivalent | Notes |
 |---|---|---|
-| PHPStan Source Analysis (PHP 7.4) | `composer analyze` | CI runs this on PHP 7.4; use a PHP 7.4 shell when reproducing parse-compatibility exactly. |
+| PHPStan Source Analysis (PHP 8.2) | `composer analyze` | CI runs this on PHP 8.2; use a PHP 8.2 shell when reproducing parse-compatibility exactly. |
 | JavaScript Static Checks | `npm run test:js` | Static policy, ESLint, and checkJs only. |
-| PHP Unit Tests (PHP 7.4) | `composer test:unit` | Run under PHP 7.4 for exact CI parity. |
+| PHP Unit Tests (PHP 8.2) | `composer test:unit` | Run under PHP 8.2 for exact CI parity. |
 | PHP Unit Tests (PHP 8.4) | `composer test:unit` | Run under the latest supported CI PHP version. |
 | WordPress Runtime Integration (Source) | `php bin/shield test:source --skip-unit-tests --show-docker-output` | Mirrors required CI by focusing Docker on runtime/integration checks after the unit lanes have already run. |
 | Validate Packaged Plugin Artifact | `composer package-plugin -- --output=tmp/shield-package-ci` then `php bin/shield test:package-targeted --package-path=tmp/shield-package-ci` | Mirrors CI's built-artifact validation path. |
@@ -219,7 +219,7 @@ These commands remain the owned internal lanes behind the public surface and CI 
 
 | Internal Command | Role |
 |---|---|
-| `php bin/shield analyze:source` | Canonical source static-analysis lane; source parse-compatibility gate when run on PHP 7.4 |
+| `php bin/shield analyze:source` | Canonical source static-analysis lane; source parse-compatibility gate when run on PHP 8.2 |
 | `php bin/shield analyze:package` | Packaged static analysis lane |
 | `php bin/shield test:source` | Source-first Docker runtime lane |
 | `php bin/shield test:integration-local` | Local Docker-backed WordPress integration lane |
@@ -450,9 +450,9 @@ Required source-first gate: [`.github/workflows/tests.yml`](.github/workflows/te
 
 The required workflow is job-level path gated by [`.github/ci-path-filters.yml`](.github/ci-path-filters.yml). A docs-only change should normally run only the lightweight changed-file detector, while manual dispatch runs the full gate.
 
-1. `PHPStan Source Analysis (PHP 7.4)` runs `composer analyze`.
+1. `PHPStan Source Analysis (PHP 8.2)` runs `composer analyze`.
 2. `JavaScript Static Checks` runs `npm run test:js`.
-3. `PHP Unit Tests (PHP 7.4)` and `PHP Unit Tests (PHP 8.4)` run `composer test:unit`.
+3. `PHP Unit Tests (PHP 8.2)` and `PHP Unit Tests (PHP 8.4)` run `composer test:unit`.
 4. `WordPress Runtime Integration (Source)` runs `php bin/shield test:source --skip-unit-tests --show-docker-output`.
 5. `WordPress Runtime Integration (Source)` skips its unit stage because the dedicated unit lanes have already run.
 6. `Build Packaged Plugin Artifact` builds the plugin package, then `Validate Packaged Plugin Artifact` runs package-targeted validation against the built artifact.

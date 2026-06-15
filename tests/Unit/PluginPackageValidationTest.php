@@ -85,8 +85,6 @@ class PluginPackageValidationTest extends TestCase {
 			'vendor/bin',
 			'vendor/monolog',
 			'vendor/twig',
-			'vendor/thecodingmachine/safe',
-			'packages/thecodingmachine-safe',
 			'vendor_prefixed/autoload-files.php',
 		];
 
@@ -126,7 +124,10 @@ class PluginPackageValidationTest extends TestCase {
 
 		$pluginJson = json_decode( (string)file_get_contents( $pluginJsonFile ), true );
 		$this->assertIsArray( $pluginJson );
-		$configVersion = $pluginJson[ 'properties' ][ 'version' ] ?? null;
+		$this->assertArrayHasKey( 'properties', $pluginJson );
+		$this->assertIsArray( $pluginJson[ 'properties' ] );
+		$this->assertArrayHasKey( 'version', $pluginJson[ 'properties' ] );
+		$configVersion = $pluginJson[ 'properties' ][ 'version' ];
 		$this->assertIsString( $configVersion );
 		$this->assertNotSame( '', trim( $configVersion ) );
 
