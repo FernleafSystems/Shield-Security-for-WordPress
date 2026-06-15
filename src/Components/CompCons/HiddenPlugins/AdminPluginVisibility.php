@@ -38,11 +38,11 @@ class AdminPluginVisibility {
 		}
 	}
 
-	private function applyFilter( string $hook, mixed $value, mixed ...$args ) :mixed {
+	private function applyFilter( string $hook, $value, ...$args ) {
 		return \function_exists( 'apply_filters' ) ? \apply_filters( $hook, $value, ...$args ) : $value;
 	}
 
-	private function normalizePluginMap( mixed $plugins ) :array {
+	private function normalizePluginMap( $plugins ) :array {
 		return \is_array( $plugins ) ? $plugins : [];
 	}
 

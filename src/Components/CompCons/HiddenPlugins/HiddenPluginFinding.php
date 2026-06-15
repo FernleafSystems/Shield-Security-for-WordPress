@@ -16,30 +16,52 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlug
  *   detected_at:int
  * }
  */
-readonly class HiddenPluginFinding {
+class HiddenPluginFinding {
+
+	public PluginEntry $entry;
 
 	/**
-	 * @param list<HiddenReason> $hiddenReasons
+	 * @phpstan-var list<value-of<HiddenReason::ALL>>
+	 */
+	public array $hiddenReasons;
+
+	public bool $active;
+
+	public bool $networkActive;
+
+	public int $detectedAt;
+
+	/**
+	 * @phpstan-param list<value-of<HiddenReason::ALL>> $hiddenReasons
 	 */
 	public function __construct(
-		public PluginEntry $entry,
-		public array $hiddenReasons,
-		public bool $active,
-		public bool $networkActive,
-		public int $detectedAt
+		PluginEntry $entry,
+		array $hiddenReasons,
+		bool $active,
+		bool $networkActive,
+		int $detectedAt
 	) {
+		foreach ( $hiddenReasons as $reason ) {
+			HiddenReason::assertValid( $reason );
+		}
+
+		$this->entry = $entry;
+		$this->hiddenReasons = $hiddenReasons;
+		$this->active = $active;
+		$this->networkActive = $networkActive;
+		$this->detectedAt = $detectedAt;
 	}
 
 	public function fingerprint() :string {
 		return \sha1( \json_encode( [
-			'type'           => $this->entry->type->value,
+			'type'           => $this->entry->type,
 			'file'           => $this->entry->file,
 			'name'           => $this->entry->name,
 			'version'        => $this->entry->version,
 			'hidden_by'      => $this->hiddenReasonValues(),
 			'active'         => $this->active,
 			'network_active' => $this->networkActive,
-		] ) ?: $this->entry->type->value.'|'.$this->entry->file );
+		] ) ?: $this->entry->type.'|'.$this->entry->file );
 	}
 
 	public function status() :string {
@@ -57,8 +79,8 @@ readonly class HiddenPluginFinding {
 	 */
 	public function toAlertData() :array {
 		return [
-			'type'             => $this->entry->type->value,
-			'type_label'       => $this->entry->type->label(),
+			'type'             => $this->entry->type,
+			'type_label'       => PluginType::label( $this->entry->type ),
 			'file'             => $this->entry->file,
 			'name'             => $this->entry->name,
 			'version'          => $this->entry->version,
@@ -66,7 +88,7 @@ readonly class HiddenPluginFinding {
 			'status'           => $this->status(),
 			'hidden_by'        => $this->hiddenReasonValues(),
 			'hidden_by_labels' => \array_map(
-				static fn( HiddenReason $reason ) :string => $reason->label(),
+				static fn( string $reason ) :string => HiddenReason::label( $reason ),
 				$this->hiddenReasons
 			),
 			'detected_at'      => $this->detectedAt,
@@ -79,7 +101,7 @@ readonly class HiddenPluginFinding {
 	public function toAuditParams() :array {
 		return [
 			'plugin'    => $this->entry->file,
-			'type'      => $this->entry->type->value,
+			'type'      => $this->entry->type,
 			'hidden_by' => \implode( ', ', $this->hiddenReasonValues() ),
 			'status'    => $this->status(),
 			'name'      => $this->entry->name,
@@ -88,12 +110,9 @@ readonly class HiddenPluginFinding {
 	}
 
 	/**
-	 * @return list<string>
+	 * @phpstan-return list<value-of<HiddenReason::ALL>>
 	 */
 	private function hiddenReasonValues() :array {
-		return \array_values( \array_map(
-			static fn( HiddenReason $reason ) :string => $reason->value,
-			$this->hiddenReasons
-		) );
+		return \array_values( $this->hiddenReasons );
 	}
 }
