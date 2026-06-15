@@ -3,12 +3,19 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTestTrait;
 
 class RunUnitTestsScriptTest extends BaseUnitTest {
 
 	use PluginPathsTrait;
 	use ScriptCommandTestTrait;
+	use TempDirLifecycleTrait;
+
+	protected function tearDown() :void {
+		$this->cleanupTrackedTempDirs();
+		parent::tearDown();
+	}
 
 	public function testRunUnitTestsScriptHasValidSyntax() :void {
 		$this->skipIfPackageScriptUnavailable();
@@ -82,37 +89,29 @@ class RunUnitTestsScriptTest extends BaseUnitTest {
 	public function testRunUnitTestsAutoModeDatasetShortcutPreservesPhpUnitParity() :void {
 		$this->skipIfPackageScriptUnavailable();
 
-		$junitPath = \rtrim( \str_replace( '\\', '/', \sys_get_temp_dir() ), '/' )
-					 .'/shield-unit-junit-'.\bin2hex( \random_bytes( 6 ) ).'.xml';
+		$junitPath = $this->createTrackedTempPath( 'shield-unit-junit-', '.xml' );
 
-		try {
-			$process = $this->runPhpScript(
-				'bin/run-unit-tests.php',
-				[
-					'--runner-mode=auto',
-					'--filter',
-					'testOutputDirectoryRequired@null',
-					'--log-junit',
-					$junitPath,
-					'tests/Unit/PluginPackagerTest.php',
-				]
-			);
-			$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
-			$this->assertFileExists( $junitPath );
+		$process = $this->runPhpScript(
+			'bin/run-unit-tests.php',
+			[
+				'--runner-mode=auto',
+				'--filter',
+				'testOutputDirectoryRequired@null',
+				'--log-junit',
+				$junitPath,
+				'tests/Unit/PluginPackagerTest.php',
+			]
+		);
+		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
+		$this->assertFileExists( $junitPath );
 
-			$xml = \simplexml_load_file( $junitPath );
-			$this->assertInstanceOf( \SimpleXMLElement::class, $xml );
-			$suites = $xml->xpath( '/testsuites/testsuite' );
-			$this->assertIsArray( $suites );
-			$this->assertNotEmpty( $suites );
-			$this->assertSame( '1', (string)$suites[ 0 ][ 'tests' ] );
-			$this->assertSame( '1', (string)$suites[ 0 ][ 'assertions' ] );
-		}
-		finally {
-			if ( \is_file( $junitPath ) ) {
-				\unlink( $junitPath );
-			}
-		}
+		$xml = \simplexml_load_file( $junitPath );
+		$this->assertInstanceOf( \SimpleXMLElement::class, $xml );
+		$suites = $xml->xpath( '/testsuites/testsuite' );
+		$this->assertIsArray( $suites );
+		$this->assertNotEmpty( $suites );
+		$this->assertSame( '1', (string)$suites[ 0 ][ 'tests' ] );
+		$this->assertSame( '1', (string)$suites[ 0 ][ 'assertions' ] );
 	}
 
 	public function testRunUnitTestsFailsOnInvalidMode() :void {

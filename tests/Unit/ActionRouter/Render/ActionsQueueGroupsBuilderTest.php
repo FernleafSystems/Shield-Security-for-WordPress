@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueAssetFileStatusDetail,
 	ActionsQueueBucketsBuilder,
+	ActionsQueueContextActionsBuilder,
 	ActionsQueueDrillDownPresentationBuilder,
 	ActionsQueueGroupContractBuilder,
 	ActionsQueueGroupDefinitions,
@@ -19,8 +20,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	ActionsQueueGroupScanSource,
 	ActionsQueueGroupsBuilder,
 	ActionsQueueScanResultScopeStateBuilder,
+	PluginReinstallContextActionBuilder,
 	ScanResultsDisplayOptions,
-	ScansResultsRailTabAvailability
+	ScansResultsRailTabAvailability,
+	ThemeReinstallContextActionBuilder
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -28,6 +31,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	MaintenancePluginsService,
 	ServicesState
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Services\Core\{
 	General,
 	Request,
@@ -1474,14 +1478,16 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		array $themeCards = [],
 		array $vulnerabilities = [],
 		array $maintenanceItems = [],
-		array $tabAvailability = []
+		array $tabAvailability = [],
+		array $pendingFileLockDisplays = []
 	) :ActionsQueueGroupsBuilder {
 		return new class(
 			$pluginCards,
 			$themeCards,
 			$vulnerabilities,
 			$maintenanceItems,
-			$tabAvailability
+			$tabAvailability,
+			$pendingFileLockDisplays
 		) extends ActionsQueueGroupsBuilder {
 
 			private ?ActionsQueueGroupScanSource $scanSource = null;
@@ -1491,19 +1497,22 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			private array $vulnerabilities;
 			private array $maintenanceItems;
 			private array $tabAvailability;
+			private array $pendingFileLockDisplays;
 
 			public function __construct(
 				array $pluginCards,
 				array $themeCards,
 				array $vulnerabilities,
 				array $maintenanceItems,
-				array $tabAvailability
+				array $tabAvailability,
+				array $pendingFileLockDisplays
 			) {
 				$this->pluginCards = $pluginCards;
 				$this->themeCards = $themeCards;
 				$this->vulnerabilities = $vulnerabilities;
 				$this->maintenanceItems = $maintenanceItems;
 				$this->tabAvailability = $tabAvailability;
+				$this->pendingFileLockDisplays = $pendingFileLockDisplays;
 			}
 
 			protected function buildBucketsBuilder() :ActionsQueueBucketsBuilder {
@@ -1542,7 +1551,26 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 					new ActionsQueueDrillDownPresentationBuilder(),
 					null,
 					null,
-					null,
+					new ActionsQueueContextActionsBuilder(
+						new ScanResultsDisplayOptions(),
+						null,
+						new class extends PluginReinstallContextActionBuilder {
+							public function __construct() {
+							}
+
+							public function buildForPluginFile( string $file, string $displayName = '' ) :array {
+								return [];
+							}
+						},
+						new class extends ThemeReinstallContextActionBuilder {
+							public function __construct() {
+							}
+
+							public function buildForThemeStylesheet( string $stylesheet, string $displayName = '' ) :array {
+								return [];
+							}
+						}
+					),
 					new class extends ActionsQueueScanResultScopeStateBuilder {
 						public function buildCountsForActionScope( string $type, string $file ) :array {
 							return [
@@ -1556,6 +1584,21 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 						}
 					}
 				);
+			}
+
+			protected function buildPendingFileLockDisplays() :GetPendingFileLockDisplays {
+				return new class( $this->pendingFileLockDisplays ) extends GetPendingFileLockDisplays {
+
+					private array $displays;
+
+					public function __construct( array $displays ) {
+						$this->displays = $displays;
+					}
+
+					public function run() :array {
+						return $this->displays;
+					}
+				};
 			}
 
 			protected function buildGroupScanSource() :ActionsQueueGroupScanSource {

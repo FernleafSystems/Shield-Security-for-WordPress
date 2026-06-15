@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailToggle;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\MfaLoginCode;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\SureSendController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Services\Services;
@@ -19,8 +20,7 @@ class Email extends AbstractShieldProviderMfaDB {
 
 	public static function ProviderEnabled() :bool {
 		return parent::ProviderEnabled()
-			   && self::con()->opts->optIs( 'enable_email_authentication', 'Y' )
-			   && self::con()->opts->optGet( 'email_can_send_verified_at' ) > 0;
+			   && ( new EmailDeliveryVerification() )->status() === EmailDeliveryVerification::STATUS_VERIFIED;
 	}
 
 	public function getJavascriptVars() :array {

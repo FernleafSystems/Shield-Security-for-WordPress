@@ -1005,16 +1005,6 @@ class StringsOptions {
 				}
 				break;
 
-			case 'importexport_whitelist':
-				$name = __( 'Export Whitelist', 'wp-simple-firewall' );
-				$summary = __( 'Whitelisted Sites To Export Options From This Site', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Whitelisted sites may export options from this site without the key.', 'wp-simple-firewall' ),
-					__( 'List each site URL on a new line.', 'wp-simple-firewall' ),
-					__( 'This is to be used in conjunction with the Master Import Site feature.', 'wp-simple-firewall' )
-				];
-				break;
-
 			case 'importexport_masterurl':
 				$name = __( 'Master Import Site', 'wp-simple-firewall' );
 				$summary = __( 'Automatically Import Options From This Site URL', 'wp-simple-firewall' );
@@ -1023,12 +1013,6 @@ class StringsOptions {
 					__( 'Options will be automatically exported from the Master site each day.', 'wp-simple-firewall' ),
 					sprintf( '%s: %s', __( 'Warning', 'wp-simple-firewall' ), __( 'Use of this feature will overwrite existing options and replace them with those from the Master Import Site.', 'wp-simple-firewall' ) )
 				];
-				break;
-
-			case 'importexport_whitelist_notify':
-				$name = __( 'Notify Whitelist', 'wp-simple-firewall' );
-				$summary = __( 'Notify Sites On The Whitelist To Update Options From Master', 'wp-simple-firewall' );
-				$desc = [ __( "When enabled, manual options saving will notify sites on the whitelist to export options from the Master site.", 'wp-simple-firewall' ) ];
 				break;
 
 			case 'importexport_secretkey':

@@ -9,6 +9,7 @@ class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
 
 	public const SLUG = 'plugin_admin_page_investigate_by_plugin';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/investigate_by_plugin.twig';
+	public const LOOKUP_ALL_PLUGINS = '__shield_all_plugins__';
 
 	protected function resolveSubject( string $lookup ) {
 		return $this->resolvePluginByLookup( $lookup );
@@ -20,6 +21,34 @@ class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
 
 	protected function getSubjectType() :string {
 		return InvestigationTableContract::SUBJECT_TYPE_PLUGIN;
+	}
+
+	protected function getAggregateLookupValue() :string {
+		return self::LOOKUP_ALL_PLUGINS;
+	}
+
+	protected function getAggregateTitle() :string {
+		return __( 'All Plugins', 'wp-simple-firewall' );
+	}
+
+	protected function getAggregateMeta() :string {
+		return __( 'Installed plugin events', 'wp-simple-firewall' );
+	}
+
+	protected function getAggregateAssetType() :string {
+		return InvestigationTableContract::SUBJECT_TYPE_PLUGIN;
+	}
+
+	protected function getAggregateSubjectType() :string {
+		return InvestigationTableContract::SUBJECT_TYPE_ALL_PLUGINS;
+	}
+
+	protected function getAggregateVulnerabilityNoIssuesText() :string {
+		return __( "Previous scans didn't detect any vulnerable plugins.", 'wp-simple-firewall' );
+	}
+
+	protected function getAggregateActivityEmptyText() :string {
+		return __( 'No plugin activity records were found.', 'wp-simple-firewall' );
 	}
 
 	protected function getLookupQueryKey() :string {
@@ -72,7 +101,15 @@ class PageInvestigateByPlugin extends BaseInvestigateByAssetSubject {
 	}
 
 	protected function buildLookupOptions() :array {
-		return $this->buildPluginLookupOptions();
+		return \array_merge(
+			[
+				[
+					'value' => self::LOOKUP_ALL_PLUGINS,
+					'label' => __( 'All Plugins', 'wp-simple-firewall' ),
+				],
+			],
+			$this->buildPluginLookupOptions()
+		);
 	}
 
 	protected function buildLookupAjaxPayload() :array {

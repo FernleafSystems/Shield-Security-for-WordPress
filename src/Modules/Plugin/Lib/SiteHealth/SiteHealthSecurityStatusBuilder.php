@@ -2,23 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteHealth;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneTilesBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\BuildZoneSignals;
-use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 
 /**
+ * @phpstan-import-type ConfigureZoneTileContract from \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneTilesBuilder
+ * @phpstan-import-type ConfigureRowContract from \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneTilesBuilder
+ * @phpstan-import-type ConfigureStatus from \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ConfigureZoneTilesBuilder
  * @phpstan-type SiteHealthStatus 'good'|'recommended'|'critical'
- * @phpstan-type ZoneSignal array{
- *   slug:string,
- *   title:string,
- *   weight:int,
- *   score:int,
- *   is_protected:bool,
- *   severity:'good'|'warning'|'critical',
- *   explanation:list<string>,
- *   config_action:array<string,mixed>,
- *   zone:string
- * }
  * @phpstan-type SiteHealthResult array{
  *   label:string,
  *   status:SiteHealthStatus,
@@ -50,15 +41,11 @@ class SiteHealthSecurityStatusBuilder {
 	public const TEST_KEY = 'shield_security';
 	public const TAB_SLUG = 'shield_security';
 
-	/**
-	 * @var ?array<string,list<ZoneSignal>>
-	 */
-	private ?array $signalsByZone = null;
+	private ConfigureZoneTilesBuilder $tilesBuilder;
 
-	/**
-	 * @var ?array<string,string>
-	 */
-	private ?array $zoneTitles = null;
+	public function __construct( ?ConfigureZoneTilesBuilder $tilesBuilder = null ) {
+		$this->tilesBuilder = $tilesBuilder ?? new ConfigureZoneTilesBuilder();
+	}
 
 	/**
 	 * @return array<string,array{label:string,test:callable,skip_cron:bool}>
@@ -139,30 +126,30 @@ class SiteHealthSecurityStatusBuilder {
 	 */
 	public function buildZoneStatuses() :array {
 		$zones = [];
-		foreach ( $this->zoneTitles() as $zoneSlug => $zoneTitle ) {
-			$zones[] = $this->buildZoneStatus( $zoneSlug, $zoneTitle );
+		foreach ( $this->configureZoneTiles() as $tile ) {
+			$zones[] = $this->buildZoneStatus( $tile );
 		}
 		return $zones;
 	}
 
 	/**
+	 * @param ConfigureZoneTileContract $tile
 	 * @return ZoneStatus
 	 */
-	private function buildZoneStatus( string $zoneSlug, string $zoneTitle ) :array {
-		$zoneSlug = sanitize_key( $zoneSlug );
+	private function buildZoneStatus( array $tile ) :array {
+		$zoneSlug = sanitize_key( $tile[ 'key' ] );
 		if ( $zoneSlug === '' ) {
 			throw new \InvalidArgumentException( 'Shield security zone slug is empty.' );
 		}
 
-		$signals = $this->signalsByZone()[ $zoneSlug ] ?? [];
-		$status = $this->statusForSignals( $signals );
+		$status = $this->siteHealthStatusForConfigureStatus( $tile[ 'status' ] );
 
 		return [
 			'slug'        => $zoneSlug,
-			'title'       => $zoneTitle,
+			'title'       => $tile[ 'label' ],
 			'status'      => $status,
 			'status_label' => $this->statusLabel( $status ),
-			'description' => $this->buildZoneDescription( $zoneTitle, $status, $signals ),
+			'description' => $this->buildZoneDescription( $tile[ 'label' ], $status, $tile[ 'panel' ][ 'rows' ] ),
 			'actions'     => $this->buildZoneActions( $zoneSlug ),
 			'panel_id'    => 'health-check-accordion-block-shield_'.$zoneSlug,
 		];
@@ -181,26 +168,6 @@ class SiteHealthSecurityStatusBuilder {
 
 		foreach ( $zones as $zone ) {
 			if ( $zone[ 'status' ] === 'recommended' ) {
-				return 'recommended';
-			}
-		}
-
-		return 'good';
-	}
-
-	/**
-	 * @param list<ZoneSignal> $signals
-	 * @return SiteHealthStatus
-	 */
-	private function statusForSignals( array $signals ) :string {
-		foreach ( $signals as $signal ) {
-			if ( $signal[ 'severity' ] === 'critical' ) {
-				return 'critical';
-			}
-		}
-
-		foreach ( $signals as $signal ) {
-			if ( $signal[ 'severity' ] === 'warning' || !$signal[ 'is_protected' ] ) {
 				return 'recommended';
 			}
 		}
@@ -260,9 +227,9 @@ class SiteHealthSecurityStatusBuilder {
 
 	/**
 	 * @param SiteHealthStatus $status
-	 * @param list<ZoneSignal> $signals
+	 * @param list<ConfigureRowContract> $rows
 	 */
-	private function buildZoneDescription( string $zoneTitle, string $status, array $signals ) :string {
+	private function buildZoneDescription( string $zoneTitle, string $status, array $rows ) :string {
 		if ( $status === 'good' ) {
 			return sprintf(
 				'<p>%s</p>',
@@ -274,8 +241,8 @@ class SiteHealthSecurityStatusBuilder {
 		}
 
 		$items = \array_map(
-			fn( array $signal ) :string => sprintf( '<li>%s</li>', esc_html( $this->signalSummary( $signal ) ) ),
-			$this->problemSignals( $signals )
+			fn( array $row ) :string => sprintf( '<li>%s</li>', esc_html( $this->rowSummary( $row ) ) ),
+			$this->problemRows( $rows )
 		);
 
 		return sprintf(
@@ -297,59 +264,50 @@ class SiteHealthSecurityStatusBuilder {
 	}
 
 	/**
-	 * @param list<ZoneSignal> $signals
-	 * @return list<ZoneSignal>
+	 * @param list<ConfigureRowContract> $rows
+	 * @return list<ConfigureRowContract>
 	 */
-	private function problemSignals( array $signals ) :array {
+	private function problemRows( array $rows ) :array {
 		return \array_values( \array_filter(
-			$signals,
-			static fn( array $signal ) :bool => $signal[ 'severity' ] !== 'good' || !$signal[ 'is_protected' ]
+			$rows,
+			static fn( array $row ) :bool => \in_array( $row[ 'status' ], [ 'critical', 'warning' ], true )
 		) );
 	}
 
 	/**
-	 * @param ZoneSignal $signal
+	 * @param ConfigureRowContract $row
 	 */
-	private function signalSummary( array $signal ) :string {
-		$title = \trim( $signal[ 'title' ] );
-		$firstExplanation = \trim( (string)( $signal[ 'explanation' ][ 0 ] ?? '' ) );
+	private function rowSummary( array $row ) :string {
+		$title = \trim( $row[ 'title' ] );
+		$firstExplanation = \count( $row[ 'explanations' ] ) > 0 ? \trim( (string)$row[ 'explanations' ][ 0 ] ) : '';
+		$summary = $firstExplanation === '' ? \trim( $row[ 'note' ] ) : $firstExplanation;
 
-		return $firstExplanation === '' ? $title : sprintf( '%s: %s', $title, $firstExplanation );
+		return $summary === '' ? $title : sprintf( '%s: %s', $title, $summary );
 	}
 
 	/**
-	 * @return array<string,list<ZoneSignal>>
+	 * @return list<ConfigureZoneTileContract>
 	 */
-	private function signalsByZone() :array {
-		if ( $this->signalsByZone === null ) {
-			$this->signalsByZone = [];
-			foreach ( $this->buildZoneSignals() as $signal ) {
-				$zoneSlug = sanitize_key( $signal[ 'zone' ] );
-				if ( $zoneSlug !== '' ) {
-					$this->signalsByZone[ $zoneSlug ][] = $signal;
-				}
-			}
+	private function configureZoneTiles() :array {
+		return \array_values( \array_filter(
+			$this->tilesBuilder->build(),
+			static fn( array $tile ) :bool => $tile[ 'include_in_posture' ] === true
+		) );
+	}
+
+	/**
+	 * @param ConfigureStatus $status
+	 * @return SiteHealthStatus
+	 */
+	private function siteHealthStatusForConfigureStatus( string $status ) :string {
+		switch ( $status ) {
+			case 'critical':
+				return 'critical';
+			case 'warning':
+				return 'recommended';
+			case 'good':
+			default:
+				return 'good';
 		}
-		return $this->signalsByZone;
-	}
-
-	/**
-	 * @return array<string,string>
-	 */
-	protected function zoneTitles() :array {
-		if ( $this->zoneTitles === null ) {
-			$this->zoneTitles = [];
-			foreach ( ( new SecurityZonesCon() )->getZones() as $zone ) {
-				$this->zoneTitles[ $zone::Slug() ] = $zone->title();
-			}
-		}
-		return $this->zoneTitles;
-	}
-
-	/**
-	 * @return list<ZoneSignal>
-	 */
-	protected function buildZoneSignals() :array {
-		return ( new BuildZoneSignals() )->build();
 	}
 }

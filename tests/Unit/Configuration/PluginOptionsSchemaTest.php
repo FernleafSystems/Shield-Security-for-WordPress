@@ -294,6 +294,41 @@ class PluginOptionsSchemaTest extends TestCase {
 		);
 	}
 
+	public function testEmailDeliveryVerificationOptionsUseHiddenNonTransferableContract() :void {
+		foreach ( [ 'email_can_send_verified_at', 'email_can_send_verification_sent_at' ] as $optionKey ) {
+			$this->assertArrayHasKey( $optionKey, $this->options );
+			$generated = $this->options[ $optionKey ];
+
+			foreach ( [ 'section', 'type', 'default', 'transferable', 'tracking_exclude' ] as $contractKey ) {
+				$this->assertArrayHasKey( $contractKey, $generated );
+			}
+			$this->assertSame( 'section_hidden', $generated[ 'section' ] );
+			$this->assertSame( 'integer', $generated[ 'type' ] );
+			$this->assertSame( 0, $generated[ 'default' ] );
+			$this->assertSame( false, $generated[ 'transferable' ] );
+			$this->assertSame( true, $generated[ 'tracking_exclude' ] );
+		}
+
+		$options = $this->decodePluginJsonFile( 'plugin-spec/34_options.json', 'Source options spec' );
+		foreach ( [ 'email_can_send_verified_at', 'email_can_send_verification_sent_at' ] as $optionKey ) {
+			$matches = \array_values( \array_filter(
+				$options,
+				static fn( array $option ) :bool => ( $option[ 'key' ] ?? '' ) === $optionKey
+			) );
+
+			$this->assertCount( 1, $matches );
+			$source = $matches[ 0 ];
+			foreach ( [ 'section', 'type', 'default', 'transferable', 'tracking_exclude' ] as $contractKey ) {
+				$this->assertArrayHasKey( $contractKey, $source );
+			}
+			$this->assertSame( 'section_hidden', $source[ 'section' ] );
+			$this->assertSame( 'integer', $source[ 'type' ] );
+			$this->assertSame( 0, $source[ 'default' ] );
+			$this->assertSame( false, $source[ 'transferable' ] );
+			$this->assertSame( true, $source[ 'tracking_exclude' ] );
+		}
+	}
+
 	public function testAdminLoginInstantAlertOptionUsesAlertsReportingContract() :void {
 		$this->assertArrayHasKey( 'instant_alert_admin_login', $this->options );
 		$option = $this->options['instant_alert_admin_login'];
@@ -485,6 +520,7 @@ class PluginOptionsSchemaTest extends TestCase {
 			'wphashes_api_token',
 			'import_id',
 			'import_url_ids',
+			'importexport_pending_network_invites',
 			'blockdown_cfg',
 			'importexport_secretkey',
 			'importexport_whitelist',
@@ -516,6 +552,33 @@ class PluginOptionsSchemaTest extends TestCase {
 
 		$this->assertNotSame( true, $sourceOptions[ 'importexport_whitelist_notify' ][ 'sensitive' ] ?? false );
 		$this->assertNotSame( true, $this->options[ 'importexport_whitelist_notify' ][ 'sensitive' ] ?? false );
+	}
+
+	public function testImportExportNetworkInviteBlockOptionIsHiddenLocalIntegerState() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [
+			'source'    => $sourceOptions[ 'importexport_network_invite_block_until' ],
+			'generated' => $this->options[ 'importexport_network_invite_block_until' ],
+		] as $context => $option ) {
+			$this->assertSame( 'section_hidden', $option[ 'section' ], sprintf( "%s cooldown option should be hidden.", $context ) );
+			$this->assertSame( 'integer', $option[ 'type' ], sprintf( "%s cooldown option should be an integer.", $context ) );
+			$this->assertSame( 0, $option[ 'default' ], sprintf( "%s cooldown option should default to 0.", $context ) );
+			$this->assertSame( false, $option[ 'transferable' ], sprintf( "%s cooldown option should not transfer.", $context ) );
+			$this->assertSame( true, $option[ 'tracking_exclude' ], sprintf( "%s cooldown option should be excluded from tracking.", $context ) );
+			$this->assertNotSame( true, $option[ 'sensitive' ] ?? false, sprintf( "%s cooldown option should not be sensitive.", $context ) );
+		}
+	}
+
+	public function testLegacyImportExportWhitelistOptionsAreHidden() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [ 'importexport_whitelist', 'importexport_whitelist_notify' ] as $key ) {
+			$this->assertSame( 'section_hidden', $sourceOptions[ $key ][ 'section' ] ?? null );
+			$this->assertSame( 'section_hidden', $this->options[ $key ][ 'section' ] ?? null );
+			$this->assertArrayNotHasKey( 'zone_comp_slugs', $sourceOptions[ $key ] );
+			$this->assertArrayNotHasKey( 'zone_comp_slugs', $this->options[ $key ] );
+		}
 	}
 
 	public function testSecurityOverviewPrefsOptionIsAbsentFromGeneratedConfig() :void {

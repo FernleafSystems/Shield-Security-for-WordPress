@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 	HashesStorageDir,
 	Store
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -31,8 +32,9 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 
 class RetrieveVersionedCacheTest extends BaseUnitTest {
 
+	use TempDirLifecycleTrait;
+
 	private array $servicesSnapshot = [];
-	private array $tempDirs = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -51,9 +53,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		$this->resetHashesStorageDir();
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -138,28 +138,11 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 	}
 
 	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normalizePath( \sys_get_temp_dir().'/shield-hash-test-'.$suffix.'-'.\uniqid() );
-		@mkdir( $dir, 0777, true );
-		$this->tempDirs[] = $dir;
-		return $dir;
+		return $this->normalizePath( $this->createTrackedTempDir( 'shield-hash-test-'.$suffix.'-' ) );
 	}
 
 	private function normalizePath( string $path ) :string {
 		return \str_replace( '\\', '/', $path );
-	}
-
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $iterator as $item ) {
-			$item->isDir() ? @rmdir( $item->getPathname() ) : @unlink( $item->getPathname() );
-		}
-		@rmdir( $dir );
 	}
 }
 

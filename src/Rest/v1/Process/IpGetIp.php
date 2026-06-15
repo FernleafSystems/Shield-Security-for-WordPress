@@ -2,13 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rest\v1\Process;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalNames;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\BotSignalsRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\Bots\Calculator\CalculateVisitorBotScores;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpAnalysis\IpAnalysisDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Reputation\GetIPReputation;
-use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-import-type IpAnalysisData from IpAnalysisDataBuilder
+ */
 class IpGetIp extends IpBase {
 
 	protected function process() :array {
@@ -18,53 +17,36 @@ class IpGetIp extends IpBase {
 		];
 	}
 
+	/**
+	 * @return array{
+	 *   human_probability:int,
+	 *   score_local:int,
+	 *   score_shieldnet:int|string,
+	 *   score_shieldnet_available:bool,
+	 *   score_shieldnet_value:?int,
+	 *   signals:array<string,string>
+	 * }
+	 */
 	private function getNotBotInfo() :array {
-		try {
-			$record = ( new BotSignalsRecord() )
-				->setIP( $this->ip() )
-				->retrieve();
-		}
-		catch ( \Exception $e ) {
-			$record = null;
-		}
-
-		$signals = [];
-		$scoreCalc = ( new CalculateVisitorBotScores() )->setIP( $this->ip() );
-		foreach ( $scoreCalc->scores() as $scoreKey => $scoreValue ) {
-			$column = $scoreKey.'_at';
-			if ( $scoreValue !== 0 ) {
-				if ( empty( $record ) || empty( $record->{$column} ) ) {
-					if ( \in_array( $scoreKey, [ 'known', 'created' ] ) ) {
-						$signals[ $scoreKey ] = __( 'N/A', 'wp-simple-firewall' );
-					}
-					else {
-						$signals[ $scoreKey ] = __( 'Never Recorded', 'wp-simple-firewall' );
-					}
-				}
-				else {
-					$signals[ $scoreKey ] = Services::Request()
-													->carbon()
-													->setTimestamp( $record->{$column} )
-													->diffForHumans();
-				}
-			}
-		}
-
-		$names = ( new BotSignalNames() )->getBotSignalNames();
-		$signalsAsHuman = [];
-		foreach ( $signals as $signal => $signalTime ) {
-			$signalsAsHuman[ $names[ $signal ] ] = $signalTime;
-		}
-		\ksort( $signalsAsHuman );
+		$analysis = $this->buildIpAnalysisData();
+		$shieldNet = $analysis[ 'shieldnet_reputation' ];
 
 		return [
-			'human_probability' => $scoreCalc->probability(),
-			'score_local'       => $scoreCalc->total(),
-			'score_shieldnet'   => ( new GetIPReputation() )
-									   ->setIP( $this->ip() )
-									   ->retrieve()[ 'reputation_score' ] ?? '-',
-			'signals'           => $signalsAsHuman,
+			'human_probability'         => $analysis[ 'bot' ][ 'human_probability' ],
+			'score_local'               => $analysis[ 'bot' ][ 'local_score' ],
+			'score_shieldnet'           => $shieldNet[ 'is_available' ] ? $shieldNet[ 'score' ] : '-',
+			'score_shieldnet_available' => $shieldNet[ 'is_available' ],
+			'score_shieldnet_value'     => $shieldNet[ 'score' ],
+			'signals'                   => $analysis[ 'signals' ][ 'rest_map' ],
 		];
+	}
+
+	/**
+	 * @return array
+	 * @phpstan-return IpAnalysisData
+	 */
+	protected function buildIpAnalysisData() :array {
+		return ( new IpAnalysisDataBuilder() )->build( $this->ip() );
 	}
 
 	private function getIpListInfo() :array {

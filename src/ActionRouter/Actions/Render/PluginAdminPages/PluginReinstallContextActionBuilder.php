@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Utilities\PluginReinstaller;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @phpstan-import-type OperatorChromeActionInput from OperatorChromeContract
@@ -24,39 +25,64 @@ class PluginReinstallContextActionBuilder {
 	 * @return list<OperatorChromeActionInput>
 	 */
 	public function buildForPluginFile( string $file, string $displayName = '' ) :array {
-		$plugin = $this->reinstaller->eligiblePlugin( $file );
+		$plugin = $this->reinstaller->wpOrgPlugin( $file );
 		if ( !$plugin instanceof WpPluginVo ) {
 			return [];
 		}
 
-		$displayName = \trim( $displayName );
-		$name = $displayName !== '' ? $displayName : $this->pluginDisplayName( $plugin );
+		if ( Services::WpPlugins()->isUpdateAvailable( $plugin->file ) ) {
+			return [ $this->buildPluginUpdateAction() ];
+		}
 
+		$displayName = \trim( $displayName );
 		return [
-			[
-				'kind'             => 'ajax',
-				'label'            => __( 'Reinstall Plugin', 'wp-simple-firewall' ),
-				'type'             => 'update',
-				'icon_class'       => 'bi bi-arrow-clockwise',
-				'ajax_action_json' => OperatorChromeContract::encodeJson(
-					ActionData::Build( PluginReinstall::class, true, [
-						'file' => $plugin->file,
-					] )
-				),
-				'confirm_text'     => \sprintf(
-					__( 'Reinstall %s from WordPress.org?', 'wp-simple-firewall' ),
-					$name
-				),
-				'processing_text'  => \sprintf(
-					__( 'Reinstalling %s. Keep this page open until it completes.', 'wp-simple-firewall' ),
-					$name
-				),
-			],
+			$this->buildPluginReinstallAction(
+				$plugin,
+				$displayName !== '' ? $displayName : $this->pluginDisplayName( $plugin )
+			),
 		];
 	}
 
 	private function pluginDisplayName( WpPluginVo $plugin ) :string {
 		$name = \trim( (string)( $plugin->Name ?: $plugin->Title ) );
 		return $name !== '' ? $name : $plugin->file;
+	}
+
+	/**
+	 * @return OperatorChromeActionInput
+	 */
+	private function buildPluginUpdateAction() :array {
+		return [
+			'kind'       => 'href',
+			'label'      => __( 'Go to Plugin Updates', 'wp-simple-firewall' ),
+			'type'       => 'update',
+			'icon_class' => 'bi bi-arrow-up-circle-fill',
+			'href'       => Services::WpGeneral()->getAdminUrl_Updates(),
+		];
+	}
+
+	/**
+	 * @return OperatorChromeActionInput
+	 */
+	private function buildPluginReinstallAction( WpPluginVo $plugin, string $name ) :array {
+		return [
+			'kind'             => 'ajax',
+			'label'            => __( 'Reinstall Plugin', 'wp-simple-firewall' ),
+			'type'             => 'update',
+			'icon_class'       => 'bi bi-arrow-clockwise',
+			'ajax_action_json' => OperatorChromeContract::encodeJson(
+				ActionData::Build( PluginReinstall::class, true, [
+					'file' => $plugin->file,
+				] )
+			),
+			'confirm_text'     => \sprintf(
+				__( 'Reinstall %s from WordPress.org?', 'wp-simple-firewall' ),
+				$name
+			),
+			'processing_text'  => \sprintf(
+				__( 'Reinstalling %s. Keep this page open until it completes.', 'wp-simple-firewall' ),
+				$name
+			),
+		];
 	}
 }

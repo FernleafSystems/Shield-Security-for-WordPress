@@ -18,10 +18,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
 	TrustedFileContext
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
-	ServicesState
+	ServicesState,
+	WrittenFixtureFiles
 };
 use FernleafSystems\Wordpress\Services\Core\{
 	CoreFileHashes,
@@ -38,9 +40,10 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 
 class FileScanOptimiserTest extends BaseUnitTest {
 
-	private array $servicesSnapshot = [];
+	use TempDirLifecycleTrait;
+	use WrittenFixtureFiles;
 
-	private array $tempDirs = [];
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -58,14 +61,13 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		ServicesState::restore( $this->servicesSnapshot );
 		AssetTrustResolver::resetMemoization();
 		PluginControllerInstaller::reset();
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
+		$this->removeWrittenFixtureFiles();
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
 	public function test_missing_cache_dir_fails_open() :void {
-		$cacheDir = $this->normalisePath( \sys_get_temp_dir().'/shield-missing-cache-'.\uniqid() );
+		$cacheDir = $this->normalisePath( $this->createTrackedTempPath( 'shield-missing-cache-' ) );
 		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
 		$this->installEnvironment( $cacheDir, false );
 		$optimiser = new FileScanOptimiser();
@@ -516,32 +518,15 @@ class FileScanOptimiserTest extends BaseUnitTest {
 			@\mkdir( \dirname( $path ), 0755, true );
 		}
 		\file_put_contents( $path, $content );
-		return $path;
+		return $this->trackWrittenFixtureFile( $path );
 	}
 
 	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normalisePath( \sys_get_temp_dir().'/shield-optimiser-'.$suffix.'-'.\uniqid() );
-		@\mkdir( $dir, 0755, true );
-		$this->tempDirs[] = $dir;
-		return $dir;
+		return $this->normalisePath( $this->createTrackedTempDir( 'shield-optimiser-'.$suffix.'-' ) );
 	}
 
 	private function normalisePath( string $path ) :string {
 		return \str_replace( '\\', '/', $path );
-	}
-
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $iterator as $item ) {
-			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
-		}
-		@\rmdir( $dir );
 	}
 }
 

@@ -4,12 +4,18 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\ScopedTargetHostRequest;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class Import {
 
 	use PluginControllerConsumer;
+
+	public const REQUEST_SAFETY_LEGACY_PRIVATE_ALLOWED = 'legacy_private_allowed';
+	public const REQUEST_SAFETY_PUBLIC_ONLY = 'public_only';
+	public const REQUEST_SAFETY_TRUSTED_SYNC = 'trusted_sync';
 
 	/**
 	 * @throws \Exception
@@ -93,11 +99,17 @@ class Import {
 	/**
 	 * @throws \Exception
 	 */
-	public function fromSite( string $masterURL = '', string $secretKey = '', ?bool $enableNetwork = null ) :void {
+	public function fromSite(
+		string $masterURL = '',
+		string $secretKey = '',
+		?bool $enableNetwork = null,
+		string $requestSafety = self::REQUEST_SAFETY_LEGACY_PRIVATE_ALLOWED
+	) :void {
 		$con = self::con();
 		$optsCon = $con->opts;
 		$originalImportExportEnabled = (string)$optsCon->optGet( 'importexport_enable' );
 		$originalMasterSiteURL = (string)$optsCon->optGet( 'importexport_masterurl' );
+		$requestSafety = $this->normaliseRequestSafety( $requestSafety );
 
 		if ( empty( $masterURL ) ) {
 			$masterURL = $con->comps->import_export->getImportExportMasterImportUrl();
@@ -112,26 +124,7 @@ class Import {
 			throw new \Exception( "Secret key isn't of the correct format", 2 );
 		}
 
-		// Ensure we have entries for 'scheme' and 'host'
-		$urlParts = wp_parse_url( \strtolower( $masterURL ) );
-		$hasParts = !empty( $urlParts )
-					&& \count(
-						   \array_filter( \array_intersect_key(
-							   $urlParts,
-							   \array_flip( [ 'scheme', 'host' ] )
-						   ) )
-					   ) === 2;
-
-		if ( !$hasParts ) {
-			throw new \Exception( "Master Site doesn't appear to be a valid URL.", 4 );
-		}
-		if ( !\preg_match( '#^https?$#', $urlParts[ 'scheme' ] ) ) {
-			throw new \Exception( "Master Site URL doesn't contain 'http' or 'https'.", 4 );
-		}
-		$masterURL = Services::Data()->validateSimpleHttpUrl( $masterURL ); // final clean
-		if ( empty( $masterURL ) ) {
-			throw new \Exception( "Couldn't validate the URL.", 4 );
-		}
+		$masterURL = $this->validateMasterUrlForImport( $masterURL, $requestSafety );
 
 		// Begin the handshake process.
 		$optsCon->optSet(
@@ -164,9 +157,7 @@ class Import {
 				$data
 			);
 
-			add_filter( 'http_request_host_is_external', '\__return_true', 11 );
-			$response = @\json_decode( Services::HttpRequest()->getContent( $targetExportURL ), true );
-			remove_filter( 'http_request_host_is_external', '\__return_true', 11 );
+			$response = @\json_decode( $this->fetchExportContent( $targetExportURL, $requestSafety ), true );
 			if ( empty( $response ) ) {
 				throw new \Exception( "Request failed as we couldn't parse the response.", 5 );
 			}
@@ -259,5 +250,81 @@ class Import {
 				->store();
 		}
 		return $id;
+	}
+
+	private function validateMasterUrlForImport( string $masterURL, string $requestSafety ) :string {
+		if ( \in_array( $requestSafety, [ self::REQUEST_SAFETY_PUBLIC_ONLY, self::REQUEST_SAFETY_TRUSTED_SYNC ], true ) ) {
+			try {
+				$validator = new SyncSiteUrlValidator();
+				return $requestSafety === self::REQUEST_SAFETY_PUBLIC_ONLY ?
+					$validator->validatePublicOutbound( $masterURL )
+					: $validator->validateTrustedSyncUrl( $masterURL );
+			}
+			catch ( \Throwable $e ) {
+				throw new \Exception( $e->getMessage(), 4, $e );
+			}
+		}
+
+		// Ensure we have entries for 'scheme' and 'host'
+		$urlParts = wp_parse_url( \strtolower( $masterURL ) );
+		$hasParts = !empty( $urlParts )
+					&& \count(
+						   \array_filter( \array_intersect_key(
+							   $urlParts,
+							   \array_flip( [ 'scheme', 'host' ] )
+						   ) )
+					   ) === 2;
+
+		if ( !$hasParts ) {
+			throw new \Exception( "Master Site doesn't appear to be a valid URL.", 4 );
+		}
+		if ( !\preg_match( '#^https?$#', $urlParts[ 'scheme' ] ) ) {
+			throw new \Exception( "Master Site URL doesn't contain 'http' or 'https'.", 4 );
+		}
+		$masterURL = Services::Data()->validateSimpleHttpUrl( $masterURL ); // final clean
+		if ( empty( $masterURL ) ) {
+			throw new \Exception( "Couldn't validate the URL.", 4 );
+		}
+		return $masterURL;
+	}
+
+	private function fetchExportContent( string $targetExportURL, string $requestSafety ) :string {
+		if ( $requestSafety === self::REQUEST_SAFETY_PUBLIC_ONLY ) {
+			return Services::HttpRequest()->getContent( $targetExportURL, [
+				'reject_unsafe_urls' => true,
+			] );
+		}
+		if ( $requestSafety === self::REQUEST_SAFETY_TRUSTED_SYNC ) {
+			return ( new ScopedTargetHostRequest() )->run(
+				$targetExportURL,
+				static fn() :string => Services::HttpRequest()->getContent( $targetExportURL, [
+					'reject_unsafe_urls' => true,
+				] )
+			);
+		}
+
+		add_filter( 'http_request_host_is_external', '\__return_true', 11 );
+		try {
+			return Services::HttpRequest()->getContent( $targetExportURL );
+		}
+		finally {
+			remove_filter( 'http_request_host_is_external', '\__return_true', 11 );
+		}
+	}
+
+	private function normaliseRequestSafety( string $requestSafety ) :string {
+		if ( \in_array(
+			$requestSafety,
+			[
+				self::REQUEST_SAFETY_LEGACY_PRIVATE_ALLOWED,
+				self::REQUEST_SAFETY_PUBLIC_ONLY,
+				self::REQUEST_SAFETY_TRUSTED_SYNC,
+			],
+			true
+		) ) {
+			return $requestSafety;
+		}
+
+		throw new \InvalidArgumentException( 'Invalid import request safety mode.' );
 	}
 }

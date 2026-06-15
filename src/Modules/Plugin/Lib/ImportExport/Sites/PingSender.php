@@ -1,0 +1,30 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites;
+
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_UpdateNotified;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
+
+class PingSender {
+
+	use PluginControllerConsumer;
+
+	public function send( string $url, int $timeout = 2 ) :array {
+		$targetUrl = self::con()->plugin_urls->noncedPluginAction( PluginImportExport_UpdateNotified::class, $url );
+		return ( new ScopedTargetHostRequest() )->run( $targetUrl, static function () use ( $targetUrl, $timeout ) :array {
+			$http = Services::HttpRequest();
+			$success = $http->get( $targetUrl, [
+				'timeout' => $timeout,
+			] );
+			$code = $http->lastResponse ? (int)$http->lastResponse->getCode() : 0;
+			$error = $success ? '' : ( $http->lastError ? $http->lastError->get_error_message() : 'ping_failed' );
+
+			return [
+				'success'   => $success,
+				'http_code' => $code,
+				'error'     => $error,
+			];
+		} );
+	}
+}

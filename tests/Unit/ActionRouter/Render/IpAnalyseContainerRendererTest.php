@@ -36,6 +36,7 @@ class IpAnalyseContainerRendererTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES ) );
 		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::mergeItems( [
 			'service_ip' => new UnitTestIpUtils(),
@@ -108,11 +109,102 @@ class IpAnalyseContainerRendererTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_container_keeps_other_tabs_when_one_child_render_fails() :void {
+		$this->capture->renderErrors[ General::class ] = 'Exception during render for ipanalyse_general: "Boom"';
+
+		$container = new class( [
+			'ip' => '198.51.100.20',
+		] ) extends Container {
+			public function exposeRenderData() :array {
+				return $this->getRenderData();
+			}
+		};
+
+		$data = $container->exposeRenderData();
+
+		$this->assertStringContainsString( 'shield-ipanalyse-section-fallback', $data[ 'content' ][ 'general' ] );
+		$this->assertStringContainsString( 'Boom', $data[ 'content' ][ 'general' ] );
+		$this->assertSame( 'rendered-sessions', $data[ 'content' ][ 'sessions' ] );
+		$this->assertSame( 'rendered-activity', $data[ 'content' ][ 'activity' ] );
+		$this->assertSame( 'rendered-traffic', $data[ 'content' ][ 'traffic' ] );
+	}
+
+	public function test_container_child_thrown_exception_gets_diagnostic_fallback() :void {
+		$this->capture->throwActions[ Activity::class ] = 'Action exploded';
+
+		$container = new class( [
+			'ip' => '198.51.100.20',
+		] ) extends Container {
+			public function exposeRenderData() :array {
+				return $this->getRenderData();
+			}
+		};
+
+		$data = $container->exposeRenderData();
+
+		$this->assertStringContainsString( 'shield-ipanalyse-section-fallback', $data[ 'content' ][ 'activity' ] );
+		$this->assertStringContainsString( 'Action exploded', $data[ 'content' ][ 'activity' ] );
+		$this->assertSame( 'rendered-general', $data[ 'content' ][ 'general' ] );
+	}
+
+	public function test_container_child_diagnostic_is_sanitized() :void {
+		$this->capture->renderErrors[ General::class ] = '<script>alert(1)</script><b>Bad</b>';
+
+		$container = new class( [
+			'ip' => '198.51.100.20',
+		] ) extends Container {
+			public function exposeRenderData() :array {
+				return $this->getRenderData();
+			}
+		};
+
+		$data = $container->exposeRenderData();
+
+		$this->assertStringContainsString( 'alert(1)Bad', $data[ 'content' ][ 'general' ] );
+		$this->assertStringNotContainsString( '<script>', $data[ 'content' ][ 'general' ] );
+		$this->assertStringNotContainsString( '<b>', $data[ 'content' ][ 'general' ] );
+	}
+
+	public function test_container_child_empty_output_gets_generic_diagnostic() :void {
+		$this->capture->renderOutputs[ Traffic::class ] = '';
+
+		$container = new class( [
+			'ip' => '198.51.100.20',
+		] ) extends Container {
+			public function exposeRenderData() :array {
+				return $this->getRenderData();
+			}
+		};
+
+		$data = $container->exposeRenderData();
+
+		$this->assertStringContainsString( 'shield-ipanalyse-section-fallback', $data[ 'content' ][ 'traffic' ] );
+		$this->assertStringContainsString( 'No render output was returned.', $data[ 'content' ][ 'traffic' ] );
+	}
+
+	public function test_container_renderer_returns_fallback_when_container_render_fails() :void {
+		$this->capture->renderErrors[ Container::class ] = 'Container exploded';
+
+		$output = ( new ContainerRenderer() )->render( '198.51.100.20' );
+
+		$this->assertStringContainsString( 'shield-ipanalyse-section-fallback', $output );
+		$this->assertStringContainsString( 'Container exploded', $output );
+	}
+
 	private function installControllerStub() :void {
 		$this->capture = (object)[
-			'action'     => '',
-			'actionData' => [],
-			'renders'    => [],
+			'action'        => '',
+			'actionData'    => [],
+			'renders'       => [],
+			'renderErrors'  => [],
+			'renderOutputs' => [
+				Container::class => 'rendered-ipanalyse-container',
+				General::class   => 'rendered-general',
+				Sessions::class  => 'rendered-sessions',
+				Activity::class  => 'rendered-activity',
+				Traffic::class   => 'rendered-traffic',
+			],
+			'throwActions'   => [],
 		];
 
 		/** @var Controller $controller */
@@ -131,7 +223,51 @@ class IpAnalyseContainerRendererTest extends BaseUnitTest {
 					'action'     => $action,
 					'actionData' => $actionData,
 				];
-				return 'rendered-ipanalyse-container';
+				return $this->capture->renderOutputs[ $action ] ?? 'rendered-ipanalyse-container';
+			}
+
+			public function action( string $action, array $actionData = [] ) {
+				unset( $action );
+
+				$renderAction = (string)( $actionData[ 'render_action_slug' ] ?? '' );
+				$renderActionData = \is_array( $actionData[ 'render_action_data' ] ?? null )
+					? $actionData[ 'render_action_data' ]
+					: [];
+				$this->capture->action = $renderAction;
+				$this->capture->actionData = $renderActionData;
+				$this->capture->renders[] = [
+					'action'     => $renderAction,
+					'actionData' => $renderActionData,
+				];
+				if ( isset( $this->capture->throwActions[ $renderAction ] ) ) {
+					throw new \RuntimeException( $this->capture->throwActions[ $renderAction ] );
+				}
+
+				$output = $this->capture->renderOutputs[ $renderAction ] ?? 'rendered-ipanalyse-container';
+				$error = $this->capture->renderErrors[ $renderAction ] ?? '';
+				if ( $error !== '' ) {
+					$output = $error;
+				}
+
+				return new class( $output, $error !== '' ) {
+					private string $output;
+
+					private bool $hasError;
+
+					public function __construct( string $output, bool $hasError ) {
+						$this->output = $output;
+						$this->hasError = $hasError;
+					}
+
+					public function payload() :array {
+						return [
+							'render_output'     => $this->output,
+							'html'              => $this->output,
+							'render_error'      => $this->hasError,
+							'render_error_code' => $this->hasError ? 'render_exception' : '',
+						];
+					}
+				};
 			}
 		};
 

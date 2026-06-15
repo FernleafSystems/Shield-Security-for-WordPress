@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Request\RequestTypeResolver;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -28,8 +29,17 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 
 		$type = ( new RequestTypeResolver() )->resolve();
 
+		$ip = $isWpCli ? '127.0.0.1' : $req->ip();
+		$isPhpCliCron = !$isWpCli && $type === Handler::TYPE_CRON && $this->isPhpCli();
+		if ( $isPhpCliCron && \trim( $ip ) === '' ) {
+			$ip = '127.0.0.1';
+			if ( \trim( $path ) === '' ) {
+				$path = '/wp-cron.php';
+			}
+		}
+
 		$data = [
-			'ip'   => $isWpCli ? '127.0.0.1' : $req->ip(),
+			'ip'   => $ip,
 			'rid'  => $req->getID( true ),
 			'ts'   => \microtime( true ),
 			'path' => $path,
@@ -48,5 +58,10 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 		$records[ 'extra' ][ 'meta_request' ] = $data;
 
 		return $records;
+	}
+
+	private function isPhpCli() :bool {
+		$sapi = \defined( 'PHP_SAPI' ) ? \PHP_SAPI : ( \function_exists( 'php_sapi_name' ) ? \php_sapi_name() : null );
+		return $sapi === 'cli';
 	}
 }

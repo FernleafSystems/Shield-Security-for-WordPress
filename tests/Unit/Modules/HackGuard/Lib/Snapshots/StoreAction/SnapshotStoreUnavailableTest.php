@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Stor
 	DeleteAll,
 	Load
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -35,10 +36,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
 class SnapshotStoreUnavailableTest extends BaseUnitTest {
 
 	use CacheStoreWordPressFunctions;
+	use TempDirLifecycleTrait;
 
 	private array $servicesSnapshot = [];
-
-	private array $tempDirs = [];
 
 	private CacheStoreTestFs $fs;
 
@@ -60,9 +60,7 @@ class SnapshotStoreUnavailableTest extends BaseUnitTest {
 		$this->resetHashesStorageDir();
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -118,26 +116,7 @@ class SnapshotStoreUnavailableTest extends BaseUnitTest {
 	}
 
 	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normaliseCacheStorePath( \sys_get_temp_dir().'/shield-store-unavailable-'.$suffix.'-'.\uniqid() );
-		if ( !\is_dir( $dir ) ) {
-			@\mkdir( $dir, 0777, true );
-		}
-		$this->tempDirs[] = $dir;
-		return $dir;
-	}
-
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $iterator as $item ) {
-			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
-		}
-		@\rmdir( $dir );
+		return $this->normaliseCacheStorePath( $this->createTrackedTempDir( 'shield-store-unavailable-'.$suffix.'-' ) );
 	}
 }
 

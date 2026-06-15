@@ -104,7 +104,10 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 			PluginNavs::NAV_REPORTS   => __( 'Reports', 'wp-simple-firewall' ),
 		];
 		if ( !self::con()->isPremiumActive() ) {
-			$navs[ PluginNavs::NAV_LICENSE ] = sprintf( '<span class="shield_highlighted_menu">%s</span>', self::con()->labels->Name );
+			$navs[ PluginNavs::NAV_LICENSE ] = sprintf(
+				'<span class="shield_highlighted_menu">%s</span>',
+				__( 'Get Pro Security', 'wp-simple-firewall' )
+			);
 		}
 
 		$currentNav = $this->action_data[ Constants::NAV_ID ] ?? '';
@@ -132,10 +135,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	public function displayModuleAdminPage() {
 		echo self::con()->action_router->render(
 			Actions\Render\PageAdminPlugin::class,
-			[
-				Constants::NAV_ID     => $this->action_data[ Constants::NAV_ID ] ?? '',
-				Constants::NAV_SUB_ID => $this->action_data[ Constants::NAV_SUB_ID ] ?? '',
-			]
+			( new Actions\Render\PageAdminPluginRouteResolver() )->buildAdminPageActionData( $this->action_data )
 		);
 	}
 }

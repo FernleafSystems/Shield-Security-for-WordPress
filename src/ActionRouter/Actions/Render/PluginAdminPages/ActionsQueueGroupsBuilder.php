@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 
 /**
  * @phpstan-import-type AttentionItem from BuildAttentionItems
@@ -219,6 +220,10 @@ class ActionsQueueGroupsBuilder {
 		);
 	}
 
+	protected function buildPendingFileLockDisplays() :GetPendingFileLockDisplays {
+		return new GetPendingFileLockDisplays();
+	}
+
 	private function groupDefinitions() :ActionsQueueGroupDefinitions {
 		if ( $this->groupDefinitions === null ) {
 			$this->groupDefinitions = new ActionsQueueGroupDefinitions( $this->queueScanResultsOptions() );
@@ -281,7 +286,8 @@ class ActionsQueueGroupsBuilder {
 			$this->passiveSeedSupplementer = new ActionsQueuePassiveGroupSeedSupplementer(
 				$this->groupDefinitions(),
 				$this->maintenanceSeedBuilder(),
-				$this->groupMaintenanceSource()
+				$this->groupMaintenanceSource(),
+				$this->buildPendingFileLockDisplays()
 			);
 		}
 

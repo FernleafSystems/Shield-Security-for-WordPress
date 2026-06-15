@@ -1,7 +1,7 @@
 {
   "22.1": {
     "version":     "22.1",
-    "released_at": 1780570000,
+    "released_at": 1781000000,
     "hrefs":       {
       "release": "https://clk.shldscrty.com/shieldrelease221",
       "upgrade": "https://clk.shldscrty.com/shieldupgradeguide221"
@@ -9,7 +9,7 @@
     "title":       "Stronger Admin Boundaries and Backup Reliability",
     "description": [
       "Shield 22.1 tightens Security Admin boundaries, restores native WordPress Site Health security checks, and improves backup and export reliability.",
-      "It also adds clearer PHP upgrade guidance, safer reports, more reliable silentCAPTCHA background checks, and stronger release checks."
+      "It also adds clearer PHP upgrade guidance, safer reports, more resilient IP analysis and logging, stronger CrowdSec signal sharing, and stronger release checks."
     ],
     "items":       [
       {
@@ -70,9 +70,26 @@
       },
       {
         "type":        "improved",
-        "title":       "Safer Log Diagnostics",
+        "title":       "Traffic and Activity Log Reliability Improved",
         "description": [
-          "When request or activity logging runs into problems, Shield now records cleaner diagnostic details without exposing sensitive request data."
+          "When request or activity logging runs into problems, Shield now records cleaner diagnostic details without exposing sensitive request data.",
+          "Server-run cron requests without a normal visitor IP now keep a safe local server identity, so Activity and Traffic Log records stay linked without noisy diagnostics.",
+          "Very long or malformed request paths are bounded before storage, reducing failed Traffic Log writes on unusual URLs."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "IP Analysis Reliability Improved",
+        "description": [
+          "IP investigation panels now handle unavailable reputation, hostname, or bot-detection data more cleanly, so one problem doesn't collapse the whole IP analysis view.",
+          "IP analysis data is more consistent for Shield admin screens and connected tools without breaking existing integrations."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "CrowdSec Signal Sharing Reliability Improved",
+        "description": [
+          "CrowdSec signal sharing now batches reports in a way that matches the current CrowdSec API, improving reliability when Shield submits larger sets of security signals."
         ]
       },
       {
@@ -85,15 +102,23 @@
       },
       {
         "type":        "fixed",
-        "title":       "Contextual Help Text Fixed",
+        "title":       "Actions Queue Help Text Clarified",
         "description": [
+          "Actions Queue guidance now uses clearer terms for queue areas, issue groups, results, and next steps, making review work easier to follow."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Cleaner Admin Upgrade Prompts",
+        "description": [
+          "Free sites now see a clearer Get Pro Security menu prompt and fewer repeated Pro badges, keeping the Shield admin sidebar less noisy."
         ]
       },
       {
         "type":        "improved",
         "title":       "Release Reliability Improved",
         "description": [
-          "Release checks now cover more real-world upgrade and plugin compatibility situations before each release."
+          "Release checks now cover more real-world upgrade, plugin compatibility, passkey login, and CrowdSec integration situations before each release."
         ]
       }
     ]

@@ -4,8 +4,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExpor
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_HandshakeConfirm;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as ImportExportSiteRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\ScopedTargetHostRequest;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -35,38 +40,63 @@ class Export {
 		$success = false;
 		$data = [];
 
+		$repo = new SiteRepository();
+		try {
+			$repo->ensureLegacyImported( false );
+		}
+		catch ( \Throwable $e ) {
+		}
+
 		$url = (string)Services::Data()->validateSimpleHttpUrl( (string)$req->query( 'url', '' ) );
-		if ( !$this->verifyUrl( $url, (string)$req->query( 'id', '' ), (string)$req->query( 'secret', '' ) ) ) {
+		$id = (string)$req->query( 'id', '' );
+		$repo->recordExportRequested( $url );
+
+		if ( !$this->verifyUrl( $url, $id, (string)$req->query( 'secret', '' ) ) ) {
 			$code = 3;
 			$msg = __( 'Verification of import-origin failed.', 'wp-simple-firewall' );
+			$repo->recordExportFailure( $url, ImportExportSitesDB::EXPORT_RESULT_VERIFY_FAILED, $msg );
 		}
 		else {
-			$code = 0;
-			$success = true;
-			$data = $this->getExportData();
-			$msg = 'Options Exported Successfully';
+			try {
+				$code = 0;
+				$data = $this->getExportData();
+				$success = true;
+				$msg = 'Options Exported Successfully';
 
-			$evt->fireEvent(
-				'options_exported',
-				[ 'audit_params' => [ 'site' => $url ] ]
-			);
-
-			// Only setup the network if we have a valid URL
-			$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
-
-			if ( $networkOpt === 'Y' ) {
-				$ieCon->addUrlToImportExportWhitelistUrls( $url );
 				$evt->fireEvent(
-					'whitelist_site_added',
+					'options_exported',
 					[ 'audit_params' => [ 'site' => $url ] ]
 				);
+
+				// Only setup the network if we have a valid URL
+				$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
+
+				if ( $networkOpt === 'Y' ) {
+					$ieCon->addSyncSiteExportUrl( $url, $id );
+				}
+
+				$repo->recordExportSuccess( $url, ImportExportSitesDB::EXPORT_RESULT_SUCCESS, $id );
+
+				if ( $networkOpt === 'Y' ) {
+					$evt->fireEvent(
+						'whitelist_site_added',
+						[ 'audit_params' => [ 'site' => $url ] ]
+					);
+				}
+				elseif ( !empty( $networkOpt ) ) {
+					$ieCon->removeSyncSiteExportUrl( $url );
+					$evt->fireEvent(
+						'whitelist_site_removed',
+						[ 'audit_params' => [ 'site' => $url ] ]
+					);
+				}
 			}
-			elseif ( !empty( $networkOpt ) ) {
-				$ieCon->removeUrlFromImportExportWhitelistUrls( $url );
-				$evt->fireEvent(
-					'whitelist_site_removed',
-					[ 'audit_params' => [ 'site' => $url ] ]
-				);
+			catch ( \Throwable $e ) {
+				$code = 4;
+				$success = false;
+				$data = [];
+				$msg = $e->getMessage();
+				$repo->recordExportFailure( $url, ImportExportSitesDB::EXPORT_RESULT_EXCEPTION, $msg );
 			}
 		}
 
@@ -153,88 +183,48 @@ class Export {
 	}
 
 	/**
-	 * 2022-10-27:
-	 * There is real issue with some sites being able to perform automated import and export. So we want to simplify
-	 * this so that if the URL handshake doesn't work, we can fallback to an ID lookup. The one issue here is that we
-	 * accept the ID if it's the first time see this URL. However, at this stage, the requesting URL has either already
-	 * been added to the "whitelist" or they're sending the correct secret key.
-	 *
-	 * So you're verified if:
-	 * - You're on the whitelist and your ID is valid, OR you can handshake
-	 * - You're not on the whitelist AND your secret is valid AND ( ID is valid OR you can handshake ).
+	 * Secret-key export remains valid. Otherwise export trust comes from an active sync-site row,
+	 * with either a matching import ID or a fresh handshake from that site.
 	 */
 	private function verifyUrl( string $url, string $id, string $secret ) :bool {
-		$urlIDs = self::con()->opts->optGet( 'import_url_ids' );
-
-		$verified = !empty( $url ) &&
-					(
-						self::con()->comps->import_export->verifySecretKey( $secret )
-						|| ( !empty( $id ) && ( $urlIDs[ \hash( 'md5', $url ) ] ?? '' ) === $id )
-						|| ( $this->isUrlOnWhitelist( $url ) && $this->handshake( $url ) )
-					);
-
-		// Update the stored ID, so it can be used at a later date.
-		if ( $verified && !empty( $id ) ) {
-			$urlIDs[ \hash( 'md5', $url ) ] = $id;
-			self::con()
-				->opts
-				->optSet( 'import_url_ids', $urlIDs )
-				->store();
+		if ( empty( $url ) ) {
+			return false;
 		}
 
-		return $verified;
-	}
-
-	/**
-	 * @return string[]
-	 */
-	public function getImportExportWhitelist() :array {
-		return self::con()->opts->optGet( 'importexport_whitelist' );
-	}
-
-	private function isUrlOnWhitelist( string $url ) :bool {
-		$isWhitelisted = false;
-		$urlComponents = $this->parseURL( $url );
-		if ( !empty( $urlComponents[ 'host' ] ) ) {
-
-			$whiteURLs = \array_map(
-				function ( $whitelistedURL ) {
-					return $this->parseURL( $whitelistedURL );
-				},
-				self::con()->comps->import_export->getImportExportWhitelist()
-			);
-
-			foreach ( $whiteURLs as $whiteURL ) {
-				if ( $whiteURL[ 'host' ] === $urlComponents[ 'host' ] && $whiteURL[ 'path' ] === $urlComponents[ 'path' ] ) {
-					$isWhitelisted = true;
-					break;
-				}
-			}
+		if ( self::con()->comps->import_export->verifySecretKey( $secret ) ) {
+			return true;
 		}
 
-		return $isWhitelisted;
-	}
-
-	/**
-	 * @return array{host:string, path:string}
-	 */
-	private function parseURL( string $url ) :array {
-		$components = [
-			'host' => '',
-			'path' => '',
-		];
-		$parsed = wp_parse_url( $url );
-		if ( !empty( $parsed ) ) {
-			$components[ 'host' ] = empty( $parsed[ 'host' ] ) ? '' : $parsed[ 'host' ];
-			$components[ 'path' ] = empty( $parsed[ 'path' ] ) ? '' : \trim( $parsed[ 'path' ], '/' );
+		$row = ( new SiteRepository() )->findByUrl( $url );
+		if ( !$row instanceof ImportExportSiteRecord || !$this->syncSiteRowAllowsExportTrust( $row, $url ) ) {
+			return false;
 		}
-		return $components;
+
+		return ( !empty( $id ) && (string)$row->import_id === $id )
+			   || $this->handshake( $url, (string)$row->source === ImportExportSitesDB::SOURCE_MANUAL );
 	}
 
-	private function handshake( string $url ) :bool {
-		$raw = Services::HttpRequest()->getContent(
-			URL::Build( $url, ActionData::Build( PluginImportExport_HandshakeConfirm::class, false, [], true ) )
+	private function syncSiteRowAllowsExportTrust( ImportExportSiteRecord $row, string $url ) :bool {
+		if ( (string)$row->source !== ImportExportSitesDB::SOURCE_MANUAL ) {
+			return true;
+		}
+
+		try {
+			( new SyncSiteUrlValidator() )->validateTrustedSyncUrl( $url );
+			return true;
+		}
+		catch ( \Throwable $e ) {
+			return false;
+		}
+	}
+
+	private function handshake( string $url, bool $rejectUnsafeUrls = false ) :bool {
+		$targetUrl = URL::Build( $url, ActionData::Build( PluginImportExport_HandshakeConfirm::class, false, [], true ) );
+		$request = static fn() :string => Services::HttpRequest()->getContent(
+			$targetUrl,
+			$rejectUnsafeUrls ? [ 'reject_unsafe_urls' => true ] : []
 		);
+		$raw = $rejectUnsafeUrls ? ( new ScopedTargetHostRequest() )->run( $targetUrl, $request ) : $request();
 		$dec = @\json_decode( $raw, true );
 		return \is_array( $dec ) && isset( $dec[ 'success' ] ) && ( $dec[ 'success' ] === true );
 	}

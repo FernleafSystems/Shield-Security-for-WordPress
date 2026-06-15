@@ -2046,6 +2046,17 @@
     {
         "key": "email_can_send_verified_at",
         "section": "section_hidden",
+        "tracking_exclude": true,
+        "transferable": false,
+        "type": "integer",
+        "default": 0,
+        "min": 0
+    },
+    {
+        "key": "email_can_send_verification_sent_at",
+        "section": "section_hidden",
+        "tracking_exclude": true,
+        "transferable": false,
         "type": "integer",
         "default": 0,
         "min": 0
@@ -2638,10 +2649,7 @@
     },
     {
         "key": "importexport_whitelist",
-        "section": "section_importexport",
-        "zone_comp_slugs": [
-            "import_export"
-        ],
+        "section": "section_hidden",
         "transferable": false,
         "sensitive": true,
         "default": [],
@@ -2654,10 +2662,7 @@
     },
     {
         "key": "importexport_whitelist_notify",
-        "section": "section_importexport",
-        "zone_comp_slugs": [
-            "import_export"
-        ],
+        "section": "section_hidden",
         "default": "N",
         "type": "checkbox",
         "link_info": "",
@@ -3172,6 +3177,27 @@
         "type": "array",
         "default": [],
         "sensitive": true
+    },
+    {
+        "key": "importexport_sites_migrated_at",
+        "section": "section_hidden",
+        "type": "integer",
+        "default": 0
+    },
+    {
+        "key": "importexport_pending_network_invites",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "sensitive": true
+    },
+    {
+        "key": "importexport_network_invite_block_until",
+        "section": "section_hidden",
+        "type": "integer",
+        "default": 0,
+        "transferable": false,
+        "tracking_exclude": true
     },
     {
         "key": "test_rest_data",

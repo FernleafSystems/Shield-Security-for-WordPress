@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 
 /**
@@ -13,6 +14,9 @@ class ImportExportFileFixtureBuilder {
 		'license_activated_at',
 		'license_data',
 		'license_deactivated_at',
+		'importexport_enable',
+		'importexport_masterurl',
+		NetworkInviteRepository::OPTION_KEY,
 	];
 
 	/**
@@ -25,6 +29,11 @@ class ImportExportFileFixtureBuilder {
 
 		try {
 			RuntimeTestState::applyPremiumCapabilities( [ 'import_export_level_1' ] );
+			RuntimeTestState::controller()->opts
+				->optSet( 'importexport_enable', 'N' )
+				->optSet( 'importexport_masterurl', '' )
+				->optSet( NetworkInviteRepository::OPTION_KEY, [] )
+				->store();
 			return [
 				'contract' => [],
 				'state'    => $state,

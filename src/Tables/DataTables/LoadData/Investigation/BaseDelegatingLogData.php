@@ -18,6 +18,8 @@ abstract class BaseDelegatingLogData extends BaseInvestigationData {
 				break;
 			case 'plugin':
 			case 'theme':
+			case 'all_plugins':
+			case 'all_themes':
 			case 'core':
 				$wheres = InvestigationSubjectWheres::forActivitySubject(
 					$this->subjectType,

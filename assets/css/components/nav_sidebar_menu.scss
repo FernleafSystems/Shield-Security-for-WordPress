@@ -187,31 +187,35 @@
 }
 
 .sidebar-license-item {
-	align-items: center;
+	align-items: flex-start;
 	background: #ffffff;
 	border: 1px solid #c7dfc7;
 	border-radius: 7px;
 	color: #2f3d4d;
 	display: flex;
-	gap: 0.48rem;
-	padding: 0.48rem 0.55rem;
+	gap: 0.52rem;
+	padding: 0.54rem 0.58rem;
 	text-decoration: none;
 
 	.sidebar-license-icon {
 		color: $mode-configure;
 		display: inline-flex;
+		flex: 0 0 auto;
 		font-size: 1rem;
 		line-height: 1;
+		margin-top: 0.08rem;
 	}
 
 	.sidebar-license-content {
 		display: flex;
-		flex: 1 1 auto;
+		flex: 1 1 0;
 		flex-direction: column;
+		gap: 0.08rem;
 		min-width: 0;
 	}
 
 	.sidebar-license-title {
+		display: block;
 		font-size: 0.79rem;
 		font-weight: 700;
 		line-height: 1.2;
@@ -219,25 +223,23 @@
 
 	.sidebar-license-subtitle {
 		color: #5f6974;
+		display: block;
 		font-size: 0.67rem;
 		line-height: 1.2;
 	}
 
 	.sidebar-license-badge {
 		border-radius: 999px;
+		flex: 0 0 auto;
 		font-size: 0.64rem;
 		font-weight: 700;
 		line-height: 1;
+		margin-top: 0.04rem;
 		padding: 0.2rem 0.38rem;
 
 		&.status-good {
 			background: #dff3df;
 			color: #006400;
-		}
-
-		&.status-warning {
-			background: #fff3da;
-			color: #7a4f00;
 		}
 	}
 }

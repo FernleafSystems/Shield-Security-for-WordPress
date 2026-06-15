@@ -316,6 +316,27 @@
 	min-height: 148px;
 }
 
+.actions-queue-asset-card.is-inactive {
+	background: #f6f7f7;
+	border-color: #dcdcde;
+	color: #50575e;
+}
+
+.actions-queue-asset-card.is-inactive:hover,
+.actions-queue-asset-card.is-inactive:focus-visible {
+	background: #fff;
+	border-color: #8c8f94;
+}
+
+.actions-queue-asset-card.is-inactive .investigate-landing__subject-icon {
+	background: #edf0f0;
+	color: #646970;
+}
+
+.actions-queue-asset-card.is-inactive .investigate-landing__subject-stat {
+	color: #787c82;
+}
+
 .actions-queue-asset-card__icon {
 	margin-bottom: 0.55rem;
 }

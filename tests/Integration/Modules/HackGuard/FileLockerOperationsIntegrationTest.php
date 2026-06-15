@@ -2,9 +2,14 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\{
+	BuildFileFromFileKey,
+	CleanLockRecords,
+	GetFileLockCandidateDisplays,
+	GetPendingFileLockDisplays,
+	LoadFileLocks
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockKeyApplicability;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -124,6 +129,23 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 			[ \wp_normalize_path( ABSPATH.'index.php' ) ],
 			\array_column( $pendingDisplays, 'path' )
 		);
+	}
+
+	public function test_file_lock_candidate_displays_follow_supported_order_and_applicability() :void {
+		$displays = ( new GetFileLockCandidateDisplays( new FileLockKeyApplicability( false, false ) ) )->run();
+		$fileKeys = \array_column( $displays, 'file_key' );
+
+		$this->assertNotEmpty( $fileKeys );
+		$this->assertSame(
+			\array_values( \array_intersect( BuildFileFromFileKey::SUPPORTED_FILE_KEYS, $fileKeys ) ),
+			$fileKeys
+		);
+		$this->assertNotContains( 'theme_functions', $fileKeys );
+		$this->assertNotContains( 'root_webconfig', $fileKeys );
+		foreach ( $displays as $display ) {
+			$this->assertNotSame( '', $display[ 'title' ] );
+			$this->assertSame( \wp_normalize_path( $display[ 'path' ] ), $display[ 'path' ] );
+		}
 	}
 
 	/**

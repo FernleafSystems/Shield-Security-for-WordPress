@@ -43,6 +43,7 @@ class AjaxRenderTargetPolicyTest extends BaseUnitTest {
 			[ Actions\Render\Components\Widgets\WpDashboardSummary::class ],
 			[ Actions\Render\Components\Scans\ScansFileLockerDiff::class ],
 			[ Actions\Render\Components\OffCanvas\IpAnalysis::class ],
+			[ Actions\Render\Components\OffCanvas\ImportExportSitesAuthoriseUrls::class ],
 			[ Actions\Render\Components\OffCanvas\IpRuleAddForm::class ],
 			[ Actions\Render\Components\Rules\RuleBuilder::class ],
 			[ Actions\Render\Components\Rules\RulesManager::class ],

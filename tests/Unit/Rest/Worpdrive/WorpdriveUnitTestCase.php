@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rest\Worpdrive;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rest\Worpdrive\Fixtures\{
 	WorpdriveTestCacheDirHandler,
@@ -18,6 +19,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 use FernleafSystems\WorpdriveClient\Host\WorpdriveRuntime;
 
 abstract class WorpdriveUnitTestCase extends BaseUnitTest {
+
+	use TempDirLifecycleTrait;
 
 	protected array $servicesSnapshot = [];
 
@@ -45,6 +48,7 @@ abstract class WorpdriveUnitTestCase extends BaseUnitTest {
 		foreach ( \array_reverse( $this->tempPaths ) as $path ) {
 			$this->removePath( $path );
 		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -72,10 +76,7 @@ abstract class WorpdriveUnitTestCase extends BaseUnitTest {
 	}
 
 	protected function tempDir( string $prefix ) :string {
-		$dir = $this->normalizePath( \sys_get_temp_dir().'/'.$prefix.'-'.\uniqid() );
-		\mkdir( $dir, 0777, true );
-		$this->tempPaths[] = $dir;
-		return $dir;
+		return $this->normalizePath( $this->createTrackedTempDir( $prefix.'-' ) );
 	}
 
 	protected function writeFile( string $path, string $contents ) :string {

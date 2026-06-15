@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 
 class PageAdminPluginRouteResolver {
 
@@ -37,6 +38,24 @@ class PageAdminPluginRouteResolver {
 			'delegate_action'  => $delegateAction,
 			'delegate_payload' => $this->buildDelegateActionData( $actionData, $nav, $subNav ),
 		];
+	}
+
+	/**
+	 * @return array{nav:string,nav_sub:string,network_invite?:string}
+	 */
+	public function buildAdminPageActionData( array $actionData ) :array {
+		$nav = $this->resolveNav( $actionData, true );
+		$subNav = $this->resolveSubNav( $actionData, $nav );
+
+		return $this->withNetworkInviteReviewData(
+			[
+				Constants::NAV_ID     => $nav,
+				Constants::NAV_SUB_ID => $subNav,
+			],
+			$actionData,
+			$nav,
+			$subNav
+		);
 	}
 
 	private function resolveNav( array $actionData, bool $isPluginAdmin ) :string {
@@ -74,6 +93,22 @@ class PageAdminPluginRouteResolver {
 			if ( !empty( $canonicalSubjectKey ) ) {
 				$data[ 'subject' ] = $canonicalSubjectKey;
 			}
+		}
+
+		return $this->withNetworkInviteReviewData( $data, $actionData, $nav, $subNav );
+	}
+
+	/**
+	 * @param array<string,mixed> $data
+	 * @return array<string,mixed>
+	 */
+	private function withNetworkInviteReviewData( array $data, array $actionData, string $nav, string $subNav ) :array {
+		if ( $nav === PluginNavs::NAV_TOOLS
+			 && $subNav === PluginNavs::SUBNAV_TOOLS_IMPORT
+			 && \array_key_exists( NetworkInviteRepository::REVIEW_QUERY_KEY, $actionData ) ) {
+			$data[ NetworkInviteRepository::REVIEW_QUERY_KEY ] = sanitize_key(
+				(string)$actionData[ NetworkInviteRepository::REVIEW_QUERY_KEY ]
+			);
 		}
 
 		return $data;

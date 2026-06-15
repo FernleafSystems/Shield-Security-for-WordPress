@@ -19,6 +19,9 @@ class InvestigationTableContract {
 	public const SUBJECT_TYPE_IP = 'ip';
 	public const SUBJECT_TYPE_PLUGIN = 'plugin';
 	public const SUBJECT_TYPE_THEME = 'theme';
+	public const SUBJECT_TYPE_ALL_PLUGINS = 'all_plugins';
+	public const SUBJECT_TYPE_ALL_THEMES = 'all_themes';
 	public const SUBJECT_TYPE_CORE = 'core';
 	public const SUBJECT_TYPE_MALWARE = 'malware';
+	public const SUBJECT_ID_ALL = 'all';
 }

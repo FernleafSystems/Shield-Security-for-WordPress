@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
+	Actions\Investigation\InvestigationTableContract,
 	Actions\Render\PluginAdminPages\InvestigateByPluginPanelBody,
 	Constants
 };
@@ -69,6 +70,59 @@ class InvestigateByPluginPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$routePayload = $this->renderByPluginPage( $pluginSlug );
 		$this->assertRouteRenderOutputHealthy( $routePayload, 'activity by-plugin route' );
+		$this->assertPluginAdminShellRouteState( $routePayload, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
+	}
+
+	public function test_all_plugins_lookup_renders_aggregate_vulnerability_and_activity_panels() :void {
+		$payload = $this->renderByPluginPanelBody( InvestigateByPluginPanelBody::LOOKUP_ALL_PLUGINS );
+		$this->assertRouteRenderOutputHealthy( $payload, 'investigate all-plugins panel body action' );
+
+		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
+		$vars = (array)( $renderData[ 'vars' ] ?? [] );
+		$tabs = (array)( $vars[ 'tabs' ] ?? [] );
+		$tables = (array)( $vars[ 'tables' ] ?? [] );
+
+		$this->assertArrayHasKey( 'flags', $renderData );
+		$flags = $renderData[ 'flags' ];
+		$this->assertSame( true, $flags[ 'has_lookup' ] );
+		$this->assertSame( true, $flags[ 'has_all_subjects' ] );
+		$this->assertSame( false, $flags[ 'has_subject' ] );
+		$this->assertSame( false, $flags[ 'subject_not_found' ] );
+		$this->assertSame( [ 'vulnerabilities', 'activity' ], \array_keys( $tabs ) );
+		$this->assertArrayNotHasKey( 'overview', $tabs );
+		$this->assertArrayNotHasKey( 'file_status', $tabs );
+		$this->assertArrayNotHasKey( 'file_status', $tables );
+		$this->assertArrayHasKey( 'overview_rows', $vars );
+		$this->assertSame( [], $vars[ 'overview_rows' ] );
+		$this->assertArrayHasKey( 'vulnerability_pane', $vars );
+		$this->assertArrayHasKey( 'tab', $vars[ 'vulnerability_pane' ] );
+		$this->assertArrayHasKey( 'pane_id', $vars[ 'vulnerability_pane' ][ 'tab' ] );
+		$this->assertNotSame( '', (string)$tabs[ 'vulnerabilities' ][ 'pane_id' ] );
+		$this->assertSame(
+			$tabs[ 'vulnerabilities' ][ 'pane_id' ],
+			$vars[ 'vulnerability_pane' ][ 'tab' ][ 'pane_id' ]
+		);
+		$this->assertArrayHasKey( 'no_issues', $vars[ 'vulnerability_pane' ][ 'strings' ] );
+
+		$this->assertArrayHasKey( 'count', $tabs[ 'activity' ] );
+		$activityCount = (int)$tabs[ 'activity' ][ 'count' ];
+		if ( $activityCount > 0 ) {
+			$this->assertSame(
+				InvestigationTableContract::SUBJECT_TYPE_ALL_PLUGINS,
+				$tables[ 'activity' ][ 'subject_type' ]
+			);
+			$this->assertSame(
+				InvestigationTableContract::SUBJECT_ID_ALL,
+				$tables[ 'activity' ][ 'subject_id' ]
+			);
+			$this->assertSame(
+				InvestigationTableContract::TABLE_TYPE_ACTIVITY,
+				$tables[ 'activity' ][ 'table_type' ]
+			);
+		}
+
+		$routePayload = $this->renderByPluginPage( InvestigateByPluginPanelBody::LOOKUP_ALL_PLUGINS );
+		$this->assertRouteRenderOutputHealthy( $routePayload, 'activity all-plugins route' );
 		$this->assertPluginAdminShellRouteState( $routePayload, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
 	}
 

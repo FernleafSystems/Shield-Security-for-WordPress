@@ -3,85 +3,58 @@
 {% block inner_page_body %}
 
 	{% if flags.can_importexport %}
-		<div class="row">
-			<div class="col insights_section">
-				<ul class="nav nav-tabs shield_body-sub-nav">
-
-					<li class="nav-item">
-						<a class="nav-link active" data-bs-toggle="tab" role="tab" href="#importExportConfig"
-						   aria-selected="true">
-							{{ strings.tab_config }}
-						</a>
-					</li>
-
-					<li class="nav-item">
-						<a class="nav-link" data-bs-toggle="tab" role="tab" href="#toFile">
-							{{ strings.tab_to_file }}
-						</a>
-					</li>
-
-					<li class="nav-item">
-						<a class="nav-link" data-bs-toggle="tab" role="tab" href="#byFile">
-							{{ strings.tab_by_file }}
-						</a>
-					</li>
-
-					<li class="nav-item">
-						<a class="nav-link" data-bs-toggle="tab" role="tab" href="#fromSite">
-							{{ strings.tab_by_site }}
-						</a>
-					</li>
-
+		<div class="import-export-page" data-import-export-page="1">
+			{% if flags.has_network_invite_review %}
+				{% include '/wpadmin_pages/insights/importexport/network_invite_review.twig' with {
+					network_invite_review: vars.network_invite_review
+				} only %}
+			{% else %}
+				<ul class="nav nav-tabs import-export-tabs" role="tablist">
+					{% for tab in vars.import_export_tabs %}
+						<li class="nav-item" role="presentation">
+							<button type="button"
+									id="{{ tab.tab_id }}"
+									class="nav-link import-export-tabs__tab{% if tab.is_active %} active{% endif %}{% if not tab.is_available %} is-unavailable{% endif %}"
+									data-bs-toggle="tab"
+									data-bs-target="#{{ tab.panel_id }}"
+									data-import-export-tab="{{ tab.key }}"
+									data-import-export-tab-available="{{ tab.is_available ? '1' : '0' }}"
+									role="tab"
+									aria-controls="{{ tab.panel_id }}"
+									aria-selected="{{ tab.is_active ? 'true' : 'false' }}">
+								<i class="{{ tab.icon_class }}" aria-hidden="true"></i>
+								<span>{{ tab.label }}</span>
+							</button>
+						</li>
+					{% endfor %}
 				</ul>
-			</div>
-		</div>
 
-		<div class="tab-content">
-
-			<div class="tab-pane fade show active" id="importExportConfig" role="tabpanel" aria-labelledby="importExportConfig">
-				<div class="row">
-					<div class="col">
-						{{ content.import_export_config|raw }}
-					</div>
+				<div class="tab-content import-export-panels">
+					{% for tab in vars.import_export_tabs %}
+						<div class="tab-pane fade{% if tab.is_active %} show active{% endif %}"
+							 id="{{ tab.panel_id }}"
+							 data-import-export-panel="{{ tab.key }}"
+							 role="tabpanel"
+							 aria-labelledby="{{ tab.tab_id }}">
+							{% if tab.key == 'file' %}
+								{% if flags.can_importexport_file %}
+									{% include '/wpadmin_pages/insights/importexport/file_transfer.twig' with { file_transfer: vars.file_transfer } only %}
+								{% else %}
+									{% include '/wpadmin/components/feature_unavailable.twig' %}
+								{% endif %}
+							{% elseif tab.key == 'network_sync' %}
+								{% if flags.can_importexport_sync %}
+									{% include '/wpadmin_pages/insights/importexport/network_sync.twig' with {
+										network_sync: vars.network_sync
+									} only %}
+								{% else %}
+									{% include '/wpadmin/components/feature_unavailable.twig' %}
+								{% endif %}
+							{% endif %}
+						</div>
+					{% endfor %}
 				</div>
-			</div>
-
-			<div class="tab-pane fade" id="toFile" role="tabpanel" aria-labelledby="toFile">
-				<div class="row">
-					<div class="col">
-						{% if flags.can_importexport_file %}
-							{% include '/wpadmin_pages/insights/importexport/to_file.twig' %}
-						{% else %}
-							{% include '/wpadmin/components/feature_unavailable.twig' %}
-						{% endif %}
-					</div>
-				</div>
-			</div>
-
-			<div class="tab-pane fade" id="byFile" role="tabpanel" aria-labelledby="byFile">
-				<div class="row">
-					<div class="col">
-						{% if flags.can_importexport_file %}
-							{% include '/wpadmin_pages/insights/importexport/from_file.twig' %}
-						{% else %}
-							{% include '/wpadmin/components/feature_unavailable.twig' %}
-						{% endif %}
-					</div>
-				</div>
-			</div>
-
-			<div class="tab-pane fade" id="fromSite" role="tabpanel" aria-labelledby="fromSite">
-				<div class="row">
-					<div class="col">
-						{% if flags.can_importexport_sync %}
-							{% include '/wpadmin_pages/insights/importexport/from_site.twig' %}
-						{% else %}
-							{% include '/wpadmin/components/feature_unavailable.twig' %}
-						{% endif %}
-					</div>
-				</div>
-			</div>
-
+			{% endif %}
 		</div>
 	{% else %}
 		<div class="row">

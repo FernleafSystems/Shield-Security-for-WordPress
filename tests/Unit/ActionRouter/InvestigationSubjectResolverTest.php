@@ -92,6 +92,31 @@ class InvestigationSubjectResolverTest extends BaseUnitTest {
 		$this->assertSame( 'twentytwentyfive', $normalized[ 'subject_id' ] );
 	}
 
+	public function testNormalizeAcceptsAllPluginsForActivityTable() :void {
+		$resolver = $this->buildResolverWithAssets();
+		$normalized = $resolver->normalize( 'activity', 'all_plugins', 'any-value' );
+
+		$this->assertSame( 'activity', $normalized[ 'table_type' ] );
+		$this->assertSame( 'all_plugins', $normalized[ 'subject_type' ] );
+		$this->assertSame( 'all', $normalized[ 'subject_id' ] );
+	}
+
+	public function testNormalizeAcceptsAllThemesForActivityTable() :void {
+		$resolver = $this->buildResolverWithAssets();
+		$normalized = $resolver->normalize( 'activity', 'all_themes', 'any-value' );
+
+		$this->assertSame( 'activity', $normalized[ 'table_type' ] );
+		$this->assertSame( 'all_themes', $normalized[ 'subject_type' ] );
+		$this->assertSame( 'all', $normalized[ 'subject_id' ] );
+	}
+
+	public function testNormalizeRejectsAggregateSubjectsForSessionsTable() :void {
+		$resolver = $this->buildResolverWithAssets();
+
+		$this->expectException( UnsupportedInvestigationSubjectTypeException::class );
+		$resolver->normalize( 'sessions', 'all_plugins', 'all' );
+	}
+
 	public function testNormalizeAcceptsCoreForActivityTable() :void {
 		$resolver = $this->buildResolverWithAssets();
 		$normalized = $resolver->normalize( 'activity', 'core', 'any-value' );

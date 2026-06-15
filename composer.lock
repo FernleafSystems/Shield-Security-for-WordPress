@@ -263,16 +263,16 @@
         },
         {
             "name": "crowdsec/capi-client",
-            "version": "v3.5.2",
+            "version": "v3.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/crowdsecurity/php-capi-client.git",
-                "reference": "733fdfbe95495c4b8e392eb55eac510c59678aef"
+                "reference": "fe366acb0a035eee4f8dc92c16015e4a1de5004a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/crowdsecurity/php-capi-client/zipball/733fdfbe95495c4b8e392eb55eac510c59678aef",
-                "reference": "733fdfbe95495c4b8e392eb55eac510c59678aef",
+                "url": "https://api.github.com/repos/crowdsecurity/php-capi-client/zipball/fe366acb0a035eee4f8dc92c16015e4a1de5004a",
+                "reference": "fe366acb0a035eee4f8dc92c16015e4a1de5004a",
                 "shasum": ""
             },
             "require": {
@@ -323,9 +323,9 @@
             ],
             "support": {
                 "issues": "https://github.com/crowdsecurity/php-capi-client/issues",
-                "source": "https://github.com/crowdsecurity/php-capi-client/tree/v3.5.2"
+                "source": "https://github.com/crowdsecurity/php-capi-client/tree/v3.5.3"
             },
-            "time": "2026-02-06T08:59:37+00:00"
+            "time": "2026-06-03T10:11:23+00:00"
         },
         {
             "name": "crowdsec/common",
@@ -574,16 +574,16 @@
         },
         {
             "name": "fernleafsystems/wordpress-services",
-            "version": "3.16.2",
+            "version": "3.16.3",
             "source": {
                 "type": "git",
                 "url": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services.git",
-                "reference": "27b590bb031fd8221dd4b2e77731b55585c9a3eb"
+                "reference": "64b9a72da61484908338409b0da82eef413e75ad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=27b590bb031fd8221dd4b2e77731b55585c9a3eb",
-                "reference": "27b590bb031fd8221dd4b2e77731b55585c9a3eb",
+                "url": "https://gitlab.com/api/v4/projects/fernleafsystems%2Fwordpress%2Fwordpress-services/repository/archive.zip?sha=64b9a72da61484908338409b0da82eef413e75ad",
+                "reference": "64b9a72da61484908338409b0da82eef413e75ad",
                 "shasum": ""
             },
             "require": {
@@ -621,9 +621,9 @@
             "description": "Base WordPress Services provider for all AptoWeb WordPress plugins",
             "support": {
                 "issues": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/issues",
-                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.16.2"
+                "source": "https://gitlab.com/fernleafsystems/wordpress/wordpress-services/-/tree/3.16.3"
             },
-            "time": "2026-05-08T08:00:02+00:00"
+            "time": "2026-06-07T19:14:19+00:00"
         },
         {
             "name": "fernleafsystems/worpdrive-client",
@@ -2706,16 +2706,16 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.38.1",
+            "version": "v1.38.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "14c5439eec4ccff081ac14eca2dc57feb2a66d92"
+                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/14c5439eec4ccff081ac14eca2dc57feb2a66d92",
-                "reference": "14c5439eec4ccff081ac14eca2dc57feb2a66d92",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
+                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
                 "shasum": ""
             },
             "require": {
@@ -2767,7 +2767,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.1"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.2"
             },
             "funding": [
                 {
@@ -2787,7 +2787,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-26T12:51:13+00:00"
+            "time": "2026-05-27T06:59:30+00:00"
         },
         {
             "name": "symfony/polyfill-php80",
@@ -4546,11 +4546,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.2.1",
+            "version": "2.2.2",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/dea9c8f2d25cc849391042b71e429c1a4bf82660",
-                "reference": "dea9c8f2d25cc849391042b71e429c1a4bf82660",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e5cc34d491a90e79c216d824f60fe21fd4d93bd6",
+                "reference": "e5cc34d491a90e79c216d824f60fe21fd4d93bd6",
                 "shasum": ""
             },
             "require": {
@@ -4606,7 +4606,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-05-28T14:44:12+00:00"
+            "time": "2026-06-05T09:00:01+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",

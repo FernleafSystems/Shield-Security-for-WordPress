@@ -6,6 +6,8 @@ use Dolondro\GoogleAuthenticator\GoogleAuthenticator as OtpGenerator;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	MfaEmailAutoLogin,
+	MfaCanEmailSendVerify,
+	MfaEmailDisable,
 	MfaEmailSendIntent
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
@@ -45,6 +47,7 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 			'enable_email_authentication',
 			'enable_email_auto_login',
 			'email_can_send_verified_at',
+			'email_can_send_verification_sent_at',
 			'email_any_user_set',
 			'allow_backupcodes',
 			'enable_google_authenticator',
@@ -56,6 +59,7 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 			'enable_email_authentication' => 'Y',
 			'enable_email_auto_login'     => 'Y',
 			'email_can_send_verified_at'  => \time(),
+			'email_can_send_verification_sent_at' => 0,
 			'email_any_user_set'          => 'Y',
 			'allow_backupcodes'           => 'N',
 			'enable_google_authenticator' => 'N',
@@ -107,6 +111,55 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 			Email::ProviderSlug(),
 			$this->requireController()->comps->mfa->getProvidersActiveForUser( $user )
 		);
+	}
+
+	public function test_email_delivery_verify_action_marks_verified_and_clears_pending_send() :void {
+		$userId = $this->loginAsSecurityAdmin( [
+			'user_email' => 'verify-email-delivery@example.test',
+		] );
+		$user = \get_user_by( 'id', $userId );
+		$this->assertInstanceOf( \WP_User::class, $user );
+		RuntimeTestState::restoreOptions( [
+			'enable_email_authentication' => 'Y',
+			'email_can_send_verified_at'  => 0,
+			'email_can_send_verification_sent_at' => \time() - 60,
+			'two_factor_auth_user_roles'  => [ 'administrator' ],
+		], true );
+		$this->resetMfaProviderCache();
+		$this->assertArrayNotHasKey(
+			Email::ProviderSlug(),
+			$this->requireController()->comps->mfa->getProvidersActiveForUser( $user )
+		);
+
+		$payload = $this->requireController()->action_router->action( MfaCanEmailSendVerify::class )->payload();
+
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertTrue( (bool)$payload[ 'success' ] );
+		$this->assertGreaterThan( 0, $this->requireController()->opts->optGet( 'email_can_send_verified_at' ) );
+		$this->assertSame( 0, $this->requireController()->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->resetMfaProviderCache();
+		$this->assertArrayHasKey(
+			Email::ProviderSlug(),
+			$this->requireController()->comps->mfa->getProvidersActiveForUser( $user )
+		);
+	}
+
+	public function test_email_disable_action_stores_disabled_state_and_clears_pending_send() :void {
+		$this->loginAsSecurityAdmin();
+		RuntimeTestState::restoreOptions( [
+			'enable_email_authentication' => 'Y',
+			'email_can_send_verified_at'  => \time(),
+			'email_can_send_verification_sent_at' => \time() - 60,
+		], true );
+
+		$payload = $this->requireController()->action_router->action( MfaEmailDisable::class )->payload();
+
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
+		$this->assertTrue( (bool)$payload[ 'success' ] );
+		$this->assertTrue( (bool)$payload[ 'page_reload' ] );
+		$this->assertSame( 'N', $this->requireController()->opts->optGet( 'enable_email_authentication' ) );
+		$this->assertSame( 0, $this->requireController()->opts->optGet( 'email_can_send_verification_sent_at' ) );
 	}
 
 	public function test_email_login_form_field_does_not_rehydrate_submitted_otp() :void {
