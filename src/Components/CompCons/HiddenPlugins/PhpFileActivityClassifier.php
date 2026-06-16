@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlug
 
 class PhpFileActivityClassifier {
 
+	public const MAX_TOKENIZE_BYTES = 2097152;
+
 	/**
 	 * @phpstan-return value-of<PhpFileActivity::ALL>
 	 */
@@ -12,9 +14,12 @@ class PhpFileActivityClassifier {
 			return PhpFileActivity::Unreadable;
 		}
 
-		$content = \file_get_contents( $path );
+		$content = \file_get_contents( $path, false, null, 0, self::MAX_TOKENIZE_BYTES + 1 );
 		if ( $content === false ) {
 			return PhpFileActivity::Unreadable;
+		}
+		if ( \strlen( $content ) > self::MAX_TOKENIZE_BYTES ) {
+			return PhpFileActivity::Executable;
 		}
 
 		$content = $this->normalizeContent( $content );
@@ -33,7 +38,7 @@ class PhpFileActivityClassifier {
 	}
 
 	private function normalizeContent( string $content ) :string {
-		if ( \str_starts_with( $content, "\xEF\xBB\xBF" ) ) {
+		if ( \strncmp( $content, "\xEF\xBB\xBF", 3 ) === 0 ) {
 			$content = (string)\substr( $content, 3 );
 		}
 		return \trim( $content );

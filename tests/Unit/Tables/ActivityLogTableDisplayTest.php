@@ -40,8 +40,7 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'esc_html' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES ) );
 		Functions\when( 'esc_attr' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES ) );
-		Functions\when( 'esc_url' )->alias( static fn( $text ) :string => (string)$text );
-		Functions\when( 'sanitize_textarea_field' )->alias( static fn( $text ) :string => (string)$text );
+		Functions\when( 'esc_url' )->alias( static fn( $text ) :string => \htmlspecialchars( (string)$text, \ENT_QUOTES ) );
 
 		$this->installControllerStub();
 		$this->servicesSnapshot = ServicesState::snapshot();
@@ -51,6 +50,9 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 			'service_wpgeneral' => new UnitTestGeneral( '/admin-ajax.php', 'display:' ),
 			'service_wpusers'   => new class extends Users {
 				public function getAdminUrl_ProfileEdit( $user = null ) :string {
+					if ( \is_object( $user ) && isset( $user->profile_url ) ) {
+						return (string)$user->profile_url;
+					}
 					$uid = \is_object( $user ) && isset( $user->ID ) ? (int)$user->ID : 0;
 					return '/wp-admin/user-edit.php?user_id='.$uid;
 				}
@@ -208,6 +210,42 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'data-bs-title="display:1713278100"', $row[ 'created_since' ] );
 	}
 
+	public function test_activity_row_escapes_event_message_request_id_and_user_link_output() :void {
+		$row = $this->buildRow(
+			$this->createBuilder( [], [
+				9 => $this->makeUser(
+					9,
+					'user"><img src=x onerror=alert(1)>',
+					'/wp-admin/user-edit.php?user_id=9&next="><script>alert(1)</script>'
+				),
+			] ),
+			$this->makeLogRecord(
+				'',
+				[
+					'uid'    => '9',
+					'detail' => "<button onclick=alert(2)>push</button>\nSecond line",
+				],
+				1713278000,
+				'malicious_event',
+				'rid" onclick="alert(3)'
+			)
+		);
+
+		$this->assertSame( 'Bad &lt;script&gt;Event&lt;/script&gt;', $row[ 'event' ] );
+		$this->assertStringContainsString( 'Bad &lt;script&gt;Event&lt;/script&gt;', $row[ 'message' ] );
+		$this->assertStringContainsString( '&lt;button onclick=alert(2)&gt;push&lt;/button&gt; Second line', $row[ 'message' ] );
+		$this->assertStringNotContainsString( '<script>Event</script>', $row[ 'message' ] );
+		$this->assertStringNotContainsString( '<button onclick', $row[ 'message' ] );
+		$this->assertStringContainsString( 'data-rid="rid&quot; onclick=&quot;alert(3)"', $row[ 'meta' ] );
+		$this->assertStringNotContainsString( 'data-rid="rid" onclick="alert(3)"', $row[ 'meta' ] );
+		$this->assertStringContainsString(
+			'href="/wp-admin/user-edit.php?user_id=9&amp;next=&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;"',
+			$row[ 'user' ]
+		);
+		$this->assertStringContainsString( 'user&quot;&gt;&lt;img src=x onerror=alert(1)&gt;', $row[ 'user' ] );
+		$this->assertStringNotContainsString( '<img src=x', $row[ 'user' ] );
+	}
+
 	private function identityXPath( string $html ) :DOMXPath {
 		$doc = new DOMDocument();
 		$previous = \libxml_use_internal_errors( true );
@@ -283,22 +321,32 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 		};
 	}
 
-	private function makeLogRecord( string $ip, array $metaData = [], int $timestamp = 1713278000 ) :LogRecord {
+	private function makeLogRecord(
+		string $ip,
+		array $metaData = [],
+		int $timestamp = 1713278000,
+		string $eventSlug = 'test_event',
+		string $rid = 'req-test'
+	) :LogRecord {
 		$record = new LogRecord();
-		$record->event_slug = 'test_event';
+		$record->event_slug = $eventSlug;
 		$record->ip = $ip;
-		$record->rid = 'req-test';
+		$record->rid = $rid;
 		$record->created_at = $timestamp;
 		$record->updated_at = $timestamp;
 		$record->meta_data = $metaData;
 		return $record;
 	}
 
-	private function makeUser( int $id, string $login ) :object {
-		return (object)[
+	private function makeUser( int $id, string $login, string $profileUrl = '' ) :object {
+		$user = (object)[
 			'ID'         => $id,
 			'user_login' => $login,
 		];
+		if ( $profileUrl !== '' ) {
+			$user->profile_url = $profileUrl;
+		}
+		return $user;
 	}
 
 	private function installControllerStub() :void {
@@ -311,10 +359,13 @@ class ActivityLogTableDisplayTest extends BaseUnitTest {
 			public function __construct() {
 				$this->events = new class {
 					public function getEventName( string $event ) :string {
-						return $event;
+						return $event === 'malicious_event' ? 'Bad <script>Event</script>' : $event;
 					}
 
 					public function getEventAuditStrings( string $event ) :array {
+						if ( $event === 'malicious_event' ) {
+							return [ 'Changed {{detail}}' ];
+						}
 						return [ 'Event '.$event ];
 					}
 

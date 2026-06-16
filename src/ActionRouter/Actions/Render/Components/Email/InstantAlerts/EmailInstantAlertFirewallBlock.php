@@ -29,33 +29,21 @@ class EmailInstantAlertFirewallBlock extends EmailInstantAlertBase {
 		] );
 
 		return [
-			'firewall_block' => [
-				'title' => __( 'Request Details', 'wp-simple-firewall' ),
-				'items' => [
-					'ip' => [
-						'text' => sprintf( '%s: <code>%s</code>', $labels[ 'ip_address_label' ], $alertData[ 'ip' ] ),
-					],
-					'firewall_rule_name' => [
-						'text' => sprintf( '%s: <code>%s</code>', __( 'Firewall Rule', 'wp-simple-firewall' ), $alertData[ 'firewall_rule_name' ] ),
-					],
-					'match_pattern' => [
-						'text' => sprintf( '%s: <code>%s</code>', __( 'Firewall Pattern', 'wp-simple-firewall' ), $alertData[ 'match_pattern' ] ),
-					],
-					'request_path' => [
-						'text' => sprintf( '%s: <code>%s</code>', $labels[ 'request_path_label' ], $alertData[ 'request_path' ] ),
-					],
-					'match_request_param' => [
-						'text' => sprintf( '%s: <code>%s</code>', __( 'Parameter Name', 'wp-simple-firewall' ), $alertData[ 'match_request_param' ] ),
-					],
-					'match_request_value' => [
-						'text' => sprintf( '%s: <code>%s</code>', __( 'Parameter Value', 'wp-simple-firewall' ), $alertData[ 'match_request_value' ] ),
-					],
-					'ip_lookup' => [
-						'text' => __( 'IP Address Lookup', 'wp-simple-firewall' ),
-						'href' => URL::Build( 'https://clk.shldscrty.com/botornot', [ 'ip' => $alertData[ 'ip' ] ] ),
-					],
-				],
-			],
+			'firewall_block' => $this->alertGroup(
+				__( 'Request Details', 'wp-simple-firewall' ),
+				[
+					$this->alertItem( [ $this->alertLine( $labels[ 'ip_address_label' ], $alertData[ 'ip' ], self::LINE_STYLE_CODE ) ] ),
+					$this->alertItem( [ $this->alertLine( __( 'Firewall Rule', 'wp-simple-firewall' ), $alertData[ 'firewall_rule_name' ], self::LINE_STYLE_CODE ) ] ),
+					$this->alertItem( [ $this->alertLine( __( 'Firewall Pattern', 'wp-simple-firewall' ), $alertData[ 'match_pattern' ], self::LINE_STYLE_CODE ) ] ),
+					$this->alertItem( [ $this->alertLine( $labels[ 'request_path_label' ], $alertData[ 'request_path' ], self::LINE_STYLE_CODE ) ] ),
+					$this->alertItem( [ $this->alertLine( __( 'Parameter Name', 'wp-simple-firewall' ), $alertData[ 'match_request_param' ], self::LINE_STYLE_CODE ) ] ),
+					$this->alertItem( [ $this->alertLine( __( 'Parameter Value', 'wp-simple-firewall' ), $alertData[ 'match_request_value' ], self::LINE_STYLE_CODE ) ] ),
+					$this->alertItem(
+						[ $this->alertTextLine( __( 'IP Address Lookup', 'wp-simple-firewall' ) ) ],
+						URL::Build( 'https://clk.shldscrty.com/botornot', [ 'ip' => $alertData[ 'ip' ] ] )
+					),
+				]
+			),
 		];
 	}
 

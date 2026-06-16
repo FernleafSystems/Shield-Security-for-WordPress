@@ -19,7 +19,7 @@ class EmailInstantAlertAdminLogin extends EmailInstantAlertBase {
 						/* translators: %1$s: plugin name, %2$s: user role */
 						__( 'As requested, %1$s is notifying you of a successful %2$s login to a WordPress site that you manage.', 'wp-simple-firewall' ),
 						self::con()->labels->Name,
-						$alertData['role_name']
+						$this->displayText( $alertData[ 'role_name' ] )
 					),
 					sprintf(
 						__( 'Important: %s', 'wp-simple-firewall' ),
@@ -38,23 +38,14 @@ class EmailInstantAlertAdminLogin extends EmailInstantAlertBase {
 		] );
 
 		return [
-			'admin_login' => [
-				'title' => __( 'Login Details', 'wp-simple-firewall' ),
-				'items' => [
-					[
-						'text' => sprintf( '%s: %s', $labels[ 'username' ], $alertData[ 'username' ] ),
-						'href' => '',
-					],
-					[
-						'text' => sprintf( '%s: %s', __( 'Email', 'wp-simple-firewall' ), $alertData[ 'user_email' ] ),
-						'href' => '',
-					],
-					[
-						'text' => sprintf( '%s: %s', $labels[ 'ip_address_label' ], $alertData[ 'ip' ] ),
-						'href' => '',
-					],
-				],
-			],
+			'admin_login' => $this->alertGroup(
+				__( 'Login Details', 'wp-simple-firewall' ),
+				[
+					$this->alertItem( [ $this->alertLine( $labels[ 'username' ], $alertData[ 'username' ] ) ] ),
+					$this->alertItem( [ $this->alertLine( __( 'Email', 'wp-simple-firewall' ), $alertData[ 'user_email' ] ) ] ),
+					$this->alertItem( [ $this->alertLine( $labels[ 'ip_address_label' ], $alertData[ 'ip' ] ) ] ),
+				]
+			),
 		];
 	}
 

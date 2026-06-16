@@ -31,13 +31,13 @@ class EmailInstantAlertHiddenPlugins extends EmailInstantAlertBase {
 
 	protected function buildAlertGroups() :array {
 		return [
-			'hidden_plugins' => [
-				'title' => __( 'Hidden Plugin Findings', 'wp-simple-firewall' ),
-				'items' => \array_map(
+			'hidden_plugins' => $this->alertGroup(
+				__( 'Hidden Plugin Findings', 'wp-simple-firewall' ),
+				\array_map(
 					fn( array $finding ) :array => $this->buildFindingItem( $finding ),
 					$this->hiddenPluginAlertData()
-				),
-			],
+				)
+			),
 		];
 	}
 
@@ -56,22 +56,16 @@ class EmailInstantAlertHiddenPlugins extends EmailInstantAlertBase {
 	private function buildFindingItem( array $finding ) :array {
 		$hiddenBy = \implode( ', ', $finding[ 'hidden_by_labels' ] );
 
-		return [
-			'text' => sprintf(
-				'%s: <code>%s</code><br/>%s: %s<br/>%s: %s<br/>%s: %s<br/>%s: <code>%s</code>',
-				__( 'File', 'wp-simple-firewall' ),
-				$this->escape( $finding[ 'file' ] ),
-				__( 'Name', 'wp-simple-firewall' ),
-				$this->escape( $finding[ 'name' ] ),
-				__( 'Type', 'wp-simple-firewall' ),
-				$this->escape( $finding[ 'type_label' ] ),
-				__( 'Hidden By', 'wp-simple-firewall' ),
-				$this->escape( $hiddenBy ),
-				__( 'Path', 'wp-simple-firewall' ),
-				$this->escape( $finding[ 'path' ] )
-			),
-			'href' => $this->pluginsUrl( $finding[ 'type' ], $finding[ 'status' ] ),
-		];
+		return $this->alertItem(
+			[
+				$this->alertLine( __( 'File', 'wp-simple-firewall' ), $finding[ 'file' ], self::LINE_STYLE_CODE ),
+				$this->alertLine( __( 'Name', 'wp-simple-firewall' ), $finding[ 'name' ] ),
+				$this->alertLine( __( 'Type', 'wp-simple-firewall' ), $finding[ 'type_label' ] ),
+				$this->alertLine( __( 'Hidden By', 'wp-simple-firewall' ), $hiddenBy ),
+				$this->alertLine( __( 'Location', 'wp-simple-firewall' ), $finding[ 'location' ], self::LINE_STYLE_CODE ),
+			],
+			$this->pluginsUrl( $finding[ 'type' ], $finding[ 'status' ] )
+		);
 	}
 
 	private function pluginsUrl( string $type, string $status ) :string {
@@ -83,9 +77,5 @@ class EmailInstantAlertHiddenPlugins extends EmailInstantAlertBase {
 			return URL::Build( $url, [ 'plugin_status' => $status ] );
 		}
 		return $url;
-	}
-
-	private function escape( string $value ) :string {
-		return \htmlspecialchars( $value, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8' );
 	}
 }

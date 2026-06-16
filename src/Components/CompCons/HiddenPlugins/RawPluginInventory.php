@@ -99,7 +99,7 @@ class RawPluginInventory {
 		}
 
 		foreach ( $items as $item ) {
-			if ( $item === '.' || $item === '..' || \str_starts_with( $item, '.' ) ) {
+			if ( $this->isDotFile( $item ) ) {
 				continue;
 			}
 
@@ -110,15 +110,15 @@ class RawPluginInventory {
 					continue;
 				}
 				foreach ( $subItems as $subItem ) {
-					if ( $subItem === '.' || $subItem === '..' || \str_starts_with( $subItem, '.' ) ) {
+					if ( $this->isDotFile( $subItem ) ) {
 						continue;
 					}
-					if ( \str_ends_with( $subItem, '.php' ) ) {
+					if ( $this->endsWith( $subItem, '.php' ) ) {
 						$files[] = $item.'/'.$subItem;
 					}
 				}
 			}
-			elseif ( \str_ends_with( $item, '.php' ) ) {
+			elseif ( $this->endsWith( $item, '.php' ) ) {
 				$files[] = $item;
 			}
 		}
@@ -138,7 +138,7 @@ class RawPluginInventory {
 				if ( $item === '.' || $item === '..' ) {
 					continue;
 				}
-				if ( \str_ends_with( $item, '.php' ) && \is_file( $muDir.'/'.$item ) ) {
+				if ( $this->endsWith( $item, '.php' ) && \is_file( $muDir.'/'.$item ) ) {
 					$files[] = $item;
 				}
 			}
@@ -158,6 +158,15 @@ class RawPluginInventory {
 
 	private function normalizeDir( string $dir ) :string {
 		return \rtrim( \str_replace( '\\', '/', $dir ), '/' );
+	}
+
+	private function isDotFile( string $name ) :bool {
+		return $name === '.' || $name === '..' || \strncmp( $name, '.', 1 ) === 0;
+	}
+
+	private function endsWith( string $value, string $suffix ) :bool {
+		$suffixLength = \strlen( $suffix );
+		return $suffixLength === 0 || \substr( $value, -$suffixLength ) === $suffix;
 	}
 
 	private function readPluginData( string $path ) :array {
