@@ -43,18 +43,27 @@ class EmailInstantAlertAdminLogin extends EmailInstantAlertBase {
 				[
 					$this->alertItem( [ $this->alertLine( $labels[ 'username' ], $alertData[ 'username' ] ) ] ),
 					$this->alertItem( [ $this->alertLine( __( 'Email', 'wp-simple-firewall' ), $alertData[ 'user_email' ] ) ] ),
-					$this->alertItem( [ $this->alertLine( $labels[ 'ip_address_label' ], $alertData[ 'ip' ] ) ] ),
+					$this->alertItem( [
+						$this->alertLine(
+							$labels[ 'ip_address_label' ],
+							$this->formatIpAddress( $alertData[ 'ip' ], $alertData[ 'ip_identity' ] )
+						),
+					] ),
 				]
 			),
 		];
 	}
 
 	/**
-	 * @return array{role_name:string,username:string,user_email:string,ip:string}
+	 * @return array{role_name:string,username:string,user_email:string,ip:string,ip_identity:string}
 	 */
 	private function loginAlertData() :array {
-		/** @var array{role_name:string,username:string,user_email:string,ip:string} $alertData */
+		/** @var array{role_name:string,username:string,user_email:string,ip:string,ip_identity:string} $alertData */
 		$alertData = $this->action_data['alert_data']['admin_login'];
 		return $alertData;
+	}
+
+	private function formatIpAddress( string $ip, string $ipIdentity ) :string {
+		return $ipIdentity === '' ? $ip : sprintf( '%s (%s)', $ip, $ipIdentity );
 	}
 }

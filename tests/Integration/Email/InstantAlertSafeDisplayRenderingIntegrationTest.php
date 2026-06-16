@@ -73,10 +73,11 @@ class InstantAlertSafeDisplayRenderingIntegrationTest extends ShieldIntegrationT
 				'class'                   => EmailInstantAlertAdminLogin::class,
 				'alert_data'              => [
 					'admin_login' => [
-						'role_name'  => $rolePayload,
-						'username'   => $malicious,
-						'user_email' => $malicious,
-						'ip'         => $buttonPayload,
+						'role_name'   => $rolePayload,
+						'username'    => $malicious,
+						'user_email'  => $malicious,
+						'ip'          => $buttonPayload,
+						'ip_identity' => $malicious,
 					],
 				],
 				'expected'                => [
