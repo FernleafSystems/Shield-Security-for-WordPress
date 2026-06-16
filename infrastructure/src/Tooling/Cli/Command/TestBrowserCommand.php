@@ -11,14 +11,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestBrowserCommand extends Command {
 
-	protected static $defaultName = 'test:browser';
+	public const NAME = 'test:browser';
 
 	private string $projectRoot;
 
 	private BrowserTestLane $lane;
 
 	public function __construct( string $projectRoot, BrowserTestLane $lane ) {
-		parent::__construct( self::$defaultName );
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

@@ -10,14 +10,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestUpgradePublicCommand extends Command {
 
-	protected static $defaultName = 'test:upgrade-public';
+	public const NAME = 'test:upgrade-public';
 
 	private string $projectRoot;
 
 	private PublicUpgradeTestLane $lane;
 
 	public function __construct( string $projectRoot, PublicUpgradeTestLane $lane ) {
-		parent::__construct( self::$defaultName );
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

@@ -4,11 +4,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTestTrait;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzePackageCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeSourceCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeToolingCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\GitPreCommitCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestCrossSiteCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageTargetedCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPopularPluginsCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestSourceCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestUpgradePublicCommand;
@@ -20,6 +24,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\PopularPluginsCompatibilityTe
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PreCommitChangedFileLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\PublicUpgradeTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceRuntimeTestLane;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class ShieldCliCommandTest extends BaseUnitTest {
@@ -52,27 +57,25 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				'test:site:fixture',
 				'test:site:reset',
 				'test:site:status',
-				'test:browser',
-				'test:cross-site',
-				'test:source',
-				'test:integration-local',
-				'test:package-targeted',
-				'test:package-full',
-				'test:upgrade-public',
-				'test:popular-plugins',
-				'analyze:tooling',
-				'analyze:source',
-				'analyze:package',
-				'git:pre-commit',
+				TestBrowserCommand::NAME,
+				TestCrossSiteCommand::NAME,
+				TestSourceCommand::NAME,
+				TestIntegrationLocalCommand::NAME,
+				TestPackageTargetedCommand::NAME,
+				TestPackageFullCommand::NAME,
+				TestUpgradePublicCommand::NAME,
+				TestPopularPluginsCommand::NAME,
+				AnalyzeToolingCommand::NAME,
+				AnalyzeSourceCommand::NAME,
+				AnalyzePackageCommand::NAME,
+				GitPreCommitCommand::NAME,
 			] as $commandName
 		) {
 			$this->assertStringContainsString( $commandName, $output );
 		}
 	}
 
-	/**
-	 * @dataProvider providerCommandNames
-	 */
+	#[DataProvider( 'providerCommandNames' )]
 	public function testEachCommandProvidesHelp( string $commandName ) :void {
 		$this->skipIfPackageScriptUnavailable();
 
@@ -313,10 +316,10 @@ class ShieldCliCommandTest extends BaseUnitTest {
 	 */
 	public static function providerCommandNames() :array {
 		return [
-			'test-source' => [ 'test:source' ],
-			'test-browser' => [ 'test:browser' ],
-			'test-cross-site' => [ 'test:cross-site' ],
-			'test-integration-local' => [ 'test:integration-local' ],
+			'test-source' => [ TestSourceCommand::NAME ],
+			'test-browser' => [ TestBrowserCommand::NAME ],
+			'test-cross-site' => [ TestCrossSiteCommand::NAME ],
+			'test-integration-local' => [ TestIntegrationLocalCommand::NAME ],
 			'dev-site-up' => [ 'dev:site:up' ],
 			'dev-site-down' => [ 'dev:site:down' ],
 			'dev-site-wp' => [ 'dev:site:wp' ],
@@ -328,14 +331,14 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			'test-site-fixture' => [ 'test:site:fixture' ],
 			'test-site-reset' => [ 'test:site:reset' ],
 			'test-site-status' => [ 'test:site:status' ],
-			'test-package-targeted' => [ 'test:package-targeted' ],
-			'test-package-full' => [ 'test:package-full' ],
-			'test-upgrade-public' => [ 'test:upgrade-public' ],
-			'test-popular-plugins' => [ 'test:popular-plugins' ],
-			'analyze-tooling' => [ 'analyze:tooling' ],
-			'analyze-source' => [ 'analyze:source' ],
-			'analyze-package' => [ 'analyze:package' ],
-			'git-pre-commit' => [ 'git:pre-commit' ],
+			'test-package-targeted' => [ TestPackageTargetedCommand::NAME ],
+			'test-package-full' => [ TestPackageFullCommand::NAME ],
+			'test-upgrade-public' => [ TestUpgradePublicCommand::NAME ],
+			'test-popular-plugins' => [ TestPopularPluginsCommand::NAME ],
+			'analyze-tooling' => [ AnalyzeToolingCommand::NAME ],
+			'analyze-source' => [ AnalyzeSourceCommand::NAME ],
+			'analyze-package' => [ AnalyzePackageCommand::NAME ],
+			'git-pre-commit' => [ GitPreCommitCommand::NAME ],
 		];
 	}
 }

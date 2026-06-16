@@ -10,14 +10,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestSourceCommand extends Command {
 
-	protected static $defaultName = 'test:source';
+	public const NAME = 'test:source';
 
 	private string $projectRoot;
 
 	private SourceRuntimeTestLane $lane;
 
 	public function __construct( string $projectRoot, SourceRuntimeTestLane $lane ) {
-		parent::__construct( self::$defaultName );
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

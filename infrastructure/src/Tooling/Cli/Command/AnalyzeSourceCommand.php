@@ -10,14 +10,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AnalyzeSourceCommand extends Command {
 
-	protected static $defaultName = 'analyze:source';
+	public const NAME = 'analyze:source';
 
 	private string $projectRoot;
 
 	private SourceStaticAnalysisLane $lane;
 
 	public function __construct( string $projectRoot, SourceStaticAnalysisLane $lane ) {
-		parent::__construct( self::$defaultName );
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

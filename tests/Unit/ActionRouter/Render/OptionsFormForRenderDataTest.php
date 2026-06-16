@@ -25,11 +25,14 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 
+	private array $servicesSnapshot = [];
+
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'esc_attr' )->alias( static fn( $text ) => $text );
 		Functions\when( 'esc_html' )->alias( static fn( $text ) => $text );
+		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::mergeItems( [
 			'service_datamanipulation' => new DataManipulation(),
 		] );
@@ -38,6 +41,7 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 

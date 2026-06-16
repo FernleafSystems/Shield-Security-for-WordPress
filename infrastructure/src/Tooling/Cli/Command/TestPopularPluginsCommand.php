@@ -10,14 +10,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestPopularPluginsCommand extends Command {
 
-	protected static $defaultName = 'test:popular-plugins';
+	public const NAME = 'test:popular-plugins';
 
 	private string $projectRoot;
 
 	private PopularPluginsCompatibilityTestLane $lane;
 
 	public function __construct( string $projectRoot, PopularPluginsCompatibilityTestLane $lane ) {
-		parent::__construct( self::$defaultName );
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

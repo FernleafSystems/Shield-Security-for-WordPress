@@ -11,14 +11,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestIntegrationLocalCommand extends Command {
 
-	protected static $defaultName = 'test:integration-local';
+	public const NAME = 'test:integration-local';
 
 	private string $projectRoot;
 
 	private LocalIntegrationTestLane $lane;
 
 	public function __construct( string $projectRoot, LocalIntegrationTestLane $lane ) {
-		parent::__construct( self::$defaultName );
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

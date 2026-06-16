@@ -11,14 +11,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GitPreCommitCommand extends Command {
 
-	protected static $defaultName = 'git:pre-commit';
+	public const NAME = 'git:pre-commit';
 
 	private string $projectRoot;
 
 	private PreCommitChangedFileLane $lane;
 
 	public function __construct( string $projectRoot, PreCommitChangedFileLane $lane ) {
-		parent::__construct( self::$defaultName );
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

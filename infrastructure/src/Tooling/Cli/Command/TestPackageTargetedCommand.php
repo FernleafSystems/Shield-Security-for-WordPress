@@ -10,14 +10,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestPackageTargetedCommand extends Command {
 
-	protected static $defaultName = 'test:package-targeted';
+	public const NAME = 'test:package-targeted';
 
 	private string $projectRoot;
 
 	private PackageTargetedTestLane $lane;
 
 	public function __construct( string $projectRoot, PackageTargetedTestLane $lane ) {
-		parent::__construct( self::$defaultName );
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

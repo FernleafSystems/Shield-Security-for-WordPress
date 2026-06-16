@@ -10,14 +10,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestCrossSiteCommand extends Command {
 
-	protected static $defaultName = 'test:cross-site';
+	public const NAME = 'test:cross-site';
 
 	private string $projectRoot;
 
 	private CrossSiteTestLane $lane;
 
 	public function __construct( string $projectRoot, CrossSiteTestLane $lane ) {
-		parent::__construct( self::$defaultName );
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

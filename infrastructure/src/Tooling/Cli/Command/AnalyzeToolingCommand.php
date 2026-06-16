@@ -9,14 +9,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AnalyzeToolingCommand extends Command {
 
-	protected static $defaultName = 'analyze:tooling';
+	public const NAME = 'analyze:tooling';
 
 	private string $projectRoot;
 
 	private ToolingAnalysisLane $lane;
 
 	public function __construct( string $projectRoot, ToolingAnalysisLane $lane ) {
-		parent::__construct( self::$defaultName );
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

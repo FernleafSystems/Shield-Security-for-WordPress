@@ -10,14 +10,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AnalyzePackageCommand extends Command {
 
-	protected static $defaultName = 'analyze:package';
+	public const NAME = 'analyze:package';
 
 	private string $projectRoot;
 
 	private PackageStaticAnalysisLane $lane;
 
 	public function __construct( string $projectRoot, PackageStaticAnalysisLane $lane ) {
-		parent::__construct( self::$defaultName );
+		parent::__construct( self::NAME );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}
