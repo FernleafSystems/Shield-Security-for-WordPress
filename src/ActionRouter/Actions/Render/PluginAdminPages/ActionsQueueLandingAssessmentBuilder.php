@@ -62,7 +62,9 @@ class ActionsQueueLandingAssessmentBuilder {
 			}
 		}
 
-		return $rows;
+		return $zone === 'scans'
+			? \array_merge( $rows, $this->buildSecurityCheckRows() )
+			: $rows;
 	}
 
 	/**
@@ -219,6 +221,13 @@ class ActionsQueueLandingAssessmentBuilder {
 
 	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {
 		return new MaintenanceIssueStateProvider();
+	}
+
+	/**
+	 * @return list<AssessmentRow>
+	 */
+	protected function buildSecurityCheckRows() :array {
+		return ( new ActionsQueueSecurityCheckSource() )->assessmentRows();
 	}
 
 	private function itemIcons() :ActionsQueueItemIcons {

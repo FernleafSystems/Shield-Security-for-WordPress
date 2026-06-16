@@ -363,6 +363,12 @@ class ActionsQueueGroupContractBuilder {
 					$abandonedCount
 				);
 
+			case 'hidden_plugins':
+				return \sprintf(
+					_n( '%s hidden plugin needs review.', '%s hidden plugins need review.', $itemCount, 'wp-simple-firewall' ),
+					$itemCount
+				);
+
 			case 'wordpress':
 				return \sprintf(
 					_n( '%s WordPress core file needs review.', '%s WordPress core files need review.', $itemCount, 'wp-simple-firewall' ),
@@ -414,6 +420,10 @@ class ActionsQueueGroupContractBuilder {
 			case 'malware':
 			case 'file_locker':
 				$pattern = _n( 'View %s file', 'View %s files', $itemCount, 'wp-simple-firewall' );
+				break;
+
+			case 'hidden_plugins':
+				$pattern = _n( 'View %s hidden plugin', 'View %s hidden plugins', $itemCount, 'wp-simple-firewall' );
 				break;
 
 			default:

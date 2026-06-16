@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
+	HiddenPlugins,
 	Malware,
 	Vulnerabilities,
 	Wordpress
@@ -472,6 +473,46 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$groups[ 'vulnerabilities' ][ 'selection' ][ 'header' ][ 'badge' ] ?? ''
 		);
 		$this->assertSame( 'expandable', $groups[ 'file_locker' ][ 'card_type' ] );
+	}
+
+	public function test_build_surfaces_hidden_plugin_security_check_as_own_scan_group() :void {
+		$builder = $this->createBuilder();
+
+		$payload = $builder->buildWithSelectedGroup(
+			'critical',
+			'hidden_plugins',
+			[
+				'items' => [
+					[
+						'key'      => 'hidden_plugins',
+						'count'    => 2,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+						'source'   => 'security_check',
+					],
+				],
+			],
+			[
+				'scans'       => [],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( [ [ 'hidden_plugins' ] ], $this->sectionGroupKeys( $payload[ 'layer' ][ 'active_sections' ] ) );
+		$group = $payload[ 'selected_group' ];
+		$this->assertSame( 'hidden_plugins', $group[ 'key' ] );
+		$this->assertSame( 2, $group[ 'item_count' ] );
+		$this->assertSame( 'critical', $group[ 'status' ] );
+		$this->assertSame( 'direct_table', $group[ 'detail_shell' ] );
+		$this->assertSame( 'expandable', $group[ 'card_type' ] );
+		$this->assertSame( HiddenPlugins::class, $group[ 'render_action_class' ] );
+		$this->assertSame( [], $group[ 'render_action_data' ] );
+		$this->assertSame( [], $group[ 'selection' ][ 'header' ][ 'actions' ] );
+		$this->assertNotSame( '', $group[ 'drill_hint' ] );
+		$this->assertAjaxRenderPayloadAllowedByPolicy(
+			$group[ 'selection' ][ 'detail_render_action' ],
+			'hidden plugin group detail render'
+		);
 	}
 
 	public function test_build_orders_healthy_good_sections_before_neutral_only_sections_and_keeps_file_integrity_grouped() :void {
@@ -1127,6 +1168,41 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertFalse( $payload[ 'selected_group' ][ 'is_interactive' ] );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'render_action_data' ] );
 		$this->assertSame( '', $payload[ 'selected_group' ][ 'drill_hint' ] );
+	}
+
+	public function test_build_critical_bucket_includes_healthy_hidden_plugins_group() :void {
+		$builder = $this->createBuilder();
+
+		$payload = $builder->buildWithSelectedGroup(
+			'critical',
+			'hidden_plugins',
+			[
+				'items' => [],
+			],
+			[
+				'scans'       => [
+					[
+						'key'               => 'hidden_plugins',
+						'label'             => 'Hidden Plugins',
+						'description'       => 'No hidden plugins are currently detected.',
+						'drill_bucket'      => 'critical',
+						'item_icon_class'   => 'bi bi-eye-slash-fill',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( [ [ 'hidden_plugins' ] ], $this->sectionGroupKeys( $payload[ 'layer' ][ 'healthy_sections' ] ) );
+		$this->assertSame( 'hidden_plugins', $payload[ 'selected_group' ][ 'key' ] );
+		$this->assertSame( 'good', $payload[ 'selected_group' ][ 'status' ] );
+		$this->assertSame( 'expandable', $payload[ 'selected_group' ][ 'card_type' ] );
+		$this->assertFalse( $payload[ 'selected_group' ][ 'is_interactive' ] );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'render_action_data' ] );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'actions' ] );
 	}
 
 	public function test_build_with_selected_group_resolves_healthy_abandoned_group_without_falling_back_to_vulnerabilities() :void {

@@ -85,6 +85,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type VulnerabilityItem from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
+ * @phpstan-import-type HiddenPluginsRailPane from HiddenPluginsQueueIssueProvider
  * @phpstan-type QueueAssetPane array{
  *   is_disabled:bool,
  *   disabled_message:string,
@@ -111,6 +112,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   disabled_message:string,
  *   disabled_status:string,
  *   disabled_actions:list<DisabledPaneAction>
+ * }
+ * @phpstan-type ScanResultsRailPane array{
+ *   key:string,
+ *   label:string,
+ *   status:string,
+ *   icon_class:string,
+ *   count_items:int,
+ *   items:list<array<string,mixed>>,
+ *   is_loaded:true,
+ *   is_disabled:bool,
+ *   disabled_message:string,
+ *   disabled_status:string,
+ *   disabled_actions:list<DisabledPaneAction>,
+ *   render_action:array{},
+ *   show_count_placeholder:false
  * }
  * @phpstan-type DetailExpansionAction array{
  *   label:string,
@@ -241,6 +257,13 @@ class ScansResultsViewBuilder {
 			'disabled_actions' => [],
 			'cards'            => $this->buildFileLockerQueueRecords(),
 		];
+	}
+
+	/**
+	 * @return HiddenPluginsRailPane
+	 */
+	public function buildActionsQueueHiddenPluginsPane() :array {
+		return ( new HiddenPluginsQueueIssueProvider() )->railPaneData();
 	}
 
 	/**
@@ -434,22 +457,14 @@ class ScansResultsViewBuilder {
 
 	/**
 	 * @param array{count?:int,status?:string,sections?:array<string,mixed>} $vulnerabilities
-	 * @return array{
-	 *   key:string,
-	 *   label:string,
-	 *   status:string,
-	 *   icon_class:string,
-	 *   count_items:int,
-	 *   items:list<array<string,mixed>>,
-	 *   is_loaded:bool,
-	 *   is_disabled:bool,
-	 *   disabled_message:string,
-	 *   disabled_status:string,
-	 *   disabled_actions:list<DisabledPaneAction>
-	 * }
+	 * @return ScanResultsRailPane|HiddenPluginsRailPane
 	 */
 	public function buildRailPaneData( string $tabKey, array $vulnerabilities = [], ?string $vulnerabilitySection = null ) :array {
 		$tabKey = \strtolower( \trim( $tabKey ) );
+		if ( $tabKey === 'hidden_plugins' ) {
+			return $this->buildActionsQueueHiddenPluginsPane();
+		}
+
 		$meta = $this->getRailTabMeta( $tabKey );
 		$availability = $this->getRailTabAvailability( $tabKey );
 		$items = [];

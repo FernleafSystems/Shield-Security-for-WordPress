@@ -283,6 +283,34 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'critical', $rows[ 'scans' ][ 0 ][ 'drill_bucket' ] ?? '' );
 		$this->assertSame( 'good', $rows[ 'scans' ][ 0 ][ 'status' ] ?? '' );
 	}
+
+	public function test_build_appends_security_check_rows_to_scan_assessment() :void {
+		$builder = new ActionsQueueLandingAssessmentBuilderTestDouble(
+			[],
+			[],
+			[],
+			[],
+			[
+				[
+					'key'               => 'hidden_plugins',
+					'label'             => 'Hidden Plugins',
+					'description'       => 'No hidden plugins are currently detected.',
+					'drill_bucket'      => 'critical',
+					'item_icon_class'   => 'bi bi-eye-slash-fill',
+					'status'            => 'good',
+					'status_label'      => 'Good',
+					'status_icon_class' => 'bi bi-patch-check-fill',
+				],
+			]
+		);
+
+		$rows = $builder->build();
+
+		$scanRows = $rows[ 'scans' ];
+		$this->assertSame( [ 'hidden_plugins' ], \array_column( $scanRows, 'key' ) );
+		$this->assertSame( 'critical', $scanRows[ 0 ][ 'drill_bucket' ] );
+		$this->assertSame( 'good', $scanRows[ 0 ][ 'status' ] );
+	}
 }
 
 class ActionsQueueLandingAssessmentBuilderTestDouble extends ActionsQueueLandingAssessmentBuilder {
@@ -291,17 +319,20 @@ class ActionsQueueLandingAssessmentBuilderTestDouble extends ActionsQueueLanding
 	private array $availableStrategies;
 	private array $components;
 	private array $maintenanceStates;
+	private array $securityCheckRows;
 
 	public function __construct(
 		array $definitions,
 		array $availableStrategies,
 		array $components,
-		array $maintenanceStates = []
+		array $maintenanceStates = [],
+		array $securityCheckRows = []
 	) {
 		$this->definitions = $definitions;
 		$this->availableStrategies = $availableStrategies;
 		$this->components = $components;
 		$this->maintenanceStates = $maintenanceStates;
+		$this->securityCheckRows = $securityCheckRows;
 	}
 
 	protected function getDefinitions() :array {
@@ -314,6 +345,10 @@ class ActionsQueueLandingAssessmentBuilderTestDouble extends ActionsQueueLanding
 
 	protected function buildAssessmentComponent( string $componentClass ) :array {
 		return $this->components[ $componentClass ];
+	}
+
+	protected function buildSecurityCheckRows() :array {
+		return $this->securityCheckRows;
 	}
 
 	protected function buildMaintenanceIssueStateProvider() :UnitTestMaintenanceIssueStateProvider {

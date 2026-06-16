@@ -35,12 +35,27 @@ class HiddenPluginFindingTest extends BaseUnitTest {
 			'file'             => 'hidden/hidden.php',
 			'name'             => 'Hidden Plugin',
 			'version'          => '1.2.3',
-			'path'             => '/plugins/hidden/hidden.php',
+			'location'         => 'plugins/hidden/hidden.php',
 			'status'           => 'active',
 			'hidden_by'        => [ 'all_plugins', 'plugins_list' ],
 			'hidden_by_labels' => [ 'Removed By all_plugins Filter', 'Removed From Final Plugins List' ],
 			'detected_at'      => 123456,
 		], $alertData );
+	}
+
+	public function testAlertDataUsesRelativeMustUsePluginLocation() :void {
+		$finding = new HiddenPluginFinding(
+			new PluginEntry( PluginType::MustUse, '/loader.php', 'Loader', '', '/absolute/wp-content/mu-plugins/loader.php' ),
+			[ HiddenReason::ShowAdvancedPlugins ],
+			true,
+			false,
+			123456
+		);
+
+		$alertData = $finding->toAlertData();
+
+		$this->assertSame( 'mu-plugins/loader.php', $alertData[ 'location' ] );
+		$this->assertArrayNotHasKey( 'path', $alertData );
 	}
 
 	public function testAuditParamsContractIsCompleteAndStable() :void {

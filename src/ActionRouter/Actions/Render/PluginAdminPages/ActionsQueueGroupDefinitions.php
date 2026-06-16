@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
+	HiddenPlugins,
 	Maintenance,
 	Malware,
 	Plugins,
@@ -107,6 +108,16 @@ class ActionsQueueGroupDefinitions {
 			'render_action_data'       => [
 				'section' => 'abandoned',
 			],
+		],
+		'hidden_plugins' => [
+			'sort_order'               => 2,
+			'section_key'              => 'hidden_plugins',
+			'section_order'            => 5,
+			'detail_shell'             => 'direct_table',
+			'card_type'                => 'expandable',
+			'healthy_interaction_mode' => 'none',
+			'render_action_class'      => HiddenPlugins::class,
+			'render_action_data'       => [],
 		],
 		'malware' => [
 			'sort_order'               => 5,

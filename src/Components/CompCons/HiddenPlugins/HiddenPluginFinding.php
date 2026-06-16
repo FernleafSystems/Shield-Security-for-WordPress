@@ -9,7 +9,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlug
  *   file:string,
  *   name:string,
  *   version:string,
- *   path:string,
+ *   location:string,
  *   status:string,
  *   hidden_by:list<string>,
  *   hidden_by_labels:list<string>,
@@ -62,7 +62,7 @@ readonly class HiddenPluginFinding {
 			'file'             => $this->entry->file,
 			'name'             => $this->entry->name,
 			'version'          => $this->entry->version,
-			'path'             => $this->entry->path,
+			'location'         => $this->relativeLocation(),
 			'status'           => $this->status(),
 			'hidden_by'        => $this->hiddenReasonValues(),
 			'hidden_by_labels' => \array_map(
@@ -95,5 +95,13 @@ readonly class HiddenPluginFinding {
 			static fn( HiddenReason $reason ) :string => $reason->value,
 			$this->hiddenReasons
 		) );
+	}
+
+	private function relativeLocation() :string {
+		return \sprintf(
+			'%s/%s',
+			$this->entry->type === PluginType::MustUse ? 'mu-plugins' : 'plugins',
+			\ltrim( $this->entry->file, '/\\' )
+		);
 	}
 }

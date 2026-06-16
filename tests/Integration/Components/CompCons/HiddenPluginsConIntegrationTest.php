@@ -69,6 +69,10 @@ class HiddenPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertCount( 1, $this->capturedMails() );
 	}
 
+	public function testHiddenPluginDetectionCapabilityIsAlwaysAvailable() :void {
+		$this->assertTrue( $this->requireController()->caps->canDetectHiddenPlugins() );
+	}
+
 	public function testMustUsePluginHiddenByShowAdvancedPluginsFilterFiresEvent() :void {
 		$this->requireController()->opts
 			->optSet( 'instant_alert_hidden_plugins', 'disabled' )

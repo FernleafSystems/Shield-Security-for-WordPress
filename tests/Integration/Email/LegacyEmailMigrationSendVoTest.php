@@ -6,8 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVer
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerAdminLogin;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\LicenseEmails;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\BackupCodes;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\AdminLoginAlertContextBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\UserSessionHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
+use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
 
 class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 
@@ -160,7 +163,8 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 
 	public function testAdminLoginInstantAlertEmailIsSentToReportRecipientWithExpectedDetails() :void {
 		$con = $this->requireController();
-		$con->this_req->ip = '198.51.100.23';
+		$con->this_req->ip = '147.182.139.163';
+		$con->this_req->ip_id = ServiceProviders::PROVIDER_ICONTROLWP;
 		$con->opts
 			->optSet( 'instant_alert_admin_login', 'email' )
 			->optSet( 'block_send_email_address', 'admin-notify@example.com' );
@@ -184,8 +188,29 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 		$this->assertStringContainsString( 'successful Administrator+ login', (string)( $mail[ 'message' ] ?? '' ) );
 		$this->assertStringContainsString( 'Login Details', (string)( $mail[ 'message' ] ?? '' ) );
 		$this->assertStringContainsString( 'managedadmin-notify@example.com', (string)( $mail[ 'message' ] ?? '' ) );
+		$this->assertStringContainsString( '147.182.139.163 (iControlWP)', (string)( $mail[ 'message' ] ?? '' ) );
 		$this->assertStringContainsString( 'admin-notify@example.com', (string)( $mail[ 'to' ] ?? '' ) );
 		$this->assertStringContainsString( 'Configure security email recipient', (string)( $mail[ 'message' ] ?? '' ) );
+	}
+
+	public function testAdminLoginAlertContextSuppressesVisitorIpIdentity() :void {
+		$con = $this->requireController();
+		$con->this_req->ip = '198.51.100.23';
+		$con->this_req->ip_id = IpID::VISITOR;
+
+		$userId = self::factory()->user->create( [
+			'role'       => 'administrator',
+			'user_login' => 'managedadmin-visitor',
+			'user_email' => 'managedadmin-visitor@example.com',
+		] );
+		$this->assertIsInt( $userId );
+		$user = get_user_by( 'id', $userId );
+		$this->assertInstanceOf( \WP_User::class, $user );
+
+		$alertData = ( new AdminLoginAlertContextBuilder() )->build( $user );
+
+		$this->assertIsArray( $alertData );
+		$this->assertSame( '', $alertData[ 'ip_identity' ] );
 	}
 
 	public function testAdminLoginInstantAlertSuppressesDuplicateUserLoginNoticeForSameRecipient() :void {

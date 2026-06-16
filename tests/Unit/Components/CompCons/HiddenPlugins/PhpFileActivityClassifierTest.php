@@ -52,6 +52,15 @@ class PhpFileActivityClassifierTest extends BaseUnitTest {
 		);
 	}
 
+	public function testOversizedReadablePhpFileIsAlertableAsExecutable() :void {
+		$this->assertSame(
+			PhpFileActivity::Executable,
+			( new PhpFileActivityClassifier() )->classify(
+				$this->phpFile( "<?php\n".\str_repeat( ' ', PhpFileActivityClassifier::MAX_TOKENIZE_BYTES + 1 ) )
+			)
+		);
+	}
+
 	public function testMissingFileIsAlertableAsUnreadable() :void {
 		$this->assertSame(
 			PhpFileActivity::Unreadable,
