@@ -96,6 +96,10 @@ class Capabilities {
 		return $this->hasCap( 'scan_vulnerabilities' );
 	}
 
+	public function canDetectHiddenPlugins() :bool {
+		return true;
+	}
+
 	public function canMainwpLevel1() :bool {
 		return $this->hasCap( 'mainwp_level_1' ) || $this->canMainwpLevel2();
 	}

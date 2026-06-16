@@ -259,10 +259,21 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( [ 'malware' ], $queueDefinitions[ 'malware' ][ 'summary_keys' ] );
 		$this->assertSame( [ 'vulnerable_assets' ], $queueDefinitions[ 'vulnerabilities' ][ 'summary_keys' ] );
 		$this->assertSame( [ 'abandoned' ], $queueDefinitions[ 'abandoned' ][ 'summary_keys' ] );
-		$this->assertSame( 'vulnerabilities', PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'vulnerable_assets' )[ 'slug' ] ?? '' );
-		$this->assertSame( 'abandoned', PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'abandoned' )[ 'slug' ] ?? '' );
+		$this->assertSame( [ 'hidden_plugins' ], $queueDefinitions[ 'hidden_plugins' ][ 'summary_keys' ] );
+		$vulnerableDefinition = PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'vulnerable_assets' );
+		$abandonedDefinition = PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'abandoned' );
+		$hiddenPluginsDefinition = PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'hidden_plugins' );
+		$landingAbandonedDefinition = PluginNavs::actionsLandingScanDefinitionForSummaryKey( 'abandoned' );
+		$this->assertNotNull( $vulnerableDefinition );
+		$this->assertNotNull( $abandonedDefinition );
+		$this->assertNotNull( $hiddenPluginsDefinition );
+		$this->assertNotNull( $landingAbandonedDefinition );
+		$this->assertSame( 'vulnerabilities', $vulnerableDefinition[ 'slug' ] );
+		$this->assertSame( 'abandoned', $abandonedDefinition[ 'slug' ] );
+		$this->assertSame( 'hidden_plugins', $hiddenPluginsDefinition[ 'slug' ] );
 		$this->assertNull( PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'theme_files_ignored' ) );
-		$this->assertSame( 'vulnerabilities', PluginNavs::actionsLandingScanDefinitionForSummaryKey( 'abandoned' )[ 'slug' ] ?? '' );
+		$this->assertSame( 'vulnerabilities', $landingAbandonedDefinition[ 'slug' ] );
+		$this->assertNull( PluginNavs::actionsLandingScanDefinitionForSummaryKey( 'hidden_plugins' ) );
 		$this->assertNull( PluginNavs::actionsLandingScanDefinitionForSummaryKey( 'theme_files_ignored' ) );
 	}
 

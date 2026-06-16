@@ -24,8 +24,14 @@ class HiddenPluginsCon {
 
 	private bool $isDetecting = false;
 
+	/**
+	 * @var list<HiddenPluginFinding>|null
+	 */
+	private ?array $currentFindings = null;
+
 	protected function canRun() :bool {
-		return self::con()->comps->opts_lookup->isPluginEnabled();
+		return self::con()->comps->opts_lookup->isPluginEnabled()
+			   && self::con()->caps->canDetectHiddenPlugins();
 	}
 
 	protected function run() :void {
@@ -54,6 +60,17 @@ class HiddenPluginsCon {
 	/**
 	 * @return list<HiddenPluginFinding>
 	 */
+	public function currentFindings() :array {
+		if ( $this->currentFindings !== null ) {
+			return $this->currentFindings;
+		}
+
+		return $this->currentFindings = $this->detect();
+	}
+
+	/**
+	 * @return list<HiddenPluginFinding>
+	 */
 	public function detect( ?array $finalPluginsList = null ) :array {
 		if ( $this->isDetecting || !$this->canRun() ) {
 			return [];
@@ -75,6 +92,10 @@ class HiddenPluginsCon {
 			$newFindings = ( new HiddenPluginState() )->rememberNew( $findings );
 			if ( !empty( $newFindings ) ) {
 				$this->publishFindings( $newFindings );
+			}
+
+			if ( $finalPluginsList === null ) {
+				$this->currentFindings = $findings;
 			}
 
 			return $findings;
