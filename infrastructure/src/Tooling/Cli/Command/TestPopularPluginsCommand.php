@@ -17,7 +17,7 @@ class TestPopularPluginsCommand extends Command {
 	private PopularPluginsCompatibilityTestLane $lane;
 
 	public function __construct( string $projectRoot, PopularPluginsCompatibilityTestLane $lane ) {
-		parent::__construct();
+		parent::__construct( self::$defaultName );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

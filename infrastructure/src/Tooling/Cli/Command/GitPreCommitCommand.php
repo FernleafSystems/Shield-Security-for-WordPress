@@ -18,7 +18,7 @@ class GitPreCommitCommand extends Command {
 	private PreCommitChangedFileLane $lane;
 
 	public function __construct( string $projectRoot, PreCommitChangedFileLane $lane ) {
-		parent::__construct();
+		parent::__construct( self::$defaultName );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

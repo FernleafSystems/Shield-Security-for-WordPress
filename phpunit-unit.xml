@@ -11,7 +11,8 @@
          convertWarningsToExceptions="true">
     <testsuites>
         <testsuite name="Unit Tests">
-            <directory>tests/Unit</directory>
+            <directory suffix="Test.php">tests/Unit</directory>
+            <exclude>tests/Unit/BaseUnitTest.php</exclude>
         </testsuite>
     </testsuites>
     <coverage processUncoveredFiles="true">

@@ -352,7 +352,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		return \is_array( $data ) ? $data : [];
 	}
 
-	public function ajaxRenderComponentProvider() :array {
+	public static function ajaxRenderComponentProvider() :array {
 		return [
 			'dashboard live monitor' => [
 				[

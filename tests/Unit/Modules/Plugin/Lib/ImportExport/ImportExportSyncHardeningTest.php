@@ -343,7 +343,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertCount( 0, $this->events->byKey( 'import_notify_received' ) );
 	}
 
-	public function providerNotifyNoopScenarios() :array {
+	public static function providerNotifyNoopScenarios() :array {
 		return [
 			'local sync disabled'  => [ 'N', 'https://configured-master.example.com' ],
 			'master url missing'   => [ 'Y', '' ],

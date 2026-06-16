@@ -36,7 +36,7 @@ class AjaxRenderTargetPolicyTest extends BaseUnitTest {
 		}
 	}
 
-	public function allowedRenderTargetProvider() :array {
+	public static function allowedRenderTargetProvider() :array {
 		return [
 			[ Actions\Render\Components\Widgets\DashboardLiveMonitorTicker::class ],
 			[ Actions\Render\Components\Traffic\TrafficLiveLogs::class ],
@@ -73,7 +73,7 @@ class AjaxRenderTargetPolicyTest extends BaseUnitTest {
 		];
 	}
 
-	public function blockedRenderTargetProvider() :array {
+	public static function blockedRenderTargetProvider() :array {
 		return [
 			[ Actions\Render\FullPage\Report\SecurityReport::SLUG ],
 			[ Actions\Render\Components\Reports\Components\ReportAreaChanges::SLUG ],

@@ -144,11 +144,9 @@ class UnitTestExecutionSelector {
 				'./vendor/brianium/paratest/bin/paratest',
 				'-c',
 				'phpunit-unit.xml',
-				'--runner',
-				'Runner',
 				'--processes=auto',
 				'--no-coverage',
-				'-f',
+				'--functional',
 			],
 			$args
 		);

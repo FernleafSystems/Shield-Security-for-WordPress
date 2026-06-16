@@ -37,7 +37,7 @@ class ForActivityLogColumnsTest extends BaseUnitTest {
 		$this->assertTrue( (bool)( $identityColumn[ 'visible' ] ?? false ) );
 	}
 
-	public function supportedActivitySubjectsProvider() :array {
+	public static function supportedActivitySubjectsProvider() :array {
 		return [
 			'user subject'   => [ 'user', '7' ],
 			'ip subject'     => [ 'ip', '203.0.113.7' ],

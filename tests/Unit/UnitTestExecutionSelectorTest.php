@@ -89,11 +89,11 @@ class UnitTestExecutionSelectorTest extends TestCase {
 
 		$this->assertSame( \PHP_BINARY, $command[ 0 ] ?? null );
 		$this->assertContains( './vendor/brianium/paratest/bin/paratest', $command );
-		$this->assertContains( 'Runner', $command );
-		$this->assertContains( '-f', $command );
+		$this->assertContains( '--functional', $command );
 		$this->assertContains( '--filter', $command );
 		$this->assertContains( 'FooTest', $command );
 		$this->assertNotContains( 'WrapperRunner', $command );
+		$this->assertNotContains( 'Runner', $command );
 		$this->assertNotContains( './vendor/phpunit/phpunit/phpunit', $command );
 	}
 
@@ -102,10 +102,10 @@ class UnitTestExecutionSelectorTest extends TestCase {
 		$command = $selector->buildCommand( [ '--filter=FooTest' ] );
 
 		$this->assertContains( './vendor/brianium/paratest/bin/paratest', $command );
-		$this->assertContains( 'Runner', $command );
-		$this->assertContains( '-f', $command );
+		$this->assertContains( '--functional', $command );
 		$this->assertContains( '--filter=FooTest', $command );
 		$this->assertNotContains( 'WrapperRunner', $command );
+		$this->assertNotContains( 'Runner', $command );
 	}
 
 	public function testBuildCommandUsesParatestFunctionalForMethodFilterPlusPath() :void {
@@ -119,8 +119,7 @@ class UnitTestExecutionSelectorTest extends TestCase {
 		);
 
 		$this->assertContains( './vendor/brianium/paratest/bin/paratest', $command );
-		$this->assertContains( 'Runner', $command );
-		$this->assertContains( '-f', $command );
+		$this->assertContains( '--functional', $command );
 		$this->assertContains( 'testBuildCommandUsesParatestWrapperByDefault', $command );
 		$this->assertContains( 'tests/Unit/UnitTestExecutionSelectorTest.php', $command );
 	}
@@ -135,7 +134,7 @@ class UnitTestExecutionSelectorTest extends TestCase {
 		$this->assertContains( 'WrapperRunner', $command );
 		$this->assertContains( '--processes=auto', $command );
 		$this->assertContains( '--no-coverage', $command );
-		$this->assertNotContains( '-f', $command );
+		$this->assertNotContains( '--functional', $command );
 	}
 
 	public function testBuildCommandUsesExplicitSerialMode() :void {

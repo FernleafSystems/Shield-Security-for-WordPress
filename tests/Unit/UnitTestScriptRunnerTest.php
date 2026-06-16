@@ -26,7 +26,7 @@ class UnitTestScriptRunnerTest extends TestCase {
 		$this->assertCount( 1, $processRunner->calls );
 		$this->assertContains( './vendor/brianium/paratest/bin/paratest', $processRunner->calls[ 0 ][ 'command' ] );
 		$this->assertContains( 'WrapperRunner', $processRunner->calls[ 0 ][ 'command' ] );
-		$this->assertNotContains( '-f', $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertNotContains( '--functional', $processRunner->calls[ 0 ][ 'command' ] );
 	}
 
 	public function testAutoModeRunsMultipleConcretePathsThroughSeparateParatestWrapperCommands() :void {
@@ -68,11 +68,11 @@ class UnitTestScriptRunnerTest extends TestCase {
 		$this->assertCount( 1, $processRunner->calls );
 		$command = $processRunner->calls[ 0 ][ 'command' ];
 		$this->assertContains( './vendor/brianium/paratest/bin/paratest', $command );
-		$this->assertContains( 'Runner', $command );
-		$this->assertContains( '-f', $command );
+		$this->assertContains( '--functional', $command );
 		$this->assertContains( '--filter', $command );
 		$this->assertNotContains( './vendor/phpunit/phpunit/phpunit', $command );
 		$this->assertNotContains( 'WrapperRunner', $command );
+		$this->assertNotContains( 'Runner', $command );
 	}
 
 	public function testAutoModeUsesSerialPhpUnitWithDatasetShortcutFilter() :void {
@@ -108,10 +108,10 @@ class UnitTestScriptRunnerTest extends TestCase {
 		$this->assertCount( 2, $processRunner->calls );
 		foreach ( $processRunner->calls as $call ) {
 			$this->assertContains( './vendor/brianium/paratest/bin/paratest', $call[ 'command' ] );
-			$this->assertContains( 'Runner', $call[ 'command' ] );
-			$this->assertContains( '-f', $call[ 'command' ] );
+			$this->assertContains( '--functional', $call[ 'command' ] );
 			$this->assertContains( '--filter', $call[ 'command' ] );
 			$this->assertContains( 'UnitTest', $call[ 'command' ] );
+			$this->assertNotContains( 'Runner', $call[ 'command' ] );
 		}
 		$this->assertCommandContainsOnlyOnePath(
 			$processRunner->calls[ 0 ][ 'command' ],
@@ -142,9 +142,9 @@ class UnitTestScriptRunnerTest extends TestCase {
 		$this->assertCount( 2, $processRunner->calls );
 		foreach ( $processRunner->calls as $call ) {
 			$this->assertContains( './vendor/brianium/paratest/bin/paratest', $call[ 'command' ] );
-			$this->assertContains( 'Runner', $call[ 'command' ] );
-			$this->assertContains( '-f', $call[ 'command' ] );
+			$this->assertContains( '--functional', $call[ 'command' ] );
 			$this->assertContains( '--filter=UnitTest', $call[ 'command' ] );
+			$this->assertNotContains( 'Runner', $call[ 'command' ] );
 		}
 	}
 
@@ -182,10 +182,10 @@ class UnitTestScriptRunnerTest extends TestCase {
 		$this->assertCount( 1, $processRunner->calls );
 		$command = $processRunner->calls[ 0 ][ 'command' ];
 		$this->assertContains( './vendor/brianium/paratest/bin/paratest', $command );
-		$this->assertContains( 'Runner', $command );
-		$this->assertContains( '-f', $command );
+		$this->assertContains( '--functional', $command );
 		$this->assertNotContains( '--runner-mode', $command );
 		$this->assertNotContains( 'parallel', $command );
+		$this->assertNotContains( 'Runner', $command );
 	}
 
 	public function testExplicitParallelModeRejectsDatasetShortcutFilter() :void {

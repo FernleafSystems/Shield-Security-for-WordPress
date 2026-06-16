@@ -17,7 +17,7 @@ class TestPackageFullCommand extends Command {
 	private PackageFullTestLane $lane;
 
 	public function __construct( string $projectRoot, PackageFullTestLane $lane ) {
-		parent::__construct();
+		parent::__construct( self::$defaultName );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

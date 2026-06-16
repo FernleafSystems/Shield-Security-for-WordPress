@@ -17,7 +17,7 @@ class AnalyzePackageCommand extends Command {
 	private PackageStaticAnalysisLane $lane;
 
 	public function __construct( string $projectRoot, PackageStaticAnalysisLane $lane ) {
-		parent::__construct();
+		parent::__construct( self::$defaultName );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

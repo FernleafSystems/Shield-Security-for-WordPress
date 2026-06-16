@@ -42,7 +42,7 @@ class GetIPLookupsTest extends BaseUnitTest {
 		$this->assertSame( [], $this->apiWithResponse( GetIPReputation::class, $response )->retrieve() );
 	}
 
-	public function invalidResponseProvider() :array {
+	public static function invalidResponseProvider() :array {
 		return [
 			'failed request'       => [ null ],
 			'missing error_code'   => [ [ 'reputation_score' => 7 ] ],

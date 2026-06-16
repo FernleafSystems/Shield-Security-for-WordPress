@@ -94,7 +94,7 @@ class PasskeyCredentialDataNormalizerTest extends BaseUnitTest {
 	/**
 	 * @return array<string, array{0:string}>
 	 */
-	public function classLikeTrustPathTypesProvider() :array {
+	public static function classLikeTrustPathTypesProvider() :array {
 		return [
 			'unprefixed empty'             => [ 'Webauthn\\TrustPath\\EmptyTrustPath' ],
 			'prefixed empty'               => [ 'AptowebDeps\\Webauthn\\TrustPath\\EmptyTrustPath' ],
@@ -107,7 +107,7 @@ class PasskeyCredentialDataNormalizerTest extends BaseUnitTest {
 	/**
 	 * @return array<string, array{0:array,1:string}>
 	 */
-	public function trustMaterialProvider() :array {
+	public static function trustMaterialProvider() :array {
 		return [
 			'certificate material with old class type' => [
 				[
@@ -161,7 +161,7 @@ class PasskeyCredentialDataNormalizerTest extends BaseUnitTest {
 	/**
 	 * @return array<string, array{0:array}>
 	 */
-	public function unchangedCredentialDataProvider() :array {
+	public static function unchangedCredentialDataProvider() :array {
 		return [
 			'existing empty alias' => [
 				[

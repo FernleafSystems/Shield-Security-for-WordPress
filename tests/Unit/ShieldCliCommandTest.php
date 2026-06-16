@@ -311,7 +311,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 	/**
 	 * @return array<string,array{string}>
 	 */
-	public function providerCommandNames() :array {
+	public static function providerCommandNames() :array {
 		return [
 			'test-source' => [ 'test:source' ],
 			'test-browser' => [ 'test:browser' ],

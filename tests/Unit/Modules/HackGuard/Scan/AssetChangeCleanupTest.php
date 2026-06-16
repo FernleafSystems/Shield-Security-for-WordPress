@@ -365,7 +365,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( 0, $scans->memoizationResets );
 	}
 
-	public function providePresentAssetReadinessFailures() :array {
+	public static function providePresentAssetReadinessFailures() :array {
 		return [
 			'plugin retry 0' => [
 				'plugin',

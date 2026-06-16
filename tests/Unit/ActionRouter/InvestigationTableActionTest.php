@@ -79,13 +79,13 @@ class InvestigationTableActionTest extends BaseUnitTest {
 		$this->assertSame( [], $payload[ 'datatable_data' ][ 'table_data' ] ?? null );
 	}
 
-	public function provideRetrieveTableDataNormalizationCases() :array {
+	public static function provideRetrieveTableDataNormalizationCases() :array {
 		return [
 			'missing_table_data_key' => [
-				'action_data' => [],
+				[],
 			],
 			'non_array_table_data' => [
-				'action_data' => [
+				[
 					InvestigationTableContract::REQ_KEY_TABLE_DATA => 'invalid',
 				],
 			],
@@ -166,7 +166,7 @@ class InvestigationTableActionTest extends BaseUnitTest {
 		$this->assertSame( [], $payload[ 'datatable_data' ][ 'table_data' ] ?? null );
 	}
 
-	public function provideActivitySubjectSuccessCases() :array {
+	public static function provideActivitySubjectSuccessCases() :array {
 		return [
 			'plugin_subject' => [ 'plugin', 'akismet/akismet.php' ],
 			'theme_subject'  => [ 'theme', 'twentytwentyfive' ],

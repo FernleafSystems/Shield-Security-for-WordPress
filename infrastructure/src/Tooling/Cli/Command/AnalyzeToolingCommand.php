@@ -16,7 +16,7 @@ class AnalyzeToolingCommand extends Command {
 	private ToolingAnalysisLane $lane;
 
 	public function __construct( string $projectRoot, ToolingAnalysisLane $lane ) {
-		parent::__construct();
+		parent::__construct( self::$defaultName );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

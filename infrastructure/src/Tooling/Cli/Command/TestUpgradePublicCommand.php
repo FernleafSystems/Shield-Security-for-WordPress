@@ -17,7 +17,7 @@ class TestUpgradePublicCommand extends Command {
 	private PublicUpgradeTestLane $lane;
 
 	public function __construct( string $projectRoot, PublicUpgradeTestLane $lane ) {
-		parent::__construct();
+		parent::__construct( self::$defaultName );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

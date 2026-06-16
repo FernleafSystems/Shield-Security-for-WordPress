@@ -51,7 +51,7 @@ class RouteProcessorMapTest extends WorpdriveUnitTestCase {
 		( ( new RouteProcessorMap() )->map()[ FilesystemZip::class ] )( $request );
 	}
 
-	public function invalidRequiredZipPayloadProvider() :array {
+	public static function invalidRequiredZipPayloadProvider() :array {
 		return [
 			'invalid base64' => [ [ \base64_encode( 'index.php' ), 'not valid base64' ] ],
 			'empty decoded'  => [ [ \base64_encode( '' ) ] ],

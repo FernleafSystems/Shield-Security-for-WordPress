@@ -29,7 +29,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\AssetSnapshots\{
 	SnapshotPlugins,
 	SnapshotPluginVo,
 	SnapshotThemes,
-	SnapshotThemeVo
+	SnapshotThemeVo,
+	SnapshotWpGeneral
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
 	CacheStoreTestCacheDir,
@@ -61,9 +62,25 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->resetHashesStorageDir();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'is_wp_error' )->alias( static fn( $maybeError ) :bool => $maybeError instanceof \WP_Error );
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $args, string $url ) :string {
+				return empty( $args ) ? $url : $url.'?'.\http_build_query( $args );
+			}
+		);
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalizePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
+		Functions\when( 'wp_http_validate_url' )->justReturn( true );
 		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => \json_encode( $data ) );
 		Functions\when( 'wp_normalize_path' )->alias( fn( string $path ) :string => $this->normalizePath( $path ) );
+		Functions\when( 'wp_remote_request' )->alias(
+			static fn() :array => [
+				'body'     => \json_encode( [ 'routes_regex' => '' ] ),
+				'response' => [
+					'code'    => 200,
+					'message' => 'OK',
+				],
+			]
+		);
 		Functions\when( 'wp_generate_password' )->alias(
 			static fn( int $length, bool $specialChars = true ) :string => \substr( \str_repeat( 'a', $length ), 0, $length )
 		);
@@ -217,6 +234,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		ServicesState::installItems( [
 			'service_request'   => new CacheStoreTestRequest( 1700000500 ),
 			'service_wpfs'      => $fs,
+			'service_wpgeneral' => new SnapshotWpGeneral(),
 			'service_wpplugins' => new SnapshotPlugins( $plugins ),
 			'service_wpthemes'  => new SnapshotThemes( [] ),
 		] );

@@ -17,7 +17,7 @@ class AnalyzeSourceCommand extends Command {
 	private SourceStaticAnalysisLane $lane;
 
 	public function __construct( string $projectRoot, SourceStaticAnalysisLane $lane ) {
-		parent::__construct();
+		parent::__construct( self::$defaultName );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

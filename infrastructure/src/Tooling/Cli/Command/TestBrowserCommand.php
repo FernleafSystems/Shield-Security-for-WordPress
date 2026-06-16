@@ -18,7 +18,7 @@ class TestBrowserCommand extends Command {
 	private BrowserTestLane $lane;
 
 	public function __construct( string $projectRoot, BrowserTestLane $lane ) {
-		parent::__construct();
+		parent::__construct( self::$defaultName );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

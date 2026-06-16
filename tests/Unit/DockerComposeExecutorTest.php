@@ -155,7 +155,7 @@ class DockerComposeExecutorTest extends TestCase {
 	/**
 	 * @return array<string,array{0:string[],1:string[]}>
 	 */
-	public function providerSubCommandsWithSuppressedOutput() :array {
+	public static function providerSubCommandsWithSuppressedOutput() :array {
 		return [
 			'up-noise' => [
 				[ 'up', '-d', 'mysql' ],

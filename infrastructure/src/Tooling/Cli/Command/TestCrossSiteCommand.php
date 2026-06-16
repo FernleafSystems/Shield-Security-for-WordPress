@@ -17,7 +17,7 @@ class TestCrossSiteCommand extends Command {
 	private CrossSiteTestLane $lane;
 
 	public function __construct( string $projectRoot, CrossSiteTestLane $lane ) {
-		parent::__construct();
+		parent::__construct( self::$defaultName );
 		$this->projectRoot = $projectRoot;
 		$this->lane = $lane;
 	}

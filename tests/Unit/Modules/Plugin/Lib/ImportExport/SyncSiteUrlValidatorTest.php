@@ -127,7 +127,7 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		$this->validatorWithResolvedIps( [ '10.0.0.25' ] )->validateTrustedSyncUrl( $url );
 	}
 
-	public function trustedSyncUnsafeUrlProvider() :array {
+	public static function trustedSyncUnsafeUrlProvider() :array {
 		return [
 			'credentials'  => [ 'https://user:pass@client.example.com' ],
 			'private ip'   => [ 'https://10.0.0.10' ],
@@ -161,7 +161,7 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		$this->validatorWithResolvedIps( [ '10.0.0.25' ] )->validateTrustedSyncUrl( $targetUrl );
 	}
 
-	public function sameHostSelfUrlProvider() :array {
+	public static function sameHostSelfUrlProvider() :array {
 		return [
 			'root home rejects exact self' => [ 'https://local.example.com', 'https://local.example.com' ],
 			'subdirectory home rejects base' => [ 'https://local.example.com/import3', 'https://local.example.com/import3' ],
@@ -178,7 +178,7 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		( new SyncSiteUrlValidator() )->validate( $url );
 	}
 
-	public function invalidUrlProvider() :array {
+	public static function invalidUrlProvider() :array {
 		return [
 			'credentials' => [ 'https://user:pass@client.example.com' ],
 			'loopback ip' => [ 'http://127.0.0.1' ],

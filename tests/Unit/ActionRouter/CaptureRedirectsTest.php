@@ -121,7 +121,7 @@ class CaptureRedirectsTest extends BaseUnitTest {
 		);
 	}
 
-	public function providerLegacyScanRoutes() :array {
+	public static function providerLegacyScanRoutes() :array {
 		return [
 			'results' => [ 'results' ],
 			'history' => [ 'history' ],
@@ -147,7 +147,7 @@ class CaptureRedirectsTest extends BaseUnitTest {
 		);
 	}
 
-	public function providerLegacyReportsRoutes() :array {
+	public static function providerLegacyReportsRoutes() :array {
 		return [
 			'alerts'    => [ 'alerts' ],
 			'reporting' => [ 'reporting' ],
