@@ -55,12 +55,12 @@ class ScansResultsRailTabAvailability {
 
 		if ( $tabKey === 'hidden_plugins' ) {
 			$state[ 'show_in_fix_now' ] = true;
-			$state[ 'is_available' ] = self::con()->caps->canDetectHiddenPlugins();
+			$state[ 'is_available' ] = self::con()->caps->canDetectCloakedPlugins();
 			$state[ 'show_in_actions_queue' ] = true;
 			if ( !$state[ 'is_available' ] ) {
 				$state = \array_replace( $state, $this->buildDisabledState(
 					'not_enabled',
-					$this->buildNotEnabledMessage( __( 'Hidden Plugin Detection', 'wp-simple-firewall' ) ),
+					$this->buildNotEnabledMessage( __( 'Cloaked Plugin Detection', 'wp-simple-firewall' ) ),
 					[]
 				) );
 			}

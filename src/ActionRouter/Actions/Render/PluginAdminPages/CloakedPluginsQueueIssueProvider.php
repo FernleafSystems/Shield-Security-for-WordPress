@@ -2,9 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins\{
-	HiddenPluginFinding,
-	HiddenReason,
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
+	CloakedPluginFinding,
+	CloakReason,
 	PluginType
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
@@ -15,7 +15,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 /**
  * @phpstan-import-type AttentionItem from \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems
  * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
- * @phpstan-type HiddenPluginDetailAction array{
+ * @phpstan-type CloakedPluginDetailAction array{
  *   href:string,
  *   label:string,
  *   type:'deactivate'|'navigate',
@@ -24,7 +24,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   tooltip:string,
  *   attributes:array<string,string>
  * }
- * @phpstan-type HiddenPluginDetailRow array{
+ * @phpstan-type CloakedPluginDetailRow array{
  *   title:string,
  *   description:string,
  *   status:'critical',
@@ -40,17 +40,17 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   expansion:array{},
  *   explanations:list<string>,
  *   show_gear:false,
- *   actions:list<HiddenPluginDetailAction>,
+ *   actions:list<CloakedPluginDetailAction>,
  *   attributes:array<string,string>,
  *   section_label:string
  * }
- * @phpstan-type HiddenPluginsRailPane array{
+ * @phpstan-type CloakedPluginsRailPane array{
  *   key:'hidden_plugins',
  *   label:string,
  *   status:'critical'|'good',
  *   icon_class:string,
  *   count_items:int,
- *   items:list<HiddenPluginDetailRow>,
+ *   items:list<CloakedPluginDetailRow>,
  *   is_loaded:true,
  *   is_disabled:false,
  *   disabled_message:'',
@@ -58,10 +58,10 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   disabled_actions:array{},
  *   render_action:array{},
  *   show_count_placeholder:false,
- *   pane_id:'actions-queue-hidden-plugins'
+ *   pane_id:'actions-queue-cloaked-plugins'
  * }
  */
-class HiddenPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvider {
+class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvider {
 
 	use PluginControllerConsumer;
 	use StandardStatusMapping;
@@ -118,7 +118,7 @@ class HiddenPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvid
 	}
 
 	/**
-	 * @return HiddenPluginsRailPane
+	 * @return CloakedPluginsRailPane
 	 */
 	public function railPaneData() :array {
 		$findings = $this->findings();
@@ -131,7 +131,7 @@ class HiddenPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvid
 			'count_items'            => $count,
 			'status'                 => $count > 0 ? 'critical' : 'good',
 			'items'                  => \array_map(
-				fn( HiddenPluginFinding $finding ) :array => $this->detailRow( $finding ),
+				fn( CloakedPluginFinding $finding ) :array => $this->detailRow( $finding ),
 				$findings
 			),
 			'is_loaded'              => true,
@@ -141,19 +141,19 @@ class HiddenPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvid
 			'disabled_actions'       => [],
 			'render_action'          => [],
 			'show_count_placeholder' => false,
-			'pane_id'                => 'actions-queue-hidden-plugins',
+			'pane_id'                => 'actions-queue-cloaked-plugins',
 		];
 	}
 
 	/**
-	 * @return list<HiddenPluginFinding>
+	 * @return list<CloakedPluginFinding>
 	 */
 	protected function findings() :array {
 		return self::con()->comps->hidden_plugins->currentFindings();
 	}
 
 	private function label() :string {
-		return __( 'Hidden Plugins', 'wp-simple-firewall' );
+		return __( 'Cloaked Plugins', 'wp-simple-firewall' );
 	}
 
 	private function iconClass() :string {
@@ -163,16 +163,16 @@ class HiddenPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvid
 	private function descriptionForCount( int $count ) :string {
 		return $count > 0
 			? \sprintf(
-				_n( '%s hidden plugin detected.', '%s hidden plugins detected.', $count, 'wp-simple-firewall' ),
+				_n( '%s cloaked plugin detected.', '%s cloaked plugins detected.', $count, 'wp-simple-firewall' ),
 				$count
 			)
-			: __( 'No hidden plugins are currently detected.', 'wp-simple-firewall' );
+			: __( 'No cloaked plugins are currently detected.', 'wp-simple-firewall' );
 	}
 
 	/**
-	 * @return HiddenPluginDetailRow
+	 * @return CloakedPluginDetailRow
 	 */
-	private function detailRow( HiddenPluginFinding $finding ) :array {
+	private function detailRow( CloakedPluginFinding $finding ) :array {
 		return [
 			'title'                   => $this->findingTitle( $finding ),
 			'description'             => $this->findingDescription( $finding ),
@@ -195,13 +195,13 @@ class HiddenPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvid
 		];
 	}
 
-	private function findingTitle( HiddenPluginFinding $finding ) :string {
+	private function findingTitle( CloakedPluginFinding $finding ) :string {
 		return \trim( $finding->entry->name ) !== '' ? $finding->entry->name : $finding->entry->file;
 	}
 
-	private function findingDescription( HiddenPluginFinding $finding ) :string {
+	private function findingDescription( CloakedPluginFinding $finding ) :string {
 		return \sprintf(
-			__( '%s is present on disk but hidden from WordPress plugin lists.', 'wp-simple-firewall' ),
+			__( '%s is present on disk but cloaked from WordPress plugin lists.', 'wp-simple-firewall' ),
 			PluginType::label( $finding->entry->type )
 		);
 	}
@@ -209,23 +209,23 @@ class HiddenPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvid
 	/**
 	 * @return list<string>
 	 */
-	private function findingExplanations( HiddenPluginFinding $finding ) :array {
+	private function findingExplanations( CloakedPluginFinding $finding ) :array {
 		return [
 			\sprintf( __( 'File: %s', 'wp-simple-firewall' ), $finding->entry->file ),
 			\sprintf( __( 'Path: %s', 'wp-simple-firewall' ), $finding->entry->path ),
 			\sprintf( __( 'Status: %s', 'wp-simple-firewall' ), $this->statusLabel( $finding ) ),
 			\sprintf(
-				__( 'Hidden By: %s', 'wp-simple-firewall' ),
+				__( 'Cloaked By: %s', 'wp-simple-firewall' ),
 				\implode( ', ', \array_map(
-					static fn( string $reason ) :string => HiddenReason::label( $reason ),
-					$finding->hiddenReasons
+					static fn( string $reason ) :string => CloakReason::label( $reason ),
+					$finding->cloakReasons
 				) )
 			),
 			$this->nextStep( $finding ),
 		];
 	}
 
-	private function statusLabel( HiddenPluginFinding $finding ) :string {
+	private function statusLabel( CloakedPluginFinding $finding ) :string {
 		switch ( $finding->status() ) {
 			case 'must-use':
 				return __( 'Must-Use', 'wp-simple-firewall' );
@@ -238,7 +238,7 @@ class HiddenPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvid
 		}
 	}
 
-	private function nextStep( HiddenPluginFinding $finding ) :string {
+	private function nextStep( CloakedPluginFinding $finding ) :string {
 		if ( $finding->entry->type === PluginType::MustUse ) {
 			return __( 'Next Step: Remove this must-use plugin file manually if it should not be installed.', 'wp-simple-firewall' );
 		}
@@ -249,9 +249,9 @@ class HiddenPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvid
 	}
 
 	/**
-	 * @return list<HiddenPluginDetailAction>
+	 * @return list<CloakedPluginDetailAction>
 	 */
-	private function findingActions( HiddenPluginFinding $finding ) :array {
+	private function findingActions( CloakedPluginFinding $finding ) :array {
 		if ( $finding->entry->type === PluginType::MustUse ) {
 			return [];
 		}
@@ -265,7 +265,7 @@ class HiddenPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvid
 
 	/**
 	 * @param 'deactivate'|'navigate' $type
-	 * @return list<HiddenPluginDetailAction>
+	 * @return list<CloakedPluginDetailAction>
 	 */
 	private function actionList( string $href, string $label, string $type, string $icon ) :array {
 		if ( \trim( $href ) === '' || \trim( $label ) === '' ) {

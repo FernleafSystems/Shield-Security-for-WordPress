@@ -1,8 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\HiddenPlugins;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\CloakedPlugins;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins\{
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	PluginEntry,
 	PluginType,
 	RawPluginInventory
@@ -20,7 +20,7 @@ class RawPluginInventoryTest extends BaseUnitTest {
 	}
 
 	public function testStandardInventoryMatchesWordpressEntryFileRules() :void {
-		$pluginDir = $this->createTrackedTempDir( 'hidden-plugin-standard-' );
+		$pluginDir = $this->createTrackedTempDir( 'cloaked-plugin-standard-' );
 		$this->writeFile( $pluginDir.'/root-plugin.php', "<?php\n/*\nPlugin Name: Root Plugin\nVersion: 1.2.3\n*/\n" );
 		$this->writeFile( $pluginDir.'/headerless.php', "<?php\nadd_action('init', 'x');\n" );
 		$this->writeFile( $pluginDir.'/nested/plugin-main.php', "<?php\n/*\nPlugin Name: Nested Plugin\nVersion: 2.0.0\n*/\n" );
@@ -37,7 +37,7 @@ class RawPluginInventoryTest extends BaseUnitTest {
 	}
 
 	public function testMustUseInventoryIncludesTopLevelPhpWithoutHeaders() :void {
-		$muDir = $this->createTrackedTempDir( 'hidden-plugin-mu-' );
+		$muDir = $this->createTrackedTempDir( 'cloaked-plugin-mu-' );
 		$this->writeFile( $muDir.'/aaa-loader.php', "<?php\nadd_action('init', 'x');\n" );
 		$this->writeFile( $muDir.'/.hidden.php', "<?php\nadd_action('init', 'dotfile');\n" );
 		$this->writeFile( $muDir.'/named.php', "<?php\n/*\nPlugin Name: Named MU\nVersion: 3.0.0\n*/\n" );

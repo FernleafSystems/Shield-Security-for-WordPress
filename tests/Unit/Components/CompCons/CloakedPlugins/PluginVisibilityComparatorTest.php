@@ -1,11 +1,11 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\HiddenPlugins;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\CloakedPlugins;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins\{
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	AdminPluginVisibilitySnapshot,
-	HiddenPluginFinding,
-	HiddenReason,
+	CloakedPluginFinding,
+	CloakReason,
 	PluginEntry,
 	PluginType,
 	PluginVisibilityComparator
@@ -16,19 +16,19 @@ class PluginVisibilityComparatorTest extends BaseUnitTest {
 
 	public function testReportsStandardPluginMissingFromWordpressDiscovery() :void {
 		$finding = $this->compareOne(
-			new PluginEntry( PluginType::Standard, 'hidden/hidden.php', 'Hidden', '1.0', '/plugins/hidden/hidden.php' ),
+			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked', '1.0', '/plugins/cloaked/cloaked.php' ),
 			$this->snapshot( [], [], [], true, [ 'all' => [] ] )
 		);
 
-		$this->assertSame( [ HiddenReason::WpDiscoveryCacheGap ], $finding->hiddenReasons );
+		$this->assertSame( [ CloakReason::WpDiscoveryCacheGap ], $finding->cloakReasons );
 		$this->assertSame( 'inactive', $finding->status() );
 	}
 
 	public function testReportsStandardPluginRemovedByAllPluginsFilter() :void {
 		$finding = $this->compareOne(
-			new PluginEntry( PluginType::Standard, 'hidden/hidden.php', 'Hidden', '1.0', '/plugins/hidden/hidden.php' ),
+			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked', '1.0', '/plugins/cloaked/cloaked.php' ),
 			$this->snapshot(
-				[ 'hidden/hidden.php' => [ 'Name' => 'Hidden' ] ],
+				[ 'cloaked/cloaked.php' => [ 'Name' => 'Cloaked' ] ],
 				[],
 				[],
 				true,
@@ -36,41 +36,41 @@ class PluginVisibilityComparatorTest extends BaseUnitTest {
 			)
 		);
 
-		$this->assertSame( [ HiddenReason::AllPlugins ], $finding->hiddenReasons );
+		$this->assertSame( [ CloakReason::AllPlugins ], $finding->cloakReasons );
 	}
 
 	public function testReportsStandardPluginRemovedFromFinalPluginsList() :void {
 		$finding = $this->compareOne(
-			new PluginEntry( PluginType::Standard, 'hidden/hidden.php', 'Hidden', '1.0', '/plugins/hidden/hidden.php' ),
+			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked', '1.0', '/plugins/cloaked/cloaked.php' ),
 			$this->snapshot(
-				[ 'hidden/hidden.php' => [ 'Name' => 'Hidden' ] ],
-				[ 'hidden/hidden.php' => [ 'Name' => 'Hidden' ] ],
+				[ 'cloaked/cloaked.php' => [ 'Name' => 'Cloaked' ] ],
+				[ 'cloaked/cloaked.php' => [ 'Name' => 'Cloaked' ] ],
 				[],
 				true,
 				[ 'all' => [], 'active' => [], 'inactive' => [] ]
 			)
 		);
 
-		$this->assertSame( [ HiddenReason::PluginsList ], $finding->hiddenReasons );
+		$this->assertSame( [ CloakReason::PluginsList ], $finding->cloakReasons );
 	}
 
-	public function testReportsMustUsePluginsHiddenByAdvancedPluginsFilter() :void {
+	public function testReportsMustUsePluginsCloakedByAdvancedPluginsFilter() :void {
 		$finding = $this->compareOne(
-			new PluginEntry( PluginType::MustUse, 'hidden-mu.php', 'Hidden MU', '', '/mu/hidden-mu.php' ),
+			new PluginEntry( PluginType::MustUse, 'cloaked-mu.php', 'Cloaked MU', '', '/mu/cloaked-mu.php' ),
 			$this->snapshot(
 				[],
 				[],
-				[ 'hidden-mu.php' => [ 'Name' => 'Hidden MU' ] ],
+				[ 'cloaked-mu.php' => [ 'Name' => 'Cloaked MU' ] ],
 				false,
 				[ 'mustuse' => [] ]
 			)
 		);
 
-		$this->assertSame( [ HiddenReason::ShowAdvancedPlugins ], $finding->hiddenReasons );
+		$this->assertSame( [ CloakReason::ShowAdvancedPlugins ], $finding->cloakReasons );
 		$this->assertSame( 'must-use', $finding->status() );
 	}
 
-	private function compareOne( PluginEntry $entry, AdminPluginVisibilitySnapshot $snapshot ) :HiddenPluginFinding {
+	private function compareOne( PluginEntry $entry, AdminPluginVisibilitySnapshot $snapshot ) :CloakedPluginFinding {
 		$findings = ( new PluginVisibilityComparator() )->compare( [ $entry ], $snapshot );
 		$this->assertCount( 1, $findings );
 		return $findings[ 0 ];

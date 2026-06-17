@@ -3,21 +3,21 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins\{
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	AdminPluginVisibility,
-	HiddenPluginFinding,
-	HiddenPluginState,
+	CloakedPluginFinding,
+	CloakedPluginState,
 	PhpFileActivity,
 	PhpFileActivityClassifier,
 	PluginEntry,
 	PluginVisibilityComparator,
 	RawPluginInventory
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerHiddenPlugins;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerCloakedPlugins;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
-class HiddenPluginsCon {
+class CloakedPluginsCon {
 
 	use ExecOnce;
 	use PluginControllerConsumer;
@@ -25,13 +25,13 @@ class HiddenPluginsCon {
 	private bool $isDetecting = false;
 
 	/**
-	 * @var list<HiddenPluginFinding>|null
+	 * @var list<CloakedPluginFinding>|null
 	 */
 	private ?array $currentFindings = null;
 
 	protected function canRun() :bool {
 		return self::con()->comps->opts_lookup->isPluginEnabled()
-			   && self::con()->caps->canDetectHiddenPlugins();
+			   && self::con()->caps->canDetectCloakedPlugins();
 	}
 
 	protected function run() :void {
@@ -58,7 +58,7 @@ class HiddenPluginsCon {
 	}
 
 	/**
-	 * @return list<HiddenPluginFinding>
+	 * @return list<CloakedPluginFinding>
 	 */
 	public function currentFindings() :array {
 		if ( $this->currentFindings !== null ) {
@@ -69,7 +69,7 @@ class HiddenPluginsCon {
 	}
 
 	/**
-	 * @return list<HiddenPluginFinding>
+	 * @return list<CloakedPluginFinding>
 	 */
 	public function detect( ?array $finalPluginsList = null ) :array {
 		if ( $this->isDetecting || !$this->canRun() ) {
@@ -89,7 +89,7 @@ class HiddenPluginsCon {
 				( new AdminPluginVisibility() )->snapshot( $finalPluginsList )
 			);
 
-			$newFindings = ( new HiddenPluginState() )->rememberNew( $findings );
+			$newFindings = ( new CloakedPluginState() )->rememberNew( $findings );
 			if ( !empty( $newFindings ) ) {
 				$this->publishFindings( $newFindings );
 			}
@@ -106,7 +106,7 @@ class HiddenPluginsCon {
 	}
 
 	/**
-	 * @param list<HiddenPluginFinding> $findings
+	 * @param list<CloakedPluginFinding> $findings
 	 */
 	private function publishFindings( array $findings ) :void {
 		foreach ( $findings as $finding ) {
@@ -116,10 +116,10 @@ class HiddenPluginsCon {
 		}
 
 		self::con()->comps->instant_alerts->updateAlertDataFor(
-			new AlertHandlerHiddenPlugins(),
+			new AlertHandlerCloakedPlugins(),
 			[
 				'hidden_plugins' => \array_map(
-					static fn( HiddenPluginFinding $finding ) :array => $finding->toAlertData(),
+					static fn( CloakedPluginFinding $finding ) :array => $finding->toAlertData(),
 					$findings
 				),
 			]

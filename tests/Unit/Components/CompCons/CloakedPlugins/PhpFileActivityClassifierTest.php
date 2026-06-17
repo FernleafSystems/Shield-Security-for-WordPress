@@ -1,8 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\HiddenPlugins;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\CloakedPlugins;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins\{
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	PhpFileActivity,
 	PhpFileActivityClassifier
 };
@@ -41,7 +41,7 @@ class PhpFileActivityClassifierTest extends BaseUnitTest {
 	public function testClassifiesRuntimePhpAsExecutable() :void {
 		$this->assertSame(
 			PhpFileActivity::Executable,
-			( new PhpFileActivityClassifier() )->classify( $this->phpFile( "<?php\nadd_action('init', 'hidden_shell');\n" ) )
+			( new PhpFileActivityClassifier() )->classify( $this->phpFile( "<?php\nadd_action('init', 'cloaked_shell');\n" ) )
 		);
 	}
 
@@ -82,7 +82,7 @@ class PhpFileActivityClassifierTest extends BaseUnitTest {
 	}
 
 	private function phpFile( string $content, string $name = 'fixture.php' ) :string {
-		$dir = $this->createTrackedTempDir( 'hidden-plugin-classifier-' );
+		$dir = $this->createTrackedTempDir( 'cloaked-plugin-classifier-' );
 		$path = $dir.'/'.$name;
 		$this->assertNotFalse( \file_put_contents( $path, $content ) );
 		return $path;

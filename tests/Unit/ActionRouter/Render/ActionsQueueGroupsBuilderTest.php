@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
-	HiddenPlugins,
+	CloakedPlugins,
 	Malware,
 	Vulnerabilities,
 	Wordpress
@@ -475,7 +475,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'expandable', $groups[ 'file_locker' ][ 'card_type' ] );
 	}
 
-	public function test_build_surfaces_hidden_plugin_security_check_as_own_scan_group() :void {
+	public function test_build_surfaces_cloaked_plugin_security_check_as_own_scan_group() :void {
 		$builder = $this->createBuilder();
 
 		$payload = $builder->buildWithSelectedGroup(
@@ -505,13 +505,13 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'critical', $group[ 'status' ] );
 		$this->assertSame( 'direct_table', $group[ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $group[ 'card_type' ] );
-		$this->assertSame( HiddenPlugins::class, $group[ 'render_action_class' ] );
+		$this->assertSame( CloakedPlugins::class, $group[ 'render_action_class' ] );
 		$this->assertSame( [], $group[ 'render_action_data' ] );
 		$this->assertSame( [], $group[ 'selection' ][ 'header' ][ 'actions' ] );
 		$this->assertNotSame( '', $group[ 'drill_hint' ] );
 		$this->assertAjaxRenderPayloadAllowedByPolicy(
 			$group[ 'selection' ][ 'detail_render_action' ],
-			'hidden plugin group detail render'
+			'cloaked plugin group detail render'
 		);
 	}
 
@@ -1170,7 +1170,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( '', $payload[ 'selected_group' ][ 'drill_hint' ] );
 	}
 
-	public function test_build_critical_bucket_includes_healthy_hidden_plugins_group() :void {
+	public function test_build_critical_bucket_includes_healthy_cloaked_plugins_group() :void {
 		$builder = $this->createBuilder();
 
 		$payload = $builder->buildWithSelectedGroup(
@@ -1183,8 +1183,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				'scans'       => [
 					[
 						'key'               => 'hidden_plugins',
-						'label'             => 'Hidden Plugins',
-						'description'       => 'No hidden plugins are currently detected.',
+						'label'             => 'Cloaked Plugins',
+						'description'       => 'No cloaked plugins are currently detected.',
 						'drill_bucket'      => 'critical',
 						'item_icon_class'   => 'bi bi-eye-slash-fill',
 						'status'            => 'good',

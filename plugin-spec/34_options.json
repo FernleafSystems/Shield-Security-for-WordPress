@@ -2756,9 +2756,9 @@
         "beacon_id": 788,
         "link_info": "",
         "link_blog": "",
-        "name": "Hidden Plugins",
-        "summary": "Be alerted when a plugin is hidden from the WordPress admin list",
-        "description": "Be alerted when a plugin or must-use plugin exists on disk but is hidden from the WordPress admin plugin list."
+        "name": "Cloaked Plugins",
+        "summary": "Be alerted when a plugin is cloaked from the WordPress admin list",
+        "description": "Be alerted when a plugin or must-use plugin exists on disk but is cloaked from the WordPress admin plugin list."
     },
     {
         "key": "instant_alert_admins",

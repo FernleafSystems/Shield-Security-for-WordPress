@@ -85,11 +85,11 @@ PHP );
 
 	public function testMappedComponentClassFilesResolveThroughComponentLoaderImports() :void {
 		$loader = $this->writeNamespacedComponentLoader( [
-			'hidden_plugins'    => 'CompCons\HiddenPluginsCon',
+			'hidden_plugins'    => 'CompCons\CloakedPluginsCon',
 			'mainwp'            => 'MainwpCon',
 			'security_profiles' => 'Profiles\SecurityProfilesCon',
 		] );
-		$this->writePhp( 'src/Components/CompCons/HiddenPluginsCon.php', '<?php' );
+		$this->writePhp( 'src/Components/CompCons/CloakedPluginsCon.php', '<?php' );
 		$this->writePhp( 'src/Modules/Integrations/Lib/MainWP/Controller.php', '<?php' );
 		$this->writePhp( 'src/Profiles/SecurityProfilesCon.php', '<?php' );
 
@@ -101,15 +101,15 @@ PHP );
 
 	public function testMissingMappedComponentClassFileIsReported() :void {
 		$loader = $this->writeNamespacedComponentLoader( [
-			'hidden_plugins' => 'CompCons\HiddenPluginsCon',
+			'hidden_plugins' => 'CompCons\CloakedPluginsCon',
 		] );
 
 		$this->assertSame(
 			[
 				[
 					'key'   => 'hidden_plugins',
-					'class' => 'FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPluginsCon',
-					'path'  => 'src/Components/CompCons/HiddenPluginsCon.php',
+					'class' => 'FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPluginsCon',
+					'path'  => 'src/Components/CompCons/CloakedPluginsCon.php',
 				],
 			],
 			$this->verifier()->findMissingComponentClassFiles( $loader, $this->tempDir )

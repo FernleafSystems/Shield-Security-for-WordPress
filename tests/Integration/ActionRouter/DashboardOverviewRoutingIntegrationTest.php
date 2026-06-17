@@ -12,9 +12,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components\Widgets\NeedsAttentionQueue,
 	Actions\Render\PluginAdminPages\PageOperatorModeLanding,
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
+	CloakedPluginFixtureTrait,
+	TestDataFactory
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
 	ActionRequestNonceFixture,
 	PluginAdminRouteRenderAssertions
@@ -25,6 +29,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase {
 
 	use ActionRequestNonceFixture;
+	use CloakedPluginFixtureTrait;
 	use PluginAdminRouteRenderAssertions;
 
 	private int $adminUserId;
@@ -43,6 +48,9 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	}
 
 	public function tear_down() {
+		$this->removeCloakedPluginFixtureFilters();
+		$this->cleanupCloakedPluginFixtures();
+		$this->resetCloakedPluginFindingsCache();
 		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
 	}
@@ -165,6 +173,16 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		) );
 		\natsort( $pluginFiles );
 		return \array_values( $pluginFiles );
+	}
+
+	private function resetCloakedPluginFindingsCache() :void {
+		if ( static::con() === null ) {
+			return;
+		}
+
+		$currentFindings = new \ReflectionProperty( $this->requireController()->comps->hidden_plugins, 'currentFindings' );
+		$currentFindings->setAccessible( true );
+		$currentFindings->setValue( $this->requireController()->comps->hidden_plugins, null );
 	}
 
 	/**
@@ -496,11 +514,50 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		}
 		$this->assertGreaterThan( 0, (int)( $rowsByKey[ 'maintenance' ][ 'count' ] ?? 0 ) );
 		$this->assertSame( 'actions', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'mode' ] ?? '' ) );
-		$this->assertNull( $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
+		$this->assertArrayHasKey( 'actions_all_clear', $renderData[ 'vars' ] );
+		$this->assertNull( $renderData[ 'vars' ][ 'actions_all_clear' ] );
 		$this->assertSame(
 			[ 'investigate', 'configure', 'reports' ],
 			\array_column( $renderData[ 'vars' ][ 'secondary_lanes' ] ?? [], 'mode' )
 		);
+	}
+
+	public function test_operator_mode_landing_actions_queue_rows_include_cloaked_plugin_finding() :void {
+		$optionsSnapshot = $this->snapshotSelectedOptions( [
+			CloakedPluginState::OPT_KEY,
+			'instant_alert_hidden_plugins',
+		] );
+
+		try {
+			self::con()->opts
+				->optSet( CloakedPluginState::OPT_KEY, [] )
+				->optSet( 'instant_alert_hidden_plugins', 'disabled' )
+				->store();
+			$this->createStandardCloakedPlugin( 'shi-cloaked-dashboard', 'SHI Cloaked Dashboard' );
+			\add_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+			$this->requireController()->comps->hidden_plugins->detect();
+
+			$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
+			$renderData = $payload[ 'render_data' ] ?? [];
+			$rowsByKey = [];
+			foreach ( $this->getActionsQueueRows( $renderData ) as $row ) {
+				if ( \is_array( $row ) && !empty( $row[ 'key' ] ) ) {
+					$rowsByKey[ (string)$row[ 'key' ] ] = $row;
+				}
+			}
+
+			$this->assertArrayHasKey( 'hidden_plugins', $rowsByKey );
+			$cloakedPluginRow = $rowsByKey[ 'hidden_plugins' ];
+			$this->assertSame( 'Cloaked Plugins', $cloakedPluginRow[ 'label' ] );
+			$this->assertSame( 1, $cloakedPluginRow[ 'count' ] );
+			$this->assertSame( 'critical', $cloakedPluginRow[ 'severity' ] );
+			$this->assertArrayHasKey( 'actions_all_clear', $renderData[ 'vars' ] );
+			$this->assertNull( $renderData[ 'vars' ][ 'actions_all_clear' ] );
+		}
+		finally {
+			$this->removeCloakedPluginFixtureFilters();
+			$this->restoreSelectedOptions( $optionsSnapshot );
+		}
 	}
 
 	public function test_operator_mode_landing_hides_ignored_only_plugin_dashboard_row() :void {
@@ -570,9 +627,10 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 			$this->assertSame( [], $rows );
 			$this->assertSame( 'good', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' ) );
+			$this->assertIsArray( $renderData[ 'vars' ][ 'actions_all_clear' ] );
 			$this->assertSame(
-				[ 'scans', 'maintenance' ],
-				\array_column( $renderData[ 'vars' ][ 'actions_all_clear' ][ 'zone_chips' ] ?? [], 'slug' )
+				[ 'scans', 'maintenance', 'cloaked_plugin_detection' ],
+				\array_column( $renderData[ 'vars' ][ 'actions_all_clear' ][ 'checks' ], 'slug' )
 			);
 		}
 		finally {

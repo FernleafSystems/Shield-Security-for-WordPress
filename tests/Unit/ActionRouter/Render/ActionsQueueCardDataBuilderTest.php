@@ -144,6 +144,10 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'good', $data[ 'shield_status' ] );
 		$this->assertSame( [], $data[ 'actions_queue_rows' ] );
 		$this->assertSame( 'good', $data[ 'actions_lane' ][ 'indicator_severity' ] );
+		$this->assertSame(
+			[ 'scans', 'maintenance', 'cloaked_plugin_detection' ],
+			\array_column( $data[ 'all_clear' ][ 'checks' ], 'slug' )
+		);
 		$this->assertIsArray( $data[ 'all_clear' ][ 'zone_chips' ] );
 		$this->assertGreaterThan( 0, \count( $data[ 'all_clear' ][ 'zone_chips' ] ) );
 	}
@@ -157,6 +161,7 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 			$this->attentionItem( 'theme_files', 'scans', 1, 'warning', 'Theme Files' ),
 			$this->attentionItem( 'abandoned', 'scans', 6, 'critical', 'Abandoned Assets' ),
 			$this->attentionItem( 'file_locker', 'scans', 2, 'warning', 'File Locker' ),
+			$this->attentionItem( 'hidden_plugins', 'scans', 2, 'critical', 'Cloaked Plugins' ),
 		];
 		$data = $this->buildCardData(
 			$this->attentionQuery(
@@ -168,10 +173,12 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$rows = $data[ 'actions_queue_rows' ];
 
 		$this->assertSame(
-			[ 'malware', 'vulnerable_assets', 'wp_files', 'plugin_files', 'theme_files', 'abandoned', 'file_locker', 'maintenance' ],
+			[ 'malware', 'vulnerable_assets', 'wp_files', 'plugin_files', 'theme_files', 'abandoned', 'file_locker', 'hidden_plugins', 'maintenance' ],
 			\array_column( $rows, 'key' )
 		);
-		$this->assertSame( [ 4, 3, 2, 5, 1, 6, 2, 7 ], \array_column( $rows, 'count' ) );
+		$this->assertSame( [ 4, 3, 2, 5, 1, 6, 2, 2, 7 ], \array_column( $rows, 'count' ) );
+		$this->assertSame( 'Cloaked Plugins', $rows[ 7 ][ 'label' ] );
+		$this->assertSame( 'critical', $rows[ 7 ][ 'severity' ] );
 		$this->assertCount( \count( $rows ), \array_filter( \array_column( $rows, 'icon_class' ), '\is_string' ) );
 	}
 

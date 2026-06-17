@@ -1082,8 +1082,8 @@ class StringsOptions {
 				];
 				break;
 			case 'instant_alert_hidden_plugins':
-				$name = __( 'Hidden Plugins', 'wp-simple-firewall' );
-				$summary = __( 'Be alerted when a plugin is hidden from the WordPress admin list', 'wp-simple-firewall' );
+				$name = __( 'Cloaked Plugins', 'wp-simple-firewall' );
+				$summary = __( 'Be alerted when a plugin is cloaked from the WordPress admin list', 'wp-simple-firewall' );
 				$desc = [
 					__( 'This alert compares raw plugin files on disk against the plugins visible in the WordPress admin area.', 'wp-simple-firewall' ),
 					__( 'It ignores inert placeholder PHP files so alerts focus on plugin files that can execute code.', 'wp-simple-firewall' ),

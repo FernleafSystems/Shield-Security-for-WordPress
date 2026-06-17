@@ -181,6 +181,9 @@ class BrowserFixtureRegistry {
 			case 'reset-defaults':
 				return $builder->resetDefaults( $state );
 
+			case 'prepare-actions-all-clear':
+				return $builder->prepareActionsAllClear( $state );
+
 			case 'seed':
 				if ( $state !== [] ) {
 					$builder->cleanup( $state );

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	EmailInstantAlertAdmins,
 	EmailInstantAlertFileLocker,
 	EmailInstantAlertFirewallBlock,
-	EmailInstantAlertHiddenPlugins,
+	EmailInstantAlertCloakedPlugins,
 	EmailInstantAlertShieldDeactivated,
 	EmailInstantAlertVulnerabilities
 };
@@ -113,8 +113,8 @@ class InstantAlertSafeDisplayRenderingIntegrationTest extends ShieldIntegrationT
 				'contains_malicious_value' => true,
 				'contains_button_payload' => false,
 			],
-			'hidden plugins'     => [
-				'class'                   => EmailInstantAlertHiddenPlugins::class,
+			'cloaked plugins'     => [
+				'class'                   => EmailInstantAlertCloakedPlugins::class,
 				'alert_data'              => [
 					'hidden_plugins' => [
 						[

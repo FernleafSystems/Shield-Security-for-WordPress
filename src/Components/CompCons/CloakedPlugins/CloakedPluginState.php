@@ -1,18 +1,18 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
-class HiddenPluginState {
+class CloakedPluginState {
 
 	use PluginControllerConsumer;
 
 	public const OPT_KEY = 'hidden_plugins_alert_state';
 
 	/**
-	 * @param list<HiddenPluginFinding> $findings
-	 * @return list<HiddenPluginFinding>
+	 * @param list<CloakedPluginFinding> $findings
+	 * @return list<CloakedPluginFinding>
 	 */
 	public function rememberNew( array $findings ) :array {
 		$stored = $this->load();

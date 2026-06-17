@@ -189,7 +189,7 @@ class Constants {
 		Actions\Render\Components\Scans\ScansFileLockerDiff::class,
 		Actions\Render\Components\Scans\ScansProgress::class,
 		Actions\Render\Components\Scans\Results\FileLocker::class,
-		Actions\Render\Components\Scans\Results\HiddenPlugins::class,
+		Actions\Render\Components\Scans\Results\CloakedPlugins::class,
 		Actions\Render\Components\Scans\Results\Malware::class,
 		Actions\Render\Components\Scans\Results\Vulnerabilities::class,
 		Actions\Render\Components\Scans\Results\Wordpress::class,

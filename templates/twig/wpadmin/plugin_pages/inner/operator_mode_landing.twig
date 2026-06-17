@@ -50,11 +50,17 @@
 					</div>
 				{% elseif vars.actions_all_clear is not null %}
 					<p class="operator-mode-landing__featured-desc">{{ vars.actions_all_clear.subtitle }}</p>
-					<div class="shield-needs-attention__chips">
-						{% for chip in vars.actions_all_clear.zone_chips %}
-							<span class="shield-needs-attention__chip is-{{ chip.severity }}">
-								<i class="{{ chip.icon_class }}" aria-hidden="true"></i> {{ chip.label }}
-							</span>
+					<div class="operator-mode-landing__clear-list"
+					     data-dashboard-actions-all-clear-list="1"
+					     aria-label="{{ vars.actions_all_clear.title }}">
+						{% for check in vars.actions_all_clear.checks %}
+							<div class="operator-mode-landing__clear-row is-{{ check.severity }}"
+							     data-dashboard-actions-all-clear-check="{{ check.slug|e('html_attr') }}">
+								<span class="operator-mode-landing__clear-icon" aria-hidden="true">
+									<i class="{{ check.icon_class }}"></i>
+								</span>
+								<span class="operator-mode-landing__clear-label">{{ check.label }}</span>
+							</div>
 						{% endfor %}
 					</div>
 				{% endif %}

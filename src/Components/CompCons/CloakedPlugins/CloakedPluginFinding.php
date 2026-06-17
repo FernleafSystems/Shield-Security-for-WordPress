@@ -1,9 +1,9 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins;
 
 /**
- * @phpstan-type HiddenPluginAlertData array{
+ * @phpstan-type CloakedPluginAlertData array{
  *   type:string,
  *   type_label:string,
  *   file:string,
@@ -16,14 +16,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlug
  *   detected_at:int
  * }
  */
-class HiddenPluginFinding {
+class CloakedPluginFinding {
 
 	public PluginEntry $entry;
 
 	/**
-	 * @phpstan-var list<value-of<HiddenReason::ALL>>
+	 * @phpstan-var list<value-of<CloakReason::ALL>>
 	 */
-	public array $hiddenReasons;
+	public array $cloakReasons;
 
 	public bool $active;
 
@@ -32,21 +32,21 @@ class HiddenPluginFinding {
 	public int $detectedAt;
 
 	/**
-	 * @phpstan-param list<value-of<HiddenReason::ALL>> $hiddenReasons
+	 * @phpstan-param list<value-of<CloakReason::ALL>> $cloakReasons
 	 */
 	public function __construct(
 		PluginEntry $entry,
-		array $hiddenReasons,
+		array $cloakReasons,
 		bool $active,
 		bool $networkActive,
 		int $detectedAt
 	) {
-		foreach ( $hiddenReasons as $reason ) {
-			HiddenReason::assertValid( $reason );
+		foreach ( $cloakReasons as $reason ) {
+			CloakReason::assertValid( $reason );
 		}
 
 		$this->entry = $entry;
-		$this->hiddenReasons = $hiddenReasons;
+		$this->cloakReasons = $cloakReasons;
 		$this->active = $active;
 		$this->networkActive = $networkActive;
 		$this->detectedAt = $detectedAt;
@@ -58,7 +58,7 @@ class HiddenPluginFinding {
 			'file'           => $this->entry->file,
 			'name'           => $this->entry->name,
 			'version'        => $this->entry->version,
-			'hidden_by'      => $this->hiddenReasonValues(),
+			'hidden_by'      => $this->cloakReasonValues(),
 			'active'         => $this->active,
 			'network_active' => $this->networkActive,
 		] ) ?: $this->entry->type.'|'.$this->entry->file );
@@ -75,7 +75,7 @@ class HiddenPluginFinding {
 	}
 
 	/**
-	 * @return HiddenPluginAlertData
+	 * @return CloakedPluginAlertData
 	 */
 	public function toAlertData() :array {
 		return [
@@ -86,10 +86,10 @@ class HiddenPluginFinding {
 			'version'          => $this->entry->version,
 			'location'         => $this->relativeLocation(),
 			'status'           => $this->status(),
-			'hidden_by'        => $this->hiddenReasonValues(),
+			'hidden_by'        => $this->cloakReasonValues(),
 			'hidden_by_labels' => \array_map(
-				static fn( string $reason ) :string => HiddenReason::label( $reason ),
-				$this->hiddenReasons
+				static fn( string $reason ) :string => CloakReason::label( $reason ),
+				$this->cloakReasons
 			),
 			'detected_at'      => $this->detectedAt,
 		];
@@ -102,7 +102,7 @@ class HiddenPluginFinding {
 		return [
 			'plugin'    => $this->entry->file,
 			'type'      => $this->entry->type,
-			'hidden_by' => \implode( ', ', $this->hiddenReasonValues() ),
+			'hidden_by' => \implode( ', ', $this->cloakReasonValues() ),
 			'status'    => $this->status(),
 			'name'      => $this->entry->name,
 			'version'   => $this->entry->version,
@@ -110,10 +110,10 @@ class HiddenPluginFinding {
 	}
 
 	/**
-	 * @phpstan-return list<value-of<HiddenReason::ALL>>
+	 * @phpstan-return list<value-of<CloakReason::ALL>>
 	 */
-	private function hiddenReasonValues() :array {
-		return \array_values( $this->hiddenReasons );
+	private function cloakReasonValues() :array {
+		return \array_values( $this->cloakReasons );
 	}
 
 	private function relativeLocation() :string {

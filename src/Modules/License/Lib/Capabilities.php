@@ -96,7 +96,7 @@ class Capabilities {
 		return $this->hasCap( 'scan_vulnerabilities' );
 	}
 
-	public function canDetectHiddenPlugins() :bool {
+	public function canDetectCloakedPlugins() :bool {
 		return true;
 	}
 

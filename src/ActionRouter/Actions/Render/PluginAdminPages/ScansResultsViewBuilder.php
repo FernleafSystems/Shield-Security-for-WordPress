@@ -85,7 +85,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type VulnerabilityItem from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
  * @phpstan-import-type VulnerabilitiesPayload from ScansVulnerabilitiesBuilder
- * @phpstan-import-type HiddenPluginsRailPane from HiddenPluginsQueueIssueProvider
+ * @phpstan-import-type CloakedPluginsRailPane from CloakedPluginsQueueIssueProvider
  * @phpstan-type QueueAssetPane array{
  *   is_disabled:bool,
  *   disabled_message:string,
@@ -260,10 +260,10 @@ class ScansResultsViewBuilder {
 	}
 
 	/**
-	 * @return HiddenPluginsRailPane
+	 * @return CloakedPluginsRailPane
 	 */
-	public function buildActionsQueueHiddenPluginsPane() :array {
-		return ( new HiddenPluginsQueueIssueProvider() )->railPaneData();
+	public function buildActionsQueueCloakedPluginsPane() :array {
+		return ( new CloakedPluginsQueueIssueProvider() )->railPaneData();
 	}
 
 	/**
@@ -457,12 +457,12 @@ class ScansResultsViewBuilder {
 
 	/**
 	 * @param array{count?:int,status?:string,sections?:array<string,mixed>} $vulnerabilities
-	 * @return ScanResultsRailPane|HiddenPluginsRailPane
+	 * @return ScanResultsRailPane|CloakedPluginsRailPane
 	 */
 	public function buildRailPaneData( string $tabKey, array $vulnerabilities = [], ?string $vulnerabilitySection = null ) :array {
 		$tabKey = \strtolower( \trim( $tabKey ) );
 		if ( $tabKey === 'hidden_plugins' ) {
-			return $this->buildActionsQueueHiddenPluginsPane();
+			return $this->buildActionsQueueCloakedPluginsPane();
 		}
 
 		$meta = $this->getRailTabMeta( $tabKey );

@@ -1,17 +1,17 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\HiddenPlugins;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\CloakedPlugins;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins\{
-	HiddenPluginFinding,
-	HiddenReason,
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
+	CloakedPluginFinding,
+	CloakReason,
 	PluginEntry,
 	PluginType
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
-class HiddenPluginFindingTest extends BaseUnitTest {
+class CloakedPluginFindingTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -19,9 +19,9 @@ class HiddenPluginFindingTest extends BaseUnitTest {
 	}
 
 	public function testAlertDataContractIsCompleteAndStable() :void {
-		$finding = new HiddenPluginFinding(
-			new PluginEntry( PluginType::Standard, 'hidden/hidden.php', 'Hidden Plugin', '1.2.3', '/plugins/hidden/hidden.php' ),
-			[ HiddenReason::AllPlugins, HiddenReason::PluginsList ],
+		$finding = new CloakedPluginFinding(
+			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked Plugin', '1.2.3', '/plugins/cloaked/cloaked.php' ),
+			[ CloakReason::AllPlugins, CloakReason::PluginsList ],
 			true,
 			false,
 			123456
@@ -32,10 +32,10 @@ class HiddenPluginFindingTest extends BaseUnitTest {
 		$this->assertSame( [
 			'type'             => 'plugin',
 			'type_label'       => 'Plugin',
-			'file'             => 'hidden/hidden.php',
-			'name'             => 'Hidden Plugin',
+			'file'             => 'cloaked/cloaked.php',
+			'name'             => 'Cloaked Plugin',
 			'version'          => '1.2.3',
-			'location'         => 'plugins/hidden/hidden.php',
+			'location'         => 'plugins/cloaked/cloaked.php',
 			'status'           => 'active',
 			'hidden_by'        => [ 'all_plugins', 'plugins_list' ],
 			'hidden_by_labels' => [ 'Removed By all_plugins Filter', 'Removed From Final Plugins List' ],
@@ -44,9 +44,9 @@ class HiddenPluginFindingTest extends BaseUnitTest {
 	}
 
 	public function testAlertDataUsesRelativeMustUsePluginLocation() :void {
-		$finding = new HiddenPluginFinding(
+		$finding = new CloakedPluginFinding(
 			new PluginEntry( PluginType::MustUse, '/loader.php', 'Loader', '', '/absolute/wp-content/mu-plugins/loader.php' ),
-			[ HiddenReason::ShowAdvancedPlugins ],
+			[ CloakReason::ShowAdvancedPlugins ],
 			true,
 			false,
 			123456
@@ -59,9 +59,9 @@ class HiddenPluginFindingTest extends BaseUnitTest {
 	}
 
 	public function testAuditParamsContractIsCompleteAndStable() :void {
-		$finding = new HiddenPluginFinding(
+		$finding = new CloakedPluginFinding(
 			new PluginEntry( PluginType::MustUse, 'loader.php', 'Loader', '', '/mu-plugins/loader.php' ),
-			[ HiddenReason::ShowAdvancedPlugins ],
+			[ CloakReason::ShowAdvancedPlugins ],
 			true,
 			true,
 			123456
@@ -80,14 +80,14 @@ class HiddenPluginFindingTest extends BaseUnitTest {
 	public function testPluginEntryRejectsUnsupportedType() :void {
 		$this->expectException( \InvalidArgumentException::class );
 
-		new PluginEntry( 'unsupported-type', 'hidden/hidden.php', 'Hidden', '1.0', '/plugins/hidden/hidden.php' );
+		new PluginEntry( 'unsupported-type', 'cloaked/cloaked.php', 'Cloaked', '1.0', '/plugins/cloaked/cloaked.php' );
 	}
 
-	public function testFindingRejectsUnsupportedHiddenReason() :void {
+	public function testFindingRejectsUnsupportedCloakReason() :void {
 		$this->expectException( \InvalidArgumentException::class );
 
-		new HiddenPluginFinding(
-			new PluginEntry( PluginType::Standard, 'hidden/hidden.php', 'Hidden Plugin', '1.2.3', '/plugins/hidden/hidden.php' ),
+		new CloakedPluginFinding(
+			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked Plugin', '1.2.3', '/plugins/cloaked/cloaked.php' ),
 			[ 'unsupported-reason' ],
 			true,
 			false,

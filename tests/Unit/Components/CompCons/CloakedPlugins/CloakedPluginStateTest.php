@@ -8,12 +8,12 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 	}
 }
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\HiddenPlugins;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\CloakedPlugins;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins\{
-	HiddenPluginFinding,
-	HiddenPluginState,
-	HiddenReason,
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
+	CloakedPluginFinding,
+	CloakedPluginState,
+	CloakReason,
 	PluginEntry,
 	PluginType
 };
@@ -23,13 +23,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	UnitTestControllerFactory
 };
 
-class HiddenPluginStateTest extends BaseUnitTest {
+class CloakedPluginStateTest extends BaseUnitTest {
 
-	private HiddenPluginStateOptionsStub $opts;
+	private CloakedPluginStateOptionsStub $opts;
 
 	protected function setUp() :void {
 		parent::setUp();
-		$this->opts = new HiddenPluginStateOptionsStub();
+		$this->opts = new CloakedPluginStateOptionsStub();
 		UnitTestControllerFactory::install( null, null, (object)[
 			'opts' => $this->opts,
 		] );
@@ -41,17 +41,17 @@ class HiddenPluginStateTest extends BaseUnitTest {
 	}
 
 	public function testRememberNewReturnsFindingOnlyOncePerFingerprint() :void {
-		$state = new HiddenPluginState();
-		$finding = $this->finding( 'hidden/hidden.php' );
+		$state = new CloakedPluginState();
+		$finding = $this->finding( 'cloaked/cloaked.php' );
 
 		$this->assertSame( [ $finding ], $state->rememberNew( [ $finding ] ) );
 		$this->assertSame( [], $state->rememberNew( [ $finding ] ) );
-		$this->assertCount( 1, $this->opts->values[ HiddenPluginState::OPT_KEY ] );
+		$this->assertCount( 1, $this->opts->values[ CloakedPluginState::OPT_KEY ] );
 	}
 
 	public function testResolvedFindingsAreRemovedFromStateSoReappearingFindingsAlertAgain() :void {
-		$state = new HiddenPluginState();
-		$finding = $this->finding( 'hidden/hidden.php' );
+		$state = new CloakedPluginState();
+		$finding = $this->finding( 'cloaked/cloaked.php' );
 
 		$state->rememberNew( [ $finding ] );
 		$state->rememberNew( [] );
@@ -59,10 +59,10 @@ class HiddenPluginStateTest extends BaseUnitTest {
 		$this->assertSame( [ $finding ], $state->rememberNew( [ $finding ] ) );
 	}
 
-	private function finding( string $file ) :HiddenPluginFinding {
-		return new HiddenPluginFinding(
-			new PluginEntry( PluginType::Standard, $file, 'Hidden', '1.0', '/plugins/'.$file ),
-			[ HiddenReason::AllPlugins ],
+	private function finding( string $file ) :CloakedPluginFinding {
+		return new CloakedPluginFinding(
+			new PluginEntry( PluginType::Standard, $file, 'Cloaked', '1.0', '/plugins/'.$file ),
+			[ CloakReason::AllPlugins ],
 			false,
 			false,
 			123
@@ -70,10 +70,10 @@ class HiddenPluginStateTest extends BaseUnitTest {
 	}
 }
 
-class HiddenPluginStateOptionsStub {
+class CloakedPluginStateOptionsStub {
 
 	public array $values = [
-		HiddenPluginState::OPT_KEY => [],
+		CloakedPluginState::OPT_KEY => [],
 	];
 
 	public function optGet( string $key ) {

@@ -1,6 +1,6 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins;
 
 final class PluginType {
 
@@ -32,7 +32,7 @@ final class PluginType {
 	 */
 	public static function assertValid( string $type ) :void {
 		if ( !\in_array( $type, self::ALL, true ) ) {
-			throw new \InvalidArgumentException( \sprintf( 'Unsupported hidden plugin type: %s', $type ) );
+			throw new \InvalidArgumentException( \sprintf( 'Unsupported cloaked plugin type: %s', $type ) );
 		}
 	}
 }

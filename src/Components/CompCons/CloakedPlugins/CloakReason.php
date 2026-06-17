@@ -1,8 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins;
 
-final class HiddenReason {
+final class CloakReason {
 
 	public const WpDiscoveryCacheGap = 'wp_discovery_cache_gap';
 
@@ -31,7 +31,7 @@ final class HiddenReason {
 			case self::AllPlugins:
 				return __( 'Removed By all_plugins Filter', 'wp-simple-firewall' );
 			case self::ShowAdvancedPlugins:
-				return __( 'Must-Use Plugins Hidden', 'wp-simple-firewall' );
+				return __( 'Must-Use Plugins Cloaked', 'wp-simple-firewall' );
 			case self::PluginsList:
 				return __( 'Removed From Final Plugins List', 'wp-simple-firewall' );
 		}
@@ -42,7 +42,7 @@ final class HiddenReason {
 	 */
 	public static function assertValid( string $reason ) :void {
 		if ( !\in_array( $reason, self::ALL, true ) ) {
-			throw new \InvalidArgumentException( \sprintf( 'Unsupported hidden plugin reason: %s', $reason ) );
+			throw new \InvalidArgumentException( \sprintf( 'Unsupported cloaked plugin reason: %s', $reason ) );
 		}
 	}
 }

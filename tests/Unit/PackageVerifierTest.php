@@ -153,12 +153,12 @@ PHP );
 	public function testVerifyFailsWhenMappedComponentClassFileIsMissing() :void {
 		$this->setupValidPackage();
 		$this->writeComponentLoaderMap( [
-			'hidden_plugins' => 'CompCons\HiddenPluginsCon',
+			'hidden_plugins' => 'CompCons\CloakedPluginsCon',
 			'license'        => 'LicenseHandler',
 		] );
 
 		$this->expectException( \RuntimeException::class );
-		$this->expectExceptionMessage( 'HiddenPluginsCon.php' );
+		$this->expectExceptionMessage( 'CloakedPluginsCon.php' );
 		$this->createVerifier()->verify( $this->tempDir );
 	}
 

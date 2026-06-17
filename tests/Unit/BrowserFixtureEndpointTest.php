@@ -118,7 +118,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 
 			$actions = \shield_browser_fixture_allowed_actions();
 
-			$this->assertSame( [ 'seed', 'cleanup', 'inspect', 'reset-defaults' ], $actions[ 'dashboard-defaults' ] ?? null );
+			$this->assertSame(
+				[ 'seed', 'cleanup', 'inspect', 'reset-defaults', 'prepare-actions-all-clear' ],
+				$actions[ 'dashboard-defaults' ] ?? null
+			);
 			$this->assertSame( [ 'seed', 'cleanup', 'inspect' ], $actions[ 'ip-analysis-activity-meta' ] ?? null );
 			$this->assertSame( [ 'seed', 'cleanup', 'inspect' ], $actions[ 'ip-rules-table' ] ?? null );
 			$this->assertSame( [ 'seed', 'cleanup', 'inspect' ], $actions[ 'login-guard-core' ] ?? null );

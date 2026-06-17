@@ -41,6 +41,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *     title:string,
  *     subtitle:string,
  *     icon_class:string,
+ *     checks:list<array{
+ *       slug:string,
+ *       label:string,
+ *       icon_class:string,
+ *       severity:string
+ *     }>,
  *     zone_chips:list<array{
  *       slug:string,
  *       label:string,
@@ -277,6 +283,12 @@ class ActionsQueueCardDataBuilder {
 	 *   title:string,
 	 *   subtitle:string,
 	 *   icon_class:string,
+	 *   checks:list<array{
+	 *     slug:string,
+	 *     label:string,
+	 *     icon_class:string,
+	 *     severity:string
+	 *   }>,
 	 *   zone_chips:list<array{
 	 *     slug:string,
 	 *     label:string,
@@ -286,7 +298,15 @@ class ActionsQueueCardDataBuilder {
 	 * }
 	 */
 	private function buildAllClearData() :array {
-		return ( new ActionsQueueAllClearDataBuilder() )->build( PluginNavs::actionsLandingZoneDefinitions() );
+		$allClear = ( new ActionsQueueAllClearDataBuilder() )->build( PluginNavs::actionsLandingZoneDefinitions() );
+		$allClear[ 'checks' ][] = [
+			'slug'       => 'cloaked_plugin_detection',
+			'label'      => __( 'Cloaked plugin detection clear', 'wp-simple-firewall' ),
+			'icon_class' => self::con()->svgs->iconClass( 'check-circle-fill' ),
+			'severity'   => 'good',
+		];
+
+		return $allClear;
 	}
 
 }

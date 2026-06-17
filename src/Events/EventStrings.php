@@ -735,9 +735,9 @@ class EventStrings {
 				],
 			],
 			'plugin_hidden_detected'       => [
-				'name'  => __( 'Hidden Plugin Detected', 'wp-simple-firewall' ),
+				'name'  => __( 'Cloaked Plugin Detected', 'wp-simple-firewall' ),
 				'audit' => [
-					__( "Plugin '{{plugin}}' ({{name}}, {{type}}, {{status}}, v{{version}}) was hidden from the WordPress admin plugin list by: {{hidden_by}}.", 'wp-simple-firewall' )
+					__( "Plugin '{{plugin}}' ({{name}}, {{type}}, {{status}}, v{{version}}) was cloaked from the WordPress admin plugin list by: {{hidden_by}}.", 'wp-simple-firewall' )
 				],
 			],
 			'plugin_uninstalled'           => [

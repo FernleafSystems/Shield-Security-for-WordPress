@@ -594,7 +594,7 @@ class PluginNavs {
 				],
 				'hidden_plugins' => [
 					'slug'         => 'hidden_plugins',
-					'label'        => __( 'Hidden Plugins', 'wp-simple-firewall' ),
+					'label'        => __( 'Cloaked Plugins', 'wp-simple-firewall' ),
 					'icon'         => 'eye-slash-fill',
 					'summary_keys' => [ 'hidden_plugins' ],
 				],

@@ -30,13 +30,13 @@ class ScansResultsRailTabAvailabilityTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_hidden_plugins_tab_is_available_through_its_explicit_capability() :void {
+	public function test_cloaked_plugins_tab_is_available_through_its_explicit_capability() :void {
 		UnitTestControllerFactory::install(
 			null,
 			null,
 			(object)[
 				'caps' => new class {
-					public function canDetectHiddenPlugins() :bool {
+					public function canDetectCloakedPlugins() :bool {
 						return true;
 					}
 				},

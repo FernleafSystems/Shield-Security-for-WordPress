@@ -11,10 +11,10 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\HiddenPluginsQueueIssueProvider;
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\HiddenPlugins\{
-	HiddenPluginFinding,
-	HiddenReason,
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\CloakedPluginsQueueIssueProvider;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
+	CloakedPluginFinding,
+	CloakReason,
 	PluginEntry,
 	PluginType
 };
@@ -24,7 +24,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	UnitTestControllerFactory
 };
 
-class HiddenPluginsQueueIssueProviderTest extends BaseUnitTest {
+class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -41,15 +41,15 @@ class HiddenPluginsQueueIssueProviderTest extends BaseUnitTest {
 	}
 
 	public function test_active_standard_plugin_is_reported_across_actions_queue_contracts() :void {
-		$provider = new HiddenPluginsQueueIssueProviderTestDouble(
+		$provider = new CloakedPluginsQueueIssueProviderTestDouble(
 			[
 				$this->finding(
-					new PluginEntry( PluginType::Standard, 'hidden/hidden.php', 'Hidden Plugin', '1.2.3', '/plugins/hidden/hidden.php' ),
-					[ HiddenReason::AllPlugins ],
+					new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked Plugin', '1.2.3', '/plugins/cloaked/cloaked.php' ),
+					[ CloakReason::AllPlugins ],
 					true
 				),
 			],
-			'/deactivate-hidden'
+			'/deactivate-cloaked'
 		);
 
 		$attentionItems = $provider->attentionItems();
@@ -80,18 +80,18 @@ class HiddenPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$this->assertSame( [], $pane[ 'render_action' ] );
 		$this->assertCount( 1, $pane[ 'items' ] );
 		$row = $pane[ 'items' ][ 0 ];
-		$this->assertSame( 'Hidden Plugin', $row[ 'title' ] );
+		$this->assertSame( 'Cloaked Plugin', $row[ 'title' ] );
 		$this->assertSame( 'critical', $row[ 'status' ] );
 		$this->assertFalse( $row[ 'expandable' ] );
 		$this->assertFalse( $row[ 'show_gear' ] );
 		$this->assertSame( [], $row[ 'expansion' ] );
-		$this->assertSame( '/deactivate-hidden', $row[ 'actions' ][ 0 ][ 'href' ] );
+		$this->assertSame( '/deactivate-cloaked', $row[ 'actions' ][ 0 ][ 'href' ] );
 		$this->assertSame( 'deactivate', $row[ 'actions' ][ 0 ][ 'type' ] );
-		$this->assertStringContainsString( '/plugins/hidden/hidden.php', \implode( "\n", $row[ 'explanations' ] ) );
+		$this->assertStringContainsString( '/plugins/cloaked/cloaked.php', \implode( "\n", $row[ 'explanations' ] ) );
 	}
 
 	public function test_clear_state_is_good_without_attention_item() :void {
-		$provider = new HiddenPluginsQueueIssueProviderTestDouble( [] );
+		$provider = new CloakedPluginsQueueIssueProviderTestDouble( [] );
 
 		$this->assertSame( [], $provider->attentionItems() );
 		$assessmentRow = $provider->assessmentRows()[ 0 ];
@@ -105,11 +105,11 @@ class HiddenPluginsQueueIssueProviderTest extends BaseUnitTest {
 	}
 
 	public function test_inactive_standard_plugin_uses_plugins_management_link() :void {
-		$provider = new HiddenPluginsQueueIssueProviderTestDouble(
+		$provider = new CloakedPluginsQueueIssueProviderTestDouble(
 			[
 				$this->finding(
 					new PluginEntry( PluginType::Standard, 'quiet/quiet.php', 'Quiet Plugin', '2.0.0', '/plugins/quiet/quiet.php' ),
-					[ HiddenReason::PluginsList ],
+					[ CloakReason::PluginsList ],
 					false
 				),
 			],
@@ -125,11 +125,11 @@ class HiddenPluginsQueueIssueProviderTest extends BaseUnitTest {
 	}
 
 	public function test_must_use_plugin_has_manual_remediation_without_action_link() :void {
-		$provider = new HiddenPluginsQueueIssueProviderTestDouble(
+		$provider = new CloakedPluginsQueueIssueProviderTestDouble(
 			[
 				$this->finding(
 					new PluginEntry( PluginType::MustUse, 'loader.php', 'Loader', '', '/mu-plugins/loader.php' ),
-					[ HiddenReason::ShowAdvancedPlugins ],
+					[ CloakReason::ShowAdvancedPlugins ],
 					true,
 					false
 				),
@@ -145,15 +145,15 @@ class HiddenPluginsQueueIssueProviderTest extends BaseUnitTest {
 
 	private function finding(
 		PluginEntry $entry,
-		array $hiddenReasons,
+		array $cloakReasons,
 		bool $active,
 		bool $networkActive = false
-	) :HiddenPluginFinding {
-		return new HiddenPluginFinding( $entry, $hiddenReasons, $active, $networkActive, 1700000000 );
+	) :CloakedPluginFinding {
+		return new CloakedPluginFinding( $entry, $cloakReasons, $active, $networkActive, 1700000000 );
 	}
 }
 
-class HiddenPluginsQueueIssueProviderTestDouble extends HiddenPluginsQueueIssueProvider {
+class CloakedPluginsQueueIssueProviderTestDouble extends CloakedPluginsQueueIssueProvider {
 
 	private array $findings;
 	private string $deactivateUrl;

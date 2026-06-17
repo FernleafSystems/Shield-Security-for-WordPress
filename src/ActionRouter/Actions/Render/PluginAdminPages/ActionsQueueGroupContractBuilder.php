@@ -365,7 +365,7 @@ class ActionsQueueGroupContractBuilder {
 
 			case 'hidden_plugins':
 				return \sprintf(
-					_n( '%s hidden plugin needs review.', '%s hidden plugins need review.', $itemCount, 'wp-simple-firewall' ),
+					_n( '%s cloaked plugin needs review.', '%s cloaked plugins need review.', $itemCount, 'wp-simple-firewall' ),
 					$itemCount
 				);
 
@@ -423,7 +423,7 @@ class ActionsQueueGroupContractBuilder {
 				break;
 
 			case 'hidden_plugins':
-				$pattern = _n( 'View %s hidden plugin', 'View %s hidden plugins', $itemCount, 'wp-simple-firewall' );
+				$pattern = _n( 'View %s cloaked plugin', 'View %s cloaked plugins', $itemCount, 'wp-simple-firewall' );
 				break;
 
 			default:

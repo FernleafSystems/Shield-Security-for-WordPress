@@ -457,7 +457,7 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 						return false;
 					}
 
-					public function canDetectHiddenPlugins() :bool {
+					public function canDetectCloakedPlugins() :bool {
 						return true;
 					}
 				},
