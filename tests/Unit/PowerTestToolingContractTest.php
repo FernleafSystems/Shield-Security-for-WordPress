@@ -100,6 +100,10 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'schedule:', $workflow );
 		$this->assertStringContainsString( "cron: '45 6 * * 1-5'", $workflow );
 		$this->assertStringContainsString( 'composer test:cross-site -- --clean', $workflow );
+		$this->assertStringContainsString(
+			'php bin/shield test:docker:cleanup --scope=cross-site --all',
+			$workflow
+		);
 
 		foreach ( [
 			'composer.json',
@@ -195,6 +199,10 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 			'run: php bin/shield test:source --skip-unit-tests --show-docker-output',
 			$workflow
 		);
+		$this->assertStringContainsString(
+			'run: php bin/shield test:docker:cleanup --scope=source --all',
+			$workflow
+		);
 		$this->assertStringNotContainsString( 'SHIELD_SKIP_UNIT_TESTS:', $workflow );
 	}
 
@@ -219,8 +227,7 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 			"needs.changes.outputs.browser == 'true'",
 			'npm run playwright:install -- --with-deps --only-shell',
 			'composer test:browser -- --clean --lanes=2 -- --workers=2',
-			'shield-test-site-lane-${lane}',
-			'shield-browser-db',
+			'composer test:browser:cleanup -- --all --lanes=2',
 		] as $contract ) {
 			$this->assertStringContainsString( $contract, $workflow );
 		}

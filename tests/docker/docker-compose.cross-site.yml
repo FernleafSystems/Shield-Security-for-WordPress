@@ -1,6 +1,28 @@
+x-shield-container-labels: &shield-container-labels
+  com.fernleaf.harness: ${SHIELD_DOCKER_LABEL_HARNESS:-shield-plugin-cross-site}
+  com.fernleaf.run-id: ${SHIELD_DOCKER_CONTAINER_RUN_ID:-manual}
+  com.fernleaf.lane: ${SHIELD_DOCKER_LABEL_LANE:-cross-site}
+  com.fernleaf.lifecycle: ${SHIELD_DOCKER_CONTAINER_LIFECYCLE:-reusable}
+  com.fernleaf.expires-at: ${SHIELD_DOCKER_CONTAINER_EXPIRES_AT:-1970-01-01T00:00:00+00:00}
+
+x-shield-volume-labels: &shield-volume-labels
+  com.fernleaf.harness: ${SHIELD_DOCKER_LABEL_HARNESS:-shield-plugin-cross-site}
+  com.fernleaf.run-id: ${SHIELD_DOCKER_VOLUME_RUN_ID:-manual}
+  com.fernleaf.lane: ${SHIELD_DOCKER_LABEL_LANE:-cross-site}
+  com.fernleaf.lifecycle: ${SHIELD_DOCKER_VOLUME_LIFECYCLE:-reusable}
+  com.fernleaf.expires-at: ${SHIELD_DOCKER_VOLUME_EXPIRES_AT:-1970-01-01T00:00:00+00:00}
+
+x-shield-network-labels: &shield-network-labels
+  com.fernleaf.harness: ${SHIELD_DOCKER_LABEL_HARNESS:-shield-plugin-cross-site}
+  com.fernleaf.run-id: ${SHIELD_DOCKER_CONTAINER_RUN_ID:-manual}
+  com.fernleaf.lane: ${SHIELD_DOCKER_LABEL_LANE:-cross-site}
+  com.fernleaf.lifecycle: ${SHIELD_DOCKER_CONTAINER_LIFECYCLE:-reusable}
+  com.fernleaf.expires-at: ${SHIELD_DOCKER_CONTAINER_EXPIRES_AT:-1970-01-01T00:00:00+00:00}
+
 services:
   db:
     image: mysql:8.0
+    labels: *shield-container-labels
     environment:
       MYSQL_ROOT_PASSWORD: testpass
     command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
@@ -15,6 +37,7 @@ services:
 
   wordpress-master:
     image: wordpress:php${PHP_VERSION:-8.2}-apache
+    labels: *shield-container-labels
     depends_on:
       db:
         condition: service_healthy
@@ -32,6 +55,7 @@ services:
 
   wordpress-slave:
     image: wordpress:php${PHP_VERSION:-8.2}-apache
+    labels: *shield-container-labels
     depends_on:
       db:
         condition: service_healthy
@@ -49,6 +73,7 @@ services:
 
   wp-cli-master:
     image: wordpress:cli-php${PHP_VERSION:-8.2}
+    labels: *shield-container-labels
     depends_on:
       db:
         condition: service_healthy
@@ -65,6 +90,7 @@ services:
 
   wp-cli-slave:
     image: wordpress:cli-php${PHP_VERSION:-8.2}
+    labels: *shield-container-labels
     depends_on:
       db:
         condition: service_healthy
@@ -81,7 +107,16 @@ services:
 
 volumes:
   cross-site-db:
+    labels: *shield-volume-labels
   cross-site-master-wp:
+    labels: *shield-volume-labels
   cross-site-master-plugin:
+    labels: *shield-volume-labels
   cross-site-slave-wp:
+    labels: *shield-volume-labels
   cross-site-slave-plugin:
+    labels: *shield-volume-labels
+
+networks:
+  default:
+    labels: *shield-network-labels

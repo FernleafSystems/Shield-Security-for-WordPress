@@ -7,22 +7,30 @@ use Symfony\Component\Process\Process;
 
 class DockerResourceSweeper {
 
-	private const LABEL_HARNESS = 'com.fernleaf.harness';
-	private const LABEL_RUN_ID = 'com.fernleaf.run-id';
-	private const LABEL_LANE = 'com.fernleaf.lane';
-	private const LABEL_LIFECYCLE = 'com.fernleaf.lifecycle';
-	private const LABEL_EXPIRES_AT = 'com.fernleaf.expires-at';
-
 	private ProcessRunner $processRunner;
 
-	public function __construct( ?ProcessRunner $processRunner = null ) {
+	private ?DockerCleanupPolicy $policy = null;
+
+	public function __construct( ?ProcessRunner $processRunner = null, ?DockerCleanupPolicy $policy = null ) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
+		$this->policy = $policy;
+	}
+
+	private function policyForLaneCount( int $laneCount ) :DockerCleanupPolicy {
+		if ( $this->policy === null || $this->policy->scope() === DockerCleanupPolicy::SCOPE_BROWSER ) {
+			return DockerCleanupPolicy::browser( $laneCount );
+		}
+
+		return $this->policy;
 	}
 
 	public function startupSweep( string $rootDir ) :void {
 		$report = new DockerCleanupReport();
-		$this->removeResources( $rootDir, false, null, $report );
-		$this->removeLegacyBrowserResources( $rootDir, $report );
+		$policy = $this->policyForLaneCount( 1 );
+		$this->removeResources( $rootDir, false, null, $report, $policy );
+		if ( $policy->browserLegacyCleanup() ) {
+			$this->removeLegacyBrowserResources( $rootDir, $report );
+		}
 		if ( $report->hasFindings() ) {
 			throw new \RuntimeException( \implode( \PHP_EOL, $report->findings() ) );
 		}
@@ -33,21 +41,28 @@ class DockerResourceSweeper {
 	 */
 	public function cleanupRunResources( string $rootDir, string $runId, int $laneCount, bool $fullCleanup, bool $dryRun = false ) :DockerCleanupReport {
 		$report = new DockerCleanupReport( $dryRun );
+		$policy = $this->policyForLaneCount( $laneCount );
 		if ( $fullCleanup ) {
 			$this->cleanupAllHarnessResources( $rootDir, $laneCount, $report );
 			if ( !$dryRun ) {
-				$this->auditNoHarnessResources( $rootDir, $report );
-				$this->auditLegacyBrowserResources( $rootDir, $report );
+				$this->auditNoHarnessResources( $rootDir, $report, $policy );
+				if ( $policy->browserLegacyCleanup() ) {
+					$this->auditLegacyBrowserResources( $rootDir, $report );
+				}
 			}
 			return $report;
 		}
 
-		$this->removeResources( $rootDir, false, $runId, $report );
-		$this->removeLegacyBrowserResources( $rootDir, $report );
+		$this->removeResources( $rootDir, false, $runId, $report, $policy );
+		if ( $policy->browserLegacyCleanup() ) {
+			$this->removeLegacyBrowserResources( $rootDir, $report );
+		}
 
 		if ( !$dryRun ) {
-			$this->auditWarmHarnessResources( $rootDir, $runId, $report );
-			$this->auditLegacyBrowserResources( $rootDir, $report );
+			$this->auditWarmHarnessResources( $rootDir, $runId, $report, $policy );
+			if ( $policy->browserLegacyCleanup() ) {
+				$this->auditLegacyBrowserResources( $rootDir, $report );
+			}
 		}
 
 		return $report;
@@ -55,46 +70,36 @@ class DockerResourceSweeper {
 
 	public function cleanupAllHarnessResources( string $rootDir, int $laneCount, ?DockerCleanupReport $report = null ) :DockerCleanupReport {
 		$report = $report ?? new DockerCleanupReport();
-		$env = $this->labelEnvironment(
+		$policy = $this->policyForLaneCount( $laneCount );
+		$env = $policy->labelEnvironment(
 			'cleanup',
-			'transient',
+			DockerHarnessLabels::LIFECYCLE_TRANSIENT,
 			'shared',
 			\gmdate( \DATE_ATOM ),
 			'cleanup',
-			'transient',
+			DockerHarnessLabels::LIFECYCLE_TRANSIENT,
 			\gmdate( \DATE_ATOM )
 		);
 
-		for ( $laneIndex = 1; $laneIndex <= $laneCount; $laneIndex++ ) {
+		foreach ( $policy->composeDowns() as $composeDown ) {
 			$command = [
 				'docker',
 				'compose',
 				'-p',
-				LocalSiteDefinitions::browserLane( $laneIndex )->composeProjectName(),
+				$composeDown[ 'project' ],
 				'-f',
-				'tests/docker/docker-compose.browser-lane.yml',
+				$composeDown[ 'compose_file' ],
 				'down',
 				'-v',
 				'--remove-orphans',
 			];
-			$this->runCleanupCommand( $command, $rootDir, $report, 'compose down lane '.$laneIndex, $env, true );
+			$this->runCleanupCommand( $command, $rootDir, $report, $composeDown[ 'description' ], $env, true );
 		}
 
-		$command = [
-			'docker',
-			'compose',
-			'-p',
-			LocalSiteDefinitions::browserSharedDatabaseComposeProjectName(),
-			'-f',
-			'tests/docker/docker-compose.browser-db.yml',
-			'down',
-			'-v',
-			'--remove-orphans',
-		];
-		$this->runCleanupCommand( $command, $rootDir, $report, 'compose down shared database', $env, true );
-
-		$this->removeResources( $rootDir, true, null, $report );
-		$this->removeLegacyBrowserResources( $rootDir, $report );
+		$this->removeResources( $rootDir, true, null, $report, $policy );
+		if ( $policy->browserLegacyCleanup() ) {
+			$this->removeLegacyBrowserResources( $rootDir, $report );
+		}
 
 		return $report;
 	}
@@ -111,22 +116,27 @@ class DockerResourceSweeper {
 		string $volumeLifecycle,
 		string $volumeExpiresAt
 	) :array {
-		return [
-			'SHIELD_BROWSER_LABEL_HARNESS' => LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE,
-			'SHIELD_BROWSER_LABEL_LANE' => $lane,
-			'SHIELD_BROWSER_CONTAINER_RUN_ID' => $containerRunId,
-			'SHIELD_BROWSER_CONTAINER_LIFECYCLE' => $containerLifecycle,
-			'SHIELD_BROWSER_CONTAINER_EXPIRES_AT' => $containerExpiresAt,
-			'SHIELD_BROWSER_VOLUME_RUN_ID' => $volumeRunId,
-			'SHIELD_BROWSER_VOLUME_LIFECYCLE' => $volumeLifecycle,
-			'SHIELD_BROWSER_VOLUME_EXPIRES_AT' => $volumeExpiresAt,
-		];
+		return $this->policyForLaneCount( 1 )->labelEnvironment(
+			$containerRunId,
+			$containerLifecycle,
+			$lane,
+			$containerExpiresAt,
+			$volumeRunId,
+			$volumeLifecycle,
+			$volumeExpiresAt
+		);
 	}
 
-	private function removeResources( string $rootDir, bool $forceAll, ?string $runId, DockerCleanupReport $report ) :void {
-		$this->removeDockerObjects( $rootDir, 'container', 'rm', [ '-f' ], $forceAll, $runId, $report );
-		$this->removeDockerObjects( $rootDir, 'volume', 'rm', [], $forceAll, $runId, $report );
-		$this->removeDockerObjects( $rootDir, 'network', 'rm', [], $forceAll, $runId, $report );
+	private function removeResources(
+		string $rootDir,
+		bool $forceAll,
+		?string $runId,
+		DockerCleanupReport $report,
+		DockerCleanupPolicy $policy
+	) :void {
+		$this->removeDockerObjects( $rootDir, 'container', 'rm', [ '-f' ], $forceAll, $runId, $report, $policy );
+		$this->removeDockerObjects( $rootDir, 'volume', 'rm', [], $forceAll, $runId, $report, $policy );
+		$this->removeDockerObjects( $rootDir, 'network', 'rm', [], $forceAll, $runId, $report, $policy );
 	}
 
 	/**
@@ -139,16 +149,17 @@ class DockerResourceSweeper {
 		array $removeFlags,
 		bool $forceAll,
 		?string $runId,
-		DockerCleanupReport $report
+		DockerCleanupReport $report,
+		DockerCleanupPolicy $policy
 	) :void {
-		foreach ( $this->listLabeledResourceIds( $rootDir, $type, $report ) as $id ) {
+		foreach ( $this->listLabeledResourceIds( $rootDir, $type, $report, $policy ) as $id ) {
 			$labels = $this->inspectLabels( $rootDir, $type, $id, $report );
-			$lifecycle = (string)( $labels[ self::LABEL_LIFECYCLE ] ?? '' );
-			$resourceRunId = (string)( $labels[ self::LABEL_RUN_ID ] ?? '' );
-			$expiresAt = (string)( $labels[ self::LABEL_EXPIRES_AT ] ?? '' );
+			$lifecycle = (string)( $labels[ DockerHarnessLabels::LIFECYCLE ] ?? '' );
+			$resourceRunId = (string)( $labels[ DockerHarnessLabels::RUN_ID ] ?? '' );
+			$expiresAt = (string)( $labels[ DockerHarnessLabels::EXPIRES_AT ] ?? '' );
 			$expiryTs = $expiresAt === '' ? false : \strtotime( $expiresAt );
 			$isExpired = $expiryTs !== false && $expiryTs <= \time();
-			$isTransient = $lifecycle === 'transient';
+			$isTransient = $lifecycle === DockerHarnessLabels::LIFECYCLE_TRANSIENT;
 			$isCurrentRunTransient = $isTransient && $runId !== null && \hash_equals( $runId, $resourceRunId );
 			$isMalformed = $lifecycle === '' || $resourceRunId === '' || $expiryTs === false;
 
@@ -168,7 +179,12 @@ class DockerResourceSweeper {
 	/**
 	 * @return string[]
 	 */
-	private function listLabeledResourceIds( string $rootDir, string $type, DockerCleanupReport $report ) :array {
+	private function listLabeledResourceIds(
+		string $rootDir,
+		string $type,
+		DockerCleanupReport $report,
+		DockerCleanupPolicy $policy
+	) :array {
 		$command = [ 'docker', $type, 'ls' ];
 		if ( $type === 'container' ) {
 			$command[] = '-a';
@@ -176,7 +192,7 @@ class DockerResourceSweeper {
 		$command = \array_merge( $command, [
 			'-q',
 			'--filter',
-			'label='.self::LABEL_HARNESS.'='.LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE,
+			'label='.DockerHarnessLabels::HARNESS.'='.$policy->harnessLabelValue(),
 		] );
 		$process = $this->runCleanupCommand( $command, $rootDir, $report, 'list '.$type.' resources' );
 		if ( $process === null ) {
@@ -186,17 +202,22 @@ class DockerResourceSweeper {
 		return \array_values( \array_filter( \preg_split( '/\R+/', \trim( $process->getOutput() ) ) ?: [] ) );
 	}
 
-	private function auditNoHarnessResources( string $rootDir, DockerCleanupReport $report ) :void {
+	private function auditNoHarnessResources( string $rootDir, DockerCleanupReport $report, DockerCleanupPolicy $policy ) :void {
 		foreach ( [ 'container', 'volume', 'network' ] as $type ) {
-			foreach ( $this->listLabeledResourceDetails( $rootDir, $type, $report ) as $resource ) {
+			foreach ( $this->listLabeledResourceDetails( $rootDir, $type, $report, $policy ) as $resource ) {
 				$report->addFinding( $this->describeResource( $type, $resource ).' remains after full cleanup.' );
 			}
 		}
 	}
 
-	private function auditWarmHarnessResources( string $rootDir, string $runId, DockerCleanupReport $report ) :void {
+	private function auditWarmHarnessResources(
+		string $rootDir,
+		string $runId,
+		DockerCleanupReport $report,
+		DockerCleanupPolicy $policy
+	) :void {
 		foreach ( [ 'container', 'network' ] as $type ) {
-			foreach ( $this->listLabeledResourceDetails( $rootDir, $type, $report ) as $resource ) {
+			foreach ( $this->listLabeledResourceDetails( $rootDir, $type, $report, $policy ) as $resource ) {
 				if ( $this->isActiveOtherRunTransient( $resource, $runId ) ) {
 					continue;
 				}
@@ -204,7 +225,7 @@ class DockerResourceSweeper {
 			}
 		}
 
-		foreach ( $this->listLabeledResourceDetails( $rootDir, 'volume', $report ) as $resource ) {
+		foreach ( $this->listLabeledResourceDetails( $rootDir, 'volume', $report, $policy ) as $resource ) {
 			if ( $this->isValidReusableVolume( $resource ) || $this->isActiveOtherRunTransient( $resource, $runId ) ) {
 				continue;
 			}
@@ -215,17 +236,22 @@ class DockerResourceSweeper {
 	/**
 	 * @return array<int,array{id:string,name:string,lifecycle:string,runId:string,expiresAt:string,expiryTs:int|false}>
 	 */
-	private function listLabeledResourceDetails( string $rootDir, string $type, DockerCleanupReport $report ) :array {
+	private function listLabeledResourceDetails(
+		string $rootDir,
+		string $type,
+		DockerCleanupReport $report,
+		DockerCleanupPolicy $policy
+	) :array {
 		$resources = [];
-		foreach ( $this->listLabeledResourceIds( $rootDir, $type, $report ) as $id ) {
+		foreach ( $this->listLabeledResourceIds( $rootDir, $type, $report, $policy ) as $id ) {
 			$inspect = $this->inspectDockerResource( $rootDir, $type, $id, $report );
 			$labels = $this->labelsFromInspectData( $inspect );
-			$expiresAt = (string)( $labels[ self::LABEL_EXPIRES_AT ] ?? '' );
+			$expiresAt = (string)( $labels[ DockerHarnessLabels::EXPIRES_AT ] ?? '' );
 			$resources[] = [
 				'id' => $id,
 				'name' => $this->nameFromInspectData( $inspect, $id ),
-				'lifecycle' => (string)( $labels[ self::LABEL_LIFECYCLE ] ?? '' ),
-				'runId' => (string)( $labels[ self::LABEL_RUN_ID ] ?? '' ),
+				'lifecycle' => (string)( $labels[ DockerHarnessLabels::LIFECYCLE ] ?? '' ),
+				'runId' => (string)( $labels[ DockerHarnessLabels::RUN_ID ] ?? '' ),
 				'expiresAt' => $expiresAt,
 				'expiryTs' => $expiresAt === '' ? false : \strtotime( $expiresAt ),
 			];
@@ -238,7 +264,7 @@ class DockerResourceSweeper {
 	 * @param array{id:string,name:string,lifecycle:string,runId:string,expiresAt:string,expiryTs:int|false} $resource
 	 */
 	private function isValidReusableVolume( array $resource ) :bool {
-		return $resource[ 'lifecycle' ] === 'reusable'
+		return $resource[ 'lifecycle' ] === DockerHarnessLabels::LIFECYCLE_REUSABLE
 			&& $resource[ 'runId' ] !== ''
 			&& $resource[ 'expiryTs' ] !== false
 			&& $resource[ 'expiryTs' ] > \time();
@@ -248,7 +274,7 @@ class DockerResourceSweeper {
 	 * @param array{id:string,name:string,lifecycle:string,runId:string,expiresAt:string,expiryTs:int|false} $resource
 	 */
 	private function isActiveOtherRunTransient( array $resource, string $runId ) :bool {
-		return $resource[ 'lifecycle' ] === 'transient'
+		return $resource[ 'lifecycle' ] === DockerHarnessLabels::LIFECYCLE_TRANSIENT
 			&& $resource[ 'runId' ] !== ''
 			&& !\hash_equals( $runId, $resource[ 'runId' ] )
 			&& $resource[ 'expiryTs' ] !== false
@@ -417,11 +443,11 @@ class DockerResourceSweeper {
 				return false;
 			}
 			$labels = $this->labelsFromInspectData( $data[ 0 ] );
-			return ( $labels[ self::LABEL_HARNESS ] ?? '' ) === LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE;
+			return ( $labels[ DockerHarnessLabels::HARNESS ] ?? '' ) === LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE;
 		}
 
 		$labels = $this->inspectLabels( $rootDir, $type, $id, $report );
-		return ( $labels[ self::LABEL_HARNESS ] ?? '' ) === LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE;
+		return ( $labels[ DockerHarnessLabels::HARNESS ] ?? '' ) === LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE;
 	}
 
 	/**
@@ -456,7 +482,7 @@ class DockerResourceSweeper {
 		bool $destructive = false
 	) :?Process {
 		if ( $destructive ) {
-			$report->addPlannedAction( $description );
+			$report->addPlannedAction( $description.': '.\implode( ' ', $command ) );
 		}
 		if ( $report->dryRun() && $destructive ) {
 			return null;

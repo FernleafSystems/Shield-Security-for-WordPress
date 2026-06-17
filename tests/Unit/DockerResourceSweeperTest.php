@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\Testing\DockerResourceSweeper;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\DockerCleanupPolicy;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteDefinitions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptedProcessRunner;
@@ -161,13 +162,60 @@ class DockerResourceSweeperTest extends TestCase {
 		$this->assertFalse( $this->commandWasRun( $runner, [ 'docker', 'volume', 'rm' ] ) );
 	}
 
-	private function inspectJson( string $lifecycle, string $runId, string $expiresAt ) :string {
+	public function testCustomPolicyUsesConfiguredHarnessLabel() :void {
+		$runner = new ScriptedProcessRunner( [] );
+
+		( new DockerResourceSweeper( $runner, DockerCleanupPolicy::crossSite() ) )->cleanupRunResources(
+			$this->createTrackedTempDir( 'shield-sweeper-cross-site-label-' ),
+			'run-1',
+			1,
+			false
+		);
+
+		$this->assertFalse( $this->commandWasRun( $runner, [ 'docker', 'container', 'ls', '-a', '--format' ] ) );
+		foreach ( $runner->calls as $call ) {
+			if ( \array_slice( $call[ 'command' ], 0, 3 ) !== [ 'docker', 'container', 'ls' ]
+				 && \array_slice( $call[ 'command' ], 0, 3 ) !== [ 'docker', 'volume', 'ls' ]
+				 && \array_slice( $call[ 'command' ], 0, 3 ) !== [ 'docker', 'network', 'ls' ] ) {
+				continue;
+			}
+			$this->assertContains(
+				'label=com.fernleaf.harness=shield-plugin-cross-site',
+				$call[ 'command' ]
+			);
+		}
+	}
+
+	public function testCustomPolicyFullCleanupUsesPolicyComposeProject() :void {
+		$runner = new ScriptedProcessRunner( [] );
+
+		( new DockerResourceSweeper( $runner, DockerCleanupPolicy::crossSite() ) )->cleanupRunResources(
+			$this->createTrackedTempDir( 'shield-sweeper-cross-site-compose-' ),
+			'run-1',
+			1,
+			true
+		);
+
+		$this->assertTrue( $this->commandWasRun( $runner, [
+			'docker',
+			'compose',
+			'-p',
+			'shield-cross-site',
+			'-f',
+			'tests/docker/docker-compose.cross-site.yml',
+			'down',
+			'-v',
+			'--remove-orphans',
+		] ) );
+	}
+
+	private function inspectJson( string $lifecycle, string $runId, string $expiresAt, string $harness = LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE ) :string {
 		return \json_encode( [
 			[
 				'Name' => 'resource-name',
 				'Config' => [
 					'Labels' => [
-						'com.fernleaf.harness' => LocalSiteDefinitions::BROWSER_HARNESS_LABEL_VALUE,
+						'com.fernleaf.harness' => $harness,
 						'com.fernleaf.lifecycle' => $lifecycle,
 						'com.fernleaf.run-id' => $runId,
 						'com.fernleaf.expires-at' => $expiresAt,

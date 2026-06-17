@@ -70,10 +70,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			],
 			$dockerComposeExecutor->calls[ 0 ][ 'compose_files' ]
 		);
-		$this->assertSame(
-			$this->expectedDockerEnvOverrides(),
-			$dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ]
-		);
+		$this->assertDockerEnvOverrides( $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ] );
 
 		$this->assertCount( 1, $installerCommandBuilder->calls );
 		$this->assertSame(
@@ -97,10 +94,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			],
 			$processRunner->calls[ 1 ][ 'command' ]
 		);
-		$this->assertSame(
-			$this->expectedPhpUnitEnvOverrides(),
-			$processRunner->calls[ 1 ][ 'env_overrides' ]
-		);
+		$this->assertPhpUnitEnvOverrides( $processRunner->calls[ 1 ][ 'env_overrides' ] );
 		$this->assertSame(
 			[
 				\PHP_BINARY,
@@ -112,14 +106,8 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			],
 			$processRunner->calls[ 2 ][ 'command' ]
 		);
-		$this->assertSame(
-			$this->expectedDockerEnvOverrides(),
-			$processRunner->calls[ 0 ][ 'env_overrides' ]
-		);
-		$this->assertSame(
-			$this->expectedPhpUnitEnvOverrides(),
-			$processRunner->calls[ 2 ][ 'env_overrides' ]
-		);
+		$this->assertDockerEnvOverrides( $processRunner->calls[ 0 ][ 'env_overrides' ] );
+		$this->assertPhpUnitEnvOverrides( $processRunner->calls[ 2 ][ 'env_overrides' ] );
 	}
 
 	public function testDbDownOnlyRunsComposeDownAndExits() :void {
@@ -368,12 +356,44 @@ class LocalIntegrationTestLaneTest extends TestCase {
 	}
 
 	/**
-	 * @return array<string,string|false>
+	 * @param array<string,string|false> $env
 	 */
-	private function expectedPhpUnitEnvOverrides() :array {
-		return \array_merge( $this->expectedDockerEnvOverrides(), [
-			'WP_TESTS_DIR' => \rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress-tests-lib',
-			'WP_CORE_DIR' => \rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress',
-		] );
+	private function assertDockerEnvOverrides( array $env ) :void {
+		foreach ( $this->expectedDockerEnvOverrides() as $name => $value ) {
+			$this->assertSame( $value, $env[ $name ] ?? null );
+		}
+
+		$this->assertSame( 'shield-plugin-integration-local', $env[ 'SHIELD_DOCKER_LABEL_HARNESS' ] ?? null );
+		$this->assertSame( 'integration-local', $env[ 'SHIELD_DOCKER_LABEL_LANE' ] ?? null );
+		$this->assertSame( 'reusable', $env[ 'SHIELD_DOCKER_CONTAINER_LIFECYCLE' ] ?? null );
+		$this->assertSame( 'reusable', $env[ 'SHIELD_DOCKER_VOLUME_LIFECYCLE' ] ?? null );
+		$this->assertMatchesRegularExpression(
+			'/^shield-plugin-integration-local-\d{14}-[a-f0-9]{8}$/',
+			(string)( $env[ 'SHIELD_DOCKER_CONTAINER_RUN_ID' ] ?? '' )
+		);
+		$this->assertSame(
+			$env[ 'SHIELD_DOCKER_CONTAINER_RUN_ID' ] ?? null,
+			$env[ 'SHIELD_DOCKER_VOLUME_RUN_ID' ] ?? null
+		);
+		$this->assertNotSame( '', (string)( $env[ 'SHIELD_DOCKER_CONTAINER_EXPIRES_AT' ] ?? '' ) );
+		$this->assertSame(
+			$env[ 'SHIELD_DOCKER_CONTAINER_EXPIRES_AT' ] ?? null,
+			$env[ 'SHIELD_DOCKER_VOLUME_EXPIRES_AT' ] ?? null
+		);
+	}
+
+	/**
+	 * @param array<string,string|false> $env
+	 */
+	private function assertPhpUnitEnvOverrides( array $env ) :void {
+		$this->assertDockerEnvOverrides( $env );
+		$this->assertSame(
+			\rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress-tests-lib',
+			$env[ 'WP_TESTS_DIR' ] ?? null
+		);
+		$this->assertSame(
+			\rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress',
+			$env[ 'WP_CORE_DIR' ] ?? null
+		);
 	}
 }

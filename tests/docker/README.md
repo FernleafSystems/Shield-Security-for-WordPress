@@ -14,6 +14,7 @@ php bin/shield <command>
 |---|---|---|
 | `test:source` | Source runtime checks against working tree (quiet compose output by default) | Daily local CI-like runtime checks |
 | `test:integration-local` | Host PHP integration tests with local Docker MySQL sidecar (quiet compose output by default) | Fast local integration loop with persistent DB |
+| `test:docker:cleanup` | Dry-run or remove labeled source-test Docker resources by explicit scope | Auditing and CI teardown for source, integration-local, cross-site, dev-site, test-site, or browser resources |
 | `test:package-targeted` | Focused package validation checks | Package-targeted validation |
 | `test:package-full` | Full packaged runtime checks (quiet compose output by default) | Full-pathway package runtime mode |
 | `analyze:source` | Run source static analysis pathway | Source static analysis |
@@ -35,6 +36,11 @@ php bin/shield --help
 | `SHIELD_UNIT_TEST_MODE` | `parallel` | Unit runner mode in Docker runtime lanes (`auto`, `parallel`, or `serial`) |
 | `SHIELD_SKIP_UNIT_TESTS` | `0` | Low-level fallback to skip the Docker unit stage and run integration-only runtime checks |
 | `SHIELD_INTEGRATION_LANE_WAIT_SECONDS` | `600` | Seconds `test:integration-local` waits for the machine-scoped lane lock |
+| `SHIELD_DOCKER_LABEL_HARNESS` | lane-specific | Harness owner label used by non-browser source-test Docker resources |
+| `SHIELD_DOCKER_LABEL_LANE` | lane-specific | Lane/profile label used by non-browser source-test Docker resources |
+| `SHIELD_DOCKER_CONTAINER_RUN_ID` / `SHIELD_DOCKER_VOLUME_RUN_ID` | generated | Run identity labels used by cleanup reporting |
+| `SHIELD_DOCKER_CONTAINER_LIFECYCLE` / `SHIELD_DOCKER_VOLUME_LIFECYCLE` | generated | `transient` or `reusable` lifecycle labels used by cleanup reporting |
+| `SHIELD_DOCKER_CONTAINER_EXPIRES_AT` / `SHIELD_DOCKER_VOLUME_EXPIRES_AT` | generated | Expiry timestamps used to find stale resources |
 | `SHIELD_DEBUG` / `SHIELD_DEBUG_PATHS` | unset | Legacy verbose aliases |
 | `DEBUG_MODE` | `false` | Optional extra bash/process monitoring for custom local debug runs |
 
@@ -67,8 +73,10 @@ Source mode:
 2. Runs one setup pass before runtime streams.
 3. Runs latest and previous WordPress streams with `SHIELD_SKIP_INNER_SETUP=1`.
 4. Uses setup cache by default for source dependency/build steps.
-5. In GitHub Actions, the source runtime lane captures raw per-phase logs as failure artifacts and runs `php bin/shield test:source --skip-unit-tests --show-docker-output` so Docker focuses on runtime/integration checks after the dedicated unit lanes.
-6. Use `php bin/shield test:source --refresh-setup` to force setup refresh.
+5. Creates the source Node modules volume with source-harness labels before the Dockerized asset build, so warm reuse can be audited and CI cleanup can remove it explicitly.
+6. Compose containers and networks are labeled under cleanup scope `source`.
+7. In GitHub Actions, the source runtime lane captures raw per-phase logs as failure artifacts and runs `php bin/shield test:source --skip-unit-tests --show-docker-output` so Docker focuses on runtime/integration checks after the dedicated unit lanes.
+8. Use `php bin/shield test:source --refresh-setup` to force setup refresh.
 
 Packaged modes (`test:package-targeted`, `test:package-full`, `analyze:package`):
 
@@ -83,6 +91,7 @@ Local sidecar mode (`test:integration-local`):
 4. Serializes every run and `--db-down` through `<system-temp>/shield-test-locks/integration-local.lock` because the Docker project, port, database, and WordPress test config are fixed machine-wide.
 5. Teardown is explicit with `php bin/shield test:integration-local --db-down`.
 6. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses the lane lock; use the `php bin/shield test:integration-local` or `composer test:integration` wrappers for local runs.
+7. Compose containers and networks are labeled under cleanup scope `integration-local`.
 
 Local site mode (`dev:site:*` / `test:site:*`):
 
@@ -91,6 +100,14 @@ Local site mode (`dev:site:*` / `test:site:*`):
 3. Docker-specific identifiers remain:
    `dev:site:*` -> project `shield-local-site`, DB `shield_local_site`, port `8888`
    `test:site:*` -> project `shield-test-site`, DB `shield_test_site`, port `8889`
+4. Compose containers, volumes, and networks are labeled under cleanup scopes `dev-site` and `test-site`. Cleanup for persistent manual sites must use the explicit matching scope.
+
+Cross-site mode (`test:cross-site`):
+
+1. Uses `tests/docker/docker-compose.cross-site.yml`.
+2. Keeps the active `/app/tests/docker/provision-local-site.sh` WP-CLI helper path for cross-site provisioning.
+3. Compose containers, volumes, and networks are labeled under cleanup scope `cross-site`.
+4. Use `php bin/shield test:docker:cleanup --scope=cross-site --dry-run --all` to audit planned cleanup before removal.
 
 ## Static Analysis Entrypoints
 
@@ -118,6 +135,10 @@ php bin/shield test:source --show-docker-output
 # Local integration with DB sidecar
 php bin/shield test:integration-local
 php bin/shield test:integration-local --show-docker-output
+
+# Dry-run labeled Docker cleanup
+php bin/shield test:docker:cleanup --scope=source --dry-run --all
+php bin/shield test:docker:cleanup --scope=cross-site --dry-run --all
 
 # Package-targeted runtime checks
 php bin/shield test:package-targeted

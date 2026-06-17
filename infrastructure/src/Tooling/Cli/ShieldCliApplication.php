@@ -15,6 +15,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteWpCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCleanupCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestCrossSiteCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestDockerCleanupCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageTargetedCommand;
@@ -87,6 +88,9 @@ class ShieldCliApplication {
 				},
 				'test:browser:cleanup' => static function () use ( $projectRoot ) :Command {
 					return new TestBrowserCleanupCommand( $projectRoot );
+				},
+				'test:docker:cleanup' => static function () use ( $projectRoot ) :Command {
+					return new TestDockerCleanupCommand( $projectRoot );
 				},
 				'test:cross-site' => static function () use ( $projectRoot ) :Command {
 					return new TestCrossSiteCommand( $projectRoot, new CrossSiteTestLane() );

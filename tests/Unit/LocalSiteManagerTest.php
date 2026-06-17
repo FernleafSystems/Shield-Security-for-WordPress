@@ -60,6 +60,9 @@ class LocalSiteManagerTest extends TestCase {
 		);
 		$this->assertSame( 'shield-local-site', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
 		$this->assertSame( '8.2', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'PHP_VERSION' ] );
+		$this->assertSame( 'shield-plugin-dev-site', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_DOCKER_LABEL_HARNESS' ] );
+		$this->assertSame( 'dev', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_DOCKER_LABEL_LANE' ] );
+		$this->assertSame( 'reusable', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_DOCKER_CONTAINER_LIFECYCLE' ] );
 
 		$this->assertCount( 2, $runtimeRefresher->resolveCalls );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
@@ -351,6 +354,8 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( [ 'tests/docker/docker-compose.browser-db.yml' ], $dockerComposeExecutor->calls[ 0 ][ 'compose_files' ] );
 		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
 		$this->assertSame( 'shield-browser-db', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
+		$this->assertSame( 'shield-plugin-browser', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LABEL_HARNESS' ] );
+		$this->assertSame( 'shared', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LABEL_LANE' ] );
 		$this->assertSame( [ 'tests/docker/docker-compose.browser-lane.yml' ], $dockerComposeExecutor->calls[ 1 ][ 'compose_files' ] );
 		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
 		$this->assertSame( 'shield-test-site-lane-2', $dockerComposeExecutor->calls[ 1 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
@@ -359,6 +364,8 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( '8891', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_PORT' ] );
 		$this->assertSame( 'shield_test_site_lane_2', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_DB_NAME' ] );
 		$this->assertSame( 'shield-browser-db:3306', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_DB_HOST' ] );
+		$this->assertSame( 'shield-plugin-browser', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LABEL_HARNESS' ] );
+		$this->assertSame( 'browser-lane-2', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LABEL_LANE' ] );
 		$this->assertContains( 'DROP DATABASE IF EXISTS `shield_test_site_lane_2`; CREATE DATABASE `shield_test_site_lane_2`;', $processRunner->calls[ 2 ][ 'command' ] );
 	}
 
@@ -403,20 +410,36 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertContains( 'SHIELD_BROWSER_FIXTURE_TOKEN=fixture-token', $processRunner->calls[ 4 ][ 'command' ] );
 		$this->assertContains( '/var/www/html/wp-content/plugins/wp-simple-firewall/tests/docker/provision-local-site.sh', $processRunner->calls[ 5 ][ 'command' ] );
 		$this->assertContains( 'SHIELD_BROWSER_READY_MARKER=/var/www/html/wp-content/.shield-browser-lane-ready.json', $processRunner->calls[ 6 ][ 'command' ] );
-		$this->assertContains(
-			'SHIELD_BROWSER_READY_JSON={"schema_version":2,"site_url":"http://127.0.0.1:8891","db_name":"shield_test_site_lane_2","admin_user":"admin","profile":"browser-lane-2"}',
-			$processRunner->calls[ 6 ][ 'command' ]
-		);
+		$marker = $this->browserReadyMarkerFromCommand( $processRunner->calls[ 6 ][ 'command' ] );
+		$this->assertSame( 3, $marker[ 'schema_version' ] ?? null );
+		$this->assertSame( 'http://127.0.0.1:8891', $marker[ 'site_url' ] ?? null );
+		$this->assertSame( 'shield_test_site_lane_2', $marker[ 'db_name' ] ?? null );
+		$this->assertSame( 'admin', $marker[ 'admin_user' ] ?? null );
+		$this->assertSame( 'browser-lane-2', $marker[ 'profile' ] ?? null );
+		$this->assertSame( 'shield-browser-fixture-v1', $marker[ 'fixture_contract' ] ?? null );
+		$this->assertSame( \hash( 'sha256', 'fixture-token' ), $marker[ 'fixture_token_sha256' ] ?? null );
+		$this->assertSame( '', $marker[ 'runtime_manifest_hash' ] ?? null );
+		$this->assertGreaterThan( $marker[ 'created_at_unix' ] ?? 0, $marker[ 'expires_at_unix' ] ?? 0 );
 	}
 
 	public function testPrepareBrowserLaneWarmSkipsBaselineOnlyWithValidMarkerAndHealthySite() :void {
-		$marker = \json_encode( [
-			'schema_version' => 2,
-			'site_url'       => 'http://127.0.0.1:8890',
-			'db_name'        => 'shield_test_site_lane_1',
-			'admin_user'     => 'admin',
-			'profile'        => 'browser-lane-1',
-		], \JSON_UNESCAPED_SLASHES ) ?: '{}';
+		$hostManifest = [
+			'schema_version' => 1,
+			'generated_at_unix' => 1,
+			'files' => [
+				'icwp-wpsf.php' => [
+					'sha256' => \str_repeat( 'a', 64 ),
+					'size' => 1,
+				],
+			],
+		];
+		$marker = $this->browserReadyMarkerJson(
+			'http://127.0.0.1:8890',
+			'shield_test_site_lane_1',
+			'browser-lane-1',
+			'fixture-token',
+			$hostManifest
+		);
 		$processRunner = new RecordingProcessRunner( [
 			0,
 			0,
@@ -430,16 +453,6 @@ class LocalSiteManagerTest extends TestCase {
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$probe = new RecordingLocalSiteProbe( [ true, true ], [ true ], [ false ] );
 		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
-		$hostManifest = [
-			'schema_version' => 1,
-			'generated_at_unix' => 1,
-			'files' => [
-				'icwp-wpsf.php' => [
-					'sha256' => \str_repeat( 'a', 64 ),
-					'size' => 1,
-				],
-			],
-		];
 
 		$manager = new LocalSiteManager(
 			LocalSiteDefinitions::browserLane( 1 ),
@@ -481,6 +494,16 @@ class LocalSiteManagerTest extends TestCase {
 	}
 
 	public function testPrepareBrowserLaneWarmProvisionsWhenMarkerIsStale() :void {
+		$hostManifest = [
+			'schema_version' => 1,
+			'generated_at_unix' => 1,
+			'files' => [
+				'icwp-wpsf.php' => [
+					'sha256' => \str_repeat( 'a', 64 ),
+					'size' => 1,
+				],
+			],
+		];
 		$staleMarker = \json_encode( [
 			'schema_version' => 1,
 			'site_url'       => 'http://127.0.0.1:8890',
@@ -518,17 +541,17 @@ class LocalSiteManagerTest extends TestCase {
 			'warm',
 			true,
 			'fixture-token',
-			static function () :void {}
+			static function () :void {},
+			$hostManifest
 		);
 
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 1, $dockerComposeExecutor->calls );
 		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
 		$this->assertContains( '/var/www/html/wp-content/plugins/wp-simple-firewall/tests/docker/provision-local-site.sh', $processRunner->calls[ 5 ][ 'command' ] );
-		$this->assertContains(
-			'SHIELD_BROWSER_READY_JSON={"schema_version":2,"site_url":"http://127.0.0.1:8890","db_name":"shield_test_site_lane_1","admin_user":"admin","profile":"browser-lane-1"}',
-			$processRunner->calls[ 6 ][ 'command' ]
-		);
+		$marker = $this->browserReadyMarkerFromCommand( $processRunner->calls[ 6 ][ 'command' ] );
+		$this->assertSame( 3, $marker[ 'schema_version' ] ?? null );
+		$this->assertSame( $this->runtimeManifestHash( $hostManifest ), $marker[ 'runtime_manifest_hash' ] ?? null );
 	}
 
 	public function testResetFailsFastWhenBrowserPrerequisitesAreMissing() :void {
@@ -579,6 +602,8 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( 'shield-test-site', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
 		$this->assertSame( '8889', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_PORT' ] );
 		$this->assertSame( 'shield_test_site', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_DB_NAME' ] );
+		$this->assertSame( 'shield-plugin-test-site', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_DOCKER_LABEL_HARNESS' ] );
+		$this->assertSame( 'test', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_DOCKER_LABEL_LANE' ] );
 	}
 
 	public function testEnsureReadyFailsFastWhenSourceMetadataRemainsOutOfSync() :void {
@@ -611,6 +636,53 @@ class LocalSiteManagerTest extends TestCase {
 		);
 
 		$manager->ensureReady( $this->projectRoot, false );
+	}
+
+	/**
+	 * @param array<string> $command
+	 * @return array<string,mixed>
+	 */
+	private function browserReadyMarkerFromCommand( array $command ) :array {
+		foreach ( $command as $argument ) {
+			if ( \strpos( $argument, 'SHIELD_BROWSER_READY_JSON=' ) === 0 ) {
+				$decoded = \json_decode( \substr( $argument, \strlen( 'SHIELD_BROWSER_READY_JSON=' ) ), true );
+				$this->assertIsArray( $decoded );
+				return $decoded;
+			}
+		}
+
+		$this->fail( 'Browser ready marker JSON environment argument was not found.' );
+	}
+
+	/**
+	 * @param array<string,mixed> $hostManifest
+	 */
+	private function browserReadyMarkerJson(
+		string $siteUrl,
+		string $dbName,
+		string $profile,
+		string $fixtureToken,
+		array $hostManifest
+	) :string {
+		return \json_encode( [
+			'schema_version'        => 3,
+			'site_url'              => $siteUrl,
+			'db_name'               => $dbName,
+			'admin_user'            => 'admin',
+			'profile'               => $profile,
+			'fixture_contract'      => 'shield-browser-fixture-v1',
+			'fixture_token_sha256'  => \hash( 'sha256', $fixtureToken ),
+			'runtime_manifest_hash' => $this->runtimeManifestHash( $hostManifest ),
+			'created_at_unix'       => \time(),
+			'expires_at_unix'       => \time() + 60,
+		], \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR );
+	}
+
+	/**
+	 * @param array<string,mixed> $hostManifest
+	 */
+	private function runtimeManifestHash( array $hostManifest ) :string {
+		return \hash( 'sha256', \json_encode( $hostManifest, \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR ) );
 	}
 
 	private function seedRequiredFiles( string $rootDir ) :void {

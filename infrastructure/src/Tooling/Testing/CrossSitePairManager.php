@@ -43,6 +43,8 @@ class CrossSitePairManager {
 
 	private string $lastStage = 'not started';
 
+	private string $runId = '';
+
 	/** @var array<string,mixed> */
 	private array $lastDiagnostics = [];
 
@@ -779,7 +781,26 @@ PHP,
 		$envOverrides[ 'PHP_VERSION' ] = $this->environmentResolver->resolvePhpVersion( $rootDir );
 		$envOverrides[ 'SHIELD_CROSS_SITE_MASTER_PORT' ] = (string)( \getenv( 'SHIELD_CROSS_SITE_MASTER_PORT' ) ?: self::MASTER_HOST_PORT );
 		$envOverrides[ 'SHIELD_CROSS_SITE_SLAVE_PORT' ] = (string)( \getenv( 'SHIELD_CROSS_SITE_SLAVE_PORT' ) ?: self::SLAVE_HOST_PORT );
-		return $envOverrides;
+		return \array_merge(
+			$envOverrides,
+			DockerCleanupPolicy::crossSite()->labelEnvironment(
+				$this->runtimeRunId(),
+				DockerHarnessLabels::LIFECYCLE_REUSABLE,
+				'cross-site',
+				\gmdate( \DATE_ATOM, \time() + 7*24*60*60 ),
+				$this->runtimeRunId(),
+				DockerHarnessLabels::LIFECYCLE_REUSABLE,
+				\gmdate( \DATE_ATOM, \time() + 30*24*60*60 )
+			)
+		);
+	}
+
+	private function runtimeRunId() :string {
+		if ( $this->runId === '' ) {
+			$this->runId = 'shield-plugin-cross-site-'.\gmdate( 'YmdHis' ).'-'.\bin2hex( \random_bytes( 3 ) );
+		}
+
+		return $this->runId;
 	}
 
 	/**

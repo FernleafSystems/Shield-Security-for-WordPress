@@ -69,9 +69,22 @@ class LocalIntegrationTestLane {
 	private function runWithLock( string $rootDir, bool $dbDown, array $phpunitArgs, bool $showDockerOutput ) :int {
 		$this->environmentResolver->assertDockerReady( $rootDir );
 		$composeFiles = $this->buildComposeFiles();
-		$envOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
-			self::COMPOSE_PROJECT_NAME,
-			true
+		$runId = $this->buildRunId();
+		$expiresAt = \gmdate( \DATE_ATOM, \time() + 7*24*60*60 );
+		$envOverrides = \array_merge(
+			$this->environmentResolver->buildDockerProcessEnvOverrides(
+				self::COMPOSE_PROJECT_NAME,
+				true
+			),
+			DockerCleanupPolicy::integrationLocal()->labelEnvironment(
+				$runId,
+				DockerHarnessLabels::LIFECYCLE_REUSABLE,
+				'integration-local',
+				$expiresAt,
+				$runId,
+				DockerHarnessLabels::LIFECYCLE_REUSABLE,
+				$expiresAt
+			)
 		);
 		$phpUnitEnvOverrides = \array_merge( $envOverrides, $this->buildWordPressTestEnvOverrides() );
 
@@ -284,5 +297,9 @@ class LocalIntegrationTestLane {
 			'WP_TESTS_DIR' => $tempDir.\DIRECTORY_SEPARATOR.'wordpress-tests-lib',
 			'WP_CORE_DIR'  => $tempDir.\DIRECTORY_SEPARATOR.'wordpress',
 		];
+	}
+
+	private function buildRunId() :string {
+		return 'shield-plugin-integration-local-'.\gmdate( 'YmdHis' ).'-'.\bin2hex( \random_bytes( 4 ) );
 	}
 }

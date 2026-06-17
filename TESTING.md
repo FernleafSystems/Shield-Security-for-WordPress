@@ -58,7 +58,7 @@ Auth-required public Composer lanes:
 | `composer test:upgrade-public`, `composer test:popular-plugins` | Release-confidence package lanes build or consume the current package |
 | `composer analyze` | Source analysis depends on Composer-installed dependencies |
 
-Auth-required internal lanes are the Composer-backed source, package, Docker, browser, cross-site, release, and analysis paths listed in this file, including `test:source`, `test:integration-local`, `test:package-targeted`, `test:package-full`, `analyze:source`, `analyze:package`, `git:pre-commit`, `dev:site:*`, and `test:site:*` when they invoke Composer-installed tooling. JS-only checks, cache-cleanup script regression tests, and admin-bundle-safety script regression tests do not need Packagist auth unless Composer commands are added to those jobs later.
+Auth-required internal lanes are the Composer-backed source, package, Docker, browser, cross-site, release, and analysis paths listed in this file, including `test:source`, `test:integration-local`, `test:docker:cleanup`, `test:package-targeted`, `test:package-full`, `analyze:source`, `analyze:package`, `git:pre-commit`, `dev:site:*`, and `test:site:*` when they invoke Composer-installed tooling. JS-only checks, cache-cleanup script regression tests, and admin-bundle-safety script regression tests do not need Packagist auth unless Composer commands are added to those jobs later.
 
 Auth preflight is wired into the Composer-bearing CI workflows: `.github/workflows/tests.yml`, `.github/workflows/reusable-unit-tests.yml`, `.github/workflows/reusable-build-package.yml`, `.github/workflows/unit-serial-sentinel.yml`, `.github/workflows/browser-tests.yml`, `.github/workflows/cross-site-tests.yml`, and `.github/workflows/release.yml`. `.github/workflows/cache-cleanup.yml`, JS-only jobs, and standalone shell script regression jobs are intentionally outside the Packagist-auth path until they start running Composer.
 
@@ -224,6 +224,7 @@ These commands remain the owned internal lanes behind the public surface and CI 
 | `php bin/shield test:source` | Source-first Docker runtime lane |
 | `php bin/shield test:integration-local` | Local Docker-backed WordPress integration lane |
 | `php bin/shield test:cross-site` | Two-site Docker WordPress import/export sync lane |
+| `php bin/shield test:docker:cleanup` | Explicit labeled Docker cleanup for source-test harness scopes |
 | `php bin/shield test:package-targeted` | Targeted package validation lane |
 | `php bin/shield test:package-full` | Manual local deep packaged runtime lane |
 | `php bin/shield test:upgrade-public` | Manual public-to-current package upgrade smoke lane |
@@ -231,6 +232,18 @@ These commands remain the owned internal lanes behind the public surface and CI 
 | `php bin/run-unit-tests.php --runner-mode=serial` | Serial unit sentinel path |
 
 `test:source` and `analyze:source` cache setup state by default for faster local reruns. Use `--refresh-setup` when you need a clean setup pass.
+
+Source-test Docker resources are labeled with `com.fernleaf.harness`, `com.fernleaf.run-id`, `com.fernleaf.lane`, `com.fernleaf.lifecycle`, and `com.fernleaf.expires-at`. Use the explicit cleanup command for auditable dry-runs and scoped removal:
+
+```bash
+php bin/shield test:docker:cleanup --scope=source --dry-run --all
+php bin/shield test:docker:cleanup --scope=integration-local --dry-run --all
+php bin/shield test:docker:cleanup --scope=cross-site --dry-run --all
+php bin/shield test:docker:cleanup --scope=test-site --dry-run --all
+php bin/shield test:docker:cleanup --scope=dev-site --dry-run --all
+```
+
+The `browser` scope is also supported by `test:docker:cleanup`, but `composer test:browser:cleanup` remains the preferred browser cleanup entry point because it also audits stale runtime-refresh staging workspaces. Cleanup never uses `docker system prune` and only targets the selected harness label.
 
 `composer test:integration` is now focused on behaviour-level WordPress runtime coverage. Browser-managed ActionRouter page-shell and DOM-contract tests are intentionally excluded from the default PHPUnit integration lane and covered via `composer test:browser`.
 
@@ -274,6 +287,8 @@ php bin/shield test:source --skip-unit-tests --show-docker-output
 - `--db-down` uses the same lock, so teardown cannot remove the sidecar while another integration run is active.
 
 The lock file may remain after a run and contains diagnostic metadata for the last acquired lease. Do not delete it as stale cleanup; `flock()` releases automatically when the owning process exits. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses this guard and is not part of the supported local integration command surface.
+
+The sidecar DB resources are labeled under the `integration-local` cleanup scope. `php bin/shield test:integration-local --db-down` remains the normal functional teardown because it observes the lane lock. Use `php bin/shield test:docker:cleanup --scope=integration-local --dry-run --all` when auditing Docker resources directly.
 
 ## Local Browser Lane
 
@@ -323,6 +338,7 @@ Operational notes:
 - All lanes share one MySQL container, so parallel browser commands avoid starting multiple database servers.
 - Browser worker isolation is keyed by Playwright `parallelIndex`. PHP passes `SHIELD_BROWSER_LANE_MAP` as a JSON object keyed by `parallelIndex`, and every worker uses its mapped lane URL, fixture token, auth state file, and output directory.
 - Warm mode starts or reuses lane containers, refreshes the copied runtime, installs the runtime-only fixture endpoint, and skips baseline provisioning only when the readiness marker still matches the lane and the site is healthy.
+- The browser readiness marker includes the lane profile, site/database contract, fixture contract, fixture token hash, runtime manifest hash, and expiry. Warm reuse is skipped when any of those values are stale.
 - Clean mode preserves reset semantics: reset lane containers and volumes, recreate the lane database, refresh runtime, install the fixture endpoint, provision baseline state, and write the readiness marker. Clean mode also forces full runtime-refresh hashing.
 - Runtime refresh defaults to `--runtime-refresh=auto` for warm local runs, based on a per-file metadata cache under `tmp/`; the cache enumerates files and does not use directory mtimes. Auto mode still rebuilds bundles before cache evaluation, validates both the cache wrapper and cached manifest payload, and silently rebuilds the manifest on stale or corrupt cache. Clean mode and CI force `--runtime-refresh=full`, which rebuilds one content-hash host manifest per browser command before applying each lane's differential copy/delete.
 - Playwright `--list` is discovery-only and is the recommended Docker-free way to inspect available browser tests. Browser lane acquisition and Docker preparation are skipped for list-only runs because no test opens WordPress or calls the fixture API.
@@ -351,6 +367,7 @@ Cleanup:
 composer test:browser:cleanup
 composer test:browser:cleanup -- --all --lanes=2
 composer test:browser:cleanup -- --dry-run --all --lanes=2
+php bin/shield test:docker:cleanup --scope=browser --dry-run --all --lanes=2
 ```
 
 Automatic browser-run cleanup removes current-run transient resources, expired or malformed labeled resources, and old unlabeled browser resources. Manual cleanup removes expired, malformed, and old unlabeled browser resources; `--all` also purges reusable warm volumes. `--dry-run` audits the Docker resources and stale runtime workspaces that would be removed without deleting them. Runtime refresh staging workspaces under `tmp/.browser-runtime-refresh` are removed after each refresh and stale workspaces are garbage-collected by the cleanup command.
@@ -426,6 +443,7 @@ Operational notes:
 6. The comparison excludes only explicit non-corpus keys: slave-local sync state such as `importexport_masterurl`, and runtime prerequisites such as `global_enable_plugin_features` and `importexport_enable`. Every generated corpus key must change from its baseline after Shield option normalization.
 7. `SHIELD_CROSS_SITE_MASTER_PORT` and `SHIELD_CROSS_SITE_SLAVE_PORT` override the diagnostic host ports if `8892` or `8893` are unavailable.
 8. This lane covers Shield import/export sync only. MainWP scenarios should be added as explicit consumers of the same harness when they exist.
+9. Cross-site containers, volumes, and networks are labeled under the `cross-site` cleanup scope. CI removes them with `php bin/shield test:docker:cleanup --scope=cross-site --all`; use `--dry-run` locally to audit before removal.
 
 ### Browser spec authoring contract
 

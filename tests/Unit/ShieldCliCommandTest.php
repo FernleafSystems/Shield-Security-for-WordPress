@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTest
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\GitPreCommitCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestCrossSiteCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestDockerCleanupCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPopularPluginsCommand;
@@ -53,6 +54,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				'test:site:reset',
 				'test:site:status',
 				'test:browser',
+				'test:docker:cleanup',
 				'test:cross-site',
 				'test:source',
 				'test:integration-local',
@@ -255,6 +257,16 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-setup-output' ) );
 	}
 
+	public function testDockerCleanupCommandIncludesAuditOptions() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$command = new TestDockerCleanupCommand( $this->getPluginRoot() );
+
+		$this->assertTrue( $command->getDefinition()->hasOption( 'scope' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'dry-run' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'all' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'lanes' ) );
+	}
+
 	public function testDevSiteWpHelpIncludesWpCliForwardingHint() :void {
 		$this->skipIfPackageScriptUnavailable();
 
@@ -315,6 +327,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		return [
 			'test-source' => [ 'test:source' ],
 			'test-browser' => [ 'test:browser' ],
+			'test-docker-cleanup' => [ 'test:docker:cleanup' ],
 			'test-cross-site' => [ 'test:cross-site' ],
 			'test-integration-local' => [ 'test:integration-local' ],
 			'dev-site-up' => [ 'dev:site:up' ],
