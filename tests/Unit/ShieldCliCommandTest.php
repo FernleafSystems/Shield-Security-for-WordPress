@@ -9,7 +9,9 @@ use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeSourceCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeToolingCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\GitPreCommitCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCleanupCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestCrossSiteCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestDockerCleanupCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageTargetedCommand;
@@ -58,6 +60,8 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				'test:site:reset',
 				'test:site:status',
 				TestBrowserCommand::NAME,
+				TestBrowserCleanupCommand::NAME,
+				TestDockerCleanupCommand::NAME,
 				TestCrossSiteCommand::NAME,
 				TestSourceCommand::NAME,
 				TestIntegrationLocalCommand::NAME,
@@ -258,6 +262,16 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-setup-output' ) );
 	}
 
+	public function testDockerCleanupCommandIncludesAuditOptions() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$command = new TestDockerCleanupCommand( $this->getPluginRoot() );
+
+		$this->assertTrue( $command->getDefinition()->hasOption( 'scope' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'dry-run' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'all' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'lanes' ) );
+	}
+
 	public function testDevSiteWpHelpIncludesWpCliForwardingHint() :void {
 		$this->skipIfPackageScriptUnavailable();
 
@@ -318,6 +332,8 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		return [
 			'test-source' => [ TestSourceCommand::NAME ],
 			'test-browser' => [ TestBrowserCommand::NAME ],
+			'test-browser-cleanup' => [ TestBrowserCleanupCommand::NAME ],
+			'test-docker-cleanup' => [ TestDockerCleanupCommand::NAME ],
 			'test-cross-site' => [ TestCrossSiteCommand::NAME ],
 			'test-integration-local' => [ TestIntegrationLocalCommand::NAME ],
 			'dev-site-up' => [ 'dev:site:up' ],

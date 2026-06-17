@@ -179,6 +179,10 @@ jobs:
         SHIELD_SOURCE_RUNTIME_LOG_DIR: ${{ runner.temp }}/shield-source-runtime-logs
       run: php bin/shield test:source --skip-unit-tests --show-docker-output
 
+    - name: Clean source docker runtime resources
+      if: always()
+      run: php bin/shield test:docker:cleanup --scope=source --all
+
     - name: Upload source docker runtime logs
       if: failure()
       uses: actions/upload-artifact@v7

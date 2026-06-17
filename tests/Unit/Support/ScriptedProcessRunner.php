@@ -11,6 +11,12 @@ class ScriptedProcessRunner extends ProcessRunner {
 	/** @var array<int,array{command:array,working_dir:string,env_overrides:?array,has_output_callback:bool}> */
 	public array $calls = [];
 
+	/** @var array<int,list<string>> */
+	public array $tarFileLists = [];
+
+	/** @var array<int,array{source:string,target:string,contents:string}> */
+	public array $copiedFiles = [];
+
 	/** @var array<int,array{exit_code:int,stdout:string,stderr:string}> */
 	private array $responses;
 
@@ -49,41 +55,24 @@ class ScriptedProcessRunner extends ProcessRunner {
 		];
 		$this->simulateSideEffects( $command, $workingDir, $response[ 'exit_code' ] );
 
-		$script = <<<'PHP'
-$stdout = base64_decode($argv[1]);
-$stderr = base64_decode($argv[2]);
-if ( $stdout !== false && $stdout !== '' ) {
-	fwrite(STDOUT, $stdout);
-}
-if ( $stderr !== false && $stderr !== '' ) {
-	fwrite(STDERR, $stderr);
-}
-exit((int)$argv[3]);
-PHP;
-
-		$process = new Process(
-			[
-				\PHP_BINARY,
-				'-r',
-				$script,
-				\base64_encode( $response[ 'stdout' ] ),
-				\base64_encode( $response[ 'stderr' ] ),
-				(string)$response[ 'exit_code' ],
-			]
-		);
-		$process->run( static function () :void {
-		} );
-
-		return $process;
+		return new ScriptedProcess( $response[ 'exit_code' ], $response[ 'stdout' ], $response[ 'stderr' ] );
 	}
 
 	/**
 	 * @param string[] $command
 	 */
 	private function simulateSideEffects( array $command, string $workingDir, int $exitCode ) :void {
-		if ( $exitCode !== 0 || ( $command[ 0 ] ?? '' ) !== 'tar' ) {
+		if ( $exitCode !== 0 ) {
 			return;
 		}
+		if ( ( $command[ 0 ] ?? '' ) === 'docker' && ( $command[ 1 ] ?? '' ) === 'cp' ) {
+			$this->captureDockerCopyPayload( $command, $workingDir );
+			return;
+		}
+		if ( ( $command[ 0 ] ?? '' ) !== 'tar' ) {
+			return;
+		}
+		$this->captureTarFileList( $command, $workingDir );
 
 		$outputIndex = \array_search( '-cf', $command, true );
 		if ( $outputIndex === false || !isset( $command[ $outputIndex + 1 ] ) ) {
@@ -96,5 +85,72 @@ PHP;
 			\mkdir( $archiveDir, 0777, true );
 		}
 		\file_put_contents( $archivePath, 'tar' );
+	}
+
+	/**
+	 * @param string[] $command
+	 */
+	private function captureTarFileList( array $command, string $workingDir ) :void {
+		$listIndex = \array_search( '-T', $command, true );
+		if ( $listIndex === false || !isset( $command[ $listIndex + 1 ] ) ) {
+			return;
+		}
+
+		$listPath = Path::join( $workingDir, $command[ $listIndex + 1 ] );
+		if ( !\is_file( $listPath ) ) {
+			return;
+		}
+
+		$this->tarFileLists[] = \array_values( \array_filter(
+			\explode( "\n", \trim( (string)\file_get_contents( $listPath ) ) ),
+			static fn( string $path ) :bool => $path !== ''
+		) );
+	}
+
+	/**
+	 * @param string[] $command
+	 */
+	private function captureDockerCopyPayload( array $command, string $workingDir ) :void {
+		if ( !isset( $command[ 2 ], $command[ 3 ] ) ) {
+			return;
+		}
+		$sourcePath = Path::join( $workingDir, $command[ 2 ] );
+		if ( !\is_file( $sourcePath ) ) {
+			return;
+		}
+
+		$this->copiedFiles[] = [
+			'source' => $command[ 2 ],
+			'target' => $command[ 3 ],
+			'contents' => (string)\file_get_contents( $sourcePath ),
+		];
+	}
+}
+
+class ScriptedProcess extends Process {
+
+	private int $scriptedExitCode;
+
+	private string $scriptedOutput;
+
+	private string $scriptedErrorOutput;
+
+	public function __construct( int $exitCode, string $output = '', string $errorOutput = '' ) {
+		parent::__construct( [ \PHP_BINARY, '-v' ] );
+		$this->scriptedExitCode = $exitCode;
+		$this->scriptedOutput = $output;
+		$this->scriptedErrorOutput = $errorOutput;
+	}
+
+	public function getExitCode() :?int {
+		return $this->scriptedExitCode;
+	}
+
+	public function getOutput() :string {
+		return $this->scriptedOutput;
+	}
+
+	public function getErrorOutput() :string {
+		return $this->scriptedErrorOutput;
 	}
 }

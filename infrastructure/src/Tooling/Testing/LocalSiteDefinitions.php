@@ -4,6 +4,11 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
 class LocalSiteDefinitions {
 
+	public const BROWSER_HARNESS_LABEL_VALUE = 'shield-plugin-browser';
+	public const BROWSER_NETWORK_NAME = 'shield-browser-tests';
+	public const BROWSER_DB_CONTAINER_NAME = 'shield-browser-db';
+	public const BROWSER_DB_VOLUME_NAME = 'shield-browser-db_browser-db';
+
 	private const BROWSER_LANE_COMPOSE_FILE = 'tests/docker/docker-compose.browser-lane.yml';
 	private const BROWSER_DB_COMPOSE_FILE = 'tests/docker/docker-compose.browser-db.yml';
 	private const BROWSER_DB_PROJECT_NAME = 'shield-browser-db';
@@ -70,5 +75,9 @@ class LocalSiteDefinitions {
 			self::BROWSER_DB_COMPOSE_FILE,
 			self::BROWSER_DB_PROJECT_NAME
 		);
+	}
+
+	public static function browserSharedDatabaseComposeProjectName() :string {
+		return self::BROWSER_DB_PROJECT_NAME;
 	}
 }

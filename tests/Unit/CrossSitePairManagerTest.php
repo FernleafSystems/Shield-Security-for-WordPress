@@ -87,6 +87,15 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->assertSame( '8993', $env[ 'SHIELD_CROSS_SITE_SLAVE_PORT' ] );
 		$this->assertArrayHasKey( 'SHIELD_PACKAGE_PATH', $env );
 		$this->assertFalse( $env[ 'SHIELD_PACKAGE_PATH' ] );
+		$this->assertSame( 'shield-plugin-cross-site', $env[ 'SHIELD_DOCKER_LABEL_HARNESS' ] );
+		$this->assertSame( 'cross-site', $env[ 'SHIELD_DOCKER_LABEL_LANE' ] );
+		$this->assertSame( 'reusable', $env[ 'SHIELD_DOCKER_CONTAINER_LIFECYCLE' ] );
+		$this->assertSame( 'reusable', $env[ 'SHIELD_DOCKER_VOLUME_LIFECYCLE' ] );
+		$this->assertMatchesRegularExpression(
+			'/^shield-plugin-cross-site-\d{14}-[a-f0-9]{6}$/',
+			$env[ 'SHIELD_DOCKER_CONTAINER_RUN_ID' ]
+		);
+		$this->assertSame( $env[ 'SHIELD_DOCKER_CONTAINER_RUN_ID' ], $env[ 'SHIELD_DOCKER_VOLUME_RUN_ID' ] );
 	}
 
 	public function testDatabaseResetSqlDropsAndRecreatesBothDatabases() :void {

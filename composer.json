@@ -104,6 +104,9 @@
       "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:browser"
     ],
+    "test:browser:cleanup": [
+      "@php bin/shield test:browser:cleanup"
+    ],
     "test:cross-site": [
       "@php bin/shield test:cross-site"
     ],

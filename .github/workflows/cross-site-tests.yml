@@ -63,4 +63,4 @@ jobs:
 
     - name: Stop cross-site services
       if: always()
-      run: docker compose -p shield-cross-site -f tests/docker/docker-compose.cross-site.yml down -v --remove-orphans
+      run: php bin/shield test:docker:cleanup --scope=cross-site --all

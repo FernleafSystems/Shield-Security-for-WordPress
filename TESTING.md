@@ -58,7 +58,7 @@ Auth-required public Composer lanes:
 | `composer test:upgrade-public`, `composer test:popular-plugins` | Release-confidence package lanes build or consume the current package |
 | `composer analyze` | Source analysis depends on Composer-installed dependencies |
 
-Auth-required internal lanes are the Composer-backed source, package, Docker, browser, cross-site, release, and analysis paths listed in this file, including `test:source`, `test:integration-local`, `test:package-targeted`, `test:package-full`, `analyze:source`, `analyze:package`, `git:pre-commit`, `dev:site:*`, and `test:site:*` when they invoke Composer-installed tooling. JS-only checks, cache-cleanup script regression tests, and admin-bundle-safety script regression tests do not need Packagist auth unless Composer commands are added to those jobs later.
+Auth-required internal lanes are the Composer-backed source, package, Docker, browser, cross-site, release, and analysis paths listed in this file, including `test:source`, `test:integration-local`, `test:docker:cleanup`, `test:package-targeted`, `test:package-full`, `analyze:source`, `analyze:package`, `git:pre-commit`, `dev:site:*`, and `test:site:*` when they invoke Composer-installed tooling. JS-only checks, cache-cleanup script regression tests, and admin-bundle-safety script regression tests do not need Packagist auth unless Composer commands are added to those jobs later.
 
 Auth preflight is wired into the Composer-bearing CI workflows: `.github/workflows/tests.yml`, `.github/workflows/reusable-unit-tests.yml`, `.github/workflows/reusable-build-package.yml`, `.github/workflows/unit-serial-sentinel.yml`, `.github/workflows/browser-tests.yml`, `.github/workflows/cross-site-tests.yml`, and `.github/workflows/release.yml`. `.github/workflows/cache-cleanup.yml`, JS-only jobs, and standalone shell script regression jobs are intentionally outside the Packagist-auth path until they start running Composer.
 
@@ -224,6 +224,7 @@ These commands remain the owned internal lanes behind the public surface and CI 
 | `php bin/shield test:source` | Source-first Docker runtime lane |
 | `php bin/shield test:integration-local` | Local Docker-backed WordPress integration lane |
 | `php bin/shield test:cross-site` | Two-site Docker WordPress import/export sync lane |
+| `php bin/shield test:docker:cleanup` | Explicit labeled Docker cleanup for source-test harness scopes |
 | `php bin/shield test:package-targeted` | Targeted package validation lane |
 | `php bin/shield test:package-full` | Manual local deep packaged runtime lane |
 | `php bin/shield test:upgrade-public` | Manual public-to-current package upgrade smoke lane |
@@ -231,6 +232,18 @@ These commands remain the owned internal lanes behind the public surface and CI 
 | `php bin/run-unit-tests.php --runner-mode=serial` | Serial unit sentinel path |
 
 `test:source` and `analyze:source` cache setup state by default for faster local reruns. Use `--refresh-setup` when you need a clean setup pass.
+
+Source-test Docker resources are labeled with `com.fernleaf.harness`, `com.fernleaf.run-id`, `com.fernleaf.lane`, `com.fernleaf.lifecycle`, and `com.fernleaf.expires-at`. Use the explicit cleanup command for auditable dry-runs and scoped removal:
+
+```bash
+php bin/shield test:docker:cleanup --scope=source --dry-run --all
+php bin/shield test:docker:cleanup --scope=integration-local --dry-run --all
+php bin/shield test:docker:cleanup --scope=cross-site --dry-run --all
+php bin/shield test:docker:cleanup --scope=test-site --dry-run --all
+php bin/shield test:docker:cleanup --scope=dev-site --dry-run --all
+```
+
+The `browser` scope is also supported by `test:docker:cleanup`, but `composer test:browser:cleanup` remains the preferred browser cleanup entry point because it also audits stale runtime-refresh staging workspaces. Cleanup never uses `docker system prune` and only targets the selected harness label.
 
 `composer test:integration` is now focused on behaviour-level WordPress runtime coverage. Browser-managed ActionRouter page-shell and DOM-contract tests are intentionally excluded from the default PHPUnit integration lane and covered via `composer test:browser`.
 
@@ -275,28 +288,30 @@ php bin/shield test:source --skip-unit-tests --show-docker-output
 
 The lock file may remain after a run and contains diagnostic metadata for the last acquired lease. Do not delete it as stale cleanup; `flock()` releases automatically when the owning process exits. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses this guard and is not part of the supported local integration command surface.
 
+The sidecar DB resources are labeled under the `integration-local` cleanup scope. `php bin/shield test:integration-local --db-down` remains the normal functional teardown because it observes the lane lock. Use `php bin/shield test:docker:cleanup --scope=integration-local --dry-run --all` when auditing Docker resources directly.
+
 ## Local Browser Lane
 
 Use this lane for ActionRouter interaction and accessibility checks that now live in Playwright instead of PHPUnit DOM assertions. Browser tests run against an automatically leased isolated Docker WordPress lane, while `dev:site:*` continues to manage the persistent manual development site.
 
-Most developers and agents should start with `composer test:browser`. It rebuilds production browser/runtime bundles before runtime hashing, reuses warm lanes for practical local speed, and still uses full content-hash runtime freshness. Use `--runtime-refresh=auto` only for repeated local iteration where startup speed matters and a full/default run has already established current runtime freshness recently.
+Most developers and agents should start with `composer test:browser`. It rebuilds production browser/runtime bundles, reuses warm lanes for practical local speed, and defaults warm local runtime refresh to `auto` so repeated runs avoid a full content scan when the metadata cache is valid. Clean mode and CI still force full runtime freshness.
 
 ```bash
 npm run playwright:install
 composer test:browser
 composer test:browser -- -- --list
-composer test:browser -- --warm --runtime-refresh=auto -- -g "Select2 lookup flow"
-composer test:browser -- --warm --runtime-refresh=full -- tests/browser/action-router/security-headers-readiness.spec.js --workers=1
 composer test:browser -- --warm -- -g "Select2 lookup flow"
+composer test:browser -- --warm --runtime-refresh=full -- tests/browser/action-router/security-headers-readiness.spec.js --workers=1
 composer test:browser -- --warm -- tests/browser/action-router/drill-down-flows.spec.js --workers=1
 composer test:browser -- --clean -- tests/browser/action-router/drill-down-flows.spec.js -g "configure opens a prefetched diagnosis without a standalone diagnosis request"
+composer test:browser:cleanup -- --all --lanes=2
 ```
 
 Operational notes:
 
 1. `php bin/shield dev:site:up` starts or reuses the persistent local Docker WordPress dev site at `http://127.0.0.1:8888` for normal manual development.
 2. `php bin/shield test:site:up` remains available for the legacy/manual isolated test site at `http://127.0.0.1:8889`, but browser tests do not use that port.
-3. Local `composer test:browser` defaults to warm mode, full runtime-refresh hashing, two lanes, two Playwright workers, and Playwright `fullyParallel`. The first default lane is `http://127.0.0.1:8890`.
+3. Local `composer test:browser` defaults to warm mode, auto runtime refresh, two lanes, two Playwright workers, and Playwright `fullyParallel`. The first default lane is `http://127.0.0.1:8890`.
 4. The browser CI workflow runs clean mode with two browser lanes and two Playwright workers in one job. `composer test:browser` rebuilds assets before runtime hashing, so the workflow only needs dependency install and Playwright browser install before the browser lane command.
 5. `php bin/shield dev:site:reset` and `php bin/shield test:site:reset` destroy and reprovision their respective manual sites; `dev:site:down` and `test:site:down` stop them while preserving state.
 6. `php bin/shield dev:site:wp plugin list` and `php bin/shield test:site:wp plugin list` run WP-CLI against the appropriate local `wp-cli` container after ensuring the site is ready. The command appends `--allow-root` automatically when it is not already present.
@@ -317,14 +332,15 @@ Operational notes:
 `composer test:browser` automatically leases isolated browser lanes, prepares those lanes before Playwright starts, and lets Playwright schedule tests. No lane configuration is required for normal local use.
 
 - Default pool: 2 browser lanes.
-- Default local run: `mode=warm`, `runtime-refresh=full`, `lanes=2`, `workers=2`, `fullyParallel=true`.
+- Default local run: `mode=warm`, `runtime-refresh=auto`, `lanes=2`, `workers=2`, `fullyParallel=true`.
 - Default CLI CI run: `mode=clean`, `lanes=1`, `workers=1`; the GitHub browser workflow overrides this to `lanes=2`, `workers=2`.
 - Each lane has its own WordPress container, port, database, and Playwright output directory. Browser lanes start at port `8890`, leaving the legacy/manual `test:site` port `8889` alone.
 - All lanes share one MySQL container, so parallel browser commands avoid starting multiple database servers.
 - Browser worker isolation is keyed by Playwright `parallelIndex`. PHP passes `SHIELD_BROWSER_LANE_MAP` as a JSON object keyed by `parallelIndex`, and every worker uses its mapped lane URL, fixture token, auth state file, and output directory.
 - Warm mode starts or reuses lane containers, refreshes the copied runtime, installs the runtime-only fixture endpoint, and skips baseline provisioning only when the readiness marker still matches the lane and the site is healthy.
+- The browser readiness marker includes the lane profile, site/database contract, fixture contract, fixture token hash, runtime manifest hash, and expiry. Warm reuse is skipped when any of those values are stale.
 - Clean mode preserves reset semantics: reset lane containers and volumes, recreate the lane database, refresh runtime, install the fixture endpoint, provision baseline state, and write the readiness marker. Clean mode also forces full runtime-refresh hashing.
-- Runtime refresh defaults to `--runtime-refresh=full`, which rebuilds browser/runtime bundles, builds one content-hash host manifest per browser command, and then applies each lane's normal differential copy/delete. Use `--runtime-refresh=auto` for opt-in warm local speedups based on a per-file metadata cache under `tmp/`; the cache enumerates files and does not use directory mtimes. Auto mode still rebuilds bundles before cache evaluation, validates both the cache wrapper and cached manifest payload, and silently rebuilds the manifest on stale or corrupt cache.
+- Runtime refresh defaults to `--runtime-refresh=auto` for warm local runs, based on a per-file metadata cache under `tmp/`; the cache enumerates files and does not use directory mtimes. Auto mode still rebuilds bundles before cache evaluation, validates both the cache wrapper and cached manifest payload, and silently rebuilds the manifest on stale or corrupt cache. Clean mode and CI force `--runtime-refresh=full`, which rebuilds one content-hash host manifest per browser command before applying each lane's differential copy/delete.
 - Playwright `--list` is discovery-only and is the recommended Docker-free way to inspect available browser tests. Browser lane acquisition and Docker preparation are skipped for list-only runs because no test opens WordPress or calls the fixture API.
 - Requested workers greater than the available lane count is a hard error.
 
@@ -344,6 +360,21 @@ Precedence rules:
 3. Playwright `--workers=N` or `-j N` beats `SHIELD_BROWSER_WORKERS`.
 4. `--lanes=N` beats `SHIELD_BROWSER_LANE_COUNT`.
 5. `--runtime-refresh=full|auto` is CLI-only; there is no environment override. `--clean` always uses full runtime-refresh hashing.
+
+Cleanup:
+
+```bash
+composer test:browser:cleanup
+composer test:browser:cleanup -- --all --lanes=2
+composer test:browser:cleanup -- --dry-run --all --lanes=2
+php bin/shield test:docker:cleanup --scope=browser --dry-run --all --lanes=2
+```
+
+Automatic browser-run cleanup removes current-run transient resources, expired or malformed labeled resources, and old unlabeled browser resources. Manual cleanup removes expired, malformed, and old unlabeled browser resources; `--all` also purges reusable warm volumes. `--dry-run` audits the Docker resources and stale runtime workspaces that would be removed without deleting them. Runtime refresh staging workspaces under `tmp/.browser-runtime-refresh` are removed after each refresh and stale workspaces are garbage-collected by the cleanup command.
+
+Docker list, inspect, compose, and remove failures are reported as cleanup findings; they are not treated as an empty cleanup result.
+
+Browser Docker containers, volumes, and networks use the labels `com.fernleaf.harness`, `com.fernleaf.run-id`, `com.fernleaf.lane`, `com.fernleaf.lifecycle`, and `com.fernleaf.expires-at`. Warm mode keeps valid reusable volumes only; containers and networks are transient.
 
 Pool-size override examples:
 
@@ -412,6 +443,7 @@ Operational notes:
 6. The comparison excludes only explicit non-corpus keys: slave-local sync state such as `importexport_masterurl`, and runtime prerequisites such as `global_enable_plugin_features` and `importexport_enable`. Every generated corpus key must change from its baseline after Shield option normalization.
 7. `SHIELD_CROSS_SITE_MASTER_PORT` and `SHIELD_CROSS_SITE_SLAVE_PORT` override the diagnostic host ports if `8892` or `8893` are unavailable.
 8. This lane covers Shield import/export sync only. MainWP scenarios should be added as explicit consumers of the same harness when they exist.
+9. Cross-site containers, volumes, and networks are labeled under the `cross-site` cleanup scope. CI removes them with `php bin/shield test:docker:cleanup --scope=cross-site --all`; use `--dry-run` locally to audit before removal.
 
 ### Browser spec authoring contract
 
@@ -469,7 +501,7 @@ Path-gated/scheduled/manual browser lane: [`.github/workflows/browser-tests.yml`
 
 1. Installs Composer and Node dependencies.
 2. Installs Chromium headless shell.
-3. Runs `composer test:browser`, which rebuilds browser/runtime assets before runtime hashing and runs the ActionRouter Playwright + axe lane against isolated local Docker WordPress browser lanes.
+3. Runs `composer test:browser`, which rebuilds browser/runtime assets, prepares isolated local Docker WordPress browser lanes, and runs the ActionRouter Playwright + axe lane.
 4. Runs one clean two-lane Playwright job with two workers: `composer test:browser -- --clean --lanes=2 -- --workers=2`.
 5. Triggered by `workflow_dispatch`, the weekday schedule `30 6 * * 1-5` (06:30 UTC Monday through Friday), PRs with browser-relevant changed files, and browser-relevant pushes to `develop`.
 
