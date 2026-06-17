@@ -401,7 +401,7 @@ class LocalSiteManagerTest extends TestCase {
 			$processRunner->calls[ 3 ][ 'command' ]
 		);
 		$this->assertContains( 'SHIELD_BROWSER_FIXTURE_TOKEN=fixture-token', $processRunner->calls[ 4 ][ 'command' ] );
-		$this->assertContains( '/app/tests/docker/provision-local-site.sh', $processRunner->calls[ 5 ][ 'command' ] );
+		$this->assertContains( '/var/www/html/wp-content/plugins/wp-simple-firewall/tests/docker/provision-local-site.sh', $processRunner->calls[ 5 ][ 'command' ] );
 		$this->assertContains( 'SHIELD_BROWSER_READY_MARKER=/var/www/html/wp-content/.shield-browser-lane-ready.json', $processRunner->calls[ 6 ][ 'command' ] );
 		$this->assertContains(
 			'SHIELD_BROWSER_READY_JSON={"schema_version":2,"site_url":"http://127.0.0.1:8891","db_name":"shield_test_site_lane_2","admin_user":"admin","profile":"browser-lane-2"}',
@@ -475,7 +475,7 @@ class LocalSiteManagerTest extends TestCase {
 		);
 		$this->assertContains( 'SHIELD_BROWSER_FIXTURE_TOKEN=fixture-token', $processRunner->calls[ 3 ][ 'command' ] );
 		foreach ( $processRunner->calls as $call ) {
-			$this->assertNotContains( '/app/tests/docker/provision-local-site.sh', $call[ 'command' ] );
+			$this->assertNotContains( '/var/www/html/wp-content/plugins/wp-simple-firewall/tests/docker/provision-local-site.sh', $call[ 'command' ] );
 			$this->assertNotContains( 'SHIELD_BROWSER_READY_MARKER=/var/www/html/wp-content/.shield-browser-lane-ready.json', $call[ 'command' ] );
 		}
 	}
@@ -524,7 +524,7 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 1, $dockerComposeExecutor->calls );
 		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
-		$this->assertContains( '/app/tests/docker/provision-local-site.sh', $processRunner->calls[ 5 ][ 'command' ] );
+		$this->assertContains( '/var/www/html/wp-content/plugins/wp-simple-firewall/tests/docker/provision-local-site.sh', $processRunner->calls[ 5 ][ 'command' ] );
 		$this->assertContains(
 			'SHIELD_BROWSER_READY_JSON={"schema_version":2,"site_url":"http://127.0.0.1:8890","db_name":"shield_test_site_lane_1","admin_user":"admin","profile":"browser-lane-1"}',
 			$processRunner->calls[ 6 ][ 'command' ]

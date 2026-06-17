@@ -167,11 +167,12 @@ class LocalSiteManager {
 		bool $requirePlaywright,
 		string $fixtureToken,
 		?callable $onOutput = null,
-		?array $hostManifest = null
+		?array $hostManifest = null,
+		array $browserLabelEnv = []
 	) :int {
 		$this->runPreflightChecks( $rootDir, $requirePlaywright );
 		if ( $this->definition->usesSharedDatabase() ) {
-			$this->ensureSharedDatabaseReady( $rootDir, $onOutput );
+			$this->ensureSharedDatabaseReady( $rootDir, $onOutput, $browserLabelEnv );
 		}
 
 		if ( $mode === 'clean' ) {
@@ -179,7 +180,7 @@ class LocalSiteManager {
 				$rootDir,
 				$this->buildComposeFiles(),
 				[ 'down', '-v', '--remove-orphans' ],
-				$this->buildRuntimeEnvOverrides( $rootDir ),
+				$this->buildRuntimeEnvOverrides( $rootDir, $browserLabelEnv ),
 				$onOutput
 			);
 			if ( $exitCode !== 0 ) {
@@ -190,9 +191,9 @@ class LocalSiteManager {
 				) );
 			}
 			if ( $this->definition->usesSharedDatabase() ) {
-				$this->resetSharedDatabase( $rootDir );
+				$this->resetSharedDatabase( $rootDir, $browserLabelEnv );
 			}
-			$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, true, $hostManifest );
+			$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, true, $hostManifest, $browserLabelEnv );
 			return 0;
 		}
 
@@ -200,7 +201,7 @@ class LocalSiteManager {
 			throw new \InvalidArgumentException( 'Browser lane mode must be "clean" or "warm".' );
 		}
 
-		$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, false, $hostManifest );
+		$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, false, $hostManifest, $browserLabelEnv );
 		return 0;
 	}
 
@@ -235,13 +236,14 @@ class LocalSiteManager {
 		bool $sharedDatabaseAlreadyReady = false,
 		?string $fixtureToken = null,
 		bool $forceProvision = true,
-		?array $hostManifest = null
+		?array $hostManifest = null,
+		array $browserLabelEnv = []
 	) :void {
 		if ( $this->definition->usesSharedDatabase() && !$sharedDatabaseAlreadyReady ) {
-			$this->ensureSharedDatabaseReady( $rootDir, $onOutput );
+			$this->ensureSharedDatabaseReady( $rootDir, $onOutput, $browserLabelEnv );
 		}
 
-		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir );
+		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir, $browserLabelEnv );
 		$composeFiles = $this->buildComposeFiles();
 		$containerId = $this->resolveOrStartWordpressContainer( $rootDir, $composeFiles, $envOverrides, $onOutput );
 
@@ -261,7 +263,7 @@ class LocalSiteManager {
 	/**
 	 * @return array<string,string|false>
 	 */
-	private function buildRuntimeEnvOverrides( string $rootDir ) :array {
+	private function buildRuntimeEnvOverrides( string $rootDir, array $browserLabelEnv = [] ) :array {
 		$envOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
 			$this->definition->composeProjectName(),
 			true
@@ -271,7 +273,7 @@ class LocalSiteManager {
 		$envOverrides['SHIELD_LOCAL_SITE_DB_HOST'] = $this->definition->dbHost();
 		$envOverrides['SHIELD_LOCAL_SITE_PORT'] = (string)$this->definition->sitePort();
 		$envOverrides['SHIELD_LOCAL_SITE_PROFILE'] = $this->definition->key();
-		return $envOverrides;
+		return \array_merge( $envOverrides, $browserLabelEnv );
 	}
 
 	/**
@@ -303,7 +305,7 @@ class LocalSiteManager {
 		$command = \array_merge( $command, [
 			self::WPCLI_SERVICE_NAME,
 			'sh',
-			'/app/tests/docker/provision-local-site.sh',
+			'/var/www/html/wp-content/plugins/wp-simple-firewall/tests/docker/provision-local-site.sh',
 		] );
 
 		return $command;
@@ -381,10 +383,10 @@ class LocalSiteManager {
 	/**
 	 * @param callable|null $onOutput Receives (string $type, string $buffer)
 	 */
-	private function ensureSharedDatabaseReady( string $rootDir, ?callable $onOutput = null ) :void {
-		$this->withSharedDatabaseLock( $rootDir, function () use ( $rootDir, $onOutput ) :void {
+	private function ensureSharedDatabaseReady( string $rootDir, ?callable $onOutput = null, array $browserLabelEnv = [] ) :void {
+		$this->withSharedDatabaseLock( $rootDir, function () use ( $rootDir, $onOutput, $browserLabelEnv ) :void {
 			$composeFiles = [ $this->definition->sharedDatabaseComposeFile() ];
-			$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir );
+			$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir, $browserLabelEnv );
 
 			$exitCode = $this->dockerComposeExecutor->run(
 				$rootDir,
@@ -439,12 +441,16 @@ class LocalSiteManager {
 	/**
 	 * @return array<string,string|false>
 	 */
-	private function buildSharedDatabaseEnvOverrides( string $rootDir ) :array {
+	private function buildSharedDatabaseEnvOverrides( string $rootDir, array $browserLabelEnv = [] ) :array {
 		$envOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
 			$this->definition->sharedDatabaseComposeProjectName(),
 			true
 		);
 		$envOverrides['PHP_VERSION'] = $this->environmentResolver->resolvePhpVersion( $rootDir );
+		$envOverrides = \array_merge( $envOverrides, $browserLabelEnv );
+		if ( $browserLabelEnv !== [] ) {
+			$envOverrides['SHIELD_BROWSER_LABEL_LANE'] = 'shared';
+		}
 		return $envOverrides;
 	}
 
@@ -481,14 +487,14 @@ class LocalSiteManager {
 		) );
 	}
 
-	private function resetSharedDatabase( string $rootDir ) :void {
+	private function resetSharedDatabase( string $rootDir, array $browserLabelEnv = [] ) :void {
 		$dbName = $this->definition->dbName();
 		if ( \preg_match( '/^[a-z0-9_]+$/', $dbName ) !== 1 ) {
 			throw new \RuntimeException( 'Unsafe browser lane database name: '.$dbName );
 		}
 
 		$composeFiles = [ $this->definition->sharedDatabaseComposeFile() ];
-		$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir );
+		$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir, $browserLabelEnv );
 		$sql = \sprintf(
 			'DROP DATABASE IF EXISTS `%1$s`; CREATE DATABASE `%1$s`;',
 			$dbName

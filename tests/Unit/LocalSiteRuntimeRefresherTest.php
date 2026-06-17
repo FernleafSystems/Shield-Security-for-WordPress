@@ -45,14 +45,16 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 			$runner->calls[ 2 ][ 'command' ][ 3 ]
 		);
 
-		$fileList = (string)\file_get_contents( Path::join( $this->runtimeWorkspace(), 'runtime-files.txt' ) );
-		$this->assertStringContainsString( "assets/images/logo.png\n", $fileList );
-		$this->assertStringContainsString( "flags/index.html\n", $fileList );
-		$this->assertStringContainsString( "vendor/autoload.php\n", $fileList );
-		$this->assertStringContainsString( "tests/Helpers/BrowserFixtureRegistry.php\n", $fileList );
-		$this->assertStringContainsString( "tests/Helpers/ActionRouter/ActionsQueueFixtureBuilder.php\n", $fileList );
-		$this->assertStringContainsString( "tests/Helpers/CrossSite/CrossSiteRuntime.php\n", $fileList );
-		$this->assertStringContainsString( "tests/browser/support/shield-browser-fixtures.php\n", $fileList );
+		$this->assertNotEmpty( $runner->tarFileLists );
+		$fileList = $runner->tarFileLists[ 0 ];
+		$this->assertContains( 'assets/images/logo.png', $fileList );
+		$this->assertContains( 'flags/index.html', $fileList );
+		$this->assertContains( 'vendor/autoload.php', $fileList );
+		$this->assertContains( 'tests/Helpers/BrowserFixtureRegistry.php', $fileList );
+		$this->assertContains( 'tests/Helpers/ActionRouter/ActionsQueueFixtureBuilder.php', $fileList );
+		$this->assertContains( 'tests/Helpers/CrossSite/CrossSiteRuntime.php', $fileList );
+		$this->assertContains( 'tests/browser/support/shield-browser-fixtures.php', $fileList );
+		$this->assertDirectoryDoesNotExist( $this->runtimeWorkspace() );
 	}
 
 	public function testRefreshRoutesSubprocessOutputThroughProvidedCallback() :void {
@@ -65,6 +67,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		foreach ( $runner->calls as $call ) {
 			$this->assertTrue( $call[ 'has_output_callback' ], \implode( ' ', $call[ 'command' ] ) );
 		}
+		$this->assertDirectoryDoesNotExist( $this->runtimeWorkspace() );
 	}
 
 	public function testRefreshSkipsWhenManifestMatches() :void {
@@ -98,6 +101,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		}
 
 		$this->assertCount( 2, $runner->calls );
+		$this->assertDirectoryDoesNotExist( $this->runtimeWorkspace() );
 	}
 
 	public function testRefreshUsesSuppliedHostManifestForLaneDiff() :void {
@@ -138,7 +142,8 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		}
 
 		$this->assertCount( 8, $runner->calls );
-		$this->assertSame( [ 'src/Example.php' ], $this->readRuntimeFileList() );
+		$this->assertSame( [ 'src/Example.php' ], $runner->tarFileLists[ 0 ] );
+		$this->assertDirectoryDoesNotExist( $this->runtimeWorkspace() );
 	}
 
 	public function testRefreshFailsFastOnInconsistentRuntimeState() :void {
@@ -217,17 +222,87 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		}
 
 		$this->assertCount( 7, $runner->calls );
-		$deleteList = (string)\file_get_contents( Path::join( $this->runtimeWorkspace(), 'deleted-managed-paths.json' ) );
+		$this->assertNotEmpty( $runner->copiedFiles );
+		$deleteList = $runner->copiedFiles[ 0 ][ 'contents' ];
 		$this->assertStringContainsString( 'flags/obsolete.flag', $deleteList );
 		$this->assertStringContainsString( 'vendor_prefixed/autoload.php', $deleteList );
 		$this->assertStringContainsString( $staleAutoloadFile, $deleteList );
-		$this->assertFileDoesNotExist( Path::join( $this->runtimeWorkspace(), 'runtime-files.txt' ) );
 		$this->assertSame( 'docker', $runner->calls[ 2 ][ 'command' ][ 0 ] );
 		$this->assertSame( 'cp', $runner->calls[ 2 ][ 'command' ][ 1 ] );
 		$this->assertSame(
 			'wordpress-container:/tmp/shield-browser-runtime-deletes.json',
 			$runner->calls[ 2 ][ 'command' ][ 3 ]
 		);
+		$this->assertDirectoryDoesNotExist( $this->runtimeWorkspace() );
+	}
+
+	public function testRefreshCleansWorkspaceWhenRefreshPhaseFails() :void {
+		$runner = new ScriptedProcessRunner( [
+			[
+				'exit_code' => 0,
+				'stdout' => \json_encode( [
+					'manifest_exists' => false,
+					'sentinels' => [
+						'icwp-wpsf.php' => false,
+						'plugin.json' => false,
+					],
+					'all_required_sentinels_present' => false,
+					'has_any_required_sentinel' => false,
+				], \JSON_UNESCAPED_SLASHES ) ?: '',
+			],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 1, 'stderr' => 'copy failed' ],
+		] );
+		$refresher = new LocalSiteRuntimeRefresher( $runner );
+
+		\ob_start();
+		try {
+			$refresher->refresh( $this->projectRoot, 'wordpress-container' );
+			$this->fail( 'Expected runtime refresh to fail.' );
+		}
+		catch ( \RuntimeException $e ) {
+			$this->assertStringContainsString( 'copy archive failed', $e->getMessage() );
+		}
+		finally {
+			\ob_end_clean();
+		}
+
+		$this->assertDirectoryDoesNotExist( $this->runtimeWorkspace() );
+	}
+
+	public function testCleanupStaleWorkspacesRemovesOnlyExpiredWorkspaceDirectories() :void {
+		$refresher = new LocalSiteRuntimeRefresher( new ScriptedProcessRunner( [] ) );
+		$workspaceRoot = Path::join( $this->projectRoot, 'tmp/.browser-runtime-refresh' );
+		$oldWorkspace = Path::join( $workspaceRoot, 'old-workspace' );
+		$currentWorkspace = Path::join( $workspaceRoot, 'current-workspace' );
+
+		\mkdir( Path::join( $oldWorkspace, 'nested' ), 0777, true );
+		\mkdir( $currentWorkspace, 0777, true );
+		\file_put_contents( Path::join( $oldWorkspace, 'nested', 'file.txt' ), 'stale' );
+		\touch( $oldWorkspace, \time() - 7200 );
+		\touch( Path::join( $oldWorkspace, 'nested' ), \time() - 7200 );
+
+		$refresher->cleanupStaleWorkspaces( $this->projectRoot, 3600 );
+
+		$this->assertDirectoryDoesNotExist( $oldWorkspace );
+		$this->assertDirectoryExists( $currentWorkspace );
+	}
+
+	public function testCleanupStaleWorkspacesDryRunReportsWithoutRemoving() :void {
+		$refresher = new LocalSiteRuntimeRefresher( new ScriptedProcessRunner( [] ) );
+		$workspaceRoot = Path::join( $this->projectRoot, 'tmp/.browser-runtime-refresh' );
+		$oldWorkspace = Path::join( $workspaceRoot, 'old-workspace' );
+
+		\mkdir( $oldWorkspace, 0777, true );
+		\touch( $oldWorkspace, \time() - 7200 );
+
+		$actions = $refresher->cleanupStaleWorkspaces( $this->projectRoot, 3600, true );
+
+		$this->assertSame( [ \str_replace( '\\', '/', $oldWorkspace ) ], \array_map(
+			static fn( string $path ) :string => \str_replace( '\\', '/', $path ),
+			$actions
+		) );
+		$this->assertDirectoryExists( $oldWorkspace );
 	}
 
 	public function testRefreshReportsDeletePhaseFailuresExplicitly() :void {
@@ -288,17 +363,6 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 	}
 
 	/**
-	 * @return string[]
-	 */
-	private function readRuntimeFileList() :array {
-		$content = (string)\file_get_contents( Path::join( $this->runtimeWorkspace(), 'runtime-files.txt' ) );
-		return \array_values( \array_filter(
-			\explode( "\n", \trim( $content ) ),
-			static fn( string $path ) :bool => $path !== ''
-		) );
-	}
-
-	/**
 	 * @return array<int,array{exit_code:int,stdout?:string,stderr?:string}>
 	 */
 	private function emptyRuntimeSeedResponses() :array {
@@ -336,6 +400,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 			'tests/Helpers/ActionRouter',
 			'tests/Helpers/CrossSite',
 			'tests/browser/support',
+			'tests/docker',
 		];
 		foreach ( $dirs as $dir ) {
 			\mkdir( Path::join( $rootDir, $dir ), 0777, true );
@@ -359,5 +424,6 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 		\file_put_contents( Path::join( $rootDir, 'tests', 'Helpers', 'ActionRouter', 'ActionsQueueFixtureBuilder.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'tests', 'Helpers', 'CrossSite', 'CrossSiteRuntime.php' ), '<?php' );
 		\file_put_contents( Path::join( $rootDir, 'tests', 'browser', 'support', 'shield-browser-fixtures.php' ), '<?php' );
+		\file_put_contents( Path::join( $rootDir, 'tests', 'docker', 'provision-local-site.sh' ), '#!/bin/sh' );
 	}
 }

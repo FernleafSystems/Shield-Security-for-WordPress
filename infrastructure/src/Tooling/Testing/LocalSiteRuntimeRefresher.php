@@ -101,20 +101,59 @@ class LocalSiteRuntimeRefresher {
 		?callable $onOutput = null,
 		?array $hostManifest = null
 	) :void {
-		$this->writeProgress( "Refreshing local browser plugin runtime", $onOutput );
-		$hostManifest = $this->resolveHostManifest( $rootDir, $hostManifest, $onOutput );
-		$refreshPlan = $this->buildRefreshPlan( $rootDir, $containerId, $hostManifest, $onOutput );
-		if ( $refreshPlan[ 'mode' ] === 'skip' ) {
-			return;
+		$workspacePaths = null;
+		try {
+			$this->writeProgress( "Refreshing local browser plugin runtime", $onOutput );
+			$hostManifest = $this->resolveHostManifest( $rootDir, $hostManifest, $onOutput );
+			$refreshPlan = $this->buildRefreshPlan( $rootDir, $containerId, $hostManifest, $onOutput );
+			if ( $refreshPlan[ 'mode' ] === 'skip' ) {
+				return;
+			}
+
+			$workspacePaths = $this->workspacePaths( $rootDir, $containerId );
+			$this->applyRefreshPlan(
+				$rootDir,
+				$containerId,
+				$refreshPlan,
+				$workspacePaths,
+				$onOutput
+			);
+		}
+		finally {
+			if ( $workspacePaths !== null ) {
+				$this->removeWorkspace( $rootDir, $workspacePaths[ 'workspace' ] );
+			}
+		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	public function cleanupStaleWorkspaces( string $rootDir, int $olderThanSeconds = 86400, bool $dryRun = false ) :array {
+		if ( $olderThanSeconds < 0 ) {
+			throw new \InvalidArgumentException( 'Workspace cleanup age must be zero or greater.' );
 		}
 
-		$this->applyRefreshPlan(
-			$rootDir,
-			$containerId,
-			$refreshPlan,
-			$this->workspacePaths( $rootDir, $containerId ),
-			$onOutput
-		);
+		$workspaceRoot = $this->workspaceRoot( $rootDir );
+		if ( !\is_dir( $workspaceRoot ) ) {
+			return [];
+		}
+
+		$actions = [];
+		$deleteBefore = \time() - $olderThanSeconds;
+		foreach ( new \DirectoryIterator( $workspaceRoot ) as $item ) {
+			if ( $item->isDot() || !$item->isDir() || $item->isLink() ) {
+				continue;
+			}
+			if ( $item->getMTime() <= $deleteBefore ) {
+				$actions[] = $item->getPathname();
+				if ( !$dryRun ) {
+					$this->removeWorkspace( $rootDir, $item->getPathname() );
+				}
+			}
+		}
+
+		return $actions;
 	}
 
 	/**
@@ -373,7 +412,10 @@ PHP;
 	 * @return WorkspacePaths
 	 */
 	private function workspacePaths( string $rootDir, string $containerId ) :array {
-		$workspace = Path::join( $rootDir, self::TEMP_DIR, \substr( \sha1( $containerId ), 0, 12 ) );
+		$workspace = Path::join( $this->workspaceRoot( $rootDir ), \substr( \sha1( $containerId ), 0, 12 ) );
+		if ( \file_exists( $workspace ) || \is_link( $workspace ) ) {
+			$this->removeWorkspace( $rootDir, $workspace );
+		}
 		if ( !\is_dir( $workspace ) && !\mkdir( $workspace, 0777, true ) && !\is_dir( $workspace ) ) {
 			throw new \RuntimeException( 'Failed to create local browser runtime refresh workspace: '.$workspace );
 		}
@@ -685,6 +727,55 @@ PHP;
 		}
 	}
 
+	private function workspaceRoot( string $rootDir ) :string {
+		return Path::join( $rootDir, self::TEMP_DIR );
+	}
+
+	private function removeWorkspace( string $rootDir, string $workspace ) :void {
+		$this->assertWorkspacePathIsSafe( $rootDir, $workspace );
+		if ( \is_link( $workspace ) || \is_file( $workspace ) ) {
+			if ( !@\unlink( $workspace ) && ( \is_link( $workspace ) || \is_file( $workspace ) ) ) {
+				throw new \RuntimeException( 'Failed to remove local browser runtime refresh workspace file: '.$workspace );
+			}
+			return;
+		}
+		if ( !\is_dir( $workspace ) ) {
+			return;
+		}
+
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $workspace, \FilesystemIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+		foreach ( $iterator as $item ) {
+			/** @var \SplFileInfo $item */
+			if ( $item->isDir() && !$item->isLink() ) {
+				if ( !@\rmdir( $item->getPathname() ) && \is_dir( $item->getPathname() ) ) {
+					throw new \RuntimeException( 'Failed to remove local browser runtime refresh workspace directory: '.$item->getPathname() );
+				}
+				continue;
+			}
+			if ( !@\unlink( $item->getPathname() ) && \file_exists( $item->getPathname() ) ) {
+				throw new \RuntimeException( 'Failed to remove local browser runtime refresh workspace file: '.$item->getPathname() );
+			}
+		}
+		if ( !@\rmdir( $workspace ) && \is_dir( $workspace ) ) {
+			throw new \RuntimeException( 'Failed to remove local browser runtime refresh workspace directory: '.$workspace );
+		}
+	}
+
+	private function assertWorkspacePathIsSafe( string $rootDir, string $workspace ) :void {
+		$workspaceRoot = $this->normaliseWorkspacePath( $this->workspaceRoot( $rootDir ) );
+		$workspace = $this->normaliseWorkspacePath( $workspace );
+		if ( $workspace === $workspaceRoot || \strpos( $workspace, $workspaceRoot.'/' ) !== 0 ) {
+			throw new \RuntimeException( 'Refusing to remove unsafe local browser runtime refresh workspace: '.$workspace );
+		}
+	}
+
+	private function normaliseWorkspacePath( string $path ) :string {
+		return \str_replace( '\\', '/', Path::canonicalize( $path ) );
+	}
+
 	private function deleteManagedPaths( string $rootDir, string $containerId, ?callable $onOutput = null ) :void {
 		$script = <<<'PHP'
 $pluginRoot = getenv('SHIELD_PLUGIN_ROOT');
@@ -699,7 +790,7 @@ function fail_delete(string $message): void {
 	exit(4);
 }
 foreach ( $decoded as $relativePath ) {
-	if ( !is_string($relativePath) || $relativePath === '' || str_contains($relativePath, '..') || str_starts_with($relativePath, '/') || str_contains($relativePath, '\\') ) {
+	if ( !is_string($relativePath) || $relativePath === '' || strpos($relativePath, '..') !== false || strpos($relativePath, '/') === 0 || strpos($relativePath, '\\') !== false ) {
 		fwrite(STDERR, "unsafe delete path\n");
 		exit(3);
 	}

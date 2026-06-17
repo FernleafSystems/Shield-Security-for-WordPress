@@ -59,7 +59,7 @@ class TestBrowserCommand extends Command {
 				'runtime-refresh',
 				null,
 				InputOption::VALUE_REQUIRED,
-				'Browser runtime host manifest mode: full (default) or auto.'
+				'Browser runtime host manifest mode: auto (warm default) or full.'
 			);
 	}
 
