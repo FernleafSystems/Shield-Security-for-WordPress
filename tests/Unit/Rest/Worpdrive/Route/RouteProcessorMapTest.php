@@ -58,6 +58,23 @@ class RouteProcessorMapTest extends WorpdriveUnitTestCase {
 		];
 	}
 
+	public function test_route_processor_wrap_preserves_client_missing_file_message() :void {
+		$message = 'Requested files missing for ZIP: "wp-content/*buddyboss-theme/404.php"';
+		$method = new \ReflectionMethod( RouteProcessorMap::class, 'wrapProcessor' );
+		$method->setAccessible( true );
+
+		$this->expectException( ApiException::class );
+		$this->expectExceptionMessage( $message );
+
+		$method->invoke(
+			new RouteProcessorMap(),
+			new \WP_REST_Request(),
+			function () use ( $message ) :array {
+				throw new \Exception( $message );
+			}
+		);
+	}
+
 	public function test_filesystem_map_request_type_map_still_builds_full_package_map() :void {
 		$fixturePath = 'z-keep-route-map-'.\uniqid().'.txt';
 		$this->writeFile( ABSPATH.$fixturePath, 'keep' );
