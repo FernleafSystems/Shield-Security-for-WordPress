@@ -64,30 +64,41 @@ class SelfVersion extends Base {
 
 		if ( !\is_array( $versions ) ) {
 			$versions = ( new ListTagsFromGithub() )->run( 'FernleafSystems/Shield-Security-for-WordPress' );
-			Transient::Set( $con->prefix( 'releases' ), $versions, \WEEK_IN_SECONDS );
+			Transient::Set( $con->prefix( 'releases' ), $versions, \HOUR_IN_SECONDS*6 );
 		}
 
-		$currentMajor = \intval( \substr( $con->cfg->version(), 0, \strpos( $con->cfg->version(), '.' ) ) );
-		if ( !empty( $versions ) && !empty( $currentMajor ) ) {
+		if ( !empty( $versions ) ) {
+			$tooOld = $this->hasAtLeastTwoNewerMajorVersions( $versions, $con->cfg->version() );
+		}
 
+		return $tooOld;
+	}
+
+	private function hasAtLeastTwoNewerMajorVersions( array $versions, string $currentVersion ) :bool {
+		$tooOld = false;
+		$currentMajor = $this->extractMajorVersion( $currentVersion );
+
+		if ( !empty( $currentMajor ) ) {
 			$majorVersionsNewerThanCurrent = \array_filter(
 				\array_unique( \array_map(
 					function ( $version ) {
-						/** 1. Convert all versions to major releases */
-						return \intval( \substr( $version, 0, \strpos( $version, '.' ) ) );
+						return \is_string( $version ) ? $this->extractMajorVersion( $version ) : null;
 					},
 					$versions
 				) ),
 				function ( $version ) use ( $currentMajor ) {
-					/** 2. Find all major versions newer than current */
-					return $version > $currentMajor;
-				}
+					return \is_int( $version ) && $version > $currentMajor;
+				},
 			);
 
-			/** 3. Suggest upgrade needed  */
 			$tooOld = \count( $majorVersionsNewerThanCurrent ) >= 2;
 		}
 
 		return $tooOld;
+	}
+
+	private function extractMajorVersion( string $version ) :?int {
+		$matches = [];
+		return \preg_match( '#^(\d+)\.#', $version, $matches ) === 1 ? \intval( $matches[ 1 ] ) : null;
 	}
 }
