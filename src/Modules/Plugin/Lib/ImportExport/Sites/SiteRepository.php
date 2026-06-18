@@ -17,6 +17,8 @@ class SiteRepository {
 	public const MIGRATED_AT_OPTION = 'importexport_sites_migrated_at';
 	public const OLD_NOTIFY_CRON = 'importexport_notify';
 	public const OLD_QUEUE_ACTION = 'whitelist_notify_urls';
+	private const META_EXPORT_SERVED_AT = 'export_served_at';
+	private const META_HANDSHAKE_ATTEMPT_AT = 'handshake_attempt_at';
 	private const SQL_BATCH_SIZE = 20;
 
 	public function ensureLegacyImported( bool $includeOldQueueState = true ) :void {
@@ -264,7 +266,7 @@ class SiteRepository {
 		] );
 	}
 
-	public function recordPingSuccess( Record $row, int $httpCode, int $expectedExportBy ) :void {
+	public function recordNotifyDispatched( Record $row, int $httpCode, int $expectedExportBy ) :void {
 		$now = Services::Request()->ts();
 		$this->updateById( $row->id, [
 			'queue_status'          => SitesDB::QUEUE_WAITING_EXPORT,
@@ -275,6 +277,25 @@ class SiteRepository {
 			'lock_until'            => 0,
 			'picked_at'             => 0,
 		] );
+	}
+
+	public function exportCooldownActive( Record $row, int $cooldown ) :bool {
+		if ( $this->isAwaitingExpectedExport( $row ) ) {
+			return false;
+		}
+		return $this->metaTimestampWithinCooldown( $row, self::META_EXPORT_SERVED_AT, $cooldown );
+	}
+
+	public function recordExportServed( Record $row ) :void {
+		$this->setMetaTimestamp( $row, self::META_EXPORT_SERVED_AT );
+	}
+
+	public function handshakeCooldownActive( Record $row, int $cooldown ) :bool {
+		return $this->metaTimestampWithinCooldown( $row, self::META_HANDSHAKE_ATTEMPT_AT, $cooldown );
+	}
+
+	public function recordHandshakeAttempt( Record $row ) :void {
+		$this->setMetaTimestamp( $row, self::META_HANDSHAKE_ATTEMPT_AT );
 	}
 
 	public function recordPingFailure( Record $row, int $httpCode, string $error ) :void {
@@ -1164,6 +1185,25 @@ class SiteRepository {
 
 	private function trimError( string $error ) :string {
 		return \substr( \trim( $error ), 0, 1000 );
+	}
+
+	private function isAwaitingExpectedExport( Record $row ) :bool {
+		return $row->queue_status === SitesDB::QUEUE_WAITING_EXPORT
+			   && $row->expected_export_by >= Services::Request()->ts()
+			   && $row->last_export_success_at <= $row->last_ping_success_at;
+	}
+
+	private function metaTimestampWithinCooldown( Record $row, string $key, int $cooldown ) :bool {
+		$last = (int)( \is_array( $row->meta ) ? ( $row->meta[ $key ] ?? 0 ) : 0 );
+		return $last > 0 && Services::Request()->ts() - $last < $cooldown;
+	}
+
+	private function setMetaTimestamp( Record $row, string $key ) :void {
+		$meta = \is_array( $row->meta ) ? $row->meta : [];
+		$meta[ $key ] = Services::Request()->ts();
+		if ( $this->updateById( $row->id, [ 'meta' => $meta ] ) ) {
+			$row->meta = $meta;
+		}
 	}
 
 	private function db() :SitesDB {

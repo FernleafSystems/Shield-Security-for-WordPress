@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
@@ -17,6 +17,12 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
 class Export {
 
 	use PluginControllerConsumer;
+
+	private const VERIFY_OK = 'ok';
+	private const VERIFY_FAILED = 'failed';
+	private const VERIFY_COOLDOWN = 'cooldown';
+	private const EXPORT_COOLDOWN = 300;
+	private const HANDSHAKE_COOLDOWN = 300;
 
 	public function run( string $method ) {
 		try {
@@ -49,59 +55,78 @@ class Export {
 
 		$url = (string)Services::Data()->validateSimpleHttpUrl( (string)$req->query( 'url', '' ) );
 		$id = (string)$req->query( 'id', '' );
-		$repo->recordExportRequested( $url );
+		$verification = $this->verifyUrl( $repo, $url, $id, (string)$req->query( 'secret', '' ) );
 
-		if ( !$this->verifyUrl( $url, $id, (string)$req->query( 'secret', '' ) ) ) {
+		if ( $verification[ 'status' ] === self::VERIFY_COOLDOWN ) {
 			$code = 3;
 			$msg = __( 'Verification of import-origin failed.', 'wp-simple-firewall' );
+		}
+		elseif ( $verification[ 'status' ] !== self::VERIFY_OK ) {
+			$code = 3;
+			$msg = __( 'Verification of import-origin failed.', 'wp-simple-firewall' );
+			$repo->recordExportRequested( $url );
 			$repo->recordExportFailure( $url, ImportExportSitesDB::EXPORT_RESULT_VERIFY_FAILED, $msg );
 		}
 		else {
-			try {
-				$code = 0;
-				$data = $this->getExportData();
-				$success = true;
-				$msg = 'Options Exported Successfully';
-
-				$evt->fireEvent(
-					'options_exported',
-					[ 'audit_params' => [ 'site' => $url ] ]
-				);
-
-				// Only setup the network if we have a valid URL
-				$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
-
-				if ( $networkOpt === 'Y' ) {
-					$ieCon->addSyncSiteExportUrl( $url, $id );
-				}
-
-				$repo->recordExportSuccess( $url, ImportExportSitesDB::EXPORT_RESULT_SUCCESS, $id );
-
-				if ( $networkOpt === 'Y' ) {
-					$evt->fireEvent(
-						'whitelist_site_added',
-						[ 'audit_params' => [ 'site' => $url ] ]
-					);
-				}
-				elseif ( !empty( $networkOpt ) ) {
-					$ieCon->removeSyncSiteExportUrl( $url );
-					$evt->fireEvent(
-						'whitelist_site_removed',
-						[ 'audit_params' => [ 'site' => $url ] ]
-					);
-				}
+			$row = $verification[ 'row' ];
+			if ( $row instanceof ImportExportSiteRecord
+				 && !(bool)$verification[ 'secret' ]
+				 && $repo->exportCooldownActive( $row, self::EXPORT_COOLDOWN ) ) {
+				$code = 3;
+				$msg = __( 'Verification of import-origin failed.', 'wp-simple-firewall' );
 			}
-			catch ( \Throwable $e ) {
-				$code = 4;
-				$success = false;
-				$data = [];
-				$msg = $e->getMessage();
-				$repo->recordExportFailure( $url, ImportExportSitesDB::EXPORT_RESULT_EXCEPTION, $msg );
+			else {
+				try {
+					$code = 0;
+					$repo->recordExportRequested( $url );
+					$data = $this->getExportData();
+					$success = true;
+					$msg = 'Options Exported Successfully';
+
+					$evt->fireEvent(
+						'options_exported',
+						[ 'audit_params' => [ 'site' => $url ] ]
+					);
+
+					// Only setup the network if we have a valid URL
+					$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
+
+					if ( $networkOpt === 'Y' ) {
+						$ieCon->addSyncSiteExportUrl( $url, $id );
+					}
+
+					$repo->recordExportSuccess( $url, ImportExportSitesDB::EXPORT_RESULT_SUCCESS, $id );
+					$servedRow = $repo->findByUrl( $url, true );
+					if ( $servedRow instanceof ImportExportSiteRecord ) {
+						$repo->recordExportServed( $servedRow );
+					}
+
+					if ( $networkOpt === 'Y' ) {
+						$evt->fireEvent(
+							'whitelist_site_added',
+							[ 'audit_params' => [ 'site' => $url ] ]
+						);
+					}
+					elseif ( !empty( $networkOpt ) ) {
+						$ieCon->removeSyncSiteExportUrl( $url );
+						$evt->fireEvent(
+							'whitelist_site_removed',
+							[ 'audit_params' => [ 'site' => $url ] ]
+						);
+					}
+				}
+				catch ( \Throwable $e ) {
+					$code = 4;
+					$success = false;
+					$data = [];
+					$msg = $e->getMessage();
+					$repo->recordExportFailure( $url, ImportExportSitesDB::EXPORT_RESULT_EXCEPTION, $msg );
+				}
 			}
 		}
 
 		/**
-		 * Send a JSON error response with 403 to also help break caches.
+		 * Use 403 to help break caches.
 		 */
 		wp_send_json( [
 			'success' => $success,
@@ -183,25 +208,50 @@ class Export {
 	}
 
 	/**
-	 * Secret-key export remains valid. Otherwise export trust comes from an active sync-site row,
-	 * with either a matching import ID or a fresh handshake from that site.
+	 * Secret-key export remains valid. Otherwise export trust comes from an active sync-site row.
+	 * Rows that already have an import ID must use it. No-ID rows keep legacy handshake fallback.
+	 *
+	 * @return array{status:string,row:?ImportExportSiteRecord,secret:bool}
 	 */
-	private function verifyUrl( string $url, string $id, string $secret ) :bool {
+	private function verifyUrl( SiteRepository $repo, string $url, string $id, string $secret ) :array {
 		if ( empty( $url ) ) {
-			return false;
+			return $this->verifyResult( self::VERIFY_FAILED );
 		}
 
 		if ( self::con()->comps->import_export->verifySecretKey( $secret ) ) {
-			return true;
+			return $this->verifyResult( self::VERIFY_OK, null, true );
 		}
 
-		$row = ( new SiteRepository() )->findByUrl( $url );
+		$row = $repo->findByUrl( $url );
 		if ( !$row instanceof ImportExportSiteRecord || !$this->syncSiteRowAllowsExportTrust( $row, $url ) ) {
-			return false;
+			return $this->verifyResult( self::VERIFY_FAILED, $row );
 		}
 
-		return ( !empty( $id ) && (string)$row->import_id === $id )
-			   || $this->handshake( $url, (string)$row->source === ImportExportSitesDB::SOURCE_MANUAL );
+		if ( (string)$row->import_id !== '' ) {
+			return $id !== '' && \hash_equals( (string)$row->import_id, $id )
+				? $this->verifyResult( self::VERIFY_OK, $row )
+				: $this->verifyResult( self::VERIFY_FAILED, $row );
+		}
+
+		if ( $repo->handshakeCooldownActive( $row, self::HANDSHAKE_COOLDOWN ) ) {
+			return $this->verifyResult( self::VERIFY_COOLDOWN, $row );
+		}
+		$repo->recordHandshakeAttempt( $row );
+
+		return $this->handshake( $url, (string)$row->source === ImportExportSitesDB::SOURCE_MANUAL )
+			? $this->verifyResult( self::VERIFY_OK, $row )
+			: $this->verifyResult( self::VERIFY_FAILED, $row );
+	}
+
+	/**
+	 * @return array{status:string,row:?ImportExportSiteRecord,secret:bool}
+	 */
+	private function verifyResult( string $status, ?ImportExportSiteRecord $row = null, bool $secret = false ) :array {
+		return [
+			'status' => $status,
+			'row'    => $row,
+			'secret' => $secret,
+		];
 	}
 
 	private function syncSiteRowAllowsExportTrust( ImportExportSiteRecord $row, string $url ) :bool {

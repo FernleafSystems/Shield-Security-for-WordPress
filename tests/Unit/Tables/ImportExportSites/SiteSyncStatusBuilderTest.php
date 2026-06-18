@@ -65,7 +65,18 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$status = $this->builder()->build( $record );
 
 		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $status[ 'state_key' ] );
-		$this->assertStringContainsString( 'Export request timed out', $status[ 'summary_html' ] );
+	}
+
+	public function test_summary_uses_explicit_last_export_request_label() :void {
+		$status = $this->builder()->build( $this->record( [
+			'queue_status'            => SitesDB::QUEUE_IDLE,
+			'last_export_success_at'  => self::NOW - 20,
+			'last_export_request_at'  => self::NOW - 25,
+			'last_export_result_code' => SitesDB::EXPORT_RESULT_SUCCESS,
+		] ) );
+
+		$this->assertStringContainsString( 'Last export request', $status[ 'summary_html' ] );
+		$this->assertStringNotContainsString( 'Last request:', $status[ 'summary_html' ] );
 	}
 
 	public function test_queued_first_sync_is_pending() :void {

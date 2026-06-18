@@ -34,6 +34,7 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 		] );
 		$this->notifyCronHook = $this->requireController()->prefix( PluginImportExport_UpdateNotified::SLUG );
 		\wp_clear_scheduled_hook( $this->notifyCronHook );
+		$this->deleteNotifyCooldown( self::CONFIGURED_MASTER_URL );
 	}
 
 	public function tear_down() {
@@ -42,6 +43,7 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 			$this->httpStub = null;
 		}
 		\wp_clear_scheduled_hook( $this->notifyCronHook );
+		$this->deleteNotifyCooldown( self::CONFIGURED_MASTER_URL );
 		$this->restoreSelectedOptions( $this->optionsSnapshot );
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tear_down();
@@ -129,24 +131,82 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 			->store();
 		$this->captureShieldEvents();
 
-		$con->comps->import_export->runOptionsUpdateNotified();
+		$accepted = $con->comps->import_export->runOptionsUpdateNotified( self::CONFIGURED_MASTER_URL );
 
+		$this->assertFalse( $accepted );
 		$this->assertFalse( \wp_next_scheduled( $this->notifyCronHook ) );
 		$this->assertCount( 0, $this->getCapturedEventsByKey( 'import_notify_received' ) );
 	}
 
-	public function test_notify_schedules_when_local_sync_is_enabled_and_master_is_configured() :void {
+	public function test_notify_schedules_due_now_when_local_sync_is_enabled_and_master_is_configured() :void {
 		$con = $this->requireController();
 		$con->opts
 			->optSet( 'importexport_enable', 'Y' )
 			->optSet( 'importexport_masterurl', self::CONFIGURED_MASTER_URL )
 			->store();
 		$this->captureShieldEvents();
+		$before = \time();
 
-		$con->comps->import_export->runOptionsUpdateNotified();
+		$accepted = $con->comps->import_export->runOptionsUpdateNotified( self::CONFIGURED_MASTER_URL );
 
-		$this->assertNotFalse( \wp_next_scheduled( $this->notifyCronHook ) );
+		$scheduled = \wp_next_scheduled( $this->notifyCronHook );
+		$this->assertTrue( $accepted );
+		$this->assertGreaterThanOrEqual( $before, $scheduled );
+		$this->assertLessThanOrEqual( \time() + 1, $scheduled );
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'import_notify_received' ) );
+	}
+
+	public function test_notify_replaces_future_import_event_with_due_now_event() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', self::CONFIGURED_MASTER_URL )
+			->store();
+		$future = \time() + 300;
+		\wp_schedule_single_event( $future, $this->notifyCronHook );
+		$this->assertSame( $future, \wp_next_scheduled( $this->notifyCronHook ) );
+
+		$accepted = $con->comps->import_export->runOptionsUpdateNotified( self::CONFIGURED_MASTER_URL );
+
+		$this->assertTrue( $accepted );
+		$this->assertLessThan( $future, \wp_next_scheduled( $this->notifyCronHook ) );
+	}
+
+	public function test_notify_rejects_mismatched_master_url() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', self::CONFIGURED_MASTER_URL )
+			->store();
+
+		$accepted = $con->comps->import_export->runOptionsUpdateNotified( 'https://example.com/other-master' );
+
+		$this->assertFalse( $accepted );
+		$this->assertFalse( \wp_next_scheduled( $this->notifyCronHook ) );
+	}
+
+	public function test_update_notified_action_schedules_without_output_or_die() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', self::CONFIGURED_MASTER_URL )
+			->store();
+
+		$action = new PluginImportExport_UpdateNotified( [
+			'master_url' => self::CONFIGURED_MASTER_URL,
+		] );
+		$method = new \ReflectionMethod( $action, 'exec' );
+		$method->setAccessible( true );
+		\ob_start();
+		try {
+			$method->invoke( $action );
+		}
+		finally {
+			$output = \ob_get_clean();
+		}
+
+		$this->assertSame( '', \trim( (string)$output ) );
+		$this->assertNotFalse( \wp_next_scheduled( $this->notifyCronHook ) );
 	}
 
 	public function test_secret_key_verification_accepts_exact_match() :void {
@@ -236,5 +296,12 @@ class ImportExportSyncHardeningIntegrationTest extends ShieldIntegrationTestCase
 			->optSet( 'importexport_secretkey', $secret )
 			->optSet( 'importexport_secretkey_expires_at', \time() + \DAY_IN_SECONDS )
 			->store();
+	}
+
+	private function deleteNotifyCooldown( string $masterUrl ) :void {
+		\delete_transient(
+			$this->requireController()->prefix( 'importexport_updatenotified_' )
+			.\hash( 'sha256', \strtolower( \trim( $masterUrl ) ) )
+		);
 	}
 }

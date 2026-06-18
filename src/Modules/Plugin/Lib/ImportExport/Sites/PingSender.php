@@ -10,21 +10,48 @@ class PingSender {
 
 	use PluginControllerConsumer;
 
-	public function send( string $url, int $timeout = 2 ) :array {
-		$targetUrl = self::con()->plugin_urls->noncedPluginAction( PluginImportExport_UpdateNotified::class, $url );
+	/**
+	 * @return array{success:bool,http_code:int,error:string}
+	 */
+	public function send( string $url, int $timeout = 5, string $importID = '' ) :array {
+		$url = Services::Data()->validateSimpleHttpUrl( $url );
+		if ( $url === false ) {
+			return self::result( false, 0, 'invalid_url' );
+		}
+
+		$masterUrl = $this->canonicalMasterUrl();
+		$aux = empty( $masterUrl ) ? [] : [ 'master_url' => $masterUrl ];
+		if ( $importID !== '' ) {
+			$aux[ 'id' ] = $importID;
+		}
+		$targetUrl = self::con()->plugin_urls->noncedPluginAction(
+			PluginImportExport_UpdateNotified::class,
+			(string)$url,
+			$aux
+		);
 		return ( new ScopedTargetHostRequest() )->run( $targetUrl, static function () use ( $targetUrl, $timeout ) :array {
 			$http = Services::HttpRequest();
-			$success = $http->get( $targetUrl, [
+			$http->get( $targetUrl, [
 				'timeout' => $timeout,
 			] );
 			$code = $http->lastResponse ? (int)$http->lastResponse->getCode() : 0;
-			$error = $success ? '' : ( $http->lastError ? $http->lastError->get_error_message() : 'ping_failed' );
-
-			return [
-				'success'   => $success,
-				'http_code' => $code,
-				'error'     => $error,
-			];
+			return self::result( true, $code, '' );
 		} );
+	}
+
+	private function canonicalMasterUrl() :string {
+		$masterUrl = Services::Data()->validateSimpleHttpUrl( Services::WpGeneral()->getHomeUrl() );
+		return $masterUrl === false ? '' : (string)$masterUrl;
+	}
+
+	/**
+	 * @return array{success:bool,http_code:int,error:string}
+	 */
+	private static function result( bool $success, int $httpCode, string $error ) :array {
+		return [
+			'success'   => $success,
+			'http_code' => $httpCode,
+			'error'     => $error,
+		];
 	}
 }

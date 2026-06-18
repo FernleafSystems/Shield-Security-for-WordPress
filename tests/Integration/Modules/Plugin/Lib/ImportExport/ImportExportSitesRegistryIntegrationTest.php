@@ -632,8 +632,8 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			}
 		}
 
-		$this->assertSame( 10, $waiting );
-		$this->assertSame( 2, $stillDue );
+		$this->assertSame( 5, $waiting );
+		$this->assertSame( 7, $stillDue );
 	}
 
 	public function test_queue_runner_sends_pending_invite_once_and_waits_for_connection() :void {
@@ -648,6 +648,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 
 		$row = $repo->findById( $row->id, true );
 		$this->assertSame( [ 'https://invite-queued.example.com' ], $inviteSender->urls );
+		$this->assertSame( [ 2 ], $inviteSender->timeouts );
 		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $row->queue_status );
 		$this->assertSame( 0, $row->next_ping_at );
 		$this->assertSame( 0, $row->last_ping_attempt_at );
@@ -714,10 +715,36 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 0, $row->last_export_success_at );
 	}
 
+	public function test_queue_runner_records_attempted_notify_without_response_as_waiting_for_export() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://notify-no-response.example.com', SitesDB::SOURCE_MANUAL, '', true );
+
+		( new ImportExportQueueRunnerTestDouble( new ImportExportPingSenderTestDouble( true, 0, '' ) ) )->run();
+
+		$row = $repo->findById( $row->id, true );
+		$this->assertSame( SitesDB::QUEUE_WAITING_EXPORT, $row->queue_status );
+		$this->assertGreaterThan( 0, $row->last_ping_success_at );
+		$this->assertSame( 0, $row->last_ping_http_code );
+		$this->assertSame( '', $row->last_ping_error );
+		$this->assertGreaterThan( Services::Request()->ts(), $row->expected_export_by );
+		$this->assertSame( 0, $row->last_export_failure_at );
+	}
+
+	public function test_queue_runner_passes_stored_import_id_to_notify_sender() :void {
+		$repo = $this->repo();
+		$repo->upsertActive( 'https://notify-import-id.example.com', SitesDB::SOURCE_MANUAL, 'stored-import-id', true );
+		$sender = new ImportExportPingSenderTestDouble( true, 200, '' );
+
+		( new ImportExportQueueRunnerTestDouble( $sender ) )->run();
+
+		$this->assertSame( [ 'stored-import-id' ], $sender->importIDs );
+		$this->assertSame( [ 5 ], $sender->timeouts );
+	}
+
 	public function test_missing_export_request_after_ping_records_export_timeout() :void {
 		$repo = $this->repo();
 		$row = $repo->upsertActive( 'https://timeout.example.com', SitesDB::SOURCE_MANUAL, '', true );
-		$repo->recordPingSuccess( $row, 200, Services::Request()->ts() - 1 );
+		$repo->recordNotifyDispatched( $row, 200, Services::Request()->ts() - 1 );
 
 		( new ImportExportQueueRunnerTestDouble( new ImportExportPingSenderTestDouble( true, 200, '' ) ) )->run();
 
@@ -731,7 +758,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 	public function test_export_failure_updates_export_fields_distinct_from_ping_fields() :void {
 		$repo = $this->repo();
 		$row = $repo->upsertActive( 'https://export-fail.example.com', SitesDB::SOURCE_MANUAL, '', true );
-		$repo->recordPingSuccess( $row, 202, Services::Request()->ts() + 600 );
+		$repo->recordNotifyDispatched( $row, 202, Services::Request()->ts() + 600 );
 
 		$repo->recordExportFailure( 'https://export-fail.example.com', SitesDB::EXPORT_RESULT_VERIFY_FAILED, 'verify failed' );
 
@@ -1351,6 +1378,9 @@ class ImportExportQueueRunnerTestDouble extends QueueRunner {
 
 class ImportExportPingSenderTestDouble extends PingSender {
 
+	public array $importIDs = [];
+	public array $timeouts = [];
+
 	private bool $success;
 	private int $httpCode;
 	private string $error;
@@ -1361,7 +1391,9 @@ class ImportExportPingSenderTestDouble extends PingSender {
 		$this->error = $error;
 	}
 
-	public function send( string $url, int $timeout = 2 ) :array {
+	public function send( string $url, int $timeout = 5, string $importID = '' ) :array {
+		$this->importIDs[] = $importID;
+		$this->timeouts[] = $timeout;
 		return [
 			'success'   => $this->success,
 			'http_code' => $this->httpCode,
@@ -1373,9 +1405,11 @@ class ImportExportPingSenderTestDouble extends PingSender {
 class ImportExportInviteSenderTestDouble extends SyncSiteInviteSender {
 
 	public array $urls = [];
+	public array $timeouts = [];
 
 	public function send( string $url, int $timeout = 2 ) :array {
 		$this->urls[] = $url;
+		$this->timeouts[] = $timeout;
 		return [
 			'success'   => true,
 			'http_code' => 200,

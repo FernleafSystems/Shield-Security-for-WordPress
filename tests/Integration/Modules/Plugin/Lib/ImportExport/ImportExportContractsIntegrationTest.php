@@ -305,6 +305,147 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertExportJsonPayload( $payload );
 	}
 
+	public function test_export_json_no_id_legacy_sync_site_learns_import_id_after_handshake() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL );
+		$handshakeRequests = 0;
+		$filter = static function ( $preempt, array $args, string $url ) use ( &$handshakeRequests ) {
+			if ( \str_contains( $url, '93.184.216.71' ) ) {
+				$handshakeRequests++;
+				return [
+					'headers'  => [],
+					'body'     => \wp_json_encode( [ 'success' => true ] ),
+					'response' => [
+						'code'    => 200,
+						'message' => 'OK',
+					],
+					'cookies'  => [],
+					'filename' => null,
+				];
+			}
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$payload = $this->captureExportJson( [
+				'url' => self::MANUAL_PUBLIC_URL,
+				'id'  => self::SLAVE_IMPORT_ID,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$this->assertExportJsonPayload( $payload );
+		$this->assertSame( 1, $handshakeRequests );
+		$this->assertSame( self::SLAVE_IMPORT_ID, ( new SiteRepository() )->findById( $row->id, true )->import_id );
+	}
+
+	public function test_export_json_row_with_import_id_rejects_missing_id_without_handshake() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$handshakeRequests = 0;
+		$filter = static function ( $preempt, array $args, string $url ) use ( &$handshakeRequests ) {
+			if ( \str_contains( $url, '93.184.216.71' ) ) {
+				$handshakeRequests++;
+			}
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$payload = $this->captureExportJson( [
+				'url' => self::MANUAL_PUBLIC_URL,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$this->assertExportJsonVerifyFailurePayload( $payload );
+		$this->assertSame( 0, $handshakeRequests );
+	}
+
+	public function test_export_json_no_id_handshake_is_cooldown_limited() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL );
+		$handshakeRequests = 0;
+		$filter = static function ( $preempt, array $args, string $url ) use ( &$handshakeRequests ) {
+			if ( \str_contains( $url, '93.184.216.71' ) ) {
+				$handshakeRequests++;
+				return [
+					'headers'  => [],
+					'body'     => \wp_json_encode( [ 'success' => false ] ),
+					'response' => [
+						'code'    => 200,
+						'message' => 'OK',
+					],
+					'cookies'  => [],
+					'filename' => null,
+				];
+			}
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$first = $this->captureExportJson( [
+				'url' => self::MANUAL_PUBLIC_URL,
+			] );
+			$second = $this->captureExportJson( [
+				'url' => self::MANUAL_PUBLIC_URL,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$this->assertExportJsonVerifyFailurePayload( $first );
+		$this->assertExportJsonVerifyFailurePayload( $second );
+		$this->assertSame( 1, $handshakeRequests );
+	}
+
+	public function test_export_json_repeated_valid_export_inside_cooldown_is_cheap_rejected() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+
+		$first = $this->captureExportJson( [
+			'url' => self::MANUAL_PUBLIC_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+		$rowAfterFirst = ( new SiteRepository() )->findById( $row->id, true );
+		$second = $this->captureExportJson( [
+			'url' => self::MANUAL_PUBLIC_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+		$rowAfterSecond = ( new SiteRepository() )->findById( $row->id, true );
+
+		$this->assertExportJsonPayload( $first );
+		$this->assertExportJsonVerifyFailurePayload( $second );
+		$this->assertSame( 0, $rowAfterSecond->consecutive_failures );
+		$this->assertSame( $rowAfterFirst->last_export_failure_at, $rowAfterSecond->last_export_failure_at );
+		$this->assertSame( $rowAfterFirst->last_export_error, $rowAfterSecond->last_export_error );
+	}
+
+	public function test_export_json_expected_export_is_not_blocked_by_previous_export_cooldown() :void {
+		$repo = new SiteRepository();
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$this->assertExportJsonPayload( $this->captureExportJson( [
+			'url' => self::MANUAL_PUBLIC_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] ) );
+
+		$repo->recordNotifyDispatched( $repo->findById( $row->id, true ), 0, \time() + 600 );
+		$payload = $this->captureExportJson( [
+			'url' => self::MANUAL_PUBLIC_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+
+		$this->assertExportJsonPayload( $payload );
+	}
+
 	public function test_export_json_manual_sync_site_handshake_rejects_unsafe_redirects() :void {
 		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
 		$this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL );

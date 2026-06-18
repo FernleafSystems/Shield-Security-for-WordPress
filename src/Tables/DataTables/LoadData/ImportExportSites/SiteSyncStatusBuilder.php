@@ -239,7 +239,7 @@ class SiteSyncStatusBuilder {
 			$this->detailsButtonHtml( $detailsHtml ),
 			$this->escHtml( $reason ),
 			$this->escHtml( \sprintf( '%s: %s | %s: %s',
-				$this->text( 'Last request' ),
+				$this->text( 'Last export request' ),
 				$lastRequest,
 				$this->text( 'Last export' ),
 				$lastExport
@@ -291,7 +291,7 @@ class SiteSyncStatusBuilder {
 			case SitesDB::QUEUE_PROCESSING:
 				return $this->text( 'A sync ping is currently being processed.' );
 			case SitesDB::QUEUE_WAITING_EXPORT:
-				return $this->text( 'Ping succeeded; waiting for this site to send its export.' );
+				return $this->text( 'Update notification sent; waiting for this site to send its export.' );
 			case SitesDB::QUEUE_PENDING_INVITE:
 				return $this->text( 'This site is queued for a network invite.' );
 			case SitesDB::QUEUE_PENDING_CONNECTION:
