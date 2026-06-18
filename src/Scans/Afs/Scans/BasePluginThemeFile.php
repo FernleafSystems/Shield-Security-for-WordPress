@@ -13,9 +13,15 @@ abstract class BasePluginThemeFile extends BaseScan {
 
 	protected ?AssetFileContext $assetContext = null;
 
+	protected bool $assetHashesUnavailable = false;
+
 	public function setAssetContext( AssetFileContext $assetContext ) :self {
 		$this->assetContext = $assetContext;
 		return $this;
+	}
+
+	public function hasUnavailableAssetHashes() :bool {
+		return $this->assetHashesUnavailable;
 	}
 
 	public function getHashVerificationResult() :HashVerificationResult {

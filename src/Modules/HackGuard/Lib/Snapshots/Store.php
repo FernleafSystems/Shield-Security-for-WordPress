@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
 
@@ -121,8 +121,8 @@ class Store {
 		$meta = $this->getSnapMeta();
 		if ( !empty( $meta ) ) {
 			$asset = $this->getAsset();
-			$verified = $meta[ 'version' ] === $asset->Version
-						&& $meta[ 'unique_id' ] ===
+			$verified = ( $meta[ 'version' ] ?? null ) === $asset->Version
+						&& ( $meta[ 'unique_id' ] ?? null ) ===
 						   ( $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet );
 		}
 		return $verified;

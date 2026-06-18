@@ -30,8 +30,8 @@ class ThemeFile extends BasePluginThemeFile {
 			$verification = ( new AssetTrustResolver() )->verifyContext( $this->pathFull, $context );
 			if ( !$verification->verified ) {
 				throw new Exceptions\ThemeFileChecksumFailException( $this->pathFull, [
-					'slug'          => $context->assetKey,
-					'asset_version' => $context->assetVersion,
+					'slug'          => $verification->assetKey,
+					'asset_version' => $verification->assetVersion,
 				] );
 			}
 			$this->hashVerificationResult = $verification;
@@ -43,7 +43,11 @@ class ThemeFile extends BasePluginThemeFile {
 				'asset_version' => $context->assetVersion,
 			] );
 		}
-		catch ( \InvalidArgumentException|AssetHashesNotFound|NonAssetFileException $e ) {
+		catch ( AssetHashesNotFound $e ) {
+			$this->assetHashesUnavailable = true;
+			$valid = false;
+		}
+		catch ( \InvalidArgumentException|NonAssetFileException $e ) {
 			$valid = false;
 		}
 
