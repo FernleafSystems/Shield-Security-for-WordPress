@@ -61,7 +61,7 @@ class PublicUpgradeTestLaneTest extends TestCase {
 		$this->assertSame( '', (string)\file_get_contents( Path::join( $artifactDir, PublicUpgradeArtifacts::ERROR_EVENTS_FILE ) ) );
 		$this->assertSame( [], $this->runtimeLogCopyCommands( $runner ) );
 		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $docker->ignoredFailureCalls[ 0 ][ 'sub_command' ] );
-		$this->assertSame( [ 'up', '-d', 'db', 'wordpress' ], $docker->calls[ 0 ][ 'sub_command' ] );
+		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db', 'wordpress' ], $docker->calls[ 0 ][ 'sub_command' ] );
 		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $docker->ignoredFailureCalls[ 1 ][ 'sub_command' ] );
 	}
 

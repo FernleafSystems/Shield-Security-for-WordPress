@@ -55,7 +55,7 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( [ 'generated-config', 'runtime-refresh' ], $events );
 		$this->assertCount( 1, $dockerComposeExecutor->calls );
 		$this->assertSame(
-			[ 'up', '-d', 'db', 'wordpress' ],
+			[ 'up', '-d', '--wait', '--wait-timeout', '60', 'db', 'wordpress' ],
 			$dockerComposeExecutor->calls[ 0 ][ 'sub_command' ]
 		);
 		$this->assertSame( 'shield-local-site', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
@@ -91,8 +91,8 @@ class LocalSiteManagerTest extends TestCase {
 
 		$manager->ensureReady( $this->projectRoot, true );
 
-		$this->assertContains( 'SHIELD_LOCAL_SITE_PROFILE=test', $processRunner->calls[ 1 ][ 'command' ] );
-		$this->assertContains( 'SHIELD_LOCAL_SITE_TITLE=Shield Local Test Site', $processRunner->calls[ 1 ][ 'command' ] );
+		$provisionCommand = $this->findProcessCommandContaining( $processRunner, 'SHIELD_LOCAL_SITE_PROFILE=test' );
+		$this->assertContains( 'SHIELD_LOCAL_SITE_TITLE=Shield Local Test Site', $provisionCommand );
 	}
 
 	public function testEnsureReadyReusesHealthySiteAndOnlyRunsProvisioning() :void {
@@ -330,7 +330,7 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 2, $dockerComposeExecutor->calls );
 		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
-		$this->assertSame( [ 'up', '-d', 'db', 'wordpress' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
+		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db', 'wordpress' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
 	}
 
 	public function testBrowserLaneResetUsesSharedDatabaseWithoutTearingItDown() :void {
@@ -352,7 +352,7 @@ class LocalSiteManagerTest extends TestCase {
 
 		$this->assertSame( 0, $exitCode );
 		$this->assertSame( [ 'tests/docker/docker-compose.browser-db.yml' ], $dockerComposeExecutor->calls[ 0 ][ 'compose_files' ] );
-		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
+		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
 		$this->assertSame( 'shield-browser-db', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'COMPOSE_PROJECT_NAME' ] );
 		$this->assertSame( 'shield-plugin-browser', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LABEL_HARNESS' ] );
 		$this->assertSame( 'shared', $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LABEL_LANE' ] );
@@ -366,7 +366,8 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( 'shield-browser-db:3306', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_LOCAL_SITE_DB_HOST' ] );
 		$this->assertSame( 'shield-plugin-browser', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LABEL_HARNESS' ] );
 		$this->assertSame( 'browser-lane-2', $dockerComposeExecutor->calls[ 2 ][ 'env_overrides' ][ 'SHIELD_BROWSER_LABEL_LANE' ] );
-		$this->assertContains( 'DROP DATABASE IF EXISTS `shield_test_site_lane_2`; CREATE DATABASE `shield_test_site_lane_2`;', $processRunner->calls[ 2 ][ 'command' ] );
+		$resetCommand = $this->findProcessCommandContaining( $processRunner, 'DROP DATABASE IF EXISTS `shield_test_site_lane_2`; CREATE DATABASE `shield_test_site_lane_2`;' );
+		$this->assertMysqlTcpCommand( $resetCommand, 'mysql' );
 	}
 
 	public function testPrepareBrowserLaneCleanResetsRefreshesInstallsFixtureEndpointAndWritesMarker() :void {
@@ -393,11 +394,12 @@ class LocalSiteManagerTest extends TestCase {
 		);
 
 		$this->assertSame( 0, $exitCode );
-		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
+		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
 		$this->assertSame( [ 'down', '-v', '--remove-orphans' ], $dockerComposeExecutor->calls[ 1 ][ 'sub_command' ] );
 		$this->assertSame( [ 'up', '-d', 'wordpress' ], $dockerComposeExecutor->calls[ 2 ][ 'sub_command' ] );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
-		$this->assertContains( 'DROP DATABASE IF EXISTS `shield_test_site_lane_2`; CREATE DATABASE `shield_test_site_lane_2`;', $processRunner->calls[ 2 ][ 'command' ] );
+		$resetCommand = $this->findProcessCommandContaining( $processRunner, 'DROP DATABASE IF EXISTS `shield_test_site_lane_2`; CREATE DATABASE `shield_test_site_lane_2`;' );
+		$this->assertMysqlTcpCommand( $resetCommand, 'mysql' );
 		$this->assertSame(
 			[
 				'docker',
@@ -405,12 +407,12 @@ class LocalSiteManagerTest extends TestCase {
 				'tests/browser/support/shield-browser-fixtures.php',
 				'wordpress-container:/tmp/shield-browser-fixtures.php',
 			],
-			$processRunner->calls[ 3 ][ 'command' ]
+			$this->findProcessCommandContaining( $processRunner, 'tests/browser/support/shield-browser-fixtures.php' )
 		);
-		$this->assertContains( 'SHIELD_BROWSER_FIXTURE_TOKEN=fixture-token', $processRunner->calls[ 4 ][ 'command' ] );
-		$this->assertContains( '/var/www/html/wp-content/plugins/wp-simple-firewall/tests/docker/provision-local-site.sh', $processRunner->calls[ 5 ][ 'command' ] );
-		$this->assertContains( 'SHIELD_BROWSER_READY_MARKER=/var/www/html/wp-content/.shield-browser-lane-ready.json', $processRunner->calls[ 6 ][ 'command' ] );
-		$marker = $this->browserReadyMarkerFromCommand( $processRunner->calls[ 6 ][ 'command' ] );
+		$this->findProcessCommandContaining( $processRunner, 'SHIELD_BROWSER_FIXTURE_TOKEN=fixture-token' );
+		$this->findProcessCommandContaining( $processRunner, '/var/www/html/wp-content/plugins/wp-simple-firewall/tests/docker/provision-local-site.sh' );
+		$markerCommand = $this->findProcessCommandContaining( $processRunner, 'SHIELD_BROWSER_READY_MARKER=/var/www/html/wp-content/.shield-browser-lane-ready.json' );
+		$marker = $this->browserReadyMarkerFromCommand( $markerCommand );
 		$this->assertSame( 3, $marker[ 'schema_version' ] ?? null );
 		$this->assertSame( 'http://127.0.0.1:8891', $marker[ 'site_url' ] ?? null );
 		$this->assertSame( 'shield_test_site_lane_2', $marker[ 'db_name' ] ?? null );
@@ -445,6 +447,7 @@ class LocalSiteManagerTest extends TestCase {
 			0,
 			0,
 			0,
+			0,
 			[
 				'exit_code' => 0,
 				'stdout' => $marker,
@@ -474,7 +477,7 @@ class LocalSiteManagerTest extends TestCase {
 
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 1, $dockerComposeExecutor->calls );
-		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
+		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
 		$this->assertSame( $hostManifest, $runtimeRefresher->refreshCalls[ 0 ][ 'host_manifest' ] );
 		$this->assertSame(
@@ -484,9 +487,9 @@ class LocalSiteManagerTest extends TestCase {
 				'tests/browser/support/shield-browser-fixtures.php',
 				'wordpress-container:/tmp/shield-browser-fixtures.php',
 			],
-			$processRunner->calls[ 2 ][ 'command' ]
+			$this->findProcessCommandContaining( $processRunner, 'tests/browser/support/shield-browser-fixtures.php' )
 		);
-		$this->assertContains( 'SHIELD_BROWSER_FIXTURE_TOKEN=fixture-token', $processRunner->calls[ 3 ][ 'command' ] );
+		$this->findProcessCommandContaining( $processRunner, 'SHIELD_BROWSER_FIXTURE_TOKEN=fixture-token' );
 		foreach ( $processRunner->calls as $call ) {
 			$this->assertNotContains( '/var/www/html/wp-content/plugins/wp-simple-firewall/tests/docker/provision-local-site.sh', $call[ 'command' ] );
 			$this->assertNotContains( 'SHIELD_BROWSER_READY_MARKER=/var/www/html/wp-content/.shield-browser-lane-ready.json', $call[ 'command' ] );
@@ -512,6 +515,7 @@ class LocalSiteManagerTest extends TestCase {
 			'profile'        => 'browser-lane-1',
 		], \JSON_UNESCAPED_SLASHES ) ?: '{}';
 		$processRunner = new RecordingProcessRunner( [
+			0,
 			0,
 			0,
 			0,
@@ -547,9 +551,12 @@ class LocalSiteManagerTest extends TestCase {
 
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 1, $dockerComposeExecutor->calls );
-		$this->assertSame( [ 'up', '-d', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
-		$this->assertContains( '/var/www/html/wp-content/plugins/wp-simple-firewall/tests/docker/provision-local-site.sh', $processRunner->calls[ 5 ][ 'command' ] );
-		$marker = $this->browserReadyMarkerFromCommand( $processRunner->calls[ 6 ][ 'command' ] );
+		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
+		$this->findProcessCommandContaining( $processRunner, '/var/www/html/wp-content/plugins/wp-simple-firewall/tests/docker/provision-local-site.sh' );
+		$marker = $this->browserReadyMarkerFromCommand( $this->findProcessCommandContaining(
+			$processRunner,
+			'SHIELD_BROWSER_READY_MARKER=/var/www/html/wp-content/.shield-browser-lane-ready.json'
+		) );
 		$this->assertSame( 3, $marker[ 'schema_version' ] ?? null );
 		$this->assertSame( $this->runtimeManifestHash( $hostManifest ), $marker[ 'runtime_manifest_hash' ] ?? null );
 	}
@@ -652,6 +659,29 @@ class LocalSiteManagerTest extends TestCase {
 		}
 
 		$this->fail( 'Browser ready marker JSON environment argument was not found.' );
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function findProcessCommandContaining( RecordingProcessRunner $processRunner, string $fragment ) :array {
+		foreach ( $processRunner->calls as $call ) {
+			if ( \strpos( \implode( ' ', $call[ 'command' ] ), $fragment ) !== false ) {
+				return $call[ 'command' ];
+			}
+		}
+
+		$this->fail( 'Process command fragment not found: '.$fragment );
+	}
+
+	/**
+	 * @param string[] $command
+	 */
+	private function assertMysqlTcpCommand( array $command, string $binary ) :void {
+		$this->assertContains( $binary, $command );
+		$this->assertContains( '--protocol=tcp', $command );
+		$this->assertContains( '-h', $command );
+		$this->assertContains( '127.0.0.1', $command );
 	}
 
 	/**

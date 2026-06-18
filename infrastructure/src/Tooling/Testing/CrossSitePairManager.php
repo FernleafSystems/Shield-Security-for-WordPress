@@ -98,11 +98,7 @@ class CrossSitePairManager {
 		$exitCode = $this->dockerComposeExecutor->run(
 			$rootDir,
 			$composeFiles,
-			[
-				'up',
-				'-d',
-				self::DB_SERVICE_NAME,
-			],
+			$this->buildDatabaseUpCommand(),
 			$envOverrides,
 			$onOutput,
 			$showDockerOutput
@@ -110,7 +106,7 @@ class CrossSitePairManager {
 		if ( $exitCode !== 0 ) {
 			throw $this->composeFailureException(
 				'Failed to start the cross-site Docker database service.',
-				[ 'up', '-d', self::DB_SERVICE_NAME ],
+				$this->buildDatabaseUpCommand(),
 				$exitCode
 			);
 		}
@@ -611,7 +607,7 @@ class CrossSitePairManager {
 		$this->waitForDatabaseReady( $rootDir, $envOverrides, $onOutput );
 		$command = \array_merge(
 			$this->buildComposeCommandForExecution( [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
-			[ 'mysql', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '-e', $this->buildResetDatabasesSql() ]
+			$this->buildMysqlSqlCommand( $this->buildResetDatabasesSql() )
 		);
 		$process = $this->processRunner->run(
 			$command,
@@ -641,31 +637,90 @@ class CrossSitePairManager {
 	}
 
 	private function waitForDatabaseReady( string $rootDir, array $envOverrides, ?callable $onOutput ) :void {
-		$command = \array_merge(
-			$this->buildComposeCommandForExecution( [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
-			[ 'mysqladmin', 'ping', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '--silent' ]
-		);
+		$pingCommand = $this->buildMysqlPingCommand();
+		$selectOneCommand = $this->buildMysqlSelectOneCommand();
+		$lastCommand = $pingCommand;
+		$lastProcess = null;
+		$lastPhase = 'ping';
 		$startedAt = \time();
 		do {
-			$process = $this->processRunner->run(
-				$command,
+			$pingProcess = $this->processRunner->run(
+				$pingCommand,
 				$rootDir,
 				$onOutput,
 				$envOverrides
 			);
-			if ( ( $process->getExitCode() ?? 1 ) === 0 ) {
+			if ( ( $pingProcess->getExitCode() ?? 1 ) !== 0 ) {
+				$lastCommand = $pingCommand;
+				$lastProcess = $pingProcess;
+				$lastPhase = 'ping';
+				\usleep( 500000 );
+				continue;
+			}
+
+			$selectOneProcess = $this->processRunner->run(
+				$selectOneCommand,
+				$rootDir,
+				$onOutput,
+				$envOverrides
+			);
+			if ( ( $selectOneProcess->getExitCode() ?? 1 ) === 0 ) {
 				return;
 			}
+
+			$lastCommand = $selectOneCommand;
+			$lastProcess = $selectOneProcess;
+			$lastPhase = 'sql';
 			\usleep( 500000 );
 		} while ( \time() - $startedAt < 60 );
 
+		if ( !$lastProcess instanceof Process ) {
+			throw new \RuntimeException( 'Cross-site MySQL readiness check did not run.' );
+		}
+
 		throw $this->commandFailureException(
-			'Cross-site MySQL did not become ready within 60 seconds.',
-			$command,
-			$process->getExitCode() ?? 1,
-			$process->getOutput(),
-			$process->getErrorOutput()
+			$lastPhase === 'sql'
+				? 'Cross-site MySQL accepted ping but did not pass SELECT 1 within 60 seconds.'
+				: 'Cross-site MySQL did not become ready within 60 seconds.',
+			$lastCommand,
+			$lastProcess->getExitCode() ?? 1,
+			$lastProcess->getOutput(),
+			$lastProcess->getErrorOutput()
 		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildDatabaseUpCommand() :array {
+		return [ 'up', '-d', '--wait', '--wait-timeout', '60', self::DB_SERVICE_NAME ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildMysqlPingCommand() :array {
+		return \array_merge(
+			$this->buildComposeCommandForExecution( [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			[ 'mysqladmin', 'ping', '--protocol=tcp', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '--silent' ]
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildMysqlSelectOneCommand() :array {
+		return \array_merge(
+			$this->buildComposeCommandForExecution( [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			$this->buildMysqlSqlCommand( 'SELECT 1' )
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildMysqlSqlCommand( string $sql ) :array {
+		return [ 'mysql', '--protocol=tcp', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '-e', $sql ];
 	}
 
 	private function waitForInternalHttpReady( string $rootDir, string $requestingSite, string $url ) :void {

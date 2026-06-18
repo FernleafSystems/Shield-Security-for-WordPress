@@ -311,7 +311,7 @@ class SourceRuntimeTestLane {
 	 * @return string[]
 	 */
 	private function buildComposeMysqlUpCommand() :array {
-		return [ 'up', '-d', 'mysql-latest', 'mysql-previous' ];
+		return [ 'up', '-d', '--wait', '--wait-timeout', '60', 'mysql-latest', 'mysql-previous' ];
 	}
 
 	/**

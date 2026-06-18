@@ -61,7 +61,7 @@ class CrossSitePairManagerTest extends TestCase {
 		$command = $this->invokePrivate(
 			new CrossSitePairManager(),
 			'buildComposeCommandForExecution',
-			[ [ 'up', '-d', 'db' ] ]
+			[ [ 'ps' ] ]
 		);
 
 		$this->assertSame( 'docker', $command[ 0 ] );
@@ -260,11 +260,15 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->runPrepareQuietly( $manager, $root, 'warm', false );
 
 		$this->assertNotEmpty( $docker->calls );
+		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db' ], $docker->calls[ 0 ][ 'sub_command' ] );
 		foreach ( $docker->calls as $call ) {
 			$this->assertTrue( $call[ 'has_output_callback' ] );
 			$this->assertFalse( $call[ 'show_docker_output' ] );
 		}
 		$this->assertNotEmpty( $runner->calls );
+		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining( $runner, 'mysqladmin ping' ), 'mysqladmin' );
+		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining( $runner, 'SELECT 1' ), 'mysql' );
+		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining( $runner, 'DROP DATABASE IF EXISTS `shield_cross_site_master`' ), 'mysql' );
 		foreach ( $runner->calls as $call ) {
 			$this->assertTrue( $call[ 'has_output_callback' ], \implode( ' ', $call[ 'command' ] ) );
 		}
@@ -358,11 +362,31 @@ class CrossSitePairManagerTest extends TestCase {
 			$this->assertStringContainsString( 'Compose project: shield-cross-site', $message );
 			$this->assertStringContainsString( 'Exit code: 7', $message );
 			$this->assertStringContainsString(
-				'Command: docker compose -p shield-cross-site -f tests/docker/docker-compose.cross-site.yml up -d db',
+				'Command: docker compose -p shield-cross-site -f tests/docker/docker-compose.cross-site.yml up -d --wait --wait-timeout 60 db',
 				$message
 			);
 			$this->assertStringNotContainsString( 'Container shield-cross-site', $message );
 		}
+	}
+
+	private function findProcessCommandContaining( RecordingProcessRunner $processRunner, string $fragment ) :array {
+		foreach ( $processRunner->calls as $call ) {
+			if ( \strpos( \implode( ' ', $call[ 'command' ] ), $fragment ) !== false ) {
+				return $call[ 'command' ];
+			}
+		}
+
+		$this->fail( 'Process command fragment not found: '.$fragment );
+	}
+
+	/**
+	 * @param string[] $command
+	 */
+	private function assertMysqlTcpCommand( array $command, string $binary ) :void {
+		$this->assertContains( $binary, $command );
+		$this->assertContains( '--protocol=tcp', $command );
+		$this->assertContains( '-h', $command );
+		$this->assertContains( '127.0.0.1', $command );
 	}
 
 	private function isInternalHttpReadinessCall( array $call ) :bool {

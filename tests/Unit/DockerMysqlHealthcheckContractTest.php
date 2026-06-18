@@ -23,6 +23,16 @@ class DockerMysqlHealthcheckContractTest extends TestCase {
 		$this->assertStringNotContainsString( 'mysqladmin ping -h localhost', $content );
 	}
 
+	public function test_docker_test_runner_uses_tcp_ping_and_sql_readiness() :void {
+		$content = $this->readProjectFile( 'bin/run-tests-docker.sh' );
+
+		$this->assertStringContainsString( 'MYSQL_PING_CMD=(mysqladmin ping --protocol=tcp -h"$DB_HOST" -u"$DB_USER")', $content );
+		$this->assertStringContainsString( 'MYSQL_SELECT_CMD=(mysql --protocol=tcp -h"$DB_HOST" -u"$DB_USER")', $content );
+		$this->assertStringContainsString( 'MYSQL_SELECT_CMD+=(-e "SELECT 1" "$DB_NAME")', $content );
+		$this->assertStringNotContainsString( 'MYSQL_CMD="mysqladmin ping -h', $content );
+		$this->assertStringNotContainsString( 'eval "$MYSQL_CMD"', $content );
+	}
+
 	/**
 	 * @return array<string,array{0:string,1:int}>
 	 */

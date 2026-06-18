@@ -399,14 +399,14 @@ class LocalSiteManager {
 			$exitCode = $this->dockerComposeExecutor->run(
 				$rootDir,
 				$composeFiles,
-				[ 'up', '-d', self::DB_SERVICE_NAME ],
+				$this->buildDatabaseUpCommand(),
 				$envOverrides,
 				$onOutput
 			);
 			if ( $exitCode !== 0 ) {
 				throw new \RuntimeException( $this->diagnoseCommandFailure(
 					'Failed to start the shared browser MySQL service.',
-					$this->buildComposeCommandForExecution( $composeFiles, [ 'up', '-d', self::DB_SERVICE_NAME ] ),
+					$this->buildComposeCommandForExecution( $composeFiles, $this->buildDatabaseUpCommand() ),
 					$exitCode
 				) );
 			}
@@ -463,31 +463,57 @@ class LocalSiteManager {
 	 * @param string[] $composeFiles
 	 */
 	private function waitForSharedDatabaseHealthy( string $rootDir, array $envOverrides, array $composeFiles ) :void {
-		$command = \array_merge(
-			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
-			[ 'mysqladmin', 'ping', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '--silent' ]
-		);
+		$pingCommand = $this->buildMysqlPingCommand( $composeFiles );
+		$selectOneCommand = $this->buildMysqlSelectOneCommand( $composeFiles );
+		$lastCommand = $pingCommand;
+		$lastProcess = null;
+		$lastPhase = 'ping';
 		$startedAt = \time();
 		do {
-			$process = $this->processRunner->run(
-				$command,
+			$pingProcess = $this->processRunner->run(
+				$pingCommand,
 				$rootDir,
 				static function () :void {
 				},
 				$envOverrides
 			);
-			if ( ( $process->getExitCode() ?? 1 ) === 0 ) {
+			if ( ( $pingProcess->getExitCode() ?? 1 ) !== 0 ) {
+				$lastCommand = $pingCommand;
+				$lastProcess = $pingProcess;
+				$lastPhase = 'ping';
+				\usleep( 500000 );
+				continue;
+			}
+
+			$selectOneProcess = $this->processRunner->run(
+				$selectOneCommand,
+				$rootDir,
+				static function () :void {
+				},
+				$envOverrides
+			);
+			if ( ( $selectOneProcess->getExitCode() ?? 1 ) === 0 ) {
 				return;
 			}
+
+			$lastCommand = $selectOneCommand;
+			$lastProcess = $selectOneProcess;
+			$lastPhase = 'sql';
 			\usleep( 500000 );
 		} while ( \time() - $startedAt < 60 );
 
+		if ( !$lastProcess instanceof Process ) {
+			throw new \RuntimeException( 'Shared browser MySQL readiness check did not run.' );
+		}
+
 		throw new \RuntimeException( $this->diagnoseCommandFailure(
-			'Shared browser MySQL did not become healthy within 60 seconds.',
-			$command,
-			$process->getExitCode() ?? 1,
-			$process->getOutput(),
-			$process->getErrorOutput()
+			$lastPhase === 'sql'
+				? 'Shared browser MySQL accepted ping but did not pass SELECT 1 within 60 seconds.'
+				: 'Shared browser MySQL did not become healthy within 60 seconds.',
+			$lastCommand,
+			$lastProcess->getExitCode() ?? 1,
+			$lastProcess->getOutput(),
+			$lastProcess->getErrorOutput()
 		) );
 	}
 
@@ -505,7 +531,7 @@ class LocalSiteManager {
 		);
 		$command = \array_merge(
 			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
-			[ 'mysql', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '-e', $sql ]
+			$this->buildMysqlSqlCommand( $sql )
 		);
 		$process = $this->processRunner->run(
 			$command,
@@ -597,12 +623,7 @@ class LocalSiteManager {
 		$exitCode = $this->dockerComposeExecutor->run(
 			$rootDir,
 			$composeFiles,
-			\array_merge(
-				[ 'up', '-d' ],
-				$this->definition->usesSharedDatabase()
-					? [ self::WORDPRESS_SERVICE_NAME ]
-					: [ self::DB_SERVICE_NAME, self::WORDPRESS_SERVICE_NAME ]
-			),
+			$this->buildSiteUpCommand(),
 			$envOverrides,
 			$onOutput
 		);
@@ -611,16 +632,56 @@ class LocalSiteManager {
 				'Failed to start the '.$this->definition->label().' Docker services.',
 				$this->buildComposeCommandForExecution(
 					$composeFiles,
-					\array_merge(
-						[ 'up', '-d' ],
-						$this->definition->usesSharedDatabase()
-							? [ self::WORDPRESS_SERVICE_NAME ]
-							: [ self::DB_SERVICE_NAME, self::WORDPRESS_SERVICE_NAME ]
-					)
+					$this->buildSiteUpCommand()
 				),
 				$exitCode
 			) );
 		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildDatabaseUpCommand() :array {
+		return [ 'up', '-d', '--wait', '--wait-timeout', '60', self::DB_SERVICE_NAME ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildSiteUpCommand() :array {
+		return $this->definition->usesSharedDatabase()
+			? [ 'up', '-d', self::WORDPRESS_SERVICE_NAME ]
+			: [ 'up', '-d', '--wait', '--wait-timeout', '60', self::DB_SERVICE_NAME, self::WORDPRESS_SERVICE_NAME ];
+	}
+
+	/**
+	 * @param string[] $composeFiles
+	 * @return string[]
+	 */
+	private function buildMysqlPingCommand( array $composeFiles ) :array {
+		return \array_merge(
+			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			[ 'mysqladmin', 'ping', '--protocol=tcp', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '--silent' ]
+		);
+	}
+
+	/**
+	 * @param string[] $composeFiles
+	 * @return string[]
+	 */
+	private function buildMysqlSelectOneCommand( array $composeFiles ) :array {
+		return \array_merge(
+			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			$this->buildMysqlSqlCommand( 'SELECT 1' )
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildMysqlSqlCommand( string $sql ) :array {
+		return [ 'mysql', '--protocol=tcp', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '-e', $sql ];
 	}
 
 	private function waitForWordpressStartup() :void {
