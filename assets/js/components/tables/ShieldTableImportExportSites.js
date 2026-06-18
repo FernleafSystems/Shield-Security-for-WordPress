@@ -33,6 +33,9 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 		shieldEventsHandler_Main.add_Click( '[data-import-export-site-delete]', async ( targetEl ) => {
 			await this.deleteManagedSite( targetEl );
 		} );
+		shieldEventsHandler_Main.add_Click( '[data-import-export-site-repair]', async ( targetEl ) => {
+			await this.repairManagedSite( targetEl );
+		} );
 		shieldEventsHandler_Main.addHandler(
 			'hidden.bs.offcanvas',
 			'.offcanvas.offcanvas_import_export_sites_authorise_urls',
@@ -70,6 +73,30 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 		}
 
 		this.bulkTableAction( 'delete_site', [ rid ], { launcher: button } );
+	}
+
+	async repairManagedSite( targetEl ) {
+		const button = targetEl instanceof Element ? targetEl.closest( '[data-import-export-site-repair]' ) : null;
+		if ( !( button instanceof HTMLElement ) ) {
+			return;
+		}
+
+		const rid = button.dataset.rid;
+		if ( typeof rid !== 'string' || rid.length < 1 ) {
+			return;
+		}
+
+		const dialog = shieldServices.dialog();
+		const confirmed = await dialog.confirm( {
+			message: this._base_data.strings.repair_site_confirm,
+			confirmLabel: dialog.resolveConfirmLabel( button ),
+			launcher: button,
+		} );
+		if ( !confirmed ) {
+			return;
+		}
+
+		this.bulkTableAction( 'repair_connection', [ rid ], { launcher: button } );
 	}
 
 	async bulkRemoveManagedSites( launcher = null ) {

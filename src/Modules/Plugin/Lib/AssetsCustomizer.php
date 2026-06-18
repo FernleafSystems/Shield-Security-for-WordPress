@@ -489,6 +489,7 @@ class AssetsCustomizer {
 							'strings' => [
 								'remove_site_confirm'          => __( 'Remove this site from managed client sites?', 'wp-simple-firewall' ),
 								'remove_selected_sites_confirm' => __( 'Remove selected sites from managed client sites?', 'wp-simple-firewall' ),
+								'repair_site_confirm'          => __( 'Use this if this site is stuck failing to sync or has not updated after several tries. Shield will try again now.', 'wp-simple-firewall' ),
 							],
 							'vars' => [
 								'datatables_init' => ( new ForImportExportSites() )->buildRaw(),

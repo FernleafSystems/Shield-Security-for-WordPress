@@ -183,11 +183,54 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		}
 		$this->assertSame( SiteSyncStatusBuilder::STATE_WORKING, $row[ 'sync_state' ] );
 		$this->assertStringContainsString( 'data-import-export-site-delete="1"', $row[ 'actions' ] );
+		$this->assertStringNotContainsString( 'data-import-export-site-repair="1"', $row[ 'actions' ] );
 		$this->assertStringContainsString( 'data-rid="99"', $row[ 'actions' ] );
 		$this->assertStringNotContainsString( 'secret-import-id', $row[ 'actions' ] );
 		$this->assertStringContainsString( 'data-shield-sync-details-trigger="1"', $row[ 'sync_status' ] );
 		$this->assertStringNotContainsString( 'secret-import-id', $row[ 'sync_status' ] );
 		$this->assertStringNotContainsString( 'Import ID', $row[ 'sync_status' ] );
+	}
+
+	public function test_problem_table_row_includes_repair_action() :void {
+		$rows = ( new BuildImportExportSitesTableData() )->exportBuildTableRowsFromRawRecords( [
+			$this->record( [
+				'id'                      => 123,
+				'import_id'               => 'secret-import-id',
+				'queue_status'            => SitesDB::QUEUE_QUEUED,
+				'last_export_failure_at'  => self::NOW - 10,
+				'last_export_error'       => 'verify failed',
+				'consecutive_failures'    => 1,
+			] ),
+		] );
+
+		$row = $rows[ 0 ];
+
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $row[ 'sync_state' ] );
+		$this->assertStringContainsString( 'data-import-export-site-repair="1"', $row[ 'actions' ] );
+		$this->assertStringContainsString( 'data-import-export-site-delete="1"', $row[ 'actions' ] );
+		$this->assertStringContainsString( 'data-rid="123"', $row[ 'actions' ] );
+		$this->assertStringNotContainsString( 'secret-import-id', $row[ 'actions' ] );
+	}
+
+	/**
+	 * @dataProvider repairActionVisibilityProvider
+	 */
+	public function test_repair_action_visibility_follows_sync_state( array $overrides, string $expectedState, bool $expectRepairAction ) :void {
+		$rows = ( new BuildImportExportSitesTableData() )->exportBuildTableRowsFromRawRecords( [
+			$this->record( \array_merge( [
+				'id' => 77,
+			], $overrides ) ),
+		] );
+		$row = $rows[ 0 ];
+
+		$this->assertSame( $expectedState, $row[ 'sync_state' ] );
+		$this->assertStringContainsString( 'data-import-export-site-delete="1"', $row[ 'actions' ] );
+		if ( $expectRepairAction ) {
+			$this->assertStringContainsString( 'data-import-export-site-repair="1"', $row[ 'actions' ] );
+		}
+		else {
+			$this->assertStringNotContainsString( 'data-import-export-site-repair="1"', $row[ 'actions' ] );
+		}
 	}
 
 	public function test_search_panes_validate_allowed_values_and_discard_invalid_values() :void {
@@ -231,6 +274,81 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		return [
 			'pending invite' => [ SitesDB::QUEUE_PENDING_INVITE ],
 			'pending connection' => [ SitesDB::QUEUE_PENDING_CONNECTION ],
+		];
+	}
+
+	public static function repairActionVisibilityProvider() :array {
+		return [
+			'working idle success'           => [
+				[
+					'queue_status'              => SitesDB::QUEUE_IDLE,
+					'last_export_success_at'    => self::NOW - 60,
+					'last_export_result_code'   => SitesDB::EXPORT_RESULT_SUCCESS,
+				],
+				SiteSyncStatusBuilder::STATE_WORKING,
+				false,
+			],
+			'pending queued first sync'      => [
+				[
+					'queue_status' => SitesDB::QUEUE_QUEUED,
+				],
+				SiteSyncStatusBuilder::STATE_PENDING,
+				false,
+			],
+			'pending waiting export'         => [
+				[
+					'queue_status'         => SitesDB::QUEUE_WAITING_EXPORT,
+					'expected_export_by'   => self::NOW + 300,
+					'last_ping_success_at' => self::NOW - 30,
+				],
+				SiteSyncStatusBuilder::STATE_PENDING,
+				false,
+			],
+			'pending invite'                 => [
+				[
+					'queue_status' => SitesDB::QUEUE_PENDING_INVITE,
+				],
+				SiteSyncStatusBuilder::STATE_PENDING,
+				false,
+			],
+			'pending connection'             => [
+				[
+					'queue_status' => SitesDB::QUEUE_PENDING_CONNECTION,
+				],
+				SiteSyncStatusBuilder::STATE_PENDING,
+				false,
+			],
+			'never synced'                   => [
+				[],
+				SiteSyncStatusBuilder::STATE_NEVER_SYNCED,
+				false,
+			],
+			'inactive deleted'               => [
+				[
+					'status' => SitesDB::STATUS_DELETED,
+				],
+				SiteSyncStatusBuilder::STATE_INACTIVE,
+				false,
+			],
+			'problem queued after failure'   => [
+				[
+					'queue_status'          => SitesDB::QUEUE_QUEUED,
+					'last_ping_failure_at'  => self::NOW - 20,
+					'last_ping_error'       => 'service unavailable',
+					'consecutive_failures'  => 1,
+				],
+				SiteSyncStatusBuilder::STATE_PROBLEM,
+				true,
+			],
+			'problem expired waiting export' => [
+				[
+					'queue_status'         => SitesDB::QUEUE_WAITING_EXPORT,
+					'expected_export_by'   => self::NOW - 1,
+					'last_ping_success_at' => self::NOW - 60,
+				],
+				SiteSyncStatusBuilder::STATE_PROBLEM,
+				true,
+			],
 		];
 	}
 

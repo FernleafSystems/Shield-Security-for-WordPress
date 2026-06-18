@@ -158,6 +158,40 @@ class SiteRepository {
 		return $this->queueRows( $this->findActiveByIds( $ids ) );
 	}
 
+	public function repairConnectionsByIds( array $ids ) :int {
+		$rows = $this->findActiveByIds( $ids );
+		if ( empty( $rows ) ) {
+			return 0;
+		}
+
+		$now = Services::Request()->ts();
+		$count = 0;
+		foreach ( $rows as $row ) {
+			if ( !$this->isRepairableConnectionRow( $row, $now ) ) {
+				continue;
+			}
+
+			if ( $this->updateById( $row->id, \array_merge(
+				$this->buildQueueDueData( $now ),
+				[
+					'import_id'               => '',
+					'last_ping_failure_at'    => 0,
+					'last_ping_http_code'     => 0,
+					'last_ping_error'         => '',
+					'last_export_failure_at'  => 0,
+					'last_export_result_code' => '',
+					'last_export_error'       => '',
+					'consecutive_failures'    => 0,
+					'meta'                    => $this->metaWithoutRepairCooldowns( $row ),
+				]
+			) ) ) {
+				$count++;
+			}
+		}
+
+		return $count;
+	}
+
 	public function deleteByIds( array $ids ) :int {
 		$dbh = $this->dbOrNull();
 		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
@@ -515,6 +549,12 @@ class SiteRepository {
 
 	private function sanitiseIds( array $ids ) :array {
 		return \array_values( \array_unique( \array_filter( \array_map( '\intval', $ids ), static fn( int $id ) :bool => $id > 0 ) ) );
+	}
+
+	private function metaWithoutRepairCooldowns( Record $row ) :array {
+		$meta = \is_array( $row->meta ) ? $row->meta : [];
+		unset( $meta[ self::META_EXPORT_SERVED_AT ], $meta[ self::META_HANDSHAKE_ATTEMPT_AT ] );
+		return $meta;
 	}
 
 	private function storeOptionsIfChanged() :void {
@@ -1191,6 +1231,24 @@ class SiteRepository {
 		return $row->queue_status === SitesDB::QUEUE_WAITING_EXPORT
 			   && $row->expected_export_by >= Services::Request()->ts()
 			   && $row->last_export_success_at <= $row->last_ping_success_at;
+	}
+
+	private function isRepairableConnectionRow( Record $row, int $now ) :bool {
+		return $row->status === SitesDB::STATUS_ACTIVE
+			   && ( $this->isExpiredWaitingExportProblem( $row, $now ) || $this->hasQueuedOrIdleProblem( $row ) );
+	}
+
+	private function isExpiredWaitingExportProblem( Record $row, int $now ) :bool {
+		return $row->queue_status === SitesDB::QUEUE_WAITING_EXPORT
+			   && $row->expected_export_by > 0
+			   && $row->expected_export_by <= $now
+			   && $row->last_export_success_at <= $row->last_ping_success_at;
+	}
+
+	private function hasQueuedOrIdleProblem( Record $row ) :bool {
+		return \in_array( $row->queue_status, [ SitesDB::QUEUE_QUEUED, SitesDB::QUEUE_IDLE ], true )
+			   && ( $row->consecutive_failures > 0
+					|| \max( $row->last_ping_failure_at, $row->last_export_failure_at ) > $row->last_export_success_at );
 	}
 
 	private function metaTimestampWithinCooldown( Record $row, string $key, int $cooldown ) :bool {

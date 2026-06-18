@@ -833,9 +833,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
 			'rids'       => [ $second->id ],
 		] );
-		$method = new \ReflectionMethod( $action, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
+		$this->execTableAction( $action );
 
 		$first = $repo->findById( $first->id, true );
 		$second = $repo->findById( $second->id, true );
@@ -843,6 +841,134 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 
 		$this->assertSame( SitesDB::QUEUE_IDLE, $first->queue_status );
 		$this->assertSame( SitesDB::QUEUE_QUEUED, $second->queue_status );
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+	}
+
+	public function test_manual_repair_action_clears_stale_connection_state_and_queues_selected_site() :void {
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], 1712620800 ),
+		] );
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$repo = $this->repo();
+		$workingUrl = 'https://repair-keep.example.com';
+		$brokenUrl = 'https://repair-broken.example.com';
+		$working = $repo->upsertActive( $workingUrl, SitesDB::SOURCE_MANUAL, 'working-id', true );
+		$broken = $repo->upsertActive( $brokenUrl, SitesDB::SOURCE_MANUAL, 'stale-id', true );
+		$repo->recordExportSuccess( $working->url, SitesDB::EXPORT_RESULT_SUCCESS, 'working-id' );
+		$repo->recordExportSuccess( $broken->url, SitesDB::EXPORT_RESULT_SUCCESS, 'stale-id' );
+		$broken = $this->requireSite( $brokenUrl, true );
+		$repo->recordExportServed( $broken );
+		$repo->recordHandshakeAttempt( $broken );
+		$repo->recordExportFailure( $broken->url, SitesDB::EXPORT_RESULT_VERIFY_FAILED, 'verify failed' );
+		$broken = $this->requireSite( $brokenUrl, true );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, ( new SiteSyncStatusBuilder( Services::Request()->ts() ) )->stateForRecord( $broken ) );
+		$this->assertTrue( $repo->exportCooldownActive( $broken, \DAY_IN_SECONDS ) );
+		$this->assertTrue( $repo->handshakeCooldownActive( $broken, \DAY_IN_SECONDS ) );
+
+		$action = new ImportExportSitesTableAction( [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_REPAIR_CONNECTION,
+			'rids'       => [ $broken->id ],
+		] );
+		$this->execTableAction( $action );
+
+		$working = $this->requireSite( $workingUrl, true );
+		$broken = $this->requireSite( $brokenUrl, true );
+		$payload = $action->response()->payload();
+
+		$this->assertSame( 'working-id', $working->import_id );
+		$this->assertSame( SitesDB::QUEUE_IDLE, $working->queue_status );
+		$this->assertSame( '', $broken->import_id );
+		$this->assertSame( SitesDB::QUEUE_QUEUED, $broken->queue_status );
+		$this->assertSame( Services::Request()->ts(), $broken->next_ping_at );
+		$this->assertSame( 0, $broken->consecutive_failures );
+		$this->assertSame( 0, $broken->last_ping_failure_at );
+		$this->assertSame( 0, $broken->last_export_failure_at );
+		$this->assertSame( '', $broken->last_ping_error );
+		$this->assertSame( '', $broken->last_export_error );
+		$this->assertSame( '', $broken->last_export_result_code );
+		$this->assertFalse( $repo->exportCooldownActive( $broken, \DAY_IN_SECONDS ) );
+		$this->assertFalse( $repo->handshakeCooldownActive( $broken, \DAY_IN_SECONDS ) );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, ( new SiteSyncStatusBuilder( Services::Request()->ts() ) )->stateForRecord( $broken ) );
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+
+		$repo->recordExportSuccess( $broken->url, SitesDB::EXPORT_RESULT_SUCCESS, 'fresh-id' );
+
+		$this->assertSame( 'fresh-id', $this->requireSite( $brokenUrl, true )->import_id );
+	}
+
+	public function test_manual_repair_action_ignores_non_problem_deleted_and_missing_rows() :void {
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], 1712620800 ),
+		] );
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$repo = $this->repo();
+		$statusBuilder = new SiteSyncStatusBuilder( Services::Request()->ts() );
+		$working = $repo->upsertActive( 'https://repair-healthy.example.com', SitesDB::SOURCE_MANUAL, 'healthy-id', true );
+		$neverSynced = $repo->upsertActive( 'https://repair-never-synced.example.com', SitesDB::SOURCE_MANUAL, 'never-id' );
+		$pending = $repo->upsertActive( 'https://repair-pending.example.com', SitesDB::SOURCE_MANUAL, 'pending-id', true );
+		$deleted = $repo->upsertActive( 'https://repair-deleted.example.com', SitesDB::SOURCE_MANUAL, 'deleted-id', true );
+		$broken = $repo->upsertActive( 'https://repair-only-broken.example.com', SitesDB::SOURCE_MANUAL, 'stale-id', true );
+		$repo->recordExportSuccess( $working->url, SitesDB::EXPORT_RESULT_SUCCESS, 'healthy-id' );
+		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $neverSynced->id, [
+			'queue_status' => SitesDB::QUEUE_IDLE,
+			'queued_at'    => 0,
+			'next_ping_at' => 0,
+		] );
+		$repo->recordInviteProcessed( $pending );
+		$repo->softDeleteUrl( $deleted->url );
+		$repo->recordExportSuccess( $broken->url, SitesDB::EXPORT_RESULT_SUCCESS, 'stale-id' );
+		$repo->recordExportFailure( $broken->url, SitesDB::EXPORT_RESULT_VERIFY_FAILED, 'verify failed' );
+		$working = $this->requireSite( $working->url, true );
+		$neverSynced = $this->requireSite( $neverSynced->url, true );
+		$pending = $this->requireSite( $pending->url, true );
+		$deleted = $this->requireSite( $deleted->url, true );
+		$broken = $this->requireSite( $broken->url, true );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_WORKING, $statusBuilder->stateForRecord( $working ) );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_NEVER_SYNCED, $statusBuilder->stateForRecord( $neverSynced ) );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, $statusBuilder->stateForRecord( $pending ) );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_INACTIVE, $statusBuilder->stateForRecord( $deleted ) );
+		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $statusBuilder->stateForRecord( $broken ) );
+
+		$action = new ImportExportSitesTableAction( [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_REPAIR_CONNECTION,
+			'rids'       => [
+				$working->id,
+				$neverSynced->id,
+				$pending->id,
+				$deleted->id,
+				$broken->id,
+				$broken->id + 10000,
+			],
+		] );
+		$this->execTableAction( $action );
+
+		$working = $this->requireSite( $working->url, true );
+		$neverSynced = $this->requireSite( $neverSynced->url, true );
+		$pending = $this->requireSite( $pending->url, true );
+		$deleted = $this->requireSite( $deleted->url, true );
+		$broken = $this->requireSite( $broken->url, true );
+		$payload = $action->response()->payload();
+
+		$this->assertSame( 'healthy-id', $working->import_id );
+		$this->assertSame( SitesDB::QUEUE_IDLE, $working->queue_status );
+		$this->assertSame( 'never-id', $neverSynced->import_id );
+		$this->assertSame( SitesDB::QUEUE_IDLE, $neverSynced->queue_status );
+		$this->assertSame( 'pending-id', $pending->import_id );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $pending->queue_status );
+		$this->assertSame( 'deleted-id', $deleted->import_id );
+		$this->assertSame( SitesDB::STATUS_DELETED, $deleted->status );
+		$this->assertSame( '', $broken->import_id );
+		$this->assertSame( SitesDB::QUEUE_QUEUED, $broken->queue_status );
+		$this->assertSame( Services::Request()->ts(), $broken->next_ping_at );
+		$this->assertSame( 0, $broken->consecutive_failures );
 		$this->assertArrayHasKey( 'success', $payload );
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
@@ -860,9 +986,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_DELETE_SITE,
 			'rids'       => [ $second->id, $third->id ],
 		] );
-		$method = new \ReflectionMethod( $action, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
+		$this->execTableAction( $action );
 
 		$payload = $action->response()->payload();
 
@@ -886,9 +1010,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_DELETE_SITE,
 			'rids'       => [ $row->id ],
 		] );
-		$method = new \ReflectionMethod( $action, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
+		$this->execTableAction( $action );
 
 		$payload = $action->response()->payload();
 
@@ -913,9 +1035,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
 			'rids'       => [ $row->id ],
 		] );
-		$method = new \ReflectionMethod( $action, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
+		$this->execTableAction( $action );
 
 		$row = $repo->findById( $row->id, true );
 		$payload = $action->response()->payload();
@@ -1354,6 +1474,12 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$method = new \ReflectionMethod( $this->requireController(), 'importExportSitesRegistryOnConfigRebuild' );
 		$method->setAccessible( true );
 		$method->invoke( $this->requireController() );
+	}
+
+	private function execTableAction( ImportExportSitesTableAction $action ) :void {
+		$method = new \ReflectionMethod( $action, 'exec' );
+		$method->setAccessible( true );
+		$method->invoke( $action );
 	}
 }
 

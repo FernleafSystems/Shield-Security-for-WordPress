@@ -72,7 +72,7 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 				'queue_status_key' => $record->queue_status,
 				'sync_status'      => $syncStatus[ 'summary_html' ],
 				'sync_state'       => $syncStatus[ 'state_key' ],
-				'actions'          => $this->actionsHtml( $record->id ),
+				'actions'          => $this->actionsHtml( $record->id, $syncStatus[ 'state_key' ] ),
 				'updated_at'       => $record->updated_at,
 			];
 		}, $records ) );
@@ -155,12 +155,27 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 		return $this->statusBuilder ??= new SiteSyncStatusBuilder();
 	}
 
-	private function actionsHtml( int $id ) :string {
+	private function actionsHtml( int $id, string $syncState ) :string {
+		$actions = [];
+		if ( $syncState === SiteSyncStatusBuilder::STATE_PROBLEM ) {
+			$label = esc_attr( __( 'Repair Connection', 'wp-simple-firewall' ) );
+			$actions[] = sprintf(
+				'<button type="button" class="btn btn-link text-warning p-0 import-export-site-repair" title="%1$s" aria-label="%1$s" data-rid="%2$d" data-import-export-site-repair="1"><i class="bi bi-wrench" aria-hidden="true"></i></button>',
+				$label,
+				$id
+			);
+		}
+
 		$label = esc_attr( __( 'Remove site', 'wp-simple-firewall' ) );
-		return sprintf(
+		$actions[] = sprintf(
 			'<button type="button" class="btn btn-link text-danger p-0 import-export-site-delete" title="%1$s" aria-label="%1$s" data-rid="%2$d" data-import-export-site-delete="1"><i class="bi bi-trash3" aria-hidden="true"></i></button>',
 			$label,
 			$id
+		);
+
+		return sprintf(
+			'<div class="d-inline-flex align-items-center gap-2">%s</div>',
+			\implode( '', $actions )
 		);
 	}
 

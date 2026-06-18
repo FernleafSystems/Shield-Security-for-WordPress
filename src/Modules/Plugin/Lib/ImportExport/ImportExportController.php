@@ -132,6 +132,16 @@ class ImportExportController {
 		return ( new SiteRepository() )->deleteByIds( $ids );
 	}
 
+	public function repairSitesById( array $ids ) :int {
+		$this->assertSyncEnabled();
+
+		$count = ( new SiteRepository() )->repairConnectionsByIds( $ids );
+		if ( $count > 0 ) {
+			$this->scheduleQueueSoonIfSyncEnabled();
+		}
+		return $count;
+	}
+
 	public function queueAllActiveSitesForSync() :int {
 		$this->assertSyncEnabled();
 
