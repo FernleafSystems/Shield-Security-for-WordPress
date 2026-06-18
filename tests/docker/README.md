@@ -87,11 +87,13 @@ Local sidecar mode (`test:integration-local`):
 
 1. Uses `tests/docker/docker-compose.local-db.yml` (DB-only compose file).
 2. Uses `COMPOSE_PROJECT_NAME=shield-local-db` and port `3311` for isolation.
-3. Keeps the DB container running for repeat local runs.
-4. Serializes every run and `--db-down` through `<system-temp>/shield-test-locks/integration-local.lock` because the Docker project, port, database, and WordPress test config are fixed machine-wide.
-5. Teardown is explicit with `php bin/shield test:integration-local --db-down`.
-6. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses the lane lock; use the `php bin/shield test:integration-local` or `composer test:integration` wrappers for local runs.
-7. Compose containers and networks are labeled under cleanup scope `integration-local`.
+3. Keeps the DB container running for repeat local runs with stable reusable labels. A run after Compose file changes can recreate the container once; unchanged reruns should reuse it.
+4. Waits for Compose health, then verifies host PHP TCP readiness against `127.0.0.1:3311` and `wordpress_test_local` before WordPress setup or PHPUnit.
+5. Removes stale cached `wp-tests-config.php` only when its DB constants do not match the fixed local sidecar, then asserts the generated config before PHPUnit starts.
+6. Serializes every run and `--db-down` through `<system-temp>/shield-test-locks/integration-local.lock` because the Docker project, port, database, and WordPress test config are fixed machine-wide.
+7. Teardown is explicit with `php bin/shield test:integration-local --db-down`.
+8. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses the lane lock; use the `php bin/shield test:integration-local` or `composer test:integration` wrappers for local runs.
+9. Compose containers and networks are labeled under cleanup scope `integration-local`.
 
 Local site mode (`dev:site:*` / `test:site:*`):
 

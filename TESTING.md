@@ -286,9 +286,11 @@ php bin/shield test:source --skip-unit-tests --show-docker-output
 - Override wait: `SHIELD_INTEGRATION_LANE_WAIT_SECONDS=<positive-integer>`.
 - `--db-down` uses the same lock, so teardown cannot remove the sidecar while another integration run is active.
 
+After Compose reports the DB container healthy, the lane also verifies host PHP can connect over TCP to `127.0.0.1:3311`, select `wordpress_test_local`, and run `SELECT 1`. This is the readiness contract WordPress bootstrap depends on. The lane also removes a cached WordPress test config when its DB constants do not match the fixed local sidecar contract, then asserts the generated config before PHPUnit starts.
+
 The lock file may remain after a run and contains diagnostic metadata for the last acquired lease. Do not delete it as stale cleanup; `flock()` releases automatically when the owning process exits. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses this guard and is not part of the supported local integration command surface.
 
-The sidecar DB resources are labeled under the `integration-local` cleanup scope. `php bin/shield test:integration-local --db-down` remains the normal functional teardown because it observes the lane lock. Use `php bin/shield test:docker:cleanup --scope=integration-local --dry-run --all` when auditing Docker resources directly.
+The sidecar DB resources use stable reusable labels under the `integration-local` cleanup scope so normal repeat runs can reuse the same DB container. A run after Docker Compose file changes may recreate the sidecar once; subsequent unchanged runs should not recreate it. `php bin/shield test:integration-local --db-down` remains the normal functional teardown because it observes the lane lock. Use `php bin/shield test:docker:cleanup --scope=integration-local --dry-run --all` when auditing Docker resources directly.
 
 ## Local Browser Lane
 

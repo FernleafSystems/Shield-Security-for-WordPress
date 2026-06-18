@@ -16,7 +16,7 @@ services:
     networks:
       - browser-shared
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
+      test: ["CMD", "mysqladmin", "ping", "--protocol=tcp", "-h", "127.0.0.1", "-uroot", "-ptestpass"]
       interval: 2s
       timeout: 5s
       retries: 30
