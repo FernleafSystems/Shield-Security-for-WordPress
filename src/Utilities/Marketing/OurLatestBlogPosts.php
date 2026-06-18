@@ -23,15 +23,20 @@ class OurLatestBlogPosts {
 
 			$posts = \array_slice( \array_filter( \array_map(
 				function ( $post ) {
-					if ( !\is_array( $post ) || $post[ 'type' ] !== 'post' || empty( $post[ 'id' ] )
-						 || empty( $post[ 'link' ] ) ) {
+					$type = \is_array( $post ) ? ( $post[ 'type' ] ?? '' ) : '';
+					$id = \is_array( $post ) ? ( $post[ 'id' ] ?? null ) : null;
+					$link = \is_array( $post ) ? ( $post[ 'link' ] ?? '' ) : '';
+					if ( !\is_array( $post ) || $type !== 'post' || empty( $id ) || !\is_scalar( $id )
+						 || !\is_string( $link ) || $link === '' ) {
 						return null;
 					}
+					$title = \is_array( $post[ 'title' ] ?? null ) ? ( $post[ 'title' ][ 'rendered' ] ?? 'Unknown title' ) : 'Unknown title';
+					$excerpt = \is_array( $post[ 'excerpt' ] ?? null ) ? ( $post[ 'excerpt' ][ 'rendered' ] ?? 'Excerpt' ) : 'Excerpt';
 					return [
-						'id'      => $post[ 'id' ],
-						'title'   => $post[ 'title' ][ 'rendered' ] ?? 'Unknown title',
-						'excerpt' => esc_js( wp_strip_all_tags( $post[ 'excerpt' ][ 'rendered' ] ?? 'Excerpt' ) ),
-						'href'    => URL::Build( $post[ 'link' ], [
+						'id'      => $id,
+						'title'   => \is_scalar( $title ) ? (string)$title : 'Unknown title',
+						'excerpt' => esc_js( wp_strip_all_tags( \is_scalar( $excerpt ) ? (string)$excerpt : 'Excerpt' ) ),
+						'href'    => URL::Build( $link, [
 							'utm_source'   => 'in-plugin',
 							'utm_medium'   => 'wp-admin',
 							'utm_content'  => 'dashboard-widget',

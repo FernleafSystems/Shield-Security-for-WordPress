@@ -74,7 +74,8 @@ class AllowBetaUpgrades {
 			$ourUpdate = $updates->response[ $baseFile ];
 			$ourUpdate = \is_array( $ourUpdate ) ? (object)$ourUpdate : $ourUpdate;
 
-			$newVersion = \is_object( $ourUpdate ) ? (string)( $ourUpdate->new_version ?? '' ) : '';
+			$newVersionRaw = \is_object( $ourUpdate ) ? ( $ourUpdate->new_version ?? '' ) : '';
+			$newVersion = \is_scalar( $newVersionRaw ) ? (string)$newVersionRaw : '';
 			if ( !empty( $newVersion ) && \version_compare( $newVersion, $currentVersion, '<=' ) ) {
 				unset( $updates->response[ $baseFile ] );
 			}
@@ -93,28 +94,31 @@ class AllowBetaUpgrades {
 			$this->beta = false;
 
 			$thisPlugin = Services::WpPlugins()->getPluginAsVo( self::con()->base_file );
-			$versionsLookup = ( new Versions() )->setWorkingSlug( $thisPlugin->slug );
-			$betas = \array_filter(
-				$versionsLookup->all(),
-				static fn( $version ) => \preg_match( '#^\d+(\.\d+)+$#', $version )
-				                         && \version_compare( $version, self::con()->cfg->version(), '>' )
-			);
-			if ( !empty( $betas ) ) {
-				\natsort( $betas );
-				$beta = \array_pop( $betas );
-				$versionsLookup->setWorkingVersion( $beta );
-				$url = $versionsLookup->allVersionsUrls()[ $beta ] ?? '';
-				if ( !empty( $url ) ) {
-					$this->beta = new \stdClass();
-					$this->beta->id = $thisPlugin->id;
-					$this->beta->slug = $thisPlugin->slug;
-					$this->beta->plugin = self::con()->base_file;
-					$this->beta->new_version = $beta;
-					$this->beta->package = $url;
-					$this->beta->icons = [
-						'2x' => sprintf( 'https://ps.w.org/%s/assets/icon-256x256.png', $thisPlugin->slug ),
-						'1x' => sprintf( 'https://ps.w.org/%s/assets/icon-128x128.png', $thisPlugin->slug ),
-					];
+			if ( \is_object( $thisPlugin ) && !empty( $thisPlugin->slug ) ) {
+				$versionsLookup = ( new Versions() )->setWorkingSlug( $thisPlugin->slug );
+				$betas = \array_filter(
+					$versionsLookup->all(),
+					static fn( $version ) => \is_string( $version )
+					                         && \preg_match( '#^\d+(\.\d+)+$#', $version )
+					                         && \version_compare( $version, self::con()->cfg->version(), '>' )
+				);
+				if ( !empty( $betas ) ) {
+					\natsort( $betas );
+					$beta = \array_pop( $betas );
+					$versionsLookup->setWorkingVersion( $beta );
+					$url = $versionsLookup->allVersionsUrls()[ $beta ] ?? '';
+					if ( !empty( $url ) ) {
+						$this->beta = new \stdClass();
+						$this->beta->id = $thisPlugin->id;
+						$this->beta->slug = $thisPlugin->slug;
+						$this->beta->plugin = self::con()->base_file;
+						$this->beta->new_version = $beta;
+						$this->beta->package = $url;
+						$this->beta->icons = [
+							'2x' => sprintf( 'https://ps.w.org/%s/assets/icon-256x256.png', $thisPlugin->slug ),
+							'1x' => sprintf( 'https://ps.w.org/%s/assets/icon-128x128.png', $thisPlugin->slug ),
+						];
+					}
 				}
 			}
 		}

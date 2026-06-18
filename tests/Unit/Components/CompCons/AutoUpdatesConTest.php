@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	UnitTestControllerFactory,
 	UnitTestRequest
 };
+use FernleafSystems\Wordpress\Services\Core\Themes;
 use FernleafSystems\Wordpress\Services\Utilities\DataManipulation;
 
 class AutoUpdatesConTest extends BaseUnitTest {
@@ -49,7 +50,7 @@ class AutoUpdatesConTest extends BaseUnitTest {
 		$this->assertFalse( $result );
 		$this->assertSame(
 			self::NOW,
-			$opts->optGet( 'delay_tracking' )[ 'plugins' ][ self::BASE_FILE ][ self::NEW_VERSION ] ?? null
+			$this->delayTracking( $opts )[ 'plugins' ][ self::BASE_FILE ][ self::NEW_VERSION ]
 		);
 	}
 
@@ -125,6 +126,166 @@ class AutoUpdatesConTest extends BaseUnitTest {
 
 		$this->assertTrue( $subject->autoupdate_plugins( true, $this->pluginUpdateItem( self::OTHER_PLUGIN_FILE ) ) );
 		$this->assertFalse( $subject->autoupdate_plugins( false, $this->pluginUpdateItem( self::OTHER_PLUGIN_FILE ) ) );
+	}
+
+	public function test_core_update_tracking_ignores_malformed_transient_entries() :void {
+		$opts = $this->installEnvironment( [], [] );
+
+		$updates = (object)[
+			'updates' => [
+				'not-an-update-object',
+				(object)[ 'response' => 'autoupdate' ],
+				(object)[
+					'response' => 'manual',
+					'current'  => '6.8.0',
+				],
+				[
+					'response' => 'autoupdate',
+					'current'  => '6.8.1',
+				],
+				[
+					'response' => 'autoupdate',
+					'current'  => [],
+				],
+				(object)[
+					'response' => 'autoupdate',
+					'current'  => (object)[],
+				],
+				(object)[
+					'response' => 'autoupdate',
+					'current'  => '6.8.2',
+				],
+			],
+		];
+
+		( new AutoUpdatesCon() )->trackUpdateTimesCore( $updates );
+
+		$this->assertSame(
+			[
+				'6.8.1' => self::NOW,
+				'6.8.2' => self::NOW,
+			],
+			$this->delayTracking( $opts )[ 'core' ][ 'wp' ]
+		);
+	}
+
+	public function test_plugin_update_tracking_ignores_malformed_transient_entries() :void {
+		$opts = $this->installEnvironment( [], [] );
+
+		$updates = (object)[
+			'response' => [
+				self::BASE_FILE         => [ 'new_version' => self::NEW_VERSION ],
+				self::OTHER_PLUGIN_FILE => 'not-an-update-object',
+				'empty/plugin.php'      => (object)[],
+				'array-version.php'     => (object)[ 'new_version' => [] ],
+			],
+		];
+
+		( new AutoUpdatesCon() )->trackUpdateTimesPlugins( $updates );
+
+		$this->assertSame(
+			[ self::NEW_VERSION => self::NOW ],
+			$this->delayTracking( $opts )[ 'plugins' ][ self::BASE_FILE ]
+		);
+		$this->assertArrayNotHasKey(
+			self::OTHER_PLUGIN_FILE,
+			$this->delayTracking( $opts )[ 'plugins' ]
+		);
+		$this->assertArrayNotHasKey(
+			'empty/plugin.php',
+			$this->delayTracking( $opts )[ 'plugins' ]
+		);
+		$this->assertArrayNotHasKey(
+			'array-version.php',
+			$this->delayTracking( $opts )[ 'plugins' ]
+		);
+	}
+
+	public function test_theme_update_tracking_ignores_malformed_transient_entries() :void {
+		$opts = $this->installEnvironment( [], [] );
+
+		$updates = (object)[
+			'response' => [
+				'twentynineteen'  => [ 'new_version' => '3.3' ],
+				'twentytwenty'    => false,
+				'twentytwentyone' => (object)[],
+				'twentytwentytwo' => (object)[ 'new_version' => [] ],
+			],
+		];
+
+		( new AutoUpdatesCon() )->trackUpdateTimesThemes( $updates );
+
+		$this->assertSame(
+			[ '3.3' => self::NOW ],
+			$this->delayTracking( $opts )[ 'themes' ][ 'twentynineteen' ]
+		);
+		$this->assertArrayNotHasKey(
+			'twentytwenty',
+			$this->delayTracking( $opts )[ 'themes' ]
+		);
+		$this->assertArrayNotHasKey(
+			'twentytwentyone',
+			$this->delayTracking( $opts )[ 'themes' ]
+		);
+		$this->assertArrayNotHasKey(
+			'twentytwentytwo',
+			$this->delayTracking( $opts )[ 'themes' ]
+		);
+	}
+
+	public function test_core_auto_update_preserves_wordpress_decision_for_malformed_core_upgrade() :void {
+		$this->installEnvironment( [ 'update_delay' => 7 ], [] );
+		$subject = new AutoUpdatesCon();
+
+		$this->assertTrue( $subject->autoupdate_core( true, (object)[] ) );
+		$this->assertTrue( $subject->autoupdate_core( true, (object)[ 'current' => [] ] ) );
+		$this->assertFalse( $subject->autoupdate_core( false, 'not-a-core-upgrade-object' ) );
+	}
+
+	public function test_plugin_auto_update_preserves_wordpress_decision_for_malformed_update_version() :void {
+		$this->installEnvironment( [ 'update_delay' => 7 ], [
+			self::OTHER_PLUGIN_FILE => (object)[ 'new_version' => [] ],
+		] );
+
+		$subject = new AutoUpdatesCon();
+
+		$this->assertTrue( $subject->autoupdate_plugins( true, $this->pluginUpdateItem( self::OTHER_PLUGIN_FILE ) ) );
+		$this->assertFalse( $subject->autoupdate_plugins( false, $this->pluginUpdateItem( self::OTHER_PLUGIN_FILE ) ) );
+	}
+
+	public function test_theme_auto_update_preserves_wordpress_decision_for_malformed_update_version() :void {
+		$this->installEnvironment( [ 'update_delay' => 7 ], [] );
+		ServicesState::mergeItems( [
+			'service_wpthemes' => new AutoUpdatesConTestThemes( [
+				'twentynineteen' => [ 'new_version' => [] ],
+			] ),
+		] );
+
+		$subject = new AutoUpdatesCon();
+
+		$this->assertTrue( $subject->autoupdate_themes( true, (object)[ 'theme' => 'twentynineteen' ] ) );
+		$this->assertFalse( $subject->autoupdate_themes( false, (object)[ 'theme' => 'twentynineteen' ] ) );
+	}
+
+	public function test_delay_tracking_option_accepts_corrupted_stored_value() :void {
+		$opts = $this->installEnvironment( [ 'delay_tracking' => 'corrupt-cache-value' ], [] );
+
+		( new AutoUpdatesCon() )->trackUpdateTimesPlugins( (object)[
+			'response' => [
+				self::BASE_FILE => (object)[ 'new_version' => self::NEW_VERSION ],
+			],
+		] );
+
+		$this->assertSame(
+			[ self::NEW_VERSION => self::NOW ],
+			$this->delayTracking( $opts )[ 'plugins' ][ self::BASE_FILE ]
+		);
+	}
+
+	private function delayTracking( AutoUpdatesConTestOptions $opts ) :array {
+		$delayTracking = $opts->optGet( 'delay_tracking' );
+		$this->assertIsArray( $delayTracking );
+		return $delayTracking;
 	}
 
 	private function installEnvironment(
@@ -227,5 +388,18 @@ class AutoUpdatesConTestWpv {
 
 	public function hasVulnerabilities( string $pluginFile ) :bool {
 		return \in_array( $pluginFile, $this->vulnerablePlugins, true );
+	}
+}
+
+class AutoUpdatesConTestThemes extends Themes {
+
+	private array $updates;
+
+	public function __construct( array $updates ) {
+		$this->updates = $updates;
+	}
+
+	public function getUpdateInfo( $slug ) {
+		return $this->updates[ $slug ] ?? null;
 	}
 }
