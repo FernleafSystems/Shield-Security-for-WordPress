@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
 
@@ -30,9 +30,9 @@ class Retrieve {
 	 * @throws \Exception
 	 */
 	public function bySlug( string $slug ) :array {
-		$vo = Services::WpPlugins()->getPluginAsVo( $slug );
+		$vo = Services::WpPlugins()->getPluginAsVo( $slug, true );
 		if ( empty( $vo ) ) {
-			$vo = Services::WpThemes()->getThemeAsVo( $slug );
+			$vo = Services::WpThemes()->getThemeAsVo( $slug, true );
 			if ( empty( $vo ) ) {
 				throw new \Exception( sprintf( 'Plugin or theme not installed for slug: %s', $slug ) );
 			}
@@ -75,9 +75,10 @@ class Retrieve {
 				}
 			}
 
-			// cache it.
-			self::$hashes[ $cacheKey ] = $hashes;
-			self::$trustedSources[ $cacheKey ] = $trustedSource;
+			if ( !empty( $hashes ) ) {
+				self::$hashes[ $cacheKey ] = $hashes;
+				self::$trustedSources[ $cacheKey ] = $trustedSource;
+			}
 		}
 
 		if ( empty( $hashes ) ) {
@@ -98,6 +99,9 @@ class Retrieve {
 		$store = ( new StoreAction\Load() )
 			->setAsset( $vo )
 			->run();
+		if ( !$store->verify() ) {
+			throw new AssetHashesNotFound( sprintf( __( 'Snapshot store metadata does not match asset: %s', 'wp-simple-firewall' ), $vo->slug ) );
+		}
 		return [
 			'hashes'         => $store->getSnapData(),
 			'trusted_source' => ( $store->getSnapMeta()[ 'live_hashes' ] ?? false ) === true,

@@ -12,7 +12,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\L
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Retrieve;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
+	Exceptions\AssetHashesNotFound,
+	Retrieve
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 	HashesStorageDir,
 	Store
@@ -25,9 +28,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\CacheStoreTestCacheDir;
 use FernleafSystems\Wordpress\Services\Core\{
 	Fs,
-	Request
+	Plugins,
+	Request,
+	Themes
 };
-use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 
 class RetrieveVersionedCacheTest extends BaseUnitTest {
 
@@ -93,14 +101,179 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_by_slug_uses_reloaded_asset_version_for_snapshot_lookup() :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		ServicesState::installItems( [
+			'service_wpfs'      => new RetrieveVersionedCacheTestFs(),
+			'service_request'   => new class extends Request {
+				public function ts( bool $update = true ) :int {
+					unset( $update );
+					return 1700000000;
+				}
+			},
+			'service_wpplugins' => new RetrieveVersionedCacheTestPlugins( 'premium-plugin/plugin.php', '1.0.0', '2.0.0' ),
+			'service_wpthemes'  => new RetrieveVersionedCacheTestThemes(),
+		] );
+		$this->installController( $cacheRoot );
+
+		$versionOne = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '1.0.0' );
+		$versionTwo = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$this->writeStore( $versionOne, [
+			'plugin.php' => 'hash-for-1.0.0',
+		], $hashDir );
+		$this->writeStore( $versionTwo, [
+			'plugin.php' => 'hash-for-2.0.0',
+		], $hashDir );
+
+		$this->assertSame(
+			[ 'plugin.php' => 'hash-for-2.0.0' ],
+			( new Retrieve() )->bySlug( 'premium-plugin/plugin.php' )
+		);
+	}
+
+	public function test_local_snapshot_with_mismatched_version_meta_is_rejected() :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		ServicesState::installItems( [
+			'service_wpfs'     => new RetrieveVersionedCacheTestFs(),
+			'service_request'  => new class extends Request {
+				public function ts( bool $update = true ) :int {
+					unset( $update );
+					return 1700000000;
+				}
+			},
+		] );
+		$this->installController( $cacheRoot );
+
+		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$this->writeStoreWithMeta( $asset, [
+			'plugin.php' => 'hash-for-1.0.0',
+		], [
+			'version'   => '1.0.0',
+			'unique_id' => 'premium-plugin/plugin.php',
+		], $hashDir );
+
+		$this->expectException( AssetHashesNotFound::class );
+
+		( new Retrieve() )->byVO( $asset );
+	}
+
+	public function test_local_snapshot_with_mismatched_unique_id_meta_is_rejected() :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		ServicesState::installItems( [
+			'service_wpfs'     => new RetrieveVersionedCacheTestFs(),
+			'service_request'  => new class extends Request {
+				public function ts( bool $update = true ) :int {
+					unset( $update );
+					return 1700000000;
+				}
+			},
+		] );
+		$this->installController( $cacheRoot );
+
+		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$this->writeStoreWithMeta( $asset, [
+			'plugin.php' => 'hash-for-2.0.0',
+		], [
+			'version'   => '2.0.0',
+			'unique_id' => 'different-plugin/plugin.php',
+		], $hashDir );
+
+		$this->expectException( AssetHashesNotFound::class );
+
+		( new Retrieve() )->byVO( $asset );
+	}
+
+	public function test_local_snapshot_with_incomplete_meta_is_rejected() :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		ServicesState::installItems( [
+			'service_wpfs'     => new RetrieveVersionedCacheTestFs(),
+			'service_request'  => new class extends Request {
+				public function ts( bool $update = true ) :int {
+					unset( $update );
+					return 1700000000;
+				}
+			},
+		] );
+		$this->installController( $cacheRoot );
+
+		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$this->writeStoreWithMeta( $asset, [
+			'plugin.php' => 'hash-for-2.0.0',
+		], [
+			'version' => '2.0.0',
+		], $hashDir );
+
+		$this->expectException( AssetHashesNotFound::class );
+
+		( new Retrieve() )->byVO( $asset );
+	}
+
+	public function test_hash_lookup_retries_after_local_snapshot_becomes_available_in_same_request() :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		ServicesState::installItems( [
+			'service_wpfs'     => new RetrieveVersionedCacheTestFs(),
+			'service_request'  => new class extends Request {
+				public function ts( bool $update = true ) :int {
+					unset( $update );
+					return 1700000000;
+				}
+			},
+		] );
+		$this->installController( $cacheRoot );
+
+		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$firstLookupMissed = false;
+		try {
+			( new Retrieve() )->byVO( $asset );
+		}
+		catch ( AssetHashesNotFound $e ) {
+			$firstLookupMissed = true;
+		}
+		$this->assertTrue( $firstLookupMissed );
+
+		$this->writeStore( $asset, [
+			'plugin.php' => 'hash-for-2.0.0',
+		], $hashDir );
+
+		try {
+			$hashes = ( new Retrieve() )->byVO( $asset );
+		}
+		catch ( AssetHashesNotFound $e ) {
+			$this->fail( 'Hash retrieval should retry after a local snapshot becomes available in the same request.' );
+		}
+		$this->assertSame(
+			[ 'plugin.php' => 'hash-for-2.0.0' ],
+			$hashes
+		);
+	}
+
 	private function writeStore( RetrieveVersionedCacheTestPluginVo $asset, array $hashes, string $hashDir ) :void {
+		$this->writeStoreWithMeta( $asset, $hashes, [
+			'version'   => $asset->Version,
+			'unique_id' => $asset->file,
+		], $hashDir );
+	}
+
+	private function writeStoreWithMeta(
+		RetrieveVersionedCacheTestPluginVo $asset,
+		array $hashes,
+		array $meta,
+		string $hashDir
+	) :void {
 		( new Store( $asset, true ) )
 			->setWorkingDir( $hashDir )
 			->setSnapData( $hashes )
-			->setSnapMeta( [
-				'version'   => $asset->Version,
-				'unique_id' => $asset->file,
-			] )
+			->setSnapMeta( $meta )
 			->save();
 	}
 
@@ -216,6 +389,35 @@ class RetrieveVersionedCacheTestFs extends Fs {
 
 	public function touch( $path, $time = null ) {
 		return \touch( $path, $time ?? \time() );
+	}
+}
+
+class RetrieveVersionedCacheTestPlugins extends Plugins {
+
+	private string $file;
+
+	private string $version;
+
+	private string $reloadVersion;
+
+	public function __construct( string $file, string $version, string $reloadVersion ) {
+		$this->file = $file;
+		$this->version = $version;
+		$this->reloadVersion = $reloadVersion;
+	}
+
+	public function getPluginAsVo( string $file, bool $reload = false ) :?WpPluginVo {
+		return $file === $this->file
+			? new RetrieveVersionedCacheTestPluginVo( $file, $reload ? $this->reloadVersion : $this->version )
+			: null;
+	}
+}
+
+class RetrieveVersionedCacheTestThemes extends Themes {
+
+	public function getThemeAsVo( string $stylesheet, bool $reload = false ) :?WpThemeVo {
+		unset( $stylesheet, $reload );
+		return null;
 	}
 }
 
