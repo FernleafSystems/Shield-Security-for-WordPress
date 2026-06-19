@@ -129,13 +129,12 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertSame( SiteSyncStatusBuilder::STATE_INACTIVE, $this->builder()->stateForRecord( $record ) );
 	}
 
-	public function test_import_id_is_absent_from_generated_details() :void {
+	public function test_import_id_is_included_in_generated_details() :void {
 		$status = $this->builder()->build( $this->record( [
 			'import_id' => 'secret-import-id',
 		] ) );
 
-		$this->assertStringNotContainsString( 'Import ID', $status[ 'details_html' ] );
-		$this->assertStringNotContainsString( 'secret-import-id', $status[ 'details_html' ] );
+		$this->assertStringContainsString( 'secret-import-id', $status[ 'details_html' ] );
 	}
 
 	public function test_table_row_contract_uses_summary_fields_without_raw_metadata() :void {
@@ -163,6 +162,7 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 			'sync_status',
 			'updated_at',
 			'url',
+			'url_display',
 		];
 		$actualKeys = \array_keys( $row );
 		\sort( $actualKeys );
@@ -183,14 +183,16 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 			$this->assertArrayNotHasKey( $removedKey, $row );
 		}
 		$this->assertSame( SiteSyncStatusBuilder::STATE_WORKING, $row[ 'sync_state' ] );
+		$this->assertSame( 'https://contract.example.com', $row[ 'url' ] );
+		$this->assertStringContainsString( 'https://contract.example.com', $row[ 'url_display' ] );
+		$this->assertStringContainsString( 'data-import-export-site-import-id="secret-import-id"', $row[ 'url_display' ] );
 		$this->assertSame( 'Default Profile', $row[ 'profile' ] );
 		$this->assertStringContainsString( 'data-import-export-site-delete="1"', $row[ 'actions' ] );
 		$this->assertStringNotContainsString( 'data-import-export-site-repair="1"', $row[ 'actions' ] );
 		$this->assertStringContainsString( 'data-rid="99"', $row[ 'actions' ] );
 		$this->assertStringNotContainsString( 'secret-import-id', $row[ 'actions' ] );
 		$this->assertStringContainsString( 'data-shield-sync-details-trigger="1"', $row[ 'sync_status' ] );
-		$this->assertStringNotContainsString( 'secret-import-id', $row[ 'sync_status' ] );
-		$this->assertStringNotContainsString( 'Import ID', $row[ 'sync_status' ] );
+		$this->assertStringContainsString( 'secret-import-id', $row[ 'sync_status' ] );
 	}
 
 	public function test_problem_table_row_includes_repair_action() :void {

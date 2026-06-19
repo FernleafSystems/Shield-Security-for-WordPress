@@ -39,6 +39,7 @@ class SiteSyncStatusBuilder {
 	];
 
 	private int $now;
+	private ?ImportIDPresenter $importIDPresenter = null;
 
 	public function __construct( ?int $now = null ) {
 		$this->now = $now ?? $this->currentTimestamp();
@@ -250,6 +251,7 @@ class SiteSyncStatusBuilder {
 	private function buildDetailsHtml( Record $record, string $state ) :string {
 		$rows = [
 			$this->detailRow( $this->text( 'Current state' ), $this->stateLabel( $state ) ),
+			$this->detailRow( $this->text( 'Import ID' ), $this->importIDPresenter()->displayValue( $record->import_id ) ),
 			$this->detailRow( $this->text( 'Last ping attempt' ), $this->formatTimestamp( $record->last_ping_attempt_at ) ),
 			$this->detailRow( $this->text( 'Last ping success' ), $this->formatTimestamp( $record->last_ping_success_at ) ),
 			$this->detailRow( $this->text( 'Last ping failure' ), $this->formatTimestamp( $record->last_ping_failure_at ) ),
@@ -556,6 +558,10 @@ class SiteSyncStatusBuilder {
 
 	private function escAttr( string $value ) :string {
 		return esc_attr( $value );
+	}
+
+	private function importIDPresenter() :ImportIDPresenter {
+		return $this->importIDPresenter ??= new ImportIDPresenter();
 	}
 
 	private function currentTimestamp() :int {

@@ -90,6 +90,7 @@
 							<div class="import-export-network-state__copy">
 								<span>{{ network_sync.connect.connected.label }}</span>
 								<strong>{{ network_sync.connect.connected.master_host }}</strong>
+								<small data-import-export-local-import-id="{{ network_sync.connect.connected.import_id.value }}">{{ network_sync.connect.connected.import_id.label }}: {{ network_sync.connect.connected.import_id.value }}</small>
 								<button type="button"
 										id="{{ network_sync.connect.sync_now.id }}"
 										class="btn btn-primary btn-sm import-export-primary-action"
@@ -250,18 +251,24 @@
 							<h5>{{ network_sync.profile.title }}</h5>
 							<p>{{ network_sync.profile.summary }}</p>
 						</div>
-						<button type="button"
-								id="{{ network_sync.profile.copy_from_master.id }}"
-								class="btn btn-outline-primary btn-sm"
-								data-import-export-profile-copy-from-master="1"
-								data-confirm-message="{{ network_sync.profile.copy_from_master.confirm_message }}"
-								data-confirm-label="{{ network_sync.profile.copy_from_master.confirm_label }}">
-							<i class="{{ network_sync.profile.copy_from_master.icon_class }}" aria-hidden="true"></i>
-							<span>{{ network_sync.profile.copy_from_master.label }}</span>
-						</button>
+						{% if network_sync.profile.is_available %}
+							<button type="button"
+									id="{{ network_sync.profile.copy_from_master.id }}"
+									class="btn btn-outline-primary btn-sm"
+									data-import-export-profile-copy-from-master="1"
+									data-confirm-message="{{ network_sync.profile.copy_from_master.confirm_message }}"
+									data-confirm-label="{{ network_sync.profile.copy_from_master.confirm_label }}">
+								<i class="{{ network_sync.profile.copy_from_master.icon_class }}" aria-hidden="true"></i>
+								<span>{{ network_sync.profile.copy_from_master.label }}</span>
+							</button>
+						{% endif %}
 					</header>
 
-					{{ network_sync.profile.form_html|raw }}
+					{% if network_sync.profile.is_available %}
+						{{ network_sync.profile.form_html|raw }}
+					{% else %}
+						<p class="import-export-empty-state" data-import-export-profile-empty="1">{{ network_sync.profile.empty_message }}</p>
+					{% endif %}
 				</div>
 			</div>
 		</div>

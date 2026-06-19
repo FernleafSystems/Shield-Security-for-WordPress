@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
 class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
 	private ?SiteSyncStatusBuilder $statusBuilder = null;
+	private ?ImportIDPresenter $importIDPresenter = null;
 
 	protected function getSearchPanesDataBuilder() :BuildSearchPanesData {
 		return new BuildSearchPanesData();
@@ -48,6 +49,7 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 	 * @return list<array{
 	 *   rid:int,
 	 *   url:string,
+	 *   url_display:string,
 	 *   profile:string,
 	 *   status:string,
 	 *   status_key:string,
@@ -69,6 +71,7 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 			return [
 				'rid'              => $record->id,
 				'url'              => esc_html( $record->url ),
+				'url_display'      => $this->urlDisplayHtml( $record ),
 				'profile'          => $this->profileLabelForRecord( $record, $profileLabels ),
 				'status'           => $statusBuilder->registrationHtml( $record->status ),
 				'status_key'       => $record->status,
@@ -80,6 +83,18 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 				'updated_at'       => $record->updated_at,
 			];
 		}, $records ) );
+	}
+
+	private function urlDisplayHtml( Record $record ) :string {
+		$importID = $this->importIDPresenter()->displayValue( $record->import_id );
+
+		return sprintf(
+			'<div class="import-export-site-url"><div>%s</div><small class="text-muted" data-import-export-site-import-id="%s">[%s: %s]</small></div>',
+			esc_html( $record->url ),
+			esc_attr( $importID ),
+			esc_html( __( 'ID', 'wp-simple-firewall' ) ),
+			esc_html( $importID )
+		);
 	}
 
 	/**
@@ -172,6 +187,10 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 
 	private function statusBuilder() :SiteSyncStatusBuilder {
 		return $this->statusBuilder ??= new SiteSyncStatusBuilder();
+	}
+
+	private function importIDPresenter() :ImportIDPresenter {
+		return $this->importIDPresenter ??= new ImportIDPresenter();
 	}
 
 	private function actionsHtml( int $id, string $syncState ) :string {

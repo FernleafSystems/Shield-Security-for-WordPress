@@ -30,7 +30,10 @@ class ForImportExportSites extends Base {
 	protected function getColumnDefs() :array {
 		return [
 			'url'                     => [
-				'data'        => 'url',
+				'data'        => [
+					'_'    => 'url_display',
+					'sort' => 'url',
+				],
 				'title'       => __( 'URL', 'wp-simple-firewall' ),
 				'className'   => 'url',
 				'orderable'   => true,

@@ -47,7 +47,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  * @phpstan-type NetworkSyncConnectedMaster array{
  *   master_host:string,
  *   label:string,
- *   graphic_label:string
+ *   graphic_label:string,
+ *   import_id:array{label:string,value:string}
  * }
  * @phpstan-type NetworkSyncStandaloneSite array{
  *   label:string,
@@ -119,10 +120,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *     has_connected_sites:bool
  *   },
  *   profile:array{
+ *     is_available:true,
  *     title:string,
  *     summary:string,
  *     copy_from_master:array{id:string,label:string,icon_class:string,confirm_message:string,confirm_label:string},
  *     form_html:string
+ *   }|array{
+ *     is_available:false,
+ *     title:string,
+ *     summary:string,
+ *     empty_message:string
  *   }
  * }
  * @phpstan-type NetworkInviteReviewContract array{
@@ -336,18 +343,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'active_count'       => $activeClientCount,
 				'has_connected_sites' => $activeClientCount > 0,
 			],
-			'profile'              => [
-				'title'            => __( 'Sync profile', 'wp-simple-firewall' ),
-				'summary'          => __( 'Edit the settings distributed to client sites.', 'wp-simple-firewall' ),
-				'copy_from_master' => [
-					'id'              => 'ImportExportProfileCopyFromMaster',
-					'label'           => __( 'Copy from this Site Configuration', 'wp-simple-firewall' ),
-					'icon_class'      => 'bi bi-copy',
-					'confirm_message' => __( 'Copy the current site configuration into this sync profile? Existing profile will be overwritten, but transfer exclusions will be preserved.', 'wp-simple-firewall' ),
-					'confirm_label'   => __( 'Copy', 'wp-simple-firewall' ),
-				],
-				'form_html'        => $isEnabled ? self::con()->action_router->render( ProfileOptionsForm::class ) : '',
-			],
+			'profile'              => $this->buildNetworkProfile( $isEnabled, $activeClientCount ),
 		];
 	}
 
@@ -363,6 +359,10 @@ class PageImportExport extends BasePluginAdminPage {
 					'master_host'   => $this->hostFromUrl( $importMasterURL ),
 					'label'         => __( 'Master site', 'wp-simple-firewall' ),
 					'graphic_label' => __( 'Client site connected to master site', 'wp-simple-firewall' ),
+					'import_id'     => [
+						'label' => __( 'My Import ID', 'wp-simple-firewall' ),
+						'value' => $this->displayImportID( (string)self::con()->opts->optGet( 'import_id' ) ),
+					],
 				],
 				'disconnect'   => [
 					'label' => __( 'Disconnect', 'wp-simple-firewall' ),
@@ -388,6 +388,37 @@ class PageImportExport extends BasePluginAdminPage {
 			],
 			'form'         => $this->buildNetworkConnectForm( $importMasterURL ),
 		];
+	}
+
+	private function buildNetworkProfile( bool $isEnabled, int $activeClientCount ) :array {
+		$base = [
+			'title'   => __( 'Sync profile', 'wp-simple-firewall' ),
+			'summary' => __( 'Edit the settings distributed to client sites.', 'wp-simple-firewall' ),
+		];
+
+		if ( $activeClientCount < 1 ) {
+			return \array_merge( $base, [
+				'is_available'  => false,
+				'empty_message' => __( 'There is no sync profile because there are no client sites.', 'wp-simple-firewall' ),
+			] );
+		}
+
+		return \array_merge( $base, [
+			'is_available'    => true,
+			'copy_from_master' => [
+				'id'              => 'ImportExportProfileCopyFromMaster',
+				'label'           => __( 'Copy from this Site Configuration', 'wp-simple-firewall' ),
+				'icon_class'      => 'bi bi-copy',
+				'confirm_message' => __( 'Copy the current site configuration into this sync profile? Existing profile will be overwritten, but transfer exclusions will be preserved.', 'wp-simple-firewall' ),
+				'confirm_label'   => __( 'Copy', 'wp-simple-firewall' ),
+			],
+			'form_html'        => $isEnabled ? self::con()->action_router->render( ProfileOptionsForm::class ) : '',
+		] );
+	}
+
+	private function displayImportID( string $importID ) :string {
+		$importID = \trim( $importID );
+		return empty( $importID ) ? __( 'Not generated yet', 'wp-simple-firewall' ) : $importID;
 	}
 
 	/**
