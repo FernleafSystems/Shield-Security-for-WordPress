@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	ImportExportProfileCopyFromMaster,
 	ImportExportProfileOptionIncludeToggle,
+	ImportExportProfileOptionsIncludeToggle,
 	ImportExportProfileOptionsSave
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\ImportExport\ProfileOptionsForm;
@@ -55,13 +56,37 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 
 	public function test_profile_options_form_renders_profile_action_contract() :void {
 		$payload = $this->routeRuntime()->processActionPayloadWithAdminBypass( ProfileOptionsForm::SLUG );
-		$html = (string)( $payload[ 'render_output' ] ?? '' );
 
-		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
-		$this->assertStringContainsString( 'data-context="import_export_profile"', $html );
-		$this->assertStringContainsString( 'data-options-save-action="profile_form_save"', $html );
-		$this->assertStringContainsString( 'data-transfer-action="profile_xfer_include_toggle"', $html );
-		$this->assertStringContainsString( 'name="all_opts_keys"', $html );
+		$this->assertArrayHasKey( 'render_output', $payload );
+		$this->assertArrayHasKey( 'render_data', $payload );
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'render_error', $payload );
+		$this->assertTrue( (bool)$payload[ 'success' ] );
+		$this->assertFalse( (bool)$payload[ 'render_error' ] );
+
+		$this->assertIsString( $payload[ 'render_output' ] );
+		$this->assertNotSame( '', \trim( $payload[ 'render_output' ] ) );
+		$renderData = $payload[ 'render_data' ];
+		$this->assertIsArray( $renderData );
+		$this->assertArrayHasKey( 'flags', $renderData );
+		$this->assertIsArray( $renderData[ 'flags' ] );
+		$this->assertArrayHasKey( 'vars', $renderData );
+		$this->assertIsArray( $renderData[ 'vars' ] );
+		$this->assertArrayHasKey( 'profile_available', $renderData[ 'flags' ] );
+		$this->assertTrue( $renderData[ 'flags' ][ 'profile_available' ] );
+		$this->assertArrayHasKey( 'form_context', $renderData[ 'vars' ] );
+		$this->assertArrayHasKey( 'options_save_action', $renderData[ 'vars' ] );
+		$this->assertArrayHasKey( 'transfer_action', $renderData[ 'vars' ] );
+		$this->assertArrayHasKey( 'transfer_group_action', $renderData[ 'vars' ] );
+		$this->assertArrayHasKey( 'all_opts_keys', $renderData[ 'vars' ] );
+		$this->assertArrayHasKey( 'groups', $renderData[ 'vars' ] );
+		$this->assertSame( 'import_export_profile', $renderData[ 'vars' ][ 'form_context' ] );
+		$this->assertSame( 'profile_form_save', $renderData[ 'vars' ][ 'options_save_action' ] );
+		$this->assertSame( 'profile_xfer_include_toggle', $renderData[ 'vars' ][ 'transfer_action' ] );
+		$this->assertSame( 'profile_xfer_group_include_toggle', $renderData[ 'vars' ][ 'transfer_group_action' ] );
+		$this->assertEqualsCanonicalizing( ( new ProfileOptionsCatalog() )->profileableKeys(), $renderData[ 'vars' ][ 'all_opts_keys' ] );
+		$this->assertIsArray( $renderData[ 'vars' ][ 'groups' ] );
+		$this->assertProfileRenderGroupsCoverProfileableKeysOnce( $renderData[ 'vars' ][ 'groups' ] );
 	}
 
 	public function test_default_profile_is_created_with_default_flag_and_default_slug() :void {
@@ -205,6 +230,30 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 		$profile = $repo->findById( $profile->id );
 		$this->assertNotEmpty( $profile );
 		$this->assertNotContains( 'enable_tracking', $repo->configForProfile( $profile )[ 'excluded' ] );
+
+		$groupExcludePayload = $this->routeRuntime()->processActionPayloadWithAdminBypass( ImportExportProfileOptionsIncludeToggle::SLUG, [
+			'keys'   => 'display_plugin_badge,enable_tracking,importexport_enable,not_a_real_option',
+			'status' => 'exclude',
+		] );
+		$this->assertTrue( (bool)( $groupExcludePayload[ 'success' ] ?? false ) );
+		$profile = $repo->findById( $profile->id );
+		$this->assertNotEmpty( $profile );
+		$config = $repo->configForProfile( $profile );
+		$this->assertContains( 'display_plugin_badge', $config[ 'excluded' ] );
+		$this->assertContains( 'enable_tracking', $config[ 'excluded' ] );
+		$this->assertNotContains( 'importexport_enable', $config[ 'excluded' ] );
+		$this->assertNotContains( 'not_a_real_option', $config[ 'excluded' ] );
+
+		$groupIncludePayload = $this->routeRuntime()->processActionPayloadWithAdminBypass( ImportExportProfileOptionsIncludeToggle::SLUG, [
+			'keys'   => 'display_plugin_badge,enable_tracking',
+			'status' => 'include',
+		] );
+		$this->assertTrue( (bool)( $groupIncludePayload[ 'success' ] ?? false ) );
+		$profile = $repo->findById( $profile->id );
+		$this->assertNotEmpty( $profile );
+		$config = $repo->configForProfile( $profile );
+		$this->assertNotContains( 'display_plugin_badge', $config[ 'excluded' ] );
+		$this->assertNotContains( 'enable_tracking', $config[ 'excluded' ] );
 	}
 
 	public function test_copy_from_master_updates_profile_values_and_preserves_profile_exclusions() :void {
@@ -316,6 +365,7 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 			'importexport_secretkey',
 			'importexport_secretkey_expires_at',
 			'importexport_sites_migrated_at',
+			'enable_live_log',
 			NetworkInviteRepository::OPTION_KEY,
 			NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY,
 			'xfer_excluded',
@@ -379,5 +429,30 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 		if ( $resetDbCon ) {
 			$this->requireController()->db_con->reset();
 		}
+	}
+
+	private function assertProfileRenderGroupsCoverProfileableKeysOnce( array $groups ) :void {
+		$renderedKeys = [];
+		foreach ( $groups as $group ) {
+			$this->assertIsArray( $group );
+			$this->assertArrayHasKey( 'sections', $group );
+			$this->assertIsArray( $group[ 'sections' ] );
+			foreach ( $group[ 'sections' ] as $section ) {
+				$this->assertIsArray( $section );
+				$this->assertArrayHasKey( 'options', $section );
+				$this->assertIsArray( $section[ 'options' ] );
+				foreach ( $section[ 'options' ] as $option ) {
+					$this->assertIsArray( $option );
+					$this->assertArrayHasKey( 'key', $option );
+					$this->assertIsString( $option[ 'key' ] );
+					$renderedKeys[] = $option[ 'key' ];
+				}
+			}
+		}
+
+		$profileableKeys = ( new ProfileOptionsCatalog() )->profileableKeys();
+		$this->assertNotEmpty( $groups );
+		$this->assertSame( \count( $renderedKeys ), \count( \array_unique( $renderedKeys ) ) );
+		$this->assertEqualsCanonicalizing( $profileableKeys, $renderedKeys );
 	}
 }

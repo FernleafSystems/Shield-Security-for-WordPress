@@ -25,6 +25,7 @@ class Constants {
 		Actions\ImportExportNetworkInviteReject::class,
 		Actions\ImportExportProfileCopyFromMaster::class,
 		Actions\ImportExportProfileOptionIncludeToggle::class,
+		Actions\ImportExportProfileOptionsIncludeToggle::class,
 		Actions\ImportExportProfileOptionsSave::class,
 		Actions\ImportExportSitesAuthoriseUrlsSubmit::class,
 		Actions\ImportExportSitesTableAction::class,

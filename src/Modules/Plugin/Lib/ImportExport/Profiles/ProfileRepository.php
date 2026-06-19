@@ -222,15 +222,26 @@ class ProfileRepository {
 	}
 
 	public function setOptionIncluded( ProfileRecord $profile, string $optionKey, bool $included ) :bool {
+		return $this->setOptionsIncluded( $profile, [ $optionKey ], $included );
+	}
+
+	/**
+	 * @param string[] $optionKeys
+	 */
+	public function setOptionsIncluded( ProfileRecord $profile, array $optionKeys, bool $included ) :bool {
 		$profileableKeys = ( new ProfileOptionsCatalog() )->profileableKeys();
-		if ( !\in_array( $optionKey, $profileableKeys, true ) ) {
+		$optionKeys = \array_values( \array_intersect(
+			\array_unique( \array_map( '\strval', $optionKeys ) ),
+			$profileableKeys
+		) );
+		if ( empty( $optionKeys ) ) {
 			return false;
 		}
 
 		$config = $this->configForProfile( $profile );
-		$excluded = \array_diff( $config[ 'excluded' ], [ $optionKey ] );
+		$excluded = \array_diff( $config[ 'excluded' ], $optionKeys );
 		if ( !$included ) {
-			$excluded[] = $optionKey;
+			$excluded = \array_merge( $excluded, $optionKeys );
 		}
 		$config[ 'excluded' ] = \array_values( \array_unique( $excluded ) );
 		return $this->saveConfig( $profile, $config );

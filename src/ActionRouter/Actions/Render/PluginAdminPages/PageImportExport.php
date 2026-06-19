@@ -328,7 +328,7 @@ class PageImportExport extends BasePluginAdminPage {
 				[
 					'key'        => 'profile',
 					'title'      => __( 'Sync profile', 'wp-simple-firewall' ),
-					'summary'    => __( 'Edit deployed settings.', 'wp-simple-firewall' ),
+					'summary'    => __( 'Edit deployed client configuration.', 'wp-simple-firewall' ),
 					'icon_class' => 'bi bi-sliders',
 					'is_active'  => false,
 				],

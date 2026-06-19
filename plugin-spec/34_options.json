@@ -3244,6 +3244,7 @@
         "premium": true,
         "default": "N",
         "type": "checkbox",
+        "transferable": false,
         "beacon_id": 759,
         "link_info": "",
         "link_blog": "",
