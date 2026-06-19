@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ImportExportSit
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Enable;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Ops\LoadConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Handler as SitesDB,
 	Record
@@ -51,6 +52,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		] );
 		$this->configStoreKey = 'aptoweb_controller_'.\substr( \hash( 'md5', \get_class( $this->requireController() ) ), 0, 6 );
 		$this->storedConfigOptionSnapshot = Services::WpGeneral()->getOption( $this->configStoreKey );
+		$this->requireDb( ProfilesDB::DB_KEY );
 		$this->requireDb( SitesDB::DB_KEY );
 		$this->requireController()->opts
 								  ->optSet( 'importexport_sites_migrated_at', 0 )

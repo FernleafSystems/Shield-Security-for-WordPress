@@ -12,9 +12,17 @@ export class OptionsHandler extends BaseAutoExecComponent {
 		shieldEventsHandler_Main.add_Click(
 			'form.options_form_for .toggle-importexport-inclusion > input[type=checkbox]',
 			( targetEl ) => {
+				const form = targetEl.closest( 'form.options_form_for' );
+				if ( !form ) {
+					return;
+				}
+				const actionKey = form.dataset.transferAction;
+				if ( !actionKey || !( actionKey in this._base_data.ajax ) ) {
+					return;
+				}
 				( new AjaxService() )
 				.bg(
-					ObjectOps.Merge( this._base_data.ajax.xfer_include_toggle, {
+					ObjectOps.Merge( this._base_data.ajax[ actionKey ], {
 						key: targetEl.dataset.key,
 						status: targetEl.checked ? 'include' : 'exclude'
 					} )

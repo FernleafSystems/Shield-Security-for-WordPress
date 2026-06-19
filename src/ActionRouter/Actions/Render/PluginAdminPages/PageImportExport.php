@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFromFileUpload;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\ImportExport\ProfileOptionsForm;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
@@ -105,7 +106,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *   rail:array{connection_label:string,client_count_label:string},
  *   toggle:array{id:string,label:string,is_checked:bool},
  *   disabled:array{title:string,summary:string},
- *   tasks:list<array{key:'connect'|'clients',title:string,summary:string,icon_class:string,is_active:bool}>,
+ *   tasks:list<array{key:'connect'|'clients'|'profile',title:string,summary:string,icon_class:string,is_active:bool}>,
  *   connect:NetworkSyncConnect,
  *   clients:array{
  *     title:string,
@@ -115,7 +116,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *     table_id:string,
  *     active_count:int,
  *     has_connected_sites:bool
- *   }
+ *   },
+ *   profile:array{title:string,summary:string,form_html:string}
  * }
  * @phpstan-type NetworkInviteReviewContract array{
  *   invite:array{id:string,master_url:string,created_at:int,updated_at:int,review_url:string},
@@ -310,6 +312,13 @@ class PageImportExport extends BasePluginAdminPage {
 					'icon_class' => 'bi bi-display',
 					'is_active'  => false,
 				],
+				[
+					'key'        => 'profile',
+					'title'      => __( 'Sync profile', 'wp-simple-firewall' ),
+					'summary'    => __( 'Edit deployed settings.', 'wp-simple-firewall' ),
+					'icon_class' => 'bi bi-sliders',
+					'is_active'  => false,
+				],
 			],
 			'connect'              => $this->buildNetworkConnect( $hasMasterURL, $importMasterURL ),
 			'clients'              => [
@@ -320,6 +329,11 @@ class PageImportExport extends BasePluginAdminPage {
 				'table_id'           => 'ShieldTable-ImportExportSites',
 				'active_count'       => $activeClientCount,
 				'has_connected_sites' => $activeClientCount > 0,
+			],
+			'profile'              => [
+				'title'     => __( 'Sync profile', 'wp-simple-firewall' ),
+				'summary'   => __( 'Edit the settings distributed to client sites.', 'wp-simple-firewall' ),
+				'form_html' => $isEnabled ? self::con()->action_router->render( ProfileOptionsForm::class ) : '',
 			],
 		];
 	}

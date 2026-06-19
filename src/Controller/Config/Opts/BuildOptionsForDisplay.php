@@ -22,9 +22,16 @@ class BuildOptionsForDisplay {
 
 	private array $sections;
 
+	private array $values = [];
+
 	public function __construct( array $options = [], array $sections = [] ) {
 		$this->options = $options;
 		$this->sections = $sections;
+	}
+
+	public function setValues( array $values ) :self {
+		$this->values = $values;
+		return $this;
 	}
 
 	public function setFocusOption( string $optKey ) :self {
@@ -135,7 +142,7 @@ class BuildOptionsForDisplay {
 				'beacon_id'     => false
 			], $optDef );
 
-			$optDef[ 'value' ] = $opts->optGet( $optDef[ 'key' ] );
+			$optDef[ 'value' ] = $this->optionValue( $optDef[ 'key' ] );
 
 			if ( \in_array( $optDef[ 'type' ], [ 'select', 'multiple_select' ] ) ) {
 				$available = [];
@@ -196,7 +203,7 @@ class BuildOptionsForDisplay {
 				break;
 
 			case 'text':
-				$value = \stripslashes( $con->opts->optGet( $option[ 'key' ] ) );
+				$value = \stripslashes( (string)$value );
 				break;
 		}
 
@@ -222,6 +229,10 @@ class BuildOptionsForDisplay {
 		}
 
 		return $this->addPerOptionCustomisation( $option );
+	}
+
+	private function optionValue( string $key ) {
+		return \array_key_exists( $key, $this->values ) ? $this->values[ $key ] : self::con()->opts->optGet( $key );
 	}
 
 	private function addPerOptionCustomisation( array $option ) :array {

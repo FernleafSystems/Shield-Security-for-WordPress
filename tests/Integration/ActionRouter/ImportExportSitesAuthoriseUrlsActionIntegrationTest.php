@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\ImportExportSitesAuthoriseUrlsSubmit,
 	Exceptions\SecurityAdminRequiredException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Handler as SitesDB,
 	Record
@@ -16,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
 	SiteRepository
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Core\VOs\WpHttpResponseVo;
@@ -45,6 +47,7 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 
 	public function set_up() {
 		parent::set_up();
+		$this->requireDb( ProfilesDB::DB_KEY );
 		$this->requireDb( SitesDB::DB_KEY );
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->inviteHttp = new ImportExportSitesInviteHttpRequestRecorder();
@@ -96,11 +99,15 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 
 		$one = $this->requireSite( self::AUTHORISE_ONE );
 		$two = $this->requireSite( self::AUTHORISE_TWO );
+		$primaryProfile = ( new ProfileRepository() )->findBySlug( ProfileRepository::PRIMARY_SLUG );
+		$this->assertNotEmpty( $primaryProfile );
 		$this->assertSame( SitesDB::STATUS_ACTIVE, $one->status );
 		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $one->queue_status );
 		$this->assertSame( SitesDB::SOURCE_MANUAL, $one->source );
+		$this->assertSame( $primaryProfile->id, $one->profile_ref );
 		$this->assertSame( SitesDB::STATUS_ACTIVE, $two->status );
 		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $two->queue_status );
+		$this->assertSame( $primaryProfile->id, $two->profile_ref );
 		$this->assertNotFalse( \wp_next_scheduled( $this->queueHook() ) );
 		$this->assertCount( 0, $this->inviteHttp->requests );
 		$this->assertCount( 2, $this->getCapturedEventsByKey( 'whitelist_site_added' ) );
@@ -116,6 +123,9 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertSame( 1, $payload[ 'authorised_count' ] );
 		$row = $this->requireSite( self::SKIP_INVITE );
+		$primaryProfile = ( new ProfileRepository() )->findBySlug( ProfileRepository::PRIMARY_SLUG );
+		$this->assertNotEmpty( $primaryProfile );
+		$this->assertSame( $primaryProfile->id, $row->profile_ref );
 		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $row->queue_status );
 		$this->assertSame( 0, $row->next_ping_at );
 		$this->assertFalse( \wp_next_scheduled( $this->queueHook() ) );

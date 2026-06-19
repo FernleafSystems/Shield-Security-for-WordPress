@@ -240,6 +240,20 @@
 						<p class="import-export-empty-state">{{ network_sync.clients.empty_message }}</p>
 					{% endif %}
 				</div>
+
+				<div class="import-export-pane"
+					 data-import-export-pane="profile"
+					 role="tabpanel"
+					 hidden>
+					<header class="import-export-pane__header">
+						<div>
+							<h5>{{ network_sync.profile.title }}</h5>
+							<p>{{ network_sync.profile.summary }}</p>
+						</div>
+					</header>
+
+					{{ network_sync.profile.form_html|raw }}
+				</div>
 			</div>
 		</div>
 	{% endif %}

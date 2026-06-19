@@ -8,6 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as ImportExportSiteRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Record as ImportExportProfileRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\ScopedTargetHostRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
@@ -55,6 +57,7 @@ class Export {
 
 		$url = (string)Services::Data()->validateSimpleHttpUrl( (string)$req->query( 'url', '' ) );
 		$id = (string)$req->query( 'id', '' );
+		$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
 		$verification = $this->verifyUrl( $repo, $url, $id, (string)$req->query( 'secret', '' ) );
 
 		if ( $verification[ 'status' ] === self::VERIFY_COOLDOWN ) {
@@ -79,7 +82,9 @@ class Export {
 				try {
 					$code = 0;
 					$repo->recordExportRequested( $url );
-					$data = $this->getExportData();
+					$data = $this->shouldUseProfileExport( $row, $networkOpt )
+						? $this->getExportDataForProfile( ( new ProfileRepository() )->profileForSite( $row ) )
+						: $this->getExportData();
 					$success = true;
 					$msg = 'Options Exported Successfully';
 
@@ -87,9 +92,6 @@ class Export {
 						'options_exported',
 						[ 'audit_params' => [ 'site' => $url ] ]
 					);
-
-					// Only setup the network if we have a valid URL
-					$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
 
 					if ( $networkOpt === 'Y' ) {
 						$ieCon->addSyncSiteExportUrl( $url, $id );
@@ -160,13 +162,25 @@ class Export {
 	}
 
 	public function getExportData() :array {
+		return $this->buildExportData( $this->getRawOptionsExport() );
+	}
+
+	public function getExportDataForProfile( ?ImportExportProfileRecord $profile ) :array {
+		return $this->buildExportData(
+			$profile instanceof ImportExportProfileRecord
+				? ( new ProfileRepository() )->exportOptionsForProfile( $profile )
+				: $this->getRawOptionsExport()
+		);
+	}
+
+	public function buildExportData( array $options ) :array {
 		$all = [
 			'site_url'      => Services::WpGeneral()->getHomeUrl(),
 			'exported_at'   => Services::Request()->ts(),
 			'exported_date' => Services::Request()->carbon( true )->toIso8601String(),
 			'slug'          => 'wp-simple-firewall',
 			'version'       => self::con()->cfg->version(),
-			'options'       => $this->getRawOptionsExport(),
+			'options'       => $options,
 		];
 
 		if ( apply_filters( 'shield/export_include_ip_rules', true ) ) {
@@ -205,6 +219,10 @@ class Export {
 	 */
 	public function getRawOptionsExport() :array {
 		return \array_diff_key( $this->getFullTransferableOptionsExport(), \array_flip( self::con()->comps->opts_lookup->getXferExcluded() ) );
+	}
+
+	private function shouldUseProfileExport( ?ImportExportSiteRecord $row, $networkOpt ) :bool {
+		return $row instanceof ImportExportSiteRecord || $networkOpt === 'Y';
 	}
 
 	/**

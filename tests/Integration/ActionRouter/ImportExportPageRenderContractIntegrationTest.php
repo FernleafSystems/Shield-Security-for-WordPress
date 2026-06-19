@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExp
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\ImportExport\FormAuthoriseUrls;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageImportExport;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
@@ -23,6 +24,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 	public function set_up() {
 		parent::set_up();
 		$this->loginAsSecurityAdmin();
+		$this->requireDb( ProfilesDB::DB_KEY );
 		$this->requireDb( SitesDB::DB_KEY );
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			'importexport_enable',
@@ -98,7 +100,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$networkSync = $this->renderVars()[ 'network_sync' ];
 
 		$this->assertSame( ImportExportController::SYNC_STATE_ENABLED, $networkSync[ 'sync_state' ] );
-		$this->assertSame( [ 'connect', 'clients' ], \array_column( $networkSync[ 'tasks' ], 'key' ) );
+		$this->assertSame( [ 'connect', 'clients', 'profile' ], \array_column( $networkSync[ 'tasks' ], 'key' ) );
 		$connect = $networkSync[ 'connect' ];
 		$this->assertFalse( (bool)$connect[ 'is_connected' ] );
 		$this->assertArrayHasKey( 'form', $connect );
@@ -167,6 +169,7 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertStringContainsString( 'data-import-export-workbench="1"', $html );
 		$this->assertStringContainsString( 'data-import-export-task="connect"', $html );
 		$this->assertStringContainsString( 'data-import-export-task="clients"', $html );
+		$this->assertStringContainsString( 'data-import-export-task="profile"', $html );
 		$this->assertStringContainsString( 'data-import-export-standalone-site="1"', $html );
 		$this->assertStringContainsString( 'data-import-export-connect-reveal="1"', $html );
 		$this->assertStringContainsString( 'data-import-export-connect-form-panel="1"', $html );

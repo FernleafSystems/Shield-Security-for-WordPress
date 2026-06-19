@@ -351,8 +351,9 @@ class AssetsCustomizer {
 				],
 				'data'    => fn() => [
 					'ajax' => [
-						'form_save'           => ActionData::Build( Actions\ModuleOptionsSave::class ),
-						'xfer_include_toggle' => ActionData::Build( Actions\OptionTransferIncludeToggle::class ),
+						'form_save'                   => ActionData::Build( Actions\ModuleOptionsSave::class ),
+						'profile_form_save'           => ActionData::Build( Actions\ImportExportProfileOptionsSave::class ),
+						'profile_xfer_include_toggle' => ActionData::Build( Actions\ImportExportProfileOptionIncludeToggle::class ),
 					]
 				],
 			],

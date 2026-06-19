@@ -307,6 +307,36 @@
                 }
             }
         },
+        "import_export_profiles": {
+            "name": "Import/Export Profiles",
+            "slug": "importexport_profiles",
+            "is_core": false,
+            "autoexpire": 0,
+            "has_updated_at": true,
+            "has_created_at": true,
+            "has_deleted_at": false,
+            "col_older_than": "created_at",
+            "cols_custom": {
+                "slug": {
+                    "macro_type": "varchar",
+                    "length": 64,
+                    "attr": [
+                        "NOT NULL",
+                        "UNIQUE"
+                    ],
+                    "comment": "Profile Slug"
+                },
+                "label": {
+                    "macro_type": "varchar",
+                    "length": 128,
+                    "comment": "Profile Label"
+                },
+                "config": {
+                    "macro_type": "mediumtext",
+                    "comment": "Profile Configuration"
+                }
+            }
+        },
         "import_export_sites": {
             "name": "Import/Export Sites",
             "slug": "importexport_sites",
@@ -335,6 +365,12 @@
                     "macro_type": "varchar",
                     "length": 64,
                     "comment": "Slave Import ID"
+                },
+                "profile_ref": {
+                    "macro_type": "unsigned_int",
+                    "length": 11,
+                    "default": 0,
+                    "comment": "Assigned Profile ID"
                 },
                 "source": {
                     "macro_type": "varchar",

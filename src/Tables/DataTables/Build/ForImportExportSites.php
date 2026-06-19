@@ -15,6 +15,7 @@ class ForImportExportSites extends Base {
 	protected function getColumnsToDisplay() :array {
 		return [
 			'url',
+			'profile',
 			'status',
 			'queue_status',
 			'sync_status',
@@ -34,6 +35,15 @@ class ForImportExportSites extends Base {
 				'className'   => 'url',
 				'orderable'   => true,
 				'searchable'  => true,
+				'visible'     => true,
+				'searchPanes' => [ 'show' => false ],
+			],
+			'profile'                 => [
+				'data'        => 'profile',
+				'title'       => __( 'Profile', 'wp-simple-firewall' ),
+				'className'   => 'profile',
+				'orderable'   => false,
+				'searchable'  => false,
 				'visible'     => true,
 				'searchPanes' => [ 'show' => false ],
 			],

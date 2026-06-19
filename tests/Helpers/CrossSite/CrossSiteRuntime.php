@@ -2,6 +2,7 @@
 // WP-CLI eval-file wraps helpers before execution, so this file cannot declare strict_types first.
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_UpdateNotified;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ImportExportProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as ImportExportSiteRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
@@ -68,7 +69,7 @@ try {
 		 */
 		private function setup( string $role ) :array {
 			RuntimeTestState::applyPremiumCapabilities( $this->requiredCapabilities() );
-			RuntimeTestState::ensureDb( [ 'file_locker', ImportExportSitesDB::DB_KEY ] );
+			RuntimeTestState::ensureDb( [ 'file_locker', ImportExportProfilesDB::DB_KEY, ImportExportSitesDB::DB_KEY ] );
 			RuntimeTestState::primeShieldNetHandshake();
 			$this->clearImportExportRuntimeState();
 
@@ -192,7 +193,7 @@ try {
 		 * @return array<string,mixed>
 		 */
 		private function legacyMigrationCheck( array $payload ) :array {
-			RuntimeTestState::ensureDb( [ ImportExportSitesDB::DB_KEY ] );
+			RuntimeTestState::ensureDb( [ ImportExportProfilesDB::DB_KEY, ImportExportSitesDB::DB_KEY ] );
 			$this->clearImportExportRuntimeState();
 
 			$slaveUrl = (string)( $payload[ 'slave_url' ] ?? '' );
@@ -527,6 +528,13 @@ try {
 			global $wpdb;
 			try {
 				$table = RuntimeTestState::requireDbHandler( ImportExportSitesDB::DB_KEY, true )->getTable();
+				$wpdb->query( "DELETE FROM `{$table}`" );
+				Services::WpDb()->clearResultShowTables();
+			}
+			catch ( \Throwable $e ) {
+			}
+			try {
+				$table = RuntimeTestState::requireDbHandler( ImportExportProfilesDB::DB_KEY, true )->getTable();
 				$wpdb->query( "DELETE FROM `{$table}`" );
 				Services::WpDb()->clearResultShowTables();
 			}

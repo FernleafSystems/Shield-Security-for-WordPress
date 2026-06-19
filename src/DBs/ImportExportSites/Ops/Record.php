@@ -6,6 +6,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops;
  * @property string $url
  * @property string $url_hash
  * @property string $import_id
+ * @property int    $profile_ref
  * @property string $source
  * @property string $status
  * @property string $queue_status
@@ -52,6 +53,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 		}
 		elseif ( \in_array( $key, [
 			'priority',
+			'profile_ref',
 			'queued_at',
 			'picked_at',
 			'lock_until',

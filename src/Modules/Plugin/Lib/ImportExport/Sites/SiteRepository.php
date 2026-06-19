@@ -2,10 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Record as ProfileRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Handler as SitesDB,
 	Record
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -654,6 +656,9 @@ class SiteRepository {
 			'deleted_at' => 0,
 		];
 
+		if ( !$row instanceof Record || $row->profile_ref <= 0 ) {
+			$data[ 'profile_ref' ] = $this->defaultProfileRef();
+		}
 		if ( !empty( $source ) && ( !$row instanceof Record || empty( $row->source ) ) ) {
 			$data[ 'source' ] = $source;
 		}
@@ -672,12 +677,16 @@ class SiteRepository {
 		string $url,
 		string $source,
 		bool $sendInvite,
-		int $now
+		int $now,
+		?int $profileRef = null
 	) :array {
 		$queueStatus = $sendInvite ? SitesDB::QUEUE_PENDING_INVITE : SitesDB::QUEUE_PENDING_CONNECTION;
 		$data = [
 			'url'                  => $url,
 			'url_hash'             => \hash( 'md5', $url ),
+			'profile_ref'          => $row instanceof Record && $row->profile_ref > 0
+				? $row->profile_ref
+				: ( $profileRef ?? $this->defaultProfileRef() ),
 			'status'               => SitesDB::STATUS_ACTIVE,
 			'queue_status'         => $queueStatus,
 			'deleted_at'           => 0,
@@ -737,10 +746,23 @@ class SiteRepository {
 		bool $sendInvite,
 		int $now
 	) :array {
+		$base = $this->buildActiveInsertData( $url, $source, '', false, $now );
 		return \array_merge(
-			$this->buildActiveInsertData( $url, $source, '', false, $now ),
-			$this->buildPendingClientSiteUpsertData( null, $url, $source, $sendInvite, $now )
+			$base,
+			$this->buildPendingClientSiteUpsertData( null, $url, $source, $sendInvite, $now, (int)$base[ 'profile_ref' ] )
 		);
+	}
+
+	private function defaultProfileRef() :int {
+		try {
+			$profile = ( new ProfileRepository() )->ensurePrimaryProfile();
+			return $profile instanceof ProfileRecord
+				? $profile->id
+				: 0;
+		}
+		catch ( \Throwable $e ) {
+			return 0;
+		}
 	}
 
 	private function queueRows( array $rows ) :int {

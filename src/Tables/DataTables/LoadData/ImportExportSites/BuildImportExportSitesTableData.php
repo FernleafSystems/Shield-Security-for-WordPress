@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExportSites;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 
 class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
@@ -47,6 +48,7 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 	 * @return list<array{
 	 *   rid:int,
 	 *   url:string,
+	 *   profile:string,
 	 *   status:string,
 	 *   status_key:string,
 	 *   queue_status:string,
@@ -59,13 +61,15 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 	 */
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
 		$statusBuilder = $this->statusBuilder();
+		$profileLabels = $this->profileLabelsForRecords( $records );
 
-		return \array_values( \array_map( function ( Record $record ) use ( $statusBuilder ) :array {
+		return \array_values( \array_map( function ( Record $record ) use ( $statusBuilder, $profileLabels ) :array {
 			$syncStatus = $statusBuilder->build( $record );
 
 			return [
 				'rid'              => $record->id,
 				'url'              => esc_html( $record->url ),
+				'profile'          => $this->profileLabelForRecord( $record, $profileLabels ),
 				'status'           => $statusBuilder->registrationHtml( $record->status ),
 				'status_key'       => $record->status,
 				'queue_status'     => $statusBuilder->queueHtml( $record->queue_status ),
@@ -76,6 +80,34 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 				'updated_at'       => $record->updated_at,
 			];
 		}, $records ) );
+	}
+
+	/**
+	 * @param Record[] $records
+	 * @return array<int,string>
+	 */
+	private function profileLabelsForRecords( array $records ) :array {
+		$ids = \array_values( \array_unique( \array_filter(
+			\array_map(
+				static fn( Record $record ) :int => (int)$record->profile_ref,
+				$records
+			),
+			static fn( int $profileID ) :bool => $profileID > 0
+		) ) );
+
+		return empty( $ids ) ? [] : ( new ProfileRepository() )->labelsById( $ids );
+	}
+
+	/**
+	 * @param array<int,string> $profileLabels
+	 */
+	private function profileLabelForRecord( Record $record, array $profileLabels ) :string {
+		$profileID = (int)$record->profile_ref;
+		$label = $profileID > 0
+			? ( $profileLabels[ $profileID ] ?? __( 'Unknown Profile', 'wp-simple-firewall' ) )
+			: __( 'Primary Profile', 'wp-simple-firewall' );
+
+		return esc_html( $label );
 	}
 
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {

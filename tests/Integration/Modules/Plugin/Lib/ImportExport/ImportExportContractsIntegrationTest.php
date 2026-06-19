@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plugin\Lib\ImportExport;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Handler as SitesDB,
 	Record as SiteRecord
@@ -12,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Expo
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
@@ -26,6 +28,8 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 	private const MANUAL_PRIVATE_URL = 'https://10.0.0.25/manual-private-slave';
 	private const LEGACY_PRIVATE_URL = 'https://10.0.0.26/legacy-private-slave';
 	private const EXPORT_PRIVATE_URL = 'https://10.0.0.27/export-private-slave';
+	private const PROFILE_PUBLIC_URL = 'https://93.184.216.75/profile-slave';
+	private const PROFILE_NETWORK_URL = 'https://93.184.216.76/profile-network-slave';
 
 	private array $optionsSnapshot = [];
 	private array $requestSnapshot = [];
@@ -36,6 +40,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->enablePremiumCapabilities( [ 'import_export_level_1', 'import_export_level_2' ] );
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
+		$this->requireDb( ProfilesDB::DB_KEY );
 		$this->requireDb( SitesDB::DB_KEY );
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
@@ -126,6 +131,80 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'xfer_excluded', $export[ 'options' ] );
 		$this->assertArrayNotHasKey( NetworkInviteRepository::OPTION_KEY, $export[ 'options' ] );
 		$this->assertArrayNotHasKey( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, $export[ 'options' ] );
+	}
+
+	public function test_network_export_uses_primary_profile_values_and_profile_exclusions() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'display_plugin_badge', 'light' )
+			->optSet( 'visitor_address_source', 'REMOTE_ADDR' )
+			->optSet( 'enable_tracking', 'Y' )
+			->optSet( 'importexport_sites_migrated_at', 1 )
+			->store();
+
+		$repo = new ProfileRepository();
+		$profile = $repo->ensurePrimaryProfile();
+		$this->assertNotEmpty( $profile );
+		$this->assertTrue( $repo->saveOptionValues( $profile, [
+			'display_plugin_badge'   => 'disabled',
+			'visitor_address_source' => 'AUTO_DETECT_IP',
+			'enable_tracking'        => 'N',
+		] ) );
+		$this->assertTrue( $repo->setOptionIncluded( $profile, 'enable_tracking', false ) );
+		$row = $this->seedActiveSyncSite( self::PROFILE_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$this->assertSame( $profile->id, $row->profile_ref );
+
+		$payload = $this->captureExportJson( [
+			'url' => self::PROFILE_PUBLIC_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+
+		$this->assertExportJsonPayload( $payload );
+		$this->assertSame( 'disabled', $payload[ 'data' ][ 'options' ][ 'display_plugin_badge' ] );
+		$this->assertSame( 'AUTO_DETECT_IP', $payload[ 'data' ][ 'options' ][ 'visitor_address_source' ] );
+		$this->assertArrayNotHasKey( 'enable_tracking', $payload[ 'data' ][ 'options' ] );
+		$this->assertSame( 'light', $con->opts->optGet( 'display_plugin_badge' ) );
+		$this->assertSame( 'REMOTE_ADDR', $con->opts->optGet( 'visitor_address_source' ) );
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_tracking' ) );
+	}
+
+	public function test_first_network_enrollment_uses_primary_profile_values_and_assigns_profile_ref() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'display_plugin_badge', 'light' )
+			->optSet( 'visitor_address_source', 'REMOTE_ADDR' )
+			->optSet( 'enable_tracking', 'Y' )
+			->optSet( 'importexport_sites_migrated_at', 1 )
+			->store();
+
+		$repo = new ProfileRepository();
+		$profile = $repo->ensurePrimaryProfile();
+		$this->assertNotEmpty( $profile );
+		$this->assertTrue( $repo->saveOptionValues( $profile, [
+			'display_plugin_badge'   => 'disabled',
+			'visitor_address_source' => 'AUTO_DETECT_IP',
+			'enable_tracking'        => 'N',
+		] ) );
+		$this->assertTrue( $repo->setOptionIncluded( $profile, 'enable_tracking', false ) );
+
+		$payload = $this->captureExportJson( [
+			'url'     => self::PROFILE_NETWORK_URL,
+			'id'      => self::SLAVE_IMPORT_ID,
+			'secret'  => $con->comps->import_export->getImportExportSecretKey(),
+			'network' => 'Y',
+		] );
+
+		$this->assertExportJsonPayload( $payload );
+		$this->assertSame( 'disabled', $payload[ 'data' ][ 'options' ][ 'display_plugin_badge' ] );
+		$this->assertSame( 'AUTO_DETECT_IP', $payload[ 'data' ][ 'options' ][ 'visitor_address_source' ] );
+		$this->assertArrayNotHasKey( 'enable_tracking', $payload[ 'data' ][ 'options' ] );
+		$row = ( new SiteRepository() )->findByUrl( self::PROFILE_NETWORK_URL );
+		$this->assertInstanceOf( SiteRecord::class, $row );
+		$this->assertSame( self::SLAVE_IMPORT_ID, $row->import_id );
+		$this->assertSame( $profile->id, $row->profile_ref );
+		$this->assertSame( 'light', $con->opts->optGet( 'display_plugin_badge' ) );
+		$this->assertSame( 'REMOTE_ADDR', $con->opts->optGet( 'visitor_address_source' ) );
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_tracking' ) );
 	}
 
 	public function test_standard_file_import_applies_transferable_options_respects_exclusions_and_deletes_file() :void {

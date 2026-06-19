@@ -153,6 +153,7 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$row = $rows[ 0 ];
 		$expectedKeys = [
 			'actions',
+			'profile',
 			'queue_status',
 			'queue_status_key',
 			'rid',
@@ -182,6 +183,7 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 			$this->assertArrayNotHasKey( $removedKey, $row );
 		}
 		$this->assertSame( SiteSyncStatusBuilder::STATE_WORKING, $row[ 'sync_state' ] );
+		$this->assertSame( 'Primary Profile', $row[ 'profile' ] );
 		$this->assertStringContainsString( 'data-import-export-site-delete="1"', $row[ 'actions' ] );
 		$this->assertStringNotContainsString( 'data-import-export-site-repair="1"', $row[ 'actions' ] );
 		$this->assertStringContainsString( 'data-rid="99"', $row[ 'actions' ] );
