@@ -8,6 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Handler as SitesDB,
 	Record as SiteRecord
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionRoutingController;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Export as PluginImportExportExportAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\AddRule;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
@@ -17,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Prof
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -25,6 +28,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 	private const SLAVE_URL = 'https://slave.example.com';
 	private const SLAVE_IMPORT_ID = 'shi280-slave-import-id';
 	private const MANUAL_PUBLIC_URL = 'https://93.184.216.71/manual-public-slave';
+	private const UNKNOWN_PUBLIC_URL = 'https://93.184.216.72/unknown-sync-site';
 	private const MANUAL_PRIVATE_URL = 'https://10.0.0.25/manual-private-slave';
 	private const LEGACY_PRIVATE_URL = 'https://10.0.0.26/legacy-private-slave';
 	private const EXPORT_PRIVATE_URL = 'https://10.0.0.27/export-private-slave';
@@ -461,9 +465,11 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( self::SLAVE_IMPORT_ID, ( new SiteRepository() )->findById( $row->id, true )->import_id );
 	}
 
-	public function test_export_json_row_with_import_id_rejects_missing_id_without_handshake() :void {
+	public function test_export_json_row_with_import_id_silently_rejects_missing_id_without_handshake() :void {
 		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
-		$this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$repo = new SiteRepository();
+		$before = $repo->findById( $row->id, true );
 		$handshakeRequests = 0;
 		$filter = static function ( $preempt, array $args, string $url ) use ( &$handshakeRequests ) {
 			if ( \str_contains( $url, '93.184.216.71' ) ) {
@@ -474,7 +480,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		\add_filter( 'pre_http_request', $filter, 10, 3 );
 
 		try {
-			$payload = $this->captureExportJson( [
+			$this->assertExportSilentRejection( [
 				'url' => self::MANUAL_PUBLIC_URL,
 			] );
 		}
@@ -482,13 +488,71 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			\remove_filter( 'pre_http_request', $filter, 10 );
 		}
 
-		$this->assertExportJsonVerifyFailurePayload( $payload );
 		$this->assertSame( 0, $handshakeRequests );
+		$this->assertExportFailureStateUnchanged( $before, $repo->findById( $row->id, true ) );
+	}
+
+	public function test_export_json_row_with_import_id_silently_rejects_wrong_id_without_handshake() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$repo = new SiteRepository();
+		$before = $repo->findById( $row->id, true );
+		$handshakeRequests = 0;
+		$filter = static function ( $preempt, array $args, string $url ) use ( &$handshakeRequests ) {
+			if ( \str_contains( $url, '93.184.216.71' ) ) {
+				$handshakeRequests++;
+			}
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$this->assertExportSilentRejection( [
+				'url' => self::MANUAL_PUBLIC_URL,
+				'id'  => self::SLAVE_IMPORT_ID.'-wrong',
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$this->assertSame( 0, $handshakeRequests );
+		$this->assertExportFailureStateUnchanged( $before, $repo->findById( $row->id, true ) );
+	}
+
+	public function test_export_json_silently_rejects_unknown_url() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+
+		$this->assertExportSilentRejection( [
+			'url' => self::UNKNOWN_PUBLIC_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+	}
+
+	public function test_export_action_silent_rejection_returns_empty_action_payload() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$this->applyCurrentRequestState( [
+			'REQUEST_METHOD' => 'GET',
+			'REQUEST_URI'    => '/',
+		], [
+			'url' => self::UNKNOWN_PUBLIC_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+
+		$payload = $this->requireController()->action_router->action(
+			PluginImportExportExportAction::class,
+			[ 'method' => 'json' ],
+			ActionRoutingController::ACTION_SHIELD
+		)->payload();
+
+		$this->assertSame( [], $payload );
 	}
 
 	public function test_export_json_no_id_handshake_is_cooldown_limited() :void {
 		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
-		$this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL );
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL );
+		$repo = new SiteRepository();
+		$before = $repo->findById( $row->id, true );
 		$handshakeRequests = 0;
 		$filter = static function ( $preempt, array $args, string $url ) use ( &$handshakeRequests ) {
 			if ( \str_contains( $url, '93.184.216.71' ) ) {
@@ -509,10 +573,10 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		\add_filter( 'pre_http_request', $filter, 10, 3 );
 
 		try {
-			$first = $this->captureExportJson( [
+			$this->assertExportSilentRejection( [
 				'url' => self::MANUAL_PUBLIC_URL,
 			] );
-			$second = $this->captureExportJson( [
+			$this->assertExportSilentRejection( [
 				'url' => self::MANUAL_PUBLIC_URL,
 			] );
 		}
@@ -520,9 +584,8 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			\remove_filter( 'pre_http_request', $filter, 10 );
 		}
 
-		$this->assertExportJsonVerifyFailurePayload( $first );
-		$this->assertExportJsonVerifyFailurePayload( $second );
 		$this->assertSame( 1, $handshakeRequests );
+		$this->assertExportFailureStateUnchanged( $before, $repo->findById( $row->id, true ) );
 	}
 
 	public function test_export_json_repeated_valid_export_inside_cooldown_is_cheap_rejected() :void {
@@ -539,12 +602,53 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			'id'  => self::SLAVE_IMPORT_ID,
 		] );
 		$rowAfterSecond = ( new SiteRepository() )->findById( $row->id, true );
+		$this->assertInstanceOf( SiteRecord::class, $rowAfterSecond );
+		$this->backdateExportServedAt( $rowAfterSecond, 60 );
+		$third = $this->captureExportJson( [
+			'url' => self::MANUAL_PUBLIC_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
 
 		$this->assertExportJsonPayload( $first );
-		$this->assertExportJsonVerifyFailurePayload( $second );
-		$this->assertSame( 0, $rowAfterSecond->consecutive_failures );
-		$this->assertSame( $rowAfterFirst->last_export_failure_at, $rowAfterSecond->last_export_failure_at );
-		$this->assertSame( $rowAfterFirst->last_export_error, $rowAfterSecond->last_export_error );
+		$this->assertExportJsonCooldownPayload( $second );
+		$this->assertExportFailureStateUnchanged( $rowAfterFirst, $rowAfterSecond );
+		$this->assertExportJsonPayload( $third );
+	}
+
+	public function test_export_json_legacy_no_id_verified_export_uses_legacy_cooldown() :void {
+		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
+		$row = $this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL );
+		$this->backdateExportServedAt( $row, 60 );
+		$handshakeRequests = 0;
+		$filter = static function ( $preempt, array $args, string $url ) use ( &$handshakeRequests ) {
+			if ( \str_contains( $url, '93.184.216.71' ) ) {
+				$handshakeRequests++;
+				return [
+					'headers'  => [],
+					'body'     => \wp_json_encode( [ 'success' => true ] ),
+					'response' => [
+						'code'    => 200,
+						'message' => 'OK',
+					],
+					'cookies'  => [],
+					'filename' => null,
+				];
+			}
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter, 10, 3 );
+
+		try {
+			$payload = $this->captureExportJson( [
+				'url' => self::MANUAL_PUBLIC_URL,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter, 10 );
+		}
+
+		$this->assertExportJsonCooldownPayload( $payload );
+		$this->assertSame( 1, $handshakeRequests );
 	}
 
 	public function test_export_json_expected_export_is_not_blocked_by_previous_export_cooldown() :void {
@@ -604,12 +708,10 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireController()->opts->optSet( 'importexport_sites_migrated_at', 1 )->store();
 		$this->seedActiveSyncSite( self::MANUAL_PRIVATE_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
 
-		$payload = $this->captureExportJson( [
+		$this->assertExportSilentRejection( [
 			'url' => self::MANUAL_PRIVATE_URL,
 			'id'  => self::SLAVE_IMPORT_ID,
 		] );
-
-		$this->assertExportJsonVerifyFailurePayload( $payload );
 	}
 
 	public function test_export_json_rejects_manual_private_sync_site_before_handshake() :void {
@@ -635,7 +737,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		\add_filter( 'pre_http_request', $filter, 10, 3 );
 
 		try {
-			$payload = $this->captureExportJson( [
+			$this->assertExportSilentRejection( [
 				'url' => self::MANUAL_PRIVATE_URL,
 			] );
 		}
@@ -643,7 +745,6 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			\remove_filter( 'pre_http_request', $filter, 10 );
 		}
 
-		$this->assertExportJsonVerifyFailurePayload( $payload );
 		$this->assertSame( [], $outboundPrivateRequests );
 	}
 
@@ -684,7 +785,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertExportJsonPayload( $payload );
 	}
 
-	public function test_export_json_fails_when_only_legacy_options_contain_url_after_migration() :void {
+	public function test_export_json_silently_rejects_when_only_legacy_options_contain_url_after_migration() :void {
 		$con = $this->requireController();
 		$con->opts
 			->optSet( 'importexport_sites_migrated_at', 1 )
@@ -694,12 +795,10 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			] )
 			->store();
 
-		$payload = $this->captureExportJson( [
+		$this->assertExportSilentRejection( [
 			'url' => self::SLAVE_URL,
 			'id'  => self::SLAVE_IMPORT_ID,
 		] );
-
-		$this->assertExportJsonVerifyFailurePayload( $payload );
 	}
 
 	private function assertFileImportFailsWithoutOptionChanges( string $path ) :void {
@@ -731,11 +830,40 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
-	private function assertExportJsonVerifyFailurePayload( array $payload ) :void {
+	private function assertExportJsonCooldownPayload( array $payload ) :void {
 		$this->assertArrayHasKey( 'success', $payload );
 		$this->assertArrayHasKey( 'code', $payload );
+		$this->assertArrayHasKey( 'message', $payload );
 		$this->assertFalse( (bool)$payload[ 'success' ] );
 		$this->assertSame( 3, $payload[ 'code' ] );
+		$this->assertSame( 'Please wait a few minutes before trying that again.', $payload[ 'message' ] );
+	}
+
+	private function assertExportSilentRejection( array $query ) :void {
+		$attempt = $this->captureExportAttempt( $query );
+
+		$this->assertFalse( $attempt[ 'terminated' ], 'Expected export request to return silently.' );
+		$this->assertSame( '', \trim( $attempt[ 'output' ] ) );
+		$this->assertNull( $attempt[ 'payload' ] );
+	}
+
+	private function assertExportFailureStateUnchanged( ?SiteRecord $before, ?SiteRecord $after ) :void {
+		$this->assertInstanceOf( SiteRecord::class, $before );
+		$this->assertInstanceOf( SiteRecord::class, $after );
+		$this->assertSame( $before->last_export_request_at, $after->last_export_request_at );
+		$this->assertSame( $before->last_export_failure_at, $after->last_export_failure_at );
+		$this->assertSame( $before->last_export_result_code, $after->last_export_result_code );
+		$this->assertSame( $before->last_export_error, $after->last_export_error );
+		$this->assertSame( $before->consecutive_failures, $after->consecutive_failures );
+	}
+
+	private function backdateExportServedAt( SiteRecord $row, int $seconds ) :void {
+		$dbh = $this->requireController()->db_con->import_export_sites;
+		$meta = \is_array( $row->meta ) ? $row->meta : [];
+		$meta[ 'export_served_at' ] = Services::Request()->ts() - $seconds;
+		$dbh->getQueryUpdater()->updateById( $row->id, [
+			'meta' => $dbh->getRecord()->arrayDataWrap( $meta ) ?? '',
+		] );
 	}
 
 	private function seedActiveSyncSite( string $url, string $source, string $importID = '' ) :SiteRecord {
@@ -758,6 +886,17 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function captureExportJson( array $query ) :array {
+		$attempt = $this->captureExportAttempt( $query );
+
+		$this->assertTrue( $attempt[ 'terminated' ], 'Expected export JSON to terminate through wp_die().' );
+		$this->assertIsArray( $attempt[ 'payload' ] );
+		return $attempt[ 'payload' ];
+	}
+
+	/**
+	 * @return array{terminated:bool,output:string,payload:?array}
+	 */
+	private function captureExportAttempt( array $query ) :array {
 		$this->applyCurrentRequestState( [
 			'REQUEST_METHOD' => 'GET',
 			'REQUEST_URI'    => '/',
@@ -774,7 +913,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		\ob_start();
 
 		try {
-			( new Export() )->toJson();
+			( new Export() )->run( 'json' );
 		}
 		catch ( ImportExportContractsWpDieException $e ) {
 			$caught = true;
@@ -785,10 +924,12 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			$output = \ob_get_level() > $level ? (string)\ob_get_clean() : '';
 		}
 
-		$this->assertTrue( $caught, 'Expected export JSON to terminate through wp_die().' );
 		$decoded = \json_decode( \trim( $output ), true );
-		$this->assertIsArray( $decoded );
-		return $decoded;
+		return [
+			'terminated' => $caught,
+			'output'     => $output,
+			'payload'    => \is_array( $decoded ) ? $decoded : null,
+		];
 	}
 
 	private function writeTempFile( string $content ) :string {
@@ -832,5 +973,5 @@ class ImportExportControllerContractProbe extends ImportExportController {
 	}
 }
 
-class ImportExportContractsWpDieException extends \RuntimeException {
+class ImportExportContractsWpDieException extends \Error {
 }
