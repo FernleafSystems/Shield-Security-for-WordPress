@@ -257,7 +257,7 @@ class FileScanner {
 			'core',
 			'core',
 			Services::WpGeneral()->getVersion(),
-			\str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $fullPath ) )
+			Services::WpFs()->getPathRelativeToAbsPath( $fullPath )
 		);
 	}
 
@@ -281,7 +281,7 @@ class FileScanner {
 		/** @var ResultItem $item */
 		$item = self::con()->comps->scans->AFS()->getNewResultItem();
 		$item->path_full = wp_normalize_path( $fullPath );
-		$item->path_fragment = \str_replace( wp_normalize_path( ABSPATH ), '', $item->path_full );
+		$item->path_fragment = Services::WpFs()->getPathRelativeToAbsPath( $item->path_full );
 		return $item;
 	}
 

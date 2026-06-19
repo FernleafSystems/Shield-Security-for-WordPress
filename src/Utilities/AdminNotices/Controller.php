@@ -94,9 +94,18 @@ class Controller {
 		$msg = null;
 		$meta = self::con()->user_metas->current();
 		if ( !empty( $meta ) && \is_array( $meta->flash_msg ) ) {
-			if ( empty( $meta->flash_msg[ 'expires_at' ] )
-				 || Services::Request()->ts() < $meta->flash_msg[ 'expires_at' ] ) {
-				$msg = $meta->flash_msg;
+			$flashMsg = $meta->flash_msg;
+			$isExpired = !empty( $flashMsg[ 'expires_at' ] )
+						 && Services::Request()->ts() >= (int)$flashMsg[ 'expires_at' ];
+			if ( $isExpired ) {
+				$this->clearFlashMessage();
+			}
+			elseif ( isset( $flashMsg[ 'message' ] ) && \is_scalar( $flashMsg[ 'message' ] ) ) {
+				$msg = [
+					'message'    => (string)$flashMsg[ 'message' ],
+					'error'      => !empty( $flashMsg[ 'error' ] ),
+					'show_login' => !empty( $flashMsg[ 'show_login' ] ),
+				];
 			}
 			else {
 				$this->clearFlashMessage();

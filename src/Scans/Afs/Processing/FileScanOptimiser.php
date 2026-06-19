@@ -128,7 +128,7 @@ class FileScanOptimiser {
 					'core',
 					'core',
 					Services::WpGeneral()->getVersion(),
-					$this->relativeToAbsPath( $path )
+					Services::WpFs()->getPathRelativeToAbsPath( $path )
 				);
 			}
 
@@ -300,9 +300,5 @@ class FileScanOptimiser {
 	private function fileSha256( string $path ) :string {
 		$hash = @\hash_file( 'sha256', $path );
 		return \is_string( $hash ) ? $hash : '';
-	}
-
-	private function relativeToAbsPath( string $path ) :string {
-		return \str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $path ) );
 	}
 }
