@@ -3,9 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\WordPressOrg\PluginVersions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Plugin\Versions;
 
 /**
  * Allows the plugin to access WordPress.org SVN updates/tags that haven't actually been released.
@@ -64,9 +65,12 @@ class AllowBetaUpgrades {
 	 * @return \stdClass|mixed
 	 */
 	private function removeStaleSelfUpdateNoticeCore( $updates, string $baseFile, string $currentVersion ) {
+		$baseFile = \trim( $baseFile );
+		$currentVersion = PluginVersions::normalizeReleaseVersion( $currentVersion );
+
 		if ( \is_object( $updates )
-		     && !empty( $baseFile )
-		     && !empty( $currentVersion )
+		     && $baseFile !== ''
+		     && $currentVersion !== ''
 		     && isset( $updates->response )
 		     && \is_array( $updates->response )
 		     && !empty( $updates->response[ $baseFile ] ) ) {
@@ -75,8 +79,8 @@ class AllowBetaUpgrades {
 			$ourUpdate = \is_array( $ourUpdate ) ? (object)$ourUpdate : $ourUpdate;
 
 			$newVersionRaw = \is_object( $ourUpdate ) ? ( $ourUpdate->new_version ?? '' ) : '';
-			$newVersion = \is_scalar( $newVersionRaw ) ? (string)$newVersionRaw : '';
-			if ( !empty( $newVersion ) && \version_compare( $newVersion, $currentVersion, '<=' ) ) {
+			$newVersion = PluginVersions::normalizeReleaseVersion( $newVersionRaw );
+			if ( $newVersion !== '' && \version_compare( $newVersion, $currentVersion, '<=' ) ) {
 				unset( $updates->response[ $baseFile ] );
 			}
 		}
@@ -94,31 +98,25 @@ class AllowBetaUpgrades {
 			$this->beta = false;
 
 			$thisPlugin = Services::WpPlugins()->getPluginAsVo( self::con()->base_file );
-			if ( \is_object( $thisPlugin ) && !empty( $thisPlugin->slug ) ) {
-				$versionsLookup = ( new Versions() )->setWorkingSlug( $thisPlugin->slug );
-				$betas = \array_filter(
-					$versionsLookup->all(),
-					static fn( $version ) => \is_string( $version )
-					                         && \preg_match( '#^\d+(\.\d+)+$#', $version )
-					                         && \version_compare( $version, self::con()->cfg->version(), '>' )
-				);
-				if ( !empty( $betas ) ) {
-					\natsort( $betas );
-					$beta = \array_pop( $betas );
-					$versionsLookup->setWorkingVersion( $beta );
-					$url = $versionsLookup->allVersionsUrls()[ $beta ] ?? '';
-					if ( !empty( $url ) ) {
-						$this->beta = new \stdClass();
-						$this->beta->id = $thisPlugin->id;
-						$this->beta->slug = $thisPlugin->slug;
-						$this->beta->plugin = self::con()->base_file;
-						$this->beta->new_version = $beta;
-						$this->beta->package = $url;
-						$this->beta->icons = [
-							'2x' => sprintf( 'https://ps.w.org/%s/assets/icon-256x256.png', $thisPlugin->slug ),
-							'1x' => sprintf( 'https://ps.w.org/%s/assets/icon-128x128.png', $thisPlugin->slug ),
-						];
-					}
+
+			if ( $thisPlugin instanceof WpPluginVo ) {
+				$slugRaw = $thisPlugin->slug;
+				$slug = \is_scalar( $slugRaw ) ? \trim( (string)$slugRaw ) : '';
+				$versionsLookup = new PluginVersions( $slug );
+				$beta = $versionsLookup->latestVersionNewerThan( self::con()->cfg->version() );
+				$url = $beta === null ? '' : $versionsLookup->urlForVersion( $beta );
+				if ( $url !== '' ) {
+					$idRaw = $thisPlugin->id;
+					$this->beta = new \stdClass();
+					$this->beta->id = \is_scalar( $idRaw ) ? (string)$idRaw : '';
+					$this->beta->slug = $slug;
+					$this->beta->plugin = self::con()->base_file;
+					$this->beta->new_version = $beta;
+					$this->beta->package = $url;
+					$this->beta->icons = [
+						'2x' => sprintf( 'https://ps.w.org/%s/assets/icon-256x256.png', $slug ),
+						'1x' => sprintf( 'https://ps.w.org/%s/assets/icon-128x128.png', $slug ),
+					];
 				}
 			}
 		}

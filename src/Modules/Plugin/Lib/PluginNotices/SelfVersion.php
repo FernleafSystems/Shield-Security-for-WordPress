@@ -2,11 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\ListTagsFromGithub;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\WordPressOrg\PluginVersions;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class SelfVersion extends Base {
+
+	private ?PluginVersions $versions = null;
+
+	public function __construct( ?PluginVersions $versions = null ) {
+		$this->versions = $versions;
+	}
 
 	public function check() :?array {
 		$con = self::con();
@@ -58,47 +64,14 @@ class SelfVersion extends Base {
 	}
 
 	private function isPluginTooOld() :bool {
-		$tooOld = false;
 		$con = self::con();
-		$versions = Transient::Get( $con->prefix( 'releases' ) );
-
-		if ( !\is_array( $versions ) ) {
-			$versions = ( new ListTagsFromGithub() )->run( 'FernleafSystems/Shield-Security-for-WordPress' );
-			Transient::Set( $con->prefix( 'releases' ), $versions, \HOUR_IN_SECONDS*6 );
+		$versions = $this->versions;
+		if ( $versions === null ) {
+			$thisPlugin = Services::WpPlugins()->getPluginAsVo( $con->base_file );
+			$slugRaw = $thisPlugin instanceof WpPluginVo ? $thisPlugin->slug : '';
+			$versions = new PluginVersions( \is_scalar( $slugRaw ) ? (string)$slugRaw : '' );
 		}
 
-		if ( !empty( $versions ) ) {
-			$tooOld = $this->hasAtLeastTwoNewerMajorVersions( $versions, $con->cfg->version() );
-		}
-
-		return $tooOld;
-	}
-
-	private function hasAtLeastTwoNewerMajorVersions( array $versions, string $currentVersion ) :bool {
-		$tooOld = false;
-		$currentMajor = $this->extractMajorVersion( $currentVersion );
-
-		if ( !empty( $currentMajor ) ) {
-			$majorVersionsNewerThanCurrent = \array_filter(
-				\array_unique( \array_map(
-					function ( $version ) {
-						return \is_string( $version ) ? $this->extractMajorVersion( $version ) : null;
-					},
-					$versions
-				) ),
-				function ( $version ) use ( $currentMajor ) {
-					return \is_int( $version ) && $version > $currentMajor;
-				},
-			);
-
-			$tooOld = \count( $majorVersionsNewerThanCurrent ) >= 2;
-		}
-
-		return $tooOld;
-	}
-
-	private function extractMajorVersion( string $version ) :?int {
-		$matches = [];
-		return \preg_match( '#^(\d+)\.#', $version, $matches ) === 1 ? \intval( $matches[ 1 ] ) : null;
+		return $versions->hasAtLeastTwoNewerMajorVersions( $con->cfg->version() );
 	}
 }
