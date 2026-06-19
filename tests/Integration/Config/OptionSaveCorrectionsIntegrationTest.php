@@ -16,6 +16,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'http_headers_csp',
 		'user_suspension',
 		'user_block_spam_registration',
+		'traffic_live_log',
 	];
 
 	private const SNAPSHOT_KEYS = [
@@ -39,6 +40,9 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'block_send_email',
 		'allow_backupcodes',
 		'display_plugin_badge',
+		'enable_logger',
+		'enable_live_log',
+		'live_log_started_at',
 		'silentcaptcha_complexity',
 	];
 
@@ -87,6 +91,52 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertStringStartsWith( '/', $redirect );
 		$this->assertStringNotContainsString( '://', $redirect );
 		$this->assertSame( [ 'profile' ], $con->opts->optGet( 'mfa_user_setup_pages' ) );
+	}
+
+	public function test_request_logger_is_normalised_on_during_store() :void {
+		$con = $this->requireController();
+		$startedAt = \time() - 60;
+
+		$this->replaceStoredOptionValues( [
+			'enable_logger'       => 'N',
+			'enable_live_log'     => 'Y',
+			'live_log_started_at' => $startedAt,
+		] );
+		$con->opts->store();
+
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_logger' ) );
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_live_log' ) );
+		$this->assertSame( $startedAt, $con->opts->optGet( 'live_log_started_at' ) );
+	}
+
+	public function test_request_logger_cannot_be_set_off_directly() :void {
+		$con = $this->requireController();
+
+		$con->opts->optSet( 'enable_logger', 'N' );
+
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_logger' ) );
+	}
+
+	public function test_request_logger_is_normalised_on_during_upgrade_hook() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+		$startedAt = \time() - 60;
+
+		$this->replaceStoredOptionValues( [
+			'enable_logger'       => 'N',
+			'enable_live_log'     => 'Y',
+			'live_log_started_at' => $startedAt,
+		] );
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_logger' ) );
+		$this->assertSame( 'Y', $con->opts->optGet( 'enable_live_log' ) );
+		$this->assertSame( $startedAt, $con->opts->optGet( 'live_log_started_at' ) );
+
+		$con->cfg->previous_version = $previousVersion;
 	}
 
 	public function test_security_and_content_corrections_are_applied_during_store() :void {

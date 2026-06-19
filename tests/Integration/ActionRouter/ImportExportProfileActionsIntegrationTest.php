@@ -365,6 +365,7 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 			'importexport_secretkey',
 			'importexport_secretkey_expires_at',
 			'importexport_sites_migrated_at',
+			'enable_logger',
 			'enable_live_log',
 			NetworkInviteRepository::OPTION_KEY,
 			NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY,

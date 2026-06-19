@@ -55,14 +55,16 @@ class OptsLookup {
 
 	public function enabledTrafficLimiter() :bool {
 		$opts = self::con()->opts;
-		return $this->enabledTrafficLogger()
-			   && $opts->optIs( 'enable_limiter', 'Y' )
+		return $opts->optIs( 'enable_limiter', 'Y' )
 			   && $opts->optGet( 'limit_time_span' ) > 0
 			   && $opts->optGet( 'limit_requests' ) > 0;
 	}
 
+	/**
+	 * Request logging is no longer user-disableable.
+	 */
 	public function enabledTrafficLogger() :bool {
-		return self::con()->opts->optIs( 'enable_logger', 'Y' );
+		return true;
 	}
 
 	public function getActivatedPeriod() :int {

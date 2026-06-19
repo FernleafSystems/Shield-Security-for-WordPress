@@ -210,31 +210,31 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 		}
 
 		$transientOldReq = $this->insertRequestLog( true );
-		$this->setCreatedAt( 'req_logs', $transientOldReq, $now - 8*\DAY_IN_SECONDS );
+		$this->setCreatedAt( 'req_logs', $transientOldReq, $now - 3*\DAY_IN_SECONDS );
 
 		$transientRecentReq = $this->insertRequestLog( true );
-		$this->setCreatedAt( 'req_logs', $transientRecentReq, $now - 2*\DAY_IN_SECONDS );
+		$this->setCreatedAt( 'req_logs', $transientRecentReq, $now - 1*\DAY_IN_SECONDS );
 
 		$standardOldUnreferencedReq = $this->insertRequestLog( false );
-		$this->setCreatedAt( 'req_logs', $standardOldUnreferencedReq, $now - 31*\DAY_IN_SECONDS );
+		$this->setCreatedAt( 'req_logs', $standardOldUnreferencedReq, $now - 8*\DAY_IN_SECONDS );
 
 		$standardOldReqWithWarning = $this->insertRequestLog( false );
-		$this->setCreatedAt( 'req_logs', $standardOldReqWithWarning, $now - 31*\DAY_IN_SECONDS );
+		$this->setCreatedAt( 'req_logs', $standardOldReqWithWarning, $now - 8*\DAY_IN_SECONDS );
 		$warningActivity = $this->insertActivityLogForRequest( $standardOldReqWithWarning, $warningEvent );
 		$this->setCreatedAt( 'activity_logs', $warningActivity, $now - 40*\DAY_IN_SECONDS );
 
 		$standardOldReqWithInfo = $this->insertRequestLog( false );
-		$this->setCreatedAt( 'req_logs', $standardOldReqWithInfo, $now - 31*\DAY_IN_SECONDS );
+		$this->setCreatedAt( 'req_logs', $standardOldReqWithInfo, $now - 8*\DAY_IN_SECONDS );
 		$infoActivity = $this->insertActivityLogForRequest( $standardOldReqWithInfo, $infoEvent );
 		$this->setCreatedAt( 'activity_logs', $infoActivity, $now - 2*\DAY_IN_SECONDS );
 
 		$standardOldReqWithHighValue = $this->insertRequestLog( false );
-		$this->setCreatedAt( 'req_logs', $standardOldReqWithHighValue, $now - 31*\DAY_IN_SECONDS );
+		$this->setCreatedAt( 'req_logs', $standardOldReqWithHighValue, $now - 8*\DAY_IN_SECONDS );
 		$highValueActivity = $this->insertActivityLogForRequest( $standardOldReqWithHighValue, $highValueEvent );
 		$this->setCreatedAt( 'activity_logs', $highValueActivity, $now - 400*\DAY_IN_SECONDS );
 
 		$standardOldReqWithExpiredHighValue = $this->insertRequestLog( false );
-		$this->setCreatedAt( 'req_logs', $standardOldReqWithExpiredHighValue, $now - 31*\DAY_IN_SECONDS );
+		$this->setCreatedAt( 'req_logs', $standardOldReqWithExpiredHighValue, $now - 8*\DAY_IN_SECONDS );
 		$expiredHighValueActivity = $this->insertActivityLogForRequest( $standardOldReqWithExpiredHighValue, $highValueEvent );
 		$this->setCreatedAt( 'activity_logs', $expiredHighValueActivity, $now - 800*\DAY_IN_SECONDS );
 
@@ -549,9 +549,10 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 		$noParamsReq = $this->writeRequestLogViaWriter( false, false, false );
 		$offenseReq = $this->writeRequestLogViaWriter( false, true, false );
 
-		foreach ( [ $dependentReq, $queryReq, $postReq, $noParamsReq, $offenseReq ] as $reqId ) {
-			$this->setCreatedAt( 'req_logs', $reqId, $now - 8*\DAY_IN_SECONDS );
+		foreach ( [ $dependentReq, $queryReq, $postReq, $offenseReq ] as $reqId ) {
+			$this->setCreatedAt( 'req_logs', $reqId, $now - 6*\DAY_IN_SECONDS );
 		}
+		$this->setCreatedAt( 'req_logs', $noParamsReq, $now - 3*\DAY_IN_SECONDS );
 
 		$this->assertSame( 0, $this->requestTransientFlag( $dependentReq ) );
 		$this->assertSame( 0, $this->requestTransientFlag( $queryReq ) );
@@ -566,6 +567,24 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $this->existsById( 'req_logs', $postReq ) );
 		$this->assertFalse( $this->existsById( 'req_logs', $noParamsReq ) );
 		$this->assertTrue( $this->existsById( 'req_logs', $offenseReq ) );
+	}
+
+	public function test_unreferenced_parameterized_request_logs_prune_after_default_standard_window() :void {
+		$now = \time();
+
+		$oldQueryReq = $this->writeRequestLogViaWriter( true, false, false, 'GET' );
+		$this->setCreatedAt( 'req_logs', $oldQueryReq, $now - 8*\DAY_IN_SECONDS );
+
+		$recentQueryReq = $this->writeRequestLogViaWriter( true, false, false, 'GET' );
+		$this->setCreatedAt( 'req_logs', $recentQueryReq, $now - 6*\DAY_IN_SECONDS );
+
+		$this->assertSame( 0, $this->requestTransientFlag( $oldQueryReq ) );
+		$this->assertSame( 0, $this->requestTransientFlag( $recentQueryReq ) );
+
+		( new CleanDatabases() )->all();
+
+		$this->assertFalse( $this->existsById( 'req_logs', $oldQueryReq ) );
+		$this->assertTrue( $this->existsById( 'req_logs', $recentQueryReq ) );
 	}
 
 	public function test_traffic_only_request_log_writer_creates_complete_row_without_precreate() :void {
@@ -647,13 +666,13 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 		$warningEvent = $this->firstEventForLevel( 'warning', $highValueEvents );
 
 		$transientOldReq = $this->insertRequestLog( true );
-		$this->setCreatedAt( 'req_logs', $transientOldReq, $now - 8*\DAY_IN_SECONDS );
+		$this->setCreatedAt( 'req_logs', $transientOldReq, $now - 3*\DAY_IN_SECONDS );
 
 		$standardOldReq = $this->insertRequestLog( false );
-		$this->setCreatedAt( 'req_logs', $standardOldReq, $now - 31*\DAY_IN_SECONDS );
+		$this->setCreatedAt( 'req_logs', $standardOldReq, $now - 8*\DAY_IN_SECONDS );
 
 		$retainedReq = $this->insertRequestLog( false );
-		$this->setCreatedAt( 'req_logs', $retainedReq, $now - 31*\DAY_IN_SECONDS );
+		$this->setCreatedAt( 'req_logs', $retainedReq, $now - 8*\DAY_IN_SECONDS );
 		$retainedActivity = $this->insertActivityLogForRequest( $retainedReq, $warningEvent );
 		$this->setCreatedAt( 'activity_logs', $retainedActivity, $now - 2*\DAY_IN_SECONDS );
 

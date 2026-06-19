@@ -3219,19 +3219,11 @@
     },
     {
         "key": "enable_logger",
-        "section": "section_log_requests",
-        "zone_comp_slugs": [
-            "request_logging",
-            "request_live_logging"
-        ],
-        "default": "N",
+        "section": "section_hidden",
+        "default": "Y",
         "type": "checkbox",
-        "link_info": "https://clk.shldscrty.com/hf",
-        "link_blog": "",
-        "beacon_id": 153,
-        "name": "Enable Request Logging",
-        "summary": "Log Requests To Your WordPress Site",
-        "description": "Monitor web requests sent to your WordPress site."
+        "transferable": false,
+        "tracking_exclude": true
     },
     {
         "key": "enable_live_log",

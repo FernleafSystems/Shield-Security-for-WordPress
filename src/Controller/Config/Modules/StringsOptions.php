@@ -1266,19 +1266,14 @@ class StringsOptions {
 				$summary = __( 'Dashboard and 2FA Login Logo URL', 'wp-simple-firewall' );
 				$desc = [ __( 'The URL of the logo to display on the Dashboard and the Two-Factor Authentication login page.', 'wp-simple-firewall' ) ];
 				break;
-			case 'enable_logger':
-				$name = __( 'Enable Request Logging', 'wp-simple-firewall' );
-				$summary = __( 'Log Requests To Your WordPress Site', 'wp-simple-firewall' );
-				$desc = [ __( 'Monitor web requests sent to your WordPress site.', 'wp-simple-firewall' ) ];
-				break;
 			case 'enable_live_log':
 				$max = (int)\round( $opts->getTrafficLiveLogDuration()/\MINUTE_IN_SECONDS );
 
 				$name = __( 'Live Traffic', 'wp-simple-firewall' );
 				$summary = __( 'Temporarily Log All Traffic', 'wp-simple-firewall' );
 				$desc = [
-					__( "Requires standard traffic logging to be switched-on and logs all requests to the site (nothing is excluded).", 'wp-simple-firewall' ),
-					__( "For high-traffic sites, this option can cause your database to become quite large and isn't recommend unless required.", 'wp-simple-firewall' ),
+					__( 'Temporarily logs all requests to the site with no built-in traffic log exclusions.', 'wp-simple-firewall' ),
+					__( "For high-traffic sites, this option can cause your database to become quite large and isn't recommended unless required.", 'wp-simple-firewall' ),
 					sprintf( __( 'This setting will automatically be disabled after %s and all requests logged during that period that would normally have been excluded will also be deleted.', 'wp-simple-firewall' ),
 						sprintf( _n( '%s minute', '%s minutes', $max, 'wp-simple-firewall' ), $max ) ),
 					sprintf( '<a href="%s">%s &rarr;</a>',

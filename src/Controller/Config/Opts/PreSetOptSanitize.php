@@ -37,6 +37,9 @@ class PreSetOptSanitize {
 
 	private function normaliseKnownValues() :void {
 		switch ( $this->key ) {
+			case 'enable_logger':
+				$this->value = 'Y';
+				break;
 			case 'display_plugin_badge':
 				$this->value = PluginBadgeMode::normalise( $this->value );
 				break;

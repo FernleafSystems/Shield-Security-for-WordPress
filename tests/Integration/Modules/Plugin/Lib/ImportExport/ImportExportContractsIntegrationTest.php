@@ -67,6 +67,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			'display_plugin_badge',
 			'visitor_address_source',
 			'enable_tracking',
+			'enable_logger',
 		] );
 	}
 
@@ -104,6 +105,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			->optSet( 'display_plugin_badge', 'light' )
 			->optSet( 'visitor_address_source', 'REMOTE_ADDR' )
 			->optSet( 'enable_tracking', 'Y' )
+			->optSet( 'enable_logger', 'N' )
 			->optSet( NetworkInviteRepository::OPTION_KEY, [
 				\hash( 'sha256', 'https://93.184.216.91/pending-master' ) => [
 					'id'         => \hash( 'sha256', 'https://93.184.216.91/pending-master' ),
@@ -133,6 +135,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'light', $export[ 'options' ][ 'display_plugin_badge' ] );
 		$this->assertSame( 'REMOTE_ADDR', $export[ 'options' ][ 'visitor_address_source' ] );
 		$this->assertArrayNotHasKey( 'enable_tracking', $export[ 'options' ] );
+		$this->assertArrayNotHasKey( 'enable_logger', $export[ 'options' ] );
 		$this->assertArrayNotHasKey( 'xfer_excluded', $export[ 'options' ] );
 		$this->assertArrayNotHasKey( NetworkInviteRepository::OPTION_KEY, $export[ 'options' ] );
 		$this->assertArrayNotHasKey( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, $export[ 'options' ] );

@@ -238,13 +238,6 @@ class BuildOptionsForDisplay {
 	private function addPerOptionCustomisation( array $option ) :array {
 		switch ( $option[ 'key' ] ) {
 
-			case 'enable_logger':
-				if ( self::con()->comps->opts_lookup->enabledTrafficLimiter() ) {
-					$option[ 'disabled' ] = true;
-					$option[ 'description' ][] = __( 'Request logging is required when you have activated Traffic Rate Limiting.', 'wp-simple-firewall' );
-				}
-				break;
-
 			case 'file_locker':
 				$applicability = FileLockKeyApplicability::fromCurrentEnvironment();
 				/** @var array<array-key,mixed> $fileLockerValue */
