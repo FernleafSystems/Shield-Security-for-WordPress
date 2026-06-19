@@ -209,6 +209,7 @@ class AssetsCustomizer {
 						'import_from_site'       => ActionData::Build( Actions\PluginImportFromSite::class ),
 						'network_invite_accept'  => ActionData::Build( Actions\ImportExportNetworkInviteAccept::class ),
 						'network_invite_reject'  => ActionData::Build( Actions\ImportExportNetworkInviteReject::class ),
+						'profile_copy_from_master' => ActionData::Build( Actions\ImportExportProfileCopyFromMaster::class ),
 						'authorise_urls_submit'  => ActionData::Build( Actions\ImportExportSitesAuthoriseUrlsSubmit::class ),
 						'render_authorise_urls_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\ImportExportSitesAuthoriseUrls::class ),
 						'set_enabled'            => ActionData::Build( Actions\PluginImportExport_SetEnabled::class ),

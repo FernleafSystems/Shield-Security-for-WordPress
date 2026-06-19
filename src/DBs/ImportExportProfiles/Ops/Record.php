@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops;
 /**
  * @property string $slug
  * @property string $label
+ * @property bool   $is_default
  * @property string $config
  * @property int    $created_at
  * @property int    $updated_at
@@ -26,6 +27,9 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 			'updated_at',
 		], true ) ) {
 			$value = (int)$value;
+		}
+		elseif ( $key === 'is_default' ) {
+			$value = (bool)$value;
 		}
 
 		return $value;

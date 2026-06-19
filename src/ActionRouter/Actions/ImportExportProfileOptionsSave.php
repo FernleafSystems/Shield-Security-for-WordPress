@@ -20,7 +20,7 @@ class ImportExportProfileOptionsSave extends BaseAction {
 			}
 
 			$repo = new ProfileRepository();
-			$profile = $repo->primaryProfile();
+			$profile = $repo->defaultProfile();
 			if ( !( $profile instanceof ProfileRecord ) ) {
 				throw new \Exception();
 			}

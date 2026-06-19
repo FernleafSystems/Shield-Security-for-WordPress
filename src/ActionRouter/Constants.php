@@ -23,6 +23,7 @@ class Constants {
 		Actions\InvestigationTableAction::class,
 		Actions\ImportExportNetworkInviteAccept::class,
 		Actions\ImportExportNetworkInviteReject::class,
+		Actions\ImportExportProfileCopyFromMaster::class,
 		Actions\ImportExportProfileOptionIncludeToggle::class,
 		Actions\ImportExportProfileOptionsSave::class,
 		Actions\ImportExportSitesAuthoriseUrlsSubmit::class,

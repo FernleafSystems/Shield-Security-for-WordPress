@@ -149,7 +149,7 @@
 													   name="ShieldNetwork"
 													   value="{{ option.value }}"
 													   data-import-export-link-choice="1"
-													   data-action-label="{{ option.value == 'Y' ? network_sync.connect.form.submit_label_network : network_sync.connect.form.submit_label_once }}"
+													   data-action-label="{{ option.action_label }}"
 													   {% if option.is_checked %}checked{% endif %}>
 												<span>
 													<strong>{{ option.label }}</strong>
@@ -250,6 +250,15 @@
 							<h5>{{ network_sync.profile.title }}</h5>
 							<p>{{ network_sync.profile.summary }}</p>
 						</div>
+						<button type="button"
+								id="{{ network_sync.profile.copy_from_master.id }}"
+								class="btn btn-outline-primary btn-sm"
+								data-import-export-profile-copy-from-master="1"
+								data-confirm-message="{{ network_sync.profile.copy_from_master.confirm_message }}"
+								data-confirm-label="{{ network_sync.profile.copy_from_master.confirm_label }}">
+							<i class="{{ network_sync.profile.copy_from_master.icon_class }}" aria-hidden="true"></i>
+							<span>{{ network_sync.profile.copy_from_master.label }}</span>
+						</button>
 					</header>
 
 					{{ network_sync.profile.form_html|raw }}

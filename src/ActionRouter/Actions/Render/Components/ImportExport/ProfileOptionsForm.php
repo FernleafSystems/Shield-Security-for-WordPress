@@ -20,7 +20,7 @@ class ProfileOptionsForm extends \FernleafSystems\Wordpress\Plugin\Shield\Action
 
 	protected function buildRenderOutput( array $renderData = [] ) :string {
 		$repo = new ProfileRepository();
-		$profile = $repo->ensurePrimaryProfile();
+		$profile = $repo->ensureDefaultProfile();
 		if ( !( $profile instanceof ProfileRecord ) ) {
 			return '';
 		}

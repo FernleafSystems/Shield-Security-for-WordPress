@@ -111,7 +111,31 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 		$this->assertSame( 'ImportSiteFormPanel', $connect[ 'form' ][ 'panel_id' ] );
 		$this->assertSame( 'ImportSiteFormReveal', $connect[ 'form' ][ 'reveal_id' ] );
 		$this->assertSame( [ 'NC', 'Y' ], \array_column( $connect[ 'form' ][ 'import_mode_options' ], 'value' ) );
+		foreach ( $connect[ 'form' ][ 'import_mode_options' ] as $option ) {
+			$this->assertArrayHasKey( 'action_label', $option );
+			$this->assertNotSame( '', $option[ 'action_label' ] );
+		}
 		$this->assertSame( [ 'trusted', 'key' ], \array_column( $connect[ 'form' ][ 'verification_options' ], 'value' ) );
+	}
+
+	public function test_profile_copy_from_master_contract_is_rendered_for_enabled_sync() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->store();
+
+		$profile = $this->renderVars()[ 'network_sync' ][ 'profile' ];
+		$this->assertArrayHasKey( 'copy_from_master', $profile );
+		$this->assertSame( 'ImportExportProfileCopyFromMaster', $profile[ 'copy_from_master' ][ 'id' ] );
+		$this->assertArrayHasKey( 'confirm_message', $profile[ 'copy_from_master' ] );
+		$this->assertArrayHasKey( 'confirm_label', $profile[ 'copy_from_master' ] );
+		$this->assertNotSame( '', $profile[ 'copy_from_master' ][ 'confirm_message' ] );
+		$this->assertNotSame( '', $profile[ 'copy_from_master' ][ 'confirm_label' ] );
+
+		$html = ( new PageImportExportContractProbe() )->renderOutputForTest();
+		$this->assertStringContainsString( 'id="ImportExportProfileCopyFromMaster"', $html );
+		$this->assertStringContainsString( 'data-import-export-profile-copy-from-master="1"', $html );
+		$this->assertStringContainsString( 'data-confirm-label=', $html );
 	}
 
 	public function test_disconnect_control_appears_only_when_master_url_exists() :void {

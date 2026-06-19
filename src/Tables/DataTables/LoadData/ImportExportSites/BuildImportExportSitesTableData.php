@@ -87,27 +87,14 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 	 * @return array<int,string>
 	 */
 	private function profileLabelsForRecords( array $records ) :array {
-		$ids = \array_values( \array_unique( \array_filter(
-			\array_map(
-				static fn( Record $record ) :int => (int)$record->profile_ref,
-				$records
-			),
-			static fn( int $profileID ) :bool => $profileID > 0
-		) ) );
-
-		return empty( $ids ) ? [] : ( new ProfileRepository() )->labelsById( $ids );
+		return ( new ProfileRepository() )->profileLabelsForSites( $records );
 	}
 
 	/**
 	 * @param array<int,string> $profileLabels
 	 */
 	private function profileLabelForRecord( Record $record, array $profileLabels ) :string {
-		$profileID = (int)$record->profile_ref;
-		$label = $profileID > 0
-			? ( $profileLabels[ $profileID ] ?? __( 'Unknown Profile', 'wp-simple-firewall' ) )
-			: __( 'Primary Profile', 'wp-simple-firewall' );
-
-		return esc_html( $label );
+		return esc_html( $profileLabels[ (int)$record->profile_ref ] );
 	}
 
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	ImportExportProfileCopyFromMaster,
 	ImportExportProfileOptionIncludeToggle,
 	ImportExportProfileOptionsSave
 };
@@ -16,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\{
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdminRouteRuntime;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
+use FernleafSystems\Wordpress\Services\Services;
 
 class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -62,7 +64,99 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertStringContainsString( 'name="all_opts_keys"', $html );
 	}
 
-	public function test_profile_save_and_include_toggle_update_primary_profile_only() :void {
+	public function test_default_profile_is_created_with_default_flag_and_default_slug() :void {
+		$repo = new ProfileRepository();
+		$profile = $repo->ensureDefaultProfile();
+
+		$this->assertNotEmpty( $profile );
+		$this->assertSame( ProfileRepository::DEFAULT_SLUG, $profile->slug );
+		$this->assertSame( ProfileRepository::DEFAULT_LABEL, $profile->label );
+		$this->assertTrue( $profile->is_default );
+	}
+
+	public function test_default_profile_flag_is_normalised_to_single_profile() :void {
+		$repo = new ProfileRepository();
+		$default = $repo->ensureDefaultProfile();
+		$this->assertNotEmpty( $default );
+
+		$dbh = $this->requireController()->db_con->import_export_profiles;
+		$now = \time();
+		$record = $dbh->getRecord();
+		$record->slug = 'temporary-default';
+		$record->label = 'Temporary Default';
+		$record->is_default = true;
+		$record->config = \wp_json_encode( $repo->emptyConfig() );
+		$record->created_at = $now;
+		$record->updated_at = $now;
+		$dbh->getQueryInserter()->insert( $record );
+		$extraDefault = $repo->findBySlug( 'temporary-default' );
+		$this->assertNotEmpty( $extraDefault );
+		$this->assertTrue( $extraDefault->is_default );
+
+		$repo->ensureDefaultProfile();
+
+		$this->assertTrue( $repo->findById( $default->id )->is_default );
+		$this->assertFalse( $repo->findById( $extraDefault->id )->is_default );
+	}
+
+	public function test_non_canonical_default_flag_is_not_adopted_as_default_profile() :void {
+		$repo = new ProfileRepository();
+		$dbh = $this->requireController()->db_con->import_export_profiles;
+		$now = \time();
+		$record = $dbh->getRecord();
+		$record->slug = 'temporary-default';
+		$record->label = 'Temporary Default';
+		$record->is_default = true;
+		$record->config = \wp_json_encode( $repo->emptyConfig() );
+		$record->created_at = $now;
+		$record->updated_at = $now;
+		$dbh->getQueryInserter()->insert( $record );
+
+		$profile = $repo->ensureDefaultProfile();
+
+		$this->assertNotEmpty( $profile );
+		$this->assertSame( ProfileRepository::DEFAULT_SLUG, $profile->slug );
+		$this->assertTrue( $profile->is_default );
+		$this->assertFalse( $repo->findBySlug( 'temporary-default' )->is_default );
+	}
+
+	public function test_profiles_table_recreates_after_warm_ready_cache_table_loss() :void {
+		$con = $this->requireController();
+		$repo = new ProfileRepository();
+		$profile = $repo->ensureDefaultProfile();
+		$this->assertNotEmpty( $profile );
+
+		$schema = $con->db_con->import_export_profiles->getTableSchema();
+		ProfilesDB::GetTableReadyCache()->setReady( $schema );
+		$this->dropImportExportProfilesTable( false );
+
+		try {
+			$cachedHandler = $this->newImportExportProfilesHandler( true );
+			$cachedHandler->execute();
+
+			$this->assertTrue( $cachedHandler->isReady() );
+			$this->assertTrue( Services::WpDb()->tableExists( $cachedHandler->getTable() ) );
+			$this->assertTrue( ProfilesDB::GetTableReadyCache()->isReady( $cachedHandler->getTableSchema() ) );
+
+			$con->db_con->reset();
+			$profile = ( new ProfileRepository() )->ensureDefaultProfile();
+
+			$this->assertNotEmpty( $profile );
+			$this->assertSame( ProfileRepository::DEFAULT_SLUG, $profile->slug );
+			$this->assertTrue( $profile->is_default );
+		}
+		finally {
+			if ( !Services::WpDb()->tableExists( $schema->table ) ) {
+				$repairHandler = $this->newImportExportProfilesHandler( false );
+				$repairHandler->execute();
+			}
+			ProfilesDB::GetTableReadyCache()->setReady( $schema, false );
+			Services::WpDb()->clearResultShowTables();
+			$con->db_con->reset();
+		}
+	}
+
+	public function test_profile_save_and_include_toggle_update_default_profile_only() :void {
 		$con = $this->requireController();
 		$con->opts
 			->optSet( 'display_plugin_badge', 'light' )
@@ -71,7 +165,7 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 			->store();
 
 		$repo = new ProfileRepository();
-		$profile = $repo->ensurePrimaryProfile();
+		$profile = $repo->ensureDefaultProfile();
 		$this->assertNotEmpty( $profile );
 
 		$savePayload = $this->routeRuntime()->processActionPayloadWithAdminBypass( ImportExportProfileOptionsSave::SLUG, [
@@ -113,6 +207,45 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertNotContains( 'enable_tracking', $repo->configForProfile( $profile )[ 'excluded' ] );
 	}
 
+	public function test_copy_from_master_updates_profile_values_and_preserves_profile_exclusions() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'display_plugin_badge', 'light' )
+			->optSet( 'visitor_address_source', 'REMOTE_ADDR' )
+			->optSet( 'enable_tracking', 'Y' )
+			->optSet( 'xfer_excluded', [] )
+			->store();
+
+		$repo = new ProfileRepository();
+		$profile = $repo->ensureDefaultProfile();
+		$this->assertNotEmpty( $profile );
+		$this->assertTrue( $repo->saveOptionValues( $profile, [
+			'display_plugin_badge'   => 'disabled',
+			'visitor_address_source' => 'AUTO_DETECT_IP',
+			'enable_tracking'        => 'N',
+		] ) );
+		$this->assertTrue( $repo->setOptionIncluded( $profile, 'enable_tracking', false ) );
+
+		$con->opts
+			->optSet( 'display_plugin_badge', 'dark' )
+			->optSet( 'visitor_address_source', 'REMOTE_ADDR' )
+			->optSet( 'enable_tracking', 'Y' )
+			->optSet( 'xfer_excluded', [ 'display_plugin_badge' ] )
+			->store();
+
+		$payload = $this->routeRuntime()->processActionPayloadWithAdminBypass( ImportExportProfileCopyFromMaster::SLUG );
+
+		$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+		$this->assertTrue( (bool)( $payload[ 'page_reload' ] ?? false ) );
+		$profile = $repo->findById( $profile->id );
+		$this->assertNotEmpty( $profile );
+		$config = $repo->configForProfile( $profile );
+		$this->assertSame( 'dark', $config[ 'options' ][ 'display_plugin_badge' ] );
+		$this->assertSame( 'REMOTE_ADDR', $config[ 'options' ][ 'visitor_address_source' ] );
+		$this->assertSame( 'Y', $config[ 'options' ][ 'enable_tracking' ] );
+		$this->assertSame( [ 'enable_tracking' ], $config[ 'excluded' ] );
+	}
+
 	public function test_profile_save_resolves_supported_option_types_without_mutating_live_options() :void {
 		$con = $this->requireController();
 		$profileKeys = [
@@ -136,7 +269,7 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 			->store();
 
 		$repo = new ProfileRepository();
-		$profile = $repo->ensurePrimaryProfile();
+		$profile = $repo->ensureDefaultProfile();
 		$this->assertNotEmpty( $profile );
 
 		$payload = $this->routeRuntime()->processActionPayloadWithAdminBypass( ImportExportProfileOptionsSave::SLUG, [
@@ -203,7 +336,7 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 			->store();
 
 		$repo = new ProfileRepository();
-		$profile = $repo->ensurePrimaryProfile();
+		$profile = $repo->ensureDefaultProfile();
 		$this->assertNotEmpty( $profile );
 		$this->assertTrue( $repo->saveOptionValues( $profile, [
 			'visitor_address_source' => 'AUTO_DETECT_IP',
@@ -226,5 +359,25 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 
 	private function routeRuntime() :PluginAdminRouteRuntime {
 		return new PluginAdminRouteRuntime();
+	}
+
+	private function newImportExportProfilesHandler( bool $useReadyCache ) :ProfilesDB {
+		$con = $this->requireController();
+		$dbDef = $con->db_con->getHandlers()[ ProfilesDB::DB_KEY ][ 'def' ];
+		$dbDef[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
+		$handler = new ProfilesDB( $dbDef );
+		$handler->use_table_ready_cache = $useReadyCache;
+		return $handler;
+	}
+
+	private function dropImportExportProfilesTable( bool $resetDbCon = true ) :void {
+		global $wpdb;
+
+		$table = $this->requireController()->db_con->import_export_profiles->getTable();
+		$wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
+		Services::WpDb()->clearResultShowTables();
+		if ( $resetDbCon ) {
+			$this->requireController()->db_con->reset();
+		}
 	}
 }

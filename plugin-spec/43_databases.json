@@ -331,6 +331,11 @@
                     "length": 128,
                     "comment": "Profile Label"
                 },
+                "is_default": {
+                    "macro_type": "bool",
+                    "default": 0,
+                    "comment": "Default Profile?"
+                },
                 "config": {
                     "macro_type": "mediumtext",
                     "comment": "Profile Configuration"

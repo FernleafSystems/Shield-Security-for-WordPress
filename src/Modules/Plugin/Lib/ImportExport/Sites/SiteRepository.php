@@ -22,6 +22,7 @@ class SiteRepository {
 	private const META_EXPORT_SERVED_AT = 'export_served_at';
 	private const META_HANDSHAKE_ATTEMPT_AT = 'handshake_attempt_at';
 	private const SQL_BATCH_SIZE = 20;
+	private ?int $defaultProfileRef = null;
 
 	public function ensureLegacyImported( bool $includeOldQueueState = true ) :void {
 		$dbh = $this->dbOrNull();
@@ -656,8 +657,9 @@ class SiteRepository {
 			'deleted_at' => 0,
 		];
 
-		if ( !$row instanceof Record || $row->profile_ref <= 0 ) {
-			$data[ 'profile_ref' ] = $this->defaultProfileRef();
+		$profileRef = $this->profileRefForRow( $row );
+		if ( !$row instanceof Record || $row->profile_ref !== $profileRef ) {
+			$data[ 'profile_ref' ] = $profileRef;
 		}
 		if ( !empty( $source ) && ( !$row instanceof Record || empty( $row->source ) ) ) {
 			$data[ 'source' ] = $source;
@@ -684,9 +686,7 @@ class SiteRepository {
 		$data = [
 			'url'                  => $url,
 			'url_hash'             => \hash( 'md5', $url ),
-			'profile_ref'          => $row instanceof Record && $row->profile_ref > 0
-				? $row->profile_ref
-				: ( $profileRef ?? $this->defaultProfileRef() ),
+			'profile_ref'          => $profileRef ?? $this->profileRefForRow( $row ),
 			'status'               => SitesDB::STATUS_ACTIVE,
 			'queue_status'         => $queueStatus,
 			'deleted_at'           => 0,
@@ -754,15 +754,37 @@ class SiteRepository {
 	}
 
 	private function defaultProfileRef() :int {
+		if ( $this->defaultProfileRef !== null ) {
+			return $this->defaultProfileRef;
+		}
+
 		try {
-			$profile = ( new ProfileRepository() )->ensurePrimaryProfile();
-			return $profile instanceof ProfileRecord
+			$profile = ( new ProfileRepository() )->ensureDefaultProfile();
+			$profileRef = $profile instanceof ProfileRecord
 				? $profile->id
 				: 0;
+			if ( $profileRef > 0 ) {
+				$this->defaultProfileRef = $profileRef;
+			}
+			return $profileRef;
 		}
 		catch ( \Throwable $e ) {
 			return 0;
 		}
+	}
+
+	private function profileRefForRow( ?Record $row ) :int {
+		if ( $row instanceof Record ) {
+			try {
+				$profileRef = ( new ProfileRepository() )->resolveProfileRefForSite( $row );
+				return $profileRef > 0 ? $profileRef : $this->defaultProfileRef();
+			}
+			catch ( \Throwable $e ) {
+				return $this->defaultProfileRef();
+			}
+		}
+
+		return $this->defaultProfileRef();
 	}
 
 	private function queueRows( array $rows ) :int {

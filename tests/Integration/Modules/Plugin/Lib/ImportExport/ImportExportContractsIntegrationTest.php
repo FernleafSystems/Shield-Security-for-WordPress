@@ -30,6 +30,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 	private const EXPORT_PRIVATE_URL = 'https://10.0.0.27/export-private-slave';
 	private const PROFILE_PUBLIC_URL = 'https://93.184.216.75/profile-slave';
 	private const PROFILE_NETWORK_URL = 'https://93.184.216.76/profile-network-slave';
+	private const PROFILE_ORPHAN_URL = 'https://93.184.216.77/profile-orphan-slave';
 
 	private array $optionsSnapshot = [];
 	private array $requestSnapshot = [];
@@ -133,7 +134,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, $export[ 'options' ] );
 	}
 
-	public function test_network_export_uses_primary_profile_values_and_profile_exclusions() :void {
+	public function test_network_export_uses_default_profile_values_and_profile_exclusions() :void {
 		$con = $this->requireController();
 		$con->opts
 			->optSet( 'display_plugin_badge', 'light' )
@@ -143,7 +144,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			->store();
 
 		$repo = new ProfileRepository();
-		$profile = $repo->ensurePrimaryProfile();
+		$profile = $repo->ensureDefaultProfile();
 		$this->assertNotEmpty( $profile );
 		$this->assertTrue( $repo->saveOptionValues( $profile, [
 			'display_plugin_badge'   => 'disabled',
@@ -168,7 +169,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'Y', $con->opts->optGet( 'enable_tracking' ) );
 	}
 
-	public function test_first_network_enrollment_uses_primary_profile_values_and_assigns_profile_ref() :void {
+	public function test_first_network_enrollment_uses_default_profile_values_and_assigns_profile_ref() :void {
 		$con = $this->requireController();
 		$con->opts
 			->optSet( 'display_plugin_badge', 'light' )
@@ -178,7 +179,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			->store();
 
 		$repo = new ProfileRepository();
-		$profile = $repo->ensurePrimaryProfile();
+		$profile = $repo->ensureDefaultProfile();
 		$this->assertNotEmpty( $profile );
 		$this->assertTrue( $repo->saveOptionValues( $profile, [
 			'display_plugin_badge'   => 'disabled',
@@ -205,6 +206,45 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'light', $con->opts->optGet( 'display_plugin_badge' ) );
 		$this->assertSame( 'REMOTE_ADDR', $con->opts->optGet( 'visitor_address_source' ) );
 		$this->assertSame( 'Y', $con->opts->optGet( 'enable_tracking' ) );
+	}
+
+	public function test_network_export_repairs_orphaned_profile_ref_to_default_profile() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'display_plugin_badge', 'light' )
+			->optSet( 'visitor_address_source', 'REMOTE_ADDR' )
+			->optSet( 'enable_tracking', 'Y' )
+			->optSet( 'importexport_sites_migrated_at', 1 )
+			->store();
+
+		$profileRepo = new ProfileRepository();
+		$profile = $profileRepo->ensureDefaultProfile();
+		$this->assertNotEmpty( $profile );
+		$this->assertTrue( $profileRepo->saveOptionValues( $profile, [
+			'display_plugin_badge'   => 'disabled',
+			'visitor_address_source' => 'AUTO_DETECT_IP',
+			'enable_tracking'        => 'N',
+		] ) );
+		$this->assertTrue( $profileRepo->setOptionIncluded( $profile, 'enable_tracking', false ) );
+
+		$siteRepo = new SiteRepository();
+		$row = $this->seedActiveSyncSite( self::PROFILE_ORPHAN_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$orphanProfileRef = $profile->id + 10000;
+		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+			'profile_ref' => $orphanProfileRef,
+		] );
+		$this->assertSame( $orphanProfileRef, $siteRepo->findById( $row->id, true )->profile_ref );
+
+		$payload = $this->captureExportJson( [
+			'url' => self::PROFILE_ORPHAN_URL,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+
+		$this->assertExportJsonPayload( $payload );
+		$this->assertSame( 'disabled', $payload[ 'data' ][ 'options' ][ 'display_plugin_badge' ] );
+		$this->assertSame( 'AUTO_DETECT_IP', $payload[ 'data' ][ 'options' ][ 'visitor_address_source' ] );
+		$this->assertArrayNotHasKey( 'enable_tracking', $payload[ 'data' ][ 'options' ] );
+		$this->assertSame( $profile->id, $siteRepo->findById( $row->id, true )->profile_ref );
 	}
 
 	public function test_standard_file_import_applies_transferable_options_respects_exclusions_and_deletes_file() :void {

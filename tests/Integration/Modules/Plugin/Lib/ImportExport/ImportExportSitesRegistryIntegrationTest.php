@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\{
 	PingSender,
 	QueueRunner,
@@ -656,6 +657,28 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 0, $row->last_ping_attempt_at );
 	}
 
+	public function test_upserts_repair_invalid_existing_profile_refs() :void {
+		$profile = ( new ProfileRepository() )->ensureDefaultProfile();
+		$this->assertNotEmpty( $profile );
+		$repo = $this->repo();
+
+		$active = $repo->upsertActive( 'https://profile-repair-active.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$pending = $repo->upsertPendingClientSite( 'https://profile-repair-pending.example.com', SitesDB::SOURCE_MANUAL, true );
+		$orphanProfileRef = $profile->id + 10000;
+		foreach ( [ $active, $pending ] as $row ) {
+			$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+				'profile_ref' => $orphanProfileRef,
+			] );
+			$this->assertSame( $orphanProfileRef, $repo->findById( $row->id, true )->profile_ref );
+		}
+
+		$repo->upsertActive( $active->url, SitesDB::SOURCE_MANUAL, '', false );
+		$repo->upsertPendingClientSite( $pending->url, SitesDB::SOURCE_MANUAL, false );
+
+		$this->assertSame( $profile->id, $repo->findById( $active->id, true )->profile_ref );
+		$this->assertSame( $profile->id, $repo->findById( $pending->id, true )->profile_ref );
+	}
+
 	public function test_queue_runner_leaves_passive_pending_connection_unsent() :void {
 		$repo = $this->repo();
 		$row = $repo->upsertPendingClientSite( 'https://invite-passive.example.com', SitesDB::SOURCE_MANUAL, false );
@@ -1210,6 +1233,25 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$nonUrlSearch = $this->retrieveImportExportSitesTableData( 'url-search-hidden-token', [] );
 		$this->assertSame( 0, (int)$nonUrlSearch[ 'recordsFiltered' ] );
 		$this->assertSame( [], $nonUrlSearch[ 'data' ] );
+	}
+
+	public function test_table_data_repairs_orphaned_profile_ref_before_rendering_profile_label() :void {
+		$profile = ( new ProfileRepository() )->ensureDefaultProfile();
+		$this->assertNotEmpty( $profile );
+		$repo = $this->repo();
+		$row = $repo->upsertActive( 'https://table-profile-repair.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$orphanProfileRef = $profile->id + 10000;
+		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+			'profile_ref' => $orphanProfileRef,
+		] );
+		$this->assertSame( $orphanProfileRef, $repo->findById( $row->id, true )->profile_ref );
+
+		$table = $this->retrieveImportExportSitesTableData( 'table-profile-repair', [] );
+
+		$this->assertSame( 1, (int)$table[ 'recordsFiltered' ] );
+		$this->assertSame( $row->id, $table[ 'data' ][ 0 ][ 'rid' ] );
+		$this->assertSame( ProfileRepository::DEFAULT_LABEL, $table[ 'data' ][ 0 ][ 'profile' ] );
+		$this->assertSame( $profile->id, $repo->findById( $row->id, true )->profile_ref );
 	}
 
 	public function test_table_search_panes_filter_rows_and_counts_with_text_search() :void {

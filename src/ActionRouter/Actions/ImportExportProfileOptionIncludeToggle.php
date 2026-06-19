@@ -18,7 +18,7 @@ class ImportExportProfileOptionIncludeToggle extends BaseAction {
 			 && !empty( $key )
 			 && \in_array( $status, [ 'include', 'exclude' ], true ) ) {
 			$repo = new ProfileRepository();
-			$profile = $repo->primaryProfile();
+			$profile = $repo->defaultProfile();
 			if ( $profile instanceof ProfileRecord ) {
 				$success = $repo->setOptionIncluded( $profile, $key, $status === 'include' );
 			}

@@ -47,6 +47,9 @@ export class ConfigImport extends BaseComponent {
 		shieldEventsHandler_Main.add_Click( '[data-import-export-add-clients]', ( targetEl ) => {
 			this.openAddClientSites( targetEl );
 		} );
+		shieldEventsHandler_Main.add_Click( '[data-import-export-profile-copy-from-master]', ( targetEl ) => {
+			this.copyProfileFromMaster( targetEl );
+		} );
 		shieldEventsHandler_Main.add_Submit(
 			'#ImportExportSitesAuthoriseUrlsForm',
 			( targetEl ) => this.submitAuthoriseUrlsForm( targetEl )
@@ -207,6 +210,44 @@ export class ConfigImport extends BaseComponent {
 			this._base_data.ajax.render_authorise_urls_offcanvas,
 			{ launcher: button instanceof HTMLElement ? button : null }
 		).finally();
+	}
+
+	async copyProfileFromMaster( targetEl ) {
+		const button = targetEl instanceof Element ? targetEl.closest( '[data-import-export-profile-copy-from-master]' ) : null;
+		if ( !( button instanceof HTMLButtonElement ) || this.profileCopyRequestRunning ) {
+			return;
+		}
+
+		const message = button.dataset.confirmMessage;
+		if ( typeof message !== 'string' || message.length < 1 ) {
+			return;
+		}
+		const confirmLabel = button.dataset.confirmLabel;
+		if ( typeof confirmLabel !== 'string' || confirmLabel.length < 1 ) {
+			return;
+		}
+
+		const dialog = shieldServices.dialog();
+		const confirmed = await dialog.confirm( {
+			message,
+			confirmLabel,
+			launcher: button,
+		} );
+		if ( !confirmed ) {
+			return;
+		}
+
+		this.profileCopyRequestRunning = true;
+		button.disabled = true;
+		button.setAttribute( 'aria-busy', 'true' );
+
+		( new AjaxService() )
+		.send( this._base_data.ajax.profile_copy_from_master )
+		.finally( () => {
+			this.profileCopyRequestRunning = false;
+			button.disabled = false;
+			button.removeAttribute( 'aria-busy' );
+		} );
 	}
 
 	submitAuthoriseUrlsForm( form ) {

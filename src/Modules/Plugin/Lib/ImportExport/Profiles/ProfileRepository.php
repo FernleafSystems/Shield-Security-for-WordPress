@@ -7,7 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\{
 	Handler as ProfilesDB,
 	Record as ProfileRecord
 };
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as SiteRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
+	Handler as SitesDB,
+	Record as SiteRecord
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -15,8 +18,9 @@ class ProfileRepository {
 
 	use PluginControllerConsumer;
 
-	public const PRIMARY_SLUG = 'primary';
-	public const PRIMARY_LABEL = 'Primary Profile';
+	public const DEFAULT_SLUG = 'default';
+	public const DEFAULT_LABEL = 'Default Profile';
+	public const UNKNOWN_LABEL = 'Unknown Profile';
 	public const CONFIG_SCHEMA_VERSION = 1;
 
 	/**
@@ -30,43 +34,67 @@ class ProfileRepository {
 		];
 	}
 
-	public function ensurePrimaryProfile() :?ProfileRecord {
+	public function ensureDefaultProfile() :?ProfileRecord {
 		$dbh = $this->dbOrNull();
 		if ( !( $dbh instanceof ProfilesDB ) || !$dbh->isReady() ) {
 			return null;
 		}
 
-		$profile = $this->findBySlug( self::PRIMARY_SLUG );
-		if ( $profile instanceof ProfileRecord ) {
-			$this->ensureSitesAssignedToPrimary( $profile->id );
-			return $profile;
+		$profile = $this->findDefaultProfile();
+		if ( !( $profile instanceof ProfileRecord ) ) {
+			$profile = $this->findBySlug( self::DEFAULT_SLUG );
+			if ( $profile instanceof ProfileRecord ) {
+				$this->markProfileAsDefault( $profile );
+			}
 		}
 
-		$now = Services::Request()->ts();
-		$record = $dbh->getRecord();
-		$record->slug = self::PRIMARY_SLUG;
-		$record->label = self::PRIMARY_LABEL;
-		$record->config = $this->encodeConfig( $this->normaliseConfig( $this->initialConfigFromCurrentSite() ) );
-		$record->created_at = $now;
-		$record->updated_at = $now;
+		if ( !( $profile instanceof ProfileRecord ) ) {
+			$profile = $this->createDefaultProfile();
+		}
 
-		$dbh->getQueryInserter()->insert( $record );
-		$profile = $this->findBySlug( self::PRIMARY_SLUG );
 		if ( $profile instanceof ProfileRecord ) {
-			$this->ensureSitesAssignedToPrimary( $profile->id );
+			$this->ensureDefaultProfileLabel( $profile );
+			$this->normaliseDefaultProfileFlags( $profile->id );
+			$this->repairMissingSiteProfileRefs( $profile->id );
+		}
+
+		return $profile;
+	}
+
+	public function defaultProfile() :?ProfileRecord {
+		return $this->ensureDefaultProfile();
+	}
+
+	public function profileForSite( ?SiteRecord $site ) :?ProfileRecord {
+		if ( $site instanceof SiteRecord && $site->profile_ref > 0 ) {
+			$profile = $this->findById( $site->profile_ref );
+			if ( $profile instanceof ProfileRecord ) {
+				return $profile;
+			}
+		}
+
+		$profile = $this->ensureDefaultProfile();
+		if ( $profile instanceof ProfileRecord && $site instanceof SiteRecord ) {
+			$this->assignDefaultProfileToSite( $site, $profile->id );
 		}
 		return $profile;
 	}
 
-	public function primaryProfile() :?ProfileRecord {
-		return $this->ensurePrimaryProfile();
-	}
+	public function resolveProfileRefForSite( ?SiteRecord $site ) :int {
+		if ( $site instanceof SiteRecord && $site->profile_ref > 0 ) {
+			if ( $this->findById( $site->profile_ref ) instanceof ProfileRecord ) {
+				return $site->profile_ref;
+			}
+		}
 
-	public function profileForSite( ?SiteRecord $site ) :?ProfileRecord {
-		$profile = ( $site instanceof SiteRecord && $site->profile_ref > 0 )
-			? $this->findById( $site->profile_ref )
-			: null;
-		return $profile instanceof ProfileRecord ? $profile : $this->primaryProfile();
+		$profile = $this->ensureDefaultProfile();
+		if ( !( $profile instanceof ProfileRecord ) ) {
+			return 0;
+		}
+		if ( $site instanceof SiteRecord ) {
+			$this->assignDefaultProfileToSite( $site, $profile->id );
+		}
+		return $profile->id;
 	}
 
 	public function findById( int $id ) :?ProfileRecord {
@@ -94,6 +122,42 @@ class ProfileRepository {
 	}
 
 	/**
+	 * @param SiteRecord[] $sites
+	 * @return array<int,string>
+	 */
+	public function profileLabelsForSites( array $sites ) :array {
+		$sites = \array_values( \array_filter(
+			$sites,
+			static fn( $site ) :bool => $site instanceof SiteRecord
+		) );
+		if ( empty( $sites ) ) {
+			return [];
+		}
+
+		$labels = $this->labelsById( \array_map(
+			static fn( SiteRecord $site ) :int => (int)$site->profile_ref,
+			$sites
+		) );
+
+		$defaultProfile = null;
+		foreach ( $sites as $site ) {
+			if ( $site->profile_ref <= 0 || !isset( $labels[ $site->profile_ref ] ) ) {
+				$defaultProfile = $defaultProfile ?? $this->ensureDefaultProfile();
+				if ( $defaultProfile instanceof ProfileRecord ) {
+					$this->assignDefaultProfileToSite( $site, $defaultProfile->id );
+					$site->profile_ref = $defaultProfile->id;
+					$labels[ $defaultProfile->id ] = $this->labelForProfile( $defaultProfile );
+				}
+				else {
+					$labels[ $site->profile_ref ] = $site->profile_ref > 0 ? self::UNKNOWN_LABEL : self::DEFAULT_LABEL;
+				}
+			}
+		}
+
+		return $labels;
+	}
+
+	/**
 	 * @return array<int,string>
 	 */
 	public function labelsById( array $ids ) :array {
@@ -114,7 +178,7 @@ class ProfileRepository {
 			->queryWithResult() ?? [];
 		foreach ( $rows as $row ) {
 			if ( $row instanceof ProfileRecord ) {
-				$labels[ $row->id ] = $row->label === '' ? self::PRIMARY_LABEL : $row->label;
+				$labels[ $row->id ] = $this->labelForProfile( $row );
 			}
 		}
 		return $labels;
@@ -191,19 +255,136 @@ class ProfileRepository {
 		return $this->saveConfig( $profile, $config );
 	}
 
-	private function ensureSitesAssignedToPrimary( int $profileID ) :void {
+	public function copyCurrentSiteConfigToDefaultProfile() :bool {
+		$profile = $this->ensureDefaultProfile();
+		if ( !( $profile instanceof ProfileRecord ) ) {
+			return false;
+		}
+
+		$config = $this->configForProfile( $profile );
+		$config[ 'options' ] = $this->currentSiteOptionValues();
+		return $this->saveConfig( $profile, $config );
+	}
+
+	public function repairMissingSiteProfileRefs( int $profileID ) :int {
+		if ( $profileID <= 0 ) {
+			return 0;
+		}
+
+		try {
+			$sitesDbh = self::con()->db_con->import_export_sites;
+			$profilesDbh = $this->dbOrNull();
+			if ( !$sitesDbh->isReady() || !( $profilesDbh instanceof ProfilesDB ) || !$profilesDbh->isReady() ) {
+				return 0;
+			}
+
+			global $wpdb;
+			$affected = Services::WpDb()->doSql( $wpdb->prepare(
+				sprintf(
+					'UPDATE `%1$s` AS `sites`
+					 LEFT JOIN `%2$s` AS `profiles` ON `profiles`.`id`=`sites`.`profile_ref`
+					 SET `sites`.`profile_ref`=%%d, `sites`.`updated_at`=%%d
+					 WHERE `sites`.`profile_ref`=0 OR `profiles`.`id` IS NULL;',
+					$sitesDbh->getTable(),
+					$profilesDbh->getTable()
+				),
+				$profileID,
+				Services::Request()->ts()
+			) );
+			return \is_numeric( $affected ) ? (int)$affected : 0;
+		}
+		catch ( \Throwable $e ) {
+			return 0;
+		}
+	}
+
+	private function findDefaultProfile() :?ProfileRecord {
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof ProfilesDB ) || !$dbh->isReady() ) {
+			return null;
+		}
+
+		return $dbh
+			->getQuerySelector()
+			->addWhereEquals( 'is_default', 1 )
+			->addWhereEquals( 'slug', self::DEFAULT_SLUG )
+			->setOrderBy( 'id', 'ASC' )
+			->first();
+	}
+
+	private function createDefaultProfile() :?ProfileRecord {
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof ProfilesDB ) || !$dbh->isReady() ) {
+			return null;
+		}
+
+		$now = Services::Request()->ts();
+		$record = $dbh->getRecord();
+		$record->slug = self::DEFAULT_SLUG;
+		$record->label = self::DEFAULT_LABEL;
+		$record->is_default = true;
+		$record->config = $this->encodeConfig( $this->normaliseConfig( $this->initialConfigFromCurrentSite() ) );
+		$record->created_at = $now;
+		$record->updated_at = $now;
+
+		$dbh->getQueryInserter()->insert( $record );
+		return $this->findBySlug( self::DEFAULT_SLUG );
+	}
+
+	private function markProfileAsDefault( ProfileRecord $profile ) :void {
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof ProfilesDB ) || !$dbh->isReady() || $profile->id <= 0 || $profile->is_default ) {
+			return;
+		}
+
+		$updatedAt = Services::Request()->ts();
+		if ( $dbh->getQueryUpdater()->updateById( $profile->id, [
+			'is_default' => 1,
+			'updated_at' => $updatedAt,
+		] ) ) {
+			$profile->is_default = true;
+			$profile->updated_at = $updatedAt;
+		}
+	}
+
+	private function ensureDefaultProfileLabel( ProfileRecord $profile ) :void {
+		if ( $profile->label !== '' ) {
+			return;
+		}
+
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof ProfilesDB ) || !$dbh->isReady() || $profile->id <= 0 ) {
+			return;
+		}
+
+		$updatedAt = Services::Request()->ts();
+		if ( $dbh->getQueryUpdater()->updateById( $profile->id, [
+			'label'      => self::DEFAULT_LABEL,
+			'updated_at' => $updatedAt,
+		] ) ) {
+			$profile->label = self::DEFAULT_LABEL;
+			$profile->updated_at = $updatedAt;
+		}
+	}
+
+	private function normaliseDefaultProfileFlags( int $profileID ) :void {
 		if ( $profileID <= 0 ) {
 			return;
 		}
 
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof ProfilesDB ) || !$dbh->isReady() ) {
+			return;
+		}
+
 		try {
-			$dbh = self::con()->db_con->import_export_sites;
-			if ( !$dbh->isReady() ) {
-				return;
-			}
 			global $wpdb;
 			Services::WpDb()->doSql( $wpdb->prepare(
-				sprintf( 'UPDATE `%s` SET `profile_ref`=%%d WHERE `profile_ref`=0;', $dbh->getTable() ),
+				sprintf(
+					'UPDATE `%s` SET `is_default`=0, `updated_at`=%%d WHERE `id`<>%%d AND `is_default`=1;',
+					$dbh->getTable()
+				),
+				Services::Request()->ts(),
 				$profileID
 			) );
 		}
@@ -211,14 +392,39 @@ class ProfileRepository {
 		}
 	}
 
+	private function assignDefaultProfileToSite( SiteRecord $site, int $profileID ) :void {
+		if ( $profileID <= 0 || $site->id <= 0 || $site->profile_ref === $profileID ) {
+			return;
+		}
+
+		try {
+			$dbh = self::con()->db_con->import_export_sites;
+			if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
+				return;
+			}
+
+			$updatedAt = Services::Request()->ts();
+			if ( $dbh->getQueryUpdater()->updateById( $site->id, [
+				'profile_ref' => $profileID,
+				'updated_at'  => $updatedAt,
+			] ) ) {
+				$site->profile_ref = $profileID;
+				$site->updated_at = $updatedAt;
+			}
+		}
+		catch ( \Throwable $e ) {
+		}
+	}
+
+	private function labelForProfile( ProfileRecord $profile ) :string {
+		return $profile->label === '' ? self::DEFAULT_LABEL : $profile->label;
+	}
+
 	/**
 	 * @return array{schema_version:int,options:array<string,mixed>,excluded:string[]}
 	 */
 	private function initialConfigFromCurrentSite() :array {
-		$options = [];
-		foreach ( ( new ProfileOptionsCatalog() )->profileableKeys() as $key ) {
-			$options[ $key ] = self::con()->opts->optGet( $key );
-		}
+		$options = $this->currentSiteOptionValues();
 
 		$xferExcluded = self::con()->opts->optGet( 'xfer_excluded' );
 		$excluded = \array_values( \array_intersect(
@@ -231,6 +437,17 @@ class ProfileRepository {
 			'options'        => $options,
 			'excluded'       => $excluded,
 		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function currentSiteOptionValues() :array {
+		$options = [];
+		foreach ( ( new ProfileOptionsCatalog() )->profileableKeys() as $key ) {
+			$options[ $key ] = self::con()->opts->optGet( $key );
+		}
+		return $options;
 	}
 
 	/**

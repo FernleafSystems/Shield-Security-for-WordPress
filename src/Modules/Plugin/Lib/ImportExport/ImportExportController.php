@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
@@ -209,6 +210,7 @@ class ImportExportController {
 		$alreadyAuthorisedUrls = [];
 		foreach ( $validUrls as $url ) {
 			if ( isset( $activeRowsBefore[ $url ] ) ) {
+				( new ProfileRepository() )->resolveProfileRefForSite( $activeRowsBefore[ $url ] );
 				$alreadyAuthorisedUrls[] = $url;
 				continue;
 			}
