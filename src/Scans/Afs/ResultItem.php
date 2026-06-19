@@ -4,10 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @property string $path_full
- * @property string $path_fragment  - relative to ABSPATH
+ * @property string $path_fragment  - filesystem-service canonical file item ID
  * @property bool   $is_in_core
  * @property bool   $is_in_plugin
  * @property bool   $is_in_theme
@@ -23,7 +24,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  * @property string $asset_version
  * @property string $checksum_sha256
  */
-class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem {
+class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\FileResultItem {
 
 	use PluginControllerConsumer;
 
@@ -79,10 +80,6 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 		], \array_flip( $this->getStatuses() ) );
 	}
 
-	public function getDescriptionForAudit() :string {
-		return $this->path_fragment;
-	}
-
 	public function getMalwareRecord() :?Record {
 		if ( empty( $this->record ) && isset( $this->malware_record_id ) ) {
 			$this->record = self::con()
@@ -100,7 +97,10 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Res
 		switch ( $key ) {
 			case 'path_full':
 				if ( empty( $value ) ) {
-					$value = path_join( wp_normalize_path( ABSPATH ), $this->path_fragment );
+					$pathFragment = (string)$this->path_fragment;
+					$value = Services::WpFs()->isAbsPath( $pathFragment )
+						? $pathFragment
+						: path_join( wp_normalize_path( ABSPATH ), $pathFragment );
 				}
 				break;
 			case 'mal_sig':

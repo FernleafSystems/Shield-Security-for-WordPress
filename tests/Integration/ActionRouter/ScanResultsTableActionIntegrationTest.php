@@ -394,6 +394,61 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_retrieve_table_data_uses_single_relative_file_identity_for_wordpress_rows() :void {
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$pathFragment = $this->corePathFragment( 'wp-admin/admin.php' );
+		$pathFull = \wp_normalize_path( ABSPATH.$pathFragment );
+		$tracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $pathFull, [
+			'is_in_core'    => 1,
+			'path_full'     => $pathFull,
+			'path_fragment' => $pathFull,
+			'file_path'     => $pathFull,
+		] );
+
+		$payload = $this->retrieveWordpressRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
+		$this->assertCount( 1, $payload[ 'datatable_data' ][ 'data' ] );
+		$row = $payload[ 'datatable_data' ][ 'data' ][ 0 ];
+
+		$this->assertSame( (int)$tracked[ 'result_item_id' ], (int)$row[ 'rid' ] );
+		$this->assertScanResultRowUsesSingleRelativePathContract( $row, $pathFragment );
+	}
+
+	public function test_retrieve_table_data_uses_single_relative_file_identity_for_malware_rows() :void {
+		$pathFull = '';
+		try {
+			$this->enablePremiumCapabilities( [
+				'scan_malware_local',
+			] );
+			$this->requireController()->opts
+				 ->optSet( 'file_scan_areas', [ 'wp', 'malware_php' ] )
+				 ->store();
+			$this->resetScanResultCountMemoization();
+
+			$pathFull = \wp_normalize_path( ABSPATH.'wp-content/uploads/path-contract-malware.php' );
+			$this->ensureFixtureFileExists( $pathFull );
+			$pathFragment = TestDataFactory::afsFileItemIdFromPath( $pathFull );
+			$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+			$tracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $pathFull, [
+				'is_mal'        => 1,
+				'path_full'     => $pathFull,
+				'path_fragment' => $pathFull,
+				'file_path'     => $pathFull,
+			] );
+
+			$payload = $this->retrieveMalwareRows( ( new ScanResultsDisplayOptions() )->activeOnly() );
+			$this->assertCount( 1, $payload[ 'datatable_data' ][ 'data' ] );
+			$row = $payload[ 'datatable_data' ][ 'data' ][ 0 ];
+
+			$this->assertSame( (int)$tracked[ 'result_item_id' ], (int)$row[ 'rid' ] );
+			$this->assertScanResultRowUsesSingleRelativePathContract( $row, $pathFragment );
+		}
+		finally {
+			if ( $pathFull !== '' && \is_file( $pathFull ) ) {
+				@\unlink( $pathFull );
+			}
+		}
+	}
+
 	public function test_core_row_actions_keep_independent_delete_and_repair_action_ids() :void {
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		$tracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->corePathFragment( 'wp-admin/admin.php' ), [
@@ -412,7 +467,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_plugin_row_actions_use_plugin_route_scope_and_delete_id_without_repair() :void {
 		$pluginFile = self::con()->base_file;
-		$this->ensureFixtureFileExists( ABSPATH.$this->pluginPathFragment( $pluginFile ) );
+		$this->assertFileExists( WP_PLUGIN_DIR.'/'.$pluginFile );
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		$tracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginPathFragment( $pluginFile ), [
 			'is_unrecognised' => 1,
@@ -569,15 +624,15 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function corePathFragment( string $relativePath ) :string {
-		return TestDataFactory::pathFragmentFromAbsolutePath( ABSPATH.\ltrim( $relativePath, '/\\' ) );
+		return TestDataFactory::afsFileItemIdFromPath( ABSPATH.\ltrim( $relativePath, '/\\' ) );
 	}
 
 	private function pluginPathFragment( string $pluginFile ) :string {
-		return 'wp-content/plugins/'.\ltrim( \wp_normalize_path( $pluginFile ), '/\\' );
+		return TestDataFactory::afsFileItemIdFromPath( WP_PLUGIN_DIR.'/'.$pluginFile );
 	}
 
 	private function themePathFragment( string $stylesheet ) :string {
-		return TestDataFactory::pathFragmentFromAbsolutePath( \get_theme_root().'/'.$stylesheet.'/style.css' );
+		return TestDataFactory::afsFileItemIdFromPath( \get_theme_root().'/'.$stylesheet.'/style.css' );
 	}
 
 	private function ensureFixtureFileExists( string $path ) :void {
@@ -620,9 +675,6 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	private function createOwnedScanActionFixtureFile( string $fileName ) :string {
 		$path = $this->scanActionFixturePath( $fileName );
 		$this->ensureFixtureFileExists( $path );
-		$resolvedPath = \realpath( $path );
-		$this->assertNotFalse( $resolvedPath );
-		$path = \wp_normalize_path( $resolvedPath );
 		$this->assertFixturePathIsOwned( $path );
 		return $path;
 	}
@@ -630,7 +682,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	private function insertTrackedMalwareResultForPath( int $scanId, string $path ) :array {
 		return TestDataFactory::insertAfsFileScanResultTracked(
 			$scanId,
-			TestDataFactory::pathFragmentFromAbsolutePath( $path ),
+			$path,
 			[
 				'is_mal'          => 1,
 				'is_unrecognised' => 1,
@@ -656,7 +708,7 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function scanActionFixtureRoot() :string {
-		return \wp_normalize_path( \trailingslashit( WP_CONTENT_DIR ).'shield-scan-action-fixture' );
+		return \wp_normalize_path( \trailingslashit( ABSPATH ).'shield-scan-action-fixture' );
 	}
 
 	private function deleteScanActionFixtureRoot() :void {
@@ -665,29 +717,39 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 			return;
 		}
 
-		$resolvedRoot = \realpath( $root );
-		if ( $resolvedRoot === false ) {
-			return;
-		}
-		$resolvedRoot = \wp_normalize_path( $resolvedRoot );
-		$this->assertSame( $root, $resolvedRoot );
-		$this->assertDirectoryExists( $resolvedRoot );
+		$this->assertFixturePathIsOwned( $root );
+		$this->assertDirectoryExists( $root );
 
 		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $resolvedRoot, \FilesystemIterator::SKIP_DOTS ),
+			new \RecursiveDirectoryIterator( $root, \FilesystemIterator::SKIP_DOTS ),
 			\RecursiveIteratorIterator::CHILD_FIRST
 		);
 
 		foreach ( $iterator as $item ) {
 			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
 		}
-		@\rmdir( $resolvedRoot );
+		@\rmdir( $root );
 	}
 
 	private function assertFixturePathIsOwned( string $path ) :void {
 		$root = \trailingslashit( $this->scanActionFixtureRoot() );
-		$normalized = \wp_normalize_path( $path );
+		$normalized = \trailingslashit( \wp_normalize_path( $path ) );
 		$this->assertSame( $root, \substr( $normalized, 0, \strlen( $root ) ) );
+	}
+
+	private function assertScanResultRowUsesSingleRelativePathContract( array $row, string $expectedFragment ) :void {
+		$this->assertArrayHasKey( 'file', $row );
+		$this->assertSame( $expectedFragment, (string)$row[ 'file' ] );
+		$this->assertArrayNotHasKey( 'path_full', $row );
+		$this->assertArrayNotHasKey( 'path_fragment', $row );
+		$this->assertArrayNotHasKey( 'file_path', $row );
+
+		$encodedRow = \wp_json_encode( $row );
+		$this->assertIsString( $encodedRow );
+		$this->assertStringNotContainsString(
+			\wp_normalize_path( ABSPATH ),
+			\wp_normalize_path( $encodedRow )
+		);
 	}
 
 	/**

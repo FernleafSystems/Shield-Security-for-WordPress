@@ -99,7 +99,7 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 			'core',
 			'core',
 			Services::WpGeneral()->getVersion(),
-			\str_replace( \wp_normalize_path( ABSPATH ), '', \wp_normalize_path( $corePath ) )
+			Services::WpFs()->getPathRelativeToAbsPath( $corePath )
 		) );
 
 		$optimiser = new FileScanOptimiser();
@@ -123,7 +123,7 @@ class FileScanOptimiserIntegrationTest extends ShieldIntegrationTestCase {
 			'core',
 			'core',
 			Services::WpGeneral()->getVersion(),
-			\str_replace( \wp_normalize_path( ABSPATH ), '', \wp_normalize_path( $corePath ) )
+			Services::WpFs()->getPathRelativeToAbsPath( $corePath )
 		) );
 		$warmAction = $this->runFullScan( $files, [ 'wpcontent', 'malware_php' ] );
 

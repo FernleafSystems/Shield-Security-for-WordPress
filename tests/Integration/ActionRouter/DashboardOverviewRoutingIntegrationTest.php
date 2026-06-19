@@ -152,7 +152,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	}
 
 	private function pluginMainPathFragment( string $pluginSlug ) :string {
-		return TestDataFactory::pathFragmentFromAbsolutePath( WP_PLUGIN_DIR.'/'.$pluginSlug );
+		return TestDataFactory::afsFileItemIdFromPath( WP_PLUGIN_DIR.'/'.$pluginSlug );
 	}
 
 	/**

@@ -180,12 +180,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function pluginMainPathFragment( ?string $pluginSlug = null ) :string {
-		return 'wp-content/plugins/'.\ltrim( \wp_normalize_path( $pluginSlug ?? self::con()->base_file ), '/\\' );
+		return TestDataFactory::afsFileItemIdFromPath( WP_PLUGIN_DIR.'/'.( $pluginSlug ?? self::con()->base_file ) );
 	}
 
 	private function themeMainPathFragment( ?string $themeSlug = null ) :string {
 		$themeSlug = $themeSlug ?? $this->requireAtLeastInstalledThemes( 1 )[ 0 ];
-		return TestDataFactory::pathFragmentFromAbsolutePath( \get_theme_root().'/'.$themeSlug.'/style.css' );
+		return TestDataFactory::afsFileItemIdFromPath( \get_theme_root().'/'.$themeSlug.'/style.css' );
 	}
 
 	private function ensureFixtureFileExists( string $absolutePath ) :void {
@@ -710,15 +710,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->enableAssetScanFixture( [ 'plugins' ] );
 
 		$pluginSlug = self::con()->base_file;
-		$pluginPathFull = \wp_normalize_path( WP_PLUGIN_DIR.'/'.$pluginSlug );
+		$pathFragment = $this->pluginMainPathFragment( $pluginSlug );
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		$ignoredIds = [];
 		foreach ( [ 1, 2, 3, 4 ] as $_ ) {
-			$pathFragment = $this->pluginMainPathFragment( $pluginSlug );
 			$tracked = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $pathFragment, [
 				'is_in_plugin'    => 1,
 				'is_unrecognised' => 1,
-				'path_full'       => $pluginPathFull,
 				'ptg_slug'        => $pluginSlug,
 			] );
 			$ignoredIds[] = (int)$tracked[ 'result_item_id' ];
@@ -806,14 +804,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$themeSlug = self::THEME_FIXTURE_STYLESHEET;
 		$this->assertContains( $themeSlug, Services::WpThemes()->getInstalledStylesheets() );
 		$themePathFull = \wp_normalize_path( $this->themeFixtureStylePath() );
-		$pathFragment = TestDataFactory::pathFragmentFromAbsolutePath( $themePathFull );
+		$pathFragment = TestDataFactory::afsFileItemIdFromPath( $themePathFull );
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		$trackedRows = [];
 		foreach ( [ 1, 2 ] as $_ ) {
 			$trackedRows[] = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $pathFragment, [
 				'is_in_theme'     => 1,
 				'is_unrecognised' => 1,
-				'path_full'       => $themePathFull,
 				'ptg_slug'        => $themeSlug,
 			] );
 		}
@@ -956,28 +953,25 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 
 		$pluginSlug = self::con()->base_file;
-		$pluginPathFull = \wp_normalize_path( WP_PLUGIN_DIR.'/'.$pluginSlug );
+		$pathFragment = $this->pluginMainPathFragment( $pluginSlug );
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		$active = TestDataFactory::insertAfsFileScanResultTracked(
 			$afsId,
-			$this->pluginMainPathFragment( $pluginSlug ),
+			$pathFragment,
 			[
 				'is_in_plugin'    => 1,
 				'is_unrecognised' => 1,
-				'path_full'       => $pluginPathFull,
 				'ptg_slug'        => $pluginSlug,
 			]
 		);
 		$ignoredIds = [];
 		foreach ( [ 1, 2 ] as $_ ) {
-			$pathFragment = $this->pluginMainPathFragment( $pluginSlug );
 			$tracked = TestDataFactory::insertAfsFileScanResultTracked(
 				$afsId,
 				$pathFragment,
 				[
 					'is_in_plugin'    => 1,
 					'is_unrecognised' => 1,
-					'path_full'       => $pluginPathFull,
 					'ptg_slug'        => $pluginSlug,
 				]
 			);
@@ -1024,7 +1018,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->enableAssetScanFixture( [ 'plugins' ] );
 
 		$pluginSlug = self::con()->base_file;
-		$pluginPathFull = \wp_normalize_path( WP_PLUGIN_DIR.'/'.$pluginSlug );
+		$pluginPathFragment = $this->pluginMainPathFragment( $pluginSlug );
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		$trackedRows = [];
 		foreach ( [
@@ -1034,11 +1028,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'auto_filtered',
 			'clean_rescan',
 			'asset_replaced',
-		] as $key => $pathFragment ) {
-			$trackedRows[ $pathFragment ] = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
+		] as $stateKey ) {
+			$trackedRows[ $stateKey ] = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $pluginPathFragment, [
 				'is_in_plugin'    => 1,
 				'is_unrecognised' => 1,
-				'path_full'       => $pluginPathFull,
 				'ptg_slug'        => $pluginSlug,
 			] );
 		}

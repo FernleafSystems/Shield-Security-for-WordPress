@@ -4,7 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Base;
 
 /**
  * @property string $path_full
- * @property string $path_fragment - relative to ABSPATH
+ * @property string $path_fragment - filesystem-service canonical file item ID
  */
 class FileResultItem extends ResultItem {
 
