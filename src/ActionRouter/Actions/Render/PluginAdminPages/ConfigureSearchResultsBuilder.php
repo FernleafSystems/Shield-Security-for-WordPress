@@ -262,7 +262,7 @@ class ConfigureSearchResultsBuilder {
 				$dataAttributes = $expandAction[ 'data_attributes' ];
 				$rowKey = $row[ 'key' ];
 				$zoneComponentSlug = $this->normalizeCsvString( $dataAttributes[ 'zone_component_slug' ] );
-				$optionKeys = $this->normalizeCsvString( $dataAttributes[ 'option_keys' ] );
+				$optionKeys = $this->normalizeCsvString( $dataAttributes[ 'option_keys' ] ?? '' );
 				$configItem = $dataAttributes[ 'config_item' ] ?? '';
 
 				$this->assignOptionTargets(
