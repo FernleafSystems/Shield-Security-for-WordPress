@@ -6,6 +6,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Modules\StringsMod
 
 class ProfileOptionsFormViewBuilder {
 
+	private const PROFILE_GROUP_ORDER = [
+		'plugin',
+		'admin_access_restriction',
+		'ips',
+		'hack_protect',
+		'firewall',
+		'login_protect',
+		'user_management',
+		'comments_filter',
+		'integrations',
+	];
+
 	/**
 	 * @param string[] $profileableKeys
 	 * @param string[] $excludedKeys
@@ -91,10 +103,29 @@ class ProfileOptionsFormViewBuilder {
 			}
 		}
 
+		$groups = $this->orderGroups( $groups );
+
 		return \array_values( \array_map(
 			fn( array $group ) :array => $this->finaliseGroup( $group ),
 			$groups
 		) );
+	}
+
+	/**
+	 * @param array<string,array> $groups
+	 * @return array<string,array>
+	 */
+	private function orderGroups( array $groups ) :array {
+		$ordered = [];
+
+		foreach ( self::PROFILE_GROUP_ORDER as $module ) {
+			if ( isset( $groups[ $module ] ) ) {
+				$ordered[ $module ] = $groups[ $module ];
+				unset( $groups[ $module ] );
+			}
+		}
+
+		return $ordered + $groups;
 	}
 
 	/**

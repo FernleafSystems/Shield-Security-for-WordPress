@@ -86,6 +86,20 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertSame( 'profile_xfer_group_include_toggle', $renderData[ 'vars' ][ 'transfer_group_action' ] );
 		$this->assertEqualsCanonicalizing( ( new ProfileOptionsCatalog() )->profileableKeys(), $renderData[ 'vars' ][ 'all_opts_keys' ] );
 		$this->assertIsArray( $renderData[ 'vars' ][ 'groups' ] );
+		$this->assertSame(
+			[
+				'plugin',
+				'admin_access_restriction',
+				'ips',
+				'hack_protect',
+				'firewall',
+				'login_protect',
+				'user_management',
+				'comments_filter',
+				'integrations',
+			],
+			\array_column( $renderData[ 'vars' ][ 'groups' ], 'slug' )
+		);
 		$this->assertProfileRenderGroupsCoverProfileableKeysOnce( $renderData[ 'vars' ][ 'groups' ] );
 	}
 
