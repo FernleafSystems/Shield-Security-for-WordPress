@@ -3227,22 +3227,10 @@
     },
     {
         "key": "enable_live_log",
-        "section": "section_log_requests",
-        "zone_comp_slugs": [
-            "request_logging",
-            "request_live_logging"
-        ],
-        "cap": "traffic_live_log",
-        "premium": true,
+        "section": "section_hidden",
         "default": "N",
         "type": "checkbox",
-        "transferable": false,
-        "beacon_id": 759,
-        "link_info": "",
-        "link_blog": "",
-        "name": "Live Logging",
-        "summary": "Enable Live Logging Of All Traffic",
-        "description": "Switch-on logging of all site traffic."
+        "transferable": false
     },
     {
         "key": "enable_limiter",

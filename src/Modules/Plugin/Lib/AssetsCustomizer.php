@@ -637,7 +637,8 @@ class AssetsCustomizer {
 				],
 				'data'    => [
 					'ajax' => [
-						'render_live' => ActionData::BuildAjaxRender( Components\Traffic\TrafficLiveLogs::class ),
+						'render_live'           => ActionData::BuildAjaxRender( Components\Traffic\TrafficLiveLogs::class ),
+						'set_live_log_enabled'  => ActionData::Build( Actions\TrafficLiveLog_SetEnabled::class ),
 					],
 				],
 			],

@@ -464,6 +464,26 @@ class PluginOptionsSchemaTest extends TestCase {
 		}
 	}
 
+	public function testLiveTrafficLoggerOptionUsesHiddenPageControlledContract() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [
+			'source'    => $sourceOptions[ 'enable_live_log' ],
+			'generated' => $this->options[ 'enable_live_log' ],
+		] as $context => $option ) {
+			$this->assertSame( 'section_hidden', $option[ 'section' ], sprintf( "%s live logger option should be hidden.", $context ) );
+			$this->assertSame( 'checkbox', $option[ 'type' ], sprintf( "%s live logger option should remain a checkbox.", $context ) );
+			$this->assertSame( 'N', $option[ 'default' ], sprintf( "%s live logger option should default off.", $context ) );
+			$this->assertSame( false, $option[ 'transferable' ], sprintf( "%s live logger option should not transfer.", $context ) );
+			$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
+			$this->assertArrayNotHasKey( 'cap', $option );
+			$this->assertArrayNotHasKey( 'premium', $option );
+			$this->assertArrayNotHasKey( 'name', $option );
+			$this->assertArrayNotHasKey( 'summary', $option );
+			$this->assertArrayNotHasKey( 'description', $option );
+		}
+	}
+
 	public function testLegacyLogRetentionOptionsAreHiddenAndRetained() :void {
 		$sourceOptions = $this->sourceOptionsByKey();
 

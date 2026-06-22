@@ -417,9 +417,6 @@ if ( false ) { // This ensures the code is never executed but is parsed for tran
 	__( 'Allows for permission and restriction of all resources loaded on your site.', 'wp-simple-firewall' ); // config_spec.options.149.description
 	__( 'CSP Rules', 'wp-simple-firewall' ); // config_spec.options.150.name
 	__( 'Provide your custom set of CSP rules.', 'wp-simple-firewall' ); // config_spec.options.150.description
-	__( 'Live Logging', 'wp-simple-firewall' ); // config_spec.options.171.name
-	__( 'Enable Live Logging Of All Traffic', 'wp-simple-firewall' ); // config_spec.options.171.summary
-	__( 'Switch-on logging of all site traffic.', 'wp-simple-firewall' ); // config_spec.options.171.description
 	__( 'Request Log Exclusions', 'wp-simple-firewall' ); // config_spec.options.172.name
 	__( 'Select Which Types Of Requests To Exclude', 'wp-simple-firewall' ); // config_spec.options.172.summary
 	__( "Deselect any requests that you don't want to appear in the traffic viewer.", 'wp-simple-firewall' ); // config_spec.options.172.description

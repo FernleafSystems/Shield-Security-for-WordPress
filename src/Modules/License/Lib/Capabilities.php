@@ -150,6 +150,10 @@ class Capabilities {
 		return $this->hasCap( 'traffic_rate_limiting' );
 	}
 
+	public function canTrafficLiveLog() :bool {
+		return $this->hasCap( 'traffic_live_log' );
+	}
+
 	public function canUserPasswordPolicies() :bool {
 		return $this->hasCap( 'user_password_policies' );
 	}

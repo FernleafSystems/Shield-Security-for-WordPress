@@ -233,7 +233,28 @@ class OptsLookup {
 		}
 
 		$startedAt = $opts->optGet( 'live_log_started_at' );
-		return $startedAt > 0 ? \max( 0, $this->getTrafficLiveLogDuration() - ( $now - $startedAt ) ) : 0;
+		return $this->calcTrafficLiveLogTimeRemaining(
+			$opts->optIs( 'enable_live_log', 'Y' ),
+			(int)$startedAt,
+			$now
+		);
+	}
+
+	public function peekTrafficLiveLogTimeRemaining() :int {
+		$opts = self::con()->opts;
+
+		return $this->calcTrafficLiveLogTimeRemaining(
+			$opts->optIs( 'enable_live_log', 'Y' ),
+			(int)$opts->optGet( 'live_log_started_at' ),
+			Services::Request()->ts()
+		);
+	}
+
+	private function calcTrafficLiveLogTimeRemaining( bool $enabled, int $startedAt, int $now ) :int {
+		if ( !$enabled || $startedAt <= 0 ) {
+			return 0;
+		}
+		return \max( 0, $this->getTrafficLiveLogDuration() - ( $now - $startedAt ) );
 	}
 
 	public function getTrafficLiveLogDuration() :int {

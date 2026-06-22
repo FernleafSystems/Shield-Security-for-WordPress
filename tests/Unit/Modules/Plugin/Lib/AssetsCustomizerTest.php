@@ -29,6 +29,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components\Widgets\WpDashboardSummary,
 	Actions\ScansCheck,
 	Actions\ScansStart,
+	Actions\TrafficLiveLog_SetEnabled,
 	Actions\ToolPurgeProviderIPs
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
@@ -242,6 +243,14 @@ class AssetsCustomizerTest extends BaseUnitTest {
 			$ajax[ 'render_authorise_urls_offcanvas' ],
 			'import export add client sites offcanvas'
 		);
+	}
+
+	public function test_traffic_component_localizes_live_log_toggle_payload() :void {
+		$this->installEnvironment();
+
+		$ajax = $this->componentAjax( 'traffic' );
+
+		$this->assertSame( TrafficLiveLog_SetEnabled::SLUG, $ajax[ 'set_live_log_enabled' ][ ActionData::FIELD_EXECUTE ] );
 	}
 
 	public function test_import_export_sites_table_localizes_table_payload_without_authorise_urls_submit() :void {

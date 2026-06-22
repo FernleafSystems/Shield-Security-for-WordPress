@@ -1266,35 +1266,6 @@ class StringsOptions {
 				$summary = __( 'Dashboard and 2FA Login Logo URL', 'wp-simple-firewall' );
 				$desc = [ __( 'The URL of the logo to display on the Dashboard and the Two-Factor Authentication login page.', 'wp-simple-firewall' ) ];
 				break;
-			case 'enable_live_log':
-				$max = (int)\round( $opts->getTrafficLiveLogDuration()/\MINUTE_IN_SECONDS );
-
-				$name = __( 'Live Traffic', 'wp-simple-firewall' );
-				$summary = __( 'Temporarily Log All Traffic', 'wp-simple-firewall' );
-				$desc = [
-					__( 'Temporarily logs all requests to the site with no built-in traffic log exclusions.', 'wp-simple-firewall' ),
-					__( "For high-traffic sites, this option can cause your database to become quite large and isn't recommended unless required.", 'wp-simple-firewall' ),
-					sprintf( __( 'This setting will automatically be disabled after %s and all requests logged during that period that would normally have been excluded will also be deleted.', 'wp-simple-firewall' ),
-						sprintf( _n( '%s minute', '%s minutes', $max, 'wp-simple-firewall' ), $max ) ),
-					sprintf( '<a href="%s">%s &rarr;</a>',
-						$con->plugin_urls->trafficLive(),
-						__( 'Live Logs Viewer', 'wp-simple-firewall' )
-					),
-
-				];
-
-				$remaining = $opts->getTrafficLiveLogTimeRemaining();
-				if ( $remaining > 0 ) {
-					$desc[] = sprintf(
-						__( 'Live logging will be automatically disabled: %s', 'wp-simple-firewall' ),
-						sprintf( '<code>%s</code>', Services::Request()
-															->carbon()
-															->addSeconds( $remaining )
-															->diffForHumans()
-						)
-					);
-				}
-				break;
 			case 'enable_limiter':
 				$name = __( 'Enable Rate Limiting', 'wp-simple-firewall' );
 				$summary = __( 'Turn On The Rate Limiting Feature', 'wp-simple-firewall' );

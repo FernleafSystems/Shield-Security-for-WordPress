@@ -1,11 +1,13 @@
+import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
 import { LiveTrafficPoller } from "./LiveTrafficPoller";
 import { announceStatus } from "../ui/ShieldA11y";
+import { ObjectOps } from "../../util/ObjectOps";
 
 export class TrafficLiveLogs extends BaseComponent {
 
 	init() {
-		this.liveLogsSection = document.getElementById( 'SectionTrafficLiveLogs' ) || false;
+		this.liveLogsSection = document.getElementById( 'SectionTrafficLiveLogs' );
 		this.poller = null;
 		this.hasAnnouncedInitialLoad = false;
 		this.lastPollFailed = false;
@@ -14,26 +16,56 @@ export class TrafficLiveLogs extends BaseComponent {
 	}
 
 	canRun() {
-		return this.liveLogsSection;
+		return this.liveLogsSection instanceof HTMLElement;
 	}
 
 	run() {
+		this.registerLiveLogToggle();
 		this.focusOutput();
 		this.announceLiveLogsStatus( this.getLiveLogsLoadingMessage(), {
 			politeness: 'polite',
 			allowRepeat: false,
 		} );
 		this.poller = new LiveTrafficPoller( {
-			requestData: this._base_data?.ajax?.render_live || {},
+			requestData: this._base_data.ajax.render_live,
 			onSuccess: ( resp ) => this.handlePollSuccess( resp ),
 			onFailure: ( resp ) => this.handlePollFailure( resp ),
 		} );
 		this.poller.start();
 	}
 
+	registerLiveLogToggle() {
+		shieldEventsHandler_Main.add_Change( '[data-traffic-live-log-toggle]', ( targetEl ) => {
+			this.setLiveLogEnabled( targetEl );
+		} );
+	}
+
+	setLiveLogEnabled( targetEl ) {
+		const toggle = targetEl instanceof Element ? targetEl.closest( '[data-traffic-live-log-toggle]' ) : null;
+		if ( !( toggle instanceof HTMLInputElement ) || toggle.disabled ) {
+			return;
+		}
+
+		const previousState = !toggle.checked;
+		toggle.disabled = true;
+		( new AjaxService() )
+		.send( ObjectOps.Merge(
+			this._base_data.ajax.set_live_log_enabled,
+			{ enabled: toggle.checked ? 'Y' : 'N' }
+		) )
+		.then( ( resp ) => {
+			if ( !resp?.success ) {
+				toggle.checked = previousState;
+			}
+		} )
+		.finally( () => {
+			toggle.disabled = false;
+		} );
+	}
+
 	focusOutput() {
 		const output = this.liveLogsSection?.querySelector( '.output' ) || null;
-		if ( output ) {
+		if ( output instanceof HTMLElement ) {
 			output.focus();
 		}
 	}

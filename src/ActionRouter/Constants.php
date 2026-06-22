@@ -119,6 +119,7 @@ class Constants {
 		Actions\SessionsTableAction::class,
 		Actions\PluginSetOpt::class,
 		Actions\ToolPurgeProviderIPs::class,
+		Actions\TrafficLiveLog_SetEnabled::class,
 		Actions\TrafficLogTableAction::class,
 
 		Actions\Debug\SimplePluginTests::class,

@@ -2,6 +2,7 @@
 	 data-live-logs-loading="{{ strings.waiting_live_logs|e('html_attr') }}"
 	 data-live-logs-ready="{{ strings.live_view_status|e('html_attr') }}"
 	 data-live-logs-error="{{ strings.update_failed|e('html_attr') }}">
+	{% set live_log_control = vars.live_log_control %}
 	<div class="screen-reader-text"
 		 role="status"
 		 aria-live="polite"
@@ -9,15 +10,36 @@
 		 data-shield-status-region="1"></div>
 	<div class="row">
 		<div class="col">
-			{% if not flags.is_enabled %}
+			<div class="traffic-live-log-topbar{% if live_log_control.is_enabled %} is-enabled{% endif %}"
+				 data-traffic-live-log-control="1">
+				<div class="traffic-live-log-topbar__state">
+					<span class="traffic-live-log-topbar__dot" aria-hidden="true"></span>
+					<div class="traffic-live-log-topbar__copy">
+						<h5>{{ strings.live_log_control_title }}</h5>
+						<p>{{ live_log_control.is_enabled ? strings.live_log_control_enabled_summary : strings.live_log_control_disabled_summary }}</p>
+					</div>
+				</div>
+
+				<div class="form-check form-switch traffic-live-log-toggle">
+					<input class="form-check-input"
+						   type="checkbox"
+						   role="switch"
+						   id="{{ live_log_control.id }}"
+						   data-traffic-live-log-toggle="1"
+						   {% if live_log_control.is_enabled %}checked{% endif %}
+						   {% if not live_log_control.is_available %}disabled{% endif %}>
+					<label class="form-check-label" for="{{ live_log_control.id }}">
+						{{ strings.live_log_control_label }}
+					</label>
+				</div>
+			</div>
+			{% if not live_log_control.is_available %}
+				<div class="alert alert-secondary d-inline-block">
+					{{ strings.live_log_unavailable }}
+				</div>
+			{% elseif not live_log_control.is_enabled %}
 				<div class="alert alert-secondary d-inline-block">
 					{{ strings.not_enabled }}
-					<button type="button"
-							class="zone_component_action shield-button-link"
-							data-zone_component_action="offcanvas_zone_component_config"
-							data-zone_component_slug="request_live_logging"
-							title="{{ strings.toggle_live_log }}"
-					>{{ strings.toggle_live_log }}</button>
 				</div>
 			{% endif %}
 			<div class="text-start">
