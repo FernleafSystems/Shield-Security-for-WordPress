@@ -279,6 +279,150 @@ class CrossSitePairManagerTest extends TestCase {
 		}
 	}
 
+	public function testSlaveImportWaitRunsScheduledImportCron() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-wait-scheduled-' );
+		$runner = new RecordingProcessRunner( [
+			$this->helperSuccessProcess( $this->waitingExportQueueState() ),
+			$this->helperSuccessProcess( $this->slaveCronState( true, true ) ),
+			[ 'exit_code' => 0 ],
+			$this->helperSuccessProcess( $this->postExportQueueState() ),
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$result = $this->invokePrivate( $manager, 'waitForSlaveImportCompletion', [ $root ] );
+
+		$this->assertSame( 'idle', $result[ 'rows' ][ 0 ][ 'queue_status' ] );
+		$cronCommand = $this->findProcessCommandContaining( $runner, 'cron event run shield-plugin-importexport-update-notified' );
+		$this->assertContains( 'cron', $cronCommand );
+		$this->assertContains( 'event', $cronCommand );
+		$this->assertContains( 'run', $cronCommand );
+		$this->assertContains( 'shield-plugin-importexport-update-notified', $cronCommand );
+	}
+
+	public function testSlaveImportWaitRunsDirectImportWhenAcceptedNotificationConsumedCronEvent() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-wait-direct-' );
+		$runner = new RecordingProcessRunner( [
+			$this->helperSuccessProcess( $this->waitingExportQueueState() ),
+			$this->helperSuccessProcess( $this->slaveCronState( false, true ) ),
+			$this->helperSuccessProcess( [
+				'master_url' => 'http://wordpress-master',
+				'import_id' => 'slave-import-id',
+			] ),
+			$this->helperSuccessProcess( $this->postExportQueueState() ),
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$result = $this->invokePrivate( $manager, 'waitForSlaveImportCompletion', [ $root ] );
+
+		$this->assertSame( 'idle', $result[ 'rows' ][ 0 ][ 'queue_status' ] );
+		$directImportCommand = $this->findProcessCommandContaining( $runner, 'run-import-from-master' );
+		$this->assertContains( 'eval-file', $directImportCommand );
+		$this->assertContains( 'run-import-from-master', $directImportCommand );
+		$this->assertSame(
+			[
+				'master_url' => 'http://wordpress-master',
+				'import_id' => 'slave-import-id',
+			],
+			$manager->lastDiagnostics()[ 'slave_direct_import' ]
+		);
+	}
+
+	public function testSlaveImportWaitFailsWhenSlaveNotificationWasNotAccepted() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-wait-not-accepted-' );
+		$manager = new CrossSitePairManager(
+			new RecordingProcessRunner( [
+				$this->helperSuccessProcess( $this->waitingExportQueueState() ),
+				$this->helperSuccessProcess( $this->slaveCronState( false, false ) ),
+			] )
+		);
+
+		try {
+			$this->invokePrivate( $manager, 'waitForSlaveImportCompletion', [ $root ] );
+			$this->fail( 'Expected rejected slave notification failure.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertSame(
+				'Slave did not accept the master import notification; no import event or notify cooldown was visible.',
+				$exception->getMessage()
+			);
+		}
+	}
+
+	public function testSlaveImportWaitSurfacesDirectImportFailure() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-wait-direct-failure-' );
+		$manager = new CrossSitePairManager(
+			new RecordingProcessRunner( [
+				$this->helperSuccessProcess( $this->waitingExportQueueState() ),
+				$this->helperSuccessProcess( $this->slaveCronState( false, true ) ),
+				$this->helperFailureProcess( 'Master export returned HTTP 403.' ),
+			] )
+		);
+
+		try {
+			$this->invokePrivate( $manager, 'waitForSlaveImportCompletion', [ $root ] );
+			$this->fail( 'Expected direct import failure.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertSame(
+				'Slave direct import from master failed: Master export returned HTTP 403.',
+				$exception->getMessage()
+			);
+		}
+	}
+
+	public function testMasterQueueProcessingAcceptsAlreadyCompletedSlaveExport() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-queue-already-exported-' );
+		$runner = new RecordingProcessRunner( [
+			$this->helperSuccessProcess( $this->dueMasterQueueState() ),
+			[ 'exit_code' => 0 ],
+			$this->helperSuccessProcess( $this->postExportQueueState() ),
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$this->invokePrivate( $manager, 'processMasterSitesQueue', [ $root ] );
+
+		$this->assertSame(
+			$this->postExportQueueState(),
+			$manager->lastDiagnostics()[ 'master_queue_after_notify_dispatch' ]
+		);
+		$queueCommand = $this->findProcessCommandContaining( $runner, 'cron event run shield-plugin-importexport-sites-queue' );
+		$this->assertContains( 'shield-plugin-importexport-sites-queue', $queueCommand );
+	}
+
+	public function testPostNotifyDispatchQueueStateStillRejectsStaleExportCompletion() :void {
+		$manager = new CrossSitePairManager();
+		$state = $this->postExportQueueState();
+		$state[ 'rows' ][ 0 ][ 'last_export_success_at' ] = 5;
+
+		try {
+			$this->invokePrivate( $manager, 'assertPostNotifyDispatchQueueState', [ $state ] );
+			$this->fail( 'Expected stale export completion failure.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertSame(
+				'Master DB-backed site queue did not record a new export success after notify dispatch.',
+				$exception->getMessage()
+			);
+		}
+	}
+
+	public function testPostNotifyDispatchQueueStateRejectsCompletedExportWithoutRecordedNotifyDispatch() :void {
+		$manager = new CrossSitePairManager();
+		$state = $this->postExportQueueState();
+		$state[ 'rows' ][ 0 ][ 'last_ping_success_at' ] = 0;
+
+		try {
+			$this->invokePrivate( $manager, 'assertPostNotifyDispatchQueueState', [ $state ] );
+			$this->fail( 'Expected missing notify dispatch failure.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertSame(
+				'Master DB-backed site queue did not record notify dispatch before export.',
+				$exception->getMessage()
+			);
+		}
+	}
+
 	public function testPrepareSuppressesSubprocessOutputByDefault() :void {
 		$root = $this->createCrossSiteProjectRoot();
 		$runner = new CrossSitePrepareProcessRunner();
@@ -420,6 +564,108 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->assertContains( '--protocol=tcp', $command );
 		$this->assertContains( '-h', $command );
 		$this->assertContains( '127.0.0.1', $command );
+	}
+
+	/**
+	 * @return array{exit_code:int,stdout:string}
+	 */
+	private function helperSuccessProcess( array $data ) :array {
+		return [
+			'exit_code' => 0,
+			'stdout' => \json_encode( [
+				'ok' => true,
+				'data' => $data,
+			], \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR )."\n",
+		];
+	}
+
+	/**
+	 * @return array{exit_code:int,stdout:string}
+	 */
+	private function helperFailureProcess( string $message ) :array {
+		return [
+			'exit_code' => 1,
+			'stdout' => \json_encode( [
+				'ok' => false,
+				'error' => [
+					'message' => $message,
+				],
+			], \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR )."\n",
+		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function waitingExportQueueState() :array {
+		return [
+			'rows' => [
+				[
+					'url' => 'http://wordpress-slave',
+					'queue_status' => 'waiting_export',
+					'last_ping_success_at' => 10,
+					'last_export_request_at' => 0,
+					'last_export_success_at' => 5,
+					'last_export_result_code' => 'success',
+				],
+			],
+		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function dueMasterQueueState() :array {
+		return [
+			'queue_hook' => 'shield-plugin-importexport-sites-queue',
+			'queue_scheduled' => true,
+			'due_count' => 1,
+			'rows' => [
+				[
+					'url' => 'http://wordpress-slave',
+					'queue_status' => 'queued',
+					'last_ping_success_at' => 0,
+					'last_export_request_at' => 5,
+					'last_export_success_at' => 5,
+					'last_export_result_code' => 'success',
+				],
+			],
+		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function postExportQueueState() :array {
+		return [
+			'rows' => [
+				[
+					'url' => 'http://wordpress-slave',
+					'queue_status' => 'idle',
+					'last_ping_success_at' => 10,
+					'last_export_request_at' => 20,
+					'last_export_success_at' => 30,
+					'last_export_result_code' => 'success',
+				],
+			],
+		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function slaveCronState( bool $importScheduled, bool $notifyCooldownActive ) :array {
+		return [
+			'import_hook' => 'shield-plugin-importexport-update-notified',
+			'import_scheduled' => $importScheduled,
+			'notify_hook' => 'shield-plugin-importexport-notify',
+			'notify_scheduled' => false,
+			'notify_cooldown_active' => $notifyCooldownActive,
+			'queue_hook' => 'shield-plugin-importexport-sites-queue',
+			'queue_scheduled' => false,
+			'master_url' => 'http://wordpress-master',
+			'import_id' => 'slave-import-id',
+		];
 	}
 
 	private function isInternalHttpReadinessCall( array $call ) :bool {

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as ImportExportSiteRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
@@ -58,6 +59,8 @@ try {
 					return $this->legacyMigrationCheck( $payload );
 				case 'cron-state':
 					return $this->cronState();
+				case 'run-import-from-master':
+					return $this->runImportFromMaster();
 				case 'export-options':
 					return $this->exportOptions();
 				default:
@@ -264,13 +267,34 @@ try {
 		 * @return array<string,mixed>
 		 */
 		private function cronState() :array {
+			$con = RuntimeTestState::controller();
+			$masterUrl = (string)$con->opts->optGet( 'importexport_masterurl' );
+
 			return [
 				'import_hook' => $this->importHook(),
 				'import_scheduled' => \wp_next_scheduled( $this->importHook() ) !== false,
 				'notify_hook' => $this->notifyHook(),
 				'notify_scheduled' => \wp_next_scheduled( $this->notifyHook() ) !== false,
+				'notify_cooldown_active' => $this->notifyCooldownActive( $masterUrl ),
 				'queue_hook' => $this->queueHook(),
 				'queue_scheduled' => \wp_next_scheduled( $this->queueHook() ) !== false,
+				'master_url' => $masterUrl,
+				'import_id' => (string)$con->opts->optGet( 'import_id' ),
+			];
+		}
+
+		/**
+		 * @return array<string,mixed>
+		 */
+		private function runImportFromMaster() :array {
+			$con = RuntimeTestState::controller();
+			$masterUrl = (string)$con->opts->optGet( 'importexport_masterurl' );
+
+			( new Import() )->fromSite();
+
+			return [
+				'master_url' => $masterUrl,
+				'import_id' => (string)$con->opts->optGet( 'import_id' ),
 			];
 		}
 
@@ -549,6 +573,12 @@ try {
 					"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
 					'%whitelist_notify_urls%'
 				) );
+				foreach ( [ '_transient_', '_transient_timeout_' ] as $transientPrefix ) {
+					$wpdb->query( $wpdb->prepare(
+						"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+						$wpdb->esc_like( $transientPrefix.$con->prefix( 'importexport_updatenotified_' ) ).'%'
+					) );
+				}
 			}
 			$con->opts
 				->optSet( 'importexport_whitelist', [] )
@@ -576,6 +606,16 @@ try {
 			$property = $reflection->getProperty( 'cron_hook_identifier' );
 			$property->setAccessible( true );
 			return (string)$property->getValue( $queue );
+		}
+
+		private function notifyCooldownActive( string $masterUrl ) :bool {
+			return \trim( $masterUrl ) !== ''
+				   && \get_transient( $this->notifyCooldownKey( $masterUrl ) ) !== false;
+		}
+
+		private function notifyCooldownKey( string $masterUrl ) :string {
+			return RuntimeTestState::controller()->prefix( 'importexport_updatenotified_' )
+				   .\hash( 'sha256', \strtolower( \trim( $masterUrl ) ) );
 		}
 
 		private function legacyQueue() :WhitelistNotifyQueue {

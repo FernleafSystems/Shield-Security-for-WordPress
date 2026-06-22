@@ -263,8 +263,8 @@ class CrossSitePairManager {
 		$this->wpCapture( $rootDir, self::MASTER, [ 'cron', 'event', 'run', $queueHook ] );
 
 		$queueAfter = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
-		$this->lastDiagnostics[ 'master_queue_after_ping' ] = $queueAfter;
-		$this->assertPostPingQueueState( $queueAfter );
+		$this->lastDiagnostics[ 'master_queue_after_notify_dispatch' ] = $queueAfter;
+		$this->assertPostNotifyDispatchQueueState( $queueAfter );
 	}
 
 	/**
@@ -272,6 +272,7 @@ class CrossSitePairManager {
 	 */
 	private function waitForSlaveImportCompletion( string $rootDir ) :array {
 		$startedAt = \time();
+		$directImportAttempted = false;
 		do {
 			$lastQueueState = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
 			$this->lastDiagnostics[ 'master_queue_after_import' ] = $lastQueueState;
@@ -286,6 +287,35 @@ class CrossSitePairManager {
 				$captured = $this->wpCapture( $rootDir, self::SLAVE, [ 'cron', 'event', 'run', $importHook ], false );
 				if ( $captured[ 'exit_code' ] !== 0 && !$this->isInvalidCronEventFailure( $captured ) ) {
 					throw $this->wpCliFailureException( self::SLAVE, $captured );
+				}
+				continue;
+			}
+
+			if ( $this->isWaitingForSlaveExport( $lastQueueState ) ) {
+				if ( $this->slaveNotificationAccepted( $slaveCron ) ) {
+					if ( !$directImportAttempted ) {
+						$directImportAttempted = true;
+						try {
+							$this->lastDiagnostics[ 'slave_direct_import' ] = $this->runHelper(
+								$rootDir,
+								self::SLAVE,
+								'run-import-from-master'
+							);
+						}
+						catch ( \RuntimeException $exception ) {
+							throw new \RuntimeException(
+								'Slave direct import from master failed: '.$exception->getMessage(),
+								0,
+								$exception
+							);
+						}
+						continue;
+					}
+				}
+				else {
+					throw new \RuntimeException(
+						'Slave did not accept the master import notification; no import event or notify cooldown was visible.'
+					);
 				}
 			}
 
@@ -339,19 +369,27 @@ class CrossSitePairManager {
 		}
 	}
 
-	private function assertPostPingQueueState( array $queueState ) :void {
+	private function assertPostNotifyDispatchQueueState( array $queueState ) :void {
+		$postExportFailure = $this->postExportQueueStateFailure( $queueState );
+		if ( $postExportFailure === null ) {
+			return;
+		}
+
 		$row = $this->findRegistryRow( (array)( $queueState[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
 		if ( !\is_array( $row ) ) {
-			throw new \RuntimeException( 'Master DB-backed site queue lost the slave registry row after ping.' );
+			throw new \RuntimeException( 'Master DB-backed site queue lost the slave registry row after notify dispatch.' );
+		}
+		if ( ( $row[ 'queue_status' ] ?? '' ) === self::QUEUE_IDLE ) {
+			throw new \RuntimeException( $postExportFailure );
 		}
 		if ( ( $row[ 'queue_status' ] ?? '' ) !== self::QUEUE_WAITING_EXPORT ) {
-			throw new \RuntimeException( 'Master DB-backed site queue did not wait for slave export after ping.' );
+			throw new \RuntimeException( 'Master DB-backed site queue did not wait for slave export after notify dispatch.' );
 		}
 		if ( (int)( $row[ 'last_ping_success_at' ] ?? 0 ) <= 0 ) {
-			throw new \RuntimeException( 'Master DB-backed site queue did not record ping success.' );
+			throw new \RuntimeException( 'Master DB-backed site queue did not record notify dispatch.' );
 		}
 		if ( (int)( $row[ 'last_export_success_at' ] ?? 0 ) >= (int)( $row[ 'last_ping_success_at' ] ?? 0 ) ) {
-			throw new \RuntimeException( 'Master DB-backed site queue counted ping success as export sync success.' );
+			throw new \RuntimeException( 'Master DB-backed site queue counted notify dispatch as export sync success.' );
 		}
 	}
 
@@ -378,13 +416,25 @@ class CrossSitePairManager {
 			 || (int)( $row[ 'last_export_success_at' ] ?? 0 ) <= 0 ) {
 			return 'Master DB-backed site queue did not record export request and success.';
 		}
+		if ( (int)( $row[ 'last_ping_success_at' ] ?? 0 ) <= 0 ) {
+			return 'Master DB-backed site queue did not record notify dispatch before export.';
+		}
 		if ( (int)( $row[ 'last_export_success_at' ] ?? 0 ) <= (int)( $row[ 'last_ping_success_at' ] ?? 0 ) ) {
-			return 'Master DB-backed site queue did not record a new export success after ping.';
+			return 'Master DB-backed site queue did not record a new export success after notify dispatch.';
 		}
 		if ( ( $row[ 'last_export_result_code' ] ?? '' ) !== self::EXPORT_RESULT_SUCCESS ) {
 			return 'Master DB-backed site queue did not record export success result code.';
 		}
 		return null;
+	}
+
+	private function isWaitingForSlaveExport( array $queueState ) :bool {
+		$row = $this->findRegistryRow( (array)( $queueState[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
+		return \is_array( $row ) && ( $row[ 'queue_status' ] ?? '' ) === self::QUEUE_WAITING_EXPORT;
+	}
+
+	private function slaveNotificationAccepted( array $slaveCron ) :bool {
+		return !empty( $slaveCron[ 'notify_cooldown_active' ] );
 	}
 
 	/**
