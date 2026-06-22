@@ -13,6 +13,16 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  * @phpstan-import-type ConfigureSearchResult from ConfigureLandingRenderContracts
  * @phpstan-import-type DiagnosisContract from ConfigureLandingRenderContracts
  * @phpstan-import-type DiagnosisFinding from ConfigureLandingRenderContracts
+ * @phpstan-type ScoredConfigureSearchResult array{
+ *   type:'zone'|'option',
+ *   icon_class:string,
+ *   label:string,
+ *   summary:string,
+ *   selection_json:string,
+ *   focus_request_json:string,
+ *   href:string,
+ *   score:int
+ * }
  */
 class ConfigureSearchResultsBuilder {
 
@@ -45,18 +55,18 @@ class ConfigureSearchResultsBuilder {
 		);
 
 		\usort( $results, function ( array $a, array $b ) :int {
-			$scoreCompare = ( $b[ 'score' ] ?? 0 ) <=> ( $a[ 'score' ] ?? 0 );
+			$scoreCompare = $b[ 'score' ] <=> $a[ 'score' ];
 			if ( $scoreCompare !== 0 ) {
 				return $scoreCompare;
 			}
 
-			$typeCompare = $this->typePriority( (string)( $a[ 'type' ] ?? '' ) )
-				<=> $this->typePriority( (string)( $b[ 'type' ] ?? '' ) );
+			$typeCompare = $this->typePriority( $a[ 'type' ] )
+				<=> $this->typePriority( $b[ 'type' ] );
 			if ( $typeCompare !== 0 ) {
 				return $typeCompare;
 			}
 
-			return \strcasecmp( (string)( $a[ 'label' ] ?? '' ), (string)( $b[ 'label' ] ?? '' ) );
+			return \strcasecmp( $a[ 'label' ], $b[ 'label' ] );
 		} );
 
 		return \array_values( \array_map( static function ( array $result ) :array {
@@ -75,6 +85,9 @@ class ConfigureSearchResultsBuilder {
 		return $this->configureLandingViewDataCache;
 	}
 
+	/**
+	 * @return list<ScoredConfigureSearchResult>
+	 */
 	private function buildZoneResults( array $terms ) :array {
 		$results = [];
 		$landingViewData = $this->getConfigureLandingViewData();
@@ -137,6 +150,9 @@ class ConfigureSearchResultsBuilder {
 		) );
 	}
 
+	/**
+	 * @return list<ScoredConfigureSearchResult>
+	 */
 	private function buildOptionResults( array $terms ) :array {
 		$results = [];
 		$stringsOptions = new StringsOptions();
@@ -239,18 +255,15 @@ class ConfigureSearchResultsBuilder {
 		foreach ( $this->getConfigureLandingViewData()[ 'diagnoses' ] as $diagnosis ) {
 			foreach ( $this->getDiagnosisRowsInSearchOrder( $diagnosis ) as $row ) {
 				$expandAction = $row[ 'expand_action' ];
-				if ( empty( $expandAction[ 'is_expandable' ] ) ) {
+				if ( !$expandAction[ 'is_expandable' ] ) {
 					continue;
 				}
 
-				$dataAttributes = $expandAction[ 'data_attributes' ] ?? [];
-				$rowKey = (string)( $row[ 'key' ] ?? '' );
-				$zoneComponentSlug = $this->normalizeCsvString( (string)( $dataAttributes[ 'zone_component_slug' ] ?? '' ) );
-				$optionKeys = $this->normalizeCsvString( (string)( $dataAttributes[ 'option_keys' ] ?? '' ) );
-				$configItem = (string)( $dataAttributes[ 'config_item' ] ?? '' );
-				if ( $rowKey === '' ) {
-					throw new \LogicException( 'Configure search rows require a producer-owned non-empty row key.' );
-				}
+				$dataAttributes = $expandAction[ 'data_attributes' ];
+				$rowKey = $row[ 'key' ];
+				$zoneComponentSlug = $this->normalizeCsvString( $dataAttributes[ 'zone_component_slug' ] );
+				$optionKeys = $this->normalizeCsvString( $dataAttributes[ 'option_keys' ] );
+				$configItem = $dataAttributes[ 'config_item' ] ?? '';
 
 				$this->assignOptionTargets(
 					$lookup,
@@ -333,7 +346,7 @@ class ConfigureSearchResultsBuilder {
 			$lookup[ $optionKey ] = [
 				'zone_key'   => $diagnosis[ 'zone_key' ],
 				'row_key'    => $rowKey,
-				'row_title'  => (string)( $row[ 'title' ] ?? '' ),
+				'row_title'  => $row[ 'title' ],
 				'selection_json' => $diagnosis[ 'zone_selection_json' ],
 				'priority'   => $priority,
 			];

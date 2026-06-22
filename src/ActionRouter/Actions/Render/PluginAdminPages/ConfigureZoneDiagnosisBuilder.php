@@ -276,10 +276,10 @@ class ConfigureZoneDiagnosisBuilder {
 	 * @param DetailGroupRow $row
 	 */
 	private function requireRowKey( array $row ) :string {
-		$rowKey = (string)( $row[ 'key' ] ?? '' );
+		$rowKey = $row[ 'key' ];
 		if ( $rowKey === '' ) {
 			throw new \LogicException(
-				'Configure diagnosis rows require a non-empty producer-owned row key: '.(string)( $row[ 'title' ] ?? '[untitled]' )
+				'Configure diagnosis rows require a non-empty producer-owned row key: '.$row[ 'title' ]
 			);
 		}
 		return $rowKey;
