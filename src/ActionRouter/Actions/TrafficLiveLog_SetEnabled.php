@@ -36,19 +36,19 @@ class TrafficLiveLog_SetEnabled extends BaseAction {
 		if ( $enabled === 'Y' ) {
 			$opts->optSet( 'enable_live_log', 'Y' )
 				 ->optSet( 'live_log_started_at', Services::Request()->ts() );
-			$message = __( 'Live traffic logging has been enabled. Reloading...', 'wp-simple-firewall' );
+			$message = __( 'Live traffic logging has been enabled.', 'wp-simple-firewall' );
 		}
 		else {
 			$opts->optSet( 'enable_live_log', 'N' )
 				 ->optSet( 'live_log_started_at', 0 );
-			$message = __( 'Live traffic logging has been disabled. Reloading...', 'wp-simple-firewall' );
+			$message = __( 'Live traffic logging has been disabled.', 'wp-simple-firewall' );
 		}
 		$opts->store();
 
 		$this->respond(
 			true,
 			$message,
-			true,
+			false,
 			self::con()->comps->opts_lookup->getTrafficLiveLogTimeRemaining()
 		);
 	}

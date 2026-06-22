@@ -1,19 +1,11 @@
 const { test, expect } = require( './support/shield-test' );
 const { openShieldRoute } = require( './support/shield-browser' );
 const {
-	isAdminAjaxRequest,
+	liveTrafficToggleRequest,
 	parseShieldAjaxJson,
-	requestActionSlug,
-	requestPostParam,
 } = require( './support/security-assertions' );
 
 test.setTimeout( 180_000 );
-
-function liveTrafficToggleRequest( actionSlug, enabled ) {
-	return ( request ) => isAdminAjaxRequest( request )
-		&& requestActionSlug( request ) === actionSlug
-		&& requestPostParam( request, 'enabled' ) === enabled;
-}
 
 async function fulfillNextToggleRequest( page, matcher, payload, delayMs = 250 ) {
 	let handled = false;
@@ -64,13 +56,6 @@ async function fulfillNextToggleRequest( page, matcher, payload, delayMs = 250 )
 	};
 }
 
-function waitForMainFrameNavigation( page ) {
-	return page.waitForEvent( 'framenavigated', {
-		predicate: ( frame ) => frame === page.mainFrame(),
-		timeout: 20_000,
-	} );
-}
-
 test( 'live traffic toggle restores failed enable request without changing server state', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withLiveTrafficToggleFixture( async ( contract ) => {
 		await openShieldRoute( page, contract.route );
@@ -116,16 +101,18 @@ test( 'live traffic toggle enables and disables through real action responses', 
 		const toggle = page.locator( contract.selectors.toggle );
 		await expect( toggle ).toBeEnabled();
 		await expect( toggle ).not.toBeChecked();
+		const initialUrl = page.url();
 
 		const enableResponse = page.waitForResponse(
 			( response ) => liveTrafficToggleRequest( contract.action_slug, 'Y' )( response.request() )
 		);
-		const enableNavigation = waitForMainFrameNavigation( page );
 		await toggle.check();
 		const enablePayload = parseShieldAjaxJson( await ( await enableResponse ).text() );
 		expect( enablePayload ).toHaveProperty( 'success', true );
-		expect( enablePayload.data.page_reload ).toBe( true );
-		await enableNavigation;
+		expect( enablePayload.data.page_reload ).toBe( false );
+		expect( enablePayload.data.message ).toBe( 'Live traffic logging has been enabled.' );
+		await page.waitForTimeout( 2_300 );
+		expect( page.url() ).toBe( initialUrl );
 
 		const enabledToggle = page.locator( contract.selectors.toggle );
 		await expect( enabledToggle ).toBeChecked();
@@ -136,12 +123,13 @@ test( 'live traffic toggle enables and disables through real action responses', 
 		const disableResponse = page.waitForResponse(
 			( response ) => liveTrafficToggleRequest( contract.action_slug, 'N' )( response.request() )
 		);
-		const disableNavigation = waitForMainFrameNavigation( page );
 		await enabledToggle.uncheck();
 		const disablePayload = parseShieldAjaxJson( await ( await disableResponse ).text() );
 		expect( disablePayload ).toHaveProperty( 'success', true );
-		expect( disablePayload.data.page_reload ).toBe( true );
-		await disableNavigation;
+		expect( disablePayload.data.page_reload ).toBe( false );
+		expect( disablePayload.data.message ).toBe( 'Live traffic logging has been disabled.' );
+		await page.waitForTimeout( 2_300 );
+		expect( page.url() ).toBe( initialUrl );
 
 		await expect( page.locator( contract.selectors.toggle ) ).not.toBeChecked();
 		inspected = await fixtureApi.inspectLiveTrafficToggleFixture();

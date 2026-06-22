@@ -88,6 +88,16 @@ function isAjaxRenderRequest( request, renderSlug ) {
 		&& requestPostParam( request, 'render_slug' ) === renderSlug;
 }
 
+function isLiveTrafficPollRequest( request ) {
+	return isAjaxRenderRequest( request, 'render_traffic_live_logs' );
+}
+
+function liveTrafficToggleRequest( actionSlug, enabled ) {
+	return ( request ) => isAdminAjaxRequest( request )
+		&& requestActionSlug( request ) === actionSlug
+		&& requestPostParam( request, 'enabled' ) === enabled;
+}
+
 function parseShieldAjaxJson( rawPayload ) {
 	const openJsonTag = '##APTO_OPEN##';
 	const closeJsonTag = '##APTO_CLOSE##';
@@ -274,7 +284,9 @@ module.exports = {
 	investigationTableResponseMatcher,
 	isAjaxRenderRequest,
 	isAdminAjaxRequest,
+	isLiveTrafficPollRequest,
 	isShieldAjaxBatchRequestWithRenderSlugs,
+	liveTrafficToggleRequest,
 	openBlockRecoveryModal,
 	openPublicBlockPage,
 	parseShieldAjaxJson,

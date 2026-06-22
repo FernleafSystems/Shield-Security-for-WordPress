@@ -26,17 +26,31 @@
 }
 
 .traffic-live-log-topbar__dot {
-	background: $status-color-warning;
+	background: #8f969e;
 	border-radius: 50%;
-	box-shadow: 0 0 0 0.24rem $status-bg-warning-light;
+	box-shadow: 0 0 0 0.24rem rgba( 100, 105, 112, 0.12 );
 	flex: 0 0 auto;
 	height: 0.65rem;
 	width: 0.65rem;
 }
 
 .traffic-live-log-topbar.is-enabled .traffic-live-log-topbar__dot {
-	background: $status-color-good;
-	box-shadow: 0 0 0 0.24rem $status-bg-good-light;
+	animation: shield-live-log-capture-pulse 1.4s ease-in-out infinite;
+	background: $status-color-warning;
+	box-shadow: 0 0 0 0.24rem $status-bg-warning-light;
+}
+
+@keyframes shield-live-log-capture-pulse {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0.2rem rgba( $status-color-warning, 0.22 );
+		opacity: 0.76;
+	}
+
+	50% {
+		box-shadow: 0 0 0 0.42rem rgba( $status-color-warning, 0.08 );
+		opacity: 1;
+	}
 }
 
 .traffic-live-log-topbar h5,

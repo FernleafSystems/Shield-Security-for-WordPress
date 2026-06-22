@@ -93,16 +93,19 @@ class TrafficLogLivePageIntegrationTest extends ShieldIntegrationTestCase {
 		$routeRenderData = $this->requireRenderData( $routePayload );
 		$fullRenderData = $this->requireRenderData( $fullPayload );
 		$panelRenderData = $this->requireRenderData( $panelPayload );
+		$fullControl = $this->liveLogControl( $fullRenderData );
+		$panelControl = $this->liveLogControl( $panelRenderData );
 
 		$this->assertIsArray( $routeRenderData[ 'vars' ] );
 		$routeVars = $routeRenderData[ 'vars' ];
 
 		$this->assertSame( PluginNavs::SUBNAV_LIVE, $routeVars[ 'active_module_settings' ] );
-		$this->assertSame(
-			$fullRenderData[ 'ajax' ][ 'load_live_logs' ],
-			$panelRenderData[ 'ajax' ][ 'load_live_logs' ]
-		);
-		$this->assertSame( $this->liveLogControl( $fullRenderData ), $this->liveLogControl( $panelRenderData ) );
+		$this->assertSame( 'traffic_page', $fullControl[ 'owner' ] );
+		$this->assertSame( 'investigate_panel', $panelControl[ 'owner' ] );
+		$this->assertSame( $fullControl[ 'id' ], $panelControl[ 'id' ] );
+		$this->assertSame( $fullControl[ 'is_available' ], $panelControl[ 'is_available' ] );
+		$this->assertSame( $fullControl[ 'is_enabled' ], $panelControl[ 'is_enabled' ] );
+		$this->assertSame( $fullControl[ 'time_remaining' ], $panelControl[ 'time_remaining' ] );
 		$this->assertSame(
 			$fullRenderData[ 'imgs' ][ 'inner_page_title_icon' ],
 			$panelRenderData[ 'imgs' ][ 'inner_page_title_icon' ]
@@ -124,12 +127,29 @@ class TrafficLogLivePageIntegrationTest extends ShieldIntegrationTestCase {
 		$control = $this->liveLogControl( $renderData );
 
 		$this->assertSame( 'TrafficLiveLogToggle', $control[ 'id' ] );
+		$this->assertSame( 'traffic_page', $control[ 'owner' ] );
 		$this->assertTrue( (bool)$control[ 'is_available' ] );
 		$this->assertTrue( (bool)$control[ 'is_enabled' ] );
 		$this->assertGreaterThan( 0, $control[ 'time_remaining' ] );
 		$this->assertArrayNotHasKey( 'is_enabled', $renderData[ 'flags' ] );
 		$this->assertStringContainsString( 'data-traffic-live-log-toggle="1"', (string)$payload[ 'render_output' ] );
+		$this->assertStringContainsString( 'data-traffic-live-log-owner="traffic_page"', (string)$payload[ 'render_output' ] );
 		$this->assertStringNotContainsString( 'data-zone_component_slug="request_live_logging"', (string)$payload[ 'render_output' ] );
+	}
+
+	public function test_live_traffic_page_omits_redundant_off_state_notice() :void {
+		$this->enablePremiumCapabilities( [ 'traffic_live_log' ] );
+		$this->requireController()->opts
+			->optSet( 'enable_live_log', 'N' )
+			->optSet( 'live_log_started_at', 0 )
+			->store();
+
+		$payload = $this->renderLiveTrafficInnerPage();
+
+		$this->assertStringNotContainsString(
+			'Live traffic capture is off, so quiet requests without parameters may not appear here.',
+			(string)$payload[ 'render_output' ]
+		);
 	}
 
 	public function test_live_traffic_page_contract_disables_switch_when_capability_unavailable() :void {
@@ -143,6 +163,7 @@ class TrafficLogLivePageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertFalse( (bool)$control[ 'is_available' ] );
 		$this->assertFalse( (bool)$control[ 'is_enabled' ] );
+		$this->assertSame( 'traffic_page', $control[ 'owner' ] );
 		$this->assertSame( 0, $control[ 'time_remaining' ] );
 	}
 
@@ -161,8 +182,9 @@ class TrafficLogLivePageIntegrationTest extends ShieldIntegrationTestCase {
 		$after = Services::Request()->ts();
 
 		$this->assertTrue( (bool)$payload[ 'success' ] );
-		$this->assertTrue( (bool)$payload[ 'page_reload' ] );
+		$this->assertFalse( (bool)$payload[ 'page_reload' ] );
 		$this->assertTrue( (bool)$payload[ 'is_enabled' ] );
+		$this->assertSame( 'Live traffic logging has been enabled.', $payload[ 'message' ] );
 		$this->assertGreaterThan( 0, $payload[ 'time_remaining' ] );
 		$this->assertSame( 'Y', (string)$con->opts->optGet( 'enable_live_log' ) );
 		$startedAt = (int)$con->opts->optGet( 'live_log_started_at' );
@@ -183,8 +205,9 @@ class TrafficLogLivePageIntegrationTest extends ShieldIntegrationTestCase {
 		] )->payload();
 
 		$this->assertTrue( (bool)$payload[ 'success' ] );
-		$this->assertTrue( (bool)$payload[ 'page_reload' ] );
+		$this->assertFalse( (bool)$payload[ 'page_reload' ] );
 		$this->assertFalse( (bool)$payload[ 'is_enabled' ] );
+		$this->assertSame( 'Live traffic logging has been disabled.', $payload[ 'message' ] );
 		$this->assertSame( 0, $payload[ 'time_remaining' ] );
 		$this->assertSame( 'N', (string)$con->opts->optGet( 'enable_live_log' ) );
 		$this->assertSame( 0, (int)$con->opts->optGet( 'live_log_started_at' ) );

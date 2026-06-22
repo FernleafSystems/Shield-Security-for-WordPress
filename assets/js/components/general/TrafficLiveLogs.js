@@ -7,20 +7,20 @@ import { ObjectOps } from "../../util/ObjectOps";
 export class TrafficLiveLogs extends BaseComponent {
 
 	init() {
-		this.liveLogsSection = document.getElementById( 'SectionTrafficLiveLogs' );
+		this.liveLogsSection = this.getLiveLogsSection();
 		this.poller = null;
 		this.hasAnnouncedInitialLoad = false;
 		this.lastPollFailed = false;
 		this.lastPollFailureMessage = '';
+		this.registerLiveLogToggle();
 		this.exec();
 	}
 
 	canRun() {
-		return this.liveLogsSection instanceof HTMLElement;
+		return this.isTrafficPageSection( this.liveLogsSection );
 	}
 
 	run() {
-		this.registerLiveLogToggle();
 		this.focusOutput();
 		this.announceLiveLogsStatus( this.getLiveLogsLoadingMessage(), {
 			politeness: 'polite',
@@ -56,11 +56,41 @@ export class TrafficLiveLogs extends BaseComponent {
 		.then( ( resp ) => {
 			if ( !resp?.success ) {
 				toggle.checked = previousState;
+				this.syncLiveLogControl( toggle, previousState );
+				return;
 			}
+
+			if ( typeof resp?.data?.is_enabled === 'boolean' ) {
+				toggle.checked = resp.data.is_enabled;
+			}
+			this.syncLiveLogControl( toggle, toggle.checked );
 		} )
 		.finally( () => {
 			toggle.disabled = false;
 		} );
+	}
+
+	syncLiveLogControl( toggle, isEnabled ) {
+		const section = toggle.closest( '#SectionTrafficLiveLogs' );
+		const topbar = section?.querySelector( '[data-traffic-live-log-control]' ) || null;
+		if ( topbar instanceof HTMLElement ) {
+			topbar.classList.toggle( 'is-enabled', Boolean( isEnabled ) );
+		}
+
+		const summary = section?.querySelector( '[data-traffic-live-log-summary]' ) || null;
+		if ( summary instanceof HTMLElement ) {
+			if ( isEnabled ) {
+				summary.textContent = this.normalizeStatusMessage(
+					summary.dataset.liveLogEnabledSummary,
+					''
+				);
+				summary.hidden = summary.textContent.length < 1;
+			}
+			else {
+				summary.textContent = '';
+				summary.hidden = true;
+			}
+		}
 	}
 
 	focusOutput() {
@@ -153,5 +183,14 @@ export class TrafficLiveLogs extends BaseComponent {
 	normalizeStatusMessage( message, fallback ) {
 		const text = String( message || '' ).trim();
 		return text.length > 0 ? text : fallback;
+	}
+
+	getLiveLogsSection() {
+		return document.getElementById( 'SectionTrafficLiveLogs' );
+	}
+
+	isTrafficPageSection( section ) {
+		return section instanceof HTMLElement
+			&& String( section.dataset.trafficLiveLogOwner || '' ) === 'traffic_page';
 	}
 }
