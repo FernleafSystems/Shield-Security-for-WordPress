@@ -58,6 +58,26 @@ class CloakedPluginFindingTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'path', $alertData );
 	}
 
+	public function testIdentityKeyIsStableForTypeAndFileOnly() :void {
+		$first = new CloakedPluginFinding(
+			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'First Name', '1.2.3', '/plugins/cloaked/cloaked.php' ),
+			[ CloakReason::AllPlugins ],
+			true,
+			false,
+			123456
+		);
+		$second = new CloakedPluginFinding(
+			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Second Name', '9.9.9', '/plugins/cloaked/cloaked.php' ),
+			[ CloakReason::PluginsList ],
+			false,
+			true,
+			654321
+		);
+
+		$this->assertSame( $first->identityKey(), $second->identityKey() );
+		$this->assertNotSame( $first->fingerprint(), $second->fingerprint() );
+	}
+
 	public function testAuditParamsContractIsCompleteAndStable() :void {
 		$finding = new CloakedPluginFinding(
 			new PluginEntry( PluginType::MustUse, 'loader.php', 'Loader', '', '/mu-plugins/loader.php' ),

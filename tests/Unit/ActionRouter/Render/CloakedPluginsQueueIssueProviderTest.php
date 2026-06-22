@@ -11,6 +11,10 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
+	CloakedPluginIgnore,
+	CloakedPluginUnignore
+};
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\CloakedPluginsQueueIssueProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	CloakedPluginFinding,
@@ -21,22 +25,58 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
-	UnitTestControllerFactory
+	ServicesState,
+	UnitTestControllerFactory,
+	UnitTestGeneral,
+	UnitTestRequest,
+	UnitTestUsers
 };
 
 class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 
+	private array $servicesSnapshot = [];
+
 	protected function setUp() :void {
 		parent::setUp();
+		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
+			\define( 'HOUR_IN_SECONDS', 3600 );
+		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
+		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
+		Functions\when( 'wp_hash' )->alias(
+			static fn( string $data, string $scheme = 'auth' ) :string => 'hash-'.$scheme.'-'.$data
+		);
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blog = null, string $path = '' ) :string => '/wp-json/'.\ltrim( $path, '/' )
+		);
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static function ( $value ) {
+				if ( \is_array( $value ) ) {
+					return \array_map( 'rawurlencode', $value );
+				}
+				return \rawurlencode( (string)$value );
+			}
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $params, string $url ) :string {
+				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\http_build_query( $params );
+			}
+		);
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::mergeItems( [
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_request'   => new UnitTestRequest(),
+			'service_wpusers'   => new UnitTestUsers( 7 ),
+		] );
 		UnitTestControllerFactory::install();
 	}
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 
@@ -64,7 +104,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$this->assertSame( 'critical', $attentionItem[ 'severity' ] );
 		$this->assertSame( 1, $attentionItem[ 'count' ] );
 		$this->assertSame( 0, $attentionItem[ 'ignored_count' ] );
-		$this->assertFalse( $attentionItem[ 'supports_sub_items' ] );
+		$this->assertTrue( $attentionItem[ 'supports_sub_items' ] );
 		$this->assertSame( '/admin/scans/overview?zone=scans', $attentionItem[ 'href' ] );
 
 		$assessmentRow = $assessmentRows[ 0 ];
@@ -87,6 +127,9 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$this->assertSame( [], $row[ 'expansion' ] );
 		$this->assertSame( '/deactivate-cloaked', $row[ 'actions' ][ 0 ][ 'href' ] );
 		$this->assertSame( 'deactivate', $row[ 'actions' ][ 0 ][ 'type' ] );
+		$this->assertTrue( $row[ 'actions' ][ 1 ][ 'is_action' ] );
+		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 1 ] )[ 'ex' ] ?? '' );
+		$this->assertSame( '1', $row[ 'actions' ][ 1 ][ 'attributes' ][ 'data-operator-context-action-ajax' ] );
 		$this->assertStringContainsString( '/plugins/cloaked/cloaked.php', \implode( "\n", $row[ 'explanations' ] ) );
 	}
 
@@ -121,10 +164,11 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 
 		$this->assertSame( '/plugins-search', $row[ 'actions' ][ 0 ][ 'href' ] );
 		$this->assertSame( 'navigate', $row[ 'actions' ][ 0 ][ 'type' ] );
+		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 1 ] )[ 'ex' ] ?? '' );
 		$this->assertStringContainsString( 'Final Plugins List', \implode( "\n", $row[ 'explanations' ] ) );
 	}
 
-	public function test_must_use_plugin_has_manual_remediation_without_action_link() :void {
+	public function test_must_use_plugin_has_manual_remediation_with_ignore_action() :void {
 		$provider = new CloakedPluginsQueueIssueProviderTestDouble(
 			[
 				$this->finding(
@@ -138,9 +182,37 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 
 		$row = $provider->railPaneData()[ 'items' ][ 0 ];
 
-		$this->assertSame( [], $row[ 'actions' ] );
+		$this->assertCount( 1, $row[ 'actions' ] );
+		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ex' ] ?? '' );
 		$this->assertStringContainsString( '/mu-plugins/loader.php', \implode( "\n", $row[ 'explanations' ] ) );
 		$this->assertStringContainsString( 'manual', \strtolower( \implode( "\n", $row[ 'explanations' ] ) ) );
+	}
+
+	public function test_ignored_plugin_is_shown_in_detail_without_active_attention_item() :void {
+		$ignoredFinding = $this->finding(
+			new PluginEntry( PluginType::Standard, 'quiet/quiet.php', 'Quiet Plugin', '2.0.0', '/plugins/quiet/quiet.php' ),
+			[ CloakReason::PluginsList ],
+			false
+		);
+		$provider = new CloakedPluginsQueueIssueProviderTestDouble(
+			[],
+			'',
+			'',
+			[ $ignoredFinding ]
+		);
+
+		$this->assertSame( [], $provider->attentionItems() );
+
+		$pane = $provider->railPaneData();
+		$this->assertSame( 'good', $pane[ 'status' ] );
+		$this->assertSame( 0, $pane[ 'count_items' ] );
+		$this->assertCount( 1, $pane[ 'items' ] );
+
+		$row = $pane[ 'items' ][ 0 ];
+		$this->assertSame( 'good', $row[ 'status' ] );
+		$this->assertSame( 'Ignored', $row[ 'status_label' ] );
+		$this->assertSame( CloakedPluginUnignore::SLUG, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ex' ] ?? '' );
+		$this->assertSame( $ignoredFinding->identityKey(), $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'finding_id' ] ?? '' );
 	}
 
 	private function finding(
@@ -151,22 +223,40 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 	) :CloakedPluginFinding {
 		return new CloakedPluginFinding( $entry, $cloakReasons, $active, $networkActive, 1700000000 );
 	}
+
+	private function decodeAction( array $action ) :array {
+		$decoded = \json_decode( $action[ 'attributes' ][ 'data-operator-context-action-json' ] ?? '', true );
+		return \is_array( $decoded ) ? $decoded : [];
+	}
 }
 
 class CloakedPluginsQueueIssueProviderTestDouble extends CloakedPluginsQueueIssueProvider {
 
-	private array $findings;
+	private array $activeFindings;
+	private array $ignoredFindings;
 	private string $deactivateUrl;
 	private string $pluginsSearchUrl;
 
-	public function __construct( array $findings, string $deactivateUrl = '', string $pluginsSearchUrl = '' ) {
-		$this->findings = $findings;
+	public function __construct(
+		array $activeFindings,
+		string $deactivateUrl = '',
+		string $pluginsSearchUrl = '',
+		array $ignoredFindings = []
+	) {
+		$this->activeFindings = $activeFindings;
+		$this->ignoredFindings = $ignoredFindings;
 		$this->deactivateUrl = $deactivateUrl;
 		$this->pluginsSearchUrl = $pluginsSearchUrl;
 	}
 
-	protected function findings() :array {
-		return $this->findings;
+	protected function state() :array {
+		return [
+			'all'               => \array_merge( $this->activeFindings, $this->ignoredFindings ),
+			'active'            => $this->activeFindings,
+			'ignored'           => $this->ignoredFindings,
+			'system_suppressed' => [],
+			'new_active'        => [],
+		];
 	}
 
 	protected function deactivateUrl( string $pluginFile ) :string {

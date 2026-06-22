@@ -44,6 +44,8 @@ class Constants {
 		Actions\LicenseLookup::class,
 		Actions\LicenseCheckDebug::class,
 		Actions\LicenseScheduleCheck::class,
+		Actions\CloakedPluginIgnore::class,
+		Actions\CloakedPluginUnignore::class,
 		Actions\MaintenanceItemIgnore::class,
 		Actions\MaintenanceItemUnignore::class,
 		Actions\MainWP\MainwpExtensionTableSites::class,

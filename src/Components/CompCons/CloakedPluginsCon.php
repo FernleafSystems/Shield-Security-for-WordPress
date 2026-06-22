@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	PhpFileActivity,
 	PhpFileActivityClassifier,
 	PluginEntry,
+	PluginPageView,
 	PluginVisibilityComparator,
 	RawPluginInventory
 };
@@ -17,6 +18,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Ha
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-import-type CloakedPluginFindingState from CloakedPluginState
+ */
 class CloakedPluginsCon {
 
 	use ExecOnce;
@@ -25,9 +29,9 @@ class CloakedPluginsCon {
 	private bool $isDetecting = false;
 
 	/**
-	 * @var list<CloakedPluginFinding>|null
+	 * @var CloakedPluginFindingState|null
 	 */
-	private ?array $currentFindings = null;
+	private ?array $currentState = null;
 
 	protected function canRun() :bool {
 		return self::con()->comps->opts_lookup->isPluginEnabled()
@@ -42,6 +46,7 @@ class CloakedPluginsCon {
 		add_action( 'update_option_active_plugins', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 3 );
 		add_action( 'update_site_option_active_sitewide_plugins', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 4 );
 		add_filter( 'plugins_list', [ $this, 'observePluginsList' ], \PHP_INT_MAX );
+		( new PluginPageView() )->addHooks();
 	}
 
 	public function triggerDetection( ...$args ) :void {
@@ -61,11 +66,19 @@ class CloakedPluginsCon {
 	 * @return list<CloakedPluginFinding>
 	 */
 	public function currentFindings() :array {
-		if ( $this->currentFindings !== null ) {
-			return $this->currentFindings;
+		return $this->currentState()[ 'active' ];
+	}
+
+	/**
+	 * @return CloakedPluginFindingState
+	 */
+	public function currentState() :array {
+		if ( $this->currentState !== null ) {
+			return $this->currentState;
 		}
 
-		return $this->currentFindings = $this->detect();
+		$this->detect();
+		return $this->currentState ?? $this->emptyState();
 	}
 
 	/**
@@ -88,17 +101,18 @@ class CloakedPluginsCon {
 				$entries,
 				( new AdminPluginVisibility() )->snapshot( $finalPluginsList )
 			);
+			$state = ( new CloakedPluginState() )->classify( $findings );
 
-			$newFindings = ( new CloakedPluginState() )->rememberNew( $findings );
+			$newFindings = $state[ 'new_active' ];
 			if ( !empty( $newFindings ) ) {
 				$this->publishFindings( $newFindings );
 			}
 
 			if ( $finalPluginsList === null ) {
-				$this->currentFindings = $findings;
+				$this->currentState = $state;
 			}
 
-			return $findings;
+			return $state[ 'active' ];
 		}
 		finally {
 			$this->isDetecting = false;
@@ -132,5 +146,18 @@ class CloakedPluginsCon {
 		$search = (string)$req->query( 's' );
 
 		return $search === '' && ( $status === '' || $status === 'all' );
+	}
+
+	/**
+	 * @return CloakedPluginFindingState
+	 */
+	private function emptyState() :array {
+		return [
+			'all'               => [],
+			'active'            => [],
+			'ignored'           => [],
+			'system_suppressed' => [],
+			'new_active'        => [],
+		];
 	}
 }

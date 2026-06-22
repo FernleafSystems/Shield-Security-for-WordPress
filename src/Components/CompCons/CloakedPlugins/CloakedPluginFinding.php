@@ -64,6 +64,13 @@ class CloakedPluginFinding {
 		] ) ?: $this->entry->type.'|'.$this->entry->file );
 	}
 
+	public function identityKey() :string {
+		return \sha1( \json_encode( [
+			'type' => $this->entry->type,
+			'file' => $this->entry->file,
+		] ) ?: $this->entry->type.'|'.$this->entry->file );
+	}
+
 	public function status() :string {
 		if ( $this->entry->type === PluginType::MustUse ) {
 			return 'must-use';

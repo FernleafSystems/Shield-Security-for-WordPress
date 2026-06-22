@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginFinding;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\URL;
 
 /**
  * @phpstan-import-type CloakedPluginAlertData from CloakedPluginFinding
@@ -15,9 +14,6 @@ class EmailInstantAlertCloakedPlugins extends EmailInstantAlertBase {
 
 	protected function getBodyData() :array {
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getBodyData(), [
-			'hrefs'   => [
-				'url_plugins' => Services::WpGeneral()->getAdminUrl( 'plugins.php' ),
-			],
 			'strings' => [
 				'intro' => [
 					__( 'A plugin file is present on disk but is cloaked from the WordPress admin plugin list.', 'wp-simple-firewall' ),
@@ -64,18 +60,8 @@ class EmailInstantAlertCloakedPlugins extends EmailInstantAlertBase {
 				$this->alertLine( __( 'Cloaked By', 'wp-simple-firewall' ), $cloakedBy ),
 				$this->alertLine( __( 'Location', 'wp-simple-firewall' ), $finding[ 'location' ], self::LINE_STYLE_CODE ),
 			],
-			$this->pluginsUrl( $finding[ 'type' ], $finding[ 'status' ] )
+			self::con()->plugin_urls->cloakedPlugins(),
+			__( 'Review Cloaked Plugins', 'wp-simple-firewall' )
 		);
-	}
-
-	private function pluginsUrl( string $type, string $status ) :string {
-		$url = Services::WpGeneral()->getAdminUrl( 'plugins.php' );
-		if ( $type === 'mu-plugin' ) {
-			return URL::Build( $url, [ 'plugin_status' => 'mustuse' ] );
-		}
-		if ( \in_array( $status, [ 'active', 'inactive' ], true ) ) {
-			return URL::Build( $url, [ 'plugin_status' => $status ] );
-		}
-		return $url;
 	}
 }

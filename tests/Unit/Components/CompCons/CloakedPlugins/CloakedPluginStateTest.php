@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	PluginEntry,
 	PluginType
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\MU\MUHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -59,6 +60,62 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		$this->assertSame( [ $finding ], $state->rememberNew( [ $finding ] ) );
 	}
 
+	public function testClassifyExcludesIgnoredFindingFromActiveAndNewActive() :void {
+		$state = new CloakedPluginStateTestDouble( false );
+		$finding = $this->finding( 'cloaked/cloaked.php' );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [
+			$finding->identityKey(),
+			'not-a-valid-identity',
+		];
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertSame( [], $result[ 'active' ] );
+		$this->assertSame( [ $finding ], $result[ 'ignored' ] );
+		$this->assertSame( [], $result[ 'new_active' ] );
+		$this->assertSame(
+			[ $finding->identityKey() ],
+			$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ]
+		);
+		$this->assertCount( 1, $this->opts->values[ CloakedPluginState::OPT_KEY ] );
+	}
+
+	public function testClassifySuppressesExpectedShieldMuLoader() :void {
+		$state = new CloakedPluginStateTestDouble( true );
+		$finding = new CloakedPluginFinding(
+			new PluginEntry( PluginType::MustUse, MUHandler::PLUGIN_FILE_NAME, 'Shield MU', '1.0', '/mu-plugins/'.MUHandler::PLUGIN_FILE_NAME ),
+			[ CloakReason::ShowAdvancedPlugins ],
+			true,
+			false,
+			123
+		);
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertSame( [], $result[ 'active' ] );
+		$this->assertSame( [], $result[ 'ignored' ] );
+		$this->assertSame( [ $finding ], $result[ 'system_suppressed' ] );
+		$this->assertSame( [], $result[ 'new_active' ] );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::OPT_KEY ] );
+	}
+
+	public function testClassifyDoesNotSuppressShieldMuLoaderWhenUnexpected() :void {
+		$state = new CloakedPluginStateTestDouble( false );
+		$finding = new CloakedPluginFinding(
+			new PluginEntry( PluginType::MustUse, MUHandler::PLUGIN_FILE_NAME, 'Shield MU', '1.0', '/mu-plugins/'.MUHandler::PLUGIN_FILE_NAME ),
+			[ CloakReason::ShowAdvancedPlugins ],
+			true,
+			false,
+			123
+		);
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertSame( [ $finding ], $result[ 'active' ] );
+		$this->assertSame( [ $finding ], $result[ 'new_active' ] );
+		$this->assertSame( [], $result[ 'system_suppressed' ] );
+	}
+
 	private function finding( string $file ) :CloakedPluginFinding {
 		return new CloakedPluginFinding(
 			new PluginEntry( PluginType::Standard, $file, 'Cloaked', '1.0', '/plugins/'.$file ),
@@ -70,10 +127,24 @@ class CloakedPluginStateTest extends BaseUnitTest {
 	}
 }
 
+class CloakedPluginStateTestDouble extends CloakedPluginState {
+
+	private bool $isShieldMuExpected;
+
+	public function __construct( bool $isShieldMuExpected ) {
+		$this->isShieldMuExpected = $isShieldMuExpected;
+	}
+
+	protected function isShieldMuExpected() :bool {
+		return $this->isShieldMuExpected;
+	}
+}
+
 class CloakedPluginStateOptionsStub {
 
 	public array $values = [
 		CloakedPluginState::OPT_KEY => [],
+		CloakedPluginState::IGNORE_OPT_KEY => [],
 	];
 
 	public function optGet( string $key ) {

@@ -1200,8 +1200,9 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'hidden_plugins', $payload[ 'selected_group' ][ 'key' ] );
 		$this->assertSame( 'good', $payload[ 'selected_group' ][ 'status' ] );
 		$this->assertSame( 'expandable', $payload[ 'selected_group' ][ 'card_type' ] );
-		$this->assertFalse( $payload[ 'selected_group' ][ 'is_interactive' ] );
+		$this->assertTrue( $payload[ 'selected_group' ][ 'is_interactive' ] );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'render_action_data' ] );
+		$this->assertSame( 'scanresults_cloakedplugins', $payload[ 'selected_group' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'actions' ] );
 	}
 

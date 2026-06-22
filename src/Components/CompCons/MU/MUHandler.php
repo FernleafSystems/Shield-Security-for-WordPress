@@ -50,6 +50,10 @@ class MUHandler {
 		return Services::WpFs()->isAccessibleFile( $this->getMuFilePath() );
 	}
 
+	public function isExpectedMU(): bool {
+		return self::con()->opts->optIs( self::OPT_ENABLE_MU, 'Y' ) && $this->isActiveMU();
+	}
+
 	/**
 	 * @throws \Exception
 	 */

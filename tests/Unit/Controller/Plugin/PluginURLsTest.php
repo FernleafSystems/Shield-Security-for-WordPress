@@ -132,6 +132,7 @@ class PluginURLsTest extends BaseUnitTest {
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=license&nav_sub=check', $urls->licenseCheck() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=build', $urls->rulesBuild() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=manage', $urls->rulesManage() );
+		$this->assertSame( '/wp-admin/plugins.php?plugin_status=cloaked', $urls->cloakedPlugins() );
 	}
 
 	public function test_report_view_builds_admin_shield_action_without_signature_or_nonce() :void {

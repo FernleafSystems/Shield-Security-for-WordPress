@@ -78,6 +78,10 @@ class UnitTestPluginUrls {
 		return empty( $zone ) ? $url : $url.'?zone='.$zone;
 	}
 
+	public function cloakedPlugins() :string {
+		return '/wp-admin/plugins.php?plugin_status=cloaked';
+	}
+
 	public function noncedPluginAction( string $action, ?string $url = null, array $aux = [] ) :string {
 		$params = \array_merge( [
 			'action'  => 'shield_action',

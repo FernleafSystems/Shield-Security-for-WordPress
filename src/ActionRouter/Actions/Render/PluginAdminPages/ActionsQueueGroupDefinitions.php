@@ -115,7 +115,7 @@ class ActionsQueueGroupDefinitions {
 			'section_order'            => 5,
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
-			'healthy_interaction_mode' => 'none',
+			'healthy_interaction_mode' => 'default_detail',
 			'render_action_class'      => CloakedPlugins::class,
 			'render_action_data'       => [],
 		],

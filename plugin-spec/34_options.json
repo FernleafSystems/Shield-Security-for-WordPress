@@ -924,6 +924,15 @@
         "sensitive": true
     },
     {
+        "key": "ignored_hidden_plugins",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "transferable": false,
+        "tracking_exclude": true,
+        "sensitive": true
+    },
+    {
         "key": "is_scan_cron",
         "section": "section_hidden",
         "tracking_exclude": true,

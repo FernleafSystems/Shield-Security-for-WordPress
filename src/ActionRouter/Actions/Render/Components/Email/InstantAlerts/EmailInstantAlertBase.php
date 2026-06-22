@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @phpstan-type InstantAlertLine array{label:string,value:string,style:string}
- * @phpstan-type InstantAlertItem array{href:string,lines:list<InstantAlertLine>}
+ * @phpstan-type InstantAlertItem array{href:string,cta_label:string,lines:list<InstantAlertLine>}
  * @phpstan-type InstantAlertGroup array{title:string,items:list<InstantAlertItem>}
  */
 abstract class EmailInstantAlertBase extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\EmailBase {
@@ -52,10 +52,11 @@ abstract class EmailInstantAlertBase extends \FernleafSystems\Wordpress\Plugin\S
 	 * @param list<InstantAlertLine> $lines
 	 * @return InstantAlertItem
 	 */
-	protected function alertItem( array $lines, string $href = '' ) :array {
+	protected function alertItem( array $lines, string $href = '', string $ctaLabel = '' ) :array {
 		return [
-			'href'  => $this->safeHref( $href ),
-			'lines' => \array_values( $lines ),
+			'href'      => $this->safeHref( $href ),
+			'cta_label' => $this->displayText( $ctaLabel !== '' ? $ctaLabel : __( 'Review', 'wp-simple-firewall' ) ),
+			'lines'     => \array_values( $lines ),
 		];
 	}
 

@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\FileDownloadAsStream,
 	Constants
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\PluginPageView;
 use FernleafSystems\Wordpress\Plugin\Shield\Enum\EnumModules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -91,6 +92,17 @@ class PluginURLs {
 		$url = $this->adminTopNav( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_OVERVIEW );
 		$zone = sanitize_key( $zone );
 		return empty( $zone ) ? $url : URL::Build( $url, [ 'zone' => $zone ] );
+	}
+
+	public function cloakedPlugins() :string {
+		return URL::Build(
+			Services::WpGeneral()->getAdminUrl_Plugins(
+				(bool)( self::con()->cfg->properties[ 'wpms_network_admin_only' ] ?? false )
+			),
+			[
+				'plugin_status' => PluginPageView::STATUS,
+			]
+		);
 	}
 
 	public function scansRun() :string {
