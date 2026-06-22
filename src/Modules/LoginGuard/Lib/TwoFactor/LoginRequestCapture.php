@@ -78,9 +78,7 @@ class LoginRequestCapture {
 	}
 
 	private function canUserMfaSkip( \WP_User $user ) :bool {
-		return (bool)apply_filters( 'shield/2fa_skip',
-			apply_filters( 'odp-shield-2fa_skip', ( new MfaSkip() )->canMfaSkip( $user ) )
-		);
+		return (bool)apply_filters( 'shield/2fa_skip', ( new MfaSkip() )->canMfaSkip( $user ) );
 	}
 
 	/**
