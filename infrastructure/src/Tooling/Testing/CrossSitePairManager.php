@@ -24,12 +24,15 @@ class CrossSitePairManager {
 	private const SLAVE_DB_NAME = 'shield_cross_site_slave';
 	private const MASTER_HOST_PORT = '8892';
 	private const SLAVE_HOST_PORT = '8893';
+	private const REUSABLE_DOCKER_RUN_ID = 'shield-plugin-cross-site-reusable';
+	private const REUSABLE_DOCKER_EXPIRES_AT = '2037-12-31T23:59:59+00:00';
 	private const HELPER_FILE = '/app/tests/Helpers/CrossSite/CrossSiteRuntime.php';
 	private const STATUS_ACTIVE = 'active';
 	private const QUEUE_IDLE = 'idle';
 	private const QUEUE_QUEUED = 'queued';
 	private const QUEUE_WAITING_EXPORT = 'waiting_export';
 	private const EXPORT_RESULT_SUCCESS = 'success';
+	private const WP_CLI_INVALID_CRON_EVENT = 'Invalid cron event';
 
 	private ProcessRunner $processRunner;
 
@@ -42,8 +45,6 @@ class CrossSitePairManager {
 	private SourceSetupCacheCoordinator $setupCacheCoordinator;
 
 	private string $lastStage = 'not started';
-
-	private string $runId = '';
 
 	/** @var array<string,mixed> */
 	private array $lastDiagnostics = [];
@@ -210,18 +211,8 @@ class CrossSitePairManager {
 		$this->stage( 'process master DB-backed site queue' );
 		$this->processMasterSitesQueue( $rootDir );
 
-		$this->stage( 'run slave import cron' );
-		$slaveCron = $this->runHelper( $rootDir, self::SLAVE, 'cron-state' );
-		$this->lastDiagnostics[ 'slave_cron' ] = $slaveCron;
-		$importHook = (string)( $slaveCron[ 'import_hook' ] ?? '' );
-		if ( empty( $slaveCron[ 'import_scheduled' ] ) || $importHook === '' ) {
-			throw new \RuntimeException( 'Slave import cron was not scheduled after master notification.' );
-		}
-		$this->wpCapture( $rootDir, self::SLAVE, [ 'cron', 'event', 'run', $importHook ] );
-
-		$this->stage( 'assert master export sync completion' );
-		$queueAfterImport = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
-		$this->lastDiagnostics[ 'master_queue_after_import' ] = $queueAfterImport;
+		$this->stage( 'wait for slave import completion' );
+		$queueAfterImport = $this->waitForSlaveImportCompletion( $rootDir );
 		$this->assertPostExportQueueState( $queueAfterImport );
 
 		$this->stage( 'compare exported option payloads' );
@@ -274,6 +265,34 @@ class CrossSitePairManager {
 		$queueAfter = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
 		$this->lastDiagnostics[ 'master_queue_after_ping' ] = $queueAfter;
 		$this->assertPostPingQueueState( $queueAfter );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function waitForSlaveImportCompletion( string $rootDir ) :array {
+		$startedAt = \time();
+		do {
+			$lastQueueState = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
+			$this->lastDiagnostics[ 'master_queue_after_import' ] = $lastQueueState;
+			if ( $this->isPostExportQueueState( $lastQueueState ) ) {
+				return $lastQueueState;
+			}
+
+			$slaveCron = $this->runHelper( $rootDir, self::SLAVE, 'cron-state' );
+			$this->lastDiagnostics[ 'slave_cron' ] = $slaveCron;
+			$importHook = (string)( $slaveCron[ 'import_hook' ] ?? '' );
+			if ( !empty( $slaveCron[ 'import_scheduled' ] ) && $importHook !== '' ) {
+				$captured = $this->wpCapture( $rootDir, self::SLAVE, [ 'cron', 'event', 'run', $importHook ], false );
+				if ( $captured[ 'exit_code' ] !== 0 && !$this->isInvalidCronEventFailure( $captured ) ) {
+					throw $this->wpCliFailureException( self::SLAVE, $captured );
+				}
+			}
+
+			\sleep( 1 );
+		} while ( \time() - $startedAt < 30 );
+
+		throw new \RuntimeException( 'Slave import did not complete after master notification.' );
 	}
 
 	private function assertLegacyMigration( array $legacyMigration ) :void {
@@ -337,23 +356,42 @@ class CrossSitePairManager {
 	}
 
 	private function assertPostExportQueueState( array $queueState ) :void {
+		$failure = $this->postExportQueueStateFailure( $queueState );
+		if ( $failure !== null ) {
+			throw new \RuntimeException( $failure );
+		}
+	}
+
+	private function isPostExportQueueState( array $queueState ) :bool {
+		return $this->postExportQueueStateFailure( $queueState ) === null;
+	}
+
+	private function postExportQueueStateFailure( array $queueState ) :?string {
 		$row = $this->findRegistryRow( (array)( $queueState[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
 		if ( !\is_array( $row ) ) {
-			throw new \RuntimeException( 'Master DB-backed site queue lost the slave registry row after slave import.' );
+			return 'Master DB-backed site queue lost the slave registry row after slave import.';
 		}
 		if ( ( $row[ 'queue_status' ] ?? '' ) !== self::QUEUE_IDLE ) {
-			throw new \RuntimeException( 'Master DB-backed site queue did not return the slave row to idle after export.' );
+			return 'Master DB-backed site queue did not return the slave row to idle after export.';
 		}
 		if ( (int)( $row[ 'last_export_request_at' ] ?? 0 ) <= 0
 			 || (int)( $row[ 'last_export_success_at' ] ?? 0 ) <= 0 ) {
-			throw new \RuntimeException( 'Master DB-backed site queue did not record export request and success.' );
+			return 'Master DB-backed site queue did not record export request and success.';
 		}
 		if ( (int)( $row[ 'last_export_success_at' ] ?? 0 ) <= (int)( $row[ 'last_ping_success_at' ] ?? 0 ) ) {
-			throw new \RuntimeException( 'Master DB-backed site queue did not record a new export success after ping.' );
+			return 'Master DB-backed site queue did not record a new export success after ping.';
 		}
 		if ( ( $row[ 'last_export_result_code' ] ?? '' ) !== self::EXPORT_RESULT_SUCCESS ) {
-			throw new \RuntimeException( 'Master DB-backed site queue did not record export success result code.' );
+			return 'Master DB-backed site queue did not record export success result code.';
 		}
+		return null;
+	}
+
+	/**
+	 * @param array{stdout:string,stderr:string,exit_code:int} $captured
+	 */
+	private function isInvalidCronEventFailure( array $captured ) :bool {
+		return \str_contains( $captured[ 'stderr' ].$captured[ 'stdout' ], self::WP_CLI_INVALID_CRON_EVENT );
 	}
 
 	private function findRegistryRow( array $rows, string $url ) :?array {
@@ -839,23 +877,15 @@ PHP,
 		return \array_merge(
 			$envOverrides,
 			DockerCleanupPolicy::crossSite()->labelEnvironment(
-				$this->runtimeRunId(),
+				self::REUSABLE_DOCKER_RUN_ID,
 				DockerHarnessLabels::LIFECYCLE_REUSABLE,
 				'cross-site',
-				\gmdate( \DATE_ATOM, \time() + 7*24*60*60 ),
-				$this->runtimeRunId(),
+				self::REUSABLE_DOCKER_EXPIRES_AT,
+				self::REUSABLE_DOCKER_RUN_ID,
 				DockerHarnessLabels::LIFECYCLE_REUSABLE,
-				\gmdate( \DATE_ATOM, \time() + 30*24*60*60 )
+				self::REUSABLE_DOCKER_EXPIRES_AT
 			)
 		);
-	}
-
-	private function runtimeRunId() :string {
-		if ( $this->runId === '' ) {
-			$this->runId = 'shield-plugin-cross-site-'.\gmdate( 'YmdHis' ).'-'.\bin2hex( \random_bytes( 3 ) );
-		}
-
-		return $this->runId;
 	}
 
 	/**

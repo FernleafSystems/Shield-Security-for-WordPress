@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as ImportExportSiteRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
@@ -134,6 +135,9 @@ try {
 				$applied[] = $key;
 			}
 			$con->opts->store();
+			if ( !( new ProfileRepository() )->copyCurrentSiteConfigToDefaultProfile() ) {
+				throw new \RuntimeException( 'Default import/export profile did not refresh from the generated corpus.' );
+			}
 
 			$stored = ( new Export() )->getRawOptionsExport();
 			$uncovered = \array_values( \array_diff(

@@ -87,15 +87,44 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->assertSame( '8993', $env[ 'SHIELD_CROSS_SITE_SLAVE_PORT' ] );
 		$this->assertArrayHasKey( 'SHIELD_PACKAGE_PATH', $env );
 		$this->assertFalse( $env[ 'SHIELD_PACKAGE_PATH' ] );
-		$this->assertSame( 'shield-plugin-cross-site', $env[ 'SHIELD_DOCKER_LABEL_HARNESS' ] );
-		$this->assertSame( 'cross-site', $env[ 'SHIELD_DOCKER_LABEL_LANE' ] );
-		$this->assertSame( 'reusable', $env[ 'SHIELD_DOCKER_CONTAINER_LIFECYCLE' ] );
-		$this->assertSame( 'reusable', $env[ 'SHIELD_DOCKER_VOLUME_LIFECYCLE' ] );
-		$this->assertMatchesRegularExpression(
-			'/^shield-plugin-cross-site-\d{14}-[a-f0-9]{6}$/',
-			$env[ 'SHIELD_DOCKER_CONTAINER_RUN_ID' ]
+		$this->assertCrossSiteReusableLabelEnv( $env );
+	}
+
+	public function testRuntimeEnvironmentDockerLabelsRemainStableAcrossRepeatedBuilds() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-manager-stable-' );
+		$manager = new CrossSitePairManager(
+			null,
+			new RecordingTestingEnvironmentResolver( '8.2' )
 		);
-		$this->assertSame( $env[ 'SHIELD_DOCKER_CONTAINER_RUN_ID' ], $env[ 'SHIELD_DOCKER_VOLUME_RUN_ID' ] );
+
+		$first = $this->invokePrivate( $manager, 'buildRuntimeEnvOverrides', [ $root ] );
+		$this->waitForUnixSecondToChange();
+		$second = $this->invokePrivate( $manager, 'buildRuntimeEnvOverrides', [ $root ] );
+
+		$this->assertSameDockerLabelEnvironment( $first, $second );
+	}
+
+	public function testRuntimeEnvironmentDockerLabelsRemainStableAcrossManagerInstances() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-manager-reusable-' );
+
+		$first = $this->invokePrivate(
+			new CrossSitePairManager(
+				null,
+				new RecordingTestingEnvironmentResolver( '8.2' )
+			),
+			'buildRuntimeEnvOverrides',
+			[ $root ]
+		);
+		$second = $this->invokePrivate(
+			new CrossSitePairManager(
+				null,
+				new RecordingTestingEnvironmentResolver( '8.2' )
+			),
+			'buildRuntimeEnvOverrides',
+			[ $root ]
+		);
+
+		$this->assertSameDockerLabelEnvironment( $first, $second );
 	}
 
 	public function testDatabaseResetSqlDropsAndRecreatesBothDatabases() :void {
@@ -252,7 +281,7 @@ class CrossSitePairManagerTest extends TestCase {
 
 	public function testPrepareSuppressesSubprocessOutputByDefault() :void {
 		$root = $this->createCrossSiteProjectRoot();
-		$runner = new RecordingProcessRunner();
+		$runner = new CrossSitePrepareProcessRunner();
 		$docker = new RecordingDockerComposeExecutor();
 		$refresher = new CrossSiteRuntimeRefresherRecorder();
 		$manager = $this->buildPairManagerForPrepareContract( $runner, $docker, $refresher );
@@ -261,9 +290,12 @@ class CrossSitePairManagerTest extends TestCase {
 
 		$this->assertNotEmpty( $docker->calls );
 		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db' ], $docker->calls[ 0 ][ 'sub_command' ] );
+		$composeEnv = $this->assertHasEnvOverrides( $docker->calls[ 0 ] );
+		$this->assertCrossSiteReusableLabelEnv( $composeEnv );
 		foreach ( $docker->calls as $call ) {
 			$this->assertTrue( $call[ 'has_output_callback' ] );
 			$this->assertFalse( $call[ 'show_docker_output' ] );
+			$this->assertSameDockerLabelEnvironment( $composeEnv, $this->assertHasEnvOverrides( $call ) );
 		}
 		$this->assertNotEmpty( $runner->calls );
 		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining( $runner, 'mysqladmin ping' ), 'mysqladmin' );
@@ -271,6 +303,7 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining( $runner, 'DROP DATABASE IF EXISTS `shield_cross_site_master`' ), 'mysql' );
 		foreach ( $runner->calls as $call ) {
 			$this->assertTrue( $call[ 'has_output_callback' ], \implode( ' ', $call[ 'command' ] ) );
+			$this->assertSameDockerLabelEnvironment( $composeEnv, $this->assertHasEnvOverrides( $call ) );
 		}
 		$this->assertNotEmpty( $refresher->refreshCalls );
 		foreach ( $refresher->refreshCalls as $call ) {
@@ -452,6 +485,59 @@ class CrossSitePairManagerTest extends TestCase {
 		}
 	}
 
+	private function assertCrossSiteReusableLabelEnv( array $env ) :void {
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_LABEL_HARNESS', 'shield-plugin-cross-site' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_LABEL_LANE', 'cross-site' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_CONTAINER_RUN_ID', 'shield-plugin-cross-site-reusable' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_VOLUME_RUN_ID', 'shield-plugin-cross-site-reusable' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_CONTAINER_LIFECYCLE', 'reusable' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_VOLUME_LIFECYCLE', 'reusable' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_CONTAINER_EXPIRES_AT', '2037-12-31T23:59:59+00:00' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_VOLUME_EXPIRES_AT', '2037-12-31T23:59:59+00:00' );
+	}
+
+	private function assertSameDockerLabelEnvironment( array $expected, array $actual ) :void {
+		foreach ( $this->dockerLabelEnvKeys() as $key ) {
+			$this->assertArrayHasKey( $key, $expected );
+			$this->assertArrayHasKey( $key, $actual );
+			$this->assertSame( $expected[ $key ], $actual[ $key ], $key );
+		}
+	}
+
+	private function assertEnvValue( array $env, string $key, string $expectedValue ) :void {
+		$this->assertArrayHasKey( $key, $env );
+		$this->assertSame( $expectedValue, $env[ $key ], $key );
+	}
+
+	private function assertHasEnvOverrides( array $call ) :array {
+		$this->assertArrayHasKey( 'env_overrides', $call );
+		$this->assertIsArray( $call[ 'env_overrides' ] );
+		return $call[ 'env_overrides' ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function dockerLabelEnvKeys() :array {
+		return [
+			'SHIELD_DOCKER_LABEL_HARNESS',
+			'SHIELD_DOCKER_LABEL_LANE',
+			'SHIELD_DOCKER_CONTAINER_RUN_ID',
+			'SHIELD_DOCKER_CONTAINER_LIFECYCLE',
+			'SHIELD_DOCKER_CONTAINER_EXPIRES_AT',
+			'SHIELD_DOCKER_VOLUME_RUN_ID',
+			'SHIELD_DOCKER_VOLUME_LIFECYCLE',
+			'SHIELD_DOCKER_VOLUME_EXPIRES_AT',
+		];
+	}
+
+	private function waitForUnixSecondToChange() :void {
+		$startedAt = \time();
+		do {
+			\usleep( 100000 );
+		} while ( \time() === $startedAt );
+	}
+
 	/**
 	 * @param mixed[] $args
 	 * @return mixed
@@ -483,6 +569,31 @@ class CrossSiteRuntimeRefresherRecorder extends LocalSiteRuntimeRefresher {
 			'has_output_callback' => $onOutput !== null,
 			'host_manifest'       => $hostManifest,
 		];
+	}
+}
+
+class CrossSitePrepareProcessRunner extends RecordingProcessRunner {
+
+	private bool $delayedBeforeReadiness = false;
+
+	public function run(
+		array $command,
+		string $workingDir,
+		?callable $onOutput = null,
+		?array $envOverrides = null
+	) :\Symfony\Component\Process\Process {
+		$process = parent::run( $command, $workingDir, $onOutput, $envOverrides );
+		if ( !$this->delayedBeforeReadiness
+			 && \in_array( 'wp-cli-slave', $command, true )
+			 && \in_array( '/app/tests/docker/provision-local-site.sh', $command, true ) ) {
+			$this->delayedBeforeReadiness = true;
+			$startedAt = \time();
+			do {
+				\usleep( 100000 );
+			} while ( \time() === $startedAt );
+		}
+
+		return $process;
 	}
 }
 
