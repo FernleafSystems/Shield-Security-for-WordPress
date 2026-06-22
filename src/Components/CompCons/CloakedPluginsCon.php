@@ -153,11 +153,10 @@ class CloakedPluginsCon {
 	 */
 	private function emptyState() :array {
 		return [
-			'all'               => [],
-			'active'            => [],
-			'ignored'           => [],
-			'system_suppressed' => [],
-			'new_active'        => [],
+			'all'        => [],
+			'active'     => [],
+			'ignored'    => [],
+			'new_active' => [],
 		];
 	}
 }

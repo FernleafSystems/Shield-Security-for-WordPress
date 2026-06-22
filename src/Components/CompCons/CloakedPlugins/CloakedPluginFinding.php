@@ -105,6 +105,12 @@ class CloakedPluginFinding {
 	 * @return list<string>
 	 */
 	public function cloakReasonLabels() :array {
+		if ( ( new ShieldGeneratedMuPlugin() )->isGeneratedShieldMuLoaderFinding( $this ) ) {
+			return [
+				__( 'Shield hides its own Must-Use loader to avoid showing Shield twice while the Must-Use option is enabled.', 'wp-simple-firewall' ),
+			];
+		}
+
 		return \array_map(
 			static fn( string $reason ) :string => CloakReason::label( $reason ),
 			$this->cloakReasons

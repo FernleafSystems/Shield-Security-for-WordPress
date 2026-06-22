@@ -17,7 +17,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	PluginEntry,
 	PluginType
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\MU\MUHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\MU\{
+	GeneratedMuLoaderContent,
+	MUHandler
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -26,23 +30,25 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 
 class CloakedPluginStateTest extends BaseUnitTest {
 
+	use TempDirLifecycleTrait;
+
 	private CloakedPluginStateOptionsStub $opts;
-	private CloakedPluginStateMuStub $mu;
+
+	private const ROOT_FILE = 'vfs/wp-content/plugins/wp-simple-firewall/icwp-wpsf.php';
 
 	protected function setUp() :void {
 		parent::setUp();
 		$this->opts = new CloakedPluginStateOptionsStub();
-		$this->mu = new CloakedPluginStateMuStub();
 		UnitTestControllerFactory::install( null, null, (object)[
-			'opts' => $this->opts,
-			'comps' => (object)[
-				'mu' => $this->mu,
-			],
+			'opts'      => $this->opts,
+			'root_file' => self::ROOT_FILE,
+			'labels'    => $this->labels(),
 		] );
 	}
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -85,41 +91,183 @@ class CloakedPluginStateTest extends BaseUnitTest {
 		$this->assertCount( 1, $this->opts->values[ CloakedPluginState::OPT_KEY ] );
 	}
 
-	public function testClassifySuppressesExpectedShieldMuLoader() :void {
+	public function testClassifyAutoIgnoresGeneratedShieldMuLoader() :void {
 		$state = new CloakedPluginState();
-		$finding = new CloakedPluginFinding(
-			new PluginEntry( PluginType::MustUse, MUHandler::PLUGIN_FILE_NAME, 'Shield MU', '1.0', '/mu-plugins/'.MUHandler::PLUGIN_FILE_NAME ),
-			[ CloakReason::ShowAdvancedPlugins ],
-			true,
-			false,
-			123
-		);
-		$this->mu->generatedMuLoaders[ $finding->entry->file.'|'.$finding->entry->path ] = true;
+		$this->opts->values[ 'enable_mu' ] = 'Y';
+		$path = $this->writeShieldMuLoader();
+		$finding = $this->shieldMuFinding( $path );
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertTrue( $state->isAutoIgnored( $finding ) );
+		$this->assertSame( [], $result[ 'active' ] );
+		$this->assertSame( [ $finding ], $result[ 'ignored' ] );
+		$this->assertSame( [], $result[ 'new_active' ] );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::OPT_KEY ] );
+	}
+
+	public function testClassifyPrunesStaleIgnoreForGeneratedShieldMuLoader() :void {
+		$state = new CloakedPluginState();
+		$this->opts->values[ 'enable_mu' ] = 'Y';
+		$finding = $this->shieldMuFinding( $this->writeShieldMuLoader() );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $finding->identityKey() ];
 
 		$result = $state->classify( [ $finding ] );
 
 		$this->assertSame( [], $result[ 'active' ] );
-		$this->assertSame( [], $result[ 'ignored' ] );
-		$this->assertSame( [ $finding ], $result[ 'system_suppressed' ] );
+		$this->assertSame( [ $finding ], $result[ 'ignored' ] );
 		$this->assertSame( [], $result[ 'new_active' ] );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
 		$this->assertSame( [], $this->opts->values[ CloakedPluginState::OPT_KEY ] );
 	}
 
-	public function testClassifyDoesNotSuppressShieldMuLoaderWhenUnexpected() :void {
+	public function testAutoIgnoredGeneratedShieldMuLoaderCannotBeManuallyIgnoredOrUnignored() :void {
 		$state = new CloakedPluginState();
-		$finding = new CloakedPluginFinding(
-			new PluginEntry( PluginType::MustUse, MUHandler::PLUGIN_FILE_NAME, 'Shield MU', '1.0', '/mu-plugins/'.MUHandler::PLUGIN_FILE_NAME ),
-			[ CloakReason::ShowAdvancedPlugins ],
-			true,
-			false,
-			123
-		);
+		$this->opts->values[ 'enable_mu' ] = 'Y';
+		$path = $this->writeShieldMuLoader();
+		$finding = $this->shieldMuFinding( $path );
+
+		$this->assertFalse( $state->ignoreIdentity( $finding->identityKey(), [ $finding ] ) );
+		$this->assertFalse( $state->unignoreIdentity( $finding->identityKey(), [ $finding ] ) );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	public function testUnignorePrunesStaleShieldMuLoaderIgnore() :void {
+		$state = new CloakedPluginState();
+		$this->opts->values[ 'enable_mu' ] = 'Y';
+		$finding = $this->shieldMuFinding( $this->writeShieldMuLoader() );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $finding->identityKey() ];
+
+		$this->assertTrue( $state->unignoreIdentity( $finding->identityKey(), [ $finding ] ) );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	public function testClassifyDoesNotAutoIgnoreGeneratedShieldMuLoaderWhenMuOptionIsOff() :void {
+		$state = new CloakedPluginState();
+		$this->opts->values[ 'enable_mu' ] = 'N';
+		$path = $this->writeShieldMuLoader();
+		$finding = $this->shieldMuFinding( $path );
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertFalse( $state->isAutoIgnored( $finding ) );
+		$this->assertSame( [ $finding ], $result[ 'active' ] );
+		$this->assertSame( [], $result[ 'ignored' ] );
+		$this->assertSame( [ $finding ], $result[ 'new_active' ] );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	public function testClassifyActivatesShieldMuLoaderWhenMuOptionOffDespiteStaleIgnore() :void {
+		$state = new CloakedPluginState();
+		$this->opts->values[ 'enable_mu' ] = 'N';
+		$finding = $this->shieldMuFinding( $this->writeShieldMuLoader() );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $finding->identityKey() ];
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertSame( [ $finding ], $result[ 'active' ] );
+		$this->assertSame( [], $result[ 'ignored' ] );
+		$this->assertSame( [ $finding ], $result[ 'new_active' ] );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	public function testClassifyAlertsWhenPreviouslyAutoIgnoredShieldMuLoaderIsTampered() :void {
+		$state = new CloakedPluginState();
+		$this->opts->values[ 'enable_mu' ] = 'Y';
+		$path = $this->writeShieldMuLoader();
+		$finding = $this->shieldMuFinding( $path );
+
+		$state->classify( [ $finding ] );
+		$this->assertNotFalse( \file_put_contents(
+			$path,
+			( new GeneratedMuLoaderContent() )->build()."\nadd_action( 'init', 'unexpected_payload' );\n"
+		) );
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertSame( [ $finding ], $result[ 'active' ] );
+		$this->assertSame( [], $result[ 'ignored' ] );
+		$this->assertSame( [ $finding ], $result[ 'new_active' ] );
+	}
+
+	public function testClassifyActivatesTamperedShieldMuLoaderDespiteStaleIgnore() :void {
+		$state = new CloakedPluginState();
+		$this->opts->values[ 'enable_mu' ] = 'Y';
+		$finding = $this->shieldMuFinding( $this->writeShieldMuLoader( "\nadd_action( 'init', 'unexpected_payload' );\n" ) );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $finding->identityKey() ];
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertSame( [ $finding ], $result[ 'active' ] );
+		$this->assertSame( [], $result[ 'ignored' ] );
+		$this->assertSame( [ $finding ], $result[ 'new_active' ] );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	public function testClassifyDoesNotAutoIgnoreTamperedShieldMuLoader() :void {
+		$state = new CloakedPluginState();
+		$this->opts->values[ 'enable_mu' ] = 'Y';
+		$path = $this->writeShieldMuLoader( "\nadd_action( 'init', 'unexpected_payload' );\n" );
+		$finding = $this->shieldMuFinding( $path );
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertFalse( $state->isAutoIgnored( $finding ) );
+		$this->assertSame( [ $finding ], $result[ 'active' ] );
+		$this->assertSame( [], $result[ 'ignored' ] );
+		$this->assertSame( [ $finding ], $result[ 'new_active' ] );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	public function testClassifyDoesNotAutoIgnoreShieldMuLoaderWhenUnexpected() :void {
+		$state = new CloakedPluginState();
+		$this->opts->values[ 'enable_mu' ] = 'Y';
+		$finding = $this->shieldMuFinding( '/mu-plugins/'.MUHandler::PLUGIN_FILE_NAME );
 
 		$result = $state->classify( [ $finding ] );
 
 		$this->assertSame( [ $finding ], $result[ 'active' ] );
 		$this->assertSame( [ $finding ], $result[ 'new_active' ] );
-		$this->assertSame( [], $result[ 'system_suppressed' ] );
+		$this->assertSame( [], $result[ 'ignored' ] );
+	}
+
+	public function testClassifyActivatesMissingShieldMuLoaderDespiteStaleIgnore() :void {
+		$state = new CloakedPluginState();
+		$this->opts->values[ 'enable_mu' ] = 'Y';
+		$dir = $this->createTrackedTempDir( 'shield-missing-mu-' );
+		$finding = $this->shieldMuFinding( $dir.'/'.MUHandler::PLUGIN_FILE_NAME );
+		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [ $finding->identityKey() ];
+
+		$result = $state->classify( [ $finding ] );
+
+		$this->assertSame( [ $finding ], $result[ 'active' ] );
+		$this->assertSame( [], $result[ 'ignored' ] );
+		$this->assertSame( [ $finding ], $result[ 'new_active' ] );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
+	}
+
+	public function testNormalFindingsCanStillBeIgnoredAndUnignored() :void {
+		$state = new CloakedPluginState();
+		$standard = $this->finding( 'cloaked/cloaked.php' );
+		$mustUse = new CloakedPluginFinding(
+			new PluginEntry( PluginType::MustUse, 'loader.php', 'Loader', '1.0', '/mu-plugins/loader.php' ),
+			[ CloakReason::ShowAdvancedPlugins ],
+			true,
+			false,
+			123
+		);
+
+		$this->assertTrue( $state->ignoreIdentity( $standard->identityKey(), [ $standard, $mustUse ] ) );
+		$this->assertTrue( $state->ignoreIdentity( $mustUse->identityKey(), [ $standard, $mustUse ] ) );
+		$this->assertSame(
+			[ $standard->identityKey(), $mustUse->identityKey() ],
+			$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ]
+		);
+
+		$this->assertTrue( $state->unignoreIdentity( $standard->identityKey(), [ $standard, $mustUse ] ) );
+		$this->assertTrue( $state->unignoreIdentity( $mustUse->identityKey(), [ $standard, $mustUse ] ) );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
 	}
 
 	private function finding( string $file ) :CloakedPluginFinding {
@@ -130,6 +278,34 @@ class CloakedPluginStateTest extends BaseUnitTest {
 			false,
 			123
 		);
+	}
+
+	private function writeShieldMuLoader( string $append = '' ) :string {
+		$dir = $this->createTrackedTempDir( 'shield-generated-mu-' );
+		$path = $dir.'/'.MUHandler::PLUGIN_FILE_NAME;
+		$this->assertNotFalse( \file_put_contents(
+			$path,
+			( new GeneratedMuLoaderContent() )->build().$append
+		) );
+		return $path;
+	}
+
+	private function shieldMuFinding( string $path ) :CloakedPluginFinding {
+		return new CloakedPluginFinding(
+			new PluginEntry( PluginType::MustUse, MUHandler::PLUGIN_FILE_NAME, 'Shield MU', '1.0', $path ),
+			[ CloakReason::ShowAdvancedPlugins ],
+			true,
+			false,
+			123
+		);
+	}
+
+	private function labels() :object {
+		return (object)[
+			'Name'      => 'Shield',
+			'PluginURI' => 'https://example.test/shield',
+			'Author'    => 'Shield',
+		];
 	}
 }
 
@@ -149,16 +325,11 @@ class CloakedPluginStateOptionsStub {
 		return $this;
 	}
 
+	public function optIs( string $key, $value ) :bool {
+		return ( $this->values[ $key ] ?? null ) === $value;
+	}
+
 	public function store() :self {
 		return $this;
-	}
-}
-
-class CloakedPluginStateMuStub {
-
-	public array $generatedMuLoaders = [];
-
-	public function isGeneratedMuLoader( string $file, string $path ) :bool {
-		return (bool)( $this->generatedMuLoaders[ $file.'|'.$path ] ?? false );
 	}
 }

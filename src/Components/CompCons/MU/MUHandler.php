@@ -50,16 +50,6 @@ class MUHandler {
 		return Services::WpFs()->isAccessibleFile( $this->getMuFilePath() );
 	}
 
-	public function isGeneratedMuLoader( string $file, string $path ) :bool {
-		if ( $file !== self::PLUGIN_FILE_NAME || !$this->isMuLoaderPath( $path ) || !Services::WpFs()->isAccessibleFile( $path ) ) {
-			return false;
-		}
-
-		$content = (string)Services::WpFs()->getFileContent( $path );
-		return \strpos( $content, "\$shieldFile = '".self::con()->getRootFile()."';" ) !== false
-			   && \strpos( $content, 'require_once( $shieldFile );' ) !== false;
-	}
-
 	/**
 	 * @throws \Exception
 	 */
@@ -129,10 +119,6 @@ class MUHandler {
 		return path_join( $this->getMuDir(), self::PLUGIN_FILE_NAME );
 	}
 
-	private function isMuLoaderPath( string $path ) :bool {
-		return \rtrim( \str_replace( '\\', '/', $path ), '/' ) === \rtrim( \str_replace( '\\', '/', $this->getMuFilePath() ), '/' );
-	}
-
 	private function getMuDir(): string {
 		return \defined( 'WPMU_PLUGIN_DIR' ) ? WPMU_PLUGIN_DIR :
 			path_join( \dirname( self::con()->getRootDir(), 2 ), 'mu-plugins' );
@@ -142,18 +128,6 @@ class MUHandler {
 	 * @throws \Exception
 	 */
 	private function buildContent(): string {
-		$con = self::con();
-		$templateFile = path_join( __DIR__, '.mu-template.txt' );
-		$template = Services::WpFs()->getFileContent( $templateFile );
-		if ( empty( $template ) ) {
-			throw new \Exception( sprintf( __( "Couldn't read MU plugin template from %s", 'wp-simple-firewall' ), $templateFile ) );
-		}
-		$replacements = [
-			'SHIELD_ROOT_FILE'     => $con->getRootFile(),
-			'SHIELD_PLUGIN_NAME'   => $con->labels->Name,
-			'SHIELD_PLUGIN_URL'    => $con->labels->PluginURI,
-			'SHIELD_PLUGIN_AUTHOR' => $con->labels->Author,
-		];
-		return \str_replace( \array_keys( $replacements ), \array_values( $replacements ), $template );
+		return ( new GeneratedMuLoaderContent() )->build();
 	}
 }

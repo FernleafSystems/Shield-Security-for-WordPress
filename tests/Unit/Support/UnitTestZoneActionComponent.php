@@ -19,6 +19,7 @@ class UnitTestZoneActionComponent {
 				'data'      => [
 					'zone_component_action' => 'offcanvas_zone_component_config',
 					'zone_component_slug'   => $this->slug,
+					'option_keys'           => $this->slug.'_option',
 				],
 				'is_action' => true,
 			],

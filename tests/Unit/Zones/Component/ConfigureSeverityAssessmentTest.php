@@ -53,6 +53,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Firewall as FirewallZone;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Login as LoginZone;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Users as UsersZone;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 
 class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 
@@ -324,6 +325,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertContains( FileEditingBlock::class, $components );
 		$this->assertSame( [ ModuleFirewall::Slug() ], $zone->getConfigZoneComponentSlugs() );
 		$this->assertSame( ModuleFirewall::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
+		$this->assertNotSame( '', $configAction[ 'data' ][ 'option_keys' ] );
+		$this->assertContains( 'clean_wp_rubbish', \explode( ',', $configAction[ 'data' ][ 'option_keys' ] ) );
 	}
 
 	public function test_login_zone_owns_login_guard_components_and_module_config_scope() :void {
@@ -339,6 +342,8 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		$this->assertContains( SessionTheftProtection::class, $components );
 		$this->assertSame( [ ModuleLogin::Slug() ], $zone->getConfigZoneComponentSlugs() );
 		$this->assertSame( ModuleLogin::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
+		$this->assertNotSame( '', $configAction[ 'data' ][ 'option_keys' ] );
+		$this->assertContains( 'rename_wplogin_path', \explode( ',', $configAction[ 'data' ][ 'option_keys' ] ) );
 	}
 
 	public function test_users_zone_owns_user_management_components_and_module_config_scope() :void {
@@ -356,6 +361,14 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		], $zone->components() );
 		$this->assertSame( [ ModuleUsers::Slug() ], $zone->getConfigZoneComponentSlugs() );
 		$this->assertSame( ModuleUsers::Slug(), $configAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
+		$this->assertNotSame( '', $configAction[ 'data' ][ 'option_keys' ] );
+		$this->assertContains( 'manual_suspend', \explode( ',', $configAction[ 'data' ][ 'option_keys' ] ) );
+	}
+
+	public function test_zone_config_action_is_absent_without_module_options() :void {
+		$this->installController( [], [], [] );
+
+		$this->assertNull( ( new FirewallZone() )->getAction_Config() );
 	}
 
 	public function test_firewall_core_component_statuses_and_signals_follow_options() :void {
@@ -761,7 +774,11 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		return $indexed;
 	}
 
-	private function installController( array $optValues = [], array $componentOverrides = [] ) :void {
+	private function installController(
+		array $optValues = [],
+		array $componentOverrides = [],
+		?array $configOptions = null
+	) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->labels = new class {
@@ -783,7 +800,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 		};
 		$controller->cfg = (object)[
 			'configuration' => (object)[
-				'options'  => $this->minimalConfigOptions(),
+				'options'  => $configOptions ?? $this->minimalConfigOptions(),
 				'sections' => [],
 			],
 		];
@@ -858,6 +875,7 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 						return [ FakeEnabledMfaProvider::class, FakeEnabledMfaProvider::class ];
 					}
 				},
+				'zones' => new SecurityZonesCon(),
 			],
 			$componentOverrides
 		);
@@ -931,17 +949,18 @@ class ConfigureSeverityAssessmentTest extends BaseUnitTest {
 	private function minimalConfigOptions() :array {
 		$options = [];
 		foreach ( [
+			'clean_wp_rubbish' => [ 'module_firewall', 'section_wordpress_obscurity_options' ],
 			'bot_protection_locations' => [ 'login_protection_forms', '' ],
 			'login_limit_interval' => [ 'login_protection_forms', '' ],
-			'rename_wplogin_path' => [ 'login_hide', '' ],
-			'rename_wplogin_redirect' => [ 'login_hide', '' ],
-			'mfa_verify_page' => [ 'two_factor_auth', 'section_twofactor_auth' ],
-			'allow_backupcodes' => [ 'two_factor_auth', 'section_twofactor_auth' ],
-			'enable_email_authentication' => [ 'two_factor_auth', 'section_2fa_email' ],
-			'email_can_send_verified_at' => [ 'two_factor_auth', 'section_2fa_email' ],
-			'two_factor_auth_user_roles' => [ 'two_factor_auth', 'section_2fa_email' ],
-			'enable_google_authenticator' => [ 'two_factor_auth', 'section_2fa_otp' ],
-			'enable_passkeys' => [ 'two_factor_auth', 'section_2fa_passkeys' ],
+			'rename_wplogin_path' => [ 'login_hide,module_login', '' ],
+			'rename_wplogin_redirect' => [ 'login_hide,module_login', '' ],
+			'mfa_verify_page' => [ 'two_factor_auth,module_login', 'section_twofactor_auth' ],
+			'allow_backupcodes' => [ 'two_factor_auth,module_login', 'section_twofactor_auth' ],
+			'enable_email_authentication' => [ 'two_factor_auth,module_login', 'section_2fa_email' ],
+			'email_can_send_verified_at' => [ 'two_factor_auth,module_login', 'section_2fa_email' ],
+			'two_factor_auth_user_roles' => [ 'two_factor_auth,module_login', 'section_2fa_email' ],
+			'enable_google_authenticator' => [ 'two_factor_auth,module_login', 'section_2fa_otp' ],
+			'enable_passkeys' => [ 'two_factor_auth,module_login', 'section_2fa_passkeys' ],
 			'enable_password_policies' => [ 'password_policies,password_strength,pwned_passwords,module_users', 'section_passwords' ],
 			'pass_prevent_pwned' => [ 'pwned_passwords,module_users', 'section_passwords' ],
 			'pass_min_strength' => [ 'password_strength,module_users', 'section_passwords' ],

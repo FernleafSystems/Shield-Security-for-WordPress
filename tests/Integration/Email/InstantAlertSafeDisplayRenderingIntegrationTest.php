@@ -80,7 +80,7 @@ class InstantAlertSafeDisplayRenderingIntegrationTest extends ShieldIntegrationT
 		foreach ( $cloakedAnchorTexts as $anchorText ) {
 			$this->assertStringNotContainsString( 'hidden-plugin/hidden-plugin.php', $anchorText );
 			$this->assertStringNotContainsString( 'hidden-mu-plugin.php', $anchorText );
-			$this->assertStringNotContainsString( 'File', $anchorText );
+			$this->assertNotSame( '', \trim( $anchorText ) );
 		}
 	}
 

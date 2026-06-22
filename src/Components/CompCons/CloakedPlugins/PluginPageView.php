@@ -92,7 +92,7 @@ class PluginPageView {
 		);
 		$pluginMeta[ 'shield-cloaked-reason' ] = \sprintf(
 			'%s: %s',
-			$this->escapeHtml( __( 'Hidden because', 'wp-simple-firewall' ) ),
+			$this->escapeHtml( __( 'Reason', 'wp-simple-firewall' ) ),
 			$this->escapeHtml( $finding->cloakReasonSummary() )
 		);
 
@@ -187,18 +187,9 @@ class PluginPageView {
 	}
 
 	private function rowDescription( CloakedPluginFinding $finding ) :string {
-		return \sprintf(
-			__( 'Shield found this %s file on disk, but it is hidden from the normal WordPress plugin list.', 'wp-simple-firewall' ),
-			$this->pluginTypeSentenceLabel( $finding->entry->type )
-		);
-	}
-
-	private function pluginTypeSentenceLabel( string $type ) :string {
-		PluginType::assertValid( $type );
-
-		return $type === PluginType::MustUse
-			? __( 'must-use plugin', 'wp-simple-firewall' )
-			: __( 'plugin', 'wp-simple-firewall' );
+		return $finding->entry->type === PluginType::MustUse
+			? __( 'Shield found this must-use plugin file on disk, but WordPress is not listing it in the Must-Use plugins view.', 'wp-simple-firewall' )
+			: __( 'Shield found this plugin file on disk, but WordPress is not listing it on the Plugins page.', 'wp-simple-firewall' );
 	}
 
 	private function readPluginData( string $path ) :array {

@@ -261,13 +261,12 @@ class ConfigureSearchResultsBuilder {
 
 				$dataAttributes = $expandAction[ 'data_attributes' ];
 				$rowKey = $row[ 'key' ];
-				$zoneComponentSlug = $this->normalizeCsvString( $dataAttributes[ 'zone_component_slug' ] );
-				$optionKeys = $this->normalizeCsvString( $dataAttributes[ 'option_keys' ] ?? '' );
+				$optionKeys = $this->normalizeCsvString( $dataAttributes[ 'option_keys' ] );
 				$configItem = $dataAttributes[ 'config_item' ] ?? '';
 
 				$this->assignOptionTargets(
 					$lookup,
-					$this->extractOptionKeysForRow( $eligibleOptionKeys, $zoneComponentSlug, $optionKeys, $configItem ),
+					$this->extractOptionKeysForRow( $eligibleOptionKeys, $optionKeys, $configItem ),
 					$diagnosis,
 					$row,
 					$rowKey
@@ -295,7 +294,6 @@ class ConfigureSearchResultsBuilder {
 	 */
 	private function extractOptionKeysForRow(
 		array $eligibleOptionKeys,
-		string $zoneComponentSlug,
 		string $optionKeys,
 		string $configItem
 	) :array {
@@ -308,19 +306,6 @@ class ConfigureSearchResultsBuilder {
 		foreach ( $this->extractCsvValues( $optionKeys ) as $optionKey ) {
 			if ( isset( $eligibleOptionKeys[ $optionKey ] ) && !isset( $candidates[ $optionKey ] ) ) {
 				$candidates[ $optionKey ] = 3;
-			}
-		}
-		if ( $optionKeys !== '' ) {
-			return $candidates;
-		}
-
-		if ( $zoneComponentSlug !== '' ) {
-			$slugs = $this->extractCsvValues( $zoneComponentSlug );
-			$priority = $this->hasSpecificZoneComponentSlug( $slugs ) ? 2 : 1;
-			foreach ( $this->getOptionsForZoneComponentSlugs( $slugs ) as $optionKey ) {
-				if ( isset( $eligibleOptionKeys[ $optionKey ] ) && !isset( $candidates[ $optionKey ] ) ) {
-					$candidates[ $optionKey ] = $priority;
-				}
 			}
 		}
 
@@ -365,49 +350,12 @@ class ConfigureSearchResultsBuilder {
 		return \array_fill_keys( $optionKeys, true );
 	}
 
-	/**
-	 * @param list<string> $zoneComponentSlugs
-	 * @return list<string>
-	 */
-	private function getOptionsForZoneComponentSlugs( array $zoneComponentSlugs ) :array {
-		if ( empty( $zoneComponentSlugs ) ) {
-			return [];
-		}
-
-		$specificSlugs = \array_values( \array_filter(
-			$zoneComponentSlugs,
-			fn( string $zoneComponentSlug ) :bool => !$this->isModuleZoneComponentSlug( $zoneComponentSlug )
-		) );
-
-		return \array_keys( \array_filter(
-			self::con()->cfg->configuration->options,
-			function ( array $optionDef ) use ( $zoneComponentSlugs, $specificSlugs ) :bool {
-				$ownerSlugs = \array_filter( $optionDef[ 'zone_comp_slugs' ] ?? [], 'is_string' );
-				return \count( \array_intersect( $zoneComponentSlugs, $ownerSlugs ) ) > 0
-					&& ( !empty( $specificSlugs ) || !$this->hasSpecificZoneComponentSlug( $ownerSlugs ) );
-			}
-		) );
-	}
-
 	private function typePriority( string $type ) :int {
 		return $type === 'zone' ? 0 : 1;
 	}
 
 	private function normalizeCsvString( string $value ) :string {
 		return \implode( ',', $this->extractCsvValues( $value ) );
-	}
-
-	private function hasSpecificZoneComponentSlug( array $zoneComponentSlugs ) :bool {
-		foreach ( $zoneComponentSlugs as $zoneComponentSlug ) {
-			if ( !$this->isModuleZoneComponentSlug( $zoneComponentSlug ) ) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private function isModuleZoneComponentSlug( string $zoneComponentSlug ) :bool {
-		return \strpos( $zoneComponentSlug, 'module_' ) === 0;
 	}
 
 	/**

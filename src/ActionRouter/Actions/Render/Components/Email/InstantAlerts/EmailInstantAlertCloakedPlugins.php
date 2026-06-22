@@ -16,7 +16,7 @@ class EmailInstantAlertCloakedPlugins extends EmailInstantAlertBase {
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getBodyData(), [
 			'strings' => [
 				'intro' => [
-					__( 'A plugin file is present on disk but is cloaked from the WordPress admin plugin list.', 'wp-simple-firewall' ),
+					__( 'Shield found a plugin file on disk that WordPress is not listing where expected.', 'wp-simple-firewall' ),
 				],
 				'outro' => [
 					__( 'Review the plugin file immediately if this change was not expected.', 'wp-simple-firewall' ),
@@ -57,7 +57,7 @@ class EmailInstantAlertCloakedPlugins extends EmailInstantAlertBase {
 				$this->alertLine( __( 'File', 'wp-simple-firewall' ), $finding[ 'file' ], self::LINE_STYLE_CODE ),
 				$this->alertLine( __( 'Name', 'wp-simple-firewall' ), $finding[ 'name' ] ),
 				$this->alertLine( __( 'Type', 'wp-simple-firewall' ), $finding[ 'type_label' ] ),
-				$this->alertLine( __( 'Hidden because', 'wp-simple-firewall' ), $cloakedBy ),
+				$this->alertLine( __( 'Reason', 'wp-simple-firewall' ), $cloakedBy ),
 				$this->alertLine( __( 'Path', 'wp-simple-firewall' ), $finding[ 'location' ], self::LINE_STYLE_CODE ),
 			],
 			self::con()->plugin_urls->cloakedPlugins(),

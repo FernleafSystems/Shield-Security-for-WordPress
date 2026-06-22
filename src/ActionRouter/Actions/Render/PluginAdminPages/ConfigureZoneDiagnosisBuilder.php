@@ -7,6 +7,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone\Secadmin;
 
 /**
  * @phpstan-import-type ConfigureLandingTile from ConfigureLandingRenderContracts
+ * @phpstan-import-type ConfigureExpandActionData from ConfigureLandingRenderContracts
+ * @phpstan-import-type DiagnosisCollapsedExpandAction from ConfigureLandingRenderContracts
  * @phpstan-import-type DiagnosisContract from ConfigureLandingRenderContracts
  * @phpstan-import-type DiagnosisExpandAction from ConfigureLandingRenderContracts
  * @phpstan-import-type DiagnosisFinding from ConfigureLandingRenderContracts
@@ -212,32 +214,46 @@ class ConfigureZoneDiagnosisBuilder {
 	 * @return DiagnosisExpandAction
 	 */
 	private function buildExpandAction( array $action, bool $isExpandable, string $expandId, string $rowTitle ) :array {
-		$dataAttributes = [];
-		$label = '';
-		$title = '';
+		if ( !$isExpandable ) {
+			return $this->buildCollapsedExpandAction();
+		}
 
-		if ( $isExpandable && $action === [] ) {
+		if ( $action === [] ) {
 			throw new \LogicException( 'Expandable configure diagnosis rows require action data.' );
 		}
-
-		if ( $action !== [] ) {
-			$dataAttributes = $action[ 'data' ];
-			$label = $action[ 'label' ];
-			$title = $action[ 'title' ];
+		if ( $expandId === '' ) {
+			throw new \LogicException( 'Expandable configure diagnosis rows require a non-empty expand ID.' );
 		}
 
+		$dataAttributes = $action[ 'data' ];
+		$this->assertConfigureExpandActionData( $dataAttributes );
+
 		return [
-			'id'              => $isExpandable ? $expandId : '',
-			'is_expandable'   => $isExpandable,
-			'label'           => $label,
-			'title'           => $title,
-			'accessible_label' => $isExpandable ? $this->buildExpandAccessibleLabel( $label, $rowTitle ) : '',
+			'id'              => $expandId,
+			'is_expandable'   => true,
+			'label'           => $action[ 'label' ],
+			'title'           => $action[ 'title' ],
+			'accessible_label' => $this->buildExpandAccessibleLabel( $action[ 'label' ], $rowTitle ),
 			'data_attributes' => $dataAttributes,
 		];
 	}
 
 	/**
-	 * @return DiagnosisExpandAction
+	 * @param array<string,string> $dataAttributes
+	 * @phpstan-assert ConfigureExpandActionData $dataAttributes
+	 */
+	private function assertConfigureExpandActionData( array $dataAttributes ) :void {
+		foreach ( [ 'zone_component_action', 'zone_component_slug', 'option_keys' ] as $attribute ) {
+			if ( empty( $dataAttributes[ $attribute ] ) ) {
+				throw new \LogicException(
+					\sprintf( 'Expandable configure diagnosis rows require action data %s.', $attribute )
+				);
+			}
+		}
+	}
+
+	/**
+	 * @return DiagnosisCollapsedExpandAction
 	 */
 	private function buildCollapsedExpandAction() :array {
 		return [
@@ -250,6 +266,9 @@ class ConfigureZoneDiagnosisBuilder {
 		];
 	}
 
+	/**
+	 * @return non-empty-string
+	 */
 	private function buildExpandAccessibleLabel( string $label, string $rowTitle ) :string {
 		$label = \trim( $label );
 		$rowTitle = \trim( $rowTitle );
@@ -274,6 +293,7 @@ class ConfigureZoneDiagnosisBuilder {
 
 	/**
 	 * @param DetailGroupRow $row
+	 * @return non-empty-string
 	 */
 	private function requireRowKey( array $row ) :string {
 		$rowKey = $row[ 'key' ];

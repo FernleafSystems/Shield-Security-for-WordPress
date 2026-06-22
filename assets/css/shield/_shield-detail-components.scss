@@ -252,8 +252,11 @@
 	border: 1px solid #dcdcde;
 	border-radius: 3px;
 	color: #1d2327;
+	display: inline-block;
 	font-size: 0.7rem;
+	justify-self: start;
 	line-height: 1.35;
+	max-width: 100%;
 	padding: 0.04rem 0.24rem;
 }
 

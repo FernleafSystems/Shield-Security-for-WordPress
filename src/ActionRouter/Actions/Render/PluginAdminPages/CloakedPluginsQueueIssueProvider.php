@@ -237,7 +237,7 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 
 	private function findingDescription( CloakedPluginFinding $finding, bool $isIgnored ) :string {
 		$description = \sprintf(
-			__( '%s is present on disk but cloaked from WordPress plugin lists.', 'wp-simple-firewall' ),
+			__( '%s exists on disk, but WordPress is not listing it where expected.', 'wp-simple-firewall' ),
 			PluginType::label( $finding->entry->type )
 		);
 
@@ -254,7 +254,7 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 			$this->detailItem( __( 'File', 'wp-simple-firewall' ), $finding->entry->file, 'code' ),
 			$this->detailItem( __( 'Path', 'wp-simple-firewall' ), $finding->relativePath(), 'code' ),
 			$this->detailItem( __( 'Status', 'wp-simple-firewall' ), $this->statusLabel( $finding ) ),
-			$this->detailItem( __( 'Hidden because', 'wp-simple-firewall' ), $finding->cloakReasonSummary() ),
+			$this->detailItem( __( 'Reason', 'wp-simple-firewall' ), $finding->cloakReasonSummary() ),
 		];
 
 		if ( !$isIgnored ) {
@@ -304,10 +304,17 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 	 */
 	private function findingActions( CloakedPluginFinding $finding, bool $isIgnored ) :array {
 		if ( $isIgnored ) {
+			if ( $this->isShieldMuLoaderFinding( $finding ) ) {
+				return [];
+			}
 			return [ $this->ignoreToggleAction( $finding, true ) ];
 		}
 
 		$actions = [];
+		if ( $this->isShieldMuLoaderFinding( $finding ) ) {
+			return $actions;
+		}
+
 		if ( $finding->entry->type !== PluginType::MustUse ) {
 			if ( $finding->active || $finding->networkActive ) {
 				$actions = $this->actionList( $this->deactivateUrl( $finding->entry->file ), __( 'Deactivate Plugin', 'wp-simple-firewall' ), 'deactivate', 'bi bi-power' );
@@ -380,5 +387,9 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 		return URL::Build( Services::WpGeneral()->getAdminUrl_Plugins(), [
 			's' => $pluginFile,
 		] );
+	}
+
+	protected function isShieldMuLoaderFinding( CloakedPluginFinding $finding ) :bool {
+		return ( new CloakedPluginState() )->isShieldMuLoader( $finding );
 	}
 }

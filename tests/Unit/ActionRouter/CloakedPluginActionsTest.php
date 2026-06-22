@@ -22,6 +22,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	PluginEntry,
 	PluginType
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\MU\MUHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -68,6 +69,28 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 			[ $finding->identityKey() ],
 			$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ]
 		);
+	}
+
+	public function test_ignore_rejects_shield_mu_loader_identity_without_mutating_state() :void {
+		$finding = new CloakedPluginFinding(
+			new PluginEntry( PluginType::MustUse, MUHandler::PLUGIN_FILE_NAME, 'Shield MU', '1.0', '/mu-plugins/'.MUHandler::PLUGIN_FILE_NAME ),
+			[ CloakReason::ShowAdvancedPlugins ],
+			true,
+			false,
+			123
+		);
+		$action = new CloakedPluginIgnoreActionTestDouble(
+			$this->state( [ $finding ], [] ),
+			[
+				'finding_id' => $finding->identityKey(),
+			]
+		);
+
+		$action->process();
+
+		$this->assertFalse( (bool)( $action->response()->payload()[ 'success' ] ?? true ) );
+		$this->assertSame( CloakedPluginIgnore::ERROR_IDENTIFIER_UNAVAILABLE, $action->response()->payload()[ 'error_code' ] ?? '' );
+		$this->assertSame( [], $this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] );
 	}
 
 	public function test_ignore_rejects_unavailable_identity_without_mutating_state() :void {
@@ -131,11 +154,10 @@ class CloakedPluginActionsTest extends BaseUnitTest {
 
 	private function state( array $active, array $ignored ) :array {
 		return [
-			'all'               => \array_merge( $active, $ignored ),
-			'active'            => $active,
-			'ignored'           => $ignored,
-			'system_suppressed' => [],
-			'new_active'        => [],
+			'all'        => \array_merge( $active, $ignored ),
+			'active'     => $active,
+			'ignored'    => $ignored,
+			'new_active' => [],
 		];
 	}
 

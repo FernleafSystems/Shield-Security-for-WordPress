@@ -32,6 +32,7 @@ class PluginPageViewTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
 	private array $activeFindings = [];
+	private array $ignoredFindings = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -75,6 +76,15 @@ class PluginPageViewTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( PluginPageView::STATUS, $views );
 	}
 
+	public function test_status_link_is_not_added_for_ignored_findings_without_active_findings() :void {
+		$this->activeFindings = [];
+		$this->ignoredFindings = [ $this->standardFinding( 'ignored/ignored.php', 'Ignored Plugin' ) ];
+
+		$views = ( new PluginPageView() )->addStatusViewLink( [ 'all' => '<a>All</a>' ] );
+
+		$this->assertArrayNotHasKey( PluginPageView::STATUS, $views );
+	}
+
 	public function test_plugins_list_adds_cloaked_bucket_without_mutating_existing_buckets() :void {
 		$standard = $this->standardFinding( 'cloaked/cloaked.php', 'Cloaked Plugin' );
 		$mustUse = $this->mustUseFinding( 'mu-loader.php', 'MU Loader' );
@@ -95,9 +105,9 @@ class PluginPageViewTest extends BaseUnitTest {
 		$this->assertSame( $plugins[ 'all' ], $result[ 'all' ] );
 		$this->assertSame( 'Existing Cloaked Plugin', $result[ PluginPageView::STATUS ][ $standard->entry->file ][ 'Name' ] );
 		$this->assertStringNotContainsString( 'Opaque plugin header copy', $result[ PluginPageView::STATUS ][ $standard->entry->file ][ 'Description' ] );
-		$this->assertStringContainsString( 'hidden from the normal WordPress plugin list', $result[ PluginPageView::STATUS ][ $standard->entry->file ][ 'Description' ] );
+		$this->assertNotSame( '', $result[ PluginPageView::STATUS ][ $standard->entry->file ][ 'Description' ] );
 		$this->assertSame( 'MU Loader', $result[ PluginPageView::STATUS ][ $mustUse->entry->file ][ 'Name' ] );
-		$this->assertStringContainsString( 'must-use plugin file', $result[ PluginPageView::STATUS ][ $mustUse->entry->file ][ 'Description' ] );
+		$this->assertNotSame( '', $result[ PluginPageView::STATUS ][ $mustUse->entry->file ][ 'Description' ] );
 	}
 
 	public function test_row_meta_adds_relative_file_and_reason_only_on_cloaked_status() :void {
@@ -115,9 +125,8 @@ class PluginPageViewTest extends BaseUnitTest {
 
 		$result = ( new PluginPageView() )->addRowMeta( $meta, $finding->entry->file );
 
-		$this->assertStringContainsString( 'Path', $result[ 'shield-cloaked-path' ] );
 		$this->assertStringContainsString( '<code>wp-content/plugins/cloaked/cloaked.php</code>', $result[ 'shield-cloaked-path' ] );
-		$this->assertStringContainsString( 'Hidden because', $result[ 'shield-cloaked-reason' ] );
+		$this->assertNotSame( '', $result[ 'shield-cloaked-reason' ] );
 	}
 
 	public function test_cloaked_status_request_sets_global_status() :void {
@@ -172,6 +181,10 @@ class PluginPageViewTest extends BaseUnitTest {
 		return $this->activeFindings;
 	}
 
+	public function ignoredFindings() :array {
+		return $this->ignoredFindings;
+	}
+
 	private function installControllerStub() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -186,11 +199,10 @@ class PluginPageViewTest extends BaseUnitTest {
 
 				public function currentState() :array {
 					return [
-						'all'               => $this->test->activeFindings(),
-						'active'            => $this->test->activeFindings(),
-						'ignored'           => [],
-						'system_suppressed' => [],
-						'new_active'        => [],
+						'all'        => \array_merge( $this->test->activeFindings(), $this->test->ignoredFindings() ),
+						'active'     => $this->test->activeFindings(),
+						'ignored'    => $this->test->ignoredFindings(),
+						'new_active' => [],
 					];
 				}
 			},

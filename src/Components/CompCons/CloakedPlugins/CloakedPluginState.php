@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\MU\MUHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 /**
@@ -10,7 +9,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   all:list<CloakedPluginFinding>,
  *   active:list<CloakedPluginFinding>,
  *   ignored:list<CloakedPluginFinding>,
- *   system_suppressed:list<CloakedPluginFinding>,
  *   new_active:list<CloakedPluginFinding>
  * }
  */
@@ -26,17 +24,25 @@ class CloakedPluginState {
 	 * @return CloakedPluginFindingState
 	 */
 	public function classify( array $findings ) :array {
-		$ignoredIdentities = \array_fill_keys( $this->getNormalizedIgnoredIdentities( $findings ), true );
+		$ignoredIdentities = $this->getNormalizedIgnoredIdentities( $findings );
+		$userIgnoredIdentityLookup = \array_fill_keys( $ignoredIdentities, true );
 		$active = [];
 		$ignored = [];
-		$systemSuppressed = [];
+		$userIgnored = [];
 
 		foreach ( $findings as $finding ) {
-			if ( $this->isSystemSuppressed( $finding ) ) {
-				$systemSuppressed[] = $finding;
+			$identity = $finding->identityKey();
+			if ( $this->isShieldMuLoader( $finding ) ) {
+				if ( $this->isAutoIgnored( $finding ) ) {
+					$ignored[] = $finding;
+				}
+				else {
+					$active[] = $finding;
+				}
 			}
-			elseif ( isset( $ignoredIdentities[ $finding->identityKey() ] ) ) {
+			elseif ( isset( $userIgnoredIdentityLookup[ $identity ] ) ) {
 				$ignored[] = $finding;
+				$userIgnored[] = $finding;
 			}
 			else {
 				$active[] = $finding;
@@ -44,12 +50,11 @@ class CloakedPluginState {
 		}
 
 		return [
-			'all'               => \array_values( $findings ),
-			'active'            => $active,
-			'ignored'           => $ignored,
-			'system_suppressed' => $systemSuppressed,
-			'new_active'        => $this->rememberNewCandidates(
-				\array_merge( $active, $ignored ),
+			'all'        => \array_values( $findings ),
+			'active'     => $active,
+			'ignored'    => $ignored,
+			'new_active' => $this->rememberNewCandidates(
+				\array_merge( $active, $userIgnored ),
 				$active
 			),
 		];
@@ -98,6 +103,9 @@ class CloakedPluginState {
 		if ( $identity === '' || !$this->isValidIdentity( $identity, $validFindings ) ) {
 			return false;
 		}
+		if ( $this->isShieldMuLoaderIdentity( $identity, $validFindings ) ) {
+			return false;
+		}
 
 		$ignored = $this->getNormalizedIgnoredIdentities( $validFindings );
 		$ignored[] = $identity;
@@ -111,8 +119,22 @@ class CloakedPluginState {
 			return false;
 		}
 
+		if ( $this->isShieldMuLoaderIdentity( $identity, $validFindings ) ) {
+			$currentIgnored = $this->normalizeIdentityList( $this->loadIgnoredIdentities() );
+			if ( !\in_array( $identity, $currentIgnored, true ) ) {
+				return false;
+			}
+			$ignored = \array_values( \array_diff(
+				$currentIgnored,
+				[ $identity ]
+			) );
+			$this->storeIgnoredIdentities( $ignored );
+			return true;
+		}
+
+		$currentIgnored = $this->getNormalizedIgnoredIdentities( $validFindings );
 		$ignored = \array_values( \array_diff(
-			$this->getNormalizedIgnoredIdentities( $validFindings ),
+			$currentIgnored,
 			[ $identity ]
 		) );
 		$this->storeIgnoredIdentities( $ignored );
@@ -132,7 +154,7 @@ class CloakedPluginState {
 				static fn( CloakedPluginFinding $finding ) :string => $finding->identityKey(),
 				\array_values( \array_filter(
 					$validFindings,
-					fn( CloakedPluginFinding $finding ) :bool => !$this->isSystemSuppressed( $finding )
+					fn( CloakedPluginFinding $finding ) :bool => !$this->isShieldMuLoader( $finding )
 				) )
 			), true );
 			$normalized = \array_values( \array_filter(
@@ -157,17 +179,35 @@ class CloakedPluginState {
 		}
 
 		foreach ( $validFindings as $finding ) {
-			if ( !$this->isSystemSuppressed( $finding ) && $finding->identityKey() === $identity ) {
+			if ( $finding->identityKey() === $identity ) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private function isSystemSuppressed( CloakedPluginFinding $finding ) :bool {
-		return $finding->entry->type === PluginType::MustUse
-			   && $finding->entry->file === MUHandler::PLUGIN_FILE_NAME
-			   && self::con()->comps->mu->isGeneratedMuLoader( $finding->entry->file, $finding->entry->path );
+	public function isAutoIgnored( CloakedPluginFinding $finding ) :bool {
+		return ( new ShieldGeneratedMuPlugin() )->isGeneratedShieldMuLoaderFinding( $finding );
+	}
+
+	public function isShieldMuLoader( CloakedPluginFinding $finding ) :bool {
+		return ( new ShieldGeneratedMuPlugin() )->isShieldMuLoaderFinding( $finding );
+	}
+
+	/**
+	 * @param list<CloakedPluginFinding>|null $validFindings
+	 */
+	private function isShieldMuLoaderIdentity( string $identity, ?array $validFindings ) :bool {
+		if ( $validFindings === null ) {
+			return false;
+		}
+
+		foreach ( $validFindings as $finding ) {
+			if ( $finding->identityKey() === $identity && $this->isShieldMuLoader( $finding ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private function load() :array {
