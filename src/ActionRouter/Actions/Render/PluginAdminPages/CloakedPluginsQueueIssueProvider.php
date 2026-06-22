@@ -10,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	CloakedPluginFinding,
 	CloakedPluginState,
-	CloakReason,
 	PluginType
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\ActionsQueueItemIcons;
@@ -31,6 +30,11 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   tooltip:string,
  *   attributes:array<string,string>
  * }
+ * @phpstan-type CloakedPluginDetailItem array{
+ *   label:string,
+ *   value:string,
+ *   style:'text'|'code'
+ * }
  * @phpstan-type CloakedPluginDetailRow array{
  *   title:string,
  *   description:string,
@@ -45,6 +49,7 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  *   expand_accessible_label:'',
  *   expand_title:'',
  *   expansion:array{},
+ *   detail_items:list<CloakedPluginDetailItem>,
  *   explanations:list<string>,
  *   show_gear:false,
  *   actions:list<CloakedPluginDetailAction>,
@@ -217,7 +222,8 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 			'expand_accessible_label' => '',
 			'expand_title'            => '',
 			'expansion'               => [],
-			'explanations'            => $this->findingExplanations( $finding, $isIgnored ),
+			'detail_items'            => $this->findingDetailItems( $finding, $isIgnored ),
+			'explanations'            => [],
 			'show_gear'               => false,
 			'actions'                 => $this->findingActions( $finding, $isIgnored ),
 			'attributes'              => [],
@@ -241,27 +247,33 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 	}
 
 	/**
-	 * @return list<string>
+	 * @return list<CloakedPluginDetailItem>
 	 */
-	private function findingExplanations( CloakedPluginFinding $finding, bool $isIgnored ) :array {
-		$explanations = [
-			\sprintf( __( 'File: %s', 'wp-simple-firewall' ), $finding->entry->file ),
-			\sprintf( __( 'Path: %s', 'wp-simple-firewall' ), $finding->entry->path ),
-			\sprintf( __( 'Status: %s', 'wp-simple-firewall' ), $this->statusLabel( $finding ) ),
-			\sprintf(
-				__( 'Cloaked By: %s', 'wp-simple-firewall' ),
-				\implode( ', ', \array_map(
-					static fn( string $reason ) :string => CloakReason::label( $reason ),
-					$finding->cloakReasons
-				) )
-			),
+	private function findingDetailItems( CloakedPluginFinding $finding, bool $isIgnored ) :array {
+		$items = [
+			$this->detailItem( __( 'File', 'wp-simple-firewall' ), $finding->entry->file, 'code' ),
+			$this->detailItem( __( 'Path', 'wp-simple-firewall' ), $finding->relativePath(), 'code' ),
+			$this->detailItem( __( 'Status', 'wp-simple-firewall' ), $this->statusLabel( $finding ) ),
+			$this->detailItem( __( 'Hidden because', 'wp-simple-firewall' ), $finding->cloakReasonSummary() ),
 		];
 
-		$explanations[] = $isIgnored
-			? __( 'Next Step: Restore this result if it should return to active review.', 'wp-simple-firewall' )
-			: $this->nextStep( $finding );
+		if ( !$isIgnored ) {
+			$items[] = $this->detailItem( __( 'Recommended action', 'wp-simple-firewall' ), $this->recommendedAction( $finding ) );
+		}
 
-		return $explanations;
+		return $items;
+	}
+
+	/**
+	 * @param 'text'|'code' $style
+	 * @return CloakedPluginDetailItem
+	 */
+	private function detailItem( string $label, string $value, string $style = 'text' ) :array {
+		return [
+			'label' => $label,
+			'value' => $value,
+			'style' => $style,
+		];
 	}
 
 	private function statusLabel( CloakedPluginFinding $finding ) :string {
@@ -272,19 +284,19 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 				return __( 'Network Active', 'wp-simple-firewall' );
 			case 'active':
 				return __( 'Active', 'wp-simple-firewall' );
-			default:
+			case 'inactive':
 				return __( 'Inactive', 'wp-simple-firewall' );
 		}
 	}
 
-	private function nextStep( CloakedPluginFinding $finding ) :string {
+	private function recommendedAction( CloakedPluginFinding $finding ) :string {
 		if ( $finding->entry->type === PluginType::MustUse ) {
-			return __( 'Next Step: Remove this must-use plugin file manually if it should not be installed.', 'wp-simple-firewall' );
+			return __( 'Remove this must-use plugin file if it should not be installed.', 'wp-simple-firewall' );
 		}
 
 		return ( $finding->active || $finding->networkActive )
-			? __( 'Next Step: Deactivate this plugin, then remove the file if it should not be installed.', 'wp-simple-firewall' )
-			: __( 'Next Step: Remove this plugin file manually if it should not be installed.', 'wp-simple-firewall' );
+			? __( 'Deactivate this plugin, then remove the file if it should not be installed.', 'wp-simple-firewall' )
+			: __( 'Remove this plugin file if it should not be installed.', 'wp-simple-firewall' );
 	}
 
 	/**
@@ -348,13 +360,13 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 			'icon'       => $isIgnored ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill',
 			'is_action'  => true,
 			'tooltip'    => $isIgnored
-				? __( 'Restore this cloaked plugin result to active review.', 'wp-simple-firewall' )
+				? __( 'Stop ignoring this cloaked plugin result.', 'wp-simple-firewall' )
 				: __( 'Ignore this cloaked plugin result.', 'wp-simple-firewall' ),
 			'attributes' => [
 				'data-operator-context-action-ajax'       => '1',
 				'data-operator-context-action-json'       => OperatorChromeContract::encodeJson( $actionData ),
 				'data-operator-context-action-processing' => $isIgnored
-					? __( 'Restoring cloaked plugin...', 'wp-simple-firewall' )
+					? __( 'Stopping ignore...', 'wp-simple-firewall' )
 					: __( 'Ignoring cloaked plugin...', 'wp-simple-firewall' ),
 			],
 		];

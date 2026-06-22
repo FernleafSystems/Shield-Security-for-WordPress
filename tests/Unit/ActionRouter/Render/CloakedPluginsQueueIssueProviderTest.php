@@ -31,6 +31,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	UnitTestRequest,
 	UnitTestUsers
 };
+use FernleafSystems\Wordpress\Services\Core\Fs;
 
 class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 
@@ -44,6 +45,9 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
+		);
+		Functions\when( 'wp_normalize_path' )->alias(
+			static fn( string $path ) :string => \str_replace( '\\', '/', $path )
 		);
 		Functions\when( 'wp_create_nonce' )->alias( static fn( string $action ) :string => 'nonce-'.$action );
 		Functions\when( 'wp_hash' )->alias(
@@ -70,6 +74,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 			'service_wpgeneral' => new UnitTestGeneral(),
 			'service_request'   => new UnitTestRequest(),
 			'service_wpusers'   => new UnitTestUsers( 7 ),
+			'service_wpfs'      => new Fs(),
 		] );
 		UnitTestControllerFactory::install();
 	}
@@ -130,7 +135,9 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$this->assertTrue( $row[ 'actions' ][ 1 ][ 'is_action' ] );
 		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 1 ] )[ 'ex' ] ?? '' );
 		$this->assertSame( '1', $row[ 'actions' ][ 1 ][ 'attributes' ][ 'data-operator-context-action-ajax' ] );
-		$this->assertStringContainsString( '/plugins/cloaked/cloaked.php', \implode( "\n", $row[ 'explanations' ] ) );
+		$this->assertSame( [], $row[ 'explanations' ] );
+		$this->assertSame( 'code', $row[ 'detail_items' ][ 1 ][ 'style' ] );
+		$this->assertSame( 'wp-content/plugins/cloaked/cloaked.php', $this->detailItemValue( $row, 'Path' ) );
 	}
 
 	public function test_clear_state_is_good_without_attention_item() :void {
@@ -165,7 +172,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$this->assertSame( '/plugins-search', $row[ 'actions' ][ 0 ][ 'href' ] );
 		$this->assertSame( 'navigate', $row[ 'actions' ][ 0 ][ 'type' ] );
 		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 1 ] )[ 'ex' ] ?? '' );
-		$this->assertStringContainsString( 'Final Plugins List', \implode( "\n", $row[ 'explanations' ] ) );
+		$this->assertStringContainsString( 'final plugin list', $this->detailItemValue( $row, 'Hidden because' ) );
 	}
 
 	public function test_must_use_plugin_has_manual_remediation_with_ignore_action() :void {
@@ -184,8 +191,9 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 
 		$this->assertCount( 1, $row[ 'actions' ] );
 		$this->assertSame( CloakedPluginIgnore::SLUG, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ex' ] ?? '' );
-		$this->assertStringContainsString( '/mu-plugins/loader.php', \implode( "\n", $row[ 'explanations' ] ) );
-		$this->assertStringContainsString( 'manual', \strtolower( \implode( "\n", $row[ 'explanations' ] ) ) );
+		$this->assertSame( 'wp-content/mu-plugins/loader.php', $this->detailItemValue( $row, 'Path' ) );
+		$this->assertStringNotContainsString( 'Next Step', \implode( "\n", \array_column( $row[ 'detail_items' ], 'value' ) ) );
+		$this->assertStringContainsString( 'Remove this must-use plugin file', $this->detailItemValue( $row, 'Recommended action' ) );
 	}
 
 	public function test_ignored_plugin_is_shown_in_detail_without_active_attention_item() :void {
@@ -213,6 +221,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$this->assertSame( 'Ignored', $row[ 'status_label' ] );
 		$this->assertSame( CloakedPluginUnignore::SLUG, $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'ex' ] ?? '' );
 		$this->assertSame( $ignoredFinding->identityKey(), $this->decodeAction( $row[ 'actions' ][ 0 ] )[ 'finding_id' ] ?? '' );
+		$this->assertFalse( $this->hasDetailItem( $row, 'Recommended action' ) );
 	}
 
 	private function finding(
@@ -227,6 +236,25 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 	private function decodeAction( array $action ) :array {
 		$decoded = \json_decode( $action[ 'attributes' ][ 'data-operator-context-action-json' ] ?? '', true );
 		return \is_array( $decoded ) ? $decoded : [];
+	}
+
+	private function detailItemValue( array $row, string $label ) :string {
+		foreach ( $row[ 'detail_items' ] as $detailItem ) {
+			if ( $detailItem[ 'label' ] === $label ) {
+				return $detailItem[ 'value' ];
+			}
+		}
+
+		$this->fail( 'Missing cloaked plugin detail item: '.$label );
+	}
+
+	private function hasDetailItem( array $row, string $label ) :bool {
+		foreach ( $row[ 'detail_items' ] as $detailItem ) {
+			if ( $detailItem[ 'label' ] === $label ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
 

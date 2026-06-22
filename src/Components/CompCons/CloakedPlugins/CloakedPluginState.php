@@ -167,11 +167,7 @@ class CloakedPluginState {
 	private function isSystemSuppressed( CloakedPluginFinding $finding ) :bool {
 		return $finding->entry->type === PluginType::MustUse
 			   && $finding->entry->file === MUHandler::PLUGIN_FILE_NAME
-			   && $this->isShieldMuExpected();
-	}
-
-	protected function isShieldMuExpected() :bool {
-		return self::con()->comps->mu->isExpectedMU();
+			   && self::con()->comps->mu->isGeneratedMuLoader( $finding->entry->file, $finding->entry->path );
 	}
 
 	private function load() :array {

@@ -10,17 +10,33 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	PluginType
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
+use FernleafSystems\Wordpress\Services\Core\Fs;
 
 class CloakedPluginFindingTest extends BaseUnitTest {
+
+	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'wp_normalize_path' )->alias(
+			static fn( string $path ) :string => \str_replace( '\\', '/', $path )
+		);
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::mergeItems( [
+			'service_wpfs' => new Fs(),
+		] );
+	}
+
+	protected function tearDown() :void {
+		ServicesState::restore( $this->servicesSnapshot );
+		parent::tearDown();
 	}
 
 	public function testAlertDataContractIsCompleteAndStable() :void {
 		$finding = new CloakedPluginFinding(
-			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked Plugin', '1.2.3', '/plugins/cloaked/cloaked.php' ),
+			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked Plugin', '1.2.3', ABSPATH.'wp-content/plugins/cloaked/cloaked.php' ),
 			[ CloakReason::AllPlugins, CloakReason::PluginsList ],
 			true,
 			false,
@@ -35,10 +51,13 @@ class CloakedPluginFindingTest extends BaseUnitTest {
 			'file'             => 'cloaked/cloaked.php',
 			'name'             => 'Cloaked Plugin',
 			'version'          => '1.2.3',
-			'location'         => 'plugins/cloaked/cloaked.php',
+			'location'         => 'wp-content/plugins/cloaked/cloaked.php',
 			'status'           => 'active',
 			'hidden_by'        => [ 'all_plugins', 'plugins_list' ],
-			'hidden_by_labels' => [ 'Removed By all_plugins Filter', 'Removed From Final Plugins List' ],
+			'hidden_by_labels' => [
+				'Removed before WordPress built the plugin list',
+				'Removed from the final plugin list shown to admins',
+			],
 			'detected_at'      => 123456,
 		], $alertData );
 	}
@@ -54,7 +73,7 @@ class CloakedPluginFindingTest extends BaseUnitTest {
 
 		$alertData = $finding->toAlertData();
 
-		$this->assertSame( 'mu-plugins/loader.php', $alertData[ 'location' ] );
+		$this->assertSame( 'wp-content/mu-plugins/loader.php', $alertData[ 'location' ] );
 		$this->assertArrayNotHasKey( 'path', $alertData );
 	}
 

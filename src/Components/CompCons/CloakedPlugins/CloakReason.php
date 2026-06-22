@@ -27,13 +27,13 @@ final class CloakReason {
 
 		switch ( $reason ) {
 			case self::WpDiscoveryCacheGap:
-				return __( 'Missing From WordPress Discovery Cache', 'wp-simple-firewall' );
+				return __( 'Missing from WordPress plugin discovery', 'wp-simple-firewall' );
 			case self::AllPlugins:
-				return __( 'Removed By all_plugins Filter', 'wp-simple-firewall' );
+				return __( 'Removed before WordPress built the plugin list', 'wp-simple-firewall' );
 			case self::ShowAdvancedPlugins:
-				return __( 'Must-Use Plugins Cloaked', 'wp-simple-firewall' );
+				return __( 'Must-use plugins are hidden from the Plugins page', 'wp-simple-firewall' );
 			case self::PluginsList:
-				return __( 'Removed From Final Plugins List', 'wp-simple-firewall' );
+				return __( 'Removed from the final plugin list shown to admins', 'wp-simple-firewall' );
 		}
 	}
 

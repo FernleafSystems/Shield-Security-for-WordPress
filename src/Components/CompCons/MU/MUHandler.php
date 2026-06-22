@@ -50,8 +50,14 @@ class MUHandler {
 		return Services::WpFs()->isAccessibleFile( $this->getMuFilePath() );
 	}
 
-	public function isExpectedMU(): bool {
-		return self::con()->opts->optIs( self::OPT_ENABLE_MU, 'Y' ) && $this->isActiveMU();
+	public function isGeneratedMuLoader( string $file, string $path ) :bool {
+		if ( $file !== self::PLUGIN_FILE_NAME || !$this->isMuLoaderPath( $path ) || !Services::WpFs()->isAccessibleFile( $path ) ) {
+			return false;
+		}
+
+		$content = (string)Services::WpFs()->getFileContent( $path );
+		return \strpos( $content, "\$shieldFile = '".self::con()->getRootFile()."';" ) !== false
+			   && \strpos( $content, 'require_once( $shieldFile );' ) !== false;
 	}
 
 	/**
@@ -121,6 +127,10 @@ class MUHandler {
 
 	private function getMuFilePath(): string {
 		return path_join( $this->getMuDir(), self::PLUGIN_FILE_NAME );
+	}
+
+	private function isMuLoaderPath( string $path ) :bool {
+		return \rtrim( \str_replace( '\\', '/', $path ), '/' ) === \rtrim( \str_replace( '\\', '/', $this->getMuFilePath() ), '/' );
 	}
 
 	private function getMuDir(): string {

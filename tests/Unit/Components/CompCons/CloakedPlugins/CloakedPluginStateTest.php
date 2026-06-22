@@ -27,12 +27,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 class CloakedPluginStateTest extends BaseUnitTest {
 
 	private CloakedPluginStateOptionsStub $opts;
+	private CloakedPluginStateMuStub $mu;
 
 	protected function setUp() :void {
 		parent::setUp();
 		$this->opts = new CloakedPluginStateOptionsStub();
+		$this->mu = new CloakedPluginStateMuStub();
 		UnitTestControllerFactory::install( null, null, (object)[
 			'opts' => $this->opts,
+			'comps' => (object)[
+				'mu' => $this->mu,
+			],
 		] );
 	}
 
@@ -61,7 +66,7 @@ class CloakedPluginStateTest extends BaseUnitTest {
 	}
 
 	public function testClassifyExcludesIgnoredFindingFromActiveAndNewActive() :void {
-		$state = new CloakedPluginStateTestDouble( false );
+		$state = new CloakedPluginState();
 		$finding = $this->finding( 'cloaked/cloaked.php' );
 		$this->opts->values[ CloakedPluginState::IGNORE_OPT_KEY ] = [
 			$finding->identityKey(),
@@ -81,7 +86,7 @@ class CloakedPluginStateTest extends BaseUnitTest {
 	}
 
 	public function testClassifySuppressesExpectedShieldMuLoader() :void {
-		$state = new CloakedPluginStateTestDouble( true );
+		$state = new CloakedPluginState();
 		$finding = new CloakedPluginFinding(
 			new PluginEntry( PluginType::MustUse, MUHandler::PLUGIN_FILE_NAME, 'Shield MU', '1.0', '/mu-plugins/'.MUHandler::PLUGIN_FILE_NAME ),
 			[ CloakReason::ShowAdvancedPlugins ],
@@ -89,6 +94,7 @@ class CloakedPluginStateTest extends BaseUnitTest {
 			false,
 			123
 		);
+		$this->mu->generatedMuLoaders[ $finding->entry->file.'|'.$finding->entry->path ] = true;
 
 		$result = $state->classify( [ $finding ] );
 
@@ -100,7 +106,7 @@ class CloakedPluginStateTest extends BaseUnitTest {
 	}
 
 	public function testClassifyDoesNotSuppressShieldMuLoaderWhenUnexpected() :void {
-		$state = new CloakedPluginStateTestDouble( false );
+		$state = new CloakedPluginState();
 		$finding = new CloakedPluginFinding(
 			new PluginEntry( PluginType::MustUse, MUHandler::PLUGIN_FILE_NAME, 'Shield MU', '1.0', '/mu-plugins/'.MUHandler::PLUGIN_FILE_NAME ),
 			[ CloakReason::ShowAdvancedPlugins ],
@@ -127,19 +133,6 @@ class CloakedPluginStateTest extends BaseUnitTest {
 	}
 }
 
-class CloakedPluginStateTestDouble extends CloakedPluginState {
-
-	private bool $isShieldMuExpected;
-
-	public function __construct( bool $isShieldMuExpected ) {
-		$this->isShieldMuExpected = $isShieldMuExpected;
-	}
-
-	protected function isShieldMuExpected() :bool {
-		return $this->isShieldMuExpected;
-	}
-}
-
 class CloakedPluginStateOptionsStub {
 
 	public array $values = [
@@ -158,5 +151,14 @@ class CloakedPluginStateOptionsStub {
 
 	public function store() :self {
 		return $this;
+	}
+}
+
+class CloakedPluginStateMuStub {
+
+	public array $generatedMuLoaders = [];
+
+	public function isGeneratedMuLoader( string $file, string $path ) :bool {
+		return (bool)( $this->generatedMuLoaders[ $file.'|'.$path ] ?? false );
 	}
 }

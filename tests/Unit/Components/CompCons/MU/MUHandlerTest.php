@@ -156,6 +156,25 @@ class MUHandlerTest extends BaseUnitTest {
 		}
 	}
 
+	public function testGeneratedMuLoaderRecognizesShieldOwnedFileWithoutOptionState() :void {
+		$rootFile = 'vfs/wp-content/plugins/wp-simple-firewall/icwp-wpsf.php';
+		$path = WPMU_PLUGIN_DIR.'/'.MUHandler::PLUGIN_FILE_NAME;
+		$fs = new MUHandlerFsStub();
+		$fs->setFile( $path, "<?php\n\$shieldFile = '{$rootFile}';\nrequire_once( \$shieldFile );\n" );
+		UnitTestControllerFactory::install( null, null, (object)[
+			'root_file' => $rootFile,
+		] );
+		ServicesState::installItems( [
+			'service_wpfs' => $fs,
+		] );
+
+		$handler = new MUHandler();
+
+		$this->assertTrue( $handler->isGeneratedMuLoader( MUHandler::PLUGIN_FILE_NAME, $path ) );
+		$this->assertFalse( $handler->isGeneratedMuLoader( 'other.php', $path ) );
+		$this->assertFalse( $handler->isGeneratedMuLoader( MUHandler::PLUGIN_FILE_NAME, WPMU_PLUGIN_DIR.'/other.php' ) );
+	}
+
 	private function installHookController(
 		bool $muEnabled,
 		array $changedOptions,
@@ -250,6 +269,10 @@ class MUHandlerFsStub extends Fs {
 
 	public function hasFile( string $path ) :bool {
 		return isset( $this->files[ $path ] );
+	}
+
+	public function setFile( string $path, string $content ) :void {
+		$this->files[ $path ] = $content;
 	}
 
 	public function writeCount() :int {

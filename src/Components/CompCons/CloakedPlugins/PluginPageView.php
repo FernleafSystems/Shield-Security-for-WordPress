@@ -17,6 +17,7 @@ class PluginPageView {
 		add_filter( 'views_plugins', [ $this, 'addStatusViewLink' ], 1000 );
 		add_filter( 'plugin_action_links', [ $this, 'filterActionLinks' ], 1000, 4 );
 		add_filter( 'mu_plugin_action_links', [ $this, 'filterActionLinks' ], 1000, 4 );
+		add_filter( 'plugin_row_meta', [ $this, 'addRowMeta' ], 1000, 4 );
 	}
 
 	public function setCurrentStatus() :void {
@@ -72,6 +73,32 @@ class PluginPageView {
 			: $actions;
 	}
 
+	public function addRowMeta( $pluginMeta, string $pluginFile = '', $pluginData = [], string $status = '' ) {
+		unset( $pluginData, $status );
+
+		if ( !$this->isCloakedStatusRequest() || !\is_array( $pluginMeta ) ) {
+			return $pluginMeta;
+		}
+
+		$finding = $this->activeFindingForFile( $pluginFile );
+		if ( !$finding instanceof CloakedPluginFinding ) {
+			return $pluginMeta;
+		}
+
+		$pluginMeta[ 'shield-cloaked-path' ] = \sprintf(
+			'%s: <code>%s</code>',
+			$this->escapeHtml( __( 'Path', 'wp-simple-firewall' ) ),
+			$this->escapeHtml( $finding->relativePath() )
+		);
+		$pluginMeta[ 'shield-cloaked-reason' ] = \sprintf(
+			'%s: %s',
+			$this->escapeHtml( __( 'Hidden because', 'wp-simple-firewall' ) ),
+			$this->escapeHtml( $finding->cloakReasonSummary() )
+		);
+
+		return $pluginMeta;
+	}
+
 	private function isCloakedStatusRequest() :bool {
 		return (string)Services::Request()->query( 'plugin_status' ) === self::STATUS;
 	}
@@ -111,18 +138,17 @@ class PluginPageView {
 	private function rowDataForFinding( CloakedPluginFinding $finding, array $plugins ) :array {
 		foreach ( $plugins as $group ) {
 			if ( \is_array( $group ) && \is_array( $group[ $finding->entry->file ] ?? null ) ) {
-				return $group[ $finding->entry->file ];
+				return $this->normalizeRowDataForFinding( $finding, $group[ $finding->entry->file ] );
 			}
 		}
 
-		return $this->fallbackRowDataForFinding( $finding );
+		return $this->normalizeRowDataForFinding( $finding, $this->readPluginData( $finding->entry->path ) );
 	}
 
 	/**
 	 * @return array<string,mixed>
 	 */
-	private function fallbackRowDataForFinding( CloakedPluginFinding $finding ) :array {
-		$data = $this->readPluginData( $finding->entry->path );
+	private function normalizeRowDataForFinding( CloakedPluginFinding $finding, array $data ) :array {
 		$name = \trim( (string)( $data[ 'Name' ] ?? '' ) );
 		if ( $name === '' ) {
 			$name = \trim( $finding->entry->name ) !== '' ? $finding->entry->name : $finding->entry->file;
@@ -138,10 +164,7 @@ class PluginPageView {
 				'Name'        => $name,
 				'PluginURI'   => '',
 				'Version'     => $version,
-				'Description' => \sprintf(
-					__( 'Cloaked %s plugin file detected by Shield.', 'wp-simple-firewall' ),
-					PluginType::label( $finding->entry->type )
-				),
+				'Description' => '',
 				'Author'      => '',
 				'AuthorURI'   => '',
 				'TextDomain'  => '',
@@ -155,16 +178,36 @@ class PluginPageView {
 			],
 			$data,
 			[
-				'Name'    => $name,
-				'Version' => $version,
-				'Title'   => $name,
+				'Name'        => $name,
+				'Version'     => $version,
+				'Description' => $this->rowDescription( $finding ),
+				'Title'       => $name,
 			]
 		);
+	}
+
+	private function rowDescription( CloakedPluginFinding $finding ) :string {
+		return \sprintf(
+			__( 'Shield found this %s file on disk, but it is hidden from the normal WordPress plugin list.', 'wp-simple-firewall' ),
+			$this->pluginTypeSentenceLabel( $finding->entry->type )
+		);
+	}
+
+	private function pluginTypeSentenceLabel( string $type ) :string {
+		PluginType::assertValid( $type );
+
+		return $type === PluginType::MustUse
+			? __( 'must-use plugin', 'wp-simple-firewall' )
+			: __( 'plugin', 'wp-simple-firewall' );
 	}
 
 	private function readPluginData( string $path ) :array {
 		return \is_readable( $path ) && \function_exists( 'get_plugin_data' )
 			? \get_plugin_data( $path, false, false )
 			: [];
+	}
+
+	private function escapeHtml( string $value ) :string {
+		return \htmlspecialchars( $value, \ENT_QUOTES | \ENT_SUBSTITUTE, 'UTF-8' );
 	}
 }

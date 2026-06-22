@@ -60,7 +60,7 @@ class InstantAlertSafeDisplayRenderingIntegrationTest extends ShieldIntegrationT
 			'alert_data' => [
 				'hidden_plugins' => [
 					$this->cloakedPluginAlertFixture( 'plugin', 'active', 'hidden-plugin/hidden-plugin.php' ),
-					$this->cloakedPluginAlertFixture( 'mu-plugin', 'mustuse', 'hidden-mu-plugin.php' ),
+					$this->cloakedPluginAlertFixture( 'mu-plugin', 'must-use', 'hidden-mu-plugin.php' ),
 				],
 			],
 		] );

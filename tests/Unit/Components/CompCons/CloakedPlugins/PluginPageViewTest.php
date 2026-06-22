@@ -26,6 +26,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	UnitTestPluginUrls,
 	UnitTestRequest
 };
+use FernleafSystems\Wordpress\Services\Core\Fs;
 
 class PluginPageViewTest extends BaseUnitTest {
 
@@ -35,10 +36,14 @@ class PluginPageViewTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'wp_normalize_path' )->alias(
+			static fn( string $path ) :string => \str_replace( '\\', '/', $path )
+		);
 		Functions\when( 'number_format_i18n' )->alias( static fn( int $number ) :string => (string)$number );
 		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::mergeItems( [
 			'service_request' => new UnitTestRequest(),
+			'service_wpfs'    => new Fs(),
 		] );
 		$this->installControllerStub();
 	}
@@ -77,8 +82,9 @@ class PluginPageViewTest extends BaseUnitTest {
 		$plugins = [
 			'all'     => [
 				'cloaked/cloaked.php' => [
-					'Name'    => 'Existing Cloaked Plugin',
-					'Version' => '9.9.9',
+					'Name'        => 'Existing Cloaked Plugin',
+					'Version'     => '9.9.9',
+					'Description' => 'Opaque plugin header copy.',
 				],
 			],
 			'mustuse' => [],
@@ -88,8 +94,30 @@ class PluginPageViewTest extends BaseUnitTest {
 
 		$this->assertSame( $plugins[ 'all' ], $result[ 'all' ] );
 		$this->assertSame( 'Existing Cloaked Plugin', $result[ PluginPageView::STATUS ][ $standard->entry->file ][ 'Name' ] );
+		$this->assertStringNotContainsString( 'Opaque plugin header copy', $result[ PluginPageView::STATUS ][ $standard->entry->file ][ 'Description' ] );
+		$this->assertStringContainsString( 'hidden from the normal WordPress plugin list', $result[ PluginPageView::STATUS ][ $standard->entry->file ][ 'Description' ] );
 		$this->assertSame( 'MU Loader', $result[ PluginPageView::STATUS ][ $mustUse->entry->file ][ 'Name' ] );
-		$this->assertStringContainsString( 'Must-Use', $result[ PluginPageView::STATUS ][ $mustUse->entry->file ][ 'Description' ] );
+		$this->assertStringContainsString( 'must-use plugin file', $result[ PluginPageView::STATUS ][ $mustUse->entry->file ][ 'Description' ] );
+	}
+
+	public function test_row_meta_adds_relative_file_and_reason_only_on_cloaked_status() :void {
+		$finding = $this->standardFinding( 'cloaked/cloaked.php', 'Cloaked Plugin' );
+		$this->activeFindings = [ $finding ];
+		$meta = [ 'version' => 'Version 1.0' ];
+
+		$this->assertSame( $meta, ( new PluginPageView() )->addRowMeta( $meta, $finding->entry->file ) );
+
+		ServicesState::mergeItems( [
+			'service_request' => new UnitTestRequest( [
+				'plugin_status' => PluginPageView::STATUS,
+			] ),
+		] );
+
+		$result = ( new PluginPageView() )->addRowMeta( $meta, $finding->entry->file );
+
+		$this->assertStringContainsString( 'Path', $result[ 'shield-cloaked-path' ] );
+		$this->assertStringContainsString( '<code>wp-content/plugins/cloaked/cloaked.php</code>', $result[ 'shield-cloaked-path' ] );
+		$this->assertStringContainsString( 'Hidden because', $result[ 'shield-cloaked-reason' ] );
 	}
 
 	public function test_cloaked_status_request_sets_global_status() :void {
