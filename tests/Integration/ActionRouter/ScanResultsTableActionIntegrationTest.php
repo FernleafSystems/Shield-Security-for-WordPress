@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\ScanResultsTableAction,
 	Exceptions\InvalidActionNonceException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
 	ActionsQueueScanResultScopeStateBuilder,
 	ScanResultsDisplayOptions
@@ -480,6 +481,49 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( (int)$tracked[ 'result_item_id' ], (int)$row[ 'rid' ] );
 		$this->assertSame( [ 'view', 'delete', 'ignore' ], $row[ 'action_ids' ] );
+	}
+
+	public function test_plugin_scope_table_ignores_asset_scoped_non_file_rows() :void {
+		$pluginFile = self::con()->base_file;
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$tracked = TestDataFactory::insertAfsFileScanResultTracked( $scanId, $this->pluginPathFragment( $pluginFile ), [
+			'is_checksumfail' => 1,
+			'is_in_plugin'    => 1,
+			'ptg_slug'        => $pluginFile,
+		] );
+		self::con()->db_con->scan_result_items->getQueryUpdater()->updateById( $tracked[ 'result_item_id' ], [
+			'item_type' => ResultItemsHandler::ITEM_TYPE_PLUGIN,
+		] );
+
+		$payload = $this->retrieveRows( 'plugin', $pluginFile, ( new ScanResultsDisplayOptions() )->activeOnly() );
+
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( 0, $payload[ 'datatable_data' ][ 'recordsTotal' ] );
+		$this->assertSame( 0, $payload[ 'datatable_data' ][ 'recordsFiltered' ] );
+		$this->assertSame( [], $payload[ 'datatable_data' ][ 'data' ] );
+	}
+
+	public function test_plugin_scope_table_does_not_fatal_when_blank_path_rows_are_cleaned() :void {
+		$pluginFile = self::con()->base_file;
+		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$tracked = TestDataFactory::insertScanResultItemTracked( $scanId, [
+			'item_id'         => '',
+			'is_checksumfail' => 1,
+			'is_in_plugin'    => 1,
+			'ptg_slug'        => $pluginFile,
+		] );
+
+		$payload = $this->retrieveRows( 'plugin', $pluginFile, ( new ScanResultsDisplayOptions() )->activeOnly() );
+
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertTrue( $payload[ 'datatable_data' ][ 'scan_results_changed' ] );
+		$this->assertSame( 0, $payload[ 'datatable_data' ][ 'recordsTotal' ] );
+		$this->assertSame( 0, $payload[ 'datatable_data' ][ 'recordsFiltered' ] );
+		$this->assertSame( [], $payload[ 'datatable_data' ][ 'data' ] );
+
+		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( $tracked[ 'result_item_id' ] );
+		$this->assertGreaterThan( 0, $item->resolved_at );
+		$this->assertSame( 'asset_replaced', $item->resolution_reason );
 	}
 
 	public function test_theme_row_actions_use_theme_route_scope_and_delete_id_without_repair() :void {

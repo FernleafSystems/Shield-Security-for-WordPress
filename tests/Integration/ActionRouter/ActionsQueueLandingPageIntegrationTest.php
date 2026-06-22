@@ -25,6 +25,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
@@ -1013,6 +1014,42 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			[ (int)$active[ 'result_item_id' ] ],
 			$ignoredIds
 		);
+	}
+
+	public function test_plugin_asset_cleanup_resolves_modified_and_added_rows_before_actions_queue_grouping() :void {
+		$this->enableAssetScanFixture( [ 'plugins' ] );
+
+		$pluginSlug = self::con()->base_file;
+		$pluginDir = \trim( \dirname( $pluginSlug ), './\\' );
+		$addedPath = \wp_normalize_path(
+			WP_PLUGIN_DIR.'/'.( $pluginDir === '' ? 'shield-added-after-reinstall.php' : $pluginDir.'/shield-added-after-reinstall.php' )
+		);
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		$modified = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
+			'is_in_plugin'    => 1,
+			'is_checksumfail' => 1,
+			'ptg_slug'        => $pluginSlug,
+		] );
+		$added = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $addedPath, [
+			'is_in_plugin'    => 1,
+			'is_unrecognised' => 1,
+			'ptg_slug'        => $pluginSlug,
+		] );
+		$this->resetScanResultCountMemoization();
+
+		$beforeGroups = $this->buildActionsQueueGroupMetrics();
+		$this->assertSame( 2, $this->groupCountForPrefix( $beforeGroups, 'plugins:' ) );
+
+		( new Cleanup() )->run( 'plugin', $pluginSlug );
+		$this->resetScanResultCountMemoization();
+
+		$afterGroups = $this->buildActionsQueueGroupMetrics();
+		$this->assertSame( 0, $this->groupCountForPrefix( $afterGroups, 'plugins:' ) );
+		foreach ( [ $modified, $added ] as $tracked ) {
+			$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( $tracked[ 'result_item_id' ] );
+			$this->assertGreaterThan( 0, $item->resolved_at );
+			$this->assertSame( 'asset_replaced', $item->resolution_reason );
+		}
 	}
 
 	public function test_historical_non_active_plugin_rows_do_not_create_actions_queue_work() :void {

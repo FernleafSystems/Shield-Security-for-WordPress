@@ -58,6 +58,9 @@ class Cleanup {
 	private function resolveReplacedFindings( string $assetType, string $assetKey ) :void {
 		$dbCon = self::con()->db_con;
 		$now = Services::Request()->ts();
+		$integrityMetaKeys = $assetType === 'core'
+			? "'is_checksumfail','is_missing'"
+			: "'is_checksumfail','is_missing','is_unrecognised'";
 
 		Services::WpDb()->doSql(
 			sprintf(
@@ -72,7 +75,7 @@ class Cleanup {
 						SELECT 1
 						FROM `%s` AS `rim`
 						WHERE `rim`.`ri_ref`=`%s`.`id`
-						  AND `rim`.`meta_key` IN ('is_checksumfail','is_missing')
+						  AND `rim`.`meta_key` IN (%s)
 						  AND `rim`.`meta_value`!=''
 						  AND `rim`.`meta_value`!='0'
 					  );",
@@ -81,7 +84,8 @@ class Cleanup {
 				esc_sql( $assetType ),
 				esc_sql( $assetKey ),
 				$dbCon->scan_result_item_meta->getTable(),
-				$dbCon->scan_result_items->getTable()
+				$dbCon->scan_result_items->getTable(),
+				$integrityMetaKeys
 			)
 		);
 		self::con()->comps->scans->resetScanResultsCountMemoization();

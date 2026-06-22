@@ -194,8 +194,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertCount( 1, $wpDb->queries );
 		$this->assertStringContainsString( "`asset_type`='{$assetType}'", $wpDb->queries[ 0 ] );
 		$this->assertStringContainsString( "`asset_key`='{$assetKey}'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "'is_checksumfail','is_missing'", $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unrecognised', $wpDb->queries[ 0 ] );
+		$this->assertStringContainsString( "'is_checksumfail','is_missing','is_unrecognised'", $wpDb->queries[ 0 ] );
 		$this->assertStringNotContainsString( 'is_unidentified', $wpDb->queries[ 0 ] );
 		$this->assertStringNotContainsString( 'is_mal', $wpDb->queries[ 0 ] );
 		$this->assertSame( $expectedSchedule, $scheduled );
@@ -238,8 +237,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertStringContainsString( "`resolution_reason`='asset_replaced'", $wpDb->queries[ 0 ] );
 		$this->assertStringContainsString( "`asset_type`='plugin'", $wpDb->queries[ 0 ] );
 		$this->assertStringContainsString( "`asset_key`='cleanup-plugin/cleanup-plugin.php'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "'is_checksumfail','is_missing'", $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unrecognised', $wpDb->queries[ 0 ] );
+		$this->assertStringContainsString( "'is_checksumfail','is_missing','is_unrecognised'", $wpDb->queries[ 0 ] );
 		$this->assertStringNotContainsString( 'is_unidentified', $wpDb->queries[ 0 ] );
 		$this->assertStringNotContainsString( 'is_mal', $wpDb->queries[ 0 ] );
 	}
@@ -273,6 +271,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$theme = new SnapshotThemeVo( 'cleanup-theme', '3.1.0' );
 		$this->writeFile( WP_CONTENT_DIR.'/themes/'.$theme->stylesheet.'/style.php', "<?php\n" );
 
+		$wpDb = new AssetChangeCleanupWpDb();
 		$scans = new AssetChangeCleanupScans();
 		$this->installController( $scans );
 		$this->installSnapshotEnvironment(
@@ -286,7 +285,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			'unique_id' => $theme->stylesheet,
 		] );
 		ServicesState::mergeItems( [
-			'service_wpdb' => new AssetChangeCleanupWpDb(),
+			'service_wpdb' => $wpDb,
 		] );
 
 		( new Cleanup() )->run( 'theme', $theme->stylesheet );
@@ -301,6 +300,11 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'style.php', $snapData );
 		$this->assertSame( \md5_file( WP_CONTENT_DIR.'/themes/'.$theme->stylesheet.'/style.php' ), $snapData[ 'style.php' ] );
 		$this->assertSame( '3.1.0', $store->getSnapMeta()[ 'version' ] );
+		$this->assertStringContainsString( "`asset_type`='theme'", $wpDb->queries[ 0 ] );
+		$this->assertStringContainsString( "`asset_key`='cleanup-theme'", $wpDb->queries[ 0 ] );
+		$this->assertStringContainsString( "'is_checksumfail','is_missing','is_unrecognised'", $wpDb->queries[ 0 ] );
+		$this->assertStringNotContainsString( 'is_unidentified', $wpDb->queries[ 0 ] );
+		$this->assertStringNotContainsString( 'is_mal', $wpDb->queries[ 0 ] );
 	}
 
 	public function test_missing_plugin_or_theme_asset_still_starts_scoped_scan_after_cleanup() :void {
