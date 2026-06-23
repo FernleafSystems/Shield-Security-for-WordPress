@@ -10,12 +10,20 @@ class PingSender {
 
 	use PluginControllerConsumer;
 
+	private SyncSiteUrlValidator $urlValidator;
+
+	public function __construct( ?SyncSiteUrlValidator $urlValidator = null ) {
+		$this->urlValidator = $urlValidator ?? new SyncSiteUrlValidator();
+	}
+
 	/**
 	 * @return array{success:bool,http_code:int,error:string}
 	 */
 	public function send( string $url, int $timeout = 5, string $importID = '' ) :array {
-		$url = Services::Data()->validateSimpleHttpUrl( $url );
-		if ( $url === false ) {
+		try {
+			$url = $this->urlValidator->validateTrustedSyncUrl( $url );
+		}
+		catch ( \InvalidArgumentException $e ) {
 			return self::result( false, 0, 'invalid_url' );
 		}
 
@@ -32,7 +40,8 @@ class PingSender {
 		return ( new ScopedTargetHostRequest() )->run( $targetUrl, static function () use ( $targetUrl, $timeout ) :array {
 			$http = Services::HttpRequest();
 			$http->get( $targetUrl, [
-				'timeout' => $timeout,
+				'timeout'            => $timeout,
+				'reject_unsafe_urls' => true,
 			] );
 			$code = $http->lastResponse ? (int)$http->lastResponse->getCode() : 0;
 			return self::result( true, $code, '' );

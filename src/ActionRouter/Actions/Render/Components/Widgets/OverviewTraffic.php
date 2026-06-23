@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LoadRequestLogs,
 	LogRecord
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Utility\RequestLogDisplayPathBuilder;
 use FernleafSystems\Wordpress\Services\Services;
 
 class OverviewTraffic extends OverviewBase {
@@ -20,21 +21,7 @@ class OverviewTraffic extends OverviewBase {
 		$logLoader->order_dir = 'DESC';
 
 		$logs = \array_map(
-			function ( LogRecord $record ) {
-				$path = $record->path;
-				if ( !empty( $record->meta[ 'query' ] ) ) {
-					$path .= '?'.$record->meta[ 'query' ];
-				}
-				return [
-					'ip'      => $record->ip,
-					'ip_href' => self::con()->plugin_urls->ipAnalysis( $record->ip ),
-					'path'    => $this->truncate( $path ),
-					'ago'     => Services::Request()
-										 ->carbon( true )
-										 ->setTimestamp( $record->created_at )
-										 ->diffForHumans()
-				];
-			},
+			fn( LogRecord $record ) :array => $this->buildLogRow( $record ),
 			$logLoader->select()
 		);
 
@@ -48,6 +35,21 @@ class OverviewTraffic extends OverviewBase {
 			'vars'    => [
 				'logs' => \array_slice( $logs, 0, \min( 100, \max( 1, $this->action_data[ 'limit' ] ?? 5 ) ) ),
 			],
+		];
+	}
+
+	/**
+	 * @return array{ip:string,ip_href:string,path:string,ago:string}
+	 */
+	protected function buildLogRow( LogRecord $record ) :array {
+		return [
+			'ip'      => $record->ip,
+			'ip_href' => self::con()->plugin_urls->ipAnalysis( $record->ip ),
+			'path'    => $this->truncate( ( new RequestLogDisplayPathBuilder() )->build( $record ) ),
+			'ago'     => Services::Request()
+								 ->carbon( true )
+								 ->setTimestamp( $record->created_at )
+								 ->diffForHumans()
 		];
 	}
 }

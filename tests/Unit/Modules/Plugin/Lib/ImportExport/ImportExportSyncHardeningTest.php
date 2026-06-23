@@ -22,6 +22,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Impo
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\PingSender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteInviteSender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -618,7 +619,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
 	}
 
-	public function test_ping_sender_allows_external_hosts_only_around_request() :void {
+	public function test_ping_sender_uses_trusted_sync_policy_for_private_resolved_hosts() :void {
 		$events = [];
 		$sender = $this->buildPingSenderWithRecordedFilters( $events );
 		$this->httpRequest->setOnGet( static function () use ( &$events ) :void {
@@ -627,17 +628,19 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 			];
 		} );
 
-		$result = $sender->send( 'http://wordpress-slave' );
+		$result = $sender->send( 'https://client.example.com' );
 
-		$this->assertTrue( $result[ 'success' ] ?? false );
+		$this->assertPingResult( true, 200, '', $result );
 		$this->assertScopedExternalHostFilterEvents( $events );
 		$this->assertStringContainsString( PluginImportExport_UpdateNotified::SLUG, $this->httpRequest->lastGetRequestedUrl() );
 		$this->assertStringContainsString( 'master_url=', $this->httpRequest->lastGetRequestedUrl() );
-		$this->assertSame( 5, $this->httpRequest->lastGetArgs()[ 'timeout' ] ?? 0 );
+		$args = $this->httpRequest->lastGetArgs();
+		$this->assertSame( 5, $args[ 'timeout' ] );
+		$this->assertTrue( $args[ 'reject_unsafe_urls' ] );
 	}
 
 	public function test_ping_sender_adds_import_id_when_supplied() :void {
-		( new PingSender() )->send( 'http://wordpress-slave', 5, 'client-import-id' );
+		$this->buildPingSender()->send( 'https://client.example.com', 5, 'client-import-id' );
 
 		$this->assertStringContainsString( 'id=client-import-id', $this->httpRequest->lastGetRequestedUrl() );
 	}
@@ -645,29 +648,30 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 	public function test_ping_sender_ignores_response_body() :void {
 		$this->httpRequest->setGetResponse( '{not-json', 500, true );
 
-		$result = ( new PingSender() )->send( 'http://wordpress-slave', 5 );
+		$result = $this->buildPingSender()->send( 'https://client.example.com', 5 );
 
-		$this->assertTrue( $result[ 'success' ] ?? false );
-		$this->assertSame( 500, $result[ 'http_code' ] ?? 0 );
-		$this->assertSame( '', $result[ 'error' ] ?? 'unexpected' );
+		$this->assertPingResult( true, 500, '', $result );
 	}
 
 	public function test_ping_sender_treats_transport_timeout_as_dispatched() :void {
 		$this->httpRequest->setGetResponse( '', 0, false, 'Operation timed out' );
 
-		$result = ( new PingSender() )->send( 'http://wordpress-slave', 5 );
+		$result = $this->buildPingSender()->send( 'https://client.example.com', 5 );
 
-		$this->assertTrue( $result[ 'success' ] ?? false );
-		$this->assertSame( 0, $result[ 'http_code' ] ?? -1 );
-		$this->assertSame( '', $result[ 'error' ] ?? 'unexpected' );
+		$this->assertPingResult( true, 0, '', $result );
 	}
 
 	public function test_ping_sender_rejects_invalid_target_url_before_request() :void {
-		$result = ( new PingSender() )->send( 'not-a-url', 5 );
+		$result = $this->buildPingSender()->send( 'not-a-url', 5 );
 
-		$this->assertFalse( $result[ 'success' ] ?? true );
-		$this->assertSame( 0, $result[ 'http_code' ] ?? -1 );
-		$this->assertSame( 'invalid_url', $result[ 'error' ] ?? '' );
+		$this->assertPingResult( false, 0, 'invalid_url', $result );
+		$this->assertSame( '', $this->httpRequest->lastGetRequestedUrl() );
+	}
+
+	public function test_ping_sender_rejects_literal_private_ip_before_request() :void {
+		$result = $this->buildPingSender()->send( 'https://10.0.0.25', 5 );
+
+		$this->assertPingResult( false, 0, 'invalid_url', $result );
 		$this->assertSame( '', $this->httpRequest->lastGetRequestedUrl() );
 	}
 
@@ -682,7 +686,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->httpRequest->throwOnGet( new \RuntimeException( 'notify failed' ) );
 
 		try {
-			$sender->send( 'http://wordpress-slave' );
+			$sender->send( 'https://client.example.com' );
 			$this->fail( 'Expected whitelist notification request failure.' );
 		}
 		catch ( \RuntimeException $exception ) {
@@ -734,10 +738,22 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 	 */
 	private function buildPingSenderWithRecordedFilters( array &$events ) :PingSender {
 		Functions\when( 'add_action' )->justReturn( true );
-		$this->recordExternalHostFilterEvents( $events, 'wordpress-slave' );
+		$this->recordExternalHostFilterEvents( $events, 'client.example.com' );
 
 		$events = [];
-		return new PingSender();
+		return $this->buildPingSender();
+	}
+
+	private function buildPingSender( array $resolvedIps = [ '10.0.0.25' ] ) :PingSender {
+		return new PingSender( new SyncSiteUrlValidator( static fn() :array => $resolvedIps ) );
+	}
+
+	private function assertPingResult( bool $success, int $httpCode, string $error, array $result ) :void {
+		$this->assertSame( [
+			'success'   => $success,
+			'http_code' => $httpCode,
+			'error'     => $error,
+		], $result );
 	}
 
 	private function recordExternalHostFilterEvents( array &$events, string $probeTargetHost = '' ) :void {
