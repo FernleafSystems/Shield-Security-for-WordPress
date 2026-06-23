@@ -57,7 +57,7 @@ class LoginRequestCapture {
 				$req = Services::Request();
 				try {
 					$con->action_router->action( FullPageDisplayDynamic::class, [
-						'render_slug' => ( $con->opts->optGet( 'mfa_verify_page' ) === $mfaCon::LOGIN_INTENT_PAGE_FORMAT_SHIELD ) ?
+						'render_slug' => $con->opts->optIs( 'mfa_verify_page', MfaController::LOGIN_INTENT_PAGE_FORMAT_SHIELD ) ?
 							ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
 						'render_data' => [
 							'user_id'           => $user->ID,
