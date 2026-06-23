@@ -80,6 +80,8 @@ class ActionsQueueGroupsBuilder {
 	private ?ActionsQueueGroupSeedCollector $seedCollector = null;
 	private ?ActionsQueuePassiveGroupSeedSupplementer $passiveSeedSupplementer = null;
 	private ?ActionsQueueGroupContractBuilder $contractBuilder = null;
+	private ?ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder = null;
+	private ?ActionsQueueScanResultScopeResolver $scanResultScopeResolver = null;
 
 	/**
 	 * @param AttentionQuery $attentionQuery
@@ -216,6 +218,16 @@ class ActionsQueueGroupsBuilder {
 			$this->groupDefinitions(),
 			$this->presentation(),
 			$this->assetMetadataResolver(),
+			$this->queueScanResultsOptions(),
+			null,
+			$this->scanResultScopeStateBuilder(),
+			$this->scanResultScopeResolver()
+		);
+	}
+
+	protected function buildScanResultScopeStateBuilder() :ActionsQueueScanResultScopeStateBuilder {
+		return new ActionsQueueScanResultScopeStateBuilder(
+			null,
 			$this->queueScanResultsOptions()
 		);
 	}
@@ -287,7 +299,10 @@ class ActionsQueueGroupsBuilder {
 				$this->groupDefinitions(),
 				$this->maintenanceSeedBuilder(),
 				$this->groupMaintenanceSource(),
-				$this->buildPendingFileLockDisplays()
+				$this->buildPendingFileLockDisplays(),
+				$this->scanResultScopeStateBuilder(),
+				$this->scanResultScopeResolver(),
+				$this->buildRailTabAvailability()
 			);
 		}
 
@@ -324,5 +339,21 @@ class ActionsQueueGroupsBuilder {
 		}
 
 		return $this->bucketsBuilder;
+	}
+
+	private function scanResultScopeStateBuilder() :ActionsQueueScanResultScopeStateBuilder {
+		if ( $this->scanResultScopeStateBuilder === null ) {
+			$this->scanResultScopeStateBuilder = $this->buildScanResultScopeStateBuilder();
+		}
+
+		return $this->scanResultScopeStateBuilder;
+	}
+
+	private function scanResultScopeResolver() :ActionsQueueScanResultScopeResolver {
+		if ( $this->scanResultScopeResolver === null ) {
+			$this->scanResultScopeResolver = new ActionsQueueScanResultScopeResolver();
+		}
+
+		return $this->scanResultScopeResolver;
 	}
 }

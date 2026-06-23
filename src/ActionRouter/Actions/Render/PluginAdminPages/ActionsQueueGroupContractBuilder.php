@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\ScanResultsScopeResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
@@ -63,6 +62,7 @@ class ActionsQueueGroupContractBuilder {
 	private ScanResultsDisplayOptions $queueScanResultsOptions;
 	private ActionsQueueContextActionsBuilder $contextActionsBuilder;
 	private ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder;
+	private ActionsQueueScanResultScopeResolver $scanResultScopeResolver;
 
 	public function __construct(
 		ActionsQueueGroupDefinitions $groupDefinitions,
@@ -70,14 +70,17 @@ class ActionsQueueGroupContractBuilder {
 		?ActionsQueueAssetMetadataResolver $assetMetadataResolver = null,
 		?ScanResultsDisplayOptions $queueScanResultsOptions = null,
 		?ActionsQueueContextActionsBuilder $contextActionsBuilder = null,
-		?ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder = null
+		?ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder = null,
+		?ActionsQueueScanResultScopeResolver $scanResultScopeResolver = null
 	) {
 		$this->groupDefinitions = $groupDefinitions;
 		$this->presentation = $presentation;
 		$this->assetMetadataResolver = $assetMetadataResolver ?? new ActionsQueueAssetMetadataResolver();
 		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ScanResultsDisplayOptions();
+		$this->scanResultScopeResolver = $scanResultScopeResolver ?? new ActionsQueueScanResultScopeResolver();
 		$this->contextActionsBuilder = $contextActionsBuilder ?? new ActionsQueueContextActionsBuilder(
-			$this->queueScanResultsOptions
+			$this->queueScanResultsOptions,
+			$this->scanResultScopeResolver
 		);
 		$this->scanResultScopeStateBuilder = $scanResultScopeStateBuilder ?? new ActionsQueueScanResultScopeStateBuilder(
 			null,
@@ -276,6 +279,11 @@ class ActionsQueueGroupContractBuilder {
 			?? $this->determineInteractivity( $seed );
 		$renderActionData = $seed[ 'render_action_data_override' ]
 			?? $definition[ 'render_action_data' ];
+		$scopeCounts = $this->buildScanResultsScopeCountsForGroup( $seed[ 'definition_key' ], $renderActionData );
+		if ( $this->shouldExposeIgnoredOnlyDirectTableGroup( $seed, $scopeCounts ) ) {
+			$isInteractive = true;
+			$renderActionData = $definition[ 'render_action_data' ];
+		}
 		$contextActions = \array_key_exists( 'context_actions_override', $seed )
 			? $seed[ 'context_actions_override' ]
 			: $this->contextActionsBuilder->buildForGroup(
@@ -294,7 +302,7 @@ class ActionsQueueGroupContractBuilder {
 			'color_key'    => $seed[ 'header_color_key_override' ] ?? '',
 		], static fn( string $value ) :bool => $value !== '' );
 		$headerOverrides = \array_merge(
-			$this->buildIgnoredHeaderOverridesForGroup( $seed[ 'definition_key' ], $renderActionData ),
+			$this->buildIgnoredHeaderOverridesFromScopeCounts( $scopeCounts ),
 			$seedHeaderOverrides
 		);
 		$selection = $this->presentation->buildGroupSelection(
@@ -605,9 +613,18 @@ class ActionsQueueGroupContractBuilder {
 	 * @return array<string,string>
 	 */
 	private function buildIgnoredHeaderOverridesForGroup( string $definitionKey, array $renderActionData ) :array {
-		$scope = $this->determineScanResultsScopeForGroup( $definitionKey, $renderActionData );
+		return $this->buildIgnoredHeaderOverridesFromScopeCounts(
+			$this->buildScanResultsScopeCountsForGroup( $definitionKey, $renderActionData )
+		);
+	}
+
+	/**
+	 * @return array{active_count:int,ignored_count:int}|null
+	 */
+	private function buildScanResultsScopeCountsForGroup( string $definitionKey, array $renderActionData ) :?array {
+		$scope = $this->scanResultScopeResolver->resolveForGroup( $definitionKey, $renderActionData );
 		if ( empty( $scope ) ) {
-			return [];
+			return null;
 		}
 
 		try {
@@ -617,6 +634,21 @@ class ActionsQueueGroupContractBuilder {
 			);
 		}
 		catch ( \InvalidArgumentException $e ) {
+			return null;
+		}
+
+		return [
+			'active_count'  => (int)$counts[ 'active_count' ],
+			'ignored_count' => (int)$counts[ 'ignored_count' ],
+		];
+	}
+
+	/**
+	 * @param array{active_count:int,ignored_count:int}|null $counts
+	 * @return array<string,string>
+	 */
+	private function buildIgnoredHeaderOverridesFromScopeCounts( ?array $counts ) :array {
+		if ( $counts === null ) {
 			return [];
 		}
 
@@ -624,6 +656,20 @@ class ActionsQueueGroupContractBuilder {
 			$counts[ 'active_count' ],
 			$counts[ 'ignored_count' ]
 		);
+	}
+
+	/**
+	 * @phpstan-param GroupSeed $seed
+	 * @param array{active_count:int,ignored_count:int}|null $scopeCounts
+	 */
+	private function shouldExposeIgnoredOnlyDirectTableGroup( array $seed, ?array $scopeCounts ) :bool {
+		return $scopeCounts !== null
+			   && $scopeCounts[ 'active_count' ] === 0
+			   && $scopeCounts[ 'ignored_count' ] > 0
+			   && (int)$seed[ 'item_count' ] === 0
+			   && $seed[ 'detail_shell' ] === 'direct_table'
+			   && \in_array( $seed[ 'definition_key' ], $this->groupDefinitions->ignoredOnlyDirectTableGroupKeys(), true )
+			   && StatusPriority::normalize( $seed[ 'status' ], 'good' ) === 'good';
 	}
 
 	/**
@@ -667,40 +713,6 @@ class ActionsQueueGroupContractBuilder {
 			),
 			'next_step' => __( 'Use Display Results to show ignored results in the table.', 'wp-simple-firewall' ),
 		];
-	}
-
-	/**
-	 * @param array<string,mixed> $renderActionData
-	 * @return array{type:string,file:string}|array{}
-	 */
-	private function determineScanResultsScopeForGroup( string $definitionKey, array $renderActionData ) :array {
-		$scopeResolver = new ScanResultsScopeResolver();
-		switch ( $definitionKey ) {
-			case 'wordpress':
-				return $scopeResolver->normalizeActionScope(
-					ScanResultsScopeResolver::SCOPE_TYPE_WORDPRESS,
-					ScanResultsScopeResolver::SCOPE_FILE_WORDPRESS
-				);
-			case 'malware':
-				return $scopeResolver->normalizeActionScope(
-					ScanResultsScopeResolver::SCOPE_TYPE_MALWARE,
-					ScanResultsScopeResolver::SCOPE_TYPE_MALWARE
-				);
-			case 'plugins':
-				$subjectId = \trim( (string)( $renderActionData[ 'subject_id' ] ?? '' ) );
-				return $subjectId === '' ? [] : $scopeResolver->canonicalActionDataForSubject(
-					ScanResultsScopeResolver::SCOPE_TYPE_PLUGIN,
-					$subjectId
-				);
-			case 'themes':
-				$subjectId = \trim( (string)( $renderActionData[ 'subject_id' ] ?? '' ) );
-				return $subjectId === '' ? [] : $scopeResolver->canonicalActionDataForSubject(
-					ScanResultsScopeResolver::SCOPE_TYPE_THEME,
-					$subjectId
-				);
-			default:
-				return [];
-		}
 	}
 
 	/**

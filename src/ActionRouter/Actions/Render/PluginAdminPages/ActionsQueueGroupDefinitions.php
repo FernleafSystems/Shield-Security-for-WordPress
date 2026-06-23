@@ -299,6 +299,13 @@ class ActionsQueueGroupDefinitions {
 		return \array_keys( PluginNavs::actionsQueueScanDefinitions() );
 	}
 
+	/**
+	 * @return list<string>
+	 */
+	public function ignoredOnlyDirectTableGroupKeys() :array {
+		return [ 'wordpress', 'malware' ];
+	}
+
 	public function groupKeyForGroupKey( string $groupKey ) :string {
 		if ( \strpos( $groupKey, ':' ) !== false ) {
 			$definitionKey = \strstr( $groupKey, ':', true );

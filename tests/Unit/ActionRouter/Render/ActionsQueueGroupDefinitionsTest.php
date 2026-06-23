@@ -67,6 +67,10 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'asset_cards', $definitions[ 'plugins' ][ 'detail_shell' ] );
 		$this->assertSame( 'asset_cards', $definitions[ 'themes' ][ 'detail_shell' ] );
+		$this->assertSame(
+			[ 'wordpress', 'malware' ],
+			( new ActionsQueueGroupDefinitions() )->ignoredOnlyDirectTableGroupKeys()
+		);
 		$this->assertSame( Vulnerabilities::class, $definitions[ 'vulnerabilities' ][ 'render_action_class' ] );
 		$this->assertSame( [ 'section' => 'vulnerable' ], $definitions[ 'vulnerabilities' ][ 'render_action_data' ] );
 		$this->assertSame( Vulnerabilities::class, $definitions[ 'abandoned' ][ 'render_action_class' ] );

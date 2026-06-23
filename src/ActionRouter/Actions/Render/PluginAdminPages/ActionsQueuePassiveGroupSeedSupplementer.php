@@ -17,17 +17,26 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 	private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder;
 	private ActionsQueueGroupMaintenanceSource $maintenanceSource;
 	private ?GetPendingFileLockDisplays $pendingFileLockDisplays;
+	private ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder;
+	private ActionsQueueScanResultScopeResolver $scanResultScopeResolver;
+	private ScansResultsRailTabAvailability $scanAvailability;
 
 	public function __construct(
 		ActionsQueueGroupDefinitions $groupDefinitions,
 		ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder,
 		ActionsQueueGroupMaintenanceSource $maintenanceSource,
-		?GetPendingFileLockDisplays $pendingFileLockDisplays = null
+		?GetPendingFileLockDisplays $pendingFileLockDisplays = null,
+		?ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder = null,
+		?ActionsQueueScanResultScopeResolver $scanResultScopeResolver = null,
+		?ScansResultsRailTabAvailability $scanAvailability = null
 	) {
 		$this->groupDefinitions = $groupDefinitions;
 		$this->maintenanceSeedBuilder = $maintenanceSeedBuilder;
 		$this->maintenanceSource = $maintenanceSource;
 		$this->pendingFileLockDisplays = $pendingFileLockDisplays;
+		$this->scanResultScopeStateBuilder = $scanResultScopeStateBuilder ?? new ActionsQueueScanResultScopeStateBuilder();
+		$this->scanResultScopeResolver = $scanResultScopeResolver ?? new ActionsQueueScanResultScopeResolver();
+		$this->scanAvailability = $scanAvailability ?? new ScansResultsRailTabAvailability();
 	}
 
 	/**
@@ -60,6 +69,14 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 			$existingGroupKeys[ $seed[ 'key' ] ] = true;
 		}
 
+		foreach ( $this->buildIgnoredOnlyDirectScanSeedsForBucket( $bucketKey ) as $seed ) {
+			if ( isset( $existingGroupKeys[ $seed[ 'key' ] ] ) ) {
+				continue;
+			}
+			$seeds[] = $seed;
+			$existingGroupKeys[ $seed[ 'key' ] ] = true;
+		}
+
 		foreach ( $this->groupHealthyMaintenanceItemsByGroupKey(
 			$this->maintenanceSource->itemsForBucket( $bucketSource, $bucketKey ),
 			$bucketKey
@@ -83,6 +100,63 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 
 			$seeds[] = $seed;
 			$existingGroupKeys[ $seed[ 'key' ] ] = true;
+		}
+
+		return $seeds;
+	}
+
+	/**
+	 * @return list<GroupSeed>
+	 */
+	private function buildIgnoredOnlyDirectScanSeedsForBucket( string $bucketKey ) :array {
+		if ( $bucketKey !== 'critical' ) {
+			return [];
+		}
+
+		$seeds = [];
+		foreach ( $this->groupDefinitions->ignoredOnlyDirectTableGroupKeys() as $definitionKey ) {
+			$availability = $this->scanAvailability->build( $definitionKey );
+			if ( empty( $availability[ 'is_available' ] ) || empty( $availability[ 'show_in_actions_queue' ] ) ) {
+				continue;
+			}
+
+			try {
+				$scope = $this->scanResultScopeResolver->resolveForGroup( $definitionKey );
+				if ( empty( $scope ) ) {
+					continue;
+				}
+				$counts = $this->scanResultScopeStateBuilder->buildCountsForActionScope(
+					$scope[ 'type' ],
+					$scope[ 'file' ]
+				);
+			}
+			catch ( \InvalidArgumentException $e ) {
+				continue;
+			}
+
+			if ( (int)$counts[ 'active_count' ] !== 0 || (int)$counts[ 'ignored_count' ] < 1 ) {
+				continue;
+			}
+
+			$definition = $this->groupDefinitions->definitionForGroupKey( $definitionKey );
+			$seeds[] = [
+				'key'                         => $definitionKey,
+				'definition_key'              => $definitionKey,
+				'label'                       => $definition[ 'label' ],
+				'item_count'                  => 0,
+				'status'                      => 'good',
+				'narrative'                   => __( 'No active results remain in this group.', 'wp-simple-firewall' ),
+				'detail_shell'                => $definition[ 'detail_shell' ],
+				'links'                       => [],
+				'management_link'             => [],
+				'is_interactive_override'     => true,
+				'detail_table'                => [],
+				'render_action_data_override' => $definition[ 'render_action_data' ],
+				'attention_items'             => [],
+				'maintenance_rows'            => [],
+				'summary_row'                 => [],
+				'context_actions_override'    => [],
+			];
 		}
 
 		return $seeds;

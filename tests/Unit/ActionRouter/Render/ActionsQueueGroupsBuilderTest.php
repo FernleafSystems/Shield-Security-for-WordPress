@@ -1206,6 +1206,50 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'actions' ] );
 	}
 
+	public function test_build_critical_bucket_includes_clickable_healthy_direct_scan_group_for_ignored_only_results() :void {
+		$builder = $this->createBuilder(
+			[],
+			[],
+			[],
+			[],
+			[
+				'malware' => [
+					'is_available'          => true,
+					'show_in_actions_queue' => true,
+				],
+			],
+			[],
+			[
+				'malware:malware' => [
+					'active_count'  => 0,
+					'ignored_count' => 2,
+				],
+			]
+		);
+
+		$payload = $builder->buildWithSelectedGroup(
+			'critical',
+			'malware',
+			[
+				'items' => [],
+			],
+			[
+				'scans'       => [],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( [ [ 'malware' ] ], $this->sectionGroupKeys( $payload[ 'layer' ][ 'healthy_sections' ] ) );
+		$this->assertSame( 'malware', $payload[ 'selected_group' ][ 'key' ] );
+		$this->assertSame( 'good', $payload[ 'selected_group' ][ 'status' ] );
+		$this->assertTrue( $payload[ 'selected_group' ][ 'is_interactive' ] );
+		$this->assertSame(
+			'scanresults_malware',
+			$payload[ 'selected_group' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? ''
+		);
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'actions' ] );
+	}
+
 	public function test_build_with_selected_group_resolves_healthy_abandoned_group_without_falling_back_to_vulnerabilities() :void {
 		$builder = $this->createBuilder();
 
@@ -1556,7 +1600,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		array $vulnerabilities = [],
 		array $maintenanceItems = [],
 		array $tabAvailability = [],
-		array $pendingFileLockDisplays = []
+		array $pendingFileLockDisplays = [],
+		array $scopeCountsByActionScope = []
 	) :ActionsQueueGroupsBuilder {
 		return new class(
 			$pluginCards,
@@ -1564,7 +1609,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$vulnerabilities,
 			$maintenanceItems,
 			$tabAvailability,
-			$pendingFileLockDisplays
+			$pendingFileLockDisplays,
+			$scopeCountsByActionScope
 		) extends ActionsQueueGroupsBuilder {
 
 			private ?ActionsQueueGroupScanSource $scanSource = null;
@@ -1575,6 +1621,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			private array $maintenanceItems;
 			private array $tabAvailability;
 			private array $pendingFileLockDisplays;
+			private array $scopeCountsByActionScope;
 
 			public function __construct(
 				array $pluginCards,
@@ -1582,7 +1629,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				array $vulnerabilities,
 				array $maintenanceItems,
 				array $tabAvailability,
-				array $pendingFileLockDisplays
+				array $pendingFileLockDisplays,
+				array $scopeCountsByActionScope
 			) {
 				$this->pluginCards = $pluginCards;
 				$this->themeCards = $themeCards;
@@ -1590,6 +1638,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				$this->maintenanceItems = $maintenanceItems;
 				$this->tabAvailability = $tabAvailability;
 				$this->pendingFileLockDisplays = $pendingFileLockDisplays;
+				$this->scopeCountsByActionScope = $scopeCountsByActionScope;
 			}
 
 			protected function buildBucketsBuilder() :ActionsQueueBucketsBuilder {
@@ -1648,19 +1697,33 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 							}
 						}
 					),
-					new class extends ActionsQueueScanResultScopeStateBuilder {
-						public function buildCountsForActionScope( string $type, string $file ) :array {
-							return [
-								'scope'         => [
-									'type' => $type,
-									'file' => $file,
-								],
-								'active_count'  => 0,
-								'ignored_count' => 0,
-							];
-						}
-					}
+					$this->buildScanResultScopeStateBuilder()
 				);
+			}
+
+			protected function buildScanResultScopeStateBuilder() :ActionsQueueScanResultScopeStateBuilder {
+				return new class( $this->scopeCountsByActionScope ) extends ActionsQueueScanResultScopeStateBuilder {
+
+					private array $scopeCountsByActionScope;
+
+					public function __construct( array $scopeCountsByActionScope ) {
+						$this->scopeCountsByActionScope = $scopeCountsByActionScope;
+					}
+
+					public function buildCountsForActionScope( string $type, string $file ) :array {
+						$scopeKey = $type.':'.$file;
+						$counts = $this->scopeCountsByActionScope[ $scopeKey ] ?? [];
+
+						return [
+							'scope'         => [
+								'type' => $type,
+								'file' => $file,
+							],
+							'active_count'  => (int)( $counts[ 'active_count' ] ?? 0 ),
+							'ignored_count' => (int)( $counts[ 'ignored_count' ] ?? 0 ),
+						];
+					}
+				};
 			}
 
 			protected function buildPendingFileLockDisplays() :GetPendingFileLockDisplays {
