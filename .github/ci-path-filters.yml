@@ -19,6 +19,7 @@ php:
   - '.github/workflows/tests.yml'
   - '.github/workflows/reusable-unit-tests.yml'
   - '.github/workflows/reusable-build-package.yml'
+  - '.github/workflows/reusable-build-zip.yml'
   - '.github/ci-path-filters.yml'
 
 js:
@@ -61,6 +62,9 @@ package:
   - '.github/scripts/read-packager-config.sh'
   - '.github/workflows/tests.yml'
   - '.github/workflows/reusable-build-package.yml'
+  - '.github/workflows/reusable-build-zip.yml'
+  - '.github/workflows/release.yml'
+  - '.github/workflows/customer-test-zip.yml'
   - '.github/ci-path-filters.yml'
 
 browser:
@@ -102,6 +106,8 @@ browser:
 
 ci_scripts:
   - '.github/scripts/**'
+  - '.github/workflows/release.yml'
+  - '.github/workflows/customer-test-zip.yml'
   - '.github/workflows/tests.yml'
   - '.github/workflows/reusable-*.yml'
   - '.github/ci-path-filters.yml'

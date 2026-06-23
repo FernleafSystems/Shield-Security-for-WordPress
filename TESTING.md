@@ -60,7 +60,7 @@ Auth-required public Composer lanes:
 
 Auth-required internal lanes are the Composer-backed source, package, Docker, browser, cross-site, release, and analysis paths listed in this file, including `test:source`, `test:integration-local`, `test:docker:cleanup`, `test:package-targeted`, `test:package-full`, `analyze:source`, `analyze:package`, `git:pre-commit`, `dev:site:*`, and `test:site:*` when they invoke Composer-installed tooling. JS-only checks, cache-cleanup script regression tests, and admin-bundle-safety script regression tests do not need Packagist auth unless Composer commands are added to those jobs later.
 
-Auth preflight is wired into the Composer-bearing CI workflows: `.github/workflows/tests.yml`, `.github/workflows/reusable-unit-tests.yml`, `.github/workflows/reusable-build-package.yml`, `.github/workflows/unit-serial-sentinel.yml`, `.github/workflows/browser-tests.yml`, `.github/workflows/cross-site-tests.yml`, and `.github/workflows/release.yml`. `.github/workflows/cache-cleanup.yml`, JS-only jobs, and standalone shell script regression jobs are intentionally outside the Packagist-auth path until they start running Composer.
+Auth preflight is wired into the Composer-bearing CI workflows: `.github/workflows/tests.yml`, `.github/workflows/reusable-unit-tests.yml`, `.github/workflows/reusable-build-package.yml`, `.github/workflows/reusable-build-zip.yml`, `.github/workflows/unit-serial-sentinel.yml`, `.github/workflows/browser-tests.yml`, and `.github/workflows/cross-site-tests.yml`. The tag release workflow and manual customer ZIP workflow inherit secrets into the reusable ZIP build workflow instead of duplicating Composer setup. `.github/workflows/cache-cleanup.yml`, JS-only jobs, and standalone shell script regression jobs are intentionally outside the Packagist-auth path until they start running Composer.
 
 ### Unit test narrowing
 
@@ -512,6 +512,13 @@ Scheduled/manual cross-site lane: [`.github/workflows/cross-site-tests.yml`](.gi
 1. Installs Composer dependencies and builds source config/assets.
 2. Runs `composer test:cross-site -- --clean`.
 3. Triggered by `workflow_dispatch`, the weekday schedule, and PRs that touch import/export, WP-CLI, plugin action routing, cross-site tooling, Docker test files, Composer scripts, or the workflow.
+
+Manual customer ZIP artifact workflow: [`.github/workflows/customer-test-zip.yml`](.github/workflows/customer-test-zip.yml)
+
+1. Triggered by `workflow_dispatch` and run against the selected branch/ref.
+2. Calls [`.github/workflows/reusable-build-zip.yml`](.github/workflows/reusable-build-zip.yml), which uses the same `composer build-zip` path as tag releases.
+3. Uploads only a GitHub Actions artifact and writes the artifact URL, ref, commit SHA, ZIP filename, and checksums to the run summary.
+4. Does not create GitHub tags or GitHub Releases.
 
 ## Local Verification Commands
 
