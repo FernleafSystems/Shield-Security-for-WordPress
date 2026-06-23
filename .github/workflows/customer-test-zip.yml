@@ -2,19 +2,13 @@ name: Customer Test ZIP
 
 on:
   workflow_dispatch:
-    inputs:
-      retention_days:
-        description: Days to keep the ZIP artifact.
-        required: true
-        default: 30
-        type: number
 
 jobs:
   build-zip:
     name: Build Customer ZIP Artifact
     uses: ./.github/workflows/reusable-build-zip.yml
     with:
-      retention_days: ${{ inputs.retention_days }}
+      retention_days: 30
     secrets: inherit
 
   summary:
