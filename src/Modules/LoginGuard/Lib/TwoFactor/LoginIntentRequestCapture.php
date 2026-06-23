@@ -73,7 +73,7 @@ class LoginIntentRequestCapture {
 			// Allow a further attempt to 2FA
 			try {
 				$con->action_router->action( FullPageDisplayDynamic::class, [
-					'render_slug' => $con->opts->optIs( 'mfa_verify_page', 'custom_shield' ) ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
+					'render_slug' => $con->opts->optIs( 'mfa_verify_page', MfaController::LOGIN_INTENT_PAGE_FORMAT_SHIELD ) ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
 					'render_data' => [
 						'user_id'           => $this->user->ID,
 						'include_body'      => true,
