@@ -18,6 +18,10 @@
           "apply":  "block",
           "reason": "Temporary exception while PHP 7.4 support remains and a long-term passkey library strategy is finalized."
         },
+        "PKSA-8zx5-v2nz-58pb": {
+          "apply":  "block",
+          "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not enable Twig sandboxing and creates a fresh Twig Environment for each render."
+        },
         "PKSA-sjvz-tbbr-vwth": {
           "apply":  "block",
           "reason": "Temporary exception while PHP 7.4 support keeps Shield on Twig 3.11.3; Shield does not use the spaceless filter and will move to Twig 3.27+ with PHP 8.1+."
