@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs as AfsScanController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\ScanResultVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultsSet;
@@ -193,16 +195,32 @@ class RetrieveItems extends RetrieveBase {
 
 		$resultsSet = $this->getNewResultsSet();
 		foreach ( $scanResults as $vo ) {
-			$scanCon = empty( $workingScanSlug )
-				? $con->comps->scans->getScanCon( $vo->scan )
-				: $con->comps->scans->getScanCon( $workingScanSlug );
+			$scanSlug = empty( $workingScanSlug ) ? (string)$vo->scan : $workingScanSlug;
+			$scanCon = $con->comps->scans->getScanCon( $scanSlug );
 			if ( !empty( $scanCon ) ) {
-				$item = $scanCon->getNewResultItem()->applyFromArray( $vo->meta );
+				$itemData = $this->buildResultItemData( $vo, $scanSlug );
+				$vo->meta = $itemData;
+				$item = $scanCon->getNewResultItem()->applyFromArray( $itemData );
 				$item->VO = $vo;
 				$resultsSet->addItem( $item );
 			}
 		}
 		return $resultsSet;
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function buildResultItemData( ScanResultVO $vo, string $scanSlug ) :array {
+		$itemData = \is_array( $vo->meta ) ? $vo->meta : [];
+
+		if ( $scanSlug === AfsScanController::SCAN_SLUG && $vo->item_type === ResultItemsHandler::ITEM_TYPE_FILE ) {
+			unset( $itemData[ 'path_full' ], $itemData[ 'path_fragment' ], $itemData[ 'file_path' ] );
+			$vo->item_id = Services::WpFs()->getPathRelativeToAbsPath( (string)$vo->item_id );
+			$itemData[ 'path_fragment' ] = $vo->item_id;
+		}
+
+		return $itemData;
 	}
 
 	/**

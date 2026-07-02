@@ -121,6 +121,60 @@
           "Release checks now cover more real-world upgrade, plugin compatibility, passkey login, and CrowdSec integration situations before each release."
         ]
       }
+    ],
+    "patches":     [
+      {
+        "version":     "5",
+        "released_at": 1782983000,
+        "items":       [
+          {
+            "type":        "improved",
+            "title":       "ShieldBACKUPS Reliability Improved",
+            "description": [
+              "Backup file mapping resumes more reliably across repeated requests, reducing duplicate or skipped entries during large backup jobs.",
+              "Backup archive creation is safer around missing, excluded, unreadable, oversized, older, or linked files, helping backups fail cleanly when a file can't be archived."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "File Scan Accuracy Improved",
+            "description": [
+              "Shield now refreshes plugin and theme file baselines more carefully after updates, reducing false modified or unrecognised file findings.",
+              "Cleanup scans rebuild current file details before comparing results, so stale scan data is less likely to create noisy Actions Queue items.",
+              "Plugin and theme change scans now start more consistently, including when triggered from WP-CLI."
+            ]
+          },
+          {
+            "type":        "improved",
+            "title":       "File Scan Results Display Improved",
+            "description": [
+              "File scan tables now show a single clean relative file path for WordPress and malware findings, keeping scan results easier to review and avoiding unnecessary full server-path details."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "Update Notices More Reliable",
+            "description": [
+              "Shield update and beta-upgrade prompts now use WordPress.org release data more accurately and ignore malformed version details that could cause confusing notices.",
+              "Auto-update delays, admin flash messages, plugin and theme status details, and Shield news panels handle unexpected stored or external data more safely."
+            ]
+          },
+          {
+            "type":        "fixed",
+            "title":       "MFA Remember-Me Fixed",
+            "description": [
+              "The remember-me option on the WordPress login-style MFA screen now works from both the checkbox and its label, so trusted login sessions are remembered as expected."
+            ]
+          },
+          {
+            "type":        "improved",
+            "title":       "Shield Admin Bar Streamlined",
+            "description": [
+              "The Shield admin bar now uses saved scan summaries for authorised Security Admins, keeping the top bar consistent across admin pages with less work during page loads."
+            ]
+          }
+        ]
+      }
     ]
   },
   "22.0": {

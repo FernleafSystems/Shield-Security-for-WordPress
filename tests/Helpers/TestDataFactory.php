@@ -209,7 +209,7 @@ class TestDataFactory {
 	/**
 	 * Insert a malware record using raw insert data (matching CreateLocalMalwareRecords pattern).
 	 *
-	 * @param string $filePath  Relative path fragment (relative to ABSPATH).
+	 * @param string $filePath  Malware table file_path value.
 	 */
 	public static function insertMalwareRecord( string $filePath, string $content = 'test-content', array $overrides = [] ) :int {
 		$dbh = self::con()->db_con->malware;
@@ -387,35 +387,29 @@ class TestDataFactory {
 	}
 
 	/**
-	 * Insert an AFS file scan result using a real ABSPATH-relative file path for both
-	 * the persisted item identifier and the path fragment meta used by runtime cleanup.
+	 * Insert an AFS file scan result using the filesystem-service canonical file item ID.
+	 * Pass legacy path alias meta explicitly when a test models old or malformed rows.
 	 *
 	 * @param array<string,mixed> $meta
 	 * @return array{scan_result_id:int,result_item_id:int,meta_ids:list<int>}
 	 */
-	public static function insertAfsFileScanResultTracked( int $scanId, string $pathFragment, array $meta = [] ) :array {
-		$pathFragment = \ltrim( \wp_normalize_path( $pathFragment ), '/' );
+	public static function insertAfsFileScanResultTracked( int $scanId, string $path, array $meta = [] ) :array {
+		$fileItemId = self::afsFileItemIdFromPath( $path );
 
 		return self::insertScanResultItemTracked( $scanId, \array_merge( [
-			'item_id'       => $pathFragment,
-			'path_fragment' => $pathFragment,
+			'item_id' => $fileItemId,
 		], $meta ) );
 	}
 
 	/**
 	 * @param array<string,mixed> $meta
 	 */
-	public static function insertAfsFileScanResult( int $scanId, string $pathFragment, array $meta = [] ) :int {
-		return self::insertAfsFileScanResultTracked( $scanId, $pathFragment, $meta )[ 'scan_result_id' ];
+	public static function insertAfsFileScanResult( int $scanId, string $path, array $meta = [] ) :int {
+		return self::insertAfsFileScanResultTracked( $scanId, $path, $meta )[ 'scan_result_id' ];
 	}
 
-	public static function pathFragmentFromAbsolutePath( string $absolutePath ) :string {
-		$absolutePath = \wp_normalize_path( $absolutePath );
-		$root = \trailingslashit( \wp_normalize_path( ABSPATH ) );
-
-		return \ltrim( \str_starts_with( $absolutePath, $root )
-			? \substr( $absolutePath, \strlen( $root ) )
-			: $absolutePath, '/' );
+	public static function afsFileItemIdFromPath( string $path ) :string {
+		return Services::WpFs()->getPathRelativeToAbsPath( $path );
 	}
 
 	public static function markScanResultItemIgnored( int $resultItemId, int $ignoredAt = 0 ) :void {

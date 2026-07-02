@@ -336,14 +336,9 @@ class ScansController {
 			return false;
 		}
 
-		if ( Services::WpGeneral()->isWpCli() ) {
-			self::con()->comps->scans_queue->getQueueWatchdog()->scheduleIfActive();
-			( new ProcessQueueWpcli() )->execute();
-		}
-		else {
-			self::con()->comps->scans_queue->getQueueWatchdog()->scheduleIfActive();
-			self::con()->comps->scans_queue->getQueueBuilder()->dispatch();
-		}
+		$queue = self::con()->comps->scans_queue;
+		$queue->getQueueWatchdog()->scheduleIfActive();
+		$queue->getQueueBuilder()->dispatch();
 
 		return true;
 	}

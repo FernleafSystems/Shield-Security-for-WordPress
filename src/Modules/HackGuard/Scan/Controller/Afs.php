@@ -50,7 +50,7 @@ class Afs extends Base {
 		$record = self::con()->db_con->scan_result_items->getRecord();
 		$record->scan = $this->getSlug();
 		$record->auto_filtered_at = $autoFiltered ? Services::Request()->ts() : 0;
-		$record->item_id = $rawResult[ 'path_fragment' ];
+		$record->item_id = Services::WpFs()->getPathRelativeToAbsPath( (string)$rawResult[ 'path_fragment' ] );
 		$record->item_type = ResultItemsDB\Handler::ITEM_TYPE_FILE;
 		$record->last_seen_at = Services::Request()->ts();
 		$record->resolved_at = 0;
@@ -77,6 +77,8 @@ class Afs extends Base {
 		$metaToClear = [
 			'auto_filter',
 			'path_full',
+			'path_fragment',
+			'file_path',
 			'scan',
 			'hash',
 		];
