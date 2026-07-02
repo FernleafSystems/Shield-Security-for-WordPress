@@ -36,6 +36,10 @@ class PackageFullTestLaneTest extends TestCase {
 		$exitCode = $this->runLaneSilenced( $lane, $rootDir );
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 4, $dockerComposeExecutor->calls );
+		$this->assertSame(
+			[ 'up', '-d', '--wait', '--wait-timeout', '60', 'mysql-latest', 'mysql-previous' ],
+			$dockerComposeExecutor->calls[ 0 ][ 'sub_command' ]
+		);
 		foreach ( $dockerComposeExecutor->calls as $call ) {
 			$this->assertFalse( $call[ 'show_docker_output' ] );
 		}

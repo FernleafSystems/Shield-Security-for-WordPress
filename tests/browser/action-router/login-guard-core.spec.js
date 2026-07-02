@@ -1,5 +1,8 @@
 const { test, expect } = require( './support/shield-test' );
 
+const MFA_VERIFY_PAGE_SHIELD = 'custom_shield';
+const MFA_VERIFY_PAGE_WP_LOGIN = 'wp_login';
+
 async function anonymousPage( browser, lane ) {
 	const context = await browser.newContext( { baseURL: lane.baseUrl } );
 	const page = await context.newPage();
@@ -42,9 +45,14 @@ async function otpSegmentsValue( page, fieldName ) {
 }
 
 async function submitMfaForm( page ) {
+	const shieldSubmit = page.locator( '#mainSubmit' );
+	const submit = await shieldSubmit.isVisible().catch( () => false )
+		? shieldSubmit
+		: page.locator( 'input[type="submit"][name="wp-submit"]' );
+
 	await Promise.all( [
 		page.waitForNavigation( { waitUntil: 'domcontentloaded' } ).catch( () => null ),
-		page.locator( '#mainSubmit' ).click(),
+		submit.click(),
 	] );
 }
 
@@ -58,6 +66,76 @@ async function waitForInspection( fixtureApi, predicate, label ) {
 	}
 
 	throw new Error( `Timed out waiting for fixture inspection: ${ label }` );
+}
+
+async function clickRememberMeLabelText( page, checkbox ) {
+	await expect( page.locator( 'label[for="skip_mfa"]' ) ).toBeVisible();
+	await checkbox.scrollIntoViewIfNeeded();
+	const checkboxBox = await checkbox.boundingBox();
+	if ( checkboxBox === null ) {
+		throw new Error( 'Remember-me checkbox has no clickable bounding box.' );
+	}
+
+	await page.mouse.click( checkboxBox.x + checkboxBox.width + 24, checkboxBox.y + ( checkboxBox.height / 2 ) );
+}
+
+async function assertRememberMeLoginFlow( browser, lane, fixtureApi, scenario, options = {} ) {
+	await fixtureApi.withLoginGuardCoreFixture( scenario, async ( fixture ) => {
+		if ( options.mfaVerifyPage ) {
+			expect( fixture.mfa_verify_page ).toBe( options.mfaVerifyPage );
+		}
+
+		let runtime = await anonymousPage( browser, lane );
+		try {
+			await submitWpLogin( runtime.page, fixture.login_path, fixture.user_login, fixture.user_pass );
+			if ( options.wpReplica ) {
+				await expect( runtime.page.locator( 'form.shield-2fa-wplogin' ) ).toBeVisible();
+			}
+
+			const checkbox = runtime.page.locator( 'input[name="skip_mfa"]' );
+			await expect( checkbox ).toBeVisible();
+			await expect( checkbox ).toBeEnabled();
+			await checkbox.click();
+			await expect( checkbox ).toBeChecked();
+
+			if ( options.clickLabelText ) {
+				await checkbox.click();
+				await expect( checkbox ).not.toBeChecked();
+				await clickRememberMeLabelText( runtime.page, checkbox );
+				await expect( checkbox ).toBeChecked();
+			}
+
+			const beforeOtp = await fixtureApi.inspectLoginGuardCoreFixture();
+			if ( options.mfaVerifyPage ) {
+				expect( beforeOtp.option_state.mfa_verify_page ).toBe( options.mfaVerifyPage );
+			}
+			await fillOtp( runtime.page, fixture.otp_field_name, beforeOtp.current_otp || fixture.current_otp );
+			await submitMfaForm( runtime.page );
+			await expect( runtime.page ).toHaveURL( /\/wp-admin\// );
+
+			const afterFirstLogin = await fixtureApi.inspectLoginGuardCoreFixture();
+			expect( afterFirstLogin.hash_loginmfa_count ).toBe( 1 );
+			expect( afterFirstLogin.login_intents_count ).toBe( 0 );
+			expect( afterFirstLogin.event_counts[ '2fa_success' ] ).toBeGreaterThanOrEqual( 1 );
+			expect( afterFirstLogin.event_counts[ '2fa_verify_success' ] ).toBeGreaterThanOrEqual( 1 );
+		}
+		finally {
+			await runtime.context.close();
+		}
+
+		runtime = await anonymousPage( browser, lane );
+		try {
+			await submitWpLogin( runtime.page, fixture.login_path, fixture.user_login, fixture.user_pass );
+			await expect( runtime.page ).toHaveURL( /\/wp-admin\// );
+
+			const afterSecondLogin = await fixtureApi.inspectLoginGuardCoreFixture();
+			expect( afterSecondLogin.hash_loginmfa_count ).toBe( 1 );
+			expect( afterSecondLogin.login_intents_count ).toBe( 0 );
+		}
+		finally {
+			await runtime.context.close();
+		}
+	} );
 }
 
 async function submitInvalidEmailOtpAndAssertCleared( page, fixtureApi, fixture, label ) {
@@ -116,42 +194,16 @@ test( 'hide-login contrasts custom path with blocked old login and disabled stat
 } );
 
 test( 'remember-me checkbox creates skip state and suppresses the next login intent', async ( { browser, lane, fixtureApi } ) => {
-	await fixtureApi.withLoginGuardCoreFixture( 'remember-me', async ( fixture ) => {
-		let runtime = await anonymousPage( browser, lane );
-		try {
-			await submitWpLogin( runtime.page, fixture.login_path, fixture.user_login, fixture.user_pass );
-			const checkbox = runtime.page.locator( 'input[name="skip_mfa"]' );
-			await expect( checkbox ).toBeVisible();
-			await checkbox.check();
-			await expect( checkbox ).toBeChecked();
+	await assertRememberMeLoginFlow( browser, lane, fixtureApi, 'remember-me', {
+		mfaVerifyPage: MFA_VERIFY_PAGE_SHIELD,
+	} );
+} );
 
-			const beforeOtp = await fixtureApi.inspectLoginGuardCoreFixture();
-			await fillOtp( runtime.page, fixture.otp_field_name, beforeOtp.current_otp || fixture.current_otp );
-			await submitMfaForm( runtime.page );
-			await expect( runtime.page ).toHaveURL( /\/wp-admin\// );
-
-			const afterFirstLogin = await fixtureApi.inspectLoginGuardCoreFixture();
-			expect( afterFirstLogin.hash_loginmfa_count ).toBe( 1 );
-			expect( afterFirstLogin.login_intents_count ).toBe( 0 );
-			expect( afterFirstLogin.event_counts[ '2fa_success' ] ).toBeGreaterThanOrEqual( 1 );
-			expect( afterFirstLogin.event_counts[ '2fa_verify_success' ] ).toBeGreaterThanOrEqual( 1 );
-		}
-		finally {
-			await runtime.context.close();
-		}
-
-		runtime = await anonymousPage( browser, lane );
-		try {
-			await submitWpLogin( runtime.page, fixture.login_path, fixture.user_login, fixture.user_pass );
-			await expect( runtime.page ).toHaveURL( /\/wp-admin\// );
-
-			const afterSecondLogin = await fixtureApi.inspectLoginGuardCoreFixture();
-			expect( afterSecondLogin.hash_loginmfa_count ).toBe( 1 );
-			expect( afterSecondLogin.login_intents_count ).toBe( 0 );
-		}
-		finally {
-			await runtime.context.close();
-		}
+test( 'remember-me checkbox works on the WP-login replica MFA form', async ( { browser, lane, fixtureApi } ) => {
+	await assertRememberMeLoginFlow( browser, lane, fixtureApi, 'remember-me-wp-login', {
+		clickLabelText: true,
+		mfaVerifyPage: MFA_VERIFY_PAGE_WP_LOGIN,
+		wpReplica: true,
 	} );
 } );
 

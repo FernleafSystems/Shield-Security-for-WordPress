@@ -25,16 +25,15 @@ class EmailInstantAlertAdmins extends EmailInstantAlertBase {
 	protected function buildAlertGroups() :array {
 		$alertGroups = [];
 		foreach ( \array_filter( $this->action_data[ 'alert_data' ] ) as $alertKey => $alertItems ) {
-			$alertGroups[ $alertKey ] = [
-				'title' => sprintf( '%s: %s', __( 'Change Detected', 'wp-simple-firewall' ), $this->titleFor( $alertKey ) ),
-				'items' => \array_map(
-					static fn( string $item ) => [
-						'text' => sprintf( '%s: %s', CommonDisplayStrings::get( 'username' ), $item ),
-						'href' => '',
-					],
+			$alertGroups[ $alertKey ] = $this->alertGroup(
+				sprintf( '%s: %s', __( 'Change Detected', 'wp-simple-firewall' ), $this->titleFor( $alertKey ) ),
+				\array_map(
+					fn( string $item ) :array => $this->alertItem( [
+						$this->alertLine( CommonDisplayStrings::get( 'username' ), $item ),
+					] ),
 					$alertItems
 				)
-			];
+			);
 		}
 		return $alertGroups;
 	}

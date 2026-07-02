@@ -321,23 +321,29 @@ $options-rail-width-max: 260px;
 }
 
 .options_form_for--modern .shield-option-multiple-item {
-  display: flex;
-  align-items: flex-start;
+  align-items: start;
+  display: grid;
   gap: 0.55rem;
-  min-height: 0;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
   margin: 0;
+  min-height: 0;
+  min-width: 0;
   padding-left: 0;
 }
 
 .options_form_for--modern .shield-option-multiple-item .form-check-input {
-  margin-top: 0.2rem;
-  margin-left: 0;
-  flex-shrink: 0;
+  float: none;
+  margin: 0.2rem 0 0;
 }
 
 .options_form_for--modern .shield-option-multiple-item .form-check-label {
   line-height: 1.35;
-  word-break: break-word;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.options_form_for--modern .shield-option-multiple-item .form-check-label code {
+  white-space: normal;
 }
 
 // ─── Bootstrap Switch Overrides ───

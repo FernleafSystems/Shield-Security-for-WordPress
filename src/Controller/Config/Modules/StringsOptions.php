@@ -1081,6 +1081,14 @@ class StringsOptions {
 					sprintf( __( "Be alerted when the %s plugin is deactivated", 'wp-simple-firewall' ), $pluginName ),
 				];
 				break;
+			case 'instant_alert_hidden_plugins':
+				$name = __( 'Cloaked Plugins', 'wp-simple-firewall' );
+				$summary = __( 'Be alerted when a plugin is cloaked from the WordPress admin list', 'wp-simple-firewall' );
+				$desc = [
+					__( 'This alert compares raw plugin files on disk against the plugins visible in the WordPress admin area.', 'wp-simple-firewall' ),
+					__( 'It ignores inert placeholder PHP files so alerts focus on plugin files that can execute code.', 'wp-simple-firewall' ),
+				];
+				break;
 			case 'instant_alert_vulnerabilities':
 				$name = __( 'Vulnerabilities', 'wp-simple-firewall' );
 				$summary = __( 'Be alerted to vulnerable plugins/themes when vulnerability scanning is enabled', 'wp-simple-firewall' );
@@ -1257,40 +1265,6 @@ class StringsOptions {
 				$name = __( 'Dashboard and 2FA Login Logo URL', 'wp-simple-firewall' );
 				$summary = __( 'Dashboard and 2FA Login Logo URL', 'wp-simple-firewall' );
 				$desc = [ __( 'The URL of the logo to display on the Dashboard and the Two-Factor Authentication login page.', 'wp-simple-firewall' ) ];
-				break;
-			case 'enable_logger':
-				$name = __( 'Enable Request Logging', 'wp-simple-firewall' );
-				$summary = __( 'Log Requests To Your WordPress Site', 'wp-simple-firewall' );
-				$desc = [ __( 'Monitor web requests sent to your WordPress site.', 'wp-simple-firewall' ) ];
-				break;
-			case 'enable_live_log':
-				$max = (int)\round( $opts->getTrafficLiveLogDuration()/\MINUTE_IN_SECONDS );
-
-				$name = __( 'Live Traffic', 'wp-simple-firewall' );
-				$summary = __( 'Temporarily Log All Traffic', 'wp-simple-firewall' );
-				$desc = [
-					__( "Requires standard traffic logging to be switched-on and logs all requests to the site (nothing is excluded).", 'wp-simple-firewall' ),
-					__( "For high-traffic sites, this option can cause your database to become quite large and isn't recommend unless required.", 'wp-simple-firewall' ),
-					sprintf( __( 'This setting will automatically be disabled after %s and all requests logged during that period that would normally have been excluded will also be deleted.', 'wp-simple-firewall' ),
-						sprintf( _n( '%s minute', '%s minutes', $max, 'wp-simple-firewall' ), $max ) ),
-					sprintf( '<a href="%s">%s &rarr;</a>',
-						$con->plugin_urls->trafficLive(),
-						__( 'Live Logs Viewer', 'wp-simple-firewall' )
-					),
-
-				];
-
-				$remaining = $opts->getTrafficLiveLogTimeRemaining();
-				if ( $remaining > 0 ) {
-					$desc[] = sprintf(
-						__( 'Live logging will be automatically disabled: %s', 'wp-simple-firewall' ),
-						sprintf( '<code>%s</code>', Services::Request()
-															->carbon()
-															->addSeconds( $remaining )
-															->diffForHumans()
-						)
-					);
-				}
 				break;
 			case 'enable_limiter':
 				$name = __( 'Enable Rate Limiting', 'wp-simple-firewall' );

@@ -32,6 +32,7 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		Functions\when( 'wp_date' )->alias(
 			static fn( string $format, int $timestamp ) :string => \gmdate( $format, $timestamp )
 		);
+		Functions\when( 'apply_filters' )->alias( static fn( string $tag, $value ) => $value );
 
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->plugin_urls = new class {
@@ -155,6 +156,31 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'key', 'value', 'label', 'class' ], \array_keys( $row[ 'badges' ][ 0 ] ) );
 	}
 
+	public function test_build_traffic_row_redacts_sensitive_query_values_in_title() :void {
+		$builder = $this->createBuilderWithIdentityResults( [
+			'198.51.100.42|' => [ IpID::UNKNOWN, 'Unknown' ],
+		] );
+		$record = new RequestLogRecord();
+		$record->created_at = 1713278100;
+		$record->ip = '198.51.100.42';
+		$record->verb = 'GET';
+		$record->path = '/wp-login.php';
+		$record->code = 200;
+		$record->type = 'H';
+		$record->offense = false;
+		$record->uid = 0;
+		$record->meta = [
+			'query' => 'key=reset-secret&reauth=1&login=admin',
+		];
+
+		$row = $builder->buildTrafficRow( $record );
+
+		$this->assertStringContainsString( 'key=redacted', $row[ 'title' ] );
+		$this->assertStringContainsString( 'reauth=1', $row[ 'title' ] );
+		$this->assertStringContainsString( 'login=admin', $row[ 'title' ] );
+		$this->assertStringNotContainsString( 'reset-secret', $row[ 'title' ] );
+	}
+
 	public function test_build_traffic_row_suppresses_unknown_identity_badges() :void {
 		$builder = $this->createBuilderWithIdentityResults( [
 			'203.0.113.21|facebookexternalhit/1.1' => [ IpID::UNKNOWN, 'Unknown' ],
@@ -260,7 +286,7 @@ class LiveLogRowsBuilderTest extends BaseUnitTest {
 	private function badgeValuesByKey( array $badges ) :array {
 		$values = [];
 		foreach ( $badges as $badge ) {
-			$values[ (string)( $badge[ 'key' ] ?? '' ) ] = (string)( $badge[ 'value' ] ?? '' );
+			$values[ (string)$badge[ 'key' ] ] = (string)$badge[ 'value' ];
 		}
 		return $values;
 	}

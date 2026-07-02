@@ -842,14 +842,14 @@ class ActionsQueueFixtureBuilder {
 	}
 
 	private function pluginMainPathFragment( string $pluginSlug ) :string {
-		return TestDataFactory::pathFragmentFromAbsolutePath( WP_PLUGIN_DIR.'/'.$pluginSlug );
+		return TestDataFactory::afsFileItemIdFromPath( WP_PLUGIN_DIR.'/'.$pluginSlug );
 	}
 
 	private function pluginFilePathFragment( string $pluginSlug, string $file ) :string {
-		return TestDataFactory::pathFragmentFromAbsolutePath( WP_PLUGIN_DIR.'/'.\dirname( $pluginSlug ).'/'.$file );
+		return TestDataFactory::afsFileItemIdFromPath( WP_PLUGIN_DIR.'/'.\dirname( $pluginSlug ).'/'.$file );
 	}
 
 	private function themeFilePathFragment( string $themeSlug, string $file ) :string {
-		return TestDataFactory::pathFragmentFromAbsolutePath( \get_theme_root().'/'.$themeSlug.'/'.$file );
+		return TestDataFactory::afsFileItemIdFromPath( \get_theme_root().'/'.$themeSlug.'/'.$file );
 	}
 }

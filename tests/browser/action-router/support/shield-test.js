@@ -259,6 +259,9 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			async resetDashboardDefaultsFixture() {
 				return runFixture( 'dashboard-defaults', 'reset-defaults' );
 			},
+			async prepareDashboardActionsAllClearFixture() {
+				return runFixture( 'dashboard-defaults', 'prepare-actions-all-clear' );
+			},
 			async withDashboardDefaultsFixture( runScenario ) {
 				let seeded = false;
 				try {
@@ -333,6 +336,9 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			async inspectLicenseClearFixture() {
 				return runFixture( 'license-clear', 'inspect' );
 			},
+			async inspectLiveTrafficToggleFixture() {
+				return runFixture( 'live-traffic-toggle', 'inspect' );
+			},
 			async withLicenseClearFixture( runScenario ) {
 				let seeded = false;
 				try {
@@ -343,6 +349,19 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 				finally {
 					if ( seeded ) {
 						await runFixture( 'license-clear', 'cleanup' );
+					}
+				}
+			},
+			async withLiveTrafficToggleFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'live-traffic-toggle', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'live-traffic-toggle', 'cleanup' );
 					}
 				}
 			},

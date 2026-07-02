@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  * @phpstan-import-type AssessmentRowsByZone from ActionsQueueLandingAssessmentBuilder
  * @phpstan-import-type BucketSelection from ActionsQueueDrillDownPresentationBuilder
  * @phpstan-import-type CompactSummaryRow from ActionsQueueCompactSummaryRowBuilder
+ * @phpstan-import-type GroupDefinition from ActionsQueueGroupDefinitions
  * @phpstan-type BucketSource array{
  *   attention_items:list<AttentionItem>,
  *   item_count:int,
@@ -297,6 +298,12 @@ class ActionsQueueBucketsBuilder {
 					$count
 				);
 
+			case 'hidden_plugins':
+				return \sprintf(
+					_n( '%s cloaked plugin', '%s cloaked plugins', $count, 'wp-simple-firewall' ),
+					$count
+				);
+
 			case 'wordpress':
 				return \sprintf(
 					_n( '%s WordPress file issue', '%s WordPress file issues', $count, 'wp-simple-firewall' ),
@@ -475,14 +482,7 @@ class ActionsQueueBucketsBuilder {
 	}
 
 	/**
-	 * @return array<string,array{
-	 *   key:string,
-	 *   label:string,
-	 *   icon_class:string,
-	 *   summary_keys:list<string>,
-	 *   render_action_class:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender>,
-	 *   render_action_data:array<string,string>
-	 * }>
+	 * @return array<string,GroupDefinition>
 	 */
 	private function getGroupDefinitions() :array {
 		return $this->groupDefinitions()->all();

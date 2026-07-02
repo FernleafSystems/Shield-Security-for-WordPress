@@ -476,15 +476,19 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'label'     => 'Configure',
 				'title'     => 'Configure '.$title,
 				'href'      => '',
+				'target'    => '',
 				'is_action' => true,
 				'icon'      => 'bi bi-gear-fill',
-				'tooltip'   => '',
 				'classes'   => [ 'zone_component_action' ],
-				'data'      => [
-					'zone_component_action' => 'offcanvas_zone_component_config',
-					'zone_component_slug'   => $key,
-					'form_context'          => 'offcanvas',
-				] + $actionData,
+				'data'      => \array_merge(
+					[
+						'zone_component_action' => 'offcanvas_zone_component_config',
+						'zone_component_slug'   => $key,
+						'option_keys'           => $key.'_option',
+						'form_context'          => 'offcanvas',
+					],
+					$actionData
+				),
 			],
 		];
 	}

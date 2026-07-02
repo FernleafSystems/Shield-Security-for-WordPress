@@ -456,6 +456,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 					public function canScanVulnerabilities() :bool {
 						return false;
 					}
+
+					public function canDetectCloakedPlugins() :bool {
+						return true;
+					}
 				},
 				'action_router' => new PageActionsQueueActionRouter( $this->capture ),
 			]

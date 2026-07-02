@@ -1,6 +1,21 @@
+x-shield-container-labels: &shield-container-labels
+  com.fernleaf.harness: ${SHIELD_DOCKER_LABEL_HARNESS:-shield-plugin-integration-local}
+  com.fernleaf.run-id: ${SHIELD_DOCKER_CONTAINER_RUN_ID:-manual}
+  com.fernleaf.lane: ${SHIELD_DOCKER_LABEL_LANE:-integration-local}
+  com.fernleaf.lifecycle: ${SHIELD_DOCKER_CONTAINER_LIFECYCLE:-reusable}
+  com.fernleaf.expires-at: ${SHIELD_DOCKER_CONTAINER_EXPIRES_AT:-1970-01-01T00:00:00+00:00}
+
+x-shield-network-labels: &shield-network-labels
+  com.fernleaf.harness: ${SHIELD_DOCKER_LABEL_HARNESS:-shield-plugin-integration-local}
+  com.fernleaf.run-id: ${SHIELD_DOCKER_CONTAINER_RUN_ID:-manual}
+  com.fernleaf.lane: ${SHIELD_DOCKER_LABEL_LANE:-integration-local}
+  com.fernleaf.lifecycle: ${SHIELD_DOCKER_CONTAINER_LIFECYCLE:-reusable}
+  com.fernleaf.expires-at: ${SHIELD_DOCKER_CONTAINER_EXPIRES_AT:-1970-01-01T00:00:00+00:00}
+
 services:
   mysql-local:
     image: mysql:8.0
+    labels: *shield-container-labels
     environment:
       MYSQL_ROOT_PASSWORD: testpass
       MYSQL_DATABASE: wordpress_test_local
@@ -10,8 +25,12 @@ services:
     ports:
       - "3311:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
+      test: ["CMD", "mysqladmin", "ping", "--protocol=tcp", "-h", "127.0.0.1", "-uroot", "-ptestpass"]
       interval: 2s
       timeout: 5s
       retries: 30
       start_period: 10s
+
+networks:
+  default:
+    labels: *shield-network-labels

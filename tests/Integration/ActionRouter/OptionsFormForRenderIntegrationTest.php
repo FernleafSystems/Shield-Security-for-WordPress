@@ -49,17 +49,64 @@ class OptionsFormForRenderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $this->containsFocusedOption( $sections, 'session_idle_timeout_interval' ) );
 	}
 
-	public function test_option_render_data_exposes_transfer_contract() :void {
-		$payload = $this->renderOptionsFormPayload( [
-			'admin_access_key',
-			'admin_access_restrict_plugins',
-		] );
+	public function test_option_render_data_exposes_transfer_contract_when_requested() :void {
+		$payload = $this->renderOptionsFormPayload(
+			[
+				'admin_access_key',
+				'admin_access_restrict_plugins',
+			],
+			[
+				'show_transfer_switch' => true,
+				'transfer_action'      => 'profile_xfer_include_toggle',
+			]
+		);
 
 		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'show_transfer_switch' ] ?? false ) );
+		$this->assertSame( 'profile_xfer_include_toggle', (string)( $renderData[ 'vars' ][ 'transfer_action' ] ?? '' ) );
 		$this->assertIsArray( $renderData[ 'vars' ][ 'xferable_opts' ] ?? null );
 		$this->assertIsArray( $renderData[ 'vars' ][ 'xfer_excluded_opts' ] ?? null );
 		$this->assertSame( 'normal', (string)( $renderData[ 'vars' ][ 'form_context' ] ?? '' ) );
+	}
+
+	public function test_option_render_hides_transfer_controls_by_default() :void {
+		$payload = $this->renderOptionsFormPayload(
+			[
+				'admin_access_key',
+				'admin_access_restrict_plugins',
+			]
+		);
+
+		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
+		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'show_transfer_switch' ] ?? true ) );
+		$this->assertSame( 'form_save', (string)( $renderData[ 'vars' ][ 'options_save_action' ] ?? '' ) );
+		$this->assertStringContainsString(
+			'data-options-save-action="form_save"',
+			(string)( $payload[ 'render_output' ] ?? '' )
+		);
+		$this->assertStringNotContainsString(
+			'toggle-importexport-inclusion',
+			(string)( $payload[ 'render_output' ] ?? '' )
+		);
+	}
+
+	public function test_option_render_requires_transfer_action_to_show_transfer_controls() :void {
+		$payload = $this->renderOptionsFormPayload(
+			[
+				'admin_access_key',
+				'admin_access_restrict_plugins',
+			],
+			[
+				'show_transfer_switch' => true,
+			]
+		);
+
+		$renderData = (array)( $payload[ 'render_data' ] ?? [] );
+		$this->assertFalse( (bool)( $renderData[ 'flags' ][ 'show_transfer_switch' ] ?? true ) );
+		$this->assertStringNotContainsString(
+			'toggle-importexport-inclusion',
+			(string)( $payload[ 'render_output' ] ?? '' )
+		);
 	}
 
 	private function containsFocusedOption( array $sections, string $optionKey ) :bool {

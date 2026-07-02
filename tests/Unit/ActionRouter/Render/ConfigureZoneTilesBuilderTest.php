@@ -67,6 +67,17 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 				!\in_array( $tile[ 'key' ], [ 'general', 'reports_alerts' ], true ),
 				$tile[ 'include_in_posture' ]
 			);
+			foreach ( $tile[ 'panel' ][ 'rows' ] as $row ) {
+				$rowReference = $tile[ 'key' ].':'.$row[ 'key' ];
+				$this->assertNotSame( [], $row[ 'config_action' ], 'Configure row action missing: '.$rowReference );
+				$this->assertNotSame(
+					'',
+					$row[ 'config_action' ][ 'data' ][ 'option_keys' ],
+					'Configure row action requires visible option keys: '.$rowReference
+				);
+				$this->assertSame( '', $row[ 'config_action' ][ 'target' ], 'Configure row action target drifted: '.$rowReference );
+				$this->assertArrayNotHasKey( 'tooltip', $row[ 'config_action' ], 'Configure row action carries stale tooltip: '.$rowReference );
+			}
 		}
 
 		$this->assertSame( 'good', $tilesByKey[ 'secadmin' ][ 'status' ] );
@@ -137,7 +148,19 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'neutral', $tilesByKey[ 'general' ][ 'status' ] );
 		$this->assertNotSame( '', $tilesByKey[ 'general' ][ 'stat_line' ] );
 		$this->assertNotSame( '', $tilesByKey[ 'general' ][ 'status_label' ] );
-		$this->assertCount( 2, $tilesByKey[ 'general' ][ 'panel' ][ 'rows' ] );
+		$this->assertCount( 1, $tilesByKey[ 'general' ][ 'panel' ][ 'rows' ] );
+		$this->assertSame(
+			[ 'plugin_general' ],
+			\array_column( $tilesByKey[ 'general' ][ 'panel' ][ 'rows' ], 'key' )
+		);
+		$this->assertSame(
+			'ipdetect_source',
+			$tilesByKey[ 'general' ][ 'panel' ][ 'rows' ][ 0 ][ 'config_action' ][ 'data' ][ 'option_keys' ] ?? ''
+		);
+		$this->assertNotContains(
+			Component\RequestLogging::Slug(),
+			\array_column( $tilesByKey[ 'general' ][ 'panel' ][ 'rows' ], 'key' )
+		);
 
 		$this->assertSame( 'warning', $tilesByKey[ 'ips' ][ 'status' ] );
 		$this->assertNotSame( '', $tilesByKey[ 'ips' ][ 'stat_line' ] );
@@ -260,6 +283,23 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			}
 		}
 		return [];
+	}
+
+	private function optionDefinitions( array $visibleOptionKeys, array $hiddenOptionKeys = [] ) :array {
+		$options = [];
+		foreach ( \array_values( \array_unique( $visibleOptionKeys ) ) as $optionKey ) {
+			$options[ $optionKey ] = [
+				'key'     => $optionKey,
+				'section' => 'section_stub',
+			];
+		}
+		foreach ( \array_values( \array_unique( $hiddenOptionKeys ) ) as $optionKey ) {
+			$options[ $optionKey ] = [
+				'key'     => $optionKey,
+				'section' => 'section_hidden',
+			];
+		}
+		return $options;
 	}
 
 	private function installControllerStub() :void {
@@ -515,7 +555,8 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 					[ 'General configuration is active.' ],
 					[
 						'ipdetect_source',
-					]
+					],
+					'plugin_general'
 				),
 				Component\RequestLogging::Slug() => $this->newComponent(
 					'Request Logging',
@@ -594,6 +635,57 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 				return $this->componentsByZoneObjectId[ \spl_object_id( $zone ) ] ?? [];
 			}
 		};
+		$optionDefinitions = $this->optionDefinitions(
+			[
+				'pin_toggle',
+				'admin_access_restrict_plugins',
+				'waf_rules',
+				'clean_wp_rubbish',
+				'transgression_limit',
+				'auto_expire',
+				'user_auto_recover',
+				'request_whitelist',
+				'cs_block',
+				'cs_enroll_id',
+				'antibot_minimum',
+				'track_loginfailed',
+				'track_xmlrpc',
+				'scan_frequency',
+				'mfa_verify_page',
+				'allow_backupcodes',
+				'enable_email_authentication',
+				'two_factor_auth_user_roles',
+				'enable_google_authenticator',
+				'enable_passkeys',
+				'rename_wplogin_path',
+				'session_timeout_interval',
+				'session_idle_timeout_interval',
+				'session_lock',
+				'enable_user_login_email_notification',
+				'enable_password_policies',
+				'pass_expire',
+				'pass_force_existing',
+				'pass_prevent_pwned',
+				'pass_min_strength',
+				'manual_suspend',
+				'auto_password',
+				'spam_block_bots',
+				'spam_filter_human',
+				'trusted_commenter_minimum',
+				'comments_cooldown',
+				'headers_policy_mode',
+				'ipdetect_source',
+				'instant_alert_admins',
+				'instant_alert_admin_login',
+				'instant_alert_firewall_block',
+				'frequency_alert',
+				'frequency_info',
+			],
+			[
+				'request_log_paths',
+				'request_log_enabled',
+			]
+		);
 
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -616,9 +708,13 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			}
 		};
 		$controller->cfg = (object)[
-			'configuration' => new class {
-				public array $options = [];
+			'configuration' => new class( $optionDefinitions ) {
+				public array $options;
 				public array $sections = [];
+
+				public function __construct( array $options ) {
+					$this->options = $options;
+				}
 			},
 		];
 		$controller->opts = new class {
@@ -708,6 +804,7 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 				];
 			}
 		};
+		$optionDefinitions = $this->optionDefinitions( [ 'first_option', 'second_option' ] );
 
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -730,9 +827,13 @@ class ConfigureZoneTilesBuilderTest extends BaseUnitTest {
 			}
 		};
 		$controller->cfg = (object)[
-			'configuration' => new class {
-				public array $options = [];
+			'configuration' => new class( $optionDefinitions ) {
+				public array $options;
 				public array $sections = [];
+
+				public function __construct( array $options ) {
+					$this->options = $options;
+				}
 			},
 		];
 		$controller->opts = new class {

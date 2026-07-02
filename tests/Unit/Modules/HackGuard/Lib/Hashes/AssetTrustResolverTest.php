@@ -67,6 +67,43 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		] );
 	}
 
+	public function test_plugin_context_uses_reloaded_asset_version() :void {
+		ServicesState::installItems( [
+			'service_wpfs'      => new ResolverFs(),
+			'service_wpplugins' => new ResolverPlugins( [ 'alpha/alpha.php' ], '0.9.0', '1.0.0' ),
+			'service_wpthemes'  => new ResolverThemes( [] ),
+		] );
+		$path = $this->normalisePath( WP_PLUGIN_DIR.'/alpha/src/File.php' );
+
+		$context = ( new AssetTrustResolver() )->resolveContext( $path );
+
+		$this->assertSame( '1.0.0', $context->assetVersion );
+	}
+
+	public function test_cached_plugin_context_refreshes_asset_version() :void {
+		ServicesState::installItems( [
+			'service_wpfs'      => new ResolverFs(),
+			'service_wpplugins' => new ResolverPlugins( [ 'alpha/alpha.php' ], '1.0.0' ),
+			'service_wpthemes'  => new ResolverThemes( [] ),
+		] );
+		$path = $this->normalisePath( WP_PLUGIN_DIR.'/alpha/src/File.php' );
+		$resolver = new AssetTrustResolver();
+		$first = $resolver->resolveContext( $path );
+		$this->assertSame( '1.0.0', $first->assetVersion );
+
+		ServicesState::installItems( [
+			'service_wpfs'      => new ResolverFs(),
+			'service_wpplugins' => new ResolverPlugins( [ 'alpha/alpha.php' ], '0.9.0', '1.1.0' ),
+			'service_wpthemes'  => new ResolverThemes( [] ),
+		] );
+		$second = $resolver->resolveContext( $path );
+
+		$this->assertSame( '1.1.0', $second->assetVersion );
+		$this->assertSame( $first->assetType, $second->assetType );
+		$this->assertSame( $first->assetKey, $second->assetKey );
+		$this->assertSame( $first->relativePath, $second->relativePath );
+	}
+
 	public function test_repeated_same_theme_path_reuses_full_path_context() :void {
 		$this->installEnvironment( [], [ 'clean' ] );
 		$path = $this->normalisePath( WP_CONTENT_DIR.'/themes/clean/inc/File.php' );
@@ -91,6 +128,43 @@ class AssetTrustResolverTest extends BaseUnitTest {
 			ResolverPlugins::$installedPluginFilesCalls,
 			ResolverThemes::$getThemesCalls,
 		] );
+	}
+
+	public function test_theme_context_uses_reloaded_asset_version() :void {
+		ServicesState::installItems( [
+			'service_wpfs'      => new ResolverFs(),
+			'service_wpplugins' => new ResolverPlugins( [] ),
+			'service_wpthemes'  => new ResolverThemes( [ 'clean' ], '0.9.0', '1.0.0' ),
+		] );
+		$path = $this->normalisePath( WP_CONTENT_DIR.'/themes/clean/inc/File.php' );
+
+		$context = ( new AssetTrustResolver() )->resolveContext( $path );
+
+		$this->assertSame( '1.0.0', $context->assetVersion );
+	}
+
+	public function test_cached_theme_context_refreshes_asset_version() :void {
+		ServicesState::installItems( [
+			'service_wpfs'      => new ResolverFs(),
+			'service_wpplugins' => new ResolverPlugins( [] ),
+			'service_wpthemes'  => new ResolverThemes( [ 'clean' ], '1.0.0' ),
+		] );
+		$path = $this->normalisePath( WP_CONTENT_DIR.'/themes/clean/inc/File.php' );
+		$resolver = new AssetTrustResolver();
+		$first = $resolver->resolveContext( $path );
+		$this->assertSame( '1.0.0', $first->assetVersion );
+
+		ServicesState::installItems( [
+			'service_wpfs'      => new ResolverFs(),
+			'service_wpplugins' => new ResolverPlugins( [] ),
+			'service_wpthemes'  => new ResolverThemes( [ 'clean' ], '0.9.0', '1.1.0' ),
+		] );
+		$second = $resolver->resolveContext( $path );
+
+		$this->assertSame( '1.1.0', $second->assetVersion );
+		$this->assertSame( $first->assetType, $second->assetType );
+		$this->assertSame( $first->assetKey, $second->assetKey );
+		$this->assertSame( $first->relativePath, $second->relativePath );
 	}
 
 	public function test_repeated_non_asset_path_miss_is_memoized() :void {
@@ -183,8 +257,14 @@ class ResolverPlugins extends Plugins {
 
 	private array $pluginFiles;
 
-	public function __construct( array $pluginFiles ) {
+	private string $version;
+
+	private ?string $reloadVersion;
+
+	public function __construct( array $pluginFiles, string $version = '1.0.0', ?string $reloadVersion = null ) {
 		$this->pluginFiles = $pluginFiles;
+		$this->version = $version;
+		$this->reloadVersion = $reloadVersion;
 	}
 
 	public function getInstalledPluginFiles() :array {
@@ -193,8 +273,9 @@ class ResolverPlugins extends Plugins {
 	}
 
 	public function getPluginAsVo( string $file, bool $reload = false ) :?WpPluginVo {
-		unset( $reload );
-		return \in_array( $file, $this->pluginFiles, true ) ? new ResolverPluginVo( $file ) : null;
+		return \in_array( $file, $this->pluginFiles, true )
+			? new ResolverPluginVo( $file, $reload && $this->reloadVersion !== null ? $this->reloadVersion : $this->version )
+			: null;
 	}
 }
 
@@ -203,8 +284,14 @@ class ResolverThemes extends Themes {
 
 	private array $themes;
 
-	public function __construct( array $themes ) {
+	private string $version;
+
+	private ?string $reloadVersion;
+
+	public function __construct( array $themes, string $version = '1.0.0', ?string $reloadVersion = null ) {
 		$this->themes = $themes;
+		$this->version = $version;
+		$this->reloadVersion = $reloadVersion;
 	}
 
 	public function getThemes() :array {
@@ -226,17 +313,19 @@ class ResolverThemes extends Themes {
 	}
 
 	public function getThemeAsVo( string $stylesheet, bool $reload = false ) :?WpThemeVo {
-		unset( $reload );
-		return \in_array( $stylesheet, $this->themes, true ) ? new ResolverThemeVo( $stylesheet ) : null;
+		return \in_array( $stylesheet, $this->themes, true )
+			? new ResolverThemeVo( $stylesheet, $reload && $this->reloadVersion !== null ? $this->reloadVersion : $this->version )
+			: null;
 	}
 }
 
 class ResolverPluginVo extends WpPluginVo {
 	public string $file;
-	public string $Version = '1.0.0';
+	public string $Version;
 
-	public function __construct( string $file ) {
+	public function __construct( string $file, string $version = '1.0.0' ) {
 		$this->file = $file;
+		$this->Version = $version;
 	}
 
 	public function __get( string $key ) {
@@ -255,10 +344,11 @@ class ResolverPluginVo extends WpPluginVo {
 
 class ResolverThemeVo extends WpThemeVo {
 	public string $stylesheet;
-	public string $Version = '1.0.0';
+	public string $Version;
 
-	public function __construct( string $stylesheet ) {
+	public function __construct( string $stylesheet, string $version = '1.0.0' ) {
 		$this->stylesheet = $stylesheet;
+		$this->Version = $version;
 	}
 
 	public function __get( string $key ) {

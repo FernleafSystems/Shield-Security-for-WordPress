@@ -128,17 +128,25 @@ class RateLimitRuleBehaviorTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $this->processRateLimitRuleConditions() );
 	}
 
+	public function test_legacy_disabled_logger_value_does_not_disable_rate_limit_rule() :void {
+		$ip = '203.0.113.59';
+		$this->setupRateLimitOptions( 2, 300, 'N' );
+		$this->resetRateLimitRequestState( $ip );
+		$this->seedRequestLogs( $ip, 3 );
+
+		$this->assertTrue( $this->processRateLimitRuleConditions() );
+	}
+
 	/**
 	 * @dataProvider disabledTrafficLimiterProvider
 	 */
 	public function test_disabled_traffic_limiter_configuration_does_not_match_rate_limit_rule(
-		string $logger,
 		string $limiter,
 		int $limit,
 		int $span,
 		string $ip
 	) :void {
-		$this->setupRateLimitOptions( $limit, $span, $logger, $limiter );
+		$this->setupRateLimitOptions( $limit, $span, 'Y', $limiter );
 		$this->resetRateLimitRequestState( $ip );
 		$this->seedRequestLogs( $ip, 5 );
 
@@ -147,10 +155,9 @@ class RateLimitRuleBehaviorTest extends ShieldIntegrationTestCase {
 
 	public function disabledTrafficLimiterProvider() :array {
 		return [
-			'logger disabled'  => [ 'N', 'Y', 2, 300, '203.0.113.59' ],
-			'limiter disabled' => [ 'Y', 'N', 2, 300, '203.0.113.60' ],
-			'zero count'       => [ 'Y', 'Y', 0, 300, '203.0.113.61' ],
-			'zero span'        => [ 'Y', 'Y', 2, 0, '203.0.113.62' ],
+			'limiter disabled' => [ 'N', 2, 300, '203.0.113.60' ],
+			'zero count'       => [ 'Y', 0, 300, '203.0.113.61' ],
+			'zero span'        => [ 'Y', 2, 0, '203.0.113.62' ],
 		];
 	}
 

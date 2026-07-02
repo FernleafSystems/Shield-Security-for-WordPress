@@ -49,27 +49,42 @@ fi
 echo "Waiting for MySQL to be ready..."
 echo "Connection details: $DB_USER@$DB_HOST (password: ${DB_PASS:+***provided***}${DB_PASS:-not provided})"
 
-# Build mysqladmin command with proper password handling
-MYSQL_CMD="mysqladmin ping -h\"$DB_HOST\" -u\"$DB_USER\""
+# Build MySQL commands with proper password handling.
+MYSQL_PING_CMD=(mysqladmin ping --protocol=tcp -h"$DB_HOST" -u"$DB_USER")
+MYSQL_SELECT_CMD=(mysql --protocol=tcp -h"$DB_HOST" -u"$DB_USER")
 if [ -n "$DB_PASS" ]; then
-    MYSQL_CMD="$MYSQL_CMD -p\"$DB_PASS\""
+    MYSQL_PING_CMD+=("-p$DB_PASS")
+    MYSQL_SELECT_CMD+=("-p$DB_PASS")
 fi
-MYSQL_CMD="$MYSQL_CMD --silent"
+MYSQL_PING_CMD+=(--silent)
+MYSQL_SELECT_CMD+=(-e "SELECT 1" "$DB_NAME")
 
 timeout=30
-while ! eval "$MYSQL_CMD"; do
+last_mysql_phase="ping"
+while true; do
+    if "${MYSQL_PING_CMD[@]}" >/dev/null 2>&1; then
+        if "${MYSQL_SELECT_CMD[@]}" >/dev/null 2>&1; then
+            break
+        fi
+        last_mysql_phase="SQL SELECT 1"
+    else
+        last_mysql_phase="ping"
+    fi
+
     timeout=$((timeout - 1))
     if [ $timeout -eq 0 ]; then
         echo "ERROR: MySQL failed to start within 30 seconds"
         echo "Connection details: $DB_USER@$DB_HOST"
-        echo "Last attempted command: mysqladmin ping -h\"$DB_HOST\" -u\"$DB_USER\" ${DB_PASS:+-p***} --silent"
+        echo "Last readiness phase: $last_mysql_phase"
+        echo "Last attempted ping: mysqladmin ping --protocol=tcp -h\"$DB_HOST\" -u\"$DB_USER\" ${DB_PASS:+-p***} --silent"
+        echo "Last attempted SQL: mysql --protocol=tcp -h\"$DB_HOST\" -u\"$DB_USER\" ${DB_PASS:+-p***} -e \"SELECT 1\" \"$DB_NAME\""
         echo "Troubleshooting tips:"
         echo "  - Verify MySQL container is running and accepting connections"
         echo "  - Check if password is required and correctly provided"
         echo "  - Ensure DB_HOST is accessible from this container"
         exit 1
     fi
-    echo "Waiting for MySQL... ($timeout seconds left)"
+    echo "Waiting for MySQL $last_mysql_phase readiness... ($timeout seconds left)"
     sleep 1
 done
 echo "MySQL is ready!"

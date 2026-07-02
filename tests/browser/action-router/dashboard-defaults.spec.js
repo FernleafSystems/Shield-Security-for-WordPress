@@ -222,3 +222,20 @@ test( 'dashboard general checks expose operator modes live monitor ajax and wp d
 		await expect( widget.locator( '.shield-dashboard-widget[data-shield-status]' ) ).toBeVisible();
 	} );
 } );
+
+test( 'dashboard actions queue all-clear state exposes checklist rows', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withDashboardDefaultsFixture( async ( rawContract ) => {
+		const contract = assertDashboardDefaultsContract( rawContract );
+		await fixtureApi.prepareDashboardActionsAllClearFixture();
+
+		await openShieldRoute( page, contract.routes.dashboard );
+		await dismissBlockingDialogs( page );
+
+		const actionsAllClear = page.locator( '[data-dashboard-actions-all-clear-list="1"]' );
+		await expect( actionsAllClear ).toBeVisible();
+		await expect( actionsAllClear.locator( '[data-dashboard-actions-all-clear-check]' ) ).toHaveCount( 3 );
+		await expect(
+			actionsAllClear.locator( '[data-dashboard-actions-all-clear-check="cloaked_plugin_detection"]' )
+		).toBeVisible();
+	} );
+} );

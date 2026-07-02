@@ -16,6 +16,9 @@ class CrossSitePairManagerTest extends TestCase {
 
 	use TempDirLifecycleTrait;
 
+	private const MASTER_INTERNAL_URL = 'http://wordpress-master.shield-cross-site.example.com';
+	private const SLAVE_INTERNAL_URL = 'http://wordpress-slave.shield-cross-site.example.com';
+
 	protected function tearDown() :void {
 		foreach ( [
 			'SHIELD_CROSS_SITE_MASTER_PORT',
@@ -36,10 +39,30 @@ class CrossSitePairManagerTest extends TestCase {
 
 		$this->assertContains( '-f', $command );
 		$this->assertContains( 'tests/docker/docker-compose.cross-site.yml', $command );
-		$this->assertContains( 'SHIELD_LOCAL_SITE_URL=http://wordpress-master', $command );
+		$this->assertContains( 'SHIELD_LOCAL_SITE_URL='.self::MASTER_INTERNAL_URL, $command );
 		$this->assertContains( 'SHIELD_LOCAL_SITE_PROFILE=cross-site-master', $command );
 		$this->assertContains( 'wp-cli-master', $command );
 		$this->assertContains( '/app/tests/docker/provision-local-site.sh', $command );
+	}
+
+	public function testCrossSiteComposeDefinesTrustedSyncHostAliases() :void {
+		$manager = new CrossSitePairManager();
+		$content = $this->readProjectFile( 'tests/docker/docker-compose.cross-site.yml' );
+		$this->assertSame( self::MASTER_INTERNAL_URL, $manager->masterInternalUrl() );
+		$this->assertSame( self::SLAVE_INTERNAL_URL, $manager->slaveInternalUrl() );
+
+		foreach ( [
+			'wordpress-master' => $manager->masterInternalUrl(),
+			'wordpress-slave' => $manager->slaveInternalUrl(),
+		] as $service => $url ) {
+			$host = (string)\parse_url( $url, \PHP_URL_HOST );
+			$this->assertNotEmpty( $host, $service );
+			$this->assertMatchesRegularExpression(
+				'/networks:\R\s+default:\R\s+aliases:\R\s+- '.\preg_quote( $host, '/' ).'(?:\R|$)/',
+				$this->composeServiceBlock( $content, $service ),
+				$service
+			);
+		}
 	}
 
 	public function testWpCliCommandTargetsSlaveServiceAndAppendsAllowRoot() :void {
@@ -61,7 +84,7 @@ class CrossSitePairManagerTest extends TestCase {
 		$command = $this->invokePrivate(
 			new CrossSitePairManager(),
 			'buildComposeCommandForExecution',
-			[ [ 'up', '-d', 'db' ] ]
+			[ [ 'ps' ] ]
 		);
 
 		$this->assertSame( 'docker', $command[ 0 ] );
@@ -87,6 +110,44 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->assertSame( '8993', $env[ 'SHIELD_CROSS_SITE_SLAVE_PORT' ] );
 		$this->assertArrayHasKey( 'SHIELD_PACKAGE_PATH', $env );
 		$this->assertFalse( $env[ 'SHIELD_PACKAGE_PATH' ] );
+		$this->assertCrossSiteReusableLabelEnv( $env );
+	}
+
+	public function testRuntimeEnvironmentDockerLabelsRemainStableAcrossRepeatedBuilds() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-manager-stable-' );
+		$manager = new CrossSitePairManager(
+			null,
+			new RecordingTestingEnvironmentResolver( '8.2' )
+		);
+
+		$first = $this->invokePrivate( $manager, 'buildRuntimeEnvOverrides', [ $root ] );
+		$this->waitForUnixSecondToChange();
+		$second = $this->invokePrivate( $manager, 'buildRuntimeEnvOverrides', [ $root ] );
+
+		$this->assertSameDockerLabelEnvironment( $first, $second );
+	}
+
+	public function testRuntimeEnvironmentDockerLabelsRemainStableAcrossManagerInstances() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-manager-reusable-' );
+
+		$first = $this->invokePrivate(
+			new CrossSitePairManager(
+				null,
+				new RecordingTestingEnvironmentResolver( '8.2' )
+			),
+			'buildRuntimeEnvOverrides',
+			[ $root ]
+		);
+		$second = $this->invokePrivate(
+			new CrossSitePairManager(
+				null,
+				new RecordingTestingEnvironmentResolver( '8.2' )
+			),
+			'buildRuntimeEnvOverrides',
+			[ $root ]
+		);
+
+		$this->assertSameDockerLabelEnvironment( $first, $second );
 	}
 
 	public function testDatabaseResetSqlDropsAndRecreatesBothDatabases() :void {
@@ -241,9 +302,153 @@ class CrossSitePairManagerTest extends TestCase {
 		}
 	}
 
+	public function testSlaveImportWaitRunsScheduledImportCron() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-wait-scheduled-' );
+		$runner = new RecordingProcessRunner( [
+			$this->helperSuccessProcess( $this->waitingExportQueueState() ),
+			$this->helperSuccessProcess( $this->slaveCronState( true, true ) ),
+			[ 'exit_code' => 0 ],
+			$this->helperSuccessProcess( $this->postExportQueueState() ),
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$result = $this->invokePrivate( $manager, 'waitForSlaveImportCompletion', [ $root ] );
+
+		$this->assertSame( 'idle', $result[ 'rows' ][ 0 ][ 'queue_status' ] );
+		$cronCommand = $this->findProcessCommandContaining( $runner, 'cron event run shield-plugin-importexport-update-notified' );
+		$this->assertContains( 'cron', $cronCommand );
+		$this->assertContains( 'event', $cronCommand );
+		$this->assertContains( 'run', $cronCommand );
+		$this->assertContains( 'shield-plugin-importexport-update-notified', $cronCommand );
+	}
+
+	public function testSlaveImportWaitRunsDirectImportWhenAcceptedNotificationConsumedCronEvent() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-wait-direct-' );
+		$runner = new RecordingProcessRunner( [
+			$this->helperSuccessProcess( $this->waitingExportQueueState() ),
+			$this->helperSuccessProcess( $this->slaveCronState( false, true ) ),
+			$this->helperSuccessProcess( [
+				'master_url' => self::MASTER_INTERNAL_URL,
+				'import_id' => 'slave-import-id',
+			] ),
+			$this->helperSuccessProcess( $this->postExportQueueState() ),
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$result = $this->invokePrivate( $manager, 'waitForSlaveImportCompletion', [ $root ] );
+
+		$this->assertSame( 'idle', $result[ 'rows' ][ 0 ][ 'queue_status' ] );
+		$directImportCommand = $this->findProcessCommandContaining( $runner, 'run-import-from-master' );
+		$this->assertContains( 'eval-file', $directImportCommand );
+		$this->assertContains( 'run-import-from-master', $directImportCommand );
+		$this->assertSame(
+			[
+				'master_url' => self::MASTER_INTERNAL_URL,
+				'import_id' => 'slave-import-id',
+			],
+			$manager->lastDiagnostics()[ 'slave_direct_import' ]
+		);
+	}
+
+	public function testSlaveImportWaitFailsWhenSlaveNotificationWasNotAccepted() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-wait-not-accepted-' );
+		$manager = new CrossSitePairManager(
+			new RecordingProcessRunner( [
+				$this->helperSuccessProcess( $this->waitingExportQueueState() ),
+				$this->helperSuccessProcess( $this->slaveCronState( false, false ) ),
+			] )
+		);
+
+		try {
+			$this->invokePrivate( $manager, 'waitForSlaveImportCompletion', [ $root ] );
+			$this->fail( 'Expected rejected slave notification failure.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertSame(
+				'Slave did not accept the master import notification; no import event or notify cooldown was visible.',
+				$exception->getMessage()
+			);
+		}
+	}
+
+	public function testSlaveImportWaitSurfacesDirectImportFailure() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-wait-direct-failure-' );
+		$manager = new CrossSitePairManager(
+			new RecordingProcessRunner( [
+				$this->helperSuccessProcess( $this->waitingExportQueueState() ),
+				$this->helperSuccessProcess( $this->slaveCronState( false, true ) ),
+				$this->helperFailureProcess( 'Master export returned HTTP 403.' ),
+			] )
+		);
+
+		try {
+			$this->invokePrivate( $manager, 'waitForSlaveImportCompletion', [ $root ] );
+			$this->fail( 'Expected direct import failure.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertSame(
+				'Slave direct import from master failed: Master export returned HTTP 403.',
+				$exception->getMessage()
+			);
+		}
+	}
+
+	public function testMasterQueueProcessingAcceptsAlreadyCompletedSlaveExport() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-queue-already-exported-' );
+		$runner = new RecordingProcessRunner( [
+			$this->helperSuccessProcess( $this->dueMasterQueueState() ),
+			[ 'exit_code' => 0 ],
+			$this->helperSuccessProcess( $this->postExportQueueState() ),
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$this->invokePrivate( $manager, 'processMasterSitesQueue', [ $root ] );
+
+		$this->assertSame(
+			$this->postExportQueueState(),
+			$manager->lastDiagnostics()[ 'master_queue_after_notify_dispatch' ]
+		);
+		$queueCommand = $this->findProcessCommandContaining( $runner, 'cron event run shield-plugin-importexport-sites-queue' );
+		$this->assertContains( 'shield-plugin-importexport-sites-queue', $queueCommand );
+	}
+
+	public function testPostNotifyDispatchQueueStateStillRejectsStaleExportCompletion() :void {
+		$manager = new CrossSitePairManager();
+		$state = $this->postExportQueueState();
+		$state[ 'rows' ][ 0 ][ 'last_export_success_at' ] = 5;
+
+		try {
+			$this->invokePrivate( $manager, 'assertPostNotifyDispatchQueueState', [ $state ] );
+			$this->fail( 'Expected stale export completion failure.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertSame(
+				'Master DB-backed site queue did not record a new export success after notify dispatch.',
+				$exception->getMessage()
+			);
+		}
+	}
+
+	public function testPostNotifyDispatchQueueStateRejectsCompletedExportWithoutRecordedNotifyDispatch() :void {
+		$manager = new CrossSitePairManager();
+		$state = $this->postExportQueueState();
+		$state[ 'rows' ][ 0 ][ 'last_ping_success_at' ] = 0;
+
+		try {
+			$this->invokePrivate( $manager, 'assertPostNotifyDispatchQueueState', [ $state ] );
+			$this->fail( 'Expected missing notify dispatch failure.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertSame(
+				'Master DB-backed site queue did not record notify dispatch before export.',
+				$exception->getMessage()
+			);
+		}
+	}
+
 	public function testPrepareSuppressesSubprocessOutputByDefault() :void {
 		$root = $this->createCrossSiteProjectRoot();
-		$runner = new RecordingProcessRunner();
+		$runner = new CrossSitePrepareProcessRunner();
 		$docker = new RecordingDockerComposeExecutor();
 		$refresher = new CrossSiteRuntimeRefresherRecorder();
 		$manager = $this->buildPairManagerForPrepareContract( $runner, $docker, $refresher );
@@ -251,13 +456,21 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->runPrepareQuietly( $manager, $root, 'warm', false );
 
 		$this->assertNotEmpty( $docker->calls );
+		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db' ], $docker->calls[ 0 ][ 'sub_command' ] );
+		$composeEnv = $this->assertHasEnvOverrides( $docker->calls[ 0 ] );
+		$this->assertCrossSiteReusableLabelEnv( $composeEnv );
 		foreach ( $docker->calls as $call ) {
 			$this->assertTrue( $call[ 'has_output_callback' ] );
 			$this->assertFalse( $call[ 'show_docker_output' ] );
+			$this->assertSameDockerLabelEnvironment( $composeEnv, $this->assertHasEnvOverrides( $call ) );
 		}
 		$this->assertNotEmpty( $runner->calls );
+		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining( $runner, 'mysqladmin ping' ), 'mysqladmin' );
+		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining( $runner, 'SELECT 1' ), 'mysql' );
+		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining( $runner, 'DROP DATABASE IF EXISTS `shield_cross_site_master`' ), 'mysql' );
 		foreach ( $runner->calls as $call ) {
 			$this->assertTrue( $call[ 'has_output_callback' ], \implode( ' ', $call[ 'command' ] ) );
+			$this->assertSameDockerLabelEnvironment( $composeEnv, $this->assertHasEnvOverrides( $call ) );
 		}
 		$this->assertNotEmpty( $refresher->refreshCalls );
 		foreach ( $refresher->refreshCalls as $call ) {
@@ -349,11 +562,149 @@ class CrossSitePairManagerTest extends TestCase {
 			$this->assertStringContainsString( 'Compose project: shield-cross-site', $message );
 			$this->assertStringContainsString( 'Exit code: 7', $message );
 			$this->assertStringContainsString(
-				'Command: docker compose -p shield-cross-site -f tests/docker/docker-compose.cross-site.yml up -d db',
+				'Command: docker compose -p shield-cross-site -f tests/docker/docker-compose.cross-site.yml up -d --wait --wait-timeout 60 db',
 				$message
 			);
 			$this->assertStringNotContainsString( 'Container shield-cross-site', $message );
 		}
+	}
+
+	private function findProcessCommandContaining( RecordingProcessRunner $processRunner, string $fragment ) :array {
+		foreach ( $processRunner->calls as $call ) {
+			if ( \strpos( \implode( ' ', $call[ 'command' ] ), $fragment ) !== false ) {
+				return $call[ 'command' ];
+			}
+		}
+
+		$this->fail( 'Process command fragment not found: '.$fragment );
+	}
+
+	/**
+	 * @param string[] $command
+	 */
+	private function assertMysqlTcpCommand( array $command, string $binary ) :void {
+		$this->assertContains( $binary, $command );
+		$this->assertContains( '--protocol=tcp', $command );
+		$this->assertContains( '-h', $command );
+		$this->assertContains( '127.0.0.1', $command );
+	}
+
+	/**
+	 * @return array{exit_code:int,stdout:string}
+	 */
+	private function helperSuccessProcess( array $data ) :array {
+		return [
+			'exit_code' => 0,
+			'stdout' => \json_encode( [
+				'ok' => true,
+				'data' => $data,
+			], \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR )."\n",
+		];
+	}
+
+	/**
+	 * @return array{exit_code:int,stdout:string}
+	 */
+	private function helperFailureProcess( string $message ) :array {
+		return [
+			'exit_code' => 1,
+			'stdout' => \json_encode( [
+				'ok' => false,
+				'error' => [
+					'message' => $message,
+				],
+			], \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR )."\n",
+		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function waitingExportQueueState() :array {
+		return [
+			'rows' => [
+				[
+					'url' => self::SLAVE_INTERNAL_URL,
+					'queue_status' => 'waiting_export',
+					'last_ping_success_at' => 10,
+					'last_export_request_at' => 0,
+					'last_export_success_at' => 5,
+					'last_export_result_code' => 'success',
+				],
+			],
+		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function dueMasterQueueState() :array {
+		return [
+			'queue_hook' => 'shield-plugin-importexport-sites-queue',
+			'queue_scheduled' => true,
+			'due_count' => 1,
+			'rows' => [
+				[
+					'url' => self::SLAVE_INTERNAL_URL,
+					'queue_status' => 'queued',
+					'last_ping_success_at' => 0,
+					'last_export_request_at' => 5,
+					'last_export_success_at' => 5,
+					'last_export_result_code' => 'success',
+				],
+			],
+		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function postExportQueueState() :array {
+		return [
+			'rows' => [
+				[
+					'url' => self::SLAVE_INTERNAL_URL,
+					'queue_status' => 'idle',
+					'last_ping_success_at' => 10,
+					'last_export_request_at' => 20,
+					'last_export_success_at' => 30,
+					'last_export_result_code' => 'success',
+				],
+			],
+		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function slaveCronState( bool $importScheduled, bool $notifyCooldownActive ) :array {
+		return [
+			'import_hook' => 'shield-plugin-importexport-update-notified',
+			'import_scheduled' => $importScheduled,
+			'notify_hook' => 'shield-plugin-importexport-notify',
+			'notify_scheduled' => false,
+			'notify_cooldown_active' => $notifyCooldownActive,
+			'queue_hook' => 'shield-plugin-importexport-sites-queue',
+			'queue_scheduled' => false,
+			'master_url' => self::MASTER_INTERNAL_URL,
+			'import_id' => 'slave-import-id',
+		];
+	}
+
+	private function readProjectFile( string $relativePath ) :string {
+		$path = \dirname( __DIR__, 2 ).'/'.$relativePath;
+		$this->assertFileExists( $path );
+
+		return (string)\file_get_contents( $path );
+	}
+
+	private function composeServiceBlock( string $content, string $service ) :string {
+		$pattern = \sprintf(
+			'/^  %s:\R(?<block>(?:    .*(?:\R|$))*)/m',
+			\preg_quote( $service, '/' )
+		);
+		$this->assertSame( 1, \preg_match( $pattern, $content, $matches ) );
+		return (string)( $matches[ 'block' ] ?? '' );
 	}
 
 	private function isInternalHttpReadinessCall( array $call ) :bool {
@@ -419,6 +770,59 @@ class CrossSitePairManagerTest extends TestCase {
 		}
 	}
 
+	private function assertCrossSiteReusableLabelEnv( array $env ) :void {
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_LABEL_HARNESS', 'shield-plugin-cross-site' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_LABEL_LANE', 'cross-site' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_CONTAINER_RUN_ID', 'shield-plugin-cross-site-reusable' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_VOLUME_RUN_ID', 'shield-plugin-cross-site-reusable' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_CONTAINER_LIFECYCLE', 'reusable' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_VOLUME_LIFECYCLE', 'reusable' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_CONTAINER_EXPIRES_AT', '2037-12-31T23:59:59+00:00' );
+		$this->assertEnvValue( $env, 'SHIELD_DOCKER_VOLUME_EXPIRES_AT', '2037-12-31T23:59:59+00:00' );
+	}
+
+	private function assertSameDockerLabelEnvironment( array $expected, array $actual ) :void {
+		foreach ( $this->dockerLabelEnvKeys() as $key ) {
+			$this->assertArrayHasKey( $key, $expected );
+			$this->assertArrayHasKey( $key, $actual );
+			$this->assertSame( $expected[ $key ], $actual[ $key ], $key );
+		}
+	}
+
+	private function assertEnvValue( array $env, string $key, string $expectedValue ) :void {
+		$this->assertArrayHasKey( $key, $env );
+		$this->assertSame( $expectedValue, $env[ $key ], $key );
+	}
+
+	private function assertHasEnvOverrides( array $call ) :array {
+		$this->assertArrayHasKey( 'env_overrides', $call );
+		$this->assertIsArray( $call[ 'env_overrides' ] );
+		return $call[ 'env_overrides' ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function dockerLabelEnvKeys() :array {
+		return [
+			'SHIELD_DOCKER_LABEL_HARNESS',
+			'SHIELD_DOCKER_LABEL_LANE',
+			'SHIELD_DOCKER_CONTAINER_RUN_ID',
+			'SHIELD_DOCKER_CONTAINER_LIFECYCLE',
+			'SHIELD_DOCKER_CONTAINER_EXPIRES_AT',
+			'SHIELD_DOCKER_VOLUME_RUN_ID',
+			'SHIELD_DOCKER_VOLUME_LIFECYCLE',
+			'SHIELD_DOCKER_VOLUME_EXPIRES_AT',
+		];
+	}
+
+	private function waitForUnixSecondToChange() :void {
+		$startedAt = \time();
+		do {
+			\usleep( 100000 );
+		} while ( \time() === $startedAt );
+	}
+
 	/**
 	 * @param mixed[] $args
 	 * @return mixed
@@ -450,6 +854,31 @@ class CrossSiteRuntimeRefresherRecorder extends LocalSiteRuntimeRefresher {
 			'has_output_callback' => $onOutput !== null,
 			'host_manifest'       => $hostManifest,
 		];
+	}
+}
+
+class CrossSitePrepareProcessRunner extends RecordingProcessRunner {
+
+	private bool $delayedBeforeReadiness = false;
+
+	public function run(
+		array $command,
+		string $workingDir,
+		?callable $onOutput = null,
+		?array $envOverrides = null
+	) :\Symfony\Component\Process\Process {
+		$process = parent::run( $command, $workingDir, $onOutput, $envOverrides );
+		if ( !$this->delayedBeforeReadiness
+			 && \in_array( 'wp-cli-slave', $command, true )
+			 && \in_array( '/app/tests/docker/provision-local-site.sh', $command, true ) ) {
+			$this->delayedBeforeReadiness = true;
+			$startedAt = \time();
+			do {
+				\usleep( 100000 );
+			} while ( \time() === $startedAt );
+		}
+
+		return $process;
 	}
 }
 

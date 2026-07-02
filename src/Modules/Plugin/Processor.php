@@ -46,6 +46,7 @@ class Processor {
 				$components->http_headers->execute();
 				$components->reports->execute();
 				$components->autoupdates->execute();
+				$components->hidden_plugins->execute();
 				$components->badge->execute();
 				$components->import_export->execute();
 				$components->comment_spam->execute();
@@ -98,6 +99,9 @@ class Processor {
 
 	public function runHourlyCron() {
 		$this->setEarlyLoadOrder();
+		if ( self::con()->comps->opts_lookup->isPluginEnabled() ) {
+			self::con()->comps->hidden_plugins->detect();
+		}
 		( new BulkUpdateUserMeta() )->execute();
 	}
 

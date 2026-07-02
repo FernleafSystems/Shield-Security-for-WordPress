@@ -55,14 +55,16 @@ class OptsLookup {
 
 	public function enabledTrafficLimiter() :bool {
 		$opts = self::con()->opts;
-		return $this->enabledTrafficLogger()
-			   && $opts->optIs( 'enable_limiter', 'Y' )
+		return $opts->optIs( 'enable_limiter', 'Y' )
 			   && $opts->optGet( 'limit_time_span' ) > 0
 			   && $opts->optGet( 'limit_requests' ) > 0;
 	}
 
+	/**
+	 * Request logging is no longer user-disableable.
+	 */
 	public function enabledTrafficLogger() :bool {
-		return self::con()->opts->optIs( 'enable_logger', 'Y' );
+		return true;
 	}
 
 	public function getActivatedPeriod() :int {
@@ -231,7 +233,28 @@ class OptsLookup {
 		}
 
 		$startedAt = $opts->optGet( 'live_log_started_at' );
-		return $startedAt > 0 ? \max( 0, $this->getTrafficLiveLogDuration() - ( $now - $startedAt ) ) : 0;
+		return $this->calcTrafficLiveLogTimeRemaining(
+			$opts->optIs( 'enable_live_log', 'Y' ),
+			(int)$startedAt,
+			$now
+		);
+	}
+
+	public function peekTrafficLiveLogTimeRemaining() :int {
+		$opts = self::con()->opts;
+
+		return $this->calcTrafficLiveLogTimeRemaining(
+			$opts->optIs( 'enable_live_log', 'Y' ),
+			(int)$opts->optGet( 'live_log_started_at' ),
+			Services::Request()->ts()
+		);
+	}
+
+	private function calcTrafficLiveLogTimeRemaining( bool $enabled, int $startedAt, int $now ) :int {
+		if ( !$enabled || $startedAt <= 0 ) {
+			return 0;
+		}
+		return \max( 0, $this->getTrafficLiveLogDuration() - ( $now - $startedAt ) );
 	}
 
 	public function getTrafficLiveLogDuration() :int {

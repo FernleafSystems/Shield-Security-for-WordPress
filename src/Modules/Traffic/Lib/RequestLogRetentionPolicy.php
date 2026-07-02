@@ -16,7 +16,7 @@ class RequestLogRetentionPolicy {
 	/**
 	 * Short retention tier for low-signal request logs.
 	 */
-	public const RETENTION_DAYS_TRANSIENT = 7;
+	public const RETENTION_DAYS_TRANSIENT = 2;
 
 	/**
 	 * @deprecated 21.3 Use RETENTION_DAYS_TRANSIENT
@@ -26,7 +26,7 @@ class RequestLogRetentionPolicy {
 	/**
 	 * Standard retention tier for normal request logs.
 	 */
-	public const RETENTION_DAYS_STANDARD = 30;
+	public const RETENTION_DAYS_STANDARD = 7;
 
 	/**
 	 * @var array<string,mixed>|null

@@ -44,6 +44,7 @@ class ScanResultsScopeResolverTest extends BaseUnitTest {
 
 		$this->assertSame(
 			[
+				"`ri`.`item_type`='f'",
 				"rim.`meta_key`='ptg_slug'",
 				"rim.`meta_value`='hello-dolly/hello.php'",
 			],

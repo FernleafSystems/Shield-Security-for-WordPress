@@ -28,9 +28,11 @@ class PackageVerifier {
 		$errors = [];
 
 		$requiredFiles = [
-			'plugin.json'         => Path::join( $targetDir, 'plugin.json' ),
-			'icwp-wpsf.php'       => Path::join( $targetDir, 'icwp-wpsf.php' ),
-			'vendor/autoload.php' => Path::join( $targetDir, 'vendor', 'autoload.php' ),
+			'plugin.json'                      => Path::join( $targetDir, 'plugin.json' ),
+			'icwp-wpsf.php'                    => Path::join( $targetDir, 'icwp-wpsf.php' ),
+			'vendor/autoload.php'              => Path::join( $targetDir, 'vendor', 'autoload.php' ),
+			'src/Modules/Plugin/Processor.php' => Path::join( $targetDir, 'src', 'Modules', 'Plugin', 'Processor.php' ),
+			'src/Components/ComponentLoader.php' => Path::join( $targetDir, 'src', 'Components', 'ComponentLoader.php' ),
 		];
 
 		foreach ( $requiredFiles as $name => $path ) {
@@ -46,6 +48,7 @@ class PackageVerifier {
 		$requiredDirs = [
 			'vendor_prefixed' => Path::join( $targetDir, 'vendor_prefixed' ),
 			'assets/dist'     => Path::join( $targetDir, 'assets', 'dist' ),
+			'templates/twig'  => Path::join( $targetDir, 'templates', 'twig' ),
 		];
 
 		foreach ( $requiredDirs as $name => $path ) {
@@ -55,6 +58,46 @@ class PackageVerifier {
 			else {
 				$this->log( \sprintf( '✗ %s directory MISSING', $name ) );
 				$errors[] = $name.' directory';
+			}
+		}
+
+		$templateRoot = Path::join( $targetDir, 'templates', 'twig' );
+		if ( \is_dir( $templateRoot ) ) {
+			$twigVerifier = new TwigTemplateReferenceVerifier();
+			$missingReferences = $twigVerifier->findMissingReferences( $templateRoot );
+			if ( empty( $missingReferences ) ) {
+				$this->log( '✓ Twig static template references resolve' );
+			}
+			else {
+				$details = $twigVerifier->formatMissingReferences( $missingReferences );
+				$this->log( \sprintf( '✗ Twig static template references MISSING: %s', $details ) );
+				$errors[] = 'Twig static template references: '.$details;
+			}
+		}
+
+		$processorPath = Path::join( $targetDir, 'src', 'Modules', 'Plugin', 'Processor.php' );
+		$componentLoaderPath = Path::join( $targetDir, 'src', 'Components', 'ComponentLoader.php' );
+		$componentVerifier = new ProcessorComponentReferenceVerifier();
+		if ( \is_file( $processorPath ) && \is_file( $componentLoaderPath ) ) {
+			$missingComponentKeys = $componentVerifier->findMissingComponentKeys( $processorPath, $componentLoaderPath );
+			if ( empty( $missingComponentKeys ) ) {
+				$this->log( '✓ Processor component references are mapped' );
+			}
+			else {
+				$details = $componentVerifier->formatMissingKeys( $missingComponentKeys );
+				$this->log( \sprintf( '✗ Processor component references MISSING from ComponentLoader: %s', $details ) );
+				$errors[] = 'Processor component references missing from ComponentLoader: '.$details;
+			}
+		}
+		if ( \is_file( $componentLoaderPath ) ) {
+			$missingComponentClassFiles = $componentVerifier->findMissingComponentClassFiles( $componentLoaderPath, $targetDir );
+			if ( empty( $missingComponentClassFiles ) ) {
+				$this->log( 'PASS ComponentLoader mapped class files exist' );
+			}
+			else {
+				$details = $componentVerifier->formatMissingClassFiles( $missingComponentClassFiles );
+				$this->log( \sprintf( 'FAIL ComponentLoader mapped class files MISSING: %s', $details ) );
+				$errors[] = 'ComponentLoader mapped class files missing: '.$details;
 			}
 		}
 
@@ -108,10 +151,10 @@ class PackageVerifier {
 		if ( !empty( $errors ) ) {
 			throw new \RuntimeException(
 				\sprintf(
-					'Package verification failed: Missing critical files/directories. '.
-					'WHAT FAILED: The following required items are missing: %s. '.
+					'Package verification failed: Required package checks failed. '.
+					'WHAT FAILED: The following required checks failed: %s. '.
 					'WHY: The packaging process may have encountered errors during file copy, '.
-					'composer install, or Strauss prefixing. '.
+					'composer install, Strauss prefixing, or source/package coherence validation. '.
 					'HOW TO FIX: Check the log output above for errors and run the packaging process again.',
 					\implode( ', ', $errors )
 				)

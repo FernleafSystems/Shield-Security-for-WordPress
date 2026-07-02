@@ -52,6 +52,12 @@ class SourceRuntimeTestLaneTest extends TestCase {
 		$this->assertTrue( $environmentResolver->assertDockerReadyCalled );
 		$this->assertCount( 4, $dockerComposeExecutor->calls );
 		$this->assertCount( 2, $dockerComposeExecutor->ignoredFailureCalls );
+		$this->assertSame(
+			[ 'up', '-d', '--wait', '--wait-timeout', '60', 'mysql-latest', 'mysql-previous' ],
+			$dockerComposeExecutor->calls[ 0 ][ 'sub_command' ]
+		);
+		$this->assertSourceDockerLabels( $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ] );
+		$this->assertSourceDockerLabels( $dockerComposeExecutor->ignoredFailureCalls[ 0 ][ 'env_overrides' ] );
 		$this->assertCount( 0, $processRunner->calls );
 		$this->assertCount( 1, $setupCoordinator->persistCalls );
 
@@ -87,14 +93,26 @@ class SourceRuntimeTestLaneTest extends TestCase {
 		$this->assertSame( 0, $exitCode );
 
 		$this->assertCount( 6, $dockerComposeExecutor->calls );
-		$this->assertCount( 1, $processRunner->calls );
+		$this->assertCount( 2, $processRunner->calls );
+		$this->assertSame( [ 'docker', 'volume', 'create' ], \array_slice( $processRunner->calls[ 0 ][ 'command' ], 0, 3 ) );
+		$this->assertContains( '--label', $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertContains( 'com.fernleaf.harness=shield-plugin-source', $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertContains( 'com.fernleaf.lifecycle=reusable', $processRunner->calls[ 0 ][ 'command' ] );
 		$this->assertStringContainsString(
 			'npm ci --no-audit --no-fund && npm run build',
-			\implode( ' ', $processRunner->calls[ 0 ][ 'command' ] )
+			\implode( ' ', $processRunner->calls[ 1 ][ 'command' ] )
 		);
 		$this->assertStringContainsString(
 			'shield-source-node-modules-test:/app/node_modules',
-			\implode( ' ', $processRunner->calls[ 0 ][ 'command' ] )
+			\implode( ' ', $processRunner->calls[ 1 ][ 'command' ] )
+		);
+		$this->assertContains(
+			'com.fernleaf.harness=shield-plugin-source',
+			$processRunner->calls[ 1 ][ 'command' ]
+		);
+		$this->assertContains(
+			'com.fernleaf.lifecycle=transient',
+			$processRunner->calls[ 1 ][ 'command' ]
 		);
 		$this->assertCount( 1, $setupCoordinator->persistCalls );
 	}
@@ -130,6 +148,37 @@ class SourceRuntimeTestLaneTest extends TestCase {
 		}
 	}
 
+	public function testNodeVolumeCreateFailureFailsBeforeAssetBuild() :void {
+		$processRunner = new RecordingProcessRunner( [ 2 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
+		$environmentResolver = $this->createEnvironmentResolver();
+		$setupCoordinator = $this->createSetupCoordinator( [
+			'needs_composer_install' => false,
+			'needs_build_config' => false,
+			'needs_npm_install' => false,
+			'needs_npm_build' => true,
+			'node_modules_volume' => 'shield-source-node-modules-test',
+			'fingerprints' => $this->fingerprints(),
+		] );
+
+		$lane = new SourceRuntimeTestLane(
+			$processRunner,
+			$environmentResolver,
+			$dockerComposeExecutor,
+			$setupCoordinator
+		);
+
+		$this->expectExceptionMessage( 'Failed to create labeled source node_modules volume: shield-source-node-modules-test' );
+
+		try {
+			$this->runLaneSilenced( $lane, false );
+		}
+		finally {
+			$this->assertCount( 1, $processRunner->calls );
+			$this->assertStringContainsString( 'docker volume create', \implode( ' ', $processRunner->calls[ 0 ][ 'command' ] ) );
+		}
+	}
+
 	public function testRefreshSetupClearsStatePurgesVolumeAndBuildsAssetsOnly() :void {
 		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0, 0, 0 ] );
@@ -154,19 +203,58 @@ class SourceRuntimeTestLaneTest extends TestCase {
 		$this->assertSame( 0, $exitCode );
 
 		$this->assertSame( 1, $setupCoordinator->clearCalls );
-		$this->assertCount( 2, $processRunner->calls );
+		$this->assertCount( 3, $processRunner->calls );
 		$this->assertSame(
 			[ 'docker', 'volume', 'rm', '-f', 'shield-source-node-modules-test' ],
 			$processRunner->calls[ 0 ][ 'command' ]
 		);
+		$this->assertSame( [ 'docker', 'volume', 'create' ], \array_slice( $processRunner->calls[ 1 ][ 'command' ], 0, 3 ) );
+		$this->assertContains( 'com.fernleaf.harness=shield-plugin-source', $processRunner->calls[ 1 ][ 'command' ] );
 		$this->assertStringContainsString(
 			'npm run build',
-			\implode( ' ', $processRunner->calls[ 1 ][ 'command' ] )
+			\implode( ' ', $processRunner->calls[ 2 ][ 'command' ] )
 		);
 		$this->assertStringNotContainsString(
 			'npm ci --no-audit --no-fund',
-			\implode( ' ', $processRunner->calls[ 1 ][ 'command' ] )
+			\implode( ' ', $processRunner->calls[ 2 ][ 'command' ] )
 		);
+	}
+
+	public function testRefreshSetupFailsWhenNodeVolumePurgeFails() :void {
+		$processRunner = new RecordingProcessRunner( [
+			[ 'exit_code' => 2, 'stderr' => 'volume is in use' ],
+		] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0, 0 ] );
+		$environmentResolver = $this->createEnvironmentResolver();
+		$setupCoordinator = $this->createSetupCoordinator( [
+			'needs_composer_install' => false,
+			'needs_build_config' => false,
+			'needs_npm_install' => false,
+			'needs_npm_build' => true,
+			'node_modules_volume' => 'shield-source-node-modules-test',
+			'fingerprints' => $this->fingerprints(),
+		] );
+
+		$lane = new SourceRuntimeTestLane(
+			$processRunner,
+			$environmentResolver,
+			$dockerComposeExecutor,
+			$setupCoordinator
+		);
+
+		$this->expectExceptionMessage( 'Failed to purge source node_modules volume before refresh: shield-source-node-modules-test STDERR: volume is in use' );
+
+		try {
+			$this->runLaneSilenced( $lane, true );
+		}
+		finally {
+			$this->assertSame( 1, $setupCoordinator->clearCalls );
+			$this->assertCount( 1, $processRunner->calls );
+			$this->assertSame(
+				[ 'docker', 'volume', 'rm', '-f', 'shield-source-node-modules-test' ],
+				$processRunner->calls[ 0 ][ 'command' ]
+			);
+		}
 	}
 
 	public function testLogSinkEnablesOutputCallbacksAndEnvSkipUnitFlagForwarding() :void {
@@ -329,5 +417,23 @@ class SourceRuntimeTestLaneTest extends TestCase {
 			'node_deps' => 'node_deps',
 			'asset_inputs' => 'asset_inputs',
 		];
+	}
+
+	/**
+	 * @param array<string,string|false> $env
+	 */
+	private function assertSourceDockerLabels( array $env ) :void {
+		$this->assertSame( 'shield-plugin-source', $env[ 'SHIELD_DOCKER_LABEL_HARNESS' ] ?? null );
+		$this->assertSame( 'source', $env[ 'SHIELD_DOCKER_LABEL_LANE' ] ?? null );
+		$this->assertSame( 'transient', $env[ 'SHIELD_DOCKER_CONTAINER_LIFECYCLE' ] ?? null );
+		$this->assertSame( 'reusable', $env[ 'SHIELD_DOCKER_VOLUME_LIFECYCLE' ] ?? null );
+		$this->assertMatchesRegularExpression(
+			'/^shield-plugin-source-\d{14}-[a-f0-9]{8}$/',
+			(string)( $env[ 'SHIELD_DOCKER_CONTAINER_RUN_ID' ] ?? '' )
+		);
+		$this->assertSame(
+			$env[ 'SHIELD_DOCKER_CONTAINER_RUN_ID' ] ?? null,
+			$env[ 'SHIELD_DOCKER_VOLUME_RUN_ID' ] ?? null
+		);
 	}
 }

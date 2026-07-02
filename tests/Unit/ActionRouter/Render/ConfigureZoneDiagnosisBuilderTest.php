@@ -239,6 +239,42 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_build_rejects_expandable_config_actions_without_option_keys() :void {
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'option_keys' );
+
+		( new ConfigureZoneDiagnosisBuilder() )->build(
+			$this->buildZoneTile( 'login', 'Login', 'warning', 'Needs Work', '1 group needs work', [
+				[
+					'status' => 'warning',
+					'rows'   => [
+						$this->buildDetailRow(
+							'Missing Option Keys',
+							'warning',
+							'Needs Work',
+							'Broken action.',
+							[],
+							[
+								'label'     => 'Configure',
+								'href'      => '',
+								'is_action' => true,
+								'title'     => 'Configure Missing Option Keys',
+								'target'    => '',
+								'icon'      => 'bi bi-gear-fill',
+								'classes'   => [ 'zone_component_action' ],
+								'data'      => [
+									'zone_component_action' => 'offcanvas_zone_component_config',
+									'zone_component_slug'   => 'missing_option_keys',
+									'form_context'          => 'offcanvas',
+								],
+							]
+						),
+					],
+				],
+			] )
+		);
+	}
+
 	public function test_fallback_summary_prefers_explanation_then_title() :void {
 		$diagnosis = ( new ConfigureZoneDiagnosisBuilder() )->build(
 			$this->buildZoneTile( 'secadmin', 'Security Admin', 'critical', 'Critical', '1 critical group', [
@@ -338,6 +374,7 @@ class ConfigureZoneDiagnosisBuilderTest extends BaseUnitTest {
 				'data'      => [
 					'zone_component_action' => 'offcanvas_zone_component_config',
 					'zone_component_slug'   => \strtolower( \str_replace( ' ', '_', $title ) ),
+					'option_keys'           => \strtolower( \str_replace( ' ', '_', $title ) ).'_option',
 					'form_context'          => 'offcanvas',
 				],
 			],

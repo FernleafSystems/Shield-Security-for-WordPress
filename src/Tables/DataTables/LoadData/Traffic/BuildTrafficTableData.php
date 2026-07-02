@@ -10,6 +10,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Data\Lib\GeoIP\LookupMeta;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Utility\{
+	RequestLogDisplayPathBuilder,
+	RequestQueryRedactor
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -253,16 +257,23 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 	}
 
 	private function getColumnContent_Page() :string {
-		$query = $this->log->meta[ 'query' ] ?? '';
-
 		$content = sprintf( '<span class="badge bg-secondary me-1">%s</span>', RegLogsDB\Handler::GetTypeName( $this->log->type ) );
-		$path = esc_html( $this->log->path );
-		$query = esc_html( $query );
-		return $content.(
-			$this->isWpCli() ?
-				sprintf( '<code>:> %s %s</code>', $path, $query )
-				: sprintf( '%s: <code>%s%s</code>', \strtoupper( $this->log->verb ), $path, empty( $query ) ? '' : '?<br/>'.\ltrim( $query, '?' ) )
+		if ( $this->isWpCli() ) {
+			return $content.sprintf(
+				'<code>:> %s %s</code>',
+				esc_html( $this->log->path ),
+				esc_html( ( new RequestQueryRedactor() )->redact( (string)( $this->log->meta[ 'query' ] ?? '' ) ) )
 			);
+		}
+
+		$displayPath = esc_html( ( new RequestLogDisplayPathBuilder() )->build( $this->log ) );
+		$displayPath = \preg_replace( '#\?#', '?<br/>', $displayPath, 1 ) ?? $displayPath;
+
+		return $content.sprintf(
+			'%s: <code>%s</code>',
+			\strtoupper( $this->log->verb ),
+			$displayPath
+		);
 	}
 
 	protected function getTrafficUserDisplay( int $uid ) :string {

@@ -3,11 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExportSites;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 
 class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\BaseBuildTableData {
 
 	private ?SiteSyncStatusBuilder $statusBuilder = null;
+	private ?ImportIDPresenter $importIDPresenter = null;
 
 	protected function getSearchPanesDataBuilder() :BuildSearchPanesData {
 		return new BuildSearchPanesData();
@@ -47,6 +49,8 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 	 * @return list<array{
 	 *   rid:int,
 	 *   url:string,
+	 *   url_display:string,
+	 *   profile:string,
 	 *   status:string,
 	 *   status_key:string,
 	 *   queue_status:string,
@@ -59,23 +63,53 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 	 */
 	protected function buildTableRowsFromRawRecords( array $records ) :array {
 		$statusBuilder = $this->statusBuilder();
+		$profileLabels = $this->profileLabelsForRecords( $records );
 
-		return \array_values( \array_map( function ( Record $record ) use ( $statusBuilder ) :array {
+		return \array_values( \array_map( function ( Record $record ) use ( $statusBuilder, $profileLabels ) :array {
 			$syncStatus = $statusBuilder->build( $record );
 
 			return [
 				'rid'              => $record->id,
 				'url'              => esc_html( $record->url ),
+				'url_display'      => $this->urlDisplayHtml( $record ),
+				'profile'          => $this->profileLabelForRecord( $record, $profileLabels ),
 				'status'           => $statusBuilder->registrationHtml( $record->status ),
 				'status_key'       => $record->status,
 				'queue_status'     => $statusBuilder->queueHtml( $record->queue_status ),
 				'queue_status_key' => $record->queue_status,
 				'sync_status'      => $syncStatus[ 'summary_html' ],
 				'sync_state'       => $syncStatus[ 'state_key' ],
-				'actions'          => $this->actionsHtml( $record->id ),
+				'actions'          => $this->actionsHtml( $record->id, $syncStatus[ 'state_key' ] ),
 				'updated_at'       => $record->updated_at,
 			];
 		}, $records ) );
+	}
+
+	private function urlDisplayHtml( Record $record ) :string {
+		$importID = $this->importIDPresenter()->displayValue( $record->import_id );
+
+		return sprintf(
+			'<div class="import-export-site-url"><div>%s</div><small class="text-muted" data-import-export-site-import-id="%s">[%s: %s]</small></div>',
+			esc_html( $record->url ),
+			esc_attr( $importID ),
+			esc_html( __( 'ID', 'wp-simple-firewall' ) ),
+			esc_html( $importID )
+		);
+	}
+
+	/**
+	 * @param Record[] $records
+	 * @return array<int,string>
+	 */
+	private function profileLabelsForRecords( array $records ) :array {
+		return ( new ProfileRepository() )->profileLabelsForSites( $records );
+	}
+
+	/**
+	 * @param array<int,string> $profileLabels
+	 */
+	private function profileLabelForRecord( Record $record, array $profileLabels ) :string {
+		return esc_html( $profileLabels[ (int)$record->profile_ref ] );
 	}
 
 	protected function getRecords( array $wheres = [], int $offset = 0, int $limit = 0 ) :array {
@@ -155,12 +189,31 @@ class BuildImportExportSitesTableData extends \FernleafSystems\Wordpress\Plugin\
 		return $this->statusBuilder ??= new SiteSyncStatusBuilder();
 	}
 
-	private function actionsHtml( int $id ) :string {
+	private function importIDPresenter() :ImportIDPresenter {
+		return $this->importIDPresenter ??= new ImportIDPresenter();
+	}
+
+	private function actionsHtml( int $id, string $syncState ) :string {
+		$actions = [];
+		if ( $syncState === SiteSyncStatusBuilder::STATE_PROBLEM ) {
+			$label = esc_attr( __( 'Repair Connection', 'wp-simple-firewall' ) );
+			$actions[] = sprintf(
+				'<button type="button" class="btn btn-link text-warning p-0 import-export-site-repair" title="%1$s" aria-label="%1$s" data-rid="%2$d" data-import-export-site-repair="1"><i class="bi bi-wrench" aria-hidden="true"></i></button>',
+				$label,
+				$id
+			);
+		}
+
 		$label = esc_attr( __( 'Remove site', 'wp-simple-firewall' ) );
-		return sprintf(
+		$actions[] = sprintf(
 			'<button type="button" class="btn btn-link text-danger p-0 import-export-site-delete" title="%1$s" aria-label="%1$s" data-rid="%2$d" data-import-export-site-delete="1"><i class="bi bi-trash3" aria-hidden="true"></i></button>',
 			$label,
 			$id
+		);
+
+		return sprintf(
+			'<div class="d-inline-flex align-items-center gap-2">%s</div>',
+			\implode( '', $actions )
 		);
 	}
 

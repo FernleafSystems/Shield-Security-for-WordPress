@@ -1,13 +1,35 @@
+x-shield-container-labels: &shield-container-labels
+  com.fernleaf.harness: ${SHIELD_DOCKER_LABEL_HARNESS:-shield-plugin-cross-site}
+  com.fernleaf.run-id: ${SHIELD_DOCKER_CONTAINER_RUN_ID:-manual}
+  com.fernleaf.lane: ${SHIELD_DOCKER_LABEL_LANE:-cross-site}
+  com.fernleaf.lifecycle: ${SHIELD_DOCKER_CONTAINER_LIFECYCLE:-reusable}
+  com.fernleaf.expires-at: ${SHIELD_DOCKER_CONTAINER_EXPIRES_AT:-1970-01-01T00:00:00+00:00}
+
+x-shield-volume-labels: &shield-volume-labels
+  com.fernleaf.harness: ${SHIELD_DOCKER_LABEL_HARNESS:-shield-plugin-cross-site}
+  com.fernleaf.run-id: ${SHIELD_DOCKER_VOLUME_RUN_ID:-manual}
+  com.fernleaf.lane: ${SHIELD_DOCKER_LABEL_LANE:-cross-site}
+  com.fernleaf.lifecycle: ${SHIELD_DOCKER_VOLUME_LIFECYCLE:-reusable}
+  com.fernleaf.expires-at: ${SHIELD_DOCKER_VOLUME_EXPIRES_AT:-1970-01-01T00:00:00+00:00}
+
+x-shield-network-labels: &shield-network-labels
+  com.fernleaf.harness: ${SHIELD_DOCKER_LABEL_HARNESS:-shield-plugin-cross-site}
+  com.fernleaf.run-id: ${SHIELD_DOCKER_CONTAINER_RUN_ID:-manual}
+  com.fernleaf.lane: ${SHIELD_DOCKER_LABEL_LANE:-cross-site}
+  com.fernleaf.lifecycle: ${SHIELD_DOCKER_CONTAINER_LIFECYCLE:-reusable}
+  com.fernleaf.expires-at: ${SHIELD_DOCKER_CONTAINER_EXPIRES_AT:-1970-01-01T00:00:00+00:00}
+
 services:
   db:
     image: mysql:8.0
+    labels: *shield-container-labels
     environment:
       MYSQL_ROOT_PASSWORD: testpass
     command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
     volumes:
       - cross-site-db:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
+      test: ["CMD", "mysqladmin", "ping", "--protocol=tcp", "-h", "127.0.0.1", "-uroot", "-ptestpass"]
       interval: 2s
       timeout: 5s
       retries: 30
@@ -15,6 +37,7 @@ services:
 
   wordpress-master:
     image: wordpress:php${PHP_VERSION:-8.2}-apache
+    labels: *shield-container-labels
     depends_on:
       db:
         condition: service_healthy
@@ -25,6 +48,10 @@ services:
       WORDPRESS_DB_NAME: shield_cross_site_master
     ports:
       - "${SHIELD_CROSS_SITE_MASTER_PORT:-8892}:80"
+    networks:
+      default:
+        aliases:
+          - wordpress-master.shield-cross-site.example.com
     volumes:
       - cross-site-master-wp:/var/www/html
       - cross-site-master-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
@@ -32,6 +59,7 @@ services:
 
   wordpress-slave:
     image: wordpress:php${PHP_VERSION:-8.2}-apache
+    labels: *shield-container-labels
     depends_on:
       db:
         condition: service_healthy
@@ -42,6 +70,10 @@ services:
       WORDPRESS_DB_NAME: shield_cross_site_slave
     ports:
       - "${SHIELD_CROSS_SITE_SLAVE_PORT:-8893}:80"
+    networks:
+      default:
+        aliases:
+          - wordpress-slave.shield-cross-site.example.com
     volumes:
       - cross-site-slave-wp:/var/www/html
       - cross-site-slave-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
@@ -49,6 +81,7 @@ services:
 
   wp-cli-master:
     image: wordpress:cli-php${PHP_VERSION:-8.2}
+    labels: *shield-container-labels
     depends_on:
       db:
         condition: service_healthy
@@ -65,6 +98,7 @@ services:
 
   wp-cli-slave:
     image: wordpress:cli-php${PHP_VERSION:-8.2}
+    labels: *shield-container-labels
     depends_on:
       db:
         condition: service_healthy
@@ -81,7 +115,16 @@ services:
 
 volumes:
   cross-site-db:
+    labels: *shield-volume-labels
   cross-site-master-wp:
+    labels: *shield-volume-labels
   cross-site-master-plugin:
+    labels: *shield-volume-labels
   cross-site-slave-wp:
+    labels: *shield-volume-labels
   cross-site-slave-plugin:
+    labels: *shield-volume-labels
+
+networks:
+  default:
+    labels: *shield-network-labels

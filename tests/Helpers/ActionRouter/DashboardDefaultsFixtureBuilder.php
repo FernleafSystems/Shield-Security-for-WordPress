@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Traffic\TrafficLiveLogs;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\{
 	DashboardLiveMonitorTicker,
+	MaintenanceIssueStateProvider,
 	WpDashboardSummary
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\{
@@ -157,6 +158,30 @@ class DashboardDefaultsFixtureBuilder {
 			'before_reset_options' => $beforeReset,
 			'after_reset_options'  => $afterReset,
 			'defaults'             => $this->defaultOptions(),
+		] );
+	}
+
+	/**
+	 * @param array<string,mixed> $state
+	 * @return array<string,mixed>
+	 */
+	public function prepareActionsAllClear( array $state ) :array {
+		RuntimeTestState::loginAsSecurityAdmin();
+		$state = $this->normalizePersistedState( $state );
+		if ( $state === $this->emptyFixtureState() ) {
+			throw new \RuntimeException( 'Dashboard/defaults fixture must be seeded before prepare-actions-all-clear.' );
+		}
+
+		$maintenanceState = new MaintenanceIssueStateProvider();
+		RuntimeTestState::controller()->opts
+			->optSet( MaintenanceIssueStateProvider::OPT_KEY, $maintenanceState->currentIssueIdentifiersByKey() )
+			->store();
+		RuntimeTestState::resetOptionsRuntimeCache();
+		RuntimeTestState::resetScanResultCountMemoization();
+		\delete_site_transient( 'update_plugins' );
+
+		return \array_merge( $this->baseContract(), [
+			'prepared_actions_all_clear' => true,
 		] );
 	}
 

@@ -366,9 +366,11 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 	protected function getUserHref( int $uid ) :string {
 		$user = $this->resolveUser( $uid );
-		return empty( $user ) ? sprintf( 'Unavailable (ID:%s)', $uid ) :
+		return empty( $user ) ? esc_html( sprintf( 'Unavailable (ID:%s)', $uid ) ) :
 			sprintf( '<a href="%s" target="_blank">%s</a>',
-				Services::WpUsers()->getAdminUrl_ProfileEdit( $user ), $user->user_login );
+				esc_url( Services::WpUsers()->getAdminUrl_ProfileEdit( $user ) ),
+				esc_html( (string)$user->user_login )
+			);
 	}
 
 	protected function getIpAnalysisLink( string $ip ) :string {
@@ -376,23 +378,23 @@ abstract class BaseBuildTableData extends DynPropertiesClass {
 
 		if ( $srvIP->isValidIpRange( $ip ) ) {
 			$content = sprintf( '<a href="%s" target="_blank" title="%s">%s</a>',
-				$srvIP->getIpWhoisLookup( $ip ),
-				__( 'IP Analysis', 'wp-simple-firewall' ),
-				$ip
+				esc_url( $srvIP->getIpWhoisLookup( $ip ) ),
+				esc_attr( __( 'IP Analysis', 'wp-simple-firewall' ) ),
+				esc_html( $ip )
 			);
 		}
 		elseif ( $srvIP->isValidIp( $ip ) ) {
 			$content = sprintf(
 				'<a href="%s" title="%s" class="%s" data-ip="%s">%s</a>',
-				self::con()->plugin_urls->ipAnalysis( $ip ),
-				__( 'IP Analysis', 'wp-simple-firewall' ),
-				'offcanvas_ip_analysis ipv'.$srvIP->version( $ip ),
-				$ip,
-				$ip
+				esc_url( self::con()->plugin_urls->ipAnalysis( $ip ) ),
+				esc_attr( __( 'IP Analysis', 'wp-simple-firewall' ) ),
+				esc_attr( 'offcanvas_ip_analysis ipv'.$srvIP->version( $ip ) ),
+				esc_attr( $ip ),
+				esc_html( $ip )
 			);
 		}
 		else {
-			$content = __( 'IP Unavailable', 'wp-simple-firewall' );
+			$content = esc_html( __( 'IP Unavailable', 'wp-simple-firewall' ) );
 		}
 		return $content;
 	}

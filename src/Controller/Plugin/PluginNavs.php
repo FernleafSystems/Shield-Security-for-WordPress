@@ -592,6 +592,12 @@ class PluginNavs {
 					'icon'         => 'archive',
 					'summary_keys' => [ 'abandoned' ],
 				],
+				'hidden_plugins' => [
+					'slug'         => 'hidden_plugins',
+					'label'        => __( 'Cloaked Plugins', 'wp-simple-firewall' ),
+					'icon'         => 'eye-slash-fill',
+					'summary_keys' => [ 'hidden_plugins' ],
+				],
 			],
 			\array_slice( $definitions, 4, null, true )
 		);

@@ -4,7 +4,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 /**
  * @phpstan-import-type ConfigureRowContract from ConfigureZoneTilesBuilder
- * @phpstan-import-type DetailActionData from StatusDetailGroupsBuilder
  * @phpstan-import-type DetailGroup from StatusDetailGroupsBuilder
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
  * @phpstan-import-type OperatorChromeStep from OperatorChromeContract
@@ -64,16 +63,32 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
  *   icon_class:string,
  *   header:DrillLayerHeader
  * }
- * @phpstan-type DiagnosisExpandAction array{
- *   id:string,
- *   is_expandable:bool,
+ * @phpstan-type ConfigureExpandActionData array{
+ *   zone_component_action:string,
+ *   zone_component_slug:non-empty-string,
+ *   option_keys:non-empty-string,
+ *   form_context?:string,
+ *   config_item?:non-empty-string
+ * }
+ * @phpstan-type DiagnosisCollapsedExpandAction array{
+ *   id:'',
+ *   is_expandable:false,
+ *   label:'',
+ *   title:'',
+ *   accessible_label:'',
+ *   data_attributes:array{}
+ * }
+ * @phpstan-type DiagnosisExpandedExpandAction array{
+ *   id:non-empty-string,
+ *   is_expandable:true,
  *   label:string,
  *   title:string,
- *   accessible_label:string,
- *   data_attributes:DetailActionData
+ *   accessible_label:non-empty-string,
+ *   data_attributes:ConfigureExpandActionData
  * }
+ * @phpstan-type DiagnosisExpandAction DiagnosisCollapsedExpandAction|DiagnosisExpandedExpandAction
  * @phpstan-type DiagnosisFinding array{
- *   key:string,
+ *   key:non-empty-string,
  *   title:string,
  *   summary:string,
  *   status:string,

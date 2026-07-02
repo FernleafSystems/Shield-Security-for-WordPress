@@ -8,7 +8,7 @@ Requires at least: 5.7
 Requires PHP: 7.4
 Recommended PHP: 8.2
 Tested up to: 7.0
-Stable tag: 22.1.3
+Stable tag: 22.1.5
 Smart WordPress security that blocks bots automatically, guides you to what matters, and repairs problems — without drowning you in noise.
 
 == Description ==
@@ -69,8 +69,17 @@ The goal: guide you quickly towards action, not bury you in data.
 
 Shield is the only WordPress security plugin with a native CrowdSec integration. CrowdSec aggregates threat signals from millions of sites into a shared IP reputation network — your site blocks known attackers before they ever probe you, using intelligence far beyond your own traffic history.
 
+= ShieldBACKUPS Disaster Recovery =
+
+ShieldPRO includes **ShieldBACKUPS**: fast, off-site WordPress backups built for recovery after hacks, broken updates, or server failure.
+
+Your backup is kept away from the site it protects, so you have a clean recovery path when WordPress itself is down, damaged, or under attack.
+
+There are no cloud storage costs, backups are encrypted and copied securely, and there are no storage API keys or authentication details stored on your WordPress site.
+
 = ✨ ShieldPRO =
 
+* **ShieldBACKUPS** — off-site backups and disaster recovery for WordPress sites
 * **Passkeys** — phishing-resistant, passwordless login for users
 * **Backup login codes** — emergency 2FA access when a device is lost
 * **AI-based malware scanner** — detects known and unknown PHP malware
@@ -87,6 +96,19 @@ Shield is the only WordPress security plugin with a native CrowdSec integration.
 Shield suits site owners, agencies, and MSPs who want protection that runs itself — not a plugin that demands constant attention to be useful.
 
 If you have been burned by security plugins that generate more noise than protection, or dashboards that tell you everything is wrong without telling you what to fix, Shield was built to be the alternative.
+
+= Partnerships & Integrations =
+
+We believe that [silentCAPTCHA](https://clk.shldscrty.com/ol) is one of the simplest and most powerful solutions available today for all WordPress site owners to block and eliminate automated bot spam.
+
+That's why we've started a collaboration campaign with other WordPress plugin developers to adapt their plugins to natively support Shield's silentCAPTCHA solution, alongside Google reCAPTCHA & Cloudflare Turnstile.
+
+When you use one of the products from any of our partners, you will be able to activate Shield's silentCAPTCHA bot spam protection so that your forms are protected from automated spam. You won't need any site/API keys, custom integrations, or JavaScript that can break your forms. It all works automatically for you when you enable the feature.
+
+As of this release, we have partnered with the following WordPress form providers:
+
+* [Everest Forms](https://wordpress.org/plugins/everest-forms/) v3.5+
+* [Easy Form Builder](https://wordpress.org/plugins/easy-form-builder/) v4+
 
 == Installation ==
 

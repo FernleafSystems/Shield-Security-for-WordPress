@@ -60,63 +60,14 @@ class HandleOptionsSaveRequest {
 	 * @throws \Exception
 	 */
 	private function applyFormValues() :array {
-		// standard options use b64 and fail-over to lz-string
-		$form = $this->getForm();
-
 		$optsCon = self::con()->opts;
-		$submittedKeys = \explode( ',', $form[ 'all_opts_keys' ] );
+		$resolved = ( new ResolveSubmittedOptionValues() )->resolve( $this->getForm() );
 
-		foreach ( $submittedKeys as $optKey ) {
-
-			if ( !$optsCon->optExists( $optKey ) || $optsCon->optDef( $optKey )[ 'section' ] === 'section_hidden' ) {
-				continue;
-			}
-
-			$optType = $optsCon->optType( $optKey );
-			if ( $optType === 'noneditable_text' ) {
-				continue;
-			}
-
-			$optValue = $form[ $optKey ] ?? null;
-			if ( \is_null( $optValue ) ) {
-
-				if ( \in_array( $optType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
-					continue;
-				}
-				elseif ( $optType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
-					$optValue = 'N';
-				}
-				elseif ( $optType == 'integer' ) { //if it was a integer, and it's null, it means '0'
-					$optValue = 0;
-				}
-				elseif ( $optType == 'multiple_select' ) {
-					$optValue = [];
-				}
-			}
-			elseif ( $optType == 'password' ) {
-				$tempValue = \trim( $optValue );
-				if ( empty( $tempValue ) ) {
-					continue;
-				}
-
-				$confirm = $form[ $optKey.'_confirm' ] ?? null;
-				if ( $tempValue !== $confirm ) {
-					throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) );
-				}
-
-				$optValue = \hash( 'md5', $tempValue );
-			}
-			elseif ( $optType == 'array' ) { //arrays are textareas, where each is separated by newline
-				$optValue = \array_values( \array_filter(
-					\array_map( '\trim', \explode( "\n", esc_textarea( $optValue ) ) ),
-					static fn( string $value ) :bool => $value !== ''
-				) );
-			}
-
+		foreach ( $resolved[ 'values' ] as $optKey => $optValue ) {
 			$optsCon->optSet( $optKey, $optValue );
 		}
 
-		return $submittedKeys;
+		return $resolved[ 'submitted_keys' ];
 	}
 
 	/**

@@ -7,11 +7,26 @@
 #
 # MySQL uses tmpfs (in-memory) storage for test isolation and to prevent corruption
 # from unclean shutdowns when using --abort-on-container-exit
+x-shield-container-labels: &shield-container-labels
+  com.fernleaf.harness: ${SHIELD_DOCKER_LABEL_HARNESS:-shield-plugin-source}
+  com.fernleaf.run-id: ${SHIELD_DOCKER_CONTAINER_RUN_ID:-manual}
+  com.fernleaf.lane: ${SHIELD_DOCKER_LABEL_LANE:-source}
+  com.fernleaf.lifecycle: ${SHIELD_DOCKER_CONTAINER_LIFECYCLE:-transient}
+  com.fernleaf.expires-at: ${SHIELD_DOCKER_CONTAINER_EXPIRES_AT:-1970-01-01T00:00:00+00:00}
+
+x-shield-network-labels: &shield-network-labels
+  com.fernleaf.harness: ${SHIELD_DOCKER_LABEL_HARNESS:-shield-plugin-source}
+  com.fernleaf.run-id: ${SHIELD_DOCKER_CONTAINER_RUN_ID:-manual}
+  com.fernleaf.lane: ${SHIELD_DOCKER_LABEL_LANE:-source}
+  com.fernleaf.lifecycle: ${SHIELD_DOCKER_CONTAINER_LIFECYCLE:-transient}
+  com.fernleaf.expires-at: ${SHIELD_DOCKER_CONTAINER_EXPIRES_AT:-1970-01-01T00:00:00+00:00}
+
 services:
   # MySQL service for WordPress latest testing
   mysql-latest:
     container_name: shield-db-latest
     image: mysql:8.0
+    labels: *shield-container-labels
     environment:
       MYSQL_ROOT_PASSWORD: testpass
       MYSQL_DATABASE: wordpress_test_latest
@@ -21,7 +36,7 @@ services:
     ports:
       - "3309:3306"  # Exposed on different port to avoid conflicts
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
+      test: ["CMD", "mysqladmin", "ping", "--protocol=tcp", "-h", "127.0.0.1", "-uroot", "-ptestpass"]
       interval: 2s
       timeout: 5s
       retries: 30
@@ -31,6 +46,7 @@ services:
   mysql-previous:
     container_name: shield-db-previous
     image: mysql:8.0
+    labels: *shield-container-labels
     environment:
       MYSQL_ROOT_PASSWORD: testpass
       MYSQL_DATABASE: wordpress_test_previous
@@ -40,7 +56,7 @@ services:
     ports:
       - "3310:3306"  # Exposed on different port to avoid conflicts
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
+      test: ["CMD", "mysqladmin", "ping", "--protocol=tcp", "-h", "127.0.0.1", "-uroot", "-ptestpass"]
       interval: 2s
       timeout: 5s
       retries: 30
@@ -49,6 +65,7 @@ services:
   # Test runner for WordPress latest
   test-runner-latest:
     container_name: shield-test-latest
+    labels: *shield-container-labels
     build:
       context: .
       args:
@@ -74,6 +91,7 @@ services:
   # Test runner for WordPress previous
   test-runner-previous:
     container_name: shield-test-previous
+    labels: *shield-container-labels
     build:
       context: .
       args:
@@ -95,3 +113,7 @@ services:
       COMPOSER_CACHE_DIR: /tmp/composer-cache
       COMPOSER_AUTH: ${COMPOSER_AUTH:-}
     command: bin/run-tests-docker.sh wordpress_test_previous root testpass mysql-previous ${WP_VERSION_PREVIOUS:-6.8.3}
+
+networks:
+  default:
+    labels: *shield-network-labels

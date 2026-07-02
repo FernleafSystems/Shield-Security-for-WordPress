@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
+	CloakedPlugins,
 	Malware,
 	Vulnerabilities,
 	Wordpress
@@ -472,6 +473,46 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$groups[ 'vulnerabilities' ][ 'selection' ][ 'header' ][ 'badge' ] ?? ''
 		);
 		$this->assertSame( 'expandable', $groups[ 'file_locker' ][ 'card_type' ] );
+	}
+
+	public function test_build_surfaces_cloaked_plugin_security_check_as_own_scan_group() :void {
+		$builder = $this->createBuilder();
+
+		$payload = $builder->buildWithSelectedGroup(
+			'critical',
+			'hidden_plugins',
+			[
+				'items' => [
+					[
+						'key'      => 'hidden_plugins',
+						'count'    => 2,
+						'severity' => 'critical',
+						'zone'     => 'scans',
+						'source'   => 'security_check',
+					],
+				],
+			],
+			[
+				'scans'       => [],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( [ [ 'hidden_plugins' ] ], $this->sectionGroupKeys( $payload[ 'layer' ][ 'active_sections' ] ) );
+		$group = $payload[ 'selected_group' ];
+		$this->assertSame( 'hidden_plugins', $group[ 'key' ] );
+		$this->assertSame( 2, $group[ 'item_count' ] );
+		$this->assertSame( 'critical', $group[ 'status' ] );
+		$this->assertSame( 'direct_table', $group[ 'detail_shell' ] );
+		$this->assertSame( 'expandable', $group[ 'card_type' ] );
+		$this->assertSame( CloakedPlugins::class, $group[ 'render_action_class' ] );
+		$this->assertSame( [], $group[ 'render_action_data' ] );
+		$this->assertSame( [], $group[ 'selection' ][ 'header' ][ 'actions' ] );
+		$this->assertNotSame( '', $group[ 'drill_hint' ] );
+		$this->assertAjaxRenderPayloadAllowedByPolicy(
+			$group[ 'selection' ][ 'detail_render_action' ],
+			'cloaked plugin group detail render'
+		);
 	}
 
 	public function test_build_orders_healthy_good_sections_before_neutral_only_sections_and_keeps_file_integrity_grouped() :void {
@@ -1129,6 +1170,86 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( '', $payload[ 'selected_group' ][ 'drill_hint' ] );
 	}
 
+	public function test_build_critical_bucket_includes_healthy_cloaked_plugins_group() :void {
+		$builder = $this->createBuilder();
+
+		$payload = $builder->buildWithSelectedGroup(
+			'critical',
+			'hidden_plugins',
+			[
+				'items' => [],
+			],
+			[
+				'scans'       => [
+					[
+						'key'               => 'hidden_plugins',
+						'label'             => 'Cloaked Plugins',
+						'description'       => 'No cloaked plugins are currently detected.',
+						'drill_bucket'      => 'critical',
+						'item_icon_class'   => 'bi bi-eye-slash-fill',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( [ [ 'hidden_plugins' ] ], $this->sectionGroupKeys( $payload[ 'layer' ][ 'healthy_sections' ] ) );
+		$this->assertSame( 'hidden_plugins', $payload[ 'selected_group' ][ 'key' ] );
+		$this->assertSame( 'good', $payload[ 'selected_group' ][ 'status' ] );
+		$this->assertSame( 'expandable', $payload[ 'selected_group' ][ 'card_type' ] );
+		$this->assertTrue( $payload[ 'selected_group' ][ 'is_interactive' ] );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'render_action_data' ] );
+		$this->assertSame( 'scanresults_cloakedplugins', $payload[ 'selected_group' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' );
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'actions' ] );
+	}
+
+	public function test_build_critical_bucket_includes_clickable_healthy_direct_scan_group_for_ignored_only_results() :void {
+		$builder = $this->createBuilder(
+			[],
+			[],
+			[],
+			[],
+			[
+				'malware' => [
+					'is_available'          => true,
+					'show_in_actions_queue' => true,
+				],
+			],
+			[],
+			[
+				'malware:malware' => [
+					'active_count'  => 0,
+					'ignored_count' => 2,
+				],
+			]
+		);
+
+		$payload = $builder->buildWithSelectedGroup(
+			'critical',
+			'malware',
+			[
+				'items' => [],
+			],
+			[
+				'scans'       => [],
+				'maintenance' => [],
+			]
+		);
+
+		$this->assertSame( [ [ 'malware' ] ], $this->sectionGroupKeys( $payload[ 'layer' ][ 'healthy_sections' ] ) );
+		$this->assertSame( 'malware', $payload[ 'selected_group' ][ 'key' ] );
+		$this->assertSame( 'good', $payload[ 'selected_group' ][ 'status' ] );
+		$this->assertTrue( $payload[ 'selected_group' ][ 'is_interactive' ] );
+		$this->assertSame(
+			'scanresults_malware',
+			$payload[ 'selected_group' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? ''
+		);
+		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'actions' ] );
+	}
+
 	public function test_build_with_selected_group_resolves_healthy_abandoned_group_without_falling_back_to_vulnerabilities() :void {
 		$builder = $this->createBuilder();
 
@@ -1479,7 +1600,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		array $vulnerabilities = [],
 		array $maintenanceItems = [],
 		array $tabAvailability = [],
-		array $pendingFileLockDisplays = []
+		array $pendingFileLockDisplays = [],
+		array $scopeCountsByActionScope = []
 	) :ActionsQueueGroupsBuilder {
 		return new class(
 			$pluginCards,
@@ -1487,7 +1609,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			$vulnerabilities,
 			$maintenanceItems,
 			$tabAvailability,
-			$pendingFileLockDisplays
+			$pendingFileLockDisplays,
+			$scopeCountsByActionScope
 		) extends ActionsQueueGroupsBuilder {
 
 			private ?ActionsQueueGroupScanSource $scanSource = null;
@@ -1498,6 +1621,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 			private array $maintenanceItems;
 			private array $tabAvailability;
 			private array $pendingFileLockDisplays;
+			private array $scopeCountsByActionScope;
 
 			public function __construct(
 				array $pluginCards,
@@ -1505,7 +1629,8 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				array $vulnerabilities,
 				array $maintenanceItems,
 				array $tabAvailability,
-				array $pendingFileLockDisplays
+				array $pendingFileLockDisplays,
+				array $scopeCountsByActionScope
 			) {
 				$this->pluginCards = $pluginCards;
 				$this->themeCards = $themeCards;
@@ -1513,6 +1638,7 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 				$this->maintenanceItems = $maintenanceItems;
 				$this->tabAvailability = $tabAvailability;
 				$this->pendingFileLockDisplays = $pendingFileLockDisplays;
+				$this->scopeCountsByActionScope = $scopeCountsByActionScope;
 			}
 
 			protected function buildBucketsBuilder() :ActionsQueueBucketsBuilder {
@@ -1571,19 +1697,33 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 							}
 						}
 					),
-					new class extends ActionsQueueScanResultScopeStateBuilder {
-						public function buildCountsForActionScope( string $type, string $file ) :array {
-							return [
-								'scope'         => [
-									'type' => $type,
-									'file' => $file,
-								],
-								'active_count'  => 0,
-								'ignored_count' => 0,
-							];
-						}
-					}
+					$this->buildScanResultScopeStateBuilder()
 				);
+			}
+
+			protected function buildScanResultScopeStateBuilder() :ActionsQueueScanResultScopeStateBuilder {
+				return new class( $this->scopeCountsByActionScope ) extends ActionsQueueScanResultScopeStateBuilder {
+
+					private array $scopeCountsByActionScope;
+
+					public function __construct( array $scopeCountsByActionScope ) {
+						$this->scopeCountsByActionScope = $scopeCountsByActionScope;
+					}
+
+					public function buildCountsForActionScope( string $type, string $file ) :array {
+						$scopeKey = $type.':'.$file;
+						$counts = $this->scopeCountsByActionScope[ $scopeKey ] ?? [];
+
+						return [
+							'scope'         => [
+								'type' => $type,
+								'file' => $file,
+							],
+							'active_count'  => (int)( $counts[ 'active_count' ] ?? 0 ),
+							'ignored_count' => (int)( $counts[ 'ignored_count' ] ?? 0 ),
+						];
+					}
+				};
 			}
 
 			protected function buildPendingFileLockDisplays() :GetPendingFileLockDisplays {

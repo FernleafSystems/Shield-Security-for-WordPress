@@ -14,8 +14,10 @@
 
 	{% if flags.can_skip_mfa %}
 		<p style="margin-bottom: 18px">
-			<input type="checkbox" value="Y" name="skip_mfa" id="skip_mfa" />
-			{{ strings.skip_mfa }}
+			<label for="skip_mfa">
+				<input type="checkbox" value="Y" name="skip_mfa" id="skip_mfa" />
+				{{ strings.skip_mfa }}
+			</label>
 		</p>
 	{% endif %}
 

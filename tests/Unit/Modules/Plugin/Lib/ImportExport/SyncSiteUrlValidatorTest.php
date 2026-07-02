@@ -87,12 +87,19 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 			 ->validatePublicOutbound( 'https://client.example.com' );
 	}
 
-	public function test_trusted_sync_allows_hostname_that_resolves_to_private_ip() :void {
+	public function test_trusted_sync_business_contract_allows_public_hostname_resolving_to_private_ip() :void {
+		// Same-server client sites may use DNS names that resolve into private address space.
 		$this->assertSame(
 			'https://client.example.com/path',
 			$this->validatorWithResolvedIps( [ '10.0.0.25' ] )
 				 ->validateTrustedSyncUrl( 'https://client.example.com/path/?utm=1' )
 		);
+	}
+
+	public function test_trusted_sync_business_contract_rejects_literal_private_ip_url() :void {
+		$this->expectException( \InvalidArgumentException::class );
+
+		$this->validatorWithResolvedIps( [ '10.0.0.25' ] )->validateTrustedSyncUrl( 'https://10.0.0.25' );
 	}
 
 	public function test_trusted_sync_rejects_unresolved_hostname() :void {
@@ -206,7 +213,10 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 	private function installHomeUrl( string $homeUrl ) :void {
 		ServicesState::mergeItems( [
 			'service_wpgeneral' => new class( $homeUrl ) extends General {
-				public function __construct( private string $homeUrl ) {
+				private string $homeUrl;
+
+				public function __construct( string $homeUrl ) {
+					$this->homeUrl = $homeUrl;
 				}
 
 				public function getHomeUrl( string $path = '', bool $wpms = false ) :string {

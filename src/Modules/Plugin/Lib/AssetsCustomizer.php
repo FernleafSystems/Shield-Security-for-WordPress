@@ -209,6 +209,7 @@ class AssetsCustomizer {
 						'import_from_site'       => ActionData::Build( Actions\PluginImportFromSite::class ),
 						'network_invite_accept'  => ActionData::Build( Actions\ImportExportNetworkInviteAccept::class ),
 						'network_invite_reject'  => ActionData::Build( Actions\ImportExportNetworkInviteReject::class ),
+						'profile_copy_from_master' => ActionData::Build( Actions\ImportExportProfileCopyFromMaster::class ),
 						'authorise_urls_submit'  => ActionData::Build( Actions\ImportExportSitesAuthoriseUrlsSubmit::class ),
 						'render_authorise_urls_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\ImportExportSitesAuthoriseUrls::class ),
 						'set_enabled'            => ActionData::Build( Actions\PluginImportExport_SetEnabled::class ),
@@ -351,8 +352,10 @@ class AssetsCustomizer {
 				],
 				'data'    => fn() => [
 					'ajax' => [
-						'form_save'           => ActionData::Build( Actions\ModuleOptionsSave::class ),
-						'xfer_include_toggle' => ActionData::Build( Actions\OptionTransferIncludeToggle::class ),
+						'form_save'                         => ActionData::Build( Actions\ModuleOptionsSave::class ),
+						'profile_form_save'                 => ActionData::Build( Actions\ImportExportProfileOptionsSave::class ),
+						'profile_xfer_include_toggle'       => ActionData::Build( Actions\ImportExportProfileOptionIncludeToggle::class ),
+						'profile_xfer_group_include_toggle' => ActionData::Build( Actions\ImportExportProfileOptionsIncludeToggle::class ),
 					]
 				],
 			],
@@ -489,6 +492,7 @@ class AssetsCustomizer {
 							'strings' => [
 								'remove_site_confirm'          => __( 'Remove this site from managed client sites?', 'wp-simple-firewall' ),
 								'remove_selected_sites_confirm' => __( 'Remove selected sites from managed client sites?', 'wp-simple-firewall' ),
+								'repair_site_confirm'          => __( 'Use this if this site is stuck failing to sync or has not updated after several tries. Shield will try again now.', 'wp-simple-firewall' ),
 							],
 							'vars' => [
 								'datatables_init' => ( new ForImportExportSites() )->buildRaw(),
@@ -633,7 +637,8 @@ class AssetsCustomizer {
 				],
 				'data'    => [
 					'ajax' => [
-						'render_live' => ActionData::BuildAjaxRender( Components\Traffic\TrafficLiveLogs::class ),
+						'render_live'           => ActionData::BuildAjaxRender( Components\Traffic\TrafficLiveLogs::class ),
+						'set_live_log_enabled'  => ActionData::Build( Actions\TrafficLiveLog_SetEnabled::class ),
 					],
 				],
 			],

@@ -42,6 +42,9 @@ class SourceRuntimeTestLane {
 		\putenv( 'SHIELD_PACKAGE_PATH' );
 		$logSink = SourceRuntimeLogSink::createFromEnvironment();
 		$overallExitCode = 0;
+		$runId = $this->buildRunId();
+		$transientExpiresAt = \gmdate( \DATE_ATOM, \time() + 6*60*60 );
+		$reusableExpiresAt = \gmdate( \DATE_ATOM, \time() + 30*24*60*60 );
 
 		try {
 			$this->environmentResolver->assertDockerReady( $rootDir );
@@ -56,9 +59,20 @@ class SourceRuntimeTestLane {
 			);
 
 			$composeFiles = $this->buildComposeFiles();
-			$dockerProcessEnvOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
-				'shield-tests',
-				true
+			$dockerProcessEnvOverrides = \array_merge(
+				$this->environmentResolver->buildDockerProcessEnvOverrides(
+					'shield-tests',
+					true
+				),
+				DockerCleanupPolicy::source()->labelEnvironment(
+					$runId,
+					DockerHarnessLabels::LIFECYCLE_TRANSIENT,
+					'source',
+					$transientExpiresAt,
+					$runId,
+					DockerHarnessLabels::LIFECYCLE_REUSABLE,
+					$reusableExpiresAt
+				)
 			);
 			try {
 				echo 'Starting source-runtime Docker checks on working tree.'.\PHP_EOL;
@@ -102,7 +116,10 @@ class SourceRuntimeTestLane {
 					$refreshSetup,
 					$showDockerOutput,
 					$dockerProcessEnvOverrides,
-					$logSink
+					$logSink,
+					$runId,
+					$transientExpiresAt,
+					$reusableExpiresAt
 				) !== 0 ) {
 					$overallExitCode = 1;
 					return 1;
@@ -170,7 +187,10 @@ class SourceRuntimeTestLane {
 		bool $refreshSetup = false,
 		bool $showDockerOutput = false,
 		?array $envOverrides = null,
-		?SourceRuntimeLogSink $logSink = null
+		?SourceRuntimeLogSink $logSink = null,
+		string $runId = 'source',
+		string $transientExpiresAt = '',
+		string $reusableExpiresAt = ''
 	) :int {
 		echo 'Preparing source mode test setup once before runtime checks.'.\PHP_EOL;
 
@@ -224,10 +244,17 @@ class SourceRuntimeTestLane {
 		}
 
 		if ( $setup[ 'needs_npm_install' ] ) {
+			$this->ensureNodeModulesVolume(
+				$rootDir,
+				$setup[ 'node_modules_volume' ],
+				$runId,
+				$reusableExpiresAt,
+				$envOverrides
+			);
 			$nodeExitCode = $this->runProcessPhase(
 				'setup-assets',
 				'Node dependency install and asset build',
-				$this->buildNodeAssetBuildCommand( $rootDir, $setup[ 'node_modules_volume' ], true ),
+				$this->buildNodeAssetBuildCommand( $rootDir, $setup[ 'node_modules_volume' ], true, $runId, $transientExpiresAt ),
 				$rootDir,
 				$envOverrides,
 				$logSink
@@ -237,10 +264,17 @@ class SourceRuntimeTestLane {
 			}
 		}
 		elseif ( $setup[ 'needs_npm_build' ] ) {
+			$this->ensureNodeModulesVolume(
+				$rootDir,
+				$setup[ 'node_modules_volume' ],
+				$runId,
+				$reusableExpiresAt,
+				$envOverrides
+			);
 			$nodeExitCode = $this->runProcessPhase(
 				'setup-assets',
 				'Asset build only',
-				$this->buildNodeAssetBuildCommand( $rootDir, $setup[ 'node_modules_volume' ], false ),
+				$this->buildNodeAssetBuildCommand( $rootDir, $setup[ 'node_modules_volume' ], false, $runId, $transientExpiresAt ),
 				$rootDir,
 				$envOverrides,
 				$logSink
@@ -277,7 +311,7 @@ class SourceRuntimeTestLane {
 	 * @return string[]
 	 */
 	private function buildComposeMysqlUpCommand() :array {
-		return [ 'up', '-d', 'mysql-latest', 'mysql-previous' ];
+		return [ 'up', '-d', '--wait', '--wait-timeout', '60', 'mysql-latest', 'mysql-previous' ];
 	}
 
 	/**
@@ -321,7 +355,9 @@ class SourceRuntimeTestLane {
 	private function buildNodeAssetBuildCommand(
 		string $rootDir,
 		string $nodeModulesVolume,
-		bool $installDependencies
+		bool $installDependencies,
+		string $runId,
+		string $transientExpiresAt
 	) :array {
 		$command = $installDependencies
 			? 'npm ci --no-audit --no-fund && npm run build'
@@ -331,6 +367,16 @@ class SourceRuntimeTestLane {
 			'docker',
 			'run',
 			'--rm',
+			'--label',
+			DockerHarnessLabels::HARNESS.'='.DockerCleanupPolicy::source()->harnessLabelValue(),
+			'--label',
+			DockerHarnessLabels::RUN_ID.'='.$runId,
+			'--label',
+			DockerHarnessLabels::LANE.'=source-node',
+			'--label',
+			DockerHarnessLabels::LIFECYCLE.'='.DockerHarnessLabels::LIFECYCLE_TRANSIENT,
+			'--label',
+			DockerHarnessLabels::EXPIRES_AT.'='.$transientExpiresAt,
 			'-v',
 			$rootDir.':/app',
 			'-v',
@@ -352,7 +398,7 @@ class SourceRuntimeTestLane {
 		string $nodeModulesVolume,
 		?array $envOverrides = null
 	) :void {
-		$this->processRunner->run(
+		$process = $this->processRunner->run(
 			[
 				'docker',
 				'volume',
@@ -365,6 +411,55 @@ class SourceRuntimeTestLane {
 			},
 			$envOverrides
 		);
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			$stderr = \trim( $process->getErrorOutput() );
+			throw new \RuntimeException(
+				'Failed to purge source node_modules volume before refresh: '.$nodeModulesVolume.
+				( $stderr === '' ? '' : ' STDERR: '.$stderr )
+			);
+		}
+	}
+
+	/**
+	 * @param array<string,string|false>|null $envOverrides
+	 */
+	private function ensureNodeModulesVolume(
+		string $rootDir,
+		string $nodeModulesVolume,
+		string $runId,
+		string $expiresAt,
+		?array $envOverrides = null
+	) :void {
+		$command = [
+			'docker',
+			'volume',
+			'create',
+			'--label',
+			DockerHarnessLabels::HARNESS.'='.DockerCleanupPolicy::source()->harnessLabelValue(),
+			'--label',
+			DockerHarnessLabels::RUN_ID.'='.$runId,
+			'--label',
+			DockerHarnessLabels::LANE.'=source-node',
+			'--label',
+			DockerHarnessLabels::LIFECYCLE.'='.DockerHarnessLabels::LIFECYCLE_REUSABLE,
+			'--label',
+			DockerHarnessLabels::EXPIRES_AT.'='.$expiresAt,
+			$nodeModulesVolume,
+		];
+		$process = $this->processRunner->run(
+			$command,
+			$rootDir,
+			static function () :void {
+			},
+			$envOverrides
+		);
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			throw new \RuntimeException( 'Failed to create labeled source node_modules volume: '.$nodeModulesVolume );
+		}
+	}
+
+	private function buildRunId() :string {
+		return 'shield-plugin-source-'.\gmdate( 'YmdHis' ).'-'.\bin2hex( \random_bytes( 4 ) );
 	}
 
 	/**

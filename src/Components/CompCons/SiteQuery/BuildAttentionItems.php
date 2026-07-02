@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	ActionsQueueScanStateBuilder,
 	MaintenanceIssueStateProvider
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueSecurityCheckSource;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -16,7 +17,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @phpstan-type AttentionItem array{
  *   key:string,
  *   zone:'scans'|'maintenance',
- *   source:'scan'|'maintenance',
+ *   source:'scan'|'maintenance'|'security_check',
  *   label:string,
  *   description:string,
  *   count:int,
@@ -59,6 +60,7 @@ class BuildAttentionItems {
 		'theme_files',
 		'file_locker',
 		'abandoned',
+		'hidden_plugins',
 		'default_admin_user',
 		'wp_updates',
 		'wp_plugins_updates',
@@ -75,7 +77,10 @@ class BuildAttentionItems {
 	 * @return AttentionQuery
 	 */
 	public function build() :array {
-		$scanItems = $this->buildScanItems();
+		$scanItems = $this->sortItems( \array_merge(
+			$this->buildScanItems(),
+			$this->buildSecurityCheckItems()
+		) );
 		$maintenanceItems = $this->buildMaintenanceItems();
 		$items = $this->sortItems( \array_merge( $scanItems, $maintenanceItems ) );
 
@@ -119,6 +124,13 @@ class BuildAttentionItems {
 				static fn( array $item ) :bool => $item[ 'count' ] > 0
 			) )
 		) );
+	}
+
+	/**
+	 * @return list<AttentionItem>
+	 */
+	protected function buildSecurityCheckItems() :array {
+		return ( new ActionsQueueSecurityCheckSource() )->attentionItems();
 	}
 
 	/**

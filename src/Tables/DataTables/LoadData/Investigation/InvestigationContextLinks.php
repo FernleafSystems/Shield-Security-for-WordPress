@@ -10,7 +10,7 @@ trait InvestigationContextLinks {
 	protected function getUserHref( int $uid ) :string {
 		$user = $this->resolveUser( $uid );
 		return empty( $user )
-			? \sprintf( 'Unavailable (ID:%s)', $uid )
+			? esc_html( \sprintf( 'Unavailable (ID:%s)', $uid ) )
 			: $this->renderAnchorSpec(
 				$this->buildAnchorSpec(
 					self::con()->plugin_urls->investigateByUser( (string)$uid ),

@@ -24,10 +24,11 @@ class RenderedEmailPlainTextContractTest extends ShieldIntegrationTestCase {
 		$html = $this->requireController()->action_router->render( EmailInstantAlertAdminLogin::class, [
 			'alert_data' => [
 				'admin_login' => [
-					'role_name'  => 'Administrator+',
-					'username'   => 'managedadmin',
-					'user_email' => 'managedadmin@example.com',
-					'ip'         => '198.51.100.23',
+					'role_name'   => 'Administrator+',
+					'username'    => 'managedadmin',
+					'user_email'  => 'managedadmin@example.com',
+					'ip'          => '198.51.100.23',
+					'ip_identity' => 'iControlWP',
 				]
 			],
 		] );

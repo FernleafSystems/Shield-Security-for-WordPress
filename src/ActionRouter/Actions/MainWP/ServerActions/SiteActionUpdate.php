@@ -17,7 +17,18 @@ class SiteActionUpdate extends BaseSiteMwpAction {
 	}
 
 	protected function checkResponse() :bool {
-		return true; // TODO
+		$pluginSlug = $this->getInstalledPluginSlug();
+		if ( empty( $pluginSlug ) || !\is_array( $this->clientActionResponse ) ) {
+			return false;
+		}
+
+		$upgrades = $this->clientActionResponse[ 'upgrades' ] ?? [];
+		if ( !\is_array( $upgrades ) ) {
+			return false;
+		}
+
+		$upgradeResult = $upgrades[ $pluginSlug ] ?? false;
+		return $upgradeResult === true || $upgradeResult === 1;
 	}
 
 	protected function getMainwpActionSlug() :string {
@@ -27,9 +38,15 @@ class SiteActionUpdate extends BaseSiteMwpAction {
 	protected function getMainwpActionParams() :array {
 		return [
 			'type' => 'plugin',
-			'list' => ( new ClientPluginStatus() )
-						  ->setMwpSite( $this->getMwpSite() )
-						  ->getInstalledPlugin()[ 'slug' ],
+			'list' => $this->getInstalledPluginSlug(),
 		];
+	}
+
+	protected function getInstalledPluginSlug() :string {
+		$plugin = ( new ClientPluginStatus() )
+			->setMwpSite( $this->getMwpSite() )
+			->getInstalledPlugin();
+
+		return \is_array( $plugin ) ? (string)( $plugin[ 'slug' ] ?? '' ) : '';
 	}
 }

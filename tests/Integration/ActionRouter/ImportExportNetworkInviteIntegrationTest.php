@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\PluginImportExport_NetworkInviteRequest,
 	Exceptions\SecurityAdminRequiredException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
@@ -55,6 +56,7 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		parent::set_up();
 		$this->loginAsSecurityAdmin();
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireDb( ProfilesDB::DB_KEY );
 		$this->requireDb( SitesDB::DB_KEY );
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [

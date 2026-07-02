@@ -50,6 +50,7 @@ class LocalSiteRuntimeHostManifestProvider {
 		'tests/Helpers/ActionRouter',
 		'tests/Helpers/CrossSite',
 		'tests/browser/support/shield-browser-fixtures.php',
+		'tests/docker/provision-local-site.sh',
 	];
 	private const CACHE_SCHEMA_VERSION = 1;
 	private const CACHE_DIR = 'tmp/.browser-runtime-manifest-cache';

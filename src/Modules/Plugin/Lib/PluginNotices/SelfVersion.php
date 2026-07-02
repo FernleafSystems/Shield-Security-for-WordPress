@@ -2,11 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Adhoc\ListTagsFromGithub;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\WordPressOrg\PluginVersions;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 
 class SelfVersion extends Base {
+
+	private ?PluginVersions $versions = null;
+
+	public function __construct( ?PluginVersions $versions = null ) {
+		$this->versions = $versions;
+	}
 
 	public function check() :?array {
 		$con = self::con();
@@ -58,36 +64,14 @@ class SelfVersion extends Base {
 	}
 
 	private function isPluginTooOld() :bool {
-		$tooOld = false;
 		$con = self::con();
-		$versions = Transient::Get( $con->prefix( 'releases' ) );
-
-		if ( !\is_array( $versions ) ) {
-			$versions = ( new ListTagsFromGithub() )->run( 'FernleafSystems/Shield-Security-for-WordPress' );
-			Transient::Set( $con->prefix( 'releases' ), $versions, \WEEK_IN_SECONDS );
+		$versions = $this->versions;
+		if ( $versions === null ) {
+			$thisPlugin = Services::WpPlugins()->getPluginAsVo( $con->base_file );
+			$slugRaw = $thisPlugin instanceof WpPluginVo ? $thisPlugin->slug : '';
+			$versions = new PluginVersions( \is_scalar( $slugRaw ) ? (string)$slugRaw : '' );
 		}
 
-		$currentMajor = \intval( \substr( $con->cfg->version(), 0, \strpos( $con->cfg->version(), '.' ) ) );
-		if ( !empty( $versions ) && !empty( $currentMajor ) ) {
-
-			$majorVersionsNewerThanCurrent = \array_filter(
-				\array_unique( \array_map(
-					function ( $version ) {
-						/** 1. Convert all versions to major releases */
-						return \intval( \substr( $version, 0, \strpos( $version, '.' ) ) );
-					},
-					$versions
-				) ),
-				function ( $version ) use ( $currentMajor ) {
-					/** 2. Find all major versions newer than current */
-					return $version > $currentMajor;
-				}
-			);
-
-			/** 3. Suggest upgrade needed  */
-			$tooOld = \count( $majorVersionsNewerThanCurrent ) >= 2;
-		}
-
-		return $tooOld;
+		return $versions->hasAtLeastTwoNewerMajorVersions( $con->cfg->version() );
 	}
 }

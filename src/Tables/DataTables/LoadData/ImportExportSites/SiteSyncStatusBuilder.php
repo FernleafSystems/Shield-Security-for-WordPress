@@ -39,6 +39,7 @@ class SiteSyncStatusBuilder {
 	];
 
 	private int $now;
+	private ?ImportIDPresenter $importIDPresenter = null;
 
 	public function __construct( ?int $now = null ) {
 		$this->now = $now ?? $this->currentTimestamp();
@@ -239,7 +240,7 @@ class SiteSyncStatusBuilder {
 			$this->detailsButtonHtml( $detailsHtml ),
 			$this->escHtml( $reason ),
 			$this->escHtml( \sprintf( '%s: %s | %s: %s',
-				$this->text( 'Last request' ),
+				$this->text( 'Last export request' ),
 				$lastRequest,
 				$this->text( 'Last export' ),
 				$lastExport
@@ -250,6 +251,7 @@ class SiteSyncStatusBuilder {
 	private function buildDetailsHtml( Record $record, string $state ) :string {
 		$rows = [
 			$this->detailRow( $this->text( 'Current state' ), $this->stateLabel( $state ) ),
+			$this->detailRow( $this->text( 'Import ID' ), $this->importIDPresenter()->displayValue( $record->import_id ) ),
 			$this->detailRow( $this->text( 'Last ping attempt' ), $this->formatTimestamp( $record->last_ping_attempt_at ) ),
 			$this->detailRow( $this->text( 'Last ping success' ), $this->formatTimestamp( $record->last_ping_success_at ) ),
 			$this->detailRow( $this->text( 'Last ping failure' ), $this->formatTimestamp( $record->last_ping_failure_at ) ),
@@ -291,7 +293,7 @@ class SiteSyncStatusBuilder {
 			case SitesDB::QUEUE_PROCESSING:
 				return $this->text( 'A sync ping is currently being processed.' );
 			case SitesDB::QUEUE_WAITING_EXPORT:
-				return $this->text( 'Ping succeeded; waiting for this site to send its export.' );
+				return $this->text( 'Update notification sent; waiting for this site to send its export.' );
 			case SitesDB::QUEUE_PENDING_INVITE:
 				return $this->text( 'This site is queued for a network invite.' );
 			case SitesDB::QUEUE_PENDING_CONNECTION:
@@ -556,6 +558,10 @@ class SiteSyncStatusBuilder {
 
 	private function escAttr( string $value ) :string {
 		return esc_attr( $value );
+	}
+
+	private function importIDPresenter() :ImportIDPresenter {
+		return $this->importIDPresenter ??= new ImportIDPresenter();
 	}
 
 	private function currentTimestamp() :int {

@@ -24,15 +24,13 @@ class EmailInstantAlertFileLocker extends EmailInstantAlertBase {
 	protected function buildAlertGroups() :array {
 		$alertGroups = [];
 		foreach ( \array_filter( $this->action_data[ 'alert_data' ] ) as $alertKey => $alertItems ) {
-			$alertGroups[ $alertKey ] = [
-				'title' => __( 'File Locker Changes Detected', 'wp-simple-firewall' ),
-				'items' => [],
-			];
+			$items = [];
 			foreach ( $alertItems as $type => $path ) {
-				$alertGroups[ $alertKey ][ 'items' ][ $type ] = [
-					'text' => sprintf( '%s: <code>%s</code>', $this->titleFor( $type ), $path ),
-				];
+				$items[] = $this->alertItem( [
+					$this->alertLine( $this->titleFor( $type ), $path, self::LINE_STYLE_CODE ),
+				] );
 			}
+			$alertGroups[ $alertKey ] = $this->alertGroup( __( 'File Locker Changes Detected', 'wp-simple-firewall' ), $items );
 		}
 		return $alertGroups;
 	}

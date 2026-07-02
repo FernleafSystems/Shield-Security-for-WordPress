@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExp
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpAnalysisActivityMetaFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpRulesTableFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\LicenseClearFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\LiveTrafficToggleFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\LoginGuardCoreFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MainwpSitesFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\MerlinWelcomeFixtureBuilder;
@@ -44,6 +45,8 @@ class BrowserFixtureRegistry {
 				return self::runIpRulesTableFixture( $action );
 			case 'license-clear':
 				return self::runLicenseClearFixture( $action );
+			case 'live-traffic-toggle':
+				return self::runLiveTrafficToggleFixture( $action );
 			case 'login-guard-core':
 				return self::runLoginGuardCoreFixture( $action, $args );
 			case 'mainwp-sites':
@@ -80,6 +83,7 @@ class BrowserFixtureRegistry {
 		self::runIpAnalysisActivityMetaFixture( 'cleanup' );
 		self::runIpRulesTableFixture( 'cleanup' );
 		self::runLicenseClearFixture( 'cleanup' );
+		self::runLiveTrafficToggleFixture( 'cleanup' );
 		self::runLoginGuardCoreFixture( 'cleanup', [] );
 		self::runMainwpSitesFixture( 'cleanup' );
 		self::runMerlinWelcomeFixture( 'cleanup' );
@@ -97,6 +101,39 @@ class BrowserFixtureRegistry {
 	private static function runLicenseClearFixture( string $action ) :array {
 		$builder = new LicenseClearFixtureBuilder();
 		$optionKey = self::fixtureOptionKey( 'license-clear' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
+
+			case 'inspect':
+				return $builder->inspect( $state );
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runLiveTrafficToggleFixture( string $action ) :array {
+		$builder = new LiveTrafficToggleFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'live-traffic-toggle' );
 		$state = \get_option( $optionKey, [] );
 		$state = \is_array( $state ) ? $state : [];
 
@@ -180,6 +217,9 @@ class BrowserFixtureRegistry {
 
 			case 'reset-defaults':
 				return $builder->resetDefaults( $state );
+
+			case 'prepare-actions-all-clear':
+				return $builder->prepareActionsAllClear( $state );
 
 			case 'seed':
 				if ( $state !== [] ) {

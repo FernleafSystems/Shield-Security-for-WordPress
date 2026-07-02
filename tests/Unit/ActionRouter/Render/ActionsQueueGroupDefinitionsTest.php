@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
+	CloakedPlugins,
 	Malware,
 	Maintenance,
 	Vulnerabilities,
@@ -46,6 +47,11 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'linked', $definitions[ 'vulnerabilities' ][ 'card_type' ] );
 		$this->assertGroupDefinitionShape( $definitions[ 'abandoned' ] );
 		$this->assertSame( 'linked', $definitions[ 'abandoned' ][ 'card_type' ] );
+		$this->assertGroupDefinitionShape( $definitions[ 'hidden_plugins' ] );
+		$this->assertSame( 'direct_table', $definitions[ 'hidden_plugins' ][ 'detail_shell' ] );
+		$this->assertSame( 'expandable', $definitions[ 'hidden_plugins' ][ 'card_type' ] );
+		$this->assertSame( CloakedPlugins::class, $definitions[ 'hidden_plugins' ][ 'render_action_class' ] );
+		$this->assertSame( [], $definitions[ 'hidden_plugins' ][ 'render_action_data' ] );
 		$this->assertSame( Malware::class, $definitions[ 'malware' ][ 'render_action_class' ] );
 		$this->assertSame(
 			[
@@ -61,6 +67,10 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'asset_cards', $definitions[ 'plugins' ][ 'detail_shell' ] );
 		$this->assertSame( 'asset_cards', $definitions[ 'themes' ][ 'detail_shell' ] );
+		$this->assertSame(
+			[ 'wordpress', 'malware' ],
+			( new ActionsQueueGroupDefinitions() )->ignoredOnlyDirectTableGroupKeys()
+		);
 		$this->assertSame( Vulnerabilities::class, $definitions[ 'vulnerabilities' ][ 'render_action_class' ] );
 		$this->assertSame( [ 'section' => 'vulnerable' ], $definitions[ 'vulnerabilities' ][ 'render_action_data' ] );
 		$this->assertSame( Vulnerabilities::class, $definitions[ 'abandoned' ][ 'render_action_class' ] );
@@ -105,6 +115,12 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 2, $definitions->sectionOrderForGroupKey( 'plugins' ) );
 		$this->assertSame( 3, $definitions->sectionOrderForGroupKey( 'themes' ) );
 		$this->assertSame( 4, $definitions->sectionOrderForGroupKey( 'abandoned' ) );
+		$this->assertSame( 5, $definitions->sectionOrderForGroupKey( 'hidden_plugins' ) );
+		$this->assertSame( 'hidden_plugins', $definitions->sectionKeyForGroupKey( 'hidden_plugins' ) );
+		$this->assertSame(
+			$definitions->definitionForGroupKey( 'hidden_plugins' )[ 'label' ],
+			$definitions->sectionLabelForGroupKey( 'hidden_plugins' )
+		);
 
 		$this->assertSame( 2, $definitions->sortOrderForGroupKey( 'wordpress' ) );
 		$this->assertSame( 5, $definitions->sortOrderForGroupKey( 'malware' ) );
@@ -120,6 +136,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertSame( 'themes', $definitions->groupKeyForSummaryKey( 'theme_files' ) );
 		$this->assertSame( 'vulnerabilities', $definitions->groupKeyForSummaryKey( 'vulnerable_assets' ) );
 		$this->assertSame( 'abandoned', $definitions->groupKeyForSummaryKey( 'abandoned' ) );
+		$this->assertSame( 'hidden_plugins', $definitions->groupKeyForSummaryKey( 'hidden_plugins' ) );
 		$this->assertSame( 'malware', $definitions->groupKeyForSummaryKey( 'malware' ) );
 		$this->assertSame( 'file_locker', $definitions->groupKeyForSummaryKey( 'file_locker' ) );
 		$this->assertSame( 'maintenance', $definitions->groupKeyForSummaryKey( 'wp_updates' ) );
@@ -159,6 +176,13 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 				'vulnerability_section' => 'abandoned',
 			],
 			$definitions->summaryBehaviourForKey( 'abandoned' )
+		);
+		$this->assertSame(
+			[
+				'definition_key' => 'hidden_plugins',
+				'seed_strategy'  => 'attention_aggregate',
+			],
+			$definitions->summaryBehaviourForKey( 'hidden_plugins' )
 		);
 		$this->assertSame(
 			[

@@ -19,6 +19,7 @@ php:
   - '.github/workflows/tests.yml'
   - '.github/workflows/reusable-unit-tests.yml'
   - '.github/workflows/reusable-build-package.yml'
+  - '.github/workflows/reusable-build-zip.yml'
   - '.github/ci-path-filters.yml'
 
 js:
@@ -61,6 +62,9 @@ package:
   - '.github/scripts/read-packager-config.sh'
   - '.github/workflows/tests.yml'
   - '.github/workflows/reusable-build-package.yml'
+  - '.github/workflows/reusable-build-zip.yml'
+  - '.github/workflows/release.yml'
+  - '.github/workflows/customer-test-zip.yml'
   - '.github/ci-path-filters.yml'
 
 browser:
@@ -88,15 +92,22 @@ browser:
   - 'bin/shield'
   - 'infrastructure/src/Tooling/Cli/ShieldCliApplication.php'
   - 'infrastructure/src/Tooling/Cli/Command/TestBrowserCommand.php'
+  - 'infrastructure/src/Tooling/Cli/Command/TestBrowserCleanupCommand.php'
+  - 'infrastructure/src/Tooling/Cli/Command/TestDockerCleanupCommand.php'
   - 'infrastructure/src/Tooling/Testing/BrowserTestLane*.php'
   - 'infrastructure/src/Tooling/Testing/LocalSite*.php'
+  - 'infrastructure/src/Tooling/Testing/DockerCleanup*.php'
   - 'infrastructure/src/Tooling/Testing/DockerComposeExecutor.php'
+  - 'infrastructure/src/Tooling/Testing/DockerHarnessLabels.php'
+  - 'infrastructure/src/Tooling/Testing/DockerResourceSweeper.php'
   - 'infrastructure/src/Tooling/Testing/TestingEnvironmentResolver.php'
   - '.github/workflows/browser-tests.yml'
   - '.github/ci-path-filters.yml'
 
 ci_scripts:
   - '.github/scripts/**'
+  - '.github/workflows/release.yml'
+  - '.github/workflows/customer-test-zip.yml'
   - '.github/workflows/tests.yml'
   - '.github/workflows/reusable-*.yml'
   - '.github/ci-path-filters.yml'
