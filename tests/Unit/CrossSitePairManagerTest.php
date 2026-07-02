@@ -16,6 +16,9 @@ class CrossSitePairManagerTest extends TestCase {
 
 	use TempDirLifecycleTrait;
 
+	private const MASTER_INTERNAL_URL = 'http://wordpress-master.shield-cross-site.example.com';
+	private const SLAVE_INTERNAL_URL = 'http://wordpress-slave.shield-cross-site.example.com';
+
 	protected function tearDown() :void {
 		foreach ( [
 			'SHIELD_CROSS_SITE_MASTER_PORT',
@@ -36,10 +39,30 @@ class CrossSitePairManagerTest extends TestCase {
 
 		$this->assertContains( '-f', $command );
 		$this->assertContains( 'tests/docker/docker-compose.cross-site.yml', $command );
-		$this->assertContains( 'SHIELD_LOCAL_SITE_URL=http://wordpress-master', $command );
+		$this->assertContains( 'SHIELD_LOCAL_SITE_URL='.self::MASTER_INTERNAL_URL, $command );
 		$this->assertContains( 'SHIELD_LOCAL_SITE_PROFILE=cross-site-master', $command );
 		$this->assertContains( 'wp-cli-master', $command );
 		$this->assertContains( '/app/tests/docker/provision-local-site.sh', $command );
+	}
+
+	public function testCrossSiteComposeDefinesTrustedSyncHostAliases() :void {
+		$manager = new CrossSitePairManager();
+		$content = $this->readProjectFile( 'tests/docker/docker-compose.cross-site.yml' );
+		$this->assertSame( self::MASTER_INTERNAL_URL, $manager->masterInternalUrl() );
+		$this->assertSame( self::SLAVE_INTERNAL_URL, $manager->slaveInternalUrl() );
+
+		foreach ( [
+			'wordpress-master' => $manager->masterInternalUrl(),
+			'wordpress-slave' => $manager->slaveInternalUrl(),
+		] as $service => $url ) {
+			$host = (string)\parse_url( $url, \PHP_URL_HOST );
+			$this->assertNotEmpty( $host, $service );
+			$this->assertMatchesRegularExpression(
+				'/networks:\R\s+default:\R\s+aliases:\R\s+- '.\preg_quote( $host, '/' ).'(?:\R|$)/',
+				$this->composeServiceBlock( $content, $service ),
+				$service
+			);
+		}
 	}
 
 	public function testWpCliCommandTargetsSlaveServiceAndAppendsAllowRoot() :void {
@@ -305,7 +328,7 @@ class CrossSitePairManagerTest extends TestCase {
 			$this->helperSuccessProcess( $this->waitingExportQueueState() ),
 			$this->helperSuccessProcess( $this->slaveCronState( false, true ) ),
 			$this->helperSuccessProcess( [
-				'master_url' => 'http://wordpress-master',
+				'master_url' => self::MASTER_INTERNAL_URL,
 				'import_id' => 'slave-import-id',
 			] ),
 			$this->helperSuccessProcess( $this->postExportQueueState() ),
@@ -320,7 +343,7 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->assertContains( 'run-import-from-master', $directImportCommand );
 		$this->assertSame(
 			[
-				'master_url' => 'http://wordpress-master',
+				'master_url' => self::MASTER_INTERNAL_URL,
 				'import_id' => 'slave-import-id',
 			],
 			$manager->lastDiagnostics()[ 'slave_direct_import' ]
@@ -601,7 +624,7 @@ class CrossSitePairManagerTest extends TestCase {
 		return [
 			'rows' => [
 				[
-					'url' => 'http://wordpress-slave',
+					'url' => self::SLAVE_INTERNAL_URL,
 					'queue_status' => 'waiting_export',
 					'last_ping_success_at' => 10,
 					'last_export_request_at' => 0,
@@ -622,7 +645,7 @@ class CrossSitePairManagerTest extends TestCase {
 			'due_count' => 1,
 			'rows' => [
 				[
-					'url' => 'http://wordpress-slave',
+					'url' => self::SLAVE_INTERNAL_URL,
 					'queue_status' => 'queued',
 					'last_ping_success_at' => 0,
 					'last_export_request_at' => 5,
@@ -640,7 +663,7 @@ class CrossSitePairManagerTest extends TestCase {
 		return [
 			'rows' => [
 				[
-					'url' => 'http://wordpress-slave',
+					'url' => self::SLAVE_INTERNAL_URL,
 					'queue_status' => 'idle',
 					'last_ping_success_at' => 10,
 					'last_export_request_at' => 20,
@@ -663,9 +686,25 @@ class CrossSitePairManagerTest extends TestCase {
 			'notify_cooldown_active' => $notifyCooldownActive,
 			'queue_hook' => 'shield-plugin-importexport-sites-queue',
 			'queue_scheduled' => false,
-			'master_url' => 'http://wordpress-master',
+			'master_url' => self::MASTER_INTERNAL_URL,
 			'import_id' => 'slave-import-id',
 		];
+	}
+
+	private function readProjectFile( string $relativePath ) :string {
+		$path = \dirname( __DIR__, 2 ).'/'.$relativePath;
+		$this->assertFileExists( $path );
+
+		return (string)\file_get_contents( $path );
+	}
+
+	private function composeServiceBlock( string $content, string $service ) :string {
+		$pattern = \sprintf(
+			'/^  %s:\R(?<block>(?:    .*(?:\R|$))*)/m',
+			\preg_quote( $service, '/' )
+		);
+		$this->assertSame( 1, \preg_match( $pattern, $content, $matches ) );
+		return (string)( $matches[ 'block' ] ?? '' );
 	}
 
 	private function isInternalHttpReadinessCall( array $call ) :bool {

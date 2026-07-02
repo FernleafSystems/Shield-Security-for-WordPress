@@ -427,7 +427,7 @@ npm run playwright:install
 
 ## Local Cross-Site Lane
 
-Use this lane for Shield-to-Shield import/export communication. It provisions a master WordPress site and a slave WordPress site on one Docker network, uses Docker service-name URLs for site-to-site HTTP, and drives setup, cron, queue processing, and assertions with WP-CLI.
+Use this lane for Shield-to-Shield import/export communication. It provisions a master WordPress site and a slave WordPress site on one Docker network, uses dotted Docker DNS aliases for site-to-site HTTP, and drives setup, cron, queue processing, and assertions with WP-CLI.
 
 ```bash
 composer test:cross-site
@@ -437,7 +437,7 @@ composer test:cross-site -- --clean --show-setup-output
 
 Operational notes:
 
-1. The lane uses internal URLs `http://wordpress-master` and `http://wordpress-slave`; exposed host ports are only for diagnostics.
+1. The lane uses internal URLs `http://wordpress-master.shield-cross-site.example.com` and `http://wordpress-slave.shield-cross-site.example.com`; exposed host ports are only for diagnostics.
 2. Local runs default to warm mode. CI defaults to clean mode.
 3. Successful runs stay quiet except for the final lane result; use `--show-setup-output` when Docker, provisioning, or runtime-refresh setup logs are needed.
 4. The lane has a single lock under `tmp/cross-site-test-lane` because both sites share one Compose project and one database container.

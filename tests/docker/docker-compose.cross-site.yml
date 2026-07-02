@@ -48,6 +48,10 @@ services:
       WORDPRESS_DB_NAME: shield_cross_site_master
     ports:
       - "${SHIELD_CROSS_SITE_MASTER_PORT:-8892}:80"
+    networks:
+      default:
+        aliases:
+          - wordpress-master.shield-cross-site.example.com
     volumes:
       - cross-site-master-wp:/var/www/html
       - cross-site-master-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
@@ -66,6 +70,10 @@ services:
       WORDPRESS_DB_NAME: shield_cross_site_slave
     ports:
       - "${SHIELD_CROSS_SITE_SLAVE_PORT:-8893}:80"
+    networks:
+      default:
+        aliases:
+          - wordpress-slave.shield-cross-site.example.com
     volumes:
       - cross-site-slave-wp:/var/www/html
       - cross-site-slave-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall

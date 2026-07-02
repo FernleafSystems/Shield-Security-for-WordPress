@@ -337,10 +337,12 @@ try {
 				'last_ping_success_at' => $row->last_ping_success_at,
 				'last_ping_failure_at' => $row->last_ping_failure_at,
 				'last_ping_http_code' => $row->last_ping_http_code,
+				'last_ping_error' => $row->last_ping_error,
 				'last_export_request_at' => $row->last_export_request_at,
 				'last_export_success_at' => $row->last_export_success_at,
 				'last_export_failure_at' => $row->last_export_failure_at,
 				'last_export_result_code' => $row->last_export_result_code,
+				'last_export_error' => $row->last_export_error,
 				'consecutive_failures' => $row->consecutive_failures,
 			];
 		}

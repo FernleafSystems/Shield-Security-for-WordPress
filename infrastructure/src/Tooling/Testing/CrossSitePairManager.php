@@ -18,8 +18,8 @@ class CrossSitePairManager {
 	private const SLAVE_WORDPRESS_SERVICE = 'wordpress-slave';
 	private const MASTER_WPCLI_SERVICE = 'wp-cli-master';
 	private const SLAVE_WPCLI_SERVICE = 'wp-cli-slave';
-	private const MASTER_INTERNAL_URL = 'http://wordpress-master';
-	private const SLAVE_INTERNAL_URL = 'http://wordpress-slave';
+	private const MASTER_INTERNAL_URL = 'http://wordpress-master.shield-cross-site.example.com';
+	private const SLAVE_INTERNAL_URL = 'http://wordpress-slave.shield-cross-site.example.com';
 	private const MASTER_DB_NAME = 'shield_cross_site_master';
 	private const SLAVE_DB_NAME = 'shield_cross_site_slave';
 	private const MASTER_HOST_PORT = '8892';
