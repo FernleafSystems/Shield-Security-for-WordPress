@@ -24,7 +24,7 @@ class NodeDependencyLockContractTest extends BaseUnitTest {
 		$this->assertDependencyRangeAtLeast( $package, 'devDependencies', '@wp-playground/cli', '3.1.41' );
 		$this->assertPackageLockedAtLeast( $lock, 'node_modules/@wp-playground/cli', '3.1.41' );
 		$this->assertPackageLockedAtLeast( $lock, 'node_modules/qs', '6.15.2' );
-		$this->assertPackageLockedAtLeast( $lock, 'node_modules/tmp', '0.2.6' );
+		$this->assertPackageLockedAtLeast( $lock, 'node_modules/tmp', '0.2.7' );
 	}
 
 	private function assertDependencyRangeAtLeast(
