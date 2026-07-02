@@ -924,6 +924,15 @@
         "sensitive": true
     },
     {
+        "key": "ignored_hidden_plugins",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "transferable": false,
+        "tracking_exclude": true,
+        "sensitive": true
+    },
+    {
         "key": "is_scan_cron",
         "section": "section_hidden",
         "tracking_exclude": true,
@@ -2756,9 +2765,9 @@
         "beacon_id": 788,
         "link_info": "",
         "link_blog": "",
-        "name": "Hidden Plugins",
-        "summary": "Be alerted when a plugin is hidden from the WordPress admin list",
-        "description": "Be alerted when a plugin or must-use plugin exists on disk but is hidden from the WordPress admin plugin list."
+        "name": "Cloaked Plugins",
+        "summary": "Be alerted when a plugin is cloaked from the WordPress admin list",
+        "description": "Be alerted when a plugin or must-use plugin exists on disk but is cloaked from the WordPress admin plugin list."
     },
     {
         "key": "instant_alert_admins",
@@ -3189,6 +3198,7 @@
         "key": "xfer_excluded",
         "section": "section_hidden",
         "type": "array",
+        "transferable": false,
         "default": []
     },
     {
@@ -3218,37 +3228,18 @@
     },
     {
         "key": "enable_logger",
-        "section": "section_log_requests",
-        "zone_comp_slugs": [
-            "request_logging",
-            "request_live_logging"
-        ],
-        "default": "N",
+        "section": "section_hidden",
+        "default": "Y",
         "type": "checkbox",
-        "link_info": "https://clk.shldscrty.com/hf",
-        "link_blog": "",
-        "beacon_id": 153,
-        "name": "Enable Request Logging",
-        "summary": "Log Requests To Your WordPress Site",
-        "description": "Monitor web requests sent to your WordPress site."
+        "transferable": false,
+        "tracking_exclude": true
     },
     {
         "key": "enable_live_log",
-        "section": "section_log_requests",
-        "zone_comp_slugs": [
-            "request_logging",
-            "request_live_logging"
-        ],
-        "cap": "traffic_live_log",
-        "premium": true,
+        "section": "section_hidden",
         "default": "N",
         "type": "checkbox",
-        "beacon_id": 759,
-        "link_info": "",
-        "link_blog": "",
-        "name": "Live Logging",
-        "summary": "Enable Live Logging Of All Traffic",
-        "description": "Switch-on logging of all site traffic."
+        "transferable": false
     },
     {
         "key": "enable_limiter",

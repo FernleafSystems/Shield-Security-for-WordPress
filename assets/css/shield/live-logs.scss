@@ -2,6 +2,75 @@
 	min-height: 0;
 }
 
+.traffic-live-log-topbar {
+	align-items: center;
+	background: $surface-color-neutral-raised;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: $card-border-radius;
+	display: flex;
+	gap: 1rem;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+	padding: 0.9rem 1rem;
+}
+
+.traffic-live-log-topbar.is-enabled {
+	border-color: $accent-color-salt-green;
+}
+
+.traffic-live-log-topbar__state {
+	align-items: center;
+	display: flex;
+	gap: 0.75rem;
+	min-width: 0;
+}
+
+.traffic-live-log-topbar__dot {
+	background: #8f969e;
+	border-radius: 50%;
+	box-shadow: 0 0 0 0.24rem rgba( 100, 105, 112, 0.12 );
+	flex: 0 0 auto;
+	height: 0.65rem;
+	width: 0.65rem;
+}
+
+.traffic-live-log-topbar.is-enabled .traffic-live-log-topbar__dot {
+	animation: shield-live-log-capture-pulse 1.4s ease-in-out infinite;
+	background: $status-color-warning;
+	box-shadow: 0 0 0 0.24rem $status-bg-warning-light;
+}
+
+@keyframes shield-live-log-capture-pulse {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0.2rem rgba( $status-color-warning, 0.22 );
+		opacity: 0.76;
+	}
+
+	50% {
+		box-shadow: 0 0 0 0.42rem rgba( $status-color-warning, 0.08 );
+		opacity: 1;
+	}
+}
+
+.traffic-live-log-topbar h5,
+.traffic-live-log-topbar p {
+	margin: 0;
+}
+
+.traffic-live-log-topbar p {
+	color: var(--bs-secondary-color);
+	font-size: 0.84rem;
+}
+
+.traffic-live-log-toggle {
+	align-items: center;
+	display: flex;
+	flex: 0 0 auto;
+	gap: 0.45rem;
+	margin: 0;
+}
+
 .live_logs .output {
 	--shield-live-logs-height: auto;
 	--shield-live-logs-min-height: 180px;

@@ -22,6 +22,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Impo
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\PingSender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteInviteSender;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -30,6 +31,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 };
 use FernleafSystems\Wordpress\Services\Core\General;
 use FernleafSystems\Wordpress\Services\Core\Request;
+use FernleafSystems\Wordpress\Services\Core\VOs\WpHttpResponseVo;
 use FernleafSystems\Wordpress\Services\Utilities\HttpRequest;
 use FernleafSystems\Wordpress\Services\Utilities\Data;
 
@@ -41,6 +43,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 	private ImportExportHttpRequestStub $httpRequest;
 	private ImportExportGeneralStub $wpGeneral;
 	private array $scheduledEvents = [];
+	private array $transients = [];
 	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
@@ -62,7 +65,9 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 
 		$scheduledEvents = &$this->scheduledEvents;
 		Functions\when( 'wp_next_scheduled' )->alias(
-			static fn( string $hook ) => $scheduledEvents[ $hook ] ?? false
+			static function ( string $hook ) use ( &$scheduledEvents ) {
+				return $scheduledEvents[ $hook ] ?? false;
+			}
 		);
 		Functions\when( 'wp_schedule_single_event' )->alias(
 			static function ( int $timestamp, string $hook ) use ( &$scheduledEvents ) :bool {
@@ -73,6 +78,27 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		Functions\when( 'wp_clear_scheduled_hook' )->alias(
 			static function ( string $hook ) use ( &$scheduledEvents ) :bool {
 				unset( $scheduledEvents[ $hook ] );
+				return true;
+			}
+		);
+		$transients = &$this->transients;
+		Functions\when( 'get_transient' )->alias(
+			static function ( string $key ) use ( &$transients ) {
+				return $transients[ $key ][ 'value' ] ?? false;
+			}
+		);
+		Functions\when( 'set_transient' )->alias(
+			static function ( string $key, $value, int $expiration = 0 ) use ( &$transients ) :bool {
+				$transients[ $key ] = [
+					'value'      => $value,
+					'expiration' => $expiration,
+				];
+				return true;
+			}
+		);
+		Functions\when( 'delete_transient' )->alias(
+			static function ( string $key ) use ( &$transients ) :bool {
+				unset( $transients[ $key ] );
 				return true;
 			}
 		);
@@ -337,8 +363,9 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 			->optSet( 'importexport_masterurl', $masterUrl )
 			->store();
 
-		( new ImportExportController() )->runOptionsUpdateNotified();
+		$accepted = ( new ImportExportController() )->runOptionsUpdateNotified( $masterUrl );
 
+		$this->assertFalse( $accepted );
 		$this->assertFalse( $this->scheduledEvents[ $this->notifyCronHook() ] ?? false );
 		$this->assertCount( 0, $this->events->byKey( 'import_notify_received' ) );
 	}
@@ -350,16 +377,150 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		];
 	}
 
-	public function test_notify_schedules_once_for_enabled_configured_slave() :void {
+	public function test_notify_rejects_when_sync_is_unavailable() :void {
+		$this->installControllerStub( new class {
+			public function canImportExportSync() :bool {
+				return false;
+			}
+		} );
 		$this->opts
 			->optSet( 'importexport_enable', 'Y' )
 			->optSet( 'importexport_masterurl', 'https://configured-master.example.com' )
 			->store();
 
-		( new ImportExportController() )->runOptionsUpdateNotified();
+		$accepted = ( new ImportExportController() )->runOptionsUpdateNotified( 'https://configured-master.example.com' );
 
-		$this->assertNotFalse( $this->scheduledEvents[ $this->notifyCronHook() ] ?? false );
+		$this->assertFalse( $accepted );
+		$this->assertFalse( $this->scheduledEvents[ $this->notifyCronHook() ] ?? false );
+	}
+
+	public function test_notify_rejects_mismatched_master_url_without_scheduling() :void {
+		$this->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://configured-master.example.com' )
+			->store();
+
+		$accepted = ( new ImportExportController() )->runOptionsUpdateNotified( 'https://different-master.example.com' );
+
+		$this->assertFalse( $accepted );
+		$this->assertFalse( $this->scheduledEvents[ $this->notifyCronHook() ] ?? false );
+		$this->assertCount( 0, $this->events->byKey( 'import_notify_received' ) );
+	}
+
+	public function test_notify_accepts_normalised_matching_master_url() :void {
+		$this->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://configured-master.example.com/' )
+			->store();
+
+		$accepted = ( new ImportExportController() )->runOptionsUpdateNotified(
+			'https://configured-master.example.com/?notify=1'
+		);
+
+		$this->assertTrue( $accepted );
+		$this->assertSame( 1712620800, $this->scheduledEvents[ $this->notifyCronHook() ] ?? false );
+	}
+
+	public function test_notify_schedules_due_now_for_enabled_configured_slave() :void {
+		$this->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://configured-master.example.com' )
+			->store();
+		$accepted = ( new ImportExportController() )->runOptionsUpdateNotified( 'https://configured-master.example.com' );
+
+		$this->assertTrue( $accepted );
+		$this->assertSame( 1712620800, $this->scheduledEvents[ $this->notifyCronHook() ] ?? false );
 		$this->assertCount( 1, $this->events->byKey( 'import_notify_received' ) );
+	}
+
+	public function test_notify_keeps_existing_due_import_event_as_already_scheduled() :void {
+		$this->scheduledEvents[ $this->notifyCronHook() ] = 1712620799;
+		$this->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://configured-master.example.com' )
+			->store();
+
+		$accepted = ( new ImportExportController() )->runOptionsUpdateNotified( 'https://configured-master.example.com' );
+
+		$this->assertTrue( $accepted );
+		$this->assertSame( 1712620799, $this->scheduledEvents[ $this->notifyCronHook() ] ?? false );
+		$this->assertCount( 0, $this->events->byKey( 'import_notify_received' ) );
+	}
+
+	public function test_notify_replaces_future_import_event_with_due_now_event() :void {
+		$this->scheduledEvents[ $this->notifyCronHook() ] = 1712620900;
+		$this->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://configured-master.example.com' )
+			->store();
+
+		$accepted = ( new ImportExportController() )->runOptionsUpdateNotified( 'https://configured-master.example.com' );
+
+		$this->assertTrue( $accepted );
+		$this->assertSame( 1712620800, $this->scheduledEvents[ $this->notifyCronHook() ] ?? false );
+		$this->assertCount( 1, $this->events->byKey( 'import_notify_received' ) );
+	}
+
+	public function test_repeated_valid_notify_inside_cooldown_is_silently_dropped() :void {
+		$this->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://configured-master.example.com' )
+			->store();
+
+		$first = ( new ImportExportController() )->runOptionsUpdateNotified( 'https://configured-master.example.com' );
+		unset( $this->scheduledEvents[ $this->notifyCronHook() ] );
+		$second = ( new ImportExportController() )->runOptionsUpdateNotified( 'https://configured-master.example.com' );
+
+		$this->assertTrue( $first );
+		$this->assertFalse( $second );
+		$this->assertFalse( $this->scheduledEvents[ $this->notifyCronHook() ] ?? false );
+		$this->assertCount( 1, $this->events->byKey( 'import_notify_received' ) );
+	}
+
+	public function test_notify_rejects_mismatched_import_id_without_scheduling() :void {
+		$this->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://configured-master.example.com' )
+			->optSet( 'import_id', 'local-import-id' )
+			->store();
+
+		$accepted = ( new ImportExportController() )->runOptionsUpdateNotified(
+			'https://configured-master.example.com',
+			'other-import-id'
+		);
+
+		$this->assertFalse( $accepted );
+		$this->assertSame( 'local-import-id', $this->opts->optGet( 'import_id' ) );
+		$this->assertFalse( $this->scheduledEvents[ $this->notifyCronHook() ] ?? false );
+	}
+
+	public function test_notify_allows_missing_import_id_for_legacy_sync() :void {
+		$this->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://configured-master.example.com' )
+			->optSet( 'import_id', 'local-import-id' )
+			->store();
+
+		$accepted = ( new ImportExportController() )->runOptionsUpdateNotified( 'https://configured-master.example.com' );
+
+		$this->assertTrue( $accepted );
+		$this->assertSame( 1712620800, $this->scheduledEvents[ $this->notifyCronHook() ] ?? false );
+	}
+
+	public function test_notify_does_not_generate_local_import_id_when_none_exists() :void {
+		$this->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://configured-master.example.com' )
+			->optSet( 'import_id', '' )
+			->store();
+
+		$accepted = ( new ImportExportController() )->runOptionsUpdateNotified(
+			'https://configured-master.example.com',
+			'master-row-import-id'
+		);
+
+		$this->assertTrue( $accepted );
+		$this->assertSame( '', $this->opts->optGet( 'import_id' ) );
 	}
 
 	public function test_sync_availability_is_false_when_caps_are_missing() :void {
@@ -458,7 +619,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
 	}
 
-	public function test_ping_sender_allows_external_hosts_only_around_request() :void {
+	public function test_ping_sender_uses_trusted_sync_policy_for_private_resolved_hosts() :void {
 		$events = [];
 		$sender = $this->buildPingSenderWithRecordedFilters( $events );
 		$this->httpRequest->setOnGet( static function () use ( &$events ) :void {
@@ -467,11 +628,51 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 			];
 		} );
 
-		$result = $sender->send( 'http://wordpress-slave' );
+		$result = $sender->send( 'https://client.example.com' );
 
-		$this->assertTrue( $result[ 'success' ] ?? false );
+		$this->assertPingResult( true, 200, '', $result );
 		$this->assertScopedExternalHostFilterEvents( $events );
 		$this->assertStringContainsString( PluginImportExport_UpdateNotified::SLUG, $this->httpRequest->lastGetRequestedUrl() );
+		$this->assertStringContainsString( 'master_url=', $this->httpRequest->lastGetRequestedUrl() );
+		$args = $this->httpRequest->lastGetArgs();
+		$this->assertSame( 5, $args[ 'timeout' ] );
+		$this->assertTrue( $args[ 'reject_unsafe_urls' ] );
+	}
+
+	public function test_ping_sender_adds_import_id_when_supplied() :void {
+		$this->buildPingSender()->send( 'https://client.example.com', 5, 'client-import-id' );
+
+		$this->assertStringContainsString( 'id=client-import-id', $this->httpRequest->lastGetRequestedUrl() );
+	}
+
+	public function test_ping_sender_ignores_response_body() :void {
+		$this->httpRequest->setGetResponse( '{not-json', 500, true );
+
+		$result = $this->buildPingSender()->send( 'https://client.example.com', 5 );
+
+		$this->assertPingResult( true, 500, '', $result );
+	}
+
+	public function test_ping_sender_treats_transport_timeout_as_dispatched() :void {
+		$this->httpRequest->setGetResponse( '', 0, false, 'Operation timed out' );
+
+		$result = $this->buildPingSender()->send( 'https://client.example.com', 5 );
+
+		$this->assertPingResult( true, 0, '', $result );
+	}
+
+	public function test_ping_sender_rejects_invalid_target_url_before_request() :void {
+		$result = $this->buildPingSender()->send( 'not-a-url', 5 );
+
+		$this->assertPingResult( false, 0, 'invalid_url', $result );
+		$this->assertSame( '', $this->httpRequest->lastGetRequestedUrl() );
+	}
+
+	public function test_ping_sender_rejects_literal_private_ip_before_request() :void {
+		$result = $this->buildPingSender()->send( 'https://10.0.0.25', 5 );
+
+		$this->assertPingResult( false, 0, 'invalid_url', $result );
+		$this->assertSame( '', $this->httpRequest->lastGetRequestedUrl() );
 	}
 
 	public function test_ping_sender_removes_external_host_filter_when_request_fails() :void {
@@ -485,7 +686,7 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->httpRequest->throwOnGet( new \RuntimeException( 'notify failed' ) );
 
 		try {
-			$sender->send( 'http://wordpress-slave' );
+			$sender->send( 'https://client.example.com' );
 			$this->fail( 'Expected whitelist notification request failure.' );
 		}
 		catch ( \RuntimeException $exception ) {
@@ -537,10 +738,22 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 	 */
 	private function buildPingSenderWithRecordedFilters( array &$events ) :PingSender {
 		Functions\when( 'add_action' )->justReturn( true );
-		$this->recordExternalHostFilterEvents( $events, 'wordpress-slave' );
+		$this->recordExternalHostFilterEvents( $events, 'client.example.com' );
 
 		$events = [];
-		return new PingSender();
+		return $this->buildPingSender();
+	}
+
+	private function buildPingSender( array $resolvedIps = [ '10.0.0.25' ] ) :PingSender {
+		return new PingSender( new SyncSiteUrlValidator( static fn() :array => $resolvedIps ) );
+	}
+
+	private function assertPingResult( bool $success, int $httpCode, string $error, array $result ) :void {
+		$this->assertSame( [
+			'success'   => $success,
+			'http_code' => $httpCode,
+			'error'     => $error,
+		], $result );
 	}
 
 	private function recordExternalHostFilterEvents( array &$events, string $probeTargetHost = '' ) :void {
@@ -682,7 +895,12 @@ class ImportExportHttpRequestStub extends HttpRequest {
 	private string $lastGetRequestedUrl = '';
 	private string $lastPostRequestedUrl = '';
 	private array $lastContentArgs = [];
+	private array $lastGetArgs = [];
 	private array $lastPostArgs = [];
+	private ?string $getResponseBody = null;
+	private int $getResponseCode = 200;
+	private bool $getSuccess = true;
+	private string $getError = '';
 	private ?\Throwable $getException = null;
 	private ?\Throwable $getContentException = null;
 	private $onGet = null;
@@ -705,6 +923,10 @@ class ImportExportHttpRequestStub extends HttpRequest {
 		return $this->lastPostRequestedUrl;
 	}
 
+	public function lastGetArgs() :array {
+		return $this->lastGetArgs;
+	}
+
 	public function lastContentArgs() :array {
 		return $this->lastContentArgs;
 	}
@@ -721,6 +943,13 @@ class ImportExportHttpRequestStub extends HttpRequest {
 		$this->getContentException = $throwable;
 	}
 
+	public function setGetResponse( string $body, int $code = 200, bool $success = true, string $error = '' ) :void {
+		$this->getResponseBody = $body;
+		$this->getResponseCode = $code;
+		$this->getSuccess = $success;
+		$this->getError = $error;
+	}
+
 	public function setOnGet( callable $callback ) :void {
 		$this->onGet = $callback;
 	}
@@ -735,13 +964,35 @@ class ImportExportHttpRequestStub extends HttpRequest {
 
 	public function get( $url, $args = [] ) :bool {
 		$this->lastGetRequestedUrl = (string)$url;
+		$this->lastGetArgs = \is_array( $args ) ? $args : [];
 		if ( \is_callable( $this->onGet ) ) {
 			( $this->onGet )( $url, $args );
 		}
 		if ( $this->getException !== null ) {
 			throw $this->getException;
 		}
-		return true;
+		$this->lastResponse = ( new WpHttpResponseVo() )->applyFromArray( [
+			'headers'  => [],
+			'body'     => $this->getResponseBody(),
+			'response' => [
+				'code'    => $this->getResponseCode,
+				'message' => 'OK',
+			],
+			'cookies'  => [],
+			'filename' => null,
+		] );
+		$this->lastError = $this->getSuccess ? null : new class( $this->getError ) {
+			private string $message;
+
+			public function __construct( string $message ) {
+				$this->message = $message;
+			}
+
+			public function get_error_message() :string {
+				return $this->message;
+			}
+		};
+		return $this->getSuccess;
 	}
 
 	public function getContent( string $url, $args = [] ) :string {
@@ -769,7 +1020,25 @@ class ImportExportHttpRequestStub extends HttpRequest {
 		if ( \is_callable( $this->onPost ) ) {
 			( $this->onPost )( $url, $args );
 		}
+		$this->lastResponse = ( new WpHttpResponseVo() )->applyFromArray( [
+			'headers'  => [],
+			'body'     => '',
+			'response' => [
+				'code'    => 200,
+				'message' => 'OK',
+			],
+			'cookies'  => [],
+			'filename' => null,
+		] );
 		return true;
+	}
+
+	private function getResponseBody() :string {
+		if ( $this->getResponseBody !== null ) {
+			return $this->getResponseBody;
+		}
+
+		return '';
 	}
 }
 

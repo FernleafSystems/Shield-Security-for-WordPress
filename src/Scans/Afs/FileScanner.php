@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 	IsExcludedPhpTranslationFile,
 	IsFileContentExcluded
@@ -10,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetFileContext,
 	AssetTrustResolver,
+	Exceptions\AssetHashesNotFound,
 	Exceptions\NonAssetFileException,
 	HashVerificationResult
 };
@@ -87,6 +89,9 @@ class FileScanner {
 							$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
 						}
 					}
+					elseif ( $pluginScan->hasUnavailableAssetHashes() ) {
+						$this->scheduleAssetCleanup( $assetContext );
+					}
 				}
 			}
 			if ( !$validFile && $scanCon->isScanEnabledThemes() ) {
@@ -102,6 +107,9 @@ class FileScanner {
 						if ( $skipMalwareScan ) {
 							$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
 						}
+					}
+					elseif ( $themeScan->hasUnavailableAssetHashes() ) {
+						$this->scheduleAssetCleanup( $assetContext );
 					}
 				}
 			}
@@ -186,6 +194,9 @@ class FileScanner {
 						$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
 					}
 				}
+				catch ( AssetHashesNotFound $e ) {
+					$this->scheduleAssetCleanup( $assetContext );
+				}
 				catch ( \Exception $e ) {
 				}
 			}
@@ -246,7 +257,7 @@ class FileScanner {
 			'core',
 			'core',
 			Services::WpGeneral()->getVersion(),
-			\str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( $fullPath ) )
+			Services::WpFs()->getPathRelativeToAbsPath( $fullPath )
 		);
 	}
 
@@ -259,11 +270,18 @@ class FileScanner {
 		);
 	}
 
+	private function scheduleAssetCleanup( AssetFileContext $assetContext ) :void {
+		if ( !\function_exists( 'wp_next_scheduled' ) || !\function_exists( 'wp_schedule_single_event' ) ) {
+			return;
+		}
+		( new Cleanup() )->schedule( $assetContext->assetType, $assetContext->assetKey );
+	}
+
 	private function getResultItem( string $fullPath ) :ResultItem {
 		/** @var ResultItem $item */
 		$item = self::con()->comps->scans->AFS()->getNewResultItem();
 		$item->path_full = wp_normalize_path( $fullPath );
-		$item->path_fragment = \str_replace( wp_normalize_path( ABSPATH ), '', $item->path_full );
+		$item->path_fragment = Services::WpFs()->getPathRelativeToAbsPath( $item->path_full );
 		return $item;
 	}
 

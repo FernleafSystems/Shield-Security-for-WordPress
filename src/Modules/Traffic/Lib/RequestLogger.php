@@ -25,8 +25,7 @@ class RequestLogger {
 
 	protected function canRun(): bool {
 		$con = self::con();
-		return $con->comps->opts_lookup->enabledTrafficLogger()
-		       && !$con->this_req->wp_is_wpcli
+		return !$con->this_req->wp_is_wpcli
 		       && $con->db_con->req_logs->isReady();
 	}
 

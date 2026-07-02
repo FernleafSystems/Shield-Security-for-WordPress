@@ -96,7 +96,7 @@ class Capabilities {
 		return $this->hasCap( 'scan_vulnerabilities' );
 	}
 
-	public function canDetectHiddenPlugins() :bool {
+	public function canDetectCloakedPlugins() :bool {
 		return true;
 	}
 
@@ -148,6 +148,10 @@ class Capabilities {
 
 	public function canTrafficRateLimit() :bool {
 		return $this->hasCap( 'traffic_rate_limiting' );
+	}
+
+	public function canTrafficLiveLog() :bool {
+		return $this->hasCap( 'traffic_live_log' );
 	}
 
 	public function canUserPasswordPolicies() :bool {

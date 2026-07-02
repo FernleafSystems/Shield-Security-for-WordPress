@@ -128,18 +128,6 @@ class MUHandler {
 	 * @throws \Exception
 	 */
 	private function buildContent(): string {
-		$con = self::con();
-		$templateFile = path_join( __DIR__, '.mu-template.txt' );
-		$template = Services::WpFs()->getFileContent( $templateFile );
-		if ( empty( $template ) ) {
-			throw new \Exception( sprintf( __( "Couldn't read MU plugin template from %s", 'wp-simple-firewall' ), $templateFile ) );
-		}
-		$replacements = [
-			'SHIELD_ROOT_FILE'     => $con->getRootFile(),
-			'SHIELD_PLUGIN_NAME'   => $con->labels->Name,
-			'SHIELD_PLUGIN_URL'    => $con->labels->PluginURI,
-			'SHIELD_PLUGIN_AUTHOR' => $con->labels->Author,
-		];
-		return \str_replace( \array_keys( $replacements ), \array_values( $replacements ), $template );
+		return ( new GeneratedMuLoaderContent() )->build();
 	}
 }

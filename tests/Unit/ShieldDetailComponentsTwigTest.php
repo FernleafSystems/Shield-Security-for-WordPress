@@ -148,6 +148,50 @@ class ShieldDetailComponentsTwigTest extends BaseUnitTest {
 		);
 	}
 
+	public function testDetailRowRendersStructuredDetailItemsWithCodeValues() :void {
+		$html = $this->twig()->render( '/wpadmin/components/page/shield_detail_row.twig', [
+			'row' => [
+				'status'       => 'critical',
+				'title'        => 'Cloaked Plugin',
+				'description'  => 'Plugin file is hidden.',
+				'expandable'   => false,
+				'expand_target' => '',
+				'expand_cta_label' => '',
+				'expand_accessible_label' => '',
+				'expand_title' => '',
+				'detail_items' => [
+					[
+						'label' => 'Path',
+						'value' => 'wp-content/plugins/cloaked/cloaked.php',
+						'style' => 'code',
+					],
+					[
+						'label' => 'Status',
+						'value' => 'Active',
+						'style' => 'text',
+					],
+				],
+			],
+		] );
+		$xpath = $this->createDomXPathFromHtml( $html );
+
+		$this->assertSame(
+			1,
+			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__details ")]' )->length,
+			'Rows should render the structured detail list when supplied'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query( '//code[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__detail-code ") and normalize-space()="wp-content/plugins/cloaked/cloaked.php"]' )->length,
+			'Code-style detail values should render inside code elements'
+		);
+		$this->assertSame(
+			1,
+			$xpath->query( '//*[contains(concat(" ", normalize-space(@class), " "), " shield-detail-row__detail-value ") and normalize-space()="Active"]' )->length,
+			'Text-style detail values should render as regular text values'
+		);
+	}
+
 	public function testSimpleTableSupportsIconOnlyPrimaryActionsAndEmptyPrimaryActions() :void {
 		$html = $this->twig()->render( '/wpadmin/components/page/detail_expansion_simple_table.twig', [
 			'table' => [

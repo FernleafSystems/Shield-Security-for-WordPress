@@ -448,6 +448,42 @@ class PluginOptionsSchemaTest extends TestCase {
 		$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
 	}
 
+	public function testRequestLoggerOptionUsesHiddenAlwaysOnContract() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [
+			'source'    => $sourceOptions[ 'enable_logger' ],
+			'generated' => $this->options[ 'enable_logger' ],
+		] as $context => $option ) {
+			$this->assertSame( 'section_hidden', $option[ 'section' ], sprintf( "%s request logger option should be hidden.", $context ) );
+			$this->assertSame( 'checkbox', $option[ 'type' ], sprintf( "%s request logger option should remain a checkbox.", $context ) );
+			$this->assertSame( 'Y', $option[ 'default' ], sprintf( "%s request logger option should default on.", $context ) );
+			$this->assertSame( false, $option[ 'transferable' ], sprintf( "%s request logger option should not transfer.", $context ) );
+			$this->assertSame( true, $option[ 'tracking_exclude' ], sprintf( "%s request logger option should not be telemetry signal.", $context ) );
+			$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
+		}
+	}
+
+	public function testLiveTrafficLoggerOptionUsesHiddenPageControlledContract() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [
+			'source'    => $sourceOptions[ 'enable_live_log' ],
+			'generated' => $this->options[ 'enable_live_log' ],
+		] as $context => $option ) {
+			$this->assertSame( 'section_hidden', $option[ 'section' ], sprintf( "%s live logger option should be hidden.", $context ) );
+			$this->assertSame( 'checkbox', $option[ 'type' ], sprintf( "%s live logger option should remain a checkbox.", $context ) );
+			$this->assertSame( 'N', $option[ 'default' ], sprintf( "%s live logger option should default off.", $context ) );
+			$this->assertSame( false, $option[ 'transferable' ], sprintf( "%s live logger option should not transfer.", $context ) );
+			$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
+			$this->assertArrayNotHasKey( 'cap', $option );
+			$this->assertArrayNotHasKey( 'premium', $option );
+			$this->assertArrayNotHasKey( 'name', $option );
+			$this->assertArrayNotHasKey( 'summary', $option );
+			$this->assertArrayNotHasKey( 'description', $option );
+		}
+	}
+
 	public function testLegacyLogRetentionOptionsAreHiddenAndRetained() :void {
 		$sourceOptions = $this->sourceOptionsByKey();
 

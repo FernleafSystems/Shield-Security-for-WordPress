@@ -921,6 +921,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 		if ( this.isLivePanel( this.panelEl )
 			&& this.isPanelLoaded( this.panelEl )
+			&& this.isInvestigateLivePanelOwner( this.panelEl )
 			&& getActiveLayerIndex( getLayersForShell( this.shellEl ) ) === 1 ) {
 			this.startLivePanelPoller( this.panelEl );
 			return;
@@ -930,7 +931,7 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 	}
 
 	syncPanelLivePolling( panel ) {
-		if ( this.isLivePanel( panel ) && this.isPanelLoaded( panel ) ) {
+		if ( this.isLivePanel( panel ) && this.isPanelLoaded( panel ) && this.isInvestigateLivePanelOwner( panel ) ) {
 			this.startLivePanelPoller( panel );
 			return;
 		}
@@ -1036,6 +1037,12 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 
 	getLivePanelStatusSurface( panel ) {
 		return panel.querySelector( '#SectionTrafficLiveLogs' ) || panel.querySelector( '.live_logs' );
+	}
+
+	isInvestigateLivePanelOwner( panel ) {
+		const section = panel.querySelector( '#SectionTrafficLiveLogs' );
+		return section instanceof HTMLElement
+			&& String( section.dataset.trafficLiveLogOwner || '' ) === 'investigate_panel';
 	}
 
 	getLivePanelLoadingMessage( panel ) {

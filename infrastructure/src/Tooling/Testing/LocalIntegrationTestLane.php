@@ -14,12 +14,17 @@ class LocalIntegrationTestLane {
 	private const DB_NAME = 'wordpress_test_local';
 	private const DB_USER = 'root';
 	private const DB_PASS = 'testpass';
-	private const DB_HOST = '127.0.0.1:3311';
+	private const DB_HOST_NAME = '127.0.0.1';
+	private const DB_PORT = 3311;
+	private const DB_HOST = self::DB_HOST_NAME.':'.self::DB_PORT;
 	private const WP_VERSION = 'latest';
 	private const SKIP_DB_CREATE = true;
 	private const LOCK_DIR_NAME = 'shield-test-locks';
 	private const LOCK_FILE = 'integration-local.lock';
 	private const DEFAULT_WAIT_SECONDS = 600;
+	private const DATABASE_READY_WAIT_SECONDS = 60;
+	private const REUSABLE_DOCKER_RUN_ID = 'integration-local-reusable';
+	private const REUSABLE_DOCKER_EXPIRES_AT = '2037-12-31T23:59:59+00:00';
 
 	private ProcessRunner $processRunner;
 
@@ -29,6 +34,8 @@ class LocalIntegrationTestLane {
 
 	private LocalWpTestsInstallerCommandBuilder $installerCommandBuilder;
 
+	private LocalWpTestsConfigGuard $wpTestsConfigGuard;
+
 	private ?string $lockDir;
 
 	public function __construct(
@@ -37,7 +44,8 @@ class LocalIntegrationTestLane {
 		?DockerComposeExecutor $dockerComposeExecutor = null,
 		?BashCommandResolver $bashCommandResolver = null,
 		?LocalWpTestsInstallerCommandBuilder $installerCommandBuilder = null,
-		?string $lockDir = null
+		?string $lockDir = null,
+		?LocalWpTestsConfigGuard $wpTestsConfigGuard = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$resolvedBashCommandResolver = $bashCommandResolver ?? new BashCommandResolver();
@@ -49,6 +57,7 @@ class LocalIntegrationTestLane {
 		$this->installerCommandBuilder = $installerCommandBuilder ?? new LocalWpTestsInstallerCommandBuilder(
 			$resolvedBashCommandResolver
 		);
+		$this->wpTestsConfigGuard = $wpTestsConfigGuard ?? new LocalWpTestsConfigGuard();
 		$this->lockDir = $lockDir;
 	}
 
@@ -69,21 +78,19 @@ class LocalIntegrationTestLane {
 	private function runWithLock( string $rootDir, bool $dbDown, array $phpunitArgs, bool $showDockerOutput ) :int {
 		$this->environmentResolver->assertDockerReady( $rootDir );
 		$composeFiles = $this->buildComposeFiles();
-		$runId = $this->buildRunId();
-		$expiresAt = \gmdate( \DATE_ATOM, \time() + 7*24*60*60 );
 		$envOverrides = \array_merge(
 			$this->environmentResolver->buildDockerProcessEnvOverrides(
 				self::COMPOSE_PROJECT_NAME,
 				true
 			),
 			DockerCleanupPolicy::integrationLocal()->labelEnvironment(
-				$runId,
+				self::REUSABLE_DOCKER_RUN_ID,
 				DockerHarnessLabels::LIFECYCLE_REUSABLE,
 				'integration-local',
-				$expiresAt,
-				$runId,
+				self::REUSABLE_DOCKER_EXPIRES_AT,
+				self::REUSABLE_DOCKER_RUN_ID,
 				DockerHarnessLabels::LIFECYCLE_REUSABLE,
-				$expiresAt
+				self::REUSABLE_DOCKER_EXPIRES_AT
 			)
 		);
 		$phpUnitEnvOverrides = \array_merge( $envOverrides, $this->buildWordPressTestEnvOverrides() );
@@ -110,9 +117,13 @@ class LocalIntegrationTestLane {
 			return 1;
 		}
 
+		$this->waitForHostDatabaseReady( $rootDir, $envOverrides );
+		$this->wpTestsConfigGuard->removeIfStale( $this->wordPressTestsDir(), $this->expectedWordPressTestDbConstants() );
+
 		if ( $this->processRunner->runForExitCode( $this->buildInstallerCommand(), $rootDir, null, $envOverrides ) !== 0 ) {
 			return 1;
 		}
+		$this->wpTestsConfigGuard->assertMatches( $this->wordPressTestsDir(), $this->expectedWordPressTestDbConstants() );
 
 		if ( $this->processRunner->runForExitCode( $this->buildBuildConfigCommand(), $rootDir, null, $phpUnitEnvOverrides ) !== 0 ) {
 			return 1;
@@ -288,18 +299,106 @@ class LocalIntegrationTestLane {
 	}
 
 	/**
-	 * @return array<string,string>
+	 * @param array<string,string|false> $envOverrides
 	 */
-	private function buildWordPressTestEnvOverrides() :array {
-		$tempDir = \rtrim( \sys_get_temp_dir(), "\\/" );
+	private function waitForHostDatabaseReady( string $rootDir, array $envOverrides ) :void {
+		$command = $this->buildHostDatabaseReadyCommand();
+		$startedAt = \time();
+		$lastOutput = '';
+		echo 'Integration lane: waiting for host MySQL TCP readiness'.\PHP_EOL;
+		do {
+			$process = $this->processRunner->run(
+				$command,
+				$rootDir,
+				static function ( string $type, string $buffer ) :void {
+				},
+				$envOverrides
+			);
+			if ( ( $process->getExitCode() ?? 1 ) === 0 ) {
+				return;
+			}
+			$lastOutput = \trim( $process->getErrorOutput().$process->getOutput() );
+			\usleep( 500000 );
+		} while ( \time() - $startedAt < self::DATABASE_READY_WAIT_SECONDS );
 
+		throw new \RuntimeException(
+			'Integration-local MySQL did not become reachable from host PHP within '
+			.self::DATABASE_READY_WAIT_SECONDS.' seconds at '.self::DB_HOST.'.'
+			.( $lastOutput === '' ? '' : ' Last probe output: '.$lastOutput )
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildHostDatabaseReadyCommand() :array {
 		return [
-			'WP_TESTS_DIR' => $tempDir.\DIRECTORY_SEPARATOR.'wordpress-tests-lib',
-			'WP_CORE_DIR'  => $tempDir.\DIRECTORY_SEPARATOR.'wordpress',
+			\PHP_BINARY,
+			'-r',
+			$this->buildHostDatabaseReadyProbeScript(),
 		];
 	}
 
-	private function buildRunId() :string {
-		return 'shield-plugin-integration-local-'.\gmdate( 'YmdHis' ).'-'.\bin2hex( \random_bytes( 4 ) );
+	private function buildHostDatabaseReadyProbeScript() :string {
+		return \sprintf(
+			<<<'PHP'
+if ( !extension_loaded( 'mysqli' ) ) {
+	fwrite( STDERR, 'PHP mysqli extension is required for integration-local MySQL readiness.' );
+	exit( 2 );
+}
+$mysqli = mysqli_init();
+if ( !$mysqli instanceof mysqli ) {
+	fwrite( STDERR, 'Failed to initialize mysqli.' );
+	exit( 2 );
+}
+$mysqli->options( MYSQLI_OPT_CONNECT_TIMEOUT, 2 );
+if ( !@$mysqli->real_connect( %s, %s, %s, %s, %d ) ) {
+	fwrite( STDERR, mysqli_connect_error() ?: $mysqli->connect_error ?: 'Host MySQL TCP connection failed.' );
+	exit( 1 );
+}
+$result = $mysqli->query( 'SELECT 1' );
+if ( $result === false ) {
+	fwrite( STDERR, $mysqli->error ?: 'Host MySQL SELECT 1 failed.' );
+	exit( 1 );
+}
+exit( 0 );
+PHP,
+			\var_export( self::DB_HOST_NAME, true ),
+			\var_export( self::DB_USER, true ),
+			\var_export( self::DB_PASS, true ),
+			\var_export( self::DB_NAME, true ),
+			self::DB_PORT
+		);
 	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	private function buildWordPressTestEnvOverrides() :array {
+		return [
+			'WP_TESTS_DIR' => $this->wordPressTestsDir(),
+			'WP_CORE_DIR'  => $this->wordPressCoreDir(),
+		];
+	}
+
+	/**
+	 * @return array{DB_NAME:string,DB_USER:string,DB_PASSWORD:string,DB_HOST:string}
+	 */
+	private function expectedWordPressTestDbConstants() :array {
+		return [
+			'DB_NAME' => self::DB_NAME,
+			'DB_USER' => self::DB_USER,
+			'DB_PASSWORD' => self::DB_PASS,
+			'DB_HOST' => self::DB_HOST,
+		];
+	}
+
+	private function wordPressTestsDir() :string {
+		return \rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress-tests-lib';
+	}
+
+	private function wordPressCoreDir() :string {
+		return \rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress';
+	}
+
 }

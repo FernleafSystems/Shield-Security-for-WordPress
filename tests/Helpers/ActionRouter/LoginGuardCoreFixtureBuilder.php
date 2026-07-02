@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter;
 
 use Dolondro\GoogleAuthenticator\GoogleAuthenticator as OtpGenerator;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\MfaController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\{
 	BackupCodes,
 	Email,
@@ -112,7 +113,11 @@ class LoginGuardCoreFixtureBuilder {
 					break;
 
 				case 'remember-me':
-					$contract = $this->seedRememberMe( $state );
+					$contract = $this->seedRememberMe( $state, MfaController::LOGIN_INTENT_PAGE_FORMAT_SHIELD );
+					break;
+
+				case 'remember-me-wp-login':
+					$contract = $this->seedRememberMe( $state, MfaController::LOGIN_INTENT_PAGE_FORMAT_WP );
 					break;
 
 				case 'email-auth-login':
@@ -166,6 +171,7 @@ class LoginGuardCoreFixtureBuilder {
 				'global_enable_plugin_features' => RuntimeTestState::controller()->opts->optGet( 'global_enable_plugin_features' ),
 				'bot_protection_locations'      => RuntimeTestState::controller()->opts->optGet( 'bot_protection_locations' ),
 				'mfa_skip'                      => RuntimeTestState::controller()->opts->optGet( 'mfa_skip' ),
+				'mfa_verify_page'               => RuntimeTestState::controller()->opts->optGet( 'mfa_verify_page' ),
 				'enable_email_authentication'   => RuntimeTestState::controller()->opts->optGet( 'enable_email_authentication' ),
 				'allow_backupcodes'             => RuntimeTestState::controller()->opts->optGet( 'allow_backupcodes' ),
 			],
@@ -287,7 +293,7 @@ class LoginGuardCoreFixtureBuilder {
 	 * @phpstan-param FixtureState $state
 	 * @return array<string,mixed>
 	 */
-	private function seedRememberMe( array &$state ) :array {
+	private function seedRememberMe( array &$state, string $mfaVerifyPage ) :array {
 		$user = $this->createFixtureUser( 'remember' );
 		$state[ 'user_id' ] = $user->ID;
 		$state[ 'created_user_ids' ][] = $user->ID;
@@ -303,14 +309,14 @@ class LoginGuardCoreFixtureBuilder {
 			->optSet( 'enable_email_authentication', 'N' )
 			->optSet( 'allow_backupcodes', 'N' )
 			->optSet( 'mfa_skip', 1 )
-			->optSet( 'mfa_verify_page', 'custom_shield' )
+			->optSet( 'mfa_verify_page', $mfaVerifyPage )
 			->store();
 		RuntimeTestState::forcePersistOptions( [
 			'enable_google_authenticator' => 'Y',
 			'enable_email_authentication' => 'N',
 			'allow_backupcodes'           => 'N',
 			'mfa_skip'                    => 1,
-			'mfa_verify_page'             => 'custom_shield',
+			'mfa_verify_page'             => $mfaVerifyPage,
 		] );
 		$state[ 'mfa_record_ids' ][] = TestDataFactory::insertMfaRecord( $user->ID, GoogleAuth::ProviderSlug(), [], [
 			'label'     => 'Browser GA',
@@ -320,12 +326,13 @@ class LoginGuardCoreFixtureBuilder {
 		RuntimeTestState::resetMfaProviderCache();
 
 		return [
-			'user_id'        => $user->ID,
-			'user_login'     => $state[ 'user_login' ],
-			'user_pass'      => $state[ 'user_pass' ],
-			'login_path'     => '/wp-login.php',
-			'otp_field_name' => ( new GoogleAuth( $user ) )->getLoginIntentFormParameter(),
-			'current_otp'    => $this->currentGoogleOtp( $state[ 'ga_secret' ] ),
+			'user_id'         => $user->ID,
+			'user_login'      => $state[ 'user_login' ],
+			'user_pass'       => $state[ 'user_pass' ],
+			'login_path'      => '/wp-login.php',
+			'otp_field_name'  => ( new GoogleAuth( $user ) )->getLoginIntentFormParameter(),
+			'current_otp'     => $this->currentGoogleOtp( $state[ 'ga_secret' ] ),
+			'mfa_verify_page' => $mfaVerifyPage,
 		];
 	}
 
@@ -444,7 +451,7 @@ class LoginGuardCoreFixtureBuilder {
 			->optSet( 'allow_backupcodes', $allowBackupCodesOpt )
 			->optSet( 'suresend_emails', [] )
 			->optSet( 'mfa_skip', 0 )
-			->optSet( 'mfa_verify_page', 'custom_shield' )
+			->optSet( 'mfa_verify_page', MfaController::LOGIN_INTENT_PAGE_FORMAT_SHIELD )
 			->store();
 		RuntimeTestState::forcePersistOptions( [
 			'enable_email_authentication' => 'Y',
@@ -456,7 +463,7 @@ class LoginGuardCoreFixtureBuilder {
 			'allow_backupcodes'           => $allowBackupCodesOpt,
 			'suresend_emails'             => [],
 			'mfa_skip'                    => 0,
-			'mfa_verify_page'             => 'custom_shield',
+			'mfa_verify_page'             => MfaController::LOGIN_INTENT_PAGE_FORMAT_SHIELD,
 		] );
 	}
 

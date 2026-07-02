@@ -10,6 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\ResolvesIpIdentity;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Utility\RequestLogDisplayPathBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Text\SafeDisplayText;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
@@ -105,11 +106,7 @@ class LiveLogRowsBuilder {
 	}
 
 	private function buildTrafficTitle( RequestLogRecord $record ) :string {
-		$path = (string)$record->path;
-		$query = \trim( (string)( $record->meta[ 'query' ] ?? '' ), '?' );
-		if ( !empty( $query ) ) {
-			$path .= '?'.$query;
-		}
+		$path = ( new RequestLogDisplayPathBuilder() )->build( $record );
 
 		return \sprintf(
 			'%s %s',

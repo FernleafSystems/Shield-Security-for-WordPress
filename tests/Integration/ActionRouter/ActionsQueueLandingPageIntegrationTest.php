@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	Vulnerabilities as VulnerabilitiesPane
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueAssetFileStatusDetail;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueBucketsBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueDrillDownGroups;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueGroupsBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ActionsQueueLandingAssessmentBuilder;
@@ -25,6 +26,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScanResultsDisplayOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\{
@@ -181,12 +183,12 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function pluginMainPathFragment( ?string $pluginSlug = null ) :string {
-		return 'wp-content/plugins/'.\ltrim( \wp_normalize_path( $pluginSlug ?? self::con()->base_file ), '/\\' );
+		return TestDataFactory::afsFileItemIdFromPath( WP_PLUGIN_DIR.'/'.( $pluginSlug ?? self::con()->base_file ) );
 	}
 
 	private function themeMainPathFragment( ?string $themeSlug = null ) :string {
 		$themeSlug = $themeSlug ?? $this->requireAtLeastInstalledThemes( 1 )[ 0 ];
-		return TestDataFactory::pathFragmentFromAbsolutePath( \get_theme_root().'/'.$themeSlug.'/style.css' );
+		return TestDataFactory::afsFileItemIdFromPath( \get_theme_root().'/'.$themeSlug.'/style.css' );
 	}
 
 	private function ensureFixtureFileExists( string $absolutePath ) :void {
@@ -321,23 +323,19 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	private function assertSelectedGroupHasIgnoredOnlyRailContext( string $bucket, string $groupKey, int $expectedIgnoredCount ) :void {
+	private function assertSelectedGroupHasIgnoredOnlyRailContext( string $bucket, string $groupKey ) :void {
 		$payload = $this->loadSelectedGroupPayload( $bucket, $groupKey );
 		$this->assertSame( $groupKey, (string)( $payload[ 'selected_group' ][ 'key' ] ?? '' ) );
 		$this->assertSame( 'good', (string)( $payload[ 'selected_group' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $payload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( (string)( $payload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) )
+		$this->assertSame(
+			'actions_queue',
+			(string)( $payload[ 'selected_group' ][ 'detail_render_action' ][ 'display_context' ] ?? '' )
 		);
-		$this->assertStringContainsString(
-			(string)$expectedIgnoredCount,
-			(string)( $payload[ 'selected_group' ][ 'header' ][ 'focus' ] ?? '' )
-		);
-		$this->assertStringContainsString(
-			'Display Results',
-			(string)( $payload[ 'selected_group' ][ 'header' ][ 'next_step' ] ?? '' )
+		$this->assertSame(
+			( new ScanResultsDisplayOptions() )->activeOnly(),
+			(array)( $payload[ 'selected_group' ][ 'detail_render_action' ][ 'results_display_options' ] ?? [] )
 		);
 	}
 
@@ -500,6 +498,47 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		return $groups;
+	}
+
+	private function findHealthyGroupPayload( string $bucketKey, string $groupKey ) :array {
+		$assessmentBuilder = new ActionsQueueLandingAssessmentBuilder();
+		$groupsPayload = ( new ActionsQueueGroupsBuilder() )->build(
+			$bucketKey,
+			self::con()->comps->site_query->attention(),
+			[
+				'scans'       => $assessmentBuilder->buildForZone( 'scans' ),
+				'maintenance' => $assessmentBuilder->buildForZone( 'maintenance' ),
+			]
+		);
+		$matches = [];
+		foreach ( \is_array( $groupsPayload[ 'healthy_sections' ] ?? null ) ? $groupsPayload[ 'healthy_sections' ] : [] as $section ) {
+			foreach ( \is_array( $section[ 'groups' ] ?? null ) ? $section[ 'groups' ] : [] as $group ) {
+				if ( (string)( $group[ 'key' ] ?? '' ) === $groupKey ) {
+					$matches[] = $group;
+				}
+			}
+		}
+
+		$this->assertCount( 1, $matches, 'Expected exactly one healthy Actions Queue group for '.$groupKey );
+		return $matches[ 0 ] ?? [];
+	}
+
+	private function findBucketPayload( string $bucketKey ) :array {
+		$assessmentBuilder = new ActionsQueueLandingAssessmentBuilder();
+		$buckets = ( new ActionsQueueBucketsBuilder() )->build(
+			self::con()->comps->site_query->attention(),
+			[
+				'scans'       => $assessmentBuilder->buildForZone( 'scans' ),
+				'maintenance' => $assessmentBuilder->buildForZone( 'maintenance' ),
+			]
+		);
+		$matches = \array_values( \array_filter(
+			$buckets,
+			static fn( array $bucket ) :bool => (string)( $bucket[ 'key' ] ?? '' ) === $bucketKey
+		) );
+
+		$this->assertCount( 1, $matches, 'Expected exactly one Actions Queue bucket for '.$bucketKey );
+		return $matches[ 0 ] ?? [];
 	}
 
 	/**
@@ -711,15 +750,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->enableAssetScanFixture( [ 'plugins' ] );
 
 		$pluginSlug = self::con()->base_file;
-		$pluginPathFull = \wp_normalize_path( WP_PLUGIN_DIR.'/'.$pluginSlug );
+		$pathFragment = $this->pluginMainPathFragment( $pluginSlug );
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		$ignoredIds = [];
 		foreach ( [ 1, 2, 3, 4 ] as $_ ) {
-			$pathFragment = $this->pluginMainPathFragment( $pluginSlug );
 			$tracked = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $pathFragment, [
 				'is_in_plugin'    => 1,
 				'is_unrecognised' => 1,
-				'path_full'       => $pluginPathFull,
 				'ptg_slug'        => $pluginSlug,
 			] );
 			$ignoredIds[] = (int)$tracked[ 'result_item_id' ];
@@ -732,11 +769,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertNotContains( 'plugin_files', $attentionKeys );
 		$this->assertSame( 0, $this->groupCountForPrefix( $groups, 'plugins:' ) );
-		$this->assertSelectedGroupHasIgnoredOnlyRailContext( 'critical', 'plugins:'.$pluginSlug, 4 );
+		$this->assertSelectedGroupHasIgnoredOnlyRailContext( 'critical', 'plugins:'.$pluginSlug );
 		$this->assertScopedScanResultsDisplayMatrix( 'plugin', $pluginSlug, [], $ignoredIds );
 	}
 
-	public function test_fully_ignored_wordpress_results_do_not_create_actions_queue_group() :void {
+	public function test_fully_ignored_wordpress_results_create_clickable_healthy_group_without_active_actions_queue_group() :void {
 		$this->enableAssetScanFixture( [ 'wp' ] );
 
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
@@ -755,7 +792,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertNotContains( 'wp_files', $attentionKeys );
 		$this->assertArrayNotHasKey( 'wordpress', $groups );
-		$this->assertSelectedGroupHasIgnoredOnlyRailContext( 'critical', 'wordpress', 2 );
+		$this->assertTrue( (bool)( $this->findBucketPayload( 'critical' )[ 'is_interactive' ] ?? false ) );
+		$healthyGroup = $this->findHealthyGroupPayload( 'critical', 'wordpress' );
+		$this->assertTrue( (bool)( $healthyGroup[ 'is_interactive' ] ?? false ) );
+		$this->assertSame(
+			'scanresults_wordpress',
+			(string)( $healthyGroup[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' )
+		);
+		$this->assertSelectedGroupHasIgnoredOnlyRailContext( 'critical', 'wordpress' );
 		$this->assertScopedScanResultsDisplayMatrix( 'wordpress', 'wordpress', [], $ignoredIds );
 	}
 
@@ -807,14 +851,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$themeSlug = self::THEME_FIXTURE_STYLESHEET;
 		$this->assertContains( $themeSlug, Services::WpThemes()->getInstalledStylesheets() );
 		$themePathFull = \wp_normalize_path( $this->themeFixtureStylePath() );
-		$pathFragment = TestDataFactory::pathFragmentFromAbsolutePath( $themePathFull );
+		$pathFragment = TestDataFactory::afsFileItemIdFromPath( $themePathFull );
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		$trackedRows = [];
 		foreach ( [ 1, 2 ] as $_ ) {
 			$trackedRows[] = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $pathFragment, [
 				'is_in_theme'     => 1,
 				'is_unrecognised' => 1,
-				'path_full'       => $themePathFull,
 				'ptg_slug'        => $themeSlug,
 			] );
 		}
@@ -838,7 +881,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertNotContains( 'theme_files', $attentionKeys );
 		$this->assertSame( 0, $this->groupCountForPrefix( $groups, 'themes:' ) );
-		$this->assertSelectedGroupHasIgnoredOnlyRailContext( 'critical', 'themes:'.$themeSlug, 2 );
+		$this->assertSelectedGroupHasIgnoredOnlyRailContext( 'critical', 'themes:'.$themeSlug );
 		$this->assertScopedScanResultsDisplayMatrix( 'theme', $themeSlug, [], $ignoredIds );
 	}
 
@@ -905,13 +948,13 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'good', (string)( $refreshPayload[ 'selected_group' ][ 'status' ] ?? '' ) );
 		$this->assertSame( 0, (int)( $refreshPayload[ 'selected_group' ][ 'item_count' ] ?? -1 ) );
 		$this->assertSame( [], $refreshPayload[ 'selected_group' ][ 'header' ][ 'actions' ] ?? null );
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( (string)( $refreshPayload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) )
+		$this->assertSame(
+			( new ScanResultsDisplayOptions() )->activeOnly(),
+			(array)( $refreshPayload[ 'selected_group' ][ 'detail_render_action' ][ 'results_display_options' ] ?? [] )
 		);
 	}
 
-	public function test_fully_ignored_malware_results_do_not_create_actions_queue_group() :void {
+	public function test_fully_ignored_malware_results_create_clickable_healthy_group_without_active_actions_queue_group() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_malware_local',
 		] );
@@ -940,7 +983,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertNotContains( 'malware', $attentionKeys );
 		$this->assertArrayNotHasKey( 'malware', $groups );
-		$this->assertSelectedGroupHasIgnoredOnlyRailContext( 'critical', 'malware', 2 );
+		$this->assertTrue( (bool)( $this->findBucketPayload( 'critical' )[ 'is_interactive' ] ?? false ) );
+		$healthyGroup = $this->findHealthyGroupPayload( 'critical', 'malware' );
+		$this->assertTrue( (bool)( $healthyGroup[ 'is_interactive' ] ?? false ) );
+		$this->assertSame(
+			'scanresults_malware',
+			(string)( $healthyGroup[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' )
+		);
+		$this->assertSelectedGroupHasIgnoredOnlyRailContext( 'critical', 'malware' );
 		$this->assertScopedScanResultsDisplayMatrix( 'malware', 'malware', [], $ignoredIds );
 	}
 
@@ -957,28 +1007,25 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 
 		$pluginSlug = self::con()->base_file;
-		$pluginPathFull = \wp_normalize_path( WP_PLUGIN_DIR.'/'.$pluginSlug );
+		$pathFragment = $this->pluginMainPathFragment( $pluginSlug );
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		$active = TestDataFactory::insertAfsFileScanResultTracked(
 			$afsId,
-			$this->pluginMainPathFragment( $pluginSlug ),
+			$pathFragment,
 			[
 				'is_in_plugin'    => 1,
 				'is_unrecognised' => 1,
-				'path_full'       => $pluginPathFull,
 				'ptg_slug'        => $pluginSlug,
 			]
 		);
 		$ignoredIds = [];
 		foreach ( [ 1, 2 ] as $_ ) {
-			$pathFragment = $this->pluginMainPathFragment( $pluginSlug );
 			$tracked = TestDataFactory::insertAfsFileScanResultTracked(
 				$afsId,
 				$pathFragment,
 				[
 					'is_in_plugin'    => 1,
 					'is_unrecognised' => 1,
-					'path_full'       => $pluginPathFull,
 					'ptg_slug'        => $pluginSlug,
 				]
 			);
@@ -999,14 +1046,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'file' => $pluginSlug,
 		] );
 		$this->assertHeaderHasNoDisplayOptions( (array)( $groupsPayload[ 'selected_group' ][ 'header' ] ?? [] ) );
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'summary' ] ?? '' ) )
-		);
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( (string)( $groupsPayload[ 'selected_group' ][ 'header' ][ 'focus' ] ?? '' ) )
-		);
 		$this->assertSame(
 			( new ScanResultsDisplayOptions() )->activeOnly(),
 			(array)( $groupsPayload[ 'selected_group' ][ 'detail_render_action' ][ 'results_display_options' ] ?? [] )
@@ -1021,11 +1060,47 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	public function test_plugin_asset_cleanup_keeps_existing_findings_visible_until_replacement_scan_completes() :void {
+		$this->enableAssetScanFixture( [ 'plugins' ] );
+
+		$pluginSlug = self::con()->base_file;
+		$pluginDir = \trim( \dirname( $pluginSlug ), './\\' );
+		$addedPath = \wp_normalize_path(
+			WP_PLUGIN_DIR.'/'.( $pluginDir === '' ? 'shield-added-after-reinstall.php' : $pluginDir.'/shield-added-after-reinstall.php' )
+		);
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		$modified = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
+			'is_in_plugin'    => 1,
+			'is_checksumfail' => 1,
+			'ptg_slug'        => $pluginSlug,
+		] );
+		$added = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $addedPath, [
+			'is_in_plugin'    => 1,
+			'is_unrecognised' => 1,
+			'ptg_slug'        => $pluginSlug,
+		] );
+		$this->resetScanResultCountMemoization();
+
+		$beforeGroups = $this->buildActionsQueueGroupMetrics();
+		$this->assertSame( 2, $this->groupCountForPrefix( $beforeGroups, 'plugins:' ) );
+
+		( new Cleanup() )->run( 'plugin', $pluginSlug );
+		$this->resetScanResultCountMemoization();
+
+		$afterGroups = $this->buildActionsQueueGroupMetrics();
+		$this->assertSame( 2, $this->groupCountForPrefix( $afterGroups, 'plugins:' ) );
+		foreach ( [ $modified, $added ] as $tracked ) {
+			$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( $tracked[ 'result_item_id' ] );
+			$this->assertSame( 0, (int)$item->resolved_at );
+			$this->assertSame( '', (string)$item->resolution_reason );
+		}
+	}
+
 	public function test_historical_non_active_plugin_rows_do_not_create_actions_queue_work() :void {
 		$this->enableAssetScanFixture( [ 'plugins' ] );
 
 		$pluginSlug = self::con()->base_file;
-		$pluginPathFull = \wp_normalize_path( WP_PLUGIN_DIR.'/'.$pluginSlug );
+		$pluginPathFragment = $this->pluginMainPathFragment( $pluginSlug );
 		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
 		$trackedRows = [];
 		foreach ( [
@@ -1035,11 +1110,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			'auto_filtered',
 			'clean_rescan',
 			'asset_replaced',
-		] as $key => $pathFragment ) {
-			$trackedRows[ $pathFragment ] = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
+		] as $stateKey ) {
+			$trackedRows[ $stateKey ] = TestDataFactory::insertAfsFileScanResultTracked( $afsId, $pluginPathFragment, [
 				'is_in_plugin'    => 1,
 				'is_unrecognised' => 1,
-				'path_full'       => $pluginPathFull,
 				'ptg_slug'        => $pluginSlug,
 			] );
 		}
@@ -1057,7 +1131,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertNotContains( 'plugin_files', $attentionKeys );
 		$this->assertSame( 0, $this->groupCountForPrefix( $groups, 'plugins:' ) );
-		$this->assertSelectedGroupHasIgnoredOnlyRailContext( 'critical', 'plugins:'.$pluginSlug, 1 );
+		$this->assertSelectedGroupHasIgnoredOnlyRailContext( 'critical', 'plugins:'.$pluginSlug );
 		$this->assertScopedScanResultsDisplayMatrix(
 			'plugin',
 			$pluginSlug,
@@ -1111,7 +1185,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$item = self::con()->db_con->scan_result_items->getQuerySelector()->byId( (int)$stale[ 'result_item_id' ] );
 		$this->assertNotEmpty( $item );
 		$this->assertSame( 'asset_replaced', (string)( $item->resolution_reason ?? '' ) );
-		$this->assertSelectedGroupHasIgnoredOnlyRailContext( 'critical', 'malware', 1 );
+		$this->assertSelectedGroupHasIgnoredOnlyRailContext( 'critical', 'malware' );
 	}
 
 	public function test_healthy_file_locker_is_visible_on_landing_and_in_critical_healthy_stack() :void {
@@ -1279,14 +1353,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'file_locker', (string)$selectedGroup[ 'key' ] );
 		$this->assertSame( 'asset_cards', (string)$selectedGroup[ 'detail_shell' ] );
 		$this->assertSame( [], $selectedGroup[ 'header' ][ 'actions' ] );
-		$this->assertStringNotContainsString(
-			'settings',
-			\strtolower( (string)$selectedGroup[ 'header' ][ 'focus' ] )
-		);
-		$this->assertStringNotContainsString(
-			'settings',
-			\strtolower( (string)$selectedGroup[ 'header' ][ 'next_step' ] )
-		);
 
 		$detailPayload = $this->renderSelectedGroupDetail( $groupsPayload );
 		$this->assertRouteRenderOutputHealthy( $detailPayload, 'premium inactive file locker asset cards' );

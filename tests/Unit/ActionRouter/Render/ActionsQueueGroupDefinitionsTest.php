@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
-	HiddenPlugins,
+	CloakedPlugins,
 	Malware,
 	Maintenance,
 	Vulnerabilities,
@@ -50,7 +50,7 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		$this->assertGroupDefinitionShape( $definitions[ 'hidden_plugins' ] );
 		$this->assertSame( 'direct_table', $definitions[ 'hidden_plugins' ][ 'detail_shell' ] );
 		$this->assertSame( 'expandable', $definitions[ 'hidden_plugins' ][ 'card_type' ] );
-		$this->assertSame( HiddenPlugins::class, $definitions[ 'hidden_plugins' ][ 'render_action_class' ] );
+		$this->assertSame( CloakedPlugins::class, $definitions[ 'hidden_plugins' ][ 'render_action_class' ] );
 		$this->assertSame( [], $definitions[ 'hidden_plugins' ][ 'render_action_data' ] );
 		$this->assertSame( Malware::class, $definitions[ 'malware' ][ 'render_action_class' ] );
 		$this->assertSame(
@@ -67,6 +67,10 @@ class ActionsQueueGroupDefinitionsTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'asset_cards', $definitions[ 'plugins' ][ 'detail_shell' ] );
 		$this->assertSame( 'asset_cards', $definitions[ 'themes' ][ 'detail_shell' ] );
+		$this->assertSame(
+			[ 'wordpress', 'malware' ],
+			( new ActionsQueueGroupDefinitions() )->ignoredOnlyDirectTableGroupKeys()
+		);
 		$this->assertSame( Vulnerabilities::class, $definitions[ 'vulnerabilities' ][ 'render_action_class' ] );
 		$this->assertSame( [ 'section' => 'vulnerable' ], $definitions[ 'vulnerabilities' ][ 'render_action_data' ] );
 		$this->assertSame( Vulnerabilities::class, $definitions[ 'abandoned' ][ 'render_action_class' ] );

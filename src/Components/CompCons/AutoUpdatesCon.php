@@ -66,9 +66,13 @@ class AutoUpdatesCon {
 
 			$item = $delayTracking[ 'core' ][ 'wp' ] ?? [];
 			foreach ( $updates->updates as $upd ) {
-				if ( 'autoupdate' == $upd->response ) {
-					$version = $upd->current;
-					if ( !isset( $item[ $version ] ) ) {
+				if ( \is_array( $upd ) ) {
+					$upd = (object)$upd;
+				}
+				if ( \is_object( $upd ) && 'autoupdate' == ( $upd->response ?? '' ) ) {
+					$current = $upd->current ?? '';
+					$version = \is_scalar( $current ) ? (string)$current : '';
+					if ( !empty( $version ) && !isset( $item[ $version ] ) ) {
 						$item[ $version ] = Services::Request()->ts();
 					}
 				}
@@ -107,7 +111,11 @@ class AutoUpdatesCon {
 					$theUpdate = (object)$theUpdate;
 				}
 
-				$newVersion = $theUpdate->new_version ?? '';
+				$newVersion = '';
+				if ( \is_object( $theUpdate ) ) {
+					$newVersionRaw = $theUpdate->new_version ?? '';
+					$newVersion = \is_scalar( $newVersionRaw ) ? (string)$newVersionRaw : '';
+				}
 				if ( !empty( $newVersion ) ) {
 					if ( !isset( $itemTrack[ $newVersion ] ) ) {
 						$itemTrack[ $newVersion ] = Services::Request()->ts();
@@ -182,17 +190,20 @@ class AutoUpdatesCon {
 
 			$version = '';
 			if ( $context === 'core' ) {
-				$version = $slug->current; // \stdClass from transient update_core
+				$current = \is_object( $slug ) ? ( $slug->current ?? '' ) : ''; // \stdClass from transient update_core
+				$version = \is_scalar( $current ) ? (string)$current : '';
 				$slug = 'wp';
 			}
 
 			if ( $context == 'plugins' ) {
 				$pluginInfo = Services::WpPlugins()->getUpdateInfo( $slug );
-				$version = $pluginInfo->new_version ?? '';
+				$newVersion = \is_object( $pluginInfo ) ? ( $pluginInfo->new_version ?? '' ) : '';
+				$version = \is_scalar( $newVersion ) ? (string)$newVersion : '';
 			}
 			elseif ( $context == 'themes' ) {
 				$themeInfo = Services::WpThemes()->getUpdateInfo( $slug );
-				$version = $themeInfo[ 'new_version' ] ?? '';
+				$newVersion = \is_array( $themeInfo ) ? ( $themeInfo[ 'new_version' ] ?? '' ) : '';
+				$version = \is_scalar( $newVersion ) ? (string)$newVersion : '';
 			}
 
 			$delayTracking = $this->getDelayTracking();
@@ -225,13 +236,14 @@ class AutoUpdatesCon {
 
 	public function getDelayTracking() :array {
 		$opts = self::con()->opts;
+		$delayTracking = $opts->optGet( 'delay_tracking' );
 
 		$opts->optSet( 'delay_tracking',
 			Services::DataManipulation()->mergeArraysRecursive( [
 				'core'    => [],
 				'plugins' => [],
 				'themes'  => [],
-			], $opts->optGet( 'delay_tracking' ) )
+			], \is_array( $delayTracking ) ? $delayTracking : [] )
 		);
 
 		return $opts->optGet( 'delay_tracking' );

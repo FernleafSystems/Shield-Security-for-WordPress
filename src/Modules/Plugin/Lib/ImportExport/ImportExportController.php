@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
 use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
@@ -21,6 +22,7 @@ class ImportExportController {
 	public const SYNC_STATE_UNAVAILABLE = 'unavailable';
 	public const SYNC_STATE_DISABLED = 'disabled';
 	public const SYNC_STATE_ENABLED = 'enabled';
+	public const UPDATE_NOTIFY_COOLDOWN = 300;
 
 	protected function canRun(): bool {
 		$scheduler = $this->queueScheduler();
@@ -131,6 +133,16 @@ class ImportExportController {
 		return ( new SiteRepository() )->deleteByIds( $ids );
 	}
 
+	public function repairSitesById( array $ids ) :int {
+		$this->assertSyncEnabled();
+
+		$count = ( new SiteRepository() )->repairConnectionsByIds( $ids );
+		if ( $count > 0 ) {
+			$this->scheduleQueueSoonIfSyncEnabled();
+		}
+		return $count;
+	}
+
 	public function queueAllActiveSitesForSync() :int {
 		$this->assertSyncEnabled();
 
@@ -198,6 +210,7 @@ class ImportExportController {
 		$alreadyAuthorisedUrls = [];
 		foreach ( $validUrls as $url ) {
 			if ( isset( $activeRowsBefore[ $url ] ) ) {
+				( new ProfileRepository() )->resolveProfileRefForSite( $activeRowsBefore[ $url ] );
 				$alreadyAuthorisedUrls[] = $url;
 				continue;
 			}
@@ -271,19 +284,52 @@ class ImportExportController {
 	/**
 	 * We've been notified that there's an update to pull in from the master site, so we set a cron to do this.
 	 */
-	public function runOptionsUpdateNotified() {
+	public function runOptionsUpdateNotified( string $notifyingMasterUrl = '', string $notifyingImportId = '' ) :bool {
 		$con = self::con();
-		if ( $this->isSyncEnabled() && !empty( $this->getImportExportMasterImportUrl() ) ) {
-			$cronHook = $con->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
-			if ( !wp_next_scheduled( $cronHook ) ) {
-				wp_schedule_single_event( Services::Request()->ts() + \wp_rand( 30, 180 ), $cronHook );
-				$con->comps->events->fireEvent( 'import_notify_received', [
-					'audit_params' => [
-						'master_site' => $con->opts->optGet( 'importexport_masterurl' )
-					]
-				] );
-			}
+		if ( !$this->isSyncAvailable() ) {
+			return false;
 		}
+		if ( !$con->opts->optIs( 'importexport_enable', 'Y' ) ) {
+			return false;
+		}
+		$masterUrl = $this->getImportExportMasterImportUrl();
+		if ( empty( $masterUrl ) ) {
+			return false;
+		}
+		if ( !$this->notifyingMasterMatchesConfiguredMaster( $notifyingMasterUrl, $masterUrl ) ) {
+			return false;
+		}
+		if ( !$this->notifyingImportIdAllowed( $notifyingImportId ) ) {
+			return false;
+		}
+		if ( $this->notifyCooldownActive( $masterUrl ) ) {
+			return false;
+		}
+
+		$cronHook = $con->prefix( Actions\PluginImportExport_UpdateNotified::SLUG );
+		$now = Services::Request()->ts();
+		$nextScheduled = wp_next_scheduled( $cronHook );
+		if ( $nextScheduled !== false && (int)$nextScheduled <= $now ) {
+			$this->setNotifyCooldown( $masterUrl );
+			$this->spawnCron( $now );
+			return true;
+		}
+		if ( $nextScheduled !== false ) {
+			wp_clear_scheduled_hook( $cronHook );
+		}
+		if ( !wp_schedule_single_event( $now, $cronHook ) ) {
+			return false;
+		}
+		$this->setNotifyCooldown( $masterUrl );
+
+		$con->comps->events->fireEvent( 'import_notify_received', [
+			'audit_params' => [
+				'master_site' => $masterUrl,
+			],
+		] );
+
+		$this->spawnCron( $now );
+		return true;
 	}
 
 	public function runDailyCron() {
@@ -294,6 +340,47 @@ class ImportExportController {
 
 	private function queueScheduler() :QueueScheduler {
 		return new QueueScheduler( fn() :bool => $this->isSyncEnabled() );
+	}
+
+	private function notifyingMasterMatchesConfiguredMaster( string $notifyingMasterUrl, string $configuredMasterUrl ) :bool {
+		$notifyingMasterUrl = \trim( $notifyingMasterUrl );
+		if ( $notifyingMasterUrl === '' ) {
+			return true;
+		}
+
+		$data = Services::Data();
+		$notifyingMasterUrl = $data->validateSimpleHttpUrl( $notifyingMasterUrl );
+		$configuredMasterUrl = $data->validateSimpleHttpUrl( $configuredMasterUrl );
+		return $notifyingMasterUrl !== false
+			   && $configuredMasterUrl !== false
+			   && \strcasecmp( (string)$notifyingMasterUrl, (string)$configuredMasterUrl ) === 0;
+	}
+
+	private function notifyingImportIdAllowed( string $notifyingImportId ) :bool {
+		$notifyingImportId = \trim( $notifyingImportId );
+		$localImportId = \trim( (string)self::con()->opts->optGet( 'import_id' ) );
+
+		return $localImportId === ''
+			   || $notifyingImportId === ''
+			   || \hash_equals( $localImportId, $notifyingImportId );
+	}
+
+	private function notifyCooldownActive( string $masterUrl ) :bool {
+		return \get_transient( $this->notifyCooldownKey( $masterUrl ) ) !== false;
+	}
+
+	private function setNotifyCooldown( string $masterUrl ) :void {
+		\set_transient( $this->notifyCooldownKey( $masterUrl ), 1, self::UPDATE_NOTIFY_COOLDOWN );
+	}
+
+	private function notifyCooldownKey( string $masterUrl ) :string {
+		return self::con()->prefix( 'importexport_updatenotified_' ).\hash( 'sha256', \strtolower( \trim( $masterUrl ) ) );
+	}
+
+	private function spawnCron( int $timestamp ) :void {
+		if ( \function_exists( 'spawn_cron' ) ) {
+			\spawn_cron( $timestamp );
+		}
 	}
 
 	private function assertSyncAvailable() :void {

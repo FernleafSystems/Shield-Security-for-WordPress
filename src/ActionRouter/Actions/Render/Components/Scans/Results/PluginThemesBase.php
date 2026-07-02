@@ -50,7 +50,11 @@ abstract class PluginThemesBase extends Base {
 			}
 		}
 
-		if ( !isset( self::$wpOrgDataCache[ $item->unique_id ] ) ) {
+		$cachedFlags = self::$wpOrgDataCache[ $item->unique_id ] ?? null;
+		if ( !\is_array( $cachedFlags ) || !\array_key_exists( 'is_wporg', $cachedFlags )
+			 || !\is_bool( $cachedFlags[ 'is_wporg' ] )
+			 || !\array_key_exists( 'has_tag', $cachedFlags )
+			 || !\is_bool( $cachedFlags[ 'has_tag' ] ) ) {
 			self::$wpOrgDataCache[ $item->unique_id ] = [
 				'is_wporg' => $item->isWpOrg(),
 				'has_tag'  => $item->isWpOrg() && ( $item->svn_uses_tags || \is_a( $item, WpThemeVo::class ) ),

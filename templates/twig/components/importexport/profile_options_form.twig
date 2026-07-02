@@ -1,0 +1,148 @@
+{% if flags.profile_available %}
+	<form method="post"
+		  class="options_form_for import-export-profile-options-form form py-0"
+		  novalidate="novalidate"
+		  autocomplete="off"
+		  data-context="{{ vars.form_context }}"
+		  data-options-save-action="{{ vars.options_save_action }}"
+		  data-transfer-action="{{ vars.transfer_action }}"
+		  data-transfer-group-action="{{ vars.transfer_group_action }}"
+		  data-included-label="{{ strings.profile_included_label }}"
+	>
+		<input type="hidden" name="all_opts_keys" value="{{ vars.all_opts_keys|join(',') }}" />
+
+		<div class="import-export-profile-options" data-import-export-profile-options="1">
+			<div class="import-export-profile-options__toolbar">
+				<div class="import-export-profile-options__heading">
+					<h6>{{ strings.sync_profile_settings_title }}</h6>
+					<p>{{ strings.sync_profile_settings_meta }}</p>
+				</div>
+
+				<div class="import-export-profile-options__actions">
+					<label class="screen-reader-text" for="ImportExportProfileSearch-{{ unique_render_id }}">
+						{{ strings.profile_search_label }}
+					</label>
+					<div class="input-group input-group-sm import-export-profile-options__search">
+						<span class="input-group-text" aria-hidden="true">
+							<i class="{{ imgs.svgs.search }}"></i>
+						</span>
+						<input type="search"
+							   class="form-control"
+							   id="ImportExportProfileSearch-{{ unique_render_id }}"
+							   placeholder="{{ strings.profile_search_placeholder }}"
+							   data-import-export-profile-search="1"
+							   aria-controls="ImportExportProfileGroups-{{ unique_render_id }}" />
+					</div>
+
+					<button type="submit"
+							class="btn btn-primary btn-sm icwp-form-button"
+							name="submit">{{ strings.save_all_settings }}</button>
+				</div>
+			</div>
+
+			<div class="import-export-profile-options__empty"
+				 data-import-export-profile-empty="1"
+				 hidden>{{ strings.profile_empty_search }}</div>
+
+			<div id="ImportExportProfileGroups-{{ unique_render_id }}"
+				 class="accordion import-export-profile-options__groups"
+				 data-import-export-profile-groups="1">
+				{% for group in vars.groups %}
+					<section class="accordion-item import-export-profile-group"
+							 data-import-export-profile-group="1"
+							 data-option-count="{{ group.option_count }}"
+							 data-included-count="{{ group.included_count }}"
+							 data-search-text="{{ group.search_text|e('html_attr') }}">
+						<header id="ImportExportProfileGroupHeader-{{ unique_render_id }}-{{ group.slug }}"
+								class="accordion-header import-export-profile-group__header">
+							<button type="button"
+									class="accordion-button collapsed import-export-profile-group__toggle"
+									data-bs-toggle="collapse"
+									data-bs-target="#ImportExportProfileGroup-{{ unique_render_id }}-{{ group.slug }}"
+									aria-expanded="false"
+									aria-controls="ImportExportProfileGroup-{{ unique_render_id }}-{{ group.slug }}">
+								<i class="bi bi-chevron-down" aria-hidden="true"></i>
+								<span class="import-export-profile-group__copy">
+									<span class="import-export-profile-group__title">{{ group.title }}</span>
+									{% if group.subtitle is not empty %}
+										<span class="import-export-profile-group__subtitle">{{ group.subtitle }}</span>
+									{% endif %}
+								</span>
+								<span class="import-export-profile-group__count"
+									  data-import-export-profile-group-count="1">{{ group.sync_status_label }}</span>
+							</button>
+
+							<button type="button"
+									class="import-export-profile-sync import-export-profile-sync--group{% if group.is_sync_included %} is-included{% else %} is-excluded{% endif %}"
+									data-import-export-profile-group-sync-toggle="1"
+									data-keys="{{ group.keys_csv|e('html_attr') }}"
+									data-status="{{ group.sync_next_status }}"
+									data-sync-included="{{ group.is_sync_included ? '1' : '0' }}"
+									data-include-label="{{ strings.sync_include_group_label }}"
+									data-exclude-label="{{ strings.sync_exclude_group_label }}"
+									aria-label="{{ group.sync_toggle_label }}"
+									data-bs-toggle="tooltip"
+									data-bs-trigger="hover"
+									data-bs-placement="top"
+									data-bs-title="{{ group.sync_toggle_label }}">
+								<i class="{{ imgs.svgs.sync }}" aria-hidden="true"></i>
+							</button>
+						</header>
+
+						<div id="ImportExportProfileGroup-{{ unique_render_id }}-{{ group.slug }}"
+							 class="accordion-collapse collapse import-export-profile-group__body"
+							 data-import-export-profile-group-body="1"
+							 aria-labelledby="ImportExportProfileGroupHeader-{{ unique_render_id }}-{{ group.slug }}">
+							{% for section in group.sections %}
+								<section class="import-export-profile-section"
+										 data-import-export-profile-section="1"
+										 data-search-text="{{ section.search_text|e('html_attr') }}">
+									<div class="import-export-profile-section__title">{{ section.title_short }}</div>
+
+									<div class="import-export-profile-section__options">
+										{% for option in section.options %}
+											<div class="import-export-profile-option{% if not option.is_sync_included %} is-sync-excluded{% endif %}"
+												 data-import-export-profile-option="1"
+												 data-option-key="{{ option.key }}"
+												 data-sync-included="{{ option.is_sync_included ? '1' : '0' }}"
+												 data-search-text="{{ option.search_text|e('html_attr') }}">
+												<button type="button"
+														class="import-export-profile-sync import-export-profile-sync--option{% if option.is_sync_included %} is-included{% else %} is-excluded{% endif %}"
+														data-import-export-profile-sync-toggle="1"
+														data-key="{{ option.key }}"
+														data-status="{{ option.sync_next_status }}"
+														data-sync-included="{{ option.is_sync_included ? '1' : '0' }}"
+														data-include-label="{{ strings.sync_include_option_label }}"
+														data-exclude-label="{{ strings.sync_exclude_option_label }}"
+														aria-label="{{ option.sync_toggle_label }}"
+														data-bs-toggle="tooltip"
+														data-bs-trigger="hover"
+														data-bs-placement="top"
+														data-bs-title="{{ option.sync_toggle_label }}">
+													<i class="{{ imgs.svgs.sync }}" aria-hidden="true"></i>
+												</button>
+
+												<div class="import-export-profile-option__copy">
+													<span class="import-export-profile-option__title"
+														  id="Label-{{ option.key }}">{{ option.name }}</span>
+													<span class="import-export-profile-option__summary">{{ option.summary }}</span>
+												</div>
+
+												<div class="import-export-profile-option__control">
+													{% include '/components/config/option_control.twig' with {
+														option: option,
+														strings: strings
+													} only %}
+												</div>
+											</div>
+										{% endfor %}
+									</div>
+								</section>
+							{% endfor %}
+						</div>
+					</section>
+				{% endfor %}
+			</div>
+		</div>
+	</form>
+{% endif %}

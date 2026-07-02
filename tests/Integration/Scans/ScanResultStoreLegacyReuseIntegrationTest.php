@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItemVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveCount;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
+	RetrieveCount,
+	RetrieveItems
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Store;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -23,12 +26,15 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 	public function testStoreReusesUnresolvedBlankLegacyResultItemInRealSchema() :void {
 		$scanID = TestDataFactory::insertCompletedScan( 'afs' );
 		$pathFragment = 'wp-admin/admin.php';
+		$pathFull = \wp_normalize_path( ABSPATH.$pathFragment );
 		$notifiedAt = 1700000123;
 		$legacyResultItemID = $this->insertLegacyBlankResultItem( $pathFragment, $notifiedAt );
 
 		( new Store() )->store( $this->newQueueItem( $scanID ), [
 			[
-				'path_fragment'   => $pathFragment,
+				'path_full'       => $pathFull,
+				'path_fragment'   => $pathFull,
+				'file_path'       => $pathFull,
 				'is_in_core'      => 1,
 				'is_checksumfail' => 1,
 			],
@@ -44,12 +50,23 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 
 		$this->assertSame( 1, $this->countResultItemsForPath( $pathFragment ) );
 		$this->assertSame( 1, $this->countScanResultLinks( $scanID, $legacyResultItemID ) );
+		$this->assertSame( 0, $this->countResultItemMetaForKey( $legacyResultItemID, 'path_full' ) );
+		$this->assertSame( 0, $this->countResultItemMetaForKey( $legacyResultItemID, 'path_fragment' ) );
+		$this->assertSame( 0, $this->countResultItemMetaForKey( $legacyResultItemID, 'file_path' ) );
 		$this->assertSame(
 			1,
 			( new RetrieveCount() )
 				->setScanController( $this->newAfsScanController() )
 				->count( RetrieveCount::CONTEXT_RESULTS_DISPLAY )
 		);
+
+		$items = ( new RetrieveItems() )
+			->setScanController( self::con()->comps->scans->AFS() )
+			->retrieveForResultsTables()
+			->getAllItems();
+		$this->assertCount( 1, $items );
+		$this->assertSame( $pathFragment, $items[ 0 ]->path_fragment );
+		$this->assertSame( $pathFull, $items[ 0 ]->path_full );
 	}
 
 	private function insertLegacyBlankResultItem( string $pathFragment, int $notifiedAt ) :int {
@@ -111,6 +128,18 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 				  AND `resultitem_ref`=%d",
 			$scanID,
 			$resultItemID
+		) );
+	}
+
+	private function countResultItemMetaForKey( int $resultItemID, string $metaKey ) :int {
+		global $wpdb;
+		return (int)$wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*)
+				FROM `".self::con()->db_con->scan_result_item_meta->getTable()."`
+				WHERE `ri_ref`=%d
+				  AND `meta_key`=%s",
+			$resultItemID,
+			$metaKey
 		) );
 	}
 }

@@ -55,7 +55,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property FileLockerController                   $file_locker
  * @property SpamController                         $forms_spam
  * @property UserFormsController                    $forms_users
- * @property CompCons\HiddenPluginsCon              $hidden_plugins
+ * @property CompCons\CloakedPluginsCon              $hidden_plugins
  * @property CompCons\HttpHeadersCon                $http_headers
  * @property ImportExportController                 $import_export
  * @property CompCons\InstantAlertsCon              $instant_alerts
@@ -122,7 +122,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'file_locker'           => FileLockerController::class,
 			'forms_spam'            => SpamController::class,
 			'forms_users'           => UserFormsController::class,
-			'hidden_plugins'        => CompCons\HiddenPluginsCon::class,
+			'hidden_plugins'        => CompCons\CloakedPluginsCon::class,
 			'http_headers'          => CompCons\HttpHeadersCon::class,
 			'import_export'         => ImportExportController::class,
 			'instant_alerts'        => CompCons\InstantAlertsCon::class,

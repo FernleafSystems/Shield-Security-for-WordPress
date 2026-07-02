@@ -41,6 +41,27 @@ class RepairItemTest extends BaseUnitTest {
 		$this->assertFalse( $repairItem->canRepair() );
 	}
 
+	/**
+	 * @dataProvider provideMissingPathFragments
+	 */
+	public function test_cannot_repair_item_without_file_path_fragment( $pathFragment ) :void {
+		$item = $this->newCoreResultItem();
+		$item->path_fragment = $pathFragment;
+
+		$repairItem = ( new RepairItem() )->setScanItem( $item );
+
+		$this->assertFalse( $repairItem->canRepair() );
+	}
+
+	public static function provideMissingPathFragments() :array {
+		return [
+			'null'       => [ null ],
+			'empty'      => [ '' ],
+			'whitespace' => [ '   ' ],
+			'array'      => [ [] ],
+		];
+	}
+
 	private function installServices( string $version, bool $isCoreFile ) :void {
 		ServicesState::installItems( [
 			'service_wpgeneral' => new class( $version ) extends General {

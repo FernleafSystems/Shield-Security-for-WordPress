@@ -6,7 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	ActionProcessor,
 	Actions\ThemeReinstall,
-	Exceptions\InvalidActionNonceException
+	Exceptions\InvalidActionNonceException,
+	Exceptions\SecurityAdminRequiredException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
@@ -34,6 +35,8 @@ class ThemeReinstallActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->mergeCurrentRequestTransport( [
 			ActionData::FIELD_NONCE => '',
 		] );
+		$isSecurityAdmin = (bool)$this->requireController()->this_req->is_security_admin;
+		$this->requireController()->this_req->is_security_admin = true;
 
 		try {
 			$this->expectException( InvalidActionNonceException::class );
@@ -43,6 +46,32 @@ class ThemeReinstallActionIntegrationTest extends ShieldIntegrationTestCase {
 		}
 		finally {
 			$themeLookupAttempted = $themes->wasThemeLookupAttempted();
+			$this->requireController()->this_req->is_security_admin = $isSecurityAdmin;
+			$this->restoreActionNonceContext( $snapshot );
+			ServicesState::restore( $servicesSnapshot );
+			$this->assertFalse( $themeLookupAttempted );
+		}
+	}
+
+	public function test_reinstall_requires_security_admin_before_theme_lookup() :void {
+		$themes = new ThemeReinstallPoisonedThemesService();
+		$servicesSnapshot = ServicesState::snapshot();
+		ServicesState::mergeItems( [
+			'service_wpthemes' => $themes,
+		] );
+		$snapshot = $this->seedActionNonceContext( ThemeReinstall::class );
+		$isSecurityAdmin = (bool)$this->requireController()->this_req->is_security_admin;
+		$this->requireController()->this_req->is_security_admin = false;
+
+		try {
+			$this->expectException( SecurityAdminRequiredException::class );
+			( new ActionProcessor() )->processAction( ThemeReinstall::SLUG, [
+				'stylesheet' => 'twentytwentyfive',
+			] );
+		}
+		finally {
+			$themeLookupAttempted = $themes->wasThemeLookupAttempted();
+			$this->requireController()->this_req->is_security_admin = $isSecurityAdmin;
 			$this->restoreActionNonceContext( $snapshot );
 			ServicesState::restore( $servicesSnapshot );
 			$this->assertFalse( $themeLookupAttempted );

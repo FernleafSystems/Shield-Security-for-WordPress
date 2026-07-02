@@ -19,10 +19,7 @@ class ConvertLogsToFlatText {
 	}
 
 	public function convertSingle( LogRecord $rec, bool $markUpHtml = false ) :string {
-		$path = $rec->path;
-		if ( !empty( $rec->meta[ 'query' ] ) ) {
-			$path .= '?'.$rec->meta[ 'query' ];
-		}
+		$path = ( new RequestLogDisplayPathBuilder() )->build( $rec );
 		return sprintf( "%s %s %s [%s] \"%s %s\" %s",
 			( $markUpHtml && Services::IP()->isValidIp( $rec->ip ) ) ?
 				sprintf( '<a href="%s" class="offcanvas_ip_analysis" data-ip="%s">%s</a>',

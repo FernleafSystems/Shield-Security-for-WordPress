@@ -83,7 +83,9 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 	protected function getDataFromItem( ResultItem $item ): array {
 		$isIgnored = $item->VO->ignored_at > 0;
 		$actions = $this->getActions( $item );
-		$data = \array_merge( $item->getRawData(), [
+		$rawData = $item->getRawData();
+		unset( $rawData[ 'path_full' ], $rawData[ 'path_fragment' ], $rawData[ 'file_path' ] );
+		$data = \array_merge( $rawData, [
 			'rid'              => $item->VO->resultitem_id,
 			'file'             => $item->path_fragment,
 			'created_at'       => $item->VO->created_at,

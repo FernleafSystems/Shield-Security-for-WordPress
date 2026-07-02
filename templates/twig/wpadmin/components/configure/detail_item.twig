@@ -1,7 +1,7 @@
 {% set row = item.row %}
 {% set expand = item.expand %}
 
-<div class="shield-detail-item shield-detail-item--configure"{% if expand.is_expandable and expand.row_key is not empty %} data-configure-row-key="{{ expand.row_key|e('html_attr') }}"{% endif %}>
+<div class="shield-detail-item shield-detail-item--configure"{% if expand.is_expandable %} data-configure-row-key="{{ expand.row_key|e('html_attr') }}"{% endif %}>
 	{% include '/wpadmin/components/page/shield_detail_row.twig' with { row: row|merge( {
 		expandable: expand.is_expandable,
 		expand_target: expand.id,

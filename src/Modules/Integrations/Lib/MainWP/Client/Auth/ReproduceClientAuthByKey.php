@@ -11,19 +11,28 @@ use MainWP\Child\MainWP_Connect;
 class ReproduceClientAuthByKey {
 
 	public static function Auth() :bool {
-		$req = Services::Request();
+		try {
+			$req = Services::Request();
 
-		// 'function' for actions, 'where' for login
-		$functionOrWhere = $req->request( 'function' );
-		if ( empty( $functionOrWhere ) ) {
-			$functionOrWhere = $req->request( 'where' );
+			// 'function' for actions, 'where' for login.
+			$functionOrWhere = $req->request( 'function' );
+			if ( empty( $functionOrWhere ) ) {
+				$functionOrWhere = $req->request( 'where' );
+			}
+
+			$signature = $req->request( 'mainwpsignature', false, '' );
+			$nonce = $req->request( 'nonce' );
+			$nossl = $req->request( 'nossl' );
+
+			return (bool)MainWP_Connect::instance()->auth(
+				rawurldecode( \is_scalar( $signature ) ? (string)$signature : '' ),
+				sanitize_text_field( \is_scalar( $functionOrWhere ) ? (string)$functionOrWhere : '' ),
+				sanitize_text_field( \is_scalar( $nonce ) ? (string)$nonce : '' ),
+				sanitize_text_field( \is_scalar( $nossl ) ? (string)$nossl : '' )
+			);
 		}
-
-		return (bool)MainWP_Connect::instance()->auth(
-			rawurldecode( (string)$req->request( 'mainwpsignature', false, '' ) ),
-			sanitize_text_field( $functionOrWhere ),
-			sanitize_text_field( $req->request( 'nonce' ) ),
-			sanitize_text_field( $req->request( 'nossl' ) )
-		);
+		catch ( \Throwable $e ) {
+			return false;
+		}
 	}
 }

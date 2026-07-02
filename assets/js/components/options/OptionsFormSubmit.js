@@ -35,7 +35,11 @@ export class OptionsFormSubmit extends BaseComponent {
 	};
 
 	#sendForm() {
-		sendEncodedOptionsSave( this._base_data.ajax.form_save, Forms.Serialize( this.form ) )
+		const actionKey = this.form.dataset.optionsSaveAction;
+		if ( !actionKey || !( actionKey in this._base_data.ajax ) ) {
+			return;
+		}
+		sendEncodedOptionsSave( this._base_data.ajax[ actionKey ], Forms.Serialize( this.form ) )
 		.then( ( resp ) => {
 			setTimeout( () => {
 				if ( this.form.dataset[ 'context' ] === 'expansion' && !resp.data.page_reload ) {
@@ -45,6 +49,11 @@ export class OptionsFormSubmit extends BaseComponent {
 				}
 				else if ( this.form.dataset[ 'context' ] === 'offcanvas' && !resp.data.page_reload ) {
 					OffCanvasService.CloseCanvas();
+				}
+				else if ( this.form.dataset[ 'context' ] === 'import_export_profile' && !resp.data.page_reload ) {
+					this.form.dispatchEvent( new CustomEvent( 'shield:import-export-profile-saved', {
+						bubbles: true
+					} ) );
 				}
 				else {
 					window.location.reload();

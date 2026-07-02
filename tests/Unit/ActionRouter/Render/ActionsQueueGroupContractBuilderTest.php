@@ -184,7 +184,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_active_direct_scan_group_indicates_ignored_results_without_changing_active_count() :void {
+	public function test_active_direct_scan_group_preserves_active_count_and_direct_table_contract() :void {
 		$builder = $this->newBuilder(
 			[],
 			$this->newScopeStateBuilder( 1, 2 )
@@ -207,21 +207,53 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 
 		$this->assertArrayHasKey( 'plugins:example-plugin/example-plugin.php', $groups[ 'groups_indexed' ] );
 		$group = $groups[ 'groups_indexed' ][ 'plugins:example-plugin/example-plugin.php' ];
-		$header = $group[ 'selection' ][ 'header' ];
 
 		$this->assertSame( 1, $group[ 'item_count' ] );
 		$this->assertSame( 'warning', $group[ 'status' ] );
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( $header[ 'summary' ] )
+		$this->assertSame( 'direct_table', $group[ 'detail_shell' ] );
+	}
+
+	public function test_healthy_direct_scan_group_with_only_ignored_results_is_interactive() :void {
+		$builder = $this->newBuilder(
+			[],
+			$this->newScopeStateBuilder( 0, 2 )
 		);
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( $header[ 'focus' ] )
+
+		$groups = $builder->buildResolvedGroups( 'Fix now', [
+			$this->groupSeed( [
+				'key'                         => 'malware',
+				'definition_key'              => 'malware',
+				'label'                       => 'Malware',
+				'item_count'                  => 0,
+				'status'                      => 'good',
+				'is_interactive_override'     => false,
+				'render_action_data_override' => [],
+			] ),
+		] );
+
+		$this->assertArrayHasKey( 'malware', $groups[ 'groups_indexed' ] );
+		$group = $groups[ 'groups_indexed' ][ 'malware' ];
+		$header = $group[ 'selection' ][ 'header' ];
+
+		$this->assertTrue( $group[ 'is_interactive' ] );
+		$this->assertSame( 0, $group[ 'item_count' ] );
+		$this->assertSame( 'good', $group[ 'status' ] );
+		$this->assertSame( [], $header[ 'actions' ] );
+		$this->assertSame(
+			( new ScanResultsDisplayOptions() )->buildDisplayContextActionData(),
+			$group[ 'render_action_data' ]
 		);
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( $header[ 'next_step' ] )
+		$this->assertSame(
+			'scanresults_malware',
+			(string)( $group[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' )
+		);
+		$this->assertSame(
+			'actions_queue',
+			(string)( $group[ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' )
+		);
+		$this->assertAjaxRenderPayloadAllowedByPolicy(
+			$group[ 'selection' ][ 'detail_render_action' ],
+			'healthy ignored malware detail render'
 		);
 	}
 
@@ -245,14 +277,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'good', $group[ 'status' ] );
 		$this->assertSame( 0, $group[ 'item_count' ] );
 		$this->assertSame( [], $header[ 'actions' ] );
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( $header[ 'summary' ] )
-		);
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( $header[ 'next_step' ] )
-		);
+		$this->assertSame( 'actions_queue', (string)( $group[ 'render_action_data' ][ 'display_context' ] ?? '' ) );
 	}
 
 	/**

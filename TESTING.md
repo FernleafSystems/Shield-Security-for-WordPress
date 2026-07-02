@@ -60,7 +60,7 @@ Auth-required public Composer lanes:
 
 Auth-required internal lanes are the Composer-backed source, package, Docker, browser, cross-site, release, and analysis paths listed in this file, including `test:source`, `test:integration-local`, `test:docker:cleanup`, `test:package-targeted`, `test:package-full`, `analyze:source`, `analyze:package`, `git:pre-commit`, `dev:site:*`, and `test:site:*` when they invoke Composer-installed tooling. JS-only checks, cache-cleanup script regression tests, and admin-bundle-safety script regression tests do not need Packagist auth unless Composer commands are added to those jobs later.
 
-Auth preflight is wired into the Composer-bearing CI workflows: `.github/workflows/tests.yml`, `.github/workflows/reusable-unit-tests.yml`, `.github/workflows/reusable-build-package.yml`, `.github/workflows/unit-serial-sentinel.yml`, `.github/workflows/browser-tests.yml`, `.github/workflows/cross-site-tests.yml`, and `.github/workflows/release.yml`. `.github/workflows/cache-cleanup.yml`, JS-only jobs, and standalone shell script regression jobs are intentionally outside the Packagist-auth path until they start running Composer.
+Auth preflight is wired into the Composer-bearing CI workflows: `.github/workflows/tests.yml`, `.github/workflows/reusable-unit-tests.yml`, `.github/workflows/reusable-build-package.yml`, `.github/workflows/reusable-build-zip.yml`, `.github/workflows/unit-serial-sentinel.yml`, `.github/workflows/browser-tests.yml`, and `.github/workflows/cross-site-tests.yml`. The tag release workflow and manual customer ZIP workflow inherit secrets into the reusable ZIP build workflow instead of duplicating Composer setup. `.github/workflows/cache-cleanup.yml`, JS-only jobs, and standalone shell script regression jobs are intentionally outside the Packagist-auth path until they start running Composer.
 
 ### Unit test narrowing
 
@@ -286,9 +286,11 @@ php bin/shield test:source --skip-unit-tests --show-docker-output
 - Override wait: `SHIELD_INTEGRATION_LANE_WAIT_SECONDS=<positive-integer>`.
 - `--db-down` uses the same lock, so teardown cannot remove the sidecar while another integration run is active.
 
+After Compose reports the DB container healthy, the lane also verifies host PHP can connect over TCP to `127.0.0.1:3311`, select `wordpress_test_local`, and run `SELECT 1`. This is the readiness contract WordPress bootstrap depends on. The lane also removes a cached WordPress test config when its DB constants do not match the fixed local sidecar contract, then asserts the generated config before PHPUnit starts.
+
 The lock file may remain after a run and contains diagnostic metadata for the last acquired lease. Do not delete it as stale cleanup; `flock()` releases automatically when the owning process exits. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses this guard and is not part of the supported local integration command surface.
 
-The sidecar DB resources are labeled under the `integration-local` cleanup scope. `php bin/shield test:integration-local --db-down` remains the normal functional teardown because it observes the lane lock. Use `php bin/shield test:docker:cleanup --scope=integration-local --dry-run --all` when auditing Docker resources directly.
+The sidecar DB resources use stable reusable labels under the `integration-local` cleanup scope so normal repeat runs can reuse the same DB container. A run after Docker Compose file changes may recreate the sidecar once; subsequent unchanged runs should not recreate it. `php bin/shield test:integration-local --db-down` remains the normal functional teardown because it observes the lane lock. Use `php bin/shield test:docker:cleanup --scope=integration-local --dry-run --all` when auditing Docker resources directly.
 
 ## Local Browser Lane
 
@@ -425,7 +427,7 @@ npm run playwright:install
 
 ## Local Cross-Site Lane
 
-Use this lane for Shield-to-Shield import/export communication. It provisions a master WordPress site and a slave WordPress site on one Docker network, uses Docker service-name URLs for site-to-site HTTP, and drives setup, cron, queue processing, and assertions with WP-CLI.
+Use this lane for Shield-to-Shield import/export communication. It provisions a master WordPress site and a slave WordPress site on one Docker network, uses dotted Docker DNS aliases for site-to-site HTTP, and drives setup, cron, queue processing, and assertions with WP-CLI.
 
 ```bash
 composer test:cross-site
@@ -435,7 +437,7 @@ composer test:cross-site -- --clean --show-setup-output
 
 Operational notes:
 
-1. The lane uses internal URLs `http://wordpress-master` and `http://wordpress-slave`; exposed host ports are only for diagnostics.
+1. The lane uses internal URLs `http://wordpress-master.shield-cross-site.example.com` and `http://wordpress-slave.shield-cross-site.example.com`; exposed host ports are only for diagnostics.
 2. Local runs default to warm mode. CI defaults to clean mode.
 3. Successful runs stay quiet except for the final lane result; use `--show-setup-output` when Docker, provisioning, or runtime-refresh setup logs are needed.
 4. The lane has a single lock under `tmp/cross-site-test-lane` because both sites share one Compose project and one database container.
@@ -510,6 +512,13 @@ Scheduled/manual cross-site lane: [`.github/workflows/cross-site-tests.yml`](.gi
 1. Installs Composer dependencies and builds source config/assets.
 2. Runs `composer test:cross-site -- --clean`.
 3. Triggered by `workflow_dispatch`, the weekday schedule, and PRs that touch import/export, WP-CLI, plugin action routing, cross-site tooling, Docker test files, Composer scripts, or the workflow.
+
+Manual customer ZIP artifact workflow: [`.github/workflows/customer-test-zip.yml`](.github/workflows/customer-test-zip.yml)
+
+1. Triggered by `workflow_dispatch` and run against the selected branch/ref.
+2. Calls [`.github/workflows/reusable-build-zip.yml`](.github/workflows/reusable-build-zip.yml), which uses the same `composer build-zip` path as tag releases.
+3. Uploads only a GitHub Actions artifact and writes the artifact URL, ref, commit SHA, ZIP filename, and checksums to the run summary.
+4. Does not create GitHub tags or GitHub Releases.
 
 ## Local Verification Commands
 

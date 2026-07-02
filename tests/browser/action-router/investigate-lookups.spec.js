@@ -17,17 +17,14 @@ const {
 	expectRequestMetaPopover,
 	investigationTableResponseMatcher,
 	isAdminAjaxRequest,
+	isLiveTrafficPollRequest,
+	liveTrafficToggleRequest,
+	parseShieldAjaxJson,
 	requestActionSlug,
 	requestPostParam,
 } = require( './support/security-assertions' );
 
 const panelSelector = '[data-investigate-panel="1"]';
-
-const isLiveTrafficPollRequest = ( request ) => {
-	return isAdminAjaxRequest( request )
-		&& requestActionSlug( request ) === 'ajax_render'
-		&& requestPostParam( request, 'render_slug' ) === 'render_traffic_live_logs';
-};
 
 const parseWrappedAjaxJson = ( raw ) => {
 	const openJsonTag = '##APTO_OPEN##';
@@ -559,6 +556,101 @@ test( 'investigate landing starts and stops live traffic polling with the live p
 	expect( livePollCount ).toBeLessThanOrEqual( maxPollCountAfterExit );
 	await page.waitForTimeout( livePollWindowMs + 500 );
 	expect( livePollCount ).toBeLessThanOrEqual( maxPollCountAfterExit );
+} );
+
+test( 'investigate landing direct live traffic route starts one live poller', async ( { page } ) => {
+	let livePollCount = 0;
+
+	await page.route( '**/admin-ajax.php**', async ( route ) => {
+		if ( isLiveTrafficPollRequest( route.request() ) ) {
+			livePollCount++;
+			await route.fulfill( {
+				status: 200,
+				contentType: 'application/json',
+				body: JSON.stringify( {
+					success: true,
+					data: {
+						message: '',
+						page_reload: false,
+						html: `<div class="live-poll-marker">poll-${livePollCount}</div>`,
+					},
+				} ),
+			} );
+			return;
+		}
+		await route.continue();
+	} );
+
+	await openShieldRoute( page, {
+		nav: 'activity',
+		nav_sub: 'overview',
+		subject: 'live_traffic',
+	} );
+
+	const panel = page.locator( panelSelector );
+	await expectPanelState( page, panel, {
+		subject: 'live_traffic',
+		isLoaded: true,
+	} );
+	await expect( panel.locator( '.live-poll-marker' ) ).toHaveCount( 1 );
+	expect( livePollCount ).toBe( 1 );
+	await page.waitForTimeout( 750 );
+	expect( livePollCount ).toBe( 1 );
+} );
+
+test( 'investigate live traffic panel toggle updates without page reload', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withLiveTrafficToggleFixture( async ( contract ) => {
+		await page.route( '**/admin-ajax.php**', async ( route ) => {
+			if ( isLiveTrafficPollRequest( route.request() ) ) {
+				await route.fulfill( {
+					status: 200,
+					contentType: 'application/json',
+					body: JSON.stringify( {
+						success: true,
+						data: {
+							message: '',
+							page_reload: false,
+							html: '<div class="live-poll-marker">poll</div>',
+						},
+					} ),
+				} );
+				return;
+			}
+			await route.continue();
+		} );
+
+		await openShieldRoute( page, {
+			nav: 'activity',
+			nav_sub: 'overview',
+		} );
+
+		const panel = page.locator( panelSelector );
+		await clickSubjectTile( page, 'live_traffic' );
+		await expectPanelState( page, panel, {
+			subject: 'live_traffic',
+			isLoaded: true,
+		} );
+
+		const toggle = panel.locator( contract.selectors.toggle );
+		await expect( toggle ).toBeEnabled();
+		await expect( toggle ).not.toBeChecked();
+		const livePanelUrl = page.url();
+
+		const enableResponse = page.waitForResponse(
+			( response ) => liveTrafficToggleRequest( contract.action_slug, 'Y' )( response.request() )
+		);
+		await toggle.check();
+		const enablePayload = parseShieldAjaxJson( await ( await enableResponse ).text() );
+		expect( enablePayload ).toHaveProperty( 'success', true );
+		expect( enablePayload.data.page_reload ).toBe( false );
+		await page.waitForTimeout( 2_300 );
+		expect( page.url() ).toBe( livePanelUrl );
+		await expect( toggle ).toBeChecked();
+
+		const inspected = await fixtureApi.inspectLiveTrafficToggleFixture();
+		expect( inspected.state.enable_live_log ).toBe( 'Y' );
+		expect( inspected.state.live_log_started_at ).toBeGreaterThan( 0 );
+	} );
 } );
 
 test( 'investigate live traffic auth-refresh poll reloads the page from an authenticated admin request', async ( { page } ) => {

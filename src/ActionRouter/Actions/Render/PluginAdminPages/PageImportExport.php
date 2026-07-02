@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFromFileUpload;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\ImportExport\ProfileOptionsForm;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
@@ -40,12 +41,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *   value:string,
  *   label:string,
  *   summary:string,
- *   is_checked:bool
+ *   is_checked:bool,
+ *   action_label?:string
  * }
  * @phpstan-type NetworkSyncConnectedMaster array{
  *   master_host:string,
  *   label:string,
- *   graphic_label:string
+ *   graphic_label:string,
+ *   import_id:array{label:string,value:string}
  * }
  * @phpstan-type NetworkSyncStandaloneSite array{
  *   label:string,
@@ -105,7 +108,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *   rail:array{connection_label:string,client_count_label:string},
  *   toggle:array{id:string,label:string,is_checked:bool},
  *   disabled:array{title:string,summary:string},
- *   tasks:list<array{key:'connect'|'clients',title:string,summary:string,icon_class:string,is_active:bool}>,
+ *   tasks:list<array{key:'connect'|'clients'|'profile',title:string,summary:string,icon_class:string,is_active:bool}>,
  *   connect:NetworkSyncConnect,
  *   clients:array{
  *     title:string,
@@ -115,6 +118,18 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *     table_id:string,
  *     active_count:int,
  *     has_connected_sites:bool
+ *   },
+ *   profile:array{
+ *     is_available:true,
+ *     title:string,
+ *     summary:string,
+ *     copy_from_master:array{id:string,label:string,icon_class:string,confirm_message:string,confirm_label:string},
+ *     form_html:string
+ *   }|array{
+ *     is_available:false,
+ *     title:string,
+ *     summary:string,
+ *     empty_message:string
  *   }
  * }
  * @phpstan-type NetworkInviteReviewContract array{
@@ -310,6 +325,13 @@ class PageImportExport extends BasePluginAdminPage {
 					'icon_class' => 'bi bi-display',
 					'is_active'  => false,
 				],
+				[
+					'key'        => 'profile',
+					'title'      => __( 'Sync profile', 'wp-simple-firewall' ),
+					'summary'    => __( 'Edit deployed client configuration.', 'wp-simple-firewall' ),
+					'icon_class' => 'bi bi-sliders',
+					'is_active'  => false,
+				],
 			],
 			'connect'              => $this->buildNetworkConnect( $hasMasterURL, $importMasterURL ),
 			'clients'              => [
@@ -321,6 +343,7 @@ class PageImportExport extends BasePluginAdminPage {
 				'active_count'       => $activeClientCount,
 				'has_connected_sites' => $activeClientCount > 0,
 			],
+			'profile'              => $this->buildNetworkProfile( $isEnabled, $activeClientCount ),
 		];
 	}
 
@@ -336,6 +359,10 @@ class PageImportExport extends BasePluginAdminPage {
 					'master_host'   => $this->hostFromUrl( $importMasterURL ),
 					'label'         => __( 'Master site', 'wp-simple-firewall' ),
 					'graphic_label' => __( 'Client site connected to master site', 'wp-simple-firewall' ),
+					'import_id'     => [
+						'label' => __( 'My Import ID', 'wp-simple-firewall' ),
+						'value' => $this->displayImportID( (string)self::con()->opts->optGet( 'import_id' ) ),
+					],
 				],
 				'disconnect'   => [
 					'label' => __( 'Disconnect', 'wp-simple-firewall' ),
@@ -363,6 +390,37 @@ class PageImportExport extends BasePluginAdminPage {
 		];
 	}
 
+	private function buildNetworkProfile( bool $isEnabled, int $activeClientCount ) :array {
+		$base = [
+			'title'   => __( 'Sync profile', 'wp-simple-firewall' ),
+			'summary' => __( 'Edit the settings distributed to client sites.', 'wp-simple-firewall' ),
+		];
+
+		if ( $activeClientCount < 1 ) {
+			return \array_merge( $base, [
+				'is_available'  => false,
+				'empty_message' => __( 'There is no sync profile because there are no client sites.', 'wp-simple-firewall' ),
+			] );
+		}
+
+		return \array_merge( $base, [
+			'is_available'    => true,
+			'copy_from_master' => [
+				'id'              => 'ImportExportProfileCopyFromMaster',
+				'label'           => __( 'Copy from this Site Configuration', 'wp-simple-firewall' ),
+				'icon_class'      => 'bi bi-copy',
+				'confirm_message' => __( 'Copy the current site configuration into this sync profile? Existing profile will be overwritten, but transfer exclusions will be preserved.', 'wp-simple-firewall' ),
+				'confirm_label'   => __( 'Copy', 'wp-simple-firewall' ),
+			],
+			'form_html'        => $isEnabled ? self::con()->action_router->render( ProfileOptionsForm::class ) : '',
+		] );
+	}
+
+	private function displayImportID( string $importID ) :string {
+		$importID = \trim( $importID );
+		return empty( $importID ) ? __( 'Not generated yet', 'wp-simple-firewall' ) : $importID;
+	}
+
 	/**
 	 * @return NetworkSyncConnectForm
 	 */
@@ -379,18 +437,20 @@ class PageImportExport extends BasePluginAdminPage {
 			'import_mode_label'           => __( 'Import type', 'wp-simple-firewall' ),
 			'import_mode_options'         => [
 				[
-					'id'         => 'ShieldNetworkImportOnce',
-					'value'      => 'NC',
-					'label'      => __( 'Import once', 'wp-simple-firewall' ),
-					'summary'    => __( 'Do not stay linked.', 'wp-simple-firewall' ),
-					'is_checked' => true,
+					'id'           => 'ShieldNetworkImportOnce',
+					'value'        => 'NC',
+					'label'        => __( 'Import once', 'wp-simple-firewall' ),
+					'summary'      => __( 'Do not stay linked.', 'wp-simple-firewall' ),
+					'is_checked'   => true,
+					'action_label' => __( 'Import settings', 'wp-simple-firewall' ),
 				],
 				[
-					'id'         => 'ShieldNetworkJoin',
-					'value'      => 'Y',
-					'label'      => __( 'Join network', 'wp-simple-firewall' ),
-					'summary'    => __( 'Keep automatic imports linked.', 'wp-simple-firewall' ),
-					'is_checked' => false,
+					'id'           => 'ShieldNetworkJoin',
+					'value'        => 'Y',
+					'label'        => __( 'Join network', 'wp-simple-firewall' ),
+					'summary'      => __( 'Keep automatic imports linked.', 'wp-simple-firewall' ),
+					'is_checked'   => false,
+					'action_label' => __( 'Join network', 'wp-simple-firewall' ),
 				],
 			],
 			'verification_label'          => __( 'Master site verification', 'wp-simple-firewall' ),

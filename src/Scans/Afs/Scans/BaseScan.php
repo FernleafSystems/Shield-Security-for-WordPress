@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Exceptions\{
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\IsFilePathExcluded;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseScan {
 
@@ -110,6 +111,6 @@ abstract class BaseScan {
 
 	public function setPathFull( string $pathFull ) {
 		$this->pathFull = $pathFull;
-		$this->pathFragment = \str_replace( wp_normalize_path( ABSPATH ), '', $pathFull );
+		$this->pathFragment = Services::WpFs()->getPathRelativeToAbsPath( $pathFull );
 	}
 }

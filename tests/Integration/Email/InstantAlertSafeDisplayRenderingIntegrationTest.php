@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 	EmailInstantAlertAdmins,
 	EmailInstantAlertFileLocker,
 	EmailInstantAlertFirewallBlock,
-	EmailInstantAlertHiddenPlugins,
+	EmailInstantAlertCloakedPlugins,
 	EmailInstantAlertShieldDeactivated,
 	EmailInstantAlertVulnerabilities
 };
@@ -52,6 +52,35 @@ class InstantAlertSafeDisplayRenderingIntegrationTest extends ShieldIntegrationT
 			if ( $case[ 'contains_button_payload' ] ) {
 				$this->assertStringContainsString( $expectedButtonEscaped, $html, $label.' should preserve escaped button text.' );
 			}
+		}
+	}
+
+	public function testCloakedPluginEmailLinksFindingsToCloakedPluginView() :void {
+		$html = $this->requireController()->action_router->render( EmailInstantAlertCloakedPlugins::class, [
+			'alert_data' => [
+				'hidden_plugins' => [
+					$this->cloakedPluginAlertFixture( 'plugin', 'active', 'hidden-plugin/hidden-plugin.php' ),
+					$this->cloakedPluginAlertFixture( 'mu-plugin', 'must-use', 'hidden-mu-plugin.php' ),
+				],
+			],
+		] );
+
+		$pluginStatusHrefs = $this->anchorHrefsContaining( $html, 'plugin_status=' );
+		$cloakedAnchorTexts = $this->anchorTextsByHrefContaining( $html, 'plugin_status=cloaked' );
+
+		$this->assertNotEmpty( $pluginStatusHrefs );
+		foreach ( $pluginStatusHrefs as $href ) {
+			$this->assertStringContainsString( 'plugin_status=cloaked', $href );
+			$this->assertStringNotContainsString( 'plugin_status=active', $href );
+			$this->assertStringNotContainsString( 'plugin_status=inactive', $href );
+			$this->assertStringNotContainsString( 'plugin_status=mustuse', $href );
+		}
+
+		$this->assertNotEmpty( $cloakedAnchorTexts );
+		foreach ( $cloakedAnchorTexts as $anchorText ) {
+			$this->assertStringNotContainsString( 'hidden-plugin/hidden-plugin.php', $anchorText );
+			$this->assertStringNotContainsString( 'hidden-mu-plugin.php', $anchorText );
+			$this->assertNotSame( '', \trim( $anchorText ) );
 		}
 	}
 
@@ -113,8 +142,8 @@ class InstantAlertSafeDisplayRenderingIntegrationTest extends ShieldIntegrationT
 				'contains_malicious_value' => true,
 				'contains_button_payload' => false,
 			],
-			'hidden plugins'     => [
-				'class'                   => EmailInstantAlertHiddenPlugins::class,
+			'cloaked plugins'     => [
+				'class'                   => EmailInstantAlertCloakedPlugins::class,
 				'alert_data'              => [
 					'hidden_plugins' => [
 						[
@@ -193,6 +222,65 @@ class InstantAlertSafeDisplayRenderingIntegrationTest extends ShieldIntegrationT
 			'plugin_file'      => $pluginFile,
 			'theme_stylesheet' => $themeStylesheet,
 		];
+	}
+
+	private function cloakedPluginAlertFixture( string $type, string $status, string $file ) :array {
+		return [
+			'type'             => $type,
+			'type_label'       => $type === 'mu-plugin' ? 'Must-Use Plugin' : 'Plugin',
+			'file'             => $file,
+			'name'             => 'Hidden Plugin',
+			'version'          => '1.2.3',
+			'location'         => WP_PLUGIN_DIR.'/'.$file,
+			'status'           => $status,
+			'hidden_by'        => [ 'all_plugins' ],
+			'hidden_by_labels' => [ 'All Plugins' ],
+			'detected_at'      => 1713278000,
+		];
+	}
+
+	private function anchorTextsByHrefContaining( string $html, string $hrefNeedle ) :array {
+		$texts = [];
+		foreach ( $this->anchorData( $html ) as $anchor ) {
+			if ( \strpos( $anchor[ 'href' ], $hrefNeedle ) !== false ) {
+				$texts[] = $anchor[ 'text' ];
+			}
+		}
+
+		return $texts;
+	}
+
+	private function anchorHrefsContaining( string $html, string $hrefNeedle ) :array {
+		$hrefs = [];
+		foreach ( $this->anchorData( $html ) as $anchor ) {
+			if ( \strpos( $anchor[ 'href' ], $hrefNeedle ) !== false ) {
+				$hrefs[] = $anchor[ 'href' ];
+			}
+		}
+
+		return $hrefs;
+	}
+
+	private function anchorData( string $html ) :array {
+		$previous = \libxml_use_internal_errors( true );
+		$dom = new \DOMDocument();
+		$loaded = $dom->loadHTML( $html );
+		\libxml_clear_errors();
+		\libxml_use_internal_errors( $previous );
+
+		if ( !$loaded ) {
+			$this->fail( 'Rendered email HTML could not be parsed.' );
+		}
+
+		$anchors = [];
+		foreach ( $dom->getElementsByTagName( 'a' ) as $anchor ) {
+			$anchors[] = [
+				'href' => \html_entity_decode( $anchor->getAttribute( 'href' ), \ENT_QUOTES | \ENT_HTML5, 'UTF-8' ),
+				'text' => \trim( $anchor->textContent ),
+			];
+		}
+
+		return $anchors;
 	}
 
 	private function escapedInline( string $value ) :string {

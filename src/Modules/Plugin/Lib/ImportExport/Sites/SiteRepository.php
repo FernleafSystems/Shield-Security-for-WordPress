@@ -2,10 +2,12 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Record as ProfileRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Handler as SitesDB,
 	Record
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\WhitelistNotifyQueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -17,7 +19,10 @@ class SiteRepository {
 	public const MIGRATED_AT_OPTION = 'importexport_sites_migrated_at';
 	public const OLD_NOTIFY_CRON = 'importexport_notify';
 	public const OLD_QUEUE_ACTION = 'whitelist_notify_urls';
+	private const META_EXPORT_SERVED_AT = 'export_served_at';
+	private const META_HANDSHAKE_ATTEMPT_AT = 'handshake_attempt_at';
 	private const SQL_BATCH_SIZE = 20;
+	private ?int $defaultProfileRef = null;
 
 	public function ensureLegacyImported( bool $includeOldQueueState = true ) :void {
 		$dbh = $this->dbOrNull();
@@ -156,6 +161,40 @@ class SiteRepository {
 		return $this->queueRows( $this->findActiveByIds( $ids ) );
 	}
 
+	public function repairConnectionsByIds( array $ids ) :int {
+		$rows = $this->findActiveByIds( $ids );
+		if ( empty( $rows ) ) {
+			return 0;
+		}
+
+		$now = Services::Request()->ts();
+		$count = 0;
+		foreach ( $rows as $row ) {
+			if ( !$this->isRepairableConnectionRow( $row, $now ) ) {
+				continue;
+			}
+
+			if ( $this->updateById( $row->id, \array_merge(
+				$this->buildQueueDueData( $now ),
+				[
+					'import_id'               => '',
+					'last_ping_failure_at'    => 0,
+					'last_ping_http_code'     => 0,
+					'last_ping_error'         => '',
+					'last_export_failure_at'  => 0,
+					'last_export_result_code' => '',
+					'last_export_error'       => '',
+					'consecutive_failures'    => 0,
+					'meta'                    => $this->metaWithoutRepairCooldowns( $row ),
+				]
+			) ) ) {
+				$count++;
+			}
+		}
+
+		return $count;
+	}
+
 	public function deleteByIds( array $ids ) :int {
 		$dbh = $this->dbOrNull();
 		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
@@ -264,7 +303,7 @@ class SiteRepository {
 		] );
 	}
 
-	public function recordPingSuccess( Record $row, int $httpCode, int $expectedExportBy ) :void {
+	public function recordNotifyDispatched( Record $row, int $httpCode, int $expectedExportBy ) :void {
 		$now = Services::Request()->ts();
 		$this->updateById( $row->id, [
 			'queue_status'          => SitesDB::QUEUE_WAITING_EXPORT,
@@ -275,6 +314,25 @@ class SiteRepository {
 			'lock_until'            => 0,
 			'picked_at'             => 0,
 		] );
+	}
+
+	public function exportCooldownActive( Record $row, int $cooldown ) :bool {
+		if ( $this->isAwaitingExpectedExport( $row ) ) {
+			return false;
+		}
+		return $this->metaTimestampWithinCooldown( $row, self::META_EXPORT_SERVED_AT, $cooldown );
+	}
+
+	public function recordExportServed( Record $row ) :void {
+		$this->setMetaTimestamp( $row, self::META_EXPORT_SERVED_AT );
+	}
+
+	public function handshakeCooldownActive( Record $row, int $cooldown ) :bool {
+		return $this->metaTimestampWithinCooldown( $row, self::META_HANDSHAKE_ATTEMPT_AT, $cooldown );
+	}
+
+	public function recordHandshakeAttempt( Record $row ) :void {
+		$this->setMetaTimestamp( $row, self::META_HANDSHAKE_ATTEMPT_AT );
 	}
 
 	public function recordPingFailure( Record $row, int $httpCode, string $error ) :void {
@@ -496,6 +554,12 @@ class SiteRepository {
 		return \array_values( \array_unique( \array_filter( \array_map( '\intval', $ids ), static fn( int $id ) :bool => $id > 0 ) ) );
 	}
 
+	private function metaWithoutRepairCooldowns( Record $row ) :array {
+		$meta = \is_array( $row->meta ) ? $row->meta : [];
+		unset( $meta[ self::META_EXPORT_SERVED_AT ], $meta[ self::META_HANDSHAKE_ATTEMPT_AT ] );
+		return $meta;
+	}
+
 	private function storeOptionsIfChanged() :void {
 		if ( self::con()->opts->hasChanges() ) {
 			self::con()->opts->store();
@@ -593,6 +657,10 @@ class SiteRepository {
 			'deleted_at' => 0,
 		];
 
+		$profileRef = $this->profileRefForRow( $row );
+		if ( !$row instanceof Record || $row->profile_ref !== $profileRef ) {
+			$data[ 'profile_ref' ] = $profileRef;
+		}
 		if ( !empty( $source ) && ( !$row instanceof Record || empty( $row->source ) ) ) {
 			$data[ 'source' ] = $source;
 		}
@@ -611,12 +679,14 @@ class SiteRepository {
 		string $url,
 		string $source,
 		bool $sendInvite,
-		int $now
+		int $now,
+		?int $profileRef = null
 	) :array {
 		$queueStatus = $sendInvite ? SitesDB::QUEUE_PENDING_INVITE : SitesDB::QUEUE_PENDING_CONNECTION;
 		$data = [
 			'url'                  => $url,
 			'url_hash'             => \hash( 'md5', $url ),
+			'profile_ref'          => $profileRef ?? $this->profileRefForRow( $row ),
 			'status'               => SitesDB::STATUS_ACTIVE,
 			'queue_status'         => $queueStatus,
 			'deleted_at'           => 0,
@@ -676,10 +746,45 @@ class SiteRepository {
 		bool $sendInvite,
 		int $now
 	) :array {
+		$base = $this->buildActiveInsertData( $url, $source, '', false, $now );
 		return \array_merge(
-			$this->buildActiveInsertData( $url, $source, '', false, $now ),
-			$this->buildPendingClientSiteUpsertData( null, $url, $source, $sendInvite, $now )
+			$base,
+			$this->buildPendingClientSiteUpsertData( null, $url, $source, $sendInvite, $now, (int)$base[ 'profile_ref' ] )
 		);
+	}
+
+	private function defaultProfileRef() :int {
+		if ( $this->defaultProfileRef !== null ) {
+			return $this->defaultProfileRef;
+		}
+
+		try {
+			$profile = ( new ProfileRepository() )->ensureDefaultProfile();
+			$profileRef = $profile instanceof ProfileRecord
+				? $profile->id
+				: 0;
+			if ( $profileRef > 0 ) {
+				$this->defaultProfileRef = $profileRef;
+			}
+			return $profileRef;
+		}
+		catch ( \Throwable $e ) {
+			return 0;
+		}
+	}
+
+	private function profileRefForRow( ?Record $row ) :int {
+		if ( $row instanceof Record ) {
+			try {
+				$profileRef = ( new ProfileRepository() )->resolveProfileRefForSite( $row );
+				return $profileRef > 0 ? $profileRef : $this->defaultProfileRef();
+			}
+			catch ( \Throwable $e ) {
+				return $this->defaultProfileRef();
+			}
+		}
+
+		return $this->defaultProfileRef();
 	}
 
 	private function queueRows( array $rows ) :int {
@@ -1164,6 +1269,43 @@ class SiteRepository {
 
 	private function trimError( string $error ) :string {
 		return \substr( \trim( $error ), 0, 1000 );
+	}
+
+	private function isAwaitingExpectedExport( Record $row ) :bool {
+		return $row->queue_status === SitesDB::QUEUE_WAITING_EXPORT
+			   && $row->expected_export_by >= Services::Request()->ts()
+			   && $row->last_export_success_at <= $row->last_ping_success_at;
+	}
+
+	private function isRepairableConnectionRow( Record $row, int $now ) :bool {
+		return $row->status === SitesDB::STATUS_ACTIVE
+			   && ( $this->isExpiredWaitingExportProblem( $row, $now ) || $this->hasQueuedOrIdleProblem( $row ) );
+	}
+
+	private function isExpiredWaitingExportProblem( Record $row, int $now ) :bool {
+		return $row->queue_status === SitesDB::QUEUE_WAITING_EXPORT
+			   && $row->expected_export_by > 0
+			   && $row->expected_export_by <= $now
+			   && $row->last_export_success_at <= $row->last_ping_success_at;
+	}
+
+	private function hasQueuedOrIdleProblem( Record $row ) :bool {
+		return \in_array( $row->queue_status, [ SitesDB::QUEUE_QUEUED, SitesDB::QUEUE_IDLE ], true )
+			   && ( $row->consecutive_failures > 0
+					|| \max( $row->last_ping_failure_at, $row->last_export_failure_at ) > $row->last_export_success_at );
+	}
+
+	private function metaTimestampWithinCooldown( Record $row, string $key, int $cooldown ) :bool {
+		$last = (int)( \is_array( $row->meta ) ? ( $row->meta[ $key ] ?? 0 ) : 0 );
+		return $last > 0 && Services::Request()->ts() - $last < $cooldown;
+	}
+
+	private function setMetaTimestamp( Record $row, string $key ) :void {
+		$meta = \is_array( $row->meta ) ? $row->meta : [];
+		$meta[ $key ] = Services::Request()->ts();
+		if ( $this->updateById( $row->id, [ 'meta' => $meta ] ) ) {
+			$row->meta = $meta;
+		}
 	}
 
 	private function db() :SitesDB {

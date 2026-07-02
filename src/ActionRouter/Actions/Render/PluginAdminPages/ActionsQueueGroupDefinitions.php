@@ -5,7 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker,
-	HiddenPlugins,
+	CloakedPlugins,
 	Maintenance,
 	Malware,
 	Plugins,
@@ -115,8 +115,8 @@ class ActionsQueueGroupDefinitions {
 			'section_order'            => 5,
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
-			'healthy_interaction_mode' => 'none',
-			'render_action_class'      => HiddenPlugins::class,
+			'healthy_interaction_mode' => 'default_detail',
+			'render_action_class'      => CloakedPlugins::class,
 			'render_action_data'       => [],
 		],
 		'malware' => [
@@ -297,6 +297,13 @@ class ActionsQueueGroupDefinitions {
 	 */
 	public function criticalScanGroupKeys() :array {
 		return \array_keys( PluginNavs::actionsQueueScanDefinitions() );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	public function ignoredOnlyDirectTableGroupKeys() :array {
+		return [ 'wordpress', 'malware' ];
 	}
 
 	public function groupKeyForGroupKey( string $groupKey ) :string {

@@ -86,7 +86,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'status_label'      => 'Active',
 					'status_icon_class' => 'bi bi-check-circle-fill',
 					'explanations'      => [],
-					'config_action'     => [],
+					'config_action'     => $this->configureAction( 'passive_logging', 'passive_logging_enabled' ),
 				],
 				[
 					'key'               => 'primary_control',
@@ -96,18 +96,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'status_label'      => 'Issue',
 					'status_icon_class' => 'bi bi-x-circle-fill',
 					'explanations'      => [ 'Critical explanation' ],
-					'config_action'     => [
-						'label'   => 'Configure',
-						'href'    => '',
-						'is_action' => true,
-						'icon'    => 'bi bi-gear',
-						'classes' => [ 'zone_component_action' ],
-						'data'    => [
-							'zone_component_action' => 'offcanvas_zone_component_config',
-							'zone_component_slug'   => 'primary_control',
-							'retry-count'          => '7',
-						],
-					],
+					'config_action'     => $this->configureAction( 'primary_control', 'primary_enabled' ),
 				],
 				[
 					'key'               => 'secondary_control',
@@ -117,7 +106,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'status_label'      => 'Needs Work',
 					'status_icon_class' => 'bi bi-exclamation-circle-fill',
 					'explanations'      => [ 'Warning explanation' ],
-					'config_action'     => [],
+					'config_action'     => $this->configureAction( 'secondary_control', 'secondary_enabled' ),
 				],
 				[
 					'key'               => 'general_settings',
@@ -127,7 +116,7 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'status_label'      => 'General',
 					'status_icon_class' => 'bi bi-info-circle-fill',
 					'explanations'      => [],
-					'config_action'     => [],
+					'config_action'     => $this->configureAction( 'general_settings', 'general_enabled' ),
 				],
 				[
 					'key'               => 'another_warning',
@@ -137,26 +126,43 @@ class StatusDetailGroupsBuilderTest extends BaseUnitTest {
 					'status_label'      => 'Needs Work',
 					'status_icon_class' => 'bi bi-exclamation-circle-fill',
 					'explanations'      => [],
-					'config_action'     => [],
+					'config_action'     => $this->configureAction( 'another_warning', 'another_warning_enabled' ),
 				],
 			]
 		);
 
 		$this->assertSame( [ 'critical', 'warning', 'good', 'neutral' ], \array_column( $groups, 'status' ) );
-		$this->assertSame( [ 'primary_control' ], \array_column( $groups[ 0 ][ 'rows' ] ?? [], 'key' ) );
-		$this->assertSame( [ 'secondary_control', 'another_warning' ], \array_column( $groups[ 1 ][ 'rows' ] ?? [], 'key' ) );
-		$this->assertSame( [ 'passive_logging' ], \array_column( $groups[ 2 ][ 'rows' ] ?? [], 'key' ) );
-		$this->assertSame( [ 'general_settings' ], \array_column( $groups[ 3 ][ 'rows' ] ?? [], 'key' ) );
-		$this->assertSame( '', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'href' ] ?? 'unexpected' );
-		$this->assertTrue( $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'is_action' ] ?? false );
-		$this->assertSame( 'offcanvas_zone_component_config', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'zone_component_action' ] ?? '' );
-		$this->assertSame( '7', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'retry-count' ] ?? '' );
-		$this->assertFalse( $groups[ 1 ][ 'rows' ][ 0 ][ 'is_expandable' ] ?? true );
-		$this->assertTrue( $groups[ 0 ][ 'rows' ][ 0 ][ 'is_expandable' ] ?? false );
-		$this->assertArrayNotHasKey( 'inline_control', $groups[ 0 ][ 'rows' ][ 0 ] ?? [] );
-		$this->assertArrayNotHasKey( 'inline_control', $groups[ 1 ][ 'rows' ][ 0 ] ?? [] );
-		$this->assertArrayNotHasKey( '', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ] ?? [] );
-		$this->assertSame( [], $groups[ 2 ][ 'rows' ][ 0 ][ 'action' ] ?? null );
-		$this->assertFalse( $groups[ 2 ][ 'rows' ][ 0 ][ 'is_expandable' ] ?? true );
+		$this->assertSame( [ 'primary_control' ], \array_column( $groups[ 0 ][ 'rows' ], 'key' ) );
+		$this->assertSame( [ 'secondary_control', 'another_warning' ], \array_column( $groups[ 1 ][ 'rows' ], 'key' ) );
+		$this->assertSame( [ 'passive_logging' ], \array_column( $groups[ 2 ][ 'rows' ], 'key' ) );
+		$this->assertSame( [ 'general_settings' ], \array_column( $groups[ 3 ][ 'rows' ], 'key' ) );
+		$this->assertSame( '', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'href' ] );
+		$this->assertTrue( $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'is_action' ] );
+		$this->assertSame( 'offcanvas_zone_component_config', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'zone_component_action' ] );
+		$this->assertSame( 'primary_enabled', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'option_keys' ] );
+		$this->assertSame( 'offcanvas', $groups[ 0 ][ 'rows' ][ 0 ][ 'action' ][ 'data' ][ 'form_context' ] );
+		$this->assertTrue( $groups[ 0 ][ 'rows' ][ 0 ][ 'is_expandable' ] );
+		$this->assertTrue( $groups[ 1 ][ 'rows' ][ 0 ][ 'is_expandable' ] );
+		$this->assertTrue( $groups[ 2 ][ 'rows' ][ 0 ][ 'is_expandable' ] );
+		$this->assertArrayNotHasKey( 'inline_control', $groups[ 0 ][ 'rows' ][ 0 ] );
+		$this->assertArrayNotHasKey( 'inline_control', $groups[ 1 ][ 'rows' ][ 0 ] );
+	}
+
+	private function configureAction( string $componentSlug, string $optionKeys ) :array {
+		return [
+			'label'     => 'Configure',
+			'title'     => 'Edit Settings',
+			'href'      => '',
+			'target'    => '',
+			'is_action' => true,
+			'icon'      => 'bi bi-gear',
+			'classes'   => [ 'zone_component_action' ],
+			'data'      => [
+				'zone_component_action' => 'offcanvas_zone_component_config',
+				'zone_component_slug'   => $componentSlug,
+				'option_keys'           => $optionKeys,
+				'form_context'          => 'offcanvas',
+			],
+		];
 	}
 }

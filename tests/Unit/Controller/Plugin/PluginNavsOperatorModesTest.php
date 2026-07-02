@@ -262,15 +262,15 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( [ 'hidden_plugins' ], $queueDefinitions[ 'hidden_plugins' ][ 'summary_keys' ] );
 		$vulnerableDefinition = PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'vulnerable_assets' );
 		$abandonedDefinition = PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'abandoned' );
-		$hiddenPluginsDefinition = PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'hidden_plugins' );
+		$cloakedPluginsDefinition = PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'hidden_plugins' );
 		$landingAbandonedDefinition = PluginNavs::actionsLandingScanDefinitionForSummaryKey( 'abandoned' );
 		$this->assertNotNull( $vulnerableDefinition );
 		$this->assertNotNull( $abandonedDefinition );
-		$this->assertNotNull( $hiddenPluginsDefinition );
+		$this->assertNotNull( $cloakedPluginsDefinition );
 		$this->assertNotNull( $landingAbandonedDefinition );
 		$this->assertSame( 'vulnerabilities', $vulnerableDefinition[ 'slug' ] );
 		$this->assertSame( 'abandoned', $abandonedDefinition[ 'slug' ] );
-		$this->assertSame( 'hidden_plugins', $hiddenPluginsDefinition[ 'slug' ] );
+		$this->assertSame( 'hidden_plugins', $cloakedPluginsDefinition[ 'slug' ] );
 		$this->assertNull( PluginNavs::actionsQueueScanDefinitionForSummaryKey( 'theme_files_ignored' ) );
 		$this->assertSame( 'vulnerabilities', $landingAbandonedDefinition[ 'slug' ] );
 		$this->assertNull( PluginNavs::actionsLandingScanDefinitionForSummaryKey( 'hidden_plugins' ) );

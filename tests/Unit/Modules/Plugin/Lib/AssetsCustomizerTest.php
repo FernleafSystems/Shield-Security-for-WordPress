@@ -29,6 +29,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components\Widgets\WpDashboardSummary,
 	Actions\ScansCheck,
 	Actions\ScansStart,
+	Actions\TrafficLiveLog_SetEnabled,
 	Actions\ToolPurgeProviderIPs
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
@@ -244,6 +245,14 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_traffic_component_localizes_live_log_toggle_payload() :void {
+		$this->installEnvironment();
+
+		$ajax = $this->componentAjax( 'traffic' );
+
+		$this->assertSame( TrafficLiveLog_SetEnabled::SLUG, $ajax[ 'set_live_log_enabled' ][ ActionData::FIELD_EXECUTE ] );
+	}
+
 	public function test_import_export_sites_table_localizes_table_payload_without_authorise_urls_submit() :void {
 		$this->installEnvironment( [
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_TOOLS,
@@ -269,6 +278,9 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'remove_selected_sites_confirm', $sites[ 'strings' ] );
 		$this->assertIsString( $sites[ 'strings' ][ 'remove_selected_sites_confirm' ] );
 		$this->assertNotSame( '', $sites[ 'strings' ][ 'remove_selected_sites_confirm' ] );
+		$this->assertArrayHasKey( 'repair_site_confirm', $sites[ 'strings' ] );
+		$this->assertIsString( $sites[ 'strings' ][ 'repair_site_confirm' ] );
+		$this->assertNotSame( '', $sites[ 'strings' ][ 'repair_site_confirm' ] );
 		$this->assertArrayHasKey( 'datatables_init', $sites[ 'vars' ] );
 		$this->assertArrayHasKey( 'columns', $sites[ 'vars' ][ 'datatables_init' ] );
 		$this->assertIsArray( $sites[ 'vars' ][ 'datatables_init' ][ 'columns' ] );
@@ -278,7 +290,6 @@ class AssetsCustomizerTest extends BaseUnitTest {
 			static fn( array $column ) :bool => $column[ 'data' ] === 'actions'
 		) );
 		$this->assertCount( 1, $actionColumns );
-		$this->assertSame( '3rem', $actionColumns[ 0 ][ 'width' ] );
 	}
 
 	private function installEnvironment( array $query = [], array $completedTours = [], bool $hasRunningScans = false ) :void {

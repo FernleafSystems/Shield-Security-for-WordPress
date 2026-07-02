@@ -90,6 +90,7 @@
 							<div class="import-export-network-state__copy">
 								<span>{{ network_sync.connect.connected.label }}</span>
 								<strong>{{ network_sync.connect.connected.master_host }}</strong>
+								<small data-import-export-local-import-id="{{ network_sync.connect.connected.import_id.value }}">{{ network_sync.connect.connected.import_id.label }}: {{ network_sync.connect.connected.import_id.value }}</small>
 								<button type="button"
 										id="{{ network_sync.connect.sync_now.id }}"
 										class="btn btn-primary btn-sm import-export-primary-action"
@@ -149,7 +150,7 @@
 													   name="ShieldNetwork"
 													   value="{{ option.value }}"
 													   data-import-export-link-choice="1"
-													   data-action-label="{{ option.value == 'Y' ? network_sync.connect.form.submit_label_network : network_sync.connect.form.submit_label_once }}"
+													   data-action-label="{{ option.action_label }}"
 													   {% if option.is_checked %}checked{% endif %}>
 												<span>
 													<strong>{{ option.label }}</strong>
@@ -238,6 +239,35 @@
 						<table id="{{ network_sync.clients.table_id }}" class="table table-striped table-bordered import-export-sites-table"></table>
 					{% else %}
 						<p class="import-export-empty-state">{{ network_sync.clients.empty_message }}</p>
+					{% endif %}
+				</div>
+
+				<div class="import-export-pane"
+					 data-import-export-pane="profile"
+					 role="tabpanel"
+					 hidden>
+					<header class="import-export-pane__header">
+						<div>
+							<h5>{{ network_sync.profile.title }}</h5>
+							<p>{{ network_sync.profile.summary }}</p>
+						</div>
+						{% if network_sync.profile.is_available %}
+							<button type="button"
+									id="{{ network_sync.profile.copy_from_master.id }}"
+									class="btn btn-outline-primary btn-sm"
+									data-import-export-profile-copy-from-master="1"
+									data-confirm-message="{{ network_sync.profile.copy_from_master.confirm_message }}"
+									data-confirm-label="{{ network_sync.profile.copy_from_master.confirm_label }}">
+								<i class="{{ network_sync.profile.copy_from_master.icon_class }}" aria-hidden="true"></i>
+								<span>{{ network_sync.profile.copy_from_master.label }}</span>
+							</button>
+						{% endif %}
+					</header>
+
+					{% if network_sync.profile.is_available %}
+						{{ network_sync.profile.form_html|raw }}
+					{% else %}
+						<p class="import-export-empty-state" data-import-export-profile-empty="1">{{ network_sync.profile.empty_message }}</p>
 					{% endif %}
 				</div>
 			</div>

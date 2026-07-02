@@ -253,6 +253,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			[
 				$this->attentionItem( 'malware', 'scans', 2, 'critical', 'Malware' ),
 				$this->attentionItem( 'vulnerable_assets', 'scans', 0, 'good', 'Vulnerabilities' ),
+				$this->attentionItem( 'hidden_plugins', 'scans', 1, 'critical', 'Cloaked Plugins' ),
 				$this->attentionItem( 'file_locker', 'scans', 1, 'warning', 'File Locker' ),
 			],
 			[
@@ -269,10 +270,12 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			\array_column( $renderData[ 'vars' ][ 'secondary_lanes' ], 'mode' )
 		);
 		$this->assertSame(
-			[ 'malware', 'file_locker', 'maintenance' ],
+			[ 'malware', 'hidden_plugins', 'file_locker', 'maintenance' ],
 			\array_column( $renderData[ 'vars' ][ 'actions_queue_rows' ], 'key' )
 		);
-		$this->assertNull( $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
+		$this->assertSame( 'Cloaked Plugins', $renderData[ 'vars' ][ 'actions_queue_rows' ][ 1 ][ 'label' ] );
+		$this->assertArrayHasKey( 'actions_all_clear', $renderData[ 'vars' ] );
+		$this->assertNull( $renderData[ 'vars' ][ 'actions_all_clear' ] );
 	}
 
 	public function test_render_data_marks_actions_all_clear_when_attention_query_is_empty() :void {
@@ -285,7 +288,13 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( [], $renderData[ 'vars' ][ 'actions_queue_rows' ] );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] );
 		$this->assertSame( 'good', $renderData[ 'vars' ][ 'shield_status' ] );
-		$this->assertIsArray( $renderData[ 'vars' ][ 'actions_all_clear' ] ?? null );
+		$this->assertArrayHasKey( 'actions_all_clear', $renderData[ 'vars' ] );
+		$allClear = $renderData[ 'vars' ][ 'actions_all_clear' ];
+		$this->assertIsArray( $allClear );
+		$this->assertSame(
+			[ 'scans', 'maintenance', 'cloaked_plugin_detection' ],
+			\array_column( $allClear[ 'checks' ], 'slug' )
+		);
 	}
 
 	private function newPage() :PageOperatorModeLanding {

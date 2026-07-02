@@ -35,7 +35,7 @@ class ActionsQueueSecurityCheckSource {
 	 */
 	protected function providers() :array {
 		return [
-			new HiddenPluginsQueueIssueProvider(),
+			new CloakedPluginsQueueIssueProvider(),
 		];
 	}
 }

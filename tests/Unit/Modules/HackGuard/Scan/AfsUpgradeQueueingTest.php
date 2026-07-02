@@ -20,6 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState,
 	UnitTestRequest
 };
+use FernleafSystems\Wordpress\Services\Core\Fs;
 use FernleafSystems\Wordpress\Services\Core\General;
 
 class AfsUpgradeQueueingTest extends BaseUnitTest {
@@ -214,8 +215,12 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 		}
 
 		PluginControllerInstaller::install( $controller );
+		Functions\when( 'wp_normalize_path' )->alias(
+			static fn( string $path ) :string => \str_replace( '\\', '/', $path )
+		);
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
+			'service_wpfs'    => new Fs(),
 		] );
 	}
 

@@ -18,18 +18,21 @@ class CrossSitePairManager {
 	private const SLAVE_WORDPRESS_SERVICE = 'wordpress-slave';
 	private const MASTER_WPCLI_SERVICE = 'wp-cli-master';
 	private const SLAVE_WPCLI_SERVICE = 'wp-cli-slave';
-	private const MASTER_INTERNAL_URL = 'http://wordpress-master';
-	private const SLAVE_INTERNAL_URL = 'http://wordpress-slave';
+	private const MASTER_INTERNAL_URL = 'http://wordpress-master.shield-cross-site.example.com';
+	private const SLAVE_INTERNAL_URL = 'http://wordpress-slave.shield-cross-site.example.com';
 	private const MASTER_DB_NAME = 'shield_cross_site_master';
 	private const SLAVE_DB_NAME = 'shield_cross_site_slave';
 	private const MASTER_HOST_PORT = '8892';
 	private const SLAVE_HOST_PORT = '8893';
+	private const REUSABLE_DOCKER_RUN_ID = 'shield-plugin-cross-site-reusable';
+	private const REUSABLE_DOCKER_EXPIRES_AT = '2037-12-31T23:59:59+00:00';
 	private const HELPER_FILE = '/app/tests/Helpers/CrossSite/CrossSiteRuntime.php';
 	private const STATUS_ACTIVE = 'active';
 	private const QUEUE_IDLE = 'idle';
 	private const QUEUE_QUEUED = 'queued';
 	private const QUEUE_WAITING_EXPORT = 'waiting_export';
 	private const EXPORT_RESULT_SUCCESS = 'success';
+	private const WP_CLI_INVALID_CRON_EVENT = 'Invalid cron event';
 
 	private ProcessRunner $processRunner;
 
@@ -42,8 +45,6 @@ class CrossSitePairManager {
 	private SourceSetupCacheCoordinator $setupCacheCoordinator;
 
 	private string $lastStage = 'not started';
-
-	private string $runId = '';
 
 	/** @var array<string,mixed> */
 	private array $lastDiagnostics = [];
@@ -98,11 +99,7 @@ class CrossSitePairManager {
 		$exitCode = $this->dockerComposeExecutor->run(
 			$rootDir,
 			$composeFiles,
-			[
-				'up',
-				'-d',
-				self::DB_SERVICE_NAME,
-			],
+			$this->buildDatabaseUpCommand(),
 			$envOverrides,
 			$onOutput,
 			$showDockerOutput
@@ -110,7 +107,7 @@ class CrossSitePairManager {
 		if ( $exitCode !== 0 ) {
 			throw $this->composeFailureException(
 				'Failed to start the cross-site Docker database service.',
-				[ 'up', '-d', self::DB_SERVICE_NAME ],
+				$this->buildDatabaseUpCommand(),
 				$exitCode
 			);
 		}
@@ -214,18 +211,8 @@ class CrossSitePairManager {
 		$this->stage( 'process master DB-backed site queue' );
 		$this->processMasterSitesQueue( $rootDir );
 
-		$this->stage( 'run slave import cron' );
-		$slaveCron = $this->runHelper( $rootDir, self::SLAVE, 'cron-state' );
-		$this->lastDiagnostics[ 'slave_cron' ] = $slaveCron;
-		$importHook = (string)( $slaveCron[ 'import_hook' ] ?? '' );
-		if ( empty( $slaveCron[ 'import_scheduled' ] ) || $importHook === '' ) {
-			throw new \RuntimeException( 'Slave import cron was not scheduled after master notification.' );
-		}
-		$this->wpCapture( $rootDir, self::SLAVE, [ 'cron', 'event', 'run', $importHook ] );
-
-		$this->stage( 'assert master export sync completion' );
-		$queueAfterImport = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
-		$this->lastDiagnostics[ 'master_queue_after_import' ] = $queueAfterImport;
+		$this->stage( 'wait for slave import completion' );
+		$queueAfterImport = $this->waitForSlaveImportCompletion( $rootDir );
 		$this->assertPostExportQueueState( $queueAfterImport );
 
 		$this->stage( 'compare exported option payloads' );
@@ -276,8 +263,66 @@ class CrossSitePairManager {
 		$this->wpCapture( $rootDir, self::MASTER, [ 'cron', 'event', 'run', $queueHook ] );
 
 		$queueAfter = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
-		$this->lastDiagnostics[ 'master_queue_after_ping' ] = $queueAfter;
-		$this->assertPostPingQueueState( $queueAfter );
+		$this->lastDiagnostics[ 'master_queue_after_notify_dispatch' ] = $queueAfter;
+		$this->assertPostNotifyDispatchQueueState( $queueAfter );
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function waitForSlaveImportCompletion( string $rootDir ) :array {
+		$startedAt = \time();
+		$directImportAttempted = false;
+		do {
+			$lastQueueState = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
+			$this->lastDiagnostics[ 'master_queue_after_import' ] = $lastQueueState;
+			if ( $this->isPostExportQueueState( $lastQueueState ) ) {
+				return $lastQueueState;
+			}
+
+			$slaveCron = $this->runHelper( $rootDir, self::SLAVE, 'cron-state' );
+			$this->lastDiagnostics[ 'slave_cron' ] = $slaveCron;
+			$importHook = (string)( $slaveCron[ 'import_hook' ] ?? '' );
+			if ( !empty( $slaveCron[ 'import_scheduled' ] ) && $importHook !== '' ) {
+				$captured = $this->wpCapture( $rootDir, self::SLAVE, [ 'cron', 'event', 'run', $importHook ], false );
+				if ( $captured[ 'exit_code' ] !== 0 && !$this->isInvalidCronEventFailure( $captured ) ) {
+					throw $this->wpCliFailureException( self::SLAVE, $captured );
+				}
+				continue;
+			}
+
+			if ( $this->isWaitingForSlaveExport( $lastQueueState ) ) {
+				if ( $this->slaveNotificationAccepted( $slaveCron ) ) {
+					if ( !$directImportAttempted ) {
+						$directImportAttempted = true;
+						try {
+							$this->lastDiagnostics[ 'slave_direct_import' ] = $this->runHelper(
+								$rootDir,
+								self::SLAVE,
+								'run-import-from-master'
+							);
+						}
+						catch ( \RuntimeException $exception ) {
+							throw new \RuntimeException(
+								'Slave direct import from master failed: '.$exception->getMessage(),
+								0,
+								$exception
+							);
+						}
+						continue;
+					}
+				}
+				else {
+					throw new \RuntimeException(
+						'Slave did not accept the master import notification; no import event or notify cooldown was visible.'
+					);
+				}
+			}
+
+			\sleep( 1 );
+		} while ( \time() - $startedAt < 30 );
+
+		throw new \RuntimeException( 'Slave import did not complete after master notification.' );
 	}
 
 	private function assertLegacyMigration( array $legacyMigration ) :void {
@@ -324,40 +369,79 @@ class CrossSitePairManager {
 		}
 	}
 
-	private function assertPostPingQueueState( array $queueState ) :void {
+	private function assertPostNotifyDispatchQueueState( array $queueState ) :void {
+		$postExportFailure = $this->postExportQueueStateFailure( $queueState );
+		if ( $postExportFailure === null ) {
+			return;
+		}
+
 		$row = $this->findRegistryRow( (array)( $queueState[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
 		if ( !\is_array( $row ) ) {
-			throw new \RuntimeException( 'Master DB-backed site queue lost the slave registry row after ping.' );
+			throw new \RuntimeException( 'Master DB-backed site queue lost the slave registry row after notify dispatch.' );
+		}
+		if ( ( $row[ 'queue_status' ] ?? '' ) === self::QUEUE_IDLE ) {
+			throw new \RuntimeException( $postExportFailure );
 		}
 		if ( ( $row[ 'queue_status' ] ?? '' ) !== self::QUEUE_WAITING_EXPORT ) {
-			throw new \RuntimeException( 'Master DB-backed site queue did not wait for slave export after ping.' );
+			throw new \RuntimeException( 'Master DB-backed site queue did not wait for slave export after notify dispatch.' );
 		}
 		if ( (int)( $row[ 'last_ping_success_at' ] ?? 0 ) <= 0 ) {
-			throw new \RuntimeException( 'Master DB-backed site queue did not record ping success.' );
+			throw new \RuntimeException( 'Master DB-backed site queue did not record notify dispatch.' );
 		}
 		if ( (int)( $row[ 'last_export_success_at' ] ?? 0 ) >= (int)( $row[ 'last_ping_success_at' ] ?? 0 ) ) {
-			throw new \RuntimeException( 'Master DB-backed site queue counted ping success as export sync success.' );
+			throw new \RuntimeException( 'Master DB-backed site queue counted notify dispatch as export sync success.' );
 		}
 	}
 
 	private function assertPostExportQueueState( array $queueState ) :void {
+		$failure = $this->postExportQueueStateFailure( $queueState );
+		if ( $failure !== null ) {
+			throw new \RuntimeException( $failure );
+		}
+	}
+
+	private function isPostExportQueueState( array $queueState ) :bool {
+		return $this->postExportQueueStateFailure( $queueState ) === null;
+	}
+
+	private function postExportQueueStateFailure( array $queueState ) :?string {
 		$row = $this->findRegistryRow( (array)( $queueState[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
 		if ( !\is_array( $row ) ) {
-			throw new \RuntimeException( 'Master DB-backed site queue lost the slave registry row after slave import.' );
+			return 'Master DB-backed site queue lost the slave registry row after slave import.';
 		}
 		if ( ( $row[ 'queue_status' ] ?? '' ) !== self::QUEUE_IDLE ) {
-			throw new \RuntimeException( 'Master DB-backed site queue did not return the slave row to idle after export.' );
+			return 'Master DB-backed site queue did not return the slave row to idle after export.';
 		}
 		if ( (int)( $row[ 'last_export_request_at' ] ?? 0 ) <= 0
 			 || (int)( $row[ 'last_export_success_at' ] ?? 0 ) <= 0 ) {
-			throw new \RuntimeException( 'Master DB-backed site queue did not record export request and success.' );
+			return 'Master DB-backed site queue did not record export request and success.';
+		}
+		if ( (int)( $row[ 'last_ping_success_at' ] ?? 0 ) <= 0 ) {
+			return 'Master DB-backed site queue did not record notify dispatch before export.';
 		}
 		if ( (int)( $row[ 'last_export_success_at' ] ?? 0 ) <= (int)( $row[ 'last_ping_success_at' ] ?? 0 ) ) {
-			throw new \RuntimeException( 'Master DB-backed site queue did not record a new export success after ping.' );
+			return 'Master DB-backed site queue did not record a new export success after notify dispatch.';
 		}
 		if ( ( $row[ 'last_export_result_code' ] ?? '' ) !== self::EXPORT_RESULT_SUCCESS ) {
-			throw new \RuntimeException( 'Master DB-backed site queue did not record export success result code.' );
+			return 'Master DB-backed site queue did not record export success result code.';
 		}
+		return null;
+	}
+
+	private function isWaitingForSlaveExport( array $queueState ) :bool {
+		$row = $this->findRegistryRow( (array)( $queueState[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
+		return \is_array( $row ) && ( $row[ 'queue_status' ] ?? '' ) === self::QUEUE_WAITING_EXPORT;
+	}
+
+	private function slaveNotificationAccepted( array $slaveCron ) :bool {
+		return !empty( $slaveCron[ 'notify_cooldown_active' ] );
+	}
+
+	/**
+	 * @param array{stdout:string,stderr:string,exit_code:int} $captured
+	 */
+	private function isInvalidCronEventFailure( array $captured ) :bool {
+		return \str_contains( $captured[ 'stderr' ].$captured[ 'stdout' ], self::WP_CLI_INVALID_CRON_EVENT );
 	}
 
 	private function findRegistryRow( array $rows, string $url ) :?array {
@@ -611,7 +695,7 @@ class CrossSitePairManager {
 		$this->waitForDatabaseReady( $rootDir, $envOverrides, $onOutput );
 		$command = \array_merge(
 			$this->buildComposeCommandForExecution( [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
-			[ 'mysql', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '-e', $this->buildResetDatabasesSql() ]
+			$this->buildMysqlSqlCommand( $this->buildResetDatabasesSql() )
 		);
 		$process = $this->processRunner->run(
 			$command,
@@ -641,31 +725,90 @@ class CrossSitePairManager {
 	}
 
 	private function waitForDatabaseReady( string $rootDir, array $envOverrides, ?callable $onOutput ) :void {
-		$command = \array_merge(
-			$this->buildComposeCommandForExecution( [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
-			[ 'mysqladmin', 'ping', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '--silent' ]
-		);
+		$pingCommand = $this->buildMysqlPingCommand();
+		$selectOneCommand = $this->buildMysqlSelectOneCommand();
+		$lastCommand = $pingCommand;
+		$lastProcess = null;
+		$lastPhase = 'ping';
 		$startedAt = \time();
 		do {
-			$process = $this->processRunner->run(
-				$command,
+			$pingProcess = $this->processRunner->run(
+				$pingCommand,
 				$rootDir,
 				$onOutput,
 				$envOverrides
 			);
-			if ( ( $process->getExitCode() ?? 1 ) === 0 ) {
+			if ( ( $pingProcess->getExitCode() ?? 1 ) !== 0 ) {
+				$lastCommand = $pingCommand;
+				$lastProcess = $pingProcess;
+				$lastPhase = 'ping';
+				\usleep( 500000 );
+				continue;
+			}
+
+			$selectOneProcess = $this->processRunner->run(
+				$selectOneCommand,
+				$rootDir,
+				$onOutput,
+				$envOverrides
+			);
+			if ( ( $selectOneProcess->getExitCode() ?? 1 ) === 0 ) {
 				return;
 			}
+
+			$lastCommand = $selectOneCommand;
+			$lastProcess = $selectOneProcess;
+			$lastPhase = 'sql';
 			\usleep( 500000 );
 		} while ( \time() - $startedAt < 60 );
 
+		if ( !$lastProcess instanceof Process ) {
+			throw new \RuntimeException( 'Cross-site MySQL readiness check did not run.' );
+		}
+
 		throw $this->commandFailureException(
-			'Cross-site MySQL did not become ready within 60 seconds.',
-			$command,
-			$process->getExitCode() ?? 1,
-			$process->getOutput(),
-			$process->getErrorOutput()
+			$lastPhase === 'sql'
+				? 'Cross-site MySQL accepted ping but did not pass SELECT 1 within 60 seconds.'
+				: 'Cross-site MySQL did not become ready within 60 seconds.',
+			$lastCommand,
+			$lastProcess->getExitCode() ?? 1,
+			$lastProcess->getOutput(),
+			$lastProcess->getErrorOutput()
 		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildDatabaseUpCommand() :array {
+		return [ 'up', '-d', '--wait', '--wait-timeout', '60', self::DB_SERVICE_NAME ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildMysqlPingCommand() :array {
+		return \array_merge(
+			$this->buildComposeCommandForExecution( [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			[ 'mysqladmin', 'ping', '--protocol=tcp', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '--silent' ]
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildMysqlSelectOneCommand() :array {
+		return \array_merge(
+			$this->buildComposeCommandForExecution( [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			$this->buildMysqlSqlCommand( 'SELECT 1' )
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildMysqlSqlCommand( string $sql ) :array {
+		return [ 'mysql', '--protocol=tcp', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '-e', $sql ];
 	}
 
 	private function waitForInternalHttpReady( string $rootDir, string $requestingSite, string $url ) :void {
@@ -784,23 +927,15 @@ PHP,
 		return \array_merge(
 			$envOverrides,
 			DockerCleanupPolicy::crossSite()->labelEnvironment(
-				$this->runtimeRunId(),
+				self::REUSABLE_DOCKER_RUN_ID,
 				DockerHarnessLabels::LIFECYCLE_REUSABLE,
 				'cross-site',
-				\gmdate( \DATE_ATOM, \time() + 7*24*60*60 ),
-				$this->runtimeRunId(),
+				self::REUSABLE_DOCKER_EXPIRES_AT,
+				self::REUSABLE_DOCKER_RUN_ID,
 				DockerHarnessLabels::LIFECYCLE_REUSABLE,
-				\gmdate( \DATE_ATOM, \time() + 30*24*60*60 )
+				self::REUSABLE_DOCKER_EXPIRES_AT
 			)
 		);
-	}
-
-	private function runtimeRunId() :string {
-		if ( $this->runId === '' ) {
-			$this->runId = 'shield-plugin-cross-site-'.\gmdate( 'YmdHis' ).'-'.\bin2hex( \random_bytes( 3 ) );
-		}
-
-		return $this->runId;
 	}
 
 	/**

@@ -114,12 +114,12 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 		$this->assertSame( [], $pane[ 'disabled_actions' ] ?? [ 'unexpected' ] );
 	}
 
-	public function test_hidden_plugins_pane_uses_dedicated_queue_provider_path() :void {
+	public function test_cloaked_plugins_pane_uses_dedicated_queue_provider_path() :void {
 		$builder = new class extends ScansResultsViewBuilder {
-			public function buildActionsQueueHiddenPluginsPane() :array {
+			public function buildActionsQueueCloakedPluginsPane() :array {
 				return [
 					'key'                    => 'hidden_plugins',
-					'label'                  => 'Hidden Plugins',
+					'label'                  => 'Cloaked Plugins',
 					'icon_class'             => 'bi bi-eye-slash-fill',
 					'count_items'            => 0,
 					'status'                 => 'good',
@@ -131,7 +131,7 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 					'disabled_actions'       => [],
 					'render_action'          => [],
 					'show_count_placeholder' => false,
-					'pane_id'                => 'actions-queue-hidden-plugins',
+					'pane_id'                => 'actions-queue-cloaked-plugins',
 				];
 			}
 		};

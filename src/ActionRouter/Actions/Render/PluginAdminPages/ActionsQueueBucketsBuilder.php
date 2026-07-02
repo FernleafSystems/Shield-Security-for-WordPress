@@ -300,7 +300,7 @@ class ActionsQueueBucketsBuilder {
 
 			case 'hidden_plugins':
 				return \sprintf(
-					_n( '%s hidden plugin', '%s hidden plugins', $count, 'wp-simple-firewall' ),
+					_n( '%s cloaked plugin', '%s cloaked plugins', $count, 'wp-simple-firewall' ),
 					$count
 				);
 

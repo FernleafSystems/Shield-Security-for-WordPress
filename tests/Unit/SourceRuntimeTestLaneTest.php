@@ -52,6 +52,10 @@ class SourceRuntimeTestLaneTest extends TestCase {
 		$this->assertTrue( $environmentResolver->assertDockerReadyCalled );
 		$this->assertCount( 4, $dockerComposeExecutor->calls );
 		$this->assertCount( 2, $dockerComposeExecutor->ignoredFailureCalls );
+		$this->assertSame(
+			[ 'up', '-d', '--wait', '--wait-timeout', '60', 'mysql-latest', 'mysql-previous' ],
+			$dockerComposeExecutor->calls[ 0 ][ 'sub_command' ]
+		);
 		$this->assertSourceDockerLabels( $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ] );
 		$this->assertSourceDockerLabels( $dockerComposeExecutor->ignoredFailureCalls[ 0 ][ 'env_overrides' ] );
 		$this->assertCount( 0, $processRunner->calls );

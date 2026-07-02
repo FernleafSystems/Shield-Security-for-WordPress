@@ -68,6 +68,7 @@ class SyncSiteUrlValidator {
 	}
 
 	public function validateTrustedSyncUrl( string $url, bool $rejectSelf = true ) :string {
+		// Business contract: trusted sync may use public-shaped hostnames resolving privately; literal private IPs still fail validation.
 		$url = $this->validate( $url, false );
 
 		if ( $rejectSelf && $this->isTrustedSyncSelfUrl( $url ) ) {

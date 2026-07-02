@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 
 /**
  * @phpstan-import-type AssessmentRow from ActionsQueueLandingAssessmentBuilder
+ * @phpstan-import-type ConfigureRowContract from ConfigureZoneTilesBuilder
  * @phpstan-type DetailActionData array<string,string>
  * @phpstan-type DetailAction array{
  *   label:string,
@@ -34,16 +35,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   count:int,
  *   severity:string,
  *   cta?:DetailActionInput
- * }
- * @phpstan-type ConfigureRow array{
- *   key:string,
- *   title:string,
- *   note:string,
- *   status:string,
- *   status_label:string,
- *   status_icon_class:string,
- *   explanations:list<string>,
- *   config_action:array{}|DetailAction
  * }
  * @phpstan-type DetailGroupRow array{
  *   key:string,
@@ -105,7 +96,7 @@ class StatusDetailGroupsBuilder {
 	}
 
 	/**
-	 * @param list<ConfigureRow> $rows
+	 * @param list<ConfigureRowContract> $rows
 	 * @return list<DetailGroup>
 	 */
 	public function buildForConfigure( array $rows ) :array {
@@ -166,12 +157,12 @@ class StatusDetailGroupsBuilder {
 	}
 
 	/**
-	 * @param ConfigureRow $row
+	 * @param ConfigureRowContract $row
 	 * @return SortableDetailGroupRow
 	 */
 	private function buildConfigureRow( array $row, int $sortIndex ) :array {
 		$status = $this->normalizeStatus( $row[ 'status' ] );
-		$action = $this->normalizeAction( $row[ 'config_action' ], '' );
+		$action = $row[ 'config_action' ];
 
 		return [
 			'key'               => $row[ 'key' ],

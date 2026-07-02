@@ -3,6 +3,7 @@ const { dismissBlockingDialogs, openShieldRoute } = require( './support/shield-b
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 const {
 	isAdminAjaxRequest,
+	isLiveTrafficPollRequest,
 	isShieldAjaxBatchRequestWithRenderSlugs,
 	requestActionSlug,
 	requestPostParam,
@@ -165,11 +166,6 @@ function dashboardMonitorBatchRequestMatcher( request ) {
 	);
 }
 
-function trafficLiveLogsRequestMatcher( request ) {
-	return requestActionSlug( request ) === 'ajax_render'
-		&& requestPostParam( request, 'render_slug' ) === 'render_traffic_live_logs';
-}
-
 test( 'datatable status region announces busy and failed refresh states', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
@@ -269,7 +265,7 @@ test( 'dashboard live monitor announces partial batch failures assertively', asy
 } );
 
 test( 'traffic live logs page announces failed poll through stable status region', async ( { page } ) => {
-	const failedRequest = await failNextMatchingAdminAjaxRequest( page, trafficLiveLogsRequestMatcher );
+	const failedRequest = await failNextMatchingAdminAjaxRequest( page, isLiveTrafficPollRequest );
 	await openShieldRoute( page, {
 		nav: 'traffic',
 		nav_sub: 'live',

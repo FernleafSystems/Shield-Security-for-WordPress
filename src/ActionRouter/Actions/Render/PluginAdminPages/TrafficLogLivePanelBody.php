@@ -6,4 +6,5 @@ class TrafficLogLivePanelBody extends PageTrafficLogLive {
 
 	public const SLUG = 'render_traffic_log_live_panel_body';
 	public const TEMPLATE = '/wpadmin/components/investigate/live_traffic_body.twig';
+	protected const LIVE_LOG_OWNER = 'investigate_panel';
 }
