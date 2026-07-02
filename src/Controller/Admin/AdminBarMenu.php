@@ -5,6 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate\RecentStats;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
@@ -54,7 +56,8 @@ class AdminBarMenu {
 			return;
 		}
 
-		$groups = $this->buildGroups();
+		$isPluginAdminPageRequest = $con->isPluginAdminPageRequest();
+		$groups = $this->buildGroups( $isPluginAdminPageRequest );
 
 		$subNodeGroupsToAdd = [];
 		$totalWarnings = 0;
@@ -95,19 +98,38 @@ class AdminBarMenu {
 		}
 	}
 
-	private function buildGroups() :array {
+	private function buildGroups( bool $isPluginAdminPageRequest ) :array {
 		return \array_filter( [
-			$this->hackGuard(),
+			$isPluginAdminPageRequest ? $this->ipsBlocked() : null,
+			$isPluginAdminPageRequest ? $this->ipsOffended() : null,
+			$this->hackGuard( $isPluginAdminPageRequest ),
+			$isPluginAdminPageRequest ? $this->users() : null,
 		] );
 	}
 
 	/**
 	 * @return AdminBarGroup|null
 	 */
-	private function hackGuard() :?array {
+	private function hackGuard( bool $canRefreshExact ) :?array {
 		$con = self::con();
-		$summary = $con->comps->scans->getAdminBarScanSummaryCache()->read();
-		if ( $summary === null || $summary[ 'total' ] < 1 ) {
+		$cache = $con->comps->scans->getAdminBarScanSummaryCache();
+		$summary = $cache->read();
+		$hasExactSummary = $summary !== null;
+
+		if ( !$hasExactSummary ) {
+			$counts = $con->comps->scans->getScanResultsCount();
+
+			if ( $canRefreshExact ) {
+				$summary = $cache->refresh( $counts );
+				$hasExactSummary = $summary !== null;
+			}
+
+			if ( !$hasExactSummary ) {
+				$summary = $counts->adminBarScanSummary( false );
+			}
+		}
+
+		if ( $summary[ 'total' ] < 1 ) {
 			return null;
 		}
 
@@ -119,7 +141,7 @@ class AdminBarMenu {
 				$this->counterMarkup( $counterLabel )
 			),
 			'href'  => self::con()->plugin_urls->actionsQueueScans(),
-			'items' => $this->buildHackGuardItems( $summary[ 'counts' ] ),
+			'items' => $hasExactSummary ? $this->buildHackGuardItems( $summary[ 'counts' ] ) : [],
 			'warnings'        => $summary[ 'total' ],
 			'warnings_capped' => $summary[ 'is_capped' ],
 		];
@@ -202,5 +224,95 @@ class AdminBarMenu {
 	private function addAdminBarNode( \WP_Admin_Bar $adminBar, array $node ) :void {
 		unset( $node[ 'warnings' ], $node[ 'warnings_capped' ] );
 		$adminBar->add_node( $node );
+	}
+
+	/**
+	 * @return AdminBarGroup|null
+	 */
+	private function ipsOffended() :?array {
+		$con = self::con();
+		$thisGroup = null;
+
+		$IPs = ( new RecentStats() )->getRecentlyOffendedIPs();
+		if ( !empty( $IPs ) ) {
+			$thisGroup = [
+				'title' => __( 'Recent Offenses', 'wp-simple-firewall' ),
+				'href'  => $con->plugin_urls->adminIpRules(),
+				'items' => \array_map( fn( $ip ) => [
+					'id'    => $con->prefix( 'ip-'.$ip->id ),
+					'title' => $ip->ip,
+					'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
+					'warnings'        => 0,
+					'warnings_capped' => false,
+				], $IPs ),
+				'warnings'        => 0,
+				'warnings_capped' => false,
+			];
+		}
+
+		return $thisGroup;
+	}
+
+	/**
+	 * @return AdminBarGroup|null
+	 */
+	private function ipsBlocked() :?array {
+		$con = self::con();
+		$thisGroup = null;
+
+		$IPs = ( new RecentStats() )->getRecentlyBlockedIPs();
+		if ( !empty( $IPs ) ) {
+			$thisGroup = [
+				'title' => __( 'Recently Blocked IPs', 'wp-simple-firewall' ),
+				'href'  => $con->plugin_urls->adminIpRules(),
+				'items' => \array_map( fn( $ip ) => [
+					'id'    => $con->prefix( 'ip-'.$ip->id ),
+					'title' => $ip->ip,
+					'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
+					'warnings'        => 0,
+					'warnings_capped' => false,
+				], $IPs ),
+				'warnings'        => 0,
+				'warnings_capped' => false,
+			];
+		}
+
+		return $thisGroup;
+	}
+
+	/**
+	 * @return AdminBarGroup|null
+	 */
+	private function users() :?array {
+		$con = self::con();
+
+		$thisGroup = null;
+
+		$recent = ( new FindSessions() )->mostRecent();
+		if ( !empty( $recent ) ) {
+			$items = [];
+			foreach ( $recent as $userID => $user ) {
+				$items[] = [
+					'id'    => $con->prefix( 'meta-'.$userID ),
+					'title' => sprintf( '<a href="%s">%s (%s)</a>',
+						Services::WpUsers()->getAdminUrl_ProfileEdit( $userID ),
+						$user[ 'user_login' ],
+						$user[ 'ip' ]
+					),
+					'warnings'        => 0,
+					'warnings_capped' => false,
+				];
+			}
+
+			$thisGroup = [
+				'title' => __( 'Recent Users', 'wp-simple-firewall' ),
+				'href'  => $con->plugin_urls->investigateUserSessions(),
+				'items' => $items,
+				'warnings'        => 0,
+				'warnings_capped' => false,
+			];
+		}
+
+		return $thisGroup;
 	}
 }

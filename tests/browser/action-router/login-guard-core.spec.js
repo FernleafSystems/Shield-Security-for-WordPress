@@ -79,6 +79,24 @@ async function clickRememberMeLabelText( page, checkbox ) {
 	await page.mouse.click( checkboxBox.x + checkboxBox.width + 24, checkboxBox.y + ( checkboxBox.height / 2 ) );
 }
 
+async function expectRememberMeCheckedMarker( checkbox ) {
+	await expect( checkbox ).toBeChecked();
+	const checkedStyles = await checkbox.evaluate( ( input ) => {
+		const styles = window.getComputedStyle( input );
+		return {
+			appearance: styles.appearance,
+			backgroundColor: styles.backgroundColor,
+			backgroundImage: styles.backgroundImage,
+			borderColor: styles.borderTopColor,
+		};
+	} );
+
+	expect( checkedStyles.appearance ).toBe( 'none' );
+	expect( checkedStyles.backgroundImage ).not.toBe( 'none' );
+	expect( checkedStyles.backgroundColor ).toBe( 'rgb(0, 128, 0)' );
+	expect( checkedStyles.borderColor ).toBe( 'rgb(0, 128, 0)' );
+}
+
 async function assertRememberMeLoginFlow( browser, lane, fixtureApi, scenario, options = {} ) {
 	await fixtureApi.withLoginGuardCoreFixture( scenario, async ( fixture ) => {
 		if ( options.mfaVerifyPage ) {
@@ -97,12 +115,18 @@ async function assertRememberMeLoginFlow( browser, lane, fixtureApi, scenario, o
 			await expect( checkbox ).toBeEnabled();
 			await checkbox.click();
 			await expect( checkbox ).toBeChecked();
+			if ( options.wpReplica ) {
+				await expectRememberMeCheckedMarker( checkbox );
+			}
 
 			if ( options.clickLabelText ) {
 				await checkbox.click();
 				await expect( checkbox ).not.toBeChecked();
 				await clickRememberMeLabelText( runtime.page, checkbox );
 				await expect( checkbox ).toBeChecked();
+				if ( options.wpReplica ) {
+					await expectRememberMeCheckedMarker( checkbox );
+				}
 			}
 
 			const beforeOtp = await fixtureApi.inspectLoginGuardCoreFixture();
