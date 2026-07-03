@@ -25,14 +25,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Admin {
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin\AdminBarMenu;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\IpRuleRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState,
 	UnitTestPluginUrls
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate\RecentStats;
 use FernleafSystems\Wordpress\Services\Core\{
 	Db,
 	Users
@@ -46,8 +44,6 @@ class AdminBarMenuTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
-		$this->resetRecentStatsCache();
-		$this->seedRecentStats( [], [] );
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'add_action' )->alias( function ( string $hook, callable $callback ) :bool {
 			$this->actions[ $hook ][] = $callback;
@@ -56,13 +52,12 @@ class AdminBarMenuTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
-		$this->resetRecentStatsCache();
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
 		parent::tearDown();
 	}
 
-	public function test_admin_bar_uses_cached_scan_summary_on_non_plugin_pages() :void {
+	public function test_security_admin_uses_cached_scan_summary_on_non_plugin_pages() :void {
 		$cache = new AdminBarSummaryCacheSpy( $this->exactSummary() );
 		$counts = new AdminBarCountsSpy( [
 			'counts'    => [],
@@ -76,7 +71,7 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$this->assertSame( [], $counts->forceExactArgs );
 		$this->assertSame( 1, $cache->readCalls );
 		$this->assertSame( 0, $cache->refreshCalls );
-		$this->assertCount( 1, $this->topLevelNodes( $adminBar ) );
+		$this->assertTopNode( $adminBar, '/admin/scans/overview?zone=scans', '6', 'shield-counter--issue' );
 		$this->assertCount( 1, $this->topMenuChildGroups( $adminBar ) );
 		$this->assertSame(
 			[ 'shield-problems-scan-malware', 'shield-problems-scan-wp', 'shield-problems-scan-wpv' ],
@@ -94,7 +89,7 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$this->assertSame( [], $counts->forceExactArgs );
 		$this->assertSame( 1, $cache->readCalls );
 		$this->assertSame( 0, $cache->refreshCalls );
-		$this->assertCount( 1, $this->topLevelNodes( $adminBar ) );
+		$this->assertTopNode( $adminBar, '/admin/scans/overview?zone=scans', '6', 'shield-counter--issue' );
 		$this->assertCount( 1, $this->topMenuChildGroups( $adminBar ) );
 		$this->assertSame(
 			[ 'shield-problems-scan-malware', 'shield-problems-scan-wp', 'shield-problems-scan-wpv' ],
@@ -113,9 +108,8 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$this->assertSame( 1, $cache->readCalls );
 		$this->assertSame( 0, $cache->refreshCalls );
 		$this->assertSame( [], $this->scanChildNodeIds( $adminBar ) );
-		$this->assertCount( 1, $this->topLevelNodes( $adminBar ) );
-		$this->assertCount( 1, $this->topMenuChildGroups( $adminBar ) );
-		$this->assertStringContainsString( '99+', $this->topLevelNodes( $adminBar )[ 0 ][ 'title' ] );
+		$this->assertTopNode( $adminBar, '/admin/scans/overview?zone=scans', '99+', 'shield-counter--issue' );
+		$this->assertSame( [], $this->topMenuChildGroups( $adminBar ) );
 	}
 
 	public function test_admin_bar_refreshes_exact_scan_summary_when_cache_missing_on_plugin_pages() :void {
@@ -128,7 +122,7 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$this->assertSame( [], $counts->forceExactArgs );
 		$this->assertSame( 1, $cache->readCalls );
 		$this->assertSame( 1, $cache->refreshCalls );
-		$this->assertCount( 1, $this->topLevelNodes( $adminBar ) );
+		$this->assertTopNode( $adminBar, '/admin/scans/overview?zone=scans', '6', 'shield-counter--issue' );
 		$this->assertCount( 1, $this->topMenuChildGroups( $adminBar ) );
 		$this->assertSame(
 			[ 'shield-problems-scan-malware', 'shield-problems-scan-wp', 'shield-problems-scan-wpv' ],
@@ -147,15 +141,61 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$this->assertSame( 1, $cache->readCalls );
 		$this->assertSame( 0, $cache->refreshCalls );
 		$this->assertSame( [], $this->scanChildNodeIds( $adminBar ) );
-		$this->assertCount( 1, $this->topLevelNodes( $adminBar ) );
+		$this->assertTopNode( $adminBar, '/admin/scans/overview?zone=scans', '0', 'shield-counter--ok' );
 		$this->assertSame( [], $this->topMenuChildGroups( $adminBar ) );
 	}
 
-	public function test_admin_bar_renders_info_groups_on_plugin_admin_pages() :void {
-		$this->seedRecentStats(
-			[ $this->ipRuleRecord( 11, '198.51.100.11' ) ],
-			[ $this->ipRuleRecord( 12, '198.51.100.12' ) ]
-		);
+	public function test_non_security_admin_gets_top_scan_status_without_details() :void {
+		$usersDb = new AdminBarUsersDbSpy( [
+			[
+				'user_id'       => 7,
+				'last_login_at' => 1234,
+				'ip'            => '203.0.113.7',
+				'user_login'    => 'operator',
+			],
+		] );
+		$cache = new AdminBarSummaryCacheSpy( $this->exactSummary() );
+		$counts = new AdminBarCountsSpy( $this->boundedSummary() );
+		$this->installController( false, true, $counts, $cache, $usersDb );
+
+		$adminBar = $this->buildAdminBar();
+
+		$this->assertSame( 0, $usersDb->selectCalls );
+		$this->assertSame( [], $counts->forceExactArgs );
+		$this->assertSame( 1, $cache->readCalls );
+		$this->assertSame( 0, $cache->refreshCalls );
+		$this->assertTopNode( $adminBar, '/admin/scans/overview?zone=scans', '6', 'shield-counter--issue' );
+		$this->assertSame( [], $this->topMenuChildGroups( $adminBar ) );
+		$this->assertSame( [], $this->scanChildNodeIds( $adminBar ) );
+		$this->assertNull( $this->maybeNodeById( $adminBar, 'shield-meta-7' ) );
+	}
+
+	public function test_non_security_admin_uses_bounded_status_without_refresh_when_cache_missing() :void {
+		$usersDb = new AdminBarUsersDbSpy( [
+			[
+				'user_id'       => 7,
+				'last_login_at' => 1234,
+				'ip'            => '203.0.113.7',
+				'user_login'    => 'operator',
+			],
+		] );
+		$cache = new AdminBarSummaryCacheSpy( null, $this->exactSummary() );
+		$counts = new AdminBarCountsSpy( $this->boundedSummary() );
+		$this->installController( false, true, $counts, $cache, $usersDb );
+
+		$adminBar = $this->buildAdminBar();
+
+		$this->assertSame( 0, $usersDb->selectCalls );
+		$this->assertSame( [ false ], $counts->forceExactArgs );
+		$this->assertSame( 1, $cache->readCalls );
+		$this->assertSame( 0, $cache->refreshCalls );
+		$this->assertTopNode( $adminBar, '/admin/scans/overview?zone=scans', '99+', 'shield-counter--issue' );
+		$this->assertSame( [], $this->topMenuChildGroups( $adminBar ) );
+		$this->assertSame( [], $this->scanChildNodeIds( $adminBar ) );
+		$this->assertNull( $this->maybeNodeById( $adminBar, 'shield-meta-7' ) );
+	}
+
+	public function test_admin_bar_renders_recent_users_on_security_admin_plugin_pages() :void {
 		$usersDb = new AdminBarUsersDbSpy( [
 			[
 				'user_id'       => 7,
@@ -171,17 +211,12 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$adminBar = $this->buildAdminBar();
 
 		$this->assertSame( 1, $usersDb->selectCalls );
-		$this->assertCount( 3, $this->topMenuChildGroups( $adminBar ) );
-		$this->assertSame( '/admin/ips/rules?analyse_ip=198.51.100.11', $this->nodeById( $adminBar, 'shield-ip-11' )[ 'href' ] );
-		$this->assertSame( '/admin/ips/rules?analyse_ip=198.51.100.12', $this->nodeById( $adminBar, 'shield-ip-12' )[ 'href' ] );
+		$this->assertCount( 1, $this->topMenuChildGroups( $adminBar ) );
 		$this->assertStringContainsString( '/wp-admin/user-edit.php?user_id=7', $this->nodeById( $adminBar, 'shield-meta-7' )[ 'title' ] );
+		$this->assertNoIpNodes( $adminBar );
 	}
 
-	public function test_admin_bar_does_not_query_or_render_info_groups_on_non_plugin_pages() :void {
-		$this->seedRecentStats(
-			[ $this->ipRuleRecord( 11, '198.51.100.11' ) ],
-			[ $this->ipRuleRecord( 12, '198.51.100.12' ) ]
-		);
+	public function test_admin_bar_does_not_query_or_render_recent_users_on_non_plugin_pages() :void {
 		$usersDb = new AdminBarUsersDbSpy( [
 			[
 				'user_id'       => 7,
@@ -197,23 +232,9 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$adminBar = $this->buildAdminBar();
 
 		$this->assertSame( 0, $usersDb->selectCalls );
-		$this->assertCount( 1, $this->topMenuChildGroups( $adminBar ) );
-		$this->assertNull( $this->maybeNodeById( $adminBar, 'shield-ip-11' ) );
-		$this->assertNull( $this->maybeNodeById( $adminBar, 'shield-ip-12' ) );
+		$this->assertSame( [], $this->topMenuChildGroups( $adminBar ) );
 		$this->assertNull( $this->maybeNodeById( $adminBar, 'shield-meta-7' ) );
-	}
-
-	public function test_admin_bar_returns_before_cache_or_count_work_for_unauthorised_users() :void {
-		$cache = new AdminBarSummaryCacheSpy( $this->exactSummary() );
-		$counts = new AdminBarCountsSpy( $this->exactSummary() );
-		$this->installController( false, false, $counts, $cache );
-
-		$adminBar = $this->buildAdminBar();
-
-		$this->assertSame( [], $adminBar->nodes );
-		$this->assertSame( [], $counts->forceExactArgs );
-		$this->assertSame( 0, $cache->readCalls );
-		$this->assertSame( 0, $cache->refreshCalls );
+		$this->assertNoIpNodes( $adminBar );
 	}
 
 	private function buildAdminBar() :\WP_Admin_Bar {
@@ -224,6 +245,29 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$this->actions[ 'admin_bar_menu' ][ 0 ]( $adminBar );
 
 		return $adminBar;
+	}
+
+	private function assertTopNode(
+		\WP_Admin_Bar $adminBar,
+		string $expectedHref,
+		string $expectedCounter,
+		string $expectedCounterClass
+	) :void {
+		$topNodes = $this->topLevelNodes( $adminBar );
+		$this->assertCount( 1, $topNodes );
+		$this->assertSame( $expectedHref, $topNodes[ 0 ][ 'href' ] );
+		$this->assertStringContainsString( $expectedCounter, $topNodes[ 0 ][ 'title' ] );
+		$this->assertStringContainsString( $expectedCounterClass, $topNodes[ 0 ][ 'title' ] );
+	}
+
+	private function assertNoIpNodes( \WP_Admin_Bar $adminBar ) :void {
+		$this->assertSame(
+			[],
+			\array_values( \array_filter(
+				\array_column( $adminBar->nodes, 'id' ),
+				static fn( string $id ) :bool => \strpos( $id, 'shield-ip-' ) === 0
+			) )
+		);
 	}
 
 	private function scanChildNodeIds( \WP_Admin_Bar $adminBar ) :array {
@@ -380,34 +424,6 @@ class AdminBarMenuTest extends BaseUnitTest {
 			'total'     => 99,
 			'is_capped' => true,
 		];
-	}
-
-	private function seedRecentStats( array $blocked, array $offended ) :void {
-		$reflection = new \ReflectionClass( RecentStats::class );
-		foreach ( [
-			'recentlyBlocked'  => $blocked,
-			'recentlyOffended' => $offended,
-		] as $propertyName => $value ) {
-			$property = $reflection->getProperty( $propertyName );
-			$property->setAccessible( true );
-			$property->setValue( null, $value );
-		}
-	}
-
-	private function ipRuleRecord( int $id, string $ip ) :IpRuleRecord {
-		$record = new IpRuleRecord( [ 'id' => $id ] );
-		$record->ip = $ip;
-
-		return $record;
-	}
-
-	private function resetRecentStatsCache() :void {
-		$reflection = new \ReflectionClass( RecentStats::class );
-		foreach ( [ 'recentlyBlocked', 'recentlyOffended' ] as $propertyName ) {
-			$property = $reflection->getProperty( $propertyName );
-			$property->setAccessible( true );
-			$property->setValue( null, null );
-		}
 	}
 }
 

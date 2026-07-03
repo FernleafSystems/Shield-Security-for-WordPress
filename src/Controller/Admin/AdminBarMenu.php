@@ -6,27 +6,27 @@ use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Counts;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\FindSessions;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Collate\RecentStats;
 use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * @phpstan-import-type AdminBarExactScanCounts from Counts
+ * @phpstan-import-type AdminBarScanSummaryShape from Counts
  * @phpstan-type AdminBarItem array{
  *   id:string,
  *   title:string,
  *   href?:string,
- *   warnings:int,
- *   warnings_capped:bool,
  *   parent?:string
  * }
  * @phpstan-type AdminBarGroup array{
  *   title:string,
  *   href:string,
  *   items:list<AdminBarItem>,
- *   warnings:int,
- *   warnings_capped:bool,
  *   id?:string,
  *   parent?:string
+ * }
+ * @phpstan-type AdminBarScanStatus array{
+ *   summary:AdminBarScanSummaryShape,
+ *   is_exact:bool
  * }
  */
 class AdminBarMenu {
@@ -38,8 +38,6 @@ class AdminBarMenu {
 		$con = self::con();
 		return !$con->this_req->is_force_off
 			   && !$con->this_req->wp_is_ajax
-			   && apply_filters( 'shield/show_admin_bar_menu', $con->cfg->properties[ 'show_admin_bar_menu' ] )
-			   && self::con()->opts->optIs( 'enable_upgrade_admin_notice', 'Y' )
 			   && $con->isValidAdminArea()
 			   && Services::WpUsers()->isUserAdmin();
 	}
@@ -52,29 +50,19 @@ class AdminBarMenu {
 	private function createAdminBarMenu( \WP_Admin_Bar $adminBar ) :void {
 
 		$con = self::con();
-		if ( !$con->isPluginAdmin() ) {
-			return;
-		}
-
+		$canSeeDetails = $con->isPluginAdmin();
 		$isPluginAdminPageRequest = $con->isPluginAdminPageRequest();
-		$groups = $this->buildGroups( $isPluginAdminPageRequest );
+		$scanStatus = $this->scanStatus( $canSeeDetails && $isPluginAdminPageRequest );
+		$scanSummary = $scanStatus[ 'summary' ];
+		$groups = $canSeeDetails ? $this->buildDetailGroups( $scanStatus, $isPluginAdminPageRequest ) : [];
 
 		$subNodeGroupsToAdd = [];
-		$totalWarnings = 0;
-		$hasCappedWarnings = false;
 		$topNodeID = $con->prefix( 'adminbarmenu' );
 
 		foreach ( $groups as $key => $group ) {
 
 			$group[ 'id' ] = $con->prefix( 'adminbarmenu-sub'.$key );
-			if ( empty( $group[ 'items' ] ) ) {
-				$totalWarnings += $group[ 'warnings' ];
-				$hasCappedWarnings = $hasCappedWarnings || $group[ 'warnings_capped' ];
-			}
-
 			foreach ( $group[ 'items' ] as $item ) {
-				$totalWarnings += $item[ 'warnings' ];
-				$hasCappedWarnings = $hasCappedWarnings || $item[ 'warnings_capped' ];
 				$item[ 'parent' ] = $group[ 'id' ];
 				$this->addAdminBarNode( $adminBar, $item );
 			}
@@ -84,13 +72,17 @@ class AdminBarMenu {
 			$subNodeGroupsToAdd[] = $group;
 		}
 
-		// The top menu item.
 		$adminBar->add_node( [
 			'id'    => $topNodeID,
-			'title' => $totalWarnings > 0
-				? sprintf( '%s %s', $con->labels->Name, $this->counterMarkup( $this->formatCounterLabel( $totalWarnings, $hasCappedWarnings ) ) )
-				: $con->labels->Name,
-			'href'  => $con->plugin_urls->adminHome()
+			'title' => sprintf(
+				'%s %s',
+				$con->labels->Name,
+				$this->counterMarkup(
+					$this->formatCounterLabel( $scanSummary[ 'total' ], $scanSummary[ 'is_capped' ] ),
+					$scanSummary[ 'total' ] === 0
+				)
+			),
+			'href'  => $con->plugin_urls->actionsQueueScans()
 		] );
 
 		foreach ( $subNodeGroupsToAdd as $nodeGroup ) {
@@ -98,19 +90,21 @@ class AdminBarMenu {
 		}
 	}
 
-	private function buildGroups( bool $isPluginAdminPageRequest ) :array {
-		return \array_filter( [
-			$isPluginAdminPageRequest ? $this->ipsBlocked() : null,
-			$isPluginAdminPageRequest ? $this->ipsOffended() : null,
-			$this->hackGuard( $isPluginAdminPageRequest ),
+	/**
+	 * @param AdminBarScanStatus $scanStatus
+	 * @return list<AdminBarGroup>
+	 */
+	private function buildDetailGroups( array $scanStatus, bool $isPluginAdminPageRequest ) :array {
+		return \array_values( \array_filter( [
+			$this->hackGuard( $scanStatus ),
 			$isPluginAdminPageRequest ? $this->users() : null,
-		] );
+		] ) );
 	}
 
 	/**
-	 * @return AdminBarGroup|null
+	 * @return AdminBarScanStatus
 	 */
-	private function hackGuard( bool $canRefreshExact ) :?array {
+	private function scanStatus( bool $canRefreshExact ) :array {
 		$con = self::con();
 		$cache = $con->comps->scans->getAdminBarScanSummaryCache();
 		$summary = $cache->read();
@@ -129,11 +123,29 @@ class AdminBarMenu {
 			}
 		}
 
+		return [
+			'summary'  => $summary,
+			'is_exact' => $hasExactSummary,
+		];
+	}
+
+	/**
+	 * @param AdminBarScanStatus $scanStatus
+	 * @return AdminBarGroup|null
+	 */
+	private function hackGuard( array $scanStatus ) :?array {
+		$summary = $scanStatus[ 'summary' ];
+		if ( !$scanStatus[ 'is_exact' ] ) {
+			return null;
+		}
+
 		if ( $summary[ 'total' ] < 1 ) {
 			return null;
 		}
 
 		$counterLabel = $this->formatCounterLabel( $summary[ 'total' ], $summary[ 'is_capped' ] );
+		/** @var AdminBarExactScanCounts $counts */
+		$counts = $summary[ 'counts' ];
 
 		return [
 			'title' => sprintf(
@@ -141,9 +153,7 @@ class AdminBarMenu {
 				$this->counterMarkup( $counterLabel )
 			),
 			'href'  => self::con()->plugin_urls->actionsQueueScans(),
-			'items' => $hasExactSummary ? $this->buildHackGuardItems( $summary[ 'counts' ] ) : [],
-			'warnings'        => $summary[ 'total' ],
-			'warnings_capped' => $summary[ 'is_capped' ],
+			'items' => $this->buildHackGuardItems( $counts ),
 		];
 	}
 
@@ -153,10 +163,7 @@ class AdminBarMenu {
 	 */
 	private function buildHackGuardItems( array $counts ) :array {
 		$items = [];
-		$template = [
-			'id'    => self::con()->prefix( 'problems-scan' ),
-			'title' => '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
-		];
+		$con = self::con();
 
 		foreach ( $this->hackGuardItemDefinitions() as $key => $definition ) {
 			$count = $counts[ $key ];
@@ -164,12 +171,10 @@ class AdminBarMenu {
 				continue;
 			}
 
-			$item = $template;
-			$item[ 'id' ] .= '-'.$definition[ 'suffix' ];
-			$item[ 'title' ] = $definition[ 'label' ].sprintf( $item[ 'title' ], $count );
-			$item[ 'warnings' ] = $count;
-			$item[ 'warnings_capped' ] = false;
-			$items[] = $item;
+			$items[] = [
+				'id'    => $con->prefix( 'problems-scan-'.$definition[ 'suffix' ] ),
+				'title' => $definition[ 'label' ].$this->counterMarkup( (string)$count ),
+			];
 		}
 
 		return $items;
@@ -207,9 +212,10 @@ class AdminBarMenu {
 		];
 	}
 
-	private function counterMarkup( string $countLabel ) :string {
+	private function counterMarkup( string $countLabel, bool $isOk = false ) :string {
 		return sprintf(
-			'<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>',
+			'<div class="wp-core-ui wp-ui-notification shield-counter %s"><span aria-hidden="true">%s</span></div>',
+			$isOk ? 'shield-counter--ok' : 'shield-counter--issue',
 			$countLabel
 		);
 	}
@@ -222,62 +228,7 @@ class AdminBarMenu {
 	 * @param AdminBarItem|AdminBarGroup $node
 	 */
 	private function addAdminBarNode( \WP_Admin_Bar $adminBar, array $node ) :void {
-		unset( $node[ 'warnings' ], $node[ 'warnings_capped' ] );
 		$adminBar->add_node( $node );
-	}
-
-	/**
-	 * @return AdminBarGroup|null
-	 */
-	private function ipsOffended() :?array {
-		$con = self::con();
-		$thisGroup = null;
-
-		$IPs = ( new RecentStats() )->getRecentlyOffendedIPs();
-		if ( !empty( $IPs ) ) {
-			$thisGroup = [
-				'title' => __( 'Recent Offenses', 'wp-simple-firewall' ),
-				'href'  => $con->plugin_urls->adminIpRules(),
-				'items' => \array_map( fn( $ip ) => [
-					'id'    => $con->prefix( 'ip-'.$ip->id ),
-					'title' => $ip->ip,
-					'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
-					'warnings'        => 0,
-					'warnings_capped' => false,
-				], $IPs ),
-				'warnings'        => 0,
-				'warnings_capped' => false,
-			];
-		}
-
-		return $thisGroup;
-	}
-
-	/**
-	 * @return AdminBarGroup|null
-	 */
-	private function ipsBlocked() :?array {
-		$con = self::con();
-		$thisGroup = null;
-
-		$IPs = ( new RecentStats() )->getRecentlyBlockedIPs();
-		if ( !empty( $IPs ) ) {
-			$thisGroup = [
-				'title' => __( 'Recently Blocked IPs', 'wp-simple-firewall' ),
-				'href'  => $con->plugin_urls->adminIpRules(),
-				'items' => \array_map( fn( $ip ) => [
-					'id'    => $con->prefix( 'ip-'.$ip->id ),
-					'title' => $ip->ip,
-					'href'  => $con->plugin_urls->ipAnalysis( $ip->ip ),
-					'warnings'        => 0,
-					'warnings_capped' => false,
-				], $IPs ),
-				'warnings'        => 0,
-				'warnings_capped' => false,
-			];
-		}
-
-		return $thisGroup;
 	}
 
 	/**
@@ -299,8 +250,6 @@ class AdminBarMenu {
 						$user[ 'user_login' ],
 						$user[ 'ip' ]
 					),
-					'warnings'        => 0,
-					'warnings_capped' => false,
 				];
 			}
 
@@ -308,8 +257,6 @@ class AdminBarMenu {
 				'title' => __( 'Recent Users', 'wp-simple-firewall' ),
 				'href'  => $con->plugin_urls->investigateUserSessions(),
 				'items' => $items,
-				'warnings'        => 0,
-				'warnings_capped' => false,
 			];
 		}
 
