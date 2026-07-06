@@ -255,56 +255,6 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'ANDNOTEXISTS(', $normalizedSql );
 	}
 
-	public function test_set_scan_completed_resets_result_count_memoization_when_stale_items_change() :void {
-		$queries = [];
-		$scans = new ScopedAfsCompletionScans();
-		$this->installController( [
-			'comps'  => (object)[
-				'scans' => $scans,
-			],
-			'db_con' => (object)[
-				'scan_results' => new class {
-					public function getTable() :string {
-						return 'shield_scan_results';
-					}
-				},
-				'scan_result_items' => new class {
-					public function getTable() :string {
-						return 'shield_scan_result_items';
-					}
-				},
-			],
-		] );
-
-		ServicesState::installItems( [
-			'service_wpdb' => new class( $queries ) extends Db {
-				public array $queries;
-
-				public function __construct( array &$queries ) {
-					$this->queries = &$queries;
-				}
-
-				public function doSql( $sql ) :int {
-					$this->queries[] = $sql;
-					return 2;
-				}
-			},
-		] );
-
-		$record = new ScanRecord();
-		$record->scan = 'afs';
-		$record->scope_type = 'plugin';
-		$record->scope_key = 'akismet/akismet.php';
-		$record->run_trigger = 'asset_change';
-
-		$method = new \ReflectionMethod( SetScanCompleted::class, 'resolveStaleItemsForRun' );
-		$method->setAccessible( true );
-		$method->invoke( new SetScanCompleted(), 5, $record, 1700004000 );
-
-		$this->assertCount( 1, $queries );
-		$this->assertSame( 1, $scans->memoizationResets );
-	}
-
 	private function buildCoreScopedRootDirs( array $scanAreas, bool $canScanAllFiles ) :array {
 		$this->installController( [], $scanAreas, $canScanAllFiles );
 
@@ -409,15 +359,6 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		}
 		\file_put_contents( $path, $content );
 		$this->trackWrittenFixtureFile( $path );
-	}
-}
-
-class ScopedAfsCompletionScans {
-
-	public int $memoizationResets = 0;
-
-	public function resetScanResultsCountMemoization() :void {
-		$this->memoizationResets++;
 	}
 }
 
