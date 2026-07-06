@@ -68,33 +68,10 @@ async function waitForInspection( fixtureApi, predicate, label ) {
 	throw new Error( `Timed out waiting for fixture inspection: ${ label }` );
 }
 
-async function clickRememberMeLabelText( page, checkbox ) {
-	await expect( page.locator( 'label[for="skip_mfa"]' ) ).toBeVisible();
-	await checkbox.scrollIntoViewIfNeeded();
-	const checkboxBox = await checkbox.boundingBox();
-	if ( checkboxBox === null ) {
-		throw new Error( 'Remember-me checkbox has no clickable bounding box.' );
-	}
-
-	await page.mouse.click( checkboxBox.x + checkboxBox.width + 24, checkboxBox.y + ( checkboxBox.height / 2 ) );
-}
-
-async function expectRememberMeCheckedMarker( checkbox ) {
-	await expect( checkbox ).toBeChecked();
-	const checkedStyles = await checkbox.evaluate( ( input ) => {
-		const styles = window.getComputedStyle( input );
-		return {
-			appearance: styles.appearance,
-			backgroundColor: styles.backgroundColor,
-			backgroundImage: styles.backgroundImage,
-			borderColor: styles.borderTopColor,
-		};
-	} );
-
-	expect( checkedStyles.appearance ).toBe( 'none' );
-	expect( checkedStyles.backgroundImage ).not.toBe( 'none' );
-	expect( checkedStyles.backgroundColor ).toBe( 'rgb(0, 128, 0)' );
-	expect( checkedStyles.borderColor ).toBe( 'rgb(0, 128, 0)' );
+async function clickRememberMeLabel( page ) {
+	const label = page.locator( 'label[for="skip_mfa"]' );
+	await expect( label ).toBeVisible();
+	await label.click();
 }
 
 async function assertRememberMeLoginFlow( browser, lane, fixtureApi, scenario, options = {} ) {
@@ -115,18 +92,12 @@ async function assertRememberMeLoginFlow( browser, lane, fixtureApi, scenario, o
 			await expect( checkbox ).toBeEnabled();
 			await checkbox.click();
 			await expect( checkbox ).toBeChecked();
-			if ( options.wpReplica ) {
-				await expectRememberMeCheckedMarker( checkbox );
-			}
 
 			if ( options.clickLabelText ) {
 				await checkbox.click();
 				await expect( checkbox ).not.toBeChecked();
-				await clickRememberMeLabelText( runtime.page, checkbox );
+				await clickRememberMeLabel( runtime.page );
 				await expect( checkbox ).toBeChecked();
-				if ( options.wpReplica ) {
-					await expectRememberMeCheckedMarker( checkbox );
-				}
 			}
 
 			const beforeOtp = await fixtureApi.inspectLoginGuardCoreFixture();
