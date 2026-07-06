@@ -166,11 +166,6 @@ class Afs extends Base {
 		return $changed;
 	}
 
-	protected function handleResultsChanged() :void {
-		unset( $this->latestResults );
-		self::con()->comps->scans->resetScanResultsCountMemoization();
-	}
-
 	public function getQueueGroupSize() :int {
 		return 80;
 	}

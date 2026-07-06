@@ -56,23 +56,7 @@ class FileLockerController {
 			}
 		}, 1000 );
 
-		add_filter( self::con()->prefix( 'admin_bar_menu_items' ), [ $this, 'addAdminMenuBarItem' ], 100 );
-
 		$this->setupCronHooks();
-	}
-
-	public function addAdminMenuBarItem( array $items ) :array {
-		$count = \count( ( new Ops\LoadFileLocks() )->withProblems() );
-		if ( $count > 0 ) {
-			$items[] = [
-				'id'       => self::con()->prefix( 'filelocker_problems' ),
-				'title'    => __( 'File Locker', 'wp-simple-firewall' )
-							  .sprintf( '<div class="wp-core-ui wp-ui-notification shield-counter"><span aria-hidden="true">%s</span></div>', $count ),
-				'href'     => self::con()->plugin_urls->actionsQueueScans(),
-				'warnings' => $count
-			];
-		}
-		return $items;
 	}
 
 	public function createFileDownloadLinks( FileLockerDB\Record $lock ) :array {

@@ -147,6 +147,8 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		( new Cleanup() )->run( 'core', 'core', 1 );
 
 		$this->assertSame( [], $scans->startedAssets );
+		$this->assertSame( 0, $scans->memoizationResets );
+		$this->assertSame( [], $wpDb->queries );
 		$this->assertSame( [], $scheduled );
 	}
 

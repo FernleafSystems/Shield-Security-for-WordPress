@@ -123,6 +123,9 @@ class ScansController {
 
 	public function resetScanResultsCountMemoization() :void {
 		$this->scanResultsStatus = null;
+		foreach ( $this->scanCons as $scanCon ) {
+			$scanCon->resetResultsMemoization();
+		}
 		$this->getAdminBarScanSummaryCache()->invalidate();
 		self::con()->comps->site_query->clearMemoized();
 	}
