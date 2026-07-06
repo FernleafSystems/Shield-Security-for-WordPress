@@ -166,17 +166,17 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$method->setAccessible( true );
 		$rootDirs = $method->invoke( new BuildScanItems(), $action );
 
-		$this->assertSame( 1, $rootDirs[ ABSPATH ] ?? null );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, WPINC ) ] ?? null );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, 'wp-admin' ) ] ?? null );
+		$this->assertRootDirDepth( 1, ABSPATH, $rootDirs );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, WPINC ), $rootDirs );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, 'wp-admin' ), $rootDirs );
 	}
 
 	public function test_core_scope_builds_wp_roots_only_when_wproot_area_is_disabled() :void {
 		$rootDirs = $this->buildCoreScopedRootDirs( [ 'wp' ], true );
 
 		$this->assertArrayNotHasKey( ABSPATH, $rootDirs );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, WPINC ) ] ?? null );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, 'wp-admin' ) ] ?? null );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, WPINC ), $rootDirs );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, 'wp-admin' ), $rootDirs );
 	}
 
 	public function test_core_scope_builds_wproot_only_when_wp_area_is_disabled_and_cap_allows() :void {
@@ -189,8 +189,8 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$rootDirs = $this->buildCoreScopedRootDirs( [ 'wp', 'wproot' ], false );
 
 		$this->assertArrayNotHasKey( ABSPATH, $rootDirs );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, WPINC ) ] ?? null );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, 'wp-admin' ) ] ?? null );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, WPINC ), $rootDirs );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, 'wp-admin' ), $rootDirs );
 	}
 
 	public function test_set_scan_completed_resolves_only_core_modified_or_missing_asset_scope_findings() :void {
@@ -255,6 +255,56 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'ANDNOTEXISTS(', $normalizedSql );
 	}
 
+	public function test_set_scan_completed_resets_result_count_memoization_when_stale_items_change() :void {
+		$queries = [];
+		$scans = new ScopedAfsCompletionScans();
+		$this->installController( [
+			'comps'  => (object)[
+				'scans' => $scans,
+			],
+			'db_con' => (object)[
+				'scan_results' => new class {
+					public function getTable() :string {
+						return 'shield_scan_results';
+					}
+				},
+				'scan_result_items' => new class {
+					public function getTable() :string {
+						return 'shield_scan_result_items';
+					}
+				},
+			],
+		] );
+
+		ServicesState::installItems( [
+			'service_wpdb' => new class( $queries ) extends Db {
+				public array $queries;
+
+				public function __construct( array &$queries ) {
+					$this->queries = &$queries;
+				}
+
+				public function doSql( $sql ) :int {
+					$this->queries[] = $sql;
+					return 2;
+				}
+			},
+		] );
+
+		$record = new ScanRecord();
+		$record->scan = 'afs';
+		$record->scope_type = 'plugin';
+		$record->scope_key = 'akismet/akismet.php';
+		$record->run_trigger = 'asset_change';
+
+		$method = new \ReflectionMethod( SetScanCompleted::class, 'resolveStaleItemsForRun' );
+		$method->setAccessible( true );
+		$method->invoke( new SetScanCompleted(), 5, $record, 1700004000 );
+
+		$this->assertCount( 1, $queries );
+		$this->assertSame( 1, $scans->memoizationResets );
+	}
+
 	private function buildCoreScopedRootDirs( array $scanAreas, bool $canScanAllFiles ) :array {
 		$this->installController( [], $scanAreas, $canScanAllFiles );
 
@@ -266,6 +316,11 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$method = new \ReflectionMethod( BuildScanItems::class, 'buildScopedRootDirs' );
 		$method->setAccessible( true );
 		return $method->invoke( new BuildScanItems(), $action );
+	}
+
+	private function assertRootDirDepth( int $expectedDepth, string $path, array $rootDirs ) :void {
+		$this->assertArrayHasKey( $path, $rootDirs );
+		$this->assertSame( $expectedDepth, $rootDirs[ $path ] );
 	}
 
 	private function installController(
@@ -354,6 +409,15 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		}
 		\file_put_contents( $path, $content );
 		$this->trackWrittenFixtureFile( $path );
+	}
+}
+
+class ScopedAfsCompletionScans {
+
+	public int $memoizationResets = 0;
+
+	public function resetScanResultsCountMemoization() :void {
+		$this->memoizationResets++;
 	}
 }
 

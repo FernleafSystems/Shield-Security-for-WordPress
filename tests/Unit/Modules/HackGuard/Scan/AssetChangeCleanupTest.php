@@ -91,7 +91,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_cleanup_resolves_only_modified_and_missing_findings_then_starts_scan() :void {
+	public function test_cleanup_starts_scan_without_pre_resolving_findings() :void {
 		$wpDb = new AssetChangeCleanupWpDb();
 		$scans = new AssetChangeCleanupScans();
 		$this->installController( $scans );
@@ -104,15 +104,8 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		( new Cleanup() )->run( 'core', 'core' );
 
 		$this->assertSame( [ [ 'core', 'core' ] ], $scans->startedAssets );
-		$this->assertSame( 1, $scans->memoizationResets );
-		$this->assertCount( 1, $wpDb->queries );
-		$this->assertStringContainsString( "`resolution_reason`='asset_replaced'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_type`='core'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_key`='core'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "'is_checksumfail','is_missing'", $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unrecognised', $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unidentified', $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_mal', $wpDb->queries[ 0 ] );
+		$this->assertSame( 0, $scans->memoizationResets );
+		$this->assertSame( [], $wpDb->queries );
 	}
 
 	public function test_cleanup_reschedules_once_and_does_not_scan_when_readiness_fails() :void {
@@ -130,7 +123,8 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		( new Cleanup() )->run( 'core', 'core' );
 
 		$this->assertSame( [], $scans->startedAssets );
-		$this->assertSame( 1, $scans->memoizationResets );
+		$this->assertSame( 0, $scans->memoizationResets );
+		$this->assertSame( [], $wpDb->queries );
 		$this->assertSame( [
 			[
 				'timestamp' => 1700000260,
@@ -155,6 +149,8 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		( new Cleanup() )->run( 'core', 'core', 1 );
 
 		$this->assertSame( [], $scans->startedAssets );
+		$this->assertSame( 0, $scans->memoizationResets );
+		$this->assertSame( [], $wpDb->queries );
 		$this->assertSame( [], $scheduled );
 	}
 
@@ -192,14 +188,8 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		( new Cleanup() )->run( $assetType, $assetKey, $retry );
 
 		$this->assertSame( [], $scans->startedAssets );
-		$this->assertSame( 1, $scans->memoizationResets );
-		$this->assertCount( 1, $wpDb->queries );
-		$this->assertStringContainsString( "`asset_type`='{$assetType}'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_key`='{$assetKey}'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "'is_checksumfail','is_missing'", $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unrecognised', $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unidentified', $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_mal', $wpDb->queries[ 0 ] );
+		$this->assertSame( 0, $scans->memoizationResets );
+		$this->assertSame( [], $wpDb->queries );
 		$this->assertSame( $expectedSchedule, $scheduled );
 	}
 
@@ -236,14 +226,8 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'cleanup-plugin.php', $snapData );
 		$this->assertSame( \md5_file( WP_PLUGIN_DIR.'/'.$plugin->file ), $snapData[ 'cleanup-plugin.php' ] );
 		$this->assertSame( '2.0.0', $store->getSnapMeta()[ 'version' ] );
-		$this->assertSame( 1, $scans->memoizationResets );
-		$this->assertStringContainsString( "`resolution_reason`='asset_replaced'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_type`='plugin'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_key`='cleanup-plugin/cleanup-plugin.php'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "'is_checksumfail','is_missing'", $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unrecognised', $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unidentified', $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_mal', $wpDb->queries[ 0 ] );
+		$this->assertSame( 0, $scans->memoizationResets );
+		$this->assertSame( [], $wpDb->queries );
 	}
 
 	public function test_plugin_cleanup_uses_selected_snapshot_root() :void {

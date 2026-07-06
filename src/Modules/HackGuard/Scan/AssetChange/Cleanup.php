@@ -43,8 +43,6 @@ class Cleanup {
 			return;
 		}
 
-		$this->resolveReplacedFindings( $assetType, $assetKey );
-
 		if ( !$this->ensureAssetReadyForScan( $assetType, $assetKey ) ) {
 			if ( $retry < self::MAX_RETRIES ) {
 				$this->schedule( $assetType, $assetKey, self::CRON_DELAY, $retry + 1 );
@@ -53,38 +51,6 @@ class Cleanup {
 		}
 
 		self::con()->comps->scans->startAfsAssetScan( $assetType, $assetKey );
-	}
-
-	private function resolveReplacedFindings( string $assetType, string $assetKey ) :void {
-		$dbCon = self::con()->db_con;
-		$now = Services::Request()->ts();
-
-		Services::WpDb()->doSql(
-			sprintf(
-				"UPDATE `%s`
-					SET `resolved_at`=%d,
-						`resolution_reason`='asset_replaced'
-					WHERE `scan`='afs'
-					  AND `resolved_at`=0
-					  AND `asset_type`='%s'
-					  AND `asset_key`='%s'
-					  AND EXISTS (
-						SELECT 1
-						FROM `%s` AS `rim`
-						WHERE `rim`.`ri_ref`=`%s`.`id`
-						  AND `rim`.`meta_key` IN ('is_checksumfail','is_missing')
-						  AND `rim`.`meta_value`!=''
-						  AND `rim`.`meta_value`!='0'
-					  );",
-				$dbCon->scan_result_items->getTable(),
-				$now,
-				esc_sql( $assetType ),
-				esc_sql( $assetKey ),
-				$dbCon->scan_result_item_meta->getTable(),
-				$dbCon->scan_result_items->getTable()
-			)
-		);
-		self::con()->comps->scans->resetScanResultsCountMemoization();
 	}
 
 	private function ensureAssetReadyForScan( string $assetType, string $assetKey ) :bool {
