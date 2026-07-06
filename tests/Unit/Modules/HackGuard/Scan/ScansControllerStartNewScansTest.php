@@ -324,7 +324,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( 1, $queue->watchdogSchedules );
 	}
 
-	public function test_wpcli_afs_asset_change_scan_dispatches_builder_without_inline_processing() :void {
+	public function test_wpcli_afs_asset_change_scan_processes_without_builder_dispatch() :void {
 		$scansDb = new StartScansFakeScansDb();
 		$queue = new StartScansFakeQueue();
 		$wpDb = new StartScansFakeWpDb( $scansDb );
@@ -345,9 +345,9 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( 'plugin', $record->scope_type );
 		$this->assertSame( 'akismet/akismet.php', $record->scope_key );
 		$this->assertInsertedScanRunTrigger( $record, 'asset_change' );
-		$this->assertSame( 1, $queue->dispatches );
+		$this->assertSame( 0, $queue->dispatches );
 		$this->assertSame( 1, $queue->watchdogSchedules );
-		$this->assertSame( 0, $wpDb->queueNextChecks );
+		$this->assertSame( 1, $wpDb->queueNextChecks );
 	}
 
 	public function test_afs_core_asset_change_scan_uses_core_scope_contract() :void {

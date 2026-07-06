@@ -27,8 +27,6 @@ class Cleanup {
 			return false;
 		}
 
-		$this->invalidateAssetSnapshot( $assetType, $assetKey );
-
 		if ( $this->hasPendingCleanup( $assetType, $assetKey ) ) {
 			return true;
 		}
@@ -102,23 +100,6 @@ class Cleanup {
 			}
 		}
 		return $pending;
-	}
-
-	private function invalidateAssetSnapshot( string $assetType, string $assetKey ) :void {
-		if ( !\in_array( $assetType, [ 'plugin', 'theme' ], true ) ) {
-			return;
-		}
-
-		try {
-			$asset = $this->loadAsset( $assetType, $assetKey );
-			if ( $asset instanceof WpPluginVo || $asset instanceof WpThemeVo ) {
-				( new StoreAction\Delete() )
-					->setAsset( $asset )
-					->run();
-			}
-		}
-		catch ( \Throwable $e ) {
-		}
 	}
 
 	/**
