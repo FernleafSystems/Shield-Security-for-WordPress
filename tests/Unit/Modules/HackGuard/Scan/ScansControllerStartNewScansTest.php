@@ -126,7 +126,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( 0, $queue->watchdogSchedules );
 	}
 
-	public function test_active_duplicate_returns_existing_scan_as_resumed_without_side_effects() :void {
+	public function test_active_duplicate_returns_existing_scan_and_keeps_queue_recovery_active() :void {
 		$scansDb = new StartScansFakeScansDb( [ 'afs' => 501 ] );
 		$queue = new StartScansFakeQueue();
 		$wpDb = new StartScansFakeWpDb( $scansDb );
@@ -146,10 +146,10 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( [], $result->getFailures() );
 		$this->assertSame( [], $scansDb->insertedRecords );
 		$this->assertSame( 0, $queue->dispatches );
-		$this->assertSame( 0, $queue->watchdogSchedules );
+		$this->assertSame( 1, $queue->watchdogSchedules );
 		$this->assertSame( 1, $queue->staleStartBlockerChecks );
-		$this->assertSame( 0, $wpDb->queueNextChecks );
-		$this->assertSame( 1, $scansDb->duplicateIDQueries );
+		$this->assertSame( 1, $wpDb->queueNextChecks );
+		$this->assertSame( 2, $scansDb->duplicateIDQueries );
 		$this->assertSame( 0, $scansDb->duplicateCountQueries );
 	}
 
@@ -173,7 +173,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( [], $result->getFailures() );
 		$this->assertSame( 0, $wpDb->writeCount );
 		$this->assertSame( 0, $queue->dispatches );
-		$this->assertSame( 0, $queue->watchdogSchedules );
+		$this->assertSame( 1, $queue->watchdogSchedules );
 	}
 
 	public function test_mixed_new_scan_plus_duplicate_creates_only_new_row_and_reports_both_accepted() :void {
@@ -228,7 +228,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( [], $scansDb->insertedRecords );
 		$this->assertSame( 1, $queue->staleStartBlockerChecks );
 		$this->assertSame( 0, $queue->dispatches );
-		$this->assertSame( 0, $queue->watchdogSchedules );
+		$this->assertSame( 1, $queue->watchdogSchedules );
 		$this->assertSame( 3, $scansDb->duplicateIDQueries );
 		$this->assertSame( 0, $scansDb->duplicateCountQueries );
 	}
@@ -324,7 +324,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( 1, $queue->watchdogSchedules );
 	}
 
-	public function test_wpcli_afs_asset_change_scan_dispatches_builder_without_inline_processing() :void {
+	public function test_wpcli_afs_asset_change_scan_processes_without_builder_dispatch() :void {
 		$scansDb = new StartScansFakeScansDb();
 		$queue = new StartScansFakeQueue();
 		$wpDb = new StartScansFakeWpDb( $scansDb );
@@ -345,9 +345,9 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( 'plugin', $record->scope_type );
 		$this->assertSame( 'akismet/akismet.php', $record->scope_key );
 		$this->assertInsertedScanRunTrigger( $record, 'asset_change' );
-		$this->assertSame( 1, $queue->dispatches );
+		$this->assertSame( 0, $queue->dispatches );
 		$this->assertSame( 1, $queue->watchdogSchedules );
-		$this->assertSame( 0, $wpDb->queueNextChecks );
+		$this->assertSame( 1, $wpDb->queueNextChecks );
 	}
 
 	public function test_afs_core_asset_change_scan_uses_core_scope_contract() :void {

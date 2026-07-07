@@ -309,7 +309,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		], $scans->startedAssets );
 	}
 
-	public function test_schedule_invalidates_plugin_snapshot_before_pending_cleanup_check() :void {
+	public function test_schedule_preserves_plugin_snapshot_before_pending_cleanup_check() :void {
 		$plugin = new SnapshotPluginVo( 'pending-plugin/pending.php', '1.0.0' );
 		$scheduled = [
 			[
@@ -324,12 +324,14 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			new SnapshotPlugins( [ $plugin ] ),
 			new SnapshotThemes( [] )
 		);
-		$this->writeSnapshotStore( $plugin, [
+		$expectedData = [
 			'pending.php' => \md5( 'old-same-version-content' ),
-		], [
+		];
+		$expectedMeta = [
 			'version'   => '1.0.0',
 			'unique_id' => $plugin->file,
-		] );
+		];
+		$this->writeSnapshotStore( $plugin, $expectedData, $expectedMeta );
 
 		$this->assertTrue( ( new Cleanup() )->schedule( 'plugin', $plugin->file ) );
 
@@ -340,10 +342,10 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 				'args'      => [ 'plugin', $plugin->file, 0 ],
 			],
 		], $scheduled );
-		$this->assertSnapshotStoreMissing( $plugin );
+		$this->assertSnapshotStorePreserved( $plugin, $expectedData, $expectedMeta );
 	}
 
-	public function test_schedule_invalidates_theme_snapshot_before_pending_cleanup_check() :void {
+	public function test_schedule_preserves_theme_snapshot_before_pending_cleanup_check() :void {
 		$theme = new SnapshotThemeVo( 'pending-theme', '1.0.0' );
 		$scheduled = [
 			[
@@ -358,12 +360,14 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			new SnapshotPlugins( [] ),
 			new SnapshotThemes( [ $theme ] )
 		);
-		$this->writeSnapshotStore( $theme, [
+		$expectedData = [
 			'style.php' => \md5( 'old-same-version-content' ),
-		], [
+		];
+		$expectedMeta = [
 			'version'   => '1.0.0',
 			'unique_id' => $theme->stylesheet,
-		] );
+		];
+		$this->writeSnapshotStore( $theme, $expectedData, $expectedMeta );
 
 		$this->assertTrue( ( new Cleanup() )->schedule( 'theme', $theme->stylesheet ) );
 
@@ -374,7 +378,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 				'args'      => [ 'theme', $theme->stylesheet, 0 ],
 			],
 		], $scheduled );
-		$this->assertSnapshotStoreMissing( $theme );
+		$this->assertSnapshotStorePreserved( $theme, $expectedData, $expectedMeta );
 	}
 
 	public function test_schedule_coalesces_only_matching_pending_asset_cleanup() :void {
@@ -560,12 +564,15 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		);
 	}
 
-	private function assertSnapshotStoreMissing( $asset ) :void {
+	private function assertSnapshotStorePreserved( $asset, array $expectedData, array $expectedMeta ) :void {
 		$store = ( new Store( $asset, true ) )
 			->setWorkingDir( ( new HashesStorageDir() )->getTempDir( false ) );
 		foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {
-			$this->assertFileDoesNotExist( $path );
+			$this->assertFileExists( $path );
 		}
+		$this->assertTrue( $store->verify() );
+		$this->assertSame( $expectedData, $store->getSnapData() );
+		$this->assertSame( $expectedMeta, $store->getSnapMeta() );
 	}
 
 	private function resetHashesStorageDir() :void {

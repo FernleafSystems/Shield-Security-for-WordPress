@@ -255,6 +255,7 @@ class ScansController {
 					$existingScanID = $e->getExistingScanID();
 					if ( $existingScanID > 0 ) {
 						$result->addResumed( $scanCon->getSlug(), $existingScanID );
+						$resumedScan = true;
 					}
 					else {
 						$result->addFailure( $slug, StartScansResult::REASON_ALREADY_EXISTS, $e->getMessage() );
@@ -341,7 +342,12 @@ class ScansController {
 
 		$queue = self::con()->comps->scans_queue;
 		$queue->getQueueWatchdog()->scheduleIfActive();
-		$queue->getQueueBuilder()->dispatch();
+		if ( Services::WpGeneral()->isWpCli() ) {
+			( new ProcessQueueWpcli() )->execute();
+		}
+		else {
+			$queue->getQueueBuilder()->dispatch();
+		}
 
 		return true;
 	}
