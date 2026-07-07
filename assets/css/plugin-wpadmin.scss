@@ -96,7 +96,16 @@ tr.shield-plugin-vulnerability dd {
   padding: 1px 7px 1px 6px !important;
   border-radius: 50%;
   margin-left: 6px;
-  /*background-color: rgb(0, 128, 0);*/
+}
+
+#wpadminbar .shield-counter.shield-counter--ok {
+  background-color: #008000;
+  color: #ffffff;
+}
+
+#wpadminbar .shield-counter.shield-counter--issue {
+  background-color: #d63638;
+  color: #ffffff;
 }
 
 #wp-admin-bar-icwp-wpsf-adminbarmenu .ab-submenu > li {

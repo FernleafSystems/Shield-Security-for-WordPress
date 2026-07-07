@@ -43,11 +43,7 @@ class ThemeFile extends BasePluginThemeFile {
 				'asset_version' => $context->assetVersion,
 			] );
 		}
-		catch ( AssetHashesNotFound $e ) {
-			$this->assetHashesUnavailable = true;
-			$valid = false;
-		}
-		catch ( \InvalidArgumentException|NonAssetFileException $e ) {
+		catch ( \InvalidArgumentException|AssetHashesNotFound|NonAssetFileException $e ) {
 			$valid = false;
 		}
 

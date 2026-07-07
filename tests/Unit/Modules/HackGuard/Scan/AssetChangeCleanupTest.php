@@ -91,7 +91,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_cleanup_resolves_only_modified_and_missing_findings_then_starts_scan() :void {
+	public function test_cleanup_starts_scan_without_pre_resolving_findings() :void {
 		$wpDb = new AssetChangeCleanupWpDb();
 		$scans = new AssetChangeCleanupScans();
 		$this->installController( $scans );
@@ -104,15 +104,8 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		( new Cleanup() )->run( 'core', 'core' );
 
 		$this->assertSame( [ [ 'core', 'core' ] ], $scans->startedAssets );
-		$this->assertSame( 1, $scans->memoizationResets );
-		$this->assertCount( 1, $wpDb->queries );
-		$this->assertStringContainsString( "`resolution_reason`='asset_replaced'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_type`='core'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_key`='core'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "'is_checksumfail','is_missing'", $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unrecognised', $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unidentified', $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_mal', $wpDb->queries[ 0 ] );
+		$this->assertSame( 0, $scans->memoizationResets );
+		$this->assertSame( [], $wpDb->queries );
 	}
 
 	public function test_cleanup_reschedules_once_and_does_not_scan_when_readiness_fails() :void {
@@ -130,7 +123,8 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		( new Cleanup() )->run( 'core', 'core' );
 
 		$this->assertSame( [], $scans->startedAssets );
-		$this->assertSame( 1, $scans->memoizationResets );
+		$this->assertSame( 0, $scans->memoizationResets );
+		$this->assertSame( [], $wpDb->queries );
 		$this->assertSame( [
 			[
 				'timestamp' => 1700000260,
@@ -155,6 +149,8 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		( new Cleanup() )->run( 'core', 'core', 1 );
 
 		$this->assertSame( [], $scans->startedAssets );
+		$this->assertSame( 0, $scans->memoizationResets );
+		$this->assertSame( [], $wpDb->queries );
 		$this->assertSame( [], $scheduled );
 	}
 
@@ -192,14 +188,8 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		( new Cleanup() )->run( $assetType, $assetKey, $retry );
 
 		$this->assertSame( [], $scans->startedAssets );
-		$this->assertSame( 1, $scans->memoizationResets );
-		$this->assertCount( 1, $wpDb->queries );
-		$this->assertStringContainsString( "`asset_type`='{$assetType}'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_key`='{$assetKey}'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "'is_checksumfail','is_missing'", $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unrecognised', $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unidentified', $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_mal', $wpDb->queries[ 0 ] );
+		$this->assertSame( 0, $scans->memoizationResets );
+		$this->assertSame( [], $wpDb->queries );
 		$this->assertSame( $expectedSchedule, $scheduled );
 	}
 
@@ -236,14 +226,8 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'cleanup-plugin.php', $snapData );
 		$this->assertSame( \md5_file( WP_PLUGIN_DIR.'/'.$plugin->file ), $snapData[ 'cleanup-plugin.php' ] );
 		$this->assertSame( '2.0.0', $store->getSnapMeta()[ 'version' ] );
-		$this->assertSame( 1, $scans->memoizationResets );
-		$this->assertStringContainsString( "`resolution_reason`='asset_replaced'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_type`='plugin'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_key`='cleanup-plugin/cleanup-plugin.php'", $wpDb->queries[ 0 ] );
-		$this->assertStringContainsString( "'is_checksumfail','is_missing'", $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unrecognised', $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_unidentified', $wpDb->queries[ 0 ] );
-		$this->assertStringNotContainsString( 'is_mal', $wpDb->queries[ 0 ] );
+		$this->assertSame( 0, $scans->memoizationResets );
+		$this->assertSame( [], $wpDb->queries );
 	}
 
 	public function test_plugin_cleanup_uses_selected_snapshot_root() :void {
@@ -325,7 +309,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		], $scans->startedAssets );
 	}
 
-	public function test_schedule_invalidates_plugin_snapshot_before_pending_cleanup_check() :void {
+	public function test_schedule_preserves_plugin_snapshot_before_pending_cleanup_check() :void {
 		$plugin = new SnapshotPluginVo( 'pending-plugin/pending.php', '1.0.0' );
 		$scheduled = [
 			[
@@ -340,12 +324,14 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			new SnapshotPlugins( [ $plugin ] ),
 			new SnapshotThemes( [] )
 		);
-		$this->writeSnapshotStore( $plugin, [
+		$expectedData = [
 			'pending.php' => \md5( 'old-same-version-content' ),
-		], [
+		];
+		$expectedMeta = [
 			'version'   => '1.0.0',
 			'unique_id' => $plugin->file,
-		] );
+		];
+		$this->writeSnapshotStore( $plugin, $expectedData, $expectedMeta );
 
 		$this->assertTrue( ( new Cleanup() )->schedule( 'plugin', $plugin->file ) );
 
@@ -356,10 +342,10 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 				'args'      => [ 'plugin', $plugin->file, 0 ],
 			],
 		], $scheduled );
-		$this->assertSnapshotStoreMissing( $plugin );
+		$this->assertSnapshotStorePreserved( $plugin, $expectedData, $expectedMeta );
 	}
 
-	public function test_schedule_invalidates_theme_snapshot_before_pending_cleanup_check() :void {
+	public function test_schedule_preserves_theme_snapshot_before_pending_cleanup_check() :void {
 		$theme = new SnapshotThemeVo( 'pending-theme', '1.0.0' );
 		$scheduled = [
 			[
@@ -374,12 +360,14 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			new SnapshotPlugins( [] ),
 			new SnapshotThemes( [ $theme ] )
 		);
-		$this->writeSnapshotStore( $theme, [
+		$expectedData = [
 			'style.php' => \md5( 'old-same-version-content' ),
-		], [
+		];
+		$expectedMeta = [
 			'version'   => '1.0.0',
 			'unique_id' => $theme->stylesheet,
-		] );
+		];
+		$this->writeSnapshotStore( $theme, $expectedData, $expectedMeta );
 
 		$this->assertTrue( ( new Cleanup() )->schedule( 'theme', $theme->stylesheet ) );
 
@@ -390,7 +378,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 				'args'      => [ 'theme', $theme->stylesheet, 0 ],
 			],
 		], $scheduled );
-		$this->assertSnapshotStoreMissing( $theme );
+		$this->assertSnapshotStorePreserved( $theme, $expectedData, $expectedMeta );
 	}
 
 	public function test_schedule_coalesces_only_matching_pending_asset_cleanup() :void {
@@ -576,12 +564,15 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		);
 	}
 
-	private function assertSnapshotStoreMissing( $asset ) :void {
+	private function assertSnapshotStorePreserved( $asset, array $expectedData, array $expectedMeta ) :void {
 		$store = ( new Store( $asset, true ) )
 			->setWorkingDir( ( new HashesStorageDir() )->getTempDir( false ) );
 		foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {
-			$this->assertFileDoesNotExist( $path );
+			$this->assertFileExists( $path );
 		}
+		$this->assertTrue( $store->verify() );
+		$this->assertSame( $expectedData, $store->getSnapData() );
+		$this->assertSame( $expectedMeta, $store->getSnapMeta() );
 	}
 
 	private function resetHashesStorageDir() :void {

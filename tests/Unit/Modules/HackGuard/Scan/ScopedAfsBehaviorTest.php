@@ -166,17 +166,17 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$method->setAccessible( true );
 		$rootDirs = $method->invoke( new BuildScanItems(), $action );
 
-		$this->assertSame( 1, $rootDirs[ ABSPATH ] ?? null );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, WPINC ) ] ?? null );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, 'wp-admin' ) ] ?? null );
+		$this->assertRootDirDepth( 1, ABSPATH, $rootDirs );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, WPINC ), $rootDirs );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, 'wp-admin' ), $rootDirs );
 	}
 
 	public function test_core_scope_builds_wp_roots_only_when_wproot_area_is_disabled() :void {
 		$rootDirs = $this->buildCoreScopedRootDirs( [ 'wp' ], true );
 
 		$this->assertArrayNotHasKey( ABSPATH, $rootDirs );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, WPINC ) ] ?? null );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, 'wp-admin' ) ] ?? null );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, WPINC ), $rootDirs );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, 'wp-admin' ), $rootDirs );
 	}
 
 	public function test_core_scope_builds_wproot_only_when_wp_area_is_disabled_and_cap_allows() :void {
@@ -189,8 +189,8 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$rootDirs = $this->buildCoreScopedRootDirs( [ 'wp', 'wproot' ], false );
 
 		$this->assertArrayNotHasKey( ABSPATH, $rootDirs );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, WPINC ) ] ?? null );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, 'wp-admin' ) ] ?? null );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, WPINC ), $rootDirs );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, 'wp-admin' ), $rootDirs );
 	}
 
 	public function test_set_scan_completed_resolves_only_core_modified_or_missing_asset_scope_findings() :void {
@@ -266,6 +266,11 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$method = new \ReflectionMethod( BuildScanItems::class, 'buildScopedRootDirs' );
 		$method->setAccessible( true );
 		return $method->invoke( new BuildScanItems(), $action );
+	}
+
+	private function assertRootDirDepth( int $expectedDepth, string $path, array $rootDirs ) :void {
+		$this->assertArrayHasKey( $path, $rootDirs );
+		$this->assertSame( $expectedDepth, $rootDirs[ $path ] );
 	}
 
 	private function installController(

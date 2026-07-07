@@ -1,7 +1,7 @@
 {
-    "version": "22.1.5",
-    "release_timestamp": 1782984000,
-    "build": "202607.0201",
+    "version": "22.1.7",
+    "release_timestamp": 1783423000,
+    "build": "202607.0701",
     "slug_parent": "icwp",
     "slug_plugin": "wpsf",
     "text_domain": "wp-simple-firewall",
@@ -9,7 +9,6 @@
     "wpms_network_admin_only": true,
     "logging_enabled": true,
     "show_dashboard_widget": true,
-    "show_admin_bar_menu": true,
     "autoupdate": "confidence",
     "autoupdate_days": 5,
     "enable_premium": true

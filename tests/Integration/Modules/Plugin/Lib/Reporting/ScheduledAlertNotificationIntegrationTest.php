@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plugin\Lib\Reporting;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\SetScanCompleted;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\{
 	AutoReportCoordinator,
 	BuildAlertDigestContract,
@@ -14,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 	RuntimeTestState,
 	TestDataFactory
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard\Scan\Support\AfsAssetChangeIntegrationSupport;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\LocalEmailCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
@@ -21,6 +23,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCase {
 
 	use LocalEmailCapture;
+	use AfsAssetChangeIntegrationSupport;
 
 	private array $optionsSnapshot = [];
 
@@ -28,6 +31,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		parent::set_up();
 		$this->requireDb( 'reports' );
 		$this->requireDb( 'scans' );
+		$this->requireDb( 'scan_items' );
 		$this->requireDb( 'scan_results' );
 		$this->requireDb( 'scan_result_items' );
 		$this->requireDb( 'scan_result_item_meta' );
@@ -60,12 +64,13 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 			->optSet( 'enable_core_file_integrity_scan', 'Y' )
 			->optSet( 'enable_wpvuln_scan', 'Y' )
 			->optSet( 'enabled_scan_apc', 'Y' )
-			->optSet( 'file_scan_areas', [ 'plugins' ] )
+			->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes' ] )
 			->optSet( 'file_locker', [ 'wpconfig' ] )
 			->optSet( 'frequency_alert', 'daily' )
 			->optSet( 'frequency_info', 'disabled' )
 			->optSet( 'block_send_email_address', 'security-alerts@example.test' )
 			->store();
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
 		$this->startLocalEmailCapture();
 	}
 
@@ -258,6 +263,64 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertSame( [], $rebuild->alert_digest[ 'notification_target_ids' ] );
 		$this->assertGreaterThan( 0, $rebuild->alert_digest[ 'summary' ][ 'outstanding_total' ] );
 		$this->assertSame( 0, $rebuild->alert_digest[ 'summary' ][ 'new_total' ] );
+	}
+
+	/**
+	 * @dataProvider provideAfsAssetScopes
+	 */
+	public function test_rediscovered_notified_afs_asset_finding_keeps_identity_and_is_not_new(
+		string $assetType
+	) :void {
+		$scenario = $this->afsAssetScenario( $assetType );
+		$pathFragment = TestDataFactory::afsFileItemIdFromPath( $scenario[ 'path_full' ] );
+		$notifiedAt = Services::Request()->ts() - 60;
+
+		$initialScanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$tracked = $this->seedAfsFinding( $initialScanId, $scenario, $scenario[ 'path_full' ] );
+		self::con()->db_con->scan_result_items->getQueryUpdater()->updateById(
+			(int)$tracked[ 'result_item_id' ],
+			[ 'notified_at' => $notifiedAt ]
+		);
+		$stale = $this->seedAfsFinding( $initialScanId, $scenario, $scenario[ 'stale_path_full' ] );
+
+		$replacementScanId = $this->insertAfsScan(
+			$scenario[ 'scope_type' ],
+			$scenario[ 'scope_key' ]
+		);
+		$this->storeAfsObservation( $replacementScanId, $scenario );
+		$this->assertTrue( ( new SetScanCompleted() )->run( $replacementScanId ) );
+
+		$resultItem = self::con()->db_con->scan_result_items->getQuerySelector()
+			->byId( (int)$tracked[ 'result_item_id' ] );
+		$this->assertNotEmpty( $resultItem );
+		$this->assertSame( $notifiedAt, (int)$resultItem->notified_at );
+		$this->assertSame( 0, (int)$resultItem->resolved_at );
+		$this->assertSame( 1, $this->countAfsResultItemsForPath( $pathFragment ) );
+		$this->assertSame( 1, $this->countAfsScanResultLinks( $replacementScanId, (int)$tracked[ 'result_item_id' ] ) );
+		$staleItem = self::con()->db_con->scan_result_items->getQuerySelector()
+			->byId( (int)$stale[ 'result_item_id' ] );
+		$this->assertNotEmpty( $staleItem );
+		$this->assertGreaterThan( 0, (int)$staleItem->resolved_at );
+		$this->assertSame( 'asset_replaced', (string)$staleItem->resolution_reason );
+
+		$report = $this->buildAlertReport();
+		$report->areas_data = [
+			Constants::REPORT_AREA_SCANS => ( new BuildForScans( $report ) )->build(),
+		];
+		$report->alert_digest = ( new BuildAlertDigestContract() )->build( $report );
+
+		$this->assertFalse( $report->alert_digest[ 'has_new_items' ] );
+		$this->assertSame( [], $report->alert_digest[ 'notification_target_ids' ] );
+		$this->assertGreaterThan( 0, $report->alert_digest[ 'summary' ][ 'outstanding_total' ] );
+		$this->assertSame( 0, $report->alert_digest[ 'summary' ][ 'new_total' ] );
+	}
+
+	public function provideAfsAssetScopes() :array {
+		return [
+			'plugin' => [ 'plugin' ],
+			'theme'  => [ 'theme' ],
+			'core'   => [ 'core' ],
+		];
 	}
 
 	private function buildAlertReport() :ReportVO {

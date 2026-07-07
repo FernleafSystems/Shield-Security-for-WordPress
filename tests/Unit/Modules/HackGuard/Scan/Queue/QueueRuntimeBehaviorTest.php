@@ -684,108 +684,32 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_set_scan_completed_uses_conditional_update_and_single_bounded_result_lookup() :void {
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700003500 ),
-			'service_wpdb'    => $wpdb = new class extends Db {
-				public array $doSqlQueries = [];
-				public array $selectQueries = [];
-
-				public function doSql( string $sqlQuery ) {
-					$this->doSqlQueries[] = $sqlQuery;
-					return 1;
-				}
-
-				public function selectCustom( $query, $format = null ) {
-					unset( $format );
-					$this->selectQueries[] = (string)$query;
-					return [];
-				}
-			},
-		] );
-
-		$events = [];
-		$this->installController( [
-			'db_con' => (object)[
-				'scans' => new class {
-					public function getTable() :string {
-						return 'shield_scans';
-					}
-
-					public function getQuerySelector() :object {
-						return new class {
-							public function byId( int $scanID ) :ScanRecord {
-								$record = new ScanRecord();
-								$record->id = $scanID;
-								$record->scan = 'wpv';
-								$record->scope_type = 'full';
-								$record->scope_key = '';
-								$record->run_trigger = 'manual';
-								return $record;
-							}
-						};
-					}
-				},
-				'scan_items' => new class {
-					public function getTable() :string {
-						return 'shield_scan_items';
-					}
-				},
-				'scan_result_items' => new class {
-					public function getTable() :string {
-						return 'shield_scan_result_items';
-					}
-				},
-				'scan_results' => new class {
-					public function getTable() :string {
-						return 'shield_scan_results';
-					}
-				},
-			],
-			'comps' => (object)[
-				'scans' => new class {
-					public function getScanCon( string $scan ) :object {
-						unset( $scan );
-						return new class {
-							public function getScanName() :string {
-								return 'WPV';
-							}
-
-							public function getNewResultsSet() :object {
-								return new class {
-									public function countItems() :int {
-										return 0;
-									}
-								};
-							}
-						};
-					}
-				},
-				'events' => new class( $events ) {
-					public array $events;
-
-					public function __construct( array &$events ) {
-						$this->events = &$events;
-					}
-
-					public function fireEvent( string $event, array $meta = [] ) :void {
-						$this->events[] = [
-							'event' => $event,
-							'meta'  => $meta,
-						];
-					}
-				},
-			],
-		] );
+		$harness = $this->installSetScanCompletedHarness( [ 1, 1 ] );
 
 		$this->assertTrue( ( new SetScanCompleted() )->run( 44 ) );
 
-		$this->assertCount( 2, $wpdb->doSqlQueries );
-		$this->assertStringContainsString( 'NOT EXISTS', $wpdb->doSqlQueries[ 0 ] );
-		$this->assertStringContainsString( '`finished_at`=0', $wpdb->doSqlQueries[ 0 ] );
-		$this->assertStringContainsString( 'shield_scan_results', $wpdb->doSqlQueries[ 1 ] );
-		$this->assertCount( 1, $wpdb->selectQueries );
-		$this->assertStringContainsString( 'LIMIT 31', $wpdb->selectQueries[ 0 ] );
-		$this->assertSame( 'scan_run', $events[ 0 ][ 'event' ] ?? null );
+		$this->assertCount( 2, $harness->wpdb->doSqlQueries );
+		$this->assertStringContainsString( 'NOT EXISTS', $harness->wpdb->doSqlQueries[ 0 ] );
+		$this->assertStringContainsString( '`finished_at`=0', $harness->wpdb->doSqlQueries[ 0 ] );
+		$this->assertStringContainsString( 'shield_scan_results', $harness->wpdb->doSqlQueries[ 1 ] );
+		$this->assertSame( 1, $harness->scans->memoizationResets );
+		$this->assertCount( 1, $harness->wpdb->selectQueries );
+		$this->assertStringContainsString( 'LIMIT 31', $harness->wpdb->selectQueries[ 0 ] );
+		$this->assertCount( 1, $harness->events );
+		$this->assertSame( 'scan_run', $harness->events[ 0 ][ 'event' ] );
+	}
+
+	public function test_set_scan_completed_keeps_audit_lookup_without_memoization_reset_when_no_stale_items_change() :void {
+		$harness = $this->installSetScanCompletedHarness( [ 1, 0 ] );
+
+		$this->assertTrue( ( new SetScanCompleted() )->run( 44 ) );
+
+		$this->assertCount( 2, $harness->wpdb->doSqlQueries );
+		$this->assertSame( 0, $harness->scans->memoizationResets );
+		$this->assertCount( 1, $harness->wpdb->selectQueries );
+		$this->assertStringContainsString( 'LIMIT 31', $harness->wpdb->selectQueries[ 0 ] );
+		$this->assertCount( 1, $harness->events );
+		$this->assertSame( 'scan_run', $harness->events[ 0 ][ 'event' ] );
 	}
 
 	public function test_queue_items_selects_built_and_running_scans_only() :void {
@@ -1174,6 +1098,124 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'icwp_wpsf_shield_scanq_cron_interval', $this->readObjectProperty( $processor, 'cron_interval_identifier' ) );
 		$this->assertSame( 5, $processor->get_cron_interval() );
 		$this->assertSame( \MINUTE_IN_SECONDS*10, $processor->getExpirationInterval() );
+	}
+
+	private function installSetScanCompletedHarness( array $doSqlReturns ) :object {
+		$harness = (object)[
+			'events' => [],
+		];
+		$wpdb = new class( $doSqlReturns ) extends Db {
+			public array $doSqlQueries = [];
+			public array $selectQueries = [];
+			private array $doSqlReturns;
+
+			public function __construct( array $doSqlReturns ) {
+				$this->doSqlReturns = $doSqlReturns;
+			}
+
+			public function doSql( string $sqlQuery ) :int {
+				$this->doSqlQueries[] = $sqlQuery;
+				if ( empty( $this->doSqlReturns ) ) {
+					throw new \RuntimeException( 'Unexpected SQL write.' );
+				}
+				return \array_shift( $this->doSqlReturns );
+			}
+
+			public function selectCustom( $query, $format = null ) {
+				unset( $format );
+				$this->selectQueries[] = (string)$query;
+				return [];
+			}
+		};
+		$harness->wpdb = $wpdb;
+
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700003500 ),
+			'service_wpdb'    => $wpdb,
+		] );
+
+		$harness->scans = new class {
+			public int $memoizationResets = 0;
+
+			public function getScanCon( string $scan ) :object {
+				unset( $scan );
+				return new class {
+					public function getScanName() :string {
+						return 'WPV';
+					}
+
+					public function getNewResultsSet() :object {
+						return new class {
+							public function countItems() :int {
+								return 0;
+							}
+						};
+					}
+				};
+			}
+
+			public function resetScanResultsCountMemoization() :void {
+				$this->memoizationResets++;
+			}
+		};
+
+		$this->installController( [
+			'db_con' => (object)[
+				'scans' => new class {
+					public function getTable() :string {
+						return 'shield_scans';
+					}
+
+					public function getQuerySelector() :object {
+						return new class {
+							public function byId( int $scanID ) :ScanRecord {
+								$record = new ScanRecord();
+								$record->id = $scanID;
+								$record->scan = 'wpv';
+								$record->scope_type = 'full';
+								$record->scope_key = '';
+								$record->run_trigger = 'manual';
+								return $record;
+							}
+						};
+					}
+				},
+				'scan_items' => new class {
+					public function getTable() :string {
+						return 'shield_scan_items';
+					}
+				},
+				'scan_result_items' => new class {
+					public function getTable() :string {
+						return 'shield_scan_result_items';
+					}
+				},
+				'scan_results' => new class {
+					public function getTable() :string {
+						return 'shield_scan_results';
+					}
+				},
+			],
+			'comps' => (object)[
+				'scans'  => $harness->scans,
+				'events' => new class( $harness ) {
+					private object $harness;
+
+					public function __construct( object $harness ) {
+						$this->harness = $harness;
+					}
+
+					public function fireEvent( string $event, array $meta = [] ) :void {
+						$this->harness->events[] = [
+							'event' => $event,
+							'meta'  => $meta,
+						];
+					}
+				},
+			],
+		] );
+
+		return $harness;
 	}
 
 	private function installController( array $properties ) :void {

@@ -135,7 +135,7 @@ class SetScanCompleted {
 			? 'asset_replaced'
 			: 'clean_rescan';
 
-		Services::WpDb()->doSql(
+		$affectedRows = Services::WpDb()->doSql(
 			sprintf(
 				"UPDATE `%s`
 					SET `resolved_at`=%d,
@@ -159,6 +159,9 @@ class SetScanCompleted {
 				self::con()->db_con->scan_result_items->getTable()
 			)
 		);
+		if ( \is_int( $affectedRows ) && $affectedRows > 0 ) {
+			self::con()->comps->scans->resetScanResultsCountMemoization();
+		}
 	}
 
 	private function buildScopeWhere( ScansDB\Record $scanRecord ): string {

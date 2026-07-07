@@ -66,7 +66,13 @@ abstract class Base {
 		return false;
 	}
 
+	public function resetResultsMemoization() :void {
+		unset( $this->latestResults );
+	}
+
 	protected function handleResultsChanged() :void {
+		$this->resetResultsMemoization();
+		self::con()->comps->scans->resetScanResultsCountMemoization();
 	}
 
 	/**

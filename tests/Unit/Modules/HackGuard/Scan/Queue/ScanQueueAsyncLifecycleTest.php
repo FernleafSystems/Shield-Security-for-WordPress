@@ -136,8 +136,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 1, $this->queryLogCount( $queries, 'SELECT `id` FROM `scans`' ) );
 		$this->assertSame( 1, $this->queryLogCount( $queries, 'SELECT `id`, `scan`' ) );
 		$this->assertFalse( $this->queryLogContains( $queries, 'FROM `scan_items`' ) );
-		$this->assertSame( [], $harness->async->remotePosts );
-		$this->assertSame( [], $harness->async->scheduled );
+		$this->assertOnlyQueueWatchdogScheduledWithoutBuilderDispatch( $harness );
 		$this->assertSame( [ $scanID ], $this->scanIDsForSlug( $harness, 'afs' ) );
 	}
 
@@ -271,8 +270,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 1, $this->queryLogCount( $queries, 'SELECT `id` FROM `scans`' ) );
 		$this->assertSame( 1, $this->queryLogCount( $queries, 'SELECT `id`, `scan`' ) );
 		$this->assertFalse( $this->queryLogContains( $queries, 'FROM `scan_items`' ) );
-		$this->assertSame( [], $harness->async->remotePosts );
-		$this->assertSame( [], $harness->async->scheduled );
+		$this->assertOnlyQueueWatchdogScheduledWithoutBuilderDispatch( $harness );
 	}
 
 	public function test_repeated_start_after_exhausted_prior_release_rows_does_not_remain_all_already_exists_forever() :void {
@@ -1317,6 +1315,14 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			1,
 			\count( $harness->async->remotePosts ) + \count( $harness->async->scheduled )
 		);
+	}
+
+	private function assertOnlyQueueWatchdogScheduledWithoutBuilderDispatch( ScanQueueLifecycleHarness $harness ) :void {
+		$watchdogHook = ( new QueueWatchdog() )->hook();
+		$this->assertSame( [], $harness->async->remotePosts );
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdogHook ) );
+		$this->assertSame( 1, $harness->async->scheduledHookAttempts( $watchdogHook ) );
+		$this->assertSame( 1, \count( $harness->async->scheduled ) );
 	}
 
 	private function actionWasFired( ScanQueueLifecycleHarness $harness, string $hook ) :bool {

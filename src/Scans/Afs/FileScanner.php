@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 	IsExcludedPhpTranslationFile,
 	IsFileContentExcluded
@@ -11,7 +10,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetFileContext,
 	AssetTrustResolver,
-	Exceptions\AssetHashesNotFound,
 	Exceptions\NonAssetFileException,
 	HashVerificationResult
 };
@@ -89,9 +87,6 @@ class FileScanner {
 							$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
 						}
 					}
-					elseif ( $pluginScan->hasUnavailableAssetHashes() ) {
-						$this->scheduleAssetCleanup( $assetContext );
-					}
 				}
 			}
 			if ( !$validFile && $scanCon->isScanEnabledThemes() ) {
@@ -107,9 +102,6 @@ class FileScanner {
 						if ( $skipMalwareScan ) {
 							$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
 						}
-					}
-					elseif ( $themeScan->hasUnavailableAssetHashes() ) {
-						$this->scheduleAssetCleanup( $assetContext );
 					}
 				}
 			}
@@ -194,9 +186,6 @@ class FileScanner {
 						$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
 					}
 				}
-				catch ( AssetHashesNotFound $e ) {
-					$this->scheduleAssetCleanup( $assetContext );
-				}
 				catch ( \Exception $e ) {
 				}
 			}
@@ -268,13 +257,6 @@ class FileScanner {
 			$verification->assetVersion,
 			$verification->relativePath
 		);
-	}
-
-	private function scheduleAssetCleanup( AssetFileContext $assetContext ) :void {
-		if ( !\function_exists( 'wp_next_scheduled' ) || !\function_exists( 'wp_schedule_single_event' ) ) {
-			return;
-		}
-		( new Cleanup() )->schedule( $assetContext->assetType, $assetContext->assetKey );
 	}
 
 	private function getResultItem( string $fullPath ) :ResultItem {
