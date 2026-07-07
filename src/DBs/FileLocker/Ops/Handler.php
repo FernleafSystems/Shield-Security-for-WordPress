@@ -15,6 +15,9 @@ class Handler extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Hand
 			$deleted = parent::tableDelete( true );
 		}
 
+		static::GetTableReadyCache()->setReady( $this->getTableSchema(), false );
+		Services::WpDb()->clearResultShowTables();
+
 		return $deleted;
 	}
 }

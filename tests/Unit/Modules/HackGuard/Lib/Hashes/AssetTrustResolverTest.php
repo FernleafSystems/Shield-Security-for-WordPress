@@ -3,14 +3,25 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Lib\Hashes;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetTrustResolver,
-	Exceptions\NonAssetFileException
+	Exceptions\NonAssetFileException,
+	Retrieve
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
+	HashesStorageDir,
+	Store
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	PluginControllerInstaller,
+	ServicesState,
+	UnitTestRequest
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\AssetSnapshots\SnapshotFs;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\CacheStoreTestCacheDir;
 use FernleafSystems\Wordpress\Services\Core\{
-	Fs,
 	Plugins,
 	Themes
 };
@@ -22,22 +33,36 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 class AssetTrustResolverTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
+	private array $tempDirs = [];
 
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		AssetTrustResolver::resetMemoization();
+		Retrieve::resetMemoization();
+		$this->resetHashesStorageDir();
 		ResolverFs::$isAbsPathCalls = 0;
 		ResolverPlugins::$installedPluginFilesCalls = 0;
+		ResolverPlugins::$getPluginAsVoCalls = 0;
 		ResolverThemes::$getThemesCalls = 0;
+		ResolverThemes::$getThemeAsVoCalls = 0;
+		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalisePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
+		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => \json_encode( $data ) );
 		Functions\when( 'wp_normalize_path' )->alias( fn( string $path ) :string => $this->normalisePath( $path ) );
+		Functions\when( 'untrailingslashit' )->alias( fn( string $path ) :string => \rtrim( $this->normalisePath( $path ), '/' ) );
 		Functions\when( 'get_theme_root' )->alias( fn() :string => $this->normalisePath( WP_CONTENT_DIR.'/themes' ) );
 	}
 
 	protected function tearDown() :void {
+		Retrieve::resetMemoization();
 		AssetTrustResolver::resetMemoization();
+		$this->resetHashesStorageDir();
 		ServicesState::restore( $this->servicesSnapshot );
+		PluginControllerInstaller::reset();
+		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
+			$this->removeDir( $dir );
+		}
 		parent::tearDown();
 	}
 
@@ -78,9 +103,27 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$context = ( new AssetTrustResolver() )->resolveContext( $path );
 
 		$this->assertSame( '1.0.0', $context->assetVersion );
+		$this->assertSame( 1, ResolverPlugins::$getPluginAsVoCalls );
 	}
 
-	public function test_cached_plugin_context_refreshes_asset_version() :void {
+	public function test_repeated_plugin_directory_contexts_load_asset_once() :void {
+		ServicesState::installItems( [
+			'service_wpfs'      => new ResolverFs(),
+			'service_wpplugins' => new ResolverPlugins( [ 'alpha/alpha.php' ], '1.0.0' ),
+			'service_wpthemes'  => new ResolverThemes( [] ),
+		] );
+		$resolver = new AssetTrustResolver();
+
+		$first = $resolver->resolveContext( $this->normalisePath( WP_PLUGIN_DIR.'/alpha/src/One.php' ) );
+		$second = $resolver->resolveContext( $this->normalisePath( WP_PLUGIN_DIR.'/alpha/src/Two.php' ) );
+
+		$this->assertSame( 'alpha/alpha.php', $first->assetKey );
+		$this->assertSame( 'alpha/alpha.php', $second->assetKey );
+		$this->assertSame( 1, ResolverPlugins::$installedPluginFilesCalls );
+		$this->assertSame( 1, ResolverPlugins::$getPluginAsVoCalls );
+	}
+
+	public function test_cached_plugin_context_does_not_refresh_asset_version_until_reset() :void {
 		ServicesState::installItems( [
 			'service_wpfs'      => new ResolverFs(),
 			'service_wpplugins' => new ResolverPlugins( [ 'alpha/alpha.php' ], '1.0.0' ),
@@ -98,10 +141,45 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		] );
 		$second = $resolver->resolveContext( $path );
 
-		$this->assertSame( '1.1.0', $second->assetVersion );
+		$this->assertSame( '1.0.0', $second->assetVersion );
 		$this->assertSame( $first->assetType, $second->assetType );
 		$this->assertSame( $first->assetKey, $second->assetKey );
 		$this->assertSame( $first->relativePath, $second->relativePath );
+
+		AssetTrustResolver::resetMemoization();
+		$third = $resolver->resolveContext( $path );
+
+		$this->assertSame( '1.1.0', $third->assetVersion );
+		$this->assertSame( $first->assetType, $third->assetType );
+		$this->assertSame( $first->assetKey, $third->assetKey );
+		$this->assertSame( $first->relativePath, $third->relativePath );
+	}
+
+	public function test_plugin_hash_data_for_cached_context_uses_cached_asset_version() :void {
+		$cacheRoot = $this->makeTempDir( 'resolver-store' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		$this->installHashStoreEnvironment(
+			new ResolverPlugins( [ 'alpha/alpha.php' ], '1.0.0' ),
+			new ResolverThemes( [] ),
+			$cacheRoot
+		);
+		$this->writeStore( new ResolverPluginVo( 'alpha/alpha.php', '1.0.0' ), [
+			'src/File.php' => 'hash-for-plugin-1.0.0',
+		], $hashDir );
+		$path = $this->normalisePath( WP_PLUGIN_DIR.'/alpha/src/File.php' );
+		$resolver = new AssetTrustResolver();
+		$context = $resolver->resolveContext( $path );
+
+		ServicesState::mergeItems( [
+			'service_wpplugins' => new ResolverPlugins( [ 'alpha/alpha.php' ], '0.9.0', '1.1.0' ),
+			'service_wpthemes'  => new ResolverThemes( [] ),
+		] );
+		$hashData = $resolver->getHashDataForContext( $path, $context );
+
+		$this->assertSame( '1.0.0', $hashData[ 'asset_version' ] );
+		$this->assertSame( [ 'hash-for-plugin-1.0.0' ], $hashData[ 'hashes' ] );
+		$this->assertSame( 1, ResolverPlugins::$getPluginAsVoCalls );
 	}
 
 	public function test_repeated_same_theme_path_reuses_full_path_context() :void {
@@ -141,9 +219,27 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$context = ( new AssetTrustResolver() )->resolveContext( $path );
 
 		$this->assertSame( '1.0.0', $context->assetVersion );
+		$this->assertSame( 1, ResolverThemes::$getThemeAsVoCalls );
 	}
 
-	public function test_cached_theme_context_refreshes_asset_version() :void {
+	public function test_repeated_theme_directory_contexts_load_asset_once() :void {
+		ServicesState::installItems( [
+			'service_wpfs'      => new ResolverFs(),
+			'service_wpplugins' => new ResolverPlugins( [] ),
+			'service_wpthemes'  => new ResolverThemes( [ 'clean' ], '1.0.0' ),
+		] );
+		$resolver = new AssetTrustResolver();
+
+		$first = $resolver->resolveContext( $this->normalisePath( WP_CONTENT_DIR.'/themes/clean/inc/One.php' ) );
+		$second = $resolver->resolveContext( $this->normalisePath( WP_CONTENT_DIR.'/themes/clean/inc/Two.php' ) );
+
+		$this->assertSame( 'clean', $first->assetKey );
+		$this->assertSame( 'clean', $second->assetKey );
+		$this->assertSame( 1, ResolverThemes::$getThemesCalls );
+		$this->assertSame( 1, ResolverThemes::$getThemeAsVoCalls );
+	}
+
+	public function test_cached_theme_context_does_not_refresh_asset_version_until_reset() :void {
 		ServicesState::installItems( [
 			'service_wpfs'      => new ResolverFs(),
 			'service_wpplugins' => new ResolverPlugins( [] ),
@@ -161,29 +257,53 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		] );
 		$second = $resolver->resolveContext( $path );
 
-		$this->assertSame( '1.1.0', $second->assetVersion );
+		$this->assertSame( '1.0.0', $second->assetVersion );
 		$this->assertSame( $first->assetType, $second->assetType );
 		$this->assertSame( $first->assetKey, $second->assetKey );
 		$this->assertSame( $first->relativePath, $second->relativePath );
+
+		AssetTrustResolver::resetMemoization();
+		$third = $resolver->resolveContext( $path );
+
+		$this->assertSame( '1.1.0', $third->assetVersion );
+		$this->assertSame( $first->assetType, $third->assetType );
+		$this->assertSame( $first->assetKey, $third->assetKey );
+		$this->assertSame( $first->relativePath, $third->relativePath );
 	}
 
-	public function test_repeated_non_asset_path_miss_is_memoized() :void {
+	public function test_theme_hash_data_for_cached_context_uses_cached_asset_version() :void {
+		$cacheRoot = $this->makeTempDir( 'resolver-store' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		$this->installHashStoreEnvironment(
+			new ResolverPlugins( [] ),
+			new ResolverThemes( [ 'clean' ], '1.0.0' ),
+			$cacheRoot
+		);
+		$this->writeStore( new ResolverThemeVo( 'clean', '1.0.0' ), [
+			'inc/File.php' => 'hash-for-theme-1.0.0',
+		], $hashDir );
+		$path = $this->normalisePath( WP_CONTENT_DIR.'/themes/clean/inc/File.php' );
+		$resolver = new AssetTrustResolver();
+		$context = $resolver->resolveContext( $path );
+
+		ServicesState::mergeItems( [
+			'service_wpplugins' => new ResolverPlugins( [] ),
+			'service_wpthemes'  => new ResolverThemes( [ 'clean' ], '0.9.0', '1.1.0' ),
+		] );
+		$hashData = $resolver->getHashDataForContext( $path, $context );
+
+		$this->assertSame( '1.0.0', $hashData[ 'asset_version' ] );
+		$this->assertSame( [ 'hash-for-theme-1.0.0' ], $hashData[ 'hashes' ] );
+		$this->assertSame( 1, ResolverThemes::$getThemeAsVoCalls );
+	}
+
+	public function test_outside_asset_roots_is_rejected() :void {
 		$this->installEnvironment( [ 'alpha/alpha.php' ], [ 'clean' ] );
 		$path = $this->normalisePath( WP_CONTENT_DIR.'/uploads/outside.php' );
 		$resolver = new AssetTrustResolver();
 
 		$this->assertResolveContextMiss( $resolver, $path );
-		$callsAfterFirst = [
-			ResolverFs::$isAbsPathCalls,
-			ResolverPlugins::$installedPluginFilesCalls,
-			ResolverThemes::$getThemesCalls,
-		];
-		$this->assertResolveContextMiss( $resolver, $path );
-		$this->assertSame( $callsAfterFirst, [
-			ResolverFs::$isAbsPathCalls,
-			ResolverPlugins::$installedPluginFilesCalls,
-			ResolverThemes::$getThemesCalls,
-		] );
 	}
 
 	/**
@@ -200,6 +320,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 			ResolverPlugins::$installedPluginFilesCalls,
 			ResolverThemes::$getThemesCalls,
 		];
+		$this->assertGreaterThan( 0, ResolverPlugins::$installedPluginFilesCalls + ResolverThemes::$getThemesCalls );
 		$this->assertResolveContextMiss( $resolver, $path );
 		$this->assertSame( $callsAfterFirst, [
 			ResolverFs::$isAbsPathCalls,
@@ -210,8 +331,22 @@ class AssetTrustResolverTest extends BaseUnitTest {
 
 	public static function unknownAssetDirectoryProvider() :array {
 		return [
-			'unknown plugin directory'      => [ WP_PLUGIN_DIR.'/missing/file.php' ],
-			'unknown theme directory'       => [ WP_CONTENT_DIR.'/themes/missing/file.php' ],
+			'unknown plugin directory' => [ WP_PLUGIN_DIR.'/missing/file.php' ],
+			'unknown theme directory'  => [ WP_CONTENT_DIR.'/themes/missing/file.php' ],
+		];
+	}
+
+	/**
+	 * @dataProvider siblingPathProvider
+	 */
+	public function test_root_sibling_paths_are_rejected( string $path ) :void {
+		$this->installEnvironment( [ 'alpha/alpha.php' ], [ 'clean' ] );
+
+		$this->assertResolveContextMiss( new AssetTrustResolver(), $this->normalisePath( $path ) );
+	}
+
+	public static function siblingPathProvider() :array {
+		return [
 			'plugin root sibling prefix'    => [ WP_PLUGIN_DIR.'alpha/file.php' ],
 			'plugin root sibling backslash' => [ \str_replace( '/', '\\', WP_PLUGIN_DIR.'alpha/file.php' ) ],
 			'theme root sibling prefix'     => [ WP_CONTENT_DIR.'/themesclean/file.php' ],
@@ -225,6 +360,40 @@ class AssetTrustResolverTest extends BaseUnitTest {
 			'service_wpplugins' => new ResolverPlugins( $pluginFiles ),
 			'service_wpthemes'  => new ResolverThemes( $themes ),
 		] );
+	}
+
+	private function installHashStoreEnvironment( Plugins $plugins, Themes $themes, string $cacheRoot ) :void {
+		ServicesState::installItems( [
+			'service_request'   => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
+			'service_wpfs'      => new ResolverFs(),
+			'service_wpplugins' => $plugins,
+			'service_wpthemes'  => $themes,
+		] );
+		$this->installController( $cacheRoot );
+	}
+
+	private function installController( string $cacheRoot ) :void {
+		/** @var Controller $controller */
+		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->caps = new class {
+			public function canScanPluginsThemesRemote() :bool {
+				return false;
+			}
+		};
+		$controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
+
+		PluginControllerInstaller::install( $controller );
+	}
+
+	private function writeStore( $asset, array $hashes, string $hashDir ) :void {
+		( new Store( $asset, true ) )
+			->setWorkingDir( $hashDir )
+			->setSnapData( $hashes )
+			->setSnapMeta( [
+				'version'   => $asset->Version,
+				'unique_id' => $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
+			] )
+			->save();
 	}
 
 	private function assertResolveContextMiss( AssetTrustResolver $resolver, string $path ) :void {
@@ -241,9 +410,41 @@ class AssetTrustResolverTest extends BaseUnitTest {
 	private function normalisePath( string $path ) :string {
 		return \str_replace( '\\', '/', $path );
 	}
+
+	private function resetHashesStorageDir() :void {
+		$reflection = new \ReflectionClass( HashesStorageDir::class );
+		foreach ( [ 'dir', 'rootDir' ] as $propertyName ) {
+			if ( $reflection->hasProperty( $propertyName ) ) {
+				$property = $reflection->getProperty( $propertyName );
+				$property->setAccessible( true );
+				$property->setValue( null, null );
+			}
+		}
+	}
+
+	private function makeTempDir( string $suffix ) :string {
+		$dir = $this->normalisePath( \sys_get_temp_dir().'/shield-resolver-test-'.$suffix.'-'.\uniqid() );
+		@mkdir( $dir, 0777, true );
+		$this->tempDirs[] = $dir;
+		return $dir;
+	}
+
+	private function removeDir( string $dir ) :void {
+		if ( !\is_dir( $dir ) ) {
+			return;
+		}
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+		foreach ( $iterator as $item ) {
+			$item->isDir() ? @rmdir( $item->getPathname() ) : @unlink( $item->getPathname() );
+		}
+		@rmdir( $dir );
+	}
 }
 
-class ResolverFs extends Fs {
+class ResolverFs extends SnapshotFs {
 	public static int $isAbsPathCalls = 0;
 
 	public function isAbsPath( $path ) {
@@ -254,6 +455,8 @@ class ResolverFs extends Fs {
 
 class ResolverPlugins extends Plugins {
 	public static int $installedPluginFilesCalls = 0;
+
+	public static int $getPluginAsVoCalls = 0;
 
 	private array $pluginFiles;
 
@@ -273,6 +476,7 @@ class ResolverPlugins extends Plugins {
 	}
 
 	public function getPluginAsVo( string $file, bool $reload = false ) :?WpPluginVo {
+		self::$getPluginAsVoCalls++;
 		return \in_array( $file, $this->pluginFiles, true )
 			? new ResolverPluginVo( $file, $reload && $this->reloadVersion !== null ? $this->reloadVersion : $this->version )
 			: null;
@@ -281,6 +485,8 @@ class ResolverPlugins extends Plugins {
 
 class ResolverThemes extends Themes {
 	public static int $getThemesCalls = 0;
+
+	public static int $getThemeAsVoCalls = 0;
 
 	private array $themes;
 
@@ -313,6 +519,7 @@ class ResolverThemes extends Themes {
 	}
 
 	public function getThemeAsVo( string $stylesheet, bool $reload = false ) :?WpThemeVo {
+		self::$getThemeAsVoCalls++;
 		return \in_array( $stylesheet, $this->themes, true )
 			? new ResolverThemeVo( $stylesheet, $reload && $this->reloadVersion !== null ? $this->reloadVersion : $this->version )
 			: null;
@@ -340,6 +547,14 @@ class ResolverPluginVo extends WpPluginVo {
 				return $this->{$key} ?? null;
 		}
 	}
+
+	public function getInstallDir() :string {
+		return '';
+	}
+
+	public function isWpOrg() :bool {
+		return false;
+	}
 }
 
 class ResolverThemeVo extends WpThemeVo {
@@ -362,5 +577,13 @@ class ResolverThemeVo extends WpThemeVo {
 			default:
 				return $this->{$key} ?? null;
 		}
+	}
+
+	public function getInstallDir() :string {
+		return '';
+	}
+
+	public function isWpOrg() :bool {
+		return false;
 	}
 }

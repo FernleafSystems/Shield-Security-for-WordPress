@@ -14,6 +14,7 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
 	ResultsSet,
+	Scan,
 	ScanActionVO,
 	ScanFromFileMap
 };
@@ -48,6 +49,39 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 		PluginControllerInstaller::reset();
 		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
+	}
+
+	public function test_prescan_filter_ticks_once_after_partial_batch() :void {
+		$ticks = 0;
+		$items = $this->invalidBase64Items( 999 );
+		$action = $this->newPreScanAction( $items, $ticks );
+
+		( new AfsPreScanHeartbeatTestDouble() )->exposeFilterKnownValidItems( $action );
+
+		$this->assertSame( 1, $ticks );
+		$this->assertSame( $items, $action->items );
+	}
+
+	public function test_prescan_filter_ticks_at_interval_without_completion_duplicate() :void {
+		$ticks = 0;
+		$items = $this->invalidBase64Items( 1000 );
+		$action = $this->newPreScanAction( $items, $ticks );
+
+		( new AfsPreScanHeartbeatTestDouble() )->exposeFilterKnownValidItems( $action );
+
+		$this->assertSame( 1, $ticks );
+		$this->assertSame( $items, $action->items );
+	}
+
+	public function test_prescan_filter_ticks_at_intervals_and_completion() :void {
+		$ticks = 0;
+		$items = $this->invalidBase64Items( 2500 );
+		$action = $this->newPreScanAction( $items, $ticks );
+
+		( new AfsPreScanHeartbeatTestDouble() )->exposeFilterKnownValidItems( $action );
+
+		$this->assertSame( 3, $ticks );
+		$this->assertSame( $items, $action->items );
 	}
 
 	public function test_file_map_ticks_progress_at_file_boundaries_without_scanning_empty_paths() :void {
@@ -103,6 +137,23 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 		$this->assertLessThan( 60, $ticks );
 	}
 
+	private function newPreScanAction( array $items, int &$ticks ) :ScanActionVO {
+		$action = new ScanActionVO();
+		$action->items = $items;
+		$action->progress_callback = static function () use ( &$ticks ) :void {
+			$ticks++;
+		};
+		return $action;
+	}
+
+	private function invalidBase64Items( int $count ) :array {
+		$items = [];
+		for ( $i = 0; $i < $count; $i++ ) {
+			$items[] = 'invalid-base64-'.$i.'*';
+		}
+		return $items;
+	}
+
 	private function installController() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -123,5 +174,15 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 			},
 		];
 		PluginControllerInstaller::install( $controller );
+	}
+}
+
+class AfsPreScanHeartbeatTestDouble extends Scan {
+
+	public function exposeFilterKnownValidItems( ScanActionVO $action ) :void {
+		$this->filterKnownValidItems( $action );
+	}
+
+	protected function scanSlice() {
 	}
 }

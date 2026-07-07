@@ -2,12 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\{
 	BuildFileFromFileKey,
-	CleanLockRecords,
 	GetFileLockCandidateDisplays,
-	GetPendingFileLockDisplays,
-	LoadFileLocks
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockKeyApplicability;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
@@ -67,7 +68,12 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
 		$this->assertSame( 1, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
 
+		$handler::GetTableReadyCache()->setReady( $handler->getTableSchema() );
+		$this->assertTrue( $handler::GetTableReadyCache()->isReady( $handler->getTableSchema() ) );
+
 		$con->comps->file_locker->purge();
+
+		$this->assertFalse( $handler::GetTableReadyCache()->isReady( $handler->getTableSchema() ) );
 
 		$reloadedHandler = RuntimeTestState::requireDbHandler( 'file_locker', true );
 		$this->assertTrue( $reloadedHandler->tableExists() );
@@ -123,12 +129,11 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$pendingDisplays = ( new GetPendingFileLockDisplays() )->run();
 
-		$this->assertSame( [ 'root_index' ], \array_column( $pendingDisplays, 'file_key' ) );
-		$this->assertSame( [ 'index.php' ], \array_column( $pendingDisplays, 'title' ) );
-		$this->assertSame(
-			[ \wp_normalize_path( ABSPATH.'index.php' ) ],
-			\array_column( $pendingDisplays, 'path' )
-		);
+		$this->assertCount( 1, $pendingDisplays );
+		$this->assertSame( 'root_index', $pendingDisplays[ 0 ][ 'file_key' ] );
+		$this->assertSame( 'index.php', $pendingDisplays[ 0 ][ 'title' ] );
+		$this->assertSame( \wp_normalize_path( $pendingDisplays[ 0 ][ 'path' ] ), $pendingDisplays[ 0 ][ 'path' ] );
+		$this->assertTrue( Services::WpFs()->isAccessibleFile( $pendingDisplays[ 0 ][ 'path' ] ) );
 	}
 
 	public function test_file_lock_candidate_displays_follow_supported_order_and_applicability() :void {
@@ -152,11 +157,13 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 	 * Optional file-locker storage is only ready after the feature is enabled
 	 * and ShieldNet-backed runtime prerequisites are in place.
 	 */
-	private function prepareFileLockerRuntime( array $lockTypes ) {
+	private function prepareFileLockerRuntime( array $lockTypes ) :FileLockerDB\Handler {
 		$con = $this->requireController();
 		RuntimeTestState::primeShieldNetHandshake();
 		$con->opts->optSet( 'file_locker', $lockTypes )->store();
 
+		$handler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$handler->tableDelete( true );
 		$handler = RuntimeTestState::requireDbHandler( 'file_locker', true );
 		$con->comps->file_locker->clearLocks();
 
