@@ -20,9 +20,9 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\{
 
 class AssetTrustResolver {
 
-	private static array $pluginFilesByDir = [];
+	private static array $pluginsByDir = [];
 
-	private static array $themeStylesheetsByDir = [];
+	private static array $themesByDir = [];
 
 	private static array $contextsByPath = [];
 
@@ -31,8 +31,8 @@ class AssetTrustResolver {
 	private static array $relativePathsByPath = [];
 
 	public static function resetMemoization() :void {
-		self::$pluginFilesByDir = [];
-		self::$themeStylesheetsByDir = [];
+		self::$pluginsByDir = [];
+		self::$themesByDir = [];
 		self::$contextsByPath = [];
 		self::$nonAssetMissesByPath = [];
 		self::$relativePathsByPath = [];
@@ -57,7 +57,6 @@ class AssetTrustResolver {
 	 * @throws \Exception
 	 */
 	public function getHashDataForContext( string $path, AssetFileContext $context ) :array {
-		$context = $this->refreshContext( $context );
 		$vo = $this->assetFromContext( $context );
 		$hashSource = ( new Retrieve() )->byVOWithSource( $vo );
 		$hash = $hashSource[ 'hashes' ][ $context->relativePath ]
@@ -119,7 +118,6 @@ class AssetTrustResolver {
 	public function resolveContext( string $path ) :AssetFileContext {
 		$cacheKey = wp_normalize_path( $path );
 		if ( isset( self::$contextsByPath[ $cacheKey ] ) ) {
-			self::$contextsByPath[ $cacheKey ] = $this->refreshContext( self::$contextsByPath[ $cacheKey ] );
 			return self::$contextsByPath[ $cacheKey ];
 		}
 		if ( isset( self::$nonAssetMissesByPath[ $cacheKey ] ) ) {
@@ -218,25 +216,35 @@ class AssetTrustResolver {
 	}
 
 	private function pluginFromDir( string $dir ) :?WpPluginVo {
-		$pluginFile = $this->pluginFileFromDir( $dir );
-		$asset = \is_string( $pluginFile ) ? Services::WpPlugins()->getPluginAsVo( $pluginFile, true ) : null;
-		if ( !$asset instanceof WpPluginVo && \is_string( $pluginFile ) ) {
-			unset( self::$pluginFilesByDir[ $dir ] );
-			$pluginFile = $this->pluginFileFromDir( $dir );
-			$asset = \is_string( $pluginFile ) ? Services::WpPlugins()->getPluginAsVo( $pluginFile, true ) : null;
+		if ( !\array_key_exists( $dir, self::$pluginsByDir ) ) {
+			$asset = null;
+			$plugins = Services::WpPlugins();
+			foreach ( $plugins->getInstalledPluginFiles() as $pluginFile ) {
+				if ( $dir === \dirname( $pluginFile ) ) {
+					$maybeAsset = $plugins->getPluginAsVo( $pluginFile, true );
+					$asset = $maybeAsset instanceof WpPluginVo ? $maybeAsset : null;
+					break;
+				}
+			}
+			self::$pluginsByDir[ $dir ] = $asset;
 		}
-		return $asset instanceof WpPluginVo ? $asset : null;
+		return self::$pluginsByDir[ $dir ];
 	}
 
 	private function themeFromDir( string $dir ) :?WpThemeVo {
-		$stylesheet = $this->themeStylesheetFromDir( $dir );
-		$asset = \is_string( $stylesheet ) ? Services::WpThemes()->getThemeAsVo( $stylesheet, true ) : null;
-		if ( !$asset instanceof WpThemeVo && \is_string( $stylesheet ) ) {
-			unset( self::$themeStylesheetsByDir[ $dir ] );
-			$stylesheet = $this->themeStylesheetFromDir( $dir );
-			$asset = \is_string( $stylesheet ) ? Services::WpThemes()->getThemeAsVo( $stylesheet, true ) : null;
+		if ( !\array_key_exists( $dir, self::$themesByDir ) ) {
+			$asset = null;
+			$themes = Services::WpThemes();
+			foreach ( $themes->getThemes() as $theme ) {
+				if ( $dir === $theme->get_stylesheet() ) {
+					$maybeAsset = $themes->getThemeAsVo( $dir, true );
+					$asset = $maybeAsset instanceof WpThemeVo ? $maybeAsset : null;
+					break;
+				}
+			}
+			self::$themesByDir[ $dir ] = $asset;
 		}
-		return $asset instanceof WpThemeVo ? $asset : null;
+		return self::$themesByDir[ $dir ];
 	}
 
 	/**
@@ -251,41 +259,4 @@ class AssetTrustResolver {
 		return $asset;
 	}
 
-	private function pluginFileFromDir( string $dir ) :?string {
-		if ( !\array_key_exists( $dir, self::$pluginFilesByDir ) ) {
-			$pluginFileForDir = null;
-			foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $pluginFile ) {
-				if ( $dir === \dirname( $pluginFile ) ) {
-					$pluginFileForDir = $pluginFile;
-					break;
-				}
-			}
-			self::$pluginFilesByDir[ $dir ] = $pluginFileForDir;
-		}
-		return self::$pluginFilesByDir[ $dir ];
-	}
-
-	private function themeStylesheetFromDir( string $dir ) :?string {
-		if ( !\array_key_exists( $dir, self::$themeStylesheetsByDir ) ) {
-			$stylesheetForDir = null;
-			foreach ( Services::WpThemes()->getThemes() as $theme ) {
-				if ( $dir === $theme->get_stylesheet() ) {
-					$stylesheetForDir = $dir;
-					break;
-				}
-			}
-			self::$themeStylesheetsByDir[ $dir ] = $stylesheetForDir;
-		}
-		return self::$themeStylesheetsByDir[ $dir ];
-	}
-
-	/**
-	 * @throws NonAssetFileException
-	 */
-	private function refreshContext( AssetFileContext $context ) :AssetFileContext {
-		$asset = $this->assetFromContext( $context );
-		$context->assetKey = (string)$asset->unique_id;
-		$context->assetVersion = (string)$asset->Version;
-		return $context;
-	}
 }

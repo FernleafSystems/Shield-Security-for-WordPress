@@ -20,6 +20,11 @@ class Retrieve {
 
 	private static array $trustedSources;
 
+	public static function resetMemoization() :void {
+		self::$hashes = [];
+		self::$trustedSources = [];
+	}
+
 	public function __construct() {
 		self::$hashes ??= [];
 		self::$trustedSources ??= [];
@@ -75,10 +80,8 @@ class Retrieve {
 				}
 			}
 
-			if ( !empty( $hashes ) ) {
-				self::$hashes[ $cacheKey ] = $hashes;
-				self::$trustedSources[ $cacheKey ] = $trustedSource;
-			}
+			self::$hashes[ $cacheKey ] = $hashes;
+			self::$trustedSources[ $cacheKey ] = $trustedSource;
 		}
 
 		if ( empty( $hashes ) ) {

@@ -47,7 +47,9 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->servicesSnapshot = ServicesState::snapshot();
 		AssetTrustResolver::resetMemoization();
 		OptimiserPlugins::$installedPluginFilesCalls = 0;
+		OptimiserPlugins::$getPluginAsVoCalls = 0;
 		OptimiserThemes::$getThemesCalls = 0;
+		OptimiserThemes::$getThemeAsVoCalls = 0;
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalisePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
 		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => \json_encode( $data ) );
 		Functions\when( 'wp_normalize_path' )->alias( fn( string $path ) :string => $this->normalisePath( $path ) );
@@ -255,6 +257,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $first, $this->newAction() ) );
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $second, $this->newAction() ) );
 		$this->assertSame( 1, OptimiserPlugins::$installedPluginFilesCalls );
+		$this->assertSame( 1, OptimiserPlugins::$getPluginAsVoCalls );
 	}
 
 	public function test_known_valid_theme_context_reuses_asset_directory_resolution() :void {
@@ -274,6 +277,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $first, $this->newAction() ) );
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $second, $this->newAction() ) );
 		$this->assertSame( 1, OptimiserThemes::$getThemesCalls );
+		$this->assertSame( 1, OptimiserThemes::$getThemeAsVoCalls );
 	}
 
 	/**
@@ -667,6 +671,8 @@ class OptimiserAfsComponent {
 class OptimiserPlugins extends Plugins {
 	public static int $installedPluginFilesCalls = 0;
 
+	public static int $getPluginAsVoCalls = 0;
+
 	private array $pluginFiles;
 
 	public function __construct( array $pluginFiles ) {
@@ -680,6 +686,7 @@ class OptimiserPlugins extends Plugins {
 
 	public function getPluginAsVo( string $file, bool $reload = false ) :?WpPluginVo {
 		unset( $reload );
+		self::$getPluginAsVoCalls++;
 		return \in_array( $file, $this->pluginFiles, true ) ? new OptimiserPluginVo( $file ) : null;
 	}
 }
@@ -709,6 +716,8 @@ class OptimiserPluginVo extends WpPluginVo {
 class OptimiserThemes extends Themes {
 	public static int $getThemesCalls = 0;
 
+	public static int $getThemeAsVoCalls = 0;
+
 	private array $themes;
 
 	public function __construct( array $themes ) {
@@ -735,6 +744,7 @@ class OptimiserThemes extends Themes {
 
 	public function getThemeAsVo( string $stylesheet, bool $reload = false ) :?WpThemeVo {
 		unset( $reload );
+		self::$getThemeAsVoCalls++;
 		return \in_array( $stylesheet, $this->themes, true ) ? new OptimiserThemeVo( $stylesheet ) : null;
 	}
 }

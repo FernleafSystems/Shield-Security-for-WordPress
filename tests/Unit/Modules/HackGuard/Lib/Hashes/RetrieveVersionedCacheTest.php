@@ -45,7 +45,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
-		$this->resetHashMemoization();
+		Retrieve::resetMemoization();
 		$this->resetHashesStorageDir();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalizePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
@@ -55,7 +55,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
-		$this->resetHashMemoization();
+		Retrieve::resetMemoization();
 		$this->resetHashesStorageDir();
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
@@ -216,7 +216,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		( new Retrieve() )->byVO( $asset );
 	}
 
-	public function test_hash_lookup_retries_after_local_snapshot_becomes_available_in_same_request() :void {
+	public function test_hash_lookup_miss_is_cached_until_memoization_reset() :void {
 		$cacheRoot = $this->makeTempDir( 'root' );
 		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
 		@mkdir( $hashDir, 0777, true );
@@ -245,15 +245,20 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 			'plugin.php' => 'hash-for-2.0.0',
 		], $hashDir );
 
+		$secondLookupMissed = false;
 		try {
-			$hashes = ( new Retrieve() )->byVO( $asset );
+			( new Retrieve() )->byVO( $asset );
 		}
 		catch ( AssetHashesNotFound $e ) {
-			$this->fail( 'Hash retrieval should retry after a local snapshot becomes available in the same request.' );
+			$secondLookupMissed = true;
 		}
+		$this->assertTrue( $secondLookupMissed );
+
+		Retrieve::resetMemoization();
+
 		$this->assertSame(
 			[ 'plugin.php' => 'hash-for-2.0.0' ],
-			$hashes
+			( new Retrieve() )->byVO( $asset )
 		);
 	}
 
@@ -288,15 +293,6 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		$controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
 
 		PluginControllerInstaller::install( $controller );
-	}
-
-	private function resetHashMemoization() :void {
-		$reflection = new \ReflectionClass( Retrieve::class );
-		foreach ( [ 'hashes', 'trustedSources' ] as $propertyName ) {
-			$property = $reflection->getProperty( $propertyName );
-			$property->setAccessible( true );
-			$property->setValue( null, [] );
-		}
 	}
 
 	private function resetHashesStorageDir() :void {
