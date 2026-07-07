@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\AssetTrustResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalwarePatternFingerprint;
 use FernleafSystems\Wordpress\Services\Services;
@@ -132,13 +131,7 @@ class FileScanOptimiser {
 				);
 			}
 
-			$context = ( new AssetTrustResolver() )->resolveContext( $path );
-			return new TrustedFileContext(
-				$context->assetType,
-				$context->assetKey,
-				$context->assetVersion,
-				$context->relativePath
-			);
+			return ( new AssetTrustState() )->trustedFileContextForAssetPath( $path );
 		}
 		catch ( \Throwable $e ) {
 			return null;

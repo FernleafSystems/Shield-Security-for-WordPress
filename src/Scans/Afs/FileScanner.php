@@ -9,11 +9,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetFileContext,
-	AssetTrustResolver,
-	Exceptions\NonAssetFileException,
 	HashVerificationResult
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\TrustedFileContext;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
+	AssetTrustState,
+	TrustedFileContext
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -39,15 +40,10 @@ class FileScanner {
 		$assetVerification = null;
 		$malwareScanClean = false;
 		$optimiser = new Processing\FileScanOptimiser();
-		$assetResolver = new AssetTrustResolver();
-		$resolveAssetContext = function () use ( $fullPath, $assetResolver, &$assetContext, &$assetContextResolved ) :?AssetFileContext {
+		$assetTrustState = new AssetTrustState();
+		$resolveAssetContext = function () use ( $fullPath, $assetTrustState, &$assetContext, &$assetContextResolved ) :?AssetFileContext {
 			if ( !$assetContextResolved ) {
-				try {
-					$assetContext = $assetResolver->resolveContext( $fullPath );
-				}
-				catch ( NonAssetFileException $e ) {
-					$assetContext = null;
-				}
+				$assetContext = $assetTrustState->resolveAssetContext( $fullPath );
 				$assetContextResolved = true;
 			}
 			return $assetContext;
@@ -78,13 +74,14 @@ class FileScanner {
 				if ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'plugin' ) {
 					$pluginScan = ( new Scans\PluginFile( $fullPath ) )
 						->setAssetContext( $assetContext )
+						->setAssetTrustState( $assetTrustState )
 						->setScanActionVO( $action );
 					if ( $pluginScan->isFileValid() ) {
 						$validFile = true;
 						$assetVerification = $pluginScan->getHashVerificationResult();
 						$skipMalwareScan = $assetVerification->trustedSource;
 						if ( $skipMalwareScan ) {
-							$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
+							$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
 						}
 					}
 				}
@@ -94,13 +91,14 @@ class FileScanner {
 				if ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'theme' ) {
 					$themeScan = ( new Scans\ThemeFile( $fullPath ) )
 						->setAssetContext( $assetContext )
+						->setAssetTrustState( $assetTrustState )
 						->setScanActionVO( $action );
 					if ( $themeScan->isFileValid() ) {
 						$validFile = true;
 						$assetVerification = $themeScan->getHashVerificationResult();
 						$skipMalwareScan = $assetVerification->trustedSource;
 						if ( $skipMalwareScan ) {
-							$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
+							$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
 						}
 					}
 				}
@@ -180,10 +178,10 @@ class FileScanner {
 				 && ( ( $assetContext->assetType === 'plugin' && !$scanCon->isScanEnabledPlugins() )
 					  || ( $assetContext->assetType === 'theme' && !$scanCon->isScanEnabledThemes() ) ) ) {
 				try {
-					$assetVerification = $assetResolver->verifyContext( $fullPath, $assetContext );
+					$assetVerification = $assetTrustState->verifyAssetContext( $fullPath, $assetContext );
 					if ( $assetVerification->trustedSource ) {
 						$skipMalwareScan = true;
-						$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
+						$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
 					}
 				}
 				catch ( \Exception $e ) {
@@ -247,15 +245,6 @@ class FileScanner {
 			'core',
 			Services::WpGeneral()->getVersion(),
 			Services::WpFs()->getPathRelativeToAbsPath( $fullPath )
-		);
-	}
-
-	private function buildAssetTrustedFileContext( HashVerificationResult $verification ) :TrustedFileContext {
-		return new TrustedFileContext(
-			$verification->assetType,
-			$verification->assetKey,
-			$verification->assetVersion,
-			$verification->relativePath
 		);
 	}
 
