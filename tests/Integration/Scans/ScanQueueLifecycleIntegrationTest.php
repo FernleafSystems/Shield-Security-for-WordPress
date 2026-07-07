@@ -400,6 +400,7 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertSame( \array_values( $activeIDs ), $result->getStartedScanIDs() );
 		$this->assertSame( [], $result->getFailures() );
+		$this->assertNotFalse( \wp_next_scheduled( ( new QueueWatchdog() )->hook() ) );
 		foreach ( $activeIDs as $slug => $id ) {
 			$rows = $this->scanRowsForSlug( $slug );
 			$this->assertCount( 1, $rows );

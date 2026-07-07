@@ -530,6 +530,17 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		return \array_values( \array_unique( $statuses ) );
 	}
 
+	/**
+	 * @param array<string,array{count:int,status:string}> $groups
+	 * @return list<string>
+	 */
+	private function groupKeysForPrefix( array $groups, string $prefix ) :array {
+		return \array_values( \array_filter(
+			\array_keys( $groups ),
+			static fn( string $key ) :bool => \str_starts_with( $key, $prefix )
+		) );
+	}
+
 	public function test_actions_queue_landing_keeps_drill_shell_without_removed_all_clear_box_when_queue_is_empty() :void {
 		$optionsSnapshot = $this->snapshotSelectedOptions( [ MaintenanceIssueStateProvider::OPT_KEY ] );
 		TestDataFactory::insertCompletedScan( 'afs', \time() - 7200 );
@@ -1324,6 +1335,61 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			\array_keys( $groups ),
 			static fn( string $key ) :bool => \str_starts_with( $key, 'abandoned:' )
 		) );
+	}
+
+	public function test_notified_vulnerabilities_remain_visible_with_asset_scan_results_in_actions_queue() :void {
+		$this->enableAssetScanFixture( [ 'wp', 'plugins', 'themes' ] );
+
+		$pluginSlug = self::con()->base_file;
+		$themeSlug = $this->requireAtLeastInstalledThemes( 1 )[ 0 ];
+
+		$afsId = TestDataFactory::insertCompletedScan( 'afs' );
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->pluginMainPathFragment( $pluginSlug ), [
+			'is_in_plugin' => 1,
+			'ptg_slug'     => $pluginSlug,
+		] );
+		TestDataFactory::insertAfsFileScanResult( $afsId, $this->themeMainPathFragment( $themeSlug ), [
+			'is_in_theme' => 1,
+			'ptg_slug'    => $themeSlug,
+		] );
+
+		$wpvId = TestDataFactory::insertCompletedScan( 'wpv' );
+		$vulnerability = TestDataFactory::insertScanResultItemTracked( $wpvId, [
+			'item_id'       => $pluginSlug,
+			'is_vulnerable' => 1,
+		] );
+		self::con()->db_con->scan_result_items->getQueryUpdater()->updateById(
+			(int)$vulnerability[ 'result_item_id' ],
+			[ 'notified_at' => Services::Request()->ts() - 60 ]
+		);
+
+		$apcId = TestDataFactory::insertCompletedScan( 'apc' );
+		TestDataFactory::insertScanResultItem( $apcId, [
+			'item_id'      => $themeSlug,
+			'is_abandoned' => 1,
+		] );
+		$this->resetScanResultCountMemoization();
+
+		$groups = $this->buildActionsQueueGroupMetrics();
+		$vulnerabilityGroups = $this->groupKeysForPrefix( $groups, 'vulnerabilities:' );
+		$abandonedGroups = $this->groupKeysForPrefix( $groups, 'abandoned:' );
+
+		$this->assertSame( 1, $this->groupCountForPrefix( $groups, 'plugins:' ) );
+		$this->assertSame( 1, $this->groupCountForPrefix( $groups, 'themes:' ) );
+		$this->assertCount( 1, $vulnerabilityGroups );
+		$this->assertSame( 1, (int)( $groups[ $vulnerabilityGroups[ 0 ] ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $groups[ $vulnerabilityGroups[ 0 ] ][ 'status' ] ?? '' ) );
+		$this->assertCount( 1, $abandonedGroups );
+		$this->assertSame( 1, (int)( $groups[ $abandonedGroups[ 0 ] ][ 'count' ] ?? 0 ) );
+
+		$vulnerablePayload = $this->processActionPayloadWithAdminBypass( VulnerabilitiesPane::SLUG, [ 'section' => 'vulnerable' ] );
+		$this->assertRouteRenderOutputHealthy( $vulnerablePayload, 'notified vulnerability rail remains visible' );
+		$vulnerableTab = \is_array( $vulnerablePayload[ 'render_data' ][ 'tab' ] ?? null )
+			? $vulnerablePayload[ 'render_data' ][ 'tab' ]
+			: [];
+		$this->assertFalse( (bool)( $vulnerableTab[ 'is_disabled' ] ?? true ) );
+		$this->assertSame( 1, (int)( $vulnerableTab[ 'count_items' ] ?? 0 ) );
+		$this->assertNotEmpty( $vulnerableTab[ 'items' ] ?? [] );
 	}
 
 	public function test_pro_deactivated_stale_scan_result_details_render_disabled_panes() :void {
