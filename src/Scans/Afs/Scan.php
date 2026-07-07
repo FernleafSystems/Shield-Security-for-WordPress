@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan {
 
+	private const PRESCAN_HEARTBEAT_ITEM_INTERVAL = 1000;
+
 	/**
 	 * @throws \Exception
 	 */
@@ -14,14 +16,7 @@ class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan 
 		$action = $this->getScanActionVO();
 
 		if ( !empty( $action->items ) ) {
-			$optimiser = new Processing\FileScanOptimiser();
-			$action->items = \array_values( \array_filter(
-				$action->items,
-				function ( $item ) use ( $action, $optimiser ) {
-					$path = \base64_decode( (string)$item, true );
-					return !\is_string( $path ) || !$optimiser->canSkipKnownValidFile( $path, $action );
-				}
-			) );
+			$this->filterKnownValidItems( $action );
 		}
 
 		$patterns = ( new Utilities\MalwareScanPatterns() )->retrieve();
@@ -30,6 +25,30 @@ class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan 
 		$action->patterns_regex = $patterns[ 're' ];
 		$action->patterns_functions = $patterns[ 'functions' ];
 		$action->patterns_keywords = $patterns[ 'keywords' ];
+	}
+
+	protected function filterKnownValidItems( ScanActionVO $action ) :void {
+		$optimiser = new Processing\FileScanOptimiser();
+		$filtered = [];
+		$processed = 0;
+
+		foreach ( $action->items as $item ) {
+			$processed++;
+			$path = \base64_decode( (string)$item, true );
+			if ( !\is_string( $path ) || !$optimiser->canSkipKnownValidFile( $path, $action ) ) {
+				$filtered[] = $item;
+			}
+
+			if ( $processed%self::PRESCAN_HEARTBEAT_ITEM_INTERVAL === 0 ) {
+				$action->tickProgress();
+			}
+		}
+
+		$action->items = $filtered;
+
+		if ( $processed > 0 && $processed%self::PRESCAN_HEARTBEAT_ITEM_INTERVAL !== 0 ) {
+			$action->tickProgress();
+		}
 	}
 
 	protected function scanSlice() {
