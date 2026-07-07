@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVer
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Delete;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class OptionSaveSideEffects {
 
@@ -72,6 +73,13 @@ class OptionSaveSideEffects {
 				$con->comps->file_locker->purge();
 			}
 			else {
+				$dbh = $con->db_con->file_locker;
+				$schema = $dbh->getTableSchema();
+				$dbh::GetTableReadyCache()->setReady( $schema, false );
+				Services::WpDb()->clearResultShowTables();
+				$con->db_con->loadDbH( $schema->slug, true );
+				$con->comps->file_locker->clearLocks();
+
 				( new CleanLockRecords() )->run();
 			}
 		}
