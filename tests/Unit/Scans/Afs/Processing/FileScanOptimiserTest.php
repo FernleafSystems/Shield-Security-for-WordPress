@@ -95,7 +95,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 	}
 
 	public function test_known_valid_record_probe_returns_false_when_cache_root_is_missing() :void {
-		$cacheDir = $this->normalisePath( \sys_get_temp_dir().'/shield-missing-cache-'.\uniqid() );
+		$cacheDir = $this->normalisePath( $this->createTrackedTempPath( 'shield-missing-cache-' ) );
 		$this->installEnvironment( $cacheDir, false );
 
 		$this->assertFalse( ( new FileScanOptimiser() )->hasKnownValidFileRecords() );
