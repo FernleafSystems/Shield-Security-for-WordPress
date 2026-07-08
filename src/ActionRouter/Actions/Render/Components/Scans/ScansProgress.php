@@ -18,6 +18,7 @@ class ScansProgress extends BaseScans {
 		$currentScan = (string)$this->action_data[ 'current_scan' ];
 		$remainingScans = (string)$this->action_data[ 'remaining_scans' ];
 		$progress = (int)$this->action_data[ 'progress' ];
+		$scanRows = $this->buildScanRows( \is_array( $this->action_data[ 'scan_rows' ] ?? null ) ? $this->action_data[ 'scan_rows' ] : [] );
 
 		$failedText = __( 'Scan failed.', 'wp-simple-firewall' );
 		$completeText = __( 'Scans completed.', 'wp-simple-firewall' );
@@ -48,9 +49,67 @@ class ScansProgress extends BaseScans {
 				'announcement'    => $announcement,
 				'is_busy'         => $isRunning,
 				'show_progress'   => !$isFailed,
+				'has_scan_rows'   => !empty( $scanRows ),
+				'scan_rows'       => $scanRows,
 				'modal_title_id'  => 'ShieldModalContainerLabel',
 			],
 		];
+	}
+
+	/**
+	 * @param list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,progress:int,total_items:int,unfinished:int}> $rows
+	 * @return list<array{id:int,scan:string,name:string,scope_label:string,display_status:string,status_label:string,progress:int,aria_label:string}>
+	 */
+	private function buildScanRows( array $rows ) :array {
+		return \array_map(
+			fn( array $row ) :array => [
+				'id'             => (int)$row[ 'id' ],
+				'scan'           => $row[ 'scan' ],
+				'name'           => $row[ 'name' ],
+				'scope_label'    => $this->scopeLabel( $row[ 'scope_type' ], $row[ 'scope_key' ] ),
+				'display_status' => $row[ 'display_status' ],
+				'status_label'   => $this->statusLabel( $row[ 'display_status' ] ),
+				'progress'       => (int)\max( 0, \min( 100, $row[ 'progress' ] ) ),
+				'aria_label'     => sprintf( __( '%s progress', 'wp-simple-firewall' ), $row[ 'name' ] ),
+			],
+			$rows
+		);
+	}
+
+	private function scopeLabel( string $scopeType, string $scopeKey ) :string {
+		if ( $scopeType === 'full' || $scopeType === '' ) {
+			return '';
+		}
+
+		if ( $scopeType === 'core' ) {
+			return __( 'Core', 'wp-simple-firewall' );
+		}
+
+		if ( $scopeType === 'plugin' ) {
+			return sprintf( __( 'Plugin: %s', 'wp-simple-firewall' ), $scopeKey );
+		}
+
+		if ( $scopeType === 'theme' ) {
+			return sprintf( __( 'Theme: %s', 'wp-simple-firewall' ), $scopeKey );
+		}
+
+		return $scopeKey === '' ? $scopeType : sprintf( '%s: %s', $scopeType, $scopeKey );
+	}
+
+	private function statusLabel( string $status ) :string {
+		switch ( $status ) {
+			case 'running':
+				return __( 'running', 'wp-simple-firewall' );
+
+			case 'waiting':
+				return __( 'waiting', 'wp-simple-firewall' );
+
+			case 'stalled':
+				return __( 'appears stalled', 'wp-simple-firewall' );
+
+			default:
+				return $status;
+		}
 	}
 
 	protected function getRequiredDataKeys() :array {

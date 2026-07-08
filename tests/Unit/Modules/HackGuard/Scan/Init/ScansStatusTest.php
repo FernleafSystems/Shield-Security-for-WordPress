@@ -70,6 +70,129 @@ class ScansStatusTest extends BaseUnitTest {
 		$this->assertStringContainsString( '`scans`.`id` ASC', $wpdb->queries[ 0 ] );
 	}
 
+	public function test_active_scans_returns_normalized_read_model_rows() :void {
+		$wpdb = new class extends Db {
+			public array $queries = [];
+
+			public function selectCustom( $query, $format = null ) {
+				unset( $format );
+				$this->queries[] = (string)$query;
+				return [
+					[
+						'id'              => 0,
+						'scan'            => 'bad-id',
+						'status'          => 'running',
+						'scope_type'      => 'full',
+						'scope_key'       => '',
+						'created_at'      => 1,
+						'started_at'      => 1,
+						'ready_at'        => 1,
+						'last_process_at' => 1,
+					],
+					[
+						'id'              => 11,
+						'scan'            => '',
+						'status'          => 'running',
+						'scope_type'      => 'full',
+						'scope_key'       => '',
+						'created_at'      => 2,
+						'started_at'      => 2,
+						'ready_at'        => 2,
+						'last_process_at' => 2,
+					],
+					[
+						'id'              => '12',
+						'scan'            => 'wpv',
+						'status'          => 'built',
+						'scope_type'      => 'plugin',
+						'scope_key'       => 'shield-security',
+						'created_at'      => '20',
+						'started_at'      => '21',
+						'ready_at'        => '22',
+						'last_process_at' => '23',
+					],
+				];
+			}
+		};
+
+		ServicesState::installItems( [
+			'service_wpdb' => $wpdb,
+		] );
+		$this->installController();
+
+		$status = new ScansStatus();
+		$activeScans = $status->activeScans();
+
+		$this->assertSame( [
+			[
+				'id'              => 12,
+				'scan'            => 'wpv',
+				'status'          => 'built',
+				'scope_type'      => 'plugin',
+				'scope_key'       => 'shield-security',
+				'created_at'      => 20,
+				'started_at'      => 21,
+				'ready_at'        => 22,
+				'last_process_at' => 23,
+			],
+		], $activeScans );
+		$this->assertSame( $activeScans, $status->activeScans() );
+		$this->assertCount( 1, $wpdb->queries );
+		$this->assertStringContainsString( 'SELECT `scans`.`id`,', $wpdb->queries[ 0 ] );
+		$this->assertStringContainsString( '`scans`.`scope_type`,', $wpdb->queries[ 0 ] );
+		$this->assertStringContainsString( '`scans`.`last_process_at`', $wpdb->queries[ 0 ] );
+		$this->assertStringContainsString( '`scans`.`finished_at`=0', $wpdb->queries[ 0 ] );
+	}
+
+	public function test_active_scans_preserves_duplicate_scan_rows_with_distinct_ids() :void {
+		$wpdb = new class extends Db {
+			public int $queryCount = 0;
+
+			public function selectCustom( $query, $format = null ) {
+				unset( $query, $format );
+				$this->queryCount++;
+				return [
+					[
+						'id'              => 21,
+						'scan'            => 'afs',
+						'status'          => 'running',
+						'scope_type'      => 'plugin',
+						'scope_key'       => 'shield-security',
+						'created_at'      => 10,
+						'started_at'      => 11,
+						'ready_at'        => 12,
+						'last_process_at' => 13,
+					],
+					[
+						'id'              => 22,
+						'scan'            => 'afs',
+						'status'          => 'queued',
+						'scope_type'      => 'theme',
+						'scope_key'       => 'twentytwentysix',
+						'created_at'      => 20,
+						'started_at'      => 0,
+						'ready_at'        => 0,
+						'last_process_at' => 0,
+					],
+				];
+			}
+		};
+
+		ServicesState::installItems( [
+			'service_wpdb' => $wpdb,
+		] );
+		$this->installController();
+
+		$activeScans = ( new ScansStatus() )->activeScans();
+
+		$this->assertCount( 2, $activeScans );
+		$this->assertSame( [ 21, 22 ], \array_column( $activeScans, 'id' ) );
+		$this->assertSame( [ 'afs', 'afs' ], \array_column( $activeScans, 'scan' ) );
+		$this->assertSame( [ 'plugin', 'theme' ], \array_column( $activeScans, 'scope_type' ) );
+		$this->assertSame( [ 'shield-security', 'twentytwentysix' ], \array_column( $activeScans, 'scope_key' ) );
+		$this->assertSame( 1, $wpdb->queryCount );
+	}
+
 	/**
 	 * @dataProvider activeCurrentStatusProvider
 	 */
