@@ -322,6 +322,11 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertInsertedScanRunTrigger( $record, 'asset_change' );
 		$this->assertSame( 1, $queue->dispatches );
 		$this->assertSame( 1, $queue->watchdogSchedules );
+		$this->assertSame( 0, $queue->staleStartBlockerChecks );
+		$this->assertSame( [], $queue->staleStartBlockerRuns );
+		$this->assertSame( [
+			[ 'plugin', 'akismet/akismet.php' ],
+		], $scansDb->filterByScopeCalls );
 	}
 
 	public function test_wpcli_afs_asset_change_scan_processes_without_builder_dispatch() :void {
@@ -348,6 +353,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( 0, $queue->dispatches );
 		$this->assertSame( 1, $queue->watchdogSchedules );
 		$this->assertSame( 1, $wpDb->queueNextChecks );
+		$this->assertSame( 0, $queue->staleStartBlockerChecks );
 	}
 
 	public function test_afs_core_asset_change_scan_uses_core_scope_contract() :void {
@@ -371,6 +377,226 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertInsertedScanRunTrigger( $record, 'asset_change' );
 		$this->assertSame( 1, $queue->dispatches );
 		$this->assertSame( 1, $queue->watchdogSchedules );
+		$this->assertSame( 0, $queue->staleStartBlockerChecks );
+		$this->assertSame( [
+			[ 'core', 'core' ],
+		], $scansDb->filterByScopeCalls );
+	}
+
+	public function test_scoped_asset_duplicate_runs_stale_recovery_with_normalized_scope_and_declines_non_stale() :void {
+		$scansDb = new StartScansFakeScansDb( [
+			[
+				'scan'       => 'afs',
+				'id'         => 501,
+				'scope_type' => 'plugin',
+				'scope_key'  => 'akismet/akismet.php',
+			],
+		] );
+		$queue = new StartScansFakeQueue();
+		$wpDb = new StartScansFakeWpDb( $scansDb );
+		$this->installController( $scansDb, $queue );
+		ServicesState::installItems( [
+			'service_wpgeneral' => new StartScansFakeGeneral( true ),
+			'service_wpdb'      => $wpDb,
+			'service_request'   => new UnitTestRequest(),
+		] );
+
+		$started = ( new StartScansControllerTestDouble( [
+			'afs' => new StartScansTestAfsController( true ),
+		] ) )->startAfsAssetScan( 'plugin', ' akismet/akismet.php ', true );
+
+		$this->assertFalse( $started );
+		$this->assertSame( [], $scansDb->insertedRecords );
+		$this->assertSame( 0, $queue->dispatches );
+		$this->assertSame( 0, $queue->watchdogSchedules );
+		$this->assertSame( 0, $wpDb->queueNextChecks );
+		$this->assertSame( 0, $wpDb->writeCount );
+		$this->assertSame( [
+			[
+				'slugs'      => [ 'afs' ],
+				'scope_type' => 'plugin',
+				'scope_key'  => 'akismet/akismet.php',
+			],
+		], $queue->staleStartBlockerRuns );
+		$this->assertSame( [
+			[ 'plugin', 'akismet/akismet.php' ],
+		], $scansDb->filterByScopeCalls );
+	}
+
+	public function test_stale_asset_duplicate_resumes_when_retry_still_blocked_without_dispatching_builder() :void {
+		$scansDb = new StartScansFakeScansDb( [
+			[
+				'scan'       => 'afs',
+				'id'         => 501,
+				'scope_type' => 'theme',
+				'scope_key'  => 'twentytwentysix',
+			],
+		] );
+		$queue = new StartScansFakeQueue( [
+			[
+				'scan'       => 'afs',
+				'id'         => 501,
+				'scope_type' => 'theme',
+				'scope_key'  => 'twentytwentysix',
+			],
+		] );
+		$wpDb = new StartScansFakeWpDb( $scansDb );
+		$this->installController( $scansDb, $queue );
+		ServicesState::installItems( [
+			'service_wpgeneral' => new StartScansFakeGeneral( false ),
+			'service_wpdb'      => $wpDb,
+			'service_request'   => new UnitTestRequest(),
+		] );
+
+		$started = ( new StartScansControllerTestDouble( [
+			'afs' => new StartScansTestAfsController( true ),
+		] ) )->startAfsAssetScan( 'theme', 'twentytwentysix' );
+
+		$this->assertTrue( $started );
+		$this->assertSame( [], $scansDb->insertedRecords );
+		$this->assertSame( 0, $queue->dispatches );
+		$this->assertSame( 0, $queue->watchdogSchedules );
+		$this->assertSame( 0, $wpDb->queueNextChecks );
+		$this->assertSame( 2, $scansDb->duplicateIDQueries );
+		$this->assertSame( [
+			[
+				'slugs'      => [ 'afs' ],
+				'scope_type' => 'theme',
+				'scope_key'  => 'twentytwentysix',
+			],
+		], $queue->staleStartBlockerRuns );
+		$this->assertSame( [
+			[ 'theme', 'twentytwentysix' ],
+			[ 'theme', 'twentytwentysix' ],
+		], $scansDb->filterByScopeCalls );
+	}
+
+	public function test_stale_asset_duplicate_replacement_creates_new_scan_and_dispatches_builder() :void {
+		$scansDb = new StartScansFakeScansDb( [
+			[
+				'scan'       => 'afs',
+				'id'         => 501,
+				'scope_type' => 'plugin',
+				'scope_key'  => 'akismet/akismet.php',
+			],
+		] );
+		$queue = new StartScansFakeQueue( [
+			[
+				'scan'       => 'afs',
+				'id'         => 501,
+				'scope_type' => 'plugin',
+				'scope_key'  => 'akismet/akismet.php',
+			],
+		] );
+		$queue->afterStaleStartBlockerRun = static function () use ( $scansDb ) :void {
+			$scansDb->removeExistingScan( 'afs', 'plugin', 'akismet/akismet.php' );
+		};
+		$this->installController( $scansDb, $queue );
+		ServicesState::installItems( [
+			'service_wpgeneral' => new StartScansFakeGeneral( false ),
+			'service_wpdb'      => new StartScansFakeWpDb( $scansDb ),
+			'service_request'   => new UnitTestRequest(),
+		] );
+
+		$started = ( new StartScansControllerTestDouble( [
+			'afs' => new StartScansTestAfsController( true ),
+		] ) )->startAfsAssetScan( 'plugin', 'akismet/akismet.php' );
+
+		$this->assertTrue( $started );
+		$this->assertCount( 1, $scansDb->insertedRecords );
+		$record = $scansDb->insertedRecords[ 101 ];
+		$this->assertSame( 'afs', $record->scan );
+		$this->assertSame( 'plugin', $record->scope_type );
+		$this->assertSame( 'akismet/akismet.php', $record->scope_key );
+		$this->assertInsertedScanRunTrigger( $record, 'asset_change' );
+		$this->assertSame( 1, $queue->dispatches );
+		$this->assertSame( 1, $queue->watchdogSchedules );
+		$this->assertSame( 2, $scansDb->duplicateIDQueries );
+		$this->assertSame( [
+			[
+				'slugs'      => [ 'afs' ],
+				'scope_type' => 'plugin',
+				'scope_key'  => 'akismet/akismet.php',
+			],
+		], $queue->staleStartBlockerRuns );
+	}
+
+	public function test_reset_ignored_clears_exact_scope_only_after_accepted_asset_start() :void {
+		$scansDb = new StartScansFakeScansDb( [
+			[
+				'scan'       => 'afs',
+				'id'         => 501,
+				'scope_type' => 'plugin',
+				'scope_key'  => 'akismet/akismet.php',
+			],
+		] );
+		$queue = new StartScansFakeQueue( [
+			[
+				'scan'       => 'afs',
+				'id'         => 501,
+				'scope_type' => 'plugin',
+				'scope_key'  => 'akismet/akismet.php',
+			],
+		] );
+		$wpDb = new StartScansFakeWpDb( $scansDb );
+		$this->installController( $scansDb, $queue );
+		ServicesState::installItems( [
+			'service_wpgeneral' => new StartScansFakeGeneral( false ),
+			'service_wpdb'      => $wpDb,
+			'service_request'   => new UnitTestRequest(),
+		] );
+
+		$started = ( new StartScansControllerTestDouble( [
+			'afs' => new StartScansTestAfsController( true ),
+		] ) )->startAfsAssetScan( 'plugin', 'akismet/akismet.php', true );
+
+		$this->assertTrue( $started );
+		$this->assertSame( 1, $wpDb->writeCount );
+		$this->assertCount( 1, $wpDb->writeQueries );
+		$sql = $wpDb->writeQueries[ 0 ];
+		$this->assertStringContainsString( "`scan`='afs'", $sql );
+		$this->assertStringContainsString( "`asset_type`='plugin'", $sql );
+		$this->assertStringContainsString( "`asset_key`='akismet/akismet.php'", $sql );
+		$this->assertSame( [], $scansDb->insertedRecords );
+		$this->assertSame( 0, $queue->dispatches );
+	}
+
+	public function test_invalid_asset_inputs_and_unready_afs_do_not_run_stale_recovery() :void {
+		$scansDb = new StartScansFakeScansDb( [
+			[
+				'scan'       => 'afs',
+				'id'         => 501,
+				'scope_type' => 'plugin',
+				'scope_key'  => 'akismet/akismet.php',
+			],
+		] );
+		$queue = new StartScansFakeQueue( [
+			[
+				'scan'       => 'afs',
+				'id'         => 501,
+				'scope_type' => 'plugin',
+				'scope_key'  => 'akismet/akismet.php',
+			],
+		] );
+		$this->installController( $scansDb, $queue );
+		ServicesState::installItems( [
+			'service_wpgeneral' => new StartScansFakeGeneral( false ),
+			'service_wpdb'      => new StartScansFakeWpDb( $scansDb ),
+			'service_request'   => new UnitTestRequest(),
+		] );
+		$controller = new StartScansControllerTestDouble( [
+			'afs' => new StartScansTestAfsController( false ),
+		] );
+
+		$this->assertFalse( $controller->startAfsAssetScan( 'invalid', 'akismet/akismet.php' ) );
+		$this->assertFalse( $controller->startAfsAssetScan( 'plugin', ' ' ) );
+		$this->assertFalse( $controller->startAfsAssetScan( 'plugin', 'akismet/akismet.php' ) );
+		$this->assertSame( 0, $queue->staleStartBlockerChecks );
+		$this->assertSame( [], $queue->staleStartBlockerRuns );
+		$this->assertSame( [], $scansDb->filterByScopeCalls );
+		$this->assertSame( [], $scansDb->insertedRecords );
+		$this->assertSame( 0, $queue->dispatches );
+		$this->assertSame( 0, $queue->watchdogSchedules );
 	}
 
 	private function assertInsertedScanRunTrigger( Record $record, string $expectedRunTrigger ) :void {
@@ -497,6 +723,7 @@ class StartScansFakeScansDb {
 
 	public int $duplicateIDQueries = 0;
 	public int $duplicateCountQueries = 0;
+	public array $filterByScopeCalls = [];
 
 	public function __construct( array $existingScans = [], array $insertFailures = [] ) {
 		$this->existingScans = $this->normalizeExistingScans( $existingScans );
@@ -533,6 +760,8 @@ class StartScansFakeScansDb {
 	public function getQuerySelector() :object {
 		return new class( $this ) {
 			private string $scan = '';
+			private string $scopeType = 'full';
+			private string $scopeKey = '';
 
 			private StartScansFakeScansDb $db;
 
@@ -546,7 +775,9 @@ class StartScansFakeScansDb {
 			}
 
 			public function filterByScope( string $scopeType, string $scopeKey ) :self {
-				unset( $scopeType, $scopeKey );
+				$this->scopeType = $scopeType;
+				$this->scopeKey = $scopeKey;
+				$this->db->filterByScopeCalls[] = [ $scopeType, $scopeKey ];
 				return $this;
 			}
 
@@ -581,42 +812,98 @@ class StartScansFakeScansDb {
 
 			public function first() {
 				$this->db->duplicateIDQueries++;
-				if ( !\array_key_exists( $this->scan, $this->db->existingScans ) ) {
+				if ( $this->scan === '' ) {
+					return null;
+				}
+				$id = $this->db->existingScanID( $this->scan, $this->scopeType, $this->scopeKey );
+				if ( $id <= 0 ) {
 					return null;
 				}
 				$record = new Record();
-				$record->id = $this->db->existingScans[ $this->scan ];
+				$record->id = $id;
 				$record->scan = $this->scan;
+				$record->scope_type = $this->scopeType;
+				$record->scope_key = $this->scopeKey;
 				return $record;
 			}
 
 			public function count() :int {
 				$this->db->duplicateCountQueries++;
-				return \array_key_exists( $this->scan, $this->db->existingScans ) ? 1 : 0;
+				return $this->scan !== '' && $this->db->existingScanID( $this->scan, $this->scopeType, $this->scopeKey ) > 0 ? 1 : 0;
 			}
 
 			public function byId( int $id ) :Record {
-				$record = new Record();
-				$record->id = $id;
-				$record->scan = $this->db->insertedRecords[ $id ]->scan ?? '';
-				return $record;
+				return $this->db->recordById( $id );
 			}
 		};
+	}
+
+	public function existingScanID( string $scan, string $scopeType = 'full', string $scopeKey = '' ) :int {
+		return $this->existingScans[ $this->existingScanIndex( $scan, $scopeType, $scopeKey ) ] ?? 0;
+	}
+
+	public function removeExistingScan( string $scan, string $scopeType = 'full', string $scopeKey = '' ) :void {
+		unset( $this->existingScans[ $this->existingScanIndex( $scan, $scopeType, $scopeKey ) ] );
+	}
+
+	public function recordById( int $id ) :Record {
+		if ( isset( $this->insertedRecords[ $id ] ) ) {
+			return $this->insertedRecords[ $id ];
+		}
+
+		foreach ( $this->existingScans as $index => $existingID ) {
+			if ( $existingID === $id ) {
+				[ $scan, $scopeType, $scopeKey ] = $this->splitExistingScanIndex( $index );
+				$record = new Record();
+				$record->id = $id;
+				$record->scan = $scan;
+				$record->scope_type = $scopeType;
+				$record->scope_key = $scopeKey;
+				return $record;
+			}
+		}
+
+		$record = new Record();
+		$record->id = $id;
+		return $record;
 	}
 
 	private function normalizeExistingScans( array $existingScans ) :array {
 		$normalized = [];
 		$nextID = 500;
 		foreach ( $existingScans as $key => $value ) {
-			if ( \is_string( $key ) ) {
-				$normalized[ $key ] = (int)$value;
+			if ( \is_array( $value ) ) {
+				$entry = $value;
+				$scan = (string)( $entry[ 'scan' ] ?? '' );
+				if ( $scan === '' ) {
+					continue;
+				}
+				$scopeType = (string)( $entry[ 'scope_type' ] ?? 'full' );
+				$scopeKey = (string)( $entry[ 'scope_key' ] ?? '' );
+				$id = (int)( $entry[ 'id' ] ?? 0 );
+				if ( $id <= 0 ) {
+					$nextID++;
+					$id = $nextID;
+				}
+				$normalized[ $this->existingScanIndex( $scan, $scopeType, $scopeKey ) ] = $id;
+			}
+			elseif ( \is_string( $key ) ) {
+				$normalized[ $this->existingScanIndex( $key ) ] = (int)$value;
 			}
 			elseif ( \is_string( $value ) ) {
 				$nextID++;
-				$normalized[ $value ] = $nextID;
+				$normalized[ $this->existingScanIndex( $value ) ] = $nextID;
 			}
 		}
 		return $normalized;
+	}
+
+	private function existingScanIndex( string $scan, string $scopeType = 'full', string $scopeKey = '' ) :string {
+		return \implode( "\0", [ $scan, $scopeType, $scopeKey ] );
+	}
+
+	private function splitExistingScanIndex( string $index ) :array {
+		return \explode( "\0", $index, 3 );
 	}
 }
 
@@ -629,9 +916,11 @@ class StartScansFakeQueue {
 	public int $staleStartBlockerChecks = 0;
 
 	public array $staleStartBlockers;
+	public array $staleStartBlockerRuns = [];
+	public ?\Closure $afterStaleStartBlockerRun = null;
 
 	public function __construct( array $staleStartBlockers = [] ) {
-		$this->staleStartBlockers = $staleStartBlockers;
+		$this->staleStartBlockers = $this->normalizeStaleStartBlockers( $staleStartBlockers );
 	}
 
 	public function getQueueBuilder() :object {
@@ -661,11 +950,67 @@ class StartScansFakeQueue {
 			}
 
 			public function runForStaleStartBlockers( array $slugs, string $scopeType = 'full', string $scopeKey = '' ) :array {
-				unset( $scopeType, $scopeKey );
 				$this->queue->staleStartBlockerChecks++;
-				return \array_intersect_key( $this->queue->staleStartBlockers, \array_flip( $slugs ) );
+				$this->queue->staleStartBlockerRuns[] = [
+					'slugs'      => \array_values( $slugs ),
+					'scope_type' => $scopeType,
+					'scope_key'  => $scopeKey,
+				];
+				$blockers = $this->queue->matchingStaleStartBlockers( $slugs, $scopeType, $scopeKey );
+				if ( !empty( $blockers ) && $this->queue->afterStaleStartBlockerRun instanceof \Closure ) {
+					( $this->queue->afterStaleStartBlockerRun )( $blockers, $slugs, $scopeType, $scopeKey );
+				}
+				return $blockers;
 			}
 		};
+	}
+
+	public function matchingStaleStartBlockers( array $slugs, string $scopeType = 'full', string $scopeKey = '' ) :array {
+		$blockers = [];
+		foreach ( $slugs as $slug ) {
+			if ( !\is_string( $slug ) || $slug === '' ) {
+				continue;
+			}
+			$id = $this->staleStartBlockers[ $this->staleStartBlockerIndex( $slug, $scopeType, $scopeKey ) ] ?? 0;
+			if ( $id > 0 ) {
+				$blockers[ $slug ] = $id;
+			}
+		}
+		return $blockers;
+	}
+
+	private function normalizeStaleStartBlockers( array $staleStartBlockers ) :array {
+		$normalized = [];
+		$nextID = 500;
+		foreach ( $staleStartBlockers as $key => $value ) {
+			if ( \is_array( $value ) ) {
+				$entry = $value;
+				$scan = (string)( $entry[ 'scan' ] ?? '' );
+				if ( $scan === '' ) {
+					continue;
+				}
+				$scopeType = (string)( $entry[ 'scope_type' ] ?? 'full' );
+				$scopeKey = (string)( $entry[ 'scope_key' ] ?? '' );
+				$id = (int)( $entry[ 'id' ] ?? 0 );
+				if ( $id <= 0 ) {
+					$nextID++;
+					$id = $nextID;
+				}
+				$normalized[ $this->staleStartBlockerIndex( $scan, $scopeType, $scopeKey ) ] = $id;
+			}
+			elseif ( \is_string( $key ) ) {
+				$normalized[ $this->staleStartBlockerIndex( $key ) ] = (int)$value;
+			}
+			elseif ( \is_string( $value ) ) {
+				$nextID++;
+				$normalized[ $this->staleStartBlockerIndex( $value ) ] = $nextID;
+			}
+		}
+		return $normalized;
+	}
+
+	private function staleStartBlockerIndex( string $scan, string $scopeType = 'full', string $scopeKey = '' ) :string {
+		return \implode( "\0", [ $scan, $scopeType, $scopeKey ] );
 	}
 }
 
@@ -673,6 +1018,7 @@ class StartScansFakeWpDb extends Db {
 
 	public int $writeCount = 0;
 	public int $queueNextChecks = 0;
+	public array $writeQueries = [];
 
 	private StartScansFakeScansDb $scansDb;
 
@@ -692,8 +1038,8 @@ class StartScansFakeWpDb extends Db {
 	}
 
 	public function doSql( string $sqlQuery ) {
-		unset( $sqlQuery );
 		$this->writeCount++;
+		$this->writeQueries[] = $sqlQuery;
 		return true;
 	}
 }
