@@ -30,6 +30,7 @@ class RunState {
 		}
 
 		self::con()->db_con->scans->getQueryUpdater()->updateById( (int)$scan->id, $update );
+		QueueHeartbeat::primeBuilding( (int)$scan->id, $now );
 	}
 
 	public function markBuilt( Record $scan ) :void {
@@ -95,7 +96,7 @@ class RunState {
 			$update[ 'meta' ] = $scan->getRawData()[ 'meta' ];
 		}
 		self::con()->db_con->scans->getQueryUpdater()->updateById( $item->scan_id, $update );
-		QueueHeartbeat::prime( $item->scan_id, $now );
+		QueueHeartbeat::primeRunning( $item->scan_id, $now );
 	}
 
 	public function recordQueueItemException( QueueItemVO $item, \Throwable $e ) :void {

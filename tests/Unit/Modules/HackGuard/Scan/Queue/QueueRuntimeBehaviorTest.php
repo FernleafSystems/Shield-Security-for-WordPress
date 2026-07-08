@@ -328,6 +328,26 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 1699999000, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
 	}
 
+	public function test_mark_building_primes_heartbeat_throttle_without_scan_item_writes() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'queued',
+			'last_process_at' => 1699999000,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000 );
+		$scan = new ScanRecord();
+		$scan->id = $scanID;
+		$scan->meta = [];
+
+		( new RunState() )->markBuilding( $scan );
+		$harness->sql->resetQueryLog();
+
+		$this->assertFalse( ( new QueueHeartbeat() )->tickBuilding( $scanID ) );
+		$this->assertSame( [], $harness->sql->queryLog() );
+		$this->assertSame( 1699999000, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
+	}
+
 	public function test_process_queue_item_logs_processing_exception_without_failing_scan() :void {
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700002000 ),
@@ -1290,6 +1310,43 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertFalse( $this->queryLogContains( $queries, 'scan_items' ) );
 	}
 
+	public function test_building_heartbeat_updates_building_scan_by_scan_id_without_touching_items() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'building',
+			'last_process_at' => 1699999000,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000 );
+		$harness->sql->resetQueryLog();
+
+		$this->assertTrue( ( new QueueHeartbeat() )->tickBuilding( $scanID ) );
+
+		$queries = $harness->sql->queryLog();
+		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'last_process_at' ] );
+		$this->assertSame( 1699999000, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
+		$this->assertTrue( $this->queryLogContains( $queries, 'UPDATE `scans`' ) );
+		$this->assertFalse( $this->queryLogContains( $queries, 'scan_items' ) );
+	}
+
+	public function test_running_heartbeat_ignores_building_scan() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'building',
+			'last_process_at' => 1699999000,
+		] );
+		$harness->sql->resetQueryLog();
+
+		$this->assertFalse( ( new QueueHeartbeat() )->tick( $scanID ) );
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'building', $scan[ 'status' ] );
+		$this->assertSame( 1699999000, (int)$scan[ 'last_process_at' ] );
+		$this->assertTrue( ( new QueueHeartbeat() )->tickBuilding( $scanID ) );
+		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'last_process_at' ] );
+	}
+
 	public function test_repeated_heartbeats_inside_throttle_window_do_not_write_again() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
@@ -1307,6 +1364,21 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 1, $this->queryLogCount( $harness->sql->queryLog(), 'UPDATE `scans`' ) );
 	}
 
+	public function test_repeated_building_heartbeats_inside_throttle_window_do_not_write_again() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'building',
+			'last_process_at' => 1699999000,
+		] );
+		$harness->sql->resetQueryLog();
+
+		$this->assertTrue( ( new QueueHeartbeat() )->tickBuilding( $scanID ) );
+		$this->assertFalse( ( new QueueHeartbeat() )->tickBuilding( $scanID ) );
+
+		$this->assertSame( 1, $this->queryLogCount( $harness->sql->queryLog(), 'UPDATE `scans`' ) );
+	}
+
 	public function test_heartbeat_refuses_finished_scan() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
@@ -1320,6 +1392,23 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$harness->sql->resetQueryLog();
 
 		$this->assertFalse( ( new QueueHeartbeat() )->tick( $scanID ) );
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 1699999000, (int)$scan[ 'last_process_at' ] );
+		$this->assertSame( 1699999900, (int)$scan[ 'finished_at' ] );
+	}
+
+	public function test_building_heartbeat_refuses_finished_scan() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'building',
+			'last_process_at' => 1699999000,
+			'finished_at'     => 1699999900,
+		] );
+		$harness->sql->resetQueryLog();
+
+		$this->assertFalse( ( new QueueHeartbeat() )->tickBuilding( $scanID ) );
 
 		$scan = $harness->scanRow( $scanID );
 		$this->assertSame( 1699999000, (int)$scan[ 'last_process_at' ] );

@@ -678,6 +678,24 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 0, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
 	}
 
+	public function test_watchdog_leaves_old_building_scan_with_fresh_heartbeat_untouched() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'building',
+			'created_at'      => 1699999000,
+			'last_process_at' => 1699999950,
+		] );
+
+		( new QueueWatchdog() )->runIfStale();
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'building', $scan[ 'status' ] );
+		$this->assertSame( 0, (int)$scan[ 'finished_at' ] );
+		$this->assertSame( 1699999950, (int)$scan[ 'last_process_at' ] );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $scan ) );
+	}
+
 	public function test_watchdog_leaves_fresh_built_scan_untouched() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [

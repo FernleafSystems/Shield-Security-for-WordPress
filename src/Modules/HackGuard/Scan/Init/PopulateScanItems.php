@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\RecordConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\ScanControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueHeartbeat;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\RunState;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -25,6 +26,11 @@ class PopulateScanItems {
 		$scanActionVO = $scanCon->newScanActionVO();
 		$scanActionVO->scope_type = (string)( $scanRecord->scope_type ?? 'full' );
 		$scanActionVO->scope_key = (string)( $scanRecord->scope_key ?? '' );
+		$heartbeat = new QueueHeartbeat();
+		$scanID = (int)$scanRecord->id;
+		$scanActionVO->progress_callback = static function () use ( $heartbeat, $scanID ) :void {
+			$heartbeat->tickBuilding( $scanID );
+		};
 		$scanAction = $scanCon->buildScanAction( $scanActionVO );
 
 		// ScanItems are stored separately
@@ -48,6 +54,7 @@ class PopulateScanItems {
 			if ( !$dbhItems->getQueryInserter()->insert( $newRecord ) ) {
 				throw new \RuntimeException( \sprintf( 'Failed to persist queue items for scan "%s".', $scanRecord->scan ) );
 			}
+			$scanAction->tickProgress();
 			$allItems = \array_slice( $allItems, $sliceSize );
 		} while ( !empty( $allItems ) );
 

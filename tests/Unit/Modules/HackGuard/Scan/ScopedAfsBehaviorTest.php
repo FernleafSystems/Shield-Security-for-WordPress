@@ -96,12 +96,17 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$action->scope_type = 'plugin';
 		$action->scope_key = $pluginFile;
 		$action->file_exts = [ 'php' ];
+		$progressTicks = 0;
+		$action->progress_callback = static function () use ( &$progressTicks ) :void {
+			$progressTicks++;
+		};
 
 		$items = ( new BuildScanItems() )
 			->setScanActionVO( $action )
 			->run();
 
 		$this->assertSame( [ \base64_encode( $pluginPath ) ], $items );
+		$this->assertGreaterThan( 0, $progressTicks );
 	}
 
 	public function test_set_scan_completed_resolves_only_the_matching_asset_scope_for_asset_change_runs() :void {
