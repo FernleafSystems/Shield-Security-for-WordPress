@@ -17,6 +17,12 @@ function isScanCheckRequest( request ) {
 		&& ( request.postData() || '' ).includes( 'ex=scans_check' );
 }
 
+function isScanAttemptRecoveryRequest( request ) {
+	return request.method() === 'POST'
+		&& request.url().includes( '/admin-ajax.php' )
+		&& ( request.postData() || '' ).includes( 'ex=scans_attempt_recovery' );
+}
+
 function actionRouterResponse( data ) {
 	return {
 		status: 200,
@@ -123,6 +129,108 @@ async function completeNextScanCheckRequest( page, modalHtml ) {
 	};
 }
 
+async function holdNextScanCheckRequest( page, modalHtml ) {
+	let handled = false;
+	let routeToFulfill = null;
+	let receivedResolve;
+
+	const received = new Promise( ( resolve ) => {
+		receivedResolve = resolve;
+	} );
+
+	const handler = async ( route ) => {
+		const request = route.request();
+		if ( handled || !isScanCheckRequest( request ) ) {
+			await route.fallback();
+			return;
+		}
+
+		handled = true;
+		routeToFulfill = route;
+		receivedResolve();
+	};
+
+	await page.route( '**/admin-ajax.php', handler );
+
+	return {
+		received,
+		fulfill: async () => {
+			if ( routeToFulfill === null ) {
+				throw new Error( 'No held scans_check request to fulfill.' );
+			}
+
+			await routeToFulfill.fulfill( actionRouterResponse( {
+				success: true,
+				running: {
+					afs: false,
+					wpv: false,
+					apc: false,
+				},
+				failed: false,
+				failure_message: '',
+				modal_state: 'completed',
+				modal_html: modalHtml,
+			} ) );
+			await page.unroute( '**/admin-ajax.php', handler ).catch( () => null );
+		},
+	};
+}
+
+async function holdNextScanRecoveryRequest( page, modalHtml ) {
+	let requestCount = 0;
+	let routeToFulfill = null;
+	let receivedResolve;
+
+	const received = new Promise( ( resolve ) => {
+		receivedResolve = resolve;
+	} );
+
+	const response = actionRouterResponse( {
+		success: true,
+		running: {
+			afs: true,
+			wpv: false,
+			apc: false,
+		},
+		failed: false,
+		failure_message: '',
+		modal_state: 'running',
+		modal_html: modalHtml,
+	} );
+
+	const handler = async ( route ) => {
+		const request = route.request();
+		if ( !isScanAttemptRecoveryRequest( request ) ) {
+			await route.fallback();
+			return;
+		}
+
+		requestCount++;
+		if ( routeToFulfill !== null ) {
+			await route.fulfill( response );
+			return;
+		}
+
+		routeToFulfill = route;
+		receivedResolve();
+	};
+
+	await page.route( '**/admin-ajax.php', handler );
+
+	return {
+		received,
+		requestCount: () => requestCount,
+		fulfill: async () => {
+			if ( routeToFulfill === null ) {
+				throw new Error( 'No held scans_attempt_recovery request to fulfill.' );
+			}
+
+			await routeToFulfill.fulfill( response );
+			await page.unroute( '**/admin-ajax.php', handler ).catch( () => null );
+		},
+	};
+}
+
 async function failNextScanStartRequest( page, modalHtml ) {
 	let handled = false;
 	const handler = async ( route ) => {
@@ -165,11 +273,11 @@ async function respondToNextScanStartWithoutModal( page ) {
 	await page.route( '**/admin-ajax.php', handler );
 }
 
-function waitForScanOverviewRedirect( page ) {
+function waitForScanOverviewRedirect( page, timeout = 8000 ) {
 	return page.waitForURL( ( url ) => {
 		return url.searchParams.get( 'nav' ) === 'scans'
 			&& url.searchParams.get( 'nav_sub' ) === 'overview';
-	}, { timeout: 8000 } )
+	}, { timeout } )
 	.then( () => 'redirect' )
 	.catch( () => null );
 }
@@ -215,6 +323,51 @@ test( 'manual scan start uses the shared modal while start and completion progre
 	await assertLiveRegionChangesToCurrentAnnouncement( sharedModal, runningAnnouncement );
 	await expect.poll( () => modalLiveRegionMutationCount( sharedModal ) ).toBeGreaterThan( 0 );
 	await expect( completionRedirect ).resolves.toBe( 'redirect' );
+} );
+
+test( 'scan recovery serializes clicks and ignores stale poll response', async ( { page } ) => {
+	await openShieldRoute( page, {
+		nav: 'scans',
+		nav_sub: 'run',
+	} );
+	await page.waitForFunction( () => {
+		return Object.keys( window.shieldEventsHandler_Main?.eventHandlers?.submit || {} )
+		.includes( 'form#StartScans' );
+	}, null, { timeout: 10000 } );
+	await ensureStartScansButton( page );
+
+	const runningModalHtml = scanProgressHtml( 'running', 37, { recoveryScanId: 31 } );
+	const recoveryModalHtml = scanProgressHtml( 'running', 64 );
+	const stalePollModalHtml = scanProgressHtml( 'completed', 100 );
+	const delayedRequest = await delayScanStartRequest( page, runningModalHtml, 50 );
+	const heldScanCheck = await holdNextScanCheckRequest( page, stalePollModalHtml );
+	const heldRecovery = await holdNextScanRecoveryRequest( page, recoveryModalHtml );
+
+	await page.locator( '#StartScansButton' ).first().click();
+	await withTimeout( delayedRequest.completed, 'Timed out waiting for delayed scans_start response.' );
+
+	const sharedModal = page.locator( '#ShieldModalContainer.modal.show' );
+	await expect( sharedModal ).toBeVisible();
+	await assertScanModalState( sharedModal, 'running', 'true' );
+	await withTimeout( heldScanCheck.received, 'Timed out waiting for held scans_check request.', 5000 );
+
+	const recoveryButton = sharedModal.locator( '[data-shield-scan-attempt-recovery="1"]' ).first();
+	await expect( recoveryButton ).toBeVisible();
+	await recoveryButton.evaluate( ( button ) => {
+		button.click();
+		button.click();
+	} );
+	await withTimeout( heldRecovery.received, 'Timed out waiting for held scans_attempt_recovery request.' );
+	await page.waitForTimeout( 150 );
+	expect( heldRecovery.requestCount() ).toBe( 1 );
+	await expect( recoveryButton ).toBeDisabled();
+
+	await heldRecovery.fulfill();
+	await assertScanModalState( sharedModal, 'running', 'true' );
+
+	await heldScanCheck.fulfill();
+	await assertScanModalState( sharedModal, 'running', 'true' );
+	await expect( waitForScanOverviewRedirect( page, 1500 ) ).resolves.toBeNull();
 } );
 
 test( 'manual scan failure modal returns focus to scan launcher when closed', async ( { page } ) => {
@@ -269,20 +422,17 @@ test( 'manual scan start shows local error modal when response lacks modal contr
 	await expect( page.locator( '#StartScansButton' ).first() ).toBeFocused();
 } );
 
-function scanProgressHtml( modalState, progress ) {
+function scanProgressHtml( modalState, progress, options = {} ) {
 	const isInitiating = modalState === 'initiating';
 	const isFailed = modalState === 'failed';
-	const isComplete = modalState === 'completed';
 	const isRunning = isInitiating || modalState === 'running';
-	const currentScan = 'scan-contract-current';
+	const recoveryScanId = Number( options.recoveryScanId || 0 );
 	const remainingScans = 'scan-contract-remaining';
-	const statusText = isFailed ? 'Scan failed.'
-		: ( isComplete ? 'Scans completed.'
-			: ( isInitiating ? 'Preparing scans.' : `Current Scan: ${currentScan}` ) );
-	const announcement = isFailed
-		? `${statusText} ${remainingScans}`
-		: `${statusText} ${progress}%`;
-	const heading = isComplete ? `${statusText} Reloading page...` : statusText;
+	const announcement = `scan-contract-${modalState}-${progress}`;
+	const heading = `scan-contract-heading-${modalState}`;
+	const recoveryControl = recoveryScanId > 0
+		? `<button type="button" data-shield-scan-attempt-recovery="1" data-scan-id="${recoveryScanId}">Recover</button>`
+		: '';
 
 	return `<div class="modal-header">
 		<h5 class="modal-title" id="ShieldModalContainerLabel">Scan Progress</h5>
@@ -300,6 +450,7 @@ function scanProgressHtml( modalState, progress ) {
 					 aria-label="Scan progress"
 					 aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"></div>
 			</div>`}
+			${recoveryControl}
 		</div>
 	</div>
 	<div class="modal-footer"></div>`;

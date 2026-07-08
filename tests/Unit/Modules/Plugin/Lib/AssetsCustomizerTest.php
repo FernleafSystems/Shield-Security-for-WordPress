@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\LicenseClear,
 	Actions\ReportingChartTrends,
 	Actions\Render\Components\Widgets\WpDashboardSummary,
+	Actions\ScansAttemptRecovery,
 	Actions\ScansCheck,
 	Actions\ScansStart,
 	Actions\ToolPurgeProviderIPs
@@ -177,8 +178,9 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$scansData = \is_callable( $scansComp[ 'data' ] ?? null ) ? \call_user_func( $scansComp[ 'data' ] ) : [];
 		$ajax = \is_array( $scansData[ 'ajax' ] ?? null ) ? $scansData[ 'ajax' ] : [];
 
-		$this->assertEqualsCanonicalizing( [ 'check', 'start' ], \array_keys( $ajax ) );
+		$this->assertEqualsCanonicalizing( [ 'check', 'recover', 'start' ], \array_keys( $ajax ) );
 		$this->assertSame( ScansCheck::SLUG, $ajax[ 'check' ][ ActionData::FIELD_EXECUTE ] ?? null );
+		$this->assertSame( ScansAttemptRecovery::SLUG, $ajax[ 'recover' ][ ActionData::FIELD_EXECUTE ] ?? null );
 		$this->assertSame( ScansStart::SLUG, $ajax[ 'start' ][ ActionData::FIELD_EXECUTE ] ?? null );
 	}
 

@@ -415,6 +415,7 @@ class AssetsCustomizer {
 				'data'     => fn() => [
 					'ajax'  => [
 						'check'            => ActionData::Build( Actions\ScansCheck::class ),
+						'recover'          => ActionData::Build( Actions\ScansAttemptRecovery::class ),
 						'start'            => ActionData::Build( Actions\ScansStart::class ),
 					],
 					'flags' => [
