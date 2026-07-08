@@ -200,8 +200,8 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$table = $handler->getTable();
 
 		$handler::GetTableReadyCache()->setReady( $schema );
-		Services::WpDb()->clearResultShowTables();
-		$this->assertTrue( Services::WpDb()->tableExists( $table ) );
+		\FernleafSystems\Wordpress\Services\Services::WpDb()->clearResultShowTables();
+		$this->assertTrue( \FernleafSystems\Wordpress\Services\Services::WpDb()->tableExists( $table ) );
 
 		$this->runWithoutWordpressTemporaryTableQueryHooks( function () use ( $wpdb, $table ) :void {
 			$wpdb->query( 'SET FOREIGN_KEY_CHECKS=0' );
@@ -211,7 +211,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertNull( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) );
 		$this->assertTrue( $handler::GetTableReadyCache()->isReady( $schema ) );
-		$this->assertTrue( Services::WpDb()->tableExists( $table ) );
+		$this->assertTrue( \FernleafSystems\Wordpress\Services\Services::WpDb()->tableExists( $table ) );
 
 		$this->runWithoutWordpressTemporaryTableQueryHooks(
 			function () use ( $con ) :void {
