@@ -11,21 +11,20 @@ class ScansCheck extends ScansBase {
 
 	protected function exec() {
 		$con = self::con();
-		$con->comps->scans_queue->getQueueWatchdog()->runIfStale();
 		$failedScan = $this->getFailedStartedScan();
 		$hasFailedScan = !empty( $failedScan );
 		$failureMessage = $hasFailedScan ? $failedScan[ 'message' ] : '';
-		$status = new ScansStatus();
-		$scanState = $status->activeSnapshot();
-
-		$current = $scanState[ 'current' ];
-		$currentScan = __( 'No scan running.', 'wp-simple-firewall' );
-		if ( !empty( $current ) ) {
-			$currentScan = $con->comps->scans->getScanCon( $current )->getScanName();
+		$activeScans = [];
+		$scanRows = [];
+		if ( !$hasFailedScan ) {
+			$activeScans = ( new ScansStatus() )->activeScans();
+			$scanRows = $con->comps->scans_queue->getActiveScanProgressRows( $activeScans );
 		}
 
-		$enqueued = $scanState[ 'enqueued' ];
-		$running = \count( $enqueued );
+		$currentScan = empty( $scanRows ) ? __( 'No scan running.', 'wp-simple-firewall' ) : $scanRows[ 0 ][ 'name' ];
+
+		$enqueued = $this->enqueuedSlugsFromActiveScans( $activeScans );
+		$running = \count( $activeScans );
 		$modalState = $hasFailedScan
 			? self::SCAN_MODAL_STATE_FAILED
 			: ( $running === 0 ? self::SCAN_MODAL_STATE_COMPLETED : self::SCAN_MODAL_STATE_RUNNING );
@@ -34,6 +33,7 @@ class ScansCheck extends ScansBase {
 			'running'         => $con->comps->scans_queue->getScansRunningStates( $enqueued ),
 			'failed'          => $hasFailedScan,
 			'failure_message' => $failureMessage,
+			'scan_rows'       => $scanRows,
 		], $this->renderScanModalPayload( $modalState, [
 			'current_scan'    => $hasFailedScan ? __( 'Scan failed.', 'wp-simple-firewall' ) : $currentScan,
 			'remaining_scans' => $hasFailedScan
@@ -43,7 +43,8 @@ class ScansCheck extends ScansBase {
 					: sprintf( _n( '%s scan remaining.', '%s scans remaining.', $running, 'wp-simple-firewall' ), $running ) ),
 			'progress'        => $hasFailedScan || $modalState === self::SCAN_MODAL_STATE_COMPLETED
 				? 100
-				: 100*$con->comps->scans_queue->getScanJobProgress(),
+				: $this->aggregateProgressFromRows( $scanRows ),
+			'scan_rows'       => $scanRows,
 		] ) ) )->setPayloadSuccess( true );
 	}
 
@@ -83,5 +84,30 @@ class ScansCheck extends ScansBase {
 		}
 
 		return [];
+	}
+
+	/**
+	 * @param list<array{id:int,scan:string,status:string,scope_type:string,scope_key:string,created_at:int,started_at:int,ready_at:int,last_process_at:int}> $activeScans
+	 * @return string[]
+	 */
+	private function enqueuedSlugsFromActiveScans( array $activeScans ) :array {
+		$enqueued = [];
+		foreach ( $activeScans as $scan ) {
+			if ( $scan[ 'scan' ] !== '' ) {
+				$enqueued[] = $scan[ 'scan' ];
+			}
+		}
+		return \array_values( \array_unique( $enqueued ) );
+	}
+
+	/**
+	 * @param list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,progress:int,total_items:int,unfinished:int}> $scanRows
+	 */
+	private function aggregateProgressFromRows( array $scanRows ) :int {
+		if ( empty( $scanRows ) ) {
+			return 0;
+		}
+
+		return (int)\round( \array_sum( \array_column( $scanRows, 'progress' ) )/\count( $scanRows ) );
 	}
 }
