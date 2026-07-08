@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\AssetTrustResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalwarePatternFingerprint;
 use FernleafSystems\Wordpress\Services\Services;
@@ -38,6 +37,25 @@ class FileScanOptimiser {
 			}
 		}
 		return $skip;
+	}
+
+	public function hasKnownValidFileRecords() :bool {
+		$dir = $this->existingKnownValidRecordDir();
+		if ( $dir === '' ) {
+			return false;
+		}
+
+		try {
+			foreach ( new \DirectoryIterator( $dir ) as $file ) {
+				if ( $file->isFile() && $file->getExtension() === 'jsonl' && $file->isReadable() ) {
+					return true;
+				}
+			}
+		}
+		catch ( \Throwable $e ) {
+		}
+
+		return false;
 	}
 
 	public function recordKnownValidFile( string $path, TrustedFileContext $context ) :void {
@@ -132,13 +150,7 @@ class FileScanOptimiser {
 				);
 			}
 
-			$context = ( new AssetTrustResolver() )->resolveContext( $path );
-			return new TrustedFileContext(
-				$context->assetType,
-				$context->assetKey,
-				$context->assetVersion,
-				$context->relativePath
-			);
+			return ( new AssetTrustState() )->trustedFileContextForAssetPath( $path );
 		}
 		catch ( \Throwable $e ) {
 			return null;
@@ -168,6 +180,31 @@ class FileScanOptimiser {
 			$dir = '';
 		}
 		return $dir !== '' && \is_dir( $dir ) && \is_writable( $dir ) ? $dir : '';
+	}
+
+	private function existingOptimiserCacheRoot() :string {
+		try {
+			$cacheDirHandler = self::con()->cache_dir_handler;
+			if ( !\is_object( $cacheDirHandler ) || !\method_exists( $cacheDirHandler, 'locateExistingDir' ) ) {
+				return '';
+			}
+			$root = $cacheDirHandler->locateExistingDir();
+			$dir = \is_string( $root ) && $root !== '' ? \path_join( $root, self::CACHE_DIR ) : '';
+		}
+		catch ( \Throwable $e ) {
+			$dir = '';
+		}
+		return $dir !== '' && \is_dir( $dir ) && \is_writable( $dir ) ? $dir : '';
+	}
+
+	private function existingKnownValidRecordDir() :string {
+		$root = $this->existingOptimiserCacheRoot();
+		if ( $root === '' ) {
+			return '';
+		}
+
+		$dir = \path_join( $root, self::KNOWN_VALID );
+		return \is_dir( $dir ) && \is_readable( $dir ) ? $dir : '';
 	}
 
 	private function shardPath( string $type, string $key ) :string {

@@ -732,14 +732,63 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			'last_process_at' => 1699999000,
 			'started_at'      => 1699999000,
 		] );
-		$harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000, 0, 2 );
+		$harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000, 0, QueueRecovery::MAX_ITEM_ATTEMPTS );
 
 		( new QueueWatchdog() )->run();
 
 		$this->assertSame( 'failed', $harness->scanRow( $scanID )[ 'status' ] );
 		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
 		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
-		$this->assertArrayHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $harness->scanRow( $scanID ) ) );
+		$this->assertSame(
+			ReconcileQueue::MESSAGE_TIMED_OUT,
+			$this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? ''
+		);
+	}
+
+	public function test_watchdog_timeout_preserves_recorded_queue_item_exception() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$specificError = 'Queue item exception: scan=afs qitem_id=12 attempt=2 exception=RuntimeException message=original failure';
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+			'meta'            => $this->encodedScanMeta( [
+				RunState::META_KEY_LAST_ERROR => $specificError,
+			] ),
+		] );
+		$harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000, 0, QueueRecovery::MAX_ITEM_ATTEMPTS );
+
+		( new QueueWatchdog() )->run();
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'failed', $scan[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'finished_at' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertSame( $specificError, $this->scanMeta( $scan )[ RunState::META_KEY_LAST_ERROR ] ?? '' );
+	}
+
+	public function test_watchdog_timeout_replaces_non_queue_item_error() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+			'meta'            => $this->encodedScanMeta( [
+				RunState::META_KEY_LAST_ERROR => 'previous non-specific failure',
+			] ),
+		] );
+		$harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000, 0, QueueRecovery::MAX_ITEM_ATTEMPTS );
+
+		( new QueueWatchdog() )->run();
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'failed', $scan[ 'status' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $this->scanMeta( $scan )[ RunState::META_KEY_LAST_ERROR ] ?? '' );
 	}
 
 	public function test_watchdog_recovers_reported_dead_running_scan_shape_without_existing_cron() :void {
@@ -1382,12 +1431,16 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 	}
 
 	private function recoveryMeta( int $attempts, int $lastAttemptAt ) :string {
-		return \base64_encode( \json_encode( [
+		return $this->encodedScanMeta( [
 			RunState::META_KEY_WATCHDOG_RECOVERY => [
 				'attempts'        => $attempts,
 				'last_attempt_at' => $lastAttemptAt,
 			],
-		] ) ?: '[]' );
+		] );
+	}
+
+	private function encodedScanMeta( array $meta ) :string {
+		return \base64_encode( \json_encode( $meta ) ?: '[]' );
 	}
 
 	private function scanMeta( array $scan ) :array {

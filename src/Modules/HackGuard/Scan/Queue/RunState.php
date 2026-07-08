@@ -13,6 +13,8 @@ class RunState {
 
 	public const META_KEY_LAST_ERROR = 'last_error';
 	public const META_KEY_WATCHDOG_RECOVERY = 'watchdog_recovery';
+	private const QUEUE_ITEM_EXCEPTION_PREFIX = 'Queue item exception:';
+	private const QUEUE_ITEM_EXCEPTION_MAX_LENGTH = 500;
 
 	public function markBuilding( Record $scan ) :void {
 		$now = Services::Request()->ts();
@@ -63,7 +65,7 @@ class RunState {
 			if ( $failureMessage === '' ) {
 				unset( $meta[ self::META_KEY_LAST_ERROR ] );
 			}
-			else {
+			elseif ( !$this->shouldPreserveQueueItemException( $failureMessage, $meta[ self::META_KEY_LAST_ERROR ] ?? null ) ) {
 				$meta[ self::META_KEY_LAST_ERROR ] = $failureMessage;
 			}
 			$scan->meta = $meta;
@@ -96,6 +98,26 @@ class RunState {
 		QueueHeartbeat::prime( $item->scan_id, $now );
 	}
 
+	public function recordQueueItemException( QueueItemVO $item, \Throwable $e ) :void {
+		try {
+			/** @var ?Record $scan */
+			$scan = self::con()->db_con->scans->getQuerySelector()->byId( $item->scan_id );
+			if ( empty( $scan ) ) {
+				return;
+			}
+
+			$meta = \is_array( $scan->meta ) ? $scan->meta : [];
+			$meta[ self::META_KEY_LAST_ERROR ] = $this->buildQueueItemExceptionMessage( $item, $e );
+			$scan->meta = $meta;
+			self::con()->db_con->scans->getQueryUpdater()->updateById( $item->scan_id, [
+				'meta' => $scan->getRawData()[ 'meta' ],
+			] );
+		}
+		catch ( \Throwable $diagnosticsFailure ) {
+			unset( $diagnosticsFailure );
+		}
+	}
+
 	public function markUnfinishedRunsFailed() :void {
 		$scans = self::con()->db_con->scans->getQuerySelector()
 					 ->filterByNotFinished()
@@ -115,5 +137,42 @@ class RunState {
 			->filterByScan( $scanID )
 			->filterByNotFinished()
 			->query();
+	}
+
+	private function shouldPreserveQueueItemException( string $failureMessage, $existingMessage ) :bool {
+		return $failureMessage === ReconcileQueue::MESSAGE_TIMED_OUT
+			   && \is_string( $existingMessage )
+			   && $existingMessage !== ''
+			   && \strpos( $existingMessage, self::QUEUE_ITEM_EXCEPTION_PREFIX ) === 0;
+	}
+
+	private function buildQueueItemExceptionMessage( QueueItemVO $item, \Throwable $e ) :string {
+		return $this->truncateQueueItemExceptionMessage( \sprintf(
+			'%s scan=%s qitem_id=%d attempt=%d exception=%s message=%s',
+			self::QUEUE_ITEM_EXCEPTION_PREFIX,
+			$this->singleLine( $item->scan ),
+			$item->qitem_id,
+			$item->attempts,
+			$this->exceptionShortClass( $e ),
+			$this->singleLine( $e->getMessage() )
+		) );
+	}
+
+	private function truncateQueueItemExceptionMessage( string $message ) :string {
+		if ( \strlen( $message ) <= self::QUEUE_ITEM_EXCEPTION_MAX_LENGTH ) {
+			return $message;
+		}
+		return \substr( $message, 0, self::QUEUE_ITEM_EXCEPTION_MAX_LENGTH - 3 ).'...';
+	}
+
+	private function singleLine( string $value ) :string {
+		$value = (string)\preg_replace( '#\s+#', ' ', $value );
+		return \trim( $value );
+	}
+
+	private function exceptionShortClass( \Throwable $e ) :string {
+		$parts = \explode( '\\', \get_class( $e ) );
+		$short = \end( $parts );
+		return \is_string( $short ) && $short !== '' ? $short : \get_class( $e );
 	}
 }

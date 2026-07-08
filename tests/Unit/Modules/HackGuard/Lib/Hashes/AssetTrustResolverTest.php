@@ -13,6 +13,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 	HashesStorageDir,
 	Store
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -32,8 +33,9 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 
 class AssetTrustResolverTest extends BaseUnitTest {
 
+	use TempDirLifecycleTrait;
+
 	private array $servicesSnapshot = [];
-	private array $tempDirs = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -60,9 +62,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$this->resetHashesStorageDir();
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -156,7 +156,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 	}
 
 	public function test_plugin_hash_data_for_cached_context_uses_cached_asset_version() :void {
-		$cacheRoot = $this->makeTempDir( 'resolver-store' );
+		$cacheRoot = $this->createTrackedTempDir( 'shield-resolver-test-resolver-store-' );
 		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
 		@mkdir( $hashDir, 0777, true );
 		$this->installHashStoreEnvironment(
@@ -272,7 +272,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 	}
 
 	public function test_theme_hash_data_for_cached_context_uses_cached_asset_version() :void {
-		$cacheRoot = $this->makeTempDir( 'resolver-store' );
+		$cacheRoot = $this->createTrackedTempDir( 'shield-resolver-test-resolver-store-' );
 		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
 		@mkdir( $hashDir, 0777, true );
 		$this->installHashStoreEnvironment(
@@ -422,26 +422,6 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		}
 	}
 
-	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normalisePath( \sys_get_temp_dir().'/shield-resolver-test-'.$suffix.'-'.\uniqid() );
-		@mkdir( $dir, 0777, true );
-		$this->tempDirs[] = $dir;
-		return $dir;
-	}
-
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $iterator as $item ) {
-			$item->isDir() ? @rmdir( $item->getPathname() ) : @unlink( $item->getPathname() );
-		}
-		@rmdir( $dir );
-	}
 }
 
 class ResolverFs extends SnapshotFs {
