@@ -75,16 +75,19 @@ class ScansProgressRenderTest extends BaseUnitTest {
 		$this->assertSame( 'File Guard', $rows[ 0 ][ 'name' ] );
 		$this->assertSame( '', $rows[ 0 ][ 'scope_label' ] );
 		$this->assertSame( 'running', $rows[ 0 ][ 'display_status' ] );
+		$this->assertFalse( $rows[ 0 ][ 'can_attempt_recovery' ] );
 		$this->assertNotSame( '', $rows[ 0 ][ 'status_label' ] );
 		$this->assertSame( 100, $rows[ 0 ][ 'progress' ] );
 		$this->assertNotSame( '', $rows[ 0 ][ 'aria_label' ] );
 		$this->assertSame( 'Vulnerability Scan', $rows[ 1 ][ 'name' ] );
 		$this->assertStringContainsString( 'shield-security', $rows[ 1 ][ 'scope_label' ] );
 		$this->assertSame( 'waiting', $rows[ 1 ][ 'display_status' ] );
+		$this->assertFalse( $rows[ 1 ][ 'can_attempt_recovery' ] );
 		$this->assertNotSame( '', $rows[ 1 ][ 'status_label' ] );
 		$this->assertSame( 40, $rows[ 1 ][ 'progress' ] );
 		$this->assertSame( 'Asset Scan', $rows[ 2 ][ 'name' ] );
 		$this->assertSame( 'stalled', $rows[ 2 ][ 'display_status' ] );
+		$this->assertTrue( $rows[ 2 ][ 'can_attempt_recovery' ] );
 		$this->assertNotSame( '', $rows[ 2 ][ 'scope_label' ] );
 		$this->assertNotSame( '', $rows[ 2 ][ 'status_label' ] );
 		$this->assertSame( 10, $rows[ 2 ][ 'progress' ] );
@@ -97,6 +100,7 @@ class ScansProgressRenderTest extends BaseUnitTest {
 			'current_scan'    => 'File Guard',
 			'remaining_scans' => '1 scan remaining.',
 			'progress'        => 42,
+			'scan_rows'       => [],
 		] ) )->renderDataForTest();
 
 		$this->assertFalse( $renderData[ 'vars' ][ 'has_scan_rows' ] ?? true );

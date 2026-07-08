@@ -36,10 +36,11 @@ class ScansProgress extends BaseScans {
 
 		return [
 			'strings' => [
-				'modal_title'    => __( 'Scan Progress', 'wp-simple-firewall' ),
-				'patience_1'     => __( 'File scanning is an intensive operation and takes time.', 'wp-simple-firewall' ),
-				'patience_2'     => __( 'We appreciate your patience.', 'wp-simple-firewall' ),
-				'progress_label' => __( 'Scan progress', 'wp-simple-firewall' ),
+				'modal_title'        => __( 'Scan Progress', 'wp-simple-firewall' ),
+				'patience_1'         => __( 'File scanning is an intensive operation and takes time.', 'wp-simple-firewall' ),
+				'patience_2'         => __( 'We appreciate your patience.', 'wp-simple-firewall' ),
+				'progress_label'     => __( 'Scan progress', 'wp-simple-firewall' ),
+				'attempt_resume_now' => __( 'Attempt resume now', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'modal_state'     => $modalState,
@@ -58,19 +59,20 @@ class ScansProgress extends BaseScans {
 
 	/**
 	 * @param list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,progress:int,total_items:int,unfinished:int}> $rows
-	 * @return list<array{id:int,scan:string,name:string,scope_label:string,display_status:string,status_label:string,progress:int,aria_label:string}>
+	 * @return list<array{id:int,scan:string,name:string,scope_label:string,display_status:string,status_label:string,can_attempt_recovery:bool,progress:int,aria_label:string}>
 	 */
 	private function buildScanRows( array $rows ) :array {
 		return \array_map(
 			fn( array $row ) :array => [
-				'id'             => (int)$row[ 'id' ],
-				'scan'           => $row[ 'scan' ],
-				'name'           => $row[ 'name' ],
-				'scope_label'    => $this->scopeLabel( $row[ 'scope_type' ], $row[ 'scope_key' ] ),
-				'display_status' => $row[ 'display_status' ],
-				'status_label'   => $this->statusLabel( $row[ 'display_status' ] ),
-				'progress'       => (int)\max( 0, \min( 100, $row[ 'progress' ] ) ),
-				'aria_label'     => sprintf( __( '%s progress', 'wp-simple-firewall' ), $row[ 'name' ] ),
+				'id'                   => (int)$row[ 'id' ],
+				'scan'                 => $row[ 'scan' ],
+				'name'                 => $row[ 'name' ],
+				'scope_label'          => $this->scopeLabel( $row[ 'scope_type' ], $row[ 'scope_key' ] ),
+				'display_status'       => $row[ 'display_status' ],
+				'status_label'         => $this->statusLabel( $row[ 'display_status' ] ),
+				'can_attempt_recovery' => $row[ 'display_status' ] === 'stalled',
+				'progress'             => (int)\max( 0, \min( 100, $row[ 'progress' ] ) ),
+				'aria_label'           => sprintf( __( '%s progress', 'wp-simple-firewall' ), $row[ 'name' ] ),
 			],
 			$rows
 		);
@@ -118,6 +120,7 @@ class ScansProgress extends BaseScans {
 			'current_scan',
 			'remaining_scans',
 			'progress',
+			'scan_rows',
 		];
 	}
 }

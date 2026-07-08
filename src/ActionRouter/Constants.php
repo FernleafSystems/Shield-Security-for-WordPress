@@ -112,6 +112,7 @@ class Constants {
 		Actions\SecurityAdminLogin::class,
 		Actions\SecurityAdminRequestRemoveByEmail::class,
 		Actions\SecurityAdminRemove::class,
+		Actions\ScansAttemptRecovery::class,
 		Actions\ScansCheck::class,
 		Actions\ScansFileLockerAction::class,
 		Actions\ScansFileLockerEnableFile::class,

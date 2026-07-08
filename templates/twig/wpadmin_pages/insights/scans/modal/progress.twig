@@ -22,7 +22,16 @@
 										<div class="small text-muted">{{ row.scope_label }}</div>
 									{% endif %}
 								</div>
-								<span class="small text-muted">{{ row.status_label }}</span>
+								<div class="d-flex flex-column align-items-end gap-1">
+									<span class="small text-muted">{{ row.status_label }}</span>
+									{% if row.can_attempt_recovery %}
+										<button type="button" class="btn btn-sm btn-outline-secondary"
+												data-shield-scan-attempt-recovery="1"
+												data-scan-id="{{ row.id }}">
+											{{ strings.attempt_resume_now }}
+										</button>
+									{% endif %}
+								</div>
 							</div>
 							<div class="progress">
 								<div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
