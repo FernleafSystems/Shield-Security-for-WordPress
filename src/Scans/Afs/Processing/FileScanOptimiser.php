@@ -39,6 +39,25 @@ class FileScanOptimiser {
 		return $skip;
 	}
 
+	public function hasKnownValidFileRecords() :bool {
+		$dir = $this->existingKnownValidRecordDir();
+		if ( $dir === '' ) {
+			return false;
+		}
+
+		try {
+			foreach ( new \DirectoryIterator( $dir ) as $file ) {
+				if ( $file->isFile() && $file->getExtension() === 'jsonl' && $file->isReadable() ) {
+					return true;
+				}
+			}
+		}
+		catch ( \Throwable $e ) {
+		}
+
+		return false;
+	}
+
 	public function recordKnownValidFile( string $path, TrustedFileContext $context ) :void {
 		if ( $this->isCacheUsable() && Services::WpFs()->isAccessibleFile( $path ) ) {
 			$contextKey = $context->key();
@@ -161,6 +180,31 @@ class FileScanOptimiser {
 			$dir = '';
 		}
 		return $dir !== '' && \is_dir( $dir ) && \is_writable( $dir ) ? $dir : '';
+	}
+
+	private function existingOptimiserCacheRoot() :string {
+		try {
+			$cacheDirHandler = self::con()->cache_dir_handler;
+			if ( !\is_object( $cacheDirHandler ) || !\method_exists( $cacheDirHandler, 'locateExistingDir' ) ) {
+				return '';
+			}
+			$root = $cacheDirHandler->locateExistingDir();
+			$dir = \is_string( $root ) && $root !== '' ? \path_join( $root, self::CACHE_DIR ) : '';
+		}
+		catch ( \Throwable $e ) {
+			$dir = '';
+		}
+		return $dir !== '' && \is_dir( $dir ) && \is_writable( $dir ) ? $dir : '';
+	}
+
+	private function existingKnownValidRecordDir() :string {
+		$root = $this->existingOptimiserCacheRoot();
+		if ( $root === '' ) {
+			return '';
+		}
+
+		$dir = \path_join( $root, self::KNOWN_VALID );
+		return \is_dir( $dir ) && \is_readable( $dir ) ? $dir : '';
 	}
 
 	private function shardPath( string $type, string $key ) :string {

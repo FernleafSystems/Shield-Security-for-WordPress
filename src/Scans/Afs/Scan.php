@@ -29,6 +29,10 @@ class Scan extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScan 
 
 	protected function filterKnownValidItems( ScanActionVO $action ) :void {
 		$optimiser = new Processing\FileScanOptimiser();
+		if ( !$optimiser->hasKnownValidFileRecords() ) {
+			return;
+		}
+
 		$filtered = [];
 		$processed = 0;
 

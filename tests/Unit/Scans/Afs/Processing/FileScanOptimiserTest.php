@@ -92,6 +92,103 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFileDoesNotExist( $this->normalisePath( $cacheDir.'/afs-file-optimiser' ) );
 	}
 
+	public function test_known_valid_record_probe_returns_false_when_cache_root_is_missing() :void {
+		$cacheDir = $this->normalisePath( \sys_get_temp_dir().'/shield-missing-cache-'.\uniqid() );
+		$this->installEnvironment( $cacheDir, false );
+
+		$this->assertFalse( ( new FileScanOptimiser() )->hasKnownValidFileRecords() );
+	}
+
+	public function test_known_valid_record_probe_does_not_create_optimiser_cache_dir() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$this->installEnvironment( $cacheDir );
+
+		$this->assertFalse( ( new FileScanOptimiser() )->hasKnownValidFileRecords() );
+		$this->assertFileDoesNotExist( $this->normalisePath( $cacheDir.'/afs-file-optimiser' ) );
+	}
+
+	public function test_known_valid_record_probe_returns_false_without_known_valid_dir() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		@\mkdir( $this->normalisePath( $cacheDir.'/afs-file-optimiser' ), 0755, true );
+		$this->installEnvironment( $cacheDir );
+
+		$this->assertFalse( ( new FileScanOptimiser() )->hasKnownValidFileRecords() );
+	}
+
+	public function test_known_valid_record_probe_returns_false_without_jsonl_files() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$dir = $this->makeKnownValidRecordDir( $cacheDir );
+		\file_put_contents( $dir.'/not-records.txt', 'ignored' );
+		$this->installEnvironment( $cacheDir );
+
+		$this->assertFalse( ( new FileScanOptimiser() )->hasKnownValidFileRecords() );
+	}
+
+	public function test_known_valid_record_probe_returns_true_for_recorded_known_valid_file() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
+		$this->installEnvironment( $cacheDir );
+		$optimiser = new FileScanOptimiser();
+
+		$optimiser->recordKnownValidFile( $path, $this->coreContext( 'wp-admin/core.php' ) );
+
+		$this->assertTrue( $optimiser->hasKnownValidFileRecords() );
+	}
+
+	public function test_known_valid_record_probe_treats_malformed_jsonl_presence_as_work() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$dir = $this->makeKnownValidRecordDir( $cacheDir );
+		\file_put_contents( $dir.'/aa.jsonl', "not-json\n" );
+		$this->installEnvironment( $cacheDir );
+
+		$this->assertTrue( ( new FileScanOptimiser() )->hasKnownValidFileRecords() );
+	}
+
+	public function test_known_valid_record_probe_ignores_malware_clean_records() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$path = $this->writeFile( ABSPATH.'wp-content/uploads/clean.php', '<?php clean();' );
+		$this->installEnvironment( $cacheDir );
+
+		( new FileScanOptimiser() )->recordCleanMalwareVerdict( $path, $this->newAction( [ 'bad_token' ] ) );
+
+		$this->assertFalse( ( new FileScanOptimiser() )->hasKnownValidFileRecords() );
+	}
+
+	public function test_known_valid_record_probe_fails_open_without_existing_root_probe() :void {
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
+		$this->installEnvironment(
+			$cacheDir,
+			true,
+			'6.5.0',
+			[],
+			[],
+			null,
+			true,
+			null,
+			null,
+			new class( $cacheDir ) {
+				private string $dir;
+
+				public function __construct( string $dir ) {
+					$this->dir = $dir;
+				}
+
+				public function exists() :bool {
+					return \is_dir( $this->dir ) && \is_writable( $this->dir );
+				}
+
+				public function buildSubDir( string $subDir ) :string {
+					$path = $this->dir.'/'.$subDir;
+					return ( \is_dir( $path ) || @\mkdir( $path, 0755, true ) ) ? $path : '';
+				}
+			}
+		);
+		( new FileScanOptimiser() )->recordKnownValidFile( $path, $this->coreContext( 'wp-admin/core.php' ) );
+
+		$this->assertFalse( ( new FileScanOptimiser() )->hasKnownValidFileRecords() );
+	}
+
 	public function test_known_valid_shard_dir_is_created_through_wp_filesystem_service() :void {
 		$cacheDir = $this->makeTempDir( 'cache' );
 		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
@@ -427,7 +524,8 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		?OptimiserRequest $request = null,
 		bool $cacheBuildable = true,
 		?OptimiserAfsComponent $afsComponent = null,
-		?OptimiserFs $fs = null
+		?OptimiserFs $fs = null,
+		?object $cacheDirHandler = null
 	) :void {
 		ServicesState::installItems( [
 			'service_corefilehashes' => new OptimiserCoreHashes(),
@@ -440,7 +538,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->cache_dir_handler = new OptimiserCacheDir( $cacheDir, $cacheExists, $cacheBuildable );
+		$controller->cache_dir_handler = $cacheDirHandler ?? new OptimiserCacheDir( $cacheDir, $cacheExists, $cacheBuildable );
 		$controller->comps = (object)[
 			'scans' => new class( $afsComponent ?? new OptimiserAfsComponent() ) {
 				private OptimiserAfsComponent $afsComponent;
@@ -530,6 +628,12 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		return $dir;
 	}
 
+	private function makeKnownValidRecordDir( string $cacheDir ) :string {
+		$dir = $this->normalisePath( $cacheDir.'/afs-file-optimiser/known-valid' );
+		@\mkdir( $dir, 0755, true );
+		return $dir;
+	}
+
 	private function normalisePath( string $path ) :string {
 		return \str_replace( '\\', '/', $path );
 	}
@@ -562,6 +666,10 @@ class OptimiserCacheDir {
 
 	public function exists() :bool {
 		return $this->exists && \is_dir( $this->dir ) && \is_writable( $this->dir );
+	}
+
+	public function locateExistingDir() :string {
+		return $this->exists() ? $this->dir : '';
 	}
 
 	public function buildSubDir( string $subDir ) :string {

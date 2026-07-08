@@ -30,6 +30,8 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
 
+	private array $tempDirs = [];
+
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
@@ -47,13 +49,29 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 	protected function tearDown() :void {
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
+		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
+			$this->removeDir( $dir );
+		}
 		parent::tearDown();
+	}
+
+	public function test_prescan_filter_without_known_valid_records_returns_without_tick() :void {
+		$ticks = 0;
+		$items = $this->invalidBase64Items( 2500 );
+		$action = $this->newPreScanAction( $items, $ticks );
+		$this->installPreScanCacheController( $this->makeTempDir( 'cache' ) );
+
+		( new AfsPreScanHeartbeatTestDouble() )->exposeFilterKnownValidItems( $action );
+
+		$this->assertSame( 0, $ticks );
+		$this->assertSame( $items, $action->items );
 	}
 
 	public function test_prescan_filter_ticks_once_after_partial_batch() :void {
 		$ticks = 0;
 		$items = $this->invalidBase64Items( 999 );
 		$action = $this->newPreScanAction( $items, $ticks );
+		$this->installPreScanCacheController( $this->makeKnownValidCacheRoot() );
 
 		( new AfsPreScanHeartbeatTestDouble() )->exposeFilterKnownValidItems( $action );
 
@@ -65,6 +83,7 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 		$ticks = 0;
 		$items = $this->invalidBase64Items( 1000 );
 		$action = $this->newPreScanAction( $items, $ticks );
+		$this->installPreScanCacheController( $this->makeKnownValidCacheRoot() );
 
 		( new AfsPreScanHeartbeatTestDouble() )->exposeFilterKnownValidItems( $action );
 
@@ -76,6 +95,7 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 		$ticks = 0;
 		$items = $this->invalidBase64Items( 2500 );
 		$action = $this->newPreScanAction( $items, $ticks );
+		$this->installPreScanCacheController( $this->makeKnownValidCacheRoot() );
 
 		( new AfsPreScanHeartbeatTestDouble() )->exposeFilterKnownValidItems( $action );
 
@@ -183,6 +203,53 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 		];
 		PluginControllerInstaller::install( $controller );
 	}
+
+	private function installPreScanCacheController( string $cacheDir ) :void {
+		/** @var Controller $controller */
+		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->cache_dir_handler = new AfsPreScanCacheDir( $cacheDir );
+		PluginControllerInstaller::install( $controller );
+	}
+
+	private function makeKnownValidCacheRoot() :string {
+		$cacheDir = $this->makeTempDir( 'known-valid-cache' );
+		$knownValidDir = \rtrim( $cacheDir, '/\\' ).\DIRECTORY_SEPARATOR.'afs-file-optimiser'.\DIRECTORY_SEPARATOR.'known-valid';
+		@\mkdir( $knownValidDir, 0755, true );
+		$content = '<?php clean();';
+		$contextKey = \hash( 'sha256', \implode( '|', [ 'core', 'core', '6.5.0', 'wp-admin/core.php' ] ) );
+		\file_put_contents(
+			$knownValidDir.\DIRECTORY_SEPARATOR.\substr( $contextKey, 0, 2 ).'.jsonl',
+			\json_encode( [
+				'schema_version' => 1,
+				'ts'             => 1700000000,
+				'context_key'    => $contextKey,
+				'size'           => \strlen( $content ),
+				'sha256'         => \hash( 'sha256', $content ),
+			] )."\n"
+		);
+		return $cacheDir;
+	}
+
+	private function makeTempDir( string $suffix ) :string {
+		$dir = \str_replace( '\\', '/', \sys_get_temp_dir().'/shield-afs-progress-'.$suffix.'-'.\uniqid() );
+		@\mkdir( $dir, 0755, true );
+		$this->tempDirs[] = $dir;
+		return $dir;
+	}
+
+	private function removeDir( string $dir ) :void {
+		if ( !\is_dir( $dir ) ) {
+			return;
+		}
+		$iterator = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+		foreach ( $iterator as $item ) {
+			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
+		}
+		@\rmdir( $dir );
+	}
 }
 
 class AfsPreScanHeartbeatTestDouble extends Scan {
@@ -192,5 +259,21 @@ class AfsPreScanHeartbeatTestDouble extends Scan {
 	}
 
 	protected function scanSlice() {
+	}
+}
+
+class AfsPreScanCacheDir {
+	private string $dir;
+
+	public function __construct( string $dir ) {
+		$this->dir = $dir;
+	}
+
+	public function exists() :bool {
+		return \is_dir( $this->dir ) && \is_writable( $this->dir );
+	}
+
+	public function locateExistingDir() :string {
+		return $this->exists() ? $this->dir : '';
 	}
 }
