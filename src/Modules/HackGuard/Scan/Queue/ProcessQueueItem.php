@@ -14,7 +14,8 @@ class ProcessQueueItem {
 	use PluginControllerConsumer;
 
 	public function run( QueueItemVO $item ) {
-		( new RunState() )->markRunning( $item );
+		$runState = new RunState();
+		$runState->markRunning( $item );
 
 		try {
 			$results = $this->runScanOnItem( $item );
@@ -39,6 +40,7 @@ class ProcessQueueItem {
 				$item->scan,
 				$e->getMessage()
 			) );
+			$runState->recordQueueItemException( $item, $e );
 		}
 	}
 

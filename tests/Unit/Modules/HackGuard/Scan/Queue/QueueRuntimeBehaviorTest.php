@@ -452,6 +452,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			'scan_id'  => 99,
 			'qitem_id' => 7,
 			'scan'     => 'bad',
+			'attempts' => 2,
 			'meta'     => [],
 			'items'    => [],
 		] );
@@ -459,9 +460,23 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		( new ProcessQueueItem() )->run( $item );
 
 		$this->assertSame( [], $scanItemUpdates );
-		$this->assertCount( 1, $scanUpdates );
+		$this->assertCount( 2, $scanUpdates );
 		$this->assertSame( 'running', $scanUpdates[ 0 ][ 'data' ][ 'status' ] ?? null );
+		$this->assertSame( 1700002000, $scanUpdates[ 0 ][ 'data' ][ 'last_process_at' ] ?? null );
+		$this->assertSame( [ 'meta' ], \array_keys( $scanUpdates[ 1 ][ 'data' ] ) );
+		$meta = \json_decode( \base64_decode( (string)$scanUpdates[ 1 ][ 'data' ][ 'meta' ] ), true );
+		$this->assertArrayHasKey( RunState::META_KEY_LAST_ERROR, $meta );
+		$message = $meta[ RunState::META_KEY_LAST_ERROR ];
+		$this->assertStringStartsWith( 'Queue item exception:', $message );
+		$this->assertStringContainsString( 'scan=bad', $message );
+		$this->assertStringContainsString( 'qitem_id=7', $message );
+		$this->assertStringContainsString( 'attempt=2', $message );
+		$this->assertStringContainsString( 'exception=InvalidArgumentException', $message );
+		$this->assertStringContainsString( 'Unknown scan slug: bad', $message );
 		$this->assertSame( [], $deletedScanItems );
+		$this->assertTrue( QueueLifecycleLogSpy::contains(
+			'Shield scan processing exception: scan_id=99 qitem_id=7 scan=bad message=Unknown scan slug: bad'
+		) );
 	}
 
 	public function test_complete_queue_dispatches_next_builder_without_firing_queue_completed_when_backlog_remains() :void {
