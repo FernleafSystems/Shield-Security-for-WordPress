@@ -87,6 +87,103 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_external_preferred_cache_root_is_namespaced_by_install() :void {
+		$preferred = $this->makeTempDir( 'preferred-external' ).'/shield';
+		$expected = $this->expectedExternalCacheRoot( $preferred );
+
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertTrue( \is_dir( $expected ) );
+		$this->assertFalse( \is_dir( $preferred ) );
+	}
+
+	public function test_external_preferred_base_dir_is_namespaced_by_install() :void {
+		$preferredBase = $this->makeTempDir( 'preferred-external-base' );
+		$expected = $this->expectedExternalCacheRoot( $preferredBase.'/shield' );
+
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferredBase ) )->dir() );
+		$this->assertTrue( \is_dir( $expected ) );
+		$this->assertFalse( \is_dir( $preferredBase.'/shield' ) );
+	}
+
+	public function test_external_last_known_cache_root_is_namespaced_by_install() :void {
+		$lastKnownBase = $this->makeTempDir( 'last-known-external' );
+		$expected = $this->expectedExternalCacheRoot( $lastKnownBase.'/shield' );
+
+		$this->assertSame( $expected, ( new CacheDirHandler( $lastKnownBase, '' ) )->dir() );
+		$this->assertTrue( \is_dir( $expected ) );
+		$this->assertFalse( \is_dir( $lastKnownBase.'/shield' ) );
+	}
+
+	public function test_external_namespaced_preferred_cache_root_is_not_namespaced_again() :void {
+		$preferred = $this->expectedExternalCacheRoot( $this->makeTempDir( 'already-namespaced' ).'/shield' );
+
+		$this->assertSame( $preferred, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertTrue( \is_dir( $preferred ) );
+	}
+
+	public function test_external_cache_root_suffix_uses_wp_site_url_host_port_and_path() :void {
+		$this->setCacheStoreSiteUrl( 'https://WWW.Example.COM:8443/abc/Def?x=1' );
+		$preferred = $this->makeTempDir( 'site-url-shape' ).'/shield';
+		$expected = $this->expectedExternalCacheRoot( $preferred, 'example-com-8443-abc-def' );
+
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertTrue( \is_dir( $expected ) );
+		$this->assertFalse( \is_dir( $preferred ) );
+	}
+
+	public function test_external_cache_root_suffix_falls_back_to_safe_hash_for_non_latin_site_url() :void {
+		$siteURL = "https://\u{4F8B}\u{3048}.\u{30C6}\u{30B9}\u{30C8}/\u{7BA1}\u{7406} \u{30D1}\u{30CD}\u{30EB}?x=1";
+		$this->setCacheStoreSiteUrl( $siteURL );
+		$preferred = $this->makeTempDir( 'unicode-site-url' ).'/shield';
+		$expectedSuffix = 'site-'.\substr( \hash( 'sha256', $siteURL ), 0, 12 );
+		$expected = $this->expectedExternalCacheRoot( $preferred, $expectedSuffix );
+
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertMatchesRegularExpression( '#/shield-[a-z0-9][a-z0-9-]{0,47}$#', $expected );
+		$this->assertTrue( \is_dir( $expected ) );
+		$this->assertFalse( \is_dir( $preferred ) );
+	}
+
+	public function test_external_cache_root_suffix_falls_back_when_url_identity_is_partly_non_ascii() :void {
+		$siteURL = "https://\u{4F8B}\u{3048}.\u{30C6}\u{30B9}\u{30C8}/wp";
+		$this->setCacheStoreSiteUrl( $siteURL );
+		$preferred = $this->makeTempDir( 'mixed-unicode-site-url' ).'/shield';
+		$expectedSuffix = 'site-'.\substr( \hash( 'sha256', $siteURL ), 0, 12 );
+		$expected = $this->expectedExternalCacheRoot( $preferred, $expectedSuffix );
+
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertTrue( \is_dir( $expected ) );
+		$this->assertFalse( \is_dir( $preferred ) );
+	}
+
+	public function test_external_cache_root_suffix_is_capped_and_trimmed_for_long_site_url() :void {
+		$path = \str_repeat( 'long-segment-', 8 );
+		$this->setCacheStoreSiteUrl( 'https://www.example.com/'.$path );
+		$preferred = $this->makeTempDir( 'long-site-url' ).'/shield';
+		$expectedSuffix = \trim( \substr( 'example-com-'.$path, 0, 48 ), '-' );
+		$expected = $this->expectedExternalCacheRoot( $preferred, $expectedSuffix );
+
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertLessThanOrEqual( 48, \strlen( \substr( \basename( $expected ), \strlen( 'shield-' ) ) ) );
+		$this->assertMatchesRegularExpression( '#/shield-[a-z0-9][a-z0-9-]{0,47}$#', $expected );
+		$this->assertTrue( \is_dir( $expected ) );
+		$this->assertFalse( \is_dir( $preferred ) );
+	}
+
+	public function test_external_preferred_cache_root_escaped_from_abspath_is_namespaced() :void {
+		$base = $this->normaliseCacheStorePath(
+			\dirname( \rtrim( ABSPATH, '/\\' ) ).'/shield-cache-dir-handler-escaped-'.\uniqid()
+		);
+		$preferred = $this->normaliseCacheStorePath( \rtrim( ABSPATH, '/\\' ).'/../'.\basename( $base ).'/shield' );
+		$expected = $this->expectedExternalCacheRoot( $base.'/shield' );
+		$this->mkdir( $base );
+		$this->tempDirs[] = $base;
+
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertTrue( \is_dir( $expected ) );
+		$this->assertFalse( \is_dir( $base.'/shield' ) );
+	}
+
 	public function test_locate_existing_dir_with_missing_preferred_root_does_not_create_or_fall_back() :void {
 		$preferredBase = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads/missing-preferred' );
 
@@ -151,19 +248,42 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertFalse( \is_dir( $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/shield' ) ) );
 		$this->assertFalse( \is_dir( $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads/shield' ) ) );
 		$this->assertFalse( \is_dir( $this->normaliseCacheStorePath( $this->cacheStoreTmpDir.'/shield' ) ) );
+		$this->assertFalse( \is_dir( $this->expectedExternalCacheRoot( $this->cacheStoreTmpDir.'/shield' ) ) );
+	}
+
+	public function test_locate_existing_dir_ignores_shared_external_cache_root_without_namespace() :void {
+		$sharedRoot = $this->normaliseCacheStorePath( $this->cacheStoreTmpDir.'/shield' );
+		$this->mkdir( $sharedRoot );
+
+		$this->assertSame( '', ( new CacheDirHandler() )->locateExistingDir() );
+	}
+
+	public function test_locate_existing_dir_finds_existing_external_namespaced_cache_root() :void {
+		$root = $this->expectedExternalCacheRoot( $this->cacheStoreTmpDir.'/shield' );
+		$this->mkdir( $root );
+
+		$this->assertSame( $root, ( new CacheDirHandler() )->locateExistingDir() );
+	}
+
+	public function test_locate_existing_dir_ignores_external_cache_root_for_another_site_suffix() :void {
+		$otherSiteRoot = $this->normaliseCacheStorePath( $this->cacheStoreTmpDir.'/shield-other-site' );
+		$this->mkdir( $otherSiteRoot );
+
+		$this->assertSame( '', ( new CacheDirHandler() )->locateExistingDir() );
 	}
 
 	public function test_write_mode_does_not_rewrite_current_readme() :void {
 		$preferred = $this->makeNonTmpCacheRoot( 'readme' );
-		$this->assertSame( $preferred, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$expected = $this->expectedExternalCacheRoot( $preferred );
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
 
-		$readme = $preferred.'/README.txt';
+		$readme = $expected.'/README.txt';
 		$this->assertFileExists( $readme );
 		\touch( $readme, 1600000000 );
 		\clearstatcache( true, $readme );
 		$mtime = \filemtime( $readme );
 
-		$this->assertSame( $preferred, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
 		\clearstatcache( true, $readme );
 		$this->assertSame( $mtime, \filemtime( $readme ) );
 	}
@@ -175,14 +295,15 @@ class CacheDirHandlerTest extends BaseUnitTest {
 
 		$base = $this->normaliseCacheStorePath( '/tmp/shield-cache-dir-handler-tmp-skip-'.\uniqid() );
 		$preferred = $base.'/shield';
-		$this->mkdir( $preferred );
+		$expected = $this->expectedExternalCacheRoot( $preferred );
 		$this->tempDirs[] = $base;
 
-		$this->assertSame( $preferred, ( new CacheDirHandler( '', $preferred ) )->dir() );
-		$this->assertFileExists( $preferred.'/assessed.flag' );
-		$this->assertFileDoesNotExist( $preferred.'/.htaccess' );
-		$this->assertFileDoesNotExist( $preferred.'/index.php' );
-		$this->assertFileDoesNotExist( $preferred.'/README.txt' );
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertFileExists( $expected.'/assessed.flag' );
+		$this->assertFileDoesNotExist( $expected.'/.htaccess' );
+		$this->assertFileDoesNotExist( $expected.'/index.php' );
+		$this->assertFileDoesNotExist( $expected.'/README.txt' );
+		$this->assertFalse( \is_dir( $preferred ) );
 	}
 
 	public function test_failed_candidate_directory_is_not_deleted() :void {
@@ -232,9 +353,24 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->fs->failDir( $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/tmp' ) );
 
 		$this->assertSame(
-			$this->normaliseCacheStorePath( $this->cacheStoreTmpDir.'/shield' ),
+			$this->expectedExternalCacheRoot( $this->cacheStoreTmpDir.'/shield' ),
 			( new CacheDirHandler() )->dir()
 		);
+		$this->assertFalse( \is_dir( $this->normaliseCacheStorePath( $this->cacheStoreTmpDir.'/shield' ) ) );
+	}
+
+	public function test_build_sub_dir_uses_namespaced_external_cache_root() :void {
+		$preferred = $this->makeTempDir( 'scan-subdir' ).'/shield';
+		$expectedRoot = $this->expectedExternalCacheRoot( $preferred );
+		$expectedSubDir = $expectedRoot.'/afs-file-optimiser';
+
+		$this->assertSame(
+			$expectedSubDir,
+			( new CacheDirHandler( '', $preferred ) )->buildSubDir( 'afs-file-optimiser' )
+		);
+		$this->assertTrue( \is_dir( $expectedSubDir ) );
+		$this->assertSame( $expectedSubDir.'/malware-clean', path_join( $expectedSubDir, 'malware-clean' ) );
+		$this->assertFalse( \is_dir( $preferred.'/afs-file-optimiser' ) );
 	}
 
 	private function prepareWpContentDirs() :void {
@@ -277,6 +413,10 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->mkdir( $root );
 		$this->tempDirs[] = $base;
 		return $root;
+	}
+
+	private function expectedExternalCacheRoot( string $root, string $suffix = 'example-com-abc' ) :string {
+		return $this->normaliseCacheStorePath( $root ).'-'.$suffix;
 	}
 
 	private function mkdir( string $dir ) :void {

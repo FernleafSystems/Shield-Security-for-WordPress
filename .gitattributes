@@ -134,6 +134,7 @@ yarn.lock text eol=lf
 
 # Tools
 /tools export-ignore
+/.npmrc export-ignore
 
 # CI/CD and version control
 /.github export-ignore
