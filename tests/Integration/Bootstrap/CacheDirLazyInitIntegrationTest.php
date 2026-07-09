@@ -81,10 +81,13 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 		$con->opts->store();
 		$this->resetCacheDirHandlerState();
 
-		$this->assertSame(
-			\wp_normalize_path( \path_join( $legacyBaseDir, (string)$con->cfg->paths[ 'cache' ] ) ),
-			$con->cache_dir_handler->dir()
-		);
+		$legacySharedCacheDir = \wp_normalize_path( \path_join( $legacyBaseDir, (string)$con->cfg->paths[ 'cache' ] ) );
+		$resolvedCacheDir = $con->cache_dir_handler->dir();
+
+		$this->assertStringStartsWith( $legacySharedCacheDir.'-', $resolvedCacheDir );
+		$this->assertMatchesRegularExpression( '#/shield-[a-z0-9][a-z0-9-]{0,47}$#', $resolvedCacheDir );
+		$this->assertTrue( Services::WpFs()->isDir( $resolvedCacheDir ) );
+		$this->assertFalse( Services::WpFs()->isDir( $legacySharedCacheDir ) );
 		$this->assertSame( [
 			'https://legacy.example/' => $legacyBaseDir,
 		], $con->opts->optGet( 'last_known_cache_basedirs' ) );

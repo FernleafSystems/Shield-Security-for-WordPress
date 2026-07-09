@@ -847,6 +847,89 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertTrue( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanq_cron' ) );
 	}
 
+	public function test_watchdog_resets_all_stale_claimed_items_for_same_scan_in_one_pass() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$firstItemID = $harness->insertScanItem(
+			$scanID,
+			[ 'wp-simple-firewall/icwp-wpsf.php' ],
+			1699999000,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+		$secondItemID = $harness->insertScanItem(
+			$scanID,
+			[ 'two-factor/two-factor.php' ],
+			1699999000,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+		$harness->async->resetTransport();
+
+		( new QueueWatchdog() )->run();
+
+		$this->assertSame( 'running', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $firstItemID )[ 'started_at' ] );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $secondItemID )[ 'started_at' ] );
+		$this->assertSame( QueueRecovery::MAX_ITEM_ATTEMPTS - 1, (int)$harness->scanItemRow( $firstItemID )[ 'attempts' ] );
+		$this->assertSame( QueueRecovery::MAX_ITEM_ATTEMPTS - 1, (int)$harness->scanItemRow( $secondItemID )[ 'attempts' ] );
+		$this->assertTrue( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanq_cron' ) );
+	}
+
+	public function test_recovered_scan_claims_remaining_items_before_later_scans_proceed() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'created_at'      => 1699999000,
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$firstItemID = $harness->insertScanItem(
+			$scanID,
+			[ 'wp-simple-firewall/icwp-wpsf.php' ],
+			1699999000,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+		$secondItemID = $harness->insertScanItem(
+			$scanID,
+			[ 'two-factor/two-factor.php' ],
+			1699999000,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+
+		( new QueueWatchdog() )->run();
+		$harness->sql->updateRowById( 'scan_items', $firstItemID, [
+			'finished_at' => 1700000001,
+		] );
+
+		$laterScanID = $harness->insertScan( [
+			'scan'            => 'apc',
+			'status'          => 'built',
+			'created_at'      => 1699999100,
+			'ready_at'        => 1699999100,
+			'last_process_at' => 1699999100,
+		] );
+		$laterItemID = $harness->insertScanItem( $laterScanID, [ 'apc-common/plugin.php' ] );
+
+		$item = ( new QueueItems() )->next();
+
+		$this->assertSame( $scanID, $item->scan_id );
+		$this->assertSame( $secondItemID, $item->qitem_id );
+		$this->assertSame( 'wpv', $item->scan );
+		$this->assertSame( 2, $item->attempts );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $laterItemID )[ 'started_at' ] );
+	}
+
 	public function test_watchdog_fails_scan_when_stale_claimed_item_exhausted_attempts() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
@@ -857,6 +940,41 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			'started_at'      => 1699999000,
 		] );
 		$harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000, 0, QueueRecovery::MAX_ITEM_ATTEMPTS );
+
+		( new QueueWatchdog() )->run();
+
+		$this->assertSame( 'failed', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertSame(
+			ReconcileQueue::MESSAGE_TIMED_OUT,
+			$this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? ''
+		);
+	}
+
+	public function test_watchdog_fails_scan_when_later_stale_claimed_item_exhausted_attempts() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$harness->insertScanItem(
+			$scanID,
+			[ 'wp-simple-firewall/icwp-wpsf.php' ],
+			1699999000,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+		$harness->insertScanItem(
+			$scanID,
+			[ 'two-factor/two-factor.php' ],
+			1699999000,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS
+		);
 
 		( new QueueWatchdog() )->run();
 

@@ -59,23 +59,28 @@ class ScansProgress extends BaseScans {
 
 	/**
 	 * @param list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,can_attempt_recovery:bool,progress:int,total_items:int,unfinished:int}> $rows
-	 * @return list<array{id:int,scan:string,name:string,scope_label:string,display_status:string,status_label:string,can_attempt_recovery:bool,progress:int,aria_label:string}>
+	 * @return list<array{id:int,scan:string,name:string,scope_label:string,display_status:string,status_label:string,status_icon_class:string,status_class:string,progress_bar_class:string,can_attempt_recovery:bool,progress:int,aria_label:string}>
 	 */
 	private function buildScanRows( array $rows ) :array {
-		return \array_map(
-			fn( array $row ) :array => [
+		$renderRows = [];
+		foreach ( $rows as $row ) {
+			$statusPresentation = $this->statusPresentation( $row[ 'display_status' ] );
+			$renderRows[] = [
 				'id'                   => (int)$row[ 'id' ],
 				'scan'                 => $row[ 'scan' ],
 				'name'                 => $row[ 'name' ],
 				'scope_label'          => $this->scopeLabel( $row[ 'scope_type' ], $row[ 'scope_key' ] ),
 				'display_status'       => $row[ 'display_status' ],
-				'status_label'         => $this->statusLabel( $row[ 'display_status' ] ),
+				'status_label'         => $statusPresentation[ 'label' ],
+				'status_icon_class'    => $statusPresentation[ 'icon_class' ],
+				'status_class'         => $statusPresentation[ 'status_class' ],
+				'progress_bar_class'   => $statusPresentation[ 'progress_bar_class' ],
 				'can_attempt_recovery' => $row[ 'can_attempt_recovery' ] === true,
 				'progress'             => (int)\max( 0, \min( 100, $row[ 'progress' ] ) ),
 				'aria_label'           => sprintf( __( '%s progress', 'wp-simple-firewall' ), $row[ 'name' ] ),
-			],
-			$rows
-		);
+			];
+		}
+		return $renderRows;
 	}
 
 	private function scopeLabel( string $scopeType, string $scopeKey ) :string {
@@ -98,19 +103,42 @@ class ScansProgress extends BaseScans {
 		return $scopeKey === '' ? $scopeType : sprintf( '%s: %s', $scopeType, $scopeKey );
 	}
 
-	private function statusLabel( string $status ) :string {
+	/**
+	 * @return array{label:string,icon_class:string,status_class:string,progress_bar_class:string}
+	 */
+	private function statusPresentation( string $status ) :array {
 		switch ( $status ) {
 			case 'running':
-				return __( 'running', 'wp-simple-firewall' );
+				return [
+					'label'              => __( 'running', 'wp-simple-firewall' ),
+					'icon_class'         => 'bi bi-arrow-repeat',
+					'status_class'       => 'shield-scan-progress__status--running',
+					'progress_bar_class' => 'bg-success progress-bar-striped progress-bar-animated',
+				];
 
 			case 'waiting':
-				return __( 'waiting', 'wp-simple-firewall' );
+				return [
+					'label'              => __( 'waiting', 'wp-simple-firewall' ),
+					'icon_class'         => 'bi bi-hourglass-split',
+					'status_class'       => 'shield-scan-progress__status--waiting',
+					'progress_bar_class' => 'bg-secondary',
+				];
 
 			case 'stalled':
-				return __( 'appears stalled', 'wp-simple-firewall' );
+				return [
+					'label'              => __( 'appears stalled', 'wp-simple-firewall' ),
+					'icon_class'         => 'bi bi-exclamation-triangle-fill',
+					'status_class'       => 'shield-scan-progress__status--stalled',
+					'progress_bar_class' => 'bg-warning progress-bar-striped',
+				];
 
 			default:
-				return $status;
+				return [
+					'label'              => $status,
+					'icon_class'         => 'bi bi-question-circle',
+					'status_class'       => 'shield-scan-progress__status--unknown',
+					'progress_bar_class' => 'bg-secondary',
+				];
 		}
 	}
 

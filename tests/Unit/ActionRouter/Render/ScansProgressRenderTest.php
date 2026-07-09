@@ -56,15 +56,18 @@ class ScansProgressRenderTest extends BaseUnitTest {
 			],
 		] ) )->renderDataForTest();
 
-		$rows = $renderData[ 'vars' ][ 'scan_rows' ] ?? [];
+		$vars = $renderData[ 'vars' ];
+		$rows = $vars[ 'scan_rows' ];
 
-		$this->assertTrue( $renderData[ 'vars' ][ 'has_scan_rows' ] ?? false );
+		$this->assertTrue( $vars[ 'has_scan_rows' ] );
 		$this->assertCount( 2, $rows );
 		$this->assertSame( 'File Guard', $rows[ 0 ][ 'name' ] );
 		$this->assertSame( '', $rows[ 0 ][ 'scope_label' ] );
 		$this->assertSame( 'running', $rows[ 0 ][ 'display_status' ] );
 		$this->assertFalse( $rows[ 0 ][ 'can_attempt_recovery' ] );
 		$this->assertNotSame( '', $rows[ 0 ][ 'status_label' ] );
+		$this->assertStatusPresentationContract( $rows[ 0 ] );
+		$this->assertStringContainsString( 'progress-bar-animated', $rows[ 0 ][ 'progress_bar_class' ] );
 		$this->assertSame( 100, $rows[ 0 ][ 'progress' ] );
 		$this->assertNotSame( '', $rows[ 0 ][ 'aria_label' ] );
 		$this->assertSame( 'Vulnerability Scan', $rows[ 1 ][ 'name' ] );
@@ -72,6 +75,10 @@ class ScansProgressRenderTest extends BaseUnitTest {
 		$this->assertSame( 'waiting', $rows[ 1 ][ 'display_status' ] );
 		$this->assertFalse( $rows[ 1 ][ 'can_attempt_recovery' ] );
 		$this->assertNotSame( '', $rows[ 1 ][ 'status_label' ] );
+		$this->assertStatusPresentationContract( $rows[ 1 ] );
+		$this->assertStringNotContainsString( 'progress-bar-animated', $rows[ 1 ][ 'progress_bar_class' ] );
+		$this->assertNotSame( $rows[ 0 ][ 'status_icon_class' ], $rows[ 1 ][ 'status_icon_class' ] );
+		$this->assertNotSame( $rows[ 0 ][ 'status_class' ], $rows[ 1 ][ 'status_class' ] );
 		$this->assertSame( 40, $rows[ 1 ][ 'progress' ] );
 	}
 
@@ -100,7 +107,7 @@ class ScansProgressRenderTest extends BaseUnitTest {
 			],
 		] ) )->renderDataForTest();
 
-		$rows = $renderData[ 'vars' ][ 'scan_rows' ] ?? [];
+		$rows = $renderData[ 'vars' ][ 'scan_rows' ];
 
 		$this->assertCount( 1, $rows );
 		$this->assertSame( 'Asset Scan', $rows[ 0 ][ 'name' ] );
@@ -108,6 +115,8 @@ class ScansProgressRenderTest extends BaseUnitTest {
 		$this->assertTrue( $rows[ 0 ][ 'can_attempt_recovery' ] );
 		$this->assertNotSame( '', $rows[ 0 ][ 'scope_label' ] );
 		$this->assertNotSame( '', $rows[ 0 ][ 'status_label' ] );
+		$this->assertStatusPresentationContract( $rows[ 0 ] );
+		$this->assertStringNotContainsString( 'progress-bar-animated', $rows[ 0 ][ 'progress_bar_class' ] );
 		$this->assertSame( 10, $rows[ 0 ][ 'progress' ] );
 		$this->assertNotSame( '', $rows[ 0 ][ 'aria_label' ] );
 	}
@@ -121,9 +130,17 @@ class ScansProgressRenderTest extends BaseUnitTest {
 			'scan_rows'       => [],
 		] ) )->renderDataForTest();
 
-		$this->assertFalse( $renderData[ 'vars' ][ 'has_scan_rows' ] ?? true );
-		$this->assertSame( [], $renderData[ 'vars' ][ 'scan_rows' ] ?? null );
-		$this->assertSame( 42, $renderData[ 'vars' ][ 'progress' ] ?? null );
+		$this->assertFalse( $renderData[ 'vars' ][ 'has_scan_rows' ] );
+		$this->assertSame( [], $renderData[ 'vars' ][ 'scan_rows' ] );
+		$this->assertSame( 42, $renderData[ 'vars' ][ 'progress' ] );
+	}
+
+	private function assertStatusPresentationContract( array $row ) :void {
+		foreach ( [ 'status_label', 'status_icon_class', 'status_class', 'progress_bar_class' ] as $key ) {
+			$this->assertArrayHasKey( $key, $row );
+			$this->assertIsString( $row[ $key ] );
+			$this->assertNotSame( '', $row[ $key ] );
+		}
 	}
 }
 

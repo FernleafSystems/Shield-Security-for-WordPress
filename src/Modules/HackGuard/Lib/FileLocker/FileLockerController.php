@@ -16,10 +16,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 	PublicKeyRetrievalFailure,
 	UnsupportedFileLockType
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\NormalizeAbsPath;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\{
+	FileLockerState,
+	NormalizeAbsPath
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-import-type State from FileLockerState as FileLockerStateData
+ */
 class FileLockerController {
 	use ExecOnce;
 	use PluginControllerConsumer;
@@ -222,30 +228,18 @@ class FileLockerController {
 		}
 	}
 
+	/**
+	 * @return FileLockerStateData
+	 */
 	public function getState(): array {
-		$state = \array_merge( [
-			'abspath'                      => ( new NormalizeAbsPath() )->normalize( ABSPATH ),
-			'last_analysis_started_at'     => 0,
-			'last_locks_created_at'        => 0,
-			'last_locks_created_failed_at' => 0,
-			'last_error'                   => '',
-			'cipher'                       => '',
-			'cipher_last_checked_at'       => 0,
-		], self::con()->opts->optGet( 'filelocker_state' ) );
-		$state[ 'abspath' ] = $this->stateAbsPathOrCurrent( $state );
-		return $state;
+		return ( new FileLockerState() )->build( self::con()->opts->optGet( 'filelocker_state' ) );
 	}
 
 	protected function setState( array $state ) {
-		if ( \array_key_exists( 'abspath', $state ) ) {
-			$state[ 'abspath' ] = ( new NormalizeAbsPath() )->normalize( $this->stateAbsPathOrCurrent( $state ) );
-		}
-		self::con()->opts->optSet( 'filelocker_state', $state )->store();
-	}
-
-	private function stateAbsPathOrCurrent( array $state ): string {
-		$abspath = $state[ 'abspath' ] ?? ABSPATH;
-		return \is_string( $abspath ) && $abspath !== '' ? $abspath : ABSPATH;
+		self::con()->opts->optSet(
+			'filelocker_state',
+			( new FileLockerState() )->prepareForStorage( $state )
+		)->store();
 	}
 
 	/**

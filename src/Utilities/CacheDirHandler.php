@@ -11,6 +11,9 @@ class CacheDirHandler {
 
 	use PluginControllerConsumer;
 
+	private const EXTERNAL_CACHE_ROOT_SUFFIX_MAX_LENGTH = 48;
+	private const EXTERNAL_CACHE_ROOT_FALLBACK_HASH_LENGTH = 12;
+
 	private ?string $cacheDir = null;
 
 	private string $lastKnownBaseDir;
@@ -197,10 +200,13 @@ class CacheDirHandler {
 		if ( !empty( $cacheBasename ) ) {
 			$candidates = \array_filter(
 				\array_map(
-					fn( string $baseDir ) => untrailingslashit( wp_normalize_path( path_join( $baseDir, $cacheBasename ) ) ),
+					fn( string $baseDir ) => $this->namespaceExternalCacheRoot(
+						untrailingslashit( wp_normalize_path( path_join( $baseDir, $cacheBasename ) ) ),
+						$cacheBasename
+					),
 					$baseDirCandidates
 				),
-				fn( string $dir ) => !empty( $dir ) && \str_ends_with( $dir, $cacheBasename )
+				fn( string $dir ) => $this->isCacheRootPath( $dir, $cacheBasename )
 			);
 		}
 		return $candidates;
@@ -214,11 +220,16 @@ class CacheDirHandler {
 				\array_unique( \array_map(
 					function ( string $path ) use ( $cacheBasename ) :string {
 						$path = untrailingslashit( wp_normalize_path( $path ) );
-						return \basename( $path ) === $cacheBasename ? $path : untrailingslashit( wp_normalize_path( path_join( $path, $cacheBasename ) ) );
+						return $this->namespaceExternalCacheRoot(
+							$this->isCacheRootBasename( \basename( $path ), $cacheBasename )
+								? $path
+								: untrailingslashit( wp_normalize_path( path_join( $path, $cacheBasename ) ) ),
+							$cacheBasename
+						);
 					},
 					\array_filter( $configuredPaths )
 				) ),
-				fn( string $dir ) => !empty( $dir ) && \str_ends_with( $dir, $cacheBasename )
+				fn( string $dir ) => $this->isCacheRootPath( $dir, $cacheBasename )
 			);
 		}
 		return $candidates;
@@ -318,6 +329,163 @@ class CacheDirHandler {
 	private function cacheBasename() :string {
 		$cacheBasename = (string)( self::con()->cfg->paths[ 'cache' ] ?? '' );
 		return \preg_match( '#^[a-z]+$#i', $cacheBasename ) ? $cacheBasename : '';
+	}
+
+	private function namespaceExternalCacheRoot( string $path, string $cacheBasename ) :string {
+		$path = $this->normalisePathSegments( $path );
+		if ( $path !== '' && !$this->isPathWithinAbsPath( $path ) ) {
+			$basename = \basename( $path );
+			if ( !$this->isCurrentSiteCacheRootBasename( $basename, $cacheBasename ) ) {
+				$path = $this->isCacheRootBasename( $basename, $cacheBasename )
+					? $this->normalisePathSegments( \dirname( $path ).'/'.$this->suffixedCacheRootBasename( $cacheBasename ) )
+					: $path.'-'.$this->externalCacheRootSuffix();
+			}
+		}
+		return $path;
+	}
+
+	private function isPathWithinAbsPath( string $path ) :bool {
+		$absPath = $this->pathForLexicalComparison( ABSPATH );
+		$path = $this->pathForLexicalComparison( $path );
+		return $absPath !== '' && ( $path === $absPath || \str_starts_with( $path.'/', $absPath.'/' ) );
+	}
+
+	private function externalCacheRootSuffix() :string {
+		$siteURL = '';
+		if ( \function_exists( 'site_url' ) ) {
+			$siteURL = (string)\site_url();
+		}
+		if ( empty( $siteURL ) ) {
+			try {
+				$siteURL = (string)Services::WpGeneral()->getWpUrl();
+			}
+			catch ( \Throwable $e ) {
+				$siteURL = '';
+			}
+		}
+
+		$siteURLKey = $this->siteUrlKeyForCacheRootSuffix( $siteURL );
+		$suffix = $this->slugForCacheRootSuffix( $siteURLKey );
+		return $suffix !== '' ? $suffix : $this->fallbackCacheRootSuffix( $siteURL );
+	}
+
+	private function siteUrlKeyForCacheRootSuffix( string $siteURL ) :string {
+		$siteURL = \trim( $siteURL );
+		$parts = @\parse_url( $siteURL );
+		if ( ( !\is_array( $parts ) || empty( $parts[ 'host' ] ) ) && $siteURL !== '' ) {
+			$parts = @\parse_url( 'https://'.\ltrim( $siteURL, '/' ) );
+		}
+
+		if ( \is_array( $parts ) && !empty( $parts[ 'host' ] ) ) {
+			$host = \strtolower( (string)$parts[ 'host' ] );
+			if ( \str_starts_with( $host, 'www.' ) ) {
+				$host = \substr( $host, 4 );
+			}
+
+			$key = $host;
+			if ( !empty( $parts[ 'port' ] ) ) {
+				$key .= '-'.(string)$parts[ 'port' ];
+			}
+
+			$path = \trim( (string)( $parts[ 'path' ] ?? '' ), '/' );
+			if ( $path !== '' ) {
+				$key .= '-'.$path;
+			}
+		}
+		else {
+			$key = $siteURL;
+		}
+
+		return $key;
+	}
+
+	private function slugForCacheRootSuffix( string $value ) :string {
+		$value = \strtolower( \trim( $value ) );
+		if ( $value !== '' && \preg_match( '#[^\x00-\x7F]#', $value ) !== 1 ) {
+			$value = (string)\preg_replace( '#[^a-z0-9]+#', '-', $value );
+			$value = \trim( (string)\preg_replace( '#-+#', '-', $value ), '-' );
+			if ( \strlen( $value ) > self::EXTERNAL_CACHE_ROOT_SUFFIX_MAX_LENGTH ) {
+				$value = \trim( \substr( $value, 0, self::EXTERNAL_CACHE_ROOT_SUFFIX_MAX_LENGTH ), '-' );
+			}
+		}
+		else {
+			$value = '';
+		}
+
+		return \preg_match( '#^[a-z0-9][a-z0-9-]{0,'.( self::EXTERNAL_CACHE_ROOT_SUFFIX_MAX_LENGTH - 1 ).'}$#', $value ) === 1
+			? $value
+			: '';
+	}
+
+	private function fallbackCacheRootSuffix( string $siteURL ) :string {
+		$seed = \trim( $siteURL ) !== '' ? \trim( $siteURL ) : $this->normalisePathSegments( ABSPATH );
+		return 'site-'.\substr( \hash( 'sha256', $seed ), 0, self::EXTERNAL_CACHE_ROOT_FALLBACK_HASH_LENGTH );
+	}
+
+	private function pathForLexicalComparison( string $path ) :string {
+		$path = $this->normalisePathSegments( $path );
+		return \DIRECTORY_SEPARATOR === '\\' ? \strtolower( $path ) : $path;
+	}
+
+	private function normalisePathSegments( string $path ) :string {
+		$path = untrailingslashit( wp_normalize_path( $path ) );
+		if ( $path === '' ) {
+			return '';
+		}
+
+		$prefix = '';
+		$rest = $path;
+		if ( \preg_match( '#^([a-z]:)(?:/(.*))?$#i', $path, $matches ) === 1 ) {
+			$prefix = $matches[ 1 ];
+			$rest = $matches[ 2 ] ?? '';
+		}
+		elseif ( \str_starts_with( $path, '//' ) ) {
+			$prefix = '//';
+			$rest = \substr( $path, 2 );
+		}
+		elseif ( \str_starts_with( $path, '/' ) ) {
+			$prefix = '/';
+			$rest = \substr( $path, 1 );
+		}
+
+		$segments = [];
+		foreach ( \explode( '/', $rest ) as $segment ) {
+			if ( $segment === '' || $segment === '.' ) {
+				continue;
+			}
+			if ( $segment === '..' ) {
+				if ( !empty( $segments ) && \end( $segments ) !== '..' ) {
+					\array_pop( $segments );
+				}
+				elseif ( $prefix === '' ) {
+					$segments[] = $segment;
+				}
+				continue;
+			}
+			$segments[] = $segment;
+		}
+
+		$collapsed = \implode( '/', $segments );
+		return $prefix === ''
+			? $collapsed
+			: ( $prefix === '/' || $prefix === '//' ? $prefix.$collapsed : $prefix.( $collapsed === '' ? '' : '/'.$collapsed ) );
+	}
+
+	private function isCacheRootPath( string $path, string $cacheBasename ) :bool {
+		return !empty( $path ) && $this->isCacheRootBasename( \basename( $path ), $cacheBasename );
+	}
+
+	private function isCacheRootBasename( string $basename, string $cacheBasename ) :bool {
+		return $basename === $cacheBasename
+			   || $this->isCurrentSiteCacheRootBasename( $basename, $cacheBasename );
+	}
+
+	private function isCurrentSiteCacheRootBasename( string $basename, string $cacheBasename ) :bool {
+		return $basename === $this->suffixedCacheRootBasename( $cacheBasename );
+	}
+
+	private function suffixedCacheRootBasename( string $cacheBasename ) :string {
+		return $cacheBasename.'-'.$this->externalCacheRootSuffix();
 	}
 
 	private function pathForWordPressAbsoluteCheck( string $dir ) :string {

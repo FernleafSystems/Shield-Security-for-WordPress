@@ -124,8 +124,8 @@
     ],
     "patches":     [
       {
-        "version":     "7",
-        "released_at": 1783423000,
+        "version":     "8",
+        "released_at": 1783590000,
         "items":       [
           {
             "type":        "improved",
@@ -133,6 +133,13 @@
             "description": [
               "Backup file mapping resumes more reliably across repeated requests, reducing duplicate or skipped entries during large backup jobs.",
               "Backup archive creation is safer around missing, excluded, unreadable, oversized, older, or linked files, helping backups fail cleanly when a file can't be archived."
+            ]
+          },
+          {
+            "type":        "improved",
+            "title":       "File Scanning Quality of Life Improvements",
+            "description": [
+              "Further developments to improve the speed and reliability of file scanning."
             ]
           },
           {
@@ -149,6 +156,13 @@
             "title":       "File Scan Results Display Improved",
             "description": [
               "File scan tables now show a single clean relative file path for WordPress and malware findings, keeping scan results easier to review and avoiding unnecessary full server-path details."
+            ]
+          },
+          {
+            "type":        "improved",
+            "title":       "More reliable FileLocker Diffs",
+            "description": [
+              "When the primary file diff service fails, automatically falls back to WordPress in-built file diff pathway."
             ]
           },
           {

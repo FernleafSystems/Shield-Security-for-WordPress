@@ -21,9 +21,9 @@ class QueueRecovery {
 			return;
 		}
 
-		$claimedItem = $this->startedUnfinishedItem( $scanID );
-		if ( !empty( $claimedItem ) ) {
-			$this->recoverClaimedItem( $scanID, $claimedItem );
+		$claimedItems = $this->startedUnfinishedItems( $scanID );
+		if ( !empty( $claimedItems ) ) {
+			$this->recoverClaimedItems( $scanID, $claimedItems );
 			return;
 		}
 
@@ -33,29 +33,31 @@ class QueueRecovery {
 		}
 	}
 
-	private function recoverClaimedItem( int $scanID, array $item ) :void {
-		$itemID = (int)( $item[ 'id' ] ?? 0 );
-		$attempts = (int)( $item[ 'attempts' ] ?? 0 );
-		if ( $itemID < 1 ) {
-			return;
-		}
+	/**
+	 * @param list<array{id:int,attempts:int}> $items
+	 */
+	private function recoverClaimedItems( int $scanID, array $items ) :void {
+		$itemIDs = [];
+		foreach ( $items as $item ) {
+			if ( $item[ 'attempts' ] >= self::MAX_ITEM_ATTEMPTS ) {
+				( new RunState() )->markFailed( $scanID, ReconcileQueue::MESSAGE_TIMED_OUT );
+				return;
+			}
 
-		if ( $attempts >= self::MAX_ITEM_ATTEMPTS ) {
-			( new RunState() )->markFailed( $scanID, ReconcileQueue::MESSAGE_TIMED_OUT );
-			return;
+			$itemIDs[] = $item[ 'id' ];
 		}
 
 		Services::WpDb()->doSql(
 			sprintf( "UPDATE `%s`
 					SET `started_at`=0
-					WHERE `id`=%d
-					  AND `scan_ref`=%d
+					WHERE `scan_ref`=%d
+					  AND `id` IN (%s)
 					  AND `finished_at`=0
 					  AND `started_at`>0
 					  AND `attempts`<%d;",
 				self::con()->db_con->scan_items->getTable(),
-				$itemID,
 				$scanID,
+				\implode( ',', $itemIDs ),
 				self::MAX_ITEM_ATTEMPTS
 			)
 		);
@@ -108,20 +110,36 @@ class QueueRecovery {
 		}
 	}
 
-	private function startedUnfinishedItem( int $scanID ) :array {
-		$row = Services::WpDb()->selectRow(
+	/**
+	 * @return list<array{id:int,attempts:int}>
+	 */
+	private function startedUnfinishedItems( int $scanID ) :array {
+		$rows = Services::WpDb()->selectCustom(
 			sprintf( "SELECT `id`, `attempts`
 					FROM `%s`
 					WHERE `scan_ref`=%d
 					  AND `finished_at`=0
 					  AND `started_at`>0
-					ORDER BY `id` ASC
-					LIMIT 1;",
+					ORDER BY `id` ASC;",
 				self::con()->db_con->scan_items->getTable(),
 				$scanID
 			)
 		);
-		return \is_array( $row ) ? $row : [];
+		$items = [];
+		foreach ( \is_array( $rows ) ? $rows : [] as $row ) {
+			if ( !\is_array( $row ) ) {
+				continue;
+			}
+			$itemID = (int)( $row[ 'id' ] ?? 0 );
+			if ( $itemID < 1 ) {
+				continue;
+			}
+			$items[] = [
+				'id'       => $itemID,
+				'attempts' => (int)( $row[ 'attempts' ] ?? 0 ),
+			];
+		}
+		return $items;
 	}
 
 	private function unstartedUnfinishedItemID( int $scanID ) :int {
