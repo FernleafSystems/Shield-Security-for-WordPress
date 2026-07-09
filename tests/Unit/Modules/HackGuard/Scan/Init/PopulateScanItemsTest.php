@@ -75,6 +75,7 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		$itemInsertCount = 0;
 		$heartbeatQueries = [];
 		$callbackAttachedBeforeBuild = false;
+		$heartbeatFiredDuringBuild = false;
 		$this->installHeartbeatDb( $heartbeatQueries );
 		$this->installController( $scanUpdates, $itemInsertCount, true );
 
@@ -85,8 +86,14 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		$scanRecord->scope_key = '';
 		$scanController = $this->buildScanController(
 			[ 'one' ],
-			static function ( BaseScanActionVO $scanActionVO ) use ( &$callbackAttachedBeforeBuild ) :void {
+			static function ( BaseScanActionVO $scanActionVO ) use (
+				&$callbackAttachedBeforeBuild,
+				&$heartbeatFiredDuringBuild,
+				&$heartbeatQueries
+			) :void {
 				$callbackAttachedBeforeBuild = \is_callable( $scanActionVO->progress_callback );
+				$scanActionVO->tickProgress();
+				$heartbeatFiredDuringBuild = \count( $heartbeatQueries ) === 1;
 			}
 		);
 
@@ -96,6 +103,11 @@ class PopulateScanItemsTest extends BaseUnitTest {
 			->run();
 
 		$this->assertTrue( $callbackAttachedBeforeBuild );
+		$this->assertTrue( $heartbeatFiredDuringBuild );
+		$this->assertCount( 1, $heartbeatQueries );
+		$this->assertStringContainsString( 'UPDATE `shield_scans`', $heartbeatQueries[ 0 ] );
+		$this->assertStringContainsString( '`id`=19', $heartbeatQueries[ 0 ] );
+		$this->assertStringContainsString( "`status`='building'", $heartbeatQueries[ 0 ] );
 	}
 
 	public function test_run_completes_empty_scan_with_metadata_in_completion_update() :void {
