@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
 	ScansController,
 	StartScansResult
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs as AfsController;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	CompleteQueue,
@@ -96,6 +97,111 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		}
 		$this->assertSame( 0, $this->queryLogCount( $harness->sql->queryLog(), 'SELECT `id`, `scan`' ) );
 		$this->assertFalse( $this->queryLogContains( $harness->sql->queryLog(), 'SELECT * FROM `scans` WHERE `id`' ) );
+	}
+
+	public function test_afs_asset_start_resumes_same_scope_stale_built_blocker_without_duplicate_row() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'scope_type'      => 'plugin',
+			'scope_key'       => 'akismet/akismet.php',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ] );
+		$harness->sql->resetQueryLog();
+		$harness->async->resetTransport();
+
+		$started = ( new LifecycleScansControllerTestDouble() )->startAfsAssetScan( 'plugin', ' akismet/akismet.php ' );
+
+		$this->assertTrue( $started );
+		$this->assertSame( [ $scanID ], $this->scanIDsForScope( $harness, 'afs', 'plugin', 'akismet/akismet.php' ) );
+		$this->assertSame( 'built', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
+		$this->assertArrayHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $scanID ) ) );
+		$this->assertTrue( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanq_cron' ) );
+	}
+
+	public function test_afs_asset_start_replaces_same_scope_stale_building_blocker() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$oldScanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'building',
+			'scope_type'      => 'plugin',
+			'scope_key'       => 'akismet/akismet.php',
+			'created_at'      => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$harness->sql->resetQueryLog();
+		$harness->async->resetTransport();
+
+		$started = ( new LifecycleScansControllerTestDouble() )->startAfsAssetScan( 'plugin', 'akismet/akismet.php' );
+
+		$this->assertTrue( $started );
+		$this->assertSame(
+			[ $oldScanID, $oldScanID + 1 ],
+			$this->scanIDsForScope( $harness, 'afs', 'plugin', 'akismet/akismet.php' )
+		);
+		$this->assertSame( 'failed', $harness->scanRow( $oldScanID )[ 'status' ] );
+		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $this->scanMeta( $harness->scanRow( $oldScanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? '' );
+		$this->assertSame( 'queued', $harness->scanRow( $oldScanID + 1 )[ 'status' ] );
+		$this->assertSame( 'asset_change', $harness->scanRow( $oldScanID + 1 )[ 'run_trigger' ] );
+	}
+
+	public function test_afs_asset_start_fresh_same_scope_duplicate_returns_false_without_recovery_or_replacement() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'scope_type'      => 'plugin',
+			'scope_key'       => 'akismet/akismet.php',
+			'ready_at'        => 1699999950,
+			'last_process_at' => 1699999950,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ] );
+		$harness->sql->resetQueryLog();
+		$harness->async->resetTransport();
+
+		$started = ( new LifecycleScansControllerTestDouble() )->startAfsAssetScan( 'plugin', 'akismet/akismet.php' );
+		$queries = $harness->sql->queryLog();
+
+		$this->assertFalse( $started );
+		$this->assertSame( [ $scanID ], $this->scanIDsForScope( $harness, 'afs', 'plugin', 'akismet/akismet.php' ) );
+		$this->assertSame( 'built', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
+		$this->assertSame( [], $this->scanMeta( $harness->scanRow( $scanID ) ) );
+		$this->assertFalse( $this->queryLogContains( $queries, 'FROM `scan_items`' ) );
+		$this->assertFalse( $this->queryLogContains( $queries, 'UPDATE `scans` SET' ) );
+		$this->assertSame( [], $harness->async->remotePosts );
+		$this->assertSame( [], $harness->async->scheduled );
+	}
+
+	public function test_afs_asset_start_ignores_different_scope_stale_blocker() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$otherScanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'scope_type'      => 'plugin',
+			'scope_key'       => 'wordfence/wordfence.php',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$harness->insertScanItem( $otherScanID, [ 'afs-other' ] );
+		$harness->sql->resetQueryLog();
+		$harness->async->resetTransport();
+
+		$started = ( new LifecycleScansControllerTestDouble() )->startAfsAssetScan( 'plugin', 'akismet/akismet.php' );
+		$queries = $harness->sql->queryLog();
+
+		$this->assertTrue( $started );
+		$this->assertSame( [ $otherScanID ], $this->scanIDsForScope( $harness, 'afs', 'plugin', 'wordfence/wordfence.php' ) );
+		$this->assertSame( [ $otherScanID + 1 ], $this->scanIDsForScope( $harness, 'afs', 'plugin', 'akismet/akismet.php' ) );
+		$this->assertSame( 'built', $harness->scanRow( $otherScanID )[ 'status' ] );
+		$this->assertArrayNotHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $otherScanID ) ) );
+		$this->assertSame( 'queued', $harness->scanRow( $otherScanID + 1 )[ 'status' ] );
+		$this->assertSame( 'asset_change', $harness->scanRow( $otherScanID + 1 )[ 'run_trigger' ] );
+		$this->assertFalse( $this->queryLogContains( $queries, 'FROM `scan_items`' ) );
 	}
 
 	public function test_start_new_scans_recovers_stale_queued_blocker_without_duplicate_row() :void {
@@ -570,6 +676,24 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 
 		$this->assertSame( 'building', $harness->scanRow( $scanID )[ 'status' ] );
 		$this->assertSame( 0, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
+	}
+
+	public function test_watchdog_leaves_old_building_scan_with_fresh_heartbeat_untouched() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'building',
+			'created_at'      => 1699999000,
+			'last_process_at' => 1699999950,
+		] );
+
+		( new QueueWatchdog() )->runIfStale();
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'building', $scan[ 'status' ] );
+		$this->assertSame( 0, (int)$scan[ 'finished_at' ] );
+		$this->assertSame( 1699999950, (int)$scan[ 'last_process_at' ] );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $scan ) );
 	}
 
 	public function test_watchdog_leaves_fresh_built_scan_untouched() :void {
@@ -1390,10 +1514,26 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		);
 	}
 
+	private function scanIDsForScope( ScanQueueLifecycleHarness $harness, string $slug, string $scopeType, string $scopeKey ) :array {
+		return \array_map(
+			static fn( array $row ) :int => (int)$row[ 'id' ],
+			$this->scanRowsForScope( $harness, $slug, $scopeType, $scopeKey )
+		);
+	}
+
 	private function scanRowsForSlug( ScanQueueLifecycleHarness $harness, string $slug ) :array {
 		return \array_values( \array_filter(
 			$harness->scanRows(),
 			static fn( array $row ) :bool => $row[ 'scan' ] === $slug
+		) );
+	}
+
+	private function scanRowsForScope( ScanQueueLifecycleHarness $harness, string $slug, string $scopeType, string $scopeKey ) :array {
+		return \array_values( \array_filter(
+			$harness->scanRows(),
+			static fn( array $row ) :bool => $row[ 'scan' ] === $slug
+											 && $row[ 'scope_type' ] === $scopeType
+											 && $row[ 'scope_key' ] === $scopeKey
 		) );
 	}
 
@@ -1450,12 +1590,27 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 
 class LifecycleScansControllerTestDouble extends ScansController {
 
+	public function AFS() :AfsController {
+		return new LifecycleAfsScanControllerTestDouble();
+	}
+
 	public function getScanCon( string $slug ) {
 		return self::con()->comps->scans->getScanCon( $slug );
 	}
 
 	public function canStartScans( bool $isCli = false ) :bool {
 		unset( $isCli );
+		return true;
+	}
+}
+
+class LifecycleAfsScanControllerTestDouble extends AfsController {
+
+	public function getSlug() :string {
+		return 'afs';
+	}
+
+	public function isReady() :bool {
 		return true;
 	}
 }

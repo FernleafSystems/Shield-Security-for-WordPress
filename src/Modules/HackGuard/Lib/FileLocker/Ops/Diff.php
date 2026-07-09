@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
@@ -6,6 +6,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Services\Utilities\Integrations\WpHashes;
 
 class Diff {
+
+	private const FALLBACK_CONTEXT_LINES = 3;
 
 	/**
 	 * @throws \Exception
@@ -29,11 +31,9 @@ class Diff {
 	}
 
 	/**
-	 * @param string $original
-	 * @param string $current
 	 * @throws \Exception
 	 */
-	private function useWpHashes( $original, $current ) :string {
+	private function useWpHashes( string $original, string $current ) :string {
 		$res = ( new WpHashes\Util\Diff() )->getDiff( $original, $current );
 		if ( !\is_array( $res ) || empty( $res[ 'html' ] ) ) {
 			throw new \Exception( __( 'Could not get a valid diff for this file.', 'wp-simple-firewall' ) );
@@ -47,6 +47,10 @@ class Diff {
 	}
 
 	private function useWpDiff( string $original, string $current ) :string {
-		return wp_text_diff( $original, $current );
+		return wp_text_diff( $original, $current, [
+			'show_split_view'        => true,
+			'leading_context_lines'  => self::FALLBACK_CONTEXT_LINES,
+			'trailing_context_lines' => self::FALLBACK_CONTEXT_LINES,
+		] );
 	}
 }

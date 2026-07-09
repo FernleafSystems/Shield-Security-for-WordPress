@@ -317,39 +317,82 @@ class ScansController {
 			return false;
 		}
 
+		$createdScan = false;
+		$resumedScan = false;
+
 		try {
 			$scanCon = $this->AFS();
 			if ( !$scanCon->isReady() ) {
 				return false;
 			}
+			$scanSlug = $scanCon->getSlug();
 
-			( new Init\CreateNewScan() )->run(
-				$scanCon->getSlug(),
-				$assetType,
-				$assetKey,
-				'asset_change'
-			);
+			$this->createAfsAssetScanRecord( $scanCon, $assetType, $assetKey );
 
-			if ( $resetIgnored ) {
-				( new Update() )
-					->setScanController( $scanCon )
-					->clearIgnoredWithinScope( $assetType, $assetKey );
+			$createdScan = true;
+		}
+		catch ( ScanExistsException $e ) {
+			$blockers = self::con()
+				->comps
+				->scans_queue
+				->getQueueWatchdog()
+				->runForStaleStartBlockers( [ $scanSlug ], $assetType, $assetKey );
+
+			if ( !isset( $blockers[ $scanSlug ] ) ) {
+				return false;
+			}
+
+			try {
+				$this->createAfsAssetScanRecord( $scanCon, $assetType, $assetKey );
+
+				$createdScan = true;
+			}
+			catch ( ScanExistsException $retryException ) {
+				unset( $retryException );
+				$resumedScan = true;
+			}
+			catch ( \Exception $retryException ) {
+				return false;
 			}
 		}
 		catch ( \Exception $e ) {
 			return false;
 		}
 
+		if ( !$createdScan && !$resumedScan ) {
+			return false;
+		}
+
+		if ( $resetIgnored ) {
+			( new Update() )
+				->setScanController( $scanCon )
+				->clearIgnoredWithinScope( $assetType, $assetKey );
+		}
+
 		$queue = self::con()->comps->scans_queue;
-		$queue->getQueueWatchdog()->scheduleIfActive();
+		if ( $createdScan ) {
+			$queue->getQueueWatchdog()->scheduleIfActive();
+		}
 		if ( Services::WpGeneral()->isWpCli() ) {
 			( new ProcessQueueWpcli() )->execute();
 		}
-		else {
+		elseif ( $createdScan ) {
 			$queue->getQueueBuilder()->dispatch();
 		}
 
 		return true;
+	}
+
+	/**
+	 * @throws ScanCreateException|ScanExistsException
+	 */
+	private function createAfsAssetScanRecord( Controller\Afs $scanCon, string $assetType, string $assetKey ) :void {
+		( new Init\CreateNewScan() )->run(
+			$scanCon->getSlug(),
+			$assetType,
+			$assetKey,
+			'asset_change'
+		);
 	}
 
 	public function getCanScansExecute() :bool {
