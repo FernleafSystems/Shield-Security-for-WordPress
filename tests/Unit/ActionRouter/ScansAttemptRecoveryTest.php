@@ -59,6 +59,57 @@ class ScansAttemptRecoveryTest extends BaseUnitTest {
 		$this->assertTrue( $this->queryLogContains( $queries, 'UPDATE `scans`' ) );
 	}
 
+	public function test_explicit_recovery_action_recovers_all_claimed_items_for_requested_stalled_scan() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$this->useNonEmptyModalRenderer( $harness );
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => ScanStatus::RUNNING,
+			'scope_type'      => 'full',
+			'scope_key'       => '',
+			'run_trigger'     => 'cli',
+			'created_at'      => 1699999000,
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$firstItemID = $harness->insertScanItem(
+			$scanID,
+			[ 'wp-simple-firewall/icwp-wpsf.php' ],
+			1699999000,
+			0,
+			1
+		);
+		$secondItemID = $harness->insertScanItem(
+			$scanID,
+			[ 'two-factor/two-factor.php' ],
+			1699999000,
+			0,
+			1
+		);
+		$harness->async->resetTransport();
+		$harness->sql->resetQueryLog();
+
+		$payload = $this->runScansAttemptRecovery( [
+			'scan_id' => $scanID,
+		] )->response()->payload();
+		$scan = $harness->scanRow( $scanID );
+		$firstItem = $harness->scanItemRow( $firstItemID );
+		$secondItem = $harness->scanItemRow( $secondItemID );
+		$queries = $harness->sql->queryLog();
+
+		$this->assertScanProgressPayloadContract( $payload );
+		$this->assertSame( ScansBase::SCAN_MODAL_STATE_RUNNING, $payload[ 'modal_state' ] ?? '' );
+		$this->assertFalse( $payload[ 'failed' ] ?? true );
+		$this->assertSame( 1700000000, (int)$scan[ 'last_process_at' ] );
+		$this->assertSame( 0, (int)$firstItem[ 'started_at' ] );
+		$this->assertSame( 0, (int)$secondItem[ 'started_at' ] );
+		$this->assertSame( 1, (int)$firstItem[ 'attempts' ] );
+		$this->assertSame( 1, (int)$secondItem[ 'attempts' ] );
+		$this->assertTrue( $this->queryLogContains( $queries, 'UPDATE `scan_items`' ) );
+		$this->assertTrue( $this->queryLogContains( $queries, 'UPDATE `scans`' ) );
+	}
+
 	public function test_explicit_recovery_action_does_not_mutate_non_stalled_scan() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$this->useNonEmptyModalRenderer( $harness );
