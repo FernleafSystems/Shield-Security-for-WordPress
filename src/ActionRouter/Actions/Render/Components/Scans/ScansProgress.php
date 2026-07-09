@@ -58,7 +58,7 @@ class ScansProgress extends BaseScans {
 	}
 
 	/**
-	 * @param list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,progress:int,total_items:int,unfinished:int}> $rows
+	 * @param list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,can_attempt_recovery:bool,progress:int,total_items:int,unfinished:int}> $rows
 	 * @return list<array{id:int,scan:string,name:string,scope_label:string,display_status:string,status_label:string,can_attempt_recovery:bool,progress:int,aria_label:string}>
 	 */
 	private function buildScanRows( array $rows ) :array {
@@ -70,7 +70,7 @@ class ScansProgress extends BaseScans {
 				'scope_label'          => $this->scopeLabel( $row[ 'scope_type' ], $row[ 'scope_key' ] ),
 				'display_status'       => $row[ 'display_status' ],
 				'status_label'         => $this->statusLabel( $row[ 'display_status' ] ),
-				'can_attempt_recovery' => $row[ 'display_status' ] === 'stalled',
+				'can_attempt_recovery' => $row[ 'can_attempt_recovery' ] === true,
 				'progress'             => (int)\max( 0, \min( 100, $row[ 'progress' ] ) ),
 				'aria_label'           => sprintf( __( '%s progress', 'wp-simple-firewall' ), $row[ 'name' ] ),
 			],

@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
@@ -16,11 +16,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 	PublicKeyRetrievalFailure,
 	UnsupportedFileLockType
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\NormalizeAbsPath;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
 class FileLockerController {
-
 	use ExecOnce;
 	use PluginControllerConsumer;
 	use PluginCronsConsumer;
@@ -30,13 +30,13 @@ class FileLockerController {
 
 	private ?array $locks = null;
 
-	public function isEnabled() :bool {
+	public function isEnabled(): bool {
 		return ( \count( $this->getFilesToLock() ) > 0 )
-			   && self::con()->db_con->file_locker->isReady()
-			   && self::con()->comps->shieldnet->canHandshake();
+		       && self::con()->db_con->file_locker->isReady()
+		       && self::con()->comps->shieldnet->canHandshake();
 	}
 
-	protected function canRun() :bool {
+	protected function canRun(): bool {
 		return $this->isEnabled();
 	}
 
@@ -59,7 +59,7 @@ class FileLockerController {
 		$this->setupCronHooks();
 	}
 
-	public function createFileDownloadLinks( FileLockerDB\Record $lock ) :array {
+	public function createFileDownloadLinks( FileLockerDB\Record $lock ): array {
 		$links = [];
 		foreach ( [ 'original', 'current' ] as $type ) {
 			$links[ $type ] = self::con()->plugin_urls->fileDownload( 'filelocker', [
@@ -71,22 +71,22 @@ class FileLockerController {
 		return $links;
 	}
 
-	public function getFilesToLock() :array {
+	public function getFilesToLock(): array {
 		return self::con()->opts->optGet( 'file_locker' );
 	}
 
 	/**
 	 * @return FileLockerDB\Record[]
 	 */
-	public function getLocks() :array {
+	public function getLocks(): array {
 		return $this->locks ??= ( new Ops\LoadFileLocks() )->loadLocks();
 	}
 
-	public function clearLocks() :void {
+	public function clearLocks(): void {
 		$this->locks = null;
 	}
 
-	public function reassessLocksNow() :void {
+	public function reassessLocksNow(): void {
 		// User-triggered file actions must refresh persisted lock status immediately.
 		$this->clearLocks();
 		( new Ops\AssessLocks() )->run();
@@ -96,11 +96,11 @@ class FileLockerController {
 	/**
 	 * @throws \Exception
 	 */
-	public function handleFileDownloadRequest() :array {
+	public function handleFileDownloadRequest(): array {
 		$req = Services::Request();
 
 		$lock = $this->getFileLock( (int)$req->query( 'rid', 0 ) );
-		$type = $req->query( 'type' );
+		$type = (string)$req->query( 'type' );
 
 		// Note: Download what's on the disk if nothing is changed.
 		if ( $type == 'current' ) {
@@ -130,7 +130,7 @@ class FileLockerController {
 	/**
 	 * @throws \Exception
 	 */
-	public function getFileLock( int $ID ) :FileLockerDB\Record {
+	public function getFileLock( int $ID ): FileLockerDB\Record {
 		$lock = $this->getLocks()[ $ID ] ?? null;
 		if ( empty( $lock ) ) {
 			throw new \Exception( __( 'Not a valid lock file record.', 'wp-simple-firewall' ) );
@@ -139,11 +139,9 @@ class FileLockerController {
 	}
 
 	private function runAnalysis() {
-		if ( \version_compare( self::con()->cfg->version(), '19.0.7', '<=' ) ) {
-			return;
-		}
+		$abspathChanged = !( new NormalizeAbsPath() )->areSame( $this->getState()[ 'abspath' ], ABSPATH );
 
-		if ( $this->getState()[ 'abspath' ] !== ABSPATH || !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
+		if ( $abspathChanged || !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
 			self::con()->opts->optSet( 'file_locker', [] );
 			$this->setState( [] );
 			$this->purge();
@@ -170,12 +168,13 @@ class FileLockerController {
 		}
 	}
 
-	private function getCronHook() :string {
+	private function getCronHook(): string {
 		return self::con()->prefix( 'create_file_locks' );
 	}
 
-	private function shouldRunAnalysisNow() :bool {
-		return Services::Request()->ts() - (int)$this->getState()[ 'last_analysis_started_at' ] >= self::ANALYSIS_COOLDOWN;
+	private function shouldRunAnalysisNow(): bool {
+		return Services::Request()->ts() - (int)$this->getState()[ 'last_analysis_started_at' ]
+		       >= self::ANALYSIS_COOLDOWN;
 	}
 
 	/**
@@ -188,8 +187,8 @@ class FileLockerController {
 
 		$state = $this->getState();
 		if ( !empty( $filesToLock )
-			 && $now - $state[ 'last_locks_created_at' ] > 1
-			 && $now - $state[ 'last_locks_created_failed_at' ] > 1
+		     && $now - $state[ 'last_locks_created_at' ] > 1
+		     && $now - $state[ 'last_locks_created_failed_at' ] > 1
 		) {
 			foreach ( $filesToLock as $type ) {
 				try {
@@ -223,9 +222,9 @@ class FileLockerController {
 		}
 	}
 
-	public function getState() :array {
-		return \array_merge( [
-			'abspath'                      => ABSPATH,
+	public function getState(): array {
+		$state = \array_merge( [
+			'abspath'                      => ( new NormalizeAbsPath() )->normalize( ABSPATH ),
 			'last_analysis_started_at'     => 0,
 			'last_locks_created_at'        => 0,
 			'last_locks_created_failed_at' => 0,
@@ -233,16 +232,26 @@ class FileLockerController {
 			'cipher'                       => '',
 			'cipher_last_checked_at'       => 0,
 		], self::con()->opts->optGet( 'filelocker_state' ) );
+		$state[ 'abspath' ] = $this->stateAbsPathOrCurrent( $state );
+		return $state;
 	}
 
 	protected function setState( array $state ) {
+		if ( \array_key_exists( 'abspath', $state ) ) {
+			$state[ 'abspath' ] = ( new NormalizeAbsPath() )->normalize( $this->stateAbsPathOrCurrent( $state ) );
+		}
 		self::con()->opts->optSet( 'filelocker_state', $state )->store();
+	}
+
+	private function stateAbsPathOrCurrent( array $state ): string {
+		$abspath = $state[ 'abspath' ] ?? ABSPATH;
+		return \is_string( $abspath ) && $abspath !== '' ? $abspath : ABSPATH;
 	}
 
 	/**
 	 * Ensure this is run on a cron, so that we're not running cipher tests on every page load.
 	 */
-	public function canEncrypt( bool $forceCheck = false ) :bool {
+	public function canEncrypt( bool $forceCheck = false ): bool {
 		$state = $this->getState();
 
 		if ( $forceCheck || Services::Request()->carbon()->subDay()->timestamp > $state[ 'cipher_last_checked_at' ] ) {

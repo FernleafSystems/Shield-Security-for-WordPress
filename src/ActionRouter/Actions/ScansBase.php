@@ -21,7 +21,7 @@ abstract class ScansBase extends BaseAction {
 	 *   running:array<string,bool>,
 	 *   failed:bool,
 	 *   failure_message:string,
-	 *   scan_rows:list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,progress:int,total_items:int,unfinished:int}>,
+	 *   scan_rows:list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,can_attempt_recovery:bool,progress:int,total_items:int,unfinished:int}>,
 	 *   modal_state:string,
 	 *   modal_html:string
 	 * }
@@ -79,7 +79,7 @@ abstract class ScansBase extends BaseAction {
 	 *   current_scan:string,
 	 *   remaining_scans:string,
 	 *   progress:int|float,
-	 *   scan_rows?:list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,progress:int,total_items:int,unfinished:int}>
+	 *   scan_rows?:list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,can_attempt_recovery:bool,progress:int,total_items:int,unfinished:int}>
 	 * } $renderData
 	 * @return array{modal_state:string,modal_html:string}
 	 */
@@ -154,7 +154,7 @@ abstract class ScansBase extends BaseAction {
 	}
 
 	/**
-	 * @param list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,progress:int,total_items:int,unfinished:int}> $scanRows
+	 * @param list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,can_attempt_recovery:bool,progress:int,total_items:int,unfinished:int}> $scanRows
 	 */
 	private function aggregateProgressFromRows( array $scanRows ) :int {
 		if ( empty( $scanRows ) ) {
