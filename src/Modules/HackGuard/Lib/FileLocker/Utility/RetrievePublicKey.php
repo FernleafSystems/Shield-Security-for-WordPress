@@ -15,7 +15,6 @@ class RetrievePublicKey {
 	 */
 	public function retrieve() :array {
 		$getter = new GetPublicKey();
-		// breaks API:		$getter->last_error = self::con()->comps->file_locker->getState()[ 'last_error' ] ?? '';
 
 		$key = $getter->retrieve();
 		if ( empty( $key ) ) {
