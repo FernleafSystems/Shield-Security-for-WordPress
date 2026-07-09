@@ -224,10 +224,12 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertSame( 1, $rows[ 0 ][ 'id' ] );
 		$this->assertSame( 'wpv', $rows[ 0 ][ 'scan' ] );
 		$this->assertSame( 'running', $rows[ 0 ][ 'display_status' ] );
+		$this->assertFalse( $rows[ 0 ][ 'can_attempt_recovery' ] );
 		$this->assertSame( 42, $rows[ 0 ][ 'progress' ] );
 		$this->assertSame( 2, $rows[ 1 ][ 'id' ] );
 		$this->assertSame( 'apc', $rows[ 1 ][ 'scan' ] );
 		$this->assertSame( 'waiting', $rows[ 1 ][ 'display_status' ] );
+		$this->assertFalse( $rows[ 1 ][ 'can_attempt_recovery' ] );
 		$this->assertSame( 0, $rows[ 1 ][ 'progress' ] );
 		$this->assertSame( $rows, $controller->action_router->renderData[ 'scan_rows' ] ?? [] );
 		$this->assertRenderActionUsed( $controller->action_router );
@@ -271,6 +273,7 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertSame( 'afs', $rows[ 0 ][ 'scan' ] );
 		$this->assertSame( 'stalled', $rows[ 0 ][ 'display_status' ] );
 		$this->assertTrue( $rows[ 0 ][ 'is_stale' ] );
+		$this->assertTrue( $rows[ 0 ][ 'can_attempt_recovery' ] );
 		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $harness->actionRouter->renderData[ 'modal_state' ] ?? '' );
 		$this->assertSame( [], $harness->async->scheduled );
 		$this->assertSame( [], $harness->async->remotePosts );
@@ -491,18 +494,19 @@ class ScansCheckTest extends BaseUnitTest {
 					foreach ( $activeScans as $index => $activeScan ) {
 						$isCurrent = $index === 0;
 						$rows[] = [
-							'id'             => (int)$activeScan[ 'id' ],
-							'scan'           => $activeScan[ 'scan' ],
-							'name'           => 'Scan Name: '.$activeScan[ 'scan' ],
-							'scope_type'     => $activeScan[ 'scope_type' ],
-							'scope_key'      => $activeScan[ 'scope_key' ],
-							'raw_status'     => $activeScan[ 'status' ],
-							'display_status' => $isCurrent ? 'running' : 'waiting',
-							'is_current'     => $isCurrent,
-							'is_stale'       => false,
-							'progress'       => $isCurrent ? (int)\round( 100*$this->progress ) : 0,
-							'total_items'    => 10,
-							'unfinished'     => $isCurrent ? 6 : 10,
+							'id'                   => (int)$activeScan[ 'id' ],
+							'scan'                 => $activeScan[ 'scan' ],
+							'name'                 => 'Scan Name: '.$activeScan[ 'scan' ],
+							'scope_type'           => $activeScan[ 'scope_type' ],
+							'scope_key'            => $activeScan[ 'scope_key' ],
+							'raw_status'           => $activeScan[ 'status' ],
+							'display_status'       => $isCurrent ? 'running' : 'waiting',
+							'is_current'           => $isCurrent,
+							'is_stale'             => false,
+							'can_attempt_recovery' => false,
+							'progress'             => $isCurrent ? (int)\round( 100*$this->progress ) : 0,
+							'total_items'          => 10,
+							'unfinished'           => $isCurrent ? 6 : 10,
 						];
 					}
 					return $rows;

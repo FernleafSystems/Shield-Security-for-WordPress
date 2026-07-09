@@ -11,7 +11,7 @@ class ScansAttemptRecovery extends ScansBase {
 	protected function exec() {
 		$scanID = $this->positiveScanIDFromActionData();
 
-		if ( $scanID > 0 && $this->isActiveStaleScanRow( $scanID ) ) {
+		if ( $scanID > 0 && $this->canAttemptRecoveryForActiveScanRow( $scanID ) ) {
 			self::con()->comps->scans_queue->getQueueWatchdog()->runIfStale();
 		}
 
@@ -30,7 +30,7 @@ class ScansAttemptRecovery extends ScansBase {
 		return $scanID > 0 ? $scanID : 0;
 	}
 
-	private function isActiveStaleScanRow( int $scanID ) :bool {
+	private function canAttemptRecoveryForActiveScanRow( int $scanID ) :bool {
 		$activeScans = ( new ScansStatus() )->activeScans();
 		if ( empty( $activeScans ) ) {
 			return false;
@@ -38,7 +38,7 @@ class ScansAttemptRecovery extends ScansBase {
 
 		foreach ( self::con()->comps->scans_queue->getActiveScanProgressRows( $activeScans ) as $row ) {
 			if ( (int)$row[ 'id' ] === $scanID ) {
-				return $row[ 'is_stale' ] === true;
+				return $row[ 'can_attempt_recovery' ] === true;
 			}
 		}
 

@@ -81,6 +81,51 @@ class ScansAttemptRecoveryTest extends BaseUnitTest {
 		$this->assertFalse( $this->queryLogContains( $queries, 'UPDATE `scans`' ) );
 	}
 
+	public function test_explicit_recovery_action_does_not_mutate_waiting_scan_that_is_old() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$this->useNonEmptyModalRenderer( $harness );
+		$currentScanID = $this->insertActiveScan( $harness, 1699999990 );
+		$waitingScanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => ScanStatus::QUEUED,
+			'scope_type'      => 'plugin',
+			'scope_key'       => 'shield-security',
+			'created_at'      => 1699999000,
+			'last_process_at' => 0,
+		] );
+		$currentItemID = $harness->insertScanItem( $currentScanID, [ 'afs-a' ], 1699999990, 0, 1 );
+		$waitingItemID = $harness->insertScanItem( $waitingScanID, [ 'wpv-a' ], 0, 0, 0 );
+		$harness->async->resetTransport();
+		$harness->sql->resetQueryLog();
+
+		$payload = $this->runScansAttemptRecovery( [
+			'scan_id' => $waitingScanID,
+		] )->response()->payload();
+		$currentScan = $harness->scanRow( $currentScanID );
+		$waitingScan = $harness->scanRow( $waitingScanID );
+		$currentItem = $harness->scanItemRow( $currentItemID );
+		$waitingItem = $harness->scanItemRow( $waitingItemID );
+		$queries = $harness->sql->queryLog();
+		$rows = $payload[ 'scan_rows' ] ?? [];
+
+		$this->assertScanProgressPayloadContract( $payload );
+		$this->assertCount( 2, $rows );
+		$this->assertSame( $currentScanID, $rows[ 0 ][ 'id' ] );
+		$this->assertSame( 'running', $rows[ 0 ][ 'display_status' ] );
+		$this->assertFalse( $rows[ 0 ][ 'can_attempt_recovery' ] );
+		$this->assertSame( $waitingScanID, $rows[ 1 ][ 'id' ] );
+		$this->assertSame( 'waiting', $rows[ 1 ][ 'display_status' ] );
+		$this->assertFalse( $rows[ 1 ][ 'is_stale' ] );
+		$this->assertFalse( $rows[ 1 ][ 'can_attempt_recovery' ] );
+		$this->assertSame( 0, $rows[ 1 ][ 'progress' ] );
+		$this->assertSame( 1699999990, (int)$currentScan[ 'last_process_at' ] );
+		$this->assertSame( 0, (int)$waitingScan[ 'last_process_at' ] );
+		$this->assertSame( 1699999990, (int)$currentItem[ 'started_at' ] );
+		$this->assertSame( 0, (int)$waitingItem[ 'started_at' ] );
+		$this->assertFalse( $this->queryLogContains( $queries, 'UPDATE `scan_items`' ) );
+		$this->assertFalse( $this->queryLogContains( $queries, 'UPDATE `scans`' ) );
+	}
+
 	/**
 	 * @dataProvider invalidScanIDProvider
 	 */

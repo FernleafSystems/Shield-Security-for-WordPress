@@ -787,6 +787,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'running', $rows[ 0 ][ 'display_status' ] );
 		$this->assertTrue( $rows[ 0 ][ 'is_current' ] );
 		$this->assertFalse( $rows[ 0 ][ 'is_stale' ] );
+		$this->assertFalse( $rows[ 0 ][ 'can_attempt_recovery' ] );
 		$this->assertSame( 75, $rows[ 0 ][ 'progress' ] );
 		$this->assertSame( 4, $rows[ 0 ][ 'total_items' ] );
 		$this->assertSame( 1, $rows[ 0 ][ 'unfinished' ] );
@@ -795,6 +796,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'waiting', $rows[ 1 ][ 'display_status' ] );
 		$this->assertFalse( $rows[ 1 ][ 'is_current' ] );
 		$this->assertFalse( $rows[ 1 ][ 'is_stale' ] );
+		$this->assertFalse( $rows[ 1 ][ 'can_attempt_recovery' ] );
 		$this->assertSame( 0, $rows[ 1 ][ 'progress' ] );
 		$this->assertSame( 2, $rows[ 1 ][ 'total_items' ] );
 		$this->assertSame( 0, $rows[ 1 ][ 'unfinished' ] );
@@ -890,6 +892,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertCount( 1, $rows );
 		$this->assertSame( 'stalled', $rows[ 0 ][ 'display_status' ] );
 		$this->assertTrue( $rows[ 0 ][ 'is_stale' ] );
+		$this->assertTrue( $rows[ 0 ][ 'can_attempt_recovery' ] );
 		$this->assertSame( 50, $rows[ 0 ][ 'progress' ] );
 		$this->assertSame( 4, $rows[ 0 ][ 'total_items' ] );
 		$this->assertSame( 2, $rows[ 0 ][ 'unfinished' ] );
@@ -943,6 +946,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		] );
 
 		$this->assertSame( $expectedStale, $rows[ 0 ][ 'is_stale' ] );
+		$this->assertSame( $expectedStale, $rows[ 0 ][ 'can_attempt_recovery' ] );
 		$this->assertSame( $expectedStale ? 'stalled' : 'running', $rows[ 0 ][ 'display_status' ] );
 		$this->assertSame( 60, $rows[ 0 ][ 'progress' ] );
 	}
@@ -961,7 +965,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		];
 	}
 
-	public function test_active_scan_progress_rows_report_non_current_stale_row_as_stalled() :void {
+	public function test_active_scan_progress_rows_report_non_current_stale_row_as_waiting() :void {
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
 		] );
@@ -1006,11 +1010,13 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
 		$this->assertSame( 'running', $rows[ 0 ][ 'display_status' ] );
 		$this->assertFalse( $rows[ 0 ][ 'is_stale' ] );
+		$this->assertFalse( $rows[ 0 ][ 'can_attempt_recovery' ] );
 		$this->assertSame( 75, $rows[ 0 ][ 'progress' ] );
 		$this->assertFalse( $rows[ 1 ][ 'is_current' ] );
-		$this->assertTrue( $rows[ 1 ][ 'is_stale' ] );
-		$this->assertSame( 'stalled', $rows[ 1 ][ 'display_status' ] );
-		$this->assertSame( 50, $rows[ 1 ][ 'progress' ] );
+		$this->assertFalse( $rows[ 1 ][ 'is_stale' ] );
+		$this->assertFalse( $rows[ 1 ][ 'can_attempt_recovery' ] );
+		$this->assertSame( 'waiting', $rows[ 1 ][ 'display_status' ] );
+		$this->assertSame( 0, $rows[ 1 ][ 'progress' ] );
 	}
 
 	public function test_active_scan_progress_rows_clamp_overrun_counts() :void {

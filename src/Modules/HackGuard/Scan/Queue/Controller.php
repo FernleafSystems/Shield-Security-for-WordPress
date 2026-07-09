@@ -73,7 +73,7 @@ class Controller {
 
 	/**
 	 * @param list<array{id:int,scan:string,status:string,scope_type:string,scope_key:string,created_at:int,started_at:int,ready_at:int,last_process_at:int}> $activeScans
-	 * @return list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,progress:int,total_items:int,unfinished:int}>
+	 * @return list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,can_attempt_recovery:bool,progress:int,total_items:int,unfinished:int}>
 	 */
 	public function getActiveScanProgressRows( array $activeScans ) :array {
 		if ( empty( $activeScans ) ) {
@@ -94,23 +94,24 @@ class Controller {
 			$total = \max( 0, (int)$counts[ 'total' ] );
 			$unfinished = \max( 0, (int)$counts[ 'unfinished' ] );
 			$isCurrent = $scanID === $currentScanID;
-			$isStale = $this->isStaleActiveScan( $activeScan, $cutoff );
+			$isActionableStale = $isCurrent && $this->isStaleActiveScan( $activeScan, $cutoff );
 			$progress = $total > 0 ? (int)\round( 100*( 1 - ( $unfinished/$total ) ) ) : 0;
 			$progress = (int)\max( 0, \min( 100, $progress ) );
 
 			$rows[] = [
-				'id'             => $scanID,
-				'scan'           => $activeScan[ 'scan' ],
-				'name'           => $this->scanName( $activeScan[ 'scan' ] ),
-				'scope_type'     => $activeScan[ 'scope_type' ],
-				'scope_key'      => $activeScan[ 'scope_key' ],
-				'raw_status'     => $activeScan[ 'status' ],
-				'display_status' => $isStale ? 'stalled' : ( $isCurrent ? 'running' : 'waiting' ),
-				'is_current'     => $isCurrent,
-				'is_stale'       => $isStale,
-				'progress'       => $isCurrent || $isStale ? $progress : 0,
-				'total_items'    => $total,
-				'unfinished'     => $unfinished,
+				'id'                   => $scanID,
+				'scan'                 => $activeScan[ 'scan' ],
+				'name'                 => $this->scanName( $activeScan[ 'scan' ] ),
+				'scope_type'           => $activeScan[ 'scope_type' ],
+				'scope_key'            => $activeScan[ 'scope_key' ],
+				'raw_status'           => $activeScan[ 'status' ],
+				'display_status'       => $isActionableStale ? 'stalled' : ( $isCurrent ? 'running' : 'waiting' ),
+				'is_current'           => $isCurrent,
+				'is_stale'             => $isActionableStale,
+				'can_attempt_recovery' => $isActionableStale,
+				'progress'             => $isCurrent ? $progress : 0,
+				'total_items'          => $total,
+				'unfinished'           => $unfinished,
 			];
 		}
 
