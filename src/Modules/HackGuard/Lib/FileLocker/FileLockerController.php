@@ -1,4 +1,4 @@
-<?php declare( strict_types=1 );
+<?php
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
