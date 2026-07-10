@@ -18,6 +18,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
 	CacheStoreTestController,
+	CacheStoreTestDb,
 	CacheStoreTestFs,
 	CacheStoreTestOptions,
 	CacheStoreTestRequest,
@@ -48,6 +49,7 @@ class ModConCacheDirHandlerTest extends BaseUnitTest {
 		ServicesState::installItems( [
 			'service_request'   => new CacheStoreTestRequest(),
 			'service_wpfs'      => $this->fs,
+			'service_wpdb'      => new CacheStoreTestDb(),
 			'service_wpgeneral' => $this->wpGeneral,
 		] );
 		$this->prepareWpContentDirs();
@@ -111,20 +113,27 @@ class ModConCacheDirHandlerTest extends BaseUnitTest {
 	}
 
 	public function test_second_request_with_different_url_does_not_create_url_key() :void {
-		$options = new CacheStoreTestOptions( [
+		$externalBase = $this->makeTempDir( 'external-url-invariance' ).'/external_base';
+		$this->mkdir( $externalBase );
+		$this->setCacheStoreSiteUrl( 'https://first.example/' );
+		$options = $this->trackedOptions( [
 			'preferred_temp_dir'       => '',
 			'last_known_cache_basedirs' => [
-				'https://first.example/' => $this->baseUploads(),
+				'https://first.example/' => $externalBase,
 			],
 		] );
 
-		$this->assertSame( $this->baseUploads().'/shield', $this->buildHandler( $options )->dir() );
+		$firstRoot = $this->buildHandler( $options )->dir();
+		$this->assertSame( $externalBase, \dirname( $firstRoot ) );
+		$this->assertMatchesRegularExpression( '#^shield-v2-[a-f0-9]{32}$#', \basename( $firstRoot ) );
+		$this->setCacheStoreSiteUrl( 'https://second.example/new-path/' );
 		$this->wpGeneral->url = 'https://second.example/';
 
-		$this->assertSame( $this->baseUploads().'/shield', $this->buildHandler( $options )->dir() );
+		$this->assertSame( $firstRoot, $this->buildHandler( $options )->dir() );
 		$this->assertSame( [
-			'https://first.example/' => $this->baseUploads(),
+			'https://first.example/' => $externalBase,
 		], $options->values[ 'last_known_cache_basedirs' ] );
+		$this->assertSame( [], $options->setCalls );
 	}
 
 	public function test_existing_snapshot_root_is_selected_without_persisting_on_build() :void {

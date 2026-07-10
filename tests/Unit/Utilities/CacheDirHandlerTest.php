@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
 	CacheStoreTestController,
+	CacheStoreTestDb,
 	CacheStoreTestFs,
 	CacheStoreTestOptions,
 	CacheStoreTestRequest,
@@ -35,15 +36,21 @@ class CacheDirHandlerTest extends BaseUnitTest {
 
 	private CacheStoreTestFs $fs;
 
+	private CacheStoreTestDb $db;
+
+	private int $blogID = 1;
+
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->fs = new CacheStoreTestFs();
+		$this->db = new CacheStoreTestDb();
 		$tmpDir = $this->makeTempDir( 'tmp' );
 		$this->registerCacheStoreWordPressFunctions( $this->fs, $tmpDir );
 		ServicesState::installItems( [
 			'service_request' => new CacheStoreTestRequest(),
 			'service_wpfs'    => $this->fs,
+			'service_wpdb'    => $this->db,
 		] );
 		CacheStoreTestController::install( new CacheStoreTestOptions() );
 		$this->prepareWpContentDirs();
@@ -75,6 +82,19 @@ class CacheDirHandlerTest extends BaseUnitTest {
 
 		$this->assertSame( '', ( new CacheDirHandler( '', $preferredBase ) )->dir() );
 		$this->assertFalse( \is_dir( $cacheRoot ), 'Strict preferred roots must not fall through to cache.' );
+	}
+
+	public function test_zero_string_configuration_is_not_treated_as_absent() :void {
+		$discoveryRoot = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/shield' );
+		$this->mkdir( $discoveryRoot );
+		$this->fs->failDir( '0' );
+
+		foreach ( [ new CacheDirHandler( '', '0' ), new CacheDirHandler( '0', '' ) ] as $handler ) {
+			$this->assertSame( '', $handler->locateExistingDir() );
+			$this->assertSame( '', $handler->dir() );
+		}
+
+		$this->assertTrue( \is_dir( $discoveryRoot ), 'A configured path must not consume discovery roots.' );
 	}
 
 	public function test_default_last_known_root_wins_over_writable_discovery() :void {
@@ -121,53 +141,58 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertTrue( \is_dir( $preferred ) );
 	}
 
-	public function test_external_cache_root_suffix_uses_wp_site_url_host_port_and_path() :void {
-		$this->setCacheStoreSiteUrl( 'https://WWW.Example.COM:8443/abc/Def?x=1' );
-		$preferred = $this->makeTempDir( 'site-url-shape' ).'/shield';
-		$expected = $this->expectedExternalCacheRoot( $preferred, 'example-com-8443-abc-def' );
+	/**
+	 * @dataProvider oldUrlCollisionDataProvider
+	 */
+	public function test_external_namespace_ignores_old_url_collisions_but_changes_with_install_context(
+		string $firstURL,
+		string $secondURL
+	) :void {
+		$base = $this->makeTempDir( 'old-url-collision' );
+		$this->setInstallContext( 'wp_first_', 1 );
+		$this->setCacheStoreSiteUrl( $firstURL );
+		$firstRoot = ( new CacheDirHandler( '', $base ) )->dir();
 
-		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
-		$this->assertTrue( \is_dir( $expected ) );
-		$this->assertFalse( \is_dir( $preferred ) );
+		$this->setCacheStoreSiteUrl( $secondURL );
+		$this->assertSame( $firstRoot, ( new CacheDirHandler( '', $base ) )->dir() );
+
+		$this->setInstallContext( 'wp_second_', 2 );
+		$secondRoot = ( new CacheDirHandler( '', $base ) )->dir();
+		$this->assertNotSame( $firstRoot, $secondRoot );
 	}
 
-	public function test_external_cache_root_suffix_falls_back_to_safe_hash_for_non_latin_site_url() :void {
-		$siteURL = "https://\u{4F8B}\u{3048}.\u{30C6}\u{30B9}\u{30C8}/\u{7BA1}\u{7406} \u{30D1}\u{30CD}\u{30EB}?x=1";
-		$this->setCacheStoreSiteUrl( $siteURL );
-		$preferred = $this->makeTempDir( 'unicode-site-url' ).'/shield';
-		$expectedSuffix = 'site-'.\substr( \hash( 'sha256', $siteURL ), 0, 12 );
-		$expected = $this->expectedExternalCacheRoot( $preferred, $expectedSuffix );
-
-		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
-		$this->assertMatchesRegularExpression( '#/shield-[a-z0-9][a-z0-9-]{0,47}$#', $expected );
-		$this->assertTrue( \is_dir( $expected ) );
-		$this->assertFalse( \is_dir( $preferred ) );
+	public function oldUrlCollisionDataProvider() :array {
+		return [
+			'punctuation' => [ 'https://a-b.example/', 'https://a.b-example/' ],
+			'path case'   => [ 'https://example.com/Admin/', 'https://example.com/admin/' ],
+			'long prefix' => [
+				'https://example.com/'.\str_repeat( 'same-segment-', 5 ).'first',
+				'https://example.com/'.\str_repeat( 'same-segment-', 5 ).'second',
+			],
+		];
 	}
 
-	public function test_external_cache_root_suffix_falls_back_when_url_identity_is_partly_non_ascii() :void {
-		$siteURL = "https://\u{4F8B}\u{3048}.\u{30C6}\u{30B9}\u{30C8}/wp";
-		$this->setCacheStoreSiteUrl( $siteURL );
-		$preferred = $this->makeTempDir( 'mixed-unicode-site-url' ).'/shield';
-		$expectedSuffix = 'site-'.\substr( \hash( 'sha256', $siteURL ), 0, 12 );
-		$expected = $this->expectedExternalCacheRoot( $preferred, $expectedSuffix );
+	public function test_external_namespace_has_bounded_v2_format() :void {
+		$root = ( new CacheDirHandler( '', $this->makeTempDir( 'v2-format' ) ) )->dir();
 
-		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
-		$this->assertTrue( \is_dir( $expected ) );
-		$this->assertFalse( \is_dir( $preferred ) );
+		$this->assertMatchesRegularExpression( '#^shield-v2-[a-f0-9]{32}$#', \basename( $root ) );
+		$this->assertSame( $this->expectedExternalCacheBasename(), \basename( $root ) );
 	}
 
-	public function test_external_cache_root_suffix_is_capped_and_trimmed_for_long_site_url() :void {
-		$path = \str_repeat( 'long-segment-', 8 );
-		$this->setCacheStoreSiteUrl( 'https://www.example.com/'.$path );
-		$preferred = $this->makeTempDir( 'long-site-url' ).'/shield';
-		$expectedSuffix = \trim( \substr( 'example-com-'.$path, 0, 48 ), '-' );
-		$expected = $this->expectedExternalCacheRoot( $preferred, $expectedSuffix );
+	public function test_external_namespace_changes_with_base_prefix_and_blog_id() :void {
+		$base = $this->makeTempDir( 'context-identity' );
+		$initial = ( new CacheDirHandler( '', $base ) )->dir();
 
-		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
-		$this->assertLessThanOrEqual( 48, \strlen( \substr( \basename( $expected ), \strlen( 'shield-' ) ) ) );
-		$this->assertMatchesRegularExpression( '#/shield-[a-z0-9][a-z0-9-]{0,47}$#', $expected );
-		$this->assertTrue( \is_dir( $expected ) );
-		$this->assertFalse( \is_dir( $preferred ) );
+		$this->setInstallContext( 'wp_other_', 1 );
+		$prefixChanged = ( new CacheDirHandler( '', $base ) )->dir();
+		$this->setInstallContext( ' wp_other_ ', 1 );
+		$whitespacePrefix = ( new CacheDirHandler( '', $base ) )->dir();
+		$this->setInstallContext( 'wp_other_', 7 );
+		$blogChanged = ( new CacheDirHandler( '', $base ) )->dir();
+
+		$this->assertNotSame( $initial, $prefixChanged );
+		$this->assertNotSame( $prefixChanged, $whitespacePrefix );
+		$this->assertNotSame( $prefixChanged, $blogChanged );
 	}
 
 	public function test_external_preferred_cache_root_escaped_from_abspath_is_namespaced() :void {
@@ -182,6 +207,131 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
 		$this->assertTrue( \is_dir( $expected ) );
 		$this->assertFalse( \is_dir( $base.'/shield' ) );
+	}
+
+	public function test_external_configured_forms_converge_without_deepening() :void {
+		$base = $this->makeTempDir( 'canonical-forms' );
+		$root = $this->expectedExternalCacheRoot( $base.'/shield' );
+		$legacy = $base.'/shield-example-com-admin';
+
+		foreach ( [ $base, $base.'/shield', $legacy, $root ] as $configured ) {
+			$handler = new CacheDirHandler( '', $configured );
+			$this->assertSame( $root, $handler->dir() );
+			$this->assertSame( $root, $handler->dir( true ) );
+			$this->assertSame( $root, ( new CacheDirHandler( '', $configured ) )->dir() );
+		}
+
+		$this->assertFalse( \is_dir( $legacy ) );
+		$this->assertFalse( \is_dir( $root.'/'.$this->expectedExternalCacheBasename() ) );
+	}
+
+	public function test_foreign_v2_config_is_strict_for_write_and_read_modes() :void {
+		$base = $this->makeTempDir( 'strict-foreign' );
+		$foreign = $base.'/'.$this->foreignExternalCacheBasename();
+		$discoveryRoot = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/shield' );
+		$this->mkdir( $foreign );
+		$this->mkdir( $discoveryRoot );
+
+		$this->assertSame( '', ( new CacheDirHandler( '', $foreign ) )->dir() );
+		$this->assertSame( '', ( new CacheDirHandler( '', $foreign ) )->locateExistingDir() );
+		$this->assertFalse( \is_dir( $foreign.'/'.$this->expectedExternalCacheBasename() ) );
+		$this->assertTrue( \is_dir( $discoveryRoot ), 'Strict configuration must not consume discovery roots.' );
+	}
+
+	public function test_paths_beneath_current_or_foreign_v2_roots_are_rejected() :void {
+		$base = $this->makeTempDir( 'nested-v2' );
+		$currentChild = $this->expectedExternalCacheRoot( $base.'/shield' ).'/nested';
+		$foreignChild = $base.'/'.$this->foreignExternalCacheBasename().'/nested';
+
+		foreach ( [ $currentChild, $foreignChild ] as $configured ) {
+			$this->assertSame( '', ( new CacheDirHandler( '', $configured ) )->dir() );
+			$this->assertSame( '', ( new CacheDirHandler( '', $configured ) )->locateExistingDir() );
+			$this->assertFalse( \is_dir( $configured ) );
+		}
+	}
+
+	public function test_unavailable_external_identity_fails_closed_but_local_cache_remains_available() :void {
+		$externalBase = $this->makeTempDir( 'missing-identity' );
+		$localBase = $this->normaliseCacheStorePath( WP_CONTENT_DIR.'/uploads' );
+
+		$this->setInstallContext( '', 1 );
+		$this->assertSame( '', ( new CacheDirHandler( '', $externalBase ) )->dir() );
+		$this->assertSame( '', ( new CacheDirHandler( '', $externalBase ) )->locateExistingDir() );
+		$this->assertSame( $localBase.'/shield', ( new CacheDirHandler( '', $localBase ) )->dir() );
+
+		$this->removeDir( $localBase.'/shield' );
+		$this->setInstallContext( 'wp_', 0 );
+		$this->assertSame( '', ( new CacheDirHandler( '', $externalBase ) )->dir() );
+		$this->assertSame( '', ( new CacheDirHandler( '', $externalBase ) )->locateExistingDir() );
+		$this->assertSame( $localBase.'/shield', ( new CacheDirHandler( '', $localBase ) )->dir() );
+	}
+
+	public function test_automatic_lookup_only_finds_exact_current_external_v2_without_writes() :void {
+		$base = $this->cacheStoreTmpDir;
+		$unsuffixed = $base.'/shield';
+		$foreign = $base.'/'.$this->foreignExternalCacheBasename();
+		$current = $this->expectedExternalCacheRoot( $unsuffixed );
+		$this->mkdir( $unsuffixed );
+		$this->mkdir( $foreign );
+
+		$this->assertSame( '', ( new CacheDirHandler() )->locateExistingDir() );
+		$this->mkdir( $current );
+		$this->assertSame( $current, ( new CacheDirHandler() )->locateExistingDir() );
+		$this->assertFileDoesNotExist( $current.'/assessed.flag' );
+		$this->assertFileDoesNotExist( $current.'/.htaccess' );
+		$this->assertFileDoesNotExist( $current.'/index.php' );
+		$this->assertFileDoesNotExist( $current.'/README.txt' );
+	}
+
+	public function test_v2_classification_precedes_legacy_and_legacy_grammar_is_bounded() :void {
+		$base = $this->makeTempDir( 'legacy-grammar' );
+		$root = $this->expectedExternalCacheRoot( $base.'/shield' );
+		$foreign = $base.'/'.$this->foreignExternalCacheBasename();
+
+		$this->assertSame( '', ( new CacheDirHandler( '', $foreign ) )->dir() );
+		foreach ( [ $base.'/shield-a', $base.'/shield-'.\str_repeat( 'a', 48 ) ] as $legacy ) {
+			$this->assertSame( $root, ( new CacheDirHandler( '', $legacy ) )->dir() );
+			$this->assertFalse( \is_dir( $legacy ) );
+		}
+		foreach ( [
+			$base.'/shield-',
+			$base.'/shield-a--b',
+			$base.'/shield-a_b',
+			$base.'/shield-'.\str_repeat( 'a', 49 ),
+		] as $notLegacy ) {
+			$this->assertSame(
+				$notLegacy.'/'.$this->expectedExternalCacheBasename(),
+				( new CacheDirHandler( '', $notLegacy ) )->dir()
+			);
+		}
+	}
+
+	public function test_windows_basename_classification_follows_filesystem_case_rules() :void {
+		if ( \DIRECTORY_SEPARATOR !== '\\' ) {
+			$this->markTestSkipped( 'Windows-only case-insensitive basename contract.' );
+		}
+
+		$base = $this->makeTempDir( 'windows-case' );
+		$current = $this->expectedExternalCacheRoot( $base.'/shield' );
+		$currentUpper = $base.'/'.\strtoupper( \basename( $current ) );
+		$foreignUpper = $base.'/'.\strtoupper( $this->foreignExternalCacheBasename() );
+
+		$this->assertSame( $current, ( new CacheDirHandler( '', $currentUpper ) )->dir() );
+		$this->assertSame( '', ( new CacheDirHandler( '', $foreignUpper ) )->dir() );
+		$this->assertSame( $current, ( new CacheDirHandler( '', $base.'/SHIELD-LEGACY' ) )->dir() );
+	}
+
+	public function test_failed_external_candidate_and_sentinel_are_not_deleted() :void {
+		$base = $this->makeTempDir( 'failed-external' );
+		$root = $this->expectedExternalCacheRoot( $base.'/shield' );
+		$this->mkdir( $root );
+		$sentinel = $root.'/sentinel.txt';
+		\file_put_contents( $sentinel, 'keep' );
+		$this->fs->failDir( $root );
+
+		$this->assertSame( '', ( new CacheDirHandler( '', $base ) )->dir() );
+		$this->assertFileExists( $sentinel );
+		$this->assertNotContains( $root, $this->fs->deletedDirs );
 	}
 
 	public function test_locate_existing_dir_with_missing_preferred_root_does_not_create_or_fall_back() :void {
@@ -263,13 +413,6 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->mkdir( $root );
 
 		$this->assertSame( $root, ( new CacheDirHandler() )->locateExistingDir() );
-	}
-
-	public function test_locate_existing_dir_ignores_external_cache_root_for_another_site_suffix() :void {
-		$otherSiteRoot = $this->normaliseCacheStorePath( $this->cacheStoreTmpDir.'/shield-other-site' );
-		$this->mkdir( $otherSiteRoot );
-
-		$this->assertSame( '', ( new CacheDirHandler() )->locateExistingDir() );
 	}
 
 	public function test_write_mode_does_not_rewrite_current_readme() :void {
@@ -393,7 +536,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 	}
 
 	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normaliseCacheStorePath( \sys_get_temp_dir().'/shield-cache-dir-handler-'.$suffix.'-'.\uniqid() );
+		$dir = $this->normaliseCacheStorePath( \sys_get_temp_dir().'/cache-dir-handler-'.$suffix.'-'.\uniqid() );
 		$this->mkdir( $dir );
 		$this->tempDirs[] = $dir;
 		return $dir;
@@ -415,8 +558,38 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		return $root;
 	}
 
-	private function expectedExternalCacheRoot( string $root, string $suffix = 'example-com-abc' ) :string {
-		return $this->normaliseCacheStorePath( $root ).'-'.$suffix;
+	private function expectedExternalCacheRoot( string $root ) :string {
+		return $this->normaliseCacheStorePath( \dirname( $root ).'/'.$this->expectedExternalCacheBasename() );
+	}
+
+	private function expectedExternalCacheBasename() :string {
+		$absPath = \rtrim( $this->normaliseCacheStorePath( ABSPATH ), '/' );
+		if ( \DIRECTORY_SEPARATOR === '\\' ) {
+			$absPath = \strtolower( $absPath );
+		}
+		$seed = \implode( "\0", [
+			'shield-external-cache-namespace-v2',
+			$absPath,
+			(string)DB_HOST,
+			(string)DB_NAME,
+			$this->db->getPrefix(),
+			(string)$this->blogID,
+		] );
+		return 'shield-v2-'.\substr( \hash( 'sha256', $seed ), 0, 32 );
+	}
+
+	private function foreignExternalCacheBasename() :string {
+		$foreignHash = \str_repeat( 'f', 32 );
+		if ( $foreignHash === \substr( $this->expectedExternalCacheBasename(), \strlen( 'shield-v2-' ) ) ) {
+			$foreignHash = \str_repeat( 'e', 32 );
+		}
+		return 'shield-v2-'.$foreignHash;
+	}
+
+	private function setInstallContext( string $basePrefix, int $blogID ) :void {
+		$this->db->setBasePrefix( $basePrefix );
+		$this->blogID = $blogID;
+		$this->setCacheStoreBlogID( $blogID );
 	}
 
 	private function mkdir( string $dir ) :void {
