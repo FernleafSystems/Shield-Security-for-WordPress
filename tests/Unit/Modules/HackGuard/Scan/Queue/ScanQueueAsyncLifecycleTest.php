@@ -21,6 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	Controller as QueueController,
 	ProcessQueueItem,
 	QueueInit,
+	QueueItemVO,
 	QueueItems,
 	QueueMaintenance,
 	QueueProcessor,
@@ -558,6 +559,141 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertTrue( $this->queryLogContains( $harness->sql->queryLog(), "`status`='completed'" ) );
 	}
 
+	public function test_successful_item_finish_clears_matching_queue_exception_after_finish_write() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'built',
+			'ready_at'        => 1700000000,
+			'last_process_at' => 1700000000,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [] );
+		$diagnostic = \sprintf(
+			'Queue item exception: scan=wpv qitem_id=%d attempt=1 exception=RuntimeException message=previous hard death',
+			$itemID
+		);
+		$harness->sql->updateRowById( 'scans', $scanID, [
+			'meta' => $this->encodedScanMeta( [ RunState::META_KEY_LAST_ERROR => $diagnostic ] ),
+		] );
+		$harness->sql->resetQueryLog();
+
+		( new ProcessQueueItem() )->run( ( new QueueItems() )->next() );
+
+		$queries = $harness->sql->queryLog();
+		$finishIndex = $this->queryLogFirstIndex( $queries, 'UPDATE `scan_items` SET `finished_at`' );
+		$clearIndex = $this->queryLogFirstIndex( $queries, 'UPDATE `scans` SET `meta`' );
+		$this->assertGreaterThanOrEqual( 0, $finishIndex );
+		$this->assertGreaterThan( $finishIndex, $clearIndex );
+		$this->assertArrayNotHasKey(
+			RunState::META_KEY_LAST_ERROR,
+			$this->scanMeta( $harness->scanRow( $scanID ) )
+		);
+	}
+
+	public function test_finished_item_does_not_clear_other_item_exception_with_decoy_id_in_message() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'built',
+			'ready_at'        => 1700000000,
+			'last_process_at' => 1700000000,
+		] );
+		$finishedItemID = $harness->insertScanItem( $scanID, [] );
+		$otherItemID = $harness->insertScanItem( $scanID, [] );
+		$diagnostic = \sprintf(
+			'Queue item exception: scan=wpv qitem_id=%d attempt=1 exception=RuntimeException message=earlier item qitem_id=%d also failed',
+			$otherItemID,
+			$finishedItemID
+		);
+		$harness->sql->updateRowById( 'scans', $scanID, [
+			'meta' => $this->encodedScanMeta( [ RunState::META_KEY_LAST_ERROR => $diagnostic ] ),
+		] );
+
+		( new ProcessQueueItem() )->run( ( new QueueItems() )->next() );
+
+		$this->assertSame(
+			$diagnostic,
+			$this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? null
+		);
+	}
+
+	public function test_failed_item_finish_write_leaves_queue_exception_untouched() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'built',
+			'ready_at'        => 1700000000,
+			'last_process_at' => 1700000000,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [] );
+		$diagnostic = \sprintf(
+			'Queue item exception: scan=wpv qitem_id=%d attempt=1 exception=RuntimeException message=previous hard death',
+			$itemID
+		);
+		$harness->sql->updateRowById( 'scans', $scanID, [
+			'meta' => $this->encodedScanMeta( [ RunState::META_KEY_LAST_ERROR => $diagnostic ] ),
+		] );
+		$scanItemsDb = $harness->scanItemsDb;
+		$harness->controller->db_con->scan_items = new class( $scanItemsDb ) {
+			private object $inner;
+
+			public function __construct( object $inner ) {
+				$this->inner = $inner;
+			}
+
+			public function getTable() :string {
+				return $this->inner->getTable();
+			}
+
+			public function getQueryUpdater() :object {
+				return new class {
+					public function updateById( int $id, array $data ) :bool {
+						unset( $id, $data );
+						return false;
+					}
+				};
+			}
+		};
+
+		( new ProcessQueueItem() )->run( ( new QueueItems() )->next() );
+
+		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'finished_at' ] );
+		$this->assertSame(
+			$diagnostic,
+			$this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? null
+		);
+	}
+
+	public function test_finished_item_cleanup_rejects_noncanonical_exception_item_ids() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$overflowID = (string)\PHP_INT_MAX.'0';
+		$diagnostics = [
+			'Queue item exception: scan=afs qitem_id=0 attempt=1 exception=RuntimeException message=zero',
+			'Queue item exception: scan=afs qitem_id=012 attempt=1 exception=RuntimeException message=leading zero',
+			'Queue item exception: scan=afs qitem_id='.$overflowID.' attempt=1 exception=RuntimeException message=overflow',
+			'Queue item exception: qitem_id=12 scan=afs attempt=1 exception=RuntimeException message=wrong field order',
+			'Queue item exception: scan=afs attempt=1 exception=RuntimeException message=decoy qitem_id=12',
+		];
+
+		foreach ( $diagnostics as $diagnostic ) {
+			$scanID = $harness->insertScan( [
+				'scan' => 'afs',
+				'meta' => $this->encodedScanMeta( [ RunState::META_KEY_LAST_ERROR => $diagnostic ] ),
+			] );
+			$item = ( new QueueItemVO() )->applyFromArray( [
+				'scan_id'  => $scanID,
+				'qitem_id' => 12,
+			] );
+
+			( new RunState() )->clearQueueItemExceptionForFinishedItem( $item );
+
+			$this->assertSame(
+				$diagnostic,
+				$this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? null
+			);
+		}
+	}
+
 	public function test_complete_queue_completes_active_scan_with_finished_items_before_deleting_queue_rows() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
@@ -1031,6 +1167,46 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 'failed', $scan[ 'status' ] );
 		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
 		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $this->scanMeta( $scan )[ RunState::META_KEY_LAST_ERROR ] ?? '' );
+	}
+
+	public function test_hard_death_diagnostic_survives_retry_and_second_watchdog_recovery() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000, 0, 1 );
+		$item = ( new QueueItemVO() )->applyFromArray( [
+			'scan_id'  => $scanID,
+			'qitem_id' => $itemID,
+			'scan'     => 'afs',
+			'attempts' => 1,
+		] );
+		( new RunState() )->recordQueueItemException( $item, new \RuntimeException( 'worker terminated' ) );
+		$diagnostic = $this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? null;
+		$this->assertIsString( $diagnostic );
+
+		$watchdog = new QueueWatchdog();
+		$this->assertTrue( $watchdog->recoverScanIfStale( $scanID ) );
+		$retryItem = ( new QueueItems() )->next();
+		$this->assertSame( 2, $retryItem->attempts );
+		$this->assertSame( $diagnostic, $retryItem->meta[ RunState::META_KEY_LAST_ERROR ] ?? null );
+		( new RunState() )->markRunning( $retryItem );
+		$this->assertSame(
+			$diagnostic,
+			$this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? null
+		);
+
+		$harness->sql->updateRowById( 'scan_items', $itemID, [ 'started_at' => 1699999000 ] );
+		$harness->sql->updateRowById( 'scans', $scanID, [ 'last_process_at' => 1699999000 ] );
+		$this->assertTrue( $watchdog->recoverScanIfStale( $scanID ) );
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'failed', $scan[ 'status' ] );
+		$this->assertSame( $diagnostic, $this->scanMeta( $scan )[ RunState::META_KEY_LAST_ERROR ] ?? null );
 	}
 
 	public function test_watchdog_recovers_reported_dead_running_scan_shape_without_existing_cron() :void {

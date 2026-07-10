@@ -87,9 +87,13 @@ class RunState {
 			$update[ 'started_at' ] = $now;
 		}
 		$meta = $item->meta;
-		if ( isset( $meta[ self::META_KEY_LAST_ERROR ] ) || isset( $meta[ self::META_KEY_WATCHDOG_RECOVERY ] ) ) {
+		$originalMeta = $meta;
+		if ( isset( $meta[ self::META_KEY_LAST_ERROR ] )
+			 && !$this->isQueueItemException( $meta[ self::META_KEY_LAST_ERROR ] ) ) {
 			unset( $meta[ self::META_KEY_LAST_ERROR ] );
-			unset( $meta[ self::META_KEY_WATCHDOG_RECOVERY ] );
+		}
+		unset( $meta[ self::META_KEY_WATCHDOG_RECOVERY ] );
+		if ( $meta !== $originalMeta ) {
 			$item->meta = $meta;
 			$scan = new Record();
 			$scan->meta = $meta;
@@ -109,6 +113,30 @@ class RunState {
 
 			$meta = \is_array( $scan->meta ) ? $scan->meta : [];
 			$meta[ self::META_KEY_LAST_ERROR ] = $this->buildQueueItemExceptionMessage( $item, $e );
+			$scan->meta = $meta;
+			self::con()->db_con->scans->getQueryUpdater()->updateById( $item->scan_id, [
+				'meta' => $scan->getRawData()[ 'meta' ],
+			] );
+		}
+		catch ( \Throwable $diagnosticsFailure ) {
+			unset( $diagnosticsFailure );
+		}
+	}
+
+	public function clearQueueItemExceptionForFinishedItem( QueueItemVO $item ) :void {
+		try {
+			/** @var ?Record $scan */
+			$scan = self::con()->db_con->scans->getQuerySelector()->byId( $item->scan_id );
+			if ( empty( $scan ) ) {
+				return;
+			}
+
+			$meta = \is_array( $scan->meta ) ? $scan->meta : [];
+			if ( $this->queueItemIDFromException( $meta[ self::META_KEY_LAST_ERROR ] ?? null ) !== $item->qitem_id ) {
+				return;
+			}
+
+			unset( $meta[ self::META_KEY_LAST_ERROR ] );
 			$scan->meta = $meta;
 			self::con()->db_con->scans->getQueryUpdater()->updateById( $item->scan_id, [
 				'meta' => $scan->getRawData()[ 'meta' ],
@@ -142,9 +170,26 @@ class RunState {
 
 	private function shouldPreserveQueueItemException( string $failureMessage, $existingMessage ) :bool {
 		return $failureMessage === ReconcileQueue::MESSAGE_TIMED_OUT
-			   && \is_string( $existingMessage )
-			   && $existingMessage !== ''
-			   && \strpos( $existingMessage, self::QUEUE_ITEM_EXCEPTION_PREFIX ) === 0;
+			   && $this->isQueueItemException( $existingMessage );
+	}
+
+	private function isQueueItemException( $message ) :bool {
+		return \is_string( $message )
+			   && \strpos( $message, self::QUEUE_ITEM_EXCEPTION_PREFIX ) === 0;
+	}
+
+	private function queueItemIDFromException( $message ) :?int {
+		if ( !$this->isQueueItemException( $message )
+			 || \preg_match(
+				 '#^'.\preg_quote( self::QUEUE_ITEM_EXCEPTION_PREFIX, '#' ).' scan=\S+ qitem_id=([1-9][0-9]*) attempt=#',
+				 $message,
+				 $matches
+			 ) !== 1 ) {
+			return null;
+		}
+
+		$itemID = (int)$matches[ 1 ];
+		return (string)$itemID === $matches[ 1 ] ? $itemID : null;
 	}
 
 	private function buildQueueItemExceptionMessage( QueueItemVO $item, \Throwable $e ) :string {

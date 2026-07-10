@@ -245,40 +245,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
 		$scanUpdates = [];
 		$selectorCalls = 0;
-		$this->installController( [
-			'db_con' => (object)[
-				'scans' => new class( $scanUpdates, $selectorCalls ) {
-					public array $updates;
-					public int $selectorCalls;
-
-					public function __construct( array &$updates, int &$selectorCalls ) {
-						$this->updates = &$updates;
-						$this->selectorCalls = &$selectorCalls;
-					}
-
-					public function getQuerySelector() :object {
-						$this->selectorCalls++;
-						return new class {
-						};
-					}
-
-					public function getQueryUpdater() :object {
-						return new class( $this->updates ) {
-							public array $updates;
-
-							public function __construct( array &$updates ) {
-								$this->updates = &$updates;
-							}
-
-							public function updateById( int $scanID, array $data ) :bool {
-								$this->updates[] = [ 'scan_id' => $scanID, 'data' => $data ];
-								return true;
-							}
-						};
-					}
-				},
-			],
-		] );
+		$this->installRunStateUpdateHarness( $scanUpdates, $selectorCalls );
 
 		$item = ( new QueueItemVO() )->applyFromArray( [
 			'scan_id'         => 62,
@@ -301,6 +268,56 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			[ 'scan_meta' => 'value' ],
 			\json_decode( \base64_decode( (string)$scanUpdates[ 0 ][ 'data' ][ 'meta' ] ), true )
 		);
+	}
+
+	public function test_mark_running_preserves_queue_item_exception_without_meta_write() :void {
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700001555 ),
+		] );
+		$diagnostic = 'Queue item exception: scan=afs qitem_id=17 attempt=1 exception=RuntimeException message=hard death';
+		$scanUpdates = [];
+		$selectorCalls = 0;
+		$this->installRunStateUpdateHarness( $scanUpdates, $selectorCalls );
+		$item = ( new QueueItemVO() )->applyFromArray( [
+			'scan_id'         => 63,
+			'scan_started_at' => 1699999999,
+			'meta'            => [ RunState::META_KEY_LAST_ERROR => $diagnostic ],
+		] );
+
+		( new RunState() )->markRunning( $item );
+
+		$this->assertSame( 0, $selectorCalls );
+		$this->assertCount( 1, $scanUpdates );
+		$this->assertArrayNotHasKey( 'meta', $scanUpdates[ 0 ][ 'data' ] );
+		$this->assertSame( $diagnostic, $item->meta[ RunState::META_KEY_LAST_ERROR ] ?? null );
+	}
+
+	public function test_mark_running_clears_only_watchdog_recovery_alongside_queue_item_exception() :void {
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700001555 ),
+		] );
+		$diagnostic = 'Queue item exception: scan=afs qitem_id=18 attempt=1 exception=RuntimeException message=hard death';
+		$scanUpdates = [];
+		$selectorCalls = 0;
+		$this->installRunStateUpdateHarness( $scanUpdates, $selectorCalls );
+		$item = ( new QueueItemVO() )->applyFromArray( [
+			'scan_id'         => 64,
+			'scan_started_at' => 1699999999,
+			'meta'            => [
+				RunState::META_KEY_LAST_ERROR         => $diagnostic,
+				RunState::META_KEY_WATCHDOG_RECOVERY => [ 'attempts' => 1 ],
+				'scan_meta'                           => 'value',
+			],
+		] );
+
+		( new RunState() )->markRunning( $item );
+
+		$this->assertSame( 0, $selectorCalls );
+		$this->assertCount( 1, $scanUpdates );
+		$this->assertSame( [
+			RunState::META_KEY_LAST_ERROR => $diagnostic,
+			'scan_meta'                   => 'value',
+		], \json_decode( \base64_decode( (string)$scanUpdates[ 0 ][ 'data' ][ 'meta' ] ), true ) );
 	}
 
 	public function test_mark_running_primes_heartbeat_throttle_without_scan_item_writes() :void {
@@ -424,7 +441,9 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 						$this->record = new class {
 							public int $id = 99;
 							public int $started_at = 0;
-							public array $meta = [];
+							public array $meta = [
+								RunState::META_KEY_LAST_ERROR => 'Queue item exception: scan=bad qitem_id=7 attempt=1 exception=RuntimeException message=old failure',
+							];
 
 							public function __get( string $key ) {
 								return $this->{$key} ?? null;
@@ -481,7 +500,9 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			'qitem_id' => 7,
 			'scan'     => 'bad',
 			'attempts' => 2,
-			'meta'     => [],
+			'meta'     => [
+				RunState::META_KEY_LAST_ERROR => 'Queue item exception: scan=bad qitem_id=7 attempt=1 exception=RuntimeException message=old failure',
+			],
 			'items'    => [],
 		] );
 
@@ -501,6 +522,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'attempt=2', $message );
 		$this->assertStringContainsString( 'exception=InvalidArgumentException', $message );
 		$this->assertStringContainsString( 'Unknown scan slug: bad', $message );
+		$this->assertStringNotContainsString( 'old failure', $message );
 		$this->assertSame( [], $deletedScanItems );
 		$this->assertTrue( QueueLifecycleLogSpy::contains(
 			'Shield scan processing exception: scan_id=99 qitem_id=7 scan=bad message=Unknown scan slug: bad'
@@ -1662,6 +1684,43 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		] );
 
 		return $harness;
+	}
+
+	private function installRunStateUpdateHarness( array &$scanUpdates, int &$selectorCalls ) :void {
+		$this->installController( [
+			'db_con' => (object)[
+				'scans' => new class( $scanUpdates, $selectorCalls ) {
+					public array $updates;
+					public int $selectorCalls;
+
+					public function __construct( array &$updates, int &$selectorCalls ) {
+						$this->updates = &$updates;
+						$this->selectorCalls = &$selectorCalls;
+					}
+
+					public function getQuerySelector() :object {
+						$this->selectorCalls++;
+						return new class {
+						};
+					}
+
+					public function getQueryUpdater() :object {
+						return new class( $this->updates ) {
+							public array $updates;
+
+							public function __construct( array &$updates ) {
+								$this->updates = &$updates;
+							}
+
+							public function updateById( int $scanID, array $data ) :bool {
+								$this->updates[] = [ 'scan_id' => $scanID, 'data' => $data ];
+								return true;
+							}
+						};
+					}
+				},
+			],
+		] );
 	}
 
 	private function installController( array $properties ) :void {

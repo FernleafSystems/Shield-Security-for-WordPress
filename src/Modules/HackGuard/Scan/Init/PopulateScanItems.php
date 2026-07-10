@@ -37,7 +37,9 @@ class PopulateScanItems {
 		$allItems = $scanAction->items;
 		unset( $scanAction->items );
 
-		$scanRecord->meta = $scanAction->getRawData();
+		$scanMeta = $scanAction->getRawData();
+		unset( $scanMeta[ 'progress_callback' ] );
+		$scanRecord->meta = $scanMeta;
 
 		if ( empty( $allItems ) ) {
 			( new SetScanCompleted() )->run( $scanID, $scanRecord, true );

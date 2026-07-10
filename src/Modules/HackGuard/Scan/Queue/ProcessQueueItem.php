@@ -22,13 +22,16 @@ class ProcessQueueItem {
 
 			( new Store() )->store( $item, $results );
 
-			self::con()
+			$itemFinished = self::con()
 				->db_con
 				->scan_items
 				->getQueryUpdater()
 				->updateById( $item->qitem_id, [
 					'finished_at' => Services::Request()->ts()
 				] );
+			if ( $itemFinished ) {
+				$runState->clearQueueItemExceptionForFinishedItem( $item );
+			}
 
 			( new SetScanCompleted() )->runForQueueItem( $item );
 		}
