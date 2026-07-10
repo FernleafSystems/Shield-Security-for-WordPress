@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker;
 
@@ -90,6 +90,14 @@ class FileLockerController {
 
 	public function clearLocks(): void {
 		$this->locks = null;
+	}
+
+	public function reconcileForConfigurationChange(): void {
+		$dbh = self::con()->db_con->file_locker;
+		$dbh->invalidateTableReadiness();
+		self::con()->db_con->loadDbH( $dbh->getTableSchema()->slug, true );
+		$this->clearLocks();
+		( new Ops\CleanLockRecords() )->run();
 	}
 
 	public function reassessLocksNow(): void {

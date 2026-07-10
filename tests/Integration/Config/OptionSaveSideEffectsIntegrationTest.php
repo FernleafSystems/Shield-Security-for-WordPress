@@ -225,6 +225,36 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $reloadedHandler->tableExists() );
 	}
 
+	public function test_file_locker_option_change_reconciles_against_fresh_lock_records() :void {
+		global $wpdb;
+
+		$con = $this->requireController();
+		RuntimeTestState::primeShieldNetHandshake();
+		$con->opts->optSet( 'file_locker', [ 'wpconfig', 'root_index' ] )->store();
+
+		$handler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$handler->tableDelete( true );
+		$handler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$con->comps->file_locker->clearLocks();
+
+		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
+		$memoizedLocks = \array_values( $con->comps->file_locker->getLocks() );
+		$this->assertCount( 1, $memoizedLocks );
+		$this->assertSame( 'wpconfig', $memoizedLocks[ 0 ]->type );
+
+		TestDataFactory::insertFileLockRecord( 'root_index', ABSPATH.'index.php' );
+		$this->assertSame( 2, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
+		$this->assertCount( 1, $con->comps->file_locker->getLocks() );
+
+		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
+
+		$reloadedHandler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$this->assertSame(
+			[ 'wpconfig' ],
+			$wpdb->get_col( "SELECT type FROM {$reloadedHandler->getTable()} ORDER BY id ASC" )
+		);
+	}
+
 	private function alternateSelectValue( string $key, string $avoid ) :string {
 		$values = \array_map(
 			fn( array $valueOpt ) :string => (string)$valueOpt[ 'value_key' ],

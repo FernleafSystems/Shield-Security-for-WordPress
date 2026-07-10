@@ -162,7 +162,7 @@
             "type":        "improved",
             "title":       "More reliable FileLocker Diffs",
             "description": [
-              "When the primary file diff service fails, automatically falls back to WordPress in-built file diff pathway."
+              "WordPress fallback diffs now limit surrounding context, keeping file changes focused when the primary diff service is unavailable."
             ]
           },
           {

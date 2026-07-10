@@ -39,7 +39,8 @@ class AdminBarMenu {
 		return !$con->this_req->is_force_off
 			   && !$con->this_req->wp_is_ajax
 			   && $con->isValidAdminArea()
-			   && Services::WpUsers()->isUserAdmin();
+			   && Services::WpUsers()->isUserAdmin()
+			   && (bool)apply_filters( 'shield/show_admin_bar_menu', true );
 	}
 
 	protected function run() {
