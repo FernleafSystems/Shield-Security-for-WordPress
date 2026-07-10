@@ -74,6 +74,40 @@ async function clickRememberMeLabel( page ) {
 	await label.click();
 }
 
+async function assertRememberMeRenderedState( checkbox, mode ) {
+	await checkbox.uncheck();
+	await expect( checkbox ).not.toBeChecked();
+	await checkbox.blur();
+	const unchecked = await checkbox.screenshot( { animations: 'disabled' } );
+
+	await checkbox.check();
+	await expect( checkbox ).toBeChecked();
+	await checkbox.blur();
+	const checked = await checkbox.screenshot( { animations: 'disabled' } );
+
+	expect( Buffer.compare( unchecked, checked ), `${ mode } checkbox states should differ` ).not.toBe( 0 );
+	await checkbox.uncheck();
+	await expect( checkbox ).not.toBeChecked();
+}
+
+async function assertRememberMeKeyboardFocus( page, form, checkbox, otpFieldName, mode ) {
+	const otpInput = form.locator( `input[name="${ otpFieldName }"]` ).first();
+	await expect( otpInput ).toBeVisible();
+	await otpInput.focus();
+	await page.keyboard.press( 'Tab' );
+	await expect( checkbox ).toBeFocused();
+
+	const outline = await checkbox.evaluate( ( input ) => {
+		const style = window.getComputedStyle( input );
+		return {
+			outlineStyle: style.outlineStyle,
+			outlineWidth: Number.parseFloat( style.outlineWidth ),
+		};
+	} );
+	expect( outline.outlineStyle, `${ mode } checkbox focus outline should be visible` ).not.toBe( 'none' );
+	expect( outline.outlineWidth, `${ mode } checkbox focus outline should have width` ).toBeGreaterThan( 0 );
+}
+
 async function assertRememberMeLoginFlow( browser, lane, fixtureApi, scenario, options = {} ) {
 	await fixtureApi.withLoginGuardCoreFixture( scenario, async ( fixture ) => {
 		if ( options.mfaVerifyPage ) {
@@ -90,6 +124,36 @@ async function assertRememberMeLoginFlow( browser, lane, fixtureApi, scenario, o
 			const checkbox = runtime.page.locator( 'input[name="skip_mfa"]' );
 			await expect( checkbox ).toBeVisible();
 			await expect( checkbox ).toBeEnabled();
+			if ( options.wpReplica ) {
+				const replicaForm = runtime.page.locator( 'form.shield-2fa-wplogin' );
+				await assertRememberMeRenderedState( checkbox, 'ordinary' );
+				await assertRememberMeKeyboardFocus(
+					runtime.page,
+					replicaForm,
+					checkbox,
+					fixture.otp_field_name,
+					'ordinary'
+				);
+
+				try {
+					await runtime.page.emulateMedia( { forcedColors: 'active' } );
+					await assertRememberMeRenderedState( checkbox, 'forced-colours' );
+					await assertRememberMeKeyboardFocus(
+						runtime.page,
+						replicaForm,
+						checkbox,
+						fixture.otp_field_name,
+						'forced-colours'
+					);
+				}
+				finally {
+					await runtime.page.emulateMedia( { forcedColors: null } );
+				}
+
+				await checkbox.uncheck();
+				await expect( checkbox ).not.toBeChecked();
+				await checkbox.blur();
+			}
 			await checkbox.click();
 			await expect( checkbox ).toBeChecked();
 
