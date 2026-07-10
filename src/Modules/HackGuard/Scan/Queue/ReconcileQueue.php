@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\SetScanCompleted;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
@@ -14,27 +15,53 @@ class ReconcileQueue {
 	public const MESSAGE_ORPHANED_QUEUE = 'Scan queue was empty before the scan could finish.';
 	public const MESSAGE_TIMED_OUT = 'Scan timed out before it could finish.';
 
-	public function completeReadyScansWithOnlyFinishedItems( ?int $cutoff = null ) :void {
-		foreach ( $this->readyScanIDsWithOnlyFinishedItems( $cutoff ) as $scanID ) {
+	public function completeReadyScansWithOnlyFinishedItems() :void {
+		foreach ( $this->readyScanIDsWithOnlyFinishedItems() as $scanID ) {
 			( new SetScanCompleted() )->run( $scanID );
 		}
 	}
 
-	public function failReadyScansWithNoItems( string $message, ?int $cutoff = null ) :void {
+	public function failReadyScansWithNoItems( string $message ) :void {
 		$runState = new RunState();
-		foreach ( $this->readyScanIDsWithNoItems( $cutoff ) as $scanID ) {
+		foreach ( $this->readyScanIDsWithNoItems() as $scanID ) {
 			$runState->markFailed( $scanID, $message );
 		}
 	}
 
-	public function failBuildingScansOlderThan( int $cutoff, string $message ) :void {
-		$runState = new RunState();
-		foreach ( $this->buildingScanIDsOlderThan( $cutoff ) as $scanID ) {
-			$runState->markFailed( $scanID, $message );
+	public function reconcileReadyScan( ScansDB\Record $scan ) :?bool {
+		$scanID = $scan->id;
+		if ( $scanID < 1 ) {
+			return null;
 		}
+
+		$counts = Services::WpDb()->selectRow(
+			sprintf( "SELECT COUNT(*) AS `total`,
+						 SUM(CASE WHEN `finished_at`=0 THEN 1 ELSE 0 END) AS `unfinished`
+					FROM `%s`
+					WHERE `scan_ref`=%d;",
+				self::con()->db_con->scan_items->getTable(),
+				$scanID
+			)
+		);
+		if ( !\is_array( $counts ) ) {
+			return null;
+		}
+
+		$total = (int)$counts[ 'total' ];
+		$unfinished = (int)$counts[ 'unfinished' ];
+		if ( $total < 1 ) {
+			( new RunState() )->markFailed( $scanID, self::MESSAGE_ORPHANED_QUEUE );
+			return true;
+		}
+		if ( $unfinished < 1 ) {
+			( new SetScanCompleted() )->run( $scanID, $scan );
+			return true;
+		}
+
+		return false;
 	}
 
-	private function readyScanIDsWithOnlyFinishedItems( ?int $cutoff ) :array {
+	private function readyScanIDsWithOnlyFinishedItems() :array {
 		return $this->idsFromRows( Services::WpDb()->selectCustom(
 			sprintf( "SELECT DISTINCT `scans`.`id`
 						FROM `%s` as `scans`
@@ -52,14 +79,14 @@ class ReconcileQueue {
 							  AND `si_unfinished`.`finished_at`=0
 						  );",
 				self::con()->db_con->scans->getTable(),
-				$this->readyWhere( $cutoff ),
+				$this->readyWhere(),
 				self::con()->db_con->scan_items->getTable(),
 				self::con()->db_con->scan_items->getTable()
 			)
 		) ?: [] );
 	}
 
-	private function readyScanIDsWithNoItems( ?int $cutoff ) :array {
+	private function readyScanIDsWithNoItems() :array {
 		return $this->idsFromRows( Services::WpDb()->selectCustom(
 			sprintf( "SELECT DISTINCT `scans`.`id`
 						FROM `%s` as `scans`
@@ -71,63 +98,25 @@ class ReconcileQueue {
 							WHERE `si`.`scan_ref`=`scans`.`id`
 						  );",
 				self::con()->db_con->scans->getTable(),
-				$this->readyWhere( $cutoff ),
+				$this->readyWhere(),
 				self::con()->db_con->scan_items->getTable()
 			)
 		) ?: [] );
 	}
 
-	private function buildingScanIDsOlderThan( int $cutoff ) :array {
-		return $this->idsFromRows( Services::WpDb()->selectCustom(
-			sprintf( "SELECT DISTINCT `scans`.`id`
-						FROM `%s` as `scans`
-						WHERE `scans`.`status`='%s'
-						  AND `scans`.`finished_at`=0
-						  AND (
-							( `scans`.`last_process_at`>0 AND `scans`.`last_process_at`<%d )
-							OR ( `scans`.`last_process_at`=0 AND `scans`.`created_at`<%d )
-						  );",
-				self::con()->db_con->scans->getTable(),
-				ScanStatus::BUILDING,
-				$cutoff,
-				$cutoff
-			)
-		) ?: [] );
+	private function readyWhere() :string {
+		return sprintf( "( `scans`.`status` IN (%s) AND `scans`.`ready_at`>0 )",
+			ScanStatus::sqlList( ScanStatus::READY )
+		);
 	}
 
-	private function readyWhere( ?int $cutoff ) :string {
-		return \is_int( $cutoff )
-			? sprintf( "(
-							( `scans`.`status`='%s'
-							  AND `scans`.`ready_at`>0
-							  AND (
-								( `scans`.`last_process_at`>0 AND `scans`.`last_process_at`<%d )
-								OR ( `scans`.`last_process_at`=0 AND `scans`.`ready_at`<%d )
-							  )
-							)
-							OR ( `scans`.`status`='%s'
-							  AND `scans`.`ready_at`>0
-							  AND (
-								( `scans`.`last_process_at`>0 AND `scans`.`last_process_at`<%d )
-								OR ( `scans`.`last_process_at`=0 AND `scans`.`created_at`<%d )
-							  )
-							)
-						)",
-				ScanStatus::BUILT,
-				$cutoff,
-				$cutoff,
-				ScanStatus::RUNNING,
-				$cutoff,
-				$cutoff
-			)
-			: sprintf( "( `scans`.`status` IN (%s) AND `scans`.`ready_at`>0 )",
-				ScanStatus::sqlList( ScanStatus::READY )
-			);
-	}
-
+	/**
+	 * @param list<array{id:int|string}> $rows
+	 * @return list<int>
+	 */
 	private function idsFromRows( array $rows ) :array {
 		return \array_values( \array_unique( \array_filter( \array_map(
-			static fn( $row ) :int => (int)( \is_array( $row ) ? ( $row[ 'id' ] ?? 0 ) : ( $row->id ?? 0 ) ),
+			static fn( array $row ) :int => (int)$row[ 'id' ],
 			$rows
 		) ) ) );
 	}

@@ -56,8 +56,16 @@ class PopulateScanItemsTest extends BaseUnitTest {
 			->setScanController( $scanController )
 			->run();
 
-		$this->assertSame( 2, $itemInsertCount );
-		$this->assertSame( [ [ 'one', 'two' ], [ 'three' ] ], $itemInserts );
+		$this->assertSame( [
+			[
+				'items'      => [ 'one', 'two' ],
+				'item_count' => 2,
+			],
+			[
+				'items'      => [ 'three' ],
+				'item_count' => 1,
+			],
+		], $itemInserts );
 		$this->assertSame( 2, $scanController->lastAction->progressTicks );
 		$this->assertNotEmpty( $heartbeatQueries );
 		$this->assertCount( 1, $scanUpdates );
@@ -278,6 +286,7 @@ class PopulateScanItemsTest extends BaseUnitTest {
 					return new class {
 						public int $scan_ref = 0;
 						public array $items = [];
+						public int $item_count = 0;
 					};
 				}
 
@@ -296,7 +305,10 @@ class PopulateScanItemsTest extends BaseUnitTest {
 						public function insert( object $record ) :bool {
 							$this->insertCount++;
 							if ( $this->insertSuccess ) {
-								$this->inserts[] = $record->items;
+								$this->inserts[] = [
+									'items'      => $record->items,
+									'item_count' => $record->item_count,
+								];
 							}
 							return $this->insertSuccess;
 						}

@@ -4,21 +4,27 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansBase as ScanActionBase;
 
+/**
+ * @phpstan-import-type ActiveScanProgressRow from \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Controller
+ * @phpstan-import-type ScanModalState from ScanActionBase
+ */
 class ScansProgress extends BaseScans {
 
 	public const SLUG = 'render_scans_progress';
 	public const TEMPLATE = '/wpadmin_pages/insights/scans/modal/progress.twig';
 
 	protected function getRenderData() :array {
-		$modalState = (string)$this->action_data[ 'modal_state' ];
+		/** @var array{modal_state:ScanModalState,current_scan:string,remaining_scans:string,progress:int,scan_rows:list<ActiveScanProgressRow>} $data */
+		$data = $this->action_data;
+		$modalState = $data[ 'modal_state' ];
 		$isInitiating = $modalState === ScanActionBase::SCAN_MODAL_STATE_INITIATING;
 		$isFailed = $modalState === ScanActionBase::SCAN_MODAL_STATE_FAILED;
 		$isComplete = $modalState === ScanActionBase::SCAN_MODAL_STATE_COMPLETED;
 		$isRunning = $isInitiating || $modalState === ScanActionBase::SCAN_MODAL_STATE_RUNNING;
-		$currentScan = (string)$this->action_data[ 'current_scan' ];
-		$remainingScans = (string)$this->action_data[ 'remaining_scans' ];
-		$progress = (int)$this->action_data[ 'progress' ];
-		$scanRows = $this->buildScanRows( \is_array( $this->action_data[ 'scan_rows' ] ?? null ) ? $this->action_data[ 'scan_rows' ] : [] );
+		$currentScan = $data[ 'current_scan' ];
+		$remainingScans = $data[ 'remaining_scans' ];
+		$progress = $data[ 'progress' ];
+		$scanRows = $this->buildScanRows( $data[ 'scan_rows' ] );
 
 		$failedText = __( 'Scan failed.', 'wp-simple-firewall' );
 		$completeText = __( 'Scans completed.', 'wp-simple-firewall' );
@@ -50,7 +56,6 @@ class ScansProgress extends BaseScans {
 				'announcement'    => $announcement,
 				'is_busy'         => $isRunning,
 				'show_progress'   => !$isFailed,
-				'has_scan_rows'   => !empty( $scanRows ),
 				'scan_rows'       => $scanRows,
 				'modal_title_id'  => 'ShieldModalContainerLabel',
 			],
@@ -58,25 +63,23 @@ class ScansProgress extends BaseScans {
 	}
 
 	/**
-	 * @param list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,can_attempt_recovery:bool,progress:int,total_items:int,unfinished:int}> $rows
-	 * @return list<array{id:int,scan:string,name:string,scope_label:string,display_status:string,status_label:string,status_icon_class:string,status_class:string,progress_bar_class:string,can_attempt_recovery:bool,progress:int,aria_label:string}>
+	 * @param list<ActiveScanProgressRow> $rows
+	 * @return list<array{id:int,name:string,scope_label:string,status_label:string,status_icon_class:string,status_class:string,progress_bar_class:string,can_attempt_recovery:bool,progress:int,aria_label:string}>
 	 */
 	private function buildScanRows( array $rows ) :array {
 		$renderRows = [];
 		foreach ( $rows as $row ) {
 			$statusPresentation = $this->statusPresentation( $row[ 'display_status' ] );
 			$renderRows[] = [
-				'id'                   => (int)$row[ 'id' ],
-				'scan'                 => $row[ 'scan' ],
+				'id'                   => $row[ 'id' ],
 				'name'                 => $row[ 'name' ],
 				'scope_label'          => $this->scopeLabel( $row[ 'scope_type' ], $row[ 'scope_key' ] ),
-				'display_status'       => $row[ 'display_status' ],
 				'status_label'         => $statusPresentation[ 'label' ],
 				'status_icon_class'    => $statusPresentation[ 'icon_class' ],
 				'status_class'         => $statusPresentation[ 'status_class' ],
 				'progress_bar_class'   => $statusPresentation[ 'progress_bar_class' ],
-				'can_attempt_recovery' => $row[ 'can_attempt_recovery' ] === true,
-				'progress'             => (int)\max( 0, \min( 100, $row[ 'progress' ] ) ),
+				'can_attempt_recovery' => $row[ 'can_attempt_recovery' ],
+				'progress'             => $row[ 'progress' ],
 				'aria_label'           => sprintf( __( '%s progress', 'wp-simple-firewall' ), $row[ 'name' ] ),
 			];
 		}
@@ -104,6 +107,7 @@ class ScansProgress extends BaseScans {
 	}
 
 	/**
+	 * @param 'running'|'waiting'|'stalled' $status
 	 * @return array{label:string,icon_class:string,status_class:string,progress_bar_class:string}
 	 */
 	private function statusPresentation( string $status ) :array {
@@ -133,12 +137,7 @@ class ScansProgress extends BaseScans {
 				];
 
 			default:
-				return [
-					'label'              => $status,
-					'icon_class'         => 'bi bi-question-circle',
-					'status_class'       => 'shield-scan-progress__status--unknown',
-					'progress_bar_class' => 'bg-secondary',
-				];
+				throw new \UnexpectedValueException( 'Unsupported scan progress status.' );
 		}
 	}
 

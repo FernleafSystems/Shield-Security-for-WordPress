@@ -18,7 +18,7 @@ class PopulateScanItems {
 	/**
 	 * @throws \Exception
 	 */
-	public function run() {
+	public function run() :void {
 		$scanCon = $this->getScanController();
 		$dbhItems = self::con()->db_con->scan_items;
 
@@ -27,7 +27,7 @@ class PopulateScanItems {
 		$scanActionVO->scope_type = (string)( $scanRecord->scope_type ?? 'full' );
 		$scanActionVO->scope_key = (string)( $scanRecord->scope_key ?? '' );
 		$heartbeat = new QueueHeartbeat();
-		$scanID = (int)$scanRecord->id;
+		$scanID = $scanRecord->id;
 		$scanActionVO->progress_callback = static function () use ( $heartbeat, $scanID ) :void {
 			$heartbeat->tickBuilding( $scanID );
 		};
@@ -40,7 +40,7 @@ class PopulateScanItems {
 		$scanRecord->meta = $scanAction->getRawData();
 
 		if ( empty( $allItems ) ) {
-			( new SetScanCompleted() )->run( (int)$scanRecord->id, $scanRecord, true );
+			( new SetScanCompleted() )->run( $scanID, $scanRecord, true );
 			return;
 		}
 
@@ -49,14 +49,14 @@ class PopulateScanItems {
 		/** @var ScanItemsDB\Record $newRecord */
 		$newRecord = $dbhItems->getRecord();
 		$newRecord->scan_ref = $scanRecord->id;
-		do {
-			$newRecord->items = \array_slice( $allItems, 0, $sliceSize );
+		foreach ( \array_chunk( $allItems, $sliceSize ) as $chunk ) {
+			$newRecord->items = $chunk;
+			$newRecord->item_count = \count( $chunk );
 			if ( !$dbhItems->getQueryInserter()->insert( $newRecord ) ) {
 				throw new \RuntimeException( \sprintf( 'Failed to persist queue items for scan "%s".', $scanRecord->scan ) );
 			}
 			$scanAction->tickProgress();
-			$allItems = \array_slice( $allItems, $sliceSize );
-		} while ( !empty( $allItems ) );
+		}
 
 		( new RunState() )->markBuilt( $scanRecord );
 	}

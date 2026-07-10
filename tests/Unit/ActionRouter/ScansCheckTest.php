@@ -38,25 +38,22 @@ class ScansCheckTest extends BaseUnitTest {
 		$failureMessage = 'producer_failure_detail';
 		$controller = $this->installController( $failureMessage );
 
-		$action = new ScansCheck( [
+		$action = $this->runScansCheck( [
 			'scan_ids' => [ 21 ],
 		] );
-		$method = new \ReflectionMethod( ScansCheck::class, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
 
 		$payload = $action->response()->payload();
 
-		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$this->assertTrue( $payload[ 'failed' ] ?? false );
-		$this->assertSame( $failureMessage, $payload[ 'failure_message' ] ?? '' );
-		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] ?? '' );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertTrue( $payload[ 'failed' ] );
+		$this->assertSame( $failureMessage, $payload[ 'failure_message' ] );
+		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] );
 		$this->assertModalPayloadContract( $payload, ScansCheck::SCAN_MODAL_STATE_FAILED );
 		$this->assertArrayNotHasKey( 'vars', $payload );
-		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_FAILED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
+		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_FAILED, $controller->action_router->renderData[ 'modal_state' ] );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 		$this->assertRenderActionUsed( $controller->action_router );
-		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] ?? null );
+		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] );
 		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
 		$this->assertWatchdogNeverUsed( $controller->comps->scans_queue );
 	}
@@ -79,20 +76,28 @@ class ScansCheckTest extends BaseUnitTest {
 			],
 		] );
 
-		$action = new ScansCheck( [
+		$action = $this->runScansCheck( [
 			'scan_ids' => [ 21, 32 ],
 		] );
-		$method = new \ReflectionMethod( ScansCheck::class, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
 
 		$payload = $action->response()->payload();
 
 		$this->assertModalPayloadContract( $payload, ScansCheck::SCAN_MODAL_STATE_FAILED );
-		$this->assertSame( 'first_requested_failure', $payload[ 'failure_message' ] ?? '' );
+		$this->assertSame( 'first_requested_failure', $payload[ 'failure_message' ] );
 		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
 		$this->assertSame( [ 21, 32 ], $controller->db_con->scans->selector->filteredIDs );
 		$this->assertWatchdogNeverUsed( $controller->comps->scans_queue );
+	}
+
+	public function test_exec_normalizes_unique_positive_integer_scan_ids_at_request_boundary() :void {
+		$controller = $this->installController();
+
+		$this->runScansCheck( [
+			'scan_ids' => [ 21, '32', 21, '1.5', 1.0, true, 0, -4, [], (string)\PHP_INT_MAX.'0' ],
+		] );
+
+		$this->assertSame( [ 21, 32 ], $controller->db_con->scans->selector->filteredIDs );
+		$this->assertSame( 1, $controller->db_con->scans->selector->queryCount );
 	}
 
 	public function test_exec_uses_default_failed_message_when_failed_row_has_no_error_meta() :void {
@@ -104,12 +109,9 @@ class ScansCheckTest extends BaseUnitTest {
 			],
 		] );
 
-		$action = new ScansCheck( [
+		$action = $this->runScansCheck( [
 			'scan_ids' => [ 21 ],
 		] );
-		$method = new \ReflectionMethod( ScansCheck::class, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
 
 		$payload = $action->response()->payload();
 
@@ -133,12 +135,12 @@ class ScansCheckTest extends BaseUnitTest {
 		] );
 		$payload = $action->response()->payload();
 
-		$this->assertTrue( $payload[ 'failed' ] ?? false );
+		$this->assertTrue( $payload[ 'failed' ] );
 		$this->assertModalPayloadContract( $payload, ScansCheck::SCAN_MODAL_STATE_FAILED );
-		$this->assertSame( [], $payload[ 'scan_rows' ] ?? null );
-		$this->assertSame( [], $controller->action_router->renderData[ 'scan_rows' ] ?? null );
-		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] ?? null );
-		$this->assertSame( [ 'afs' => false, 'wpv' => false, 'apc' => false ], $payload[ 'running' ] ?? [] );
+		$this->assertSame( [], $payload[ 'scan_rows' ] );
+		$this->assertSame( [], $controller->action_router->renderData[ 'scan_rows' ] );
+		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] );
+		$this->assertSame( [ 'afs' => false, 'wpv' => false, 'apc' => false ], $payload[ 'running' ] );
 		$this->assertSame( [], $controller->comps->scans_queue->receivedEnqueued );
 		$this->assertSame( 0, $controller->comps->scans_queue->activeProgressRowCalls );
 		$this->assertSame( 0, \FernleafSystems\Wordpress\Services\Services::WpDb()->selectCustomCalls );
@@ -154,24 +156,21 @@ class ScansCheckTest extends BaseUnitTest {
 			0.42
 		);
 
-		$action = new ScansCheck();
-		$method = new \ReflectionMethod( ScansCheck::class, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
+		$action = $this->runScansCheck();
 
 		$payload = $action->response()->payload();
 
-		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$this->assertFalse( $payload[ 'failed' ] ?? true );
-		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $payload[ 'modal_state' ] ?? '' );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertFalse( $payload[ 'failed' ] );
+		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $payload[ 'modal_state' ] );
 		$this->assertModalPayloadContract( $payload, ScansCheck::SCAN_MODAL_STATE_RUNNING );
 		$this->assertArrayNotHasKey( 'vars', $payload );
-		$this->assertSame( [ 'afs' => false, 'wpv' => true, 'apc' => false ], $payload[ 'running' ] ?? [] );
+		$this->assertSame( [ 'afs' => false, 'wpv' => true, 'apc' => false ], $payload[ 'running' ] );
 		$this->assertSame( [ 'wpv' ], $controller->comps->scans_queue->receivedEnqueued );
-		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
+		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $controller->action_router->renderData[ 'modal_state' ] );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 		$this->assertRenderActionUsed( $controller->action_router );
-		$this->assertSame( 42, $controller->action_router->renderData[ 'progress' ] ?? null );
+		$this->assertSame( 42, $controller->action_router->renderData[ 'progress' ] );
 		$this->assertArrayHasKey( 'current_scan', $controller->action_router->renderData );
 		$this->assertWatchdogNeverUsed( $controller->comps->scans_queue );
 	}
@@ -185,23 +184,20 @@ class ScansCheckTest extends BaseUnitTest {
 			0.25
 		);
 
-		$action = new ScansCheck();
-		$method = new \ReflectionMethod( ScansCheck::class, 'exec' );
-		$method->setAccessible( true );
-		$method->invoke( $action );
+		$action = $this->runScansCheck();
 
 		$payload = $action->response()->payload();
 
-		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$this->assertFalse( $payload[ 'failed' ] ?? true );
-		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] ?? '' );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertFalse( $payload[ 'failed' ] );
+		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] );
 		$this->assertModalPayloadContract( $payload, ScansCheck::SCAN_MODAL_STATE_COMPLETED );
 		$this->assertArrayNotHasKey( 'vars', $payload );
 		$this->assertSame( [], $controller->comps->scans_queue->receivedEnqueued );
-		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
+		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 		$this->assertRenderActionUsed( $controller->action_router );
-		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] ?? null );
+		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] );
 		$this->assertWatchdogNeverUsed( $controller->comps->scans_queue );
 	}
 
@@ -216,10 +212,10 @@ class ScansCheckTest extends BaseUnitTest {
 
 		$action = $this->runScansCheck();
 		$payload = $action->response()->payload();
-		$rows = $payload[ 'scan_rows' ] ?? [];
+		$rows = $payload[ 'scan_rows' ];
 
 		$this->assertModalPayloadContract( $payload, ScansCheck::SCAN_MODAL_STATE_RUNNING );
-		$this->assertSame( [ 'afs' => false, 'wpv' => true, 'apc' => true ], $payload[ 'running' ] ?? [] );
+		$this->assertSame( [ 'afs' => false, 'wpv' => true, 'apc' => true ], $payload[ 'running' ] );
 		$this->assertCount( 2, $rows );
 		$this->assertSame( 1, $rows[ 0 ][ 'id' ] );
 		$this->assertSame( 'wpv', $rows[ 0 ][ 'scan' ] );
@@ -231,11 +227,103 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertSame( 'waiting', $rows[ 1 ][ 'display_status' ] );
 		$this->assertFalse( $rows[ 1 ][ 'can_attempt_recovery' ] );
 		$this->assertSame( 0, $rows[ 1 ][ 'progress' ] );
-		$this->assertSame( $rows, $controller->action_router->renderData[ 'scan_rows' ] ?? [] );
+		$this->assertSame( $rows, $controller->action_router->renderData[ 'scan_rows' ] );
 		$this->assertRenderActionUsed( $controller->action_router );
-		$this->assertSame( 21, $controller->action_router->renderData[ 'progress' ] ?? null );
+		$this->assertSame( 42, $controller->action_router->renderData[ 'progress' ] );
 		$this->assertSame( [ 'wpv', 'apc' ], $controller->comps->scans_queue->receivedEnqueued );
 		$this->assertWatchdogNeverUsed( $controller->comps->scans_queue );
+	}
+
+	public function test_exec_uses_exact_work_units_for_current_scan_progress() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'created_at'      => 1699999900,
+			'ready_at'        => 1699999990,
+			'last_process_at' => 1699999990,
+			'started_at'      => 1699999990,
+		] );
+		$harness->insertScanItem( $scanID, [ 'large-chunk' ], 1699999900, 1699999950, 1, 80 );
+		$harness->insertScanItem( $scanID, [ 'small-chunk' ], 0, 0, 0, 1 );
+
+		$payload = $this->runScansCheck()->response()->payload();
+		$rows = $payload[ 'scan_rows' ];
+
+		$this->assertCount( 1, $rows );
+		$this->assertSame( 81, $rows[ 0 ][ 'total_items' ] );
+		$this->assertSame( 1, $rows[ 0 ][ 'unfinished' ] );
+		$this->assertSame( 99, $rows[ 0 ][ 'progress' ] );
+		$this->assertSame( 99, $harness->actionRouter->renderData[ 'progress' ] );
+	}
+
+	public function test_exec_treats_legacy_zero_item_counts_as_one_work_unit_in_sqlite_harness() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'created_at'      => 1699999900,
+			'ready_at'        => 1699999990,
+			'last_process_at' => 1699999990,
+			'started_at'      => 1699999990,
+		] );
+		$harness->insertScanItem( $scanID, [ 'legacy-finished' ], 1699999900, 1699999950, 1, 0 );
+		$harness->insertScanItem( $scanID, [ 'legacy-unfinished' ], 0, 0, 0, 0 );
+
+		$payload = $this->runScansCheck()->response()->payload();
+		$rows = $payload[ 'scan_rows' ];
+
+		$this->assertCount( 1, $rows );
+		$this->assertSame( 2, $rows[ 0 ][ 'total_items' ] );
+		$this->assertSame( 1, $rows[ 0 ][ 'unfinished' ] );
+		$this->assertSame( 50, $rows[ 0 ][ 'progress' ] );
+		$this->assertSame( 50, $harness->actionRouter->renderData[ 'progress' ] );
+	}
+
+	public function test_exec_moves_modal_subject_and_progress_to_next_ordered_scan() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$firstScanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'created_at'      => 1699999900,
+			'ready_at'        => 1699999990,
+			'last_process_at' => 1699999990,
+			'started_at'      => 1699999990,
+		] );
+		$secondScanID = $harness->insertScan( [
+			'scan'       => 'wpv',
+			'status'     => 'queued',
+			'created_at' => 1699999910,
+		] );
+		$harness->insertScanItem( $firstScanID, [ 'afs-done' ], 1699999900, 1699999950, 1, 3 );
+		$harness->insertScanItem( $firstScanID, [ 'afs-pending' ], 0, 0, 0, 1 );
+		$harness->insertScanItem( $secondScanID, [ 'wpv-pending' ], 0, 0, 0, 2 );
+
+		$firstPayload = $this->runScansCheck()->response()->payload();
+		$firstRows = $firstPayload[ 'scan_rows' ];
+		$firstSubject = $harness->actionRouter->renderData[ 'current_scan' ];
+		$this->assertSame( $firstRows[ 0 ][ 'name' ], $firstSubject );
+		$this->assertSame( 75, $harness->actionRouter->renderData[ 'progress' ] );
+
+		$harness->sql->updateRowById( 'scans', $firstScanID, [
+			'status'      => 'completed',
+			'finished_at' => 1700000000,
+		] );
+		$harness->sql->updateRowById( 'scans', $secondScanID, [
+			'status'          => 'running',
+			'ready_at'        => 1699999990,
+			'last_process_at' => 1699999990,
+			'started_at'      => 1699999990,
+		] );
+
+		$secondPayload = $this->runScansCheck()->response()->payload();
+		$secondRows = $secondPayload[ 'scan_rows' ];
+
+		$this->assertCount( 1, $secondRows );
+		$this->assertSame( $secondScanID, $secondRows[ 0 ][ 'id' ] );
+		$this->assertSame( $secondRows[ 0 ][ 'name' ], $harness->actionRouter->renderData[ 'current_scan' ] );
+		$this->assertNotSame( $firstSubject, $harness->actionRouter->renderData[ 'current_scan' ] );
+		$this->assertSame( 0, $harness->actionRouter->renderData[ 'progress' ] );
 	}
 
 	public function test_exec_reports_stalled_scan_without_watchdog_mutation() :void {
@@ -255,7 +343,7 @@ class ScansCheckTest extends BaseUnitTest {
 			'scan_ids' => [ $scanID ],
 		] )->response()->payload();
 		$queries = $harness->sql->queryLog();
-		$rows = $payload[ 'scan_rows' ] ?? [];
+		$rows = $payload[ 'scan_rows' ];
 
 		$scan = $harness->scanRow( $scanID );
 		$item = $harness->scanItemRow( $itemID );
@@ -264,17 +352,17 @@ class ScansCheckTest extends BaseUnitTest {
 		$this->assertSame( 1699999000, (int)$scan[ 'last_process_at' ] );
 		$this->assertSame( 0, (int)$item[ 'finished_at' ] );
 		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $scan ) );
-		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$this->assertFalse( $payload[ 'failed' ] ?? true );
-		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $payload[ 'modal_state' ] ?? '' );
-		$this->assertSame( [ 'afs' => true, 'apc' => false, 'wpv' => false ], $payload[ 'running' ] ?? [] );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertFalse( $payload[ 'failed' ] );
+		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $payload[ 'modal_state' ] );
+		$this->assertSame( [ 'afs' => true, 'apc' => false, 'wpv' => false ], $payload[ 'running' ] );
 		$this->assertCount( 1, $rows );
 		$this->assertSame( $scanID, $rows[ 0 ][ 'id' ] );
 		$this->assertSame( 'afs', $rows[ 0 ][ 'scan' ] );
 		$this->assertSame( 'stalled', $rows[ 0 ][ 'display_status' ] );
 		$this->assertTrue( $rows[ 0 ][ 'is_stale' ] );
 		$this->assertTrue( $rows[ 0 ][ 'can_attempt_recovery' ] );
-		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $harness->actionRouter->renderData[ 'modal_state' ] ?? '' );
+		$this->assertSame( ScansCheck::SCAN_MODAL_STATE_RUNNING, $harness->actionRouter->renderData[ 'modal_state' ] );
 		$this->assertSame( [], $harness->async->scheduled );
 		$this->assertSame( [], $harness->async->remotePosts );
 		$this->assertFalse( $this->queryLogContains( $queries, 'UPDATE `scans`' ) );
@@ -289,19 +377,19 @@ class ScansCheckTest extends BaseUnitTest {
 	}
 
 	private function assertModalPayloadContract( array $payload, string $expectedState ) :void {
-		$this->assertSame( $expectedState, $payload[ 'modal_state' ] ?? '' );
+		$this->assertArrayHasKey( 'modal_state', $payload );
+		$this->assertSame( $expectedState, $payload[ 'modal_state' ] );
 		$this->assertArrayHasKey( 'modal_html', $payload );
 		$this->assertIsString( $payload[ 'modal_html' ] );
 		$this->assertNotSame( '', $payload[ 'modal_html' ] );
 	}
 
 	private function assertRenderActionUsed( object $actionRouter ) :void {
-		$this->assertSame( ScansProgress::class, $actionRouter->renderClass ?? '' );
+		$this->assertSame( ScansProgress::class, $actionRouter->renderClass );
 	}
 
 	private function assertWatchdogNeverUsed( object $queue ) :void {
 		$this->assertSame( 0, $queue->watchdogRequests );
-		$this->assertSame( [], $queue->watchdogMutationCalls );
 	}
 
 	private function runScansCheck( array $actionData = [] ) :ScansCheck {
@@ -465,7 +553,6 @@ class ScansCheckTest extends BaseUnitTest {
 				public array $receivedEnqueued = [];
 				public int $activeProgressRowCalls = 0;
 				public int $watchdogRequests = 0;
-				public array $watchdogMutationCalls = [];
 
 				private array $runningStates;
 				private float $progress;
@@ -482,10 +569,6 @@ class ScansCheckTest extends BaseUnitTest {
 						$states[ $scan ] = true;
 					}
 					return $states;
-				}
-
-				public function getScanJobProgress() :float {
-					return $this->progress;
 				}
 
 				public function getActiveScanProgressRows( array $activeScans ) :array {
@@ -514,35 +597,7 @@ class ScansCheckTest extends BaseUnitTest {
 
 				public function getQueueWatchdog() :object {
 					$this->watchdogRequests++;
-					return new class( $this ) {
-						private object $queue;
-
-						public function __construct( object $queue ) {
-							$this->queue = $queue;
-						}
-
-						public function run() :void {
-							$this->record( __FUNCTION__ );
-						}
-
-						public function runIfStale() :void {
-							$this->record( __FUNCTION__ );
-						}
-
-						public function runScheduled() :void {
-							$this->record( __FUNCTION__ );
-						}
-
-						public function runForStaleStartBlockers( array $scans, string $scopeType = 'full', string $scopeKey = '' ) :array {
-							unset( $scans, $scopeType, $scopeKey );
-							$this->record( __FUNCTION__ );
-							return [];
-						}
-
-						private function record( string $method ) :void {
-							$this->queue->watchdogMutationCalls[] = $method;
-						}
-					};
+					return new \stdClass();
 				}
 			},
 		];
