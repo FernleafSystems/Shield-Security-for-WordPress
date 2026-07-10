@@ -301,6 +301,19 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			async inspectIpAnalysisActivityMetaFixture() {
 				return runFixture( 'ip-analysis-activity-meta', 'inspect' );
 			},
+			async withIpDetectBackgroundFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'ip-detect-background', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'ip-detect-background', 'cleanup' );
+					}
+				}
+			},
 			async withIpRulesTableFixture( runScenario ) {
 				let seeded = false;
 				try {

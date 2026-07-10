@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQu
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\DashboardDefaultsFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportFileFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpAnalysisActivityMetaFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpDetectBackgroundFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpRulesTableFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\LicenseClearFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\LoginGuardCoreFixtureBuilder;
@@ -37,6 +38,8 @@ class BrowserFixtureRegistry {
 				return self::runImportExportFileFixture( $action );
 			case 'ip-analysis-activity-meta':
 				return self::runIpAnalysisActivityMetaFixture( $action );
+			case 'ip-detect-background':
+				return self::runIpDetectBackgroundFixture( $action );
 			case 'ip-rules-table':
 				return self::runIpRulesTableFixture( $action );
 			case 'license-clear':
@@ -74,6 +77,7 @@ class BrowserFixtureRegistry {
 		self::runDashboardDefaultsFixture( 'cleanup' );
 		self::runImportExportFileFixture( 'cleanup' );
 		self::runIpAnalysisActivityMetaFixture( 'cleanup' );
+		self::runIpDetectBackgroundFixture( 'cleanup' );
 		self::runIpRulesTableFixture( 'cleanup' );
 		self::runLicenseClearFixture( 'cleanup' );
 		self::runLoginGuardCoreFixture( 'cleanup', [] );
@@ -274,6 +278,36 @@ class BrowserFixtureRegistry {
 
 			case 'inspect':
 				return $builder->inspect( $state );
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runIpDetectBackgroundFixture( string $action ) :array {
+		$builder = new IpDetectBackgroundFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'ip-detect-background' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
 
 			case 'seed':
 				if ( $state !== [] ) {

@@ -249,8 +249,9 @@ class AssetsCustomizer {
 				],
 			],
 			'ip_detect'        => [
-				'key'     => 'ip_detect',
-				'handles' => [
+				'key'      => 'ip_detect',
+				'required' => $con->getMeetsBasePermissions(),
+				'handles'  => [
 					'main',
 					'wpadmin',
 				],
