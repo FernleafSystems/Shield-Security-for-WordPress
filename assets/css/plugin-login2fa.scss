@@ -790,16 +790,9 @@ body.shield-mfa-login-page.shield-busy {
 /* Shared legacy selectors for WP Replica and unchanged fallback markup. */
 
 form.shield-2fa-wplogin input[type="checkbox"][name="skip_mfa"] {
-	-webkit-appearance: none;
-	appearance: none;
-	background-color: #fff;
-	background-image: none;
-	background-position: center;
-	background-repeat: no-repeat;
-	background-size: 12px 12px;
-	border: 1px solid var(--shield-line-strong);
-	border-radius: 4px;
-	display: inline-block;
+	-webkit-appearance: auto;
+	appearance: auto;
+	accent-color: var(--shield-green);
 	height: 1rem;
 	min-width: 1rem;
 	vertical-align: middle;
@@ -810,10 +803,19 @@ form.shield-2fa-wplogin input[type="checkbox"][name="skip_mfa"]::before {
 	content: none;
 }
 
-form.shield-2fa-wplogin input[type="checkbox"][name="skip_mfa"]:checked {
-	background-color: var(--shield-green);
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='white' d='M6.173 12.414 2.343 8.586l1.414-1.414 2.416 2.414 6.071-6.071 1.414 1.414z'/%3E%3C/svg%3E");
-	border-color: var(--shield-green);
+form.shield-2fa-wplogin input[type="checkbox"][name="skip_mfa"]:focus-visible {
+	outline: 2px solid var(--shield-green);
+	outline-offset: 2px;
+}
+
+@media (forced-colors: active) {
+	form.shield-2fa-wplogin input[type="checkbox"][name="skip_mfa"] {
+		accent-color: auto;
+	}
+
+	form.shield-2fa-wplogin input[type="checkbox"][name="skip_mfa"]:focus-visible {
+		outline-color: Highlight;
+	}
 }
 
 .shield-2fa-wplogin input[type="text"][name="shield_yubi_otp"] {

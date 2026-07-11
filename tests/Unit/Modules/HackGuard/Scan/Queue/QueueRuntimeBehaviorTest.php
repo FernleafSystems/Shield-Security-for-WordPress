@@ -34,6 +34,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	QueueMaintenance,
 	QueueProcessor,
 	QueueWatchdog,
+	ReconcileQueue,
 	RunState
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -244,40 +245,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
 		$scanUpdates = [];
 		$selectorCalls = 0;
-		$this->installController( [
-			'db_con' => (object)[
-				'scans' => new class( $scanUpdates, $selectorCalls ) {
-					public array $updates;
-					public int $selectorCalls;
-
-					public function __construct( array &$updates, int &$selectorCalls ) {
-						$this->updates = &$updates;
-						$this->selectorCalls = &$selectorCalls;
-					}
-
-					public function getQuerySelector() :object {
-						$this->selectorCalls++;
-						return new class {
-						};
-					}
-
-					public function getQueryUpdater() :object {
-						return new class( $this->updates ) {
-							public array $updates;
-
-							public function __construct( array &$updates ) {
-								$this->updates = &$updates;
-							}
-
-							public function updateById( int $scanID, array $data ) :bool {
-								$this->updates[] = [ 'scan_id' => $scanID, 'data' => $data ];
-								return true;
-							}
-						};
-					}
-				},
-			],
-		] );
+		$this->installRunStateUpdateHarness( $scanUpdates, $selectorCalls );
 
 		$item = ( new QueueItemVO() )->applyFromArray( [
 			'scan_id'         => 62,
@@ -300,6 +268,56 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			[ 'scan_meta' => 'value' ],
 			\json_decode( \base64_decode( (string)$scanUpdates[ 0 ][ 'data' ][ 'meta' ] ), true )
 		);
+	}
+
+	public function test_mark_running_preserves_queue_item_exception_without_meta_write() :void {
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700001555 ),
+		] );
+		$diagnostic = 'Queue item exception: scan=afs qitem_id=17 attempt=1 exception=RuntimeException message=hard death';
+		$scanUpdates = [];
+		$selectorCalls = 0;
+		$this->installRunStateUpdateHarness( $scanUpdates, $selectorCalls );
+		$item = ( new QueueItemVO() )->applyFromArray( [
+			'scan_id'         => 63,
+			'scan_started_at' => 1699999999,
+			'meta'            => [ RunState::META_KEY_LAST_ERROR => $diagnostic ],
+		] );
+
+		( new RunState() )->markRunning( $item );
+
+		$this->assertSame( 0, $selectorCalls );
+		$this->assertCount( 1, $scanUpdates );
+		$this->assertArrayNotHasKey( 'meta', $scanUpdates[ 0 ][ 'data' ] );
+		$this->assertSame( $diagnostic, $item->meta[ RunState::META_KEY_LAST_ERROR ] ?? null );
+	}
+
+	public function test_mark_running_clears_only_watchdog_recovery_alongside_queue_item_exception() :void {
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700001555 ),
+		] );
+		$diagnostic = 'Queue item exception: scan=afs qitem_id=18 attempt=1 exception=RuntimeException message=hard death';
+		$scanUpdates = [];
+		$selectorCalls = 0;
+		$this->installRunStateUpdateHarness( $scanUpdates, $selectorCalls );
+		$item = ( new QueueItemVO() )->applyFromArray( [
+			'scan_id'         => 64,
+			'scan_started_at' => 1699999999,
+			'meta'            => [
+				RunState::META_KEY_LAST_ERROR         => $diagnostic,
+				RunState::META_KEY_WATCHDOG_RECOVERY => [ 'attempts' => 1 ],
+				'scan_meta'                           => 'value',
+			],
+		] );
+
+		( new RunState() )->markRunning( $item );
+
+		$this->assertSame( 0, $selectorCalls );
+		$this->assertCount( 1, $scanUpdates );
+		$this->assertSame( [
+			RunState::META_KEY_LAST_ERROR => $diagnostic,
+			'scan_meta'                   => 'value',
+		], \json_decode( \base64_decode( (string)$scanUpdates[ 0 ][ 'data' ][ 'meta' ] ), true ) );
 	}
 
 	public function test_mark_running_primes_heartbeat_throttle_without_scan_item_writes() :void {
@@ -423,7 +441,9 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 						$this->record = new class {
 							public int $id = 99;
 							public int $started_at = 0;
-							public array $meta = [];
+							public array $meta = [
+								RunState::META_KEY_LAST_ERROR => 'Queue item exception: scan=bad qitem_id=7 attempt=1 exception=RuntimeException message=old failure',
+							];
 
 							public function __get( string $key ) {
 								return $this->{$key} ?? null;
@@ -480,7 +500,9 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			'qitem_id' => 7,
 			'scan'     => 'bad',
 			'attempts' => 2,
-			'meta'     => [],
+			'meta'     => [
+				RunState::META_KEY_LAST_ERROR => 'Queue item exception: scan=bad qitem_id=7 attempt=1 exception=RuntimeException message=old failure',
+			],
 			'items'    => [],
 		] );
 
@@ -500,6 +522,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'attempt=2', $message );
 		$this->assertStringContainsString( 'exception=InvalidArgumentException', $message );
 		$this->assertStringContainsString( 'Unknown scan slug: bad', $message );
+		$this->assertStringNotContainsString( 'old failure', $message );
 		$this->assertSame( [], $deletedScanItems );
 		$this->assertTrue( QueueLifecycleLogSpy::contains(
 			'Shield scan processing exception: scan_id=99 qitem_id=7 scan=bad message=Unknown scan slug: bad'
@@ -617,44 +640,14 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_scan_job_progress_uses_single_grouped_progress_query() :void {
-		$selector = new class {
-			public int $progressCalls = 0;
-
-			public function countProgressForEachScan() :array {
-				$this->progressCalls++;
-				return [
-					1 => [
-						'total'      => 4,
-						'unfinished' => 1,
-					],
-					2 => [
-						'total'      => 2,
-						'unfinished' => 0,
-					],
-				];
-			}
-
-			public function countAllForEachScan() :array {
-				throw new \RuntimeException( 'Progress must use the consolidated count query.' );
-			}
-
-			public function countUnfinishedForEachScan() :array {
-				throw new \RuntimeException( 'Progress must use the consolidated count query.' );
-			}
-		};
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_items' => new class( $selector ) {
-					private object $selector;
-
-					public function __construct( object $selector ) {
-						$this->selector = $selector;
-					}
-
-					public function getQuerySelector() :object {
-						return $this->selector;
-					}
-				},
+		$selector = $this->installProgressController( [
+			1 => [
+				'total'      => 4,
+				'unfinished' => 1,
+			],
+			2 => [
+				'total'      => 2,
+				'unfinished' => 0,
 			],
 		] );
 
@@ -663,62 +656,21 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_scan_job_progress_reports_complete_when_no_grouped_counts_exist() :void {
-		$selector = new class {
-			public int $progressCalls = 0;
-
-			public function countProgressForEachScan() :array {
-				$this->progressCalls++;
-				return [];
-			}
-		};
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_items' => new class( $selector ) {
-					private object $selector;
-
-					public function __construct( object $selector ) {
-						$this->selector = $selector;
-					}
-
-					public function getQuerySelector() :object {
-						return $this->selector;
-					}
-				},
-			],
-		] );
+		$selector = $this->installProgressController( [] );
 
 		$this->assertSame( 1.0, ( new QueueController() )->getScanJobProgress() );
 		$this->assertSame( 1, $selector->progressCalls );
 	}
 
 	public function test_scan_job_progress_ignores_zero_total_group_without_dividing_by_zero() :void {
-		$selector = new class {
-			public function countProgressForEachScan() :array {
-				return [
-					1 => [
-						'total'      => 0,
-						'unfinished' => 0,
-					],
-					2 => [
-						'total'      => 2,
-						'unfinished' => 1,
-					],
-				];
-			}
-		};
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_items' => new class( $selector ) {
-					private object $selector;
-
-					public function __construct( object $selector ) {
-						$this->selector = $selector;
-					}
-
-					public function getQuerySelector() :object {
-						return $this->selector;
-					}
-				},
+		$this->installProgressController( [
+			1 => [
+				'total'      => 0,
+				'unfinished' => 0,
+			],
+			2 => [
+				'total'      => 2,
+				'unfinished' => 1,
 			],
 		] );
 
@@ -726,53 +678,16 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_active_scan_progress_rows_use_single_grouped_progress_query() :void {
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
-		] );
-
-		$selector = new class {
-			public int $progressCalls = 0;
-
-			public function countProgressForEachScan() :array {
-				$this->progressCalls++;
-				return [
-					11 => [
-						'total'      => 4,
-						'unfinished' => 1,
-					],
-					12 => [
-						'total'      => 2,
-						'unfinished' => 0,
-					],
-				];
-			}
-
-			public function countAllForEachScan() :array {
-				throw new \RuntimeException( 'Read model must use the consolidated count query.' );
-			}
-
-			public function countUnfinishedForEachScan() :array {
-				throw new \RuntimeException( 'Read model must use the consolidated count query.' );
-			}
-		};
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_items' => new class( $selector ) {
-					private object $selector;
-
-					public function __construct( object $selector ) {
-						$this->selector = $selector;
-					}
-
-					public function getQuerySelector() :object {
-						return $this->selector;
-					}
-				},
+		$selector = $this->installProgressController( [
+			11 => [
+				'total'      => 4,
+				'unfinished' => 1,
 			],
-			'comps'  => (object)[
-				'scans' => $this->scanNameComponent(),
+			12 => [
+				'total'      => 2,
+				'unfinished' => 0,
 			],
-		] );
+		], true );
 
 		$rows = ( new QueueController() )->getActiveScanProgressRows( [
 			$this->activeScanRow( 11, 'afs', 'running', 1699999950, 1699999950, 1699999950 ),
@@ -803,38 +718,12 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_active_scan_progress_rows_handle_missing_and_zero_counts() :void {
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
-		] );
-
-		$selector = new class {
-			public function countProgressForEachScan() :array {
-				return [
-					21 => [
-						'total'      => 0,
-						'unfinished' => 0,
-					],
-				];
-			}
-		};
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_items' => new class( $selector ) {
-					private object $selector;
-
-					public function __construct( object $selector ) {
-						$this->selector = $selector;
-					}
-
-					public function getQuerySelector() :object {
-						return $this->selector;
-					}
-				},
+		$this->installProgressController( [
+			21 => [
+				'total'      => 0,
+				'unfinished' => 0,
 			],
-			'comps'  => (object)[
-				'scans' => $this->scanNameComponent(),
-			],
-		] );
+		], true );
 
 		$rows = ( new QueueController() )->getActiveScanProgressRows( [
 			$this->activeScanRow( 21, 'afs', 'running', 1699999950, 1699999950, 1699999950 ),
@@ -852,38 +741,12 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_active_scan_progress_rows_report_stalled_without_recovery_mutation() :void {
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
-		] );
-
-		$selector = new class {
-			public function countProgressForEachScan() :array {
-				return [
-					31 => [
-						'total'      => 4,
-						'unfinished' => 2,
-					],
-				];
-			}
-		};
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_items' => new class( $selector ) {
-					private object $selector;
-
-					public function __construct( object $selector ) {
-						$this->selector = $selector;
-					}
-
-					public function getQuerySelector() :object {
-						return $this->selector;
-					}
-				},
+		$this->installProgressController( [
+			31 => [
+				'total'      => 4,
+				'unfinished' => 2,
 			],
-			'comps'  => (object)[
-				'scans' => $this->scanNameComponent(),
-			],
-		] );
+		], true );
 
 		$rows = ( new QueueController() )->getActiveScanProgressRows( [
 			$this->activeScanRow( 31, 'afs', 'running', 1699999000, 1699999000, 1699999000 ),
@@ -908,38 +771,12 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		int $lastProcessAt,
 		bool $expectedStale
 	) :void {
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
-		] );
-
-		$selector = new class {
-			public function countProgressForEachScan() :array {
-				return [
-					41 => [
-						'total'      => 5,
-						'unfinished' => 2,
-					],
-				];
-			}
-		};
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_items' => new class( $selector ) {
-					private object $selector;
-
-					public function __construct( object $selector ) {
-						$this->selector = $selector;
-					}
-
-					public function getQuerySelector() :object {
-						return $this->selector;
-					}
-				},
+		$this->installProgressController( [
+			41 => [
+				'total'      => 5,
+				'unfinished' => 2,
 			],
-			'comps'  => (object)[
-				'scans' => $this->scanNameComponent(),
-			],
-		] );
+		], true );
 
 		$rows = ( new QueueController() )->getActiveScanProgressRows( [
 			$this->activeScanRow( 41, 'afs', $status, $createdAt, $readyAt, $lastProcessAt ),
@@ -962,35 +799,68 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			'running stale last process' => [ 'running', 1699999000, 1699999900, 1699999000, true ],
 			'running missing ready guard' => [ 'running', 1699999000, 0, 0, false ],
 			'running fresh last process' => [ 'running', 1699999000, 1699999000, 1699999900, false ],
+			'running exact cutoff boundary' => [ 'running', 1699999000, 1699999000, 1699999820, false ],
 		];
 	}
 
-	public function test_active_scan_progress_rows_report_non_current_stale_row_as_waiting() :void {
+	/**
+	 * @dataProvider claimedScanReloadProvider
+	 */
+	public function test_explicit_recovery_stops_safely_when_claimed_scan_is_missing_or_non_active( ?string $status ) :void {
+		Functions\when( 'wp_next_scheduled' )->justReturn( false );
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
-		] );
+			'service_wpdb'    => $wpdb = new class extends Db {
+				public array $writes = [];
 
-		$selector = new class {
-			public function countProgressForEachScan() :array {
-				return [
-					51 => [
-						'total'      => 4,
-						'unfinished' => 1,
-					],
-					52 => [
-						'total'      => 4,
-						'unfinished' => 2,
-					],
-				];
+				public function doSql( string $sqlQuery ) {
+					$this->writes[] = $sqlQuery;
+					return 1;
+				}
+
+				public function getVar( $sql ) {
+					unset( $sql );
+					return 0;
+				}
+			},
+		] );
+		$selector = new class( $status ) {
+			public int $calls = 0;
+			private ?string $status;
+
+			public function __construct( ?string $status ) {
+				$this->status = $status;
+			}
+
+			public function byId( int $scanID ) {
+				$this->calls++;
+				if ( $this->status === null ) {
+					return null;
+				}
+				$scan = new ScanRecord();
+				$scan->id = $scanID;
+				$scan->status = $this->status;
+				$scan->finished_at = 0;
+				return $scan;
 			}
 		};
 		$this->installController( [
+			'cfg'    => (object)[
+				'properties' => [
+					'slug_parent' => 'icwp',
+					'slug_plugin' => 'wpsf',
+				],
+			],
 			'db_con' => (object)[
-				'scan_items' => new class( $selector ) {
+				'scans' => new class( $selector ) {
 					private object $selector;
 
 					public function __construct( object $selector ) {
 						$this->selector = $selector;
+					}
+
+					public function getTable() :string {
+						return 'shield_scans';
 					}
 
 					public function getQuerySelector() :object {
@@ -998,10 +868,56 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 					}
 				},
 			],
-			'comps'  => (object)[
-				'scans' => $this->scanNameComponent(),
+		] );
+
+		$this->assertTrue( ( new QueueWatchdog() )->recoverScanIfStale( 77 ) );
+		$this->assertSame( 1, $selector->calls );
+		$this->assertCount( 1, $wpdb->writes );
+		$this->assertStringContainsString( 'active_head', $wpdb->writes[ 0 ] );
+	}
+
+	public static function claimedScanReloadProvider() :array {
+		return [
+			'missing row'    => [ null ],
+			'non-active row' => [ 'completed' ],
+		];
+	}
+
+	public function test_selected_ready_reconciliation_returns_null_when_classification_query_fails() :void {
+		ServicesState::installItems( [
+			'service_wpdb' => new class extends Db {
+				public function selectRow( string $query, $format = null ) {
+					unset( $query, $format );
+					return false;
+				}
+			},
+		] );
+		$this->installController( [
+			'db_con' => (object)[
+				'scan_items' => new class {
+					public function getTable() :string {
+						return 'shield_scan_items';
+					}
+				},
 			],
 		] );
+		$scan = new ScanRecord();
+		$scan->id = 88;
+
+		$this->assertNull( ( new ReconcileQueue() )->reconcileReadyScan( $scan ) );
+	}
+
+	public function test_active_scan_progress_rows_report_non_current_stale_row_as_waiting() :void {
+		$this->installProgressController( [
+			51 => [
+				'total'      => 4,
+				'unfinished' => 1,
+			],
+			52 => [
+				'total'      => 4,
+				'unfinished' => 2,
+			],
+		], true );
 
 		$rows = ( new QueueController() )->getActiveScanProgressRows( [
 			$this->activeScanRow( 51, 'afs', 'running', 1699999900, 1699999900, 1699999900 ),
@@ -1020,38 +936,12 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_active_scan_progress_rows_clamp_overrun_counts() :void {
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
-		] );
-
-		$selector = new class {
-			public function countProgressForEachScan() :array {
-				return [
-					61 => [
-						'total'      => 4,
-						'unfinished' => 8,
-					],
-				];
-			}
-		};
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_items' => new class( $selector ) {
-					private object $selector;
-
-					public function __construct( object $selector ) {
-						$this->selector = $selector;
-					}
-
-					public function getQuerySelector() :object {
-						return $this->selector;
-					}
-				},
+		$this->installProgressController( [
+			61 => [
+				'total'      => 4,
+				'unfinished' => 8,
 			],
-			'comps'  => (object)[
-				'scans' => $this->scanNameComponent(),
-			],
-		] );
+		], true );
 
 		$rows = ( new QueueController() )->getActiveScanProgressRows( [
 			$this->activeScanRow( 61, 'afs', 'running', 1699999900, 1699999900, 1699999900 ),
@@ -1580,6 +1470,65 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( \MINUTE_IN_SECONDS*10, $processor->getExpirationInterval() );
 	}
 
+	/**
+	 * @param array<int,array{total:int,unfinished:int}> $counts
+	 */
+	private function installProgressController(
+		array $counts,
+		bool $includeScanNames = false
+	) :object {
+		$selector = new class( $counts ) {
+			public int $progressCalls = 0;
+			private array $counts;
+
+			public function __construct( array $counts ) {
+				$this->counts = $counts;
+			}
+
+			public function countProgressForEachScan() :array {
+				$this->progressCalls++;
+				return $this->counts;
+			}
+
+			public function countAllForEachScan() :array {
+				return $this->rejectLegacySelector();
+			}
+
+			public function countUnfinishedForEachScan() :array {
+				return $this->rejectLegacySelector();
+			}
+
+			private function rejectLegacySelector() :array {
+				throw new \RuntimeException( 'Progress must use the consolidated count query.' );
+			}
+		};
+		$properties = [
+			'db_con' => (object)[
+				'scan_items' => new class( $selector ) {
+					private object $selector;
+
+					public function __construct( object $selector ) {
+						$this->selector = $selector;
+					}
+
+					public function getQuerySelector() :object {
+						return $this->selector;
+					}
+				},
+			],
+		];
+		if ( $includeScanNames ) {
+			ServicesState::installItems( [
+				'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
+			] );
+			$properties[ 'comps' ] = (object)[
+				'scans' => $this->scanNameComponent(),
+			];
+		}
+		$this->installController( $properties );
+		return $selector;
+	}
+
 	private function activeScanRow(
 		int $id,
 		string $scan,
@@ -1735,6 +1684,43 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		] );
 
 		return $harness;
+	}
+
+	private function installRunStateUpdateHarness( array &$scanUpdates, int &$selectorCalls ) :void {
+		$this->installController( [
+			'db_con' => (object)[
+				'scans' => new class( $scanUpdates, $selectorCalls ) {
+					public array $updates;
+					public int $selectorCalls;
+
+					public function __construct( array &$updates, int &$selectorCalls ) {
+						$this->updates = &$updates;
+						$this->selectorCalls = &$selectorCalls;
+					}
+
+					public function getQuerySelector() :object {
+						$this->selectorCalls++;
+						return new class {
+						};
+					}
+
+					public function getQueryUpdater() :object {
+						return new class( $this->updates ) {
+							public array $updates;
+
+							public function __construct( array &$updates ) {
+								$this->updates = &$updates;
+							}
+
+							public function updateById( int $scanID, array $data ) :bool {
+								$this->updates[] = [ 'scan_id' => $scanID, 'data' => $data ];
+								return true;
+							}
+						};
+					}
+				},
+			],
+		] );
 	}
 
 	private function installController( array $properties ) :void {

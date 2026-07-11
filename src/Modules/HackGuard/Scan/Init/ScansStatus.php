@@ -6,61 +6,47 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-type ActiveScanStatus 'queued'|'building'|'built'|'running'
+ * @phpstan-type ActiveScanRow array{id:int,scan:string,status:ActiveScanStatus,scope_type:string,scope_key:string,created_at:int,started_at:int,ready_at:int,last_process_at:int}
+ */
 class ScansStatus {
 
 	use PluginControllerConsumer;
 
+	/** @var ?array{current:string,enqueued:list<string>} */
 	private ?array $activeSnapshot = null;
 
+	/** @var ?list<ActiveScanRow> */
 	private ?array $activeScans = null;
 
-	public function current() :string {
-		return (string)$this->activeSnapshot()[ 'current' ];
-	}
-
+	/** @return list<string> */
 	public function enqueued() :array {
 		return $this->activeSnapshot()[ 'enqueued' ];
 	}
 
 	/**
-	 * @return array{current:string,enqueued:string[]}
+	 * @return array{current:string,enqueued:list<string>}
 	 */
 	public function activeSnapshot() :array {
 		return $this->activeSnapshot ??= $this->loadActiveSnapshot();
 	}
 
 	/**
-	 * @return list<array{id:int,scan:string,status:string,scope_type:string,scope_key:string,created_at:int,started_at:int,ready_at:int,last_process_at:int}>
+	 * @return list<ActiveScanRow>
 	 */
 	public function activeScans() :array {
 		return $this->activeScans ??= $this->loadActiveScans();
 	}
 
 	/**
-	 * @return array{current:string,enqueued:string[]}
+	 * @return array{current:string,enqueued:list<string>}
 	 */
 	private function loadActiveSnapshot() :array {
-		$rows = Services::WpDb()->selectCustom(
-			sprintf( "SELECT `scans`.`scan`, `scans`.`status`, `scans`.`created_at`
-						FROM `%s` as `scans`
-						WHERE `scans`.`status` IN (%s)
-						  AND `scans`.`finished_at`=0
-						ORDER BY CASE WHEN `scans`.`status` IN (%s) THEN 0 ELSE 1 END ASC,
-								 `scans`.`created_at` ASC,
-								 `scans`.`id` ASC;",
-				self::con()->db_con->scans->getTable(),
-				ScanStatus::sqlList( ScanStatus::ACTIVE ),
-				ScanStatus::sqlList( ScanStatus::CURRENT )
-			)
-		) ?: [];
-
 		$current = '';
 		$enqueued = [];
-		foreach ( $rows as $row ) {
-			$scan = (string)$row[ 'scan' ];
-			if ( $scan === '' ) {
-				continue;
-			}
+		foreach ( $this->activeScans() as $row ) {
+			$scan = $row[ 'scan' ];
 			if ( $current === '' ) {
 				$current = $scan;
 			}
@@ -74,7 +60,7 @@ class ScansStatus {
 	}
 
 	/**
-	 * @return list<array{id:int,scan:string,status:string,scope_type:string,scope_key:string,created_at:int,started_at:int,ready_at:int,last_process_at:int}>
+	 * @return list<ActiveScanRow>
 	 */
 	private function loadActiveScans() :array {
 		$rows = Services::WpDb()->selectCustom(
@@ -101,17 +87,17 @@ class ScansStatus {
 
 		$activeScans = [];
 		foreach ( $rows as $row ) {
-			if ( !\is_array( $row ) ) {
-				continue;
-			}
 			$id = (int)( $row[ 'id' ] ?? 0 );
-			if ( $id <= 0 || (string)( $row[ 'scan' ] ?? '' ) === '' ) {
+			$status = (string)( $row[ 'status' ] ?? '' );
+			if ( $id <= 0
+				 || (string)( $row[ 'scan' ] ?? '' ) === ''
+				 || !\in_array( $status, ScanStatus::ACTIVE, true ) ) {
 				continue;
 			}
 			$activeScans[] = [
 				'id'              => $id,
 				'scan'            => (string)$row[ 'scan' ],
-				'status'          => (string)( $row[ 'status' ] ?? '' ),
+				'status'          => $status,
 				'scope_type'      => (string)( $row[ 'scope_type' ] ?? 'full' ),
 				'scope_key'       => (string)( $row[ 'scope_key' ] ?? '' ),
 				'created_at'      => (int)( $row[ 'created_at' ] ?? 0 ),
@@ -123,4 +109,5 @@ class ScansStatus {
 
 		return $activeScans;
 	}
+
 }

@@ -12,6 +12,8 @@ trait CacheStoreWordPressFunctions {
 
 	private string $cacheStoreSiteUrl = 'https://www.example.com/abc';
 
+	private int $cacheStoreBlogID = 1;
+
 	protected function registerCacheStoreWordPressFunctions( CacheStoreTestFs $fs, string $tmpDir ) :void {
 		$this->cacheStoreFs = $fs;
 		$this->cacheStoreTmpDir = $this->normaliseCacheStorePath( $tmpDir );
@@ -20,6 +22,9 @@ trait CacheStoreWordPressFunctions {
 		Functions\when( 'site_url' )->alias(
 			fn( string $path = '', $scheme = null ) :string => \rtrim( $this->cacheStoreSiteUrl, '/' )
 													 .( $path === '' ? '' : '/'.\ltrim( $path, '/' ) )
+		);
+		Functions\when( 'get_current_blog_id' )->alias(
+			fn() :int => $this->cacheStoreBlogID
 		);
 		Functions\when( 'path_join' )->alias(
 			fn( string $base, string $path ) :string => $this->normaliseCacheStorePath(
@@ -58,6 +63,10 @@ trait CacheStoreWordPressFunctions {
 
 	protected function setCacheStoreSiteUrl( string $url ) :void {
 		$this->cacheStoreSiteUrl = $url;
+	}
+
+	protected function setCacheStoreBlogID( int $blogID ) :void {
+		$this->cacheStoreBlogID = $blogID;
 	}
 
 	private function cacheStorePathIsWritable( string $path ) :bool {

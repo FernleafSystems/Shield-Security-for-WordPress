@@ -57,6 +57,29 @@ class AdminBarMenuTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
+	public function test_admin_bar_menu_filter_defaults_to_enabled() :void {
+		$cache = new AdminBarSummaryCacheSpy( null );
+		$counts = new AdminBarCountsSpy( $this->emptySummary() );
+		$this->installGateEnvironment( true, $counts, $cache );
+
+		( new AdminBarMenu() )->execute();
+
+		$this->assertCount( 1, $this->actions[ 'admin_bar_menu' ] ?? [] );
+	}
+
+	public function test_admin_bar_menu_filter_can_disable_registration_without_loading_scan_status() :void {
+		$cache = new AdminBarSummaryCacheSpy( null );
+		$counts = new AdminBarCountsSpy( $this->emptySummary() );
+		$this->installGateEnvironment( false, $counts, $cache );
+
+		( new AdminBarMenu() )->execute();
+
+		$this->assertSame( [], $this->actions[ 'admin_bar_menu' ] ?? [] );
+		$this->assertSame( [], $counts->forceExactArgs );
+		$this->assertSame( 0, $cache->readCalls );
+		$this->assertSame( 0, $cache->refreshCalls );
+	}
+
 	public function test_security_admin_uses_cached_scan_summary_on_non_plugin_pages() :void {
 		$cache = new AdminBarSummaryCacheSpy( $this->exactSummary() );
 		$counts = new AdminBarCountsSpy( [
@@ -388,6 +411,58 @@ class AdminBarMenuTest extends BaseUnitTest {
 		PluginControllerInstaller::install( $controller );
 	}
 
+	private function installGateEnvironment(
+		bool $showMenu,
+		AdminBarCountsSpy $counts,
+		AdminBarSummaryCacheSpy $cache
+	) :void {
+		Functions\expect( 'apply_filters' )
+			->once()
+			->with( 'shield/show_admin_bar_menu', true )
+			->andReturn( $showMenu );
+
+		ServicesState::mergeItems( [
+			'service_wpusers' => new AdminBarGateUsersSpy(),
+		] );
+
+		$controller = new class( $counts, $cache ) extends Controller {
+			public object $comps;
+			public object $this_req;
+
+			public function __construct( AdminBarCountsSpy $counts, AdminBarSummaryCacheSpy $cache ) {
+				$this->this_req = (object)[
+					'is_force_off' => false,
+					'wp_is_ajax'   => false,
+				];
+				$this->comps = (object)[
+					'scans' => new class( $counts, $cache ) {
+						private AdminBarCountsSpy $counts;
+						private AdminBarSummaryCacheSpy $cache;
+
+						public function __construct( AdminBarCountsSpy $counts, AdminBarSummaryCacheSpy $cache ) {
+							$this->counts = $counts;
+							$this->cache = $cache;
+						}
+
+						public function getScanResultsCount() :AdminBarCountsSpy {
+							return $this->counts;
+						}
+
+						public function getAdminBarScanSummaryCache() :AdminBarSummaryCacheSpy {
+							return $this->cache;
+						}
+					},
+				];
+			}
+
+			public function isValidAdminArea( bool $checkUserPerms = false ) :bool {
+				return true;
+			}
+		};
+
+		PluginControllerInstaller::install( $controller );
+	}
+
 	private function exactSummary() :array {
 		return [
 			'counts'    => [
@@ -429,6 +504,13 @@ class AdminBarMenuTest extends BaseUnitTest {
 
 class AdminBarMenuPublicPathTestSubject extends AdminBarMenu {
 	protected function canRun() :bool {
+		return true;
+	}
+}
+
+class AdminBarGateUsersSpy extends Users {
+
+	public function isUserAdmin( $user = null ) {
 		return true;
 	}
 }

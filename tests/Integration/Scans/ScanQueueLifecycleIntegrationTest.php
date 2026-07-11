@@ -44,7 +44,7 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'manual', $scan->run_trigger );
 	}
 
-	public function testScanItemsSchemaDefaultsAttemptsToZeroInRealDb() :void {
+	public function testScanItemsSchemaPersistsItemCountAndDefaultsAttemptsToZeroInRealDb() :void {
 		$scanID = $this->createScan( 'afs', 'built', [
 			'ready_at'        => \time(),
 			'last_process_at' => \time(),
@@ -55,6 +55,84 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$item = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $itemID );
 
 		$this->assertSame( 0, $item->attempts );
+		$this->assertSame( 1, $item->item_count );
+	}
+
+	public function testScanItemProgressUsesWorkUnitsAndPreservesRowCountSelectorsInRealDb() :void {
+		$weightedScanID = $this->createScan( 'afs', 'running', [
+			'ready_at'        => \time(),
+			'last_process_at' => \time(),
+			'started_at'      => \time(),
+		] );
+		$largeItemID = $this->createScanItem( $weightedScanID, [ 'large-chunk' ], 0, \time(), 0, 80 );
+		$this->createScanItem( $weightedScanID, [ 'small-chunk' ], 0, 0, 0, 1 );
+		$legacyScanID = $this->createScan( 'wpv', 'built', [
+			'ready_at'        => \time(),
+			'last_process_at' => \time(),
+		] );
+		$this->createScanItem( $legacyScanID, [ 'legacy-row' ], 0, 0, 0, 0 );
+
+		/** @var ScanItemsDB\Select $selector */
+		$selector = $this->requireDb( 'scan_items' )->getQuerySelector();
+		$progress = $selector->countProgressForEachScan();
+		$allRows = $this->requireDb( 'scan_items' )->getQuerySelector()->countAllForEachScan();
+		$unfinishedRows = $this->requireDb( 'scan_items' )->getQuerySelector()->countUnfinishedForEachScan();
+		/** @var ScanItemsDB\Record $largeItem */
+		$largeItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $largeItemID );
+
+		$this->assertSame( 80, $largeItem->item_count );
+		$this->assertSame( [ 'total' => 81, 'unfinished' => 1 ], $progress[ $weightedScanID ] );
+		$this->assertSame( [ 'total' => 1, 'unfinished' => 1 ], $progress[ $legacyScanID ] );
+		$this->assertSame( 2, (int)$allRows[ $weightedScanID ] );
+		$this->assertSame( 1, (int)$unfinishedRows[ $weightedScanID ] );
+		$this->assertSame( 1, (int)$allRows[ $legacyScanID ] );
+		$this->assertSame( 1, (int)$unfinishedRows[ $legacyScanID ] );
+	}
+
+	public function testExplicitRecoveryAtomicallyClaimsOnlySameTimestampLowerIdHeadInRealDb() :void {
+		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
+		$lowerID = $this->createScan( 'afs', 'running', [
+			'created_at'      => $staleAt,
+			'ready_at'        => $staleAt,
+			'last_process_at' => $staleAt,
+			'started_at'      => $staleAt,
+		] );
+		$higherID = $this->createScan( 'wpv', 'running', [
+			'created_at'      => $staleAt,
+			'ready_at'        => $staleAt,
+			'last_process_at' => $staleAt,
+			'started_at'      => $staleAt,
+		] );
+		$waitingID = $this->createScan( 'apc', 'queued', [
+			'created_at'      => $staleAt - 100,
+			'last_process_at' => $staleAt,
+		] );
+		$lowerItemID = $this->createScanItem( $lowerID, [ 'afs-a' ], $staleAt, 0, 1 );
+		$higherItemID = $this->createScanItem( $higherID, [ 'wpv-a' ], $staleAt, 0, 1 );
+		$watchdog = new QueueWatchdog();
+
+		$this->assertLessThan( $higherID, $lowerID );
+		$this->assertFalse( $watchdog->recoverScanIfStale( $higherID ) );
+		$this->assertTrue( $watchdog->recoverScanIfStale( $lowerID ) );
+		$this->assertFalse( $watchdog->recoverScanIfStale( $lowerID ) );
+		$this->assertFalse( $watchdog->recoverScanIfStale( $waitingID ) );
+
+		/** @var ScansDB\Record $lower */
+		$lower = $this->requireDb( 'scans' )->getQuerySelector()->byId( $lowerID );
+		/** @var ScansDB\Record $higher */
+		$higher = $this->requireDb( 'scans' )->getQuerySelector()->byId( $higherID );
+		/** @var ScansDB\Record $waiting */
+		$waiting = $this->requireDb( 'scans' )->getQuerySelector()->byId( $waitingID );
+		/** @var ScanItemsDB\Record $lowerItem */
+		$lowerItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $lowerItemID );
+		/** @var ScanItemsDB\Record $higherItem */
+		$higherItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $higherItemID );
+
+		$this->assertGreaterThan( $staleAt, $lower->last_process_at );
+		$this->assertSame( 0, $lowerItem->started_at );
+		$this->assertSame( $staleAt, $higher->last_process_at );
+		$this->assertSame( $staleAt, $higherItem->started_at );
+		$this->assertSame( $staleAt, $waiting->last_process_at );
 	}
 
 	public function testRealDbWatchdogDoesNotResetFreshRunningWork() :void {
@@ -65,7 +143,7 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$itemID = $this->createScanItem( $scanID, [ 'example.php' ], \time() - 30, 0, 1 );
 
-		( new QueueWatchdog() )->runIfStale();
+		( new QueueWatchdog() )->run();
 
 		/** @var ScansDB\Record $scan */
 		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
@@ -266,7 +344,7 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$watchdog = new QueueWatchdog();
 
-		$watchdog->runIfStale();
+		$watchdog->run();
 
 		/** @var ScansDB\Record $scan */
 		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
@@ -543,13 +621,21 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		return (int)$GLOBALS[ 'wpdb' ]->insert_id;
 	}
 
-	private function createScanItem( int $scanID, array $items, int $startedAt = 0, int $finishedAt = 0, int $attempts = 0 ) :int {
+	private function createScanItem(
+		int $scanID,
+		array $items,
+		int $startedAt = 0,
+		int $finishedAt = 0,
+		int $attempts = 0,
+		?int $itemCount = null
+	) :int {
 		/** @var ScanItemsDB\Handler $scanItems */
 		$scanItems = $this->requireDb( 'scan_items' );
 		/** @var ScanItemsDB\Record $record */
 		$record = $scanItems->getRecord();
 		$record->scan_ref = $scanID;
 		$record->items = $items;
+		$record->item_count = $itemCount ?? \count( $items );
 		$record->started_at = $startedAt;
 		$record->attempts = $attempts;
 		$record->finished_at = $finishedAt;

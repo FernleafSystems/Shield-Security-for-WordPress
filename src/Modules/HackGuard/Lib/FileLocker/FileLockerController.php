@@ -92,6 +92,14 @@ class FileLockerController {
 		$this->locks = null;
 	}
 
+	public function reconcileForConfigurationChange(): void {
+		$dbh = self::con()->db_con->file_locker;
+		$dbh->invalidateTableReadiness();
+		self::con()->db_con->loadDbH( $dbh->getTableSchema()->slug, true );
+		$this->clearLocks();
+		( new Ops\CleanLockRecords() )->run();
+	}
+
 	public function reassessLocksNow(): void {
 		// User-triggered file actions must refresh persisted lock status immediately.
 		$this->clearLocks();

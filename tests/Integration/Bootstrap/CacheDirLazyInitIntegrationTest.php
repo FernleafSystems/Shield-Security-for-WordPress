@@ -42,11 +42,12 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_plain_request_does_not_create_cache_dir_until_feature_uses_it() :void {
 		$con = $this->requireController();
-		$preferredTempDir = $this->createTrackedTempDir( 'shield-cache-dir-', \get_temp_dir() );
+		$preferredTempDir = $this->createTrackedTempDir( 'cache-dir-', \get_temp_dir() );
+		$expectedLastKnown = [];
 
 		$con->opts
 			->optSet( 'preferred_temp_dir', $preferredTempDir )
-			->optSet( 'last_known_cache_basedirs', [] );
+			->optSet( 'last_known_cache_basedirs', $expectedLastKnown );
 		$con->opts->store();
 		$this->resetCacheDirHandlerState();
 
@@ -62,6 +63,8 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 		$con->onWpShutdown();
 
 		$this->assertFalse( Services::WpFs()->isDir( $resolvedCacheDir ), 'Plain request should not eagerly create the cache directory.' );
+		$this->assertSame( $preferredTempDir, $con->opts->optGet( 'preferred_temp_dir' ) );
+		$this->assertSame( $expectedLastKnown, $con->opts->optGet( 'last_known_cache_basedirs' ) );
 
 		$con->comps->translation_downloads->getLocaleMoFilePath( 'fr_FR' );
 
@@ -71,26 +74,23 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_legacy_url_keyed_cache_dir_still_seeds_handler_without_migration() :void {
 		$con = $this->requireController();
-		$legacyBaseDir = $this->createTrackedTempDir( 'shield-cache-legacy-base-', \get_temp_dir() );
+		$legacyBaseDir = $this->createTrackedTempDir( 'cache-legacy-base-', \get_temp_dir() );
+		$storedDirs = [
+			'https://legacy.example/' => $legacyBaseDir,
+		];
 
 		$con->opts
 			->optSet( 'preferred_temp_dir', '' )
-			->optSet( 'last_known_cache_basedirs', [
-				'https://legacy.example/' => $legacyBaseDir,
-			] );
+			->optSet( 'last_known_cache_basedirs', $storedDirs );
 		$con->opts->store();
 		$this->resetCacheDirHandlerState();
 
-		$legacySharedCacheDir = \wp_normalize_path( \path_join( $legacyBaseDir, (string)$con->cfg->paths[ 'cache' ] ) );
-		$resolvedCacheDir = $con->cache_dir_handler->dir();
-
-		$this->assertStringStartsWith( $legacySharedCacheDir.'-', $resolvedCacheDir );
-		$this->assertMatchesRegularExpression( '#/shield-[a-z0-9][a-z0-9-]{0,47}$#', $resolvedCacheDir );
-		$this->assertTrue( Services::WpFs()->isDir( $resolvedCacheDir ) );
-		$this->assertFalse( Services::WpFs()->isDir( $legacySharedCacheDir ) );
-		$this->assertSame( [
-			'https://legacy.example/' => $legacyBaseDir,
-		], $con->opts->optGet( 'last_known_cache_basedirs' ) );
+		$resolved = $con->cache_dir_handler->dir();
+		$this->assertSame( $legacyBaseDir, \wp_normalize_path( \dirname( $resolved ) ) );
+		$this->assertMatchesRegularExpression( '#^shield-v2-[a-f0-9]{32}$#', \basename( $resolved ) );
+		$this->assertTrue( Services::WpFs()->isDir( $resolved ) );
+		$this->assertFalse( Services::WpFs()->isDir( \path_join( $legacyBaseDir, (string)$con->cfg->paths[ 'cache' ] ) ) );
+		$this->assertSame( $storedDirs, $con->opts->optGet( 'last_known_cache_basedirs' ) );
 	}
 
 	private function resetCacheDirHandlerState() :void {

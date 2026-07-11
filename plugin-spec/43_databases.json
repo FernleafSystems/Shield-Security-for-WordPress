@@ -1206,6 +1206,10 @@
                     "macro_type": "text",
                     "comment": "Array of scan items"
                 },
+                "item_count": {
+                    "macro_type": "unsigned_int",
+                    "comment": "Number of scan items in this queue row"
+                },
                 "started_at": {
                     "macro_type": "timestamp",
                     "comment": "Started Scanning Items At"

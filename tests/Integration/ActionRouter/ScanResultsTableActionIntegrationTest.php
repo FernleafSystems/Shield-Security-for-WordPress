@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdm
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use PHPUnit\Framework\ExpectationFailedException;
 
 class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -612,6 +613,94 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
+	public function test_fixture_cleanup_removes_owned_file_and_root() :void {
+		$path = $this->createOwnedScanActionFixtureFile( 'cleanup-contract.php' );
+		$root = $this->scanActionFixtureRoot();
+		$this->assertFileExists( $path );
+		$this->assertDirectoryExists( $root );
+
+		$this->deleteScanActionFixtureRoot();
+
+		$this->assertFileDoesNotExist( $path );
+		$this->assertDirectoryDoesNotExist( $root );
+	}
+
+	public function test_fixture_cleanup_rejects_linked_root_without_touching_target() :void {
+		if ( !\function_exists( 'symlink' ) ) {
+			$this->markTestSkipped( 'symlink() is unavailable.' );
+		}
+
+		$this->deleteScanActionFixtureRoot();
+		$root = $this->scanActionFixtureRoot();
+		$resolvedAbsRoot = \realpath( ABSPATH );
+		$this->assertNotFalse( $resolvedAbsRoot );
+		$resolvedAbsRoot = \wp_normalize_path( (string)$resolvedAbsRoot );
+		$target = \wp_normalize_path( \trailingslashit( $resolvedAbsRoot ).'shield-scan-action-fixture-target-'.\uniqid() );
+		$sentinel = $target.'/sentinel.txt';
+
+		try {
+			$this->assertTrue( \wp_mkdir_p( $target ) );
+			$this->assertNotFalse( \file_put_contents( $sentinel, "preserve me\n" ) );
+
+			$warning = '';
+			\set_error_handler( static function ( int $level, string $message ) use ( &$warning ) :bool {
+				unset( $level );
+				$warning = $message;
+				return true;
+			} );
+			try {
+				$linkCreated = \symlink( $target, $root );
+			}
+			finally {
+				\restore_error_handler();
+			}
+
+			if ( !$linkCreated ) {
+				$this->markTestSkipped( $warning === ''
+					? 'symlink() returned false without a warning.'
+					: 'symlink() failed: '.$warning );
+			}
+
+			\clearstatcache( true, $root );
+			$this->assertTrue( \is_link( $root ) );
+			$this->assertFixturePathIsOwned( $root );
+			$resolvedTarget = \realpath( $target );
+			$resolvedLinkedRoot = \realpath( $root );
+			$this->assertNotFalse( $resolvedTarget );
+			$this->assertNotFalse( $resolvedLinkedRoot );
+			$resolvedTarget = \wp_normalize_path( (string)$resolvedTarget );
+			$resolvedLinkedRoot = \wp_normalize_path( (string)$resolvedLinkedRoot );
+			$expectedRoot = \wp_normalize_path( \trailingslashit( $resolvedAbsRoot ).'shield-scan-action-fixture' );
+			$this->assertSame( $resolvedTarget, $resolvedLinkedRoot );
+			$this->assertNotSame( $expectedRoot, $resolvedLinkedRoot );
+
+			$caught = null;
+			try {
+				$this->deleteScanActionFixtureRoot();
+			}
+			catch ( ExpectationFailedException $e ) {
+				$caught = $e;
+			}
+
+			$this->assertInstanceOf( ExpectationFailedException::class, $caught );
+			\clearstatcache( true, $root );
+			$this->assertTrue( \is_link( $root ) );
+			$this->assertSame( "preserve me\n", \file_get_contents( $sentinel ) );
+		}
+		finally {
+			\clearstatcache( true, $root );
+			if ( \is_link( $root ) ) {
+				\unlink( $root );
+			}
+			if ( \is_file( $sentinel ) ) {
+				\unlink( $sentinel );
+			}
+			if ( \is_dir( $target ) ) {
+				\rmdir( $target );
+			}
+		}
+	}
+
 	/**
 	 * @param array<string,mixed> $params
 	 * @return array<string,mixed>
@@ -757,22 +846,33 @@ class ScanResultsTableActionIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function deleteScanActionFixtureRoot() :void {
 		$root = $this->scanActionFixtureRoot();
-		if ( !\file_exists( $root ) ) {
+		\clearstatcache( true, $root );
+		if ( !\file_exists( $root ) && !\is_link( $root ) ) {
 			return;
 		}
 
 		$this->assertFixturePathIsOwned( $root );
-		$this->assertDirectoryExists( $root );
+		$resolvedAbsRoot = \realpath( ABSPATH );
+		$resolvedFixtureRoot = \realpath( $root );
+		$this->assertNotFalse( $resolvedAbsRoot );
+		$this->assertNotFalse( $resolvedFixtureRoot );
+		$resolvedAbsRoot = \wp_normalize_path( (string)$resolvedAbsRoot );
+		$resolvedFixtureRoot = \wp_normalize_path( (string)$resolvedFixtureRoot );
+		$expectedFixtureRoot = \wp_normalize_path(
+			\trailingslashit( $resolvedAbsRoot ).'shield-scan-action-fixture'
+		);
+		$this->assertSame( $expectedFixtureRoot, $resolvedFixtureRoot );
+		$this->assertDirectoryExists( $resolvedFixtureRoot );
 
 		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $root, \FilesystemIterator::SKIP_DOTS ),
+			new \RecursiveDirectoryIterator( $resolvedFixtureRoot, \FilesystemIterator::SKIP_DOTS ),
 			\RecursiveIteratorIterator::CHILD_FIRST
 		);
 
 		foreach ( $iterator as $item ) {
 			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
 		}
-		@\rmdir( $root );
+		@\rmdir( $resolvedFixtureRoot );
 	}
 
 	private function assertFixturePathIsOwned( string $path ) :void {

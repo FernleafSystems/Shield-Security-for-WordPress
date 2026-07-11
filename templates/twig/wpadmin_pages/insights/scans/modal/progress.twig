@@ -12,7 +12,7 @@
 		<h6>{{ vars.heading }}</h6>
 		<p>{{ vars.remaining_scans }}</p>
 		{% if vars.show_progress %}
-			{% if vars.has_scan_rows %}
+			{% if vars.scan_rows is not empty %}
 				<div class="d-grid gap-3">
 					{% for row in vars.scan_rows %}
 						<div class="shield-scan-progress__row">

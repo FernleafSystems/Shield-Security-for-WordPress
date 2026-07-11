@@ -68,13 +68,13 @@ class ScansStartGuardsTest extends BaseUnitTest {
 
 		$payload = $action->response()->payload();
 
-		$this->assertFalse( $payload[ 'success' ] ?? true );
-		$this->assertSame( StartScansResult::CODE_START_BLOCKED, $payload[ 'error_code' ] ?? '' );
-		$this->assertSame( [ 'reason_not_call_self' ], $payload[ 'blocked_reasons' ] ?? [] );
-		$this->assertNotSame( '', (string)( $payload[ 'message' ] ?? '' ) );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] ?? '' );
-		$this->assertNotSame( '', (string)( $payload[ 'modal_html' ] ?? '' ) );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
+		$this->assertFalse( $payload[ 'success' ] );
+		$this->assertSame( StartScansResult::CODE_START_BLOCKED, $payload[ 'error_code' ] );
+		$this->assertSame( [ 'reason_not_call_self' ], $payload[ 'blocked_reasons' ] );
+		$this->assertNotSame( '', $payload[ 'message' ] );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] );
+		$this->assertNotSame( '', $payload[ 'modal_html' ] );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $controller->action_router->renderData[ 'modal_state' ] );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 	}
 
@@ -99,14 +99,14 @@ class ScansStartGuardsTest extends BaseUnitTest {
 
 		$payload = $action->response()->payload();
 
-		$this->assertFalse( $payload[ 'success' ] ?? true );
-		$this->assertSame( StartScansResult::CODE_START_FAILED, $payload[ 'error_code' ] ?? '' );
-		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $payload[ 'start_failures' ] ?? [], 'reason' ) );
+		$this->assertFalse( $payload[ 'success' ] );
+		$this->assertSame( StartScansResult::CODE_START_FAILED, $payload[ 'error_code' ] );
+		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $payload[ 'start_failures' ], 'reason' ) );
 		$this->assertSame( [ [ 'afs' ] ], $controller->comps->scans->startCalls );
 		$this->assertSame( [ false ], $controller->comps->scans->resetIgnoreCalls );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] ?? '' );
-		$this->assertNotSame( '', (string)( $payload[ 'modal_html' ] ?? '' ) );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] );
+		$this->assertNotSame( '', $payload[ 'modal_html' ] );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_FAILED, $controller->action_router->renderData[ 'modal_state' ] );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 	}
 
@@ -131,14 +131,14 @@ class ScansStartGuardsTest extends BaseUnitTest {
 
 		$payload = $action->response()->payload();
 
-		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$this->assertSame( [ 44 ], $payload[ 'scan_ids' ] ?? [] );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( [ 44 ], $payload[ 'scan_ids' ] );
 		$this->assertArrayNotHasKey( 'error_code', $payload );
 		$this->assertArrayNotHasKey( 'start_failures', $payload );
 		$this->assertSame( [ [ 'afs' ] ], $controller->comps->scans->startCalls );
 		$this->assertSame( [ false ], $controller->comps->scans->resetIgnoreCalls );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] ?? '' );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
 	}
 
@@ -164,19 +164,19 @@ class ScansStartGuardsTest extends BaseUnitTest {
 
 		$payload = $action->response()->payload();
 
-		$this->assertTrue( $payload[ 'success' ] ?? false );
-		$this->assertSame( [ 31 ], $payload[ 'scan_ids' ] ?? [] );
-		$this->assertSame( StartScansResult::CODE_PARTIAL_START, $payload[ 'error_code' ] ?? '' );
-		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $payload[ 'start_failures' ] ?? [], 'reason' ) );
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( [ 31 ], $payload[ 'scan_ids' ] );
+		$this->assertSame( StartScansResult::CODE_PARTIAL_START, $payload[ 'error_code' ] );
+		$this->assertSame( [ StartScansResult::REASON_CREATE_FAILED ], \array_column( $payload[ 'start_failures' ], 'reason' ) );
 		$this->assertSame( [ [ 'afs', 'wpv' ] ], $controller->comps->scans->startCalls );
 		$this->assertSame( [ false ], $controller->comps->scans->resetIgnoreCalls );
-		$this->assertTrue( $payload[ 'page_reload' ] ?? false );
-		$this->assertSame( '/actions-queue-scans/', $payload[ 'redirect_url' ] ?? '' );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] ?? '' );
-		$this->assertNotSame( '', (string)( $payload[ 'modal_html' ] ?? '' ) );
-		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] ?? '' );
+		$this->assertTrue( $payload[ 'page_reload' ] );
+		$this->assertSame( '/actions-queue-scans/', $payload[ 'redirect_url' ] );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $payload[ 'modal_state' ] );
+		$this->assertNotSame( '', $payload[ 'modal_html' ] );
+		$this->assertSame( ScansStart::SCAN_MODAL_STATE_COMPLETED, $controller->action_router->renderData[ 'modal_state' ] );
 		$this->assertModalRenderInputDoesNotCarryDerivedFlags( $controller->action_router->renderData );
-		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] ?? null );
+		$this->assertSame( 100, $controller->action_router->renderData[ 'progress' ] );
 	}
 
 	public function test_action_router_start_passes_reset_ignore_flag_to_central_start() :void {
@@ -202,6 +202,7 @@ class ScansStartGuardsTest extends BaseUnitTest {
 	}
 
 	private function assertModalRenderInputDoesNotCarryDerivedFlags( array $renderData ) :void {
+		$this->assertSame( [], $renderData[ 'scan_rows' ] );
 		foreach ( [ 'is_initiating', 'is_running', 'is_complete', 'is_failed' ] as $key ) {
 			$this->assertArrayNotHasKey( $key, $renderData );
 		}

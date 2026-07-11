@@ -1088,7 +1088,7 @@
         "beacon_id": 424,
         "name": "silentCAPTCHA Bot Minimum Score",
         "summary": "silentCAPTCHA Bot Minimum Score (Percentage)",
-        "description": "When using Shield's silentCAPTCHA system, this is the threshold used for testing (between 1 and 99)."
+        "description": "Set this minimum score to 0 to disable silentCAPTCHA bot checking on normal page requests, including its front-end cookie and JavaScript. Values from 1 to 99 set the minimum score required to treat a visitor as human."
     },
     {
         "key": "antibot_high_reputation_minimum",

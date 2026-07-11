@@ -56,18 +56,28 @@ class PopulateScanItemsTest extends BaseUnitTest {
 			->setScanController( $scanController )
 			->run();
 
-		$this->assertSame( 2, $itemInsertCount );
-		$this->assertSame( [ [ 'one', 'two' ], [ 'three' ] ], $itemInserts );
+		$this->assertSame( [
+			[
+				'items'      => [ 'one', 'two' ],
+				'item_count' => 2,
+			],
+			[
+				'items'      => [ 'three' ],
+				'item_count' => 1,
+			],
+		], $itemInserts );
 		$this->assertSame( 2, $scanController->lastAction->progressTicks );
 		$this->assertNotEmpty( $heartbeatQueries );
 		$this->assertCount( 1, $scanUpdates );
 		$this->assertSame( 'built', $scanUpdates[ 0 ][ 'data' ][ 'status' ] );
 		$this->assertSame( 1700004000, $scanUpdates[ 0 ][ 'data' ][ 'ready_at' ] );
 		$this->assertSame( 1700004000, $scanUpdates[ 0 ][ 'data' ][ 'last_process_at' ] );
-		$this->assertSame(
-			[ 'scan_meta' => 'value' ],
-			\json_decode( \base64_decode( (string)$scanUpdates[ 0 ][ 'data' ][ 'meta' ] ), true )
-		);
+		$scanMeta = \json_decode( \base64_decode( (string)$scanUpdates[ 0 ][ 'data' ][ 'meta' ] ), true );
+		$this->assertSame( 'value', $scanMeta[ 'scan_meta' ] ?? null );
+		$this->assertSame( 'full', $scanMeta[ 'scope_type' ] ?? null );
+		$this->assertSame( '', $scanMeta[ 'scope_key' ] ?? null );
+		$this->assertArrayNotHasKey( 'progress_callback', $scanMeta );
+		$this->assertArrayNotHasKey( 'items', $scanMeta );
 	}
 
 	public function test_run_attaches_progress_callback_before_building_scan_action() :void {
@@ -104,6 +114,7 @@ class PopulateScanItemsTest extends BaseUnitTest {
 
 		$this->assertTrue( $callbackAttachedBeforeBuild );
 		$this->assertTrue( $heartbeatFiredDuringBuild );
+		$this->assertIsCallable( $scanController->lastAction->progress_callback );
 		$this->assertCount( 1, $heartbeatQueries );
 		$this->assertStringContainsString( 'UPDATE `shield_scans`', $heartbeatQueries[ 0 ] );
 		$this->assertStringContainsString( '`id`=19', $heartbeatQueries[ 0 ] );
@@ -124,17 +135,32 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		$scanRecord->scope_key = '';
 		$scanRecord->run_trigger = 'manual';
 
+		$scanController = $this->buildScanController( [] );
 		( new PopulateScanItems() )
 			->setRecord( $scanRecord )
-			->setScanController( $this->buildScanController( [] ) )
+			->setScanController( $scanController )
 			->run();
 
 		$this->assertSame( 0, $itemInsertCount );
 		$this->assertSame( [], $scanUpdates );
-		$this->assertNotEmpty( $wpdbQueries );
-		$this->assertStringContainsString( "`status`='completed'", $wpdbQueries[ 0 ] );
-		$this->assertStringContainsString( '`meta`=', $wpdbQueries[ 0 ] );
-		$this->assertStringContainsString( 'NOT EXISTS', $wpdbQueries[ 0 ] );
+		$completionQueries = \array_values( \array_filter(
+			$wpdbQueries,
+			static fn( string $query ) :bool => \strpos( $query, "`status`='completed'" ) !== false
+		) );
+		$this->assertCount( 1, $completionQueries );
+		$completionQuery = $completionQueries[ 0 ];
+		$this->assertStringContainsString( 'NOT EXISTS', $completionQuery );
+		$this->assertSame( 1, \preg_match( "/`meta`='([^']+)'/", $completionQuery, $matches ) );
+		$decodedMeta = \base64_decode( $matches[ 1 ], true );
+		$this->assertIsString( $decodedMeta );
+		$scanMeta = \json_decode( $decodedMeta, true );
+		$this->assertIsArray( $scanMeta );
+		$this->assertSame( 'value', $scanMeta[ 'scan_meta' ] ?? null );
+		$this->assertSame( 'full', $scanMeta[ 'scope_type' ] ?? null );
+		$this->assertSame( '', $scanMeta[ 'scope_key' ] ?? null );
+		$this->assertArrayNotHasKey( 'progress_callback', $scanMeta );
+		$this->assertArrayNotHasKey( 'items', $scanMeta );
+		$this->assertIsCallable( $scanController->lastAction->progress_callback );
 	}
 
 	public function test_run_throws_when_queue_item_persistence_fails() :void {
@@ -178,22 +204,16 @@ class PopulateScanItemsTest extends BaseUnitTest {
 			}
 
 			public function newScanActionVO() :BaseScanActionVO {
-				return new class extends BaseScanActionVO {
-					public string $scope_type = '';
-					public string $scope_key = '';
-					public array $items = [];
+				$action = new class extends BaseScanActionVO {
 					public int $progressTicks = 0;
-					public $progress_callback = null;
 
 					public function tickProgress() :void {
 						$this->progressTicks++;
 						parent::tickProgress();
 					}
-
-					public function getRawData() :array {
-						return [ 'scan_meta' => 'value' ];
-					}
 				};
+				$action->scan_meta = 'value';
+				return $action;
 			}
 
 			public function buildScanAction( BaseScanActionVO $scanActionVO ) :BaseScanActionVO {
@@ -278,6 +298,7 @@ class PopulateScanItemsTest extends BaseUnitTest {
 					return new class {
 						public int $scan_ref = 0;
 						public array $items = [];
+						public int $item_count = 0;
 					};
 				}
 
@@ -296,7 +317,10 @@ class PopulateScanItemsTest extends BaseUnitTest {
 						public function insert( object $record ) :bool {
 							$this->insertCount++;
 							if ( $this->insertSuccess ) {
-								$this->inserts[] = $record->items;
+								$this->inserts[] = [
+									'items'      => $record->items,
+									'item_count' => $record->item_count,
+								];
 							}
 							return $this->insertSuccess;
 						}

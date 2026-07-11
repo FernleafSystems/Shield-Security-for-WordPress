@@ -95,10 +95,18 @@ class ScanQueueLifecycleHarness {
 		return $this->sql->insertScan( $data );
 	}
 
-	public function insertScanItem( int $scanID, array $items, int $startedAt = 0, int $finishedAt = 0, ?int $attempts = null ) :int {
+	public function insertScanItem(
+		int $scanID,
+		array $items,
+		int $startedAt = 0,
+		int $finishedAt = 0,
+		?int $attempts = null,
+		?int $itemCount = null
+	) :int {
 		return $this->sql->insertScanItem( [
 			'scan_ref'    => $scanID,
 			'items'       => \base64_encode( \json_encode( $items ) ?: '[]' ),
+			'item_count'  => $itemCount ?? \count( $items ),
 			'started_at'  => $startedAt,
 			'attempts'    => $attempts ?? ( $startedAt > 0 ? 1 : 0 ),
 			'finished_at' => $finishedAt,
@@ -392,6 +400,7 @@ class LifecycleSqliteDb extends Db {
 		$data = \array_merge( [
 			'scan_ref'    => 0,
 			'items'       => \base64_encode( '[]' ),
+			'item_count'  => 0,
 			'started_at'  => 0,
 			'attempts'    => 0,
 			'finished_at' => 0,
@@ -534,6 +543,7 @@ class LifecycleSqliteDb extends Db {
 			`id` INTEGER PRIMARY KEY AUTOINCREMENT,
 			`scan_ref` INTEGER NOT NULL,
 			`items` TEXT NOT NULL DEFAULT "",
+			`item_count` INTEGER NOT NULL DEFAULT 0,
 			`started_at` INTEGER NOT NULL DEFAULT 0,
 			`attempts` INTEGER NOT NULL DEFAULT 0,
 			`finished_at` INTEGER NOT NULL DEFAULT 0
@@ -680,7 +690,10 @@ class LifecycleScansSelector {
 
 	use LifecycleWhereBuilder;
 
-	private string $orderBy = '';
+	/**
+	 * @var string[]
+	 */
+	private array $orderBy = [];
 
 	private int $limit = 0;
 
@@ -695,7 +708,7 @@ class LifecycleScansSelector {
 
 	public function reset() :self {
 		$this->resetWhereBuilder();
-		$this->orderBy = '';
+		$this->orderBy = [];
 		$this->limit = 0;
 		$this->columnsToSelect = [];
 		return $this;
@@ -726,8 +739,10 @@ class LifecycleScansSelector {
 	}
 
 	public function setOrderBy( string $column, string $direction = 'DESC', bool $overwrite = false ) :self {
-		unset( $overwrite );
-		$this->orderBy = sprintf( '`%s` %s', $column, \strtoupper( $direction ) === 'ASC' ? 'ASC' : 'DESC' );
+		if ( $overwrite ) {
+			$this->orderBy = [];
+		}
+		$this->orderBy[] = sprintf( '`%s` %s', $column, \strtoupper( $direction ) === 'ASC' ? 'ASC' : 'DESC' );
 		return $this;
 	}
 
@@ -777,7 +792,7 @@ class LifecycleScansSelector {
 	}
 
 	private function queryRows() :array {
-		$rows = $this->db->fetchRows( 'scans', $this->wheres, $this->params, $this->orderBy, $this->limit, $this->columnsToSelect );
+		$rows = $this->db->fetchRows( 'scans', $this->wheres, $this->params, \implode( ', ', $this->orderBy ), $this->limit, $this->columnsToSelect );
 		$this->reset();
 		return $rows;
 	}
@@ -830,21 +845,33 @@ class LifecycleScanItemsSelector {
 	}
 
 	public function countAllForEachScan() :array {
-		return [];
+		return $this->countsFromRows( $this->db->selectCustom(
+			'SELECT `scan_ref`, COUNT(*) AS `count` FROM `scan_items` GROUP BY `scan_ref`'
+		) );
 	}
 
 	public function countUnfinishedForEachScan() :array {
-		return [];
+		return $this->countsFromRows( $this->db->selectCustom(
+			'SELECT `scan_ref`, COUNT(*) AS `count` FROM `scan_items` WHERE `finished_at`=0 GROUP BY `scan_ref`'
+		) );
 	}
 
 	public function countProgressForEachScan() :array {
-		$rows = $this->db->selectCustom( 'SELECT `scan_ref`, COUNT(*) as count_all, SUM(CASE WHEN `finished_at`=0 THEN 1 ELSE 0 END) as count_unfinished FROM `scan_items` GROUP BY `scan_ref`' );
+		$rows = $this->db->selectCustom( 'SELECT `scan_ref`, SUM(CASE WHEN `item_count`>0 THEN `item_count` ELSE 1 END) AS `count_all`, SUM(CASE WHEN `finished_at`=0 THEN CASE WHEN `item_count`>0 THEN `item_count` ELSE 1 END ELSE 0 END) AS `count_unfinished` FROM `scan_items` GROUP BY `scan_ref`' );
 		$counts = [];
 		foreach ( \is_array( $rows ) ? $rows : [] as $row ) {
-			$counts[ $row[ 'scan_ref' ] ] = [
+			$counts[ (int)$row[ 'scan_ref' ] ] = [
 				'total'      => (int)$row[ 'count_all' ],
 				'unfinished' => (int)$row[ 'count_unfinished' ],
 			];
+		}
+		return $counts;
+	}
+
+	private function countsFromRows( array $rows ) :array {
+		$counts = [];
+		foreach ( $rows as $row ) {
+			$counts[ (int)$row[ 'scan_ref' ] ] = (int)$row[ 'count' ];
 		}
 		return $counts;
 	}

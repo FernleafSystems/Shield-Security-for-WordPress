@@ -6,6 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\RunState;
 
+/**
+ * @phpstan-import-type ActiveScanProgressRow from \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Controller
+ * @phpstan-import-type ActiveScanRow from ScansStatus
+ * @phpstan-type ScanModalState 'initiating'|'running'|'completed'|'failed'
+ */
 abstract class ScansBase extends BaseAction {
 
 	use Traits\NonceVerifyRequired;
@@ -16,13 +21,13 @@ abstract class ScansBase extends BaseAction {
 	public const SCAN_MODAL_STATE_FAILED = 'failed';
 
 	/**
-	 * @param int[] $startedScanIDs
+	 * @param list<int> $startedScanIDs
 	 * @return array{
 	 *   running:array<string,bool>,
 	 *   failed:bool,
 	 *   failure_message:string,
-	 *   scan_rows:list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,can_attempt_recovery:bool,progress:int,total_items:int,unfinished:int}>,
-	 *   modal_state:string,
+	 *   scan_rows:list<ActiveScanProgressRow>,
+	 *   modal_state:ScanModalState,
 	 *   modal_html:string
 	 * }
 	 */
@@ -59,40 +64,48 @@ abstract class ScansBase extends BaseAction {
 					: sprintf( _n( '%s scan remaining.', '%s scans remaining.', $running, 'wp-simple-firewall' ), $running ) ),
 			'progress'        => $hasFailedScan || $modalState === self::SCAN_MODAL_STATE_COMPLETED
 				? 100
-				: $this->aggregateProgressFromRows( $scanRows ),
+				: $this->currentScanProgressFromRows( $scanRows ),
 			'scan_rows'       => $scanRows,
 		] ) );
 	}
 
 	/**
-	 * @return int[]
+	 * @return list<int>
 	 */
 	protected function startedScanIdsFromActionData() :array {
-		return \array_values( \array_filter( \array_map(
-			'intval',
+		return \array_values( \array_unique( \array_filter( \array_map(
+			fn( $value ) :int => $this->positiveScanIDFromValue( $value ),
 			\is_array( $this->action_data[ 'scan_ids' ] ?? null ) ? $this->action_data[ 'scan_ids' ] : []
-		), static fn( int $scanID ) :bool => $scanID > 0 ) );
+		) ) ) );
 	}
 
 	/**
+	 * @param mixed $value
+	 */
+	protected function positiveScanIDFromValue( $value ) :int {
+		if ( !\is_int( $value ) && !\is_string( $value ) ) {
+			return 0;
+		}
+
+		$scanID = \filter_var( $value, \FILTER_VALIDATE_INT );
+		return \is_int( $scanID ) && $scanID > 0 ? $scanID : 0;
+	}
+
+	/**
+	 * @param ScanModalState $modalState
 	 * @param array{
 	 *   current_scan:string,
 	 *   remaining_scans:string,
 	 *   progress:int|float,
-	 *   scan_rows?:list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,can_attempt_recovery:bool,progress:int,total_items:int,unfinished:int}>
+	 *   scan_rows:list<ActiveScanProgressRow>
 	 * } $renderData
-	 * @return array{modal_state:string,modal_html:string}
+	 * @return array{modal_state:ScanModalState,modal_html:string}
 	 */
 	protected function renderScanModalPayload( string $modalState, array $renderData ) :array {
-		$modalState = $this->normaliseScanModalState( $modalState );
 		$progress = (int)\max( 0, \min( 100, \round( (float)$renderData[ 'progress' ] ) ) );
 
-		$renderData = \array_merge( [
-			'scan_rows' => [],
-		], $renderData, [
-			'modal_state' => $modalState,
-			'progress'    => $progress,
-		] );
+		$renderData[ 'modal_state' ] = $modalState;
+		$renderData[ 'progress' ] = $progress;
 
 		return [
 			'modal_state' => $modalState,
@@ -101,14 +114,10 @@ abstract class ScansBase extends BaseAction {
 	}
 
 	/**
-	 * @param int[] $scanIDs
+	 * @param list<int> $scanIDs
 	 * @return array{}|array{id:int,message:string}
 	 */
 	private function getFailedStartedScan( array $scanIDs ) :array {
-		$scanIDs = \array_values( \array_filter(
-			\array_map( 'intval', $scanIDs ),
-			static fn( int $scanID ) :bool => $scanID > 0
-		) );
 		if ( empty( $scanIDs ) ) {
 			return [];
 		}
@@ -123,7 +132,7 @@ abstract class ScansBase extends BaseAction {
 
 		$failedScansByID = [];
 		foreach ( $failedScans as $scan ) {
-			$failedScansByID[ (int)$scan->id ] = $scan;
+			$failedScansByID[ $scan->id ] = $scan;
 		}
 
 		foreach ( $scanIDs as $scanID ) {
@@ -140,36 +149,21 @@ abstract class ScansBase extends BaseAction {
 	}
 
 	/**
-	 * @param list<array{id:int,scan:string,status:string,scope_type:string,scope_key:string,created_at:int,started_at:int,ready_at:int,last_process_at:int}> $activeScans
-	 * @return string[]
+	 * @param list<ActiveScanRow> $activeScans
+	 * @return list<string>
 	 */
 	private function enqueuedSlugsFromActiveScans( array $activeScans ) :array {
-		$enqueued = [];
-		foreach ( $activeScans as $scan ) {
-			if ( $scan[ 'scan' ] !== '' ) {
-				$enqueued[] = $scan[ 'scan' ];
-			}
-		}
-		return \array_values( \array_unique( $enqueued ) );
+		return \array_values( \array_unique( \array_column( $activeScans, 'scan' ) ) );
 	}
 
 	/**
-	 * @param list<array{id:int,scan:string,name:string,scope_type:string,scope_key:string,raw_status:string,display_status:string,is_current:bool,is_stale:bool,can_attempt_recovery:bool,progress:int,total_items:int,unfinished:int}> $scanRows
+	 * @param list<ActiveScanProgressRow> $scanRows
 	 */
-	private function aggregateProgressFromRows( array $scanRows ) :int {
+	private function currentScanProgressFromRows( array $scanRows ) :int {
 		if ( empty( $scanRows ) ) {
 			return 0;
 		}
 
-		return (int)\round( \array_sum( \array_column( $scanRows, 'progress' ) )/\count( $scanRows ) );
-	}
-
-	private function normaliseScanModalState( string $modalState ) :string {
-		return \in_array( $modalState, [
-			self::SCAN_MODAL_STATE_INITIATING,
-			self::SCAN_MODAL_STATE_RUNNING,
-			self::SCAN_MODAL_STATE_COMPLETED,
-			self::SCAN_MODAL_STATE_FAILED,
-		], true ) ? $modalState : self::SCAN_MODAL_STATE_RUNNING;
+		return $scanRows[ 0 ][ 'progress' ];
 	}
 }
