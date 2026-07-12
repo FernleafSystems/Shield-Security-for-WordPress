@@ -11,6 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDelete;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -29,14 +30,13 @@ use FernleafSystems\Wordpress\Services\Core\General;
 class PluginDeleteTest extends BaseUnitTest {
 
 	use CacheStoreWordPressFunctions;
+	use TempDirLifecycleTrait;
 
 	private CacheStoreTestDb $db;
 
 	private CacheStoreTestFs $fs;
 
 	private array $servicesSnapshot = [];
-
-	private array $tempDirs = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -60,9 +60,7 @@ class PluginDeleteTest extends BaseUnitTest {
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -166,33 +164,15 @@ class PluginDeleteTest extends BaseUnitTest {
 	}
 
 	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normaliseCacheStorePath(
-			\sys_get_temp_dir().'/cache-plugin-delete-'.$suffix.'-'.\uniqid()
+		return $this->normaliseCacheStorePath(
+			$this->createTrackedTempDir( 'cache-plugin-delete-'.$suffix.'-' )
 		);
-		$this->mkdir( $dir );
-		$this->tempDirs[] = $dir;
-		return $dir;
 	}
 
 	private function mkdir( string $dir ) :void {
 		if ( !\is_dir( $dir ) ) {
 			@\mkdir( $dir, 0777, true );
 		}
-	}
-
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $iterator as $item ) {
-			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
-		}
-		@\rmdir( $dir );
 	}
 }
 

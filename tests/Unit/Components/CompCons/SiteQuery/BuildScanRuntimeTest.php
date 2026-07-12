@@ -186,12 +186,19 @@ class BuildScanRuntimeTest extends BaseUnitTest {
 					}
 				}
 				return \array_map(
-					static fn( string $scan ) :array => [
-						'scan'       => $scan,
-						'status'     => 'running',
-						'created_at' => 1,
+					fn( string $scan, int $index ) :array => [
+						'id'              => $index + 1,
+						'scan'            => $scan,
+						'status'          => $scan === $this->currentSlug ? 'running' : 'queued',
+						'scope_type'      => 'full',
+						'scope_key'       => '',
+						'created_at'      => $index + 1,
+						'started_at'      => 0,
+						'ready_at'        => 0,
+						'last_process_at' => 0,
 					],
-					$ordered
+					$ordered,
+					\array_keys( $ordered )
 				);
 			}
 		};
