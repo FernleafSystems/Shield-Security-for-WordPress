@@ -2657,10 +2657,6 @@
                 "text": "Disabled"
             },
             {
-                "value_key": "hourly",
-                "text": "Hourly"
-            },
-            {
                 "value_key": "daily",
                 "text": "Daily"
             },
@@ -2688,10 +2684,6 @@
             {
                 "value_key": "disabled",
                 "text": "Disabled"
-            },
-            {
-                "value_key": "hourly",
-                "text": "Hourly"
             },
             {
                 "value_key": "daily",

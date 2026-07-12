@@ -125,6 +125,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 			\WP_CLI::reset();
 			\WP_CLI\Utils\Recorder::reset();
 			Functions\when( '__' )->returnArg();
+			Functions\when( 'delete_transient' )->justReturn( true );
 			$this->servicesSnapshot = ServicesState::snapshot();
 		}
 

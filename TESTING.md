@@ -279,7 +279,7 @@ php bin/shield test:source --skip-unit-tests --show-docker-output
 
 ## Local integration lane serialization
 
-`composer test`, `composer test:integration`, and `php bin/shield test:integration-local` are serialized across local terminals, agents, and worktrees with a machine-scoped `flock()` lock. The lock protects the fixed local sidecar resources: Compose project `shield-local-db`, MySQL port `127.0.0.1:3311`, database `wordpress_test_local`, and the shared WordPress test-library config.
+`composer test`, `composer test:integration`, and `php bin/shield test:integration-local` are serialized across local terminals, agents, and worktrees with a machine-scoped `flock()` lock. The lock protects the fixed local sidecar resources: Compose project `shield-local-db`, SQL port `127.0.0.1:3311`, database `wordpress_test_local`, and the shared WordPress test-library config.
 
 - Lock file: `<system-temp>/shield-test-locks/integration-local.lock`.
 - Default wait: 600 seconds.
@@ -291,6 +291,19 @@ After Compose reports the DB container healthy, the lane also verifies host PHP 
 The lock file may remain after a run and contains diagnostic metadata for the last acquired lease. Do not delete it as stale cleanup; `flock()` releases automatically when the owning process exits. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses this guard and is not part of the supported local integration command surface.
 
 The sidecar DB resources use stable reusable labels under the `integration-local` cleanup scope so normal repeat runs can reuse the same DB container. A run after Docker Compose file changes may recreate the sidecar once; subsequent unchanged runs should not recreate it. `php bin/shield test:integration-local --db-down` remains the normal functional teardown because it observes the lane lock. Use `php bin/shield test:docker:cleanup --scope=integration-local --dry-run --all` when auditing Docker resources directly.
+
+### Database compatibility profiles
+
+The serialized integration lane exposes three fixed database profiles. Arbitrary images are not accepted:
+
+```bash
+php bin/shield test:integration-local --db-profile=mysql80 -- --group database-compat
+php bin/shield test:integration-local --db-profile=mysql56 -- --group database-compat
+php bin/shield test:integration-local --db-profile=mariadb106 -- --group database-compat
+php bin/shield test:integration-local --db-down
+```
+
+`mysql80` remains the default. Switching profile recreates the tmpfs-backed sidecar under the same serialized Compose project. Run `--db-down` after a non-default compatibility sequence to restore a clean default start for later work. `database-compat` tests cover portable event aggregation, report-period continuity, index application, and MyISAM behavior; the broader consumer suite stays on the default profile.
 
 ## Local Browser Lane
 

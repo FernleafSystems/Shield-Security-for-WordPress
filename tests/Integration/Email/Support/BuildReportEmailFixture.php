@@ -15,6 +15,8 @@ trait BuildReportEmailFixture {
 		$report->interval = 'daily';
 		$report->start_at = 1710028800;
 		$report->end_at = 1710115199;
+		$report->previous_start_at = 1709942400;
+		$report->previous_end_at = 1710028799;
 		$report->title = $type === Constants::REPORT_TYPE_ALERT ? 'Alert :: Daily :: Auto-Generated' : 'Info :: Daily :: Auto-Generated';
 		$report->areas = [
 			Constants::REPORT_AREA_SCANS   => [ 'scan_results', 'scan_repairs' ],

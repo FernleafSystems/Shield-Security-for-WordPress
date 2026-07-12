@@ -44,6 +44,8 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'enable_live_log',
 		'live_log_started_at',
 		'silentcaptcha_complexity',
+		'frequency_alert',
+		'frequency_info',
 	];
 
 	private array $originalOptions = [];
@@ -107,6 +109,62 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'Y', $con->opts->optGet( 'enable_logger' ) );
 		$this->assertSame( 'Y', $con->opts->optGet( 'enable_live_log' ) );
 		$this->assertSame( $startedAt, $con->opts->optGet( 'live_log_started_at' ) );
+	}
+
+	public function test_hourly_report_frequencies_migrate_to_daily_during_store() :void {
+		$con = $this->requireController();
+		$this->replaceStoredOptionValues( [
+			'frequency_alert' => 'hourly',
+			'frequency_info'  => 'hourly',
+		] );
+
+		$con->opts->store();
+
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_alert' ) );
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_info' ) );
+	}
+
+	public function test_hourly_report_frequencies_normalise_before_scope_validation() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'frequency_alert', 'weekly' )
+			->optSet( 'frequency_info', 'monthly' )
+			->store();
+
+		$con->opts
+			->optSet( 'frequency_alert', 'hourly' )
+			->optSet( 'frequency_info', 'hourly' );
+
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_alert' ) );
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_info' ) );
+	}
+
+	public function test_hourly_report_frequencies_migrate_to_daily_during_upgrade() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+		$this->replaceStoredOptionValues( [
+			'frequency_alert' => 'hourly',
+			'frequency_info'  => 'hourly',
+		] );
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_alert' ) );
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_info' ) );
+		$con->cfg->previous_version = $previousVersion;
+	}
+
+	public function test_valid_report_frequencies_survive_corrections() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'frequency_alert', 'weekly' )
+			->optSet( 'frequency_info', 'monthly' )
+			->store();
+
+		$this->assertSame( 'weekly', $con->opts->optGet( 'frequency_alert' ) );
+		$this->assertSame( 'monthly', $con->opts->optGet( 'frequency_info' ) );
 	}
 
 	public function test_request_logger_cannot_be_set_off_directly() :void {

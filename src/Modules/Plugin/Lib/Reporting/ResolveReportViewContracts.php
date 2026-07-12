@@ -2,7 +2,47 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
+use FernleafSystems\Wordpress\Services\{
+	Core\General,
+	Services
+};
+
 class ResolveReportViewContracts {
+
+	/**
+	 * @return array{
+	 *   current:array{label:string,date_start:string,date_end:string},
+	 *   previous:array{label:string,date_start:string,date_end:string}
+	 * }
+	 */
+	public function statisticsPeriods( ReportVO $report ) :array {
+		$WP = Services::WpGeneral();
+		return [
+			'current'  => $this->statisticsPeriod(
+				__( 'Current', 'wp-simple-firewall' ),
+				$report->start_at,
+				$report->end_at,
+				$WP
+			),
+			'previous' => $this->statisticsPeriod(
+				__( 'Previous', 'wp-simple-firewall' ),
+				$report->previous_start_at,
+				$report->previous_end_at,
+				$WP
+			),
+		];
+	}
+
+	/**
+	 * @return array{label:string,date_start:string,date_end:string}
+	 */
+	private function statisticsPeriod( string $label, int $startAt, int $endAt, General $WP ) :array {
+		return [
+			'label'      => $label,
+			'date_start' => $WP->getTimeStringForDisplay( $startAt, false ),
+			'date_end'   => $WP->getTimeStringForDisplay( $endAt, false ),
+		];
+	}
 
 	/**
 	 * @return array{

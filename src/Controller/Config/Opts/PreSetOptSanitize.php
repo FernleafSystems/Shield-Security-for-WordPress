@@ -46,6 +46,10 @@ class PreSetOptSanitize {
 			case 'silentcaptcha_complexity':
 				$this->value = SilentCaptchaComplexity::normalise( $this->value );
 				break;
+			case 'frequency_alert':
+			case 'frequency_info':
+				$this->value = ReportFrequency::normaliseLegacy( $this->value );
+				break;
 			case 'language_override':
 				$raw = ( \is_scalar( $this->value ) || \is_null( $this->value ) ) ? (string)$this->value : '';
 				$normalised = \strtolower( (string)\preg_replace( '#[^a-z]#i', '', $raw ) );

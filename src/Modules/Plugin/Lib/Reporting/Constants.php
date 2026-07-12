@@ -7,6 +7,7 @@ class Constants {
 	public const REPORT_TYPE_CUSTOM = 'cus';
 	public const REPORT_TYPE_ALERT = 'alt';
 	public const REPORT_TYPE_INFO = 'nfo';
+	public const REPORT_INTERVAL_CUSTOM = 'custom';
 	public const COMPONENT_REPORT_BUILDERS = [];
 	public const REPORT_AREA_CHANGES = 'changes';
 	public const REPORT_AREA_SCANS = 'scans';

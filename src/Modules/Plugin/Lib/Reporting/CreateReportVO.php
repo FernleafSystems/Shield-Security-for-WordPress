@@ -22,9 +22,9 @@ class CreateReportVO {
 		$this->rep->type = $reportType;
 
 		$this->rep->interval = $this->determineReportInterval( $reportType );
-		$this->rep->previous = $this->lookupPreviousReport( $reportType, $this->rep->interval );
+		$previous = $this->lookupPreviousReport( $reportType, $this->rep->interval );
 		$this->rep->areas = $this->determineReportAreas( $reportType );
-		$this->setIntervalBoundaries();
+		$this->setIntervalBoundaries( $previous );
 		$this->rep->title = $this->buildReportTitle( $reportType, $this->rep->interval );
 
 		return $this->rep;
@@ -48,16 +48,15 @@ class CreateReportVO {
 		}
 	}
 
-	/**
-	 * @return ReportsDB\Record|false|null
-	 */
-	protected function lookupPreviousReport( string $reportType, string $interval ) {
+	protected function lookupPreviousReport( string $reportType, string $interval ) :?ReportsDB\Record {
 		/** @var ReportsDB\Select $sel */
 		$sel = self::con()->db_con->reports->getQuerySelector();
-		return $sel->filterByType( $reportType )
-				   ->filterByInterval( $interval )
-				   ->setOrderBy( 'created_at' )
-				   ->first();
+		$previous = $sel->filterByType( $reportType )
+						->filterByInterval( $interval )
+						->setOrderBy( 'created_at' )
+						->first();
+
+		return $previous instanceof ReportsDB\Record ? $previous : null;
 	}
 
 	/**
@@ -65,7 +64,7 @@ class CreateReportVO {
 	 * @throws Exceptions\ReportTypeDisabledException
 	 * @throws \Exception
 	 */
-	private function setIntervalBoundaries() :self {
+	private function setIntervalBoundaries( ?ReportsDB\Record $previous ) :self {
 		$interval = $this->rep->interval;
 		$resolver = $this->buildIntervalWindowResolver();
 
@@ -75,7 +74,7 @@ class CreateReportVO {
 
 		$window = $resolver->resolveCompletedWindow( $interval, $this->currentRequestCarbon() );
 
-		if ( $this->rep->previous instanceof ReportsDB\Record && $window->end_at <= $this->rep->previous->interval_end_at ) {
+		if ( $previous !== null && $window->end_at <= $previous->interval_end_at ) {
 			throw new Exceptions\DuplicateReportException( 'Attempting to create a duplicate report based on interval.' );
 		}
 
@@ -85,6 +84,9 @@ class CreateReportVO {
 
 		$this->rep->start_at = $window->start_at;
 		$this->rep->end_at = $window->end_at;
+		$previousWindow = $resolver->resolvePreviousMatchingWindow( $window, $interval );
+		$this->rep->previous_start_at = $previousWindow->start_at;
+		$this->rep->previous_end_at = $previousWindow->end_at;
 
 		return $this;
 	}

@@ -32,13 +32,13 @@
 								<div class="stat-card-body">
 									<div class="overline">{{ stat.name }}</div>
 									<div class="stat-value">{{ stat.count_current_period }}</div>
-									<div class="stat-prev-label">{{ strings.this_period }}</div>
+									<div class="stat-prev-label">{{ vars.periods.current.label }}: {{ vars.periods.current.date_start }} &ndash; {{ vars.periods.current.date_end }}</div>
 								</div>
 								<div class="stat-card-footer">
-									<span>{{ strings.previous_period }}: {{ stat.count_previous_period }}</span>
+									<span>{{ vars.periods.previous.label }} ({{ vars.periods.previous.date_start }} &ndash; {{ vars.periods.previous.date_end }}): {{ stat.count_previous_period }}</span>
 									<span class="stat-trend {{ trend_class }}">
 										<i class="{{ stat.diff_symbol_icon_class }}" aria-hidden="true"></i>
-										{{ stat.diff_symbol_plus_minus }}{{ stat.count_diff_abs }}{% if stat.diff_percentage is defined and stat.diff_percentage != 0 %} ({{ stat.diff_percentage }}%){% endif %}
+										{{ stat.diff_symbol_plus_minus }}{{ stat.count_diff_abs }}{% if stat.diff_percentage != 0 %} ({{ stat.diff_percentage }}%){% endif %}
 									</span>
 								</div>
 							</div>

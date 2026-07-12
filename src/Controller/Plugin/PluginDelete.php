@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
+use FernleafSystems\Wordpress\Plugin\Shield\Events\ConsolidateAllEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Utilities\Options\Transient;
 use FernleafSystems\Wordpress\Services\Services;
@@ -30,6 +31,8 @@ class PluginDelete {
 		) {
 			Services::WpGeneral()->deleteOption( $opt );
 		}
+		\delete_option( self::con()->prefix( ConsolidateAllEvents::CURSOR_OPTION ) );
+		\delete_transient( self::con()->prefix( ConsolidateAllEvents::GUARD_TRANSIENT ) );
 
 		foreach ( [
 			self::con()->prefix( 'ip_rules_cache_'.\FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache::GROUP_NO_RULES, '_' ),

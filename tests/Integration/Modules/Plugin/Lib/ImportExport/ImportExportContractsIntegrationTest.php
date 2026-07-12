@@ -68,6 +68,8 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			'visitor_address_source',
 			'enable_tracking',
 			'enable_logger',
+			'frequency_alert',
+			'frequency_info',
 		] );
 	}
 
@@ -279,6 +281,30 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'light', $con->opts->optGet( 'display_plugin_badge' ) );
 		$this->assertSame( 'REMOTE_ADDR', $con->opts->optGet( 'visitor_address_source' ) );
 		$this->assertSame( 'N', $con->opts->optGet( 'enable_tracking' ) );
+		$this->assertCount( 1, $this->getCapturedEventsByKey( 'options_imported' ) );
+	}
+
+	public function test_file_import_migrates_hourly_report_frequencies_to_daily() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'frequency_alert', 'weekly' )
+			->optSet( 'frequency_info', 'monthly' )
+			->optSet( 'xfer_excluded', [] )
+			->store();
+		$export = ( new Export() )->getExportData();
+		$export[ 'options' ][ 'frequency_alert' ] = 'hourly';
+		$export[ 'options' ][ 'frequency_info' ] = 'hourly';
+		$file = $this->writeTempFile( \implode( "\n", [
+			'# hourly report migration fixture',
+			\wp_json_encode( $export ),
+		] ) );
+		$this->captureShieldEvents();
+
+		( new Import() )->fromFile( $file, true );
+
+		$this->assertFileDoesNotExist( $file );
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_alert' ) );
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_info' ) );
 		$this->assertCount( 1, $this->getCapturedEventsByKey( 'options_imported' ) );
 	}
 

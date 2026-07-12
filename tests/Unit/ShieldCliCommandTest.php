@@ -101,7 +101,23 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			$this->createMock( LocalIntegrationTestLane::class )
 		);
 		$this->assertTrue( $command->getDefinition()->hasOption( 'db-down' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'db-profile' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
+	}
+
+	public function testIntegrationLocalCommandForwardsDatabaseProfile() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$lane = $this->createMock( LocalIntegrationTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), false, [ '--group', 'database-compat' ], false, 'mysql56' )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestIntegrationLocalCommand( $this->getPluginRoot(), $lane ) );
+		$this->assertSame( 0, $tester->execute( [
+			'--db-profile' => 'mysql56',
+			'phpunit_args' => [ '--group', 'database-compat' ],
+		] ) );
 	}
 
 	public function testSourceCommandIncludesDebuggingOptions() :void {

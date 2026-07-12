@@ -40,6 +40,8 @@ class CreateReportVOTest extends BaseUnitTest {
 		], $report->areas );
 		$this->assertSame( 1713398400, $report->start_at );
 		$this->assertSame( 1713484799, $report->end_at );
+		$this->assertSame( 1713312000, $report->previous_start_at );
+		$this->assertSame( 1713398399, $report->previous_end_at );
 	}
 
 	public function test_create_uses_info_frequency_and_full_report_areas() :void {
@@ -56,6 +58,8 @@ class CreateReportVOTest extends BaseUnitTest {
 		], $report->areas );
 		$this->assertSame( 1712534400, $report->start_at );
 		$this->assertSame( 1713139199, $report->end_at );
+		$this->assertSame( Carbon::create( 2024, 4, 1, 0, 0, 0, 'UTC' )->timestamp, $report->previous_start_at );
+		$this->assertSame( Carbon::create( 2024, 4, 7, 23, 59, 59, 'UTC' )->timestamp, $report->previous_end_at );
 	}
 
 	public function test_create_throws_duplicate_when_previous_report_already_covers_interval() :void {
@@ -76,6 +80,26 @@ class CreateReportVOTest extends BaseUnitTest {
 
 		$this->newCreateReportVo( Carbon::create( 2024, 4, 19, 13, 45, 0, 'UTC' ) )
 			->create( Constants::REPORT_TYPE_ALERT );
+	}
+
+	public function test_biweekly_report_is_duplicate_during_second_week_and_advances_at_boundary() :void {
+		$previous = new Record();
+		$previous->interval_end_at = Carbon::create( 2024, 4, 14, 23, 59, 59, 'UTC' )->timestamp;
+		$this->installControllerStub( $previous, 'daily', 'biweekly' );
+
+		try {
+			$this->newCreateReportVo( Carbon::create( 2024, 4, 26, 13, 45, 0, 'UTC' ) )
+				->create( Constants::REPORT_TYPE_INFO );
+			$this->fail( 'Second week of a fixed fortnight must not generate another report.' );
+		}
+		catch ( Exceptions\DuplicateReportException $e ) {
+			$this->assertNotSame( '', $e->getMessage() );
+		}
+
+		$next = $this->newCreateReportVo( Carbon::create( 2024, 4, 29, 13, 45, 0, 'UTC' ) )
+			->create( Constants::REPORT_TYPE_INFO );
+		$this->assertSame( Carbon::create( 2024, 4, 15, 0, 0, 0, 'UTC' )->timestamp, $next->start_at );
+		$this->assertSame( Carbon::create( 2024, 4, 28, 23, 59, 59, 'UTC' )->timestamp, $next->end_at );
 	}
 
 	private function installControllerStub( ?Record $previousRecord, string $alertInterval, string $infoInterval ) :void {

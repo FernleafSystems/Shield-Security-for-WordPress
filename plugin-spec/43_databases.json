@@ -249,7 +249,16 @@
                     "default": 0,
                     "comment": "Total"
                 }
-            }
+            },
+            "indices": [
+                {
+                    "key_name": "created_at_event",
+                    "columns": [
+                        "created_at",
+                        "event"
+                    ]
+                }
+            ]
         },
         "file_locker": {
             "name": "File Locker Data",

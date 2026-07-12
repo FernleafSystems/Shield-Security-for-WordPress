@@ -1,8 +1,8 @@
 <?php declare( strict_types=1 );
 
-namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
+namespace FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time;
 
-class ReportIntervalWindow {
+class CalendarIntervalWindow {
 
 	public int $start_at;
 
@@ -12,7 +12,7 @@ class ReportIntervalWindow {
 
 	public function __construct( int $startAt, int $endAt, string $timezone = 'UTC' ) {
 		if ( $endAt < $startAt ) {
-			throw new \InvalidArgumentException( 'Report interval end must not be earlier than the start.' );
+			throw new \InvalidArgumentException( 'Calendar interval end must not be earlier than the start.' );
 		}
 
 		$this->start_at = $startAt;

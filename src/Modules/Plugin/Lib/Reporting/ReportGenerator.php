@@ -30,9 +30,17 @@ class ReportGenerator {
 	public function custom( string $title, int $start, int $end, array $options ) :ReportsDB\Record {
 		$report = new ReportVO();
 		$report->type = Constants::REPORT_TYPE_CUSTOM;
+		$report->interval = Constants::REPORT_INTERVAL_CUSTOM;
 		$report->title = $title;
 		$report->start_at = $start;
 		$report->end_at = $end;
+		$previousWindow = ( new ReportIntervalWindowResolver() )->resolveAdjacentInclusiveWindow(
+			$start,
+			$end,
+			\wp_timezone()->getName()
+		);
+		$report->previous_start_at = $previousWindow->start_at;
+		$report->previous_end_at = $previousWindow->end_at;
 		$report->areas = $options[ 'areas' ];
 		return $this->buildAndStore( $report );
 	}
@@ -87,7 +95,7 @@ class ReportGenerator {
 		$record = $con->db_con->reports->getRecord();
 		$record->interval_start_at = $report->start_at;
 		$record->interval_end_at = $report->end_at;
-		$record->interval_length = $report->interval ?? 'custom';
+		$record->interval_length = $report->interval;
 		$record->type = $report->type;
 		$record->unique_id = ( new Uuid() )->V4();
 		$record->protected = $record->type !== Constants::REPORT_TYPE_CUSTOM;

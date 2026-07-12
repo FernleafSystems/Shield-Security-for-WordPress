@@ -509,11 +509,7 @@
 		<span class="site-url">{{ vars.site_url_host }}</span>
 		<div>
 			<span class="report-date-pill">
-				{% if vars.interval == 'hourly' %}
-					{{ vars.dates.report_date_full_start }} &ndash; {{ vars.dates.report_date_full_end }}
-				{% else %}
-					{{ vars.dates.report_date_start }} &ndash; {{ vars.dates.report_date_end }}
-				{% endif %}
+				{{ vars.dates.report_date_start }} &ndash; {{ vars.dates.report_date_end }}
 			</span>
 		</div>
 	</div>

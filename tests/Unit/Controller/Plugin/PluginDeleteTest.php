@@ -10,7 +10,9 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Plugin;
 
+use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDelete;
+use FernleafSystems\Wordpress\Plugin\Shield\Events\ConsolidateAllEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -37,9 +39,15 @@ class PluginDeleteTest extends BaseUnitTest {
 	private CacheStoreTestFs $fs;
 
 	private array $servicesSnapshot = [];
+	private array $deletedTransients = [];
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->deletedTransients = [];
+		Functions\when( 'delete_transient' )->alias( function ( string $key ) :bool {
+			$this->deletedTransients[] = $key;
+			return true;
+		} );
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->db = new CacheStoreTestDb( 'wp_install_a_' );
 		$this->fs = new CacheStoreTestFs();
@@ -119,6 +127,10 @@ class PluginDeleteTest extends BaseUnitTest {
 		( new PluginDelete() )->run();
 
 		$this->assertNotEmpty( $this->db->droppedTables );
+		$this->assertContains(
+			$controller->prefix( ConsolidateAllEvents::GUARD_TRANSIENT ),
+			$this->deletedTransients
+		);
 		$this->assertDirectoryDoesNotExist( $rootA );
 		foreach ( [ $sharedParent, $rootB, $unsuffixedRoot, $legacyRoot ] as $preservedRoot ) {
 			$this->assertDirectoryExists( $preservedRoot );

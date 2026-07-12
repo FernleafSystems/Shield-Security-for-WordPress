@@ -295,6 +295,64 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		$this->assertFileDoesNotExist( $this->laneLockPath() );
 	}
 
+	/** @dataProvider providerDatabaseProfiles */
+	public function testDatabaseProfileSuppliesFixedComposeEnvironment(
+		string $profile,
+		string $expectedImage,
+		string $expectedCommand
+	) :void {
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
+		$lane = new LocalIntegrationTestLane(
+			new RecordingProcessRunner(),
+			$this->createRecordingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			null,
+			null,
+			$this->lockDir,
+			new RecordingLocalWpTestsConfigGuard()
+		);
+
+		$this->assertSame( 0, $this->runLaneSilenced( $lane, true, [], false, $profile ) );
+		$this->assertSame( $expectedImage, $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_INTEGRATION_DB_IMAGE' ] ?? null );
+		$this->assertSame( $expectedCommand, $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_INTEGRATION_DB_COMMAND' ] ?? null );
+	}
+
+	public function testUnknownDatabaseProfileFailsBeforeDocker() :void {
+		$environmentResolver = $this->createRecordingEnvironmentResolver();
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
+		$lane = new LocalIntegrationTestLane(
+			new RecordingProcessRunner(),
+			$environmentResolver,
+			$dockerComposeExecutor,
+			null,
+			null,
+			$this->lockDir,
+			new RecordingLocalWpTestsConfigGuard()
+		);
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'Unknown integration database profile: mysql-latest' );
+		try {
+			$this->runLaneSilenced( $lane, false, [], false, 'mysql-latest' );
+		}
+		finally {
+			$this->assertFalse( $environmentResolver->assertDockerReadyCalled );
+			$this->assertSame( [], $dockerComposeExecutor->calls );
+		}
+	}
+
+	public static function providerDatabaseProfiles() :array {
+		return [
+			'mysql80' => [
+				'mysql80',
+				'mysql:8.0',
+				'--default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0',
+			],
+			'mysql56' => [ 'mysql56', 'mysql:5.6', '--bind-address=0.0.0.0' ],
+			'mariadb106' => [ 'mariadb106', 'mariadb:10.6', '--bind-address=0.0.0.0' ],
+		];
+	}
+
 	/**
 	 * @param string[] $phpunitArgs
 	 */
@@ -302,11 +360,12 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		LocalIntegrationTestLane $lane,
 		bool $dbDown = false,
 		array $phpunitArgs = [],
-		bool $showDockerOutput = false
+		bool $showDockerOutput = false,
+		string $dbProfile = 'mysql80'
 	) :int {
 		\ob_start();
 		try {
-			return $lane->run( $this->projectRoot, $dbDown, $phpunitArgs, $showDockerOutput );
+			return $lane->run( $this->projectRoot, $dbDown, $phpunitArgs, $showDockerOutput, $dbProfile );
 		}
 		finally {
 			\ob_end_clean();
@@ -348,6 +407,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		$this->assertSame( 'shield-local-db', $metadata[ 'compose_project' ] ?? null );
 		$this->assertSame( 'wordpress_test_local', $metadata[ 'db_name' ] ?? null );
 		$this->assertSame( '127.0.0.1:3311', $metadata[ 'db_host' ] ?? null );
+		$this->assertSame( 'mysql80', $metadata[ 'db_profile' ] ?? null );
 		$this->assertSame( $this->projectRoot, $metadata[ 'root_dir' ] ?? null );
 	}
 
@@ -411,6 +471,11 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			$env[ 'SHIELD_DOCKER_VOLUME_RUN_ID' ] ?? null
 		);
 		$this->assertSame( '2037-12-31T23:59:59+00:00', $env[ 'SHIELD_DOCKER_CONTAINER_EXPIRES_AT' ] ?? null );
+		$this->assertSame( 'mysql:8.0', $env[ 'SHIELD_INTEGRATION_DB_IMAGE' ] ?? null );
+		$this->assertSame(
+			'--default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0',
+			$env[ 'SHIELD_INTEGRATION_DB_COMMAND' ] ?? null
+		);
 		$this->assertSame(
 			$env[ 'SHIELD_DOCKER_CONTAINER_EXPIRES_AT' ] ?? null,
 			$env[ 'SHIELD_DOCKER_VOLUME_EXPIRES_AT' ] ?? null

@@ -37,16 +37,11 @@ class ReportDataInspector {
 		$statsForDisplay = [];
 
 		foreach ( $this->data[ Constants::REPORT_AREA_STATS ] ?? [] as $groupKey => $groupData ) {
-			if ( !\is_array( $groupData ) ) {
-				continue;
-			}
-
 			$groupStats = \array_filter(
-				$groupData[ 'stats' ] ?? [],
-				function ( $stat ) use ( $detailLevel ) {
-					return \is_array( $stat )
-						   && !( $stat[ 'is_zero_stat' ] ?? true )
-						   && ( $detailLevel === 'detailed' || ( $stat[ 'count_diff_abs' ] ?? 0 ) > 0 );
+				$groupData[ 'stats' ],
+				static function ( array $stat ) use ( $detailLevel ) :bool {
+					return !$stat[ 'is_zero_stat' ]
+						   && ( $detailLevel === 'detailed' || $stat[ 'count_diff_abs' ] > 0 );
 				}
 			);
 

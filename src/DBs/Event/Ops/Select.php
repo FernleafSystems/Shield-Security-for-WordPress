@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops;
 
+use FernleafSystems\Wordpress\Services\Services;
+
 class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Select {
 
 	use Common;
@@ -25,9 +27,18 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 	 */
 	public function sumEventsSeparately( array $events ) :array {
 		$counts = \array_fill_keys( $events, 0 );
-		/** @var Record $event */
-		foreach ( $this->filterByEvents( $events )->queryWithResult() as $event ) {
-			$counts[ $event->event ] += $event->count;
+		$rows = $this->filterByEvents( $events )
+					 ->setCustomSelect( '`event`, SUM(`count`) AS `event_total`' )
+					 ->setGroupBy( 'event' )
+					 ->setNoOrderBy()
+					 ->setResultsAsVo( false )
+					 ->setSelectResultsFormat( ARRAY_A )
+					 ->queryWithResult();
+		foreach ( \is_array( $rows ) ? $rows : [] as $row ) {
+			$event = (string)( $row[ 'event' ] ?? '' );
+			if ( \array_key_exists( $event, $counts ) ) {
+				$counts[ $event ] = (int)( $row[ 'event_total' ] ?? 0 );
+			}
 		}
 		return $counts;
 	}
@@ -42,15 +53,9 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 	 * @return int[]
 	 */
 	public function sumAllEvents() :array {
-		$sums = [];
-
 		$allEvents = ( clone $this )->reset()->getAllEvents();
-
 		\natsort( $allEvents );
-		foreach ( $allEvents as $event ) {
-			$sums[ $event ] = $this->clearWheres()->sumEvent( $event );
-		}
-		return $sums;
+		return $this->clearWheres()->sumEventsSeparately( \array_values( $allEvents ) );
 	}
 
 	public function getLatestForEvent( string $event ) :?Record {
@@ -80,11 +85,16 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 	 */
 	public function getLatestForAllEvents() :array {
 		$latest = [];
-		$this->setGroupBy( 'event' )
-			 ->setOrderBy( 'created_at' )
-			 ->addWhere( 'id', $this->getMaxIds(), 'IN' )
+		$latestIDs = $this->getLatestIdsByTimestamp();
+		if ( empty( $latestIDs ) ) {
+			return $latest;
+		}
+
+		$this->setOrderBy( 'created_at' )
+			 ->addWhere( 'id', $latestIDs, 'IN' )
 			 ->setResultsAsVo( true );
-		foreach ( $this->queryWithResult() as $record ) {
+		$records = $this->queryWithResult();
+		foreach ( \is_array( $records ) ? $records : [] as $record ) {
 			/** @var Record $record */
 			$latest[ $record->event ] = $record;
 		}
@@ -94,16 +104,21 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 	/**
 	 * @return int[]
 	 */
-	private function getMaxIds() :array {
-		return \array_map(
-			function ( $id ) {
-				return (int)$id[ 'MAX(id)' ];
-			},
-			$this->setCustomSelect( 'MAX(id)' )
-				 ->setGroupBy( 'event' )
-				 ->setResultsAsVo( false )
-				 ->setSelectResultsFormat( ARRAY_A )
-				 ->queryWithResult()
+	private function getLatestIdsByTimestamp() :array {
+		$table = $this->getDbH()->getTable();
+		$ids = Services::WpDb()->loadWpdb()->get_col(
+			"SELECT MAX(`event_row`.`id`)
+			FROM `{$table}` AS `event_row`
+			INNER JOIN (
+				SELECT `event`, MAX(`created_at`) AS `latest_at`
+				FROM `{$table}`
+				GROUP BY `event`
+			) AS `latest`
+			ON `latest`.`event` = `event_row`.`event`
+				AND `latest`.`latest_at` = `event_row`.`created_at`
+			GROUP BY `event_row`.`event`"
 		);
+
+		return \array_map( 'intval', \is_array( $ids ) ? $ids : [] );
 	}
 }
