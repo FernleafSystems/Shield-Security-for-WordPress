@@ -117,9 +117,13 @@ trait AfsAssetChangeIntegrationSupport {
 		return $queueItem;
 	}
 
+	/**
+	 * @param list<string> $coverageFamilies
+	 */
 	protected function insertAfsScan(
 		string $scopeType,
 		string $scopeKey,
+		array $coverageFamilies,
 		string $runTrigger = 'asset_change'
 	) :int {
 		$dbh = self::con()->db_con->scans;
@@ -133,6 +137,9 @@ trait AfsAssetChangeIntegrationSupport {
 		$record->last_process_at = Services::Request()->ts();
 		$record->ready_at = \max( 1, Services::Request()->ts() - 60 );
 		$record->finished_at = 0;
+		$record->meta = [
+			'coverage_families' => $coverageFamilies,
+		];
 
 		$this->assertTrue( $dbh->getQueryInserter()->insert( $record ) );
 		return (int)$GLOBALS[ 'wpdb' ]->insert_id;

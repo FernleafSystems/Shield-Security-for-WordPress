@@ -51,6 +51,7 @@ class Query {
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
 	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	public function verifyHashWithSource( string $fullPath ) :HashVerificationResult {
 		return ( new AssetTrustResolver() )->verifyPath( $fullPath );
@@ -61,6 +62,7 @@ class Query {
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
 	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	public function verifyHash( string $fullPath ) :bool {
 		return $this->verifyHashWithSource( $fullPath )->verified;

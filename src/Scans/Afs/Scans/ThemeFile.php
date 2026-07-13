@@ -22,6 +22,10 @@ class ThemeFile extends BasePluginThemeFile {
 	/**
 	 * @throws Exceptions\ThemeFileUnrecognisedException
 	 * @throws Exceptions\ThemeFileChecksumFailException
+	 * @throws AssetHashesNotFound
+	 * @throws NonAssetFileException
+	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	protected function runScan() :bool {
 		$context = $this->getAssetContext();
@@ -34,7 +38,7 @@ class ThemeFile extends BasePluginThemeFile {
 				] );
 			}
 			$this->hashVerificationResult = $verification;
-			$valid = true;
+			return true;
 		}
 		catch ( UnrecognisedAssetFile $e ) {
 			throw new Exceptions\ThemeFileUnrecognisedException( $this->pathFull, [
@@ -42,10 +46,5 @@ class ThemeFile extends BasePluginThemeFile {
 				'asset_version' => $context->assetVersion,
 			] );
 		}
-		catch ( \InvalidArgumentException|AssetHashesNotFound|NonAssetFileException $e ) {
-			$valid = false;
-		}
-
-		return $valid;
 	}
 }

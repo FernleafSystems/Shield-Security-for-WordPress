@@ -66,7 +66,6 @@ class QueueWatchdog {
 
 			switch ( $scan->status ) {
 				case ScanStatus::QUEUED:
-					self::con()->comps->scans_queue->getQueueBuilder()->dispatch();
 					break;
 
 				case ScanStatus::BUILDING:
@@ -85,6 +84,7 @@ class QueueWatchdog {
 					throw new \UnexpectedValueException( 'Unsupported active scan status.' );
 			}
 
+			( new CompleteQueue() )->complete();
 			return true;
 		}
 		finally {
@@ -120,6 +120,7 @@ class QueueWatchdog {
 	}
 
 	public function run() :void {
+		$hadActive = $this->hasActiveScans();
 		$cutoff = $this->cutoff();
 
 		$maintenance = new QueueMaintenance();
@@ -131,7 +132,7 @@ class QueueWatchdog {
 		}
 
 		foreach ( $this->staleScans( $cutoff, [ ScanStatus::QUEUED ] ) as $scan ) {
-			$this->recoverQueuedScan( $scan );
+			$this->touchStaleQueuedScan( $scan );
 		}
 
 		$recovery = new QueueRecovery();
@@ -140,6 +141,10 @@ class QueueWatchdog {
 		}
 
 		$maintenance->run();
+
+		if ( $hadActive ) {
+			( new CompleteQueue() )->complete();
+		}
 	}
 
 	public function scheduleIfActive() :void {
@@ -160,11 +165,10 @@ class QueueWatchdog {
 		return self::con()->prefix( 'scan_queue_watchdog' );
 	}
 
-	private function recoverQueuedScan( ScansDB\Record $scan ) :void {
+	private function touchStaleQueuedScan( ScansDB\Record $scan ) :void {
 		self::con()->db_con->scans->getQueryUpdater()->updateById( $scan->id, [
 			'last_process_at' => Services::Request()->ts(),
 		] );
-		self::con()->comps->scans_queue->getQueueBuilder()->dispatch();
 	}
 
 	private function hasActiveScans() :bool {

@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\PopulateScanItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueHeartbeat;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -74,6 +75,8 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		$this->assertSame( 1700004000, $scanUpdates[ 0 ][ 'data' ][ 'last_process_at' ] );
 		$scanMeta = \json_decode( \base64_decode( (string)$scanUpdates[ 0 ][ 'data' ][ 'meta' ] ), true );
 		$this->assertSame( 'value', $scanMeta[ 'scan_meta' ] ?? null );
+		$this->assertArrayHasKey( 'coverage_families', $scanMeta );
+		$this->assertSame( $this->coverageFamilies(), $scanMeta[ 'coverage_families' ] );
 		$this->assertSame( 'full', $scanMeta[ 'scope_type' ] ?? null );
 		$this->assertSame( '', $scanMeta[ 'scope_key' ] ?? null );
 		$this->assertArrayNotHasKey( 'progress_callback', $scanMeta );
@@ -156,6 +159,8 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		$scanMeta = \json_decode( $decodedMeta, true );
 		$this->assertIsArray( $scanMeta );
 		$this->assertSame( 'value', $scanMeta[ 'scan_meta' ] ?? null );
+		$this->assertArrayHasKey( 'coverage_families', $scanMeta );
+		$this->assertSame( $this->coverageFamilies(), $scanMeta[ 'coverage_families' ] );
 		$this->assertSame( 'full', $scanMeta[ 'scope_type' ] ?? null );
 		$this->assertSame( '', $scanMeta[ 'scope_key' ] ?? null );
 		$this->assertArrayNotHasKey( 'progress_callback', $scanMeta );
@@ -213,6 +218,10 @@ class PopulateScanItemsTest extends BaseUnitTest {
 					}
 				};
 				$action->scan_meta = 'value';
+				$action->coverage_families = [
+					ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+					ScanActionVO::COVERAGE_FAMILY_MALWARE,
+				];
 				return $action;
 			}
 
@@ -281,6 +290,21 @@ class PopulateScanItemsTest extends BaseUnitTest {
 
 				public function getTable() :string {
 					return 'shield_scans';
+				}
+
+				public function getQuerySelector() :object {
+					return new class {
+						public function byId( int $scanID ) :ScansDB\Record {
+							$record = new ScansDB\Record();
+							$record->id = $scanID;
+							$record->scan = 'wpv';
+							$record->scope_type = 'full';
+							$record->scope_key = '';
+							$record->run_trigger = 'manual';
+							$record->meta = [];
+							return $record;
+						}
+					};
 				}
 			},
 			'scan_items' => new class( $itemInsertCount, $itemInsertSuccess, $itemInserts ) {
@@ -369,5 +393,15 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		];
 
 		PluginControllerInstaller::install( $controller );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function coverageFamilies() :array {
+		return [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+			ScanActionVO::COVERAGE_FAMILY_MALWARE,
+		];
 	}
 }

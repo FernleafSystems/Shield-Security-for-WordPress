@@ -80,6 +80,7 @@ class AssetTrustResolver {
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
 	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	public function verifyPath( string $path ) :HashVerificationResult {
 		return $this->verifyContext( $path, $this->resolveContext( $path ) );
@@ -90,6 +91,7 @@ class AssetTrustResolver {
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
 	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	public function verifyContext( string $path, AssetFileContext $context ) :HashVerificationResult {
 		$verified = false;

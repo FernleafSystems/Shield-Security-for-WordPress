@@ -3,12 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard\Scan;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\SetScanCompleted;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItemVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\{
 	BuildAlertDigestContract,
 	Constants,
 	ReportVO
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data\BuildForScans;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard\Scan\Support\AfsAssetChangeIntegrationSupport;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -61,7 +63,9 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 		$this->assertSame( 2, self::con()->comps->scans->getScanResultsCount()->countPluginFiles() );
 
-		$replacementScanId = $this->insertAfsScan( $scenario[ 'scope_type' ], $scenario[ 'scope_key' ] );
+		$replacementScanId = $this->insertAfsScan( $scenario[ 'scope_type' ], $scenario[ 'scope_key' ], [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+		] );
 		$this->storeAfsObservation( $replacementScanId, $scenario );
 		$this->assertTrue( ( new SetScanCompleted() )->run( $replacementScanId ) );
 		$staleItem = self::con()->db_con->scan_result_items->getQuerySelector()
@@ -81,7 +85,9 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 		$this->assertSame( 2, self::con()->comps->scans->AFS()->getResultsForDisplay()->countItems() );
 
-		$replacementScanId = $this->insertAfsScan( $scenario[ 'scope_type' ], $scenario[ 'scope_key' ] );
+		$replacementScanId = $this->insertAfsScan( $scenario[ 'scope_type' ], $scenario[ 'scope_key' ], [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+		] );
 		$this->storeAfsObservation( $replacementScanId, $scenario );
 		$this->assertTrue( ( new SetScanCompleted() )->run( $replacementScanId ) );
 
@@ -120,7 +126,9 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 			'is_mal'     => 1,
 		] );
 
-		$replacementScanId = $this->insertAfsScan( 'core', 'core' );
+		$replacementScanId = $this->insertAfsScan( 'core', 'core', [
+			ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
+		] );
 		$this->assertTrue( ( new SetScanCompleted() )->run( $replacementScanId ) );
 
 		foreach ( [ $checksum, $missing ] as $resolved ) {
@@ -137,6 +145,280 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
+	public function test_full_completion_resolves_only_enabled_coverage_families() :void {
+		$plugin = $this->afsAssetScenario( 'plugin' );
+		$core = $this->afsAssetScenario( 'core' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$covered = $this->seedAfsFinding( $initialScanID, $core, $this->findingPath( 'covered-core' ), [
+			'is_in_core'      => 1,
+			'is_checksumfail' => 1,
+		] );
+		$notCovered = $this->seedAfsFinding( $initialScanID, $plugin, $this->findingPath( 'uncovered-plugin' ), [
+			'is_in_plugin'    => 1,
+			'is_checksumfail' => 1,
+			'ptg_slug'        => $plugin[ 'asset_key' ],
+		] );
+
+		$scanID = $this->insertAfsScan( 'full', '', [
+			ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
+		], 'manual' );
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID ) );
+
+		$this->assertFindingResolved( $covered, true, 'clean_rescan' );
+		$this->assertFindingResolved( $notCovered, false );
+	}
+
+	/**
+	 * @dataProvider provideCoveredIssueFamilies
+	 * @param array<string,int|string> $meta
+	 */
+	public function test_full_completion_resolves_each_covered_issue_family(
+		string $case,
+		array $meta,
+		string $coverageFamily
+	) :void {
+		$scenario = $this->afsAssetScenario( 'plugin' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$finding = $this->seedAfsFinding(
+			$initialScanID,
+			$scenario,
+			$this->findingPath( 'covered-'.$case ),
+			$meta
+		);
+
+		$scanID = $this->insertAfsScan( 'full', '', [ $coverageFamily ], 'manual' );
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID ) );
+
+		$this->assertFindingResolved( $finding, true, 'clean_rescan' );
+	}
+
+	public function provideCoveredIssueFamilies() :array {
+		return [
+			'unrecognised' => [
+				'unrecognised',
+				[
+					'is_in_core'      => '',
+					'is_in_plugin'    => 1,
+					'is_in_theme'     => 0,
+					'is_unrecognised' => 1,
+					'ptg_slug'        => 'coverage-plugin',
+				],
+				ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+			],
+			'malware' => [
+				'malware',
+				[ 'is_mal' => 1 ],
+				ScanActionVO::COVERAGE_FAMILY_MALWARE,
+			],
+			'missing' => [
+				'missing',
+				[ 'is_in_core' => 1, 'is_missing' => 1 ],
+				ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
+			],
+			'checksum failure' => [
+				'checksum',
+				[ 'is_in_theme' => 1, 'is_checksumfail' => 1, 'ptg_slug' => 'coverage-theme' ],
+				ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY,
+			],
+			'unidentified' => [
+				'unidentified',
+				[ 'is_in_core' => 1, 'is_in_wproot' => 1, 'is_unidentified' => 1 ],
+				ScanActionVO::COVERAGE_FAMILY_WPROOT_UNIDENTIFIED,
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider provideIssuePrecedence
+	 * @param array<string,int|string> $meta
+	 */
+	public function test_issue_precedence_uses_highest_issue_family(
+		string $case,
+		array $meta,
+		string $higherCoverage,
+		string $lowerCoverage
+	) :void {
+		$plugin = $this->afsAssetScenario( 'plugin' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$finding = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'precedence-'.$case ),
+			$meta
+		);
+
+		$lowerScanID = $this->insertAfsScan( 'full', '', [ $lowerCoverage ], 'manual' );
+		$this->assertTrue( ( new SetScanCompleted() )->run( $lowerScanID ) );
+		$this->assertFindingResolved( $finding, false );
+
+		$higherScanID = $this->insertAfsScan( 'full', '', [ $higherCoverage ], 'manual' );
+		$this->assertTrue( ( new SetScanCompleted() )->run( $higherScanID ) );
+		$this->assertFindingResolved( $finding, true, 'clean_rescan' );
+	}
+
+	public function provideIssuePrecedence() :array {
+		return [
+			'unrecognised before malware' => [
+				'unrecognised-malware',
+				[
+					'is_in_plugin'    => 1,
+					'is_unrecognised' => 1,
+					'is_mal'          => 1,
+					'ptg_slug'        => 'precedence-plugin',
+				],
+				ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+				ScanActionVO::COVERAGE_FAMILY_MALWARE,
+			],
+			'malware before missing' => [
+				'malware-missing',
+				[ 'is_in_core' => 1, 'is_mal' => 1, 'is_missing' => 1 ],
+				ScanActionVO::COVERAGE_FAMILY_MALWARE,
+				ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
+			],
+			'missing before unidentified' => [
+				'missing-unidentified',
+				[ 'is_in_core' => 1, 'is_in_wproot' => 1, 'is_missing' => 1, 'is_unidentified' => 1 ],
+				ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
+				ScanActionVO::COVERAGE_FAMILY_WPROOT_UNIDENTIFIED,
+			],
+			'checksum failure before unidentified' => [
+				'checksum-unidentified',
+				[
+					'is_in_theme'     => 1,
+					'is_in_wproot'    => 1,
+					'is_checksumfail' => 1,
+					'is_unidentified' => 1,
+					'ptg_slug'        => 'precedence-theme',
+				],
+				ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY,
+				ScanActionVO::COVERAGE_FAMILY_WPROOT_UNIDENTIFIED,
+			],
+		];
+	}
+
+	public function test_ambiguous_integrity_ownership_and_unidentified_location_fail_closed() :void {
+		$scenario = $this->afsAssetScenario( 'plugin' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$ambiguousOwnership = $this->seedAfsFinding(
+			$initialScanID,
+			$scenario,
+			$this->findingPath( 'ambiguous-ownership' ),
+			[
+				'is_in_plugin'    => 1,
+				'is_in_theme'     => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => 'ambiguous-asset',
+			]
+		);
+		$ambiguousLocation = $this->seedAfsFinding(
+			$initialScanID,
+			$scenario,
+			$this->findingPath( 'ambiguous-location' ),
+			[
+				'is_in_core'      => 1,
+				'is_in_wproot'    => 1,
+				'is_in_wpcontent' => 1,
+				'is_unidentified' => 1,
+			]
+		);
+
+		$scanID = $this->insertAfsScan( 'full', '', [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+			ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY,
+			ScanActionVO::COVERAGE_FAMILY_WPROOT_UNIDENTIFIED,
+			ScanActionVO::COVERAGE_FAMILY_WPCONTENT_UNIDENTIFIED,
+		], 'manual' );
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID ) );
+
+		$this->assertFindingResolved( $ambiguousOwnership, false );
+		$this->assertFindingResolved( $ambiguousLocation, false );
+	}
+
+	/**
+	 * @dataProvider provideInvalidCoverageMetadata
+	 * @param array<string,mixed> $scanMeta
+	 */
+	public function test_invalid_coverage_metadata_fails_closed( array $scanMeta ) :void {
+		$plugin = $this->afsAssetScenario( 'plugin' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$finding = $this->seedAfsFinding( $initialScanID, $plugin, $this->findingPath( 'invalid-coverage' ), [
+			'is_in_plugin'    => 1,
+			'is_checksumfail' => 1,
+			'ptg_slug'        => $plugin[ 'asset_key' ],
+		] );
+
+		$scanID = $this->insertAfsScan( 'full', '', [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+		], 'manual' );
+		$this->replaceScanMeta( $scanID, $scanMeta );
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID ) );
+
+		$this->assertFindingResolved( $finding, false );
+	}
+
+	public function provideInvalidCoverageMetadata() :array {
+		$plugin = ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY;
+		return [
+			'missing'     => [ [] ],
+			'empty'       => [ [ 'coverage_families' => [] ] ],
+			'associative' => [ [ 'coverage_families' => [ 'family' => $plugin ] ] ],
+			'non-string'  => [ [ 'coverage_families' => [ $plugin, 123 ] ] ],
+			'duplicate'   => [ [ 'coverage_families' => [ $plugin, $plugin ] ] ],
+			'unknown'     => [ [ 'coverage_families' => [ 'unknown_family' ] ] ],
+		];
+	}
+
+	public function test_queue_completion_uses_canonical_persisted_coverage_not_queue_or_current_options() :void {
+		$plugin = $this->afsAssetScenario( 'plugin' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$finding = $this->seedAfsFinding( $initialScanID, $plugin, $this->findingPath( 'canonical-meta' ), [
+			'is_in_plugin'    => 1,
+			'is_checksumfail' => 1,
+			'ptg_slug'        => $plugin[ 'asset_key' ],
+		] );
+		$scanID = $this->insertAfsScan( 'plugin', $plugin[ 'asset_key' ], [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+		], 'manual' );
+		self::con()->opts->optSet( 'file_scan_areas', [] )->store();
+
+		$queueItem = new QueueItemVO();
+		$queueItem->scan_id = $scanID;
+		$queueItem->scan = 'afs';
+		$queueItem->scope_type = 'plugin';
+		$queueItem->scope_key = $plugin[ 'asset_key' ];
+		$queueItem->run_trigger = 'manual';
+		$queueItem->meta = [
+			'coverage_families' => [ ScanActionVO::COVERAGE_FAMILY_MALWARE ],
+		];
+
+		$this->assertTrue( ( new SetScanCompleted() )->runForQueueItem( $queueItem ) );
+		$this->assertFindingResolved( $finding, true, 'clean_rescan' );
+	}
+
+	public function test_unfinished_queue_item_prevents_completion_and_resolution() :void {
+		$plugin = $this->afsAssetScenario( 'plugin' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$finding = $this->seedAfsFinding( $initialScanID, $plugin, $this->findingPath( 'unfinished' ), [
+			'is_in_plugin'    => 1,
+			'is_checksumfail' => 1,
+			'ptg_slug'        => $plugin[ 'asset_key' ],
+		] );
+		$scanID = $this->insertAfsScan( 'plugin', $plugin[ 'asset_key' ], [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+		], 'manual' );
+		$item = self::con()->db_con->scan_items->getRecord();
+		$item->scan_ref = $scanID;
+		$item->items = [ 'pending' ];
+		$item->item_count = 1;
+		$item->started_at = 0;
+		$item->attempts = 0;
+		$item->finished_at = 0;
+		$this->assertTrue( self::con()->db_con->scan_items->getQueryInserter()->insert( $item ) );
+
+		$this->assertFalse( ( new SetScanCompleted() )->run( $scanID ) );
+		$this->assertFindingResolved( $finding, false );
+	}
+
 	/**
 	 * @dataProvider provideCleanRescanCompletionScopes
 	 */
@@ -150,7 +432,9 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		$stale = $this->seedAfsFinding( $initialScanId, $scenario, $scenario[ 'stale_path_full' ] );
 		$scanScopeKey = $scopeKey === '{plugin}' ? $scenario[ 'scope_key' ] : $scopeKey;
 
-		$scanId = $this->insertAfsScan( $scopeType, $scanScopeKey, $runTrigger );
+		$scanId = $this->insertAfsScan( $scopeType, $scanScopeKey, [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+		], $runTrigger );
 		$this->assertTrue( ( new SetScanCompleted() )->run( $scanId ) );
 		$item = self::con()->db_con->scan_result_items->getQuerySelector()
 			->byId( (int)$stale[ 'result_item_id' ] );
@@ -164,6 +448,35 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 			'full manual'    => [ 'full', '', 'manual' ],
 			'scoped manual'  => [ 'plugin', '{plugin}', 'manual' ],
 		];
+	}
+
+	/**
+	 * @param array{result_item_id:int} $finding
+	 */
+	private function assertFindingResolved( array $finding, bool $resolved, string $reason = '' ) :void {
+		$item = self::con()->db_con->scan_result_items->getQuerySelector()
+			->byId( (int)$finding[ 'result_item_id' ] );
+		$this->assertNotEmpty( $item );
+		$this->assertSame( $resolved, (int)$item->resolved_at > 0 );
+		$this->assertSame( $reason, (string)$item->resolution_reason );
+	}
+
+	/**
+	 * @param array<string,mixed> $meta
+	 */
+	private function replaceScanMeta( int $scanID, array $meta ) :void {
+		$record = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
+		$this->assertNotEmpty( $record );
+		$record->meta = $meta;
+		$raw = $record->getRawData();
+		$this->assertArrayHasKey( 'meta', $raw );
+		$this->assertTrue( self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
+			'meta' => $raw[ 'meta' ],
+		] ) );
+	}
+
+	private function findingPath( string $suffix ) :string {
+		return \wp_normalize_path( \path_join( ABSPATH, 'shield-coverage-'.$suffix.'.php' ) );
 	}
 
 	private function buildAlertReport() :ReportVO {

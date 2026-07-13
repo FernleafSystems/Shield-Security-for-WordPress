@@ -97,6 +97,9 @@ class BuildScanItems {
 		$action->max_file_size = apply_filters( 'shield/file_scan_size_max', 16*1024*1024 );
 	}
 
+	/**
+	 * @throws \Exception When filesystem inventory cannot be completed.
+	 */
 	public function run(): array {
 		$this->preBuild();
 
@@ -145,20 +148,12 @@ class BuildScanItems {
 		$files = [];
 		$processed = 0;
 		foreach ( $action->scan_root_dirs as $scanDir => $depth ) {
-			try {
-				foreach ( StandardDirectoryIterator::create( $scanDir, (int)$depth, \is_array( $action->file_exts ) ? $action->file_exts : [] ) as $item ) {
-					/** @var \SplFileInfo $item */
-					$this->tickProgressEvery( ++$processed );
-					try {
-						if ( !$this->isAutoFilterFile( $item ) ) {
-							$files[] = wp_normalize_path( $item->getPathname() );
-						}
-					}
-					catch ( \Exception $e ) {
-					}
+			foreach ( StandardDirectoryIterator::create( $scanDir, (int)$depth, \is_array( $action->file_exts ) ? $action->file_exts : [] ) as $item ) {
+				/** @var \SplFileInfo $item */
+				$this->tickProgressEvery( ++$processed );
+				if ( !$this->isAutoFilterFile( $item ) ) {
+					$files[] = wp_normalize_path( $item->getPathname() );
 				}
-			}
-			catch ( \Exception $e ) {
 			}
 			$this->tickProgress();
 		}

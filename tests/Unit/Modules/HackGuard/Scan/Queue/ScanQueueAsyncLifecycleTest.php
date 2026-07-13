@@ -783,20 +783,115 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertFalse( $this->queryLogContains( $harness->sql->queryLog(), 'UPDATE `scan_items` SET `started_at`=0' ) );
 	}
 
-	public function test_watchdog_leaves_fresh_queued_scan_untouched() :void {
+	public function test_watchdog_keeps_fresh_queued_scan_and_dispatches_builder_once() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'       => 'afs',
 			'status'     => 'queued',
 			'created_at' => 1699999950,
 		] );
+		$scanBefore = $harness->scanRow( $scanID );
 		$harness->async->resetTransport();
 
 		( new QueueWatchdog() )->run();
 
-		$this->assertSame( 'queued', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( $scanBefore, $harness->scanRow( $scanID ) );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanqbuild' );
+		$this->assertTrue( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanqbuild_cron' ) );
+		$this->assertSame( 1, $harness->async->scheduledHookAttempts( 'icwp_wpsf_shield_scanqbuild_cron' ) );
+	}
+
+	/**
+	 * @dataProvider scheduledWatchdogCronProvider
+	 */
+	public function test_scheduled_watchdog_finalizes_last_active_terminal_scan( bool $isCron ) :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->controller->opts->optSet( 'is_scan_cron', $isCron );
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'ready_at'        => 1699999950,
+			'last_process_at' => 1699999950,
+			'started_at'      => 1699999950,
+		] );
+		$harness->insertScanItem( $scanID, [ 'wpv-a' ], 0, 1699999990 );
+		$watchdog = new QueueWatchdog();
+
+		$watchdog->runScheduled();
+
+		$this->assertSame( 'completed', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertSame( 1, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
+		$this->assertSame(
+			$isCron,
+			$harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) )
+		);
+		$this->assertFalse( $harness->controller->opts->optGet( 'is_scan_cron' ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+	}
+
+	public static function scheduledWatchdogCronProvider() :array {
+		return [
+			'cron scan'   => [ true ],
+			'manual scan' => [ false ],
+		];
+	}
+
+	public function test_scheduled_watchdog_cleans_finished_rows_without_finalizing_while_active_work_remains() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->controller->opts->optSet( 'is_scan_cron', true );
+		$activeID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999950,
+			'last_process_at' => 1699999950,
+			'started_at'      => 1699999950,
+		] );
+		$activeItemID = $harness->insertScanItem( $activeID, [ 'afs-a' ], 1699999950 );
+		$terminalID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'ready_at'        => 1699999950,
+			'last_process_at' => 1699999950,
+			'started_at'      => 1699999950,
+		] );
+		$harness->insertScanItem( $terminalID, [ 'wpv-a' ], 0, 1699999990 );
+		$watchdog = new QueueWatchdog();
+
+		$watchdog->runScheduled();
+
+		$this->assertSame( 'running', $harness->scanRow( $activeID )[ 'status' ] );
+		$this->assertSame( 1699999950, (int)$harness->scanRow( $activeID )[ 'last_process_at' ] );
+		$this->assertSame( 1699999950, (int)$harness->scanItemRow( $activeItemID )[ 'started_at' ] );
+		$this->assertSame( 'completed', $harness->scanRow( $terminalID )[ 'status' ] );
+		$this->assertSame( 0, $harness->countScanItems( $terminalID ) );
+		$this->assertSame( 0, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) ) );
+		$this->assertTrue( $harness->controller->opts->optGet( 'is_scan_cron' ) );
 		$this->assertSame( [], $harness->async->remotePosts );
-		$this->assertSame( [], $harness->async->scheduled );
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+	}
+
+	public function test_empty_scheduled_watchdog_callback_has_no_completion_effects() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->controller->opts->optSet( 'is_scan_cron', true );
+		$scanID = $harness->insertScan( [
+			'scan'        => 'wpv',
+			'status'      => 'completed',
+			'finished_at' => 1699999990,
+		] );
+		$harness->insertScanItem( $scanID, [ 'wpv-a' ], 0, 1699999990 );
+		$scanBefore = $harness->scanRow( $scanID );
+		$watchdog = new QueueWatchdog();
+
+		$watchdog->runScheduled();
+
+		$this->assertSame( $scanBefore, $harness->scanRow( $scanID ) );
+		$this->assertSame( 1, $harness->countScanItems( $scanID ) );
+		$this->assertSame( 0, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) ) );
+		$this->assertTrue( $harness->controller->opts->optGet( 'is_scan_cron' ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
 	}
 
 	public function test_watchdog_leaves_fresh_building_scan_without_heartbeat_untouched() :void {
@@ -2015,7 +2110,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanqbuild' );
 	}
 
-	public function test_explicit_recovery_terminates_selected_ready_scan_when_queue_is_empty_or_finished() :void {
+	public function test_explicit_recovery_fails_selected_ready_scan_when_queue_is_empty() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$orphanedID = $harness->insertScan( [
 			'scan'            => 'afs',
@@ -2027,20 +2122,31 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 
 		$this->assertTrue( ( new QueueWatchdog() )->recoverScanIfStale( $orphanedID ) );
 		$this->assertSame( 'failed', $harness->scanRow( $orphanedID )[ 'status' ] );
+	}
 
-		$completedID = $harness->insertScan( [
+	public function test_explicit_recovery_finalizes_successfully_claimed_terminal_scan() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->controller->opts->optSet( 'is_scan_cron', true );
+		$scanID = $harness->insertScan( [
 			'scan'            => 'wpv',
 			'status'          => 'running',
-			'created_at'      => 1699998100,
+			'created_at'      => 1699998000,
 			'ready_at'        => 1699999000,
 			'last_process_at' => 1699999000,
 			'started_at'      => 1699999000,
 		] );
-		$harness->insertScanItem( $completedID, [ 'wpv-a' ], 1699999000, 1699999100, 1 );
+		$harness->insertScanItem( $scanID, [ 'wpv-a' ], 1699999000, 1699999100, 1 );
+		$watchdog = new QueueWatchdog();
 
-		$this->assertTrue( ( new QueueWatchdog() )->recoverScanIfStale( $completedID ) );
-		$this->assertSame( 'completed', $harness->scanRow( $completedID )[ 'status' ] );
-		$this->assertSame( 1700000000, (int)$harness->scanRow( $completedID )[ 'finished_at' ] );
+		$this->assertTrue( $watchdog->recoverScanIfStale( $scanID ) );
+
+		$this->assertSame( 'completed', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertSame( 1, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
+		$this->assertTrue( $harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) ) );
+		$this->assertFalse( $harness->controller->opts->optGet( 'is_scan_cron' ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
 	}
 
 	private function assertSingleRemoteAction( ScanQueueLifecycleHarness $harness, string $expectedAction ) :void {
@@ -2062,12 +2168,17 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 	}
 
 	private function actionWasFired( ScanQueueLifecycleHarness $harness, string $hook ) :bool {
+		return $this->actionCount( $harness, $hook ) > 0;
+	}
+
+	private function actionCount( ScanQueueLifecycleHarness $harness, string $hook ) :int {
+		$count = 0;
 		foreach ( $harness->async->didActions as $action ) {
 			if ( $action[ 'hook' ] === $hook ) {
-				return true;
+				$count++;
 			}
 		}
-		return false;
+		return $count;
 	}
 
 	private function scanIDsForSlug( ScanQueueLifecycleHarness $harness, string $slug ) :array {
