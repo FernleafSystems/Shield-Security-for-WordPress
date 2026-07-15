@@ -130,7 +130,7 @@ jobs:
     if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/reusable-unit-tests.yml
     with:
-      run_command: composer test:unit
+      run_command: composer test:unit:runner
       php_version: '7.4'
     secrets: inherit
 
@@ -140,7 +140,7 @@ jobs:
     if: ${{ needs.changes.outputs.php == 'true' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/reusable-unit-tests.yml
     with:
-      run_command: composer test:unit
+      run_command: composer test:unit:runner
       php_version: '8.4'
     secrets: inherit
 

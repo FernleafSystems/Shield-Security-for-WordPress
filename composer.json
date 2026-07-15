@@ -167,9 +167,14 @@
       "@test:unit",
       "@test:integration"
     ],
-    "test:unit":        [
+    "test:unit:policy": "@php bin/check-unit-test-fixtures.php",
+    "test:unit:runner": [
       "@build:config",
       "@php bin/run-unit-tests.php --runner-mode=auto"
+    ],
+    "test:unit":        [
+      "@test:unit:policy @no_additional_args",
+      "@test:unit:runner"
     ],
     "test:integration": [
       "Composer\\Config::disableProcessTimeout",

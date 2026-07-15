@@ -503,11 +503,22 @@ class LifecycleSqliteDb extends Db {
 		return \is_array( $row ) ? $row : null;
 	}
 
-	public function selectCustom( $query, $format = null ) {
+	/**
+	 * @return array<int,array<string,string|null>>
+	 */
+	public function selectCustom( $query, $format = null ) :array {
 		unset( $format );
 		$this->recordQuery( (string)$query );
 		$stmt = $this->pdo->query( (string)$query );
-		return $stmt === false ? [] : ( $stmt->fetchAll( \PDO::FETCH_ASSOC ) ?: [] );
+		$rows = $stmt === false ? [] : ( $stmt->fetchAll( \PDO::FETCH_ASSOC ) ?: [] );
+		// wpdb returns database scalar values as strings in ARRAY_A-style results.
+		return \array_map(
+			static fn( array $row ) :array => \array_map(
+				static fn( $value ) => $value === null ? null : (string)$value,
+				$row
+			),
+			$rows
+		);
 	}
 
 	public function doSql( string $sqlQuery ) {
@@ -859,7 +870,7 @@ class LifecycleScanItemsSelector {
 	public function countProgressForEachScan() :array {
 		$rows = $this->db->selectCustom( 'SELECT `scan_ref`, SUM(CASE WHEN `item_count`>0 THEN `item_count` ELSE 1 END) AS `count_all`, SUM(CASE WHEN `finished_at`=0 THEN CASE WHEN `item_count`>0 THEN `item_count` ELSE 1 END ELSE 0 END) AS `count_unfinished` FROM `scan_items` GROUP BY `scan_ref`' );
 		$counts = [];
-		foreach ( \is_array( $rows ) ? $rows : [] as $row ) {
+		foreach ( $rows as $row ) {
 			$counts[ (int)$row[ 'scan_ref' ] ] = [
 				'total'      => (int)$row[ 'count_all' ],
 				'unfinished' => (int)$row[ 'count_unfinished' ],

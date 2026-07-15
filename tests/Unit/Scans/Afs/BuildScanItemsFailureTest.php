@@ -6,12 +6,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
 	BuildScanItems,
 	ScanActionVO
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class BuildScanItemsFailureTest extends BaseUnitTest {
 
+	use TempDirLifecycleTrait;
+
+	protected function tearDown() :void {
+		$this->cleanupTrackedTempDirs();
+		parent::tearDown();
+	}
+
 	public function test_missing_scan_root_failure_propagates() :void {
-		$missingRoot = \sys_get_temp_dir().'/shield-missing-scan-root-'.\uniqid();
+		$missingRoot = $this->createTrackedTempPath( 'shield-missing-scan-root-' );
 		$action = new ScanActionVO();
 
 		$this->expectException( \UnexpectedValueException::class );

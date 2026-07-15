@@ -8,12 +8,14 @@ Supporting docs:
 2. [`docs/test-suite-full-audit-2026-03-15.md`](docs/test-suite-full-audit-2026-03-15.md) for the audit record.
 3. [`tests/TESTING-RULES-ROADMAP.md`](tests/TESTING-RULES-ROADMAP.md) for rules/firewall coverage planning only.
 
+Composer 2.8 or newer is required for the supported command surface. Unit command argument isolation relies on Composer's `@no_additional_args` control token.
+
 ## Public Commands
 
 | Goal | Command | Notes |
 |---|---|---|
 | Full local confidence gate | `composer test` | Builds config, then runs unit and integration lanes |
-| Unit tests | `composer test:unit` | Default developer unit entry point |
+| Unit tests | `composer test:unit` | Enforces filesystem-fixture policy, then builds config and runs the unit runner |
 | Integration tests | `composer test:integration` | Public wrapper around the local Docker-backed integration lane |
 | Browser lane | `composer test:browser` | Playwright + axe against an automatically leased isolated Docker WordPress browser lane |
 | Cross-site sync lane | `composer test:cross-site` | Two Docker WordPress sites exercising Shield import/export master/slave sync |
@@ -74,6 +76,10 @@ composer test:unit -- --filter testSomeMethod tests/Unit/Controller/Plugin/Plugi
 ```
 
 The unit runner auto-selects ParaTest. Full-suite and path-only runs use ParaTest `WrapperRunner`; ordinary `--filter` and `--filter=...` runs use ParaTest functional mode so standard Composer/PHPUnit-style focused commands stay parallel by default. Native PHPUnit dataset shortcut filters such as `testMethod@dataset` and `testMethod#2` use the serial PHPUnit path in auto mode to preserve PHPUnit parity. Use `php bin/run-unit-tests.php --runner-mode=serial` only for diagnostic work and the serial sentinel lane.
+
+`composer test:unit:policy` is the standalone filesystem-fixture policy check. Unit tests that create temporary files or directories must use `TempDirLifecycleTrait`, obtain fixtures with `createTrackedTempDir()`, `createTrackedTempPath()`, or `createTrackedTempFile()`, and call `cleanupTrackedTempDirs()` from `tearDown()`. The statement-local policy rejects direct `tempnam( sys_get_temp_dir(), ... )`, direct concatenation or `Path::join()` of a system-temp path with `uniqid()` or `random_bytes()`, direct system-temp destinations passed to `mkdir()`, `touch()`, `file_put_contents()`, `copy()`, or `rename()`, and direct writing or dynamic-mode `fopen()` calls. Literal read-only `fopen()` modes (`r`, `rb`, and `rt`) and existing-root inspection are allowed. The policy deliberately does not trace variables, aliases, control flow, or data flow. `TempDirLifecycleTraitTest` is the sole exception because it must exercise the helper against the real temp root.
+
+`composer test:unit:runner` is the CI/internal runner-only command: it builds generated config and invokes the current auto-selecting runner without repeating policy. Normal local use should remain on `composer test:unit`, which runs policy before the runner.
 
 ## Pre-commit checks
 
@@ -499,7 +505,7 @@ The required workflow is job-level path gated by [`.github/ci-path-filters.yml`]
 
 1. `PHPStan Source Analysis (PHP 7.4)` runs `composer analyze`.
 2. `JavaScript Static Checks` runs `npm run test:js`.
-3. `PHP Unit Tests (PHP 7.4)` and `PHP Unit Tests (PHP 8.4)` run `composer test:unit`.
+3. `PHP Unit Tests (PHP 7.4)` and `PHP Unit Tests (PHP 8.4)` explicitly run `composer test:unit:policy`, then `composer test:unit:runner`.
 4. `WordPress Runtime Integration (Source)` runs `php bin/shield test:source --skip-unit-tests --show-docker-output`.
 5. `WordPress Runtime Integration (Source)` skips its unit stage because the dedicated unit lanes have already run.
 6. `Build Packaged Plugin Artifact` builds the plugin package, then `Validate Packaged Plugin Artifact` runs package-targeted validation against the built artifact.

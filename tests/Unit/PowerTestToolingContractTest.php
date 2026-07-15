@@ -15,10 +15,6 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
 		}
 
-		$unitCommands = $this->getComposerScriptCommands( 'test:unit' );
-		$this->assertContains( '@build:config', $unitCommands );
-		$this->assertContains( '@php bin/run-unit-tests.php --runner-mode=auto', $unitCommands );
-
 		$integrationCommands = $this->getComposerScriptCommands( 'test:integration' );
 		$this->assertContains( 'Composer\\Config::disableProcessTimeout', $integrationCommands );
 		$this->assertContains( '@build:config', $integrationCommands );
@@ -204,6 +200,13 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 			$workflow
 		);
 		$this->assertStringNotContainsString( 'SHIELD_SKIP_UNIT_TESTS:', $workflow );
+		$this->assertSame( 2, \substr_count( $workflow, 'run_command: composer test:unit:runner' ) );
+
+		$reusableWorkflow = $this->getPluginFileContents(
+			'.github/workflows/reusable-unit-tests.yml',
+			'reusable unit-tests workflow'
+		);
+		$this->assertSame( 1, \substr_count( $reusableWorkflow, 'run: composer test:unit:policy' ) );
 	}
 
 	public function testBrowserWorkflowRunsPathGatedDevelopPushesWithTwoLanes() :void {

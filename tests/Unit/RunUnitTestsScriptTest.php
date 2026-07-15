@@ -17,17 +17,27 @@ class RunUnitTestsScriptTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function testRunUnitTestsScriptHasValidSyntax() :void {
+	public function testUnitTestScriptsHaveValidSyntax() :void {
 		$this->skipIfPackageScriptUnavailable();
 		$this->assertPhpScriptSyntaxValid( 'bin/run-unit-tests.php' );
+		$this->assertPhpScriptSyntaxValid( 'bin/check-unit-test-fixtures.php' );
 	}
 
-	public function testComposerUnitScriptUsesDispatcher() :void {
+	public function testComposerUnitScriptsRunPolicyBeforeDispatcher() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
 		}
 
-		$commands = $this->getComposerScriptCommands( 'test:unit' );
+		$this->assertSame(
+			[ '@test:unit:policy @no_additional_args', '@test:unit:runner' ],
+			$this->getComposerScriptCommands( 'test:unit' )
+		);
+		$this->assertSame(
+			[ '@php bin/check-unit-test-fixtures.php' ],
+			$this->getComposerScriptCommands( 'test:unit:policy' )
+		);
+
+		$commands = $this->getComposerScriptCommands( 'test:unit:runner' );
 		$this->assertContains( '@build:config', $commands );
 		$this->assertContains( '@php bin/run-unit-tests.php --runner-mode=auto', $commands );
 	}

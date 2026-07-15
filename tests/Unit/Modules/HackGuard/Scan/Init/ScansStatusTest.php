@@ -2,14 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Init;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\ScansStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\ScanQueueLifecycleHarness;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState
 };
-use FernleafSystems\Wordpress\Services\Core\Db;
 
 class ScansStatusTest extends BaseUnitTest {
 
@@ -27,99 +26,98 @@ class ScansStatusTest extends BaseUnitTest {
 	}
 
 	public function test_snapshot_enqueued_and_active_rows_share_one_ordered_query() :void {
-		$wpdb = new ScansStatusWpDbStub( [
-			$this->activeScanRow( [
-				'id'              => 1,
-				'scan'            => 'wpv',
-				'status'          => 'built',
-				'created_at'      => 20,
-				'started_at'      => 20,
-				'ready_at'        => 20,
-				'last_process_at' => 20,
-			] ),
-			$this->activeScanRow( [
-				'id'              => 2,
-				'scan'            => 'afs',
-				'status'          => 'running',
-				'created_at'      => 30,
-				'started_at'      => 30,
-				'ready_at'        => 30,
-				'last_process_at' => 30,
-			] ),
-			$this->activeScanRow( [
-				'id'         => 3,
-				'scan'       => 'wpv',
-				'status'     => 'queued',
-				'created_at' => 10,
-			] ),
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$activeWpvID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'built',
+			'created_at'      => 20,
+			'started_at'      => 20,
+			'ready_at'        => 20,
+			'last_process_at' => 20,
 		] );
-
-		ServicesState::installItems( [
-			'service_wpdb' => $wpdb,
+		$activeAfsID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'created_at'      => 30,
+			'started_at'      => 30,
+			'ready_at'        => 30,
+			'last_process_at' => 30,
 		] );
-		$this->installController();
+		$queuedWpvID = $harness->insertScan( [
+			'scan'       => 'wpv',
+			'status'     => 'queued',
+			'created_at' => 10,
+		] );
+		$harness->insertScan( [
+			'scan'        => 'apc',
+			'status'      => 'running',
+			'finished_at' => 40,
+		] );
+		$harness->insertScan( [
+			'scan'   => 'invalid',
+			'status' => 'unknown',
+		] );
+		$harness->sql->resetQueryLog();
 
 		$status = new ScansStatus();
 
 		$this->assertSame( 'wpv', $status->activeSnapshot()[ 'current' ] );
 		$this->assertSame( [ 'wpv', 'afs' ], $status->enqueued() );
-		$this->assertSame( [ 1, 2, 3 ], \array_column( $status->activeScans(), 'id' ) );
-		$this->assertCount( 1, $wpdb->queries );
-		$this->assertStringContainsString( 'SELECT `scans`.`id`,', $wpdb->queries[ 0 ] );
-		$this->assertStringContainsString( '`scans`.`scope_type`,', $wpdb->queries[ 0 ] );
-		$this->assertStringContainsString( "`scans`.`status` IN ('queued','building','built','running')", $wpdb->queries[ 0 ] );
-		$this->assertStringContainsString( '`scans`.`finished_at`=0', $wpdb->queries[ 0 ] );
-		$this->assertStringContainsString( "CASE WHEN `scans`.`status` IN ('building','built','running')", $wpdb->queries[ 0 ] );
-		$this->assertStringContainsString( '`scans`.`id` ASC', $wpdb->queries[ 0 ] );
+		$this->assertSame( [ $activeWpvID, $activeAfsID, $queuedWpvID ], \array_column( $status->activeScans(), 'id' ) );
+		$queries = $harness->sql->queryLog();
+		$this->assertCount( 1, $queries );
+		$this->assertStringContainsString( 'SELECT `scans`.`id`,', $queries[ 0 ] );
+		$this->assertStringContainsString( '`scans`.`scope_type`,', $queries[ 0 ] );
+		$this->assertStringContainsString( '`scans`.`last_process_at`', $queries[ 0 ] );
+		$this->assertStringContainsString( "`scans`.`status` IN ('queued','building','built','running')", $queries[ 0 ] );
+		$this->assertStringContainsString( '`scans`.`finished_at`=0', $queries[ 0 ] );
+		$this->assertStringContainsString( "CASE WHEN `scans`.`status` IN ('building','built','running')", $queries[ 0 ] );
+		$this->assertStringContainsString( '`scans`.`created_at` ASC', $queries[ 0 ] );
+		$this->assertStringContainsString( '`scans`.`id` ASC', $queries[ 0 ] );
 	}
 
 	public function test_active_scans_returns_normalized_read_model_rows() :void {
-		$wpdb = new ScansStatusWpDbStub( [
-			$this->activeScanRow( [
-				'id'              => 0,
-				'scan'            => 'bad-id',
-				'created_at'      => 1,
-				'started_at'      => 1,
-				'ready_at'        => 1,
-				'last_process_at' => 1,
-			] ),
-			$this->activeScanRow( [
-				'id'              => 11,
-				'scan'            => '',
-				'created_at'      => 2,
-				'started_at'      => 2,
-				'ready_at'        => 2,
-				'last_process_at' => 2,
-			] ),
-			$this->activeScanRow( [
-				'id'     => 13,
-				'scan'   => 'unknown',
-				'status' => 'unknown',
-			] ),
-			$this->activeScanRow( [
-				'id'              => '12',
-				'scan'            => 'wpv',
-				'status'          => 'built',
-				'scope_type'      => 'plugin',
-				'scope_key'       => 'shield-security',
-				'created_at'      => '20',
-				'started_at'      => '21',
-				'ready_at'        => '22',
-				'last_process_at' => '23',
-			] ),
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->insertScan( [
+			'id'         => 0,
+			'scan'       => 'bad-id',
+			'status'     => 'running',
+			'created_at' => 1,
 		] );
-
-		ServicesState::installItems( [
-			'service_wpdb' => $wpdb,
+		$harness->insertScan( [
+			'scan'       => '',
+			'status'     => 'running',
+			'created_at' => 2,
 		] );
-		$this->installController();
+		$harness->insertScan( [
+			'scan'       => 'unknown',
+			'status'     => 'unknown',
+			'created_at' => 3,
+		] );
+		$harness->insertScan( [
+			'scan'        => 'finished',
+			'status'      => 'running',
+			'finished_at' => 30,
+			'created_at'  => 4,
+		] );
+		$validID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'built',
+			'scope_type'      => 'plugin',
+			'scope_key'       => 'shield-security',
+			'created_at'      => 20,
+			'started_at'      => 21,
+			'ready_at'        => 22,
+			'last_process_at' => 23,
+		] );
+		$harness->sql->resetQueryLog();
 
 		$status = new ScansStatus();
 		$activeScans = $status->activeScans();
 
 		$this->assertSame( [
 			[
-				'id'              => 12,
+				'id'              => $validID,
 				'scan'            => 'wpv',
 				'status'          => 'built',
 				'scope_type'      => 'plugin',
@@ -131,74 +129,53 @@ class ScansStatusTest extends BaseUnitTest {
 			],
 		], $activeScans );
 		$this->assertSame( $activeScans, $status->activeScans() );
-		$this->assertCount( 1, $wpdb->queries );
-		$this->assertStringContainsString( 'SELECT `scans`.`id`,', $wpdb->queries[ 0 ] );
-		$this->assertStringContainsString( '`scans`.`scope_type`,', $wpdb->queries[ 0 ] );
-		$this->assertStringContainsString( '`scans`.`last_process_at`', $wpdb->queries[ 0 ] );
-		$this->assertStringContainsString( '`scans`.`finished_at`=0', $wpdb->queries[ 0 ] );
+		$this->assertCount( 1, $harness->sql->queryLog() );
 	}
 
 	public function test_active_scans_preserves_duplicate_scan_rows_with_distinct_ids() :void {
-		$wpdb = new ScansStatusWpDbStub( [
-			$this->activeScanRow( [
-				'id'              => 21,
-				'scan'            => 'afs',
-				'status'          => 'running',
-				'scope_type'      => 'plugin',
-				'scope_key'       => 'shield-security',
-				'created_at'      => 10,
-				'started_at'      => 11,
-				'ready_at'        => 12,
-				'last_process_at' => 13,
-			] ),
-			$this->activeScanRow( [
-				'id'         => 22,
-				'scan'       => 'afs',
-				'status'     => 'queued',
-				'scope_type' => 'theme',
-				'scope_key'  => 'twentytwentysix',
-				'created_at' => 20,
-			] ),
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$runningID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'scope_type'      => 'plugin',
+			'scope_key'       => 'shield-security',
+			'created_at'      => 10,
+			'started_at'      => 11,
+			'ready_at'        => 12,
+			'last_process_at' => 13,
 		] );
-
-		ServicesState::installItems( [
-			'service_wpdb' => $wpdb,
+		$queuedID = $harness->insertScan( [
+			'scan'       => 'afs',
+			'status'     => 'queued',
+			'scope_type' => 'theme',
+			'scope_key'  => 'twentytwentysix',
+			'created_at' => 20,
 		] );
-		$this->installController();
 
 		$activeScans = ( new ScansStatus() )->activeScans();
 
 		$this->assertCount( 2, $activeScans );
-		$this->assertSame( [ 21, 22 ], \array_column( $activeScans, 'id' ) );
+		$this->assertSame( [ $runningID, $queuedID ], \array_column( $activeScans, 'id' ) );
 		$this->assertSame( [ 'afs', 'afs' ], \array_column( $activeScans, 'scan' ) );
 		$this->assertSame( [ 'plugin', 'theme' ], \array_column( $activeScans, 'scope_type' ) );
 		$this->assertSame( [ 'shield-security', 'twentytwentysix' ], \array_column( $activeScans, 'scope_key' ) );
-		$this->assertCount( 1, $wpdb->queries );
 	}
 
 	/**
 	 * @dataProvider activeCurrentStatusProvider
 	 */
 	public function test_active_snapshot_reports_unfinished_active_status_as_current_before_queued_scan( string $activeStatus ) :void {
-		$wpdb = new ScansStatusWpDbStub( [
-			$this->activeScanRow( [
-				'id'         => 1,
-				'scan'       => 'afs',
-				'status'     => $activeStatus,
-				'created_at' => 10,
-			] ),
-			$this->activeScanRow( [
-				'id'         => 2,
-				'scan'       => 'wpv',
-				'status'     => 'queued',
-				'created_at' => 20,
-			] ),
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->insertScan( [
+			'scan'       => 'afs',
+			'status'     => $activeStatus,
+			'created_at' => 10,
 		] );
-
-		ServicesState::installItems( [
-			'service_wpdb' => $wpdb,
+		$harness->insertScan( [
+			'scan'       => 'wpv',
+			'status'     => 'queued',
+			'created_at' => 5,
 		] );
-		$this->installController();
 
 		$status = ( new ScansStatus() )->activeSnapshot();
 
@@ -207,19 +184,12 @@ class ScansStatusTest extends BaseUnitTest {
 	}
 
 	public function test_active_snapshot_reports_queued_scan_when_no_started_scan_exists() :void {
-		$wpdb = new ScansStatusWpDbStub( [
-			$this->activeScanRow( [
-				'id'         => 1,
-				'scan'       => 'afs',
-				'status'     => 'queued',
-				'created_at' => 10,
-			] ),
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->insertScan( [
+			'scan'       => 'afs',
+			'status'     => 'queued',
+			'created_at' => 10,
 		] );
-
-		ServicesState::installItems( [
-			'service_wpdb' => $wpdb,
-		] );
-		$this->installController();
 
 		$status = ( new ScansStatus() )->activeSnapshot();
 
@@ -236,37 +206,28 @@ class ScansStatusTest extends BaseUnitTest {
 	}
 
 	public function test_snapshot_ignores_blank_scan_rows_and_keeps_distinct_enqueued_order() :void {
-		$wpdb = new ScansStatusWpDbStub( [
-			$this->activeScanRow( [
-				'id'         => 1,
-				'scan'       => '',
-				'status'     => 'running',
-				'created_at' => 5,
-			] ),
-			$this->activeScanRow( [
-				'id'         => 2,
-				'scan'       => 'afs',
-				'status'     => 'running',
-				'created_at' => 10,
-			] ),
-			$this->activeScanRow( [
-				'id'         => 3,
-				'scan'       => 'wpv',
-				'status'     => 'queued',
-				'created_at' => 15,
-			] ),
-			$this->activeScanRow( [
-				'id'         => 4,
-				'scan'       => 'afs',
-				'status'     => 'queued',
-				'created_at' => 20,
-			] ),
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->insertScan( [
+			'scan'       => '',
+			'status'     => 'running',
+			'created_at' => 5,
 		] );
-
-		ServicesState::installItems( [
-			'service_wpdb' => $wpdb,
+		$harness->insertScan( [
+			'scan'       => 'afs',
+			'status'     => 'running',
+			'created_at' => 10,
 		] );
-		$this->installController();
+		$harness->insertScan( [
+			'scan'       => 'wpv',
+			'status'     => 'queued',
+			'created_at' => 15,
+		] );
+		$harness->insertScan( [
+			'scan'       => 'afs',
+			'status'     => 'queued',
+			'created_at' => 20,
+		] );
+		$harness->sql->resetQueryLog();
 
 		$status = new ScansStatus();
 
@@ -275,53 +236,6 @@ class ScansStatusTest extends BaseUnitTest {
 			'enqueued' => [ 'afs', 'wpv' ],
 		], $status->activeSnapshot() );
 		$this->assertSame( [ 'afs', 'wpv' ], $status->enqueued() );
-		$this->assertCount( 1, $wpdb->queries );
-	}
-
-	/**
-	 * @return array{id:int|string,scan:string,status:string,scope_type:string,scope_key:string,created_at:int|string,started_at:int|string,ready_at:int|string,last_process_at:int|string}
-	 */
-	private function activeScanRow( array $overrides = [] ) :array {
-		return \array_merge( [
-			'id'              => 1,
-			'scan'            => 'afs',
-			'status'          => 'running',
-			'scope_type'      => 'full',
-			'scope_key'       => '',
-			'created_at'      => 0,
-			'started_at'      => 0,
-			'ready_at'        => 0,
-			'last_process_at' => 0,
-		], $overrides );
-	}
-
-	private function installController() :void {
-		/** @var Controller $controller */
-		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
-		$controller->db_con = (object)[
-			'scans' => new class {
-				public function getTable() :string {
-					return 'shield_scans';
-				}
-			},
-		];
-
-		PluginControllerInstaller::install( $controller );
-	}
-}
-
-class ScansStatusWpDbStub extends Db {
-
-	public array $queries = [];
-	private array $rows;
-
-	public function __construct( array $rows ) {
-		$this->rows = $rows;
-	}
-
-	public function selectCustom( $query, $format = null ) {
-		unset( $format );
-		$this->queries[] = (string)$query;
-		return $this->rows;
+		$this->assertCount( 1, $harness->sql->queryLog() );
 	}
 }
