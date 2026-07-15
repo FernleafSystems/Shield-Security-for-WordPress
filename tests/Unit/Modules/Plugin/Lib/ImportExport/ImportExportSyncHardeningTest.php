@@ -410,11 +410,11 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 	public function test_notify_accepts_normalised_matching_master_url() :void {
 		$this->opts
 			->optSet( 'importexport_enable', 'Y' )
-			->optSet( 'importexport_masterurl', 'https://configured-master.example.com/' )
+			->optSet( 'importexport_masterurl', 'HTTPS://Configured-Master.Example.COM:443/Master/' )
 			->store();
 
 		$accepted = ( new ImportExportController() )->runOptionsUpdateNotified(
-			'https://configured-master.example.com/?notify=1'
+			'https://configured-master.example.com/Master?notify=1#source'
 		);
 
 		$this->assertTrue( $accepted );
@@ -643,6 +643,16 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->buildPingSender()->send( 'https://client.example.com', 5, 'client-import-id' );
 
 		$this->assertStringContainsString( 'id=client-import-id', $this->httpRequest->lastGetRequestedUrl() );
+	}
+
+	public function test_ping_sender_uses_canonical_client_and_master_urls() :void {
+		$this->wpGeneral->setHomeUrl( 'HTTPS://LOCAL.Example.COM:443/Master/' );
+
+		$this->buildPingSender()->send( 'HTTPS://CLIENT.Example.COM:443/Path/' );
+
+		$requestedUrl = \urldecode( $this->httpRequest->lastGetRequestedUrl() );
+		$this->assertStringContainsString( 'https://client.example.com/Path', $requestedUrl );
+		$this->assertStringContainsString( 'master_url=https://local.example.com/Master', $requestedUrl );
 	}
 
 	public function test_ping_sender_ignores_response_body() :void {

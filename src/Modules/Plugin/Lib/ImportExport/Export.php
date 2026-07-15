@@ -39,6 +39,10 @@ class Export {
 
 	public function toJson() :void {
 		$ieCon = self::con()->comps->import_export;
+		if ( !$ieCon->isSyncEnabled() ) {
+			return;
+		}
+
 		$evt = self::con()->comps->events;
 		$req = Services::Request();
 
@@ -52,7 +56,7 @@ class Export {
 		catch ( \Throwable $e ) {
 		}
 
-		$url = (string)Services::Data()->validateSimpleHttpUrl( (string)$req->query( 'url', '' ) );
+		$url = ( new SyncSiteUrlValidator() )->canonicalize( (string)$req->query( 'url', '' ) );
 		$id = (string)$req->query( 'id', '' );
 		$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
 		$verification = $this->verifyUrl( $repo, $url, $id, (string)$req->query( 'secret', '' ) );

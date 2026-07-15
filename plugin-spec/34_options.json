@@ -3110,13 +3110,15 @@
         "key": "importexport_secretkey_expires_at",
         "section": "section_hidden",
         "type": "integer",
-        "default": 0
+        "default": 0,
+        "transferable": false
     },
     {
         "key": "importexport_handshake_expires_at",
         "section": "section_hidden",
         "type": "integer",
-        "default": 0
+        "default": 0,
+        "transferable": false
     },
     {
         "key": "snapi_data",
@@ -3143,6 +3145,7 @@
         "section": "section_hidden",
         "type": "text",
         "default": "",
+        "transferable": false,
         "sensitive": true
     },
     {
@@ -3150,19 +3153,22 @@
         "section": "section_hidden",
         "type": "array",
         "default": [],
+        "transferable": false,
         "sensitive": true
     },
     {
         "key": "importexport_sites_migrated_at",
         "section": "section_hidden",
         "type": "integer",
-        "default": 0
+        "default": 0,
+        "transferable": false
     },
     {
         "key": "importexport_pending_network_invites",
         "section": "section_hidden",
         "type": "array",
         "default": [],
+        "transferable": false,
         "sensitive": true
     },
     {

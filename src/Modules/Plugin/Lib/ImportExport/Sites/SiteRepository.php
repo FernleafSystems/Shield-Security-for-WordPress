@@ -48,7 +48,7 @@ class SiteRepository {
 		foreach ( $fallbackUrls as $url ) {
 			$row = $existingRows[ $url ] ?? null;
 			$markDue = \in_array( $url, $oldQueuedUrls, true );
-			$importID = (string)( $urlIds[ \hash( 'md5', $url ) ] ?? '' );
+			$importID = (string)( $urlIds[ $this->urlHash( $url ) ] ?? '' );
 			$data = $this->buildActiveUpsertData(
 				$row,
 				$url,
@@ -73,8 +73,11 @@ class SiteRepository {
 			}
 		}
 
-		$this->bulkInsertRows( $insertRows );
-		$this->bulkUpdateRowsByHash( $updateRowsByHash );
+		$insertSucceeded = $this->bulkInsertRows( $insertRows );
+		$updateSucceeded = $this->bulkUpdateRowsByHash( $updateRowsByHash );
+		if ( !$insertSucceeded || !$updateSucceeded ) {
+			return;
+		}
 
 		self::con()->opts->optSet( self::MIGRATED_AT_OPTION, $now );
 		$this->storeOptionsIfChanged();
@@ -82,8 +85,7 @@ class SiteRepository {
 	}
 
 	public function canonicalizeUrl( string $url ) :string {
-		$validated = Services::Data()->validateSimpleHttpUrl( $url );
-		return $validated === false ? '' : (string)$validated;
+		return ( new SyncSiteUrlValidator() )->canonicalize( $url );
 	}
 
 	public function urlHash( string $url ) :string {
@@ -176,17 +178,7 @@ class SiteRepository {
 
 			if ( $this->updateById( $row->id, \array_merge(
 				$this->buildQueueDueData( $now ),
-				[
-					'import_id'               => '',
-					'last_ping_failure_at'    => 0,
-					'last_ping_http_code'     => 0,
-					'last_ping_error'         => '',
-					'last_export_failure_at'  => 0,
-					'last_export_result_code' => '',
-					'last_export_error'       => '',
-					'consecutive_failures'    => 0,
-					'meta'                    => $this->metaWithoutRepairCooldowns( $row ),
-				]
+				$this->buildConnectionResetData( $row )
 			) ) ) {
 				$count++;
 			}
@@ -504,7 +496,7 @@ class SiteRepository {
 
 		$hashToUrl = [];
 		foreach ( $urls as $url ) {
-			$hashToUrl[ \hash( 'md5', $url ) ] = $url;
+			$hashToUrl[ $this->urlHash( $url ) ] = $url;
 		}
 
 		$results = [];
@@ -558,6 +550,20 @@ class SiteRepository {
 		$meta = \is_array( $row->meta ) ? $row->meta : [];
 		unset( $meta[ self::META_EXPORT_SERVED_AT ], $meta[ self::META_HANDSHAKE_ATTEMPT_AT ] );
 		return $meta;
+	}
+
+	private function buildConnectionResetData( Record $row ) :array {
+		return [
+			'import_id'               => '',
+			'last_ping_failure_at'    => 0,
+			'last_ping_http_code'     => 0,
+			'last_ping_error'         => '',
+			'last_export_failure_at'  => 0,
+			'last_export_result_code' => '',
+			'last_export_error'       => '',
+			'consecutive_failures'    => 0,
+			'meta'                    => $this->metaWithoutRepairCooldowns( $row ),
+		];
 	}
 
 	private function storeOptionsIfChanged() :void {
@@ -631,17 +637,6 @@ class SiteRepository {
 		];
 	}
 
-	private function buildPendingInviteDueData( int $now ) :array {
-		return [
-			'queue_status'       => SitesDB::QUEUE_PENDING_INVITE,
-			'queued_at'          => $now,
-			'next_ping_at'       => $now,
-			'picked_at'          => 0,
-			'lock_until'         => 0,
-			'expected_export_by' => 0,
-		];
-	}
-
 	private function buildActiveUpsertData(
 		?Record $row,
 		string $url,
@@ -652,7 +647,7 @@ class SiteRepository {
 	) :array {
 		$data = [
 			'url'        => $url,
-			'url_hash'   => \hash( 'md5', $url ),
+			'url_hash'   => $this->urlHash( $url ),
 			'status'     => SitesDB::STATUS_ACTIVE,
 			'deleted_at' => 0,
 		];
@@ -685,7 +680,7 @@ class SiteRepository {
 		$queueStatus = $sendInvite ? SitesDB::QUEUE_PENDING_INVITE : SitesDB::QUEUE_PENDING_CONNECTION;
 		$data = [
 			'url'                  => $url,
-			'url_hash'             => \hash( 'md5', $url ),
+			'url_hash'             => $this->urlHash( $url ),
 			'profile_ref'          => $profileRef ?? $this->profileRefForRow( $row ),
 			'status'               => SitesDB::STATUS_ACTIVE,
 			'queue_status'         => $queueStatus,
@@ -697,6 +692,9 @@ class SiteRepository {
 			'expected_export_by'   => 0,
 			'consecutive_failures' => 0,
 		];
+		if ( $row instanceof Record && $row->status === SitesDB::STATUS_DELETED && $row->deleted_at > 0 ) {
+			$data = \array_merge( $data, $this->buildConnectionResetData( $row ) );
+		}
 
 		if ( !empty( $source ) && ( !$row instanceof Record || empty( $row->source ) ) ) {
 			$data[ 'source' ] = $source;
@@ -793,17 +791,12 @@ class SiteRepository {
 		}
 
 		$syncRows = [];
-		$inviteRows = [];
 		foreach ( $rows as $row ) {
-			if ( $row->queue_status === SitesDB::QUEUE_PENDING_INVITE ) {
-				$inviteRows[] = $row;
-			}
-			elseif ( $row->queue_status === SitesDB::QUEUE_PENDING_CONNECTION ) {
+			if ( \in_array( $row->queue_status, [ SitesDB::QUEUE_PENDING_INVITE, SitesDB::QUEUE_PENDING_CONNECTION ], true ) ) {
 				continue;
 			}
-			else {
-				$syncRows[] = $row;
-			}
+
+			$syncRows[] = $row;
 		}
 
 		$now = Services::Request()->ts();
@@ -811,12 +804,8 @@ class SiteRepository {
 			\array_map( static fn( Record $row ) :int => $row->id, $syncRows ),
 			$this->buildQueueDueData( $now )
 		);
-		$this->bulkUpdateRowsByIds(
-			\array_map( static fn( Record $row ) :int => $row->id, $inviteRows ),
-			$this->buildPendingInviteDueData( $now )
-		);
 
-		return \count( $syncRows ) + \count( $inviteRows );
+		return \count( $syncRows );
 	}
 
 	private function bulkInsertRows( array $rows ) :bool {

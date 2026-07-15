@@ -135,6 +135,49 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( [], ( new WhitelistNotifyQueue( SiteRepository::OLD_QUEUE_ACTION, $con->prefix() ) )->get_batches() );
 	}
 
+	public function test_legacy_import_insert_failure_preserves_marker_and_old_queue_for_retry() :void {
+		$url = 'https://legacy-insert-retry.example.com';
+		$this->setLegacyImportOptions( [ $url ] );
+		$this->pushOldQueueUrls( [ $url ] );
+
+		$this->runWithFailedImportExportSiteQuery( 'insert_ignore', function () :void {
+			$this->repo()->ensureLegacyImported();
+		} );
+
+		$this->assertSame( 0, (int)$this->requireController()->opts->optGet( SiteRepository::MIGRATED_AT_OPTION ) );
+		$this->assertNotEmpty( ( new WhitelistNotifyQueue( SiteRepository::OLD_QUEUE_ACTION, $this->requireController()->prefix() ) )->get_batches() );
+		$this->assertNull( $this->repo()->findByUrl( $url, true ) );
+
+		$this->repo()->ensureLegacyImported();
+
+		$this->assertInstanceOf( Record::class, $this->repo()->findByUrl( $url ) );
+		$this->assertGreaterThan( 0, (int)$this->requireController()->opts->optGet( SiteRepository::MIGRATED_AT_OPTION ) );
+		$this->assertSame( [], ( new WhitelistNotifyQueue( SiteRepository::OLD_QUEUE_ACTION, $this->requireController()->prefix() ) )->get_batches() );
+	}
+
+	public function test_legacy_import_update_failure_preserves_marker_and_old_queue_for_retry() :void {
+		$url = 'https://legacy-update-retry.example.com';
+		$row = $this->repo()->upsertActive( $url, SitesDB::SOURCE_MANUAL );
+		$this->assertInstanceOf( Record::class, $row );
+		$this->repo()->softDeleteUrl( $url );
+		$this->setLegacyImportOptions( [ $url ] );
+		$this->pushOldQueueUrls( [ $url ] );
+
+		$this->runWithFailedImportExportSiteQuery( 'case_update', function () :void {
+			$this->repo()->ensureLegacyImported();
+		} );
+
+		$this->assertSame( 0, (int)$this->requireController()->opts->optGet( SiteRepository::MIGRATED_AT_OPTION ) );
+		$this->assertNotEmpty( ( new WhitelistNotifyQueue( SiteRepository::OLD_QUEUE_ACTION, $this->requireController()->prefix() ) )->get_batches() );
+		$this->assertSame( SitesDB::STATUS_DELETED, $this->repo()->findByUrl( $url, true )->status );
+
+		$this->repo()->ensureLegacyImported();
+
+		$this->assertSame( SitesDB::STATUS_ACTIVE, $this->repo()->findByUrl( $url )->status );
+		$this->assertGreaterThan( 0, (int)$this->requireController()->opts->optGet( SiteRepository::MIGRATED_AT_OPTION ) );
+		$this->assertSame( [], ( new WhitelistNotifyQueue( SiteRepository::OLD_QUEUE_ACTION, $this->requireController()->prefix() ) )->get_batches() );
+	}
+
 	public function test_registry_repairs_from_fallback_after_table_loss() :void {
 		$con = $this->requireController();
 		$con->opts
@@ -515,6 +558,28 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( SitesDB::STATUS_DELETED, $withDeleted[ $deletedUrl ]->status );
 	}
 
+	public function test_equivalent_url_spellings_share_one_registry_identity() :void {
+		$repo = $this->repo();
+		$first = $repo->upsertActive(
+			'HTTPS://Canonical.Example.COM:443/Mixed/Path/?source=first#fragment',
+			SitesDB::SOURCE_MANUAL
+		);
+		$second = $repo->upsertActive( 'https://canonical.example.com/Mixed/Path', SitesDB::SOURCE_EXPORT );
+
+		$this->assertInstanceOf( Record::class, $first );
+		$this->assertInstanceOf( Record::class, $second );
+		$this->assertSame( $first->id, $second->id );
+		$this->assertSame( 'https://canonical.example.com/Mixed/Path', $second->url );
+		$this->assertSame(
+			$repo->urlHash( 'HTTPS://CANONICAL.EXAMPLE.COM:443/Mixed/Path/' ),
+			$repo->urlHash( 'https://canonical.example.com/Mixed/Path' )
+		);
+		$this->assertCount( 1, $repo->findByUrls( [
+			'HTTPS://CANONICAL.EXAMPLE.COM:443/Mixed/Path/',
+			'https://canonical.example.com/Mixed/Path',
+		] ) );
+	}
+
 	public function test_queue_site_ids_batches_active_rows_and_ignores_deleted_or_missing_ids() :void {
 		$repo = $this->repo();
 		ServicesState::mergeItems( [
@@ -643,11 +708,13 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$repo = $this->repo();
 		$row = $repo->upsertPendingClientSite( 'https://invite-queued.example.com', SitesDB::SOURCE_MANUAL, true );
 		$inviteSender = new ImportExportInviteSenderTestDouble();
-
-		( new ImportExportQueueRunnerTestDouble(
+		$runner = new ImportExportQueueRunnerTestDouble(
 			new ImportExportPingSenderTestDouble( true, 204, '' ),
 			$inviteSender
-		) )->run();
+		);
+
+		$runner->run();
+		$runner->run();
 
 		$row = $repo->findById( $row->id, true );
 		$this->assertSame( [ 'https://invite-queued.example.com' ], $inviteSender->urls );
@@ -710,19 +777,24 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 0, $row->picked_at );
 	}
 
-	public function test_manual_queue_does_not_convert_pending_connection_to_sync_ping() :void {
+	public function test_manual_queue_skips_both_pending_states_without_scheduling() :void {
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
-		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 		$repo = $this->repo();
-		$row = $repo->upsertPendingClientSite( 'https://manual-passive.example.com', SitesDB::SOURCE_MANUAL, false );
+		$pendingInvite = $repo->upsertPendingClientSite( 'https://manual-invite.example.com', SitesDB::SOURCE_MANUAL, true );
+		$pendingConnection = $repo->upsertPendingClientSite( 'https://manual-connection.example.com', SitesDB::SOURCE_MANUAL, false );
+		$pendingInviteNextPing = $pendingInvite->next_ping_at;
+		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 
-		$count = ( new ImportExportController() )->queueSitesForSync( [ $row->id ] );
+		$count = ( new ImportExportController() )->queueSitesForSync( [ $pendingInvite->id, $pendingConnection->id ] );
 
-		$row = $repo->findById( $row->id, true );
+		$pendingInvite = $repo->findById( $pendingInvite->id, true );
+		$pendingConnection = $repo->findById( $pendingConnection->id, true );
 		$this->assertSame( 0, $count );
-		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $row->queue_status );
-		$this->assertSame( 0, $row->next_ping_at );
+		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $pendingInvite->queue_status );
+		$this->assertSame( $pendingInviteNextPing, $pendingInvite->next_ping_at );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $pendingConnection->queue_status );
+		$this->assertSame( 0, $pendingConnection->next_ping_at );
 		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
@@ -796,10 +868,12 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 	}
 
 	public function test_export_endpoint_records_successful_slave_download_as_sync_success() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
 		$con = $this->requireController();
 		$url = 'https://export-success.example.com';
 		$importID = 'export-success-id';
 		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
 			->optSet( 'importexport_whitelist', [ $url ] )
 			->optSet( 'import_url_ids', [
 				\hash( 'md5', $url ) => $importID,
@@ -869,6 +943,91 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertArrayHasKey( 'success', $payload );
 		$this->assertTrue( $payload[ 'success' ] );
 		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+	}
+
+	public function test_manual_queue_pending_rows_only_returns_connection_guidance() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$repo = $this->repo();
+		$pendingInvite = $repo->upsertPendingClientSite( 'https://manual-pending-invite.example.com', SitesDB::SOURCE_MANUAL, true );
+		$pendingConnection = $repo->upsertPendingClientSite( 'https://manual-pending-connection.example.com', SitesDB::SOURCE_MANUAL, false );
+
+		$action = new ImportExportSitesTableAction( [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
+			'rids'       => [ $pendingInvite->id, $pendingConnection->id ],
+		] );
+		$this->execTableAction( $action );
+
+		$payload = $action->response()->payload();
+		$ordinaryAction = new ImportExportSitesTableAction( [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
+			'rids'       => [ 9999999 ],
+		] );
+		$this->execTableAction( $ordinaryAction );
+		$ordinaryPayload = $ordinaryAction->response()->payload();
+
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertNotSame( '', $payload[ 'message' ] );
+		$this->assertNotSame( $ordinaryPayload[ 'message' ], $payload[ 'message' ] );
+		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $repo->findById( $pendingInvite->id, true )->queue_status );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $repo->findById( $pendingConnection->id, true )->queue_status );
+	}
+
+	public function test_manual_queue_invalid_or_deleted_zero_result_keeps_ordinary_message() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$row = $this->repo()->upsertActive( 'https://manual-queue-deleted.example.com', SitesDB::SOURCE_MANUAL );
+		$this->repo()->softDeleteUrl( $row->url );
+
+		$action = new ImportExportSitesTableAction( [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
+			'rids'       => [ $row->id, 9999999 ],
+		] );
+		$this->execTableAction( $action );
+
+		$payload = $action->response()->payload();
+		$emptyAction = new ImportExportSitesTableAction( [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
+			'rids'       => [],
+		] );
+		$this->execTableAction( $emptyAction );
+		$emptyPayload = $emptyAction->response()->payload();
+
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( $emptyPayload[ 'message' ], $payload[ 'message' ] );
+	}
+
+	public function test_manual_queue_mixed_pending_and_eligible_rows_keeps_success_message() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$repo = $this->repo();
+		$pendingInvite = $repo->upsertPendingClientSite( 'https://manual-queue-pending-invite.example.com', SitesDB::SOURCE_MANUAL, true );
+		$pendingConnection = $repo->upsertPendingClientSite( 'https://manual-queue-pending-connection.example.com', SitesDB::SOURCE_MANUAL, false );
+		$eligible = $repo->upsertActive( 'https://manual-queue-eligible.example.com', SitesDB::SOURCE_MANUAL );
+		$control = $repo->upsertActive( 'https://manual-queue-control.example.com', SitesDB::SOURCE_MANUAL );
+		$repo->recordExportSuccess( $eligible->url, SitesDB::EXPORT_RESULT_SUCCESS );
+		$repo->recordExportSuccess( $control->url, SitesDB::EXPORT_RESULT_SUCCESS );
+
+		$action = new ImportExportSitesTableAction( [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
+			'rids'       => [ $pendingInvite->id, $pendingConnection->id, $eligible->id ],
+		] );
+		$this->execTableAction( $action );
+
+		$payload = $action->response()->payload();
+		$controlAction = new ImportExportSitesTableAction( [
+			'sub_action' => ImportExportSitesTableAction::SUB_ACTION_QUEUE_SYNC,
+			'rids'       => [ $control->id ],
+		] );
+		$this->execTableAction( $controlAction );
+		$controlPayload = $controlAction->response()->payload();
+
+		$this->assertTrue( $payload[ 'success' ] );
+		$this->assertSame( $controlPayload[ 'message' ], $payload[ 'message' ] );
+		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $repo->findById( $pendingInvite->id, true )->queue_status );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $repo->findById( $pendingConnection->id, true )->queue_status );
+		$this->assertSame( SitesDB::QUEUE_QUEUED, $repo->findById( $eligible->id )->queue_status );
+		$this->assertSame( SitesDB::QUEUE_QUEUED, $repo->findById( $control->id )->queue_status );
 	}
 
 	public function test_manual_repair_action_clears_stale_connection_state_and_queues_selected_site() :void {
@@ -1004,7 +1163,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
 		$repo = $this->repo();
 		$first = $repo->upsertActive( 'https://delete-keep.example.com', SitesDB::SOURCE_MANUAL, '', true );
-		$second = $repo->upsertActive( 'https://delete-remove-one.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$second = $repo->upsertPendingClientSite( 'https://delete-remove-one.example.com', SitesDB::SOURCE_MANUAL, false );
 		$third = $repo->upsertActive( 'https://delete-remove-two.example.com', SitesDB::SOURCE_MANUAL, '', true );
 
 		$action = new ImportExportSitesTableAction( [
@@ -1078,6 +1237,8 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$repo = $this->repo();
 		$first = $repo->upsertActive( 'https://all-active-one.example.com', SitesDB::SOURCE_MANUAL, '', true );
 		$second = $repo->upsertActive( 'https://all-active-two.example.com', SitesDB::SOURCE_MANUAL, '', true );
+		$pendingInvite = $repo->upsertPendingClientSite( 'https://all-active-pending-invite.example.com', SitesDB::SOURCE_MANUAL, true );
+		$pendingConnection = $repo->upsertPendingClientSite( 'https://all-active-pending-connection.example.com', SitesDB::SOURCE_MANUAL, false );
 		$repo->recordExportSuccess( $first->url, SitesDB::EXPORT_RESULT_SUCCESS );
 		$repo->recordExportSuccess( $second->url, SitesDB::EXPORT_RESULT_SUCCESS );
 
@@ -1086,6 +1247,8 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 2, $count );
 		$this->assertSame( SitesDB::QUEUE_QUEUED, $repo->findById( $first->id, true )->queue_status );
 		$this->assertSame( SitesDB::QUEUE_QUEUED, $repo->findById( $second->id, true )->queue_status );
+		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $repo->findById( $pendingInvite->id, true )->queue_status );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $repo->findById( $pendingConnection->id, true )->queue_status );
 		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
@@ -1425,6 +1588,32 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		}
 
 		return $queries;
+	}
+
+	private function runWithFailedImportExportSiteQuery( string $family, callable $callback ) :void {
+		global $wpdb;
+		$table = $this->requireController()->db_con->import_export_sites->getTable();
+		$failed = false;
+		$filter = function ( $query ) use ( $family, $table, &$failed ) {
+			$query = (string)$query;
+			if ( !$failed
+				 && \stripos( $query, $table ) !== false
+				 && $this->classifyImportExportSiteQuery( $query ) === $family ) {
+				$failed = true;
+				return 'THIS IS INTENTIONALLY INVALID SQL FOR IMPORT EXPORT TESTING';
+			}
+			return $query;
+		};
+		$previousSuppressErrors = $wpdb->suppress_errors( true );
+		\add_filter( 'query', $filter, \PHP_INT_MAX, 1 );
+		try {
+			$callback();
+		}
+		finally {
+			\remove_filter( 'query', $filter, \PHP_INT_MAX );
+			$wpdb->suppress_errors( $previousSuppressErrors );
+		}
+		$this->assertTrue( $failed, "Expected {$family} query to be intercepted." );
 	}
 
 	private function classifyImportExportSiteQuery( string $query ) :?string {

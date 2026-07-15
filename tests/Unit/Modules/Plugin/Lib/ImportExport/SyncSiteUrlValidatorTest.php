@@ -33,10 +33,36 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_public_http_url_is_canonicalized() :void {
+	/**
+	 * @dataProvider canonicalUrlProvider
+	 */
+	public function test_http_url_is_canonicalized( string $expected, string $input ) :void {
 		$this->assertSame(
-			'https://client.example.com/path',
-			( new SyncSiteUrlValidator() )->validate( 'https://client.example.com/path/?utm=1' )
+			$expected,
+			( new SyncSiteUrlValidator() )->canonicalize( $input )
+		);
+	}
+
+	public function canonicalUrlProvider() :array {
+		return [
+			'scheme and host case' => [ 'https://client.example.com/Path', 'HTTPS://CLIENT.Example.COM/Path' ],
+			'http default port'    => [ 'http://client.example.com/path', 'HTTP://Client.Example.com:80/path' ],
+			'https default port'   => [ 'https://client.example.com/path', 'https://Client.Example.com:443/path' ],
+			'non-default port'     => [ 'https://client.example.com:8443/path', 'HTTPS://Client.Example.com:8443/path' ],
+			'path case'            => [ 'https://client.example.com/Mixed/Path', 'https://CLIENT.example.com/Mixed/Path' ],
+			'query and fragment'   => [ 'https://client.example.com/path', 'https://client.example.com/path/?utm=1#section' ],
+			'trailing slash'       => [ 'https://client.example.com/path', 'https://client.example.com/path///' ],
+			'root slash'           => [ 'https://client.example.com', 'https://client.example.com/' ],
+			'credentials retained' => [ 'https://user:pass@client.example.com/path', 'HTTPS://user:pass@CLIENT.example.com:443/path' ],
+			'ipv4 host'            => [ 'https://93.184.216.34/path', 'HTTPS://93.184.216.34:443/path' ],
+			'ipv6 host'            => [ 'https://[2001:4860:4860::8888]:8443/path', 'HTTPS://[2001:4860:4860::8888]:8443/path' ],
+		];
+	}
+
+	public function test_public_http_url_validation_returns_canonical_url() :void {
+		$this->assertSame(
+			'https://client.example.com/Path',
+			( new SyncSiteUrlValidator() )->validate( 'HTTPS://CLIENT.example.com:443/Path/?utm=1' )
 		);
 	}
 

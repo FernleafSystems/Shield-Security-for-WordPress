@@ -71,6 +71,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			'frequency_alert',
 			'frequency_info',
 		] );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
 	}
 
 	public function tear_down() {
@@ -104,6 +105,13 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 	public function test_export_payload_contains_machine_contract_and_excludes_transfer_opt_outs() :void {
 		$con = $this->requireController();
 		$con->opts
+			->optSet( 'importexport_enable', 'Y' )
+			->optSet( 'importexport_masterurl', 'https://portable-master.example.com/path' )
+			->optSet( 'import_id', 'local-import-id' )
+			->optSet( 'import_url_ids', [ 'local-hash' => 'local-url-id' ] )
+			->optSet( 'importexport_sites_migrated_at', 1712620810 )
+			->optSet( 'importexport_handshake_expires_at', 1712620820 )
+			->optSet( 'importexport_secretkey_expires_at', 1712620830 )
 			->optSet( 'display_plugin_badge', 'light' )
 			->optSet( 'visitor_address_source', 'REMOTE_ADDR' )
 			->optSet( 'enable_tracking', 'Y' )
@@ -141,6 +149,104 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'xfer_excluded', $export[ 'options' ] );
 		$this->assertArrayNotHasKey( NetworkInviteRepository::OPTION_KEY, $export[ 'options' ] );
 		$this->assertArrayNotHasKey( NetworkInviteRepository::INVITE_BLOCK_UNTIL_OPTION_KEY, $export[ 'options' ] );
+		foreach ( [
+			'import_id',
+			'import_url_ids',
+			'importexport_sites_migrated_at',
+			'importexport_pending_network_invites',
+			'importexport_handshake_expires_at',
+			'importexport_secretkey_expires_at',
+		] as $key ) {
+			$this->assertArrayNotHasKey( $key, $export[ 'options' ] );
+		}
+		$this->assertSame( 'Y', $export[ 'options' ][ 'importexport_enable' ] );
+		$this->assertSame( 'https://portable-master.example.com/path', $export[ 'options' ][ 'importexport_masterurl' ] );
+	}
+
+	public function test_disabled_secret_export_returns_silently_without_option_or_registry_mutation() :void {
+		$con = $this->requireController();
+		$url = 'https://93.184.216.81/disabled-secret';
+		$con->opts
+			->optSet( 'importexport_enable', 'N' )
+			->optSet( 'importexport_secretkey', '' )
+			->optSet( 'importexport_secretkey_expires_at', 0 )
+			->optSet( 'importexport_sites_migrated_at', 0 )
+			->optSet( 'importexport_whitelist', [ $url ] )
+			->store();
+		$before = $this->currentOptionValues( [
+			'importexport_secretkey',
+			'importexport_secretkey_expires_at',
+			'importexport_sites_migrated_at',
+			'importexport_whitelist',
+		] );
+
+		$this->assertExportSilentRejection( [
+			'url'    => $url,
+			'secret' => 'disabled-secret',
+		] );
+
+		$this->assertSame( $before, $this->currentOptionValues( \array_keys( $before ) ) );
+		$this->assertNull( ( new SiteRepository() )->findByUrl( $url, true ) );
+	}
+
+	public function test_disabled_import_id_export_returns_silently_without_row_mutation() :void {
+		$url = 'https://93.184.216.82/disabled-import-id';
+		$repo = new SiteRepository();
+		$row = $this->seedActiveSyncSite( $url, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+		$repo->recordExportServed( $row );
+		$before = $repo->findById( $row->id, true )->getRawData();
+		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
+
+		$this->assertExportSilentRejection( [
+			'url' => $url,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+
+		$this->assertSame( $before, $repo->findById( $row->id, true )->getRawData() );
+	}
+
+	public function test_disabled_no_id_export_returns_silently_without_handshake_or_row_mutation() :void {
+		$url = 'https://93.184.216.83/disabled-handshake';
+		$repo = new SiteRepository();
+		$row = $this->seedActiveSyncSite( $url, SitesDB::SOURCE_MANUAL );
+		$before = $repo->findById( $row->id, true )->getRawData();
+		$handshakeRequests = 0;
+		$filter = static function ( $preempt ) use ( &$handshakeRequests ) {
+			$handshakeRequests++;
+			return $preempt;
+		};
+		\add_filter( 'pre_http_request', $filter );
+		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
+
+		try {
+			$this->assertExportSilentRejection( [
+				'url' => $url,
+			] );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $filter );
+		}
+
+		$this->assertSame( 0, $handshakeRequests );
+		$this->assertSame( $before, $repo->findById( $row->id, true )->getRawData() );
+	}
+
+	public function test_unavailable_remote_export_returns_silently() :void {
+		$this->disablePremiumCapabilities();
+
+		$this->assertExportSilentRejection( [
+			'url'    => 'https://93.184.216.84/unavailable',
+			'secret' => 'unavailable-secret',
+		] );
+	}
+
+	public function test_disabled_sync_does_not_disable_local_export_data() :void {
+		$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
+
+		$export = ( new Export() )->getExportData();
+
+		$this->assertArrayHasKey( 'options', $export );
+		$this->assertIsArray( $export[ 'options' ] );
 	}
 
 	public function test_network_export_uses_default_profile_values_and_profile_exclusions() :void {
@@ -450,7 +556,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->seedActiveSyncSite( self::MANUAL_PUBLIC_URL, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
 
 		$payload = $this->captureExportJson( [
-			'url' => self::MANUAL_PUBLIC_URL,
+			'url' => 'HTTPS://93.184.216.71:443/manual-public-slave/',
 			'id'  => self::SLAVE_IMPORT_ID,
 		] );
 
@@ -556,6 +662,24 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			'url' => self::UNKNOWN_PUBLIC_URL,
 			'id'  => self::SLAVE_IMPORT_ID,
 		] );
+	}
+
+	public function test_export_authorization_is_revoked_after_managed_site_removal() :void {
+		$url = 'https://93.184.216.85/revoked-site';
+		$repo = new SiteRepository();
+		$row = $this->seedActiveSyncSite( $url, SitesDB::SOURCE_MANUAL, self::SLAVE_IMPORT_ID );
+
+		$this->assertExportJsonPayload( $this->captureExportJson( [
+			'url' => $url,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] ) );
+		$this->assertSame( 1, $repo->deleteByIds( [ $row->id ] ) );
+
+		$this->assertExportSilentRejection( [
+			'url' => $url,
+			'id'  => self::SLAVE_IMPORT_ID,
+		] );
+		$this->assertNull( $repo->findById( $row->id, true ) );
 	}
 
 	public function test_export_action_silent_rejection_returns_empty_action_payload() :void {

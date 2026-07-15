@@ -87,7 +87,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *   title:string,
  *   is_connected:true,
  *   connected:NetworkSyncConnectedMaster,
- *   disconnect:array{label:string},
+ *   disconnect:array{label:string,summary:string},
  *   sync_now:array{id:string,label:string,icon_class:string}
  * }|array{
  *   title:string,
@@ -365,7 +365,8 @@ class PageImportExport extends BasePluginAdminPage {
 					],
 				],
 				'disconnect'   => [
-					'label' => __( 'Disconnect', 'wp-simple-firewall' ),
+					'label'   => __( 'Disconnect', 'wp-simple-firewall' ),
+					'summary' => __( 'Disconnect affects this site only and does not remove the master site\'s managed-site record.', 'wp-simple-firewall' ),
 				],
 				'sync_now'     => [
 					'id'         => 'ImportExportSyncNow',

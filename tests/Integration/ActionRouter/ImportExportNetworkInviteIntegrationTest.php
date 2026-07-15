@@ -48,6 +48,7 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 	private const SAME_HOST_MASTER_URL = 'https://93.184.216.48/import3';
 	private const ROOT_SAME_HOST_HOME = 'https://93.184.216.49';
 	private const ROOT_SAME_HOST_MASTER_URL = 'https://93.184.216.49/import4';
+	private const REVOKED_ACCEPT_MASTER_URL = 'https://93.184.216.50/revoked-accept-master';
 
 	private array $optionsSnapshot = [];
 	private array $requestSnapshot = [];
@@ -318,6 +319,24 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 'Y', (string)$this->requireController()->opts->optGet( 'importexport_enable' ) );
 	}
 
+	public function test_accept_keeps_delivered_invite_when_master_authorisation_is_revoked() :void {
+		$this->enableSync();
+		$repo = new NetworkInviteRepository();
+		$invite = $repo->receive( self::REVOKED_ACCEPT_MASTER_URL );
+		$this->assertIsArray( $invite );
+
+		$payload = ( new ActionProcessor() )->processAction( ImportExportNetworkInviteAccept::SLUG, [
+			'form_params' => [
+				'invite_id' => $invite[ 'id' ],
+				'confirm'   => 'Y',
+			],
+		] )->payload();
+
+		$this->assertFalse( $payload[ 'success' ] );
+		$this->assertNotNull( $repo->find( $invite[ 'id' ] ) );
+		$this->assertSame( '', (string)$this->requireController()->opts->optGet( 'importexport_masterurl' ) );
+	}
+
 	public function test_accept_allows_same_host_sibling_master_for_subdirectory_home() :void {
 		$this->enableSync();
 		$homeFilter = static fn() :string => self::SAME_HOST_HOME;
@@ -497,13 +516,15 @@ class ImportExportNetworkInviteIntegrationTest extends ShieldIntegrationTestCase
 
 		return [
 			'headers'  => [],
-			'body'     => \wp_json_encode( [
-				'success' => true,
-				'data'    => [
-					'options'  => [],
-					'ip_rules' => [],
-				],
-			] ),
+			'body'     => \strpos( $url, self::REVOKED_ACCEPT_MASTER_URL ) === 0
+				? ''
+				: \wp_json_encode( [
+					'success' => true,
+					'data'    => [
+						'options'  => [],
+						'ip_rules' => [],
+					],
+				] ),
 			'response' => [
 				'code'    => 200,
 				'message' => 'OK',
