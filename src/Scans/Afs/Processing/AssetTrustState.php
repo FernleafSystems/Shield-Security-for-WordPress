@@ -5,7 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetFileContext,
 	AssetTrustResolver,
+	Exceptions\AssetHashesNotFound,
 	Exceptions\NonAssetFileException,
+	Exceptions\UnrecognisedAssetFile,
 	HashVerificationResult
 };
 
@@ -27,6 +29,13 @@ class AssetTrustState {
 		return $context;
 	}
 
+	/**
+	 * @throws AssetHashesNotFound
+	 * @throws NonAssetFileException
+	 * @throws UnrecognisedAssetFile
+	 * @throws \InvalidArgumentException
+	 * @throws \Exception
+	 */
 	public function verifyAssetContext( string $path, AssetFileContext $context ) :HashVerificationResult {
 		return $this->resolver->verifyContext( $path, $context );
 	}

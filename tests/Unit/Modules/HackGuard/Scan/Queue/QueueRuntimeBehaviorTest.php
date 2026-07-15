@@ -806,7 +806,10 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	/**
 	 * @dataProvider claimedScanReloadProvider
 	 */
-	public function test_explicit_recovery_stops_safely_when_claimed_scan_is_missing_or_non_active( ?string $status ) :void {
+	public function test_explicit_recovery_stops_safely_when_claimed_scan_is_missing_finished_or_non_active(
+		?string $status,
+		int $finishedAt
+	) :void {
 		Functions\when( 'wp_next_scheduled' )->justReturn( false );
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
@@ -824,12 +827,14 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 				}
 			},
 		] );
-		$selector = new class( $status ) {
+		$selector = new class( $status, $finishedAt ) {
 			public int $calls = 0;
 			private ?string $status;
+			private int $finishedAt;
 
-			public function __construct( ?string $status ) {
+			public function __construct( ?string $status, int $finishedAt ) {
 				$this->status = $status;
+				$this->finishedAt = $finishedAt;
 			}
 
 			public function byId( int $scanID ) {
@@ -840,7 +845,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 				$scan = new ScanRecord();
 				$scan->id = $scanID;
 				$scan->status = $this->status;
-				$scan->finished_at = 0;
+				$scan->finished_at = $this->finishedAt;
 				return $scan;
 			}
 		};
@@ -878,8 +883,9 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
 	public static function claimedScanReloadProvider() :array {
 		return [
-			'missing row'    => [ null ],
-			'non-active row' => [ 'completed' ],
+			'missing row'         => [ null, 0 ],
+			'non-active row'      => [ 'completed', 0 ],
+			'active finished row' => [ 'running', 1700000000 ],
 		];
 	}
 

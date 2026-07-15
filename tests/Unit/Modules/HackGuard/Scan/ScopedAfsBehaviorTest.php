@@ -12,8 +12,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\S
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record as ScanRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\SetScanCompleted;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
 	BuildScanItems,
 	ScanActionVO
@@ -30,7 +28,6 @@ use FernleafSystems\Wordpress\Services\Core\{
 	Themes
 };
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
-use FernleafSystems\Wordpress\Services\Core\Db;
 
 class ScopedAfsBehaviorTest extends BaseUnitTest {
 
@@ -109,56 +106,6 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$this->assertGreaterThan( 0, $progressTicks );
 	}
 
-	public function test_set_scan_completed_resolves_only_the_matching_asset_scope_for_asset_change_runs() :void {
-		$queries = [];
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_results' => new class {
-					public function getTable() :string {
-						return 'shield_scan_results';
-					}
-				},
-				'scan_result_items' => new class {
-					public function getTable() :string {
-						return 'shield_scan_result_items';
-					}
-				},
-			],
-		] );
-
-		ServicesState::installItems( [
-			'service_wpdb' => new class( $queries ) extends Db {
-				public array $queries;
-
-				public function __construct( array &$queries ) {
-					$this->queries = &$queries;
-				}
-
-				public function doSql( $sql ) :bool {
-					$this->queries[] = $sql;
-					return true;
-				}
-			},
-		] );
-
-		$record = new ScanRecord();
-		$record->scan = 'afs';
-		$record->scope_type = 'plugin';
-		$record->scope_key = 'akismet/akismet.php';
-		$record->run_trigger = 'asset_change';
-
-		$method = new \ReflectionMethod( SetScanCompleted::class, 'resolveStaleItemsForRun' );
-		$method->setAccessible( true );
-		$method->invoke( new SetScanCompleted(), 5, $record, 1700004000 );
-
-		$this->assertCount( 1, $queries );
-		$this->assertStringContainsString( "`resolution_reason`='asset_replaced'", $queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_type`='plugin'", $queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_key`='akismet/akismet.php'", $queries[ 0 ] );
-		$this->assertStringContainsString( 'NOTEXISTS', \str_replace( ' ', '', $queries[ 0 ] ) );
-		$this->assertStringContainsString( 'shield_scan_results', $queries[ 0 ] );
-	}
-
 	public function test_core_scope_builds_wordpress_core_roots() :void {
 		$this->installController();
 
@@ -196,68 +143,6 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( ABSPATH, $rootDirs );
 		$this->assertRootDirDepth( 0, path_join( ABSPATH, WPINC ), $rootDirs );
 		$this->assertRootDirDepth( 0, path_join( ABSPATH, 'wp-admin' ), $rootDirs );
-	}
-
-	public function test_set_scan_completed_resolves_only_core_modified_or_missing_asset_scope_findings() :void {
-		$queries = [];
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_results' => new class {
-					public function getTable() :string {
-						return 'shield_scan_results';
-					}
-				},
-				'scan_result_items' => new class {
-					public function getTable() :string {
-						return 'shield_scan_result_items';
-					}
-				},
-				'scan_result_item_meta' => new class {
-					public function getTable() :string {
-						return 'shield_scan_result_item_meta';
-					}
-				},
-			],
-		] );
-
-		ServicesState::installItems( [
-			'service_wpdb' => new class( $queries ) extends Db {
-				public array $queries;
-
-				public function __construct( array &$queries ) {
-					$this->queries = &$queries;
-				}
-
-				public function doSql( $sql ) :bool {
-					$this->queries[] = $sql;
-					return true;
-				}
-			},
-		] );
-
-		$record = new ScanRecord();
-		$record->scan = 'afs';
-		$record->scope_type = 'core';
-		$record->scope_key = 'core';
-		$record->run_trigger = 'asset_change';
-
-		$method = new \ReflectionMethod( SetScanCompleted::class, 'resolveStaleItemsForRun' );
-		$method->setAccessible( true );
-		$method->invoke( new SetScanCompleted(), 5, $record, 1700004000 );
-
-		$this->assertCount( 1, $queries );
-		$this->assertStringContainsString( "`resolution_reason`='asset_replaced'", $queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_type`='core'", $queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_key`='core'", $queries[ 0 ] );
-		$this->assertStringContainsString( "`rim_scope`.`meta_key` IN ('is_checksumfail','is_missing')", $queries[ 0 ] );
-		$this->assertStringContainsString( "`rim_scope`.`meta_value`!=''", $queries[ 0 ] );
-		$this->assertStringContainsString( "`rim_scope`.`meta_value`!='0'", $queries[ 0 ] );
-		foreach ( [ 'is_in_wpcontent', 'is_in_wproot', 'is_unrecognised', 'is_unidentified', 'is_mal' ] as $unresolvedMetaKey ) {
-			$this->assertStringNotContainsString( $unresolvedMetaKey, $queries[ 0 ] );
-		}
-		$normalizedSql = \preg_replace( '/\s+/', '', $queries[ 0 ] );
-		$this->assertStringContainsString( 'ANDEXISTS(', $normalizedSql );
-		$this->assertStringContainsString( 'ANDNOTEXISTS(', $normalizedSql );
 	}
 
 	private function buildCoreScopedRootDirs( array $scanAreas, bool $canScanAllFiles ) :array {

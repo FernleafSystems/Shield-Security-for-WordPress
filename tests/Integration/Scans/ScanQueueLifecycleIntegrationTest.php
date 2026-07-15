@@ -155,6 +155,46 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, $item->finished_at );
 	}
 
+	public function testScheduledWatchdogFinalizesLastActiveCronScanInRealDb() :void {
+		$con = $this->requireController();
+		$optionsSnapshot = $this->snapshotSelectedOptions( [ 'is_scan_cron' ] );
+		$postScanHook = $con->prefix( 'post_scan' );
+		$completedCalls = 0;
+		$completedCallback = static function () use ( &$completedCalls ) :void {
+			$completedCalls++;
+		};
+		\wp_clear_scheduled_hook( $postScanHook );
+		\add_action( 'shield/scan_queue_completed', $completedCallback );
+
+		try {
+			$con->opts->optSet( 'is_scan_cron', true )->store();
+			$scanID = $this->createScan( 'wpv', 'running', [
+				'ready_at'        => \time() - 30,
+				'last_process_at' => \time() - 30,
+				'started_at'      => \time() - 30,
+			] );
+			$this->createScanItem( $scanID, [ 'wpv-a' ], 0, \time() - 10 );
+
+			( new QueueWatchdog() )->runScheduled();
+
+			/** @var ScansDB\Record $scan */
+			$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+			$this->assertSame( 'completed', $scan->status );
+			$this->assertSame(
+				0,
+				$this->requireDb( 'scan_items' )->getQuerySelector()->filterByScan( $scanID )->count()
+			);
+			$this->assertSame( 1, $completedCalls );
+			$this->assertNotFalse( \wp_next_scheduled( $postScanHook ) );
+			$this->assertFalse( $con->opts->optGet( 'is_scan_cron' ) );
+		}
+		finally {
+			$this->restoreSelectedOptions( $optionsSnapshot );
+			\remove_action( 'shield/scan_queue_completed', $completedCallback );
+			\wp_clear_scheduled_hook( $postScanHook );
+		}
+	}
+
 	public function testQueueMaintenanceCompletesReadyScanWithOnlyFinishedItemsInRealDb() :void {
 		$before = \time();
 		$scanID = $this->createScan( 'wpv', 'running', [

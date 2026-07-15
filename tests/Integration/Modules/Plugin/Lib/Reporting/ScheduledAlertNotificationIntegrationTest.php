@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\{
 	ReportVO
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data\BuildForScans;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 	RuntimeTestState,
 	TestDataFactory
@@ -285,7 +286,8 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 
 		$replacementScanId = $this->insertAfsScan(
 			$scenario[ 'scope_type' ],
-			$scenario[ 'scope_key' ]
+			$scenario[ 'scope_key' ],
+			[ $this->afsIntegrityCoverageFamily( $assetType ) ]
 		);
 		$this->storeAfsObservation( $replacementScanId, $scenario );
 		$this->assertTrue( ( new SetScanCompleted() )->run( $replacementScanId ) );
@@ -321,6 +323,14 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 			'theme'  => [ 'theme' ],
 			'core'   => [ 'core' ],
 		];
+	}
+
+	private function afsIntegrityCoverageFamily( string $assetType ) :string {
+		return [
+			'plugin' => ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+			'theme'  => ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY,
+			'core'   => ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
+		][ $assetType ];
 	}
 
 	private function buildAlertReport() :ReportVO {

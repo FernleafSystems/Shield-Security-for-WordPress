@@ -23,6 +23,9 @@ class FileScanner {
 	use PluginControllerConsumer;
 	use ScanActionConsumer;
 
+	/**
+	 * @throws \Exception When the file cannot be reliably classified or a required finding record cannot be created.
+	 */
 	public function scan( string $fullPath ) :?ResultItem {
 		$scanCon = self::con()->comps->scans->AFS();
 		/** @var ScanActionVO $action */
@@ -164,10 +167,6 @@ class FileScanner {
 			$item->is_in_wpcontent = true;
 			$item->is_unidentified = true;
 		}
-		catch ( \Exception $e ) {
-			//Never reached
-		}
-
 		$canRunMalwareScan = !$fileExcluded
 							  && $scanCon->isEnabledMalwareScanPHP()
 							  && ( empty( $item ) || !$item->is_missing );
@@ -203,25 +202,16 @@ class FileScanner {
 				$item = $item ?? $this->getResultItem( $fullPath );
 				$item->is_mal = true;
 
-				try {
-					if ( !isset( $mfe->getScanFileData()[ 'mal_sig' ] ) ) {
-						throw new \Exception( 'Cannot proceed without a malware signature' );
-					}
-					$malRecord = ( new Processing\CreateLocalMalwareRecords() )->run(
-						$item->path_fragment,
-						$mfe->getScanFileData()[ 'mal_sig' ],
-						$validFile
-					);
-					$item->malware_record_id = $malRecord->id;
-					$item->auto_filter = $validFile;
+				if ( !isset( $mfe->getScanFileData()[ 'mal_sig' ] ) ) {
+					throw new \Exception( 'Cannot proceed without a malware signature' );
 				}
-				catch ( \Exception $e ) {
-					/** We can't proceed without a linked local Malware Record */
-					$item = null;
-					error_log( $e->getMessage() );
-				}
-			}
-			catch ( \InvalidArgumentException $e ) {
+				$malRecord = ( new Processing\CreateLocalMalwareRecords() )->run(
+					$item->path_fragment,
+					$mfe->getScanFileData()[ 'mal_sig' ],
+					$validFile
+				);
+				$item->malware_record_id = $malRecord->id;
+				$item->auto_filter = $validFile;
 			}
 		}
 

@@ -908,7 +908,7 @@
                 "item_id": {
                     "macro_type": "varchar",
                     "length": 256,
-                    "comment": "Result Item ID"
+                    "comment": "Legacy canonical scan-result identity. AFS paths longer than 256 characters are an accepted limitation pending replacement result storage; do not change this column in place without a migration and index-compatibility design."
                 },
                 "asset_type": {
                     "macro_type": "varchar",
