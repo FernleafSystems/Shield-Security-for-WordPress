@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\UnsupportedFileLockType;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FindLockRecordForFile;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
@@ -23,6 +24,9 @@ class GetFileLocksToCreate {
 					if ( empty( $lock ) ) {
 						$locksToCreate[] = $fileType;
 					}
+				}
+				catch ( UnsupportedFileLockType $e ) {
+					$locksToCreate[] = $fileType;
 				}
 				catch ( \Exception $e ) {
 				}
