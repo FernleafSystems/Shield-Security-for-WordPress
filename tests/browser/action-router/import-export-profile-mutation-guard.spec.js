@@ -178,6 +178,9 @@ async function openProfileSurface( page ) {
 	const copy = pane.locator( '[data-import-export-profile-copy-from-master]' );
 	const options = form.locator( '[data-import-export-profile-sync-toggle]' );
 	const groups = form.locator( '[data-import-export-profile-group-sync-toggle]' );
+	const firstGroup = form.locator( '[data-import-export-profile-group="1"]' ).first();
+	const firstGroupDisclosure = firstGroup.locator( '[data-bs-toggle="collapse"][aria-controls]' ).first();
+	const firstOption = firstGroup.locator( '[data-import-export-profile-sync-toggle="1"]' ).first();
 
 	await expect( pane ).toBeVisible();
 	await expect( form ).toBeVisible();
@@ -186,7 +189,15 @@ async function openProfileSurface( page ) {
 	expect( await options.count() ).toBeGreaterThan( 0 );
 	expect( await groups.count() ).toBeGreaterThan( 0 );
 
-	return { page, pane, form, save, copy, options, groups };
+	return { page, pane, form, save, copy, options, groups, firstGroupDisclosure, firstOption };
+}
+
+async function revealFirstOption( surface ) {
+	if ( !( await surface.firstOption.isVisible() ) ) {
+		await surface.firstGroupDisclosure.click();
+		await expect( surface.firstGroupDisclosure ).toHaveAttribute( 'aria-expanded', 'true' );
+	}
+	await expect( surface.firstOption ).toBeVisible();
 }
 
 async function captureControlState( surface ) {
@@ -235,7 +246,8 @@ async function triggerOrigin( surface, origin ) {
 			await surface.save.click();
 			break;
 		case 'option':
-			await surface.options.first().click();
+			await revealFirstOption( surface );
+			await surface.firstOption.click();
 			break;
 		case 'group':
 			await surface.groups.first().click();
@@ -258,7 +270,7 @@ async function dispatchSecondaryMutation( surface, secondary ) {
 			await surface.form.dispatchEvent( 'submit' );
 			break;
 		case 'option':
-			await surface.options.first().dispatchEvent( 'click' );
+			await surface.firstOption.dispatchEvent( 'click' );
 			break;
 		case 'group':
 			await surface.groups.first().dispatchEvent( 'click' );
@@ -327,7 +339,8 @@ test( 'application failure restores exact profile mutation control state', async
 		);
 
 		try {
-			await surface.options.first().click();
+			await revealFirstOption( surface );
+			await surface.firstOption.click();
 			await gate.started;
 			expect( gate.seen ).toEqual( [ PROFILE_MUTATION_SLUG.option ] );
 			await expectMutationBusy( surface );
@@ -357,7 +370,8 @@ test( 'Copy confirmation cannot acquire a profile mutation guard already held by
 			PROFILE_MUTATION_SLUG.option
 		);
 		try {
-			await surface.options.first().click();
+			// Keep the Copy modal open while establishing the competing mutation state behind its overlay.
+			await surface.firstOption.dispatchEvent( 'click' );
 			await gate.started;
 			expect( gate.seen ).toEqual( [ PROFILE_MUTATION_SLUG.option ] );
 			await expectMutationBusy( surface );
