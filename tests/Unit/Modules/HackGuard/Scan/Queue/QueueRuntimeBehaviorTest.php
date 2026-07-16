@@ -1037,7 +1037,16 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 71, $item->scan_id );
 		$this->assertSame( 8, $item->qitem_id );
 		$this->assertNotEmpty( $queries );
-		$this->assertStringContainsString( "`scans`.`status` IN ('built','running')", $queries[ 0 ] );
+		$this->assertStringContainsString( "`oldest_scan`.`status` IN ('built','running')", $queries[ 0 ] );
+		$this->assertStringContainsString( "WHERE `scans`.`id` = (SELECT `oldest_scan`.`id`", $queries[ 0 ] );
+		$this->assertStringContainsString( "`oldest_scan`.`ready_at` > 0", $queries[ 0 ] );
+		$this->assertStringContainsString( "`oldest_scan`.`finished_at`=0", $queries[ 0 ] );
+		$this->assertStringContainsString(
+			"ORDER BY `oldest_scan`.`created_at` ASC, `oldest_scan`.`id` ASC",
+			$queries[ 0 ]
+		);
+		$this->assertStringContainsString( "ORDER BY `si`.`id` ASC", $queries[ 0 ] );
+		$this->assertStringContainsString( "`si`.`started_at`=0", $queries[ 0 ] );
 		$this->assertStringContainsString( "`si`.`finished_at`=0", $queries[ 0 ] );
 		$this->assertStringNotContainsString( "'building','running'", $queries[ 0 ] );
 		$this->assertStringNotContainsString( "'queued'", $queries[ 0 ] );
@@ -1194,6 +1203,16 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertTrue( ( new QueueItems() )->hasNextItem() );
 		$this->assertCount( 1, $queries );
 		$this->assertStringContainsString( 'SELECT 1', $queries[ 0 ] );
+		$this->assertStringContainsString( "`si`.`scan_ref` = (SELECT `oldest_scan`.`id`", $queries[ 0 ] );
+		$this->assertStringContainsString( "`oldest_scan`.`status` IN ('built','running')", $queries[ 0 ] );
+		$this->assertStringContainsString( "`oldest_scan`.`ready_at` > 0", $queries[ 0 ] );
+		$this->assertStringContainsString( "`oldest_scan`.`finished_at`=0", $queries[ 0 ] );
+		$this->assertStringContainsString(
+			"ORDER BY `oldest_scan`.`created_at` ASC, `oldest_scan`.`id` ASC",
+			$queries[ 0 ]
+		);
+		$this->assertStringContainsString( "`si`.`started_at`=0", $queries[ 0 ] );
+		$this->assertStringContainsString( "`si`.`finished_at`=0", $queries[ 0 ] );
 		$this->assertStringNotContainsString( '`items`', $queries[ 0 ] );
 		$this->assertStringNotContainsString( '`meta`', $queries[ 0 ] );
 	}

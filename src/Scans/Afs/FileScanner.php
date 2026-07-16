@@ -199,19 +199,36 @@ class FileScanner {
 				$malwareScanClean = true;
 			}
 			catch ( Exceptions\MalwareFileException $mfe ) {
-				$item = $item ?? $this->getResultItem( $fullPath );
+				if ( $item === null ) {
+					$item = $this->getResultItem( $fullPath );
+					if ( $assetContext instanceof AssetFileContext ) {
+						if ( $assetContext->assetType === 'plugin' ) {
+							$item->is_in_plugin = true;
+							$item->ptg_slug = $assetContext->assetKey;
+							$item->asset_version = $assetContext->assetVersion;
+						}
+						elseif ( $assetContext->assetType === 'theme' ) {
+							$item->is_in_theme = true;
+							$item->ptg_slug = $assetContext->assetKey;
+							$item->asset_version = $assetContext->assetVersion;
+						}
+					}
+				}
 				$item->is_mal = true;
 
 				if ( !isset( $mfe->getScanFileData()[ 'mal_sig' ] ) ) {
 					throw new \Exception( 'Cannot proceed without a malware signature' );
 				}
+				$autoFilterMalware = $assetVerification instanceof HashVerificationResult
+								 && $assetVerification->verified
+								 && $assetVerification->trustedSource;
 				$malRecord = ( new Processing\CreateLocalMalwareRecords() )->run(
 					$item->path_fragment,
 					$mfe->getScanFileData()[ 'mal_sig' ],
-					$validFile
+					$autoFilterMalware
 				);
 				$item->malware_record_id = $malRecord->id;
-				$item->auto_filter = $validFile;
+				$item->auto_filter = $autoFilterMalware;
 			}
 		}
 
