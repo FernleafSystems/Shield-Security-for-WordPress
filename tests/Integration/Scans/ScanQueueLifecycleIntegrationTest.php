@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\CreateNewScan;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
@@ -215,6 +216,10 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 	public function testQueueItemsNextUsesRealSqlToSelectOnlyReadyUnfinishedWork() :void {
 		$queuedID = $this->createScan( 'afs', 'queued' );
 		$this->createScanItem( $queuedID, [] );
+		$buildingID = $this->createScan( 'apc', 'building' );
+		$this->createScanItem( $buildingID, [] );
+		$notReadyID = $this->createScan( 'wpv', 'built' );
+		$this->createScanItem( $notReadyID, [] );
 		$finishedID = $this->createScan( 'apc', 'built', [
 			'ready_at'    => \time(),
 			'finished_at' => \time(),
@@ -243,6 +248,118 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$claimed = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $itemID );
 		$this->assertGreaterThan( 0, $claimed->started_at );
 		$this->assertSame( 1, $claimed->attempts );
+	}
+
+	public function testClaimedItemInOldestReadyScanBlocksNewerScanUntilCompletion() :void {
+		$createdAt = \time() - 120;
+		$oldScanID = $this->createScan( 'wpv', 'running', [
+			'created_at' => $createdAt,
+			'ready_at'   => $createdAt,
+			'started_at' => $createdAt,
+		] );
+		$oldItemID = $this->createScanItem( $oldScanID, [ 'old' ], $createdAt, 0, 1 );
+		$newScanID = $this->createScan( 'apc', 'built', [
+			'created_at' => $createdAt + 30,
+			'ready_at'   => $createdAt + 30,
+		] );
+		$newItemID = $this->createScanItem( $newScanID, [ 'new' ] );
+		$queueItems = new QueueItems();
+
+		$this->assertFalse( $queueItems->hasNextItem() );
+		$noQueueItems = false;
+		try {
+			$queueItems->next();
+		}
+		catch ( NoQueueItems $e ) {
+			$noQueueItems = true;
+		}
+		$this->assertTrue( $noQueueItems );
+		/** @var ScanItemsDB\Record $newItem */
+		$newItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $newItemID );
+		$this->assertSame( 0, $newItem->started_at );
+
+		$this->assertTrue( $this->requireDb( 'scan_items' )->getQueryUpdater()->updateById( $oldItemID, [
+			'finished_at' => \time(),
+		] ) );
+		( new QueueMaintenance() )->run();
+
+		/** @var ScansDB\Record $oldScan */
+		$oldScan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $oldScanID );
+		$this->assertSame( 'completed', $oldScan->status );
+		$this->assertTrue( $queueItems->hasNextItem() );
+		$this->assertSame( $newItemID, $queueItems->next()->qitem_id );
+	}
+
+	public function testNonterminalScanWithOnlyFinishedItemsBlocksUntilMaintenanceCompletesIt() :void {
+		$createdAt = \time() - 120;
+		$oldScanID = $this->createScan( 'wpv', 'running', [
+			'created_at' => $createdAt,
+			'ready_at'   => $createdAt,
+			'started_at' => $createdAt,
+		] );
+		$this->createScanItem( $oldScanID, [ 'old' ], $createdAt, \time() - 30, 1 );
+		$newScanID = $this->createScan( 'apc', 'built', [
+			'created_at' => $createdAt + 30,
+			'ready_at'   => $createdAt + 30,
+		] );
+		$newItemID = $this->createScanItem( $newScanID, [ 'new' ] );
+		$queueItems = new QueueItems();
+
+		$this->assertFalse( $queueItems->hasNextItem() );
+		( new QueueMaintenance() )->run();
+
+		/** @var ScansDB\Record $oldScan */
+		$oldScan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $oldScanID );
+		$this->assertSame( 'completed', $oldScan->status );
+		$this->assertTrue( $queueItems->hasNextItem() );
+		$this->assertSame( $newItemID, $queueItems->next()->qitem_id );
+	}
+
+	public function testOldestReadyScanSuppliesItsUnclaimedItemBeforeNewerScan() :void {
+		$createdAt = \time() - 120;
+		$oldScanID = $this->createScan( 'wpv', 'running', [
+			'created_at' => $createdAt,
+			'ready_at'   => $createdAt,
+			'started_at' => $createdAt,
+		] );
+		$this->createScanItem( $oldScanID, [ 'claimed' ], $createdAt, 0, 1 );
+		$oldUnclaimedItemID = $this->createScanItem( $oldScanID, [ 'unclaimed' ] );
+		$newScanID = $this->createScan( 'apc', 'built', [
+			'created_at' => $createdAt + 30,
+			'ready_at'   => $createdAt + 30,
+		] );
+		$newItemID = $this->createScanItem( $newScanID, [ 'new' ] );
+
+		$item = ( new QueueItems() )->next();
+
+		$this->assertSame( $oldScanID, $item->scan_id );
+		$this->assertSame( $oldUnclaimedItemID, $item->qitem_id );
+		/** @var ScanItemsDB\Record $newItem */
+		$newItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $newItemID );
+		$this->assertSame( 0, $newItem->started_at );
+	}
+
+	public function testEqualScanCreationTimesUseScanIdThenItemId() :void {
+		$createdAt = \time() - 120;
+		$lowerScanID = $this->createScan( 'wpv', 'built', [
+			'created_at' => $createdAt,
+			'ready_at'   => $createdAt,
+		] );
+		$higherScanID = $this->createScan( 'apc', 'built', [
+			'created_at' => $createdAt,
+			'ready_at'   => $createdAt,
+		] );
+		$higherScanItemID = $this->createScanItem( $higherScanID, [ 'higher-scan' ] );
+		$lowerFirstItemID = $this->createScanItem( $lowerScanID, [ 'lower-first' ] );
+		$lowerSecondItemID = $this->createScanItem( $lowerScanID, [ 'lower-second' ] );
+
+		$item = ( new QueueItems() )->next();
+
+		$this->assertLessThan( $higherScanID, $lowerScanID );
+		$this->assertLessThan( $lowerFirstItemID, $higherScanItemID );
+		$this->assertLessThan( $lowerSecondItemID, $lowerFirstItemID );
+		$this->assertSame( $lowerScanID, $item->scan_id );
+		$this->assertSame( $lowerFirstItemID, $item->qitem_id );
 	}
 
 	public function testProcessorExpiredCleanupResetsStaleStartedItemsWithoutFailingRecoverableScan() :void {

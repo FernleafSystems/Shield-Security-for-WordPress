@@ -34,14 +34,12 @@ class QueueItems {
 							ON `si`.`scan_ref` = `scans`.`id` 
 							AND `si`.`started_at`=0
 							AND `si`.`finished_at`=0
-						WHERE `scans`.`status` IN (%s)
-						  AND `scans`.`ready_at` > 0
-						  AND `scans`.`finished_at`=0
-						ORDER BY `scans`.`created_at` ASC, `si`.`id` ASC
+						WHERE `scans`.`id` = (%s)
+						ORDER BY `si`.`id` ASC
 						LIMIT 1;",
 					self::con()->db_con->scans->getTable(),
 					self::con()->db_con->scan_items->getTable(),
-					ScanStatus::sqlList( ScanStatus::READY )
+					$this->oldestReadyScanIdSql()
 				)
 			);
 			if ( empty( $result ) ) {
@@ -61,20 +59,28 @@ class QueueItems {
 	public function hasNextItem() :bool {
 		return (int)Services::WpDb()->getVar(
 			sprintf( "SELECT 1
-						FROM `%s` as `scans`
-						INNER JOIN `%s` as `si`
-							ON `si`.`scan_ref` = `scans`.`id`
-							AND `si`.`started_at`=0
-							AND `si`.`finished_at`=0
-						WHERE `scans`.`status` IN (%s)
-						  AND `scans`.`ready_at` > 0
-						  AND `scans`.`finished_at`=0
+						FROM `%s` as `si`
+						WHERE `si`.`scan_ref` = (%s)
+						  AND `si`.`started_at`=0
+						  AND `si`.`finished_at`=0
 						LIMIT 1;",
-				self::con()->db_con->scans->getTable(),
 				self::con()->db_con->scan_items->getTable(),
-				ScanStatus::sqlList( ScanStatus::READY )
+				$this->oldestReadyScanIdSql()
 			)
 		) === 1;
+	}
+
+	private function oldestReadyScanIdSql() :string {
+		return sprintf( "SELECT `oldest_scan`.`id`
+						FROM `%s` as `oldest_scan`
+						WHERE `oldest_scan`.`status` IN (%s)
+						  AND `oldest_scan`.`ready_at` > 0
+						  AND `oldest_scan`.`finished_at`=0
+						ORDER BY `oldest_scan`.`created_at` ASC, `oldest_scan`.`id` ASC
+						LIMIT 1",
+			self::con()->db_con->scans->getTable(),
+			ScanStatus::sqlList( ScanStatus::READY )
+		);
 	}
 
 	private function claim( QueueItemVO $item ) :bool {
