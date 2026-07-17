@@ -222,9 +222,14 @@ class ScanQueueLifecycleHarness {
 		Functions\when( 'wp_json_encode' )->alias(
 			static fn( $value ) :string => \json_encode( $value ) ?: 'null'
 		);
-		Functions\when( 'plugins_api' )->justReturn( (object)[
-			'last_updated' => '2010-01-01 00:00:00',
-		] );
+		Functions\when( 'is_wp_error' )->alias( static fn( $value ) :bool => $value instanceof \WP_Error );
+		Functions\when( 'plugins_api' )->alias(
+			static fn( string $action, array $args = [] ) :object => (object)[
+				'slug'         => (string)( $args[ 'slug' ] ?? '' ),
+				'version'      => '1.0.0',
+				'last_updated' => '2010-01-01 00:00:00',
+			]
+		);
 		Functions\when( 'absint' )->alias(
 			static fn( $value ) :int => \abs( (int)$value )
 		);
@@ -1439,6 +1444,11 @@ class LifecycleAfsFs extends Fs {
 
 class LifecyclePlugins extends Plugins {
 
+	public function getPlugin( $file ) :array {
+		unset( $file );
+		return [];
+	}
+
 	public function getPluginAsVo( string $file, bool $reload = false ) :?WpPluginVo {
 		unset( $reload );
 		return \strpos( $file, '/' ) === false ? null : new LifecyclePluginVo( $file );
@@ -1454,7 +1464,9 @@ class LifecyclePluginVo extends WpPluginVo {
 	}
 
 	public function __get( string $key ) {
-		return $key === 'slug' ? \dirname( $this->file ) : parent::__get( $key );
+		return $key === 'slug'
+			? \dirname( $this->file )
+			: ( $key === 'Version' ? '1.0.0' : parent::__get( $key ) );
 	}
 
 	public function isWpOrg() :bool {
