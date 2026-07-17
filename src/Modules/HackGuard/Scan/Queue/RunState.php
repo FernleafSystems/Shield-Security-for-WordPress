@@ -23,8 +23,9 @@ class RunState {
 			'last_process_at' => $now,
 		];
 		$meta = \is_array( $scan->meta ) ? $scan->meta : [];
-		if ( isset( $meta[ self::META_KEY_LAST_ERROR ] ) ) {
-			unset( $meta[ self::META_KEY_LAST_ERROR ] );
+		$originalMeta = $meta;
+		unset( $meta[ self::META_KEY_LAST_ERROR ], $meta[ self::META_KEY_WATCHDOG_RECOVERY ] );
+		if ( $meta !== $originalMeta ) {
 			$scan->meta = $meta;
 			$update[ 'meta' ] = $scan->getRawData()[ 'meta' ];
 		}

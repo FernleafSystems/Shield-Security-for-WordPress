@@ -494,7 +494,7 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $scan->meta[ RunState::META_KEY_LAST_ERROR ] ?? '' );
 	}
 
-	public function testWatchdogRecoversStaleQueuedScanThroughRealSelectors() :void {
+	public function testWatchdogPersistsTwoQueuedRecoveryAttemptsThenFailsThroughRealSelectors() :void {
 		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
 		$scanID = $this->createScan( 'afs', 'queued', [
 			'created_at' => $staleAt,
@@ -507,6 +507,8 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
 		$this->assertSame( 'queued', $scan->status );
 		$this->assertSame( 0, $scan->finished_at );
+		$this->assertSame( 1, $scan->meta[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'attempts' ] ?? null );
+		$this->assertGreaterThan( 0, $scan->meta[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'last_attempt_at' ] ?? 0 );
 		$this->assertSame(
 			1,
 			$this->requireDb( 'scans' )->getQuerySelector()
@@ -516,6 +518,28 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 				 ->count()
 		);
 		$this->assertNotFalse( \wp_next_scheduled( $watchdog->hook() ) );
+
+		$scan->meta = $this->recoveryMeta( 1, $staleAt );
+		$this->requireDb( 'scans' )->getQueryUpdater()->updateById( $scanID, [
+			'last_process_at' => $staleAt,
+			'meta'            => $scan->getRawData()[ 'meta' ],
+		] );
+		$watchdog->run();
+
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$this->assertSame( 'queued', $scan->status );
+		$this->assertSame( 2, $scan->meta[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'attempts' ] ?? null );
+
+		$scan->meta = $this->recoveryMeta( 2, $staleAt );
+		$this->requireDb( 'scans' )->getQueryUpdater()->updateById( $scanID, [
+			'last_process_at' => $staleAt,
+			'meta'            => $scan->getRawData()[ 'meta' ],
+		] );
+		$watchdog->run();
+
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$this->assertSame( 'failed', $scan->status );
+		$this->assertGreaterThan( 0, $scan->finished_at );
 	}
 
 	public function testWatchdogResetsStaleClaimedItemInRealDb() :void {

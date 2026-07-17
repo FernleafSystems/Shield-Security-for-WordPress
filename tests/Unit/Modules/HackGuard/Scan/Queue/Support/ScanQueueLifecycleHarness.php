@@ -21,8 +21,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 use FernleafSystems\Wordpress\Services\Core\{
 	Db,
 	General,
+	Plugins,
 	Request
 };
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 
 class ScanQueueLifecycleHarness {
 
@@ -39,6 +41,7 @@ class ScanQueueLifecycleHarness {
 	public LifecycleActionRouter $actionRouter;
 
 	private LifecycleQueueComponent $queueComponent;
+	private LifecycleEmptyDbHandler $resultItemsDb;
 
 	private int $now;
 
@@ -61,6 +64,7 @@ class ScanQueueLifecycleHarness {
 		$this->sql = new LifecycleSqliteDb( $this->now );
 		$this->scansDb = new LifecycleScansDb( $this->sql );
 		$this->scanItemsDb = new LifecycleScanItemsDb( $this->sql );
+		$this->resultItemsDb = new LifecycleEmptyDbHandler( 'scan_result_items' );
 		$this->queueComponent = new LifecycleQueueComponent();
 		$this->actionRouter = new LifecycleActionRouter();
 	}
@@ -71,6 +75,7 @@ class ScanQueueLifecycleHarness {
 			'service_request'   => new LifecycleRequest( $this->now ),
 			'service_wpdb'      => $this->sql,
 			'service_wpgeneral' => new LifecycleGeneral(),
+			'service_wpplugins' => new LifecyclePlugins(),
 		] );
 		$this->installController();
 		$this->queueComponent->builder = new QueueBuilder();
@@ -132,6 +137,15 @@ class ScanQueueLifecycleHarness {
 		return $this->sql->countScanItems( $scanID );
 	}
 
+	public function failNextResultItemInsert() :self {
+		$this->resultItemsDb->failNextInsert();
+		return $this;
+	}
+
+	public function resultItemInsertFailureCount() :int {
+		return $this->resultItemsDb->countConsumedInsertFailures();
+	}
+
 	private function installController() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -145,8 +159,8 @@ class ScanQueueLifecycleHarness {
 			'scans'                 => $this->scansDb,
 			'scan_items'            => $this->scanItemsDb,
 			'scan_results'          => new LifecycleEmptyDbHandler( 'scan_results', $this->sql ),
-			'scan_result_items'     => new LifecycleEmptyDbHandler( 'scan_result_items' ),
-			'scan_result_item_meta' => new LifecycleEmptyDbHandler( 'scan_result_item_meta' ),
+			'scan_result_items'     => $this->resultItemsDb,
+			'scan_result_item_meta' => new LifecycleEmptyDbHandler( 'scan_result_item_meta', $this->sql ),
 		];
 		$this->queueComponent->scansComponent = new LifecycleScansComponent( $this->itemsByScan );
 		$controller->comps = (object)[
@@ -172,6 +186,9 @@ class ScanQueueLifecycleHarness {
 		Functions\when( 'wp_json_encode' )->alias(
 			static fn( $value ) :string => \json_encode( $value ) ?: 'null'
 		);
+		Functions\when( 'plugins_api' )->justReturn( (object)[
+			'last_updated' => '2010-01-01 00:00:00',
+		] );
 		Functions\when( 'absint' )->alias(
 			static fn( $value ) :int => \abs( (int)$value )
 		);
@@ -548,9 +565,18 @@ class LifecycleSqliteDb extends Db {
 			`attempts` INTEGER NOT NULL DEFAULT 0,
 			`finished_at` INTEGER NOT NULL DEFAULT 0
 		)' );
-		$this->pdo->exec( 'CREATE TABLE `scan_results` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `scan_ref` INTEGER, `resultitem_ref` INTEGER)' );
-		$this->pdo->exec( 'CREATE TABLE `scan_result_items` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `scan` TEXT, `resolved_at` INTEGER DEFAULT 0, `resolution_reason` TEXT DEFAULT "")' );
-		$this->pdo->exec( 'CREATE TABLE `scan_result_item_meta` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `ri_ref` INTEGER, `meta_key` TEXT, `meta_value` TEXT)' );
+		$this->pdo->exec( 'CREATE TABLE `scan_results` (`id` INTEGER PRIMARY KEY AUTOINCREMENT)' );
+		$this->pdo->exec( 'CREATE TABLE `scan_result_items` (
+			`id` INTEGER PRIMARY KEY AUTOINCREMENT,
+			`scan` TEXT NOT NULL DEFAULT "",
+			`item_type` TEXT NOT NULL DEFAULT "",
+			`item_id` TEXT NOT NULL DEFAULT "",
+			`asset_type` TEXT NOT NULL DEFAULT "",
+			`asset_key` TEXT NOT NULL DEFAULT "",
+			`resolved_at` INTEGER NOT NULL DEFAULT 0,
+			`item_repaired_at` INTEGER NOT NULL DEFAULT 0,
+			`item_deleted_at` INTEGER NOT NULL DEFAULT 0
+		)' );
 	}
 
 	private function insertRow( string $table, array $data ) :void {
@@ -577,6 +603,7 @@ class LifecycleScansDb {
 	public array $rawInserts = [];
 
 	private LifecycleSqliteDb $db;
+	private bool $failNextUpdate = false;
 
 	public function __construct( LifecycleSqliteDb $db ) {
 		$this->db = $db;
@@ -614,17 +641,29 @@ class LifecycleScansDb {
 	}
 
 	public function getQueryUpdater() :object {
-		return new class( $this->db ) {
-			private LifecycleSqliteDb $db;
+		return new class( $this ) {
+			private LifecycleScansDb $db;
 
-			public function __construct( LifecycleSqliteDb $db ) {
+			public function __construct( LifecycleScansDb $db ) {
 				$this->db = $db;
 			}
 
 			public function updateById( int $id, array $data ) :bool {
-				return $this->db->updateRowById( 'scans', $id, $data );
+				return $this->db->updateById( $id, $data );
 			}
 		};
+	}
+
+	public function failNextUpdate() :void {
+		$this->failNextUpdate = true;
+	}
+
+	public function updateById( int $id, array $data ) :bool {
+		if ( $this->failNextUpdate ) {
+			$this->failNextUpdate = false;
+			return false;
+		}
+		return $this->db->updateRowById( 'scans', $id, $data );
 	}
 }
 
@@ -977,6 +1016,8 @@ class LifecycleEmptyDbHandler {
 	private string $table;
 
 	private ?LifecycleSqliteDb $db;
+	private bool $failNextInsert = false;
+	private int $consumedInsertFailures = 0;
 
 	public function __construct( string $table, ?LifecycleSqliteDb $db = null ) {
 		$this->table = $table;
@@ -985,6 +1026,23 @@ class LifecycleEmptyDbHandler {
 
 	public function getTable() :string {
 		return $this->table;
+	}
+
+	public function failNextInsert() :void {
+		$this->failNextInsert = true;
+	}
+
+	public function consumeInsertFailure() :bool {
+		$failed = $this->failNextInsert;
+		$this->failNextInsert = false;
+		if ( $failed ) {
+			$this->consumedInsertFailures++;
+		}
+		return $failed;
+	}
+
+	public function countConsumedInsertFailures() :int {
+		return $this->consumedInsertFailures;
 	}
 
 	public function getQuerySelector() :object {
@@ -1037,10 +1095,16 @@ class LifecycleEmptyDbHandler {
 	}
 
 	public function getQueryInserter() :object {
-		return new class {
+		return new class( $this ) {
+			private LifecycleEmptyDbHandler $db;
+
+			public function __construct( LifecycleEmptyDbHandler $db ) {
+				$this->db = $db;
+			}
+
 			public function insert( $record ) :bool {
 				unset( $record );
-				return true;
+				return !$this->db->consumeInsertFailure();
 			}
 
 			public function setInsertData( array $data ) :self {
@@ -1181,8 +1245,20 @@ class LifecycleScanController extends Base {
 	}
 
 	public function buildScanResult( array $rawResult ) :ResultItemsDB\Record {
-		unset( $rawResult );
-		return new ResultItemsDB\Record();
+		$slug = (string)( $rawResult[ 'slug' ] ?? '' );
+		$record = new ResultItemsDB\Record();
+		$record->scan = $this->slug;
+		$record->item_type = 'p';
+		$record->item_id = $slug;
+		$record->asset_type = 'plugin';
+		$record->asset_key = $slug;
+		$record->auto_filtered_at = 0;
+		$record->last_seen_at = 1700000000;
+		$record->resolved_at = 0;
+		$record->resolution_reason = '';
+		unset( $rawResult[ 'slug' ] );
+		$record->meta = $rawResult;
+		return $record;
 	}
 }
 
@@ -1288,5 +1364,30 @@ class LifecycleGeneral extends General {
 
 	public function isWpCli() :bool {
 		return false;
+	}
+}
+
+class LifecyclePlugins extends Plugins {
+
+	public function getPluginAsVo( string $file, bool $reload = false ) :?WpPluginVo {
+		unset( $reload );
+		return \strpos( $file, '/' ) === false ? null : new LifecyclePluginVo( $file );
+	}
+}
+
+class LifecyclePluginVo extends WpPluginVo {
+
+	public string $file;
+
+	public function __construct( string $file ) {
+		$this->file = $file;
+	}
+
+	public function __get( string $key ) {
+		return $key === 'slug' ? \dirname( $this->file ) : parent::__get( $key );
+	}
+
+	public function isWpOrg() :bool {
+		return true;
 	}
 }

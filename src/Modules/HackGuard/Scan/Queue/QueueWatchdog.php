@@ -66,6 +66,9 @@ class QueueWatchdog {
 
 			switch ( $scan->status ) {
 				case ScanStatus::QUEUED:
+					if ( !$this->recoverStaleQueuedScan( $scan ) ) {
+						return false;
+					}
 					break;
 
 				case ScanStatus::BUILDING:
@@ -75,8 +78,8 @@ class QueueWatchdog {
 				case ScanStatus::BUILT:
 				case ScanStatus::RUNNING:
 					$reconciled = ( new ReconcileQueue() )->reconcileReadyScan( $scan );
-					if ( $reconciled === false ) {
-						( new QueueRecovery() )->recoverReadyScan( $scan );
+					if ( $reconciled === false && !( new QueueRecovery() )->recoverReadyScan( $scan ) ) {
+						return false;
 					}
 					break;
 
@@ -131,8 +134,20 @@ class QueueWatchdog {
 			$runState->markFailed( $scan->id, ReconcileQueue::MESSAGE_TIMED_OUT );
 		}
 
-		foreach ( $this->staleScans( $cutoff, [ ScanStatus::QUEUED ] ) as $scan ) {
-			$this->touchStaleQueuedScan( $scan );
+		$builderDispatchAllowed = true;
+		/** @var ?ScansDB\Record $queuedScan */
+		$queuedScan = self::con()->db_con->scans->getQuerySelector()
+						 ->filterByStatus( ScanStatus::QUEUED )
+						 ->filterByNotFinished()
+						 ->setOrderBy( 'created_at', 'ASC', true )
+						 ->setOrderBy( 'id', 'ASC' )
+						 ->first();
+		if ( $queuedScan !== null ) {
+			$lastProcessAt = (int)$queuedScan->last_process_at;
+			$staleAt = $lastProcessAt > 0 ? $lastProcessAt : (int)$queuedScan->created_at;
+			if ( $staleAt < $cutoff ) {
+				$builderDispatchAllowed = $this->recoverStaleQueuedScan( $queuedScan );
+			}
 		}
 
 		$recovery = new QueueRecovery();
@@ -142,7 +157,7 @@ class QueueWatchdog {
 
 		$maintenance->run();
 
-		if ( $hadActive ) {
+		if ( $hadActive && $builderDispatchAllowed ) {
 			( new CompleteQueue() )->complete();
 		}
 	}
@@ -165,10 +180,37 @@ class QueueWatchdog {
 		return self::con()->prefix( 'scan_queue_watchdog' );
 	}
 
-	private function touchStaleQueuedScan( ScansDB\Record $scan ) :void {
-		self::con()->db_con->scans->getQueryUpdater()->updateById( $scan->id, [
-			'last_process_at' => Services::Request()->ts(),
-		] );
+	private function recoverStaleQueuedScan( ScansDB\Record $scan ) :bool {
+		$scanID = (int)$scan->id;
+		$meta = \is_array( $scan->meta ) ? $scan->meta : [];
+		$recovery = \is_array( $meta[ RunState::META_KEY_WATCHDOG_RECOVERY ] ?? null )
+			? $meta[ RunState::META_KEY_WATCHDOG_RECOVERY ]
+			: [];
+
+		$attempts = (int)( $recovery[ 'attempts' ] ?? 0 );
+		if ( $attempts >= QueueRecovery::MAX_RESUME_ATTEMPTS ) {
+			( new RunState() )->markFailed( $scanID, ReconcileQueue::MESSAGE_TIMED_OUT );
+			return true;
+		}
+
+		$now = Services::Request()->ts();
+		$meta[ RunState::META_KEY_WATCHDOG_RECOVERY ] = [
+			'attempts'        => $attempts + 1,
+			'last_attempt_at' => $now,
+		];
+		$scan->meta = $meta;
+		if ( !self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
+			'last_process_at' => $now,
+			'meta'            => $scan->getRawData()[ 'meta' ],
+		] ) ) {
+			error_log( \sprintf(
+				'Shield scan recovery persistence failed: scan_id=%d phase=queued',
+				$scanID
+			) );
+			return false;
+		}
+
+		return true;
 	}
 
 	private function hasActiveScans() :bool {

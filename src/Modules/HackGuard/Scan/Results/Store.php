@@ -46,13 +46,18 @@ class Store {
 			/** @var ?ResultItemsDB\Record $resultRecord */
 			$resultRecord = $existingResultRecords[ $key ] ?? null;
 			if ( $resultRecord === null ) {
-				$dbCon->scan_result_items->getQueryInserter()->insert( $scanResult );
+				if ( !$dbCon->scan_result_items->getQueryInserter()->insert( $scanResult ) ) {
+					throw new \RuntimeException( 'Scan result item insert failed.' );
+				}
 				$scanResult->id = $this->lastInsertID();
+				if ( $scanResult->id < 1 ) {
+					throw new \RuntimeException( 'Scan result item insert ID was invalid.' );
+				}
 				$resultRecord = $scanResult;
 				$existingResultRecords[ $key ] = $resultRecord;
 			}
 			else {
-				$dbCon->scan_result_items->getQueryUpdater()->updateRecord( $resultRecord, [
+				if ( !$dbCon->scan_result_items->getQueryUpdater()->updateRecord( $resultRecord, [
 					'scan'              => $scanResult->scan,
 					'asset_type'        => $scanResult->asset_type,
 					'asset_key'         => $scanResult->asset_key,
@@ -60,7 +65,9 @@ class Store {
 					'last_seen_at'      => $scanResult->last_seen_at,
 					'resolved_at'       => $scanResult->resolved_at,
 					'resolution_reason' => $scanResult->resolution_reason,
-				] );
+				] ) ) {
+					throw new \RuntimeException( 'Scan result item update failed.' );
+				}
 				$updatedResultIDs[] = (int)$resultRecord->id;
 			}
 
@@ -80,9 +87,14 @@ class Store {
 			/** @var ResultItemMetaDB\Delete $metaDeleter */
 			$metaDeleter = $dbhResItemMetas->getQueryDeleter();
 			$metaDeleter->filterByResultItems( $updatedResultIDs )->query();
+			if ( $metaDeleter->getLastQueryResult() === false ) {
+				throw new \RuntimeException( 'Scan result metadata delete failed.' );
+			}
 		}
 
-		$this->bulkInsertRows( $dbhResItemMetas->getTable(), [ 'ri_ref', 'meta_key', 'meta_value' ], $metaRows );
+		if ( !$this->bulkInsertRows( $dbhResItemMetas->getTable(), [ 'ri_ref', 'meta_key', 'meta_value' ], $metaRows ) ) {
+			throw new \RuntimeException( 'Scan result metadata insert failed.' );
+		}
 
 		$resultItemIDs = \array_values( \array_unique( \array_filter( \array_map( '\intval', $resultItemIDs ) ) ) );
 		$observedResultItemIDs = $this->loadObservedResultItemIDs( $queueItem->scan_id, $resultItemIDs );
@@ -95,7 +107,9 @@ class Store {
 				'created_at'     => $createdAt,
 			];
 		}
-		$this->bulkInsertRows( $dbCon->scan_results->getTable(), [ 'scan_ref', 'resultitem_ref', 'created_at' ], $observationRows );
+		if ( !$this->bulkInsertRows( $dbCon->scan_results->getTable(), [ 'scan_ref', 'resultitem_ref', 'created_at' ], $observationRows ) ) {
+			throw new \RuntimeException( 'Scan result observation insert failed.' );
+		}
 	}
 
 	/**

@@ -15,22 +15,24 @@ class QueueRecovery {
 	public const MAX_RESUME_ATTEMPTS = 2;
 	public const RESUME_COOLDOWN = 60;
 
-	public function recoverReadyScan( ScansDB\Record $scan ) :void {
+	public function recoverReadyScan( ScansDB\Record $scan ) :bool {
 		$scanID = (int)$scan->id;
 		if ( $scanID < 1 ) {
-			return;
+			return false;
 		}
 
 		$claimedItems = $this->startedUnfinishedItems( $scanID );
 		if ( !empty( $claimedItems ) ) {
 			$this->recoverClaimedItems( $scanID, $claimedItems );
-			return;
+			return true;
 		}
 
 		$unstartedItemID = $this->unstartedUnfinishedItemID( $scanID );
 		if ( $unstartedItemID > 0 ) {
-			$this->resumeUnstartedWork( $scan, $unstartedItemID );
+			return $this->resumeUnstartedWork( $scan, $unstartedItemID );
 		}
+
+		return true;
 	}
 
 	/**
@@ -66,10 +68,10 @@ class QueueRecovery {
 		self::con()->comps->scans_queue->getQueueProcessor()->dispatch();
 	}
 
-	private function resumeUnstartedWork( ScansDB\Record $scan, int $unstartedItemID ) :void {
+	private function resumeUnstartedWork( ScansDB\Record $scan, int $unstartedItemID ) :bool {
 		if ( $this->hasEarlierUnfinishedReadyWork( $scan, $unstartedItemID ) ) {
 			$this->touchScan( (int)$scan->id );
-			return;
+			return true;
 		}
 
 		$now = Services::Request()->ts();
@@ -80,26 +82,34 @@ class QueueRecovery {
 
 		$lastAttemptAt = (int)( $recovery[ 'last_attempt_at' ] ?? 0 );
 		if ( $lastAttemptAt > $now - self::RESUME_COOLDOWN ) {
-			return;
+			return true;
 		}
 
-		$attempts = (int)( $recovery[ 'attempts' ] ?? 0 ) + 1;
+		$attempts = (int)( $recovery[ 'attempts' ] ?? 0 );
 		if ( $attempts >= self::MAX_RESUME_ATTEMPTS ) {
 			( new RunState() )->markFailed( (int)$scan->id, ReconcileQueue::MESSAGE_TIMED_OUT );
-			return;
+			return true;
 		}
+		$attempts++;
 
 		$meta[ RunState::META_KEY_WATCHDOG_RECOVERY ] = [
 			'attempts'        => $attempts,
 			'last_attempt_at' => $now,
 		];
 		$scan->meta = $meta;
-		self::con()->db_con->scans->getQueryUpdater()->updateById( (int)$scan->id, [
+		if ( !self::con()->db_con->scans->getQueryUpdater()->updateById( (int)$scan->id, [
 			'last_process_at' => $now,
 			'meta'            => $scan->getRawData()[ 'meta' ],
-		] );
+		] ) ) {
+			error_log( \sprintf(
+				'Shield scan recovery persistence failed: scan_id=%d phase=ready-unstarted',
+				(int)$scan->id
+			) );
+			return false;
+		}
 
 		self::con()->comps->scans_queue->getQueueProcessor()->dispatch();
+		return true;
 	}
 
 	private function touchScan( int $scanID ) :void {
