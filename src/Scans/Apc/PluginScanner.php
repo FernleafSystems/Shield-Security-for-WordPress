@@ -11,44 +11,85 @@ class PluginScanner {
 	use ScanActionConsumer;
 
 	public function scan( string $pluginFile ) :array {
-		$result = [];
-
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
 
-		$plugin = Services::WpPlugins()->getPluginAsVo( $pluginFile );
-		if ( !empty( $plugin ) && $plugin->isWpOrg() ) {
-			$lastUpdatedAt = $this->getLastUpdateTime( $plugin );
-			if ( $lastUpdatedAt > 0
-				 && ( Services::Request()->ts() - $lastUpdatedAt > $action->abandoned_limit ) ) {
-				$result[ 'slug' ] = $pluginFile;
-				$result[ 'is_abandoned' ] = true;
-				$result[ 'last_updated_at' ] = $lastUpdatedAt;
-			}
+		$wpPlugins = Services::WpPlugins();
+		$plugin = $wpPlugins->getPluginAsVo( $pluginFile );
+		$pluginData = $wpPlugins->getPlugin( $pluginFile );
+		if ( !$plugin instanceof WpPluginVo
+			 || !$this->isEligibleForWpOrgScan( $plugin, \is_array( $pluginData ) ? $pluginData : [] ) ) {
+			return [];
 		}
 
-		return $result;
+		$lastUpdatedAt = $this->getVerifiedWpOrgLastUpdatedAt( $plugin );
+		if ( \is_null( $lastUpdatedAt )
+			 || Services::Request()->ts() - $lastUpdatedAt <= $action->abandoned_limit ) {
+			return [];
+		}
+
+		return [
+			'slug'            => $pluginFile,
+			'is_abandoned'    => true,
+			'last_updated_at' => $lastUpdatedAt,
+		];
 	}
 
-	private function getLastUpdateTime( WpPluginVo $plugin ) :int {
-		$lastUpdate = -1;
+	private function isEligibleForWpOrgScan( WpPluginVo $plugin, array $pluginData ) :bool {
+		return !$this->hasExternalUpdateUri( $pluginData ) && $plugin->isWpOrg();
+	}
 
-		$slug = $plugin->slug;
-		if ( !empty( $slug ) ) {
-			if ( !\function_exists( 'plugins_api' ) ) {
-				require_once path_join( ABSPATH, 'wp-admin/includes/plugin-install.php' );
-			}
-			$api = plugins_api( 'plugin_information', [
-				'slug'   => $slug,
-				'fields' => [
-					'sections' => false,
-				],
-			] );
-			if ( isset( $api->last_updated ) ) {
-				$lastUpdate = strtotime( $api->last_updated );
-			}
+	private function hasExternalUpdateUri( array $pluginData ) :bool {
+		return \trim( (string)( $pluginData[ 'UpdateURI' ] ?? $pluginData[ 'Update URI' ] ?? '' ) ) !== '';
+	}
+
+	private function getVerifiedWpOrgLastUpdatedAt( WpPluginVo $plugin ) :?int {
+		$slug = \trim( (string)$plugin->slug );
+		if ( $slug === '' ) {
+			return null;
 		}
 
-		return (int)$lastUpdate;
+		$pluginInfo = $this->queryWpOrgPluginInfo( $slug );
+		if ( \is_null( $pluginInfo ) || !$this->isMatchingWpOrgPlugin( $plugin, $slug, $pluginInfo ) ) {
+			return null;
+		}
+
+		return $this->parseLastUpdatedAt( $pluginInfo );
+	}
+
+	private function queryWpOrgPluginInfo( string $slug ) :?object {
+		if ( !\function_exists( 'plugins_api' ) ) {
+			require_once path_join( ABSPATH, 'wp-admin/includes/plugin-install.php' );
+		}
+		$pluginInfo = plugins_api( 'plugin_information', [
+			'slug'   => $slug,
+			'fields' => [
+				'sections' => false,
+			],
+		] );
+
+		return \is_wp_error( $pluginInfo ) || !\is_object( $pluginInfo ) ? null : $pluginInfo;
+	}
+
+	private function isMatchingWpOrgPlugin( WpPluginVo $plugin, string $slug, object $pluginInfo ) :bool {
+		$apiSlug = \trim( (string)( $pluginInfo->slug ?? '' ) );
+		$installedVersion = \trim( (string)$plugin->Version );
+		$apiVersion = \trim( (string)( $pluginInfo->version ?? '' ) );
+
+		return $apiSlug !== ''
+			   && \strcasecmp( $slug, $apiSlug ) === 0
+			   && $installedVersion !== ''
+			   && $apiVersion !== ''
+			   && !\version_compare( $installedVersion, $apiVersion, '>' );
+	}
+
+	private function parseLastUpdatedAt( object $pluginInfo ) :?int {
+		$lastUpdated = \trim( (string)( $pluginInfo->last_updated ?? '' ) );
+		if ( $lastUpdated === '' ) {
+			return null;
+		}
+
+		$lastUpdate = \strtotime( $lastUpdated );
+		return $lastUpdate !== false && $lastUpdate > 0 ? $lastUpdate : null;
 	}
 }

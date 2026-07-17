@@ -109,24 +109,30 @@ class AdminBarMenu {
 		$con = self::con();
 		$cache = $con->comps->scans->getAdminBarScanSummaryCache();
 		$summary = $cache->read();
-		$hasExactSummary = $summary !== null;
+		$counts = null;
 
-		if ( !$hasExactSummary ) {
+		if ( $summary === null && $canRefreshExact ) {
 			$counts = $con->comps->scans->getScanResultsCount();
+			$summary = $cache->refresh( $counts );
+		}
 
-			if ( $canRefreshExact ) {
-				$summary = $cache->refresh( $counts );
-				$hasExactSummary = $summary !== null;
-			}
+		if ( $summary !== null ) {
+			return [
+				'summary'  => $summary,
+				'is_exact' => true,
+			];
+		}
 
-			if ( !$hasExactSummary ) {
-				$summary = $counts->adminBarScanSummary( false );
-			}
+		$summary = $cache->readBounded();
+		if ( $summary === null ) {
+			$counts ??= $con->comps->scans->getScanResultsCount();
+			$computed = $counts->adminBarScanSummary( false );
+			$summary = $cache->storeBounded( $computed ) ?? $computed;
 		}
 
 		return [
 			'summary'  => $summary,
-			'is_exact' => $hasExactSummary,
+			'is_exact' => false,
 		];
 	}
 

@@ -281,10 +281,11 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 	public function test_cli_start_uses_cli_run_trigger_and_processes_without_builder_dispatch() :void {
 		$scansDb = new StartScansFakeScansDb();
 		$queue = new StartScansFakeQueue();
+		$wpDb = new StartScansFakeWpDb( $scansDb );
 		$this->installController( $scansDb, $queue );
 		ServicesState::installItems( [
 			'service_wpgeneral' => new StartScansFakeGeneral( true ),
-			'service_wpdb'      => new StartScansFakeWpDb( $scansDb ),
+			'service_wpdb'      => $wpDb,
 			'service_request'   => new UnitTestRequest(),
 		] );
 
@@ -298,6 +299,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( 0, $queue->dispatches );
 		$this->assertSame( 1, $queue->watchdogSchedules );
 		$this->assertSame( 0, $queue->staleStartBlockerChecks );
+		$this->assertSame( 1, $wpDb->queueNextChecks );
 	}
 
 	public function test_afs_asset_change_scan_creation_uses_run_trigger_contract() :void {
@@ -329,7 +331,7 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		], $scansDb->filterByScopeCalls );
 	}
 
-	public function test_wpcli_afs_asset_change_scan_processes_without_builder_dispatch() :void {
+	public function test_wpcli_afs_asset_change_scan_dispatches_builder_without_inline_processing() :void {
 		$scansDb = new StartScansFakeScansDb();
 		$queue = new StartScansFakeQueue();
 		$wpDb = new StartScansFakeWpDb( $scansDb );
@@ -350,9 +352,9 @@ class ScansControllerStartNewScansTest extends BaseUnitTest {
 		$this->assertSame( 'plugin', $record->scope_type );
 		$this->assertSame( 'akismet/akismet.php', $record->scope_key );
 		$this->assertInsertedScanRunTrigger( $record, 'asset_change' );
-		$this->assertSame( 0, $queue->dispatches );
+		$this->assertSame( 1, $queue->dispatches );
 		$this->assertSame( 1, $queue->watchdogSchedules );
-		$this->assertSame( 1, $wpDb->queueNextChecks );
+		$this->assertSame( 0, $wpDb->queueNextChecks );
 		$this->assertSame( 0, $queue->staleStartBlockerChecks );
 	}
 

@@ -360,12 +360,20 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000 );
 		$scan = new ScanRecord();
 		$scan->id = $scanID;
-		$scan->meta = [];
+		$scan->meta = [
+			RunState::META_KEY_LAST_ERROR         => 'stale builder error',
+			RunState::META_KEY_WATCHDOG_RECOVERY => [ 'attempts' => 2 ],
+			'scan_meta'                           => 'value',
+		];
 
 		( new RunState() )->markBuilding( $scan );
 		$scanRow = $harness->scanRow( $scanID );
 		$this->assertSame( 'building', $scanRow[ 'status' ] );
 		$this->assertSame( 1700000000, (int)$scanRow[ 'last_process_at' ] );
+		$this->assertSame(
+			[ 'scan_meta' => 'value' ],
+			\json_decode( \base64_decode( (string)$scanRow[ 'meta' ] ), true )
+		);
 		$harness->sql->resetQueryLog();
 
 		$this->assertFalse( ( new QueueHeartbeat() )->tickBuilding( $scanID ) );

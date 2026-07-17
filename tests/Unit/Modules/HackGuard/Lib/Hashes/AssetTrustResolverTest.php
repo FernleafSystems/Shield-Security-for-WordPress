@@ -182,6 +182,51 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$this->assertSame( 1, ResolverPlugins::$getPluginAsVoCalls );
 	}
 
+	public function test_root_plugins_resolve_and_load_exact_independent_hash_contexts() :void {
+		$cacheRoot = $this->createTrackedTempDir( 'shield-resolver-root-plugin-' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		$plugins = new ResolverPlugins( [ 'First.php', 'Second.php' ], '1.0.0' );
+		$this->installHashStoreEnvironment( $plugins, new ResolverThemes( [] ), $cacheRoot );
+		$this->writeStore( new ResolverPluginVo( 'First.php', '1.0.0' ), [
+			'First.php' => 'first-hash',
+		], $hashDir );
+		$this->writeStore( new ResolverPluginVo( 'Second.php', '1.0.0' ), [
+			'second.php' => 'second-hash',
+		], $hashDir );
+		$resolver = new AssetTrustResolver();
+		$firstPath = $this->normalisePath( WP_PLUGIN_DIR.'/First.php' );
+		$secondPath = $this->normalisePath( WP_PLUGIN_DIR.'/Second.php' );
+
+		$first = $resolver->resolveContext( $firstPath );
+		$second = $resolver->resolveContext( $secondPath );
+		$firstHashes = $resolver->getHashDataForContext( $firstPath, $first );
+		$secondHashes = $resolver->getHashDataForContext( $secondPath, $second );
+
+		$this->assertSame( [ 'plugin', 'First.php', '1.0.0', 'First.php' ], [
+			$first->assetType,
+			$first->assetKey,
+			$first->assetVersion,
+			$first->relativePath,
+		] );
+		$this->assertSame( [ 'plugin', 'Second.php', '1.0.0', 'Second.php' ], [
+			$second->assetType,
+			$second->assetKey,
+			$second->assetVersion,
+			$second->relativePath,
+		] );
+		$this->assertSame( [ 'first-hash' ], $firstHashes[ 'hashes' ] );
+		$this->assertSame( [ 'second-hash' ], $secondHashes[ 'hashes' ] );
+		$this->assertFalse( $firstHashes[ 'trusted_source' ] );
+		$this->assertFalse( $secondHashes[ 'trusted_source' ] );
+		$this->assertSame( 0, ResolverPlugins::$installedPluginFilesCalls );
+		$this->assertSame( 2, ResolverPlugins::$getPluginAsVoCalls );
+
+		$resolver->resolveContext( $firstPath );
+		$resolver->getHashDataForContext( $firstPath, $first );
+		$this->assertSame( 2, ResolverPlugins::$getPluginAsVoCalls );
+	}
+
 	public function test_repeated_same_theme_path_reuses_full_path_context() :void {
 		$this->installEnvironment( [], [ 'clean' ] );
 		$path = $this->normalisePath( WP_CONTENT_DIR.'/themes/clean/inc/File.php' );

@@ -20,7 +20,7 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\{
 
 class AssetTrustResolver {
 
-	private static array $pluginsByDir = [];
+	private static array $plugins = [];
 
 	private static array $themesByDir = [];
 
@@ -31,7 +31,7 @@ class AssetTrustResolver {
 	private static array $relativePathsByPath = [];
 
 	public static function resetMemoization() :void {
-		self::$pluginsByDir = [];
+		self::$plugins = [];
 		self::$themesByDir = [];
 		self::$contextsByPath = [];
 		self::$nonAssetMissesByPath = [];
@@ -153,12 +153,15 @@ class AssetTrustResolver {
 
 		$pluginFiles = new Plugin\Files();
 		$fragment = $pluginFiles->getPluginPathFragmentFromPath( $path );
-		if ( !\is_string( $fragment ) || \strpos( $fragment, '/' ) === false ) {
+		if ( !\is_string( $fragment ) ) {
 			throw new NonAssetFileException( 'Not a plugin file path.' );
 		}
 
-		$dir = \substr( $fragment, 0, \strpos( $fragment, '/' ) );
-		$asset = $this->pluginFromDir( $dir );
+		$separator = \strpos( $fragment, '/' );
+		$isRootPlugin = $separator === false;
+		$asset = $isRootPlugin
+			? $this->pluginFromFile( $fragment )
+			: $this->pluginFromDir( \substr( $fragment, 0, $separator ) );
 		if ( !$asset instanceof WpPluginVo ) {
 			throw new NonAssetFileException( 'Not an installed plugin file path.' );
 		}
@@ -167,7 +170,7 @@ class AssetTrustResolver {
 			'plugin',
 			(string)$asset->unique_id,
 			(string)$asset->Version,
-			$this->relativePath( 'plugin', $path, $fragment )
+			$isRootPlugin ? $fragment : $this->relativePath( 'plugin', $path, $fragment )
 		);
 	}
 
@@ -218,7 +221,8 @@ class AssetTrustResolver {
 	}
 
 	private function pluginFromDir( string $dir ) :?WpPluginVo {
-		if ( !\array_key_exists( $dir, self::$pluginsByDir ) ) {
+		$cacheKey = 'dir|'.$dir;
+		if ( !\array_key_exists( $cacheKey, self::$plugins ) ) {
 			$asset = null;
 			$plugins = Services::WpPlugins();
 			foreach ( $plugins->getInstalledPluginFiles() as $pluginFile ) {
@@ -228,9 +232,18 @@ class AssetTrustResolver {
 					break;
 				}
 			}
-			self::$pluginsByDir[ $dir ] = $asset;
+			self::$plugins[ $cacheKey ] = $asset;
 		}
-		return self::$pluginsByDir[ $dir ];
+		return self::$plugins[ $cacheKey ];
+	}
+
+	private function pluginFromFile( string $file ) :?WpPluginVo {
+		$cacheKey = 'file|'.$file;
+		if ( !\array_key_exists( $cacheKey, self::$plugins ) ) {
+			$asset = Services::WpPlugins()->getPluginAsVo( $file, true );
+			self::$plugins[ $cacheKey ] = $asset instanceof WpPluginVo ? $asset : null;
+		}
+		return self::$plugins[ $cacheKey ];
 	}
 
 	private function themeFromDir( string $dir ) :?WpThemeVo {
@@ -254,7 +267,14 @@ class AssetTrustResolver {
 	 * @throws NonAssetFileException
 	 */
 	private function assetFromContext( AssetFileContext $context ) {
-		$asset = $context->assetType === 'plugin' ? $this->pluginFromDir( \dirname( $context->assetKey ) ) : $this->themeFromDir( $context->assetKey );
+		if ( $context->assetType === 'plugin' ) {
+			$asset = \dirname( $context->assetKey ) === '.'
+				? $this->pluginFromFile( $context->assetKey )
+				: $this->pluginFromDir( \dirname( $context->assetKey ) );
+		}
+		else {
+			$asset = $this->themeFromDir( $context->assetKey );
+		}
 		if ( !$asset instanceof WpPluginVo && !$asset instanceof WpThemeVo ) {
 			throw new NonAssetFileException( 'Not a plugin or theme file path.' );
 		}

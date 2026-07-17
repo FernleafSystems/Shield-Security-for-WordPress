@@ -79,7 +79,7 @@ class Store {
 	protected function getSlug() :string {
 		if ( $this->asset->asset_type === 'plugin' ) {
 			$slug = \dirname( $this->asset->file );
-			if ( empty( $slug ) ) {
+			if ( $slug === '.' || empty( $slug ) ) {
 				$slug = $this->asset->file;
 			}
 		}

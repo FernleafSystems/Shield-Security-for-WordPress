@@ -41,8 +41,7 @@ class StoreTest extends BaseUnitTest {
 	}
 
 	public function test_store_inserts_new_observation_pair() :void {
-		$queueItemUpdates = [];
-		$wpdb = $this->installController( [], [], $queueItemUpdates );
+		$wpdb = $this->installController( [], [] );
 
 		( new Store() )->store( $this->newQueueItem(), [
 			[
@@ -54,14 +53,12 @@ class StoreTest extends BaseUnitTest {
 		$this->assertCount( 1, $observationInserts );
 		$this->assertStringContainsString( "(`scan_ref`,`resultitem_ref`,`created_at`)", $observationInserts[ 0 ] );
 		$this->assertStringContainsString( "('91','77','1700000000')", $observationInserts[ 0 ] );
-		$this->assertSame( [], $queueItemUpdates );
 	}
 
 	public function test_store_skips_duplicate_observation_pair_for_same_run() :void {
-		$queueItemUpdates = [];
 		$wpdb = $this->installController( [
 			$this->existingResultRow( 77, 'akismet/akismet.php' ),
-		], [ 77 ], $queueItemUpdates );
+		], [ 77 ] );
 
 		( new Store() )->store( $this->newQueueItem(), [
 			[
@@ -70,16 +67,14 @@ class StoreTest extends BaseUnitTest {
 		] );
 
 		$this->assertSame( [], $this->insertQueriesForTable( $wpdb, 'shield_scan_results' ) );
-		$this->assertSame( [], $queueItemUpdates );
 	}
 
 	public function test_store_batches_existing_result_and_observation_lookups() :void {
-		$queueItemUpdates = [];
 		$metaDeletes = [];
 		$wpdb = $this->installController( [
 			$this->existingResultRow( 77, 'akismet/akismet.php' ),
 			$this->existingResultRow( 78, 'hello-dolly/hello.php' ),
-		], [], $queueItemUpdates, $metaDeletes );
+		], [], $metaDeletes );
 
 		( new Store() )->store( $this->newQueueItem(), [
 			[
@@ -102,14 +97,12 @@ class StoreTest extends BaseUnitTest {
 		$observationInserts = $this->insertQueriesForTable( $wpdb, 'shield_scan_results' );
 		$this->assertCount( 1, $observationInserts );
 		$this->assertStringContainsString( "('91','77','1700000000'),('91','78','1700000000')", $observationInserts[ 0 ] );
-		$this->assertSame( [], $queueItemUpdates );
 	}
 
 	public function test_store_bulk_meta_insert_encodes_non_scalar_meta_values() :void {
-		$queueItemUpdates = [];
 		$wpdb = $this->installController( [
 			$this->existingResultRow( 77, 'akismet/akismet.php' ),
-		], [ 77 ], $queueItemUpdates );
+		], [ 77 ] );
 
 		( new Store() )->store( $this->newQueueItem(), [
 			[
@@ -126,11 +119,9 @@ class StoreTest extends BaseUnitTest {
 		$this->assertCount( 1, $metaInserts );
 		$this->assertStringContainsString( "('77','details','{\"clean\":true}')", $metaInserts[ 0 ] );
 		$this->assertSame( [], $this->insertQueriesForTable( $wpdb, 'shield_scan_results' ) );
-		$this->assertSame( [], $queueItemUpdates );
 	}
 
 	public function test_store_reuses_blank_legacy_result_item_without_overwriting_history() :void {
-		$queueItemUpdates = [];
 		$metaDeletes = [];
 		$resultItemInserts = [];
 		$resultItemUpdates = [];
@@ -141,7 +132,7 @@ class StoreTest extends BaseUnitTest {
 				'attempt_repair_at' => 1699999820,
 				'created_at'        => 1699999700,
 			] ),
-		], [], $queueItemUpdates, $metaDeletes, $resultItemInserts, $resultItemUpdates );
+		], [], $metaDeletes, $resultItemInserts, $resultItemUpdates );
 
 		( new Store() )->store( $this->newQueueItem(), [
 			[
@@ -168,18 +159,16 @@ class StoreTest extends BaseUnitTest {
 		$this->assertCount( 1, $observationInserts );
 		$this->assertStringContainsString( "('91','77','1700000000')", $observationInserts[ 0 ] );
 		$this->assertSame( [ [ 77 ] ], $metaDeletes );
-		$this->assertSame( [], $queueItemUpdates );
 	}
 
 	public function test_store_prefers_current_scan_result_item_over_matching_legacy_row() :void {
-		$queueItemUpdates = [];
 		$metaDeletes = [];
 		$resultItemInserts = [];
 		$resultItemUpdates = [];
 		$wpdb = $this->installController( [
 			$this->legacyBlankResultRow( 88, 'akismet/akismet.php' ),
 			$this->existingResultRow( 77, 'akismet/akismet.php' ),
-		], [], $queueItemUpdates, $metaDeletes, $resultItemInserts, $resultItemUpdates );
+		], [], $metaDeletes, $resultItemInserts, $resultItemUpdates );
 
 		( new Store() )->store( $this->newQueueItem(), [
 			[
@@ -194,13 +183,92 @@ class StoreTest extends BaseUnitTest {
 		$this->assertCount( 1, $observationInserts );
 		$this->assertStringContainsString( "('91','77','1700000000')", $observationInserts[ 0 ] );
 		$this->assertSame( [ [ 77 ] ], $metaDeletes );
-		$this->assertSame( [], $queueItemUpdates );
+	}
+
+	/**
+	 * @dataProvider persistenceFailureProvider
+	 * @param list<string> $expectedStages
+	 */
+	public function test_store_stops_at_failed_persistence_stage(
+		bool $hasExistingResult,
+		string $failureStage,
+		array $expectedStages,
+		string $diagnosticStage
+	) :void {
+		$wpdb = $this->installControllerForFailure( $hasExistingResult, $failureStage );
+
+		$this->assertStoreFailure( $diagnosticStage, function () :void {
+			( new Store() )->store( $this->newQueueItem(), [ [ 'item_id' => 'akismet/akismet.php' ] ] );
+		} );
+
+		$this->assertSame( $expectedStages, $wpdb->stages );
+	}
+
+	public function persistenceFailureProvider() :array {
+		return [
+			'new result insert' => [ false, 'result_insert', [ 'result_insert' ], 'result item insert' ],
+			'existing result update' => [ true, 'result_update', [ 'result_update' ], 'result item update' ],
+			'metadata delete' => [ true, 'meta_delete', [ 'result_update', 'meta_delete' ], 'metadata delete' ],
+			'metadata insert' => [ true, 'meta_insert', [ 'result_update', 'meta_delete', 'meta_insert' ], 'metadata insert' ],
+			'observation insert' => [
+				true,
+				'observation_insert',
+				[ 'result_update', 'meta_delete', 'meta_insert', 'observation_insert' ],
+				'observation insert',
+			],
+		];
+	}
+
+	public function test_store_stops_when_new_result_id_is_invalid() :void {
+		$wpdb = $this->installControllerForFailure( false, null, 0 );
+
+		$this->assertStoreFailure( 'insert ID', function () :void {
+			( new Store() )->store( $this->newQueueItem(), [ [ 'item_id' => 'akismet/akismet.php' ] ] );
+		} );
+
+		$this->assertSame( [ 'result_insert' ], $wpdb->stages );
+		$this->assertSame( [], $wpdb->insertQueries );
+	}
+
+	public function test_store_accepts_zero_row_metadata_delete_as_success() :void {
+		$wpdb = $this->installControllerForFailure( true, null, 77, 0 );
+
+		( new Store() )->store( $this->newQueueItem(), [ [ 'item_id' => 'akismet/akismet.php' ] ] );
+
+		$this->assertSame( [ 'result_update', 'meta_delete', 'meta_insert', 'observation_insert' ], $wpdb->stages );
+		$this->assertCount( 1, $this->insertQueriesForTable( $wpdb, 'shield_scan_results' ) );
+	}
+
+	public function test_store_retry_reuses_partial_result_and_restores_missing_observation() :void {
+		$firstAttempt = $this->installControllerForFailure( false, 'observation_insert' );
+		$results = [ [ 'item_id' => 'akismet/akismet.php' ] ];
+
+		$this->assertStoreFailure( 'observation insert', function () use ( $results ) :void {
+			( new Store() )->store( $this->newQueueItem(), $results );
+		} );
+		$this->assertSame( [ 'result_insert', 'meta_insert', 'observation_insert' ], $firstAttempt->stages );
+
+		$retryMetaDeletes = [];
+		$retryResultItemInserts = [];
+		$retryResultItemUpdates = [];
+		$retry = $this->installController(
+			[ $this->existingResultRow( 77, 'akismet/akismet.php' ) ],
+			[],
+			$retryMetaDeletes,
+			$retryResultItemInserts,
+			$retryResultItemUpdates
+		);
+		( new Store() )->store( $this->newQueueItem(), $results );
+
+		$this->assertSame( [], $retryResultItemInserts );
+		$this->assertCount( 1, $retryResultItemUpdates );
+		$this->assertCount( 1, $this->insertQueriesForTable( $retry, 'shield_scan_result_item_meta' ) );
+		$this->assertCount( 1, $this->insertQueriesForTable( $retry, 'shield_scan_results' ) );
 	}
 
 	public function test_existing_result_lookup_limits_legacy_candidates_to_unresolved_blank_rows() :void {
-		$queueItemUpdates = [];
 		$metaDeletes = [];
-		$wpdb = $this->installController( [], [], $queueItemUpdates, $metaDeletes );
+		$wpdb = $this->installController( [], [], $metaDeletes );
 
 		( new Store() )->store( $this->newQueueItem(), [
 			[
@@ -215,7 +283,6 @@ class StoreTest extends BaseUnitTest {
 		$this->assertStringContainsString( "`asset_key`=''", $wpdb->selectQueries[ 0 ] );
 		$this->assertStringContainsString( "`item_repaired_at`=0", $wpdb->selectQueries[ 0 ] );
 		$this->assertStringContainsString( "`item_deleted_at`=0", $wpdb->selectQueries[ 0 ] );
-		$this->assertSame( [], $queueItemUpdates );
 	}
 
 	private function insertQueriesForTable( object $wpdb, string $table ) :array {
@@ -225,23 +292,75 @@ class StoreTest extends BaseUnitTest {
 		) );
 	}
 
+	private function assertStoreFailure( string $stage, callable $operation ) :void {
+		try {
+			$operation();
+			$this->fail( 'Expected scan result persistence failure.' );
+		}
+		catch ( \RuntimeException $e ) {
+			$this->assertStringContainsString( $stage, $e->getMessage() );
+		}
+	}
+
+	private function installControllerForFailure(
+		bool $hasExistingResult,
+		?string $failingStage,
+		int $lastInsertID = 77,
+		$metaDeleteResult = 1
+	) :object {
+		$metaDeletes = [];
+		$resultItemInserts = [];
+		$resultItemUpdates = [];
+		return $this->installController(
+			$hasExistingResult ? [ $this->existingResultRow( 77, 'akismet/akismet.php' ) ] : [],
+			[],
+			$metaDeletes,
+			$resultItemInserts,
+			$resultItemUpdates,
+			$failingStage,
+			$lastInsertID,
+			$metaDeleteResult
+		);
+	}
+
 	private function installController(
 		array $existingResultRows,
 		array $observedResultItemIDs,
-		array &$queueItemUpdates,
 		array &$metaDeletes = [],
 		array &$resultItemInserts = [],
-		array &$resultItemUpdates = []
+		array &$resultItemUpdates = [],
+		?string $failingStage = null,
+		int $lastInsertID = 77,
+		$metaDeleteResult = 1
 	) :object {
-		$wpdb = new class( $existingResultRows, $observedResultItemIDs ) extends Db {
+		$wpdb = new class(
+			$existingResultRows,
+			$observedResultItemIDs,
+			$failingStage,
+			$lastInsertID,
+			$metaDeleteResult
+		) extends Db {
 			public array $selectQueries = [];
 			public array $insertQueries = [];
+			public array $stages = [];
 			private array $existingResultRows;
 			private array $observedResultItemIDs;
+			private ?string $failingStage;
+			private int $lastInsertID;
+			private $metaDeleteResult;
 
-			public function __construct( array $existingResultRows, array $observedResultItemIDs ) {
+			public function __construct(
+				array $existingResultRows,
+				array $observedResultItemIDs,
+				?string $failingStage,
+				int $lastInsertID,
+				$metaDeleteResult
+			) {
 				$this->existingResultRows = $existingResultRows;
 				$this->observedResultItemIDs = $observedResultItemIDs;
+				$this->failingStage = $failingStage;
+				$this->lastInsertID = $lastInsertID;
+				$this->metaDeleteResult = $metaDeleteResult;
 			}
 
 			public function selectCustom( $query, $format = null ) {
@@ -261,12 +380,24 @@ class StoreTest extends BaseUnitTest {
 
 			public function getVar( $sql ) {
 				unset( $sql );
-				return 77;
+				return $this->lastInsertID;
 			}
 
 			public function doSql( string $sqlQuery ) {
 				$this->insertQueries[] = $sqlQuery;
-				return 1;
+				$stage = \strpos( $sqlQuery, '`shield_scan_result_item_meta`' ) !== false
+					? 'meta_insert'
+					: 'observation_insert';
+				$this->stages[] = $stage;
+				return $this->failsAt( $stage ) ? false : 1;
+			}
+
+			public function failsAt( string $stage ) :bool {
+				return $this->failingStage === $stage;
+			}
+
+			public function metaDeleteResult() {
+				return $this->metaDeleteResult;
 			}
 		};
 		ServicesState::installItems( [
@@ -302,13 +433,15 @@ class StoreTest extends BaseUnitTest {
 			},
 		];
 		$controller->db_con = (object)[
-			'scan_result_items' => new class( $resultItemInserts, $resultItemUpdates ) {
+			'scan_result_items' => new class( $wpdb, $resultItemInserts, $resultItemUpdates ) {
+				private object $wpdb;
 				private array $resultItemInserts;
 				private array $resultItemUpdates;
 
-				public function __construct( array &$resultItemInserts, array &$resultItemUpdates ) {
-					$this->resultItemInserts = &$resultItemInserts;
-					$this->resultItemUpdates = &$resultItemUpdates;
+				public function __construct( object $wpdb, array &$resultItemInserts, array &$resultItemUpdates ) {
+					$this->wpdb = $wpdb;
+					$this->resultItemInserts =& $resultItemInserts;
+					$this->resultItemUpdates =& $resultItemUpdates;
 				}
 
 				public function getTable() :string {
@@ -316,14 +449,20 @@ class StoreTest extends BaseUnitTest {
 				}
 
 				public function getQueryInserter() :object {
-					return new class( $this->resultItemInserts ) {
+					return new class( $this->wpdb, $this->resultItemInserts ) {
+						private object $wpdb;
 						private array $resultItemInserts;
 
-						public function __construct( array &$resultItemInserts ) {
-							$this->resultItemInserts = &$resultItemInserts;
+						public function __construct( object $wpdb, array &$resultItemInserts ) {
+							$this->wpdb = $wpdb;
+							$this->resultItemInserts =& $resultItemInserts;
 						}
 
 						public function insert( ResultItemRecord $record ) :bool {
+							$this->wpdb->stages[] = 'result_insert';
+							if ( $this->wpdb->failsAt( 'result_insert' ) ) {
+								return false;
+							}
 							$this->resultItemInserts[] = [
 								'scan'              => $record->scan,
 								'item_type'         => $record->item_type,
@@ -341,14 +480,20 @@ class StoreTest extends BaseUnitTest {
 				}
 
 				public function getQueryUpdater() :object {
-					return new class( $this->resultItemUpdates ) {
+					return new class( $this->wpdb, $this->resultItemUpdates ) {
+						private object $wpdb;
 						private array $resultItemUpdates;
 
-						public function __construct( array &$resultItemUpdates ) {
-							$this->resultItemUpdates = &$resultItemUpdates;
+						public function __construct( object $wpdb, array &$resultItemUpdates ) {
+							$this->wpdb = $wpdb;
+							$this->resultItemUpdates =& $resultItemUpdates;
 						}
 
 						public function updateRecord( ResultItemRecord $record, array $data ) :bool {
+							$this->wpdb->stages[] = 'result_update';
+							if ( $this->wpdb->failsAt( 'result_update' ) ) {
+								return false;
+							}
 							$this->resultItemUpdates[] = [
 								'id'   => (int)$record->id,
 								'data' => $data,
@@ -358,11 +503,13 @@ class StoreTest extends BaseUnitTest {
 					};
 				}
 			},
-			'scan_result_item_meta' => new class( $metaDeletes ) {
-				public array $metaDeletes;
+			'scan_result_item_meta' => new class( $wpdb, $metaDeletes ) {
+				private object $wpdb;
+				private array $metaDeletes;
 
-				public function __construct( array &$metaDeletes ) {
-					$this->metaDeletes = &$metaDeletes;
+				public function __construct( object $wpdb, array &$metaDeletes ) {
+					$this->wpdb = $wpdb;
+					$this->metaDeletes =& $metaDeletes;
 				}
 
 				public function getTable() :string {
@@ -370,12 +517,15 @@ class StoreTest extends BaseUnitTest {
 				}
 
 				public function getQueryDeleter() :object {
-					return new class( $this->metaDeletes ) {
-						public array $metaDeletes;
+					return new class( $this->wpdb, $this->metaDeletes ) {
+						private object $wpdb;
+						private array $metaDeletes;
 						private array $ids = [];
+						private $lastQueryResult = null;
 
-						public function __construct( array &$metaDeletes ) {
-							$this->metaDeletes = &$metaDeletes;
+						public function __construct( object $wpdb, array &$metaDeletes ) {
+							$this->wpdb = $wpdb;
+							$this->metaDeletes =& $metaDeletes;
 						}
 
 						public function filterByResultItems( array $resultItemIDs ) :self {
@@ -384,8 +534,16 @@ class StoreTest extends BaseUnitTest {
 						}
 
 						public function query() :bool {
+							$this->wpdb->stages[] = 'meta_delete';
 							$this->metaDeletes[] = $this->ids;
-							return true;
+							$this->lastQueryResult = $this->wpdb->failsAt( 'meta_delete' )
+								? false
+								: $this->wpdb->metaDeleteResult();
+							return $this->lastQueryResult !== false && $this->lastQueryResult > 0;
+						}
+
+						public function getLastQueryResult() {
+							return $this->lastQueryResult;
 						}
 					};
 				}
@@ -394,31 +552,6 @@ class StoreTest extends BaseUnitTest {
 			'scan_results' => new class {
 				public function getTable() :string {
 					return 'shield_scan_results';
-				}
-			},
-			'scan_items' => new class( $queueItemUpdates ) {
-				public array $queueItemUpdates;
-
-				public function __construct( array &$queueItemUpdates ) {
-					$this->queueItemUpdates = &$queueItemUpdates;
-				}
-
-				public function getQueryUpdater() :object {
-					return new class( $this->queueItemUpdates ) {
-						public array $queueItemUpdates;
-
-						public function __construct( array &$queueItemUpdates ) {
-							$this->queueItemUpdates = &$queueItemUpdates;
-						}
-
-						public function updateById( int $queueItemID, array $data ) :bool {
-							$this->queueItemUpdates[] = [
-								'id'   => $queueItemID,
-								'data' => $data,
-							];
-							return true;
-						}
-					};
 				}
 			},
 		];

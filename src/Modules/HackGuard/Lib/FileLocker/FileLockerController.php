@@ -8,12 +8,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Services\Utilities\PasswordGenerator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exceptions\{
-	FileContentsEncodingFailure,
-	FileContentsEncryptionFailure,
-	LockDbInsertFailure,
 	NoCipherAvailableException,
 	NoFileLockPathsExistException,
-	PublicKeyRetrievalFailure,
 	UnsupportedFileLockType
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\{
@@ -191,6 +187,15 @@ class FileLockerController {
 		       >= self::ANALYSIS_COOLDOWN;
 	}
 
+	protected function createLocksForType( string $type ) :void {
+		if ( !$this->canEncrypt() ) {
+			throw new NoCipherAvailableException();
+		}
+
+		( new Ops\CreateFileLocks( ( new Ops\BuildFileFromFileKey() )->build( $type ) ) )
+			->create();
+	}
+
 	/**
 	 * There's at least 60 seconds between each attempt to create a file lock.
 	 * This ensures our API isn't bombarded by sites that, for some reason, fail to store the lock in the DB.
@@ -201,25 +206,17 @@ class FileLockerController {
 
 		$state = $this->getState();
 		if ( !empty( $filesToLock )
-		     && $now - $state[ 'last_locks_created_at' ] > 1
-		     && $now - $state[ 'last_locks_created_failed_at' ] > 1
+		     && $now - $state[ 'last_locks_created_at' ] >= self::CRON_DELAY
+		     && $now - $state[ 'last_locks_created_failed_at' ] >= self::CRON_DELAY
 		) {
 			foreach ( $filesToLock as $type ) {
 				try {
-					if ( !$this->canEncrypt() ) {
-						throw new NoCipherAvailableException();
-					}
-
-					( new Ops\CreateFileLocks( ( new Ops\BuildFileFromFileKey() )->build( $type ) ) )
-						->create();
+					$this->createLocksForType( $type );
 					$state[ 'last_locks_created_at' ] = $now;
 					$state[ 'last_error' ] = '';
 				}
-				catch ( NoFileLockPathsExistException|LockDbInsertFailure
-				|FileContentsEncodingFailure|FileContentsEncryptionFailure
-				|NoCipherAvailableException|PublicKeyRetrievalFailure
-				|UnsupportedFileLockType $e ) {
-					// Remove the key if there are no files on-disk to lock
+				catch ( NoFileLockPathsExistException|UnsupportedFileLockType $e ) {
+					// Remove selections that cannot produce a file lock on this site.
 					self::con()->opts->optSet( 'file_locker', \array_diff( $this->getFilesToLock(), [ $type ] ) );
 					error_log( $e->getMessage() );
 				}
