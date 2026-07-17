@@ -273,7 +273,6 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		string $assetType
 	) :void {
 		$scenario = $this->afsAssetScenario( $assetType );
-		$pathFragment = TestDataFactory::afsFileItemIdFromPath( $scenario[ 'path_full' ] );
 		$notifiedAt = Services::Request()->ts() - 60;
 
 		$initialScanId = TestDataFactory::insertCompletedScan( 'afs' );
@@ -297,7 +296,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertNotEmpty( $resultItem );
 		$this->assertSame( $notifiedAt, (int)$resultItem->notified_at );
 		$this->assertSame( 0, (int)$resultItem->resolved_at );
-		$this->assertSame( 1, $this->countAfsResultItemsForPath( $pathFragment ) );
+		$this->assertSame( 1, $this->countAfsResultItemsForPath( $scenario[ 'path_full' ] ) );
 		$this->assertSame( 1, $this->countAfsScanResultLinks( $replacementScanId, (int)$tracked[ 'result_item_id' ] ) );
 		$staleItem = self::con()->db_con->scan_result_items->getQuerySelector()
 			->byId( (int)$stale[ 'result_item_id' ] );
