@@ -77,8 +77,6 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_root_plugin_results_persist_exact_owners_and_complete_only_matching_scope() :void {
 		$first = [
-			'asset_type' => 'plugin',
-			'asset_key'  => 'first.php',
 			'path_full'  => \wp_normalize_path( WP_PLUGIN_DIR.'/first.php' ),
 			'meta'       => [
 				'is_in_plugin'    => 1,
@@ -87,8 +85,6 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 			],
 		];
 		$second = [
-			'asset_type' => 'plugin',
-			'asset_key'  => 'second.php',
 			'path_full'  => \wp_normalize_path( WP_PLUGIN_DIR.'/second.php' ),
 			'meta'       => [
 				'is_in_plugin'    => 1,
@@ -99,11 +95,8 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		$initialScanID = $this->insertAfsScan( 'full', '', [
 			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
 		], 'manual' );
-		$this->storeAfsObservation( $initialScanID, $first );
-		$this->storeAfsObservation( $initialScanID, $second );
-
-		$firstItem = $this->afsResultItemForPath( $first[ 'path_full' ] );
-		$secondItem = $this->afsResultItemForPath( $second[ 'path_full' ] );
+		$firstItem = $this->storeAfsObservation( $initialScanID, $first );
+		$secondItem = $this->storeAfsObservation( $initialScanID, $second );
 		$this->assertSame( 'plugin', (string)$firstItem->asset_type );
 		$this->assertSame( 'first.php', (string)$firstItem->asset_key );
 		$this->assertSame( 'plugin', (string)$secondItem->asset_type );
@@ -524,17 +517,6 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function findingPath( string $suffix ) :string {
 		return \wp_normalize_path( \path_join( ABSPATH, 'shield-coverage-'.$suffix.'.php' ) );
-	}
-
-	private function afsResultItemForPath( string $path ) {
-		global $wpdb;
-		$id = (int)$wpdb->get_var( $wpdb->prepare(
-			"SELECT `id` FROM `".self::con()->db_con->scan_result_items->getTable()."` WHERE `scan`=%s AND `item_id`=%s",
-			'afs',
-			$path
-		) );
-		$this->assertGreaterThan( 0, $id );
-		return self::con()->db_con->scan_result_items->getQuerySelector()->byId( $id );
 	}
 
 	private function buildAlertReport() :ReportVO {
