@@ -30,6 +30,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	ReconcileQueue,
 	RunState
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\ScanQueueLifecycleHarness;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -38,6 +39,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 };
 
 class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
+	use TempDirLifecycleTrait;
 
 	private array $servicesSnapshot = [];
 
@@ -47,6 +49,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
+		$this->cleanupTrackedTempDirs();
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
 		parent::tearDown();
@@ -101,7 +104,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 	}
 
 	public function test_afs_asset_start_resumes_same_scope_stale_built_blocker_without_duplicate_row() :void {
-		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness = ( new ScanQueueLifecycleHarness() )->install( true );
 		$scanID = $harness->insertScan( [
 			'scan'            => 'afs',
 			'status'          => 'built',
@@ -122,6 +125,56 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
 		$this->assertArrayHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $scanID ) ) );
 		$this->assertTrue( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanq_cron' ) );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanq' );
+	}
+
+	public function test_wpcli_asset_start_leaves_unrelated_queue_work_untouched() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install( true );
+		$unrelatedID = $harness->insertScan( [
+			'scan'       => 'wpv',
+			'status'     => 'queued',
+			'created_at' => 1699999900,
+		] );
+		$harness->async->resetTransport();
+
+		$started = ( new LifecycleScansControllerTestDouble() )->startAfsAssetScan( 'plugin', 'root-plugin.php' );
+		$assetID = $unrelatedID + 1;
+
+		$this->assertTrue( $started );
+		$this->assertSame( 'queued', $harness->scanRow( $unrelatedID )[ 'status' ] );
+		$this->assertSame( 'queued', $harness->scanRow( $assetID )[ 'status' ] );
+		$this->assertSame( 0, $harness->countScanItems( $unrelatedID ) );
+		$this->assertSame( 0, $harness->countScanItems( $assetID ) );
+		$this->assertSame( 'plugin', $harness->scanRow( $assetID )[ 'scope_type' ] );
+		$this->assertSame( 'root-plugin.php', $harness->scanRow( $assetID )[ 'scope_key' ] );
+		$this->assertSame( 'asset_change', $harness->scanRow( $assetID )[ 'run_trigger' ] );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanqbuild' );
+		$this->assertTrue( $harness->async->hasScheduledHook( ( new QueueWatchdog() )->hook() ) );
+	}
+
+	public function test_wpcli_asset_scan_completes_through_normal_queue_workers() :void {
+		$harness = ( new ScanQueueLifecycleHarness( 1700000000, [
+			'afs' => [ \base64_encode( '0' ) ],
+		] ) )
+			->install( true )
+			->installAfsWorkerEnvironment( $this->createTrackedTempDir( 'shield-scan-queue-afs-' ) );
+		$this->assertTrue( ( new LifecycleScansControllerTestDouble() )->startAfsAssetScan( 'plugin', 'root-plugin.php' ) );
+		$assetID = 1;
+
+		$harness->builder()->handle_cron_healthcheck();
+		$this->assertSame( 'built', $harness->scanRow( $assetID )[ 'status' ] );
+		$this->assertSame( 1, $harness->countScanItems( $assetID ) );
+		$this->assertSame( 0, (int)$harness->scanItemRow( 1 )[ 'started_at' ] );
+
+		$harness->processor()->handle_cron_healthcheck();
+		$scan = $harness->scanRow( $assetID );
+		$this->assertSame( 'completed', $scan[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'started_at' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'last_process_at' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'finished_at' ] );
+		$this->assertSame( 0, $harness->countScanItems( $assetID ) );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $scan ) );
+		$this->assertSame( 1, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
 	}
 
 	public function test_afs_asset_start_replaces_same_scope_stale_building_blocker() :void {

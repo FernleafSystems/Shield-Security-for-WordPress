@@ -242,6 +242,48 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( [], $wpDb->queries );
 	}
 
+	public function test_same_version_root_plugins_keep_isolated_local_snapshots_when_one_is_rebuilt() :void {
+		$first = new SnapshotPluginVo( 'first.php', '1.0.0' );
+		$second = new SnapshotPluginVo( 'second.php', '1.0.0' );
+		$firstPath = WP_PLUGIN_DIR.'/'.$first->file;
+		$secondPath = WP_PLUGIN_DIR.'/'.$second->file;
+		$this->writeFile( $firstPath, 'first-content' );
+		$this->writeFile( $secondPath, 'second-content' );
+
+		$scans = new AssetChangeCleanupScans();
+		$this->installController( $scans );
+		$this->installSnapshotEnvironment(
+			new SnapshotPlugins( [ $first, $second ] ),
+			new SnapshotThemes( [] )
+		);
+		ServicesState::mergeItems( [ 'service_wpdb' => new AssetChangeCleanupWpDb() ] );
+
+		( new Cleanup() )->run( 'plugin', $first->file );
+		( new Cleanup() )->run( 'plugin', $second->file );
+
+		$firstStore = ( new Load() )->setAsset( $first )->run();
+		$secondStore = ( new Load() )->setAsset( $second )->run();
+		$this->assertNotSame( $firstStore->getSnapStorePath(), $secondStore->getSnapStorePath() );
+		$this->assertNotSame( $firstStore->getSnapStoreMetaPath(), $secondStore->getSnapStoreMetaPath() );
+		$this->assertSame( [ 'first.php' => \md5_file( $firstPath ) ], $firstStore->getSnapData() );
+		$this->assertSame( [ 'second.php' => \md5_file( $secondPath ) ], $secondStore->getSnapData() );
+		$this->assertSame( 'first.php', $firstStore->getSnapMeta()[ 'unique_id' ] );
+		$this->assertSame( 'second.php', $secondStore->getSnapMeta()[ 'unique_id' ] );
+
+		$secondDataBefore = $secondStore->getSnapData();
+		$secondMetaBefore = $secondStore->getSnapMeta();
+		$this->writeFile( $firstPath, 'first-rebuilt-content' );
+		( new Cleanup() )->run( 'plugin', $first->file );
+
+		$rebuiltFirst = ( new Load() )->setAsset( $first )->run();
+		$untouchedSecond = ( new Load() )->setAsset( $second )->run();
+		$this->assertSame( [ 'first.php' => \md5_file( $firstPath ) ], $rebuiltFirst->getSnapData() );
+		$this->assertSame( $secondDataBefore, $untouchedSecond->getSnapData() );
+		$this->assertSame( $secondMetaBefore, $untouchedSecond->getSnapMeta() );
+		$this->assertTrue( $rebuiltFirst->verify() );
+		$this->assertTrue( $untouchedSecond->verify() );
+	}
+
 	public function test_plugin_cleanup_resets_same_request_hash_miss_after_snapshot_build() :void {
 		$plugin = new SnapshotPluginVo( 'cleanup-reset-plugin/cleanup-reset.php', '2.0.0' );
 		$path = WP_PLUGIN_DIR.'/'.$plugin->file;

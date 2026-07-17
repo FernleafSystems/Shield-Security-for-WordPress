@@ -15,11 +15,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueuePr
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueWatchdog;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
+	CacheStore\CacheStoreTestCacheDir,
 	PluginControllerInstaller,
 	ServicesState
 };
 use FernleafSystems\Wordpress\Services\Core\{
 	Db,
+	Fs,
 	General,
 	Plugins,
 	Request
@@ -69,17 +71,51 @@ class ScanQueueLifecycleHarness {
 		$this->actionRouter = new LifecycleActionRouter();
 	}
 
-	public function install() :self {
+	public function install( bool $isWpCli = false ) :self {
 		$this->installWordPressFunctions();
+		$general = new LifecycleGeneral();
+		$general->wpCli = $isWpCli;
 		ServicesState::installItems( [
 			'service_request'   => new LifecycleRequest( $this->now ),
 			'service_wpdb'      => $this->sql,
-			'service_wpgeneral' => new LifecycleGeneral(),
+			'service_wpgeneral' => $general,
 			'service_wpplugins' => new LifecyclePlugins(),
 		] );
 		$this->installController();
 		$this->queueComponent->builder = new QueueBuilder();
 		$this->queueComponent->processor = new QueueProcessor();
+		return $this;
+	}
+
+	public function installAfsWorkerEnvironment( string $cacheRoot ) :self {
+		Functions\when( 'path_join' )->alias(
+			static fn( string $base, string $path ) :string => \rtrim( $base, '/\\' ).'/'.\ltrim( $path, '/\\' )
+		);
+
+		$patternsDir = \rtrim( $cacheRoot, '/\\' ).'/scans';
+		if ( !\is_dir( $patternsDir ) && !@\mkdir( $patternsDir, 0777, true ) && !\is_dir( $patternsDir ) ) {
+			throw new \RuntimeException( 'Failed to create AFS patterns cache directory.' );
+		}
+
+		$patterns = \json_encode( [
+			'raw'       => [],
+			're'        => [],
+			'iraw'      => [],
+			'functions' => [],
+			'keywords'  => [],
+		] );
+		$compressed = \is_string( $patterns ) ? \gzdeflate( $patterns ) : false;
+		$patternsFile = $patternsDir.'/malcache_patterns_v2.txt';
+		if ( !\is_string( $compressed )
+			 || \file_put_contents( $patternsFile, $compressed ) === false
+			 || !\touch( $patternsFile, $this->now ) ) {
+			throw new \RuntimeException( 'Failed to prepare AFS patterns cache.' );
+		}
+
+		$this->controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
+		ServicesState::mergeItems( [
+			'service_wpfs' => new LifecycleAfsFs(),
+		] );
 		return $this;
 	}
 
@@ -565,7 +601,12 @@ class LifecycleSqliteDb extends Db {
 			`attempts` INTEGER NOT NULL DEFAULT 0,
 			`finished_at` INTEGER NOT NULL DEFAULT 0
 		)' );
-		$this->pdo->exec( 'CREATE TABLE `scan_results` (`id` INTEGER PRIMARY KEY AUTOINCREMENT)' );
+		$this->pdo->exec( 'CREATE TABLE `scan_results` (
+			`id` INTEGER PRIMARY KEY AUTOINCREMENT,
+			`scan_ref` INTEGER NOT NULL DEFAULT 0,
+			`resultitem_ref` INTEGER NOT NULL DEFAULT 0,
+			`created_at` INTEGER NOT NULL DEFAULT 0
+		)' );
 		$this->pdo->exec( 'CREATE TABLE `scan_result_items` (
 			`id` INTEGER PRIMARY KEY AUTOINCREMENT,
 			`scan` TEXT NOT NULL DEFAULT "",
@@ -1176,6 +1217,10 @@ class LifecycleScansComponent {
 		return $this->controllers[ $slug ] ?? null;
 	}
 
+	public function AFS() :LifecycleScanController {
+		return $this->controllers[ 'afs' ];
+	}
+
 	public function getScanSlugs() :array {
 		return \array_keys( $this->controllers );
 	}
@@ -1333,6 +1378,10 @@ class LifecycleOptsLookup {
 	public function isPluginEnabled() :bool {
 		return true;
 	}
+
+	public function isScanAutoFilterResults() :bool {
+		return false;
+	}
 }
 
 class LifecycleFileLocker {
@@ -1361,9 +1410,30 @@ class LifecycleRequest extends Request {
 }
 
 class LifecycleGeneral extends General {
+	public bool $wpCli = false;
 
 	public function isWpCli() :bool {
-		return false;
+		return $this->wpCli;
+	}
+}
+
+class LifecycleAfsFs extends Fs {
+
+	public function exists( $path ) :?bool {
+		return \file_exists( $path );
+	}
+
+	public function getModifiedTime( string $path ) :int {
+		return (int)\filemtime( $path );
+	}
+
+	public function getFileContent( $path, $uncompress = false ) {
+		$content = \file_get_contents( $path );
+		if ( \is_string( $content ) && $uncompress ) {
+			$inflated = \gzinflate( $content );
+			$content = \is_string( $inflated ) ? $inflated : null;
+		}
+		return $content;
 	}
 }
 

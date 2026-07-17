@@ -372,11 +372,6 @@ class ScansController {
 		$queue = self::con()->comps->scans_queue;
 		if ( $createdScan ) {
 			$queue->getQueueWatchdog()->scheduleIfActive();
-		}
-		if ( Services::WpGeneral()->isWpCli() ) {
-			( new ProcessQueueWpcli() )->execute();
-		}
-		elseif ( $createdScan ) {
 			$queue->getQueueBuilder()->dispatch();
 		}
 
