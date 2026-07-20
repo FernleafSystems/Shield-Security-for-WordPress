@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
@@ -25,6 +26,7 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 	public function tear_down() {
 		$this->restoreSelectedOptions( $this->optionSnapshot );
 		if ( static::con() !== null ) {
+			\wp_clear_scheduled_hook( static::con()->prefix( 'create_file_locks' ) );
 			static::con()->comps->file_locker->clearLocks();
 		}
 		foreach ( $this->tempPaths as $path ) {
@@ -62,11 +64,62 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
 		$this->assertSame( 1, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
 
+		$handler::GetTableReadyCache()->setReady( $handler->getTableSchema() );
+		$this->assertTrue( $handler::GetTableReadyCache()->isReady( $handler->getTableSchema() ) );
+
 		$con->comps->file_locker->purge();
+
+		$this->assertFalse( $handler::GetTableReadyCache()->isReady( $handler->getTableSchema() ) );
 
 		$reloadedHandler = RuntimeTestState::requireDbHandler( 'file_locker', true );
 		$this->assertTrue( $reloadedHandler->tableExists() );
 		$this->assertSame( 0, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$reloadedHandler->getTable()}" ) );
+	}
+
+	public function test_run_analysis_keeps_file_locker_when_stored_abspath_has_dot_segment() :void {
+		$con = $this->requireController();
+		$this->requireFileLockerAnalysisRuntime();
+		$this->prepareFileLockerRuntime( [ 'wpconfig', 'root_index' ] );
+
+		$state = $con->comps->file_locker->getState();
+		$state[ 'abspath' ] = $this->abspathWithDotSegment();
+		$con->opts->optSet( 'filelocker_state', $state )->store();
+
+		$this->runFileLockerAnalysis();
+
+		$this->assertSame( [ 'wpconfig', 'root_index' ], $con->opts->optGet( 'file_locker' ) );
+	}
+
+	public function test_run_analysis_clears_file_locker_when_stored_abspath_is_genuinely_different() :void {
+		$con = $this->requireController();
+		$this->requireFileLockerAnalysisRuntime();
+		$this->prepareFileLockerRuntime( [ 'wpconfig', 'root_index' ] );
+
+		$missingAbsPath = $this->missingDifferentAbsPath();
+		$this->assertFalse( \realpath( $missingAbsPath ) );
+
+		$state = $con->comps->file_locker->getState();
+		$state[ 'abspath' ] = $missingAbsPath;
+		$con->opts->optSet( 'filelocker_state', $state )->store();
+
+		$this->runFileLockerAnalysis();
+
+		$this->assertSame( [], $con->opts->optGet( 'file_locker' ) );
+		RuntimeTestState::requireDbHandler( 'file_locker', true );
+	}
+
+	public function test_run_analysis_handles_non_string_stored_abspath_without_disabling_file_locker() :void {
+		$con = $this->requireController();
+		$this->requireFileLockerAnalysisRuntime();
+		$this->prepareFileLockerRuntime( [ 'wpconfig', 'root_index' ] );
+
+		$state = $con->comps->file_locker->getState();
+		$state[ 'abspath' ] = false;
+		$con->opts->optSet( 'filelocker_state', $state )->store();
+
+		$this->runFileLockerAnalysis();
+
+		$this->assertSame( [ 'wpconfig', 'root_index' ], $con->opts->optGet( 'file_locker' ) );
 	}
 
 	public function test_reassess_locks_now_clears_stale_problem_state_without_touching_cooldown() :void {
@@ -118,26 +171,66 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$pendingDisplays = ( new GetPendingFileLockDisplays() )->run();
 
-		$this->assertSame( [ 'root_index' ], \array_column( $pendingDisplays, 'file_key' ) );
-		$this->assertSame( [ 'index.php' ], \array_column( $pendingDisplays, 'title' ) );
-		$this->assertSame(
-			[ \wp_normalize_path( ABSPATH.'index.php' ) ],
-			\array_column( $pendingDisplays, 'path' )
-		);
+		$this->assertCount( 1, $pendingDisplays );
+		$this->assertSame( 'root_index', $pendingDisplays[ 0 ][ 'file_key' ] );
+		$this->assertSame( 'index.php', $pendingDisplays[ 0 ][ 'title' ] );
+		$this->assertSame( \wp_normalize_path( $pendingDisplays[ 0 ][ 'path' ] ), $pendingDisplays[ 0 ][ 'path' ] );
+		$this->assertTrue( Services::WpFs()->isAccessibleFile( $pendingDisplays[ 0 ][ 'path' ] ) );
 	}
 
 	/**
 	 * Optional file-locker storage is only ready after the feature is enabled
 	 * and ShieldNet-backed runtime prerequisites are in place.
 	 */
-	private function prepareFileLockerRuntime( array $lockTypes ) {
+	private function prepareFileLockerRuntime( array $lockTypes ) :FileLockerDB\Handler {
 		$con = $this->requireController();
 		RuntimeTestState::primeShieldNetHandshake();
 		$con->opts->optSet( 'file_locker', $lockTypes )->store();
 
 		$handler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$handler->tableDelete( true );
+		$handler = RuntimeTestState::requireDbHandler( 'file_locker', true );
 		$con->comps->file_locker->clearLocks();
 
 		return $handler;
+	}
+
+	private function requireFileLockerAnalysisRuntime() :void {
+		$con = $this->requireController();
+		if ( \version_compare( $con->cfg->version(), '19.0.7', '<=' ) ) {
+			$this->markTestSkipped( 'File Locker analysis path is disabled for this version.' );
+		}
+
+		if ( !Services::Encrypt()->isSupportedOpenSslDataEncryption() ) {
+			$this->markTestSkipped( 'OpenSSL data encryption is unavailable.' );
+		}
+	}
+
+	private function runFileLockerAnalysis() :void {
+		$method = new \ReflectionMethod( $this->requireController()->comps->file_locker, 'runAnalysis' );
+		$method->setAccessible( true );
+		$method->invoke( $this->requireController()->comps->file_locker );
+	}
+
+	private function abspathWithDotSegment() :string {
+		$current = \untrailingslashit( \wp_normalize_path( ABSPATH ) );
+		$variant = \trailingslashit( \dirname( $current ).'/./'.\basename( $current ) );
+
+		$currentRealPath = \realpath( ABSPATH );
+		$variantRealPath = \realpath( $variant );
+		if ( !\is_string( $currentRealPath )
+			 || !\is_string( $variantRealPath )
+			 || \wp_normalize_path( $currentRealPath ) !== \wp_normalize_path( $variantRealPath )
+		) {
+			$this->markTestSkipped( 'Test ABSPATH cannot be represented with a matching dot-segment variant.' );
+		}
+
+		return $variant;
+	}
+
+	private function missingDifferentAbsPath() :string {
+		return \trailingslashit( \wp_normalize_path(
+			\sys_get_temp_dir().'/shield-missing-abspath-'.\uniqid()
+		) );
 	}
 }

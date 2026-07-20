@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\{
 	ReportVO
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data\BuildForScans;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 	RuntimeTestState,
 	TestDataFactory
@@ -272,7 +273,6 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		string $assetType
 	) :void {
 		$scenario = $this->afsAssetScenario( $assetType );
-		$pathFragment = TestDataFactory::afsFileItemIdFromPath( $scenario[ 'path_full' ] );
 		$notifiedAt = Services::Request()->ts() - 60;
 
 		$initialScanId = TestDataFactory::insertCompletedScan( 'afs' );
@@ -285,7 +285,8 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 
 		$replacementScanId = $this->insertAfsScan(
 			$scenario[ 'scope_type' ],
-			$scenario[ 'scope_key' ]
+			$scenario[ 'scope_key' ],
+			[ $this->afsIntegrityCoverageFamily( $assetType ) ]
 		);
 		$this->storeAfsObservation( $replacementScanId, $scenario );
 		$this->assertTrue( ( new SetScanCompleted() )->run( $replacementScanId ) );
@@ -295,7 +296,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertNotEmpty( $resultItem );
 		$this->assertSame( $notifiedAt, (int)$resultItem->notified_at );
 		$this->assertSame( 0, (int)$resultItem->resolved_at );
-		$this->assertSame( 1, $this->countAfsResultItemsForPath( $pathFragment ) );
+		$this->assertSame( 1, $this->countAfsResultItemsForPath( $scenario[ 'path_full' ] ) );
 		$this->assertSame( 1, $this->countAfsScanResultLinks( $replacementScanId, (int)$tracked[ 'result_item_id' ] ) );
 		$staleItem = self::con()->db_con->scan_result_items->getQuerySelector()
 			->byId( (int)$stale[ 'result_item_id' ] );
@@ -321,6 +322,14 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 			'theme'  => [ 'theme' ],
 			'core'   => [ 'core' ],
 		];
+	}
+
+	private function afsIntegrityCoverageFamily( string $assetType ) :string {
+		return [
+			'plugin' => ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+			'theme'  => ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY,
+			'core'   => ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
+		][ $assetType ];
 	}
 
 	private function buildAlertReport() :ReportVO {

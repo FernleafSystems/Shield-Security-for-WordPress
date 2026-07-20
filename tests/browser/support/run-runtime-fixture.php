@@ -10,6 +10,7 @@ require_once '/app/tests/Helpers/ActionRouter/RawOptionStoreSnapshot.php';
 require_once '/app/tests/Helpers/ActionRouter/DashboardDefaultsFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/ImportExportFileFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/IpAnalysisActivityMetaFixtureBuilder.php';
+require_once '/app/tests/Helpers/ActionRouter/IpDetectBackgroundFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/IpRulesTableFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/LoginGuardCoreFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/MainwpSitesFixtureBuilder.php';

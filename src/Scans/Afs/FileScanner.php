@@ -9,11 +9,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetFileContext,
-	AssetTrustResolver,
-	Exceptions\NonAssetFileException,
 	HashVerificationResult
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\TrustedFileContext;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
+	AssetTrustState,
+	TrustedFileContext
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -22,6 +23,9 @@ class FileScanner {
 	use PluginControllerConsumer;
 	use ScanActionConsumer;
 
+	/**
+	 * @throws \Exception When the file cannot be reliably classified or a required finding record cannot be created.
+	 */
 	public function scan( string $fullPath ) :?ResultItem {
 		$scanCon = self::con()->comps->scans->AFS();
 		/** @var ScanActionVO $action */
@@ -39,15 +43,10 @@ class FileScanner {
 		$assetVerification = null;
 		$malwareScanClean = false;
 		$optimiser = new Processing\FileScanOptimiser();
-		$assetResolver = new AssetTrustResolver();
-		$resolveAssetContext = function () use ( $fullPath, $assetResolver, &$assetContext, &$assetContextResolved ) :?AssetFileContext {
+		$assetTrustState = new AssetTrustState();
+		$resolveAssetContext = function () use ( $fullPath, $assetTrustState, &$assetContext, &$assetContextResolved ) :?AssetFileContext {
 			if ( !$assetContextResolved ) {
-				try {
-					$assetContext = $assetResolver->resolveContext( $fullPath );
-				}
-				catch ( NonAssetFileException $e ) {
-					$assetContext = null;
-				}
+				$assetContext = $assetTrustState->resolveAssetContext( $fullPath );
 				$assetContextResolved = true;
 			}
 			return $assetContext;
@@ -78,13 +77,14 @@ class FileScanner {
 				if ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'plugin' ) {
 					$pluginScan = ( new Scans\PluginFile( $fullPath ) )
 						->setAssetContext( $assetContext )
+						->setAssetTrustState( $assetTrustState )
 						->setScanActionVO( $action );
 					if ( $pluginScan->isFileValid() ) {
 						$validFile = true;
 						$assetVerification = $pluginScan->getHashVerificationResult();
 						$skipMalwareScan = $assetVerification->trustedSource;
 						if ( $skipMalwareScan ) {
-							$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
+							$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
 						}
 					}
 				}
@@ -94,13 +94,14 @@ class FileScanner {
 				if ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'theme' ) {
 					$themeScan = ( new Scans\ThemeFile( $fullPath ) )
 						->setAssetContext( $assetContext )
+						->setAssetTrustState( $assetTrustState )
 						->setScanActionVO( $action );
 					if ( $themeScan->isFileValid() ) {
 						$validFile = true;
 						$assetVerification = $themeScan->getHashVerificationResult();
 						$skipMalwareScan = $assetVerification->trustedSource;
 						if ( $skipMalwareScan ) {
-							$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
+							$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
 						}
 					}
 				}
@@ -166,10 +167,6 @@ class FileScanner {
 			$item->is_in_wpcontent = true;
 			$item->is_unidentified = true;
 		}
-		catch ( \Exception $e ) {
-			//Never reached
-		}
-
 		$canRunMalwareScan = !$fileExcluded
 							  && $scanCon->isEnabledMalwareScanPHP()
 							  && ( empty( $item ) || !$item->is_missing );
@@ -180,10 +177,10 @@ class FileScanner {
 				 && ( ( $assetContext->assetType === 'plugin' && !$scanCon->isScanEnabledPlugins() )
 					  || ( $assetContext->assetType === 'theme' && !$scanCon->isScanEnabledThemes() ) ) ) {
 				try {
-					$assetVerification = $assetResolver->verifyContext( $fullPath, $assetContext );
+					$assetVerification = $assetTrustState->verifyAssetContext( $fullPath, $assetContext );
 					if ( $assetVerification->trustedSource ) {
 						$skipMalwareScan = true;
-						$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
+						$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
 					}
 				}
 				catch ( \Exception $e ) {
@@ -202,28 +199,36 @@ class FileScanner {
 				$malwareScanClean = true;
 			}
 			catch ( Exceptions\MalwareFileException $mfe ) {
-				$item = $item ?? $this->getResultItem( $fullPath );
+				if ( $item === null ) {
+					$item = $this->getResultItem( $fullPath );
+					if ( $assetContext instanceof AssetFileContext ) {
+						if ( $assetContext->assetType === 'plugin' ) {
+							$item->is_in_plugin = true;
+							$item->ptg_slug = $assetContext->assetKey;
+							$item->asset_version = $assetContext->assetVersion;
+						}
+						elseif ( $assetContext->assetType === 'theme' ) {
+							$item->is_in_theme = true;
+							$item->ptg_slug = $assetContext->assetKey;
+							$item->asset_version = $assetContext->assetVersion;
+						}
+					}
+				}
 				$item->is_mal = true;
 
-				try {
-					if ( !isset( $mfe->getScanFileData()[ 'mal_sig' ] ) ) {
-						throw new \Exception( 'Cannot proceed without a malware signature' );
-					}
-					$malRecord = ( new Processing\CreateLocalMalwareRecords() )->run(
-						$item->path_fragment,
-						$mfe->getScanFileData()[ 'mal_sig' ],
-						$validFile
-					);
-					$item->malware_record_id = $malRecord->id;
-					$item->auto_filter = $validFile;
+				if ( !isset( $mfe->getScanFileData()[ 'mal_sig' ] ) ) {
+					throw new \Exception( 'Cannot proceed without a malware signature' );
 				}
-				catch ( \Exception $e ) {
-					/** We can't proceed without a linked local Malware Record */
-					$item = null;
-					error_log( $e->getMessage() );
-				}
-			}
-			catch ( \InvalidArgumentException $e ) {
+				$autoFilterMalware = $assetVerification instanceof HashVerificationResult
+								 && $assetVerification->verified
+								 && $assetVerification->trustedSource;
+				$malRecord = ( new Processing\CreateLocalMalwareRecords() )->run(
+					$item->path_fragment,
+					$mfe->getScanFileData()[ 'mal_sig' ],
+					$autoFilterMalware
+				);
+				$item->malware_record_id = $malRecord->id;
+				$item->auto_filter = $autoFilterMalware;
 			}
 		}
 
@@ -247,15 +252,6 @@ class FileScanner {
 			'core',
 			Services::WpGeneral()->getVersion(),
 			Services::WpFs()->getPathRelativeToAbsPath( $fullPath )
-		);
-	}
-
-	private function buildAssetTrustedFileContext( HashVerificationResult $verification ) :TrustedFileContext {
-		return new TrustedFileContext(
-			$verification->assetType,
-			$verification->assetKey,
-			$verification->assetVersion,
-			$verification->relativePath
 		);
 	}
 

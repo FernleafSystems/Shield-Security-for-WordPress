@@ -56,10 +56,6 @@ export class ScanProgressModal {
 			&& ScanProgressModal.modalStates.includes( resp.data.modal_state ) );
 	}
 
-	static ModalState( resp ) {
-		return ScanProgressModal.HasModalResponse( resp ) ? resp.data.modal_state : 'failed';
-	}
-
 	static ExtractErrorMessage( resp ) {
 		const message = resp?.data?.message;
 		return typeof message === 'string' && message.length > 0 ? message : '';

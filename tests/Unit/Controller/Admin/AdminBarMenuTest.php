@@ -25,6 +25,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Admin {
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Admin\AdminBarMenu;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\AdminBarScanSummaryCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -57,6 +58,29 @@ class AdminBarMenuTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
+	public function test_admin_bar_menu_filter_defaults_to_enabled() :void {
+		$cache = new AdminBarSummaryCacheSpy( null );
+		$counts = new AdminBarCountsSpy( $this->emptySummary() );
+		$this->installGateEnvironment( true, $counts, $cache );
+
+		( new AdminBarMenu() )->execute();
+
+		$this->assertCount( 1, $this->actions[ 'admin_bar_menu' ] ?? [] );
+	}
+
+	public function test_admin_bar_menu_filter_can_disable_registration_without_loading_scan_status() :void {
+		$cache = new AdminBarSummaryCacheSpy( null );
+		$counts = new AdminBarCountsSpy( $this->emptySummary() );
+		$this->installGateEnvironment( false, $counts, $cache );
+
+		( new AdminBarMenu() )->execute();
+
+		$this->assertSame( [], $this->actions[ 'admin_bar_menu' ] ?? [] );
+		$this->assertSame( [], $counts->forceExactArgs );
+		$this->assertSame( 0, $cache->readCalls );
+		$this->assertSame( 0, $cache->refreshCalls );
+	}
+
 	public function test_security_admin_uses_cached_scan_summary_on_non_plugin_pages() :void {
 		$cache = new AdminBarSummaryCacheSpy( $this->exactSummary() );
 		$counts = new AdminBarCountsSpy( [
@@ -69,8 +93,11 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$adminBar = $this->buildAdminBar();
 
 		$this->assertSame( [], $counts->forceExactArgs );
+		$this->assertSame( 0, $counts->loadCalls );
 		$this->assertSame( 1, $cache->readCalls );
 		$this->assertSame( 0, $cache->refreshCalls );
+		$this->assertSame( 0, $cache->readBoundedCalls );
+		$this->assertSame( 0, $cache->storeBoundedCalls );
 		$this->assertTopNode( $adminBar, '/admin/scans/overview?zone=scans', '6', 'shield-counter--issue' );
 		$this->assertCount( 1, $this->topMenuChildGroups( $adminBar ) );
 		$this->assertSame(
@@ -105,8 +132,11 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$adminBar = $this->buildAdminBar();
 
 		$this->assertSame( [ false ], $counts->forceExactArgs );
+		$this->assertSame( 1, $counts->loadCalls );
 		$this->assertSame( 1, $cache->readCalls );
 		$this->assertSame( 0, $cache->refreshCalls );
+		$this->assertSame( 1, $cache->readBoundedCalls );
+		$this->assertSame( 1, $cache->storeBoundedCalls );
 		$this->assertSame( [], $this->scanChildNodeIds( $adminBar ) );
 		$this->assertTopNode( $adminBar, '/admin/scans/overview?zone=scans', '99+', 'shield-counter--issue' );
 		$this->assertSame( [], $this->topMenuChildGroups( $adminBar ) );
@@ -120,8 +150,11 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$adminBar = $this->buildAdminBar();
 
 		$this->assertSame( [], $counts->forceExactArgs );
+		$this->assertSame( 1, $counts->loadCalls );
 		$this->assertSame( 1, $cache->readCalls );
 		$this->assertSame( 1, $cache->refreshCalls );
+		$this->assertSame( 0, $cache->readBoundedCalls );
+		$this->assertSame( 0, $cache->storeBoundedCalls );
 		$this->assertTopNode( $adminBar, '/admin/scans/overview?zone=scans', '6', 'shield-counter--issue' );
 		$this->assertCount( 1, $this->topMenuChildGroups( $adminBar ) );
 		$this->assertSame(
@@ -187,12 +220,123 @@ class AdminBarMenuTest extends BaseUnitTest {
 
 		$this->assertSame( 0, $usersDb->selectCalls );
 		$this->assertSame( [ false ], $counts->forceExactArgs );
+		$this->assertSame( 1, $counts->loadCalls );
 		$this->assertSame( 1, $cache->readCalls );
 		$this->assertSame( 0, $cache->refreshCalls );
+		$this->assertSame( 1, $cache->readBoundedCalls );
+		$this->assertSame( 1, $cache->storeBoundedCalls );
 		$this->assertTopNode( $adminBar, '/admin/scans/overview?zone=scans', '99+', 'shield-counter--issue' );
 		$this->assertSame( [], $this->topMenuChildGroups( $adminBar ) );
 		$this->assertSame( [], $this->scanChildNodeIds( $adminBar ) );
 		$this->assertNull( $this->maybeNodeById( $adminBar, 'shield-meta-7' ) );
+	}
+
+	public function test_later_request_reuses_bounded_cache_without_loading_counts() :void {
+		$firstCache = new AdminBarSummaryCacheSpy( null );
+		$firstCounts = new AdminBarCountsSpy( $this->boundedSummary() );
+		$this->installController( true, false, $firstCounts, $firstCache );
+
+		$this->buildAdminBar();
+
+		$this->assertSame( 1, $firstCounts->loadCalls );
+		$this->assertSame( [ false ], $firstCounts->forceExactArgs );
+		$this->assertSame( 1, $firstCache->storeBoundedCalls );
+		$this->assertSame( $this->boundedSummary(), $firstCache->storedBoundedSummary );
+
+		$this->actions = [];
+		$secondCache = new AdminBarSummaryCacheSpy( null, null, $firstCache->storedBoundedSummary );
+		$secondCounts = new AdminBarCountsSpy( $this->emptySummary() );
+		$this->installController( true, false, $secondCounts, $secondCache );
+
+		$adminBar = $this->buildAdminBar();
+
+		$this->assertSame( 0, $secondCounts->loadCalls );
+		$this->assertSame( [], $secondCounts->forceExactArgs );
+		$this->assertSame( 1, $secondCache->readBoundedCalls );
+		$this->assertSame( 0, $secondCache->storeBoundedCalls );
+		$this->assertSame( [], $this->scanChildNodeIds( $adminBar ) );
+	}
+
+	public function test_uncapped_bounded_cache_never_enables_exact_details() :void {
+		$bounded = [
+			'counts'    => [],
+			'total'     => 4,
+			'is_capped' => false,
+		];
+		$cache = new AdminBarSummaryCacheSpy( null, null, $bounded );
+		$counts = new AdminBarCountsSpy( $this->exactSummary() );
+		$this->installController( true, false, $counts, $cache );
+
+		$adminBar = $this->buildAdminBar();
+
+		$this->assertSame( 0, $counts->loadCalls );
+		$this->assertSame( [], $counts->forceExactArgs );
+		$this->assertTopCounterLabel( $adminBar, '4' );
+		$this->assertSame( [], $this->scanChildNodeIds( $adminBar ) );
+	}
+
+	public function test_rejected_bounded_store_keeps_warm_computed_summary_non_exact() :void {
+		$cache = new AdminBarSummaryCacheSpy( null );
+		$cache->acceptBoundedStore = false;
+		$counts = new AdminBarCountsSpy( $this->exactSummary() );
+		$this->installController( true, false, $counts, $cache );
+
+		$adminBar = $this->buildAdminBar();
+
+		$this->assertSame( [ false ], $counts->forceExactArgs );
+		$this->assertSame( 1, $cache->storeBoundedCalls );
+		$this->assertSame( $this->exactSummary(), $cache->storedBoundedSummary );
+		$this->assertTopCounterLabel( $adminBar, '6' );
+		$this->assertSame( [], $this->scanChildNodeIds( $adminBar ) );
+	}
+
+	/**
+	 * @dataProvider transientFailureProvider
+	 */
+	public function test_transient_failures_do_not_break_admin_bar_rendering( string $failure ) :void {
+		switch ( $failure ) {
+			case 'get':
+				Functions\when( 'get_transient' )->alias( static function () {
+					throw new \RuntimeException( 'get failed' );
+				} );
+				Functions\when( 'set_transient' )->justReturn( true );
+				break;
+
+			case 'set':
+				Functions\when( 'get_transient' )->justReturn( false );
+				Functions\when( 'set_transient' )->alias( static function () {
+					throw new \RuntimeException( 'set failed' );
+				} );
+				break;
+
+			case 'delete':
+				Functions\when( 'get_transient' )->justReturn( [
+					'counts'    => [ 'invalid' => 1 ],
+					'total'     => 1,
+					'is_capped' => false,
+				] );
+				Functions\when( 'delete_transient' )->alias( static function () {
+					throw new \RuntimeException( 'delete failed' );
+				} );
+				Functions\when( 'set_transient' )->justReturn( true );
+				break;
+		}
+
+		$counts = new AdminBarCountsSpy( $this->boundedSummary() );
+		$this->installController( true, false, $counts, new AdminBarScanSummaryCache() );
+
+		$adminBar = $this->buildAdminBar();
+
+		$this->assertCount( 1, $this->topLevelNodes( $adminBar ) );
+		$this->assertSame( [], $this->scanChildNodeIds( $adminBar ) );
+	}
+
+	public static function transientFailureProvider() :array {
+		return [
+			'get'    => [ 'get' ],
+			'set'    => [ 'set' ],
+			'delete' => [ 'delete' ],
+		];
 	}
 
 	public function test_admin_bar_renders_recent_users_on_security_admin_plugin_pages() :void {
@@ -260,6 +404,12 @@ class AdminBarMenuTest extends BaseUnitTest {
 		$this->assertStringContainsString( $expectedCounterClass, $topNodes[ 0 ][ 'title' ] );
 	}
 
+	private function assertTopCounterLabel( \WP_Admin_Bar $adminBar, string $expectedCounter ) :void {
+		$topNodes = $this->topLevelNodes( $adminBar );
+		$this->assertCount( 1, $topNodes );
+		$this->assertStringContainsString( $expectedCounter, $topNodes[ 0 ][ 'title' ] );
+	}
+
 	private function assertNoIpNodes( \WP_Admin_Bar $adminBar ) :void {
 		$this->assertSame(
 			[],
@@ -316,7 +466,7 @@ class AdminBarMenuTest extends BaseUnitTest {
 		bool $isPluginAdmin,
 		bool $isPluginAdminPageRequest,
 		AdminBarCountsSpy $counts,
-		?AdminBarSummaryCacheSpy $cache = null,
+		?object $cache = null,
 		?AdminBarUsersDbSpy $usersDb = null
 	) :void {
 		$usersDb = $usersDb ?? new AdminBarUsersDbSpy( [] );
@@ -333,13 +483,13 @@ class AdminBarMenuTest extends BaseUnitTest {
 			private bool $pluginAdmin;
 			private bool $pluginAdminPageRequest;
 			private AdminBarCountsSpy $counts;
-			private AdminBarSummaryCacheSpy $cache;
+			private object $cache;
 
 			public function __construct(
 				bool $pluginAdmin,
 				bool $pluginAdminPageRequest,
 				AdminBarCountsSpy $counts,
-				?AdminBarSummaryCacheSpy $cache
+				?object $cache
 			) {
 				$this->pluginAdmin = $pluginAdmin;
 				$this->pluginAdminPageRequest = $pluginAdminPageRequest;
@@ -354,18 +504,19 @@ class AdminBarMenuTest extends BaseUnitTest {
 				$this->comps = (object)[
 					'scans' => new class( $this->counts, $this->cache ) {
 						private AdminBarCountsSpy $counts;
-						private AdminBarSummaryCacheSpy $cache;
+						private object $cache;
 
-						public function __construct( AdminBarCountsSpy $counts, AdminBarSummaryCacheSpy $cache ) {
+						public function __construct( AdminBarCountsSpy $counts, object $cache ) {
 							$this->counts = $counts;
 							$this->cache = $cache;
 						}
 
 						public function getScanResultsCount() :AdminBarCountsSpy {
+							$this->counts->loadCalls++;
 							return $this->counts;
 						}
 
-						public function getAdminBarScanSummaryCache() :AdminBarSummaryCacheSpy {
+						public function getAdminBarScanSummaryCache() :object {
 							return $this->cache;
 						}
 					},
@@ -382,6 +533,59 @@ class AdminBarMenuTest extends BaseUnitTest {
 
 			public function prefix( string $suffix = '', string $glue = '-' ) :string {
 				return 'shield'.( $suffix === '' ? '' : $glue.$suffix );
+			}
+		};
+
+		PluginControllerInstaller::install( $controller );
+	}
+
+	private function installGateEnvironment(
+		bool $showMenu,
+		AdminBarCountsSpy $counts,
+		AdminBarSummaryCacheSpy $cache
+	) :void {
+		Functions\expect( 'apply_filters' )
+			->once()
+			->with( 'shield/show_admin_bar_menu', true )
+			->andReturn( $showMenu );
+
+		ServicesState::mergeItems( [
+			'service_wpusers' => new AdminBarGateUsersSpy(),
+		] );
+
+		$controller = new class( $counts, $cache ) extends Controller {
+			public object $comps;
+			public object $this_req;
+
+			public function __construct( AdminBarCountsSpy $counts, AdminBarSummaryCacheSpy $cache ) {
+				$this->this_req = (object)[
+					'is_force_off' => false,
+					'wp_is_ajax'   => false,
+				];
+				$this->comps = (object)[
+					'scans' => new class( $counts, $cache ) {
+						private AdminBarCountsSpy $counts;
+						private AdminBarSummaryCacheSpy $cache;
+
+						public function __construct( AdminBarCountsSpy $counts, AdminBarSummaryCacheSpy $cache ) {
+							$this->counts = $counts;
+							$this->cache = $cache;
+						}
+
+						public function getScanResultsCount() :AdminBarCountsSpy {
+							$this->counts->loadCalls++;
+							return $this->counts;
+						}
+
+						public function getAdminBarScanSummaryCache() :AdminBarSummaryCacheSpy {
+							return $this->cache;
+						}
+					},
+				];
+			}
+
+			public function isValidAdminArea( bool $checkUserPerms = false ) :bool {
+				return true;
 			}
 		};
 
@@ -433,7 +637,16 @@ class AdminBarMenuPublicPathTestSubject extends AdminBarMenu {
 	}
 }
 
+class AdminBarGateUsersSpy extends Users {
+
+	public function isUserAdmin( $user = null ) {
+		return true;
+	}
+}
+
 class AdminBarCountsSpy {
+
+	public int $loadCalls = 0;
 
 	/**
 	 * @var list<bool>
@@ -465,9 +678,19 @@ class AdminBarSummaryCacheSpy {
 
 	public int $refreshCalls = 0;
 
+	public int $readBoundedCalls = 0;
+
+	public int $storeBoundedCalls = 0;
+
+	public bool $acceptBoundedStore = true;
+
+	public ?array $storedBoundedSummary = null;
+
 	private ?array $readSummary;
 
 	private ?array $refreshSummary;
+
+	private ?array $boundedReadSummary;
 
 	/**
 	 * @param array{
@@ -476,9 +699,14 @@ class AdminBarSummaryCacheSpy {
 	 *   is_capped:bool
 	 * }|null $readSummary
 	 */
-	public function __construct( ?array $readSummary, ?array $refreshSummary = null ) {
+	public function __construct(
+		?array $readSummary,
+		?array $refreshSummary = null,
+		?array $boundedReadSummary = null
+	) {
 		$this->readSummary = $readSummary;
 		$this->refreshSummary = $refreshSummary;
+		$this->boundedReadSummary = $boundedReadSummary;
 	}
 
 	public function read() :?array {
@@ -490,6 +718,17 @@ class AdminBarSummaryCacheSpy {
 		unset( $counts );
 		$this->refreshCalls++;
 		return $this->refreshSummary ?? $this->readSummary;
+	}
+
+	public function readBounded() :?array {
+		$this->readBoundedCalls++;
+		return $this->boundedReadSummary;
+	}
+
+	public function storeBounded( array $summary ) :?array {
+		$this->storeBoundedCalls++;
+		$this->storedBoundedSummary = $summary;
+		return $this->acceptBoundedStore ? $summary : null;
 	}
 }
 

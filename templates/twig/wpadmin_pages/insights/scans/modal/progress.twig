@@ -5,19 +5,57 @@
 {% endblock %}
 
 {% block modal_body %}
-	<div data-shield-scan-modal-state="{{ vars.modal_state }}"
+	<div class="shield-scan-progress"
+		 data-shield-scan-modal-state="{{ vars.modal_state }}"
 		 aria-busy="{{ vars.is_busy ? 'true' : 'false' }}"
 		 data-shield-scan-modal-announcement="{{ vars.announcement }}">
 		<h6>{{ vars.heading }}</h6>
 		<p>{{ vars.remaining_scans }}</p>
 		{% if vars.show_progress %}
-			<div class="progress">
-				<div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
-					 style="width: {{ vars.progress }}%"
-					 aria-label="{{ strings.progress_label }}"
-					 aria-valuenow="{{ vars.progress }}" aria-valuemin="0" aria-valuemax="100">
+			{% if vars.scan_rows is not empty %}
+				<div class="d-grid gap-3">
+					{% for row in vars.scan_rows %}
+						<div class="shield-scan-progress__row">
+							<div class="d-flex justify-content-between gap-2 mb-1">
+								<div>
+									<strong>{{ row.name }}</strong>
+									{% if row.scope_label is not empty %}
+										<div class="small text-muted">{{ row.scope_label }}</div>
+									{% endif %}
+								</div>
+								<div class="d-flex flex-column align-items-end gap-1">
+									<span class="shield-scan-progress__status small text-muted {{ row.status_class|e('html_attr') }}">
+										<i class="shield-scan-progress__status-icon {{ row.status_icon_class|e('html_attr') }}" aria-hidden="true"></i>
+										<span>{{ row.status_label }}</span>
+									</span>
+									{% if row.can_attempt_recovery %}
+										<button type="button" class="btn btn-sm btn-outline-secondary"
+												data-shield-scan-attempt-recovery="1"
+												data-scan-id="{{ row.id }}">
+											{{ strings.attempt_resume_now }}
+										</button>
+									{% endif %}
+								</div>
+							</div>
+							<div class="progress">
+								<div class="progress-bar {{ row.progress_bar_class|e('html_attr') }}" role="progressbar"
+									 style="width: {{ row.progress }}%"
+									 aria-label="{{ row.aria_label }}"
+									 aria-valuenow="{{ row.progress }}" aria-valuemin="0" aria-valuemax="100">
+								</div>
+							</div>
+						</div>
+					{% endfor %}
 				</div>
-			</div>
+			{% else %}
+				<div class="progress">
+					<div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar"
+						 style="width: {{ vars.progress }}%"
+						 aria-label="{{ strings.progress_label }}"
+						 aria-valuenow="{{ vars.progress }}" aria-valuemin="0" aria-valuemax="100">
+					</div>
+				</div>
+			{% endif %}
 			<p class="mt-2">{{ strings.patience_1 }}
 				{{ strings.patience_2 }}
 			</p>

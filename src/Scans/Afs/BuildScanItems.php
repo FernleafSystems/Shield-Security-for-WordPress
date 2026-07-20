@@ -12,6 +12,8 @@ class BuildScanItems {
 	use PluginControllerConsumer;
 	use ScanActionConsumer;
 
+	private const PROGRESS_TICK_EVERY = 1000;
+
 	protected function preBuild() {
 		$con = self::con();
 		/** @var ScanActionVO $action */
@@ -95,6 +97,9 @@ class BuildScanItems {
 		$action->max_file_size = apply_filters( 'shield/file_scan_size_max', 16*1024*1024 );
 	}
 
+	/**
+	 * @throws \Exception When filesystem inventory cannot be completed.
+	 */
 	public function run(): array {
 		$this->preBuild();
 
@@ -119,11 +124,17 @@ class BuildScanItems {
 
 		$coreHashes = Services::CoreFileHashes();
 		if ( $coreHashes->isReady() ) {
-			foreach ( \array_keys( $coreHashes->getHashes() ) as $fragment ) {
+			$processed = 0;
+			$fragments = \array_keys( $coreHashes->getHashes() );
+			foreach ( $fragments as $fragment ) {
+				$this->tickProgressEvery( ++$processed );
 				// To reduce noise, we exclude plugins and themes (by default)
 				if ( \strpos( $fragment, 'wp-content/' ) === false ) {
 					$files[] = wp_normalize_path( path_join( ABSPATH, $fragment ) );
 				}
+			}
+			if ( !empty( $fragments ) ) {
+				$this->tickProgress();
 			}
 		}
 
@@ -135,21 +146,16 @@ class BuildScanItems {
 		$action = $this->getScanActionVO();
 
 		$files = [];
+		$processed = 0;
 		foreach ( $action->scan_root_dirs as $scanDir => $depth ) {
-			try {
-				foreach ( StandardDirectoryIterator::create( $scanDir, (int)$depth, \is_array( $action->file_exts ) ? $action->file_exts : [] ) as $item ) {
-					/** @var \SplFileInfo $item */
-					try {
-						if ( !$this->isAutoFilterFile( $item ) ) {
-							$files[] = wp_normalize_path( $item->getPathname() );
-						}
-					}
-					catch ( \Exception $e ) {
-					}
+			foreach ( StandardDirectoryIterator::create( $scanDir, (int)$depth, \is_array( $action->file_exts ) ? $action->file_exts : [] ) as $item ) {
+				/** @var \SplFileInfo $item */
+				$this->tickProgressEvery( ++$processed );
+				if ( !$this->isAutoFilterFile( $item ) ) {
+					$files[] = wp_normalize_path( $item->getPathname() );
 				}
 			}
-			catch ( \Exception $e ) {
-			}
+			$this->tickProgress();
 		}
 		return $files;
 	}
@@ -158,15 +164,31 @@ class BuildScanItems {
 		$files = [];
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-		foreach (
-			\array_filter( $action->valid_files, static fn( $p ) => Services::WpFs()->isAccessibleFile( $p ) ) as $path
-		) {
+		$processed = 0;
+		foreach ( $action->valid_files as $path ) {
+			$this->tickProgressEvery( ++$processed );
+			if ( !Services::WpFs()->isAccessibleFile( $path ) ) {
+				continue;
+			}
 			$file = new \SplFileInfo( $path );
 			if ( !$this->isAutoFilterFile( $file ) ) {
 				$files[] = wp_normalize_path( $path );
 			}
 		}
+		if ( $processed > 0 ) {
+			$this->tickProgress();
+		}
 		return $files;
+	}
+
+	private function tickProgressEvery( int $processed ) :void {
+		if ( $processed > 0 && $processed % self::PROGRESS_TICK_EVERY === 0 ) {
+			$this->tickProgress();
+		}
+	}
+
+	private function tickProgress() :void {
+		$this->getScanActionVO()->tickProgress();
 	}
 
 	private function buildScopedRootDirs( ScanActionVO $action ): array {

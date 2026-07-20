@@ -6,12 +6,16 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\PopulateScanItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueHeartbeat;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState,
 	UnitTestRequest
 };
+use FernleafSystems\Wordpress\Services\Core\Db;
 
 class PopulateScanItemsTest extends BaseUnitTest {
 
@@ -24,6 +28,7 @@ class PopulateScanItemsTest extends BaseUnitTest {
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700004000 ),
 		] );
 		Functions\when( 'esc_sql' )->alias( static fn( string $value ) :string => \str_replace( "'", "\\'", $value ) );
+		QueueHeartbeat::resetRuntimeCache();
 	}
 
 	protected function tearDown() :void {
@@ -35,49 +40,95 @@ class PopulateScanItemsTest extends BaseUnitTest {
 	public function test_run_marks_scan_built_after_persisting_queue_items() :void {
 		$scanUpdates = [];
 		$itemInsertCount = 0;
-		$this->installController( $scanUpdates, $itemInsertCount, true );
+		$itemInserts = [];
+		$heartbeatQueries = [];
+		$this->installHeartbeatDb( $heartbeatQueries );
+		$this->installController( $scanUpdates, $itemInsertCount, true, $itemInserts );
 
 		$scanRecord = new ScansDB\Record();
 		$scanRecord->id = 17;
 		$scanRecord->scan = 'afs';
 		$scanRecord->scope_type = 'full';
 		$scanRecord->scope_key = '';
+		$scanController = $this->buildScanController();
 
 		( new PopulateScanItems() )
 			->setRecord( $scanRecord )
-			->setScanController( $this->buildScanController() )
+			->setScanController( $scanController )
 			->run();
 
-		$this->assertSame( 2, $itemInsertCount );
+		$this->assertSame( [
+			[
+				'items'      => [ 'one', 'two' ],
+				'item_count' => 2,
+			],
+			[
+				'items'      => [ 'three' ],
+				'item_count' => 1,
+			],
+		], $itemInserts );
+		$this->assertSame( 2, $scanController->lastAction->progressTicks );
+		$this->assertNotEmpty( $heartbeatQueries );
 		$this->assertCount( 1, $scanUpdates );
-		$this->assertSame( 'built', $scanUpdates[ 0 ][ 'data' ][ 'status' ] ?? null );
-		$this->assertSame( 1700004000, $scanUpdates[ 0 ][ 'data' ][ 'ready_at' ] ?? null );
-		$this->assertSame( 1700004000, $scanUpdates[ 0 ][ 'data' ][ 'last_process_at' ] ?? null );
-		$this->assertSame(
-			[ 'scan_meta' => 'value' ],
-			\json_decode( \base64_decode( (string)$scanUpdates[ 0 ][ 'data' ][ 'meta' ] ), true )
+		$this->assertSame( 'built', $scanUpdates[ 0 ][ 'data' ][ 'status' ] );
+		$this->assertSame( 1700004000, $scanUpdates[ 0 ][ 'data' ][ 'ready_at' ] );
+		$this->assertSame( 1700004000, $scanUpdates[ 0 ][ 'data' ][ 'last_process_at' ] );
+		$scanMeta = \json_decode( \base64_decode( (string)$scanUpdates[ 0 ][ 'data' ][ 'meta' ] ), true );
+		$this->assertSame( 'value', $scanMeta[ 'scan_meta' ] ?? null );
+		$this->assertArrayHasKey( 'coverage_families', $scanMeta );
+		$this->assertSame( $this->coverageFamilies(), $scanMeta[ 'coverage_families' ] );
+		$this->assertSame( 'full', $scanMeta[ 'scope_type' ] ?? null );
+		$this->assertSame( '', $scanMeta[ 'scope_key' ] ?? null );
+		$this->assertArrayNotHasKey( 'progress_callback', $scanMeta );
+		$this->assertArrayNotHasKey( 'items', $scanMeta );
+	}
+
+	public function test_run_attaches_progress_callback_before_building_scan_action() :void {
+		$scanUpdates = [];
+		$itemInsertCount = 0;
+		$heartbeatQueries = [];
+		$callbackAttachedBeforeBuild = false;
+		$heartbeatFiredDuringBuild = false;
+		$this->installHeartbeatDb( $heartbeatQueries );
+		$this->installController( $scanUpdates, $itemInsertCount, true );
+
+		$scanRecord = new ScansDB\Record();
+		$scanRecord->id = 19;
+		$scanRecord->scan = 'afs';
+		$scanRecord->scope_type = 'full';
+		$scanRecord->scope_key = '';
+		$scanController = $this->buildScanController(
+			[ 'one' ],
+			static function ( BaseScanActionVO $scanActionVO ) use (
+				&$callbackAttachedBeforeBuild,
+				&$heartbeatFiredDuringBuild,
+				&$heartbeatQueries
+			) :void {
+				$callbackAttachedBeforeBuild = \is_callable( $scanActionVO->progress_callback );
+				$scanActionVO->tickProgress();
+				$heartbeatFiredDuringBuild = \count( $heartbeatQueries ) === 1;
+			}
 		);
+
+		( new PopulateScanItems() )
+			->setRecord( $scanRecord )
+			->setScanController( $scanController )
+			->run();
+
+		$this->assertTrue( $callbackAttachedBeforeBuild );
+		$this->assertTrue( $heartbeatFiredDuringBuild );
+		$this->assertIsCallable( $scanController->lastAction->progress_callback );
+		$this->assertCount( 1, $heartbeatQueries );
+		$this->assertStringContainsString( 'UPDATE `shield_scans`', $heartbeatQueries[ 0 ] );
+		$this->assertStringContainsString( '`id`=19', $heartbeatQueries[ 0 ] );
+		$this->assertStringContainsString( "`status`='building'", $heartbeatQueries[ 0 ] );
 	}
 
 	public function test_run_completes_empty_scan_with_metadata_in_completion_update() :void {
 		$scanUpdates = [];
 		$itemInsertCount = 0;
-		$wpdb = new class extends \FernleafSystems\Wordpress\Services\Core\Db {
-			public array $doSqlQueries = [];
-
-			public function doSql( string $sqlQuery ) {
-				$this->doSqlQueries[] = $sqlQuery;
-				return 1;
-			}
-
-			public function selectCustom( $query, $format = null ) {
-				unset( $query, $format );
-				return [];
-			}
-		};
-		ServicesState::mergeItems( [
-			'service_wpdb' => $wpdb,
-		] );
+		$wpdbQueries = [];
+		$this->installHeartbeatDb( $wpdbQueries );
 		$this->installController( $scanUpdates, $itemInsertCount, true );
 
 		$scanRecord = new ScansDB\Record();
@@ -87,17 +138,34 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		$scanRecord->scope_key = '';
 		$scanRecord->run_trigger = 'manual';
 
+		$scanController = $this->buildScanController( [] );
 		( new PopulateScanItems() )
 			->setRecord( $scanRecord )
-			->setScanController( $this->buildScanController( [] ) )
+			->setScanController( $scanController )
 			->run();
 
 		$this->assertSame( 0, $itemInsertCount );
 		$this->assertSame( [], $scanUpdates );
-		$this->assertNotEmpty( $wpdb->doSqlQueries );
-		$this->assertStringContainsString( "`status`='completed'", $wpdb->doSqlQueries[ 0 ] );
-		$this->assertStringContainsString( '`meta`=', $wpdb->doSqlQueries[ 0 ] );
-		$this->assertStringContainsString( 'NOT EXISTS', $wpdb->doSqlQueries[ 0 ] );
+		$completionQueries = \array_values( \array_filter(
+			$wpdbQueries,
+			static fn( string $query ) :bool => \strpos( $query, "`status`='completed'" ) !== false
+		) );
+		$this->assertCount( 1, $completionQueries );
+		$completionQuery = $completionQueries[ 0 ];
+		$this->assertStringContainsString( 'NOT EXISTS', $completionQuery );
+		$this->assertSame( 1, \preg_match( "/`meta`='([^']+)'/", $completionQuery, $matches ) );
+		$decodedMeta = \base64_decode( $matches[ 1 ], true );
+		$this->assertIsString( $decodedMeta );
+		$scanMeta = \json_decode( $decodedMeta, true );
+		$this->assertIsArray( $scanMeta );
+		$this->assertSame( 'value', $scanMeta[ 'scan_meta' ] ?? null );
+		$this->assertArrayHasKey( 'coverage_families', $scanMeta );
+		$this->assertSame( $this->coverageFamilies(), $scanMeta[ 'coverage_families' ] );
+		$this->assertSame( 'full', $scanMeta[ 'scope_type' ] ?? null );
+		$this->assertSame( '', $scanMeta[ 'scope_key' ] ?? null );
+		$this->assertArrayNotHasKey( 'progress_callback', $scanMeta );
+		$this->assertArrayNotHasKey( 'items', $scanMeta );
+		$this->assertIsCallable( $scanController->lastAction->progress_callback );
 	}
 
 	public function test_run_throws_when_queue_item_persistence_fails() :void {
@@ -110,44 +178,60 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		$scanRecord->scan = 'afs';
 		$scanRecord->scope_type = 'full';
 		$scanRecord->scope_key = '';
+		$scanController = $this->buildScanController();
 
-		$this->expectException( \RuntimeException::class );
+		try {
+			( new PopulateScanItems() )
+				->setRecord( $scanRecord )
+				->setScanController( $scanController )
+				->run();
 
-		( new PopulateScanItems() )
-			->setRecord( $scanRecord )
-			->setScanController( $this->buildScanController() )
-			->run();
+			$this->fail( 'Expected queue item persistence failure.' );
+		}
+		catch ( \RuntimeException $e ) {
+			$this->assertStringContainsString( 'Failed to persist queue items', $e->getMessage() );
+		}
+
+		$this->assertSame( 1, $itemInsertCount );
+		$this->assertSame( [], $scanUpdates );
+		$this->assertSame( 0, $scanController->lastAction->progressTicks );
 	}
 
-	private function buildScanController( array $items = [ 'one', 'two', 'three' ] ) :object {
-		return new class( $items ) {
+	private function buildScanController( array $items = [ 'one', 'two', 'three' ], ?callable $onBuild = null ) :object {
+		return new class( $items, $onBuild ) {
 			private array $items;
+			private $onBuild;
+			public ?BaseScanActionVO $lastAction = null;
 
-			public function __construct( array $items ) {
+			public function __construct( array $items, ?callable $onBuild ) {
 				$this->items = $items;
+				$this->onBuild = $onBuild;
 			}
 
-			public function newScanActionVO() :object {
-				return (object)[
-					'scope_type' => '',
-					'scope_key' => '',
-				];
-			}
+			public function newScanActionVO() :BaseScanActionVO {
+				$action = new class extends BaseScanActionVO {
+					public int $progressTicks = 0;
 
-			public function buildScanAction( object $scanActionVO ) :object {
-				unset( $scanActionVO );
-
-				return new class( $this->items ) {
-					public array $items;
-
-					public function __construct( array $items ) {
-						$this->items = $items;
-					}
-
-					public function getRawData() :array {
-						return [ 'scan_meta' => 'value' ];
+					public function tickProgress() :void {
+						$this->progressTicks++;
+						parent::tickProgress();
 					}
 				};
+				$action->scan_meta = 'value';
+				$action->coverage_families = [
+					ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+					ScanActionVO::COVERAGE_FAMILY_MALWARE,
+				];
+				return $action;
+			}
+
+			public function buildScanAction( BaseScanActionVO $scanActionVO ) :BaseScanActionVO {
+				if ( \is_callable( $this->onBuild ) ) {
+					( $this->onBuild )( $scanActionVO );
+				}
+				$scanActionVO->items = $this->items;
+				$this->lastAction = $scanActionVO;
+				return $scanActionVO;
 			}
 
 			public function getQueueGroupSize() :int {
@@ -156,7 +240,29 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		};
 	}
 
-	private function installController( array &$scanUpdates, int &$itemInsertCount, bool $itemInsertSuccess ) :void {
+	private function installHeartbeatDb( array &$queries ) :void {
+		ServicesState::mergeItems( [
+			'service_wpdb' => new class( $queries ) extends Db {
+				public array $queries;
+
+				public function __construct( array &$queries ) {
+					$this->queries = &$queries;
+				}
+
+				public function doSql( $sql ) {
+					$this->queries[] = (string)$sql;
+					return 1;
+				}
+
+				public function selectCustom( $query, $format = null ) {
+					unset( $query, $format );
+					return [];
+				}
+			},
+		] );
+	}
+
+	private function installController( array &$scanUpdates, int &$itemInsertCount, bool $itemInsertSuccess, array &$itemInserts = [] ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->db_con = (object)[
@@ -185,36 +291,61 @@ class PopulateScanItemsTest extends BaseUnitTest {
 				public function getTable() :string {
 					return 'shield_scans';
 				}
+
+				public function getQuerySelector() :object {
+					return new class {
+						public function byId( int $scanID ) :ScansDB\Record {
+							$record = new ScansDB\Record();
+							$record->id = $scanID;
+							$record->scan = 'wpv';
+							$record->scope_type = 'full';
+							$record->scope_key = '';
+							$record->run_trigger = 'manual';
+							$record->meta = [];
+							return $record;
+						}
+					};
+				}
 			},
-			'scan_items' => new class( $itemInsertCount, $itemInsertSuccess ) {
+			'scan_items' => new class( $itemInsertCount, $itemInsertSuccess, $itemInserts ) {
 				public int $insertCount;
+				public array $inserts;
 				private bool $insertSuccess;
 
-				public function __construct( int &$insertCount, bool $insertSuccess ) {
+				public function __construct( int &$insertCount, bool $insertSuccess, array &$inserts ) {
 					$this->insertCount = &$insertCount;
 					$this->insertSuccess = $insertSuccess;
+					$this->inserts = &$inserts;
 				}
 
 				public function getRecord() :object {
 					return new class {
 						public int $scan_ref = 0;
 						public array $items = [];
+						public int $item_count = 0;
 					};
 				}
 
 				public function getQueryInserter() :object {
-					return new class( $this->insertCount, $this->insertSuccess ) {
+					return new class( $this->insertCount, $this->insertSuccess, $this->inserts ) {
 						public int $insertCount;
+						public array $inserts;
 						private bool $insertSuccess;
 
-						public function __construct( int &$insertCount, bool $insertSuccess ) {
+						public function __construct( int &$insertCount, bool $insertSuccess, array &$inserts ) {
 							$this->insertCount = &$insertCount;
 							$this->insertSuccess = $insertSuccess;
+							$this->inserts = &$inserts;
 						}
 
 						public function insert( object $record ) :bool {
-							unset( $record );
 							$this->insertCount++;
+							if ( $this->insertSuccess ) {
+								$this->inserts[] = [
+									'items'      => $record->items,
+									'item_count' => $record->item_count,
+								];
+							}
 							return $this->insertSuccess;
 						}
 					};
@@ -262,5 +393,15 @@ class PopulateScanItemsTest extends BaseUnitTest {
 		];
 
 		PluginControllerInstaller::install( $controller );
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function coverageFamilies() :array {
+		return [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+			ScanActionVO::COVERAGE_FAMILY_MALWARE,
+		];
 	}
 }

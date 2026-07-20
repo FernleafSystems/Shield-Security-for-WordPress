@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\LicenseClear,
 	Actions\ReportingChartTrends,
 	Actions\Render\Components\Widgets\WpDashboardSummary,
+	Actions\ScansAttemptRecovery,
 	Actions\ScansCheck,
 	Actions\ScansStart,
 	Actions\ToolPurgeProviderIPs
@@ -153,6 +154,22 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertNotSame( '', $dashboardWidgetComp[ 'data' ][ 'strings' ][ 'load_failed' ] ?? '' );
 	}
 
+	public function test_ip_detect_component_is_localized_for_user_with_base_permission() :void {
+		$this->installEnvironment();
+
+		$ipDetect = $this->getLocalisedIpDetectComponent()[ 'ip_detect' ] ?? null;
+
+		$this->assertIsArray( $ipDetect );
+		$this->assertArrayHasKey( 'flags', $ipDetect );
+		$this->assertTrue( $ipDetect[ 'flags' ][ 'is_check_required' ] );
+	}
+
+	public function test_ip_detect_component_is_not_localized_for_user_without_base_permission() :void {
+		$this->installEnvironment( [], [], false, false );
+
+		$this->assertArrayNotHasKey( 'ip_detect', $this->getLocalisedIpDetectComponent() );
+	}
+
 	/**
 	 * @dataProvider ajaxRenderComponentProvider
 	 */
@@ -177,8 +194,9 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$scansData = \is_callable( $scansComp[ 'data' ] ?? null ) ? \call_user_func( $scansComp[ 'data' ] ) : [];
 		$ajax = \is_array( $scansData[ 'ajax' ] ?? null ) ? $scansData[ 'ajax' ] : [];
 
-		$this->assertEqualsCanonicalizing( [ 'check', 'start' ], \array_keys( $ajax ) );
+		$this->assertEqualsCanonicalizing( [ 'check', 'recover', 'start' ], \array_keys( $ajax ) );
 		$this->assertSame( ScansCheck::SLUG, $ajax[ 'check' ][ ActionData::FIELD_EXECUTE ] ?? null );
+		$this->assertSame( ScansAttemptRecovery::SLUG, $ajax[ 'recover' ][ ActionData::FIELD_EXECUTE ] ?? null );
 		$this->assertSame( ScansStart::SLUG, $ajax[ 'start' ][ ActionData::FIELD_EXECUTE ] ?? null );
 	}
 
@@ -212,7 +230,12 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertSame( ReportingChartTrends::SLUG, $reportsTrendsAjax[ 'render_chart' ][ ActionData::FIELD_EXECUTE ] ?? '' );
 	}
 
-	private function installEnvironment( array $query = [], array $completedTours = [], bool $hasRunningScans = false ) :void {
+	private function installEnvironment(
+		array $query = [],
+		array $completedTours = [],
+		bool $hasRunningScans = false,
+		bool $meetsBasePermissions = true
+	) :void {
 		$query = \array_merge( [
 			'page'                  => 'icwp-wpsf-plugin',
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_DASHBOARD,
@@ -239,7 +262,8 @@ class AssetsCustomizerTest extends BaseUnitTest {
 				true,
 				new AssetsCustomizerUserMetasStub( (object)[ 'tours' => $completedTours ] ),
 				self::VALID_VIDEO_URL,
-				$hasRunningScans
+				$hasRunningScans,
+				$meetsBasePermissions
 			)
 		);
 
@@ -263,6 +287,17 @@ class AssetsCustomizerTest extends BaseUnitTest {
 			}
 		}
 		return [];
+	}
+
+	private function getLocalisedIpDetectComponent() :array {
+		Functions\when( 'apply_filters' )->alias(
+			static function ( string $hook, $value, ...$args ) {
+				return $hook === 'shield/custom_localisations/components' && \is_array( $value )
+					? \array_intersect_key( $value, [ 'ip_detect' => true ] )
+					: $value;
+			}
+		);
+		return $this->getLocalisedCompsForHandle( 'wpadmin' );
 	}
 
 	private function getComponentDefinition( string $key ) :array {
@@ -365,23 +400,36 @@ class AssetsCustomizerControllerStub extends Controller {
 
 	private bool $pluginAdminPage;
 	private bool $pluginAdmin;
+	private bool $meetsBasePermissions;
 
 	public function __construct(
 		bool $pluginAdminPage,
 		bool $pluginAdmin,
 		object $userMetas,
 		string $dashboardVideoURL,
-		bool $hasRunningScans = false
+		bool $hasRunningScans = false,
+		bool $meetsBasePermissions = true
 	) {
 		$this->pluginAdminPage = $pluginAdminPage;
 		$this->pluginAdmin = $pluginAdmin;
+		$this->meetsBasePermissions = $meetsBasePermissions;
 		$this->user_metas = $userMetas;
 		$this->cfg = (object)[
 			'configuration' => new AssetsCustomizerConfigStub( [
 				'dashboard_intro_video_url_v22' => $dashboardVideoURL,
 			] ),
 		];
+		$this->opts = new class {
+			public function optGet( string $key ) {
+				return $key === 'ipdetect_at' ? 1 : null;
+			}
+		};
 		$this->comps = (object)[
+			'opts_lookup' => new class {
+				public function ipSource() :string {
+					return 'AUTO_DETECT_IP';
+				}
+			},
 			'scans_queue' => new class( $hasRunningScans ) {
 				private bool $hasRunningScans;
 
@@ -407,6 +455,10 @@ class AssetsCustomizerControllerStub extends Controller {
 
 	public function isPluginAdmin() :bool {
 		return $this->pluginAdmin;
+	}
+
+	public function getMeetsBasePermissions() :bool {
+		return $this->meetsBasePermissions;
 	}
 
 	public function isPremiumActive() :bool {

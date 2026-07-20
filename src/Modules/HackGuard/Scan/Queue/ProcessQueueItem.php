@@ -14,20 +14,24 @@ class ProcessQueueItem {
 	use PluginControllerConsumer;
 
 	public function run( QueueItemVO $item ) {
-		( new RunState() )->markRunning( $item );
+		$runState = new RunState();
+		$runState->markRunning( $item );
 
 		try {
 			$results = $this->runScanOnItem( $item );
 
 			( new Store() )->store( $item, $results );
 
-			self::con()
+			$itemFinished = self::con()
 				->db_con
 				->scan_items
 				->getQueryUpdater()
 				->updateById( $item->qitem_id, [
 					'finished_at' => Services::Request()->ts()
 				] );
+			if ( $itemFinished ) {
+				$runState->clearQueueItemExceptionForFinishedItem( $item );
+			}
 
 			( new SetScanCompleted() )->runForQueueItem( $item );
 		}
@@ -39,6 +43,7 @@ class ProcessQueueItem {
 				$item->scan,
 				$e->getMessage()
 			) );
+			$runState->recordQueueItemException( $item, $e );
 		}
 	}
 

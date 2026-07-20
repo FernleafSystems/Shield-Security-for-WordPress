@@ -48,7 +48,7 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertSame( $notifiedAt, (int)$resultItem->notified_at );
 		$this->assertSame( 0, (int)$resultItem->resolved_at );
 
-		$this->assertSame( 1, $this->countResultItemsForPath( $pathFragment ) );
+		$this->assertSame( 1, $this->countResultItemsForPath( $pathFull ) );
 		$this->assertSame( 1, $this->countScanResultLinks( $scanID, $legacyResultItemID ) );
 		$this->assertSame( 0, $this->countResultItemMetaForKey( $legacyResultItemID, 'path_full' ) );
 		$this->assertSame( 0, $this->countResultItemMetaForKey( $legacyResultItemID, 'path_fragment' ) );
@@ -107,16 +107,11 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 		};
 	}
 
-	private function countResultItemsForPath( string $pathFragment ) :int {
-		global $wpdb;
-		return (int)$wpdb->get_var( $wpdb->prepare(
-			"SELECT COUNT(*)
-				FROM `".self::con()->db_con->scan_result_items->getTable()."`
-				WHERE `item_type`=%s
-				  AND `item_id`=%s",
-			ResultItemsHandler::ITEM_TYPE_FILE,
-			$pathFragment
-		) );
+	private function countResultItemsForPath( string $path ) :int {
+		return self::con()->db_con->scan_result_items->getQuerySelector()
+			->filterByTypeFile()
+			->filterByItemID( TestDataFactory::afsFileItemIdFromPath( $path ) )
+			->count();
 	}
 
 	private function countScanResultLinks( int $scanID, int $resultItemID ) :int {

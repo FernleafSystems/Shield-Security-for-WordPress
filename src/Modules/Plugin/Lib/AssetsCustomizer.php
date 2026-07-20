@@ -249,8 +249,9 @@ class AssetsCustomizer {
 				],
 			],
 			'ip_detect'        => [
-				'key'     => 'ip_detect',
-				'handles' => [
+				'key'      => 'ip_detect',
+				'required' => $con->getMeetsBasePermissions(),
+				'handles'  => [
 					'main',
 					'wpadmin',
 				],
@@ -415,6 +416,7 @@ class AssetsCustomizer {
 				'data'     => fn() => [
 					'ajax'  => [
 						'check'            => ActionData::Build( Actions\ScansCheck::class ),
+						'recover'          => ActionData::Build( Actions\ScansAttemptRecovery::class ),
 						'start'            => ActionData::Build( Actions\ScansStart::class ),
 					],
 					'flags' => [

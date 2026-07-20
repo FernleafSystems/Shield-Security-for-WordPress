@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Scans;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\CreateNewScan;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
@@ -44,7 +45,7 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'manual', $scan->run_trigger );
 	}
 
-	public function testScanItemsSchemaDefaultsAttemptsToZeroInRealDb() :void {
+	public function testScanItemsSchemaPersistsItemCountAndDefaultsAttemptsToZeroInRealDb() :void {
 		$scanID = $this->createScan( 'afs', 'built', [
 			'ready_at'        => \time(),
 			'last_process_at' => \time(),
@@ -55,6 +56,84 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$item = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $itemID );
 
 		$this->assertSame( 0, $item->attempts );
+		$this->assertSame( 1, $item->item_count );
+	}
+
+	public function testScanItemProgressUsesWorkUnitsAndPreservesRowCountSelectorsInRealDb() :void {
+		$weightedScanID = $this->createScan( 'afs', 'running', [
+			'ready_at'        => \time(),
+			'last_process_at' => \time(),
+			'started_at'      => \time(),
+		] );
+		$largeItemID = $this->createScanItem( $weightedScanID, [ 'large-chunk' ], 0, \time(), 0, 80 );
+		$this->createScanItem( $weightedScanID, [ 'small-chunk' ], 0, 0, 0, 1 );
+		$legacyScanID = $this->createScan( 'wpv', 'built', [
+			'ready_at'        => \time(),
+			'last_process_at' => \time(),
+		] );
+		$this->createScanItem( $legacyScanID, [ 'legacy-row' ], 0, 0, 0, 0 );
+
+		/** @var ScanItemsDB\Select $selector */
+		$selector = $this->requireDb( 'scan_items' )->getQuerySelector();
+		$progress = $selector->countProgressForEachScan();
+		$allRows = $this->requireDb( 'scan_items' )->getQuerySelector()->countAllForEachScan();
+		$unfinishedRows = $this->requireDb( 'scan_items' )->getQuerySelector()->countUnfinishedForEachScan();
+		/** @var ScanItemsDB\Record $largeItem */
+		$largeItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $largeItemID );
+
+		$this->assertSame( 80, $largeItem->item_count );
+		$this->assertSame( [ 'total' => 81, 'unfinished' => 1 ], $progress[ $weightedScanID ] );
+		$this->assertSame( [ 'total' => 1, 'unfinished' => 1 ], $progress[ $legacyScanID ] );
+		$this->assertSame( 2, (int)$allRows[ $weightedScanID ] );
+		$this->assertSame( 1, (int)$unfinishedRows[ $weightedScanID ] );
+		$this->assertSame( 1, (int)$allRows[ $legacyScanID ] );
+		$this->assertSame( 1, (int)$unfinishedRows[ $legacyScanID ] );
+	}
+
+	public function testExplicitRecoveryAtomicallyClaimsOnlySameTimestampLowerIdHeadInRealDb() :void {
+		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
+		$lowerID = $this->createScan( 'afs', 'running', [
+			'created_at'      => $staleAt,
+			'ready_at'        => $staleAt,
+			'last_process_at' => $staleAt,
+			'started_at'      => $staleAt,
+		] );
+		$higherID = $this->createScan( 'wpv', 'running', [
+			'created_at'      => $staleAt,
+			'ready_at'        => $staleAt,
+			'last_process_at' => $staleAt,
+			'started_at'      => $staleAt,
+		] );
+		$waitingID = $this->createScan( 'apc', 'queued', [
+			'created_at'      => $staleAt - 100,
+			'last_process_at' => $staleAt,
+		] );
+		$lowerItemID = $this->createScanItem( $lowerID, [ 'afs-a' ], $staleAt, 0, 1 );
+		$higherItemID = $this->createScanItem( $higherID, [ 'wpv-a' ], $staleAt, 0, 1 );
+		$watchdog = new QueueWatchdog();
+
+		$this->assertLessThan( $higherID, $lowerID );
+		$this->assertFalse( $watchdog->recoverScanIfStale( $higherID ) );
+		$this->assertTrue( $watchdog->recoverScanIfStale( $lowerID ) );
+		$this->assertFalse( $watchdog->recoverScanIfStale( $lowerID ) );
+		$this->assertFalse( $watchdog->recoverScanIfStale( $waitingID ) );
+
+		/** @var ScansDB\Record $lower */
+		$lower = $this->requireDb( 'scans' )->getQuerySelector()->byId( $lowerID );
+		/** @var ScansDB\Record $higher */
+		$higher = $this->requireDb( 'scans' )->getQuerySelector()->byId( $higherID );
+		/** @var ScansDB\Record $waiting */
+		$waiting = $this->requireDb( 'scans' )->getQuerySelector()->byId( $waitingID );
+		/** @var ScanItemsDB\Record $lowerItem */
+		$lowerItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $lowerItemID );
+		/** @var ScanItemsDB\Record $higherItem */
+		$higherItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $higherItemID );
+
+		$this->assertGreaterThan( $staleAt, $lower->last_process_at );
+		$this->assertSame( 0, $lowerItem->started_at );
+		$this->assertSame( $staleAt, $higher->last_process_at );
+		$this->assertSame( $staleAt, $higherItem->started_at );
+		$this->assertSame( $staleAt, $waiting->last_process_at );
 	}
 
 	public function testRealDbWatchdogDoesNotResetFreshRunningWork() :void {
@@ -65,7 +144,7 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$itemID = $this->createScanItem( $scanID, [ 'example.php' ], \time() - 30, 0, 1 );
 
-		( new QueueWatchdog() )->runIfStale();
+		( new QueueWatchdog() )->run();
 
 		/** @var ScansDB\Record $scan */
 		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
@@ -75,6 +154,46 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$item = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $itemID );
 		$this->assertGreaterThan( 0, $item->started_at );
 		$this->assertSame( 0, $item->finished_at );
+	}
+
+	public function testScheduledWatchdogFinalizesLastActiveCronScanInRealDb() :void {
+		$con = $this->requireController();
+		$optionsSnapshot = $this->snapshotSelectedOptions( [ 'is_scan_cron' ] );
+		$postScanHook = $con->prefix( 'post_scan' );
+		$completedCalls = 0;
+		$completedCallback = static function () use ( &$completedCalls ) :void {
+			$completedCalls++;
+		};
+		\wp_clear_scheduled_hook( $postScanHook );
+		\add_action( 'shield/scan_queue_completed', $completedCallback );
+
+		try {
+			$con->opts->optSet( 'is_scan_cron', true )->store();
+			$scanID = $this->createScan( 'wpv', 'running', [
+				'ready_at'        => \time() - 30,
+				'last_process_at' => \time() - 30,
+				'started_at'      => \time() - 30,
+			] );
+			$this->createScanItem( $scanID, [ 'wpv-a' ], 0, \time() - 10 );
+
+			( new QueueWatchdog() )->runScheduled();
+
+			/** @var ScansDB\Record $scan */
+			$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+			$this->assertSame( 'completed', $scan->status );
+			$this->assertSame(
+				0,
+				$this->requireDb( 'scan_items' )->getQuerySelector()->filterByScan( $scanID )->count()
+			);
+			$this->assertSame( 1, $completedCalls );
+			$this->assertNotFalse( \wp_next_scheduled( $postScanHook ) );
+			$this->assertFalse( $con->opts->optGet( 'is_scan_cron' ) );
+		}
+		finally {
+			$this->restoreSelectedOptions( $optionsSnapshot );
+			\remove_action( 'shield/scan_queue_completed', $completedCallback );
+			\wp_clear_scheduled_hook( $postScanHook );
+		}
 	}
 
 	public function testQueueMaintenanceCompletesReadyScanWithOnlyFinishedItemsInRealDb() :void {
@@ -97,6 +216,10 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 	public function testQueueItemsNextUsesRealSqlToSelectOnlyReadyUnfinishedWork() :void {
 		$queuedID = $this->createScan( 'afs', 'queued' );
 		$this->createScanItem( $queuedID, [] );
+		$buildingID = $this->createScan( 'apc', 'building' );
+		$this->createScanItem( $buildingID, [] );
+		$notReadyID = $this->createScan( 'wpv', 'built' );
+		$this->createScanItem( $notReadyID, [] );
 		$finishedID = $this->createScan( 'apc', 'built', [
 			'ready_at'    => \time(),
 			'finished_at' => \time(),
@@ -125,6 +248,118 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$claimed = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $itemID );
 		$this->assertGreaterThan( 0, $claimed->started_at );
 		$this->assertSame( 1, $claimed->attempts );
+	}
+
+	public function testClaimedItemInOldestReadyScanBlocksNewerScanUntilCompletion() :void {
+		$createdAt = \time() - 120;
+		$oldScanID = $this->createScan( 'wpv', 'running', [
+			'created_at' => $createdAt,
+			'ready_at'   => $createdAt,
+			'started_at' => $createdAt,
+		] );
+		$oldItemID = $this->createScanItem( $oldScanID, [ 'old' ], $createdAt, 0, 1 );
+		$newScanID = $this->createScan( 'apc', 'built', [
+			'created_at' => $createdAt + 30,
+			'ready_at'   => $createdAt + 30,
+		] );
+		$newItemID = $this->createScanItem( $newScanID, [ 'new' ] );
+		$queueItems = new QueueItems();
+
+		$this->assertFalse( $queueItems->hasNextItem() );
+		$noQueueItems = false;
+		try {
+			$queueItems->next();
+		}
+		catch ( NoQueueItems $e ) {
+			$noQueueItems = true;
+		}
+		$this->assertTrue( $noQueueItems );
+		/** @var ScanItemsDB\Record $newItem */
+		$newItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $newItemID );
+		$this->assertSame( 0, $newItem->started_at );
+
+		$this->assertTrue( $this->requireDb( 'scan_items' )->getQueryUpdater()->updateById( $oldItemID, [
+			'finished_at' => \time(),
+		] ) );
+		( new QueueMaintenance() )->run();
+
+		/** @var ScansDB\Record $oldScan */
+		$oldScan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $oldScanID );
+		$this->assertSame( 'completed', $oldScan->status );
+		$this->assertTrue( $queueItems->hasNextItem() );
+		$this->assertSame( $newItemID, $queueItems->next()->qitem_id );
+	}
+
+	public function testNonterminalScanWithOnlyFinishedItemsBlocksUntilMaintenanceCompletesIt() :void {
+		$createdAt = \time() - 120;
+		$oldScanID = $this->createScan( 'wpv', 'running', [
+			'created_at' => $createdAt,
+			'ready_at'   => $createdAt,
+			'started_at' => $createdAt,
+		] );
+		$this->createScanItem( $oldScanID, [ 'old' ], $createdAt, \time() - 30, 1 );
+		$newScanID = $this->createScan( 'apc', 'built', [
+			'created_at' => $createdAt + 30,
+			'ready_at'   => $createdAt + 30,
+		] );
+		$newItemID = $this->createScanItem( $newScanID, [ 'new' ] );
+		$queueItems = new QueueItems();
+
+		$this->assertFalse( $queueItems->hasNextItem() );
+		( new QueueMaintenance() )->run();
+
+		/** @var ScansDB\Record $oldScan */
+		$oldScan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $oldScanID );
+		$this->assertSame( 'completed', $oldScan->status );
+		$this->assertTrue( $queueItems->hasNextItem() );
+		$this->assertSame( $newItemID, $queueItems->next()->qitem_id );
+	}
+
+	public function testOldestReadyScanSuppliesItsUnclaimedItemBeforeNewerScan() :void {
+		$createdAt = \time() - 120;
+		$oldScanID = $this->createScan( 'wpv', 'running', [
+			'created_at' => $createdAt,
+			'ready_at'   => $createdAt,
+			'started_at' => $createdAt,
+		] );
+		$this->createScanItem( $oldScanID, [ 'claimed' ], $createdAt, 0, 1 );
+		$oldUnclaimedItemID = $this->createScanItem( $oldScanID, [ 'unclaimed' ] );
+		$newScanID = $this->createScan( 'apc', 'built', [
+			'created_at' => $createdAt + 30,
+			'ready_at'   => $createdAt + 30,
+		] );
+		$newItemID = $this->createScanItem( $newScanID, [ 'new' ] );
+
+		$item = ( new QueueItems() )->next();
+
+		$this->assertSame( $oldScanID, $item->scan_id );
+		$this->assertSame( $oldUnclaimedItemID, $item->qitem_id );
+		/** @var ScanItemsDB\Record $newItem */
+		$newItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $newItemID );
+		$this->assertSame( 0, $newItem->started_at );
+	}
+
+	public function testEqualScanCreationTimesUseScanIdThenItemId() :void {
+		$createdAt = \time() - 120;
+		$lowerScanID = $this->createScan( 'wpv', 'built', [
+			'created_at' => $createdAt,
+			'ready_at'   => $createdAt,
+		] );
+		$higherScanID = $this->createScan( 'apc', 'built', [
+			'created_at' => $createdAt,
+			'ready_at'   => $createdAt,
+		] );
+		$higherScanItemID = $this->createScanItem( $higherScanID, [ 'higher-scan' ] );
+		$lowerFirstItemID = $this->createScanItem( $lowerScanID, [ 'lower-first' ] );
+		$lowerSecondItemID = $this->createScanItem( $lowerScanID, [ 'lower-second' ] );
+
+		$item = ( new QueueItems() )->next();
+
+		$this->assertLessThan( $higherScanID, $lowerScanID );
+		$this->assertLessThan( $lowerFirstItemID, $higherScanItemID );
+		$this->assertLessThan( $lowerSecondItemID, $lowerFirstItemID );
+		$this->assertSame( $lowerScanID, $item->scan_id );
+		$this->assertSame( $lowerFirstItemID, $item->qitem_id );
 	}
 
 	public function testProcessorExpiredCleanupResetsStaleStartedItemsWithoutFailingRecoverableScan() :void {
@@ -259,19 +494,21 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $scan->meta[ RunState::META_KEY_LAST_ERROR ] ?? '' );
 	}
 
-	public function testWatchdogRecoversStaleQueuedScanThroughRealSelectors() :void {
+	public function testWatchdogPersistsTwoQueuedRecoveryAttemptsThenFailsThroughRealSelectors() :void {
 		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
 		$scanID = $this->createScan( 'afs', 'queued', [
 			'created_at' => $staleAt,
 		] );
 		$watchdog = new QueueWatchdog();
 
-		$watchdog->runIfStale();
+		$watchdog->run();
 
 		/** @var ScansDB\Record $scan */
 		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
 		$this->assertSame( 'queued', $scan->status );
 		$this->assertSame( 0, $scan->finished_at );
+		$this->assertSame( 1, $scan->meta[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'attempts' ] ?? null );
+		$this->assertGreaterThan( 0, $scan->meta[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'last_attempt_at' ] ?? 0 );
 		$this->assertSame(
 			1,
 			$this->requireDb( 'scans' )->getQuerySelector()
@@ -281,6 +518,28 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 				 ->count()
 		);
 		$this->assertNotFalse( \wp_next_scheduled( $watchdog->hook() ) );
+
+		$scan->meta = $this->recoveryMeta( 1, $staleAt );
+		$this->requireDb( 'scans' )->getQueryUpdater()->updateById( $scanID, [
+			'last_process_at' => $staleAt,
+			'meta'            => $scan->getRawData()[ 'meta' ],
+		] );
+		$watchdog->run();
+
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$this->assertSame( 'queued', $scan->status );
+		$this->assertSame( 2, $scan->meta[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'attempts' ] ?? null );
+
+		$scan->meta = $this->recoveryMeta( 2, $staleAt );
+		$this->requireDb( 'scans' )->getQueryUpdater()->updateById( $scanID, [
+			'last_process_at' => $staleAt,
+			'meta'            => $scan->getRawData()[ 'meta' ],
+		] );
+		$watchdog->run();
+
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$this->assertSame( 'failed', $scan->status );
+		$this->assertGreaterThan( 0, $scan->finished_at );
 	}
 
 	public function testWatchdogResetsStaleClaimedItemInRealDb() :void {
@@ -309,6 +568,43 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( QueueRecovery::MAX_ITEM_ATTEMPTS - 1, $item->attempts );
 	}
 
+	public function testWatchdogResetsAllStaleClaimedItemsInRealDb() :void {
+		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
+		$scanID = $this->createScan( 'wpv', 'running', [
+			'ready_at'        => $staleAt,
+			'started_at'      => $staleAt,
+			'last_process_at' => $staleAt,
+		] );
+		$firstItemID = $this->createScanItem(
+			$scanID,
+			[ 'wp-simple-firewall/icwp-wpsf.php' ],
+			$staleAt,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+		$secondItemID = $this->createScanItem(
+			$scanID,
+			[ 'two-factor/two-factor.php' ],
+			$staleAt,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+
+		( new QueueWatchdog() )->run();
+
+		/** @var ScansDB\Record $scan */
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		/** @var ScanItemsDB\Record $firstItem */
+		$firstItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $firstItemID );
+		/** @var ScanItemsDB\Record $secondItem */
+		$secondItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $secondItemID );
+		$this->assertSame( 'running', $scan->status );
+		$this->assertSame( 0, $firstItem->started_at );
+		$this->assertSame( 0, $secondItem->started_at );
+		$this->assertSame( QueueRecovery::MAX_ITEM_ATTEMPTS - 1, $firstItem->attempts );
+		$this->assertSame( QueueRecovery::MAX_ITEM_ATTEMPTS - 1, $secondItem->attempts );
+	}
+
 	public function testWatchdogFailsExhaustedStaleRunningScanAndDeletesUnfinishedItemsInRealDb() :void {
 		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
 		$scanID = $this->createScan( 'afs', 'running', [
@@ -319,6 +615,44 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$this->createScanItem(
 			$scanID,
 			[ 'example.php' ],
+			$staleAt,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS
+		);
+
+		( new QueueWatchdog() )->run();
+
+		/** @var ScansDB\Record $scan */
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$this->assertSame( 'failed', $scan->status );
+		$this->assertGreaterThan( 0, $scan->finished_at );
+		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $scan->meta[ RunState::META_KEY_LAST_ERROR ] ?? '' );
+		$this->assertSame(
+			0,
+			$this->requireDb( 'scan_items' )->getQuerySelector()
+				 ->filterByScan( $scanID )
+				 ->filterByNotFinished()
+				 ->count()
+		);
+	}
+
+	public function testWatchdogFailsWhenLaterStaleClaimedItemIsExhaustedInRealDb() :void {
+		$staleAt = \time() - QueueWatchdog::STALE_AFTER - 60;
+		$scanID = $this->createScan( 'wpv', 'running', [
+			'ready_at'        => $staleAt,
+			'started_at'      => $staleAt,
+			'last_process_at' => $staleAt,
+		] );
+		$this->createScanItem(
+			$scanID,
+			[ 'wp-simple-firewall/icwp-wpsf.php' ],
+			$staleAt,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+		$this->createScanItem(
+			$scanID,
+			[ 'two-factor/two-factor.php' ],
 			$staleAt,
 			0,
 			QueueRecovery::MAX_ITEM_ATTEMPTS
@@ -468,13 +802,21 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		return (int)$GLOBALS[ 'wpdb' ]->insert_id;
 	}
 
-	private function createScanItem( int $scanID, array $items, int $startedAt = 0, int $finishedAt = 0, int $attempts = 0 ) :int {
+	private function createScanItem(
+		int $scanID,
+		array $items,
+		int $startedAt = 0,
+		int $finishedAt = 0,
+		int $attempts = 0,
+		?int $itemCount = null
+	) :int {
 		/** @var ScanItemsDB\Handler $scanItems */
 		$scanItems = $this->requireDb( 'scan_items' );
 		/** @var ScanItemsDB\Record $record */
 		$record = $scanItems->getRecord();
 		$record->scan_ref = $scanID;
 		$record->items = $items;
+		$record->item_count = $itemCount ?? \count( $items );
 		$record->started_at = $startedAt;
 		$record->attempts = $attempts;
 		$record->finished_at = $finishedAt;

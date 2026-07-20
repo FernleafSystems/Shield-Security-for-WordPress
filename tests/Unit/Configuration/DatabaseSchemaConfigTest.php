@@ -9,6 +9,18 @@ class DatabaseSchemaConfigTest extends TestCase {
 
 	use PluginPathsTrait;
 
+	public function test_scan_items_item_count_definition_matches_generated_config() :void {
+		$source = $this->decodePluginJsonFile( 'plugin-spec/43_databases.json', 'Database schema source spec' );
+		$generated = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
+		$expected = [
+			'macro_type' => 'unsigned_int',
+			'comment'    => 'Number of scan items in this queue row',
+		];
+
+		$this->assertSame( $expected, $source[ 'tables' ][ 'scan_items' ][ 'cols_custom' ][ 'item_count' ] ?? null );
+		$this->assertSame( $expected, $generated[ 'config_spec' ][ 'databases' ][ 'tables' ][ 'scan_items' ][ 'cols_custom' ][ 'item_count' ] ?? null );
+	}
+
 	public function test_custom_database_column_names_do_not_use_mysql_reserved_words() :void {
 		$config = $this->decodePluginJsonFile( 'plugin-spec/43_databases.json', 'Database schema source spec' );
 		$reservedWords = $this->mysqlReservedWords();

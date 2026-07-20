@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
+	AssetTrustResolver,
+	Retrieve
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -41,29 +45,46 @@ class Cleanup {
 			return;
 		}
 
-		if ( !$this->ensureAssetReadyForScan( $assetType, $assetKey ) ) {
+		$readiness = $this->prepareAssetForScan( $assetType, $assetKey );
+		if ( !$readiness[ 'ready' ] ) {
 			if ( $retry < self::MAX_RETRIES ) {
 				$this->schedule( $assetType, $assetKey, self::CRON_DELAY, $retry + 1 );
 			}
 			return;
 		}
 
+		if ( $readiness[ 'reset_memoization' ] ) {
+			Retrieve::resetMemoization();
+			AssetTrustResolver::resetMemoization();
+		}
 		self::con()->comps->scans->startAfsAssetScan( $assetType, $assetKey );
 	}
 
-	private function ensureAssetReadyForScan( string $assetType, string $assetKey ) :bool {
+	/**
+	 * @return array{ready:bool, reset_memoization:bool}
+	 */
+	private function prepareAssetForScan( string $assetType, string $assetKey ) :array {
 		if ( $assetType === 'core' ) {
 			try {
-				return Services::CoreFileHashes()->isReady();
+				return [
+					'ready'             => Services::CoreFileHashes()->isReady(),
+					'reset_memoization' => false,
+				];
 			}
 			catch ( \Throwable $e ) {
-				return false;
+				return [
+					'ready'             => false,
+					'reset_memoization' => false,
+				];
 			}
 		}
 
 		$asset = $this->loadAsset( $assetType, $assetKey );
 		if ( empty( $asset ) ) {
-			return true;
+			return [
+				'ready'             => true,
+				'reset_memoization' => false,
+			];
 		}
 
 		try {
@@ -75,10 +96,17 @@ class Cleanup {
 				->setAsset( $asset )
 				->run();
 
-			return $store->verify() && \count( $store->getSnapData() ) > 0;
+			$ready = $store->verify() && \count( $store->getSnapData() ) > 0;
+			return [
+				'ready'             => $ready,
+				'reset_memoization' => $ready,
+			];
 		}
 		catch ( \Throwable $e ) {
-			return false;
+			return [
+				'ready'             => false,
+				'reset_memoization' => false,
+			];
 		}
 	}
 

@@ -7,19 +7,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Ba
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItemVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SetScanCompleted {
 	use PluginControllerConsumer;
 
 	public function runForQueueItem( QueueItemVO $queueItem ): bool {
-		$scanRecord = new ScansDB\Record();
-		$scanRecord->id = $queueItem->scan_id;
-		$scanRecord->scan = $queueItem->scan;
-		$scanRecord->scope_type = $queueItem->scope_type;
-		$scanRecord->scope_key = $queueItem->scope_key;
-		$scanRecord->run_trigger = $queueItem->run_trigger;
-		return $this->run( $queueItem->scan_id, $scanRecord );
+		return $this->run( $queueItem->scan_id );
 	}
 
 	public function run( int $scanID, ?ScansDB\Record $scanRecord = null, bool $persistScanMeta = false ): bool {
@@ -63,9 +58,8 @@ class SetScanCompleted {
 			return false;
 		}
 
-		if ( empty( $scanRecord ) ) {
-			$scanRecord = $dbCon->scans->getQuerySelector()->byId( $scanID );
-		}
+		/** @var ?ScansDB\Record $scanRecord */
+		$scanRecord = $dbCon->scans->getQuerySelector()->byId( $scanID );
 		if ( empty( $scanRecord ) ) {
 			return true;
 		}
@@ -129,6 +123,10 @@ class SetScanCompleted {
 	private function resolveStaleItemsForRun( int $scanID, ScansDB\Record $scanRecord, int $resolvedAt ): void {
 		$scanSlug = \preg_replace( '/[^a-z0-9_]/i', '', $scanRecord->scan ) ?? '';
 		$scopeWhere = $this->buildScopeWhere( $scanRecord );
+		$coverageWhere = $this->buildCoverageWhere( $scanRecord );
+		if ( $coverageWhere === null ) {
+			return;
+		}
 		$reason = $scanSlug === 'afs'
 		          && \in_array( $scanRecord->scope_type, [ 'core', 'plugin', 'theme' ], true )
 		          && $scanRecord->run_trigger === 'asset_change'
@@ -143,6 +141,7 @@ class SetScanCompleted {
 					WHERE `scan`='%s'
 					  AND `resolved_at`=0
 					  %s
+					  %s
 					  AND NOT EXISTS (
 						SELECT 1
 						FROM `%s` as `sr`
@@ -154,6 +153,7 @@ class SetScanCompleted {
 				$reason,
 				$scanSlug,
 				$scopeWhere,
+				$coverageWhere,
 				self::con()->db_con->scan_results->getTable(),
 				$scanID,
 				self::con()->db_con->scan_result_items->getTable()
@@ -162,6 +162,131 @@ class SetScanCompleted {
 		if ( \is_int( $affectedRows ) && $affectedRows > 0 ) {
 			self::con()->comps->scans->resetScanResultsCountMemoization();
 		}
+	}
+
+	private function buildCoverageWhere( ScansDB\Record $scanRecord ) :?string {
+		if ( $scanRecord->scan !== 'afs' ) {
+			return '';
+		}
+
+		$meta = $scanRecord->meta;
+		$families = \is_array( $meta ) ? ( $meta[ 'coverage_families' ] ?? null ) : null;
+		if ( !$this->isValidCoverageFamilies( $families ) ) {
+			return null;
+		}
+
+		$integrityOwnership = $this->buildCoveredOwnershipHaving( $families, [
+			ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY   => 'is_in_core',
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY => 'is_in_plugin',
+			ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY  => 'is_in_theme',
+		] );
+		$unidentifiedLocation = $this->buildCoveredOwnershipHaving( $families, [
+			ScanActionVO::COVERAGE_FAMILY_WPROOT_UNIDENTIFIED    => 'is_in_wproot',
+			ScanActionVO::COVERAGE_FAMILY_WPCONTENT_UNIDENTIFIED => 'is_in_wpcontent',
+		] );
+
+		$unrecognised = $this->truthyMetaAggregate( 'is_unrecognised' );
+		$malware = $this->truthyMetaAggregate( 'is_mal' );
+		$missing = $this->truthyMetaAggregate( 'is_missing' );
+		$checksumFail = $this->truthyMetaAggregate( 'is_checksumfail' );
+		$unidentified = $this->truthyMetaAggregate( 'is_unidentified' );
+		$coveredIssues = [];
+		if ( $integrityOwnership !== '' ) {
+			$coveredIssues[] = \sprintf( '(%s=1 AND (%s))', $unrecognised, $integrityOwnership );
+		}
+		if ( \in_array( ScanActionVO::COVERAGE_FAMILY_MALWARE, $families, true ) ) {
+			$coveredIssues[] = \sprintf( '(%s=0 AND %s=1)', $unrecognised, $malware );
+		}
+		if ( $integrityOwnership !== '' ) {
+			$coveredIssues[] = \sprintf(
+				'(%s=0 AND %s=0 AND %s=1 AND (%s))',
+				$unrecognised,
+				$malware,
+				$missing,
+				$integrityOwnership
+			);
+			$coveredIssues[] = \sprintf(
+				'(%s=0 AND %s=0 AND %s=0 AND %s=1 AND (%s))',
+				$unrecognised,
+				$malware,
+				$missing,
+				$checksumFail,
+				$integrityOwnership
+			);
+		}
+		if ( $unidentifiedLocation !== '' ) {
+			$coveredIssues[] = \sprintf(
+				'(%s=0 AND %s=0 AND %s=0 AND %s=0 AND %s=1 AND (%s))',
+				$unrecognised,
+				$malware,
+				$missing,
+				$checksumFail,
+				$unidentified,
+				$unidentifiedLocation
+			);
+		}
+
+		return \sprintf(
+			" AND EXISTS (
+				SELECT 1
+				FROM `%s` AS `rim_coverage`
+				WHERE `rim_coverage`.`ri_ref`=`%s`.`id`
+				  AND `rim_coverage`.`meta_value`!=''
+				  AND `rim_coverage`.`meta_value`!='0'
+				GROUP BY `rim_coverage`.`ri_ref`
+				HAVING %s
+			  )",
+			self::con()->db_con->scan_result_item_meta->getTable(),
+			self::con()->db_con->scan_result_items->getTable(),
+			\implode( ' OR ', $coveredIssues )
+		);
+	}
+
+	private function isValidCoverageFamilies( $families ) :bool {
+		if ( !\is_array( $families ) || empty( $families )
+			 || \array_keys( $families ) !== \range( 0, \count( $families ) - 1 ) ) {
+			return false;
+		}
+
+		foreach ( $families as $family ) {
+			if ( !\is_string( $family ) || !\in_array( $family, ScanActionVO::COVERAGE_FAMILIES, true ) ) {
+				return false;
+			}
+		}
+
+		return \count( \array_unique( $families, \SORT_STRING ) ) === \count( $families );
+	}
+
+	/**
+	 * @param list<string> $families
+	 * @param array<string,string> $familyFlags
+	 */
+	private function buildCoveredOwnershipHaving( array $families, array $familyFlags ) :string {
+		$covered = [];
+		foreach ( $familyFlags as $family => $selectedFlag ) {
+			if ( !\in_array( $family, $families, true ) ) {
+				continue;
+			}
+
+			$ownership = [];
+			foreach ( $familyFlags as $flag ) {
+				$ownership[] = \sprintf(
+					'%s=%d',
+					$this->truthyMetaAggregate( $flag ),
+					$flag === $selectedFlag ? 1 : 0
+				);
+			}
+			$covered[] = '('.\implode( ' AND ', $ownership ).')';
+		}
+
+		return \implode( ' OR ', $covered );
+	}
+
+	private function truthyMetaAggregate( string $metaKey ) :string {
+		return \sprintf(
+			"MAX(CASE WHEN `rim_coverage`.`meta_key`='%s' THEN 1 ELSE 0 END)",
+			esc_sql( $metaKey )
+		);
 	}
 
 	private function buildScopeWhere( ScansDB\Record $scanRecord ): string {

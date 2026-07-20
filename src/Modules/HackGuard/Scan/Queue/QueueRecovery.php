@@ -15,47 +15,51 @@ class QueueRecovery {
 	public const MAX_RESUME_ATTEMPTS = 2;
 	public const RESUME_COOLDOWN = 60;
 
-	public function recoverReadyScan( ScansDB\Record $scan ) :void {
+	public function recoverReadyScan( ScansDB\Record $scan ) :bool {
 		$scanID = (int)$scan->id;
 		if ( $scanID < 1 ) {
-			return;
+			return false;
 		}
 
-		$claimedItem = $this->startedUnfinishedItem( $scanID );
-		if ( !empty( $claimedItem ) ) {
-			$this->recoverClaimedItem( $scanID, $claimedItem );
-			return;
+		$claimedItems = $this->startedUnfinishedItems( $scanID );
+		if ( !empty( $claimedItems ) ) {
+			$this->recoverClaimedItems( $scanID, $claimedItems );
+			return true;
 		}
 
 		$unstartedItemID = $this->unstartedUnfinishedItemID( $scanID );
 		if ( $unstartedItemID > 0 ) {
-			$this->resumeUnstartedWork( $scan, $unstartedItemID );
+			return $this->resumeUnstartedWork( $scan, $unstartedItemID );
 		}
+
+		return true;
 	}
 
-	private function recoverClaimedItem( int $scanID, array $item ) :void {
-		$itemID = (int)( $item[ 'id' ] ?? 0 );
-		$attempts = (int)( $item[ 'attempts' ] ?? 0 );
-		if ( $itemID < 1 ) {
-			return;
-		}
+	/**
+	 * @param list<array{id:int,attempts:int}> $items
+	 */
+	private function recoverClaimedItems( int $scanID, array $items ) :void {
+		$itemIDs = [];
+		foreach ( $items as $item ) {
+			if ( $item[ 'attempts' ] >= self::MAX_ITEM_ATTEMPTS ) {
+				( new RunState() )->markFailed( $scanID, ReconcileQueue::MESSAGE_TIMED_OUT );
+				return;
+			}
 
-		if ( $attempts >= self::MAX_ITEM_ATTEMPTS ) {
-			( new RunState() )->markFailed( $scanID, ReconcileQueue::MESSAGE_TIMED_OUT );
-			return;
+			$itemIDs[] = $item[ 'id' ];
 		}
 
 		Services::WpDb()->doSql(
 			sprintf( "UPDATE `%s`
 					SET `started_at`=0
-					WHERE `id`=%d
-					  AND `scan_ref`=%d
+					WHERE `scan_ref`=%d
+					  AND `id` IN (%s)
 					  AND `finished_at`=0
 					  AND `started_at`>0
 					  AND `attempts`<%d;",
 				self::con()->db_con->scan_items->getTable(),
-				$itemID,
 				$scanID,
+				\implode( ',', $itemIDs ),
 				self::MAX_ITEM_ATTEMPTS
 			)
 		);
@@ -64,10 +68,10 @@ class QueueRecovery {
 		self::con()->comps->scans_queue->getQueueProcessor()->dispatch();
 	}
 
-	private function resumeUnstartedWork( ScansDB\Record $scan, int $unstartedItemID ) :void {
+	private function resumeUnstartedWork( ScansDB\Record $scan, int $unstartedItemID ) :bool {
 		if ( $this->hasEarlierUnfinishedReadyWork( $scan, $unstartedItemID ) ) {
 			$this->touchScan( (int)$scan->id );
-			return;
+			return true;
 		}
 
 		$now = Services::Request()->ts();
@@ -78,26 +82,34 @@ class QueueRecovery {
 
 		$lastAttemptAt = (int)( $recovery[ 'last_attempt_at' ] ?? 0 );
 		if ( $lastAttemptAt > $now - self::RESUME_COOLDOWN ) {
-			return;
+			return true;
 		}
 
-		$attempts = (int)( $recovery[ 'attempts' ] ?? 0 ) + 1;
+		$attempts = (int)( $recovery[ 'attempts' ] ?? 0 );
 		if ( $attempts >= self::MAX_RESUME_ATTEMPTS ) {
 			( new RunState() )->markFailed( (int)$scan->id, ReconcileQueue::MESSAGE_TIMED_OUT );
-			return;
+			return true;
 		}
+		$attempts++;
 
 		$meta[ RunState::META_KEY_WATCHDOG_RECOVERY ] = [
 			'attempts'        => $attempts,
 			'last_attempt_at' => $now,
 		];
 		$scan->meta = $meta;
-		self::con()->db_con->scans->getQueryUpdater()->updateById( (int)$scan->id, [
+		if ( !self::con()->db_con->scans->getQueryUpdater()->updateById( (int)$scan->id, [
 			'last_process_at' => $now,
 			'meta'            => $scan->getRawData()[ 'meta' ],
-		] );
+		] ) ) {
+			error_log( \sprintf(
+				'Shield scan recovery persistence failed: scan_id=%d phase=ready-unstarted',
+				(int)$scan->id
+			) );
+			return false;
+		}
 
 		self::con()->comps->scans_queue->getQueueProcessor()->dispatch();
+		return true;
 	}
 
 	private function touchScan( int $scanID ) :void {
@@ -108,20 +120,36 @@ class QueueRecovery {
 		}
 	}
 
-	private function startedUnfinishedItem( int $scanID ) :array {
-		$row = Services::WpDb()->selectRow(
+	/**
+	 * @return list<array{id:int,attempts:int}>
+	 */
+	private function startedUnfinishedItems( int $scanID ) :array {
+		$rows = Services::WpDb()->selectCustom(
 			sprintf( "SELECT `id`, `attempts`
 					FROM `%s`
 					WHERE `scan_ref`=%d
 					  AND `finished_at`=0
 					  AND `started_at`>0
-					ORDER BY `id` ASC
-					LIMIT 1;",
+					ORDER BY `id` ASC;",
 				self::con()->db_con->scan_items->getTable(),
 				$scanID
 			)
 		);
-		return \is_array( $row ) ? $row : [];
+		$items = [];
+		foreach ( \is_array( $rows ) ? $rows : [] as $row ) {
+			if ( !\is_array( $row ) ) {
+				continue;
+			}
+			$itemID = (int)( $row[ 'id' ] ?? 0 );
+			if ( $itemID < 1 ) {
+				continue;
+			}
+			$items[] = [
+				'id'       => $itemID,
+				'attempts' => (int)( $row[ 'attempts' ] ?? 0 ),
+			];
+		}
+		return $items;
 	}
 
 	private function unstartedUnfinishedItemID( int $scanID ) :int {

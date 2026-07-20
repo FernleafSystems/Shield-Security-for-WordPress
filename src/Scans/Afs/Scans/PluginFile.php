@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Scans;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
-	AssetTrustResolver,
 	Exceptions\AssetHashesNotFound,
 	Exceptions\NonAssetFileException,
 	Exceptions\UnrecognisedAssetFile
@@ -23,11 +22,15 @@ class PluginFile extends BasePluginThemeFile {
 	/**
 	 * @throws Exceptions\PluginFileUnrecognisedException
 	 * @throws Exceptions\PluginFileChecksumFailException
+	 * @throws AssetHashesNotFound
+	 * @throws NonAssetFileException
+	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	protected function runScan() :bool {
 		$context = $this->getAssetContext();
 		try {
-			$verification = ( new AssetTrustResolver() )->verifyContext( $this->pathFull, $context );
+			$verification = $this->getAssetTrustState()->verifyAssetContext( $this->pathFull, $context );
 			if ( !$verification->verified ) {
 				throw new Exceptions\PluginFileChecksumFailException( $this->pathFull, [
 					'slug'          => $verification->assetKey,
@@ -35,7 +38,7 @@ class PluginFile extends BasePluginThemeFile {
 				] );
 			}
 			$this->hashVerificationResult = $verification;
-			$valid = true;
+			return true;
 		}
 		catch ( UnrecognisedAssetFile $e ) {
 			throw new Exceptions\PluginFileUnrecognisedException( $this->pathFull, [
@@ -43,10 +46,5 @@ class PluginFile extends BasePluginThemeFile {
 				'asset_version' => $context->assetVersion,
 			] );
 		}
-		catch ( \InvalidArgumentException|AssetHashesNotFound|NonAssetFileException $e ) {
-			$valid = false;
-		}
-
-		return $valid;
 	}
 }

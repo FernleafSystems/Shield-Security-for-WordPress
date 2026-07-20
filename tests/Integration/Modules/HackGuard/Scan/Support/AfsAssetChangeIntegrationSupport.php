@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard\Scan\Support;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueItemVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Store;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
@@ -12,7 +13,6 @@ trait AfsAssetChangeIntegrationSupport {
 
 	/**
 	 * @return array{
-	 *   asset_type:string,
 	 *   asset_key:string,
 	 *   scope_type:string,
 	 *   scope_key:string,
@@ -27,7 +27,6 @@ trait AfsAssetChangeIntegrationSupport {
 			$assetKey = self::con()->base_file;
 			$pathFull = \wp_normalize_path( WP_PLUGIN_DIR.'/'.$assetKey );
 			return [
-				'asset_type'      => 'plugin',
 				'asset_key'       => $assetKey,
 				'scope_type'      => 'plugin',
 				'scope_key'       => $assetKey,
@@ -46,7 +45,6 @@ trait AfsAssetChangeIntegrationSupport {
 			$assetKey = 'shield-integration-theme';
 			$pathFull = \wp_normalize_path( WP_CONTENT_DIR.'/themes/'.$assetKey.'/style.php' );
 			return [
-				'asset_type'      => 'theme',
 				'asset_key'       => $assetKey,
 				'scope_type'      => 'theme',
 				'scope_key'       => $assetKey,
@@ -64,7 +62,6 @@ trait AfsAssetChangeIntegrationSupport {
 		if ( $assetType === 'core' ) {
 			$pathFull = \wp_normalize_path( \path_join( ABSPATH, WPINC.'/version.php' ) );
 			return [
-				'asset_type'      => 'core',
 				'asset_key'       => 'core',
 				'scope_type'      => 'core',
 				'scope_key'       => 'core',
@@ -82,7 +79,7 @@ trait AfsAssetChangeIntegrationSupport {
 	}
 
 	/**
-	 * @param array<string,mixed> $scenario
+	 * @param array{meta:array<string,int|string>} $scenario
 	 * @param array<string,int|string>|null $meta
 	 * @return array{scan_result_id:int,result_item_id:int,meta_ids:list<int>}
 	 */
@@ -96,17 +93,22 @@ trait AfsAssetChangeIntegrationSupport {
 	}
 
 	/**
-	 * @param array<string,mixed> $scenario
-	 * @param array<string,int|string>|null $meta
+	 * @param array{path_full:string,meta:array<string,int|string>} $scenario
 	 */
-	protected function storeAfsObservation( int $scanID, array $scenario, ?array $meta = null ) :void {
-		( new Store() )->store( $this->newAfsQueueItem( $scanID ), [
-			\array_merge( [
-				'path_full'     => $scenario[ 'path_full' ],
-				'path_fragment' => $scenario[ 'path_full' ],
-				'file_path'     => $scenario[ 'path_full' ],
-			], $meta ?? $scenario[ 'meta' ] ),
-		] );
+	protected function storeAfsObservation( int $scanID, array $scenario ) :ResultItemsDB\Record {
+		$rawResult = \array_merge( [
+			'path_full'     => $scenario[ 'path_full' ],
+			'path_fragment' => $scenario[ 'path_full' ],
+			'file_path'     => $scenario[ 'path_full' ],
+		], $scenario[ 'meta' ] );
+
+		( new Store() )->store( $this->newAfsQueueItem( $scanID ), [ $rawResult ] );
+
+		$resultItem = $this->selectAfsResultItemsForPath( (string)$rawResult[ 'path_fragment' ] )
+			->filterByUnresolved()
+			->first();
+		$this->assertInstanceOf( ResultItemsDB\Record::class, $resultItem );
+		return $resultItem;
 	}
 
 	protected function newAfsQueueItem( int $scanID ) :QueueItemVO {
@@ -117,9 +119,13 @@ trait AfsAssetChangeIntegrationSupport {
 		return $queueItem;
 	}
 
+	/**
+	 * @param list<string> $coverageFamilies
+	 */
 	protected function insertAfsScan(
 		string $scopeType,
 		string $scopeKey,
+		array $coverageFamilies,
 		string $runTrigger = 'asset_change'
 	) :int {
 		$dbh = self::con()->db_con->scans;
@@ -133,21 +139,23 @@ trait AfsAssetChangeIntegrationSupport {
 		$record->last_process_at = Services::Request()->ts();
 		$record->ready_at = \max( 1, Services::Request()->ts() - 60 );
 		$record->finished_at = 0;
+		$record->meta = [
+			'coverage_families' => $coverageFamilies,
+		];
 
 		$this->assertTrue( $dbh->getQueryInserter()->insert( $record ) );
 		return (int)$GLOBALS[ 'wpdb' ]->insert_id;
 	}
 
-	protected function countAfsResultItemsForPath( string $pathFragment ) :int {
-		global $wpdb;
-		return (int)$wpdb->get_var( $wpdb->prepare(
-			"SELECT COUNT(*)
-				FROM `".self::con()->db_con->scan_result_items->getTable()."`
-				WHERE `scan`=%s
-				  AND `item_id`=%s",
-			'afs',
-			$pathFragment
-		) );
+	protected function countAfsResultItemsForPath( string $path ) :int {
+		return $this->selectAfsResultItemsForPath( $path )->count();
+	}
+
+	protected function selectAfsResultItemsForPath( string $path ) :ResultItemsDB\Select {
+		return self::con()->db_con->scan_result_items->getQuerySelector()
+			->filterByScan( 'afs' )
+			->filterByTypeFile()
+			->filterByItemID( TestDataFactory::afsFileItemIdFromPath( $path ) );
 	}
 
 	protected function countAfsScanResultLinks( int $scanID, int $resultItemID ) :int {

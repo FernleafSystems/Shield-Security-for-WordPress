@@ -14,12 +14,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
 	ScansController,
 	StartScansResult
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs as AfsController;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDeactivate;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	CompleteQueue,
 	Controller as QueueController,
 	ProcessQueueItem,
 	QueueInit,
+	QueueItemVO,
 	QueueItems,
 	QueueMaintenance,
 	QueueProcessor,
@@ -28,6 +30,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	ReconcileQueue,
 	RunState
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue\Support\ScanQueueLifecycleHarness;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -36,6 +39,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 };
 
 class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
+	use TempDirLifecycleTrait;
 
 	private array $servicesSnapshot = [];
 
@@ -45,6 +49,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
+		$this->cleanupTrackedTempDirs();
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
 		parent::tearDown();
@@ -98,6 +103,161 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertFalse( $this->queryLogContains( $harness->sql->queryLog(), 'SELECT * FROM `scans` WHERE `id`' ) );
 	}
 
+	public function test_afs_asset_start_resumes_same_scope_stale_built_blocker_without_duplicate_row() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install( true );
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'scope_type'      => 'plugin',
+			'scope_key'       => 'akismet/akismet.php',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ] );
+		$harness->sql->resetQueryLog();
+		$harness->async->resetTransport();
+
+		$started = ( new LifecycleScansControllerTestDouble() )->startAfsAssetScan( 'plugin', ' akismet/akismet.php ' );
+
+		$this->assertTrue( $started );
+		$this->assertSame( [ $scanID ], $this->scanIDsForScope( $harness, 'afs', 'plugin', 'akismet/akismet.php' ) );
+		$this->assertSame( 'built', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
+		$this->assertArrayHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $scanID ) ) );
+		$this->assertTrue( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanq_cron' ) );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanq' );
+	}
+
+	public function test_wpcli_asset_start_leaves_unrelated_queue_work_untouched() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install( true );
+		$unrelatedID = $harness->insertScan( [
+			'scan'       => 'wpv',
+			'status'     => 'queued',
+			'created_at' => 1699999900,
+		] );
+		$harness->async->resetTransport();
+
+		$started = ( new LifecycleScansControllerTestDouble() )->startAfsAssetScan( 'plugin', 'root-plugin.php' );
+		$assetID = $unrelatedID + 1;
+
+		$this->assertTrue( $started );
+		$this->assertSame( 'queued', $harness->scanRow( $unrelatedID )[ 'status' ] );
+		$this->assertSame( 'queued', $harness->scanRow( $assetID )[ 'status' ] );
+		$this->assertSame( 0, $harness->countScanItems( $unrelatedID ) );
+		$this->assertSame( 0, $harness->countScanItems( $assetID ) );
+		$this->assertSame( 'plugin', $harness->scanRow( $assetID )[ 'scope_type' ] );
+		$this->assertSame( 'root-plugin.php', $harness->scanRow( $assetID )[ 'scope_key' ] );
+		$this->assertSame( 'asset_change', $harness->scanRow( $assetID )[ 'run_trigger' ] );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanqbuild' );
+		$this->assertTrue( $harness->async->hasScheduledHook( ( new QueueWatchdog() )->hook() ) );
+	}
+
+	public function test_wpcli_asset_scan_completes_through_normal_queue_workers() :void {
+		$harness = ( new ScanQueueLifecycleHarness( 1700000000, [
+			'afs' => [ \base64_encode( '0' ) ],
+		] ) )
+			->install( true )
+			->installAfsWorkerEnvironment( $this->createTrackedTempDir( 'shield-scan-queue-afs-' ) );
+		$this->assertTrue( ( new LifecycleScansControllerTestDouble() )->startAfsAssetScan( 'plugin', 'root-plugin.php' ) );
+		$assetID = 1;
+
+		$harness->builder()->handle_cron_healthcheck();
+		$this->assertSame( 'built', $harness->scanRow( $assetID )[ 'status' ] );
+		$this->assertSame( 1, $harness->countScanItems( $assetID ) );
+		$this->assertSame( 0, (int)$harness->scanItemRow( 1 )[ 'started_at' ] );
+
+		$harness->processor()->handle_cron_healthcheck();
+		$scan = $harness->scanRow( $assetID );
+		$this->assertSame( 'completed', $scan[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'started_at' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'last_process_at' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'finished_at' ] );
+		$this->assertSame( 0, $harness->countScanItems( $assetID ) );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $scan ) );
+		$this->assertSame( 1, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
+	}
+
+	public function test_afs_asset_start_replaces_same_scope_stale_building_blocker() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$oldScanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'building',
+			'scope_type'      => 'plugin',
+			'scope_key'       => 'akismet/akismet.php',
+			'created_at'      => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$harness->sql->resetQueryLog();
+		$harness->async->resetTransport();
+
+		$started = ( new LifecycleScansControllerTestDouble() )->startAfsAssetScan( 'plugin', 'akismet/akismet.php' );
+
+		$this->assertTrue( $started );
+		$this->assertSame(
+			[ $oldScanID, $oldScanID + 1 ],
+			$this->scanIDsForScope( $harness, 'afs', 'plugin', 'akismet/akismet.php' )
+		);
+		$this->assertSame( 'failed', $harness->scanRow( $oldScanID )[ 'status' ] );
+		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $this->scanMeta( $harness->scanRow( $oldScanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? '' );
+		$this->assertSame( 'queued', $harness->scanRow( $oldScanID + 1 )[ 'status' ] );
+		$this->assertSame( 'asset_change', $harness->scanRow( $oldScanID + 1 )[ 'run_trigger' ] );
+	}
+
+	public function test_afs_asset_start_fresh_same_scope_duplicate_returns_false_without_recovery_or_replacement() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'scope_type'      => 'plugin',
+			'scope_key'       => 'akismet/akismet.php',
+			'ready_at'        => 1699999950,
+			'last_process_at' => 1699999950,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ] );
+		$harness->sql->resetQueryLog();
+		$harness->async->resetTransport();
+
+		$started = ( new LifecycleScansControllerTestDouble() )->startAfsAssetScan( 'plugin', 'akismet/akismet.php' );
+		$queries = $harness->sql->queryLog();
+
+		$this->assertFalse( $started );
+		$this->assertSame( [ $scanID ], $this->scanIDsForScope( $harness, 'afs', 'plugin', 'akismet/akismet.php' ) );
+		$this->assertSame( 'built', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
+		$this->assertSame( [], $this->scanMeta( $harness->scanRow( $scanID ) ) );
+		$this->assertFalse( $this->queryLogContains( $queries, 'FROM `scan_items`' ) );
+		$this->assertFalse( $this->queryLogContains( $queries, 'UPDATE `scans` SET' ) );
+		$this->assertSame( [], $harness->async->remotePosts );
+		$this->assertSame( [], $harness->async->scheduled );
+	}
+
+	public function test_afs_asset_start_ignores_different_scope_stale_blocker() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$otherScanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'scope_type'      => 'plugin',
+			'scope_key'       => 'wordfence/wordfence.php',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$harness->insertScanItem( $otherScanID, [ 'afs-other' ] );
+		$harness->sql->resetQueryLog();
+		$harness->async->resetTransport();
+
+		$started = ( new LifecycleScansControllerTestDouble() )->startAfsAssetScan( 'plugin', 'akismet/akismet.php' );
+		$queries = $harness->sql->queryLog();
+
+		$this->assertTrue( $started );
+		$this->assertSame( [ $otherScanID ], $this->scanIDsForScope( $harness, 'afs', 'plugin', 'wordfence/wordfence.php' ) );
+		$this->assertSame( [ $otherScanID + 1 ], $this->scanIDsForScope( $harness, 'afs', 'plugin', 'akismet/akismet.php' ) );
+		$this->assertSame( 'built', $harness->scanRow( $otherScanID )[ 'status' ] );
+		$this->assertArrayNotHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $otherScanID ) ) );
+		$this->assertSame( 'queued', $harness->scanRow( $otherScanID + 1 )[ 'status' ] );
+		$this->assertSame( 'asset_change', $harness->scanRow( $otherScanID + 1 )[ 'run_trigger' ] );
+		$this->assertFalse( $this->queryLogContains( $queries, 'FROM `scan_items`' ) );
+	}
+
 	public function test_start_new_scans_recovers_stale_queued_blocker_without_duplicate_row() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
@@ -112,7 +272,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertFalse( $result->hasFailures(), 'Recoverable stale queued blockers should not be surfaced as hard start failures.' );
 		$this->assertSame( [ $scanID ], $this->scanIDsForSlug( $harness, 'afs' ) );
 		$this->assertSame( 'queued', $harness->scanRow( $scanID )[ 'status' ] );
-		$this->assertQueueTransportDispatched( $harness );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanqbuild' );
 		$this->assertTrue( $harness->async->hasScheduledHook( ( new QueueWatchdog() )->hook() ) );
 	}
 
@@ -452,6 +612,141 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertTrue( $this->queryLogContains( $harness->sql->queryLog(), "`status`='completed'" ) );
 	}
 
+	public function test_successful_item_finish_clears_matching_queue_exception_after_finish_write() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'built',
+			'ready_at'        => 1700000000,
+			'last_process_at' => 1700000000,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [] );
+		$diagnostic = \sprintf(
+			'Queue item exception: scan=wpv qitem_id=%d attempt=1 exception=RuntimeException message=previous hard death',
+			$itemID
+		);
+		$harness->sql->updateRowById( 'scans', $scanID, [
+			'meta' => $this->encodedScanMeta( [ RunState::META_KEY_LAST_ERROR => $diagnostic ] ),
+		] );
+		$harness->sql->resetQueryLog();
+
+		( new ProcessQueueItem() )->run( ( new QueueItems() )->next() );
+
+		$queries = $harness->sql->queryLog();
+		$finishIndex = $this->queryLogFirstIndex( $queries, 'UPDATE `scan_items` SET `finished_at`' );
+		$clearIndex = $this->queryLogFirstIndex( $queries, 'UPDATE `scans` SET `meta`' );
+		$this->assertGreaterThanOrEqual( 0, $finishIndex );
+		$this->assertGreaterThan( $finishIndex, $clearIndex );
+		$this->assertArrayNotHasKey(
+			RunState::META_KEY_LAST_ERROR,
+			$this->scanMeta( $harness->scanRow( $scanID ) )
+		);
+	}
+
+	public function test_finished_item_does_not_clear_other_item_exception_with_decoy_id_in_message() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'built',
+			'ready_at'        => 1700000000,
+			'last_process_at' => 1700000000,
+		] );
+		$finishedItemID = $harness->insertScanItem( $scanID, [] );
+		$otherItemID = $harness->insertScanItem( $scanID, [] );
+		$diagnostic = \sprintf(
+			'Queue item exception: scan=wpv qitem_id=%d attempt=1 exception=RuntimeException message=earlier item qitem_id=%d also failed',
+			$otherItemID,
+			$finishedItemID
+		);
+		$harness->sql->updateRowById( 'scans', $scanID, [
+			'meta' => $this->encodedScanMeta( [ RunState::META_KEY_LAST_ERROR => $diagnostic ] ),
+		] );
+
+		( new ProcessQueueItem() )->run( ( new QueueItems() )->next() );
+
+		$this->assertSame(
+			$diagnostic,
+			$this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? null
+		);
+	}
+
+	public function test_failed_item_finish_write_leaves_queue_exception_untouched() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'built',
+			'ready_at'        => 1700000000,
+			'last_process_at' => 1700000000,
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [] );
+		$diagnostic = \sprintf(
+			'Queue item exception: scan=wpv qitem_id=%d attempt=1 exception=RuntimeException message=previous hard death',
+			$itemID
+		);
+		$harness->sql->updateRowById( 'scans', $scanID, [
+			'meta' => $this->encodedScanMeta( [ RunState::META_KEY_LAST_ERROR => $diagnostic ] ),
+		] );
+		$scanItemsDb = $harness->scanItemsDb;
+		$harness->controller->db_con->scan_items = new class( $scanItemsDb ) {
+			private object $inner;
+
+			public function __construct( object $inner ) {
+				$this->inner = $inner;
+			}
+
+			public function getTable() :string {
+				return $this->inner->getTable();
+			}
+
+			public function getQueryUpdater() :object {
+				return new class {
+					public function updateById( int $id, array $data ) :bool {
+						unset( $id, $data );
+						return false;
+					}
+				};
+			}
+		};
+
+		( new ProcessQueueItem() )->run( ( new QueueItems() )->next() );
+
+		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'finished_at' ] );
+		$this->assertSame(
+			$diagnostic,
+			$this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? null
+		);
+	}
+
+	public function test_finished_item_cleanup_rejects_noncanonical_exception_item_ids() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$overflowID = (string)\PHP_INT_MAX.'0';
+		$diagnostics = [
+			'Queue item exception: scan=afs qitem_id=0 attempt=1 exception=RuntimeException message=zero',
+			'Queue item exception: scan=afs qitem_id=012 attempt=1 exception=RuntimeException message=leading zero',
+			'Queue item exception: scan=afs qitem_id='.$overflowID.' attempt=1 exception=RuntimeException message=overflow',
+			'Queue item exception: qitem_id=12 scan=afs attempt=1 exception=RuntimeException message=wrong field order',
+			'Queue item exception: scan=afs attempt=1 exception=RuntimeException message=decoy qitem_id=12',
+		];
+
+		foreach ( $diagnostics as $diagnostic ) {
+			$scanID = $harness->insertScan( [
+				'scan' => 'afs',
+				'meta' => $this->encodedScanMeta( [ RunState::META_KEY_LAST_ERROR => $diagnostic ] ),
+			] );
+			$item = ( new QueueItemVO() )->applyFromArray( [
+				'scan_id'  => $scanID,
+				'qitem_id' => 12,
+			] );
+
+			( new RunState() )->clearQueueItemExceptionForFinishedItem( $item );
+
+			$this->assertSame(
+				$diagnostic,
+				$this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? null
+			);
+		}
+	}
+
 	public function test_complete_queue_completes_active_scan_with_finished_items_before_deleting_queue_rows() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
@@ -533,7 +828,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999900 );
 		$harness->sql->resetQueryLog();
 
-		( new QueueWatchdog() )->runIfStale();
+		( new QueueWatchdog() )->run();
 
 		$this->assertSame( 'running', $harness->scanRow( $scanID )[ 'status' ] );
 		$this->assertSame( 1699999950, (int)$harness->scanRow( $scanID )[ 'last_process_at' ] );
@@ -541,20 +836,115 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertFalse( $this->queryLogContains( $harness->sql->queryLog(), 'UPDATE `scan_items` SET `started_at`=0' ) );
 	}
 
-	public function test_watchdog_leaves_fresh_queued_scan_untouched() :void {
+	public function test_watchdog_keeps_fresh_queued_scan_and_dispatches_builder_once() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'       => 'afs',
 			'status'     => 'queued',
 			'created_at' => 1699999950,
 		] );
+		$scanBefore = $harness->scanRow( $scanID );
 		$harness->async->resetTransport();
 
-		( new QueueWatchdog() )->runIfStale();
+		( new QueueWatchdog() )->run();
 
-		$this->assertSame( 'queued', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( $scanBefore, $harness->scanRow( $scanID ) );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanqbuild' );
+		$this->assertTrue( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanqbuild_cron' ) );
+		$this->assertSame( 1, $harness->async->scheduledHookAttempts( 'icwp_wpsf_shield_scanqbuild_cron' ) );
+	}
+
+	/**
+	 * @dataProvider scheduledWatchdogCronProvider
+	 */
+	public function test_scheduled_watchdog_finalizes_last_active_terminal_scan( bool $isCron ) :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->controller->opts->optSet( 'is_scan_cron', $isCron );
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'ready_at'        => 1699999950,
+			'last_process_at' => 1699999950,
+			'started_at'      => 1699999950,
+		] );
+		$harness->insertScanItem( $scanID, [ 'wpv-a' ], 0, 1699999990 );
+		$watchdog = new QueueWatchdog();
+
+		$watchdog->runScheduled();
+
+		$this->assertSame( 'completed', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertSame( 1, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
+		$this->assertSame(
+			$isCron,
+			$harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) )
+		);
+		$this->assertFalse( $harness->controller->opts->optGet( 'is_scan_cron' ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+	}
+
+	public static function scheduledWatchdogCronProvider() :array {
+		return [
+			'cron scan'   => [ true ],
+			'manual scan' => [ false ],
+		];
+	}
+
+	public function test_scheduled_watchdog_cleans_finished_rows_without_finalizing_while_active_work_remains() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->controller->opts->optSet( 'is_scan_cron', true );
+		$activeID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999950,
+			'last_process_at' => 1699999950,
+			'started_at'      => 1699999950,
+		] );
+		$activeItemID = $harness->insertScanItem( $activeID, [ 'afs-a' ], 1699999950 );
+		$terminalID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'ready_at'        => 1699999950,
+			'last_process_at' => 1699999950,
+			'started_at'      => 1699999950,
+		] );
+		$harness->insertScanItem( $terminalID, [ 'wpv-a' ], 0, 1699999990 );
+		$watchdog = new QueueWatchdog();
+
+		$watchdog->runScheduled();
+
+		$this->assertSame( 'running', $harness->scanRow( $activeID )[ 'status' ] );
+		$this->assertSame( 1699999950, (int)$harness->scanRow( $activeID )[ 'last_process_at' ] );
+		$this->assertSame( 1699999950, (int)$harness->scanItemRow( $activeItemID )[ 'started_at' ] );
+		$this->assertSame( 'completed', $harness->scanRow( $terminalID )[ 'status' ] );
+		$this->assertSame( 0, $harness->countScanItems( $terminalID ) );
+		$this->assertSame( 0, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) ) );
+		$this->assertTrue( $harness->controller->opts->optGet( 'is_scan_cron' ) );
 		$this->assertSame( [], $harness->async->remotePosts );
-		$this->assertSame( [], $harness->async->scheduled );
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+	}
+
+	public function test_empty_scheduled_watchdog_callback_has_no_completion_effects() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->controller->opts->optSet( 'is_scan_cron', true );
+		$scanID = $harness->insertScan( [
+			'scan'        => 'wpv',
+			'status'      => 'completed',
+			'finished_at' => 1699999990,
+		] );
+		$harness->insertScanItem( $scanID, [ 'wpv-a' ], 0, 1699999990 );
+		$scanBefore = $harness->scanRow( $scanID );
+		$watchdog = new QueueWatchdog();
+
+		$watchdog->runScheduled();
+
+		$this->assertSame( $scanBefore, $harness->scanRow( $scanID ) );
+		$this->assertSame( 1, $harness->countScanItems( $scanID ) );
+		$this->assertSame( 0, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) ) );
+		$this->assertTrue( $harness->controller->opts->optGet( 'is_scan_cron' ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
 	}
 
 	public function test_watchdog_leaves_fresh_building_scan_without_heartbeat_untouched() :void {
@@ -572,6 +962,24 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 0, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
 	}
 
+	public function test_watchdog_leaves_old_building_scan_with_fresh_heartbeat_untouched() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'building',
+			'created_at'      => 1699999000,
+			'last_process_at' => 1699999950,
+		] );
+
+		( new QueueWatchdog() )->run();
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'building', $scan[ 'status' ] );
+		$this->assertSame( 0, (int)$scan[ 'finished_at' ] );
+		$this->assertSame( 1699999950, (int)$scan[ 'last_process_at' ] );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $scan ) );
+	}
+
 	public function test_watchdog_leaves_fresh_built_scan_untouched() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
@@ -583,7 +991,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ] );
 		$harness->async->resetTransport();
 
-		( new QueueWatchdog() )->runIfStale();
+		( new QueueWatchdog() )->run();
 
 		$this->assertSame( 'built', $harness->scanRow( $scanID )[ 'status' ] );
 		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
@@ -592,7 +1000,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( [], $harness->async->scheduled );
 	}
 
-	public function test_watchdog_run_if_stale_dispatches_builder_for_stale_queued_scan() :void {
+	public function test_scheduled_watchdog_allows_two_stale_queued_builder_redispatches_then_fails() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'       => 'afs',
@@ -602,14 +1010,127 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$watchdog = new QueueWatchdog();
 		$harness->async->resetTransport();
 
-		$watchdog->runIfStale();
+		$watchdog->runScheduled();
 
 		$this->assertSame( 'queued', $harness->scanRow( $scanID )[ 'status' ] );
-		$this->assertGreaterThanOrEqual( 1, \count( $harness->async->remotePosts ) + \count( $harness->async->scheduled ) );
+		$this->assertSame( 1, $this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'attempts' ] ?? null );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanqbuild' );
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+
+		$harness->scansDb->getQueryUpdater()->updateById( $scanID, [
+			'last_process_at' => 1699999000,
+			'meta'            => $this->recoveryMeta( 1, 1699999000 ),
+		] );
+		$harness->async->resetTransport();
+		$watchdog->runScheduled();
+
+		$this->assertSame( 'queued', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 2, $this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'attempts' ] ?? null );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanqbuild' );
+
+		$harness->scansDb->getQueryUpdater()->updateById( $scanID, [
+			'last_process_at' => 1699999000,
+			'meta'            => $this->recoveryMeta( 2, 1699999000 ),
+		] );
+		$harness->async->resetTransport();
+		$watchdog->runScheduled();
+
+		$this->assertSame( 'failed', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( [], $harness->async->remotePosts );
+	}
+
+	public function test_scheduled_queued_recovery_skips_builder_when_attempt_persistence_fails() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'queued',
+			'created_at'      => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$watchdog = new QueueWatchdog();
+		$harness->scansDb->failNextUpdate();
+		$harness->async->resetTransport();
+
+		$watchdog->runScheduled();
+
+		$this->assertSame( 1699999000, (int)$harness->scanRow( $scanID )[ 'last_process_at' ] );
+		$this->assertArrayNotHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $scanID ) ) );
+		$this->assertSame( [], $harness->async->remotePosts );
 		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
 	}
 
-	public function test_watchdog_run_if_stale_fails_stale_building_scan() :void {
+	public function test_scheduled_queued_recovery_charges_only_oldest_stale_head() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$oldestID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'queued',
+			'created_at'      => 1699998000,
+			'last_process_at' => 1699999000,
+		] );
+		$youngerID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'queued',
+			'created_at'      => 1699998100,
+			'last_process_at' => 1699999000,
+		] );
+		$harness->async->resetTransport();
+
+		( new QueueWatchdog() )->run();
+
+		$this->assertSame( 1, $this->scanMeta( $harness->scanRow( $oldestID ) )[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'attempts' ] ?? null );
+		$this->assertArrayNotHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $youngerID ) ) );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanqbuild' );
+	}
+
+	public function test_scheduled_queued_recovery_does_not_charge_stale_younger_row_behind_fresh_head() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$freshHeadID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'queued',
+			'created_at'      => 1699998000,
+			'last_process_at' => 1699999990,
+		] );
+		$staleYoungerID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'queued',
+			'created_at'      => 1699998100,
+			'last_process_at' => 1699999000,
+		] );
+		$harness->async->resetTransport();
+
+		( new QueueWatchdog() )->run();
+
+		$this->assertArrayNotHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $freshHeadID ) ) );
+		$this->assertArrayNotHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $staleYoungerID ) ) );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanqbuild' );
+	}
+
+	public function test_ready_attempt_persistence_failure_skips_processor_but_not_independent_builder() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$readyID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'created_at'      => 1699998000,
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$harness->insertScanItem( $readyID, [ 'afs-a' ] );
+		$harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'queued',
+			'created_at'      => 1699998100,
+			'last_process_at' => 1699999990,
+		] );
+		$harness->scansDb->failNextUpdate();
+		$harness->async->resetTransport();
+
+		( new QueueWatchdog() )->run();
+
+		$this->assertArrayNotHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $readyID ) ) );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanqbuild' );
+	}
+
+	public function test_watchdog_run_fails_stale_building_scan() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'            => 'afs',
@@ -618,7 +1139,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			'last_process_at' => 1699999000,
 		] );
 
-		( new QueueWatchdog() )->runIfStale();
+		( new QueueWatchdog() )->run();
 
 		$scan = $harness->scanRow( $scanID );
 		$this->assertSame( 'failed', $scan[ 'status' ] );
@@ -626,7 +1147,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $this->scanMeta( $scan )[ RunState::META_KEY_LAST_ERROR ] ?? '' );
 	}
 
-	public function test_watchdog_run_if_stale_fails_stale_building_scan_without_heartbeat_from_created_at() :void {
+	public function test_watchdog_run_fails_stale_building_scan_without_heartbeat_from_created_at() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'            => 'afs',
@@ -635,7 +1156,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			'last_process_at' => 0,
 		] );
 
-		( new QueueWatchdog() )->runIfStale();
+		( new QueueWatchdog() )->run();
 
 		$scan = $harness->scanRow( $scanID );
 		$this->assertSame( 'failed', $scan[ 'status' ] );
@@ -643,7 +1164,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $this->scanMeta( $scan )[ RunState::META_KEY_LAST_ERROR ] ?? '' );
 	}
 
-	public function test_watchdog_run_if_stale_resumes_stale_built_scan_with_unstarted_items() :void {
+	public function test_watchdog_run_resumes_stale_built_scan_with_unstarted_items() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'            => 'afs',
@@ -654,17 +1175,17 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$itemID = $harness->insertScanItem( $scanID, [ 'afs-a' ] );
 		$harness->async->resetTransport();
 
-		( new QueueWatchdog() )->runIfStale();
+		( new QueueWatchdog() )->run();
 
 		$scan = $harness->scanRow( $scanID );
 		$this->assertSame( 'built', $scan[ 'status' ] );
 		$this->assertSame( 0, (int)$scan[ 'finished_at' ] );
 		$this->assertArrayHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $scan ) );
 		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
-		$this->assertGreaterThanOrEqual( 1, \count( $harness->async->remotePosts ) + \count( $harness->async->scheduled ) );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanq' );
 	}
 
-	public function test_watchdog_run_if_stale_completes_stale_ready_scan_when_all_items_finished() :void {
+	public function test_watchdog_run_completes_stale_ready_scan_when_all_items_finished() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'            => 'wpv',
@@ -675,7 +1196,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		] );
 		$harness->insertScanItem( $scanID, [ 'wpv-a' ], 0, 1699999100 );
 
-		( new QueueWatchdog() )->runIfStale();
+		( new QueueWatchdog() )->run();
 
 		$scan = $harness->scanRow( $scanID );
 		$this->assertSame( 'completed', $scan[ 'status' ] );
@@ -723,6 +1244,89 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertTrue( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanq_cron' ) );
 	}
 
+	public function test_watchdog_resets_all_stale_claimed_items_for_same_scan_in_one_pass() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$firstItemID = $harness->insertScanItem(
+			$scanID,
+			[ 'wp-simple-firewall/icwp-wpsf.php' ],
+			1699999000,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+		$secondItemID = $harness->insertScanItem(
+			$scanID,
+			[ 'two-factor/two-factor.php' ],
+			1699999000,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+		$harness->async->resetTransport();
+
+		( new QueueWatchdog() )->run();
+
+		$this->assertSame( 'running', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $firstItemID )[ 'started_at' ] );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $secondItemID )[ 'started_at' ] );
+		$this->assertSame( QueueRecovery::MAX_ITEM_ATTEMPTS - 1, (int)$harness->scanItemRow( $firstItemID )[ 'attempts' ] );
+		$this->assertSame( QueueRecovery::MAX_ITEM_ATTEMPTS - 1, (int)$harness->scanItemRow( $secondItemID )[ 'attempts' ] );
+		$this->assertTrue( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanq_cron' ) );
+	}
+
+	public function test_recovered_scan_claims_remaining_items_before_later_scans_proceed() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'created_at'      => 1699999000,
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$firstItemID = $harness->insertScanItem(
+			$scanID,
+			[ 'wp-simple-firewall/icwp-wpsf.php' ],
+			1699999000,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+		$secondItemID = $harness->insertScanItem(
+			$scanID,
+			[ 'two-factor/two-factor.php' ],
+			1699999000,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+
+		( new QueueWatchdog() )->run();
+		$harness->sql->updateRowById( 'scan_items', $firstItemID, [
+			'finished_at' => 1700000001,
+		] );
+
+		$laterScanID = $harness->insertScan( [
+			'scan'            => 'apc',
+			'status'          => 'built',
+			'created_at'      => 1699999100,
+			'ready_at'        => 1699999100,
+			'last_process_at' => 1699999100,
+		] );
+		$laterItemID = $harness->insertScanItem( $laterScanID, [ 'apc-common/plugin.php' ] );
+
+		$item = ( new QueueItems() )->next();
+
+		$this->assertSame( $scanID, $item->scan_id );
+		$this->assertSame( $secondItemID, $item->qitem_id );
+		$this->assertSame( 'wpv', $item->scan );
+		$this->assertSame( 2, $item->attempts );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $laterItemID )[ 'started_at' ] );
+	}
+
 	public function test_watchdog_fails_scan_when_stale_claimed_item_exhausted_attempts() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
@@ -732,14 +1336,147 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			'last_process_at' => 1699999000,
 			'started_at'      => 1699999000,
 		] );
-		$harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000, 0, 2 );
+		$harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000, 0, QueueRecovery::MAX_ITEM_ATTEMPTS );
 
 		( new QueueWatchdog() )->run();
 
 		$this->assertSame( 'failed', $harness->scanRow( $scanID )[ 'status' ] );
 		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
 		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
-		$this->assertArrayHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $harness->scanRow( $scanID ) ) );
+		$this->assertSame(
+			ReconcileQueue::MESSAGE_TIMED_OUT,
+			$this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? ''
+		);
+	}
+
+	public function test_watchdog_fails_scan_when_later_stale_claimed_item_exhausted_attempts() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$harness->insertScanItem(
+			$scanID,
+			[ 'wp-simple-firewall/icwp-wpsf.php' ],
+			1699999000,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS - 1
+		);
+		$harness->insertScanItem(
+			$scanID,
+			[ 'two-factor/two-factor.php' ],
+			1699999000,
+			0,
+			QueueRecovery::MAX_ITEM_ATTEMPTS
+		);
+
+		( new QueueWatchdog() )->run();
+
+		$this->assertSame( 'failed', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertSame(
+			ReconcileQueue::MESSAGE_TIMED_OUT,
+			$this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? ''
+		);
+	}
+
+	public function test_watchdog_timeout_preserves_recorded_queue_item_exception() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$specificError = 'Queue item exception: scan=afs qitem_id=12 attempt=2 exception=RuntimeException message=original failure';
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+			'meta'            => $this->encodedScanMeta( [
+				RunState::META_KEY_LAST_ERROR => $specificError,
+			] ),
+		] );
+		$harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000, 0, QueueRecovery::MAX_ITEM_ATTEMPTS );
+
+		( new QueueWatchdog() )->run();
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'failed', $scan[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'finished_at' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertSame( $specificError, $this->scanMeta( $scan )[ RunState::META_KEY_LAST_ERROR ] ?? '' );
+	}
+
+	public function test_watchdog_timeout_replaces_non_queue_item_error() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+			'meta'            => $this->encodedScanMeta( [
+				RunState::META_KEY_LAST_ERROR => 'previous non-specific failure',
+			] ),
+		] );
+		$harness->insertScanItem( $scanID, [ 'afs-a' ], 1699999000, 0, QueueRecovery::MAX_ITEM_ATTEMPTS );
+
+		( new QueueWatchdog() )->run();
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'failed', $scan[ 'status' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $this->scanMeta( $scan )[ RunState::META_KEY_LAST_ERROR ] ?? '' );
+	}
+
+	public function test_result_insert_failure_retries_once_and_watchdog_fails_after_second_claim() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install()
+			->failNextResultItemInsert();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'apc',
+			'status'          => 'running',
+			'ready_at'        => 1699999000,
+			'started_at'      => 1699999000,
+			'last_process_at' => 1699999000,
+			'meta'            => $this->encodedScanMeta( [ 'abandoned_limit' => 1 ] ),
+		] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'akismet/akismet.php' ] );
+
+		$item = ( new QueueItems() )->next();
+		$this->assertSame( 1, $item->attempts );
+		( new ProcessQueueItem() )->run( $item );
+
+		$this->assertSame( 1, $harness->resultItemInsertFailureCount() );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'finished_at' ] );
+		$firstDiagnostic = $this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? null;
+		$this->assertIsString( $firstDiagnostic );
+		$this->assertNotSame( '', $firstDiagnostic );
+
+		$harness->sql->updateRowById( 'scans', $scanID, [ 'last_process_at' => 1699999000 ] );
+		$watchdog = new QueueWatchdog();
+		$this->assertTrue( $watchdog->recoverScanIfStale( $scanID ) );
+		$retryItem = ( new QueueItems() )->next();
+		$this->assertSame( 2, $retryItem->attempts );
+		$this->assertSame( $firstDiagnostic, $retryItem->meta[ RunState::META_KEY_LAST_ERROR ] ?? null );
+
+		$harness->failNextResultItemInsert();
+		( new ProcessQueueItem() )->run( $retryItem );
+
+		$this->assertSame( 2, $harness->resultItemInsertFailureCount() );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'finished_at' ] );
+		$secondDiagnostic = $this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? null;
+		$this->assertIsString( $secondDiagnostic );
+		$this->assertNotSame( '', $secondDiagnostic );
+		$this->assertNotSame( $firstDiagnostic, $secondDiagnostic );
+
+		$harness->sql->updateRowById( 'scans', $scanID, [ 'last_process_at' => 1699999000 ] );
+		$this->assertTrue( $watchdog->recoverScanIfStale( $scanID ) );
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'failed', $scan[ 'status' ] );
+		$this->assertSame( [], $harness->scanItemRow( $itemID ) );
+		$this->assertSame( $secondDiagnostic, $this->scanMeta( $scan )[ RunState::META_KEY_LAST_ERROR ] ?? null );
 	}
 
 	public function test_watchdog_recovers_reported_dead_running_scan_shape_without_existing_cron() :void {
@@ -760,6 +1497,67 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 'running', $harness->scanRow( $scanID )[ 'status' ] );
 		$this->assertSame( 0, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
 		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'started_at' ] );
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+	}
+
+	public function test_scheduled_watchdog_reconciles_all_eligible_stale_scans() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$buildingID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'building',
+			'created_at'      => 1699998000,
+			'last_process_at' => 1699999000,
+		] );
+		$runningID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'created_at'      => 1699998100,
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$runningItemID = $harness->insertScanItem( $runningID, [ 'wpv-a' ], 1699999000, 0, 1 );
+
+		( new QueueWatchdog() )->runScheduled();
+
+		$this->assertSame( 'failed', $harness->scanRow( $buildingID )[ 'status' ] );
+		$this->assertSame( 'running', $harness->scanRow( $runningID )[ 'status' ] );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $runningItemID )[ 'started_at' ] );
+	}
+
+	public function test_start_blocker_watchdog_runs_global_reconciliation_for_all_eligible_stale_scans() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$matchingID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'building',
+			'scope_type'      => 'full',
+			'scope_key'       => '',
+			'created_at'      => 1699998000,
+			'last_process_at' => 1699999000,
+		] );
+		$unrelatedID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'building',
+			'scope_type'      => 'plugin',
+			'scope_key'       => 'unrelated/plugin.php',
+			'created_at'      => 1699998100,
+			'last_process_at' => 1699999000,
+		] );
+		$freshID = $harness->insertScan( [
+			'scan'            => 'apc',
+			'status'          => 'building',
+			'created_at'      => 1699998200,
+			'last_process_at' => 1699999990,
+		] );
+		$freshBefore = $harness->scanRow( $freshID );
+		$watchdog = new QueueWatchdog();
+
+		$blockers = $watchdog->runForStaleStartBlockers( [ 'afs' ], 'full', '' );
+
+		$this->assertSame( [ 'afs' => $matchingID ], $blockers );
+		$this->assertSame( 'failed', $harness->scanRow( $matchingID )[ 'status' ] );
+		$this->assertSame( 'failed', $harness->scanRow( $unrelatedID )[ 'status' ] );
+		$this->assertSame( $freshBefore, $harness->scanRow( $freshID ) );
 		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
 	}
 
@@ -1012,6 +1810,14 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 
 		( new QueueWatchdog() )->run();
 
+		$this->assertSame( 'built', $harness->scanRow( $apcID )[ 'status' ] );
+		$this->assertSame( 2, $this->scanMeta( $harness->scanRow( $apcID ) )[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'attempts' ] ?? null );
+		$harness->scansDb->getQueryUpdater()->updateById( $apcID, [
+			'last_process_at' => 1699998000,
+			'meta'            => $this->recoveryMeta( 2, 1699998000 ),
+		] );
+		( new QueueWatchdog() )->run();
+
 		$this->assertSame( 'failed', $harness->scanRow( $apcID )[ 'status' ] );
 		$this->assertSame( 0, $harness->countScanItems( $apcID ) );
 		$this->assertSame( ReconcileQueue::MESSAGE_TIMED_OUT, $this->scanMeta( $harness->scanRow( $apcID ) )[ RunState::META_KEY_LAST_ERROR ] ?? '' );
@@ -1081,7 +1887,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 'apc', $item->scan );
 	}
 
-	public function test_watchdog_fails_unstarted_stale_scan_after_resume_attempts_are_exhausted() :void {
+	public function test_watchdog_allows_second_unstarted_resume_then_fails_after_attempts_are_exhausted() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'            => 'afs',
@@ -1095,8 +1901,20 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 
 		( new QueueWatchdog() )->run();
 
+		$this->assertSame( 'running', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 2, $this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'attempts' ] ?? null );
+		$this->assertTrue( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanq_cron' ) );
+
+		$harness->scansDb->getQueryUpdater()->updateById( $scanID, [
+			'last_process_at' => 1699999000,
+			'meta'            => $this->recoveryMeta( 2, 1699999000 ),
+		] );
+		$harness->async->resetTransport();
+		( new QueueWatchdog() )->run();
+
 		$this->assertSame( 'failed', $harness->scanRow( $scanID )[ 'status' ] );
 		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertSame( [], $harness->async->remotePosts );
 	}
 
 	public function test_watchdog_does_not_resume_unstarted_work_inside_recovery_cooldown() :void {
@@ -1310,11 +2128,271 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertFalse( $harness->async->hasScheduledHook( 'icwp_wpsf_shield_scanqbuild_expired_cron' ) );
 	}
 
-	private function assertQueueTransportDispatched( ScanQueueLifecycleHarness $harness ) :void {
-		$this->assertGreaterThanOrEqual(
-			1,
-			\count( $harness->async->remotePosts ) + \count( $harness->async->scheduled )
+	public function test_queue_builder_breaks_same_created_at_ties_by_scan_id() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$lowerID = $harness->insertScan( [
+			'scan'       => 'afs',
+			'status'     => 'queued',
+			'created_at' => 1699999000,
+		] );
+		$harness->insertScan( [
+			'scan'       => 'wpv',
+			'status'     => 'queued',
+			'created_at' => 1699999000,
+		] );
+		$getBatch = new \ReflectionMethod( $harness->builder(), 'get_batch' );
+		$getBatch->setAccessible( true );
+
+		$batch = $getBatch->invoke( $harness->builder() );
+
+		$this->assertSame( (string)$lowerID, $batch->key );
+		$this->assertSame( [ $lowerID ], $batch->data );
+	}
+
+	public function test_explicit_recovery_mutates_only_selected_stale_ready_scan() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$selectedScanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'created_at'      => 1699998000,
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$unrelatedStaleID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'created_at'      => 1699998100,
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+			'meta'            => \base64_encode( '{"unrelated":"stale"}' ),
+		] );
+		$unrelatedFreshID = $harness->insertScan( [
+			'scan'            => 'apc',
+			'status'          => 'running',
+			'created_at'      => 1699998200,
+			'ready_at'        => 1699999990,
+			'last_process_at' => 1699999990,
+			'started_at'      => 1699999990,
+			'meta'            => \base64_encode( '{"unrelated":"fresh"}' ),
+		] );
+		$selectedItemID = $harness->insertScanItem( $selectedScanID, [ 'afs-a' ], 1699999000, 0, 1 );
+		$staleItemID = $harness->insertScanItem( $unrelatedStaleID, [ 'wpv-a' ], 1699999000, 0, 2 );
+		$freshItemID = $harness->insertScanItem( $unrelatedFreshID, [ 'apc-a' ], 1699999990, 0, 3 );
+		$staleBefore = $harness->scanRow( $unrelatedStaleID );
+		$freshBefore = $harness->scanRow( $unrelatedFreshID );
+		$staleItemBefore = $harness->scanItemRow( $staleItemID );
+		$freshItemBefore = $harness->scanItemRow( $freshItemID );
+		$watchdog = new QueueWatchdog();
+
+		$this->assertTrue( $watchdog->recoverScanIfStale( $selectedScanID ) );
+
+		$this->assertSame( 1700000000, (int)$harness->scanRow( $selectedScanID )[ 'last_process_at' ] );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $selectedItemID )[ 'started_at' ] );
+		$this->assertSame( $staleBefore, $harness->scanRow( $unrelatedStaleID ) );
+		$this->assertSame( $freshBefore, $harness->scanRow( $unrelatedFreshID ) );
+		$this->assertSame( $staleItemBefore, $harness->scanItemRow( $staleItemID ) );
+		$this->assertSame( $freshItemBefore, $harness->scanItemRow( $freshItemID ) );
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+	}
+
+	public function test_explicit_recovery_refuses_fresh_head_and_waiting_row() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$freshHeadID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'running',
+			'created_at'      => 1699998000,
+			'ready_at'        => 1699999990,
+			'last_process_at' => 1699999990,
+			'started_at'      => 1699999990,
+		] );
+		$waitingID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'queued',
+			'created_at'      => 1699997000,
+		] );
+		$freshBefore = $harness->scanRow( $freshHeadID );
+		$waitingBefore = $harness->scanRow( $waitingID );
+		$watchdog = new QueueWatchdog();
+
+		$this->assertFalse( $watchdog->recoverScanIfStale( $freshHeadID ) );
+		$this->assertFalse( $watchdog->recoverScanIfStale( $waitingID ) );
+
+		$this->assertSame( $freshBefore, $harness->scanRow( $freshHeadID ) );
+		$this->assertSame( $waitingBefore, $harness->scanRow( $waitingID ) );
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+	}
+
+	public function test_explicit_recovery_refuses_non_positive_unknown_and_terminal_ids() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$completedID = $harness->insertScan( [
+			'scan'        => 'afs',
+			'status'      => 'completed',
+			'finished_at' => 1699999900,
+		] );
+		$failedID = $harness->insertScan( [
+			'scan'        => 'wpv',
+			'status'      => 'failed',
+			'finished_at' => 1699999950,
+		] );
+		$completedBefore = $harness->scanRow( $completedID );
+		$failedBefore = $harness->scanRow( $failedID );
+		$watchdog = new QueueWatchdog();
+
+		$this->assertFalse( $watchdog->recoverScanIfStale( 0 ) );
+		$this->assertFalse( $watchdog->recoverScanIfStale( -1 ) );
+		$this->assertFalse( $watchdog->recoverScanIfStale( 999999 ) );
+		$this->assertFalse( $watchdog->recoverScanIfStale( $completedID ) );
+		$this->assertFalse( $watchdog->recoverScanIfStale( $failedID ) );
+
+		$this->assertSame( $completedBefore, $harness->scanRow( $completedID ) );
+		$this->assertSame( $failedBefore, $harness->scanRow( $failedID ) );
+	}
+
+	public function test_explicit_recovery_fails_only_selected_stale_building_scan() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$selectedID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'building',
+			'created_at'      => 1699998000,
+			'last_process_at' => 1699999000,
+		] );
+		$unrelatedID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'building',
+			'created_at'      => 1699998100,
+			'last_process_at' => 1699999000,
+			'meta'            => \base64_encode( '{"keep":true}' ),
+		] );
+		$selectedItemID = $harness->insertScanItem( $selectedID, [ 'afs-a' ] );
+		$unrelatedItemID = $harness->insertScanItem( $unrelatedID, [ 'wpv-a' ], 1699999000, 0, 2 );
+		$unrelatedBefore = $harness->scanRow( $unrelatedID );
+		$unrelatedItemBefore = $harness->scanItemRow( $unrelatedItemID );
+
+		$this->assertTrue( ( new QueueWatchdog() )->recoverScanIfStale( $selectedID ) );
+
+		$this->assertSame( 'failed', $harness->scanRow( $selectedID )[ 'status' ] );
+		$this->assertSame( 0, $harness->countScanItems( $selectedID ) );
+		$this->assertSame( [], $harness->scanItemRow( $selectedItemID ) );
+		$this->assertSame( $unrelatedBefore, $harness->scanRow( $unrelatedID ) );
+		$this->assertSame( $unrelatedItemBefore, $harness->scanItemRow( $unrelatedItemID ) );
+	}
+
+	public function test_explicit_recovery_dispatches_selected_queued_head_in_created_and_id_order() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$selectedID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'queued',
+			'created_at'      => 1699998000,
+			'last_process_at' => 1699999000,
+		] );
+		$unrelatedID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'queued',
+			'created_at'      => 1699998000,
+			'last_process_at' => 1699999000,
+		] );
+		$unrelatedBefore = $harness->scanRow( $unrelatedID );
+		$watchdog = new QueueWatchdog();
+		$harness->async->resetTransport();
+
+		$this->assertTrue( $watchdog->recoverScanIfStale( $selectedID ) );
+		$this->assertFalse( $watchdog->recoverScanIfStale( $selectedID ) );
+
+		$this->assertSame( 1700000000, (int)$harness->scanRow( $selectedID )[ 'last_process_at' ] );
+		$this->assertSame( 1, $this->scanMeta( $harness->scanRow( $selectedID ) )[ RunState::META_KEY_WATCHDOG_RECOVERY ][ 'attempts' ] ?? null );
+		$this->assertSame( $unrelatedBefore, $harness->scanRow( $unrelatedID ) );
+		$this->assertSingleRemoteAction( $harness, 'icwp_wpsf_shield_scanqbuild' );
+	}
+
+	public function test_explicit_queued_recovery_returns_false_when_attempt_persistence_fails() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'queued',
+			'created_at'      => 1699998000,
+			'last_process_at' => 1699999000,
+		] );
+		$watchdog = new QueueWatchdog();
+		$harness->scansDb->failNextUpdate();
+		$harness->async->resetTransport();
+
+		$this->assertFalse( $watchdog->recoverScanIfStale( $scanID ) );
+
+		$this->assertArrayNotHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $scanID ) ) );
+		$this->assertSame( [], $harness->async->remotePosts );
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+	}
+
+	public function test_explicit_ready_recovery_returns_false_when_attempt_persistence_fails() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'created_at'      => 1699998000,
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+		$harness->insertScanItem( $scanID, [ 'afs-a' ] );
+		$watchdog = new QueueWatchdog();
+		$harness->scansDb->failNextUpdate();
+		$harness->async->resetTransport();
+
+		$this->assertFalse( $watchdog->recoverScanIfStale( $scanID ) );
+
+		$this->assertArrayNotHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $this->scanMeta( $harness->scanRow( $scanID ) ) );
+		$this->assertSame( [], $harness->async->remotePosts );
+		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+	}
+
+	public function test_explicit_recovery_fails_selected_ready_scan_when_queue_is_empty() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$orphanedID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'created_at'      => 1699998000,
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+		] );
+
+		$this->assertTrue( ( new QueueWatchdog() )->recoverScanIfStale( $orphanedID ) );
+		$this->assertSame( 'failed', $harness->scanRow( $orphanedID )[ 'status' ] );
+	}
+
+	public function test_explicit_recovery_finalizes_successfully_claimed_terminal_scan() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->controller->opts->optSet( 'is_scan_cron', true );
+		$scanID = $harness->insertScan( [
+			'scan'            => 'wpv',
+			'status'          => 'running',
+			'created_at'      => 1699998000,
+			'ready_at'        => 1699999000,
+			'last_process_at' => 1699999000,
+			'started_at'      => 1699999000,
+		] );
+		$harness->insertScanItem( $scanID, [ 'wpv-a' ], 1699999000, 1699999100, 1 );
+		$watchdog = new QueueWatchdog();
+
+		$this->assertTrue( $watchdog->recoverScanIfStale( $scanID ) );
+
+		$this->assertSame( 'completed', $harness->scanRow( $scanID )[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertSame( 1, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
+		$this->assertTrue( $harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) ) );
+		$this->assertFalse( $harness->controller->opts->optGet( 'is_scan_cron' ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
+	}
+
+	private function assertSingleRemoteAction( ScanQueueLifecycleHarness $harness, string $expectedAction ) :void {
+		$this->assertCount( 1, $harness->async->remotePosts );
+		\parse_str(
+			(string)\parse_url( $harness->async->remotePosts[ 0 ][ 'url' ], \PHP_URL_QUERY ),
+			$queryArgs
 		);
+		$this->assertArrayHasKey( 'action', $queryArgs );
+		$this->assertSame( $expectedAction, $queryArgs[ 'action' ] );
 	}
 
 	private function assertOnlyQueueWatchdogScheduledWithoutBuilderDispatch( ScanQueueLifecycleHarness $harness ) :void {
@@ -1326,12 +2404,17 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 	}
 
 	private function actionWasFired( ScanQueueLifecycleHarness $harness, string $hook ) :bool {
+		return $this->actionCount( $harness, $hook ) > 0;
+	}
+
+	private function actionCount( ScanQueueLifecycleHarness $harness, string $hook ) :int {
+		$count = 0;
 		foreach ( $harness->async->didActions as $action ) {
 			if ( $action[ 'hook' ] === $hook ) {
-				return true;
+				$count++;
 			}
 		}
-		return false;
+		return $count;
 	}
 
 	private function scanIDsForSlug( ScanQueueLifecycleHarness $harness, string $slug ) :array {
@@ -1341,10 +2424,26 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		);
 	}
 
+	private function scanIDsForScope( ScanQueueLifecycleHarness $harness, string $slug, string $scopeType, string $scopeKey ) :array {
+		return \array_map(
+			static fn( array $row ) :int => (int)$row[ 'id' ],
+			$this->scanRowsForScope( $harness, $slug, $scopeType, $scopeKey )
+		);
+	}
+
 	private function scanRowsForSlug( ScanQueueLifecycleHarness $harness, string $slug ) :array {
 		return \array_values( \array_filter(
 			$harness->scanRows(),
 			static fn( array $row ) :bool => $row[ 'scan' ] === $slug
+		) );
+	}
+
+	private function scanRowsForScope( ScanQueueLifecycleHarness $harness, string $slug, string $scopeType, string $scopeKey ) :array {
+		return \array_values( \array_filter(
+			$harness->scanRows(),
+			static fn( array $row ) :bool => $row[ 'scan' ] === $slug
+											 && $row[ 'scope_type' ] === $scopeType
+											 && $row[ 'scope_key' ] === $scopeKey
 		) );
 	}
 
@@ -1382,12 +2481,16 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 	}
 
 	private function recoveryMeta( int $attempts, int $lastAttemptAt ) :string {
-		return \base64_encode( \json_encode( [
+		return $this->encodedScanMeta( [
 			RunState::META_KEY_WATCHDOG_RECOVERY => [
 				'attempts'        => $attempts,
 				'last_attempt_at' => $lastAttemptAt,
 			],
-		] ) ?: '[]' );
+		] );
+	}
+
+	private function encodedScanMeta( array $meta ) :string {
+		return \base64_encode( \json_encode( $meta ) ?: '[]' );
 	}
 
 	private function scanMeta( array $scan ) :array {
@@ -1397,12 +2500,27 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 
 class LifecycleScansControllerTestDouble extends ScansController {
 
+	public function AFS() :AfsController {
+		return new LifecycleAfsScanControllerTestDouble();
+	}
+
 	public function getScanCon( string $slug ) {
 		return self::con()->comps->scans->getScanCon( $slug );
 	}
 
 	public function canStartScans( bool $isCli = false ) :bool {
 		unset( $isCli );
+		return true;
+	}
+}
+
+class LifecycleAfsScanControllerTestDouble extends AfsController {
+
+	public function getSlug() :string {
+		return 'afs';
+	}
+
+	public function isReady() :bool {
 		return true;
 	}
 }
