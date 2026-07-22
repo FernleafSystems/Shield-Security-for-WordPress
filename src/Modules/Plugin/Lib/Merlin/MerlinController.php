@@ -17,7 +17,7 @@ class MerlinController {
 	}
 
 	protected function run() {
-		add_filter( 'shield/custom_enqueue_assets', fn( array $assets ) => \array_merge( $assets, [ 'shield/tp/vimeo_player' ] ) );
+		add_filter( 'shield/custom_enqueue_assets', fn( $assets ) => \array_merge( \is_array( $assets ) ? $assets : [], [ 'shield/tp/vimeo_player' ] ) );
 	}
 
 	/**

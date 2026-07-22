@@ -237,38 +237,36 @@ class Afs extends Base {
 		}
 
 		if ( ( $data[ 'action' ] ?? null ) === 'update' && ( $data[ 'type' ] ?? null ) === 'plugin' ) {
-			foreach ( \array_filter( \is_array( $data[ 'plugins' ] ?? null ) ? $data[ 'plugins' ] : [] ) as $plugin ) {
-				$this->queuePluginAssetScan( (string)$plugin );
+			foreach ( \is_array( $data[ 'plugins' ] ?? null ) ? $data[ 'plugins' ] : [] as $plugin ) {
+				$this->queuePluginAssetScan( $plugin );
 			}
 		}
 
 		if ( ( $data[ 'action' ] ?? null ) === 'update' && ( $data[ 'type' ] ?? null ) === 'theme' ) {
-			foreach ( \array_filter( \is_array( $data[ 'themes' ] ?? null ) ? $data[ 'themes' ] : [] ) as $theme ) {
-				$this->queueThemeAssetScan( (string)$theme, true );
+			foreach ( \is_array( $data[ 'themes' ] ?? null ) ? $data[ 'themes' ] : [] as $theme ) {
+				$this->queueThemeAssetScan( $theme, true );
 			}
 		}
 	}
 
 	public function queueAssetScansFromUpgraderPostInstall( $response, $hookExtra ) {
-		if ( \is_array( $hookExtra ) && ( !empty( $hookExtra[ 'plugin' ] ) || !empty( $hookExtra[ 'theme' ] ) ) ) {
-			if ( !empty( $hookExtra[ 'plugin' ] ) ) {
-				$this->queuePluginAssetScan( (string)$hookExtra[ 'plugin' ] );
-			}
-			if ( !empty( $hookExtra[ 'theme' ] ) ) {
-				$this->queueThemeAssetScan( (string)$hookExtra[ 'theme' ], true );
-			}
+		if ( \is_array( $hookExtra ) ) {
+			$this->queuePluginAssetScan( $hookExtra[ 'plugin' ] ?? null );
+			$this->queueThemeAssetScan( $hookExtra[ 'theme' ] ?? null, true );
 		}
 		return $response;
 	}
 
-	public function queuePluginAssetScan( string $plugin ) :void {
-		if ( $plugin !== '' ) {
+	public function queuePluginAssetScan( $plugin = null ) :void {
+		$plugin = $this->normalizeAssetKey( $plugin );
+		if ( $plugin !== null ) {
 			( new Scan\AssetChange\Cleanup() )->schedule( 'plugin', $plugin );
 		}
 	}
 
-	public function queueThemeAssetScan( string $stylesheet, bool $wasDeleted = true ) :void {
-		if ( $wasDeleted && $stylesheet !== '' ) {
+	public function queueThemeAssetScan( $stylesheet = null, $wasDeleted = true ) :void {
+		$stylesheet = $this->normalizeAssetKey( $stylesheet );
+		if ( $wasDeleted === true && $stylesheet !== null ) {
 			( new Scan\AssetChange\Cleanup() )->schedule( 'theme', $stylesheet );
 		}
 	}
@@ -276,6 +274,14 @@ class Afs extends Base {
 	public function queueCoreAssetScan( $newVersion = '' ) :void {
 		unset( $newVersion );
 		( new Scan\AssetChange\Cleanup() )->schedule( 'core', 'core' );
+	}
+
+	private function normalizeAssetKey( $value ) :?string {
+		if ( !\is_string( $value ) ) {
+			return null;
+		}
+		$value = \trim( $value );
+		return $value === '' || $value === '0' ? null : $value;
 	}
 
 	/**

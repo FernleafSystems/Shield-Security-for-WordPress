@@ -43,12 +43,16 @@ class PluginVersionsTest extends BaseUnitTest {
 		);
 	}
 
-	public function testReleaseUrlsUseCachedWordpressOrgVersionMap() :void {
+	public function testReleaseUrlsUseAndNormalizeCachedWordpressOrgVersionMap() :void {
 		ServicesState::installItems( [
 			'service_wpgeneral' => new PluginVersionsGeneralStub( [
 				$this->cacheKeyForSlug( 'wp-simple-firewall' ) => [
-					'trunk'  => 'https://downloads.wordpress.org/plugin/wp-simple-firewall.zip',
-					'24.0.0' => 'https://downloads.wordpress.org/plugin/wp-simple-firewall.24.0.0.zip',
+					'trunk'    => 'https://downloads.wordpress.org/plugin/wp-simple-firewall.zip',
+					'24.0.0'   => 'https://downloads.wordpress.org/plugin/wp-simple-firewall.24.0.0.zip',
+					'25.0.0'   => false,
+					'26.0.0'   => [],
+					27         => 'https://downloads.wordpress.org/plugin/wp-simple-firewall.27.zip',
+					' 28.0.0 ' => ' https://downloads.wordpress.org/plugin/wp-simple-firewall.28.0.0.zip ',
 				],
 			] ),
 		] );
@@ -63,6 +67,7 @@ class PluginVersionsTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				'24.0.0' => 'https://downloads.wordpress.org/plugin/wp-simple-firewall.24.0.0.zip',
+				'28.0.0' => 'https://downloads.wordpress.org/plugin/wp-simple-firewall.28.0.0.zip',
 			],
 			$subject->releaseUrls()
 		);
@@ -157,6 +162,20 @@ class PluginVersionsTest extends BaseUnitTest {
 		$this->assertSame( \MINUTE_IN_SECONDS*10, $general->lastStoredTransientLifetime );
 	}
 
+	public function testReleaseUrlsContainUnexpectedLoaderThrowableAndCacheEmptyMap() :void {
+		$general = new PluginVersionsGeneralStub();
+		ServicesState::installItems( [
+			'service_wpgeneral' => $general,
+		] );
+
+		$subject = new PluginVersionsThrowingLoadStub( 'wp-simple-firewall' );
+
+		$this->assertSame( [], $subject->releaseUrls() );
+		$this->assertSame( 1, $subject->loadCount );
+		$this->assertSame( [], $general->lastStoredTransientValue );
+		$this->assertSame( \MINUTE_IN_SECONDS*10, $general->lastStoredTransientLifetime );
+	}
+
 	public function testLatestVersionNewerThanReturnsHighestNormalizedRelease() :void {
 		$subject = $this->fromVersions( [
 			'22.1.4',
@@ -178,7 +197,7 @@ class PluginVersionsTest extends BaseUnitTest {
 	/**
 	 * @dataProvider provideReleaseVersionNormalizationCases
 	 */
-	public function testNormalizeReleaseVersionOnlyAcceptsDottedNumericScalars( $version, string $expected ) :void {
+	public function testNormalizeReleaseVersionOnlyAcceptsDottedNumericStrings( $version, string $expected ) :void {
 		$this->assertSame( $expected, PluginVersions::normalizeReleaseVersion( $version ) );
 	}
 
@@ -190,8 +209,18 @@ class PluginVersionsTest extends BaseUnitTest {
 			'major-only tag'    => [ '24', '' ],
 			'beta suffix'       => [ '24.0.0-beta1', '' ],
 			'non-version tag'   => [ 'importexport-b2', '' ],
-			'non-scalar value'  => [ [], '' ],
+			'null value'        => [ null, '' ],
+			'false value'       => [ false, '' ],
+			'true value'        => [ true, '' ],
+			'zero integer'      => [ 0, '' ],
+			'integer value'     => [ 23, '' ],
+			'whole float'       => [ 23.0, '' ],
+			'dotted float'      => [ 23.1, '' ],
+			'array value'       => [ [], '' ],
+			'object value'      => [ new \stdClass(), '' ],
+			'stringable object' => [ new PluginVersionsStringableStub(), '' ],
 			'empty value'       => [ '', '' ],
+			'whitespace value'  => [ ' ', '' ],
 		];
 	}
 
@@ -276,6 +305,23 @@ class PluginVersionsLoadStub extends PluginVersions {
 	protected function loadVersionUrls() :array {
 		$this->loadCount++;
 		return $this->loadedVersionUrls;
+	}
+}
+
+class PluginVersionsThrowingLoadStub extends PluginVersions {
+
+	public int $loadCount = 0;
+
+	protected function loadVersionUrls() :array {
+		$this->loadCount++;
+		throw new \RuntimeException( 'Unexpected WordPress.org adapter failure.' );
+	}
+}
+
+class PluginVersionsStringableStub {
+
+	public function __toString() :string {
+		return '23.0.0';
 	}
 }
 

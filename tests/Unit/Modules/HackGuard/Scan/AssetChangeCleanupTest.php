@@ -597,6 +597,32 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( 0, $scans->memoizationResets );
 	}
 
+	public function test_cron_adapter_ignores_hostile_argument_types() :void {
+		$wpDb = new AssetChangeCleanupWpDb();
+		$scans = new AssetChangeCleanupScans();
+		$this->installController( $scans );
+		ServicesState::installItems( [
+			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000300 ),
+			'service_wpdb'    => $wpDb,
+		] );
+		Functions\expect( 'wp_next_scheduled' )->never();
+		Functions\expect( 'wp_schedule_single_event' )->never();
+		$cleanup = new Cleanup();
+
+		foreach ( [
+			[ null, 'asset', 0 ],
+			[ 'plugin', [], 0 ],
+			[ 'theme', (object)[], 0 ],
+			[ 'core', 'core', '0' ],
+			[ 'plugin', 'valid/plugin.php', -1 ],
+		] as $args ) {
+			$cleanup->run( $args[ 0 ], $args[ 1 ], $args[ 2 ] );
+		}
+
+		$this->assertSame( [], $wpDb->queries );
+		$this->assertSame( [], $scans->startedAssets );
+	}
+
 	public function providePresentAssetReadinessFailures() :array {
 		return [
 			'plugin retry 0' => [

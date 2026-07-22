@@ -39,7 +39,15 @@ class Cleanup {
 		return \wp_schedule_single_event( Services::Request()->ts() + $delay, $this->getHook(), $args ) !== false;
 	}
 
-	public function run( string $assetType, string $assetKey, int $retry = 0 ) :void {
+	public function run( $assetType = null, $assetKey = null, $retry = 0 ) :void {
+		if ( !\is_string( $assetType ) || !\is_string( $assetKey ) || !\is_int( $retry )
+			 || $retry < 0 || $retry > self::MAX_RETRIES ) {
+			return;
+		}
+		$this->runCleanup( $assetType, $assetKey, $retry );
+	}
+
+	private function runCleanup( string $assetType, string $assetKey, int $retry ) :void {
 		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
 		if ( $assetType === '' || $assetKey === '' ) {
 			return;
