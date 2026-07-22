@@ -2,12 +2,28 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Configuration;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 class DatabaseSchemaConfigTest extends TestCase {
 
 	use PluginPathsTrait;
+
+	public function test_malware_status_width_covers_every_known_label_in_source_and_generated_config() :void {
+		$source = $this->decodePluginJsonFile( 'plugin-spec/43_databases.json', 'Database schema source spec' );
+		$generated = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
+		$requiredWidth = \max( \array_map( 'strlen', ( new MalwareStatus() )->knownLabels() ) );
+
+		$this->assertGreaterThanOrEqual(
+			$requiredWidth,
+			$source[ 'tables' ][ 'malware' ][ 'cols_custom' ][ 'malai_status' ][ 'length' ] ?? 0
+		);
+		$this->assertGreaterThanOrEqual(
+			$requiredWidth,
+			$generated[ 'config_spec' ][ 'databases' ][ 'tables' ][ 'malware' ][ 'cols_custom' ][ 'malai_status' ][ 'length' ] ?? 0
+		);
+	}
 
 	public function test_scan_items_item_count_definition_matches_generated_config() :void {
 		$source = $this->decodePluginJsonFile( 'plugin-spec/43_databases.json', 'Database schema source spec' );

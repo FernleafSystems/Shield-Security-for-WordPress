@@ -27,6 +27,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 	};
 	use FernleafSystems\Wordpress\Services\Utilities\Data;
 	use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
+	use FernleafSystems\Wordpress\Services\Core\Db;
 
 	class HandleUpgradeTest extends BaseUnitTest {
 
@@ -44,6 +45,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				static fn( string $message ) :bool => HandleUpgradeErrorLogSpy::log( $message )
 			);
 			HandleUpgradeErrorLogSpy::reset();
+			HandleUpgradeDbSpy::reset();
 			$this->serviceProviders = new class extends ServiceProviders {
 				public int $clears = 0;
 
@@ -149,6 +151,33 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$this->assertSame( 1, $state->extensionHandler->forceChecks );
 			$this->assertCount( 1, $state->scans->startedScans );
 			$this->assertTrue( $state->scans->startedScans[ 0 ]->isReady() );
+		}
+
+		public function test_scheduled_upgrade_widens_narrow_malai_status_column() :void {
+			$actions = [];
+			$this->captureUpgradeAction( $actions );
+			HandleUpgradeDbSpy::$columnType = 'varchar(20)';
+			$this->installController( '2.0.0' );
+
+			( new HandleUpgrade() )->execute();
+			$this->runCapturedUpgradeCallback( $actions );
+
+			$this->assertCount( 1, HandleUpgradeDbSpy::$writes );
+			$this->assertStringContainsString(
+				'ALTER TABLE `shield_malware` MODIFY COLUMN `malai_status` varchar(24)',
+				HandleUpgradeDbSpy::$writes[ 0 ]
+			);
+		}
+
+		public function test_scheduled_upgrade_skips_correct_malai_status_column() :void {
+			$actions = [];
+			$this->captureUpgradeAction( $actions );
+			$this->installController( '2.0.0' );
+
+			( new HandleUpgrade() )->execute();
+			$this->runCapturedUpgradeCallback( $actions );
+
+			$this->assertSame( [], HandleUpgradeDbSpy::$writes );
 		}
 
 		public function test_cache_purge_failure_does_not_stop_scheduled_upgrade_worker() :void {
@@ -343,6 +372,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			bool $includeThrowingExtension = false,
 			bool $includeThrowingHandlerLookup = false
 		) :object {
+			ServicesState::mergeItems( [
+				'service_wpdb' => new HandleUpgradeTestDb(),
+			] );
 			$operations = new HandleUpgradeTestOperations();
 			$cfg = new class( $previousVersion ) {
 				public string $previous_version;
@@ -381,6 +413,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				'cfg'                   => $cfg,
 				'plugin'                => $plugin,
 				'opts'                  => $opts,
+				'db_con'                => new HandleUpgradeTestDbCon(),
 				'extensions_controller' => new HandleUpgradeTestExtensionsController( $extensions ),
 				'comps'                 => (object)[
 					'scans' => $scans,
@@ -472,6 +505,56 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 		public static function log( string $message ) :bool {
 			self::$messages[] = $message;
 			return true;
+		}
+	}
+
+	class HandleUpgradeDbSpy {
+
+		public static string $columnType = 'varchar(24)';
+
+		public static array $writes = [];
+
+		public static function reset() :void {
+			self::$columnType = 'varchar(24)';
+			self::$writes = [];
+		}
+	}
+
+	class HandleUpgradeTestDb extends Db {
+
+		public function selectCustom( $query, $format = null ) {
+			unset( $query, $format );
+			return [ [ 'Type' => HandleUpgradeDbSpy::$columnType ] ];
+		}
+
+		public function doSql( string $sqlQuery ) {
+			HandleUpgradeDbSpy::$writes[] = $sqlQuery;
+			return 1;
+		}
+	}
+
+	class HandleUpgradeTestDbCon {
+
+		public object $malware;
+
+		public function __construct() {
+			$this->malware = new class {
+				public function getTableSchema() :object {
+					return new class {
+						public string $table = 'shield_malware';
+
+						public function getColumnDef( string $column ) :array {
+							return $column === 'malai_status' ? [ 'length' => 24 ] : [];
+						}
+
+						public function enumerateColumns() :array {
+							return [
+								'malai_status' => "varchar(24) NOT NULL DEFAULT '' COMMENT 'The status of the file from malai'",
+							];
+						}
+					};
+				}
+			};
 		}
 	}
 

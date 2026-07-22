@@ -472,7 +472,7 @@
                 },
                 "malai_status": {
                     "macro_type": "varchar",
-                    "length": 20,
+                    "length": 24,
                     "default": "''",
                     "comment": "The status of the file from malai"
                 },

@@ -92,13 +92,16 @@ class BuildForScans extends BuildBase {
 		$afsMalwareItems = $afsItems;
 		$afsAssetItems = $afsItems;
 		if ( $this->report->type === Constants::REPORT_TYPE_ALERT && self::con()->caps->canScanMalwareMalai() ) {
-			$afsMalwareItems = \array_values( \array_filter(
+			$now = Services::Request()->ts();
+			$pendingIDs = [];
+			foreach ( $afsItems as $item ) {
+				if ( $this->shouldDeferPendingMalwareAlert( $item, $now ) ) {
+					$pendingIDs[ (int)$item->VO->resultitem_id ] = true;
+				}
+			}
+			$afsMalwareItems = $afsAssetItems = \array_values( \array_filter(
 				$afsItems,
-				fn( ResultItem $item ) :bool => !$this->isPendingMalware( $item )
-			) );
-			$afsAssetItems = \array_values( \array_filter(
-				$afsItems,
-				fn( ResultItem $item ) :bool => !$this->isPendingMalware( $item ) || $item->hasNonMalwareFinding()
+				fn( ResultItem $item ) :bool => !isset( $pendingIDs[ (int)$item->VO->resultitem_id ] )
 			) );
 		}
 
@@ -288,8 +291,12 @@ class BuildForScans extends BuildBase {
 		];
 	}
 
-	private function isPendingMalware( ResultItem $item ) :bool {
-		if ( !$item->is_mal ) {
+	private function shouldDeferPendingMalwareAlert( ResultItem $item, int $now ) :bool {
+		$createdAt = (int)$item->VO->created_at;
+		if ( !$item->is_mal
+			 || $createdAt < 1
+			 || $createdAt > $now
+			 || $createdAt <= $now - \HOUR_IN_SECONDS ) {
 			return false;
 		}
 		$record = $item->getMalwareRecord();
