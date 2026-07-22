@@ -130,6 +130,13 @@ class RetrieveItems extends RetrieveBase {
 		return $this->retrieveResults( self::CONTEXT_AUTOREPAIR );
 	}
 
+	public function retrieveActiveProblems() :ResultsSet {
+		$results = $this->retrieveByWheres(
+			( new LatestScanResultWheresBuilder() )->forActiveProblems( $this->getScanController()->getSlug() )
+		);
+		return empty( $results ) ? $this->getScanController()->getNewResultsSet() : $results;
+	}
+
 	/**
 	 * @param array<string,mixed>|null $options
 	 */
