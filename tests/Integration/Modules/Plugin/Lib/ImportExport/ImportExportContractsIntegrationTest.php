@@ -23,7 +23,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function set_up() {
 		parent::set_up();
-		$this->enablePremiumCapabilities( [ 'import_export_level_1', 'import_export_level_2' ] );
+		$this->enablePremiumCapabilities( [ 'import_export_level_1', 'import_export_level_2', 'scan_file_locker' ] );
 		$this->requireDb( 'ip_rules' );
 		$this->requireDb( 'ips' );
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
@@ -40,6 +40,7 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			'display_plugin_badge',
 			'visitor_address_source',
 			'enable_tracking',
+			'file_locker',
 		] );
 	}
 
@@ -141,6 +142,19 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		] as $path ) {
 			$this->assertFileImportFailsWithoutOptionChanges( $path );
 		}
+	}
+
+	public function test_import_rejects_malformed_multiple_select_without_losing_current_value() :void {
+		$con = $this->requireController();
+		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
+		$this->assertSame( [ 'wpconfig' ], $con->opts->optGet( 'file_locker' ) );
+		$export = ( new Export() )->getExportData();
+		$export[ 'options' ][ 'file_locker' ] = [ 'root_index', [ 'wpconfig' ] ];
+		$file = $this->writeTempFile( (string)\wp_json_encode( $export ) );
+
+		( new Import() )->fromFile( $file, true );
+
+		$this->assertSame( [ 'wpconfig' ], $con->opts->optGet( 'file_locker' ) );
 	}
 
 	public function test_exported_manual_bypass_rules_are_imported_for_exported_ip() :void {

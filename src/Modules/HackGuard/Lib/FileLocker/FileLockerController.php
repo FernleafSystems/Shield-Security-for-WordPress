@@ -73,8 +73,22 @@ class FileLockerController {
 		return $links;
 	}
 
+	/**
+	 * @return list<string>
+	 */
 	public function getFilesToLock(): array {
-		return self::con()->opts->optGet( 'file_locker' );
+		$allowed = \array_column(
+			self::con()->opts->optDef( 'file_locker' )[ 'value_options' ] ?? [],
+			'value_key'
+		);
+		$selected = [];
+		$stored = self::con()->opts->optGet( 'file_locker' );
+		foreach ( \is_array( $stored ) ? $stored : [] as $fileKey ) {
+			if ( \is_string( $fileKey ) && \in_array( $fileKey, $allowed, true ) && !\in_array( $fileKey, $selected, true ) ) {
+				$selected[] = $fileKey;
+			}
+		}
+		return $selected;
 	}
 
 	/**
