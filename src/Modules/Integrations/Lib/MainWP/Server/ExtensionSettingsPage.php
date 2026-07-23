@@ -14,15 +14,18 @@ class ExtensionSettingsPage {
 
 	protected function run() {
 
-		add_filter( 'shield/custom_enqueue_assets', function ( array $assets, $hook ) {
+		add_filter( 'shield/custom_enqueue_assets', function ( $assets, $hook ) {
+			$assets = \is_array( $assets ) ? $assets : [];
 			if ( self::con()->comps->mainwp->isServerExtensionLoaded()
+				 && \is_string( $hook )
 				 && 'mainwp_page_'.self::con()->mwpVO->extension->page === $hook ) {
 				$assets[] = 'mainwp_server';
 			}
 			return $assets;
 		}, 10, 2 );
 
-		add_filter( 'shield/custom_localisations/components', function ( array $components ) {
+		add_filter( 'shield/custom_localisations/components', function ( $components ) {
+			$components = \is_array( $components ) ? $components : [];
 			$components[ 'mainwp_server' ] = [
 				'key'     => 'mainwp_server',
 				'handles' => [

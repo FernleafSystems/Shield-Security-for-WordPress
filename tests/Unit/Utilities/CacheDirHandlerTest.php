@@ -414,20 +414,48 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertSame( $root, ( new CacheDirHandler() )->locateExistingDir() );
 	}
 
-	public function test_write_mode_does_not_rewrite_current_readme() :void {
-		$preferred = $this->makeNonTmpCacheRoot( 'readme' );
+	public function test_fresh_candidate_writes_each_protection_once_with_canonical_content() :void {
+		$preferred = $this->makeNonTmpCacheRoot( 'fresh-protections' );
 		$expected = $this->expectedExternalCacheRoot( $preferred );
 		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
 
-		$readme = $expected.'/README.txt';
-		$this->assertFileExists( $readme );
-		\touch( $readme, 1600000000 );
-		\clearstatcache( true, $readme );
-		$mtime = \filemtime( $readme );
+		foreach ( $this->protectionContents() as $filename => $content ) {
+			$path = $expected.'/'.$filename;
+			$this->assertFileExists( $path );
+			$this->assertSame( $content, \file_get_contents( $path ) );
+			$this->assertSame( 1, $this->fs->fileWriteCounts[ $path ] ?? 0 );
+		}
+	}
+
+	/**
+	 * @dataProvider protectionFileDataProvider
+	 */
+	public function test_write_mode_does_not_rewrite_current_protection( string $filename ) :void {
+		$preferred = $this->makeNonTmpCacheRoot( 'current-'.\str_replace( '.', '-', $filename ) );
+		$expected = $this->expectedExternalCacheRoot( $preferred );
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
+
+		$protection = $expected.'/'.$filename;
+		$this->assertFileExists( $protection );
+		$this->fs->fileWriteCounts[ $protection ] = 0;
 
 		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
-		\clearstatcache( true, $readme );
-		$this->assertSame( $mtime, \filemtime( $readme ) );
+		$this->assertSame( 0, $this->fs->fileWriteCounts[ $protection ] ?? 0 );
+	}
+
+	/**
+	 * @dataProvider protectionFileDataProvider
+	 */
+	public function test_stale_protection_is_repaired_and_verified( string $filename ) :void {
+		$preferred = $this->makeNonTmpCacheRoot( 'stale-'.\str_replace( '.', '-', $filename ) );
+		$expected = $this->expectedExternalCacheRoot( $preferred );
+		$protection = $expected.'/'.$filename;
+		$this->mkdir( $expected );
+		\file_put_contents( $protection, 'stale' );
+
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertSame( $this->protectionContents()[ $filename ], \file_get_contents( $protection ) );
+		$this->assertSame( 1, $this->fs->fileWriteCounts[ $protection ] ?? 0 );
 	}
 
 	public function test_write_mode_skips_protection_files_for_tmp_cache_root() :void {
@@ -445,6 +473,110 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->assertFileDoesNotExist( $expected.'/index.php' );
 		$this->assertFileDoesNotExist( $expected.'/README.txt' );
 		$this->assertFalse( \is_dir( $preferred ) );
+	}
+
+	/**
+	 * @dataProvider tmpPathDataProvider
+	 */
+	public function test_tmp_exemption_requires_exact_path_segment( string $path, bool $expected ) :void {
+		$method = new \ReflectionMethod( CacheDirHandler::class, 'isTmpPath' );
+		$method->setAccessible( true );
+
+		$this->assertSame( $expected, $method->invoke( new CacheDirHandler(), $path ) );
+	}
+
+	public static function tmpPathDataProvider() :array {
+		return [
+			'tmp root'       => [ '/tmp', true ],
+			'tmp child'      => [ '/tmp/shield', true ],
+			'prefixed name'  => [ '/tmp-shield', false ],
+			'prefixed path'  => [ '/tmpfoo/shield', false ],
+			'similar path'   => [ '/temporary/shield', false ],
+			'windows path'   => [ 'C:/tmp/shield', false ],
+		];
+	}
+
+	/**
+	 * @dataProvider protectionFileDataProvider
+	 */
+	public function test_unhashable_protection_entry_rejects_candidate( string $filename ) :void {
+		$preferred = $this->makeNonTmpCacheRoot( 'unhashable-'.\str_replace( '.', '-', $filename ) );
+		$expected = $this->expectedExternalCacheRoot( $preferred );
+		$this->mkdir( $expected.'/'.$filename );
+
+		$this->assertSame( '', ( new CacheDirHandler( '', $preferred ) )->dir() );
+	}
+
+	public function protectionFileDataProvider() :array {
+		return [
+			'htaccess' => [ '.htaccess' ],
+			'index'    => [ 'index.php' ],
+			'readme'   => [ 'README.txt' ],
+		];
+	}
+
+	/**
+	 * @dataProvider protectionFileDataProvider
+	 */
+	public function test_failed_protection_write_rejects_candidate( string $filename ) :void {
+		$preferred = $this->makeNonTmpCacheRoot( 'failed-write-'.\str_replace( '.', '-', $filename ) );
+		$expected = $this->expectedExternalCacheRoot( $preferred );
+		$this->mkdir( $expected );
+		$protection = $expected.'/'.$filename;
+		\file_put_contents( $protection, 'stale' );
+		$this->fs->failFileWrite( $protection );
+
+		$this->assertSame( '', ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$this->assertSame( 'stale', \file_get_contents( $protection ) );
+	}
+
+	/**
+	 * @dataProvider protectionFileDataProvider
+	 */
+	public function test_unverifiable_repair_rejects_candidate( string $filename ) :void {
+		$preferred = $this->makeNonTmpCacheRoot( 'unverifiable-repair-'.\str_replace( '.', '-', $filename ) );
+		$expected = $this->expectedExternalCacheRoot( $preferred );
+		$protection = $expected.'/'.$filename;
+		$handler = new CacheDirHandlerHashFailureProbe( '', $preferred );
+		$handler->failHashFor( $protection );
+
+		$this->assertSame( '', $handler->dir() );
+		$this->assertSame( 1, $this->fs->fileWriteCounts[ $protection ] ?? 0 );
+	}
+
+	/**
+	 * @dataProvider protectionFileDataProvider
+	 */
+	public function test_protection_that_disappears_before_hashing_is_repaired( string $filename ) :void {
+		$preferred = $this->makeNonTmpCacheRoot( 'disappears-'.\str_replace( '.', '-', $filename ) );
+		$expected = $this->expectedExternalCacheRoot( $preferred );
+		$this->assertSame( $expected, ( new CacheDirHandler( '', $preferred ) )->dir() );
+		$protection = $expected.'/'.$filename;
+		$handler = new CacheDirHandlerHashFailureProbe( '', $preferred );
+		$handler->disappearOnceBeforeHashing( $protection );
+
+		$this->assertSame( $expected, $handler->dir() );
+		$this->assertFileExists( $protection );
+		$this->assertSame( 2, $this->fs->fileWriteCounts[ $protection ] ?? 0 );
+	}
+
+	/**
+	 * @dataProvider protectionFileDataProvider
+	 */
+	public function test_protection_failure_falls_through_to_usable_sibling( string $filename ) :void {
+		$first = $this->makeNonTmpCacheRoot( 'failed-candidate-'.\str_replace( '.', '-', $filename ) );
+		$second = $this->makeNonTmpCacheRoot( 'usable-candidate-'.\str_replace( '.', '-', $filename ) );
+		$sentinel = $first.'/sentinel.txt';
+		\file_put_contents( $sentinel, 'keep' );
+		$this->mkdir( $first.'/'.$filename );
+
+		$method = new \ReflectionMethod( CacheDirHandler::class, 'assessCandidates' );
+		$method->setAccessible( true );
+		$this->assertSame( $second, $method->invoke( new CacheDirHandler(), [ $first, $second ] ) );
+		$this->assertFileExists( $sentinel );
+		foreach ( $this->protectionContents() as $siblingFilename => $content ) {
+			$this->assertSame( $content, \file_get_contents( $second.'/'.$siblingFilename ) );
+		}
 	}
 
 	public function test_failed_candidate_directory_is_not_deleted() :void {
@@ -533,6 +665,26 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		}
 	}
 
+	/**
+	 * @return array<string,string>
+	 */
+	private function protectionContents() :array {
+		return [
+			'.htaccess' => \implode( "\n", [
+				"# BEGIN SHIELD",
+				"Options -Indexes",
+				"Order allow,deny",
+				"Deny from all",
+				'<FilesMatch "^.*\.(css|js)$">',
+				" Allow from all",
+				'</FilesMatch>',
+				"# END SHIELD"
+			] ),
+			'index.php'  => "<?php\n\http_response_code(404);",
+			'README.txt' => "This is a temporary caching folder used by the Shield plugin. You can safely delete it, but it'll be recreated if required.\n",
+		];
+	}
+
 	private function makeTempDir( string $suffix ) :string {
 		return $this->normaliseCacheStorePath( $this->createTrackedTempDir( 'shield-cache-dir-handler-'.$suffix.'-' ) );
 	}
@@ -601,5 +753,36 @@ class CacheDirHandlerTest extends BaseUnitTest {
 			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
 		}
 		@\rmdir( $dir );
+	}
+}
+
+class CacheDirHandlerHashFailureProbe extends CacheDirHandler {
+
+	/**
+	 * @var string[]
+	 */
+	private array $failedHashPaths = [];
+
+	/**
+	 * @var string[]
+	 */
+	private array $disappearOncePaths = [];
+
+	public function failHashFor( string $path ) :void {
+		$this->failedHashPaths[] = \str_replace( '\\', '/', $path );
+	}
+
+	public function disappearOnceBeforeHashing( string $path ) :void {
+		$this->disappearOncePaths[] = \str_replace( '\\', '/', $path );
+	}
+
+	protected function hashProtectionFile( string $path ) :?string {
+		$normalised = \str_replace( '\\', '/', $path );
+		$key = \array_search( $normalised, $this->disappearOncePaths, true );
+		if ( $key !== false ) {
+			unset( $this->disappearOncePaths[ $key ] );
+			@\unlink( $path );
+		}
+		return \in_array( $normalised, $this->failedHashPaths, true ) ? null : parent::hashProtectionFile( $path );
 	}
 }

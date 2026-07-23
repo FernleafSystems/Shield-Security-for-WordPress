@@ -207,7 +207,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		];
 		\sort( $expectedTargetIds );
 
-		$actualTargetIds = (array)( $report->alert_digest[ 'notification_target_ids' ] ?? [] );
+		$actualTargetIds = $report->alert_digest[ 'notification_target_ids' ];
 		\sort( $actualTargetIds );
 
 		$this->assertSame( $expectedTargetIds, $actualTargetIds );

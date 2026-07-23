@@ -248,6 +248,15 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
+	public function test_malformed_multiple_select_save_is_rejected_as_a_whole() :void {
+		$con = $this->requireController();
+		$con->opts->optSet( 'file_locker', [ 'wpconfig', 'root_index' ] )->store();
+
+		$con->opts->optSet( 'file_locker', [ 'theme_functions', [ 'root_index' ] ] )->store();
+
+		$this->assertSame( [ 'wpconfig', 'root_index' ], $con->opts->optGet( 'file_locker' ) );
+	}
+
 	public function test_valid_master_url_survives_store() :void {
 		$con = $this->requireController();
 		$url = 'https://master.example.com';

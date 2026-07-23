@@ -45,7 +45,13 @@ class PluginVersions {
 			else {
 				$this->releaseUrls = $this->loadCachedReleaseUrls();
 				if ( $this->releaseUrls === null ) {
-					$this->releaseUrls = $this->normalizeReleaseUrls( $this->loadVersionUrls() );
+					try {
+						$loadedVersionUrls = $this->loadVersionUrls();
+					}
+					catch ( \Throwable $e ) {
+						$loadedVersionUrls = [];
+					}
+					$this->releaseUrls = $this->normalizeReleaseUrls( $loadedVersionUrls );
 					Transient::Set( $this->cacheKey(), $this->releaseUrls, self::CACHE_TTL );
 				}
 			}
@@ -99,11 +105,11 @@ class PluginVersions {
 	}
 
 	public static function normalizeReleaseVersion( $version ) :string {
-		if ( !\is_scalar( $version ) ) {
+		if ( !\is_string( $version ) ) {
 			return '';
 		}
 
-		$version = \trim( (string)$version );
+		$version = \trim( $version );
 		return \preg_match( self::RELEASE_VERSION_REGEX, $version ) === 1 ? $version : '';
 	}
 

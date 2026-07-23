@@ -16,8 +16,22 @@ class CacheStoreTestFs extends Fs {
 	 */
 	public array $deletedDirs = [];
 
+	/**
+	 * @var string[]
+	 */
+	public array $failedFileWrites = [];
+
+	/**
+	 * @var array<string,int>
+	 */
+	public array $fileWriteCounts = [];
+
 	public function failDir( string $dir ) :void {
 		$this->failedDirs[] = $this->normalise( $dir );
+	}
+
+	public function failFileWrite( string $path ) :void {
+		$this->failedFileWrites[] = $this->normalise( $path );
 	}
 
 	public function exists( $path ) :?bool {
@@ -67,6 +81,11 @@ class CacheStoreTestFs extends Fs {
 	}
 
 	public function putFileContent( $path, $contents, $compress = false ) :bool {
+		$path = $this->normalise( (string)$path );
+		$this->fileWriteCounts[ $path ] = ( $this->fileWriteCounts[ $path ] ?? 0 ) + 1;
+		if ( \in_array( $path, $this->failedFileWrites, true ) ) {
+			return false;
+		}
 		$dir = \dirname( (string)$path );
 		if ( !\is_dir( $dir ) ) {
 			@\mkdir( $dir, 0777, true );

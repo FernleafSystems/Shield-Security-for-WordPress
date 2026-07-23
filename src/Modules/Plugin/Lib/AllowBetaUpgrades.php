@@ -89,7 +89,7 @@ class AllowBetaUpgrades {
 	}
 
 	private function isBetaEnabled(): bool {
-		return apply_filters( 'shield/enable_beta', self::con()->opts->optIs( 'enable_beta', 'Y' ) );
+		return apply_filters( 'shield/enable_beta', self::con()->opts->optIs( 'enable_beta', 'Y' ) ) === true;
 	}
 
 	private function getBeta() {

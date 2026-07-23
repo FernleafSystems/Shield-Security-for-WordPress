@@ -14,18 +14,21 @@ class RetrievePublicKey {
 	 * @throws PublicKeyRetrievalFailure
 	 */
 	public function retrieve() :array {
-		$getter = new GetPublicKey();
-
-		$key = $getter->retrieve();
-		if ( empty( $key ) ) {
+		$key = $this->buildGetter()->retrieve();
+		if ( !\is_array( $key ) || \count( $key ) !== 1 ) {
 			throw new PublicKeyRetrievalFailure( __( 'Failed to obtain public key from API.', 'wp-simple-firewall' ) );
 		}
 
+		$keyID = \array_key_first( $key );
 		$thePublicKey = \reset( $key );
-		if ( empty( $thePublicKey ) || !\is_string( $thePublicKey ) ) {
+		if ( !\is_int( $keyID ) || $keyID < 1 || !\is_string( $thePublicKey ) || \trim( $thePublicKey ) === '' ) {
 			throw new PublicKeyRetrievalFailure( __( 'Public key was empty.', 'wp-simple-firewall' ) );
 		}
 
 		return $key;
+	}
+
+	protected function buildGetter() :GetPublicKey {
+		return new GetPublicKey();
 	}
 }

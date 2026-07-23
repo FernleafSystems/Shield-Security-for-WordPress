@@ -122,6 +122,81 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 		$this->assertSame( [], $scans->queuedAssets );
 	}
 
+	public function test_theme_delete_hook_uses_success_default_when_argument_is_omitted() :void {
+		$scheduled = [];
+		$this->installCronMocks( $scheduled );
+		$this->installController( new AfsUpgradeQueueingRecordingScans() );
+
+		( new Afs() )->queueThemeAssetScan( 'twentytwentyfour' );
+
+		$this->assertSame( [
+			[ 'theme', 'twentytwentyfour', 0 ],
+		], \array_column( $scheduled, 'args' ) );
+	}
+
+	public function test_upgrader_adapters_ignore_hostile_members_and_preserve_valid_siblings() :void {
+		$scheduled = [];
+		$this->installCronMocks( $scheduled );
+		$this->installController( new AfsUpgradeQueueingRecordingScans() );
+		$afs = new Afs();
+
+		$afs->queueAssetScansFromUpgraderProcessComplete( null, [
+			'action'  => 'update',
+			'type'    => 'plugin',
+			'plugins' => [
+				' akismet/akismet.php ',
+				'',
+				'  ',
+				'0',
+				' 0 ',
+				123,
+				1.5,
+				[],
+				(object)[],
+				null,
+				false,
+			],
+		] );
+		$response = (object)[ 'ok' => true ];
+		$this->assertSame( $response, $afs->queueAssetScansFromUpgraderPostInstall( $response, [
+			'theme'  => ' twentytwentyfour ',
+			'plugin' => [],
+		] ) );
+
+		$this->assertSame( [
+			[ 'plugin', 'akismet/akismet.php', 0 ],
+			[ 'theme', 'twentytwentyfour', 0 ],
+		], \array_column( $scheduled, 'args' ) );
+		$afs->queueAssetScansFromUpgraderPostInstall( $response, [
+			'plugin' => '0',
+			'theme'  => ' 0 ',
+		] );
+
+		$afs->queueAssetScansFromUpgraderProcessComplete( null, null );
+		$afs->queueAssetScansFromUpgraderProcessComplete( null, [ 'action' => [], 'type' => 'plugin' ] );
+		$afs->queueAssetScansFromUpgraderProcessComplete( null, [
+			'action' => 'update',
+			'type' => 'plugin',
+			'plugins' => (object)[],
+		] );
+		$this->assertCount( 2, $scheduled );
+	}
+
+	public function test_delete_hook_adapters_ignore_hostile_values() :void {
+		$scheduled = [];
+		$this->installCronMocks( $scheduled );
+		$this->installController( new AfsUpgradeQueueingRecordingScans() );
+		$afs = new Afs();
+
+		foreach ( [ null, false, 123, 1.5, [], (object)[], '', '  ', '0', ' 0 ' ] as $invalid ) {
+			$afs->queuePluginAssetScan( $invalid );
+			$afs->queueThemeAssetScan( $invalid, true );
+		}
+		$afs->queueThemeAssetScan( 'twentytwentyfour', 'truthy' );
+
+		$this->assertSame( [], $scheduled );
+	}
+
 	public function test_run_registers_asset_change_cleanup_and_core_update_hooks() :void {
 		$actions = [];
 		$filters = [];

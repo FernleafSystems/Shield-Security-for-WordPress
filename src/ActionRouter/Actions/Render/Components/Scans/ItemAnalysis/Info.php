@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalwareMalaiStatus;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Wp\Repo;
 
@@ -65,16 +64,14 @@ class Info extends BaseComponent {
 	 */
 	private function getMalaiStatus() :string {
 		$item = $this->getScanItem();
-		if ( $item->is_mal && !empty( $item->getMalwareRecord() ) ) {
-			$status = ( new MalwareStatus() )->nameFromStatusLabel(
-				( new RetrieveMalwareMalaiStatus() )->single( $item->getMalwareRecord() )
-			);
-		}
-		else {
-			$status = '';
-		}
+		return $item->is_mal
+			? ( new MalwareStatus() )->nameFromStatusLabel( $this->getMalaiStatusLabel() )
+			: '';
+	}
 
-		return $status;
+	private function getMalaiStatusLabel() :string {
+		$record = $this->getScanItem()->getMalwareRecord();
+		return $record === null ? MalwareStatus::STATUS_UNKNOWN : $record->malai_status;
 	}
 
 	/**
@@ -86,19 +83,19 @@ class Info extends BaseComponent {
 		$description = [];
 
 		if ( $item->is_mal ) {
-			$record = $item->getMalwareRecord();
-			if ( $record->malai_status === MalwareStatus::STATUS_MALWARE ) {
+			$malaiStatus = $this->getMalaiStatusLabel();
+			if ( $malaiStatus === MalwareStatus::STATUS_MALWARE ) {
 				$description[] = sprintf( '<span class="text-danger">%s</span>',
 					__( "This file contains malicious code - it's malware!", 'wp-simple-firewall' ).
 					' '.__( 'Please take remedial action as soon as possible.', 'wp-simple-firewall' )
 				);
 			}
-			elseif ( $record->malai_status === MalwareStatus::STATUS_CLEAN ) {
+			elseif ( $malaiStatus === MalwareStatus::STATUS_CLEAN ) {
 				$description[] = sprintf( '<span class="text-success">%s</span>',
 					__( 'This file is confirmed to be clean and free from malware.', 'wp-simple-firewall' )
 				);
 			}
-			elseif ( $record->malai_status === MalwareStatus::STATUS_FP ) {
+			elseif ( $malaiStatus === MalwareStatus::STATUS_FP ) {
 				$description[] = sprintf( '<span class="text-success">%s</span>',
 					__( "This file is confirmed a malware false positive - it contains code that looks like malware, but it is clean.", 'wp-simple-firewall' )
 				);

@@ -159,7 +159,7 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 	public function testScheduledWatchdogFinalizesLastActiveCronScanInRealDb() :void {
 		$con = $this->requireController();
 		$optionsSnapshot = $this->snapshotSelectedOptions( [ 'is_scan_cron' ] );
-		$postScanHook = $con->prefix( 'post_scan' );
+		$postScanHook = $con->prefix( ScansController::HOOK_POST_SCAN );
 		$completedCalls = 0;
 		$completedCallback = static function () use ( &$completedCalls ) :void {
 			$completedCalls++;

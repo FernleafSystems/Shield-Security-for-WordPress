@@ -141,7 +141,7 @@ class ReportGenerator {
 		$data = $report->areas_data;
 		$inspector = new ReportDataInspector( $data );
 		if ( $report->type === Constants::REPORT_TYPE_ALERT
-			 && empty( $report->alert_digest[ 'has_new_items' ] ) ) {
+			 && !$report->alert_digest[ 'has_new_items' ] ) {
 			$data = [];
 			$report->alert_digest = [];
 		}
@@ -193,15 +193,7 @@ class ReportGenerator {
 	}
 
 	public function persistAlertNotifications( ReportVO $report ) :bool {
-		$targetIDs = \array_values( \array_unique( \array_map(
-			'intval',
-			\array_filter(
-				\is_array( $report->alert_digest[ 'notification_target_ids' ] ?? null )
-					? $report->alert_digest[ 'notification_target_ids' ]
-					: [],
-				static fn( $id ) :bool => (int)$id > 0
-			)
-		) ) );
+		$targetIDs = $report->alert_digest[ 'notification_target_ids' ];
 
 		if ( empty( $targetIDs ) ) {
 			return false;

@@ -7,6 +7,9 @@ use FernleafSystems\Wordpress\Services\{
 	Services
 };
 
+/**
+ * @phpstan-import-type AlertDigest from BuildAlertDigestContract
+ */
 class ResolveReportViewContracts {
 
 	/**
@@ -45,24 +48,7 @@ class ResolveReportViewContracts {
 	}
 
 	/**
-	 * @return array{
-	 *   has_new_items:bool,
-	 *   notification_target_ids:list<int>,
-	 *   summary:array{row_count:int,new_total:int,current_total:int,outstanding_total:int,actions_queue_href:string},
-	 *   rows:list<array{
-	 *     title:string,
-	 *     count:int,
-	 *     new_count:int,
-	 *     outstanding_count:int,
-	 *     has_new:bool,
-	 *     new_items:list<array{label:string}>,
-	 *     outstanding_items:list<array{label:string}>,
-	 *     hidden_new_count:int,
-	 *     hidden_outstanding_count:int,
-	 *     review_href:string,
-	 *     review_action:string
-	 *   }>
-	 * }
+	 * @phpstan-return AlertDigest
 	 */
 	public function alertDigest( ReportVO $report ) :array {
 		return !empty( $report->alert_digest )

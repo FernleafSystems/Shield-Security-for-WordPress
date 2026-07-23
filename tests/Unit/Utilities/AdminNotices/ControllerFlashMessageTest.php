@@ -68,6 +68,60 @@ class ControllerFlashMessageTest extends BaseUnitTest {
 		$this->assertNull( $meta->flash_msg );
 	}
 
+	/**
+	 * @dataProvider loginMessageProvider
+	 */
+	public function testLoginMessageAdapterNormalizesMixedFilterValues( $value, string $expected ) :void {
+		$this->installEnvironment( (object)[ 'flash_msg' => null ] );
+
+		$this->assertSame( $expected, ( new AdminNoticesController() )->onLoginMessageFilter( $value ) );
+	}
+
+	public static function loginMessageProvider() :array {
+		return [
+			'string' => [ 'message', 'message' ],
+			'integer' => [ 12, '12' ],
+			'boolean' => [ true, '1' ],
+			'array' => [ [ 'message' ], '' ],
+			'nested array' => [ [ [ 'message' ] ], '' ],
+			'object' => [ new \stdClass(), '' ],
+			'stringable' => [ new ControllerFlashMessageStringable(), 'stringable' ],
+			'throwing stringable' => [ new ControllerFlashMessageThrowingStringable(), '' ],
+			'null' => [ null, '' ],
+		];
+	}
+
+	public function testLoginMessageAdapterRejectsResource() :void {
+		$this->installEnvironment( (object)[ 'flash_msg' => null ] );
+		$resource = \fopen( 'php://memory', 'r' );
+		try {
+			$this->assertSame( '', ( new AdminNoticesController() )->onLoginMessageFilter( $resource ) );
+		}
+		finally {
+			\fclose( $resource );
+		}
+	}
+
+	public function testLoginMessageFilterConsumesShownFlashExactlyOnce() :void {
+		$meta = (object)[
+			'flash_msg' => [
+				'message'    => 'Saved.',
+				'expires_at' => self::NOW + 1,
+				'error'      => false,
+				'show_login' => true,
+			],
+		];
+		$this->installEnvironment( $meta );
+		$controller = new AdminNoticesController();
+
+		$first = $controller->onLoginMessageFilter( 'existing' );
+
+		$this->assertStringStartsWith( 'existing', $first );
+		$this->assertNotSame( 'existing', $first );
+		$this->assertNull( $meta->flash_msg );
+		$this->assertSame( 'existing', $controller->onLoginMessageFilter( 'existing' ) );
+	}
+
 	private function installEnvironment( object $meta ) :void {
 		UnitTestControllerFactory::install( null, null, (object)[
 			'user_metas' => new ControllerFlashMessageUserMetasStub( $meta ),
@@ -94,5 +148,17 @@ class ControllerFlashMessageUserMetasStub {
 
 	public function current() :object {
 		return $this->meta;
+	}
+}
+
+class ControllerFlashMessageStringable {
+	public function __toString() :string {
+		return 'stringable';
+	}
+}
+
+class ControllerFlashMessageThrowingStringable {
+	public function __toString() :string {
+		throw new \Error( 'conversion failed' );
 	}
 }

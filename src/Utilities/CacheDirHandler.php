@@ -101,14 +101,17 @@ class CacheDirHandler {
 		$chosenDir = null;
 		foreach ( $candidates as $maybeDir ) {
 			if ( $this->testDir( $maybeDir ) ) {
-				$chosenDir = $maybeDir;
-				if ( !\str_starts_with( $maybeDir, '/tmp' ) ) {
-					$this->addProtections( $maybeDir );
+				if ( $this->isTmpPath( $maybeDir ) || $this->addProtections( $maybeDir ) ) {
+					$chosenDir = $maybeDir;
+					break;
 				}
-				break;
 			}
 		}
 		return $chosenDir;
+	}
+
+	private function isTmpPath( string $path ) :bool {
+		return $path === '/tmp' || \str_starts_with( $path, '/tmp/' );
 	}
 
 	public function exists() :bool {
@@ -175,34 +178,48 @@ class CacheDirHandler {
 
 	private function addProtections( string $cacheDir ) :bool {
 		$FS = Services::WpFs();
+		$protections = [
+			'.htaccess' => \implode( "\n", [
+				"# BEGIN SHIELD",
+				"Options -Indexes",
+				"Order allow,deny",
+				"Deny from all",
+				'<FilesMatch "^.*\.(css|js)$">',
+				" Allow from all",
+				'</FilesMatch>',
+				"# END SHIELD"
+			] ),
+			'index.php'  => "<?php\n\http_response_code(404);",
+			'README.txt' => sprintf( "This is a temporary caching folder used by the %s plugin. You can safely delete it, but it'll be recreated if required.\n", self::con()->labels->Name ),
+		];
 
-		$htFile = path_join( $cacheDir, '.htaccess' );
-		$htContent = \implode( "\n", [
-			"# BEGIN SHIELD",
-			"Options -Indexes",
-			"Order allow,deny",
-			"Deny from all",
-			'<FilesMatch "^.*\.(css|js)$">',
-			" Allow from all",
-			'</FilesMatch>',
-			"# END SHIELD"
-		] );
-		if ( !$FS->exists( $htFile ) || !\hash_equals( \hash( 'sha256', $htContent ), \hash_file( 'sha256', $htFile ) ) ) {
-			$FS->putFileContent( $htFile, $htContent );
-		}
-		$index = path_join( $cacheDir, 'index.php' );
-		$indexContent = "<?php\n\http_response_code(404);";
-		if ( !$FS->exists( $index ) || !\hash_equals( \hash( 'sha256', $indexContent ), \hash_file( 'sha256', $index ) ) ) {
-			$FS->putFileContent( $index, $indexContent );
-		}
-
-		$readme = path_join( $cacheDir, 'README.txt' );
-		$readmeContent = sprintf( "This is a temporary caching folder used by the %s plugin. You can safely delete it, but it'll be recreated if required.\n", self::con()->labels->Name );
-		if ( !$FS->exists( $readme ) || !\hash_equals( \hash( 'sha256', $readmeContent ), \hash_file( 'sha256', $readme ) ) ) {
-			$FS->putFileContent( $readme, $readmeContent );
+		foreach ( $protections as $filename => $content ) {
+			$file = path_join( $cacheDir, $filename );
+			$expectedHash = \hash( 'sha256', $content );
+			$actualHash = $this->hashProtectionFile( $file );
+			if ( $actualHash === null || !\hash_equals( $expectedHash, $actualHash ) ) {
+				if ( $FS->exists( $file ) && !$FS->isFile( $file ) ) {
+					return false;
+				}
+				if ( !$FS->putFileContent( $file, $content ) ) {
+					return false;
+				}
+				$actualHash = $this->hashProtectionFile( $file );
+				if ( $actualHash === null || !\hash_equals( $expectedHash, $actualHash ) ) {
+					return false;
+				}
+			}
 		}
 
 		return true;
+	}
+
+	protected function hashProtectionFile( string $path ) :?string {
+		if ( !Services::WpFs()->isFile( $path ) ) {
+			return null;
+		}
+		$hash = @\hash_file( 'sha256', $path );
+		return \is_string( $hash ) ? $hash : null;
 	}
 
 	private function buildCandidates( array $baseDirCandidates ) :array {

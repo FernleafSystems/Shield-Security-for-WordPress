@@ -16,11 +16,40 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\{
 	Counts,
-	Retrieve\RetrieveCount
+	Retrieve\RetrieveCount,
+	Retrieve\RetrieveItems
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
+	Processing\MalwareStatus,
+	ResultItem
+};
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-type ScanReportItem array{label:string,is_new:bool}
+ * @phpstan-type ScanReportRowBase array{
+ *   name:string,
+ *   count:int,
+ *   new_count:int,
+ *   available:bool,
+ *   items:list<ScanReportItem>,
+ *   items_total:int,
+ *   notification_target_ids:list<int>
+ * }
+ * @phpstan-type ScanReportRow array{
+ *   name:string,
+ *   count:int,
+ *   new_count:int,
+ *   available:bool,
+ *   items:list<ScanReportItem>,
+ *   items_total:int,
+ *   notification_target_ids:list<int>,
+ *   slug:string,
+ *   has_count:bool,
+ *   colour:'warning'|'success'
+ * }
+ */
 class BuildForScans extends BuildBase {
 
 	private const ITEMS_CAP = 20;
@@ -40,6 +69,9 @@ class BuildForScans extends BuildBase {
 		return $data;
 	}
 
+	/**
+	 * @phpstan-return list<ScanReportRow>
+	 */
 	protected function buildMergedResults() :array {
 		$scansCon = self::con()->comps->scans;
 		$cActive = new Counts( RetrieveCount::CONTEXT_ACTIVE_PROBLEMS );
@@ -47,7 +79,30 @@ class BuildForScans extends BuildBase {
 
 		$afsItems = [];
 		if ( !$scansCon->AFS()->isRestricted() ) {
-			$afsItems = $scansCon->AFS()->getResultsForDisplay()->getAllItems();
+			foreach ( ( new RetrieveItems() )
+				->setScanController( $scansCon->AFS() )
+				->retrieveActiveProblems()
+				->getAllItems() as $item ) {
+				if ( !$item instanceof ResultItem ) {
+					throw new \UnexpectedValueException( 'AFS result set contained an invalid item type.' );
+				}
+				$afsItems[] = $item;
+			}
+		}
+		$afsMalwareItems = $afsItems;
+		$afsAssetItems = $afsItems;
+		if ( $this->report->type === Constants::REPORT_TYPE_ALERT && self::con()->caps->canScanMalwareMalai() ) {
+			$now = Services::Request()->ts();
+			$pendingIDs = [];
+			foreach ( $afsItems as $item ) {
+				if ( $this->shouldDeferPendingMalwareAlert( $item, $now ) ) {
+					$pendingIDs[ (int)$item->VO->resultitem_id ] = true;
+				}
+			}
+			$afsMalwareItems = $afsAssetItems = \array_values( \array_filter(
+				$afsItems,
+				fn( ResultItem $item ) :bool => !isset( $pendingIDs[ (int)$item->VO->resultitem_id ] )
+			) );
 		}
 
 		$scanCounts = [
@@ -55,47 +110,46 @@ class BuildForScans extends BuildBase {
 			Wpv::SCAN_SLUG            => $this->buildWpvEntry( $scansCon, $cActive, $cNew ),
 			Apc::SCAN_SLUG            => $this->buildApcEntry( $scansCon, $cActive, $cNew ),
 			Afs::SCAN_SLUG.'_malware' => $this->buildAfsEntry(
-				$afsItems, 'is_mal', __( 'Potential Malware', 'wp-simple-firewall' ),
-				$cActive->countMalware(), $cNew->countMalware(),
+				$afsMalwareItems, 'is_mal', __( 'Potential Malware', 'wp-simple-firewall' ),
 				$scansCon->AFS()->isEnabledMalwareScanPHP()
 			),
 			Afs::SCAN_SLUG.'_wp'      => $this->buildAfsEntry(
-				$afsItems, 'is_in_core', __( 'WordPress Files', 'wp-simple-firewall' ),
-				$cActive->countWPFiles(), $cNew->countWPFiles(),
+				$afsAssetItems, 'is_in_core', __( 'WordPress Files', 'wp-simple-firewall' ),
 				$scansCon->AFS()->isScanEnabledWpCore()
 			),
 			Afs::SCAN_SLUG.'_plugin'  => $this->buildAfsEntry(
-				$afsItems, 'is_in_plugin', __( 'Plugin Files', 'wp-simple-firewall' ),
-				$cActive->countPluginFiles(), $cNew->countPluginFiles(),
+				$afsAssetItems, 'is_in_plugin', __( 'Plugin Files', 'wp-simple-firewall' ),
 				$scansCon->AFS()->isScanEnabledPlugins()
 			),
 			Afs::SCAN_SLUG.'_theme'   => $this->buildAfsEntry(
-				$afsItems, 'is_in_theme', __( 'Theme Files', 'wp-simple-firewall' ),
-				$cActive->countThemeFiles(), $cNew->countThemeFiles(),
+				$afsAssetItems, 'is_in_theme', __( 'Theme Files', 'wp-simple-firewall' ),
 				$scansCon->AFS()->isScanEnabledThemes()
 			),
 		];
 
-		foreach ( $scanCounts as $slug => &$scanCount ) {
+		$rows = [];
+		foreach ( $scanCounts as $slug => $scanCount ) {
 			if ( $scanCount[ 'available' ] ) {
-				$scanCount[ 'slug' ] = $slug;
-				$scanCount[ 'has_count' ] = $scanCount[ 'count' ] > 0;
-				$scanCount[ 'colour' ] = $scanCount[ 'count' ] > 0 ? 'warning' : 'success';
-			}
-			else {
-				unset( $scanCounts[ $slug ] );
+				$rows[] = \array_merge( $scanCount, [
+					'slug'      => $slug,
+					'has_count' => $scanCount[ 'count' ] > 0,
+					'colour'    => $scanCount[ 'count' ] > 0 ? 'warning' : 'success',
+				] );
 			}
 		}
 
-		\usort( $scanCounts, function ( $a, $b ) {
+		\usort( $rows, function ( $a, $b ) {
 			$countA = $a[ 'count' ];
 			$countB = $b[ 'count' ];
 			return $countA == $countB ? 0 : ( ( $countA > $countB ) ? -1 : 1 );
 		} );
 
-		return $scanCounts;
+		return $rows;
 	}
 
+	/**
+	 * @phpstan-return ScanReportRowBase
+	 */
 	private function buildFileLockerEntry() :array {
 		$flEnabled = self::con()->comps->file_locker->isEnabled();
 		$allProblems = $flEnabled ? ( new LoadFileLocks() )->withProblems() : [];
@@ -124,6 +178,9 @@ class BuildForScans extends BuildBase {
 		];
 	}
 
+	/**
+	 * @phpstan-return ScanReportRowBase
+	 */
 	private function buildWpvEntry( ScansController $scansCon, Counts $cActive, Counts $cNew ) :array {
 		$items = [];
 		if ( $scansCon->WPV()->isEnabled() && !$scansCon->WPV()->isRestricted() ) {
@@ -163,6 +220,9 @@ class BuildForScans extends BuildBase {
 		];
 	}
 
+	/**
+	 * @phpstan-return ScanReportRowBase
+	 */
 	private function buildApcEntry( ScansController $scansCon, Counts $cActive, Counts $cNew ) :array {
 		$items = [];
 		if ( !$scansCon->APC()->isRestricted() ) {
@@ -197,16 +257,23 @@ class BuildForScans extends BuildBase {
 	}
 
 	/**
-	 * @param \FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem[] $allAfsItems
+	 * @param list<ResultItem> $allAfsItems
+	 * @phpstan-param 'is_mal'|'is_in_core'|'is_in_plugin'|'is_in_theme' $filterField
+	 * @phpstan-return ScanReportRowBase
 	 */
-	private function buildAfsEntry( array $allAfsItems, string $filterField, string $name, int $activeCount, int $newCount, bool $available ) :array {
+	private function buildAfsEntry( array $allAfsItems, string $filterField, string $name, bool $available ) :array {
 		$items = [];
+		$notificationTargetIDs = [];
 		foreach ( $allAfsItems as $item ) {
 			if ( $item->{$filterField} ) {
+				$isNew = $item->VO->notified_at === 0;
 				$items[] = [
 					'label'  => $item->path_fragment,
-					'is_new' => $item->VO->notified_at === 0,
+					'is_new' => $isNew,
 				];
+				if ( $isNew ) {
+					$notificationTargetIDs[] = (int)$item->VO->resultitem_id;
+				}
 			}
 		}
 
@@ -215,13 +282,25 @@ class BuildForScans extends BuildBase {
 
 		return [
 			'name'        => $name,
-			'count'       => $activeCount,
-			'new_count'   => $newCount,
+			'count'       => $itemsTotal,
+			'new_count'   => \count( $notificationTargetIDs ),
 			'available'   => $available,
 			'items'       => \array_slice( $items, 0, self::ITEMS_CAP ),
 			'items_total' => $itemsTotal,
-			'notification_target_ids' => $this->loadNotYetNotifiedResultItemIdsForMeta( Afs::SCAN_SLUG, $filterField ),
+			'notification_target_ids' => $notificationTargetIDs,
 		];
+	}
+
+	private function shouldDeferPendingMalwareAlert( ResultItem $item, int $now ) :bool {
+		$createdAt = (int)$item->VO->created_at;
+		if ( !$item->is_mal
+			 || $createdAt < 1
+			 || $createdAt > $now
+			 || $createdAt <= $now - \HOUR_IN_SECONDS ) {
+			return false;
+		}
+		$record = $item->getMalwareRecord();
+		return $record === null || ( new MalwareStatus() )->isPending( $record->malai_status );
 	}
 
 	/**

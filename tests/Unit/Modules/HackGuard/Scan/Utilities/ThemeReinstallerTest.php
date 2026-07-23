@@ -93,7 +93,7 @@ class ThemeReinstallerTestCleanup extends Cleanup {
 
 	public array $runs = [];
 
-	public function run( string $assetType, string $assetKey, int $retry = 0 ) :void {
+	public function run( $assetType = null, $assetKey = null, $retry = 0 ) :void {
 		$this->runs[] = [ $assetType, $assetKey, $retry ];
 	}
 }

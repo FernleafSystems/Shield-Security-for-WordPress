@@ -23,7 +23,13 @@ class Controller {
 		}
 		add_action( 'admin_notices', fn() => $this->onWpAdminNotices() );
 		add_action( 'network_admin_notices', fn() => $this->onWpNetworkAdminNotices() );
-		add_filter( 'login_message', fn( $message ) => $this->onLoginMessage( (string)$message ) );
+		add_filter( 'login_message', [ $this, 'onLoginMessageFilter' ] );
+	}
+
+	public function onLoginMessageFilter( $message ) :string {
+		return $this->onLoginMessage(
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\LoginRequestValues::loginMessage( $message )
+		);
 	}
 
 	/**

@@ -8,9 +8,11 @@ class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 	public const TEMPLATE = '/components/wplogin_replica/wp_login.twig';
 
 	protected function preExec() {
-		add_filter( 'shield/custom_enqueue_assets', function ( array $assets ) {
+		add_filter( 'shield/custom_enqueue_assets', function ( $assets ) {
+			$assets = \is_array( $assets ) ? $assets : [];
 
-			add_filter( 'shield/custom_localisations/components', function ( array $components ) {
+			add_filter( 'shield/custom_localisations/components', function ( $components ) {
+				$components = \is_array( $components ) ? $components : [];
 				$components[ 'login_2fa' ] = [
 					'key'     => 'login_2fa',
 					'handles' => [

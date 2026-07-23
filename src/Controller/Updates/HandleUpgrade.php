@@ -49,6 +49,7 @@ class HandleUpgrade {
 		if ( $con->opts->hasChanges() ) {
 			$con->opts->store();
 		}
+		$this->runUpgradeSideEffect( 'MALai status column alignment', fn() => $this->alignMalaiStatusColumnWidth() );
 
 		Services::ServiceProviders()->clearProviders();
 		$con->plugin->deleteAllPluginCrons();
@@ -76,6 +77,29 @@ class HandleUpgrade {
 			$message = $result->getFailureLogMessage( [ Modules\HackGuard\Scan\StartScansResult::REASON_ALREADY_EXISTS ] );
 			if ( $message !== '' ) {
 				error_log( $message );
+			}
+		}
+	}
+
+	private function alignMalaiStatusColumnWidth() :void {
+		$schema = self::con()->db_con->malware->getTableSchema();
+		$targetLength = (int)( $schema->getColumnDef( 'malai_status' )[ 'length' ] ?? 0 );
+		$targetDefinition = $schema->enumerateColumns()[ 'malai_status' ] ?? '';
+		$columns = Services::WpDb()->selectCustom( sprintf(
+			"SHOW COLUMNS FROM `%s` WHERE `Field`='malai_status';",
+			$schema->table
+		) );
+		$actualType = \is_array( $columns ) ? (string)( $columns[ 0 ][ 'Type' ] ?? '' ) : '';
+		if ( $targetLength > 0
+			 && $targetDefinition !== ''
+			 && \preg_match( '/^varchar\((\d+)\)$/i', $actualType, $matches )
+			 && (int)$matches[ 1 ] < $targetLength ) {
+			if ( Services::WpDb()->doSql( sprintf(
+				'ALTER TABLE `%s` MODIFY COLUMN `malai_status` %s;',
+				$schema->table,
+				$targetDefinition
+			) ) === false ) {
+				throw new \RuntimeException( 'Could not widen the MALai status column.' );
 			}
 		}
 	}

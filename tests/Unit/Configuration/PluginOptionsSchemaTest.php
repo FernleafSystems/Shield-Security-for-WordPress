@@ -123,6 +123,19 @@ class PluginOptionsSchemaTest extends TestCase {
 		}
 	}
 
+	public function testMultipleSelectValueKeysAreStrings() :void {
+		foreach ( $this->options as $key => $option ) {
+			if ( ( $option[ 'type' ] ?? '' ) === 'multiple_select' ) {
+				foreach ( $option[ 'value_options' ] ?? [] as $valueOption ) {
+					$this->assertIsString(
+						$valueOption[ 'value_key' ] ?? null,
+						sprintf( "Multiple-select option '%s' must use string value keys.", $key )
+					);
+				}
+			}
+		}
+	}
+
 	public function testIntegerOptionsHaveNumericDefaults() :void {
 		$integerOptions = \array_filter( 
 			$this->options, 

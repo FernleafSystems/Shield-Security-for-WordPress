@@ -877,7 +877,11 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 1, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
 		$this->assertSame(
 			$isCron,
-			$harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) )
+			$harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN ) )
+		);
+		$this->assertSame(
+			!$isCron,
+			$harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN_MALAI ) )
 		);
 		$this->assertFalse( $harness->controller->opts->optGet( 'is_scan_cron' ) );
 		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
@@ -919,7 +923,8 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 'completed', $harness->scanRow( $terminalID )[ 'status' ] );
 		$this->assertSame( 0, $harness->countScanItems( $terminalID ) );
 		$this->assertSame( 0, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
-		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN ) ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN_MALAI ) ) );
 		$this->assertTrue( $harness->controller->opts->optGet( 'is_scan_cron' ) );
 		$this->assertSame( [], $harness->async->remotePosts );
 		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
@@ -942,7 +947,8 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( $scanBefore, $harness->scanRow( $scanID ) );
 		$this->assertSame( 1, $harness->countScanItems( $scanID ) );
 		$this->assertSame( 0, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
-		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN ) ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN_MALAI ) ) );
 		$this->assertTrue( $harness->controller->opts->optGet( 'is_scan_cron' ) );
 		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
 	}
@@ -2380,7 +2386,8 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
 		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
 		$this->assertSame( 1, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
-		$this->assertTrue( $harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) ) );
+		$this->assertTrue( $harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN ) ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN_MALAI ) ) );
 		$this->assertFalse( $harness->controller->opts->optGet( 'is_scan_cron' ) );
 		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
 	}

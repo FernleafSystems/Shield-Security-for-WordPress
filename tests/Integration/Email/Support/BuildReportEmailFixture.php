@@ -3,8 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data\BuildForScans;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ReportVO;
 
+/**
+ * @phpstan-import-type ScanReportRow from BuildForScans
+ */
 trait BuildReportEmailFixture {
 
 	protected function buildReportFixture( string $type = Constants::REPORT_TYPE_ALERT ) :ReportVO {
@@ -23,41 +27,53 @@ trait BuildReportEmailFixture {
 			Constants::REPORT_AREA_STATS   => true,
 			Constants::REPORT_AREA_CHANGES => true,
 		];
+		/** @var list<ScanReportRow> $scanResults */
+		$scanResults = [
+			[
+				'slug'                    => 'afs_malware',
+				'name'                    => 'Malware Scan',
+				'count'                   => 4,
+				'new_count'               => 2,
+				'available'               => true,
+				'colour'                  => 'warning',
+				'has_count'               => true,
+				'items_total'             => 4,
+				'items'                   => [
+					[ 'label' => '/wp-content/plugins/bad-plugin/malware.php', 'is_new' => true ],
+					[ 'label' => '/wp-content/uploads/suspicious/payload.js', 'is_new' => true ],
+				],
+				'notification_target_ids' => [ 11, 12 ],
+			],
+			[
+				'slug'                    => 'wpv',
+				'name'                    => 'Vulnerability Scan',
+				'count'                   => 1,
+				'new_count'               => 1,
+				'available'               => true,
+				'colour'                  => 'warning',
+				'has_count'               => true,
+				'items_total'             => 1,
+				'items'                   => [
+					[ 'label' => 'Outdated dependency in Example Plugin', 'is_new' => true ],
+				],
+				'notification_target_ids' => [ 23 ],
+			],
+			[
+				'slug'                    => 'apc',
+				'name'                    => 'Abandoned Plugins',
+				'count'                   => 0,
+				'new_count'               => 0,
+				'available'               => true,
+				'colour'                  => 'success',
+				'has_count'               => false,
+				'items_total'             => 0,
+				'items'                   => [],
+				'notification_target_ids' => [],
+			],
+		];
 		$report->areas_data = [
 			Constants::REPORT_AREA_SCANS => [
-				'scan_results' => [
-					[
-						'slug'       => 'afs_malware',
-						'name'       => 'Malware Scan',
-						'count'      => 4,
-						'new_count'  => 2,
-						'colour'     => 'warning',
-						'items_total'=> 4,
-						'items'      => [
-							[ 'label' => '/wp-content/plugins/bad-plugin/malware.php', 'is_new' => true ],
-							[ 'label' => '/wp-content/uploads/suspicious/payload.js', 'is_new' => true ],
-						],
-					],
-					[
-						'slug'       => 'wpv',
-						'name'       => 'Vulnerability Scan',
-						'count'      => 1,
-						'new_count'  => 1,
-						'colour'     => 'warning',
-						'items_total'=> 1,
-						'items'      => [
-							[ 'label' => 'Outdated dependency in Example Plugin', 'is_new' => true ],
-						],
-					],
-					[
-						'slug'      => 'apc',
-						'name'      => 'Abandoned Plugins',
-						'count'     => 0,
-						'new_count' => 0,
-						'colour'    => 'success',
-						'items'     => [],
-					],
-				],
+				'scan_results' => $scanResults,
 				'scan_repairs' => [
 					'auto_repair' => [
 						'name'    => 'Automatic Repairs',
@@ -163,8 +179,9 @@ trait BuildReportEmailFixture {
 
 		if ( $type === Constants::REPORT_TYPE_ALERT ) {
 			$report->alert_digest = [
-				'has_new_items' => true,
-				'summary'       => [
+				'has_new_items'           => true,
+				'notification_target_ids' => [ 11, 12, 23 ],
+				'summary'                 => [
 					'row_count'          => 2,
 					'new_total'          => 3,
 					'current_total'      => 5,
@@ -188,6 +205,7 @@ trait BuildReportEmailFixture {
 						],
 						'hidden_new_count'         => 0,
 						'hidden_outstanding_count' => 1,
+						'notification_target_ids'  => [ 11, 12 ],
 						'review_href'              => 'https://example.com/admin/scans',
 						'review_action'            => 'Review Scan Results',
 					],
@@ -204,6 +222,7 @@ trait BuildReportEmailFixture {
 						'outstanding_items'        => [],
 						'hidden_new_count'         => 0,
 						'hidden_outstanding_count' => 0,
+						'notification_target_ids'  => [ 23 ],
 						'review_href'              => 'https://example.com/admin/scans',
 						'review_action'            => 'Review Scan Results',
 					],

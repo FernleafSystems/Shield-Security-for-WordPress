@@ -216,7 +216,9 @@ class Enqueue {
 				break;
 		}
 
-		$customAssets = apply_filters( 'shield/custom_enqueue_assets', [], $this->adminHookSuffix );
+		$customAssets = $this->normalizeStringList(
+			apply_filters( 'shield/custom_enqueue_assets', [], $this->adminHookSuffix )
+		);
 
 		$assets = [
 			self::JS  => [],
@@ -245,8 +247,11 @@ class Enqueue {
 	private function localise() {
 		$locals = apply_filters( 'shield/custom_localisations', [], $this->adminHookSuffix, $this->enqueuedHandles );
 		foreach ( \is_array( $locals ) ? $locals : [] as $local ) {
-			if ( \is_array( $local ) && \count( $local ) === 3 ) {
-				wp_localize_script( $this->normaliseHandle( $local[ 0 ] ), $local[ 1 ], $local[ 2 ] );
+			$handle = \is_array( $local ) ? $this->normalizeString( $local[ 0 ] ?? null ) : null;
+			$objectName = \is_array( $local ) ? $this->normalizeString( $local[ 1 ] ?? null ) : null;
+			$data = \is_array( $local ) ? ( $local[ 2 ] ?? null ) : null;
+			if ( \count( \is_array( $local ) ? $local : [] ) === 3 && $handle !== null && $objectName !== null && \is_array( $data ) ) {
+				wp_localize_script( $this->normaliseHandle( $handle ), $objectName, $data );
 			}
 			else {
 				\error_log( 'Invalid localisation: '.\var_export( $local, true ) );
@@ -271,5 +276,26 @@ class Enqueue {
 			$handle = self::con()->prefix( $handle );
 		}
 		return $handle;
+	}
+
+	private function normalizeStringList( $values ) :array {
+		$normalized = [];
+		if ( \is_array( $values ) ) {
+			foreach ( $values as $value ) {
+				$value = $this->normalizeString( $value );
+				if ( $value !== null && !\in_array( $value, $normalized, true ) ) {
+					$normalized[] = $value;
+				}
+			}
+		}
+		return $normalized;
+	}
+
+	private function normalizeString( $value ) :?string {
+		if ( !\is_string( $value ) ) {
+			return null;
+		}
+		$value = \trim( $value );
+		return $value === '' ? null : $value;
 	}
 }

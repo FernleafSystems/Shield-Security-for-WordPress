@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Contexts;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\ResolveReportViewContracts;
+
 class EmailReportAlert extends EmailReportBase {
 
 	public const SLUG = 'email_report_alert';

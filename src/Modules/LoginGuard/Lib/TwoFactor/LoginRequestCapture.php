@@ -55,6 +55,7 @@ class LoginRequestCapture {
 
 				Services::WpUsers()->logoutUser( true );
 				$req = Services::Request();
+				$redirectFallback = $req->getPath();
 				try {
 					$con->action_router->action( FullPageDisplayDynamic::class, [
 						'render_slug' => $con->opts->optIs( 'mfa_verify_page', MfaController::LOGIN_INTENT_PAGE_FORMAT_SHIELD ) ?
@@ -63,9 +64,9 @@ class LoginRequestCapture {
 							'user_id'           => $user->ID,
 							'include_body'      => true,
 							'plain_login_nonce' => $loginNonce,
-							'interim_login'     => $req->request( 'interim-login', false, '' ),
-							'redirect_to'       => $req->request( 'redirect_to', false, '' ),
-							'rememberme'        => $req->request( 'rememberme', false, '' ),
+							'interim_login'     => LoginRequestValues::tokenValue( $req->request( 'interim-login', false, '' ), '1' ),
+							'redirect_to'       => LoginRequestValues::safeRedirect( $req->request( 'redirect_to', false, '' ), $redirectFallback ),
+							'rememberme'        => LoginRequestValues::tokenValue( $req->request( 'rememberme', false, '' ), 'forever' ),
 							'msg_error'         => '',
 						],
 					] );
@@ -78,7 +79,8 @@ class LoginRequestCapture {
 	}
 
 	private function canUserMfaSkip( \WP_User $user ) :bool {
-		return (bool)apply_filters( 'shield/2fa_skip', ( new MfaSkip() )->canMfaSkip( $user ) );
+		$canSkip = apply_filters( 'shield/2fa_skip', ( new MfaSkip() )->canMfaSkip( $user ) );
+		return \is_bool( $canSkip ) ? $canSkip : false;
 	}
 
 	/**

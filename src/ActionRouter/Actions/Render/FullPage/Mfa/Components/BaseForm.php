@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Fu
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaLoginVerifyStep;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\LoginRequestValues;
 use FernleafSystems\Wordpress\Services\Services;
 
 abstract class BaseForm extends Base {
@@ -21,6 +22,9 @@ abstract class BaseForm extends Base {
 		$con = self::con();
 		$mfaCon = $con->comps->mfa;
 		$mfaSkip = (int)( $mfaCon->getMfaSkip()/\DAY_IN_SECONDS );
+		$userID = LoginRequestValues::positiveUserId( $this->action_data[ 'user_id' ] ?? null );
+		$user = $userID === null ? null : Services::WpUsers()->getUserById( $userID );
+		$providers = $user instanceof \WP_User ? $mfaCon->getProvidersActiveForUser( $user ) : [];
 		return [
 			'content' => [
 				'login_fields' => \array_values( \array_filter( \array_map(
@@ -34,9 +38,7 @@ abstract class BaseForm extends Base {
 							'tab_label' => $this->getLoginFieldTabLabel( $p::ProviderSlug(), $p::ProviderName() ),
 						];
 					},
-					$mfaCon->getProvidersActiveForUser(
-						Services::WpUsers()->getUserById( (int)$this->action_data[ 'user_id' ] )
-					)
+					$providers
 				) ) ),
 			],
 			'flags'   => [
@@ -71,6 +73,7 @@ abstract class BaseForm extends Base {
 		$req = Services::Request();
 
 		$referUrl = $req->server( 'HTTP_REFERER', '' );
+		$referUrl = \is_string( $referUrl ) ? $referUrl : '';
 		if ( \strpos( $referUrl, '?' ) ) {
 			[ $referUrl, $referQuery ] = \explode( '?', $referUrl, 2 );
 		}
@@ -78,13 +81,13 @@ abstract class BaseForm extends Base {
 			$referQuery = '';
 		}
 
-		$redirectTo = $this->action_data[ 'redirect_to' ] ?? '';
-		if ( empty( $redirectTo ) ) {
+		$redirectTo = LoginRequestValues::safeRedirect( $this->action_data[ 'redirect_to' ] ?? '', '' );
+		if ( $redirectTo === '' ) {
 
 			if ( !empty( $referQuery ) ) {
 				\parse_str( $referQuery, $referQueryItems );
-				if ( !empty( $referQueryItems[ 'redirect_to' ] ) ) {
-					$redirectTo = $referQueryItems[ 'redirect_to' ];
+				if ( isset( $referQueryItems[ 'redirect_to' ] ) ) {
+					$redirectTo = LoginRequestValues::safeRedirect( $referQueryItems[ 'redirect_to' ], '' );
 				}
 			}
 
@@ -93,17 +96,19 @@ abstract class BaseForm extends Base {
 			}
 		}
 
-		$cancelHref = $this->action_data[ 'cancel_href' ] ?? '';
-		if ( empty( $cancelHref ) && Services::Data()->isValidWebUrl( $referUrl ) ) {
-			$cancelHref = \wp_parse_url( $referUrl, \PHP_URL_PATH );
+		$redirectTo = LoginRequestValues::safeRedirect( $redirectTo, $req->getPath() );
+
+		$cancelHref = LoginRequestValues::safeRedirect( $this->action_data[ 'cancel_href' ] ?? '', '' );
+		if ( $cancelHref === '' && Services::Data()->isValidWebUrl( $referUrl ) ) {
+			$cancelHref = LoginRequestValues::safeRedirect( \wp_parse_url( $referUrl, \PHP_URL_PATH ), '' );
 		}
 
 		global $interim_login;
 
 		$fields = \array_filter( [
-			'interim-login' => ( $interim_login || ( $this->action_data[ 'interim_login' ] ?? '0' ) ) ? '1' : false,
-			'login_nonce'   => esc_attr( $this->action_data[ 'plain_login_nonce' ] ?? '' ),
-			'rememberme'    => esc_attr( $this->action_data[ 'rememberme' ] ?? '' ),
+			'interim-login' => ( $interim_login === true || LoginRequestValues::isToken( $this->action_data[ 'interim_login' ] ?? '', '1' ) ) ? '1' : false,
+			'login_nonce'   => esc_attr( LoginRequestValues::nonEmptyString( $this->action_data[ 'plain_login_nonce' ] ?? '' ) ?? '' ),
+			'rememberme'    => esc_attr( LoginRequestValues::tokenValue( $this->action_data[ 'rememberme' ] ?? '', 'forever' ) ),
 			'redirect_to'   => esc_attr( esc_url_raw( $redirectTo ) ),
 			'cancel_href'   => esc_attr( esc_url_raw( $cancelHref ) ),
 			/**
@@ -112,7 +117,7 @@ abstract class BaseForm extends Base {
 			 */
 			'wp-submit'     => __( 'Complete Login', 'wp-simple-firewall' ),
 		] );
-		$fields[ 'wp_user_id' ] = (int)$this->action_data[ 'user_id' ];
+		$fields[ 'wp_user_id' ] = LoginRequestValues::positiveUserId( $this->action_data[ 'user_id' ] ?? null ) ?? 0;
 		return $fields;
 	}
 

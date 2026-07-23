@@ -2,7 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\FileLockerController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
@@ -200,6 +202,89 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
+	public function test_real_hooks_ignore_malformed_stored_selections_and_process_valid_siblings() :void {
+		$this->requireFileLockerAnalysisRuntime();
+		$con = $this->requireController();
+		$this->prepareFileLockerRuntime( [ 'wpconfig', 'root_index' ] );
+		$state = $con->comps->file_locker->getState();
+		$state[ 'abspath' ] = ABSPATH;
+		$state[ 'last_analysis_started_at' ] = 0;
+		$state[ 'last_locks_created_at' ] = 0;
+		$state[ 'last_locks_created_failed_at' ] = 0;
+		$con->opts->optSet( 'filelocker_state', $state )->store();
+		$this->replaceStoredFileLockerSelections( [
+			'wpconfig',
+			1,
+			1.5,
+			true,
+			[ 'root_index' ],
+			(object)[ 'key' => 'root_index' ],
+			null,
+			'',
+			'unknown_file',
+			'root_index',
+			'wpconfig',
+		] );
+		$hook = $con->prefix( 'create_file_locks' );
+		$hookSnapshot = $this->snapshotHooks( [ 'wp_loaded', $hook ] );
+		\wp_clear_scheduled_hook( $hook );
+		$probe = new FileLockerControllerIntegrationProbe();
+
+		try {
+			$probe->execute();
+			global $wp_filter;
+			$this->assertArrayHasKey( 1000, $wp_filter[ 'wp_loaded' ]->callbacks ?? [] );
+
+			\do_action( 'wp_loaded' );
+
+			$this->assertSame(
+				Services::Request()->ts(),
+				$probe->getState()[ 'last_analysis_started_at' ]
+			);
+			$this->assertNotFalse( \wp_next_scheduled( $hook ) );
+
+			\do_action( $hook );
+
+			$this->assertSame( [ 'wpconfig', 'root_index' ], $probe->getFilesToLock() );
+			$this->assertSame( [ 'wpconfig', 'root_index' ], $probe->attemptedTypes );
+		}
+		finally {
+			\wp_clear_scheduled_hook( $hook );
+			$this->restoreHooks( $hookSnapshot );
+		}
+	}
+
+	public function test_invalid_only_stored_selections_register_no_analysis_or_lock_work() :void {
+		$con = $this->requireController();
+		$this->prepareFileLockerRuntime( [ 'wpconfig' ] );
+		$this->replaceStoredFileLockerSelections( [
+			1,
+			true,
+			[ 'wpconfig' ],
+			(object)[ 'key' => 'wpconfig' ],
+			null,
+			'',
+			'unknown_file',
+		] );
+		$hook = $con->prefix( 'create_file_locks' );
+		$hookSnapshot = $this->snapshotHooks( [ 'wp_loaded', $hook ] );
+		\wp_clear_scheduled_hook( $hook );
+		$probe = new FileLockerControllerIntegrationProbe();
+
+		try {
+			$probe->execute();
+			global $wp_filter;
+			$this->assertArrayNotHasKey( 1000, $wp_filter[ 'wp_loaded' ]->callbacks ?? [] );
+			$this->assertFalse( \wp_next_scheduled( $hook ) );
+			$this->assertSame( [], $probe->getFilesToLock() );
+			$this->assertSame( [], $probe->attemptedTypes );
+		}
+		finally {
+			\wp_clear_scheduled_hook( $hook );
+			$this->restoreHooks( $hookSnapshot );
+		}
+	}
+
 	/**
 	 * Optional file-locker storage is only ready after the feature is enabled
 	 * and ShieldNet-backed runtime prerequisites are in place.
@@ -234,6 +319,39 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		$method->invoke( $this->requireController()->comps->file_locker );
 	}
 
+	private function replaceStoredFileLockerSelections( array $selections ) :void {
+		$con = $this->requireController();
+		$optionName = $con->prefix( 'opts_all', '_' );
+		$all = Services::WpGeneral()->getOption( $optionName );
+		$this->assertIsArray( $all );
+		$all[ 'values' ][ OptsHandler::TYPE_FREE ][ 'file_locker' ] = $selections;
+		$all[ 'values' ][ OptsHandler::TYPE_PRO ][ 'file_locker' ] = $selections;
+		Services::WpGeneral()->updateOption( $optionName, $all );
+		$con->opts = new OptsHandler();
+	}
+
+	private function snapshotHooks( array $hookNames ) :array {
+		global $wp_filter;
+		$snapshot = [];
+		foreach ( $hookNames as $hookName ) {
+			$snapshot[ $hookName ] = $wp_filter[ $hookName ] ?? null;
+			unset( $wp_filter[ $hookName ] );
+		}
+		return $snapshot;
+	}
+
+	private function restoreHooks( array $snapshot ) :void {
+		global $wp_filter;
+		foreach ( $snapshot as $hookName => $hook ) {
+			if ( $hook === null ) {
+				unset( $wp_filter[ $hookName ] );
+			}
+			else {
+				$wp_filter[ $hookName ] = $hook;
+			}
+		}
+	}
+
 	private function abspathWithDotSegment() :string {
 		$current = \untrailingslashit( \wp_normalize_path( ABSPATH ) );
 		$variant = \trailingslashit( \dirname( $current ).'/./'.\basename( $current ) );
@@ -254,5 +372,17 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		return \trailingslashit( \wp_normalize_path(
 			\sys_get_temp_dir().'/shield-missing-abspath-'.\uniqid()
 		) );
+	}
+}
+
+class FileLockerControllerIntegrationProbe extends FileLockerController {
+
+	/**
+	 * @var list<string>
+	 */
+	public array $attemptedTypes = [];
+
+	protected function createLocksForType( string $type ) :void {
+		$this->attemptedTypes[] = $type;
 	}
 }

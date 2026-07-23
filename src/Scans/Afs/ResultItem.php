@@ -28,10 +28,9 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Fil
 
 	use PluginControllerConsumer;
 
-	/**
-	 * @var ?Record
-	 */
-	private $record = null;
+	private ?Record $record = null;
+
+	private bool $recordLoaded = false;
 
 	public function getStatuses() :array {
 		$statuses = [];
@@ -80,15 +79,32 @@ class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Fil
 		], \array_flip( $this->getStatuses() ) );
 	}
 
+	public function hasNonMalwareFinding() :bool {
+		return $this->is_unrecognised
+			   || $this->is_unidentified
+			   || $this->is_missing
+			   || $this->is_checksumfail;
+	}
+
 	public function getMalwareRecord() :?Record {
-		if ( empty( $this->record ) && isset( $this->malware_record_id ) ) {
-			$this->record = self::con()
-				->db_con
-				->malware
-				->getQuerySelector()
-				->byId( $this->malware_record_id );
+		if ( !$this->recordLoaded ) {
+			$this->recordLoaded = true;
+			$this->record = null;
+			if ( $this->malware_record_id > 0 ) {
+				$this->record = self::con()
+					->db_con
+					->malware
+					->getQuerySelector()
+					->byId( $this->malware_record_id );
+			}
 		}
 		return $this->record;
+	}
+
+	public function setMalwareRecord( ?Record $record ) :self {
+		$this->record = $record;
+		$this->recordLoaded = true;
+		return $this;
 	}
 
 	public function __get( string $key ) {

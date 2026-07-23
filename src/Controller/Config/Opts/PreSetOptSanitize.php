@@ -144,15 +144,17 @@ class PreSetOptSanitize {
 				break;
 			case 'multiple_select':
 				if ( \is_array( $this->value ) ) {
-					$valid = \count( \array_diff(
-							$this->value,
-							\array_map(
-								function ( $aValueOption ) {
-									return $aValueOption[ 'value_key' ];
-								},
-								self::con()->opts->optDef( $this->key )[ 'value_options' ]
-							)
-						) ) === 0;
+					$valid = true;
+					$allowed = \array_column(
+						self::con()->opts->optDef( $this->key )[ 'value_options' ],
+						'value_key'
+					);
+					foreach ( $this->value as $selected ) {
+						if ( !\is_string( $selected ) || !\in_array( $selected, $allowed, true ) ) {
+							$valid = false;
+							break;
+						}
+					}
 				}
 				break;
 			case 'checkbox':
