@@ -76,7 +76,7 @@ class ThemeReinstallerTest extends BaseUnitTest {
 		$this->assertFalse( $reinstaller->reinstall( 'fail-theme' ) );
 		$this->assertSame( [ 'twentytwentyfive', 'fail-theme' ], $themes->reinstallCalls );
 		$this->assertSame( [ 'twentytwentyfive' ], $reinstaller->snapshotDeletes );
-		$this->assertSame( [ [ 'theme', 'twentytwentyfive', 0 ] ], $cleanup->runs );
+		$this->assertSame( [ [ 'theme', 'twentytwentyfive', Cleanup::CRON_DELAY, 0 ] ], $cleanup->schedules );
 	}
 }
 
@@ -91,10 +91,11 @@ class ThemeReinstallerTestSubject extends ThemeReinstaller {
 
 class ThemeReinstallerTestCleanup extends Cleanup {
 
-	public array $runs = [];
+	public array $schedules = [];
 
-	public function run( $assetType = null, $assetKey = null, $retry = 0 ) :void {
-		$this->runs[] = [ $assetType, $assetKey, $retry ];
+	public function schedule( string $assetType, string $assetKey, int $delay = self::CRON_DELAY, int $retry = 0 ) :bool {
+		$this->schedules[] = [ $assetType, $assetKey, $delay, $retry ];
+		return true;
 	}
 }
 

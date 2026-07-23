@@ -52,6 +52,7 @@ class PublicUpgradeTestLaneTest extends TestCase {
 		$this->assertSame( 'pass', $summary[ 'status' ] ?? null );
 		$this->assertSame( '21.2.7', $summary[ 'final_version' ] ?? null );
 		$this->assertSame( 'Updated', $summary[ 'update_result' ][ 'status' ] ?? null );
+		$this->assertNotEmpty( $summary[ 'upgrade_contract' ][ 'after_upgrade_cleanup' ][ 'canonical_wakeup' ] ?? [] );
 		$this->assertCommandContains( $runner, 'wp plugin install wp-simple-firewall --activate' );
 		$this->assertCommandContains( $runner, 'wp plugin update wp-simple-firewall --format=json' );
 		$this->assertCommandContains( $runner, 'wp cron event run --due-now' );
@@ -219,8 +220,93 @@ class PublicUpgradeTestLaneTest extends TestCase {
 			[ 'exit_code' => 0, 'stdout' => '{"profile":"strong","applied":["global_enable_plugin_features"],"skipped":[],"excluded":[],"safety_resets":[],"errors":[]}' ],
 			[ 'exit_code' => 0, 'stdout' => '[{"name":"wp-simple-firewall","old_version":"21.2.6","new_version":"21.2.7","status":"Updated"}]' ],
 			0,
+			[ 'exit_code' => 0, 'stdout' => \json_encode( $this->successfulContractReport(), \JSON_UNESCAPED_SLASHES ) ],
 			[ 'exit_code' => 0, 'stdout' => "21.2.7\n" ],
 		], $runtimeArtifactQueue );
+	}
+
+	private function successfulContractReport() :array {
+		$state = [
+			'assets' => [
+				'plugin' => [
+					'wp-simple-firewall/icwp-wpsf.php' => [
+						'attempts' => 0,
+						'due_at'   => 1700000600,
+					],
+				],
+				'theme' => [],
+				'core'  => [],
+			],
+			'build_missing_snapshots' => true,
+			'wpv' => [
+				'attempts' => 0,
+				'due_at'   => 1700000603,
+			],
+		];
+		$owners = \array_fill_keys( [
+			'afs',
+			'cleanup',
+			'schedule_build_all',
+			'wpv',
+			'scan_base',
+			'audit_plugins',
+			'audit_themes',
+			'audit_wordpress',
+			'capture_my_upgrade',
+		], true );
+		$lazy = \array_fill_keys( [
+			'find_assets_to_snap',
+			'store_base_action',
+			'store_build',
+			'store_load',
+			'snapshot_store',
+			'submit_hashes',
+			'audit_ops_build',
+			'audit_ops_delete',
+			'audit_ops_store',
+			'audit_con',
+			'events_service',
+		], true );
+		return [
+			'pre_replace' => [
+				'captured'                    => true,
+				'is_shield_upgrade'            => true,
+				'callback_owners_loaded'       => $owners,
+				'unresolved_lazy_dependencies' => [ 'find_assets_to_snap' ],
+				'seeded_legacy_crons'          => \array_fill( 0, 5, [ 'scheduled' => true ] ),
+			],
+			'post_replace' => [
+				'captured'                       => true,
+				'is_shield_upgrade'               => true,
+				'retained_executor_files_present' => [
+					'cleanup'            => true,
+					'schedule_build_all' => true,
+				],
+			],
+			'old_request_shutdown' => [
+				'captured'                    => true,
+				'lazy_dependencies_resolved' => $lazy,
+				'method_contracts_callable'  => [ 'all' => true ],
+				'legacy_crons_after_old_callbacks' => [
+					'afs'   => [ [], [] ],
+					'build' => [ [] ],
+					'wpv'   => [ [], [] ],
+				],
+			],
+			'new_boot_before_cleanup' => [
+				'captured'             => true,
+				'imported_state'       => $state,
+				'legacy_crons'         => [ 'afs' => [], 'build' => [], 'wpv' => [] ],
+				'canonical_wakeup'     => [ [] ],
+				'upgrade_cleanup_cron' => [ [] ],
+			],
+			'after_upgrade_cleanup' => [
+				'coordinator_state' => $state,
+				'legacy_crons'      => [ 'afs' => [], 'build' => [], 'wpv' => [] ],
+				'canonical_wakeup'  => [ [] ],
+				'upgrade_cleanup_cron' => [],
+			],
+		];
 	}
 
 	/**

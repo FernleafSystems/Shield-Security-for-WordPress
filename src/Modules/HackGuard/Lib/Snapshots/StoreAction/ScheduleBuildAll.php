@@ -17,24 +17,10 @@ class ScheduleBuildAll extends BaseExec {
 	}
 
 	protected function run() {
-		$hook = self::con()->prefix( 'ptg_build_snapshots' );
-
-		if ( is_main_network() ) {
-			add_action( $hook, function () {
-				$this->build();
-			} );
-		}
-
-		if ( wp_next_scheduled( $hook ) === false ) {
-			add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () use ( $hook ) {
-				if ( !self::con()->is_my_upgrade && \count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
-					wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
-				}
-			} );
-		}
+		self::con()->comps->asset_coordinator->discoverMissingSnapshots();
 	}
 
-	private function build() {
+	public function build() :void {
 		foreach ( $this->getAssetsThatNeedBuilt() as $asset ) {
 			try {
 				( new Build() )
@@ -68,7 +54,7 @@ class ScheduleBuildAll extends BaseExec {
 	 * Only those that don't have a meta file or the versions are different
 	 * @return WpPluginVo[]|WpThemeVo[]
 	 */
-	private function getAssetsThatNeedBuilt() :array {
+	public function getAssetsThatNeedBuilt() :array {
 		return \array_filter(
 			( new FindAssetsToSnap() )->run(),
 			function ( $asset ) {

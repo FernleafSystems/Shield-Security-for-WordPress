@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Al
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\NotBotHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\CommentsFilter\Scan\CommentSpamCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\FileLockerController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\Bots\Spam\SpamController;
@@ -43,6 +44,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property AuditCon                               $activity_log
  * @property AltChaHandler                          $altcha
  * @property AssetsCustomizer                       $assets_customizer
+ * @property AssetCoordinator                       $asset_coordinator
  * @property ApiTokenManager                        $api_token
  * @property CompCons\AutoUpdatesCon                $autoupdates
  * @property CompCons\BackupsCon                    $backups
@@ -110,6 +112,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'activity_log'          => AuditCon::class,
 			'altcha'                => AltChaHandler::class,
 			'assets_customizer'     => AssetsCustomizer::class,
+			'asset_coordinator'     => AssetCoordinator::class,
 			'autoupdates'           => CompCons\AutoUpdatesCon::class,
 			'api_token'             => ApiTokenManager::class,
 			'backups'               => CompCons\BackupsCon::class,

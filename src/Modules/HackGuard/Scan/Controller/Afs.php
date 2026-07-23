@@ -22,15 +22,6 @@ class Afs extends Base {
 	protected function run() {
 		parent::run();
 		$this->setupCronHooks();
-		( new StoreAction\ScheduleBuildAll() )->execute();
-		$assetCleanup = new Scan\AssetChange\Cleanup();
-		add_action( $assetCleanup->getHook(), [ $assetCleanup, 'run' ], 10, 3 );
-		add_action( '_core_updated_successfully', [ $this, 'queueCoreAssetScan' ], 10, 1 );
-		add_action( 'upgrader_process_complete', [ $this, 'queueAssetScansFromUpgraderProcessComplete' ], 10, 2 );
-		add_filter( 'upgrader_post_install', [ $this, 'queueAssetScansFromUpgraderPostInstall' ], 10, 2 );
-		add_action( 'pre_uninstall_plugin', [ $this, 'queuePluginAssetScan' ] );
-		add_action( 'deleted_plugin', [ $this, 'queuePluginAssetScan' ] );
-		add_action( 'deleted_theme', [ $this, 'queueThemeAssetScan' ], 10, 2 );
 	}
 
 	/**

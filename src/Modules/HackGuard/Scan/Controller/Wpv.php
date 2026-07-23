@@ -12,8 +12,6 @@ class Wpv extends BaseForAssets {
 	protected function run() {
 		parent::run();
 
-		add_action( 'upgrader_process_complete', fn() => $this->scheduleOnDemandScan(), 10, 0 );
-		add_action( 'deleted_plugin', fn() => $this->scheduleOnDemandScan(), 10, 0 );
 		add_action( 'load-plugins.php', fn() => ( new WpvAddPluginRows() )->execute(), 10, 0 );
 	}
 

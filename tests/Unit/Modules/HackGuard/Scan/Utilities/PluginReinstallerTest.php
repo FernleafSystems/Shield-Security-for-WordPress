@@ -76,7 +76,7 @@ class PluginReinstallerTest extends BaseUnitTest {
 		$this->assertFalse( $reinstaller->reinstall( 'fail/plugin.php' ) );
 		$this->assertSame( [ 'akismet/akismet.php', 'fail/plugin.php' ], $plugins->reinstallCalls );
 		$this->assertSame( [ 'akismet/akismet.php' ], $reinstaller->snapshotDeletes );
-		$this->assertSame( [ [ 'plugin', 'akismet/akismet.php', 0 ] ], $cleanup->runs );
+		$this->assertSame( [ [ 'plugin', 'akismet/akismet.php', Cleanup::CRON_DELAY, 0 ] ], $cleanup->schedules );
 	}
 }
 
@@ -91,10 +91,11 @@ class PluginReinstallerTestSubject extends PluginReinstaller {
 
 class PluginReinstallerTestCleanup extends Cleanup {
 
-	public array $runs = [];
+	public array $schedules = [];
 
-	public function run( $assetType = null, $assetKey = null, $retry = 0 ) :void {
-		$this->runs[] = [ $assetType, $assetKey, $retry ];
+	public function schedule( string $assetType, string $assetKey, int $delay = self::CRON_DELAY, int $retry = 0 ) :bool {
+		$this->schedules[] = [ $assetType, $assetKey, $delay, $retry ];
+		return true;
 	}
 }
 

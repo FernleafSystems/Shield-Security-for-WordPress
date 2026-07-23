@@ -13,7 +13,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\S
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Record as ResultItemRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
+	Afs,
+	Wpv
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -38,11 +41,9 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_process_complete_schedules_plugin_and_theme_cleanup_crons_without_scanning() :void {
-		$scheduled = [];
-		$this->installCronMocks( $scheduled );
+	public function test_process_complete_delegates_plugin_and_theme_assets_without_scanning() :void {
 		$scans = new AfsUpgradeQueueingRecordingScans();
-		$this->installController( $scans );
+		$coordinator = $this->installController( $scans );
 		$afs = new Afs();
 
 		$afs->queueAssetScansFromUpgraderProcessComplete( null, [
@@ -63,23 +64,15 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 
 		$this->assertSame( [], $scans->queuedAssets );
 		$this->assertSame( [
-			[ 'plugin', 'akismet/akismet.php', 0 ],
-			[ 'plugin', 'hello-dolly/hello.php', 0 ],
-			[ 'theme', 'twentytwentyfour', 0 ],
-		], \array_column( $scheduled, 'args' ) );
-		$this->assertSame( [
-			'icwp-wpsf-afs_asset_change_cleanup',
-			'icwp-wpsf-afs_asset_change_cleanup',
-			'icwp-wpsf-afs_asset_change_cleanup',
-		], \array_column( $scheduled, 'hook' ) );
-		$this->assertSame( [ 1700000060, 1700000060, 1700000060 ], \array_column( $scheduled, 'timestamp' ) );
+			[ 'plugin', 'akismet/akismet.php', 60 ],
+			[ 'plugin', 'hello-dolly/hello.php', 60 ],
+			[ 'theme', 'twentytwentyfour', 60 ],
+		], $coordinator->assets );
 	}
 
-	public function test_post_install_schedules_cleanup_crons_without_shutdown_scan_queueing() :void {
-		$scheduled = [];
-		$this->installCronMocks( $scheduled );
+	public function test_post_install_delegates_assets_without_shutdown_scan_queueing() :void {
 		$scans = new AfsUpgradeQueueingRecordingScans();
-		$this->installController( $scans );
+		$coordinator = $this->installController( $scans );
 		$afs = new Afs();
 		$response = (object)[ 'destination' => 'asset-installed' ];
 
@@ -91,53 +84,45 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 		$this->assertSame( $response, $result );
 		$this->assertSame( [], $scans->queuedAssets );
 		$this->assertSame( [
-			[ 'plugin', 'akismet/akismet.php', 0 ],
-			[ 'theme', 'twentytwentyfour', 0 ],
-		], \array_column( $scheduled, 'args' ) );
+			[ 'plugin', 'akismet/akismet.php', 60 ],
+			[ 'theme', 'twentytwentyfour', 60 ],
+		], $coordinator->assets );
 	}
 
-	public function test_core_update_schedules_core_cleanup_cron() :void {
-		$scheduled = [];
-		$this->installCronMocks( $scheduled );
+	public function test_core_update_delegates_core_asset() :void {
 		$scans = new AfsUpgradeQueueingRecordingScans();
-		$this->installController( $scans );
+		$coordinator = $this->installController( $scans );
 
 		( new Afs() )->queueCoreAssetScan( '6.7.1' );
 
 		$this->assertSame( [], $scans->queuedAssets );
 		$this->assertSame( [
-			[ 'core', 'core', 0 ],
-		], \array_column( $scheduled, 'args' ) );
+			[ 'core', 'core', 60 ],
+		], $coordinator->assets );
 	}
 
-	public function test_theme_delete_hook_does_not_schedule_when_theme_was_not_deleted() :void {
-		$scheduled = [];
-		$this->installCronMocks( $scheduled );
+	public function test_theme_delete_hook_does_not_delegate_when_theme_was_not_deleted() :void {
 		$scans = new AfsUpgradeQueueingRecordingScans();
-		$this->installController( $scans );
+		$coordinator = $this->installController( $scans );
 
 		( new Afs() )->queueThemeAssetScan( 'twentytwentyfour', false );
 
-		$this->assertSame( [], $scheduled );
+		$this->assertSame( [], $coordinator->assets );
 		$this->assertSame( [], $scans->queuedAssets );
 	}
 
 	public function test_theme_delete_hook_uses_success_default_when_argument_is_omitted() :void {
-		$scheduled = [];
-		$this->installCronMocks( $scheduled );
-		$this->installController( new AfsUpgradeQueueingRecordingScans() );
+		$coordinator = $this->installController( new AfsUpgradeQueueingRecordingScans() );
 
 		( new Afs() )->queueThemeAssetScan( 'twentytwentyfour' );
 
 		$this->assertSame( [
-			[ 'theme', 'twentytwentyfour', 0 ],
-		], \array_column( $scheduled, 'args' ) );
+			[ 'theme', 'twentytwentyfour', 60 ],
+		], $coordinator->assets );
 	}
 
 	public function test_upgrader_adapters_ignore_hostile_members_and_preserve_valid_siblings() :void {
-		$scheduled = [];
-		$this->installCronMocks( $scheduled );
-		$this->installController( new AfsUpgradeQueueingRecordingScans() );
+		$coordinator = $this->installController( new AfsUpgradeQueueingRecordingScans() );
 		$afs = new Afs();
 
 		$afs->queueAssetScansFromUpgraderProcessComplete( null, [
@@ -164,9 +149,9 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 		] ) );
 
 		$this->assertSame( [
-			[ 'plugin', 'akismet/akismet.php', 0 ],
-			[ 'theme', 'twentytwentyfour', 0 ],
-		], \array_column( $scheduled, 'args' ) );
+			[ 'plugin', 'akismet/akismet.php', 60 ],
+			[ 'theme', 'twentytwentyfour', 60 ],
+		], $coordinator->assets );
 		$afs->queueAssetScansFromUpgraderPostInstall( $response, [
 			'plugin' => '0',
 			'theme'  => ' 0 ',
@@ -179,13 +164,11 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 			'type' => 'plugin',
 			'plugins' => (object)[],
 		] );
-		$this->assertCount( 2, $scheduled );
+		$this->assertCount( 2, $coordinator->assets );
 	}
 
 	public function test_delete_hook_adapters_ignore_hostile_values() :void {
-		$scheduled = [];
-		$this->installCronMocks( $scheduled );
-		$this->installController( new AfsUpgradeQueueingRecordingScans() );
+		$coordinator = $this->installController( new AfsUpgradeQueueingRecordingScans() );
 		$afs = new Afs();
 
 		foreach ( [ null, false, 123, 1.5, [], (object)[], '', '  ', '0', ' 0 ' ] as $invalid ) {
@@ -194,10 +177,10 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 		}
 		$afs->queueThemeAssetScan( 'twentytwentyfour', 'truthy' );
 
-		$this->assertSame( [], $scheduled );
+		$this->assertSame( [], $coordinator->assets );
 	}
 
-	public function test_run_registers_asset_change_cleanup_and_core_update_hooks() :void {
+	public function test_run_does_not_register_asset_lifecycle_or_cleanup_hooks() :void {
 		$actions = [];
 		$filters = [];
 		Functions\when( 'is_main_network' )->justReturn( false );
@@ -236,19 +219,35 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 
 		( new AfsUpgradeQueueingRunTestDouble() )->exposeRun();
 
-		$cleanupActions = \array_values( \array_filter(
-			$actions,
-			static fn( array $action ) :bool => $action[ 'hook' ] === 'icwp-wpsf-afs_asset_change_cleanup'
-		) );
-		$coreUpdatedActions = \array_values( \array_filter(
-			$actions,
-			static fn( array $action ) :bool => $action[ 'hook' ] === '_core_updated_successfully'
-		) );
-		$this->assertCount( 1, $cleanupActions );
-		$this->assertSame( 3, $cleanupActions[ 0 ][ 'accepted_args' ] );
-		$this->assertCount( 1, $coreUpdatedActions );
-		$this->assertSame( 1, $coreUpdatedActions[ 0 ][ 'accepted_args' ] );
-		$this->assertSame( [ 'upgrader_post_install' ], \array_column( $filters, 'hook' ) );
+		$this->assertSame( [], \array_intersect( [
+			'icwp-wpsf-afs_asset_change_cleanup',
+			'_core_updated_successfully',
+			'deleted_plugin',
+			'deleted_theme',
+			'upgrader_process_complete',
+		], \array_column( $actions, 'hook' ) ) );
+		$this->assertNotContains( 'upgrader_post_install', \array_column( $filters, 'hook' ) );
+	}
+
+	public function test_wpv_run_retains_executor_hook_without_asset_lifecycle_ownership() :void {
+		$actions = [];
+		Functions\when( 'add_action' )->alias(
+			static function ( string $hook, $callback, int $priority = 10, int $acceptedArgs = 1 ) use ( &$actions ) :bool {
+				unset( $callback, $priority, $acceptedArgs );
+				$actions[] = $hook;
+				return true;
+			}
+		);
+		$this->installController( new AfsUpgradeQueueingRecordingScans() );
+
+		( new AfsUpgradeQueueingWpvRunTestDouble() )->exposeRun();
+
+		$this->assertContains( 'icwp-wpsf-ondemand_scan_wpv', $actions );
+		$this->assertContains( 'load-plugins.php', $actions );
+		$this->assertSame( [], \array_intersect( [
+			'upgrader_process_complete',
+			'deleted_plugin',
+		], $actions ) );
 	}
 
 	public function test_core_build_scan_result_records_wordpress_asset_version() :void {
@@ -271,7 +270,8 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 		$this->assertSame( '6.7.2', $record->meta[ 'asset_version' ] );
 	}
 
-	private function installController( AfsUpgradeQueueingRecordingScans $scans, ?AfsUpgradeQueueingResultItemsDb $resultItemsDb = null ) :void {
+	private function installController( AfsUpgradeQueueingRecordingScans $scans, ?AfsUpgradeQueueingResultItemsDb $resultItemsDb = null ) :AfsUpgradeQueueingCoordinator {
+		$coordinator = new AfsUpgradeQueueingCoordinator();
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->cfg = (object)[
@@ -281,7 +281,8 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 			],
 		];
 		$controller->comps = (object)[
-			'scans' => $scans,
+			'asset_coordinator' => $coordinator,
+			'scans'             => $scans,
 		];
 		if ( $resultItemsDb instanceof AfsUpgradeQueueingResultItemsDb ) {
 			$controller->db_con = (object)[
@@ -297,27 +298,19 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000000 ),
 			'service_wpfs'    => new Fs(),
 		] );
+		return $coordinator;
 	}
 
-	private function installCronMocks( array &$scheduled ) :void {
-		Functions\when( 'wp_next_scheduled' )->alias(
-			static function ( string $hook, array $args = [] ) :bool {
-				unset( $hook, $args );
-				return false;
-			}
-		);
-		Functions\when( 'wp_schedule_single_event' )->alias(
-			static function ( int $timestamp, string $hook, array $args = [] ) use ( &$scheduled ) :bool {
-				$scheduled[] = [
-					'timestamp' => $timestamp,
-					'hook'      => $hook,
-					'args'      => $args,
-				];
-				return true;
-			}
-		);
-	}
+}
 
+class AfsUpgradeQueueingCoordinator {
+
+	public array $assets = [];
+
+	public function enqueueAsset( string $assetType, string $assetKey, int $delay ) :bool {
+		$this->assets[] = [ $assetType, $assetKey, $delay ];
+		return true;
+	}
 }
 
 class AfsUpgradeQueueingRecordingScans {
@@ -335,6 +328,17 @@ class AfsUpgradeQueueingRunTestDouble extends Afs {
 
 	public function exposeRun() :void {
 		$this->run();
+	}
+}
+
+class AfsUpgradeQueueingWpvRunTestDouble extends Wpv {
+
+	public function exposeRun() :void {
+		$this->run();
+	}
+
+	public function getSlug() :string {
+		return 'wpv';
 	}
 }
 

@@ -118,9 +118,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( [], $wpDb->queries );
 	}
 
-	public function test_cleanup_reschedules_once_and_does_not_scan_when_readiness_fails() :void {
-		$scheduled = [];
-		$this->installCronMocks( $scheduled );
+	public function test_cleanup_reports_failure_and_does_not_scan_when_readiness_fails() :void {
 		$wpDb = new AssetChangeCleanupWpDb();
 		$scans = new AssetChangeCleanupScans();
 		$this->installController( $scans );
@@ -130,23 +128,14 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			'service_wpdb'           => $wpDb,
 		] );
 
-		( new Cleanup() )->run( 'core', 'core' );
+		$this->assertFalse( ( new Cleanup() )->process( 'core', 'core' ) );
 
 		$this->assertSame( [], $scans->startedAssets );
 		$this->assertSame( 0, $scans->memoizationResets );
 		$this->assertSame( [], $wpDb->queries );
-		$this->assertSame( [
-			[
-				'timestamp' => 1700000260,
-				'hook'      => 'icwp-wpsf-afs_asset_change_cleanup',
-				'args'      => [ 'core', 'core', 1 ],
-			],
-		], $scheduled );
 	}
 
-	public function test_cleanup_does_not_reschedule_after_retry_limit_when_readiness_fails() :void {
-		$scheduled = [];
-		$this->installCronMocks( $scheduled );
+	public function test_legacy_cleanup_adapter_does_not_own_retries() :void {
 		$wpDb = new AssetChangeCleanupWpDb();
 		$scans = new AssetChangeCleanupScans();
 		$this->installController( $scans );
@@ -161,21 +150,16 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( [], $scans->startedAssets );
 		$this->assertSame( 0, $scans->memoizationResets );
 		$this->assertSame( [], $wpDb->queries );
-		$this->assertSame( [], $scheduled );
 	}
 
 	/**
 	 * @dataProvider providePresentAssetReadinessFailures
 	 */
-	public function test_present_plugin_or_theme_readiness_failure_retries_once_without_scanning(
+	public function test_present_plugin_or_theme_readiness_failure_is_reported_without_scanning(
 		string $assetType,
 		string $assetKey,
-		string $version,
-		int $retry,
-		array $expectedSchedule
+		string $version
 	) :void {
-		$scheduled = [];
-		$this->installCronMocks( $scheduled );
 		$wpDb = new AssetChangeCleanupWpDb();
 		$scans = new AssetChangeCleanupScans();
 		$this->installController( $scans );
@@ -195,15 +179,14 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			'service_wpdb' => $wpDb,
 		] );
 
-		( new Cleanup() )->run( $assetType, $assetKey, $retry );
+		$this->assertFalse( ( new Cleanup() )->process( $assetType, $assetKey ) );
 
 		$this->assertSame( [], $scans->startedAssets );
 		$this->assertSame( 0, $scans->memoizationResets );
 		$this->assertSame( [], $wpDb->queries );
-		$this->assertSame( $expectedSchedule, $scheduled );
 	}
 
-	public function test_plugin_cleanup_builds_current_local_snapshot_then_starts_scoped_scan() :void {
+	public function test_plugin_cleanup_uses_existing_verified_hashes_without_local_rebuild() :void {
 		$plugin = new SnapshotPluginVo( 'cleanup-plugin/cleanup-plugin.php', '2.0.0' );
 		$this->writeFile( WP_PLUGIN_DIR.'/'.$plugin->file, "<?php\n" );
 
@@ -234,13 +217,13 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$snapData = $store->getSnapData();
 		$this->assertNotEmpty( $snapData );
 		$this->assertArrayHasKey( 'cleanup-plugin.php', $snapData );
-		$this->assertSame( \md5_file( WP_PLUGIN_DIR.'/'.$plugin->file ), $snapData[ 'cleanup-plugin.php' ] );
+		$this->assertSame( \md5( 'old-same-version-content' ), $snapData[ 'cleanup-plugin.php' ] );
 		$this->assertSame( '2.0.0', $store->getSnapMeta()[ 'version' ] );
 		$this->assertSame( 0, $scans->memoizationResets );
 		$this->assertSame( [], $wpDb->queries );
 	}
 
-	public function test_same_version_root_plugins_keep_isolated_local_snapshots_when_one_is_rebuilt() :void {
+	public function test_same_version_root_plugins_keep_isolated_local_snapshots_when_hashes_already_exist() :void {
 		$first = new SnapshotPluginVo( 'first.php', '1.0.0' );
 		$second = new SnapshotPluginVo( 'second.php', '1.0.0' );
 		$firstPath = WP_PLUGIN_DIR.'/'.$first->file;
@@ -275,7 +258,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 
 		$rebuiltFirst = ( new Load() )->setAsset( $first )->run();
 		$untouchedSecond = ( new Load() )->setAsset( $second )->run();
-		$this->assertSame( [ 'first.php' => \md5_file( $firstPath ) ], $rebuiltFirst->getSnapData() );
+		$this->assertSame( [ 'first.php' => \md5( 'first-content' ) ], $rebuiltFirst->getSnapData() );
 		$this->assertSame( $secondDataBefore, $untouchedSecond->getSnapData() );
 		$this->assertSame( $secondMetaBefore, $untouchedSecond->getSnapMeta() );
 		$this->assertTrue( $rebuiltFirst->verify() );
@@ -381,7 +364,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( [], \glob( $cacheRoot.'/ptguard-*/plugins/cleanup-root-plugin-2.1.0.txt' ) ?: [] );
 	}
 
-	public function test_theme_cleanup_builds_current_local_snapshot_then_starts_scoped_scan() :void {
+	public function test_theme_cleanup_uses_existing_verified_hashes_without_local_rebuild() :void {
 		$theme = new SnapshotThemeVo( 'cleanup-theme', '3.1.0' );
 		$this->writeFile( WP_CONTENT_DIR.'/themes/'.$theme->stylesheet.'/style.php', "<?php\n" );
 
@@ -412,7 +395,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$snapData = $store->getSnapData();
 		$this->assertNotEmpty( $snapData );
 		$this->assertArrayHasKey( 'style.php', $snapData );
-		$this->assertSame( \md5_file( WP_CONTENT_DIR.'/themes/'.$theme->stylesheet.'/style.php' ), $snapData[ 'style.php' ] );
+		$this->assertSame( \md5( 'old-same-version-content' ), $snapData[ 'style.php' ] );
 		$this->assertSame( '3.1.0', $store->getSnapMeta()[ 'version' ] );
 		$this->assertSame( [], $wpDb->queries );
 	}
@@ -462,17 +445,9 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( [ 'plugin', 'theme' ], $callbackChecks );
 	}
 
-	public function test_schedule_preserves_plugin_snapshot_before_pending_cleanup_check() :void {
+	public function test_schedule_delegates_plugin_without_touching_snapshot() :void {
 		$plugin = new SnapshotPluginVo( 'pending-plugin/pending.php', '1.0.0' );
-		$scheduled = [
-			[
-				'timestamp' => 1700000460,
-				'hook'      => 'icwp-wpsf-afs_asset_change_cleanup',
-				'args'      => [ 'plugin', $plugin->file, 0 ],
-			],
-		];
-		$this->installCronMocks( $scheduled );
-		$this->installController( new AssetChangeCleanupScans() );
+		$coordinator = $this->installController( new AssetChangeCleanupScans() );
 		$this->installSnapshotEnvironment(
 			new SnapshotPlugins( [ $plugin ] ),
 			new SnapshotThemes( [] )
@@ -488,27 +463,13 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 
 		$this->assertTrue( ( new Cleanup() )->schedule( 'plugin', $plugin->file ) );
 
-		$this->assertSame( [
-			[
-				'timestamp' => 1700000460,
-				'hook'      => 'icwp-wpsf-afs_asset_change_cleanup',
-				'args'      => [ 'plugin', $plugin->file, 0 ],
-			],
-		], $scheduled );
+		$this->assertSame( [ [ 'plugin', $plugin->file, Cleanup::CRON_DELAY ] ], $coordinator->assets );
 		$this->assertSnapshotStorePreserved( $plugin, $expectedData, $expectedMeta );
 	}
 
-	public function test_schedule_preserves_theme_snapshot_before_pending_cleanup_check() :void {
+	public function test_schedule_delegates_theme_without_touching_snapshot() :void {
 		$theme = new SnapshotThemeVo( 'pending-theme', '1.0.0' );
-		$scheduled = [
-			[
-				'timestamp' => 1700000460,
-				'hook'      => 'icwp-wpsf-afs_asset_change_cleanup',
-				'args'      => [ 'theme', $theme->stylesheet, 0 ],
-			],
-		];
-		$this->installCronMocks( $scheduled );
-		$this->installController( new AssetChangeCleanupScans() );
+		$coordinator = $this->installController( new AssetChangeCleanupScans() );
 		$this->installSnapshotEnvironment(
 			new SnapshotPlugins( [] ),
 			new SnapshotThemes( [ $theme ] )
@@ -524,52 +485,21 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 
 		$this->assertTrue( ( new Cleanup() )->schedule( 'theme', $theme->stylesheet ) );
 
-		$this->assertSame( [
-			[
-				'timestamp' => 1700000460,
-				'hook'      => 'icwp-wpsf-afs_asset_change_cleanup',
-				'args'      => [ 'theme', $theme->stylesheet, 0 ],
-			],
-		], $scheduled );
+		$this->assertSame( [ [ 'theme', $theme->stylesheet, Cleanup::CRON_DELAY ] ], $coordinator->assets );
 		$this->assertSnapshotStorePreserved( $theme, $expectedData, $expectedMeta );
 	}
 
-	public function test_schedule_coalesces_only_matching_pending_asset_cleanup() :void {
-		$scheduled = [];
-		$this->installController( new AssetChangeCleanupScans() );
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000300 ),
-		] );
-		Functions\when( 'wp_next_scheduled' )->alias(
-			static function ( string $hook, array $args = [] ) {
-				unset( $hook );
-				return \in_array(
-					$args,
-					[
-						[ 'plugin', 'akismet/akismet.php', 0 ],
-						[ 'theme', 'twentytwentyfour', 1 ],
-					],
-					true
-				) ? 1700000360 : false;
-			}
-		);
-		Functions\when( 'wp_schedule_single_event' )->alias(
-			static function ( int $timestamp, string $hook, array $args = [] ) use ( &$scheduled ) :bool {
-				$scheduled[] = [ $timestamp, $hook, $args ];
-				return true;
-			}
-		);
+	public function test_schedule_delegates_each_valid_asset_to_coordinator() :void {
+		$coordinator = $this->installController( new AssetChangeCleanupScans() );
 
 		$this->assertTrue( ( new Cleanup() )->schedule( 'plugin', 'akismet/akismet.php' ) );
 		$this->assertTrue( ( new Cleanup() )->schedule( 'theme', 'twentytwentyfour' ) );
 		$this->assertTrue( ( new Cleanup() )->schedule( 'plugin', 'hello-dolly/hello.php' ) );
 		$this->assertSame( [
-			[
-				1700000360,
-				'icwp-wpsf-afs_asset_change_cleanup',
-				[ 'plugin', 'hello-dolly/hello.php', 0 ],
-			],
-		], $scheduled );
+			[ 'plugin', 'akismet/akismet.php', Cleanup::CRON_DELAY ],
+			[ 'theme', 'twentytwentyfour', Cleanup::CRON_DELAY ],
+			[ 'plugin', 'hello-dolly/hello.php', Cleanup::CRON_DELAY ],
+		], $coordinator->assets );
 	}
 
 	public function test_invalid_asset_inputs_do_not_touch_sql_scan_or_cron() :void {
@@ -580,9 +510,6 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000300 ),
 			'service_wpdb'    => $wpDb,
 		] );
-		Functions\expect( 'wp_next_scheduled' )->never();
-		Functions\expect( 'wp_schedule_single_event' )->never();
-
 		$cleanup = new Cleanup();
 
 		$this->assertFalse( $cleanup->schedule( 'unsupported', 'whatever' ) );
@@ -605,8 +532,6 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700000300 ),
 			'service_wpdb'    => $wpDb,
 		] );
-		Functions\expect( 'wp_next_scheduled' )->never();
-		Functions\expect( 'wp_schedule_single_event' )->never();
 		$cleanup = new Cleanup();
 
 		foreach ( [
@@ -625,50 +550,21 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 
 	public function providePresentAssetReadinessFailures() :array {
 		return [
-			'plugin retry 0' => [
+			'plugin' => [
 				'plugin',
 				'cleanup-unready-plugin/cleanup-unready.php',
 				'9.9.0',
-				0,
-				[
-					[
-						'timestamp' => 1700000460,
-						'hook'      => 'icwp-wpsf-afs_asset_change_cleanup',
-						'args'      => [ 'plugin', 'cleanup-unready-plugin/cleanup-unready.php', 1 ],
-					],
-				],
 			],
-			'plugin retry 1' => [
-				'plugin',
-				'cleanup-unready-plugin/cleanup-unready.php',
-				'9.9.0',
-				1,
-				[],
-			],
-			'theme retry 0'  => [
+			'theme'  => [
 				'theme',
 				'cleanup-unready-theme',
 				'9.9.0',
-				0,
-				[
-					[
-						'timestamp' => 1700000460,
-						'hook'      => 'icwp-wpsf-afs_asset_change_cleanup',
-						'args'      => [ 'theme', 'cleanup-unready-theme', 1 ],
-					],
-				],
-			],
-			'theme retry 1'  => [
-				'theme',
-				'cleanup-unready-theme',
-				'9.9.0',
-				1,
-				[],
 			],
 		];
 	}
 
-	private function installController( AssetChangeCleanupScans $scans ) :void {
+	private function installController( AssetChangeCleanupScans $scans ) :AssetChangeCleanupCoordinator {
+		$coordinator = new AssetChangeCleanupCoordinator();
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->cfg = new class {
@@ -682,7 +578,8 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			}
 		};
 		$controller->comps = (object)[
-			'scans' => $scans,
+			'asset_coordinator' => $coordinator,
+			'scans'             => $scans,
 		];
 		$controller->caps = new class {
 			public function canScanPluginsThemesRemote() :bool {
@@ -695,6 +592,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		];
 
 		PluginControllerInstaller::install( $controller );
+		return $coordinator;
 	}
 
 	private function installSnapshotEnvironment( Plugins $plugins, Themes $themes ) :void {
@@ -723,29 +621,6 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin
 			->getController()
 			->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
-	}
-
-	private function installCronMocks( array &$scheduled ) :void {
-		Functions\when( 'wp_next_scheduled' )->alias(
-			static function ( string $hook, array $args = [] ) use ( &$scheduled ) {
-				foreach ( $scheduled as $event ) {
-					if ( $event[ 'hook' ] === $hook && $event[ 'args' ] === $args ) {
-						return $event[ 'timestamp' ];
-					}
-				}
-				return false;
-			}
-		);
-		Functions\when( 'wp_schedule_single_event' )->alias(
-			static function ( int $timestamp, string $hook, array $args = [] ) use ( &$scheduled ) :bool {
-				$scheduled[] = [
-					'timestamp' => $timestamp,
-					'hook'      => $hook,
-					'args'      => $args,
-				];
-				return true;
-			}
-		);
 	}
 
 	private function assertSnapshotStorePreserved( $asset, array $expectedData, array $expectedMeta ) :void {
@@ -800,6 +675,16 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 
 	private function normalizePath( string $path ) :string {
 		return \str_replace( '\\', '/', $path );
+	}
+}
+
+class AssetChangeCleanupCoordinator {
+
+	public array $assets = [];
+
+	public function enqueueAsset( string $assetType, string $assetKey, int $delay ) :bool {
+		$this->assets[] = [ $assetType, $assetKey, $delay ];
+		return true;
 	}
 }
 

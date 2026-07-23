@@ -147,6 +147,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 
 			$this->assertSame( 1, $this->serviceProviders->clears );
 			$this->assertSame( 1, $state->plugin->deletedCrons );
+			$this->assertSame( 1, $state->assetCoordinator->reconciliations );
 			$this->assertSame( 1, $state->opts->stores );
 			$this->assertSame( 1, $state->extensionHandler->forceChecks );
 			$this->assertCount( 1, $state->scans->startedScans );
@@ -202,9 +203,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			( new HandleUpgrade() )->execute();
 			$this->runCapturedUpgradeCallback( $actions );
 
-			$this->assertSame( [ 'delete_crons', 'start_scans' ], \array_values( \array_intersect(
+			$this->assertSame( [ 'delete_crons', 'reconcile_wakeup', 'start_scans' ], \array_values( \array_intersect(
 				$state->operations->calls,
-				[ 'delete_crons', 'start_scans' ]
+				[ 'delete_crons', 'reconcile_wakeup', 'start_scans' ]
 			) ) );
 		}
 
@@ -264,9 +265,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			( new HandleUpgrade() )->execute();
 			$this->runCapturedUpgradeCallback( $actions );
 
-			$this->assertSame( [ 'delete_crons', 'start_scans' ], \array_values( \array_intersect(
+			$this->assertSame( [ 'delete_crons', 'reconcile_wakeup', 'start_scans' ], \array_values( \array_intersect(
 				$state->operations->calls,
-				[ 'delete_crons', 'start_scans' ]
+				[ 'delete_crons', 'reconcile_wakeup', 'start_scans' ]
 			) ) );
 			$this->assertSame( 1, $state->scans->startCalls );
 			$this->assertTrue( $harness->async->hasScheduledHook( ( new QueueWatchdog() )->hook() ) );
@@ -408,6 +409,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				\array_unshift( $extensions, new HandleUpgradeTestExtension( $throwingHandlerLookup, true ) );
 			}
 			$scans = new HandleUpgradeTestScans( $operations );
+			$assetCoordinator = new HandleUpgradeTestAssetCoordinator( $operations );
 
 			$controller = UnitTestControllerFactory::install( null, null, (object)[
 				'cfg'                   => $cfg,
@@ -421,7 +423,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				'db_con'                => new HandleUpgradeTestDbCon(),
 				'extensions_controller' => new HandleUpgradeTestExtensionsController( $extensions ),
 				'comps'                 => (object)[
-					'scans' => $scans,
+					'asset_coordinator' => $assetCoordinator,
+					'scans'             => $scans,
 				],
 			] );
 
@@ -433,6 +436,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				'extensionHandler'         => $extensionHandler,
 				'throwingExtensionHandler' => $throwingExtensionHandler,
 				'throwingHandlerLookup'    => $throwingHandlerLookup,
+				'assetCoordinator'         => $assetCoordinator,
 				'scans'                    => $scans,
 			];
 		}
@@ -461,6 +465,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$extensionHandler = new HandleUpgradeTestExtensionHandler();
 			$controller = $harness->controller;
 			$scanFacade = new HandleUpgradeLifecycleScans( $controller->comps->scans, $operations );
+			$assetCoordinator = new HandleUpgradeTestAssetCoordinator( $operations );
 			$controller->cfg = $cfg;
 			$controller->plugin = $plugin;
 			$controller->opts = $opts;
@@ -472,6 +477,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$controller->extensions_controller = new HandleUpgradeTestExtensionsController( [
 				new HandleUpgradeTestExtension( $extensionHandler ),
 			] );
+			$controller->comps->asset_coordinator = $assetCoordinator;
 			$controller->comps->scans = $scanFacade;
 			PluginControllerInstaller::install( $controller );
 
@@ -481,6 +487,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				'plugin'           => $plugin,
 				'opts'             => $opts,
 				'extensionHandler' => $extensionHandler,
+				'assetCoordinator' => $assetCoordinator,
 				'scans'            => $scanFacade,
 			];
 		}
@@ -597,6 +604,22 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 	class HandleUpgradeTestOperations {
 
 		public array $calls = [];
+	}
+
+	class HandleUpgradeTestAssetCoordinator {
+
+		public int $reconciliations = 0;
+
+		private HandleUpgradeTestOperations $operations;
+
+		public function __construct( HandleUpgradeTestOperations $operations ) {
+			$this->operations = $operations;
+		}
+
+		public function reconcileWakeup() :void {
+			$this->reconciliations++;
+			$this->operations->calls[] = 'reconcile_wakeup';
+		}
 	}
 
 	class HandleUpgradeTestPlugin extends ModCon {

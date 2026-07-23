@@ -164,6 +164,18 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertFileDoesNotExist( $root.'/.ptguard-active.txt' );
 	}
 
+	public function test_legacy_entry_point_delegates_discovery_to_asset_coordinator() :void {
+		$this->installEnvironment( [] );
+		$coordinator = new ScheduleBuildAllCoordinator();
+		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin
+			->getController()
+			->comps->asset_coordinator = $coordinator;
+
+		( new ScheduleBuildAll() )->execute();
+
+		$this->assertSame( 1, $coordinator->discoveries );
+	}
+
 	public function test_build_writes_and_loads_under_selected_uploads_root_only() :void {
 		$asset = new SnapshotPluginVo( 'snapshot-build-root/plugin.php', '1.0.0' );
 		$uploadsRoot = $this->makeTempDir( 'uploads-root' );
@@ -307,5 +319,14 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->mkdir( \dirname( $path ) );
 		\file_put_contents( $path, $content );
 		$this->trackWrittenFixtureFile( $path );
+	}
+}
+
+class ScheduleBuildAllCoordinator {
+
+	public int $discoveries = 0;
+
+	public function discoverMissingSnapshots() :void {
+		$this->discoveries++;
 	}
 }

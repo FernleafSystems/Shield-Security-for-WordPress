@@ -211,6 +211,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 			( new PluginReset() )->execCmd( [], [ 'force' => true ] );
 
 			$this->assertTrue( $state->controller->plugin_reset );
+			$this->assertSame( 1, $state->assetCoordinator->deletions );
 			$this->assertSame( 1, $state->opts->resetCalls );
 			$this->assertSame( 1, $state->opts->deleteCalls );
 			$this->assertNotContains( 'confirm', \array_column( \WP_CLI::$events, 'type' ) );
@@ -290,6 +291,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 		private function installController( ?StartScansResult $scanResult = null ) :object {
 			$opts = new WpCliTestOptions();
 			$scans = new WpCliTestScans( $scanResult );
+			$assetCoordinator = new WpCliTestAssetCoordinator();
 			$configuration = new class {
 				public array $options = [
 					'wp_cli_test_option' => [],
@@ -322,9 +324,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 				},
 				'opts'       => $opts,
 				'comps'      => (object)[
-					'opts_lookup' => new class {
+					'asset_coordinator' => $assetCoordinator,
+					'opts_lookup'       => new class {
 					},
-					'scans'       => $scans,
+					'scans'             => $scans,
 				],
 				'db_con'     => $this->newResetDbCon(),
 				'plugin'     => new class extends ModCon {
@@ -342,6 +345,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 
 			return (object)[
 				'controller' => $controller,
+				'assetCoordinator' => $assetCoordinator,
 				'opts'       => $opts,
 				'scans'      => $scans,
 			];
@@ -468,6 +472,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit {
 
 		public function delete() :void {
 			$this->deleteCalls++;
+		}
+	}
+
+	class WpCliTestAssetCoordinator {
+
+		public int $deletions = 0;
+
+		public function deleteState() :void {
+			$this->deletions++;
 		}
 	}
 

@@ -20,6 +20,7 @@ class PluginDelete {
 
 	private function deleteOptions() {
 
+		self::con()->comps->asset_coordinator->deleteState();
 		self::con()->opts->delete();
 
 		foreach (

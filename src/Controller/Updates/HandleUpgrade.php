@@ -53,6 +53,10 @@ class HandleUpgrade {
 
 		Services::ServiceProviders()->clearProviders();
 		$con->plugin->deleteAllPluginCrons();
+		$this->runUpgradeSideEffect(
+			'asset coordinator wakeup reconciliation',
+			fn() => $con->comps->asset_coordinator->reconcileWakeup()
+		);
 		$this->runUpgradeSideEffect( 'import/export sites queue schedule', function () use ( $importExport ) {
 			$importExport->scheduleQueueSoonIfSyncEnabled();
 		} );

@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetTrustResolver,
 	Retrieve
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Exceptions\AssetHashesNotFound;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -26,17 +27,12 @@ class Cleanup {
 	}
 
 	public function schedule( string $assetType, string $assetKey, int $delay = self::CRON_DELAY, int $retry = 0 ) :bool {
+		unset( $retry );
 		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
 		if ( $assetType === '' || $assetKey === '' ) {
 			return false;
 		}
-
-		if ( $this->hasPendingCleanup( $assetType, $assetKey ) ) {
-			return true;
-		}
-
-		$args = [ $assetType, $assetKey, $retry ];
-		return \wp_schedule_single_event( Services::Request()->ts() + $delay, $this->getHook(), $args ) !== false;
+		return self::con()->comps->asset_coordinator->enqueueAsset( $assetType, $assetKey, $delay );
 	}
 
 	public function run( $assetType = null, $assetKey = null, $retry = 0 ) :void {
@@ -44,28 +40,25 @@ class Cleanup {
 			 || $retry < 0 || $retry > self::MAX_RETRIES ) {
 			return;
 		}
-		$this->runCleanup( $assetType, $assetKey, $retry );
+		$this->process( $assetType, $assetKey );
 	}
 
-	private function runCleanup( string $assetType, string $assetKey, int $retry ) :void {
+	public function process( string $assetType, string $assetKey ) :bool {
 		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
 		if ( $assetType === '' || $assetKey === '' ) {
-			return;
+			return false;
 		}
 
 		$readiness = $this->prepareAssetForScan( $assetType, $assetKey );
 		if ( !$readiness[ 'ready' ] ) {
-			if ( $retry < self::MAX_RETRIES ) {
-				$this->schedule( $assetType, $assetKey, self::CRON_DELAY, $retry + 1 );
-			}
-			return;
+			return false;
 		}
 
 		if ( $readiness[ 'reset_memoization' ] ) {
 			Retrieve::resetMemoization();
 			AssetTrustResolver::resetMemoization();
 		}
-		self::con()->comps->scans->startAfsAssetScan( $assetType, $assetKey );
+		return self::con()->comps->scans->startAfsAssetScan( $assetType, $assetKey );
 	}
 
 	/**
@@ -91,6 +84,23 @@ class Cleanup {
 		if ( empty( $asset ) ) {
 			return [
 				'ready'             => true,
+				'reset_memoization' => false,
+			];
+		}
+
+		try {
+			( new Retrieve() )->byVOWithSource( $asset );
+			return [
+				'ready'             => true,
+				'reset_memoization' => false,
+			];
+		}
+		catch ( AssetHashesNotFound $e ) {
+			unset( $e );
+		}
+		catch ( \Throwable $e ) {
+			return [
+				'ready'             => false,
 				'reset_memoization' => false,
 			];
 		}
@@ -125,17 +135,6 @@ class Cleanup {
 		return $assetType === 'plugin'
 			? Services::WpPlugins()->getPluginAsVo( $assetKey, true )
 			: Services::WpThemes()->getThemeAsVo( $assetKey, true );
-	}
-
-	private function hasPendingCleanup( string $assetType, string $assetKey ) :bool {
-		$pending = false;
-		foreach ( \range( 0, self::MAX_RETRIES ) as $retry ) {
-			if ( \wp_next_scheduled( $this->getHook(), [ $assetType, $assetKey, $retry ] ) !== false ) {
-				$pending = true;
-				break;
-			}
-		}
-		return $pending;
 	}
 
 	/**
