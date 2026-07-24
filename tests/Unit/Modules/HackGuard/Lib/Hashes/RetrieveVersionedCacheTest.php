@@ -42,6 +42,10 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 
 	use TempDirLifecycleTrait;
 
+	private const HASH_V1 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+	private const HASH_V11 = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+	private const HASH_V2 = 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
+
 	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
@@ -83,20 +87,20 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		$versionOne = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '1.0.0' );
 		$versionTwo = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '1.1.0' );
 		$this->writeStore( $versionOne, [
-			'premium-plugin/plugin.php' => 'hash-for-1.0.0',
+			'premium-plugin/plugin.php' => self::HASH_V1,
 		], $hashDir );
 		$this->writeStore( $versionTwo, [
-			'premium-plugin/plugin.php' => 'hash-for-1.1.0',
+			'premium-plugin/plugin.php' => self::HASH_V11,
 		], $hashDir );
 
 		$retrieve = new Retrieve();
 
 		$this->assertSame(
-			[ 'premium-plugin/plugin.php' => 'hash-for-1.0.0' ],
+			[ 'premium-plugin/plugin.php' => [ self::HASH_V1 ] ],
 			$retrieve->byVO( $versionOne )
 		);
 		$this->assertSame(
-			[ 'premium-plugin/plugin.php' => 'hash-for-1.1.0' ],
+			[ 'premium-plugin/plugin.php' => [ self::HASH_V11 ] ],
 			$retrieve->byVO( $versionTwo )
 		);
 	}
@@ -121,16 +125,54 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		$versionOne = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '1.0.0' );
 		$versionTwo = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
 		$this->writeStore( $versionOne, [
-			'plugin.php' => 'hash-for-1.0.0',
+			'plugin.php' => self::HASH_V1,
 		], $hashDir );
 		$this->writeStore( $versionTwo, [
-			'plugin.php' => 'hash-for-2.0.0',
+			'plugin.php' => self::HASH_V2,
 		], $hashDir );
 
 		$this->assertSame(
-			[ 'plugin.php' => 'hash-for-2.0.0' ],
+			[ 'plugin.php' => [ self::HASH_V2 ] ],
 			( new Retrieve() )->bySlug( 'premium-plugin/plugin.php' )
 		);
+	}
+
+	public function test_local_snapshot_normalization_preserves_valid_siblings_and_trust() :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		ServicesState::installItems( [
+			'service_wpfs'     => new RetrieveVersionedCacheTestFs(),
+			'service_request'  => new class extends Request {
+				public function ts( bool $update = true ) :int {
+					unset( $update );
+					return 1700000000;
+				}
+			},
+		] );
+		$this->installController( $cacheRoot );
+
+		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$this->writeStoreWithMeta( $asset, [
+			'plugin.php'         => self::HASH_V1,
+			'src\\Feature.php'   => self::HASH_V11,
+			'bad.php'            => 'unsupported-hash',
+			'uppercase.php'      => \strtoupper( self::HASH_V1 ),
+			'../escape.php'      => self::HASH_V1,
+			'/absolute/path.php' => self::HASH_V1,
+		], [
+			'version'     => '2.0.0',
+			'unique_id'   => 'premium-plugin/plugin.php',
+			'live_hashes' => true,
+		], $hashDir );
+
+		$this->assertSame( [
+			'hashes' => [
+				'plugin.php'       => [ self::HASH_V1 ],
+				'src/Feature.php'  => [ self::HASH_V11 ],
+			],
+			'trusted_source' => true,
+		], ( new Retrieve() )->byVOWithSource( $asset ) );
 	}
 
 	public function test_local_snapshot_with_mismatched_version_meta_is_rejected() :void {
@@ -242,7 +284,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		$this->assertTrue( $firstLookupMissed );
 
 		$this->writeStore( $asset, [
-			'plugin.php' => 'hash-for-2.0.0',
+			'plugin.php' => self::HASH_V2,
 		], $hashDir );
 
 		$secondLookupMissed = false;
@@ -257,7 +299,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		Retrieve::resetMemoization();
 
 		$this->assertSame(
-			[ 'plugin.php' => 'hash-for-2.0.0' ],
+			[ 'plugin.php' => [ self::HASH_V2 ] ],
 			( new Retrieve() )->byVO( $asset )
 		);
 	}

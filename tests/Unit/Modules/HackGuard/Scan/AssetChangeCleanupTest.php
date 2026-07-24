@@ -311,7 +311,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			$this->assertSame( 'plugin', $assetType );
 			$this->assertSame( $plugin->file, $assetKey );
 			$this->assertSame( [
-				'cleanup-reset.php' => \md5_file( $path ),
+				'cleanup-reset.php' => [ \md5_file( $path ) ],
 			], ( new Retrieve() )->byVO( $plugin ) );
 		};
 

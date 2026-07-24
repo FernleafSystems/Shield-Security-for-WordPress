@@ -5,16 +5,16 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 
 /**
- * @property int    $scan_id
- * @property int    $qitem_id
- * @property string $scan
- * @property string $scope_type
- * @property string $scope_key
- * @property string $run_trigger
- * @property int    $scan_started_at
- * @property int    $attempts
- * @property array  $meta
- * @property array  $items
+ * @property int          $scan_id
+ * @property int          $qitem_id
+ * @property string       $scan
+ * @property string       $scope_type
+ * @property string       $scope_key
+ * @property string       $run_trigger
+ * @property int          $scan_started_at
+ * @property int          $attempts
+ * @property array        $meta
+ * @property list<string> $items
  */
 class QueueItemVO extends DynPropertiesClass {
 
@@ -38,10 +38,15 @@ class QueueItemVO extends DynPropertiesClass {
 				$value = (int)$value;
 				break;
 			case 'meta':
-			case 'items':
 				if ( !\is_array( $value ) ) {
 					$value = $this->decodeArrayPayload( $value );
 				}
+				break;
+			case 'items':
+				if ( !\is_array( $value ) ) {
+					$value = $this->decodeItemPayload( $value );
+				}
+				$value = $this->normaliseItemList( $value );
 				break;
 			case 'scan':
 			case 'scope_type':
@@ -67,5 +72,33 @@ class QueueItemVO extends DynPropertiesClass {
 
 		$payload = \json_decode( $decoded, true );
 		return \is_array( $payload ) ? $payload : [];
+	}
+
+	private function decodeItemPayload( $value ) :array {
+		if ( !\is_string( $value ) || $value === '' ) {
+			return [];
+		}
+
+		$decoded = \base64_decode( $value, true );
+		if ( !\is_string( $decoded ) ) {
+			return [];
+		}
+
+		$payload = \json_decode( $decoded );
+		return \is_array( $payload ) ? $payload : [];
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function normaliseItemList( array $items ) :array {
+		if ( !empty( $items ) && \array_keys( $items ) !== \range( 0, \count( $items ) - 1 ) ) {
+			return [];
+		}
+
+		return \array_values( \array_filter(
+			$items,
+			static fn( $item ) :bool => \is_string( $item ) && $item !== ''
+		) );
 	}
 }

@@ -12,7 +12,6 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpThemeVo
 };
 use FernleafSystems\Wordpress\Services\Services;
-use FernleafSystems\Wordpress\Services\Utilities\File\Compare\CompareHash;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\{
 	Plugin,
 	Theme
@@ -39,7 +38,7 @@ class AssetTrustResolver {
 	}
 
 	/**
-	 * @return array{hashes:array<int, string>, trusted_source:bool, asset_type:string, asset_key:string, asset_version:string, relative_path:string}
+	 * @return array{hashes:list<string>, trusted_source:bool, asset_type:string, asset_key:string, asset_version:string, relative_path:string}
 	 * @throws AssetHashesNotFound
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
@@ -50,7 +49,7 @@ class AssetTrustResolver {
 	}
 
 	/**
-	 * @return array{hashes:array<int, string>, trusted_source:bool, asset_type:string, asset_key:string, asset_version:string, relative_path:string}
+	 * @return array{hashes:list<string>, trusted_source:bool, asset_type:string, asset_key:string, asset_version:string, relative_path:string}
 	 * @throws AssetHashesNotFound
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
@@ -66,7 +65,7 @@ class AssetTrustResolver {
 		}
 
 		return [
-			'hashes'         => \is_array( $hash ) ? $hash : [ $hash ],
+			'hashes'         => $hash,
 			'trusted_source' => $hashSource[ 'trusted_source' ],
 			'asset_type'     => $context->assetType,
 			'asset_key'      => $context->assetKey,
@@ -96,9 +95,9 @@ class AssetTrustResolver {
 	public function verifyContext( string $path, AssetFileContext $context ) :HashVerificationResult {
 		$verified = false;
 		$hashData = $this->getHashDataForContext( $path, $context );
-		$compare = new CompareHash();
+		$compare = new CompareFileHash();
 		foreach ( $hashData[ 'hashes' ] as $hash ) {
-			if ( $compare->isEqualFile( $path, $hash ) ) {
+			if ( $compare->isEqual( $path, $hash ) ) {
 				$verified = true;
 				break;
 			}

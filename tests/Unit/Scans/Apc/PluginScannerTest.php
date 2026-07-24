@@ -55,6 +55,55 @@ class PluginScannerTest extends BaseUnitTest {
 		$this->assertSame( [], $result );
 	}
 
+	public function test_legacy_update_uri_bypasses_wp_org_api() :void {
+		Functions\expect( 'plugins_api' )->never();
+
+		$result = $this->scan(
+			new PluginScannerTestVo( 'cornerstone', '7.8.12' ),
+			[ 'Update URI' => 'https://theme.co/cornerstone' ]
+		);
+
+		$this->assertSame( [], $result );
+	}
+
+	public function test_whitespace_update_uris_are_absent() :void {
+		$lastUpdatedAt = self::NOW - self::ABANDONED_LIMIT - 1;
+		$this->expectPluginApi( $this->apiResponse( 'cornerstone', '0.8.1', $lastUpdatedAt ) );
+
+		$result = $this->scan(
+			new PluginScannerTestVo( 'cornerstone', '0.8.1' ),
+			[
+				'UpdateURI'  => " \t ",
+				'Update URI' => "\n",
+			]
+		);
+
+		$this->assertSame( $lastUpdatedAt, $result[ 'last_updated_at' ] ?? null );
+	}
+
+	/**
+	 * @dataProvider provideMalformedUpdateUris
+	 */
+	public function test_malformed_update_uri_is_conservatively_ineligible( string $key, $value ) :void {
+		Functions\expect( 'plugins_api' )->never();
+
+		$result = $this->scan(
+			new PluginScannerTestVo( 'cornerstone', '0.8.1' ),
+			[ $key => $value ]
+		);
+
+		$this->assertSame( [], $result );
+	}
+
+	public function provideMalformedUpdateUris() :array {
+		return [
+			'modern null'  => [ 'UpdateURI', null ],
+			'modern array' => [ 'UpdateURI', [] ],
+			'legacy bool'  => [ 'Update URI', false ],
+			'legacy int'   => [ 'Update URI', 12 ],
+		];
+	}
+
 	public function test_non_wp_org_plugin_bypasses_wp_org_api() :void {
 		Functions\expect( 'plugins_api' )->never();
 
@@ -124,11 +173,99 @@ class PluginScannerTest extends BaseUnitTest {
 	}
 
 	public function test_missing_installed_version_produces_no_finding() :void {
-		$this->expectPluginApi( $this->apiResponse( 'cornerstone', '0.8.1', self::NOW - self::ABANDONED_LIMIT - 1 ) );
+		Functions\expect( 'plugins_api' )->never();
 
 		$result = $this->scan( new PluginScannerTestVo( 'cornerstone', '' ) );
 
 		$this->assertSame( [], $result );
+	}
+
+	/**
+	 * @dataProvider provideWrongTypeFamily
+	 */
+	public function test_installed_slug_wrong_type_family_never_reaches_api( $value ) :void {
+		PluginScannerStringableValue::$calls = 0;
+		Functions\expect( 'plugins_api' )->never();
+		$plugin = new PluginScannerTestVo( 'cornerstone', '0.8.1', true, [
+			'slug'    => $value,
+			'Version' => '0.8.1',
+		] );
+
+		try {
+			$this->assertSame( [], $this->scan( $plugin ) );
+			$this->assertSame( 0, PluginScannerStringableValue::$calls );
+		}
+		finally {
+			\is_resource( $value ) && \fclose( $value );
+		}
+	}
+
+	public function provideWrongTypeFamily() :array {
+		return [
+			'null'                  => [ null ],
+			'boolean'               => [ true ],
+			'integer'               => [ 12 ],
+			'float'                 => [ 1.2 ],
+			'array'                 => [ [] ],
+			'object'                => [ new \stdClass() ],
+			'string-convertible'    => [ new PluginScannerStringableValue() ],
+			'resource'              => [ \fopen( 'php://memory', 'rb' ) ],
+		];
+	}
+
+	public function test_malformed_raw_installed_version_never_reaches_api() :void {
+		Functions\expect( 'plugins_api' )->never();
+
+		$result = $this->scan( new PluginScannerTestVo( 'cornerstone', '0.8.1', true, [
+			'Version' => new \stdClass(),
+		] ) );
+
+		$this->assertSame( [], $result );
+	}
+
+	public function test_missing_raw_installed_version_never_uses_vendor_cast_path() :void {
+		Functions\expect( 'plugins_api' )->never();
+
+		$result = $this->scan( new PluginScannerTestVo( 'cornerstone', '0.8.1', true, [] ) );
+
+		$this->assertSame( [], $result );
+	}
+
+	/**
+	 * @dataProvider provideMalformedApiFields
+	 */
+	public function test_each_malformed_api_field_produces_no_finding_after_one_api_call( string $field ) :void {
+		$response = $this->apiResponse( 'cornerstone', '0.8.1', self::NOW - self::ABANDONED_LIMIT - 1 );
+		$response->{$field} = new \stdClass();
+		$this->expectPluginApi( $response );
+
+		$result = $this->scan( new PluginScannerTestVo( 'cornerstone', '0.8.1' ) );
+
+		$this->assertSame( [], $result );
+	}
+
+	public function provideMalformedApiFields() :array {
+		return [
+			'slug'         => [ 'slug' ],
+			'version'      => [ 'version' ],
+			'last updated' => [ 'last_updated' ],
+		];
+	}
+
+	public function test_trimmed_installed_and_api_strings_preserve_valid_finding() :void {
+		$lastUpdatedAt = self::NOW - self::ABANDONED_LIMIT - 1;
+		$this->expectPluginApi( (object)[
+			'slug'         => ' cornerstone ',
+			'version'      => ' 0.8.1 ',
+			'last_updated' => ' '.$this->date( $lastUpdatedAt ).' ',
+		] );
+
+		$result = $this->scan( new PluginScannerTestVo( 'fallback-unused', 'fallback-unused', true, [
+			'slug'    => ' cornerstone ',
+			'Version' => ' 0.8.1 ',
+		] ) );
+
+		$this->assertSame( $lastUpdatedAt, $result[ 'last_updated_at' ] ?? null );
 	}
 
 	public function test_recent_wp_org_update_produces_no_finding() :void {
@@ -199,16 +336,17 @@ class PluginScannerTestPlugins extends Plugins {
 
 class PluginScannerTestVo extends WpPluginVo {
 
-	private string $pluginSlug;
+	private $pluginSlug;
 
-	private string $pluginVersion;
+	private $pluginVersion;
 
 	private bool $isWpOrg;
 
-	public function __construct( string $slug, string $version, bool $isWpOrg = true ) {
+	public function __construct( $slug, $version, bool $isWpOrg = true, ?array $raw = null ) {
 		$this->pluginSlug = $slug;
 		$this->pluginVersion = $version;
 		$this->isWpOrg = $isWpOrg;
+		$this->applyFromArray( $raw ?? [ 'Version' => $version ] );
 	}
 
 	public function __get( string $key ) {
@@ -217,5 +355,15 @@ class PluginScannerTestVo extends WpPluginVo {
 
 	public function isWpOrg() :bool {
 		return $this->isWpOrg;
+	}
+}
+
+class PluginScannerStringableValue {
+
+	public static int $calls = 0;
+
+	public function __toString() :string {
+		self::$calls++;
+		return 'cornerstone';
 	}
 }

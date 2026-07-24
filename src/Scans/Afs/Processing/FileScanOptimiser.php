@@ -160,7 +160,6 @@ class FileScanOptimiser {
 	private function isAccessibleSupportedFile( string $path, ScanActionVO $action ) :bool {
 		$ext = \strtolower( (string)\pathinfo( $path, \PATHINFO_EXTENSION ) );
 		return $ext !== ''
-			   && \is_array( $action->file_exts )
 			   && \in_array( $ext, $action->file_exts, true )
 			   && Services::WpFs()->isAccessibleFile( $path );
 	}

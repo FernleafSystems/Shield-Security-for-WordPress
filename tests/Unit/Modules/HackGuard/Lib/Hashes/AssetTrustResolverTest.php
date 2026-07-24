@@ -35,6 +35,11 @@ class AssetTrustResolverTest extends BaseUnitTest {
 
 	use TempDirLifecycleTrait;
 
+	private const PLUGIN_HASH = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+	private const FIRST_HASH = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+	private const SECOND_HASH = 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
+	private const THEME_HASH = 'dddddddddddddddddddddddddddddddd';
+
 	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
@@ -165,7 +170,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 			$cacheRoot
 		);
 		$this->writeStore( new ResolverPluginVo( 'alpha/alpha.php', '1.0.0' ), [
-			'src/File.php' => 'hash-for-plugin-1.0.0',
+			'src/File.php' => self::PLUGIN_HASH,
 		], $hashDir );
 		$path = $this->normalisePath( WP_PLUGIN_DIR.'/alpha/src/File.php' );
 		$resolver = new AssetTrustResolver();
@@ -178,7 +183,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$hashData = $resolver->getHashDataForContext( $path, $context );
 
 		$this->assertSame( '1.0.0', $hashData[ 'asset_version' ] );
-		$this->assertSame( [ 'hash-for-plugin-1.0.0' ], $hashData[ 'hashes' ] );
+		$this->assertSame( [ self::PLUGIN_HASH ], $hashData[ 'hashes' ] );
 		$this->assertSame( 1, ResolverPlugins::$getPluginAsVoCalls );
 	}
 
@@ -189,10 +194,10 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$plugins = new ResolverPlugins( [ 'First.php', 'Second.php' ], '1.0.0' );
 		$this->installHashStoreEnvironment( $plugins, new ResolverThemes( [] ), $cacheRoot );
 		$this->writeStore( new ResolverPluginVo( 'First.php', '1.0.0' ), [
-			'First.php' => 'first-hash',
+			'First.php' => self::FIRST_HASH,
 		], $hashDir );
 		$this->writeStore( new ResolverPluginVo( 'Second.php', '1.0.0' ), [
-			'second.php' => 'second-hash',
+			'second.php' => self::SECOND_HASH,
 		], $hashDir );
 		$resolver = new AssetTrustResolver();
 		$firstPath = $this->normalisePath( WP_PLUGIN_DIR.'/First.php' );
@@ -215,8 +220,8 @@ class AssetTrustResolverTest extends BaseUnitTest {
 			$second->assetVersion,
 			$second->relativePath,
 		] );
-		$this->assertSame( [ 'first-hash' ], $firstHashes[ 'hashes' ] );
-		$this->assertSame( [ 'second-hash' ], $secondHashes[ 'hashes' ] );
+		$this->assertSame( [ self::FIRST_HASH ], $firstHashes[ 'hashes' ] );
+		$this->assertSame( [ self::SECOND_HASH ], $secondHashes[ 'hashes' ] );
 		$this->assertFalse( $firstHashes[ 'trusted_source' ] );
 		$this->assertFalse( $secondHashes[ 'trusted_source' ] );
 		$this->assertSame( 0, ResolverPlugins::$installedPluginFilesCalls );
@@ -326,7 +331,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 			$cacheRoot
 		);
 		$this->writeStore( new ResolverThemeVo( 'clean', '1.0.0' ), [
-			'inc/File.php' => 'hash-for-theme-1.0.0',
+			'inc/File.php' => self::THEME_HASH,
 		], $hashDir );
 		$path = $this->normalisePath( WP_CONTENT_DIR.'/themes/clean/inc/File.php' );
 		$resolver = new AssetTrustResolver();
@@ -339,7 +344,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$hashData = $resolver->getHashDataForContext( $path, $context );
 
 		$this->assertSame( '1.0.0', $hashData[ 'asset_version' ] );
-		$this->assertSame( [ 'hash-for-theme-1.0.0' ], $hashData[ 'hashes' ] );
+		$this->assertSame( [ self::THEME_HASH ], $hashData[ 'hashes' ] );
 		$this->assertSame( 1, ResolverThemes::$getThemeAsVoCalls );
 	}
 

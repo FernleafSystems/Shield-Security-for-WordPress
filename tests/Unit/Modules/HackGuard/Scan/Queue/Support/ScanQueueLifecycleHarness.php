@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs as AfsController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Build\QueueBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\Controller as QueueController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\QueueProcessor;
@@ -20,6 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState
 };
 use FernleafSystems\Wordpress\Services\Core\{
+	CoreFileHashes,
 	Db,
 	Fs,
 	General,
@@ -44,6 +46,8 @@ class ScanQueueLifecycleHarness {
 
 	private LifecycleQueueComponent $queueComponent;
 	private LifecycleEmptyDbHandler $resultItemsDb;
+	private LifecycleAfsFs $afsFs;
+	private LifecyclePlugins $plugins;
 
 	private int $now;
 
@@ -66,7 +70,9 @@ class ScanQueueLifecycleHarness {
 		$this->sql = new LifecycleSqliteDb( $this->now );
 		$this->scansDb = new LifecycleScansDb( $this->sql );
 		$this->scanItemsDb = new LifecycleScanItemsDb( $this->sql );
-		$this->resultItemsDb = new LifecycleEmptyDbHandler( 'scan_result_items' );
+		$this->resultItemsDb = new LifecycleEmptyDbHandler( 'scan_result_items', $this->sql );
+		$this->afsFs = new LifecycleAfsFs();
+		$this->plugins = new LifecyclePlugins();
 		$this->queueComponent = new LifecycleQueueComponent();
 		$this->actionRouter = new LifecycleActionRouter();
 	}
@@ -79,7 +85,7 @@ class ScanQueueLifecycleHarness {
 			'service_request'   => new LifecycleRequest( $this->now ),
 			'service_wpdb'      => $this->sql,
 			'service_wpgeneral' => $general,
-			'service_wpplugins' => new LifecyclePlugins(),
+			'service_wpplugins' => $this->plugins,
 		] );
 		$this->installController();
 		$this->queueComponent->builder = new QueueBuilder();
@@ -114,8 +120,24 @@ class ScanQueueLifecycleHarness {
 
 		$this->controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
 		ServicesState::mergeItems( [
-			'service_wpfs' => new LifecycleAfsFs(),
+			'service_corefilehashes' => new LifecycleCoreFileHashes(),
+			'service_wpfs'            => $this->afsFs,
 		] );
+		return $this;
+	}
+
+	public function useRealAfsController() :self {
+		$this->queueComponent->scansComponent->useRealAfsController();
+		return $this;
+	}
+
+	public function setInstalledPluginFiles( array $pluginFiles ) :self {
+		$this->plugins->setInstalledPluginFiles( $pluginFiles );
+		return $this;
+	}
+
+	public function forceAfsIsFileFor( string $path ) :self {
+		$this->afsFs->forceIsFileFor( $path );
 		return $this;
 	}
 
@@ -182,15 +204,33 @@ class ScanQueueLifecycleHarness {
 		return $this->resultItemsDb->countConsumedInsertFailures();
 	}
 
+	/**
+	 * @return ResultItemsDB\Record[]
+	 */
+	public function resultItemRecords() :array {
+		return $this->resultItemsDb->insertedRecords();
+	}
+
 	private function installController() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->cfg = (object)[
-			'properties' => [
+			'configuration' => new class {
+				public function def( string $key ) :array {
+					unset( $key );
+					return [];
+				}
+			},
+			'properties'    => [
 				'slug_parent' => 'icwp',
 				'slug_plugin' => 'wpsf',
 			],
 		];
+		$controller->caps = new class {
+			public function canScanPluginsThemesRemote() :bool {
+				return false;
+			}
+		};
 		$controller->db_con = (object)[
 			'scans'                 => $this->scansDb,
 			'scan_items'            => $this->scanItemsDb,
@@ -221,6 +261,18 @@ class ScanQueueLifecycleHarness {
 		);
 		Functions\when( 'wp_json_encode' )->alias(
 			static fn( $value ) :string => \json_encode( $value ) ?: 'null'
+		);
+		Functions\when( 'wp_normalize_path' )->alias(
+			static fn( string $path ) :string => \str_replace( '\\', '/', $path )
+		);
+		Functions\when( 'trailingslashit' )->alias(
+			static fn( string $path ) :string => \rtrim( \str_replace( '\\', '/', $path ), '/' ).'/'
+		);
+		Functions\when( 'untrailingslashit' )->alias(
+			static fn( string $path ) :string => \rtrim( \str_replace( '\\', '/', $path ), '/' )
+		);
+		Functions\when( 'get_theme_root' )->alias(
+			static fn() :string => \str_replace( '\\', '/', WP_CONTENT_DIR.'/themes' )
 		);
 		Functions\when( 'is_wp_error' )->alias( static fn( $value ) :bool => $value instanceof \WP_Error );
 		Functions\when( 'plugins_api' )->alias(
@@ -467,6 +519,24 @@ class LifecycleSqliteDb extends Db {
 		return (int)$this->pdo->lastInsertId();
 	}
 
+	public function insertResultItem( array $data ) :int {
+		$columns = [
+			'scan',
+			'item_type',
+			'item_id',
+			'asset_type',
+			'asset_key',
+			'auto_filtered_at',
+			'last_seen_at',
+			'resolved_at',
+			'resolution_reason',
+			'item_repaired_at',
+			'item_deleted_at',
+		];
+		$this->insertRow( 'scan_result_items', \array_intersect_key( $data, \array_flip( $columns ) ) );
+		return (int)$this->pdo->lastInsertId();
+	}
+
 	public function updateRowById( string $table, int $id, array $data ) :bool {
 		if ( empty( $data ) ) {
 			return true;
@@ -630,9 +700,18 @@ class LifecycleSqliteDb extends Db {
 			`item_id` TEXT NOT NULL DEFAULT "",
 			`asset_type` TEXT NOT NULL DEFAULT "",
 			`asset_key` TEXT NOT NULL DEFAULT "",
+			`auto_filtered_at` INTEGER NOT NULL DEFAULT 0,
+			`last_seen_at` INTEGER NOT NULL DEFAULT 0,
 			`resolved_at` INTEGER NOT NULL DEFAULT 0,
+			`resolution_reason` TEXT NOT NULL DEFAULT "",
 			`item_repaired_at` INTEGER NOT NULL DEFAULT 0,
 			`item_deleted_at` INTEGER NOT NULL DEFAULT 0
+		)' );
+		$this->pdo->exec( 'CREATE TABLE `scan_result_item_meta` (
+			`id` INTEGER PRIMARY KEY AUTOINCREMENT,
+			`ri_ref` INTEGER NOT NULL DEFAULT 0,
+			`meta_key` TEXT NOT NULL DEFAULT "",
+			`meta_value` TEXT NOT NULL DEFAULT ""
 		)' );
 	}
 
@@ -1075,6 +1154,7 @@ class LifecycleEmptyDbHandler {
 	private ?LifecycleSqliteDb $db;
 	private bool $failNextInsert = false;
 	private int $consumedInsertFailures = 0;
+	private array $insertedRecords = [];
 
 	public function __construct( string $table, ?LifecycleSqliteDb $db = null ) {
 		$this->table = $table;
@@ -1100,6 +1180,30 @@ class LifecycleEmptyDbHandler {
 
 	public function countConsumedInsertFailures() :int {
 		return $this->consumedInsertFailures;
+	}
+
+	public function getRecord() :ResultItemsDB\Record {
+		return new ResultItemsDB\Record();
+	}
+
+	/**
+	 * @return ResultItemsDB\Record[]
+	 */
+	public function insertedRecords() :array {
+		return $this->insertedRecords;
+	}
+
+	public function insertRecord( $record ) :bool {
+		if ( $this->consumeInsertFailure() ) {
+			return false;
+		}
+		if ( $this->table === 'scan_result_items'
+			 && $record instanceof ResultItemsDB\Record
+			 && $this->db instanceof LifecycleSqliteDb ) {
+			$this->insertedRecords[] = $record;
+			$this->db->insertResultItem( $record->getRawData() );
+		}
+		return true;
 	}
 
 	public function getQuerySelector() :object {
@@ -1160,8 +1264,7 @@ class LifecycleEmptyDbHandler {
 			}
 
 			public function insert( $record ) :bool {
-				unset( $record );
-				return !$this->db->consumeInsertFailure();
+				return $this->db->insertRecord( $record );
 			}
 
 			public function setInsertData( array $data ) :self {
@@ -1210,7 +1313,7 @@ class LifecycleEmptyDbHandler {
 class LifecycleScansComponent {
 
 	/**
-	 * @var array<string,LifecycleScanController>
+	 * @var array<string,Base>
 	 */
 	private array $controllers = [];
 
@@ -1223,17 +1326,21 @@ class LifecycleScansComponent {
 		}
 	}
 
+	public function useRealAfsController() :void {
+		$this->controllers[ 'afs' ] = new LifecycleAfsScanController();
+	}
+
 	public function failBuildFor( string $slug ) :void {
-		if ( isset( $this->controllers[ $slug ] ) ) {
+		if ( ( $this->controllers[ $slug ] ?? null ) instanceof LifecycleScanController ) {
 			$this->controllers[ $slug ]->failBuild();
 		}
 	}
 
-	public function getScanCon( string $slug ) :?LifecycleScanController {
+	public function getScanCon( string $slug ) :?Base {
 		return $this->controllers[ $slug ] ?? null;
 	}
 
-	public function AFS() :LifecycleScanController {
+	public function AFS() :Base {
 		return $this->controllers[ 'afs' ];
 	}
 
@@ -1320,6 +1427,45 @@ class LifecycleScanController extends Base {
 		unset( $rawResult[ 'slug' ] );
 		$record->meta = $rawResult;
 		return $record;
+	}
+}
+
+class LifecycleAfsScanController extends AfsController {
+
+	public function getSlug() :string {
+		return 'afs';
+	}
+
+	public function isReady() :bool {
+		return true;
+	}
+
+	public function isEnabled() :bool {
+		return true;
+	}
+
+	public function isEnabledMalwareScanPHP() :bool {
+		return false;
+	}
+
+	public function isScanEnabledPlugins() :bool {
+		return true;
+	}
+
+	public function isScanEnabledThemes() :bool {
+		return false;
+	}
+
+	public function isScanEnabledWpContent() :bool {
+		return false;
+	}
+
+	public function isScanEnabledWpCore() :bool {
+		return false;
+	}
+
+	public function isScanEnabledWpRoot() :bool {
+		return false;
 	}
 }
 
@@ -1435,43 +1581,121 @@ class LifecycleGeneral extends General {
 
 class LifecycleAfsFs extends Fs {
 
+	private string $forcedIsFilePath = '';
+
+	public function forceIsFileFor( string $path ) :void {
+		$this->forcedIsFilePath = $this->normalise( $path );
+	}
+
 	public function exists( $path ) :?bool {
 		return \file_exists( $path );
 	}
 
+	public function isFile( $path ) :bool {
+		return $this->normalise( (string)$path ) === $this->forcedIsFilePath || \is_file( $path );
+	}
+
+	public function isAccessibleFile( string $path ) :bool {
+		return $path !== '' && $this->isFile( $path ) && $this->exists( $path );
+	}
+
+	public function isAbsPath( $path ) {
+		return \preg_match( '#^(?:[A-Z]:)?/#i', $this->normalise( (string)$path ) ) === 1;
+	}
+
+	public function mkdir( $path ) {
+		return \is_dir( $path ) || @\mkdir( $path, 0777, true );
+	}
+
+	public function isDir( string $path ) :bool {
+		return \is_dir( $path );
+	}
+
+	public function getAllFilesInDir( $dir, $includeDirs = true ) {
+		$items = [];
+		if ( \is_dir( (string)$dir ) ) {
+			foreach ( new \DirectoryIterator( (string)$dir ) as $item ) {
+				if ( !$item->isDot() && ( $item->isFile() || $includeDirs ) ) {
+					$items[] = $this->normalise( $item->getPathname() );
+				}
+			}
+		}
+		return $items;
+	}
+
 	public function getModifiedTime( string $path ) :int {
-		return (int)\filemtime( $path );
+		return (int)@\filemtime( $path );
+	}
+
+	public function getFileSize( $path ) :?int {
+		$size = @\filesize( $path );
+		return \is_int( $size ) ? $size : null;
 	}
 
 	public function getFileContent( $path, $uncompress = false ) {
-		$content = \file_get_contents( $path );
+		$content = @\file_get_contents( $path );
 		if ( \is_string( $content ) && $uncompress ) {
 			$inflated = \gzinflate( $content );
 			$content = \is_string( $inflated ) ? $inflated : null;
 		}
 		return $content;
 	}
+
+	public function putFileContent( $path, $contents, $compress = false ) :bool {
+		$dir = \dirname( (string)$path );
+		if ( !\is_dir( $dir ) ) {
+			@\mkdir( $dir, 0777, true );
+		}
+		return \file_put_contents( $path, $compress ? \gzdeflate( $contents ) : $contents ) !== false;
+	}
+
+	public function touch( $path, $time = null ) {
+		return @\touch( $path, $time ?? \time() );
+	}
+
+	private function normalise( string $path ) :string {
+		return \str_replace( '\\', '/', $path );
+	}
 }
 
 class LifecyclePlugins extends Plugins {
 
+	private array $installedPluginFiles = [];
+	private bool $restrictToInstalled = false;
+
+	public function setInstalledPluginFiles( array $pluginFiles ) :void {
+		$this->installedPluginFiles = \array_values( $pluginFiles );
+		$this->restrictToInstalled = true;
+	}
+
+	public function getInstalledPluginFiles() :array {
+		return $this->installedPluginFiles;
+	}
+
 	public function getPlugin( $file ) :array {
-		unset( $file );
-		return [];
+		return !$this->restrictToInstalled || \in_array( $file, $this->installedPluginFiles, true )
+			? [ 'Version' => '1.0.0' ]
+			: [];
 	}
 
 	public function getPluginAsVo( string $file, bool $reload = false ) :?WpPluginVo {
 		unset( $reload );
-		return \strpos( $file, '/' ) === false ? null : new LifecyclePluginVo( $file );
+		return ( $this->restrictToInstalled && !\in_array( $file, $this->installedPluginFiles, true ) )
+			   || \strpos( $file, '/' ) === false
+			? null
+			: new LifecyclePluginVo( $file, !$this->restrictToInstalled );
 	}
 }
 
 class LifecyclePluginVo extends WpPluginVo {
 
 	public string $file;
+	private bool $isWpOrg;
 
-	public function __construct( string $file ) {
+	public function __construct( string $file, bool $isWpOrg = true ) {
 		$this->file = $file;
+		$this->isWpOrg = $isWpOrg;
+		$this->applyFromArray( [ 'Version' => '1.0.0' ] );
 	}
 
 	public function __get( string $key ) {
@@ -1481,6 +1705,19 @@ class LifecyclePluginVo extends WpPluginVo {
 	}
 
 	public function isWpOrg() :bool {
-		return true;
+		return $this->isWpOrg;
+	}
+}
+
+class LifecycleCoreFileHashes extends CoreFileHashes {
+
+	public function isCoreFile( $file ) :bool {
+		unset( $file );
+		return false;
+	}
+
+	public function isCoreFileHashValid( $file ) :bool {
+		unset( $file );
+		return false;
 	}
 }

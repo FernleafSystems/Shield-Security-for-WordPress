@@ -47,6 +47,7 @@ class Retrieve {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
+	 * @return array<string,list<string>>
 	 * @throws AssetHashesNotFound|\Exception
 	 */
 	public function byVO( $vo ) :array {
@@ -55,7 +56,7 @@ class Retrieve {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
-	 * @return array{hashes:array, trusted_source:bool}
+	 * @return array{hashes:array<string,list<string>>, trusted_source:bool}
 	 * @throws AssetHashesNotFound|\Exception
 	 */
 	public function byVOWithSource( $vo ) :array {
@@ -95,7 +96,7 @@ class Retrieve {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
-	 * @return array{hashes:array, trusted_source:bool}
+	 * @return array{hashes:array<string,list<string>>, trusted_source:bool}
 	 * @throws \Exception
 	 */
 	private function fromLocalStoreWithMeta( $vo ) :array {
@@ -106,7 +107,7 @@ class Retrieve {
 			throw new AssetHashesNotFound( sprintf( __( 'Snapshot store metadata does not match asset: %s', 'wp-simple-firewall' ), $vo->slug ) );
 		}
 		return [
-			'hashes'         => $store->getSnapData(),
+			'hashes'         => ( new NormalizeHashMap() )->run( $store->getSnapData() ),
 			'trusted_source' => ( $store->getSnapMeta()[ 'live_hashes' ] ?? false ) === true,
 		];
 	}
@@ -119,7 +120,9 @@ class Retrieve {
 		if ( !self::con()->caps->canScanPluginsThemesRemote() && !$vo->isWpOrg() ) {
 			throw new \Exception( __( 'Insufficient permissions to use crowd-sourced hashes for premium plugins/themes.', 'wp-simple-firewall' ) );
 		}
-		$hashes = ( $vo->asset_type == 'plugin' ? new Query\Plugin() : new Query\Theme() )->getHashesFromVO( $vo );
+		$hashes = ( new NormalizeHashMap() )->run(
+			( $vo->asset_type == 'plugin' ? new Query\Plugin() : new Query\Theme() )->getHashesFromVO( $vo )
+		);
 		if ( empty( $hashes ) ) {
 			throw new \Exception( __( 'No crowd-sourced hashes available.', 'wp-simple-firewall' ) );
 		}

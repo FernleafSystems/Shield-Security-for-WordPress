@@ -133,16 +133,22 @@ class Store {
 	 */
 	private function readSnapData() :array {
 		$FS = Services::WpFs();
+		$snap = [];
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {
 			throw new \Exception( sprintf( __( "Snapshot store does not exist: '%s'", 'wp-simple-firewall' ), $this->getSnapStorePath() ) );
 		}
 
 		$encoded = $FS->getFileContent( $this->getSnapStorePath(), true );
-		if ( !empty( $encoded ) ) {
-			$snap = [];
+		if ( \is_string( $encoded ) && $encoded !== '' ) {
 			foreach ( \array_map( '\trim', \explode( "\n", $encoded ) ) as $line ) {
+				if ( $line === '' || \strpos( $line, self::SEPARATOR ) === false ) {
+					continue;
+				}
 				[ $file, $hash ] = \explode( self::SEPARATOR, $line, 2 );
+				if ( $file === '' || $hash === '' ) {
+					continue;
+				}
 				$snap[ $file ] = $hash;
 			}
 		}

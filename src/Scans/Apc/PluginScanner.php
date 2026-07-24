@@ -22,7 +22,12 @@ class PluginScanner {
 			return [];
 		}
 
-		$lastUpdatedAt = $this->getVerifiedWpOrgLastUpdatedAt( $plugin );
+		$installed = $this->getInstalledPluginData( $plugin );
+		if ( \is_null( $installed ) ) {
+			return [];
+		}
+
+		$lastUpdatedAt = $this->getVerifiedWpOrgLastUpdatedAt( $installed[ 'slug' ], $installed[ 'version' ] );
 		if ( \is_null( $lastUpdatedAt )
 			 || Services::Request()->ts() - $lastUpdatedAt <= $action->abandoned_limit ) {
 			return [];
@@ -40,21 +45,60 @@ class PluginScanner {
 	}
 
 	private function hasExternalUpdateUri( array $pluginData ) :bool {
-		return \trim( (string)( $pluginData[ 'UpdateURI' ] ?? $pluginData[ 'Update URI' ] ?? '' ) ) !== '';
+		foreach ( [ 'UpdateURI', 'Update URI' ] as $key ) {
+			if ( !\array_key_exists( $key, $pluginData ) ) {
+				continue;
+			}
+			if ( !\is_string( $pluginData[ $key ] ) ) {
+				return true;
+			}
+			if ( !\is_null( $this->nonEmptyString( $pluginData[ $key ] ) ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
-	private function getVerifiedWpOrgLastUpdatedAt( WpPluginVo $plugin ) :?int {
-		$slug = \trim( (string)$plugin->slug );
-		if ( $slug === '' ) {
-			return null;
+	/**
+	 * @return null|array{slug:string,version:string}
+	 */
+	private function getInstalledPluginData( WpPluginVo $plugin ) :?array {
+		$raw = $plugin->getRawData();
+		$slug = \array_key_exists( 'slug', $raw )
+			? $this->nonEmptyString( $raw[ 'slug' ] )
+			: $this->nonEmptyString( $plugin->slug );
+
+		if ( \array_key_exists( 'Version', $raw ) ) {
+			$version = $this->nonEmptyString( $raw[ 'Version' ] );
+		}
+		else {
+			$public = \get_object_vars( $plugin );
+			$version = \array_key_exists( 'Version', $public )
+				? $this->nonEmptyString( $public[ 'Version' ] )
+				: null;
 		}
 
+		return \is_null( $slug ) || \is_null( $version ) ? null : [
+			'slug'    => $slug,
+			'version' => $version,
+		];
+	}
+
+	private function getVerifiedWpOrgLastUpdatedAt( string $slug, string $installedVersion ) :?int {
 		$pluginInfo = $this->queryWpOrgPluginInfo( $slug );
-		if ( \is_null( $pluginInfo ) || !$this->isMatchingWpOrgPlugin( $plugin, $slug, $pluginInfo ) ) {
+		if ( \is_null( $pluginInfo ) ) {
 			return null;
 		}
 
-		return $this->parseLastUpdatedAt( $pluginInfo );
+		$api = $this->getApiPluginData( $pluginInfo );
+		if ( \is_null( $api )
+			 || \strcasecmp( $slug, $api[ 'slug' ] ) !== 0
+			 || \version_compare( $installedVersion, $api[ 'version' ], '>' ) ) {
+			return null;
+		}
+
+		$lastUpdate = \strtotime( $api[ 'last_updated' ] );
+		return $lastUpdate !== false && $lastUpdate > 0 ? $lastUpdate : null;
 	}
 
 	private function queryWpOrgPluginInfo( string $slug ) :?object {
@@ -71,25 +115,31 @@ class PluginScanner {
 		return \is_wp_error( $pluginInfo ) || !\is_object( $pluginInfo ) ? null : $pluginInfo;
 	}
 
-	private function isMatchingWpOrgPlugin( WpPluginVo $plugin, string $slug, object $pluginInfo ) :bool {
-		$apiSlug = \trim( (string)( $pluginInfo->slug ?? '' ) );
-		$installedVersion = \trim( (string)$plugin->Version );
-		$apiVersion = \trim( (string)( $pluginInfo->version ?? '' ) );
+	/**
+	 * @return null|array{slug:string,version:string,last_updated:string}
+	 */
+	private function getApiPluginData( object $pluginInfo ) :?array {
+		$public = \get_object_vars( $pluginInfo );
+		$data = [];
+		foreach ( [ 'slug', 'version', 'last_updated' ] as $key ) {
+			if ( !\array_key_exists( $key, $public ) ) {
+				return null;
+			}
+			$data[ $key ] = $this->nonEmptyString( $public[ $key ] );
+			if ( \is_null( $data[ $key ] ) ) {
+				return null;
+			}
+		}
 
-		return $apiSlug !== ''
-			   && \strcasecmp( $slug, $apiSlug ) === 0
-			   && $installedVersion !== ''
-			   && $apiVersion !== ''
-			   && !\version_compare( $installedVersion, $apiVersion, '>' );
+		return $data;
 	}
 
-	private function parseLastUpdatedAt( object $pluginInfo ) :?int {
-		$lastUpdated = \trim( (string)( $pluginInfo->last_updated ?? '' ) );
-		if ( $lastUpdated === '' ) {
+	private function nonEmptyString( $value ) :?string {
+		if ( !\is_string( $value ) ) {
 			return null;
 		}
 
-		$lastUpdate = \strtotime( $lastUpdated );
-		return $lastUpdate !== false && $lastUpdate > 0 ? $lastUpdate : null;
+		$value = \trim( $value );
+		return $value === '' ? null : $value;
 	}
 }

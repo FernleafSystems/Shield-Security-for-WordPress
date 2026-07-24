@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Config;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\{
+	PluginBadgeMode,
+	WildCardOptions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -33,6 +36,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'enable_x_content_security_policy',
 		'page_params_whitelist',
 		'request_whitelist',
+		'scan_path_exclusions',
 		'file_locker',
 		'instant_alert_admin_login',
 		'enable_admin_login_email_notification',
@@ -246,6 +250,54 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		if ( !Services::Data()->isWindows() ) {
 			$this->assertNotContains( 'root_webconfig', $fileLocker );
 		}
+	}
+
+	public function test_scan_path_exclusions_discard_malformed_members_at_option_correction() :void {
+		$con = $this->requireController();
+
+		$con->opts
+			->optSet( 'scan_path_exclusions', [
+				'  WP-CONTENT/CACHE/*  ',
+				'wp-content/custom[dir]/*.php',
+				12,
+				false,
+				null,
+				[],
+				'',
+			] )
+			->store();
+
+		$this->assertSame( [
+			'wp-content/cache/*',
+			'wp-content/custom[dir]/*.php',
+		], $con->opts->optGet( 'scan_path_exclusions' ) );
+
+		$wildcards = new WildCardOptions();
+		$literalWildcard = $wildcards->buildFullRegexValue(
+			'wp-content/custom[dir]/*.php',
+			WildCardOptions::FILE_PATH_REL
+		);
+		$this->assertSame( 1, \preg_match(
+			$literalWildcard,
+			\wp_normalize_path( \path_join( ABSPATH, 'wp-content/custom[dir]/example.php' ) )
+		) );
+		$this->assertSame( 0, \preg_match(
+			$literalWildcard,
+			\wp_normalize_path( \path_join( ABSPATH, 'wp-content/customXdir/example.php' ) )
+		) );
+
+		$subtreeWildcard = $wildcards->buildFullRegexValue(
+			'wp-content/cache/*',
+			WildCardOptions::FILE_PATH_REL
+		);
+		$this->assertSame( 1, \preg_match(
+			$subtreeWildcard,
+			\wp_normalize_path( \path_join( ABSPATH, 'wp-content/cache/nested/item.dat' ) )
+		) );
+		$this->assertSame( 0, \preg_match(
+			$subtreeWildcard,
+			\wp_normalize_path( \path_join( ABSPATH, 'wp-content/cache-copy/item.dat' ) )
+		) );
 	}
 
 	public function test_malformed_multiple_select_save_is_rejected_as_a_whole() :void {

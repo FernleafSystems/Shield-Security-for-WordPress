@@ -81,7 +81,7 @@ abstract class BaseScan {
 	protected function getSupportedFileExtensions() :array {
 		/** @var ScanActionVO $action */
 		$action = $this->getScanActionVO();
-		return \is_array( $action->file_exts ) ? $action->file_exts : [];
+		return $action->file_exts;
 	}
 
 	protected function isFileExcluded() :bool {
