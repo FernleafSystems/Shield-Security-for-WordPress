@@ -168,11 +168,12 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 	}
 
 	/**
-	 * @dataProvider providePersistedFileExtensions
+	 * @dataProvider providePersistedAfsActionConfig
 	 */
-	public function test_persisted_file_extensions_are_canonical_before_afs_processing(
+	public function test_persisted_afs_action_config_is_canonical_before_processing(
 		$fileExts,
-		bool $expectTrustedFileRecord
+		bool $expectTrustedFileRecord,
+		$maxFileSize = ScanActionVO::DEFAULT_MAX_FILE_SIZE
 	) :void {
 		$pluginFile = 'queue-file-exts/plugin.php';
 		$path = $this->writePluginFile( $pluginFile, "<?php\n// valid plugin fixture\n" );
@@ -182,7 +183,7 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 			'plugin.php' => \md5_file( $path ),
 		] );
 
-		$scanID = $this->insertReadyAfsWork( $harness, $path, $fileExts );
+		$scanID = $this->insertReadyAfsWork( $harness, $path, $fileExts, $maxFileSize );
 		$item = ( new QueueItems() )->next();
 		$this->assertNotNull( $item );
 		$this->assertSame( 1, $item->attempts );
@@ -199,12 +200,15 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		$this->assertSame( $expectTrustedFileRecord, ( new FileScanOptimiser() )->hasKnownValidFileRecords() );
 	}
 
-	public function providePersistedFileExtensions() :array {
+	public function providePersistedAfsActionConfig() :array {
 		return [
 			'null safely disables matching'   => [ null, false ],
 			'scalar safely disables matching' => [ ' PHP ', false ],
 			'associative preserves member'    => [ [ 'primary' => ' PHP ' ], true ],
 			'mixed preserves valid member'    => [ [ 12, ' PHP ', false, null ], true ],
+			'null max size uses default'       => [ [ 'php' ], true, null ],
+			'array max size uses default'      => [ [ 'php' ], true, [ 1 ] ],
+			'positive max size is preserved'   => [ [ 'php' ], false, 1 ],
 		];
 	}
 
@@ -219,7 +223,8 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 	private function insertReadyAfsWork(
 		ScanQueueLifecycleHarness $harness,
 		string $path,
-		$fileExts = [ 'php' ]
+		$fileExts = [ 'php' ],
+		$maxFileSize = ScanActionVO::DEFAULT_MAX_FILE_SIZE
 	) :int {
 		$scanID = $harness->insertScan( [
 			'scan'            => 'afs',
@@ -229,7 +234,7 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 			'meta'            => \base64_encode( \json_encode( [
 				'coverage_families' => [ ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY ],
 				'file_exts'         => $fileExts,
-				'max_file_size'     => 16777216,
+				'max_file_size'     => $maxFileSize,
 				'paths_whitelisted' => [],
 				'scan_root_dirs'    => [],
 				'usleep'            => 0,

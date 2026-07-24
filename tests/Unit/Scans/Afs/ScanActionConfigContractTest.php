@@ -35,7 +35,6 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 	use TempDirLifecycleTrait;
 
 	public const DEFAULT_EXTENSIONS = [ 'php', 'php5' ];
-	private const DEFAULT_MAX_FILE_SIZE = 16777216;
 
 	private static array $filterValues = [];
 
@@ -159,9 +158,34 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		];
 	}
 
+	/**
+	 * @dataProvider providePersistedMaxFileSizes
+	 */
+	public function test_reconstructed_action_publishes_canonical_max_file_size( array $meta, int $expected ) :void {
+		$action = ( new ScanActionVO() )->applyFromArray( $meta );
+
+		$this->assertSame( $expected, $action->max_file_size );
+		$this->assertSame( $expected, $action->getRawData()[ 'max_file_size' ] );
+	}
+
+	public function providePersistedMaxFileSizes() :array {
+		return [
+			'missing'        => [ [], ScanActionVO::DEFAULT_MAX_FILE_SIZE ],
+			'null'           => [ [ 'max_file_size' => null ], ScanActionVO::DEFAULT_MAX_FILE_SIZE ],
+			'false'          => [ [ 'max_file_size' => false ], ScanActionVO::DEFAULT_MAX_FILE_SIZE ],
+			'zero'           => [ [ 'max_file_size' => 0 ], ScanActionVO::DEFAULT_MAX_FILE_SIZE ],
+			'negative'       => [ [ 'max_file_size' => -1 ], ScanActionVO::DEFAULT_MAX_FILE_SIZE ],
+			'float'          => [ [ 'max_file_size' => 2048.0 ], ScanActionVO::DEFAULT_MAX_FILE_SIZE ],
+			'numeric string' => [ [ 'max_file_size' => '2048' ], ScanActionVO::DEFAULT_MAX_FILE_SIZE ],
+			'array'          => [ [ 'max_file_size' => [ 2048 ] ], ScanActionVO::DEFAULT_MAX_FILE_SIZE ],
+			'object'         => [ [ 'max_file_size' => new \stdClass() ], ScanActionVO::DEFAULT_MAX_FILE_SIZE ],
+			'positive int'   => [ [ 'max_file_size' => 2048 ], 2048 ],
+		];
+	}
+
 	public function test_reconstruction_respects_restricted_property_selection() :void {
 		$action = ( new ScanActionVO() )->applyFromArray(
-			[ 'scan' => 'afs', 'file_exts' => null ],
+			[ 'scan' => 'afs', 'file_exts' => null, 'max_file_size' => null ],
 			[ 'scan' ]
 		);
 
@@ -175,7 +199,7 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		self::$filterValues[ 'shield/file_scan_size_max' ] = $filtered;
 		$action = $this->prepareScanItems();
 
-		$this->assertSame( self::DEFAULT_MAX_FILE_SIZE, $action->max_file_size );
+		$this->assertSame( ScanActionVO::DEFAULT_MAX_FILE_SIZE, $action->max_file_size );
 	}
 
 	public function provideInvalidMaxFileSizes() :array {

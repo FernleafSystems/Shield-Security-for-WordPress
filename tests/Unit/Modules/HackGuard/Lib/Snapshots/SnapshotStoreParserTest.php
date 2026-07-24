@@ -36,7 +36,7 @@ class SnapshotStoreParserTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_parser_skips_malformed_lines_and_preserves_valid_siblings_and_duplicates() :void {
+	public function test_parser_skips_malformed_lines_preserves_valid_siblings_and_uses_last_duplicate() :void {
 		$store = ( new Store( new SnapshotStoreParserPluginVo(), true ) )
 			->setWorkingDir( $this->createTrackedTempDir( 'shield-snapshot-parser-' ) );
 		$content = \implode( "\n", [

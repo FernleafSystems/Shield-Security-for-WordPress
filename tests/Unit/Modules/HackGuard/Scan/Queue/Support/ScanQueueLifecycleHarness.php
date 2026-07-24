@@ -1701,7 +1701,11 @@ class LifecyclePluginVo extends WpPluginVo {
 	public function __get( string $key ) {
 		return $key === 'slug'
 			? \dirname( $this->file )
-			: ( $key === 'Version' ? '1.0.0' : parent::__get( $key ) );
+			: ( $key === 'Version'
+				? '1.0.0'
+				: ( $key === 'id'
+					? ( $this->isWpOrg ? 'w.org/plugins/'.\dirname( $this->file ) : 'example.com/plugins/'.\dirname( $this->file ) )
+					: parent::__get( $key ) ) );
 	}
 
 	public function isWpOrg() :bool {

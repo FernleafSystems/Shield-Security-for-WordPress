@@ -13,7 +13,6 @@ class BuildScanItems {
 	use ScanActionConsumer;
 
 	private const PROGRESS_TICK_EVERY = 1000;
-	private const DEFAULT_MAX_FILE_SIZE = 16*1024*1024;
 
 	protected function preBuild() {
 		$con = self::con();
@@ -95,10 +94,8 @@ class BuildScanItems {
 			fn( $value ) => ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::FILE_PATH_REL ),
 			$paths
 		);
-		$maxFileSize = apply_filters( 'shield/file_scan_size_max', self::DEFAULT_MAX_FILE_SIZE );
-		$action->max_file_size = \is_int( $maxFileSize ) && $maxFileSize > 0
-			? $maxFileSize
-			: self::DEFAULT_MAX_FILE_SIZE;
+		$maxFileSize = apply_filters( 'shield/file_scan_size_max', ScanActionVO::DEFAULT_MAX_FILE_SIZE );
+		$action->max_file_size = ScanActionVO::normalizeMaxFileSize( $maxFileSize );
 	}
 
 	/**

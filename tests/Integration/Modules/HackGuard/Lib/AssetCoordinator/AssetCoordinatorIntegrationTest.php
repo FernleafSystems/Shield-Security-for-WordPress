@@ -109,6 +109,99 @@ class AssetCoordinatorIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( get_option( $key, false ) );
 	}
 
+	public function test_isolated_wordpress_dispatch_ignores_hostile_values_and_preserves_valid_siblings() :void {
+		$hooks = [
+			'upgrader_post_install'     => [ 'onUpgraderPostInstall', true ],
+			'upgrader_process_complete' => [ 'onUpgraderProcessComplete', false ],
+			'deleted_plugin'            => [ 'onDeletedPlugin', false ],
+			'deleted_theme'             => [ 'onDeletedTheme', false ],
+		];
+		global $wp_filter;
+		$backups = [];
+		foreach ( $hooks as $hook => [ $method ] ) {
+			$this->assertNotFalse( has_filter( $hook, [ $this->coordinator, $method ] ) );
+		}
+		// Isolate the coordinator from unrelated production subscribers while retaining real WordPress dispatch.
+		foreach ( \array_keys( $hooks ) as $hook ) {
+			$backups[ $hook ] = $wp_filter[ $hook ] ?? null;
+			unset( $wp_filter[ $hook ] );
+		}
+
+		try {
+			foreach ( $hooks as $hook => $config ) {
+				[ $method, $isFilter ] = $config;
+				$isFilter
+					? add_filter( $hook, [ $this->coordinator, $method ], 10, 2 )
+					: add_action( $hook, [ $this->coordinator, $method ], 10, 2 );
+			}
+
+			$response = (object)[ 'destination' => 'installed' ];
+			$this->assertSame(
+				$response,
+				apply_filters( 'upgrader_post_install', $response, (object)[] )
+			);
+			do_action( 'deleted_plugin', 'partially-deleted/plugin.php', false );
+			do_action( 'deleted_theme', 'failed-theme', false );
+			do_action( 'deleted_plugin', 'truthy-plugin/plugin.php', '1' );
+			do_action( 'deleted_theme', 'truthy-theme', 1 );
+			do_action( 'deleted_theme', 'default-success-theme' );
+
+			$failedDeletionState = $this->coordinatorState();
+			$this->assertSame( [], $failedDeletionState );
+
+			$now = \FernleafSystems\Wordpress\Services\Services::Request()->ts();
+			do_action( 'upgrader_process_complete', null, (object)[] );
+			$afterDispatch = \FernleafSystems\Wordpress\Services\Services::Request()->ts();
+			$malformedUpgraderState = $this->coordinatorState();
+			$this->assertSame( 0, $malformedUpgraderState[ 'wpv' ][ 'attempts' ] );
+			$this->assertGreaterThanOrEqual( $now + 10, $malformedUpgraderState[ 'wpv' ][ 'due_at' ] );
+			$this->assertLessThanOrEqual( $afterDispatch + 10, $malformedUpgraderState[ 'wpv' ][ 'due_at' ] );
+			$this->assertSame( [
+				'plugin' => [],
+				'theme'  => [],
+				'core'   => [],
+			], $malformedUpgraderState[ 'assets' ] );
+			$this->assertSame( $response, apply_filters( 'upgrader_post_install', $response, [
+				'plugin' => [],
+				'theme'  => (object)[],
+			] ) );
+			do_action( 'upgrader_process_complete', null, [
+				'action'  => 'update',
+				'type'    => 'plugin',
+				'plugins' => [ [], (object)[], 123, '  ', self::PLUGIN ],
+			] );
+			do_action( 'upgrader_process_complete', null, [
+				'action' => 'update',
+				'type'   => 'theme',
+				'themes' => [ false, 1.5, self::THEME ],
+			] );
+			do_action( 'deleted_plugin', [], true );
+			do_action( 'deleted_theme', (object)[], true );
+			do_action( 'deleted_plugin', '0', true );
+			do_action( 'deleted_theme', ' 0 ', true );
+
+			$state = $this->coordinatorState();
+			$this->assertSame(
+				[ self::PLUGIN ],
+				\array_keys( $state[ 'assets' ][ 'plugin' ] )
+			);
+			$this->assertSame(
+				[ self::THEME ],
+				\array_keys( $state[ 'assets' ][ 'theme' ] )
+			);
+		}
+		finally {
+			foreach ( $backups as $hook => $backup ) {
+				if ( $backup === null ) {
+					unset( $wp_filter[ $hook ] );
+				}
+				else {
+					$wp_filter[ $hook ] = $backup;
+				}
+			}
+		}
+	}
+
 	private function clearCoordinatorCrons() :void {
 		$con = static::con();
 		if ( $con === null ) {
@@ -122,5 +215,12 @@ class AssetCoordinatorIntegrationTest extends ShieldIntegrationTestCase {
 		] as $hook ) {
 			wp_clear_scheduled_hook( $hook );
 		}
+	}
+
+	private function coordinatorState() :array {
+		$key = $this->requireController()->prefix( 'asset_coordinator_state' );
+		return is_multisite()
+			? get_site_option( $key, [] )
+			: get_option( $key, [] );
 	}
 }

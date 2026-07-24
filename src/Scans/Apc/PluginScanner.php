@@ -41,7 +41,12 @@ class PluginScanner {
 	}
 
 	private function isEligibleForWpOrgScan( WpPluginVo $plugin, array $pluginData ) :bool {
-		return !$this->hasExternalUpdateUri( $pluginData ) && $plugin->isWpOrg();
+		if ( $this->hasExternalUpdateUri( $pluginData ) ) {
+			return false;
+		}
+
+		$id = $plugin->id;
+		return \is_string( $id ) && $plugin->isWpOrg();
 	}
 
 	private function hasExternalUpdateUri( array $pluginData ) :bool {
@@ -64,9 +69,10 @@ class PluginScanner {
 	 */
 	private function getInstalledPluginData( WpPluginVo $plugin ) :?array {
 		$raw = $plugin->getRawData();
-		$slug = \array_key_exists( 'slug', $raw )
-			? $this->nonEmptyString( $raw[ 'slug' ] )
-			: $this->nonEmptyString( $plugin->slug );
+		if ( \array_key_exists( 'slug', $raw ) && \is_null( $this->nonEmptyString( $raw[ 'slug' ] ) ) ) {
+			return null;
+		}
+		$slug = $this->nonEmptyString( $plugin->slug );
 
 		if ( \array_key_exists( 'Version', $raw ) ) {
 			$version = $this->nonEmptyString( $raw[ 'Version' ] );

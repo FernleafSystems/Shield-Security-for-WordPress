@@ -44,6 +44,21 @@ class PluginScannerTest extends BaseUnitTest {
 		$this->assertSame( [], $result );
 	}
 
+	public function test_valid_raw_slug_uses_vo_resolved_slug_for_wp_org_lookup() :void {
+		$lastUpdatedAt = self::NOW - self::ABANDONED_LIMIT - 1;
+		$this->expectPluginApi(
+			$this->apiResponse( 'premium-cornerstone', '7.8.12', $lastUpdatedAt ),
+			'premium-cornerstone'
+		);
+
+		$result = $this->scan( new PluginScannerTestVo( 'premium-cornerstone', '7.8.12', true, [
+			'slug'    => 'cornerstone',
+			'Version' => '7.8.12',
+		] ) );
+
+		$this->assertSame( $lastUpdatedAt, $result[ 'last_updated_at' ] ?? null );
+	}
+
 	public function test_update_uri_bypasses_wp_org_api() :void {
 		Functions\expect( 'plugins_api' )->never();
 
@@ -110,6 +125,48 @@ class PluginScannerTest extends BaseUnitTest {
 		$result = $this->scan( new PluginScannerTestVo( 'cornerstone', '7.8.12', false ) );
 
 		$this->assertSame( [], $result );
+	}
+
+	public function test_wp_org_shaped_id_still_respects_vo_eligibility_contract() :void {
+		Functions\expect( 'plugins_api' )->never();
+
+		$result = $this->scan(
+			new PluginScannerTestVo( 'cornerstone', '0.8.1', false, null, 'w.org/plugins/cornerstone' )
+		);
+
+		$this->assertSame( [], $result );
+	}
+
+	/**
+	 * @dataProvider provideMalformedWpOrgIds
+	 */
+	public function test_malformed_wp_org_id_never_reaches_api_or_string_conversion( $id ) :void {
+		PluginScannerStringableValue::$calls = 0;
+		Functions\expect( 'plugins_api' )->never();
+
+		try {
+			$this->assertSame(
+				[],
+				$this->scan( new PluginScannerTestVo( 'cornerstone', '0.8.1', true, null, $id ) )
+			);
+			$this->assertSame( 0, PluginScannerStringableValue::$calls );
+		}
+		finally {
+			\is_resource( $id ) && \fclose( $id );
+		}
+	}
+
+	public function provideMalformedWpOrgIds() :array {
+		return [
+			'null'               => [ null ],
+			'boolean'            => [ true ],
+			'integer'            => [ 12 ],
+			'float'              => [ 1.2 ],
+			'array'              => [ [] ],
+			'object'             => [ new \stdClass() ],
+			'string-convertible' => [ new PluginScannerStringableValue() ],
+			'resource'           => [ \fopen( 'php://memory', 'rb' ) ],
+		];
 	}
 
 	/**
@@ -260,7 +317,7 @@ class PluginScannerTest extends BaseUnitTest {
 			'last_updated' => ' '.$this->date( $lastUpdatedAt ).' ',
 		] );
 
-		$result = $this->scan( new PluginScannerTestVo( 'fallback-unused', 'fallback-unused', true, [
+		$result = $this->scan( new PluginScannerTestVo( ' cornerstone ', 'fallback-unused', true, [
 			'slug'    => ' cornerstone ',
 			'Version' => ' 0.8.1 ',
 		] ) );
@@ -289,11 +346,11 @@ class PluginScannerTest extends BaseUnitTest {
 			->scan( 'cornerstone/cornerstone.php' );
 	}
 
-	private function expectPluginApi( $response ) :void {
+	private function expectPluginApi( $response, string $slug = 'cornerstone' ) :void {
 		Functions\expect( 'plugins_api' )
 			->once()
 			->with( 'plugin_information', [
-				'slug'   => 'cornerstone',
+				'slug'   => $slug,
 				'fields' => [
 					'sections' => false,
 				],
@@ -342,15 +399,22 @@ class PluginScannerTestVo extends WpPluginVo {
 
 	private bool $isWpOrg;
 
-	public function __construct( $slug, $version, bool $isWpOrg = true, ?array $raw = null ) {
+	private $pluginId;
+
+	public function __construct( $slug, $version, bool $isWpOrg = true, ?array $raw = null, $pluginId = null ) {
 		$this->pluginSlug = $slug;
 		$this->pluginVersion = $version;
 		$this->isWpOrg = $isWpOrg;
+		$this->pluginId = \func_num_args() >= 5
+			? $pluginId
+			: ( $isWpOrg ? 'w.org/plugins/cornerstone' : 'example.com/plugins/cornerstone' );
 		$this->applyFromArray( $raw ?? [ 'Version' => $version ] );
 	}
 
 	public function __get( string $key ) {
-		return $key === 'slug' ? $this->pluginSlug : ( $key === 'Version' ? $this->pluginVersion : null );
+		return $key === 'slug'
+			? $this->pluginSlug
+			: ( $key === 'Version' ? $this->pluginVersion : ( $key === 'id' ? $this->pluginId : null ) );
 	}
 
 	public function isWpOrg() :bool {
