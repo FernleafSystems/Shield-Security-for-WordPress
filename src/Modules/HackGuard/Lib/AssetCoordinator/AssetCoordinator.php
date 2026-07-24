@@ -118,7 +118,7 @@ class AssetCoordinator {
 	}
 
 	public function discoverMissingSnapshots() :void {
-		if ( !\is_main_network() || self::con()->is_my_upgrade ) {
+		if ( !\is_main_network() || self::con()->is_my_upgrade || self::con()->plugin_deleting ) {
 			return;
 		}
 

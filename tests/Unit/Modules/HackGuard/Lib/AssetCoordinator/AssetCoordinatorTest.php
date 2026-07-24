@@ -260,6 +260,20 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
 	}
 
+	public function test_shutdown_discovery_skips_plugin_deletion() :void {
+		ServicesState::mergeItems( [
+			'service_wpplugins' => new SnapshotPlugins( [
+				new SnapshotPluginVo( 'missing-snapshot/plugin.php', '1.0.0' ),
+			] ),
+		] );
+		$this->controller->plugin_deleting = true;
+
+		( new AssetCoordinator() )->discoverMissingSnapshots();
+
+		$this->assertArrayNotHasKey( $this->optionKey(), $this->options );
+		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
+	}
+
 	public function test_shutdown_discovery_does_not_enqueue_when_no_snapshot_is_missing() :void {
 		( new AssetCoordinator() )->discoverMissingSnapshots();
 
@@ -291,6 +305,52 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			\array_column( $this->cronEvents( 'icwp-wpsf-asset_coordinator' ), 'timestamp' )
 		);
 		$this->assertSame( [], $this->unscheduled );
+	}
+
+	public function test_stale_later_wakeup_does_no_work_and_reconciles_future_state() :void {
+		$this->options[ $this->optionKey() ] = [
+			'assets' => [
+				'plugin' => [
+					'first/plugin.php' => [ 'attempts' => 0, 'due_at' => 1700000050 ],
+				],
+				'theme' => [],
+				'core' => [],
+			],
+		];
+		$this->addCron( 1700000200, 'icwp-wpsf-asset_coordinator', [ 1700000200 ] );
+		$coordinator = new AssetCoordinator();
+
+		$coordinator->reconcileWakeup();
+		$this->assertSame(
+			[ 1700000050, 1700000200 ],
+			\array_column( $this->cronEvents( 'icwp-wpsf-asset_coordinator' ), 'timestamp' )
+		);
+
+		unset( $this->scheduled[ 1700000050 ]['icwp-wpsf-asset_coordinator'] );
+		$this->request->timestamp = 1700000050;
+		$coordinator->runDueWork( 1700000050 );
+		$this->assertSame( [ [ 'plugin', 'first/plugin.php' ] ], $this->scans->assets );
+		$this->assertSame( [], $this->state()[ 'assets' ][ 'plugin' ] );
+
+		$this->assertTrue( $coordinator->enqueueAsset( 'theme', 'future-theme', 310 ) );
+		$this->assertSame(
+			[ 1700000200 ],
+			\array_column( $this->cronEvents( 'icwp-wpsf-asset_coordinator' ), 'timestamp' )
+		);
+
+		unset( $this->scheduled[ 1700000200 ]['icwp-wpsf-asset_coordinator'] );
+		$this->request->timestamp = 1700000200;
+		$coordinator->runDueWork( 1700000200 );
+
+		$this->assertSame( [ [ 'plugin', 'first/plugin.php' ] ], $this->scans->assets );
+		$this->assertSame(
+			[ 'attempts' => 0, 'due_at' => 1700000360 ],
+			$this->state()[ 'assets' ][ 'theme' ]['future-theme']
+		);
+		$this->assertSame(
+			[ 1700000360 ],
+			\array_column( $this->cronEvents( 'icwp-wpsf-asset_coordinator' ), 'timestamp' )
+		);
 	}
 
 	public function test_empty_state_never_removes_stale_wakeup() :void {
@@ -393,6 +453,22 @@ class AssetCoordinatorTest extends BaseUnitTest {
 				'plugin' => [
 					'terminal/plugin.php' => [ 'attempts' => 3, 'due_at' => 0 ],
 				],
+				'theme' => [
+					'valid-theme' => [ 'attempts' => 0, 'due_at' => 1700000005 ],
+				],
+				'core' => [],
+			],
+		], $this->state() );
+	}
+
+	public function test_non_array_state_normalizes_before_merge() :void {
+		$this->options[ $this->optionKey() ] = 'not-state';
+
+		$this->assertTrue( ( new AssetCoordinator() )->enqueueAsset( 'theme', ' valid-theme ', 5 ) );
+
+		$this->assertSame( [
+			'assets' => [
+				'plugin' => [],
 				'theme' => [
 					'valid-theme' => [ 'attempts' => 0, 'due_at' => 1700000005 ],
 				],
