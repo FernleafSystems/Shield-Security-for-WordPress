@@ -18,6 +18,112 @@ class LoginRequestValuesTest extends BaseUnitTest {
 	}
 
 	/**
+	 * @dataProvider loginIntentRenderDataProvider
+	 */
+	public function test_build_login_intent_render_data_contract(
+		array $input,
+		string $redirectFallback,
+		array $expected
+	) :void {
+		$actual = LoginRequestValues::buildLoginIntentRenderData( $input, $redirectFallback );
+
+		$this->assertSame( $expected, $actual );
+		$this->assertSame(
+			[
+				'user_id',
+				'include_body',
+				'plain_login_nonce',
+				'interim_login',
+				'redirect_to',
+				'rememberme',
+				'cancel_href',
+				'msg_error',
+				'interim_message',
+			],
+			\array_keys( $actual )
+		);
+		$this->assertIsInt( $actual[ 'user_id' ] );
+		$this->assertIsBool( $actual[ 'include_body' ] );
+		foreach ( \array_slice( $actual, 2 ) as $value ) {
+			$this->assertIsString( $value );
+		}
+	}
+
+	public static function loginIntentRenderDataProvider() :array {
+		return [
+			'exact values' => [
+				[
+					'user_id'           => 42,
+					'include_body'      => true,
+					'plain_login_nonce' => 'nonce',
+					'interim_login'     => '1',
+					'redirect_to'       => '/target',
+					'rememberme'        => 'forever',
+					'cancel_href'       => '/cancel',
+					'msg_error'         => 'error',
+					'interim_message'   => 'interim',
+				],
+				'/fallback',
+				[
+					'user_id'           => 42,
+					'include_body'      => true,
+					'plain_login_nonce' => 'nonce',
+					'interim_login'     => '1',
+					'redirect_to'       => '/target',
+					'rememberme'        => 'forever',
+					'cancel_href'       => '/cancel',
+					'msg_error'         => 'error',
+					'interim_message'   => 'interim',
+				],
+			],
+			'malformed optional values' => [
+				[
+					'user_id'           => 7,
+					'include_body'      => false,
+					'plain_login_nonce' => 'other-nonce',
+					'interim_login'     => [ '1' ],
+					'redirect_to'       => [ '/target' ],
+					'rememberme'        => new \stdClass(),
+					'cancel_href'       => true,
+				],
+				'/request-path',
+				[
+					'user_id'           => 7,
+					'include_body'      => false,
+					'plain_login_nonce' => 'other-nonce',
+					'interim_login'     => '',
+					'redirect_to'       => '/request-path',
+					'rememberme'        => '',
+					'cancel_href'       => '',
+					'msg_error'         => '',
+					'interim_message'   => '',
+				],
+			],
+			'unsafe redirects and omitted optionals' => [
+				[
+					'user_id'           => 1,
+					'include_body'      => true,
+					'plain_login_nonce' => 'nonce',
+					'redirect_to'       => 'https://evil.example/target',
+					'cancel_href'       => 'https://evil.example/cancel',
+				],
+				'/safe-fallback',
+				[
+					'user_id'           => 1,
+					'include_body'      => true,
+					'plain_login_nonce' => 'nonce',
+					'interim_login'     => '',
+					'redirect_to'       => '/safe-fallback',
+					'rememberme'        => '',
+					'cancel_href'       => '',
+					'msg_error'         => '',
+					'interim_message'   => '',
+				],
+			],
+		];
+	}
+
+	/**
 	 * @dataProvider userIdProvider
 	 */
 	public function test_positive_user_id_contract( $value, ?int $expected ) :void {

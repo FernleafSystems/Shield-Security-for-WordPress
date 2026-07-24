@@ -33,6 +33,7 @@ class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
+		$data = $this->loginIntentRenderData();
 		return [
 			'content' => [
 				'header' => $con->action_router->render( Components\WpLoginReplicaHeader::class,
@@ -40,17 +41,10 @@ class WpReplicaLoginIntentPage extends BaseLoginIntentPage {
 						'title' => __( 'Login 2FA Verification', 'wp-simple-firewall' )
 					] )
 				),
-				'body'   => $this->action_data[ 'include_body' ] ?
+				'body'   => $data[ 'include_body' ] ?
 					$con->action_router->render( Components\WpLoginReplicaBody::class, $this->action_data ) : '',
 				'footer' => $con->action_router->render( Components\WpLoginReplicaFooter::class, $this->action_data ),
 			]
-		];
-	}
-
-	protected function getRequiredDataKeys() :array {
-		return [
-			'user_id',
-			'include_body',
 		];
 	}
 }

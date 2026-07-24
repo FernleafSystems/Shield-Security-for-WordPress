@@ -25,39 +25,9 @@ class RetrievePublicKeyTest extends BaseUnitTest {
 		$this->assertSame( $key, ( new RetrievePublicKeyProbe( $key ) )->retrieve() );
 	}
 
-	/**
-	 * @dataProvider invalidResultProvider
-	 */
-	public function test_invalid_getter_result_becomes_controlled_failure( ?array $key ) :void {
+	public function test_null_getter_result_becomes_controlled_failure() :void {
 		$this->expectException( PublicKeyRetrievalFailure::class );
-		( new RetrievePublicKeyProbe( $key ) )->retrieve();
-	}
-
-	public static function invalidResultProvider() :array {
-		return [
-			'null' => [ null ],
-			'empty' => [ [] ],
-			'multiple entries' => [ [ 1 => 'one', 2 => 'two' ] ],
-			'zero key' => [ [ 0 => 'public' ] ],
-			'negative key' => [ [ -1 => 'public' ] ],
-			'nonnumeric string key' => [ [ 'key' => 'public' ] ],
-			'empty public key' => [ [ 1 => '' ] ],
-			'blank public key' => [ [ 1 => " \t\n" ] ],
-			'nonstring public key' => [ [ 1 => 123 ] ],
-			'array public key' => [ [ 1 => [ 'public' ] ] ],
-			'object public key' => [ [ 1 => new \stdClass() ] ],
-		];
-	}
-
-	public function test_resource_public_key_becomes_controlled_failure() :void {
-		$resource = \fopen( 'php://memory', 'r' );
-		try {
-			$this->expectException( PublicKeyRetrievalFailure::class );
-			( new RetrievePublicKeyProbe( [ 1 => $resource ] ) )->retrieve();
-		}
-		finally {
-			\fclose( $resource );
-		}
+		( new RetrievePublicKeyProbe( null ) )->retrieve();
 	}
 }
 

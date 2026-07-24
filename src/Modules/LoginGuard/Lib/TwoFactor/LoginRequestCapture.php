@@ -60,15 +60,15 @@ class LoginRequestCapture {
 					$con->action_router->action( FullPageDisplayDynamic::class, [
 						'render_slug' => $con->opts->optIs( 'mfa_verify_page', MfaController::LOGIN_INTENT_PAGE_FORMAT_SHIELD ) ?
 							ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
-						'render_data' => [
+						'render_data' => LoginRequestValues::buildLoginIntentRenderData( [
 							'user_id'           => $user->ID,
 							'include_body'      => true,
 							'plain_login_nonce' => $loginNonce,
-							'interim_login'     => LoginRequestValues::tokenValue( $req->request( 'interim-login', false, '' ), '1' ),
-							'redirect_to'       => LoginRequestValues::safeRedirect( $req->request( 'redirect_to', false, '' ), $redirectFallback ),
-							'rememberme'        => LoginRequestValues::tokenValue( $req->request( 'rememberme', false, '' ), 'forever' ),
-							'msg_error'         => '',
-						],
+							'interim_login'     => $req->request( 'interim-login', false, '' ),
+							'redirect_to'       => $req->request( 'redirect_to', false, '' ),
+							'rememberme'        => $req->request( 'rememberme', false, '' ),
+							'cancel_href'       => $req->request( 'cancel_href', false, '' ),
+						], $redirectFallback ),
 					] );
 				}
 				catch ( ActionException $e ) {

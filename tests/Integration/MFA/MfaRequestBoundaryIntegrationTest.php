@@ -179,6 +179,56 @@ class MfaRequestBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( '/safe-cancel', $this->responseCapture->redirectUrl );
 	}
 
+	public function test_failed_verification_retry_emits_canonical_render_data() :void {
+		$user = \get_user_by( 'id', $this->createAdministratorUser() );
+		$secret = 'JBSWY3DPEHPK3PXP';
+		TestDataFactory::insertMfaRecord( $user->ID, GoogleAuth::ProviderSlug(), [], [
+			'unique_id' => $secret,
+			'label'     => 'Retry GA',
+		] );
+		RuntimeTestState::resetMfaProviderCache();
+		$this->seedLoginIntent( $user, 'retry-nonce' );
+		$provider = new GoogleAuth( $user );
+		$validCode = ( new OtpGenerator() )->calculateCode( $secret );
+		$invalidCode = ( $validCode[ 0 ] === '0' ? '1' : '0' ).\substr( $validCode, 1 );
+		$this->applyCurrentRequestState( [
+			'REQUEST_METHOD' => 'POST',
+			'REQUEST_URI'    => '/wp-login.php',
+		], [], [
+			'wp_user_id' => (string)$user->ID,
+			'login_nonce' => 'retry-nonce',
+			$provider->getLoginIntentFormParameter() => $invalidCode,
+			'rememberme' => [ 'forever' ],
+			'interim-login' => [ '1' ],
+			'redirect_to' => [ '/invalid-shape' ],
+			'cancel_href' => [ '/invalid-shape' ],
+		] );
+
+		$con = $this->requireController();
+		$originalRouter = $con->action_router;
+		$renderCalls = [];
+		$con->action_router = new MfaBoundaryActionCapture( $originalRouter, $renderCalls );
+		try {
+			$this->runMfaVerifyStep();
+		}
+		finally {
+			$con->action_router = $originalRouter;
+		}
+
+		$this->assertCount( 1, $renderCalls );
+		$renderData = $renderCalls[ 0 ][ 'render_data' ] ?? [];
+		$this->assertCanonicalRenderData( $renderData );
+		$this->assertSame( $user->ID, $renderData[ 'user_id' ] );
+		$this->assertTrue( $renderData[ 'include_body' ] );
+		$this->assertSame( 'retry-nonce', $renderData[ 'plain_login_nonce' ] );
+		$this->assertSame( '', $renderData[ 'interim_login' ] );
+		$this->assertSame( '/wp-login.php', $renderData[ 'redirect_to' ] );
+		$this->assertSame( '', $renderData[ 'rememberme' ] );
+		$this->assertSame( '', $renderData[ 'cancel_href' ] );
+		$this->assertNotSame( '', $renderData[ 'msg_error' ] );
+		$this->assertSame( '', $renderData[ 'interim_message' ] );
+	}
+
 	public function test_valid_mfa_rejects_malformed_tokens_and_revalidates_final_redirect() :void {
 		$this->captureShieldEvents();
 		$user = \get_user_by( 'id', $this->createAdministratorUser() );
@@ -277,8 +327,17 @@ class MfaRequestBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $remembered );
 		$this->assertTrue( $interim_login );
 		$this->assertCount( 1, $renderCalls );
-		$this->assertSame( '1', $renderCalls[ 0 ][ 'render_data' ][ 'interim_login' ] ?? null );
-		$this->assertSame( 'forever', $renderCalls[ 0 ][ 'render_data' ][ 'rememberme' ] ?? null );
+		$renderData = $renderCalls[ 0 ][ 'render_data' ] ?? [];
+		$this->assertCanonicalRenderData( $renderData );
+		$this->assertSame( $user->ID, $renderData[ 'user_id' ] );
+		$this->assertFalse( $renderData[ 'include_body' ] );
+		$this->assertSame( 'exact-token-nonce', $renderData[ 'plain_login_nonce' ] );
+		$this->assertSame( '1', $renderData[ 'interim_login' ] );
+		$this->assertSame( 'forever', $renderData[ 'rememberme' ] );
+		$this->assertSame( '/safe-success', $renderData[ 'redirect_to' ] );
+		$this->assertSame( '', $renderData[ 'cancel_href' ] );
+		$this->assertSame( '', $renderData[ 'msg_error' ] );
+		$this->assertNotSame( '', $renderData[ 'interim_message' ] );
 		$this->assertSame( '/safe-success', $this->responseCapture->redirectUrl );
 		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
 		$this->assertNotEmpty( $this->requireController()->user_metas->for( $user )->hash_loginmfa );
@@ -320,6 +379,25 @@ class MfaRequestBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 	private function runMfaVerifyStep() :void {
 		$this->requireController()->action_router->action( MfaLoginVerifyStep::class );
 		\do_action( 'wp_loaded' );
+	}
+
+	private function assertCanonicalRenderData( array $renderData ) :void {
+		$this->assertSame( [
+			'user_id',
+			'include_body',
+			'plain_login_nonce',
+			'interim_login',
+			'redirect_to',
+			'rememberme',
+			'cancel_href',
+			'msg_error',
+			'interim_message',
+		], \array_keys( $renderData ) );
+		$this->assertIsInt( $renderData[ 'user_id' ] );
+		$this->assertIsBool( $renderData[ 'include_body' ] );
+		foreach ( \array_slice( $renderData, 2 ) as $value ) {
+			$this->assertIsString( $value );
+		}
 	}
 
 	private function seedLoginIntent( \WP_User $user, string $plainNonce ) :void {

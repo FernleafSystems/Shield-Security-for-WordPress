@@ -5,6 +5,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\FileLocker;
 class GetPublicKey extends \FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\Common\BaseShieldNetApiV2 {
 	public const API_ACTION = 'filelocker/public_key';
 
+	/**
+	 * @return array<int,string>|null
+	 */
 	public function retrieve(): ?array {
 		$raw = $this->sendReq();
 		if ( !\is_array( $raw )

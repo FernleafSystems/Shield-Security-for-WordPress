@@ -20,6 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\LoginRequestValues;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -153,11 +154,10 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 			true
 		);
 
-		$action = new BaseFormTestDouble( [
-			'user_id'           => 42,
-			'plain_login_nonce' => 'login-nonce',
-			'rememberme'        => 'forever',
-		] );
+		$action = new BaseFormTestDouble( $this->renderData( [
+			'rememberme'  => 'forever',
+			'redirect_to' => '/target',
+		] ) );
 
 		$data = $action->commonFormDataForTest();
 
@@ -201,7 +201,28 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_base_form_normalizes_hostile_hidden_field_values() :void {
+	public function test_base_form_emits_canonical_hidden_fields_and_literal_interim_global() :void {
+		$this->installMfaEnvironment( [], 0, false );
+		global $interim_login;
+		$interim_login = true;
+
+		$fields = ( new BaseFormTestDouble( $this->renderData( [
+			'plain_login_nonce' => 'nonce',
+			'rememberme'        => 'forever',
+			'interim_login'     => '',
+			'redirect_to'       => '/safe-target',
+			'cancel_href'       => '/safe-cancel',
+		] ) ) )->hiddenFieldsForTest();
+
+		$this->assertSame( 42, $fields[ 'wp_user_id' ] );
+		$this->assertSame( 'nonce', $fields[ 'login_nonce' ] );
+		$this->assertSame( 'forever', $fields[ 'rememberme' ] );
+		$this->assertSame( '1', $fields[ 'interim-login' ] );
+		$this->assertSame( '/safe-target', $fields[ 'redirect_to' ] );
+		$this->assertSame( '/safe-cancel', $fields[ 'cancel_href' ] );
+	}
+
+	public function test_base_form_ignores_non_string_referer_for_cancel_fallback() :void {
 		$this->installMfaEnvironment( [], 0, false );
 		ServicesState::mergeItems( [
 			'service_request' => new class extends UnitTestRequest {
@@ -213,110 +234,48 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 					return '/current-path';
 				}
 			},
-			'service_data' => new class extends \FernleafSystems\Wordpress\Services\Utilities\Data {
-				public function isValidWebUrl( $url ) :bool {
-					return \is_string( $url ) && \filter_var( $url, \FILTER_VALIDATE_URL ) !== false;
-				}
-			},
-		] );
-		global $interim_login;
-		$interim_login = 'truthy-but-invalid';
-		$action = new BaseFormTestDouble( [
-			'user_id'           => [ 42 ],
-			'plain_login_nonce' => [ 'nonce' ],
-			'rememberme'        => [ 'forever' ],
-			'interim_login'     => [ '1' ],
-			'redirect_to'       => [ '/target' ],
-			'cancel_href'       => new \stdClass(),
 		] );
 
-		$fields = $action->hiddenFieldsForTest();
+		$fields = ( new BaseFormTestDouble( $this->renderData( [
+			'redirect_to' => '/canonical-target',
+		] ) ) )->hiddenFieldsForTest();
 
-		$this->assertSame( 0, $fields[ 'wp_user_id' ] );
-		$this->assertSame( '/current-path', $fields[ 'redirect_to' ] );
-		$this->assertArrayNotHasKey( 'login_nonce', $fields );
-		$this->assertArrayNotHasKey( 'rememberme', $fields );
-		$this->assertArrayNotHasKey( 'interim-login', $fields );
+		$this->assertSame( '/canonical-target', $fields[ 'redirect_to' ] );
 		$this->assertArrayNotHasKey( 'cancel_href', $fields );
-	}
-
-	public function test_base_form_preserves_only_exact_hidden_field_tokens() :void {
-		$this->installMfaEnvironment( [], 0, false );
-		global $interim_login;
-		$interim_login = true;
-
-		$fields = ( new BaseFormTestDouble( [
-			'user_id'           => '42',
-			'plain_login_nonce' => 'nonce',
-			'rememberme'        => 'forever',
-			'interim_login'     => 'wrong-but-global-is-literal-true',
-			'redirect_to'       => '/safe-target',
-			'cancel_href'       => '/safe-cancel',
-		] ) )->hiddenFieldsForTest();
-
-		$this->assertSame( 42, $fields[ 'wp_user_id' ] );
-		$this->assertSame( 'nonce', $fields[ 'login_nonce' ] );
-		$this->assertSame( 'forever', $fields[ 'rememberme' ] );
-		$this->assertSame( '1', $fields[ 'interim-login' ] );
-		$this->assertSame( '/safe-target', $fields[ 'redirect_to' ] );
-		$this->assertSame( '/safe-cancel', $fields[ 'cancel_href' ] );
-	}
-
-	public function test_base_form_rejects_structured_redirect_from_referer_query() :void {
-		$this->installMfaEnvironment( [], 0, false );
-		ServicesState::mergeItems( [
-			'service_request' => new class extends UnitTestRequest {
-				public function server( $key, $default = null ) {
-					return $key === 'HTTP_REFERER'
-						? 'http://example.com/wp-login.php?redirect_to%5B%5D=%2Fattacker-shape'
-						: $default;
-				}
-
-				public function getPath() :string {
-					return '/current-path';
-				}
-			},
-		] );
-
-		$fields = ( new BaseFormTestDouble( [] ) )->hiddenFieldsForTest();
-
-		$this->assertSame( '/current-path', $fields[ 'redirect_to' ] );
-		$this->assertSame( '/wp-login.php', $fields[ 'cancel_href' ] );
 	}
 
 	public function test_base_form_ignores_unknown_positive_user_id() :void {
 		$this->installMfaEnvironment( [], 0, false, false );
 
-		$data = ( new BaseFormTestDouble( [ 'user_id' => 42 ] ) )->commonFormDataForTest();
+		$data = ( new BaseFormTestDouble( $this->renderData() ) )->commonFormDataForTest();
 
 		$this->assertSame( [], $data[ 'content' ][ 'login_fields' ] );
 	}
 
-	public function test_login_intent_javascript_normalizes_hostile_action_data() :void {
+	public function test_login_intent_javascript_preserves_canonical_action_data_and_stable_keys() :void {
 		$this->installMfaEnvironment( [], 0, false );
 
-		$data = ( new BaseLoginIntentPageTestDouble( [
-			'user_id'           => [ 42 ],
-			'plain_login_nonce' => [ 'nonce' ],
-			'redirect_to'       => [ '/target' ],
-		] ) )->getLoginIntentJavascript();
+		$data = ( new BaseLoginIntentPageTestDouble( $this->renderData( [
+			'plain_login_nonce' => 'nonce',
+			'redirect_to'       => '/target',
+		] ) ) )->getLoginIntentJavascript();
 
-		$this->assertSame( 0, $data[ 'ajax' ][ 'passkey_auth_start' ][ 'login_wp_user' ] ?? null );
-		$this->assertSame( '', $data[ 'ajax' ][ 'passkey_auth_start' ][ 'login_nonce' ] ?? null );
-		$this->assertSame( 0, $data[ 'ajax' ][ 'email_code_send' ][ 'wp_user_id' ] ?? null );
-		$this->assertSame( '', $data[ 'ajax' ][ 'email_code_send' ][ 'login_nonce' ] ?? null );
-		$this->assertSame( '/current-path', $data[ 'ajax' ][ 'email_code_send' ][ 'redirect_to' ] ?? null );
+		$this->assertSame( 42, $data[ 'ajax' ][ 'passkey_auth_start' ][ 'login_wp_user' ] ?? null );
+		$this->assertSame( 'nonce', $data[ 'ajax' ][ 'passkey_auth_start' ][ 'login_nonce' ] ?? null );
+		$this->assertSame( 42, $data[ 'ajax' ][ 'email_code_send' ][ 'wp_user_id' ] ?? null );
+		$this->assertSame( 'nonce', $data[ 'ajax' ][ 'email_code_send' ][ 'login_nonce' ] ?? null );
+		$this->assertSame( '/target', $data[ 'ajax' ][ 'email_code_send' ][ 'redirect_to' ] ?? null );
 		$this->assertFalse( $data[ 'flags' ][ 'passkey_auth_auto' ] );
 	}
 
 	public function test_shield_form_render_data_hides_alert_without_error_and_surfaces_error_message() :void {
 		$this->installMfaEnvironment( [], 0, false );
 
-		$defaultData = ( new LoginIntentFormShieldTestDouble( [] ) )->renderDataForTest();
+		$defaultData = ( new LoginIntentFormShieldTestDouble( $this->renderData() ) )->renderDataForTest();
 		$payload = '<img src=x onerror=alert(1)>';
-		$errorData = ( new LoginIntentFormShieldTestDouble( [
+		$errorData = ( new LoginIntentFormShieldTestDouble( $this->renderData( [
 			'msg_error' => $payload,
-		] ) )->renderDataForTest();
+		] ) ) )->renderDataForTest();
 
 		$this->assertFalse( $defaultData[ 'flags' ][ 'show_message' ] );
 		$this->assertSame( '', $defaultData[ 'strings' ][ 'message' ] );
@@ -328,6 +287,17 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 
 		$this->assertTrue( $errorData[ 'flags' ][ 'show_message' ] );
 		$this->assertSame( $payload, $errorData[ 'strings' ][ 'message' ] );
+	}
+
+	private function renderData( array $input = [] ) :array {
+		return LoginRequestValues::buildLoginIntentRenderData(
+			\array_merge( [
+				'user_id'           => 42,
+				'include_body'      => true,
+				'plain_login_nonce' => 'login-nonce',
+			], $input ),
+			'/current-path'
+		);
 	}
 
 	private function installMfaEnvironment( array $providers, int $skipDays, bool $whitelabelEnabled, bool $userExists = true ) :Controller {

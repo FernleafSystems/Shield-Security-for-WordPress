@@ -10,28 +10,22 @@ class WpLoginReplicaBody extends Base {
 	public const TEMPLATE = '/components/wplogin_replica/login_body.twig';
 
 	protected function getRenderData() :array {
-		$errorMsg = $this->action_data[ 'msg_error' ] ?? '';
+		$data = $this->loginIntentRenderData();
 		return [
 			'content' => [
 				'form' => self::con()->action_router->render( LoginIntentFormWpReplica::class, $this->action_data ),
 			],
 			'flags'   => [
-				'has_error_msg'    => !empty( $errorMsg ),
-				'is_interim_login' => (bool)$this->action_data[ 'interim_login' ],
+				'has_error_msg'    => $data[ 'msg_error' ] !== '',
+				'is_interim_login' => $data[ 'interim_login' ] === '1',
 			],
 			'hrefs'   => [
 				'home' => Services::WpGeneral()->getHomeUrl(),
 			],
 			'strings' => [
-				'error_msg' => $errorMsg,
+				'error_msg' => $data[ 'msg_error' ],
 				'back_home' => __( 'Go Back Home', 'wp-simple-firewall' ),
 			],
-		];
-	}
-
-	protected function getRequiredDataKeys() :array {
-		return [
-			'user_id'
 		];
 	}
 }

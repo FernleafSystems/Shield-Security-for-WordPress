@@ -62,6 +62,11 @@ class MfaInitialLoginRequestBoundaryIntegrationTest extends ShieldIntegrationTes
 		$this->assertSame( '', $renderData[ 'interim_login' ] ?? null );
 		$this->assertSame( '/wp-login.php', $renderData[ 'redirect_to' ] ?? null );
 		$this->assertSame( '', $renderData[ 'rememberme' ] ?? null );
+		$this->assertSame( '', $renderData[ 'cancel_href' ] ?? null );
+		$this->assertSame( '', $renderData[ 'msg_error' ] ?? null );
+		$this->assertSame( '', $renderData[ 'interim_message' ] ?? null );
+		$this->assertTrue( $renderData[ 'include_body' ] ?? null );
+		$this->assertCanonicalRenderData( $renderData );
 		$this->assertSame( 0, \get_current_user_id() );
 		$this->assertNotEmpty( $this->requireController()->user_metas->for( $user )->login_intents );
 	}
@@ -80,6 +85,7 @@ class MfaInitialLoginRequestBoundaryIntegrationTest extends ShieldIntegrationTes
 		$this->assertSame( '1', $renderData[ 'interim_login' ] ?? null );
 		$this->assertSame( '/safe-target', $renderData[ 'redirect_to' ] ?? null );
 		$this->assertSame( 'forever', $renderData[ 'rememberme' ] ?? null );
+		$this->assertCanonicalRenderData( $renderData );
 	}
 
 	/**
@@ -123,6 +129,25 @@ class MfaInitialLoginRequestBoundaryIntegrationTest extends ShieldIntegrationTes
 		] );
 		RuntimeTestState::resetMfaProviderCache();
 		return $user;
+	}
+
+	private function assertCanonicalRenderData( array $renderData ) :void {
+		$this->assertSame( [
+			'user_id',
+			'include_body',
+			'plain_login_nonce',
+			'interim_login',
+			'redirect_to',
+			'rememberme',
+			'cancel_href',
+			'msg_error',
+			'interim_message',
+		], \array_keys( $renderData ) );
+		$this->assertIsInt( $renderData[ 'user_id' ] );
+		$this->assertIsBool( $renderData[ 'include_body' ] );
+		foreach ( \array_slice( $renderData, 2 ) as $value ) {
+			$this->assertIsString( $value );
+		}
 	}
 
 	private function captureInitialLogin( \WP_User $user, array $post ) :array {

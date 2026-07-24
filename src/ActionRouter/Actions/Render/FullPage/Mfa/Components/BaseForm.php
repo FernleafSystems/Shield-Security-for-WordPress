@@ -22,8 +22,8 @@ abstract class BaseForm extends Base {
 		$con = self::con();
 		$mfaCon = $con->comps->mfa;
 		$mfaSkip = (int)( $mfaCon->getMfaSkip()/\DAY_IN_SECONDS );
-		$userID = LoginRequestValues::positiveUserId( $this->action_data[ 'user_id' ] ?? null );
-		$user = $userID === null ? null : Services::WpUsers()->getUserById( $userID );
+		$data = $this->loginIntentRenderData();
+		$user = Services::WpUsers()->getUserById( $data[ 'user_id' ] );
 		$providers = $user instanceof \WP_User ? $mfaCon->getProvidersActiveForUser( $user ) : [];
 		return [
 			'content' => [
@@ -71,34 +71,10 @@ abstract class BaseForm extends Base {
 
 	protected function getHiddenFields() :array {
 		$req = Services::Request();
-
+		$data = $this->loginIntentRenderData();
 		$referUrl = $req->server( 'HTTP_REFERER', '' );
 		$referUrl = \is_string( $referUrl ) ? $referUrl : '';
-		if ( \strpos( $referUrl, '?' ) ) {
-			[ $referUrl, $referQuery ] = \explode( '?', $referUrl, 2 );
-		}
-		else {
-			$referQuery = '';
-		}
-
-		$redirectTo = LoginRequestValues::safeRedirect( $this->action_data[ 'redirect_to' ] ?? '', '' );
-		if ( $redirectTo === '' ) {
-
-			if ( !empty( $referQuery ) ) {
-				\parse_str( $referQuery, $referQueryItems );
-				if ( isset( $referQueryItems[ 'redirect_to' ] ) ) {
-					$redirectTo = LoginRequestValues::safeRedirect( $referQueryItems[ 'redirect_to' ], '' );
-				}
-			}
-
-			if ( empty( $redirectTo ) ) {
-				$redirectTo = $req->getPath();
-			}
-		}
-
-		$redirectTo = LoginRequestValues::safeRedirect( $redirectTo, $req->getPath() );
-
-		$cancelHref = LoginRequestValues::safeRedirect( $this->action_data[ 'cancel_href' ] ?? '', '' );
+		$cancelHref = $data[ 'cancel_href' ];
 		if ( $cancelHref === '' && Services::Data()->isValidWebUrl( $referUrl ) ) {
 			$cancelHref = LoginRequestValues::safeRedirect( \wp_parse_url( $referUrl, \PHP_URL_PATH ), '' );
 		}
@@ -106,10 +82,10 @@ abstract class BaseForm extends Base {
 		global $interim_login;
 
 		$fields = \array_filter( [
-			'interim-login' => ( $interim_login === true || LoginRequestValues::isToken( $this->action_data[ 'interim_login' ] ?? '', '1' ) ) ? '1' : false,
-			'login_nonce'   => esc_attr( LoginRequestValues::nonEmptyString( $this->action_data[ 'plain_login_nonce' ] ?? '' ) ?? '' ),
-			'rememberme'    => esc_attr( LoginRequestValues::tokenValue( $this->action_data[ 'rememberme' ] ?? '', 'forever' ) ),
-			'redirect_to'   => esc_attr( esc_url_raw( $redirectTo ) ),
+			'interim-login' => ( $interim_login === true || $data[ 'interim_login' ] === '1' ) ? '1' : false,
+			'login_nonce'   => esc_attr( $data[ 'plain_login_nonce' ] ),
+			'rememberme'    => esc_attr( $data[ 'rememberme' ] ),
+			'redirect_to'   => esc_attr( esc_url_raw( $data[ 'redirect_to' ] ) ),
 			'cancel_href'   => esc_attr( esc_url_raw( $cancelHref ) ),
 			/**
 			 * This server produced HTTP 402 error if the request to the login form didn't include wp-submit
@@ -117,16 +93,8 @@ abstract class BaseForm extends Base {
 			 */
 			'wp-submit'     => __( 'Complete Login', 'wp-simple-firewall' ),
 		] );
-		$fields[ 'wp_user_id' ] = LoginRequestValues::positiveUserId( $this->action_data[ 'user_id' ] ?? null ) ?? 0;
+		$fields[ 'wp_user_id' ] = $data[ 'user_id' ];
 		return $fields;
-	}
-
-	protected function getRequiredDataKeys() :array {
-		return [
-			'user_id',
-			'plain_login_nonce',
-			'rememberme',
-		];
 	}
 
 	private function getLoginFieldTabIcon( string $slug ) :string {

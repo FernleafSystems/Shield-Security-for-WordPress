@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\LoginRequestValues;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ShieldLoginIntentPage extends BaseLoginIntentPage {
@@ -52,15 +51,14 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 	protected function getLoginIntentExpiresAt() :int {
 		$mfaCon = self::con()->comps->mfa;
 
-		$userID = LoginRequestValues::positiveUserId( $this->action_data[ 'user_id' ] ?? null );
-		$loginNonce = LoginRequestValues::nonEmptyString( $this->action_data[ 'plain_login_nonce' ] ?? null );
-		$user = $userID === null ? null : Services::WpUsers()->getUserById( $userID );
-		if ( !$user instanceof \WP_User || $loginNonce === null ) {
+		$data = $this->loginIntentRenderData();
+		$user = Services::WpUsers()->getUserById( $data[ 'user_id' ] );
+		if ( !$user instanceof \WP_User ) {
 			return 0;
 		}
 
 		$intentAt = $mfaCon->getActiveLoginIntents( $user )
-					[ $mfaCon->findHashedNonce( $user, $loginNonce ) ][ 'start' ] ?? 0;
+					[ $mfaCon->findHashedNonce( $user, $data[ 'plain_login_nonce' ] ) ][ 'start' ] ?? 0;
 		return Services::Request()
 					   ->carbon()
 					   ->setTimestamp( $intentAt )
