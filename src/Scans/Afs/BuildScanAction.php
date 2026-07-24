@@ -64,7 +64,8 @@ class BuildScanAction extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Bas
 	}
 
 	protected function getFileExts() :array {
-		$default = $this->normaliseFileExts(
+		$normaliser = new NormalizeFileExtensions();
+		$default = $normaliser->run(
 			self::con()->cfg->configuration->def( 'file_scan_extensions' )
 		);
 		$filtered = apply_filters( 'shield/scan_ptg_file_exts', $default );
@@ -72,25 +73,7 @@ class BuildScanAction extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Bas
 			return $default;
 		}
 
-		$normalised = $this->normaliseFileExts( $filtered );
+		$normalised = $normaliser->run( $filtered );
 		return !empty( $filtered ) && empty( $normalised ) ? $default : $normalised;
-	}
-
-	/**
-	 * @param array<array-key,mixed> $extensions
-	 * @return list<string>
-	 */
-	private function normaliseFileExts( array $extensions ) :array {
-		$normalised = [];
-		foreach ( $extensions as $extension ) {
-			if ( !\is_string( $extension ) ) {
-				continue;
-			}
-			$extension = \strtolower( \trim( $extension ) );
-			if ( $extension !== '' && !\in_array( $extension, $normalised, true ) ) {
-				$normalised[] = $extension;
-			}
-		}
-		return $normalised;
 	}
 }

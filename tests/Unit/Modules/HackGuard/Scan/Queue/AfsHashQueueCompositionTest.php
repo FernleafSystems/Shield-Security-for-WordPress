@@ -26,6 +26,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	QueueWatchdog,
 	RunState
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -166,6 +167,47 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		( new QueueItems() )->next();
 	}
 
+	/**
+	 * @dataProvider providePersistedFileExtensions
+	 */
+	public function test_persisted_file_extensions_are_canonical_before_afs_processing(
+		$fileExts,
+		bool $expectTrustedFileRecord
+	) :void {
+		$pluginFile = 'queue-file-exts/plugin.php';
+		$path = $this->writePluginFile( $pluginFile, "<?php\n// valid plugin fixture\n" );
+		$cacheRoot = $this->createTrackedTempDir( 'shield-afs-file-exts-' );
+		$harness = $this->newAfsHarness( $cacheRoot, $pluginFile );
+		$this->writeHashStore( $cacheRoot, $pluginFile, [
+			'plugin.php' => \md5_file( $path ),
+		] );
+
+		$scanID = $this->insertReadyAfsWork( $harness, $path, $fileExts );
+		$item = ( new QueueItems() )->next();
+		$this->assertNotNull( $item );
+		$this->assertSame( 1, $item->attempts );
+
+		( new ProcessQueueItem() )->run( $item );
+		( new CompleteQueue() )->complete();
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'completed', $scan[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$scan[ 'finished_at' ] );
+		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
+		$this->assertSame( [], $harness->resultItemRecords() );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $scan ) );
+		$this->assertSame( $expectTrustedFileRecord, ( new FileScanOptimiser() )->hasKnownValidFileRecords() );
+	}
+
+	public function providePersistedFileExtensions() :array {
+		return [
+			'null safely disables matching'   => [ null, false ],
+			'scalar safely disables matching' => [ ' PHP ', false ],
+			'associative preserves member'    => [ [ 'primary' => ' PHP ' ], true ],
+			'mixed preserves valid member'    => [ [ 12, ' PHP ', false, null ], true ],
+		];
+	}
+
 	private function newAfsHarness( string $cacheRoot, string $pluginFile ) :ScanQueueLifecycleHarness {
 		return ( new ScanQueueLifecycleHarness() )
 			->install()
@@ -176,7 +218,8 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 
 	private function insertReadyAfsWork(
 		ScanQueueLifecycleHarness $harness,
-		string $path
+		string $path,
+		$fileExts = [ 'php' ]
 	) :int {
 		$scanID = $harness->insertScan( [
 			'scan'            => 'afs',
@@ -185,7 +228,7 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 			'last_process_at' => 1699999000,
 			'meta'            => \base64_encode( \json_encode( [
 				'coverage_families' => [ ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY ],
-				'file_exts'         => [ 'php' ],
+				'file_exts'         => $fileExts,
 				'max_file_size'     => 16777216,
 				'paths_whitelisted' => [],
 				'scan_root_dirs'    => [],

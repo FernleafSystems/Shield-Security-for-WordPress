@@ -245,6 +245,30 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 	}
 
+	public function test_reconstructed_null_extensions_safely_disable_known_valid_skip() :void {
+		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
+		$this->installEnvironment( $this->makeTempDir( 'cache' ) );
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile( $path, $this->coreContext( 'wp-admin/core.php' ) );
+		$action = ( new ScanActionVO() )->applyFromArray( [ 'file_exts' => null ] );
+
+		$this->assertSame( [], $action->file_exts );
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $action ) );
+	}
+
+	public function test_reconstructed_mixed_associative_extensions_preserve_known_valid_skip() :void {
+		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
+		$this->installEnvironment( $this->makeTempDir( 'cache' ) );
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile( $path, $this->coreContext( 'wp-admin/core.php' ) );
+		$action = ( new ScanActionVO() )->applyFromArray( [
+			'file_exts' => [ 'invalid' => 12, 'primary' => ' PHP ', 'duplicate' => 'php' ],
+		] );
+
+		$this->assertSame( [ 'php' ], $action->file_exts );
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $path, $action ) );
+	}
+
 	public function test_known_valid_context_misses_for_version_path_and_hash_changes() :void {
 		$path = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
 		$otherPath = $this->writeFile( ABSPATH.'wp-admin/other.php', '<?php clean();' );

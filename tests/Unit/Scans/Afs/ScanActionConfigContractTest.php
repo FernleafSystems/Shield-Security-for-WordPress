@@ -135,6 +135,40 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 	}
 
 	/**
+	 * @dataProvider providePersistedExtensionValues
+	 */
+	public function test_reconstructed_action_publishes_canonical_extension_list( array $meta, array $expected ) :void {
+		$action = ( new ScanActionVO() )->applyFromArray( $meta );
+
+		$this->assertSame( $expected, $action->file_exts );
+		$this->assertSame( $expected, $action->getRawData()[ 'file_exts' ] );
+	}
+
+	public function providePersistedExtensionValues() :array {
+		return [
+			'missing'             => [ [], [] ],
+			'null'                => [ [ 'file_exts' => null ], [] ],
+			'false'               => [ [ 'file_exts' => false ], [] ],
+			'integer'             => [ [ 'file_exts' => 12 ], [] ],
+			'string'              => [ [ 'file_exts' => 'php' ], [] ],
+			'empty array'         => [ [ 'file_exts' => [] ], [] ],
+			'canonical list'      => [ [ 'file_exts' => [ 'php', 'js' ] ], [ 'php', 'js' ] ],
+			'associative values'  => [ [ 'file_exts' => [ 'primary' => ' PHP ', 'secondary' => 'JS' ] ], [ 'php', 'js' ] ],
+			'mixed members'       => [ [ 'file_exts' => [ 12, ' PHP ', false, null, '.PHP', 'php' ] ], [ 'php', '.php' ] ],
+			'all invalid members' => [ [ 'file_exts' => [ 12, false, null, [], '  ' ] ], [] ],
+		];
+	}
+
+	public function test_reconstruction_respects_restricted_property_selection() :void {
+		$action = ( new ScanActionVO() )->applyFromArray(
+			[ 'scan' => 'afs', 'file_exts' => null ],
+			[ 'scan' ]
+		);
+
+		$this->assertSame( [ 'scan' => 'afs' ], $action->getRawData() );
+	}
+
+	/**
 	 * @dataProvider provideInvalidMaxFileSizes
 	 */
 	public function test_invalid_max_file_size_filter_values_use_default( $filtered ) :void {

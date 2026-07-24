@@ -34,6 +34,16 @@ class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\B
 		self::COVERAGE_FAMILY_MALWARE,
 	];
 
+	public function applyFromArray( array $data, array $restrictedKeys = [] ) {
+		if ( empty( $restrictedKeys ) || \in_array( 'file_exts', $restrictedKeys, true ) ) {
+			$extensions = $data[ 'file_exts' ] ?? null;
+			$data[ 'file_exts' ] = \is_array( $extensions )
+				? ( new NormalizeFileExtensions() )->run( $extensions )
+				: [];
+		}
+		return parent::applyFromArray( $data, $restrictedKeys );
+	}
+
 	public function __get( string $key ) {
 		$value = parent::__get( $key );
 		switch ( $key ) {
