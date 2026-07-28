@@ -22,9 +22,34 @@ class CacheStoreTestFs extends Fs {
 	public array $failedFileWrites = [];
 
 	/**
+	 * @var string[]
+	 */
+	public array $failedFileReads = [];
+
+	/**
+	 * @var string[]
+	 */
+	public array $failedTouches = [];
+
+	/**
 	 * @var array<string,int>
 	 */
 	public array $fileWriteCounts = [];
+
+	/**
+	 * @var array<string,int>
+	 */
+	public array $fileReadCounts = [];
+
+	/**
+	 * @var array<string,int>
+	 */
+	public array $compressedReadCounts = [];
+
+	/**
+	 * @var array<string,int>
+	 */
+	public array $touchCounts = [];
 
 	public function failDir( string $dir ) :void {
 		$this->failedDirs[] = $this->normalise( $dir );
@@ -32,6 +57,14 @@ class CacheStoreTestFs extends Fs {
 
 	public function failFileWrite( string $path ) :void {
 		$this->failedFileWrites[] = $this->normalise( $path );
+	}
+
+	public function failFileRead( string $path ) :void {
+		$this->failedFileReads[] = $this->normalise( $path );
+	}
+
+	public function failTouch( string $path ) :void {
+		$this->failedTouches[] = $this->normalise( $path );
 	}
 
 	public function exists( $path ) :?bool {
@@ -72,6 +105,14 @@ class CacheStoreTestFs extends Fs {
 	}
 
 	public function getFileContent( $path, $uncompress = false ) {
+		$path = $this->normalise( (string)$path );
+		$this->fileReadCounts[ $path ] = ( $this->fileReadCounts[ $path ] ?? 0 ) + 1;
+		if ( $uncompress ) {
+			$this->compressedReadCounts[ $path ] = ( $this->compressedReadCounts[ $path ] ?? 0 ) + 1;
+		}
+		if ( \in_array( $path, $this->failedFileReads, true ) ) {
+			return null;
+		}
 		$contents = \is_file( (string)$path ) ? \file_get_contents( (string)$path ) : null;
 		if ( \is_string( $contents ) && $uncompress ) {
 			$inflated = \gzinflate( $contents );
@@ -119,11 +160,16 @@ class CacheStoreTestFs extends Fs {
 	}
 
 	public function touch( $path, $time = null ) {
-		$dir = \dirname( (string)$path );
+		$path = $this->normalise( (string)$path );
+		$this->touchCounts[ $path ] = ( $this->touchCounts[ $path ] ?? 0 ) + 1;
+		if ( \in_array( $path, $this->failedTouches, true ) ) {
+			return false;
+		}
+		$dir = \dirname( $path );
 		if ( !\is_dir( $dir ) ) {
 			@\mkdir( $dir, 0777, true );
 		}
-		return \touch( (string)$path, $time ?? \time() );
+		return \touch( $path, $time ?? \time() );
 	}
 
 	public function normalise( string $path ) :string {

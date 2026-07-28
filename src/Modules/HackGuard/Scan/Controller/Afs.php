@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib\Hashes,
@@ -15,14 +14,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Afs extends Base {
 
-	use PluginCronsConsumer;
-
 	public const SCAN_SLUG = 'afs';
-
-	protected function run() {
-		parent::run();
-		$this->setupCronHooks();
-	}
 
 	/**
 	 * @return array{name:string, subtitle:string}
@@ -81,14 +73,6 @@ class Afs extends Base {
 		$record->meta = $meta;
 
 		return $record;
-	}
-
-	public function runHourlyCron() {
-		if ( !\is_main_network() ) {
-			return;
-		}
-		( new StoreAction\TouchAll() )->execute();
-		( new StoreAction\CleanStale() )->execute();
 	}
 
 	/**

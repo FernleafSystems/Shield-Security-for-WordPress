@@ -3,7 +3,11 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\ScheduleBuildAll;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\{
+	CleanStale,
+	ScheduleBuildAll,
+	TouchAll
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -29,7 +33,7 @@ class AssetCoordinator {
 		\add_action( '_core_updated_successfully', [ $this, 'onCoreUpdated' ], 10, 1 );
 		\add_action( 'deleted_plugin', [ $this, 'onDeletedPlugin' ], 10, 2 );
 		\add_action( 'deleted_theme', [ $this, 'onDeletedTheme' ], 10, 2 );
-		\add_action( self::con()->prefix( 'pre_plugin_shutdown' ), [ $this, 'discoverMissingSnapshots' ], 10, 0 );
+		\add_action( self::con()->prefix( 'hourly_cron' ), [ $this, 'runSnapshotMaintenance' ], 10, 0 );
 		\add_action( $this->cronHook(), [ $this, 'runDueWork' ], 10, 1 );
 
 		$this->importLegacyCrons();
@@ -117,30 +121,41 @@ class AssetCoordinator {
 		return true;
 	}
 
-	public function discoverMissingSnapshots() :void {
-		if ( !\is_main_network() || self::con()->is_my_upgrade || self::con()->plugin_deleting ) {
-			return;
+	public function runSnapshotMaintenance() :void {
+		if ( $this->discoverMissingSnapshots() ) {
+			( new CleanStale() )->execute();
 		}
+	}
 
-		$state = $this->readState();
-		if ( !empty( $state[ 'build_missing_snapshots' ] ) ) {
-			return;
+	public function discoverMissingSnapshots() :bool {
+		if ( !\is_main_network()
+			 || !\is_main_site()
+			 || self::con()->is_my_upgrade
+			 || self::con()->plugin_deleting ) {
+			return false;
 		}
 
 		try {
-			$hasMissing = \count( ( new ScheduleBuildAll() )->getAssetsThatNeedBuilt() ) > 0;
+			$maintenance = ( new TouchAll() )->run();
 		}
 		catch ( \Throwable $e ) {
 			error_log( 'Shield asset coordinator snapshot discovery failed: '.$e->getMessage() );
-			return;
+			return false;
 		}
 
-		if ( $hasMissing ) {
-			$state[ 'build_missing_snapshots' ] = true;
-			if ( $this->writeState( $state ) ) {
-				$this->reconcileWakeup();
+		if ( $maintenance[ 'has_unusable' ] ) {
+			$state = $this->readState();
+			if ( empty( $state[ 'build_missing_snapshots' ] ) ) {
+				$state[ 'build_missing_snapshots' ] = true;
+				if ( $this->writeState( $state ) ) {
+					$this->reconcileWakeup();
+				}
 			}
 		}
+		if ( !$maintenance[ 'touches_succeeded' ] ) {
+			error_log( 'Shield asset coordinator snapshot retention touch failed.' );
+		}
+		return $maintenance[ 'touches_succeeded' ];
 	}
 
 	public function runDueWork( $scheduledDueAt = null ) :void {
@@ -158,7 +173,9 @@ class AssetCoordinator {
 				}
 			}
 		}
-		$buildPending = \is_main_network() && !empty( $state[ 'build_missing_snapshots' ] );
+		$buildPending = \is_main_network()
+						&& \is_main_site()
+						&& !empty( $state[ 'build_missing_snapshots' ] );
 		$wpvDue = isset( $state[ 'wpv' ] )
 				  && $state[ 'wpv' ][ 'attempts' ] < self::MAX_ATTEMPTS
 				  && $state[ 'wpv' ][ 'due_at' ] > 0
@@ -218,7 +235,9 @@ class AssetCoordinator {
 			 && $state[ 'wpv' ][ 'due_at' ] > 0 ) {
 			$nextDue = $nextDue === null ? $state[ 'wpv' ][ 'due_at' ] : \min( $nextDue, $state[ 'wpv' ][ 'due_at' ] );
 		}
-		if ( \is_main_network() && !empty( $state[ 'build_missing_snapshots' ] ) ) {
+		if ( \is_main_network()
+			 && \is_main_site()
+			 && !empty( $state[ 'build_missing_snapshots' ] ) ) {
 			$buildDue = $now + self::BUILD_DELAY;
 			$nextDue = $nextDue === null ? $buildDue : \min( $nextDue, $buildDue );
 		}
@@ -342,7 +361,8 @@ class AssetCoordinator {
 		foreach ( Services::WpCron()->getCrons() as $timestamp => $scheduledHooks ) {
 			$timestamp = (int)$timestamp;
 			foreach ( $hooks as $type => $hook ) {
-				if ( $type === self::LEGACY_BUILD && !\is_main_network() ) {
+				if ( $type === self::LEGACY_BUILD
+					 && ( !\is_main_network() || !\is_main_site() ) ) {
 					continue;
 				}
 				foreach ( (array)( $scheduledHooks[ $hook ] ?? [] ) as $instance ) {

@@ -7,7 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Stor
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
-	AssetSnapshots\SnapshotFs,
+	CacheStore\CacheStoreTestFs,
 	ServicesState,
 	UnitTestRequest
 };
@@ -20,15 +20,17 @@ class SnapshotStoreParserTest extends BaseUnitTest {
 	private const MD5 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 
 	private array $servicesSnapshot = [];
+	private CacheStoreTestFs $fs;
 
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'path_join' )->alias( static fn( string $a, string $b ) :string => \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) );
+		$this->fs = new CacheStoreTestFs();
 		ServicesState::installItems( [
 			'service_request' => new UnitTestRequest( [], '127.0.0.1', \time() ),
-			'service_wpfs'    => new SnapshotFs(),
+			'service_wpfs'    => $this->fs,
 		] );
 	}
 
@@ -80,8 +82,11 @@ class SnapshotStoreParserTest extends BaseUnitTest {
 	public function test_usable_store_rejects_mismatched_asset_metadata( array $meta ) :void {
 		$store = $this->newStore();
 		$this->writeRawStore( $store, 'file.php'.Store::SEPARATOR.self::MD5, $meta );
+		$this->fs->compressedReadCounts = [];
 
 		$this->assertFalse( $store->isUsable() );
+		$this->assertSame( 1, $this->compressedReads( $store->getSnapStoreMetaPath() ) );
+		$this->assertSame( 0, $this->compressedReads( $store->getSnapStorePath() ) );
 	}
 
 	public function provideMismatchedMetadata() :array {
@@ -161,13 +166,20 @@ class SnapshotStoreParserTest extends BaseUnitTest {
 
 	public function test_usable_store_returns_false_when_payload_cannot_be_read() :void {
 		$store = $this->newStore();
-		\mkdir( \dirname( $store->getSnapStoreMetaPath() ), 0777, true );
-		\file_put_contents( $store->getSnapStoreMetaPath(), \gzdeflate( \json_encode( [
-			'unique_id' => 'parser/plugin.php',
-			'version'   => '1.0.0',
-		] ) ) );
+		$this->writeRawStore(
+			$store,
+			'file.php'.Store::SEPARATOR.self::MD5,
+			[
+				'unique_id' => 'parser/plugin.php',
+				'version'   => '1.0.0',
+			]
+		);
+		$this->fs->failFileRead( $store->getSnapStorePath() );
+		$this->fs->compressedReadCounts = [];
 
 		$this->assertFalse( $store->isUsable() );
+		$this->assertSame( 1, $this->compressedReads( $store->getSnapStoreMetaPath() ) );
+		$this->assertSame( 1, $this->compressedReads( $store->getSnapStorePath() ) );
 	}
 
 	private function newStore() :Store {
@@ -182,6 +194,10 @@ class SnapshotStoreParserTest extends BaseUnitTest {
 		}
 		\file_put_contents( $store->getSnapStorePath(), \gzdeflate( $payload ) );
 		\file_put_contents( $store->getSnapStoreMetaPath(), \gzdeflate( \json_encode( $meta ) ) );
+	}
+
+	private function compressedReads( string $path ) :int {
+		return $this->fs->compressedReadCounts[ $this->fs->normalise( $path ) ] ?? 0;
 	}
 }
 

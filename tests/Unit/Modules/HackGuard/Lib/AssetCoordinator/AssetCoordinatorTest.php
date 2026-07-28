@@ -52,6 +52,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 	private bool $persistWrites = true;
 	private bool $updateResult = true;
 	private bool $isMainNetwork = true;
+	private bool $isMainSite = true;
 	private AssetCoordinatorTestRequest $request;
 	private AssetCoordinatorTestScans $scans;
 	private AssetCoordinatorTestCron $cron;
@@ -89,8 +90,9 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertHook( $this->actions, '_core_updated_successfully', 10, 1 );
 		$this->assertHook( $this->actions, 'deleted_plugin', 10, 2 );
 		$this->assertHook( $this->actions, 'deleted_theme', 10, 2 );
-		$this->assertHook( $this->actions, 'icwp-wpsf-pre_plugin_shutdown', 10, 0 );
+		$this->assertHook( $this->actions, 'icwp-wpsf-hourly_cron', 10, 0 );
 		$this->assertHook( $this->actions, 'icwp-wpsf-asset_coordinator', 10, 1 );
+		$this->assertNotHooked( $this->actions, 'icwp-wpsf-pre_plugin_shutdown' );
 	}
 
 	public function test_intake_coalesces_assets_and_wpv_and_returns_filter_response() :void {
@@ -213,7 +215,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		) );
 	}
 
-	public function test_shutdown_discovery_coalesces_clears_and_later_rediscovers_missing_assets() :void {
+	public function test_hourly_discovery_coalesces_clears_and_later_rediscovers_missing_assets() :void {
 		ServicesState::mergeItems( [
 			'service_wpplugins' => new SnapshotPlugins( [
 				new SnapshotPluginVo( 'missing-snapshot/plugin.php', '1.0.0' ),
@@ -221,7 +223,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		] );
 		$coordinator = new AssetCoordinator();
 
-		$coordinator->discoverMissingSnapshots();
+		$this->assertTrue( $coordinator->discoverMissingSnapshots() );
 
 		$this->assertArrayHasKey(
 			'build_missing_snapshots',
@@ -234,7 +236,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertTrue( $this->state()[ 'build_missing_snapshots' ] );
 		$this->assertCount( 1, $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
 
-		$coordinator->discoverMissingSnapshots();
+		$this->assertTrue( $coordinator->discoverMissingSnapshots() );
 		$this->assertCount( 1, $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
 
 		$coordinator->runDueWork();
@@ -242,11 +244,52 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertSame( [], $this->scans->assets );
 		$this->assertSame( 0, $this->scans->wpvCalls );
 
-		$coordinator->discoverMissingSnapshots();
+		$this->assertTrue( $coordinator->discoverMissingSnapshots() );
 		$this->assertTrue( $this->state()[ 'build_missing_snapshots' ] );
 	}
 
-	public function test_shutdown_discovery_respects_network_and_self_upgrade_guards() :void {
+	/**
+	 * @dataProvider provideNonOwnerTopologies
+	 */
+	public function test_non_owner_topologies_do_not_run_routine_work_but_preserve_targeted_and_wpv_work(
+		bool $isMainNetwork,
+		bool $isMainSite
+	) :void {
+		$this->isMainNetwork = $isMainNetwork;
+		$this->isMainSite = $isMainSite;
+		$this->options[ $this->optionKey() ] = [
+			'assets' => [
+				'plugin' => [
+					'targeted/plugin.php' => [ 'attempts' => 0, 'due_at' => 1700000000 ],
+				],
+				'theme'  => [],
+				'core'   => [],
+			],
+			'build_missing_snapshots' => true,
+			'wpv' => [ 'attempts' => 0, 'due_at' => 1700000000 ],
+		];
+		$coordinator = new AssetCoordinator();
+
+		$this->assertFalse( $coordinator->discoverMissingSnapshots() );
+		$coordinator->runDueWork();
+
+		$this->assertTrue( $this->state()[ 'build_missing_snapshots' ] );
+		$this->assertSame( [], $this->state()[ 'assets' ][ 'plugin' ] );
+		$this->assertArrayNotHasKey( 'wpv', $this->state() );
+		$this->assertSame( [ [ 'plugin', 'targeted/plugin.php' ] ], $this->scans->assets );
+		$this->assertSame( 1, $this->scans->wpvCalls );
+		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
+	}
+
+	public function provideNonOwnerTopologies() :array {
+		return [
+			'main network, secondary site' => [ true, false ],
+			'secondary network, main site' => [ false, true ],
+			'secondary network and site'   => [ false, false ],
+		];
+	}
+
+	public function test_hourly_discovery_respects_self_upgrade_and_plugin_deletion_guards() :void {
 		ServicesState::mergeItems( [
 			'service_wpplugins' => new SnapshotPlugins( [
 				new SnapshotPluginVo( 'missing-snapshot/plugin.php', '1.0.0' ),
@@ -254,53 +297,19 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		] );
 		$coordinator = new AssetCoordinator();
 
-		$this->isMainNetwork = false;
-		$coordinator->discoverMissingSnapshots();
-		$this->assertArrayNotHasKey( 'build_missing_snapshots', $this->state() );
-
-		$this->isMainNetwork = true;
 		$this->controller->is_my_upgrade = true;
-		$coordinator->discoverMissingSnapshots();
+		$this->assertFalse( $coordinator->discoverMissingSnapshots() );
+		$this->assertArrayNotHasKey( 'build_missing_snapshots', $this->state() );
+
+		$this->controller->is_my_upgrade = false;
+		$this->controller->plugin_deleting = true;
+		$this->assertFalse( $coordinator->discoverMissingSnapshots() );
 		$this->assertArrayNotHasKey( 'build_missing_snapshots', $this->state() );
 		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
 	}
 
-	public function test_subnetwork_does_not_run_shared_routine_snapshot_work() :void {
-		$this->isMainNetwork = false;
-		$this->options[ $this->optionKey() ] = [
-			'assets' => [
-				'plugin' => [],
-				'theme'  => [],
-				'core'   => [],
-			],
-			'build_missing_snapshots' => true,
-		];
-
-		( new AssetCoordinator() )->runDueWork();
-		( new AssetCoordinator() )->reconcileWakeup();
-
-		$this->assertTrue( $this->state()[ 'build_missing_snapshots' ] );
-		$this->assertSame( [], $this->scans->assets );
-		$this->assertSame( 0, $this->scans->wpvCalls );
-		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
-	}
-
-	public function test_shutdown_discovery_skips_plugin_deletion() :void {
-		ServicesState::mergeItems( [
-			'service_wpplugins' => new SnapshotPlugins( [
-				new SnapshotPluginVo( 'missing-snapshot/plugin.php', '1.0.0' ),
-			] ),
-		] );
-		$this->controller->plugin_deleting = true;
-
-		( new AssetCoordinator() )->discoverMissingSnapshots();
-
-		$this->assertArrayNotHasKey( $this->optionKey(), $this->options );
-		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
-	}
-
-	public function test_shutdown_discovery_does_not_enqueue_when_no_snapshot_is_missing() :void {
-		( new AssetCoordinator() )->discoverMissingSnapshots();
+	public function test_hourly_discovery_completes_without_queueing_when_no_snapshot_is_missing() :void {
+		$this->assertTrue( ( new AssetCoordinator() )->discoverMissingSnapshots() );
 
 		$this->assertArrayNotHasKey( 'build_missing_snapshots', $this->state() );
 		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
@@ -441,8 +450,15 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_subnetwork_leaves_legacy_snapshot_build_for_the_main_network_owner() :void {
-		$this->isMainNetwork = false;
+	/**
+	 * @dataProvider provideNonOwnerTopologies
+	 */
+	public function test_non_owner_leaves_legacy_snapshot_build_for_the_owner(
+		bool $isMainNetwork,
+		bool $isMainSite
+	) :void {
+		$this->isMainNetwork = $isMainNetwork;
+		$this->isMainSite = $isMainSite;
 		$this->addCron( 1700000030, 'icwp-wpsf-ptg_build_snapshots', [] );
 
 		( new AssetCoordinator() )->execute();
@@ -517,6 +533,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'is_multisite' )->justReturn( false );
 		Functions\when( 'is_main_network' )->alias( fn() :bool => $this->isMainNetwork );
+		Functions\when( 'is_main_site' )->alias( fn() :bool => $this->isMainSite );
 		Functions\when( 'untrailingslashit' )->alias( static fn( string $path ) :string => \rtrim( $path, '/\\' ) );
 		Functions\when( 'wp_normalize_path' )->alias( static fn( string $path ) :string => \str_replace( '\\', '/', $path ) );
 		Functions\when( 'add_action' )->alias( function (
@@ -625,6 +642,13 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertCount( 1, $matching );
 		$this->assertSame( $priority, $matching[ 0 ][ 'priority' ] );
 		$this->assertSame( $acceptedArgs, $matching[ 0 ][ 'acceptedArgs' ] );
+	}
+
+	private function assertNotHooked( array $hooks, string $name ) :void {
+		$this->assertSame( [], \array_values( \array_filter(
+			$hooks,
+			static fn( array $hook ) :bool => $hook[ 'hook' ] === $name
+		) ) );
 	}
 
 	private function addCron( int $timestamp, string $hook, array $args ) :void {

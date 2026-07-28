@@ -671,8 +671,9 @@ class ScheduleBuildAllCoordinator {
 
 	public int $discoveries = 0;
 
-	public function discoverMissingSnapshots() :void {
+	public function discoverMissingSnapshots() :bool {
 		$this->discoveries++;
+		return true;
 	}
 }
 

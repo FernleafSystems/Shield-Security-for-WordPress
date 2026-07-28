@@ -123,9 +123,11 @@ class Store {
 
 	public function isUsable() :bool {
 		try {
+			if ( !$this->verifyMeta( $this->readSnapMetaStrict() ) ) {
+				return false;
+			}
 			$snap = $this->readSnapDataStrict();
-			return $this->verifyMeta( $this->readSnapMetaStrict() )
-				   && !empty( $snap )
+			return !empty( $snap )
 				   && $snap === ( new NormalizeHashMap() )->toScalarMap( $snap );
 		}
 		catch ( \Throwable $e ) {

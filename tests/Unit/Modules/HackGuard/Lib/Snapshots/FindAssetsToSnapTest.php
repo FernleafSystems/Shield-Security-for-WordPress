@@ -85,42 +85,65 @@ class FindAssetsToSnapTest extends BaseUnitTest {
 		) ) );
 	}
 
-	public function test_reloads_canonical_assets_deduplicates_resolved_identity_and_isolates_invalid_inventory() :void {
+	public function test_keeps_unique_assets_without_provider_reloads_and_isolates_invalid_inventory() :void {
+		$uniquePlugin = new SnapshotPluginVo( 'unique/plugin.php', '1.0.0' );
+		$rootPlugin = new SnapshotPluginVo( 'root-plugin.php', '4.0.0' );
+		$uniqueTheme = new SnapshotThemeVo( 'unique-theme', '2.0.0' );
+		$plugins = new FindAssetsRecordingPlugins( [
+			$uniquePlugin,
+			$uniquePlugin,
+			$rootPlugin,
+			new SnapshotPluginVo( ' ', '1.0.0' ),
+			new SnapshotPluginVo( 'blank-version/plugin.php', ' ' ),
+			new FindAssetsWrongTypePluginVo( 'wrong-type/plugin.php', '1.0.0' ),
+			null,
+			new \stdClass(),
+		], [] );
+		$themes = new FindAssetsRecordingThemes( [
+			$uniqueTheme,
+			$uniqueTheme,
+			new SnapshotThemeVo( ' ', '1.0.0' ),
+			new SnapshotThemeVo( 'blank-version-theme', ' ' ),
+			new FindAssetsWrongTypeThemeVo( 'wrong-type-theme', '1.0.0' ),
+			'not-a-theme',
+		], [] );
+		ServicesState::installItems( [
+			'service_wpplugins' => $plugins,
+			'service_wpthemes'  => $themes,
+		] );
+
+		$assets = ( new FindAssetsToSnap() )->run();
+
+		$this->assertSame( [
+			'plugin|unique/plugin.php|1.0.0',
+			'plugin|root-plugin.php|4.0.0',
+			'theme|unique-theme|2.0.0',
+		], $this->assetKeys( $assets ) );
+		$this->assertSame( [], $plugins->reloads );
+		$this->assertSame( [], $themes->reloads );
+	}
+
+	public function test_reloads_each_conflicting_identity_once_and_uses_only_a_valid_resolution() :void {
 		$pluginV1 = new SnapshotPluginVo( 'duplicate/plugin.php', '1.0.0' );
 		$pluginV2 = new SnapshotPluginVo( 'duplicate/plugin.php', '2.0.0' );
 		$currentPlugin = new SnapshotPluginVo( 'duplicate/plugin.php', '3.0.0' );
-		$rootPlugin = new SnapshotPluginVo( 'root-plugin.php', '4.0.0' );
-		$blankPlugin = new SnapshotPluginVo( ' ', '1.0.0' );
-		$blankPluginVersion = new SnapshotPluginVo( 'blank-version/plugin.php', ' ' );
-		$wrongPluginType = new FindAssetsWrongTypePluginVo( 'wrong-type/plugin.php', '1.0.0' );
-		$unresolvedPlugin = new SnapshotPluginVo( 'unresolved/plugin.php', '1.0.0' );
-		$conflictingPlugin = new SnapshotPluginVo( 'conflict/plugin.php', '1.0.0' );
+		$conflictPluginV1 = new SnapshotPluginVo( 'conflict/plugin.php', '1.0.0' );
+		$conflictPluginV2 = new SnapshotPluginVo( 'conflict/plugin.php', '2.0.0' );
 
 		$themeV1 = new SnapshotThemeVo( 'duplicate-theme', '1.0.0' );
 		$themeV2 = new SnapshotThemeVo( 'duplicate-theme', '2.0.0' );
 		$currentTheme = new SnapshotThemeVo( 'duplicate-theme', '3.0.0' );
-		$blankTheme = new SnapshotThemeVo( ' ', '1.0.0' );
-		$blankThemeVersion = new SnapshotThemeVo( 'blank-version-theme', ' ' );
-		$wrongThemeType = new FindAssetsWrongTypeThemeVo( 'wrong-type-theme', '1.0.0' );
-		$unresolvedTheme = new SnapshotThemeVo( 'unresolved-theme', '1.0.0' );
 
 		$plugins = new FindAssetsRecordingPlugins(
 			[
 				$pluginV1,
 				$pluginV2,
 				$pluginV2,
-				$rootPlugin,
-				$blankPlugin,
-				$blankPluginVersion,
-				$wrongPluginType,
-				$unresolvedPlugin,
-				$conflictingPlugin,
-				null,
-				new \stdClass(),
+				$conflictPluginV1,
+				$conflictPluginV2,
 			],
 			[
 				'duplicate/plugin.php' => $currentPlugin,
-				'root-plugin.php'      => $rootPlugin,
 				'conflict/plugin.php'  => new SnapshotPluginVo( 'other/plugin.php', '1.0.0' ),
 			]
 		);
@@ -129,11 +152,6 @@ class FindAssetsToSnapTest extends BaseUnitTest {
 				$themeV1,
 				$themeV2,
 				$themeV2,
-				$blankTheme,
-				$blankThemeVersion,
-				$wrongThemeType,
-				$unresolvedTheme,
-				'not-a-theme',
 			],
 			[
 				'duplicate-theme' => $currentTheme,
@@ -148,26 +166,26 @@ class FindAssetsToSnapTest extends BaseUnitTest {
 
 		$this->assertSame( [
 			'plugin|duplicate/plugin.php|3.0.0',
-			'plugin|root-plugin.php|4.0.0',
 			'theme|duplicate-theme|3.0.0',
-		], \array_values( \array_map(
+		], $this->assetKeys( $assets ) );
+		$this->assertSame( [
+			[ 'duplicate/plugin.php', true ],
+			[ 'conflict/plugin.php', true ],
+		], $plugins->reloads );
+		$this->assertSame( [
+			[ 'duplicate-theme', true ],
+		], $themes->reloads );
+	}
+
+	private function assetKeys( array $assets ) :array {
+		return \array_values( \array_map(
 			static fn( $asset ) :string => \implode( '|', [
 				$asset->asset_type,
 				$asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
 				$asset->Version,
 			] ),
 			$assets
-		) ) );
-		$this->assertSame( [
-			[ 'duplicate/plugin.php', true ],
-			[ 'root-plugin.php', true ],
-			[ 'unresolved/plugin.php', true ],
-			[ 'conflict/plugin.php', true ],
-		], $plugins->reloads );
-		$this->assertSame( [
-			[ 'duplicate-theme', true ],
-			[ 'unresolved-theme', true ],
-		], $themes->reloads );
+		) );
 	}
 }
 

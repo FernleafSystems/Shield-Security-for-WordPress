@@ -15,50 +15,57 @@ class FindAssetsToSnap {
 	 */
 	public function run() :array {
 		$assets = [];
-		foreach ( [
-			'plugin' => Services::WpPlugins()->getPluginsAsVo(),
-			'theme'  => Services::WpThemes()->getThemesAsVo(),
-		] as $type => $candidates ) {
-			foreach ( $this->collectValidKeys( $candidates, $type ) as $key ) {
+		$providers = [
+			'plugin' => Services::WpPlugins(),
+			'theme'  => Services::WpThemes(),
+		];
+		foreach ( $providers as $type => $provider ) {
+			$candidates = $type === 'plugin'
+				? $provider->getPluginsAsVo()
+				: $provider->getThemesAsVo();
+			$byKey = [];
+			$conflicts = [];
+			foreach ( $candidates as $candidate ) {
 				try {
-					$asset = $type === 'plugin'
-						? Services::WpPlugins()->getPluginAsVo( $key, true )
-						: Services::WpThemes()->getThemeAsVo( $key, true );
-					if ( !$this->isValidAsset( $asset, $type, $key ) ) {
+					if ( !$this->isValidAsset( $candidate, $type ) ) {
 						$this->logInvalid( $type );
 						continue;
 					}
-					$assets[] = $asset;
+					$key = $type === 'plugin' ? $candidate->file : $candidate->stylesheet;
+					if ( !isset( $byKey[ $key ] ) ) {
+						$byKey[ $key ] = $candidate;
+					}
+					elseif ( $byKey[ $key ]->version !== $candidate->version ) {
+						$conflicts[ $key ] = true;
+					}
 				}
 				catch ( \Throwable $e ) {
 					$this->logInvalid( $type );
 				}
 			}
+
+			foreach ( \array_keys( $conflicts ) as $key ) {
+				try {
+					$resolved = $type === 'plugin'
+						? $provider->getPluginAsVo( $key, true )
+						: $provider->getThemeAsVo( $key, true );
+					if ( !$this->isValidAsset( $resolved, $type, $key ) ) {
+						$this->logInvalid( $type );
+						unset( $byKey[ $key ] );
+						continue;
+					}
+					$byKey[ $key ] = $resolved;
+				}
+				catch ( \Throwable $e ) {
+					$this->logInvalid( $type );
+					unset( $byKey[ $key ] );
+				}
+			}
+
+			$assets = \array_merge( $assets, \array_values( $byKey ) );
 		}
 
 		return $assets;
-	}
-
-	/**
-	 * @param mixed[] $candidates
-	 * @return string[]
-	 */
-	private function collectValidKeys( array $candidates, string $type ) :array {
-		$keys = [];
-		foreach ( $candidates as $candidate ) {
-			try {
-				if ( !$this->isValidAsset( $candidate, $type ) ) {
-					$this->logInvalid( $type );
-					continue;
-				}
-				$key = $type === 'plugin' ? $candidate->file : $candidate->stylesheet;
-				$keys[ $key ] = true;
-			}
-			catch ( \Throwable $e ) {
-				$this->logInvalid( $type );
-			}
-		}
-		return \array_keys( $keys );
 	}
 
 	/**
