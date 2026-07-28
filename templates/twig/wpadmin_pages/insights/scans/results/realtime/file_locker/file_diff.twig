@@ -19,7 +19,11 @@
 		<hr />
 		<div class="row my-4">
 			<div class="col">
-				{{ html.diff|raw }}
+				{% if flags.diff_available %}
+					{{ html.diff|raw }}
+				{% else %}
+					{{ strings.diff_unavailable }}
+				{% endif %}
 			</div>
 		</div>
 	{% endif %}

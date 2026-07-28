@@ -45,6 +45,7 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 			'success' => true,
 			'flags'   => [
 				'has_diff'              => true,
+				'diff_available'        => true,
 				'original_file_missing' => false,
 				'current_content_empty' => false,
 			],
@@ -66,6 +67,7 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 				'file_accept'           => 'Accept File',
 				'file_accept_checkbox'  => 'Confirm accept',
 				'butt_accept'           => 'Accept',
+				'diff_unavailable'      => 'Comparison warning sentinel',
 			],
 			'vars'    => [
 				'rid'                => 14,
@@ -88,12 +90,15 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 		];
 	}
 
-	public function testFileLockerDiffTemplateUsesRecordScopedCheckboxIds() :void {
-		$html = '<div>'.$this->twig()->render(
+	private function renderContext( array $context ) :\DOMXPath {
+		return $this->createDomXPathFromHtml( '<div>'.$this->twig()->render(
 			'/wpadmin_pages/insights/scans/results/realtime/file_locker/file_diff.twig',
-			$this->buildRenderContext()
-		).'</div>';
-		$xpath = $this->createDomXPathFromHtml( $html );
+			$context
+		).'</div>' );
+	}
+
+	public function testFileLockerDiffTemplateUsesRecordScopedCheckboxIds() :void {
+		$xpath = $this->renderContext( $this->buildRenderContext() );
 
 		$this->assertSame(
 			1,
@@ -120,5 +125,57 @@ class FileLockerDiffTwigTest extends BaseUnitTest {
 			$xpath->query( '//input[@id="ConfirmFileRestore" or @id="ConfirmFileAccept"]' )->length,
 			'File Locker diff template should no longer render global fixed confirmation checkbox IDs'
 		);
+	}
+
+	public function testFileLockerDiffTemplateRendersAvailableDiffAndFunctionalControls() :void {
+		$context = $this->buildRenderContext();
+		$context[ 'html' ][ 'diff' ] = '<span data-test-marker="diff-available">Diff marker</span>';
+		$xpath = $this->renderContext( $context );
+
+		$this->assertSame( 1, $xpath->query( '//*[@data-test-marker="diff-available"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//a[@href="/download/original"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//a[@href="/download/current"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//input[@type="submit" and @data-action="restore" and @data-rid="14"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//input[@type="submit" and @data-action="accept" and @data-rid="14"]' )->length );
+	}
+
+	public function testFileLockerDiffTemplateKeepsActionsWhenComparisonUnavailable() :void {
+		$context = $this->buildRenderContext();
+		$context[ 'flags' ][ 'diff_available' ] = false;
+		$context[ 'html' ][ 'diff' ] = '<span data-test-marker="raw-diff-secret">Raw diff secret</span>';
+		$xpath = $this->renderContext( $context );
+
+		$this->assertSame( 0, $xpath->query( '//*[@data-test-marker="raw-diff-secret"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//*[contains(text(), "Comparison warning sentinel")]' )->length );
+		$this->assertSame( 1, $xpath->query( '//a[@href="/download/original"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//a[@href="/download/current"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//input[@id="ConfirmFileRestore-14"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//input[@id="ConfirmFileAccept-14"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//input[@type="submit" and @data-action="restore" and @data-rid="14"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//input[@type="submit" and @data-action="accept" and @data-rid="14"]' )->length );
+	}
+
+	public function testFileLockerDiffTemplatePreservesUnchangedRecordBehaviour() :void {
+		$context = $this->buildRenderContext();
+		$context[ 'flags' ][ 'has_diff' ] = false;
+		$context[ 'flags' ][ 'diff_available' ] = false;
+		$context[ 'html' ][ 'diff' ] = '<span data-test-marker="unexpected-diff">Unexpected diff</span>';
+		$xpath = $this->renderContext( $context );
+
+		$this->assertSame( 0, $xpath->query( '//*[@data-test-marker="unexpected-diff"]' )->length );
+		$this->assertSame( 1, $xpath->query( '//a[@href="/download/original"]' )->length );
+		$this->assertSame( 0, $xpath->query( '//a[@href="/download/current"]' )->length );
+		$this->assertSame( 0, $xpath->query( '//input[@data-action="restore" or @data-action="accept"]' )->length );
+	}
+
+	public function testFileLockerDiffTemplateKeepsWholeModalFailureBehaviour() :void {
+		$context = $this->buildRenderContext();
+		$context[ 'success' ] = false;
+		$context[ 'error' ] = 'Whole modal error sentinel';
+		$xpath = $this->renderContext( $context );
+
+		$this->assertSame( 1, $xpath->query( '//*[contains(text(), "Whole modal error sentinel")]' )->length );
+		$this->assertSame( 0, $xpath->query( '//a[@href="/download/original" or @href="/download/current"]' )->length );
+		$this->assertSame( 0, $xpath->query( '//input[@data-action="restore" or @data-action="accept"]' )->length );
 	}
 }

@@ -35,17 +35,31 @@ class ScansFileLockerDiff extends BaseScans {
 				}
 			}
 
+			$original = ( new FileLocker\Ops\ReadOriginalFileContent() )->run( $lock );
+			$diff = '';
+			$diffAvailable = false;
+			if ( $isDifferent ) {
+				try {
+					$diff = $this->generateDiff( $original, $current );
+					$diffAvailable = true;
+				}
+				catch ( \Throwable $e ) {
+					// Diff availability is represented explicitly in the render contract.
+				}
+			}
+
 			$data = [
 				'error'   => '',
 				'success' => false,
 				'ajax'    => $FLCon->createFileDownloadLinks( $lock ),
 				'flags'   => [
 					'has_diff'              => $isDifferent,
+					'diff_available'        => $diffAvailable,
 					'original_file_missing' => $originalFileMissing,
 					'current_content_empty' => $currentContentEmpty ?? false,
 				],
 				'html'    => [
-					'diff' => $isDifferent ? ( new Diff() )->run( $lock, $current ) : '',
+					'diff' => $diff,
 				],
 				'vars'    => [
 					'rid' => $RID,
@@ -78,6 +92,7 @@ class ScansFileLockerDiff extends BaseScans {
 					'file_restore'          => __( 'Restore Original File', 'wp-simple-firewall' ),
 					'file_restore_checkbox' => __( 'Are you sure you want to restore the original file contents?', 'wp-simple-firewall' ),
 					'file_restore_button'   => __( 'Are you sure you want to restore the original file contents?', 'wp-simple-firewall' ),
+					'diff_unavailable'      => __( 'The file comparison could not be displayed. File details and actions are still available below.', 'wp-simple-firewall' ),
 				]
 			];
 
@@ -103,7 +118,7 @@ class ScansFileLockerDiff extends BaseScans {
 			$data[ 'vars' ][ 'file_size_modified' ] = $FS->exists( $lock->path ) ? FormatBytes::Format( $FS->getFileSize( $lock->path ), 3 ) : 0;
 			$data[ 'vars' ][ 'file_name' ] = \basename( $lock->path );
 
-			$data[ 'vars' ][ 'file_size_locked' ] = FormatBytes::Format( \strlen( ( new FileLocker\Ops\ReadOriginalFileContent() )->run( $lock ) ), 3 );
+			$data[ 'vars' ][ 'file_size_locked' ] = FormatBytes::Format( \strlen( $original ), 3 );
 
 			$data[ 'success' ] = true;
 		}
@@ -112,5 +127,9 @@ class ScansFileLockerDiff extends BaseScans {
 		}
 
 		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), $data );
+	}
+
+	protected function generateDiff( string $original, string $current ) :string {
+		return ( new Diff() )->run( $original, $current );
 	}
 }
