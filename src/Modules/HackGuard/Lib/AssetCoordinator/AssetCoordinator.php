@@ -158,7 +158,7 @@ class AssetCoordinator {
 				}
 			}
 		}
-		$buildPending = !empty( $state[ 'build_missing_snapshots' ] );
+		$buildPending = \is_main_network() && !empty( $state[ 'build_missing_snapshots' ] );
 		$wpvDue = isset( $state[ 'wpv' ] )
 				  && $state[ 'wpv' ][ 'attempts' ] < self::MAX_ATTEMPTS
 				  && $state[ 'wpv' ][ 'due_at' ] > 0
@@ -218,7 +218,7 @@ class AssetCoordinator {
 			 && $state[ 'wpv' ][ 'due_at' ] > 0 ) {
 			$nextDue = $nextDue === null ? $state[ 'wpv' ][ 'due_at' ] : \min( $nextDue, $state[ 'wpv' ][ 'due_at' ] );
 		}
-		if ( !empty( $state[ 'build_missing_snapshots' ] ) ) {
+		if ( \is_main_network() && !empty( $state[ 'build_missing_snapshots' ] ) ) {
 			$buildDue = $now + self::BUILD_DELAY;
 			$nextDue = $nextDue === null ? $buildDue : \min( $nextDue, $buildDue );
 		}
@@ -342,6 +342,9 @@ class AssetCoordinator {
 		foreach ( Services::WpCron()->getCrons() as $timestamp => $scheduledHooks ) {
 			$timestamp = (int)$timestamp;
 			foreach ( $hooks as $type => $hook ) {
+				if ( $type === self::LEGACY_BUILD && !\is_main_network() ) {
+					continue;
+				}
 				foreach ( (array)( $scheduledHooks[ $hook ] ?? [] ) as $instance ) {
 					$args = \is_array( $instance[ 'args' ] ?? null ) ? $instance[ 'args' ] : [];
 					if ( $type === self::LEGACY_AFS ) {

@@ -74,4 +74,55 @@ class NormalizeHashMapTest extends BaseUnitTest {
 			'Valid/File.php' => [ self::MD5 ],
 		], $normalised );
 	}
+
+	public function test_scalar_map_accepts_only_complete_supported_canonicalizable_data() :void {
+		$this->assertSame( [
+			'src/File.php' => self::MD5,
+			'style.css'    => self::SHA1,
+			'asset.js'     => self::SHA256,
+		], ( new NormalizeHashMap() )->toScalarMap( [
+			'src\\File.php' => self::MD5,
+			'style.css'     => self::SHA1,
+			'asset.js'      => self::SHA256,
+		] ) );
+	}
+
+	/**
+	 * @dataProvider provideInvalidScalarMaps
+	 */
+	public function test_scalar_map_rejects_entire_map_on_any_invalid_entry( $hashes ) :void {
+		$this->assertSame( [], ( new NormalizeHashMap() )->toScalarMap( $hashes ) );
+	}
+
+	public function provideInvalidScalarMaps() :array {
+		return [
+			'empty map' => [ [] ],
+			'not an array' => [ 'not-an-array' ],
+			'partial invalid path' => [ [
+				'valid.php'  => self::MD5,
+				'../bad.php' => self::SHA1,
+			] ],
+			'partial invalid hash' => [ [
+				'valid.php' => self::MD5,
+				'bad.php'   => 'unsupported-hash',
+			] ],
+			'nonscalar hash' => [ [
+				'valid.php' => self::MD5,
+				'bad.php'   => new \stdClass(),
+			] ],
+			'list-valued hash' => [ [
+				'valid.php' => [ self::MD5 ],
+			] ],
+			'multiple hashes' => [ [
+				'valid.php' => [ self::MD5, self::SHA1 ],
+			] ],
+			'uppercase hash' => [ [
+				'valid.php' => \strtoupper( self::MD5 ),
+			] ],
+			'normalised path collision' => [ [
+				'src\\File.php' => self::MD5,
+				'src/File.php'  => self::SHA1,
+			] ],
+		];
+	}
 }

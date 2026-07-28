@@ -213,7 +213,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		) );
 	}
 
-	public function test_shutdown_discovery_enqueues_one_build_intent_only_for_missing_assets() :void {
+	public function test_shutdown_discovery_coalesces_clears_and_later_rediscovers_missing_assets() :void {
 		ServicesState::mergeItems( [
 			'service_wpplugins' => new SnapshotPlugins( [
 				new SnapshotPluginVo( 'missing-snapshot/plugin.php', '1.0.0' ),
@@ -239,6 +239,11 @@ class AssetCoordinatorTest extends BaseUnitTest {
 
 		$coordinator->runDueWork();
 		$this->assertArrayNotHasKey( 'build_missing_snapshots', $this->state() );
+		$this->assertSame( [], $this->scans->assets );
+		$this->assertSame( 0, $this->scans->wpvCalls );
+
+		$coordinator->discoverMissingSnapshots();
+		$this->assertTrue( $this->state()[ 'build_missing_snapshots' ] );
 	}
 
 	public function test_shutdown_discovery_respects_network_and_self_upgrade_guards() :void {
@@ -257,6 +262,26 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->controller->is_my_upgrade = true;
 		$coordinator->discoverMissingSnapshots();
 		$this->assertArrayNotHasKey( 'build_missing_snapshots', $this->state() );
+		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
+	}
+
+	public function test_subnetwork_does_not_run_shared_routine_snapshot_work() :void {
+		$this->isMainNetwork = false;
+		$this->options[ $this->optionKey() ] = [
+			'assets' => [
+				'plugin' => [],
+				'theme'  => [],
+				'core'   => [],
+			],
+			'build_missing_snapshots' => true,
+		];
+
+		( new AssetCoordinator() )->runDueWork();
+		( new AssetCoordinator() )->reconcileWakeup();
+
+		$this->assertTrue( $this->state()[ 'build_missing_snapshots' ] );
+		$this->assertSame( [], $this->scans->assets );
+		$this->assertSame( 0, $this->scans->wpvCalls );
 		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
 	}
 
@@ -414,6 +439,17 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'Shield asset coordinator state write failed.',
 			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages
 		);
+	}
+
+	public function test_subnetwork_leaves_legacy_snapshot_build_for_the_main_network_owner() :void {
+		$this->isMainNetwork = false;
+		$this->addCron( 1700000030, 'icwp-wpsf-ptg_build_snapshots', [] );
+
+		( new AssetCoordinator() )->execute();
+
+		$this->assertArrayNotHasKey( 'build_missing_snapshots', $this->state() );
+		$this->assertCount( 1, $this->cronEvents( 'icwp-wpsf-ptg_build_snapshots' ) );
+		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
 	}
 
 	public function test_unchanged_update_result_is_accepted_only_for_exact_stored_state() :void {
@@ -682,6 +718,10 @@ class AssetCoordinatorTestPlugins extends Plugins {
 }
 
 class AssetCoordinatorTestThemes extends Themes {
+
+	public function getThemesAsVo() :array {
+		return [];
+	}
 
 	public function getCurrent() {
 		return new class {

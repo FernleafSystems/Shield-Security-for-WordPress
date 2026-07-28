@@ -10,6 +10,7 @@ class SnapshotPluginVo extends WpPluginVo {
 	public string $Name;
 	public string $Version;
 	public bool $active = true;
+	public bool $wpOrg = false;
 
 	public function __construct( string $file, string $version, string $name = 'Snapshot Plugin' ) {
 		$this->file = $file;
@@ -37,6 +38,6 @@ class SnapshotPluginVo extends WpPluginVo {
 	}
 
 	public function isWpOrg() :bool {
-		return false;
+		return $this->wpOrg;
 	}
 }

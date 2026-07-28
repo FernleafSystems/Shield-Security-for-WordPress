@@ -11,6 +11,10 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
+	AssetTrustResolver,
+	Retrieve
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 	HashesStorageDir,
 	Store
@@ -29,7 +33,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\AssetSnapshots\{
 	SnapshotPlugins,
 	SnapshotPluginVo,
 	SnapshotThemes,
-	SnapshotThemeVo
+	SnapshotThemeVo,
+	SnapshotWpGeneral
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
 	CacheStoreTestCacheDir,
@@ -51,6 +56,8 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 	use TempDirLifecycleTrait;
 	use WrittenFixtureFiles;
 
+	private const MD5 = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+
 	public static array $capturedErrorLogs = [];
 
 	private array $servicesSnapshot = [];
@@ -59,8 +66,22 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		parent::setUp();
 		self::$capturedErrorLogs = [];
 		$this->servicesSnapshot = ServicesState::snapshot();
+		Retrieve::resetMemoization();
+		AssetTrustResolver::resetMemoization();
 		$this->resetHashesStorageDir();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'add_query_arg' )->alias(
+			static function ( array $args, string $url ) :string {
+				return empty( $args ) ? $url : $url.'?'.\http_build_query( $args );
+			}
+		);
+		Functions\when( 'wp_http_validate_url' )->justReturn( true );
+		Functions\when( 'is_wp_error' )->justReturn( false );
+		Functions\when( 'wp_remote_request' )->alias(
+			static fn() :array => self::httpResponse( [
+				'routes_regex' => '#^hashes$#',
+			] )
+		);
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalizePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
 		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => \json_encode( $data ) );
 		Functions\when( 'wp_normalize_path' )->alias( fn( string $path ) :string => $this->normalizePath( $path ) );
@@ -72,6 +93,8 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
+		Retrieve::resetMemoization();
+		AssetTrustResolver::resetMemoization();
 		$this->resetHashesStorageDir();
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
@@ -80,11 +103,12 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_verified_current_snapshot_excludes_asset_from_build_list() :void {
+	public function test_usable_current_snapshot_excludes_asset_from_build_list() :void {
 		$asset = new SnapshotPluginVo( 'snapshot-current/plugin.php', '1.0.0' );
+		$asset->active = false;
 		$this->installEnvironment( [ $asset ] );
 		$this->writeStore( $asset, [
-			'plugin.php' => 'current-hash',
+			'plugin.php' => self::MD5,
 		], [
 			'version'   => '1.0.0',
 			'unique_id' => 'snapshot-current/plugin.php',
@@ -104,7 +128,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$asset = new SnapshotPluginVo( 'snapshot-stale/plugin.php', '2.0.0' );
 		$this->installEnvironment( [ $asset ] );
 		$this->writeStore( $asset, [
-			'plugin.php' => 'old-hash',
+			'plugin.php' => self::MD5,
 		], [
 			'version'   => '1.0.0',
 			'unique_id' => 'snapshot-stale/plugin.php',
@@ -113,11 +137,12 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertSame( [ 'snapshot-stale/plugin.php' ], $this->assetKeysThatNeedBuilt() );
 	}
 
-	public function test_verified_current_theme_snapshot_excludes_asset_from_build_list() :void {
+	public function test_usable_current_theme_snapshot_excludes_asset_from_build_list() :void {
 		$asset = new SnapshotThemeVo( 'snapshot-current-theme', '1.0.0' );
+		$asset->active = false;
 		$this->installEnvironment( [], [ $asset ] );
 		$this->writeStore( $asset, [
-			'style.css' => 'current-hash',
+			'style.css' => self::MD5,
 		], [
 			'version'   => '1.0.0',
 			'unique_id' => 'snapshot-current-theme',
@@ -137,7 +162,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$asset = new SnapshotThemeVo( 'snapshot-stale-theme', '2.0.0' );
 		$this->installEnvironment( [], [ $asset ] );
 		$this->writeStore( $asset, [
-			'style.css' => 'old-hash',
+			'style.css' => self::MD5,
 		], [
 			'version'   => '1.0.0',
 			'unique_id' => 'snapshot-stale-theme',
@@ -186,9 +211,238 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 
 		$this->invokeBuild();
 
-		$this->assertNotSame( [], \glob( $uploadsRoot.'/ptguard-*/plugins/snapshot-build-root-1.0.0.txt' ) ?: [] );
+		$this->assertNotSame(
+			[],
+			\glob( $uploadsRoot.'/ptguard-*/plugins/snapshot-build-root-1.0.0.txt' ) ?: [],
+			\implode( "\n", self::$capturedErrorLogs )
+		);
 		$this->assertSame( [], \glob( $cacheRoot.'/ptguard-*/plugins/snapshot-build-root-1.0.0.txt' ) ?: [] );
 		$this->assertSame( [], $this->assetKeysThatNeedBuilt() );
+	}
+
+	public function test_published_plugin_request_reaches_canonical_api_path_and_persists_live_hashes() :void {
+		$asset = new SnapshotPluginVo( 'published-plugin/plugin.php', '1.2.3' );
+		$asset->wpOrg = true;
+		$root = $this->makeTempDir( 'published-plugin' );
+		$this->installBuildEnvironment( [ $asset ], $root );
+		$urls = [];
+		$this->mockPublishedResponse( [
+			'src\\Plugin.php' => self::MD5,
+		], $urls );
+
+		$this->invokeBuild();
+
+		$store = $this->loadStore( $asset );
+		$this->assertTrue( $store->isUsable() );
+		$this->assertSame( [
+			'src/Plugin.php' => self::MD5,
+		], $store->getSnapData() );
+		$this->assertTrue( $store->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertCount( 1, $urls );
+		$this->assertStringContainsString( '/hashes/p/published-plugin/1.2.3/md5', $urls[ 0 ] );
+	}
+
+	public function test_published_theme_request_reaches_canonical_api_path_and_persists_live_hashes() :void {
+		$asset = new SnapshotThemeVo( 'published-theme', '4.5.6' );
+		$asset->wpOrg = true;
+		$root = $this->makeTempDir( 'published-theme' );
+		$this->installBuildEnvironment( [], $root, [ $asset ] );
+		$urls = [];
+		$this->mockPublishedResponse( [
+			'style.css' => self::MD5,
+		], $urls );
+
+		$this->invokeBuild();
+
+		$store = $this->loadStore( $asset );
+		$this->assertTrue( $store->isUsable() );
+		$this->assertSame( [
+			'style.css' => self::MD5,
+		], $store->getSnapData() );
+		$this->assertTrue( $store->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertCount( 1, $urls );
+		$this->assertStringContainsString( '/hashes/t/published-theme/4.5.6/md5', $urls[ 0 ] );
+	}
+
+	/**
+	 * @dataProvider provideUnusablePublishedMaps
+	 */
+	public function test_unusable_published_map_falls_back_to_complete_local_baseline(
+		string $slug,
+		array $published
+	) :void {
+		$asset = new SnapshotPluginVo( $slug.'/plugin.php', '2.0.0' );
+		$asset->wpOrg = true;
+		$root = $this->makeTempDir( $slug );
+		$path = WP_PLUGIN_DIR.'/'.$asset->file;
+		$this->installBuildEnvironment( [ $asset ], $root );
+		$this->writeFile( $path, "<?php\n// local fallback\n" );
+		$urls = [];
+		$this->mockPublishedResponse( $published, $urls );
+
+		$this->invokeBuild();
+
+		$store = $this->loadStore( $asset );
+		$this->assertTrue( $store->isUsable() );
+		$this->assertSame( [
+			'plugin.php' => \md5_file( $path ),
+		], $store->getSnapData() );
+		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertCount( 1, $urls );
+	}
+
+	public function provideUnusablePublishedMaps() :array {
+		return [
+			'empty' => [
+				'empty-published',
+				[],
+			],
+			'partially invalid' => [
+				'partial-published',
+				[
+					'valid.php' => self::MD5,
+					'bad.php'   => 'unsupported-hash',
+				],
+			],
+			'normalised collision' => [
+				'colliding-published',
+				[
+					'src\\File.php' => self::MD5,
+					'src/File.php'  => \str_repeat( 'b', 32 ),
+				],
+			],
+		];
+	}
+
+	public function test_published_api_exception_falls_back_to_usable_local_baseline() :void {
+		$asset = new SnapshotPluginVo( 'published-exception/plugin.php', '2.0.0' );
+		$asset->wpOrg = true;
+		$root = $this->makeTempDir( 'published-exception' );
+		$path = WP_PLUGIN_DIR.'/'.$asset->file;
+		$this->installBuildEnvironment( [ $asset ], $root );
+		$this->writeFile( $path, "<?php\n// local exception fallback\n" );
+		Functions\when( 'wp_remote_request' )->alias(
+			static function () :array {
+				throw new \Exception( 'Synthetic published source failure.' );
+			}
+		);
+
+		$this->invokeBuild();
+
+		$store = $this->loadStore( $asset );
+		$this->assertTrue( $store->isUsable() );
+		$this->assertSame( [
+			'plugin.php' => \md5_file( $path ),
+		], $store->getSnapData() );
+		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
+	}
+
+	public function test_missing_inactive_root_plugin_builds_a_usable_local_baseline() :void {
+		$asset = new SnapshotPluginVo( 'inactive-root.php', '2.0.0' );
+		$asset->active = false;
+		$root = $this->makeTempDir( 'inactive-root' );
+		$path = WP_PLUGIN_DIR.'/'.$asset->file;
+		$this->installBuildEnvironment( [ $asset ], $root, [], true );
+		$this->writeFile( $path, "<?php\n// inactive root plugin\n" );
+
+		$this->invokeBuild();
+
+		$store = $this->loadStore( $asset );
+		$this->assertTrue( $store->isUsable() );
+		$this->assertSame( [
+			$asset->file => \md5_file( $path ),
+		], $store->getSnapData() );
+		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertSame( 0, $store->getSnapMeta()[ 'cs_hashes_at' ] );
+		$this->assertSame( [], $this->assetKeysThatNeedBuilt() );
+	}
+
+	/**
+	 * @dataProvider provideChildThemeFlags
+	 */
+	public function test_child_theme_uses_local_baseline_without_published_or_crowdsource_work(
+		bool $activeChild,
+		bool $inactiveChild
+	) :void {
+		$asset = new SnapshotThemeVo(
+			$activeChild ? 'active-child-theme' : 'inactive-child-theme',
+			'3.0.0'
+		);
+		$asset->child = $activeChild;
+		$asset->inactiveChild = $inactiveChild;
+		$asset->wpOrg = true;
+		$root = $this->makeTempDir( $asset->stylesheet );
+		$path = $asset->getInstallDir().'style.css';
+		$this->installBuildEnvironment( [], $root, [ $asset ], true );
+		$this->writeFile( $path, "/* local child theme */\n" );
+		$requests = 0;
+		Functions\when( 'wp_remote_request' )->alias(
+			static function () use ( &$requests ) {
+				$requests++;
+				return [];
+			}
+		);
+
+		$this->invokeBuild();
+
+		$store = $this->loadStore( $asset );
+		$this->assertTrue( $store->isUsable() );
+		$this->assertSame( [
+			'style.css' => \md5_file( $path ),
+		], $store->getSnapData() );
+		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertSame( 0, $store->getSnapMeta()[ 'cs_hashes_at' ] );
+		$this->assertSame( 0, $requests );
+	}
+
+	public function provideChildThemeFlags() :array {
+		return [
+			'active child'   => [ true, false ],
+			'inactive child' => [ false, true ],
+		];
+	}
+
+	public function test_successful_replacement_resets_hash_and_asset_context_memoization() :void {
+		$asset = new SnapshotPluginVo( 'memo-reset/plugin.php', '1.0.0' );
+		$root = $this->makeTempDir( 'memo-reset' );
+		$this->installBuildEnvironment( [ $asset ], $root );
+		$this->writeFile( WP_PLUGIN_DIR.'/'.$asset->file, "<?php\n// replacement\n" );
+		$this->seedMemoization();
+
+		$this->invokeBuild();
+
+		$this->assertMemoizationEmpty();
+		$this->assertTrue( $this->loadStore( $asset )->isUsable() );
+	}
+
+	public function test_failed_preparation_does_not_claim_success_or_reset_memoization() :void {
+		$asset = new SnapshotPluginVo( 'memo-preserved/missing.php', '1.0.0' );
+		$root = $this->makeTempDir( 'memo-preserved' );
+		$this->installBuildEnvironment( [ $asset ], $root );
+		$this->seedMemoization();
+
+		$this->invokeBuild();
+
+		$this->assertMemoizationSeeded();
+		$this->assertSame( [ $asset->file ], $this->assetKeysThatNeedBuilt() );
+	}
+
+	public function test_one_asset_throwable_does_not_prevent_a_sibling_build() :void {
+		$failing = new ScheduleBuildAllThrowingPluginVo( 'failing/plugin.php', '1.0.0' );
+		$sibling = new SnapshotPluginVo( 'sibling/plugin.php', '1.0.0' );
+		$root = $this->makeTempDir( 'isolated-failure' );
+		$siblingPath = WP_PLUGIN_DIR.'/'.$sibling->file;
+		$this->installBuildEnvironment( [ $failing, $sibling ], $root );
+		$this->writeFile( $siblingPath, "<?php\n// sibling plugin\n" );
+
+		$this->invokeBuild();
+
+		$store = ( new Store( $sibling, true ) )
+			->setWorkingDir( ( new HashesStorageDir() )->getTempDir() );
+		$this->assertTrue( $store->isUsable() );
+		$this->assertSame( [
+			'plugin.php' => \md5_file( $siblingPath ),
+		], $store->getSnapData() );
 	}
 
 	/**
@@ -222,15 +476,23 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 	/**
 	 * @param SnapshotPluginVo[] $plugins
 	 */
-	private function installBuildEnvironment( array $plugins, string $cacheRoot ) :void {
+	private function installBuildEnvironment(
+		array $plugins,
+		string $cacheRoot,
+		array $themes = [],
+		bool $premium = false
+	) :void {
 		$this->resetHashesStorageDir();
 		$fs = new CacheStoreTestFs();
+		$wpGeneral = new SnapshotWpGeneral();
+		$wpGeneral->setTransient( 'apto-wphashes-api-available-routes', '#^hashes$#' );
 		$this->registerCacheStoreWordPressFunctions( $fs, $this->makeTempDir( 'tmp' ) );
 		ServicesState::installItems( [
 			'service_request'   => new CacheStoreTestRequest( 1700000500 ),
 			'service_wpfs'      => $fs,
+			'service_wpgeneral' => $wpGeneral,
 			'service_wpplugins' => new SnapshotPlugins( $plugins ),
-			'service_wpthemes'  => new SnapshotThemes( [] ),
+			'service_wpthemes'  => new SnapshotThemes( $themes ),
 		] );
 		$controller = CacheStoreTestController::install(
 			new CacheStoreTestOptions(),
@@ -251,9 +513,15 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		);
 		$controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
 		$controller->comps = (object)[
-			'license' => new class {
+			'license' => new class( $premium ) {
+				private bool $premium;
+
+				public function __construct( bool $premium ) {
+					$this->premium = $premium;
+				}
+
 				public function hasValidWorkingLicense() :bool {
-					return false;
+					return $this->premium;
 				}
 			},
 		];
@@ -274,19 +542,96 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 	 * @return string[]
 	 */
 	private function assetKeysThatNeedBuilt() :array {
-		$method = new \ReflectionMethod( ScheduleBuildAll::class, 'getAssetsThatNeedBuilt' );
-		$method->setAccessible( true );
-
 		return \array_values( \array_map(
 			static fn( $asset ) :string => $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
-			$method->invoke( new ScheduleBuildAll() )
+			( new ScheduleBuildAll() )->getAssetsThatNeedBuilt()
 		) );
 	}
 
 	private function invokeBuild() :void {
-		$method = new \ReflectionMethod( ScheduleBuildAll::class, 'build' );
-		$method->setAccessible( true );
-		$method->invoke( new ScheduleBuildAll() );
+		( new ScheduleBuildAll() )->build();
+	}
+
+	/**
+	 * @param SnapshotPluginVo|SnapshotThemeVo $asset
+	 */
+	private function loadStore( $asset ) :Store {
+		return ( new Store( $asset, true ) )
+			->setWorkingDir( ( new HashesStorageDir() )->getTempDir() );
+	}
+
+	private function mockPublishedResponse( array $hashes, array &$urls ) :void {
+		Functions\when( 'wp_remote_request' )->alias(
+			static function ( string $url, array $args ) use ( $hashes, &$urls ) :array {
+				unset( $args );
+				if ( \strpos( $url, '/availability' ) !== false ) {
+					return self::httpResponse( [
+						'routes_regex' => '#^hashes$#',
+					] );
+				}
+				$urls[] = $url;
+				return self::httpResponse( [ 'hashes' => $hashes ] );
+			}
+		);
+	}
+
+	private static function httpResponse( array $body ) :array {
+		return [
+			'body'     => \json_encode( $body ),
+			'headers'  => [],
+			'cookies'  => [],
+			'filename' => null,
+			'response' => [
+				'code'    => 200,
+				'message' => 'OK',
+			],
+		];
+	}
+
+	private function seedMemoization() :void {
+		$this->setStaticProperty( Retrieve::class, 'hashes', [ 'seed' => [ 'hash' ] ] );
+		$this->setStaticProperty( Retrieve::class, 'trustedSources', [ 'seed' => true ] );
+		foreach ( [
+			'plugins',
+			'themesByDir',
+			'contextsByPath',
+			'nonAssetMissesByPath',
+			'relativePathsByPath',
+		] as $property ) {
+			$this->setStaticProperty( AssetTrustResolver::class, $property, [ 'seed' => true ] );
+		}
+	}
+
+	private function assertMemoizationEmpty() :void {
+		$this->assertSame( [], $this->getStaticProperty( Retrieve::class, 'hashes' ) );
+		$this->assertSame( [], $this->getStaticProperty( Retrieve::class, 'trustedSources' ) );
+		foreach ( [
+			'plugins',
+			'themesByDir',
+			'contextsByPath',
+			'nonAssetMissesByPath',
+			'relativePathsByPath',
+		] as $property ) {
+			$this->assertSame( [], $this->getStaticProperty( AssetTrustResolver::class, $property ) );
+		}
+	}
+
+	private function assertMemoizationSeeded() :void {
+		$this->assertNotEmpty( $this->getStaticProperty( Retrieve::class, 'hashes' ) );
+		$this->assertNotEmpty( $this->getStaticProperty( Retrieve::class, 'trustedSources' ) );
+		$this->assertNotEmpty( $this->getStaticProperty( AssetTrustResolver::class, 'plugins' ) );
+	}
+
+	private function setStaticProperty( string $class, string $property, array $value ) :void {
+		$reflection = new \ReflectionProperty( $class, $property );
+		$reflection->setAccessible( true );
+		$reflection->setValue( null, $value );
+	}
+
+	private function getStaticProperty( string $class, string $property ) :array {
+		$reflection = new \ReflectionProperty( $class, $property );
+		$reflection->setAccessible( true );
+		return $reflection->getValue();
 	}
 
 	private function resetHashesStorageDir() :void {
@@ -328,5 +673,12 @@ class ScheduleBuildAllCoordinator {
 
 	public function discoverMissingSnapshots() :void {
 		$this->discoveries++;
+	}
+}
+
+class ScheduleBuildAllThrowingPluginVo extends SnapshotPluginVo {
+
+	public function isWpOrg() :bool {
+		throw new \TypeError( 'Synthetic source failure.' );
 	}
 }

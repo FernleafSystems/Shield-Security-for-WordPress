@@ -6,6 +6,30 @@ class NormalizeHashMap {
 
 	/**
 	 * @param mixed $hashes
+	 * @return array<string,string>
+	 */
+	public function toScalarMap( $hashes ) :array {
+		if ( !\is_array( $hashes ) || empty( $hashes ) ) {
+			return [];
+		}
+
+		$normalised = [];
+		foreach ( $hashes as $path => $hash ) {
+			$path = $this->normalisePath( $path );
+			if ( $path === null
+				 || !\is_string( $hash )
+				 || !$this->isSupportedHash( $hash )
+				 || \array_key_exists( $path, $normalised ) ) {
+				return [];
+			}
+			$normalised[ $path ] = $hash;
+		}
+
+		return $normalised;
+	}
+
+	/**
+	 * @param mixed $hashes
 	 * @return array<string,list<string>>
 	 */
 	public function run( $hashes ) :array {

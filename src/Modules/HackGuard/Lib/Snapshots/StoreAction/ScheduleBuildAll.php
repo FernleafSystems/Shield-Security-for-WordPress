@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
+	AssetTrustResolver,
+	Retrieve
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\CrowdSourced\SubmitHashes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\FindAssetsToSnap;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -30,11 +34,17 @@ class ScheduleBuildAll extends BaseExec {
 				$store = ( new Load() )
 					->setAsset( $asset )
 					->run();
+				if ( !$store->isUsable() ) {
+					continue;
+				}
 
-				if ( self::con()->isPremiumActive()
-					 && $store->verify()
-					 && ( $asset->asset_type === 'plugin' || !$asset->is_child )
-				) {
+				Retrieve::resetMemoization();
+				AssetTrustResolver::resetMemoization();
+
+				$canCrowdsource = $asset instanceof WpPluginVo
+					? \dirname( $asset->file ) !== '.'
+					: !( $asset->is_child || $asset->is_inactive_child );
+				if ( self::con()->isPremiumActive() && $canCrowdsource ) {
 					$meta = $store->getSnapMeta();
 					if ( empty( $meta[ 'cs_hashes_at' ] ) ) {
 						$meta[ 'cs_hashes_at' ] = Services::Request()->ts();
@@ -44,15 +54,14 @@ class ScheduleBuildAll extends BaseExec {
 					}
 				}
 			}
-			catch ( \Exception $e ) {
+			catch ( \Throwable $e ) {
 				error_log( '[Build Asset] Notice: '.$e->getMessage() );
 			}
 		}
 	}
 
 	/**
-	 * Only those that don't have a meta file or the versions are different
-	 * @return WpPluginVo[]|WpThemeVo[]
+	 * @return array<int,WpPluginVo|WpThemeVo> Installed assets without a usable exact-version snapshot.
 	 */
 	public function getAssetsThatNeedBuilt() :array {
 		return \array_filter(
@@ -62,9 +71,9 @@ class ScheduleBuildAll extends BaseExec {
 					$store = ( new Load() )
 						->setAsset( $asset )
 						->run();
-					$needBuilt = !$store->verify();
+					$needBuilt = !$store->isUsable();
 				}
-				catch ( \Exception $e ) {
+				catch ( \Throwable $e ) {
 					$needBuilt = true;
 				}
 				return $needBuilt;

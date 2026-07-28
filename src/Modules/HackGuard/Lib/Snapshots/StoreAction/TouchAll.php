@@ -13,11 +13,13 @@ class TouchAll extends BaseExec {
 				$store = ( new Load() )
 					->setAsset( $asset )
 					->run();
-				foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {
-					Services::WpFs()->touch( $path );
+				if ( $store->isUsable() ) {
+					foreach ( [ $store->getSnapStorePath(), $store->getSnapStoreMetaPath() ] as $path ) {
+						Services::WpFs()->touch( $path );
+					}
 				}
 			}
-			catch ( \Exception $e ) {
+			catch ( \Throwable $e ) {
 			}
 		}
 	}

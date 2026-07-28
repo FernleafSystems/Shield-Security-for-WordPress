@@ -84,8 +84,11 @@ class Afs extends Base {
 	}
 
 	public function runHourlyCron() {
-		( new StoreAction\CleanStale() )->execute();
+		if ( !\is_main_network() ) {
+			return;
+		}
 		( new StoreAction\TouchAll() )->execute();
+		( new StoreAction\CleanStale() )->execute();
 	}
 
 	/**

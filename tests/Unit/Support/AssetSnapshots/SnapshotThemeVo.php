@@ -10,6 +10,9 @@ class SnapshotThemeVo extends WpThemeVo {
 	public string $Name;
 	public string $Version;
 	public bool $active = true;
+	public bool $child = false;
+	public bool $inactiveChild = false;
+	public bool $wpOrg = false;
 
 	public function __construct( string $stylesheet, string $version, string $name = 'Snapshot Theme' ) {
 		$this->stylesheet = $stylesheet;
@@ -27,7 +30,9 @@ class SnapshotThemeVo extends WpThemeVo {
 			case 'version':
 				return $this->Version;
 			case 'is_child':
-				return false;
+				return $this->child;
+			case 'is_inactive_child':
+				return $this->inactiveChild;
 			case 'wp_theme':
 				return new SnapshotWpTheme( $this );
 			default:
@@ -40,6 +45,6 @@ class SnapshotThemeVo extends WpThemeVo {
 	}
 
 	public function isWpOrg() :bool {
-		return false;
+		return $this->wpOrg;
 	}
 }
