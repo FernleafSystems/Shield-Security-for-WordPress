@@ -729,6 +729,10 @@ class OptimiserFs extends Fs {
 		return \is_dir( $path );
 	}
 
+	public function isFile( $path ) :bool {
+		return \is_file( $path );
+	}
+
 	public function isAccessibleFile( string $file ) :bool {
 		return \is_file( $file ) && \is_readable( $file );
 	}
