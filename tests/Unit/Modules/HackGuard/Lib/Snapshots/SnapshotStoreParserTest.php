@@ -62,17 +62,33 @@ class SnapshotStoreParserTest extends BaseUnitTest {
 		], $store->getSnapData() );
 	}
 
-	public function test_usable_store_requires_exact_metadata_and_a_nonempty_canonical_payload() :void {
+	public function test_usable_store_returns_and_primes_exact_snapshot_pair() :void {
 		$store = $this->newStore();
+		$meta = [
+			'unique_id'   => 'parser/plugin.php',
+			'version'     => '1.0.0',
+			'live_hashes' => true,
+		];
+		$data = [
+			'src/File.php' => self::MD5,
+		];
 		$this->writeRawStore(
 			$store,
-			"src/File.php".Store::SEPARATOR.self::MD5,
-			[
-				'unique_id' => 'parser/plugin.php',
-				'version'   => '1.0.0',
-			]
+			'src/File.php'.Store::SEPARATOR.self::MD5,
+			$meta
 		);
+		$this->fs->compressedReadCounts = [];
 
+		$this->assertSame( [
+			'meta' => $meta,
+			'data' => $data,
+		], $store->getUsableSnapshot() );
+		$this->assertSame( 1, $this->compressedReads( $store->getSnapStoreMetaPath() ) );
+		$this->assertSame( 1, $this->compressedReads( $store->getSnapStorePath() ) );
+		$this->assertSame( $meta, $store->getSnapMeta() );
+		$this->assertSame( $data, $store->getSnapData() );
+		$this->assertSame( 1, $this->compressedReads( $store->getSnapStoreMetaPath() ) );
+		$this->assertSame( 1, $this->compressedReads( $store->getSnapStorePath() ) );
 		$this->assertTrue( $store->isUsable() );
 	}
 

@@ -13,7 +13,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\L
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
-	Exceptions\AssetHashesNotFound,
+	HashVerificationResult,
 	Retrieve
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
@@ -137,7 +137,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_local_snapshot_normalization_preserves_valid_siblings_and_trust() :void {
+	public function test_stored_only_published_snapshot_returns_basis_and_trust() :void {
 		$cacheRoot = $this->makeTempDir( 'root' );
 		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
 		@mkdir( $hashDir, 0777, true );
@@ -154,12 +154,8 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 
 		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
 		$this->writeStoreWithMeta( $asset, [
-			'plugin.php'         => self::HASH_V1,
-			'src\\Feature.php'   => self::HASH_V11,
-			'bad.php'            => 'unsupported-hash',
-			'uppercase.php'      => \strtoupper( self::HASH_V1 ),
-			'../escape.php'      => self::HASH_V1,
-			'/absolute/path.php' => self::HASH_V1,
+			'plugin.php'       => self::HASH_V1,
+			'src/Feature.php'  => self::HASH_V11,
 		], [
 			'version'     => '2.0.0',
 			'unique_id'   => 'premium-plugin/plugin.php',
@@ -167,12 +163,84 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		], $hashDir );
 
 		$this->assertSame( [
-			'hashes' => [
+			'hashes'           => [
 				'plugin.php'       => [ self::HASH_V1 ],
 				'src/Feature.php'  => [ self::HASH_V11 ],
 			],
-			'trusted_source' => true,
-		], ( new Retrieve() )->byVOWithSource( $asset ) );
+			'trusted_source'   => true,
+			'comparison_basis' => HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE,
+		], ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) );
+	}
+
+	/**
+	 * @dataProvider provideUntrustedStoredSourceMeta
+	 */
+	public function test_stored_only_non_published_source_is_local_baseline( array $sourceMeta ) :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		ServicesState::installItems( [
+			'service_wpfs'    => new RetrieveVersionedCacheTestFs(),
+			'service_request' => new class extends Request {
+				public function ts( bool $update = true ) :int {
+					unset( $update );
+					return 1700000000;
+				}
+			},
+		] );
+		$this->installController( $cacheRoot );
+
+		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$this->writeStoreWithMeta( $asset, [
+			'plugin.php' => self::HASH_V1,
+		], \array_merge( [
+			'version'   => '2.0.0',
+			'unique_id' => 'premium-plugin/plugin.php',
+		], $sourceMeta ), $hashDir );
+
+		$this->assertSame( [
+			'hashes'           => [
+				'plugin.php' => [ self::HASH_V1 ],
+			],
+			'trusted_source'   => false,
+			'comparison_basis' => HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE,
+		], ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) );
+	}
+
+	public function provideUntrustedStoredSourceMeta() :array {
+		return [
+			'false'   => [ [ 'live_hashes' => false ] ],
+			'absent'  => [ [] ],
+			'unknown' => [ [ 'live_hashes' => 'published' ] ],
+		];
+	}
+
+	public function test_stored_only_rejects_partially_invalid_snapshot() :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		ServicesState::installItems( [
+			'service_wpfs'    => new RetrieveVersionedCacheTestFs(),
+			'service_request' => new class extends Request {
+				public function ts( bool $update = true ) :int {
+					unset( $update );
+					return 1700000000;
+				}
+			},
+		] );
+		$this->installController( $cacheRoot );
+
+		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$this->writeStoreWithMeta( $asset, [
+			'plugin.php' => self::HASH_V1,
+			'bad.php'    => 'unsupported-hash',
+		], [
+			'version'     => '2.0.0',
+			'unique_id'   => 'premium-plugin/plugin.php',
+			'live_hashes' => true,
+		], $hashDir );
+
+		$this->assertNull( ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) );
 	}
 
 	public function test_local_snapshot_with_mismatched_version_meta_is_rejected() :void {
@@ -198,9 +266,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 			'unique_id' => 'premium-plugin/plugin.php',
 		], $hashDir );
 
-		$this->expectException( AssetHashesNotFound::class );
-
-		( new Retrieve() )->byVO( $asset );
+		$this->assertNull( ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) );
 	}
 
 	public function test_local_snapshot_with_mismatched_unique_id_meta_is_rejected() :void {
@@ -226,9 +292,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 			'unique_id' => 'different-plugin/plugin.php',
 		], $hashDir );
 
-		$this->expectException( AssetHashesNotFound::class );
-
-		( new Retrieve() )->byVO( $asset );
+		$this->assertNull( ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) );
 	}
 
 	public function test_local_snapshot_with_incomplete_meta_is_rejected() :void {
@@ -253,9 +317,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 			'version' => '2.0.0',
 		], $hashDir );
 
-		$this->expectException( AssetHashesNotFound::class );
-
-		( new Retrieve() )->byVO( $asset );
+		$this->assertNull( ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) );
 	}
 
 	public function test_hash_lookup_miss_is_cached_until_memoization_reset() :void {
@@ -274,34 +336,21 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		$this->installController( $cacheRoot );
 
 		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
-		$firstLookupMissed = false;
-		try {
-			( new Retrieve() )->byVO( $asset );
-		}
-		catch ( AssetHashesNotFound $e ) {
-			$firstLookupMissed = true;
-		}
-		$this->assertTrue( $firstLookupMissed );
+		$this->assertNull( ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) );
 
 		$this->writeStore( $asset, [
 			'plugin.php' => self::HASH_V2,
 		], $hashDir );
 
-		$secondLookupMissed = false;
-		try {
-			( new Retrieve() )->byVO( $asset );
-		}
-		catch ( AssetHashesNotFound $e ) {
-			$secondLookupMissed = true;
-		}
-		$this->assertTrue( $secondLookupMissed );
+		$this->assertNull( ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) );
 
 		Retrieve::resetMemoization();
 
-		$this->assertSame(
-			[ 'plugin.php' => [ self::HASH_V2 ] ],
-			( new Retrieve() )->byVO( $asset )
-		);
+		$this->assertSame( [
+			'hashes'           => [ 'plugin.php' => [ self::HASH_V2 ] ],
+			'trusted_source'   => false,
+			'comparison_basis' => HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE,
+		], ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) );
 	}
 
 	private function writeStore( RetrieveVersionedCacheTestPluginVo $asset, array $hashes, string $hashDir ) :void {

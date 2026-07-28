@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Exceptions\{
+	AmbiguousAssetFileException,
 	AssetHashesNotFound,
 	NonAssetFileException,
 	UnrecognisedAssetFile
@@ -19,7 +20,14 @@ use FernleafSystems\Wordpress\Services\Utilities\WpOrg\{
 
 class AssetTrustResolver {
 
+	private const AMBIGUOUS_PLUGIN = '__ambiguous_plugin__';
+
 	private static array $plugins = [];
+
+	/**
+	 * @var array<string,list<string>>|null
+	 */
+	private static ?array $pluginFilesByDir = null;
 
 	private static array $themesByDir = [];
 
@@ -31,6 +39,7 @@ class AssetTrustResolver {
 
 	public static function resetMemoization() :void {
 		self::$plugins = [];
+		self::$pluginFilesByDir = null;
 		self::$themesByDir = [];
 		self::$contextsByPath = [];
 		self::$nonAssetMissesByPath = [];
@@ -38,7 +47,7 @@ class AssetTrustResolver {
 	}
 
 	/**
-	 * @return array{hashes:list<string>, trusted_source:bool, asset_type:string, asset_key:string, asset_version:string, relative_path:string}
+	 * @return array{hashes:list<string>,trusted_source:bool,comparison_basis:string,asset_type:string,asset_key:string,asset_version:string,relative_path:string}
 	 * @throws AssetHashesNotFound
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
@@ -49,7 +58,7 @@ class AssetTrustResolver {
 	}
 
 	/**
-	 * @return array{hashes:list<string>, trusted_source:bool, asset_type:string, asset_key:string, asset_version:string, relative_path:string}
+	 * @return array{hashes:list<string>,trusted_source:bool,comparison_basis:string,asset_type:string,asset_key:string,asset_version:string,relative_path:string}
 	 * @throws AssetHashesNotFound
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
@@ -67,6 +76,7 @@ class AssetTrustResolver {
 		return [
 			'hashes'         => $hash,
 			'trusted_source' => $hashSource[ 'trusted_source' ],
+			'comparison_basis' => $hashSource[ 'comparison_basis' ],
 			'asset_type'     => $context->assetType,
 			'asset_key'      => $context->assetKey,
 			'asset_version'  => $context->assetVersion,
@@ -106,6 +116,8 @@ class AssetTrustResolver {
 		return new HashVerificationResult(
 			$verified,
 			$verified && $hashData[ 'trusted_source' ],
+			true,
+			$hashData[ 'comparison_basis' ],
 			$hashData[ 'asset_type' ],
 			$hashData[ 'asset_key' ],
 			$hashData[ 'asset_version' ],
@@ -114,6 +126,44 @@ class AssetTrustResolver {
 	}
 
 	/**
+	 * @throws NonAssetFileException
+	 * @throws \InvalidArgumentException
+	 * @throws \Exception
+	 */
+	public function verifyStoredContext( string $path, AssetFileContext $context ) :?HashVerificationResult {
+		$source = ( new Retrieve() )->byVOFromStoredSnapshot( $this->assetFromContext( $context ) );
+		if ( \is_null( $source ) ) {
+			return null;
+		}
+
+		$hashes = $source[ 'hashes' ][ $context->relativePath ]
+				  ?? ( $source[ 'hashes' ][ \strtolower( $context->relativePath ) ] ?? null );
+		$recognised = !empty( $hashes );
+		$verified = false;
+		if ( $recognised ) {
+			$compare = new CompareFileHash();
+			foreach ( $hashes as $hash ) {
+				if ( $compare->isEqual( $path, $hash ) ) {
+					$verified = true;
+					break;
+				}
+			}
+		}
+
+		return new HashVerificationResult(
+			$verified,
+			$verified && $source[ 'trusted_source' ],
+			$recognised,
+			$source[ 'comparison_basis' ],
+			$context->assetType,
+			$context->assetKey,
+			$context->assetVersion,
+			$context->relativePath
+		);
+	}
+
+	/**
+	 * @throws AmbiguousAssetFileException
 	 * @throws NonAssetFileException
 	 */
 	public function resolveContext( string $path ) :AssetFileContext {
@@ -143,6 +193,7 @@ class AssetTrustResolver {
 	}
 
 	/**
+	 * @throws AmbiguousAssetFileException
 	 * @throws NonAssetFileException
 	 */
 	private function resolvePluginContext( string $path ) :AssetFileContext {
@@ -219,21 +270,59 @@ class AssetTrustResolver {
 		return \str_starts_with( $path, $root );
 	}
 
+	/**
+	 * @throws AmbiguousAssetFileException
+	 */
 	private function pluginFromDir( string $dir ) :?WpPluginVo {
 		$cacheKey = 'dir|'.$dir;
 		if ( !\array_key_exists( $cacheKey, self::$plugins ) ) {
 			$asset = null;
 			$plugins = Services::WpPlugins();
-			foreach ( $plugins->getInstalledPluginFiles() as $pluginFile ) {
-				if ( $dir === \dirname( $pluginFile ) ) {
-					$maybeAsset = $plugins->getPluginAsVo( $pluginFile, true );
-					$asset = $maybeAsset instanceof WpPluginVo ? $maybeAsset : null;
-					break;
-				}
+			$candidates = $this->pluginFilesForDir( $dir );
+
+			if ( \count( $candidates ) > 1 ) {
+				self::$plugins[ $cacheKey ] = self::AMBIGUOUS_PLUGIN;
+				error_log( \sprintf(
+					'Shield AFS skipped ambiguous plugin ownership: dir=%s; candidate_count=%d; candidates=%s',
+					$dir,
+					\count( $candidates ),
+					\implode( ',', \array_slice( $candidates, 0, 5 ) )
+				) );
 			}
-			self::$plugins[ $cacheKey ] = $asset;
+			elseif ( \count( $candidates ) === 1 ) {
+				$maybeAsset = $plugins->getPluginAsVo( $candidates[ 0 ], true );
+				$asset = $maybeAsset instanceof WpPluginVo ? $maybeAsset : null;
+				self::$plugins[ $cacheKey ] = $asset;
+			}
+			else {
+				self::$plugins[ $cacheKey ] = null;
+			}
 		}
-		return self::$plugins[ $cacheKey ];
+		if ( self::$plugins[ $cacheKey ] === self::AMBIGUOUS_PLUGIN ) {
+			throw new AmbiguousAssetFileException( \sprintf( 'Multiple installed plugin headers found for directory: %s', $dir ) );
+		}
+		return self::$plugins[ $cacheKey ] instanceof WpPluginVo ? self::$plugins[ $cacheKey ] : null;
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private function pluginFilesForDir( string $dir ) :array {
+		if ( \is_null( self::$pluginFilesByDir ) ) {
+			$indexed = [];
+			foreach ( Services::WpPlugins()->getInstalledPluginFiles() as $pluginFile ) {
+				$indexed[ \dirname( $pluginFile ) ][ $pluginFile ] = $pluginFile;
+			}
+
+			self::$pluginFilesByDir = [];
+			foreach ( $indexed as $pluginDir => $candidateMap ) {
+				$candidates = \array_values( $candidateMap );
+				\sort( $candidates, \SORT_STRING );
+				self::$pluginFilesByDir[ $pluginDir ] = $candidates;
+			}
+		}
+
+		return self::$pluginFilesByDir[ $dir ] ?? [];
 	}
 
 	private function pluginFromFile( string $file ) :?WpPluginVo {
@@ -263,6 +352,7 @@ class AssetTrustResolver {
 
 	/**
 	 * @return WpPluginVo|WpThemeVo
+	 * @throws AmbiguousAssetFileException
 	 * @throws NonAssetFileException
 	 */
 	private function assetFromContext( AssetFileContext $context ) {

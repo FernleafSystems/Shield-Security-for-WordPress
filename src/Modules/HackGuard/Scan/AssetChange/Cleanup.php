@@ -6,7 +6,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetTrustResolver,
 	Retrieve
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Exceptions\AssetHashesNotFound;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -88,19 +87,9 @@ class Cleanup {
 			];
 		}
 
-		try {
-			( new Retrieve() )->byVOWithSource( $asset );
+		if ( ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) !== null ) {
 			return [
 				'ready'             => true,
-				'reset_memoization' => false,
-			];
-		}
-		catch ( AssetHashesNotFound $e ) {
-			unset( $e );
-		}
-		catch ( \Throwable $e ) {
-			return [
-				'ready'             => false,
 				'reset_memoization' => false,
 			];
 		}
@@ -114,7 +103,7 @@ class Cleanup {
 				->setAsset( $asset )
 				->run();
 
-			$ready = $store->verify() && \count( $store->getSnapData() ) > 0;
+			$ready = $store->isUsable();
 			return [
 				'ready'             => $ready,
 				'reset_memoization' => $ready,

@@ -631,8 +631,11 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 	}
 
 	private function seedMemoization() :void {
-		$this->setStaticProperty( Retrieve::class, 'hashes', [ 'seed' => [ 'hash' ] ] );
-		$this->setStaticProperty( Retrieve::class, 'trustedSources', [ 'seed' => true ] );
+		$this->setStaticProperty( Retrieve::class, 'sources', [ 'seed' => [
+			'hashes'           => [ 'file.php' => [ self::MD5 ] ],
+			'trusted_source'   => true,
+			'comparison_basis' => 'published_reference',
+		] ] );
 		foreach ( [
 			'plugins',
 			'themesByDir',
@@ -645,8 +648,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 	}
 
 	private function assertMemoizationEmpty() :void {
-		$this->assertSame( [], $this->getStaticProperty( Retrieve::class, 'hashes' ) );
-		$this->assertSame( [], $this->getStaticProperty( Retrieve::class, 'trustedSources' ) );
+		$this->assertSame( [], $this->getStaticProperty( Retrieve::class, 'sources' ) );
 		foreach ( [
 			'plugins',
 			'themesByDir',
@@ -659,8 +661,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 	}
 
 	private function assertMemoizationSeeded() :void {
-		$this->assertNotEmpty( $this->getStaticProperty( Retrieve::class, 'hashes' ) );
-		$this->assertNotEmpty( $this->getStaticProperty( Retrieve::class, 'trustedSources' ) );
+		$this->assertNotEmpty( $this->getStaticProperty( Retrieve::class, 'sources' ) );
 		$this->assertNotEmpty( $this->getStaticProperty( AssetTrustResolver::class, 'plugins' ) );
 	}
 

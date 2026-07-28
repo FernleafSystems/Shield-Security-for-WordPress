@@ -1,13 +1,26 @@
 <?php declare( strict_types=1 );
 
+namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
+
+if ( !\function_exists( __NAMESPACE__.'\\error_log' ) ) {
+	function error_log( string $message ) :bool {
+		\FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Lib\Hashes\AssetTrustResolverTest::$capturedErrorLogs[] = $message;
+		return true;
+	}
+}
+
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Lib\Hashes;
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetTrustResolver,
-	Exceptions\NonAssetFileException,
+	HashVerificationResult,
 	Retrieve
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Exceptions\{
+	AmbiguousAssetFileException,
+	NonAssetFileException
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 	HashesStorageDir,
@@ -40,6 +53,8 @@ class AssetTrustResolverTest extends BaseUnitTest {
 	private const SECOND_HASH = 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
 	private const THEME_HASH = 'dddddddddddddddddddddddddddddddd';
 
+	public static array $capturedErrorLogs = [];
+
 	private array $servicesSnapshot = [];
 
 	protected function setUp() :void {
@@ -53,6 +68,7 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		ResolverPlugins::$getPluginAsVoCalls = 0;
 		ResolverThemes::$getThemesCalls = 0;
 		ResolverThemes::$getThemeAsVoCalls = 0;
+		self::$capturedErrorLogs = [];
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'path_join' )->alias( fn( string $a, string $b ) :string => $this->normalisePath( \rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' ) ) );
 		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => \json_encode( $data ) );
@@ -126,6 +142,83 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$this->assertSame( 'alpha/alpha.php', $second->assetKey );
 		$this->assertSame( 1, ResolverPlugins::$installedPluginFilesCalls );
 		$this->assertSame( 1, ResolverPlugins::$getPluginAsVoCalls );
+	}
+
+	public function test_distinct_plugin_directories_share_one_deduplicated_inventory() :void {
+		$this->installEnvironment( [
+			'gamma/gamma.php',
+			'alpha/alpha.php',
+			'alpha/alpha.php',
+			'beta/beta.php',
+		] );
+		$resolver = new AssetTrustResolver();
+
+		$contexts = [
+			$resolver->resolveContext( $this->normalisePath( WP_PLUGIN_DIR.'/alpha/src/One.php' ) ),
+			$resolver->resolveContext( $this->normalisePath( WP_PLUGIN_DIR.'/beta/src/Two.php' ) ),
+			$resolver->resolveContext( $this->normalisePath( WP_PLUGIN_DIR.'/gamma/src/Three.php' ) ),
+		];
+
+		$this->assertSame( [
+			'alpha/alpha.php',
+			'beta/beta.php',
+			'gamma/gamma.php',
+		], \array_map( static fn( $context ) :string => $context->assetKey, $contexts ) );
+		$this->assertSame( 1, ResolverPlugins::$installedPluginFilesCalls );
+		$this->assertSame( 3, ResolverPlugins::$getPluginAsVoCalls );
+		$this->assertCount( 0, self::$capturedErrorLogs );
+	}
+
+	public function test_ambiguous_plugin_directory_is_not_guessed_and_logs_once() :void {
+		$this->installEnvironment( [ 'alpha/alpha.php', 'alpha/alternate.php' ] );
+		$resolver = new AssetTrustResolver();
+		$path = $this->normalisePath( WP_PLUGIN_DIR.'/alpha/src/File.php' );
+
+		foreach ( [ 'first', 'memoized' ] as $attempt ) {
+			try {
+				$resolver->resolveContext( $path );
+				$this->fail( \sprintf( 'Expected ambiguous ownership on %s attempt.', $attempt ) );
+			}
+			catch ( AmbiguousAssetFileException $e ) {
+				$this->assertStringContainsString( 'alpha', $e->getMessage() );
+			}
+		}
+
+		$this->assertCount( 1, self::$capturedErrorLogs );
+		$this->assertStringContainsString( 'candidate_count=2', self::$capturedErrorLogs[ 0 ] );
+		$this->assertSame( 1, ResolverPlugins::$installedPluginFilesCalls );
+		$this->assertSame( 0, ResolverPlugins::$getPluginAsVoCalls );
+	}
+
+	public function test_plugin_inventory_changes_are_visible_only_after_reset() :void {
+		$this->installEnvironment( [ 'alpha/alpha.php' ] );
+		$resolver = new AssetTrustResolver();
+		$resolver->resolveContext( $this->normalisePath( WP_PLUGIN_DIR.'/alpha/src/File.php' ) );
+
+		ServicesState::mergeItems( [
+			'service_wpplugins' => new ResolverPlugins( [
+				'alpha/alpha.php',
+				'beta/beta.php',
+				'beta/alternate.php',
+			] ),
+		] );
+		$betaPath = $this->normalisePath( WP_PLUGIN_DIR.'/beta/src/File.php' );
+		$this->assertResolveContextMiss( $resolver, $betaPath );
+		$this->assertSame( 1, ResolverPlugins::$installedPluginFilesCalls );
+		$this->assertCount( 0, self::$capturedErrorLogs );
+
+		AssetTrustResolver::resetMemoization();
+		try {
+			$resolver->resolveContext( $betaPath );
+			$this->fail( 'Expected refreshed inventory to expose ambiguous beta ownership.' );
+		}
+		catch ( AmbiguousAssetFileException $e ) {
+			$this->assertStringContainsString( 'beta', $e->getMessage() );
+		}
+
+		$this->assertSame( 2, ResolverPlugins::$installedPluginFilesCalls );
+		$this->assertCount( 1, self::$capturedErrorLogs );
+		$this->assertStringContainsString( 'candidate_count=2', self::$capturedErrorLogs[ 0 ] );
 	}
 
 	public function test_cached_plugin_context_does_not_refresh_asset_version_until_reset() :void {
@@ -230,6 +323,45 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$resolver->resolveContext( $firstPath );
 		$resolver->getHashDataForContext( $firstPath, $first );
 		$this->assertSame( 2, ResolverPlugins::$getPluginAsVoCalls );
+	}
+
+	public function test_stored_verification_reports_unrecognised_file_with_local_basis() :void {
+		$cacheRoot = $this->createTrackedTempDir( 'shield-resolver-local-store-' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		$this->installHashStoreEnvironment(
+			new ResolverPlugins( [ 'alpha/alpha.php' ], '1.0.0' ),
+			new ResolverThemes( [] ),
+			$cacheRoot
+		);
+		$this->writeStore( new ResolverPluginVo( 'alpha/alpha.php', '1.0.0' ), [
+			'other.php' => self::PLUGIN_HASH,
+		], $hashDir );
+		$path = $this->normalisePath( WP_PLUGIN_DIR.'/alpha/src/File.php' );
+		$resolver = new AssetTrustResolver();
+		$context = $resolver->resolveContext( $path );
+
+		$result = $resolver->verifyStoredContext( $path, $context );
+
+		$this->assertInstanceOf( HashVerificationResult::class, $result );
+		$this->assertFalse( $result->recognisedInSnapshot );
+		$this->assertFalse( $result->verified );
+		$this->assertFalse( $result->trustedSource );
+		$this->assertSame( HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE, $result->comparisonBasis );
+	}
+
+	public function test_missing_stored_snapshot_returns_no_comparison() :void {
+		$cacheRoot = $this->createTrackedTempDir( 'shield-resolver-missing-store-' );
+		$this->installHashStoreEnvironment(
+			new ResolverPlugins( [ 'alpha/alpha.php' ], '1.0.0' ),
+			new ResolverThemes( [] ),
+			$cacheRoot
+		);
+		$path = $this->normalisePath( WP_PLUGIN_DIR.'/alpha/src/File.php' );
+		$resolver = new AssetTrustResolver();
+		$context = $resolver->resolveContext( $path );
+
+		$this->assertNull( $resolver->verifyStoredContext( $path, $context ) );
 	}
 
 	public function test_repeated_same_theme_path_reuses_full_path_context() :void {
@@ -435,14 +567,14 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		PluginControllerInstaller::install( $controller );
 	}
 
-	private function writeStore( $asset, array $hashes, string $hashDir ) :void {
+	private function writeStore( $asset, array $hashes, string $hashDir, array $sourceMeta = [] ) :void {
 		( new Store( $asset, true ) )
 			->setWorkingDir( $hashDir )
 			->setSnapData( $hashes )
-			->setSnapMeta( [
+			->setSnapMeta( \array_merge( [
 				'version'   => $asset->Version,
 				'unique_id' => $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
-			] )
+			], $sourceMeta ) )
 			->save();
 	}
 

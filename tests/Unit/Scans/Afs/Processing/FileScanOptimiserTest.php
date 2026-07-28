@@ -12,7 +12,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Scans\Afs\Processin
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\AssetTrustResolver;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
+	AssetTrustResolver,
+	Retrieve
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
+	HashesStorageDir,
+	Store
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
 	FileScanOptimiser,
 	TrustedFileContext
@@ -49,6 +56,8 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		AssetTrustResolver::resetMemoization();
+		Retrieve::resetMemoization();
+		$this->resetHashesStorageDir();
 		OptimiserPlugins::$installedPluginFilesCalls = 0;
 		OptimiserPlugins::$getPluginAsVoCalls = 0;
 		OptimiserThemes::$getThemesCalls = 0;
@@ -57,11 +66,14 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => \json_encode( $data ) );
 		Functions\when( 'wp_normalize_path' )->alias( fn( string $path ) :string => $this->normalisePath( $path ) );
 		Functions\when( 'get_theme_root' )->alias( fn() :string => $this->normalisePath( WP_CONTENT_DIR.'/themes' ) );
+		Functions\when( 'untrailingslashit' )->alias( fn( string $path ) :string => \rtrim( $this->normalisePath( $path ), '/' ) );
 	}
 
 	protected function tearDown() :void {
 		ServicesState::restore( $this->servicesSnapshot );
 		AssetTrustResolver::resetMemoization();
+		Retrieve::resetMemoization();
+		$this->resetHashesStorageDir();
 		PluginControllerInstaller::reset();
 		$this->removeWrittenFixtureFiles();
 		$this->cleanupTrackedTempDirs();
@@ -289,12 +301,19 @@ class FileScanOptimiserTest extends BaseUnitTest {
 	public function test_same_content_in_different_plugin_does_not_skip_known_valid_context() :void {
 		$alpha = $this->writeFile( WP_PLUGIN_DIR.'/alpha/dup.php', '<?php shared();' );
 		$beta = $this->writeFile( WP_PLUGIN_DIR.'/beta/dup.php', '<?php shared();' );
+		$cacheDir = $this->makeTempDir( 'cache' );
 		$this->installEnvironment(
-			$this->makeTempDir( 'cache' ),
+			$cacheDir,
 			true,
 			'6.5.0',
 			[ 'alpha/alpha.php', 'beta/beta.php' ]
 		);
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserPluginVo( 'alpha/alpha.php' ), [
+			'dup.php' => \md5_file( $alpha ),
+		] );
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserPluginVo( 'beta/beta.php' ), [
+			'dup.php' => \md5_file( $beta ),
+		] );
 		$optimiser = new FileScanOptimiser();
 
 		$optimiser->recordKnownValidFile( $alpha, new TrustedFileContext( 'plugin', 'alpha/alpha.php', '1.0.0', 'dup.php' ) );
@@ -303,7 +322,116 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $beta, $this->newAction() ) );
 	}
 
-	public function test_disabled_integrity_scan_areas_still_skip_known_valid_asset_files() :void {
+	public function test_known_valid_plugin_record_requires_current_published_snapshot() :void {
+		$path = $this->writeFile( WP_PLUGIN_DIR.'/local/local.php', '<?php local();' );
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$this->installEnvironment(
+			$cacheDir,
+			true,
+			'6.5.0',
+			[ 'local/local.php' ]
+		);
+		$this->writeSnapshot( $cacheDir, new OptimiserPluginVo( 'local/local.php' ), [
+			'local.php' => \md5_file( $path ),
+		], false );
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile(
+			$path,
+			new TrustedFileContext( 'plugin', 'local/local.php', '1.0.0', 'local.php' )
+		);
+
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
+	}
+
+	public function test_known_valid_snapshot_verification_only_runs_for_exact_record_candidate() :void {
+		$publishedNoRecord = $this->writeFile( WP_PLUGIN_DIR.'/published/no-record.php', '<?php published_no_record();' );
+		$localNoRecord = $this->writeFile( WP_PLUGIN_DIR.'/local/no-record.php', '<?php local_no_record();' );
+		$staleRecord = $this->writeFile( WP_PLUGIN_DIR.'/stale/stale.php', '<?php stale_one();' );
+		$exactRecord = $this->writeFile( WP_PLUGIN_DIR.'/exact/exact.php', '<?php exact();' );
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$fs = new OptimiserFs();
+		$this->installEnvironment(
+			$cacheDir,
+			true,
+			'6.5.0',
+			[
+				'published/published.php',
+				'local/local.php',
+				'stale/stale.php',
+				'exact/exact.php',
+			],
+			[],
+			null,
+			true,
+			null,
+			$fs
+		);
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserPluginVo( 'published/published.php' ), [
+			'no-record.php' => \md5_file( $publishedNoRecord ),
+		] );
+		$this->writeSnapshot( $cacheDir, new OptimiserPluginVo( 'local/local.php' ), [
+			'no-record.php' => \md5_file( $localNoRecord ),
+		], false );
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserPluginVo( 'stale/stale.php' ), [
+			'stale.php' => \md5_file( $staleRecord ),
+		] );
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserPluginVo( 'exact/exact.php' ), [
+			'exact.php' => \md5_file( $exactRecord ),
+		] );
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile(
+			$staleRecord,
+			new TrustedFileContext( 'plugin', 'stale/stale.php', '1.0.0', 'stale.php' )
+		);
+		$optimiser->recordKnownValidFile(
+			$exactRecord,
+			new TrustedFileContext( 'plugin', 'exact/exact.php', '1.0.0', 'exact.php' )
+		);
+		\file_put_contents( $staleRecord, '<?php stale_two();' );
+		$fs->resetReadCalls();
+
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $publishedNoRecord, $this->newAction() ) );
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $localNoRecord, $this->newAction() ) );
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $staleRecord, $this->newAction() ) );
+		$this->assertSame( [], $fs->isFileCalls() );
+		$this->assertSame( [], $fs->getFileContentCalls() );
+
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $exactRecord, $this->newAction() ) );
+		$this->assertSame( [ $this->normalisePath( $exactRecord ) ], $fs->isFileCalls() );
+		$this->assertNotEmpty( $fs->getFileContentCalls() );
+	}
+
+	public function test_known_valid_size_limit_precedes_context_and_snapshot_work() :void {
+		$atLimit = $this->writeFile( WP_PLUGIN_DIR.'/limit/at-limit.php', \str_repeat( 'a', 16 ) );
+		$overLimit = $this->writeFile( WP_PLUGIN_DIR.'/limit/over-limit.php', \str_repeat( 'b', 17 ) );
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$fs = new OptimiserFs();
+		$this->installEnvironment(
+			$cacheDir,
+			true,
+			'6.5.0',
+			[ 'limit/limit.php' ],
+			[],
+			null,
+			true,
+			null,
+			$fs
+		);
+		$action = $this->newAction();
+		$action->max_file_size = 16;
+		$fs->resetReadCalls();
+		OptimiserPlugins::$installedPluginFilesCalls = 0;
+		OptimiserPlugins::$getPluginAsVoCalls = 0;
+
+		$this->assertFalse( ( new FileScanOptimiser() )->canSkipKnownValidFile( $atLimit, $action ) );
+		$this->assertFalse( ( new FileScanOptimiser() )->canSkipKnownValidFile( $overLimit, $action ) );
+		$this->assertSame( 0, OptimiserPlugins::$installedPluginFilesCalls );
+		$this->assertSame( 0, OptimiserPlugins::$getPluginAsVoCalls );
+		$this->assertSame( [], $fs->isFileCalls() );
+		$this->assertSame( [], $fs->getFileContentCalls() );
+	}
+
+	public function test_disabled_file_change_scan_areas_still_skip_known_valid_asset_files() :void {
 		$cacheDir = $this->makeTempDir( 'cache' );
 		$core = $this->writeFile( ABSPATH.'wp-admin/core.php', '<?php clean();' );
 		$plugin = $this->writeFile( WP_PLUGIN_DIR.'/alpha/dup.php', '<?php plugin();' );
@@ -320,6 +448,12 @@ class FileScanOptimiserTest extends BaseUnitTest {
 			true,
 			new OptimiserAfsComponent( true, true, true )
 		);
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserPluginVo( 'alpha/alpha.php' ), [
+			'dup.php' => \md5_file( $plugin ),
+		] );
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserThemeVo( 'clean' ), [
+			'style.php' => \md5_file( $theme ),
+		] );
 		$optimiser->recordKnownValidFile( $core, $this->coreContext( 'wp-admin/core.php' ) );
 		$optimiser->recordKnownValidFile( $plugin, new TrustedFileContext( 'plugin', 'alpha/alpha.php', '1.0.0', 'dup.php' ) );
 		$optimiser->recordKnownValidFile( $theme, new TrustedFileContext( 'theme', 'clean', '1.0.0', 'style.php' ) );
@@ -367,12 +501,17 @@ class FileScanOptimiserTest extends BaseUnitTest {
 	public function test_known_valid_plugin_context_reuses_asset_directory_resolution() :void {
 		$first = $this->writeFile( WP_PLUGIN_DIR.'/alpha/one.php', '<?php one();' );
 		$second = $this->writeFile( WP_PLUGIN_DIR.'/alpha/two.php', '<?php two();' );
+		$cacheDir = $this->makeTempDir( 'cache' );
 		$this->installEnvironment(
-			$this->makeTempDir( 'cache' ),
+			$cacheDir,
 			true,
 			'6.5.0',
 			[ 'alpha/alpha.php' ]
 		);
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserPluginVo( 'alpha/alpha.php' ), [
+			'one.php' => \md5_file( $first ),
+			'two.php' => \md5_file( $second ),
+		] );
 		$optimiser = new FileScanOptimiser();
 		$optimiser->recordKnownValidFile( $first, new TrustedFileContext( 'plugin', 'alpha/alpha.php', '1.0.0', 'one.php' ) );
 		$optimiser->recordKnownValidFile( $second, new TrustedFileContext( 'plugin', 'alpha/alpha.php', '1.0.0', 'two.php' ) );
@@ -386,13 +525,18 @@ class FileScanOptimiserTest extends BaseUnitTest {
 	public function test_known_valid_theme_context_reuses_asset_directory_resolution() :void {
 		$first = $this->writeFile( WP_CONTENT_DIR.'/themes/clean/one.php', '<?php one();' );
 		$second = $this->writeFile( WP_CONTENT_DIR.'/themes/clean/two.php', '<?php two();' );
+		$cacheDir = $this->makeTempDir( 'cache' );
 		$this->installEnvironment(
-			$this->makeTempDir( 'cache' ),
+			$cacheDir,
 			true,
 			'6.5.0',
 			[],
 			[ 'clean' ]
 		);
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserThemeVo( 'clean' ), [
+			'one.php' => \md5_file( $first ),
+			'two.php' => \md5_file( $second ),
+		] );
 		$optimiser = new FileScanOptimiser();
 		$optimiser->recordKnownValidFile( $first, new TrustedFileContext( 'theme', 'clean', '1.0.0', 'one.php' ) );
 		$optimiser->recordKnownValidFile( $second, new TrustedFileContext( 'theme', 'clean', '1.0.0', 'two.php' ) );
@@ -401,6 +545,38 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $second, $this->newAction() ) );
 		$this->assertSame( 1, OptimiserThemes::$getThemesCalls );
 		$this->assertSame( 1, OptimiserThemes::$getThemeAsVoCalls );
+	}
+
+	public function test_known_valid_plugin_record_does_not_skip_after_same_version_snapshot_hash_replacement() :void {
+		$path = $this->writeFile( WP_PLUGIN_DIR.'/alpha/one.php', '<?php original();' );
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$asset = new OptimiserPluginVo( 'alpha/alpha.php' );
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [ 'alpha/alpha.php' ] );
+		$this->writePublishedSnapshot( $cacheDir, $asset, [ 'one.php' => \md5_file( $path ) ] );
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile( $path, new TrustedFileContext( 'plugin', 'alpha/alpha.php', '1.0.0', 'one.php' ) );
+
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
+
+		$this->writePublishedSnapshot( $cacheDir, $asset, [ 'one.php' => \md5( '<?php corrected();' ) ] );
+
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
+	}
+
+	public function test_known_valid_theme_record_does_not_skip_after_same_version_snapshot_path_removal() :void {
+		$path = $this->writeFile( WP_CONTENT_DIR.'/themes/clean/one.php', '<?php original();' );
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$asset = new OptimiserThemeVo( 'clean' );
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [], [ 'clean' ] );
+		$this->writePublishedSnapshot( $cacheDir, $asset, [ 'one.php' => \md5_file( $path ) ] );
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile( $path, new TrustedFileContext( 'theme', 'clean', '1.0.0', 'one.php' ) );
+
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
+
+		$this->writePublishedSnapshot( $cacheDir, $asset, [ 'other.php' => \md5( '<?php other();' ) ] );
+
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 	}
 
 	/**
@@ -586,6 +762,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$action = new ScanActionVO();
 		$action->scan = 'afs';
 		$action->file_exts = [ 'php' ];
+		$action->max_file_size = ScanActionVO::DEFAULT_MAX_FILE_SIZE;
 		$action->patterns_raw = $rawPatterns;
 		$action->patterns_iraw = [];
 		$action->patterns_regex = [];
@@ -636,6 +813,44 @@ class FileScanOptimiserTest extends BaseUnitTest {
 
 	private function coreContext( string $relativePath ) :TrustedFileContext {
 		return new TrustedFileContext( 'core', 'core', '6.5.0', $relativePath );
+	}
+
+	/**
+	 * @param OptimiserPluginVo|OptimiserThemeVo $asset
+	 */
+	private function writePublishedSnapshot( string $cacheDir, $asset, array $hashes ) :void {
+		$this->writeSnapshot( $cacheDir, $asset, $hashes, true );
+	}
+
+	/**
+	 * @param OptimiserPluginVo|OptimiserThemeVo $asset
+	 */
+	private function writeSnapshot( string $cacheDir, $asset, array $hashes, bool $liveHashes ) :void {
+		$hashDir = $this->normalisePath( $cacheDir.'/ptguard-aaaaaaaaaaaaaaaa' );
+		if ( !\is_dir( $hashDir ) ) {
+			@\mkdir( $hashDir, 0755, true );
+		}
+		( new Store( $asset, true ) )
+			->setWorkingDir( $hashDir )
+			->setSnapData( $hashes )
+			->setSnapMeta( [
+				'version'     => $asset->Version,
+				'unique_id'   => $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
+				'live_hashes' => $liveHashes,
+			] )
+			->save();
+		Retrieve::resetMemoization();
+	}
+
+	private function resetHashesStorageDir() :void {
+		$reflection = new \ReflectionClass( HashesStorageDir::class );
+		foreach ( [ 'dir', 'rootDir' ] as $propertyName ) {
+			if ( $reflection->hasProperty( $propertyName ) ) {
+				$property = $reflection->getProperty( $propertyName );
+				$property->setAccessible( true );
+				$property->setValue( null, null );
+			}
+		}
 	}
 
 	private function writeFile( string $path, string $content ) :string {
@@ -708,8 +923,25 @@ class OptimiserFs extends Fs {
 
 	private array $mkdirFailures = [];
 
+	private array $isFileCalls = [];
+
+	private array $getFileContentCalls = [];
+
 	public function mkdirCalls() :array {
 		return $this->mkdirCalls;
+	}
+
+	public function isFileCalls() :array {
+		return $this->isFileCalls;
+	}
+
+	public function getFileContentCalls() :array {
+		return $this->getFileContentCalls;
+	}
+
+	public function resetReadCalls() :void {
+		$this->isFileCalls = [];
+		$this->getFileContentCalls = [];
 	}
 
 	public function failMkdirFor( string $path ) :void {
@@ -725,16 +957,47 @@ class OptimiserFs extends Fs {
 		return \is_dir( $path ) || @\mkdir( $path, 0755, true );
 	}
 
+	public function exists( $path ) :?bool {
+		return \file_exists( $path );
+	}
+
 	public function isDir( string $path ) :bool {
 		return \is_dir( $path );
 	}
 
 	public function isFile( $path ) :bool {
+		$this->isFileCalls[] = $this->normalisePath( (string)$path );
 		return \is_file( $path );
 	}
 
 	public function isAccessibleFile( string $file ) :bool {
 		return \is_file( $file ) && \is_readable( $file );
+	}
+
+	public function getFileContent( $path, $uncompress = false ) {
+		$this->getFileContentCalls[] = $this->normalisePath( (string)$path );
+		$contents = \file_get_contents( $path );
+		if ( \is_string( $contents ) && $uncompress ) {
+			$inflated = \gzinflate( $contents );
+			return \is_string( $inflated ) ? $inflated : null;
+		}
+		return $contents;
+	}
+
+	public function putFileContent( $path, $contents, $compress = false ) :bool {
+		$dir = \dirname( $path );
+		if ( !\is_dir( $dir ) ) {
+			@\mkdir( $dir, 0755, true );
+		}
+		return \file_put_contents( $path, $compress ? \gzdeflate( $contents ) : $contents ) !== false;
+	}
+
+	public function getModifiedTime( string $path ) :int {
+		return (int)\filemtime( $path );
+	}
+
+	public function touch( $path, $time = null ) {
+		return \touch( $path, $time ?? \time() );
 	}
 
 	public function isAbsPath( $path ) {

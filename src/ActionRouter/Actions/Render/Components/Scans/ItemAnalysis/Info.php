@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Co
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\HashVerificationResult;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\WpOrg\Wp\Repo;
@@ -79,6 +80,10 @@ class Info extends BaseComponent {
 	 */
 	private function getFileDescriptionLines() :array {
 		$item = $this->getScanItem();
+		$comparisonBasis = (string)$item->comparison_basis;
+		$isPublishedReference = $comparisonBasis === HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE;
+		$isLocalBaseline = $comparisonBasis === HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE;
+		$isMalwareOnly = $item->is_mal && !$item->hasNonMalwareFinding();
 
 		$description = [];
 
@@ -132,16 +137,44 @@ class Info extends BaseComponent {
 			}
 		}
 		elseif ( $item->is_in_plugin ) {
-			if ( $item->is_unrecognised ) {
-				$description[] = __( "It's located inside a WordPress plugin directory, but it's not recognised as an official file for that plugin version.", 'wp-simple-firewall' );
+			if ( $isMalwareOnly ) {
+				$description[] = __( "It's located inside a WordPress plugin directory.", 'wp-simple-firewall' );
+			}
+			elseif ( $item->is_unrecognised ) {
+				if ( $isPublishedReference ) {
+					$description[] = __( "It's located inside a WordPress plugin directory, but it's not recognised as an official file for that plugin version.", 'wp-simple-firewall' );
+				}
+				elseif ( $isLocalBaseline ) {
+					$description[] = __( "It's located inside a WordPress plugin directory, but it appeared since Shield created the baseline.", 'wp-simple-firewall' );
+				}
+				else {
+					$description[] = __( "It's located inside a WordPress plugin directory, but it isn't recognised for that plugin version.", 'wp-simple-firewall' );
+				}
+			}
+			elseif ( $item->is_checksumfail && !$isPublishedReference ) {
+				$description[] = __( "It's located inside a WordPress plugin directory.", 'wp-simple-firewall' );
 			}
 			else {
 				$description[] = __( "It's located in a WordPress plugin directory, and is a recognised as a valid file for that plugin version.", 'wp-simple-firewall' );
 			}
 		}
 		elseif ( $item->is_in_theme ) {
-			if ( $item->is_unrecognised ) {
-				$description[] = __( "It's located in a WordPress theme directory, but it's not recognised as an official file for that theme version.", 'wp-simple-firewall' );
+			if ( $isMalwareOnly ) {
+				$description[] = __( "It's located inside a WordPress theme directory.", 'wp-simple-firewall' );
+			}
+			elseif ( $item->is_unrecognised ) {
+				if ( $isPublishedReference ) {
+					$description[] = __( "It's located in a WordPress theme directory, but it's not recognised as an official file for that theme version.", 'wp-simple-firewall' );
+				}
+				elseif ( $isLocalBaseline ) {
+					$description[] = __( "It's located in a WordPress theme directory, but it appeared since Shield created the baseline.", 'wp-simple-firewall' );
+				}
+				else {
+					$description[] = __( "It's located in a WordPress theme directory, but it isn't recognised for that theme version.", 'wp-simple-firewall' );
+				}
+			}
+			elseif ( $item->is_checksumfail && !$isPublishedReference ) {
+				$description[] = __( "It's located inside a WordPress theme directory.", 'wp-simple-firewall' );
 			}
 			else {
 				$description[] = __( "It's located in a WordPress theme directory, and is a recognised as a valid file for that theme version.", 'wp-simple-firewall' );
@@ -149,7 +182,15 @@ class Info extends BaseComponent {
 		}
 
 		if ( $item->is_checksumfail ) {
-			$description[] = __( 'When the current file contents were compared against the official release, changes were detected.', 'wp-simple-firewall' );
+			if ( $item->is_in_core || $isPublishedReference ) {
+				$description[] = __( 'When the current file contents were compared against the official release, changes were detected.', 'wp-simple-firewall' );
+			}
+			elseif ( $isLocalBaseline ) {
+				$description[] = __( 'This file has changed since Shield created the baseline.', 'wp-simple-firewall' );
+			}
+			else {
+				$description[] = __( 'Changes were detected in this file.', 'wp-simple-firewall' );
+			}
 		}
 
 		return $description;

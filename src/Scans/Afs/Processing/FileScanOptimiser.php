@@ -17,26 +17,46 @@ class FileScanOptimiser {
 	private const CACHE_SCHEMA_VERSION = 1;
 
 	public function canSkipKnownValidFile( string $path, ScanActionVO $action ) :bool {
-		$skip = false;
-		if ( $this->isCacheUsable() && $this->isAccessibleSupportedFile( $path, $action ) ) {
-			$context = $this->detectCurrentContext( $path );
-			if ( $context instanceof TrustedFileContext ) {
-				$size = $this->fileSize( $path );
-				$sha256 = null;
-				$contextKey = $context->key();
-				foreach ( $this->readRecords( $this->shardPath( self::KNOWN_VALID, $contextKey ), self::KNOWN_VALID ) as $record ) {
-					if ( $record[ 'context_key' ] === $contextKey
-						 && $record[ 'size' ] === $size ) {
-						$sha256 ??= $this->fileSha256( $path );
-						if ( \hash_equals( $record[ 'sha256' ], $sha256 ) ) {
-							$skip = true;
-							break;
-						}
-					}
+		try {
+			if ( !$this->isCacheUsable() || !$this->isAccessibleSupportedFile( $path, $action ) ) {
+				return false;
+			}
+
+			$size = $this->fileSize( $path );
+			if ( $size < 0 || $size >= $action->max_file_size ) {
+				return false;
+			}
+
+			$recordContext = $this->detectRecordContext( $path );
+			if ( !$recordContext instanceof TrustedFileContext ) {
+				return false;
+			}
+
+			$sha256 = null;
+			$contextKey = $recordContext->key();
+			foreach ( $this->readRecords( $this->shardPath( self::KNOWN_VALID, $contextKey ), self::KNOWN_VALID ) as $record ) {
+				if ( $record[ 'context_key' ] !== $contextKey || $record[ 'size' ] !== $size ) {
+					continue;
 				}
+
+				$sha256 ??= $this->fileSha256( $path );
+				if ( !\hash_equals( $record[ 'sha256' ], $sha256 ) ) {
+					continue;
+				}
+
+				if ( $recordContext->assetType === 'core' ) {
+					return true;
+				}
+
+				$currentTrustedContext = ( new AssetTrustState() )->trustedFileContextForAssetPath( $path );
+				return $currentTrustedContext instanceof TrustedFileContext
+					   && \hash_equals( $contextKey, $currentTrustedContext->key() );
 			}
 		}
-		return $skip;
+		catch ( \Throwable $e ) {
+		}
+
+		return false;
 	}
 
 	public function hasKnownValidFileRecords() :bool {
@@ -138,7 +158,7 @@ class FileScanOptimiser {
 		}
 	}
 
-	private function detectCurrentContext( string $path ) :?TrustedFileContext {
+	private function detectRecordContext( string $path ) :?TrustedFileContext {
 		try {
 			$scanCon = self::con()->comps->scans->AFS();
 			if ( $scanCon->isEnabled() && Services::CoreFileHashes()->isCoreFile( $path ) ) {
@@ -150,7 +170,13 @@ class FileScanOptimiser {
 				);
 			}
 
-			return ( new AssetTrustState() )->trustedFileContextForAssetPath( $path );
+			$assetContext = ( new AssetTrustState() )->resolveAssetContext( $path );
+			return $assetContext === null ? null : new TrustedFileContext(
+				$assetContext->assetType,
+				$assetContext->assetKey,
+				$assetContext->assetVersion,
+				$assetContext->relativePath
+			);
 		}
 		catch ( \Throwable $e ) {
 			return null;

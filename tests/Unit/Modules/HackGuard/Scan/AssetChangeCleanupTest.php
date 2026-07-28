@@ -400,6 +400,66 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		$this->assertSame( [], $wpDb->queries );
 	}
 
+	/**
+	 * @dataProvider providePublishedSnapshotAssets
+	 */
+	public function test_cleanup_persists_usable_published_snapshot_before_starting_scoped_scan(
+		string $assetType,
+		string $assetKey,
+		string $version,
+		string $relativePath
+	) :void {
+		$asset = $assetType === 'plugin'
+			? new SnapshotPluginVo( $assetKey, $version )
+			: new SnapshotThemeVo( $assetKey, $version );
+		$asset->wpOrg = true;
+		$path = $assetType === 'plugin'
+			? WP_PLUGIN_DIR.'/'.$assetKey
+			: WP_CONTENT_DIR.'/themes/'.$assetKey.'/'.$relativePath;
+		$this->writeFile( $path, "<?php\n// remote snapshot fallback\n" );
+		$scans = new AssetChangeCleanupScans();
+		$this->installController( $scans, true );
+		$this->installSnapshotEnvironment(
+			$assetType === 'plugin' ? new SnapshotPlugins( [ $asset ] ) : new SnapshotPlugins( [] ),
+			$assetType === 'theme' ? new SnapshotThemes( [ $asset ] ) : new SnapshotThemes( [] )
+		);
+		$wpGeneral = new SnapshotWpGeneral();
+		$wpGeneral->setTransient( 'apto-wphashes-api-available-routes', '#^(?:cshashes|hashes)$#' );
+		ServicesState::mergeItems( [
+			'service_wpgeneral' => $wpGeneral,
+			'service_wpdb'      => new AssetChangeCleanupWpDb(),
+		] );
+		$hash = \str_repeat( 'a', 32 );
+		Functions\when( 'wp_remote_request' )->alias(
+			static function ( string $url ) use ( $hash, $relativePath ) :array {
+				return \strpos( $url, '/availability' ) !== false
+					? AssetChangeCleanupTest::httpResponse( [ 'routes_regex' => '#^(?:cshashes|hashes)$#' ] )
+					: AssetChangeCleanupTest::httpResponse( [ 'hashes' => [ $relativePath => $hash ] ] );
+			}
+		);
+
+		$scans->beforeStart = function ( string $startedType, string $startedKey ) use ( $asset, $assetType, $assetKey, $relativePath, $hash ) :void {
+			$this->assertSame( $assetType, $startedType );
+			$this->assertSame( $assetKey, $startedKey );
+			$store = ( new Load() )->setAsset( $asset )->run();
+			$this->assertTrue( $store->isUsable() );
+			$this->assertTrue( $store->getSnapMeta()[ 'live_hashes' ] );
+			$this->assertSame( [
+				$relativePath => [ $hash ],
+			], ( new Retrieve() )->byVOFromStoredSnapshot( $asset )[ 'hashes' ] );
+		};
+
+		$this->assertTrue( ( new Cleanup() )->process( $assetType, $assetKey ) );
+		$this->assertSame( [ [ $assetType, $assetKey ] ], $scans->startedAssets );
+	}
+
+	public function providePublishedSnapshotAssets() :array {
+		return [
+			'plugin' => [ 'plugin', 'remote-plugin/remote.php', '2.0.0', 'remote.php' ],
+			'theme'  => [ 'theme', 'remote-theme', '3.0.0', 'style.php' ],
+		];
+	}
+
 	public function test_missing_plugin_or_theme_asset_still_starts_scoped_scan_after_cleanup() :void {
 		$scans = new AssetChangeCleanupScans();
 		$plugin = new SnapshotPluginVo( 'deleted-plugin/deleted.php', '1.0.0' );
@@ -563,7 +623,7 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 		];
 	}
 
-	private function installController( AssetChangeCleanupScans $scans ) :AssetChangeCleanupCoordinator {
+	private function installController( AssetChangeCleanupScans $scans, bool $canScanRemote = false ) :AssetChangeCleanupCoordinator {
 		$coordinator = new AssetChangeCleanupCoordinator();
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -581,9 +641,15 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 			'asset_coordinator' => $coordinator,
 			'scans'             => $scans,
 		];
-		$controller->caps = new class {
+		$controller->caps = new class( $canScanRemote ) {
+			private bool $canScanRemote;
+
+			public function __construct( bool $canScanRemote ) {
+				$this->canScanRemote = $canScanRemote;
+			}
+
 			public function canScanPluginsThemesRemote() :bool {
-				return false;
+				return $this->canScanRemote;
 			}
 		};
 		$controller->db_con = (object)[
@@ -675,6 +741,19 @@ class AssetChangeCleanupTest extends BaseUnitTest {
 
 	private function normalizePath( string $path ) :string {
 		return \str_replace( '\\', '/', $path );
+	}
+
+	public static function httpResponse( array $body ) :array {
+		return [
+			'body'     => \json_encode( $body ),
+			'headers'  => [],
+			'cookies'  => [],
+			'filename' => null,
+			'response' => [
+				'code'    => 200,
+				'message' => 'OK',
+			],
+		];
 	}
 }
 

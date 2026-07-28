@@ -69,6 +69,29 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertSame( $pathFull, $items[ 0 ]->path_full );
 	}
 
+	public function testStoreLegacyReuseReplacesComparisonBasisMetadataInRealSchema() :void {
+		$scanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$pathFragment = 'wp-content/plugins/legacy/legacy.php';
+		$pathFull = \wp_normalize_path( ABSPATH.$pathFragment );
+		$legacyResultItemID = $this->insertLegacyBlankResultItem( $pathFragment, 1700000123 );
+		$this->insertResultItemMeta( $legacyResultItemID, 'comparison_basis', 'local_baseline' );
+
+		( new Store() )->store( $this->newQueueItem( $scanID ), [
+			[
+				'path_full'       => $pathFull,
+				'path_fragment'   => $pathFull,
+				'file_path'       => $pathFull,
+				'is_in_plugin'    => 1,
+				'ptg_slug'        => 'legacy/legacy.php',
+				'is_checksumfail' => 1,
+				'comparison_basis' => 'published_reference',
+			],
+		] );
+
+		$this->assertSame( 1, $this->countResultItemsForPath( $pathFull ) );
+		$this->assertSame( [ 'published_reference' ], $this->resultItemMetaValues( $legacyResultItemID, 'comparison_basis' ) );
+	}
+
 	private function insertLegacyBlankResultItem( string $pathFragment, int $notifiedAt ) :int {
 		$dbh = self::con()->db_con->scan_result_items;
 		$record = $dbh->getRecord();
@@ -136,5 +159,30 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 			$resultItemID,
 			$metaKey
 		) );
+	}
+
+	private function insertResultItemMeta( int $resultItemID, string $metaKey, string $metaValue ) :void {
+		global $wpdb;
+		$this->assertSame( 1, $wpdb->insert(
+			self::con()->db_con->scan_result_item_meta->getTable(),
+			[
+				'ri_ref'     => $resultItemID,
+				'meta_key'   => $metaKey,
+				'meta_value' => $metaValue,
+			]
+		) );
+	}
+
+	private function resultItemMetaValues( int $resultItemID, string $metaKey ) :array {
+		global $wpdb;
+		return \array_map( 'strval', $wpdb->get_col( $wpdb->prepare(
+			"SELECT `meta_value`
+				FROM `".self::con()->db_con->scan_result_item_meta->getTable()."`
+				WHERE `ri_ref`=%d
+				  AND `meta_key`=%s
+				ORDER BY `id` ASC",
+			$resultItemID,
+			$metaKey
+		) ) );
 	}
 }

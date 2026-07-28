@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetFileContext,
+	Exceptions\AmbiguousAssetFileException,
 	HashVerificationResult
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
@@ -40,13 +41,26 @@ class FileScanner {
 		$trustedFileContext = null;
 		$assetContext = null;
 		$assetContextResolved = false;
+		$assetOwnershipAmbiguous = false;
 		$assetVerification = null;
 		$malwareScanClean = false;
 		$optimiser = new Processing\FileScanOptimiser();
 		$assetTrustState = new AssetTrustState();
-		$resolveAssetContext = function () use ( $fullPath, $assetTrustState, &$assetContext, &$assetContextResolved ) :?AssetFileContext {
+		$resolveAssetContext = function () use (
+			$fullPath,
+			$assetTrustState,
+			&$assetContext,
+			&$assetContextResolved,
+			&$assetOwnershipAmbiguous
+		) :?AssetFileContext {
 			if ( !$assetContextResolved ) {
-				$assetContext = $assetTrustState->resolveAssetContext( $fullPath );
+				try {
+					$assetContext = $assetTrustState->resolveAssetContext( $fullPath );
+				}
+				catch ( AmbiguousAssetFileException $e ) {
+					$assetContext = null;
+					$assetOwnershipAmbiguous = true;
+				}
 				$assetContextResolved = true;
 			}
 			return $assetContext;
@@ -74,7 +88,10 @@ class FileScanner {
 			}
 			if ( !$validFile && $scanCon->isScanEnabledPlugins() ) {
 				$assetContext = $resolveAssetContext();
-				if ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'plugin' ) {
+				if ( $assetOwnershipAmbiguous ) {
+					$validFile = true;
+				}
+				elseif ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'plugin' ) {
 					$pluginScan = ( new Scans\PluginFile( $fullPath ) )
 						->setAssetContext( $assetContext )
 						->setAssetTrustState( $assetTrustState )
@@ -82,16 +99,21 @@ class FileScanner {
 					if ( $pluginScan->isFileValid() ) {
 						$validFile = true;
 						$assetVerification = $pluginScan->getHashVerificationResult();
-						$skipMalwareScan = $assetVerification->trustedSource;
-						if ( $skipMalwareScan ) {
-							$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
+						if ( $assetVerification instanceof HashVerificationResult ) {
+							$skipMalwareScan = $assetVerification->trustedSource;
+							if ( $skipMalwareScan ) {
+								$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
+							}
 						}
 					}
 				}
 			}
 			if ( !$validFile && $scanCon->isScanEnabledThemes() ) {
 				$assetContext = $resolveAssetContext();
-				if ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'theme' ) {
+				if ( $assetOwnershipAmbiguous ) {
+					$validFile = true;
+				}
+				elseif ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'theme' ) {
 					$themeScan = ( new Scans\ThemeFile( $fullPath ) )
 						->setAssetContext( $assetContext )
 						->setAssetTrustState( $assetTrustState )
@@ -99,17 +121,25 @@ class FileScanner {
 					if ( $themeScan->isFileValid() ) {
 						$validFile = true;
 						$assetVerification = $themeScan->getHashVerificationResult();
-						$skipMalwareScan = $assetVerification->trustedSource;
-						if ( $skipMalwareScan ) {
-							$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
+						if ( $assetVerification instanceof HashVerificationResult ) {
+							$skipMalwareScan = $assetVerification->trustedSource;
+							if ( $skipMalwareScan ) {
+								$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
+							}
 						}
 					}
 				}
 			}
-			if ( !$validFile && $scanCon->isScanEnabledWpContent() && ( new Scans\WpContentUnidentified( $fullPath ) )
+			if ( !$validFile && $scanCon->isScanEnabledWpContent() ) {
+				$assetContext = $resolveAssetContext();
+				if ( $assetOwnershipAmbiguous || $assetContext instanceof AssetFileContext ) {
+					$validFile = true;
+				}
+				elseif ( ( new Scans\WpContentUnidentified( $fullPath ) )
 					->setScanActionVO( $action )
 					->isFileValid() ) {
-				$validFile = true;
+					$validFile = true;
+				}
 			}
 		}
 		catch ( Exceptions\WpCoreFileMissingException $me ) {
@@ -132,28 +162,32 @@ class FileScanner {
 			$item->is_in_plugin = true;
 			$item->is_unrecognised = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
-			$item->asset_version = $e->getScanFileData()[ 'asset_version' ] ?? '';
+			$item->asset_version = $e->getScanFileData()[ 'asset_version' ];
+			$item->comparison_basis = $e->getScanFileData()[ 'comparison_basis' ];
 		}
 		catch ( Exceptions\PluginFileChecksumFailException $e ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_plugin = true;
 			$item->is_checksumfail = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
-			$item->asset_version = $e->getScanFileData()[ 'asset_version' ] ?? '';
+			$item->asset_version = $e->getScanFileData()[ 'asset_version' ];
+			$item->comparison_basis = $e->getScanFileData()[ 'comparison_basis' ];
 		}
 		catch ( Exceptions\ThemeFileUnrecognisedException $e ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_theme = true;
 			$item->is_unrecognised = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
-			$item->asset_version = $e->getScanFileData()[ 'asset_version' ] ?? '';
+			$item->asset_version = $e->getScanFileData()[ 'asset_version' ];
+			$item->comparison_basis = $e->getScanFileData()[ 'comparison_basis' ];
 		}
 		catch ( Exceptions\ThemeFileChecksumFailException $e ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_theme = true;
 			$item->is_checksumfail = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
-			$item->asset_version = $e->getScanFileData()[ 'asset_version' ] ?? '';
+			$item->asset_version = $e->getScanFileData()[ 'asset_version' ];
+			$item->comparison_basis = $e->getScanFileData()[ 'comparison_basis' ];
 		}
 		catch ( Exceptions\WpRootFileUnidentifiedException $e ) {
 			$item = $this->getResultItem( $fullPath );
@@ -173,12 +207,13 @@ class FileScanner {
 		if ( !$skipMalwareScan && $canRunMalwareScan && empty( $item ) && !( $assetVerification instanceof HashVerificationResult )
 			 && ( !$scanCon->isScanEnabledPlugins() || !$scanCon->isScanEnabledThemes() ) ) {
 			$assetContext = $resolveAssetContext();
-			if ( $assetContext instanceof AssetFileContext
+			if ( !$assetOwnershipAmbiguous
+				 && $assetContext instanceof AssetFileContext
 				 && ( ( $assetContext->assetType === 'plugin' && !$scanCon->isScanEnabledPlugins() )
 					  || ( $assetContext->assetType === 'theme' && !$scanCon->isScanEnabledThemes() ) ) ) {
 				try {
 					$assetVerification = $assetTrustState->verifyAssetContext( $fullPath, $assetContext );
-					if ( $assetVerification->trustedSource ) {
+					if ( $assetVerification instanceof HashVerificationResult && $assetVerification->trustedSource ) {
 						$skipMalwareScan = true;
 						$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
 					}

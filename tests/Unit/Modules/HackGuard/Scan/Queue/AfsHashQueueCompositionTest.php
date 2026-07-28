@@ -18,12 +18,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 	HashesStorageDir,
 	Store
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	CompleteQueue,
 	ProcessQueueItem,
 	QueueItems,
-	QueueWatchdog,
 	RunState
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
@@ -105,7 +103,7 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		$this->assertTrue( $this->queryLogContains( $harness->sql->queryLog(), 'UPDATE `scan_items` SET `finished_at`=' ) );
 	}
 
-	public function test_invalid_hash_source_is_diagnosed_and_exhausts_bounded_recovery() :void {
+	public function test_invalid_hash_source_produces_no_comparison_and_completes_queue_item() :void {
 		$pluginFile = 'queue-invalid-hash-source/plugin.php';
 		$path = $this->writePluginFile( $pluginFile, "<?php\n// valid plugin fixture\n" );
 		$cacheRoot = $this->createTrackedTempDir( 'shield-afs-invalid-hash-' );
@@ -115,56 +113,21 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		] );
 
 		$scanID = $this->insertReadyAfsWork( $harness, $path );
-		$firstItem = ( new QueueItems() )->next();
-		$this->assertNotNull( $firstItem );
-		$itemID = $firstItem->qitem_id;
-		$this->assertSame( 1, $firstItem->attempts );
+		$item = ( new QueueItems() )->next();
+		$this->assertNotNull( $item );
+		$itemID = $item->qitem_id;
+		$this->assertSame( 1, $item->attempts );
 
-		( new ProcessQueueItem() )->run( $firstItem );
+		( new ProcessQueueItem() )->run( $item );
+		( new CompleteQueue() )->complete();
 
-		$firstRow = $harness->scanItemRow( $itemID );
-		$firstScan = $harness->scanRow( $scanID );
-		$firstDiagnostic = $this->scanMeta( $firstScan )[ RunState::META_KEY_LAST_ERROR ] ?? null;
-		$this->assertSame( 0, (int)$firstRow[ 'finished_at' ] );
-		$this->assertGreaterThan( 0, (int)$firstRow[ 'started_at' ] );
-		$this->assertSame( 1, (int)$firstRow[ 'attempts' ] );
-		$this->assertSame( 'running', $firstScan[ 'status' ] );
+		$completedScan = $harness->scanRow( $scanID );
+		$this->assertSame( 'completed', $completedScan[ 'status' ] );
+		$this->assertSame( 1700000000, (int)$completedScan[ 'finished_at' ] );
 		$this->assertSame( [], $harness->resultItemRecords() );
-		$this->assertIsString( $firstDiagnostic );
-		$this->assertStringContainsString( 'scan=afs', $firstDiagnostic );
-		$this->assertStringContainsString( 'qitem_id='.$itemID, $firstDiagnostic );
-		$this->assertStringContainsString( 'attempt=1', $firstDiagnostic );
-		$this->assertStringContainsString( 'exception=AssetHashesNotFound', $firstDiagnostic );
-		$this->assertStringNotContainsString( 'TypeError', $firstDiagnostic );
-
-		$harness->sql->updateRowById( 'scans', $scanID, [ 'last_process_at' => 1699999000 ] );
-		$watchdog = new QueueWatchdog();
-		$this->assertTrue( $watchdog->recoverScanIfStale( $scanID ) );
-		$retryItem = ( new QueueItems() )->next();
-		$this->assertNotNull( $retryItem );
-		$this->assertSame( 2, $retryItem->attempts );
-		$this->assertSame( $firstDiagnostic, $retryItem->meta[ RunState::META_KEY_LAST_ERROR ] ?? null );
-
-		( new ProcessQueueItem() )->run( $retryItem );
-
-		$secondDiagnostic = $this->scanMeta( $harness->scanRow( $scanID ) )[ RunState::META_KEY_LAST_ERROR ] ?? null;
-		$this->assertIsString( $secondDiagnostic );
-		$this->assertStringContainsString( 'attempt=2', $secondDiagnostic );
-		$this->assertStringContainsString( 'exception=AssetHashesNotFound', $secondDiagnostic );
-		$this->assertStringNotContainsString( 'TypeError', $secondDiagnostic );
-		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'finished_at' ] );
-
-		$harness->sql->updateRowById( 'scans', $scanID, [ 'last_process_at' => 1699999000 ] );
-		$this->assertTrue( $watchdog->recoverScanIfStale( $scanID ) );
-
-		$failedScan = $harness->scanRow( $scanID );
-		$this->assertSame( 'failed', $failedScan[ 'status' ] );
-		$this->assertSame( 1700000000, (int)$failedScan[ 'finished_at' ] );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $completedScan ) );
 		$this->assertSame( [], $harness->scanItemRow( $itemID ) );
 		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
-		$this->assertSame( $secondDiagnostic, $this->scanMeta( $failedScan )[ RunState::META_KEY_LAST_ERROR ] ?? null );
-		$this->expectException( NoQueueItems::class );
-		( new QueueItems() )->next();
 	}
 
 	/**

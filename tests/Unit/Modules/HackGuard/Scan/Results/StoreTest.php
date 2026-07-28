@@ -121,6 +121,27 @@ class StoreTest extends BaseUnitTest {
 		$this->assertSame( [], $this->insertQueriesForTable( $wpdb, 'shield_scan_results' ) );
 	}
 
+	public function test_store_replaces_existing_comparison_basis_metadata() :void {
+		$metaDeletes = [];
+		$wpdb = $this->installController( [
+			$this->existingResultRow( 77, 'akismet/akismet.php' ),
+		], [], $metaDeletes );
+
+		( new Store() )->store( $this->newQueueItem(), [
+			[
+				'item_id' => 'akismet/akismet.php',
+				'meta'    => [
+					'comparison_basis' => 'local_baseline',
+				],
+			],
+		] );
+
+		$this->assertSame( [ [ 77 ] ], $metaDeletes );
+		$metaInserts = $this->insertQueriesForTable( $wpdb, 'shield_scan_result_item_meta' );
+		$this->assertCount( 1, $metaInserts );
+		$this->assertStringContainsString( "('77','comparison_basis','local_baseline')", $metaInserts[ 0 ] );
+	}
+
 	public function test_store_reuses_blank_legacy_result_item_without_overwriting_history() :void {
 		$metaDeletes = [];
 		$resultItemInserts = [];
@@ -137,6 +158,9 @@ class StoreTest extends BaseUnitTest {
 		( new Store() )->store( $this->newQueueItem(), [
 			[
 				'item_id' => 'akismet/akismet.php',
+				'meta'    => [
+					'comparison_basis' => 'published_reference',
+				],
 			],
 		] );
 
@@ -159,6 +183,9 @@ class StoreTest extends BaseUnitTest {
 		$this->assertCount( 1, $observationInserts );
 		$this->assertStringContainsString( "('91','77','1700000000')", $observationInserts[ 0 ] );
 		$this->assertSame( [ [ 77 ] ], $metaDeletes );
+		$metaInserts = $this->insertQueriesForTable( $wpdb, 'shield_scan_result_item_meta' );
+		$this->assertCount( 1, $metaInserts );
+		$this->assertStringContainsString( "('77','comparison_basis','published_reference')", $metaInserts[ 0 ] );
 	}
 
 	public function test_store_prefers_current_scan_result_item_over_matching_legacy_row() :void {

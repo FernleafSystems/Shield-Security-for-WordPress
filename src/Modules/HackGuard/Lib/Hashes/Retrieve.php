@@ -16,18 +16,20 @@ class Retrieve {
 
 	use PluginControllerConsumer;
 
-	private static array $hashes;
+	private const MODE_PUBLISHED_OR_STORED = 'published_or_stored';
+	private const MODE_STORED = 'stored';
 
-	private static array $trustedSources;
+	/**
+	 * @var array<string,array{hashes:array<string,list<string>>,trusted_source:bool,comparison_basis:string}|null>
+	 */
+	private static array $sources;
 
 	public static function resetMemoization() :void {
-		self::$hashes = [];
-		self::$trustedSources = [];
+		self::$sources = [];
 	}
 
 	public function __construct() {
-		self::$hashes ??= [];
-		self::$trustedSources ??= [];
+		self::$sources ??= [];
 	}
 
 	/**
@@ -56,60 +58,62 @@ class Retrieve {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
-	 * @return array{hashes:array<string,list<string>>, trusted_source:bool}
+	 * @return array{hashes:array<string,list<string>>,trusted_source:bool,comparison_basis:string}
 	 * @throws AssetHashesNotFound|\Exception
 	 */
 	public function byVOWithSource( $vo ) :array {
-		$cacheKey = $this->buildCacheKey( $vo );
-		$hashes = self::$hashes[ $cacheKey ] ?? null;
-		$trustedSource = self::$trustedSources[ $cacheKey ] ?? false;
-
-		if ( \is_null( $hashes ) ) {
-			$trustedSource = false;
+		$cacheKey = $this->buildCacheKey( self::MODE_PUBLISHED_OR_STORED, $vo );
+		if ( !\array_key_exists( $cacheKey, self::$sources ) ) {
 			try {
-				$hashes = $this->fromCsHashes( $vo );
-				$trustedSource = true;
+				self::$sources[ $cacheKey ] = [
+					'hashes'           => $this->fromCsHashes( $vo ),
+					'trusted_source'   => true,
+					'comparison_basis' => HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE,
+				];
 			}
 			catch ( \Exception $e ) {
-				try {
-					$localStore = $this->fromLocalStoreWithMeta( $vo );
-					$hashes = $localStore[ 'hashes' ];
-					$trustedSource = $localStore[ 'trusted_source' ];
-				}
-				catch ( \Exception $e ) {
-					$hashes = [];
-				}
+				self::$sources[ $cacheKey ] = $this->byVOFromStoredSnapshot( $vo );
 			}
-
-			self::$hashes[ $cacheKey ] = $hashes;
-			self::$trustedSources[ $cacheKey ] = $trustedSource;
 		}
 
-		if ( empty( $hashes ) ) {
+		$source = self::$sources[ $cacheKey ];
+		if ( \is_null( $source ) ) {
 			throw new AssetHashesNotFound( sprintf( __( 'Could not locate hashes for VO: %s', 'wp-simple-firewall' ), $vo->slug ) );
 		}
-		return [
-			'hashes'         => $hashes,
-			'trusted_source' => $trustedSource,
-		];
+		return $source;
 	}
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
-	 * @return array{hashes:array<string,list<string>>, trusted_source:bool}
-	 * @throws \Exception
+	 * @return array{hashes:array<string,list<string>>,trusted_source:bool,comparison_basis:string}|null
 	 */
-	private function fromLocalStoreWithMeta( $vo ) :array {
-		$store = ( new StoreAction\Load() )
-			->setAsset( $vo )
-			->run();
-		if ( !$store->verify() ) {
-			throw new AssetHashesNotFound( sprintf( __( 'Snapshot store metadata does not match asset: %s', 'wp-simple-firewall' ), $vo->slug ) );
+	public function byVOFromStoredSnapshot( $vo ) :?array {
+		$cacheKey = $this->buildCacheKey( self::MODE_STORED, $vo );
+		if ( !\array_key_exists( $cacheKey, self::$sources ) ) {
+			try {
+				$store = ( new StoreAction\Load() )
+					->setAsset( $vo )
+					->run();
+				$snapshot = $store->getUsableSnapshot();
+				if ( \is_null( $snapshot ) ) {
+					self::$sources[ $cacheKey ] = null;
+				}
+				else {
+					$trustedSource = ( $snapshot[ 'meta' ][ 'live_hashes' ] ?? false ) === true;
+					self::$sources[ $cacheKey ] = [
+						'hashes'           => ( new NormalizeHashMap() )->run( $snapshot[ 'data' ] ),
+						'trusted_source'   => $trustedSource,
+						'comparison_basis' => $trustedSource ?
+							HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE
+							: HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE,
+					];
+				}
+			}
+			catch ( \Exception $e ) {
+				self::$sources[ $cacheKey ] = null;
+			}
 		}
-		return [
-			'hashes'         => ( new NormalizeHashMap() )->run( $store->getSnapData() ),
-			'trusted_source' => ( $store->getSnapMeta()[ 'live_hashes' ] ?? false ) === true,
-		];
+		return self::$sources[ $cacheKey ];
 	}
 
 	/**
@@ -132,8 +136,9 @@ class Retrieve {
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
 	 */
-	private function buildCacheKey( $vo ) :string {
+	private function buildCacheKey( string $mode, $vo ) :string {
 		return \implode( '|', [
+			$mode,
 			(string)$vo->asset_type,
 			(string)$vo->unique_id,
 			(string)$vo->Version,

@@ -22,6 +22,7 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property int    $malware_record_id
  * @property string $ptg_slug
  * @property string $asset_version
+ * @property string $comparison_basis
  * @property string $checksum_sha256
  */
 class ResultItem extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\FileResultItem {

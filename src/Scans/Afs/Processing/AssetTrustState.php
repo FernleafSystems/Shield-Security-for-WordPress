@@ -5,9 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetFileContext,
 	AssetTrustResolver,
-	Exceptions\AssetHashesNotFound,
 	Exceptions\NonAssetFileException,
-	Exceptions\UnrecognisedAssetFile,
 	HashVerificationResult
 };
 
@@ -30,14 +28,12 @@ class AssetTrustState {
 	}
 
 	/**
-	 * @throws AssetHashesNotFound
 	 * @throws NonAssetFileException
-	 * @throws UnrecognisedAssetFile
 	 * @throws \InvalidArgumentException
 	 * @throws \Exception
 	 */
-	public function verifyAssetContext( string $path, AssetFileContext $context ) :HashVerificationResult {
-		return $this->resolver->verifyContext( $path, $context );
+	public function verifyAssetContext( string $path, AssetFileContext $context ) :?HashVerificationResult {
+		return $this->resolver->verifyStoredContext( $path, $context );
 	}
 
 	public function trustedFileContextFromVerification( HashVerificationResult $verification ) :TrustedFileContext {
@@ -51,16 +47,14 @@ class AssetTrustState {
 
 	public function trustedFileContextForAssetPath( string $path ) :?TrustedFileContext {
 		$context = $this->resolveAssetContext( $path );
-		return $context === null ? null : $this->trustedFileContextFromAssetContext( $context );
-	}
+		if ( $context === null ) {
+			return null;
+		}
 
-	private function trustedFileContextFromAssetContext( AssetFileContext $context ) :TrustedFileContext {
-		return $this->trustedFileContext(
-			$context->assetType,
-			$context->assetKey,
-			$context->assetVersion,
-			$context->relativePath
-		);
+		$verification = $this->verifyAssetContext( $path, $context );
+		return $verification === null || !$verification->verified || !$verification->trustedSource
+			? null
+			: $this->trustedFileContextFromVerification( $verification );
 	}
 
 	private function trustedFileContext(

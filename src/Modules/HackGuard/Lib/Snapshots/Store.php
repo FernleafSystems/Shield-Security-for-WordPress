@@ -122,16 +122,34 @@ class Store {
 	}
 
 	public function isUsable() :bool {
+		return $this->getUsableSnapshot() !== null;
+	}
+
+	/**
+	 * @return array{meta:array,data:array<string,string>}|null
+	 */
+	public function getUsableSnapshot() :?array {
 		try {
-			if ( !$this->verifyMeta( $this->readSnapMetaStrict() ) ) {
-				return false;
+			$meta = $this->readSnapMetaStrict();
+			if ( !$this->verifyMeta( $meta ) ) {
+				return null;
 			}
-			$snap = $this->readSnapDataStrict();
-			return !empty( $snap )
-				   && $snap === ( new NormalizeHashMap() )->toScalarMap( $snap );
+
+			$data = $this->readSnapDataStrict();
+			if ( empty( $data ) || $data !== ( new NormalizeHashMap() )->toScalarMap( $data ) ) {
+				return null;
+			}
+
+			$this->snapMeta = $meta;
+			$this->snapData = $data;
+
+			return [
+				'meta' => $meta,
+				'data' => $data,
+			];
 		}
 		catch ( \Throwable $e ) {
-			return false;
+			return null;
 		}
 	}
 

@@ -270,6 +270,22 @@ class AfsUpgradeQueueingTest extends BaseUnitTest {
 		$this->assertSame( '6.7.2', $record->meta[ 'asset_version' ] );
 	}
 
+	public function test_build_scan_result_preserves_flat_comparison_basis_metadata() :void {
+		$this->installController(
+			new AfsUpgradeQueueingRecordingScans(),
+			new AfsUpgradeQueueingResultItemsDb()
+		);
+
+		$record = ( new Afs() )->buildScanResult( [
+			'path_fragment'    => 'wp-content/plugins/example/example.php',
+			'is_in_plugin'     => true,
+			'ptg_slug'         => 'example/example.php',
+			'comparison_basis' => 'published_reference',
+		] );
+
+		$this->assertSame( 'published_reference', $record->meta[ 'comparison_basis' ] );
+	}
+
 	private function installController( AfsUpgradeQueueingRecordingScans $scans, ?AfsUpgradeQueueingResultItemsDb $resultItemsDb = null ) :AfsUpgradeQueueingCoordinator {
 		$coordinator = new AfsUpgradeQueueingCoordinator();
 		/** @var Controller $controller */
