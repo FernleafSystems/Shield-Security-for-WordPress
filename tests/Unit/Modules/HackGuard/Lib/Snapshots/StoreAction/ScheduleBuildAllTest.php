@@ -337,13 +337,37 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
 	}
 
-	public function test_missing_inactive_root_plugin_builds_a_usable_local_baseline() :void {
-		$asset = new SnapshotPluginVo( 'inactive-root.php', '2.0.0' );
+	public function test_missing_inactive_root_plugin_hashes_only_its_file_and_skips_crowdsource() :void {
+		$asset = new ScheduleBuildAllRootPluginVo( 'inactive-root.php', '2.0.0' );
 		$asset->active = false;
 		$root = $this->makeTempDir( 'inactive-root' );
 		$path = WP_PLUGIN_DIR.'/'.$asset->file;
 		$this->installBuildEnvironment( [ $asset ], $root, [], true );
 		$this->writeFile( $path, "<?php\n// inactive root plugin\n" );
+		$this->writeFile( WP_PLUGIN_DIR.'/sibling-root.php', "<?php\n// sibling root plugin\n" );
+		$this->writeFile( WP_PLUGIN_DIR.'/sibling-plugin/sibling.php', "<?php\n// sibling directory plugin\n" );
+		$urls = [];
+		Functions\when( 'wp_remote_request' )->alias(
+			static function ( string $url, array $args ) use ( &$urls ) :array {
+				unset( $args );
+				$urls[] = $url;
+				if ( \strpos( $url, '/hashes/info' ) !== false ) {
+					return self::httpResponse( [
+						'info' => [
+							'supported_premium' => [
+								'plugins' => [],
+								'themes'  => [],
+							],
+						],
+					] );
+				}
+				return self::httpResponse( [
+					'hashes' => [
+						'submit_required' => true,
+					],
+				] );
+			}
+		);
 
 		$this->invokeBuild();
 
@@ -354,6 +378,13 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		], $store->getSnapData() );
 		$this->assertFalse( $store->getSnapMeta()[ 'live_hashes' ] );
 		$this->assertSame( 0, $store->getSnapMeta()[ 'cs_hashes_at' ] );
+		$this->assertFalse(
+			(bool)\array_filter(
+				$urls,
+				static fn( string $url ) :bool => \strpos( $url, '/cshashes/submit' ) !== false
+			),
+			\implode( "\n", $urls )
+		);
 		$this->assertSame( [], $this->assetKeysThatNeedBuilt() );
 	}
 
@@ -485,7 +516,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->resetHashesStorageDir();
 		$fs = new CacheStoreTestFs();
 		$wpGeneral = new SnapshotWpGeneral();
-		$wpGeneral->setTransient( 'apto-wphashes-api-available-routes', '#^hashes$#' );
+		$wpGeneral->setTransient( 'apto-wphashes-api-available-routes', '#^(?:hashes|cshashes/submit)$#' );
 		$this->registerCacheStoreWordPressFunctions( $fs, $this->makeTempDir( 'tmp' ) );
 		ServicesState::installItems( [
 			'service_request'   => new CacheStoreTestRequest( 1700000500 ),
@@ -506,11 +537,22 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 					'cache' => 'shield',
 				];
 
+				public object $configuration;
+
+				public function __construct() {
+					$this->configuration = new class {
+						public function def( string $key ) :array {
+							return $key === 'file_scan_extensions' ? [ 'php' ] : [];
+						}
+					};
+				}
+
 				public function version() :string {
 					return '20.0.0';
 				}
 			}
 		);
+		$controller->is_mode_live = true;
 		$controller->cache_dir_handler = new CacheStoreTestCacheDir( $cacheRoot );
 		$controller->comps = (object)[
 			'license' => new class( $premium ) {
@@ -681,5 +723,12 @@ class ScheduleBuildAllThrowingPluginVo extends SnapshotPluginVo {
 
 	public function isWpOrg() :bool {
 		throw new \TypeError( 'Synthetic source failure.' );
+	}
+}
+
+class ScheduleBuildAllRootPluginVo extends SnapshotPluginVo {
+
+	public function __get( string $key ) {
+		return $key === 'slug' ? 'inactive-root' : parent::__get( $key );
 	}
 }
