@@ -7,7 +7,7 @@
     "@babel/preset-env": "^7.29.0",
     "@eslint/js": "^9.37.0",
     "@fullhuman/postcss-purgecss": "^8.0.0",
-    "@playwright/test": "^1.54.2",
+    "@playwright/test": "1.62.0",
     "@simplewebauthn/browser": "^8.3.7",
     "@types/jquery": "^3.5.33",
     "a11y-dialog": "^8.1.5",
