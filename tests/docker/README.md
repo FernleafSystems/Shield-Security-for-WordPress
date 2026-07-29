@@ -63,7 +63,7 @@ php bin/shield --help
 
 1. Default is `0`, so Docker runtime lanes run both unit and integration stages.
 2. Set `SHIELD_SKIP_UNIT_TESTS=1` to skip only the unit stage.
-3. Prefer `php bin/shield test:source --skip-unit-tests` for local or CI source-runtime parity; the environment variable remains a lower-level escape hatch for direct Docker runner usage.
+3. Prefer `php bin/shield test:source --skip-unit-tests` for local source-runtime checks; add `--include-previous-wp` for CI parity. The environment variable remains a lower-level escape hatch for direct Docker runner usage.
 
 ## Runtime Topology
 
@@ -71,17 +71,18 @@ Source mode:
 
 1. Uses `tests/docker/docker-compose.yml`.
 2. Runs one setup pass before runtime streams.
-3. Runs latest and previous WordPress streams with `SHIELD_SKIP_INNER_SETUP=1`.
+3. Runs the latest WordPress stream with `SHIELD_SKIP_INNER_SETUP=1` by default; `--include-previous-wp` also runs the retained previous-major stream.
 4. Uses setup cache by default for source dependency/build steps.
 5. Creates the source Node modules volume with source-harness labels before the Dockerized asset build, so warm reuse can be audited and CI cleanup can remove it explicitly.
 6. Compose containers and networks are labeled under cleanup scope `source`.
-7. In GitHub Actions, the source runtime lane captures raw per-phase logs as failure artifacts and runs `php bin/shield test:source --skip-unit-tests --show-docker-output` so Docker focuses on runtime/integration checks after the dedicated unit lanes.
+7. In GitHub Actions, the source runtime lane captures raw per-phase logs as failure artifacts and runs `php bin/shield test:source --skip-unit-tests --include-previous-wp --show-docker-output` so Docker covers both supported WordPress streams after the dedicated unit lanes.
 8. Use `php bin/shield test:source --refresh-setup` to force setup refresh.
 
 Packaged modes (`test:package-targeted`, `test:package-full`, `analyze:package`):
 
 1. Resolved through `php bin/shield` lane services.
 2. Package path resolution supports explicit `--package-path` or deterministic temp package build.
+3. `test:package-full` runs the latest WordPress stream by default; add `--include-previous-wp` to include the retained previous-major stream.
 
 Local sidecar mode (`test:integration-local`):
 
@@ -132,7 +133,8 @@ php bin/shield analyze:source --refresh-setup
 # Source runtime checks
 php bin/shield test:source
 php bin/shield test:source --show-docker-output
-# Required CI parity form: php bin/shield test:source --skip-unit-tests --show-docker-output
+php bin/shield test:source --include-previous-wp
+# Required CI parity form: php bin/shield test:source --skip-unit-tests --include-previous-wp --show-docker-output
 
 # Local integration with DB sidecar
 php bin/shield test:integration-local
@@ -148,6 +150,7 @@ php bin/shield test:package-targeted
 # Full-pathway packaged runtime mode
 php bin/shield test:package-full
 php bin/shield test:package-full --show-docker-output
+php bin/shield test:package-full --include-previous-wp
 
 # Source static analysis
 php bin/shield analyze:source

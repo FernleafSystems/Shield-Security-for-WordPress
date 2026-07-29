@@ -2,61 +2,24 @@
 
 #
 # WordPress Version Detection Script
-# Part of Docker Matrix Testing Optimization (Phase 2, Task 2.2)
 #
 # This script implements a comprehensive WordPress version detection system with:
 # - WordPress.org API integration (primary and secondary endpoints)
 # - Local API response caching for resilience
-# - 3-level fallback hierarchy for reliability with low complexity
-# - PHP compatibility matrix filtering (PHP 7.4-8.4)
+# - Git tag fallback for reliability
 # - Retry logic with exponential backoff
 # - Comprehensive error handling and edge case management
-#
-# Design based on completed Task 2.1 specifications:
-# - Primary API: https://api.wordpress.org/core/version-check/1.7/
-# - Secondary API: https://api.wordpress.org/core/stable-check/1.0/
-# - 3-level fallback: api(primary->secondary) -> git tags -> repository fallback file
-#
-
 set -euo pipefail
 
 # Script configuration
 readonly SCRIPT_NAME="$(basename "$0")"
-readonly SCRIPT_VERSION="1.0.0"
-readonly CACHE_DIR="${HOME}/.wp-api-cache"
-readonly CACHE_TTL=21600  # 6 hours in seconds
+readonly CACHE_DIR="${SHIELD_WP_API_CACHE_DIR:-${HOME}/.wp-api-cache}"
 readonly MAX_RETRIES=3
 readonly INITIAL_BACKOFF=2  # Initial backoff in seconds
-readonly MAX_BACKOFF=30     # Maximum backoff in seconds
 
 # WordPress.org API endpoints
 readonly PRIMARY_API="https://api.wordpress.org/core/version-check/1.7/"
 readonly SECONDARY_API="https://api.wordpress.org/core/stable-check/1.0/"
-
-# Source PHP versions from matrix config (single source of truth)
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MATRIX_CONFIG="$SCRIPT_DIR/../config/matrix.conf"
-if [[ -f "$MATRIX_CONFIG" ]]; then
-    source "$MATRIX_CONFIG"
-    read -ra PHP_SUPPORTED_VERSIONS <<< "$PHP_VERSIONS"
-else
-    # Fallback if config not found
-    PHP_SUPPORTED_VERSIONS=("7.4" "8.0" "8.1" "8.2" "8.3" "8.4")
-fi
-readonly PHP_SUPPORTED_VERSIONS
-
-# WordPress minimum requirements by version
-declare -A WP_MIN_PHP_VERSIONS=(
-    ["6.8"]="7.4"
-    ["6.7"]="7.4"
-    ["6.6"]="7.4"
-    ["6.5"]="7.4"
-    ["6.4"]="7.4"
-    ["6.3"]="7.4"
-    ["6.2"]="5.6"
-    ["6.1"]="5.6"
-    ["6.0"]="5.6"
-)
 
 # Color codes for output
 readonly RED='\033[0;31m'
@@ -108,29 +71,6 @@ get_cache_file() {
     echo "$CACHE_DIR/wp-api-${cache_key}.json"
 }
 
-is_cache_valid() {
-    local cache_file="$1"
-    
-    if [[ ! -f "$cache_file" ]]; then
-        log_debug "Cache file does not exist: $cache_file"
-        return 1
-    fi
-    
-    local cache_time
-    cache_time=$(stat -c %Y "$cache_file" 2>/dev/null || echo 0)
-    local current_time
-    current_time=$(date +%s)
-    local cache_age=$((current_time - cache_time))
-    
-    if [[ $cache_age -gt $CACHE_TTL ]]; then
-        log_debug "Cache expired (age: ${cache_age}s > TTL: ${CACHE_TTL}s): $cache_file"
-        return 1
-    fi
-    
-    log_debug "Cache valid (age: ${cache_age}s): $cache_file"
-    return 0
-}
-
 #
 # Network and API functions
 #
@@ -173,9 +113,6 @@ fetch_with_retry() {
             log_debug "Waiting ${backoff}s before retry..."
             sleep "$backoff"
             backoff=$((backoff * 2))
-            if [[ $backoff -gt $MAX_BACKOFF ]]; then
-                backoff=$MAX_BACKOFF
-            fi
         fi
         
         ((attempt++))
@@ -246,27 +183,6 @@ compare_versions() {
         echo "-1"
     else
         echo "1"
-    fi
-}
-
-is_version_compatible_with_php() {
-    local wp_version="$1"
-    local php_version="$2"
-    
-    local wp_major_minor
-    wp_major_minor=$(extract_major_minor "$wp_version")
-    
-    local min_php="${WP_MIN_PHP_VERSIONS[$wp_major_minor]:-7.4}"
-    
-    # Compare versions
-    local result
-    result=$(compare_versions "$php_version" "$min_php")
-    
-    if [[ "$result" -ge 0 ]]; then
-        return 0
-    else
-        log_debug "WordPress $wp_version requires PHP >= $min_php (provided: $php_version)"
-        return 1
     fi
 }
 
@@ -501,35 +417,11 @@ detect_versions_api_level() {
     return 1
 }
 
-detect_versions_repository_fallback() {
-    log_info "Attempting repository-based fallback..."
-    
-    # Check if we have a fallback versions file in the repository
-    local repo_fallback_file=".github/data/wp-versions-fallback.txt"
-    
-    if [[ -f "$repo_fallback_file" ]]; then
-        local repo_versions
-        repo_versions=$(tr -d '[:space:]' < "$repo_fallback_file")
-
-        if [[ "$repo_versions" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?\|[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
-            log_info "Using repository fallback versions"
-            echo "$repo_versions"
-            return 0
-        fi
-
-        log_warn "Repository fallback file exists but format is invalid: $repo_fallback_file"
-        return 1
-    fi
-    
-    log_warn "No repository fallback available"
-    return 1
-}
-
 #
-# Main version detection with 3-level fallback hierarchy
+# Main version detection
 #
 detect_wordpress_versions() {
-    log_info "Starting WordPress version detection with 3-level fallback system"
+    log_info "Starting WordPress version detection"
     
     create_cache_dir
     
@@ -549,60 +441,8 @@ detect_wordpress_versions() {
         return 0
     fi
 
-    # Level 3: Repository fallback
-    if versions=$(detect_versions_repository_fallback); then
-        log_success "Level 3: Repository fallback successful"
-        echo "$versions"
-        return 0
-    fi
-
-    log_error "All fallback levels failed"
+    log_error "API and Git tag detection failed"
     return 1
-}
-
-#
-# PHP compatibility filtering
-#
-filter_php_compatible_versions() {
-    local latest="$1"
-    local previous="$2"
-    
-    log_info "Filtering versions for PHP compatibility (PHP 7.4-8.4)"
-    
-    local compatible_latest="$latest"
-    local compatible_previous="$previous"
-    
-    # Check latest version compatibility
-    local incompatible_count=0
-    for php_version in "${PHP_SUPPORTED_VERSIONS[@]}"; do
-        if ! is_version_compatible_with_php "$latest" "$php_version"; then
-            ((incompatible_count++))
-        fi
-    done
-    
-    if [[ $incompatible_count -eq ${#PHP_SUPPORTED_VERSIONS[@]} ]]; then
-        log_warn "Latest WordPress version $latest is incompatible with all supported PHP versions"
-        # Could implement logic to find compatible version here
-    fi
-    
-    # Check previous version compatibility
-    incompatible_count=0
-    for php_version in "${PHP_SUPPORTED_VERSIONS[@]}"; do
-        if ! is_version_compatible_with_php "$previous" "$php_version"; then
-            ((incompatible_count++))
-        fi
-    done
-    
-    if [[ $incompatible_count -eq ${#PHP_SUPPORTED_VERSIONS[@]} ]]; then
-        log_warn "Previous WordPress version $previous is incompatible with all supported PHP versions"
-        # Could implement logic to find compatible version here
-    fi
-    
-    log_info "PHP compatibility check completed"
-    log_info "Latest (PHP compatible): $compatible_latest"
-    log_info "Previous (PHP compatible): $compatible_previous"
-    
-    echo "$compatible_latest|$compatible_previous"
 }
 
 #
@@ -620,8 +460,6 @@ set_github_outputs() {
             echo "previous=$previous"
             echo "lts=$previous"  # For compatibility
             echo "matrix_ready=true"
-            echo "detection_method=api_git_repo"
-            echo "cache_used=false"
         } >> "$GITHUB_OUTPUT"
         
         log_success "GitHub Actions outputs set successfully"
@@ -630,55 +468,21 @@ set_github_outputs() {
     fi
 }
 
-#
-# Main execution function
-#
-main() {
-    local show_help=false
-    local debug_mode=false
-    
-    # Parse command line arguments
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            -h|--help)
-                show_help=true
-                shift
-                ;;
-            -d|--debug)
-                export DEBUG=1
-                debug_mode=true
-                shift
-                ;;
-            -v|--version)
-                echo "$SCRIPT_NAME version $SCRIPT_VERSION"
-                exit 0
-                ;;
-            *)
-                log_error "Unknown option: $1"
-                show_help=true
-                shift
-                ;;
-        esac
-    done
-    
-    if [[ "$show_help" == "true" ]]; then
-        cat << EOF
+print_help() {
+    cat << EOF
 WordPress Version Detection Script
 
 This script detects the latest and previous major WordPress versions using
-a 3-level fallback system for reliability with low complexity.
+WordPress.org APIs, cached API responses, and a Git tag fallback.
 
-Usage: $SCRIPT_NAME [OPTIONS]
+Usage: $SCRIPT_NAME [-h|--help]
 
 OPTIONS:
     -h, --help      Show this help message
-    -d, --debug     Enable debug output
-    -v, --version   Show script version
 
 FALLBACK LEVELS:
     1. API level (primary version-check/1.7/, then secondary stable-check/1.0/)
     2. Git tags from wordpress-develop
-    3. Repository fallback file (.github/data/wp-versions-fallback.txt)
 
 OUTPUTS:
     When run in GitHub Actions, sets these outputs:
@@ -686,36 +490,50 @@ OUTPUTS:
     - previous: Previous major WordPress version
     - lts: Alias for previous (compatibility)
     - matrix_ready: Boolean indicating success
-    - detection_method: Method used for detection
-    - cache_used: Boolean indicating if cache was used
 
 CACHE:
     Cache directory: $CACHE_DIR
-    Cache TTL: ${CACHE_TTL}s (6 hours)
-
-SUPPORTED PHP VERSIONS: ${PHP_SUPPORTED_VERSIONS[*]}
+    Successful API responses are reused only when fresh retrieval fails.
 
 EXIT CODES:
     0: Success
     1: General error
-    2: API failure (using fallback)
+    2: Unsupported command-line arguments
     3: Invalid version detected
 
 EOF
-        exit 0
-    fi
-    
-    log_info "$SCRIPT_NAME version $SCRIPT_VERSION starting..."
-    
-    if [[ "$debug_mode" == "true" ]]; then
-        log_info "Debug mode enabled"
-        log_debug "Cache directory: $CACHE_DIR"
-        log_debug "Cache TTL: ${CACHE_TTL}s"
-        log_debug "Max retries: $MAX_RETRIES"
-        log_debug "Supported PHP versions: ${PHP_SUPPORTED_VERSIONS[*]}"
-    fi
-    
-    # Detect WordPress versions using 3-level fallback
+}
+
+#
+# Main execution function
+#
+main() {
+    case "$#" in
+        0)
+            ;;
+        1)
+            case "$1" in
+                -h|--help)
+                    print_help
+                    return 0
+                    ;;
+                *)
+                    log_error "Unsupported argument: $1"
+                    print_help
+                    return 2
+                    ;;
+            esac
+            ;;
+        *)
+            log_error "Expected no arguments or exactly one help argument"
+            print_help
+            return 2
+            ;;
+    esac
+
+    log_info "$SCRIPT_NAME starting..."
+
+    # Detect WordPress versions
     local versions
     if ! versions=$(detect_wordpress_versions); then
         log_error "All fallback levels failed"
@@ -730,11 +548,6 @@ EOF
         log_error "Invalid version detection result: '$versions'"
         exit 3
     fi
-    
-    # Apply PHP compatibility filtering
-    local filtered_versions
-    filtered_versions=$(filter_php_compatible_versions "$latest" "$previous")
-    IFS='|' read -r latest previous <<< "$filtered_versions"
     
     # Final validation
     if ! validate_version_format "$latest" || ! validate_version_format "$previous"; then

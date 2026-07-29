@@ -120,7 +120,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		] ) );
 	}
 
-	public function testSourceCommandIncludesDebuggingOptions() :void {
+	public function testSourceCommandIncludesRuntimeOptions() :void {
 		$this->skipIfPackageScriptUnavailable();
 		$command = new TestSourceCommand(
 			$this->getPluginRoot(),
@@ -129,6 +129,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertTrue( $command->getDefinition()->hasOption( 'refresh-setup' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'skip-unit-tests' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'include-previous-wp' ) );
 	}
 
 	public function testSourceCommandForwardsSkipUnitTestsOption() :void {
@@ -137,7 +138,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$lane = $this->createMock( SourceRuntimeTestLane::class );
 		$lane->expects( $this->once() )
 			 ->method( 'run' )
-			 ->with( $this->getPluginRoot(), false, true, true )
+			 ->with( $this->getPluginRoot(), false, true, true, false )
 			 ->willReturn( 0 );
 
 		$tester = new CommandTester( new TestSourceCommand( $this->getPluginRoot(), $lane ) );
@@ -149,13 +150,59 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertSame( 0, $exitCode );
 	}
 
-	public function testPackageFullCommandIncludesDebuggingOption() :void {
+	public function testSourceCommandForwardsIncludePreviousWordpressOption() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$lane = $this->createMock( SourceRuntimeTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), false, false, false, true )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestSourceCommand( $this->getPluginRoot(), $lane ) );
+		$exitCode = $tester->execute( [
+			'--include-previous-wp' => true,
+		] );
+
+		$this->assertSame( 0, $exitCode );
+	}
+
+	public function testPackageFullCommandIncludesRuntimeOptions() :void {
 		$this->skipIfPackageScriptUnavailable();
 		$command = new TestPackageFullCommand(
 			$this->getPluginRoot(),
 			$this->createMock( PackageFullTestLane::class )
 		);
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'include-previous-wp' ) );
+	}
+
+	public function testPackageFullCommandDefaultsToLatestWordpressOnly() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$lane = $this->createMock( PackageFullTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), null, false, false )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestPackageFullCommand( $this->getPluginRoot(), $lane ) );
+		$this->assertSame( 0, $tester->execute( [] ) );
+	}
+
+	public function testPackageFullCommandForwardsIncludePreviousWordpressOption() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$lane = $this->createMock( PackageFullTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), null, false, true )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestPackageFullCommand( $this->getPluginRoot(), $lane ) );
+		$this->assertSame( 0, $tester->execute( [
+			'--include-previous-wp' => true,
+		] ) );
 	}
 
 	public function testUpgradePublicCommandIncludesCiReadyOptions() :void {

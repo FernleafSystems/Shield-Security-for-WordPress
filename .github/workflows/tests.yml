@@ -51,6 +51,22 @@ jobs:
         chmod +x .github/scripts/test-cleanup-actions-cache.sh
         ./.github/scripts/test-cleanup-actions-cache.sh
 
+  wordpress-version-detector-script-tests:
+    name: 'WordPress Version Detector Script Regression'
+    runs-on: ubuntu-latest
+    needs: changes
+    if: ${{ needs.changes.outputs.ci_scripts == 'true' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Run WordPress version detector regression tests
+      run: |
+        bash -n .github/scripts/detect-wp-versions.sh
+        bash -n .github/scripts/test-detect-wp-versions.sh
+        bash .github/scripts/test-detect-wp-versions.sh
+
   admin-bundle-safety-script-tests:
     name: 'Admin Bundle Safety Script Regression'
     runs-on: ubuntu-latest
@@ -213,7 +229,7 @@ jobs:
     - name: Run source docker runtime checks
       env:
         SHIELD_SOURCE_RUNTIME_LOG_DIR: ${{ runner.temp }}/shield-source-runtime-logs
-      run: php bin/shield test:source --skip-unit-tests --show-docker-output
+      run: php bin/shield test:source --skip-unit-tests --include-previous-wp --show-docker-output
 
     - name: Clean source docker runtime resources
       if: always()

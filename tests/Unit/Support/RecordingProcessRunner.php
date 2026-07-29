@@ -15,12 +15,23 @@ class RecordingProcessRunner extends ProcessRunner {
 	 */
 	private array $exitCodes;
 
+	private bool $failWhenExhausted = false;
+
 	/**
 	 * @param array<int,int|array{exit_code:int,stdout?:string,stderr?:string}> $exitCodes
 	 */
 	public function __construct( array $exitCodes = [ 0 ] ) {
 		parent::__construct();
 		$this->exitCodes = $exitCodes;
+	}
+
+	/**
+	 * @param array<int,int|array{exit_code:int,stdout?:string,stderr?:string}> $exitCodes
+	 */
+	public static function strict( array $exitCodes ) :self {
+		$runner = new self( $exitCodes );
+		$runner->failWhenExhausted = true;
+		return $runner;
 	}
 
 	public function run(
@@ -40,6 +51,10 @@ class RecordingProcessRunner extends ProcessRunner {
 	}
 
 	private function buildProcessFromQueue( ?callable $onOutput = null ) :Process {
+		if ( $this->failWhenExhausted && $this->exitCodes === [] ) {
+			throw new \LogicException( 'Unexpected process call exhausted the configured response queue.' );
+		}
+
 		$queueEntry = \array_shift( $this->exitCodes );
 		$exitCode = \is_array( $queueEntry ) ? (int)( $queueEntry[ 'exit_code' ] ?? 0 ) : (int)( $queueEntry ?? 0 );
 		$stdout = \is_array( $queueEntry ) ? (string)( $queueEntry[ 'stdout' ] ?? '' ) : '';

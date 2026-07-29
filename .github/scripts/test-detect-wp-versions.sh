@@ -1,309 +1,251 @@
-#!/bin/bash
-
-#
-# Test script for WordPress Version Detection
-# Tests various scenarios and edge cases
-#
+#!/usr/bin/env bash
 
 set -euo pipefail
 
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly DETECT_SCRIPT="$SCRIPT_DIR/detect-wp-versions.sh"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+DETECT_SCRIPT="$ROOT_DIR/.github/scripts/detect-wp-versions.sh"
+TEMP_DIR="$(mktemp -d)"
+MOCK_BIN="$TEMP_DIR/bin"
+TEST_STATE="$TEMP_DIR/state"
+TRACE_FILE="$TEST_STATE/transport-trace"
+CAPTURED_STDOUT="$TEST_STATE/captured-stdout"
+CAPTURED_STDERR="$TEST_STATE/captured-stderr"
+CAPTURED_STATUS=0
 
-# Test configuration
-readonly TEST_CACHE_DIR="/tmp/wp-test-cache-$$"
-readonly TEST_LOG_FILE="/tmp/wp-test-log-$$.log"
+cleanup() {
+	rm -rf "$TEMP_DIR"
+}
+trap cleanup EXIT
 
-# Color codes for output
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[0;33m'
-readonly BLUE='\033[0;34m'
-readonly NC='\033[0m'
-
-# Test results tracking
-declare -a PASSED_TESTS=()
-declare -a FAILED_TESTS=()
-
-log_test() {
-    echo -e "${BLUE}[TEST]${NC} $*"
+fail() {
+	echo "[FAIL] $*" >&2
+	exit 1
 }
 
-log_pass() {
-    echo -e "${GREEN}[PASS]${NC} $*"
-    PASSED_TESTS+=("$1")
+assert_equals() {
+	local expected="$1"
+	local actual="$2"
+	if [[ "$actual" != "$expected" ]]; then
+		fail "Expected '$expected', got '$actual'"
+	fi
 }
 
-log_fail() {
-    echo -e "${RED}[FAIL]${NC} $*"
-    FAILED_TESTS+=("$1")
+assert_contains() {
+	local file="$1"
+	local expected="$2"
+	if ! grep -Fqx -- "$expected" "$file"; then
+		fail "Expected line not found: $expected"
+	fi
 }
 
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $*"
+assert_file_contains() {
+	local file="$1"
+	local expected="$2"
+	if ! grep -Fq -- "$expected" "$file"; then
+		fail "Expected text not found: $expected"
+	fi
 }
 
-cleanup_test() {
-    rm -rf "$TEST_CACHE_DIR" "$TEST_LOG_FILE" 2>/dev/null || true
+assert_file_lacks() {
+	local file="$1"
+	local unexpected="$2"
+	if grep -Fq -- "$unexpected" "$file"; then
+		fail "Unexpected text found: $unexpected"
+	fi
 }
 
-setup_test() {
-    cleanup_test
-    mkdir -p "$TEST_CACHE_DIR"
-    export HOME="$(dirname "$TEST_CACHE_DIR")"
+assert_trace_empty() {
+	if [[ -s "$TRACE_FILE" ]]; then
+		fail "Detector invoked external transport: $(tr '\n' ' ' < "$TRACE_FILE")"
+	fi
 }
 
-run_script_test() {
-    local test_name="$1"
-    local expected_result="$2"
-    shift 2
-    
-    log_test "Running: $test_name"
-    
-    local result
-    local exit_code
-    
-    if result=$(cd "$SCRIPT_DIR" && bash "$DETECT_SCRIPT" "$@" 2>"$TEST_LOG_FILE"); then
-        exit_code=0
-    else
-        exit_code=$?
-    fi
-    
-    if [[ "$expected_result" == "success" ]] && [[ $exit_code -eq 0 ]]; then
-        log_pass "$test_name"
-        log_info "Output: $result"
-        return 0
-    elif [[ "$expected_result" == "failure" ]] && [[ $exit_code -ne 0 ]]; then
-        log_pass "$test_name"
-        log_info "Failed as expected (exit code: $exit_code)"
-        return 0
-    else
-        log_fail "$test_name"
-        log_info "Expected: $expected_result, Got exit code: $exit_code"
-        log_info "Output: $result"
-        log_info "Stderr: $(cat "$TEST_LOG_FILE")"
-        return 1
-    fi
+run_detector() {
+	local working_dir="$1"
+	shift
+	(
+		cd "$working_dir"
+		SHIELD_WP_API_CACHE_DIR="${DETECTOR_CACHE_DIR:-$TEST_STATE/cache}" \
+		MOCK_TRACE_FILE="$TRACE_FILE" \
+		PATH="$MOCK_BIN:$PATH" \
+		bash "$DETECT_SCRIPT" "$@"
+	)
 }
 
-test_basic_functionality() {
-    log_test "=== Testing Basic Functionality ==="
-    
-    run_script_test "Basic version detection" "success"
-    run_script_test "Help option" "success" "--help"
-    run_script_test "Version option" "success" "--version"
-    run_script_test "Debug mode" "success" "--debug"
+capture_detector() {
+	local working_dir="$1"
+	local cache_dir="$2"
+	shift 2
+
+	: > "$TRACE_FILE"
+	: > "$CAPTURED_STDOUT"
+	: > "$CAPTURED_STDERR"
+
+	set +e
+	DETECTOR_CACHE_DIR="$cache_dir" run_detector "$working_dir" "$@" > "$CAPTURED_STDOUT" 2> "$CAPTURED_STDERR"
+	CAPTURED_STATUS=$?
+	set -e
 }
 
-test_api_endpoints() {
-    log_test "=== Testing API Endpoints ==="
-    
-    # Test if the actual APIs are reachable
-    if curl -s -f --max-time 10 "https://api.wordpress.org/core/version-check/1.7/" > /dev/null; then
-        log_pass "Primary API reachable"
-    else
-        log_fail "Primary API unreachable"
-    fi
-    
-    if curl -s -f --max-time 10 "https://api.wordpress.org/core/stable-check/1.0/" > /dev/null; then
-        log_pass "Secondary API reachable"
-    else
-        log_fail "Secondary API unreachable"
-    fi
+assert_rejected() {
+	local test_name="$1"
+	shift
+	local cache_dir="$TEST_STATE/rejected-$REJECTED_CASE"
+	REJECTED_CASE=$((REJECTED_CASE + 1))
+
+	rm -rf "$cache_dir"
+	capture_detector "$ROOT_DIR" "$cache_dir" "$@"
+	if [[ "$CAPTURED_STATUS" -ne 2 ]]; then
+		fail "$test_name expected exit 2, got $CAPTURED_STATUS"
+	fi
+	assert_trace_empty
+	if [[ -e "$cache_dir" ]]; then
+		fail "$test_name initialized detector cache"
+	fi
 }
 
-test_version_validation() {
-    log_test "=== Testing Version Format Validation ==="
-    
-    # Create a minimal test version of the script to test individual functions
-    cat > "/tmp/version-test-$$.sh" << 'EOF'
-#!/bin/bash
-source "$1"
+mkdir -p "$MOCK_BIN" "$TEST_STATE"
 
-# Test version validation function
-test_version() {
-    local version="$1"
-    local expected="$2"
-    
-    if validate_version_format "$version"; then
-        result="valid"
-    else
-        result="invalid"
-    fi
-    
-    if [[ "$result" == "$expected" ]]; then
-        echo "PASS: $version -> $result"
-        return 0
-    else
-        echo "FAIL: $version -> $result (expected $expected)"
-        return 1
-    fi
-}
+cat > "$MOCK_BIN/curl" <<'CURL'
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Test cases
-test_version "6.8.2" "valid"
-test_version "6.7.1" "valid"
-test_version "6.6" "valid"
-test_version "6.6.0-beta1" "valid"
-test_version "invalid.version" "invalid"
-test_version "6" "invalid"
-test_version "" "invalid"
-EOF
-    
-    if bash "/tmp/version-test-$$.sh" "$DETECT_SCRIPT" 2>/dev/null; then
-        log_pass "Version format validation"
-    else
-        log_fail "Version format validation"
-    fi
-    
-    rm -f "/tmp/version-test-$$.sh"
-}
+printf '%s\n' 'curl' >> "${MOCK_TRACE_FILE:?}"
+url="${!#}"
+case "${MOCK_CURL_MODE:-primary}" in
+	primary)
+		printf '%sHTTPSTATUS:200' '{"offers":[{"version":"9.4.2"},{"version":"9.3.7"}]}'
+		;;
+	secondary)
+		if [[ "$url" == *"stable-check"* ]]; then
+			printf '%sHTTPSTATUS:200' '{"latest":"9.4.2","9.3.7":"9.3.7","9.4.2":"9.4.2"}'
+		else
+			exit 1
+		fi
+		;;
+	*)
+		exit 1
+		;;
+esac
+CURL
 
-test_caching_functionality() {
-    log_test "=== Testing Caching Functionality ==="
-    
-    # Test with fresh cache
-    setup_test
-    
-    local first_run_time second_run_time
-    
-    first_run_time=$(date +%s)
-    if result1=$(cd "$SCRIPT_DIR" && HOME="$(dirname "$TEST_CACHE_DIR")" bash "$DETECT_SCRIPT" 2>/dev/null); then
-        second_run_time=$(date +%s)
-        
-        # Second run should be faster (cached)
-        if result2=$(cd "$SCRIPT_DIR" && HOME="$(dirname "$TEST_CACHE_DIR")" bash "$DETECT_SCRIPT" 2>/dev/null); then
-            if [[ "$result1" == "$result2" ]]; then
-                log_pass "Caching consistency"
-            else
-                log_fail "Caching consistency - results differ"
-            fi
-        else
-            log_fail "Second run with cache"
-        fi
-    else
-        log_fail "First run for caching test"
-    fi
-}
+cat > "$MOCK_BIN/git" <<'GIT'
+#!/usr/bin/env bash
+set -euo pipefail
 
-test_github_actions_integration() {
-    log_test "=== Testing GitHub Actions Integration ==="
-    
-    # Test with GitHub Actions environment variables
-    local test_output_file="/tmp/github-output-$$.txt"
-    
-    if GITHUB_ACTIONS=true GITHUB_OUTPUT="$test_output_file" \
-       cd "$SCRIPT_DIR" && bash "$DETECT_SCRIPT" >/dev/null 2>&1; then
-        
-        if [[ -f "$test_output_file" ]] && [[ -s "$test_output_file" ]]; then
-            local output_content
-            output_content=$(cat "$test_output_file")
-            
-            if echo "$output_content" | grep -q "latest=" && \
-               echo "$output_content" | grep -q "previous=" && \
-               echo "$output_content" | grep -q "matrix_ready="; then
-                log_pass "GitHub Actions output format"
-            else
-                log_fail "GitHub Actions output format"
-                log_info "Output content: $output_content"
-            fi
-        else
-            log_fail "GitHub Actions output file creation"
-        fi
-    else
-        log_fail "GitHub Actions environment simulation"
-    fi
-    
-    rm -f "$test_output_file"
-}
+printf '%s\n' 'git' >> "${MOCK_TRACE_FILE:?}"
+if [[ "${MOCK_GIT_MODE:-fail}" == "tags" ]]; then
+	printf '%s\n' \
+		'1111111111111111111111111111111111111111	refs/tags/9.3.7' \
+		'2222222222222222222222222222222222222222	refs/tags/9.4.2'
+	exit 0
+fi
+exit 1
+GIT
 
-test_fallback_mechanisms() {
-    log_test "=== Testing Fallback Mechanisms ==="
-    
-    # This is a basic test - in a real environment we'd mock API failures
-    # For now, just verify the script handles the emergency fallback case
-    
-    # Test emergency fallback by creating a scenario where APIs would fail
-    # We can't easily mock network failures in this test environment
-    log_info "Fallback testing requires network mocking - skipping detailed tests"
-    log_pass "Fallback structure verified (manual review required)"
-}
+cat > "$MOCK_BIN/docker" <<'DOCKER'
+#!/usr/bin/env bash
+printf '%s\n' 'docker' >> "${MOCK_TRACE_FILE:?}"
+exit 1
+DOCKER
 
-test_error_handling() {
-    log_test "=== Testing Error Handling ==="
-    
-    # Test invalid arguments
-    run_script_test "Invalid argument handling" "failure" "--invalid-option"
-}
+cat > "$MOCK_BIN/sleep" <<'SLEEP'
+#!/usr/bin/env bash
+printf '%s\n' 'sleep' >> "${MOCK_TRACE_FILE:?}"
+exit 0
+SLEEP
 
-generate_test_report() {
-    echo
-    echo "================================="
-    echo "WordPress Version Detection Tests"
-    echo "================================="
-    echo
-    echo "PASSED TESTS (${#PASSED_TESTS[@]}):"
-    for test in "${PASSED_TESTS[@]}"; do
-        echo "  ✓ $test"
-    done
-    echo
-    echo "FAILED TESTS (${#FAILED_TESTS[@]}):"
-    for test in "${FAILED_TESTS[@]}"; do
-        echo "  ✗ $test"
-    done
-    echo
-    
-    local total_tests=$((${#PASSED_TESTS[@]} + ${#FAILED_TESTS[@]}))
-    local pass_rate=0
-    if [[ $total_tests -gt 0 ]]; then
-        pass_rate=$(( (${#PASSED_TESTS[@]} * 100) / total_tests ))
-    fi
-    
-    echo "SUMMARY: ${#PASSED_TESTS[@]}/${total_tests} tests passed (${pass_rate}%)"
-    echo
-    
-    if [[ ${#FAILED_TESTS[@]} -eq 0 ]]; then
-        echo -e "${GREEN}All tests passed!${NC}"
-        return 0
-    else
-        echo -e "${RED}Some tests failed.${NC}"
-        return 1
-    fi
-}
+chmod +x "$MOCK_BIN/curl" "$MOCK_BIN/git" "$MOCK_BIN/docker" "$MOCK_BIN/sleep"
 
-main() {
-    log_info "WordPress Version Detection Test Suite"
-    log_info "Testing script: $DETECT_SCRIPT"
-    
-    # Verify script exists and is executable
-    if [[ ! -f "$DETECT_SCRIPT" ]]; then
-        echo "Error: Detection script not found: $DETECT_SCRIPT"
-        exit 1
-    fi
-    
-    if [[ ! -x "$DETECT_SCRIPT" ]]; then
-        echo "Making script executable..."
-        chmod +x "$DETECT_SCRIPT"
-    fi
-    
-    # Run test suites
-    test_basic_functionality
-    test_api_endpoints
-    test_version_validation
-    test_caching_functionality
-    test_github_actions_integration
-    test_fallback_mechanisms
-    test_error_handling
-    
-    # Generate final report
-    generate_test_report
-    
-    # Cleanup
-    cleanup_test
-}
+command -v jq >/dev/null 2>&1 || fail 'jq is required for detector regression tests'
 
-# Cleanup on exit
-trap cleanup_test EXIT
+rm -rf "$TEST_STATE/cache"
+: > "$TRACE_FILE"
+primary_output="$(MOCK_CURL_MODE=primary MOCK_GIT_MODE=fail run_detector "$ROOT_DIR")"
+assert_equals $'LATEST_VERSION=9.4.2\nPREVIOUS_VERSION=9.3.7' "$primary_output"
+assert_file_contains "$TRACE_FILE" 'curl'
+if ! find "$TEST_STATE/cache" -type f -name 'wp-api-*.json' -print -quit | grep -q .; then
+	fail 'Primary detection did not populate isolated cache'
+fi
 
-# Run tests
-main "$@"
+rm -rf "$TEST_STATE/cache"
+: > "$TRACE_FILE"
+secondary_output="$(MOCK_CURL_MODE=secondary MOCK_GIT_MODE=fail run_detector "$ROOT_DIR")"
+assert_equals $'LATEST_VERSION=9.4.2\nPREVIOUS_VERSION=9.3.7' "$secondary_output"
+
+rm -rf "$TEST_STATE/cache"
+: > "$TRACE_FILE"
+git_output="$(MOCK_CURL_MODE=fail MOCK_GIT_MODE=tags run_detector "$ROOT_DIR")"
+assert_equals $'LATEST_VERSION=9.4.2\nPREVIOUS_VERSION=9.3.7' "$git_output"
+
+help_case=0
+for help_argument in -h --help; do
+	help_cache="$TEST_STATE/help-$help_case"
+	help_case=$((help_case + 1))
+	rm -rf "$help_cache"
+	capture_detector "$ROOT_DIR" "$help_cache" "$help_argument"
+	assert_equals "0" "$CAPTURED_STATUS"
+	assert_file_contains "$CAPTURED_STDOUT" 'Usage: detect-wp-versions.sh [-h|--help]'
+	assert_file_lacks "$CAPTURED_STDOUT" '--version'
+	assert_file_lacks "$CAPTURED_STDOUT" '--debug'
+	assert_trace_empty
+	if [[ -e "$help_cache" ]]; then
+		fail "$help_argument initialized detector cache"
+	fi
+done
+
+REJECTED_CASE=0
+assert_rejected 'Short version option' -v
+assert_rejected 'Long version option' --version
+assert_rejected 'Short debug option' -d
+assert_rejected 'Long debug option' --debug
+assert_rejected 'Unknown option' --invalid-option
+assert_rejected 'Unknown then version' --invalid-option --version
+assert_rejected 'Version then unknown' --version --invalid-option
+assert_rejected 'Help mixed with unknown' --help --invalid-option
+assert_rejected 'Duplicate help' --help --help
+
+debug_cache="$TEST_STATE/debug-cache"
+rm -rf "$debug_cache"
+DEBUG=1 MOCK_CURL_MODE=primary MOCK_GIT_MODE=fail capture_detector "$ROOT_DIR" "$debug_cache"
+assert_equals "0" "$CAPTURED_STATUS"
+assert_equals $'LATEST_VERSION=9.4.2\nPREVIOUS_VERSION=9.3.7' "$(cat "$CAPTURED_STDOUT")"
+assert_file_contains "$CAPTURED_STDERR" '[DEBUG]'
+
+cache_test_root="$TEMP_DIR/cache-isolation-root"
+cache_a="$TEST_STATE/cache-a"
+cache_b="$TEST_STATE/cache-b"
+mkdir -p "$cache_test_root"
+rm -rf "$cache_a" "$cache_b"
+
+MOCK_CURL_MODE=primary MOCK_GIT_MODE=fail capture_detector "$cache_test_root" "$cache_a"
+assert_equals "0" "$CAPTURED_STATUS"
+assert_equals $'LATEST_VERSION=9.4.2\nPREVIOUS_VERSION=9.3.7' "$(cat "$CAPTURED_STDOUT")"
+
+MOCK_CURL_MODE=fail MOCK_GIT_MODE=fail capture_detector "$cache_test_root" "$cache_a"
+assert_equals "0" "$CAPTURED_STATUS"
+assert_equals $'LATEST_VERSION=9.4.2\nPREVIOUS_VERSION=9.3.7' "$(cat "$CAPTURED_STDOUT")"
+
+MOCK_CURL_MODE=fail MOCK_GIT_MODE=fail capture_detector "$cache_test_root" "$cache_b"
+if [[ "$CAPTURED_STATUS" -eq 0 ]]; then
+	fail 'Empty cache root unexpectedly reused another cache'
+fi
+
+github_output="$TEMP_DIR/github-output"
+rm -rf "$TEST_STATE/cache"
+: > "$TRACE_FILE"
+GITHUB_ACTIONS=true GITHUB_OUTPUT="$github_output" MOCK_CURL_MODE=primary MOCK_GIT_MODE=fail run_detector "$ROOT_DIR" >/dev/null
+assert_contains "$github_output" 'latest=9.4.2'
+assert_contains "$github_output" 'previous=9.3.7'
+assert_contains "$github_output" 'lts=9.3.7'
+assert_contains "$github_output" 'matrix_ready=true'
+assert_file_lacks "$github_output" 'detection_method='
+assert_file_lacks "$github_output" 'cache_used='
+
+capture_detector "$ROOT_DIR" "$TEST_STATE/help-cleanup" --help
+assert_file_lacks "$CAPTURED_STDOUT" 'Cache TTL'
+assert_file_lacks "$CAPTURED_STDOUT" 'SUPPORTED PHP VERSIONS'
+assert_file_lacks "$CAPTURED_STDOUT" 'detection_method'
+assert_file_lacks "$CAPTURED_STDOUT" 'cache_used'
+
+echo '[PASS] detect-wp-versions.sh hermetic regression tests passed'

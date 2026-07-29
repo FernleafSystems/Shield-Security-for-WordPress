@@ -192,7 +192,7 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'run: composer analyze', $workflow );
 		$this->assertStringNotContainsString( 'run: composer build:config', $workflow );
 		$this->assertStringContainsString(
-			'run: php bin/shield test:source --skip-unit-tests --show-docker-output',
+			'run: php bin/shield test:source --skip-unit-tests --include-previous-wp --show-docker-output',
 			$workflow
 		);
 		$this->assertStringContainsString(
