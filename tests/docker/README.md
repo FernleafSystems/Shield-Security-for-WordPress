@@ -12,13 +12,11 @@ php bin/shield <command>
 
 | Mode | Behavior | Typical Use |
 |---|---|---|
-| `test:source` | Source runtime checks against working tree (quiet compose output by default) | Daily local CI-like runtime checks |
+| `test:source` | Source runtime checks against working tree (quiet compose output by default) | Containerized source-runtime checks |
 | `test:integration-local` | Host PHP integration tests with local Docker MySQL sidecar (quiet compose output by default) | Fast local integration loop with persistent DB |
 | `test:docker:cleanup` | Dry-run or remove labeled source-test Docker resources by explicit scope | Auditing and CI teardown for source, integration-local, cross-site, dev-site, test-site, or browser resources |
 | `test:package-targeted` | Focused package validation checks | Package-targeted validation |
 | `test:package-full` | Full packaged runtime checks (quiet compose output by default) | Full-pathway package runtime mode |
-| `analyze:source` | Run source static analysis pathway | Source static analysis |
-| `analyze:package` | Run packaged static analysis pathway | Packaged static analysis |
 
 Show live help at any time:
 
@@ -42,7 +40,6 @@ php bin/shield --help
 | `SHIELD_DOCKER_CONTAINER_LIFECYCLE` / `SHIELD_DOCKER_VOLUME_LIFECYCLE` | generated | `transient` or `reusable` lifecycle labels used by cleanup reporting |
 | `SHIELD_DOCKER_CONTAINER_EXPIRES_AT` / `SHIELD_DOCKER_VOLUME_EXPIRES_AT` | generated | Expiry timestamps used to find stale resources |
 | `SHIELD_DEBUG` / `SHIELD_DEBUG_PATHS` | unset | Legacy verbose aliases |
-| `DEBUG_MODE` | `false` | Optional extra bash/process monitoring for custom local debug runs |
 
 `PHPUNIT_DEBUG` resolution in `bin/run-tests-docker.sh`:
 
@@ -63,7 +60,7 @@ php bin/shield --help
 
 1. Default is `0`, so Docker runtime lanes run both unit and integration stages.
 2. Set `SHIELD_SKIP_UNIT_TESTS=1` to skip only the unit stage.
-3. Prefer `php bin/shield test:source --skip-unit-tests` for local source-runtime checks; add `--include-previous-wp` for CI parity. The environment variable remains a lower-level escape hatch for direct Docker runner usage.
+3. Prefer the `test:source --skip-unit-tests` CLI option when selecting integration-only source-runtime checks. The environment variable remains a lower-level escape hatch for direct Docker runner usage.
 
 ## Runtime Topology
 
@@ -71,18 +68,17 @@ Source mode:
 
 1. Uses `tests/docker/docker-compose.yml`.
 2. Runs one setup pass before runtime streams.
-3. Runs the latest WordPress stream with `SHIELD_SKIP_INNER_SETUP=1` by default; `--include-previous-wp` also runs the retained previous-major stream.
+3. Starts, builds, and runs only the latest WordPress stream with `SHIELD_SKIP_INNER_SETUP=1` unless the caller explicitly selects the retained previous-major stream.
 4. Uses setup cache by default for source dependency/build steps.
 5. Creates the source Node modules volume with source-harness labels before the Dockerized asset build, so warm reuse can be audited and CI cleanup can remove it explicitly.
 6. Compose containers and networks are labeled under cleanup scope `source`.
-7. In GitHub Actions, the source runtime lane captures raw per-phase logs as failure artifacts and runs `php bin/shield test:source --skip-unit-tests --include-previous-wp --show-docker-output` so Docker covers both supported WordPress streams after the dedicated unit lanes.
-8. Use `php bin/shield test:source --refresh-setup` to force setup refresh.
+7. Use `php bin/shield test:source --refresh-setup` to force setup refresh.
 
 Packaged modes (`test:package-targeted`, `test:package-full`, `analyze:package`):
 
 1. Resolved through `php bin/shield` lane services.
 2. Package path resolution supports explicit `--package-path` or deterministic temp package build.
-3. `test:package-full` runs the latest WordPress stream by default; add `--include-previous-wp` to include the retained previous-major stream.
+3. `test:package-full` follows the same latest-only default and explicit stream selection as source mode.
 
 Local sidecar mode (`test:integration-local`):
 
@@ -112,53 +108,6 @@ Cross-site mode (`test:cross-site`):
 3. Compose containers, volumes, and networks are labeled under cleanup scope `cross-site`.
 4. Use `php bin/shield test:docker:cleanup --scope=cross-site --dry-run --all` to audit planned cleanup before removal.
 
-## Static Analysis Entrypoints
-
-Use the direct static-analysis runner when Docker routing is not required:
-
-```bash
-php bin/shield analyze:source
-php bin/shield analyze:package
-```
-
-Source static analysis also uses setup cache for `build-config` and supports:
-
-```bash
-php bin/shield analyze:source --refresh-setup
-```
-
-## Quick Examples
-
-```bash
-# Source runtime checks
-php bin/shield test:source
-php bin/shield test:source --show-docker-output
-php bin/shield test:source --include-previous-wp
-# Required CI parity form: php bin/shield test:source --skip-unit-tests --include-previous-wp --show-docker-output
-
-# Local integration with DB sidecar
-php bin/shield test:integration-local
-php bin/shield test:integration-local --show-docker-output
-
-# Dry-run labeled Docker cleanup
-php bin/shield test:docker:cleanup --scope=source --dry-run --all
-php bin/shield test:docker:cleanup --scope=cross-site --dry-run --all
-
-# Package-targeted runtime checks
-php bin/shield test:package-targeted
-
-# Full-pathway packaged runtime mode
-php bin/shield test:package-full
-php bin/shield test:package-full --show-docker-output
-php bin/shield test:package-full --include-previous-wp
-
-# Source static analysis
-php bin/shield analyze:source
-
-# Packaged static analysis
-php bin/shield analyze:package
-```
-
 ## Quiet vs noisy compose output
 
 These modes default to reduced compose noise while preserving test output:
@@ -166,6 +115,8 @@ These modes default to reduced compose noise while preserving test output:
 - `test:source`
 - `test:integration-local`
 - `test:package-full`
+- `test:upgrade-public`
+- `test:popular-plugins`
 
 To inspect noisy compose output during troubleshooting:
 
@@ -186,18 +137,19 @@ composer test:integration -- --show-docker-output -- tests/Integration/ActionRou
 1. Ensure Docker is installed and the daemon is running.
 2. Use `php bin/shield --help` to verify mode flags.
 3. If a mode fails immediately, check for unknown arguments and conflicting mode flags.
-4. If Composer reports `Could not authenticate against github.com`, verify auth:
+4. For Private Packagist failures, follow the authentication preflight in [`TESTING.md`](../../TESTING.md#private-packagist-composer-auth).
+5. If Composer reports `Could not authenticate against github.com`, verify auth:
 
 ```bash
 gh auth status -h github.com
 composer diagnose
 ```
 
-5. Re-authenticate GH CLI, then sync the Composer GitHub OAuth token:
+6. Re-authenticate GH CLI, then sync the Composer GitHub OAuth token:
 
 ```bash
 gh auth login -h github.com --git-protocol https --web
 composer config --global github-oauth.github.com "$(gh auth token)"
 ```
 
-6. Source runtime uses a persistent Composer cache at `tmp/.docker-composer-cache`; if cache corruption is suspected, remove that directory and rerun.
+7. Source runtime uses a persistent Composer cache at `tmp/.docker-composer-cache`; if cache corruption is suspected, remove that directory and rerun.
