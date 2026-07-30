@@ -343,6 +343,96 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
 	}
 
+	/**
+	 * @dataProvider provideIneligibleFullScanPluginSnapshots
+	 */
+	public function test_full_scan_known_valid_plugin_requires_exact_comparison_eligibility(
+		?array $eligibility
+	) :void {
+		$pluginFile = 'full-gated/full-gated.php';
+		$path = $this->writeFile( WP_PLUGIN_DIR.'/'.$pluginFile, '<?php full_gated();' );
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [ $pluginFile ] );
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserPluginVo( $pluginFile ), [
+			'full-gated.php' => \md5_file( $path ),
+		] );
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile(
+			$path,
+			new TrustedFileContext( 'plugin', $pluginFile, '1.0.0', 'full-gated.php' )
+		);
+
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newFullScanAction( $eligibility ) ) );
+	}
+
+	public function test_full_scan_known_valid_plugin_accepts_exact_comparison_eligibility() :void {
+		$pluginFile = 'full-eligible/full-eligible.php';
+		$path = $this->writeFile( WP_PLUGIN_DIR.'/'.$pluginFile, '<?php full_eligible();' );
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [ $pluginFile ] );
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserPluginVo( $pluginFile ), [
+			'full-eligible.php' => \md5_file( $path ),
+		] );
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile(
+			$path,
+			new TrustedFileContext( 'plugin', $pluginFile, '1.0.0', 'full-eligible.php' )
+		);
+		$action = $this->newFullScanAction(
+			$this->assetSnapshotEligibility( 'plugin', $pluginFile, '1.0.0', true )
+		);
+
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $path, $action ) );
+	}
+
+	public function test_targeted_known_valid_plugin_does_not_require_comparison_eligibility() :void {
+		$pluginFile = 'targeted/targeted.php';
+		$path = $this->writeFile( WP_PLUGIN_DIR.'/'.$pluginFile, '<?php targeted();' );
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [ $pluginFile ] );
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserPluginVo( $pluginFile ), [
+			'targeted.php' => \md5_file( $path ),
+		] );
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile(
+			$path,
+			new TrustedFileContext( 'plugin', $pluginFile, '1.0.0', 'targeted.php' )
+		);
+
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $path, $this->newAction() ) );
+	}
+
+	public function test_full_scan_known_valid_theme_requires_exact_comparison_eligibility() :void {
+		$stylesheet = 'full-gated-theme';
+		$path = $this->writeFile( WP_CONTENT_DIR.'/themes/'.$stylesheet.'/style.php', '<?php full_gated_theme();' );
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [], [ $stylesheet ] );
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserThemeVo( $stylesheet ), [
+			'style.php' => \md5_file( $path ),
+		] );
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile(
+			$path,
+			new TrustedFileContext( 'theme', $stylesheet, '1.0.0', 'style.php' )
+		);
+
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $path, $this->newFullScanAction() ) );
+
+		$action = $this->newFullScanAction(
+			$this->assetSnapshotEligibility( 'theme', $stylesheet, '1.0.0', true )
+		);
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $path, $action ) );
+	}
+
+	public function test_full_scan_known_valid_core_does_not_require_asset_comparison_eligibility() :void {
+		$path = $this->writeFile( ABSPATH.'wp-admin/full-core.php', '<?php full_core();' );
+		$this->installEnvironment( $this->makeTempDir( 'cache' ) );
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile( $path, $this->coreContext( 'wp-admin/full-core.php' ) );
+
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $path, $this->newFullScanAction() ) );
+	}
+
 	public function test_known_valid_snapshot_verification_only_runs_for_exact_record_candidate() :void {
 		$publishedNoRecord = $this->writeFile( WP_PLUGIN_DIR.'/published/no-record.php', '<?php published_no_record();' );
 		$localNoRecord = $this->writeFile( WP_PLUGIN_DIR.'/local/no-record.php', '<?php local_no_record();' );
@@ -609,6 +699,23 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertFalse( $optimiser->hasCleanMalwareVerdict( $path, $action ) );
 	}
 
+	public function test_full_scan_malware_clean_verdict_is_independent_of_asset_comparison_eligibility() :void {
+		$path = $this->writeFile( WP_PLUGIN_DIR.'/malware-cache/malware-cache.php', '<?php malware_cache();' );
+		$this->installEnvironment(
+			$this->makeTempDir( 'cache' ),
+			true,
+			'6.5.0',
+			[ 'malware-cache/malware-cache.php' ]
+		);
+		$optimiser = new FileScanOptimiser();
+		$action = $this->newFullScanAction();
+		$action->patterns_raw = [ 'bad_token' ];
+
+		$optimiser->recordCleanMalwareVerdict( $path, $action );
+
+		$this->assertTrue( $optimiser->hasCleanMalwareVerdict( $path, $action ) );
+	}
+
 	public function test_malformed_cache_lines_are_ignored_inside_optimiser() :void {
 		$cacheDir = $this->makeTempDir( 'cache' );
 		$path = $this->writeFile( ABSPATH.'wp-content/uploads/clean.php', '<?php clean();' );
@@ -771,6 +878,32 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		return $action;
 	}
 
+	private function newFullScanAction( ?array $eligibility = null ) :ScanActionVO {
+		$action = $this->newAction();
+		$action->scope_type = 'full';
+		if ( $eligibility !== null ) {
+			$action->asset_snapshot_eligibility = $eligibility;
+		}
+		return $action;
+	}
+
+	private function assetSnapshotEligibility(
+		string $assetType,
+		string $assetKey,
+		string $assetVersion,
+		bool $comparisonEligible
+	) :array {
+		$eligibility = [
+			'plugin' => [],
+			'theme'  => [],
+		];
+		$eligibility[ $assetType ][ $assetKey ] = [
+			'version'             => $assetVersion,
+			'comparison_eligible' => $comparisonEligible,
+		];
+		return $eligibility;
+	}
+
 	private function newActionWithPatterns( string $family, array $patterns ) :ScanActionVO {
 		$action = $this->newAction();
 		$property = 'patterns_'.$family;
@@ -792,6 +925,44 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		return [
 			'missing schema' => [ null ],
 			'wrong schema'   => [ 0 ],
+		];
+	}
+
+	public static function provideIneligibleFullScanPluginSnapshots() :array {
+		return [
+			'absent map' => [ null ],
+			'explicit false' => [ [
+				'plugin' => [
+					'full-gated/full-gated.php' => [
+						'version'             => '1.0.0',
+						'comparison_eligible' => false,
+					],
+				],
+				'theme' => [],
+			] ],
+			'malformed map' => [ [
+				'plugin' => [
+					'full-gated/full-gated.php' => true,
+				],
+			] ],
+			'wrong key' => [ [
+				'plugin' => [
+					'other/other.php' => [
+						'version'             => '1.0.0',
+						'comparison_eligible' => true,
+					],
+				],
+				'theme' => [],
+			] ],
+			'wrong version' => [ [
+				'plugin' => [
+					'full-gated/full-gated.php' => [
+						'version'             => '0.9.0',
+						'comparison_eligible' => true,
+					],
+				],
+				'theme' => [],
+			] ],
 		];
 	}
 

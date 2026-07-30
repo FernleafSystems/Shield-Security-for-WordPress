@@ -212,6 +212,114 @@ class StoreTest extends BaseUnitTest {
 		$this->assertSame( [ [ 77 ] ], $metaDeletes );
 	}
 
+	public function test_full_afs_ineligible_malware_result_updates_only_existing_malware_facet() :void {
+		$metaDeletes = [];
+		$resultItemInserts = [];
+		$resultItemUpdates = [];
+		$wpdb = $this->installController(
+			[
+				$this->existingResultRow( 77, 'akismet/akismet.php', [
+					'asset_key'         => 'akismet/akismet.php',
+					'resolved_at'       => 1699999000,
+					'resolution_reason' => 'ignored',
+				] ),
+			],
+			[],
+			$metaDeletes,
+			$resultItemInserts,
+			$resultItemUpdates,
+			null,
+			77,
+			1,
+			[
+				[
+					'ri_ref'     => 77,
+					'meta_key'   => 'is_checksumfail',
+					'meta_value' => '1',
+				],
+				[
+					'ri_ref'     => 77,
+					'meta_key'   => 'asset_version',
+					'meta_value' => '5.0',
+				],
+				[
+					'ri_ref'     => 77,
+					'meta_key'   => 'comparison_basis',
+					'meta_value' => 'published_reference',
+				],
+			]
+		);
+
+		( new Store() )->store( $this->newFullQueueItem(), [
+			[
+				'item_id'         => 'akismet/akismet.php',
+				'auto_filtered_at' => 1700000042,
+				'meta'             => [
+					'asset_version'    => '5.0',
+					'is_mal'           => 1,
+					'malware_record_id' => 314,
+				],
+			],
+		] );
+
+		$this->assertSame( [], $resultItemInserts );
+		$this->assertSame( [], $metaDeletes );
+		$this->assertCount( 1, $resultItemUpdates );
+		$this->assertSame( [
+			'scan'              => 'afs',
+			'asset_type'        => 'plugin',
+			'asset_key'         => 'akismet/akismet.php',
+			'auto_filtered_at'  => 1700000042,
+			'last_seen_at'      => 1700000000,
+			'resolved_at'       => 1699999000,
+			'resolution_reason' => 'ignored',
+		], $resultItemUpdates[ 0 ][ 'data' ] );
+
+		$metaQueries = $this->insertQueriesForTable( $wpdb, 'shield_scan_result_item_meta' );
+		$this->assertCount( 4, $metaQueries );
+		$this->assertStringContainsString( "`meta_key`='is_mal'", $metaQueries[ 0 ] );
+		$this->assertStringContainsString( "('77','is_mal','1')", $metaQueries[ 1 ] );
+		$this->assertStringContainsString( "`meta_key`='malware_record_id'", $metaQueries[ 2 ] );
+		$this->assertStringContainsString( "('77','malware_record_id','314')", $metaQueries[ 3 ] );
+		$this->assertStringNotContainsString( 'asset_version', \implode( "\n", $metaQueries ) );
+		$this->assertStringNotContainsString( 'comparison_basis', \implode( "\n", $metaQueries ) );
+		$this->assertCount( 1, $this->insertQueriesForTable( $wpdb, 'shield_scan_results' ) );
+	}
+
+	public function test_full_afs_protected_metadata_read_failure_prevents_mutation() :void {
+		$metaDeletes = [];
+		$resultItemInserts = [];
+		$resultItemUpdates = [];
+		$this->installController(
+			[ $this->existingResultRow( 77, 'akismet/akismet.php' ) ],
+			[],
+			$metaDeletes,
+			$resultItemInserts,
+			$resultItemUpdates,
+			null,
+			77,
+			1,
+			[],
+			true
+		);
+
+		$this->assertStoreFailure( 'metadata read', function () :void {
+			( new Store() )->store( $this->newFullQueueItem(), [
+				[
+					'item_id' => 'akismet/akismet.php',
+					'meta'    => [
+						'asset_version' => '5.0',
+						'is_mal'        => 1,
+					],
+				],
+			] );
+		} );
+
+		$this->assertSame( [], $resultItemInserts );
+		$this->assertSame( [], $resultItemUpdates );
+		$this->assertSame( [], $metaDeletes );
+	}
+
 	/**
 	 * @dataProvider persistenceFailureProvider
 	 * @param list<string> $expectedStages
@@ -358,14 +466,18 @@ class StoreTest extends BaseUnitTest {
 		array &$resultItemUpdates = [],
 		?string $failingStage = null,
 		int $lastInsertID = 77,
-		$metaDeleteResult = 1
+		$metaDeleteResult = 1,
+		array $existingMetaRows = [],
+		bool $metaReadFailure = false
 	) :object {
 		$wpdb = new class(
 			$existingResultRows,
 			$observedResultItemIDs,
 			$failingStage,
 			$lastInsertID,
-			$metaDeleteResult
+			$metaDeleteResult,
+			$existingMetaRows,
+			$metaReadFailure
 		) extends Db {
 			public array $selectQueries = [];
 			public array $insertQueries = [];
@@ -375,19 +487,25 @@ class StoreTest extends BaseUnitTest {
 			private ?string $failingStage;
 			private int $lastInsertID;
 			private $metaDeleteResult;
+			private array $existingMetaRows;
+			private bool $metaReadFailure;
 
 			public function __construct(
 				array $existingResultRows,
 				array $observedResultItemIDs,
 				?string $failingStage,
 				int $lastInsertID,
-				$metaDeleteResult
+				$metaDeleteResult,
+				array $existingMetaRows,
+				bool $metaReadFailure
 			) {
 				$this->existingResultRows = $existingResultRows;
 				$this->observedResultItemIDs = $observedResultItemIDs;
 				$this->failingStage = $failingStage;
 				$this->lastInsertID = $lastInsertID;
 				$this->metaDeleteResult = $metaDeleteResult;
+				$this->existingMetaRows = $existingMetaRows;
+				$this->metaReadFailure = $metaReadFailure;
 			}
 
 			public function selectCustom( $query, $format = null ) {
@@ -401,6 +519,9 @@ class StoreTest extends BaseUnitTest {
 						static fn( int $resultItemID ) :array => [ 'resultitem_ref' => $resultItemID ],
 						$this->observedResultItemIDs
 					);
+				}
+				if ( \strpos( (string)$query, 'shield_scan_result_item_meta' ) !== false ) {
+					return $this->metaReadFailure ? false : $this->existingMetaRows;
 				}
 				return [];
 			}
@@ -446,7 +567,7 @@ class StoreTest extends BaseUnitTest {
 							$record->item_id = $result[ 'item_id' ];
 							$record->asset_type = 'plugin';
 							$record->asset_key = $result[ 'item_id' ];
-							$record->auto_filtered_at = 0;
+							$record->auto_filtered_at = (int)( $result[ 'auto_filtered_at' ] ?? 0 );
 							$record->last_seen_at = 1700000000;
 							$record->resolved_at = 0;
 							$record->resolution_reason = '';
@@ -587,8 +708,8 @@ class StoreTest extends BaseUnitTest {
 		return $wpdb;
 	}
 
-	private function existingResultRow( int $id, string $itemID ) :array {
-		return [
+	private function existingResultRow( int $id, string $itemID, array $overrides = [] ) :array {
+		return \array_merge( [
 			'id'                => $id,
 			'scan'              => 'afs',
 			'item_type'         => 'f',
@@ -601,7 +722,7 @@ class StoreTest extends BaseUnitTest {
 			'resolution_reason' => '',
 			'item_repaired_at'  => 0,
 			'item_deleted_at'   => 0,
-		];
+		], $overrides );
 	}
 
 	private function legacyBlankResultRow( int $id, string $itemID, array $overrides = [] ) :array {
@@ -617,6 +738,23 @@ class StoreTest extends BaseUnitTest {
 		$queueItem->scan_id = 91;
 		$queueItem->qitem_id = 14;
 		$queueItem->scan = 'afs';
+		return $queueItem;
+	}
+
+	private function newFullQueueItem() :QueueItemVO {
+		$queueItem = $this->newQueueItem();
+		$queueItem->scope_type = 'full';
+		$queueItem->meta = [
+			'asset_snapshot_eligibility' => [
+				'plugin' => [
+					'akismet/akismet.php' => [
+						'version'             => '5.0',
+						'comparison_eligible' => false,
+					],
+				],
+				'theme'  => [],
+			],
+		];
 		return $queueItem;
 	}
 }

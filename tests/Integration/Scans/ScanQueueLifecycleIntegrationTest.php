@@ -6,7 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\CreateNewScan;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\{
+	CreateNewScan,
+	SetScanCompleted
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	ProcessQueueItem,
@@ -21,6 +24,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
@@ -249,6 +253,75 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$claimed = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $itemID );
 		$this->assertGreaterThan( 0, $claimed->started_at );
 		$this->assertSame( 1, $claimed->attempts );
+	}
+
+	public function testSuccessiveRealQueueItemsHydrateIdenticalFullAfsEligibility() :void {
+		$eligibility = [
+			'plugin' => [
+				'example/example.php' => [
+					'version'             => '1.0',
+					'comparison_eligible' => true,
+				],
+			],
+			'theme'  => [],
+		];
+		$scanID = $this->createScan( 'afs', 'built', [
+			'ready_at'        => \time(),
+			'last_process_at' => \time(),
+			'meta'            => [
+				'scan'                       => 'wpv',
+				'scope_type'                 => 'theme',
+				'scope_key'                  => 'not-authoritative',
+				'coverage_families'          => [ ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY ],
+				'asset_snapshot_eligibility' => $eligibility,
+			],
+		] );
+		$firstID = $this->createScanItem( $scanID, [ 'first.php' ] );
+		$secondID = $this->createScanItem( $scanID, [ 'second.php' ] );
+
+		$first = ( new QueueItems() )->next();
+		$second = ( new QueueItems() )->next();
+
+		$this->assertSame( $firstID, $first->qitem_id );
+		$this->assertSame( $secondID, $second->qitem_id );
+		$this->assertSame( $first->meta, $second->meta );
+		$this->assertSame( $eligibility, $first->meta[ 'asset_snapshot_eligibility' ] ?? null );
+		foreach ( [ $first, $second ] as $item ) {
+			$this->assertSame( 'afs', $item->scan );
+			$this->assertSame( 'full', $item->scope_type );
+			$this->assertSame( '', $item->scope_key );
+		}
+	}
+
+	public function testZeroItemCompletionPersistsExactFullAfsEligibilityPayload() :void {
+		$meta = [
+			'coverage_families' => [ ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY ],
+			'asset_snapshot_eligibility' => [
+				'plugin' => [
+					'zero/zero.php' => [
+						'version'             => '0',
+						'comparison_eligible' => false,
+					],
+				],
+				'theme'  => [],
+			],
+		];
+		$scanID = $this->createScan( 'afs', 'built', [
+			'ready_at'        => \time(),
+			'last_process_at' => \time(),
+			'meta'            => $meta,
+		] );
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$rawBefore = $scan->getRawData();
+		$this->assertArrayHasKey( 'meta', $rawBefore );
+
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID, $scan, true ) );
+
+		$persisted = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$rawAfter = $persisted->getRawData();
+		$this->assertSame( 'completed', $persisted->status );
+		$this->assertSame( $meta, $persisted->meta );
+		$this->assertSame( $rawBefore[ 'meta' ], $rawAfter[ 'meta' ] );
 	}
 
 	public function testRealDbHydrationPreservesValidQueueSiblingsThroughProcessor() :void {

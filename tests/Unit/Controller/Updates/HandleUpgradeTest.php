@@ -181,6 +181,63 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$this->assertSame( [], HandleUpgradeDbSpy::$writes );
 		}
 
+		public function test_scheduled_upgrade_widens_text_scan_metadata_column() :void {
+			$actions = [];
+			$this->captureUpgradeAction( $actions );
+			HandleUpgradeDbSpy::$scanMetaColumnType = 'text';
+			$this->installController( '2.0.0' );
+
+			( new HandleUpgrade() )->execute();
+			$this->runCapturedUpgradeCallback( $actions );
+
+			$this->assertCount( 1, HandleUpgradeDbSpy::$writes );
+			$this->assertStringContainsString(
+				'ALTER TABLE `shield_scans` MODIFY COLUMN `meta` mediumtext',
+				HandleUpgradeDbSpy::$writes[ 0 ]
+			);
+		}
+
+		/**
+		 * @dataProvider adequateScanMetadataColumnProvider
+		 */
+		public function test_scheduled_upgrade_does_not_shrink_adequate_scan_metadata_column(
+			string $columnType
+		) :void {
+			$actions = [];
+			$this->captureUpgradeAction( $actions );
+			HandleUpgradeDbSpy::$scanMetaColumnType = $columnType;
+			$this->installController( '2.0.0' );
+
+			( new HandleUpgrade() )->execute();
+			$this->runCapturedUpgradeCallback( $actions );
+
+			$this->assertSame( [], HandleUpgradeDbSpy::$writes );
+		}
+
+		public function adequateScanMetadataColumnProvider() :array {
+			return [
+				'mediumtext' => [ 'mediumtext' ],
+				'longtext'   => [ 'longtext' ],
+			];
+		}
+
+		public function test_unexpected_scan_metadata_column_type_is_logged_and_worker_continues() :void {
+			$actions = [];
+			$this->captureUpgradeAction( $actions );
+			HandleUpgradeDbSpy::$scanMetaColumnType = 'varchar(255)';
+			$state = $this->installController( '2.0.0' );
+
+			( new HandleUpgrade() )->execute();
+			$this->runCapturedUpgradeCallback( $actions );
+
+			$this->assertSame( [], HandleUpgradeDbSpy::$writes );
+			$this->assertCount( 1, $state->scans->startedScans );
+			$this->assertContains(
+				'Shield upgrade side effect failed: scan metadata column alignment: The scan metadata column has an unexpected type.',
+				HandleUpgradeErrorLogSpy::$messages
+			);
+		}
+
 		public function test_cache_purge_failure_does_not_stop_scheduled_upgrade_worker() :void {
 			$actions = [];
 			$this->captureUpgradeAction( $actions );
@@ -529,10 +586,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 
 		public static string $columnType = 'varchar(24)';
 
+		public static string $scanMetaColumnType = 'mediumtext';
+
 		public static array $writes = [];
 
 		public static function reset() :void {
 			self::$columnType = 'varchar(24)';
+			self::$scanMetaColumnType = 'mediumtext';
 			self::$writes = [];
 		}
 	}
@@ -540,8 +600,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 	class HandleUpgradeTestDb extends Db {
 
 		public function selectCustom( $query, $format = null ) {
-			unset( $query, $format );
-			return [ [ 'Type' => HandleUpgradeDbSpy::$columnType ] ];
+			unset( $format );
+			return [ [
+				'Type' => \strpos( (string)$query, "`Field`='meta'" ) !== false
+					? HandleUpgradeDbSpy::$scanMetaColumnType
+					: HandleUpgradeDbSpy::$columnType,
+			] ];
 		}
 
 		public function doSql( string $sqlQuery ) {
@@ -553,6 +617,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 	class HandleUpgradeTestDbCon {
 
 		public object $malware;
+
+		public object $scans;
 
 		public function __construct() {
 			$this->malware = new class {
@@ -567,6 +633,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 						public function enumerateColumns() :array {
 							return [
 								'malai_status' => "varchar(24) NOT NULL DEFAULT '' COMMENT 'The status of the file from malai'",
+							];
+						}
+					};
+				}
+			};
+			$this->scans = new class {
+				public function getTableSchema() :object {
+					return new class {
+						public string $table = 'shield_scans';
+
+						public function enumerateColumns() :array {
+							return [
+								'meta' => "mediumtext NOT NULL COMMENT 'Scan Meta Info'",
 							];
 						}
 					};

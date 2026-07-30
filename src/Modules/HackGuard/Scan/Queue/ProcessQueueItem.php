@@ -53,7 +53,11 @@ class ProcessQueueItem {
 	private function runScanOnItem( QueueItemVO $item ) :array {
 		$action = ScanActionFromSlug::GetAction( $item->scan )->applyFromArray( \array_merge(
 			$item->meta,
-			[ 'scan' => $item->scan ]
+			[
+				'scan'       => $item->scan,
+				'scope_type' => $item->scope_type,
+				'scope_key'  => $item->scope_key,
+			]
 		) );
 		$action->items = $item->items;
 		$heartbeat = new QueueHeartbeat();

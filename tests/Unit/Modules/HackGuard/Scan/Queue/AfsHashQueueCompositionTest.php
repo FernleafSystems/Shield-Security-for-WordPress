@@ -175,6 +175,93 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		];
 	}
 
+	public function test_queue_row_scope_overrides_conflicting_persisted_scope_metadata() :void {
+		$pluginFile = 'queue-authoritative-scope/plugin.php';
+		$path = $this->writePluginFile( $pluginFile, "<?php\n// changed plugin fixture\n" );
+		$cacheRoot = $this->createTrackedTempDir( 'shield-afs-authoritative-scope-' );
+		$harness = $this->newAfsHarness( $cacheRoot, $pluginFile );
+		$this->writeHashStore( $cacheRoot, $pluginFile, [
+			'plugin.php' => \str_repeat( 'a', 32 ),
+		] );
+
+		$scanID = $this->insertReadyAfsWork(
+			$harness,
+			$path,
+			[ 'php' ],
+			ScanActionVO::DEFAULT_MAX_FILE_SIZE,
+			[
+				'scope_type'                => 'plugin',
+				'scope_key'                 => $pluginFile,
+				'asset_snapshot_eligibility' => [
+					'plugin' => [
+						$pluginFile => [
+							'version'             => '1.0.0',
+							'comparison_eligible' => false,
+						],
+					],
+					'theme' => [],
+				],
+			]
+		);
+		$item = ( new QueueItems() )->next();
+		$this->assertNotNull( $item );
+		$this->assertSame( 'full', $item->scope_type );
+		$this->assertSame( 'plugin', $item->meta[ 'scope_type' ] );
+
+		( new ProcessQueueItem() )->run( $item );
+		( new CompleteQueue() )->complete();
+
+		$this->assertSame( [], $harness->resultItemRecords() );
+		$this->assertSame( 'completed', $harness->scanRow( $scanID )[ 'status' ] );
+	}
+
+	public function test_frozen_false_eligibility_is_immutable_across_successive_queue_items() :void {
+		$pluginFile = 'queue-frozen-false/plugin.php';
+		$path = $this->writePluginFile( $pluginFile, "<?php\n// frozen false fixture\n" );
+		$cacheRoot = $this->createTrackedTempDir( 'shield-afs-frozen-false-' );
+		$harness = $this->newAfsHarness( $cacheRoot, $pluginFile );
+		$frozenEligibility = [
+			'plugin' => [
+				$pluginFile => [
+					'version'             => '1.0.0',
+					'comparison_eligible' => false,
+				],
+			],
+			'theme' => [],
+		];
+		$scanID = $this->insertReadyAfsWork(
+			$harness,
+			$path,
+			[ 'php' ],
+			ScanActionVO::DEFAULT_MAX_FILE_SIZE,
+			[ 'asset_snapshot_eligibility' => $frozenEligibility ]
+		);
+		$harness->insertScanItem( $scanID, [ \base64_encode( $path ) ] );
+
+		$first = ( new QueueItems() )->next();
+		$this->assertNotNull( $first );
+		( new ProcessQueueItem() )->run( $first );
+		$this->assertSame( [], $harness->resultItemRecords() );
+		$this->assertSame(
+			$frozenEligibility,
+			$this->scanMeta( $harness->scanRow( $scanID ) )[ 'asset_snapshot_eligibility' ] ?? null
+		);
+
+		$this->writeHashStore( $cacheRoot, $pluginFile, [
+			'plugin.php' => \str_repeat( 'a', 32 ),
+		] );
+		$second = ( new QueueItems() )->next();
+		$this->assertNotNull( $second );
+		( new ProcessQueueItem() )->run( $second );
+		( new CompleteQueue() )->complete();
+
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'completed', $scan[ 'status' ] );
+		$this->assertSame( $frozenEligibility, $this->scanMeta( $scan )[ 'asset_snapshot_eligibility' ] ?? null );
+		$this->assertSame( [], $harness->resultItemRecords() );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $scan ) );
+	}
+
 	private function newAfsHarness( string $cacheRoot, string $pluginFile ) :ScanQueueLifecycleHarness {
 		return ( new ScanQueueLifecycleHarness() )
 			->install()
@@ -187,14 +274,18 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		ScanQueueLifecycleHarness $harness,
 		string $path,
 		$fileExts = [ 'php' ],
-		$maxFileSize = ScanActionVO::DEFAULT_MAX_FILE_SIZE
+		$maxFileSize = ScanActionVO::DEFAULT_MAX_FILE_SIZE,
+		array $metaOverrides = []
 	) :int {
+		$normalizedPath = \str_replace( '\\', '/', $path );
+		$pluginRoot = \rtrim( \str_replace( '\\', '/', WP_PLUGIN_DIR ), '/' ).'/';
+		$pluginFile = \substr( $normalizedPath, \strlen( $pluginRoot ) );
 		$scanID = $harness->insertScan( [
 			'scan'            => 'afs',
 			'status'          => 'built',
 			'ready_at'        => 1699999000,
 			'last_process_at' => 1699999000,
-			'meta'            => \base64_encode( \json_encode( [
+			'meta'            => \base64_encode( \json_encode( \array_merge( [
 				'coverage_families' => [ ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY ],
 				'file_exts'         => $fileExts,
 				'max_file_size'     => $maxFileSize,
@@ -202,7 +293,16 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 				'scan_root_dirs'    => [],
 				'usleep'            => 0,
 				'valid_files'       => [],
-			] ) ?: '[]' ),
+				'asset_snapshot_eligibility' => [
+					'plugin' => [
+						$pluginFile => [
+							'version'             => '1.0.0',
+							'comparison_eligible' => true,
+						],
+					],
+					'theme' => [],
+				],
+			], $metaOverrides ) ) ?: '[]' ),
 		] );
 		$harness->insertScanItem( $scanID, [ \base64_encode( $path ) ] );
 		return $scanID;

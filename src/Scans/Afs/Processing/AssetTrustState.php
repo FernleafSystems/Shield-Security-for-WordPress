@@ -8,12 +8,16 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	Exceptions\NonAssetFileException,
 	HashVerificationResult
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 
 class AssetTrustState {
 
 	private AssetTrustResolver $resolver;
 
-	public function __construct() {
+	private ScanActionVO $action;
+
+	public function __construct( ScanActionVO $action ) {
+		$this->action = $action;
 		$this->resolver = new AssetTrustResolver();
 	}
 
@@ -33,6 +37,14 @@ class AssetTrustState {
 	 * @throws \Exception
 	 */
 	public function verifyAssetContext( string $path, AssetFileContext $context ) :?HashVerificationResult {
+		if ( \in_array( $context->assetType, [ 'plugin', 'theme' ], true )
+			 && !$this->action->isAssetSnapshotComparisonEligible(
+				$context->assetType,
+				$context->assetKey,
+				$context->assetVersion
+			) ) {
+			return null;
+		}
 		return $this->resolver->verifyStoredContext( $path, $context );
 	}
 

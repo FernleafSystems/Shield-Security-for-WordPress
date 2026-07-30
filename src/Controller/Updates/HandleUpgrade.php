@@ -50,6 +50,7 @@ class HandleUpgrade {
 			$con->opts->store();
 		}
 		$this->runUpgradeSideEffect( 'MALai status column alignment', fn() => $this->alignMalaiStatusColumnWidth() );
+		$this->runUpgradeSideEffect( 'scan metadata column alignment', fn() => $this->alignScansMetaColumnWidth() );
 
 		Services::ServiceProviders()->clearProviders();
 		$con->plugin->deleteAllPluginCrons();
@@ -105,6 +106,41 @@ class HandleUpgrade {
 			) ) === false ) {
 				throw new \RuntimeException( 'Could not widen the MALai status column.' );
 			}
+		}
+	}
+
+	private function alignScansMetaColumnWidth() :void {
+		$schema = self::con()->db_con->scans->getTableSchema();
+		$targetDefinition = \trim( (string)( $schema->enumerateColumns()[ 'meta' ] ?? '' ) );
+		if ( !\preg_match( '/^mediumtext\b/i', $targetDefinition ) ) {
+			throw new \RuntimeException( 'The configured scan metadata column definition is not mediumtext.' );
+		}
+
+		global $wpdb;
+		$columns = Services::WpDb()->selectCustom( \sprintf(
+			"SHOW COLUMNS FROM `%s` WHERE `Field`='meta';",
+			$schema->table
+		) );
+		if ( !\is_array( $columns )
+			 || ( \is_object( $wpdb ) && (string)( $wpdb->last_error ?? '' ) !== '' )
+			 || !isset( $columns[ 0 ][ 'Type' ] ) ) {
+			throw new \RuntimeException( 'Could not inspect the scan metadata column.' );
+		}
+
+		$actualType = \strtolower( \trim( (string)$columns[ 0 ][ 'Type' ] ) );
+		if ( \in_array( $actualType, [ 'mediumtext', 'longtext' ], true ) ) {
+			return;
+		}
+		if ( !\in_array( $actualType, [ 'tinytext', 'text' ], true ) ) {
+			throw new \RuntimeException( 'The scan metadata column has an unexpected type.' );
+		}
+
+		if ( Services::WpDb()->doSql( \sprintf(
+			'ALTER TABLE `%s` MODIFY COLUMN `meta` %s;',
+			$schema->table,
+			$targetDefinition
+		) ) === false ) {
+			throw new \RuntimeException( 'Could not widen the scan metadata column.' );
 		}
 	}
 

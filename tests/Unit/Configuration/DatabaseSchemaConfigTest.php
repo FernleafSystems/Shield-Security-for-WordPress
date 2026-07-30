@@ -37,6 +37,18 @@ class DatabaseSchemaConfigTest extends TestCase {
 		$this->assertSame( $expected, $generated[ 'config_spec' ][ 'databases' ][ 'tables' ][ 'scan_items' ][ 'cols_custom' ][ 'item_count' ] ?? null );
 	}
 
+	public function test_scans_meta_uses_mediumtext_in_source_and_generated_config() :void {
+		$source = $this->decodePluginJsonFile( 'plugin-spec/43_databases.json', 'Database schema source spec' );
+		$generated = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
+		$expected = [
+			'macro_type' => 'mediumtext',
+			'comment'    => 'Scan Meta Info',
+		];
+
+		$this->assertSame( $expected, $source[ 'tables' ][ 'scans' ][ 'cols_custom' ][ 'meta' ] ?? null );
+		$this->assertSame( $expected, $generated[ 'config_spec' ][ 'databases' ][ 'tables' ][ 'scans' ][ 'cols_custom' ][ 'meta' ] ?? null );
+	}
+
 	public function test_custom_database_column_names_do_not_use_mysql_reserved_words() :void {
 		$config = $this->decodePluginJsonFile( 'plugin-spec/43_databases.json', 'Database schema source spec' );
 		$reservedWords = $this->mysqlReservedWords();

@@ -218,6 +218,16 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		string $coverageFamily
 	) :void {
 		$scenario = $this->afsAssetScenario( 'plugin' );
+		$assetType = null;
+		if ( $coverageFamily === ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY ) {
+			$assetType = 'plugin';
+		}
+		elseif ( $coverageFamily === ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY ) {
+			$assetType = 'theme';
+		}
+		if ( $assetType !== null ) {
+			$meta[ 'asset_version' ] = '1.0';
+		}
 		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
 		$finding = $this->seedAfsFinding(
 			$initialScanID,
@@ -227,6 +237,16 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		);
 
 		$scanID = $this->insertAfsScan( 'full', '', [ $coverageFamily ], 'manual' );
+		if ( $assetType !== null ) {
+			$this->setFullScanEligibility( $scanID, [
+				$assetType => [
+					(string)$meta[ 'ptg_slug' ] => [
+						'version'             => '1.0',
+						'comparison_eligible' => true,
+					],
+				],
+			] );
+		}
 		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID ) );
 
 		$this->assertFindingResolved( $finding, true, 'clean_rescan' );
@@ -279,6 +299,16 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		string $lowerCoverage
 	) :void {
 		$plugin = $this->afsAssetScenario( 'plugin' );
+		$assetType = null;
+		if ( $higherCoverage === ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY ) {
+			$assetType = 'plugin';
+		}
+		elseif ( $higherCoverage === ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY ) {
+			$assetType = 'theme';
+		}
+		if ( $assetType !== null ) {
+			$meta[ 'asset_version' ] = '1.0';
+		}
 		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
 		$finding = $this->seedAfsFinding(
 			$initialScanID,
@@ -292,6 +322,16 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFindingResolved( $finding, false );
 
 		$higherScanID = $this->insertAfsScan( 'full', '', [ $higherCoverage ], 'manual' );
+		if ( $assetType !== null ) {
+			$this->setFullScanEligibility( $higherScanID, [
+				$assetType => [
+					(string)$meta[ 'ptg_slug' ] => [
+						'version'             => '1.0',
+						'comparison_eligible' => true,
+					],
+				],
+			] );
+		}
 		$this->assertTrue( ( new SetScanCompleted() )->run( $higherScanID ) );
 		$this->assertFindingResolved( $finding, true, 'clean_rescan' );
 	}
@@ -308,12 +348,6 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 				],
 				ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
 				ScanActionVO::COVERAGE_FAMILY_MALWARE,
-			],
-			'malware before missing' => [
-				'malware-missing',
-				[ 'is_in_core' => 1, 'is_mal' => 1, 'is_missing' => 1 ],
-				ScanActionVO::COVERAGE_FAMILY_MALWARE,
-				ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
 			],
 			'missing before unidentified' => [
 				'missing-unidentified',
@@ -361,8 +395,21 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 				'is_unidentified' => 1,
 			]
 		);
+		$ambiguousCoreOwnership = $this->seedAfsFinding(
+			$initialScanID,
+			$scenario,
+			$this->findingPath( 'ambiguous-core-ownership' ),
+			[
+				'is_in_core'      => 1,
+				'is_in_plugin'    => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => 'ambiguous-core-plugin.php',
+				'asset_version'   => '1.0',
+			]
+		);
 
 		$scanID = $this->insertAfsScan( 'full', '', [
+			ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
 			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
 			ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY,
 			ScanActionVO::COVERAGE_FAMILY_WPROOT_UNIDENTIFIED,
@@ -372,6 +419,274 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertFindingResolved( $ambiguousOwnership, false );
 		$this->assertFindingResolved( $ambiguousLocation, false );
+		$this->assertFindingResolved( $ambiguousCoreOwnership, false );
+	}
+
+	public function test_full_completion_resolves_only_exact_eligible_asset_versions() :void {
+		$plugin = $this->afsAssetScenario( 'plugin' );
+		$theme = $this->afsAssetScenario( 'theme' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$eligiblePlugin = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'eligible-plugin' ),
+			[
+				'is_in_plugin'    => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => 'eligible/plugin.php',
+				'asset_version'   => '1.0',
+			]
+		);
+		$falsePlugin = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'false-plugin' ),
+			[
+				'is_in_plugin'    => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => 'false/plugin.php',
+				'asset_version'   => '1.0',
+			]
+		);
+		$wrongVersion = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'wrong-version' ),
+			[
+				'is_in_plugin'    => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => 'version/plugin.php',
+				'asset_version'   => '2.0',
+			]
+		);
+		$missingKey = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'missing-key' ),
+			[
+				'is_in_plugin'    => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => 'missing/plugin.php',
+				'asset_version'   => '1.0',
+			]
+		);
+		$numericTheme = $this->seedAfsFinding(
+			$initialScanID,
+			$theme,
+			$this->findingPath( 'numeric-theme-zero-version' ),
+			[
+				'is_in_theme'     => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => '7',
+				'asset_version'   => '0',
+			]
+		);
+
+		$scanID = $this->insertAfsScan( 'full', '', [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+			ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY,
+		], 'manual' );
+		$this->setFullScanEligibility( $scanID, [
+			'plugin' => [
+				'eligible/plugin.php' => [
+					'version'             => '1.0',
+					'comparison_eligible' => true,
+				],
+				'false/plugin.php'    => [
+					'version'             => '1.0',
+					'comparison_eligible' => false,
+				],
+				'version/plugin.php'  => [
+					'version'             => '1.0',
+					'comparison_eligible' => true,
+				],
+			],
+			'theme'  => [
+				7 => [
+					'version'             => '0',
+					'comparison_eligible' => true,
+				],
+			],
+		] );
+
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID ) );
+		$this->assertFindingResolved( $eligiblePlugin, true, 'clean_rescan' );
+		$this->assertFindingResolved( $numericTheme, true, 'clean_rescan' );
+		foreach ( [ $falsePlugin, $wrongVersion, $missingKey ] as $active ) {
+			$this->assertFindingResolved( $active, false );
+		}
+	}
+
+	public function test_full_completion_accepts_valid_empty_eligibility_without_resolving_assets() :void {
+		$plugin = $this->afsAssetScenario( 'plugin' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$finding = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'valid-empty-eligibility' ),
+			[
+				'is_in_plugin'    => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => 'empty/plugin.php',
+				'asset_version'   => '1.0',
+			]
+		);
+		$scanID = $this->insertAfsScan( 'full', '', [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+		], 'manual' );
+		$this->setFullScanEligibility( $scanID, [] );
+
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID ) );
+		$this->assertFindingResolved( $finding, false );
+	}
+
+	/**
+	 * @dataProvider invalidAssetEligibilityProvider
+	 * @param array<string,mixed>|null $eligibility
+	 */
+	public function test_full_completion_fails_closed_for_invalid_asset_eligibility( ?array $eligibility ) :void {
+		$plugin = $this->afsAssetScenario( 'plugin' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$finding = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'invalid-eligibility' ),
+			[
+				'is_in_plugin'    => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => 'invalid/plugin.php',
+				'asset_version'   => '1.0',
+			]
+		);
+		$scanID = $this->insertAfsScan( 'full', '', [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+		], 'manual' );
+		if ( $eligibility !== null ) {
+			$record = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
+			$meta = $record->meta;
+			$meta[ 'asset_snapshot_eligibility' ] = $eligibility;
+			$this->replaceScanMeta( $scanID, $meta );
+		}
+
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID ) );
+		$this->assertFindingResolved( $finding, false );
+	}
+
+	public function invalidAssetEligibilityProvider() :array {
+		return [
+			'missing' => [ null ],
+			'missing theme group' => [
+				[
+					'plugin' => [
+						'invalid/plugin.php' => [
+							'version'             => '1.0',
+							'comparison_eligible' => true,
+						],
+					],
+				],
+			],
+			'malformed entry' => [
+				[
+					'plugin' => [
+						'invalid/plugin.php' => [
+							'comparison_eligible' => true,
+						],
+					],
+					'theme'  => [],
+				],
+			],
+		];
+	}
+
+	public function test_full_malware_completion_is_independent_of_invalid_asset_eligibility() :void {
+		$plugin = $this->afsAssetScenario( 'plugin' );
+		$core = $this->afsAssetScenario( 'core' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$mixed = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'mixed-malware' ),
+			[
+				'is_in_plugin'    => 1,
+				'is_checksumfail' => 1,
+				'is_mal'          => 1,
+				'ptg_slug'        => 'mixed/plugin.php',
+				'asset_version'   => '1.0',
+			]
+		);
+		$pureMalware = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'pure-malware' ),
+			[ 'is_mal' => 1 ]
+		);
+		$coreFinding = $this->seedAfsFinding(
+			$initialScanID,
+			$core,
+			$this->findingPath( 'core-independent' ),
+			[ 'is_in_core' => 1, 'is_checksumfail' => 1 ]
+		);
+		$unidentified = $this->seedAfsFinding(
+			$initialScanID,
+			$core,
+			$this->findingPath( 'unidentified-independent' ),
+			[ 'is_in_wproot' => 1, 'is_unidentified' => 1 ]
+		);
+		$scanID = $this->insertAfsScan( 'full', '', [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+			ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
+			ScanActionVO::COVERAGE_FAMILY_WPROOT_UNIDENTIFIED,
+			ScanActionVO::COVERAGE_FAMILY_MALWARE,
+		], 'manual' );
+		$record = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
+		$meta = $record->meta;
+		$meta[ 'asset_snapshot_eligibility' ] = [
+			'plugin' => [
+				'mixed/plugin.php' => [
+					'comparison_eligible' => true,
+				],
+			],
+			'theme'  => [],
+		];
+		$this->replaceScanMeta( $scanID, $meta );
+
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID ) );
+		$this->assertFindingResolved( $mixed, false );
+		$this->assertSame( '0', $this->resultItemMetaValue( (int)$mixed[ 'result_item_id' ], 'is_mal' ) );
+		$this->assertSame( '1', $this->resultItemMetaValue( (int)$mixed[ 'result_item_id' ], 'is_checksumfail' ) );
+		$this->assertFindingResolved( $pureMalware, true, 'clean_rescan' );
+		$this->assertFindingResolved( $coreFinding, true, 'clean_rescan' );
+		$this->assertFindingResolved( $unidentified, true, 'clean_rescan' );
+	}
+
+	public function test_full_completion_chunks_more_than_one_hundred_eligible_assets() :void {
+		$plugin = $this->afsAssetScenario( 'plugin' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$eligibility = [];
+		for ( $i = 0; $i < 101; $i++ ) {
+			$eligibility[ \sprintf( 'chunk/plugin-%03d.php', $i ) ] = [
+				'version'             => '1.0',
+				'comparison_eligible' => true,
+			];
+		}
+		$finding = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'eligible-second-chunk' ),
+			[
+				'is_in_plugin'    => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => 'chunk/plugin-100.php',
+				'asset_version'   => '1.0',
+			]
+		);
+		$scanID = $this->insertAfsScan( 'full', '', [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+		], 'manual' );
+		$this->setFullScanEligibility( $scanID, [ 'plugin' => $eligibility ] );
+
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID ) );
+		$this->assertFindingResolved( $finding, true, 'clean_rescan' );
 	}
 
 	/**
@@ -469,12 +784,31 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 	) :void {
 		$scenario = $this->afsAssetScenario( 'plugin' );
 		$initialScanId = TestDataFactory::insertCompletedScan( 'afs' );
-		$stale = $this->seedAfsFinding( $initialScanId, $scenario, $scenario[ 'stale_path_full' ] );
+		$findingMeta = $scenario[ 'meta' ];
+		if ( $scopeType === 'full' ) {
+			$findingMeta[ 'asset_version' ] = '1.0';
+		}
+		$stale = $this->seedAfsFinding(
+			$initialScanId,
+			$scenario,
+			$scenario[ 'stale_path_full' ],
+			$findingMeta
+		);
 		$scanScopeKey = $scopeKey === '{plugin}' ? $scenario[ 'scope_key' ] : $scopeKey;
 
 		$scanId = $this->insertAfsScan( $scopeType, $scanScopeKey, [
 			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
 		], $runTrigger );
+		if ( $scopeType === 'full' ) {
+			$this->setFullScanEligibility( $scanId, [
+				'plugin' => [
+					$scenario[ 'asset_key' ] => [
+						'version'             => '1.0',
+						'comparison_eligible' => true,
+					],
+				],
+			] );
+		}
 		$this->assertTrue( ( new SetScanCompleted() )->run( $scanId ) );
 		$item = self::con()->db_con->scan_result_items->getQuerySelector()
 			->byId( (int)$stale[ 'result_item_id' ] );
@@ -513,6 +847,32 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( self::con()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
 			'meta' => $raw[ 'meta' ],
 		] ) );
+	}
+
+	/**
+	 * @param array<string,array<string,array{version:string,comparison_eligible:bool}>> $eligibility
+	 */
+	private function setFullScanEligibility( int $scanID, array $eligibility ) :void {
+		$record = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
+		$this->assertNotEmpty( $record );
+		$meta = $record->meta;
+		$meta[ 'asset_snapshot_eligibility' ] = \array_merge( [
+			'plugin' => [],
+			'theme'  => [],
+		], $eligibility );
+		$this->replaceScanMeta( $scanID, $meta );
+	}
+
+	private function resultItemMetaValue( int $resultItemID, string $metaKey ) :string {
+		global $wpdb;
+		return (string)$wpdb->get_var( $wpdb->prepare(
+			"SELECT `meta_value`
+				FROM `".self::con()->db_con->scan_result_item_meta->getTable()."`
+				WHERE `ri_ref`=%d
+				  AND `meta_key`=%s",
+			$resultItemID,
+			$metaKey
+		) );
 	}
 
 	private function findingPath( string $suffix ) :string {

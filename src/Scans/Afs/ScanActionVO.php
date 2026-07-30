@@ -14,6 +14,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
  * @property string[]           $patterns_keywords
  * @property string[]           $valid_files
  * @property positive-int       $max_file_size (bytes)
+ * @property array{
+ *     plugin:array<string,array{version:string,comparison_eligible:bool}>,
+ *     theme:array<int|string,array{version:string,comparison_eligible:bool}>
+ * } $asset_snapshot_eligibility
  */
 class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO {
 	public const DEFAULT_SLEEP_SECONDS = 0.1;
@@ -39,6 +43,17 @@ class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\B
 		return \is_int( $value ) && $value > 0 ? $value : self::DEFAULT_MAX_FILE_SIZE;
 	}
 
+	public function __set( string $key, $value ) {
+		if ( $key === 'asset_snapshot_eligibility' ) {
+			$value = self::normalizeAssetSnapshotEligibility( $value );
+			if ( $value === null ) {
+				parent::__unset( $key );
+				return;
+			}
+		}
+		parent::__set( $key, $value );
+	}
+
 	public function applyFromArray( array $data, array $restrictedKeys = [] ) {
 		if ( empty( $restrictedKeys ) || \in_array( 'file_exts', $restrictedKeys, true ) ) {
 			$extensions = $data[ 'file_exts' ] ?? null;
@@ -49,7 +64,60 @@ class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\B
 		if ( empty( $restrictedKeys ) || \in_array( 'max_file_size', $restrictedKeys, true ) ) {
 			$data[ 'max_file_size' ] = self::normalizeMaxFileSize( $data[ 'max_file_size' ] ?? null );
 		}
+		if ( empty( $restrictedKeys ) || \in_array( 'asset_snapshot_eligibility', $restrictedKeys, true ) ) {
+			if ( \array_key_exists( 'asset_snapshot_eligibility', $data ) ) {
+				$eligibility = self::normalizeAssetSnapshotEligibility( $data[ 'asset_snapshot_eligibility' ] );
+				if ( $eligibility === null ) {
+					unset( $data[ 'asset_snapshot_eligibility' ] );
+				}
+				else {
+					$data[ 'asset_snapshot_eligibility' ] = $eligibility;
+				}
+			}
+		}
 		return parent::applyFromArray( $data, $restrictedKeys );
+	}
+
+	public function hasValidAssetSnapshotEligibility() :bool {
+		return \is_array( parent::__get( 'asset_snapshot_eligibility' ) );
+	}
+
+	public function isAssetSnapshotComparisonEligible(
+		string $assetType,
+		string $assetKey,
+		string $assetVersion
+	) :bool {
+		if ( $this->scope_type !== 'full' ) {
+			return true;
+		}
+		if ( !$this->hasValidAssetSnapshotEligibility()
+			 || !\in_array( $assetType, [ 'plugin', 'theme' ], true ) ) {
+			return false;
+		}
+
+		$entry = $this->asset_snapshot_eligibility[ $assetType ][ $assetKey ] ?? null;
+		return \is_array( $entry )
+			   && $entry[ 'version' ] === $assetVersion
+			   && $entry[ 'comparison_eligible' ] === true;
+	}
+
+	/**
+	 * @return list<array{0:string,1:string,2:string}>
+	 */
+	public function getComparisonEligibleAssetTuples() :array {
+		$eligible = [];
+		if ( !$this->hasValidAssetSnapshotEligibility() ) {
+			return $eligible;
+		}
+
+		foreach ( [ 'plugin', 'theme' ] as $assetType ) {
+			foreach ( $this->asset_snapshot_eligibility[ $assetType ] as $assetKey => $entry ) {
+				if ( $entry[ 'comparison_eligible' ] ) {
+					$eligible[] = [ $assetType, (string)$assetKey, $entry[ 'version' ] ];
+				}
+			}
+		}
+		return $eligible;
 	}
 
 	public function __get( string $key ) {
@@ -62,5 +130,60 @@ class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\B
 				break;
 		}
 		return $value;
+	}
+
+	/**
+	 * @return array{
+	 *     plugin:array<string,array{version:string,comparison_eligible:bool}>,
+	 *     theme:array<int|string,array{version:string,comparison_eligible:bool}>
+	 * }|null
+	 */
+	private static function normalizeAssetSnapshotEligibility( $value ) :?array {
+		if ( !\is_array( $value ) ) {
+			return null;
+		}
+
+		$topLevelKeys = \array_keys( $value );
+		\sort( $topLevelKeys, \SORT_STRING );
+		if ( $topLevelKeys !== [ 'plugin', 'theme' ] ) {
+			return null;
+		}
+
+		$normalized = [
+			'plugin' => [],
+			'theme'  => [],
+		];
+		foreach ( \array_keys( $normalized ) as $assetType ) {
+			if ( !\is_array( $value[ $assetType ] ) ) {
+				return null;
+			}
+			foreach ( $value[ $assetType ] as $assetKey => $entry ) {
+				if ( $assetType === 'plugin' && !\is_string( $assetKey ) ) {
+					return null;
+				}
+				$assetKey = (string)$assetKey;
+				if ( \trim( $assetKey ) === ''
+					 || \strpos( $assetKey, "\0" ) !== false
+					 || !\is_array( $entry ) ) {
+					return null;
+				}
+
+				$entryKeys = \array_keys( $entry );
+				\sort( $entryKeys, \SORT_STRING );
+				if ( $entryKeys !== [ 'comparison_eligible', 'version' ]
+					 || !\is_string( $entry[ 'version' ] )
+					 || \trim( $entry[ 'version' ] ) === ''
+					 || \strpos( $entry[ 'version' ], "\0" ) !== false
+					 || !\is_bool( $entry[ 'comparison_eligible' ] ) ) {
+					return null;
+				}
+
+				$normalized[ $assetType ][ $assetKey ] = [
+					'version'             => $entry[ 'version' ],
+					'comparison_eligible' => $entry[ 'comparison_eligible' ],
+				];
+			}
+		}
+		return $normalized;
 	}
 }

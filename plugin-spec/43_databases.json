@@ -1147,7 +1147,7 @@
                     "comment": "Scan Completed At"
                 },
                 "meta": {
-                    "macro_type": "meta",
+                    "macro_type": "mediumtext",
                     "comment": "Scan Meta Info"
                 }
             },

@@ -3,13 +3,23 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
+	AssetTrustResolver,
+	Retrieve
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction\{
+	Build,
 	CleanStale,
+	Load,
 	ScheduleBuildAll,
 	TouchAll
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
+	WpPluginVo,
+	WpThemeVo
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class AssetCoordinator {
@@ -119,6 +129,77 @@ class AssetCoordinator {
 
 		$this->reconcileWakeup();
 		return true;
+	}
+
+	/**
+	 * @param array<int,mixed> $assets
+	 * @return array{
+	 *     plugin:array<string,array{version:string,comparison_eligible:bool}>,
+	 *     theme:array<int|string,array{version:string,comparison_eligible:bool}>
+	 * }
+	 */
+	public function prepareFullScanSnapshotEligibility( array $assets, callable $heartbeat ) :array {
+		$eligibility = [
+			'plugin' => [],
+			'theme'  => [],
+		];
+		$records = [];
+		$identityCounts = [];
+
+		foreach ( $assets as $asset ) {
+			try {
+				$record = $this->fullScanInventoryRecord( $asset );
+				$identityCounts[ $record[ 'identity' ] ] = ( $identityCounts[ $record[ 'identity' ] ] ?? 0 ) + 1;
+				$records[] = $record;
+			}
+			catch ( \Throwable $e ) {
+				$this->logFullScanSnapshotFailure( $asset, $e );
+				$records[] = null;
+			}
+		}
+
+		foreach ( $records as $record ) {
+			if ( $record !== null && $identityCounts[ $record[ 'identity' ] ] === 1 ) {
+				$eligibility[ $record[ 'type' ] ][ $record[ 'key' ] ] = [
+					'version'             => $record[ 'version' ],
+					'comparison_eligible' => false,
+				];
+			}
+		}
+
+		$canBuild = \is_main_network() && \is_main_site();
+		foreach ( $records as $index => $record ) {
+			try {
+				if ( $record === null ) {
+					continue;
+				}
+				if ( $identityCounts[ $record[ 'identity' ] ] !== 1 ) {
+					throw new \UnexpectedValueException( 'Duplicate or conflicting snapshot identity.' );
+				}
+
+				$isUsable = $this->hasUsableSnapshot( $record[ 'asset' ] );
+				if ( !$isUsable && $canBuild ) {
+					$this->buildSnapshot( $record[ 'asset' ] );
+					$isUsable = $this->hasUsableSnapshot( $record[ 'asset' ] );
+					if ( $isUsable ) {
+						Retrieve::resetMemoization();
+						AssetTrustResolver::resetMemoization();
+					}
+					else {
+						throw new \RuntimeException( 'Snapshot remained unusable after preparation.' );
+					}
+				}
+				$eligibility[ $record[ 'type' ] ][ $record[ 'key' ] ][ 'comparison_eligible' ] = $isUsable;
+			}
+			catch ( \Throwable $e ) {
+				$this->logFullScanSnapshotFailure( $record[ 'asset' ] ?? $assets[ $index ], $e );
+			}
+			finally {
+				$heartbeat();
+			}
+		}
+
+		return $eligibility;
 	}
 
 	public function runSnapshotMaintenance() :void {
@@ -553,6 +634,100 @@ class AssetCoordinator {
 
 	private function cronHook() :string {
 		return self::con()->prefix( 'asset_coordinator' );
+	}
+
+	/**
+	 * @param mixed $asset
+	 * @return array{
+	 *     asset:WpPluginVo|WpThemeVo,
+	 *     type:string,
+	 *     key:string,
+	 *     version:string,
+	 *     identity:string
+	 * }
+	 */
+	private function fullScanInventoryRecord( $asset ) :array {
+		if ( $asset instanceof WpPluginVo && $asset->asset_type === 'plugin' ) {
+			$assetType = 'plugin';
+			$assetKey = $asset->file;
+		}
+		elseif ( $asset instanceof WpThemeVo && $asset->asset_type === 'theme' ) {
+			$assetType = 'theme';
+			$assetKey = $asset->stylesheet;
+		}
+		else {
+			throw new \UnexpectedValueException( 'Invalid full-scan snapshot asset type.' );
+		}
+
+		$assetVersion = $asset->version;
+		if ( !\is_string( $assetKey )
+			 || \trim( $assetKey ) === ''
+			 || \strpos( $assetKey, "\0" ) !== false
+			 || !\is_string( $assetVersion )
+			 || \trim( $assetVersion ) === ''
+			 || \strpos( $assetVersion, "\0" ) !== false ) {
+			throw new \UnexpectedValueException( 'Invalid full-scan snapshot asset identity.' );
+		}
+
+		return [
+			'asset'    => $asset,
+			'type'     => $assetType,
+			'key'      => $assetKey,
+			'version'  => $assetVersion,
+			'identity' => $assetType."\0".$assetKey,
+		];
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $asset
+	 */
+	protected function hasUsableSnapshot( $asset ) :bool {
+		try {
+			return ( new Load() )
+				->setAsset( $asset )
+				->run()
+				->isUsable();
+		}
+		catch ( \Throwable $e ) {
+			return false;
+		}
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $asset
+	 */
+	protected function buildSnapshot( $asset ) :void {
+		( new Build() )
+			->setAsset( $asset )
+			->run();
+	}
+
+	/**
+	 * @param mixed $asset
+	 */
+	private function logFullScanSnapshotFailure( $asset, \Throwable $error ) :void {
+		$assetType = $asset instanceof WpPluginVo
+			? 'plugin'
+			: ( $asset instanceof WpThemeVo ? 'theme' : 'unknown' );
+		$assetKey = '';
+		try {
+			$key = $assetType === 'plugin'
+				? $asset->file
+				: ( $assetType === 'theme' ? $asset->stylesheet : '' );
+			$assetKey = \is_string( $key ) ? $key : '';
+		}
+		catch ( \Throwable $e ) {
+			unset( $e );
+		}
+		$assetKey = (string)\preg_replace( '#[^\x20-\x7e]#', '?', $assetKey );
+		$assetKey = \substr( $assetKey, 0, 160 );
+
+		error_log( \sprintf(
+			'Shield full-scan snapshot preparation failed: type=%s key=%s message=%s',
+			$assetType,
+			$assetKey,
+			\substr( (string)\preg_replace( '#\s+#', ' ', $error->getMessage() ), 0, 300 )
+		) );
 	}
 
 	private function now() :int {

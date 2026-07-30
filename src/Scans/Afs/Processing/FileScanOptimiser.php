@@ -27,7 +27,8 @@ class FileScanOptimiser {
 				return false;
 			}
 
-			$recordContext = $this->detectRecordContext( $path );
+			$assetTrustState = new AssetTrustState( $action );
+			$recordContext = $this->detectRecordContext( $path, $assetTrustState );
 			if ( !$recordContext instanceof TrustedFileContext ) {
 				return false;
 			}
@@ -48,7 +49,7 @@ class FileScanOptimiser {
 					return true;
 				}
 
-				$currentTrustedContext = ( new AssetTrustState() )->trustedFileContextForAssetPath( $path );
+				$currentTrustedContext = $assetTrustState->trustedFileContextForAssetPath( $path );
 				return $currentTrustedContext instanceof TrustedFileContext
 					   && \hash_equals( $contextKey, $currentTrustedContext->key() );
 			}
@@ -158,7 +159,7 @@ class FileScanOptimiser {
 		}
 	}
 
-	private function detectRecordContext( string $path ) :?TrustedFileContext {
+	private function detectRecordContext( string $path, AssetTrustState $assetTrustState ) :?TrustedFileContext {
 		try {
 			$scanCon = self::con()->comps->scans->AFS();
 			if ( $scanCon->isEnabled() && Services::CoreFileHashes()->isCoreFile( $path ) ) {
@@ -170,7 +171,7 @@ class FileScanOptimiser {
 				);
 			}
 
-			$assetContext = ( new AssetTrustState() )->resolveAssetContext( $path );
+			$assetContext = $assetTrustState->resolveAssetContext( $path );
 			return $assetContext === null ? null : new TrustedFileContext(
 				$assetContext->assetType,
 				$assetContext->assetKey,

@@ -45,7 +45,7 @@ class FileScanner {
 		$assetVerification = null;
 		$malwareScanClean = false;
 		$optimiser = new Processing\FileScanOptimiser();
-		$assetTrustState = new AssetTrustState();
+		$assetTrustState = new AssetTrustState( $action );
 		$resolveAssetContext = function () use (
 			$fullPath,
 			$assetTrustState,

@@ -26,7 +26,8 @@ use FernleafSystems\Wordpress\Services\Core\{
 	Fs,
 	General,
 	Plugins,
-	Request
+	Request,
+	Themes
 };
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 
@@ -48,6 +49,7 @@ class ScanQueueLifecycleHarness {
 	private LifecycleEmptyDbHandler $resultItemsDb;
 	private LifecycleAfsFs $afsFs;
 	private LifecyclePlugins $plugins;
+	private LifecycleThemes $themes;
 
 	private int $now;
 
@@ -73,6 +75,7 @@ class ScanQueueLifecycleHarness {
 		$this->resultItemsDb = new LifecycleEmptyDbHandler( 'scan_result_items', $this->sql );
 		$this->afsFs = new LifecycleAfsFs();
 		$this->plugins = new LifecyclePlugins();
+		$this->themes = new LifecycleThemes();
 		$this->queueComponent = new LifecycleQueueComponent();
 		$this->actionRouter = new LifecycleActionRouter();
 	}
@@ -86,6 +89,7 @@ class ScanQueueLifecycleHarness {
 			'service_wpdb'      => $this->sql,
 			'service_wpgeneral' => $general,
 			'service_wpplugins' => $this->plugins,
+			'service_wpthemes'  => $this->themes,
 		] );
 		$this->installController();
 		$this->queueComponent->builder = new QueueBuilder();
@@ -245,6 +249,7 @@ class ScanQueueLifecycleHarness {
 			'events'       => new LifecycleEventsComponent(),
 			'opts_lookup'  => new LifecycleOptsLookup(),
 			'file_locker'  => new LifecycleFileLocker(),
+			'asset_coordinator' => new LifecycleAssetCoordinator(),
 		];
 		$controller->opts = new LifecycleOpts();
 		$controller->action_router = $this->actionRouter;
@@ -1672,6 +1677,10 @@ class LifecyclePlugins extends Plugins {
 		return $this->installedPluginFiles;
 	}
 
+	public function getPluginsAsVo() :array {
+		return [];
+	}
+
 	public function getPlugin( $file ) :array {
 		return !$this->restrictToInstalled || \in_array( $file, $this->installedPluginFiles, true )
 			? [ 'Version' => '1.0.0' ]
@@ -1684,6 +1693,27 @@ class LifecyclePlugins extends Plugins {
 			   || \strpos( $file, '/' ) === false
 			? null
 			: new LifecyclePluginVo( $file, !$this->restrictToInstalled );
+	}
+}
+
+class LifecycleThemes extends Themes {
+
+	public function getThemesAsVo() :array {
+		return [];
+	}
+}
+
+class LifecycleAssetCoordinator {
+
+	public function prepareFullScanSnapshotEligibility( array $assets, callable $heartbeat ) :array {
+		foreach ( $assets as $asset ) {
+			unset( $asset );
+			$heartbeat();
+		}
+		return [
+			'plugin' => [],
+			'theme'  => [],
+		];
 	}
 }
 

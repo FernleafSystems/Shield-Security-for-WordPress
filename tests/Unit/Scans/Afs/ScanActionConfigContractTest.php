@@ -243,6 +243,166 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 		$this->assertSame( [ 'one.php' ], $files );
 	}
 
+	public function test_snapshot_eligibility_preserves_exact_valid_contract_and_exposes_eligible_tuples() :void {
+		$eligibility = [
+			'theme'  => [
+				'2024' => [
+					'comparison_eligible' => true,
+					'version'             => '2.0',
+				],
+			],
+			'plugin' => [
+				'Vendor/Plugin.php' => [
+					'comparison_eligible' => true,
+					'version'             => '0',
+				],
+			],
+		];
+
+		$direct = new ScanActionVO();
+		$direct->scope_type = 'full';
+		$direct->asset_snapshot_eligibility = $eligibility;
+		$hydrated = ( new ScanActionVO() )->applyFromArray( [
+			'scope_type'                => 'full',
+			'asset_snapshot_eligibility' => $eligibility,
+		] );
+
+		foreach ( [ $direct, $hydrated ] as $action ) {
+			$this->assertTrue( $action->hasValidAssetSnapshotEligibility() );
+			$this->assertSame( [
+				'plugin' => [
+					'Vendor/Plugin.php' => [
+						'version'             => '0',
+						'comparison_eligible' => true,
+					],
+				],
+				'theme'  => [
+					2024 => [
+						'version'             => '2.0',
+						'comparison_eligible' => true,
+					],
+				],
+			], $action->asset_snapshot_eligibility );
+			$this->assertTrue( $action->isAssetSnapshotComparisonEligible( 'plugin', 'Vendor/Plugin.php', '0' ) );
+			$this->assertFalse( $action->isAssetSnapshotComparisonEligible( 'plugin', 'vendor/plugin.php', '0' ) );
+			$this->assertFalse( $action->isAssetSnapshotComparisonEligible( 'plugin', 'Vendor/Plugin.php', '0.0' ) );
+			$this->assertTrue( $action->isAssetSnapshotComparisonEligible( 'theme', '2024', '2.0' ) );
+			$this->assertSame( [
+				[ 'plugin', 'Vendor/Plugin.php', '0' ],
+				[ 'theme', '2024', '2.0' ],
+			], $action->getComparisonEligibleAssetTuples() );
+		}
+	}
+
+	public function test_scoped_scan_comparison_does_not_require_full_scan_eligibility() :void {
+		$action = new ScanActionVO();
+		$action->scope_type = 'plugin';
+
+		$this->assertFalse( $action->hasValidAssetSnapshotEligibility() );
+		$this->assertTrue( $action->isAssetSnapshotComparisonEligible( 'plugin', 'target/plugin.php', '1.0.0' ) );
+	}
+
+	public function test_valid_empty_snapshot_eligibility_is_distinct_from_invalid_or_missing_contract() :void {
+		$validEmpty = ( new ScanActionVO() )->applyFromArray( [
+			'asset_snapshot_eligibility' => [
+				'plugin' => [],
+				'theme'  => [],
+			],
+		] );
+		$invalid = ( new ScanActionVO() )->applyFromArray( [
+			'asset_snapshot_eligibility' => [
+				'plugin' => [],
+			],
+		] );
+		$missing = new ScanActionVO();
+
+		$this->assertTrue( $validEmpty->hasValidAssetSnapshotEligibility() );
+		$this->assertArrayHasKey( 'asset_snapshot_eligibility', $validEmpty->getRawData() );
+		$this->assertFalse( $invalid->hasValidAssetSnapshotEligibility() );
+		$this->assertArrayNotHasKey( 'asset_snapshot_eligibility', $invalid->getRawData() );
+		$this->assertFalse( $missing->hasValidAssetSnapshotEligibility() );
+		$this->assertArrayNotHasKey( 'asset_snapshot_eligibility', $missing->getRawData() );
+	}
+
+	/**
+	 * @dataProvider provideInvalidSnapshotEligibility
+	 */
+	public function test_invalid_snapshot_eligibility_is_rejected_for_direct_and_hydrated_actions( $invalid ) :void {
+		$direct = new ScanActionVO();
+		$direct->asset_snapshot_eligibility = $invalid;
+		$hydrated = ( new ScanActionVO() )->applyFromArray( [
+			'asset_snapshot_eligibility' => $invalid,
+		] );
+
+		foreach ( [ $direct, $hydrated ] as $action ) {
+			$this->assertFalse( $action->hasValidAssetSnapshotEligibility() );
+			$this->assertArrayNotHasKey( 'asset_snapshot_eligibility', $action->getRawData() );
+			$this->assertSame( [], $action->getComparisonEligibleAssetTuples() );
+		}
+	}
+
+	public function provideInvalidSnapshotEligibility() :array {
+		$entry = [
+			'version'             => '1.0',
+			'comparison_eligible' => true,
+		];
+		return [
+			'not array'          => [ 'plugin' ],
+			'missing group'      => [ [ 'plugin' => [] ] ],
+			'extra group'        => [ [ 'plugin' => [], 'theme' => [], 'core' => [] ] ],
+			'list group'         => [ [ 'plugin' => [ $entry ], 'theme' => [] ] ],
+			'blank asset key'    => [ [ 'plugin' => [ ' ' => $entry ], 'theme' => [] ] ],
+			'nul asset key'      => [ [ 'plugin' => [ "bad\0key" => $entry ], 'theme' => [] ] ],
+			'missing field'      => [ [ 'plugin' => [ 'a/a.php' => [ 'version' => '1.0' ] ], 'theme' => [] ] ],
+			'extra field'        => [ [ 'plugin' => [ 'a/a.php' => $entry + [ 'extra' => true ] ], 'theme' => [] ] ],
+			'blank version'      => [ [ 'plugin' => [ 'a/a.php' => \array_merge( $entry, [ 'version' => ' ' ] ) ], 'theme' => [] ] ],
+			'nul version'        => [ [ 'plugin' => [ 'a/a.php' => \array_merge( $entry, [ 'version' => "1\0.0" ] ) ], 'theme' => [] ] ],
+			'numeric version'    => [ [ 'plugin' => [ 'a/a.php' => \array_merge( $entry, [ 'version' => 1 ] ) ], 'theme' => [] ] ],
+			'integer boolean'    => [ [ 'plugin' => [ 'a/a.php' => \array_merge( $entry, [ 'comparison_eligible' => 1 ] ) ], 'theme' => [] ] ],
+			'non-array entry'    => [ [ 'plugin' => [ 'a/a.php' => 'invalid' ], 'theme' => [] ] ],
+			'integer plugin key' => [ [ 'plugin' => [ 2024 => $entry ], 'theme' => [] ] ],
+		];
+	}
+
+	public function test_snapshot_eligibility_respects_restricted_property_selection() :void {
+		$eligibility = [
+			'plugin' => [],
+			'theme'  => [],
+		];
+		$withoutEligibility = ( new ScanActionVO() )->applyFromArray( [
+			'scan'                       => 'afs',
+			'asset_snapshot_eligibility' => $eligibility,
+		], [ 'scan' ] );
+		$onlyEligibility = ( new ScanActionVO() )->applyFromArray( [
+			'scan'                       => 'afs',
+			'asset_snapshot_eligibility' => $eligibility,
+		], [ 'asset_snapshot_eligibility' ] );
+
+		$this->assertSame( [ 'scan' => 'afs' ], $withoutEligibility->getRawData() );
+		$this->assertSame(
+			[ 'asset_snapshot_eligibility' => $eligibility ],
+			$onlyEligibility->getRawData()
+		);
+	}
+
+	public function test_invalid_direct_assignment_and_rehydration_clear_previous_valid_contract() :void {
+		$valid = [
+			'plugin' => [],
+			'theme'  => [],
+		];
+		$action = new ScanActionVO();
+		$action->asset_snapshot_eligibility = $valid;
+		$action->asset_snapshot_eligibility = [ 'plugin' => [] ];
+		$this->assertFalse( $action->hasValidAssetSnapshotEligibility() );
+
+		$action->asset_snapshot_eligibility = $valid;
+		$action->applyFromArray( [
+			'asset_snapshot_eligibility' => [ 'plugin' => [] ],
+		] );
+		$this->assertFalse( $action->hasValidAssetSnapshotEligibility() );
+		$this->assertArrayNotHasKey( 'asset_snapshot_eligibility', $action->getRawData() );
+	}
+
 	private function prepareScanItems( ?array $extensions = null ) :ScanActionVO {
 		$action = new ScanActionVO();
 		$action->scan = 'afs';

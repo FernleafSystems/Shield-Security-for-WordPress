@@ -92,6 +92,74 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertSame( [ 'published_reference' ], $this->resultItemMetaValues( $legacyResultItemID, 'comparison_basis' ) );
 	}
 
+	public function testIneligibleFullAfsMalwareRetryPreservesExistingFileChangeFacet() :void {
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$pathFull = \wp_normalize_path( WP_PLUGIN_DIR.'/protected/protected.php' );
+		$tracked = TestDataFactory::insertAfsFileScanResultTracked( $initialScanID, $pathFull, [
+			'is_in_plugin'     => 1,
+			'is_checksumfail'  => 1,
+			'ptg_slug'         => 'protected/protected.php',
+			'asset_version'    => '1.0',
+			'comparison_basis' => 'published_reference',
+		] );
+		$resultItemID = (int)$tracked[ 'result_item_id' ];
+		$queueScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$result = [
+			'path_full'         => $pathFull,
+			'path_fragment'     => $pathFull,
+			'file_path'         => $pathFull,
+			'is_in_plugin'      => 1,
+			'ptg_slug'          => 'protected/protected.php',
+			'asset_version'     => '1.0',
+			'is_mal'            => 1,
+			'malware_record_id' => 314,
+		];
+
+		global $wpdb;
+		$scanResultsTable = self::con()->db_con->scan_results->getTable();
+		$failedTable = $scanResultsTable.'_forced_failure';
+		$queryFilter = static function ( string $query ) use ( $scanResultsTable, $failedTable ) :string {
+			return \stripos( $query, 'insert' ) !== false
+				   && \strpos( $query, "`{$scanResultsTable}`" ) !== false
+				? \str_replace( "`{$scanResultsTable}`", "`{$failedTable}`", $query )
+				: $query;
+		};
+		$previousSuppressErrors = $wpdb->suppress_errors( true );
+		\add_filter( 'query', $queryFilter );
+		try {
+			( new Store() )->store( $this->newFullQueueItem( $queueScanID ), [ $result ] );
+			$this->fail( 'Expected the forced observation insert failure.' );
+		}
+		catch ( \RuntimeException $e ) {
+			$this->assertStringContainsString( 'observation insert', $e->getMessage() );
+		}
+		finally {
+			\remove_filter( 'query', $queryFilter );
+			$wpdb->suppress_errors( $previousSuppressErrors );
+		}
+
+		$this->assertSame( 1, $this->countResultItemsForPath( $pathFull ) );
+		$this->assertSame( [ '1' ], $this->resultItemMetaValues( $resultItemID, 'is_checksumfail' ) );
+		$this->assertSame( [ '1.0' ], $this->resultItemMetaValues( $resultItemID, 'asset_version' ) );
+		$this->assertSame(
+			[ 'published_reference' ],
+			$this->resultItemMetaValues( $resultItemID, 'comparison_basis' )
+		);
+		$this->assertSame( 0, $this->countScanResultLinks( $queueScanID, $resultItemID ) );
+
+		( new Store() )->store( $this->newFullQueueItem( $queueScanID ), [ $result ] );
+
+		$this->assertSame( [ '1' ], $this->resultItemMetaValues( $resultItemID, 'is_checksumfail' ) );
+		$this->assertSame( [ '1.0' ], $this->resultItemMetaValues( $resultItemID, 'asset_version' ) );
+		$this->assertSame(
+			[ 'published_reference' ],
+			$this->resultItemMetaValues( $resultItemID, 'comparison_basis' )
+		);
+		$this->assertSame( [ '1' ], $this->resultItemMetaValues( $resultItemID, 'is_mal' ) );
+		$this->assertSame( [ '314' ], $this->resultItemMetaValues( $resultItemID, 'malware_record_id' ) );
+		$this->assertSame( 1, $this->countScanResultLinks( $queueScanID, $resultItemID ) );
+	}
+
 	private function insertLegacyBlankResultItem( string $pathFragment, int $notifiedAt ) :int {
 		$dbh = self::con()->db_con->scan_result_items;
 		$record = $dbh->getRecord();
@@ -119,6 +187,24 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 		$queueItem->scan_id = $scanID;
 		$queueItem->qitem_id = 0;
 		$queueItem->scan = 'afs';
+		return $queueItem;
+	}
+
+	private function newFullQueueItem( int $scanID ) :QueueItemVO {
+		$queueItem = $this->newQueueItem( $scanID );
+		$queueItem->scope_type = 'full';
+		$queueItem->scope_key = '';
+		$queueItem->meta = [
+			'asset_snapshot_eligibility' => [
+				'plugin' => [
+					'protected/protected.php' => [
+						'version'             => '1.0',
+						'comparison_eligible' => false,
+					],
+				],
+				'theme'  => [],
+			],
+		];
 		return $queueItem;
 	}
 

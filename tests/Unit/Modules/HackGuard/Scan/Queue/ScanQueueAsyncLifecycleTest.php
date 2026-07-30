@@ -558,7 +558,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 1, $harness->async->scheduledHookAttempts( 'icwp_wpsf_shield_scanqbuild_cron' ) );
 	}
 
-	public function test_queue_init_marks_building_without_reloading_known_scan_row() :void {
+	public function test_queue_init_persists_built_state() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'   => 'afs',
@@ -568,7 +568,6 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 
 		$this->assertTrue( ( new QueueInit() )->init( $scanID ) );
 
-		$this->assertSame( 1, $this->queryLogCount( $harness->sql->queryLog(), 'SELECT * FROM `scans` WHERE `id`' ) );
 		$this->assertSame( 'built', $harness->scanRow( $scanID )[ 'status' ] );
 	}
 
