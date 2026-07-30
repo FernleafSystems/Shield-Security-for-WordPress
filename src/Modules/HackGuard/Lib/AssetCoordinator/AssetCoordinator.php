@@ -150,20 +150,17 @@ class AssetCoordinator {
 			try {
 				$record = $this->fullScanInventoryRecord( $asset );
 				$identityCounts[ $record[ 'identity' ] ] = ( $identityCounts[ $record[ 'identity' ] ] ?? 0 ) + 1;
+				if ( $identityCounts[ $record[ 'identity' ] ] === 1 ) {
+					$eligibility[ $record[ 'type' ] ][ $record[ 'key' ] ] = [
+						'version'             => $record[ 'version' ],
+						'comparison_eligible' => false,
+					];
+				}
 				$records[] = $record;
 			}
 			catch ( \Throwable $e ) {
 				$this->logFullScanSnapshotFailure( $asset, $e );
 				$records[] = null;
-			}
-		}
-
-		foreach ( $records as $record ) {
-			if ( $record !== null && $identityCounts[ $record[ 'identity' ] ] === 1 ) {
-				$eligibility[ $record[ 'type' ] ][ $record[ 'key' ] ] = [
-					'version'             => $record[ 'version' ],
-					'comparison_eligible' => false,
-				];
 			}
 		}
 

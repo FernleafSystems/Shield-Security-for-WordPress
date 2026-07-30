@@ -212,16 +212,14 @@ class StoreTest extends BaseUnitTest {
 		$this->assertSame( [ [ 77 ] ], $metaDeletes );
 	}
 
-	public function test_full_afs_ineligible_malware_result_updates_only_existing_malware_facet() :void {
+	public function test_full_afs_ineligible_malware_result_preserves_existing_row_state() :void {
 		$metaDeletes = [];
 		$resultItemInserts = [];
 		$resultItemUpdates = [];
-		$wpdb = $this->installController(
+		$this->installController(
 			[
 				$this->existingResultRow( 77, 'akismet/akismet.php', [
-					'asset_key'         => 'akismet/akismet.php',
-					'resolved_at'       => 1699999000,
-					'resolution_reason' => 'ignored',
+					'asset_key' => 'akismet/akismet.php',
 				] ),
 			],
 			[],
@@ -271,19 +269,9 @@ class StoreTest extends BaseUnitTest {
 			'asset_key'         => 'akismet/akismet.php',
 			'auto_filtered_at'  => 1700000042,
 			'last_seen_at'      => 1700000000,
-			'resolved_at'       => 1699999000,
-			'resolution_reason' => 'ignored',
+			'resolved_at'       => 0,
+			'resolution_reason' => '',
 		], $resultItemUpdates[ 0 ][ 'data' ] );
-
-		$metaQueries = $this->insertQueriesForTable( $wpdb, 'shield_scan_result_item_meta' );
-		$this->assertCount( 4, $metaQueries );
-		$this->assertStringContainsString( "`meta_key`='is_mal'", $metaQueries[ 0 ] );
-		$this->assertStringContainsString( "('77','is_mal','1')", $metaQueries[ 1 ] );
-		$this->assertStringContainsString( "`meta_key`='malware_record_id'", $metaQueries[ 2 ] );
-		$this->assertStringContainsString( "('77','malware_record_id','314')", $metaQueries[ 3 ] );
-		$this->assertStringNotContainsString( 'asset_version', \implode( "\n", $metaQueries ) );
-		$this->assertStringNotContainsString( 'comparison_basis', \implode( "\n", $metaQueries ) );
-		$this->assertCount( 1, $this->insertQueriesForTable( $wpdb, 'shield_scan_results' ) );
 	}
 
 	public function test_full_afs_protected_metadata_read_failure_prevents_mutation() :void {

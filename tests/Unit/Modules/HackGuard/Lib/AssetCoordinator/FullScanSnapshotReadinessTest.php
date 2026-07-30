@@ -192,7 +192,10 @@ class FullScanSnapshotReadinessTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( 5, $heartbeats );
-		$this->assertArrayNotHasKey( $duplicateA->file, $eligibility[ 'plugin' ] );
+		$this->assertSame( [
+			'version'             => $duplicateA->Version,
+			'comparison_eligible' => false,
+		], $eligibility[ 'plugin' ][ $duplicateA->file ] );
 		$this->assertFalse( $eligibility[ 'plugin' ][ $failing->file ][ 'comparison_eligible' ] );
 		$this->assertTrue( $eligibility[ 'theme' ][ $sibling->stylesheet ][ 'comparison_eligible' ] );
 		$this->assertSame( [
