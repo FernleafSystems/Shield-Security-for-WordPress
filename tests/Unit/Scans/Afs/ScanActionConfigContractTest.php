@@ -297,9 +297,117 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 	public function test_scoped_scan_comparison_does_not_require_full_scan_eligibility() :void {
 		$action = new ScanActionVO();
 		$action->scope_type = 'plugin';
+		$action->asset_comparison_incomplete = [ 'malformed' ];
 
 		$this->assertFalse( $action->hasValidAssetSnapshotEligibility() );
+		$this->assertFalse( $action->hasValidAssetComparisonIncomplete() );
 		$this->assertTrue( $action->isAssetSnapshotComparisonEligible( 'plugin', 'target/plugin.php', '1.0.0' ) );
+	}
+
+	public function test_asset_comparison_incomplete_is_exact_monotonic_and_rehydrated() :void {
+		$eligibility = [
+			'plugin' => [
+				'Vendor/Plugin.php' => [
+					'version'             => '1.0',
+					'comparison_eligible' => true,
+				],
+			],
+			'theme'  => [
+				'theme' => [
+					'version'             => '2.0',
+					'comparison_eligible' => true,
+				],
+			],
+		];
+		$action = ( new ScanActionVO() )->applyFromArray( [
+			'scope_type'                => 'full',
+			'asset_snapshot_eligibility' => $eligibility,
+		] );
+
+		$this->assertTrue( $action->hasValidAssetComparisonIncomplete() );
+		$this->assertSame( [ 'plugin' => [], 'theme' => [] ], $action->getAssetComparisonIncomplete() );
+		$this->assertArrayNotHasKey( 'asset_comparison_incomplete', $action->getRawData() );
+		$this->assertTrue( $action->markAssetComparisonIncomplete( 'plugin', 'Vendor/Plugin.php' ) );
+		$this->assertFalse( $action->markAssetComparisonIncomplete( 'plugin', 'Vendor/Plugin.php' ) );
+		$this->assertTrue( $action->markAssetComparisonIncomplete( 'theme', 'theme' ) );
+		$this->assertTrue( $action->isAssetComparisonIncomplete( 'plugin', 'Vendor/Plugin.php' ) );
+		$this->assertFalse( $action->isAssetComparisonIncomplete( 'plugin', 'vendor/plugin.php' ) );
+		$this->assertSame( [
+			'plugin' => [ 'Vendor/Plugin.php' ],
+			'theme'  => [ 'theme' ],
+		], $action->getAssetComparisonIncomplete() );
+		$this->assertSame( $eligibility, $action->asset_snapshot_eligibility );
+		$this->assertFalse( $action->isAssetSnapshotComparisonEligible( 'plugin', 'Vendor/Plugin.php', '1.0' ) );
+		$this->assertSame( [], $action->getComparisonEligibleAssetTuples() );
+
+		$rehydrated = ( new ScanActionVO() )->applyFromArray( $action->getRawData() );
+		$this->assertTrue( $rehydrated->hasValidAssetComparisonIncomplete() );
+		$this->assertSame( $action->getAssetComparisonIncomplete(), $rehydrated->getAssetComparisonIncomplete() );
+		$this->assertFalse( $rehydrated->markAssetComparisonIncomplete( 'theme', 'theme' ) );
+	}
+
+	/**
+	 * @dataProvider provideInvalidAssetComparisonIncomplete
+	 */
+	public function test_malformed_asset_comparison_incomplete_is_preserved_and_fails_full_scan_closed( $invalid ) :void {
+		$eligibility = [
+			'plugin' => [
+				'vendor/plugin.php' => [
+					'version'             => '1.0',
+					'comparison_eligible' => true,
+				],
+			],
+			'theme'  => [],
+		];
+		$direct = new ScanActionVO();
+		$direct->scope_type = 'full';
+		$direct->asset_snapshot_eligibility = $eligibility;
+		$direct->asset_comparison_incomplete = $invalid;
+		$hydrated = ( new ScanActionVO() )->applyFromArray( [
+			'scope_type'                 => 'full',
+			'asset_snapshot_eligibility' => $eligibility,
+			'asset_comparison_incomplete' => $invalid,
+		] );
+
+		foreach ( [ $direct, $hydrated ] as $action ) {
+			$this->assertFalse( $action->hasValidAssetComparisonIncomplete() );
+			$this->assertSame( $invalid, $action->getRawData()[ 'asset_comparison_incomplete' ] );
+			$this->assertFalse( $action->isAssetSnapshotComparisonEligible( 'plugin', 'vendor/plugin.php', '1.0' ) );
+			$this->assertSame( [], $action->getComparisonEligibleAssetTuples() );
+		}
+	}
+
+	public function provideInvalidAssetComparisonIncomplete() :array {
+		return [
+			'not array'       => [ 'plugin' ],
+			'missing group'   => [ [ 'plugin' => [] ] ],
+			'extra group'     => [ [ 'plugin' => [], 'theme' => [], 'core' => [] ] ],
+			'associative list'=> [ [ 'plugin' => [ 'key' => 'vendor/plugin.php' ], 'theme' => [] ] ],
+			'blank key'       => [ [ 'plugin' => [ ' ' ], 'theme' => [] ] ],
+			'nul key'         => [ [ 'plugin' => [ "bad\0key" ], 'theme' => [] ] ],
+			'non-string key'  => [ [ 'plugin' => [ 1 ], 'theme' => [] ] ],
+			'duplicate key'   => [ [ 'plugin' => [ 'vendor/plugin.php', 'vendor/plugin.php' ], 'theme' => [] ] ],
+		];
+	}
+
+	public function test_asset_comparison_incomplete_respects_restricted_property_selection() :void {
+		$marker = [
+			'plugin' => [ 'vendor/plugin.php' ],
+			'theme'  => [],
+		];
+		$withoutMarker = ( new ScanActionVO() )->applyFromArray( [
+			'scan'                        => 'afs',
+			'asset_comparison_incomplete' => $marker,
+		], [ 'scan' ] );
+		$onlyMarker = ( new ScanActionVO() )->applyFromArray( [
+			'scan'                        => 'afs',
+			'asset_comparison_incomplete' => $marker,
+		], [ 'asset_comparison_incomplete' ] );
+
+		$this->assertSame( [ 'scan' => 'afs' ], $withoutMarker->getRawData() );
+		$this->assertTrue( $withoutMarker->hasValidAssetComparisonIncomplete() );
+		$this->assertSame( [ 'asset_comparison_incomplete' => $marker ], $onlyMarker->getRawData() );
+		$this->assertSame( $marker, $onlyMarker->getAssetComparisonIncomplete() );
 	}
 
 	public function test_valid_empty_snapshot_eligibility_is_distinct_from_invalid_or_missing_contract() :void {

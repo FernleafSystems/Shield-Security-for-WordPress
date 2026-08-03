@@ -23,7 +23,7 @@ class AssetTrustState {
 
 	public function resolveAssetContext( string $path ) :?AssetFileContext {
 		try {
-			$context = $this->resolver->resolveContext( $path );
+			$context = $this->resolver->resolveCurrentContext( $path );
 		}
 		catch ( NonAssetFileException $e ) {
 			$context = null;
@@ -37,13 +37,34 @@ class AssetTrustState {
 	 * @throws \Exception
 	 */
 	public function verifyAssetContext( string $path, AssetFileContext $context ) :?HashVerificationResult {
-		if ( \in_array( $context->assetType, [ 'plugin', 'theme' ], true )
-			 && !$this->action->isAssetSnapshotComparisonEligible(
-				$context->assetType,
-				$context->assetKey,
-				$context->assetVersion
-			) ) {
-			return null;
+		if ( \in_array( $context->assetType, [ 'plugin', 'theme' ], true ) ) {
+			if ( $this->action->scope_type !== 'full' ) {
+				return $this->resolver->verifyStoredContext( $path, $context );
+			}
+			if ( !$this->action->hasValidAssetSnapshotEligibility()
+				 || !$this->action->hasValidAssetComparisonIncomplete()
+				 || $this->action->isAssetComparisonIncomplete( $context->assetType, $context->assetKey ) ) {
+				return null;
+			}
+
+			$entry = $this->action->asset_snapshot_eligibility[ $context->assetType ][ $context->assetKey ] ?? null;
+			if ( !\is_array( $entry ) ) {
+				$this->action->markAssetComparisonIncomplete( $context->assetType, $context->assetKey );
+				return null;
+			}
+			if ( $entry[ 'version' ] !== $context->assetVersion ) {
+				$this->action->markAssetComparisonIncomplete( $context->assetType, $context->assetKey );
+				return null;
+			}
+			if ( !$entry[ 'comparison_eligible' ] ) {
+				return null;
+			}
+
+			$verification = $this->resolver->verifyStoredContext( $path, $context );
+			if ( \is_null( $verification ) ) {
+				$this->action->markAssetComparisonIncomplete( $context->assetType, $context->assetKey );
+			}
+			return $verification;
 		}
 		return $this->resolver->verifyStoredContext( $path, $context );
 	}
