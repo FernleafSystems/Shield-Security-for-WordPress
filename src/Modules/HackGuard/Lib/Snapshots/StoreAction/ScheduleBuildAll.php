@@ -25,59 +25,88 @@ class ScheduleBuildAll extends BaseExec {
 	}
 
 	public function build() :void {
-		foreach ( $this->getAssetsThatNeedBuilt() as $asset ) {
+		[ $needsBuild, $needsPromotion ] = $this->classifyAssets();
+
+		foreach ( $needsBuild as $asset ) {
 			try {
-				( new Build() )
-					->setAsset( $asset )
-					->run();
-
-				$store = ( new Load() )
-					->setAsset( $asset )
-					->run();
-				if ( !$store->isUsable() ) {
-					continue;
-				}
-
-				Retrieve::resetMemoization();
-				AssetTrustResolver::resetMemoization();
-
-				$canCrowdsource = $asset instanceof WpPluginVo
-					? \dirname( $asset->file ) !== '.'
-					: !( $asset->is_child || $asset->is_inactive_child );
-				if ( self::con()->isPremiumActive() && $canCrowdsource ) {
-					$meta = $store->getSnapMeta();
-					if ( empty( $meta[ 'cs_hashes_at' ] ) ) {
-						$meta[ 'cs_hashes_at' ] = Services::Request()->ts();
-						if ( $store->setSnapMeta( $meta )->saveMeta() ) {
-							( new SubmitHashes() )->run( $asset );
-						}
-					}
-				}
+				$this->buildMissingAsset( $asset );
 			}
 			catch ( \Throwable $e ) {
 				error_log( '[Build Asset] Notice: '.$e->getMessage() );
 			}
 		}
+
+		foreach ( $needsPromotion as $asset ) {
+			try {
+				( new PromoteLocalBaseline() )
+					->setAsset( $asset )
+					->run();
+			}
+			catch ( \Throwable $e ) {
+				error_log( '[Promote Asset Snapshot] Notice: '.$e->getMessage() );
+			}
+		}
 	}
 
 	/**
-	 * @return array<int,WpPluginVo|WpThemeVo> Installed assets without a usable exact-version snapshot.
+	 * @return array{0:array<int,WpPluginVo|WpThemeVo>,1:array<int,WpPluginVo|WpThemeVo>}
 	 */
-	public function getAssetsThatNeedBuilt() :array {
-		return \array_filter(
-			( new FindAssetsToSnap() )->run(),
-			function ( $asset ) {
-				try {
-					$store = ( new Load() )
-						->setAsset( $asset )
-						->run();
-					$needBuilt = !$store->isUsable();
-				}
-				catch ( \Throwable $e ) {
-					$needBuilt = true;
-				}
-				return $needBuilt;
+	private function classifyAssets() :array {
+		$needsBuild = [];
+		$needsPromotion = [];
+		$now = Services::Request()->ts();
+
+		foreach ( ( new FindAssetsToSnap() )->run() as $asset ) {
+			try {
+				$snapshot = ( new Load() )
+					->setAsset( $asset )
+					->run()
+					->getUsableSnapshot();
 			}
-		);
+			catch ( \Throwable $e ) {
+				$snapshot = null;
+			}
+
+			if ( $snapshot === null ) {
+				$needsBuild[] = $asset;
+			}
+			elseif ( PromoteLocalBaseline::isDue( $snapshot, $now ) ) {
+				$needsPromotion[] = $asset;
+			}
+		}
+
+		return [ $needsBuild, $needsPromotion ];
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $asset
+	 */
+	private function buildMissingAsset( $asset ) :void {
+		( new Build() )
+			->setAsset( $asset )
+			->run();
+
+		$store = ( new Load() )
+			->setAsset( $asset )
+			->run();
+		if ( !$store->isUsable() ) {
+			return;
+		}
+
+		Retrieve::resetMemoization();
+		AssetTrustResolver::resetMemoization();
+
+		$canCrowdsource = $asset instanceof WpPluginVo
+			? \dirname( $asset->file ) !== '.'
+			: !( $asset->is_child || $asset->is_inactive_child );
+		if ( self::con()->isPremiumActive() && $canCrowdsource ) {
+			$meta = $store->getSnapMeta();
+			if ( empty( $meta[ 'cs_hashes_at' ] ) ) {
+				$meta[ 'cs_hashes_at' ] = Services::Request()->ts();
+				if ( $store->setSnapMeta( $meta )->saveMeta() ) {
+					( new SubmitHashes() )->run( $asset );
+				}
+			}
+		}
 	}
 }

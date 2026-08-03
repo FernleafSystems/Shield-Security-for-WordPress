@@ -16,7 +16,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\L
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinator;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
+	HashesStorageDir,
+	Store
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -26,6 +31,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\AssetSnapshots\{
 	SnapshotPlugins,
 	SnapshotPluginVo
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
+	CacheStoreTestCacheDir,
+	CacheStoreTestFs
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Services\Core\{
@@ -41,6 +50,8 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 };
 
 class AssetCoordinatorTest extends BaseUnitTest {
+
+	use TempDirLifecycleTrait;
 
 	private array $actions = [];
 	private array $filters = [];
@@ -60,6 +71,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->resetHashesStorageDir();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages = [];
 		$this->request = new AssetCoordinatorTestRequest( 1700000000 );
@@ -77,8 +89,10 @@ class AssetCoordinatorTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
+		$this->resetHashesStorageDir();
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -91,6 +105,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertHook( $this->actions, 'deleted_plugin', 10, 2 );
 		$this->assertHook( $this->actions, 'deleted_theme', 10, 2 );
 		$this->assertHook( $this->actions, 'icwp-wpsf-hourly_cron', 10, 0 );
+		$this->assertHook( $this->actions, 'shield/scan_queue_completed', 10, 0 );
 		$this->assertHook( $this->actions, 'icwp-wpsf-asset_coordinator', 10, 1 );
 		$this->assertNotHooked( $this->actions, 'icwp-wpsf-pre_plugin_shutdown' );
 	}
@@ -167,6 +182,238 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$coordinator->onDeletedPlugin( 'deleted/deleted.php', true );
 		$this->assertSame( [ 'attempts' => 0, 'due_at' => 1700000180 ], $this->assetRecord() );
 		$this->assertSame( [ 'attempts' => 0, 'due_at' => 1700000130 ], $this->state()[ 'wpv' ] );
+	}
+
+	public function test_mixed_enqueue_preserves_fresh_ordinary_work_and_earliest_due() :void {
+		$coordinator = new AssetCoordinator();
+
+		$this->assertFalse( $coordinator->enqueuePromotionFollowUp( 'core', 'core', '1.0.0' ) );
+		$this->assertFalse( $coordinator->enqueuePromotionFollowUp( 'plugin', 'valid/plugin.php', "bad\0version" ) );
+		$this->assertTrue( $coordinator->enqueuePromotionFollowUp( 'plugin', ' valid/plugin.php ', '1.0.0' ) );
+		$this->assertTrue( $coordinator->enqueuePromotionFollowUp( 'plugin', 'valid/plugin.php', '2.0.0' ) );
+
+		$this->assertSame( [ 'valid/plugin.php' ], \array_keys( $this->state()[ 'assets' ][ 'plugin' ] ) );
+		$this->assertSame( [
+			'attempts'                   => 0,
+			'due_at'                     => 1700000060,
+			'required_published_version' => '2.0.0',
+		], $this->state()[ 'assets' ][ 'plugin' ]['valid/plugin.php'] );
+
+		$this->assertTrue( $coordinator->enqueueAsset( 'plugin', 'valid/plugin.php', 120 ) );
+		$this->assertSame( [
+			'attempts' => 0,
+			'due_at'   => 1700000120,
+		], $this->state()[ 'assets' ][ 'plugin' ]['valid/plugin.php'] );
+
+		$this->options[ $this->optionKey() ][ 'assets' ][ 'plugin' ]['valid/plugin.php'] = [
+			'attempts' => 2,
+			'due_at'   => 1700000090,
+		];
+		$this->assertTrue( $coordinator->enqueuePromotionFollowUp( 'plugin', 'valid/plugin.php', '3.0.0' ) );
+		$this->assertSame( [
+			'attempts' => 0,
+			'due_at'   => 1700000060,
+		], $this->state()[ 'assets' ][ 'plugin' ]['valid/plugin.php'] );
+
+		$this->options[ $this->optionKey() ][ 'assets' ][ 'plugin' ]['valid/plugin.php'] = [
+			'attempts' => 0,
+			'due_at'   => 1700000030,
+		];
+		$this->assertTrue( $coordinator->enqueuePromotionFollowUp( 'plugin', 'valid/plugin.php', '4.0.0' ) );
+		$this->assertSame( [
+			'attempts' => 0,
+			'due_at'   => 1700000030,
+		], $this->state()[ 'assets' ][ 'plugin' ]['valid/plugin.php'] );
+	}
+
+	public function test_non_runnable_ordinary_work_does_not_absorb_promotion() :void {
+		$this->options[ $this->optionKey() ] = [
+			'assets' => [
+				'plugin' => [
+					'terminal/plugin.php' => [ 'attempts' => 3, 'due_at' => 0 ],
+					'dormant/plugin.php'  => [ 'attempts' => 0, 'due_at' => 0 ],
+				],
+				'theme' => [],
+				'core' => [],
+			],
+		];
+		$coordinator = new AssetCoordinator();
+
+		$this->assertTrue( $coordinator->enqueuePromotionFollowUp( 'plugin', 'terminal/plugin.php', '1.0.0' ) );
+		$this->assertTrue( $coordinator->enqueuePromotionFollowUp( 'plugin', 'dormant/plugin.php', '2.0.0' ) );
+
+		$this->assertSame( [
+			'attempts'                   => 0,
+			'due_at'                     => 1700000060,
+			'required_published_version' => '1.0.0',
+		], $this->state()[ 'assets' ][ 'plugin' ]['terminal/plugin.php'] );
+		$this->assertSame( [
+			'attempts'                   => 0,
+			'due_at'                     => 1700000060,
+			'required_published_version' => '2.0.0',
+		], $this->state()[ 'assets' ][ 'plugin' ]['dormant/plugin.php'] );
+	}
+
+	public function test_non_applicable_promotion_follow_up_is_consumed_without_starting_scan() :void {
+		$this->options[ $this->optionKey() ] = [
+			'assets' => [
+				'plugin' => [
+					'missing/plugin.php' => [
+						'attempts'                   => 0,
+						'due_at'                     => 1700000000,
+						'required_published_version' => '1.0.0',
+					],
+				],
+				'theme' => [],
+				'core' => [],
+			],
+		];
+
+		( new AssetCoordinator() )->runDueWork();
+
+		$this->assertSame( [], $this->state()[ 'assets' ][ 'plugin' ] );
+		$this->assertSame( [], $this->scans->assets );
+	}
+
+	public function test_conditioned_scan_failure_retries_without_losing_version() :void {
+		$asset = new SnapshotPluginVo( 'published/plugin.php', '1.2.3' );
+		$this->installPublishedSnapshot( $asset );
+		$coordinator = new AssetCoordinator();
+		$this->scans->assetResult = false;
+		$this->assertTrue( $coordinator->enqueuePromotionFollowUp( 'plugin', $asset->file, $asset->Version ) );
+
+		$this->request->timestamp = 1700000060;
+		$coordinator->runDueWork();
+		$this->assertSame( [
+			'attempts'                   => 1,
+			'due_at'                     => 1700000120,
+			'required_published_version' => '1.2.3',
+		], $this->state()[ 'assets' ][ 'plugin' ][ $asset->file ] );
+
+		$this->request->timestamp = 1700000120;
+		$coordinator->runDueWork();
+		$this->assertSame( [
+			'attempts'                   => 2,
+			'due_at'                     => 1700000180,
+			'required_published_version' => '1.2.3',
+		], $this->state()[ 'assets' ][ 'plugin' ][ $asset->file ] );
+		$this->assertSame( [
+			[ 'plugin', $asset->file ],
+			[ 'plugin', $asset->file ],
+		], $this->scans->assets );
+	}
+
+	/**
+	 * @dataProvider provideScanResults
+	 */
+	public function test_later_ordinary_work_survives_selected_promotion_result( bool $scanResult ) :void {
+		$asset = new SnapshotPluginVo( 'changed/plugin.php', '1.0.0' );
+		$this->installPublishedSnapshot( $asset );
+		$coordinator = new AssetCoordinator();
+		$this->scans->assetResult = $scanResult;
+		$this->assertTrue( $coordinator->enqueuePromotionFollowUp( 'plugin', $asset->file, $asset->Version ) );
+		$this->scans->beforeStart = function ( string $assetType, string $assetKey ) use ( $coordinator ) :void {
+			$this->scans->beforeStart = null;
+			$this->assertTrue( $coordinator->enqueueAsset( $assetType, $assetKey, 120 ) );
+		};
+
+		$this->request->timestamp = 1700000060;
+		$coordinator->runDueWork();
+
+		$this->assertSame( [
+			'attempts' => 0,
+			'due_at'   => 1700000180,
+		], $this->state()[ 'assets' ][ 'plugin' ]['changed/plugin.php'] );
+	}
+
+	/**
+	 * @dataProvider provideScanResults
+	 */
+	public function test_refreshed_ordinary_work_survives_selected_ordinary_result( bool $scanResult ) :void {
+		$asset = new SnapshotPluginVo( 'changed/plugin.php', '2.0.0' );
+		$this->installPublishedSnapshot( $asset );
+		$this->options[ $this->optionKey() ] = [
+			'assets' => [
+				'plugin' => [
+					$asset->file => [ 'attempts' => 1, 'due_at' => 1700000000 ],
+				],
+				'theme' => [],
+				'core' => [],
+			],
+		];
+		$coordinator = new AssetCoordinator();
+		$this->scans->assetResult = $scanResult;
+		$this->scans->beforeStart = function ( string $assetType, string $assetKey ) use ( $coordinator ) :void {
+			$this->scans->beforeStart = null;
+			$this->assertTrue( $coordinator->enqueuePromotionFollowUp( $assetType, $assetKey, '1.0.0' ) );
+		};
+
+		$coordinator->runDueWork();
+
+		$this->assertSame( [
+			'attempts' => 0,
+			'due_at'   => 1700000000,
+		], $this->state()[ 'assets' ][ 'plugin' ][ $asset->file ] );
+	}
+
+	/**
+	 * @dataProvider provideScanResults
+	 */
+	public function test_equivalent_ordinary_work_accepts_selected_result( bool $scanResult ) :void {
+		$asset = new SnapshotPluginVo( 'changed/plugin.php', '2.0.0' );
+		$this->installPublishedSnapshot( $asset );
+		$this->options[ $this->optionKey() ] = [
+			'assets' => [
+				'plugin' => [
+					$asset->file => [ 'attempts' => 0, 'due_at' => 1700000000 ],
+				],
+				'theme' => [],
+				'core' => [],
+			],
+		];
+		$coordinator = new AssetCoordinator();
+		$this->scans->assetResult = $scanResult;
+		$this->scans->beforeStart = function ( string $assetType, string $assetKey ) use ( $coordinator ) :void {
+			$this->scans->beforeStart = null;
+			$this->assertTrue( $coordinator->enqueuePromotionFollowUp( $assetType, $assetKey, '1.0.0' ) );
+		};
+
+		$coordinator->runDueWork();
+
+		if ( $scanResult ) {
+			$this->assertArrayNotHasKey( $asset->file, $this->state()[ 'assets' ][ 'plugin' ] );
+		}
+		else {
+			$this->assertSame( [
+				'attempts' => 1,
+				'due_at'   => 1700000060,
+			], $this->state()[ 'assets' ][ 'plugin' ][ $asset->file ] );
+		}
+	}
+
+	public function test_stale_promotion_version_cannot_suppress_current_ordinary_scan() :void {
+		$asset = new SnapshotPluginVo( 'changed/plugin.php', '2.0.0' );
+		$this->installPublishedSnapshot( $asset );
+		$coordinator = new AssetCoordinator();
+
+		$this->assertTrue( $coordinator->enqueueAsset( 'plugin', $asset->file, 0 ) );
+		$this->assertTrue( $coordinator->enqueuePromotionFollowUp( 'plugin', $asset->file, '1.0.0' ) );
+		$this->assertSame( [
+			'attempts' => 0,
+			'due_at'   => 1700000000,
+		], $this->state()[ 'assets' ][ 'plugin' ][ $asset->file ] );
+
+		$coordinator->runDueWork();
+
+		$this->assertSame( [ [ 'plugin', $asset->file ] ], $this->scans->assets );
+		$this->assertArrayNotHasKey( $asset->file, $this->state()[ 'assets' ][ 'plugin' ] );
+	}
+
+	public function provideScanResults() :array {
+		return [
+			'success' => [ true ],
+			'failure' => [ false ],
+		];
 	}
 
 	public function test_core_readiness_precedes_targeted_scan() :void {
@@ -476,8 +723,13 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertTrue( $coordinator->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
 
 		$this->persistWrites = false;
+		\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages = [];
 		$this->assertFalse( $coordinator->enqueueAsset( 'theme', 'twentytwentyfive', 60 ) );
 		$this->assertArrayNotHasKey( 'twentytwentyfive', $this->state()[ 'assets' ][ 'theme' ] );
+		$this->assertCount(
+			1,
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages
+		);
 	}
 
 	public function test_malformed_state_normalizes_without_warnings_on_next_merge() :void {
@@ -489,6 +741,28 @@ class AssetCoordinatorTest extends BaseUnitTest {
 					'bad-two/plugin.php' => [ 'attempts' => -1, 'due_at' => 1 ],
 					'bad-three/plugin.php' => [ 'attempts' => 0, 'due_at' => '1' ],
 					'terminal/plugin.php' => [ 'attempts' => 99, 'due_at' => 123 ],
+					'valid-conditioned/plugin.php' => [
+						'attempts'                   => 1,
+						'due_at'                     => 50,
+						'required_published_version' => '1.2.3',
+					],
+					'blank-conditioned/plugin.php' => [
+						'attempts'                   => 0,
+						'due_at'                     => 50,
+						'required_published_version' => ' ',
+					],
+					'null-conditioned/plugin.php' => [
+						'attempts'                   => 0,
+						'due_at'                     => 50,
+						'required_published_version' => null,
+					],
+				],
+				'core' => [
+					'core' => [
+						'attempts'                   => 0,
+						'due_at'                     => 50,
+						'required_published_version' => '1.0.0',
+					],
 				],
 				'unknown' => [
 					'ignored' => [ 'attempts' => 0, 'due_at' => 1 ],
@@ -504,6 +778,11 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'assets' => [
 				'plugin' => [
 					'terminal/plugin.php' => [ 'attempts' => 3, 'due_at' => 0 ],
+					'valid-conditioned/plugin.php' => [
+						'attempts'                   => 1,
+						'due_at'                     => 50,
+						'required_published_version' => '1.2.3',
+					],
 				],
 				'theme' => [
 					'valid-theme' => [ 'attempts' => 0, 'due_at' => 1700000005 ],
@@ -535,6 +814,17 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		Functions\when( 'is_main_network' )->alias( fn() :bool => $this->isMainNetwork );
 		Functions\when( 'is_main_site' )->alias( fn() :bool => $this->isMainSite );
 		Functions\when( 'untrailingslashit' )->alias( static fn( string $path ) :string => \rtrim( $path, '/\\' ) );
+		Functions\when( 'path_join' )->alias(
+			static fn( string $a, string $b ) :string => \str_replace(
+				'\\',
+				'/',
+				\rtrim( $a, '/\\' ).'/'.\ltrim( $b, '/\\' )
+			)
+		);
+		Functions\when( 'wp_json_encode' )->alias( static fn( $data ) :string => (string)\json_encode( $data ) );
+		Functions\when( 'wp_generate_password' )->alias(
+			static fn( int $length, bool $specialChars = true ) :string => \substr( \str_repeat( 'a', $length ), 0, $length )
+		);
 		Functions\when( 'wp_normalize_path' )->alias( static fn( string $path ) :string => \str_replace( '\\', '/', $path ) );
 		Functions\when( 'add_action' )->alias( function (
 			string $hook,
@@ -614,6 +904,36 @@ class AssetCoordinatorTest extends BaseUnitTest {
 				'scans' => $this->scans,
 			],
 		] );
+	}
+
+	private function installPublishedSnapshot( SnapshotPluginVo $asset ) :void {
+		$this->resetHashesStorageDir();
+		$root = \str_replace( '\\', '/', $this->createTrackedTempDir( 'shield-coordinator-snapshot-' ) );
+		$this->controller->cache_dir_handler = new CacheStoreTestCacheDir( $root );
+		ServicesState::mergeItems( [
+			'service_wpfs'     => new CacheStoreTestFs(),
+			'service_wpplugins' => new SnapshotPlugins( [ $asset ] ),
+		] );
+		( new Store( $asset, true ) )
+			->setWorkingDir( ( new HashesStorageDir() )->getTempDir() )
+			->setSnapData( [ 'plugin.php' => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' ] )
+			->setSnapMeta( [
+				'version'     => $asset->Version,
+				'unique_id'   => $asset->file,
+				'live_hashes' => true,
+			] )
+			->save();
+	}
+
+	private function resetHashesStorageDir() :void {
+		$reflection = new \ReflectionClass( HashesStorageDir::class );
+		foreach ( [ 'dir', 'rootDir' ] as $propertyName ) {
+			if ( $reflection->hasProperty( $propertyName ) ) {
+				$property = $reflection->getProperty( $propertyName );
+				$property->setAccessible( true );
+				$property->setValue( null, null );
+			}
+		}
 	}
 
 	private function state() :array {
@@ -715,9 +1035,13 @@ class AssetCoordinatorTestScans {
 	public bool $assetResult = true;
 	public int $wpvCalls = 0;
 	public ?StartScansResult $wpvResult = null;
+	public $beforeStart = null;
 
 	public function startAfsAssetScan( string $assetType, string $assetKey, bool $resetIgnored = false ) :bool {
 		unset( $resetIgnored );
+		if ( \is_callable( $this->beforeStart ) ) {
+			( $this->beforeStart )( $assetType, $assetKey );
+		}
 		$this->assets[] = [ $assetType, $assetKey ];
 		return $this->assetResult;
 	}

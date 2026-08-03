@@ -9,20 +9,112 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState
 };
+use FernleafSystems\Wordpress\Services\Core\Db;
 
 class ScansStatusTest extends BaseUnitTest {
 
 	private array $servicesSnapshot = [];
+	private bool $hadWpdb = false;
+	private $wpdbSnapshot;
 
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
+		$this->hadWpdb = \array_key_exists( 'wpdb', $GLOBALS );
+		$this->wpdbSnapshot = $GLOBALS[ 'wpdb' ] ?? null;
+		$GLOBALS[ 'wpdb' ] = (object)[ 'last_error' => '' ];
 	}
 
 	protected function tearDown() :void {
+		if ( $this->hadWpdb ) {
+			$GLOBALS[ 'wpdb' ] = $this->wpdbSnapshot;
+		}
+		else {
+			unset( $GLOBALS[ 'wpdb' ] );
+		}
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
+	}
+
+	/**
+	 * @dataProvider activeAfsStatusProvider
+	 */
+	public function test_has_active_afs_detects_every_persisted_active_status( string $status ) :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->insertScan( [
+			'scan'   => 'afs',
+			'status' => $status,
+		] );
+		$harness->sql->resetQueryLog();
+
+		$this->assertTrue( ( new ScansStatus() )->hasActiveAfs() );
+
+		$queries = $harness->sql->queryLog();
+		$this->assertCount( 1, $queries );
+		$this->assertStringContainsString( "`scans`.`scan`='afs'", $queries[ 0 ] );
+		$this->assertStringContainsString( "`scans`.`status` IN ('queued','building','built','running')", $queries[ 0 ] );
+		$this->assertStringContainsString( '`scans`.`finished_at`=0', $queries[ 0 ] );
+		$this->assertStringContainsString( 'LIMIT 1', $queries[ 0 ] );
+	}
+
+	public static function activeAfsStatusProvider() :array {
+		return [
+			'queued'   => [ 'queued' ],
+			'building' => [ 'building' ],
+			'built'    => [ 'built' ],
+			'running'  => [ 'running' ],
+		];
+	}
+
+	public function test_has_active_afs_is_fresh_and_distinguishes_clean_idle() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->insertScan( [
+			'scan'   => 'wpv',
+			'status' => 'running',
+		] );
+		$harness->insertScan( [
+			'scan'        => 'afs',
+			'status'      => 'running',
+			'finished_at' => 1,
+		] );
+		$harness->sql->resetQueryLog();
+		$status = new ScansStatus();
+
+		$this->assertFalse( $status->hasActiveAfs() );
+		$this->assertFalse( $status->hasActiveAfs() );
+		$this->assertCount( 2, $harness->sql->queryLog() );
+	}
+
+	public function test_has_active_afs_rejects_non_array_query_result() :void {
+		( new ScanQueueLifecycleHarness() )->install();
+		ServicesState::mergeItems( [
+			'service_wpdb' => new ScansStatusResultDb( false ),
+		] );
+
+		$this->expectException( \RuntimeException::class );
+		( new ScansStatus() )->hasActiveAfs();
+	}
+
+	public function test_has_active_afs_rejects_query_exception() :void {
+		( new ScanQueueLifecycleHarness() )->install();
+		ServicesState::mergeItems( [
+			'service_wpdb' => new ScansStatusResultDb( [], new \RuntimeException( 'Synthetic query failure.' ) ),
+		] );
+
+		$this->expectException( \RuntimeException::class );
+		( new ScansStatus() )->hasActiveAfs();
+	}
+
+	public function test_has_active_afs_rejects_current_database_error() :void {
+		( new ScanQueueLifecycleHarness() )->install();
+		ServicesState::mergeItems( [
+			'service_wpdb' => new ScansStatusResultDb( [] ),
+		] );
+		$GLOBALS[ 'wpdb' ]->last_error = 'Synthetic database error.';
+
+		$this->expectException( \RuntimeException::class );
+		( new ScansStatus() )->hasActiveAfs();
 	}
 
 	public function test_snapshot_enqueued_and_active_rows_share_one_ordered_query() :void {
@@ -237,5 +329,24 @@ class ScansStatusTest extends BaseUnitTest {
 		], $status->activeSnapshot() );
 		$this->assertSame( [ 'afs', 'wpv' ], $status->enqueued() );
 		$this->assertCount( 1, $harness->sql->queryLog() );
+	}
+}
+
+class ScansStatusResultDb extends Db {
+
+	private $result;
+	private ?\Throwable $error;
+
+	public function __construct( $result, ?\Throwable $error = null ) {
+		$this->result = $result;
+		$this->error = $error;
+	}
+
+	public function selectCustom( $query, $format = null ) {
+		unset( $query, $format );
+		if ( $this->error !== null ) {
+			throw $this->error;
+		}
+		return $this->result;
 	}
 }

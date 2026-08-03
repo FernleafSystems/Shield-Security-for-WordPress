@@ -148,8 +148,9 @@ class TouchAllTest extends BaseUnitTest {
 		}
 
 		$this->assertSame( [
-			'has_unusable'      => true,
-			'touches_succeeded' => true,
+			'has_unusable'       => true,
+			'has_due_promotions' => false,
+			'touches_succeeded'  => true,
 		], ( new TouchAll() )->run() );
 
 		\clearstatcache( true, $store->getSnapStorePath() );
@@ -280,6 +281,42 @@ class TouchAllTest extends BaseUnitTest {
 		$this->assertSame( 1, $this->touches( $store->getSnapStoreMetaPath() ) );
 	}
 
+	public function test_queue_completion_rediscovers_due_promotion_without_advancing_its_timestamp() :void {
+		$installed = new SnapshotPluginVo( 'due-installed/plugin.php', '1.0.0' );
+		$this->installEnvironment( [ $installed ], [] );
+		$lastCheck = 1;
+		$store = $this->writeStore(
+			$installed,
+			'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+			[
+				'live_hashes'             => false,
+				'last_live_hash_check_at' => $lastCheck,
+			]
+		);
+
+		$result = ( new TouchAll() )->run();
+
+		$this->assertFalse( $result[ 'has_unusable' ] );
+		$this->assertTrue( $result[ 'has_due_promotions' ] );
+		$this->assertTrue( $result[ 'touches_succeeded' ] );
+		$snapshot = ( new Store( $installed, true ) )
+			->setWorkingDir( ( new HashesStorageDir() )->getTempDir( false ) )
+			->getUsableSnapshot();
+		$this->assertNotNull( $snapshot );
+		$this->assertSame(
+			$lastCheck,
+			$snapshot[ 'meta' ][ 'last_live_hash_check_at' ]
+		);
+
+		( new AssetCoordinator() )->onScanQueueCompleted();
+
+		$this->assertTrue(
+			$this->options[ 'icwp-wpsf-asset_coordinator_state' ][ 'build_missing_snapshots' ] ?? false
+		);
+		$this->assertCount( 1, $this->scheduled );
+		$this->assertSame( 'icwp-wpsf-asset_coordinator', $this->scheduled[ 0 ][ 'hook' ] );
+	}
+
 	/**
 	 * @param SnapshotPluginVo[] $plugins
 	 * @param SnapshotThemeVo[]  $themes
@@ -302,16 +339,21 @@ class TouchAllTest extends BaseUnitTest {
 	/**
 	 * @param SnapshotPluginVo|SnapshotThemeVo $asset
 	 */
-	private function writeStore( $asset, string $hash = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' ) :Store {
+	private function writeStore(
+		$asset,
+		string $hash = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+		array $meta = []
+	) :Store {
 		return ( new Store( $asset, true ) )
 			->setWorkingDir( ( new HashesStorageDir() )->getTempDir() )
 			->setSnapData( [
 				'file.php' => $hash,
 			] )
-			->setSnapMeta( [
-				'version'   => $asset->Version,
-				'unique_id' => $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
-			] )
+			->setSnapMeta( \array_merge( [
+				'version'     => $asset->Version,
+				'unique_id'   => $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
+				'live_hashes' => true,
+			], $meta ) )
 			->save();
 	}
 

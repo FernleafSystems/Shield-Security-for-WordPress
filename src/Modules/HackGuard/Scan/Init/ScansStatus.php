@@ -40,6 +40,36 @@ class ScansStatus {
 	}
 
 	/**
+	 * @throws \RuntimeException
+	 */
+	public function hasActiveAfs() :bool {
+		global $wpdb;
+
+		try {
+			$rows = Services::WpDb()->selectCustom( \sprintf(
+				"SELECT `scans`.`id`
+					FROM `%s` AS `scans`
+					WHERE `scans`.`scan`='afs'
+					  AND `scans`.`status` IN (%s)
+					  AND `scans`.`finished_at`=0
+					LIMIT 1;",
+				self::con()->db_con->scans->getTable(),
+				ScanStatus::sqlList( ScanStatus::ACTIVE )
+			) );
+		}
+		catch ( \Throwable $e ) {
+			throw new \RuntimeException( 'Active AFS status query failed.', 0, $e );
+		}
+
+		if ( !\is_array( $rows )
+			 || ( \is_object( $wpdb ) && (string)( $wpdb->last_error ?? '' ) !== '' ) ) {
+			throw new \RuntimeException( 'Active AFS status query failed.' );
+		}
+
+		return !empty( $rows );
+	}
+
+	/**
 	 * @return array{current:string,enqueued:list<string>}
 	 */
 	private function loadActiveSnapshot() :array {

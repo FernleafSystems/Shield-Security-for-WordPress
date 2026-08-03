@@ -44,6 +44,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\CacheStore\{
 	CacheStoreTestRequest,
 	CacheStoreWordPressFunctions
 };
+use FernleafSystems\Wordpress\Services\Core\Db;
 
 function error_log( string $message ) :bool {
 	ScheduleBuildAllTest::$capturedErrorLogs[] = $message;
@@ -103,92 +104,6 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_usable_current_snapshot_excludes_asset_from_build_list() :void {
-		$asset = new SnapshotPluginVo( 'snapshot-current/plugin.php', '1.0.0' );
-		$asset->active = false;
-		$this->installEnvironment( [ $asset ] );
-		$this->writeStore( $asset, [
-			'plugin.php' => self::MD5,
-		], [
-			'version'   => '1.0.0',
-			'unique_id' => 'snapshot-current/plugin.php',
-		] );
-
-		$this->assertSame( [], $this->assetKeysThatNeedBuilt() );
-	}
-
-	public function test_missing_snapshot_includes_asset_in_build_list() :void {
-		$asset = new SnapshotPluginVo( 'snapshot-missing/plugin.php', '1.0.0' );
-		$this->installEnvironment( [ $asset ] );
-
-		$this->assertSame( [ 'snapshot-missing/plugin.php' ], $this->assetKeysThatNeedBuilt() );
-	}
-
-	public function test_loadable_snapshot_with_mismatched_version_meta_includes_asset_in_build_list() :void {
-		$asset = new SnapshotPluginVo( 'snapshot-stale/plugin.php', '2.0.0' );
-		$this->installEnvironment( [ $asset ] );
-		$this->writeStore( $asset, [
-			'plugin.php' => self::MD5,
-		], [
-			'version'   => '1.0.0',
-			'unique_id' => 'snapshot-stale/plugin.php',
-		] );
-
-		$this->assertSame( [ 'snapshot-stale/plugin.php' ], $this->assetKeysThatNeedBuilt() );
-	}
-
-	public function test_usable_current_theme_snapshot_excludes_asset_from_build_list() :void {
-		$asset = new SnapshotThemeVo( 'snapshot-current-theme', '1.0.0' );
-		$asset->active = false;
-		$this->installEnvironment( [], [ $asset ] );
-		$this->writeStore( $asset, [
-			'style.css' => self::MD5,
-		], [
-			'version'   => '1.0.0',
-			'unique_id' => 'snapshot-current-theme',
-		] );
-
-		$this->assertSame( [], $this->assetKeysThatNeedBuilt() );
-	}
-
-	public function test_missing_current_theme_snapshot_includes_asset_in_build_list() :void {
-		$asset = new SnapshotThemeVo( 'snapshot-missing-theme', '1.0.0' );
-		$this->installEnvironment( [], [ $asset ] );
-
-		$this->assertSame( [ 'snapshot-missing-theme' ], $this->assetKeysThatNeedBuilt() );
-	}
-
-	public function test_loadable_current_theme_snapshot_with_mismatched_version_meta_includes_asset_in_build_list() :void {
-		$asset = new SnapshotThemeVo( 'snapshot-stale-theme', '2.0.0' );
-		$this->installEnvironment( [], [ $asset ] );
-		$this->writeStore( $asset, [
-			'style.css' => self::MD5,
-		], [
-			'version'   => '1.0.0',
-			'unique_id' => 'snapshot-stale-theme',
-		] );
-
-		$this->assertSame( [ 'snapshot-stale-theme' ], $this->assetKeysThatNeedBuilt() );
-	}
-
-	public function test_discovery_does_not_log_missing_snapshot_errors() :void {
-		$asset = new SnapshotPluginVo( 'snapshot-missing-no-log/plugin.php', '1.0.0' );
-		$this->installEnvironment( [ $asset ] );
-
-		$this->assertSame( [ 'snapshot-missing-no-log/plugin.php' ], $this->assetKeysThatNeedBuilt() );
-		$this->assertSame( [], self::$capturedErrorLogs );
-	}
-
-	public function test_discovery_does_not_create_hash_dir_for_missing_snapshot() :void {
-		$asset = new SnapshotPluginVo( 'snapshot-missing-no-create/plugin.php', '1.0.0' );
-		$root = $this->makeTempDir( 'root' );
-		$this->installBuildEnvironment( [ $asset ], $root );
-
-		$this->assertSame( [ 'snapshot-missing-no-create/plugin.php' ], $this->assetKeysThatNeedBuilt() );
-		$this->assertSame( [], \glob( $root.'/ptguard-*' ) ?: [] );
-		$this->assertFileDoesNotExist( $root.'/.ptguard-active.txt' );
-	}
-
 	public function test_legacy_entry_point_delegates_discovery_to_asset_coordinator() :void {
 		$this->installEnvironment( [] );
 		$coordinator = new ScheduleBuildAllCoordinator();
@@ -217,7 +132,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 			\implode( "\n", self::$capturedErrorLogs )
 		);
 		$this->assertSame( [], \glob( $cacheRoot.'/ptguard-*/plugins/snapshot-build-root-1.0.0.txt' ) ?: [] );
-		$this->assertSame( [], $this->assetKeysThatNeedBuilt() );
+		$this->assertTrue( $this->loadStore( $asset )->isUsable() );
 	}
 
 	public function test_published_plugin_request_reaches_canonical_api_path_and_persists_live_hashes() :void {
@@ -385,7 +300,7 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 			),
 			\implode( "\n", $urls )
 		);
-		$this->assertSame( [], $this->assetKeysThatNeedBuilt() );
+		$this->assertTrue( $store->isUsable() );
 	}
 
 	/**
@@ -455,7 +370,71 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 		$this->invokeBuild();
 
 		$this->assertMemoizationSeeded();
-		$this->assertSame( [ $asset->file ], $this->assetKeysThatNeedBuilt() );
+		$this->assertNull( $this->loadStore( $asset )->getUsableSnapshot() );
+	}
+
+	public function test_build_classifies_before_mutation_and_promotes_only_preexisting_due_snapshot() :void {
+		$missing = new SnapshotPluginVo( 'new-local/new-local.php', '1.0.0' );
+		$missing->wpOrg = true;
+		$due = new SnapshotPluginVo( 'due-published/due.php', '2.0.0' );
+		$due->wpOrg = true;
+		$root = $this->makeTempDir( 'classified-pass' );
+		$this->installBuildEnvironment( [ $missing, $due ], $root );
+		$this->writeFile( WP_PLUGIN_DIR.'/'.$missing->file, "<?php\n// local baseline\n" );
+		$this->writeStore( $due, [
+			'due.php' => \str_repeat( 'b', 32 ),
+		], [
+			'ts'                      => 1600000000,
+			'snap_version'            => '19.0.0',
+			'cs_hashes_at'            => 0,
+			'unique_id'               => $due->file,
+			'name'                    => $due->Name,
+			'version'                 => $due->Version,
+			'algo'                    => 'md5',
+			'live_hashes'             => false,
+			'last_live_hash_check_at' => 1699914100,
+		] );
+
+		$coordinator = new ScheduleBuildAllPromotionCoordinator();
+		$controller = \FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginStore::$plugin
+			->getController();
+		$controller->comps->asset_coordinator = $coordinator;
+		$controller->db_con = (object)[
+			'scans' => new ScheduleBuildAllScansTable(),
+		];
+		ServicesState::mergeItems( [
+			'service_wpdb' => new ScheduleBuildAllIdleDb(),
+		] );
+
+		$urls = [];
+		Functions\when( 'wp_remote_request' )->alias(
+			static function ( string $url ) use ( &$urls ) :array {
+				if ( \strpos( $url, '/availability' ) !== false ) {
+					return ScheduleBuildAllTest::httpResponse( [ 'routes_regex' => '#^hashes$#' ] );
+				}
+				$urls[] = $url;
+				return ScheduleBuildAllTest::httpResponse( [
+					'hashes' => \strpos( $url, '/due-published/' ) !== false
+						? [ 'due.php' => \str_repeat( 'c', 32 ) ]
+						: [],
+				] );
+			}
+		);
+
+		$this->invokeBuild();
+
+		$this->assertFalse( $this->loadStore( $missing )->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertTrue( $this->loadStore( $due )->getSnapMeta()[ 'live_hashes' ] );
+		$this->assertCount( 2, $urls );
+		$this->assertCount( 1, \array_filter(
+			$urls,
+			static fn( string $url ) :bool => \strpos( $url, '/new-local/' ) !== false
+		) );
+		$this->assertCount( 1, \array_filter(
+			$urls,
+			static fn( string $url ) :bool => \strpos( $url, '/due-published/' ) !== false
+		) );
+		$this->assertSame( [ [ 'plugin', $due->file, $due->Version ] ], $coordinator->assets );
 	}
 
 	public function test_one_asset_throwable_does_not_prevent_a_sibling_build() :void {
@@ -578,16 +557,6 @@ class ScheduleBuildAllTest extends BaseUnitTest {
 			->setSnapData( $hashes )
 			->setSnapMeta( $meta )
 			->save();
-	}
-
-	/**
-	 * @return string[]
-	 */
-	private function assetKeysThatNeedBuilt() :array {
-		return \array_values( \array_map(
-			static fn( $asset ) :string => $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
-			( new ScheduleBuildAll() )->getAssetsThatNeedBuilt()
-		) );
 	}
 
 	private function invokeBuild() :void {
@@ -731,5 +700,34 @@ class ScheduleBuildAllRootPluginVo extends SnapshotPluginVo {
 
 	public function __get( string $key ) {
 		return $key === 'slug' ? 'inactive-root' : parent::__get( $key );
+	}
+}
+
+class ScheduleBuildAllPromotionCoordinator {
+
+	public array $assets = [];
+
+	public function enqueuePromotionFollowUp(
+		string $assetType,
+		string $assetKey,
+		string $requiredPublishedVersion
+	) :bool {
+		$this->assets[] = [ $assetType, $assetKey, $requiredPublishedVersion ];
+		return true;
+	}
+}
+
+class ScheduleBuildAllScansTable {
+
+	public function getTable() :string {
+		return 'shield_scans';
+	}
+}
+
+class ScheduleBuildAllIdleDb extends Db {
+
+	public function selectCustom( $query, $format = null ) :array {
+		unset( $query, $format );
+		return [];
 	}
 }

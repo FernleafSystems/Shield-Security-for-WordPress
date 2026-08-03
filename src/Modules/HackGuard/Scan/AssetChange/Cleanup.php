@@ -60,6 +60,46 @@ class Cleanup {
 		return self::con()->comps->scans->startAfsAssetScan( $assetType, $assetKey );
 	}
 
+	public function processPromotionFollowUp(
+		string $assetType,
+		string $assetKey,
+		string $requiredPublishedVersion
+	) :bool {
+		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
+		if ( !\in_array( $assetType, [ 'plugin', 'theme' ], true )
+			 || $assetKey === ''
+			 || \trim( $requiredPublishedVersion ) === ''
+			 || \strpos( $requiredPublishedVersion, "\0" ) !== false ) {
+			return true;
+		}
+
+		try {
+			$asset = $this->loadAsset( $assetType, $assetKey );
+			$isExactAsset = $assetType === 'plugin'
+				? $asset instanceof WpPluginVo
+				  && $asset->asset_type === 'plugin'
+				  && $asset->file === $assetKey
+				: $asset instanceof WpThemeVo
+				  && $asset->asset_type === 'theme'
+				  && $asset->stylesheet === $assetKey;
+			if ( !$isExactAsset || $asset->version !== $requiredPublishedVersion ) {
+				return true;
+			}
+
+			$snapshot = ( new StoreAction\Load() )
+				->setAsset( $asset )
+				->run()
+				->getUsableSnapshot();
+		}
+		catch ( \Throwable $e ) {
+			return true;
+		}
+
+		return $snapshot === null || ( $snapshot[ 'meta' ][ 'live_hashes' ] ?? null ) !== true
+			? true
+			: self::con()->comps->scans->startAfsAssetScan( $assetType, $assetKey );
+	}
+
 	/**
 	 * @return array{ready:bool, reset_memoization:bool}
 	 */

@@ -59,6 +59,61 @@ class AssetCoordinatorIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( get_option( $stateKey, false ) );
 	}
 
+	public function test_repeated_exact_asset_enqueue_persists_one_deduplicated_entry() :void {
+		$key = $this->requireController()->prefix( 'asset_coordinator_state' );
+		$now = \FernleafSystems\Wordpress\Services\Services::Request()->ts();
+
+		$this->assertTrue( $this->coordinator->enqueueAsset( 'plugin', self::PLUGIN, 60 ) );
+		$this->assertTrue( $this->coordinator->enqueueAsset( 'plugin', self::PLUGIN, 120 ) );
+
+		$state = is_multisite()
+			? get_site_option( $key )
+			: get_option( $key );
+		$this->assertSame( [ self::PLUGIN ], \array_keys( $state[ 'assets' ][ 'plugin' ] ) );
+		$this->assertSame( [
+			'attempts' => 0,
+			'due_at'   => $now + 120,
+		], $state[ 'assets' ][ 'plugin' ][ self::PLUGIN ] );
+	}
+
+	public function test_mixed_enqueue_orders_persist_one_fresh_ordinary_record() :void {
+		$key = $this->requireController()->prefix( 'asset_coordinator_state' );
+		$now = \FernleafSystems\Wordpress\Services\Services::Request()->ts();
+
+		$this->assertTrue( $this->coordinator->enqueuePromotionFollowUp( 'plugin', self::PLUGIN, '1.2.3' ) );
+
+		$state = is_multisite() ? get_site_option( $key ) : get_option( $key );
+		$this->assertSame( [ self::PLUGIN ], \array_keys( $state[ 'assets' ][ 'plugin' ] ) );
+		$this->assertSame( [
+			'attempts'                   => 0,
+			'due_at'                     => $now + 60,
+			'required_published_version' => '1.2.3',
+		], $state[ 'assets' ][ 'plugin' ][ self::PLUGIN ] );
+
+		$this->assertTrue( $this->coordinator->enqueueAsset( 'plugin', self::PLUGIN, 120 ) );
+		$state = is_multisite() ? get_site_option( $key ) : get_option( $key );
+		$this->assertSame( [
+			'attempts' => 0,
+			'due_at'   => $now + 120,
+		], $state[ 'assets' ][ 'plugin' ][ self::PLUGIN ] );
+
+		$state[ 'assets' ][ 'plugin' ][ self::PLUGIN ] = [
+			'attempts' => 2,
+			'due_at'   => $now + 30,
+		];
+		is_multisite()
+			? update_site_option( $key, $state )
+			: update_option( $key, $state, false );
+
+		$this->assertTrue( $this->coordinator->enqueuePromotionFollowUp( 'plugin', self::PLUGIN, '2.0.0' ) );
+		$state = is_multisite() ? get_site_option( $key ) : get_option( $key );
+		$this->assertSame( [ self::PLUGIN ], \array_keys( $state[ 'assets' ][ 'plugin' ] ) );
+		$this->assertSame( [
+			'attempts' => 0,
+			'due_at'   => $now + 30,
+		], $state[ 'assets' ][ 'plugin' ][ self::PLUGIN ] );
+	}
+
 	public function test_real_cron_import_merges_before_exact_unscheduling() :void {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'Single-site legacy import persistence contract.' );

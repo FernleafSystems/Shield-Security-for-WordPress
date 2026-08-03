@@ -44,10 +44,15 @@ class AssetCoordinator {
 		\add_action( 'deleted_plugin', [ $this, 'onDeletedPlugin' ], 10, 2 );
 		\add_action( 'deleted_theme', [ $this, 'onDeletedTheme' ], 10, 2 );
 		\add_action( self::con()->prefix( 'hourly_cron' ), [ $this, 'runSnapshotMaintenance' ], 10, 0 );
+		\add_action( 'shield/scan_queue_completed', [ $this, 'onScanQueueCompleted' ], 10, 0 );
 		\add_action( $this->cronHook(), [ $this, 'runDueWork' ], 10, 1 );
 
 		$this->importLegacyCrons();
 		$this->reconcileWakeup();
+	}
+
+	public function onScanQueueCompleted() :void {
+		$this->discoverMissingSnapshots();
 	}
 
 	public function onUpgraderPostInstall( $response, $hookExtra ) {
@@ -104,17 +109,30 @@ class AssetCoordinator {
 			return false;
 		}
 
-		$state = $this->readState();
-		$state[ 'assets' ][ $assetType ][ $assetKey ] = [
+		return $this->enqueueAssetRecord( $assetType, $assetKey, [
 			'attempts' => 0,
 			'due_at'   => $this->now() + \max( 0, $delay ),
-		];
-		if ( !$this->writeState( $state ) ) {
+		] );
+	}
+
+	public function enqueuePromotionFollowUp(
+		string $assetType,
+		string $assetKey,
+		string $requiredPublishedVersion
+	) :bool {
+		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
+		if ( !\in_array( $assetType, [ 'plugin', 'theme' ], true )
+			 || $assetKey === ''
+			 || \trim( $requiredPublishedVersion ) === ''
+			 || \strpos( $requiredPublishedVersion, "\0" ) !== false ) {
 			return false;
 		}
 
-		$this->reconcileWakeup();
-		return true;
+		return $this->enqueueAssetRecord( $assetType, $assetKey, [
+			'attempts'                   => 0,
+			'due_at'                     => $this->now() + self::ASSET_DELAY,
+			'required_published_version' => $requiredPublishedVersion,
+		] );
 	}
 
 	public function enqueueWpv( int $delay = self::WPV_DELAY ) :bool {
@@ -221,7 +239,7 @@ class AssetCoordinator {
 			return false;
 		}
 
-		if ( $maintenance[ 'has_unusable' ] ) {
+		if ( $maintenance[ 'has_unusable' ] || $maintenance[ 'has_due_promotions' ] ) {
 			$state = $this->readState();
 			if ( empty( $state[ 'build_missing_snapshots' ] ) ) {
 				$state[ 'build_missing_snapshots' ] = true;
@@ -247,7 +265,7 @@ class AssetCoordinator {
 				if ( $record[ 'attempts' ] < self::MAX_ATTEMPTS
 					 && $record[ 'due_at' ] > 0
 					 && $record[ 'due_at' ] <= $now ) {
-					$dueAssets[] = [ $assetType, $assetKey ];
+					$dueAssets[] = [ $assetType, $assetKey, $record ];
 				}
 			}
 		}
@@ -259,16 +277,23 @@ class AssetCoordinator {
 				  && $state[ 'wpv' ][ 'due_at' ] > 0
 				  && $state[ 'wpv' ][ 'due_at' ] <= $now;
 
-		foreach ( $dueAssets as [ $assetType, $assetKey ] ) {
+		foreach ( $dueAssets as [ $assetType, $assetKey, $record ] ) {
 			$error = null;
 			try {
-				$succeeded = ( new Cleanup() )->process( $assetType, $assetKey );
+				$cleanup = new Cleanup();
+				$succeeded = isset( $record[ 'required_published_version' ] )
+					? $cleanup->processPromotionFollowUp(
+						$assetType,
+						$assetKey,
+						$record[ 'required_published_version' ]
+					)
+					: $cleanup->process( $assetType, $assetKey );
 			}
 			catch ( \Throwable $e ) {
 				$succeeded = false;
 				$error = $e;
 			}
-			$this->recordAssetResult( $assetType, $assetKey, $succeeded, $error );
+			$this->recordAssetResult( $assetType, $assetKey, $record, $succeeded, $error );
 		}
 
 		if ( $buildPending ) {
@@ -354,14 +379,37 @@ class AssetCoordinator {
 			: false;
 	}
 
+	private function enqueueAssetRecord( string $assetType, string $assetKey, array $record ) :bool {
+		$state = $this->readState();
+		$existing = $state[ 'assets' ][ $assetType ][ $assetKey ] ?? null;
+		if ( \array_key_exists( 'required_published_version', $record )
+				 && $existing !== null
+				 && !\array_key_exists( 'required_published_version', $existing )
+				 && $existing[ 'attempts' ] < self::MAX_ATTEMPTS
+				 && $existing[ 'due_at' ] > 0 ) {
+			$record = [
+				'attempts' => 0,
+				'due_at'   => \min( $existing[ 'due_at' ], $record[ 'due_at' ] ),
+			];
+		}
+		$state[ 'assets' ][ $assetType ][ $assetKey ] = $record;
+		if ( !$this->writeState( $state ) ) {
+			return false;
+		}
+
+		$this->reconcileWakeup();
+		return true;
+	}
+
 	private function recordAssetResult(
 		string $assetType,
 		string $assetKey,
+		array $selectedRecord,
 		bool $succeeded,
 		?\Throwable $error
 	) :void {
 		$state = $this->readState();
-		if ( !isset( $state[ 'assets' ][ $assetType ][ $assetKey ] ) ) {
+		if ( ( $state[ 'assets' ][ $assetType ][ $assetKey ] ?? null ) !== $selectedRecord ) {
 			return;
 		}
 
@@ -373,12 +421,11 @@ class AssetCoordinator {
 
 		$attempts = \min(
 			self::MAX_ATTEMPTS,
-			$state[ 'assets' ][ $assetType ][ $assetKey ][ 'attempts' ] + 1
+			$selectedRecord[ 'attempts' ] + 1
 		);
-		$state[ 'assets' ][ $assetType ][ $assetKey ] = [
-			'attempts' => $attempts,
-			'due_at'   => $attempts >= self::MAX_ATTEMPTS ? 0 : $this->now() + self::RETRY_DELAY,
-		];
+		$selectedRecord[ 'attempts' ] = $attempts;
+		$selectedRecord[ 'due_at' ] = $attempts >= self::MAX_ATTEMPTS ? 0 : $this->now() + self::RETRY_DELAY;
+		$state[ 'assets' ][ $assetType ][ $assetKey ] = $selectedRecord;
 		if ( $this->writeState( $state ) && $attempts === self::MAX_ATTEMPTS ) {
 			$this->logExhausted( $assetType, $assetKey, $error );
 		}
@@ -586,11 +633,23 @@ class AssetCoordinator {
 					 || $record[ 'due_at' ] < 0 ) {
 					continue;
 				}
+				$hasRequiredPublishedVersion = \array_key_exists( 'required_published_version', $record );
+				if ( $hasRequiredPublishedVersion
+					 && ( !\in_array( $normalizedType, [ 'plugin', 'theme' ], true )
+						  || !\is_string( $record[ 'required_published_version' ] )
+						  || \trim( $record[ 'required_published_version' ] ) === ''
+						  || \strpos( $record[ 'required_published_version' ], "\0" ) !== false ) ) {
+					continue;
+				}
 				$attempts = \min( self::MAX_ATTEMPTS, $record[ 'attempts' ] );
-				$state[ 'assets' ][ $normalizedType ][ $normalizedKey ] = [
+				$normalizedRecord = [
 					'attempts' => $attempts,
 					'due_at'   => $attempts >= self::MAX_ATTEMPTS ? 0 : $record[ 'due_at' ],
 				];
+				if ( $hasRequiredPublishedVersion ) {
+					$normalizedRecord[ 'required_published_version' ] = $record[ 'required_published_version' ];
+				}
+				$state[ 'assets' ][ $normalizedType ][ $normalizedKey ] = $normalizedRecord;
 			}
 		}
 

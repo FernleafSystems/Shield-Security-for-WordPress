@@ -1,11 +1,10 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\NormalizeHashMap;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build\BuildHashesForAsset;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Build\BuildHashesFromApi;
-use FernleafSystems\Wordpress\Services\Services;
 
 class Build extends BaseAction {
 
@@ -44,18 +43,5 @@ class Build extends BaseAction {
 				->setSnapMeta( $meta )
 				->save();
 		}
-	}
-
-	private function generateMeta() :array {
-		$asset = $this->getAsset();
-		return [
-			'ts'           => Services::Request()->ts(),
-			'snap_version' => self::con()->cfg->version(),
-			'cs_hashes_at' => 0,
-			'unique_id'    => $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet,
-			'name'         => $asset->asset_type === 'plugin' ? $asset->Name : $asset->wp_theme->get( 'Name' ),
-			'version'      => $asset->version,
-			'algo'         => 'md5',
-		];
 	}
 }

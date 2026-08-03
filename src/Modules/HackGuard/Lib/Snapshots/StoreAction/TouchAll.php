@@ -8,20 +8,25 @@ use FernleafSystems\Wordpress\Services\Services;
 class TouchAll {
 
 	/**
-	 * @return array{has_unusable:bool,touches_succeeded:bool}
+	 * @return array{has_unusable:bool,has_due_promotions:bool,touches_succeeded:bool}
 	 */
 	public function run() :array {
 		$hasUnusable = false;
+		$hasDuePromotions = false;
 		$touchesSucceeded = true;
+		$now = Services::Request()->ts();
 		foreach ( ( new FindAssetsToSnap() )->run() as $asset ) {
 			try {
 				$store = ( new Load() )
 					->setAsset( $asset )
 					->run();
-				if ( !$store->isUsable() ) {
+				$snapshot = $store->getUsableSnapshot();
+				if ( $snapshot === null ) {
 					$hasUnusable = true;
 					continue;
 				}
+				$hasDuePromotions = $hasDuePromotions
+									|| PromoteLocalBaseline::isDue( $snapshot, $now );
 			}
 			catch ( \Throwable $e ) {
 				$hasUnusable = true;
@@ -41,8 +46,9 @@ class TouchAll {
 		}
 
 		return [
-			'has_unusable'      => $hasUnusable,
-			'touches_succeeded' => $touchesSucceeded,
+			'has_unusable'       => $hasUnusable,
+			'has_due_promotions' => $hasDuePromotions,
+			'touches_succeeded'  => $touchesSucceeded,
 		];
 	}
 }
