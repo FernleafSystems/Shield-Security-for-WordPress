@@ -418,7 +418,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		$this->assertSame( '-r', $command[ 1 ] ?? null );
 		$script = (string)( $command[ 2 ] ?? '' );
 		$this->assertStringContainsString( 'extension_loaded( \'mysqli\' )', $script );
-		$this->assertStringContainsString( 'real_connect( \'127.0.0.1\', \'root\', \'testpass\', \'wordpress_test_local\', 3311 )', $script );
+		$this->assertStringContainsString( 'real_connect( \'127.0.0.1\', \'root\', \'testpass\', null, 3311 )', $script );
 		$this->assertStringContainsString( 'SELECT 1', $script );
 	}
 

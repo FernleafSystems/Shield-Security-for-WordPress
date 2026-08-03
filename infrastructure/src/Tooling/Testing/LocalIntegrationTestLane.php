@@ -399,7 +399,7 @@ if ( !$mysqli instanceof mysqli ) {
 	exit( 2 );
 }
 $mysqli->options( MYSQLI_OPT_CONNECT_TIMEOUT, 2 );
-if ( !@$mysqli->real_connect( %s, %s, %s, %s, %d ) ) {
+if ( !@$mysqli->real_connect( %s, %s, %s, null, %d ) ) {
 	fwrite( STDERR, mysqli_connect_error() ?: $mysqli->connect_error ?: 'Host database TCP connection failed.' );
 	exit( 1 );
 }
@@ -413,7 +413,6 @@ PHP,
 			\var_export( self::DB_HOST_NAME, true ),
 			\var_export( self::DB_USER, true ),
 			\var_export( self::DB_PASS, true ),
-			\var_export( self::DB_NAME, true ),
 			self::DB_PORT
 		);
 	}
