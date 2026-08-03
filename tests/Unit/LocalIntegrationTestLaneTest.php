@@ -33,7 +33,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 	}
 
 	public function testDefaultRunIssuesComposeUpWaitAndRunsLocalCommands() :void {
-		$processRunner = new RecordingProcessRunner( [ 0, 0, 0, 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0, 0, 0, 0 ] );
 		$environmentResolver = $this->createRecordingEnvironmentResolver();
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$installerCommandBuilder = $this->createRecordingInstallerCommandBuilder( [ 'custom-installer' ] );
@@ -103,17 +103,18 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			$installerCommandBuilder->calls[ 0 ]
 		);
 
-		$this->assertCount( 4, $processRunner->calls );
+		$this->assertCount( 5, $processRunner->calls );
 		$this->assertHostDatabaseReadyCommand( $processRunner->calls[ 0 ][ 'command' ] );
-		$this->assertSame( [ 'custom-installer' ], $processRunner->calls[ 1 ][ 'command' ] );
+		$this->assertHostDatabaseResetCommand( $processRunner->calls[ 1 ][ 'command' ] );
+		$this->assertSame( [ 'custom-installer' ], $processRunner->calls[ 2 ][ 'command' ] );
 		$this->assertSame(
 			[
 				\PHP_BINARY,
 				'./bin/build-config.php',
 			],
-			$processRunner->calls[ 2 ][ 'command' ]
+			$processRunner->calls[ 3 ][ 'command' ]
 		);
-		$this->assertPhpUnitEnvOverrides( $processRunner->calls[ 2 ][ 'env_overrides' ] );
+		$this->assertPhpUnitEnvOverrides( $processRunner->calls[ 3 ][ 'env_overrides' ] );
 		$this->assertSame(
 			[
 				\PHP_BINARY,
@@ -123,11 +124,37 @@ class LocalIntegrationTestLaneTest extends TestCase {
 				'--filter',
 				'RuleBuilderTest',
 			],
-			$processRunner->calls[ 3 ][ 'command' ]
+			$processRunner->calls[ 4 ][ 'command' ]
 		);
 		$this->assertDockerEnvOverrides( $processRunner->calls[ 0 ][ 'env_overrides' ] );
 		$this->assertDockerEnvOverrides( $processRunner->calls[ 1 ][ 'env_overrides' ] );
-		$this->assertPhpUnitEnvOverrides( $processRunner->calls[ 3 ][ 'env_overrides' ] );
+		$this->assertDockerEnvOverrides( $processRunner->calls[ 2 ][ 'env_overrides' ] );
+		$this->assertPhpUnitEnvOverrides( $processRunner->calls[ 4 ][ 'env_overrides' ] );
+	}
+
+	public function testDatabaseResetFailureStopsBeforeInstallerAndPhpunit() :void {
+		$processRunner = RecordingProcessRunner::strict( [ 0, 7 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
+		$lane = new LocalIntegrationTestLane(
+			$processRunner,
+			$this->createRecordingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			null,
+			$this->createRecordingInstallerCommandBuilder( [ 'custom-installer' ] ),
+			$this->lockDir,
+			new RecordingLocalWpTestsConfigGuard()
+		);
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'Failed to recreate integration-local database wordpress_test_local.' );
+		try {
+			$this->runLaneSilenced( $lane );
+		}
+		finally {
+			$this->assertCount( 2, $processRunner->calls );
+			$this->assertHostDatabaseReadyCommand( $processRunner->calls[ 0 ][ 'command' ] );
+			$this->assertHostDatabaseResetCommand( $processRunner->calls[ 1 ][ 'command' ] );
+		}
 	}
 
 	public function testDbDownOnlyRunsComposeDownAndExits() :void {
@@ -393,6 +420,21 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		$this->assertStringContainsString( 'extension_loaded( \'mysqli\' )', $script );
 		$this->assertStringContainsString( 'real_connect( \'127.0.0.1\', \'root\', \'testpass\', \'wordpress_test_local\', 3311 )', $script );
 		$this->assertStringContainsString( 'SELECT 1', $script );
+	}
+
+	/**
+	 * @param string[] $command
+	 */
+	private function assertHostDatabaseResetCommand( array $command ) :void {
+		$this->assertSame( \PHP_BINARY, $command[ 0 ] ?? null );
+		$this->assertSame( '-r', $command[ 1 ] ?? null );
+		$script = (string)( $command[ 2 ] ?? '' );
+		$this->assertStringContainsString( "real_connect( '127.0.0.1', 'root', 'testpass', null, 3311 )", $script );
+		$this->assertStringContainsString( 'DROP DATABASE IF EXISTS `wordpress_test_local`', $script );
+		$this->assertStringContainsString(
+			'CREATE DATABASE `wordpress_test_local` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci',
+			$script
+		);
 	}
 
 	private function laneLockPath() :string {

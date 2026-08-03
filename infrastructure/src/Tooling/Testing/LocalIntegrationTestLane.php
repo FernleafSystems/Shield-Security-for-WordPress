@@ -150,6 +150,7 @@ class LocalIntegrationTestLane {
 		}
 
 		$this->waitForHostDatabaseReady( $rootDir, $envOverrides );
+		$this->resetHostDatabase( $rootDir, $envOverrides );
 		$this->wpTestsConfigGuard->removeIfStale( $this->wordPressTestsDir(), $this->expectedWordPressTestDbConstants() );
 
 		if ( $this->processRunner->runForExitCode( $this->buildInstallerCommand(), $rootDir, null, $envOverrides ) !== 0 ) {
@@ -415,6 +416,65 @@ PHP,
 			\var_export( self::DB_NAME, true ),
 			self::DB_PORT
 		);
+	}
+
+	/**
+	 * @param array<string,string|false> $envOverrides
+	 */
+	private function resetHostDatabase( string $rootDir, array $envOverrides ) :void {
+		echo 'Integration lane: recreating database'.\PHP_EOL;
+		if ( $this->processRunner->runForExitCode(
+			$this->buildHostDatabaseResetCommand(),
+			$rootDir,
+			null,
+			$envOverrides
+		) !== 0 ) {
+			throw new \RuntimeException( 'Failed to recreate integration-local database '.self::DB_NAME.'.' );
+		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildHostDatabaseResetCommand() :array {
+		return [
+			\PHP_BINARY,
+			'-r',
+			\sprintf(
+				<<<'PHP'
+if ( !extension_loaded( 'mysqli' ) ) {
+	fwrite( STDERR, 'PHP mysqli extension is required to reset the integration-local database.' );
+	exit( 2 );
+}
+$mysqli = mysqli_init();
+if ( !$mysqli instanceof mysqli ) {
+	fwrite( STDERR, 'Failed to initialize mysqli.' );
+	exit( 2 );
+}
+$mysqli->options( MYSQLI_OPT_CONNECT_TIMEOUT, 2 );
+if ( !@$mysqli->real_connect( %s, %s, %s, null, %d ) ) {
+	fwrite( STDERR, mysqli_connect_error() ?: $mysqli->connect_error ?: 'Host database TCP connection failed.' );
+	exit( 1 );
+}
+foreach ( [
+	'DROP DATABASE IF EXISTS `%s`',
+	'CREATE DATABASE `%s` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci',
+] as $sql ) {
+	if ( !$mysqli->query( $sql ) ) {
+		fwrite( STDERR, $mysqli->error ?: 'Host database reset failed.' );
+		exit( 1 );
+	}
+}
+exit( 0 );
+PHP,
+				\var_export( self::DB_HOST_NAME, true ),
+				\var_export( self::DB_USER, true ),
+				\var_export( self::DB_PASS, true ),
+				self::DB_PORT,
+				self::DB_NAME,
+				self::DB_NAME
+			)
+		];
 	}
 
 	/**
