@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingDockerCo
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalWpTestsConfigGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalWpTestsInstallerCommandBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingSourceAssetBuildReadiness;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingTestingEnvironmentResolver;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Path;
@@ -38,6 +39,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$installerCommandBuilder = $this->createRecordingInstallerCommandBuilder( [ 'custom-installer' ] );
 		$wpTestsConfigGuard = new RecordingLocalWpTestsConfigGuard();
+		$assetBuildReadiness = new RecordingSourceAssetBuildReadiness();
 
 		$lane = new LocalIntegrationTestLane(
 			$processRunner,
@@ -46,7 +48,8 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			null,
 			$installerCommandBuilder,
 			$this->lockDir,
-			$wpTestsConfigGuard
+			$wpTestsConfigGuard,
+			$assetBuildReadiness
 		);
 
 		$exitCode = $this->runLaneSilenced( $lane, false, [ '--filter', 'RuleBuilderTest' ] );
@@ -55,6 +58,15 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		$this->assertLaneLockMetadataWritten();
 		$this->assertLaneLockReleased();
 		$this->assertTrue( $environmentResolver->assertDockerReadyCalled );
+		$this->assertCount( 1, $assetBuildReadiness->calls );
+		$this->assertSame(
+			[
+				'root_dir' => $this->projectRoot,
+				'has_output_callback' => false,
+				'failure_context' => 'local integration tests',
+			],
+			$assetBuildReadiness->calls[ 0 ]
+		);
 
 		$this->assertCount( 1, $dockerComposeExecutor->calls );
 		$this->assertSame(
@@ -142,7 +154,8 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			null,
 			$this->createRecordingInstallerCommandBuilder( [ 'custom-installer' ] ),
 			$this->lockDir,
-			new RecordingLocalWpTestsConfigGuard()
+			new RecordingLocalWpTestsConfigGuard(),
+			new RecordingSourceAssetBuildReadiness()
 		);
 
 		$this->expectException( \RuntimeException::class );
@@ -161,6 +174,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		$processRunner = new RecordingProcessRunner();
 		$environmentResolver = $this->createRecordingEnvironmentResolver();
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 7 ] );
+		$assetBuildReadiness = new RecordingSourceAssetBuildReadiness();
 
 		$lane = new LocalIntegrationTestLane(
 			$processRunner,
@@ -169,7 +183,8 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			null,
 			null,
 			$this->lockDir,
-			new RecordingLocalWpTestsConfigGuard()
+			new RecordingLocalWpTestsConfigGuard(),
+			$assetBuildReadiness
 		);
 
 		$exitCode = $this->runLaneSilenced( $lane, true );
@@ -189,6 +204,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		);
 		$this->assertFalse( $dockerComposeExecutor->calls[ 0 ][ 'show_docker_output' ] );
 		$this->assertCount( 0, $processRunner->calls );
+		$this->assertSame( [], $assetBuildReadiness->calls );
 	}
 
 	public function testDbUpAndSuiteRunCanEnableNoisyDockerOutput() :void {
@@ -205,7 +221,8 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			null,
 			$installerCommandBuilder,
 			$this->lockDir,
-			$wpTestsConfigGuard
+			$wpTestsConfigGuard,
+			new RecordingSourceAssetBuildReadiness()
 		);
 
 		$exitCode = $this->runLaneSilenced(
@@ -217,6 +234,40 @@ class LocalIntegrationTestLaneTest extends TestCase {
 
 		$this->assertSame( 0, $exitCode );
 		$this->assertTrue( $dockerComposeExecutor->calls[ 0 ][ 'show_docker_output' ] );
+	}
+
+	public function testAssetBuildFailureStopsBeforeStartingDocker() :void {
+		$processRunner = new RecordingProcessRunner();
+		$environmentResolver = $this->createRecordingEnvironmentResolver();
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
+		$events = [];
+		$assetBuildReadiness = new RecordingSourceAssetBuildReadiness(
+			$events,
+			new \RuntimeException( 'webpack failed' )
+		);
+		$lane = new LocalIntegrationTestLane(
+			$processRunner,
+			$environmentResolver,
+			$dockerComposeExecutor,
+			null,
+			null,
+			$this->lockDir,
+			new RecordingLocalWpTestsConfigGuard(),
+			$assetBuildReadiness
+		);
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'webpack failed' );
+		try {
+			$this->runLaneSilenced( $lane );
+		}
+		finally {
+			$this->assertTrue( $environmentResolver->assertDockerReadyCalled );
+			$this->assertCount( 1, $assetBuildReadiness->calls );
+			$this->assertSame( [], $dockerComposeExecutor->calls );
+			$this->assertSame( [], $processRunner->calls );
+			$this->assertLaneLockReleased();
+		}
 	}
 
 	public function testHeldLaneLockTimesOutBeforeTouchingDocker() :void {

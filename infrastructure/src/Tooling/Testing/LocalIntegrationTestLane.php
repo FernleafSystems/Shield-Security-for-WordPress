@@ -50,6 +50,8 @@ class LocalIntegrationTestLane {
 
 	private LocalWpTestsConfigGuard $wpTestsConfigGuard;
 
+	private SourceAssetBuildReadiness $assetBuildReadiness;
+
 	private ?string $lockDir;
 
 	public function __construct(
@@ -59,7 +61,8 @@ class LocalIntegrationTestLane {
 		?BashCommandResolver $bashCommandResolver = null,
 		?LocalWpTestsInstallerCommandBuilder $installerCommandBuilder = null,
 		?string $lockDir = null,
-		?LocalWpTestsConfigGuard $wpTestsConfigGuard = null
+		?LocalWpTestsConfigGuard $wpTestsConfigGuard = null,
+		?SourceAssetBuildReadiness $assetBuildReadiness = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$resolvedBashCommandResolver = $bashCommandResolver ?? new BashCommandResolver();
@@ -72,6 +75,7 @@ class LocalIntegrationTestLane {
 			$resolvedBashCommandResolver
 		);
 		$this->wpTestsConfigGuard = $wpTestsConfigGuard ?? new LocalWpTestsConfigGuard();
+		$this->assetBuildReadiness = $assetBuildReadiness ?? new SourceAssetBuildReadiness( $this->processRunner );
 		$this->lockDir = $lockDir;
 	}
 
@@ -137,6 +141,9 @@ class LocalIntegrationTestLane {
 				$showDockerOutput
 			);
 		}
+
+		echo 'Integration lane: rebuilding assets'.\PHP_EOL;
+		$this->assetBuildReadiness->ensureReady( $rootDir, null, 'local integration tests' );
 
 		if ( $this->dockerComposeExecutor->run(
 			$rootDir,
