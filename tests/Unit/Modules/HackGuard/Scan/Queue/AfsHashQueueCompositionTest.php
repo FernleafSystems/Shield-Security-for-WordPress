@@ -262,108 +262,6 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $scan ) );
 	}
 
-	public function test_later_file_trigger_filters_same_batch_and_rehydrates_without_reenqueue() :void {
-		$pluginFile = 'queue-version-race/plugin.php';
-		$firstPath = $this->writePluginFile( $pluginFile, "<?php\n// changed first file\n" );
-		$secondPath = $this->writePluginFile( 'queue-version-race/second.php', "<?php\n// unchanged second file\n" );
-		$cacheRoot = $this->createTrackedTempDir( 'shield-afs-version-race-' );
-		$harness = $this->newAfsHarness( $cacheRoot, $pluginFile );
-		$this->writeHashStore( $cacheRoot, $pluginFile, [
-			'plugin.php' => \str_repeat( 'a', 32 ),
-			'second.php' => \md5_file( $secondPath ),
-		] );
-		$harness->setPluginReloadVersions( [ '1.0.0', '1.0.0', '2.0.0' ] );
-
-		$scanID = $this->insertReadyAfsWork( $harness, [ $firstPath, $secondPath ] );
-		$harness->insertScanItem( $scanID, [ \base64_encode( $secondPath ) ] );
-		$first = ( new QueueItems() )->next();
-		$this->assertNotNull( $first );
-		( new ProcessQueueItem() )->run( $first );
-
-		$this->assertSame( [], $harness->resultItemRecords() );
-		$this->assertSame( [ [ 'plugin', $pluginFile, 60 ] ], $harness->assetEnqueueCalls() );
-		$this->assertSame( [
-			'plugin' => [ $pluginFile ],
-			'theme'  => [],
-		], $this->scanMeta( $harness->scanRow( $scanID ) )[ 'asset_comparison_incomplete' ] ?? null );
-
-		$second = ( new QueueItems() )->next();
-		$this->assertNotNull( $second );
-		( new ProcessQueueItem() )->run( $second );
-		( new CompleteQueue() )->complete();
-
-		$this->assertSame( [ [ 'plugin', $pluginFile, 60 ] ], $harness->assetEnqueueCalls() );
-		$this->assertSame( [], $harness->resultItemRecords() );
-		$this->assertSame( 'completed', $harness->scanRow( $scanID )[ 'status' ] );
-	}
-
-	/**
-	 * @dataProvider provideAssetMarkerPersistenceFailures
-	 */
-	public function test_marker_persistence_failure_prevents_enqueue_store_finish_and_completion( string $failure ) :void {
-		$pluginFile = 'queue-marker-failure/plugin.php';
-		$path = $this->writePluginFile( $pluginFile, "<?php\n// marker failure\n" );
-		$cacheRoot = $this->createTrackedTempDir( 'shield-afs-marker-failure-' );
-		$harness = $this->newAfsHarness( $cacheRoot, $pluginFile );
-		$scanID = $this->insertReadyAfsWork( $harness, $path, [ 'php' ], ScanActionVO::DEFAULT_MAX_FILE_SIZE, [
-			'asset_snapshot_eligibility' => [ 'plugin' => [], 'theme' => [] ],
-		] );
-		$item = ( new QueueItems() )->next();
-		$this->assertNotNull( $item );
-		if ( $failure === 'write' ) {
-			$harness->failAssetMarkerUpdate();
-		}
-		else {
-			$harness->failScanReadbackAfterOneSuccessfulRead();
-		}
-
-		( new ProcessQueueItem() )->run( $item );
-
-		$this->assertSame( [], $harness->assetEnqueueCalls() );
-		$this->assertSame( [], $harness->resultItemRecords() );
-		$scanItem = $harness->scanItemRow( $item->qitem_id );
-		$this->assertArrayHasKey( 'finished_at', $scanItem );
-		$this->assertSame( 0, (int)$scanItem[ 'finished_at' ] );
-		$this->assertSame( 'running', $harness->scanRow( $scanID )[ 'status' ] );
-		$this->assertArrayHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $harness->scanRow( $scanID ) ) );
-	}
-
-	public function provideAssetMarkerPersistenceFailures() :array {
-		return [
-			'write failure'    => [ 'write' ],
-			'readback failure' => [ 'readback' ],
-		];
-	}
-
-	public function test_enqueue_false_and_throw_are_nonfatal_and_attempt_siblings() :void {
-		$firstPlugin = 'queue-enqueue-first/plugin.php';
-		$secondPlugin = 'queue-enqueue-second/plugin.php';
-		$firstPath = $this->writePluginFile( $firstPlugin, "<?php\n// first\n" );
-		$secondPath = $this->writePluginFile( $secondPlugin, "<?php\n// second\n" );
-		$cacheRoot = $this->createTrackedTempDir( 'shield-afs-enqueue-failures-' );
-		$harness = $this->newAfsHarness( $cacheRoot, $firstPlugin )
-			->setInstalledPluginFiles( [ $firstPlugin, $secondPlugin ] )
-			->setAssetEnqueueOutcomes( [ false, new \RuntimeException( 'enqueue failed' ) ] );
-		$scanID = $this->insertReadyAfsWork( $harness, [ $firstPath, $secondPath ], [ 'php' ], ScanActionVO::DEFAULT_MAX_FILE_SIZE, [
-			'asset_snapshot_eligibility' => [ 'plugin' => [], 'theme' => [] ],
-		] );
-		$item = ( new QueueItems() )->next();
-		$this->assertNotNull( $item );
-
-		( new ProcessQueueItem() )->run( $item );
-		( new CompleteQueue() )->complete();
-
-		$calls = $harness->assetEnqueueCalls();
-		$this->assertCount( 2, $calls );
-		$this->assertContains( [ 'plugin', $firstPlugin, 60 ], $calls );
-		$this->assertContains( [ 'plugin', $secondPlugin, 60 ], $calls );
-		$incomplete = $this->scanMeta( $harness->scanRow( $scanID ) )[ 'asset_comparison_incomplete' ] ?? [];
-		$this->assertEqualsCanonicalizing( [ $firstPlugin, $secondPlugin ], $incomplete[ 'plugin' ] ?? [] );
-		$this->assertSame( [], $incomplete[ 'theme' ] ?? null );
-		$this->assertSame( [], $harness->resultItemRecords() );
-		$this->assertSame( 'completed', $harness->scanRow( $scanID )[ 'status' ] );
-	}
-
 	private function newAfsHarness( string $cacheRoot, string $pluginFile ) :ScanQueueLifecycleHarness {
 		return ( new ScanQueueLifecycleHarness() )
 			->install()
@@ -374,13 +272,12 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 
 	private function insertReadyAfsWork(
 		ScanQueueLifecycleHarness $harness,
-		$path,
+		string $path,
 		$fileExts = [ 'php' ],
 		$maxFileSize = ScanActionVO::DEFAULT_MAX_FILE_SIZE,
 		array $metaOverrides = []
 	) :int {
-		$paths = \is_array( $path ) ? \array_values( $path ) : [ $path ];
-		$normalizedPath = \str_replace( '\\', '/', (string)$paths[ 0 ] );
+		$normalizedPath = \str_replace( '\\', '/', $path );
 		$pluginRoot = \rtrim( \str_replace( '\\', '/', WP_PLUGIN_DIR ), '/' ).'/';
 		$pluginFile = \substr( $normalizedPath, \strlen( $pluginRoot ) );
 		$scanID = $harness->insertScan( [
@@ -407,10 +304,7 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 				],
 			], $metaOverrides ) ) ?: '[]' ),
 		] );
-		$harness->insertScanItem( $scanID, \array_map(
-			static fn( string $itemPath ) :string => \base64_encode( $itemPath ),
-			$paths
-		) );
+		$harness->insertScanItem( $scanID, [ \base64_encode( $path ) ] );
 		return $scanID;
 	}
 

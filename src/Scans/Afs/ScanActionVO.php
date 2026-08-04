@@ -18,7 +18,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
  *     plugin:array<string,array{version:string,comparison_eligible:bool}>,
  *     theme:array<int|string,array{version:string,comparison_eligible:bool}>
  * } $asset_snapshot_eligibility
- * @property array{plugin:list<string>,theme:list<string>} $asset_comparison_incomplete
  */
 class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO {
 	public const DEFAULT_SLEEP_SECONDS = 0.1;
@@ -83,49 +82,6 @@ class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\B
 		return \is_array( parent::__get( 'asset_snapshot_eligibility' ) );
 	}
 
-	public function hasValidAssetComparisonIncomplete() :bool {
-		$raw = $this->getRawData();
-		return !\array_key_exists( 'asset_comparison_incomplete', $raw )
-			   || self::isValidAssetComparisonIncomplete( $raw[ 'asset_comparison_incomplete' ] );
-	}
-
-	/**
-	 * @return array{plugin:list<string>,theme:list<string>}
-	 */
-	public function getAssetComparisonIncomplete() :array {
-		if ( !$this->hasValidAssetComparisonIncomplete() ) {
-			throw new \UnexpectedValueException( 'Asset comparison incomplete metadata is malformed.' );
-		}
-
-		$value = parent::__get( 'asset_comparison_incomplete' );
-		return \is_array( $value ) ? $value : [
-			'plugin' => [],
-			'theme'  => [],
-		];
-	}
-
-	public function isAssetComparisonIncomplete( string $assetType, string $assetKey ) :bool {
-		if ( !$this->isValidAssetReference( $assetType, $assetKey ) ) {
-			return false;
-		}
-		return \in_array( $assetKey, $this->getAssetComparisonIncomplete()[ $assetType ], true );
-	}
-
-	public function markAssetComparisonIncomplete( string $assetType, string $assetKey ) :bool {
-		if ( !$this->isValidAssetReference( $assetType, $assetKey ) ) {
-			throw new \InvalidArgumentException( 'Asset comparison incomplete identity is invalid.' );
-		}
-
-		$incomplete = $this->getAssetComparisonIncomplete();
-		if ( \in_array( $assetKey, $incomplete[ $assetType ], true ) ) {
-			return false;
-		}
-
-		$incomplete[ $assetType ][] = $assetKey;
-		parent::__set( 'asset_comparison_incomplete', $incomplete );
-		return true;
-	}
-
 	public function isAssetSnapshotComparisonEligible(
 		string $assetType,
 		string $assetKey,
@@ -135,11 +91,7 @@ class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\B
 			return true;
 		}
 		if ( !$this->hasValidAssetSnapshotEligibility()
-			 || !$this->hasValidAssetComparisonIncomplete()
 			 || !\in_array( $assetType, [ 'plugin', 'theme' ], true ) ) {
-			return false;
-		}
-		if ( $this->isAssetComparisonIncomplete( $assetType, $assetKey ) ) {
 			return false;
 		}
 
@@ -157,15 +109,10 @@ class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\B
 		if ( !$this->hasValidAssetSnapshotEligibility() ) {
 			return $eligible;
 		}
-		if ( !$this->hasValidAssetComparisonIncomplete() ) {
-			return $eligible;
-		}
-		$incomplete = $this->getAssetComparisonIncomplete();
 
 		foreach ( [ 'plugin', 'theme' ] as $assetType ) {
 			foreach ( $this->asset_snapshot_eligibility[ $assetType ] as $assetKey => $entry ) {
-				if ( $entry[ 'comparison_eligible' ]
-					 && !\in_array( (string)$assetKey, $incomplete[ $assetType ], true ) ) {
+				if ( $entry[ 'comparison_eligible' ] ) {
 					$eligible[] = [ $assetType, (string)$assetKey, $entry[ 'version' ] ];
 				}
 			}
@@ -215,7 +162,8 @@ class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\B
 					return null;
 				}
 				$assetKey = (string)$assetKey;
-				if ( !self::isValidExactString( $assetKey )
+				if ( \trim( $assetKey ) === ''
+					 || \strpos( $assetKey, "\0" ) !== false
 					 || !\is_array( $entry ) ) {
 					return null;
 				}
@@ -224,7 +172,8 @@ class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\B
 				\sort( $entryKeys, \SORT_STRING );
 				if ( $entryKeys !== [ 'comparison_eligible', 'version' ]
 					 || !\is_string( $entry[ 'version' ] )
-					 || !self::isValidExactString( $entry[ 'version' ] )
+					 || \trim( $entry[ 'version' ] ) === ''
+					 || \strpos( $entry[ 'version' ], "\0" ) !== false
 					 || !\is_bool( $entry[ 'comparison_eligible' ] ) ) {
 					return null;
 				}
@@ -236,44 +185,5 @@ class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\B
 			}
 		}
 		return $normalized;
-	}
-
-	private static function isValidAssetComparisonIncomplete( $value ) :bool {
-		if ( !\is_array( $value ) ) {
-			return false;
-		}
-
-		$topLevelKeys = \array_keys( $value );
-		\sort( $topLevelKeys, \SORT_STRING );
-		if ( $topLevelKeys !== [ 'plugin', 'theme' ] ) {
-			return false;
-		}
-
-		foreach ( [ 'plugin', 'theme' ] as $assetType ) {
-			$keys = $value[ $assetType ];
-			if ( !\is_array( $keys )
-				 || ( !empty( $keys ) && \array_keys( $keys ) !== \range( 0, \count( $keys ) - 1 ) ) ) {
-				return false;
-			}
-			foreach ( $keys as $assetKey ) {
-				if ( !\is_string( $assetKey ) || !self::isValidExactString( $assetKey ) ) {
-					return false;
-				}
-			}
-			if ( \count( $keys ) !== \count( \array_unique( $keys, \SORT_STRING ) ) ) {
-				return false;
-			}
-		}
-
-		return true;
-	}
-
-	private function isValidAssetReference( string $assetType, string $assetKey ) :bool {
-		return \in_array( $assetType, [ 'plugin', 'theme' ], true )
-			   && self::isValidExactString( $assetKey );
-	}
-
-	private static function isValidExactString( string $value ) :bool {
-		return \trim( $value ) !== '' && \strpos( $value, "\0" ) === false;
 	}
 }

@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Excepti
 	NonAssetFileException,
 	UnrecognisedAssetFile
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
@@ -34,10 +33,6 @@ class AssetTrustResolver {
 
 	private static array $contextsByPath = [];
 
-	private static array $currentContextsByPath = [];
-
-	private static array $currentAssetsByPath = [];
-
 	private static array $nonAssetMissesByPath = [];
 
 	private static array $relativePathsByPath = [];
@@ -47,8 +42,6 @@ class AssetTrustResolver {
 		self::$pluginFilesByDir = null;
 		self::$themesByDir = [];
 		self::$contextsByPath = [];
-		self::$currentContextsByPath = [];
-		self::$currentAssetsByPath = [];
 		self::$nonAssetMissesByPath = [];
 		self::$relativePathsByPath = [];
 	}
@@ -138,19 +131,7 @@ class AssetTrustResolver {
 	 * @throws \Exception
 	 */
 	public function verifyStoredContext( string $path, AssetFileContext $context ) :?HashVerificationResult {
-		$cacheKey = wp_normalize_path( $path );
-		$currentContext = self::$currentContextsByPath[ $cacheKey ] ?? null;
-		$asset = self::$currentAssetsByPath[ $cacheKey ] ?? null;
-		if ( !$currentContext instanceof AssetFileContext
-			 || ( !$asset instanceof WpPluginVo && !$asset instanceof WpThemeVo )
-			 || $currentContext->assetType !== $context->assetType
-			 || $currentContext->assetKey !== $context->assetKey
-			 || $currentContext->assetVersion !== $context->assetVersion
-			 || $currentContext->relativePath !== $context->relativePath ) {
-			throw new NonAssetFileException( 'Current plugin or theme context is unavailable.' );
-		}
-
-		$source = $this->loadFreshStoredSource( $asset );
+		$source = ( new Retrieve() )->byVOFromStoredSnapshot( $this->assetFromContext( $context ) );
 		if ( \is_null( $source ) ) {
 			return null;
 		}
@@ -179,37 +160,6 @@ class AssetTrustResolver {
 			$context->assetVersion,
 			$context->relativePath
 		);
-	}
-
-	/**
-	 * @throws AmbiguousAssetFileException
-	 * @throws NonAssetFileException
-	 */
-	public function resolveCurrentContext( string $path ) :AssetFileContext {
-		$cacheKey = wp_normalize_path( $path );
-		if ( isset( self::$currentContextsByPath[ $cacheKey ] ) ) {
-			return self::$currentContextsByPath[ $cacheKey ];
-		}
-
-		$stableContext = $this->resolveContext( $path );
-		$asset = $stableContext->assetType === 'plugin'
-			? Services::WpPlugins()->getPluginAsVo( $stableContext->assetKey, true )
-			: Services::WpThemes()->getThemeAsVo( $stableContext->assetKey, true );
-		if ( ( !$asset instanceof WpPluginVo && !$asset instanceof WpThemeVo )
-			 || (string)$asset->asset_type !== $stableContext->assetType
-			 || (string)$asset->unique_id !== $stableContext->assetKey ) {
-			throw new NonAssetFileException( 'Installed plugin or theme identity changed.' );
-		}
-
-		$context = new AssetFileContext(
-			$stableContext->assetType,
-			$stableContext->assetKey,
-			(string)$asset->Version,
-			$stableContext->relativePath
-		);
-		self::$currentContextsByPath[ $cacheKey ] = $context;
-		self::$currentAssetsByPath[ $cacheKey ] = $asset;
-		return $context;
 	}
 
 	/**
@@ -418,38 +368,6 @@ class AssetTrustResolver {
 			throw new NonAssetFileException( 'Not a plugin or theme file path.' );
 		}
 		return $asset;
-	}
-
-	/**
-	 * @param WpPluginVo|WpThemeVo $asset
-	 * @return array{hashes:array<string,list<string>>,trusted_source:bool,comparison_basis:string}|null
-	 */
-	private function loadFreshStoredSource( $asset ) :?array {
-		try {
-			$snapshot = ( new StoreAction\Load() )
-				->setAsset( $asset )
-				->run()
-				->getUsableSnapshot();
-			if ( \is_null( $snapshot ) ) {
-				return null;
-			}
-
-			$hashes = ( new NormalizeHashMap() )->run( $snapshot[ 'data' ] );
-			if ( empty( $hashes ) ) {
-				return null;
-			}
-			$trustedSource = ( $snapshot[ 'meta' ][ 'live_hashes' ] ?? false ) === true;
-			return [
-				'hashes'           => $hashes,
-				'trusted_source'   => $trustedSource,
-				'comparison_basis' => $trustedSource
-					? HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE
-					: HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE,
-			];
-		}
-		catch ( \Throwable $e ) {
-			return null;
-		}
 	}
 
 }
