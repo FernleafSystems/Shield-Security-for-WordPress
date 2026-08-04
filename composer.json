@@ -163,6 +163,7 @@
     ],
     "build:config":     "@php bin/build-config.php",
     "test":             [
+      "Composer\\Config::disableProcessTimeout",
       "@build:config",
       "@test:unit",
       "@test:integration"

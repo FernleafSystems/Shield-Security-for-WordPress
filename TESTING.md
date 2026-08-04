@@ -14,9 +14,9 @@ Composer 2.8 or newer is required for the supported command surface. Unit comman
 
 | Goal | Command | Notes |
 |---|---|---|
-| Full local confidence gate | `composer test` | Builds config, then runs unit and integration lanes |
+| Full local confidence gate | `composer test` | Builds config, then runs unit and integration lanes; allow a 30-minute outer timeout |
 | Unit tests | `composer test:unit` | Enforces filesystem-fixture policy, then builds config and runs the unit runner |
-| Integration tests | `composer test:integration` | Public wrapper around the local Docker-backed integration lane |
+| Integration tests | `composer test:integration` | Public wrapper around the local Docker-backed integration lane; allow a 30-minute outer timeout for an unfiltered run |
 | Browser lane | `composer test:browser` | Playwright + axe against an automatically leased isolated Docker WordPress browser lane |
 | Cross-site sync lane | `composer test:cross-site` | Two Docker WordPress sites exercising Shield import/export master/slave sync |
 | Package validation | `composer test:package` | Public wrapper around targeted package validation |
@@ -32,6 +32,21 @@ Use the narrowest supported command that covers the changed behavior, then widen
 Source and full-package Docker testing use only the latest WordPress runtime by default. This is the preferred local behavior. Testing the retained previous major is exceptional compatibility coverage, not a routine final gate; use it only when a task explicitly targets that version or when reproducing the source-runtime CI job itself. Required CI selects its own broader coverage, so normal local verification does not need to duplicate it.
 
 Docker-backed commands keep Compose output concise by default. See [`tests/docker/README.md`](tests/docker/README.md#quiet-vs-noisy-compose-output) for troubleshooting output and runner mechanics.
+
+## Full PHP gate runtime and timeout budget
+
+`composer test` and an unfiltered `composer test:integration` are intentionally long-running commands. Operators and automated callers must distinguish the following independent timers and limits:
+
+| Timer or limit | Value | What it means | Why it exists |
+|---|---:|---|---|
+| Expected execution time | About 12-15 minutes when the integration lane is immediately available | The normal wall-clock time for the unit and full integration work itself; it is an estimate, not a cutoff | A recorded successful full gate completed in 751.8 seconds, and runtime varies with the host, Docker, MySQL, and the current test count |
+| Integration lock-wait timer | Up to 600 seconds by default | Time spent waiting to acquire the machine-scoped integration lane before integration setup or tests start | Local terminals, agents, and worktrees share one Docker project, port, database, and WordPress test configuration, so overlapping runs must serialize |
+| Composer/internal process timeout | Disabled for the full gate | Shield does not stop a healthy test process merely because it is long-running | The complete integration suite normally exceeds common five- or ten-minute process limits |
+| Outer caller timeout | At least 30 minutes (`1,800` seconds or `1,800,000` milliseconds) | The timeout configured by the shell runner, agent tool, IDE task, CI job, or other process that launches Composer | An outer caller can terminate Composer regardless of Shield's internal timeout setting, so it must cover lock wait, execution, and normal setup variance |
+
+The 30-minute outer budget is deliberate: up to 10 minutes of lock waiting, about 15 minutes of expected execution, and 5 minutes of setup and host-performance margin. The 600-second lock wait is not the total test timeout and must never be reused as one.
+
+When invoking either full command through a tool that requires a timeout, configure at least 30 minutes before starting it. A caller-side timeout is not a test failure and provides no full-suite pass or fail evidence. Do not immediately rerun with the same insufficient limit; first increase the caller budget. If the command exceeds 30 minutes, inspect whether it is waiting for the integration lock or which test phase is active before deciding whether to stop or retry it.
 
 ## Private Packagist Composer Auth
 
@@ -269,7 +284,7 @@ The `browser` scope is also supported by `test:docker:cleanup`, but `composer te
 `composer test`, `composer test:integration`, and `php bin/shield test:integration-local` are serialized across local terminals, agents, and worktrees with a machine-scoped `flock()` lock. The lock protects the fixed local sidecar resources: Compose project `shield-local-db`, SQL port `127.0.0.1:3311`, database `wordpress_test_local`, and the shared WordPress test-library config.
 
 - Lock file: `<system-temp>/shield-test-locks/integration-local.lock`.
-- Default wait: 600 seconds.
+- Default lock-acquisition wait: 600 seconds. This is not a process or test-suite timeout; see [Full PHP gate runtime and timeout budget](#full-php-gate-runtime-and-timeout-budget).
 - Override wait: `SHIELD_INTEGRATION_LANE_WAIT_SECONDS=<positive-integer>`.
 - `--db-down` uses the same lock, so teardown cannot remove the sidecar while another integration run is active.
 

@@ -93,6 +93,7 @@ Local sidecar mode (`test:integration-local`):
 9. Teardown is explicit with `php bin/shield test:integration-local --db-down`.
 10. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses the lane lock; use the `php bin/shield test:integration-local` or `composer test:integration` wrappers for local runs.
 11. Compose containers and networks are labeled under cleanup scope `integration-local`.
+12. [`TESTING.md`](../../TESTING.md#full-php-gate-runtime-and-timeout-budget) owns the runtime and timeout budget. Its 600-second lock wait is separate from the required outer caller timeout.
 
 Local site mode (`dev:site:*` / `test:site:*`):
 
