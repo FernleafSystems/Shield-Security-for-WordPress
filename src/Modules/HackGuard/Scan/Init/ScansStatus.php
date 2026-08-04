@@ -43,27 +43,42 @@ class ScansStatus {
 	 * @throws \RuntimeException
 	 */
 	public function hasActiveAfs() :bool {
+		return $this->hasActiveScan( 'afs' );
+	}
+
+	/**
+	 * @throws \RuntimeException
+	 */
+	public function hasActiveScans() :bool {
+		return $this->hasActiveScan();
+	}
+
+	/**
+	 * @throws \RuntimeException
+	 */
+	private function hasActiveScan( ?string $scanSlug = null ) :bool {
 		global $wpdb;
 
 		try {
 			$rows = Services::WpDb()->selectCustom( \sprintf(
 				"SELECT `scans`.`id`
 					FROM `%s` AS `scans`
-					WHERE `scans`.`scan`='afs'
-					  AND `scans`.`status` IN (%s)
+					WHERE `scans`.`status` IN (%s)
 					  AND `scans`.`finished_at`=0
+					  %s
 					LIMIT 1;",
 				self::con()->db_con->scans->getTable(),
-				ScanStatus::sqlList( ScanStatus::ACTIVE )
+				ScanStatus::sqlList( ScanStatus::ACTIVE ),
+				$scanSlug === null ? '' : \sprintf( "AND `scans`.`scan`='%s'", $scanSlug )
 			) );
 		}
 		catch ( \Throwable $e ) {
-			throw new \RuntimeException( 'Active AFS status query failed.', 0, $e );
+			throw new \RuntimeException( 'Active scan status query failed.', 0, $e );
 		}
 
 		if ( !\is_array( $rows )
 			 || ( \is_object( $wpdb ) && (string)( $wpdb->last_error ?? '' ) !== '' ) ) {
-			throw new \RuntimeException( 'Active AFS status query failed.' );
+			throw new \RuntimeException( 'Active scan status query failed.' );
 		}
 
 		return !empty( $rows );

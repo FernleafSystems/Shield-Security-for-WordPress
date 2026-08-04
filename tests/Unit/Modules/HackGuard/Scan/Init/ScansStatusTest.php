@@ -67,6 +67,72 @@ class ScansStatusTest extends BaseUnitTest {
 		];
 	}
 
+	/**
+	 * @dataProvider activeAfsStatusProvider
+	 */
+	public function test_has_active_scans_detects_every_persisted_active_status( string $status ) :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->insertScan( [
+			'scan'   => 'wpv',
+			'status' => $status,
+		] );
+		$harness->sql->resetQueryLog();
+
+		$this->assertTrue( ( new ScansStatus() )->hasActiveScans() );
+
+		$queries = $harness->sql->queryLog();
+		$this->assertCount( 1, $queries );
+		$this->assertStringNotContainsString( '`scans`.`scan`=', $queries[ 0 ] );
+		$this->assertStringContainsString( "`scans`.`status` IN ('queued','building','built','running')", $queries[ 0 ] );
+		$this->assertStringContainsString( '`scans`.`finished_at`=0', $queries[ 0 ] );
+		$this->assertStringContainsString( 'LIMIT 1', $queries[ 0 ] );
+	}
+
+	public function test_has_active_scans_is_fresh_and_distinguishes_terminal_rows() :void {
+		$harness = ( new ScanQueueLifecycleHarness() )->install();
+		$harness->insertScan( [
+			'scan'        => 'wpv',
+			'status'      => 'running',
+			'finished_at' => 1,
+		] );
+		$harness->insertScan( [
+			'scan'   => 'afs',
+			'status' => 'finished',
+		] );
+		$harness->sql->resetQueryLog();
+		$status = new ScansStatus();
+
+		$this->assertFalse( $status->hasActiveScans() );
+		$harness->insertScan( [ 'scan' => 'apc', 'status' => 'queued' ] );
+		$this->assertTrue( $status->hasActiveScans() );
+		$this->assertCount( 2, \array_filter(
+			$harness->sql->queryLog(),
+			static fn( string $query ) :bool => \strpos( $query, 'SELECT ' ) === 0
+		) );
+	}
+
+	/**
+	 * @dataProvider failedActiveScanQueryProvider
+	 */
+	public function test_has_active_scans_rejects_failed_query( $result, ?\Throwable $error, string $dbError ) :void {
+		( new ScanQueueLifecycleHarness() )->install();
+		ServicesState::mergeItems( [
+			'service_wpdb' => new ScansStatusResultDb( $result, $error ),
+		] );
+		$GLOBALS[ 'wpdb' ]->last_error = $dbError;
+
+		$this->expectException( \RuntimeException::class );
+		( new ScansStatus() )->hasActiveScans();
+	}
+
+	public static function failedActiveScanQueryProvider() :array {
+		return [
+			'non-array'      => [ false, null, '' ],
+			'exception'      => [ [], new \RuntimeException( 'Synthetic query failure.' ), '' ],
+			'database error' => [ [], null, 'Synthetic database error.' ],
+		];
+	}
+
 	public function test_has_active_afs_is_fresh_and_distinguishes_clean_idle() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$harness->insertScan( [

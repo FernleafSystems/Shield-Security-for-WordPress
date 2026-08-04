@@ -119,7 +119,7 @@ class EventsService {
 				}
 
 				// Clean out the audit strings to ensure type consistency later.
-				\array_filter( $evtDef[ 'strings' ][ 'audit' ], function ( $auditString ) {
+				$events[ $evtKey ][ 'strings' ][ 'audit' ] = \array_filter( $evtDef[ 'strings' ][ 'audit' ], function ( $auditString ) {
 					return !empty( $auditString ) && \is_string( $auditString );
 				} );
 			}

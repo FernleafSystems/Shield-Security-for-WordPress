@@ -27,6 +27,7 @@ use FernleafSystems\Wordpress\Services\Services;
 class ScansController {
 	public const HOOK_POST_SCAN = 'post_scan';
 	public const HOOK_POST_SCAN_MALAI = 'post_scan_malai';
+	public const HOOK_SCAN_RESULT_NOTIFICATION_READINESS_OPENED = 'shield/scan_result_notification_readiness_opened';
 
 	use ExecOnce;
 	use PluginControllerConsumer;
@@ -133,6 +134,23 @@ class ScansController {
 		}
 		$this->getAdminBarScanSummaryCache()->invalidate();
 		self::con()->comps->site_query->clearMemoized();
+	}
+
+	public function isReadyForScanResultNotifications() :bool {
+		try {
+			if ( ( new Init\ScansStatus() )->hasActiveScans() ) {
+				return false;
+			}
+			return !self::con()->comps->asset_coordinator->hasRetryableAssetWork();
+		}
+		catch ( \Throwable $e ) {
+			error_log( 'Shield scan-result notification readiness check failed: '.\substr(
+				(string)\preg_replace( '#\s+#', ' ', $e->getMessage() ),
+				0,
+				300
+			) );
+			return false;
+		}
 	}
 
 	private function setupAdminBarScanSummaryCacheHooks() :void {

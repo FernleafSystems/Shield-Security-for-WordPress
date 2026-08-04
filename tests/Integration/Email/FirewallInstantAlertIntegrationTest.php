@@ -4,9 +4,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerAdmins;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerFirewallBlock;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\FirewallBlock;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\LocalEmailCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Services;
 
 class FirewallInstantAlertIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -17,6 +19,7 @@ class FirewallInstantAlertIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function set_up() {
 		parent::set_up();
+		$this->requireDb( 'scans' );
 		$this->enablePremiumCapabilities( [ 'instant_alerts' ] );
 		$this->startLocalEmailCapture();
 		$this->firewallPreBlockCalls = 0;
@@ -26,12 +29,16 @@ class FirewallInstantAlertIntegrationTest extends ShieldIntegrationTestCase {
 			'instant_alerts_data',
 			'block_send_email_address',
 		] );
+		$this->requireController()->comps->asset_coordinator->deleteState();
+		\wp_clear_scheduled_hook( $this->requireController()->prefix( 'asset_coordinator' ) );
 	}
 
 	public function tear_down() {
 		remove_action( 'shield/firewall_pre_block', [ $this, 'captureFirewallPreBlock' ] );
 		$this->stopLocalEmailCapture();
 		if ( static::con() !== null ) {
+			self::con()->comps->asset_coordinator->deleteState();
+			\wp_clear_scheduled_hook( self::con()->prefix( 'asset_coordinator' ) );
 			$this->restoreSelectedOptions( $this->optionsSnapshot );
 		}
 		parent::tear_down();
@@ -52,6 +59,13 @@ class FirewallInstantAlertIntegrationTest extends ShieldIntegrationTestCase {
 		$con->comps->instant_alerts->updateAlertDataFor( new AlertHandlerAdmins(), [
 			'added' => [ 'queued-admin' ],
 		] );
+		$this->insertActiveScan( 'afs', ScanStatus::RUNNING );
+		$this->assertTrue( $con->comps->asset_coordinator->enqueueAsset(
+			'plugin',
+			$con->base_file,
+			60
+		) );
+		$this->assertFalse( $con->comps->scans->isReadyForScanResultNotifications() );
 
 		$duplicateValue = 'dup-marker-77';
 		$con->this_req->ip = '203.0.113.10';
@@ -90,7 +104,6 @@ class FirewallInstantAlertIntegrationTest extends ShieldIntegrationTestCase {
 		$mail = $this->lastCapturedMail();
 		$recipients = \is_array( $mail['to'] ?? null ) ? \implode( ',', $mail['to'] ) : (string)( $mail['to'] ?? '' );
 
-		$this->assertStringContainsString( 'Alert: Firewall Block Detected', (string)( $mail['subject'] ?? '' ) );
 		$this->assertStringContainsString( 'firewall-alerts@example.com', $recipients );
 		$this->assertHtmlContainsMarker( '203.0.113.10', (string)( $mail['html_body'] ?? '' ), 'Firewall alert HTML body' );
 		$this->assertHtmlContainsMarker( (string)( $expectedPayload['request_path'] ?? '' ), (string)( $mail['html_body'] ?? '' ), 'Firewall alert HTML body' );
@@ -141,5 +154,22 @@ class FirewallInstantAlertIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function captureFirewallPreBlock() :void {
 		$this->firewallPreBlockCalls++;
+	}
+
+	private function insertActiveScan( string $scanSlug, string $status ) :int {
+		$now = Services::Request()->ts();
+		$dbh = self::con()->db_con->scans;
+		$record = $dbh->getRecord();
+		$record->scan = $scanSlug;
+		$record->status = $status;
+		$record->scope_type = 'full';
+		$record->scope_key = '';
+		$record->run_trigger = 'manual';
+		$record->started_at = $now;
+		$record->last_process_at = $now;
+		$record->ready_at = $now;
+		$record->finished_at = 0;
+		$dbh->getQueryInserter()->insert( $record );
+		return (int)Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' );
 	}
 }

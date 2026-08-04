@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\Stor
 	TouchAll
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
@@ -147,6 +148,21 @@ class AssetCoordinator {
 
 		$this->reconcileWakeup();
 		return true;
+	}
+
+	/**
+	 * @throws \RuntimeException
+	 */
+	public function hasRetryableAssetWork() :bool {
+		$state = $this->normalizeState( $this->readPersistedStateForReadiness(), true );
+		foreach ( $state[ 'assets' ] as $records ) {
+			foreach ( $records as $record ) {
+				if ( $record[ 'attempts' ] < self::MAX_ATTEMPTS && $record[ 'due_at' ] > 0 ) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -415,7 +431,9 @@ class AssetCoordinator {
 
 		if ( $succeeded ) {
 			unset( $state[ 'assets' ][ $assetType ][ $assetKey ] );
-			$this->writeState( $state );
+			if ( $this->writeState( $state ) ) {
+				$this->signalNotificationReadinessOpened();
+			}
 			return;
 		}
 
@@ -428,6 +446,22 @@ class AssetCoordinator {
 		$state[ 'assets' ][ $assetType ][ $assetKey ] = $selectedRecord;
 		if ( $this->writeState( $state ) && $attempts === self::MAX_ATTEMPTS ) {
 			$this->logExhausted( $assetType, $assetKey, $error );
+			$this->signalNotificationReadinessOpened();
+		}
+	}
+
+	private function signalNotificationReadinessOpened() :void {
+		try {
+			if ( self::con()->comps->scans->isReadyForScanResultNotifications() ) {
+				\do_action( ScansController::HOOK_SCAN_RESULT_NOTIFICATION_READINESS_OPENED );
+			}
+		}
+		catch ( \Throwable $e ) {
+			error_log( 'Shield scan-result notification readiness signal failed: '.\substr(
+				(string)\preg_replace( '#\s+#', ' ', $e->getMessage() ),
+				0,
+				300
+			) );
 		}
 	}
 
@@ -592,6 +626,70 @@ class AssetCoordinator {
 			: \get_option( $this->optionKey(), null );
 	}
 
+	/**
+	 * @throws \RuntimeException
+	 */
+	private function readPersistedStateForReadiness() :array {
+		global $wpdb;
+
+		if ( !\is_object( $wpdb ) ) {
+			throw new \RuntimeException( 'Asset coordinator readiness state query failed.' );
+		}
+
+		if ( \is_multisite() ) {
+			$table = (string)( $wpdb->sitemeta ?? '' );
+			$query = $table === '' ? false : $wpdb->prepare(
+				\sprintf(
+					"SELECT `meta_value` AS `option_value` FROM `%s` WHERE `site_id`=%%d AND `meta_key`=%%s LIMIT 1;",
+					$table
+				),
+				\get_current_network_id(),
+				$this->optionKey()
+			);
+		}
+		else {
+			$table = (string)( $wpdb->options ?? '' );
+			$query = $table === '' ? false : $wpdb->prepare(
+				\sprintf(
+					"SELECT `option_value` FROM `%s` WHERE `option_name`=%%s LIMIT 1;",
+					$table
+				),
+				$this->optionKey()
+			);
+		}
+
+		if ( !\is_string( $query ) || $query === '' ) {
+			throw new \RuntimeException( 'Asset coordinator readiness state query failed.' );
+		}
+
+		try {
+			$rows = Services::WpDb()->selectCustom( $query );
+		}
+		catch ( \Throwable $e ) {
+			throw new \RuntimeException( 'Asset coordinator readiness state query failed.', 0, $e );
+		}
+
+		if ( !\is_array( $rows )
+			 || (string)( $wpdb->last_error ?? '' ) !== '' ) {
+			throw new \RuntimeException( 'Asset coordinator readiness state query failed.' );
+		}
+		if ( $rows === [] ) {
+			return [];
+		}
+		if ( \count( $rows ) !== 1
+			 || !\is_array( $rows[ 0 ] )
+			 || !\array_key_exists( 'option_value', $rows[ 0 ] )
+			 || !\is_string( $rows[ 0 ][ 'option_value' ] ) ) {
+			throw new \RuntimeException( 'Asset coordinator readiness state is malformed.' );
+		}
+
+		$state = \maybe_unserialize( $rows[ 0 ][ 'option_value' ] );
+		if ( !\is_array( $state ) ) {
+			throw new \RuntimeException( 'Asset coordinator readiness state is malformed.' );
+		}
+		return $state;
+	}
+
 	private function writeState( array $state ) :bool {
 		$state = $this->normalizeState( $state );
 		$updated = \is_multisite()
@@ -606,7 +704,7 @@ class AssetCoordinator {
 		return false;
 	}
 
-	private function normalizeState( $raw ) :array {
+	private function normalizeState( $raw, bool $strictAssets = false ) :array {
 		$state = [
 			'assets' => [
 				'plugin' => [],
@@ -615,14 +713,35 @@ class AssetCoordinator {
 			],
 		];
 		if ( !\is_array( $raw ) ) {
+			if ( $strictAssets ) {
+				throw new \RuntimeException( 'Asset coordinator readiness state is malformed.' );
+			}
 			return $state;
+		}
+		$rawAssets = $raw[ 'assets' ] ?? [];
+		if ( !\is_array( $rawAssets ) ) {
+			if ( $strictAssets ) {
+				throw new \RuntimeException( 'Asset coordinator readiness assets are malformed.' );
+			}
+			$rawAssets = [];
+		}
+		if ( $strictAssets && !empty( \array_diff( \array_keys( $rawAssets ), [ 'plugin', 'theme', 'core' ] ) ) ) {
+			throw new \RuntimeException( 'Asset coordinator readiness assets are malformed.' );
 		}
 
 		foreach ( [ 'plugin', 'theme', 'core' ] as $assetType ) {
-			foreach ( \is_array( $raw[ 'assets' ][ $assetType ] ?? null )
-				? $raw[ 'assets' ][ $assetType ]
-				: [] as $assetKey => $record ) {
+			$records = $rawAssets[ $assetType ] ?? [];
+			if ( !\is_array( $records ) ) {
+				if ( $strictAssets ) {
+					throw new \RuntimeException( 'Asset coordinator readiness assets are malformed.' );
+				}
+				$records = [];
+			}
+			foreach ( $records as $assetKey => $record ) {
 				if ( !\is_string( $assetKey ) || !\is_array( $record ) ) {
+					if ( $strictAssets ) {
+						throw new \RuntimeException( 'Asset coordinator readiness asset record is malformed.' );
+					}
 					continue;
 				}
 				[ $normalizedType, $normalizedKey ] = $this->normalizeAsset( $assetType, $assetKey );
@@ -631,6 +750,9 @@ class AssetCoordinator {
 					 || !\is_int( $record[ 'due_at' ] ?? null )
 					 || $record[ 'attempts' ] < 0
 					 || $record[ 'due_at' ] < 0 ) {
+					if ( $strictAssets ) {
+						throw new \RuntimeException( 'Asset coordinator readiness asset record is malformed.' );
+					}
 					continue;
 				}
 				$hasRequiredPublishedVersion = \array_key_exists( 'required_published_version', $record );
@@ -639,6 +761,9 @@ class AssetCoordinator {
 						  || !\is_string( $record[ 'required_published_version' ] )
 						  || \trim( $record[ 'required_published_version' ] ) === ''
 						  || \strpos( $record[ 'required_published_version' ], "\0" ) !== false ) ) {
+					if ( $strictAssets ) {
+						throw new \RuntimeException( 'Asset coordinator readiness asset record is malformed.' );
+					}
 					continue;
 				}
 				$attempts = \min( self::MAX_ATTEMPTS, $record[ 'attempts' ] );

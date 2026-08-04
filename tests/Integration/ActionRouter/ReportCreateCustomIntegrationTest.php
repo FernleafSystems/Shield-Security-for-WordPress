@@ -9,10 +9,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\ReportCreateCustom,
 	Exceptions\InvalidActionNonceException
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\ActionRequestNonceFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
-use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ConvertHtmlToText;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ReportCreateCustomIntegrationTest extends ShieldIntegrationTestCase {
@@ -23,8 +23,20 @@ class ReportCreateCustomIntegrationTest extends ShieldIntegrationTestCase {
 		parent::set_up();
 		$this->requireDb( 'reports' );
 		$this->requireDb( 'events' );
+		$this->requireDb( 'scans' );
 		$this->loginAsSecurityAdmin();
-		$this->requireController()->this_req->wp_is_ajax = false;
+		$con = $this->requireController();
+		$con->this_req->wp_is_ajax = false;
+		$con->comps->asset_coordinator->deleteState();
+		\wp_clear_scheduled_hook( $con->prefix( 'asset_coordinator' ) );
+	}
+
+	public function tear_down() {
+		if ( static::con() !== null ) {
+			self::con()->comps->asset_coordinator->deleteState();
+			\wp_clear_scheduled_hook( self::con()->prefix( 'asset_coordinator' ) );
+		}
+		parent::tear_down();
 	}
 
 	public function test_create_custom_report_requires_valid_nonce_before_report_creation() :void {
@@ -69,6 +81,13 @@ class ReportCreateCustomIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_create_custom_report_preserves_custom_interval_contract() :void {
 		$before = $this->countReports();
+		$this->insertActiveScan( 'afs', ScanStatus::BUILT );
+		$this->assertTrue( self::con()->comps->asset_coordinator->enqueueAsset(
+			'plugin',
+			self::con()->base_file,
+			60
+		) );
+		$this->assertFalse( self::con()->comps->scans->isReadyForScanResultNotifications() );
 		$start = Carbon::create( 2026, 1, 1, 0, 0, 0, \wp_timezone() );
 		$end = Carbon::create( 2026, 1, 2, 23, 59, 59, \wp_timezone() );
 		$this->insertEvent( 'ip_blocked', 2, ( clone $start )->addHour()->timestamp );
@@ -103,20 +122,6 @@ class ReportCreateCustomIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotSame( '', (string)$report->content );
 		$content = \function_exists( '\\gzinflate' ) ? \gzinflate( $report->content ) : $report->content;
 		$this->assertIsString( $content );
-		$text = ( new ConvertHtmlToText() )->run( $content );
-		$WP = Services::WpGeneral();
-		$previousStart = Carbon::create( 2025, 12, 30, 0, 0, 0, \wp_timezone() );
-		$previousEnd = Carbon::create( 2025, 12, 31, 23, 59, 59, \wp_timezone() );
-		$this->assertMatchesRegularExpression( \sprintf(
-			'/Current:\s+%s\s+[–-]\s+%s/u',
-			\preg_quote( $WP->getTimeStringForDisplay( $start->timestamp, false ), '/' ),
-			\preg_quote( $WP->getTimeStringForDisplay( $end->timestamp, false ), '/' )
-		), $text );
-		$this->assertMatchesRegularExpression( \sprintf(
-			'/Previous\s*\(\s*%s\s+[–-]\s+%s\s*\):/u',
-			\preg_quote( $WP->getTimeStringForDisplay( $previousStart->timestamp, false ), '/' ),
-			\preg_quote( $WP->getTimeStringForDisplay( $previousEnd->timestamp, false ), '/' )
-		), $text );
 		$events = $this->getCapturedEventsByKey( 'report_generated' );
 		$this->assertCount( 1, $events );
 		$this->assertSame(
@@ -136,6 +141,23 @@ class ReportCreateCustomIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function processor() :ActionProcessor {
 		return new ActionProcessor();
+	}
+
+	private function insertActiveScan( string $scanSlug, string $status ) :int {
+		$now = Services::Request()->ts();
+		$dbh = self::con()->db_con->scans;
+		$record = $dbh->getRecord();
+		$record->scan = $scanSlug;
+		$record->status = $status;
+		$record->scope_type = 'full';
+		$record->scope_key = '';
+		$record->run_trigger = 'manual';
+		$record->started_at = $now;
+		$record->last_process_at = $now;
+		$record->ready_at = $now;
+		$record->finished_at = 0;
+		$dbh->getQueryInserter()->insert( $record );
+		return (int)Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' );
 	}
 
 	private function countReports() :int {

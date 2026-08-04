@@ -40,6 +40,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Services\Core\{
 	CoreFileHashes,
 	Cron,
+	Db,
 	Plugins,
 	Request,
 	Themes
@@ -54,6 +55,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 	use TempDirLifecycleTrait;
 
 	private array $actions = [];
+	private array $firedActions = [];
 	private array $filters = [];
 	private array $options = [];
 	private array $scheduled = [];
@@ -64,6 +66,10 @@ class AssetCoordinatorTest extends BaseUnitTest {
 	private bool $updateResult = true;
 	private bool $isMainNetwork = true;
 	private bool $isMainSite = true;
+	private bool $isMultisite = false;
+	private ?\Throwable $actionError = null;
+	private bool $hadWpdb = false;
+	private $wpdbSnapshot;
 	private AssetCoordinatorTestRequest $request;
 	private AssetCoordinatorTestScans $scans;
 	private AssetCoordinatorTestCron $cron;
@@ -73,6 +79,9 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		parent::setUp();
 		$this->resetHashesStorageDir();
 		$this->servicesSnapshot = ServicesState::snapshot();
+		$this->hadWpdb = \array_key_exists( 'wpdb', $GLOBALS );
+		$this->wpdbSnapshot = $GLOBALS[ 'wpdb' ] ?? null;
+		$GLOBALS[ 'wpdb' ] = new AssetCoordinatorTestWpdb();
 		\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages = [];
 		$this->request = new AssetCoordinatorTestRequest( 1700000000 );
 		$this->scans = new AssetCoordinatorTestScans();
@@ -92,6 +101,12 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->resetHashesStorageDir();
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
+		if ( $this->hadWpdb ) {
+			$GLOBALS[ 'wpdb' ] = $this->wpdbSnapshot;
+		}
+		else {
+			unset( $GLOBALS[ 'wpdb' ] );
+		}
 		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
@@ -108,6 +123,111 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertHook( $this->actions, 'shield/scan_queue_completed', 10, 0 );
 		$this->assertHook( $this->actions, 'icwp-wpsf-asset_coordinator', 10, 1 );
 		$this->assertNotHooked( $this->actions, 'icwp-wpsf-pre_plugin_shutdown' );
+	}
+
+	/**
+	 * @dataProvider retryableAssetStateProvider
+	 */
+	public function test_retryable_asset_work_uses_only_normalized_asset_records( array $state, bool $expected ) :void {
+		$db = $this->installReadinessDb( [ $this->readinessRow( $state ) ] );
+
+		$this->assertSame( $expected, ( new AssetCoordinator() )->hasRetryableAssetWork() );
+		$this->assertCount( 1, $db->queries );
+		$this->assertStringContainsString(
+			"SELECT `option_value` FROM `wp_options` WHERE `option_name`='icwp-wpsf-asset_coordinator_state' LIMIT 1;",
+			$db->queries[ 0 ]
+		);
+	}
+
+	public static function retryableAssetStateProvider() :array {
+		return [
+			'empty state' => [ [], false ],
+			'plugin retryable' => [ [ 'assets' => [
+				'plugin' => [ 'plugin/file.php' => [ 'attempts' => 0, 'due_at' => 10 ] ],
+			] ], true ],
+			'theme retryable' => [ [ 'assets' => [
+				'theme' => [ 'theme' => [ 'attempts' => 2, 'due_at' => 10 ] ],
+			] ], true ],
+			'core retryable' => [ [ 'assets' => [
+				'core' => [ 'core' => [ 'attempts' => 0, 'due_at' => 10 ] ],
+			] ], true ],
+			'dormant asset' => [ [ 'assets' => [
+				'plugin' => [ 'plugin/file.php' => [ 'attempts' => 0, 'due_at' => 0 ] ],
+			] ], false ],
+			'exhausted asset' => [ [ 'assets' => [
+				'plugin' => [ 'plugin/file.php' => [ 'attempts' => 3, 'due_at' => 10 ] ],
+			] ], false ],
+			'build intent and wpv' => [ [
+				'build_missing_snapshots' => true,
+				'wpv' => [ 'attempts' => 0, 'due_at' => 10 ],
+			], false ],
+		];
+	}
+
+	public function test_retryable_asset_work_accepts_missing_option_row_and_reloads_each_time() :void {
+		$db = $this->installReadinessResponses( [
+			[],
+			[ $this->readinessRow( [ 'assets' => [
+				'plugin' => [ 'plugin/file.php' => [ 'attempts' => 0, 'due_at' => 10 ] ],
+			] ] ) ],
+		] );
+		$coordinator = new AssetCoordinator();
+
+		$this->assertFalse( $coordinator->hasRetryableAssetWork() );
+		$this->assertTrue( $coordinator->hasRetryableAssetWork() );
+		$this->assertCount( 2, $db->queries );
+	}
+
+	public function test_retryable_asset_work_queries_current_network_state() :void {
+		$this->isMultisite = true;
+		$db = $this->installReadinessDb( [] );
+
+		$this->assertFalse( ( new AssetCoordinator() )->hasRetryableAssetWork() );
+		$this->assertStringContainsString(
+			"SELECT `meta_value` AS `option_value` FROM `wp_sitemeta` WHERE `site_id`=7 AND `meta_key`='icwp-wpsf-asset_coordinator_state' LIMIT 1;",
+			$db->queries[ 0 ]
+		);
+	}
+
+	/**
+	 * @dataProvider malformedReadinessStateProvider
+	 */
+	public function test_retryable_asset_work_rejects_malformed_persisted_state( $rows ) :void {
+		$this->installReadinessDb( $rows );
+
+		$this->expectException( \RuntimeException::class );
+		( new AssetCoordinator() )->hasRetryableAssetWork();
+	}
+
+	public static function malformedReadinessStateProvider() :array {
+		return [
+			'query result' => [ false ],
+			'row shape' => [ [ 'not-a-row' ] ],
+			'value type' => [ [ [ 'option_value' => 5 ] ] ],
+			'decoded type' => [ [ [ 'option_value' => 'not-serialized-state' ] ] ],
+			'assets container' => [ [ [ 'option_value' => \serialize( [ 'assets' => 'bad' ] ) ] ] ],
+			'asset type' => [ [ [ 'option_value' => \serialize( [ 'assets' => [ 'unknown' => [] ] ] ) ] ] ],
+			'asset records' => [ [ [ 'option_value' => \serialize( [ 'assets' => [ 'plugin' => 'bad' ] ] ) ] ] ],
+			'asset record' => [ [ [ 'option_value' => \serialize( [ 'assets' => [
+				'plugin' => [ 'plugin/file.php' => [ 'attempts' => '0', 'due_at' => 10 ] ],
+			] ] ) ] ] ],
+		];
+	}
+
+	public function test_retryable_asset_work_rejects_query_exception_and_database_error() :void {
+		$this->installReadinessResponses( [ [] ], new \RuntimeException( 'Synthetic read failure.' ) );
+		try {
+			( new AssetCoordinator() )->hasRetryableAssetWork();
+			$this->fail( 'Expected query exception.' );
+		}
+		catch ( \RuntimeException $e ) {
+			$this->assertSame( 'Asset coordinator readiness state query failed.', $e->getMessage() );
+		}
+
+		$this->installReadinessDb( [] );
+		$GLOBALS[ 'wpdb' ]->last_error = 'Synthetic database error.';
+		$this->expectException( \RuntimeException::class );
+		( new AssetCoordinator() )->hasRetryableAssetWork();
 	}
 
 	public function test_intake_coalesces_assets_and_wpv_and_returns_filter_response() :void {
@@ -275,6 +395,100 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertSame( [], $this->scans->assets );
 	}
 
+	public function test_persisted_asset_removal_emits_zero_payload_readiness_signal_only_when_ready() :void {
+		$this->options[ $this->optionKey() ] = [
+			'assets' => [
+				'plugin' => [ 'missing/plugin.php' => [ 'attempts' => 0, 'due_at' => 1700000000 ] ],
+				'theme' => [],
+				'core' => [],
+			],
+		];
+		$this->scans->notificationReady = true;
+
+		( new AssetCoordinator() )->runDueWork();
+
+		$this->assertSame( 1, $this->scans->notificationReadinessCalls );
+		$this->assertSame( [ [
+			'hook' => 'shield/scan_result_notification_readiness_opened',
+			'args' => [],
+		] ], $this->firedActions );
+	}
+
+	public function test_terminal_asset_transition_suppresses_signal_while_combined_readiness_is_closed() :void {
+		$this->options[ $this->optionKey() ] = [
+			'assets' => [
+				'plugin' => [ 'missing/plugin.php' => [ 'attempts' => 2, 'due_at' => 1700000000 ] ],
+				'theme' => [],
+				'core' => [],
+			],
+		];
+		$this->scans->assetResult = false;
+		$this->scans->notificationReady = false;
+
+		( new AssetCoordinator() )->runDueWork();
+
+		$this->assertSame( [ 'attempts' => 3, 'due_at' => 0 ], $this->state()[ 'assets' ][ 'plugin' ]['missing/plugin.php'] );
+		$this->assertSame( 1, $this->scans->notificationReadinessCalls );
+		$this->assertSame( [], $this->firedActions );
+	}
+
+	public function test_failed_terminal_persistence_suppresses_readiness_signal() :void {
+		$this->options[ $this->optionKey() ] = [
+			'assets' => [
+				'plugin' => [ 'missing/plugin.php' => [ 'attempts' => 0, 'due_at' => 1700000000 ] ],
+				'theme' => [],
+				'core' => [],
+			],
+		];
+		$this->persistWrites = false;
+		$this->updateResult = false;
+
+		( new AssetCoordinator() )->runDueWork();
+
+		$this->assertArrayHasKey( 'missing/plugin.php', $this->state()[ 'assets' ][ 'plugin' ] );
+		$this->assertSame( 0, $this->scans->notificationReadinessCalls );
+		$this->assertSame( [], $this->firedActions );
+	}
+
+	public function test_readiness_failure_after_persistence_is_logged_without_rollback() :void {
+		$this->options[ $this->optionKey() ] = [
+			'assets' => [
+				'plugin' => [ 'missing/plugin.php' => [ 'attempts' => 0, 'due_at' => 1700000000 ] ],
+				'theme' => [],
+				'core' => [],
+			],
+		];
+		$this->scans->notificationReadinessError = new \RuntimeException( 'Synthetic readiness failure.' );
+
+		( new AssetCoordinator() )->runDueWork();
+
+		$this->assertSame( [], $this->state()[ 'assets' ][ 'plugin' ] );
+		$this->assertSame( [], $this->firedActions );
+		$this->assertContains(
+			'Shield scan-result notification readiness signal failed: Synthetic readiness failure.',
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages
+		);
+	}
+
+	public function test_listener_failure_does_not_roll_back_persisted_asset_removal() :void {
+		$this->options[ $this->optionKey() ] = [
+			'assets' => [
+				'plugin' => [ 'missing/plugin.php' => [ 'attempts' => 0, 'due_at' => 1700000000 ] ],
+				'theme' => [],
+				'core' => [],
+			],
+		];
+		$this->actionError = new \RuntimeException( "Synthetic\nlistener failure." );
+
+		( new AssetCoordinator() )->runDueWork();
+
+		$this->assertSame( [], $this->state()[ 'assets' ][ 'plugin' ] );
+		$this->assertContains(
+			'Shield scan-result notification readiness signal failed: Synthetic listener failure.',
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages
+		);
+	}
+
 	public function test_conditioned_scan_failure_retries_without_losing_version() :void {
 		$asset = new SnapshotPluginVo( 'published/plugin.php', '1.2.3' );
 		$this->installPublishedSnapshot( $asset );
@@ -324,6 +538,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'attempts' => 0,
 			'due_at'   => 1700000180,
 		], $this->state()[ 'assets' ][ 'plugin' ]['changed/plugin.php'] );
+		$this->assertSame( 0, $this->scans->notificationReadinessCalls );
 	}
 
 	/**
@@ -354,6 +569,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'attempts' => 0,
 			'due_at'   => 1700000000,
 		], $this->state()[ 'assets' ][ 'plugin' ][ $asset->file ] );
+		$this->assertSame( 0, $this->scans->notificationReadinessCalls );
 	}
 
 	/**
@@ -810,7 +1026,11 @@ class AssetCoordinatorTest extends BaseUnitTest {
 
 	private function registerWordPressFunctions() :void {
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
-		Functions\when( 'is_multisite' )->justReturn( false );
+		Functions\when( 'is_multisite' )->alias( fn() :bool => $this->isMultisite );
+		Functions\when( 'get_current_network_id' )->justReturn( 7 );
+		Functions\when( 'maybe_unserialize' )->alias( static function ( $value ) {
+			return \is_string( $value ) && \substr( $value, 0, 2 ) === 'a:' ? \unserialize( $value ) : $value;
+		} );
 		Functions\when( 'is_main_network' )->alias( fn() :bool => $this->isMainNetwork );
 		Functions\when( 'is_main_site' )->alias( fn() :bool => $this->isMainSite );
 		Functions\when( 'untrailingslashit' )->alias( static fn( string $path ) :string => \rtrim( $path, '/\\' ) );
@@ -843,6 +1063,12 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		) :bool {
 			$this->filters[] = \compact( 'hook', 'callback', 'priority', 'acceptedArgs' );
 			return true;
+		} );
+		Functions\when( 'do_action' )->alias( function ( string $hook, ...$args ) :void {
+			$this->firedActions[] = \compact( 'hook', 'args' );
+			if ( $this->actionError !== null ) {
+				throw $this->actionError;
+			}
 		} );
 		Functions\when( 'get_option' )->alias( function ( string $key, $default = false ) {
 			return \array_key_exists( $key, $this->options ) ? $this->options[ $key ] : $default;
@@ -936,6 +1162,23 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		}
 	}
 
+	private function installReadinessDb( $rows ) :AssetCoordinatorReadinessDb {
+		return $this->installReadinessResponses( [ $rows ] );
+	}
+
+	private function installReadinessResponses(
+		array $responses,
+		?\Throwable $error = null
+	) :AssetCoordinatorReadinessDb {
+		$db = new AssetCoordinatorReadinessDb( $responses, $error );
+		ServicesState::mergeItems( [ 'service_wpdb' => $db ] );
+		return $db;
+	}
+
+	private function readinessRow( array $state ) :array {
+		return [ 'option_value' => \serialize( $state ) ];
+	}
+
 	private function state() :array {
 		return $this->options[ $this->optionKey() ] ?? [
 			'assets' => [
@@ -1015,6 +1258,44 @@ class AssetCoordinatorTestCron extends Cron {
 	}
 }
 
+class AssetCoordinatorReadinessDb extends Db {
+
+	public array $queries = [];
+	private array $responses;
+	private ?\Throwable $error;
+
+	public function __construct( array $responses, ?\Throwable $error = null ) {
+		$this->responses = $responses;
+		$this->error = $error;
+	}
+
+	public function selectCustom( $query, $format = null ) {
+		unset( $format );
+		$this->queries[] = $query;
+		if ( $this->error !== null ) {
+			throw $this->error;
+		}
+		return \count( $this->responses ) > 1
+			? \array_shift( $this->responses )
+			: ( $this->responses[ 0 ] ?? [] );
+	}
+}
+
+class AssetCoordinatorTestWpdb {
+
+	public string $options = 'wp_options';
+	public string $sitemeta = 'wp_sitemeta';
+	public string $last_error = '';
+
+	public function prepare( string $query, ...$args ) :string {
+		foreach ( $args as $arg ) {
+			$replacement = \is_int( $arg ) ? (string)$arg : "'".\str_replace( "'", "''", (string)$arg )."'";
+			$query = (string)\preg_replace( '/%[ds]/', $replacement, $query, 1 );
+		}
+		return $query;
+	}
+}
+
 class AssetCoordinatorTestRequest extends Request {
 
 	public int $timestamp;
@@ -1036,6 +1317,9 @@ class AssetCoordinatorTestScans {
 	public int $wpvCalls = 0;
 	public ?StartScansResult $wpvResult = null;
 	public $beforeStart = null;
+	public bool $notificationReady = true;
+	public int $notificationReadinessCalls = 0;
+	public ?\Throwable $notificationReadinessError = null;
 
 	public function startAfsAssetScan( string $assetType, string $assetKey, bool $resetIgnored = false ) :bool {
 		unset( $resetIgnored );
@@ -1050,6 +1334,14 @@ class AssetCoordinatorTestScans {
 		$this->wpvCalls++;
 		return $this->wpvResult ?? StartScansResult::fromRequested( $scans )
 			->addStarted( 'wpv', 1 );
+	}
+
+	public function isReadyForScanResultNotifications() :bool {
+		$this->notificationReadinessCalls++;
+		if ( $this->notificationReadinessError !== null ) {
+			throw $this->notificationReadinessError;
+		}
+		return $this->notificationReady;
 	}
 }
 

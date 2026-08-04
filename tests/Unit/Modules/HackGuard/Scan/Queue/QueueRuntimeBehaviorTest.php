@@ -995,6 +995,15 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		$this->assertSame( 'scan_run', $harness->events[ 0 ][ 'event' ] );
 	}
 
+	public function test_set_scan_completed_preserves_scan_run_and_items_found_audit_events() :void {
+		Functions\when( '__' )->returnArg();
+		$harness = $this->installSetScanCompletedHarness( [ 1, 1 ], [ 'stable-result-description' ] );
+
+		$this->assertTrue( ( new SetScanCompleted() )->run( 44 ) );
+
+		$this->assertSame( [ 'scan_run', 'scan_items_found' ], \array_column( $harness->events, 'event' ) );
+	}
+
 	public function test_queue_items_selects_built_and_running_scans_only() :void {
 		$queries = [];
 		ServicesState::installItems( [
@@ -1601,7 +1610,7 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		};
 	}
 
-	private function installSetScanCompletedHarness( array $doSqlReturns ) :object {
+	private function installSetScanCompletedHarness( array $doSqlReturns, array $newResultDescriptions = [] ) :object {
 		$harness = (object)[
 			'events' => [],
 		];
@@ -1635,20 +1644,51 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			'service_wpdb'    => $wpdb,
 		] );
 
-		$harness->scans = new class {
+		$harness->scans = new class( $newResultDescriptions ) {
 			public int $memoizationResets = 0;
+			private array $newResultDescriptions;
+
+			public function __construct( array $newResultDescriptions ) {
+				$this->newResultDescriptions = $newResultDescriptions;
+			}
 
 			public function getScanCon( string $scan ) :object {
 				unset( $scan );
-				return new class {
+				return new class( $this->newResultDescriptions ) {
+					private array $newResultDescriptions;
+
+					public function __construct( array $newResultDescriptions ) {
+						$this->newResultDescriptions = $newResultDescriptions;
+					}
+
 					public function getScanName() :string {
 						return 'WPV';
 					}
 
 					public function getNewResultsSet() :object {
-						return new class {
+						return new class( $this->newResultDescriptions ) {
+							private array $items;
+
+							public function __construct( array $descriptions ) {
+								$this->items = \array_map( static fn( string $description ) :object => new class( $description ) {
+									private string $description;
+
+									public function __construct( string $description ) {
+										$this->description = $description;
+									}
+
+									public function getDescriptionForAudit() :string {
+										return $this->description;
+									}
+								}, $descriptions );
+							}
+
 							public function countItems() :int {
-								return 0;
+								return \count( $this->items );
+							}
+
+							public function getAllItems() :array {
+								return $this->items;
 							}
 						};
 					}

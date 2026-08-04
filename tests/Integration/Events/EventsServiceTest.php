@@ -192,6 +192,30 @@ class EventsServiceTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'ip_blocked', $def[ 'key' ] );
 	}
 
+	public function test_custom_event_audit_strings_are_filtered() :void {
+		$this->enablePremiumCapabilities();
+		$callback = static function ( array $events ) :array {
+			$events[ 'custom_filtered_audit' ] = [
+				'strings' => [
+					'name'  => 'Filtered Audit Event',
+					'audit' => [ 'First valid string', '', 123, 'Second valid string' ],
+				],
+			];
+			return $events;
+		};
+
+		add_filter( 'shield/events/custom_definitions', $callback );
+		try {
+			$this->assertSame(
+				[ 'First valid string', 'Second valid string' ],
+				\array_values( $this->events()->getEventAuditStrings( 'custom_filtered_audit' ) )
+			);
+		}
+		finally {
+			remove_filter( 'shield/events/custom_definitions', $callback );
+		}
+	}
+
 	public function test_event_levels_added_via_filter_are_normalised() {
 		$callback = function ( array $events ) {
 			foreach ( [
