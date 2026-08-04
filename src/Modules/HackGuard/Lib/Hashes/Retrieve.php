@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Exceptions\AssetHashesNotFound;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
+	Store,
+	StoreAction
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
@@ -24,12 +27,19 @@ class Retrieve {
 	 */
 	private static array $sources;
 
+	/**
+	 * @var array<string,array{data:array{path:string,accessible:bool,modified_time:?int,size:?int},meta:array{path:string,accessible:bool,modified_time:?int,size:?int}}>
+	 */
+	private static array $sourceStorageStates;
+
 	public static function resetMemoization() :void {
 		self::$sources = [];
+		self::$sourceStorageStates = [];
 	}
 
 	public function __construct() {
 		self::$sources ??= [];
+		self::$sourceStorageStates ??= [];
 	}
 
 	/**
@@ -72,11 +82,11 @@ class Retrieve {
 				];
 			}
 			catch ( \Exception $e ) {
-				self::$sources[ $cacheKey ] = $this->byVOFromStoredSnapshot( $vo );
+				self::$sources[ $cacheKey ] = null;
 			}
 		}
 
-		$source = self::$sources[ $cacheKey ];
+		$source = self::$sources[ $cacheKey ] ?? $this->byVOFromStoredSnapshot( $vo );
 		if ( \is_null( $source ) ) {
 			throw new AssetHashesNotFound( sprintf( __( 'Could not locate hashes for VO: %s', 'wp-simple-firewall' ), $vo->slug ) );
 		}
@@ -89,31 +99,100 @@ class Retrieve {
 	 */
 	public function byVOFromStoredSnapshot( $vo ) :?array {
 		$cacheKey = $this->buildCacheKey( self::MODE_STORED, $vo );
-		if ( !\array_key_exists( $cacheKey, self::$sources ) ) {
-			try {
-				$store = ( new StoreAction\Load() )
-					->setAsset( $vo )
-					->run();
-				$snapshot = $store->getUsableSnapshot();
-				if ( \is_null( $snapshot ) ) {
-					self::$sources[ $cacheKey ] = null;
-				}
-				else {
-					$trustedSource = ( $snapshot[ 'meta' ][ 'live_hashes' ] ?? false ) === true;
-					self::$sources[ $cacheKey ] = [
-						'hashes'           => ( new NormalizeHashMap() )->run( $snapshot[ 'data' ] ),
-						'trusted_source'   => $trustedSource,
-						'comparison_basis' => $trustedSource ?
-							HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE
-							: HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE,
-					];
-				}
+		if ( \array_key_exists( $cacheKey, self::$sources ) && \is_null( self::$sources[ $cacheKey ] ) ) {
+			return null;
+		}
+
+		try {
+			$store = ( new StoreAction\Load() )
+				->setAsset( $vo )
+				->run();
+			$storageState = $this->storageState( $store );
+			if ( \array_key_exists( $cacheKey, self::$sources )
+				 && ( self::$sourceStorageStates[ $cacheKey ] ?? null ) === $storageState ) {
+				return self::$sources[ $cacheKey ];
 			}
-			catch ( \Exception $e ) {
-				self::$sources[ $cacheKey ] = null;
-			}
+
+			$this->refillStoredSource( $cacheKey, $store, $storageState );
+		}
+		catch ( \Throwable $e ) {
+			self::$sources[ $cacheKey ] = null;
+			unset( self::$sourceStorageStates[ $cacheKey ] );
 		}
 		return self::$sources[ $cacheKey ];
+	}
+
+	/**
+	 * @param array{data:array{path:string,accessible:bool,modified_time:?int,size:?int},meta:array{path:string,accessible:bool,modified_time:?int,size:?int}} $before
+	 */
+	private function refillStoredSource( string $cacheKey, Store $store, array $before ) :void {
+		$snapshot = $this->isUsableStorageState( $before ) ? $store->getUsableSnapshot() : null;
+		$after = $this->storageState( $store );
+		if ( \is_null( $snapshot ) || $before !== $after ) {
+			self::$sources[ $cacheKey ] = null;
+			unset( self::$sourceStorageStates[ $cacheKey ] );
+			return;
+		}
+
+		try {
+			$hashes = ( new NormalizeHashMap() )->run( $snapshot[ 'data' ] );
+			if ( empty( $hashes ) ) {
+				throw new \UnexpectedValueException( 'Stored snapshot hashes are empty.' );
+			}
+			$trustedSource = ( $snapshot[ 'meta' ][ 'live_hashes' ] ?? false ) === true;
+			self::$sources[ $cacheKey ] = [
+				'hashes'           => $hashes,
+				'trusted_source'   => $trustedSource,
+				'comparison_basis' => $trustedSource
+					? HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE
+					: HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE,
+			];
+			self::$sourceStorageStates[ $cacheKey ] = $after;
+		}
+		catch ( \Throwable $e ) {
+			self::$sources[ $cacheKey ] = null;
+			unset( self::$sourceStorageStates[ $cacheKey ] );
+		}
+	}
+
+	/**
+	 * @return array{data:array{path:string,accessible:bool,modified_time:?int,size:?int},meta:array{path:string,accessible:bool,modified_time:?int,size:?int}}
+	 */
+	private function storageState( Store $store ) :array {
+		return [
+			'data' => $this->fileStorageState( $store->getSnapStorePath() ),
+			'meta' => $this->fileStorageState( $store->getSnapStoreMetaPath() ),
+		];
+	}
+
+	/**
+	 * @return array{path:string,accessible:bool,modified_time:?int,size:?int}
+	 */
+	private function fileStorageState( string $path ) :array {
+		\clearstatcache( true, $path );
+		$accessible = Services::WpFs()->isAccessibleFile( $path ) && @\is_readable( $path );
+		$modifiedTime = $accessible ? @\filemtime( $path ) : false;
+		$size = $accessible ? @\filesize( $path ) : false;
+		return [
+			'path'          => wp_normalize_path( $path ),
+			'accessible'    => $accessible,
+			'modified_time' => \is_int( $modifiedTime ) ? $modifiedTime : null,
+			'size'          => \is_int( $size ) ? $size : null,
+		];
+	}
+
+	/**
+	 * @param array{data:array{path:string,accessible:bool,modified_time:?int,size:?int},meta:array{path:string,accessible:bool,modified_time:?int,size:?int}} $state
+	 */
+	private function isUsableStorageState( array $state ) :bool {
+		foreach ( $state as $fileState ) {
+			if ( !$fileState[ 'accessible' ]
+				 || !\is_int( $fileState[ 'modified_time' ] )
+				 || !\is_int( $fileState[ 'size' ] ) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

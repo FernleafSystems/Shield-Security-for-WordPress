@@ -3,9 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard\Lib\AssetCoordinator;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinator;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard\Scan\Support\AfsAssetChangeIntegrationSupport;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class AssetCoordinatorIntegrationTest extends ShieldIntegrationTestCase {
+	use AfsAssetChangeIntegrationSupport;
 
 	private const PLUGIN = 'shield-coordinator-test/coordinator.php';
 	private const THEME = 'shield-coordinator-theme';
@@ -14,6 +17,7 @@ class AssetCoordinatorIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function set_up() {
 		parent::set_up();
+		$this->requireDb( 'scans' );
 		$this->coordinator = $this->requireController()->comps->asset_coordinator;
 		$this->coordinator->deleteState();
 		$this->clearCoordinatorCrons();
@@ -162,6 +166,84 @@ class AssetCoordinatorIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertIsArray( get_site_option( $key, null ) );
 		$this->assertFalse( get_option( $key, false ) );
+	}
+
+	public function test_upgrader_hooks_enqueue_deduplicated_assets_without_mutating_active_scan_metadata() :void {
+		$scanID = $this->insertAfsScan( 'full', '', [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+			ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY,
+		], 'manual' );
+		$scan = $this->requireController()->db_con->scans->getQuerySelector()->byId( $scanID );
+		$this->assertNotEmpty( $scan );
+		$meta = $scan->meta;
+		$meta[ 'asset_snapshot_eligibility' ] = [
+			'plugin' => [
+				self::PLUGIN => [
+					'version'             => '1.0',
+					'comparison_eligible' => true,
+				],
+			],
+			'theme'  => [
+				self::THEME => [
+					'version'             => '2.0',
+					'comparison_eligible' => true,
+				],
+			],
+		];
+		$meta[ 'asset_comparison_incomplete' ] = [
+			'plugin' => [ self::PLUGIN ],
+			'theme'  => [ self::THEME ],
+		];
+		$scan->meta = $meta;
+		$raw = $scan->getRawData();
+		$this->assertTrue( $this->requireController()->db_con->scans->getQueryUpdater()->updateById( $scanID, [
+			'meta' => $raw[ 'meta' ],
+		] ) );
+
+		global $wp_filter;
+		$hooks = [ 'upgrader_post_install', 'upgrader_process_complete' ];
+		$backups = [];
+		foreach ( $hooks as $hook ) {
+			$backups[ $hook ] = $wp_filter[ $hook ] ?? null;
+			unset( $wp_filter[ $hook ] );
+		}
+
+		try {
+			add_filter( 'upgrader_post_install', [ $this->coordinator, 'onUpgraderPostInstall' ], 10, 2 );
+			add_action( 'upgrader_process_complete', [ $this->coordinator, 'onUpgraderProcessComplete' ], 10, 2 );
+
+			$response = (object)[ 'destination' => 'installed' ];
+			$this->assertSame( $response, apply_filters( 'upgrader_post_install', $response, [
+				'plugin' => ' '.self::PLUGIN.' ',
+				'theme'  => ' '.self::THEME.' ',
+			] ) );
+			do_action( 'upgrader_process_complete', null, [
+				'action'  => 'update',
+				'type'    => 'plugin',
+				'plugins' => [ self::PLUGIN, ' '.self::PLUGIN.' ' ],
+			] );
+			do_action( 'upgrader_process_complete', null, [
+				'action' => 'update',
+				'type'   => 'theme',
+				'themes' => [ self::THEME, ' '.self::THEME.' ' ],
+			] );
+		}
+		finally {
+			foreach ( $backups as $hook => $backup ) {
+				if ( $backup === null ) {
+					unset( $wp_filter[ $hook ] );
+				}
+				else {
+					$wp_filter[ $hook ] = $backup;
+				}
+			}
+		}
+
+		$state = $this->coordinatorState();
+		$this->assertSame( [ self::PLUGIN ], \array_keys( $state[ 'assets' ][ 'plugin' ] ) );
+		$this->assertSame( [ self::THEME ], \array_keys( $state[ 'assets' ][ 'theme' ] ) );
+		$persistedScan = $this->requireController()->db_con->scans->getQuerySelector()->byId( $scanID );
+		$this->assertSame( $meta, $persistedScan->meta );
 	}
 
 	public function test_isolated_wordpress_dispatch_ignores_hostile_values_and_preserves_valid_siblings() :void {

@@ -517,6 +517,118 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
+	public function test_full_completion_excludes_marked_assets_but_reconciles_siblings_core_and_malware() :void {
+		$plugin = $this->afsAssetScenario( 'plugin' );
+		$theme = $this->afsAssetScenario( 'theme' );
+		$core = $this->afsAssetScenario( 'core' );
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$markedPlugin = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'comparison-incomplete-plugin' ),
+			[
+				'is_in_plugin'    => 1,
+				'is_checksumfail' => 1,
+				'is_mal'          => 1,
+				'ptg_slug'        => 'marked/plugin.php',
+				'asset_version'   => '1.0',
+			]
+		);
+		$markedTheme = $this->seedAfsFinding(
+			$initialScanID,
+			$theme,
+			$this->findingPath( 'comparison-incomplete-theme' ),
+			[
+				'is_in_theme'     => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => 'marked-theme',
+				'asset_version'   => '2.0',
+			]
+		);
+		$siblingPlugin = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'comparison-complete-plugin' ),
+			[
+				'is_in_plugin'    => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => 'sibling/plugin.php',
+				'asset_version'   => '3.0',
+			]
+		);
+		$siblingTheme = $this->seedAfsFinding(
+			$initialScanID,
+			$theme,
+			$this->findingPath( 'comparison-complete-theme' ),
+			[
+				'is_in_theme'     => 1,
+				'is_checksumfail' => 1,
+				'ptg_slug'        => 'sibling-theme',
+				'asset_version'   => '4.0',
+			]
+		);
+		$coreFinding = $this->seedAfsFinding(
+			$initialScanID,
+			$core,
+			$this->findingPath( 'comparison-incomplete-core-independent' ),
+			[
+				'is_in_core'      => 1,
+				'is_checksumfail' => 1,
+			]
+		);
+		$pureMalware = $this->seedAfsFinding(
+			$initialScanID,
+			$plugin,
+			$this->findingPath( 'comparison-incomplete-pure-malware' ),
+			[ 'is_mal' => 1 ]
+		);
+
+		$scanID = $this->insertAfsScan( 'full', '', [
+			ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+			ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY,
+			ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
+			ScanActionVO::COVERAGE_FAMILY_MALWARE,
+		], 'manual' );
+		$this->setFullScanEligibility( $scanID, [
+			'plugin' => [
+				'marked/plugin.php'  => [
+					'version'             => '1.0',
+					'comparison_eligible' => true,
+				],
+				'sibling/plugin.php' => [
+					'version'             => '3.0',
+					'comparison_eligible' => true,
+				],
+			],
+			'theme'  => [
+				'marked-theme'  => [
+					'version'             => '2.0',
+					'comparison_eligible' => true,
+				],
+				'sibling-theme' => [
+					'version'             => '4.0',
+					'comparison_eligible' => true,
+				],
+			],
+		] );
+		$record = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
+		$meta = $record->meta;
+		$meta[ 'asset_comparison_incomplete' ] = [
+			'plugin' => [ 'marked/plugin.php' ],
+			'theme'  => [ 'marked-theme' ],
+		];
+		$this->replaceScanMeta( $scanID, $meta );
+
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID ) );
+		$this->assertFindingResolved( $markedPlugin, false );
+		$this->assertSame( '0', $this->resultItemMetaValue( (int)$markedPlugin[ 'result_item_id' ], 'is_mal' ) );
+		$this->assertSame( '1', $this->resultItemMetaValue( (int)$markedPlugin[ 'result_item_id' ], 'is_checksumfail' ) );
+		$this->assertFindingResolved( $markedTheme, false );
+		foreach ( [ $siblingPlugin, $siblingTheme, $coreFinding, $pureMalware ] as $resolved ) {
+			$this->assertFindingResolved( $resolved, true, 'clean_rescan' );
+		}
+	}
+
 	public function test_full_completion_accepts_valid_empty_eligibility_without_resolving_assets() :void {
 		$plugin = $this->afsAssetScenario( 'plugin' );
 		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );

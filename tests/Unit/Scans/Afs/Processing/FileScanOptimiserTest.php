@@ -588,7 +588,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $theme, $this->newAction() ) );
 	}
 
-	public function test_known_valid_plugin_context_reuses_asset_directory_resolution() :void {
+	public function test_known_valid_plugin_context_reuses_inventory_and_reloads_each_distinct_path() :void {
 		$first = $this->writeFile( WP_PLUGIN_DIR.'/alpha/one.php', '<?php one();' );
 		$second = $this->writeFile( WP_PLUGIN_DIR.'/alpha/two.php', '<?php two();' );
 		$cacheDir = $this->makeTempDir( 'cache' );
@@ -609,10 +609,35 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $first, $this->newAction() ) );
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $second, $this->newAction() ) );
 		$this->assertSame( 1, OptimiserPlugins::$installedPluginFilesCalls );
-		$this->assertSame( 1, OptimiserPlugins::$getPluginAsVoCalls );
+		$this->assertSame( 3, OptimiserPlugins::$getPluginAsVoCalls );
 	}
 
-	public function test_known_valid_theme_context_reuses_asset_directory_resolution() :void {
+	public function test_known_valid_plugin_does_not_skip_second_file_after_installed_version_changes() :void {
+		$first = $this->writeFile( WP_PLUGIN_DIR.'/alpha/one.php', '<?php one();' );
+		$second = $this->writeFile( WP_PLUGIN_DIR.'/alpha/two.php', '<?php two();' );
+		$cacheDir = $this->makeTempDir( 'cache' );
+		$this->installEnvironment( $cacheDir, true, '6.5.0', [ 'alpha/alpha.php' ] );
+		$this->writePublishedSnapshot( $cacheDir, new OptimiserPluginVo( 'alpha/alpha.php' ), [
+			'one.php' => \md5_file( $first ),
+			'two.php' => \md5_file( $second ),
+		] );
+		$optimiser = new FileScanOptimiser();
+		$optimiser->recordKnownValidFile( $first, new TrustedFileContext( 'plugin', 'alpha/alpha.php', '1.0.0', 'one.php' ) );
+		$optimiser->recordKnownValidFile( $second, new TrustedFileContext( 'plugin', 'alpha/alpha.php', '1.0.0', 'two.php' ) );
+		$action = $this->newFullScanAction(
+			$this->assetSnapshotEligibility( 'plugin', 'alpha/alpha.php', '1.0.0', true )
+		);
+
+		$this->assertTrue( $optimiser->canSkipKnownValidFile( $first, $action ) );
+		ServicesState::mergeItems( [
+			'service_wpplugins' => new OptimiserPlugins( [ 'alpha/alpha.php' ], '2.0.0' ),
+		] );
+
+		$this->assertFalse( $optimiser->canSkipKnownValidFile( $second, $action ) );
+		$this->assertSame( 1, OptimiserPlugins::$installedPluginFilesCalls );
+	}
+
+	public function test_known_valid_theme_context_reuses_inventory_and_reloads_each_distinct_path() :void {
 		$first = $this->writeFile( WP_CONTENT_DIR.'/themes/clean/one.php', '<?php one();' );
 		$second = $this->writeFile( WP_CONTENT_DIR.'/themes/clean/two.php', '<?php two();' );
 		$cacheDir = $this->makeTempDir( 'cache' );
@@ -634,7 +659,7 @@ class FileScanOptimiserTest extends BaseUnitTest {
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $first, $this->newAction() ) );
 		$this->assertTrue( $optimiser->canSkipKnownValidFile( $second, $this->newAction() ) );
 		$this->assertSame( 1, OptimiserThemes::$getThemesCalls );
-		$this->assertSame( 1, OptimiserThemes::$getThemeAsVoCalls );
+		$this->assertSame( 3, OptimiserThemes::$getThemeAsVoCalls );
 	}
 
 	public function test_known_valid_plugin_record_does_not_skip_after_same_version_snapshot_hash_replacement() :void {
@@ -1229,9 +1254,11 @@ class OptimiserPlugins extends Plugins {
 	public static int $getPluginAsVoCalls = 0;
 
 	private array $pluginFiles;
+	private string $version;
 
-	public function __construct( array $pluginFiles ) {
+	public function __construct( array $pluginFiles, string $version = '1.0.0' ) {
 		$this->pluginFiles = $pluginFiles;
+		$this->version = $version;
 	}
 
 	public function getInstalledPluginFiles() :array {
@@ -1242,16 +1269,17 @@ class OptimiserPlugins extends Plugins {
 	public function getPluginAsVo( string $file, bool $reload = false ) :?WpPluginVo {
 		unset( $reload );
 		self::$getPluginAsVoCalls++;
-		return \in_array( $file, $this->pluginFiles, true ) ? new OptimiserPluginVo( $file ) : null;
+		return \in_array( $file, $this->pluginFiles, true ) ? new OptimiserPluginVo( $file, $this->version ) : null;
 	}
 }
 
 class OptimiserPluginVo extends WpPluginVo {
 	public string $file;
-	public string $Version = '1.0.0';
+	public string $Version;
 
-	public function __construct( string $file ) {
+	public function __construct( string $file, string $version = '1.0.0' ) {
 		$this->file = $file;
+		$this->Version = $version;
 	}
 
 	public function __get( string $key ) {
