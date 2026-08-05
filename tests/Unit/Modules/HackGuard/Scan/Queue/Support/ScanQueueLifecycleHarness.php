@@ -178,6 +178,11 @@ class ScanQueueLifecycleHarness {
 		return $this;
 	}
 
+	public function afterNextScanRead( int $scanID, callable $callback ) :self {
+		$this->scansDb->afterNextSelectById( $scanID, $callback );
+		return $this;
+	}
+
 	public function forceAfsIsFileFor( string $path ) :self {
 		$this->afsFs->forceIsFileFor( $path );
 		return $this;
@@ -820,6 +825,7 @@ class LifecycleScansDb {
 	private LifecycleSqliteDb $db;
 	private bool $failNextUpdate = false;
 	private ?int $selectByIdSuccessesBeforeFailure = null;
+	private array $afterSelectById = [];
 
 	public function __construct( LifecycleSqliteDb $db ) {
 		$this->db = $db;
@@ -876,6 +882,16 @@ class LifecycleScansDb {
 
 	public function failSelectByIdAfter( int $successfulReads ) :void {
 		$this->selectByIdSuccessesBeforeFailure = \max( 0, $successfulReads );
+	}
+
+	public function afterNextSelectById( int $scanID, callable $callback ) :void {
+		$this->afterSelectById[ $scanID ] = $callback;
+	}
+
+	public function consumeAfterSelectById( int $scanID ) :?callable {
+		$callback = $this->afterSelectById[ $scanID ] ?? null;
+		unset( $this->afterSelectById[ $scanID ] );
+		return $callback;
 	}
 
 	public function consumeSelectByIdFailure() :bool {
@@ -1046,7 +1062,12 @@ class LifecycleScansSelector {
 		$this->reset()->addWhereEquals( 'id', $id )->setLimit( 1 );
 		$rows = $this->db->fetchRows( 'scans', $this->wheres, $this->params, '', $this->limit );
 		$this->reset();
-		return empty( $rows ) ? null : $this->recordFromRow( $rows[ 0 ] );
+		$record = empty( $rows ) ? null : $this->recordFromRow( $rows[ 0 ] );
+		$callback = $record === null ? null : $this->owner->consumeAfterSelectById( $id );
+		if ( $callback !== null ) {
+			$callback();
+		}
+		return $record;
 	}
 
 	public function first() :?ScansDB\Record {

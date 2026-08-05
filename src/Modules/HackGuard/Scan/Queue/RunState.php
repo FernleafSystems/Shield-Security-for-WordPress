@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans;
 use FernleafSystems\Wordpress\Services\Services;
 
 class RunState {
@@ -15,6 +16,7 @@ class RunState {
 	public const META_KEY_WATCHDOG_RECOVERY = 'watchdog_recovery';
 	private const QUEUE_ITEM_EXCEPTION_PREFIX = 'Queue item exception:';
 	private const QUEUE_ITEM_EXCEPTION_MAX_LENGTH = 500;
+	private const META_MUTATION_MAX_ATTEMPTS = 10;
 
 	public function markBuilding( Record $scan ) :void {
 		$now = Services::Request()->ts();
@@ -87,37 +89,36 @@ class RunState {
 		if ( $item->scan_started_at === 0 ) {
 			$update[ 'started_at' ] = $now;
 		}
-		$meta = $item->meta;
-		$originalMeta = $meta;
-		if ( isset( $meta[ self::META_KEY_LAST_ERROR ] )
-			 && !$this->isQueueItemException( $meta[ self::META_KEY_LAST_ERROR ] ) ) {
-			unset( $meta[ self::META_KEY_LAST_ERROR ] );
-		}
-		unset( $meta[ self::META_KEY_WATCHDOG_RECOVERY ] );
-		if ( $meta !== $originalMeta ) {
-			$item->meta = $meta;
-			$scan = new Record();
-			$scan->meta = $meta;
-			$update[ 'meta' ] = $scan->getRawData()[ 'meta' ];
-		}
 		self::con()->db_con->scans->getQueryUpdater()->updateById( $item->scan_id, $update );
+		try {
+			$item->meta = $this->mutateScanMeta(
+				$item->scan_id,
+				function ( array $meta ) :array {
+					if ( isset( $meta[ self::META_KEY_LAST_ERROR ] )
+						 && !$this->isQueueItemException( $meta[ self::META_KEY_LAST_ERROR ] ) ) {
+						unset( $meta[ self::META_KEY_LAST_ERROR ] );
+					}
+					unset( $meta[ self::META_KEY_WATCHDOG_RECOVERY ] );
+					return $meta;
+				}
+			);
+		}
+		catch ( \Throwable $metadataFailure ) {
+			unset( $metadataFailure );
+		}
 		QueueHeartbeat::primeRunning( $item->scan_id, $now );
 	}
 
 	public function recordQueueItemException( QueueItemVO $item, \Throwable $e ) :void {
 		try {
-			/** @var ?Record $scan */
-			$scan = self::con()->db_con->scans->getQuerySelector()->byId( $item->scan_id );
-			if ( empty( $scan ) ) {
-				return;
-			}
-
-			$meta = \is_array( $scan->meta ) ? $scan->meta : [];
-			$meta[ self::META_KEY_LAST_ERROR ] = $this->buildQueueItemExceptionMessage( $item, $e );
-			$scan->meta = $meta;
-			self::con()->db_con->scans->getQueryUpdater()->updateById( $item->scan_id, [
-				'meta' => $scan->getRawData()[ 'meta' ],
-			] );
+			$message = $this->buildQueueItemExceptionMessage( $item, $e );
+			$this->mutateScanMeta(
+				$item->scan_id,
+				static function ( array $meta ) use ( $message ) :array {
+					$meta[ self::META_KEY_LAST_ERROR ] = $message;
+					return $meta;
+				}
+			);
 		}
 		catch ( \Throwable $diagnosticsFailure ) {
 			unset( $diagnosticsFailure );
@@ -126,26 +127,136 @@ class RunState {
 
 	public function clearQueueItemExceptionForFinishedItem( QueueItemVO $item ) :void {
 		try {
-			/** @var ?Record $scan */
-			$scan = self::con()->db_con->scans->getQuerySelector()->byId( $item->scan_id );
-			if ( empty( $scan ) ) {
-				return;
-			}
-
-			$meta = \is_array( $scan->meta ) ? $scan->meta : [];
-			if ( $this->queueItemIDFromException( $meta[ self::META_KEY_LAST_ERROR ] ?? null ) !== $item->qitem_id ) {
-				return;
-			}
-
-			unset( $meta[ self::META_KEY_LAST_ERROR ] );
-			$scan->meta = $meta;
-			self::con()->db_con->scans->getQueryUpdater()->updateById( $item->scan_id, [
-				'meta' => $scan->getRawData()[ 'meta' ],
-			] );
+			$this->mutateScanMeta(
+				$item->scan_id,
+				function ( array $meta ) use ( $item ) :array {
+					if ( $this->queueItemIDFromException( $meta[ self::META_KEY_LAST_ERROR ] ?? null ) === $item->qitem_id ) {
+						unset( $meta[ self::META_KEY_LAST_ERROR ] );
+					}
+					return $meta;
+				}
+			);
 		}
 		catch ( \Throwable $diagnosticsFailure ) {
 			unset( $diagnosticsFailure );
 		}
+	}
+
+	/**
+	 * @param array{plugin:list<string>,theme:list<string>} $incompleteBefore
+	 * @return array{plugin:list<string>,theme:list<string>}
+	 */
+	public function persistAssetComparisonIncomplete(
+		QueueItemVO $item,
+		Scans\Afs\ScanActionVO $action,
+		array $incompleteBefore
+	) :array {
+		$executionNew = $action->hasValidAssetComparisonIncomplete()
+			? $this->assetSetDifference( $action->getAssetComparisonIncomplete(), $incompleteBefore )
+			: [ 'plugin' => [], 'theme' => [] ];
+		$writtenDelta = [ 'plugin' => [], 'theme' => [] ];
+		$persistedMarkerIsValid = false;
+
+		$effectiveMeta = $this->mutateScanMeta(
+			$item->scan_id,
+			function ( array $meta ) use ( $item, $executionNew, &$writtenDelta, &$persistedMarkerIsValid ) :array {
+				$writtenDelta = [ 'plugin' => [], 'theme' => [] ];
+				$persistedAction = $this->afsActionFromMeta( $item, $meta );
+				$persistedMarkerIsValid = $persistedAction->hasValidAssetComparisonIncomplete();
+				if ( !$persistedMarkerIsValid ) {
+					return $meta;
+				}
+
+				$writtenDelta = $this->assetSetDifference(
+					$executionNew,
+					$persistedAction->getAssetComparisonIncomplete()
+				);
+				if ( $this->isAssetSetEmpty( $writtenDelta ) ) {
+					return $meta;
+				}
+
+				foreach ( [ 'plugin', 'theme' ] as $assetType ) {
+					foreach ( $writtenDelta[ $assetType ] as $assetKey ) {
+						$persistedAction->markAssetComparisonIncomplete( $assetType, $assetKey );
+					}
+				}
+				$meta[ 'asset_comparison_incomplete' ] = $persistedAction->getAssetComparisonIncomplete();
+				return $meta;
+			}
+		);
+
+		$this->applyEffectiveScanMeta( $item, $action, $effectiveMeta );
+		if ( $persistedMarkerIsValid ) {
+			$effectiveAction = $this->afsActionFromMeta( $item, $effectiveMeta );
+			if ( !$effectiveAction->hasValidAssetComparisonIncomplete()
+				 || !$this->isAssetSetEmpty( $this->assetSetDifference(
+					$executionNew,
+					$effectiveAction->getAssetComparisonIncomplete()
+				) ) ) {
+				throw new \RuntimeException( 'Asset comparison incomplete marker verification failed.' );
+			}
+		}
+
+		return $writtenDelta;
+	}
+
+	/**
+	 * @return array{persistence_succeeded:bool,should_dispatch:bool,should_fail:bool}
+	 */
+	public function recoverReadyUnstartedScan(
+		int $scanID,
+		int $now,
+		int $cooldown,
+		int $maxAttempts
+	) :array {
+		$result = [
+			'persistence_succeeded' => true,
+			'should_dispatch'       => false,
+			'should_fail'           => false,
+		];
+
+		try {
+			$this->mutateScanMeta(
+				$scanID,
+				static function ( array $meta ) use ( $now, $cooldown, $maxAttempts, &$result ) :array {
+					$result = [
+						'persistence_succeeded' => true,
+						'should_dispatch'       => false,
+						'should_fail'           => false,
+					];
+					$recovery = \is_array( $meta[ self::META_KEY_WATCHDOG_RECOVERY ] ?? null )
+						? $meta[ self::META_KEY_WATCHDOG_RECOVERY ]
+						: [];
+					if ( (int)( $recovery[ 'last_attempt_at' ] ?? 0 ) > $now - $cooldown ) {
+						return $meta;
+					}
+
+					$attempts = (int)( $recovery[ 'attempts' ] ?? 0 );
+					if ( $attempts >= $maxAttempts ) {
+						$result[ 'should_fail' ] = true;
+						return $meta;
+					}
+
+					$meta[ self::META_KEY_WATCHDOG_RECOVERY ] = [
+						'attempts'        => $attempts + 1,
+						'last_attempt_at' => $now,
+					];
+					$result[ 'should_dispatch' ] = true;
+					return $meta;
+				},
+				$now
+			);
+		}
+		catch ( \Throwable $persistenceFailure ) {
+			unset( $persistenceFailure );
+			$result = [
+				'persistence_succeeded' => false,
+				'should_dispatch'       => false,
+				'should_fail'           => false,
+			];
+		}
+
+		return $result;
 	}
 
 	public function markUnfinishedRunsFailed() :void {
@@ -221,5 +332,120 @@ class RunState {
 		$parts = \explode( '\\', \get_class( $e ) );
 		$short = \end( $parts );
 		return \is_string( $short ) && $short !== '' ? $short : \get_class( $e );
+	}
+
+	/**
+	 * @param callable(array):array $mutation
+	 */
+	private function mutateScanMeta( int $scanID, callable $mutation, ?int $lastProcessAt = null ) :array {
+		for ( $attempt = 0; $attempt < self::META_MUTATION_MAX_ATTEMPTS; $attempt++ ) {
+			$observed = $this->loadScanMeta( $scanID );
+			$nextMeta = $mutation( $observed[ 'meta' ] );
+			if ( $nextMeta === $observed[ 'meta' ] ) {
+				return $observed[ 'meta' ];
+			}
+
+			$record = new Record();
+			$record->meta = $nextMeta;
+			$nextRaw = $record->getRawData()[ 'meta' ] ?? null;
+			if ( !\is_string( $nextRaw ) || $nextRaw === '' ) {
+				throw new \RuntimeException( 'Scan metadata serialization failed.' );
+			}
+
+			$set = "`meta`='".esc_sql( $nextRaw )."'";
+			if ( $lastProcessAt !== null ) {
+				$set .= ', `last_process_at`='.(int)$lastProcessAt;
+			}
+			$updated = Services::WpDb()->doSql( \sprintf(
+				"UPDATE `%s`
+					SET %s
+					WHERE `id`=%d
+					  AND BINARY `meta`=BINARY '%s';",
+				self::con()->db_con->scans->getTable(),
+				$set,
+				$scanID,
+				esc_sql( $observed[ 'raw_meta' ] )
+			) );
+			if ( $updated === false ) {
+				throw new \RuntimeException( 'Scan metadata update failed.' );
+			}
+			if ( (int)$updated === 0 ) {
+				continue;
+			}
+
+			return $this->loadScanMeta( $scanID )[ 'meta' ];
+		}
+
+		throw new \RuntimeException( 'Scan metadata update conflicts were exhausted.' );
+	}
+
+	/**
+	 * @return array{meta:array,raw_meta:string}
+	 */
+	private function loadScanMeta( int $scanID ) :array {
+		/** @var ?Record $scan */
+		$scan = self::con()->db_con->scans->getQuerySelector()->byId( $scanID );
+		if ( empty( $scan ) || (int)$scan->id !== $scanID ) {
+			throw new \RuntimeException( 'Scan metadata reload failed.' );
+		}
+
+		$rawMeta = $scan->getRawData()[ 'meta' ] ?? null;
+		$meta = $scan->meta;
+		if ( !\is_string( $rawMeta ) || !\is_array( $meta ) ) {
+			throw new \RuntimeException( 'Scan metadata reload failed.' );
+		}
+		return [
+			'meta'     => $meta,
+			'raw_meta' => $rawMeta,
+		];
+	}
+
+	private function afsActionFromMeta( QueueItemVO $item, array $meta ) :Scans\Afs\ScanActionVO {
+		return ( new Scans\Afs\ScanActionVO() )->applyFromArray( \array_merge(
+			$meta,
+			[
+				'scan'       => $item->scan,
+				'scope_type' => $item->scope_type,
+				'scope_key'  => $item->scope_key,
+			]
+		) );
+	}
+
+	private function applyEffectiveScanMeta(
+		QueueItemVO $item,
+		Scans\Afs\ScanActionVO $action,
+		array $meta
+	) :void {
+		$item->meta = $meta;
+		if ( \array_key_exists( 'asset_comparison_incomplete', $meta ) ) {
+			$action->asset_comparison_incomplete = $meta[ 'asset_comparison_incomplete' ];
+		}
+		else {
+			unset( $action->asset_comparison_incomplete );
+		}
+	}
+
+	/**
+	 * @param array{plugin:list<string>,theme:list<string>} $left
+	 * @param array{plugin:list<string>,theme:list<string>} $right
+	 * @return array{plugin:list<string>,theme:list<string>}
+	 */
+	private function assetSetDifference( array $left, array $right ) :array {
+		$difference = [ 'plugin' => [], 'theme' => [] ];
+		foreach ( [ 'plugin', 'theme' ] as $assetType ) {
+			foreach ( $left[ $assetType ] as $assetKey ) {
+				if ( !\in_array( $assetKey, $right[ $assetType ], true ) ) {
+					$difference[ $assetType ][] = $assetKey;
+				}
+			}
+		}
+		return $difference;
+	}
+
+	/**
+	 * @param array{plugin:list<string>,theme:list<string>} $assets
+	 */
+	private function isAssetSetEmpty( array $assets ) :bool {
+		return empty( $assets[ 'plugin' ] ) && empty( $assets[ 'theme' ] );
 	}
 }

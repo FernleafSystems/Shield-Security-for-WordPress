@@ -10,6 +10,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record as ScanRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetTrustResolver,
 	Retrieve
@@ -21,7 +22,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 	CompleteQueue,
 	ProcessQueueItem,
+	QueueItemVO,
 	QueueItems,
+	QueueRecovery,
 	RunState
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
@@ -289,6 +292,10 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 
 		$second = ( new QueueItems() )->next();
 		$this->assertNotNull( $second );
+		$this->assertSame( [
+			'plugin' => [ $pluginFile ],
+			'theme'  => [],
+		], $second->meta[ 'asset_comparison_incomplete' ] ?? null );
 		( new ProcessQueueItem() )->run( $second );
 		( new CompleteQueue() )->complete();
 
@@ -322,6 +329,153 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		$this->assertSame( [ [ 'plugin', $firstPlugin, 60 ] ], $harness->assetEnqueueCalls() );
 		$this->assertSame( [], $harness->resultItemRecords() );
 		$this->assertGreaterThan( 0, (int)$harness->scanItemRow( $item->qitem_id )[ 'finished_at' ] );
+	}
+
+	public function test_stale_queue_exception_writer_preserves_concurrent_marker() :void {
+		$pluginFile = 'queue-stale-exception/plugin.php';
+		$path = $this->writePluginFile( $pluginFile, "<?php\n// changed\n" );
+		$cacheRoot = $this->createTrackedTempDir( 'shield-afs-stale-exception-' );
+		$harness = $this->newAfsHarness( $cacheRoot, $pluginFile );
+		$scanID = $this->insertReadyAfsWork( $harness, $path, [ 'php' ], ScanActionVO::DEFAULT_MAX_FILE_SIZE, [
+			'asset_snapshot_eligibility' => [ 'plugin' => [], 'theme' => [] ],
+		] );
+		$markerWorker = ( new QueueItems() )->next();
+		$exceptionWorker = ( new QueueItemVO() )->applyFromArray( [
+			'scan_id'  => $scanID,
+			'qitem_id' => $markerWorker->qitem_id + 1,
+			'scan'     => 'afs',
+			'attempts' => 1,
+		] );
+		$harness->afterNextScanRead( $scanID, static function () use ( $markerWorker ) :void {
+			( new ProcessQueueItem() )->run( $markerWorker );
+		} );
+
+		( new RunState() )->recordQueueItemException( $exceptionWorker, new \RuntimeException( 'worker B failed' ) );
+
+		$meta = $this->scanMeta( $harness->scanRow( $scanID ) );
+		$this->assertSame( [
+			'plugin' => [ $pluginFile ],
+			'theme'  => [],
+		], $meta[ 'asset_comparison_incomplete' ] ?? null );
+		$this->assertArrayHasKey( RunState::META_KEY_LAST_ERROR, $meta );
+	}
+
+	public function test_stale_matching_exception_clear_preserves_marker_and_newer_item_error() :void {
+		$pluginFile = 'queue-stale-clear/plugin.php';
+		$path = $this->writePluginFile( $pluginFile, "<?php\n// changed\n" );
+		$cacheRoot = $this->createTrackedTempDir( 'shield-afs-stale-clear-' );
+		$harness = $this->newAfsHarness( $cacheRoot, $pluginFile );
+		$scanID = $this->insertReadyAfsWork( $harness, $path, [ 'php' ], ScanActionVO::DEFAULT_MAX_FILE_SIZE, [
+			'asset_snapshot_eligibility' => [ 'plugin' => [], 'theme' => [] ],
+		] );
+		$markerWorker = ( new QueueItems() )->next();
+		$finishedWorker = ( new QueueItemVO() )->applyFromArray( [
+			'scan_id'  => $scanID,
+			'qitem_id' => $markerWorker->qitem_id + 1,
+			'scan'     => 'afs',
+			'attempts' => 1,
+		] );
+		$newerWorker = ( new QueueItemVO() )->applyFromArray( [
+			'scan_id'  => $scanID,
+			'qitem_id' => $markerWorker->qitem_id + 2,
+			'scan'     => 'afs',
+			'attempts' => 1,
+		] );
+		$runState = new RunState();
+		$runState->recordQueueItemException( $finishedWorker, new \RuntimeException( 'matching failure' ) );
+		$newerDiagnostic = null;
+		$harness->afterNextScanRead( $scanID, static function () use (
+			$harness,
+			$markerWorker,
+			$newerWorker,
+			$scanID,
+			&$newerDiagnostic
+		) :void {
+			( new ProcessQueueItem() )->run( $markerWorker );
+			( new RunState() )->recordQueueItemException( $newerWorker, new \RuntimeException( 'newer failure' ) );
+			$newerDiagnostic = $harness->scansDb->getQuerySelector()->byId( $scanID )->meta[ RunState::META_KEY_LAST_ERROR ] ?? null;
+		} );
+
+		$runState->clearQueueItemExceptionForFinishedItem( $finishedWorker );
+
+		$meta = $this->scanMeta( $harness->scanRow( $scanID ) );
+		$this->assertSame( [
+			'plugin' => [ $pluginFile ],
+			'theme'  => [],
+		], $meta[ 'asset_comparison_incomplete' ] ?? null );
+		$this->assertNotNull( $newerDiagnostic );
+		$this->assertSame( $newerDiagnostic, $meta[ RunState::META_KEY_LAST_ERROR ] ?? null );
+	}
+
+	public function test_stale_mark_running_preserves_marker_and_refreshes_cleaned_item_meta() :void {
+		$pluginFile = 'queue-stale-running/plugin.php';
+		$path = $this->writePluginFile( $pluginFile, "<?php\n// changed\n" );
+		$cacheRoot = $this->createTrackedTempDir( 'shield-afs-stale-running-' );
+		$harness = $this->newAfsHarness( $cacheRoot, $pluginFile );
+		$scanID = $this->insertReadyAfsWork( $harness, $path, [ 'php' ], ScanActionVO::DEFAULT_MAX_FILE_SIZE, [
+			'asset_snapshot_eligibility'         => [ 'plugin' => [], 'theme' => [] ],
+			RunState::META_KEY_LAST_ERROR         => 'stale recovery diagnostic',
+			RunState::META_KEY_WATCHDOG_RECOVERY => [ 'attempts' => 1, 'last_attempt_at' => 1699999000 ],
+			'preserved_meta'                      => 'value',
+		] );
+		$staleWorker = ( new QueueItems() )->next();
+		$harness->insertScanItem( $scanID, [ \base64_encode( $path ) ] );
+		( new ProcessQueueItem() )->run( ( new QueueItems() )->next() );
+
+		( new RunState() )->markRunning( $staleWorker );
+
+		$meta = $this->scanMeta( $harness->scanRow( $scanID ) );
+		$this->assertSame( [
+			'plugin' => [ $pluginFile ],
+			'theme'  => [],
+		], $meta[ 'asset_comparison_incomplete' ] ?? null );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $meta );
+		$this->assertArrayNotHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $meta );
+		$this->assertSame( 'value', $meta[ 'preserved_meta' ] ?? null );
+		$this->assertSame( $meta, $staleWorker->meta );
+	}
+
+	/**
+	 * @dataProvider provideReadyScanStatuses
+	 */
+	public function test_stale_ready_recovery_preserves_marker_and_recovery_facts( string $status ) :void {
+		$pluginFile = 'queue-stale-recovery/plugin.php';
+		$path = $this->writePluginFile( $pluginFile, "<?php\n// changed\n" );
+		$cacheRoot = $this->createTrackedTempDir( 'shield-afs-stale-recovery-' );
+		$harness = $this->newAfsHarness( $cacheRoot, $pluginFile );
+		$scanID = $this->insertReadyAfsWork( $harness, $path, [ 'php' ], ScanActionVO::DEFAULT_MAX_FILE_SIZE, [
+			'asset_snapshot_eligibility'         => [ 'plugin' => [], 'theme' => [] ],
+			RunState::META_KEY_WATCHDOG_RECOVERY => [ 'attempts' => 1, 'last_attempt_at' => 1699999000 ],
+			'recovery_policy'                    => 'preserve',
+		] );
+		$harness->sql->updateRowById( 'scans', $scanID, [ 'status' => $status ] );
+		$markerWorker = ( new QueueItems() )->next();
+		$harness->insertScanItem( $scanID, [ \base64_encode( $path ) ] );
+		$harness->afterNextScanRead( $scanID, static function () use ( $markerWorker ) :void {
+			( new ProcessQueueItem() )->run( $markerWorker );
+		} );
+		$staleScan = $harness->scansDb->getQuerySelector()->byId( $scanID );
+		$this->assertNotNull( $staleScan );
+
+		$this->assertTrue( ( new QueueRecovery() )->recoverReadyScan( $staleScan ) );
+
+		$meta = $this->scanMeta( $harness->scanRow( $scanID ) );
+		$this->assertSame( [
+			'plugin' => [ $pluginFile ],
+			'theme'  => [],
+		], $meta[ 'asset_comparison_incomplete' ] ?? null );
+		$this->assertSame( [
+			'attempts'        => 1,
+			'last_attempt_at' => 1700000000,
+		], $meta[ RunState::META_KEY_WATCHDOG_RECOVERY ] ?? null );
+		$this->assertSame( 'preserve', $meta[ 'recovery_policy' ] ?? null );
+	}
+
+	public static function provideReadyScanStatuses() :array {
+		return [
+			'built'   => [ 'built' ],
+			'running' => [ 'running' ],
+		];
 	}
 
 	public function test_case_fold_colliding_raw_meta_conflict_retries_and_preserves_union() :void {
@@ -481,7 +635,7 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 			'status'          => 'built',
 			'ready_at'        => 1699999000,
 			'last_process_at' => 1699999000,
-			'meta'            => \base64_encode( \json_encode( \array_merge( [
+			'meta'            => $this->encodedScanMeta( \array_merge( [
 				'coverage_families' => [ ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY ],
 				'file_exts'         => $fileExts,
 				'max_file_size'     => $maxFileSize,
@@ -498,7 +652,7 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 					],
 					'theme' => [],
 				],
-			], $metaOverrides ) ) ?: '[]' ),
+			], $metaOverrides ) ),
 		] );
 		$harness->insertScanItem( $scanID, \array_map(
 			static fn( string $itemPath ) :string => \base64_encode( $itemPath ),
@@ -540,6 +694,12 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 
 	private function scanMeta( array $scan ) :array {
 		return \json_decode( \base64_decode( (string)( $scan[ 'meta' ] ?? '' ) ), true ) ?: [];
+	}
+
+	private function encodedScanMeta( array $meta ) :string {
+		$scan = new ScanRecord();
+		$scan->meta = $meta;
+		return (string)( $scan->getRawData()[ 'meta' ] ?? '' );
 	}
 
 	private function queryLogContains( array $queries, string $needle ) :bool {
