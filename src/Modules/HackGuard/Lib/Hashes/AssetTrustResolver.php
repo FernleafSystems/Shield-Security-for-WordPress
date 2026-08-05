@@ -33,6 +33,10 @@ class AssetTrustResolver {
 
 	private static array $contextsByPath = [];
 
+	private static array $currentContextsByPath = [];
+
+	private static array $currentAssetsByPath = [];
+
 	private static array $nonAssetMissesByPath = [];
 
 	private static array $relativePathsByPath = [];
@@ -42,6 +46,8 @@ class AssetTrustResolver {
 		self::$pluginFilesByDir = null;
 		self::$themesByDir = [];
 		self::$contextsByPath = [];
+		self::$currentContextsByPath = [];
+		self::$currentAssetsByPath = [];
 		self::$nonAssetMissesByPath = [];
 		self::$relativePathsByPath = [];
 	}
@@ -172,6 +178,37 @@ class AssetTrustResolver {
 			$context->assetVersion,
 			$context->relativePath
 		);
+	}
+
+	/**
+	 * @throws AmbiguousAssetFileException
+	 * @throws NonAssetFileException
+	 */
+	public function resolveCurrentContext( string $path ) :AssetFileContext {
+		$cacheKey = wp_normalize_path( $path );
+		if ( isset( self::$currentContextsByPath[ $cacheKey ] ) ) {
+			return self::$currentContextsByPath[ $cacheKey ];
+		}
+
+		$stableContext = $this->resolveContext( $path );
+		$asset = $stableContext->assetType === 'plugin'
+			? Services::WpPlugins()->getPluginAsVo( $stableContext->assetKey, true )
+			: Services::WpThemes()->getThemeAsVo( $stableContext->assetKey, true );
+		if ( ( !$asset instanceof WpPluginVo && !$asset instanceof WpThemeVo )
+			 || (string)$asset->asset_type !== $stableContext->assetType
+			 || (string)$asset->unique_id !== $stableContext->assetKey ) {
+			throw new NonAssetFileException( 'Installed plugin or theme identity changed.' );
+		}
+
+		$context = new AssetFileContext(
+			$stableContext->assetType,
+			$stableContext->assetKey,
+			(string)$asset->Version,
+			$stableContext->relativePath
+		);
+		self::$currentContextsByPath[ $cacheKey ] = $context;
+		self::$currentAssetsByPath[ $cacheKey ] = $asset;
+		return $context;
 	}
 
 	/**

@@ -649,9 +649,28 @@ class StoreTest extends BaseUnitTest {
 							$record->last_seen_at = 1700000000;
 							$record->resolved_at = 0;
 							$record->resolution_reason = '';
-							$record->meta = \array_merge( [
+							$meta = \array_merge( [
 								'ptg_slug' => $result[ 'item_id' ],
 							], $result[ 'meta' ] ?? [] );
+							foreach ( [
+								'is_in_core',
+								'is_in_plugin',
+								'is_in_theme',
+								'ptg_slug',
+								'asset_version',
+								'is_checksumfail',
+								'is_unrecognised',
+								'is_unidentified',
+								'is_missing',
+								'comparison_basis',
+								'is_mal',
+								'malware_record_id',
+							] as $metaKey ) {
+								if ( \array_key_exists( $metaKey, $result ) ) {
+									$meta[ $metaKey ] = $result[ $metaKey ];
+								}
+							}
+							$record->meta = $meta;
 							return $record;
 						}
 					};
@@ -699,6 +718,7 @@ class StoreTest extends BaseUnitTest {
 								'last_seen_at'      => $record->last_seen_at,
 								'resolved_at'       => $record->resolved_at,
 								'resolution_reason' => $record->resolution_reason,
+								'meta'              => $record->meta,
 							];
 							return true;
 						}

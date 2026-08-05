@@ -621,12 +621,13 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 
 	private function insertReadyAfsWork(
 		ScanQueueLifecycleHarness $harness,
-		string $path,
+		$path,
 		$fileExts = [ 'php' ],
 		$maxFileSize = ScanActionVO::DEFAULT_MAX_FILE_SIZE,
 		array $metaOverrides = []
 	) :int {
-		$normalizedPath = \str_replace( '\\', '/', $path );
+		$paths = \is_array( $path ) ? \array_values( $path ) : [ $path ];
+		$normalizedPath = \str_replace( '\\', '/', (string)$paths[ 0 ] );
 		$pluginRoot = \rtrim( \str_replace( '\\', '/', WP_PLUGIN_DIR ), '/' ).'/';
 		$pluginFile = \substr( $normalizedPath, \strlen( $pluginRoot ) );
 		$scanID = $harness->insertScan( [
@@ -653,7 +654,10 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 				],
 			], $metaOverrides ) ),
 		] );
-		$harness->insertScanItem( $scanID, [ \base64_encode( $path ) ] );
+		$harness->insertScanItem( $scanID, \array_map(
+			static fn( string $itemPath ) :string => \base64_encode( $itemPath ),
+			$paths
+		) );
 		return $scanID;
 	}
 

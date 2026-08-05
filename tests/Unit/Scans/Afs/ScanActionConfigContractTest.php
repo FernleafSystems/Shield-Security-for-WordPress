@@ -297,8 +297,10 @@ class ScanActionConfigContractTest extends BaseUnitTest {
 	public function test_scoped_scan_comparison_does_not_require_full_scan_eligibility() :void {
 		$action = new ScanActionVO();
 		$action->scope_type = 'plugin';
+		$action->asset_comparison_incomplete = [ 'malformed' ];
 
 		$this->assertFalse( $action->hasValidAssetSnapshotEligibility() );
+		$this->assertFalse( $action->hasValidAssetComparisonIncomplete() );
 		$this->assertTrue( $action->isAssetSnapshotComparisonEligible( 'plugin', 'target/plugin.php', '1.0.0' ) );
 	}
 

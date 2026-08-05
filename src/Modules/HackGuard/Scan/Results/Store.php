@@ -19,6 +19,13 @@ class Store {
 		if ( empty( $results ) ) {
 			return;
 		}
+		$fullAfsAction = $this->buildFullAfsAction( $queueItem );
+		if ( $fullAfsAction instanceof ScanActionVO ) {
+			$results = $this->filterIncompleteAssetResults( $results, $fullAfsAction );
+			if ( empty( $results ) ) {
+				return;
+			}
+		}
 
 		$dbCon = self::con()->db_con;
 
@@ -38,7 +45,6 @@ class Store {
 		) );
 
 		$existingResultRecords = $this->loadExistingResultItems( $queueItem->scan, $scanResults );
-		$fullAfsAction = $this->buildFullAfsAction( $queueItem );
 		$protectedCandidateIDs = [];
 		if ( $fullAfsAction instanceof ScanActionVO ) {
 			foreach ( $scanResults as $scanResult ) {
@@ -234,6 +240,31 @@ class Store {
 				'scope_key'  => $queueItem->scope_key,
 			]
 		) );
+	}
+
+	private function filterIncompleteAssetResults( array $results, ScanActionVO $action ) :array {
+		$filterAll = !$action->hasValidAssetComparisonIncomplete();
+		$filtered = [];
+		foreach ( $results as $result ) {
+			$assetType = !empty( $result[ 'is_in_plugin' ] ) ? 'plugin'
+				: ( !empty( $result[ 'is_in_theme' ] ) ? 'theme' : '' );
+			$assetKey = (string)( $result[ 'ptg_slug' ] ?? '' );
+			if ( $assetType !== ''
+				 && ( $filterAll || $action->isAssetComparisonIncomplete( $assetType, $assetKey ) ) ) {
+				unset(
+					$result[ 'is_unrecognised' ],
+					$result[ 'is_missing' ],
+					$result[ 'is_checksumfail' ],
+					$result[ 'is_unidentified' ],
+					$result[ 'comparison_basis' ]
+				);
+				if ( !$this->isTruthy( $result[ 'is_mal' ] ?? null ) ) {
+					continue;
+				}
+			}
+			$filtered[] = $result;
+		}
+		return $filtered;
 	}
 
 	private function isIneligibleMalwareOnlyResult( ResultItemsDB\Record $result, ScanActionVO $action ) :bool {

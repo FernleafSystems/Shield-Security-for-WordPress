@@ -28,7 +28,7 @@ class ProcessQueueItem {
 				) );
 			}
 
-			( new Store() )->store( $item, $results );
+			( new Store() )->store( $item, $scan[ 'results' ] );
 
 			$itemFinished = self::con()
 				->db_con
@@ -57,6 +57,11 @@ class ProcessQueueItem {
 
 	/**
 	 * @throws \Exception
+	 * @return array{
+	 *     action:Scans\Base\BaseScanActionVO,
+	 *     results:array,
+	 *     asset_comparison_incomplete_before:array{plugin:list<string>,theme:list<string>}
+	 * }
 	 */
 	private function runScanOnItem( QueueItemVO $item ) :array {
 		$action = ScanActionFromSlug::GetAction( $item->scan )->applyFromArray( \array_merge(
@@ -68,6 +73,11 @@ class ProcessQueueItem {
 			]
 		) );
 		$action->items = $item->items;
+		$incompleteBefore = $action instanceof Scans\Afs\ScanActionVO
+			&& $action->scope_type === 'full'
+			&& $action->hasValidAssetComparisonIncomplete()
+			? $action->getAssetComparisonIncomplete()
+			: [ 'plugin' => [], 'theme' => [] ];
 		$heartbeat = new QueueHeartbeat();
 		$action->progress_callback = static function () use ( $heartbeat, $item ) :void {
 			$heartbeat->tick( $item->scan_id );

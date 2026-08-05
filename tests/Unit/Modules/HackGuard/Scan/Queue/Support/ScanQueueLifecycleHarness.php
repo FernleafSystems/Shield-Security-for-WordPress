@@ -50,6 +50,7 @@ class ScanQueueLifecycleHarness {
 	private LifecycleAfsFs $afsFs;
 	private LifecyclePlugins $plugins;
 	private LifecycleThemes $themes;
+	private LifecycleAssetCoordinator $assetCoordinator;
 
 	private int $now;
 
@@ -76,6 +77,7 @@ class ScanQueueLifecycleHarness {
 		$this->afsFs = new LifecycleAfsFs();
 		$this->plugins = new LifecyclePlugins();
 		$this->themes = new LifecycleThemes();
+		$this->assetCoordinator = new LifecycleAssetCoordinator();
 		$this->queueComponent = new LifecycleQueueComponent();
 		$this->actionRouter = new LifecycleActionRouter();
 	}
@@ -290,7 +292,7 @@ class ScanQueueLifecycleHarness {
 			'events'       => new LifecycleEventsComponent(),
 			'opts_lookup'  => new LifecycleOptsLookup(),
 			'file_locker'  => new LifecycleFileLocker(),
-			'asset_coordinator' => new LifecycleAssetCoordinator(),
+			'asset_coordinator' => $this->assetCoordinator,
 		];
 		$controller->opts = new LifecycleOpts();
 		$controller->action_router = $this->actionRouter;
@@ -857,7 +859,7 @@ class LifecycleScansDb {
 	}
 
 	public function getQuerySelector() :LifecycleScansSelector {
-		return new LifecycleScansSelector( $this->db );
+		return new LifecycleScansSelector( $this->db, $this );
 	}
 
 	public function getQueryUpdater() :object {
@@ -986,9 +988,11 @@ class LifecycleScansSelector {
 	private array $columnsToSelect = [];
 
 	private LifecycleSqliteDb $db;
+	private LifecycleScansDb $owner;
 
-	public function __construct( LifecycleSqliteDb $db ) {
+	public function __construct( LifecycleSqliteDb $db, LifecycleScansDb $owner ) {
 		$this->db = $db;
+		$this->owner = $owner;
 		$this->reset();
 	}
 
@@ -1052,6 +1056,9 @@ class LifecycleScansSelector {
 	}
 
 	public function byId( int $id ) :?ScansDB\Record {
+		if ( $this->owner->consumeSelectByIdFailure() ) {
+			return null;
+		}
 		$this->reset()->addWhereEquals( 'id', $id )->setLimit( 1 );
 		$rows = $this->db->fetchRows( 'scans', $this->wheres, $this->params, '', $this->limit );
 		$this->reset();
@@ -1777,11 +1784,16 @@ class LifecycleAfsFs extends Fs {
 class LifecyclePlugins extends Plugins {
 
 	private array $installedPluginFiles = [];
+	private array $reloadVersions = [];
 	private bool $restrictToInstalled = false;
 
 	public function setInstalledPluginFiles( array $pluginFiles ) :void {
 		$this->installedPluginFiles = \array_values( $pluginFiles );
 		$this->restrictToInstalled = true;
+	}
+
+	public function setReloadVersions( array $versions ) :void {
+		$this->reloadVersions = \array_values( \array_map( '\strval', $versions ) );
 	}
 
 	public function getInstalledPluginFiles() :array {
@@ -1799,11 +1811,13 @@ class LifecyclePlugins extends Plugins {
 	}
 
 	public function getPluginAsVo( string $file, bool $reload = false ) :?WpPluginVo {
-		unset( $reload );
+		$version = $reload && !empty( $this->reloadVersions )
+			? \array_shift( $this->reloadVersions )
+			: '1.0.0';
 		return ( $this->restrictToInstalled && !\in_array( $file, $this->installedPluginFiles, true ) )
 			   || \strpos( $file, '/' ) === false
 			? null
-			: new LifecyclePluginVo( $file, !$this->restrictToInstalled );
+			: new LifecyclePluginVo( $file, !$this->restrictToInstalled, $version );
 	}
 }
 
@@ -1815,6 +1829,22 @@ class LifecycleThemes extends Themes {
 }
 
 class LifecycleAssetCoordinator {
+
+	public array $calls = [];
+	private array $outcomes = [];
+
+	public function setOutcomes( array $outcomes ) :void {
+		$this->outcomes = \array_values( $outcomes );
+	}
+
+	public function enqueueAsset( string $assetType, string $assetKey, int $delay = 60 ) :bool {
+		$this->calls[] = [ $assetType, $assetKey, $delay ];
+		$outcome = empty( $this->outcomes ) ? true : \array_shift( $this->outcomes );
+		if ( $outcome instanceof \Throwable ) {
+			throw $outcome;
+		}
+		return $outcome !== false;
+	}
 
 	public function prepareFullScanSnapshotEligibility( array $assets, callable $heartbeat ) :array {
 		foreach ( $assets as $asset ) {
@@ -1833,17 +1863,17 @@ class LifecyclePluginVo extends WpPluginVo {
 	public string $file;
 	private bool $isWpOrg;
 
-	public function __construct( string $file, bool $isWpOrg = true ) {
+	public function __construct( string $file, bool $isWpOrg = true, string $version = '1.0.0' ) {
 		$this->file = $file;
 		$this->isWpOrg = $isWpOrg;
-		$this->applyFromArray( [ 'Version' => '1.0.0' ] );
+		$this->applyFromArray( [ 'Version' => $version ] );
 	}
 
 	public function __get( string $key ) {
 		return $key === 'slug'
 			? \dirname( $this->file )
 			: ( $key === 'Version'
-				? '1.0.0'
+				? (string)parent::__get( 'Version' )
 				: ( $key === 'id'
 					? ( $this->isWpOrg ? 'w.org/plugins/'.\dirname( $this->file ) : 'example.com/plugins/'.\dirname( $this->file ) )
 					: parent::__get( $key ) ) );

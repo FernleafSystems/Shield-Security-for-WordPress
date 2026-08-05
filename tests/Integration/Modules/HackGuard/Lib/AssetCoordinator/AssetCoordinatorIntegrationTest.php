@@ -3,9 +3,12 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard\Lib\AssetCoordinator;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinator;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard\Scan\Support\AfsAssetChangeIntegrationSupport;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class AssetCoordinatorIntegrationTest extends ShieldIntegrationTestCase {
+	use AfsAssetChangeIntegrationSupport;
 
 	private const PLUGIN = 'shield-coordinator-test/coordinator.php';
 	private const THEME = 'shield-coordinator-theme';
@@ -14,6 +17,7 @@ class AssetCoordinatorIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function set_up() {
 		parent::set_up();
+		$this->requireDb( 'scans' );
 		$this->coordinator = $this->requireController()->comps->asset_coordinator;
 		$this->coordinator->deleteState();
 		$this->clearCoordinatorCrons();
