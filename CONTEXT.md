@@ -37,7 +37,7 @@ A deduplicated targeted asset scan enqueued by the coordinator after an asset li
 _Avoid_: Replacement scan, superseding scan
 
 **Asset comparison coverage**:
-Whether one AFS run completed file-change comparison for an exact plugin or theme identity and version. File-change finding effects are all-or-nothing at this level; malware coverage is separate.
+Whether one AFS run completed file-change comparison for an exact plugin or theme identity and version. File-change finding effects are all-or-nothing when incompleteness is known before persistence. In the accepted rare mid-execution mismatch, earlier persisted observations are not rolled back; later unsafe comparison and stale resolution stop. Malware coverage is separate.
 _Avoid_: Integrity status, scan health
 
 **Malware scan eligibility**:
@@ -61,7 +61,7 @@ A possible internal partition of one ordinary full scan's file population by exa
 _Avoid_: Child scan, targeted asset scan, asset follow-up scan
 
 **File-change observation**:
-The outcome of comparing one file during the current AFS run. It affects findings only when comparison coverage completes for its exact asset identity and version.
+The outcome of comparing one file during the current AFS run. It normally affects findings only when comparison coverage completes for its exact asset identity and version. An observation persisted before a rare mid-execution mismatch may remain provisionally under specification A1/A10; it is not rolled back.
 _Avoid_: Finding, coverage
 
 **Finding**:
@@ -83,3 +83,7 @@ _Avoid_: Scan-result notification, finding
 **Notification-ready scan state**:
 The state in which no scan is queued, building, built, or running and no retryable AFS asset-follow-up work remains pending.
 _Avoid_: Queue completed, scan completed
+
+**Accepted notification-readiness race**:
+Readiness is a fresh point-in-time decision made immediately before an automatic scan-result notification path begins its protected side effects. Another request may very rarely create an active scan or retryable AFS asset-follow-up after that decision and before notification processing completes. This bounded race is accepted; do not add locks, transactions, leases, repeated per-side-effect checks, persisted readiness state, or broader coordination to eliminate it. This acceptance does not permit cached readiness or any side effect when the fresh check returns not ready or fails.
+_Avoid_: Notification readiness lock, readiness lease
