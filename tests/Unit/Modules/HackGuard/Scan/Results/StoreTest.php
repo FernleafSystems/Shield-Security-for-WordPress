@@ -274,6 +274,96 @@ class StoreTest extends BaseUnitTest {
 		], $resultItemUpdates[ 0 ][ 'data' ] );
 	}
 
+	public function test_full_afs_incomplete_marker_filters_file_change_comparison_from_entire_batch_and_preserves_malware() :void {
+		$metaDeletes = [];
+		$resultItemInserts = [];
+		$this->installController( [], [], $metaDeletes, $resultItemInserts );
+		$queueItem = $this->newFullQueueItem();
+		$queueItem->meta = \array_merge( $queueItem->meta, [
+			'asset_comparison_incomplete' => [
+				'plugin' => [ 'akismet/akismet.php' ],
+				'theme'  => [],
+			],
+		] );
+
+		( new Store() )->store( $queueItem, [
+			[
+				'item_id'          => 'akismet/old.php',
+				'is_in_plugin'     => true,
+				'ptg_slug'         => 'akismet/akismet.php',
+				'asset_version'    => '5.0',
+				'is_checksumfail'  => true,
+				'comparison_basis' => 'published_reference',
+			],
+			[
+				'item_id'           => 'akismet/malware.php',
+				'is_in_plugin'      => true,
+				'ptg_slug'          => 'akismet/akismet.php',
+				'asset_version'     => '5.0',
+				'is_checksumfail'   => true,
+				'comparison_basis'  => 'published_reference',
+				'is_mal'            => true,
+				'malware_record_id' => 314,
+			],
+			[
+				'item_id'          => 'other/other.php',
+				'is_in_plugin'     => true,
+				'ptg_slug'         => 'other/other.php',
+				'asset_version'    => '1.0',
+				'is_checksumfail'  => true,
+				'comparison_basis' => 'local_baseline',
+			],
+		] );
+
+		$this->assertCount( 2, $resultItemInserts );
+		$insertsByID = \array_column( $resultItemInserts, null, 'item_id' );
+		$this->assertArrayHasKey( 'akismet/malware.php', $insertsByID );
+		$this->assertArrayHasKey( 'other/other.php', $insertsByID );
+		$this->assertTrue( $insertsByID[ 'akismet/malware.php' ][ 'meta' ][ 'is_mal' ] ?? false );
+		$this->assertSame( 314, $insertsByID[ 'akismet/malware.php' ][ 'meta' ][ 'malware_record_id' ] ?? null );
+		$this->assertArrayNotHasKey( 'is_checksumfail', $insertsByID[ 'akismet/malware.php' ][ 'meta' ] );
+		$this->assertArrayNotHasKey( 'comparison_basis', $insertsByID[ 'akismet/malware.php' ][ 'meta' ] );
+		$this->assertTrue( $insertsByID[ 'other/other.php' ][ 'meta' ][ 'is_checksumfail' ] ?? false );
+		$this->assertSame( 'local_baseline', $insertsByID[ 'other/other.php' ][ 'meta' ][ 'comparison_basis' ] ?? null );
+	}
+
+	public function test_malformed_incomplete_marker_filters_all_plugin_theme_file_change_comparison_fail_closed() :void {
+		$metaDeletes = [];
+		$resultItemInserts = [];
+		$this->installController( [], [], $metaDeletes, $resultItemInserts );
+		$queueItem = $this->newFullQueueItem();
+		$queueItem->meta = \array_merge( $queueItem->meta, [
+			'asset_comparison_incomplete' => [ 'plugin' => [] ],
+		] );
+
+		( new Store() )->store( $queueItem, [
+			[
+				'item_id'         => 'akismet/plugin.php',
+				'is_in_plugin'    => true,
+				'ptg_slug'        => 'akismet/akismet.php',
+				'is_checksumfail' => true,
+			],
+			[
+				'item_id'         => 'theme/style.php',
+				'is_in_theme'     => true,
+				'ptg_slug'        => 'theme',
+				'is_unrecognised' => true,
+				'is_mal'          => true,
+			],
+			[
+				'item_id'         => 'wp-admin/core.php',
+				'is_in_core'      => true,
+				'is_checksumfail' => true,
+			],
+		] );
+
+		$this->assertCount( 2, $resultItemInserts );
+		$this->assertEqualsCanonicalizing( [ 'theme/style.php', 'wp-admin/core.php' ], \array_map(
+			static fn( array $record ) :string => (string)$record[ 'item_id' ],
+			$resultItemInserts
+		) );
+	}
+
 	public function test_full_afs_protected_metadata_read_failure_prevents_mutation() :void {
 		$metaDeletes = [];
 		$resultItemInserts = [];

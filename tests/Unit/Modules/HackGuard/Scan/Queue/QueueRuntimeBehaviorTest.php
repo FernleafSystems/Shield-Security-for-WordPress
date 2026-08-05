@@ -238,70 +238,91 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_mark_running_uses_queue_item_context_without_scan_row_reload() :void {
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700001555 ),
+	public function test_mark_running_preserves_current_marker_while_clearing_stale_diagnostics() :void {
+		$harness = ( new ScanQueueLifecycleHarness( 1700001555 ) )->install();
+		$marker = [ 'plugin' => [ 'current/plugin.php' ], 'theme' => [] ];
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'ready_at'        => 1699999999,
+			'last_process_at' => 1699999999,
+			'meta'            => $this->encodedScanMeta( [
+				'asset_comparison_incomplete'       => $marker,
+				RunState::META_KEY_LAST_ERROR         => 'stale error',
+				RunState::META_KEY_WATCHDOG_RECOVERY => [ 'attempts' => 1 ],
+				'scan_meta'                           => 'value',
+			] ),
 		] );
-
-		$scanUpdates = [];
-		$selectorCalls = 0;
-		$this->installRunStateUpdateHarness( $scanUpdates, $selectorCalls );
-
 		$item = ( new QueueItemVO() )->applyFromArray( [
-			'scan_id'         => 62,
+			'scan_id'         => $scanID,
 			'scan_started_at' => 1699999999,
 			'meta'            => [
-				RunState::META_KEY_LAST_ERROR => 'stale error',
-				'scan_meta'                   => 'value',
+				RunState::META_KEY_LAST_ERROR         => 'stale error',
+				RunState::META_KEY_WATCHDOG_RECOVERY => [ 'attempts' => 1 ],
+				'scan_meta'                           => 'value',
 			],
 		] );
 
 		( new RunState() )->markRunning( $item );
 
-		$this->assertSame( 0, $selectorCalls );
-		$this->assertCount( 1, $scanUpdates );
-		$this->assertSame( 62, $scanUpdates[ 0 ][ 'scan_id' ] );
-		$this->assertSame( 'running', $scanUpdates[ 0 ][ 'data' ][ 'status' ] ?? null );
-		$this->assertSame( 1700001555, $scanUpdates[ 0 ][ 'data' ][ 'last_process_at' ] ?? null );
-		$this->assertArrayNotHasKey( 'started_at', $scanUpdates[ 0 ][ 'data' ] );
-		$this->assertSame(
-			[ 'scan_meta' => 'value' ],
-			\json_decode( \base64_decode( (string)$scanUpdates[ 0 ][ 'data' ][ 'meta' ] ), true )
-		);
+		$scan = $harness->scanRow( $scanID );
+		$meta = $this->scanMeta( $scan );
+		$this->assertSame( 'running', $scan[ 'status' ] );
+		$this->assertSame( 1700001555, (int)$scan[ 'last_process_at' ] );
+		$this->assertSame( 0, (int)$scan[ 'started_at' ] );
+		$this->assertSame( $marker, $meta[ 'asset_comparison_incomplete' ] ?? null );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $meta );
+		$this->assertArrayNotHasKey( RunState::META_KEY_WATCHDOG_RECOVERY, $meta );
+		$this->assertSame( 'value', $meta[ 'scan_meta' ] ?? null );
+		$this->assertSame( $meta, $item->meta );
 	}
 
-	public function test_mark_running_preserves_queue_item_exception_without_meta_write() :void {
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700001555 ),
-		] );
+	public function test_mark_running_preserves_queue_item_exception_and_refreshes_item_meta() :void {
 		$diagnostic = 'Queue item exception: scan=afs qitem_id=17 attempt=1 exception=RuntimeException message=hard death';
-		$scanUpdates = [];
-		$selectorCalls = 0;
-		$this->installRunStateUpdateHarness( $scanUpdates, $selectorCalls );
+		$harness = ( new ScanQueueLifecycleHarness( 1700001555 ) )->install();
+		$marker = [ 'plugin' => [ 'current/plugin.php' ], 'theme' => [] ];
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'ready_at'        => 1699999999,
+			'last_process_at' => 1699999999,
+			'meta'            => $this->encodedScanMeta( [
+				'asset_comparison_incomplete' => $marker,
+				RunState::META_KEY_LAST_ERROR => $diagnostic,
+			] ),
+		] );
 		$item = ( new QueueItemVO() )->applyFromArray( [
-			'scan_id'         => 63,
+			'scan_id'         => $scanID,
 			'scan_started_at' => 1699999999,
 			'meta'            => [ RunState::META_KEY_LAST_ERROR => $diagnostic ],
 		] );
 
 		( new RunState() )->markRunning( $item );
 
-		$this->assertSame( 0, $selectorCalls );
-		$this->assertCount( 1, $scanUpdates );
-		$this->assertArrayNotHasKey( 'meta', $scanUpdates[ 0 ][ 'data' ] );
-		$this->assertSame( $diagnostic, $item->meta[ RunState::META_KEY_LAST_ERROR ] ?? null );
+		$meta = $this->scanMeta( $harness->scanRow( $scanID ) );
+		$this->assertSame( $marker, $meta[ 'asset_comparison_incomplete' ] ?? null );
+		$this->assertSame( $diagnostic, $meta[ RunState::META_KEY_LAST_ERROR ] ?? null );
+		$this->assertSame( $meta, $item->meta );
 	}
 
 	public function test_mark_running_clears_only_watchdog_recovery_alongside_queue_item_exception() :void {
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700001555 ),
-		] );
 		$diagnostic = 'Queue item exception: scan=afs qitem_id=18 attempt=1 exception=RuntimeException message=hard death';
-		$scanUpdates = [];
-		$selectorCalls = 0;
-		$this->installRunStateUpdateHarness( $scanUpdates, $selectorCalls );
+		$harness = ( new ScanQueueLifecycleHarness( 1700001555 ) )->install();
+		$marker = [ 'plugin' => [ 'current/plugin.php' ], 'theme' => [] ];
+		$scanID = $harness->insertScan( [
+			'scan'            => 'afs',
+			'status'          => 'built',
+			'ready_at'        => 1699999999,
+			'last_process_at' => 1699999999,
+			'meta'            => $this->encodedScanMeta( [
+				'asset_comparison_incomplete'       => $marker,
+				RunState::META_KEY_LAST_ERROR         => $diagnostic,
+				RunState::META_KEY_WATCHDOG_RECOVERY => [ 'attempts' => 1 ],
+				'scan_meta'                           => 'value',
+			] ),
+		] );
 		$item = ( new QueueItemVO() )->applyFromArray( [
-			'scan_id'         => 64,
+			'scan_id'         => $scanID,
 			'scan_started_at' => 1699999999,
 			'meta'            => [
 				RunState::META_KEY_LAST_ERROR         => $diagnostic,
@@ -312,12 +333,13 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
 		( new RunState() )->markRunning( $item );
 
-		$this->assertSame( 0, $selectorCalls );
-		$this->assertCount( 1, $scanUpdates );
+		$meta = $this->scanMeta( $harness->scanRow( $scanID ) );
 		$this->assertSame( [
+			'asset_comparison_incomplete' => $marker,
 			RunState::META_KEY_LAST_ERROR => $diagnostic,
 			'scan_meta'                   => 'value',
-		], \json_decode( \base64_decode( (string)$scanUpdates[ 0 ][ 'data' ][ 'meta' ] ), true ) );
+		], $meta );
+		$this->assertSame( $meta, $item->meta );
 	}
 
 	public function test_mark_running_primes_heartbeat_throttle_without_scan_item_writes() :void {
@@ -382,130 +404,19 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 	}
 
 	public function test_process_queue_item_logs_processing_exception_without_failing_scan() :void {
-		ServicesState::installItems( [
-			'service_request' => new UnitTestRequest( [], '127.0.0.1', 1700002000 ),
+		$harness = ( new ScanQueueLifecycleHarness( 1700002000 ) )->install();
+		$scanID = $harness->insertScan( [
+			'scan'   => 'bad',
+			'status' => 'built',
+			'meta'   => $this->encodedScanMeta( [
+				RunState::META_KEY_LAST_ERROR => 'Queue item exception: scan=bad qitem_id=7 attempt=1 exception=RuntimeException message=old failure',
+			] ),
 		] );
-
-		$scanItemUpdates = [];
-		$scanUpdates = [];
-		$deletedScanItems = [];
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_items' => new class( $scanItemUpdates, $deletedScanItems ) {
-					public array $updates;
-					public array $deleted;
-
-					public function __construct( array &$updates, array &$deleted ) {
-						$this->updates = &$updates;
-						$this->deleted = &$deleted;
-					}
-
-					public function getQueryUpdater() :object {
-						return new class( $this->updates ) {
-							public array $updates;
-
-							public function __construct( array &$updates ) {
-								$this->updates = &$updates;
-							}
-
-							public function updateById( int $id, array $data ) :bool {
-								$this->updates[] = [ 'id' => $id, 'data' => $data ];
-								return true;
-							}
-						};
-					}
-
-					public function getQueryDeleter() :object {
-						return new class( $this->deleted ) {
-							public array $deleted;
-							private int $scanID = 0;
-
-							public function __construct( array &$deleted ) {
-								$this->deleted = &$deleted;
-							}
-
-							public function filterByScan( int $scanID ) :self {
-								$this->scanID = $scanID;
-								return $this;
-							}
-
-							public function filterByNotFinished() :self {
-								return $this;
-							}
-
-							public function query() :bool {
-								$this->deleted[] = $this->scanID;
-								return true;
-							}
-						};
-					}
-				},
-				'scans' => new class( $scanUpdates ) {
-					public array $updates;
-					private object $record;
-
-					public function __construct( array &$updates ) {
-						$this->updates = &$updates;
-						$this->record = new class {
-							public int $id = 99;
-							public int $started_at = 0;
-							public array $meta = [
-								RunState::META_KEY_LAST_ERROR => 'Queue item exception: scan=bad qitem_id=7 attempt=1 exception=RuntimeException message=old failure',
-							];
-
-							public function __get( string $key ) {
-								return $this->{$key} ?? null;
-							}
-
-							public function __set( string $key, $value ) :void {
-								$this->{$key} = $value;
-							}
-
-							public function getRawData() :array {
-								return [
-									'id' => $this->id,
-									'meta' => base64_encode( wp_json_encode( $this->meta ) ?: '{}' ),
-								];
-							}
-						};
-					}
-
-					public function getQuerySelector() :object {
-						return new class( $this->record ) {
-							private object $record;
-
-							public function __construct( object $record ) {
-								$this->record = $record;
-							}
-
-							public function byId( int $scanID ) :object {
-								$this->record->id = $scanID;
-								return $this->record;
-							}
-						};
-					}
-
-					public function getQueryUpdater() :object {
-						return new class( $this->updates ) {
-							public array $updates;
-
-							public function __construct( array &$updates ) {
-								$this->updates = &$updates;
-							}
-
-							public function updateById( int $id, array $data ) :bool {
-								$this->updates[] = [ 'id' => $id, 'data' => $data ];
-								return true;
-							}
-						};
-					}
-				},
-			],
-		] );
+		$itemID = $harness->insertScanItem( $scanID, [ 'bad-item' ] );
 
 		$item = ( new QueueItemVO() )->applyFromArray( [
-			'scan_id'  => 99,
-			'qitem_id' => 7,
+			'scan_id'  => $scanID,
+			'qitem_id' => $itemID,
 			'scan'     => 'bad',
 			'attempts' => 2,
 			'meta'     => [
@@ -516,24 +427,26 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 
 		( new ProcessQueueItem() )->run( $item );
 
-		$this->assertSame( [], $scanItemUpdates );
-		$this->assertCount( 2, $scanUpdates );
-		$this->assertSame( 'running', $scanUpdates[ 0 ][ 'data' ][ 'status' ] ?? null );
-		$this->assertSame( 1700002000, $scanUpdates[ 0 ][ 'data' ][ 'last_process_at' ] ?? null );
-		$this->assertSame( [ 'meta' ], \array_keys( $scanUpdates[ 1 ][ 'data' ] ) );
-		$meta = \json_decode( \base64_decode( (string)$scanUpdates[ 1 ][ 'data' ][ 'meta' ] ), true );
+		$scan = $harness->scanRow( $scanID );
+		$this->assertSame( 'running', $scan[ 'status' ] );
+		$this->assertSame( 1700002000, (int)$scan[ 'last_process_at' ] );
+		$meta = $this->scanMeta( $scan );
 		$this->assertArrayHasKey( RunState::META_KEY_LAST_ERROR, $meta );
 		$message = $meta[ RunState::META_KEY_LAST_ERROR ];
 		$this->assertStringStartsWith( 'Queue item exception:', $message );
 		$this->assertStringContainsString( 'scan=bad', $message );
-		$this->assertStringContainsString( 'qitem_id=7', $message );
+		$this->assertStringContainsString( 'qitem_id='.$itemID, $message );
 		$this->assertStringContainsString( 'attempt=2', $message );
 		$this->assertStringContainsString( 'exception=InvalidArgumentException', $message );
 		$this->assertStringContainsString( 'Unknown scan slug: bad', $message );
 		$this->assertStringNotContainsString( 'old failure', $message );
-		$this->assertSame( [], $deletedScanItems );
+		$this->assertSame( 0, (int)$harness->scanItemRow( $itemID )[ 'finished_at' ] );
 		$this->assertTrue( QueueLifecycleLogSpy::contains(
-			'Shield scan processing exception: scan_id=99 qitem_id=7 scan=bad message=Unknown scan slug: bad'
+			\sprintf(
+				'Shield scan processing exception: scan_id=%d qitem_id=%d scan=bad message=Unknown scan slug: bad',
+				$scanID,
+				$itemID
+			)
 		) );
 	}
 
@@ -1759,43 +1672,6 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 		return $harness;
 	}
 
-	private function installRunStateUpdateHarness( array &$scanUpdates, int &$selectorCalls ) :void {
-		$this->installController( [
-			'db_con' => (object)[
-				'scans' => new class( $scanUpdates, $selectorCalls ) {
-					public array $updates;
-					public int $selectorCalls;
-
-					public function __construct( array &$updates, int &$selectorCalls ) {
-						$this->updates = &$updates;
-						$this->selectorCalls = &$selectorCalls;
-					}
-
-					public function getQuerySelector() :object {
-						$this->selectorCalls++;
-						return new class {
-						};
-					}
-
-					public function getQueryUpdater() :object {
-						return new class( $this->updates ) {
-							public array $updates;
-
-							public function __construct( array &$updates ) {
-								$this->updates = &$updates;
-							}
-
-							public function updateById( int $scanID, array $data ) :bool {
-								$this->updates[] = [ 'scan_id' => $scanID, 'data' => $data ];
-								return true;
-							}
-						};
-					}
-				},
-			],
-		] );
-	}
-
 	private function installController( array $properties ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -1817,6 +1693,16 @@ class QueueRuntimeBehaviorTest extends BaseUnitTest {
 			}
 		}
 		return $count;
+	}
+
+	private function encodedScanMeta( array $meta ) :string {
+		$scan = new ScanRecord();
+		$scan->meta = $meta;
+		return (string)( $scan->getRawData()[ 'meta' ] ?? '' );
+	}
+
+	private function scanMeta( array $scan ) :array {
+		return \json_decode( \base64_decode( (string)( $scan[ 'meta' ] ?? '' ) ), true ) ?: [];
 	}
 
 	private function assertSingleHeartbeatScanUpdateOnlySetsLastProcessAt( array $queries ) :void {

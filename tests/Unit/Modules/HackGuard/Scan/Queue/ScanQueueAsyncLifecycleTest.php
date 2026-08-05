@@ -10,6 +10,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record as ScanRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
 	ScansController,
 	StartScansResult
@@ -627,15 +628,9 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$harness->sql->updateRowById( 'scans', $scanID, [
 			'meta' => $this->encodedScanMeta( [ RunState::META_KEY_LAST_ERROR => $diagnostic ] ),
 		] );
-		$harness->sql->resetQueryLog();
-
 		( new ProcessQueueItem() )->run( ( new QueueItems() )->next() );
 
-		$queries = $harness->sql->queryLog();
-		$finishIndex = $this->queryLogFirstIndex( $queries, 'UPDATE `scan_items` SET `finished_at`' );
-		$clearIndex = $this->queryLogFirstIndex( $queries, 'UPDATE `scans` SET `meta`' );
-		$this->assertGreaterThanOrEqual( 0, $finishIndex );
-		$this->assertGreaterThan( $finishIndex, $clearIndex );
+		$this->assertSame( 1700000000, (int)$harness->scanItemRow( $itemID )[ 'finished_at' ] );
 		$this->assertArrayNotHasKey(
 			RunState::META_KEY_LAST_ERROR,
 			$this->scanMeta( $harness->scanRow( $scanID ) )
@@ -1126,7 +1121,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			'created_at'      => 1699998100,
 			'last_process_at' => 1699999990,
 		] );
-		$harness->scansDb->failNextUpdate();
+		$harness->sql->failNextConditionalScanMetaUpdate();
 		$harness->async->resetTransport();
 
 		( new QueueWatchdog() )->run();
@@ -2341,7 +2336,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		] );
 		$harness->insertScanItem( $scanID, [ 'afs-a' ] );
 		$watchdog = new QueueWatchdog();
-		$harness->scansDb->failNextUpdate();
+		$harness->sql->failNextConditionalScanMetaUpdate();
 		$harness->async->resetTransport();
 
 		$this->assertFalse( $watchdog->recoverScanIfStale( $scanID ) );
@@ -2496,7 +2491,9 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 	}
 
 	private function encodedScanMeta( array $meta ) :string {
-		return \base64_encode( \json_encode( $meta ) ?: '[]' );
+		$scan = new ScanRecord();
+		$scan->meta = $meta;
+		return (string)( $scan->getRawData()[ 'meta' ] ?? '' );
 	}
 
 	private function scanMeta( array $scan ) :array {

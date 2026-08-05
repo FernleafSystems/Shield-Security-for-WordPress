@@ -75,40 +75,26 @@ class QueueRecovery {
 		}
 
 		$now = Services::Request()->ts();
-		$meta = \is_array( $scan->meta ) ? $scan->meta : [];
-		$recovery = \is_array( $meta[ RunState::META_KEY_WATCHDOG_RECOVERY ] ?? null )
-			? $meta[ RunState::META_KEY_WATCHDOG_RECOVERY ]
-			: [];
-
-		$lastAttemptAt = (int)( $recovery[ 'last_attempt_at' ] ?? 0 );
-		if ( $lastAttemptAt > $now - self::RESUME_COOLDOWN ) {
-			return true;
-		}
-
-		$attempts = (int)( $recovery[ 'attempts' ] ?? 0 );
-		if ( $attempts >= self::MAX_RESUME_ATTEMPTS ) {
-			( new RunState() )->markFailed( (int)$scan->id, ReconcileQueue::MESSAGE_TIMED_OUT );
-			return true;
-		}
-		$attempts++;
-
-		$meta[ RunState::META_KEY_WATCHDOG_RECOVERY ] = [
-			'attempts'        => $attempts,
-			'last_attempt_at' => $now,
-		];
-		$scan->meta = $meta;
-		if ( !self::con()->db_con->scans->getQueryUpdater()->updateById( (int)$scan->id, [
-			'last_process_at' => $now,
-			'meta'            => $scan->getRawData()[ 'meta' ],
-		] ) ) {
+		$recovery = ( new RunState() )->recoverReadyUnstartedScan(
+			(int)$scan->id,
+			$now,
+			self::RESUME_COOLDOWN,
+			self::MAX_RESUME_ATTEMPTS
+		);
+		if ( !$recovery[ 'persistence_succeeded' ] ) {
 			error_log( \sprintf(
 				'Shield scan recovery persistence failed: scan_id=%d phase=ready-unstarted',
 				(int)$scan->id
 			) );
 			return false;
 		}
-
-		self::con()->comps->scans_queue->getQueueProcessor()->dispatch();
+		if ( $recovery[ 'should_fail' ] ) {
+			( new RunState() )->markFailed( (int)$scan->id, ReconcileQueue::MESSAGE_TIMED_OUT );
+			return true;
+		}
+		if ( $recovery[ 'should_dispatch' ] ) {
+			self::con()->comps->scans_queue->getQueueProcessor()->dispatch();
+		}
 		return true;
 	}
 

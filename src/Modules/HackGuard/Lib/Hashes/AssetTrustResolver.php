@@ -131,7 +131,19 @@ class AssetTrustResolver {
 	 * @throws \Exception
 	 */
 	public function verifyStoredContext( string $path, AssetFileContext $context ) :?HashVerificationResult {
-		$source = ( new Retrieve() )->byVOFromStoredSnapshot( $this->assetFromContext( $context ) );
+		$cacheKey = wp_normalize_path( $path );
+		$currentContext = self::$currentContextsByPath[ $cacheKey ] ?? null;
+		$asset = self::$currentAssetsByPath[ $cacheKey ] ?? null;
+		if ( !$currentContext instanceof AssetFileContext
+			 || ( !$asset instanceof WpPluginVo && !$asset instanceof WpThemeVo )
+			 || $currentContext->assetType !== $context->assetType
+			 || $currentContext->assetKey !== $context->assetKey
+			 || $currentContext->assetVersion !== $context->assetVersion
+			 || $currentContext->relativePath !== $context->relativePath ) {
+			throw new NonAssetFileException( 'Current plugin or theme context is unavailable.' );
+		}
+
+		$source = ( new Retrieve() )->byVOFromStoredSnapshot( $asset );
 		if ( \is_null( $source ) ) {
 			return null;
 		}

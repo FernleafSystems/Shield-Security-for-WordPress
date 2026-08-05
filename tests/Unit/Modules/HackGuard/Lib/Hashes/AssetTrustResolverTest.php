@@ -364,6 +364,27 @@ class AssetTrustResolverTest extends BaseUnitTest {
 		$this->assertNull( $resolver->verifyStoredContext( $path, $context ) );
 	}
 
+	public function test_stored_verification_fails_closed_when_cached_snapshot_is_deleted() :void {
+		$cacheRoot = $this->createTrackedTempDir( 'shield-resolver-fresh-store-' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		$asset = new ResolverPluginVo( 'alpha/alpha.php', '1.0.0' );
+		$this->installHashStoreEnvironment(
+			new ResolverPlugins( [ 'alpha/alpha.php' ], '1.0.0' ),
+			new ResolverThemes( [] ),
+			$cacheRoot
+		);
+		$this->writeStore( $asset, [ 'other.php' => self::PLUGIN_HASH ], $hashDir );
+		$path = $this->normalisePath( WP_PLUGIN_DIR.'/alpha/src/File.php' );
+		$resolver = new AssetTrustResolver();
+		$context = $resolver->resolveCurrentContext( $path );
+		$store = ( new Store( $asset, true ) )->setWorkingDir( $hashDir );
+
+		$this->assertInstanceOf( HashVerificationResult::class, $resolver->verifyStoredContext( $path, $context ) );
+		\unlink( $store->getSnapStorePath() );
+		$this->assertNull( $resolver->verifyStoredContext( $path, $context ) );
+	}
+
 	public function test_repeated_same_theme_path_reuses_full_path_context() :void {
 		$this->installEnvironment( [], [ 'clean' ] );
 		$path = $this->normalisePath( WP_CONTENT_DIR.'/themes/clean/inc/File.php' );

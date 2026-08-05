@@ -82,6 +82,47 @@ class ScanActionVO extends \FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\B
 		return \is_array( parent::__get( 'asset_snapshot_eligibility' ) );
 	}
 
+	public function hasValidAssetComparisonIncomplete() :bool {
+		$raw = $this->getRawData();
+		return !\array_key_exists( 'asset_comparison_incomplete', $raw )
+			   || self::isValidAssetComparisonIncomplete( $raw[ 'asset_comparison_incomplete' ] );
+	}
+
+	/**
+	 * @return array{plugin:list<string>,theme:list<string>}
+	 */
+	public function getAssetComparisonIncomplete() :array {
+		if ( !$this->hasValidAssetComparisonIncomplete() ) {
+			throw new \UnexpectedValueException( 'Asset comparison incomplete metadata is malformed.' );
+		}
+
+		$value = parent::__get( 'asset_comparison_incomplete' );
+		return \is_array( $value ) ? $value : [
+			'plugin' => [],
+			'theme'  => [],
+		];
+	}
+
+	public function isAssetComparisonIncomplete( string $assetType, string $assetKey ) :bool {
+		return $this->isValidAssetReference( $assetType, $assetKey )
+			   && \in_array( $assetKey, $this->getAssetComparisonIncomplete()[ $assetType ], true );
+	}
+
+	public function markAssetComparisonIncomplete( string $assetType, string $assetKey ) :bool {
+		if ( !$this->isValidAssetReference( $assetType, $assetKey ) ) {
+			throw new \InvalidArgumentException( 'Asset comparison incomplete identity is invalid.' );
+		}
+
+		$incomplete = $this->getAssetComparisonIncomplete();
+		if ( \in_array( $assetKey, $incomplete[ $assetType ], true ) ) {
+			return false;
+		}
+
+		$incomplete[ $assetType ][] = $assetKey;
+		parent::__set( 'asset_comparison_incomplete', $incomplete );
+		return true;
+	}
+
 	public function isAssetSnapshotComparisonEligible(
 		string $assetType,
 		string $assetKey,

@@ -320,6 +320,110 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		$this->assertNull( ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) );
 	}
 
+	public function test_unchanged_stored_source_reuses_normalized_content_without_more_reads() :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		$fs = new RetrieveVersionedCacheTestFs();
+		ServicesState::installItems( [
+			'service_wpfs' => $fs,
+		] );
+		$this->installController( $cacheRoot );
+		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$this->writeStore( $asset, [ 'plugin.php' => self::HASH_V2 ], $hashDir );
+		$store = ( new Store( $asset, true ) )->setWorkingDir( $hashDir );
+		$retrieve = new Retrieve();
+
+		$this->assertNotNull( $retrieve->byVOFromStoredSnapshot( $asset ) );
+		for ( $i = 0; $i < 20; $i++ ) {
+			$this->assertNotNull( $retrieve->byVOFromStoredSnapshot( $asset ) );
+		}
+
+		$this->assertSame( 1, $fs->compressedReads( $store->getSnapStorePath() ) );
+		$this->assertSame( 1, $fs->compressedReads( $store->getSnapStoreMetaPath() ) );
+	}
+
+	public function test_deleted_positive_source_becomes_a_sticky_miss() :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		ServicesState::installItems( [ 'service_wpfs' => new RetrieveVersionedCacheTestFs() ] );
+		$this->installController( $cacheRoot );
+		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$this->writeStore( $asset, [ 'plugin.php' => self::HASH_V2 ], $hashDir );
+		$store = ( new Store( $asset, true ) )->setWorkingDir( $hashDir );
+		$retrieve = new Retrieve();
+
+		$this->assertNotNull( $retrieve->byVOFromStoredSnapshot( $asset ) );
+		\unlink( $store->getSnapStorePath() );
+		$this->assertNull( $retrieve->byVOFromStoredSnapshot( $asset ) );
+		$this->writeStore( $asset, [ 'plugin.php' => self::HASH_V2 ], $hashDir );
+		$this->assertNull( $retrieve->byVOFromStoredSnapshot( $asset ) );
+	}
+
+	public function test_inaccessible_positive_source_becomes_a_sticky_miss() :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		$fs = new RetrieveVersionedCacheTestFs();
+		ServicesState::installItems( [ 'service_wpfs' => $fs ] );
+		$this->installController( $cacheRoot );
+		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$this->writeStore( $asset, [ 'plugin.php' => self::HASH_V2 ], $hashDir );
+		$store = ( new Store( $asset, true ) )->setWorkingDir( $hashDir );
+		$retrieve = new Retrieve();
+
+		$this->assertNotNull( $retrieve->byVOFromStoredSnapshot( $asset ) );
+		$fs->denyAccess( $store->getSnapStoreMetaPath() );
+		$this->assertNull( $retrieve->byVOFromStoredSnapshot( $asset ) );
+		$fs->allowAccess( $store->getSnapStoreMetaPath() );
+		$this->assertNull( $retrieve->byVOFromStoredSnapshot( $asset ) );
+	}
+
+	public function test_stable_storage_state_change_refills_once() :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		$fs = new RetrieveVersionedCacheTestFs();
+		ServicesState::installItems( [ 'service_wpfs' => $fs ] );
+		$this->installController( $cacheRoot );
+		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$this->writeStore( $asset, [ 'plugin.php' => self::HASH_V2 ], $hashDir );
+		$store = ( new Store( $asset, true ) )->setWorkingDir( $hashDir );
+		$retrieve = new Retrieve();
+
+		$this->assertFalse( $retrieve->byVOFromStoredSnapshot( $asset )[ 'trusted_source' ] );
+		$this->writeStoreWithMeta( $asset, [ 'plugin.php' => self::HASH_V2 ], [
+			'version'     => '2.0.0',
+			'unique_id'   => 'premium-plugin/plugin.php',
+			'live_hashes' => true,
+		], $hashDir );
+		\touch( $store->getSnapStoreMetaPath(), \filemtime( $store->getSnapStoreMetaPath() ) + 2 );
+
+		$this->assertTrue( $retrieve->byVOFromStoredSnapshot( $asset )[ 'trusted_source' ] );
+		$this->assertSame( 2, $fs->compressedReads( $store->getSnapStorePath() ) );
+		$this->assertSame( 2, $fs->compressedReads( $store->getSnapStoreMetaPath() ) );
+	}
+
+	public function test_storage_change_during_refill_becomes_a_sticky_miss() :void {
+		$cacheRoot = $this->makeTempDir( 'root' );
+		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
+		@mkdir( $hashDir, 0777, true );
+		$fs = new RetrieveVersionedCacheTestFs();
+		ServicesState::installItems( [ 'service_wpfs' => $fs ] );
+		$this->installController( $cacheRoot );
+		$asset = new RetrieveVersionedCacheTestPluginVo( 'premium-plugin/plugin.php', '2.0.0' );
+		$this->writeStore( $asset, [ 'plugin.php' => self::HASH_V2 ], $hashDir );
+		$store = ( new Store( $asset, true ) )->setWorkingDir( $hashDir );
+		$retrieve = new Retrieve();
+
+		$this->assertNotNull( $retrieve->byVOFromStoredSnapshot( $asset ) );
+		\touch( $store->getSnapStoreMetaPath(), \filemtime( $store->getSnapStoreMetaPath() ) + 2 );
+		$fs->touchDuringNextRead( $store->getSnapStoreMetaPath(), $store->getSnapStorePath() );
+		$this->assertNull( $retrieve->byVOFromStoredSnapshot( $asset ) );
+		$this->assertNull( $retrieve->byVOFromStoredSnapshot( $asset ) );
+	}
+
 	public function test_hash_lookup_miss_is_cached_until_memoization_reset() :void {
 		$cacheRoot = $this->makeTempDir( 'root' );
 		$hashDir = $cacheRoot.'/ptguard-aaaaaaaaaaaaaaaa';
@@ -408,6 +512,11 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 
 class RetrieveVersionedCacheTestFs extends Fs {
 
+	private array $compressedReads = [];
+	private array $deniedPaths = [];
+	private ?string $mutationTriggerPath = null;
+	private ?string $mutationTargetPath = null;
+
 	public function exists( $path ) :?bool {
 		return \file_exists( $path );
 	}
@@ -421,7 +530,26 @@ class RetrieveVersionedCacheTestFs extends Fs {
 	}
 
 	public function isAccessibleFile( string $path ) :bool {
-		return $path !== '' && \is_file( $path );
+		return $path !== ''
+			   && !isset( $this->deniedPaths[ $this->normalizePath( $path ) ] )
+			   && \is_file( $path );
+	}
+
+	public function denyAccess( string $path ) :void {
+		$this->deniedPaths[ $this->normalizePath( $path ) ] = true;
+	}
+
+	public function allowAccess( string $path ) :void {
+		unset( $this->deniedPaths[ $this->normalizePath( $path ) ] );
+	}
+
+	public function compressedReads( string $path ) :int {
+		return $this->compressedReads[ $this->normalizePath( $path ) ] ?? 0;
+	}
+
+	public function touchDuringNextRead( string $triggerPath, string $targetPath ) :void {
+		$this->mutationTriggerPath = $this->normalizePath( $triggerPath );
+		$this->mutationTargetPath = $this->normalizePath( $targetPath );
 	}
 
 	public function getAllFilesInDir( $dir, $includeDirs = true ) {
@@ -437,7 +565,16 @@ class RetrieveVersionedCacheTestFs extends Fs {
 	}
 
 	public function getFileContent( $path, $uncompress = false ) {
+		$normalizedPath = $this->normalizePath( (string)$path );
+		if ( $uncompress ) {
+			$this->compressedReads[ $normalizedPath ] = ( $this->compressedReads[ $normalizedPath ] ?? 0 ) + 1;
+		}
 		$contents = \file_get_contents( $path );
+		if ( $normalizedPath === $this->mutationTriggerPath && \is_string( $this->mutationTargetPath ) ) {
+			\touch( $this->mutationTargetPath, \filemtime( $this->mutationTargetPath ) + 2 );
+			$this->mutationTriggerPath = null;
+			$this->mutationTargetPath = null;
+		}
 		if ( \is_string( $contents ) && $uncompress ) {
 			$inflated = \gzinflate( $contents );
 			return \is_string( $inflated ) ? $inflated : null;
@@ -459,6 +596,10 @@ class RetrieveVersionedCacheTestFs extends Fs {
 
 	public function touch( $path, $time = null ) {
 		return \touch( $path, $time ?? \time() );
+	}
+
+	private function normalizePath( string $path ) :string {
+		return \str_replace( '\\', '/', $path );
 	}
 }
 

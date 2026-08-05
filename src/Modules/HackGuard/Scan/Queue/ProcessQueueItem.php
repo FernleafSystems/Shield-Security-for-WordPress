@@ -18,7 +18,15 @@ class ProcessQueueItem {
 		$runState->markRunning( $item );
 
 		try {
-			$results = $this->runScanOnItem( $item );
+			$scan = $this->runScanOnItem( $item );
+			$action = $scan[ 'action' ];
+			if ( $action instanceof Scans\Afs\ScanActionVO && $action->scope_type === 'full' ) {
+				$this->enqueueIncompleteAssets( $runState->persistAssetComparisonIncomplete(
+					$item,
+					$action,
+					$scan[ 'asset_comparison_incomplete_before' ]
+				) );
+			}
 
 			( new Store() )->store( $item, $results );
 
@@ -73,7 +81,39 @@ class ProcessQueueItem {
 			\usleep( $action->usleep );
 		}
 
-		return \is_array( $action->results ) ? $action->results : [];
+		return [
+			'action'                             => $action,
+			'results'                            => \is_array( $action->results ) ? $action->results : [],
+			'asset_comparison_incomplete_before' => $incompleteBefore,
+		];
+	}
+
+	/**
+	 * @param array{plugin:list<string>,theme:list<string>} $assets
+	 */
+	private function enqueueIncompleteAssets( array $assets ) :void {
+		foreach ( [ 'plugin', 'theme' ] as $assetType ) {
+			foreach ( $assets[ $assetType ] as $assetKey ) {
+				try {
+					if ( !self::con()->comps->asset_coordinator->enqueueAsset( $assetType, $assetKey ) ) {
+						$this->logAssetEnqueueFailure( $assetType, $assetKey, 'returned false' );
+					}
+				}
+				catch ( \Throwable $e ) {
+					$this->logAssetEnqueueFailure( $assetType, $assetKey, $e->getMessage() );
+				}
+			}
+		}
+	}
+
+	private function logAssetEnqueueFailure( string $assetType, string $assetKey, string $message ) :void {
+		$message = \trim( (string)\preg_replace( '#\s+#', ' ', $message ) );
+		error_log( \sprintf(
+			'Shield AFS asset follow-up enqueue failed: type=%s key=%s message=%s',
+			$assetType,
+			$assetKey,
+			\substr( $message, 0, 200 )
+		) );
 	}
 
 	/**

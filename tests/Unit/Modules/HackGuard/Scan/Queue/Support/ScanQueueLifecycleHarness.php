@@ -140,6 +140,47 @@ class ScanQueueLifecycleHarness {
 		return $this;
 	}
 
+	public function setPluginReloadVersions( array $versions ) :self {
+		$this->plugins->setReloadVersions( $versions );
+		return $this;
+	}
+
+	public function setAssetEnqueueOutcomes( array $outcomes ) :self {
+		$this->assetCoordinator->setOutcomes( $outcomes );
+		return $this;
+	}
+
+	public function assetEnqueueCalls() :array {
+		return $this->assetCoordinator->calls;
+	}
+
+	public function failAssetMarkerUpdate() :self {
+		$this->sql->failNextConditionalScanMetaUpdate();
+		return $this;
+	}
+
+	public function injectAssetMarkerConflict( int $scanID, array $marker ) :self {
+		$this->sql->injectScanMetaBeforeNextConditionalUpdate( $scanID, 'asset_comparison_incomplete', $marker );
+		return $this;
+	}
+
+	public function injectAssetMarkerConflicts( int $scanID, int $count ) :self {
+		for ( $i = 1; $i <= $count; $i++ ) {
+			$this->sql->injectScanMetaBeforeNextConditionalUpdate( $scanID, 'conditional_conflict_nonce', $i );
+		}
+		return $this;
+	}
+
+	public function failScanReadbackAfterOneSuccessfulRead() :self {
+		$this->scansDb->failSelectByIdAfter( 1 );
+		return $this;
+	}
+
+	public function afterNextScanRead( int $scanID, callable $callback ) :self {
+		$this->scansDb->afterNextSelectById( $scanID, $callback );
+		return $this;
+	}
+
 	public function forceAfsIsFileFor( string $path ) :self {
 		$this->afsFs->forceIsFileFor( $path );
 		return $this;
@@ -485,6 +526,8 @@ class LifecycleSqliteDb extends Db {
 	private array $queryLog = [];
 
 	private int $now;
+	private bool $failNextConditionalScanMetaUpdate = false;
+	private array $scanMetaConflicts = [];
 
 	public function __construct( int $now ) {
 		$this->now = $now;
@@ -656,8 +699,42 @@ class LifecycleSqliteDb extends Db {
 
 	public function doSql( string $sqlQuery ) {
 		$this->recordQuery( $sqlQuery );
+		if ( \stripos( $sqlQuery, 'UPDATE `scans`' ) !== false
+			 && \stripos( $sqlQuery, 'AND BINARY `meta`=BINARY ' ) !== false ) {
+			if ( $this->failNextConditionalScanMetaUpdate ) {
+				$this->failNextConditionalScanMetaUpdate = false;
+				return false;
+			}
+			if ( !empty( $this->scanMetaConflicts ) ) {
+				$conflict = \array_shift( $this->scanMetaConflicts );
+				$row = $this->scanRow( $conflict[ 'scan_id' ] );
+				$meta = \json_decode( \base64_decode( (string)( $row[ 'meta' ] ?? '' ) ), true );
+				$meta = \is_array( $meta ) ? $meta : [];
+				$meta[ $conflict[ 'key' ] ] = $conflict[ 'value' ];
+				$this->updateRowById( 'scans', $conflict[ 'scan_id' ], [
+					'meta' => \base64_encode( \json_encode( $meta ) ?: '[]' ),
+				] );
+			}
+		}
+		$sqlQuery = \str_ireplace( 'AND BINARY `meta`=BINARY ', 'AND `meta`=', $sqlQuery );
 		$result = $this->pdo->exec( $sqlQuery );
 		return $result === false ? false : $result;
+	}
+
+	public function failNextConditionalScanMetaUpdate() :void {
+		$this->failNextConditionalScanMetaUpdate = true;
+	}
+
+	public function injectScanMetaBeforeNextConditionalUpdate(
+		int $scanID,
+		string $key,
+		$value
+	) :void {
+		$this->scanMetaConflicts[] = [
+			'scan_id' => $scanID,
+			'key'     => $key,
+			'value'   => $value,
+		];
 	}
 
 	public function resetQueryLog() :void {
@@ -745,6 +822,8 @@ class LifecycleScansDb {
 
 	private LifecycleSqliteDb $db;
 	private bool $failNextUpdate = false;
+	private ?int $selectByIdSuccessesBeforeFailure = null;
+	private array $afterSelectById = [];
 
 	public function __construct( LifecycleSqliteDb $db ) {
 		$this->db = $db;
@@ -797,6 +876,33 @@ class LifecycleScansDb {
 
 	public function failNextUpdate() :void {
 		$this->failNextUpdate = true;
+	}
+
+	public function failSelectByIdAfter( int $successfulReads ) :void {
+		$this->selectByIdSuccessesBeforeFailure = \max( 0, $successfulReads );
+	}
+
+	public function afterNextSelectById( int $scanID, callable $callback ) :void {
+		$this->afterSelectById[ $scanID ] = $callback;
+	}
+
+	public function consumeAfterSelectById( int $scanID ) :?callable {
+		$callback = $this->afterSelectById[ $scanID ] ?? null;
+		unset( $this->afterSelectById[ $scanID ] );
+		return $callback;
+	}
+
+	public function consumeSelectByIdFailure() :bool {
+		if ( $this->selectByIdSuccessesBeforeFailure === null ) {
+			return false;
+		}
+		if ( $this->selectByIdSuccessesBeforeFailure > 0 ) {
+			$this->selectByIdSuccessesBeforeFailure--;
+			return false;
+		}
+
+		$this->selectByIdSuccessesBeforeFailure = null;
+		return true;
 	}
 
 	public function updateById( int $id, array $data ) :bool {
@@ -949,7 +1055,12 @@ class LifecycleScansSelector {
 		$this->reset()->addWhereEquals( 'id', $id )->setLimit( 1 );
 		$rows = $this->db->fetchRows( 'scans', $this->wheres, $this->params, '', $this->limit );
 		$this->reset();
-		return empty( $rows ) ? null : $this->recordFromRow( $rows[ 0 ] );
+		$record = empty( $rows ) ? null : $this->recordFromRow( $rows[ 0 ] );
+		$callback = $record === null ? null : $this->owner->consumeAfterSelectById( $id );
+		if ( $callback !== null ) {
+			$callback();
+		}
+		return $record;
 	}
 
 	public function first() :?ScansDB\Record {
