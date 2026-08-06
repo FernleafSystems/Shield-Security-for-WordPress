@@ -248,7 +248,6 @@
       "override_autoload":              {},
       "exclude_from_copy":              {
         "packages":      [
-          "psr/log",
           "psr/cache",
           "psr/http-client",
           "psr/http-factory",
