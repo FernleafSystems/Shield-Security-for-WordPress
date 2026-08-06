@@ -12,7 +12,7 @@
     "@types/jquery": "^3.5.33",
     "a11y-dialog": "^8.1.5",
     "ajv": "^8.18.0",
-    "altcha-lib": "^2.2.0",
+    "altcha-lib": "^2.3",
     "babel-loader": "^10.1.1",
     "bigpicture": "^2.6.4",
     "bootstrap": "^5.3.8",
