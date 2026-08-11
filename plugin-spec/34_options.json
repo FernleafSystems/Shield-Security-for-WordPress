@@ -924,6 +924,15 @@
         "sensitive": true
     },
     {
+        "key": "cloaked_plugin_findings",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "transferable": false,
+        "tracking_exclude": true,
+        "sensitive": true
+    },
+    {
         "key": "ignored_hidden_plugins",
         "section": "section_hidden",
         "type": "array",

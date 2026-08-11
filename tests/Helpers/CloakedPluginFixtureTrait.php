@@ -49,6 +49,14 @@ trait CloakedPluginFixtureTrait {
 		return $plugins;
 	}
 
+	public function hideCloakedPluginOnlyOnPluginsPage( $plugins ) {
+		global $pagenow;
+
+		return $pagenow === 'plugins.php'
+			? $this->hideCloakedPluginFromAllPlugins( $plugins )
+			: $plugins;
+	}
+
 	public function hideCloakedMustUsePlugins( $show, string $type ) {
 		return $type === 'mustuse' ? false : $show;
 	}
@@ -66,11 +74,16 @@ trait CloakedPluginFixtureTrait {
 
 	protected function removeCloakedPluginFixtureFilters() :void {
 		\remove_filter( 'all_plugins', [ $this, 'hideCloakedPluginFromAllPlugins' ], 1000 );
+		\remove_filter( 'all_plugins', [ $this, 'hideCloakedPluginOnlyOnPluginsPage' ], 1000 );
 		\remove_filter( 'show_advanced_plugins', [ $this, 'hideCloakedMustUsePlugins' ], 1000 );
 		\remove_filter( 'plugins_list', [ $this, 'hideCloakedPluginFromPluginsList' ], 1000 );
 	}
 
 	protected function cleanupCloakedPluginFixtures() :void {
+		$this->removeCloakedPluginFixtures();
+	}
+
+	protected function removeCloakedPluginFixtures() :void {
 		foreach ( \array_reverse( $this->cloakedPluginFixturePaths ) as $path ) {
 			$path = \wp_normalize_path( $path );
 			if ( \is_file( $path ) ) {
@@ -83,6 +96,16 @@ trait CloakedPluginFixtureTrait {
 		$this->cloakedPluginFixturePaths = [];
 		$this->cloakedPluginFixtureFile = '';
 		$this->cleanCloakedPluginCache();
+	}
+
+	protected function resetCloakedPluginFindingsCache() :void {
+		if ( static::con() === null ) {
+			return;
+		}
+
+		$currentState = new \ReflectionProperty( $this->requireController()->comps->hidden_plugins, 'currentState' );
+		$currentState->setAccessible( true );
+		$currentState->setValue( $this->requireController()->comps->hidden_plugins, null );
 	}
 
 	private function writeCloakedPluginFile( string $path, string $name ) :void {

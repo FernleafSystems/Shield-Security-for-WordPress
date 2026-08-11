@@ -10,9 +10,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\ScanResultsLagWarning,
 	Actions\Render\Components\Widgets\MaintenanceIssueStateProvider,
 	Actions\Render\Components\Widgets\NeedsAttentionQueue,
+	Actions\Render\PluginAdminPages\CloakedPluginsQueueIssueProvider,
 	Actions\Render\PluginAdminPages\PageOperatorModeLanding,
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
+	CloakedPluginState,
+	PluginPageView
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
@@ -173,16 +177,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		) );
 		\natsort( $pluginFiles );
 		return \array_values( $pluginFiles );
-	}
-
-	private function resetCloakedPluginFindingsCache() :void {
-		if ( static::con() === null ) {
-			return;
-		}
-
-		$currentFindings = new \ReflectionProperty( $this->requireController()->comps->hidden_plugins, 'currentFindings' );
-		$currentFindings->setAccessible( true );
-		$currentFindings->setValue( $this->requireController()->comps->hidden_plugins, null );
 	}
 
 	/**
@@ -525,12 +519,16 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	public function test_operator_mode_landing_actions_queue_rows_include_cloaked_plugin_finding() :void {
 		$optionsSnapshot = $this->snapshotSelectedOptions( [
 			CloakedPluginState::OPT_KEY,
+			CloakedPluginState::IGNORE_OPT_KEY,
+			CloakedPluginState::FINDINGS_OPT_KEY,
 			'instant_alert_hidden_plugins',
 		] );
 
 		try {
 			self::con()->opts
 				->optSet( CloakedPluginState::OPT_KEY, [] )
+				->optSet( CloakedPluginState::IGNORE_OPT_KEY, [] )
+				->optSet( CloakedPluginState::FINDINGS_OPT_KEY, [] )
 				->optSet( 'instant_alert_hidden_plugins', 'disabled' )
 				->store();
 			$this->createStandardCloakedPlugin( 'shi-cloaked-dashboard', 'SHI Cloaked Dashboard' );
@@ -557,6 +555,64 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		finally {
 			$this->removeCloakedPluginFixtureFilters();
 			$this->restoreSelectedOptions( $optionsSnapshot );
+		}
+	}
+
+	public function test_cloaked_plugin_status_survives_page_scoped_detection_across_requests() :void {
+		global $pagenow;
+
+		$originalPageNow = $pagenow ?? null;
+		$optionsSnapshot = $this->snapshotSelectedOptions( [
+			CloakedPluginState::OPT_KEY,
+			CloakedPluginState::IGNORE_OPT_KEY,
+			CloakedPluginState::FINDINGS_OPT_KEY,
+			'instant_alert_hidden_plugins',
+		] );
+
+		try {
+			self::con()->opts
+				->optSet( CloakedPluginState::OPT_KEY, [] )
+				->optSet( CloakedPluginState::IGNORE_OPT_KEY, [] )
+				->optSet( CloakedPluginState::FINDINGS_OPT_KEY, [] )
+				->optSet( 'instant_alert_hidden_plugins', 'disabled' )
+				->store();
+			$pluginFile = $this->createStandardCloakedPlugin( 'shi-page-scoped-cloak', 'SHI Page-Scoped Cloak' );
+			\add_filter( 'all_plugins', [ $this, 'hideCloakedPluginOnlyOnPluginsPage' ], 1000 );
+
+			$pagenow = 'plugins.php';
+			$this->assertCount( 1, $this->requireController()->comps->hidden_plugins->detect() );
+			$pluginPageRows = ( new PluginPageView() )->addCloakedList( [] );
+			$this->assertArrayHasKey( $pluginFile, $pluginPageRows[ PluginPageView::STATUS ] ?? [] );
+
+			$pagenow = 'admin.php';
+			$this->resetCloakedPluginFindingsCache();
+			$provider = new CloakedPluginsQueueIssueProvider();
+			$assessmentRow = $provider->assessmentRows()[ 0 ];
+
+			$this->assertSame(
+				[
+					'status'      => 'critical',
+					'description' => '1 cloaked plugin detected.',
+				],
+				[
+					'status'      => $assessmentRow[ 'status' ] ?? null,
+					'description' => $assessmentRow[ 'description' ] ?? null,
+				],
+				'A cloaked plugin detected on the Plugins page must not become a false Good result on Shield admin pages.'
+			);
+			$this->assertCount( 1, $provider->attentionItems() );
+			$this->assertSame( 'critical', $provider->railPaneData()[ 'status' ] );
+		}
+		finally {
+			\remove_filter( 'all_plugins', [ $this, 'hideCloakedPluginOnlyOnPluginsPage' ], 1000 );
+			$this->resetCloakedPluginFindingsCache();
+			$this->restoreSelectedOptions( $optionsSnapshot );
+			if ( $originalPageNow === null ) {
+				unset( $GLOBALS[ 'pagenow' ] );
+			}
+			else {
+				$pagenow = $originalPageNow;
+			}
 		}
 	}
 

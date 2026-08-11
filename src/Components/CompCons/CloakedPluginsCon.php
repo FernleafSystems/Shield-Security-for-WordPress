@@ -97,19 +97,22 @@ class CloakedPluginsCon {
 				static fn( PluginEntry $entry ) :bool => PhpFileActivity::isAlertable( $classifier->classify( $entry->path ) )
 			) );
 
+			$visibility = ( new AdminPluginVisibility() )->snapshot( $finalPluginsList );
 			$findings = ( new PluginVisibilityComparator() )->compare(
 				$entries,
-				( new AdminPluginVisibility() )->snapshot( $finalPluginsList )
+				$visibility
 			);
-			$state = ( new CloakedPluginState() )->classify( $findings );
+			$state = ( new CloakedPluginState() )->reconcile(
+				$findings,
+				$entries,
+				$visibility,
+				$finalPluginsList !== null
+			);
+			$this->currentState = $state;
 
 			$newFindings = $state[ 'new_active' ];
 			if ( !empty( $newFindings ) ) {
 				$this->publishFindings( $newFindings );
-			}
-
-			if ( $finalPluginsList === null ) {
-				$this->currentState = $state;
 			}
 
 			return $state[ 'active' ];

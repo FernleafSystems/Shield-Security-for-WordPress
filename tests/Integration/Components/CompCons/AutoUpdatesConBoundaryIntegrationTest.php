@@ -3,10 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\CompCons;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\AutoUpdatesCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\CloakedPluginFixtureTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class AutoUpdatesConBoundaryIntegrationTest extends ShieldIntegrationTestCase {
+
+	use CloakedPluginFixtureTrait;
 
 	private array $optionSnapshot = [];
 
@@ -19,9 +23,13 @@ class AutoUpdatesConBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		$con = $this->requireController();
 		$this->optionSnapshot = $this->snapshotSelectedOptions( [
 			'autoupdate_plugin_self',
+			CloakedPluginState::OPT_KEY,
+			CloakedPluginState::IGNORE_OPT_KEY,
+			CloakedPluginState::FINDINGS_OPT_KEY,
 			'delay_tracking',
 			'update_delay',
 		] );
+		$this->clearCloakedPluginState();
 		$this->priority = (int)$con->cfg->configuration->def( 'action_hook_priority' );
 		$this->subject = new AutoUpdatesCon();
 		$this->subject->execute();
@@ -40,6 +48,7 @@ class AutoUpdatesConBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 			remove_filter( 'plugins_list', [ $this->subject, 'indicateAutoUpdate' ] );
 		}
 		$this->restoreSelectedOptions( $this->optionSnapshot );
+		$this->resetCloakedPluginFindingsCache();
 		parent::tear_down();
 	}
 
@@ -57,12 +66,22 @@ class AutoUpdatesConBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [
 			'cloaked' => [],
 		], apply_filters( 'plugins_list', 'hostile-outer-value' ) );
+		$this->clearCloakedPluginState();
 		$this->assertSame( [
 			'all'     => [],
 			'cloaked' => [],
 		], apply_filters( 'plugins_list', [
 			'all' => [ $con->base_file => 'hostile-row' ],
 		] ) );
+	}
+
+	private function clearCloakedPluginState() :void {
+		$this->requireController()->opts
+			->optSet( CloakedPluginState::OPT_KEY, [] )
+			->optSet( CloakedPluginState::IGNORE_OPT_KEY, [] )
+			->optSet( CloakedPluginState::FINDINGS_OPT_KEY, [] )
+			->store();
+		$this->resetCloakedPluginFindingsCache();
 	}
 
 	public function test_registered_tracking_hook_persists_and_reloads_canonical_delay_tree() :void {
