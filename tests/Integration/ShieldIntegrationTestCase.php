@@ -2,10 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration;
 
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableSchema;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
+use FernleafSystems\Wordpress\Services\Services;
 
 /**
  * Enhanced base test case for Shield security-logic integration tests.
@@ -24,7 +27,7 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 	 */
 	private array $capturedEvents = [];
 
-	/** @var string[] */
+	/** @var array<string,array{table:string,schema:TableSchema}> */
 	private array $transactionScopedTables = [];
 
 	public function set_up() {
@@ -58,20 +61,54 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		catch ( \Throwable $e ) {
 			$parentFailure = $e;
 		}
+		$this->cleanupTransactionScopedTables( $parentFailure );
+	}
 
+	protected function cleanupTransactionScopedTables( ?\Throwable $parentFailure = null ) :void {
+		$transactionScopedTables = $this->transactionScopedTables;
+		$this->transactionScopedTables = [];
 		global $wpdb;
 		$cleanupFailures = [];
-		foreach ( $this->transactionScopedTables as $table ) {
-			$wpdb->last_error = '';
-			if ( $wpdb->query( "DROP TEMPORARY TABLE IF EXISTS `{$table}`" ) === false || $wpdb->last_error !== '' ) {
-				$cleanupFailures[] = $table.': '.( $wpdb->last_error !== '' ? $wpdb->last_error : 'unknown database error' );
+		foreach ( $transactionScopedTables as $fixture ) {
+			try {
+				$wpdb->last_error = '';
+				if ( $wpdb->query( "DROP TEMPORARY TABLE IF EXISTS `{$fixture['table']}`" ) === false
+					 || $wpdb->last_error !== '' ) {
+					$cleanupFailures[] = $fixture[ 'table' ].' drop: '
+						.( $wpdb->last_error !== '' ? $wpdb->last_error : 'unknown database error' );
+				}
+			}
+			catch ( \Throwable $e ) {
+				$cleanupFailures[] = $fixture[ 'table' ].' drop: '
+					.( $e->getMessage() !== '' ? $e->getMessage() : \get_class( $e ) );
 			}
 		}
-		$this->transactionScopedTables = [];
+		foreach ( $transactionScopedTables as $fixture ) {
+			try {
+				Handler::GetTableReadyCache()->setReady( $fixture[ 'schema' ], false );
+			}
+			catch ( \Throwable $e ) {
+				$cleanupFailures[] = $fixture[ 'table' ].' ready-cache invalidation: '.$e->getMessage();
+			}
+		}
+		if ( $transactionScopedTables !== [] ) {
+			try {
+				Services::WpDb()->clearResultShowTables();
+			}
+			catch ( \Throwable $e ) {
+				$cleanupFailures[] = 'SHOW TABLES cache invalidation: '.$e->getMessage();
+			}
+			try {
+				$this->requireController()->db_con->reset();
+			}
+			catch ( \Throwable $e ) {
+				$cleanupFailures[] = 'DB handler reset: '.$e->getMessage();
+			}
+		}
 		if ( $cleanupFailures !== [] ) {
 			throw new \RuntimeException(
 				( $parentFailure === null ? '' : 'Parent teardown failed: '.$parentFailure->getMessage().'. ' )
-				.'Failed to remove transaction-scoped tables: '.\implode( '; ', $cleanupFailures ),
+				.'Transaction-scoped fixture cleanup failed: '.\implode( '; ', $cleanupFailures ),
 				0,
 				$parentFailure
 			);
@@ -125,6 +162,7 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		}
 
 		global $wpdb;
+		$table = $handler->getTable();
 		$wpdb->last_error = '';
 		$result = $wpdb->query( $handler->getTableSchema()->buildCreate() );
 		if ( $result === false || $wpdb->last_error !== '' ) {
@@ -134,6 +172,7 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 				$wpdb->last_error !== '' ? $wpdb->last_error : 'unknown database error'
 			) );
 		}
+		Services::WpDb()->clearResultShowTables();
 
 		$readyProperty = new \ReflectionProperty(
 			\FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler::class,
@@ -141,9 +180,97 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		);
 		$readyProperty->setAccessible( true );
 		$readyProperty->setValue( $handler, true );
-		$this->transactionScopedTables[ $handler->getTable() ] = $handler->getTable();
+		$this->transactionScopedTables[ $table ] = [
+			'table'  => $table,
+			'schema' => $handler->getTableSchema(),
+		];
 
 		return $handler;
+	}
+
+	protected function snapshotCronArray() :array {
+		return \_get_cron_array();
+	}
+
+	private function snapshotFreshCronArray() :array {
+		$this->invalidateCronOptionCaches();
+		return $this->snapshotCronArray();
+	}
+
+	protected function invalidateCronOptionCaches() :void {
+		\wp_cache_delete( 'cron', 'options' );
+		\wp_cache_delete( 'alloptions', 'options' );
+
+		$notOptions = \wp_cache_get( 'notoptions', 'options' );
+		if ( \is_array( $notOptions ) && isset( $notOptions[ 'cron' ] ) ) {
+			unset( $notOptions[ 'cron' ] );
+			\wp_cache_set( 'notoptions', $notOptions, 'options' );
+		}
+	}
+
+	protected function restoreCronArray( array $snapshot ) :void {
+		if ( \_get_cron_array() === $snapshot ) {
+			return;
+		}
+
+		$result = \_set_cron_array( $snapshot, true );
+		if ( $result === false ) {
+			throw new \RuntimeException( 'Failed to restore the complete WordPress cron array: storage returned false.' );
+		}
+		if ( \is_wp_error( $result ) ) {
+			throw new \RuntimeException(
+				'Failed to restore the complete WordPress cron array: '.$result->get_error_message()
+			);
+		}
+		if ( \_get_cron_array() !== $snapshot ) {
+			throw new \RuntimeException( 'Failed to restore the complete WordPress cron array: round-trip mismatch.' );
+		}
+	}
+
+	protected function runWithSeededCronPreservationCheck( string $sentinelHook, callable $owner ) :void {
+		$baseline = null;
+		$seeded = null;
+		$timestamp = null;
+		try {
+			$this->runWithPersistentDatabaseMutation(
+				function () use ( &$baseline, &$timestamp ) :void {
+					$baseline = $this->snapshotFreshCronArray();
+					$timestamp = Services::Request()->ts() + 3600;
+					while ( isset( $baseline[ $timestamp ] ) ) {
+						++$timestamp;
+					}
+				},
+				function () use ( $sentinelHook, &$baseline, &$seeded, &$timestamp ) :void {
+					$this->assertSame( $baseline, $this->snapshotFreshCronArray() );
+					$this->assertTrue( \wp_schedule_single_event(
+						$timestamp,
+						$sentinelHook,
+						[ 'shield-cron-preservation-sentinel' ]
+					) );
+					$seeded = $this->snapshotCronArray();
+					$this->assertNotSame( $baseline, $seeded );
+				}
+			);
+			$this->assertSame(
+				$seeded,
+				$this->snapshotFreshCronArray(),
+				'The cron sentinel must be committed before the persistent owner executes.'
+			);
+
+			$owner();
+			$this->assertSame( $seeded, $this->snapshotCronArray() );
+		}
+		finally {
+			if ( \is_array( $baseline ) ) {
+				$this->runWithPersistentDatabaseMutation(
+					static function () :void {
+					},
+					function () use ( $baseline ) :void {
+						$this->restoreCronArray( $baseline );
+					}
+				);
+			}
+		}
 	}
 
 	// Controller helpers.

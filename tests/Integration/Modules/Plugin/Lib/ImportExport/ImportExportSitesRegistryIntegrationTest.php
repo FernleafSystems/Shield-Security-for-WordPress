@@ -225,58 +225,68 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 
 	/** @group database-transaction-exception */
 	public function test_scheduled_upgrade_imports_legacy_settings_into_registry() :void {
-		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
-		$this->runWithImportExportSitesPersistentMutation( function () :void {
-			$con = $this->requireController();
-			$url = 'https://upgrade-import.example.com';
-			$con->opts
-				->optSet( 'importexport_enable', 'Y' )
-				->optSet( 'importexport_whitelist', [ $url ] )
-				->optSet( 'import_url_ids', [
-					\hash( 'md5', $url ) => 'upgrade-import-id',
-				] )
-				->store();
-			$this->dropImportExportSitesTable();
-			\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$this->runWithSeededCronPreservationCheck(
+			$this->requireController()->prefix( 'integration-test-upgrade-import-enabled-cron-owner' ),
+			function () :void {
+				$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+				$this->runWithImportExportSitesPersistentMutation( function () :void {
+					$con = $this->requireController();
+					$url = 'https://upgrade-import.example.com';
+					$con->opts
+						->optSet( 'importexport_enable', 'Y' )
+						->optSet( 'importexport_whitelist', [ $url ] )
+						->optSet( 'import_url_ids', [
+							\hash( 'md5', $url ) => 'upgrade-import-id',
+						] )
+						->store();
+					$this->dropImportExportSitesTable();
+					\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 
-			$con->cfg->previous_version = '0.0.1';
-			( new HandleUpgrade() )->execute();
-			do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+					$con->cfg->previous_version = '0.0.1';
+					( new HandleUpgrade() )->execute();
+					do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
 
-			$row = $this->requireSite( $url );
-			$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
-			$this->assertSame( 'upgrade-import-id', $row->import_id );
-			$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
-			$this->assertSame( 'upgrade-import-id', $con->opts->optGet( 'import_url_ids' )[ \hash( 'md5', $url ) ] ?? '' );
-			$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
-		} );
+					$row = $this->requireSite( $url );
+					$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+					$this->assertSame( 'upgrade-import-id', $row->import_id );
+					$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
+					$this->assertSame( 'upgrade-import-id', $con->opts->optGet( 'import_url_ids' )[ \hash( 'md5', $url ) ] ?? '' );
+					$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+				}, true );
+			}
+		);
 	}
 
 	/** @group database-transaction-exception */
 	public function test_scheduled_upgrade_imports_registry_without_scheduling_disabled_sync() :void {
-		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
-		$this->runWithImportExportSitesPersistentMutation( function () :void {
-			$con = $this->requireController();
-			$url = 'https://upgrade-import-disabled.example.com';
-			$con->opts
-				->optSet( 'importexport_enable', 'N' )
-				->optSet( 'importexport_whitelist', [ $url ] )
-				->optSet( 'import_url_ids', [
-					\hash( 'md5', $url ) => 'upgrade-import-disabled-id',
-				] )
-				->store();
-			$this->dropImportExportSitesTable();
-			\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$this->runWithSeededCronPreservationCheck(
+			$this->requireController()->prefix( 'integration-test-upgrade-import-disabled-cron-owner' ),
+			function () :void {
+				$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+				$this->runWithImportExportSitesPersistentMutation( function () :void {
+					$con = $this->requireController();
+					$url = 'https://upgrade-import-disabled.example.com';
+					$con->opts
+						->optSet( 'importexport_enable', 'N' )
+						->optSet( 'importexport_whitelist', [ $url ] )
+						->optSet( 'import_url_ids', [
+							\hash( 'md5', $url ) => 'upgrade-import-disabled-id',
+						] )
+						->store();
+					$this->dropImportExportSitesTable();
+					\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 
-			$con->cfg->previous_version = '0.0.1';
-			( new HandleUpgrade() )->execute();
-			do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+					$con->cfg->previous_version = '0.0.1';
+					( new HandleUpgrade() )->execute();
+					do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
 
-			$row = $this->requireSite( $url );
-			$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
-			$this->assertSame( 'upgrade-import-disabled-id', $row->import_id );
-			$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
-		} );
+					$row = $this->requireSite( $url );
+					$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+					$this->assertSame( 'upgrade-import-disabled-id', $row->import_id );
+					$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+				}, true );
+			}
+		);
 	}
 
 	/** @group database-transaction-exception */
@@ -304,6 +314,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
 			$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 		} );
+		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
 	/** @group database-transaction-exception */
@@ -330,6 +341,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			$this->assertSame( 'config-rebuild-disabled-id', $row->import_id );
 			$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 		} );
+		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
 	/** @group database-transaction-exception */
@@ -362,6 +374,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
 			$this->assertSame( 'same-version-rebuild-id', $row->import_id );
 		} );
+		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
 	}
 
 	public function test_legacy_import_does_not_rewrite_existing_active_rows_when_nothing_changes() :void {
@@ -1721,16 +1734,18 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		}
 	}
 
-	private function runWithImportExportSitesPersistentMutation( callable $exercise ) :void {
+	private function runWithImportExportSitesPersistentMutation( callable $exercise, bool $preserveCronArray = false ) :void {
 		$con = $this->requireController();
 		$previousVersion = $con->cfg->previous_version;
 		$previousRebuilt = $con->cfg->rebuilt;
 		$readyCacheSnapshot = Services::WpGeneral()->getOption( TableReadyCache::DB_STATUS_KEY );
-		$schedulerHook = ( new QueueScheduler() )->hook();
-		$schedulerSnapshot = $this->snapshotScheduledHook( $schedulerHook );
+		$cronSnapshot = null;
 
 		$this->runWithPersistentDatabaseMutation(
-			function () use ( $exercise ) :void {
+			function () use ( $exercise, $preserveCronArray, &$cronSnapshot ) :void {
+				if ( $preserveCronArray ) {
+					$cronSnapshot = $this->snapshotCronArray();
+				}
 				$this->requireDb( ProfilesDB::DB_KEY );
 				$this->requireDb( SitesDB::DB_KEY );
 				$this->requireController()->opts
@@ -1742,18 +1757,27 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 				$previousVersion,
 				$previousRebuilt,
 				$readyCacheSnapshot,
-				$schedulerHook,
-				$schedulerSnapshot
+				$preserveCronArray,
+				&$cronSnapshot
 			) :void {
 				$this->recreateCanonicalImportExportSitesTable();
 				$this->restoreSelectedOptions( $this->optionsSnapshot );
 				$this->restoreStoredConfigOptionSnapshot();
-				$this->restoreScheduledHookSnapshot( $schedulerHook, $schedulerSnapshot );
 
 				$con = $this->requireController();
 				$con->cfg->previous_version = $previousVersion;
 				$con->cfg->rebuilt = $previousRebuilt;
 				RuntimeTestState::restoreTableReadyCache( $readyCacheSnapshot );
+				if ( $preserveCronArray && \is_array( $cronSnapshot ) ) {
+					$this->restoreCronArray( $cronSnapshot );
+				}
+				else {
+					$queueHook = ( new QueueScheduler() )->hook();
+					$this->invalidateCronOptionCaches();
+					if ( \wp_next_scheduled( $queueHook ) !== false ) {
+						throw new \RuntimeException( 'Failed to clear the import/export queue schedule.' );
+					}
+				}
 				$this->persistentStateRestored = true;
 			}
 		);
@@ -1775,36 +1799,6 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		}
 		else {
 			Services::WpGeneral()->updateOption( $this->configStoreKey, $this->storedConfigOptionSnapshot );
-		}
-	}
-
-	private function snapshotScheduledHook( string $hook ) :array {
-		$snapshot = [];
-		$cron = \_get_cron_array();
-		foreach ( \is_array( $cron ) ? $cron : [] as $timestamp => $hooks ) {
-			if ( isset( $hooks[ $hook ] ) ) {
-				$snapshot[ $timestamp ] = $hooks[ $hook ];
-			}
-		}
-		return $snapshot;
-	}
-
-	private function restoreScheduledHookSnapshot( string $hook, array $snapshot ) :void {
-		$cron = \_get_cron_array();
-		$cron = \is_array( $cron ) ? $cron : [];
-		foreach ( $cron as $timestamp => $hooks ) {
-			unset( $cron[ $timestamp ][ $hook ] );
-			if ( $cron[ $timestamp ] === [] ) {
-				unset( $cron[ $timestamp ] );
-			}
-		}
-		foreach ( $snapshot as $timestamp => $events ) {
-			$cron[ $timestamp ][ $hook ] = $events;
-		}
-		\uksort( $cron, 'strnatcasecmp' );
-		$result = \_set_cron_array( $cron );
-		if ( \is_wp_error( $result ) ) {
-			throw new \RuntimeException( 'Failed to restore the import/export queue schedule: '.$result->get_error_message() );
 		}
 	}
 

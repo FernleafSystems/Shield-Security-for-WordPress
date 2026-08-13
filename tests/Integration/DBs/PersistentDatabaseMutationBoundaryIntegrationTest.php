@@ -127,6 +127,90 @@ class PersistentDatabaseMutationBoundaryIntegrationTest extends ShieldIntegratio
 		$this->assertSame( $before, $wp_filter[ 'query' ]->callbacks );
 	}
 
+	public function test_complete_cron_array_restoration_is_exact() :void {
+		$baseline = null;
+
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( &$baseline ) :void {
+				$baseline = $this->snapshotCronArray();
+				$changed = $this->cronArrayWithSentinels( $baseline );
+				$this->setCronArrayForTest( $changed );
+				$this->assertSame( $changed, $this->snapshotCronArray() );
+
+				$this->restoreCronArray( $baseline );
+				$this->assertSame( $baseline, $this->snapshotCronArray() );
+			},
+			function () use ( &$baseline ) :void {
+				if ( \is_array( $baseline ) ) {
+					$this->restoreCronArray( $baseline );
+				}
+			}
+		);
+	}
+
+	public function test_complete_cron_array_restoration_skips_equal_state_write() :void {
+		$baseline = null;
+
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( &$baseline ) :void {
+				$baseline = $this->snapshotCronArray();
+				$writeAttempted = false;
+				$rejectWrite = static function ( $newValue ) use ( &$writeAttempted ) {
+					$writeAttempted = true;
+					throw new \RuntimeException( 'Equal cron state attempted a storage write.' );
+				};
+				\add_filter( 'pre_update_option_cron', $rejectWrite, 10, 1 );
+				try {
+					$this->restoreCronArray( $baseline );
+				}
+				finally {
+					\remove_filter( 'pre_update_option_cron', $rejectWrite, 10 );
+				}
+
+				$this->assertFalse( $writeAttempted );
+				$this->assertSame( $baseline, $this->snapshotCronArray() );
+			},
+			function () use ( &$baseline ) :void {
+				if ( \is_array( $baseline ) ) {
+					$this->restoreCronArray( $baseline );
+				}
+			}
+		);
+	}
+
+	public function test_complete_cron_array_storage_rejection_is_visible() :void {
+		$baseline = null;
+
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( &$baseline ) :void {
+				$baseline = $this->snapshotCronArray();
+				$this->setCronArrayForTest( $this->cronArrayWithSentinels( $baseline ) );
+				$rejectWrite = static function ( $newValue, $oldValue ) {
+					return $oldValue;
+				};
+				\add_filter( 'pre_update_option_cron', $rejectWrite, 10, 2 );
+				try {
+					$this->restoreCronArray( $baseline );
+					$this->fail( 'A rejected cron restoration write must be surfaced.' );
+				}
+				catch ( \RuntimeException $e ) {
+					$this->assertStringContainsString( 'Failed to restore the complete WordPress cron array', $e->getMessage() );
+				}
+				finally {
+					\remove_filter( 'pre_update_option_cron', $rejectWrite, 10 );
+					$this->restoreCronArray( $baseline );
+				}
+
+				$this->assertSame( $baseline, $this->snapshotCronArray() );
+			},
+			function () use ( &$baseline ) :void {
+				if ( \is_array( $baseline ) ) {
+					$this->restoreCronArray( $baseline );
+				}
+			}
+		);
+	}
+
 	public function test_restoration_is_committed_before_a_new_transaction_starts() :void {
 		$key = $this->fixtureKey( 'committed_restoration' );
 
@@ -187,6 +271,40 @@ class PersistentDatabaseMutationBoundaryIntegrationTest extends ShieldIntegratio
 		$result = $wpdb->query( $sql );
 		$this->assertNotFalse( $result, 'Database statement failed: '.$sql.'; '.$wpdb->last_error );
 		$this->assertSame( '', $wpdb->last_error, 'Database statement failed: '.$sql );
+	}
+
+	private function cronArrayWithSentinels( array $cron ) :array {
+		$timestamp = \time() + 7200;
+		while ( isset( $cron[ $timestamp ] ) ) {
+			++$timestamp;
+		}
+		$cron[ $timestamp ] = [
+			'shield/test_cron_restoration' => [
+				'shield-sentinel-key' => [
+					'schedule' => 'hourly',
+					'args'     => [ 'shield', [ 'nested' => 'value' ] ],
+					'interval' => \HOUR_IN_SECONDS,
+				],
+			],
+			'unrelated/test_cron_restoration' => [
+				'unrelated-sentinel-key' => [
+					'schedule' => false,
+					'args'     => [ 'unrelated' ],
+				],
+			],
+		];
+		\uksort( $cron, 'strnatcasecmp' );
+		return $cron;
+	}
+
+	private function setCronArrayForTest( array $cron ) :void {
+		$result = \_set_cron_array( $cron, true );
+		if ( $result === false ) {
+			throw new \RuntimeException( 'Test setup could not write the WordPress cron array.' );
+		}
+		if ( \is_wp_error( $result ) ) {
+			throw new \RuntimeException( 'Test setup could not write the WordPress cron array: '.$result->get_error_message() );
+		}
 	}
 
 	private function assertTableDoesNotExist( string $table ) :void {
