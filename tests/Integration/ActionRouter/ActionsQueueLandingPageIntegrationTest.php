@@ -51,7 +51,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function set_up() {
 		parent::set_up();
-		$this->truncateShieldTables();
 		$this->requireDb( 'scans' );
 		$this->requireDb( 'scan_results' );
 		$this->requireDb( 'scan_result_items' );

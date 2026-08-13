@@ -657,7 +657,7 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$watchdog = new QueueWatchdog();
 
-		$watchdog->run();
+		$watchdog->runScheduled();
 
 		/** @var ScansDB\Record $scan */
 		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );

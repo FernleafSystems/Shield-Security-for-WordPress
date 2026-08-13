@@ -158,9 +158,7 @@ class FileLockerDiffHardeningIntegrationTest extends ShieldIntegrationTestCase {
 		RuntimeTestState::primeShieldNetHandshake();
 		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
 
-		$handler = RuntimeTestState::requireDbHandler( 'file_locker', true );
-		$handler->tableDelete( true );
-		RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$this->requireTransactionScopedDb( 'file_locker' );
 		$con->comps->file_locker->clearLocks();
 	}
 }

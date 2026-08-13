@@ -39,12 +39,18 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'mfa' );
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
 			'allow_backupcodes',
+			'email_any_user_set',
+			'enable_email_authentication',
 			'enable_google_authenticator',
+			'two_factor_auth_user_roles',
 		] );
 		$this->requestSnapshot = $this->snapshotCurrentRequestState();
 		RuntimeTestState::restoreOptions( [
 			'allow_backupcodes'           => 'Y',
+			'email_any_user_set'          => 'N',
+			'enable_email_authentication' => 'N',
 			'enable_google_authenticator' => 'Y',
+			'two_factor_auth_user_roles'  => [],
 		], true );
 		$this->applyCurrentRequestState( [
 			'REQUEST_METHOD' => 'POST',
@@ -58,7 +64,7 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 		if ( static::con() !== null ) {
 			$this->restoreSelectedOptions( $this->optionsSnapshot );
 			$this->restoreCurrentRequestState( $this->requestSnapshot );
-			$this->resetMfaProviderCache();
+			RuntimeTestState::resetMfaProviderCache();
 		}
 		parent::tear_down();
 	}
@@ -72,7 +78,7 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 		RuntimeTestState::restoreOptions( [
 			'allow_backupcodes' => 'N',
 		], true );
-		$this->resetMfaProviderCache();
+		RuntimeTestState::resetMfaProviderCache();
 		$this->assertArrayNotHasKey(
 			BackupCodes::ProviderSlug(),
 			$this->requireController()->comps->mfa->getProvidersAvailableToUser( $user )
@@ -81,7 +87,7 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 		RuntimeTestState::restoreOptions( [
 			'allow_backupcodes' => 'Y',
 		], true );
-		$this->resetMfaProviderCache();
+		RuntimeTestState::resetMfaProviderCache();
 
 		$this->assertArrayHasKey(
 			BackupCodes::ProviderSlug(),
@@ -91,7 +97,7 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $this->requireController()->comps->mfa->isSubjectToLoginIntent( $user ) );
 
 		$this->seedGoogleAuthRecord( $user );
-		$this->resetMfaProviderCache();
+		RuntimeTestState::resetMfaProviderCache();
 
 		$this->assertArrayHasKey(
 			BackupCodes::ProviderSlug(),
@@ -134,7 +140,7 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 		$this->seedGoogleAuthRecord( $user );
 		$this->seedBackupCodeHash( $user, 'abc123def456' );
 		$this->seedLoginIntent( $user, 'backup-code-login' );
-		$this->resetMfaProviderCache();
+		RuntimeTestState::resetMfaProviderCache();
 
 		$this->mergeCurrentRequestTransport( [
 			( new BackupCodes( $user ) )->getLoginIntentFormParameter() => 'ABC123- DEF456',
@@ -153,7 +159,7 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->seedLoginIntent( $user, 'backup-code-login-reuse' );
 		$this->clearMfaRecordsCache( $user );
-		$this->resetMfaProviderCache();
+		RuntimeTestState::resetMfaProviderCache();
 
 		$this->expectException( CouldNotValidate2FA::class );
 		( new LoginIntentRequestValidate() )
@@ -164,7 +170,7 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 	private function createBackupCodeOnlyUser() :\WP_User {
 		$user = \get_user_by( 'id', $this->createAdministratorUser() );
 		$this->seedBackupCodeHash( $user, 'abc123def456' );
-		$this->resetMfaProviderCache();
+		RuntimeTestState::resetMfaProviderCache();
 		return $user;
 	}
 
@@ -200,15 +206,6 @@ class BackupCodesProviderIntegrationTest extends ShieldIntegrationTestCase {
 			$this->requireController()->db_con->mfa->getQuerySelector()->filterByUserID( $userId )->queryWithResult(),
 			static fn( $record ) => $record->slug === $slug
 		) );
-	}
-
-	private function resetMfaProviderCache() :void {
-		$ref = new \ReflectionClass( $this->requireController()->comps->mfa );
-		if ( $ref->hasProperty( 'providers' ) ) {
-			$prop = $ref->getProperty( 'providers' );
-			$prop->setAccessible( true );
-			$prop->setValue( $this->requireController()->comps->mfa, [] );
-		}
 	}
 
 	private function clearMfaRecordsCache( \WP_User $user ) :void {

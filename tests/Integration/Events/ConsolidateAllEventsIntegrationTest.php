@@ -386,7 +386,10 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, $counts[ self::EVENT_PREFIX.'missing' ] );
 	}
 
-	/** @group database-compat */
+	/**
+	 * @group database-compat
+	 * @group database-transaction-exception
+	 */
 	public function test_daily_database_maintenance_applies_event_range_index_to_existing_table() :void {
 		$dbh = self::con()->db_con->events;
 		$table = $dbh->getTableSchema()->table;
@@ -396,26 +399,34 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 			$this->markTestSkipped( 'Current SQL backend does not expose SHOW INDEX.' );
 		}
 
-		try {
-			if ( \in_array( 'created_at_event', \array_column( $rows, 'Key_name' ), true ) ) {
-				$this->assertNotFalse( $wpdb->query( "DROP INDEX `created_at_event` ON `{$table}`" ) );
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( $rows, $wpdb, $table ) :void {
+				if ( \in_array( 'created_at_event', \array_column( $rows, 'Key_name' ), true ) ) {
+					$this->assertNotFalse( $wpdb->query( "DROP INDEX `created_at_event` ON `{$table}`" ) );
+				}
+				$withoutIndex = $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A );
+				$this->assertIsArray( $withoutIndex );
+				$this->assertNotContains( 'created_at_event', \array_column( $withoutIndex, 'Key_name' ) );
+
+				self::con()->db_con->runDailyCron();
+				$restored = $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A );
+				$this->assertIsArray( $restored );
+				$this->assertContains( 'created_at_event', \array_column( $restored, 'Key_name' ) );
+			},
+			function () use ( $dbh, $wpdb, $table ) :void {
+				( new TableIndices( $dbh->getTableSchema() ) )->applyFromSchema();
+				$restored = $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A );
+				if ( !\is_array( $restored ) || !\in_array( 'created_at_event', \array_column( $restored, 'Key_name' ), true ) ) {
+					throw new \RuntimeException( 'Failed to restore the canonical event range index.' );
+				}
 			}
-			$withoutIndex = $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A );
-			$this->assertIsArray( $withoutIndex );
-			$this->assertNotContains( 'created_at_event', \array_column( $withoutIndex, 'Key_name' ) );
-
-			self::con()->db_con->runDailyCron();
-
-			$restored = $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A );
-			$this->assertIsArray( $restored );
-			$this->assertContains( 'created_at_event', \array_column( $restored, 'Key_name' ) );
-		}
-		finally {
-			( new TableIndices( $dbh->getTableSchema() ) )->applyFromSchema();
-		}
+		);
 	}
 
-	/** @group database-compat */
+	/**
+	 * @group database-compat
+	 * @group database-transaction-exception
+	 */
 	public function test_compaction_correctness_does_not_depend_on_optional_index() :void {
 		$dbh = self::con()->db_con->events;
 		$table = $dbh->getTableSchema()->table;
@@ -424,28 +435,37 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 		if ( !\is_array( $existing ) ) {
 			$this->markTestSkipped( 'Current SQL backend does not expose SHOW INDEX.' );
 		}
-		if ( \in_array( 'created_at_event', \array_column( $existing, 'Key_name' ), true ) ) {
-			$this->assertNotFalse( $wpdb->query( "DROP INDEX `created_at_event` ON `{$table}`" ) );
-		}
-		$withoutIndex = $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A );
-		$this->assertIsArray( $withoutIndex );
-		$this->assertNotContains( 'created_at_event', \array_column( $withoutIndex, 'Key_name' ) );
-
 		$event = self::EVENT_PREFIX.'no_index';
 		$start = Carbon::create( 2026, 6, 27, 0, 0, 0, 'America/New_York' );
-		try {
-			$this->insertEvent( $event, 11, ( clone $start )->addHour()->timestamp );
-			$this->insertEvent( $event, 12, ( clone $start )->addHours( 2 )->timestamp );
-			$this->assertTrue( $dbh->compactBoundary( $start->timestamp, ( clone $start )->endOfDay()->timestamp ) );
-			$this->assertSame( 23, $this->sumEvent( $event ) );
-			$this->assertSame( 1, $this->countEvent( $event ) );
-		}
-		finally {
-			( new TableIndices( $dbh->getTableSchema() ) )->applyFromSchema();
-		}
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( $existing, $wpdb, $table, $event, $start, $dbh ) :void {
+				if ( \in_array( 'created_at_event', \array_column( $existing, 'Key_name' ), true ) ) {
+					$this->assertNotFalse( $wpdb->query( "DROP INDEX `created_at_event` ON `{$table}`" ) );
+				}
+				$withoutIndex = $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A );
+				$this->assertIsArray( $withoutIndex );
+				$this->assertNotContains( 'created_at_event', \array_column( $withoutIndex, 'Key_name' ) );
+
+				$this->insertEvent( $event, 11, ( clone $start )->addHour()->timestamp );
+				$this->insertEvent( $event, 12, ( clone $start )->addHours( 2 )->timestamp );
+				$this->assertTrue( $dbh->compactBoundary( $start->timestamp, ( clone $start )->endOfDay()->timestamp ) );
+				$this->assertSame( 23, $this->sumEvent( $event ) );
+				$this->assertSame( 1, $this->countEvent( $event ) );
+			},
+			function () use ( $dbh, $wpdb, $table ) :void {
+				( new TableIndices( $dbh->getTableSchema() ) )->applyFromSchema();
+				$restored = $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A );
+				if ( !\is_array( $restored ) || !\in_array( 'created_at_event', \array_column( $restored, 'Key_name' ), true ) ) {
+					throw new \RuntimeException( 'Failed to restore the canonical event range index.' );
+				}
+			}
+		);
 	}
 
-	/** @group database-compat */
+	/**
+	 * @group database-compat
+	 * @group database-transaction-exception
+	 */
 	public function test_compaction_preserves_totals_on_non_transactional_myisam_table() :void {
 		$dbh = self::con()->db_con->events;
 		$table = $dbh->getTableSchema()->table;
@@ -458,18 +478,22 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$event = self::EVENT_PREFIX.'myisam';
 		$start = Carbon::create( 2026, 6, 26, 0, 0, 0, 'America/New_York' );
-		try {
-			$this->assertNotFalse( $wpdb->query( "ALTER TABLE `{$table}` ENGINE=MyISAM" ) );
-			$this->insertEvent( $event, 8, ( clone $start )->addHour()->timestamp );
-			$this->insertEvent( $event, 9, ( clone $start )->addHours( 2 )->timestamp );
-			$this->assertTrue( $dbh->compactBoundary( $start->timestamp, ( clone $start )->endOfDay()->timestamp ) );
-			$this->assertSame( 17, $this->sumEvent( $event ) );
-			$this->assertSame( 1, $this->countEvent( $event ) );
-		}
-		finally {
-			$wpdb->query( $wpdb->prepare( "DELETE FROM `{$table}` WHERE `event` = %s", $event ) );
-			$wpdb->query( "ALTER TABLE `{$table}` ENGINE=".\preg_replace( '/[^a-z0-9_]/i', '', $originalEngine ) );
-		}
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( $wpdb, $table, $event, $start, $dbh ) :void {
+				$this->assertNotFalse( $wpdb->query( "ALTER TABLE `{$table}` ENGINE=MyISAM" ) );
+				$this->insertEvent( $event, 8, ( clone $start )->addHour()->timestamp );
+				$this->insertEvent( $event, 9, ( clone $start )->addHours( 2 )->timestamp );
+				$this->assertTrue( $dbh->compactBoundary( $start->timestamp, ( clone $start )->endOfDay()->timestamp ) );
+				$this->assertSame( 17, $this->sumEvent( $event ) );
+				$this->assertSame( 1, $this->countEvent( $event ) );
+			},
+			function () use ( $wpdb, $table, $event, $originalEngine ) :void {
+				$this->assertNotFalse( $wpdb->query( $wpdb->prepare( "DELETE FROM `{$table}` WHERE `event` = %s", $event ) ) );
+				$this->assertNotFalse( $wpdb->query(
+					"ALTER TABLE `{$table}` ENGINE=".\preg_replace( '/[^a-z0-9_]/i', '', $originalEngine )
+				) );
+			}
+		);
 	}
 
 	private function insertEvent( string $event, int $count, int $createdAt ) :int {

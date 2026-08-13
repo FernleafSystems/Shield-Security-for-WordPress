@@ -53,24 +53,9 @@ abstract class ShieldWordPressTestCase extends \WP_UnitTestCase {
 	public function tear_down() {
 		$this->verboseLog( '=== Shield WordPress TestCase Teardown ===' );
 
-		$this->cleanUpShieldTestData();
-		$this->verboseLog( 'Shield test data cleaned up' );
-
 		parent::tear_down();
 
 		$this->verboseLog( '=== Shield WordPress TestCase Teardown Complete ===' );
-	}
-
-	/**
-	 * Clean up Shield-specific test data.
-	 */
-	protected function cleanUpShieldTestData() {
-		global $wpdb;
-
-		if ( isset( $wpdb ) && $wpdb instanceof \wpdb ) {
-			$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'icwp_%'" );
-			$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'shield_%'" );
-		}
 	}
 
 	/**

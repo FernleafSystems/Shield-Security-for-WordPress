@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	ImportExportProfileOptionsIncludeToggle,
 	ImportExportProfileOptionsSave
 };
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableReadyCache;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\ImportExport\ProfileOptionsForm;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ProfilesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\{
@@ -16,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\{
 	Profiles\ProfileRepository
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PluginAdminRouteRuntime;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 use FernleafSystems\Wordpress\Services\Services;
@@ -159,40 +161,49 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertFalse( $repo->findBySlug( 'temporary-default' )->is_default );
 	}
 
+	/** @group database-transaction-exception */
 	public function test_profiles_table_recreates_after_warm_ready_cache_table_loss() :void {
-		$con = $this->requireController();
-		$repo = new ProfileRepository();
-		$profile = $repo->ensureDefaultProfile();
-		$this->assertNotEmpty( $profile );
+		global $wpdb;
 
-		$schema = $con->db_con->import_export_profiles->getTableSchema();
-		ProfilesDB::GetTableReadyCache()->setReady( $schema );
-		$this->dropImportExportProfilesTable( false );
+		$readyCacheSnapshot = Services::WpGeneral()->getOption( TableReadyCache::DB_STATUS_KEY );
+		$table = $this->requireController()->db_con->import_export_profiles->getTable();
+		$baselineRows = $wpdb->get_results( "SELECT * FROM `{$table}` ORDER BY `id` ASC", ARRAY_A );
+		$this->assertIsArray( $baselineRows );
 
-		try {
-			$cachedHandler = $this->newImportExportProfilesHandler( true );
-			$cachedHandler->execute();
+		$this->runWithPersistentDatabaseMutation(
+			function () :void {
+				$this->requireDb( ProfilesDB::DB_KEY );
+				$con = $this->requireController();
+				$repo = new ProfileRepository();
+				$profile = $repo->ensureDefaultProfile();
+				$this->assertNotEmpty( $profile );
 
-			$this->assertTrue( $cachedHandler->isReady() );
-			$this->assertTrue( Services::WpDb()->tableExists( $cachedHandler->getTable() ) );
-			$this->assertTrue( ProfilesDB::GetTableReadyCache()->isReady( $cachedHandler->getTableSchema() ) );
+				$schema = $con->db_con->import_export_profiles->getTableSchema();
+				ProfilesDB::GetTableReadyCache()->setReady( $schema );
+				$this->dropImportExportProfilesTable( false );
 
-			$con->db_con->reset();
-			$profile = ( new ProfileRepository() )->ensureDefaultProfile();
+				$cachedHandler = $this->newImportExportProfilesHandler( true );
+				$cachedHandler->execute();
 
-			$this->assertNotEmpty( $profile );
-			$this->assertSame( ProfileRepository::DEFAULT_SLUG, $profile->slug );
-			$this->assertTrue( $profile->is_default );
-		}
-		finally {
-			if ( !Services::WpDb()->tableExists( $schema->table ) ) {
-				$repairHandler = $this->newImportExportProfilesHandler( false );
-				$repairHandler->execute();
+				$this->assertTrue( $cachedHandler->isReady() );
+				$this->assertTrue( Services::WpDb()->tableExists( $cachedHandler->getTable() ) );
+				$this->assertTrue( ProfilesDB::GetTableReadyCache()->isReady( $cachedHandler->getTableSchema() ) );
+
+				$con->db_con->reset();
+				$profile = ( new ProfileRepository() )->ensureDefaultProfile();
+
+				$this->assertNotEmpty( $profile );
+				$this->assertSame( ProfileRepository::DEFAULT_SLUG, $profile->slug );
+				$this->assertTrue( $profile->is_default );
+			},
+			function () use ( $wpdb, $readyCacheSnapshot, $table, $baselineRows ) :void {
+				$this->recreateCanonicalImportExportProfilesTable();
+				foreach ( $baselineRows as $row ) {
+					$this->assertNotFalse( $wpdb->insert( $table, $row ) );
+				}
+				RuntimeTestState::restoreTableReadyCache( $readyCacheSnapshot );
 			}
-			ProfilesDB::GetTableReadyCache()->setReady( $schema, false );
-			Services::WpDb()->clearResultShowTables();
-			$con->db_con->reset();
-		}
+		);
 	}
 
 	public function test_profile_save_and_include_toggle_update_default_profile_only() :void {
@@ -439,11 +450,23 @@ class ImportExportProfileActionsIntegrationTest extends ShieldIntegrationTestCas
 		global $wpdb;
 
 		$table = $this->requireController()->db_con->import_export_profiles->getTable();
-		$wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
+		if ( $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" ) === false ) {
+			throw new \RuntimeException( 'Failed to drop the import/export profiles table: '.$wpdb->last_error );
+		}
 		Services::WpDb()->clearResultShowTables();
 		if ( $resetDbCon ) {
 			$this->requireController()->db_con->reset();
 		}
+	}
+
+	private function recreateCanonicalImportExportProfilesTable() :void {
+		$handler = $this->newImportExportProfilesHandler( false );
+		$this->dropImportExportProfilesTable( false );
+		$handler->execute();
+		if ( !$handler->isReady() || !$handler->tableExists() ) {
+			throw new \RuntimeException( 'Failed to restore the canonical import/export profiles table.' );
+		}
+		$this->requireController()->db_con->reset();
 	}
 
 	private function assertProfileRenderGroupsCoverProfileableKeysOnce( array $groups ) :void {

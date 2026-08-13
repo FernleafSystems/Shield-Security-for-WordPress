@@ -296,6 +296,28 @@ The lock file may remain after a run and contains diagnostic metadata for the la
 
 The sidecar DB resources use stable reusable labels under the `integration-local` cleanup scope so normal repeat runs can reuse the same DB container. A run after Docker Compose file changes may recreate the sidecar once; subsequent unchanged runs should not recreate it. `php bin/shield test:integration-local --db-down` remains the normal functional teardown because it observes the lane lock. Use `php bin/shield test:docker:cleanup --scope=integration-local --dry-run --all` when auditing Docker resources directly.
 
+### Integration database lifecycle
+
+Ordinary integration tests rely on the transaction started by `WP_UnitTestCase`; its parent teardown rolls back WordPress core rows, options, and Shield-table DML for each test. Do not add blanket table truncation, option-prefix deletion, or other global database cleanup to integration base classes.
+
+Tests that deliberately execute persistent database operations such as real DDL, engine changes, transaction control, or production table purge must be individually marked `database-transaction-exception`. Shield integration cases use the method-scoped persistent-mutation boundary and declare exact restoration for only the state that method commits. Keep ordinary DML outside this exception group.
+
+Run the compatibility and persistent-exception union through the serialized wrapper:
+
+```bash
+php bin/shield test:integration-local --db-profile=mysql80 -- --group database-compat,database-transaction-exception
+php bin/shield test:integration-local --db-profile=mysql56 -- --group database-compat,database-transaction-exception
+php bin/shield test:integration-local --db-profile=mariadb106 -- --group database-compat,database-transaction-exception
+```
+
+When a task explicitly calls for the final instrumented integration evidence, use one invocation with a frozen seed and JUnit destination:
+
+```bash
+composer test:integration -- -- --order-by=random --random-order-seed=<fixed-seed> --log-junit=tmp/transactional-teardown-final-integration.xml
+```
+
+Record lock-wait time separately from PHPUnit runtime and wrapper wall time. Do not run integration tests in parallel and do not bypass the wrapper with raw PHPUnit, because all local runs share the same sidecar and reset lifecycle.
+
 ### Database compatibility profiles
 
 The serialized integration lane exposes three fixed database profiles. Arbitrary images are not accepted:

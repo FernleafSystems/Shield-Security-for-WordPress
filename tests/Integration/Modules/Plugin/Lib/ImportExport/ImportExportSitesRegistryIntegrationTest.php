@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plugin\Lib\ImportExport;
 
 use Carbon\Carbon;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableReadyCache;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ImportExportSitesTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_Enable;
@@ -29,7 +30,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExp
 	BuildImportExportSitesTableData,
 	SiteSyncStatusBuilder
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
+	RuntimeTestState,
+	ServicesState
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Core\Request;
 use FernleafSystems\Wordpress\Services\Services;
@@ -40,7 +44,7 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 	private array $servicesSnapshot = [];
 	private string $configStoreKey = '';
 	private $storedConfigOptionSnapshot;
-	private ?string $extraColumnTable = null;
+	private bool $persistentStateRestored = false;
 
 	public function set_up() {
 		parent::set_up();
@@ -62,22 +66,13 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 	}
 
 	public function tear_down() {
-		if ( $this->extraColumnTable !== null ) {
-			global $wpdb;
-			$wpdb->query( "ALTER TABLE `{$this->extraColumnTable}` DROP COLUMN `extra_probe`" );
-			$this->extraColumnTable = null;
-			Services::WpDb()->clearResultShowTables();
+		if ( !$this->persistentStateRestored ) {
+			$this->clearImportExportSitesReadyCache();
+			$this->clearOldQueueState();
+			\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 		}
-		$this->clearImportExportSitesReadyCache();
-		$this->clearOldQueueState();
-		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 		$this->restoreSelectedOptions( $this->optionsSnapshot );
-		if ( $this->storedConfigOptionSnapshot === false ) {
-			Services::WpGeneral()->deleteOption( $this->configStoreKey );
-		}
-		else {
-			Services::WpGeneral()->updateOption( $this->configStoreKey, $this->storedConfigOptionSnapshot );
-		}
+		$this->restoreStoredConfigOptionSnapshot();
 		ServicesState::restore( $this->servicesSnapshot );
 		parent::tear_down();
 	}
@@ -178,204 +173,195 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( [], ( new WhitelistNotifyQueue( SiteRepository::OLD_QUEUE_ACTION, $this->requireController()->prefix() ) )->get_batches() );
 	}
 
+	/** @group database-transaction-exception */
 	public function test_registry_repairs_from_fallback_after_table_loss() :void {
-		$con = $this->requireController();
-		$con->opts
-			->optSet( 'importexport_whitelist', [ 'https://survives.example.com' ] )
-			->optSet( 'import_url_ids', [
-				\hash( 'md5', 'https://survives.example.com' ) => 'survive-id',
-			] )
-			->store();
+		$this->runWithImportExportSitesPersistentMutation( function () :void {
+			$con = $this->requireController();
+			$con->opts
+				->optSet( 'importexport_whitelist', [ 'https://survives.example.com' ] )
+				->optSet( 'import_url_ids', [
+					\hash( 'md5', 'https://survives.example.com' ) => 'survive-id',
+				] )
+				->store();
 
-		$this->dropImportExportSitesTable();
-		$this->repo()->ensureLegacyImported( false );
+			$this->dropImportExportSitesTable();
+			$this->repo()->ensureLegacyImported( false );
 
-		$row = $this->requireSite( 'https://survives.example.com' );
-		$this->assertSame( 'survive-id', $row->import_id );
+			$row = $this->requireSite( 'https://survives.example.com' );
+			$this->assertSame( 'survive-id', $row->import_id );
+		} );
 	}
 
+	/** @group database-transaction-exception */
 	public function test_registry_repairs_from_fallback_after_warm_ready_cache_table_loss() :void {
-		$con = $this->requireController();
-		$url = 'https://cached-loss.example.com';
-		$con->opts
-			->optSet( 'importexport_whitelist', [ $url ] )
-			->optSet( 'import_url_ids', [
-				\hash( 'md5', $url ) => 'cached-loss-id',
-			] )
-			->store();
+		$this->runWithImportExportSitesPersistentMutation( function () :void {
+			$con = $this->requireController();
+			$url = 'https://cached-loss.example.com';
+			$con->opts
+				->optSet( 'importexport_whitelist', [ $url ] )
+				->optSet( 'import_url_ids', [
+					\hash( 'md5', $url ) => 'cached-loss-id',
+				] )
+				->store();
 
-		$schema = $con->db_con->import_export_sites->getTableSchema();
-		SitesDB::GetTableReadyCache()->setReady( $schema );
-		$this->dropImportExportSitesTable( false );
+			$schema = $con->db_con->import_export_sites->getTableSchema();
+			SitesDB::GetTableReadyCache()->setReady( $schema );
+			$this->dropImportExportSitesTable( false );
 
-		$cachedHandler = $this->newImportExportSitesHandler( true );
-		$cachedHandler->execute();
-		$this->assertTrue( $cachedHandler->isReady() );
-		$this->assertTrue( Services::WpDb()->tableExists( $cachedHandler->getTable() ) );
+			$cachedHandler = $this->newImportExportSitesHandler( true );
+			$cachedHandler->execute();
+			$this->assertTrue( $cachedHandler->isReady() );
+			$this->assertTrue( Services::WpDb()->tableExists( $cachedHandler->getTable() ) );
 
-		$con->db_con->reset();
-		$this->repo()->ensureLegacyImported( false );
+			$con->db_con->reset();
+			$this->repo()->ensureLegacyImported( false );
 
-		$row = $this->requireSite( $url );
-		$this->assertSame( 'cached-loss-id', $row->import_id );
-		$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
-		$this->assertSame( 'cached-loss-id', $con->opts->optGet( 'import_url_ids' )[ \hash( 'md5', $url ) ] ?? '' );
+			$row = $this->requireSite( $url );
+			$this->assertSame( 'cached-loss-id', $row->import_id );
+			$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
+			$this->assertSame( 'cached-loss-id', $con->opts->optGet( 'import_url_ids' )[ \hash( 'md5', $url ) ] ?? '' );
+		} );
 	}
 
+	/** @group database-transaction-exception */
 	public function test_scheduled_upgrade_imports_legacy_settings_into_registry() :void {
-		$con = $this->requireController();
-		$previousVersion = $con->cfg->previous_version;
-		$url = 'https://upgrade-import.example.com';
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
-		$con->opts
-			->optSet( 'importexport_enable', 'Y' )
-			->optSet( 'importexport_whitelist', [ $url ] )
-			->optSet( 'import_url_ids', [
-				\hash( 'md5', $url ) => 'upgrade-import-id',
-			] )
-			->store();
-		$this->dropImportExportSitesTable();
-		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$this->runWithImportExportSitesPersistentMutation( function () :void {
+			$con = $this->requireController();
+			$url = 'https://upgrade-import.example.com';
+			$con->opts
+				->optSet( 'importexport_enable', 'Y' )
+				->optSet( 'importexport_whitelist', [ $url ] )
+				->optSet( 'import_url_ids', [
+					\hash( 'md5', $url ) => 'upgrade-import-id',
+				] )
+				->store();
+			$this->dropImportExportSitesTable();
+			\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 
-		try {
 			$con->cfg->previous_version = '0.0.1';
 			( new HandleUpgrade() )->execute();
 			do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
-		}
-		finally {
-			$con->cfg->previous_version = $previousVersion;
-		}
 
-		$row = $this->requireSite( $url );
-		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
-		$this->assertSame( 'upgrade-import-id', $row->import_id );
-		$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
-		$this->assertSame( 'upgrade-import-id', $con->opts->optGet( 'import_url_ids' )[ \hash( 'md5', $url ) ] ?? '' );
-		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+			$row = $this->requireSite( $url );
+			$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+			$this->assertSame( 'upgrade-import-id', $row->import_id );
+			$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
+			$this->assertSame( 'upgrade-import-id', $con->opts->optGet( 'import_url_ids' )[ \hash( 'md5', $url ) ] ?? '' );
+			$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+		} );
 	}
 
+	/** @group database-transaction-exception */
 	public function test_scheduled_upgrade_imports_registry_without_scheduling_disabled_sync() :void {
-		$con = $this->requireController();
-		$previousVersion = $con->cfg->previous_version;
-		$url = 'https://upgrade-import-disabled.example.com';
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
-		$con->opts
-			->optSet( 'importexport_enable', 'N' )
-			->optSet( 'importexport_whitelist', [ $url ] )
-			->optSet( 'import_url_ids', [
-				\hash( 'md5', $url ) => 'upgrade-import-disabled-id',
-			] )
-			->store();
-		$this->dropImportExportSitesTable();
-		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$this->runWithImportExportSitesPersistentMutation( function () :void {
+			$con = $this->requireController();
+			$url = 'https://upgrade-import-disabled.example.com';
+			$con->opts
+				->optSet( 'importexport_enable', 'N' )
+				->optSet( 'importexport_whitelist', [ $url ] )
+				->optSet( 'import_url_ids', [
+					\hash( 'md5', $url ) => 'upgrade-import-disabled-id',
+				] )
+				->store();
+			$this->dropImportExportSitesTable();
+			\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 
-		try {
 			$con->cfg->previous_version = '0.0.1';
 			( new HandleUpgrade() )->execute();
 			do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
-		}
-		finally {
-			$con->cfg->previous_version = $previousVersion;
-		}
 
-		$row = $this->requireSite( $url );
-		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
-		$this->assertSame( 'upgrade-import-disabled-id', $row->import_id );
-		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+			$row = $this->requireSite( $url );
+			$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+			$this->assertSame( 'upgrade-import-disabled-id', $row->import_id );
+			$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+		} );
 	}
 
+	/** @group database-transaction-exception */
 	public function test_config_rebuild_imports_legacy_settings_into_registry_without_upgrade_cron() :void {
-		$con = $this->requireController();
-		$previousRebuilt = $con->cfg->rebuilt;
-		$url = 'https://config-rebuild-import.example.com';
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
-		$con->opts
-			->optSet( 'importexport_enable', 'Y' )
-			->optSet( 'importexport_whitelist', [ $url ] )
-			->optSet( 'import_url_ids', [
-				\hash( 'md5', $url ) => 'config-rebuild-import-id',
-			] )
-			->store();
-		$this->dropImportExportSitesTable();
-		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$this->runWithImportExportSitesPersistentMutation( function () :void {
+			$con = $this->requireController();
+			$url = 'https://config-rebuild-import.example.com';
+			$con->opts
+				->optSet( 'importexport_enable', 'Y' )
+				->optSet( 'importexport_whitelist', [ $url ] )
+				->optSet( 'import_url_ids', [
+					\hash( 'md5', $url ) => 'config-rebuild-import-id',
+				] )
+				->store();
+			$this->dropImportExportSitesTable();
+			\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 
-		try {
 			$con->cfg->rebuilt = true;
 			$this->runConfigRebuildImport();
-		}
-		finally {
-			$con->cfg->rebuilt = $previousRebuilt;
-		}
 
-		$row = $this->requireSite( $url );
-		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
-		$this->assertSame( 'config-rebuild-import-id', $row->import_id );
-		$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
-		$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+			$row = $this->requireSite( $url );
+			$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+			$this->assertSame( 'config-rebuild-import-id', $row->import_id );
+			$this->assertSame( [ $url ], $con->opts->optGet( 'importexport_whitelist' ) );
+			$this->assertNotFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+		} );
 	}
 
+	/** @group database-transaction-exception */
 	public function test_config_rebuild_imports_registry_without_scheduling_disabled_sync() :void {
-		$con = $this->requireController();
-		$previousRebuilt = $con->cfg->rebuilt;
-		$url = 'https://config-rebuild-disabled.example.com';
 		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
-		$con->opts
-			->optSet( 'importexport_enable', 'N' )
-			->optSet( 'importexport_whitelist', [ $url ] )
-			->optSet( 'import_url_ids', [
-				\hash( 'md5', $url ) => 'config-rebuild-disabled-id',
-			] )
-			->store();
-		$this->dropImportExportSitesTable();
-		\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
+		$this->runWithImportExportSitesPersistentMutation( function () :void {
+			$con = $this->requireController();
+			$url = 'https://config-rebuild-disabled.example.com';
+			$con->opts
+				->optSet( 'importexport_enable', 'N' )
+				->optSet( 'importexport_whitelist', [ $url ] )
+				->optSet( 'import_url_ids', [
+					\hash( 'md5', $url ) => 'config-rebuild-disabled-id',
+				] )
+				->store();
+			$this->dropImportExportSitesTable();
+			\wp_clear_scheduled_hook( ( new QueueScheduler() )->hook() );
 
-		try {
 			$con->cfg->rebuilt = true;
 			$this->runConfigRebuildImport();
-		}
-		finally {
-			$con->cfg->rebuilt = $previousRebuilt;
-		}
 
-		$row = $this->requireSite( $url );
-		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
-		$this->assertSame( 'config-rebuild-disabled-id', $row->import_id );
-		$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+			$row = $this->requireSite( $url );
+			$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+			$this->assertSame( 'config-rebuild-disabled-id', $row->import_id );
+			$this->assertFalse( \wp_next_scheduled( ( new QueueScheduler() )->hook() ) );
+		} );
 	}
 
+	/** @group database-transaction-exception */
 	public function test_same_version_config_signature_rebuild_imports_legacy_settings_into_registry() :void {
-		$con = $this->requireController();
-		$stored = $con->cfg->getRawData();
-		$stored[ 'hash' ] = 'stale-signature';
-		$stored[ 'properties' ][ 'version' ] = $con->cfg->properties[ 'version' ];
-		Services::WpGeneral()->updateOption( $this->configStoreKey, $stored );
+		$this->runWithImportExportSitesPersistentMutation( function () :void {
+			$con = $this->requireController();
+			$stored = $con->cfg->getRawData();
+			$stored[ 'hash' ] = 'stale-signature';
+			$stored[ 'properties' ][ 'version' ] = $con->cfg->properties[ 'version' ];
+			Services::WpGeneral()->updateOption( $this->configStoreKey, $stored );
 
-		$cfg = ( new LoadConfig( $con->paths->forPluginItem( 'plugin.json' ), $this->configStoreKey ) )->run();
+			$cfg = ( new LoadConfig( $con->paths->forPluginItem( 'plugin.json' ), $this->configStoreKey ) )->run();
 
-		$this->assertTrue( $cfg->rebuilt );
-		$this->assertSame( $con->cfg->properties[ 'version' ], $cfg->properties[ 'version' ] );
+			$this->assertTrue( $cfg->rebuilt );
+			$this->assertSame( $con->cfg->properties[ 'version' ], $cfg->properties[ 'version' ] );
 
-		$previousRebuilt = $con->cfg->rebuilt;
-		$url = 'https://same-version-rebuild.example.com';
-		$con->opts
-			->optSet( 'importexport_whitelist', [ $url ] )
-			->optSet( 'import_url_ids', [
-				\hash( 'md5', $url ) => 'same-version-rebuild-id',
-			] )
-			->store();
-		$this->dropImportExportSitesTable();
+			$url = 'https://same-version-rebuild.example.com';
+			$con->opts
+				->optSet( 'importexport_whitelist', [ $url ] )
+				->optSet( 'import_url_ids', [
+					\hash( 'md5', $url ) => 'same-version-rebuild-id',
+				] )
+				->store();
+			$this->dropImportExportSitesTable();
 
-		try {
 			$con->cfg->rebuilt = $cfg->rebuilt;
 			$this->runConfigRebuildImport();
-		}
-		finally {
-			$con->cfg->rebuilt = $previousRebuilt;
-		}
 
-		$row = $this->requireSite( $url );
-		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
-		$this->assertSame( 'same-version-rebuild-id', $row->import_id );
+			$row = $this->requireSite( $url );
+			$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
+			$this->assertSame( 'same-version-rebuild-id', $row->import_id );
+		} );
 	}
 
 	public function test_legacy_import_does_not_rewrite_existing_active_rows_when_nothing_changes() :void {
@@ -1347,21 +1333,81 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		}
 	}
 
+	/** @group database-transaction-exception */
 	public function test_add_only_schema_alignment_preserves_populated_rows_and_extra_columns() :void {
-		$repo = $this->repo();
-		$row = $repo->upsertActive( 'https://schema.example.com', SitesDB::SOURCE_MANUAL, 'schema-id', true );
-		$handler = $this->requireController()->db_con->import_export_sites;
-		$table = $handler->getTable();
-		$this->extraColumnTable = $table;
+		$url = 'https://schema.example.com';
+		$this->assertNull( $this->repo()->findByUrl( $url, true ) );
+		$profileBefore = ( new ProfileRepository() )->findBySlug( ProfileRepository::DEFAULT_SLUG );
+		$readyCacheSnapshot = Services::WpGeneral()->getOption( TableReadyCache::DB_STATUS_KEY );
+		$rowID = 0;
+		$createdProfileID = 0;
+		$table = '';
 
-		global $wpdb;
-		$wpdb->query( "ALTER TABLE `{$table}` ADD COLUMN `extra_probe` varchar(32) NOT NULL DEFAULT ''" );
-		Services::WpDb()->clearResultShowTables();
-		$this->requireController()->db_con->loadDbH( $this->requireController()->db_con::MAP[ SitesDB::DB_KEY ][ 'slug' ], true );
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( $url, $profileBefore, &$rowID, &$createdProfileID, &$table ) :void {
+				$this->requireDb( ProfilesDB::DB_KEY );
+				$this->requireDb( SitesDB::DB_KEY );
+				$profile = ( new ProfileRepository() )->ensureDefaultProfile();
+				$this->assertNotEmpty( $profile );
+				if ( $profileBefore === null ) {
+					$createdProfileID = $profile->id;
+				}
 
-		$this->assertSame( 'schema-id', $repo->findById( $row->id, true )->import_id );
-		$this->assertContains( 'extra_probe', Services::WpDb()->getColumnsForTable( $table ) );
-		$this->assertTrue( $this->requireController()->db_con->import_export_sites->isReady() );
+				$repo = $this->repo();
+				$row = $repo->upsertActive( $url, SitesDB::SOURCE_MANUAL, 'schema-id', true );
+				$this->assertInstanceOf( Record::class, $row );
+				$rowID = $row->id;
+				$handler = $this->requireController()->db_con->import_export_sites;
+				$table = $handler->getTable();
+
+				global $wpdb;
+				$this->assertNotFalse( $wpdb->query(
+					"ALTER TABLE `{$table}` ADD COLUMN `extra_probe` varchar(32) NOT NULL DEFAULT ''"
+				) );
+				Services::WpDb()->clearResultShowTables();
+				$this->requireController()->db_con->loadDbH(
+					$this->requireController()->db_con::MAP[ SitesDB::DB_KEY ][ 'slug' ],
+					true
+				);
+
+				$this->assertSame( 'schema-id', $repo->findById( $row->id, true )->import_id );
+				$this->assertContains( 'extra_probe', Services::WpDb()->getColumnsForTable( $table ) );
+				$this->assertTrue( $this->requireController()->db_con->import_export_sites->isReady() );
+			},
+			function () use ( &$rowID, &$createdProfileID, &$table, $readyCacheSnapshot ) :void {
+				global $wpdb;
+				if ( $table !== '' && \in_array( 'extra_probe', Services::WpDb()->getColumnsForTable( $table ), true ) ) {
+					$result = $wpdb->query( "ALTER TABLE `{$table}` DROP COLUMN `extra_probe`" );
+					if ( $result === false ) {
+						throw new \RuntimeException( 'Failed to remove the import/export schema probe column.' );
+					}
+					Services::WpDb()->clearResultShowTables();
+				}
+
+				$this->requireController()->db_con->reset();
+				$this->requireDb( ProfilesDB::DB_KEY );
+				$this->requireDb( SitesDB::DB_KEY );
+				if ( $rowID > 0 ) {
+					$repo = $this->repo();
+					$repo->deleteByIds( [ $rowID ] );
+					if ( $repo->findById( $rowID, true ) instanceof Record ) {
+						throw new \RuntimeException( 'Failed to remove the import/export schema probe row.' );
+					}
+				}
+				if ( $createdProfileID > 0 ) {
+					$profiles = $this->requireController()->db_con->import_export_profiles;
+					$profiles
+						->getQueryDeleter()
+						->deleteById( $createdProfileID );
+					if ( ( new ProfileRepository() )->findById( $createdProfileID ) !== null ) {
+						throw new \RuntimeException( 'Failed to remove the import/export schema probe profile.' );
+					}
+				}
+
+				RuntimeTestState::restoreTableReadyCache( $readyCacheSnapshot );
+				$this->persistentStateRestored = true;
+			}
+		);
 	}
 
 	public function test_table_url_ordering_ignores_www() :void {
@@ -1675,6 +1721,93 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		}
 	}
 
+	private function runWithImportExportSitesPersistentMutation( callable $exercise ) :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+		$previousRebuilt = $con->cfg->rebuilt;
+		$readyCacheSnapshot = Services::WpGeneral()->getOption( TableReadyCache::DB_STATUS_KEY );
+		$schedulerHook = ( new QueueScheduler() )->hook();
+		$schedulerSnapshot = $this->snapshotScheduledHook( $schedulerHook );
+
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( $exercise ) :void {
+				$this->requireDb( ProfilesDB::DB_KEY );
+				$this->requireDb( SitesDB::DB_KEY );
+				$this->requireController()->opts
+					->optSet( SiteRepository::MIGRATED_AT_OPTION, 0 )
+					->store();
+				$exercise();
+			},
+			function () use (
+				$previousVersion,
+				$previousRebuilt,
+				$readyCacheSnapshot,
+				$schedulerHook,
+				$schedulerSnapshot
+			) :void {
+				$this->recreateCanonicalImportExportSitesTable();
+				$this->restoreSelectedOptions( $this->optionsSnapshot );
+				$this->restoreStoredConfigOptionSnapshot();
+				$this->restoreScheduledHookSnapshot( $schedulerHook, $schedulerSnapshot );
+
+				$con = $this->requireController();
+				$con->cfg->previous_version = $previousVersion;
+				$con->cfg->rebuilt = $previousRebuilt;
+				RuntimeTestState::restoreTableReadyCache( $readyCacheSnapshot );
+				$this->persistentStateRestored = true;
+			}
+		);
+	}
+
+	private function recreateCanonicalImportExportSitesTable() :void {
+		$handler = $this->newImportExportSitesHandler( false );
+		$this->dropImportExportSitesTable( false );
+		$handler->execute();
+		if ( !$handler->isReady() || !$handler->tableExists() ) {
+			throw new \RuntimeException( 'Failed to restore the canonical import/export sites table.' );
+		}
+		$this->requireController()->db_con->reset();
+	}
+
+	private function restoreStoredConfigOptionSnapshot() :void {
+		if ( $this->storedConfigOptionSnapshot === false ) {
+			Services::WpGeneral()->deleteOption( $this->configStoreKey );
+		}
+		else {
+			Services::WpGeneral()->updateOption( $this->configStoreKey, $this->storedConfigOptionSnapshot );
+		}
+	}
+
+	private function snapshotScheduledHook( string $hook ) :array {
+		$snapshot = [];
+		$cron = \_get_cron_array();
+		foreach ( \is_array( $cron ) ? $cron : [] as $timestamp => $hooks ) {
+			if ( isset( $hooks[ $hook ] ) ) {
+				$snapshot[ $timestamp ] = $hooks[ $hook ];
+			}
+		}
+		return $snapshot;
+	}
+
+	private function restoreScheduledHookSnapshot( string $hook, array $snapshot ) :void {
+		$cron = \_get_cron_array();
+		$cron = \is_array( $cron ) ? $cron : [];
+		foreach ( $cron as $timestamp => $hooks ) {
+			unset( $cron[ $timestamp ][ $hook ] );
+			if ( $cron[ $timestamp ] === [] ) {
+				unset( $cron[ $timestamp ] );
+			}
+		}
+		foreach ( $snapshot as $timestamp => $events ) {
+			$cron[ $timestamp ][ $hook ] = $events;
+		}
+		\uksort( $cron, 'strnatcasecmp' );
+		$result = \_set_cron_array( $cron );
+		if ( \is_wp_error( $result ) ) {
+			throw new \RuntimeException( 'Failed to restore the import/export queue schedule: '.$result->get_error_message() );
+		}
+	}
+
 	private function newImportExportSitesHandler( bool $useReadyCache ) :SitesDB {
 		$con = $this->requireController();
 		$dbDef = $con->db_con->getHandlers()[ SitesDB::DB_KEY ][ 'def' ];
@@ -1696,7 +1829,9 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 	private function dropImportExportSitesTable( bool $resetDbCon = true ) :void {
 		global $wpdb;
 		$table = $this->requireController()->db_con->import_export_sites->getTable();
-		$wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
+		if ( $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" ) === false ) {
+			throw new \RuntimeException( 'Failed to drop the import/export sites table: '.$wpdb->last_error );
+		}
 		Services::WpDb()->clearResultShowTables();
 		if ( $resetDbCon ) {
 			$this->requireController()->db_con->reset();

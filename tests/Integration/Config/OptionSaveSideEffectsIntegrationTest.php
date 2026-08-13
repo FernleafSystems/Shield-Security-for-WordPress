@@ -298,47 +298,49 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( wp_next_scheduled( $hook ) );
 	}
 
+	/** @group database-transaction-exception */
 	public function test_file_locker_option_change_recreates_storage_when_table_caches_are_stale() :void {
 		global $wpdb;
 
 		$con = $this->requireController();
-		RuntimeTestState::primeShieldNetHandshake();
-
-		$con->opts->optSet( 'file_locker', [] )->store();
-		$this->runWithoutWordpressTemporaryTableQueryHooks(
-			function () use ( $con ) :void {
-				$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
-			}
-		);
-
 		$handler = $con->db_con->file_locker;
 		$schema = $handler->getTableSchema();
 		$table = $handler->getTable();
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( $con, $wpdb, $schema, $table ) :void {
+				RuntimeTestState::primeShieldNetHandshake();
+				$con->opts->optSet( 'file_locker', [] )->store();
+				$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
 
-		$handler::GetTableReadyCache()->setReady( $schema );
-		\FernleafSystems\Wordpress\Services\Services::WpDb()->clearResultShowTables();
-		$this->assertTrue( \FernleafSystems\Wordpress\Services\Services::WpDb()->tableExists( $table ) );
+				$handler = $con->db_con->file_locker;
+				$handler::GetTableReadyCache()->setReady( $schema );
+				\FernleafSystems\Wordpress\Services\Services::WpDb()->clearResultShowTables();
+				$this->assertTrue( \FernleafSystems\Wordpress\Services\Services::WpDb()->tableExists( $table ) );
 
-		$this->runWithoutWordpressTemporaryTableQueryHooks( function () use ( $wpdb, $table ) :void {
-			$wpdb->query( 'SET FOREIGN_KEY_CHECKS=0' );
-			$wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
-			$wpdb->query( 'SET FOREIGN_KEY_CHECKS=1' );
-		} );
+				$this->assertNotFalse( $wpdb->query( 'SET FOREIGN_KEY_CHECKS=0' ) );
+				$this->assertNotFalse( $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" ) );
+				$this->assertNotFalse( $wpdb->query( 'SET FOREIGN_KEY_CHECKS=1' ) );
 
-		$this->assertNull( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) );
-		$this->assertTrue( $handler::GetTableReadyCache()->isReady( $schema ) );
-		$this->assertTrue( \FernleafSystems\Wordpress\Services\Services::WpDb()->tableExists( $table ) );
+				$this->assertNull( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) );
+				$this->assertTrue( $handler::GetTableReadyCache()->isReady( $schema ) );
+				$this->assertTrue( \FernleafSystems\Wordpress\Services\Services::WpDb()->tableExists( $table ) );
 
-		$this->runWithoutWordpressTemporaryTableQueryHooks(
-			function () use ( $con ) :void {
 				$con->opts->optSet( 'file_locker', [ 'wpconfig', 'root_index' ] )->store();
+				$this->assertNotNull( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) );
+				$reloadedHandler = $con->db_con->file_locker;
+				$this->assertTrue( $reloadedHandler->isReady() );
+				$this->assertTrue( $reloadedHandler->tableExists() );
+			},
+			function () use ( $con, $wpdb, $schema, $table ) :void {
+				$this->assertNotFalse( $wpdb->query( 'SET FOREIGN_KEY_CHECKS=0' ) );
+				$this->assertNotFalse( $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" ) );
+				$this->assertNotFalse( $wpdb->query( $schema->buildCreate() ) );
+				$this->assertNotFalse( $wpdb->query( 'SET FOREIGN_KEY_CHECKS=1' ) );
+				\FernleafSystems\Wordpress\Services\Services::WpDb()->clearResultShowTables();
+				$con->db_con->reset();
+				$this->restoreSelectedOptions( $this->originalOptions );
 			}
 		);
-
-		$this->assertNotNull( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) );
-		$reloadedHandler = $con->db_con->file_locker;
-		$this->assertTrue( $reloadedHandler->isReady() );
-		$this->assertTrue( $reloadedHandler->tableExists() );
 	}
 
 	public function test_file_locker_option_change_reconciles_against_fresh_lock_records() :void {
@@ -348,9 +350,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		RuntimeTestState::primeShieldNetHandshake();
 		$con->opts->optSet( 'file_locker', [ 'wpconfig', 'root_index' ] )->store();
 
-		$handler = RuntimeTestState::requireDbHandler( 'file_locker', true );
-		$handler->tableDelete( true );
-		$handler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$handler = $this->requireTransactionScopedDb( 'file_locker' );
 		$con->comps->file_locker->clearLocks();
 
 		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
@@ -364,7 +364,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
 
-		$reloadedHandler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$reloadedHandler = $this->requireTransactionScopedDb( 'file_locker' );
 		$this->assertSame(
 			[ 'wpconfig' ],
 			$wpdb->get_col( "SELECT type FROM {$reloadedHandler->getTable()} ORDER BY id ASC" )
@@ -472,34 +472,6 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 			$records,
 			static fn( $record ) :bool => (string)( $record->type ?? '' ) === $type
 		) );
-	}
-
-	private function runWithoutWordpressTemporaryTableQueryHooks( callable $callback ) {
-		$createHook = [ $this, '_create_temporary_tables' ];
-		$dropHook = [ $this, '_drop_temporary_tables' ];
-		$removedCreateHook = \method_exists( $this, '_create_temporary_tables' )
-							 && \has_filter( 'query', $createHook ) !== false;
-		$removedDropHook = \method_exists( $this, '_drop_temporary_tables' )
-						   && \has_filter( 'query', $dropHook ) !== false;
-
-		if ( $removedCreateHook ) {
-			\remove_filter( 'query', $createHook, 10 );
-		}
-		if ( $removedDropHook ) {
-			\remove_filter( 'query', $dropHook, 10 );
-		}
-
-		try {
-			return $callback();
-		}
-		finally {
-			if ( $removedCreateHook ) {
-				\add_filter( 'query', $createHook, 10 );
-			}
-			if ( $removedDropHook ) {
-				\add_filter( 'query', $dropHook, 10 );
-			}
-		}
 	}
 
 }

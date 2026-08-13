@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\DbCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRulesCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
@@ -16,6 +15,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
  */
 abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 
+	private static ?\FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequest $baselineThisRequest = null;
+
 	/**
 	 * Events captured via the shield/event hook during a test.
 	 *
@@ -23,12 +24,19 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 	 */
 	private array $capturedEvents = [];
 
+	/** @var string[] */
+	private array $transactionScopedTables = [];
+
 	public function set_up() {
 		parent::set_up();
 		if ( static::con() !== null ) {
+			RuntimeTestState::restoreOptions( [], false );
+			RuntimeTestState::resetMfaProviderCache();
+			$this->resetThisRequestState();
 			RuntimeTestState::resetRequestLoggerState();
 		}
 		$this->capturedEvents = [];
+		$this->transactionScopedTables = [];
 		$this->resetIpCaches();
 		$this->resetScanResultCountMemoization();
 		$this->disablePremiumCapabilities();
@@ -36,7 +44,6 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 
 	public function tear_down() {
 		$this->disablePremiumCapabilities();
-		$this->truncateShieldTables();
 		if ( static::con() !== null ) {
 			RuntimeTestState::resetRequestLoggerState();
 		}
@@ -44,7 +51,34 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		if ( static::con() !== null ) {
 			$this->resetScanResultCountMemoization();
 		}
-		parent::tear_down();
+		$parentFailure = null;
+		try {
+			parent::tear_down();
+		}
+		catch ( \Throwable $e ) {
+			$parentFailure = $e;
+		}
+
+		global $wpdb;
+		$cleanupFailures = [];
+		foreach ( $this->transactionScopedTables as $table ) {
+			$wpdb->last_error = '';
+			if ( $wpdb->query( "DROP TEMPORARY TABLE IF EXISTS `{$table}`" ) === false || $wpdb->last_error !== '' ) {
+				$cleanupFailures[] = $table.': '.( $wpdb->last_error !== '' ? $wpdb->last_error : 'unknown database error' );
+			}
+		}
+		$this->transactionScopedTables = [];
+		if ( $cleanupFailures !== [] ) {
+			throw new \RuntimeException(
+				( $parentFailure === null ? '' : 'Parent teardown failed: '.$parentFailure->getMessage().'. ' )
+				.'Failed to remove transaction-scoped tables: '.\implode( '; ', $cleanupFailures ),
+				0,
+				$parentFailure
+			);
+		}
+		if ( $parentFailure !== null ) {
+			throw $parentFailure;
+		}
 	}
 
 	/**
@@ -75,6 +109,41 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 			return;
 		}
 		RuntimeTestState::restoreOptions( $snapshot, $store );
+	}
+
+	/**
+	 * Load an optional handler against a WordPress-rewritten temporary table.
+	 * This keeps ordinary fixture setup inside the per-test transaction model.
+	 *
+	 * @return mixed
+	 */
+	protected function requireTransactionScopedDb( string $dbKey ) {
+		$con = $this->requireController();
+		$handler = $con->db_con->loadDbH( $con->db_con::MAP[ $dbKey ][ 'slug' ], true );
+		if ( empty( $handler ) ) {
+			throw new \RuntimeException( \sprintf( 'DB handler "%s" could not be loaded.', $dbKey ) );
+		}
+
+		global $wpdb;
+		$wpdb->last_error = '';
+		$result = $wpdb->query( $handler->getTableSchema()->buildCreate() );
+		if ( $result === false || $wpdb->last_error !== '' ) {
+			throw new \RuntimeException( \sprintf(
+				'Transaction-scoped table for DB handler "%s" could not be created: %s',
+				$dbKey,
+				$wpdb->last_error !== '' ? $wpdb->last_error : 'unknown database error'
+			) );
+		}
+
+		$readyProperty = new \ReflectionProperty(
+			\FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler::class,
+			'isReady'
+		);
+		$readyProperty->setAccessible( true );
+		$readyProperty->setValue( $handler, true );
+		$this->transactionScopedTables[ $handler->getTable() ] = $handler->getTable();
+
+		return $handler;
 	}
 
 	// Controller helpers.
@@ -224,6 +293,28 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		RuntimeTestState::resetScanResultCountMemoization();
 	}
 
+	private function resetThisRequestState() :void {
+		$con = $this->requireController();
+		if ( self::$baselineThisRequest === null ) {
+			self::$baselineThisRequest = $this->cloneThisRequest( $con->this_req );
+		}
+		$con->this_req = $this->cloneThisRequest( self::$baselineThisRequest );
+	}
+
+	private function cloneThisRequest(
+		\FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequest $source
+	) :\FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequest {
+		$copy = clone $source;
+		$raw = $source->getRawData();
+		foreach ( $raw as $key => $value ) {
+			if ( \is_object( $value ) && ( new \ReflectionObject( $value ) )->isCloneable() ) {
+				$raw[ $key ] = clone $value;
+			}
+		}
+		$copy->applyFromArray( $raw );
+		return $copy;
+	}
+
 	// Event capture.
 
 	/**
@@ -259,27 +350,112 @@ abstract class ShieldIntegrationTestCase extends ShieldWordPressTestCase {
 		) );
 	}
 
-	// Table cleanup.
-
 	/**
-	 * Truncate all Shield custom tables so every test starts clean.
-	 * Disables FK checks to allow truncation of tables referenced by foreign keys.
+	 * Run a method-scoped database operation which may implicitly commit the
+	 * transaction owned by WP_UnitTestCase.
+	 *
+	 * The exercise must restage every fixture it needs after the first rollback.
+	 * The restoration callback owns only the exact persistent state changed by
+	 * the exercise.
+	 *
+	 * @return mixed
 	 */
-	protected function truncateShieldTables() :void {
-		$con = static::con();
-		if ( $con === null ) {
-			return;
+	protected function runWithPersistentDatabaseMutation( callable $exercise, callable $restoration ) {
+		global $wp_filter;
+
+		$queryHook = $wp_filter[ 'query' ] ?? null;
+		$createHook = [ $this, '_create_temporary_tables' ];
+		$dropHook = [ $this, '_drop_temporary_tables' ];
+		if ( !$queryHook instanceof \WP_Hook
+			 || \has_filter( 'query', $createHook ) === false
+			 || \has_filter( 'query', $dropHook ) === false ) {
+			throw new \RuntimeException( 'The WordPress database transaction/query-hook contract is unavailable.' );
 		}
 
+		$originalQueryHook = clone $queryHook;
+
+		$result = null;
+		$exerciseFailure = null;
+		$restorationFailure = null;
+		try {
+			$this->executeRequiredDatabaseStatement( 'SAVEPOINT shield_persistent_mutation_contract' );
+			$this->executeRequiredDatabaseStatement( 'ROLLBACK' );
+			\remove_filter( 'query', $createHook, (int)\has_filter( 'query', $createHook ) );
+			\remove_filter( 'query', $dropHook, (int)\has_filter( 'query', $dropHook ) );
+			try {
+				$result = $exercise();
+			}
+			catch ( \Throwable $e ) {
+				$exerciseFailure = $e;
+			}
+
+			try {
+				$this->executeRequiredDatabaseStatement( 'ROLLBACK' );
+				$restoration();
+				$this->executeRequiredDatabaseStatement( 'COMMIT' );
+			}
+			catch ( \Throwable $e ) {
+				$restorationFailure = $e;
+				try {
+					$this->executeRequiredDatabaseStatement( 'ROLLBACK' );
+				}
+				catch ( \Throwable $rollbackFailure ) {
+					$restorationFailure = new \RuntimeException(
+						$e->getMessage().' Recovery rollback also failed: '.$rollbackFailure->getMessage(),
+						0,
+						$e
+					);
+				}
+			}
+
+			try {
+				$this->executeRequiredDatabaseStatement( 'SET autocommit=0' );
+				$this->executeRequiredDatabaseStatement( 'START TRANSACTION' );
+			}
+			catch ( \Throwable $e ) {
+				$restorationFailure = new \RuntimeException(
+					$restorationFailure === null
+						? 'Failed to restore the WordPress transaction contract: '.$e->getMessage()
+						: $restorationFailure->getMessage().' Transaction restart also failed: '.$e->getMessage(),
+					0,
+					$restorationFailure ?? $e
+				);
+			}
+		}
+		finally {
+			$wp_filter[ 'query' ] = $originalQueryHook;
+		}
+
+		if ( $exerciseFailure !== null && $restorationFailure !== null ) {
+			throw new \RuntimeException(
+				'Persistent database exercise failed: '.$exerciseFailure->getMessage()
+				.'. Restoration also failed: '.$restorationFailure->getMessage(),
+				0,
+				$exerciseFailure
+			);
+		}
+		if ( $restorationFailure !== null ) {
+			throw $restorationFailure;
+		}
+		if ( $exerciseFailure !== null ) {
+			throw $exerciseFailure;
+		}
+
+		return $result;
+	}
+
+	private function executeRequiredDatabaseStatement( string $sql ) :void {
 		global $wpdb;
-		$prefix = $con->getPluginPrefix( '_' );
 
-		$wpdb->query( 'SET FOREIGN_KEY_CHECKS=0' );
-		foreach ( DbCon::MAP as $dbKey => $spec ) {
-			$tableName = $wpdb->prefix.$prefix.'_'.$spec[ 'slug' ];
-			$wpdb->query( "TRUNCATE TABLE `{$tableName}`" );
+		$wpdb->last_error = '';
+		$result = $wpdb->query( $sql );
+		if ( $result === false || $wpdb->last_error !== '' ) {
+			throw new \RuntimeException( \sprintf(
+				'Database statement failed (%s): %s',
+				$sql,
+				$wpdb->last_error !== '' ? $wpdb->last_error : 'unknown database error'
+			) );
 		}
-		$wpdb->query( 'SET FOREIGN_KEY_CHECKS=1' );
 	}
 
 	protected function compactSnippet( string $value, int $limit = 180 ) :string {
