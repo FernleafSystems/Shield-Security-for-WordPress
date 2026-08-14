@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Events;
 
 use Carbon\Carbon;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops\Handler as FileLockerHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\ConsolidateAllEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Ops\TableIndices;
@@ -391,16 +392,155 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 	 * @group database-transaction-exception
 	 */
 	public function test_daily_database_maintenance_applies_event_range_index_to_existing_table() :void {
+		$this->runDailyDatabaseMaintenanceScenario( false );
+	}
+
+	/**
+	 * @group database-compat
+	 * @group database-transaction-exception
+	 */
+	public function test_daily_database_maintenance_preserves_absent_file_locker_baseline() :void {
+		$this->runDailyDatabaseMaintenanceScenario( true );
+	}
+
+	/**
+	 * @group database-compat
+	 * @group database-transaction-exception
+	 */
+	public function test_daily_database_maintenance_restores_known_entry_after_baseline_capture_failure() :void {
+		$fileLockerTable = $this->newPassiveFileLockerHandler()->getTableSchema()->table;
+		$this->assertTrue(
+			$this->fileLockerTableExistsRaw( $fileLockerTable ),
+			'The failure-path regression requires the ordinary present File Locker suite-entry state.'
+		);
+
+		$wpdb = Services::WpDb()->loadWpdb();
+		$oldSuppress = $wpdb->suppress_errors( true );
+		$dropObserved = false;
+		$faultInjected = false;
+		$failMaintenanceBaselineCapture = static function ( string $query ) use (
+			$fileLockerTable,
+			&$dropObserved,
+			&$faultInjected
+		) :string {
+			if ( !$dropObserved
+					 && \stripos( $query, "DROP TABLE IF EXISTS `{$fileLockerTable}`" ) !== false ) {
+				$dropObserved = true;
+			}
+			elseif ( $dropObserved && !$faultInjected && \stripos( $query, 'SHOW TABLES LIKE' ) !== false ) {
+				$faultInjected = true;
+				return 'SELECT * FROM `shield_missing_file_locker_baseline`';
+			}
+			return $query;
+		};
+
+		$failure = null;
+		\add_filter( 'query', $failMaintenanceBaselineCapture, \PHP_INT_MAX );
+		try {
+			$this->runDailyDatabaseMaintenanceScenario( true );
+		}
+		catch ( \Throwable $e ) {
+			$failure = $e;
+		}
+		finally {
+			\remove_filter( 'query', $failMaintenanceBaselineCapture, \PHP_INT_MAX );
+			$wpdb->suppress_errors( $oldSuppress );
+		}
+
+		$this->assertTrue( $dropObserved, 'The failure-path regression must observe the checked File Locker drop.' );
+		$this->assertTrue( $faultInjected, 'The maintenance-baseline fault must target the first physical probe after the drop.' );
+		$this->assertInstanceOf( \RuntimeException::class, $failure );
+		$this->assertTrue(
+			$this->fileLockerTableExistsRaw( $fileLockerTable ),
+			'The known present suite-entry state must be restored after maintenance-baseline capture fails.'
+		);
+	}
+
+	private function runDailyDatabaseMaintenanceScenario( bool $forceAbsentBaseline ) :void {
 		$dbh = self::con()->db_con->events;
 		$table = $dbh->getTableSchema()->table;
 		$wpdb = Services::WpDb()->loadWpdb();
+		$fileLockerState = [
+			'identity_handler'            => null,
+			'active_handler'              => null,
+			'entry_exists'                => null,
+			'maintenance_baseline_exists' => null,
+		];
 		$rows = $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A );
 		if ( !\is_array( $rows ) ) {
 			$this->markTestSkipped( 'Current SQL backend does not expose SHOW INDEX.' );
 		}
 
 		$this->runWithPersistentDatabaseMutation(
-			function () use ( $rows, $wpdb, $table ) :void {
+			function () use (
+				$rows,
+				$wpdb,
+				$table,
+				$forceAbsentBaseline,
+				&$fileLockerState
+			) :void {
+				$identityHandler = $this->newPassiveFileLockerHandler();
+				$fileLockerState[ 'identity_handler' ] = $identityHandler;
+				$fileLockerTable = $identityHandler->getTableSchema()->table;
+
+				$this->assertSame(
+					[],
+					self::con()->comps->file_locker->getFilesToLock(),
+					'Daily maintenance only purges File Locker storage when no files are selected.'
+				);
+
+				$fileLockerState[ 'entry_exists' ] = $this->fileLockerTableExistsRaw( $fileLockerTable );
+				if ( $fileLockerState[ 'entry_exists' ] ) {
+					$wpdb->last_error = '';
+					$fileLockerRowCount = $wpdb->get_var( "SELECT COUNT(*) FROM `{$fileLockerTable}`" );
+					if ( $wpdb->last_error !== '' ) {
+						throw new \RuntimeException( 'File Locker baseline row count failed: '.$wpdb->last_error );
+					}
+					if ( $fileLockerRowCount === null ) {
+						throw new \RuntimeException( 'File Locker baseline row count returned no result.' );
+					}
+					$this->assertSame( 0, (int)$fileLockerRowCount, 'The File Locker baseline must be empty.' );
+				}
+
+				if ( $forceAbsentBaseline ) {
+					$this->reconcileFileLockerPhysicalState( $identityHandler, false );
+					$identityHandler->invalidateTableReadiness();
+					self::con()->db_con->reset();
+
+					$resetIdentityHandler = $this->newPassiveFileLockerHandler();
+					$this->assertSame(
+						$fileLockerTable,
+						$resetIdentityHandler->getTableSchema()->table,
+						'Resetting handlers must not change the canonical File Locker table identity.'
+					);
+					$fileLockerState[ 'identity_handler' ] = $resetIdentityHandler;
+					$identityHandler = $resetIdentityHandler;
+				}
+
+				$fileLockerState[ 'maintenance_baseline_exists' ] = $this->fileLockerTableExistsRaw( $fileLockerTable );
+				if ( $forceAbsentBaseline ) {
+					$this->assertFalse(
+						$fileLockerState[ 'maintenance_baseline_exists' ],
+						'Passive handler construction must not recreate absent File Locker storage.'
+					);
+				}
+				else {
+					$this->assertSame(
+						$fileLockerState[ 'entry_exists' ],
+						$fileLockerState[ 'maintenance_baseline_exists' ],
+						'The natural maintenance baseline must match the suite entry state.'
+					);
+				}
+
+				$activeHandler = self::con()->db_con->file_locker;
+				$this->assertInstanceOf( FileLockerHandler::class, $activeHandler );
+				$fileLockerState[ 'active_handler' ] = $activeHandler;
+				$this->assertSame(
+					$fileLockerTable,
+					$activeHandler->getTableSchema()->table,
+					'Passive and active File Locker handlers must use the same canonical table.'
+				);
+
 				if ( \in_array( 'created_at_event', \array_column( $rows, 'Key_name' ), true ) ) {
 					$this->assertNotFalse( $wpdb->query( "DROP INDEX `created_at_event` ON `{$table}`" ) );
 				}
@@ -413,13 +553,139 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 				$this->assertIsArray( $restored );
 				$this->assertContains( 'created_at_event', \array_column( $restored, 'Key_name' ) );
 			},
-			function () use ( $dbh, $wpdb, $table ) :void {
-				( new TableIndices( $dbh->getTableSchema() ) )->applyFromSchema();
-				$restored = $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A );
-				if ( !\is_array( $restored ) || !\in_array( 'created_at_event', \array_column( $restored, 'Key_name' ), true ) ) {
-					throw new \RuntimeException( 'Failed to restore the canonical event range index.' );
+			function () use ( $dbh, $wpdb, $table, &$fileLockerState ) :void {
+				$failures = [];
+				$firstFailure = null;
+				$recordFailure = static function ( string $context, \Throwable $e ) use (
+					&$failures,
+					&$firstFailure
+				) :void {
+					$failures[] = $context.': '.( $e->getMessage() !== '' ? $e->getMessage() : \get_class( $e ) );
+					$firstFailure = $firstFailure ?? $e;
+				};
+
+				try {
+					( new TableIndices( $dbh->getTableSchema() ) )->applyFromSchema();
+					$wpdb->last_error = '';
+					$restored = $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A );
+					if ( $wpdb->last_error !== '' ) {
+						throw new \RuntimeException( 'Events index verification failed: '.$wpdb->last_error );
+					}
+					if ( !\is_array( $restored )
+						 || !\in_array( 'created_at_event', \array_column( $restored, 'Key_name' ), true ) ) {
+						throw new \RuntimeException( 'Failed to restore the canonical event range index.' );
+					}
+				}
+				catch ( \Throwable $e ) {
+					$recordFailure( 'Events restoration', $e );
+				}
+
+				try {
+					if ( !$fileLockerState[ 'identity_handler' ] instanceof FileLockerHandler
+							 || !\is_bool( $fileLockerState[ 'maintenance_baseline_exists' ] ) ) {
+						throw new \RuntimeException(
+							'The maintenance baseline capture is incomplete; the physical state cannot be inferred safely.'
+						);
+					}
+					$this->reconcileFileLockerPhysicalState(
+						$fileLockerState[ 'identity_handler' ],
+						$fileLockerState[ 'maintenance_baseline_exists' ]
+					);
+				}
+				catch ( \Throwable $e ) {
+					$recordFailure( 'File Locker maintenance-state restoration', $e );
+				}
+
+				try {
+					if ( !$fileLockerState[ 'active_handler' ] instanceof FileLockerHandler ) {
+						throw new \RuntimeException( 'The active File Locker handler was not captured.' );
+					}
+					$fileLockerState[ 'active_handler' ]->invalidateTableReadiness();
+				}
+				catch ( \Throwable $e ) {
+					$recordFailure( 'File Locker maintenance-state readiness invalidation', $e );
+				}
+
+				try {
+					if ( !$fileLockerState[ 'identity_handler' ] instanceof FileLockerHandler
+							 || !\is_bool( $fileLockerState[ 'maintenance_baseline_exists' ] ) ) {
+						throw new \RuntimeException( 'The maintenance baseline is incomplete; its physical state cannot be verified.' );
+					}
+					$fileLockerTable = $fileLockerState[ 'identity_handler' ]->getTableSchema()->table;
+					if ( $this->fileLockerTableExistsRaw( $fileLockerTable )
+							 !== $fileLockerState[ 'maintenance_baseline_exists' ] ) {
+						throw new \RuntimeException( 'The File Locker table does not match its maintenance baseline.' );
+					}
+				}
+				catch ( \Throwable $e ) {
+					$recordFailure( 'File Locker maintenance-state verification', $e );
+				}
+
+				if ( !\is_bool( $fileLockerState[ 'entry_exists' ] )
+							 || !$fileLockerState[ 'identity_handler' ] instanceof FileLockerHandler ) {
+					$recordFailure(
+						'File Locker entry-state handling',
+						new \RuntimeException( 'The entry baseline is incomplete; entry repair cannot be inferred safely.' )
+					);
+				}
+				else {
+					try {
+						$this->reconcileFileLockerPhysicalState(
+							$fileLockerState[ 'identity_handler' ],
+							$fileLockerState[ 'entry_exists' ]
+						);
+					}
+					catch ( \Throwable $e ) {
+						$recordFailure( 'File Locker entry-state restoration', $e );
+					}
+
+					try {
+						if ( !$fileLockerState[ 'active_handler' ] instanceof FileLockerHandler ) {
+							throw new \RuntimeException( 'The active File Locker handler was not captured.' );
+						}
+						$fileLockerState[ 'active_handler' ]->invalidateTableReadiness();
+					}
+					catch ( \Throwable $e ) {
+						$recordFailure( 'File Locker entry-state readiness invalidation', $e );
+					}
+
+					try {
+						$fileLockerTable = $fileLockerState[ 'identity_handler' ]->getTableSchema()->table;
+						if ( $this->fileLockerTableExistsRaw( $fileLockerTable )
+								 !== $fileLockerState[ 'entry_exists' ] ) {
+							throw new \RuntimeException( 'The File Locker table does not match its suite entry state.' );
+						}
+					}
+					catch ( \Throwable $e ) {
+						$recordFailure( 'File Locker entry-state verification', $e );
+					}
+				}
+
+				try {
+					self::con()->db_con->reset();
+				}
+				catch ( \Throwable $e ) {
+					$recordFailure( 'Database handler reset', $e );
+				}
+
+				if ( $failures !== [] ) {
+					throw new \RuntimeException(
+						'Persistent database restoration failed: '.\implode( '; ', $failures ),
+						0,
+						$firstFailure
+					);
 				}
 			}
+		);
+
+		if ( !$fileLockerState[ 'identity_handler' ] instanceof FileLockerHandler
+				 || !\is_bool( $fileLockerState[ 'entry_exists' ] ) ) {
+			throw new \RuntimeException( 'The File Locker entry baseline was not captured.' );
+		}
+		$this->assertSame(
+			$fileLockerState[ 'entry_exists' ],
+			$this->fileLockerTableExistsRaw( $fileLockerState[ 'identity_handler' ]->getTableSchema()->table ),
+			'Persistent database mutation must restore the File Locker suite entry state.'
 		);
 	}
 
@@ -516,6 +782,57 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 
 	private function guardKey() :string {
 		return self::con()->prefix( ConsolidateAllEvents::GUARD_TRANSIENT );
+	}
+
+	private function fileLockerTableExistsRaw( string $table ) :bool {
+		$wpdb = Services::WpDb()->loadWpdb();
+		Services::WpDb()->clearResultShowTables();
+		$wpdb->last_error = '';
+		$found = $wpdb->get_var( $wpdb->prepare(
+			'SHOW TABLES LIKE %s',
+			$wpdb->esc_like( $table )
+		) );
+		if ( $wpdb->last_error !== '' ) {
+			throw new \RuntimeException( 'Raw File Locker table existence check failed: '.$wpdb->last_error );
+		}
+		return $found !== null;
+	}
+
+	private function newPassiveFileLockerHandler() :FileLockerHandler {
+		$con = self::con();
+		$spec = $con->db_con->getHandlers()[ 'file_locker' ];
+		$definition = $spec[ 'def' ];
+		$definition[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
+		$handlerClass = $spec[ 'handler_class' ];
+		$handler = new $handlerClass( $definition );
+		if ( !$handler instanceof FileLockerHandler ) {
+			throw new \RuntimeException( 'The configured File Locker handler has an unexpected type.' );
+		}
+		return $handler;
+	}
+
+	private function reconcileFileLockerPhysicalState( FileLockerHandler $handler, bool $shouldExist ) :void {
+		$wpdb = Services::WpDb()->loadWpdb();
+		$schema = $handler->getTableSchema();
+		$table = $schema->table;
+		$exists = $this->fileLockerTableExistsRaw( $table );
+		if ( $exists === $shouldExist ) {
+			return;
+		}
+
+		$wpdb->last_error = '';
+		$result = $shouldExist
+			? $wpdb->query( $schema->buildCreate() )
+			: $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
+		$error = $wpdb->last_error;
+		Services::WpDb()->clearResultShowTables();
+		if ( $result === false || $error !== '' ) {
+			throw new \RuntimeException( \sprintf(
+				'File Locker table %s failed: %s',
+				$shouldExist ? 'creation' : 'drop',
+				$error !== '' ? $error : 'database query returned false without an error'
+			) );
+		}
 	}
 
 	/** @return array{int,int} */
