@@ -600,7 +600,19 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 					if ( !$fileLockerState[ 'active_handler' ] instanceof FileLockerHandler ) {
 						throw new \RuntimeException( 'The active File Locker handler was not captured.' );
 					}
-					$fileLockerState[ 'active_handler' ]->invalidateTableReadiness();
+					$activeHandler = $fileLockerState[ 'active_handler' ];
+					$tableSchema = $activeHandler->getTableSchema();
+					$readyCache = $activeHandler::GetTableReadyCache();
+					$readyCache->setReady( $tableSchema );
+					$this->assertTrue(
+						$readyCache->isReady( $tableSchema ),
+						'The File Locker readiness cache must be warm before maintenance-state invalidation.'
+					);
+					$activeHandler->invalidateTableReadiness();
+					$this->assertFalse(
+						$readyCache->isReady( $tableSchema ),
+						'The File Locker readiness cache must be cold after maintenance-state invalidation.'
+					);
 				}
 				catch ( \Throwable $e ) {
 					$recordFailure( 'File Locker maintenance-state readiness invalidation', $e );
@@ -643,7 +655,19 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 						if ( !$fileLockerState[ 'active_handler' ] instanceof FileLockerHandler ) {
 							throw new \RuntimeException( 'The active File Locker handler was not captured.' );
 						}
-						$fileLockerState[ 'active_handler' ]->invalidateTableReadiness();
+						$activeHandler = $fileLockerState[ 'active_handler' ];
+						$tableSchema = $activeHandler->getTableSchema();
+						$readyCache = $activeHandler::GetTableReadyCache();
+						$readyCache->setReady( $tableSchema );
+						$this->assertTrue(
+							$readyCache->isReady( $tableSchema ),
+							'The File Locker readiness cache must be warm before entry-state invalidation.'
+						);
+						$activeHandler->invalidateTableReadiness();
+						$this->assertFalse(
+							$readyCache->isReady( $tableSchema ),
+							'The File Locker readiness cache must be cold after entry-state invalidation.'
+						);
 					}
 					catch ( \Throwable $e ) {
 						$recordFailure( 'File Locker entry-state readiness invalidation', $e );
