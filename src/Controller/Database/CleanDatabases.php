@@ -39,7 +39,7 @@ class CleanDatabases {
 			->query();
 	}
 
-	private function cleanRequestLogs() :void {
+	public function cleanRequestLogs() :void {
 		$this->cleanActivityLogsByPolicy();
 		$this->cleanUnreferencedRequestLogsByPolicy();
 	}
