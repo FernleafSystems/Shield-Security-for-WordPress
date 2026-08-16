@@ -530,6 +530,10 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 						$fileLockerState[ 'maintenance_baseline_exists' ],
 						'The natural maintenance baseline must match the suite entry state.'
 					);
+					$this->assertTrue(
+						$fileLockerState[ 'maintenance_baseline_exists' ],
+						'The natural daily maintenance scenario requires present File Locker storage.'
+					);
 				}
 
 				$activeHandler = self::con()->db_con->file_locker;
@@ -549,6 +553,10 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 				$this->assertNotContains( 'created_at_event', \array_column( $withoutIndex, 'Key_name' ) );
 
 				self::con()->db_con->runDailyCron();
+				$this->assertFalse(
+					$this->fileLockerTableExistsRaw( $fileLockerTable ),
+					'Daily database maintenance must remove File Locker storage when no files are selected.'
+				);
 				$restored = $wpdb->get_results( "SHOW INDEX FROM `{$table}`", ARRAY_A );
 				$this->assertIsArray( $restored );
 				$this->assertContains( 'created_at_event', \array_column( $restored, 'Key_name' ) );
