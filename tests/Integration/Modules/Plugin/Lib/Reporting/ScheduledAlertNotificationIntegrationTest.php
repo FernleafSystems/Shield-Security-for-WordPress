@@ -22,6 +22,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard\Scan\Support\AfsAssetChangeIntegrationSupport;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\LocalEmailCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CompiledReportAssetFixture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCase {
@@ -203,6 +204,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 			'status'      => ScanStatus::COMPLETED,
 			'finished_at' => Services::Request()->ts(),
 		] );
+		CompiledReportAssetFixture::ensureReady( self::con()->getRootDir() );
 		( new AutoReportCoordinator() )->run();
 
 		$this->assertSame( 1, $this->countAutomaticReports( Constants::REPORT_TYPE_ALERT ) );
@@ -245,6 +247,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertAutomaticReportsBlocked( (int)$tracked[ 'result_item_id' ] );
 
 		self::con()->comps->asset_coordinator->deleteState();
+		CompiledReportAssetFixture::ensureReady( self::con()->getRootDir() );
 		( new AutoReportCoordinator() )->run();
 
 		$this->assertSame( 1, $this->countAutomaticReports( Constants::REPORT_TYPE_ALERT ) );
@@ -264,6 +267,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertAutomaticReportsBlocked( (int)$tracked[ 'result_item_id' ] );
 
 		self::con()->comps->asset_coordinator->deleteState();
+		CompiledReportAssetFixture::ensureReady( self::con()->getRootDir() );
 		( new AutoReportCoordinator() )->run();
 
 		$this->assertSame( 1, $this->countAutomaticReports( Constants::REPORT_TYPE_ALERT ) );

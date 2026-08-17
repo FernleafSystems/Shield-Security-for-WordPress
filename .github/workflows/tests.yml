@@ -181,12 +181,6 @@ jobs:
         coverage: none
         tools: composer:v2
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v5
-      with:
-        node-version: '20.10'
-        cache: npm
-
     - name: Prepare Private Packagist Composer auth
       env:
         PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
@@ -195,7 +189,6 @@ jobs:
     - name: Install dependencies
       run: |
         composer install --no-interaction --prefer-dist --optimize-autoloader
-        npm ci --no-audit --no-fund
 
     - name: Run focused database compatibility tests
       run: php bin/shield test:integration-local --db-profile=${{ matrix.profile }} -- --group database-compat

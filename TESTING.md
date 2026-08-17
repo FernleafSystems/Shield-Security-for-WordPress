@@ -279,6 +279,10 @@ The `browser` scope is also supported by `test:docker:cleanup`, but `composer te
 
 `composer test:integration` is focused on behaviour-level WordPress runtime coverage. Browser-managed ActionRouter page-shell and DOM-contract tests are intentionally excluded from the default PHPUnit integration lane and covered via `composer test:browser`.
 
+### PHP integration asset ownership
+
+The PHP integration lane has no lane-wide frontend build. Non-consumer selections and database-compatibility runs are Node-free; selected full report renderers demand-build assets exactly once in ordinary local source mode, so an unfiltered integration run may still require Node. Source-runtime and package outer owners supply assets, while consumers validate the exact bundle. Browser, source, and package asset ownership is unchanged.
+
 ## Local integration lane serialization
 
 `composer test`, `composer test:integration`, and `php bin/shield test:integration-local` are serialized across local terminals, agents, and worktrees with a machine-scoped `flock()` lock. The lock protects the fixed local sidecar resources: Compose project `shield-local-db`, SQL port `127.0.0.1:3311`, database `wordpress_test_local`, and the shared WordPress test-library config.
