@@ -9,6 +9,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -38,6 +39,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'request_whitelist',
 		'scan_path_exclusions',
 		'file_locker',
+		'snapi_data',
 		'instant_alert_admin_login',
 		'enable_admin_login_email_notification',
 		'instant_alert_firewall_block',
@@ -58,21 +60,14 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		parent::set_up();
 		$this->enablePremiumCapabilities( self::PREMIUM_CAPABILITIES );
 		\delete_site_transient( 'update_plugins' );
-		$con = $this->requireController();
-		foreach ( self::SNAPSHOT_KEYS as $key ) {
-			$this->originalOptions[ $key ] = $con->opts->optGet( $key );
-		}
+		$this->originalOptions = $this->snapshotSelectedOptions( self::SNAPSHOT_KEYS );
 	}
 
 	public function tear_down() {
+		$this->restoreSelectedOptions( $this->originalOptions, false );
 		$con = static::con();
 		if ( $con !== null ) {
-			foreach ( $this->originalOptions as $key => $value ) {
-				$con->opts->optSet( $key, $value );
-			}
-			if ( $con->opts->hasChanges() ) {
-				$con->opts->store();
-			}
+			unset( $con->comps->shieldnet->vo );
 		}
 		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
@@ -230,6 +225,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_list_corrections_and_empty_csp_rules_are_applied_during_store() :void {
 		$con = $this->requireController();
+		RuntimeTestState::primeShieldNetHandshake();
 
 		$con->opts
 			->optSet( 'enable_x_content_security_policy', 'Y' )
@@ -302,7 +298,9 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_malformed_multiple_select_save_is_rejected_as_a_whole() :void {
 		$con = $this->requireController();
-		$con->opts->optSet( 'file_locker', [ 'wpconfig', 'root_index' ] )->store();
+		$this->replaceStoredOptionValues( [
+			'file_locker' => [ 'wpconfig', 'root_index' ],
+		] );
 
 		$con->opts->optSet( 'file_locker', [ 'theme_functions', [ 'root_index' ] ] )->store();
 
