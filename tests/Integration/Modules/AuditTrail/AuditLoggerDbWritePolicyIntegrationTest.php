@@ -20,6 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ServicesState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
 use FernleafSystems\Wordpress\Services\Core\General;
+use Monolog\Handler\TestHandler;
 
 class AuditLoggerDbWritePolicyIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -110,6 +111,28 @@ class AuditLoggerDbWritePolicyIntegrationTest extends ShieldIntegrationTestCase 
 
 		foreach ( $classes as $class ) {
 			$this->assertTrue( \class_exists( $class, false ), $class.' should be loaded.' );
+		}
+	}
+
+	public function test_audit_logger_pushes_only_valid_custom_handlers_in_current_stack_order() :void {
+		$this->enablePremiumCapabilities( [ 'activity_logs_send_to_integrations' ] );
+		$first = new TestHandler();
+		$second = new TestHandler();
+		$callback = static fn() :array => [ $first, new \stdClass(), $second ];
+		\add_filter( 'shield/custom_audit_trail_handlers', $callback, \PHP_INT_MAX );
+
+		try {
+			$logger = $this->makeLogger();
+			$method = new \ReflectionMethod( $logger, 'initLogger' );
+			$method->setAccessible( true );
+			$method->invoke( $logger );
+			$handlers = $logger->getLogger()->getHandlers();
+			$this->assertSame( $second, $handlers[ 0 ] );
+			$this->assertSame( $first, $handlers[ 1 ] );
+			$this->assertInstanceOf( ActivityLogDbWriter::class, $handlers[ 2 ]->getHandler() );
+		}
+		finally {
+			\remove_filter( 'shield/custom_audit_trail_handlers', $callback, \PHP_INT_MAX );
 		}
 	}
 

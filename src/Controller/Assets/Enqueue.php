@@ -108,7 +108,8 @@ class Enqueue {
 		}
 
 		$filtered = \apply_filters( 'shield/conflict_assets_to_dequeue', $default, $depContainer );
-		$conflictHandlesRegEx = \implode( '|', \array_map( 'preg_quote', \is_array( $filtered ) ? $filtered : $default ) );
+		$conflictHandles = $this->normalizeStringList( \is_array( $filtered ) ? $filtered : $default );
+		$conflictHandlesRegEx = \implode( '|', \array_map( 'preg_quote', $conflictHandles ) );
 
 		if ( !empty( $conflictHandlesRegEx ) ) {
 			foreach ( $depContainer->queue as $script ) {
@@ -123,7 +124,7 @@ class Enqueue {
 	}
 
 	protected function dequeue() {
-		foreach ( \apply_filters( 'shield/custom_dequeues', [] ) as $handle ) {
+		foreach ( $this->normalizeStringList( \apply_filters( 'shield/custom_dequeues', [] ) ) as $handle ) {
 			$handle = $this->normaliseHandle( $handle );
 			wp_dequeue_style( $handle );
 			wp_dequeue_script( $handle );

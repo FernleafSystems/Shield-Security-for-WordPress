@@ -14,6 +14,8 @@ class AssetFilterBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		parent::set_up();
 		global $wp_filter;
 		foreach ( [
+			'shield/conflict_assets_to_dequeue',
+			'shield/custom_dequeues',
 			'shield/custom_enqueue_assets',
 			'shield/custom_localisations',
 			'shield/custom_localisations/components',
@@ -132,6 +134,76 @@ class AssetFilterBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 			Enqueue::JS  => [ $handle ],
 			Enqueue::CSS => [ $handle ],
 		], $method->invoke( new Enqueue() ) );
+	}
+
+	public function test_conflict_dequeue_owner_drops_invalid_members_and_keeps_valid_handle() :void {
+		global $wp_styles;
+		$target = 'target-conflict';
+		$safe = 'safe-conflict';
+		\wp_register_style( $target, 'https://example.test/target.css' );
+		\wp_register_style( $safe, 'https://example.test/safe.css' );
+		\wp_enqueue_style( $target );
+		\wp_enqueue_style( $safe );
+		\add_filter( 'shield/conflict_assets_to_dequeue', static fn() => [
+			' target-conflict ',
+			[],
+			new \stdClass(),
+		], \PHP_INT_MAX );
+
+		$method = new \ReflectionMethod( Enqueue::class, 'removeConflictingAdminAssets' );
+		$method->setAccessible( true );
+		$method->invoke( new Enqueue(), $wp_styles );
+
+		$this->assertFalse( \wp_style_is( $target, 'enqueued' ) );
+		$this->assertTrue( \wp_style_is( $safe, 'enqueued' ) );
+	}
+
+	public function test_conflict_dequeue_owner_uses_existing_default_for_non_array_filter() :void {
+		global $wp_styles;
+		$handle = 'safe-non-array-conflict';
+		\wp_register_style( $handle, 'https://example.test/safe-non-array.css' );
+		\wp_enqueue_style( $handle );
+		\add_filter( 'shield/conflict_assets_to_dequeue', static fn() => new \stdClass(), \PHP_INT_MAX );
+
+		$method = new \ReflectionMethod( Enqueue::class, 'removeConflictingAdminAssets' );
+		$method->setAccessible( true );
+		$method->invoke( new Enqueue(), $wp_styles );
+
+		$this->assertTrue( \wp_style_is( $handle, 'enqueued' ) );
+	}
+
+	public function test_custom_dequeue_owner_drops_invalid_members_and_dequeues_valid_handles() :void {
+		$custom = $this->requireController()->prefix( 'custom-dequeue' );
+		\wp_register_style( $custom, 'https://example.test/custom.css' );
+		\wp_register_script( 'jquery', 'https://example.test/jquery.js' );
+		\wp_enqueue_style( $custom );
+		\wp_enqueue_script( 'jquery' );
+		\add_filter( 'shield/custom_dequeues', static fn() => [
+			'custom-dequeue',
+			[],
+			new \stdClass(),
+			'wp-jquery',
+		], \PHP_INT_MAX );
+
+		$method = new \ReflectionMethod( Enqueue::class, 'dequeue' );
+		$method->setAccessible( true );
+		$method->invoke( new Enqueue() );
+
+		$this->assertFalse( \wp_style_is( $custom, 'enqueued' ) );
+		$this->assertFalse( \wp_script_is( 'jquery', 'enqueued' ) );
+	}
+
+	public function test_custom_dequeue_owner_treats_non_array_filter_as_empty() :void {
+		$handle = $this->requireController()->prefix( 'safe-custom-dequeue' );
+		\wp_register_style( $handle, 'https://example.test/safe-custom.css' );
+		\wp_enqueue_style( $handle );
+		\add_filter( 'shield/custom_dequeues', static fn() => 123, \PHP_INT_MAX );
+
+		$method = new \ReflectionMethod( Enqueue::class, 'dequeue' );
+		$method->setAccessible( true );
+		$method->invoke( new Enqueue() );
+
+		$this->assertTrue( \wp_style_is( $handle, 'enqueued' ) );
 	}
 
 	public function test_component_owner_drops_hostile_final_output() :void {

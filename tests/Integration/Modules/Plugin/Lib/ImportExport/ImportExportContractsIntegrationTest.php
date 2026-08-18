@@ -477,6 +477,125 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
+	public function test_file_import_rejects_scalar_options_without_mutating_rules() :void {
+		$ip = '10.22.33.45';
+		$this->resetIpCaches();
+		$this->assertCount( 0, $this->loadManualBypassRulesForIp( $ip ) );
+		$file = $this->writeTempFile( (string)\wp_json_encode( [
+			'options'  => 'not-an-array',
+			'ip_rules' => [
+				[
+					'type'  => $this->requireController()->db_con->ip_rules::T_MANUAL_BYPASS,
+					'ip'    => $ip,
+					'label' => 'must not be imported',
+				],
+			],
+		] ) );
+
+		try {
+			( new Import() )->fromFile( $file, true );
+			$this->fail( 'Expected scalar import options to be rejected.' );
+		}
+		catch ( \Exception $e ) {
+			$this->resetIpCaches();
+			$this->assertCount( 0, $this->loadManualBypassRulesForIp( $ip ) );
+		}
+	}
+
+	public function test_file_import_prevalidates_processed_rules_before_option_mutation() :void {
+		$con = $this->requireController();
+		$ip = '10.22.33.46';
+		$con->opts
+			->optSet( 'display_plugin_badge', 'disabled' )
+			->optSet( 'xfer_excluded', [] )
+			->store();
+		$this->resetIpCaches();
+		$this->assertCount( 0, $this->loadManualBypassRulesForIp( $ip ) );
+		$file = $this->writeTempFile( (string)\wp_json_encode( [
+			'options'  => [
+				'display_plugin_badge' => 'light',
+			],
+			'ip_rules' => [
+				[
+					'type'  => $con->db_con->ip_rules::T_MANUAL_BYPASS,
+					'ip'    => $ip,
+					'label' => [ 'not-a-string' ],
+				],
+			],
+		] ) );
+
+		try {
+			( new Import() )->fromFile( $file, true );
+			$this->fail( 'Expected malformed processed IP rule to be rejected.' );
+		}
+		catch ( \Exception $e ) {
+			$this->resetIpCaches();
+			$this->assertSame( 'disabled', $con->opts->optGet( 'display_plugin_badge' ) );
+			$this->assertCount( 0, $this->loadManualBypassRulesForIp( $ip ) );
+		}
+	}
+
+	public function test_file_upload_rejects_malformed_upload_record() :void {
+		$files = $_FILES;
+		$adminBypass = '__return_true';
+		\add_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), $adminBypass );
+		$this->applyCurrentRequestState(
+			[ 'REQUEST_METHOD' => 'POST' ],
+			[],
+			[ 'confirm' => 'Y' ],
+			[ 'is_security_admin' => true ]
+		);
+		$_FILES = [ 'import_file' => new \stdClass() ];
+
+		try {
+			( new Import() )->fromFileUpload();
+			$this->fail( 'Expected malformed upload metadata to be rejected.' );
+		}
+		catch ( \Exception $e ) {
+			$this->assertStringContainsString( 'select a file', $e->getMessage() );
+		}
+		finally {
+			$_FILES = $files;
+			\remove_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), $adminBypass );
+		}
+	}
+
+	public function test_file_upload_uses_nested_error_before_importing_file() :void {
+		$files = $_FILES;
+		$adminBypass = '__return_true';
+		\add_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), $adminBypass );
+		$file = $this->writeTempFile( (string)\wp_json_encode( [
+			'options'  => [],
+			'ip_rules' => [],
+		] ) );
+		$this->applyCurrentRequestState(
+			[ 'REQUEST_METHOD' => 'POST' ],
+			[],
+			[ 'confirm' => 'Y' ],
+			[ 'is_security_admin' => true ]
+		);
+		$_FILES = [
+			'import_file' => [
+				'tmp_name' => $file,
+				'error'    => \UPLOAD_ERR_PARTIAL,
+				'size'     => \filesize( $file ),
+			],
+		];
+
+		try {
+			( new Import() )->fromFileUpload();
+			$this->fail( 'Expected the nested upload error to reject the file.' );
+		}
+		catch ( \Exception $e ) {
+			$this->assertStringContainsString( 'Uploading of file failed', $e->getMessage() );
+			$this->assertFileExists( $file );
+		}
+		finally {
+			$_FILES = $files;
+			\remove_filter( $this->requireController()->prefix( 'bypass_is_plugin_admin' ), $adminBypass );
+		}
+	}
+
 	public function test_import_rejects_malformed_multiple_select_without_losing_current_value() :void {
 		$con = $this->requireController();
 		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();

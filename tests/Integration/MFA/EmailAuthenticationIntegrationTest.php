@@ -312,6 +312,31 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
+	public function test_send_intent_falls_back_from_invalid_otp_filter_with_consistent_record_and_mail() :void {
+		$user = \get_user_by( 'id', $this->createAdministratorUser( [
+			'user_email' => 'invalid-otp-filter@example.test',
+		] ) );
+		$this->seedLoginIntent( $user, 'invalid-otp-filter-login' );
+		$invalid = static fn() => new \stdClass();
+		\add_filter( 'shield/2fa_email_otp', $invalid, \PHP_INT_MAX );
+
+		try {
+			$payload = $this->processEmailSendAction( $user, 'invalid-otp-filter-login' );
+			$records = $this->loadEmailRecords( $user->ID );
+			$query = $this->autoLoginQueryFromLastMail();
+			$otp = $query[ ( new Email( $user ) )->getLoginIntentFormParameter() ] ?? null;
+
+			$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+			$this->assertIsString( $otp );
+			$this->assertNotSame( '', $otp );
+			$this->assertCount( 1, $records );
+			$this->assertTrue( \wp_check_password( $otp, $records[ 0 ]->unique_id ) );
+		}
+		finally {
+			\remove_filter( 'shield/2fa_email_otp', $invalid, \PHP_INT_MAX );
+		}
+	}
+
 	public function test_email_auto_login_accepts_latest_otp_and_returns_redirect_payload() :void {
 		$this->captureShieldEvents();
 

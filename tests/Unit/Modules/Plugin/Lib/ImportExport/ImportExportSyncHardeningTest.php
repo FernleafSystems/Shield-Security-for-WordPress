@@ -197,6 +197,22 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertSame( '', (string)$this->opts->optGet( 'importexport_masterurl' ) );
 	}
 
+	public function test_from_site_uses_generic_failure_for_non_string_remote_message() :void {
+		$this->httpRequest->setContentResponse( [
+			'success' => false,
+			'message' => [ 'not-a-string' ],
+		] );
+
+		try {
+			( new Import() )->fromSite( 'https://source-master.example.com' );
+			$this->fail( 'Expected the remote import failure to be reported.' );
+		}
+		catch ( \Exception $e ) {
+			$this->assertSame( 6, $e->getCode() );
+			$this->assertSame( "Request failed with no error message from the source site.", $e->getMessage() );
+		}
+	}
+
 	public function test_from_site_legacy_private_mode_wraps_export_request_with_external_host_filter() :void {
 		$events = [];
 		$this->recordExternalHostFilterEvents( $events );
@@ -901,6 +917,7 @@ class ImportExportEventsRecorderStub {
 class ImportExportHttpRequestStub extends HttpRequest {
 
 	private array $responseOptions = [];
+	private ?array $contentResponse = null;
 	private string $lastRequestedUrl = '';
 	private string $lastGetRequestedUrl = '';
 	private string $lastPostRequestedUrl = '';
@@ -919,6 +936,10 @@ class ImportExportHttpRequestStub extends HttpRequest {
 
 	public function setResponseOptions( array $options ) :void {
 		$this->responseOptions = $options;
+	}
+
+	public function setContentResponse( array $response ) :void {
+		$this->contentResponse = $response;
 	}
 
 	public function lastRequestedUrl() :string {
@@ -1015,7 +1036,7 @@ class ImportExportHttpRequestStub extends HttpRequest {
 			throw $this->getContentException;
 		}
 
-		return (string)\json_encode( [
+		return (string)\json_encode( $this->contentResponse ?? [
 			'success' => true,
 			'data'    => [
 				'options'  => $this->responseOptions,

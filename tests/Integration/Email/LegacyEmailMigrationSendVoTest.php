@@ -213,6 +213,50 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 		$this->assertSame( '', $alertData[ 'ip_identity' ] );
 	}
 
+	public function testAdminLoginAlertContextFallsBackForInvalidRoleFilter() :void {
+		$con = $this->requireController();
+		$userId = self::factory()->user->create( [
+			'role'       => 'administrator',
+			'user_login' => 'invalid-role-filter-admin',
+			'user_email' => 'invalid-role-filter-admin@example.com',
+		] );
+		$user = \get_user_by( 'id', $userId );
+		$this->assertInstanceOf( \WP_User::class, $user );
+		$callback = static fn() => new \stdClass();
+		\add_filter( $con->prefix( 'login-notification-email-role' ), $callback, \PHP_INT_MAX );
+
+		try {
+			$alertData = ( new AdminLoginAlertContextBuilder() )->build( $user );
+			$this->assertIsArray( $alertData );
+			$this->assertSame( 'Administrator+', $alertData[ 'role_name' ] );
+		}
+		finally {
+			\remove_filter( $con->prefix( 'login-notification-email-role' ), $callback, \PHP_INT_MAX );
+		}
+	}
+
+	public function testAdminLoginAlertContextPreservesValidRoleFilter() :void {
+		$con = $this->requireController();
+		$userId = self::factory()->user->create( [
+			'role'       => 'administrator',
+			'user_login' => 'valid-role-filter-admin',
+			'user_email' => 'valid-role-filter-admin@example.com',
+		] );
+		$user = \get_user_by( 'id', $userId );
+		$this->assertInstanceOf( \WP_User::class, $user );
+		$callback = static fn() :string => 'EDITOR';
+		\add_filter( $con->prefix( 'login-notification-email-role' ), $callback, \PHP_INT_MAX );
+
+		try {
+			$alertData = ( new AdminLoginAlertContextBuilder() )->build( $user );
+			$this->assertIsArray( $alertData );
+			$this->assertSame( 'Editor+', $alertData[ 'role_name' ] );
+		}
+		finally {
+			\remove_filter( $con->prefix( 'login-notification-email-role' ), $callback, \PHP_INT_MAX );
+		}
+	}
+
 	public function testAdminLoginInstantAlertSuppressesDuplicateUserLoginNoticeForSameRecipient() :void {
 		$con = $this->requireController();
 		$con->this_req->ip = '198.51.100.23';

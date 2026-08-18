@@ -192,6 +192,181 @@ class EventsServiceTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'ip_blocked', $def[ 'key' ] );
 	}
 
+	public function test_non_array_event_definitions_fall_back_to_built_ins() :void {
+		$callback = static fn() => (object)[ 'invalid' => true ];
+		\add_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+
+		try {
+			$events = ( new EventsService() )->getEvents();
+			$this->assertArrayHasKey( 'ip_blocked', $events );
+			$this->assertIsArray( $events[ 'ip_blocked' ] );
+		}
+		finally {
+			\remove_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+		}
+	}
+
+	public function test_malformed_filtered_event_members_use_built_in_fallback_or_are_removed() :void {
+		$callback = static function ( array $events ) :array {
+			$events[ 'ip_blocked' ] = 'malformed-built-in';
+			$events[ 'malformed_new_event' ] = new \stdClass();
+			return $events;
+		};
+		\add_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+
+		try {
+			$events = ( new EventsService() )->getEvents();
+			$this->assertIsArray( $events[ 'ip_blocked' ] );
+			$this->assertSame( 'ip_blocked', $events[ 'ip_blocked' ][ 'key' ] ?? '' );
+			$this->assertArrayNotHasKey( 'malformed_new_event', $events );
+		}
+		finally {
+			\remove_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+		}
+	}
+
+	public function test_malformed_nested_event_fields_use_built_in_fallback_or_are_removed() :void {
+		$validDefinition = [];
+		$callback = static function ( array $events ) use ( &$validDefinition ) :array {
+			$validDefinition = $events[ 'ip_blocked' ];
+			$validDefinition[ 'key' ] = 'valid_new_event';
+
+			$events[ 'ip_blocked' ][ 'level' ] = new \stdClass();
+			$events[ 'report_sent' ][ 'audit_params' ] = 'malformed-audit-params';
+			$events[ 'malformed_new_level' ] = $validDefinition;
+			$events[ 'malformed_new_level' ][ 'level' ] = new \stdClass();
+			$events[ 'malformed_new_audit_params' ] = $validDefinition;
+			$events[ 'malformed_new_audit_params' ][ 'audit_params' ] = 'malformed-audit-params';
+			$events[ 'valid_new_event' ] = $validDefinition;
+			return $events;
+		};
+		\add_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+
+		try {
+			$events = ( new EventsService() )->getEvents();
+			$this->assertSame( 'warning', $events[ 'ip_blocked' ][ 'level' ] ?? '' );
+			$this->assertSame( [ 'type', 'medium' ], $events[ 'report_sent' ][ 'audit_params' ] ?? [] );
+			$this->assertArrayNotHasKey( 'malformed_new_level', $events );
+			$this->assertArrayNotHasKey( 'malformed_new_audit_params', $events );
+			$this->assertSame( $validDefinition, $events[ 'valid_new_event' ] ?? [] );
+		}
+		finally {
+			\remove_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+		}
+	}
+
+	public function test_malformed_audit_param_members_use_built_in_fallback_or_are_removed() :void {
+		$callback = static function ( array $events ) :array {
+			$events[ 'report_sent' ][ 'audit_params' ][] = new \stdClass();
+			$events[ 'malformed_new_audit_param' ] = $events[ 'report_sent' ];
+			$events[ 'malformed_new_audit_param' ][ 'key' ] = 'malformed_new_audit_param';
+			return $events;
+		};
+		\add_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+
+		try {
+			$this->captureShieldEvents();
+			$eventsService = new EventsService();
+			$eventsService->fireEvent( 'report_sent', [
+				'audit_params' => [
+					'type'   => 'Alert',
+					'medium' => 'email',
+				],
+			] );
+
+			$this->assertCount( 1, $this->getCapturedEventsByKey( 'report_sent' ) );
+			$this->assertArrayNotHasKey( 'malformed_new_audit_param', $eventsService->getEvents() );
+		}
+		finally {
+			\remove_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+		}
+	}
+
+	public function test_missing_event_key_uses_built_in_fallback_or_is_removed() :void {
+		$callback = static function ( array $events ) :array {
+			unset( $events[ 'ip_blocked' ][ 'key' ] );
+			$events[ 'missing_key_event' ] = $events[ 'report_sent' ];
+			unset( $events[ 'missing_key_event' ][ 'key' ] );
+			return $events;
+		};
+		\add_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+
+		try {
+			$eventsService = new EventsService();
+			$events = $eventsService->getEvents();
+			$this->assertSame( 'ip_blocked', $events[ 'ip_blocked' ][ 'key' ] ?? '' );
+			$this->assertArrayNotHasKey( 'missing_key_event', $events );
+			$this->assertCount( \count( $events ), $eventsService->getEventNames() );
+		}
+		finally {
+			\remove_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+		}
+	}
+
+	public function test_invalid_filtered_event_keys_use_built_in_fallback_or_are_removed() :void {
+		$callback = static function ( array $events ) :array {
+			$events[ 'ip_blocked' ][ 'key' ] = 'mismatched_key';
+			$events[ 123 ] = $events[ 'report_sent' ];
+			return $events;
+		};
+		\add_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+
+		try {
+			$events = ( new EventsService() )->getEvents();
+			$this->assertSame( 'ip_blocked', $events[ 'ip_blocked' ][ 'key' ] ?? '' );
+			$this->assertArrayNotHasKey( 123, $events );
+			foreach ( \array_keys( $events ) as $eventKey ) {
+				$this->assertIsString( $eventKey );
+			}
+		}
+		finally {
+			\remove_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+		}
+	}
+
+	public function test_malformed_filtered_custom_event_strings_are_removed() :void {
+		$validDefinition = [];
+		$callback = static function ( array $events ) use ( &$validDefinition ) :array {
+			$validDefinition = $events[ 'report_sent' ];
+			$validDefinition[ 'key' ] = 'custom_valid_filtered';
+			$validDefinition[ 'strings' ] = [
+				'name'  => 'Valid filtered custom event',
+				'audit' => [ 'Valid audit string' ],
+			];
+			$events[ 'custom_valid_filtered' ] = $validDefinition;
+
+			$events[ 'custom_invalid_strings' ] = $validDefinition;
+			$events[ 'custom_invalid_strings' ][ 'key' ] = 'custom_invalid_strings';
+			$events[ 'custom_invalid_strings' ][ 'strings' ] = 'not-an-array';
+
+			$events[ 'custom_invalid_name' ] = $validDefinition;
+			$events[ 'custom_invalid_name' ][ 'key' ] = 'custom_invalid_name';
+			$events[ 'custom_invalid_name' ][ 'strings' ][ 'name' ] = new \stdClass();
+
+			$events[ 'custom_invalid_audit' ] = $validDefinition;
+			$events[ 'custom_invalid_audit' ][ 'key' ] = 'custom_invalid_audit';
+			$events[ 'custom_invalid_audit' ][ 'strings' ][ 'audit' ][] = new \stdClass();
+			return $events;
+		};
+		\add_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+
+		try {
+			$eventsService = new EventsService();
+			$events = $eventsService->getEvents();
+			$this->assertSame( $validDefinition, $events[ 'custom_valid_filtered' ] ?? [] );
+			$this->assertArrayNotHasKey( 'custom_invalid_strings', $events );
+			$this->assertArrayNotHasKey( 'custom_invalid_name', $events );
+			$this->assertArrayNotHasKey( 'custom_invalid_audit', $events );
+			$this->assertSame(
+				$validDefinition[ 'strings' ],
+				$eventsService->getEventStrings( 'custom_valid_filtered' )
+			);
+		}
+		finally {
+			\remove_filter( 'shield/events/definitions', $callback, \PHP_INT_MAX );
+		}
+	}
+
 	public function test_custom_event_audit_strings_are_filtered() :void {
 		$this->enablePremiumCapabilities();
 		$callback = static function ( array $events ) :array {
@@ -213,6 +388,74 @@ class EventsServiceTest extends ShieldIntegrationTestCase {
 		}
 		finally {
 			remove_filter( 'shield/events/custom_definitions', $callback );
+		}
+	}
+
+	public function test_malformed_custom_event_definition_rejects_the_custom_set() :void {
+		$this->enablePremiumCapabilities();
+		$callback = static fn() :array => [
+			'custom_valid_definition' => [
+				'strings' => [
+					'name'  => 'Valid custom event',
+					'audit' => [ 'Valid audit string' ],
+				],
+			],
+			'custom_invalid_definition' => new \stdClass(),
+		];
+		\add_filter( 'shield/events/custom_definitions', $callback, \PHP_INT_MAX );
+
+		try {
+			$events = ( new EventsService() )->getEvents();
+			$this->assertArrayNotHasKey( 'custom_valid_definition', $events );
+			$this->assertArrayNotHasKey( 'custom_invalid_definition', $events );
+		}
+		finally {
+			\remove_filter( 'shield/events/custom_definitions', $callback, \PHP_INT_MAX );
+		}
+	}
+
+	public function test_falsy_custom_event_definition_is_ignored() :void {
+		$this->enablePremiumCapabilities();
+		$callback = static fn() :array => [
+			'custom_valid_definition' => [
+				'strings' => [
+					'name'  => 'Valid custom event',
+					'audit' => [ 'Valid audit string' ],
+				],
+			],
+			'custom_invalid_definition' => false,
+		];
+		\add_filter( 'shield/events/custom_definitions', $callback, \PHP_INT_MAX );
+
+		try {
+			$events = ( new EventsService() )->getEvents();
+			$this->assertArrayHasKey( 'custom_valid_definition', $events );
+			$this->assertArrayNotHasKey( 'custom_invalid_definition', $events );
+		}
+		finally {
+			\remove_filter( 'shield/events/custom_definitions', $callback, \PHP_INT_MAX );
+		}
+	}
+
+	public function test_custom_event_with_no_valid_audit_strings_is_retained() :void {
+		$this->enablePremiumCapabilities();
+		$callback = static fn() :array => [
+			'custom_invalid_audit_strings' => [
+				'strings' => [
+					'name'  => 'Invalid audit strings',
+					'audit' => [ '', 123, [] ],
+				],
+			],
+		];
+		\add_filter( 'shield/events/custom_definitions', $callback, \PHP_INT_MAX );
+
+		try {
+			$eventsService = new EventsService();
+			$this->assertArrayHasKey( 'custom_invalid_audit_strings', $eventsService->getEvents() );
+			$this->assertSame( [], $eventsService->getEventAuditStrings( 'custom_invalid_audit_strings' ) );
+		}
+		finally {
+			\remove_filter( 'shield/events/custom_definitions', $callback, \PHP_INT_MAX );
 		}
 	}
 

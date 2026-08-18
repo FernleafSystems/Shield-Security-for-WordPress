@@ -69,12 +69,39 @@ class EventsService {
 	 * @return array[]
 	 */
 	public function getEvents() :array {
-		$this->events ??= $this->normaliseEventLevels(
-			(array)apply_filters(
-				'shield/events/definitions',
-				$this->buildEvents( self::con()->cfg->configuration->events )
-			)
-		);
+		if ( !isset( $this->events ) ) {
+			$built = $this->buildEvents( self::con()->cfg->configuration->events );
+			$filtered = apply_filters( 'shield/events/definitions', $built );
+			$events = \is_array( $filtered ) ? $filtered : $built;
+			foreach ( $events as $eventKey => $event ) {
+				$isValidEvent = \is_string( $eventKey )
+					&& \is_array( $event )
+					&& ( $event[ 'key' ] ?? null ) === $eventKey
+					&& ( !\array_key_exists( 'level', $event ) || \is_string( $event[ 'level' ] ) )
+					&& ( !\array_key_exists( 'audit_params', $event ) || (
+						\is_array( $event[ 'audit_params' ] )
+						&& \count( \array_filter( $event[ 'audit_params' ], '\is_string' ) ) === \count( $event[ 'audit_params' ] )
+					) );
+				if ( $isValidEvent && \str_starts_with( $eventKey, 'custom_' ) ) {
+					$strings = $event[ 'strings' ] ?? null;
+					$isValidEvent = \is_array( $strings )
+						&& ( !isset( $strings[ 'name' ] ) || \is_string( $strings[ 'name' ] ) )
+						&& ( !isset( $strings[ 'audit' ] ) || (
+							\is_array( $strings[ 'audit' ] )
+							&& \count( \array_filter( $strings[ 'audit' ], '\is_string' ) ) === \count( $strings[ 'audit' ] )
+						) );
+				}
+				if ( !$isValidEvent ) {
+					if ( isset( $built[ $eventKey ] ) ) {
+						$events[ $eventKey ] = $built[ $eventKey ];
+					}
+					else {
+						unset( $events[ $eventKey ] );
+					}
+				}
+			}
+			$this->events = $this->normaliseEventLevels( $events );
+		}
 		if ( empty( $this->events ) ) {
 			error_log( sprintf( __( '%s event definitions are empty or not in the correct format.', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
@@ -105,6 +132,9 @@ class EventsService {
 
 			$events = \array_filter( $events );
 			foreach ( $events as $evtKey => $evtDef ) {
+				if ( !\is_array( $evtDef ) ) {
+					throw new \Exception( __( "All custom event definitions must be provided as arrays.", 'wp-simple-firewall' ) );
+				}
 				if ( \is_numeric( $evtKey ) || !\preg_match( '#^custom_[a-z_]{1,43}$#', $evtKey ) ) {
 					throw new \Exception( __( "All custom event keys must be strings, lowercase, length 10-50, prefixed with 'custom_', and contain only letters and underscores.", 'wp-simple-firewall' ) );
 				}
