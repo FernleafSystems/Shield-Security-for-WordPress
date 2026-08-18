@@ -6,7 +6,7 @@ Supporting docs:
 
 1. [`tests/docker/README.md`](tests/docker/README.md) for Docker-runner mechanics only.
 2. [`docs/test-suite-full-audit-2026-03-15.md`](docs/test-suite-full-audit-2026-03-15.md) for the audit record.
-3. [`tests/TESTING-RULES-ROADMAP.md`](tests/TESTING-RULES-ROADMAP.md) for rules/firewall coverage planning only.
+3. [`docs/testing/checklist-automation-coverage.md`](docs/testing/checklist-automation-coverage.md) for the maintained automation coverage and evidence matrix.
 
 Composer 2.8 or newer is required for the supported command surface. Unit command argument isolation relies on Composer's `@no_additional_args` control token.
 
@@ -14,7 +14,7 @@ Composer 2.8 or newer is required for the supported command surface. Unit comman
 
 | Goal | Command | Notes |
 |---|---|---|
-| Full local confidence gate | `composer test` | Builds config, then runs unit and integration lanes; allow a 30-minute outer timeout |
+| Full local confidence gate | `composer test` | Broad gate for the risk triggers below; builds config, then runs unit and integration lanes; allow a 30-minute outer timeout |
 | Unit tests | `composer test:unit` | Enforces filesystem-fixture policy, then builds config and runs the unit runner |
 | Integration tests | `composer test:integration` | Public wrapper around the local Docker-backed integration lane; allow a 30-minute outer timeout for an unfiltered run |
 | Browser lane | `composer test:browser` | Playwright + axe against an automatically leased isolated Docker WordPress browser lane |
@@ -27,7 +27,11 @@ Composer 2.8 or newer is required for the supported command surface. Unit comman
 
 ## Verification Policy
 
-Use the narrowest supported command that covers the changed behavior, then widen only when the risk or task requires it. For a completed PHP change, `composer test` is the normal broad local confidence gate.
+Use the narrowest supported command that covers the changed behavior, then widen only when a concrete risk or acceptance criterion requires it. A completed PHP change does not by itself require `composer test`; prefer the focused owner-level unit or integration command, plus applicable static analysis.
+
+During regression exposure or test-first work, run only the focused command that proves the new test is red. Adding a test, or reaching a red state before the production correction is stable, never justifies `composer test`, an unfiltered integration run, cross-site, browser, package, or release-confidence lanes.
+
+`composer test` is a broad local confidence gate, not a routine per-change completion requirement. Run it when the change affects shared PHP bootstrap, generated configuration, test infrastructure, or widely reused behavior whose regression radius cannot be bounded reliably; when reproducing the corresponding CI or release-confidence path; or when the operator or task explicitly requires that exact lane. The number of changed PHP files or bounded owners does not itself make the regression radius unbounded. Before starting the command, map it to the concrete risk or acceptance criterion and confirm that current focused evidence cannot prove the same point. Otherwise omit it and report the focused evidence actually gathered.
 
 Source and full-package Docker testing use only the latest WordPress runtime by default. This is the preferred local behavior. Testing the retained previous major is exceptional compatibility coverage, not a routine final gate; use it only when a task explicitly targets that version or when reproducing the source-runtime CI job itself. Required CI selects its own broader coverage, so normal local verification does not need to duplicate it.
 
@@ -111,11 +115,13 @@ The unit runner auto-selects ParaTest. Full-suite and path-only runs use ParaTes
 | Situation | Preferred verification |
 |---|---|
 | Focused PHP behavior | Narrow `composer test:unit` or `composer test:integration` invocation |
-| Completed PHP change | `composer test` |
+| Completed bounded PHP change | Focused owner-level unit or integration coverage, plus applicable static analysis |
+| Shared or cross-cutting PHP change with an unbounded regression radius | `composer test` after applying the broad-gate criteria above |
 | Source behavior that specifically needs the containerized runtime | `php bin/shield test:source` |
 | JavaScript static changes | `npm run test:js` |
 | ActionRouter interaction or accessibility | `composer test:browser` |
-| Import/export site communication | `composer test:cross-site` |
+| Import/export validation or normalization contained within one site | Focused owner-level unit or integration coverage |
+| Observable import/export site-to-site protocol, transport, handshake, queue, or remote-state lifecycle | `composer test:cross-site` |
 | Package structure or prefixed dependencies | `composer test:package` |
 | Release upgrade or ecosystem compatibility | The relevant manual release-confidence lane |
 | Exact reproduction of a CI job | The command recorded under [CI Workflow Roles](#ci-workflow-roles) |
@@ -492,7 +498,7 @@ Use these rules for every Playwright spec under `tests/browser/action-router`:
 
 ## Local Cross-Site Lane
 
-Use this lane for Shield-to-Shield import/export communication. It provisions a master WordPress site and a slave WordPress site on one Docker network, uses dotted Docker DNS aliases for site-to-site HTTP, and drives setup, cron, queue processing, and assertions with WP-CLI.
+Use this lane when a change affects observable Shield-to-Shield import/export behavior: transport or authentication, the handshake or successful wire contract, the transferred option corpus, cron or queue processing, or remote sync-state handling. Do not select it merely because `Import.php` or another import/export path changed when focused owner-level tests cover site-local validation, normalization, or rejection of a malformed response without changing the successful cross-site contract. The lane provisions a master WordPress site and a slave WordPress site on one Docker network, uses dotted Docker DNS aliases for site-to-site HTTP, and drives setup, cron, queue processing, and assertions with WP-CLI.
 
 ```bash
 composer test:cross-site
