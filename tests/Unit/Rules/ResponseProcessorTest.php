@@ -15,9 +15,15 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Request\ThisRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
 	Processors\ResponseProcessor,
+	Responses\Base,
+	Responses\DisplayBlockPage,
+	Responses\FirewallBlock,
 	Responses\HookAddAction,
 	Responses\HookAddFilter,
+	Responses\HttpRedirect,
+	Responses\PhpDie,
 	Responses\SetRequestToBeLogged,
+	Responses\WpDie,
 	RuleVO
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -35,6 +41,7 @@ class ResponseProcessorTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		ResponseProcessorExecutionRecorder::$executed = [];
 
 		$this->servicesSnapshot = ServicesState::snapshot();
 		ServicesState::installItems( [
@@ -149,6 +156,45 @@ class ResponseProcessorTest extends BaseUnitTest {
 		$this->addToAssertionCount( 1 );
 	}
 
+	public function test_non_terminating_and_default_responses_run_before_stably_ordered_terminators() :void {
+		$rule = ( new RuleVO() )->applyFromArray( [
+			'slug'                    => 'ordering_rule',
+			'immediate_exec_response' => true,
+			'responses'               => [
+				[ 'response' => RecordingTerminatingResponseOne::class ],
+				[ 'response' => RecordingNonTerminatingResponseOne::class ],
+				[ 'response' => 'Missing\\Response\\Class' ],
+				[ 'response' => RecordingTerminatingResponseTwo::class ],
+				[ 'response' => RecordingNonTerminatingResponseTwo::class ],
+			],
+		] );
+
+		( new ResponseProcessor( $rule ) )
+			->setThisRequest( new ThisRequest() )
+			->run();
+
+		$this->assertSame( [
+			'non-terminating-one',
+			'non-terminating-two',
+			'default:shield/rules/response/ordering_rule',
+			'terminating-one',
+			'terminating-two',
+		], ResponseProcessorExecutionRecorder::$executed );
+	}
+
+	public function test_all_directly_terminating_responses_are_classified() :void {
+		foreach ( [
+			new DisplayBlockPage(),
+			new FirewallBlock(),
+			new HttpRedirect(),
+			new PhpDie(),
+			new WpDie(),
+		] as $response ) {
+			$this->assertTrue( $response->isTerminating(), \get_class( $response ) );
+		}
+		$this->assertFalse( ( new HookAddAction() )->isTerminating() );
+	}
+
 	private function installController() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -161,6 +207,7 @@ class ResponseProcessorTest extends BaseUnitTest {
 		$controller->comps = (object)[
 			'events' => new class() {
 				public function fireEvent( string $event ) :void {
+					ResponseProcessorExecutionRecorder::$executed[] = 'default:'.$event;
 				}
 			},
 		];
@@ -208,5 +255,42 @@ class ResponseProcessorTest extends BaseUnitTest {
 				return true;
 			}
 		};
+	}
+}
+
+class ResponseProcessorExecutionRecorder {
+
+	public static array $executed = [];
+}
+
+class RecordingNonTerminatingResponseOne extends Base {
+
+	public function execResponse() :void {
+		ResponseProcessorExecutionRecorder::$executed[] = 'non-terminating-one';
+	}
+}
+
+class RecordingNonTerminatingResponseTwo extends Base {
+
+	public function execResponse() :void {
+		ResponseProcessorExecutionRecorder::$executed[] = 'non-terminating-two';
+	}
+}
+
+class RecordingTerminatingResponseOne extends Base {
+
+	use \FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\Traits\IsTerminating;
+
+	public function execResponse() :void {
+		ResponseProcessorExecutionRecorder::$executed[] = 'terminating-one';
+	}
+}
+
+class RecordingTerminatingResponseTwo extends Base {
+
+	use \FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\Traits\IsTerminating;
+
+	public function execResponse() :void {
+		ResponseProcessorExecutionRecorder::$executed[] = 'terminating-two';
 	}
 }

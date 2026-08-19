@@ -3,10 +3,22 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Build;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\RequestBypassesAllRestrictions;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\Core\Firewall as FirewallRuleBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\{
+	IsRequestStatus404,
+	MatchRequestPath,
+	RequestBypassesAllRestrictions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\RuleFormBuilderVO;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumLogic;
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
+	EnumLogic,
+	EnumParameters
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\{
+	EventFire,
+	FirewallBlock
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\{
 	FindFromSlug,
 	ResponseParamsNormalizer
@@ -15,6 +27,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Rules\Utility\{
 class BuildRuleFromForm extends BuildRuleBase {
 
 	use PluginControllerConsumer;
+	private const FALLBACK_TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS = 1001;
 
 	/**
 	 * @var RuleFormBuilderVO
@@ -29,15 +42,34 @@ class BuildRuleFromForm extends BuildRuleBase {
 		return $this->form->name;
 	}
 
-	/**
-	 * TODO: Allow users to set response timings.
-	 */
-	protected function isInstantExecResponse() :bool {
-		return true;
-	}
-
 	protected function getDescription() :string {
 		return $this->form->description;
+	}
+
+	protected function getWpHookPriority() :?int {
+		$rawData = $this->form->getRawData();
+		$logic = $rawData[ 'conditions_logic' ] ?? '';
+		if ( !\in_array( $logic, [ EnumLogic::LOGIC_AND, EnumLogic::LOGIC_OR ], true ) ) {
+			return parent::getWpHookPriority();
+		}
+
+		$requiresFinal404 = false;
+		foreach ( $rawData[ 'conditions' ] ?? [] as $condition ) {
+			$conditionRequiresFinal404 = ( $condition[ 'value' ] ?? '' ) === IsRequestStatus404::Slug()
+				&& ( $condition[ 'invert' ][ 'value' ] ?? '' ) === EnumLogic::LOGIC_ASIS;
+			if ( $logic === EnumLogic::LOGIC_OR && !$conditionRequiresFinal404 ) {
+				return parent::getWpHookPriority();
+			}
+			$requiresFinal404 = $requiresFinal404 || $conditionRequiresFinal404;
+		}
+
+		if ( $requiresFinal404 ) {
+			$hookTiming = HookTimings::class.'::TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS';
+			return ( \defined( $hookTiming )
+				? \constant( $hookTiming )
+				: self::FALLBACK_TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS ) + 1;
+		}
+		return parent::getWpHookPriority();
 	}
 
 	protected function getConditions() :array {
@@ -137,7 +169,51 @@ class BuildRuleFromForm extends BuildRuleBase {
 			$response[ 'params' ] = ( new ResponseParamsNormalizer() )->normalize( $responseClass, $response[ 'params' ] );
 			$responses[] = $response;
 		}
+
+		$hasFirewallBlock = false;
+		$hasFirewallEvent = false;
+		foreach ( $responses as $response ) {
+			$hasFirewallBlock = $hasFirewallBlock || $response[ 'response' ] === FirewallBlock::class;
+			$hasFirewallEvent = $hasFirewallEvent || (
+				$response[ 'response' ] === EventFire::class
+				&& ( $response[ 'params' ][ 'event' ] ?? '' ) === 'firewall_block'
+			);
+		}
+		if ( $hasFirewallBlock && !$hasFirewallEvent ) {
+			foreach ( $responses as $position => $response ) {
+				if ( $response[ 'response' ] === FirewallBlock::class ) {
+					\array_splice( $responses, $position, 0, [ $this->buildFirewallEventResponse() ] );
+					break;
+				}
+			}
+		}
 		return $responses;
+	}
+
+	private function buildFirewallEventResponse() :array {
+		$auditParams = [
+			'name'  => $this->form->name,
+			'term'  => $this->form->description ?: $this->form->name,
+			'param' => 'path',
+			'scan'  => 'custom_rule',
+			'type'  => 'custom',
+		];
+		$auditParamsMap = [];
+		foreach ( $this->form->getRawData()[ 'conditions' ] ?? [] as $condition ) {
+			if ( ( $condition[ 'value' ] ?? '' ) !== MatchRequestPath::SLUG ) {
+				continue;
+			}
+			$params = [];
+			foreach ( $condition[ 'params' ] ?? [] as $param ) {
+				$params[ $param[ 'name' ] ] = $param[ 'value' ];
+			}
+			$auditParams[ 'term' ] = (string)( $params[ 'match_path' ] ?? '' ) ?: $auditParams[ 'term' ];
+			$auditParams[ 'type' ] = (string)( $params[ 'match_type' ] ?? '' ) ?: 'custom';
+			$auditParamsMap[ 'value' ] = 'path';
+			break;
+		}
+
+		return FirewallRuleBuilder::eventResponseDefinition( $auditParamsMap, $auditParams );
 	}
 
 	protected function getSlug() :string {

@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\NotBotAlt
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PublicBlockRecoveryFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityAdminFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityHeadersFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\CustomRulesTerminalFinalizationFixtureBuilder;
 
 class BrowserFixtureRegistry {
 
@@ -66,6 +67,8 @@ class BrowserFixtureRegistry {
 				return self::runSecurityAdminFixture( $action, $args );
 			case 'security-headers':
 				return self::runSecurityHeadersFixture( $action );
+			case 'custom-rules-terminal-finalization':
+				return self::runCustomRulesTerminalFinalizationFixture( $action, $args );
 			default:
 				throw new \RuntimeException( 'Unknown browser fixture: '.$fixture );
 		}
@@ -96,7 +99,43 @@ class BrowserFixtureRegistry {
 		self::runPublicBlockRecoveryFixture( 'cleanup', [] );
 		self::runSecurityAdminFixture( 'cleanup', [] );
 		self::runSecurityHeadersFixture( 'cleanup' );
+		self::runCustomRulesTerminalFinalizationFixture( 'cleanup', [] );
 		return [ 'cleaned' => true ];
+	}
+
+	/** @param list<string> $args */
+	private static function runCustomRulesTerminalFinalizationFixture( string $action, array $args ) :array {
+		$builder = new CustomRulesTerminalFinalizationFixtureBuilder();
+		$key = self::fixtureOptionKey( 'custom-rules-terminal-finalization' );
+		$state = \get_option( $key, [] );
+		$state = \is_array( $state ) ? $state : [];
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $key );
+				return [ 'cleaned' => true ];
+			case 'seed':
+				$scenario = self::requireScenario( $args );
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $key );
+				}
+				$result = $builder->seed( $scenario, \trim( $args[ 1 ] ?? '' ) );
+				\update_option( $key, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+			case 'activate':
+				$result = $builder->activate( $state, \trim( $args[ 0 ] ?? '' ) );
+				\update_option( $key, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+			case 'inspect':
+				$scenario = self::requireScenario( $args );
+				if ( ( $state[ 'scenario' ] ?? '' ) !== $scenario ) {
+					throw new \RuntimeException( 'Fixture scenario does not match stored state.' );
+				}
+				return $builder->inspect( $state, \trim( $args[ 1 ] ?? '' ) );
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
 	}
 
 	/**
