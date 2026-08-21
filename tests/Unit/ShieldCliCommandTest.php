@@ -66,6 +66,10 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				'analyze:source',
 				'analyze:package',
 				'git:pre-commit',
+				'operator',
+				'operator:package-svn',
+				'operator:prepare-release',
+				'operator:build-zip',
 			] as $commandName
 		) {
 			$this->assertStringContainsString( $commandName, $output );
@@ -412,6 +416,10 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			'analyze-source' => [ 'analyze:source' ],
 			'analyze-package' => [ 'analyze:package' ],
 			'git-pre-commit' => [ 'git:pre-commit' ],
+			'operator' => [ 'operator' ],
+			'operator-package-svn' => [ 'operator:package-svn' ],
+			'operator-prepare-release' => [ 'operator:prepare-release' ],
+			'operator-build-zip' => [ 'operator:build-zip' ],
 		];
 	}
 }
