@@ -2,7 +2,7 @@
 title: Overview
 type: overview
 created: 2026-04-07
-updated: 2026-04-21
+updated: 2026-08-21
 sources: []
 tags: [overview, synthesis]
 ---
@@ -15,7 +15,7 @@ High-level synthesis of what this wiki currently covers and where it still has g
 
 ## Current State
 
-This wiki has been initialized, but no raw sources have been ingested yet.
+This wiki has been initialized. No raw sources have been ingested yet, and one source-linked compatibility analysis has been filed.
 
 Source count: 0
 Core pages: index, log, overview, glossary
@@ -28,7 +28,7 @@ Last lint: none
 
 This wiki is intended to accumulate durable repo knowledge derived from documents imported into `kb/raw/`.
 
-Current coverage is limited to schema, repo configuration, glossary, and control-page setup.
+Current coverage includes schema, repo configuration, glossary, control-page setup, and a WordPress 7.1 plugin-compatibility assessment for Shield.
 
 ---
 
@@ -38,6 +38,7 @@ Current coverage is limited to schema, repo configuration, glossary, and control
 - raw-document ingest into structured markdown pages
 - portable universal schema plus minimal repo-local configuration
 - conservative category set that can grow only when needed
+- WordPress 7.1 compatibility risks and Shield's exposure
 
 ---
 
@@ -53,7 +54,6 @@ Current coverage is limited to schema, repo configuration, glossary, and control
 
 - no source pages yet
 - no topic pages yet
-- no analysis pages yet
 - no real category pressure yet
 
 ---
@@ -63,3 +63,4 @@ Current coverage is limited to schema, repo configuration, glossary, and control
 - [[index]] - master catalog of wiki pages
 - [[glossary]] - terminology and style conventions
 - [[log]] - chronological record of wiki activity
+- [[wordpress-7-1-plugin-compatibility]] - WordPress 7.1 plugin compatibility assessment
