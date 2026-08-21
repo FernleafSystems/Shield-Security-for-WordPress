@@ -138,6 +138,19 @@ class UnitTestExecutionSelectorTest extends TestCase {
 		$this->assertNotContains( '-f', $command );
 	}
 
+	public function testParatestCommandsSetMemoryLimit() :void {
+		$selector = new UnitTestExecutionSelector();
+
+		foreach ( [
+			$selector->buildCommand( [ 'tests/Unit/UnitTestExecutionSelectorTest.php' ] ),
+			$selector->buildCommand( [ '--filter', 'example' ] ),
+		] as $command ) {
+			$this->assertSame( \PHP_BINARY, $command[ 0 ] ?? null );
+			$this->assertSame( '-d', $command[ 1 ] ?? null );
+			$this->assertSame( 'memory_limit=1536M', $command[ 2 ] ?? null );
+		}
+	}
+
 	public function testBuildCommandUsesExplicitSerialMode() :void {
 		$selector = new UnitTestExecutionSelector();
 		$command = $selector->buildCommand(

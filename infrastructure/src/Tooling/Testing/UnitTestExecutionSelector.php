@@ -12,6 +12,8 @@ class UnitTestExecutionSelector {
 	public const STRATEGY_PARATEST_WRAPPER = 'paratest_wrapper';
 	public const STRATEGY_PARATEST_FUNCTIONAL = 'paratest_functional';
 
+	private const PARATEST_MEMORY_LIMIT = '1536M';
+
 	/**
 	 * @return string[]
 	 */
@@ -121,6 +123,8 @@ class UnitTestExecutionSelector {
 		return \array_merge(
 			[
 				\PHP_BINARY,
+				'-d',
+				'memory_limit='.self::PARATEST_MEMORY_LIMIT,
 				'./vendor/brianium/paratest/bin/paratest',
 				'-c',
 				'phpunit-unit.xml',
@@ -141,6 +145,8 @@ class UnitTestExecutionSelector {
 		return \array_merge(
 			[
 				\PHP_BINARY,
+				'-d',
+				'memory_limit='.self::PARATEST_MEMORY_LIMIT,
 				'./vendor/brianium/paratest/bin/paratest',
 				'-c',
 				'phpunit-unit.xml',
