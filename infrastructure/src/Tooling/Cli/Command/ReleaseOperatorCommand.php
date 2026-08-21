@@ -10,6 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Filesystem\Path;
 
 class ReleaseOperatorCommand extends Command {
 
@@ -40,7 +41,7 @@ class ReleaseOperatorCommand extends Command {
 		}
 
 		$this->fixedAction = $fixedAction;
-		$this->projectRoot = $projectRoot;
+		$this->projectRoot = $this->canonicalDirectory( $projectRoot, 'The project root must be an existing directory.' );
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		parent::__construct( $name );
 	}
@@ -119,12 +120,8 @@ class ReleaseOperatorCommand extends Command {
 	private function askForInputs( string $action, InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper ) :array {
 		if ( $action === self::ACTION_PACKAGE_SVN ) {
 			$question = new Question( 'Existing SVN target directory: ' );
-			$question->setValidator( static function ( $target ) :string {
-				$target = (string)$target;
-				if ( !\is_dir( $target ) ) {
-					throw new \RuntimeException( 'The package target must be an existing directory.' );
-				}
-				return $target;
+			$question->setValidator( function ( $target ) :string {
+				return $this->externalPackageTarget( (string)$target );
 			} );
 			return [ 'target' => $questionHelper->ask( $input, $output, $question ) ];
 		}
@@ -208,5 +205,28 @@ class ReleaseOperatorCommand extends Command {
 
 	private function statePath() :string {
 		return $this->projectRoot.'/tmp/operator-state.json';
+	}
+
+	private function externalPackageTarget( string $target ) :string {
+		$target = \trim( $target );
+		if ( !Path::isAbsolute( $target ) ) {
+			$target = Path::join( $this->projectRoot, $target );
+		}
+
+		$target = $this->canonicalDirectory( $target, 'The package target must be an existing directory.' );
+		if ( Path::isBasePath( $this->projectRoot, $target ) ) {
+			throw new \RuntimeException( 'The package target must be outside the project directory.' );
+		}
+
+		return $target;
+	}
+
+	private function canonicalDirectory( string $directory, string $errorMessage ) :string {
+		$realPath = \realpath( $directory );
+		if ( $realPath === false || !\is_dir( $realPath ) ) {
+			throw new \RuntimeException( $errorMessage );
+		}
+
+		return Path::normalize( $realPath );
 	}
 }

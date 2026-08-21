@@ -40,10 +40,11 @@ class PluginPackager {
 
 	public function __construct( ?string $projectRoot = null, ?callable $logger = null ) {
 		$root = $projectRoot ?? $this->detectProjectRoot();
-		if ( $root === '' ) {
+		$realRoot = $root === '' ? false : \realpath( $root );
+		if ( $realRoot === false || !\is_dir( $realRoot ) ) {
 			throw new \RuntimeException( 'Unable to determine project root.' );
 		}
-		$this->projectRoot = $root;
+		$this->projectRoot = Path::normalize( $realRoot );
 		$this->logger = $logger ?? static function ( string $message ) :void {
 			echo $message.PHP_EOL;
 		};
@@ -168,8 +169,7 @@ class PluginPackager {
 	private function resolveOutputDirectory( ?string $path ) :string {
 		if ( $path === null || $path === '' ) {
 			throw new \RuntimeException(
-				'Output directory is required. Please specify --output=<directory> when packaging. '.
-				'Packages must be built outside the project directory (e.g., SVN repository or external build directory).'
+				'Output directory is required. Please specify --output=<directory> when packaging.'
 			);
 		}
 
@@ -179,8 +179,7 @@ class PluginPackager {
 		// Check for empty after trimming
 		if ( $path === '' ) {
 			throw new \RuntimeException(
-				'Output directory is required. Please specify --output=<directory> when packaging. '.
-				'Packages must be built outside the project directory (e.g., SVN repository or external build directory).'
+				'Output directory is required. Please specify --output=<directory> when packaging.'
 			);
 		}
 
@@ -200,17 +199,21 @@ class PluginPackager {
 			$resolved = Path::normalize( $realPath );
 		}
 		else {
-			// Directory doesn't exist yet, try to resolve parent directory
-			// Use dirname() which works correctly with Path::normalize()
-			$parentDir = dirname( $resolved );
+			$missingParts = [];
+			$parentDir = $resolved;
+			while ( ( $realParent = \realpath( $parentDir ) ) === false ) {
+				$nextParent = \dirname( $parentDir );
+				if ( $nextParent === '' || $nextParent === $parentDir ) {
+					break;
+				}
+				$missingParts[] = \basename( $parentDir );
+				$parentDir = $nextParent;
+			}
 
-			// Check if parent directory exists and can be resolved
-			// Handle edge case where dirname() returns the same path (e.g., drive root)
-			if ( $parentDir !== '' && $parentDir !== $resolved ) {
-				$realParent = realpath( $parentDir );
-				if ( $realParent !== false ) {
-					$basename = \basename( $resolved );
-					$resolved = Path::join( Path::normalize( $realParent ), $basename );
+			if ( $realParent !== false ) {
+				$resolved = Path::normalize( $realParent );
+				foreach ( \array_reverse( $missingParts ) as $missingPart ) {
+					$resolved = Path::join( $resolved, $missingPart );
 				}
 			}
 		}
