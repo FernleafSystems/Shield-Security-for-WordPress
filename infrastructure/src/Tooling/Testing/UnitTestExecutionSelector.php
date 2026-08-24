@@ -12,7 +12,7 @@ class UnitTestExecutionSelector {
 	public const STRATEGY_PARATEST_WRAPPER = 'paratest_wrapper';
 	public const STRATEGY_PARATEST_FUNCTIONAL = 'paratest_functional';
 
-	private const PARATEST_MEMORY_LIMIT = '1536M';
+	private const UNIT_TEST_MEMORY_LIMIT = '1536M';
 
 	/**
 	 * @return string[]
@@ -105,8 +105,8 @@ class UnitTestExecutionSelector {
 	 */
 	private function buildSerialCommand( array $args ) :array {
 		return \array_merge(
+			$this->buildPhpCommand(),
 			[
-				\PHP_BINARY,
 				'./vendor/phpunit/phpunit/phpunit',
 				'-c',
 				'phpunit-unit.xml',
@@ -121,10 +121,8 @@ class UnitTestExecutionSelector {
 	 */
 	private function buildWrapperParatestCommand( array $args ) :array {
 		return \array_merge(
+			$this->buildPhpCommand(),
 			[
-				\PHP_BINARY,
-				'-d',
-				'memory_limit='.self::PARATEST_MEMORY_LIMIT,
 				'./vendor/brianium/paratest/bin/paratest',
 				'-c',
 				'phpunit-unit.xml',
@@ -143,10 +141,8 @@ class UnitTestExecutionSelector {
 	 */
 	private function buildFunctionalParatestCommand( array $args ) :array {
 		return \array_merge(
+			$this->buildPhpCommand(),
 			[
-				\PHP_BINARY,
-				'-d',
-				'memory_limit='.self::PARATEST_MEMORY_LIMIT,
 				'./vendor/brianium/paratest/bin/paratest',
 				'-c',
 				'phpunit-unit.xml',
@@ -158,6 +154,19 @@ class UnitTestExecutionSelector {
 			],
 			$args
 		);
+	}
+
+	/**
+	 * Keep every unit runner independent of the host PHP memory default.
+	 *
+	 * @return string[]
+	 */
+	private function buildPhpCommand() :array {
+		return [
+			\PHP_BINARY,
+			'-d',
+			'memory_limit='.self::UNIT_TEST_MEMORY_LIMIT,
+		];
 	}
 
 	/**
