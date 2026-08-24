@@ -6,7 +6,8 @@ use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\ReleaseOperatorCommand;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Helper\HelperSet;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Filesystem\Path;
@@ -60,6 +61,31 @@ class ReleaseOperatorCommandTest extends BaseUnitTest {
 	public function testRejectsUnsupportedFixedAction() :void {
 		$this->expectException( \InvalidArgumentException::class );
 		new ReleaseOperatorCommand( 'operator:unknown', 'unknown', $this->projectRoot() );
+	}
+
+	public function testExecutionDoesNotRequirePhpSelf() :void {
+		$hadPhpSelf = \array_key_exists( 'PHP_SELF', $_SERVER );
+		$originalPhpSelf = $_SERVER[ 'PHP_SELF' ] ?? null;
+		unset( $_SERVER[ 'PHP_SELF' ] );
+
+		try {
+			$runner = new RecordingProcessRunner( [ 0 ] );
+			$exitCode = $this->execute(
+				new ReleaseOperatorCommand( 'operator:build-zip', 'build-zip', $this->projectRoot(), $runner ),
+				[ 'y' ]
+			);
+
+			$this->assertSame( Command::SUCCESS, $exitCode );
+			$this->assertSame( [ 'composer', 'build-zip' ], $runner->calls[ 0 ][ 'command' ] );
+		}
+		finally {
+			if ( $hadPhpSelf ) {
+				$_SERVER[ 'PHP_SELF' ] = $originalPhpSelf;
+			}
+			else {
+				unset( $_SERVER[ 'PHP_SELF' ] );
+			}
+		}
 	}
 
 	public function testPackageSvnRejectsMissingTargetBeforeRunningProcess() :void {
@@ -203,10 +229,8 @@ class ReleaseOperatorCommandTest extends BaseUnitTest {
 	}
 
 	private function execute( ReleaseOperatorCommand $command, array $answers ) :int {
-		$application = new Application();
-		$application->setAutoExit( false );
-		$application->add( $command );
-		$tester = new CommandTester( $application->find( $command->getName() ) );
+		$command->setHelperSet( new HelperSet( [ new QuestionHelper() ] ) );
+		$tester = new CommandTester( $command );
 		$tester->setInputs( $answers );
 		$exitCode = $tester->execute( [] );
 		return $exitCode;
