@@ -1,4 +1,116 @@
 {
+  "22.2": {
+    "version":     "22.2",
+    "released_at": 1787830000,
+    "hrefs":       {
+      "release": "https://clk.shldscrty.com/shieldrelease222",
+      "upgrade": "https://clk.shldscrty.com/shieldupgradeguide222"
+    },
+    "title":       "Cross-Site Settings Sync and Cloaked Plugin Detection",
+    "description": [
+      "Synchronise selected Shield settings across trusted sites.",
+      "Detect cloaked plugins and review site-wide plugin and theme activity and vulnerabilities."
+    ],
+    "items":       [
+      {
+        "type":        "new",
+        "title":       "Network Settings Sync",
+        "description": [
+          "Complete overhaul of site-to-site network sync feature.",
+          "Better management of trusted sites; create settings profile separately from master site configuration."
+        ]
+      },
+      {
+        "type":        "new",
+        "title":       "Cloaked Plugins",
+        "description": [
+          "Shield detects plugins hidden from the WordPress Plugins screen and can alert you to review them."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "All Plugins and All Themes",
+        "description": [
+          "Investigate now provides site-wide views of plugin and theme activity and vulnerabilities."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "More Accurate File Scans",
+        "description": [
+          "After updates, Shield refreshes its plugin and theme file references, reducing false modified or unrecognised file findings.",
+          "Stalled scans recover, and stale file data no longer creates unnecessary Actions Queue items."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Final Scan Results",
+        "description": [
+          "Malware findings update when their final assessment is available.",
+          "Vulnerability alerts wait until all follow-up scan work is complete."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "More Reliable Backups",
+        "description": [
+          "Large backups avoid duplicate or skipped files.",
+          "Backup archives stop cleanly when a file cannot be included."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Enable File Locker Per File",
+        "description": [
+          "Enable File Locker for individual files directly from scan results."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Clearer File Scan Results",
+        "description": [
+          "Scan results show site-relative paths.",
+          "Fallback File Locker comparisons show less surrounding context."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Matching Report Periods",
+        "description": [
+          "Recurring reports now compare matching time periods."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Admin Login IP Identity",
+        "description": [
+          "Admin login alerts identify requests from your server, loopback, or recognised services."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "Accurate Update Notices",
+        "description": [
+          "Update and beta notices use WordPress.org release data, avoiding incorrect prompts."
+        ]
+      },
+      {
+        "type":        "fixed",
+        "title":       "MFA Remember Me",
+        "description": [
+          "Clicking the Remember Me label now selects the checkbox."
+        ]
+      },
+      {
+        "type":        "improved",
+        "title":       "Admin Bar Scan Status",
+        "description": [
+          "The Shield Admin Bar now always shows scan status."
+        ]
+      }
+    ],
+    "patches":     []
+  },
   "22.1": {
     "version":     "22.1",
     "released_at": 1781000000,
@@ -122,74 +234,7 @@
         ]
       }
     ],
-    "patches":     [
-      {
-        "version":     "8",
-        "released_at": 1784537000,
-        "items":       [
-          {
-            "type":        "improved",
-            "title":       "ShieldBACKUPS Reliability Improved",
-            "description": [
-              "Backup file mapping resumes more reliably across repeated requests, reducing duplicate or skipped entries during large backup jobs.",
-              "Backup archive creation is safer around missing, excluded, unreadable, oversized, older, or linked files, helping backups fail cleanly when a file can't be archived."
-            ]
-          },
-          {
-            "type":        "improved",
-            "title":       "File Scanning Quality of Life Improvements",
-            "description": [
-              "Further developments to improve the speed and reliability of file scanning."
-            ]
-          },
-          {
-            "type":        "fixed",
-            "title":       "File Scan Accuracy Improved",
-            "description": [
-              "Shield now refreshes plugin and theme file baselines more carefully after updates, reducing false modified or unrecognised file findings.",
-              "Cleanup scans rebuild current file details before comparing results, so stale scan data is less likely to create noisy Actions Queue items.",
-              "Plugin and theme change scans now start more consistently, including when triggered from WP-CLI."
-            ]
-          },
-          {
-            "type":        "improved",
-            "title":       "File Scan Results Display Improved",
-            "description": [
-              "File scan tables now show a single clean relative file path for WordPress and malware findings, keeping scan results easier to review and avoiding unnecessary full server-path details."
-            ]
-          },
-          {
-            "type":        "improved",
-            "title":       "More reliable FileLocker Diffs",
-            "description": [
-              "WordPress fallback diffs now limit surrounding context, keeping file changes focused when the primary diff service is unavailable."
-            ]
-          },
-          {
-            "type":        "fixed",
-            "title":       "Update Notices More Reliable",
-            "description": [
-              "Shield update and beta-upgrade prompts now use WordPress.org release data more accurately and ignore malformed version details that could cause confusing notices.",
-              "Auto-update delays, admin flash messages, plugin and theme status details, and Shield news panels handle unexpected stored or external data more safely."
-            ]
-          },
-          {
-            "type":        "fixed",
-            "title":       "MFA Remember-Me Fixed",
-            "description": [
-              "The remember-me option on the WordPress login-style MFA screen now works from both the checkbox and its label, so trusted login sessions are remembered as expected."
-            ]
-          },
-          {
-            "type":        "improved",
-            "title":       "Shield Admin Bar Streamlined",
-            "description": [
-              "The Shield admin bar now uses saved scan summaries for authorised Security Admins, keeping the top bar consistent across admin pages with less work during page loads."
-            ]
-          }
-        ]
-      }
-    ]
+    "patches":     []
   },
   "22.0": {
     "version":     "22.0",
