@@ -630,6 +630,13 @@ class AssetCoordinator {
 	 * @throws \RuntimeException
 	 */
 	private function readPersistedStateForReadiness() :array {
+		return $this->readRawPersistedState() ?? [];
+	}
+
+	/**
+	 * @throws \RuntimeException
+	 */
+	private function readRawPersistedState() :?array {
 		global $wpdb;
 
 		if ( !\is_object( $wpdb ) ) {
@@ -674,7 +681,7 @@ class AssetCoordinator {
 			throw new \RuntimeException( 'Asset coordinator readiness state query failed.' );
 		}
 		if ( $rows === [] ) {
-			return [];
+			return null;
 		}
 		if ( \count( $rows ) !== 1
 			 || !\is_array( $rows[ 0 ] )
@@ -696,8 +703,18 @@ class AssetCoordinator {
 			? \update_site_option( $this->optionKey(), $state )
 			: \update_option( $this->optionKey(), $state, false );
 
-		if ( $updated !== false || $this->readStoredOption() === $state ) {
+		if ( $updated !== false ) {
 			return true;
+		}
+		if ( $this->readStoredOption() === $state ) {
+			return true;
+		}
+		try {
+			if ( $this->readRawPersistedState() === $state ) {
+				return true;
+			}
+		}
+		catch ( \Throwable $e ) {
 		}
 
 		error_log( 'Shield asset coordinator state write failed.' );

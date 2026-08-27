@@ -58,6 +58,8 @@ class AssetCoordinatorTest extends BaseUnitTest {
 	private array $firedActions = [];
 	private array $filters = [];
 	private array $options = [];
+	private ?array $optionReadOverride = null;
+	private ?\Closure $optionUpdateOverride = null;
 	private array $scheduled = [];
 	private array $unscheduled = [];
 	private array $autoloadValues = [];
@@ -932,20 +934,121 @@ class AssetCoordinatorTest extends BaseUnitTest {
 	}
 
 	public function test_unchanged_update_result_is_accepted_only_for_exact_stored_state() :void {
+		$db = $this->installReadinessDb( [] );
 		$this->updateResult = false;
 		$coordinator = new AssetCoordinator();
 
 		$this->persistWrites = true;
 		$this->assertTrue( $coordinator->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
+		$this->assertCount( 0, $db->queries );
 
 		$this->persistWrites = false;
 		\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages = [];
 		$this->assertFalse( $coordinator->enqueueAsset( 'theme', 'twentytwentyfive', 60 ) );
 		$this->assertArrayNotHasKey( 'twentytwentyfive', $this->state()[ 'assets' ][ 'theme' ] );
-		$this->assertCount(
-			1,
-			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages
-		);
+		$this->assertSame( [ 'Shield asset coordinator state write failed.' ],
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertCount( 1, $db->queries );
+	}
+
+	public function test_successful_state_update_does_not_query_the_raw_state() :void {
+		$db = $this->installReadinessDb( [] );
+
+		$this->assertTrue( ( new AssetCoordinator() )->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
+		$this->assertCount( 0, $db->queries );
+	}
+
+	public function test_stale_option_cache_does_not_report_an_already_persisted_state_as_a_write_failure() :void {
+		$persistedState = [
+			'assets' => [
+				'plugin' => [
+					'akismet/akismet.php' => [ 'attempts' => 0, 'due_at' => 1700000060 ],
+				],
+				'theme' => [],
+				'core'   => [],
+			],
+		];
+		$this->options[ $this->optionKey() ] = $persistedState;
+		$this->optionReadOverride = [];
+		$this->updateResult = false;
+		$db = $this->installReadinessDb( [ $this->readinessRow( $persistedState ) ] );
+
+		$this->assertTrue( ( new AssetCoordinator() )->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
+		$this->assertSame( $persistedState, $this->options[ $this->optionKey() ] );
+		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertCount( 1, $db->queries );
+	}
+
+	public function test_first_state_insert_race_does_not_report_an_already_persisted_state_as_a_write_failure() :void {
+		$persistedState = [
+			'assets' => [
+				'plugin' => [
+					'akismet/akismet.php' => [ 'attempts' => 0, 'due_at' => 1700000060 ],
+				],
+				'theme' => [],
+				'core'   => [],
+			],
+		];
+		$this->optionReadOverride = [];
+		$this->optionUpdateOverride = function ( string $key, $value ) :bool {
+			$this->options[ $key ] = $value;
+			return false;
+		};
+		$db = $this->installReadinessDb( [ $this->readinessRow( $persistedState ) ] );
+
+		$this->assertTrue( ( new AssetCoordinator() )->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
+		$this->assertSame( $persistedState, $this->options[ $this->optionKey() ] );
+		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertCount( 1, $db->queries );
+	}
+
+	/**
+	 * @dataProvider failedWriteFallbackRowsProvider
+	 */
+	public function test_false_update_with_cached_mismatch_keeps_unreadable_or_unequal_raw_state_as_a_failure( array $rows ) :void {
+		$db = $this->installReadinessDb( $rows );
+		$this->optionReadOverride = [];
+		$this->persistWrites = false;
+		$this->updateResult = false;
+
+		$this->assertFalse( ( new AssetCoordinator() )->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
+		$this->assertSame( [ 'Shield asset coordinator state write failed.' ],
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertCount( 1, $db->queries );
+	}
+
+	public static function failedWriteFallbackRowsProvider() :array {
+		return [
+			'different raw state' => [ [ [ 'option_value' => \serialize( [] ) ] ] ],
+			'missing raw row'     => [ [] ],
+			'malformed raw row'   => [ [ 'not-a-row' ] ],
+			'malformed raw value' => [ [ [ 'option_value' => 'not-serialized-state' ] ] ],
+		];
+	}
+
+	public function test_false_update_with_cached_mismatch_keeps_raw_query_exceptions_as_a_failure() :void {
+		$db = $this->installReadinessResponses( [ [] ], new \RuntimeException( 'Synthetic read failure.' ) );
+		$this->optionReadOverride = [];
+		$this->persistWrites = false;
+		$this->updateResult = false;
+
+		$this->assertFalse( ( new AssetCoordinator() )->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
+		$this->assertSame( [ 'Shield asset coordinator state write failed.' ],
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertCount( 1, $db->queries );
+	}
+
+	public function test_false_update_with_cached_mismatch_keeps_raw_database_errors_as_a_failure() :void {
+		$db = $this->installReadinessDb( [] );
+		$GLOBALS[ 'wpdb' ]->last_error = 'Synthetic database error.';
+		$this->optionReadOverride = [];
+		$this->persistWrites = false;
+		$this->updateResult = false;
+
+		$this->assertFalse( ( new AssetCoordinator() )->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
+		$this->assertSame( [ 'Shield asset coordinator state write failed.' ],
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertCount( 1, $db->queries );
 	}
 
 	public function test_malformed_state_normalizes_without_warnings_on_next_merge() :void {
@@ -1071,6 +1174,9 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			}
 		} );
 		Functions\when( 'get_option' )->alias( function ( string $key, $default = false ) {
+			if ( $this->optionReadOverride !== null ) {
+				return \array_key_exists( $key, $this->optionReadOverride ) ? $this->optionReadOverride[ $key ] : $default;
+			}
 			return \array_key_exists( $key, $this->options ) ? $this->options[ $key ] : $default;
 		} );
 		Functions\when( 'update_option' )->alias( function (
@@ -1079,6 +1185,9 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			$autoload = null
 		) :bool {
 			$this->autoloadValues[] = $autoload;
+			if ( $this->optionUpdateOverride !== null ) {
+				return ( $this->optionUpdateOverride )( $key, $value );
+			}
 			if ( $this->persistWrites ) {
 				$this->options[ $key ] = $value;
 			}
