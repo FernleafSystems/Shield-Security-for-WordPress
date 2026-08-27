@@ -979,7 +979,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertCount( 1, $db->queries );
 	}
 
-	public function test_first_state_insert_race_does_not_report_an_already_persisted_state_as_a_write_failure() :void {
+	public function test_first_state_insert_race_confirms_the_write_and_schedules_a_wakeup_despite_stale_option_cache() :void {
 		$persistedState = [
 			'assets' => [
 				'plugin' => [
@@ -989,16 +989,103 @@ class AssetCoordinatorTest extends BaseUnitTest {
 				'core'   => [],
 			],
 		];
-		$this->optionReadOverride = [];
-		$this->optionUpdateOverride = function ( string $key, $value ) :bool {
-			$this->options[ $key ] = $value;
-			return false;
-		};
-		$db = $this->installReadinessDb( [ $this->readinessRow( $persistedState ) ] );
+		$db = $this->simulateRawConfirmedStaleOptionWrite( $persistedState );
 
 		$this->assertTrue( ( new AssetCoordinator() )->enqueueAsset( 'plugin', 'akismet/akismet.php', 60 ) );
 		$this->assertSame( $persistedState, $this->options[ $this->optionKey() ] );
+		$this->assertSame( [ [
+			'timestamp' => 1700000060,
+			'args'      => [ 1700000060 ],
+		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
 		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertCount( 1, $db->queries );
+	}
+
+	public function test_stale_option_cache_schedules_wpv_after_raw_confirmed_write() :void {
+		$persistedState = [
+			'assets' => [
+				'plugin' => [],
+				'theme'  => [],
+				'core'   => [],
+			],
+			'wpv' => [ 'attempts' => 0, 'due_at' => 1700000045 ],
+		];
+		$this->simulateRawConfirmedStaleOptionWrite( $persistedState );
+
+		$this->assertTrue( ( new AssetCoordinator() )->enqueueWpv( 45 ) );
+		$this->assertSame( $persistedState, $this->options[ $this->optionKey() ] );
+		$this->assertSame( [ [
+			'timestamp' => 1700000045,
+			'args'      => [ 1700000045 ],
+		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
+		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+	}
+
+	public function test_stale_option_cache_schedules_snapshot_build_after_raw_confirmed_write() :void {
+		$persistedState = [
+			'assets' => [
+				'plugin' => [],
+				'theme'  => [],
+				'core'   => [],
+			],
+			'build_missing_snapshots' => true,
+		];
+		ServicesState::mergeItems( [
+			'service_wpplugins' => new SnapshotPlugins( [
+				new SnapshotPluginVo( 'missing-snapshot/plugin.php', '1.0.0' ),
+			] ),
+		] );
+		$this->simulateRawConfirmedStaleOptionWrite( $persistedState );
+
+		$this->assertTrue( ( new AssetCoordinator() )->discoverMissingSnapshots() );
+		$this->assertSame( $persistedState, $this->options[ $this->optionKey() ] );
+		$this->assertSame( [ [
+			'timestamp' => 1700000060,
+			'args'      => [ 1700000060 ],
+		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
+		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+	}
+
+	public function test_stale_option_cache_migrates_legacy_wpv_after_raw_confirmed_write() :void {
+		$persistedState = [
+			'assets' => [
+				'plugin' => [],
+				'theme'  => [],
+				'core'   => [],
+			],
+			'wpv' => [ 'attempts' => 0, 'due_at' => 1700000015 ],
+		];
+		$this->addCron( 1700000015, 'icwp-wpsf-ondemand_scan_wpv', [] );
+		$this->simulateRawConfirmedStaleOptionWrite( $persistedState );
+
+		( new AssetCoordinator() )->execute();
+
+		$this->assertSame( $persistedState, $this->options[ $this->optionKey() ] );
+		$this->assertSame( [], $this->legacyCronEvents() );
+		$this->assertSame( [ [
+			'timestamp' => 1700000015,
+			'args'      => [ 1700000015 ],
+		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
+		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+	}
+
+	public function test_stale_option_cache_preserves_legacy_wpv_when_raw_import_verification_fails() :void {
+		$this->addCron( 1700000015, 'icwp-wpsf-ondemand_scan_wpv', [] );
+		$this->optionReadOverride = [];
+		$db = $this->installReadinessResponses( [ [] ], new \RuntimeException( 'Synthetic read failure.' ) );
+
+		( new AssetCoordinator() )->execute();
+
+		$this->assertSame( [ 'attempts' => 0, 'due_at' => 1700000015 ],
+			$this->options[ $this->optionKey() ][ 'wpv' ] );
+		$this->assertSame( [], $this->unscheduled );
+		$this->assertSame( [ [
+			'timestamp' => 1700000015,
+			'args'      => [],
+		] ], $this->legacyCronEvents() );
+		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
+		$this->assertSame( [ 'Shield asset coordinator could not verify imported legacy work.' ],
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
 		$this->assertCount( 1, $db->queries );
 	}
 
@@ -1273,6 +1360,15 @@ class AssetCoordinatorTest extends BaseUnitTest {
 
 	private function installReadinessDb( $rows ) :AssetCoordinatorReadinessDb {
 		return $this->installReadinessResponses( [ $rows ] );
+	}
+
+	private function simulateRawConfirmedStaleOptionWrite( array $persistedState ) :AssetCoordinatorReadinessDb {
+		$this->optionReadOverride = [];
+		$this->optionUpdateOverride = function ( string $key, $value ) :bool {
+			$this->options[ $key ] = $value;
+			return false;
+		};
+		return $this->installReadinessDb( [ $this->readinessRow( $persistedState ) ] );
 	}
 
 	private function installReadinessResponses(

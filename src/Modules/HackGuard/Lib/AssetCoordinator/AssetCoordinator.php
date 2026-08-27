@@ -146,7 +146,7 @@ class AssetCoordinator {
 			return false;
 		}
 
-		$this->reconcileWakeup();
+		$this->reconcileWakeupForState( $state );
 		return true;
 	}
 
@@ -260,7 +260,7 @@ class AssetCoordinator {
 			if ( empty( $state[ 'build_missing_snapshots' ] ) ) {
 				$state[ 'build_missing_snapshots' ] = true;
 				if ( $this->writeState( $state ) ) {
-					$this->reconcileWakeup();
+					$this->reconcileWakeupForState( $state );
 				}
 			}
 		}
@@ -338,7 +338,10 @@ class AssetCoordinator {
 	}
 
 	public function reconcileWakeup() :void {
-		$state = $this->readState();
+		$this->reconcileWakeupForState( $this->readState() );
+	}
+
+	private function reconcileWakeupForState( array $state ) :void {
 		$now = $this->now();
 		$nextDue = null;
 
@@ -413,7 +416,7 @@ class AssetCoordinator {
 			return false;
 		}
 
-		$this->reconcileWakeup();
+		$this->reconcileWakeupForState( $state );
 		return true;
 	}
 
@@ -577,23 +580,41 @@ class AssetCoordinator {
 		}
 
 		$stored = $this->readState();
-		foreach ( $importedAssets as $assetType => $assetKeys ) {
-			foreach ( \array_keys( $assetKeys ) as $assetKey ) {
-				if ( !isset( $stored[ 'assets' ][ $assetType ][ $assetKey ] ) ) {
-					error_log( 'Shield asset coordinator could not verify imported legacy work.' );
-					return;
-				}
+		if ( !$this->hasImportedLegacyWork( $stored, $importedAssets, $importedBuild, $importedWpvAt ) ) {
+			try {
+				$stored = $this->normalizeState( $this->readRawPersistedState() ?? [] );
 			}
-		}
-		if ( ( $importedBuild && empty( $stored[ 'build_missing_snapshots' ] ) )
-			 || ( $importedWpvAt !== null && !isset( $stored[ 'wpv' ] ) ) ) {
-			error_log( 'Shield asset coordinator could not verify imported legacy work.' );
-			return;
+			catch ( \Throwable $e ) {
+				error_log( 'Shield asset coordinator could not verify imported legacy work.' );
+				return;
+			}
+			if ( !$this->hasImportedLegacyWork( $stored, $importedAssets, $importedBuild, $importedWpvAt ) ) {
+				error_log( 'Shield asset coordinator could not verify imported legacy work.' );
+				return;
+			}
 		}
 
 		foreach ( $events as $event ) {
 			\wp_unschedule_event( $event[ 'timestamp' ], $event[ 'hook' ], $event[ 'args' ] );
 		}
+		$this->reconcileWakeupForState( $stored );
+	}
+
+	private function hasImportedLegacyWork(
+		array $state,
+		array $importedAssets,
+		bool $importedBuild,
+		?int $importedWpvAt
+	) :bool {
+		foreach ( $importedAssets as $assetType => $assetKeys ) {
+			foreach ( \array_keys( $assetKeys ) as $assetKey ) {
+				if ( !isset( $state[ 'assets' ][ $assetType ][ $assetKey ] ) ) {
+					return false;
+				}
+			}
+		}
+		return ( !$importedBuild || !empty( $state[ 'build_missing_snapshots' ] ) )
+			   && ( $importedWpvAt === null || isset( $state[ 'wpv' ] ) );
 	}
 
 	private function normalizeLegacyAsset( array $args ) :?array {
