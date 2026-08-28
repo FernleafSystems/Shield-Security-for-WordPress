@@ -575,12 +575,13 @@ class AssetCoordinator {
 				'due_at'   => $currentDueAt > 0 ? \min( $currentDueAt, $importedWpvAt ) : $importedWpvAt,
 			];
 		}
+		$expectedState = $state;
 		if ( !$this->writeState( $state ) ) {
 			return;
 		}
 
 		$stored = $this->readState();
-		if ( !$this->hasImportedLegacyWork( $stored, $importedAssets, $importedBuild, $importedWpvAt ) ) {
+		if ( !$this->hasImportedLegacyWork( $stored, $expectedState, $importedAssets, $importedBuild, $importedWpvAt ) ) {
 			try {
 				$stored = $this->normalizeState( $this->readRawPersistedState() ?? [] );
 			}
@@ -588,7 +589,7 @@ class AssetCoordinator {
 				error_log( 'Shield asset coordinator could not verify imported legacy work.' );
 				return;
 			}
-			if ( !$this->hasImportedLegacyWork( $stored, $importedAssets, $importedBuild, $importedWpvAt ) ) {
+			if ( !$this->hasImportedLegacyWork( $stored, $expectedState, $importedAssets, $importedBuild, $importedWpvAt ) ) {
 				error_log( 'Shield asset coordinator could not verify imported legacy work.' );
 				return;
 			}
@@ -602,19 +603,21 @@ class AssetCoordinator {
 
 	private function hasImportedLegacyWork(
 		array $state,
+		array $expectedState,
 		array $importedAssets,
 		bool $importedBuild,
 		?int $importedWpvAt
 	) :bool {
-		foreach ( $importedAssets as $assetType => $assetKeys ) {
-			foreach ( \array_keys( $assetKeys ) as $assetKey ) {
-				if ( !isset( $state[ 'assets' ][ $assetType ][ $assetKey ] ) ) {
+		foreach ( $importedAssets as $assetType => $assetRecords ) {
+			foreach ( \array_keys( $assetRecords ) as $assetKey ) {
+				if ( ( $state[ 'assets' ][ $assetType ][ $assetKey ] ?? null )
+					 !== ( $expectedState[ 'assets' ][ $assetType ][ $assetKey ] ?? null ) ) {
 					return false;
 				}
 			}
 		}
 		return ( !$importedBuild || !empty( $state[ 'build_missing_snapshots' ] ) )
-			   && ( $importedWpvAt === null || isset( $state[ 'wpv' ] ) );
+			   && ( $importedWpvAt === null || ( $state[ 'wpv' ] ?? null ) === ( $expectedState[ 'wpv' ] ?? null ) );
 	}
 
 	private function normalizeLegacyAsset( array $args ) :?array {

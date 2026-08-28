@@ -862,6 +862,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 	}
 
 	public function test_legacy_import_merges_exact_events_before_unscheduling() :void {
+		$db = $this->installReadinessDb( [] );
 		$this->options[ $this->optionKey() ] = [
 			'assets' => [
 				'plugin' => [
@@ -896,6 +897,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-afs_asset_change_cleanup' ) );
 		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-ptg_build_snapshots' ) );
 		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-ondemand_scan_wpv' ) );
+		$this->assertCount( 0, $db->queries );
 	}
 
 	public function test_failed_legacy_persistence_leaves_every_event_scheduled() :void {
@@ -1067,6 +1069,148 @@ class AssetCoordinatorTest extends BaseUnitTest {
 			'args'      => [ 1700000015 ],
 		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
 		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+	}
+
+	public function test_stale_option_cache_migrates_legacy_wpv_with_later_cached_due() :void {
+		$intendedState = [
+			'assets' => [
+				'plugin' => [],
+				'theme'  => [],
+				'core'   => [],
+			],
+			'wpv' => [ 'attempts' => 0, 'due_at' => 1700000015 ],
+		];
+		$this->optionReadOverride = [
+			$this->optionKey() => [
+				'wpv' => [ 'attempts' => 0, 'due_at' => 1700000200 ],
+			],
+		];
+		$this->optionUpdateOverride = function ( string $key, $value ) :bool {
+			$this->options[ $key ] = $value;
+			return false;
+		};
+		$db = $this->installReadinessResponses( [
+			[ $this->readinessRow( $intendedState ) ],
+			[ $this->readinessRow( $intendedState ) ],
+		] );
+		$this->addCron( 1700000015, 'icwp-wpsf-ondemand_scan_wpv', [] );
+
+		( new AssetCoordinator() )->execute();
+
+		$this->assertSame( [], $this->legacyCronEvents() );
+		$this->assertSame( [ [
+			'timestamp' => 1700000015,
+			'args'      => [ 1700000015 ],
+		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
+		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertCount( 2, $db->queries );
+	}
+
+	public function test_stale_option_cache_migrates_legacy_asset_with_later_cached_due() :void {
+		$intendedState = [
+			'assets' => [
+				'plugin' => [
+					'akismet/akismet.php' => [ 'attempts' => 0, 'due_at' => 1700000015 ],
+				],
+				'theme' => [],
+				'core'  => [],
+			],
+		];
+		$this->optionReadOverride = [
+			$this->optionKey() => [
+				'assets' => [
+					'plugin' => [
+						'akismet/akismet.php' => [ 'attempts' => 0, 'due_at' => 1700000200 ],
+					],
+				],
+			],
+		];
+		$this->optionUpdateOverride = function ( string $key, $value ) :bool {
+			$this->options[ $key ] = $value;
+			return false;
+		};
+		$db = $this->installReadinessResponses( [
+			[ $this->readinessRow( $intendedState ) ],
+			[ $this->readinessRow( $intendedState ) ],
+		] );
+		$this->addCron( 1700000015, 'icwp-wpsf-afs_asset_change_cleanup', [ 'plugin', 'akismet/akismet.php', 0 ] );
+
+		( new AssetCoordinator() )->execute();
+
+		$this->assertSame( [], $this->legacyCronEvents() );
+		$this->assertSame( [ [
+			'timestamp' => 1700000015,
+			'args'      => [ 1700000015 ],
+		] ], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
+		$this->assertSame( [], \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertCount( 2, $db->queries );
+	}
+
+	public function test_stale_option_cache_preserves_legacy_wpv_when_raw_record_differs() :void {
+		$intendedState = [
+			'assets' => [
+				'plugin' => [],
+				'theme'  => [],
+				'core'   => [],
+			],
+			'wpv' => [ 'attempts' => 0, 'due_at' => 1700000015 ],
+		];
+		$wrongState = $intendedState;
+		$wrongState[ 'wpv' ][ 'attempts' ] = 1;
+		$this->optionReadOverride = [ $this->optionKey() => $wrongState ];
+		$this->optionUpdateOverride = function ( string $key, $value ) :bool {
+			$this->options[ $key ] = $value;
+			return false;
+		};
+		$db = $this->installReadinessResponses( [
+			[ $this->readinessRow( $intendedState ) ],
+			[ $this->readinessRow( $wrongState ) ],
+		] );
+		$this->addCron( 1700000015, 'icwp-wpsf-ondemand_scan_wpv', [] );
+
+		( new AssetCoordinator() )->execute();
+
+		$this->assertSame( [ [
+			'timestamp' => 1700000015,
+			'args'      => [],
+		] ], $this->legacyCronEvents() );
+		$this->assertSame( [ 'Shield asset coordinator could not verify imported legacy work.' ],
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertCount( 2, $db->queries );
+	}
+
+	public function test_stale_option_cache_preserves_legacy_asset_when_raw_record_differs() :void {
+		$intendedState = [
+			'assets' => [
+				'plugin' => [
+					'akismet/akismet.php' => [ 'attempts' => 0, 'due_at' => 1700000015 ],
+				],
+				'theme' => [],
+				'core'  => [],
+			],
+		];
+		$wrongState = $intendedState;
+		$wrongState[ 'assets' ][ 'plugin' ][ 'akismet/akismet.php' ][ 'attempts' ] = 1;
+		$this->optionReadOverride = [ $this->optionKey() => $wrongState ];
+		$this->optionUpdateOverride = function ( string $key, $value ) :bool {
+			$this->options[ $key ] = $value;
+			return false;
+		};
+		$db = $this->installReadinessResponses( [
+			[ $this->readinessRow( $intendedState ) ],
+			[ $this->readinessRow( $wrongState ) ],
+		] );
+		$this->addCron( 1700000015, 'icwp-wpsf-afs_asset_change_cleanup', [ 'plugin', 'akismet/akismet.php', 0 ] );
+
+		( new AssetCoordinator() )->execute();
+
+		$this->assertSame( [ [
+			'timestamp' => 1700000015,
+			'args'      => [ 'plugin', 'akismet/akismet.php', 0 ],
+		] ], $this->legacyCronEvents() );
+		$this->assertSame( [ 'Shield asset coordinator could not verify imported legacy work.' ],
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\AssetCoordinator\AssetCoordinatorTestLog::$messages );
+		$this->assertCount( 2, $db->queries );
 	}
 
 	public function test_stale_option_cache_preserves_legacy_wpv_when_raw_import_verification_fails() :void {
