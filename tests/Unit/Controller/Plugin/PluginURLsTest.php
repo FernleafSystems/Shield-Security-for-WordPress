@@ -16,7 +16,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\FullPageDisplay\DisplayReportAdmin
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\{
+	PluginNavs,
+	PluginURLs
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
@@ -71,6 +74,16 @@ class PluginURLsTest extends BaseUnitTest {
 		PluginControllerInstaller::install( new class extends Controller {
 			public function __construct() {
 				parent::__construct( 'icwp-wpsf.php' );
+				$this->opts = new class {
+					public function optDef( string $key ) :array {
+						return \in_array( $key, [ 'importexport_enable', 'importexport_masterurl', 'importexport_secretkey' ], true )
+							? [
+								'section'         => 'section_importexport',
+								'zone_comp_slugs' => [ 'import_export' ],
+							]
+							: [];
+					}
+				};
 				$this->cfg = (object)[
 					'properties' => [
 						'wpms_network_admin_only' => false,
@@ -133,6 +146,15 @@ class PluginURLsTest extends BaseUnitTest {
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=build', $urls->rulesBuild() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=manage', $urls->rulesManage() );
 		$this->assertSame( '/wp-admin/plugins.php?plugin_status=cloaked', $urls->cloakedPlugins() );
+	}
+
+	public function test_import_export_options_link_to_current_import_export_tool() :void {
+		$urls = new PluginURLs();
+		$expected = $urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT );
+
+		foreach ( [ 'importexport_enable', 'importexport_masterurl', 'importexport_secretkey' ] as $optKey ) {
+			$this->assertSame( $expected, $urls->cfgForOpt( $optKey ) );
+		}
 	}
 
 	public function test_report_view_builds_admin_shield_action_without_signature_or_nonce() :void {

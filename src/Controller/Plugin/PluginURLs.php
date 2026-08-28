@@ -234,10 +234,16 @@ class PluginURLs {
 
 	public function cfgForOpt( string $optKey ) :string {
 		$def = self::con()->opts->optDef( $optKey );
-		if ( empty( $def ) || empty( $def[ 'zone_comp_slugs' ] ) ) {
-			$def = self::con()->opts->optDef( 'visitor_address_source' );
+		if ( $def[ 'section' ] === 'section_importexport' ) {
+			$url = $this->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT );
 		}
-		return $this->cfgForZoneComponent( \current( $def[ 'zone_comp_slugs' ] ) );
+		else {
+			if ( empty( $def ) || empty( $def[ 'zone_comp_slugs' ] ) ) {
+				$def = self::con()->opts->optDef( 'visitor_address_source' );
+			}
+			$url = $this->cfgForZoneComponent( \current( $def[ 'zone_comp_slugs' ] ) );
+		}
+		return $url;
 	}
 
 	/**
