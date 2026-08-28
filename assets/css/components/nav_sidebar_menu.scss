@@ -42,7 +42,7 @@
 	text-align: center;
 }
 
-.sidebar-back-item {
+.sidebar-nav-dashboard {
 	align-items: center;
 	background: #ffffff;
 	border: 1px solid $border-color-neutral-subtle;
@@ -62,11 +62,6 @@
 		border-color: $border-color-neutral-strong;
 	}
 
-	.sidebar-back-icon {
-		display: inline-flex;
-		font-size: 0.95rem;
-		line-height: 1;
-	}
 }
 
 .shield-mode-selector {
@@ -133,6 +128,10 @@
 	color: $mode-reports;
 }
 
+.mode-item[data-kind="dashboard"] .mode-icon > i {
+	color: #536273;
+}
+
 .mode-item.active[data-mode="actions"] {
 	background: $mode-actions-light;
 	border-color: $mode-actions-border;
@@ -159,6 +158,13 @@
 	border-color: $mode-reports-border;
 	box-shadow: inset 3px 0 0 $mode-reports;
 	color: $mode-reports;
+}
+
+.mode-item.active[data-kind="dashboard"] {
+	background: #ffffff;
+	border-color: #dcdcde;
+	box-shadow: inset 3px 0 0 #536273;
+	color: #2f3d4d;
 }
 
 .mode-item.active[data-mode="actions"] .mode-badge {
@@ -396,7 +402,6 @@ button.tool-item {
 		padding-right: 0.2rem;
 	}
 
-	#NavSideBar .sidebar-back-label,
 	#NavSideBar .mode-label,
 	#NavSideBar .mode-badge,
 	#NavSideBar .sidebar-license-item,
@@ -406,46 +411,51 @@ button.tool-item {
 		display: none !important;
 	}
 
-	#NavSideBar .sidebar-back-item,
 	#NavSideBar .mode-item {
 		justify-content: center !important;
 		padding-left: 0 !important;
 		padding-right: 0 !important;
 	}
 
-	#NavSideBar .sidebar-back-icon,
 	#NavSideBar .mode-icon {
 		margin: 0 !important;
 	}
 
-	#PageMainSide-Apto:hover #NavSideBar .sidebar-back-label,
-	#PageMainSide-Apto:hover #NavSideBar .mode-label {
+	#PageMainSide-Apto:hover #NavSideBar .mode-label,
+	#PageMainSide-Apto:focus-within #NavSideBar .mode-label {
 		display: block !important;
 	}
 
 	#PageMainSide-Apto:hover #NavSideBar .mode-badge,
+	#PageMainSide-Apto:focus-within #NavSideBar .mode-badge,
 	#PageMainSide-Apto:hover #NavSideBar .sidebar-license-item,
-	#PageMainSide-Apto:hover #NavSideBar .sidebar-tools {
+	#PageMainSide-Apto:focus-within #NavSideBar .sidebar-license-item,
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-tools,
+	#PageMainSide-Apto:focus-within #NavSideBar .sidebar-tools {
 		display: flex !important;
 	}
 
 	#PageMainSide-Apto:hover #NavSideBar .mode-item,
-	#PageMainSide-Apto:hover #NavSideBar .sidebar-back-item {
+	#PageMainSide-Apto:focus-within #NavSideBar .mode-item {
 		justify-content: flex-start !important;
 		padding-left: 0.52rem !important;
 		padding-right: 0.52rem !important;
 	}
 
-	#PageMainSide-Apto:hover #NavSideBar .mode-badge {
+	#PageMainSide-Apto:hover #NavSideBar .mode-badge,
+	#PageMainSide-Apto:focus-within #NavSideBar .mode-badge {
 		display: inline-flex !important;
 	}
 
 	#PageMainSide-Apto:hover #NavSideBar .sidebar-connect,
-	#PageMainSide-Apto:hover #NavSideBar .shield-sidebar-version {
+	#PageMainSide-Apto:focus-within #NavSideBar .sidebar-connect,
+	#PageMainSide-Apto:hover #NavSideBar .shield-sidebar-version,
+	#PageMainSide-Apto:focus-within #NavSideBar .shield-sidebar-version {
 		display: block !important;
 	}
 
-	#PageMainSide-Apto:hover #NavSideBar .sidebar-connect-grid {
+	#PageMainSide-Apto:hover #NavSideBar .sidebar-connect-grid,
+	#PageMainSide-Apto:focus-within #NavSideBar .sidebar-connect-grid {
 		display: grid !important;
 	}
 }

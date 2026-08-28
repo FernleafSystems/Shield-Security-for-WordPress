@@ -223,19 +223,37 @@ test( 'dashboard general checks expose operator modes live monitor ajax and wp d
 	} );
 } );
 
-test( 'dashboard actions queue all-clear state exposes checklist rows', async ( { page, fixtureApi } ) => {
+test( 'dashboard status strip renders all real attention outcomes', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withDashboardDefaultsFixture( async ( rawContract ) => {
 		const contract = assertDashboardDefaultsContract( rawContract );
 		await fixtureApi.prepareDashboardActionsAllClearFixture();
-
 		await openShieldRoute( page, contract.routes.dashboard );
 		await dismissBlockingDialogs( page );
+		const allClearOverview = page.locator( '.operator-mode-landing__overview' );
+		await expect( allClearOverview ).toHaveAttribute( 'data-shield-status', 'good' );
+		await expect( allClearOverview.locator( '[data-summary-id]' ) ).toHaveCount( 2 );
+		await expect( allClearOverview.locator( '[data-summary-id="scans"]' ) ).toHaveRole( 'link' );
+		await expect( allClearOverview.locator( '[data-summary-id="maintenance"]' ) ).toHaveRole( 'link' );
 
-		const actionsAllClear = page.locator( '[data-dashboard-actions-all-clear-list="1"]' );
-		await expect( actionsAllClear ).toBeVisible();
-		await expect( actionsAllClear.locator( '[data-dashboard-actions-all-clear-check]' ) ).toHaveCount( 3 );
-		await expect(
-			actionsAllClear.locator( '[data-dashboard-actions-all-clear-check="cloaked_plugin_detection"]' )
-		).toBeVisible();
+		await fixtureApi.prepareDashboardMaintenanceWarningFixture();
+		await page.reload( { waitUntil: 'domcontentloaded' } );
+		await dismissBlockingDialogs( page );
+		const maintenanceOverview = page.locator( '.operator-mode-landing__overview' );
+		await expect( maintenanceOverview ).toHaveAttribute( 'data-shield-status', 'warning' );
+		await expect( maintenanceOverview.locator( '.operator-mode-overview__overall-title' ) ).toHaveText( 'Maintenance Action Required' );
+
+		await fixtureApi.withActionsQueueFixture( 'file_locker_lazy', async () => {
+			await openShieldRoute( page, contract.routes.dashboard );
+			await dismissBlockingDialogs( page );
+			const securityWarningOverview = page.locator( '.operator-mode-landing__overview' );
+			await expect( securityWarningOverview ).toHaveAttribute( 'data-shield-status', 'warning' );
+			await expect( securityWarningOverview.locator( '.operator-mode-overview__overall-title' ) ).toHaveText( 'Security Action Required' );
+		} );
+
+		await fixtureApi.withActionsQueueFixture( 'direct_table', async () => {
+			await openShieldRoute( page, contract.routes.dashboard );
+			await dismissBlockingDialogs( page );
+			await expect( page.locator( '.operator-mode-landing__overview' ) ).toHaveAttribute( 'data-shield-status', 'critical' );
+		} );
 	} );
 } );

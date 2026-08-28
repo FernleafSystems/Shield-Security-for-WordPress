@@ -32,6 +32,25 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   indicator_text:string,
  *   indicator_subtext:string
  * }
+ * @phpstan-type DashboardStripSummary array{
+ *   id:string,
+ *   label:string,
+ *   summary:string,
+ *   accessible_label:string,
+ *   count:int,
+ *   status:string,
+ *   href:string
+ * }
+ * @phpstan-type DashboardStrip array{
+ *   overall:array{
+ *     status:string,
+ *     icon_class:string,
+ *     title:string,
+ *     summary:string,
+ *     accessible_label:string
+ *   },
+ *   summaries:list<DashboardStripSummary>
+ * }
  * @phpstan-type ActionsQueueCardData array{
  *   summary:array{has_items:bool,total_items:int,severity:string},
  *   subtitle:string,
@@ -55,7 +74,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *     }>
  *   },
  *   actions_lane:ActionsQueueCardLane,
- *   actions_queue_rows:list<ActionsQueueCardRow>
+ *   actions_queue_rows:list<ActionsQueueCardRow>,
+ *   dashboard_strip:DashboardStrip
  * }
  */
 class ActionsQueueCardDataBuilder {
@@ -76,6 +96,7 @@ class ActionsQueueCardDataBuilder {
 		$queueSummary = $this->getQueueSummary( $attentionQuery );
 		$zoneGroups = $this->getQueueZoneGroups( $attentionQuery );
 		$shieldStatus = $this->normalizeSeverity( $queueSummary[ 'severity' ] );
+		$actionsLane = $this->buildActionsLane( $queueSummary, $zoneGroups );
 
 		return [
 			'summary'            => $queueSummary,
@@ -83,8 +104,126 @@ class ActionsQueueCardDataBuilder {
 			'shield_status'      => $shieldStatus,
 			'shield_icon_class'  => $this->buildShieldIconClass( $shieldStatus ),
 			'all_clear'          => $this->buildAllClearData(),
-			'actions_lane'       => $this->buildActionsLane( $queueSummary, $zoneGroups ),
+			'actions_lane'       => $actionsLane,
 			'actions_queue_rows' => $this->buildActionsQueueRows( $zoneGroups ),
+			'dashboard_strip'    => $this->buildDashboardStrip( $zoneGroups, $actionsLane[ 'href' ] ),
+		];
+	}
+
+	/**
+	 * @param AttentionGroups $zoneGroups
+	 * @return DashboardStrip
+	 */
+	private function buildDashboardStrip( array $zoneGroups, string $href ) :array {
+		$scans = $zoneGroups[ 'scans' ];
+		$maintenance = $zoneGroups[ 'maintenance' ];
+		$scanCount = $scans[ 'total' ];
+		$maintenanceCount = $maintenance[ 'total' ];
+		$totalCount = $scanCount + $maintenanceCount;
+
+		if ( $totalCount === 0 ) {
+			$status = 'good';
+			$title = __( 'All Clear', 'wp-simple-firewall' );
+			$summary = $this->buildDashboardOverallSummary( __( 'No security issues currently need attention.', 'wp-simple-firewall' ) );
+		}
+		elseif ( $this->normalizeSeverity( $scans[ 'severity' ] ) === 'critical'
+			 || $this->normalizeSeverity( $maintenance[ 'severity' ] ) === 'critical' ) {
+			$status = 'critical';
+			$title = __( 'Critical Action Required', 'wp-simple-firewall' );
+			$summary = $this->buildDashboardOverallSummary(
+				sprintf(
+					_n( '%s issue needs your attention.', '%s issues need your attention.', $totalCount, 'wp-simple-firewall' ),
+					$totalCount
+				)
+			);
+		}
+		elseif ( $scanCount > 0 ) {
+			$status = 'warning';
+			$title = __( 'Security Action Required', 'wp-simple-firewall' );
+			$summary = $this->buildDashboardOverallSummary(
+				sprintf(
+					_n( '%s issue needs your attention.', '%s issues need your attention.', $totalCount, 'wp-simple-firewall' ),
+					$totalCount
+				)
+			);
+		}
+		else {
+			$status = 'warning';
+			$title = __( 'Maintenance Action Required', 'wp-simple-firewall' );
+			$summary = $this->buildDashboardOverallSummary(
+				sprintf(
+					_n( '%s maintenance item needs review.', '%s maintenance items need review.', $maintenanceCount, 'wp-simple-firewall' ),
+					$maintenanceCount
+				)
+			);
+		}
+
+		$iconMap = [
+			'good'     => 'shield-check',
+			'warning'  => 'shield-exclamation',
+			'critical' => 'shield-x',
+		];
+
+		return [
+			'overall'   => [
+				'status'           => $status,
+				'icon_class'       => self::con()->svgs->iconClass( $iconMap[ $status ] ),
+				'title'            => $title,
+				'summary'          => $summary,
+				'accessible_label' => $title.' '.$summary,
+			],
+			'summaries' => [
+				$this->buildDashboardStripSummary(
+					'scans',
+					__( 'Security Issues', 'wp-simple-firewall' ),
+					sprintf( _n( '%s issue', '%s issues', $scanCount, 'wp-simple-firewall' ), $scanCount ),
+					$scanCount,
+					$this->localDashboardStatus( $scans ),
+					$href
+				),
+				$this->buildDashboardStripSummary(
+					'maintenance',
+					__( 'Maintenance', 'wp-simple-firewall' ),
+					sprintf( _n( '%s maintenance item', '%s maintenance items', $maintenanceCount, 'wp-simple-firewall' ), $maintenanceCount ),
+					$maintenanceCount,
+					$this->localDashboardStatus( $maintenance ),
+					$href
+				),
+			],
+		];
+	}
+
+	private function buildDashboardOverallSummary( string $default ) :string {
+		$runtimeWarning = ( new ScanResultsLagWarning() )->getText();
+		return $runtimeWarning !== '' ? $runtimeWarning : $default;
+	}
+
+	/**
+	 * @param AttentionGroup $group
+	 */
+	private function localDashboardStatus( array $group ) :string {
+		return $group[ 'total' ] > 0 ? $this->normalizeSeverity( $group[ 'severity' ] ) : 'good';
+	}
+
+	/**
+	 * @return DashboardStripSummary
+	 */
+	private function buildDashboardStripSummary(
+		string $id,
+		string $label,
+		string $summary,
+		int $count,
+		string $status,
+		string $href
+	) :array {
+		return [
+			'id'               => $id,
+			'label'            => $label,
+			'summary'          => $summary,
+			'accessible_label' => $label.' '.$summary,
+			'count'            => $count,
+			'status'           => $status,
+			'href'             => $href,
 		];
 	}
 

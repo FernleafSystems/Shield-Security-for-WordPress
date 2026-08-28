@@ -50,8 +50,20 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 
 		$sidebar = $this->createBuilder()->build();
 
-		$this->assertNull( $sidebar[ 'back_item' ] );
-		$this->assertSame( PluginNavs::allOperatorModes(), \array_column( $sidebar[ 'mode_items' ], 'mode' ) );
+		$this->assertSame( [ 'dashboard', 'actions', 'investigate', 'configure', 'reports' ], \array_column( $sidebar[ 'navigation_links' ], 'id' ) );
+		$this->assertSame( [ 'dashboard', 'operator_mode', 'operator_mode', 'operator_mode', 'operator_mode' ], \array_column( $sidebar[ 'navigation_links' ], 'kind' ) );
+		$this->assertSame( [
+			[ 'nav' => PluginNavs::NAV_DASHBOARD, 'subnav' => PluginNavs::SUBNAV_DASHBOARD_OVERVIEW ],
+			[ 'nav' => PluginNavs::NAV_SCANS, 'subnav' => PluginNavs::SUBNAV_SCANS_OVERVIEW ],
+			[ 'nav' => PluginNavs::NAV_ACTIVITY, 'subnav' => PluginNavs::SUBNAV_ACTIVITY_OVERVIEW ],
+			[ 'nav' => PluginNavs::NAV_ZONES, 'subnav' => PluginNavs::SUBNAV_ZONES_OVERVIEW ],
+			[ 'nav' => PluginNavs::NAV_REPORTS, 'subnav' => PluginNavs::SUBNAV_REPORTS_OVERVIEW ],
+		], \array_column( $sidebar[ 'navigation_links' ], 'route' ) );
+		$this->assertFalse( $sidebar[ 'navigation_links' ][ 0 ][ 'active' ] );
+		$this->assertSame( PluginNavs::allOperatorModes(), \array_column( \array_slice( $sidebar[ 'navigation_links' ], 1 ), 'mode' ) );
+		$this->assertNotContains( 'dashboard', PluginNavs::allOperatorModes() );
+		$this->assertArrayNotHasKey( 'back_item', $sidebar );
+		$this->assertArrayNotHasKey( 'mode_items', $sidebar );
 		$this->assertSame( [], $sidebar[ 'tool_items' ] );
 		$this->assertIsArray( $sidebar[ 'home_license_item' ] );
 		$this->assertSame( PluginNavs::NAV_LICENSE, $sidebar[ 'home_license_item' ][ 'slug' ] );
@@ -86,13 +98,13 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 			'severity'    => 'critical',
 		] )->build();
 
-		$this->assertIsArray( $sidebar[ 'back_item' ] );
-		$this->assertSame( 'mode-selector-back', $sidebar[ 'back_item' ][ 'slug' ] );
-		$this->assertSame( '/admin/home', $sidebar[ 'back_item' ][ 'href' ] );
+		$this->assertSame( '/admin/home', $sidebar[ 'navigation_links' ][ 0 ][ 'href' ] );
+		$this->assertTrue( $sidebar[ 'navigation_links' ][ 1 ][ 'divider_after' ] );
+		$this->assertSame( [ false, true, false, false, false ], \array_column( $sidebar[ 'navigation_links' ], 'divider_after' ) );
 		$this->assertSame( '', $sidebar[ 'home_connect_title' ] );
 		$this->assertNull( $sidebar[ 'home_license_item' ] );
 
-		$actionsMode = $this->findItemBySlug( $sidebar[ 'mode_items' ], 'mode-actions' );
+		$actionsMode = $this->findItemBySlug( $sidebar[ 'navigation_links' ], 'mode-actions' );
 		$this->assertIsArray( $actionsMode );
 		$this->assertTrue( $actionsMode[ 'active' ] );
 		$this->assertSame( '7', $actionsMode[ 'badge' ][ 'text' ] );
@@ -101,6 +113,18 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$scanTool = $this->findItemBySlug( $sidebar[ 'tool_items' ], PluginNavs::NAV_SCANS.'-'.PluginNavs::SUBNAV_SCANS_RUN );
 		$this->assertIsArray( $scanTool );
 		$this->assertTrue( $scanTool[ 'active' ] );
+	}
+
+	public function test_dashboard_is_active_only_on_overview_route() :void {
+		$this->installController();
+		$this->installRequest( [
+			PluginNavs::FIELD_NAV    => PluginNavs::NAV_DASHBOARD,
+			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
+		] );
+
+		$links = $this->createBuilder()->build()[ 'navigation_links' ];
+		$this->assertTrue( $links[ 0 ][ 'active' ] );
+		$this->assertSame( 'dashboard', $links[ 0 ][ 'id' ] );
 	}
 
 	public function test_investigate_mode_shows_peer_tools_without_reintroducing_parent_activity_item() :void {

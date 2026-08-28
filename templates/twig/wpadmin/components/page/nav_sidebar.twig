@@ -3,38 +3,26 @@
 <nav id="NavSideBar" class="d-flex flex-column flex-fill"
 	 aria-label="{{ strings.admin_shell_navigation_label|e('html_attr') }}">
 
-	{% if sidebar.back_item is not empty %}
-		{% set back = sidebar.back_item %}
-		<a href="{{ back.href }}"
-		   class="sidebar-back-item {{ back.classes|join(' ') }}"
-		   {% if back.target is not empty %}target="{{ back.target }}"{% endif %}
-		   {% for data_key,data_val in back.data %}
-			   data-{{ data_key }}="{{ data_val }}"
-		   {% endfor %}
-		>
-			<span class="sidebar-back-icon"><i class="{{ back.img }}" aria-hidden="true"></i></span>
-			<span class="sidebar-back-label">{{ back.title }}</span>
-		</a>
-	{% endif %}
-
 	<div class="shield-mode-selector" data-shield-tour="sidebar-menu">
-		{% for mode_item in sidebar.mode_items %}
-			<a href="{{ mode_item.href }}"
-			   class="mode-item {{ mode_item.active ? 'active' : '' }} {{ mode_item.classes|join(' ') }}"
-			   data-mode="{{ mode_item.mode }}"
-			   {% if mode_item.target is not empty %}target="{{ mode_item.target }}"{% endif %}
-			   {% for data_key,data_val in mode_item.data %}
+		{% for nav_item in sidebar.navigation_links %}
+			<a href="{{ nav_item.href }}"
+			   class="mode-item {{ nav_item.kind == 'dashboard' ? 'sidebar-nav-dashboard' : '' }} {{ nav_item.active ? 'active' : '' }} {{ nav_item.classes|join(' ') }}"
+			   data-kind="{{ nav_item.kind }}"
+			   {% if nav_item.kind == 'operator_mode' %}data-mode="{{ nav_item.mode }}"{% endif %}
+			   {% if nav_item.target is not empty %}target="{{ nav_item.target }}"{% endif %}
+			   {% for data_key,data_val in nav_item.data %}
 				   data-{{ data_key }}="{{ data_val }}"
-			   {% endfor %}
+				{% endfor %}
 			>
-				<span class="mode-icon"><i class="{{ mode_item.img }}" aria-hidden="true"></i></span>
-				<span class="mode-label">{{ mode_item.title }}</span>
-				{% if mode_item.badge is not empty %}
-					<span class="mode-badge status-{{ mode_item.badge.status }}">
-						{{ mode_item.badge.text }}
+				<span class="mode-icon"><i class="{{ nav_item.img }}" aria-hidden="true"></i></span>
+				<span class="mode-label">{{ nav_item.title }}</span>
+				{% if nav_item.badge is not empty %}
+					<span class="mode-badge status-{{ nav_item.badge.status }}">
+						{{ nav_item.badge.text }}
 					</span>
 				{% endif %}
 			</a>
+			{% if nav_item.divider_after %}<div class="sidebar-sep"></div>{% endif %}
 		{% endfor %}
 	</div>
 

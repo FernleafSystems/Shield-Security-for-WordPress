@@ -205,6 +205,9 @@ class LocalSiteManager {
 			throw new \InvalidArgumentException( 'Browser lane mode must be "clean" or "warm".' );
 		}
 
+		if ( $this->definition->usesSharedDatabase() ) {
+			$this->ensureSharedDatabaseSchema( $rootDir, $browserLabelEnv );
+		}
 		$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, false, $hostManifest, $browserLabelEnv );
 		return 0;
 	}
@@ -543,6 +546,37 @@ class LocalSiteManager {
 		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
 			throw new \RuntimeException( $this->diagnoseCommandFailure(
 				'Failed to recreate browser lane database '.$dbName.'.',
+				$command,
+				$process->getExitCode() ?? 1,
+				$process->getOutput(),
+				$process->getErrorOutput()
+			) );
+		}
+	}
+
+	private function ensureSharedDatabaseSchema( string $rootDir, array $browserLabelEnv = [] ) :void {
+		$dbName = $this->definition->dbName();
+		if ( \preg_match( '/^[a-z0-9_]+$/', $dbName ) !== 1 ) {
+			throw new \RuntimeException( 'Unsafe browser lane database name: '.$dbName );
+		}
+
+		$composeFiles = [ $this->definition->sharedDatabaseComposeFile() ];
+		$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir, $browserLabelEnv );
+		$sql = \sprintf( 'CREATE DATABASE IF NOT EXISTS `%s`;', $dbName );
+		$command = \array_merge(
+			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			$this->buildMysqlSqlCommand( $sql )
+		);
+		$process = $this->processRunner->run(
+			$command,
+			$rootDir,
+			static function () :void {
+			},
+			$envOverrides
+		);
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			throw new \RuntimeException( $this->diagnoseCommandFailure(
+				'Failed to ensure browser lane database '.$dbName.'.',
 				$command,
 				$process->getExitCode() ?? 1,
 				$process->getOutput(),

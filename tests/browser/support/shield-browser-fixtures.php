@@ -236,7 +236,7 @@ function shield_browser_fixture_allowed_actions() :array {
 	return [
 		'__all__' => [ 'cleanup' ],
 		'actions-queue' => [ 'seed', 'cleanup', 'inspect' ],
-		'dashboard-defaults' => [ 'seed', 'cleanup', 'inspect', 'reset-defaults', 'prepare-actions-all-clear' ],
+		'dashboard-defaults' => [ 'seed', 'cleanup', 'inspect', 'reset-defaults', 'prepare-actions-all-clear', 'prepare-maintenance-warning' ],
 		'import-export-file' => [ 'seed', 'cleanup' ],
 		'import-export-network' => [ 'seed', 'cleanup' ],
 		'ip-analysis-activity-meta' => [ 'seed', 'cleanup', 'inspect' ],

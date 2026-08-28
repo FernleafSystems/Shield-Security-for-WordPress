@@ -29,6 +29,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
  *   option_store_snapshot:array<string,RawOptionStoreState>,
  *   selected_options_snapshot:array<string,mixed>,
  *   live_monitor_flags_snapshot:array<string,mixed>,
+ *   update_plugins_snapshot:mixed,
  *   user_id:int
  * }
  * @phpstan-type OptionContract array{
@@ -187,6 +188,34 @@ class DashboardDefaultsFixtureBuilder {
 
 	/**
 	 * @param array<string,mixed> $state
+	 * @return array<string,mixed>
+	 */
+	public function prepareMaintenanceWarning( array $state ) :array {
+		RuntimeTestState::loginAsSecurityAdmin();
+		$state = $this->normalizePersistedState( $state );
+		if ( $state === $this->emptyFixtureState() ) {
+			throw new \RuntimeException( 'Dashboard/defaults fixture must be seeded before prepare-maintenance-warning.' );
+		}
+
+		$updates = new \stdClass();
+		$controller = RuntimeTestState::controller();
+		$controller->opts
+			->optSet( MaintenanceIssueStateProvider::OPT_KEY, ( new MaintenanceIssueStateProvider() )->defaultIgnoredItems() )
+			->store();
+		RuntimeTestState::resetOptionsRuntimeCache();
+		$updates->response = [
+			$controller->base_file => (object)[
+				'plugin'      => $controller->base_file,
+				'new_version' => $controller->cfg->version().'.1',
+			],
+		];
+		\set_site_transient( 'update_plugins', $updates );
+
+		return \array_merge( $this->baseContract(), [ 'prepared_maintenance_warning' => true ] );
+	}
+
+	/**
+	 * @param array<string,mixed> $state
 	 */
 	public function cleanup( array $state ) :void {
 		$state = $this->normalizePersistedState( $state );
@@ -197,7 +226,17 @@ class DashboardDefaultsFixtureBuilder {
 		RuntimeTestState::loginAsSecurityAdmin();
 		$this->rawOptionStores()->restore( $state[ 'option_store_snapshot' ], 'Dashboard/defaults fixture' );
 		$this->restoreLiveMonitorFlags( $state );
+		$this->restorePluginUpdatesTransient( $state[ 'update_plugins_snapshot' ] ?? false );
 		RuntimeTestState::resetOptionsRuntimeCache();
+	}
+
+	private function restorePluginUpdatesTransient( $snapshot ) :void {
+		if ( $snapshot === false ) {
+			\delete_site_transient( 'update_plugins' );
+		}
+		else {
+			\set_site_transient( 'update_plugins', $snapshot );
+		}
 	}
 
 	/**
@@ -208,6 +247,7 @@ class DashboardDefaultsFixtureBuilder {
 			'option_store_snapshot'       => $this->rawOptionStores()->snapshot(),
 			'selected_options_snapshot'  => $this->currentOptions(),
 			'live_monitor_flags_snapshot' => $this->currentUserFlags(),
+			'update_plugins_snapshot'    => \get_site_transient( 'update_plugins' ),
 			'user_id'                     => \get_current_user_id(),
 		];
 	}
@@ -220,6 +260,7 @@ class DashboardDefaultsFixtureBuilder {
 			'option_store_snapshot'       => [],
 			'selected_options_snapshot'  => [],
 			'live_monitor_flags_snapshot' => [],
+			'update_plugins_snapshot'    => false,
 			'user_id'                     => 0,
 		];
 	}
@@ -251,6 +292,7 @@ class DashboardDefaultsFixtureBuilder {
 			'option_store_snapshot'       => $rawStores,
 			'selected_options_snapshot'  => $selectedOptions,
 			'live_monitor_flags_snapshot' => $flags,
+			'update_plugins_snapshot'    => $state[ 'update_plugins_snapshot' ] ?? false,
 			'user_id'                     => (int)( $state[ 'user_id' ] ?? 0 ),
 		];
 	}

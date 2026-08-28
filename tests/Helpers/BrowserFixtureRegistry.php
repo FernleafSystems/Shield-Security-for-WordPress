@@ -264,6 +264,9 @@ class BrowserFixtureRegistry {
 			case 'prepare-actions-all-clear':
 				return $builder->prepareActionsAllClear( $state );
 
+			case 'prepare-maintenance-warning':
+				return $builder->prepareMaintenanceWarning( $state );
+
 			case 'seed':
 				if ( $state !== [] ) {
 					$builder->cleanup( $state );

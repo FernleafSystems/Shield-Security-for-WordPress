@@ -1,121 +1,63 @@
-{% set badge_class_map = {
-	'good': 'badge-good',
-	'info': 'badge-info',
-	'warning': 'badge-warning',
-	'critical': 'badge-critical',
-	'neutral': 'badge-disabled'
-} %}
-{% set featured_lane = vars.actions_lane %}
-<div class="operator-mode-landing" data-shield-status="{{ vars.shield_status }}">
-	<div class="operator-mode-landing__grid">
-		<a href="{{ featured_lane.href }}"
-		   class="operator-mode-landing__featured shield-card{{ featured_lane.extra_classes }}"
-		   data-mode="{{ featured_lane.mode }}"
-		   data-shield-tour="dashboard-actions"
-		   aria-label="{{ featured_lane.label }}">
-			<div class="shield-card-accent status-{{ featured_lane.indicator_severity }}"></div>
-			<div class="operator-mode-landing__featured-body">
-				<div class="dash-header operator-mode-landing__featured-header">
-					<div class="shield-orb">
-						<i class="{{ vars.shield_icon_class }}" aria-hidden="true"></i>
-					</div>
-					<div class="dash-header-text">
-						<h1 class="dash-header-title">{{ strings.title }}</h1>
-						<p class="dash-header-subtitle">
-							<span class="status-dot"></span>
-							<span>{{ strings.subtitle }}</span>
-						</p>
-					</div>
-				</div>
-
-				{% if featured_lane.description is not empty and vars.actions_all_clear is null %}
-					<p class="operator-mode-landing__featured-desc">{{ featured_lane.description }}</p>
-				{% endif %}
-
-				{% if vars.actions_queue_rows is not empty %}
-					<div class="operator-mode-landing__queue-list shield-stack-detail-list" data-shield-tour="dashboard-queue">
-						{% for row in vars.actions_queue_rows %}
-							<div class="operator-mode-landing__queue-row shield-stack-detail-row is-{{ row.severity }}">
-								<span class="operator-mode-landing__queue-icon" aria-hidden="true">
-									<i class="{{ row.icon_class }}"></i>
-								</span>
-								<div class="shield-stack-detail-copy">
-									<div class="shield-stack-detail-title">{{ row.label }}</div>
-								</div>
-								<div class="shield-stack-detail-meta">
-									<span class="shield-badge {{ badge_class_map[row.severity] }}">{{ row.count }}</span>
-								</div>
-							</div>
-						{% endfor %}
-					</div>
-				{% elseif vars.actions_all_clear is not null %}
-					<p class="operator-mode-landing__featured-desc">{{ vars.actions_all_clear.subtitle }}</p>
-					<div class="operator-mode-landing__clear-list"
-					     data-dashboard-actions-all-clear-list="1"
-					     aria-label="{{ vars.actions_all_clear.title }}">
-						{% for check in vars.actions_all_clear.checks %}
-							<div class="operator-mode-landing__clear-row is-{{ check.severity }}"
-							     data-dashboard-actions-all-clear-check="{{ check.slug|e('html_attr') }}">
-								<span class="operator-mode-landing__clear-icon" aria-hidden="true">
-									<i class="{{ check.icon_class }}"></i>
-								</span>
-								<span class="operator-mode-landing__clear-label">{{ check.label }}</span>
-							</div>
-						{% endfor %}
-					</div>
-				{% endif %}
-
-				<span class="operator-mode-landing__featured-cta">
-					{{ strings.actions_queue_cta }}
-					<i class="bi bi-arrow-right" aria-hidden="true"></i>
+<div class="operator-mode-landing">
+	<div class="operator-mode-landing__overview" data-shield-status="{{ vars.dashboard_strip.overall.status }}">
+		<section class="operator-mode-overview__status shield-card"
+				 data-shield-tour="dashboard-actions"
+		         aria-label="{{ vars.dashboard_strip.overall.accessible_label }}">
+			<div class="shield-card-accent status-{{ vars.dashboard_strip.overall.status }}"></div>
+			<div class="operator-mode-overview__overall">
+				<span class="operator-mode-overview__overall-icon status-{{ vars.dashboard_strip.overall.status }}" aria-hidden="true">
+					<i class="{{ vars.dashboard_strip.overall.icon_class }}"></i>
 				</span>
+				<div class="operator-mode-overview__overall-copy">
+					<h2 class="operator-mode-overview__overall-title">{{ vars.dashboard_strip.overall.title }}</h2>
+					<p class="operator-mode-overview__overall-summary">{{ vars.dashboard_strip.overall.summary }}</p>
+				</div>
 			</div>
-		</a>
 
-		<div class="operator-mode-landing__side-stack">
-			{% for lane in vars.secondary_lanes %}
-				<a href="{{ lane.href }}"
-				   class="operator-mode-landing__side-card shield-card"
-				   data-mode="{{ lane.mode }}"
-				   data-shield-tour="dashboard-{{ lane.mode|e('html_attr') }}"
-				   aria-label="{{ lane.label }}">
-					<div class="shield-card-accent status-{{ lane.edge_status }}"></div>
-					<div class="operator-mode-landing__side-body">
-						<div class="operator-mode-landing__side-header">
-							<span class="operator-mode-landing__side-icon" aria-hidden="true">
-								<i class="{{ lane.icon_class }}"></i>
-							</span>
-							<span class="operator-mode-landing__side-title">{{ lane.label }}</span>
-						</div>
-						<div class="operator-mode-landing__side-desc">{{ lane.description }}</div>
-						<div class="operator-mode-landing__side-indicator">
-							{% if lane.indicator_type == 'posture' %}
-								<div class="lane-posture">
-									<div class="posture-track">
-										<div class="posture-fill fill-{{ lane.posture_status }}" style="width:{{ lane.posture_percentage }}%"></div>
-									</div>
-									<div class="posture-label status-{{ lane.posture_status }}">{{ lane.posture_text }}</div>
-								</div>
-							{% elseif lane.indicator_badges is not empty %}
-								<div class="operator-mode-landing__side-badges">
-									{% for badge in lane.indicator_badges %}
-										<span class="shield-badge {{ badge_class_map[badge.severity] }}"{% if badge.title is not empty %} title="{{ badge.title }}"{% endif %}>{{ badge.text }}</span>
-									{% endfor %}
-								</div>
-							{% else %}
-								<span class="shield-badge {{ badge_class_map[lane.indicator_severity] }}">{{ lane.indicator_text }}</span>
-								{% if lane.indicator_subtext is not empty %}
-									<div class="operator-mode-landing__side-subtext">{{ lane.indicator_subtext }}</div>
-								{% endif %}
-							{% endif %}
-						</div>
-					</div>
+			<div class="operator-mode-overview__summaries" data-shield-tour="dashboard-queue">
+				{% for summary in vars.dashboard_strip.summaries %}
+					<a href="{{ summary.href }}"
+					   class="operator-mode-overview__summary status-{{ summary.status }}"
+					   data-summary-id="{{ summary.id|e('html_attr') }}"
+					   aria-label="{{ summary.accessible_label }}">
+						<span class="operator-mode-overview__summary-count">{{ summary.count }}</span>
+						<span class="operator-mode-overview__summary-copy">
+							<span class="operator-mode-overview__summary-label">{{ summary.label }}</span>
+							<span class="operator-mode-overview__summary-text">{{ summary.summary }}</span>
+						</span>
+						<i class="bi bi-arrow-right" aria-hidden="true"></i>
+					</a>
+				{% endfor %}
+			</div>
+		</section>
+
+		<div class="operator-mode-overview__destinations">
+			{% for card in vars.destination_cards %}
+				<a href="{{ card.href }}"
+				   class="operator-mode-overview__destination shield-card"
+				   data-mode="{{ card.mode|e('html_attr') }}"
+				   data-shield-tour="dashboard-{{ card.mode|e('html_attr') }}"
+				   aria-label="{{ card.accessible_label }}">
+					<div class="shield-card-accent accent-{{ card.accent }}"></div>
+					<span class="operator-mode-overview__destination-icon accent-{{ card.accent }}" aria-hidden="true">
+						<i class="{{ card.icon_class }}"></i>
+					</span>
+					<span class="operator-mode-overview__destination-copy">
+						<span class="operator-mode-overview__destination-title">{{ card.title }}</span>
+						<span class="operator-mode-overview__destination-description">{{ card.description }}</span>
+						<span class="operator-mode-overview__destination-cta">
+							{{ card.cta }}
+							<i class="bi bi-arrow-right" aria-hidden="true"></i>
+						</span>
+					</span>
 				</a>
 			{% endfor %}
 		</div>
 	</div>
 
-	{% include '/wpadmin/components/dashboard/live_monitor.twig' with {
-		vars: vars.live_monitor
-	} only %}
+	<div class="operator-mode-landing__live-monitor-placement">
+		{% include '/wpadmin/components/dashboard/live_monitor.twig' with {
+			vars: vars.live_monitor
+		} only %}
+	</div>
 </div>

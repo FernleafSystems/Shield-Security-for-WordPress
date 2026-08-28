@@ -91,7 +91,7 @@ async function expectAccessibleAdminShell( page ) {
 
 	const shellTitle = page.locator( '#ShieldAdminShellTitle' );
 	await expect( shellTitle ).toHaveCount( 1 );
-	await expect( shellTitle ).not.toHaveCSS( 'display', 'none' );
+	await expect( shellTitle ).toHaveAccessibleName( /\S/ );
 	await expect( shell ).toHaveAccessibleName( /\S/ );
 
 	const contentPane = page.locator( '#PageMainBody_Inner-Apto' );

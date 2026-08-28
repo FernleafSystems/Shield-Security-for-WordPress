@@ -134,33 +134,21 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		return $itemsByKey;
 	}
 
-	private function getLaneByMode( array $renderData, string $mode ) :array {
-		$lanes = $this->getOperatorModeLanes( $renderData );
+	private function getDestinationCardByMode( array $renderData, string $mode ) :array {
+		$cards = $renderData[ 'vars' ][ 'destination_cards' ] ?? null;
+		$this->assertIsArray( $cards );
 		$matches = \array_values( \array_filter(
-			$lanes,
-			static fn( array $lane ) :bool => (string)( $lane[ 'mode' ] ?? '' ) === $mode
+			$cards,
+			static fn( array $card ) :bool => (string)( $card[ 'mode' ] ?? '' ) === $mode
 		) );
-		$this->assertCount( 1, $matches, \sprintf( 'Expected exactly one "%s" lane.', $mode ) );
+		$this->assertCount( 1, $matches, \sprintf( 'Expected exactly one "%s" destination card.', $mode ) );
 		return $matches[ 0 ] ?? [];
 	}
 
-	private function getOperatorModeLanes( array $renderData ) :array {
-		$actionsLane = $renderData[ 'vars' ][ 'actions_lane' ] ?? null;
-		$secondaryLanes = $renderData[ 'vars' ][ 'secondary_lanes' ] ?? null;
-
-		$this->assertIsArray( $actionsLane );
-		$this->assertIsArray( $secondaryLanes );
-
-		return [
-			$actionsLane,
-			...\array_values( $secondaryLanes ),
-		];
-	}
-
-	private function getActionsQueueRows( array $renderData ) :array {
-		$rows = $renderData[ 'vars' ][ 'actions_queue_rows' ] ?? [];
-		$this->assertIsArray( $rows );
-		return $rows;
+	private function getDashboardStrip( array $renderData ) :array {
+		$strip = $renderData[ 'vars' ][ 'dashboard_strip' ] ?? null;
+		$this->assertIsArray( $strip );
+		return $strip;
 	}
 
 	private function pluginMainPathFragment( string $pluginSlug ) :string {
@@ -375,7 +363,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertSame( '', (string)( $renderData[ 'vars' ][ 'summary' ][ 'subtext' ] ?? '' ) );
 	}
 
-	public function test_dashboard_runtime_warning_replaces_summary_subtext_while_scans_are_in_flight() :void {
+	public function test_dashboard_strip_remains_attention_group_owned_while_scans_are_in_flight() :void {
 		$this->insertUnfinishedScan( 'afs', 'queued' );
 
 		$widgetPayload = $this->renderNeedsAttentionQueue()->payload();
@@ -387,26 +375,34 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertNotSame( '', $warning );
 		$this->assertSame( $warning, (string)( $widgetData[ 'strings' ][ 'status_strip_subtext' ] ?? '' ) );
 		$this->assertSame( $warning, (string)( $widgetData[ 'vars' ][ 'summary' ][ 'subtext' ] ?? '' ) );
-		$this->assertSame( $warning, (string)( $dashboardData[ 'strings' ][ 'subtitle' ] ?? '' ) );
+		$this->assertSame( 'warning', (string)( $dashboardData[ 'vars' ][ 'dashboard_strip' ][ 'overall' ][ 'status' ] ?? '' ) );
+		$this->assertSame( $warning, (string)( $dashboardData[ 'vars' ][ 'dashboard_strip' ][ 'overall' ][ 'summary' ] ?? '' ) );
 	}
 
-	public function test_operator_mode_landing_lanes_are_in_expected_order() :void {
+	public function test_operator_mode_landing_exposes_strict_strip_and_destination_contracts() :void {
 		$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
 		$renderData = $payload[ 'render_data' ] ?? [];
-		$lanes = $this->getOperatorModeLanes( $renderData );
+		$strip = $this->getDashboardStrip( $renderData );
+		$cards = $renderData[ 'vars' ][ 'destination_cards' ] ?? [];
 
-		$this->assertCount( 4, $lanes );
+		$this->assertSame( [ 'overall', 'summaries' ], \array_keys( $strip ) );
 		$this->assertSame(
-			[ 'actions', 'investigate', 'configure', 'reports' ],
-			\array_column( $lanes, 'mode' )
+			[ 'status', 'icon_class', 'title', 'summary', 'accessible_label' ],
+			\array_keys( $strip[ 'overall' ] )
+		);
+		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $strip[ 'summaries' ], 'id' ) );
+		$this->assertCount( 3, $cards );
+		$this->assertSame(
+			[ 'investigate', 'configure', 'reports' ],
+			\array_column( $cards, 'mode' )
 		);
 		$this->assertSame(
-			[ 'status', 'status', 'posture', 'status' ],
-			\array_column( $lanes, 'indicator_type' )
+			[ 'Investigate', 'Configure', 'Reports' ],
+			\array_column( $cards, 'sidebar_label' )
 		);
-		$this->assertContains(
-			(string)( $renderData[ 'vars' ][ 'shield_status' ] ?? '' ),
-			[ 'good', 'warning', 'critical' ]
+		$this->assertSame(
+			[ 'mode', 'sidebar_label', 'href', 'icon_class', 'accent', 'title', 'description', 'cta', 'accessible_label' ],
+			\array_keys( $cards[ 0 ] )
 		);
 		$this->assertRouteRenderOutputHealthy(
 			$this->renderDashboardOverviewPayload(),
@@ -414,7 +410,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		);
 	}
 
-	public function test_operator_mode_landing_reports_lane_exposes_count_and_latest_report_badges() :void {
+	public function test_operator_mode_landing_reports_card_does_not_expose_report_aggregates() :void {
 		TestDataFactory::insertReport( 'Daily Report', [
 			'type'       => ReportingConstants::REPORT_TYPE_INFO,
 			'created_at' => \time() - HOUR_IN_SECONDS,
@@ -425,13 +421,13 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		] );
 
 		$renderData = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG )[ 'render_data' ] ?? [];
-		$reportsLane = $this->getLaneByMode( $renderData, PluginNavs::MODE_REPORTS );
-		$badges = $reportsLane[ 'indicator_badges' ] ?? [];
+		$reportsCard = $this->getDestinationCardByMode( $renderData, PluginNavs::MODE_REPORTS );
 
-		$this->assertSame( 'status', $reportsLane[ 'indicator_type' ] ?? '' );
-		$this->assertCount( 3, $badges );
-		$this->assertSame( 'info', $badges[ 0 ][ 'severity' ] ?? '' );
-		$this->assertSame( 'warning', $badges[ 2 ][ 'severity' ] ?? '' );
+		$this->assertSame( 'Reports', $reportsCard[ 'title' ] ?? '' );
+		$this->assertSame( 'Open Reports', $reportsCard[ 'cta' ] ?? '' );
+		$this->assertArrayNotHasKey( 'indicator_badges', $reportsCard );
+		$this->assertArrayNotHasKey( 'latest_report_at', $reportsCard );
+		$this->assertArrayNotHasKey( 'latest_alert_at', $reportsCard );
 	}
 
 	public function test_operator_mode_landing_exposes_live_monitor_contract() :void {
@@ -439,7 +435,6 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertRouteRenderOutputHealthy( $payload, 'operator mode landing live monitor' );
 		$renderData = $payload[ 'render_data' ] ?? [];
 		$liveMonitor = $renderData[ 'vars' ][ 'live_monitor' ] ?? [];
-		$actionsLane = $this->getLaneByMode( $renderData, PluginNavs::MODE_ACTIONS );
 
 		$this->assertIsArray( $liveMonitor );
 		$this->assertArrayHasKey( 'is_collapsed', $liveMonitor );
@@ -449,10 +444,13 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayHasKey( 'loading', $liveMonitor );
 		$this->assertArrayNotHasKey( 'minimize', $liveMonitor );
 		$this->assertArrayNotHasKey( 'expand', $liveMonitor );
-		$this->assertContains( $actionsLane[ 'indicator_severity' ] ?? '', [ 'good', 'warning', 'critical' ] );
+		$this->assertSame(
+			[ 'dashboard_strip', 'destination_cards', 'live_monitor' ],
+			\array_keys( $renderData[ 'vars' ] ?? [] )
+		);
 	}
 
-	public function test_operator_mode_landing_actions_queue_rows_include_seeded_scan_counts_and_maintenance_row() :void {
+	public function test_operator_mode_landing_strip_includes_seeded_scan_and_maintenance_counts() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_malware_local',
 			'scan_pluginsthemes_local',
@@ -492,31 +490,21 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 		$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
 		$renderData = $payload[ 'render_data' ] ?? [];
-		$rows = $this->getActionsQueueRows( $renderData );
-		$rowsByKey = [];
-		foreach ( $rows as $row ) {
-			if ( \is_array( $row ) && !empty( $row[ 'key' ] ) ) {
-				$rowsByKey[ (string)$row[ 'key' ] ] = $row;
-			}
-		}
+		$strip = $this->getDashboardStrip( $renderData );
 
-		foreach ( [ 'malware', 'vulnerable_assets', 'wp_files', 'plugin_files', 'theme_files', 'abandoned', 'maintenance' ] as $key ) {
-			$this->assertArrayHasKey( $key, $rowsByKey );
-		}
-		foreach ( [ 'malware', 'vulnerable_assets', 'wp_files', 'plugin_files', 'theme_files', 'abandoned' ] as $scanKey ) {
-			$this->assertSame( 1, (int)( $rowsByKey[ $scanKey ][ 'count' ] ?? 0 ) );
-		}
-		$this->assertGreaterThan( 0, (int)( $rowsByKey[ 'maintenance' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'actions', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'mode' ] ?? '' ) );
-		$this->assertArrayHasKey( 'actions_all_clear', $renderData[ 'vars' ] );
-		$this->assertNull( $renderData[ 'vars' ][ 'actions_all_clear' ] );
+		$this->assertSame( 'critical', $strip[ 'overall' ][ 'status' ] );
+		$this->assertSame( 'Critical Action Required', $strip[ 'overall' ][ 'title' ] );
+		$this->assertSame( 6, (int)( $strip[ 'summaries' ][ 0 ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $strip[ 'summaries' ][ 0 ][ 'status' ] ?? '' ) );
+		$this->assertGreaterThan( 0, (int)( $strip[ 'summaries' ][ 1 ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'warning', (string)( $strip[ 'summaries' ][ 1 ][ 'status' ] ?? '' ) );
 		$this->assertSame(
 			[ 'investigate', 'configure', 'reports' ],
-			\array_column( $renderData[ 'vars' ][ 'secondary_lanes' ] ?? [], 'mode' )
+			\array_column( $renderData[ 'vars' ][ 'destination_cards' ] ?? [], 'mode' )
 		);
 	}
 
-	public function test_operator_mode_landing_actions_queue_rows_include_cloaked_plugin_finding() :void {
+	public function test_operator_mode_landing_strip_includes_cloaked_plugin_finding() :void {
 		$optionsSnapshot = $this->snapshotSelectedOptions( [
 			CloakedPluginState::OPT_KEY,
 			CloakedPluginState::IGNORE_OPT_KEY,
@@ -537,20 +525,11 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 			$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
 			$renderData = $payload[ 'render_data' ] ?? [];
-			$rowsByKey = [];
-			foreach ( $this->getActionsQueueRows( $renderData ) as $row ) {
-				if ( \is_array( $row ) && !empty( $row[ 'key' ] ) ) {
-					$rowsByKey[ (string)$row[ 'key' ] ] = $row;
-				}
-			}
+			$strip = $this->getDashboardStrip( $renderData );
 
-			$this->assertArrayHasKey( 'hidden_plugins', $rowsByKey );
-			$cloakedPluginRow = $rowsByKey[ 'hidden_plugins' ];
-			$this->assertSame( 'Cloaked Plugins', $cloakedPluginRow[ 'label' ] );
-			$this->assertSame( 1, $cloakedPluginRow[ 'count' ] );
-			$this->assertSame( 'critical', $cloakedPluginRow[ 'severity' ] );
-			$this->assertArrayHasKey( 'actions_all_clear', $renderData[ 'vars' ] );
-			$this->assertNull( $renderData[ 'vars' ][ 'actions_all_clear' ] );
+			$this->assertSame( 1, $strip[ 'summaries' ][ 0 ][ 'count' ] );
+			$this->assertSame( 'critical', $strip[ 'summaries' ][ 0 ][ 'status' ] );
+			$this->assertSame( 'Critical Action Required', $strip[ 'overall' ][ 'title' ] );
 		}
 		finally {
 			$this->removeCloakedPluginFixtureFilters();
@@ -616,7 +595,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		}
 	}
 
-	public function test_operator_mode_landing_hides_ignored_only_plugin_dashboard_row() :void {
+	public function test_operator_mode_landing_strip_excludes_ignored_only_plugin_finding() :void {
 		$this->enablePremiumCapabilities( [
 			'scan_file_areas',
 			'scan_pluginsthemes_local',
@@ -645,22 +624,14 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->resetScanResultCountMemoization();
 
 		$renderData = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG )[ 'render_data' ] ?? [];
-		$rows = $this->getActionsQueueRows( $renderData );
-		$rowsByKey = [];
-		foreach ( $rows as $row ) {
-			if ( \is_array( $row ) && !empty( $row[ 'key' ] ) ) {
-				$rowsByKey[ (string)$row[ 'key' ] ] = $row;
-			}
-		}
+		$strip = $this->getDashboardStrip( $renderData );
 
-		$this->assertArrayHasKey( 'plugin_files', $rowsByKey );
-		$this->assertArrayNotHasKey( 'plugin_files_ignored', $rowsByKey );
-		$this->assertSame( 1, (int)( $rowsByKey[ 'plugin_files' ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $rowsByKey[ 'plugin_files' ][ 'severity' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' ) );
+		$this->assertSame( 1, (int)( $strip[ 'summaries' ][ 0 ][ 'count' ] ?? 0 ) );
+		$this->assertSame( 'critical', (string)( $strip[ 'summaries' ][ 0 ][ 'status' ] ?? '' ) );
+		$this->assertSame( 'critical', (string)( $strip[ 'overall' ][ 'status' ] ?? '' ) );
 	}
 
-	public function test_operator_mode_landing_omits_healthy_file_locker_and_zero_maintenance_rows() :void {
+	public function test_operator_mode_landing_strip_is_clear_for_healthy_file_locker_and_zero_maintenance() :void {
 		$this->requireDb( 'file_locker' );
 		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
 		$optionsSnapshot = $this->snapshotSelectedOptions( [ MaintenanceIssueStateProvider::OPT_KEY ] );
@@ -679,15 +650,12 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 
 			$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
 			$renderData = $payload[ 'render_data' ] ?? [];
-			$rows = $this->getActionsQueueRows( $renderData );
+			$strip = $this->getDashboardStrip( $renderData );
 
-			$this->assertSame( [], $rows );
-			$this->assertSame( 'good', (string)( $renderData[ 'vars' ][ 'actions_lane' ][ 'indicator_severity' ] ?? '' ) );
-			$this->assertIsArray( $renderData[ 'vars' ][ 'actions_all_clear' ] );
-			$this->assertSame(
-				[ 'scans', 'maintenance', 'cloaked_plugin_detection' ],
-				\array_column( $renderData[ 'vars' ][ 'actions_all_clear' ][ 'checks' ], 'slug' )
-			);
+			$this->assertSame( [ 0, 0 ], \array_column( $strip[ 'summaries' ], 'count' ) );
+			$this->assertSame( [ 'good', 'good' ], \array_column( $strip[ 'summaries' ], 'status' ) );
+			$this->assertSame( 'good', (string)( $strip[ 'overall' ][ 'status' ] ?? '' ) );
+			$this->assertSame( 'All Clear', (string)( $strip[ 'overall' ][ 'title' ] ?? '' ) );
 		}
 		finally {
 			$this->restoreSelectedOptions( $optionsSnapshot );

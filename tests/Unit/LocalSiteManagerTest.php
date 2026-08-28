@@ -424,7 +424,7 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertGreaterThan( $marker[ 'created_at_unix' ] ?? 0, $marker[ 'expires_at_unix' ] ?? 0 );
 	}
 
-	public function testPrepareBrowserLaneWarmSkipsBaselineOnlyWithValidMarkerAndHealthySite() :void {
+	public function testPrepareBrowserLaneWarmEnsuresSchemaAndSkipsBaselineWithValidMarkerAndHealthySite() :void {
 		$hostManifest = [
 			'schema_version' => 1,
 			'generated_at_unix' => 1,
@@ -443,6 +443,7 @@ class LocalSiteManagerTest extends TestCase {
 			$hostManifest
 		);
 		$processRunner = new RecordingProcessRunner( [
+			0,
 			0,
 			0,
 			0,
@@ -478,6 +479,10 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 1, $dockerComposeExecutor->calls );
 		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db' ], $dockerComposeExecutor->calls[ 0 ][ 'sub_command' ] );
+		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining(
+			$processRunner,
+			'CREATE DATABASE IF NOT EXISTS `shield_test_site_lane_1`'
+		), 'mysql' );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
 		$this->assertSame( $hostManifest, $runtimeRefresher->refreshCalls[ 0 ][ 'host_manifest' ] );
 		$this->assertSame(

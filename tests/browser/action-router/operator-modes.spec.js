@@ -183,6 +183,208 @@ test( 'dashboard overview renders stable dashboard shell contracts without runti
 	await expectNoRuntimeErrors( runtimeErrors, 'dashboard overview shell render' );
 } );
 
+test( 'dashboard overview exposes status summaries and destination cards as accessible routes', async ( { page } ) => {
+	await openShieldRoute( page, dashboardRoute );
+	await dismissBlockingDialogs( page );
+
+	const overview = page.locator( '.operator-mode-landing__overview' );
+	const status = overview.locator( '.operator-mode-overview__status' );
+	await expect( overview ).toBeVisible();
+	await expect( status ).toHaveRole( 'region' );
+	await expect( status ).toHaveAccessibleName( /\S/ );
+	await expect( status ).not.toHaveAttribute( 'href' );
+	await expect( status.locator( 'a' ) ).toHaveCount( 2 );
+
+	for ( const summary of await status.locator( '[data-summary-id]' ).all() ) {
+		await expect( summary ).toHaveRole( 'link' );
+		await expect( summary ).toHaveAccessibleName( /\S/ );
+		await expect( summary ).toHaveAttribute( 'href', /nav=scans/ );
+	}
+
+	const destinations = overview.locator( '.operator-mode-overview__destination' );
+	await expect( destinations ).toHaveCount( 3 );
+	for ( const destination of await destinations.all() ) {
+		await expect( destination ).toHaveRole( 'link' );
+		await expect( destination ).toHaveAccessibleName( /\S/ );
+		await expect( destination ).toHaveAttribute( 'href', /nav=/ );
+	}
+} );
+
+test( 'dashboard sidebar keeps dashboard first, separates actions, and preserves the dashboard geometry', async ( { page } ) => {
+	await page.setViewportSize( { width: 2400, height: 1100 } );
+	await openShieldRoute( page, dashboardRoute );
+	await dismissBlockingDialogs( page );
+
+	const navigation = page.locator( '#NavSideBar' );
+	const links = navigation.locator( '.shield-mode-selector .mode-item' );
+	await expect( links ).toHaveCount( 5 );
+	expect( await links.evaluateAll( ( nodes ) => nodes.map( ( node ) => node.getAttribute( 'data-kind' ) === 'dashboard' ? 'dashboard' : node.getAttribute( 'data-mode' ) ) ) )
+		.toEqual( [ 'dashboard', 'actions', 'investigate', 'configure', 'reports' ] );
+	await expect( navigation.locator( '.shield-mode-selector .sidebar-sep' ) ).toHaveCount( 1 );
+	await expect( links.nth( 1 ).locator( 'xpath=following-sibling::*[1]' ) ).toHaveClass( /sidebar-sep/ );
+
+	const overview = page.locator( '.operator-mode-landing__overview' );
+	const status = overview.locator( '.operator-mode-overview__status' );
+	const monitorPlacement = overview.locator(
+		'xpath=following-sibling::*[1][contains(concat(" ", normalize-space(@class), " "), " operator-mode-landing__live-monitor-placement ")]'
+	);
+	const monitor = monitorPlacement.locator( '[data-dashboard-live-monitor="1"]' );
+	const contentPane = overview.locator( 'xpath=ancestor::*[contains(@class, "shield-rail-layout__content")][1]' );
+	const [ contentBox, overviewBox, monitorPlacementBox ] = await Promise.all( [
+		contentPane.boundingBox(),
+		overview.boundingBox(),
+		monitorPlacement.boundingBox(),
+	] );
+	expect( contentBox ).not.toBeNull();
+	expect( overviewBox ).not.toBeNull();
+	expect( monitorPlacementBox ).not.toBeNull();
+	expect( Math.abs( overviewBox.width - 1080 ) ).toBeLessThan( 2 );
+	expect( Math.abs( monitorPlacementBox.width - 1080 ) ).toBeLessThan( 2 );
+	expect( Math.abs( ( overviewBox.x + overviewBox.width / 2 ) - ( contentBox.x + contentBox.width / 2 ) ) ).toBeLessThan( 2 );
+	expect( Math.abs( ( monitorPlacementBox.x + monitorPlacementBox.width / 2 ) - ( contentBox.x + contentBox.width / 2 ) ) ).toBeLessThan( 2 );
+	await expect( overview.locator( '[data-dashboard-live-monitor="1"]' ) ).toHaveCount( 0 );
+	await expect( monitorPlacement ).toHaveCount( 1 );
+	await expect( monitor ).toHaveCount( 1 );
+
+	const cards = [ status, ...( await overview.locator( '.operator-mode-overview__destination' ).all() ) ];
+	for ( const card of cards ) {
+		const accent = card.locator( ':scope > .shield-card-accent' );
+		const [ cardBox, accentBox ] = await Promise.all( [ card.boundingBox(), accent.boundingBox() ] );
+		expect( cardBox ).not.toBeNull();
+		expect( accentBox ).not.toBeNull();
+		expect( Math.abs( accentBox.x - cardBox.x ) ).toBeLessThan( 2 );
+		expect( Math.abs( accentBox.y - cardBox.y ) ).toBeLessThan( 2 );
+		expect( Math.abs( accentBox.width - cardBox.width ) ).toBeLessThan( 2 );
+	}
+} );
+
+test( 'dashboard overview wraps cards at narrow widths without horizontal overflow', async ( { page } ) => {
+	await page.setViewportSize( { width: 2400, height: 1000 } );
+	await openShieldRoute( page, dashboardRoute );
+	await dismissBlockingDialogs( page );
+
+	const overview = page.locator( '.operator-mode-landing__overview' );
+	const destinations = page.locator( '.operator-mode-overview__destination' );
+	await expect( destinations ).toHaveCount( 3 );
+	let boxes = await destinations.evaluateAll( ( nodes ) => nodes.map( ( node ) => {
+		const box = node.getBoundingClientRect();
+		return { top: box.top, width: box.width };
+	} ) );
+	const wideOverview = await overview.boundingBox();
+	expect( wideOverview ).not.toBeNull();
+	expect( boxes.every( ( box ) => box.width >= 280 ) ).toBe( true );
+	expect( boxes[ 1 ].top ).toBe( boxes[ 0 ].top );
+	expect( boxes[ 2 ].top ).toBe( boxes[ 0 ].top );
+
+	await page.setViewportSize( { width: 1600, height: 1000 } );
+	const observedOverview = await overview.boundingBox();
+	boxes = await destinations.evaluateAll( ( nodes ) => nodes.map( ( node ) => {
+		const box = node.getBoundingClientRect();
+		return { top: box.top };
+	} ) );
+	expect( observedOverview ).not.toBeNull();
+	expect( observedOverview.width ).toBeLessThanOrEqual( 900 );
+	expect( boxes[ 1 ].top ).toBeGreaterThan( boxes[ 0 ].top );
+	expect( boxes[ 2 ].top ).toBeGreaterThan( boxes[ 1 ].top );
+	expect( await overview.evaluate( ( element ) => element.scrollWidth <= element.clientWidth ) ).toBe( true );
+
+	await page.setViewportSize( { width: 375, height: 1000 } );
+	const narrowOverview = await overview.boundingBox();
+	const narrowBoxes = await destinations.evaluateAll( ( nodes ) => nodes.map( ( node ) => {
+		const box = node.getBoundingClientRect();
+		return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+	} ) );
+	expect( narrowOverview ).not.toBeNull();
+	expect( narrowOverview.width ).toBeLessThan( 280 );
+	expect( narrowBoxes.every( ( box ) =>
+		box.left >= narrowOverview.x && box.right <= narrowOverview.x + narrowOverview.width &&
+		box.top >= narrowOverview.y && box.bottom <= narrowOverview.y + narrowOverview.height
+	) ).toBe( true );
+	expect( await overview.evaluate( ( element ) => element.scrollWidth <= element.clientWidth ) ).toBe( true );
+} );
+
+test( 'dashboard priority strip reflows its contiguous regions with the content pane', async ( { page } ) => {
+	await page.setViewportSize( { width: 1600, height: 1000 } );
+	await openShieldRoute( page, dashboardRoute );
+	await dismissBlockingDialogs( page );
+
+	const status = page.locator( '.operator-mode-overview__status' );
+	const overall = status.locator( '.operator-mode-overview__overall' );
+	const summaries = status.locator( '.operator-mode-overview__summaries' );
+	const summaryCells = summaries.locator( '[data-summary-id]' );
+	const wideOverview = page.locator( '.operator-mode-landing__overview' );
+	const [ wideOverviewBox, wideOverall, wideSummaries, wideCells ] = await Promise.all( [
+		wideOverview.boundingBox(),
+		overall.boundingBox(),
+		summaries.boundingBox(),
+		summaryCells.evaluateAll( ( nodes ) => nodes.map( ( node ) => {
+			const box = node.getBoundingClientRect();
+			return { x: box.x, y: box.y, right: box.right, bottom: box.bottom };
+		} ) ),
+	] );
+	expect( wideOverviewBox ).not.toBeNull();
+	expect( wideOverall ).not.toBeNull();
+	expect( wideSummaries ).not.toBeNull();
+	expect( wideOverviewBox.width ).toBeGreaterThan( 760 );
+	expect( wideSummaries.x ).toBeGreaterThan( wideOverall.x );
+	expect( wideCells[ 1 ].x ).toBeGreaterThan( wideCells[ 0 ].x );
+	expect( Math.abs( wideCells[ 1 ].x - wideCells[ 0 ].right ) ).toBeLessThan( 2 );
+
+	await page.setViewportSize( { width: 1500, height: 1000 } );
+	const [ compactOverview, compactOverall, compactSummaries, compactCells ] = await Promise.all( [
+		wideOverview.boundingBox(),
+		overall.boundingBox(),
+		summaries.boundingBox(),
+		summaryCells.evaluateAll( ( nodes ) => nodes.map( ( node ) => {
+			const box = node.getBoundingClientRect();
+			return { x: box.x, y: box.y, right: box.right, bottom: box.bottom };
+		} ) ),
+	] );
+	expect( compactOverview ).not.toBeNull();
+	expect( compactOverall ).not.toBeNull();
+	expect( compactSummaries ).not.toBeNull();
+	expect( compactOverview.width ).toBeLessThanOrEqual( 760 );
+	expect( compactSummaries.y ).toBeGreaterThan( compactOverall.y );
+	expect( Math.abs( compactSummaries.y - ( compactOverall.y + compactOverall.height ) ) ).toBeLessThan( 2 );
+	expect( compactCells[ 1 ].x ).toBeGreaterThan( compactCells[ 0 ].x );
+	expect( Math.abs( compactCells[ 1 ].y - compactCells[ 0 ].y ) ).toBeLessThan( 2 );
+
+	await page.setViewportSize( { width: 500, height: 1000 } );
+	const [ narrowOverall, narrowSummaries, narrowCells ] = await Promise.all( [
+		overall.boundingBox(),
+		summaries.boundingBox(),
+		summaryCells.evaluateAll( ( nodes ) => nodes.map( ( node ) => {
+			const box = node.getBoundingClientRect();
+			return { x: box.x, y: box.y, right: box.right, bottom: box.bottom };
+		} ) ),
+	] );
+	expect( narrowOverall ).not.toBeNull();
+	expect( narrowSummaries ).not.toBeNull();
+	expect( narrowSummaries.y ).toBeGreaterThan( narrowOverall.y );
+	expect( Math.abs( narrowSummaries.y - ( narrowOverall.y + narrowOverall.height ) ) ).toBeLessThan( 2 );
+	expect( narrowCells[ 1 ].y ).toBeGreaterThan( narrowCells[ 0 ].y );
+	expect( Math.abs( narrowCells[ 1 ].y - narrowCells[ 0 ].bottom ) ).toBeLessThan( 2 );
+	expect( Math.abs( narrowCells[ 1 ].x - narrowCells[ 0 ].x ) ).toBeLessThan( 2 );
+	expect( Math.abs( narrowCells[ 1 ].right - narrowCells[ 0 ].right ) ).toBeLessThan( 2 );
+} );
+
+test( 'compact sidebar expands equally on hover and keyboard focus', async ( { page } ) => {
+	await page.setViewportSize( { width: 900, height: 900 } );
+	await openShieldRoute( page, dashboardRoute );
+	await dismissBlockingDialogs( page );
+
+	const sidebar = page.locator( '#PageMainSide-Apto' );
+	const label = page.locator( '#NavSideBar .mode-label' ).first();
+	await expect( label ).not.toBeVisible();
+	await sidebar.hover();
+	await expect( label ).toBeVisible();
+
+	await page.mouse.move( 500, 500 );
+	await expect( label ).not.toBeVisible();
+	await page.locator( '#NavSideBar .mode-item' ).first().focus();
+	await expect( label ).toBeVisible();
+} );
+
 test( 'dashboard live monitor persists explicit collapsed state changes', async ( { page } ) => {
 	await page.setViewportSize( { width: 1500, height: 1100 } );
 	await openShieldRoute( page, dashboardRoute );

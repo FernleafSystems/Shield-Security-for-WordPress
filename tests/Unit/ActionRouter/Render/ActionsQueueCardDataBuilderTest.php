@@ -218,4 +218,88 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( ( new ScanResultsLagWarning() )->getText(), $data[ 'subtitle' ] );
 	}
+
+	public function test_dashboard_strip_has_strict_group_owned_contract() :void {
+		$attentionQuery = $this->attentionQuery(
+			[ $this->attentionItem( 'plugin_files', 'scans', 2, 'warning', 'Plugin Files' ) ],
+			[ $this->attentionItem( 'wp_updates', 'maintenance', 3, 'warning', 'WordPress Updates' ) ]
+		);
+		$attentionQuery[ 'summary' ] = [
+			'total'        => 99,
+			'severity'     => 'critical',
+			'is_all_clear' => false,
+		];
+
+		$strip = $this->buildCardData( $attentionQuery )[ 'dashboard_strip' ];
+
+		$this->assertSame(
+			[ 'status', 'icon_class', 'title', 'summary', 'accessible_label' ],
+			\array_keys( $strip[ 'overall' ] )
+		);
+		$this->assertSame( 'warning', $strip[ 'overall' ][ 'status' ] );
+		$this->assertSame( 'Security Action Required', $strip[ 'overall' ][ 'title' ] );
+		$this->assertSame( '5 issues need your attention.', $strip[ 'overall' ][ 'summary' ] );
+		$this->assertSame(
+			[ 'scans', 'maintenance' ],
+			\array_column( $strip[ 'summaries' ], 'id' )
+		);
+		$this->assertSame(
+			[ 'Security Issues', 'Maintenance' ],
+			\array_column( $strip[ 'summaries' ], 'label' )
+		);
+		$this->assertSame( [ 2, 3 ], \array_column( $strip[ 'summaries' ], 'count' ) );
+		$this->assertSame( [ 'warning', 'warning' ], \array_column( $strip[ 'summaries' ], 'status' ) );
+		$this->assertSame(
+			[ 'id', 'label', 'summary', 'accessible_label', 'count', 'status', 'href' ],
+			\array_keys( $strip[ 'summaries' ][ 0 ] )
+		);
+		$this->assertSame(
+			$dataHrefs = \array_column( $strip[ 'summaries' ], 'href' ),
+			\array_fill( 0, 2, $dataHrefs[ 0 ] )
+		);
+		$this->assertNotSame( '', $strip[ 'overall' ][ 'icon_class' ] );
+		$this->assertNotSame( '', $strip[ 'overall' ][ 'accessible_label' ] );
+		$this->assertNotSame( '', $strip[ 'summaries' ][ 0 ][ 'accessible_label' ] );
+	}
+
+	/**
+	 * @dataProvider dashboardStripPrecedenceProvider
+	 */
+	public function test_dashboard_strip_overall_precedence(
+		array $scanItems,
+		array $maintenanceItems,
+		string $expectedStatus,
+		string $expectedTitle
+	) :void {
+		$overall = $this->buildCardData(
+			$this->attentionQuery( $scanItems, $maintenanceItems )
+		)[ 'dashboard_strip' ][ 'overall' ];
+
+		$this->assertSame( $expectedStatus, $overall[ 'status' ] );
+		$this->assertSame( $expectedTitle, $overall[ 'title' ] );
+	}
+
+	public function dashboardStripPrecedenceProvider() :array {
+		return [
+			'all clear'                    => [ [], [], 'good', 'All Clear' ],
+			'critical maintenance'         => [
+				[ $this->attentionItem( 'plugin_files', 'scans', 1, 'warning' ) ],
+				[ $this->attentionItem( 'wp_updates', 'maintenance', 1, 'critical' ) ],
+				'critical',
+				'Critical Action Required',
+			],
+			'warning security before upkeep' => [
+				[ $this->attentionItem( 'plugin_files', 'scans', 1, 'warning' ) ],
+				[ $this->attentionItem( 'wp_updates', 'maintenance', 1, 'warning' ) ],
+				'warning',
+				'Security Action Required',
+			],
+			'maintenance only'             => [
+				[],
+				[ $this->attentionItem( 'wp_updates', 'maintenance', 1, 'warning' ) ],
+				'warning',
+				'Maintenance Action Required',
+			],
+		];
+	}
 }

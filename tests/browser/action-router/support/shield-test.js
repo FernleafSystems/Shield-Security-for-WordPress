@@ -262,6 +262,9 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			async prepareDashboardActionsAllClearFixture() {
 				return runFixture( 'dashboard-defaults', 'prepare-actions-all-clear' );
 			},
+			async prepareDashboardMaintenanceWarningFixture() {
+				return runFixture( 'dashboard-defaults', 'prepare-maintenance-warning' );
+			},
 			async withDashboardDefaultsFixture( runScenario ) {
 				let seeded = false;
 				try {

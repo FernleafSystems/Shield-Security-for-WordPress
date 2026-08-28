@@ -836,7 +836,8 @@ $sidebar-transition-speed: 0.25s;
       z-index: 10;
     }
 
-    &:hover .sidebar-inner {
+    &:hover .sidebar-inner,
+    &:focus-within .sidebar-inner {
       width: $sidebar-width-expanded;
       background-color: #f6f7f7;
       box-shadow: 3px 0 12px rgba(0, 0, 0, 0.1);
@@ -873,7 +874,8 @@ $sidebar-transition-speed: 0.25s;
       height: 26px;
     }
   }
-  #PageMainSide-Apto:hover .logo-container {
+  #PageMainSide-Apto:hover .logo-container,
+  #PageMainSide-Apto:focus-within .logo-container {
     padding: 6px 10px 8px !important;
     .sidebar-logo-banner {
       display: block;
@@ -895,10 +897,12 @@ $sidebar-transition-speed: 0.25s;
     background-position: center !important;
     margin-bottom: 10px !important;
   }
-  #PageMainSide-Apto:hover #SuperSearchLaunch {
+  #PageMainSide-Apto:hover #SuperSearchLaunch,
+  #PageMainSide-Apto:focus-within #SuperSearchLaunch {
     display: flex !important;
   }
-  #PageMainSide-Apto:hover #SuperSearchLaunch > input {
+  #PageMainSide-Apto:hover #SuperSearchLaunch > input,
+  #PageMainSide-Apto:focus-within #SuperSearchLaunch > input {
     width: 100% !important;
     text-indent: 20px;
   }
