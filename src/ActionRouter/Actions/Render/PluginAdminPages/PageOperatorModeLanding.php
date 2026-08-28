@@ -56,14 +56,14 @@ class PageOperatorModeLanding extends BaseRender {
 				PluginNavs::MODE_INVESTIGATE,
 				'search',
 				__( 'Investigate Site', 'wp-simple-firewall' ),
-				__( 'Deep dive to explore every aspect of your site including users, plugins, themes & IP addresses.', 'wp-simple-firewall' ),
+				__( 'Users, activity, assets and IPs.', 'wp-simple-firewall' ),
 				__( 'Open Investigation', 'wp-simple-firewall' )
 			),
 			$this->buildDestinationCard(
 				PluginNavs::MODE_CONFIGURE,
 				'sliders',
 				__( 'Configure', 'wp-simple-firewall' ),
-				__( 'Fine tune your WordPress security coverage to exactly what you need.', 'wp-simple-firewall' ),
+				__( 'Set coverage and protection.', 'wp-simple-firewall' ),
 				__( 'Open Configure', 'wp-simple-firewall' )
 			),
 			$this->buildDestinationCard(

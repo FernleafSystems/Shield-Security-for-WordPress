@@ -234,6 +234,8 @@ test( 'dashboard status strip renders all real attention outcomes', async ( { pa
 		await expect( allClearOverview.locator( '[data-summary-id]' ) ).toHaveCount( 2 );
 		await expect( allClearOverview.locator( '[data-summary-id="scans"]' ) ).toHaveRole( 'link' );
 		await expect( allClearOverview.locator( '[data-summary-id="maintenance"]' ) ).toHaveRole( 'link' );
+		await expect( allClearOverview.locator( '[data-summary-id="scans"] .operator-mode-overview__summary-value' ) ).toHaveText( 'None waiting' );
+		await expect( allClearOverview.locator( '[data-summary-id="maintenance"] .operator-mode-overview__summary-value' ) ).toHaveText( 'Up to date' );
 
 		await fixtureApi.prepareDashboardMaintenanceWarningFixture();
 		await page.reload( { waitUntil: 'domcontentloaded' } );

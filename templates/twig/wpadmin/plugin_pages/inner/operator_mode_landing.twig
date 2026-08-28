@@ -3,8 +3,8 @@
 		<section class="operator-mode-overview__status shield-card"
 				 data-shield-tour="dashboard-actions"
 		         aria-label="{{ vars.dashboard_strip.overall.accessible_label }}">
-			<div class="shield-card-accent status-{{ vars.dashboard_strip.overall.status }}"></div>
 			<div class="operator-mode-overview__overall">
+				<div class="shield-card-accent status-{{ vars.dashboard_strip.overall.status }}"></div>
 				<span class="operator-mode-overview__overall-icon status-{{ vars.dashboard_strip.overall.status }}" aria-hidden="true">
 					<i class="{{ vars.dashboard_strip.overall.icon_class }}"></i>
 				</span>
@@ -20,12 +20,14 @@
 					   class="operator-mode-overview__summary status-{{ summary.status }}"
 					   data-summary-id="{{ summary.id|e('html_attr') }}"
 					   aria-label="{{ summary.accessible_label }}">
-						<span class="operator-mode-overview__summary-count">{{ summary.count }}</span>
 						<span class="operator-mode-overview__summary-copy">
 							<span class="operator-mode-overview__summary-label">{{ summary.label }}</span>
+							<span class="operator-mode-overview__summary-value">
+								{{ summary.value }}
+								<i class="bi bi-arrow-right" aria-hidden="true"></i>
+							</span>
 							<span class="operator-mode-overview__summary-text">{{ summary.summary }}</span>
 						</span>
-						<i class="bi bi-arrow-right" aria-hidden="true"></i>
 					</a>
 				{% endfor %}
 			</div>

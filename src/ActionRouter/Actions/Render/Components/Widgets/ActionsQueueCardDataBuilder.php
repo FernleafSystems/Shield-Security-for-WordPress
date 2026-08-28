@@ -35,6 +35,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  * @phpstan-type DashboardStripSummary array{
  *   id:string,
  *   label:string,
+ *   value:string,
  *   summary:string,
  *   accessible_label:string,
  *   count:int,
@@ -124,7 +125,7 @@ class ActionsQueueCardDataBuilder {
 		if ( $totalCount === 0 ) {
 			$status = 'good';
 			$title = __( 'All Clear', 'wp-simple-firewall' );
-			$summary = $this->buildDashboardOverallSummary( __( 'No security issues currently need attention.', 'wp-simple-firewall' ) );
+			$summary = $this->buildDashboardOverallSummary( __( 'Your site is protected. All systems operational.', 'wp-simple-firewall' ) );
 		}
 		elseif ( $this->normalizeSeverity( $scans[ 'severity' ] ) === 'critical'
 			 || $this->normalizeSeverity( $maintenance[ 'severity' ] ) === 'critical' ) {
@@ -176,7 +177,6 @@ class ActionsQueueCardDataBuilder {
 				$this->buildDashboardStripSummary(
 					'scans',
 					__( 'Security Issues', 'wp-simple-firewall' ),
-					sprintf( _n( '%s issue', '%s issues', $scanCount, 'wp-simple-firewall' ), $scanCount ),
 					$scanCount,
 					$this->localDashboardStatus( $scans ),
 					$href
@@ -184,7 +184,6 @@ class ActionsQueueCardDataBuilder {
 				$this->buildDashboardStripSummary(
 					'maintenance',
 					__( 'Maintenance', 'wp-simple-firewall' ),
-					sprintf( _n( '%s maintenance item', '%s maintenance items', $maintenanceCount, 'wp-simple-firewall' ), $maintenanceCount ),
 					$maintenanceCount,
 					$this->localDashboardStatus( $maintenance ),
 					$href
@@ -211,20 +210,59 @@ class ActionsQueueCardDataBuilder {
 	private function buildDashboardStripSummary(
 		string $id,
 		string $label,
-		string $summary,
 		int $count,
 		string $status,
 		string $href
 	) :array {
+		$value = $this->buildDashboardStripSummaryValue( $id, $count, $status );
+		$summary = $this->buildDashboardStripSummaryDetail( $id, $count, $status );
+
 		return [
 			'id'               => $id,
 			'label'            => $label,
+			'value'            => $value,
 			'summary'          => $summary,
-			'accessible_label' => $label.' '.$summary,
+			'accessible_label' => $label.' '.$value.' '.$summary,
 			'count'            => $count,
 			'status'           => $status,
 			'href'             => $href,
 		];
+	}
+
+	private function buildDashboardStripSummaryValue( string $id, int $count, string $status ) :string {
+		if ( $count < 1 ) {
+			return $id === 'scans'
+				? __( 'None waiting', 'wp-simple-firewall' )
+				: __( 'Up to date', 'wp-simple-firewall' );
+		}
+
+		if ( $id === 'scans' ) {
+			return $status === 'critical'
+				? sprintf( _n( '%s critical issue', '%s critical issues', $count, 'wp-simple-firewall' ), $count )
+				: sprintf( _n( '%s security issue', '%s security issues', $count, 'wp-simple-firewall' ), $count );
+		}
+
+		return $status === 'critical'
+			? sprintf( _n( '%s critical maintenance item', '%s critical maintenance items', $count, 'wp-simple-firewall' ), $count )
+			: sprintf( _n( '%s item due', '%s items due', $count, 'wp-simple-firewall' ), $count );
+	}
+
+	private function buildDashboardStripSummaryDetail( string $id, int $count, string $status ) :string {
+		if ( $count < 1 ) {
+			return $id === 'scans'
+				? __( 'No active critical or warning items.', 'wp-simple-firewall' )
+				: __( 'No maintenance items require review.', 'wp-simple-firewall' );
+		}
+
+		if ( $id === 'scans' ) {
+			return $status === 'critical'
+				? __( 'Critical security findings need review.', 'wp-simple-firewall' )
+				: __( 'Security findings need review.', 'wp-simple-firewall' );
+		}
+
+		return $status === 'critical'
+			? __( 'Critical maintenance work needs review.', 'wp-simple-firewall' )
+			: __( 'Routine maintenance items require review.', 'wp-simple-firewall' );
 	}
 
 	/**

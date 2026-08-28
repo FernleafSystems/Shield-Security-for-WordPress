@@ -250,8 +250,13 @@ class ActionsQueueCardDataBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 2, 3 ], \array_column( $strip[ 'summaries' ], 'count' ) );
 		$this->assertSame( [ 'warning', 'warning' ], \array_column( $strip[ 'summaries' ], 'status' ) );
 		$this->assertSame(
-			[ 'id', 'label', 'summary', 'accessible_label', 'count', 'status', 'href' ],
+			[ 'id', 'label', 'value', 'summary', 'accessible_label', 'count', 'status', 'href' ],
 			\array_keys( $strip[ 'summaries' ][ 0 ] )
+		);
+		$this->assertSame( [ '2 security issues', '3 items due' ], \array_column( $strip[ 'summaries' ], 'value' ) );
+		$this->assertSame(
+			[ 'Security findings need review.', 'Routine maintenance items require review.' ],
+			\array_column( $strip[ 'summaries' ], 'summary' )
 		);
 		$this->assertSame(
 			$dataHrefs = \array_column( $strip[ 'summaries' ], 'href' ),

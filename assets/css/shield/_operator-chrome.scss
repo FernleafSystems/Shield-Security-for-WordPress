@@ -1,7 +1,11 @@
 @import '../mode-palette';
 
+.inner-page-body-shell[data-operator-chrome="1"] {
+	container: operator-chrome / inline-size;
+}
+
 .shield-rail-layout.shield-rail-layout--context-end {
-	grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+	grid-template-columns: minmax(0, 1fr) minmax(224px, 240px);
 }
 
 .shield-rail-layout.shield-rail-layout--context-end > .shield-rail-layout__content {
@@ -352,7 +356,7 @@
 	line-height: 1.45;
 }
 
-@media (max-width: 991px) {
+@container operator-chrome (max-width: 1024px) {
 	.operator-step-tabs {
 		align-items: stretch;
 		flex-direction: column;
@@ -371,7 +375,7 @@
 	}
 }
 
-@media (max-width: 782px) {
+@container operator-chrome (max-width: 782px) {
 	.operator-step-tabs__actions {
 		align-self: stretch;
 	}

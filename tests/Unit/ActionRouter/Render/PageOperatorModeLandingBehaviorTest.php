@@ -96,6 +96,10 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			\array_column( $cards, 'cta' )
 		);
 		$this->assertSame(
+			[ 'Users, activity, assets and IPs.', 'Set coverage and protection.', 'Review security reports and trends.' ],
+			\array_column( $cards, 'description' )
+		);
+		$this->assertSame(
 			[ 'investigate', 'configure', 'reports' ],
 			\array_column( $cards, 'accent' )
 		);
