@@ -531,7 +531,7 @@
 
 @media (prefers-reduced-motion: reduce) {
 	.operator-mode-overview__summary,
-	.operator-mode-overview__summary > i,
+	.operator-mode-overview__summary-value > i,
 	.operator-mode-overview__destination,
 	.operator-mode-overview__destination-cta i {
 		transition: none;

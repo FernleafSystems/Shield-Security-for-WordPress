@@ -210,6 +210,15 @@ test( 'dashboard overview exposes status summaries and destination cards as acce
 	}
 } );
 
+test( 'dashboard overview respects reduced motion for summary links', async ( { page } ) => {
+	await page.emulateMedia( { reducedMotion: 'reduce' } );
+	await openShieldRoute( page, dashboardRoute );
+
+	const arrow = page.locator( '.operator-mode-overview__summary-value > i' ).first();
+	await expect( arrow ).toBeVisible();
+	expect( await arrow.evaluate( ( element ) => getComputedStyle( element ).transitionProperty ) ).toBe( 'none' );
+} );
+
 test( 'dashboard sidebar keeps dashboard first, separates actions, and preserves the dashboard geometry', async ( { page } ) => {
 	await page.setViewportSize( { width: 2400, height: 1100 } );
 	await openShieldRoute( page, dashboardRoute );
