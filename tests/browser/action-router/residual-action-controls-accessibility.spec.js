@@ -319,6 +319,8 @@ test( 'connected master sync-now button sends existing import request', async ( 
 		await syncButton.click();
 		await syncRequest;
 		await expect( syncButton ).toBeEnabled( { timeout: 15_000 } );
+		// Bootstrap transitions the button colours for 150ms after it is re-enabled.
+		await page.waitForTimeout( 200 );
 		await expectNoAxeViolations( page, '#SectionImportExportNetworkSync', [ 'heading-order' ] );
 	}, [ 'connected-master' ] );
 } );
