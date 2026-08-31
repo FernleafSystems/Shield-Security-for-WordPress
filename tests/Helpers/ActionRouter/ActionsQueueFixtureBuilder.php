@@ -15,7 +15,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
  *   scan_result_ids:list<int>,
  *   result_item_ids:list<int>,
  *   meta_ids:list<int>,
- *   file_lock_ids:list<int>
+ *   file_lock_ids:list<int>,
+ *   raw_option_stores:array<string,mixed>|null,
+ *   cloaked_plugin_paths:list<string>
  * }
  * @phpstan-type ScenarioContract array{
  *   scenario:string,
@@ -25,6 +27,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
  *   detail_shell:string,
  *   panel_target:string,
  *   is_lazy_panel:bool,
+ *   is_interactive:bool,
  *   context?:array<string,mixed>
  * }
  * @phpstan-type ScenarioDefinition array{
@@ -32,6 +35,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
  *   target_group_key:string,
  *   expected_detail_shell:string,
  *   expected_lazy_panel:bool,
+ *   expected_interactivity:bool,
  *   require_scan_results_table:bool,
  *   require_populated_scan_results_table:bool,
  *   context?:array<string,mixed>
@@ -111,12 +115,14 @@ class ActionsQueueFixtureBuilder {
 
 			$diagnostics = $this->runtimeProbe()->inspect();
 			$groupContext = $this->runtimeProbe()->locateGroupContext( $definition[ 'target_group_key' ] );
+			$group = $groupContext === null ? [] : $this->runtimeProbe()->inspectGroup( $groupContext );
 
 			return [
 				'scenario'      => $scenario,
 				'definition'    => $definition,
 				'group_context' => $groupContext,
-				'detail'        => $groupContext === null
+				'group'         => $group,
+				'detail'        => $groupContext === null || empty( $group[ 'is_interactive' ] )
 					? []
 					: $this->runtimeProbe()->inspectDetail( $groupContext ),
 				'diagnostics'   => $diagnostics,
@@ -161,6 +167,11 @@ class ActionsQueueFixtureBuilder {
 		RuntimeTestState::restoreOptions(
 			\is_array( $state[ 'options_snapshot' ] ?? null ) ? $state[ 'options_snapshot' ] : []
 		);
+		$this->removeCloakedPluginFixtureFiles( $state );
+		if ( \is_array( $state[ 'raw_option_stores' ] ?? null ) ) {
+			( new RawOptionStoreSnapshot() )->restore( $state[ 'raw_option_stores' ], 'Actions Queue cloaked fixture' );
+		}
+		$this->resetCloakedPluginFindingsCache();
 
 		\delete_site_transient( 'update_plugins' );
 		\wp_set_current_user( 0 );
@@ -189,6 +200,10 @@ class ActionsQueueFixtureBuilder {
 				return $this->seedIgnoredMalwareDirectTable( $state );
 			case 'file_locker_lazy':
 				return $this->seedFileLockerLazy( $state );
+			case 'empty_cloaked_plugins':
+				return $this->seedEmptyCloakedPlugins( $state );
+			case 'ignored_cloaked_plugins':
+				return $this->seedIgnoredCloakedPlugins( $state );
 			default:
 				throw new \RuntimeException( 'Unknown Actions Queue fixture scenario: '.$scenario );
 		}
@@ -245,6 +260,7 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'plugins:'.$pluginSlug,
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => true,
 			'require_scan_results_table'  => true,
 			'require_populated_scan_results_table' => true,
 		];
@@ -319,6 +335,7 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'plugins:'.$pluginSlug,
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => true,
 			'require_scan_results_table'  => true,
 			'require_populated_scan_results_table' => true,
 			'context'                     => [
@@ -385,6 +402,7 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'plugins:'.$pluginSlug,
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => true,
 			'require_scan_results_table'  => true,
 			'require_populated_scan_results_table' => true,
 		];
@@ -432,6 +450,7 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'wordpress',
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => true,
 			'require_scan_results_table'  => true,
 			'require_populated_scan_results_table' => true,
 		];
@@ -495,6 +514,7 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'themes:'.$themeSlug,
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => true,
 			'require_scan_results_table'  => true,
 			'require_populated_scan_results_table' => true,
 		];
@@ -540,6 +560,7 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'malware',
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => true,
 			'require_scan_results_table'  => true,
 			'require_populated_scan_results_table' => true,
 		];
@@ -575,6 +596,7 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'malware',
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => true,
 			'require_scan_results_table'  => true,
 			'require_populated_scan_results_table' => true,
 		];
@@ -632,9 +654,159 @@ class ActionsQueueFixtureBuilder {
 			'target_group_key'            => 'file_locker',
 			'expected_detail_shell'       => 'asset_cards',
 			'expected_lazy_panel'         => true,
+			'expected_interactivity'      => true,
 			'require_scan_results_table'  => false,
 			'require_populated_scan_results_table' => false,
 		];
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return ScenarioDefinition
+	 */
+	private function seedEmptyCloakedPlugins( array &$state ) :array {
+		$this->snapshotAndClearCloakedPluginState( $state );
+		$this->seedUnrelatedCriticalVulnerability( $state );
+
+		return [
+			'scenario'                    => 'empty_cloaked_plugins',
+			'target_group_key'            => 'hidden_plugins',
+			'expected_detail_shell'       => 'direct_table',
+			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => false,
+			'require_scan_results_table'  => false,
+			'require_populated_scan_results_table' => false,
+		];
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return ScenarioDefinition
+	 */
+	private function seedIgnoredCloakedPlugins( array &$state ) :array {
+		$this->snapshotAndClearCloakedPluginState( $state );
+		$pluginFile = $this->createCloakedPluginFixture( $state );
+		$identity = \sha1( \json_encode( [
+			'type' => \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\PluginType::Standard,
+			'file' => $pluginFile,
+		] ) ?: 'standard|'.$pluginFile );
+		$this->storeCloakedPluginState( [
+			$identity => [
+				'type'          => \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\PluginType::Standard,
+				'file'          => $pluginFile,
+				'cloak_reasons' => [ \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakReason::AllPlugins ],
+				'detected_at'   => 1700000000,
+			],
+		], [ $identity ] );
+		$this->seedUnrelatedCriticalVulnerability( $state );
+
+		return [
+			'scenario'                    => 'ignored_cloaked_plugins',
+			'target_group_key'            => 'hidden_plugins',
+			'expected_detail_shell'       => 'direct_table',
+			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => true,
+			'require_scan_results_table'  => false,
+			'require_populated_scan_results_table' => false,
+		];
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 */
+	private function snapshotAndClearCloakedPluginState( array &$state ) :void {
+		$state[ 'raw_option_stores' ] = ( new RawOptionStoreSnapshot() )->snapshot();
+		$this->storeCloakedPluginState( [], [] );
+	}
+
+	/**
+	 * @param array<string,array<string,mixed>> $findings
+	 * @param list<string> $ignoredIdentities
+	 */
+	private function storeCloakedPluginState( array $findings, array $ignoredIdentities ) :void {
+		$opts = RuntimeTestState::controller()->opts;
+		$opts->optSet( 'global_enable_plugin_features', 'Y' )
+			 ->optSet( \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::OPT_KEY, [] )
+			 ->optSet( \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::IGNORE_OPT_KEY, $ignoredIdentities )
+			 ->optSet( \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::FINDINGS_OPT_KEY, $findings )
+			 ->store();
+		RuntimeTestState::forcePersistOptions( [
+			'global_enable_plugin_features' => 'Y',
+			\FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::OPT_KEY      => [],
+			\FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::IGNORE_OPT_KEY => $ignoredIdentities,
+			\FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\CloakedPluginState::FINDINGS_OPT_KEY => $findings,
+		] );
+		$this->resetCloakedPluginFindingsCache();
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 */
+	private function seedUnrelatedCriticalVulnerability( array &$state ) :void {
+		RuntimeTestState::applyPremiumCapabilities( [ 'scan_vulnerabilities' ] );
+		RuntimeTestState::controller()->opts
+			->optSet( 'enable_wpvuln_scan', 'Y' )
+			->store();
+		RuntimeTestState::forcePersistOptions( [ 'enable_wpvuln_scan' => 'Y' ] );
+
+		$scanId = TestDataFactory::insertCompletedScan( 'wpv' );
+		$this->trackId( $state, 'scan_ids', $scanId );
+		$this->trackScanResult( $state, TestDataFactory::insertScanResultItemTracked( $scanId, [
+			'item_id'       => RuntimeTestState::controller()->base_file,
+			'is_vulnerable' => 1,
+		] ) );
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 */
+	private function createCloakedPluginFixture( array &$state ) :string {
+		$slug = 'shield-browser-cloaked-fixture';
+		$directory = \wp_normalize_path( WP_PLUGIN_DIR.'/'.$slug );
+		$path = $directory.'/'.$slug.'.php';
+		if ( !\is_dir( $directory ) && !\wp_mkdir_p( $directory ) ) {
+			throw new \RuntimeException( 'Unable to create the Cloaked Plugins fixture directory.' );
+		}
+		if ( \file_put_contents( $path, "<?php\n/*\nPlugin Name: Shield Browser Cloaked Fixture\nVersion: 1.0.0\n*/\nadd_action('init', static function () {});\n" ) === false ) {
+			throw new \RuntimeException( 'Unable to create the Cloaked Plugins fixture plugin.' );
+		}
+		$state[ 'cloaked_plugin_paths' ] = [ $directory, $path ];
+		$this->cleanPluginsCache();
+
+		return $slug.'/'.$slug.'.php';
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 */
+	private function removeCloakedPluginFixtureFiles( array $state ) :void {
+		foreach ( \array_reverse( \is_array( $state[ 'cloaked_plugin_paths' ] ?? null ) ? $state[ 'cloaked_plugin_paths' ] : [] ) as $path ) {
+			if ( \is_file( $path ) ) {
+				@\unlink( $path );
+			}
+			elseif ( \is_dir( $path ) ) {
+				@\rmdir( $path );
+			}
+		}
+		$this->cleanPluginsCache();
+	}
+
+	private function resetCloakedPluginFindingsCache() :void {
+		$currentState = new \ReflectionProperty( RuntimeTestState::controller()->comps->hidden_plugins, 'currentState' );
+		$currentState->setAccessible( true );
+		$currentState->setValue( RuntimeTestState::controller()->comps->hidden_plugins, null );
+	}
+
+	private function cleanPluginsCache() :void {
+		if ( !\function_exists( 'wp_clean_plugins_cache' ) && \defined( 'ABSPATH' ) ) {
+			$pluginApi = \rtrim( \str_replace( '\\', '/', ABSPATH ), '/' ).'/wp-admin/includes/plugin.php';
+			if ( \is_file( $pluginApi ) ) {
+				require_once $pluginApi;
+			}
+		}
+		if ( \function_exists( 'wp_clean_plugins_cache' ) ) {
+			\wp_clean_plugins_cache( false );
+		}
 	}
 
 	private function primeFileLockerApiMock( \FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\File $file ) :void {
@@ -672,6 +844,7 @@ class ActionsQueueFixtureBuilder {
 		\delete_option( self::FILE_LOCKER_API_MOCK_OPTION );
 		RuntimeTestState::clearFileLocks();
 		RuntimeTestState::resetScanResultCountMemoization();
+		$this->resetCloakedPluginFindingsCache();
 	}
 
 	/**
@@ -685,7 +858,9 @@ class ActionsQueueFixtureBuilder {
 			'scan_result_ids'  => [],
 			'result_item_ids'  => [],
 			'meta_ids'         => [],
-			'file_lock_ids'    => [],
+			'file_lock_ids'        => [],
+			'raw_option_stores'    => null,
+			'cloaked_plugin_paths' => [],
 		];
 	}
 
@@ -732,6 +907,38 @@ class ActionsQueueFixtureBuilder {
 				'Unable to locate Actions Queue group context for '.$definition[ 'target_group_key' ],
 				$diagnostics
 			) );
+		}
+		$group = $this->runtimeProbe()->inspectGroup( $groupContext );
+		$expectedInteractivity = (bool)( $definition[ 'expected_interactivity' ] ?? true );
+		if ( $group[ 'is_interactive' ] !== $expectedInteractivity ) {
+			throw new \RuntimeException( $this->buildScenarioFailureMessage(
+				$definition[ 'scenario' ],
+				\sprintf(
+					'Expected is_interactive=%s, got %s.',
+					$expectedInteractivity ? 'true' : 'false',
+					$group[ 'is_interactive' ] ? 'true' : 'false'
+				),
+				$diagnostics,
+				$groupContext,
+				$group
+			) );
+		}
+		if ( !$expectedInteractivity ) {
+			if ( $group[ 'detail_render_action' ] !== [] ) {
+				throw new \RuntimeException( $this->buildScenarioFailureMessage(
+					$definition[ 'scenario' ],
+					'Static Actions Queue group retained a detail render action.',
+					$diagnostics,
+					$groupContext,
+					$group
+				) );
+			}
+
+			return $this->buildScenarioContract( $definition, $groupContext, [
+				'detail_shell'  => $group[ 'detail_shell' ],
+				'panel_target'  => '',
+				'is_lazy_panel' => false,
+			], false );
 		}
 
 		$detail = $this->runtimeProbe()->inspectDetail( $groupContext );
@@ -790,14 +997,25 @@ class ActionsQueueFixtureBuilder {
 			) );
 		}
 
+		return $this->buildScenarioContract( $definition, $groupContext, $detail, true );
+	}
+
+	/**
+	 * @phpstan-param ScenarioDefinition $definition
+	 * @phpstan-param array{bucket_key:string,group_key:string,group_section:'active'|'healthy'} $groupContext
+	 * @param array{detail_shell:string,panel_target:string,is_lazy_panel:bool} $detail
+	 * @return ScenarioContract
+	 */
+	private function buildScenarioContract( array $definition, array $groupContext, array $detail, bool $isInteractive ) :array {
 		$contract = [
-			'scenario'      => $definition[ 'scenario' ],
-			'bucket_key'    => $groupContext[ 'bucket_key' ],
-			'group_key'     => $groupContext[ 'group_key' ],
-			'group_section' => $groupContext[ 'group_section' ],
-			'detail_shell'  => $detail[ 'detail_shell' ],
-			'panel_target'  => $detail[ 'panel_target' ],
-			'is_lazy_panel' => $detail[ 'is_lazy_panel' ],
+			'scenario'       => $definition[ 'scenario' ],
+			'bucket_key'     => $groupContext[ 'bucket_key' ],
+			'group_key'      => $groupContext[ 'group_key' ],
+			'group_section'  => $groupContext[ 'group_section' ],
+			'detail_shell'   => $detail[ 'detail_shell' ],
+			'panel_target'   => $detail[ 'panel_target' ],
+			'is_lazy_panel'  => $detail[ 'is_lazy_panel' ],
+			'is_interactive' => $isInteractive,
 		];
 
 		if ( \is_array( $definition[ 'context' ] ?? null ) ) {

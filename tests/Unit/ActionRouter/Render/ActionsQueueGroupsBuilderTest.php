@@ -1206,6 +1206,33 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $payload[ 'selected_group' ][ 'selection' ][ 'header' ][ 'actions' ] );
 	}
 
+	public function test_build_critical_bucket_keeps_empty_cloaked_plugins_noninteractive_without_a_detail_action() :void {
+		$payload = $this->createBuilder()->buildWithSelectedGroup(
+			'critical',
+			'hidden_plugins',
+			[ 'items' => [] ],
+			[
+				'scans' => [ [
+					'key'               => 'hidden_plugins',
+					'label'             => 'Cloaked Plugins',
+					'description'       => 'No cloaked plugins are currently detected.',
+					'drill_bucket'      => 'critical',
+					'item_icon_class'   => 'bi bi-eye-slash-fill',
+					'status'            => 'good',
+					'status_label'      => 'Good',
+					'status_icon_class' => 'bi bi-patch-check-fill',
+					'has_useful_detail' => false,
+				] ],
+				'maintenance' => [],
+			]
+		);
+		$group = $payload[ 'selected_group' ];
+
+		$this->assertFalse( $group[ 'is_interactive' ] );
+		$this->assertSame( [], $group[ 'render_action_data' ] );
+		$this->assertSame( [], $group[ 'selection' ][ 'detail_render_action' ] );
+	}
+
 	public function test_build_critical_bucket_includes_clickable_healthy_direct_scan_group_for_ignored_only_results() :void {
 		$builder = $this->createBuilder(
 			[],

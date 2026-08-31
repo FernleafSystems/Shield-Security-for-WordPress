@@ -122,6 +122,12 @@ function isActionsQueueGroupsRefreshRequest( request, fixture ) {
 		&& params.get( 'include_landing_refresh' ) === '1';
 }
 
+function isCloakedPluginsDetailRenderRequest( request ) {
+	const params = actionRouterParams( request );
+	return isAdminAjaxPost( request )
+		&& params.get( 'render_slug' ) === 'scanresults_cloakedplugins';
+}
+
 function isScanResultsTableReloadRequest( request ) {
 	const params = actionRouterParams( request );
 	return isAdminAjaxPost( request )
@@ -229,6 +235,70 @@ test( 'actions queue drills into groups and back out, opening details when avail
 
 		await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 		await expect( page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ).first() ).toBeVisible();
+	} );
+} );
+
+test( 'actions queue keeps empty Cloaked Plugins static while preserving static linked-card cursors', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'empty_cloaked_plugins', async ( fixture ) => {
+		const actionsQueuePage = new ActionsQueuePage( page );
+		let cloakedDetailRenderRequests = 0;
+		const countCloakedDetailRenderRequests = ( request ) => {
+			if ( isCloakedPluginsDetailRenderRequest( request ) ) {
+				cloakedDetailRenderRequests++;
+			}
+		};
+		page.on( 'request', countCloakedDetailRenderRequests );
+
+		try {
+			await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
+			const bucket = await actionsQueuePage.waitForBucket( fixture.bucket_key );
+			await actionsQueuePage.clickElement( bucket );
+			await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
+
+			const cloaked = await actionsQueuePage.waitForGroupOuter( fixture.group_key );
+			expect( await cloaked.evaluate( ( element ) => element.tagName ) ).toBe( 'DIV' );
+			await expect( cloaked ).not.toHaveAttribute( 'data-drill-target' );
+			await expect( cloaked ).not.toHaveAttribute( 'data-drill-bucket-selection' );
+			await expect( cloaked ).not.toHaveAttribute( 'data-drill-group-selection' );
+			await expect.poll( async () => await cloaked.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
+			await actionsQueuePage.clickElement( cloaked );
+			await delay( 250 );
+			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toHaveCount( 0 );
+			expect( cloakedDetailRenderRequests ).toBe( 0 );
+
+			const abandoned = await actionsQueuePage.waitForGroupOuter( 'abandoned' );
+			await expect.poll( async () => await abandoned.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
+			const vulnerabilities = await actionsQueuePage.waitForGroupOuter(
+				'vulnerabilities:vulnerability-plugin-wp-simple-firewall/icwp-wpsf.php'
+			);
+			const footerLink = vulnerabilities.locator( 'a' ).first();
+			await expect( footerLink ).toBeVisible();
+			await expect.poll( async () => await footerLink.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'pointer' );
+		}
+		finally {
+			page.off( 'request', countCloakedDetailRenderRequests );
+		}
+	} );
+} );
+
+test( 'actions queue keeps ignored Cloaked Plugins interactive with the Unignore context action', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withActionsQueueFixture( 'ignored_cloaked_plugins', async ( fixture ) => {
+		const actionsQueuePage = new ActionsQueuePage( page );
+		await openShieldRoute( page, { nav: 'scans', nav_sub: 'overview' } );
+		const bucket = await actionsQueuePage.waitForBucket( fixture.bucket_key );
+		await actionsQueuePage.clickElement( bucket );
+		const cloaked = await actionsQueuePage.waitForGroupOuter( fixture.group_key );
+		await expect( cloaked ).toHaveAttribute( 'data-drill-target', 'detail' );
+		await expect( cloaked ).toHaveAttribute( 'data-drill-group-selection', /"key":"hidden_plugins"/ );
+
+		await actionsQueuePage.clickElement( cloaked );
+		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+		const action = await operatorContextAjaxAction(
+			page.locator( '[data-actions-queue-detail="1"]' ),
+			( candidate ) => candidate?.ex === 'cloaked_plugin_unignore'
+		);
+		expect( action ).not.toBeNull();
+		await expect( action ).toBeVisible();
 	} );
 } );
 

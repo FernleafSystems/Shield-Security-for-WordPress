@@ -1,5 +1,8 @@
+{% set is_static_outer = group.card_type == 'category' or group.card_type == 'linked' or not group.is_interactive %}
+
 {% if group.card_type == 'category' %}
-	<div class="item-box{% if is_healthy %} item-box--good{% elseif bucket_selection.key == 'review' and group.status == 'warning' %} item-box--warning{% endif %}">
+	<div class="item-box{% if is_healthy %} item-box--good{% elseif bucket_selection.key == 'review' and group.status == 'warning' %} item-box--warning{% endif %}{% if is_static_outer %} actions-queue-group-card--static{% endif %}"
+		 data-actions-queue-group-key="{{ group.key|e('html_attr') }}">
 		<div class="item-box__header">
 			<span class="item-box__header-icon"><i class="{{ group.icon_class }}" aria-hidden="true"></i></span>
 			<span class="item-box__header-title">{{ group.label }}</span>
@@ -29,19 +32,20 @@
 {% else %}
 	{% include '/wpadmin/components/operator/tile_card.twig' with {
 		tile: {
-			tag: group.card_type == 'linked' or not group.is_interactive ? 'div' : 'button',
+			tag: is_static_outer ? 'div' : 'button',
 			status: group.status,
 			icon_class: group.icon_class,
 			title: group.label,
 			status_label: group.status_label,
 			oneliner: group.narrative,
-			data_drill_target: group.card_type == 'linked' or not group.is_interactive ? '' : 'detail',
+			data_drill_target: is_static_outer ? '' : 'detail',
 			data_drill_zone_selection: '',
-			data_drill_bucket_selection: group.card_type == 'linked' or not group.is_interactive ? '' : bucket_selection.selection_json,
-			data_drill_group_selection: group.card_type == 'linked' or not group.is_interactive ? '' : group.selection.selection_json,
+			data_drill_bucket_selection: is_static_outer ? '' : bucket_selection.selection_json,
+			data_drill_group_selection: is_static_outer ? '' : group.selection.selection_json,
 			data_reports_workspace_selection: '',
+			data_actions_queue_group_key: group.key,
 			is_disabled: false,
-			class_name: '',
+			class_name: is_static_outer ? 'actions-queue-group-card--static' : '',
 			footer_links: group.card_type == 'linked' ? group.links : []
 		}
 	} only %}

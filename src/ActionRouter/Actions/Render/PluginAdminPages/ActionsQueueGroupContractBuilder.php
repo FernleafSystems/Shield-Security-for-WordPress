@@ -34,6 +34,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   header_badge_status_override?:string,
  *   header_color_key_override?:string,
  *   context_actions_override?:list<OperatorChromeActionInput>,
+ *   suppress_detail_render_action_if_noninteractive?:bool,
  *   detail_table:array<string,mixed>,
  *   render_action_class_override?:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender>,
  *   render_action_data_override?:array<string,mixed>,
@@ -284,6 +285,11 @@ class ActionsQueueGroupContractBuilder {
 			$isInteractive = true;
 			$renderActionData = $definition[ 'render_action_data' ];
 		}
+		$suppressDetailRenderAction = !$isInteractive
+			&& !empty( $seed[ 'suppress_detail_render_action_if_noninteractive' ] );
+		if ( $suppressDetailRenderAction ) {
+			$renderActionData = [];
+		}
 		$contextActions = \array_key_exists( 'context_actions_override', $seed )
 			? $seed[ 'context_actions_override' ]
 			: $this->contextActionsBuilder->buildForGroup(
@@ -313,11 +319,13 @@ class ActionsQueueGroupContractBuilder {
 			$iconClass,
 			$seed[ 'item_count' ],
 			$seed[ 'detail_shell' ],
-			$this->buildDetailRenderAction(
-				$seed[ 'render_action_class_override' ]
-					?? $definition[ 'render_action_class' ],
-				$renderActionData
-			),
+			$suppressDetailRenderAction
+				? []
+				: $this->buildDetailRenderAction(
+					$seed[ 'render_action_class_override' ]
+						?? $definition[ 'render_action_class' ],
+					$renderActionData
+				),
 			$narrative,
 			$contextActions,
 			$headerOverrides

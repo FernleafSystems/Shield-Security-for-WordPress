@@ -192,6 +192,14 @@
 	margin: 0;
 }
 
+.actions-queue-groups .actions-queue-group-card--static {
+	cursor: default;
+}
+
+.actions-queue-groups .actions-queue-group-card--static .configure-zone-card__footer-link {
+	cursor: pointer;
+}
+
 .actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__icon,
 .actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__title,
 .actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__status,

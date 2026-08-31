@@ -280,6 +280,30 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'actions_queue', (string)( $group[ 'render_action_data' ][ 'display_context' ] ?? '' ) );
 	}
 
+	public function test_empty_cloaked_seed_suppresses_only_its_detail_render_contract() :void {
+		$groups = $this->newBuilder()->buildResolvedGroups( 'Fix now', [
+			$this->groupSeed( [
+				'key'                         => 'hidden_plugins',
+				'definition_key'              => 'hidden_plugins',
+				'label'                       => 'Cloaked Plugins',
+				'item_count'                  => 0,
+				'status'                      => 'good',
+				'is_interactive_override'     => false,
+				'render_action_data_override' => [],
+				'suppress_detail_render_action_if_noninteractive' => true,
+			] ),
+		] );
+		$cloaked = $groups[ 'groups_indexed' ][ 'hidden_plugins' ];
+
+		$this->assertFalse( $cloaked[ 'is_interactive' ] );
+		$this->assertSame( [], $cloaked[ 'render_action_data' ] );
+		$this->assertSame( [], $cloaked[ 'selection' ][ 'detail_render_action' ] );
+
+		$unrelated = $this->newBuilder()->buildEmptyGroup( 'abandoned', 'Fix now' );
+		$this->assertFalse( $unrelated[ 'is_interactive' ] );
+		$this->assertNotSame( [], $unrelated[ 'selection' ][ 'detail_render_action' ] );
+	}
+
 	/**
 	 * @param array<string,array<string,mixed>> $metadataByAsset
 	 */

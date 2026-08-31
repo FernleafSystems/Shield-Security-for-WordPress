@@ -85,7 +85,8 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 	 * @return list<AttentionItem>
 	 */
 	public function attentionItems() :array {
-		$count = \count( $this->activeFindings() );
+		$activeFindings = $this->activeFindings();
+		$count = \count( $activeFindings );
 		if ( $count < 1 ) {
 			return [];
 		}
@@ -125,6 +126,7 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 				'status'            => $status,
 				'status_label'      => $this->standardStatusLabel( $status ),
 				'status_icon_class' => $this->standardStatusIconClass( $status ),
+				'has_useful_detail' => $count > 0 || \count( $this->ignoredFindings() ) > 0,
 			],
 		];
 	}

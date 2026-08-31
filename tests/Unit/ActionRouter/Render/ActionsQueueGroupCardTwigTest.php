@@ -1,0 +1,116 @@
+<?php declare( strict_types=1 );
+
+namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
+
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use Twig\{
+	Environment,
+	Loader\FilesystemLoader
+};
+
+class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
+
+	use PluginPathsTrait;
+
+	public function test_group_card_exposes_neutral_key_and_keeps_static_outers_non_drilling() :void {
+		$category = $this->renderGroup( [
+			'key'             => 'maintenance',
+			'card_type'       => 'category',
+			'icon_class'      => 'bi bi-wrench',
+			'label'           => 'Maintenance',
+			'management_link' => [],
+			'maintenance_rows' => [],
+			'summary_row'     => [],
+			'status'          => 'good',
+			'is_interactive'  => false,
+		] );
+		$linked = $this->renderGroup( [
+			'key'             => 'vulnerabilities',
+			'card_type'       => 'linked',
+			'icon_class'      => 'bi bi-shield-fill-exclamation',
+			'label'           => 'Vulnerabilities',
+			'status'          => 'good',
+			'status_label'    => 'Good',
+			'narrative'       => 'No vulnerable assets remain.',
+			'is_interactive'  => false,
+			'links'           => [ [
+				'label'      => 'Open details',
+				'href'       => '#details',
+				'target'     => '',
+				'rel'        => '',
+				'icon_class' => '',
+			] ],
+		] );
+		$xpath = $this->xpath( $category.$linked );
+
+		$this->assertSame( 1, $xpath->query( '//*[@data-actions-queue-group-key="maintenance"]' )->length );
+		$this->assertSame(
+			1,
+			$xpath->query( '//div[@data-actions-queue-group-key="vulnerabilities" and contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card--static ") and not(@data-drill-target) and not(@data-drill-bucket-selection) and not(@data-drill-group-selection)]' )->length
+		);
+		$this->assertSame(
+			1,
+			$xpath->query( '//div[@data-actions-queue-group-key="vulnerabilities"]//a[@href="#details" and contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__footer-link ")]' )->length
+		);
+	}
+
+	public function test_tile_card_keeps_non_actions_queue_callers_unchanged_when_the_group_key_is_absent() :void {
+		$html = $this->twig()->render( '/wpadmin/components/operator/tile_card.twig', [
+			'tile' => [
+				'tag'                              => 'div',
+				'status'                           => 'good',
+				'class_name'                       => '',
+				'icon_class'                       => 'bi bi-shield',
+				'title'                            => 'Security Admin',
+				'status_label'                     => 'Good',
+				'oneliner'                         => '',
+				'footer_links'                     => [],
+				'data_drill_target'                => '',
+				'data_drill_zone_selection'        => '',
+				'data_drill_bucket_selection'      => '',
+				'data_drill_group_selection'       => '',
+				'data_reports_workspace_selection' => '',
+				'is_disabled'                      => false,
+			],
+		] );
+
+		$this->assertSame(
+			1,
+			$this->xpath( $html )->query( '//div[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ") and not(@data-actions-queue-group-key)]' )->length
+		);
+	}
+
+	/**
+	 * @param array<string,mixed> $group
+	 */
+	private function renderGroup( array $group ) :string {
+		return $this->twig()->render( '/wpadmin/components/actions_queue/group_card.twig', [
+			'group' => $group,
+			'bucket_selection' => [ 'key' => 'critical', 'selection_json' => '{}' ],
+			'is_healthy' => true,
+		] );
+	}
+
+	private function twig() :Environment {
+		return new Environment( new FilesystemLoader( $this->getPluginFilePath( 'templates/twig' ) ), [
+			'cache'            => false,
+			'debug'            => false,
+			'strict_variables' => true,
+		] );
+	}
+
+	private function xpath( string $html ) :\DOMXPath {
+		$dom = new \DOMDocument();
+		$previous = \libxml_use_internal_errors( true );
+		try {
+			$dom->loadHTML( '<?xml encoding="utf-8" ?><div>'.$html.'</div>', \LIBXML_HTML_NOIMPLIED | \LIBXML_HTML_NODEFDTD );
+		}
+		finally {
+			\libxml_clear_errors();
+			\libxml_use_internal_errors( $previous );
+		}
+
+		return new \DOMXPath( $dom );
+	}
+}
