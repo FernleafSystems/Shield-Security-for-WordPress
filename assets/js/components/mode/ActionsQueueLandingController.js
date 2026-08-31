@@ -2,6 +2,7 @@ import { AjaxService } from "../services/AjaxService";
 import { ObjectOps } from "../../util/ObjectOps";
 import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
+import { BootstrapModals } from "../ui/BootstrapModals";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
 import { ShieldTableBase } from "../tables/ShieldTableBase";
 import { announceStatus } from "../ui/ShieldA11y";
@@ -24,7 +25,40 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 		this.bindOperatorContextActionHandlers();
 		this.bindTableActionHandlers();
 		this.bindDrillDownHandlers();
+		this.bindProUpsellHandler();
 		this.initializeCurrentRoot();
+	}
+
+	bindProUpsellHandler() {
+		if ( this.hasBoundProUpsellHandler ) {
+			return;
+		}
+		this.hasBoundProUpsellHandler = true;
+
+		shieldEventsHandler_Main.add_Click(
+			'[data-actions-landing="1"] [data-actions-queue-pro-upsell="1"]',
+			( item ) => this.handleProUpsellClick( item ),
+			false
+		);
+	}
+
+	handleProUpsellClick( item ) {
+		const root = this.rootEl || this.getRoot();
+		const template = root?.querySelector( 'template' ) || null;
+		const modal = document.getElementById( 'ShieldModalContainer' );
+		const content = modal?.querySelector( '.modal-content' ) || null;
+		if ( root === null || !root.contains( item ) || template === null || !template.matches( '[data-actions-queue-pro-upsell-template="1"]' ) || modal === null || content === null ) {
+			return;
+		}
+
+		content.replaceChildren( template.content.cloneNode( true ) );
+		modal.classList.add( 'shield-modal--actions-queue-pro-upsell' );
+		const cleanupProUpsellModalState = () => modal.classList.remove( 'shield-modal--actions-queue-pro-upsell' );
+		modal.addEventListener( 'hidden.bs.modal', cleanupProUpsellModalState, { once: true } );
+		if ( !BootstrapModals.Show( modal ) ) {
+			modal.removeEventListener( 'hidden.bs.modal', cleanupProUpsellModalState );
+			cleanupProUpsellModalState();
+		}
 	}
 
 	bindDrillDownHandlers() {

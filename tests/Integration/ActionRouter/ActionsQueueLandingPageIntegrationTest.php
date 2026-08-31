@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTabl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansFileLockerEnableFile;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker as FileLockerPane,
 	Malware as MalwarePane,
@@ -115,6 +116,45 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			Constants::NAV_ID     => PluginNavs::NAV_SCANS,
 			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_SCANS_OVERVIEW,
 		] );
+	}
+
+	public function test_actions_queue_landing_exposes_the_complete_pro_upsell_modal_contract() :void {
+		$payload = $this->renderActionsQueueLandingPage();
+		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue Pro upsell modal contract' );
+		$upsell = $payload[ 'render_data' ][ 'vars' ][ 'actions_queue_pro_upsell' ] ?? [];
+
+		$this->assertSame( 'actions-queue-pro-upsell-template', $upsell[ 'template_id' ] ?? '' );
+		$this->assertNotSame( '', \trim( (string)( $upsell[ 'title_id' ] ?? '' ) ) );
+		$this->assertStringContainsString( 'plugin_logo_prem_dark.svg', (string)( $upsell[ 'logo_url' ] ?? '' ) );
+		$this->assertSame(
+			[
+				[ 'text' => 'Free protection is real.', 'emphasis' => '' ],
+				[ 'text' => 'Pro protection is ', 'emphasis' => 'complete.' ],
+			],
+			$upsell[ 'left_lines' ] ?? []
+		);
+		$this->assertSame( 'See what Shield Pro adds', $upsell[ 'heading' ] ?? '' );
+		$this->assertSame( 'Included', $upsell[ 'labels' ][ 'included' ] ?? '' );
+		$this->assertSame( 'Not included', $upsell[ 'labels' ][ 'not_included' ] ?? '' );
+		$this->assertSame( 'View Pro plans', $upsell[ 'labels' ][ 'view_pro_plans' ] ?? '' );
+		$this->assertSame( 'Compare every feature', $upsell[ 'labels' ][ 'compare_features' ] ?? '' );
+		$this->assertArrayNotHasKey( 'symbols', $upsell );
+		$this->assertSame(
+			[
+				[ 'label' => 'Core hardening', 'free' => true, 'pro' => true ],
+				[ 'label' => 'Auto bad bot blocking', 'free' => true, 'pro' => true ],
+				[ 'label' => 'WP core file scanning', 'free' => true, 'pro' => true ],
+				[ 'label' => 'Malware scanning with MAL{ai}', 'free' => false, 'pro' => true ],
+				[ 'label' => 'Vulnerability detection', 'free' => false, 'pro' => true ],
+				[ 'label' => 'Plugins and themes file scanning', 'free' => false, 'pro' => true ],
+				[ 'label' => 'Critical File Locker (wp-config.php)', 'free' => false, 'pro' => true ],
+				[ 'label' => 'ShieldBACKUP Disaster Recovery', 'free' => false, 'pro' => true ],
+			],
+			$upsell[ 'rows' ] ?? []
+		);
+		$this->assertNotContains( 'Update Controls', \array_column( $upsell[ 'rows' ] ?? [], 'label' ) );
+		$this->assertSame( BaseRender::GO_PRO_URL, $upsell[ 'hrefs' ][ 'go_pro' ] ?? '' );
+		$this->assertSame( BaseRender::COMPARE_FEATURES_URL, $upsell[ 'hrefs' ][ 'compare_features' ] ?? '' );
 	}
 
 	private function loadSelectedGroupPayload( string $bucket, string $groupKey, bool $includeLandingRefresh = false ) :array {

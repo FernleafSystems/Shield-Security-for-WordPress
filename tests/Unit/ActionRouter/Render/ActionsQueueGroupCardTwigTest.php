@@ -24,6 +24,7 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 			'summary_row'     => [],
 			'status'          => 'good',
 			'is_interactive'  => false,
+			'is_pro_upsell'   => false,
 		] );
 		$linked = $this->renderGroup( [
 			'key'             => 'vulnerabilities',
@@ -34,6 +35,7 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 			'status_label'    => 'Good',
 			'narrative'       => 'No vulnerable assets remain.',
 			'is_interactive'  => false,
+			'is_pro_upsell'   => false,
 			'links'           => [ [
 				'label'      => 'Open details',
 				'href'       => '#details',
@@ -78,6 +80,45 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 		$this->assertSame(
 			1,
 			$this->xpath( $html )->query( '//div[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ") and not(@data-actions-queue-group-key)]' )->length
+		);
+	}
+
+	public function test_pro_upsell_group_is_a_launcher_without_drill_attributes() :void {
+		$upsell = $this->renderGroup( [
+			'key'             => 'malware',
+			'card_type'       => 'expandable',
+			'icon_class'      => 'bi bi-bug-fill',
+			'label'           => 'MAL{ai} malware scanning',
+			'status'          => 'neutral',
+			'status_label'    => 'Upgrade Required',
+			'narrative'       => 'MAL{ai} malware scanning requires an upgrade.',
+			'is_interactive'  => true,
+			'is_pro_upsell'   => true,
+			'links'           => [],
+			'selection'       => [ 'selection_json' => '{"key":"malware"}' ],
+		] );
+		$ordinary = $this->renderGroup( [
+			'key'             => 'wordpress',
+			'card_type'       => 'expandable',
+			'icon_class'      => 'bi bi-wordpress',
+			'label'           => 'WordPress Core File Scanning',
+			'status'          => 'neutral',
+			'status_label'    => 'Not Enabled',
+			'narrative'       => 'WordPress Core File Scanning is not enabled.',
+			'is_interactive'  => true,
+			'is_pro_upsell'   => false,
+			'links'           => [],
+			'selection'       => [ 'selection_json' => '{"key":"wordpress"}' ],
+		] );
+		$xpath = $this->xpath( $upsell.$ordinary );
+
+		$this->assertSame(
+			1,
+			$xpath->query( '//button[@data-actions-queue-group-key="malware" and @data-actions-queue-pro-upsell="1" and not(@data-drill-target) and not(@data-drill-bucket-selection) and not(@data-drill-group-selection)]' )->length
+		);
+		$this->assertSame(
+			1,
+			$xpath->query( '//button[@data-actions-queue-group-key="wordpress" and @data-drill-target="detail" and @data-drill-bucket-selection and @data-drill-group-selection and not(@data-actions-queue-pro-upsell)]' )->length
 		);
 	}
 

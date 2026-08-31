@@ -204,9 +204,47 @@ class ActionsQueueFixtureBuilder {
 				return $this->seedEmptyCloakedPlugins( $state );
 			case 'ignored_cloaked_plugins':
 				return $this->seedIgnoredCloakedPlugins( $state );
+			case 'pro_upsell':
+				return $this->seedProUpsell( $state );
 			default:
 				throw new \RuntimeException( 'Unknown Actions Queue fixture scenario: '.$scenario );
 		}
+	}
+
+	/**
+	 * @phpstan-param FixtureState $state
+	 * @return ScenarioDefinition
+	 */
+	private function seedProUpsell( array &$state ) :array {
+		RuntimeTestState::disablePremiumCapabilities();
+		RuntimeTestState::controller()->opts
+			->optSet( 'enable_core_file_integrity_scan', 'N' )
+			->optSet( 'enable_wpvuln_scan', 'N' )
+			->optSet( 'enabled_scan_apc', 'N' )
+			->optSet( 'file_scan_areas', [] )
+			->optSet( 'file_locker', [] )
+			->store();
+		RuntimeTestState::forcePersistOptions( [
+			'enable_core_file_integrity_scan' => 'N',
+			'enable_wpvuln_scan'              => 'N',
+			'enabled_scan_apc'                => 'N',
+			'file_scan_areas'                 => [],
+			'file_locker'                     => [],
+		] );
+		RuntimeTestState::resetScanResultCountMemoization();
+
+		return [
+			'scenario'                    => 'pro_upsell',
+			'target_group_key'            => 'malware',
+			'expected_detail_shell'       => 'direct_table',
+			'expected_lazy_panel'         => false,
+			'expected_interactivity'      => true,
+			'require_scan_results_table'  => false,
+			'require_populated_scan_results_table' => false,
+			'context'                     => [
+				'pro_upsell_group_keys' => [ 'malware', 'vulnerabilities', 'plugins', 'themes', 'file_locker' ],
+			],
+		];
 	}
 
 	/**

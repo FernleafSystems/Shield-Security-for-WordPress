@@ -39,6 +39,7 @@
 			{% if tile.data_drill_group_selection is not empty %}data-drill-group-selection="{{ tile.data_drill_group_selection|e('html_attr') }}"{% endif %}
 			{% if tile.data_reports_workspace_selection is not empty %}data-reports-workspace-selection="{{ tile.data_reports_workspace_selection|e('html_attr') }}"{% endif %}
 			{% if tile.data_actions_queue_group_key is defined and tile.data_actions_queue_group_key is not empty %}data-actions-queue-group-key="{{ tile.data_actions_queue_group_key|e('html_attr') }}"{% endif %}
+			{% if tile.data_actions_queue_pro_upsell is defined and tile.data_actions_queue_pro_upsell == '1' %}data-actions-queue-pro-upsell="1"{% endif %}
 			{% if tile.is_disabled %}disabled{% endif %}>
 		{{ tile_body }}
 	</button>

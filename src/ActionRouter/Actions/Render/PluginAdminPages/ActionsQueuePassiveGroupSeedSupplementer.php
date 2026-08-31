@@ -13,6 +13,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  */
 class ActionsQueuePassiveGroupSeedSupplementer {
 
+	private const PRO_UPSELL_GROUP_KEYS = [
+		'malware',
+		'vulnerabilities',
+		'plugins',
+		'themes',
+		'file_locker',
+	];
+
 	private ActionsQueueGroupDefinitions $groupDefinitions;
 	private ActionsQueueMaintenanceGroupSeedBuilder $maintenanceSeedBuilder;
 	private ActionsQueueGroupMaintenanceSource $maintenanceSource;
@@ -179,7 +187,7 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				? __( 'Upgrade Required', 'wp-simple-firewall' )
 				: __( 'Not Enabled', 'wp-simple-firewall' );
 
-			$seeds[] = [
+			$seed = [
 				'key'                     => $definitionKey,
 				'definition_key'          => $definitionKey,
 				'label'                   => $definition[ 'label' ],
@@ -211,6 +219,11 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				'header_color_key_override'    => 'neutral',
 				'context_actions_override'     => [],
 			];
+			if ( $availability[ 'disabled_reason' ] === 'upgrade_required'
+				&& \in_array( $definitionKey, self::PRO_UPSELL_GROUP_KEYS, true ) ) {
+				$seed[ 'is_pro_upsell' ] = true;
+			}
+			$seeds[] = $seed;
 			if ( \in_array( $definitionKey, [ 'vulnerabilities', 'abandoned' ], true ) ) {
 				$seeds[ \array_key_last( $seeds ) ][ 'card_type_override' ] = 'expandable';
 			}

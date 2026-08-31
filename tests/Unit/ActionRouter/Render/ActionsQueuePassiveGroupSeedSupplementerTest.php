@@ -359,6 +359,53 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 		$this->assertSame( [], $seeds[ 0 ][ 'context_actions_override' ] );
 	}
 
+	public function test_supplement_marks_only_upgrade_required_protection_groups_for_pro_upsell() :void {
+		$eligibleKeys = [ 'malware', 'vulnerabilities', 'plugins', 'themes', 'file_locker' ];
+		$disabledGroups = [];
+		foreach ( $eligibleKeys as $key ) {
+			$disabledGroups[ $key ] = [
+				'disabled_reason'  => 'upgrade_required',
+				'disabled_message' => $key.' requires an upgrade.',
+			];
+		}
+		$disabledGroups[ 'wordpress' ] = [
+			'disabled_reason'  => 'upgrade_required',
+			'disabled_message' => 'WordPress core scanning requires an upgrade.',
+		];
+
+		$seeds = $this->newSupplementer()->supplement(
+			'critical',
+			[ 'attention_items' => [], 'disabled_groups' => $disabledGroups ],
+			[ 'scans' => [], 'maintenance' => [] ],
+			[]
+		);
+		$seedsByKey = \array_column( $seeds, null, 'key' );
+		$upsellKeys = \array_keys( \array_filter(
+			$seedsByKey,
+			static fn( array $seed ) :bool => !empty( $seed[ 'is_pro_upsell' ] )
+		) );
+
+		$this->assertSame( $eligibleKeys, $upsellKeys );
+		$this->assertArrayNotHasKey( 'is_pro_upsell', $seedsByKey[ 'wordpress' ] );
+
+		$notEnabledSeeds = $this->newSupplementer()->supplement(
+			'critical',
+			[
+				'attention_items' => [],
+				'disabled_groups' => [
+					'file_locker' => [
+						'disabled_reason'  => 'not_enabled',
+						'disabled_message' => 'File Locker is not enabled.',
+					],
+				],
+			],
+			[ 'scans' => [], 'maintenance' => [] ],
+			[]
+		);
+
+		$this->assertArrayNotHasKey( 'is_pro_upsell', $notEnabledSeeds[ 0 ] );
+	}
+
 	private function makePendingFileLockDisplays( array $displays ) :GetPendingFileLockDisplays {
 		return new class( $displays ) extends GetPendingFileLockDisplays {
 

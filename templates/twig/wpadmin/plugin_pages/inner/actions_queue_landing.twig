@@ -11,6 +11,14 @@
 		 data-actions-layer-retry="{{ strings.layer_retry }}"
 		 data-actions-queue-groups-action="{{ vars.actions_queue_ajax.groups_render_action_json }}">
 
+		{% if vars.actions_queue_pro_upsell is defined %}
+			<template id="{{ vars.actions_queue_pro_upsell.template_id }}" data-actions-queue-pro-upsell-template="1">
+				{% include '/wpadmin/plugin_pages/inner/actions_queue_pro_upsell_modal.twig' with {
+					upsell: vars.actions_queue_pro_upsell
+				} only %}
+			</template>
+		{% endif %}
+
 		{% if flags.has_drilldown_content %}
 			<div class="actions-landing__drilldown" data-actions-queue-section="drilldown">
 				{% include '/wpadmin/components/page/drill_down_shell.twig' with {

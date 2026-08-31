@@ -1,0 +1,34 @@
+<div class="modal-body actions-queue-pro-upsell__body">
+	<aside class="actions-queue-pro-upsell__left-panel">
+		<img class="actions-queue-pro-upsell__logo" src="{{ upsell.logo_url }}" alt="">
+		<div class="actions-queue-pro-upsell__left-copy">
+			{% for line in upsell.left_lines %}
+				<p>{{ line.text }}{% if line.emphasis != '' %}<span class="actions-queue-pro-upsell__emphasis">{{ line.emphasis }}</span>{% endif %}</p>
+			{% endfor %}
+		</div>
+	</aside>
+	<section class="actions-queue-pro-upsell__comparison">
+		<div class="modal-header actions-queue-pro-upsell__header">
+			<h2 class="modal-title" id="{{ upsell.title_id }}">{{ upsell.heading }}</h2>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ upsell.labels.close }}"></button>
+		</div>
+		<table class="table actions-queue-pro-upsell__table">
+			<thead>
+				<tr><th scope="col"><span class="visually-hidden">{{ upsell.labels.protection }}</span></th><th scope="col">{{ upsell.labels.free }}</th><th scope="col">{{ upsell.labels.pro }}</th></tr>
+			</thead>
+			<tbody>
+				{% for row in upsell.rows %}
+					<tr>
+						<th scope="row">{{ row.label }}</th>
+						<td class="actions-queue-pro-upsell__state actions-queue-pro-upsell__state--free"><span aria-hidden="true">{% if row.free %}✓{% else %}—{% endif %}</span><span class="visually-hidden">{% if row.free %}{{ upsell.labels.included }}{% else %}{{ upsell.labels.not_included }}{% endif %}</span></td>
+						<td class="actions-queue-pro-upsell__state actions-queue-pro-upsell__state--pro"><span aria-hidden="true">{% if row.pro %}✓{% else %}—{% endif %}</span><span class="visually-hidden">{% if row.pro %}{{ upsell.labels.included }}{% else %}{{ upsell.labels.not_included }}{% endif %}</span></td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+		<div class="actions-queue-pro-upsell__actions">
+			<a class="btn actions-queue-pro-upsell__button" href="{{ upsell.hrefs.go_pro }}" target="_blank" rel="noopener noreferrer">{{ upsell.labels.view_pro_plans }}</a>
+			<a class="actions-queue-pro-upsell__compare-link" href="{{ upsell.hrefs.compare_features }}" target="_blank" rel="noopener noreferrer">{{ upsell.labels.compare_features }} <span aria-hidden="true">→</span></a>
+		</div>
+	</section>
+</div>

@@ -82,6 +82,46 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 			'actions_queue_ajax' => [
 				'groups_render_action_json' => OperatorChromeContract::encodeJson( $groupsRenderAction ),
 			],
+			'actions_queue_pro_upsell' => [
+				'template_id' => 'actions-queue-pro-upsell-template',
+				'title_id'    => 'actions-queue-pro-upsell-title',
+				'logo_url'    => self::con()->urls->forImage( 'plugin_logo_prem_dark.svg' ),
+				'left_lines'  => [
+					[
+						'text'     => __( 'Free protection is real.', 'wp-simple-firewall' ),
+						'emphasis' => '',
+					],
+					[
+						'text'     => __( 'Pro protection is ', 'wp-simple-firewall' ),
+						'emphasis' => __( 'complete.', 'wp-simple-firewall' ),
+					],
+				],
+				'heading'     => __( 'See what Shield Pro adds', 'wp-simple-firewall' ),
+				'labels'      => [
+					'close'            => __( 'Close', 'wp-simple-firewall' ),
+					'protection'       => __( 'Protection', 'wp-simple-firewall' ),
+					'free'             => __( 'Free', 'wp-simple-firewall' ),
+					'pro'              => __( 'Pro', 'wp-simple-firewall' ),
+					'included'         => __( 'Included', 'wp-simple-firewall' ),
+					'not_included'     => __( 'Not included', 'wp-simple-firewall' ),
+					'view_pro_plans'   => __( 'View Pro plans', 'wp-simple-firewall' ),
+					'compare_features' => __( 'Compare every feature', 'wp-simple-firewall' ),
+				],
+				'rows'        => [
+					[ 'label' => __( 'Core hardening', 'wp-simple-firewall' ), 'free' => true, 'pro' => true ],
+					[ 'label' => __( 'Auto bad bot blocking', 'wp-simple-firewall' ), 'free' => true, 'pro' => true ],
+					[ 'label' => __( 'WP core file scanning', 'wp-simple-firewall' ), 'free' => true, 'pro' => true ],
+					[ 'label' => __( 'Malware scanning with MAL{ai}', 'wp-simple-firewall' ), 'free' => false, 'pro' => true ],
+					[ 'label' => __( 'Vulnerability detection', 'wp-simple-firewall' ), 'free' => false, 'pro' => true ],
+					[ 'label' => __( 'Plugins and themes file scanning', 'wp-simple-firewall' ), 'free' => false, 'pro' => true ],
+					[ 'label' => __( 'Critical File Locker (wp-config.php)', 'wp-simple-firewall' ), 'free' => false, 'pro' => true ],
+					[ 'label' => __( 'ShieldBACKUP Disaster Recovery', 'wp-simple-firewall' ), 'free' => false, 'pro' => true ],
+				],
+				'hrefs'       => [
+					'go_pro'           => self::GO_PRO_URL,
+					'compare_features' => self::COMPARE_FEATURES_URL,
+				],
+			],
 		] );
 	}
 

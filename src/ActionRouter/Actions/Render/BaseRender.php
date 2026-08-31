@@ -16,6 +16,7 @@ abstract class BaseRender extends BaseAction {
 
 	public const TEMPLATE = '';
 	public const GO_PRO_URL = 'https://clk.shldscrty.com/shieldgoprofeature';
+	public const COMPARE_FEATURES_URL = 'https://clk.shldscrty.com/gp';
 	public const RENDER_ERROR_EXCEPTION = 'render_exception';
 
 	private string $renderErrorCode = '';
@@ -179,6 +180,7 @@ abstract class BaseRender extends BaseAction {
 				'aar_forget_key' => $con->labels->url_secadmin_forgotten_key,
 				'plugin_home'    => $con->labels->PluginURI,
 				'go_pro'         => self::GO_PRO_URL,
+				'compare_features' => self::COMPARE_FEATURES_URL,
 				'goprofooter'    => 'https://clk.shldscrty.com/goprofooter',
 
 				'dashboard_home' => $con->plugin_urls->adminHome(),

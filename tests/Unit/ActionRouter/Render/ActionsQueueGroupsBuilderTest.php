@@ -467,12 +467,15 @@ class ActionsQueueGroupsBuilderTest extends BaseUnitTest {
 		$this->assertSame( [ 'wordpress', 'file_locker', 'vulnerabilities' ], \array_keys( $groups ) );
 		$this->assertSame( 'neutral', $groups[ 'wordpress' ][ 'status' ] );
 		$this->assertTrue( $groups[ 'wordpress' ][ 'is_interactive' ] );
+		$this->assertFalse( $groups[ 'wordpress' ][ 'is_pro_upsell' ] );
 		$this->assertSame( 'expandable', $groups[ 'vulnerabilities' ][ 'card_type' ] );
+		$this->assertTrue( $groups[ 'vulnerabilities' ][ 'is_pro_upsell' ] );
 		$this->assertSame(
 			$groups[ 'vulnerabilities' ][ 'status_label' ],
 			$groups[ 'vulnerabilities' ][ 'selection' ][ 'header' ][ 'badge' ] ?? ''
 		);
 		$this->assertSame( 'expandable', $groups[ 'file_locker' ][ 'card_type' ] );
+		$this->assertTrue( $groups[ 'file_locker' ][ 'is_pro_upsell' ] );
 	}
 
 	public function test_build_surfaces_cloaked_plugin_security_check_as_own_scan_group() :void {
