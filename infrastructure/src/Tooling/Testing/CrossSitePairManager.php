@@ -27,9 +27,22 @@ class CrossSitePairManager {
 	private const REUSABLE_DOCKER_RUN_ID = 'shield-plugin-cross-site-reusable';
 	private const REUSABLE_DOCKER_EXPIRES_AT = '2037-12-31T23:59:59+00:00';
 	private const HELPER_FILE = '/app/tests/Helpers/CrossSite/CrossSiteRuntime.php';
+	private const PUBLIC_VERSION = '22.1.3';
+	private const PLUGIN_SLUG = 'wp-simple-firewall';
+	private const PLUGIN_FILE = 'wp-simple-firewall/icwp-wpsf.php';
+	private const PUBLIC_IMPORT_FIXTURE = '/app/tests/fixtures/cross-site/public-22.1.3-import.json';
+	private const PUBLIC_RUNTIME_FIXTURE = '/app/tests/fixtures/cross-site/public-22.1.3-runtime.php';
+	private const PUBLIC_RUNTIME_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-public-22.1.3-runtime.php';
+	private const PUBLIC_RUNTIME_API_KEY = 'shield-cross-site-public-license-key';
+	private const PUBLIC_RUNTIME_SITE_SECRET = '0123456789abcdef0123456789abcdef01234567';
+	private const AUTOMATIC_CRON_BLOCKER_FIXTURE = '/app/tests/fixtures/cross-site/block-automatic-cron.php';
+	private const AUTOMATIC_CRON_BLOCKER_TARGET = '/var/www/html/wp-content/mu-plugins/shield-cross-site-block-automatic-cron.php';
+	private const UPDATE_PROVIDER_FIXTURE = '/app/tests/fixtures/upgrade-public/update-provider.php';
+	private const UPDATE_CONFIG_FIXTURE = '/app/tests/fixtures/upgrade-public/write-update-config.php';
+	private const UPDATE_PACKAGE_DIR = '/var/www/html/wp-content/uploads/shield-cross-site-upgrade';
+	private const UPDATE_PACKAGE_FILE = self::UPDATE_PACKAGE_DIR.'/wp-simple-firewall-current.zip';
 	private const STATUS_ACTIVE = 'active';
 	private const QUEUE_IDLE = 'idle';
-	private const QUEUE_QUEUED = 'queued';
 	private const QUEUE_WAITING_EXPORT = 'waiting_export';
 	private const EXPORT_RESULT_SUCCESS = 'success';
 	private const WP_CLI_INVALID_CRON_EVENT = 'Invalid cron event';
@@ -44,6 +57,8 @@ class CrossSitePairManager {
 
 	private SourceSetupCacheCoordinator $setupCacheCoordinator;
 
+	private PublicUpgradePackageZipResolver $packageZipResolver;
+
 	private string $lastStage = 'not started';
 
 	/** @var array<string,mixed> */
@@ -54,13 +69,15 @@ class CrossSitePairManager {
 		?TestingEnvironmentResolver $environmentResolver = null,
 		?DockerComposeExecutor $dockerComposeExecutor = null,
 		?LocalSiteRuntimeRefresher $runtimeRefresher = null,
-		?SourceSetupCacheCoordinator $setupCacheCoordinator = null
+		?SourceSetupCacheCoordinator $setupCacheCoordinator = null,
+		?PublicUpgradePackageZipResolver $packageZipResolver = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$this->environmentResolver = $environmentResolver ?? new TestingEnvironmentResolver( $this->processRunner );
 		$this->dockerComposeExecutor = $dockerComposeExecutor ?? new DockerComposeExecutor( $this->processRunner );
 		$this->runtimeRefresher = $runtimeRefresher ?? new LocalSiteRuntimeRefresher( $this->processRunner );
 		$this->setupCacheCoordinator = $setupCacheCoordinator ?? new SourceSetupCacheCoordinator();
+		$this->packageZipResolver = $packageZipResolver ?? new PublicUpgradePackageZipResolver( $this->processRunner );
 	}
 
 	public function prepare( string $rootDir, string $mode, bool $showSetupOutput = false ) :void {
@@ -137,34 +154,180 @@ class CrossSitePairManager {
 			);
 		}
 
-		$this->stage( 'refresh master runtime' );
-		$this->refreshRuntime( $rootDir, self::MASTER_WORDPRESS_SERVICE, $envOverrides, $onOutput );
-		$this->stage( 'refresh slave runtime' );
-		$this->refreshRuntime( $rootDir, self::SLAVE_WORDPRESS_SERVICE, $envOverrides, $onOutput );
+		if ( $mode === 'clean' ) {
+			$this->provisionSites( $rootDir, $envOverrides, $onOutput, true );
+		}
+		else {
+			$this->refreshCheckoutRuntimeWithEnvironment( $rootDir, $envOverrides, $onOutput );
+		}
+	}
 
-		$this->stage( 'provision master site' );
-		$this->runProvision( $rootDir, self::MASTER, $envOverrides, $onOutput );
-		$this->stage( 'provision slave site' );
-		$this->runProvision( $rootDir, self::SLAVE, $envOverrides, $onOutput );
-		$this->stage( 'wait for master internal HTTP' );
-		$this->waitForInternalHttpReady( $rootDir, self::SLAVE, self::MASTER_INTERNAL_URL.'/wp-login.php' );
-		$this->stage( 'wait for slave internal HTTP' );
-		$this->waitForInternalHttpReady( $rootDir, self::MASTER, self::SLAVE_INTERNAL_URL.'/wp-login.php' );
+	public function refreshCheckoutRuntime( string $rootDir, bool $showSetupOutput = false ) :void {
+		$this->refreshCheckoutRuntimeWithEnvironment(
+			$rootDir,
+			$this->buildRuntimeEnvOverrides( $rootDir ),
+			$this->setupOutputHandler( $showSetupOutput )
+		);
+	}
+
+	public function refreshCheckoutRuntimeAfterPublicUpgrade( string $rootDir, bool $showSetupOutput = false ) :void {
+		foreach ( [ self::MASTER, self::SLAVE ] as $site ) {
+			$this->stage( 'remove public '.$site.' runtime for checkout refresh' );
+			$this->removePublicPluginForCheckoutRefresh( $rootDir, $site );
+		}
+		$this->refreshCheckoutRuntime( $rootDir, $showSetupOutput );
+	}
+
+	public function runPublicUpgradeScenario( string $rootDir, string $archiveWorkspace ) :void {
+		$this->stage( 'build checkout package for public upgrade' );
+		$artifacts = PublicUpgradeArtifacts::resolve( $rootDir, $archiveWorkspace );
+		$artifacts->resetForRun();
+		$metadata = $this->packageZipResolver->resolve( $rootDir, null, $artifacts );
+		$this->assertUpgradePackageMetadata( $metadata );
+		$this->lastDiagnostics[ 'public_upgrade_package' ] = [
+			'path' => $metadata->zipPath(),
+			'version' => $metadata->version(),
+			'plugin_file' => $metadata->pluginFile(),
+		];
+
+		$this->stage( 'install public Shield on cross-site pair' );
+		foreach ( [ self::MASTER, self::SLAVE ] as $site ) {
+			$this->installPublicPlugin( $rootDir, $site );
+		}
+
+		$this->stage( 'install cross-site automatic cron blocker fixture' );
+		$this->installAutomaticCronBlockerFixture( $rootDir );
+
+		try {
+			$this->stage( 'install public 22.1.3 runtime fixture' );
+			$this->installPublicRuntimeFixture( $rootDir );
+
+			$this->stage( 'connect public slave to master' );
+			foreach ( [ self::MASTER, self::SLAVE ] as $site ) {
+				$this->wpCapture( $rootDir, $site, [
+					'shield',
+					'pro-license',
+					'--action=activate',
+					'--api-key='.self::PUBLIC_RUNTIME_API_KEY,
+					'--force',
+				] );
+			}
+			$this->wpCapture( $rootDir, self::SLAVE, [
+				'shield',
+				'import',
+				'--source='.self::MASTER_INTERNAL_URL,
+				'--site-secret='.self::PUBLIC_RUNTIME_SITE_SECRET,
+				'--slave=add',
+				'--force',
+			] );
+			$this->lastDiagnostics[ 'public_connection_options' ] = $this->publicCliOptionsSnapshot( $rootDir, self::SLAVE );
+
+			$this->stage( 'import public master fixture' );
+			$this->wpCapture( $rootDir, self::MASTER, [
+				'shield',
+				'import',
+				'--source='.self::PUBLIC_IMPORT_FIXTURE,
+				'--force',
+			] );
+
+			$this->stage( 'set public master legacy sync value' );
+			$this->setShieldOptionViaCli( $rootDir, self::MASTER, 'importexport_enable', 'Y' );
+			$this->assertPublicCliOption( $rootDir, self::MASTER, 'importexport_enable', 'Y' );
+			$this->lastDiagnostics[ 'public_master_legacy_value' ] = [
+				'importexport_enable' => 'Y',
+			];
+
+			$this->stage( 'set distinct public slave options' );
+			foreach ( [
+				'display_plugin_badge' => 'disabled',
+				'visitor_address_source' => 'AUTO_DETECT_IP',
+				'enable_tracking' => 'N',
+			] as $key => $value ) {
+				$this->setShieldOptionViaCli( $rootDir, self::SLAVE, $key, $value );
+				$this->assertPublicCliOption( $rootDir, self::SLAVE, $key, $value );
+			}
+			$this->lastDiagnostics[ 'public_pre_transfer_options' ] = [
+				'display_plugin_badge' => 'disabled',
+				'visitor_address_source' => 'AUTO_DETECT_IP',
+				'enable_tracking' => 'N',
+			];
+
+			$this->stage( 'run public cross-site cron sync' );
+			$this->runPublicCronSync( $rootDir );
+			$this->assertPublicCliOption( $rootDir, self::SLAVE, 'display_plugin_badge', 'light' );
+			$this->assertPublicCliOption( $rootDir, self::SLAVE, 'visitor_address_source', 'REMOTE_ADDR' );
+			$this->assertPublicCliOption( $rootDir, self::SLAVE, 'enable_tracking', 'N' );
+		}
+		finally {
+			$this->stage( 'remove public 22.1.3 runtime fixture' );
+			$this->removePublicRuntimeFixture( $rootDir );
+		}
+
+		$this->stage( 'configure cross-site update provider' );
+		$this->configureUpdateProvider( $rootDir, $metadata );
+
+		$this->stage( 'update cross-site pair through WordPress' );
+		$updates = [];
+		foreach ( [ self::MASTER, self::SLAVE ] as $site ) {
+			$result = $this->runPluginUpdate( $rootDir, $site );
+			$this->assertPluginUpdateResult( $result, $metadata );
+			$this->assertInstalledPluginVersion( $rootDir, $site, $metadata->version(), 'native update' );
+			$updates[ $site ] = $result;
+		}
+		$this->lastDiagnostics[ 'public_upgrade_results' ] = $updates;
+
+		$this->stage( 'process migrated master queue' );
+		$this->runMasterSitesQueueEvent( $rootDir );
+
+		$this->stage( 'capture migrated master state' );
+		$migrationBeforeSlaveImport = $this->runHelper( $rootDir, self::MASTER, 'migration-state' );
+		$queueBeforeSlaveImport = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
+		$this->lastDiagnostics[ 'master_queue_after_notify_dispatch' ] = $queueBeforeSlaveImport;
+		$this->assertPostNotifyDispatchQueueState( $queueBeforeSlaveImport );
+		$this->assertPublicMigrationState( $migrationBeforeSlaveImport );
+
+		$this->stage( 'reset current slave values before scheduled import' );
+		foreach ( [
+			'display_plugin_badge' => 'disabled',
+			'visitor_address_source' => 'AUTO_DETECT_IP',
+			'enable_tracking' => 'N',
+		] as $key => $value ) {
+			$this->setShieldOptionViaCli( $rootDir, self::SLAVE, $key, $value );
+			$this->assertPublicCliOption( $rootDir, self::SLAVE, $key, $value );
+		}
+		$slaveBeforeImport = $this->publicSlaveSnapshot( $rootDir );
+		$this->assertPublicSlaveOptions( $slaveBeforeImport, 'disabled', 'AUTO_DETECT_IP', 'N', 'before current import' );
+
+		$this->stage( 'run scheduled migrated slave import' );
+		$this->runScheduledCronEvent(
+			$rootDir,
+			self::SLAVE,
+			(array)$slaveBeforeImport[ 'cron' ],
+			'import_hook',
+			'import_scheduled'
+		);
+		$queueAfterImport = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
+		$this->assertPostExportQueueState( $queueAfterImport );
+		$this->assertPublicQueueTransition( $queueBeforeSlaveImport, $queueAfterImport );
+
+		$this->stage( 'assert scheduled import causality' );
+		$migrationAfterSlaveImport = $this->runHelper( $rootDir, self::MASTER, 'migration-state' );
+		$slaveAfterImport = $this->publicSlaveSnapshot( $rootDir );
+		$this->assertPublicSlaveOptions( $slaveAfterImport, 'light', 'REMOTE_ADDR', 'N', 'after current import' );
+		$this->assertMigrationStateUnchanged( $migrationBeforeSlaveImport, $migrationAfterSlaveImport );
+		$this->lastDiagnostics[ 'public_migration' ] = [
+			'before_slave_import' => $migrationBeforeSlaveImport,
+			'after_slave_import' => $migrationAfterSlaveImport,
+			'queue_before_slave_import' => $queueBeforeSlaveImport,
+			'queue_after_slave_import' => $queueAfterImport,
+			'slave_before_import' => $slaveBeforeImport,
+			'slave_after_import' => $slaveAfterImport,
+		];
+		$this->assertExportsMatch( $rootDir, (array)( $migrationBeforeSlaveImport[ 'root_xfer_excluded' ] ?? [] ) );
 	}
 
 	public function runImportExportScenario( string $rootDir ) :void {
 		$this->stage( 'setup cross-site runtime state' );
-		$this->runHelper( $rootDir, self::MASTER, 'setup', [ 'role' => self::MASTER ] );
-		$this->runHelper( $rootDir, self::SLAVE, 'setup', [ 'role' => self::SLAVE ] );
-
-		$this->stage( 'verify legacy import/export registry migration' );
-		$legacyMigration = $this->runHelper( $rootDir, self::MASTER, 'legacy-migration-check', [
-			'slave_url' => self::SLAVE_INTERNAL_URL,
-		] );
-		$this->lastDiagnostics[ 'legacy_migration' ] = $legacyMigration;
-		$this->assertLegacyMigration( $legacyMigration );
-
-		$this->stage( 'reset cross-site runtime state after legacy migration check' );
 		$this->runHelper( $rootDir, self::MASTER, 'setup', [ 'role' => self::MASTER ] );
 		$this->runHelper( $rootDir, self::SLAVE, 'setup', [ 'role' => self::SLAVE ] );
 
@@ -205,7 +368,7 @@ class CrossSitePairManager {
 		$corpus = $this->runHelper( $rootDir, self::MASTER, 'apply-corpus' );
 		$this->lastDiagnostics[ 'corpus' ] = $this->summariseCorpusDiagnostics( $corpus );
 
-		$this->stage( 'run legacy notify compatibility hook' );
+		$this->stage( 'trigger master option-save notification' );
 		$this->lastDiagnostics[ 'legacy_notify' ] = $this->runHelper( $rootDir, self::MASTER, 'run-notify-hook' );
 
 		$this->stage( 'process master DB-backed site queue' );
@@ -250,7 +413,466 @@ class CrossSitePairManager {
 		return self::SLAVE_DB_NAME;
 	}
 
+	private function assertUpgradePackageMetadata( PublicUpgradePackageZipMetadata $metadata ) :void {
+		if ( \version_compare( $metadata->version(), self::PUBLIC_VERSION, '<=' ) ) {
+			throw new \RuntimeException(
+				'Checkout package version '.$metadata->version().' must be greater than public version '.self::PUBLIC_VERSION.'.'
+			);
+		}
+		if ( $metadata->pluginFile() !== self::PLUGIN_FILE ) {
+			throw new \RuntimeException( 'Checkout package did not contain the expected Shield plugin artifact.' );
+		}
+	}
+
+	private function assertInstalledPluginVersion(
+		string $rootDir,
+		string $site,
+		string $expectedVersion,
+		string $context
+	) :void {
+		$captured = $this->wpCapture( $rootDir, $site, [
+			'plugin',
+			'get',
+			self::PLUGIN_SLUG,
+			'--field=version',
+		] );
+		$actualVersion = \trim( $captured[ 'stdout' ] );
+		if ( $actualVersion !== $expectedVersion ) {
+			throw new \RuntimeException(
+				'Shield version on '.$site.' after '.$context.' was '.$actualVersion.', expected '.$expectedVersion.'.'
+			);
+		}
+	}
+
+	private function installPublicPlugin( string $rootDir, string $site ) :void {
+		$this->wpCapture( $rootDir, $site, [
+			'plugin',
+			'install',
+			self::PLUGIN_SLUG,
+			'--version='.self::PUBLIC_VERSION,
+			'--activate',
+			'--force',
+		] );
+		$this->assertInstalledPluginVersion( $rootDir, $site, self::PUBLIC_VERSION, 'public install' );
+	}
+
+	private function removePublicPluginForCheckoutRefresh( string $rootDir, string $site ) :void {
+		$this->wpCapture( $rootDir, $site, [ 'plugin', 'deactivate', self::PLUGIN_SLUG ] );
+		$this->wpCapture( $rootDir, $site, [ 'plugin', 'delete', self::PLUGIN_SLUG ] );
+	}
+
+	private function installAutomaticCronBlockerFixture( string $rootDir ) :void {
+		foreach ( [ self::MASTER, self::SLAVE ] as $site ) {
+			$this->runSiteShell(
+				$rootDir,
+				$site,
+				'mkdir -p /var/www/html/wp-content/mu-plugins'
+				.' && cp '.self::AUTOMATIC_CRON_BLOCKER_FIXTURE.' '.self::AUTOMATIC_CRON_BLOCKER_TARGET
+			);
+		}
+	}
+
+	private function installPublicRuntimeFixture( string $rootDir ) :void {
+		foreach ( [ self::MASTER, self::SLAVE ] as $site ) {
+			$this->runSiteShell(
+				$rootDir,
+				$site,
+				'mkdir -p /var/www/html/wp-content/mu-plugins'
+				.' && cp '.self::PUBLIC_RUNTIME_FIXTURE.' '.self::PUBLIC_RUNTIME_TARGET
+			);
+		}
+	}
+
+	private function removePublicRuntimeFixture( string $rootDir ) :void {
+		foreach ( [ self::MASTER, self::SLAVE ] as $site ) {
+			$this->runSiteShell( $rootDir, $site, 'rm -f '.self::PUBLIC_RUNTIME_TARGET );
+		}
+	}
+
+	private function configureUpdateProvider(
+		string $rootDir,
+		PublicUpgradePackageZipMetadata $metadata
+	) :void {
+		$relativeZip = \str_replace( '\\', '/', Path::makeRelative( $metadata->zipPath(), $rootDir ) );
+		if ( $relativeZip === '' || \strpos( $relativeZip, '../' ) === 0 ) {
+			throw new \RuntimeException( 'Cross-site update package must be inside the repository workspace.' );
+		}
+		$sha256 = \hash_file( 'sha256', $metadata->zipPath() );
+		if ( !\is_string( $sha256 ) || !\preg_match( '/^[a-f0-9]{64}$/', $sha256 ) ) {
+			throw new \RuntimeException( 'Could not calculate the cross-site update package identity.' );
+		}
+		$packageUrl = self::MASTER_INTERNAL_URL.'/wp-content/uploads/shield-cross-site-upgrade/wp-simple-firewall-current.zip';
+
+		$publishedOutput = $this->runSiteShell(
+			$rootDir,
+			self::MASTER,
+			'mkdir -p '.self::UPDATE_PACKAGE_DIR.' /var/www/html/wp-content/mu-plugins'
+			.' && cp '.\escapeshellarg( '/app/'.$relativeZip ).' '.self::UPDATE_PACKAGE_FILE
+			.' && cp '.self::UPDATE_PROVIDER_FIXTURE.' /var/www/html/wp-content/mu-plugins/shield-upgrade-test-update-provider.php'
+			.' && sha256sum '.self::UPDATE_PACKAGE_FILE
+		);
+		if ( !\preg_match( '/^([a-f0-9]{64})\s+/mi', $publishedOutput, $matches )
+			 || \strtolower( (string)$matches[ 1 ] ) !== $sha256 ) {
+			throw new \RuntimeException( 'Published cross-site update package identity did not match the checkout archive.' );
+		}
+		$this->runSiteShell(
+			$rootDir,
+			self::SLAVE,
+			'mkdir -p /var/www/html/wp-content/mu-plugins'
+			.' && cp '.self::UPDATE_PROVIDER_FIXTURE.' /var/www/html/wp-content/mu-plugins/shield-upgrade-test-update-provider.php'
+		);
+
+		$config = \base64_encode( \json_encode( [
+			'plugin'      => self::PLUGIN_FILE,
+			'slug'        => self::PLUGIN_SLUG,
+			'id'          => self::PLUGIN_SLUG,
+			'new_version' => $metadata->version(),
+			'package'     => $packageUrl,
+			'package_sha256' => $sha256,
+			'url'         => 'https://wordpress.org/plugins/'.self::PLUGIN_SLUG.'/',
+		], \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR ) );
+		$configuredIdentity = [];
+		foreach ( [ self::MASTER, self::SLAVE ] as $site ) {
+			$this->wpCapture( $rootDir, $site, [ 'eval-file', self::UPDATE_CONFIG_FIXTURE, $config ] );
+			$configuredIdentity[ $site ] = [
+				'package_url' => $packageUrl,
+				'sha256' => $sha256,
+			];
+		}
+		if ( \count( $configuredIdentity ) !== 2
+			 || $configuredIdentity[ self::MASTER ] !== $configuredIdentity[ self::SLAVE ] ) {
+			throw new \RuntimeException( 'Cross-site pair was not configured with one shared update artifact identity.' );
+		}
+		$this->lastDiagnostics[ 'public_upgrade_artifact_identity' ] = [
+			'package_url' => $packageUrl,
+			'sha256' => $sha256,
+			'configured_sites' => $configuredIdentity,
+		];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function runPluginUpdate( string $rootDir, string $site ) :array {
+		$captured = $this->wpCapture( $rootDir, $site, [
+			'plugin',
+			'update',
+			self::PLUGIN_SLUG,
+			'--format=json',
+		] );
+		$decoded = \json_decode( \trim( $captured[ 'stdout' ] ), true );
+		if ( !\is_array( $decoded ) ) {
+			throw new \RuntimeException( 'Plugin update on '.$site.' did not return valid JSON.' );
+		}
+		if ( $this->isList( $decoded ) ) {
+			$decoded = $decoded[ 0 ] ?? null;
+		}
+		if ( !\is_array( $decoded ) ) {
+			throw new \RuntimeException( 'Plugin update on '.$site.' did not return a result row.' );
+		}
+		return $decoded;
+	}
+
+	/**
+	 * @param array<string,mixed> $result
+	 */
+	private function assertPluginUpdateResult(
+		array $result,
+		PublicUpgradePackageZipMetadata $metadata
+	) :void {
+		if ( (string)( $result[ 'status' ] ?? '' ) !== 'Updated'
+			 || (string)( $result[ 'old_version' ] ?? '' ) !== self::PUBLIC_VERSION
+			 || (string)( $result[ 'new_version' ] ?? '' ) !== $metadata->version() ) {
+			throw new \RuntimeException( 'Native Shield plugin update result did not match the public-to-checkout contract.' );
+		}
+	}
+
+	/**
+	 * @param array<string,mixed> $migration
+	 */
+	private function assertPublicMigrationState( array $migration ) :void {
+		if ( empty( $migration[ 'migration_completed' ] ) ) {
+			throw new \RuntimeException( 'Public master legacy-site migration was not recorded as complete.' );
+		}
+		if ( \array_values( (array)( $migration[ 'root_xfer_excluded' ] ?? [] ) ) !== [ 'enable_tracking' ] ) {
+			throw new \RuntimeException( 'Public master root transfer exclusions did not survive the upgrade.' );
+		}
+		$profileableKeys = \array_values( \array_map( 'strval', (array)( $migration[ 'profileable_keys' ] ?? [] ) ) );
+		foreach ( [ 'display_plugin_badge', 'visitor_address_source', 'enable_tracking' ] as $key ) {
+			if ( !\in_array( $key, $profileableKeys, true ) ) {
+				throw new \RuntimeException( 'Public master profileable option catalog did not contain '.$key.'.' );
+			}
+		}
+
+		$defaultIDs = \array_values( \array_map( '\intval', (array)( $migration[ 'default_profile_ids' ] ?? [] ) ) );
+		if ( \count( $defaultIDs ) !== 1 || $defaultIDs[ 0 ] <= 0 ) {
+			throw new \RuntimeException( 'Public master migration did not create exactly one default profile.' );
+		}
+		$profiles = (array)( $migration[ 'profiles' ] ?? [] );
+		$defaultProfile = null;
+		foreach ( $profiles as $profile ) {
+			if ( \is_array( $profile ) && (int)( $profile[ 'id' ] ?? 0 ) === $defaultIDs[ 0 ] ) {
+				$defaultProfile = $profile;
+				break;
+			}
+		}
+		if ( \count( $profiles ) !== 1
+			 || !\is_array( $defaultProfile )
+			 || empty( $defaultProfile[ 'is_default' ] )
+			 || (string)( $defaultProfile[ 'slug' ] ?? '' ) !== 'default'
+			 || (string)( $defaultProfile[ 'label' ] ?? '' ) === ''
+			 || !empty( $defaultProfile[ 'non_profileable_option_keys' ] ) ) {
+			throw new \RuntimeException( 'Public master default profile migration invariants were not satisfied.' );
+		}
+		$options = (array)( $defaultProfile[ 'options' ] ?? [] );
+		\ksort( $options );
+		$profileableOptions = (array)( $migration[ 'profileable_options' ] ?? [] );
+		\ksort( $profileableOptions );
+		if ( (string)( $options[ 'display_plugin_badge' ] ?? '' ) !== 'light'
+			 || (string)( $options[ 'visitor_address_source' ] ?? '' ) !== 'REMOTE_ADDR'
+			 || (string)( $options[ 'enable_tracking' ] ?? '' ) !== 'Y'
+			 || $options !== $profileableOptions
+			 || \array_values( (array)( $defaultProfile[ 'excluded' ] ?? [] ) ) !== [ 'enable_tracking' ] ) {
+			throw new \RuntimeException( 'Public master default profile did not preserve imported values and exclusions.' );
+		}
+
+		$registry = (array)( $migration[ 'active_registry' ] ?? [] );
+		$row = null;
+		foreach ( $registry as $candidate ) {
+			if ( \is_array( $candidate ) && (string)( $candidate[ 'url' ] ?? '' ) === self::SLAVE_INTERNAL_URL ) {
+				$row = $candidate;
+				break;
+			}
+		}
+		if ( \count( $registry ) !== 1
+			 || !\is_array( $row )
+			 || (string)( $row[ 'import_id' ] ?? '' ) === ''
+			 || (string)( $row[ 'source' ] ?? '' ) !== 'legacy_option'
+			 || (int)( $row[ 'profile_ref' ] ?? 0 ) !== $defaultIDs[ 0 ]
+			 || empty( $row[ 'profile_resolves_to_default' ] ) ) {
+			throw new \RuntimeException( 'Public master active slave registry did not migrate to the default profile.' );
+		}
+		if ( (string)( $migration[ 'master_sync_enabled' ] ?? '' ) !== 'Y'
+			 || \array_values( (array)( $migration[ 'master_sync_urls' ] ?? [] ) ) !== [ self::SLAVE_INTERNAL_URL ] ) {
+			throw new \RuntimeException( 'Public master sync state did not preserve the connected slave.' );
+		}
+	}
+
+	private function runPublicCronSync( string $rootDir ) :void {
+		$this->wpCapture( $rootDir, self::MASTER, [
+			'cron',
+			'event',
+			'schedule',
+			'icwp-wpsf-importexport_notify',
+			'now',
+		] );
+		$notifyHook = $this->waitForScheduledCronHook( $rootDir, self::MASTER, 'importexport_notify' );
+		$this->wpCapture( $rootDir, self::MASTER, [ 'cron', 'event', 'run', $notifyHook ] );
+
+		$importHook = $this->waitForScheduledCronHook( $rootDir, self::SLAVE, 'importexport_updatenotified' );
+		$this->wpCapture( $rootDir, self::SLAVE, [ 'cron', 'event', 'run', $importHook ] );
+		$this->lastDiagnostics[ 'public_cron_sync' ] = [
+			'notify_hook' => $notifyHook,
+			'import_hook' => $importHook,
+		];
+	}
+
+	private function waitForScheduledCronHook( string $rootDir, string $site, string $suffix ) :string {
+		$startedAt = \time();
+		do {
+			$captured = $this->wpCapture( $rootDir, $site, [
+				'cron',
+				'event',
+				'list',
+				'--fields=hook',
+				'--format=json',
+			] );
+			$events = \json_decode( \trim( $captured[ 'stdout' ] ), true );
+			$hooks = [];
+			foreach ( \is_array( $events ) ? $events : [] as $event ) {
+				$hook = \is_array( $event ) ? (string)( $event[ 'hook' ] ?? '' ) : '';
+				if ( $hook !== '' && \substr( $hook, -\strlen( $suffix ) ) === $suffix ) {
+					$hooks[] = $hook;
+				}
+			}
+			$hooks = \array_values( \array_unique( $hooks ) );
+			if ( \count( $hooks ) === 1 ) {
+				return $hooks[ 0 ];
+			}
+			if ( \count( $hooks ) > 1 ) {
+				throw new \RuntimeException( 'Discovered multiple scheduled public cron hooks ending in '.$suffix.'.' );
+			}
+			\sleep( 1 );
+		} while ( \time() - $startedAt < 30 );
+
+		throw new \RuntimeException( 'No scheduled public cron hook ending in '.$suffix.' became available.' );
+	}
+
+	private function setShieldOptionViaCli( string $rootDir, string $site, string $key, string $value ) :void {
+		$this->wpCapture( $rootDir, $site, [
+			'shield',
+			'opt-set',
+			'--key='.$key,
+			'--value='.$value,
+		] );
+	}
+
+	private function assertPublicCliOption( string $rootDir, string $site, string $key, string $expected ) :void {
+		if ( $this->readPublicCliOption( $rootDir, $site, $key ) !== $expected ) {
+			throw new \RuntimeException( 'Public Shield option '.$key.' on '.$site.' did not equal '.$expected.'.' );
+		}
+	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	private function publicCliOptionsSnapshot( string $rootDir, string $site ) :array {
+		$snapshot = [];
+		foreach ( [ 'display_plugin_badge', 'visitor_address_source', 'enable_tracking' ] as $key ) {
+			$snapshot[ $key ] = $this->readPublicCliOption( $rootDir, $site, $key );
+		}
+		return $snapshot;
+	}
+
+	private function readPublicCliOption( string $rootDir, string $site, string $key ) :string {
+		$captured = $this->wpCapture( $rootDir, $site, [ 'shield', 'opt-get', '--key='.$key ] );
+		if ( !\preg_match( '/(?:^|\R)Current value:\s*(.*?)\s*$/m', \trim( $captured[ 'stdout' ] ), $matches ) ) {
+			throw new \RuntimeException( 'Public Shield option '.$key.' on '.$site.' did not return a readable value.' );
+		}
+		return (string)$matches[ 1 ];
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private function publicSlaveSnapshot( string $rootDir ) :array {
+		$state = $this->runHelper( $rootDir, self::SLAVE, 'state' );
+		$cron = $this->runHelper( $rootDir, self::SLAVE, 'cron-state' );
+		$snapshot = [
+			'state' => $state,
+			'cron' => $cron,
+			'options' => $this->publicCliOptionsSnapshot( $rootDir, self::SLAVE ),
+		];
+
+		if ( (string)( $state[ 'master_url' ] ?? '' ) !== self::MASTER_INTERNAL_URL
+			 || (string)( $cron[ 'master_url' ] ?? '' ) !== self::MASTER_INTERNAL_URL
+			 || (string)( $cron[ 'import_id' ] ?? '' ) === '' ) {
+			throw new \RuntimeException( 'Public slave did not preserve its master URL and import ID through the upgrade.' );
+		}
+		return $snapshot;
+	}
+
+	/**
+	 * @param array<string,mixed> $snapshot
+	 */
+	private function assertPublicSlaveOptions(
+		array $snapshot,
+		string $expectedBadge,
+		string $expectedAddressSource,
+		string $expectedTracking,
+		string $context
+	) :void {
+		$options = (array)( $snapshot[ 'options' ] ?? [] );
+		if ( (string)( $options[ 'display_plugin_badge' ] ?? '' ) !== $expectedBadge
+			 || (string)( $options[ 'visitor_address_source' ] ?? '' ) !== $expectedAddressSource
+			 || (string)( $options[ 'enable_tracking' ] ?? '' ) !== $expectedTracking ) {
+			throw new \RuntimeException( 'Public slave option causality failed '.$context.'.' );
+		}
+	}
+
+	private function assertMigrationStateUnchanged( array $before, array $after ) :void {
+		$this->sortRecursive( $before );
+		$this->sortRecursive( $after );
+		if ( $before !== $after ) {
+			throw new \RuntimeException( 'Scheduled slave import mutated the read-only master migration state.' );
+		}
+	}
+
+	private function assertPublicQueueTransition( array $before, array $after ) :void {
+		$beforeRow = $this->findRegistryRow( (array)( $before[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
+		$afterRow = $this->findRegistryRow( (array)( $after[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
+		if ( !\is_array( $beforeRow ) || !\is_array( $afterRow ) ) {
+			throw new \RuntimeException( 'Public master queue transition lost the named slave row.' );
+		}
+		$beforeMeta = $beforeRow[ 'meta' ] ?? null;
+		$afterMeta = $afterRow[ 'meta' ] ?? null;
+		if ( !\is_array( $beforeMeta ) || !\is_array( $afterMeta ) ) {
+			throw new \RuntimeException( 'Public master queue transition did not preserve registry metadata.' );
+		}
+		if ( \array_key_exists( 'export_served_at', $beforeMeta )
+			&& ( !\is_int( $beforeMeta[ 'export_served_at' ] ) || $beforeMeta[ 'export_served_at' ] !== 0 ) ) {
+			throw new \RuntimeException( 'Public master queue transition began with an invalid export-served marker.' );
+		}
+		if ( !isset( $afterMeta[ 'export_served_at' ] )
+			 || !\is_int( $afterMeta[ 'export_served_at' ] )
+			 || $afterMeta[ 'export_served_at' ] <= 0 ) {
+			throw new \RuntimeException( 'Public master queue transition did not record a successful export-served marker.' );
+		}
+		unset( $beforeMeta[ 'export_served_at' ], $afterMeta[ 'export_served_at' ] );
+		$this->sortRecursive( $beforeMeta );
+		$this->sortRecursive( $afterMeta );
+		$beforeRow[ 'meta' ] = $beforeMeta;
+		$afterRow[ 'meta' ] = $afterMeta;
+
+		$allowed = [
+			'queue_status',
+			'next_ping_at',
+			'last_ping_attempt_at',
+			'last_ping_success_at',
+			'last_ping_http_code',
+			'last_ping_error',
+			'last_export_request_at',
+			'last_export_success_at',
+			'last_export_result_code',
+			'last_export_error',
+			'consecutive_failures',
+			'expected_export_by',
+			'lock_until',
+			'picked_at',
+			'updated_at',
+		];
+		$beforeStable = \array_diff_key( $beforeRow, \array_flip( $allowed ) );
+		$afterStable = \array_diff_key( $afterRow, \array_flip( $allowed ) );
+		$this->sortRecursive( $beforeStable );
+		$this->sortRecursive( $afterStable );
+		if ( $beforeStable !== $afterStable ) {
+			throw new \RuntimeException( 'Public master queue transition changed fields outside the approved queue lifecycle set.' );
+		}
+	}
+
+	/**
+	 * @param array<mixed> $value
+	 */
+	private function isList( array $value ) :bool {
+		return $value === [] || \array_keys( $value ) === \range( 0, \count( $value ) - 1 );
+	}
+
+	/**
+	 * @param array<string,mixed> $cronState
+	 */
+	private function runScheduledCronEvent(
+		string $rootDir,
+		string $site,
+		array $cronState,
+		string $hookKey,
+		string $scheduledKey
+	) :void {
+		$hook = (string)( $cronState[ $hookKey ] ?? '' );
+		if ( $hook === '' || empty( $cronState[ $scheduledKey ] ) ) {
+			throw new \RuntimeException( 'Expected scheduled cross-site cron event was not discoverable: '.$hookKey );
+		}
+		$this->wpCapture( $rootDir, $site, [ 'cron', 'event', 'run', $hook ] );
+	}
+
 	private function processMasterSitesQueue( string $rootDir ) :void {
+		$this->runMasterSitesQueueEvent( $rootDir );
+
+		$queueAfter = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
+		$this->lastDiagnostics[ 'master_queue_after_notify_dispatch' ] = $queueAfter;
+		$this->assertPostNotifyDispatchQueueState( $queueAfter );
+	}
+
+	private function runMasterSitesQueueEvent( string $rootDir ) :void {
 		$queue = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
 		$this->lastDiagnostics[ 'master_queue_before' ] = $queue;
 		$queueHook = (string)( $queue[ 'queue_hook' ] ?? '' );
@@ -261,10 +883,6 @@ class CrossSitePairManager {
 			throw new \RuntimeException( 'Master DB-backed site queue had due rows but no scheduled queue hook.' );
 		}
 		$this->wpCapture( $rootDir, self::MASTER, [ 'cron', 'event', 'run', $queueHook ] );
-
-		$queueAfter = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
-		$this->lastDiagnostics[ 'master_queue_after_notify_dispatch' ] = $queueAfter;
-		$this->assertPostNotifyDispatchQueueState( $queueAfter );
 	}
 
 	/**
@@ -325,43 +943,6 @@ class CrossSitePairManager {
 		throw new \RuntimeException( 'Slave import did not complete after master notification.' );
 	}
 
-	private function assertLegacyMigration( array $legacyMigration ) :void {
-		$rows = (array)( $legacyMigration[ 'rows' ] ?? [] );
-		$slaveUrl = (string)( $legacyMigration[ 'slave_url' ] ?? '' );
-		$extraUrl = (string)( $legacyMigration[ 'extra_url' ] ?? '' );
-		$slave = $this->findRegistryRow( $rows, $slaveUrl );
-		$extra = $this->findRegistryRow( $rows, $extraUrl );
-
-		if ( !\is_array( $slave ) || !\is_array( $extra ) ) {
-			throw new \RuntimeException( 'Legacy registry migration did not create active rows for fallback URLs.' );
-		}
-		if ( ( $slave[ 'import_id' ] ?? '' ) !== 'legacy-slave-id'
-			 || ( $extra[ 'import_id' ] ?? '' ) !== 'legacy-extra-id' ) {
-			throw new \RuntimeException( 'Legacy registry migration did not preserve import IDs.' );
-		}
-		if ( ( $slave[ 'status' ] ?? '' ) !== self::STATUS_ACTIVE
-			 || ( $slave[ 'queue_status' ] ?? '' ) !== self::QUEUE_QUEUED
-			 || (int)( $slave[ 'next_ping_at' ] ?? 0 ) <= 0 ) {
-			throw new \RuntimeException( 'Legacy registry migration did not mark the matching fallback URL due.' );
-		}
-		if ( !empty( $legacyMigration[ 'unknown_old_queue_row_exists' ] ) ) {
-			throw new \RuntimeException( 'Legacy registry migration created a row from an unknown old queue URL.' );
-		}
-		if ( !empty( $legacyMigration[ 'legacy_batch_count' ] ) ) {
-			throw new \RuntimeException( 'Legacy registry migration did not clear old queue batches.' );
-		}
-
-		$whitelist = (array)( $legacyMigration[ 'whitelist' ] ?? [] );
-		if ( !\in_array( $slaveUrl, $whitelist, true ) || !\in_array( $extraUrl, $whitelist, true ) ) {
-			throw new \RuntimeException( 'Legacy registry migration unexpectedly changed the fallback whitelist.' );
-		}
-		$importIds = (array)( $legacyMigration[ 'import_url_ids' ] ?? [] );
-		if ( ( $importIds[ \md5( $slaveUrl ) ] ?? '' ) !== 'legacy-slave-id'
-			 || ( $importIds[ \md5( $extraUrl ) ] ?? '' ) !== 'legacy-extra-id' ) {
-			throw new \RuntimeException( 'Legacy registry migration unexpectedly changed fallback import IDs.' );
-		}
-	}
-
 	private function assertRegistryContainsSlave( array $state, string $context ) :void {
 		$row = $this->findRegistryRow( (array)( $state[ 'registry' ] ?? [] ), self::SLAVE_INTERNAL_URL );
 		if ( !\is_array( $row ) || ( $row[ 'status' ] ?? '' ) !== self::STATUS_ACTIVE ) {
@@ -388,7 +969,7 @@ class CrossSitePairManager {
 		if ( (int)( $row[ 'last_ping_success_at' ] ?? 0 ) <= 0 ) {
 			throw new \RuntimeException( 'Master DB-backed site queue did not record notify dispatch.' );
 		}
-		if ( (int)( $row[ 'last_export_success_at' ] ?? 0 ) >= (int)( $row[ 'last_ping_success_at' ] ?? 0 ) ) {
+		if ( (int)( $row[ 'last_export_success_at' ] ?? 0 ) > (int)( $row[ 'last_ping_success_at' ] ?? 0 ) ) {
 			throw new \RuntimeException( 'Master DB-backed site queue counted notify dispatch as export sync success.' );
 		}
 	}
@@ -402,6 +983,15 @@ class CrossSitePairManager {
 
 	private function isPostExportQueueState( array $queueState ) :bool {
 		return $this->postExportQueueStateFailure( $queueState ) === null;
+	}
+
+	private function isWaitingForSlaveExport( array $queueState ) :bool {
+		$row = $this->findRegistryRow( (array)( $queueState[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
+		return \is_array( $row ) && ( $row[ 'queue_status' ] ?? '' ) === self::QUEUE_WAITING_EXPORT;
+	}
+
+	private function slaveNotificationAccepted( array $slaveCron ) :bool {
+		return !empty( $slaveCron[ 'notify_cooldown_active' ] );
 	}
 
 	private function postExportQueueStateFailure( array $queueState ) :?string {
@@ -419,22 +1009,28 @@ class CrossSitePairManager {
 		if ( (int)( $row[ 'last_ping_success_at' ] ?? 0 ) <= 0 ) {
 			return 'Master DB-backed site queue did not record notify dispatch before export.';
 		}
+		$pingHttpCode = (int)( $row[ 'last_ping_http_code' ] ?? 0 );
+		if ( $pingHttpCode < 200 || $pingHttpCode >= 300 || (string)( $row[ 'last_ping_error' ] ?? '' ) !== '' ) {
+			return 'Master DB-backed site queue did not retain a successful notify response.';
+		}
 		if ( (int)( $row[ 'last_export_success_at' ] ?? 0 ) <= (int)( $row[ 'last_ping_success_at' ] ?? 0 ) ) {
 			return 'Master DB-backed site queue did not record a new export success after notify dispatch.';
 		}
 		if ( ( $row[ 'last_export_result_code' ] ?? '' ) !== self::EXPORT_RESULT_SUCCESS ) {
 			return 'Master DB-backed site queue did not record export success result code.';
 		}
+		if ( (string)( $row[ 'last_export_error' ] ?? '' ) !== ''
+			 || (int)( $row[ 'consecutive_failures' ] ?? -1 ) !== 0 ) {
+			return 'Master DB-backed site queue retained failure evidence after export success.';
+		}
+		if ( (int)( $row[ 'next_ping_at' ] ?? 0 ) <= 0
+			 || (int)( $row[ 'expected_export_by' ] ?? -1 ) !== 0
+			 || (int)( $row[ 'lock_until' ] ?? -1 ) !== 0
+			 || (int)( $row[ 'picked_at' ] ?? -1 ) !== 0
+			 || (int)( $row[ 'updated_at' ] ?? 0 ) <= 0 ) {
+			return 'Master DB-backed site queue did not settle its lifecycle fields after export success.';
+		}
 		return null;
-	}
-
-	private function isWaitingForSlaveExport( array $queueState ) :bool {
-		$row = $this->findRegistryRow( (array)( $queueState[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
-		return \is_array( $row ) && ( $row[ 'queue_status' ] ?? '' ) === self::QUEUE_WAITING_EXPORT;
-	}
-
-	private function slaveNotificationAccepted( array $slaveCron ) :bool {
-		return !empty( $slaveCron[ 'notify_cooldown_active' ] );
 	}
 
 	/**
@@ -453,10 +1049,13 @@ class CrossSitePairManager {
 		return null;
 	}
 
-	private function assertExportsMatch( string $rootDir ) :void {
+	/**
+	 * @param string[] $additionalExclusions
+	 */
+	private function assertExportsMatch( string $rootDir, array $additionalExclusions = [] ) :void {
 		$masterExport = $this->runHelper( $rootDir, self::MASTER, 'export-options' );
 		$slaveExport = $this->runHelper( $rootDir, self::SLAVE, 'export-options' );
-		$exceptions = $this->exportComparisonExclusions( $masterExport, $slaveExport );
+		$exceptions = $this->exportComparisonExclusions( $masterExport, $slaveExport, $additionalExclusions );
 
 		$masterOptions = $this->withoutKeys( (array)( $masterExport[ 'options' ] ?? [] ), $exceptions );
 		$slaveOptions = $this->withoutKeys( (array)( $slaveExport[ 'options' ] ?? [] ), $exceptions );
@@ -483,12 +1082,13 @@ class CrossSitePairManager {
 	 * @param array<string,mixed> $slaveExport
 	 * @return string[]
 	 */
-	private function exportComparisonExclusions( array $masterExport, array $slaveExport ) :array {
+	private function exportComparisonExclusions( array $masterExport, array $slaveExport, array $additionalExclusions = [] ) :array {
 		return \array_values( \array_unique( \array_merge(
 			(array)( $masterExport[ 'local_state_exceptions' ] ?? [] ),
 			(array)( $slaveExport[ 'local_state_exceptions' ] ?? [] ),
 			(array)( $masterExport[ 'runtime_invariant_keys' ] ?? [] ),
-			(array)( $slaveExport[ 'runtime_invariant_keys' ] ?? [] )
+			(array)( $slaveExport[ 'runtime_invariant_keys' ] ?? [] ),
+			$additionalExclusions
 		) ) );
 	}
 
@@ -863,8 +1463,42 @@ PHP,
 		$this->runtimeRefresher->refresh( $rootDir, $containerId, $onOutput );
 	}
 
-	private function runProvision( string $rootDir, string $site, array $envOverrides, ?callable $onOutput ) :void {
-		$command = $this->buildProvisionCommand( $site );
+	private function refreshCheckoutRuntimeWithEnvironment(
+		string $rootDir,
+		array $envOverrides,
+		?callable $onOutput
+	) :void {
+		$this->stage( 'refresh master runtime' );
+		$this->refreshRuntime( $rootDir, self::MASTER_WORDPRESS_SERVICE, $envOverrides, $onOutput );
+		$this->stage( 'refresh slave runtime' );
+		$this->refreshRuntime( $rootDir, self::SLAVE_WORDPRESS_SERVICE, $envOverrides, $onOutput );
+		$this->provisionSites( $rootDir, $envOverrides, $onOutput, false );
+	}
+
+	private function provisionSites(
+		string $rootDir,
+		array $envOverrides,
+		?callable $onOutput,
+		bool $coreOnly
+	) :void {
+		$this->stage( $coreOnly ? 'provision master site core only' : 'provision master site' );
+		$this->runProvision( $rootDir, self::MASTER, $envOverrides, $onOutput, $coreOnly );
+		$this->stage( $coreOnly ? 'provision slave site core only' : 'provision slave site' );
+		$this->runProvision( $rootDir, self::SLAVE, $envOverrides, $onOutput, $coreOnly );
+		$this->stage( 'wait for master internal HTTP' );
+		$this->waitForInternalHttpReady( $rootDir, self::SLAVE, self::MASTER_INTERNAL_URL.'/wp-login.php' );
+		$this->stage( 'wait for slave internal HTTP' );
+		$this->waitForInternalHttpReady( $rootDir, self::MASTER, self::SLAVE_INTERNAL_URL.'/wp-login.php' );
+	}
+
+	private function runProvision(
+		string $rootDir,
+		string $site,
+		array $envOverrides,
+		?callable $onOutput,
+		bool $coreOnly
+	) :void {
+		$command = $this->buildProvisionCommand( $site, $coreOnly );
 		$process = $this->processRunner->run(
 			$command,
 			$rootDir,
@@ -881,6 +1515,38 @@ PHP,
 				$process->getErrorOutput()
 			);
 		}
+	}
+
+	private function runSiteShell( string $rootDir, string $site, string $script ) :string {
+		$definition = $this->siteDefinition( $site );
+		$command = $this->buildComposeCommandForExecution( [
+			'run',
+			'--rm',
+			'-T',
+			'--user',
+			'root',
+			$definition[ 'wp_cli_service' ],
+			'sh',
+			'-c',
+			$script,
+		] );
+		$process = $this->processRunner->run(
+			$command,
+			$rootDir,
+			null,
+			$this->buildRuntimeEnvOverrides( $rootDir )
+		);
+		$exitCode = $process->getExitCode() ?? 1;
+		if ( $exitCode !== 0 ) {
+			throw $this->commandFailureException(
+				'Failed to prepare cross-site update files on '.$site.'.',
+				$command,
+				$exitCode,
+				$process->getOutput(),
+				$process->getErrorOutput()
+			);
+		}
+		return $process->getOutput();
 	}
 
 	private function runPreflightChecks( string $rootDir, ?callable $onOutput ) :void {
@@ -950,7 +1616,7 @@ PHP,
 	/**
 	 * @return string[]
 	 */
-	private function buildProvisionCommand( string $site ) :array {
+	private function buildProvisionCommand( string $site, bool $coreOnly = false ) :array {
 		$definition = $this->siteDefinition( $site );
 		$command = $this->buildComposeCommandForExecution( [
 			'run',
@@ -964,6 +1630,7 @@ PHP,
 			'SHIELD_LOCAL_SITE_ADMIN_USER' => 'admin',
 			'SHIELD_LOCAL_SITE_ADMIN_PASSWORD' => 'password',
 			'SHIELD_LOCAL_SITE_ADMIN_EMAIL' => 'devnull@example.com',
+			'SHIELD_LOCAL_SITE_PROVISION_MODE' => $coreOnly ? 'core-only' : 'current-runtime',
 		] as $name => $value ) {
 			$command[] = '-e';
 			$command[] = $name.'='.$value;
@@ -986,6 +1653,8 @@ PHP,
 				'run',
 				'--rm',
 				'-T',
+				'--user',
+				'root',
 				$definition[ 'wp_cli_service' ],
 				'wp',
 			] ),

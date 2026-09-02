@@ -4,7 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\Testing\CrossSitePairManager;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalSiteRuntimeRefresher;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\PublicUpgradePackageZipMetadata;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\PublicUpgradePackageZipResolver;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceSetupCacheCoordinator;
+use FernleafSystems\ShieldPlatform\Tooling\Testing\WordPressPackageRuntimeArtifacts;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingDockerComposeExecutor;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
@@ -43,6 +46,440 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->assertContains( 'SHIELD_LOCAL_SITE_PROFILE=cross-site-master', $command );
 		$this->assertContains( 'wp-cli-master', $command );
 		$this->assertContains( '/app/tests/docker/provision-local-site.sh', $command );
+		$this->assertContains( 'SHIELD_LOCAL_SITE_PROVISION_MODE=current-runtime', $command );
+	}
+
+	public function testProvisionCommandSupportsCoreOnlyMode() :void {
+		$command = $this->invokePrivate(
+			new CrossSitePairManager(),
+			'buildProvisionCommand',
+			[ 'master', true ]
+		);
+
+		$this->assertContains( 'SHIELD_LOCAL_SITE_PROVISION_MODE=core-only', $command );
+		$this->assertContains( '/app/tests/docker/provision-local-site.sh', $command );
+	}
+
+	public function testPublicInstallUsesPinnedReleaseAndProvesVersion() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-public-install-' );
+		$runner = RecordingProcessRunner::strict( [
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0, 'stdout' => "22.1.3\n" ],
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$this->invokePrivate( $manager, 'installPublicPlugin', [ $root, 'master' ] );
+
+		$this->findProcessCommandContaining(
+			$runner,
+			'plugin install wp-simple-firewall --version=22.1.3 --activate --force'
+		);
+		$install = $this->findProcessCommandContaining( $runner, 'plugin install wp-simple-firewall' );
+		$this->assertSame( 'docker', $install[ 0 ] );
+		$this->assertContains( 'compose', $install );
+		$this->assertContains( 'run', $install );
+		$this->assertContains( '--rm', $install );
+		$this->assertContains( '--user', $install );
+		$this->assertContains( 'root', $install );
+		$this->assertContains( 'wp-cli-master', $install );
+		$this->assertNotContains( '--volume', $install );
+		$this->findProcessCommandContaining(
+			$runner,
+			'plugin get wp-simple-firewall --field=version'
+		);
+		$this->assertCount( 2, $runner->calls );
+	}
+
+	public function testPublicRuntimeRemovalUsesNormalWpCliBeforeCheckoutRefresh() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-public-runtime-removal-' );
+		$runner = RecordingProcessRunner::strict( [
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$this->invokePrivate( $manager, 'removePublicPluginForCheckoutRefresh', [ $root, 'master' ] );
+
+		$this->findProcessCommandContaining( $runner, 'plugin deactivate wp-simple-firewall' );
+		$this->findProcessCommandContaining( $runner, 'plugin delete wp-simple-firewall' );
+		foreach ( $runner->calls as $call ) {
+			$this->assertContains( 'wp-cli-master', $call[ 'command' ] );
+			$this->assertContains( '--allow-root', $call[ 'command' ] );
+			$this->assertStringNotContainsString( ' rm ', ' '.\implode( ' ', $call[ 'command' ] ).' ' );
+		}
+	}
+
+	public function testAutomaticCronBlockerFixtureIsInstalledOnBothCrossSiteRuntimes() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-cron-blocker-' );
+		$runner = RecordingProcessRunner::strict( [
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$this->invokePrivate( $manager, 'installAutomaticCronBlockerFixture', [ $root ] );
+
+		$copies = \array_values( \array_filter( $runner->calls, static function( array $call ) :bool {
+			return \str_contains(
+				\implode( ' ', $call[ 'command' ] ),
+				'cp /app/tests/fixtures/cross-site/block-automatic-cron.php /var/www/html/wp-content/mu-plugins/shield-cross-site-block-automatic-cron.php'
+			);
+		} ) );
+		$this->assertCount( 2, $copies );
+		foreach ( [ 'master', 'slave' ] as $site ) {
+			$this->assertTrue( \in_array( 'wp-cli-'.$site, $copies[ $site === 'master' ? 0 : 1 ][ 'command' ], true ) );
+		}
+		foreach ( $copies as $copy ) {
+			$this->assertContains( '--user', $copy[ 'command' ] );
+			$this->assertContains( 'root', $copy[ 'command' ] );
+		}
+		$this->assertCount( 2, $runner->calls );
+	}
+
+	public function testAutomaticCronBlockerFixtureScopesOnlyAutomaticLoopbackCronRequests() :void {
+		$fixture = $this->readProjectFile( 'tests/fixtures/cross-site/block-automatic-cron.php' );
+
+		foreach ( [ 'pre_http_request', 'home_url()', 'wp-cron.php', 'doing_wp_cron', 'new \\WP_Error' ] as $required ) {
+			$this->assertStringContainsString( $required, $fixture );
+		}
+		foreach ( [ 'wp_schedule_', 'wp_clear_scheduled_', 'cron event', 'run-import-from-master' ] as $prohibited ) {
+			$this->assertStringNotContainsString( $prohibited, $fixture );
+		}
+	}
+
+	public function testPublicRuntimeFixtureIsInstalledAndRemovedOnPublicSetupFailure() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-public-runtime-' );
+		$metadata = new PublicUpgradePackageZipMetadata(
+			$root.'/wp-simple-firewall-current.zip',
+			'23.0.0',
+			'wp-simple-firewall/icwp-wpsf.php'
+		);
+		$resolver = new class( $metadata ) extends PublicUpgradePackageZipResolver {
+
+			private PublicUpgradePackageZipMetadata $metadata;
+
+			public function __construct( PublicUpgradePackageZipMetadata $metadata ) {
+				$this->metadata = $metadata;
+			}
+
+			public function resolve(
+				string $rootDir,
+				?string $packageZip,
+				WordPressPackageRuntimeArtifacts $artifacts,
+				?callable $onOutput = null
+			) :PublicUpgradePackageZipMetadata {
+				return $this->metadata;
+			}
+		};
+		$runner = RecordingProcessRunner::strict( [
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0, 'stdout' => "22.1.3\n" ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0, 'stdout' => "22.1.3\n" ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 1 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+		] );
+		$manager = new CrossSitePairManager( $runner, null, null, null, null, $resolver );
+
+		try {
+			$manager->runPublicUpgradeScenario( $root, $root.'/archive-workspace' );
+			$this->fail( 'Expected the public relation command to fail.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertStringContainsString( 'WP-CLI command failed on slave', $exception->getMessage() );
+		}
+
+		$commands = \array_map( static fn( array $call ) :string => \implode( ' ', $call[ 'command' ] ), $runner->calls );
+		$this->assertCount( 2, \array_filter(
+			$commands,
+			static fn( string $command ) :bool => \str_contains(
+				$command,
+				'cp /app/tests/fixtures/cross-site/public-22.1.3-runtime.php /var/www/html/wp-content/mu-plugins/shield-cross-site-public-22.1.3-runtime.php'
+			)
+		) );
+		$this->assertCount( 2, \array_filter(
+			$commands,
+			static fn( string $command ) :bool => \str_contains(
+				$command,
+				'rm -f /var/www/html/wp-content/mu-plugins/shield-cross-site-public-22.1.3-runtime.php'
+			)
+		) );
+		$this->assertCount( 2, \array_filter(
+			$commands,
+			static fn( string $command ) :bool => \str_contains(
+				$command,
+				'shield pro-license --action=activate --api-key=shield-cross-site-public-license-key --force'
+			)
+		) );
+		$relation = $this->findProcessCommandContaining(
+			$runner,
+			'shield import --source='.self::MASTER_INTERNAL_URL.' --site-secret=0123456789abcdef0123456789abcdef01234567 --slave=add --force'
+		);
+		$this->assertContains( 'wp-cli-slave', $relation );
+		$this->assertSame( '--allow-root', $relation[ \count( $relation ) - 1 ] );
+		foreach ( \array_slice( $commands, 6 ) as $command ) {
+			$this->assertStringNotContainsString( 'eval-file /app/tests/Helpers/CrossSite/CrossSiteRuntime.php', $command );
+			$this->assertStringNotContainsString( 'enable-public-cli', $command );
+			$this->assertStringNotContainsString( 'run-notify-hook', $command );
+			$this->assertStringNotContainsString( 'run-import-from-master', $command );
+		}
+	}
+
+	public function testPublicOptionCommandsUseLegacyCliShapeAndCaptureVisibleValues() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-public-options-' );
+		$runner = RecordingProcessRunner::strict( [
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0, 'stdout' => "Current value: Y\n" ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0, 'stdout' => "Current value: disabled\n" ],
+			[ 'exit_code' => 0, 'stdout' => "Current value: AUTO_DETECT_IP\n" ],
+			[ 'exit_code' => 0, 'stdout' => "Current value: N\n" ],
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$this->invokePrivate( $manager, 'setShieldOptionViaCli', [ $root, 'master', 'importexport_enable', 'Y' ] );
+		$this->invokePrivate( $manager, 'assertPublicCliOption', [ $root, 'master', 'importexport_enable', 'Y' ] );
+		foreach ( [
+			'display_plugin_badge' => 'disabled',
+			'visitor_address_source' => 'AUTO_DETECT_IP',
+			'enable_tracking' => 'N',
+		] as $key => $value ) {
+			$this->invokePrivate( $manager, 'setShieldOptionViaCli', [ $root, 'slave', $key, $value ] );
+		}
+		$snapshot = $this->invokePrivate( $manager, 'publicCliOptionsSnapshot', [ $root, 'slave' ] );
+
+		$this->assertSame( [
+			'display_plugin_badge' => 'disabled',
+			'visitor_address_source' => 'AUTO_DETECT_IP',
+			'enable_tracking' => 'N',
+		], $snapshot );
+		$this->findProcessCommandContaining( $runner, 'shield opt-set --key=importexport_enable --value=Y' );
+		$this->findProcessCommandContaining( $runner, 'shield opt-set --key=display_plugin_badge --value=disabled' );
+		$this->findProcessCommandContaining( $runner, 'shield opt-set --key=visitor_address_source --value=AUTO_DETECT_IP' );
+		$this->findProcessCommandContaining( $runner, 'shield opt-set --key=enable_tracking --value=N' );
+		foreach ( $runner->calls as $call ) {
+			$this->assertStringNotContainsString( 'xfer_excluded', \implode( ' ', $call[ 'command' ] ) );
+		}
+	}
+
+	public function testPublicSlaveSnapshotReadsTransferExcludedValuesThroughPublicCli() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-public-slave-snapshot-' );
+		$runner = RecordingProcessRunner::strict( [
+			$this->helperSuccessProcess( [ 'master_url' => self::MASTER_INTERNAL_URL ] ),
+			$this->helperSuccessProcess( [
+				'master_url' => self::MASTER_INTERNAL_URL,
+				'import_id' => 'public-slave-import-id',
+			] ),
+			[ 'exit_code' => 0, 'stdout' => "Current value: disabled\n" ],
+			[ 'exit_code' => 0, 'stdout' => "Current value: AUTO_DETECT_IP\n" ],
+			[ 'exit_code' => 0, 'stdout' => "Current value: N\n" ],
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$snapshot = $this->invokePrivate( $manager, 'publicSlaveSnapshot', [ $root ] );
+
+		$this->assertSame( [
+			'display_plugin_badge' => 'disabled',
+			'visitor_address_source' => 'AUTO_DETECT_IP',
+			'enable_tracking' => 'N',
+		], $snapshot[ 'options' ] );
+		$this->findProcessCommandContaining( $runner, 'shield opt-get --key=enable_tracking' );
+		foreach ( $runner->calls as $call ) {
+			$this->assertStringNotContainsString( 'export-options', \implode( ' ', $call[ 'command' ] ) );
+		}
+	}
+
+	public function testNativePublicUpdateRequiresUpdatedOldAndCheckoutVersions() :void {
+		$manager = new CrossSitePairManager();
+		$metadata = new PublicUpgradePackageZipMetadata(
+			'package.zip',
+			'23.0.0',
+			'wp-simple-firewall/icwp-wpsf.php'
+		);
+		$valid = [
+			'status' => 'Updated',
+			'old_version' => '22.1.3',
+			'new_version' => '23.0.0',
+		];
+
+		$this->invokePrivate( $manager, 'assertPluginUpdateResult', [ $valid, $metadata ] );
+		$this->addToAssertionCount( 1 );
+		foreach ( [
+			[ 'status' => 'Skipped' ],
+			[ 'old_version' => '22.1.2' ],
+			[ 'new_version' => '23.0.1' ],
+		] as $change ) {
+			try {
+				$this->invokePrivate( $manager, 'assertPluginUpdateResult', [ \array_merge( $valid, $change ), $metadata ] );
+				$this->fail( 'Expected native update result rejection.' );
+			}
+			catch ( \RuntimeException $exception ) {
+				$this->assertSame(
+					'Native Shield plugin update result did not match the public-to-checkout contract.',
+					$exception->getMessage()
+				);
+			}
+		}
+	}
+
+	public function testUpdateProviderConfiguresBothSitesWithOnePublishedArtifactIdentity() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-update-identity-' );
+		$zip = $root.'/tmp/cross-site-test-lane/archive-workspace/current.zip';
+		\mkdir( \dirname( $zip ), 0777, true );
+		\file_put_contents( $zip, 'shared-checkout-archive' );
+		$sha256 = \hash_file( 'sha256', $zip );
+		$runner = RecordingProcessRunner::strict( [
+			[ 'exit_code' => 0, 'stdout' => $sha256.'  /var/www/html/wp-content/uploads/shield-cross-site-upgrade/wp-simple-firewall-current.zip' ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0, 'stdout' => '{"ok":true}' ],
+			[ 'exit_code' => 0, 'stdout' => '{"ok":true}' ],
+		] );
+		$manager = new CrossSitePairManager( $runner );
+		$metadata = new PublicUpgradePackageZipMetadata(
+			$zip,
+			'23.0.0',
+			'wp-simple-firewall/icwp-wpsf.php'
+		);
+
+		$this->invokePrivate( $manager, 'configureUpdateProvider', [ $root, $metadata ] );
+
+		$encodedConfigs = [];
+		foreach ( $runner->calls as $call ) {
+			$command = $call[ 'command' ];
+			$fixtureIndex = \array_search( '/app/tests/fixtures/upgrade-public/write-update-config.php', $command, true );
+			if ( $fixtureIndex !== false ) {
+				$encodedConfigs[] = (string)( $command[ $fixtureIndex + 1 ] ?? '' );
+			}
+		}
+		$this->assertCount( 2, $encodedConfigs );
+		$this->assertSame( $encodedConfigs[ 0 ], $encodedConfigs[ 1 ] );
+		$config = \json_decode( (string)\base64_decode( $encodedConfigs[ 0 ], true ), true );
+		$this->assertSame( $sha256, $config[ 'package_sha256' ] ?? null );
+		$this->assertSame(
+			self::MASTER_INTERNAL_URL.'/wp-content/uploads/shield-cross-site-upgrade/wp-simple-firewall-current.zip',
+			$config[ 'package' ] ?? null
+		);
+		$this->assertSame(
+			[
+				'package_url' => $config[ 'package' ],
+				'sha256' => $sha256,
+			],
+			$manager->lastDiagnostics()[ 'public_upgrade_artifact_identity' ][ 'configured_sites' ][ 'master' ]
+		);
+		$this->assertSame(
+			$manager->lastDiagnostics()[ 'public_upgrade_artifact_identity' ][ 'configured_sites' ][ 'master' ],
+			$manager->lastDiagnostics()[ 'public_upgrade_artifact_identity' ][ 'configured_sites' ][ 'slave' ]
+		);
+	}
+
+	public function testPublicCronSyncRunsOnlyDiscoveredScheduledHooks() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-public-cron-' );
+		$runner = RecordingProcessRunner::strict( [
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0, 'stdout' => '[{"hook":"icwp-wpsf-importexport_notify"}]' ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0, 'stdout' => '[{"hook":"icwp-wpsf-importexport_updatenotified"}]' ],
+			[ 'exit_code' => 0 ],
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		$this->invokePrivate( $manager, 'runPublicCronSync', [ $root ] );
+
+		$this->assertCount( 5, $runner->calls );
+		$this->findProcessCommandContaining( $runner, 'cron event schedule icwp-wpsf-importexport_notify now' );
+		$this->findProcessCommandContaining( $runner, 'cron event list --fields=hook --format=json' );
+		$this->findProcessCommandContaining( $runner, 'cron event run icwp-wpsf-importexport_notify' );
+		$this->findProcessCommandContaining( $runner, 'cron event run icwp-wpsf-importexport_updatenotified' );
+		foreach ( $runner->calls as $call ) {
+			$command = \implode( ' ', $call[ 'command' ] );
+			$this->assertStringNotContainsString( ' eval ', ' '.$command.' ' );
+			$this->assertStringNotContainsString( 'eval-file', $command );
+			$this->assertStringNotContainsString( 'run-import-from-master', $command );
+		}
+	}
+
+	public function testUpgradeMetadataRejectsPublicOrUnexpectedArtifact() :void {
+		$manager = new CrossSitePairManager();
+
+		foreach ( [
+			new PublicUpgradePackageZipMetadata( 'package.zip', '22.1.3', 'wp-simple-firewall/icwp-wpsf.php' ),
+			new PublicUpgradePackageZipMetadata( 'package.zip', '99.0.0', 'other/plugin.php' ),
+		] as $metadata ) {
+			try {
+				$this->invokePrivate( $manager, 'assertUpgradePackageMetadata', [ $metadata ] );
+				$this->fail( 'Expected package metadata rejection.' );
+			}
+			catch ( \RuntimeException $exception ) {
+				$this->assertNotSame( '', $exception->getMessage() );
+			}
+		}
+	}
+
+	public function testPublicMigrationSnapshotRequiresExpectedSemanticContract() :void {
+		$manager = new CrossSitePairManager();
+		$valid = [
+			'migration_completed' => true,
+			'root_xfer_excluded' => [ 'enable_tracking' ],
+			'profileable_keys' => [ 'display_plugin_badge', 'enable_tracking', 'visitor_address_source' ],
+			'profileable_options' => [
+				'display_plugin_badge' => 'light',
+				'enable_tracking' => 'Y',
+				'visitor_address_source' => 'REMOTE_ADDR',
+			],
+			'default_profile_ids' => [ 7 ],
+			'profiles' => [ [
+				'id' => 7,
+				'slug' => 'default',
+				'label' => 'Default',
+				'is_default' => true,
+				'options' => [
+					'display_plugin_badge' => 'light',
+					'visitor_address_source' => 'REMOTE_ADDR',
+					'enable_tracking' => 'Y',
+				],
+				'excluded' => [ 'enable_tracking' ],
+				'non_profileable_option_keys' => [],
+			] ],
+			'active_registry' => [ [
+				'url' => self::SLAVE_INTERNAL_URL,
+				'import_id' => 'public-slave-id',
+				'source' => 'legacy_option',
+				'profile_ref' => 7,
+				'profile_resolves_to_default' => true,
+			] ],
+			'master_sync_enabled' => 'Y',
+			'master_sync_urls' => [ self::SLAVE_INTERNAL_URL ],
+		];
+
+		$this->invokePrivate( $manager, 'assertPublicMigrationState', [ $valid ] );
+		$this->addToAssertionCount( 1 );
+		$missingCatalog = $valid;
+		unset( $missingCatalog[ 'profileable_keys' ] );
+		try {
+			$this->invokePrivate( $manager, 'assertPublicMigrationState', [ $missingCatalog ] );
+			$this->fail( 'Expected incomplete migration snapshot rejection.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertStringContainsString( 'profileable option catalog', $exception->getMessage() );
+		}
+		$invalidProfileValues = $valid;
+		$invalidProfileValues[ 'profileable_options' ][ 'enable_tracking' ] = 'N';
+		try {
+			$this->invokePrivate( $manager, 'assertPublicMigrationState', [ $invalidProfileValues ] );
+			$this->fail( 'Expected incomplete profile migration rejection.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertStringContainsString( 'default profile', $exception->getMessage() );
+		}
 	}
 
 	public function testCrossSiteComposeDefinesTrustedSyncHostAliases() :void {
@@ -65,6 +502,23 @@ class CrossSitePairManagerTest extends TestCase {
 		}
 	}
 
+	public function testCrossSiteComposeMountsPluginVolumesAtParentDirectory() :void {
+		$content = $this->readProjectFile( 'tests/docker/docker-compose.cross-site.yml' );
+		foreach ( [ 'master', 'slave' ] as $site ) {
+			$this->assertSame(
+				2,
+				\substr_count(
+					$content,
+					'cross-site-'.$site.'-plugin:/var/www/html/wp-content/plugins'
+				)
+			);
+		}
+		$this->assertStringNotContainsString(
+			'/var/www/html/wp-content/plugins/wp-simple-firewall',
+			$content
+		);
+	}
+
 	public function testWpCliCommandTargetsSlaveServiceAndAppendsAllowRoot() :void {
 		$command = $this->invokePrivate(
 			new CrossSitePairManager(),
@@ -75,6 +529,8 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->assertSame( 'docker', $command[ 0 ] );
 		$this->assertContains( 'tests/docker/docker-compose.cross-site.yml', $command );
 		$this->assertContains( 'wp-cli-slave', $command );
+		$this->assertContains( '--user', $command );
+		$this->assertContains( 'root', $command );
 		$this->assertContains( 'plugin', $command );
 		$this->assertContains( 'list', $command );
 		$this->assertSame( '--allow-root', $command[ \count( $command ) - 1 ] );
@@ -172,6 +628,7 @@ class CrossSitePairManagerTest extends TestCase {
 					'local_state_exceptions' => [ 'importexport_masterurl' ],
 					'runtime_invariant_keys' => [ 'importexport_enable' ],
 				],
+				[ 'enable_tracking' ],
 			]
 		);
 
@@ -180,6 +637,7 @@ class CrossSitePairManagerTest extends TestCase {
 				'importexport_masterurl',
 				'global_enable_plugin_features',
 				'importexport_enable',
+				'enable_tracking',
 			],
 			$exclusions
 		);
@@ -429,6 +887,15 @@ class CrossSitePairManagerTest extends TestCase {
 		}
 	}
 
+	public function testPostNotifyDispatchQueueStateAllowsSameSecondNotifyAndExportTimestamps() :void {
+		$manager = new CrossSitePairManager();
+		$state = $this->waitingExportQueueState();
+		$state[ 'rows' ][ 0 ][ 'last_export_success_at' ] = $state[ 'rows' ][ 0 ][ 'last_ping_success_at' ];
+
+		$this->expectNotToPerformAssertions();
+		$this->invokePrivate( $manager, 'assertPostNotifyDispatchQueueState', [ $state ] );
+	}
+
 	public function testPostNotifyDispatchQueueStateRejectsCompletedExportWithoutRecordedNotifyDispatch() :void {
 		$manager = new CrossSitePairManager();
 		$state = $this->postExportQueueState();
@@ -443,6 +910,67 @@ class CrossSitePairManagerTest extends TestCase {
 				'Master DB-backed site queue did not record notify dispatch before export.',
 				$exception->getMessage()
 			);
+		}
+	}
+
+	public function testPublicQueueTransitionAllowsOnlyNamedLifecycleFields() :void {
+		$manager = new CrossSitePairManager();
+		$before = $this->waitingExportQueueState();
+		$after = $this->postExportQueueState();
+
+		$this->invokePrivate( $manager, 'assertPublicQueueTransition', [ $before, $after ] );
+
+		$after[ 'rows' ][ 0 ][ 'priority' ] = 100;
+		$this->assertPublicQueueTransitionRejected( $manager, $before, $after );
+	}
+
+	public function testPublicQueueTransitionRequiresValidExportServedMarker() :void {
+		$manager = new CrossSitePairManager();
+
+		foreach ( [
+			static function( array $before, array $after ) :array {
+				$before[ 'rows' ][ 0 ][ 'meta' ][ 'export_served_at' ] = 1;
+				return [ $before, $after ];
+			},
+			static function( array $before, array $after ) :array {
+				unset( $after[ 'rows' ][ 0 ][ 'meta' ][ 'export_served_at' ] );
+				return [ $before, $after ];
+			},
+			static function( array $before, array $after ) :array {
+				$after[ 'rows' ][ 0 ][ 'meta' ][ 'export_served_at' ] = 0;
+				return [ $before, $after ];
+			},
+			static function( array $before, array $after ) :array {
+				$after[ 'rows' ][ 0 ][ 'meta' ][ 'export_served_at' ] = '30';
+				return [ $before, $after ];
+			},
+		] as $mutate ) {
+			$before = $this->waitingExportQueueState();
+			$after = $this->postExportQueueState();
+			[ $before, $after ] = $mutate( $before, $after );
+
+			$this->assertPublicQueueTransitionRejected( $manager, $before, $after );
+		}
+	}
+
+	public function testPublicQueueTransitionRejectsResidualMetadataChanges() :void {
+		$manager = new CrossSitePairManager();
+
+		foreach ( [
+			static function( array $after ) :array {
+				$after[ 'rows' ][ 0 ][ 'meta' ][ 'connection' ][ 'shared_secret' ] = 'changed-secret';
+				return $after;
+			},
+			static function( array $after ) :array {
+				$after[ 'rows' ][ 0 ][ 'meta' ][ 'unexpected' ] = 'unexpected-value';
+				return $after;
+			},
+		] as $mutate ) {
+			$before = $this->waitingExportQueueState();
+			$after = $this->postExportQueueState();
+			$after = $mutate( $after );
+
+			$this->assertPublicQueueTransitionRejected( $manager, $before, $after );
 		}
 	}
 
@@ -617,6 +1145,20 @@ class CrossSitePairManagerTest extends TestCase {
 		];
 	}
 
+	private function assertPublicQueueTransitionRejected(
+		CrossSitePairManager $manager,
+		array $before,
+		array $after
+	) :void {
+		try {
+			$this->invokePrivate( $manager, 'assertPublicQueueTransition', [ $before, $after ] );
+			$this->fail( 'Expected public queue transition rejection.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->addToAssertionCount( 1 );
+		}
+	}
+
 	/**
 	 * @return array<string,mixed>
 	 */
@@ -624,12 +1166,43 @@ class CrossSitePairManagerTest extends TestCase {
 		return [
 			'rows' => [
 				[
+					'id' => 27,
 					'url' => self::SLAVE_INTERNAL_URL,
+					'url_hash' => '4ed9b9677524f885836f6b9ccbf0ea65',
+					'import_id' => 'public-slave-import-id',
+					'profile_ref' => 7,
+					'source' => 'legacy_option',
+					'status' => 'active',
+					'priority' => 10,
 					'queue_status' => 'waiting_export',
+					'queued_at' => 5,
+					'picked_at' => 1,
+					'lock_until' => 20,
+					'next_ping_at' => 10,
+					'expected_export_by' => 15,
+					'last_ping_attempt_at' => 10,
 					'last_ping_success_at' => 10,
+					'last_ping_failure_at' => 0,
+					'last_ping_http_code' => 200,
+					'last_ping_error' => '',
 					'last_export_request_at' => 0,
 					'last_export_success_at' => 5,
 					'last_export_result_code' => 'success',
+					'last_export_failure_at' => 0,
+					'last_export_error' => '',
+					'ping_attempts_total' => 1,
+					'consecutive_failures' => 0,
+					'meta' => [
+						'connection' => [
+							'shared_secret' => 'stable-secret',
+						],
+						'legacy' => [
+							'option_key' => 'importexport_enable',
+						],
+					],
+					'created_at' => 1,
+					'updated_at' => 20,
+					'deleted_at' => 0,
 				],
 			],
 		];
@@ -660,18 +1233,21 @@ class CrossSitePairManagerTest extends TestCase {
 	 * @return array<string,mixed>
 	 */
 	private function postExportQueueState() :array {
-		return [
-			'rows' => [
-				[
-					'url' => self::SLAVE_INTERNAL_URL,
-					'queue_status' => 'idle',
-					'last_ping_success_at' => 10,
-					'last_export_request_at' => 20,
-					'last_export_success_at' => 30,
-					'last_export_result_code' => 'success',
-				],
-			],
-		];
+		$state = $this->waitingExportQueueState();
+		$state[ 'rows' ][ 0 ] = \array_merge( $state[ 'rows' ][ 0 ], [
+			'queue_status' => 'idle',
+			'next_ping_at' => 86430,
+			'last_ping_attempt_at' => 20,
+			'last_export_request_at' => 20,
+			'last_export_success_at' => 30,
+			'expected_export_by' => 0,
+			'lock_until' => 0,
+			'picked_at' => 0,
+			'updated_at' => 30,
+		] );
+		$state[ 'rows' ][ 0 ][ 'meta' ][ 'export_served_at' ] = 30;
+
+		return $state;
 	}
 
 	/**

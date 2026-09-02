@@ -3,10 +3,12 @@
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_UpdateNotified;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Handler as ImportExportProfilesDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Record as ImportExportProfileRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as ImportExportSiteRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileOptionsCatalog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
@@ -41,7 +43,7 @@ try {
 		 */
 		public function run( string $action, array $payload ) :array {
 			switch ( $action ) {
-				case 'setup':
+			case 'setup':
 					return $this->setup( (string)( $payload[ 'role' ] ?? '' ) );
 				case 'secret':
 					return [
@@ -57,6 +59,8 @@ try {
 					return $this->queueState();
 				case 'legacy-migration-check':
 					return $this->legacyMigrationCheck( $payload );
+				case 'migration-state':
+					return $this->migrationState();
 				case 'cron-state':
 					return $this->cronState();
 				case 'run-import-from-master':
@@ -188,10 +192,10 @@ try {
 		 * @return array<string,mixed>
 		 */
 		private function runNotifyHook() :array {
-			do_action( $this->notifyHook() );
+			do_action( 'shield/after_form_submit_options_save' );
 			return [
+				'event' => 'shield/after_form_submit_options_save',
 				'notify_hook' => $this->notifyHook(),
-				'queue' => $this->queueState(),
 			];
 		}
 
@@ -234,6 +238,56 @@ try {
 				'rows' => $this->registryRows(),
 				'unknown_old_queue_row_exists' => $repo->findByUrl( $unknownOldQueueUrl, true ) !== null,
 				'legacy_batch_count' => \count( $this->legacyQueue()->get_batches() ),
+			];
+		}
+
+		/**
+		 * Read-only semantic snapshot of the current import/export migration state.
+		 *
+		 * @return array<string,mixed>
+		 */
+		private function migrationState() :array {
+			$con = RuntimeTestState::controller();
+			$profileableKeys = ( new ProfileOptionsCatalog() )->profileableKeys();
+			\sort( $profileableKeys );
+			$profileableOptions = \array_intersect_key(
+				( new Export() )->getFullTransferableOptionsExport(),
+				\array_flip( $profileableKeys )
+			);
+			\ksort( $profileableOptions );
+
+			$profiles = [];
+			try {
+				$dbh = $con->db_con->import_export_profiles;
+				if ( $dbh instanceof ImportExportProfilesDB && $dbh->isReady() ) {
+					foreach ( $dbh->getQuerySelector()->setOrderBy( 'id', 'ASC' )->queryWithResult() ?? [] as $profile ) {
+						if ( $profile instanceof ImportExportProfileRecord ) {
+							$profiles[] = $this->normaliseProfile( $profile, $profileableKeys );
+						}
+					}
+				}
+			}
+			catch ( \Throwable $e ) {
+			}
+
+			$defaultProfileIDs = \array_values( \array_map(
+				static fn( array $profile ) :int => $profile[ 'id' ],
+				\array_filter( $profiles, static fn( array $profile ) :bool => $profile[ 'is_default' ] )
+			) );
+
+			return [
+				'migration_completed' => (int)$con->opts->optGet( 'importexport_sites_migrated_at' ) > 0,
+				'root_xfer_excluded' => $this->normaliseStringList( $con->opts->optGet( 'xfer_excluded' ) ),
+				'profileable_keys'    => $profileableKeys,
+				'profileable_options' => $profileableOptions,
+				'default_profile_ids' => $defaultProfileIDs,
+				'profiles'            => $profiles,
+				'active_registry'     => $this->migrationRegistryRows( $defaultProfileIDs ),
+				'master_sync_enabled' => (string)$con->opts->optGet( 'importexport_enable' ),
+				'master_sync_urls'    => \array_values( \array_map(
+					static fn( ImportExportSiteRecord $row ) :string => $row->url,
+					( new SiteRepository() )->selectActiveRows()
+				) ),
 			];
 		}
 
@@ -321,30 +375,61 @@ try {
 		}
 
 		/**
-		 * @return array<string,int|string>
+		 * @return array<string,mixed>
 		 */
 		private function normaliseRegistryRow( ImportExportSiteRecord $row ) :array {
+			$rowData = $row->getRawData();
+			$rowData[ 'meta' ] = $row->meta;
+			return $rowData;
+		}
+
+		/**
+		 * @param string[] $profileableKeys
+		 * @return array<string,mixed>
+		 */
+		private function normaliseProfile( ImportExportProfileRecord $profile, array $profileableKeys ) :array {
+			$config = \json_decode( $profile->config, true );
+			$config = \is_array( $config ) ? $config : [];
+			$options = \is_array( $config[ 'options' ] ?? null ) ? $config[ 'options' ] : [];
+			\ksort( $options );
+
 			return [
-				'id' => $row->id,
-				'url' => $row->url,
-				'import_id' => $row->import_id,
-				'status' => $row->status,
-				'queue_status' => $row->queue_status,
-				'queued_at' => $row->queued_at,
-				'next_ping_at' => $row->next_ping_at,
-				'expected_export_by' => $row->expected_export_by,
-				'last_ping_attempt_at' => $row->last_ping_attempt_at,
-				'last_ping_success_at' => $row->last_ping_success_at,
-				'last_ping_failure_at' => $row->last_ping_failure_at,
-				'last_ping_http_code' => $row->last_ping_http_code,
-				'last_ping_error' => $row->last_ping_error,
-				'last_export_request_at' => $row->last_export_request_at,
-				'last_export_success_at' => $row->last_export_success_at,
-				'last_export_failure_at' => $row->last_export_failure_at,
-				'last_export_result_code' => $row->last_export_result_code,
-				'last_export_error' => $row->last_export_error,
-				'consecutive_failures' => $row->consecutive_failures,
+				'id'                          => $profile->id,
+				'slug'                        => $profile->slug,
+				'label'                       => $profile->label,
+				'is_default'                  => $profile->is_default,
+				'options'                     => $options,
+				'excluded'                    => $this->normaliseStringList( $config[ 'excluded' ] ?? [] ),
+				'non_profileable_option_keys' => \array_values( \array_diff( \array_keys( $options ), $profileableKeys ) ),
 			];
+		}
+
+		/**
+		 * @param int[] $defaultProfileIDs
+		 * @return list<array<string,int|string|bool>>
+		 */
+		private function migrationRegistryRows( array $defaultProfileIDs ) :array {
+			$rows = [];
+			foreach ( ( new SiteRepository() )->selectActiveRows() as $row ) {
+				$rows[] = [
+					'url'                         => $row->url,
+					'import_id'                   => $row->import_id,
+					'source'                      => $row->source,
+					'profile_ref'                 => $row->profile_ref,
+					'profile_resolves_to_default' => \in_array( $row->profile_ref, $defaultProfileIDs, true ),
+				];
+			}
+			return $rows;
+		}
+
+		/**
+		 * @param mixed $values
+		 * @return string[]
+		 */
+		private function normaliseStringList( $values ) :array {
+			$values = \array_values( \array_unique( \array_map( '\\strval', \is_array( $values ) ? $values : [] ) ) );
+			\sort( $values );
+			return $values;
 		}
 
 		/**

@@ -42,6 +42,12 @@ class TestCrossSiteCommand extends Command {
 				null,
 				InputOption::VALUE_NONE,
 				'Show Docker and setup command output during cross-site preparation.'
+			)
+			->addOption(
+				'teardown',
+				null,
+				InputOption::VALUE_NONE,
+				'Remove the cross-site Docker pair after the lane finishes.'
 			);
 	}
 
@@ -62,6 +68,7 @@ class TestCrossSiteCommand extends Command {
 			return $this->lane->run( $this->projectRoot, [
 				'mode'              => $mode,
 				'show_setup_output' => (bool)$input->getOption( 'show-setup-output' ),
+				'teardown'          => (bool)$input->getOption( 'teardown' ),
 			] );
 		}
 		catch ( \Throwable $throwable ) {

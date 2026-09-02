@@ -504,19 +504,20 @@ Use this lane when a change affects observable Shield-to-Shield import/export be
 composer test:cross-site
 composer test:cross-site -- --warm
 composer test:cross-site -- --clean --show-setup-output
+composer test:cross-site -- --clean --teardown
 ```
 
 Operational notes:
 
 1. The lane uses internal URLs `http://wordpress-master.shield-cross-site.example.com` and `http://wordpress-slave.shield-cross-site.example.com`; exposed host ports are only for diagnostics.
-2. Local runs default to warm mode. CI defaults to clean mode.
+2. Local runs default to warm mode. CI runs the clean public-upgrade scenario with `--teardown`; warm mode retains the current-to-current scenario only.
 3. Successful runs stay quiet except for the final lane result; use `--show-setup-output` when Docker, provisioning, or runtime-refresh setup logs are needed.
 4. The lane has a single lock under `tmp/cross-site-test-lane` because both sites share one Compose project and one database container.
 5. The runtime helper grants every capability required by transferable Shield options, plus WP-CLI, before generating the option corpus.
 6. The comparison excludes only explicit non-corpus keys: slave-local sync state such as `importexport_masterurl`, and runtime prerequisites such as `global_enable_plugin_features` and `importexport_enable`. Every generated corpus key must change from its baseline after Shield option normalization.
 7. `SHIELD_CROSS_SITE_MASTER_PORT` and `SHIELD_CROSS_SITE_SLAVE_PORT` override the diagnostic host ports if `8892` or `8893` are unavailable.
 8. This lane covers Shield import/export sync only. MainWP scenarios should be added as explicit consumers of the same harness when they exist.
-9. Cross-site containers, volumes, and networks are labeled under the `cross-site` cleanup scope. CI removes them with `php bin/shield test:docker:cleanup --scope=cross-site --all`; use `--dry-run` locally to audit before removal.
+9. The lane always removes its owned package archive workspace. With `--teardown`, it also performs exact-scope `cross-site` Docker cleanup; CI retains `php bin/shield test:docker:cleanup --scope=cross-site --all` in its `always` finalization as an independent safety net. Use `--dry-run` locally to audit the cleanup scope before removal.
 
 ## Optional Playground Tooling
 
@@ -538,7 +539,7 @@ CI behavior is recorded here for diagnosis and exact job reproduction; it does n
 | [Required source-first gate](.github/workflows/tests.yml) | Job-level path-gated by [`.github/ci-path-filters.yml`](.github/ci-path-filters.yml); manual dispatch runs the full gate. It runs source analysis on PHP 7.4, JS checks, unit tests on PHP 7.4 and 8.4, package build/targeted validation, and `php bin/shield test:source --skip-unit-tests --include-previous-wp --show-docker-output`. CI explicitly owns this exceptional two-stream WordPress run. |
 | [Serial compatibility sentinel](.github/workflows/unit-serial-sentinel.yml) | Runs `php bin/run-unit-tests.php --runner-mode=serial` manually and weekly at 05:00 UTC Monday. |
 | [Browser tests](.github/workflows/browser-tests.yml) | Runs for browser-relevant pull requests, pushes to `develop`, manual dispatch, and weekdays at 06:30 UTC. It installs Composer and Node dependencies plus Chromium, then runs `composer test:browser -- --clean --lanes=2 -- --workers=2`. |
-| [Cross-site tests](.github/workflows/cross-site-tests.yml) | Runs for pull requests affecting import/export, WP-CLI, the test harness, Docker, Composer, or this workflow; also runs manually and weekdays at 06:45 UTC. It installs dependencies, builds assets, and runs `composer test:cross-site -- --clean`. |
+| [Cross-site tests](.github/workflows/cross-site-tests.yml) | Runs for pull requests affecting import/export, WP-CLI, the test harness, Docker, Composer, or this workflow; also runs manually and weekdays at 06:45 UTC. It installs dependencies, builds assets, and runs `composer test:cross-site -- --clean --teardown`, retaining its independent `always` cleanup. |
 | [Customer test ZIP](.github/workflows/customer-test-zip.yml) | Manual artifact-only workflow that builds a selected branch or ref through the reusable `composer build-zip` path. It records the ref, commit, artifact URL, ZIP SHA-256, and artifact digest without creating a tag or GitHub Release. |
 
 For local reproduction of the required gate's individual jobs, use `composer analyze`, `npm run test:js`, `composer test:unit:policy` followed by `composer test:unit:runner` on the relevant PHP runtime, and the source command shown above. Reproduce the package path with:

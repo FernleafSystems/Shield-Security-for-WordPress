@@ -95,7 +95,7 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'workflow_dispatch:', $workflow );
 		$this->assertStringContainsString( 'schedule:', $workflow );
 		$this->assertStringContainsString( "cron: '45 6 * * 1-5'", $workflow );
-		$this->assertStringContainsString( 'composer test:cross-site -- --clean', $workflow );
+		$this->assertStringContainsString( 'composer test:cross-site -- --clean --teardown', $workflow );
 		$this->assertStringContainsString(
 			'php bin/shield test:docker:cleanup --scope=cross-site --all',
 			$workflow

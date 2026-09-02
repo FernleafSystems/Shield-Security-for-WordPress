@@ -59,7 +59,7 @@ jobs:
       run: npm run build
 
     - name: Run cross-site lane
-      run: composer test:cross-site -- --clean
+      run: composer test:cross-site -- --clean --teardown
 
     - name: Stop cross-site services
       if: always()
