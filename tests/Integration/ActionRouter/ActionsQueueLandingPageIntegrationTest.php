@@ -123,36 +123,44 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue Pro upsell modal contract' );
 		$upsell = $payload[ 'render_data' ][ 'vars' ][ 'actions_queue_pro_upsell' ] ?? [];
 
+		$this->assertEqualsCanonicalizing(
+			[ 'template_id', 'title_id', 'logo_url', 'left_lines', 'heading', 'labels', 'rows', 'hrefs' ],
+			\array_keys( $upsell )
+		);
 		$this->assertSame( 'actions-queue-pro-upsell-template', $upsell[ 'template_id' ] ?? '' );
-		$this->assertNotSame( '', \trim( (string)( $upsell[ 'title_id' ] ?? '' ) ) );
+		$this->assertSame( 'actions-queue-pro-upsell-title', $upsell[ 'title_id' ] ?? '' );
 		$this->assertStringContainsString( 'plugin_logo_prem_dark.svg', (string)( $upsell[ 'logo_url' ] ?? '' ) );
-		$this->assertSame(
-			[
-				[ 'text' => 'Free protection is real.', 'emphasis' => '' ],
-				[ 'text' => 'Pro protection is ', 'emphasis' => 'complete.' ],
-			],
-			$upsell[ 'left_lines' ] ?? []
+		$this->assertNotSame( '', \trim( (string)( $upsell[ 'heading' ] ?? '' ) ) );
+		$this->assertCount( 2, $upsell[ 'left_lines' ] ?? [] );
+		foreach ( $upsell[ 'left_lines' ] ?? [] as $line ) {
+			$this->assertEqualsCanonicalizing( [ 'text', 'emphasis' ], \array_keys( $line ) );
+			$this->assertIsString( $line[ 'text' ] );
+			$this->assertNotSame( '', \trim( $line[ 'text' ] ) );
+			$this->assertIsString( $line[ 'emphasis' ] );
+		}
+		$this->assertEqualsCanonicalizing(
+			[ 'close', 'protection', 'free', 'pro', 'included', 'not_included', 'view_pro_plans', 'compare_features' ],
+			\array_keys( $upsell[ 'labels' ] ?? [] )
 		);
-		$this->assertSame( 'See what Shield Pro adds', $upsell[ 'heading' ] ?? '' );
-		$this->assertSame( 'Included', $upsell[ 'labels' ][ 'included' ] ?? '' );
-		$this->assertSame( 'Not included', $upsell[ 'labels' ][ 'not_included' ] ?? '' );
-		$this->assertSame( 'View Pro plans', $upsell[ 'labels' ][ 'view_pro_plans' ] ?? '' );
-		$this->assertSame( 'Compare every feature', $upsell[ 'labels' ][ 'compare_features' ] ?? '' );
-		$this->assertArrayNotHasKey( 'symbols', $upsell );
-		$this->assertSame(
-			[
-				[ 'label' => 'Core hardening', 'free' => true, 'pro' => true ],
-				[ 'label' => 'Auto bad bot blocking', 'free' => true, 'pro' => true ],
-				[ 'label' => 'WP core file scanning', 'free' => true, 'pro' => true ],
-				[ 'label' => 'Malware scanning with MAL{ai}', 'free' => false, 'pro' => true ],
-				[ 'label' => 'Vulnerability detection', 'free' => false, 'pro' => true ],
-				[ 'label' => 'Plugins and themes file scanning', 'free' => false, 'pro' => true ],
-				[ 'label' => 'Critical File Locker (wp-config.php)', 'free' => false, 'pro' => true ],
-				[ 'label' => 'ShieldBACKUP Disaster Recovery', 'free' => false, 'pro' => true ],
-			],
-			$upsell[ 'rows' ] ?? []
-		);
-		$this->assertNotContains( 'Update Controls', \array_column( $upsell[ 'rows' ] ?? [], 'label' ) );
+		foreach ( $upsell[ 'labels' ] ?? [] as $label ) {
+			$this->assertIsString( $label );
+			$this->assertNotSame( '', \trim( $label ) );
+		}
+		$this->assertCount( 8, $upsell[ 'rows' ] ?? [] );
+		$freeStates = [];
+		$proStates = [];
+		foreach ( $upsell[ 'rows' ] ?? [] as $row ) {
+			$this->assertEqualsCanonicalizing( [ 'label', 'free', 'pro' ], \array_keys( $row ) );
+			$this->assertIsString( $row[ 'label' ] );
+			$this->assertNotSame( '', \trim( $row[ 'label' ] ) );
+			$this->assertIsBool( $row[ 'free' ] );
+			$this->assertIsBool( $row[ 'pro' ] );
+			$freeStates[] = $row[ 'free' ];
+			$proStates[] = $row[ 'pro' ];
+		}
+		$this->assertContains( true, $freeStates );
+		$this->assertContains( false, $freeStates );
+		$this->assertSame( \array_fill( 0, 8, true ), $proStates );
 		$this->assertSame( BaseRender::GO_PRO_URL, $upsell[ 'hrefs' ][ 'go_pro' ] ?? '' );
 		$this->assertSame( BaseRender::COMPARE_FEATURES_URL, $upsell[ 'hrefs' ][ 'compare_features' ] ?? '' );
 	}

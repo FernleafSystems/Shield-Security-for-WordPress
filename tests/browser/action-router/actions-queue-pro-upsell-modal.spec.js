@@ -41,14 +41,16 @@ test( 'free Actions Queue upgrade cards open the shared Pro modal without drilli
 			await expect( modal ).toBeVisible();
 			await expectNamedDialog( page, modal, 'actions-queue-pro-upsell-title' );
 			await expectFocusWithin( modal );
-			await expect( modalContent.locator( 'a' ).filter( { hasText: 'View Pro plans' } ) ).toHaveAttribute(
-				'href',
-				'https://clk.shldscrty.com/shieldgoprofeature'
-			);
-			await expect( modalContent.locator( 'a' ).filter( { hasText: 'Compare every feature' } ) ).toHaveAttribute(
-				'href',
-				'https://clk.shldscrty.com/gp'
-			);
+			await expect( modalContent.locator( '.actions-queue-pro-upsell__table' ) ).toBeVisible();
+			for ( const [ selector, href ] of [
+				[ '.actions-queue-pro-upsell__button', 'https://clk.shldscrty.com/shieldgoprofeature' ],
+				[ '.actions-queue-pro-upsell__compare-link', 'https://clk.shldscrty.com/gp' ],
+			] ) {
+				const link = modalContent.locator( selector );
+				await expect( link ).toHaveAttribute( 'href', href );
+				await expect( link ).toHaveAttribute( 'target', '_blank' );
+				await expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+			}
 			expect( requests ).toEqual( [] );
 			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toHaveCount( 0 );
 
