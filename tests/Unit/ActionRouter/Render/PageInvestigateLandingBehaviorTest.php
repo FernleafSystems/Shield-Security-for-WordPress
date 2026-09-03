@@ -114,6 +114,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 				'icon_class',
 				'status',
 				'stat_text',
+				'ip_rules_href',
 				'lookup_key',
 				'render_action',
 				'render_action_json',
@@ -152,6 +153,7 @@ class PageInvestigateLandingBehaviorTest extends BaseUnitTest {
 			PluginNavs::SUBNAV_ACTIVITY_BY_IP,
 			$tilesByKey[ 'ip' ][ 'render_action' ][ Constants::NAV_SUB_ID ] ?? ''
 		);
+		$this->assertSame( '/admin/ips/rules', $tilesByKey[ 'ip' ][ 'ip_rules_href' ] ?? '' );
 		$ipHeader = $tilesByKey[ 'ip' ][ 'header' ] ?? [];
 		$this->assertSame( 'info', $ipHeader[ 'badge_status' ] ?? '' );
 		$this->assertSame( 'investigate', $ipHeader[ 'color_key' ] ?? '' );

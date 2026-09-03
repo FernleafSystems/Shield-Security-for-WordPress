@@ -112,6 +112,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		if ( root === null || !root.contains( subjectTile ) ) {
 			return;
 		}
+		if ( evt.target instanceof Element
+			&& evt.target.closest( '[data-investigate-manage-ip-rules="1"]' ) !== null ) {
+			return;
+		}
 
 		const selection = this.readSubjectSelection( subjectTile );
 		if ( selection.key.length < 1 ) {
