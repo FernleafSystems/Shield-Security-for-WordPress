@@ -1,5 +1,6 @@
 const { openShieldRoute, test, expect } = require( './support/shield-test' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
+const { expectCardFocusRingWithinGrid } = require( './support/operator-landing-cards' );
 const {
 	expectFocusWithin,
 	expectModalHiddenWithoutAriaModal,
@@ -393,6 +394,24 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 
 	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
+} );
+
+test( 'returning to configure keeps the focused zone card outline visible and on-palette', async ( { page } ) => {
+	await openShieldRoute( page, {
+		nav: 'zones',
+		nav_sub: 'overview',
+	} );
+
+	const zone = page.locator(
+		'[data-configure-landing="1"] [data-drill-target="diagnosis"][data-drill-zone-selection*="\\"key\\":\\"secadmin\\""]'
+	).first();
+	await zone.click();
+	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
+
+	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
+	await expect( page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]' ).first() ).toBeVisible();
+	await expect( zone ).toBeFocused();
+	await expectCardFocusRingWithinGrid( zone, '.configure-zones__grid', expect );
 } );
 
 test( 'configure opens a prefetched diagnosis without a standalone diagnosis request', async ( { page } ) => {

@@ -54,7 +54,7 @@
 }
 
 .operator-card-surface:hover:not(:disabled):not(.is-disabled),
-.operator-card-surface:focus-visible,
+.operator-card-surface:focus,
 .operator-card-surface:focus-within {
 	background: #fff;
 	border-color: var(--operator-card-accent-color);
@@ -63,9 +63,10 @@
 	transform: translateY(-1px);
 }
 
-.operator-card-surface:focus-visible,
-.operator-card-surface:focus-within {
-	@include shield-focus-ring();
+#PageMain-Shield .operator-card-surface:focus,
+#PageMain-Shield .operator-card-surface:focus-within {
+	outline: 2px solid var(--operator-card-accent-color);
+	outline-offset: 2px;
 }
 
 .operator-card-surface:disabled,
@@ -95,11 +96,11 @@
 	padding: 0.9rem;
 }
 
-/* Preserve top-row lift and focus-ring clearance across shared card grids. */
+/* Preserve lift and focus-ring clearance at every shared card-grid edge. */
 .investigate-landing__subject-grid,
 .configure-zones__grid,
 .actions-queue-buckets__grid {
-	padding-top: 0.35rem;
+	padding: 0.35rem;
 }
 
 .operator-tile-card__main {

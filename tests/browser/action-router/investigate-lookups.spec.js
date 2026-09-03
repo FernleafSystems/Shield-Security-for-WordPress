@@ -10,6 +10,7 @@ const {
 	getInlineTabByIndex,
 	getInlineTabByTableType,
 } = require( './support/investigate-inline-tabs' );
+const { expectCardFocusRingWithinGrid } = require( './support/operator-landing-cards' );
 const {
 	collectRuntimeErrors,
 	expectInvestigationTableInitialized,
@@ -146,6 +147,35 @@ test( 'investigate user reset uses the shared generic panel path and self shortc
 		subject: '',
 		isLoaded: false,
 	} );
+} );
+
+test( 'returning to investigate keeps the focused user card outline visible and on-palette', async ( { page } ) => {
+	await openShieldRoute( page, {
+		nav: 'activity',
+		nav_sub: 'overview',
+	} );
+
+	const panel = page.locator( panelSelector );
+	const userCard = page.locator( '[data-drill-target="panel"][data-investigate-subject="user"]' );
+	await clickSubjectTile( page, 'user' );
+
+	await Promise.all( [
+		page.waitForURL(
+			( url ) => url.searchParams.get( 'nav' ) === 'activity'
+				&& url.searchParams.get( 'nav_sub' ) === 'overview'
+				&& !url.searchParams.get( 'subject' ),
+			{ timeout: 20_000 }
+		),
+		page.locator( '[data-step-tab-drill-index="0"]' ).click(),
+	] );
+
+	await expectPanelState( page, panel, {
+		subject: '',
+		isLoaded: false,
+	} );
+	const userAction = userCard.locator( '.operator-tile-card__action' );
+	await expect( userAction ).toBeFocused();
+	await expectCardFocusRingWithinGrid( userCard, '.investigate-landing__subject-grid', expect );
 } );
 
 test( 'investigate landing loads each enabled subject tile into the shared panel', async ( { page } ) => {
