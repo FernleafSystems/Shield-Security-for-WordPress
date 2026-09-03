@@ -182,6 +182,18 @@ label input[type=checkbox] {
   padding: 0;
 }
 
+#PageContainer-Apto {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 32px);
+}
+
+@media screen and (max-width: 782px) {
+  #PageContainer-Apto {
+    min-height: calc(100vh - 46px);
+  }
+}
+
 #PageHead-Apto {
   top: 40px;
   z-index: 3;
@@ -201,6 +213,7 @@ label input[type=checkbox] {
 }
 
 #PageMain-Shield {
+  flex: 1 0 auto;
   font-size: 13px;
   position: relative;
   z-index: 0;

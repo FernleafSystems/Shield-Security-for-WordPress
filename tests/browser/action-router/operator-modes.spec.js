@@ -419,6 +419,13 @@ test( 'compact sidebar expands equally on hover and keyboard focus', async ( { p
 	await dismissBlockingDialogs( page );
 
 	const sidebar = page.locator( '#PageMainSide-Apto' );
+	const viewport = page.viewportSize();
+	if ( !viewport ) {
+		throw new Error( 'Expected a configured browser viewport.' );
+	}
+	await expect.poll( async () => sidebar.evaluate( ( element ) => element.getBoundingClientRect().bottom ) )
+		.toBeGreaterThanOrEqual( viewport.height - 1 );
+
 	const label = page.locator( '#NavSideBar .mode-label' ).first();
 	await expect( label ).not.toBeVisible();
 	await sidebar.hover();
