@@ -35,6 +35,25 @@ function readActionVisualState( node ) {
 	};
 }
 
+async function waitForActionBackgroundTransition( action ) {
+	return action.evaluate( ( node ) => new Promise( ( resolve ) => {
+		let timeoutId;
+		const onTransitionEnd = ( event ) => {
+			if ( event.target === node && event.propertyName === 'background-color' ) {
+				finish();
+			}
+		};
+		const finish = () => {
+			window.clearTimeout( timeoutId );
+			node.removeEventListener( 'transitionend', onTransitionEnd );
+			resolve();
+		};
+
+		node.addEventListener( 'transitionend', onTransitionEnd );
+		timeoutId = window.setTimeout( finish, 250 );
+	} ) );
+}
+
 async function waitForDataTableReady( table ) {
 	await expect( table ).toBeVisible();
 	await expect.poll( async () => table.evaluate( ( element ) => {
@@ -74,10 +93,17 @@ test( 'IP secondary action takes priority over the default action on hover', asy
 	const primaryAction = ipCard.locator( '[data-investigate-primary-action="1"]' ).first();
 	const secondaryAction = ipCard.locator( '[data-investigate-manage-ip-rules="1"]' ).first();
 
+	const primaryHoverTransition = waitForActionBackgroundTransition( primaryAction );
 	await primaryAction.hover();
+	await primaryHoverTransition;
 	const primaryHoverState = await primaryAction.evaluate( readActionVisualState );
 
+	const secondaryHoverTransitions = Promise.all( [
+		waitForActionBackgroundTransition( primaryAction ),
+		waitForActionBackgroundTransition( secondaryAction ),
+	] );
 	await secondaryAction.hover();
+	await secondaryHoverTransitions;
 	const primaryDuringSecondaryHover = await primaryAction.evaluate( readActionVisualState );
 	const secondaryHoverState = await secondaryAction.evaluate( readActionVisualState );
 
