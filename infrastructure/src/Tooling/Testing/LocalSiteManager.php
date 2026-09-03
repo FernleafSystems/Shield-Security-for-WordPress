@@ -38,6 +38,9 @@ class LocalSiteManager {
 
 	private string $runId = '';
 
+	/** @var array<string,string>|null */
+	private ?array $localSiteLabelEnvironment = null;
+
 	public function __construct(
 		LocalSiteDefinition $definition,
 		?ProcessRunner $processRunner = null,
@@ -64,7 +67,7 @@ class LocalSiteManager {
 	}
 
 	public function up( string $rootDir ) :int {
-		$this->ensureReady( $rootDir, false );
+		$this->ensureReady( $rootDir, false, false );
 		return 0;
 	}
 
@@ -158,6 +161,7 @@ class LocalSiteManager {
 				$exitCode
 			) );
 		}
+		$this->localSiteLabelEnvironment = null;
 		if ( $this->definition->usesSharedDatabase() ) {
 			$this->resetSharedDatabase( $rootDir );
 		}
@@ -229,9 +233,9 @@ class LocalSiteManager {
 		];
 	}
 
-	public function ensureReady( string $rootDir, bool $requirePlaywright ) :void {
+	public function ensureReady( string $rootDir, bool $requirePlaywright, bool $forceProvision = true ) :void {
 		$this->runPreflightChecks( $rootDir, $requirePlaywright );
-		$this->ensureReadyAfterPreflight( $rootDir );
+		$this->ensureReadyAfterPreflight( $rootDir, null, false, null, $forceProvision );
 	}
 
 	/**
@@ -252,11 +256,15 @@ class LocalSiteManager {
 
 		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir, $browserLabelEnv );
 		$composeFiles = $this->buildComposeFiles();
-		$containerId = $this->resolveOrStartWordpressContainer( $rootDir, $composeFiles, $envOverrides, $onOutput );
+		$site = $this->resolveOrStartWordpressContainer( $rootDir, $composeFiles, $envOverrides, $onOutput );
+		$containerId = $site[ 'container_id' ];
 
 		$this->refreshRuntimeAndAssertHealthy( $rootDir, $containerId, $onOutput, $hostManifest );
 		if ( $fixtureToken !== null ) {
 			$this->installBrowserFixtureEndpoint( $rootDir, $containerId, $fixtureToken, $onOutput );
+		}
+		if ( !$forceProvision && $site[ 'reused' ] && !$this->definition->usesSharedDatabase() ) {
+			return;
 		}
 		if (
 			!$forceProvision
@@ -284,7 +292,7 @@ class LocalSiteManager {
 		$envOverrides['SHIELD_LOCAL_SITE_DB_HOST'] = $this->definition->dbHost();
 		$envOverrides['SHIELD_LOCAL_SITE_PORT'] = (string)$this->definition->sitePort();
 		$envOverrides['SHIELD_LOCAL_SITE_PROFILE'] = $this->definition->key();
-		return \array_merge( $envOverrides, $this->siteLabelEnvironment( $browserLabelEnv ) );
+		return \array_merge( $envOverrides, $this->siteLabelEnvironment( $rootDir, $envOverrides, $browserLabelEnv ) );
 	}
 
 	/**
@@ -588,13 +596,14 @@ class LocalSiteManager {
 	/**
 	 * @param string[] $composeFiles
 	 * @param array<string,string|false> $envOverrides
+	 * @return array{container_id:string,reused:bool}
 	 */
 	private function resolveOrStartWordpressContainer(
 		string $rootDir,
 		array $composeFiles,
 		array $envOverrides,
 		?callable $onOutput = null
-	) :string {
+	) :array {
 		$containerId = $this->runtimeRefresher->resolveServiceContainerId(
 			$rootDir,
 			$composeFiles,
@@ -611,7 +620,10 @@ class LocalSiteManager {
 				);
 			}
 
-			return $containerId;
+			return [
+				'container_id' => $containerId,
+				'reused' => true,
+			];
 		}
 
 		$this->assertSitePortIsAvailable();
@@ -628,7 +640,10 @@ class LocalSiteManager {
 			throw new \RuntimeException( $this->definition->label().' WordPress container did not resolve after startup.' );
 		}
 
-		return $containerId;
+		return [
+			'container_id' => $containerId,
+			'reused' => false,
+		];
 	}
 
 	private function assertSitePortIsAvailable() :void {
@@ -943,15 +958,113 @@ PHP;
 	}
 
 	/**
+	 * @param array<string,string|false> $dockerEnvOverrides
 	 * @param array<string,string|false> $browserLabelEnv
 	 * @return array<string,string|false>
 	 */
-	private function siteLabelEnvironment( array $browserLabelEnv ) :array {
+	private function siteLabelEnvironment( string $rootDir, array $dockerEnvOverrides, array $browserLabelEnv ) :array {
 		if ( $browserLabelEnv !== [] ) {
 			return $browserLabelEnv;
 		}
 
 		$policy = $this->siteCleanupPolicy();
+		if ( !$this->definition->usesSharedDatabase() ) {
+			if ( $this->localSiteLabelEnvironment === null ) {
+				$this->localSiteLabelEnvironment = $this->storedLocalSiteLabelEnvironment(
+					$rootDir,
+					$dockerEnvOverrides,
+					$policy
+				) ?? $this->newLocalSiteLabelEnvironment( $policy );
+			}
+			return $this->localSiteLabelEnvironment;
+		}
+
+		$runId = $this->runtimeRunId( $policy );
+		return $policy->labelEnvironment(
+			$runId,
+			DockerHarnessLabels::LIFECYCLE_REUSABLE,
+			$this->definition->key(),
+			\gmdate( \DATE_ATOM, \time() + 7*24*60*60 ),
+			$runId,
+			DockerHarnessLabels::LIFECYCLE_REUSABLE,
+			\gmdate( \DATE_ATOM, \time() + 30*24*60*60 )
+		);
+	}
+
+	/**
+	 * @param array<string,string|false> $dockerEnvOverrides
+	 * @return array<string,string>|null
+	 */
+	private function storedLocalSiteLabelEnvironment(
+		string $rootDir,
+		array $dockerEnvOverrides,
+		DockerCleanupPolicy $policy
+	) :?array {
+		$projectName = $this->definition->composeProjectName();
+		$process = $this->processRunner->run(
+			[
+				'docker',
+				'inspect',
+				'--format',
+				'{{json .Labels}}',
+				$projectName.'_site-wp',
+				$projectName.'_default',
+			],
+			$rootDir,
+			static function () :void {
+			},
+			$dockerEnvOverrides
+		);
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			return null;
+		}
+
+		$labelSets = \preg_split( '/\R+/', \trim( $process->getOutput() ) ) ?: [];
+		if ( \count( $labelSets ) !== 2 ) {
+			return null;
+		}
+
+		try {
+			$volumeLabels = \json_decode( $labelSets[ 0 ], true, 512, \JSON_THROW_ON_ERROR );
+			$networkLabels = \json_decode( $labelSets[ 1 ], true, 512, \JSON_THROW_ON_ERROR );
+		}
+		catch ( \JsonException $e ) {
+			return null;
+		}
+		if ( !\is_array( $volumeLabels ) || !\is_array( $networkLabels )
+			|| !$this->areReusableLocalSiteLabels( $volumeLabels, $policy )
+			|| !$this->areReusableLocalSiteLabels( $networkLabels, $policy ) ) {
+			return null;
+		}
+
+		return $policy->labelEnvironment(
+			(string)$networkLabels[ DockerHarnessLabels::RUN_ID ],
+			(string)$networkLabels[ DockerHarnessLabels::LIFECYCLE ],
+			$this->definition->key(),
+			(string)$networkLabels[ DockerHarnessLabels::EXPIRES_AT ],
+			(string)$volumeLabels[ DockerHarnessLabels::RUN_ID ],
+			(string)$volumeLabels[ DockerHarnessLabels::LIFECYCLE ],
+			(string)$volumeLabels[ DockerHarnessLabels::EXPIRES_AT ]
+		);
+	}
+
+	/**
+	 * @param array<string,mixed> $labels
+	 */
+	private function areReusableLocalSiteLabels( array $labels, DockerCleanupPolicy $policy ) :bool {
+		$expiresAt = (string)( $labels[ DockerHarnessLabels::EXPIRES_AT ] ?? '' );
+		return (string)( $labels[ DockerHarnessLabels::HARNESS ] ?? '' ) === $policy->harnessLabelValue()
+			&& (string)( $labels[ DockerHarnessLabels::LANE ] ?? '' ) === $this->definition->key()
+			&& (string)( $labels[ DockerHarnessLabels::LIFECYCLE ] ?? '' ) === DockerHarnessLabels::LIFECYCLE_REUSABLE
+			&& (string)( $labels[ DockerHarnessLabels::RUN_ID ] ?? '' ) !== ''
+			&& $expiresAt !== ''
+			&& ( \strtotime( $expiresAt ) ?: 0 ) > \time();
+	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	private function newLocalSiteLabelEnvironment( DockerCleanupPolicy $policy ) :array {
 		$runId = $this->runtimeRunId( $policy );
 		return $policy->labelEnvironment(
 			$runId,

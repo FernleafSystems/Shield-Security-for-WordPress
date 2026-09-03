@@ -31,7 +31,7 @@ class LocalSiteManagerTest extends TestCase {
 		parent::tearDown();
 	}
 
-	public function testEnsureReadyStartsAndProvisionsWhenSiteIsNotRunning() :void {
+	public function testUpStartsAndProvisionsWhenSiteIsNotRunning() :void {
 		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$probe = new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] );
@@ -50,7 +50,7 @@ class LocalSiteManagerTest extends TestCase {
 			$generatedConfigReadiness
 		);
 
-		$manager->ensureReady( $this->projectRoot, true );
+		$manager->up( $this->projectRoot );
 
 		$this->assertSame( [ 'generated-config', 'runtime-refresh' ], $events );
 		$this->assertCount( 1, $dockerComposeExecutor->calls );
@@ -69,9 +69,10 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( 'wordpress-container', $runtimeRefresher->refreshCalls[ 0 ][ 'container_id' ] );
 		$this->assertCount( 1, $generatedConfigReadiness->calls );
 		$this->assertSame( 'local site tooling', $generatedConfigReadiness->calls[ 0 ][ 'failure_context' ] );
-		$this->assertCount( 1, $processRunner->calls );
+		$this->assertCount( 2, $processRunner->calls );
 		$this->assertSame( 'docker', $processRunner->calls[ 0 ][ 'command' ][ 0 ] );
-		$this->assertContains( 'wp-cli', $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertContains( 'inspect', $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertContains( 'wp-cli', $processRunner->calls[ 1 ][ 'command' ] );
 	}
 
 	public function testEnsureReadyPassesTestProfileProvisioningMetadata() :void {
@@ -114,7 +115,90 @@ class LocalSiteManagerTest extends TestCase {
 
 		$this->assertCount( 0, $dockerComposeExecutor->calls );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
+		$this->assertCount( 3, $processRunner->calls );
+	}
+
+	public function testUpReusesHealthySiteWithoutBaselineProvisioning() :void {
+		$processRunner = new RecordingProcessRunner( [ 0, 0 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
+		$probe = new RecordingLocalSiteProbe( [ true, true ], [ true ], [ false ] );
+		$runtimeRefresher = new RecordingLocalSiteRuntimeRefresher( [ 'wordpress-container' ] );
+
+		$manager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
+			$processRunner,
+			new RecordingTestingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			$probe,
+			$runtimeRefresher
+		);
+
+		$this->assertSame( 0, $manager->up( $this->projectRoot ) );
+		$this->assertCount( 0, $dockerComposeExecutor->calls );
+		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
 		$this->assertCount( 2, $processRunner->calls );
+		foreach ( $processRunner->calls as $call ) {
+			$this->assertNotContains( 'wp-cli', $call[ 'command' ] );
+		}
+	}
+
+	public function testReusableLocalSiteLabelsAreStableAcrossCommandInstances() :void {
+		$firstDockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
+		$firstProcessRunner = new RecordingProcessRunner( [ 0 ] );
+		$firstManager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
+			$firstProcessRunner,
+			new RecordingTestingEnvironmentResolver(),
+			$firstDockerComposeExecutor,
+			new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] ),
+			new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] )
+		);
+		$firstManager->ensureReady( $this->projectRoot, false );
+
+		$firstLabels = $firstDockerComposeExecutor->calls[ 0 ][ 'env_overrides' ];
+		$volumeLabels = \json_encode( [
+			'com.fernleaf.harness' => $firstLabels[ 'SHIELD_DOCKER_LABEL_HARNESS' ],
+			'com.fernleaf.lane' => $firstLabels[ 'SHIELD_DOCKER_LABEL_LANE' ],
+			'com.fernleaf.lifecycle' => $firstLabels[ 'SHIELD_DOCKER_VOLUME_LIFECYCLE' ],
+			'com.fernleaf.run-id' => $firstLabels[ 'SHIELD_DOCKER_VOLUME_RUN_ID' ],
+			'com.fernleaf.expires-at' => $firstLabels[ 'SHIELD_DOCKER_VOLUME_EXPIRES_AT' ],
+		], \JSON_THROW_ON_ERROR );
+		$networkLabels = \json_encode( [
+			'com.fernleaf.harness' => $firstLabels[ 'SHIELD_DOCKER_LABEL_HARNESS' ],
+			'com.fernleaf.lane' => $firstLabels[ 'SHIELD_DOCKER_LABEL_LANE' ],
+			'com.fernleaf.lifecycle' => $firstLabels[ 'SHIELD_DOCKER_CONTAINER_LIFECYCLE' ],
+			'com.fernleaf.run-id' => $firstLabels[ 'SHIELD_DOCKER_CONTAINER_RUN_ID' ],
+			'com.fernleaf.expires-at' => $firstLabels[ 'SHIELD_DOCKER_CONTAINER_EXPIRES_AT' ],
+		], \JSON_THROW_ON_ERROR );
+
+		$secondDockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
+		$secondProcessRunner = new RecordingProcessRunner( [ [
+			'exit_code' => 0,
+			'stdout' => $volumeLabels."\n".$networkLabels."\n",
+		] ] );
+		$secondManager = new LocalSiteManager(
+			LocalSiteDefinitions::dev(),
+			$secondProcessRunner,
+			new RecordingTestingEnvironmentResolver(),
+			$secondDockerComposeExecutor,
+			new RecordingLocalSiteProbe( [ true ], [ true, true ], [ false ] ),
+			new RecordingLocalSiteRuntimeRefresher( [ '', 'wordpress-container' ] )
+		);
+		$secondManager->ensureReady( $this->projectRoot, false );
+
+		$secondLabels = $secondDockerComposeExecutor->calls[ 0 ][ 'env_overrides' ];
+		foreach ( [
+			'SHIELD_DOCKER_CONTAINER_RUN_ID',
+			'SHIELD_DOCKER_CONTAINER_EXPIRES_AT',
+			'SHIELD_DOCKER_VOLUME_RUN_ID',
+			'SHIELD_DOCKER_VOLUME_EXPIRES_AT',
+		] as $label ) {
+			$this->assertSame( $firstLabels[ $label ], $secondLabels[ $label ] );
+		}
+		$this->assertSame(
+			[ 'docker', 'inspect', '--format', '{{json .Labels}}', 'shield-local-site_site-wp', 'shield-local-site_default' ],
+			$secondProcessRunner->calls[ 0 ][ 'command' ]
+		);
 	}
 
 	public function testWpEnsuresReadyThenRunsWpCliPassthrough() :void {
@@ -136,7 +220,7 @@ class LocalSiteManagerTest extends TestCase {
 
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 1, $runtimeRefresher->refreshCalls );
-		$this->assertCount( 3, $processRunner->calls );
+		$this->assertCount( 4, $processRunner->calls );
 		$this->assertSame(
 			[
 				'docker',
@@ -152,12 +236,15 @@ class LocalSiteManagerTest extends TestCase {
 				'list',
 				'--allow-root',
 			],
-			$processRunner->calls[ 2 ][ 'command' ]
+			$processRunner->calls[ 3 ][ 'command' ]
 		);
 	}
 
 	public function testWpCaptureReturnsCommandStdoutAndRoutesSetupNoiseToStderr() :void {
 		$processRunner = new RecordingProcessRunner( [
+			[
+				'exit_code' => 0,
+			],
 			[
 				'exit_code' => 0,
 			],
@@ -189,10 +276,11 @@ class LocalSiteManagerTest extends TestCase {
 		$this->assertSame( "{\"ok\":true}\n", $captured[ 'stdout' ] );
 		$this->assertStringContainsString( 'provisioning', $captured[ 'stderr' ] );
 		$this->assertStringContainsString( 'fixture-warning', $captured[ 'stderr' ] );
-		$this->assertCount( 3, $processRunner->calls );
+		$this->assertCount( 4, $processRunner->calls );
 		$this->assertFalse( $processRunner->calls[ 0 ][ 'has_output_callback' ] );
 		$this->assertTrue( $processRunner->calls[ 1 ][ 'has_output_callback' ] );
 		$this->assertTrue( $processRunner->calls[ 2 ][ 'has_output_callback' ] );
+		$this->assertTrue( $processRunner->calls[ 3 ][ 'has_output_callback' ] );
 	}
 
 	public function testEnsureReadyFailsFastWhenReusedSiteIsUnhealthyBeforeRefresh() :void {
@@ -218,7 +306,7 @@ class LocalSiteManagerTest extends TestCase {
 		finally {
 			$this->assertCount( 0, $dockerComposeExecutor->calls );
 			$this->assertCount( 0, $runtimeRefresher->refreshCalls );
-			$this->assertCount( 1, $processRunner->calls );
+			$this->assertCount( 2, $processRunner->calls );
 		}
 	}
 
@@ -244,7 +332,7 @@ class LocalSiteManagerTest extends TestCase {
 		}
 		finally {
 			$this->assertCount( 1, $runtimeRefresher->refreshCalls );
-			$this->assertCount( 1, $processRunner->calls );
+			$this->assertCount( 2, $processRunner->calls );
 		}
 	}
 
@@ -306,7 +394,7 @@ class LocalSiteManagerTest extends TestCase {
 		}
 		finally {
 			$this->assertCount( 1, $runtimeRefresher->refreshCalls );
-			$this->assertCount( 2, $processRunner->calls );
+			$this->assertCount( 3, $processRunner->calls );
 		}
 	}
 
