@@ -190,6 +190,7 @@
       "@php bin/shield test:browser:cleanup"
     ],
     "test:cross-site": [
+      "Composer\\Config::disableProcessTimeout",
       "@php bin/shield test:cross-site"
     ],
     "test:package":     [

@@ -7,7 +7,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Record 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as ImportExportSiteRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Export;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileOptionsCatalog;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
@@ -63,8 +62,6 @@ try {
 					return $this->migrationState();
 				case 'cron-state':
 					return $this->cronState();
-				case 'run-import-from-master':
-					return $this->runImportFromMaster();
 				case 'export-options':
 					return $this->exportOptions();
 				default:
@@ -332,21 +329,6 @@ try {
 				'notify_cooldown_active' => $this->notifyCooldownActive( $masterUrl ),
 				'queue_hook' => $this->queueHook(),
 				'queue_scheduled' => \wp_next_scheduled( $this->queueHook() ) !== false,
-				'master_url' => $masterUrl,
-				'import_id' => (string)$con->opts->optGet( 'import_id' ),
-			];
-		}
-
-		/**
-		 * @return array<string,mixed>
-		 */
-		private function runImportFromMaster() :array {
-			$con = RuntimeTestState::controller();
-			$masterUrl = (string)$con->opts->optGet( 'importexport_masterurl' );
-
-			( new Import() )->fromSite();
-
-			return [
 				'master_url' => $masterUrl,
 				'import_id' => (string)$con->opts->optGet( 'import_id' ),
 			];

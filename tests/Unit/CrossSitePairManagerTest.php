@@ -90,25 +90,6 @@ class CrossSitePairManagerTest extends TestCase {
 		$this->assertCount( 2, $runner->calls );
 	}
 
-	public function testPublicRuntimeRemovalUsesNormalWpCliBeforeCheckoutRefresh() :void {
-		$root = $this->createTrackedTempDir( 'shield-cross-site-public-runtime-removal-' );
-		$runner = RecordingProcessRunner::strict( [
-			[ 'exit_code' => 0 ],
-			[ 'exit_code' => 0 ],
-		] );
-		$manager = new CrossSitePairManager( $runner );
-
-		$this->invokePrivate( $manager, 'removePublicPluginForCheckoutRefresh', [ $root, 'master' ] );
-
-		$this->findProcessCommandContaining( $runner, 'plugin deactivate wp-simple-firewall' );
-		$this->findProcessCommandContaining( $runner, 'plugin delete wp-simple-firewall' );
-		foreach ( $runner->calls as $call ) {
-			$this->assertContains( 'wp-cli-master', $call[ 'command' ] );
-			$this->assertContains( '--allow-root', $call[ 'command' ] );
-			$this->assertStringNotContainsString( ' rm ', ' '.\implode( ' ', $call[ 'command' ] ).' ' );
-		}
-	}
-
 	public function testAutomaticCronBlockerFixtureIsInstalledOnBothCrossSiteRuntimes() :void {
 		$root = $this->createTrackedTempDir( 'shield-cross-site-cron-blocker-' );
 		$runner = RecordingProcessRunner::strict( [
@@ -142,7 +123,7 @@ class CrossSitePairManagerTest extends TestCase {
 		foreach ( [ 'pre_http_request', 'home_url()', 'wp-cron.php', 'doing_wp_cron', 'new \\WP_Error' ] as $required ) {
 			$this->assertStringContainsString( $required, $fixture );
 		}
-		foreach ( [ 'wp_schedule_', 'wp_clear_scheduled_', 'cron event', 'run-import-from-master' ] as $prohibited ) {
+		foreach ( [ 'wp_schedule_', 'wp_clear_scheduled_', 'cron event' ] as $prohibited ) {
 			$this->assertStringNotContainsString( $prohibited, $fixture );
 		}
 	}
@@ -189,7 +170,7 @@ class CrossSitePairManagerTest extends TestCase {
 		$manager = new CrossSitePairManager( $runner, null, null, null, null, $resolver );
 
 		try {
-			$manager->runPublicUpgradeScenario( $root, $root.'/archive-workspace' );
+			$manager->runPublicUpgradeScenario( $root );
 			$this->fail( 'Expected the public relation command to fail.' );
 		}
 		catch ( \RuntimeException $exception ) {
@@ -228,7 +209,6 @@ class CrossSitePairManagerTest extends TestCase {
 			$this->assertStringNotContainsString( 'eval-file /app/tests/Helpers/CrossSite/CrossSiteRuntime.php', $command );
 			$this->assertStringNotContainsString( 'enable-public-cli', $command );
 			$this->assertStringNotContainsString( 'run-notify-hook', $command );
-			$this->assertStringNotContainsString( 'run-import-from-master', $command );
 		}
 	}
 
@@ -403,7 +383,6 @@ class CrossSitePairManagerTest extends TestCase {
 			$command = \implode( ' ', $call[ 'command' ] );
 			$this->assertStringNotContainsString( ' eval ', ' '.$command.' ' );
 			$this->assertStringNotContainsString( 'eval-file', $command );
-			$this->assertStringNotContainsString( 'run-import-from-master', $command );
 		}
 	}
 
@@ -770,82 +749,27 @@ class CrossSitePairManagerTest extends TestCase {
 		] );
 		$manager = new CrossSitePairManager( $runner );
 
-		$result = $this->invokePrivate( $manager, 'waitForSlaveImportCompletion', [ $root ] );
+		$result = $manager->waitForSlaveImportCompletion( $root );
 
 		$this->assertSame( 'idle', $result[ 'rows' ][ 0 ][ 'queue_status' ] );
-		$cronCommand = $this->findProcessCommandContaining( $runner, 'cron event run shield-plugin-importexport-update-notified' );
-		$this->assertContains( 'cron', $cronCommand );
-		$this->assertContains( 'event', $cronCommand );
-		$this->assertContains( 'run', $cronCommand );
-		$this->assertContains( 'shield-plugin-importexport-update-notified', $cronCommand );
 	}
 
-	public function testSlaveImportWaitRunsDirectImportWhenAcceptedNotificationConsumedCronEvent() :void {
+	public function testSlaveImportWaitFailsWhenScheduledImportEventIsMissing() :void {
 		$root = $this->createTrackedTempDir( 'shield-cross-site-wait-direct-' );
-		$runner = new RecordingProcessRunner( [
-			$this->helperSuccessProcess( $this->waitingExportQueueState() ),
-			$this->helperSuccessProcess( $this->slaveCronState( false, true ) ),
-			$this->helperSuccessProcess( [
-				'master_url' => self::MASTER_INTERNAL_URL,
-				'import_id' => 'slave-import-id',
-			] ),
-			$this->helperSuccessProcess( $this->postExportQueueState() ),
-		] );
-		$manager = new CrossSitePairManager( $runner );
-
-		$result = $this->invokePrivate( $manager, 'waitForSlaveImportCompletion', [ $root ] );
-
-		$this->assertSame( 'idle', $result[ 'rows' ][ 0 ][ 'queue_status' ] );
-		$directImportCommand = $this->findProcessCommandContaining( $runner, 'run-import-from-master' );
-		$this->assertContains( 'eval-file', $directImportCommand );
-		$this->assertContains( 'run-import-from-master', $directImportCommand );
-		$this->assertSame(
-			[
-				'master_url' => self::MASTER_INTERNAL_URL,
-				'import_id' => 'slave-import-id',
-			],
-			$manager->lastDiagnostics()[ 'slave_direct_import' ]
-		);
-	}
-
-	public function testSlaveImportWaitFailsWhenSlaveNotificationWasNotAccepted() :void {
-		$root = $this->createTrackedTempDir( 'shield-cross-site-wait-not-accepted-' );
-		$manager = new CrossSitePairManager(
-			new RecordingProcessRunner( [
-				$this->helperSuccessProcess( $this->waitingExportQueueState() ),
-				$this->helperSuccessProcess( $this->slaveCronState( false, false ) ),
-			] )
-		);
-
-		try {
-			$this->invokePrivate( $manager, 'waitForSlaveImportCompletion', [ $root ] );
-			$this->fail( 'Expected rejected slave notification failure.' );
-		}
-		catch ( \RuntimeException $exception ) {
-			$this->assertSame(
-				'Slave did not accept the master import notification; no import event or notify cooldown was visible.',
-				$exception->getMessage()
-			);
-		}
-	}
-
-	public function testSlaveImportWaitSurfacesDirectImportFailure() :void {
-		$root = $this->createTrackedTempDir( 'shield-cross-site-wait-direct-failure-' );
 		$manager = new CrossSitePairManager(
 			new RecordingProcessRunner( [
 				$this->helperSuccessProcess( $this->waitingExportQueueState() ),
 				$this->helperSuccessProcess( $this->slaveCronState( false, true ) ),
-				$this->helperFailureProcess( 'Master export returned HTTP 403.' ),
 			] )
 		);
 
 		try {
-			$this->invokePrivate( $manager, 'waitForSlaveImportCompletion', [ $root ] );
-			$this->fail( 'Expected direct import failure.' );
+			$manager->waitForSlaveImportCompletion( $root );
+			$this->fail( 'Expected missing scheduled import event failure.' );
 		}
 		catch ( \RuntimeException $exception ) {
 			$this->assertSame(
-				'Slave direct import from master failed: Master export returned HTTP 403.',
+				'Slave import event was not scheduled after the master export became ready.',
 				$exception->getMessage()
 			);
 		}
@@ -974,6 +898,115 @@ class CrossSitePairManagerTest extends TestCase {
 		}
 	}
 
+	public function testCurrentScenarioDoesNotStartWhenPublicInventoryRemovalFails() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-current-boundary-' );
+		$refresher = new CrossSiteRuntimeRefresherRecorder();
+		$manager = new CrossSitePairManager(
+			new RecordingProcessRunner( [ 1 ] ),
+			null,
+			null,
+			$refresher
+		);
+
+		try {
+			$manager->prepareCurrentRuntimeScenario( $root );
+			$this->fail( 'Expected public inventory cleanup failure.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertStringContainsString( 'owned artifact inventory', $exception->getMessage() );
+		}
+
+		$this->assertSame( [], $refresher->refreshCalls );
+	}
+
+	public function testCurrentScenarioRestoresAutomaticCronBlockerBeforeScheduledImport() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-current-runtime-ready-' );
+		$runner = RecordingProcessRunner::strict( \array_merge(
+			\array_fill( 0, 21, [ 'exit_code' => 0 ] ),
+			[
+				$this->helperSuccessProcess( $this->waitingExportQueueState() ),
+				$this->helperSuccessProcess( $this->slaveCronState( true, true ) ),
+				[ 'exit_code' => 0 ],
+				$this->helperSuccessProcess( $this->postExportQueueState() ),
+			]
+		) );
+		$refresher = new CrossSiteRuntimeRefresherRecorder();
+		$manager = new CrossSitePairManager( $runner, null, null, $refresher );
+
+		$manager->prepareCurrentRuntimeScenario( $root );
+		$readinessCalls = \array_keys( \array_filter(
+			$runner->calls,
+			fn( array $call ) :bool => $this->isInternalHttpReadinessCall( $call )
+		) );
+		$blockerInstallCalls = \array_keys( \array_filter(
+			$runner->calls,
+			static fn( array $call ) :bool => \str_contains(
+				(string)\end( $call[ 'command' ] ),
+				'/app/tests/fixtures/cross-site/block-automatic-cron.php'
+			)
+		) );
+		$this->assertCount( 2, $readinessCalls );
+		$this->assertCount( 2, $blockerInstallCalls );
+		$this->assertGreaterThan( \max( $readinessCalls ), \min( $blockerInstallCalls ) );
+		$result = $manager->waitForSlaveImportCompletion( $root );
+
+		$this->assertSame( [
+			'wordpress-master-container',
+			'wordpress-slave-container',
+		], \array_column( $refresher->refreshCalls, 'container_id' ) );
+		$slaveRows = \array_values( \array_filter(
+			(array)( $result[ 'rows' ] ?? [] ),
+			static fn( array $row ) :bool => ( $row[ 'url' ] ?? null ) === self::SLAVE_INTERNAL_URL
+		) );
+		$this->assertCount( 1, $slaveRows );
+		$this->assertSame( 'idle', $slaveRows[ 0 ][ 'queue_status' ] ?? null );
+	}
+
+	public function testFinalCleanupRemovesArchiveWorkspaceAndCompletesBaselineChecks() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-final-cleanup-' );
+		$workspace = Path::join( $root, 'tmp', 'cross-site-test-lane', 'archive-workspace' );
+		\mkdir( $workspace, 0777, true );
+		\file_put_contents( Path::join( $workspace, 'checkout.zip' ), 'fixture' );
+		$manager = new CrossSitePairManager( new RecordingProcessRunner() );
+
+		$manager->cleanupRun( $root );
+
+		$this->assertDirectoryDoesNotExist( $workspace );
+	}
+
+	public function testFinalCleanupAggregatesArtifactAndSchemaAbsenceFailures() :void {
+		$root = $this->createTrackedTempDir( 'shield-cross-site-final-cleanup-failures-' );
+		$runner = RecordingProcessRunner::strict( [
+			[ 'exit_code' => 1, 'stderr' => 'artifact removal failed' ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0 ],
+			[ 'exit_code' => 0, 'stdout' => "shield_cross_site_master\n" ],
+		] );
+		$manager = new CrossSitePairManager( $runner );
+
+		try {
+			$manager->cleanupRun( $root );
+			$this->fail( 'Expected aggregate final cleanup failure.' );
+		}
+		catch ( \RuntimeException $exception ) {
+			$this->assertStringContainsString( 'Failed to remove and prove the owned artifact inventory', $exception->getMessage() );
+			$this->assertStringContainsString( 'Owned cross-site databases remain after cleanup', $exception->getMessage() );
+		}
+
+	}
+
 	public function testPrepareSuppressesSubprocessOutputByDefault() :void {
 		$root = $this->createCrossSiteProjectRoot();
 		$runner = new CrossSitePrepareProcessRunner();
@@ -981,7 +1014,7 @@ class CrossSitePairManagerTest extends TestCase {
 		$refresher = new CrossSiteRuntimeRefresherRecorder();
 		$manager = $this->buildPairManagerForPrepareContract( $runner, $docker, $refresher );
 
-		$this->runPrepareQuietly( $manager, $root, 'warm', false );
+		$this->runPrepareQuietly( $manager, $root, false );
 
 		$this->assertNotEmpty( $docker->calls );
 		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db' ], $docker->calls[ 0 ][ 'sub_command' ] );
@@ -992,18 +1025,8 @@ class CrossSitePairManagerTest extends TestCase {
 			$this->assertFalse( $call[ 'show_docker_output' ] );
 			$this->assertSameDockerLabelEnvironment( $composeEnv, $this->assertHasEnvOverrides( $call ) );
 		}
-		$this->assertNotEmpty( $runner->calls );
-		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining( $runner, 'mysqladmin ping' ), 'mysqladmin' );
-		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining( $runner, 'SELECT 1' ), 'mysql' );
-		$this->assertMysqlTcpCommand( $this->findProcessCommandContaining( $runner, 'DROP DATABASE IF EXISTS `shield_cross_site_master`' ), 'mysql' );
-		foreach ( $runner->calls as $call ) {
-			$this->assertTrue( $call[ 'has_output_callback' ], \implode( ' ', $call[ 'command' ] ) );
-			$this->assertSameDockerLabelEnvironment( $composeEnv, $this->assertHasEnvOverrides( $call ) );
-		}
-		$this->assertNotEmpty( $refresher->refreshCalls );
-		foreach ( $refresher->refreshCalls as $call ) {
-			$this->assertTrue( $call[ 'has_output_callback' ] );
-		}
+		$this->assertSame( [], $runner->calls );
+		$this->assertSame( [], $refresher->refreshCalls );
 	}
 
 	public function testPrepareShowsSetupOutputOnlyWhenExplicitlyRequested() :void {
@@ -1013,40 +1036,15 @@ class CrossSitePairManagerTest extends TestCase {
 		$refresher = new CrossSiteRuntimeRefresherRecorder();
 		$manager = $this->buildPairManagerForPrepareContract( $runner, $docker, $refresher );
 
-		$this->runPrepareQuietly( $manager, $root, 'warm', true );
+		$this->runPrepareQuietly( $manager, $root, true );
 
 		$this->assertNotEmpty( $docker->calls );
 		foreach ( $docker->calls as $call ) {
 			$this->assertFalse( $call[ 'has_output_callback' ] );
 			$this->assertTrue( $call[ 'show_docker_output' ] );
 		}
-		$this->assertNotEmpty( $refresher->refreshCalls );
-		foreach ( $refresher->refreshCalls as $call ) {
-			$this->assertFalse( $call[ 'has_output_callback' ] );
-		}
-
-		$this->assertNotEmpty( $runner->calls );
-		$readinessCalls = [];
-		foreach ( $runner->calls as $call ) {
-			if ( $this->isInternalHttpReadinessCall( $call ) ) {
-				$readinessCalls[] = $call;
-				continue;
-			}
-			$this->assertFalse( $call[ 'has_output_callback' ], \implode( ' ', $call[ 'command' ] ) );
-		}
-		$this->assertCount( 2, $readinessCalls );
-		foreach ( $readinessCalls as $call ) {
-			$this->assertTrue( $call[ 'has_output_callback' ], \implode( ' ', $call[ 'command' ] ) );
-		}
-
-		$provisionCalls = \array_values( \array_filter(
-			$runner->calls,
-			static fn( array $call ) :bool => \in_array( '/app/tests/docker/provision-local-site.sh', $call[ 'command' ], true )
-		) );
-		$this->assertCount( 2, $provisionCalls );
-		foreach ( $provisionCalls as $call ) {
-			$this->assertFalse( $call[ 'has_output_callback' ] );
-		}
+		$this->assertSame( [], $runner->calls );
+		$this->assertSame( [], $refresher->refreshCalls );
 	}
 
 	public function testWpCliFailureDiagnosticsRemoveDockerStatusNoise() :void {
@@ -1081,7 +1079,7 @@ class CrossSitePairManagerTest extends TestCase {
 		$manager = $this->buildPairManagerForPrepareContract( $runner, $docker, $refresher );
 
 		try {
-			$this->runPrepareQuietly( $manager, $root, 'warm', false );
+			$this->runPrepareQuietly( $manager, $root, false );
 			$this->fail( 'Expected Docker compose failure.' );
 		}
 		catch ( \RuntimeException $exception ) {
@@ -1334,12 +1332,11 @@ class CrossSitePairManagerTest extends TestCase {
 	private function runPrepareQuietly(
 		CrossSitePairManager $manager,
 		string $root,
-		string $mode,
 		bool $showSetupOutput
 	) :void {
 		\ob_start();
 		try {
-			$manager->prepare( $root, $mode, $showSetupOutput );
+			$manager->prepare( $root, $showSetupOutput );
 		}
 		finally {
 			\ob_end_clean();
