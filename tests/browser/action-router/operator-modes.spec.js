@@ -297,14 +297,13 @@ test( 'dashboard overview wraps cards at narrow widths without horizontal overfl
 	expect( boxes[ 1 ].top ).toBe( boxes[ 0 ].top );
 	expect( boxes[ 2 ].top ).toBe( boxes[ 0 ].top );
 
-	await page.setViewportSize( { width: 1600, height: 1000 } );
+	await page.setViewportSize( { width: 1300, height: 1000 } );
 	const observedOverview = await overview.boundingBox();
 	boxes = await destinations.evaluateAll( ( nodes ) => nodes.map( ( node ) => {
 		const box = node.getBoundingClientRect();
 		return { top: box.top };
 	} ) );
 	expect( observedOverview ).not.toBeNull();
-	expect( observedOverview.width ).toBeLessThanOrEqual( 920 );
 	expect( boxes[ 1 ].top ).toBeGreaterThan( boxes[ 0 ].top );
 	expect( boxes[ 2 ].top ).toBeGreaterThan( boxes[ 1 ].top );
 	expect( await overview.evaluate( ( element ) => element.scrollWidth <= element.clientWidth ) ).toBe( true );
@@ -324,44 +323,29 @@ test( 'dashboard overview wraps cards at narrow widths without horizontal overfl
 	expect( await overview.evaluate( ( element ) => element.scrollWidth <= element.clientWidth ) ).toBe( true );
 } );
 
-test( 'operator context rail keeps content first at wide shells and stacks at compact shells', async ( { page } ) => {
+test( 'operator context rails stay hidden without actions and release the content column', async ( { page } ) => {
 	await page.setViewportSize( { width: 2400, height: 1000 } );
-	await openShieldRoute( page, dashboardRoute );
-	await dismissBlockingDialogs( page );
 
-	const shell = page.locator( '[data-inner-page-body-shell="1"][data-operator-chrome="1"]' );
-	const layout = shell.locator( ':scope > .shield-rail-layout--context-end' );
-	const content = layout.locator( '.shield-rail-layout__content' );
-	const rail = layout.locator( '[data-operator-context-rail="1"]' );
-	const [ wideLayout, wideContent, wideRail ] = await Promise.all( [
-		layout.boundingBox(),
-		content.boundingBox(),
-		rail.boundingBox(),
-	] );
-	expect( wideLayout ).not.toBeNull();
-	expect( wideContent ).not.toBeNull();
-	expect( wideRail ).not.toBeNull();
-	expect( Math.abs( wideContent.y - wideRail.y ) ).toBeLessThan( 2 );
-	expect( wideContent.x ).toBeLessThan( wideRail.x );
-	expect( wideContent.width ).toBeGreaterThan( wideRail.width * 2 );
+	for ( const route of [ dashboardRoute, ...modeRoutes ] ) {
+		await openShieldRoute( page, route );
+		await dismissBlockingDialogs( page );
 
-	await page.setViewportSize( { width: 1200, height: 1000 } );
-	const [ compactShell, compactLayout, compactContent, compactRail ] = await Promise.all( [
-		shell.boundingBox(),
-		layout.boundingBox(),
-		content.boundingBox(),
-		rail.boundingBox(),
-	] );
-	expect( compactShell ).not.toBeNull();
-	expect( compactLayout ).not.toBeNull();
-	expect( compactContent ).not.toBeNull();
-	expect( compactRail ).not.toBeNull();
-	expect( compactShell.width ).toBeLessThanOrEqual( 1024 );
-	expect( Math.abs( compactContent.x - compactRail.x ) ).toBeLessThan( 2 );
-	expect( Math.abs( compactContent.width - compactRail.width ) ).toBeLessThan( 2 );
-	expect( compactRail.y ).toBeGreaterThan( compactContent.y + compactContent.height - 2 );
-	expect( await layout.evaluate( ( element ) => element.scrollWidth <= element.clientWidth ) ).toBe( true );
-	expect( await content.evaluate( ( element ) => element.scrollWidth <= element.clientWidth ) ).toBe( true );
+		const shell = page.locator( '[data-inner-page-body-shell="1"][data-operator-chrome="1"]' );
+		const layout = shell.locator( ':scope > .shield-rail-layout--context-end' );
+		const content = layout.locator( '.shield-rail-layout__content' );
+		const rail = layout.locator( '[data-operator-context-rail="1"]' );
+		await expect( rail ).toBeHidden();
+
+		const [ layoutBox, contentBox ] = await Promise.all( [
+			layout.boundingBox(),
+			content.boundingBox(),
+		] );
+		expect( layoutBox ).not.toBeNull();
+		expect( contentBox ).not.toBeNull();
+		expect( Math.abs( contentBox.x - layoutBox.x ) ).toBeLessThan( 2 );
+		expect( Math.abs( contentBox.width - layoutBox.width ) ).toBeLessThan( 2 );
+		expect( await layout.evaluate( ( element ) => element.scrollWidth <= element.clientWidth ) ).toBe( true );
+	}
 } );
 
 test( 'dashboard priority strip reflows its contiguous regions with the content pane', async ( { page } ) => {
@@ -392,7 +376,7 @@ test( 'dashboard priority strip reflows its contiguous regions with the content 
 	expect( Math.abs( wideCells[ 1 ].x - wideCells[ 0 ].right ) ).toBeLessThan( 2 );
 	expect( wideOverall.width ).toBeLessThan( ( wideCells[ 0 ].right - wideCells[ 0 ].x ) * 2 );
 
-	await page.setViewportSize( { width: 1500, height: 1000 } );
+	await page.setViewportSize( { width: 1300, height: 1000 } );
 	const [ compactOverview, compactOverall, compactSummaries, compactCells ] = await Promise.all( [
 		wideOverview.boundingBox(),
 		overall.boundingBox(),
@@ -405,7 +389,6 @@ test( 'dashboard priority strip reflows its contiguous regions with the content 
 	expect( compactOverview ).not.toBeNull();
 	expect( compactOverall ).not.toBeNull();
 	expect( compactSummaries ).not.toBeNull();
-	expect( compactOverview.width ).toBeLessThanOrEqual( 920 );
 	expect( compactSummaries.y ).toBeGreaterThan( compactOverall.y );
 	expect( Math.abs( compactSummaries.y - ( compactOverall.y + compactOverall.height ) ) ).toBeLessThan( 2 );
 	expect( compactCells[ 1 ].x ).toBeGreaterThan( compactCells[ 0 ].x );

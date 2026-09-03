@@ -213,6 +213,17 @@ export class StepTabsController extends BaseAutoExecComponent {
 			return;
 		}
 
+		const hasActions = step.actions.length > 0;
+		const layout = rail.closest( '.shield-rail-layout--context-end' );
+		if ( layout instanceof HTMLElement ) {
+			layout.classList.toggle( 'is-operator-context-rail-inactive', !hasActions );
+		}
+		rail.hidden = !hasActions;
+		if ( !hasActions ) {
+			railBody.replaceChildren();
+			return;
+		}
+
 		rail.dataset.contextMode = this.normalizeContextMode( shell );
 
 		const fragment = document.createDocumentFragment();
@@ -279,21 +290,19 @@ export class StepTabsController extends BaseAutoExecComponent {
 			fragment.appendChild( section );
 		} );
 
-		if ( step.actions.length > 0 ) {
-			const section = document.createElement( 'div' );
-			section.className = 'operator-context-rail__section';
-			const sectionLabel = document.createElement( 'div' );
-			sectionLabel.className = 'operator-context-rail__section-label';
-			sectionLabel.textContent = labels.actions;
-			const actionsWrap = document.createElement( 'div' );
-			actionsWrap.className = 'operator-context-rail__actions';
+		const section = document.createElement( 'div' );
+		section.className = 'operator-context-rail__section';
+		const sectionLabel = document.createElement( 'div' );
+		sectionLabel.className = 'operator-context-rail__section-label';
+		sectionLabel.textContent = labels.actions;
+		const actionsWrap = document.createElement( 'div' );
+		actionsWrap.className = 'operator-context-rail__actions';
 
-			step.actions.forEach( ( action ) => actionsWrap.appendChild( this.buildContextActionElement( action ) ) );
+		step.actions.forEach( ( action ) => actionsWrap.appendChild( this.buildContextActionElement( action ) ) );
 
-			section.appendChild( sectionLabel );
-			section.appendChild( actionsWrap );
-			fragment.appendChild( section );
-		}
+		section.appendChild( sectionLabel );
+		section.appendChild( actionsWrap );
+		fragment.appendChild( section );
 
 		railBody.replaceChildren( fragment );
 	}

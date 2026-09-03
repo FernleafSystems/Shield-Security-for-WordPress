@@ -207,8 +207,7 @@ test( 'investigate landing deep link opens the IP panel, resets generically, and
 	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toBeVisible();
 
 	const rail = page.locator( '[data-operator-context-rail="1"]' );
-	await expect( rail ).toBeVisible();
-	await expect( rail.locator( '[data-operator-context-rail-body="1"]' ) ).toBeVisible();
+	await expect( rail ).toBeHidden();
 
 	const subjectHeader = panel.locator( '[data-investigate-subject-header="1"]' );
 	const contextStepJson = await subjectHeader.getAttribute( 'data-investigate-context-step' );

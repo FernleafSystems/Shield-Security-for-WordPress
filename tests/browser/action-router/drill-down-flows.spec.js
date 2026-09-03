@@ -215,10 +215,10 @@ test( 'actions queue drills into groups and back out, opening details when avail
 		await expect( page.locator( '[data-actions-queue-groups="1"]' ) ).toBeVisible();
 		await expect( page.locator( '[data-drill-layer="0"]' ) ).toHaveClass( /drill-layer--compact/ );
 		const actionTabs = page.locator( '[data-operator-step-tab="1"]' );
+		const rail = page.locator( '[data-operator-context-rail="1"]' );
 		await expect( actionTabs ).toHaveCount( 3 );
 		await expect( actionTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
-		await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__eyebrow' ) ).toHaveCount( 0 );
-		await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toBeVisible();
+		await expect( rail ).toBeHidden();
 
 		const group = await actionsQueuePage.waitForGroupWithRetry( bucket, fixture.group_key );
 		if ( group === null ) {
@@ -227,6 +227,7 @@ test( 'actions queue drills into groups and back out, opening details when avail
 		await actionsQueuePage.clickElement( group );
 		await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
 		await expect( page.locator( '[data-drill-layer="1"]' ) ).toHaveClass( /drill-layer--compact/ );
+		await expect( rail ).toBeVisible();
 		await waitForScanResultsTableRows( page.locator( '[data-scan-results-table="1"]' ).first() );
 
 		await page.locator( '[data-step-tab-drill-index="1"]' ).click();
@@ -345,7 +346,8 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( configureTabs ).toHaveCount( 3 );
 	await expect( configureTabs.first() ).toHaveAttribute( 'data-color-key', 'home' );
 	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toBeVisible();
-	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toBeVisible();
+	const rail = page.locator( '[data-operator-context-rail="1"]' );
+	await expect( rail ).toBeHidden();
 	await expect( page.locator( '[data-configure-diagnosis="1"] [data-drill-target="editor"]' ) ).toHaveCount( 0 );
 	await expect( page.locator( '[data-configure-diagnosis="1"] .zone-summary-header' ) ).toHaveCount( 0 );
 	const expandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' ).first();
@@ -366,7 +368,7 @@ test( 'configure renders zones directly, drills into diagnosis, and drills back 
 	await expect( page.locator( '[data-configure-diagnosis="1"]' ) ).toBeVisible();
 	await expect( configureTabs ).toHaveCount( 3 );
 	await expect( page.locator( '[data-step-tab-drill-index="0"]' ) ).toBeVisible();
-	await expect( page.locator( '[data-operator-context-rail="1"] .operator-context-rail__title' ) ).toBeVisible();
+	await expect( rail ).toBeHidden();
 	const refreshedExpandRow = page.locator( '[data-configure-diagnosis="1"] [data-shield-expand-row="1"]' ).first();
 	const refreshedExpandButton = refreshedExpandRow.locator( '[data-shield-expand-trigger="1"]' );
 	await expect( refreshedExpandButton.locator( '.shield-detail-row__expand-cta' ) ).toBeVisible();
@@ -613,7 +615,7 @@ test( 'actions queue ignores all results from the context rail and refreshes the
 			),
 			{ timeout: 20_000 }
 		).toBe( false );
-		await expect( rail ).toBeVisible( { timeout: 20_000 } );
+		await expect( rail ).toBeHidden( { timeout: 20_000 } );
 		await expect( displayCollection ).toBeVisible();
 		await expect( scanResultsTable ).toHaveAttribute( 'data-results-display-options', /"include_ignored":true/, { timeout: 20_000 } );
 		await expect( page.locator( '[data-mode-shell="1"][data-mode="actions_queue_assets"]' ) ).toHaveCount( 0 );

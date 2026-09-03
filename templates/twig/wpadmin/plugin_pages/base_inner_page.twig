@@ -123,7 +123,7 @@
 				strings: strings
 			} only %}
 			{% include '/wpadmin/components/page/shield_rail_layout.twig' with { layout: {
-				class: 'shield-rail-layout--context-end',
+				class: 'shield-rail-layout--context-end' ~ ( mode_shell.root_step.actions is empty ? ' is-operator-context-rail-inactive' : '' ),
 				content_first: true,
 				content_html: operator_body_html,
 				rail_html: operator_rail_html

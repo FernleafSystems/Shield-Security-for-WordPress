@@ -8,6 +8,14 @@
 	grid-template-columns: minmax(0, 1fr) minmax(224px, 240px);
 }
 
+.shield-rail-layout.shield-rail-layout--context-end.is-operator-context-rail-inactive {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+.shield-rail-layout.shield-rail-layout--context-end.is-operator-context-rail-inactive > .shield-rail-layout__sidebar {
+	display: none;
+}
+
 .shield-rail-layout.shield-rail-layout--context-end > .shield-rail-layout__content {
 	overflow-x: auto;
 }
