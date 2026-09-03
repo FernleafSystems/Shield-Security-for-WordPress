@@ -2,49 +2,35 @@
 
 namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 class CrossSiteTestLane {
 
-	private const MODE_CLEAN = 'clean';
-	private const MODE_WARM = 'warm';
 	private const LOCK_DIR = 'tmp/cross-site-test-lane';
 	private const LOCK_FILE = 'lane.lock';
-	private const ARCHIVE_WORKSPACE = 'archive-workspace';
 
 	private CrossSitePairManager $pairManager;
 
-	private DockerResourceSweeper $resourceSweeper;
-
-	public function __construct(
-		?CrossSitePairManager $pairManager = null,
-		?DockerResourceSweeper $resourceSweeper = null
-	) {
+	public function __construct( ?CrossSitePairManager $pairManager = null ) {
 		$this->pairManager = $pairManager ?? new CrossSitePairManager();
-		$this->resourceSweeper = $resourceSweeper ?? new DockerResourceSweeper( null, DockerCleanupPolicy::crossSite() );
 	}
 
 	/**
-	 * @param array{mode?:?string,show_setup_output?:bool,teardown?:bool} $options
+	 * @param array{show_setup_output?:bool} $options
 	 */
 	public function run( string $rootDir, array $options = [] ) :int {
-		$mode = $this->resolveRunMode( $options[ 'mode' ] ?? null );
 		$showSetupOutput = (bool)( $options[ 'show_setup_output' ] ?? false );
-		$teardown = (bool)( $options[ 'teardown' ] ?? false );
-		$archiveWorkspace = Path::join( $rootDir, self::LOCK_DIR, self::ARCHIVE_WORKSPACE );
 
 		try {
 			$exitCode = $this->withLock(
 				$rootDir,
-				function () use ( $rootDir, $mode, $showSetupOutput, $archiveWorkspace, $teardown ) :int {
+				function () use ( $rootDir, $showSetupOutput ) :int {
 					$scenarioFailure = null;
 					try {
-						$this->pairManager->prepare( $rootDir, $mode, $showSetupOutput );
-						if ( $mode === self::MODE_CLEAN ) {
-							$this->pairManager->runPublicUpgradeScenario( $rootDir, $archiveWorkspace );
-							$this->pairManager->refreshCheckoutRuntimeAfterPublicUpgrade( $rootDir, $showSetupOutput );
-						}
+						$this->pairManager->prepare( $rootDir, $showSetupOutput );
+						$this->pairManager->preparePublicRuntimeScenario( $rootDir, $showSetupOutput );
+						$this->pairManager->runPublicUpgradeScenario( $rootDir );
+						$this->pairManager->prepareCurrentRuntimeScenario( $rootDir, $showSetupOutput );
 						$this->pairManager->runImportExportScenario( $rootDir );
 						return 0;
 					}
@@ -54,22 +40,18 @@ class CrossSiteTestLane {
 					}
 					finally {
 						try {
-							( new Filesystem() )->remove( $archiveWorkspace );
+							$this->pairManager->cleanupRun( $rootDir );
 						}
-						finally {
-							if ( $teardown ) {
-								try {
-									$cleanupReport = $this->resourceSweeper->cleanupRunResources( $rootDir, 'cross-site', 1, true );
-									if ( $scenarioFailure === null && $cleanupReport->hasFindings() ) {
-										throw new \RuntimeException( \implode( \PHP_EOL, $cleanupReport->findings() ) );
-									}
-								}
-								catch ( \Throwable $throwable ) {
-									if ( $scenarioFailure === null ) {
-										throw $throwable;
-									}
-								}
+						catch ( \Throwable $cleanupFailure ) {
+							if ( $scenarioFailure === null ) {
+								throw $cleanupFailure;
 							}
+							throw new \RuntimeException(
+								'Cross-site scenario failed: '.$scenarioFailure->getMessage()
+								.' | cleanup also failed: '.$cleanupFailure->getMessage(),
+								0,
+								$scenarioFailure
+							);
 						}
 					}
 				}
@@ -94,17 +76,6 @@ class CrossSiteTestLane {
 			}
 			return 1;
 		}
-	}
-
-	private function resolveRunMode( ?string $explicitMode ) :string {
-		if ( $explicitMode === self::MODE_CLEAN || $explicitMode === self::MODE_WARM ) {
-			return $explicitMode;
-		}
-		$envMode = \getenv( 'SHIELD_CROSS_SITE_MODE' );
-		if ( $envMode === self::MODE_CLEAN || $envMode === self::MODE_WARM ) {
-			return $envMode;
-		}
-		return \getenv( 'CI' ) ? self::MODE_CLEAN : self::MODE_WARM;
 	}
 
 	/**

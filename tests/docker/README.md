@@ -108,8 +108,8 @@ Cross-site mode (`test:cross-site`):
 
 1. Uses `tests/docker/docker-compose.cross-site.yml`.
 2. Keeps the active `/app/tests/docker/provision-local-site.sh` WP-CLI helper path for cross-site provisioning.
-3. Compose containers, volumes, and networks are labeled under cleanup scope `cross-site`.
-4. Use `php bin/shield test:docker:cleanup --scope=cross-site --dry-run --all` to audit planned cleanup before removal.
+3. The lane reuses its labelled containers, volumes, and network while proving removal of scenario state itself.
+4. `php bin/shield test:docker:cleanup --scope=cross-site --all` is manual recovery only after an interrupted external process. Use `--dry-run` first to audit the deliberate recovery scope; it is not lane execution or CI teardown.
 
 ## Quiet vs noisy compose output
 

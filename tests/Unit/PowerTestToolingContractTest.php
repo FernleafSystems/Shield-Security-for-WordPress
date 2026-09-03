@@ -25,7 +25,10 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertContains( '@php bin/shield test:browser', $browserCommands );
 
 		$crossSiteCommands = $this->getComposerScriptCommands( 'test:cross-site' );
-		$this->assertSame( [ '@php bin/shield test:cross-site' ], $crossSiteCommands );
+		$this->assertSame( [
+			'Composer\\Config::disableProcessTimeout',
+			'@php bin/shield test:cross-site',
+		], $crossSiteCommands );
 		$this->assertNotContains( '@test:cross-site', $this->getComposerScriptCommands( 'test' ) );
 
 		$packageCommands = $this->getComposerScriptCommands( 'test:package' );
@@ -82,7 +85,7 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertContains( 'phpunit-integration.xml', $command );
 	}
 
-	public function testCrossSiteWorkflowRunsCleanLaneWithScopedTriggers() :void {
+	public function testCrossSiteWorkflowRunsOneStandardLaneWithScopedTriggers() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'GitHub workflows are excluded from packages (development-only)' );
 		}
@@ -95,11 +98,10 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'workflow_dispatch:', $workflow );
 		$this->assertStringContainsString( 'schedule:', $workflow );
 		$this->assertStringContainsString( "cron: '45 6 * * 1-5'", $workflow );
-		$this->assertStringContainsString( 'composer test:cross-site -- --clean --teardown', $workflow );
-		$this->assertStringContainsString(
-			'php bin/shield test:docker:cleanup --scope=cross-site --all',
-			$workflow
-		);
+		$this->assertSame( 1, \substr_count( $workflow, 'run: composer test:cross-site' ) );
+		foreach ( [ '--clean', '--warm', '--teardown', 'test:docker:cleanup --scope=cross-site', 'down -v' ] as $prohibited ) {
+			$this->assertStringNotContainsString( $prohibited, $workflow );
+		}
 
 		foreach ( [
 			'composer.json',

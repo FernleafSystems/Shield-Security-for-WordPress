@@ -299,50 +299,32 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertTrue( $command->getDefinition()->hasOption( 'runtime-refresh' ) );
 	}
 
-	public function testCrossSiteCommandHelpIncludesHarnessOptions() :void {
-		$this->skipIfPackageScriptUnavailable();
-
-		$process = $this->runPhpScript( 'bin/shield', [ 'test:cross-site', '--help' ] );
-		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
-
-		$output = $this->processOutput( $process );
-		$this->assertStringContainsString( 'test:cross-site', $output );
-		$this->assertStringContainsString( '--clean', $output );
-		$this->assertStringContainsString( '--warm', $output );
-		$this->assertStringContainsString( '--show-setup-output', $output );
-		$this->assertStringContainsString( '--teardown', $output );
-	}
-
-	public function testCrossSiteCommandIncludesHarnessOptions() :void {
+	public function testCrossSiteCommandExposesOnlyDiagnosticSetupOutput() :void {
 		$this->skipIfPackageScriptUnavailable();
 		$command = new TestCrossSiteCommand(
 			$this->getPluginRoot(),
 			$this->createMock( CrossSiteTestLane::class )
 		);
 
-		$this->assertTrue( $command->getDefinition()->hasOption( 'clean' ) );
-		$this->assertTrue( $command->getDefinition()->hasOption( 'warm' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-setup-output' ) );
-		$this->assertTrue( $command->getDefinition()->hasOption( 'teardown' ) );
+		$this->assertFalse( $command->getDefinition()->hasOption( 'clean' ) );
+		$this->assertFalse( $command->getDefinition()->hasOption( 'warm' ) );
+		$this->assertFalse( $command->getDefinition()->hasOption( 'teardown' ) );
 	}
 
-	public function testCrossSiteCommandForwardsTeardownOption() :void {
+	public function testCrossSiteCommandForwardsDiagnosticSetupOutput() :void {
 		$this->skipIfPackageScriptUnavailable();
 		$lane = $this->createMock( CrossSiteTestLane::class );
 		$lane->expects( $this->once() )
 			 ->method( 'run' )
 			 ->with( $this->getPluginRoot(), [
-				'mode' => 'clean',
 				'show_setup_output' => true,
-				'teardown' => true,
 			] )
 			 ->willReturn( 0 );
 
 		$tester = new CommandTester( new TestCrossSiteCommand( $this->getPluginRoot(), $lane ) );
 		$this->assertSame( 0, $tester->execute( [
-			'--clean' => true,
 			'--show-setup-output' => true,
-			'--teardown' => true,
 		] ) );
 	}
 

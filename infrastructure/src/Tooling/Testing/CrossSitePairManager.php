@@ -3,6 +3,7 @@
 namespace FernleafSystems\ShieldPlatform\Tooling\Testing;
 
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
@@ -41,6 +42,15 @@ class CrossSitePairManager {
 	private const UPDATE_CONFIG_FIXTURE = '/app/tests/fixtures/upgrade-public/write-update-config.php';
 	private const UPDATE_PACKAGE_DIR = '/var/www/html/wp-content/uploads/shield-cross-site-upgrade';
 	private const UPDATE_PACKAGE_FILE = self::UPDATE_PACKAGE_DIR.'/wp-simple-firewall-current.zip';
+	private const ARCHIVE_WORKSPACE = 'tmp/cross-site-test-lane/archive-workspace';
+	private const SITE_ARTIFACTS = [
+		self::AUTOMATIC_CRON_BLOCKER_TARGET,
+		self::PUBLIC_RUNTIME_TARGET,
+		'/var/www/html/wp-content/mu-plugins/shield-upgrade-test-update-provider.php',
+		'/var/www/html/wp-content/shield-upgrade-test',
+		self::UPDATE_PACKAGE_DIR,
+		'/var/www/html/wp-content/plugins/wp-simple-firewall',
+	];
 	private const STATUS_ACTIVE = 'active';
 	private const QUEUE_IDLE = 'idle';
 	private const QUEUE_WAITING_EXPORT = 'waiting_export';
@@ -80,7 +90,7 @@ class CrossSitePairManager {
 		$this->packageZipResolver = $packageZipResolver ?? new PublicUpgradePackageZipResolver( $this->processRunner );
 	}
 
-	public function prepare( string $rootDir, string $mode, bool $showSetupOutput = false ) :void {
+	public function prepare( string $rootDir, bool $showSetupOutput = false ) :void {
 		$this->lastDiagnostics = [];
 		$onOutput = $this->setupOutputHandler( $showSetupOutput );
 		$showDockerOutput = $showSetupOutput;
@@ -89,28 +99,6 @@ class CrossSitePairManager {
 		$this->runPreflightChecks( $rootDir, $onOutput );
 		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir );
 		$composeFiles = $this->buildComposeFiles();
-
-		if ( $mode === 'clean' ) {
-			$this->stage( 'clean cross-site pair' );
-			$exitCode = $this->dockerComposeExecutor->run(
-				$rootDir,
-				$composeFiles,
-				[ 'down', '-v', '--remove-orphans' ],
-				$envOverrides,
-				$onOutput,
-				$showDockerOutput
-			);
-			if ( $exitCode !== 0 ) {
-				throw $this->composeFailureException(
-					'Failed to remove the previous cross-site containers and volumes.',
-					[ 'down', '-v', '--remove-orphans' ],
-					$exitCode
-				);
-			}
-		}
-		elseif ( $mode !== 'warm' ) {
-			throw new \InvalidArgumentException( 'Cross-site lane mode must be "clean" or "warm".' );
-		}
 
 		$this->stage( 'start cross-site database' );
 		$exitCode = $this->dockerComposeExecutor->run(
@@ -128,9 +116,6 @@ class CrossSitePairManager {
 				$exitCode
 			);
 		}
-
-		$this->stage( 'create cross-site databases' );
-		$this->createDatabases( $rootDir, $envOverrides, $onOutput );
 
 		$this->stage( 'start cross-site services' );
 		$exitCode = $this->dockerComposeExecutor->run(
@@ -154,31 +139,60 @@ class CrossSitePairManager {
 			);
 		}
 
-		if ( $mode === 'clean' ) {
-			$this->provisionSites( $rootDir, $envOverrides, $onOutput, true );
+	}
+
+	public function preparePublicRuntimeScenario( string $rootDir, bool $showSetupOutput = false ) :void {
+		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir );
+		$onOutput = $this->setupOutputHandler( $showSetupOutput );
+
+		$this->stage( 'remove stale public scenario inventory' );
+		$this->removeAndAssertOwnedArtifacts( $rootDir );
+		$this->stage( 'reset public scenario schemas' );
+		$this->createDatabases( $rootDir, $envOverrides, $onOutput );
+		$this->provisionSites( $rootDir, $envOverrides, $onOutput, true );
+	}
+
+	public function prepareCurrentRuntimeScenario( string $rootDir, bool $showSetupOutput = false ) :void {
+		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir );
+		$onOutput = $this->setupOutputHandler( $showSetupOutput );
+
+		$this->stage( 'remove public scenario inventory' );
+		$this->removeAndAssertOwnedArtifacts( $rootDir );
+		$this->stage( 'reset current scenario schemas' );
+		$this->createDatabases( $rootDir, $envOverrides, $onOutput );
+		$this->refreshCheckoutRuntimeWithEnvironment( $rootDir, $envOverrides, $onOutput );
+		$this->stage( 'install current automatic cron blocker fixture' );
+		$this->installAutomaticCronBlockerFixture( $rootDir );
+	}
+
+	public function cleanupRun( string $rootDir ) :void {
+		$failures = [];
+		try {
+			$this->stage( 'remove final cross-site artifact inventory' );
+			$this->removeAndAssertOwnedArtifacts( $rootDir );
 		}
-		else {
-			$this->refreshCheckoutRuntimeWithEnvironment( $rootDir, $envOverrides, $onOutput );
+		catch ( \Throwable $exception ) {
+			$failures[] = $exception;
+		}
+		try {
+			$this->stage( 'drop final cross-site schemas' );
+			$this->dropAndAssertOwnedDatabasesAbsent( $rootDir );
+		}
+		catch ( \Throwable $exception ) {
+			$failures[] = $exception;
+		}
+		if ( $failures !== [] ) {
+			throw new \RuntimeException(
+				'Cross-site cleanup failed: '.\implode( ' | ', \array_map(
+					static fn( \Throwable $exception ) :string => $exception->getMessage(),
+					$failures
+				) )
+			);
 		}
 	}
 
-	public function refreshCheckoutRuntime( string $rootDir, bool $showSetupOutput = false ) :void {
-		$this->refreshCheckoutRuntimeWithEnvironment(
-			$rootDir,
-			$this->buildRuntimeEnvOverrides( $rootDir ),
-			$this->setupOutputHandler( $showSetupOutput )
-		);
-	}
-
-	public function refreshCheckoutRuntimeAfterPublicUpgrade( string $rootDir, bool $showSetupOutput = false ) :void {
-		foreach ( [ self::MASTER, self::SLAVE ] as $site ) {
-			$this->stage( 'remove public '.$site.' runtime for checkout refresh' );
-			$this->removePublicPluginForCheckoutRefresh( $rootDir, $site );
-		}
-		$this->refreshCheckoutRuntime( $rootDir, $showSetupOutput );
-	}
-
-	public function runPublicUpgradeScenario( string $rootDir, string $archiveWorkspace ) :void {
+	public function runPublicUpgradeScenario( string $rootDir ) :void {
+		$archiveWorkspace = Path::join( $rootDir, self::ARCHIVE_WORKSPACE );
 		$this->stage( 'build checkout package for public upgrade' );
 		$artifacts = PublicUpgradeArtifacts::resolve( $rootDir, $archiveWorkspace );
 		$artifacts->resetForRun();
@@ -413,6 +427,67 @@ class CrossSitePairManager {
 		return self::SLAVE_DB_NAME;
 	}
 
+	private function removeAndAssertOwnedArtifacts( string $rootDir ) :void {
+		$failures = [];
+		foreach ( [ self::MASTER, self::SLAVE ] as $site ) {
+			foreach ( self::SITE_ARTIFACTS as $artifact ) {
+				try {
+					$this->runSiteShell(
+						$rootDir,
+						$site,
+						'rm -rf '.\escapeshellarg( $artifact )
+						.' && test ! -e '.\escapeshellarg( $artifact )
+					);
+				}
+				catch ( \Throwable $exception ) {
+					$failures[] = $site.' '.$artifact.': '.$exception->getMessage();
+				}
+			}
+		}
+
+		$archiveWorkspace = Path::join( $rootDir, self::ARCHIVE_WORKSPACE );
+		try {
+			( new Filesystem() )->remove( $archiveWorkspace );
+			if ( \file_exists( $archiveWorkspace ) || \is_link( $archiveWorkspace ) ) {
+				throw new \RuntimeException( 'Archive workspace is still present: '.$archiveWorkspace );
+			}
+		}
+		catch ( \Throwable $exception ) {
+			$failures[] = 'archive workspace: '.$exception->getMessage();
+		}
+
+		if ( $failures !== [] ) {
+			throw new \RuntimeException( 'Failed to remove and prove the owned artifact inventory: '.\implode( ' | ', $failures ) );
+		}
+	}
+
+	private function dropAndAssertOwnedDatabasesAbsent( string $rootDir ) :void {
+		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir );
+		$onOutput = $this->setupOutputHandler( false );
+		$this->waitForDatabaseReady( $rootDir, $envOverrides, $onOutput );
+
+		$dropCommand = \array_merge(
+			$this->buildComposeCommandForExecution( [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			$this->buildMysqlSqlCommand( $this->buildDropDatabasesSql() )
+		);
+		$this->runMysqlCommand( $rootDir, $dropCommand, $envOverrides, $onOutput, 'Failed to drop owned cross-site databases.' );
+
+		$absenceCommand = \array_merge(
+			$this->buildComposeCommandForExecution( [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			$this->buildMysqlSqlCommand( $this->buildDatabaseAbsenceSql() )
+		);
+		$output = $this->runMysqlCommand(
+			$rootDir,
+			$absenceCommand,
+			$envOverrides,
+			$onOutput,
+			'Failed to verify owned cross-site database absence.'
+		);
+		if ( \trim( $output ) !== '' ) {
+			throw new \RuntimeException( 'Owned cross-site databases remain after cleanup: '.\trim( $output ) );
+		}
+	}
+
 	private function assertUpgradePackageMetadata( PublicUpgradePackageZipMetadata $metadata ) :void {
 		if ( \version_compare( $metadata->version(), self::PUBLIC_VERSION, '<=' ) ) {
 			throw new \RuntimeException(
@@ -454,11 +529,6 @@ class CrossSitePairManager {
 			'--force',
 		] );
 		$this->assertInstalledPluginVersion( $rootDir, $site, self::PUBLIC_VERSION, 'public install' );
-	}
-
-	private function removePublicPluginForCheckoutRefresh( string $rootDir, string $site ) :void {
-		$this->wpCapture( $rootDir, $site, [ 'plugin', 'deactivate', self::PLUGIN_SLUG ] );
-		$this->wpCapture( $rootDir, $site, [ 'plugin', 'delete', self::PLUGIN_SLUG ] );
 	}
 
 	private function installAutomaticCronBlockerFixture( string $rootDir ) :void {
@@ -888,9 +958,11 @@ class CrossSitePairManager {
 	/**
 	 * @return array<string,mixed>
 	 */
-	private function waitForSlaveImportCompletion( string $rootDir ) :array {
+	/**
+	 * @return array<string,mixed>
+	 */
+	public function waitForSlaveImportCompletion( string $rootDir ) :array {
 		$startedAt = \time();
-		$directImportAttempted = false;
 		do {
 			$lastQueueState = $this->runHelper( $rootDir, self::MASTER, 'queue-state' );
 			$this->lastDiagnostics[ 'master_queue_after_import' ] = $lastQueueState;
@@ -910,31 +982,9 @@ class CrossSitePairManager {
 			}
 
 			if ( $this->isWaitingForSlaveExport( $lastQueueState ) ) {
-				if ( $this->slaveNotificationAccepted( $slaveCron ) ) {
-					if ( !$directImportAttempted ) {
-						$directImportAttempted = true;
-						try {
-							$this->lastDiagnostics[ 'slave_direct_import' ] = $this->runHelper(
-								$rootDir,
-								self::SLAVE,
-								'run-import-from-master'
-							);
-						}
-						catch ( \RuntimeException $exception ) {
-							throw new \RuntimeException(
-								'Slave direct import from master failed: '.$exception->getMessage(),
-								0,
-								$exception
-							);
-						}
-						continue;
-					}
-				}
-				else {
-					throw new \RuntimeException(
-						'Slave did not accept the master import notification; no import event or notify cooldown was visible.'
-					);
-				}
+				throw new \RuntimeException(
+					'Slave import event was not scheduled after the master export became ready.'
+				);
 			}
 
 			\sleep( 1 );
@@ -988,10 +1038,6 @@ class CrossSitePairManager {
 	private function isWaitingForSlaveExport( array $queueState ) :bool {
 		$row = $this->findRegistryRow( (array)( $queueState[ 'rows' ] ?? [] ), self::SLAVE_INTERNAL_URL );
 		return \is_array( $row ) && ( $row[ 'queue_status' ] ?? '' ) === self::QUEUE_WAITING_EXPORT;
-	}
-
-	private function slaveNotificationAccepted( array $slaveCron ) :bool {
-		return !empty( $slaveCron[ 'notify_cooldown_active' ] );
 	}
 
 	private function postExportQueueStateFailure( array $queueState ) :?string {
@@ -1297,6 +1343,16 @@ class CrossSitePairManager {
 			$this->buildComposeCommandForExecution( [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
 			$this->buildMysqlSqlCommand( $this->buildResetDatabasesSql() )
 		);
+		$this->runMysqlCommand( $rootDir, $command, $envOverrides, $onOutput, 'Failed to create cross-site databases.' );
+	}
+
+	private function runMysqlCommand(
+		string $rootDir,
+		array $command,
+		array $envOverrides,
+		?callable $onOutput,
+		string $failureSummary
+	) :string {
 		$process = $this->processRunner->run(
 			$command,
 			$rootDir,
@@ -1306,19 +1362,36 @@ class CrossSitePairManager {
 		$exitCode = $process->getExitCode() ?? 1;
 		if ( $exitCode !== 0 ) {
 			throw $this->commandFailureException(
-				'Failed to create cross-site databases.',
+				$failureSummary,
 				$command,
 				$exitCode,
 				$process->getOutput(),
 				$process->getErrorOutput()
 			);
 		}
+		return $process->getOutput();
 	}
 
 	private function buildResetDatabasesSql() :string {
 		return \sprintf(
 			'DROP DATABASE IF EXISTS `%1$s`; CREATE DATABASE `%1$s` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; '.
 			'DROP DATABASE IF EXISTS `%2$s`; CREATE DATABASE `%2$s` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;',
+			self::MASTER_DB_NAME,
+			self::SLAVE_DB_NAME
+		);
+	}
+
+	private function buildDropDatabasesSql() :string {
+		return \sprintf(
+			'DROP DATABASE IF EXISTS `%1$s`; DROP DATABASE IF EXISTS `%2$s`;',
+			self::MASTER_DB_NAME,
+			self::SLAVE_DB_NAME
+		);
+	}
+
+	private function buildDatabaseAbsenceSql() :string {
+		return \sprintf(
+			"SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME IN ('%1\$s', '%2\$s');",
 			self::MASTER_DB_NAME,
 			self::SLAVE_DB_NAME
 		);

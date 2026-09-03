@@ -59,8 +59,4 @@ jobs:
       run: npm run build
 
     - name: Run cross-site lane
-      run: composer test:cross-site -- --clean --teardown
-
-    - name: Stop cross-site services
-      if: always()
-      run: php bin/shield test:docker:cleanup --scope=cross-site --all
+      run: composer test:cross-site
