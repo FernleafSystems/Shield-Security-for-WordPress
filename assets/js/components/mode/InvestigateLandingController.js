@@ -126,9 +126,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.rootEl = root;
 		this.shellEl = this.getShell( root );
 		this.panelEl = this.getPanel( root );
+		const primaryAction = subjectTile.querySelector( '[data-investigate-primary-action="1"]' );
 
 		this.openSubjectSelection( selection, {
-			sourceEl: subjectTile,
+			sourceEl: primaryAction instanceof HTMLElement ? primaryAction : null,
 			requestData: {
 				...selection.render_action,
 			},

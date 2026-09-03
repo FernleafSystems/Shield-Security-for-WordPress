@@ -13,8 +13,9 @@ async function expectNoAxeViolations( page, selector ) {
 function formatAxeViolations( violations ) {
 	return violations.map( ( violation ) => {
 		const targets = violation.nodes
-			.flatMap( ( node ) => node.target || [] )
-			.slice( 0, 5 )
+			.slice( 0, 3 )
+			.map( ( node ) => node.target?.[ 0 ] || '' )
+			.filter( Boolean )
 			.join( ', ' );
 
 		return `${violation.id}: ${targets}`;

@@ -251,60 +251,6 @@
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
-.actions-queue-bucket-card {
-	align-items: flex-start;
-	cursor: pointer;
-	flex-direction: column;
-	gap: 0.55rem;
-	min-height: 182px;
-	padding: 1.125rem;
-	transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
-}
-
-.actions-queue-bucket-card.status-critical {
-	border-color: #e8c4c4;
-}
-
-.actions-queue-bucket-card.status-warning {
-	border-color: #e8dcc4;
-}
-
-.actions-queue-bucket-card.status-good {
-	border-color: #c4e8cf;
-}
-
-.actions-queue-bucket-card.status-neutral,
-.actions-queue-bucket-card.status-info {
-	border-color: rgba($status-color-info, 0.25);
-}
-
-.actions-queue-bucket-card.status-critical:hover:not(:disabled),
-.actions-queue-bucket-card.status-critical:focus-visible {
-	border-color: $status-color-critical;
-}
-
-.actions-queue-bucket-card.status-warning:hover:not(:disabled),
-.actions-queue-bucket-card.status-warning:focus-visible {
-	border-color: $status-color-warning;
-}
-
-.actions-queue-bucket-card.status-good:hover:not(:disabled),
-.actions-queue-bucket-card.status-good:focus-visible {
-	border-color: $status-color-good;
-}
-
-.actions-queue-bucket-card.status-neutral:hover:not(:disabled),
-.actions-queue-bucket-card.status-neutral:focus-visible,
-.actions-queue-bucket-card.status-info:hover:not(:disabled),
-.actions-queue-bucket-card.status-info:focus-visible {
-	border-color: $status-color-info;
-}
-
-.actions-queue-bucket-card:disabled {
-	cursor: default;
-	opacity: 0.55;
-}
-
 .actions-queue-bucket-card__severity {
 	align-items: center;
 	display: flex;
@@ -318,23 +264,6 @@
 .actions-queue-bucket-card__severity-label {
 	display: inline-flex;
 	line-height: 1;
-}
-
-.actions-queue-bucket-card.status-critical .actions-queue-bucket-card__severity {
-	color: $status-text-color-critical;
-}
-
-.actions-queue-bucket-card.status-warning .actions-queue-bucket-card__severity {
-	color: $status-text-color-warning;
-}
-
-.actions-queue-bucket-card.status-good .actions-queue-bucket-card__severity {
-	color: $status-text-color-good;
-}
-
-.actions-queue-bucket-card.status-neutral .actions-queue-bucket-card__severity,
-.actions-queue-bucket-card.status-info .actions-queue-bucket-card__severity {
-	color: $status-text-color-info;
 }
 
 .actions-queue-bucket-card__count {
@@ -370,20 +299,6 @@
 	color: $status-color-info;
 }
 
-.actions-queue-bucket-card__title {
-	font-size: 1rem;
-	font-weight: 700;
-	line-height: 1.2;
-	margin: 0;
-}
-
-.actions-queue-bucket-card__summary {
-	color: #5f6974;
-	font-size: 0.86rem;
-	line-height: 1.5;
-	margin: 0;
-}
-
 .actions-queue-groups__findings {
 	display: grid;
 	gap: 1.2rem;
@@ -412,9 +327,8 @@
 	margin-top: 0;
 }
 
-.actions-queue-groups__healthy-stack .configure-zone-card.status-good {
-	background: linear-gradient(135deg, #f6faf7 0%, #edf5ef 100%);
-	border-color: rgba($status-color-good, 0.25);
+.actions-queue-groups__healthy-stack .operator-card-surface.status-good {
+	--operator-card-surface-bg: #edf5ef;
 }
 
 .actions-queue-groups__healthy-stack {
@@ -430,18 +344,21 @@
 	cursor: default;
 }
 
-.actions-queue-groups .actions-queue-group-card--static .configure-zone-card__footer-link {
+.actions-queue-groups .actions-queue-group-card--static .operator-tile-card__footer-link {
 	cursor: pointer;
 }
 
-.actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__icon,
-.actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__title,
-.actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__status,
-.actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__footer-link {
+.actions-queue-groups__healthy-stack .operator-card-surface.status-good .operator-tile-card__icon {
 	color: $status-color-good;
 }
 
-.actions-queue-groups__healthy-stack .configure-zone-card.status-good .configure-zone-card__oneliner {
+.actions-queue-groups__healthy-stack .operator-card-surface.status-good .operator-tile-card__title,
+.actions-queue-groups__healthy-stack .operator-card-surface.status-good .operator-tile-card__status,
+.actions-queue-groups__healthy-stack .operator-card-surface.status-good .operator-tile-card__footer-link {
+	color: var(--operator-card-text-color);
+}
+
+.actions-queue-groups__healthy-stack .operator-card-surface.status-good .operator-tile-card__summary {
 	color: #49604f;
 }
 
@@ -570,12 +487,12 @@
 	border-color: #8c8f94;
 }
 
-.actions-queue-asset-card.is-inactive .investigate-landing__subject-icon {
+.actions-queue-asset-card.is-inactive .operator-tile-card__icon {
 	background: #edf0f0;
 	color: #646970;
 }
 
-.actions-queue-asset-card.is-inactive .investigate-landing__subject-stat {
+.actions-queue-asset-card.is-inactive .operator-tile-card__summary {
 	color: #787c82;
 }
 

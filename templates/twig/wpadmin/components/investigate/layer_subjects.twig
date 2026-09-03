@@ -7,34 +7,36 @@
 		<div class="investigate-landing__subject-grid">
 			{% for subject in subjects %}
 			{% if subject.is_enabled %}
-				<article class="investigate-landing__subject-card{% if subject.key == 'ip' %} investigate-landing__subject-card--ip{% endif %} status-{{ subject.status }}"
+				<article class="investigate-landing__subject-card operator-card-surface operator-tile-card status-{{ subject.status }}"
 						 data-drill-target="panel"
 						 data-investigate-subject="{{ subject.key }}"
 						 data-investigate-header="{{ subject.header_json }}"
 						 data-investigate-render-action="{{ subject.render_action_json }}"
 						 data-investigate-lookup-key="{{ subject.lookup_key }}"
 						 data-investigate-is-live="{{ subject.is_live_attr }}">
-					<div class="investigate-landing__subject-card-main">
-						<span class="investigate-landing__subject-icon" aria-hidden="true">
+					<div class="operator-tile-card__main">
+						<span class="operator-tile-card__icon" aria-hidden="true">
 							<i class="{{ subject.icon_class }}"></i>
 						</span>
-						<span class="investigate-landing__subject-copy">
-							<span class="investigate-landing__subject-label">
+						<span class="operator-tile-card__copy">
+							<span class="operator-tile-card__title">
 								{{ subject.title }}
 								{% if subject.is_pro %}
 									<span class="shield-badge badge-warning">{{ strings.label_pro }}</span>
 								{% endif %}
 							</span>
-							<span class="investigate-landing__subject-stat">{{ subject.stat_text }}</span>
+							<span class="operator-tile-card__summary">{{ subject.stat_text }}</span>
 						</span>
 					</div>
-					<div class="investigate-landing__subject-actions">
-						<button type="button" class="investigate-landing__subject-action investigate-landing__subject-action--primary">
+					<div class="operator-tile-card__actions">
+						<button type="button"
+								class="operator-tile-card__action operator-tile-card__action--primary"
+								data-investigate-primary-action="1">
 							{{ subject.primary_action_label }}
 						</button>
 						{% if subject.key == 'ip' %}
 							<a href="{{ subject.ip_rules_href }}"
-							   class="investigate-landing__subject-action investigate-landing__subject-action--secondary"
+							   class="operator-tile-card__action operator-tile-card__action--secondary"
 							   data-investigate-manage-ip-rules="1">
 								{{ strings.manage_ip_rules }}
 							</a>
@@ -42,21 +44,21 @@
 					</div>
 				</article>
 			{% else %}
-				<div class="investigate-landing__subject-card is-disabled status-{{ subject.status }}"
+				<div class="investigate-landing__subject-card operator-card-surface operator-tile-card is-disabled status-{{ subject.status }}"
 					 data-investigate-subject="{{ subject.key }}"
 					 aria-disabled="true">
-					<span class="investigate-landing__subject-card-main">
-						<span class="investigate-landing__subject-icon" aria-hidden="true">
+					<span class="operator-tile-card__main">
+						<span class="operator-tile-card__icon" aria-hidden="true">
 							<i class="{{ subject.icon_class }}"></i>
 						</span>
-						<span class="investigate-landing__subject-copy">
-							<span class="investigate-landing__subject-label">
+						<span class="operator-tile-card__copy">
+							<span class="operator-tile-card__title">
 								{{ subject.title }}
 								{% if subject.is_pro %}
 									<span class="shield-badge badge-warning">{{ strings.label_pro }}</span>
 								{% endif %}
 							</span>
-							<span class="investigate-landing__subject-stat">{{ subject.stat_text }}</span>
+							<span class="operator-tile-card__summary">{{ subject.stat_text }}</span>
 						</span>
 					</span>
 				</div>
@@ -73,19 +75,19 @@
 		<div class="investigate-landing__subject-grid">
 			{% for review in activity_reviews %}
 				<a href="{{ review.href }}"
-				   class="investigate-landing__subject-card status-info"
+				   class="investigate-landing__subject-card operator-card-surface operator-tile-card status-info"
 				   aria-label="{{ review.action_label }}">
-					<span class="investigate-landing__subject-card-main">
-						<span class="investigate-landing__subject-icon" aria-hidden="true">
+					<span class="operator-tile-card__main">
+						<span class="operator-tile-card__icon" aria-hidden="true">
 							<i class="{{ review.icon_class }}"></i>
 						</span>
-						<span class="investigate-landing__subject-copy">
-							<span class="investigate-landing__subject-label">{{ review.title }}</span>
-							<span class="investigate-landing__subject-stat">{{ review.stat_text }}</span>
+						<span class="operator-tile-card__copy">
+							<span class="operator-tile-card__title">{{ review.title }}</span>
+							<span class="operator-tile-card__summary">{{ review.stat_text }}</span>
 						</span>
 					</span>
-					<span class="investigate-landing__subject-actions">
-						<span class="investigate-landing__subject-action investigate-landing__subject-action--primary">
+					<span class="operator-tile-card__actions">
+						<span class="operator-tile-card__action operator-tile-card__action--primary">
 							{{ review.action_label }}
 						</span>
 					</span>

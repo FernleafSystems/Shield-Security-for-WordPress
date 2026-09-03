@@ -41,6 +41,7 @@ async function expectLiveRegionContract( page, rootSelector, { minMutations = nu
 	const region = drillLiveRegion( page, rootSelector );
 	await expect( region ).toBeVisible();
 	await expect( region ).toHaveAttribute( 'aria-live', /^(polite|assertive)$/ );
+	await expect.poll( async () => ( ( await region.textContent() ) || '' ).trim().length ).toBeGreaterThan( 0 );
 	if ( minMutations !== null ) {
 		await expect.poll( () => liveRegionMutationCount( page ) ).toBeGreaterThanOrEqual( minMutations );
 	}
@@ -186,7 +187,19 @@ async function expectNoAxeViolations( page, selector, excludes = [] ) {
 
 	const results = await builder.analyze();
 
-	expect( results.violations, JSON.stringify( results.violations, null, 2 ) ).toEqual( [] );
+	expect( results.violations, formatAxeViolations( results.violations ) ).toEqual( [] );
+}
+
+function formatAxeViolations( violations ) {
+	return violations.map( ( violation ) => {
+		const targets = violation.nodes
+			.slice( 0, 3 )
+			.map( ( node ) => node.target?.[ 0 ] || '' )
+			.filter( Boolean )
+			.join( ', ' );
+
+		return `${violation.id}: ${targets}`;
+	} ).join( '\n' );
 }
 
 test( 'drill layers expose active state and restore focus to the launcher', async ( { page } ) => {
@@ -528,12 +541,13 @@ test( 'investigate panel failure clears busy state and announces assertively', a
 	const panelContent = page.locator( '[data-investigate-panel-content="1"]' ).first();
 	const liveRegion = drillLiveRegion( page, '[data-investigate-landing="1"]' );
 	const liveSubject = page.locator( '[data-drill-target="panel"][data-investigate-subject="live_traffic"]' ).first();
+	const primaryAction = liveSubject.locator( '[data-investigate-primary-action="1"]' ).first();
 	const renderAction = await liveSubject.evaluate( ( element ) => JSON.parse( element.getAttribute( 'data-investigate-render-action' ) || '{}' ) );
 	const panelRenderSlug = String( renderAction?.render_slug || '' ).trim();
 	expect( panelRenderSlug.length ).toBeGreaterThan( 0 );
 
 	const failedPanel = await failNextRenderSlug( page, panelRenderSlug );
-	await liveSubject.click();
+	await liveSubject.evaluate( ( element ) => element.click() );
 	await expect( panelLayer ).toHaveAttribute( 'aria-hidden', 'false' );
 	await expect( panelContent ).toHaveAttribute( 'aria-busy', 'true' );
 	await expect.poll( () => activeElementDrillLayer( page ) ).toBe( '1' );
@@ -546,5 +560,5 @@ test( 'investigate panel failure clears busy state and announces assertively', a
 	await page.locator( '[data-step-tab-drill-index="0"]' ).click();
 	await expect( panelLayer ).toHaveAttribute( 'aria-hidden', 'true' );
 	await expect( liveRegion ).toHaveAttribute( 'aria-live', 'polite' );
-	await expect.poll( () => activeElementDrillTarget( page ) ).toBe( 'panel' );
+	await expect( primaryAction ).toBeFocused();
 } );

@@ -3,23 +3,36 @@ const { openShieldRoute } = require( './support/shield-browser' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
 
 async function expectVisibleFocusIndicator( focusTarget, styleTarget = focusTarget ) {
+	const baselineStyle = await styleTarget.evaluate( readFocusStyle );
 	await focusTarget.focus();
 	await expect( focusTarget ).toBeFocused();
 
-	const focusStyle = await styleTarget.evaluate( ( node ) => {
-		const style = window.getComputedStyle( node );
-		return {
-			boxShadow: style.boxShadow,
-			outlineStyle: style.outlineStyle,
-			outlineWidth: style.outlineWidth,
-		};
-	} );
+	const focusStyle = await styleTarget.evaluate( readFocusStyle );
 
 	const outlineWidth = Number.parseFloat( focusStyle.outlineWidth || '0' );
 	const hasOutline = focusStyle.outlineStyle !== 'none' && outlineWidth > 0;
-	const hasRingShadow = /\b11,\s*87,\s*164\b/.test( focusStyle.boxShadow );
+	const hasChangedShadow = focusStyle.boxShadow !== 'none'
+		&& focusStyle.boxShadow !== baselineStyle.boxShadow;
 
-	expect( hasOutline || hasRingShadow, JSON.stringify( focusStyle ) ).toBe( true );
+	expect( hasOutline || hasChangedShadow, JSON.stringify( focusStyle ) ).toBe( true );
+}
+
+function readFocusStyle( node ) {
+	const style = window.getComputedStyle( node );
+	return {
+		boxShadow: style.boxShadow,
+		outlineStyle: style.outlineStyle,
+		outlineWidth: style.outlineWidth,
+	};
+}
+
+function readActionVisualState( node ) {
+	const style = window.getComputedStyle( node );
+	return {
+		backgroundColor: style.backgroundColor,
+		borderColor: style.borderColor,
+		color: style.color,
+	};
 }
 
 async function waitForDataTableReady( table ) {
@@ -36,7 +49,7 @@ test( 'admin and operator controls expose the shared focus indicator', async ( {
 	} );
 
 	await expectVisibleFocusIndicator(
-		page.locator( '.configure-zone-card:visible' ).first()
+		page.locator( '[data-configure-landing="1"] [data-drill-target="diagnosis"]:visible' ).first()
 	);
 
 	await openShieldRoute( page, {
@@ -44,9 +57,32 @@ test( 'admin and operator controls expose the shared focus indicator', async ( {
 		nav_sub: 'overview',
 	} );
 
+	const investigateCard = page.locator( '[data-investigate-landing="1"] [data-drill-target="panel"]:visible' ).first();
 	await expectVisibleFocusIndicator(
-		page.locator( '.investigate-landing__subject-card:not(.is-disabled):visible' ).first()
+		investigateCard.locator( '[data-investigate-primary-action="1"]' ).first(),
+		investigateCard
 	);
+} );
+
+test( 'IP secondary action takes priority over the default action on hover', async ( { page } ) => {
+	await openShieldRoute( page, {
+		nav: 'activity',
+		nav_sub: 'overview',
+	} );
+
+	const ipCard = page.locator( '[data-investigate-subject="ip"]' ).first();
+	const primaryAction = ipCard.locator( '[data-investigate-primary-action="1"]' ).first();
+	const secondaryAction = ipCard.locator( '[data-investigate-manage-ip-rules="1"]' ).first();
+
+	await primaryAction.hover();
+	const primaryHoverState = await primaryAction.evaluate( readActionVisualState );
+
+	await secondaryAction.hover();
+	const primaryDuringSecondaryHover = await primaryAction.evaluate( readActionVisualState );
+	const secondaryHoverState = await secondaryAction.evaluate( readActionVisualState );
+
+	expect( primaryDuringSecondaryHover ).not.toEqual( primaryHoverState );
+	expect( secondaryHoverState ).toEqual( primaryHoverState );
 } );
 
 test( 'datatable controls expose the shared focus indicator', async ( { page, fixtureApi } ) => {

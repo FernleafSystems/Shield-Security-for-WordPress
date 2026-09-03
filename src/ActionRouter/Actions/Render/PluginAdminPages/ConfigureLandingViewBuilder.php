@@ -142,6 +142,11 @@ class ConfigureLandingViewBuilder {
 			'status'         => $zoneTile[ 'status' ],
 			'status_label'   => $zoneTile[ 'status_label' ],
 			'summary'        => $zoneTile[ 'summary' ],
+			'action_label'   => $zoneTile[ 'is_disabled' ]
+				? ''
+				: ( $zoneTile[ 'key' ] === 'general'
+					? __( 'Configure General Settings', 'wp-simple-firewall' )
+					: \sprintf( __( 'Configure %s', 'wp-simple-firewall' ), $zoneTile[ 'label' ] ) ),
 			'selection_json' => $diagnosis[ 'zone_selection_json' ],
 			'is_disabled'    => $zoneTile[ 'is_disabled' ],
 		];

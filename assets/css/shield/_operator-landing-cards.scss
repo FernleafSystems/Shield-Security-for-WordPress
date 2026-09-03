@@ -1,0 +1,221 @@
+/* Shared surface and tile anatomy for operator-mode landing cards. */
+.operator-card-surface {
+	--operator-card-accent-color: #{$status-color-info};
+	--operator-card-text-color: #{$status-text-color-info};
+	--operator-card-surface-bg: #f6f7f7;
+	--operator-card-icon-bg: #{$status-bg-info-light};
+	--operator-card-icon-color: #{$status-color-info};
+	--operator-card-action-bg: rgba(255, 255, 255, 0.5);
+	--operator-card-action-border: #{rgba($status-color-info, 0.4)};
+	--operator-card-action-hover-bg: #{$status-bg-info-light};
+
+	appearance: none;
+	background: var(--operator-card-surface-bg);
+	border: 1px solid rgba($border-color-neutral-subtle, 0.9);
+	border-radius: 8px;
+	box-shadow: none;
+	color: #1d2327;
+	cursor: pointer;
+	display: flex;
+	font: inherit;
+	height: 100%;
+	line-height: inherit;
+	text-align: left;
+	text-decoration: none;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+	width: 100%;
+}
+
+.operator-card-surface.status-critical {
+	--operator-card-accent-color: #{$status-color-critical};
+	--operator-card-text-color: #{$status-text-color-critical};
+	--operator-card-icon-bg: #{$status-bg-critical-light};
+	--operator-card-icon-color: #{$status-color-critical};
+	--operator-card-action-border: #{rgba($status-color-critical, 0.4)};
+	--operator-card-action-hover-bg: #{$status-bg-critical-light};
+}
+
+.operator-card-surface.status-warning {
+	--operator-card-accent-color: #{$status-color-warning};
+	--operator-card-text-color: #{$status-text-color-warning};
+	--operator-card-icon-bg: #{$status-bg-warning-light};
+	--operator-card-icon-color: #{$status-color-warning};
+	--operator-card-action-border: #{rgba($status-color-warning, 0.4)};
+	--operator-card-action-hover-bg: #{$status-bg-warning-light};
+}
+
+.operator-card-surface.status-good {
+	--operator-card-accent-color: #{$status-color-good};
+	--operator-card-text-color: #{$status-text-color-good};
+	--operator-card-icon-bg: #{$status-bg-good-light};
+	--operator-card-icon-color: #{$status-color-good};
+	--operator-card-action-border: #{rgba($status-color-good, 0.4)};
+	--operator-card-action-hover-bg: #{$status-bg-good-light};
+}
+
+.operator-card-surface:hover:not(:disabled):not(.is-disabled),
+.operator-card-surface:focus-visible,
+.operator-card-surface:focus-within {
+	background: #fff;
+	border-color: var(--operator-card-accent-color);
+	box-shadow: $card-box-shadow-hover;
+	color: #1d2327;
+	transform: translateY(-1px);
+}
+
+.operator-card-surface:focus-visible,
+.operator-card-surface:focus-within {
+	@include shield-focus-ring();
+}
+
+.operator-card-surface:disabled,
+.operator-card-surface.is-disabled,
+.operator-card-surface.is-disabled:hover,
+.operator-card-surface.is-disabled:focus-visible {
+	background: $surface-color-neutral-raised;
+	border-color: $border-color-neutral-subtle;
+	box-shadow: none;
+	cursor: not-allowed;
+	opacity: 0.7;
+	pointer-events: none;
+	transform: none;
+}
+
+.operator-card-surface.is-disabled .operator-tile-card__icon,
+.operator-card-surface:disabled .operator-tile-card__icon {
+	background: #edf0ef;
+	color: #6c757d;
+}
+
+.operator-tile-card {
+	align-items: stretch;
+	flex-direction: column;
+	gap: 0.65rem;
+	min-height: 0;
+	padding: 0.9rem;
+}
+
+/* Preserve top-row lift and focus-ring clearance across shared card grids. */
+.investigate-landing__subject-grid,
+.configure-zones__grid,
+.actions-queue-buckets__grid {
+	padding-top: 0.35rem;
+}
+
+.operator-tile-card__main {
+	align-items: center;
+	display: flex;
+	gap: 0.75rem;
+}
+
+.operator-tile-card__icon {
+	align-items: center;
+	background: var(--operator-card-icon-bg);
+	border-radius: 8px;
+	color: var(--operator-card-icon-color);
+	display: inline-flex;
+	flex: 0 0 52px;
+	height: 52px;
+	justify-content: center;
+	width: 52px;
+}
+
+.operator-tile-card__icon i {
+	font-size: 1.55rem;
+}
+
+.operator-tile-card__copy {
+	display: grid;
+	gap: 0.2rem;
+	min-width: 0;
+}
+
+.operator-tile-card__title {
+	align-items: center;
+	display: inline-flex;
+	font-size: 0.9rem;
+	font-weight: 700;
+	gap: 0.35rem;
+	justify-content: flex-start;
+	line-height: 1.25;
+}
+
+.operator-tile-card__status {
+	color: var(--operator-card-text-color);
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+
+.operator-tile-card__summary {
+	color: #646970;
+	font-size: 0.8rem;
+	line-height: 1.35;
+	margin: 0;
+}
+
+.operator-tile-card__actions {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+	margin-top: auto;
+	padding-top: 0.15rem;
+}
+
+.operator-tile-card__action {
+	align-items: center;
+	background: var(--operator-card-action-bg);
+	border: 1px solid var(--operator-card-action-border);
+	border-radius: 4px;
+	color: var(--operator-card-text-color);
+	display: flex;
+	font-size: 0.78rem;
+	font-weight: 600;
+	justify-content: center;
+	line-height: 1.3;
+	min-height: 31px;
+	padding: 0.35rem 0.6rem;
+	transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+	width: 100%;
+}
+
+.operator-tile-card__action:focus-visible {
+	@include shield-focus-ring();
+}
+
+.operator-tile-card__footer {
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
+	display: grid;
+	gap: 0.35rem;
+	margin-top: auto;
+	padding-top: 0.75rem;
+}
+
+.operator-tile-card__footer-link {
+	align-items: center;
+	color: #1d2327;
+	display: inline-flex;
+	font-size: 0.75rem;
+	font-weight: 600;
+	gap: 0.25rem;
+	text-decoration: none;
+}
+
+.operator-tile-card__footer-link:hover {
+	text-decoration: underline;
+}
+
+.operator-card-surface:hover:not(:disabled):not(.is-disabled) .operator-tile-card__action--primary,
+.operator-tile-card__action--primary:focus-visible,
+.operator-tile-card__action--secondary:hover,
+.operator-tile-card__action--secondary:focus-visible {
+	background: var(--operator-card-action-hover-bg);
+	border-color: var(--operator-card-action-border);
+	color: var(--operator-card-text-color);
+}
+
+/* Keep a secondary action's hover state distinct from the default primary action. */
+.operator-card-surface:hover:not(:disabled):not(.is-disabled):has(.operator-tile-card__action--secondary:hover) .operator-tile-card__action--primary {
+	background: var(--operator-card-action-bg);
+	border-color: var(--operator-card-action-border);
+	color: var(--operator-card-text-color);
+}

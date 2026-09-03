@@ -34,6 +34,7 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 			'status'          => 'good',
 			'status_label'    => 'Good',
 			'narrative'       => 'No vulnerable assets remain.',
+			'drill_hint'      => '',
 			'is_interactive'  => false,
 			'is_pro_upsell'   => false,
 			'links'           => [ [
@@ -49,11 +50,11 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 		$this->assertSame( 1, $xpath->query( '//*[@data-actions-queue-group-key="maintenance"]' )->length );
 		$this->assertSame(
 			1,
-			$xpath->query( '//div[@data-actions-queue-group-key="vulnerabilities" and contains(concat(" ", normalize-space(@class), " "), " actions-queue-group-card--static ") and not(@data-drill-target) and not(@data-drill-bucket-selection) and not(@data-drill-group-selection)]' )->length
+			$xpath->query( '//div[@data-actions-queue-group-key="vulnerabilities" and not(@data-drill-target) and not(@data-drill-bucket-selection) and not(@data-drill-group-selection)]' )->length
 		);
 		$this->assertSame(
 			1,
-			$xpath->query( '//div[@data-actions-queue-group-key="vulnerabilities"]//a[@href="#details" and contains(concat(" ", normalize-space(@class), " "), " configure-zone-card__footer-link ")]' )->length
+			$xpath->query( '//div[@data-actions-queue-group-key="vulnerabilities"]//a[@href="#details"]' )->length
 		);
 	}
 
@@ -67,6 +68,7 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 				'title'                            => 'Security Admin',
 				'status_label'                     => 'Good',
 				'oneliner'                         => '',
+				'action_label'                     => '',
 				'footer_links'                     => [],
 				'data_drill_target'                => '',
 				'data_drill_zone_selection'        => '',
@@ -77,10 +79,7 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 			],
 		] );
 
-		$this->assertSame(
-			1,
-			$this->xpath( $html )->query( '//div[contains(concat(" ", normalize-space(@class), " "), " configure-zone-card ") and not(@data-actions-queue-group-key)]' )->length
-		);
+		$this->assertSame( 0, $this->xpath( $html )->query( '//*[@data-actions-queue-group-key]' )->length );
 	}
 
 	public function test_pro_upsell_group_is_a_launcher_without_drill_attributes() :void {
@@ -92,6 +91,7 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 			'status'          => 'neutral',
 			'status_label'    => 'Upgrade Required',
 			'narrative'       => 'MAL{ai} malware scanning requires an upgrade.',
+			'drill_hint'      => 'Explore malware findings',
 			'is_interactive'  => true,
 			'is_pro_upsell'   => true,
 			'links'           => [],
@@ -105,6 +105,7 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 			'status'          => 'neutral',
 			'status_label'    => 'Not Enabled',
 			'narrative'       => 'WordPress Core File Scanning is not enabled.',
+			'drill_hint'      => 'Explore WordPress Core File Scanning',
 			'is_interactive'  => true,
 			'is_pro_upsell'   => false,
 			'links'           => [],

@@ -1,33 +1,40 @@
-{% set tile_class = 'configure-zone-card status-' ~ tile.status %}
+{% set tile_class = 'configure-zone-card operator-card-surface operator-tile-card status-' ~ tile.status %}
 {% if tile.class_name is not empty %}
 	{% set tile_class = tile_class ~ ' ' ~ tile.class_name %}
 {% endif %}
 
 {% set tile_body %}
-	<span class="configure-zone-card__icon">
-		<i class="{{ tile.icon_class }}" aria-hidden="true"></i>
-	</span>
-	<div class="configure-zone-card__body">
-		<span class="configure-zone-card__title">{{ tile.title }}</span>
+	<div class="operator-tile-card__main">
+		<span class="operator-tile-card__icon">
+			<i class="{{ tile.icon_class }}" aria-hidden="true"></i>
+		</span>
+		<div class="operator-tile-card__copy">
+			<span class="operator-tile-card__title">{{ tile.title }}</span>
 		{% if tile.status_label is not empty %}
-			<div class="configure-zone-card__status">{{ tile.status_label }}</div>
+			<div class="operator-tile-card__status">{{ tile.status_label }}</div>
 		{% endif %}
 		{% if tile.oneliner is not empty %}
-			<p class="configure-zone-card__oneliner">{{ tile.oneliner }}</p>
-		{% endif %}
-		{% if tile.footer_links is not empty %}
-			<div class="configure-zone-card__footer">
-				{% for link in tile.footer_links %}
-					<a class="configure-zone-card__footer-link"
-					   href="{{ link.href }}"
-					   {% if link.target is not empty %}target="{{ link.target }}"{% endif %}
-					   {% if link.rel is not empty %}rel="{{ link.rel }}"{% endif %}>
-						{{ link.label }}{% if link.icon_class is not empty %} <i class="bi {{ link.icon_class }}" aria-hidden="true"></i>{% endif %}
-					</a>
-				{% endfor %}
-			</div>
+			<p class="operator-tile-card__summary">{{ tile.oneliner }}</p>
 		{% endif %}
 	</div>
+	</div>
+	{% if tile.action_label is not empty %}
+		<div class="operator-tile-card__actions">
+			<span class="operator-tile-card__action operator-tile-card__action--primary">{{ tile.action_label }}</span>
+		</div>
+	{% endif %}
+	{% if tile.footer_links is not empty %}
+		<div class="operator-tile-card__footer">
+			{% for link in tile.footer_links %}
+				<a class="operator-tile-card__footer-link"
+				   href="{{ link.href }}"
+				   {% if link.target is not empty %}target="{{ link.target }}"{% endif %}
+				   {% if link.rel is not empty %}rel="{{ link.rel }}"{% endif %}>
+					{{ link.label }}{% if link.icon_class is not empty %} <i class="bi {{ link.icon_class }}" aria-hidden="true"></i>{% endif %}
+				</a>
+			{% endfor %}
+		</div>
+	{% endif %}
 {% endset %}
 
 {% if tile.tag == 'button' %}

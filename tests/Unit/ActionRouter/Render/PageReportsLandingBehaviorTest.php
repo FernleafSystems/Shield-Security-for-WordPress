@@ -73,6 +73,7 @@ class PageReportsLandingBehaviorTest extends BaseUnitTest {
 		);
 		$this->assertSame( 'button', $cards[ 0 ][ 'tile' ][ 'tag' ] ?? '' );
 		$this->assertSame( 'neutral', $cards[ 0 ][ 'tile' ][ 'status' ] ?? '' );
+		$this->assertNotSame( '', $cards[ 0 ][ 'tile' ][ 'action_label' ] ?? '' );
 		$this->assertSame( 'workspace', $cards[ 0 ][ 'tile' ][ 'data_drill_target' ] ?? '' );
 		$this->assertSame( '', $cards[ 0 ][ 'tile' ][ 'data_drill_zone_selection' ] ?? null );
 		$this->assertSame( '', $cards[ 0 ][ 'tile' ][ 'data_drill_bucket_selection' ] ?? null );

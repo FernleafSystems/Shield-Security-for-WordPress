@@ -2,16 +2,23 @@
 	<div class="actions-queue-buckets__grid">
 		{% for bucket in buckets %}
 			<button type="button"
-					class="actions-queue-bucket-card status-{{ bucket.status }}"
+					class="actions-queue-bucket-card operator-card-surface operator-tile-card status-{{ bucket.status }}"
 					data-drill-target="groups"
 					data-drill-bucket-selection="{{ bucket.selection.selection_json }}"
 					{% if not bucket.is_interactive %}disabled{% endif %}>
-				<div class="actions-queue-bucket-card__severity">
-					<span class="actions-queue-bucket-card__severity-label">{{ bucket.state_label }}</span>
-					<span class="actions-queue-bucket-card__count">{{ bucket.display_count }}</span>
+				<div class="operator-tile-card__main">
+					<span class="operator-tile-card__icon">
+						<i class="{{ bucket.icon_class }}" aria-hidden="true"></i>
+					</span>
+					<div class="operator-tile-card__copy">
+						<div class="actions-queue-bucket-card__severity operator-tile-card__status">
+							<span class="actions-queue-bucket-card__severity-label">{{ bucket.state_label }}</span>
+							<span class="actions-queue-bucket-card__count">{{ bucket.display_count }}</span>
+						</div>
+						<span class="actions-queue-bucket-card__title operator-tile-card__title">{{ bucket.label }}</span>
+					</div>
 				</div>
-				<div class="actions-queue-bucket-card__title">{{ bucket.label }}</div>
-				<div class="actions-queue-bucket-card__summary">{{ bucket.summary_text }}</div>
+				<p class="actions-queue-bucket-card__summary operator-tile-card__summary">{{ bucket.summary_text }}</p>
 			</button>
 		{% endfor %}
 	</div>

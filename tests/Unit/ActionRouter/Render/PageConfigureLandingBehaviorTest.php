@@ -620,6 +620,11 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 			'status'         => $zoneTile[ 'status' ],
 			'status_label'   => $zoneTile[ 'status_label' ],
 			'summary'        => $zoneTile[ 'summary' ],
+			'action_label'   => $zoneTile[ 'is_disabled' ]
+				? ''
+				: ( $zoneTile[ 'key' ] === 'general'
+					? 'Configure General Settings'
+					: 'Configure '.$zoneTile[ 'label' ] ),
 			'selection_json' => $diagnosis[ 'zone_selection_json' ],
 			'is_disabled'    => $zoneTile[ 'is_disabled' ],
 		];

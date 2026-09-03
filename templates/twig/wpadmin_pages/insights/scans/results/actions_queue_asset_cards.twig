@@ -19,22 +19,22 @@
 		<div class="investigate-landing__subject-grid actions-queue-asset-cards__grid" data-mode-tiles="1">
 			{% for item in vars.asset_cards %}
 				<button type="button"
-						class="investigate-landing__subject-card actions-queue-asset-card status-{{ item.status }}{% if item.is_inactive %} is-inactive{% endif %}"
+						class="investigate-landing__subject-card actions-queue-asset-card operator-card-surface operator-tile-card status-{{ item.status }}{% if item.is_inactive %} is-inactive{% endif %}"
 						data-mode-tile="1"
 						data-mode-tile-key="{{ item.key|e('html_attr') }}"
 						data-mode-panel-target="{{ item.panel_target|e('html_attr') }}"
 						aria-controls="{{ item.panel_id|e('html_attr') }}"
 						aria-expanded="false">
-					<span class="investigate-landing__subject-icon actions-queue-asset-card__icon" aria-hidden="true">
+					<span class="actions-queue-asset-card__icon operator-tile-card__icon" aria-hidden="true">
 						<i class="{{ item.icon_class }}"></i>
 					</span>
-					<span class="investigate-landing__subject-label">
+					<span class="operator-tile-card__title">
 						{{ item.title }}
 						{% if item.count_badge is not null and item.count_badge > 0 %}
 							<span class="shield-badge badge-{{ item.status }}">{{ item.count_badge }}</span>
 						{% endif %}
 					</span>
-					<span class="investigate-landing__subject-stat">{{ item.stat_text }}</span>
+					<span class="operator-tile-card__summary">{{ item.stat_text }}</span>
 					{% if item.meta_text is not empty and item.show_meta_in_tile %}
 						<span class="actions-queue-asset-card__meta">{{ item.meta_text }}</span>
 					{% endif %}
