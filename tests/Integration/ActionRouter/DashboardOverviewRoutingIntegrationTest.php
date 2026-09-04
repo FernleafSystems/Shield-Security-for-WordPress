@@ -153,6 +153,19 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		return $strip;
 	}
 
+	private function assertDashboardTaskGuideChoiceRoute( array $choice, string $nav, string $subNav, array $extraQuery = [] ) :void {
+		$this->assertSame( 'href', $choice[ 'target' ][ 'type' ] ?? null );
+		$href = $choice[ 'target' ][ 'href' ] ?? null;
+		$this->assertIsString( $href );
+		$query = [];
+		\parse_str( (string)\parse_url( $href, \PHP_URL_QUERY ), $query );
+		$this->assertSame( $nav, $query[ PluginNavs::FIELD_NAV ] ?? null );
+		$this->assertSame( $subNav, $query[ PluginNavs::FIELD_SUBNAV ] ?? null );
+		foreach ( $extraQuery as $key => $value ) {
+			$this->assertSame( $value, $query[ $key ] ?? null );
+		}
+	}
+
 	private function pluginMainPathFragment( string $pluginSlug ) :string {
 		return TestDataFactory::afsFileItemIdFromPath( WP_PLUGIN_DIR.'/'.$pluginSlug );
 	}
@@ -412,6 +425,40 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		);
 	}
 
+	public function test_operator_mode_landing_exposes_dashboard_task_guide_routes() :void {
+		$renderData = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG )[ 'render_data' ] ?? [];
+		$guide = $renderData[ 'vars' ][ 'dashboard_task_guide' ] ?? [];
+		$this->assertSame( [ 'launcher', 'graph_json' ], \array_keys( $guide ) );
+		$this->assertNotSame( '', $guide[ 'launcher' ][ 'label' ] ?? '' );
+		$this->assertNotSame( '', $guide[ 'launcher' ][ 'tooltip' ] ?? '' );
+
+		$graph = \json_decode( $guide[ 'graph_json' ] ?? '', true, 512, \JSON_THROW_ON_ERROR );
+		$nodes = \array_column( $graph[ 'nodes' ], null, 'key' );
+		$this->assertSame( 'start', $graph[ 'initial_node_key' ] ?? null );
+		$this->assertSame( [ 'start', 'ip_access', 'scans', 'investigate', 'configure', 'reports' ], \array_keys( $nodes ) );
+		$this->assertSame(
+			[ 'manage_ip_access', 'run_or_review_scans', 'investigate', 'configure', 'view_reports' ],
+			\array_column( $nodes[ 'start' ][ 'choices' ], 'key' )
+		);
+		$this->assertSame( 'node', $nodes[ 'start' ][ 'choices' ][ 0 ][ 'target' ][ 'type' ] );
+		$this->assertSame( 'ip_access', $nodes[ 'start' ][ 'choices' ][ 0 ][ 'target' ][ 'node_key' ] );
+
+		$this->assertSame( 'Help me navigate', $guide[ 'launcher' ][ 'label' ] ?? '' );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'ip_access' ][ 'choices' ][ 0 ], PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'ip_access' ][ 'choices' ][ 1 ], PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'scans' ][ 'choices' ][ 0 ], PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_OVERVIEW, [ 'zone' => 'scans' ] );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'scans' ][ 'choices' ][ 1 ], PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'investigate' ][ 'choices' ][ 0 ], PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'investigate' ][ 'choices' ][ 1 ], PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_IP );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'investigate' ][ 'choices' ][ 2 ], PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'investigate' ][ 'choices' ][ 3 ], PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_THEME );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'investigate' ][ 'choices' ][ 4 ], PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_CORE );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'configure' ][ 'choices' ][ 0 ], PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW, [ 'zone' => 'firewall' ] );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'reports' ][ 'choices' ][ 0 ], PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'reports' ][ 'choices' ][ 1 ], PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_CHARTS );
+		$this->assertDashboardTaskGuideChoiceRoute( $nodes[ 'reports' ][ 'choices' ][ 2 ], PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_SETTINGS );
+	}
+
 	public function test_operator_mode_landing_reports_card_does_not_expose_report_aggregates() :void {
 		TestDataFactory::insertReport( 'Daily Report', [
 			'type'       => ReportingConstants::REPORT_TYPE_INFO,
@@ -453,7 +500,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayNotHasKey( 'minimize', $liveMonitor );
 		$this->assertArrayNotHasKey( 'expand', $liveMonitor );
 		$this->assertSame(
-			[ 'dashboard_activity_chart_data_json', 'dashboard_activity_charts', 'dashboard_activity_charts_heading', 'dashboard_launchpad_heading', 'dashboard_strip', 'destination_cards', 'live_monitor' ],
+			[ 'dashboard_activity_chart_data_json', 'dashboard_activity_charts', 'dashboard_activity_charts_heading', 'dashboard_launchpad_heading', 'dashboard_strip', 'destination_cards', 'dashboard_task_guide', 'live_monitor' ],
 			\array_keys( $renderData[ 'vars' ] ?? [] )
 		);
 		$this->assertSame( 'Stats (Previous 7 Days)', $renderData[ 'vars' ][ 'dashboard_activity_charts_heading' ] ?? '' );

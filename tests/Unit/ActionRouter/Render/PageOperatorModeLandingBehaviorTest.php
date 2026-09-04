@@ -55,14 +55,14 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_render_data_exposes_only_dashboard_strip_destinations_and_live_monitor() :void {
+	public function test_render_data_exposes_dashboard_strip_destinations_task_guide_and_live_monitor() :void {
 		$renderData = $this->invokeNonPublicMethod(
 			new PageOperatorModeLandingTestDouble( $this->attentionQuery( [], [] ) ),
 			'getRenderData'
 		);
 
 		$this->assertSame(
-			[ 'dashboard_activity_chart_data_json', 'dashboard_activity_charts', 'dashboard_activity_charts_heading', 'dashboard_launchpad_heading', 'dashboard_strip', 'destination_cards', 'live_monitor' ],
+			[ 'dashboard_activity_chart_data_json', 'dashboard_activity_charts', 'dashboard_activity_charts_heading', 'dashboard_launchpad_heading', 'dashboard_strip', 'destination_cards', 'dashboard_task_guide', 'live_monitor' ],
 			\array_keys( $renderData[ 'vars' ] )
 		);
 		$this->assertSame( 'Stats (Previous 7 Days)', $renderData[ 'vars' ][ 'dashboard_activity_charts_heading' ] );
@@ -84,6 +84,37 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'strings', $renderData );
 		$this->assertArrayNotHasKey( 'actions_queue_rows', $renderData[ 'vars' ] );
 		$this->assertArrayNotHasKey( 'secondary_lanes', $renderData[ 'vars' ] );
+	}
+
+	public function test_dashboard_task_guide_exposes_static_branch_and_deep_link_contract() :void {
+		$guide = $this->invokeNonPublicMethod( new PageOperatorModeLanding(), 'buildDashboardTaskGuide' );
+		$graph = $guide[ 'graph' ];
+		$nodes = \array_column( $graph[ 'nodes' ], null, 'key' );
+
+		$this->assertSame( [ 'launcher', 'graph' ], \array_keys( $guide ) );
+		$this->assertSame( 'Help me navigate', $guide[ 'launcher' ][ 'label' ] );
+		$this->assertSame( 'start', $graph[ 'initial_node_key' ] );
+		$this->assertSame( [ 'back_label', 'close_label' ], \array_keys( $graph[ 'strings' ] ) );
+		$this->assertSame( [ 'start', 'ip_access', 'scans', 'investigate', 'configure', 'reports' ], \array_keys( $nodes ) );
+		$this->assertSame(
+			[ 'manage_ip_access', 'run_or_review_scans', 'investigate', 'configure', 'view_reports' ],
+			\array_column( $nodes[ 'start' ][ 'choices' ], 'key' )
+		);
+		$this->assertSame( 'node', $nodes[ 'start' ][ 'choices' ][ 0 ][ 'target' ][ 'type' ] );
+		$this->assertSame( 'ip_access', $nodes[ 'start' ][ 'choices' ][ 0 ][ 'target' ][ 'node_key' ] );
+		$this->assertSame( '/admin/ips/rules', $nodes[ 'ip_access' ][ 'choices' ][ 0 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/activity/by_ip', $nodes[ 'ip_access' ][ 'choices' ][ 1 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/scans/overview?zone=scans', $nodes[ 'scans' ][ 'choices' ][ 0 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/scans/run', $nodes[ 'scans' ][ 'choices' ][ 1 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/activity/by_user', $nodes[ 'investigate' ][ 'choices' ][ 0 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/activity/by_ip', $nodes[ 'investigate' ][ 'choices' ][ 1 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/activity/by_plugin', $nodes[ 'investigate' ][ 'choices' ][ 2 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/activity/by_theme', $nodes[ 'investigate' ][ 'choices' ][ 3 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/activity/by_core', $nodes[ 'investigate' ][ 'choices' ][ 4 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/zones/overview?zone=firewall', $nodes[ 'configure' ][ 'choices' ][ 0 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/reports/list', $nodes[ 'reports' ][ 'choices' ][ 0 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/reports/charts', $nodes[ 'reports' ][ 'choices' ][ 1 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/reports/settings', $nodes[ 'reports' ][ 'choices' ][ 2 ][ 'target' ][ 'href' ] );
 	}
 
 	public function test_destination_cards_have_strict_lightweight_contract_and_canonical_routes() :void {

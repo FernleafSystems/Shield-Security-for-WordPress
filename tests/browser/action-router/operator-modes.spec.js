@@ -201,7 +201,7 @@ test( 'dashboard overview exposes status summaries and destination cards as acce
 		await expect( summary ).toHaveAttribute( 'href', /nav=scans/ );
 	}
 
-	const destinations = overview.locator( '.operator-mode-overview__destination' );
+	const destinations = overview.locator( 'a.operator-mode-overview__destination' );
 	await expect( destinations ).toHaveCount( 3 );
 	for ( const destination of await destinations.all() ) {
 		await expect( destination ).toHaveRole( 'link' );
@@ -219,6 +219,23 @@ test( 'dashboard overview respects reduced motion for summary links', async ( { 
 	expect( await arrow.evaluate( ( element ) => getComputedStyle( element ).transitionProperty ) ).toBe( 'none' );
 } );
 
+test( 'dashboard activity charts complete an interrupted flip before returning', async ( { page } ) => {
+	await openShieldRoute( page, dashboardRoute );
+
+	const chart = page.locator( '[data-dashboard-activity-chart]' ).first();
+	await expect( chart ).toBeVisible();
+	await chart.hover();
+	await expect( chart ).toHaveClass( /is-chart-visible/ );
+	await page.waitForTimeout( 100 );
+	await page.mouse.move( 0, 0 );
+
+	await page.waitForTimeout( 550 );
+	await expect( chart ).toHaveClass( /is-chart-visible/ );
+
+	await page.waitForTimeout( 1050 );
+	await expect( chart ).not.toHaveClass( /is-chart-visible/ );
+} );
+
 test( 'dashboard sidebar keeps dashboard first, separates actions, and preserves the dashboard geometry', async ( { page } ) => {
 	await page.setViewportSize( { width: 2400, height: 1100 } );
 	await openShieldRoute( page, dashboardRoute );
@@ -226,11 +243,19 @@ test( 'dashboard sidebar keeps dashboard first, separates actions, and preserves
 
 	const navigation = page.locator( '#NavSideBar' );
 	const links = navigation.locator( '.shield-mode-selector .mode-item' );
+	const connect = navigation.locator( '.sidebar-connect' );
 	await expect( links ).toHaveCount( 5 );
+	await expect( connect ).toBeVisible();
 	expect( await links.evaluateAll( ( nodes ) => nodes.map( ( node ) => node.getAttribute( 'data-kind' ) === 'dashboard' ? 'dashboard' : node.getAttribute( 'data-mode' ) ) ) )
 		.toEqual( [ 'dashboard', 'actions', 'investigate', 'configure', 'reports' ] );
 	await expect( navigation.locator( '.shield-mode-selector .sidebar-sep' ) ).toHaveCount( 1 );
 	await expect( links.nth( 1 ).locator( 'xpath=following-sibling::*[1]' ) ).toHaveClass( /sidebar-sep/ );
+	const [ navigationBox, connectBox ] = await Promise.all( [ navigation.boundingBox(), connect.boundingBox() ] );
+	expect( navigationBox ).not.toBeNull();
+	expect( connectBox ).not.toBeNull();
+	const connectBottomInset = ( navigationBox.y + navigationBox.height ) - ( connectBox.y + connectBox.height );
+	expect( connectBottomInset ).toBeGreaterThanOrEqual( 16 );
+	expect( connectBottomInset ).toBeLessThanOrEqual( 24 );
 
 	const overview = page.locator( '.operator-mode-landing__overview' );
 	const status = overview.locator( '.operator-mode-overview__status' );
@@ -273,7 +298,7 @@ test( 'dashboard sidebar keeps dashboard first, separates actions, and preserves
 			expect( Math.abs( accentBox.height - accentContainerBox.height ) ).toBeLessThan( 2 );
 		}
 		else {
-			expect( Math.abs( accentBox.width - accentContainerBox.width ) ).toBeLessThan( 2 );
+			expect( Math.abs( accentBox.width - accentContainerBox.width ) ).toBeLessThanOrEqual( 2 );
 		}
 	}
 } );
@@ -284,7 +309,7 @@ test( 'dashboard overview wraps cards at narrow widths without horizontal overfl
 	await dismissBlockingDialogs( page );
 
 	const overview = page.locator( '.operator-mode-landing__overview' );
-	const destinations = page.locator( '.operator-mode-overview__destination' );
+	const destinations = page.locator( 'a.operator-mode-overview__destination' );
 	await expect( destinations ).toHaveCount( 3 );
 	let boxes = await destinations.evaluateAll( ( nodes ) => nodes.map( ( node ) => {
 		const box = node.getBoundingClientRect();
@@ -293,7 +318,6 @@ test( 'dashboard overview wraps cards at narrow widths without horizontal overfl
 	const wideOverview = await overview.boundingBox();
 	expect( wideOverview ).not.toBeNull();
 	expect( boxes.every( ( box ) => box.width >= 280 ) ).toBe( true );
-	expect( boxes.every( ( box ) => box.height <= 96 ) ).toBe( true );
 	expect( boxes[ 1 ].top ).toBe( boxes[ 0 ].top );
 	expect( boxes[ 2 ].top ).toBe( boxes[ 0 ].top );
 

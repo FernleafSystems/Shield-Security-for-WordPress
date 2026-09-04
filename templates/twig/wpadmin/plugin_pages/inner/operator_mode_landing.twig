@@ -60,6 +60,31 @@
 						</span>
 					</a>
 				{% endfor %}
+				<div class="dashboard-task-guide"
+					 data-dashboard-task-guide="1"
+					 data-dashboard-task-guide-graph="{{ vars.dashboard_task_guide.graph_json|e('html_attr') }}">
+				<button type="button"
+						class="operator-mode-overview__destination dashboard-task-guide__launch"
+						data-dashboard-task-guide-launch="1"
+						data-bs-toggle="tooltip"
+						data-bs-title="{{ vars.dashboard_task_guide.launcher.tooltip|e('html_attr') }}"
+						aria-haspopup="dialog"
+						aria-controls="ShieldModalContainer"
+						aria-label="{{ vars.dashboard_task_guide.launcher.accessible_label|e('html_attr') }}">
+					<span class="shield-card-accent dashboard-task-guide__accent"></span>
+					<span class="operator-mode-overview__destination-icon dashboard-task-guide__destination-icon" aria-hidden="true">
+						<i class="bi bi-question-circle"></i>
+					</span>
+					<span class="operator-mode-overview__destination-copy">
+						<span class="operator-mode-overview__destination-title">{{ vars.dashboard_task_guide.launcher.label }}</span>
+						<span class="operator-mode-overview__destination-description">{{ vars.dashboard_task_guide.launcher.description }}</span>
+						<span class="operator-mode-overview__destination-cta">
+							{{ vars.dashboard_task_guide.launcher.cta }}
+							<i class="bi bi-arrow-right" aria-hidden="true"></i>
+						</span>
+					</span>
+				</button>
+			</div>
 			</div>
 		</section>
 

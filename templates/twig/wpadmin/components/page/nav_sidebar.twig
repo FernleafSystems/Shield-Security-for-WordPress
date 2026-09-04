@@ -26,9 +26,27 @@
 		{% endfor %}
 	</div>
 
-	{% set has_dynamic_sections = sidebar.tool_items is not empty
+	{% if sidebar.task_guide_item is not empty %}
+		{% set task_guide = sidebar.task_guide_item %}
+		<div class="sidebar-sep"></div>
+		<a href="{{ task_guide.href }}"
+		   class="mode-item sidebar-task-guide-link {{ task_guide.classes|join(' ') }}"
+		   {% if task_guide.target is not empty %}target="{{ task_guide.target }}"{% endif %}
+		   {% for data_key,data_val in task_guide.data %}
+			   data-{{ data_key }}="{{ data_val }}"
+			{% endfor %}
+		>
+			<span class="mode-icon"><i class="{{ task_guide.img }}" aria-hidden="true"></i></span>
+			<span class="mode-label">{{ task_guide.title }}</span>
+		</a>
+		<div class="sidebar-sep"></div>
+	{% endif %}
+
+	{% set has_dynamic_sections = sidebar.task_guide_item is empty and (
+		sidebar.tool_items is not empty
 		or sidebar.home_license_item is not empty
-		or sidebar.home_connect_items is not empty %}
+		or sidebar.home_connect_items is not empty
+	) %}
 
 	{% if has_dynamic_sections %}
 		<div class="sidebar-sep"></div>

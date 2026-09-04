@@ -299,7 +299,10 @@ button.tool-item {
 }
 
 .sidebar-connect {
-	margin-top: 0.2rem;
+	border-top: 1px solid $border-color-neutral-strong;
+	margin-bottom: 0.75rem;
+	margin-top: auto;
+	padding: 0.75rem 0.35rem 0.5rem;
 
 	.sidebar-connect-title {
 		color: #5f6770;

@@ -37,6 +37,7 @@ class NavMenuBuilder {
 	/**
 	 * @return array{
 	 *   navigation_links:list<array<string,mixed>>,
+	 *   task_guide_item:array<string,mixed>,
 	 *   tool_items:list<array<string,mixed>>,
 	 *   home_license_item:SidebarLicenseItem|null,
 	 *   home_connect_title:string,
@@ -47,12 +48,14 @@ class NavMenuBuilder {
 		$mode = $this->resolveCurrentMode();
 		$actionsSummary = $this->getActionsQueueSummary();
 		$navigationLinks = $this->normalizeItems( $this->buildNavigationLinks( $mode, $actionsSummary ) );
+		$taskGuideItem = $this->normalizeItems( [ $this->buildTaskGuideItem() ] )[ 0 ];
 
 		if ( empty( $mode ) ) {
 			$connect = $this->buildHomeConnectItems();
 
 			return [
 				'navigation_links'   => $navigationLinks,
+				'task_guide_item'   => $taskGuideItem,
 				'tool_items'         => [],
 				'home_license_item'  => $this->normalizeItems( [ $this->buildHomeLicenseItem() ] )[ 0 ],
 				'home_connect_title' => $connect[ 'title' ],
@@ -62,6 +65,7 @@ class NavMenuBuilder {
 
 		return [
 			'navigation_links'   => $navigationLinks,
+			'task_guide_item'   => $taskGuideItem,
 			'tool_items'         => $this->normalizeItems( $this->toolsForMode( $mode ) ),
 			'home_license_item'  => null,
 			'home_connect_title' => '',
@@ -117,6 +121,28 @@ class NavMenuBuilder {
 			$items[] = $item;
 		}
 		return $items;
+	}
+
+	private function buildTaskGuideItem() :array {
+		return [
+			'id'           => 'task_guide',
+			'slug'         => 'task-guide',
+			'kind'         => 'task_guide',
+			'title'        => __( 'Help me find where to go', 'wp-simple-firewall' ),
+			'img'          => self::con()->svgs->iconClass( 'question-circle' ),
+			'href'         => $this->dashboardTaskGuideHref(),
+			'active'       => false,
+			'classes'      => [ 'sidebar-task-guide-link' ],
+			'divider_after'=> false,
+		];
+	}
+
+	private function dashboardTaskGuideHref() :string {
+		$href = self::con()->plugin_urls->adminTopNav(
+			PluginNavs::NAV_DASHBOARD,
+			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW
+		);
+		return $href.( \str_contains( $href, '?' ) ? '&' : '?' ).'task_guide=1';
 	}
 
 	private function modeIconClass( string $mode ) :string {

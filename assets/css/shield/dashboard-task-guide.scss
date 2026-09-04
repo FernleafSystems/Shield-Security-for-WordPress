@@ -1,0 +1,110 @@
+.dashboard-task-guide {
+	grid-column: 2;
+	margin: 0;
+}
+
+.dashboard-task-guide__launch {
+	appearance: none;
+	font: inherit;
+	text-align: left;
+	width: 100%;
+}
+
+.dashboard-task-guide__launch > .dashboard-task-guide__accent {
+	background: $status-color-info;
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: auto;
+}
+
+.operator-mode-overview__destination-icon.dashboard-task-guide__destination-icon {
+	background: $status-bg-info-light;
+	color: $status-color-info;
+}
+
+#ShieldModalContainer.shield-modal--dashboard-task-guide .modal-dialog {
+	max-width: 42rem;
+}
+
+#ShieldModalContainer.shield-modal--dashboard-task-guide .modal-header {
+	align-items: center;
+	padding: 0.75rem 1rem;
+}
+
+#ShieldModalContainer.shield-modal--dashboard-task-guide .modal-body {
+	padding: 0.75rem 1rem;
+}
+
+#ShieldModalContainer.shield-modal--dashboard-task-guide .modal-footer {
+	padding: 0.625rem 1rem;
+}
+
+.dashboard-task-guide-modal__choices {
+	display: grid;
+	gap: 0.4rem;
+}
+
+.dashboard-task-guide-modal__choice {
+	align-items: center;
+	background: $surface-color-neutral-raised;
+	border: 1px solid $border-color-neutral-subtle;
+	border-radius: var(--bs-border-radius);
+	color: var(--bs-body-color);
+	display: flex;
+	gap: 0.6rem;
+	padding: 0.6rem 0.75rem;
+	text-align: left;
+	text-decoration: none;
+	width: 100%;
+}
+
+button.dashboard-task-guide-modal__choice {
+	cursor: pointer;
+}
+
+.dashboard-task-guide-modal__choice:hover {
+	border-color: $status-color-good;
+	color: var(--bs-body-color);
+	text-decoration: none;
+}
+
+.dashboard-task-guide-modal__choice:focus-visible {
+	@include shield-focus-ring();
+}
+
+.dashboard-task-guide-modal__choice-icon {
+	color: $status-color-good;
+	flex: 0 0 auto;
+	font-size: 1.05rem;
+	line-height: 1;
+}
+
+.dashboard-task-guide-modal__choice-label {
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+#NavSideBar .mode-item.sidebar-task-guide-link {
+	background: $card-bg-info;
+	border-color: $panel-border-info-subtle;
+	color: $status-text-color-info;
+
+	.mode-icon > i {
+		color: $status-color-info;
+	}
+
+	&:hover {
+		background: $status-bg-info-light;
+		border-color: $mode-investigate-border;
+		color: $status-text-color-info;
+		text-decoration: none;
+	}
+}
+
+@container (max-width: 920px) {
+	.dashboard-task-guide {
+		grid-column: auto;
+	}
+}

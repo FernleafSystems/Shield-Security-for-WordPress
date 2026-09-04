@@ -3,6 +3,7 @@ import { Blockdown } from "../components/general/Blockdown";
 import { BootstrapTooltips } from "../components/ui/BootstrapTooltips";
 import { ReportsTrendsController } from "../components/charts/ReportsTrendsController";
 import { DashboardActivityCharts } from "../components/charts/DashboardActivityCharts";
+import { DashboardTaskGuide } from "../components/general/DashboardTaskGuide";
 import { ConfigImport } from "../components/options/ConfigImport";
 import { DashboardLiveMonitor } from "../components/general/DashboardLiveMonitor";
 import { DivPrinter } from "../components/general/DivPrinter";
@@ -79,6 +80,7 @@ export class AppMain extends AppBase {
 		this.components.import = ( 'import' in comps ) ? new ConfigImport( comps.import ) : null;
 		this.components.dashboard_live_monitor = ( 'dashboard_live_monitor' in comps ) ? new DashboardLiveMonitor( comps.dashboard_live_monitor ) : null;
 		this.components.dashboard_activity_charts = new DashboardActivityCharts();
+		this.components.dashboard_task_guide = new DashboardTaskGuide();
 		this.components.div_printer = new DivPrinter();
 		this.components.dynamic_buttons = new DynamicActionButtons();
 		this.components.file_locker = ( 'file_locker' in comps ) ? new FileLocker( comps.file_locker ) : null;

@@ -88,7 +88,7 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 				'logo_url'    => self::con()->urls->forImage( 'plugin_logo_prem_dark.svg' ),
 				'left_lines'  => [
 					[
-						'text'     => __( 'Free protection is real.', 'wp-simple-firewall' ),
+						'text'     => __( 'Free protection is powerful.', 'wp-simple-firewall' ),
 						'emphasis' => '',
 					],
 					[
@@ -96,7 +96,7 @@ class PageActionsQueueLanding extends PageDrillDownLandingBase {
 						'emphasis' => __( 'complete.', 'wp-simple-firewall' ),
 					],
 				],
-				'heading'     => __( 'See what Shield Pro adds', 'wp-simple-firewall' ),
+				'heading'     => __( 'Level-Up Your WordPress Protection', 'wp-simple-firewall' ),
 				'labels'      => [
 					'close'            => __( 'Close', 'wp-simple-firewall' ),
 					'protection'       => __( 'Protection', 'wp-simple-firewall' ),

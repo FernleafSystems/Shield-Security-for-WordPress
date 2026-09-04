@@ -38,6 +38,25 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\
  *   labels:list<string>,
  *   series:list<array{key:string,label:string,data:list<int>}>
  * }
+ * @phpstan-type DashboardTaskGuideChoice array{
+ *   key:string,
+ *   label:string,
+ *   icon_class:string,
+ *   target:array{type:'node',node_key:string}|array{type:'href',href:string}
+ * }
+ * @phpstan-type DashboardTaskGuideNode array{
+ *   key:string,
+ *   title:string,
+ *   choices:list<DashboardTaskGuideChoice>
+ * }
+ * @phpstan-type DashboardTaskGuide array{
+ *   launcher:array{label:string,description:string,cta:string,tooltip:string,accessible_label:string},
+ *   graph:array{
+ *     initial_node_key:string,
+ *     strings:array{back_label:string,close_label:string},
+ *     nodes:list<DashboardTaskGuideNode>
+ *   }
+ * }
  */
 class PageOperatorModeLanding extends BaseRender {
 
@@ -57,6 +76,7 @@ class PageOperatorModeLanding extends BaseRender {
 	protected function getRenderData() :array {
 		$queueCard = $this->buildActionsQueueCardData();
 		$dashboardActivityChartData = $this->buildDashboardActivityChartData();
+		$dashboardTaskGuide = $this->buildDashboardTaskGuide();
 
 		return [
 			'vars' => [
@@ -66,6 +86,10 @@ class PageOperatorModeLanding extends BaseRender {
 				'dashboard_launchpad_heading'       => __( 'Launchpad', 'wp-simple-firewall' ),
 				'dashboard_strip'                   => $queueCard[ 'dashboard_strip' ],
 				'destination_cards'                 => $this->buildDestinationCards(),
+				'dashboard_task_guide'              => [
+					'launcher'   => $dashboardTaskGuide[ 'launcher' ],
+					'graph_json' => \json_encode( $dashboardTaskGuide[ 'graph' ], \JSON_THROW_ON_ERROR ),
+				],
 				'live_monitor'                      => $this->buildLiveMonitorVars(),
 			],
 		];
@@ -176,6 +200,149 @@ class PageOperatorModeLanding extends BaseRender {
 			'cta'              => $cta,
 			'accessible_label' => $title.'. '.$description.' '.$cta,
 		];
+	}
+
+	/**
+	 * @return DashboardTaskGuide
+	 */
+	private function buildDashboardTaskGuide() :array {
+		return [
+			'launcher' => [
+				'label'            => __( 'Help me navigate', 'wp-simple-firewall' ),
+				'description'      => __( 'Find the right Shield screen for your task.', 'wp-simple-firewall' ),
+				'cta'              => __( 'Find a task', 'wp-simple-firewall' ),
+				'tooltip'          => __( 'Find the right Shield screen for your task.', 'wp-simple-firewall' ),
+				'accessible_label' => __( 'Help me navigate. Find the right Shield screen for your task. Find a task.', 'wp-simple-firewall' ),
+			],
+			'graph'    => [
+				'initial_node_key' => 'start',
+				'strings'          => [
+					'back_label'  => __( 'Back', 'wp-simple-firewall' ),
+					'close_label' => __( 'Close', 'wp-simple-firewall' ),
+				],
+				'nodes'            => [
+					$this->buildDashboardTaskGuideNode(
+						'start',
+						__( 'What do you want to do?', 'wp-simple-firewall' ),
+						[
+							$this->buildDashboardTaskGuideNodeChoice( 'manage_ip_access', __( 'Manage IP access', 'wp-simple-firewall' ), 'bi bi-shield-lock', 'ip_access' ),
+							$this->buildDashboardTaskGuideNodeChoice( 'run_or_review_scans', __( 'Run or review scans', 'wp-simple-firewall' ), 'bi bi-clipboard2-pulse', 'scans' ),
+							$this->buildDashboardTaskGuideNodeChoice( 'investigate', __( 'Investigate activity', 'wp-simple-firewall' ), 'bi bi-search', 'investigate' ),
+							$this->buildDashboardTaskGuideNodeChoice( 'configure', __( 'Configure Shield', 'wp-simple-firewall' ), 'bi bi-sliders', 'configure' ),
+							$this->buildDashboardTaskGuideNodeChoice( 'view_reports', __( 'View reports', 'wp-simple-firewall' ), 'bi bi-bar-chart-line', 'reports' ),
+						]
+					),
+					$this->buildDashboardTaskGuideNode(
+						'ip_access',
+						__( 'Manage IP access', 'wp-simple-firewall' ),
+						[
+							$this->buildDashboardTaskGuideHrefChoice( 'block_or_allow_ip', __( 'Block or allow an IP address', 'wp-simple-firewall' ), 'bi bi-shield-lock', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'investigate_ip_activity', __( 'Investigate activity around an IP address', 'wp-simple-firewall' ), 'bi bi-globe', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_IP ) ),
+						]
+					),
+					$this->buildDashboardTaskGuideNode(
+						'scans',
+						__( 'Run or review scans', 'wp-simple-firewall' ),
+						[
+							$this->buildDashboardTaskGuideHrefChoice( 'view_scan_results', __( 'View my scan results', 'wp-simple-firewall' ), 'bi bi-list-check', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_OVERVIEW, [ 'zone' => 'scans' ] ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'run_scan', __( 'Run a scan', 'wp-simple-firewall' ), 'bi bi-play-circle', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_SCANS, PluginNavs::SUBNAV_SCANS_RUN ) ),
+						]
+					),
+					$this->buildDashboardTaskGuideNode(
+						'investigate',
+						__( 'Investigate activity', 'wp-simple-firewall' ),
+						[
+							$this->buildDashboardTaskGuideHrefChoice( 'investigate_user_activity', __( 'Investigate user activity', 'wp-simple-firewall' ), 'bi bi-person', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_USER ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'investigate_ip_activity', __( 'Investigate activity around an IP address', 'wp-simple-firewall' ), 'bi bi-globe', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_IP ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'investigate_plugin_activity', __( 'Investigate activity around a plugin', 'wp-simple-firewall' ), 'bi bi-plugin', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_PLUGIN ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'investigate_theme_activity', __( 'Investigate activity around a theme', 'wp-simple-firewall' ), 'bi bi-palette', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_THEME ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'investigate_core_activity', __( 'Investigate WordPress core activity', 'wp-simple-firewall' ), 'bi bi-wordpress', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_BY_CORE ) ),
+						]
+					),
+					$this->buildDashboardTaskGuideNode(
+						'configure',
+						__( 'Configure Shield', 'wp-simple-firewall' ),
+						[
+							$this->buildDashboardTaskGuideHrefChoice( 'configure_firewall', __( 'Configure the Firewall', 'wp-simple-firewall' ), 'bi bi-shield-check', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW, [ 'zone' => 'firewall' ] ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'configure_ips', __( 'Configure Bots & IPs', 'wp-simple-firewall' ), 'bi bi-shield-lock', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW, [ 'zone' => 'ips' ] ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'configure_scans', __( 'Configure scans', 'wp-simple-firewall' ), 'bi bi-clipboard2-pulse', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW, [ 'zone' => 'scans' ] ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'configure_login', __( 'Configure login protection', 'wp-simple-firewall' ), 'bi bi-key', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW, [ 'zone' => 'login' ] ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'configure_users', __( 'Configure user protection', 'wp-simple-firewall' ), 'bi bi-people', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW, [ 'zone' => 'users' ] ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'configure_other', __( 'Find another setting', 'wp-simple-firewall' ), 'bi bi-sliders', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_ZONES, PluginNavs::SUBNAV_ZONES_OVERVIEW ) ),
+						]
+					),
+					$this->buildDashboardTaskGuideNode(
+						'reports',
+						__( 'View reports', 'wp-simple-firewall' ),
+						[
+							$this->buildDashboardTaskGuideHrefChoice( 'security_reports', __( 'View security reports', 'wp-simple-firewall' ), 'bi bi-file-earmark-text', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'charts_and_trends', __( 'View charts and trends', 'wp-simple-firewall' ), 'bi bi-graph-up-arrow', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_CHARTS ) ),
+							$this->buildDashboardTaskGuideHrefChoice( 'reporting_settings', __( 'Configure reports and alerts', 'wp-simple-firewall' ), 'bi bi-bell', $this->buildDashboardTaskGuideHref( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_SETTINGS ) ),
+						]
+					),
+				],
+			],
+		];
+	}
+
+	/**
+	 * @param list<DashboardTaskGuideChoice> $choices
+	 * @return DashboardTaskGuideNode
+	 */
+	private function buildDashboardTaskGuideNode( string $key, string $title, array $choices ) :array {
+		return [
+			'key'     => $key,
+			'title'   => $title,
+			'choices' => $choices,
+		];
+	}
+
+	/**
+	 * @return DashboardTaskGuideChoice
+	 */
+	private function buildDashboardTaskGuideNodeChoice(
+		string $key,
+		string $label,
+		string $iconClass,
+		string $nodeKey
+	) :array {
+		return [
+			'key'        => $key,
+			'label'      => $label,
+			'icon_class' => $iconClass,
+			'target'      => [
+				'type'     => 'node',
+				'node_key' => $nodeKey,
+			],
+		];
+	}
+
+	/**
+	 * @return DashboardTaskGuideChoice
+	 */
+	private function buildDashboardTaskGuideHrefChoice(
+		string $key,
+		string $label,
+		string $iconClass,
+		string $href
+	) :array {
+		return [
+			'key'        => $key,
+			'label'      => $label,
+			'icon_class' => $iconClass,
+			'target'      => [
+				'type' => 'href',
+				'href' => $href,
+			],
+		];
+	}
+
+	private function buildDashboardTaskGuideHref( string $nav, string $subNav, array $query = [] ) :string {
+		$href = self::con()->plugin_urls->adminTopNav( $nav, $subNav );
+		if ( !empty( $query ) ) {
+			$href .= ( \strpos( $href, '?' ) === false ? '?' : '&' ).\http_build_query( $query, '', '&', \PHP_QUERY_RFC3986 );
+		}
+		return $href;
 	}
 
 	private function buildLiveMonitorVars() :array {
