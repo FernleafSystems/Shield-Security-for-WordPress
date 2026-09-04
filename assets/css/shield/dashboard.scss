@@ -225,6 +225,14 @@
 	gap: 0.85rem;
 }
 
+.operator-mode-landing__overview > .dashboard-activity-charts-section {
+	margin-top: 0.35rem;
+}
+
+.dashboard-launchpad-section > .operator-mode-overview__destinations {
+	margin-top: 0.85rem;
+}
+
 .operator-mode-overview__status {
 	align-items: stretch;
 	display: grid;
@@ -719,31 +727,48 @@
 // Dashboard-specific: Stats Strip
 // ============================================================
 .stats-strip {
-	display: flex;
+	display: grid;
+	grid-template-columns: repeat(6, minmax(0, 1fr));
 	background: #fff;
 	border-radius: $card-border-radius;
 	box-shadow: $card-box-shadow;
 	overflow: hidden;
 }
 
+.dashboard-activity-charts {
+	--dashboard-activity-chart-color: #{$status-color-good};
+}
+
 .stat-cell {
-	flex: 1;
-	text-align: center;
-	padding: 20px 12px 16px;
-	position: relative;
-	border-right: 1px solid $border-color-neutral-subtle;
-	cursor: default;
-	overflow: hidden;
-	min-height: 130px;
+	align-items: stretch;
+	border: 0;
+	border-inline-start: 1px solid $border-color-neutral-subtle;
+	color: inherit;
 	display: flex;
 	flex-direction: column;
+	min-width: 0;
+	padding: 0;
+	position: relative;
+	text-align: center;
+	text-decoration: none;
+	transition: background-color 0.18s ease;
+	overflow: hidden;
+	min-height: 142px;
 	perspective: 1000px;
 	transform-style: preserve-3d;
 
-	&:last-child { border-right: none; }
+	&:first-child { border-inline-start: 0; }
+	&:hover,
+	&:focus-visible {
+		background: $surface-color-neutral-raised;
+		color: inherit;
+		text-decoration: none;
+	}
 
-	// Coloured 4px accent segment at top of each cell
+	// A single neutral accent keeps the activity panel visually separate from
+	// the coloured totals within it.
 	&::before {
+		background: $accent-color-salt-green;
 		content: "";
 		position: absolute;
 		top: 0;
@@ -751,11 +776,6 @@
 		right: 0;
 		height: $card-accent-height;
 	}
-	&.stat-good::before { background: $status-color-good; }
-	&.stat-warning::before { background: $status-color-warning; }
-	&.stat-critical::before { background: $status-color-critical; }
-	&.stat-info::before { background: $status-color-info; }
-	&.stat-neutral::before { background: $accent-color-salt-green; }
 }
 
 .stat-value {
@@ -763,10 +783,7 @@
 	font-weight: 700;
 	line-height: 1.2;
 }
-.stat-good .stat-value { color: $status-color-good; }
-.stat-warning .stat-value { color: $status-color-warning; }
-.stat-critical .stat-value { color: $status-color-critical; }
-.stat-info .stat-value { color: $status-color-info; }
+.dashboard-activity-charts .stat-value { color: var(--dashboard-activity-chart-color); }
 
 .stat-title {
 	font-size: 0.72rem;
@@ -775,37 +792,6 @@
 	font-weight: 600;
 	margin-top: 4px;
 }
-
-.stat-subtitle {
-	font-size: 0.68rem;
-	color: #888;
-}
-
-// Decorative sparkline bars above stat values
-.stat-sparkline {
-	display: flex;
-	align-items: flex-end;
-	justify-content: center;
-	gap: 2px;
-	height: 32px;
-	margin-bottom: 6px;
-}
-.stat-sparkline .bar {
-	width: 4px;
-	border-radius: 1px 1px 0 0;
-	opacity: 0.5;
-	&:nth-child(1) { height: 40%; }
-	&:nth-child(2) { height: 60%; }
-	&:nth-child(3) { height: 35%; }
-	&:nth-child(4) { height: 80%; }
-	&:nth-child(5) { height: 55%; }
-	&:nth-child(6) { height: 90%; }
-	&:nth-child(7) { height: 65%; }
-}
-.stat-good .stat-sparkline .bar { background: $status-color-good; }
-.stat-warning .stat-sparkline .bar { background: $status-color-warning; }
-.stat-critical .stat-sparkline .bar { background: $status-color-critical; }
-.stat-info .stat-sparkline .bar { background: $status-color-info; }
 
 // 3D flip on hover
 // Firefox regression note:
@@ -822,8 +808,13 @@
 	will-change: transform;
 	flex: 1;
 }
-.stat-cell:hover .stat-flipper {
+.stat-cell:hover .stat-flipper,
+.stat-cell:focus-visible .stat-flipper {
+	transition-delay: 0s;
 	transform: rotateY(180deg);
+}
+.stat-cell:not(:hover):not(:focus-visible) .stat-flipper {
+	transition-delay: 1s;
 }
 .stat-front,
 .stat-back {
@@ -842,8 +833,10 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	padding: 16px 10px 12px;
 }
 .stat-back {
+	box-sizing: border-box;
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -851,13 +844,17 @@
 	height: 100%;
 	transform: rotateY(180deg);
 	display: flex;
-	align-items: center;
-	justify-content: center;
+	align-items: stretch;
+	flex-direction: column;
+	justify-content: flex-start;
 	overflow: hidden;
+	padding: 8px 8px 6px;
 
 	.summary-chart {
+		flex: 1 1 auto;
+		min-height: 0;
 		width: 100%;
-		height: 100%;
+		height: auto;
 
 		.shield-chart {
 			min-height: 0;
@@ -865,32 +862,100 @@
 		}
 
 		canvas {
+			display: block;
+			height: 100% !important;
+			width: 100% !important;
 			max-height: 100% !important;
 			max-width: 100% !important;
 		}
 	}
+
+	.summary-chart-tooltip {
+		align-items: center;
+		display: flex;
+		flex: 0 0 24px;
+		gap: 0.25rem;
+		justify-content: flex-start;
+		overflow: hidden;
+		white-space: nowrap;
+
+		.stat-title {
+			margin-top: 0;
+		}
+
+		&__summary {
+			align-items: center;
+			display: flex;
+			gap: 0.25rem;
+			min-width: 0;
+		}
+
+		&__label {
+			min-width: 0;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		&__value {
+			background: $badge-good-bg;
+			border-radius: 0.25rem;
+			color: var(--dashboard-activity-chart-color);
+			flex: 0 0 auto;
+			padding: 0.1rem 0.3rem;
+		}
+
+		&__separator {
+			flex: 0 0 auto;
+		}
+
+		&__date {
+			flex: 0 0 auto;
+		}
+	}
 }
 
-// Responsive: stats strip
-@media (max-width: 1199.98px) {
+// The rounded strip owns every corner. Cells only contribute separator lines,
+// including when the grid becomes three-by-two or two-by-three.
+@container (max-width: 960px) {
 	.stats-strip {
-		flex-wrap: wrap;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 	.stat-cell {
-		flex: 0 0 33.333%;
-		border-bottom: 1px solid $border-color-neutral-subtle;
+		border-top: 1px solid $border-color-neutral-subtle;
 	}
-	.stat-cell:nth-child(3) { border-right: none; }
-	.stat-cell:nth-child(n+4) { border-bottom: none; }
-	.stat-cell:last-child { border-right: none; }
+	.stat-cell:nth-child(-n+3) { border-top: 0; }
+	.stat-cell:nth-child(3n+1) { border-inline-start: 0; }
 }
-@media (max-width: 767.98px) {
-	.stat-cell {
-		flex: 0 0 50%;
+
+@container (max-width: 560px) {
+	.stats-strip {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
-	.stat-cell:nth-child(3) { border-right: 1px solid $border-color-neutral-subtle; }
-	.stat-cell:nth-child(2n) { border-right: none; }
-	.stat-cell:nth-child(n+5) { border-bottom: none; }
+	.stat-cell {
+		border-top: 1px solid $border-color-neutral-subtle;
+	}
+	.stat-cell:nth-child(-n+2) { border-top: 0; }
+	.stat-cell:nth-child(2n+1) { border-inline-start: 0; }
+}
+
+@container (max-width: 360px) {
+	.stats-strip {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.stat-cell,
+	.stat-cell:nth-child(3n+1) {
+		border-inline-start: 0;
+	}
+	.stat-cell:nth-child(n+2) {
+		border-top: 1px solid $border-color-neutral-subtle;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.stat-cell,
+	.stat-flipper {
+		transition: none;
+	}
 }
 
 // ============================================================

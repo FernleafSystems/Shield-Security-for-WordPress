@@ -6,6 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRend
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueCardDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\{
+	BuildChartData,
+	ChartOptions,
+	ChartRequestVO
+};
 
 /**
  * @phpstan-import-type ActionsQueueCardData from ActionsQueueCardDataBuilder
@@ -20,24 +25,98 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMoni
  *   cta:string,
  *   accessible_label:string
  * }
+ * @phpstan-type DashboardActivityChart array{
+ *   key:string,
+ *   label:string,
+ *   value:int,
+ *   href:string,
+ *   accessible_label:string
+ * }
+ * @phpstan-type DashboardActivityChartData array{
+ *   period_key:string,
+ *   period_label:string,
+ *   labels:list<string>,
+ *   series:list<array{key:string,label:string,data:list<int>}>
+ * }
  */
 class PageOperatorModeLanding extends BaseRender {
 
 	public const SLUG = 'plugin_admin_page_operator_mode_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/operator_mode_landing.twig';
+	private const DASHBOARD_ACTIVITY_EVENT_KEYS = [
+		'login_block',
+		'ip_offense',
+		'ip_blocked',
+		'conn_kill',
+		'block_register',
+		'block_xml',
+	];
 
 	private ?array $attentionQueryCache = null;
 
 	protected function getRenderData() :array {
 		$queueCard = $this->buildActionsQueueCardData();
+		$dashboardActivityChartData = $this->buildDashboardActivityChartData();
 
 		return [
 			'vars' => [
-				'dashboard_strip'   => $queueCard[ 'dashboard_strip' ],
-				'destination_cards' => $this->buildDestinationCards(),
-				'live_monitor'      => $this->buildLiveMonitorVars(),
+				'dashboard_activity_chart_data_json' => \json_encode( $dashboardActivityChartData, \JSON_THROW_ON_ERROR ),
+				'dashboard_activity_charts'         => $this->buildDashboardActivityCharts( $dashboardActivityChartData ),
+				'dashboard_activity_charts_heading' => __( 'Stats (Previous 7 Days)', 'wp-simple-firewall' ),
+				'dashboard_launchpad_heading'       => __( 'Launchpad', 'wp-simple-firewall' ),
+				'dashboard_strip'                   => $queueCard[ 'dashboard_strip' ],
+				'destination_cards'                 => $this->buildDestinationCards(),
+				'live_monitor'                      => $this->buildLiveMonitorVars(),
 			],
 		];
+	}
+
+	/**
+	 * Reuse the reporting chart service so dashboard totals and trends cover the
+	 * same seven-day windows as the reports chart.
+	 *
+	 * @return DashboardActivityChartData
+	 */
+	protected function buildDashboardActivityChartData() :array {
+		return ( new BuildChartData() )->build(
+			( new ChartRequestVO() )->applyFromArray( [
+				'period_key' => ChartOptions::PERIOD_7_DAYS,
+				'event_keys' => self::DASHBOARD_ACTIVITY_EVENT_KEYS,
+			] )
+		);
+	}
+
+	/**
+	 * @param DashboardActivityChartData $chartData
+	 * @return list<DashboardActivityChart>
+	 */
+	private function buildDashboardActivityCharts( array $chartData ) :array {
+		$href = self::con()->plugin_urls->adminTopNav(
+			PluginNavs::NAV_REPORTS,
+			PluginNavs::SUBNAV_REPORTS_CHARTS
+		);
+		$seriesByKey = \array_column( $chartData[ 'series' ], null, 'key' );
+
+		return \array_map(
+			static function ( string $eventKey ) use ( $href, $seriesByKey ) :array {
+				$series = $seriesByKey[ $eventKey ];
+				$value = \array_sum( $series[ 'data' ] );
+				/* translators: %1$s: activity total, %2$s: activity label */
+				$accessibleLabel = \sprintf(
+					__( '%1$s %2$s in the last 7 days. View trend.', 'wp-simple-firewall' ),
+					$value,
+					$series[ 'label' ]
+				);
+				return [
+					'key'              => $eventKey,
+					'label'            => $series[ 'label' ],
+					'value'            => $value,
+					'href'             => $href,
+					'accessible_label' => $accessibleLabel,
+				];
+			},
+			self::DASHBOARD_ACTIVITY_EVENT_KEYS
+		);
 	}
 
 	/**

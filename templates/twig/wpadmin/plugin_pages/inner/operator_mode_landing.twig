@@ -1,60 +1,97 @@
 <div class="operator-mode-landing">
 	<div class="operator-mode-landing__overview" data-shield-status="{{ vars.dashboard_strip.overall.status }}">
-		<section class="operator-mode-overview__status shield-card"
-				 data-shield-tour="dashboard-actions"
-		         aria-label="{{ vars.dashboard_strip.overall.accessible_label }}">
-			<div class="operator-mode-overview__overall">
-				<div class="shield-card-accent status-{{ vars.dashboard_strip.overall.status }}"></div>
-				<span class="operator-mode-overview__overall-icon status-{{ vars.dashboard_strip.overall.status }}" aria-hidden="true">
-					<i class="{{ vars.dashboard_strip.overall.icon_class }}"></i>
-				</span>
-				<div class="operator-mode-overview__overall-copy">
-					<h2 class="operator-mode-overview__overall-title">{{ vars.dashboard_strip.overall.title }}</h2>
-					<p class="operator-mode-overview__overall-summary">{{ vars.dashboard_strip.overall.summary }}</p>
-				</div>
+		<section class="dashboard-launchpad-section" aria-labelledby="dashboard-launchpad-heading">
+			<div class="investigate-landing__section-heading">
+				<span class="investigate-landing__section-icon" aria-hidden="true"><i class="bi bi-rocket-takeoff"></i></span>
+				<h2 id="dashboard-launchpad-heading" class="investigate-landing__section-label">{{ vars.dashboard_launchpad_heading }}</h2>
 			</div>
 
-			<div class="operator-mode-overview__summaries" data-shield-tour="dashboard-queue">
-				{% for summary in vars.dashboard_strip.summaries %}
-					<a href="{{ summary.href }}"
-					   class="operator-mode-overview__summary status-{{ summary.status }}"
-					   data-summary-id="{{ summary.id|e('html_attr') }}"
-					   aria-label="{{ summary.accessible_label }}">
-						<span class="operator-mode-overview__summary-copy">
-							<span class="operator-mode-overview__summary-label">{{ summary.label }}</span>
-							<span class="operator-mode-overview__summary-value">
-								{{ summary.value }}
+			<section class="operator-mode-overview__status shield-card"
+					 data-shield-tour="dashboard-actions"
+				         aria-label="{{ vars.dashboard_strip.overall.accessible_label }}">
+				<div class="operator-mode-overview__overall">
+					<div class="shield-card-accent status-{{ vars.dashboard_strip.overall.status }}"></div>
+					<span class="operator-mode-overview__overall-icon status-{{ vars.dashboard_strip.overall.status }}" aria-hidden="true">
+						<i class="{{ vars.dashboard_strip.overall.icon_class }}"></i>
+					</span>
+					<div class="operator-mode-overview__overall-copy">
+						<h2 class="operator-mode-overview__overall-title">{{ vars.dashboard_strip.overall.title }}</h2>
+						<p class="operator-mode-overview__overall-summary">{{ vars.dashboard_strip.overall.summary }}</p>
+					</div>
+				</div>
+
+				<div class="operator-mode-overview__summaries" data-shield-tour="dashboard-queue">
+					{% for summary in vars.dashboard_strip.summaries %}
+						<a href="{{ summary.href }}"
+						   class="operator-mode-overview__summary status-{{ summary.status }}"
+						   data-summary-id="{{ summary.id|e('html_attr') }}"
+						   aria-label="{{ summary.accessible_label }}">
+							<span class="operator-mode-overview__summary-copy">
+								<span class="operator-mode-overview__summary-label">{{ summary.label }}</span>
+								<span class="operator-mode-overview__summary-value">
+									{{ summary.value }}
+									<i class="bi bi-arrow-right" aria-hidden="true"></i>
+								</span>
+								<span class="operator-mode-overview__summary-text">{{ summary.summary }}</span>
+							</span>
+						</a>
+					{% endfor %}
+				</div>
+			</section>
+
+			<div class="operator-mode-overview__destinations">
+				{% for card in vars.destination_cards %}
+					<a href="{{ card.href }}"
+					   class="operator-mode-overview__destination shield-card"
+					   data-mode="{{ card.mode|e('html_attr') }}"
+					   data-shield-tour="dashboard-{{ card.mode|e('html_attr') }}"
+					   aria-label="{{ card.accessible_label }}">
+						<div class="shield-card-accent accent-{{ card.accent }}"></div>
+						<span class="operator-mode-overview__destination-icon accent-{{ card.accent }}" aria-hidden="true">
+							<i class="{{ card.icon_class }}"></i>
+						</span>
+						<span class="operator-mode-overview__destination-copy">
+							<span class="operator-mode-overview__destination-title">{{ card.title }}</span>
+							<span class="operator-mode-overview__destination-description">{{ card.description }}</span>
+							<span class="operator-mode-overview__destination-cta">
+								{{ card.cta }}
 								<i class="bi bi-arrow-right" aria-hidden="true"></i>
 							</span>
-							<span class="operator-mode-overview__summary-text">{{ summary.summary }}</span>
 						</span>
 					</a>
 				{% endfor %}
 			</div>
 		</section>
 
-		<div class="operator-mode-overview__destinations">
-			{% for card in vars.destination_cards %}
-				<a href="{{ card.href }}"
-				   class="operator-mode-overview__destination shield-card"
-				   data-mode="{{ card.mode|e('html_attr') }}"
-				   data-shield-tour="dashboard-{{ card.mode|e('html_attr') }}"
-				   aria-label="{{ card.accessible_label }}">
-					<div class="shield-card-accent accent-{{ card.accent }}"></div>
-					<span class="operator-mode-overview__destination-icon accent-{{ card.accent }}" aria-hidden="true">
-						<i class="{{ card.icon_class }}"></i>
-					</span>
-					<span class="operator-mode-overview__destination-copy">
-						<span class="operator-mode-overview__destination-title">{{ card.title }}</span>
-						<span class="operator-mode-overview__destination-description">{{ card.description }}</span>
-						<span class="operator-mode-overview__destination-cta">
-							{{ card.cta }}
-							<i class="bi bi-arrow-right" aria-hidden="true"></i>
+		<section class="dashboard-activity-charts-section" aria-labelledby="dashboard-activity-charts-heading">
+			<div class="investigate-landing__section-heading">
+				<span class="investigate-landing__section-icon" aria-hidden="true"><i class="bi bi-bar-chart-line"></i></span>
+				<h2 id="dashboard-activity-charts-heading" class="investigate-landing__section-label">{{ vars.dashboard_activity_charts_heading }}</h2>
+			</div>
+
+			<div class="stats-strip dashboard-activity-charts"
+				 data-dashboard-activity-charts="1"
+				 data-dashboard-activity-chart-data="{{ vars.dashboard_activity_chart_data_json|e('html_attr') }}"
+				 aria-label="{{ vars.dashboard_activity_charts_heading|e('html_attr') }}">
+				{% for chart in vars.dashboard_activity_charts %}
+					<a href="{{ chart.href }}"
+					   class="stat-cell"
+					   data-dashboard-activity-chart="{{ chart.key|e('html_attr') }}"
+					   aria-label="{{ chart.accessible_label|e('html_attr') }}">
+						<span class="stat-flipper">
+							<span class="stat-front">
+								<span class="stat-value">{{ chart.value }}</span>
+								<span class="stat-title">{{ chart.label }}</span>
+							</span>
+							<span class="stat-back" aria-hidden="true">
+								<span class="summary-chart"></span>
+								<span class="summary-chart-tooltip" data-dashboard-activity-chart-tooltip="1"></span>
+							</span>
 						</span>
-					</span>
-				</a>
-			{% endfor %}
-		</div>
+					</a>
+				{% endfor %}
+			</div>
+		</section>
 	</div>
 
 	<div class="operator-mode-landing__live-monitor-placement">

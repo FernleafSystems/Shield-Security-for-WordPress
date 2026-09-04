@@ -19,6 +19,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants as ReportingConstants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\ChartOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 	CloakedPluginFixtureTrait,
 	TestDataFactory
@@ -46,6 +47,7 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->requireDb( 'scan_result_items' );
 		$this->requireDb( 'scan_result_item_meta' );
 		$this->requireDb( 'reports' );
+		$this->requireDb( 'events' );
 
 		$this->adminUserId = $this->loginAsSecurityAdmin();
 		\delete_site_transient( 'update_plugins' );
@@ -431,6 +433,12 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 	}
 
 	public function test_operator_mode_landing_exposes_live_monitor_contract() :void {
+		$this->insertDashboardChartEvent(
+			'login_block',
+			6,
+			Services::Request()->carbon( true )->startOfDay()->addHour()->timestamp
+		);
+
 		$payload = $this->processActionPayloadWithAdminBypass( PageOperatorModeLanding::SLUG );
 		$this->assertRouteRenderOutputHealthy( $payload, 'operator mode landing live monitor' );
 		$renderData = $payload[ 'render_data' ] ?? [];
@@ -445,9 +453,28 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		$this->assertArrayNotHasKey( 'minimize', $liveMonitor );
 		$this->assertArrayNotHasKey( 'expand', $liveMonitor );
 		$this->assertSame(
-			[ 'dashboard_strip', 'destination_cards', 'live_monitor' ],
+			[ 'dashboard_activity_chart_data_json', 'dashboard_activity_charts', 'dashboard_activity_charts_heading', 'dashboard_launchpad_heading', 'dashboard_strip', 'destination_cards', 'live_monitor' ],
 			\array_keys( $renderData[ 'vars' ] ?? [] )
 		);
+		$this->assertSame( 'Stats (Previous 7 Days)', $renderData[ 'vars' ][ 'dashboard_activity_charts_heading' ] ?? '' );
+		$this->assertSame( 'Launchpad', $renderData[ 'vars' ][ 'dashboard_launchpad_heading' ] ?? '' );
+		$chartData = \json_decode(
+			$renderData[ 'vars' ][ 'dashboard_activity_chart_data_json' ] ?? '',
+			true,
+			512,
+			\JSON_THROW_ON_ERROR
+		);
+		$this->assertSame( ChartOptions::PERIOD_7_DAYS, $chartData[ 'period_key' ] );
+		$this->assertCount( 7, $chartData[ 'labels' ] );
+		$this->assertSame(
+			[ 'login_block', 'ip_offense', 'ip_blocked', 'conn_kill', 'block_register', 'block_xml' ],
+			\array_column( $renderData[ 'vars' ][ 'dashboard_activity_charts' ] ?? [], 'key' )
+		);
+		$seriesByKey = \array_column( $chartData[ 'series' ], null, 'key' );
+		foreach ( $renderData[ 'vars' ][ 'dashboard_activity_charts' ] as $chart ) {
+			$this->assertSame( \array_sum( $seriesByKey[ $chart[ 'key' ] ][ 'data' ] ), $chart[ 'value' ] );
+		}
+		$this->assertSame( 6, $seriesByKey[ 'login_block' ][ 'data' ][ 6 ] );
 	}
 
 	public function test_operator_mode_landing_strip_includes_seeded_scan_and_maintenance_counts() :void {
@@ -660,6 +687,15 @@ class DashboardOverviewRoutingIntegrationTest extends ShieldIntegrationTestCase 
 		finally {
 			$this->restoreSelectedOptions( $optionsSnapshot );
 		}
+	}
+
+	private function insertDashboardChartEvent( string $event, int $count, int $createdAt ) :void {
+		$dbh = self::con()->db_con->events;
+		$record = $dbh->getRecord();
+		$record->event = $event;
+		$record->count = $count;
+		$record->created_at = $createdAt;
+		$dbh->getQueryInserter()->insert( $record );
 	}
 
 }

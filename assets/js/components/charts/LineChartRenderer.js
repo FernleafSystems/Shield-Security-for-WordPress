@@ -25,6 +25,8 @@ export class LineChartRenderer {
 	constructor( outputEl, legendEl = null ) {
 		this.outputEl = outputEl;
 		this.legendEl = legendEl;
+		this.tooltipOutputEl = null;
+		this.tooltipLabel = '';
 		this.chart = null;
 		this.canvas = null;
 	}
@@ -40,33 +42,41 @@ export class LineChartRenderer {
 		if ( this.legendEl ) {
 			this.legendEl.innerHTML = '';
 		}
+		if ( this.tooltipOutputEl ) {
+			this.tooltipOutputEl.textContent = '';
+		}
+		this.tooltipOutputEl = null;
+		this.tooltipLabel = '';
 		this.canvas = null;
 	}
 
-	render( chartData = {} ) {
+	render( chartData = {}, renderOptions = {} ) {
 		if ( !this.outputEl ) {
 			return;
 		}
+		const isCompact = !!renderOptions.compact;
 
 		this.clear();
+		this.tooltipOutputEl = renderOptions.tooltipOutputEl || null;
+		this.tooltipLabel = renderOptions.tooltipLabel || '';
+		this.renderFixedTooltipContent();
 		this.canvas = document.createElement( 'canvas' );
 		this.canvas.style.width = '100%';
 		this.canvas.style.height = '100%';
 		this.outputEl.appendChild( this.canvas );
 
 		const datasets = ( chartData.series || [] ).map( ( series, index ) => {
-			const color = CHART_PALETTE[ index % CHART_PALETTE.length ];
+			const color = renderOptions.lineColor || CHART_PALETTE[ index % CHART_PALETTE.length ];
 			return {
 				label: series.label,
 				data: series.data || [],
 				borderColor: color,
-				backgroundColor: this.hexToRgba( color, 0.15 ),
 				borderWidth: 2,
 				pointBackgroundColor: color,
 				pointBorderColor: color,
-				pointRadius: 2,
-				pointHoverRadius: 4,
-				pointHitRadius: 8,
+				pointRadius: isCompact ? 1.5 : 2,
+				pointHoverRadius: isCompact ? 3 : 4,
+				pointHitRadius: isCompact ? 6 : 8,
 				tension: 0.2,
 				fill: false
 			};
@@ -91,7 +101,10 @@ export class LineChartRenderer {
 						display: false,
 					},
 					tooltip: {
-						enabled: true,
+						enabled: !this.tooltipOutputEl,
+						external: this.tooltipOutputEl
+							? ( context ) => this.renderFixedTooltip( context )
+							: null,
 					},
 				},
 				scales: {
@@ -100,11 +113,13 @@ export class LineChartRenderer {
 							display: false,
 						},
 						ticks: {
+							display: !isCompact,
 							maxRotation: 0,
 							autoSkip: true,
 						},
 					},
 					y: {
+						display: !isCompact,
 						beginAtZero: true,
 						ticks: {
 							maxTicksLimit: 8,
@@ -115,10 +130,74 @@ export class LineChartRenderer {
 						},
 					},
 				},
+				layout: {
+					padding: isCompact ? {
+						top: 16,
+						right: 5,
+						bottom: 5,
+						left: 5,
+					} : {},
+				},
 			},
 		} );
 
 		this.renderLegend( datasets );
+	}
+
+	renderFixedTooltip( context ) {
+		const tooltip = context.tooltip;
+		if ( !this.tooltipOutputEl || tooltip.opacity === 0 ) {
+			this.renderFixedTooltipContent();
+			return;
+		}
+
+		const dataPoints = tooltip.dataPoints || [];
+		const label = dataPoints[ 0 ]?.dataset.label || this.tooltipLabel;
+		const values = dataPoints.map( ( dataPoint ) => {
+			const value = dataPoint.formattedValue;
+			return dataPoints.length > 1 && dataPoint.dataset.label
+				? `${dataPoint.dataset.label}: ${value}`
+				: value;
+		} );
+		const date = ( tooltip.title || [] ).join( ' ' );
+		this.renderFixedTooltipContent( label, values.join( ', ' ), date );
+	}
+
+	renderFixedTooltipContent( label = this.tooltipLabel, value = '', date = '' ) {
+		if ( !this.tooltipOutputEl ) {
+			return;
+		}
+
+		this.tooltipOutputEl.replaceChildren();
+		if ( label ) {
+			const summaryEl = document.createElement( 'span' );
+			summaryEl.className = 'summary-chart-tooltip__summary';
+
+			const labelEl = document.createElement( 'span' );
+			labelEl.className = 'stat-title summary-chart-tooltip__label';
+			labelEl.textContent = value ? `${label}:` : label;
+			summaryEl.appendChild( labelEl );
+
+			if ( value ) {
+				const valueEl = document.createElement( 'span' );
+				valueEl.className = 'stat-title summary-chart-tooltip__value';
+				valueEl.textContent = value;
+				summaryEl.appendChild( valueEl );
+			}
+
+			this.tooltipOutputEl.appendChild( summaryEl );
+		}
+		if ( date ) {
+			const separatorEl = document.createElement( 'span' );
+			separatorEl.className = 'stat-title summary-chart-tooltip__separator';
+			separatorEl.textContent = '·';
+			this.tooltipOutputEl.appendChild( separatorEl );
+
+			const dateEl = document.createElement( 'span' );
+			dateEl.className = 'stat-title summary-chart-tooltip__date';
+			dateEl.textContent = date;
+			this.tooltipOutputEl.appendChild( dateEl );
+		}
 	}
 
 	renderLegend( datasets ) {
@@ -151,15 +230,7 @@ export class LineChartRenderer {
 		} );
 	}
 
-	hexToRgba( hex, alpha ) {
-		const cleaned = String( hex || '' ).replace( '#', '' );
-		if ( cleaned.length !== 6 ) {
-			return `rgba(0, 128, 0, ${alpha})`;
-		}
-
-		const r = Number.parseInt( cleaned.slice( 0, 2 ), 16 );
-		const g = Number.parseInt( cleaned.slice( 2, 4 ), 16 );
-		const b = Number.parseInt( cleaned.slice( 4, 6 ), 16 );
-		return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+	resize() {
+		this.chart?.resize();
 	}
 }

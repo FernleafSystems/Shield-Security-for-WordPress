@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageOperatorModeLanding;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\ChartOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
@@ -61,9 +62,19 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		);
 
 		$this->assertSame(
-			[ 'dashboard_strip', 'destination_cards', 'live_monitor' ],
+			[ 'dashboard_activity_chart_data_json', 'dashboard_activity_charts', 'dashboard_activity_charts_heading', 'dashboard_launchpad_heading', 'dashboard_strip', 'destination_cards', 'live_monitor' ],
 			\array_keys( $renderData[ 'vars' ] )
 		);
+		$this->assertSame( 'Stats (Previous 7 Days)', $renderData[ 'vars' ][ 'dashboard_activity_charts_heading' ] );
+		$this->assertSame( 'Launchpad', $renderData[ 'vars' ][ 'dashboard_launchpad_heading' ] );
+		$this->assertCount( 6, $renderData[ 'vars' ][ 'dashboard_activity_charts' ] );
+		$this->assertSame(
+			[ 'login_block', 'ip_offense', 'ip_blocked', 'conn_kill', 'block_register', 'block_xml' ],
+			\array_column( $renderData[ 'vars' ][ 'dashboard_activity_charts' ], 'key' )
+		);
+		$chartData = \json_decode( $renderData[ 'vars' ][ 'dashboard_activity_chart_data_json' ], true, 512, \JSON_THROW_ON_ERROR );
+		$this->assertSame( ChartOptions::PERIOD_7_DAYS, $chartData[ 'period_key' ] );
+		$this->assertCount( 7, $chartData[ 'labels' ] );
 		$this->assertSame(
 			[ 'overall', 'summaries' ],
 			\array_keys( $renderData[ 'vars' ][ 'dashboard_strip' ] )
@@ -213,5 +224,24 @@ class PageOperatorModeLandingTestDouble extends PageOperatorModeLanding {
 
 	protected function buildAttentionQuery() :array {
 		return $this->attentionQuery;
+	}
+
+	protected function buildDashboardActivityChartData() :array {
+		$eventDefinitions = ChartOptions::eventDefinitions();
+
+		return [
+			'period_key'   => ChartOptions::PERIOD_7_DAYS,
+			'period_label' => '7 days',
+			'labels'       => \array_fill( 0, 7, '1 Jan 2026' ),
+			'series'       => \array_map(
+				static fn( string $key, array $definition ) :array => [
+					'key'   => $key,
+					'label' => $definition[ 'label' ],
+					'data'  => \array_fill( 0, 7, 0 ),
+				],
+				\array_keys( $eventDefinitions ),
+				$eventDefinitions
+			),
+		];
 	}
 }
