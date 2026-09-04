@@ -64,9 +64,12 @@ class NavMenuBuilderOperatorModesTest extends BaseUnitTest {
 		$this->assertNotContains( 'dashboard', PluginNavs::allOperatorModes() );
 		$taskGuide = $sidebar[ 'task_guide_item' ];
 		$this->assertIsArray( $taskGuide );
-		$this->assertSame( 'Help me find where to go', $taskGuide[ 'title' ] );
-		$this->assertSame( '/admin/dashboard/overview?task_guide=1', $taskGuide[ 'href' ] );
+		$this->assertSame( '', $taskGuide[ 'href' ] );
+		$this->assertTrue( $taskGuide[ 'is_action' ] );
 		$this->assertContains( 'sidebar-task-guide-link', $taskGuide[ 'classes' ] );
+		$this->assertArrayHasKey( 'task_guide', $sidebar );
+		$taskGuideGraph = \json_decode( $sidebar[ 'task_guide' ][ 'graph_json' ], true, 512, \JSON_THROW_ON_ERROR );
+		$this->assertSame( 'start', $taskGuideGraph[ 'initial_node_key' ] );
 		$this->assertArrayNotHasKey( 'back_item', $sidebar );
 		$this->assertArrayNotHasKey( 'mode_items', $sidebar );
 		$this->assertSame( [], $sidebar[ 'tool_items' ] );

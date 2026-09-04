@@ -1,6 +1,15 @@
 const { test, expect } = require( './support/shield-test' );
 const { dismissBlockingDialogs, openShieldRoute } = require( './support/shield-browser' );
-const { collectRuntimeErrors, expectNoRuntimeErrors } = require( './support/security-assertions' );
+const {
+	expectFocusWithin,
+	expectModalHiddenWithoutAriaModal,
+	expectNamedDialog,
+} = require( './support/modal-accessibility' );
+const {
+	collectRuntimeErrors,
+	expectNoAxeViolationsInDialog,
+	expectNoRuntimeErrors,
+} = require( './support/security-assertions' );
 
 test.setTimeout( 180_000 );
 
@@ -14,33 +23,38 @@ test( 'dashboard task guide opens an accessible chooser and exposes deep links',
 	await openShieldRoute( page, dashboardRoute );
 	await dismissBlockingDialogs( page );
 
-	const guide = page.locator( '[data-dashboard-task-guide="1"]' );
+	const guide = page.locator( '.dashboard-task-guide' );
 	const launcher = guide.locator( '[data-dashboard-task-guide-launch="1"]' );
 	await expect( guide ).toBeVisible();
 	await expect( launcher ).toHaveRole( 'button' );
-	await expect( launcher ).toContainText( 'Help me navigate' );
 	await expect( launcher ).toHaveAttribute( 'aria-haspopup', 'dialog' );
 	await expect( launcher ).toHaveAttribute( 'aria-controls', 'ShieldModalContainer' );
+	await expect( launcher ).not.toHaveAttribute( 'data-bs-toggle' );
 
-	await launcher.click();
+	await launcher.focus();
+	await page.keyboard.press( 'Enter' );
 
 	const modal = page.locator( '#ShieldModalContainer' );
-	const firstChoice = modal.locator( '[data-dashboard-task-guide-next-node]' ).first();
 	await expect( modal ).toBeVisible();
-	await expect( modal ).toHaveAttribute( 'role', 'dialog' );
-	await expect( modal ).toHaveAttribute( 'aria-modal', 'true' );
+	await expectNamedDialog( page, modal, 'ShieldModalContainerLabel' );
 	await expect( modal ).toHaveAccessibleName( /\S/ );
+	await expectFocusWithin( modal );
 	await expect( modal.locator( '.modal-dialog' ) ).toHaveClass( /modal-dialog-centered/ );
 	await expect( modal.locator( '[data-dashboard-task-guide-next-node]' ) ).toHaveCount( 5 );
 	await expect( modal.locator( '.dashboard-task-guide-modal__choice-description' ) ).toHaveCount( 0 );
-	await expect( firstChoice ).toBeFocused();
+	await expect( modal ).toBeFocused();
+	const liveRegion = modal.locator( '[data-shield-modal-live-region="1"]' );
+	await expect( liveRegion ).toHaveAttribute( 'aria-live', 'polite' );
+	await expect( liveRegion ).toHaveAttribute( 'aria-atomic', 'true' );
+	await expect( liveRegion ).toHaveText( /\S/ );
+	await expectNoAxeViolationsInDialog( page, { dialog: 'ShieldModalContainer' } );
 
 	await modal.locator( '[data-dashboard-task-guide-next-node="ip_access"]' ).click();
 	const ipRuleLink = modal.locator( '[data-dashboard-task-guide-leaf="1"]' ).first();
 	await expect( modal.locator( '[data-dashboard-task-guide-back="1"]' ) ).toHaveRole( 'button' );
 	await expect( modal.locator( '[data-dashboard-task-guide-leaf="1"]' ) ).toHaveCount( 2 );
 	await expect( ipRuleLink ).toHaveRole( 'link' );
-	await expect( ipRuleLink ).toBeFocused();
+	await expect( modal ).toBeFocused();
 	expect( await ipRuleLink.evaluate( ( link ) => {
 		const url = new URL( link.href );
 		return {
@@ -56,7 +70,6 @@ test( 'dashboard task guide opens an accessible chooser and exposes deep links',
 	await expect( modal.locator( '[data-dashboard-task-guide-next-node]' ) ).toHaveCount( 5 );
 	await modal.locator( '[data-dashboard-task-guide-next-node="scans"]' ).click();
 	const scanResultsLink = modal.locator( '[data-dashboard-task-guide-leaf="1"]' ).first();
-	await expect( scanResultsLink ).toContainText( 'View my scan results' );
 	expect( await scanResultsLink.evaluate( ( link ) => {
 		const url = new URL( link.href );
 		return {
@@ -69,34 +82,55 @@ test( 'dashboard task guide opens an accessible chooser and exposes deep links',
 		subnav: 'overview',
 		zone: 'scans',
 	} );
-	await modal.locator( '[data-bs-dismiss="modal"]' ).first().click();
+	await page.keyboard.press( 'Escape' );
 	await expect( modal ).not.toBeVisible();
+	await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
+	await expect( launcher ).toBeFocused();
 
+	await openShieldRoute( page, {
+		nav: 'reports',
+		nav_sub: 'overview',
+	} );
+	await dismissBlockingDialogs( page );
+	const urlBeforeSidebarLaunch = page.url();
 	const sidebarGuide = page.locator( '#NavSideBar .sidebar-task-guide-link' );
-	await expect( sidebarGuide ).toContainText( 'Help me find where to go' );
-	await expect( sidebarGuide ).toHaveAttribute( 'href', /task_guide=1/ );
-	await sidebarGuide.click();
+	await expect( sidebarGuide ).toHaveRole( 'button' );
+	await expect( sidebarGuide ).not.toHaveAttribute( 'href' );
+	await expect( sidebarGuide ).toHaveAttribute( 'aria-haspopup', 'dialog' );
+	await expect( sidebarGuide ).toHaveAttribute( 'aria-controls', 'ShieldModalContainer' );
+	await sidebarGuide.focus();
+	await page.keyboard.press( 'Enter' );
 	await expect( modal ).toBeVisible();
-	await expect( modal.locator( '[data-dashboard-task-guide-next-node]' ).first() ).toBeFocused();
-	await modal.locator( '[data-bs-dismiss="modal"]' ).first().click();
+	await expect( modal ).toBeFocused();
+	expect( page.url() ).toBe( urlBeforeSidebarLaunch );
+	await page.keyboard.press( 'Escape' );
 	await expect( modal ).not.toBeVisible();
+	await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
+	await expect( sidebarGuide ).toBeFocused();
 	await expectNoRuntimeErrors( runtimeErrors, 'dashboard task guide' );
 } );
 
-test( 'dashboard task guide is centred below the three Launchpad destination tiles', async ( { page } ) => {
+test( 'dashboard task guide appears as a distinct guidance panel before dashboard stats', async ( { page } ) => {
 	await page.setViewportSize( { width: 1800, height: 1100 } );
 	await openShieldRoute( page, dashboardRoute );
 	await dismissBlockingDialogs( page );
 
-	const configure = page.locator( '.operator-mode-overview__destination[data-mode="configure"]' );
+	const launchpad = page.locator( '.dashboard-launchpad-section' );
 	const taskGuide = page.locator( '.dashboard-task-guide__launch' );
-	await expect( configure ).toBeVisible();
+	const stats = page.locator( '.dashboard-activity-charts-section' );
+	await expect( launchpad ).toBeVisible();
 	await expect( taskGuide ).toBeVisible();
+	await expect( stats ).toBeVisible();
 
-	const [ configureBox, taskGuideBox ] = await Promise.all( [ configure.boundingBox(), taskGuide.boundingBox() ] );
-	expect( configureBox ).not.toBeNull();
+	const [ launchpadBox, taskGuideBox, statsBox ] = await Promise.all( [
+		launchpad.boundingBox(),
+		taskGuide.boundingBox(),
+		stats.boundingBox(),
+	] );
+	expect( launchpadBox ).not.toBeNull();
 	expect( taskGuideBox ).not.toBeNull();
-	expect( Math.abs( taskGuideBox.width - configureBox.width ) ).toBeLessThanOrEqual( 2 );
-	expect( Math.abs( taskGuideBox.x - configureBox.x ) ).toBeLessThanOrEqual( 2 );
-	expect( taskGuideBox.y ).toBeGreaterThan( configureBox.y );
+	expect( statsBox ).not.toBeNull();
+	expect( taskGuideBox.y ).toBeGreaterThanOrEqual( launchpadBox.y + launchpadBox.height );
+	expect( taskGuideBox.y + taskGuideBox.height ).toBeLessThanOrEqual( statsBox.y );
+	expect( Math.abs( taskGuideBox.width - statsBox.width ) ).toBeLessThanOrEqual( 2 );
 } );

@@ -19,19 +19,16 @@ export class DashboardTaskGuide extends BaseAutoExecComponent {
 
 		this.graph = JSON.parse( this.root.dataset.dashboardTaskGuideGraph );
 		this.nodesByKey = new Map( this.graph.nodes.map( ( node ) => [ node.key, node ] ) );
-		this.root.addEventListener( 'click', ( evt ) => this.handleLauncherClick( evt ) );
+		document.addEventListener( 'click', ( evt ) => this.handleLauncherClick( evt ) );
 		this.modal.addEventListener( 'click', ( evt ) => this.handleModalClick( evt ) );
 		this.modal.addEventListener( 'hidden.bs.modal', () => this.resetModalState() );
-		if ( this.shouldLaunchFromSidebar() ) {
-			this.launch();
-		}
 	}
 
 	handleLauncherClick( evt ) {
 		const launcher = evt.target instanceof Element
 			? evt.target.closest( '[data-dashboard-task-guide-launch="1"]' )
 			: null;
-		if ( !( launcher instanceof HTMLButtonElement ) || !this.root.contains( launcher ) ) {
+		if ( !( launcher instanceof HTMLButtonElement ) ) {
 			return;
 		}
 
@@ -45,7 +42,7 @@ export class DashboardTaskGuide extends BaseAutoExecComponent {
 		this.renderCurrentNode();
 		this.modal.classList.add( 'shield-modal--dashboard-task-guide' );
 		this.dialog.classList.add( 'modal-dialog-centered' );
-		this.modal.addEventListener( 'shown.bs.modal', () => this.focusCurrentChoice(), { once: true } );
+		this.modal.addEventListener( 'shown.bs.modal', () => this.focusModal(), { once: true } );
 		if ( !BootstrapModals.Show( this.modal ) ) {
 			this.resetModalState();
 		}
@@ -62,7 +59,7 @@ export class DashboardTaskGuide extends BaseAutoExecComponent {
 			this.history.push( this.currentNodeKey );
 			this.currentNodeKey = nextNodeChoice.dataset.dashboardTaskGuideNextNode;
 			this.renderCurrentNode();
-			this.focusCurrentChoice();
+			this.focusModal();
 			return;
 		}
 
@@ -70,7 +67,7 @@ export class DashboardTaskGuide extends BaseAutoExecComponent {
 		if ( back instanceof HTMLButtonElement && this.modal.contains( back ) && this.history.length > 0 ) {
 			this.currentNodeKey = this.history.pop();
 			this.renderCurrentNode();
-			this.focusCurrentChoice();
+			this.focusModal();
 		}
 	}
 
@@ -151,8 +148,8 @@ export class DashboardTaskGuide extends BaseAutoExecComponent {
 		return target;
 	}
 
-	focusCurrentChoice() {
-		focusElement( this.modal.querySelector( '[data-dashboard-task-guide-next-node], [data-dashboard-task-guide-leaf="1"]' ) );
+	focusModal() {
+		focusElement( this.modal );
 	}
 
 	resetModalState() {
@@ -160,16 +157,5 @@ export class DashboardTaskGuide extends BaseAutoExecComponent {
 		this.dialog.classList.remove( 'modal-dialog-centered' );
 		this.history = [];
 		this.currentNodeKey = '';
-	}
-
-	shouldLaunchFromSidebar() {
-		const url = new URL( window.location.href );
-		if ( url.searchParams.get( 'task_guide' ) !== '1' ) {
-			return false;
-		}
-
-		url.searchParams.delete( 'task_guide' );
-		window.history.replaceState( window.history.state, '', url );
-		return true;
 	}
 }

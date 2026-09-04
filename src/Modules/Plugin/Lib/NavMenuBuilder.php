@@ -37,6 +37,7 @@ class NavMenuBuilder {
 	/**
 	 * @return array{
 	 *   navigation_links:list<array<string,mixed>>,
+	 *   task_guide:array{graph_json:string},
 	 *   task_guide_item:array<string,mixed>,
 	 *   tool_items:list<array<string,mixed>>,
 	 *   home_license_item:SidebarLicenseItem|null,
@@ -48,13 +49,18 @@ class NavMenuBuilder {
 		$mode = $this->resolveCurrentMode();
 		$actionsSummary = $this->getActionsQueueSummary();
 		$navigationLinks = $this->normalizeItems( $this->buildNavigationLinks( $mode, $actionsSummary ) );
+		$taskGuideGraph = ( new TaskGuideDataBuilder() )->buildGraph();
 		$taskGuideItem = $this->normalizeItems( [ $this->buildTaskGuideItem() ] )[ 0 ];
+		$taskGuideData = [
+			'graph_json' => \json_encode( $taskGuideGraph, \JSON_THROW_ON_ERROR ),
+		];
 
 		if ( empty( $mode ) ) {
 			$connect = $this->buildHomeConnectItems();
 
 			return [
 				'navigation_links'   => $navigationLinks,
+				'task_guide'        => $taskGuideData,
 				'task_guide_item'   => $taskGuideItem,
 				'tool_items'         => [],
 				'home_license_item'  => $this->normalizeItems( [ $this->buildHomeLicenseItem() ] )[ 0 ],
@@ -65,6 +71,7 @@ class NavMenuBuilder {
 
 		return [
 			'navigation_links'   => $navigationLinks,
+			'task_guide'        => $taskGuideData,
 			'task_guide_item'   => $taskGuideItem,
 			'tool_items'         => $this->normalizeItems( $this->toolsForMode( $mode ) ),
 			'home_license_item'  => null,
@@ -128,21 +135,14 @@ class NavMenuBuilder {
 			'id'           => 'task_guide',
 			'slug'         => 'task-guide',
 			'kind'         => 'task_guide',
-			'title'        => __( 'Help me find where to go', 'wp-simple-firewall' ),
+			'title'        => __( 'Guide Me', 'wp-simple-firewall' ),
 			'img'          => self::con()->svgs->iconClass( 'question-circle' ),
-			'href'         => $this->dashboardTaskGuideHref(),
+			'href'         => '',
+			'is_action'    => true,
 			'active'       => false,
 			'classes'      => [ 'sidebar-task-guide-link' ],
 			'divider_after'=> false,
 		];
-	}
-
-	private function dashboardTaskGuideHref() :string {
-		$href = self::con()->plugin_urls->adminTopNav(
-			PluginNavs::NAV_DASHBOARD,
-			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW
-		);
-		return $href.( \str_contains( $href, '?' ) ? '&' : '?' ).'task_guide=1';
 	}
 
 	private function modeIconClass( string $mode ) :string {

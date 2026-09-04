@@ -1,27 +1,73 @@
 .dashboard-task-guide {
-	grid-column: 2;
 	margin: 0;
 }
 
 .dashboard-task-guide__launch {
+	align-items: center;
 	appearance: none;
+	background: $card-bg-good;
+	border: 1px solid rgba($status-color-good, 0.18);
+	border-radius: var(--bs-border-radius);
+	color: $status-text-color-good;
+	cursor: pointer;
+	display: flex;
 	font: inherit;
+	gap: 0.75rem;
+	padding: 0.7rem 0.9rem;
 	text-align: left;
 	width: 100%;
 }
 
-.dashboard-task-guide__launch > .dashboard-task-guide__accent {
-	background: $status-color-info;
-	left: 0;
-	position: absolute;
-	right: 0;
-	top: 0;
-	width: auto;
+.dashboard-task-guide__icon {
+	align-items: center;
+	background: $status-bg-good-light;
+	border-radius: 50%;
+	color: $status-color-good;
+	display: inline-flex;
+	flex: 0 0 auto;
+	font-size: 1.1rem;
+	height: 2rem;
+	justify-content: center;
+	width: 2rem;
 }
 
-.operator-mode-overview__destination-icon.dashboard-task-guide__destination-icon {
-	background: $status-bg-info-light;
-	color: $status-color-info;
+.dashboard-task-guide__copy {
+	display: grid;
+	gap: 0.1rem;
+	min-width: 0;
+}
+
+.dashboard-task-guide__title {
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.dashboard-task-guide__description {
+	color: #646970;
+	font-size: 0.82rem;
+	line-height: 1.35;
+}
+
+.dashboard-task-guide__cta {
+	align-items: center;
+	display: inline-flex;
+	flex: 0 0 auto;
+	font-size: 0.84rem;
+	font-weight: 600;
+	gap: 0.35rem;
+	margin-left: auto;
+	white-space: nowrap;
+}
+
+.dashboard-task-guide__launch:hover {
+	background: $status-bg-good-light;
+	border-color: $status-color-good;
+	text-decoration: none;
+}
+
+.dashboard-task-guide__launch:focus-visible {
+	border-color: $status-color-good;
+	@include shield-focus-ring();
 }
 
 #ShieldModalContainer.shield-modal--dashboard-task-guide .modal-dialog {
@@ -43,18 +89,18 @@
 
 .dashboard-task-guide-modal__choices {
 	display: grid;
-	gap: 0.4rem;
+	gap: 0.15rem;
 }
 
 .dashboard-task-guide-modal__choice {
 	align-items: center;
-	background: $surface-color-neutral-raised;
-	border: 1px solid $border-color-neutral-subtle;
+	background: transparent;
+	border: 1px solid transparent;
 	border-radius: var(--bs-border-radius);
 	color: var(--bs-body-color);
 	display: flex;
 	gap: 0.6rem;
-	padding: 0.6rem 0.75rem;
+	padding: 0.45rem 0.5rem;
 	text-align: left;
 	text-decoration: none;
 	width: 100%;
@@ -65,12 +111,15 @@ button.dashboard-task-guide-modal__choice {
 }
 
 .dashboard-task-guide-modal__choice:hover {
+	background: $status-bg-good-light;
 	border-color: $status-color-good;
 	color: var(--bs-body-color);
 	text-decoration: none;
 }
 
 .dashboard-task-guide-modal__choice:focus-visible {
+	background: $status-bg-good-light;
+	border-color: $status-color-good;
 	@include shield-focus-ring();
 }
 
@@ -87,24 +136,42 @@ button.dashboard-task-guide-modal__choice {
 }
 
 #NavSideBar .mode-item.sidebar-task-guide-link {
-	background: $card-bg-info;
-	border-color: $panel-border-info-subtle;
-	color: $status-text-color-info;
+	background: $card-bg-good;
+	border-color: rgba($status-color-good, 0.18);
+	color: $status-text-color-good;
 
 	.mode-icon > i {
-		color: $status-color-info;
+		color: $status-color-good;
 	}
 
 	&:hover {
-		background: $status-bg-info-light;
-		border-color: $mode-investigate-border;
-		color: $status-text-color-info;
+		background: $status-bg-good-light;
+		border-color: $status-color-good;
+		color: $status-text-color-good;
 		text-decoration: none;
+	}
+
+	&:focus-visible {
+		background: $status-bg-good-light;
+		border-color: $status-color-good;
+		@include shield-focus-ring();
 	}
 }
 
-@container (max-width: 920px) {
-	.dashboard-task-guide {
-		grid-column: auto;
+#NavSideBar button.mode-item.sidebar-task-guide-link {
+	appearance: none;
+	font-family: inherit;
+	text-align: left;
+}
+
+
+@container (max-width: 560px) {
+	.dashboard-task-guide__launch {
+		align-items: flex-start;
+		flex-wrap: wrap;
+	}
+
+	.dashboard-task-guide__cta {
+		margin-left: 2.75rem;
 	}
 }

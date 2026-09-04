@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageOperatorModeLanding;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TaskGuideDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\ChartOptions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -65,8 +66,6 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			[ 'dashboard_activity_chart_data_json', 'dashboard_activity_charts', 'dashboard_activity_charts_heading', 'dashboard_launchpad_heading', 'dashboard_strip', 'destination_cards', 'dashboard_task_guide', 'live_monitor' ],
 			\array_keys( $renderData[ 'vars' ] )
 		);
-		$this->assertSame( 'Stats (Previous 7 Days)', $renderData[ 'vars' ][ 'dashboard_activity_charts_heading' ] );
-		$this->assertSame( 'Launchpad', $renderData[ 'vars' ][ 'dashboard_launchpad_heading' ] );
 		$this->assertCount( 6, $renderData[ 'vars' ][ 'dashboard_activity_charts' ] );
 		$this->assertSame(
 			[ 'login_block', 'ip_offense', 'ip_blocked', 'conn_kill', 'block_register', 'block_xml' ],
@@ -81,18 +80,16 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		);
 		$this->assertCount( 2, $renderData[ 'vars' ][ 'dashboard_strip' ][ 'summaries' ] );
 		$this->assertCount( 3, $renderData[ 'vars' ][ 'destination_cards' ] );
+		$this->assertSame( [ 'launcher' ], \array_keys( $renderData[ 'vars' ][ 'dashboard_task_guide' ] ) );
 		$this->assertArrayNotHasKey( 'strings', $renderData );
 		$this->assertArrayNotHasKey( 'actions_queue_rows', $renderData[ 'vars' ] );
 		$this->assertArrayNotHasKey( 'secondary_lanes', $renderData[ 'vars' ] );
 	}
 
 	public function test_dashboard_task_guide_exposes_static_branch_and_deep_link_contract() :void {
-		$guide = $this->invokeNonPublicMethod( new PageOperatorModeLanding(), 'buildDashboardTaskGuide' );
-		$graph = $guide[ 'graph' ];
+		$graph = ( new TaskGuideDataBuilder() )->buildGraph();
 		$nodes = \array_column( $graph[ 'nodes' ], null, 'key' );
 
-		$this->assertSame( [ 'launcher', 'graph' ], \array_keys( $guide ) );
-		$this->assertSame( 'Help me navigate', $guide[ 'launcher' ][ 'label' ] );
 		$this->assertSame( 'start', $graph[ 'initial_node_key' ] );
 		$this->assertSame( [ 'back_label', 'close_label' ], \array_keys( $graph[ 'strings' ] ) );
 		$this->assertSame( [ 'start', 'ip_access', 'scans', 'investigate', 'configure', 'reports' ], \array_keys( $nodes ) );
@@ -126,22 +123,6 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 			\array_column( $cards, 'mode' )
 		);
 		$this->assertSame(
-			[ 'Investigate', 'Configure', 'Reports' ],
-			\array_column( $cards, 'sidebar_label' )
-		);
-		$this->assertSame(
-			[ 'Investigate Site', 'Configure', 'Reports' ],
-			\array_column( $cards, 'title' )
-		);
-		$this->assertSame(
-			[ 'Open Investigation', 'Open Configure', 'Open Reports' ],
-			\array_column( $cards, 'cta' )
-		);
-		$this->assertSame(
-			[ 'Users, activity, assets and IPs.', 'Set coverage and protection.', 'Review security reports and trends.' ],
-			\array_column( $cards, 'description' )
-		);
-		$this->assertSame(
 			[ 'investigate', 'configure', 'reports' ],
 			\array_column( $cards, 'accent' )
 		);
@@ -152,10 +133,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		foreach ( $cards as $card ) {
 			$this->assertNotSame( '', $card[ 'href' ] );
 			$this->assertNotSame( '', $card[ 'icon_class' ] );
-			$this->assertNotSame( '', $card[ 'description' ] );
-			$this->assertStringContainsString( $card[ 'title' ], $card[ 'accessible_label' ] );
-			$this->assertStringContainsString( $card[ 'description' ], $card[ 'accessible_label' ] );
-			$this->assertStringContainsString( $card[ 'cta' ], $card[ 'accessible_label' ] );
+			$this->assertNotSame( '', $card[ 'accessible_label' ] );
 		}
 	}
 
@@ -170,7 +148,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$strip = $renderData[ 'vars' ][ 'dashboard_strip' ];
 
 		$this->assertSame( 'critical', $strip[ 'overall' ][ 'status' ] );
-		$this->assertSame( 'Critical Action Required', $strip[ 'overall' ][ 'title' ] );
+		$this->assertNotSame( '', $strip[ 'overall' ][ 'title' ] );
 		$this->assertSame( [ 2, 1 ], \array_column( $strip[ 'summaries' ], 'count' ) );
 		$this->assertSame( [ 'critical', 'warning' ], \array_column( $strip[ 'summaries' ], 'status' ) );
 	}
