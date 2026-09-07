@@ -222,7 +222,7 @@
 	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
-	gap: 0.85rem;
+	gap: 1.5rem;
 }
 
 .operator-mode-landing__overview > .dashboard-activity-charts-section {
@@ -852,6 +852,10 @@
 	min-height: 4.25rem;
 	perspective: none;
 	transform-style: flat;
+
+	&.dashboard-recent-events__item--unrecorded {
+		background: $surface-color-neutral-raised;
+	}
 
 	&:focus-visible {
 		@include shield-focus-ring(-3px);

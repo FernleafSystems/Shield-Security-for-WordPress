@@ -12,7 +12,7 @@ class DashboardEventIcons {
 		'firewall_block'           => 'shield-fill-exclamation',
 		'login_success'            => 'person-check-fill',
 		'login_block'              => 'key-fill',
-		'conn_kill'                => 'plug-fill',
+		'conn_kill'                => 'x-octagon-fill',
 		'ip_blocked'               => 'shield-fill-x',
 		'ip_offense'               => 'shield-fill-exclamation',
 		'block_register'           => 'person-x-fill',

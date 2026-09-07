@@ -12,6 +12,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 
 use Brain\Monkey\Functions;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\DashboardRecentEventsDataBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Handler as EventHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Select as EventSelect;
 use FernleafSystems\Wordpress\Services\Core\Request;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageOperatorModeLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TaskGuideDataBuilder;
@@ -30,6 +34,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 	use InvokesNonPublicMethods;
 
 	private array $servicesSnapshot = [];
+	private EventSelect $eventSelector;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -48,6 +53,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		Functions\when( '_n' )->alias(
 			static fn( string $single, string $plural, int $count, ...$unused ) :string => $count === 1 ? $single : $plural
 		);
+		$this->eventSelector = $this->createMock( EventSelect::class );
+		$eventHandler = $this->createMock( EventHandler::class );
+		$eventHandler->method( 'getQuerySelector' )->willReturn( $this->eventSelector );
 		UnitTestControllerFactory::install(
 			new UnitTestPluginUrls(),
 			null,
@@ -59,7 +67,7 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 						}
 					},
 				],
-				'db_con' => (object)[],
+				'db_con' => (object)[ 'events' => $eventHandler ],
 			]
 		);
 	}
@@ -127,6 +135,62 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '/admin/reports/overview?workspace=list', $nodes[ 'reports' ][ 'choices' ][ 0 ][ 'target' ][ 'href' ] );
 		$this->assertSame( '/admin/reports/overview?workspace=charts', $nodes[ 'reports' ][ 'choices' ][ 1 ][ 'target' ][ 'href' ] );
 		$this->assertSame( '/admin/reports/overview?workspace=settings', $nodes[ 'reports' ][ 'choices' ][ 2 ][ 'target' ][ 'href' ] );
+	}
+
+	public function test_recent_events_query_once_and_use_real_timestamps_and_spam_subtypes() :void {
+		$now = Carbon::createFromTimestampUTC( 1700000000 )->locale( 'en' );
+		$this->eventSelector->expects( $this->once() )
+			->method( 'getLatestTimestampsForEvents' )
+			->with( $this->callback( static function ( array $keys ) :bool {
+				return \count( $keys ) === 17
+					&& \count( \array_unique( $keys ) ) === 17
+					&& \in_array( 'login_success', $keys, true )
+					&& \in_array( 'spam_block_antibot', $keys, true )
+					&& \in_array( 'spam_block_bot', $keys, true )
+					&& \in_array( 'spam_block_human', $keys, true )
+					&& \in_array( 'spam_block_humanrepeated', $keys, true )
+					&& \in_array( 'spam_block_cooldown', $keys, true );
+			} ) )
+			->willReturn( [
+				'firewall_block' => 1699999880,
+				'login_success' => 1699996400,
+				'scan_run' => 1699000000,
+				'spam_block_human' => 1699990000,
+				'spam_block_antibot' => 1699999700,
+				'comment_spam_block' => 1699980000,
+			] );
+		$items = \array_column( ( new DashboardRecentEventsDataBuilder() )->build(), null, 'key' );
+		$this->assertCount( 12, $items );
+		foreach ( [ 'firewall_block' => 1699999880, 'login_success' => 1699996400, 'comment_spam_block' => 1699999700 ] as $key => $timestamp ) {
+			$this->assertTrue( $items[ $key ][ 'has_record' ] );
+			$this->assertSame(
+				Carbon::createFromTimestampUTC( $timestamp )->locale( 'en' )->diffForHumans( $now, CarbonInterface::DIFF_RELATIVE_TO_NOW, false, 2 ),
+				$items[ $key ][ 'time_ago' ]
+			);
+		}
+		$this->assertLessThan( $items[ 'login_success' ][ 'recency_hue' ], $items[ 'firewall_block' ][ 'recency_hue' ] );
+		$this->assertSame( 120, $items[ 'scan_run' ][ 'recency_hue' ] );
+		$this->assertFalse( $items[ 'login_block' ][ 'has_record' ] );
+	}
+
+	public function test_recent_events_without_records_do_not_invent_ages() :void {
+		$this->eventSelector->expects( $this->once() )->method( 'getLatestTimestampsForEvents' )->willReturn( [] );
+		$items = ( new DashboardRecentEventsDataBuilder() )->build();
+		$this->assertCount( 12, $items );
+		$this->assertSame( [ false ], \array_values( \array_unique( \array_column( $items, 'has_record' ) ) ) );
+		$this->assertCount( 1, \array_unique( \array_column( $items, 'time_ago' ) ) );
+		$this->assertNotEmpty( $items[ 0 ][ 'time_ago' ] );
+	}
+
+	public function test_recent_events_clamp_clock_skew_to_now() :void {
+		$this->eventSelector->expects( $this->once() )->method( 'getLatestTimestampsForEvents' )->willReturn( [
+			'firewall_block' => 1700000000,
+			'login_success' => 1700000300,
+		] );
+		$items = \array_column( ( new DashboardRecentEventsDataBuilder() )->build(), null, 'key' );
+		$this->assertSame( 0, $items[ 'login_success' ][ 'recency_hue' ] );
+		$this->assertSame( $items[ 'firewall_block' ][ 'time_ago' ], $items[ 'login_success' ][ 'time_ago' ] );
+		$this->assertTrue( $items[ 'login_success' ][ 'has_record' ] );
 	}
 
 	public function test_destination_cards_have_strict_lightweight_contract_and_canonical_routes() :void {

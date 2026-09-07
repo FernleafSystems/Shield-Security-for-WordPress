@@ -128,7 +128,7 @@
 
 			<ul class="stats-strip dashboard-recent-events list-unstyled m-0 p-0" aria-label="{{ vars.dashboard_recent_events_heading|e('html_attr') }}">
 				{% for event in vars.dashboard_recent_events %}
-					<li class="stat-cell dashboard-recent-events__item"
+					<li class="stat-cell dashboard-recent-events__item{{ event.has_record ? '' : ' dashboard-recent-events__item--unrecorded' }}"
 							 tabindex="0"
 							 style="--dashboard-event-hue: {{ event.recency_hue }};"
 							 aria-label="{{ event.accessible_label|e('html_attr') }}">
