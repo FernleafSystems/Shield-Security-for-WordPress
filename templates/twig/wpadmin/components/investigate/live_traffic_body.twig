@@ -16,7 +16,7 @@
 				<div class="traffic-live-log-topbar__state">
 					<span class="traffic-live-log-topbar__dot" aria-hidden="true"></span>
 					<div class="traffic-live-log-topbar__copy">
-						<h5>{{ strings.live_log_control_title }}</h5>
+						<h3 class="h5">{{ strings.live_log_control_title }}</h3>
 						<p data-traffic-live-log-summary="1"
 						   data-live-log-enabled-summary="{{ strings.live_log_control_enabled_summary|e('html_attr') }}"
 						   {% if not live_log_control.is_enabled %}hidden{% endif %}>

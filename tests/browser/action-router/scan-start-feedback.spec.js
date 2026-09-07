@@ -1,4 +1,5 @@
 const { test, expect } = require( './support/shield-test' );
+const { expectNoAxeViolations } = require( './support/accessibility' );
 const { openShieldRoute } = require( './support/shield-browser' );
 const {
 	expectModalHiddenWithoutAriaModal,
@@ -394,14 +395,13 @@ function waitForScanOverviewRedirect( page, timeout = 8000 ) {
 	.catch( () => null );
 }
 
-test( 'manual scan start uses the shared modal while start and completion progress', async ( { page } ) => {
+test( 'manual scan start uses the shared modal while start and completion progress', async ( { page, fixtureApi } ) => {
 	await openScanRunPage( page );
 
-	const runningModalHtml = scanProgressHtml( 'running', 37 );
-	const completedModalHtml = scanProgressHtml( 'completed', 100 );
+	const { modal_html: runningModalHtml } = await fixtureApi.renderScanProgressFixture( 'running' );
+	const { modal_html: completedModalHtml } = await fixtureApi.renderScanProgressFixture( 'completed' );
 	const delayedRequest = await delayScanStartRequest( page, runningModalHtml );
-	const scanCheckRequest = await respondToNextScanCheckRequest( page, completedModalHtml );
-	const completionRedirect = waitForScanOverviewRedirect( page );
+	const scanCheckRequest = await holdNextScanCheckRequest( page, completedModalHtml );
 
 	await submitStartScansForm( page );
 	await withTimeout( delayedRequest.started, 'Timed out waiting for scans_start request.' );
@@ -412,18 +412,24 @@ test( 'manual scan start uses the shared modal while start and completion progre
 	await assertScanModalState( sharedModal, 'initiating', 'true' );
 	const initiatingAnnouncement = await assertLiveRegionMatchesCurrentAnnouncement( sharedModal );
 	await expect( page.locator( '#ShieldOverlay' ) ).toBeHidden();
-
 	await observeModalLiveRegionMutations( sharedModal );
+	await expectNoAxeViolations( page, '#ShieldModalContainer' );
+
 	await withTimeout( delayedRequest.completed, 'Timed out waiting for delayed scans_start response.' );
 	await expect( sharedModal ).toBeVisible();
 	await assertScanModalState( sharedModal, 'running', 'true' );
+	await expectNamedDialog( page, sharedModal );
 	const runningAnnouncement = await assertLiveRegionChangesToCurrentAnnouncement( sharedModal, initiatingAnnouncement );
 	await expect.poll( () => modalLiveRegionMutationCount( sharedModal ) ).toBeGreaterThan( 0 );
 	await assertProgressbarContract( sharedModal );
+	await expectNoAxeViolations( page, '#ShieldModalContainer' );
 	await sharedModal.locator( '[data-bs-dismiss="modal"]' ).click( { trial: true } );
 	await observeModalLiveRegionMutations( sharedModal );
 	await withTimeout( scanCheckRequest.received, 'Timed out waiting for scans_check request.' );
+	const completionRedirect = waitForScanOverviewRedirect( page );
+	await scanCheckRequest.fulfill();
 	await assertScanModalState( sharedModal, 'completed', 'false' );
+	await expectNamedDialog( page, sharedModal );
 	await assertLiveRegionChangesToCurrentAnnouncement( sharedModal, runningAnnouncement );
 	await expect.poll( () => modalLiveRegionMutationCount( sharedModal ) ).toBeGreaterThan( 0 );
 	await expect( completionRedirect ).resolves.toBe( 'redirect' );
@@ -625,11 +631,11 @@ test( 'manual start supersedes recovery while preserving its lock cleanup and po
 	expect( scanIdsFromPostData( resumedCheckPostData ) ).toEqual( [ 31, 32 ] );
 } );
 
-test( 'manual scan failure modal returns focus to the previous scan control when closed', async ( { page } ) => {
+test( 'manual scan failure modal returns focus to the previous scan control when closed', async ( { page, fixtureApi } ) => {
 	const previousControl = await openScanRunPage( page );
 	await previousControl.focus();
 
-	const failedModalHtml = scanProgressHtml( 'failed', 100 );
+	const { modal_html: failedModalHtml } = await fixtureApi.renderScanProgressFixture( 'failed' );
 	await failNextScanStartRequest( page, failedModalHtml );
 
 	await submitStartScansForm( page );
@@ -640,6 +646,7 @@ test( 'manual scan failure modal returns focus to the previous scan control when
 	const failedAnnouncement = await assertScanModalState( sharedModal, 'failed', 'false' );
 	expect( failedAnnouncement ).not.toHaveLength( 0 );
 	await assertLiveRegionMatchesCurrentAnnouncement( sharedModal );
+	await expectNoAxeViolations( page, '#ShieldModalContainer' );
 
 	await sharedModal.locator( '[data-bs-dismiss="modal"]' ).click();
 	await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
@@ -658,6 +665,7 @@ test( 'manual scan start shows local error modal when response lacks modal contr
 	await expectNamedDialog( page, sharedModal );
 	await assertScanModalState( sharedModal, 'failed', 'false' );
 	await assertLiveRegionMatchesCurrentAnnouncement( sharedModal );
+	await expectNoAxeViolations( page, '#ShieldModalContainer' );
 
 	await sharedModal.locator( '[data-bs-dismiss="modal"]' ).click();
 	await expect( previousControl ).toBeFocused();

@@ -8,6 +8,7 @@ import sql from 'highlight.js/lib/languages/sql';
 import xml from 'highlight.js/lib/languages/xml';
 import { AjaxService } from "../services/AjaxService";
 import { BootstrapModals } from "../ui/BootstrapModals";
+import { UiContentActivator } from "../ui/UiContentActivator";
 import { ObjectOps } from "../../util/ObjectOps";
 import { ScanItemMalaiForm } from "./ScanItemMalaiForm";
 
@@ -37,6 +38,9 @@ export class ScanItemAnalysisModal {
 		const requestToken = ScanItemAnalysisModal.buildRequestToken();
 		activeRequestToken = requestToken;
 
+		modal.addEventListener( 'shown.bs.modal', ScanItemAnalysisModal.activateTabs );
+		modal.addEventListener( 'hidden.bs.modal', ScanItemAnalysisModal.disposeTabs );
+		UiContentActivator.disposeBootstrapTabsWithin( modalContent );
 		modalContent.innerHTML = ScanItemAnalysisModal.buildLoadingMarkup();
 		BootstrapModals.Show( modal );
 
@@ -51,6 +55,7 @@ export class ScanItemAnalysisModal {
 			}
 
 			if ( resp?.success && typeof resp?.data?.html === 'string' ) {
+				UiContentActivator.disposeBootstrapTabsWithin( modalContent );
 				modalContent.innerHTML = resp.data.html;
 				if ( !BootstrapModals.normalizeModalAccessibility( modal ) ) {
 					activeRequestToken = '';
@@ -61,6 +66,9 @@ export class ScanItemAnalysisModal {
 				}
 				ScanItemAnalysisModal.highlightModalCodeBlocks( modal );
 				ScanItemMalaiForm.initializeWithin( modalContent );
+				if ( modal.classList.contains( 'show' ) ) {
+					UiContentActivator.activateBootstrapTabsWithin( modalContent );
+				}
 				activeRequestToken = '';
 				return;
 			}
@@ -86,6 +94,14 @@ export class ScanItemAnalysisModal {
 		return `${Date.now()}-${Math.random()}`;
 	}
 
+	static activateTabs( event ) {
+		UiContentActivator.activateBootstrapTabsWithin( event.currentTarget );
+	}
+
+	static disposeTabs( event ) {
+		UiContentActivator.disposeBootstrapTabsWithin( event.currentTarget );
+	}
+
 	static buildLoadingMarkup() {
 		const loadingLabel = typeof shieldStrings?.string === 'function'
 			? shieldStrings.string( 'loading' ) || 'Loading'
@@ -93,7 +109,7 @@ export class ScanItemAnalysisModal {
 		const spinner = ScanItemAnalysisModal.buildSpinnerMarkup();
 
 		return `<div class="modal-header">
-			<div class="modal-title" id="ShieldModalContainerLabel">${ScanItemAnalysisModal.escapeHtml( loadingLabel )}</div>
+			<h2 class="modal-title h5" id="ShieldModalContainerLabel">${ScanItemAnalysisModal.escapeHtml( loadingLabel )}</h2>
 			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${ScanItemAnalysisModal.escapeHtml( ScanItemAnalysisModal.getCloseLabel() )}"></button>
 		</div>
 		<div class="modal-body" aria-busy="true">

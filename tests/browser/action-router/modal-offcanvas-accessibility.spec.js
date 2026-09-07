@@ -1,5 +1,5 @@
 const { test, expect } = require( './support/shield-test' );
-const AxeBuilder = require( '@axe-core/playwright' ).default;
+const { expectNoAxeViolations } = require( './support/accessibility' );
 const {
 	openShieldRoute,
 } = require( './support/shield-browser' );
@@ -10,7 +10,6 @@ const {
 	expectLabelledControl,
 	expectModalHiddenWithoutAriaModal,
 	expectNamedDialog,
-	expectNamedOffcanvas,
 } = require( './support/modal-accessibility' );
 
 function requestRenderSlug( request ) {
@@ -32,6 +31,8 @@ function isIpAnalysisOffcanvasRequest( request ) {
 
 async function pauseNextMatchingRequest( page, matcher ) {
 	let matched = false;
+	let completion = Promise.resolve();
+	let continuationError;
 	let startedResolve;
 	const started = new Promise( ( resolve ) => {
 		startedResolve = resolve;
@@ -49,21 +50,46 @@ async function pauseNextMatchingRequest( page, matcher ) {
 
 		matched = true;
 		startedResolve();
-		await released;
-		await route.continue();
-		await page.unroute( '**/admin-ajax.php*', handler ).catch( () => null );
+		completion = released.then( () => route.continue() ).catch( ( error ) => {
+			continuationError = error;
+		} );
+		await completion;
 	};
 
 	await page.route( '**/admin-ajax.php*', handler );
 	return {
 		started,
 		release: () => releaseResolve(),
-		remove: () => page.unroute( '**/admin-ajax.php*', handler ).catch( () => null ),
+		completed: async () => {
+			await started;
+			await completion;
+			if ( continuationError ) {
+				throw continuationError;
+			}
+		},
+		remove: async ( primaryError = null ) => {
+			releaseResolve();
+			await completion;
+			try {
+				await page.unroute( '**/admin-ajax.php*', handler );
+				if ( continuationError ) {
+					throw continuationError;
+				}
+			}
+			catch ( error ) {
+				if ( !primaryError ) {
+					throw error;
+				}
+				await test.info().attach( 'request-cleanup-error', { body: String( error ), contentType: 'text/plain' } );
+			}
+		},
 	};
 }
 
 async function fulfillNextMatchingRequest( page, matcher, body ) {
 	let matched = false;
+	let completion = Promise.resolve();
+	let fulfillError;
 	const handler = async ( route ) => {
 		if ( matched || !matcher( route.request() ) ) {
 			await route.fallback();
@@ -71,18 +97,34 @@ async function fulfillNextMatchingRequest( page, matcher, body ) {
 		}
 
 		matched = true;
-		await route.fulfill( {
+		completion = route.fulfill( {
 			status: 200,
 			contentType: 'application/json',
 			body: JSON.stringify( body ),
+		} ).catch( ( error ) => {
+			fulfillError = error;
 		} );
-		await page.unroute( '**/admin-ajax.php*', handler ).catch( () => null );
+		await completion;
 	};
 
 	await page.route( '**/admin-ajax.php*', handler );
 	return {
 		seen: () => matched,
-		remove: () => page.unroute( '**/admin-ajax.php*', handler ).catch( () => null ),
+		remove: async ( primaryError = null ) => {
+			await completion;
+			try {
+				await page.unroute( '**/admin-ajax.php*', handler );
+				if ( fulfillError ) {
+					throw fulfillError;
+				}
+			}
+			catch ( error ) {
+				if ( !primaryError ) {
+					throw error;
+				}
+				await test.info().attach( 'request-cleanup-error', { body: String( error ), contentType: 'text/plain' } );
+			}
+		},
 	};
 }
 
@@ -108,14 +150,6 @@ async function waitForScanResultsTableRows( table ) {
 	await expect( table.locator( 'tbody td.dataTables_empty' ) ).toHaveCount( 0 );
 }
 
-async function expectNoAxeViolations( page, selector ) {
-	const results = await new AxeBuilder( { page } )
-	.include( selector )
-	.analyze();
-
-	expect( results.violations, JSON.stringify( results.violations, null, 2 ) ).toEqual( [] );
-}
-
 async function openIpAnalysisOffcanvasFromLauncher( page, ip ) {
 	await openShieldRoute( page, {
 		nav: 'activity',
@@ -134,14 +168,100 @@ async function openIpAnalysisOffcanvasFromLauncher( page, ip ) {
 
 	const offcanvas = page.locator( '#AptoOffcanvas' );
 	await expect( offcanvas ).toBeVisible();
-	await expectNamedOffcanvas( page, offcanvas, 'AptoOffcanvasLabel' );
+	await expectNamedDialog( page, offcanvas, 'AptoOffcanvasLabel' );
 
 	return { launcher, offcanvas };
 }
 
+test( 'paused request cleanup releases early exits and removes unmatched handlers', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => {
+		await openShieldRoute( page, { nav: 'activity', nav_sub: 'logs' } );
+		let unmatchedCalls = 0;
+		const unused = await pauseNextMatchingRequest( page, () => {
+			unmatchedCalls++;
+			return true;
+		} );
+		await unused.remove();
+		const paused = await pauseNextMatchingRequest( page, isIpAnalysisOffcanvasRequest );
+		const launcher = page.locator( `.offcanvas_ip_analysis[data-ip="${fixture.ip}"]` ).first();
+		const interruption = new Error( 'Intentional loading-check interruption' );
+		let caught;
+		try {
+			await launcher.click();
+			await paused.started;
+			throw interruption;
+		}
+		catch ( error ) {
+			caught = error;
+		}
+		finally {
+			// Simulate exiting before the normal release/completed path.
+			await paused.remove( caught );
+		}
+		expect( caught ).toBe( interruption );
+		const offcanvas = page.locator( '#AptoOffcanvas' );
+		await expect( offcanvas.locator( '[data-investigate-panel-tabs="1"]' ) ).toBeVisible();
+		await offcanvas.press( 'Escape' );
+		await expect( launcher ).toBeFocused();
+		await launcher.click();
+		await expect( offcanvas.locator( '[data-investigate-panel-tabs="1"]' ) ).toBeVisible();
+		expect( unmatchedCalls ).toBe( 0 );
+		await offcanvas.press( 'Escape' );
+	} );
+} );
+
+for ( const scenario of [
+	{ name: 'report creation', route: { nav: 'reports', nav_sub: 'overview' }, launcher: '.offcanvas_report_create_form', body: '.form_create_report', contextual: true, licensed: true },
+	{ name: 'IP rule creation', route: { nav: 'ips', nav_sub: 'rules' }, launcher: '.offcanvas_form_create_ip_rule', body: '#IpRuleAddForm', contextual: true },
+	{ name: 'table search help', route: { nav: 'activity', nav_sub: 'logs' }, launcher: 'button.search-help', body: '.offcanvas-body table' },
+] ) {
+	test( `${scenario.name} uses the named shared offcanvas and accessible loaded body`, async ( { page, fixtureApi } ) => {
+		const verify = async () => {
+			await openShieldRoute( page, scenario.route );
+			if ( scenario.contextual ) {
+				await page.locator( '.page-action-menu-toggle' ).click();
+			}
+			const launcher = page.locator( scenario.launcher ).first();
+			await launcher.click();
+			const offcanvas = page.locator( '#AptoOffcanvas' );
+			await expect( offcanvas.locator( scenario.body ) ).toBeVisible();
+			await expectNamedDialog( page, offcanvas, 'AptoOffcanvasLabel' );
+			await expectNoAxeViolations( page, '#AptoOffcanvas' );
+			await offcanvas.press( 'Escape' );
+			await expect( offcanvas ).toBeHidden();
+			await expect( scenario.contextual ? page.locator( '.page-action-menu-toggle' ) : launcher ).toBeFocused();
+		};
+		if ( scenario.licensed ) {
+			await fixtureApi.withLicenseClearFixture( verify );
+		}
+		else {
+			await verify();
+		}
+	} );
+}
+
+test( 'site authorization uses an accessible loaded offcanvas without submitting', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withImportExportNetworkFixture( async () => {
+		await openShieldRoute( page, { nav: 'tools', nav_sub: 'importexport' } );
+		await page.locator( '[data-import-export-task="clients"]' ).click();
+		await expectNoAxeViolations( page, '#PageContainer-Apto' );
+		const launcher = page.locator( '[data-import-export-add-clients="1"]' );
+		await launcher.click();
+		const offcanvas = page.locator( '#AptoOffcanvas' );
+		await expect( offcanvas.locator( '#ImportExportSitesAuthoriseUrlsForm' ) ).toBeVisible();
+		await expectNamedDialog( page, offcanvas, 'AptoOffcanvasLabel' );
+		await expect( offcanvas.locator( 'textarea' ) ).toHaveAccessibleName( /\S/ );
+		await expect( offcanvas.locator( 'textarea' ) ).toHaveAccessibleDescription( /\S/ );
+		await expectNoAxeViolations( page, '#AptoOffcanvas' );
+		await offcanvas.press( 'Escape' );
+		await expect( launcher ).toBeFocused();
+	} );
+} );
+
 test( 'shared dynamic modal shell starts inert without a stale accessible name', async ( { page } ) => {
+	// Dashboard onboarding legitimately populates this shared shell before dismissing it.
 	await openShieldRoute( page, {
-		nav: 'dashboard',
+		nav: 'reports',
 		nav_sub: 'overview',
 	} );
 
@@ -159,6 +279,7 @@ test( 'scan item analysis shared modal stays named through async replacement', a
 	await fixtureApi.withActionsQueueFixture( 'direct_table', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		const paused = await pauseNextMatchingRequest( page, isScanItemAnalysisRequest );
+		let testError;
 
 		try {
 			await openShieldRoute( page, {
@@ -172,10 +293,6 @@ test( 'scan item analysis shared modal stays named through async replacement', a
 
 			const viewAction = table.locator( '[data-scan-result-action="view"]' ).first();
 			await expect( viewAction ).toBeVisible();
-			const response = page.waitForResponse(
-				( resp ) => isScanItemAnalysisRequest( resp.request() ),
-				{ timeout: 20_000 }
-			);
 			await viewAction.click();
 			await paused.started;
 
@@ -186,7 +303,7 @@ test( 'scan item analysis shared modal stays named through async replacement', a
 			await expectNoAxeViolations( page, '#ShieldModalContainer' );
 
 			paused.release();
-			await response;
+			await paused.completed();
 			await expect( modal.locator( '#tabInfo[role="tabpanel"]' ) ).toBeVisible( { timeout: 20_000 } );
 			await expectNamedDialog( page, modal );
 
@@ -194,9 +311,12 @@ test( 'scan item analysis shared modal stays named through async replacement', a
 			await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
 			await expect( viewAction ).toBeFocused();
 		}
+		catch ( error ) {
+			testError = error;
+			throw error;
+		}
 		finally {
-			paused.release();
-			await paused.remove();
+			await paused.remove( testError );
 		}
 	} );
 } );
@@ -211,6 +331,7 @@ test( 'scan item analysis render failure opens accessible message dialog', async
 				page_reload: false,
 			},
 		} );
+		let testError;
 
 		try {
 			await openShieldRoute( page, {
@@ -236,8 +357,12 @@ test( 'scan item analysis render failure opens accessible message dialog', async
 				await expect( viewAction ).toBeFocused();
 			} );
 		}
+		catch ( error ) {
+			testError = error;
+			throw error;
+		}
 		finally {
-			await failed.remove();
+			await failed.remove( testError );
 		}
 	} );
 } );
@@ -252,6 +377,7 @@ test( 'scan item analysis unnamed replacement opens accessible message dialog', 
 				page_reload: false,
 			},
 		} );
+		let testError;
 
 		try {
 			await openShieldRoute( page, {
@@ -277,8 +403,12 @@ test( 'scan item analysis unnamed replacement opens accessible message dialog', 
 				await expect( viewAction ).toBeFocused();
 			} );
 		}
+		catch ( error ) {
+			testError = error;
+			throw error;
+		}
 		finally {
-			await malformed.remove();
+			await malformed.remove( testError );
 		}
 	} );
 } );
@@ -286,6 +416,7 @@ test( 'scan item analysis unnamed replacement opens accessible message dialog', 
 test( 'IP analysis offcanvas is named while loading and after async replacement', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withIpAnalysisActivityMetaFixture( async ( fixture ) => {
 		const paused = await pauseNextMatchingRequest( page, isIpAnalysisOffcanvasRequest );
+		let testError;
 		try {
 			await openShieldRoute( page, {
 				nav: 'activity',
@@ -294,32 +425,32 @@ test( 'IP analysis offcanvas is named while loading and after async replacement'
 
 			const launcher = page.locator( `.offcanvas_ip_analysis[data-ip="${fixture.ip}"]` ).first();
 			await expect( launcher ).toBeVisible();
-			const response = page.waitForResponse(
-				( resp ) => isIpAnalysisOffcanvasRequest( resp.request() ),
-				{ timeout: 20_000 }
-			);
 			await launcher.click();
 			await paused.started;
 
 			const offcanvas = page.locator( '#AptoOffcanvas' );
 			await expect( offcanvas ).toBeVisible();
-			await expectNamedOffcanvas( page, offcanvas, 'AptoOffcanvasLabel' );
+			await expectNamedDialog( page, offcanvas, 'AptoOffcanvasLabel' );
 			await expectFocusWithin( offcanvas );
 			await expectLabelledControl( offcanvas.locator( '[data-bs-dismiss="offcanvas"]' ).first() );
 			await expectNoAxeViolations( page, '#AptoOffcanvas' );
 
 			paused.release();
-			await response;
+			await paused.completed();
 			await expect( offcanvas.locator( '[data-investigate-panel-tabs="1"]' ) ).toBeVisible( { timeout: 20_000 } );
-			await expectNamedOffcanvas( page, offcanvas, 'AptoOffcanvasLabel' );
+			await expectNamedDialog( page, offcanvas, 'AptoOffcanvasLabel' );
+			await expectNoAxeViolations( page, '#AptoOffcanvas' );
 
 			await offcanvas.locator( '[data-bs-dismiss="offcanvas"]' ).first().click();
 			await expectModalHiddenWithoutAriaModal( page, '#AptoOffcanvas' );
 			await expect( launcher ).toBeFocused();
 		}
+		catch ( error ) {
+			testError = error;
+			throw error;
+		}
 		finally {
-			paused.release();
-			await paused.remove();
+			await paused.remove( testError );
 		}
 	} );
 } );
@@ -333,6 +464,7 @@ test( 'IP analysis offcanvas render failure opens accessible message dialog', as
 				page_reload: false,
 			},
 		} );
+		let testError;
 
 		try {
 			await openShieldRoute( page, {
@@ -354,8 +486,12 @@ test( 'IP analysis offcanvas render failure opens accessible message dialog', as
 				await expect( launcher ).toBeFocused();
 			} );
 		}
+		catch ( error ) {
+			testError = error;
+			throw error;
+		}
 		finally {
-			await failed.remove();
+			await failed.remove( testError );
 		}
 	} );
 } );
@@ -369,6 +505,7 @@ test( 'IP analysis offcanvas unnamed replacement opens accessible message dialog
 				page_reload: false,
 			},
 		} );
+		let testError;
 
 		try {
 			await openShieldRoute( page, {
@@ -390,8 +527,12 @@ test( 'IP analysis offcanvas unnamed replacement opens accessible message dialog
 				await expect( launcher ).toBeFocused();
 			} );
 		}
+		catch ( error ) {
+			testError = error;
+			throw error;
+		}
 		finally {
-			await malformed.remove();
+			await malformed.remove( testError );
 		}
 	} );
 } );
@@ -412,7 +553,8 @@ test( 'IP analysis offcanvas returns focus to root opener after replace navigati
 		await response;
 
 		await expect( offcanvas.locator( '[data-investigate-panel-tabs="1"]' ) ).toBeVisible( { timeout: 20_000 } );
-		await expectNamedOffcanvas( page, offcanvas, 'AptoOffcanvasLabel' );
+		await expectNamedDialog( page, offcanvas, 'AptoOffcanvasLabel' );
+		await expectNoAxeViolations( page, '#AptoOffcanvas' );
 
 		await offcanvas.locator( '[data-bs-dismiss="offcanvas"]' ).first().click();
 		await expectModalHiddenWithoutAriaModal( page, '#AptoOffcanvas' );

@@ -47,7 +47,7 @@
 							 aria-labelledby="{{ flags.show_section_navigation ? 'tab-navlink-' : 'section-title-' }}{{ unique_render_id }}-{{ opt_section.slug }}">
 						<div class="shield-options-panel-accent"></div>
 						<div class="shield-options-panel-header">
-							<div class="shield-options-panel-title" id="section-title-{{ unique_render_id }}-{{ opt_section.slug }}">{{ opt_section.title }}</div>
+							<h3 class="shield-options-panel-title m-0" id="section-title-{{ unique_render_id }}-{{ opt_section.slug }}">{{ opt_section.title }}</h3>
 
 							<div class="shield-options-panel-header-actions">
 								{% if opt_section.beacon_id|default(false) %}

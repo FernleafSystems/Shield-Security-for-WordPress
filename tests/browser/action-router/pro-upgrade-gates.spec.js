@@ -1,4 +1,5 @@
 const { openShieldRoute, test, expect } = require( './support/shield-test' );
+const { expectNoAxeViolations } = require( './support/accessibility' );
 const {
 	expectFocusWithin,
 	expectModalHiddenWithoutAriaModal,
@@ -30,6 +31,7 @@ for ( const route of [
 			await openShieldRoute( page, route );
 			const launcher = page.locator( '[data-pro-upsell="1"]' );
 			await expect( launcher ).toHaveCount( 1 );
+			await expectNoAxeViolations( page, '#PageContainer-Apto' );
 			if ( route.nav === 'rules' ) {
 				const video = page.locator( '[data-vimeoid="908715157"]' );
 				await expect( video ).toBeVisible();

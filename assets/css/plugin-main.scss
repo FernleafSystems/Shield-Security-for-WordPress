@@ -1098,6 +1098,7 @@ $sidebar-transition-speed: 0.25s;
   background-color: transparent;
   padding: 0;
   display: block;
+  overflow: visible;
 }
 
 #ShieldModalContainer pre.icwp-code-render > code:before {

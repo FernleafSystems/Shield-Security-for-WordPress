@@ -186,6 +186,8 @@ class ActionsQueueFixtureBuilder {
 		switch ( $scenario ) {
 			case 'direct_table':
 				return $this->seedDirectTable( $state );
+			case 'unavailable_file_direct_table':
+				return $this->seedDirectTable( $state, true );
 			case 'malai_lookup_contexts':
 				return $this->seedMalaiLookupContexts( $state );
 			case 'malware_direct_table':
@@ -251,7 +253,7 @@ class ActionsQueueFixtureBuilder {
 	 * @phpstan-param FixtureState $state
 	 * @return ScenarioDefinition
 	 */
-	private function seedDirectTable( array &$state ) :array {
+	private function seedDirectTable( array &$state, bool $unavailableFile = false ) :array {
 		RuntimeTestState::applyPremiumCapabilities( [
 			'scan_file_areas',
 			'scan_pluginsthemes_local',
@@ -275,14 +277,22 @@ class ActionsQueueFixtureBuilder {
 		RuntimeTestState::primeCacheSubDir( 'browser-fixtures-actions-queue' );
 
 		$pluginSlug = RuntimeTestState::controller()->base_file;
+		$pathFragment = $this->pluginMainPathFragment( $pluginSlug );
+		if ( $unavailableFile ) {
+			$pathFragment = \dirname( $pathFragment ).'/shield-browser-missing-'.\wp_generate_uuid4().'.php';
+			if ( \file_exists( \path_join( ABSPATH, $pathFragment ) ) ) {
+				throw new \RuntimeException( 'Unavailable-file fixture path must not exist.' );
+			}
+		}
 		$scanId = TestDataFactory::insertCompletedScan( 'afs' );
 		$this->trackId( $state, 'scan_ids', $scanId );
 		$this->trackScanResult( $state, TestDataFactory::insertAfsFileScanResultTracked(
 			$scanId,
-			$this->pluginMainPathFragment( $pluginSlug ),
+			$pathFragment,
 			[
 				'is_in_plugin'    => 1,
-				'is_unrecognised' => 1,
+				'is_unrecognised' => $unavailableFile ? 0 : 1,
+				'is_missing'      => $unavailableFile ? 1 : 0,
 				'ptg_slug'        => $pluginSlug,
 			]
 		) );
@@ -294,7 +304,7 @@ class ActionsQueueFixtureBuilder {
 		] ) );
 
 		return [
-			'scenario'                    => 'direct_table',
+			'scenario'                    => $unavailableFile ? 'unavailable_file_direct_table' : 'direct_table',
 			'target_group_key'            => 'plugins:'.$pluginSlug,
 			'expected_detail_shell'       => 'direct_table',
 			'expected_lazy_panel'         => false,

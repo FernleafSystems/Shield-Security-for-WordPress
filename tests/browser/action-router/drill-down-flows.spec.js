@@ -1,5 +1,6 @@
 const { openShieldRoute, test, expect } = require( './support/shield-test' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
+const { expectNoAxeViolations } = require( './support/accessibility' );
 const { expectCardFocusRingWithinGrid } = require( './support/operator-landing-cards' );
 const {
 	expectFocusWithin,
@@ -862,6 +863,10 @@ test( 'actions queue lazy-loads the file locker asset panel to a terminal state 
 
 		await expect( panel.locator( '.alert.alert-warning' ) ).toHaveCount( 0 );
 		await expect( panel ).toHaveAttribute( 'data-actions-queue-asset-panel-loaded', '1', { timeout: 20_000 } );
+		await expectNoAxeViolations(
+			page,
+			`[data-mode-panel="1"]:is([data-mode-panel-target-default="${fixture.panel_target}"], [data-mode-panel-target="${fixture.panel_target}"])[aria-hidden="false"]`
+		);
 		const fileActionForms = panel.locator( 'form.filelocker_fileaction' );
 		await expect( fileActionForms ).toHaveCount( 2 );
 		await expect( fileActionForms.first() ).toBeVisible();

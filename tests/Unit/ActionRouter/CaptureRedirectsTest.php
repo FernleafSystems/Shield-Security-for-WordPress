@@ -14,7 +14,10 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\CaptureRedirects;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\{
+	PluginNavs,
+	PluginURLs
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
@@ -142,7 +145,7 @@ class CaptureRedirectsTest extends BaseUnitTest {
 	/**
 	 * @dataProvider providerLegacyReportsRoutes
 	 */
-	public function test_legacy_reports_routes_redirect_to_settings( string $subNav ) :void {
+	public function test_legacy_reports_routes_redirect_to_canonical_workspace( string $subNav, string $workspace ) :void {
 		$this->request->query = [
 			'page'                => 'icwp-wpsf-plugin',
 			Constants::NAV_ID     => 'reports',
@@ -152,15 +155,18 @@ class CaptureRedirectsTest extends BaseUnitTest {
 		( new CaptureRedirects() )->run();
 
 		$this->assertSame(
-			'/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=overview&workspace=settings',
+			'/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=overview&workspace='.$workspace,
 			$this->responseCapture->redirectTo
 		);
 	}
 
 	public function providerLegacyReportsRoutes() :array {
 		return [
-			'alerts'    => [ 'alerts' ],
-			'reporting' => [ 'reporting' ],
+			'alerts'    => [ 'alerts', PluginNavs::SUBNAV_REPORTS_SETTINGS ],
+			'reporting' => [ 'reporting', PluginNavs::SUBNAV_REPORTS_SETTINGS ],
+			'list'      => [ PluginNavs::SUBNAV_REPORTS_LIST, PluginNavs::SUBNAV_REPORTS_LIST ],
+			'settings'  => [ PluginNavs::SUBNAV_REPORTS_SETTINGS, PluginNavs::SUBNAV_REPORTS_SETTINGS ],
+			'charts'    => [ PluginNavs::SUBNAV_REPORTS_CHARTS, PluginNavs::SUBNAV_REPORTS_CHARTS ],
 		];
 	}
 

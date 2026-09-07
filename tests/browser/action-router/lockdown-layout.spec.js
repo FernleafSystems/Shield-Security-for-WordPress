@@ -1,4 +1,5 @@
 const { test, expect } = require( './support/shield-test' );
+const { expectNoAxeViolations } = require( './support/accessibility' );
 const { openShieldRoute } = require( './support/shield-browser' );
 
 for ( const width of [ 768, 1280, 1920 ] ) {
@@ -29,5 +30,9 @@ for ( const width of [ 768, 1280, 1920 ] ) {
 		await expect( confirmation ).toBeChecked();
 		await page.keyboard.press( 'Space' );
 		await expect( confirmation ).not.toBeChecked();
+
+		if ( width === 1280 ) {
+			await expectNoAxeViolations( page, '#PageContainer-Apto' );
+		}
 	} );
 }

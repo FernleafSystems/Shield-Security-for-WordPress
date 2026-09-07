@@ -4,7 +4,7 @@
 
 	{% if flags.blockdown_active %}
 		<div class="alert alert-danger d-inline-block" role="alert">
-			<h4 class="alert-heading">{{ strings.lockdown_active_title }}</h4>
+			<h2 class="alert-heading h4">{{ strings.lockdown_active_title }}</h2>
 			<p>{{ strings.lockdown_active_description }}</p>
 			<ul class="mb-0">
 				<li>{{ strings.lockdown_started_label }} {{ vars.active_since }}</li>
@@ -22,7 +22,7 @@
 				<form class="form" id="FormBlockdown" autocomplete="off">
 
 					<div class="mb-3">
-						<h6 class="mb-2">{{ strings.whitelist_heading }}</h6>
+						<h2 class="h6 mb-2">{{ strings.whitelist_heading }}</h2>
 						<div class="form-check shield-option-multiple-item">
 							<input type="checkbox" class="form-check-input" id="whitelist_me" name="whitelist_me" value="Y"
 									{% if flags.is_your_ip_whitelisted %} disabled="disabled"{% endif %}>
@@ -34,7 +34,7 @@
 					</div>
 
 					<div class="mb-3">
-						<h6 class="mb-2">{{ strings.confirm_heading }}</h6>
+						<h2 class="h6 mb-2">{{ strings.confirm_heading }}</h2>
 						<div class="form-check shield-option-multiple-item">
 							<input type="checkbox" class="form-check-input" id="confirm_cache" name="confirm[]"
 								   value="cache">
@@ -72,7 +72,7 @@
 
 			<div class="col-6">
 				<div class="alert alert-warning d-inline-block" role="alert">
-					<h4 class="alert-heading">{{ strings.warning_title }}</h4>
+					<h2 class="alert-heading h4">{{ strings.warning_title }}</h2>
 					<p>{{ strings.warning_block_all }}</p>
 					<p>{{ strings.warning_whitelist_only }}</p>
 					{% if not flags.is_your_ip_whitelisted %}

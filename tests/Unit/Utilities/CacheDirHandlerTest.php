@@ -47,6 +47,8 @@ class CacheDirHandlerTest extends BaseUnitTest {
 		$this->db = new CacheStoreTestDb();
 		$tmpDir = $this->makeTempDir( 'tmp' );
 		$this->registerCacheStoreWordPressFunctions( $this->fs, $tmpDir );
+		// Keep discovery independent of an ambient runner cache in /tmp.
+		$this->setInstallContext( 'wp_'.\md5( $tmpDir ).'_', 1 );
 		ServicesState::installItems( [
 			'service_request' => new CacheStoreTestRequest(),
 			'service_wpfs'    => $this->fs,

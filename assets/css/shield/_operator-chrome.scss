@@ -127,7 +127,7 @@
 
 .operator-step-tabs__tab[data-color-key="reports"] {
 	background: $mode-reports-light;
-	color: $mode-reports;
+	color: $mode-reports-text;
 }
 
 .operator-step-tabs__tab[data-color-key="reports"].is-active,

@@ -126,10 +126,9 @@
 				<h2 id="dashboard-recent-events-heading" class="investigate-landing__section-label">{{ vars.dashboard_recent_events_heading }}</h2>
 			</div>
 
-			<div class="stats-strip dashboard-recent-events" role="list" aria-label="{{ vars.dashboard_recent_events_heading|e('html_attr') }}">
+			<ul class="stats-strip dashboard-recent-events list-unstyled m-0 p-0" aria-label="{{ vars.dashboard_recent_events_heading|e('html_attr') }}">
 				{% for event in vars.dashboard_recent_events %}
-					<article class="stat-cell dashboard-recent-events__item"
-							 role="listitem"
+					<li class="stat-cell dashboard-recent-events__item"
 							 tabindex="0"
 							 style="--dashboard-event-hue: {{ event.recency_hue }};"
 							 aria-label="{{ event.accessible_label|e('html_attr') }}">
@@ -140,9 +139,9 @@
 								<span class="dashboard-recent-events__time" aria-hidden="true">{{ event.time_ago }}</span>
 							</span>
 						</span>
-					</article>
+					</li>
 				{% endfor %}
-			</div>
+			</ul>
 		</section>
 	</div>
 

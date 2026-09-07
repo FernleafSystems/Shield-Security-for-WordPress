@@ -1,4 +1,5 @@
 const { test, expect } = require( './support/shield-test' );
+const { expectNoAxeViolations } = require( './support/accessibility' );
 const {
 	openShieldRoute,
 	selectSelect2Option,
@@ -22,7 +23,6 @@ const {
 	liveTrafficToggleRequest,
 	parseShieldAjaxJson,
 	requestActionSlug,
-	requestPostParam,
 } = require( './support/security-assertions' );
 
 const panelSelector = '[data-investigate-panel="1"]';
@@ -90,6 +90,7 @@ test( 'investigate user reset uses the shared generic panel path and self shortc
 
 	await expect( page.locator( '[data-step-tab-investigate-reset="1"]' ) ).toHaveCount( 1 );
 	await expect( panel.locator( '[data-investigate-panel-header="1"] [data-investigate-subject-header="1"]' ) ).toBeVisible();
+	await expectNoAxeViolations( page, '#PageContainer-Apto' );
 
 	await Promise.all( [
 		page.waitForURL(

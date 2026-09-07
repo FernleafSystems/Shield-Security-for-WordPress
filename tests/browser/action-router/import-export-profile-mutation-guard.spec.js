@@ -1,4 +1,5 @@
 const { test, expect, openShieldRoute } = require( './support/shield-test' );
+const { expectNoAxeViolations } = require( './support/accessibility' );
 
 const PROFILE_MUTATION_SLUG = Object.freeze( {
 	save: 'importexport_profile_options_save',
@@ -298,6 +299,9 @@ for ( const originCase of ORIGIN_CASES ) {
 	test( originCase.name, async ( { page, fixtureApi } ) => {
 		await fixtureApi.withImportExportNetworkFixture( async () => {
 			const surface = await openProfileSurface( page );
+			if ( originCase.origin === 'save' ) {
+				await expectNoAxeViolations( page, '#PageContainer-Apto' );
+			}
 			const before = await captureControlState( surface );
 			expectAllControlsEnabled( before );
 			const gate = await installProfileMutationGate( page, originCase.expectedSlug );

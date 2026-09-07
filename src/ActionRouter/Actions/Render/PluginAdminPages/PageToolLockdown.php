@@ -40,7 +40,7 @@ class PageToolLockdown extends PageModeLandingBase {
 				'warning_note_security_admin' => __( 'Note: To prevent other admins from using this tool, consider switching on the Security Admin feature.', 'wp-simple-firewall' ),
 				'warning_more_help_html'      => sprintf(
 					__( 'Proceed with caution. [%s]', 'wp-simple-firewall' ),
-					sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $moreHelpUrl ), __( 'further help', 'wp-simple-firewall' ) )
+					sprintf( '<a href="%s" class="alert-link text-decoration-underline" target="_blank">%s</a>', esc_url( $moreHelpUrl ), __( 'further help', 'wp-simple-firewall' ) )
 				),
 				'whitelist_heading'           => __( 'Whitelist Me', 'wp-simple-firewall' ),
 				'whitelist_label'             => __( 'Add my IP address (%s) to the bypass/whitelist', 'wp-simple-firewall' ),

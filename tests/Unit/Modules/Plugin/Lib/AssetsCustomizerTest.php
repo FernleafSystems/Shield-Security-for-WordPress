@@ -29,6 +29,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components\Widgets\WpDashboardSummary,
 	Actions\ScansAttemptRecovery,
 	Actions\ScansCheck,
+	Actions\ScansFileLockerAction,
 	Actions\ScansStart,
 	Actions\TrafficLiveLog_SetEnabled,
 	Actions\ToolPurgeProviderIPs
@@ -62,6 +63,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 			\define( 'HOUR_IN_SECONDS', 3600 );
 		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => htmlspecialchars( $text ) );
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \preg_replace( '/[^a-z0-9_\-]/', '', $text ) ) : ''
 		);
@@ -210,6 +212,17 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertSame( ScansCheck::SLUG, $ajax[ 'check' ][ ActionData::FIELD_EXECUTE ] ?? null );
 		$this->assertSame( ScansAttemptRecovery::SLUG, $ajax[ 'recover' ][ ActionData::FIELD_EXECUTE ] ?? null );
 		$this->assertSame( ScansStart::SLUG, $ajax[ 'start' ][ ActionData::FIELD_EXECUTE ] ?? null );
+	}
+
+	public function test_file_locker_component_localizes_file_action_payload() :void {
+		$this->installEnvironment();
+
+		$ajax = $this->componentAjax( 'file_locker' );
+
+		$this->assertSame(
+			ScansFileLockerAction::SLUG,
+			$ajax[ 'file_action' ][ ActionData::FIELD_EXECUTE ] ?? null
+		);
 	}
 
 	public function test_scans_component_sets_initial_check_when_scan_queue_is_running() :void {
@@ -414,11 +427,6 @@ class AssetsCustomizerTest extends BaseUnitTest {
 					PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
 				],
 				'dashboard_widget',
-				1,
-			],
-			'file locker diff' => [
-				[],
-				'file_locker',
 				1,
 			],
 			'ip analysis offcanvas' => [

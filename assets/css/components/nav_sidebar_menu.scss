@@ -157,7 +157,7 @@
 	background: $mode-reports-light;
 	border-color: $mode-reports-border;
 	box-shadow: inset 3px 0 0 $mode-reports;
-	color: $mode-reports;
+	color: $mode-reports-text;
 }
 
 .mode-item.active[data-kind="dashboard"] {

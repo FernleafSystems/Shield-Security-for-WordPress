@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQueueFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\DashboardDefaultsFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportFileFixtureBuilder;
@@ -35,6 +36,8 @@ class BrowserFixtureRegistry {
 				return self::runAllFixtures( $action );
 			case 'actions-queue':
 				return self::runActionsQueueFixture( $action, $args );
+			case 'scan-progress':
+				return self::renderScanProgress( $action, $args );
 			case 'dashboard-defaults':
 				return self::runDashboardDefaultsFixture( $action );
 			case 'import-export-file':
@@ -101,6 +104,26 @@ class BrowserFixtureRegistry {
 		self::runSecurityHeadersFixture( 'cleanup' );
 		self::runCustomRulesTerminalFinalizationFixture( 'cleanup', [] );
 		return [ 'cleaned' => true ];
+	}
+
+	/** @param list<string> $args */
+	private static function renderScanProgress( string $action, array $args ) :array {
+		$progress = [ 'initiating' => 0, 'running' => 37, 'completed' => 100, 'failed' => 100 ];
+		$state = self::requireScenario( $args );
+		if ( $action !== 'render' || !isset( $progress[ $state ] ) ) {
+			throw new \RuntimeException( 'Unknown scan progress render scenario.' );
+		}
+		RuntimeTestState::loginAsSecurityAdmin();
+		return [
+			'modal_state' => $state,
+			'modal_html' => RuntimeTestState::controller()->action_router->render( ScansProgress::SLUG, [
+				'modal_state' => $state,
+				'current_scan' => 'Browser fixture scan',
+				'remaining_scans' => 'Browser fixture progress',
+				'progress' => $progress[ $state ],
+				'scan_rows' => [],
+			] ),
+		];
 	}
 
 	/** @param list<string> $args */
