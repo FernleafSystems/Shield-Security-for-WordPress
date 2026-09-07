@@ -4,6 +4,7 @@ namespace FernleafSystems\ShieldPlatform\Tooling\Cli\Command;
 
 use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -65,7 +66,8 @@ class ReleaseOperatorCommand extends Command {
 				return Command::SUCCESS;
 			}
 
-			$inputs = $this->askForInputs( $action, $input, $output, $questionHelper );
+			$rememberedInputs = $this->readRememberedInputs( $statePath );
+			$inputs = $this->askForInputs( $action, $input, $output, $questionHelper, $rememberedInputs );
 			$command = $this->buildCommand( $action, $inputs );
 			$output->writeln( 'Command preview: '.\json_encode( $command, \JSON_UNESCAPED_SLASHES ) );
 
@@ -74,7 +76,7 @@ class ReleaseOperatorCommand extends Command {
 				return Command::SUCCESS;
 			}
 
-			if ( !$this->writeState( $statePath, $action, $inputs, $command ) ) {
+			if ( !$this->writeState( $statePath, $action, \array_replace( $rememberedInputs, $inputs ), $command ) ) {
 				$output->writeln( '<error>Unable to write release operator state: '.$statePath.'</error>' );
 				return Command::FAILURE;
 			}
@@ -115,11 +117,13 @@ class ReleaseOperatorCommand extends Command {
 	}
 
 	/**
+	 * @param array<string,string> $rememberedInputs
 	 * @return array<string,string|int>
 	 */
-	private function askForInputs( string $action, InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper ) :array {
+	private function askForInputs( string $action, InputInterface $input, OutputInterface $output, QuestionHelper $questionHelper, array $rememberedInputs ) :array {
 		if ( $action === self::ACTION_PACKAGE_SVN ) {
-			$question = new Question( 'Existing SVN target directory: ' );
+			$target = $rememberedInputs[ 'target' ] ?? null;
+			$question = new Question( 'Existing SVN target directory'.( $target === null ? '' : ' ['.OutputFormatter::escape( $target ).']' ).': ', $target );
 			$question->setValidator( function ( $target ) :string {
 				return $this->externalPackageTarget( (string)$target );
 			} );
@@ -127,8 +131,9 @@ class ReleaseOperatorCommand extends Command {
 		}
 
 		if ( $action === self::ACTION_PREPARE_RELEASE ) {
+			$version = $rememberedInputs[ 'version' ] ?? $this->configuredVersion();
 			return [
-				'version' => (string)$questionHelper->ask( $input, $output, new Question( 'Release version: ', $this->configuredVersion() ) ),
+				'version' => (string)$questionHelper->ask( $input, $output, new Question( 'Release version ['.OutputFormatter::escape( $version ).']: ', $version ) ),
 				'release_timestamp' => (int)$questionHelper->ask( $input, $output, new Question( 'Release timestamp: ', \time() ) ),
 				'build' => (string)$questionHelper->ask( $input, $output, new Question( 'Build: ', 'auto' ) ),
 			];
@@ -205,6 +210,27 @@ class ReleaseOperatorCommand extends Command {
 
 	private function statePath() :string {
 		return $this->projectRoot.'/tmp/operator-state.json';
+	}
+
+	/** @return array<string,string> */
+	private function readRememberedInputs( string $statePath ) :array {
+		if ( !\is_file( $statePath ) ) {
+			return [];
+		}
+		$contents = @\file_get_contents( $statePath );
+		$state = $contents === false ? null : \json_decode( $contents, true );
+		if ( !\is_array( $state ) || !\is_array( $state[ 'inputs' ] ?? null ) ) {
+			return [];
+		}
+
+		$remembered = [];
+		foreach ( [ 'target', 'version' ] as $key ) {
+			$value = $state[ 'inputs' ][ $key ] ?? null;
+			if ( \is_string( $value ) && \trim( $value ) !== '' ) {
+				$remembered[ $key ] = $value;
+			}
+		}
+		return $remembered;
 	}
 
 	private function externalPackageTarget( string $target ) :string {

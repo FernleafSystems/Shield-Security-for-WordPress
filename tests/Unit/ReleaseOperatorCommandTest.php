@@ -63,6 +63,22 @@ class ReleaseOperatorCommandTest extends BaseUnitTest {
 		new ReleaseOperatorCommand( 'operator:unknown', 'unknown', $this->projectRoot() );
 	}
 
+	public function testPackageSvnRecallsTargetAcrossInvocations() :void {
+		$root = $this->projectRoot();
+		$target = $this->createTrackedTempDir( 'shield-svn-target-' );
+		$runner = new RecordingProcessRunner( [ 0, 0 ] );
+
+		foreach ( [ [ $target, 'y' ], [ '', 'y' ] ] as $answers ) {
+			$this->assertSame( Command::SUCCESS, $this->execute(
+				new ReleaseOperatorCommand( 'operator:package-svn', 'package-svn', $root, $runner ), $answers
+			) );
+		}
+		$this->assertCount( 2, $runner->calls );
+		foreach ( $runner->calls as $call ) {
+			$this->assertSame( [ 'composer', 'package-plugin', '--', '--output='.Path::normalize( (string)realpath( $target ) ) ], $call[ 'command' ] );
+		}
+	}
+
 	public function testExecutionDoesNotRequirePhpSelf() :void {
 		$hadPhpSelf = \array_key_exists( 'PHP_SELF', $_SERVER );
 		$originalPhpSelf = $_SERVER[ 'PHP_SELF' ] ?? null;
@@ -86,6 +102,157 @@ class ReleaseOperatorCommandTest extends BaseUnitTest {
 				unset( $_SERVER[ 'PHP_SELF' ] );
 			}
 		}
+	}
+
+	public function testRememberedInputsSurviveOtherActionsAndOverrides() :void {
+		$root = $this->projectRoot( '21.1.2' );
+		$target = Path::normalize( (string)realpath( $this->createTrackedTempDir( 'shield-svn-target-' ) ) );
+		$replacement = Path::normalize( (string)realpath( $this->createTrackedTempDir( 'shield-svn-replacement-' ) ) );
+		$runner = new RecordingProcessRunner();
+		$steps = [
+			[ 'package-svn', [ $target, 'y' ], $target, null ],
+			[ 'prepare-release', [ '23.4.5', '', '', 'y' ], $target, '23.4.5' ],
+			[ 'build-zip', [ 'y' ], $target, '23.4.5' ],
+			[ 'package-svn', [ '', 'y' ], $target, '23.4.5' ],
+			[ 'prepare-release', [ '', '', '', 'y' ], $target, '23.4.5' ],
+			[ 'package-svn', [ $replacement, 'y' ], $replacement, '23.4.5' ],
+			[ 'prepare-release', [ '24.0.1', '', '', 'y' ], $replacement, '24.0.1' ],
+			[ 'package-svn', [ '', 'y' ], $replacement, '24.0.1' ],
+			[ 'prepare-release', [ '', '', '', 'y' ], $replacement, '24.0.1' ],
+		];
+		foreach ( $steps as $index => [ $action, $answers, $expectedTarget, $expectedVersion ] ) {
+			$before = time();
+			$this->assertSame( Command::SUCCESS, $this->execute(
+				new ReleaseOperatorCommand( 'operator', null, $root, $runner ), array_merge( [ $action ], $answers )
+			) );
+			$this->assertCount( $index + 1, $runner->calls );
+			$state = $this->readState( $root );
+			$this->assertSame( $expectedTarget, $state[ 'inputs' ][ 'target' ] );
+			$this->assertSame( $expectedVersion, $state[ 'inputs' ][ 'version' ] ?? null );
+			$this->assertSame( $action, $state[ 'action' ] );
+			if ( $action === 'prepare-release' ) {
+				$this->assertGreaterThanOrEqual( $before, $state[ 'inputs' ][ 'release_timestamp' ] );
+				$this->assertLessThanOrEqual( time(), $state[ 'inputs' ][ 'release_timestamp' ] );
+				$expected = [ PHP_BINARY, 'bin/prepare-release.php', '--version='.$expectedVersion,
+					'--release-timestamp='.$state[ 'inputs' ][ 'release_timestamp' ], '--build=auto' ];
+			}
+			else {
+				$this->assertArrayNotHasKey( 'release_timestamp', $state[ 'inputs' ] );
+				$this->assertArrayNotHasKey( 'build', $state[ 'inputs' ] );
+				$expected = $action === 'package-svn'
+					? [ 'composer', 'package-plugin', '--', '--output='.$expectedTarget ] : [ 'composer', 'build-zip' ];
+			}
+			$this->assertSame( $expected, $runner->calls[ $index ][ 'command' ] );
+			$this->assertSame( $expected, $state[ 'command' ] );
+		}
+	}
+
+	public function testExistingStateUsesVersionButNotOldTimestampOrBuild() :void {
+		$root = $this->projectRoot();
+		mkdir( $root.'/tmp' );
+		file_put_contents( $root.'/tmp/operator-state.json', json_encode( [
+			'action' => 'prepare-release', 'inputs' => [ 'version' => '24.1.0', 'release_timestamp' => 1, 'build' => 'old' ],
+			'command' => [ 'unused' ],
+		] ) );
+		$runner = new RecordingProcessRunner();
+		$before = time();
+		$this->assertSame( Command::SUCCESS, $this->execute(
+			new ReleaseOperatorCommand( 'operator:prepare-release', 'prepare-release', $root, $runner ), [ '', '', '', 'y' ]
+		) );
+		$this->assertCount( 1, $runner->calls );
+		$timestamp = $this->readState( $root )[ 'inputs' ][ 'release_timestamp' ];
+		$this->assertGreaterThanOrEqual( $before, $timestamp );
+		$this->assertLessThanOrEqual( time(), $timestamp );
+		$this->assertSame( [ PHP_BINARY, 'bin/prepare-release.php', '--version=24.1.0', '--release-timestamp='.$timestamp, '--build=auto' ], $runner->calls[ 0 ][ 'command' ] );
+	}
+
+	/** @dataProvider providerInvalidRememberedState */
+	public function testInvalidRememberedStateAllowsConfiguredDefaults( string $contents ) :void {
+		$root = $this->projectRoot( '25.1.0' );
+		mkdir( $root.'/tmp' );
+		file_put_contents( $root.'/tmp/operator-state.json', $contents );
+		$runner = new RecordingProcessRunner();
+		$this->assertSame( Command::SUCCESS, $this->execute(
+			new ReleaseOperatorCommand( 'operator:prepare-release', 'prepare-release', $root, $runner ), [ '', '', '', 'y' ]
+		) );
+		$this->assertCount( 1, $runner->calls );
+		$this->assertSame( '--version=25.1.0', $runner->calls[ 0 ][ 'command' ][ 2 ] );
+	}
+
+	public function providerInvalidRememberedState() :array {
+		return [
+			'invalid JSON' => [ '{' ],
+			'scalar root' => [ 'false' ],
+			'scalar inputs' => [ '{"inputs":42}' ],
+			'array version' => [ '{"inputs":{"version":[]}}' ],
+			'numeric version' => [ '{"inputs":{"version":123}}' ],
+			'boolean version' => [ '{"inputs":{"version":true}}' ],
+			'blank version' => [ '{"inputs":{"version":"  "}}' ],
+		];
+	}
+
+	public function testExistingTargetSurvivesInvalidVersionAndFailedProcess() :void {
+		$root = $this->projectRoot();
+		$target = Path::normalize( (string)realpath( $this->createTrackedTempDir( 'shield-svn-target-' ) ) );
+		mkdir( $root.'/tmp' );
+		file_put_contents( $root.'/tmp/operator-state.json', json_encode( [
+			'action' => 'package-svn', 'inputs' => [ 'target' => $target, 'version' => [] ], 'command' => [ 'unused' ],
+		] ) );
+		$runner = new RecordingProcessRunner( [ 9, 0 ] );
+		foreach ( [ 9, 0 ] as $expectedExit ) {
+			$this->assertSame( $expectedExit, $this->execute(
+				new ReleaseOperatorCommand( 'operator:package-svn', 'package-svn', $root, $runner ), [ '', 'y' ]
+			) );
+		}
+		$this->assertCount( 2, $runner->calls );
+		foreach ( $runner->calls as $call ) {
+			$this->assertSame( [ 'composer', 'package-plugin', '--', '--output='.$target ], $call[ 'command' ] );
+		}
+		$this->assertSame( [ 'target' => $target ], $this->readState( $root )[ 'inputs' ] );
+	}
+
+	/** @dataProvider providerInvalidSavedTarget */
+	public function testSavedTargetUsesExistingValidationAndRetry( string $kind ) :void {
+		$root = $this->projectRoot();
+		$target = $kind === 'missing' ? $root.'/missing' : $root;
+		$replacement = Path::normalize( (string)realpath( $this->createTrackedTempDir( 'shield-svn-target-' ) ) );
+		mkdir( $root.'/tmp' );
+		$contents = json_encode( [ 'inputs' => [ 'target' => $target ] ] );
+		file_put_contents( $root.'/tmp/operator-state.json', $contents );
+		$runner = RecordingProcessRunner::strict( [] );
+		$this->assertSame( Command::FAILURE, $this->execute(
+			new ReleaseOperatorCommand( 'operator:package-svn', 'package-svn', $root, $runner ), [ '' ]
+		) );
+		$this->assertSame( [], $runner->calls );
+		$this->assertSame( $contents, file_get_contents( $root.'/tmp/operator-state.json' ) );
+		$runner = new RecordingProcessRunner();
+		$this->assertSame( Command::SUCCESS, $this->execute(
+			new ReleaseOperatorCommand( 'operator:package-svn', 'package-svn', $root, $runner ), [ '', $replacement, 'y' ]
+		) );
+		$this->assertCount( 1, $runner->calls );
+		$this->assertSame( [ 'composer', 'package-plugin', '--', '--output='.$replacement ], $runner->calls[ 0 ][ 'command' ] );
+		$this->assertSame( $replacement, $this->readState( $root )[ 'inputs' ][ 'target' ] );
+	}
+
+	public function providerInvalidSavedTarget() :array {
+		return [ 'missing' => [ 'missing' ], 'internal' => [ 'internal' ] ];
+	}
+
+	public function testDeclinedReplacementAndMenuCancelPreserveExistingState() :void {
+		$root = $this->projectRoot();
+		mkdir( $root.'/tmp' );
+		$contents = json_encode( [ 'inputs' => [ 'version' => '23.4.5' ] ] );
+		file_put_contents( $root.'/tmp/operator-state.json', $contents );
+		$runner = RecordingProcessRunner::strict( [] );
+		$this->assertSame( Command::SUCCESS, $this->execute(
+			new ReleaseOperatorCommand( 'operator:prepare-release', 'prepare-release', $root, $runner ), [ '24.0.0', '', '', 'n' ]
+		) );
+		$this->assertSame( $contents, file_get_contents( $root.'/tmp/operator-state.json' ) );
+		$this->assertSame( Command::SUCCESS, $this->execute(
+			new ReleaseOperatorCommand( 'operator', null, $root, $runner ), [ 'cancel' ]
+		) );
+		$this->assertSame( $contents, file_get_contents( $root.'/tmp/operator-state.json' ) );
+		$this->assertSame( [], $runner->calls );
 	}
 
 	public function testPackageSvnRejectsMissingTargetBeforeRunningProcess() :void {
