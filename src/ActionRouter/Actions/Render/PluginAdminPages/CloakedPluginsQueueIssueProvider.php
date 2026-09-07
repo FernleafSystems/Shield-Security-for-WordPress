@@ -201,7 +201,7 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 				_n( '%s cloaked plugin detected.', '%s cloaked plugins detected.', $count, 'wp-simple-firewall' ),
 				$count
 			)
-			: __( 'No cloaked plugins are currently detected.', 'wp-simple-firewall' );
+			: __( 'No cloaked plugins detected.', 'wp-simple-firewall' );
 	}
 
 	/**

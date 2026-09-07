@@ -227,9 +227,6 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				$seed[ 'enable_dialog_json' ] = ( new ProtectionEnableDialogBuilder() )->forScan( $definitionKey, $definition[ 'icon_class' ] );
 			}
 			$seeds[] = $seed;
-			if ( \in_array( $definitionKey, [ 'vulnerabilities', 'abandoned' ], true ) ) {
-				$seeds[ \array_key_last( $seeds ) ][ 'card_type_override' ] = 'expandable';
-			}
 		}
 
 		return $seeds;

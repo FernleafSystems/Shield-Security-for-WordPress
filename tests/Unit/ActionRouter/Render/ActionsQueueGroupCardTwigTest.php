@@ -25,6 +25,7 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 			'status'          => 'good',
 			'is_interactive'  => false,
 			'is_pro_upsell'   => false,
+			'enable_dialog_json' => '',
 		] );
 		$linked = $this->renderGroup( [
 			'key'             => 'vulnerabilities',
@@ -37,6 +38,7 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 			'drill_hint'      => '',
 			'is_interactive'  => false,
 			'is_pro_upsell'   => false,
+			'enable_dialog_json' => '',
 			'links'           => [ [
 				'label'      => 'Open details',
 				'href'       => '#details',
@@ -94,6 +96,7 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 			'drill_hint'      => 'Explore malware findings',
 			'is_interactive'  => true,
 			'is_pro_upsell'   => true,
+			'enable_dialog_json' => '',
 			'links'           => [],
 			'selection'       => [ 'selection_json' => '{"key":"malware"}' ],
 		] );
@@ -108,6 +111,7 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 			'drill_hint'      => 'Explore WordPress Core File Scanning',
 			'is_interactive'  => true,
 			'is_pro_upsell'   => false,
+			'enable_dialog_json' => '',
 			'links'           => [],
 			'selection'       => [ 'selection_json' => '{"key":"wordpress"}' ],
 		] );

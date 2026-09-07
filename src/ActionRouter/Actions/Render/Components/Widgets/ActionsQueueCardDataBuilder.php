@@ -393,7 +393,7 @@ class ActionsQueueCardDataBuilder {
 
 		return [
 			'key'        => $key,
-			'label'      => $this->dashboardScanQueueRowLabel( $key, (string)$item[ 'label' ] ),
+			'label'      => (string)$item[ 'label' ],
 			'icon_class' => self::con()->svgs->iconClass( PluginNavs::actionsLandingScanRowIcon( $key ) ),
 			'severity'   => $this->normalizeSeverity( $item[ 'severity' ] ),
 			'count'      => $item[ 'count' ],
@@ -444,16 +444,6 @@ class ActionsQueueCardDataBuilder {
 		return empty( $parts ) ? '' : implode( ' - ', $parts );
 	}
 
-	private function dashboardScanQueueRowLabel( string $key, string $label ) :string {
-		if ( $key === 'plugin_files' ) {
-			return __( 'Plugins with Modified Files', 'wp-simple-firewall' );
-		}
-		if ( $key === 'theme_files' ) {
-			return __( 'Themes with Modified Files', 'wp-simple-firewall' );
-		}
-
-		return $label;
-	}
 
 	/**
 	 * @return array{

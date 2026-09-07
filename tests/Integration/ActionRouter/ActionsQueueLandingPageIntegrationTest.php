@@ -486,16 +486,14 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 				self::con()->comps->site_query->attention(),
 				$assessmentRowsByZone
 			);
-			foreach ( \is_array( $layer[ 'active_sections' ] ?? null ) ? $layer[ 'active_sections' ] : [] as $section ) {
-				foreach ( \is_array( $section[ 'groups' ] ?? null ) ? $section[ 'groups' ] : [] as $group ) {
-					$key = (string)( $group[ 'key' ] ?? '' );
-					if ( $key === '' ) {
-						continue;
+			foreach ( $layer[ 'active_sections' ] as $section ) {
+				foreach ( $section[ 'groups' ] as $group ) {
+					if ( \in_array( $group[ 'status' ], [ 'critical', 'warning' ], true ) ) {
+						$groups[ $group[ 'key' ] ] = [
+							'count' => $group[ 'item_count' ],
+							'status' => $group[ 'status' ],
+						];
 					}
-					$groups[ $key ] = [
-						'count'  => (int)( $group[ 'item_count' ] ?? 0 ),
-						'status' => (string)( $group[ 'status' ] ?? '' ),
-					];
 				}
 			}
 		}
@@ -514,16 +512,17 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			]
 		);
 		$matches = [];
-		foreach ( \is_array( $groupsPayload[ 'healthy_sections' ] ?? null ) ? $groupsPayload[ 'healthy_sections' ] : [] as $section ) {
-			foreach ( \is_array( $section[ 'groups' ] ?? null ) ? $section[ 'groups' ] : [] as $group ) {
-				if ( (string)( $group[ 'key' ] ?? '' ) === $groupKey ) {
+		foreach ( \array_merge( $groupsPayload[ 'active_sections' ], $groupsPayload[ 'healthy_sections' ] ) as $section ) {
+			foreach ( $section[ 'groups' ] as $group ) {
+				if ( $group[ 'key' ] === $groupKey ) {
 					$matches[] = $group;
 				}
 			}
 		}
 
 		$this->assertCount( 1, $matches, 'Expected exactly one healthy Actions Queue group for '.$groupKey );
-		return $matches[ 0 ] ?? [];
+		$this->assertSame( 'good', $matches[ 0 ][ 'status' ] );
+		return $matches[ 0 ];
 	}
 
 	private function findBucketPayload( string $bucketKey ) :array {
@@ -571,17 +570,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		}
 
 		return \array_values( \array_unique( $statuses ) );
-	}
-
-	/**
-	 * @param array<string,array{count:int,status:string}> $groups
-	 * @return list<string>
-	 */
-	private function groupKeysForPrefix( array $groups, string $prefix ) :array {
-		return \array_values( \array_filter(
-			\array_keys( $groups ),
-			static fn( string $key ) :bool => \str_starts_with( $key, $prefix )
-		) );
 	}
 
 	public function test_actions_queue_landing_keeps_drill_shell_without_removed_all_clear_box_when_queue_is_empty() :void {
@@ -1416,13 +1404,11 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			$this->assertSame( ScansEnable::SLUG, $dialog[ 'action' ][ 'ex' ] );
 			$this->assertSame( $key, $dialog[ 'action' ][ 'scan' ] );
 			$this->assertSame( '', $dialog[ 'path' ] );
-			$this->assertSame( $key === 'abandoned', $dialog[ 'note' ] === '' );
 		}
 		$path = '/example/<script>&"/wp-config.php';
 		$file = \json_decode( $builder->forFile( 'wpconfig', $path ), true, 512, \JSON_THROW_ON_ERROR );
 		$this->assertProtectionDialogContract( $file );
 		$this->assertSame( $path, $file[ 'path' ] );
-		$this->assertSame( '', $file[ 'note' ] );
 		$this->assertSame( ScansFileLockerEnableFile::SLUG, $file[ 'action' ][ 'ex' ] );
 		$this->assertSame( 'wpconfig', $file[ 'action' ][ 'file_key' ] );
 		$this->assertSame( '', $builder->forScan( 'unknown', '' ) );
@@ -1431,9 +1417,9 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function assertProtectionDialogContract( array $dialog ) :void {
-		foreach ( [ 'title', 'description', 'setting_label', 'icon_class', 'path', 'note', 'save_label', 'cancel_label', 'saving_label', 'error_message' ] as $field ) {
+		foreach ( [ 'title', 'description', 'setting_label', 'icon_class', 'path', 'save_label', 'cancel_label', 'saving_label', 'error_message' ] as $field ) {
 			$this->assertIsString( $dialog[ $field ], $field );
-			if ( !\in_array( $field, [ 'path', 'note' ], true ) ) $this->assertNotSame( '', $dialog[ $field ], $field );
+			if ( $field !== 'path' ) $this->assertNotSame( '', $dialog[ $field ], $field );
 		}
 		$this->assertIsArray( $dialog[ 'action' ] );
 	}
@@ -1686,14 +1672,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'critical', (string)( $groups[ 'malware' ][ 'status' ] ?? '' ) );
 		$this->assertArrayNotHasKey( 'file_locker', $groups );
 
-		$this->assertCount( 1, \array_filter(
-			\array_keys( $groups ),
-			static fn( string $key ) :bool => \str_starts_with( $key, 'vulnerabilities:' )
-		) );
-		$this->assertCount( 1, \array_filter(
-			\array_keys( $groups ),
-			static fn( string $key ) :bool => \str_starts_with( $key, 'abandoned:' )
-		) );
+		$this->assertSame( [ 'count' => 1, 'status' => 'critical' ], $groups[ 'vulnerabilities' ] );
+		$this->assertSame( [ 'count' => 1, 'status' => 'critical' ], $groups[ 'abandoned' ] );
 	}
 
 	public function test_notified_vulnerabilities_remain_visible_with_asset_scan_results_in_actions_queue() :void {
@@ -1730,16 +1710,10 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 
 		$groups = $this->buildActionsQueueGroupMetrics();
-		$vulnerabilityGroups = $this->groupKeysForPrefix( $groups, 'vulnerabilities:' );
-		$abandonedGroups = $this->groupKeysForPrefix( $groups, 'abandoned:' );
-
 		$this->assertSame( 1, $this->groupCountForPrefix( $groups, 'plugins:' ) );
 		$this->assertSame( 1, $this->groupCountForPrefix( $groups, 'themes:' ) );
-		$this->assertCount( 1, $vulnerabilityGroups );
-		$this->assertSame( 1, (int)( $groups[ $vulnerabilityGroups[ 0 ] ][ 'count' ] ?? 0 ) );
-		$this->assertSame( 'critical', (string)( $groups[ $vulnerabilityGroups[ 0 ] ][ 'status' ] ?? '' ) );
-		$this->assertCount( 1, $abandonedGroups );
-		$this->assertSame( 1, (int)( $groups[ $abandonedGroups[ 0 ] ][ 'count' ] ?? 0 ) );
+		$this->assertSame( [ 'count' => 1, 'status' => 'critical' ], $groups[ 'vulnerabilities' ] );
+		$this->assertSame( [ 'count' => 1, 'status' => 'critical' ], $groups[ 'abandoned' ] );
 
 		$vulnerablePayload = $this->processActionPayloadWithAdminBypass( VulnerabilitiesPane::SLUG, [ 'section' => 'vulnerable' ] );
 		$this->assertRouteRenderOutputHealthy( $vulnerablePayload, 'notified vulnerability rail remains visible' );
@@ -1903,8 +1877,7 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayNotHasKey( 'malware', $groups );
 		$this->assertSame( 0, \count( \array_filter(
 			\array_keys( $groups ),
-			static fn( string $key ) :bool => \str_starts_with( $key, 'vulnerabilities:' )
-				|| \str_starts_with( $key, 'abandoned:' )
+			static fn( string $key ) :bool => \in_array( $key, [ 'vulnerabilities', 'abandoned' ], true )
 		) ) );
 	}
 
@@ -2000,19 +1973,8 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 
 		$groups = $this->buildActionsQueueGroupMetrics();
-		$vulnerabilityGroups = \array_values( \array_filter(
-			\array_keys( $groups ),
-			static fn( string $key ) :bool => \str_starts_with( $key, 'vulnerabilities:' )
-		) );
-		$abandonedGroups = \array_values( \array_filter(
-			\array_keys( $groups ),
-			static fn( string $key ) :bool => \str_starts_with( $key, 'abandoned:' )
-		) );
-
-		$this->assertCount( 1, $vulnerabilityGroups );
-		$this->assertCount( 1, $abandonedGroups );
-		$this->assertSame( 'critical', (string)( $groups[ $vulnerabilityGroups[ 0 ] ][ 'status' ] ?? '' ) );
-		$this->assertSame( 'critical', (string)( $groups[ $abandonedGroups[ 0 ] ][ 'status' ] ?? '' ) );
+		$this->assertSame( [ 'count' => 1, 'status' => 'critical' ], $groups[ 'vulnerabilities' ] );
+		$this->assertSame( [ 'count' => 1, 'status' => 'critical' ], $groups[ 'abandoned' ] );
 	}
 
 	/**

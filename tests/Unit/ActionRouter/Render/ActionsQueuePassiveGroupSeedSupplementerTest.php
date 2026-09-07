@@ -240,7 +240,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 				'scans' => [ [
 					'key'               => 'hidden_plugins',
 					'label'             => 'Cloaked Plugins',
-					'description'       => 'No cloaked plugins are currently detected.',
+					'description'       => 'No cloaked plugins detected.',
 					'drill_bucket'      => 'critical',
 					'status'            => 'good',
 					'status_label'      => 'Good',
@@ -269,7 +269,7 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 					[
 						'key'               => 'hidden_plugins',
 						'label'             => 'Cloaked Plugins',
-						'description'       => 'No cloaked plugins are currently detected.',
+						'description'       => 'No cloaked plugins detected.',
 						'drill_bucket'      => 'critical',
 						'status'            => 'good',
 						'status_label'      => 'Good',

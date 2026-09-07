@@ -2,7 +2,7 @@ import { AjaxService } from '../services/AjaxService';
 import { focusElement } from '../ui/ShieldA11y';
 
 /**
- * PHP ProtectionEnableDialogBuilder owns this payload, including empty path/note values.
+ * PHP ProtectionEnableDialogBuilder owns this payload, including the optional path value.
  * @typedef {Object} ProtectionEnableDialogConfig
  * @property {string} title
  * @property {string} description
@@ -10,7 +10,6 @@ import { focusElement } from '../ui/ShieldA11y';
  * @property {string} icon_class
  * @property {Record<string, unknown>} action
  * @property {string} path
- * @property {string} note
  * @property {string} save_label
  * @property {string} cancel_label
  * @property {string} saving_label
@@ -41,12 +40,6 @@ export async function openProtectionEnableDialog( config, launcher ) {
 	label.textContent = config.setting_label;
 	setting.append( checkbox, label );
 	content.appendChild( setting );
-	if ( config.note !== '' ) {
-		const note = document.createElement( 'p' );
-		note.className = 'shield-accessible-dialog__note';
-		note.textContent = config.note;
-		content.appendChild( note );
-	}
 	const error = document.createElement( 'p' );
 	error.className = 'shield-accessible-dialog__validation';
 	error.setAttribute( 'role', 'alert' );

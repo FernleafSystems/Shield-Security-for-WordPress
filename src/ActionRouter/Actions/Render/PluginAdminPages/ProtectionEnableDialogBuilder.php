@@ -10,7 +10,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 /**
  * @phpstan-type ProtectionEnableDialog array{
  *   title:string,description:string,setting_label:string,icon_class:string,
- *   action:array<string,mixed>,path:string,note:string,save_label:string,
+ *   action:array<string,mixed>,path:string,save_label:string,
  *   cancel_label:string,saving_label:string,error_message:string
  * }
  */
@@ -31,10 +31,7 @@ class ProtectionEnableDialogBuilder {
 			'abandoned' => [ __( 'Enable Abandoned Assets Scanning', 'wp-simple-firewall' ), __( 'Identify abandoned plugins and themes.', 'wp-simple-firewall' ), __( 'Abandoned Assets Scanning', 'wp-simple-firewall' ) ],
 		][ $key ];
 		return $this->encode( $copy[ 0 ], $copy[ 1 ], $copy[ 2 ], $iconClass,
-			ActionData::Build( ScansEnable::class, true, [ 'scan' => $key ] ), '',
-			$key === 'abandoned' ? '' : ( $key === 'vulnerabilities'
-				? __( 'Future scans will check for known vulnerabilities.', 'wp-simple-firewall' )
-				: __( 'Future scans will check these files.', 'wp-simple-firewall' ) ) );
+			ActionData::Build( ScansEnable::class, true, [ 'scan' => $key ] ), '' );
 	}
 
 	public function forFile( string $key, string $path ) :string {
@@ -42,15 +39,15 @@ class ProtectionEnableDialogBuilder {
 			__( 'Protect This File', 'wp-simple-firewall' ),
 			__( 'This file is not currently protected.', 'wp-simple-firewall' ),
 			__( 'Enable Protection', 'wp-simple-firewall' ), 'bi bi-file-lock2-fill',
-			ActionData::Build( ScansFileLockerEnableFile::class, true, [ 'file_key' => $key ] ), $path, ''
+			ActionData::Build( ScansFileLockerEnableFile::class, true, [ 'file_key' => $key ] ), $path
 		);
 	}
 
-	private function encode( string $title, string $description, string $label, string $icon, array $action, string $path, string $note ) :string {
+	private function encode( string $title, string $description, string $label, string $icon, array $action, string $path ) :string {
 		/** @var ProtectionEnableDialog $dialog */
 		$dialog = [
 			'title' => $title, 'description' => $description, 'setting_label' => $label,
-			'icon_class' => $icon, 'action' => $action, 'path' => $path, 'note' => $note,
+			'icon_class' => $icon, 'action' => $action, 'path' => $path,
 			'save_label' => __( 'Save', 'wp-simple-firewall' ),
 			'cancel_label' => __( 'Cancel', 'wp-simple-firewall' ),
 			'saving_label' => __( 'Saving…', 'wp-simple-firewall' ),

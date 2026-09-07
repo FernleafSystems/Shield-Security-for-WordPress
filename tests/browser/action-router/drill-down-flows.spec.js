@@ -241,7 +241,7 @@ test( 'actions queue drills into groups and back out, opening details when avail
 	} );
 } );
 
-test( 'actions queue keeps empty Cloaked Plugins static while preserving static linked-card cursors', async ( { page, fixtureApi } ) => {
+test( 'actions queue keeps clear risks together with clickable vulnerability findings', async ( { page, fixtureApi } ) => {
 	await fixtureApi.withActionsQueueFixture( 'empty_cloaked_plugins', async ( fixture ) => {
 		const actionsQueuePage = new ActionsQueuePage( page );
 		let cloakedDetailRenderRequests = 0;
@@ -271,12 +271,16 @@ test( 'actions queue keeps empty Cloaked Plugins static while preserving static 
 
 			const abandoned = await actionsQueuePage.waitForGroupOuter( 'abandoned' );
 			await expect.poll( async () => await abandoned.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'default' );
-			const vulnerabilities = await actionsQueuePage.waitForGroupOuter(
-				'vulnerabilities:vulnerability-plugin-wp-simple-firewall/icwp-wpsf.php'
-			);
-			const footerLink = vulnerabilities.locator( 'a' ).first();
-			await expect( footerLink ).toBeVisible();
-			await expect.poll( async () => await footerLink.evaluate( ( element ) => window.getComputedStyle( element ).cursor ) ).toBe( 'pointer' );
+			const vulnerabilities = await actionsQueuePage.waitForGroupOuter( 'vulnerabilities' );
+			const risks = vulnerabilities.locator( 'xpath=ancestor::section' );
+			await expect( risks.locator( '[data-actions-queue-group-key]' ) ).toHaveCount( 3 );
+			await expect( risks.locator( '[data-actions-queue-group-key]' ).first() ).toHaveAttribute( 'data-actions-queue-group-key', 'vulnerabilities' );
+			await expect( risks.locator( '[data-actions-queue-group-key="hidden_plugins"]' ) ).toBeVisible();
+			await expect( risks.locator( '[data-actions-queue-group-key="abandoned"]' ) ).toBeVisible();
+			await expect( vulnerabilities ).toHaveAttribute( 'data-drill-target', 'detail' );
+			await actionsQueuePage.clickElement( vulnerabilities );
+			await expect( page.locator( '[data-actions-queue-detail="1"]' ) ).toBeVisible();
+			await expect( page.locator( '[data-actions-queue-detail="1"] a' ).first() ).toBeVisible();
 		}
 		finally {
 			page.off( 'request', countCloakedDetailRenderRequests );

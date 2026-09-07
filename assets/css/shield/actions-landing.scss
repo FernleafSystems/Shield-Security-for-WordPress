@@ -74,8 +74,11 @@
 	grid-template-columns: 1fr;
 }
 
-.actions-queue-groups--review .configure-zones__grid > .item-box {
-	border-left-width: 1px;
+.actions-queue-groups--review .configure-zones__grid > .item-box,
+.actions-queue-buckets > .item-box {
+	background: none;
+	border: 0;
+	padding: 0;
 }
 
 .finding-group__heading {
