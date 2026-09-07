@@ -16,10 +16,12 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\LoginSuccessFixture;
 
 class MfaInitialLoginRequestBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 
 	use CurrentRequestFixture;
+	use LoginSuccessFixture;
 
 	private array $optionsSnapshot = [];
 	private array $requestSnapshot = [];
@@ -160,17 +162,27 @@ class MfaInitialLoginRequestBoundaryIntegrationTest extends ShieldIntegrationTes
 		$con = $this->requireController();
 		$originalRouter = $con->action_router;
 		$calls = [];
-		$con->action_router = new MfaInitialRenderCapture( $originalRouter, $calls );
-		$hooks = $this->snapshotHooks( [ 'wp_login', 'set_logged_in_cookie' ] );
+		$con->action_router = new MfaInitialRenderCapture( $originalRouter, $calls, function () {
+			$this->assertLoginSuccessCount( 0 );
+		} );
+		$hooks = $this->snapshotHooks( [ 'wp_login', 'set_logged_in_cookie', 'clear_auth_cookie' ] );
 		$this->restoreHooks( [
 			'wp_login'            => null,
 			'set_logged_in_cookie' => null,
+			'clear_auth_cookie'    => null,
 		] );
 		try {
+			$this->startLoginSuccessFixture();
 			( new LoginRequestCapture() )->execute();
+			$token = \WP_Session_Tokens::get_instance( $user->ID )->create( \time() + 3600 );
+			\wp_set_auth_cookie( $user->ID, false, '', $token );
+			$this->assertLoginSuccessCount( 0 );
 			\do_action( 'wp_login', $user->user_login, $user );
+			$this->assertLoginSuccessCount( $calls === [] ? 1 : 0 );
+			$this->assertSame( $calls === [], \WP_Session_Tokens::get_instance( $user->ID )->verify( $token ) );
 		}
 		finally {
+			$this->stopLoginSuccessFixture();
 			$con->action_router = $originalRouter;
 			$this->restoreHooks( $hooks );
 		}
@@ -203,14 +215,18 @@ class MfaInitialRenderCapture {
 
 	private object $inner;
 	private array $calls;
+	/** @var callable */
+	private $beforeRender;
 
-	public function __construct( object $inner, array &$calls ) {
+	public function __construct( object $inner, array &$calls, callable $beforeRender ) {
 		$this->inner = $inner;
 		$this->calls = &$calls;
+		$this->beforeRender = $beforeRender;
 	}
 
 	public function action( string $classOrSlug, array $data = [], int $type = ActionRoutingController::ACTION_SHIELD ) {
 		if ( $classOrSlug === FullPageDisplayDynamic::class ) {
+			( $this->beforeRender )();
 			$this->calls[] = $data;
 			return null;
 		}

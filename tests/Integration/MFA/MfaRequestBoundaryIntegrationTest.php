@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\LoginSuccessFixture;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\AdminNotices\Controller as AdminNoticesController;
 use FernleafSystems\Wordpress\Services\Core\{
 	Response,
@@ -26,6 +27,7 @@ use FernleafSystems\Wordpress\Services\Core\{
 class MfaRequestBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 
 	use CurrentRequestFixture;
+	use LoginSuccessFixture;
 
 	private array $requestSnapshot = [];
 	private array $optionsSnapshot = [];
@@ -46,12 +48,41 @@ class MfaRequestBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 			'service_wpusers'  => $this->usersSpy,
 		] );
 		\wp_set_current_user( 0 );
+		$this->startLoginSuccessFixture();
+		$this->responseCapture->beforeRedirect = function () {
+			if ( \in_array( '2fa_success', $this->loginTimeline, true ) ) {
+				$this->assertMfaLoginCompleted();
+			}
+			else {
+				$this->assertLoginSuccessCount( 0 );
+			}
+		};
 	}
 
 	public function tear_down() :void {
+		$this->stopLoginSuccessFixture();
 		$this->restoreSelectedOptions( $this->optionsSnapshot );
 		$this->restoreCurrentRequestState( $this->requestSnapshot );
 		parent::tear_down();
+	}
+
+	public function test_expired_login_intent_cannot_record_success() :void {
+		$user = \get_user_by( 'id', $this->createAdministratorUser() );
+		$this->seedLoginIntent( $user, 'expired-nonce' );
+		$meta = $this->requireController()->user_metas->for( $user );
+		$intents = $meta->login_intents;
+		foreach ( $intents as &$intent ) {
+			$intent[ 'start' ] = \time() - DAY_IN_SECONDS;
+		}
+		unset( $intent );
+		$meta->login_intents = $intents;
+		$this->applyCurrentRequestState( [ 'REQUEST_METHOD' => 'POST', 'REQUEST_URI' => '/wp-login.php' ], [], [
+			'wp_user_id' => (string)$user->ID,
+			'login_nonce' => 'expired-nonce',
+		] );
+		$this->runMfaVerifyStep();
+		$this->assertSame( 'redirectToLogin', $this->responseCapture->method );
+		$this->assertLoginSuccessCount( 0 );
 	}
 
 	public function test_mfa_verify_wp_loaded_hook_rejects_malformed_identity_without_throwing() :void {
@@ -207,7 +238,9 @@ class MfaRequestBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		$con = $this->requireController();
 		$originalRouter = $con->action_router;
 		$renderCalls = [];
-		$con->action_router = new MfaBoundaryActionCapture( $originalRouter, $renderCalls );
+		$con->action_router = new MfaBoundaryActionCapture( $originalRouter, $renderCalls, function () {
+			$this->assertLoginSuccessCount( 0 );
+		} );
 		try {
 			$this->runMfaVerifyStep();
 		}
@@ -278,6 +311,7 @@ class MfaRequestBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertEmpty( $this->requireController()->user_metas->for( $user )->hash_loginmfa );
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_success' ) );
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_success' ) );
+		$this->assertMfaLoginCompleted();
 	}
 
 	public function test_valid_mfa_exact_tokens_enable_persistence_skip_and_interim_mode() :void {
@@ -313,7 +347,9 @@ class MfaRequestBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		$con = $this->requireController();
 		$originalRouter = $con->action_router;
 		$renderCalls = [];
-		$con->action_router = new MfaBoundaryActionCapture( $originalRouter, $renderCalls );
+		$con->action_router = new MfaBoundaryActionCapture( $originalRouter, $renderCalls, function () {
+			$this->assertMfaLoginCompleted();
+		} );
 		\add_filter( 'auth_cookie_expiration', $authCookieObserver, 10, 3 );
 		try {
 			$this->runMfaVerifyStep();
@@ -343,6 +379,7 @@ class MfaRequestBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( $this->requireController()->user_metas->for( $user )->hash_loginmfa );
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_success' ) );
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_success' ) );
+		$this->assertMfaLoginCompleted();
 	}
 
 	public function test_real_login_message_filter_normalizes_mixed_values() :void {
@@ -414,6 +451,9 @@ class MfaRequestBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 
 class MfaBoundaryResponseCapture extends Response {
 
+	/** @var callable|null */
+	public $beforeRedirect;
+
 	public array $loginParams = [];
 
 	public string $redirectUrl = '';
@@ -421,6 +461,9 @@ class MfaBoundaryResponseCapture extends Response {
 	public int $callCount = 0;
 
 	public function redirect( $url, $queryParams = [], $safe = true, $bProtectAgainstInfiniteLoops = true ) {
+		if ( $this->beforeRedirect !== null ) {
+			( $this->beforeRedirect )();
+		}
 		unset( $safe, $bProtectAgainstInfiniteLoops );
 		$this->method = 'redirect';
 		$this->callCount++;
@@ -429,6 +472,9 @@ class MfaBoundaryResponseCapture extends Response {
 	}
 
 	public function redirectToLogin( $aQueryParams = [] ) {
+		if ( $this->beforeRedirect !== null ) {
+			( $this->beforeRedirect )();
+		}
 		$this->method = 'redirectToLogin';
 		$this->callCount++;
 		$this->loginParams = \is_array( $aQueryParams ) ? $aQueryParams : [];
@@ -449,14 +495,18 @@ class MfaBoundaryActionCapture {
 
 	private object $inner;
 	private array $calls;
+	/** @var callable */
+	private $beforeRender;
 
-	public function __construct( object $inner, array &$calls ) {
+	public function __construct( object $inner, array &$calls, callable $beforeRender ) {
 		$this->inner = $inner;
 		$this->calls = &$calls;
+		$this->beforeRender = $beforeRender;
 	}
 
 	public function action( string $classOrSlug, array $data = [], int $type = ActionRoutingController::ACTION_SHIELD ) {
 		if ( $classOrSlug === FullPageDisplayDynamic::class ) {
+			( $this->beforeRender )();
 			$this->calls[] = $data;
 			return null;
 		}

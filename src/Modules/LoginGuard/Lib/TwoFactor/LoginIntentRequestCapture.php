@@ -130,6 +130,7 @@ class LoginIntentRequestCapture {
 			}
 
 			$con->comps->events->fireEvent( '2fa_success' );
+			$con->comps->login_success->recordSuccessfulLogin( $this->user );
 
 			global $interim_login;
 			$interim_login = LoginRequestValues::isToken( $req->request( 'interim-login' ), '1' );

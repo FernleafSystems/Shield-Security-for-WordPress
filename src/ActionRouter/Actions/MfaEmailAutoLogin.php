@@ -48,6 +48,7 @@ class MfaEmailAutoLogin extends BaseAction {
 				}
 				wp_set_auth_cookie( $userID, true );
 				$con->comps->events->fireEvent( '2fa_success' );
+				$con->comps->login_success->recordSuccessfulLogin( $user );
 			}
 		}
 		catch ( \Exception $e ) {

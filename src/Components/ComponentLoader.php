@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\{
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\OptsLookup;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\I18n\TranslationDownloadController;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsService;
+use FernleafSystems\Wordpress\Plugin\Shield\Events\LoginSuccessRecorder;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\AltCha\AltChaHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\NotBotHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\AuditCon;
@@ -54,6 +55,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\ShieldNetApiController;
  * @property CommentSpamCon                         $comment_spam
  * @property CrowdSecController                     $crowdsec
  * @property EventsService                          $events
+ * @property LoginSuccessRecorder                   $login_success
  * @property FileLockerController                   $file_locker
  * @property SpamController                         $forms_spam
  * @property UserFormsController                    $forms_users
@@ -122,6 +124,7 @@ class ComponentLoader extends DynPropertiesClass {
 			'cool_down'             => CompCons\SilentCaptcha\CoolDownHandler::class,
 			'crowdsec'              => CrowdSecController::class,
 			'events'                => EventsService::class,
+			'login_success'         => LoginSuccessRecorder::class,
 			'file_locker'           => FileLockerController::class,
 			'forms_spam'            => SpamController::class,
 			'forms_users'           => UserFormsController::class,

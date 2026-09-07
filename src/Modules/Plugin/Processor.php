@@ -56,6 +56,7 @@ class Processor {
 				$components->mcp->execute();
 
 				new Events\StatsWriter();
+				$components->login_success->execute();
 				( new Lib\AllowBetaUpgrades() )->execute();
 
 				$components->forms_spam->execute();
