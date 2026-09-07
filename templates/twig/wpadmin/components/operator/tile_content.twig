@@ -1,0 +1,22 @@
+<div class="operator-tile-card__main">
+	<span class="operator-tile-card__icon" aria-hidden="true">
+		<i class="{{ tile.icon_class }}"></i>
+	</span>
+	<div class="operator-tile-card__copy">
+		<span class="operator-tile-card__title">
+			{{ tile.title }}
+			{% if tile.count_badge is defined and tile.count_badge > 0 %}
+				<span class="shield-badge badge-{{ tile.status }}">{{ tile.count_badge }}</span>
+			{% endif %}
+		</span>
+		{% if tile.status_label is not empty %}
+			<div class="operator-tile-card__status">{{ tile.status_label }}</div>
+		{% endif %}
+		{% if tile.oneliner is not empty %}
+			<p class="operator-tile-card__summary">{{ tile.oneliner }}</p>
+		{% endif %}
+		{% if tile.meta_text is defined and tile.meta_text is not empty %}
+			<span class="operator-tile-card__meta">{{ tile.meta_text }}</span>
+		{% endif %}
+	</div>
+</div>

@@ -4,20 +4,7 @@
 {% endif %}
 
 {% set tile_body %}
-	<div class="operator-tile-card__main">
-		<span class="operator-tile-card__icon">
-			<i class="{{ tile.icon_class }}" aria-hidden="true"></i>
-		</span>
-		<div class="operator-tile-card__copy">
-			<span class="operator-tile-card__title">{{ tile.title }}</span>
-		{% if tile.status_label is not empty %}
-			<div class="operator-tile-card__status">{{ tile.status_label }}</div>
-		{% endif %}
-		{% if tile.oneliner is not empty %}
-			<p class="operator-tile-card__summary">{{ tile.oneliner }}</p>
-		{% endif %}
-	</div>
-	</div>
+	{% include '/wpadmin/components/operator/tile_content.twig' with { tile: tile } only %}
 	{% if tile.action_label is not empty %}
 		<div class="operator-tile-card__actions">
 			<span class="operator-tile-card__action operator-tile-card__action--primary">{{ tile.action_label }}</span>
@@ -47,6 +34,7 @@
 			{% if tile.data_reports_workspace_selection is not empty %}data-reports-workspace-selection="{{ tile.data_reports_workspace_selection|e('html_attr') }}"{% endif %}
 			{% if tile.data_actions_queue_group_key is defined and tile.data_actions_queue_group_key is not empty %}data-actions-queue-group-key="{{ tile.data_actions_queue_group_key|e('html_attr') }}"{% endif %}
 			{% if tile.data_pro_upsell is defined and tile.data_pro_upsell == '1' %}data-pro-upsell="1" aria-haspopup="dialog" aria-controls="ShieldModalContainer"{% endif %}
+			{% if tile.data_enable_protection is defined and tile.data_enable_protection is not empty %}data-enable-protection="{{ tile.data_enable_protection|e('html_attr') }}" aria-haspopup="dialog"{% endif %}
 			{% if tile.is_disabled %}disabled{% endif %}>
 		{{ tile_body }}
 	</button>

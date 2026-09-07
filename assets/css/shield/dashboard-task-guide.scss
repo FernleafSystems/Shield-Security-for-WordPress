@@ -70,37 +70,20 @@
 	@include shield-focus-ring();
 }
 
-#ShieldModalContainer.shield-modal--dashboard-task-guide .modal-dialog {
-	max-width: 42rem;
-}
-
-#ShieldModalContainer.shield-modal--dashboard-task-guide .modal-header {
-	align-items: center;
-	padding: 0.75rem 1rem;
-}
-
-#ShieldModalContainer.shield-modal--dashboard-task-guide .modal-body {
-	padding: 0.75rem 1rem;
-}
-
-#ShieldModalContainer.shield-modal--dashboard-task-guide .modal-footer {
-	padding: 0.625rem 1rem;
-}
-
 .dashboard-task-guide-modal__choices {
 	display: grid;
-	gap: 0.15rem;
+	gap: 0.5rem;
 }
 
 .dashboard-task-guide-modal__choice {
 	align-items: center;
-	background: transparent;
-	border: 1px solid transparent;
+	background: $card-bg-good;
+	border: 1px solid rgba($status-color-good, 0.18);
 	border-radius: var(--bs-border-radius);
 	color: var(--bs-body-color);
 	display: flex;
 	gap: 0.6rem;
-	padding: 0.45rem 0.5rem;
+	padding: 0.75rem 0.875rem;
 	text-align: left;
 	text-decoration: none;
 	width: 100%;

@@ -262,18 +262,17 @@
 	color: #787c82;
 }
 
-.actions-queue-asset-card__icon {
-	margin-bottom: 0.55rem;
+.actions-queue-asset-cards--files .actions-queue-asset-cards__grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-
-.actions-queue-asset-card__meta {
-	color: #8c8f94;
-	font-family: monospace;
-	font-size: 0.68rem;
-	line-height: 1.35;
-	margin-top: auto;
-	overflow-wrap: anywhere;
-	width: 100%;
+.actions-queue-asset-cards--files .actions-queue-asset-card {
+	min-height: 0;
+	padding: 0.875rem;
+}
+@media (max-width: 800px) {
+	.actions-queue-asset-cards--files .actions-queue-asset-cards__grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
 }
 
 .actions-queue-asset-cards__hint {

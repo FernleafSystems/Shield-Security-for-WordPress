@@ -223,6 +223,9 @@ class ActionsQueuePassiveGroupSeedSupplementer {
 				&& \in_array( $definitionKey, self::PRO_UPSELL_GROUP_KEYS, true ) ) {
 				$seed[ 'is_pro_upsell' ] = true;
 			}
+			if ( $availability[ 'disabled_reason' ] === 'not_enabled' && !$isFileLockerSetup ) {
+				$seed[ 'enable_dialog_json' ] = ( new ProtectionEnableDialogBuilder() )->forScan( $definitionKey, $definition[ 'icon_class' ] );
+			}
 			$seeds[] = $seed;
 			if ( \in_array( $definitionKey, [ 'vulnerabilities', 'abandoned' ], true ) ) {
 				$seeds[ \array_key_last( $seeds ) ][ 'card_type_override' ] = 'expandable';

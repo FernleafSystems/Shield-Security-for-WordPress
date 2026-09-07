@@ -15,6 +15,7 @@ class FileLocker extends Base {
 		return [
 			'flags'   => [
 				'is_disabled' => $pane[ 'is_disabled' ],
+				'is_file_locker' => true,
 			],
 			'strings' => [
 				'no_issues'         => __( 'No File Locker entries are currently available to review.', 'wp-simple-firewall' ),

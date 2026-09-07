@@ -116,6 +116,7 @@ class Constants {
 		Actions\ScansCheck::class,
 		Actions\ScansFileLockerAction::class,
 		Actions\ScansFileLockerEnableFile::class,
+		Actions\ScansEnable::class,
 		Actions\ScansMalaiFileQuery::class,
 		Actions\ScansStart::class,
 		Actions\ScanResultsTableAction::class,

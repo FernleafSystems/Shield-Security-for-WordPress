@@ -206,6 +206,13 @@ class ActionsQueueFixtureBuilder {
 				return $this->seedEmptyCloakedPlugins( $state );
 			case 'ignored_cloaked_plugins':
 				return $this->seedIgnoredCloakedPlugins( $state );
+			case 'scan_enablement':
+				$definition = $this->seedProUpsell( $state );
+				RuntimeTestState::applyPremiumCapabilities( [ 'scan_file_areas', 'scan_malware_local', 'scan_pluginsthemes_local', 'scan_vulnerabilities', 'scan_file_locker' ] );
+				RuntimeTestState::controller()->cache_dir_handler->buildSubDir( 'browser-fixture' );
+				$definition[ 'scenario' ] = 'scan_enablement';
+				$definition[ 'context' ] = [];
+				return $definition;
 			case 'pro_upsell':
 				return $this->seedProUpsell( $state );
 			default:

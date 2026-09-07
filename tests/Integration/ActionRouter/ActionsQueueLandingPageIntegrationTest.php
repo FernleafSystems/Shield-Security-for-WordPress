@@ -3,9 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionProcessor;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\InvalidActionNonceException;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MaintenanceItemIgnore;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansFileLockerEnableFile;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansEnable;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
@@ -1398,15 +1402,180 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNotEmpty( $inactiveCards );
 		$inactiveCard = $inactiveCards[ 0 ];
 		$this->assertStringStartsWith( 'inactive:', $inactiveCard[ 'key' ] );
-		$action = $inactiveCard[ 'actions' ][ 0 ];
-		$this->assertSame( '1', $action[ 'attributes' ][ 'data-operator-context-action-ajax' ] );
-		$actionData = \json_decode(
-			$action[ 'attributes' ][ 'data-operator-context-action-json' ],
-			true,
-			512,
-			\JSON_THROW_ON_ERROR
-		);
+		$dialog = \json_decode( $inactiveCard[ 'enable_dialog_json' ], true, 512, \JSON_THROW_ON_ERROR );
+		$actionData = $dialog[ 'action' ];
 		$this->assertSame( ScansFileLockerEnableFile::SLUG, $actionData[ 'ex' ] );
+	}
+
+	public function test_protection_dialog_producer_emits_typed_actions_and_optional_content() :void {
+		$this->enablePremiumCapabilities( [ 'scan_malware_local', 'scan_pluginsthemes_local', 'scan_vulnerabilities', 'scan_file_locker' ] );
+		$builder = new \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ProtectionEnableDialogBuilder();
+		foreach ( [ 'malware', 'plugins', 'themes', 'wordpress', 'vulnerabilities', 'abandoned' ] as $key ) {
+			$dialog = \json_decode( $builder->forScan( $key, 'bi bi-shield' ), true, 512, \JSON_THROW_ON_ERROR );
+			$this->assertProtectionDialogContract( $dialog );
+			$this->assertSame( ScansEnable::SLUG, $dialog[ 'action' ][ 'ex' ] );
+			$this->assertSame( $key, $dialog[ 'action' ][ 'scan' ] );
+			$this->assertSame( '', $dialog[ 'path' ] );
+			$this->assertSame( $key === 'abandoned', $dialog[ 'note' ] === '' );
+		}
+		$path = '/example/<script>&"/wp-config.php';
+		$file = \json_decode( $builder->forFile( 'wpconfig', $path ), true, 512, \JSON_THROW_ON_ERROR );
+		$this->assertProtectionDialogContract( $file );
+		$this->assertSame( $path, $file[ 'path' ] );
+		$this->assertSame( '', $file[ 'note' ] );
+		$this->assertSame( ScansFileLockerEnableFile::SLUG, $file[ 'action' ][ 'ex' ] );
+		$this->assertSame( 'wpconfig', $file[ 'action' ][ 'file_key' ] );
+		$this->assertSame( '', $builder->forScan( 'unknown', '' ) );
+		$this->disablePremiumCapabilities();
+		$this->assertSame( '', $builder->forScan( 'wordpress', '' ) );
+	}
+
+	private function assertProtectionDialogContract( array $dialog ) :void {
+		foreach ( [ 'title', 'description', 'setting_label', 'icon_class', 'path', 'note', 'save_label', 'cancel_label', 'saving_label', 'error_message' ] as $field ) {
+			$this->assertIsString( $dialog[ $field ], $field );
+			if ( !\in_array( $field, [ 'path', 'note' ], true ) ) $this->assertNotSame( '', $dialog[ $field ], $field );
+		}
+		$this->assertIsArray( $dialog[ 'action' ] );
+	}
+
+	public function test_scan_enable_action_preserves_other_settings_and_rejects_unavailable_scans() :void {
+		$this->enablePremiumCapabilities( [ 'scan_malware_local', 'scan_pluginsthemes_local', 'scan_vulnerabilities' ] );
+		$opts = $this->requireController()->opts;
+		$opts->optSet( 'file_scan_areas', [ 'wp' ] )->optSet( 'enable_core_file_integrity_scan', 'N' )
+			->optSet( 'enable_wpvuln_scan', 'N' )->optSet( 'enabled_scan_apc', 'N' )->store();
+		$snapshot = $this->seedActionNonceContext( ScansEnable::class );
+		try {
+			foreach ( [ 'malware', 'plugins', 'themes', 'wordpress', 'vulnerabilities', 'abandoned' ] as $key ) {
+				$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'scan' => $key ] );
+				$this->assertTrue( $payload[ 'success' ], $key );
+				$afterFirstSave = $opts->values();
+				$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'scan' => $key ] );
+				$this->assertTrue( $payload[ 'success' ], $key );
+				$this->assertSame( $afterFirstSave, $opts->values(), 'Repeated enable must not change settings.' );
+			}
+			$this->assertSame( [ 'wp', 'malware_php', 'plugins', 'themes' ], $opts->optGet( 'file_scan_areas' ) );
+			$this->assertSame( 'Y', $opts->optGet( 'enable_core_file_integrity_scan' ) );
+			$this->assertSame( 'Y', $opts->optGet( 'enable_wpvuln_scan' ) );
+			$this->assertSame( 'Y', $opts->optGet( 'enabled_scan_apc' ) );
+			$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'scan' => 'arbitrary_option' ] );
+			$this->assertFalse( $payload[ 'success' ] );
+			$this->enablePremiumCapabilities( [] );
+			$opts->optSet( 'file_scan_areas', [ 'wp' ] )->store();
+			$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'scan' => 'malware' ] );
+			$this->assertFalse( $payload[ 'success' ] );
+			$this->assertSame( [ 'wp' ], $opts->optGet( 'file_scan_areas' ) );
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+		}
+	}
+
+	/** @dataProvider scanEnableCapabilitiesProvider */
+	public function test_scan_enable_uses_effective_capabilities( string $scan, array $capabilities, bool $premium, bool $expected ) :void {
+		if ( $premium ) {
+			$this->enablePremiumCapabilities( $capabilities );
+		}
+		else {
+			$this->disablePremiumCapabilities();
+		}
+		$opts = $this->requireController()->opts;
+		$opts->optSet( 'file_scan_areas', [ 'wp' ] )->optSet( 'enable_core_file_integrity_scan', 'N' )
+			->optSet( 'enable_wpvuln_scan', 'N' )->optSet( 'enabled_scan_apc', 'N' )->store();
+		$before = $opts->values();
+		$snapshot = $this->seedActionNonceContext( ScansEnable::class );
+		try {
+			$payload = $this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'scan' => $scan ] );
+			$this->assertSame( $expected, $payload[ 'success' ] );
+			$expectedValues = $before;
+			if ( $expected ) {
+				if ( $scan === 'vulnerabilities' ) {
+					$expectedValues[ 'enable_wpvuln_scan' ] = 'Y';
+				}
+				else {
+					$expectedValues[ 'file_scan_areas' ][] = $scan === 'malware' ? 'malware_php' : $scan;
+					$expectedValues[ 'enable_core_file_integrity_scan' ] = 'Y';
+				}
+			}
+			$this->assertSame( $expectedValues, $opts->values() );
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+		}
+	}
+
+	public static function scanEnableCapabilitiesProvider() :array {
+		return [
+			'local malware' => [ 'malware', [ 'scan_malware_local' ], true, true ],
+			'MalAI only' => [ 'malware', [ 'scan_malware_malai' ], true, true ],
+			'local plugins' => [ 'plugins', [ 'scan_pluginsthemes_local' ], true, true ],
+			'remote plugins only' => [ 'plugins', [ 'scan_pluginsthemes_remote' ], true, true ],
+			'local themes' => [ 'themes', [ 'scan_pluginsthemes_local' ], true, true ],
+			'remote themes only' => [ 'themes', [ 'scan_pluginsthemes_remote' ], true, true ],
+			'vulnerabilities' => [ 'vulnerabilities', [ 'scan_vulnerabilities' ], true, true ],
+			'no malware capability' => [ 'malware', [], true, false ],
+			'no plugin capability' => [ 'plugins', [], true, false ],
+			'no theme capability' => [ 'themes', [], true, false ],
+			'no vulnerability capability' => [ 'vulnerabilities', [], true, false ],
+			'free malware' => [ 'malware', [], false, false ],
+			'free wordpress' => [ 'wordpress', [], false, false ],
+			'free abandoned' => [ 'abandoned', [], false, false ],
+		];
+	}
+
+	/** @dataProvider protectionEnableInvalidInputProvider */
+	public function test_protection_enable_rejects_invalid_input_without_mutation( string $action, string $key, $value ) :void {
+		$this->enablePremiumCapabilities( [ 'scan_file_locker', 'scan_malware_local' ] );
+		$before = $this->requireController()->opts->values();
+		$snapshot = $this->seedActionNonceContext( $action );
+		try {
+			$payload = $this->processActionPayloadWithAdminBypass( $action::SLUG, [ $key => $value ] );
+			$this->assertFalse( $payload[ 'success' ] );
+			$this->assertSame( $before, $this->requireController()->opts->values() );
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+		}
+	}
+
+	public static function protectionEnableInvalidInputProvider() :array {
+		$cases = [];
+		foreach ( [ ScansEnable::class => 'scan', ScansFileLockerEnableFile::class => 'file_key' ] as $action => $key ) {
+			foreach ( [ 'unknown' => 'unknown', 'array' => [], 'null' => null, 'number' => 1 ] as $name => $value ) {
+				$cases[ $key.' '.$name ] = [ $action, $key, $value ];
+			}
+		}
+		return $cases;
+	}
+
+	/** @dataProvider protectionEnableActionProvider */
+	public function test_protection_enable_requires_input_key( string $action ) :void {
+		$snapshot = $this->seedActionNonceContext( $action );
+		try {
+			$this->expectException( ActionException::class );
+			$this->processActionPayloadWithAdminBypass( $action::SLUG, [] );
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+		}
+	}
+
+	public static function protectionEnableActionProvider() :array {
+		return [ [ ScansEnable::class ], [ ScansFileLockerEnableFile::class ] ];
+	}
+
+	public function test_scan_enable_rejects_invalid_nonce_without_mutation() :void {
+		$this->enablePremiumCapabilities( [ 'scan_malware_local' ] );
+		$before = $this->requireController()->opts->values();
+		$snapshot = $this->seedActionNonceContext( ScansEnable::class );
+		$this->mergeCurrentRequestTransport( [ ActionData::FIELD_NONCE => 'invalid' ] );
+		try {
+			$this->expectException( InvalidActionNonceException::class );
+			$this->processActionPayloadWithAdminBypass( ScansEnable::SLUG, [ 'scan' => 'malware' ] );
+		}
+		finally {
+			$this->restoreActionNonceContext( $snapshot );
+			$this->assertSame( $before, $this->requireController()->opts->values() );
+		}
 	}
 
 	public function test_file_locker_enable_file_action_adds_key_and_refreshes_to_pending_card() :void {

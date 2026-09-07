@@ -2,7 +2,6 @@ const { test, expect } = require( './support/shield-test' );
 const { dismissBlockingDialogs, openShieldRoute } = require( './support/shield-browser' );
 const {
 	expectFocusWithin,
-	expectModalHiddenWithoutAriaModal,
 	expectNamedDialog,
 } = require( './support/modal-accessibility' );
 const {
@@ -28,33 +27,28 @@ test( 'dashboard task guide opens an accessible chooser and exposes deep links',
 	await expect( guide ).toBeVisible();
 	await expect( launcher ).toHaveRole( 'button' );
 	await expect( launcher ).toHaveAttribute( 'aria-haspopup', 'dialog' );
-	await expect( launcher ).toHaveAttribute( 'aria-controls', 'ShieldModalContainer' );
+	await expect( launcher ).toHaveAttribute( 'aria-controls', 'ShieldMainAccessibleDialog' );
 	await expect( launcher ).not.toHaveAttribute( 'data-bs-toggle' );
 
 	await launcher.focus();
 	await page.keyboard.press( 'Enter' );
 
-	const modal = page.locator( '#ShieldModalContainer' );
+	const modal = page.locator( '#ShieldMainAccessibleDialog' );
 	await expect( modal ).toBeVisible();
-	await expectNamedDialog( page, modal, 'ShieldModalContainerLabel' );
+	await expectNamedDialog( page, modal, 'ShieldMainAccessibleDialogTitle' );
 	await expect( modal ).toHaveAccessibleName( /\S/ );
 	await expectFocusWithin( modal );
-	await expect( modal.locator( '.modal-dialog' ) ).toHaveClass( /modal-dialog-centered/ );
 	await expect( modal.locator( '[data-dashboard-task-guide-next-node]' ) ).toHaveCount( 5 );
 	await expect( modal.locator( '.dashboard-task-guide-modal__choice-description' ) ).toHaveCount( 0 );
-	await expect( modal ).toBeFocused();
-	const liveRegion = modal.locator( '[data-shield-modal-live-region="1"]' );
-	await expect( liveRegion ).toHaveAttribute( 'aria-live', 'polite' );
-	await expect( liveRegion ).toHaveAttribute( 'aria-atomic', 'true' );
-	await expect( liveRegion ).toHaveText( /\S/ );
-	await expectNoAxeViolationsInDialog( page, { dialog: 'ShieldModalContainer' } );
+	await expectFocusWithin( modal );
+	await expectNoAxeViolationsInDialog( page, { dialog: 'ShieldMainAccessibleDialog' } );
 
 	await modal.locator( '[data-dashboard-task-guide-next-node="ip_access"]' ).click();
 	const ipRuleLink = modal.locator( '[data-dashboard-task-guide-leaf="1"]' ).first();
-	await expect( modal.locator( '[data-dashboard-task-guide-back="1"]' ) ).toHaveRole( 'button' );
+	await expect( modal.getByRole( 'button', { name: 'Back', exact: true } ) ).toHaveRole( 'button' );
 	await expect( modal.locator( '[data-dashboard-task-guide-leaf="1"]' ) ).toHaveCount( 2 );
 	await expect( ipRuleLink ).toHaveRole( 'link' );
-	await expect( modal ).toBeFocused();
+	await expectFocusWithin( modal );
 	expect( await ipRuleLink.evaluate( ( link ) => {
 		const url = new URL( link.href );
 		return {
@@ -66,7 +60,7 @@ test( 'dashboard task guide opens an accessible chooser and exposes deep links',
 		subnav: 'rules',
 	} );
 
-	await modal.locator( '[data-dashboard-task-guide-back="1"]' ).click();
+	await modal.getByRole( 'button', { name: 'Back', exact: true } ).click();
 	await expect( modal.locator( '[data-dashboard-task-guide-next-node]' ) ).toHaveCount( 5 );
 	await modal.locator( '[data-dashboard-task-guide-next-node="scans"]' ).click();
 	const scanResultsLink = modal.locator( '[data-dashboard-task-guide-leaf="1"]' ).first();
@@ -84,7 +78,6 @@ test( 'dashboard task guide opens an accessible chooser and exposes deep links',
 	} );
 	await page.keyboard.press( 'Escape' );
 	await expect( modal ).not.toBeVisible();
-	await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
 	await expect( launcher ).toBeFocused();
 
 	await openShieldRoute( page, {
@@ -97,15 +90,14 @@ test( 'dashboard task guide opens an accessible chooser and exposes deep links',
 	await expect( sidebarGuide ).toHaveRole( 'button' );
 	await expect( sidebarGuide ).not.toHaveAttribute( 'href' );
 	await expect( sidebarGuide ).toHaveAttribute( 'aria-haspopup', 'dialog' );
-	await expect( sidebarGuide ).toHaveAttribute( 'aria-controls', 'ShieldModalContainer' );
+	await expect( sidebarGuide ).toHaveAttribute( 'aria-controls', 'ShieldMainAccessibleDialog' );
 	await sidebarGuide.focus();
 	await page.keyboard.press( 'Enter' );
 	await expect( modal ).toBeVisible();
-	await expect( modal ).toBeFocused();
+	await expectFocusWithin( modal );
 	expect( page.url() ).toBe( urlBeforeSidebarLaunch );
 	await page.keyboard.press( 'Escape' );
 	await expect( modal ).not.toBeVisible();
-	await expectModalHiddenWithoutAriaModal( page, '#ShieldModalContainer' );
 	await expect( sidebarGuide ).toBeFocused();
 	await expectNoRuntimeErrors( runtimeErrors, 'dashboard task guide' );
 } );
