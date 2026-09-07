@@ -11,6 +11,8 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
 use Brain\Monkey\Functions;
+use Carbon\Carbon;
+use FernleafSystems\Wordpress\Services\Core\Request;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageOperatorModeLanding;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TaskGuideDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\ChartOptions;
@@ -18,6 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	InvokesNonPublicMethods,
 	PluginControllerInstaller,
+	ServicesState,
 	UnitTestControllerFactory,
 	UnitTestPluginUrls
 };
@@ -26,8 +29,18 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 
 	use InvokesNonPublicMethods;
 
+	private array $servicesSnapshot = [];
+
 	protected function setUp() :void {
 		parent::setUp();
+		$this->servicesSnapshot = ServicesState::snapshot();
+		ServicesState::mergeItems( [
+			'service_request' => new class extends Request {
+				public function carbon( $setTimezone = false, bool $userLocale = true ) :Carbon {
+					return Carbon::createFromTimestampUTC( 1700000000 )->locale( 'en' );
+				}
+			},
+		] );
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \trim( $text ) ) : ''
@@ -53,20 +66,22 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
+		ServicesState::restore( $this->servicesSnapshot );
 		parent::tearDown();
 	}
 
-	public function test_render_data_exposes_dashboard_strip_destinations_task_guide_and_live_monitor() :void {
+	public function test_render_data_exposes_dashboard_strip_destinations_task_guide_recent_events_and_live_monitor() :void {
 		$renderData = $this->invokeNonPublicMethod(
 			new PageOperatorModeLandingTestDouble( $this->attentionQuery( [], [] ) ),
 			'getRenderData'
 		);
 
-		$this->assertSame(
-			[ 'dashboard_activity_chart_data_json', 'dashboard_activity_charts', 'dashboard_activity_charts_heading', 'dashboard_launchpad_heading', 'dashboard_strip', 'destination_cards', 'dashboard_task_guide', 'live_monitor' ],
-			\array_keys( $renderData[ 'vars' ] )
-		);
 		$this->assertCount( 6, $renderData[ 'vars' ][ 'dashboard_activity_charts' ] );
+		$this->assertCount( 12, $renderData[ 'vars' ][ 'dashboard_recent_events' ] );
+		$recentEvents = \array_column( $renderData[ 'vars' ][ 'dashboard_recent_events' ], null, 'key' );
+		foreach ( $renderData[ 'vars' ][ 'dashboard_activity_charts' ] as $chart ) {
+			$this->assertSame( $chart[ 'icon_class' ], $recentEvents[ $chart[ 'key' ] ][ 'icon_class' ] );
+		}
 		$this->assertSame(
 			[ 'login_block', 'ip_offense', 'ip_blocked', 'conn_kill', 'block_register', 'block_xml' ],
 			\array_column( $renderData[ 'vars' ][ 'dashboard_activity_charts' ], 'key' )

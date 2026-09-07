@@ -57,12 +57,42 @@ class ConsolidateAllEventsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $handler->compactBoundary( $start->timestamp, ( clone $start )->endOfDay()->timestamp ) );
 		$this->assertSame( 10, $this->sumEvent( $event ) );
 		$this->assertSame( 1, $this->countEvent( $event ) );
+		$this->assertSame( [ $event => $anchorAt ], $handler->getQuerySelector()->getLatestTimestampsForEvents( [ $event ] ) );
 
 		$record = $handler->getQuerySelector()->filterByEvent( $event )->first();
 		$this->assertSame( $anchorID, $record->id );
 		$this->assertSame( $anchorAt, $record->created_at );
 		$this->assertTrue( $handler->compactBoundary( $start->timestamp, ( clone $start )->endOfDay()->timestamp ) );
 		$this->assertSame( 10, $this->sumEvent( $event ) );
+	}
+
+	/** @group database-compat */
+	public function test_selected_latest_event_timestamps_are_grouped_in_one_result_set() :void {
+		$olderEvent = self::EVENT_PREFIX.'latest_older';
+		$newerEvent = self::EVENT_PREFIX.'latest_newer';
+		$this->insertEvent( $olderEvent, 1, 1700000100 );
+		$this->insertEvent( $olderEvent, 1, 1700000200 );
+		$this->insertEvent( $newerEvent, 1, 1700000300 );
+		$this->insertEvent( $newerEvent, 1, 1700000300 );
+		$this->insertEvent( self::EVENT_PREFIX.'excluded', 1, 1700000400 );
+		$selector = self::con()->db_con->events->getQuerySelector();
+		$wpdb = Services::WpDb()->loadWpdb();
+		$queryCount = $wpdb->num_queries;
+
+		$latest = $selector->getLatestTimestampsForEvents( [
+			$olderEvent,
+			$newerEvent,
+			$olderEvent,
+			self::EVENT_PREFIX.'missing',
+		] );
+
+		$this->assertSame( 1, $wpdb->num_queries - $queryCount );
+		$this->assertCount( 2, $latest );
+		$this->assertSame( 1700000200, $latest[ $olderEvent ] );
+		$this->assertSame( 1700000300, $latest[ $newerEvent ] );
+		$queryCount = $wpdb->num_queries;
+		$this->assertSame( [], $selector->getLatestTimestampsForEvents( [] ) );
+		$this->assertSame( $queryCount, $wpdb->num_queries );
 	}
 
 	/** @group database-compat */

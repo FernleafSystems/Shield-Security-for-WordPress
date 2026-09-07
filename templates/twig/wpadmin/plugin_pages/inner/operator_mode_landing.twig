@@ -105,7 +105,10 @@
 						<span class="stat-flipper">
 							<span class="stat-front">
 								<span class="stat-value">{{ chart.value }}</span>
-								<span class="stat-title">{{ chart.label }}</span>
+								<span class="stat-title dashboard-event-label">
+									<span class="dashboard-event-icon" aria-hidden="true"><i class="{{ chart.icon_class }}"></i></span>
+									<span>{{ chart.label }}</span>
+								</span>
 							</span>
 							<span class="stat-back" aria-hidden="true">
 								<span class="summary-chart"></span>
@@ -113,6 +116,31 @@
 							</span>
 						</span>
 					</a>
+				{% endfor %}
+			</div>
+		</section>
+
+		<section class="dashboard-recent-events-section" aria-labelledby="dashboard-recent-events-heading">
+			<div class="investigate-landing__section-heading">
+				<span class="investigate-landing__section-icon" aria-hidden="true"><i class="bi bi-clock-history"></i></span>
+				<h2 id="dashboard-recent-events-heading" class="investigate-landing__section-label">{{ vars.dashboard_recent_events_heading }}</h2>
+			</div>
+
+			<div class="stats-strip dashboard-recent-events" role="list" aria-label="{{ vars.dashboard_recent_events_heading|e('html_attr') }}">
+				{% for event in vars.dashboard_recent_events %}
+					<article class="stat-cell dashboard-recent-events__item"
+							 role="listitem"
+							 tabindex="0"
+							 style="--dashboard-event-hue: {{ event.recency_hue }};"
+							 aria-label="{{ event.accessible_label|e('html_attr') }}">
+						<span class="dashboard-event-label dashboard-recent-events__front">
+							<span class="dashboard-event-icon" aria-hidden="true"><i class="{{ event.icon_class }}"></i></span>
+							<span class="dashboard-recent-events__text stat-title">
+								<span class="dashboard-recent-events__label">{{ event.label }}</span>
+								<span class="dashboard-recent-events__time" aria-hidden="true">{{ event.time_ago }}</span>
+							</span>
+						</span>
+					</article>
 				{% endfor %}
 			</div>
 		</section>

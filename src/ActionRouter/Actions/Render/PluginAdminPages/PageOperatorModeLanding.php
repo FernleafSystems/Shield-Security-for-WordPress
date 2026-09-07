@@ -4,7 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\ActionsQueueCardDataBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\DashboardRecentEventsDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\DashboardEventIcons;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\DashboardLiveMonitorPreference;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\TaskGuideDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\{
@@ -31,7 +33,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Charts\
  *   label:string,
  *   value:int,
  *   href:string,
- *   accessible_label:string
+ *   accessible_label:string,
+ *   icon_class:string
  * }
  * @phpstan-type DashboardActivityChartData array{
  *   period_key:string,
@@ -59,12 +62,15 @@ class PageOperatorModeLanding extends BaseRender {
 		$queueCard = $this->buildActionsQueueCardData();
 		$dashboardActivityChartData = $this->buildDashboardActivityChartData();
 		$dashboardTaskGuideLauncher = ( new TaskGuideDataBuilder() )->buildLauncher();
+		$dashboardRecentEvents = ( new DashboardRecentEventsDataBuilder() )->build();
 
 		return [
 			'vars' => [
 				'dashboard_activity_chart_data_json' => \json_encode( $dashboardActivityChartData, \JSON_THROW_ON_ERROR ),
 				'dashboard_activity_charts'         => $this->buildDashboardActivityCharts( $dashboardActivityChartData ),
 				'dashboard_activity_charts_heading' => __( 'Stats (Previous 7 Days)', 'wp-simple-firewall' ),
+				'dashboard_recent_events'           => $dashboardRecentEvents,
+				'dashboard_recent_events_heading'   => __( 'Recent Events', 'wp-simple-firewall' ),
 				'dashboard_launchpad_heading'       => __( 'Launchpad', 'wp-simple-firewall' ),
 				'dashboard_strip'                   => $queueCard[ 'dashboard_strip' ],
 				'destination_cards'                 => $this->buildDestinationCards(),
@@ -115,6 +121,7 @@ class PageOperatorModeLanding extends BaseRender {
 					'label'            => $series[ 'label' ],
 					'value'            => $value,
 					'href'             => $href,
+					'icon_class'       => ( new DashboardEventIcons() )->iconClassForKey( $eventKey ),
 					'accessible_label' => $accessibleLabel,
 				];
 			},

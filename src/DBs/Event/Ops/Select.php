@@ -65,6 +65,34 @@ class Select extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Selec
 					->first();
 	}
 
+	/**
+	 * @param string[] $events
+	 * @return array<string,int>
+	 */
+	public function getLatestTimestampsForEvents( array $events ) :array {
+		$events = \array_values( \array_unique( \array_filter( $events, 'is_string' ) ) );
+		if ( empty( $events ) ) {
+			return [];
+		}
+
+		$latest = [];
+		$rows = $this->filterByEvents( $events )
+					 ->setCustomSelect( '`event`, MAX(`created_at`) AS `latest_at`' )
+					 ->setGroupBy( 'event' )
+					 ->setNoOrderBy()
+					 ->setResultsAsVo( false )
+					 ->setSelectResultsFormat( ARRAY_A )
+					 ->queryWithResult();
+		foreach ( \is_array( $rows ) ? $rows : [] as $row ) {
+			$event = (string)( $row[ 'event' ] ?? '' );
+			if ( $event !== '' && \in_array( $event, $events, true ) ) {
+				$latest[ $event ] = (int)( $row[ 'latest_at' ] ?? 0 );
+			}
+		}
+
+		return $latest;
+	}
+
 	public function getOldestForEvent( string $event ) :?Record {
 		return $this->filterByEvent( $event )
 					->setOrderBy( 'created_at', 'ASC' )

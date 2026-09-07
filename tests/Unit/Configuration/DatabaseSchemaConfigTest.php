@@ -66,19 +66,19 @@ class DatabaseSchemaConfigTest extends TestCase {
 		$this->assertSame( [], $violations );
 	}
 
-	public function test_events_created_at_index_matches_generated_config() :void {
+	public function test_events_range_and_latest_indexes_match_generated_config() :void {
 		$source = $this->decodePluginJsonFile( 'plugin-spec/43_databases.json', 'Database schema source spec' );
 		$generated = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
-		$expected = [
-			'key_name' => 'created_at_event',
-			'columns'  => [ 'created_at', 'event' ],
-		];
-
-		$this->assertContains( $expected, $source[ 'tables' ][ 'events' ][ 'indices' ] ?? [] );
-		$this->assertContains(
-			$expected,
-			$generated[ 'config_spec' ][ 'databases' ][ 'tables' ][ 'events' ][ 'indices' ] ?? []
-		);
+		foreach ( [
+			[ 'key_name' => 'created_at_event', 'columns' => [ 'created_at', 'event' ] ],
+			[ 'key_name' => 'event_created_at', 'columns' => [ 'event', 'created_at' ] ],
+		] as $expected ) {
+			$this->assertContains( $expected, $source[ 'tables' ][ 'events' ][ 'indices' ] ?? [] );
+			$this->assertContains(
+				$expected,
+				$generated[ 'config_spec' ][ 'databases' ][ 'tables' ][ 'events' ][ 'indices' ] ?? []
+			);
+		}
 	}
 
 	private function mysqlReservedWords() :array {

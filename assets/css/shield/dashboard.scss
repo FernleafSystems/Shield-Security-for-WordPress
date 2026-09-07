@@ -809,12 +809,74 @@
 }
 .dashboard-activity-charts .stat-value { color: var(--dashboard-activity-chart-color); }
 
+.dashboard-event-icon {
+	align-items: center;
+	color: $status-color-good;
+	display: inline-flex;
+	flex: 0 0 auto;
+	font-size: 1rem;
+	justify-content: center;
+	line-height: 1;
+}
+
+.dashboard-event-label {
+	align-items: center;
+	display: flex;
+	gap: 0.55rem;
+	text-align: left;
+}
+
 .stat-title {
 	font-size: 0.72rem;
 	text-transform: uppercase;
 	color: #646970;
 	font-weight: 600;
 	margin-top: 4px;
+}
+
+.dashboard-recent-events {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.dashboard-recent-events__item.stat-cell {
+	background: hsl(var(--dashboard-event-hue), 45%, 96%);
+	min-height: 4.25rem;
+	perspective: none;
+	transform-style: flat;
+
+	&:focus-visible {
+		@include shield-focus-ring(-3px);
+	}
+}
+
+.dashboard-recent-events__front {
+	flex: 1 1 auto;
+	padding: 0.8rem 0.85rem 0.55rem;
+}
+
+.dashboard-recent-events .stat-title {
+	margin-top: 0;
+}
+
+.dashboard-recent-events__text {
+	display: grid;
+	min-width: 0;
+}
+
+.dashboard-recent-events__label,
+.dashboard-recent-events__time {
+	grid-area: 1 / 1;
+	align-self: center;
+}
+
+.dashboard-recent-events__time {
+	visibility: hidden;
+}
+
+.dashboard-recent-events__item:hover,
+.dashboard-recent-events__item:focus {
+	.dashboard-recent-events__label { visibility: hidden; }
+	.dashboard-recent-events__time { visibility: visible; }
 }
 
 // 3D flip on hover

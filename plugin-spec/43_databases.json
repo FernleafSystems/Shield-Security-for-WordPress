@@ -257,6 +257,13 @@
                         "created_at",
                         "event"
                     ]
+                },
+                {
+                    "key_name": "event_created_at",
+                    "columns": [
+                        "event",
+                        "created_at"
+                    ]
                 }
             ]
         },
