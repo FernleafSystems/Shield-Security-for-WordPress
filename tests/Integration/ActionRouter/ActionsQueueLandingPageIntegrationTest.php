@@ -8,7 +8,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScanResultsTabl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansFileLockerEnableFile;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\ScanResultsLagWarning;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Widgets\MaintenanceIssueStateProvider;
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	FileLocker as FileLockerPane,
 	Malware as MalwarePane,
@@ -116,53 +115,6 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 			Constants::NAV_ID     => PluginNavs::NAV_SCANS,
 			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_SCANS_OVERVIEW,
 		] );
-	}
-
-	public function test_actions_queue_landing_exposes_the_complete_pro_upsell_modal_contract() :void {
-		$payload = $this->renderActionsQueueLandingPage();
-		$this->assertRouteRenderOutputHealthy( $payload, 'actions queue Pro upsell modal contract' );
-		$upsell = $payload[ 'render_data' ][ 'vars' ][ 'actions_queue_pro_upsell' ] ?? [];
-
-		$this->assertEqualsCanonicalizing(
-			[ 'template_id', 'title_id', 'logo_url', 'left_lines', 'heading', 'labels', 'rows', 'hrefs' ],
-			\array_keys( $upsell )
-		);
-		$this->assertSame( 'actions-queue-pro-upsell-template', $upsell[ 'template_id' ] ?? '' );
-		$this->assertSame( 'actions-queue-pro-upsell-title', $upsell[ 'title_id' ] ?? '' );
-		$this->assertStringContainsString( 'plugin_logo_prem_dark.svg', (string)( $upsell[ 'logo_url' ] ?? '' ) );
-		$this->assertNotSame( '', \trim( (string)( $upsell[ 'heading' ] ?? '' ) ) );
-		$this->assertCount( 2, $upsell[ 'left_lines' ] ?? [] );
-		foreach ( $upsell[ 'left_lines' ] ?? [] as $line ) {
-			$this->assertEqualsCanonicalizing( [ 'text', 'emphasis' ], \array_keys( $line ) );
-			$this->assertIsString( $line[ 'text' ] );
-			$this->assertNotSame( '', \trim( $line[ 'text' ] ) );
-			$this->assertIsString( $line[ 'emphasis' ] );
-		}
-		$this->assertEqualsCanonicalizing(
-			[ 'close', 'protection', 'free', 'pro', 'included', 'not_included', 'view_pro_plans', 'compare_features' ],
-			\array_keys( $upsell[ 'labels' ] ?? [] )
-		);
-		foreach ( $upsell[ 'labels' ] ?? [] as $label ) {
-			$this->assertIsString( $label );
-			$this->assertNotSame( '', \trim( $label ) );
-		}
-		$this->assertCount( 8, $upsell[ 'rows' ] ?? [] );
-		$freeStates = [];
-		$proStates = [];
-		foreach ( $upsell[ 'rows' ] ?? [] as $row ) {
-			$this->assertEqualsCanonicalizing( [ 'label', 'free', 'pro' ], \array_keys( $row ) );
-			$this->assertIsString( $row[ 'label' ] );
-			$this->assertNotSame( '', \trim( $row[ 'label' ] ) );
-			$this->assertIsBool( $row[ 'free' ] );
-			$this->assertIsBool( $row[ 'pro' ] );
-			$freeStates[] = $row[ 'free' ];
-			$proStates[] = $row[ 'pro' ];
-		}
-		$this->assertContains( true, $freeStates );
-		$this->assertContains( false, $freeStates );
-		$this->assertSame( \array_fill( 0, 8, true ), $proStates );
-		$this->assertSame( BaseRender::GO_PRO_URL, $upsell[ 'hrefs' ][ 'go_pro' ] ?? '' );
-		$this->assertSame( BaseRender::COMPARE_FEATURES_URL, $upsell[ 'hrefs' ][ 'compare_features' ] ?? '' );
 	}
 
 	private function loadSelectedGroupPayload( string $bucket, string $groupKey, bool $includeLandingRefresh = false ) :array {
@@ -1395,6 +1347,23 @@ class ActionsQueueLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$renderData = \is_array( $detailPayload[ 'render_data' ] ?? null ) ? $detailPayload[ 'render_data' ] : [];
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'is_disabled' ] ?? false ) );
 		$this->assertNotEmpty( $renderData[ 'vars' ][ 'disabled_actions' ] ?? [] );
+	}
+
+	public function test_file_locker_default_render_uses_the_same_view_as_the_queue() :void {
+		$this->prepareFileLockerRuntime( [] );
+		foreach ( [ true, false ] as $premium ) {
+			if ( !$premium ) {
+				$this->disablePremiumCapabilities();
+			}
+			$legacyRequest = $this->processActionPayloadWithAdminBypass( FileLockerPane::SLUG, [] );
+			$queueRequest = $this->processActionPayloadWithAdminBypass( FileLockerPane::SLUG, [
+				'display_context' => 'actions_queue',
+			] );
+			$this->assertRouteRenderOutputHealthy( $legacyRequest, 'default file locker render' );
+			$this->assertRouteRenderOutputHealthy( $queueRequest, 'queue file locker render' );
+			$this->assertSame( $queueRequest[ 'render_data' ][ 'vars' ], $legacyRequest[ 'render_data' ][ 'vars' ] );
+			$this->assertSame( !$premium, $legacyRequest[ 'render_data' ][ 'flags' ][ 'is_disabled' ] );
+		}
 	}
 
 	public function test_premium_inactive_file_locker_uses_asset_cards_without_configuration_action() :void {

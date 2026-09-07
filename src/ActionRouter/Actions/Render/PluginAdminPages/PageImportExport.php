@@ -17,6 +17,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *   key:'network_sync'|'file',
  *   label:string,
  *   icon_class:string,
+ *   summary:string,
  *   panel_id:string,
  *   tab_id:string,
  *   is_active:bool,
@@ -150,6 +151,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *     import_export_tabs:list<ImportExportTab>,
  *     file_transfer:FileTransferContract,
  *     network_sync:NetworkSyncContract,
+ *     upgrade_feature:array{title:string,icon_class:string,summary:string},
  *     network_invite_review:NetworkInviteReviewContract|null
  *   },
  *   strings:array{inner_page_title:string,inner_page_subtitle:string}
@@ -181,6 +183,7 @@ class PageImportExport extends PageModeLandingBase {
 		$activeClientCount = ( new SiteRepository() )->countActiveRows();
 		$networkInviteReview = $this->buildNetworkInviteReview();
 		$activeTab = $canImportExportSync ? 'network_sync' : 'file';
+		$fileTransfer = $this->buildFileTransfer();
 
 		return \array_replace_recursive( parent::getRenderData(), [
 			'flags'   => [
@@ -191,10 +194,15 @@ class PageImportExport extends PageModeLandingBase {
 				'network_sync_state'        => $networkSyncState,
 			],
 			'vars'    => [
-				'import_export_tabs'    => $this->buildImportExportTabs( $activeTab, $canImportExportFile, $canImportExportSync ),
-				'file_transfer'         => $this->buildFileTransfer(),
+				'import_export_tabs'    => $this->buildImportExportTabs( $activeTab, $canImportExportFile, $canImportExportSync, $fileTransfer[ 'import' ][ 'summary' ] ),
+				'file_transfer'         => $fileTransfer,
 				'network_sync'          => $this->buildNetworkSync( $networkSyncState, $importMasterURL, $activeClientCount ),
 				'network_invite_review' => $networkInviteReview,
+				'upgrade_feature'       => [
+					'title'      => $this->getLandingTitle(),
+					'icon_class' => 'bi bi-'.$this->getLandingIcon(),
+					'summary'    => $this->getLandingSubtitle(),
+				],
 			],
 		] );
 	}
@@ -222,10 +230,10 @@ class PageImportExport extends PageModeLandingBase {
 	/**
 	 * @return list<ImportExportTab>
 	 */
-	private function buildImportExportTabs( string $activeTab, bool $canImportExportFile, bool $canImportExportSync ) :array {
+	private function buildImportExportTabs( string $activeTab, bool $canImportExportFile, bool $canImportExportSync, string $fileSummary ) :array {
 		return [
-			$this->buildTab( 'network_sync', __( 'Network Sync', 'wp-simple-firewall' ), 'bi bi-diagram-3', $activeTab === 'network_sync', $canImportExportSync ),
-			$this->buildTab( 'file', __( 'Import/Export File', 'wp-simple-firewall' ), 'bi bi-arrow-down-up', $activeTab === 'file', $canImportExportFile ),
+			$this->buildTab( 'network_sync', __( 'Network Sync', 'wp-simple-firewall' ), 'bi bi-diagram-3', __( 'Synchronize settings between Shield sites.', 'wp-simple-firewall' ), $activeTab === 'network_sync', $canImportExportSync ),
+			$this->buildTab( 'file', __( 'Import/Export File', 'wp-simple-firewall' ), 'bi bi-arrow-down-up', $fileSummary, $activeTab === 'file', $canImportExportFile ),
 		];
 	}
 
@@ -233,11 +241,12 @@ class PageImportExport extends PageModeLandingBase {
 	 * @param 'network_sync'|'file' $key
 	 * @return ImportExportTab
 	 */
-	private function buildTab( string $key, string $label, string $iconClass, bool $active, bool $available ) :array {
+	private function buildTab( string $key, string $label, string $iconClass, string $summary, bool $active, bool $available ) :array {
 		return [
 			'key'          => $key,
 			'label'        => $label,
 			'icon_class'   => $iconClass,
+			'summary'      => $summary,
 			'panel_id'     => 'ImportExportPanel-'.\str_replace( '_', '-', $key ),
 			'tab_id'       => 'ImportExportTab-'.\str_replace( '_', '-', $key ),
 			'is_active'    => $active,

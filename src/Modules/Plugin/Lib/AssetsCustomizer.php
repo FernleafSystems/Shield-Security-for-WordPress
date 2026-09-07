@@ -183,7 +183,6 @@ class AssetsCustomizer {
 				'data'    => fn() => [
 					'ajax' => [
 						'file_action' => ActionData::Build( Actions\ScansFileLockerAction::class ),
-						'render_diff' => ActionData::BuildAjaxRender( Components\Scans\ScansFileLockerDiff::class ),
 					],
 				],
 			],

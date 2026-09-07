@@ -16,8 +16,14 @@ abstract class PageRulesBase extends PageModeLandingBase {
 			'hrefs'   => [
 				'rules_builder' => $con->plugin_urls->rulesBuild(),
 			],
+			'vars'    => [
+				'upgrade_feature' => [
+					'title'      => __( 'Custom Security Rules', 'wp-simple-firewall' ),
+					'icon_class' => 'bi bi-'.$this->getLandingIcon(),
+					'summary'    => __( 'Create and manage custom rules to meet your security needs.', 'wp-simple-firewall' ),
+				],
+			],
 			'strings' => [
-				'cant_custom_rules'                     => sprintf( __( 'Please upgrade your %s subscription to access the Custom Security Rules Builder.', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'what_is_custom_security_rules_feature' => __( 'What is the Custom Security Rules feature?', 'wp-simple-firewall' ),
 			],
 		] );

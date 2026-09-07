@@ -301,9 +301,7 @@ abstract class BaseRender extends BaseAction {
 				'privacy_never_spam'     => __( 'We never SPAM and you can remove yourself at any time.', 'wp-simple-firewall' ),
 
 				'options'        => CommonDisplayStrings::get( 'options_label' ),
-				'not_available'  => __( 'Sorry, please upgrade your plan to access this feature.', 'wp-simple-firewall' ),
 				'not_enabled'    => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),
-				'please_upgrade' => sprintf( __( 'You can get this security feature, and many more, by upgrading your %s plan.', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'please_enable'  => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
 				'yyyymmdd'       => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
 

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\NavMenuBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ProUpsellDataBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginNotices\Handler;
 
 class PageAdminPlugin extends BaseRender {
@@ -49,6 +50,7 @@ class PageAdminPlugin extends BaseRender {
 			'vars'    => [
 				'active_module_settings' => $subNav,
 				'nav_sidebar'            => ( new NavMenuBuilder() )->build(),
+				'pro_upsell'             => ( new ProUpsellDataBuilder() )->build(),
 			],
 		];
 	}

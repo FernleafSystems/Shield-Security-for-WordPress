@@ -115,11 +115,11 @@ class ActionsQueueGroupCardTwigTest extends BaseUnitTest {
 
 		$this->assertSame(
 			1,
-			$xpath->query( '//button[@data-actions-queue-group-key="malware" and @data-actions-queue-pro-upsell="1" and not(@data-drill-target) and not(@data-drill-bucket-selection) and not(@data-drill-group-selection)]' )->length
+			$xpath->query( '//button[@data-actions-queue-group-key="malware" and @data-pro-upsell="1" and not(@data-drill-target) and not(@data-drill-bucket-selection) and not(@data-drill-group-selection)]' )->length
 		);
 		$this->assertSame(
 			1,
-			$xpath->query( '//button[@data-actions-queue-group-key="wordpress" and @data-drill-target="detail" and @data-drill-bucket-selection and @data-drill-group-selection and not(@data-actions-queue-pro-upsell)]' )->length
+			$xpath->query( '//button[@data-actions-queue-group-key="wordpress" and @data-drill-target="detail" and @data-drill-bucket-selection and @data-drill-group-selection and not(@data-pro-upsell)]' )->length
 		);
 	}
 

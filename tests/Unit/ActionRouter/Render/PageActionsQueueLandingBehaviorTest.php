@@ -16,7 +16,6 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	DetailExpansionType,
 	PageActionsQueueLanding
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Urls;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Labels;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
@@ -163,44 +162,6 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'scans_results', $vars );
 		$this->assertFalse( $renderData[ 'flags' ][ 'queue_is_empty' ] );
 		$this->assertTrue( (bool)( $renderData[ 'flags' ][ 'has_drilldown_content' ] ?? false ) );
-	}
-
-	public function test_landing_vars_include_the_pro_upsell_modal_contract() :void {
-		$upsell = $this->invokeNonPublicMethod( $this->newPage(), 'getLandingVars' )[ 'actions_queue_pro_upsell' ];
-
-		$this->assertEqualsCanonicalizing(
-			[ 'template_id', 'title_id', 'logo_url', 'left_lines', 'heading', 'labels', 'rows', 'hrefs' ],
-			\array_keys( $upsell )
-		);
-		$this->assertSame( 'actions-queue-pro-upsell-template', $upsell[ 'template_id' ] );
-		$this->assertSame( 'actions-queue-pro-upsell-title', $upsell[ 'title_id' ] );
-		$this->assertStringContainsString( 'assets/images/plugin_logo_prem_dark.svg', $upsell[ 'logo_url' ] );
-		$this->assertNotSame( '', \trim( $upsell[ 'heading' ] ) );
-		$this->assertEqualsCanonicalizing(
-			[ 'close', 'protection', 'free', 'pro', 'included', 'not_included', 'view_pro_plans', 'compare_features' ],
-			\array_keys( $upsell[ 'labels' ] )
-		);
-		foreach ( $upsell[ 'labels' ] as $label ) {
-			$this->assertIsString( $label );
-			$this->assertNotSame( '', \trim( $label ) );
-		}
-		$this->assertCount( 2, $upsell[ 'left_lines' ] );
-		foreach ( $upsell[ 'left_lines' ] as $line ) {
-			$this->assertEqualsCanonicalizing( [ 'text', 'emphasis' ], \array_keys( $line ) );
-			$this->assertIsString( $line[ 'text' ] );
-			$this->assertNotSame( '', \trim( $line[ 'text' ] ) );
-			$this->assertIsString( $line[ 'emphasis' ] );
-		}
-		$this->assertCount( 8, $upsell[ 'rows' ] );
-		foreach ( $upsell[ 'rows' ] as $row ) {
-			$this->assertEqualsCanonicalizing( [ 'label', 'free', 'pro' ], \array_keys( $row ) );
-			$this->assertIsString( $row[ 'label' ] );
-			$this->assertNotSame( '', \trim( $row[ 'label' ] ) );
-			$this->assertIsBool( $row[ 'free' ] );
-			$this->assertIsBool( $row[ 'pro' ] );
-		}
-		$this->assertSame( BaseRender::GO_PRO_URL, $upsell[ 'hrefs' ][ 'go_pro' ] );
-		$this->assertSame( BaseRender::COMPARE_FEATURES_URL, $upsell[ 'hrefs' ][ 'compare_features' ] );
 	}
 
 	public function test_all_clear_flag_follows_attention_summary_without_queue_box_contract() :void {

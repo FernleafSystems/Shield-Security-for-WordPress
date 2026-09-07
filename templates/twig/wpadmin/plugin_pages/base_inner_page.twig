@@ -38,7 +38,9 @@
 		{% endset %}
 		{% if use_operator_chrome %}
 			{% set operator_body_html %}
-				{{ inner_page_body_html }}
+				<div class="container-fluid py-2">
+					{{ inner_page_body_html }}
+				</div>
 			{% endset %}
 			{% set operator_rail_html %}
 				{% include '/wpadmin/components/page/context_rail.twig' with {

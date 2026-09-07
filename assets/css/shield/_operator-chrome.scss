@@ -18,15 +18,10 @@
 
 .shield-rail-layout.shield-rail-layout--context-end > .shield-rail-layout__content {
 	overflow-x: auto;
-
-	> .row {
-		// Rows sit directly in this scroll container, without a Bootstrap container's gutter padding.
-		margin-inline: 0;
-	}
 }
 
 .operator-step-tabs {
-	align-items: flex-start;
+	align-items: center;
 	border-bottom: 1px solid $border-color-neutral-subtle;
 	display: flex;
 	gap: 1rem;
@@ -38,7 +33,7 @@
 .operator-step-tabs__list {
 	align-items: center;
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	gap: 0;
 	min-width: 0;
 }
@@ -51,6 +46,7 @@
 	color: $status-color-info;
 	cursor: pointer;
 	display: inline-flex;
+	flex: 0 1 auto;
 	font-family: 'SFMono-Regular', 'Cascadia Code', 'Consolas', monospace;
 	font-size: 0.75rem;
 	font-weight: 600;
@@ -58,6 +54,7 @@
 	line-height: 1.15;
 	margin: 0;
 	min-height: 0;
+	min-width: 0;
 	padding: 0.4375rem 1.25rem 0.4375rem 0.875rem;
 	position: relative;
 	text-decoration: none;
@@ -188,12 +185,15 @@
 }
 
 .operator-step-tabs__tab-icon {
+	flex-shrink: 0;
 	font-size: 0.8rem;
 	line-height: 1;
 }
 
 .operator-step-tabs__tab-label {
 	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .operator-step-tabs__actions {
@@ -370,26 +370,11 @@
 }
 
 @container operator-chrome (max-width: 1024px) {
-	.operator-step-tabs {
-		align-items: stretch;
-		flex-direction: column;
-	}
-
-	.operator-step-tabs__actions {
-		align-self: flex-end;
-	}
-
 	.shield-rail-layout.shield-rail-layout--context-end {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
 	.operator-context-rail {
 		position: static;
-	}
-}
-
-@container operator-chrome (max-width: 782px) {
-	.operator-step-tabs__actions {
-		align-self: stretch;
 	}
 }

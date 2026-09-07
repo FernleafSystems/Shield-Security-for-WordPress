@@ -30,7 +30,7 @@ test( 'free Actions Queue upgrade cards open the shared Pro modal without drilli
 
 		for ( const groupKey of fixture.context.pro_upsell_group_keys ) {
 			const launcher = await actionsQueuePage.waitForGroupOuter( groupKey );
-			await expect( launcher ).toHaveAttribute( 'data-actions-queue-pro-upsell', '1' );
+			await expect( launcher ).toHaveAttribute( 'data-pro-upsell', '1' );
 			await expect( launcher ).not.toHaveAttribute( 'data-drill-target' );
 			await expect( launcher ).not.toHaveAttribute( 'data-drill-bucket-selection' );
 			await expect( launcher ).not.toHaveAttribute( 'data-drill-group-selection' );
@@ -39,12 +39,12 @@ test( 'free Actions Queue upgrade cards open the shared Pro modal without drilli
 			await launcher.click();
 
 			await expect( modal ).toBeVisible();
-			await expectNamedDialog( page, modal, 'actions-queue-pro-upsell-title' );
+			await expectNamedDialog( page, modal, 'shield-pro-upsell-title' );
 			await expectFocusWithin( modal );
-			await expect( modalContent.locator( '.actions-queue-pro-upsell__table' ) ).toBeVisible();
+			await expect( modalContent.locator( '.pro-upsell__table' ) ).toBeVisible();
 			for ( const [ selector, href ] of [
-				[ '.actions-queue-pro-upsell__button', 'https://clk.shldscrty.com/shieldgoprofeature' ],
-				[ '.actions-queue-pro-upsell__compare-link', 'https://clk.shldscrty.com/gp' ],
+				[ '.pro-upsell__button', 'https://clk.shldscrty.com/shieldgoprofeature' ],
+				[ '.pro-upsell__compare-link', 'https://clk.shldscrty.com/gp' ],
 			] ) {
 				const link = modalContent.locator( selector );
 				await expect( link ).toHaveAttribute( 'href', href );
