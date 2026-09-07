@@ -364,7 +364,7 @@ abstract class BaseRender extends BaseAction {
 		if ( $value === null ) {
 			$value = $default;
 		}
-		return \trim( sanitize_text_field( (string)$value ) );
+		return \trim( sanitize_text_field( \is_scalar( $value ) ? (string)$value : $default ) );
 	}
 
 	private function buildRunningVersionHtml() :string {

@@ -122,8 +122,17 @@ export class StepTabsController extends BaseAutoExecComponent {
 		}
 
 		const rootVisual = this.buildVisualStep( rootStep, null, true );
+		const steps = [ this.buildHomeStep( rootStep, homeLabel, homeHref, false ) ];
+		const parentHref = this.readText( shell.dataset.operatorParentHref );
+		if ( parentHref.length > 0 ) {
+			steps.push( this.buildVisualStep( {
+				breadcrumb_label: shell.dataset.operatorParentLabel,
+				color_key: rootStep.color_key,
+			}, { kind: 'href', value: parentHref }, false ) );
+		}
+		steps.push( rootVisual );
 		return {
-			steps: [ this.buildHomeStep( rootStep, homeLabel, homeHref, false ), rootVisual ],
+			steps,
 			currentStep: rootVisual,
 		};
 	}

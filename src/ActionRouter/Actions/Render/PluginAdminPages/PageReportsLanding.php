@@ -37,7 +37,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  * }
  * @phpstan-type ReportsWorkspaceContracts array{
  *   cards:list<ReportsWorkspaceCard>,
- *   panels:list<ReportsWorkspacePanel>
+ *   panels:list<ReportsWorkspacePanel>,
+ *   headers:array<string,array>
  * }
  */
 class PageReportsLanding extends PageDrillDownLandingBase {
@@ -49,6 +50,35 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 	 * @var ReportsWorkspaceContracts|null
 	 */
 	private ?array $workspaceContractsCache = null;
+
+	protected function getPageContextualHrefs() :array {
+		return self::con()->caps->canReportsLocal() ? [ [
+			'title' => __( 'Create Custom Report', 'wp-simple-firewall' ),
+			'is_action' => true,
+			'classes' => [ 'offcanvas_report_create_form' ],
+		] ] : [];
+	}
+
+	protected function getPageContextualHrefs_Help() :array {
+		return [
+			'title' => __( 'Reports Help', 'wp-simple-firewall' ),
+			'href' => 'https://help.getshieldsecurity.com/collection/77-reporting',
+			'new_window' => true,
+		];
+	}
+
+	protected function getLandingVars() :array {
+		return \array_merge( parent::getLandingVars(), [ 'reports_workspace' => $this->getRequestedWorkspace() ] );
+	}
+
+	private function getRequestedWorkspace() :string {
+		$key = sanitize_key( $this->getTextInputFromRequestOrActionData( 'workspace' ) );
+		return isset( PluginNavs::reportsWorkspaceDefinitions()[ $key ] ) ? $key : '';
+	}
+
+	private function getWorkspaceHeader() :array {
+		return $this->getWorkspaceContracts()[ 'headers' ][ $this->getRequestedWorkspace() ] ?? $this->buildDefaultWorkspaceHeader();
+	}
 
 	protected function getLandingTitle() :string {
 		return __( 'Reports', 'wp-simple-firewall' );
@@ -86,13 +116,13 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 			[
 				'key'    => 'workspace',
 				'body'   => $this->renderWorkspaceLayer(),
-				'header' => $this->buildDefaultWorkspaceHeader(),
+				'header' => $this->getWorkspaceHeader(),
 			],
 		];
 	}
 
 	protected function getActiveLayerIndex() :int {
-		return 0;
+		return $this->getRequestedWorkspace() === '' ? 0 : 1;
 	}
 
 	protected function getOperatorRootStep() :array {
@@ -247,13 +277,14 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 				'description'                      => $workspaceCopy[ $workspaceKey ][ 'description' ],
 				'body'                             => $workspaceBodies[ $workspaceKey ],
 				'data_reports_workspace_selection' => $selectionJson,
-				'is_default'                       => $workspaceKey === PluginNavs::SUBNAV_REPORTS_LIST,
+				'is_default'                       => $workspaceKey === ( $this->getRequestedWorkspace() ?: PluginNavs::SUBNAV_REPORTS_LIST ),
 			];
 		}
 
 		$this->workspaceContractsCache = [
 			'cards'  => $cards,
 			'panels' => $panels,
+			'headers' => \array_map( static fn( array $workspace ) :array => $workspace[ 'header' ], $workspaceCopy ),
 		];
 
 		return $this->workspaceContractsCache;

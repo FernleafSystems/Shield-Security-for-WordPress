@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Options\OptionsFormFor;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\MeterAnalysis\Component;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
@@ -111,7 +112,6 @@ class PluginNavs {
 				self::NAV_TRAFFIC         => self::trafficNavDefinition(),
 				self::NAV_WIZARD          => self::wizardNavDefinition(),
 				self::NAV_ZONES           => self::zonesNavDefinition(),
-				self::NAV_ZONE_COMPONENTS => self::zoneComponentsNavDefinition(),
 			]
 		);
 	}
@@ -836,15 +836,7 @@ class PluginNavs {
 	}
 
 	public static function reportsRouteHandlers() :array {
-		return \array_merge(
-			[
-				self::SUBNAV_REPORTS_OVERVIEW => PluginAdminPages\PageReportsLanding::class,
-			],
-			\array_fill_keys(
-				\array_keys( self::reportsWorkspaceDefinitions() ),
-				PluginAdminPages\PageReports::class
-			)
-		);
+		return [ self::SUBNAV_REPORTS_OVERVIEW => PluginAdminPages\PageReportsLanding::class ];
 	}
 
 	public static function reportsDefaultWorkspaceSubNav() :string {
@@ -962,7 +954,6 @@ class PluginNavs {
 			'name'     => __( 'Tools', 'wp-simple-firewall' ),
 			'sub_navs' => [
 				self::SUBNAV_TOOLS_BLOCKDOWN => self::routeDefinition( PluginAdminPages\PageToolLockdown::class ),
-				self::SUBNAV_TOOLS_SESSIONS  => self::routeDefinition( PluginAdminPages\PageUserSessions::class ),
 				self::SUBNAV_TOOLS_DEBUG     => self::routeDefinition( PluginAdminPages\PageDebug::class, __( 'Debug Info', 'wp-simple-firewall' ) ),
 				self::SUBNAV_TOOLS_IMPORT    => self::routeDefinition( PluginAdminPages\PageImportExport::class ),
 			],
@@ -973,8 +964,7 @@ class PluginNavs {
 		return [
 			'name'     => __( 'Traffic', 'wp-simple-firewall' ),
 			'sub_navs' => [
-				self::SUBNAV_LOGS => self::routeDefinition( PluginAdminPages\PageTrafficLogTable::class, __( 'HTTP Request Log', 'wp-simple-firewall' ) ),
-				self::SUBNAV_LIVE => self::routeDefinition( PluginAdminPages\PageTrafficLogLive::class, __( 'Live HTTP Log', 'wp-simple-firewall' ) ),
+				self::SUBNAV_LOGS => self::routeDefinition( PluginAdminPages\PageTrafficLogTable::class, CommonDisplayStrings::get( 'web_request_log_label' ) ),
 			],
 		];
 	}
@@ -994,16 +984,6 @@ class PluginNavs {
 			'sub_navs' => [
 				self::SUBNAV_ZONES_OVERVIEW => self::routeDefinition( PluginAdminPages\PageConfigureLanding::class ),
 			],
-		];
-	}
-
-	private static function zoneComponentsNavDefinition() :array {
-		return [
-			'name'     => __( 'Security Zones Config', 'wp-simple-firewall' ),
-			'sub_navs' => \array_map(
-				fn() :array => self::routeDefinition( PluginAdminPages\PageZoneComponentConfig::class ),
-				\array_flip( \array_keys( self::con()->comps->zones->enumZoneComponents() ) )
-			),
 		];
 	}
 

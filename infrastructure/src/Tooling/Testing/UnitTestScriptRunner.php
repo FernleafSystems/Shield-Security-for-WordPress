@@ -29,7 +29,7 @@ class UnitTestScriptRunner {
 		if ( $splitArgs !== null ) {
 			foreach ( $splitArgs as $runArgs ) {
 				$exitCode = $this->processRunner->runForExitCode(
-					$this->selector->buildCommand( $runArgs, $mode ),
+					$this->buildCommand( $runArgs, $mode, $rootDir ),
 					$rootDir
 				);
 				if ( $exitCode !== 0 ) {
@@ -40,9 +40,28 @@ class UnitTestScriptRunner {
 		}
 
 		return $this->processRunner->runForExitCode(
-			$this->selector->buildCommand( $forwardArgs, $mode ),
+			$this->buildCommand( $forwardArgs, $mode, $rootDir ),
 			$rootDir
 		);
+	}
+
+	/** @param string[] $args */
+	private function buildCommand( array $args, string $mode, string $rootDir ) :array {
+		$pathIndexes = $this->concretePathArgumentIndexes( $args, $rootDir );
+		if ( $this->selector->selectStrategy( $args, $mode ) === UnitTestExecutionSelector::STRATEGY_PARATEST_WRAPPER
+			 && \count( $pathIndexes ) === 1
+			 && \is_file( Path::join( $rootDir, $args[ $pathIndexes[ 0 ] ] ) ) ) {
+			foreach ( $args as $arg ) {
+				if ( $arg === '--processes' || \strpos( $arg, '--processes=' ) === 0 || \strpos( $arg, '-p' ) === 0 ) {
+					return $this->selector->buildCommand( $args, $mode );
+				}
+			}
+
+			// WrapperRunner schedules whole files. Extra idle workers add no parallelism
+			// and can stall during shutdown on Windows, including in the pre-commit hook.
+			$args = \array_merge( [ '--processes=1' ], $args );
+		}
+		return $this->selector->buildCommand( $args, $mode );
 	}
 
 	/**

@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForTraffic;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 class PageTrafficLogTable extends PageTrafficLogBase {
 
@@ -18,22 +19,23 @@ class PageTrafficLogTable extends PageTrafficLogBase {
 		return $hrefs;
 	}
 
+	protected function getLandingMode() :string {
+		return PluginNavs::MODE_INVESTIGATE;
+	}
+
+	protected function hasOperatorModeParent() :bool {
+		return true;
+	}
+
 	protected function getRenderData() :array {
 		$con = self::con();
-		return [
+		return \array_replace_recursive( parent::getRenderData(), [
 			'flags'   => [
 				'is_enabled' => $con->comps->opts_lookup->enabledTrafficLogger(),
-			],
-			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->iconClass( 'stoplights' ),
-			],
-			'strings' => [
-				'inner_page_title'    => __( 'View HTTP Request Logs', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => __( 'View and explore details of HTTP requests made to your site.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'datatables_init' => ( new ForTraffic() )->build(),
 			],
-		];
+		] );
 	}
 }

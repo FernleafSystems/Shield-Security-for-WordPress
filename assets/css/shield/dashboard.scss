@@ -761,6 +761,15 @@
 
 .dashboard-activity-charts {
 	--dashboard-activity-chart-color: #{$status-color-good};
+
+	.stat-cell {
+		background: $surface-color-neutral-raised;
+
+		&:hover,
+		&:focus-visible {
+			background: var(--bs-white);
+		}
+	}
 }
 
 .stat-cell {

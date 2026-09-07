@@ -124,9 +124,9 @@ class PageOperatorModeLandingBehaviorTest extends BaseUnitTest {
 		$this->assertSame( '/admin/activity/by_theme', $nodes[ 'investigate' ][ 'choices' ][ 3 ][ 'target' ][ 'href' ] );
 		$this->assertSame( '/admin/activity/by_core', $nodes[ 'investigate' ][ 'choices' ][ 4 ][ 'target' ][ 'href' ] );
 		$this->assertSame( '/admin/zones/overview?zone=firewall', $nodes[ 'configure' ][ 'choices' ][ 0 ][ 'target' ][ 'href' ] );
-		$this->assertSame( '/admin/reports/list', $nodes[ 'reports' ][ 'choices' ][ 0 ][ 'target' ][ 'href' ] );
-		$this->assertSame( '/admin/reports/charts', $nodes[ 'reports' ][ 'choices' ][ 1 ][ 'target' ][ 'href' ] );
-		$this->assertSame( '/admin/reports/settings', $nodes[ 'reports' ][ 'choices' ][ 2 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/reports/overview?workspace=list', $nodes[ 'reports' ][ 'choices' ][ 0 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/reports/overview?workspace=charts', $nodes[ 'reports' ][ 'choices' ][ 1 ][ 'target' ][ 'href' ] );
+		$this->assertSame( '/admin/reports/overview?workspace=settings', $nodes[ 'reports' ][ 'choices' ][ 2 ][ 'target' ][ 'href' ] );
 	}
 
 	public function test_destination_cards_have_strict_lightweight_contract_and_canonical_routes() :void {

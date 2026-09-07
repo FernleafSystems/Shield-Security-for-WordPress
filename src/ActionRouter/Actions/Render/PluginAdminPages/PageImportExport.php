@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportFromFileUpload;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\ImportExport\ProfileOptionsForm;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
@@ -154,7 +155,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
  *   strings:array{inner_page_title:string,inner_page_subtitle:string}
  * }
  */
-class PageImportExport extends BasePluginAdminPage {
+class PageImportExport extends PageModeLandingBase {
 
 	public const SLUG = 'admin_plugin_page_importexport';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/import.twig';
@@ -181,7 +182,7 @@ class PageImportExport extends BasePluginAdminPage {
 		$networkInviteReview = $this->buildNetworkInviteReview();
 		$activeTab = $canImportExportSync ? 'network_sync' : 'file';
 
-		return [
+		return \array_replace_recursive( parent::getRenderData(), [
 			'flags'   => [
 				'can_importexport'          => $canImportExportFile || $canImportExportSync,
 				'can_importexport_file'     => $canImportExportFile,
@@ -189,20 +190,33 @@ class PageImportExport extends BasePluginAdminPage {
 				'has_network_invite_review' => $networkInviteReview !== null,
 				'network_sync_state'        => $networkSyncState,
 			],
-			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->iconClass( 'arrow-down-up' ),
-			],
 			'vars'    => [
 				'import_export_tabs'    => $this->buildImportExportTabs( $activeTab, $canImportExportFile, $canImportExportSync ),
 				'file_transfer'         => $this->buildFileTransfer(),
 				'network_sync'          => $this->buildNetworkSync( $networkSyncState, $importMasterURL, $activeClientCount ),
 				'network_invite_review' => $networkInviteReview,
 			],
-			'strings' => [
-				'inner_page_title'    => __( 'Import/Export', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => __( 'Import, export, and network sync settings between Shield sites.', 'wp-simple-firewall' ),
-			]
-		];
+		] );
+	}
+
+	protected function getLandingTitle() :string {
+		return __( 'Import/Export', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingSubtitle() :string {
+		return __( 'Import, export, and network sync settings between Shield sites.', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingIcon() :string {
+		return 'arrow-down-up';
+	}
+
+	protected function getLandingMode() :string {
+		return PluginNavs::MODE_CONFIGURE;
+	}
+
+	protected function hasOperatorModeParent() :bool {
+		return true;
 	}
 
 	/**

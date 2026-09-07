@@ -58,3 +58,9 @@
 		</div>
 	</div>
 </div>
+{% import '/common/macros.twig' as macros %}
+<div class="d-flex flex-wrap gap-2 mb-3">
+	{% for item in hrefs.inner_page_contextual_hrefs|default([]) %}
+		{{ macros.tagAnchor(item.href, item.title, item.id, item.classes|merge(['btn', 'btn-sm', 'btn-outline-secondary']), item.new_window, item.data, item.disabled, item.is_action) }}
+	{% endfor %}
+</div>

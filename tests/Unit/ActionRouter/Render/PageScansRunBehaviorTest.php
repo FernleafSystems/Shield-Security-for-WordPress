@@ -14,6 +14,7 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\PageScansRun;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\UnitTestPluginUrls;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
 	ServicesState
@@ -28,6 +29,7 @@ class PageScansRunBehaviorTest extends BaseUnitTest {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
 		Functions\when( '__' )->returnArg();
+		Functions\when( 'sanitize_key' )->returnArg();
 	}
 
 	protected function tearDown() :void {
@@ -83,6 +85,7 @@ class PageScansRunBehaviorTest extends BaseUnitTest {
 	private function installController() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->plugin_urls = new UnitTestPluginUrls();
 		$afs = new PageScansRunTestScanController( 'afs' );
 		$wpv = new PageScansRunTestScanController( 'wpv' );
 		$controller->comps = (object)[

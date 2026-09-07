@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\CaptureRedirects;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -31,9 +32,11 @@ class CaptureRedirectsTest extends BaseUnitTest {
 	private array $servicesSnapshot = [];
 	private Request $request;
 	private RedirectCaptureResponse $responseCapture;
+	private bool $isAjax = false;
 
 	protected function setUp() :void {
 		parent::setUp();
+		Functions\when( '__' )->returnArg();
 
 		Functions\when( 'is_admin' )->justReturn( true );
 		Functions\when( 'sanitize_key' )->alias( static fn( string $key ) :string => \strtolower( \trim( $key ) ) );
@@ -72,13 +75,19 @@ class CaptureRedirectsTest extends BaseUnitTest {
 		ServicesState::installItems( [
 			'service_request'  => $this->request,
 			'service_response' => $this->responseCapture,
-			'service_wpgeneral'=> new class extends General {
+			'service_wpgeneral'=> new class( fn() :bool => $this->isAjax ) extends General {
+				private \Closure $isAjaxRequest;
+
+				public function __construct( \Closure $isAjaxRequest ) {
+					$this->isAjaxRequest = $isAjaxRequest;
+				}
+
 				public function getUrl_AdminPage( string $page = '', bool $networkAdmin = false ) :string {
 					return '/shield-admin.php?page='.$page;
 				}
 
 				public function isAjax() :bool {
-					return false;
+					return ( $this->isAjaxRequest )();
 				}
 			},
 		] );
@@ -93,6 +102,7 @@ class CaptureRedirectsTest extends BaseUnitTest {
 			],
 		];
 		$controller->plugin_urls = new PluginURLs();
+		$controller->comps = (object)[ 'zones' => new SecurityZonesCon() ];
 
 		PluginControllerInstaller::install( $controller );
 	}
@@ -142,7 +152,7 @@ class CaptureRedirectsTest extends BaseUnitTest {
 		( new CaptureRedirects() )->run();
 
 		$this->assertSame(
-			'/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=settings',
+			'/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=overview&workspace=settings',
 			$this->responseCapture->redirectTo
 		);
 	}
@@ -152,6 +162,59 @@ class CaptureRedirectsTest extends BaseUnitTest {
 			'alerts'    => [ 'alerts' ],
 			'reporting' => [ 'reporting' ],
 		];
+	}
+
+	public function test_navigation_redirect_does_not_intercept_a_plugin_action() :void {
+		$this->request->query = [
+			'page' => 'icwp-wpsf-plugin', 'nav' => 'reports', 'nav_sub' => 'list',
+			'action' => 'shield_action', 'ex' => 'report_create',
+		];
+		( new CaptureRedirects() )->run();
+		$this->assertSame( '', $this->responseCapture->redirectTo );
+	}
+
+	/** @dataProvider providerOldPageSlugs */
+	public function test_old_page_slugs_preserve_the_final_destination( string $nav, ?string $subNav, string $destination ) :void {
+		$query = [
+			'page' => 'icwp-wpsf-'.$nav,
+			'unrecognized' => 'must-not-forward',
+		];
+		if ( $subNav !== null ) {
+			$query[ Constants::NAV_SUB_ID ] = $subNav;
+		}
+		$this->request->query = $query;
+
+		( new CaptureRedirects() )->run();
+
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&'.$destination, $this->responseCapture->redirectTo );
+	}
+
+	public static function providerOldPageSlugs() :array {
+		return [
+			'reports charts' => [ 'reports', 'charts', 'nav=reports&nav_sub=overview&workspace=charts' ],
+			'live traffic' => [ 'traffic', 'live', 'nav=activity&nav_sub=overview&subject=live_traffic' ],
+			'sessions alias' => [ 'tools', 'sessions', 'nav=activity&nav_sub=sessions' ],
+			'retired component' => [ 'zone_components', 'whitelabel', 'nav=zones&nav_sub=overview&component=whitelabel' ],
+			'scan history' => [ 'scans', 'history', 'nav=scans&nav_sub=overview&zone=scans' ],
+			'retained leaf' => [ 'rules', 'build', 'nav=rules&nav_sub=build' ],
+			'missing subnav' => [ 'reports', null, 'nav=reports&nav_sub=overview' ],
+			'empty subnav' => [ 'reports', '', 'nav=reports&nav_sub=overview' ],
+			'invalid subnav' => [ 'reports', 'unknown', 'nav=reports&nav_sub=overview' ],
+		];
+	}
+
+	public function test_old_page_slug_action_is_left_to_action_capture() :void {
+		$this->request->query = [ 'page' => 'icwp-wpsf-reports', 'nav_sub' => 'charts' ];
+		$this->request->post = [ 'action' => 'shield_action', 'ex' => 'report_create' ];
+		( new CaptureRedirects() )->run();
+		$this->assertSame( '', $this->responseCapture->redirectTo );
+	}
+
+	public function test_old_page_slug_ajax_request_is_not_redirected() :void {
+		$this->isAjax = true;
+		$this->request->query = [ 'page' => 'icwp-wpsf-reports', 'nav_sub' => 'charts' ];
+		( new CaptureRedirects() )->run();
+		$this->assertSame( '', $this->responseCapture->redirectTo );
 	}
 }
 

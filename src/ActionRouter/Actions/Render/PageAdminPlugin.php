@@ -69,6 +69,12 @@ class PageAdminPlugin extends BaseRender {
 	}
 
 	private function resolveRouteLabel( string $nav, string $subNav ) :string {
+		if ( $nav === PluginNavs::NAV_REPORTS ) {
+			$workspace = $this->getTextInputFromRequestOrActionData( 'workspace' );
+			if ( isset( PluginNavs::reportsWorkspaceDefinitions()[ $workspace ] ) ) {
+				return PluginNavs::reportsWorkspaceDefinitions()[ $workspace ][ 'page_title' ];
+			}
+		}
 		$navHierarchy = PluginNavs::GetNavHierarchy();
 		$navLabel = \trim( (string)( $navHierarchy[ $nav ][ 'name' ] ?? '' ) );
 		$routeLabel = \trim( (string)( $navHierarchy[ $nav ][ 'sub_navs' ][ $subNav ][ 'label' ] ?? '' ) );

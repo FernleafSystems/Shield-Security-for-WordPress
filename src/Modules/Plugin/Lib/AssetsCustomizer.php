@@ -410,7 +410,7 @@ class AssetsCustomizer {
 			],
 			'reports'          => [
 				'key'      => 'reports',
-				'required' => PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::reportsDefaultWorkspaceSubNav() ),
+				'required' => PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW ),
 				'handles'  => [
 					'main',
 				],
@@ -525,10 +525,7 @@ class AssetsCustomizer {
 							]
 						];
 					}
-					elseif (
-						PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS )
-						|| PluginNavs::IsNavs( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS )
-					) {
+					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS ) ) {
 						$data[ 'sessions' ] = [
 							'ajax' => [
 								'table_action' => ActionData::Build( Actions\SessionsTableAction::class ),
@@ -555,10 +552,7 @@ class AssetsCustomizer {
 							]
 						];
 					}
-					elseif (
-						PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW )
-						|| PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST )
-					) {
+					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW ) ) {
 						$data[ 'reports' ] = [
 							'ajax' => [
 								'table_action' => ActionData::Build( Actions\ReportTableAction::class ),

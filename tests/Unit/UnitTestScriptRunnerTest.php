@@ -26,6 +26,7 @@ class UnitTestScriptRunnerTest extends TestCase {
 		$this->assertCount( 1, $processRunner->calls );
 		$this->assertContains( './vendor/brianium/paratest/bin/paratest', $processRunner->calls[ 0 ][ 'command' ] );
 		$this->assertContains( 'WrapperRunner', $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertContains( '--processes=1', $processRunner->calls[ 0 ][ 'command' ] );
 		$this->assertNotContains( '-f', $processRunner->calls[ 0 ][ 'command' ] );
 	}
 
@@ -43,6 +44,9 @@ class UnitTestScriptRunnerTest extends TestCase {
 
 		$this->assertSame( 0, $exitCode );
 		$this->assertCount( 2, $processRunner->calls );
+		foreach ( $processRunner->calls as $call ) {
+			$this->assertContains( '--processes=1', $call[ 'command' ] );
+		}
 		$this->assertCommandContainsOnlyOnePath(
 			$processRunner->calls[ 0 ][ 'command' ],
 			'tests/Unit/UnitTestExecutionSelectorTest.php',
@@ -73,6 +77,38 @@ class UnitTestScriptRunnerTest extends TestCase {
 		$this->assertContains( '--filter', $command );
 		$this->assertNotContains( './vendor/phpunit/phpunit/phpunit', $command );
 		$this->assertNotContains( 'WrapperRunner', $command );
+		$this->assertNotContains( '--processes=1', $command );
+	}
+
+	public function testDirectoryRunsKeepAutomaticParallelism() :void {
+		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$this->newRunner( $processRunner )->run( [ 'tests/Unit/ActionRouter' ], $this->projectRoot );
+		$this->assertContains( '--processes=auto', $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertNotContains( '--processes=1', $processRunner->calls[ 0 ][ 'command' ] );
+	}
+
+	/** @dataProvider explicitWorkerCounts */
+	public function testSingleFileHonoursExplicitWorkerCount( array $workerArgs ) :void {
+		$processRunner = new RecordingProcessRunner( [ 0 ] );
+		$this->newRunner( $processRunner )->run(
+			\array_merge( $workerArgs, [ 'tests/Unit/UnitTestExecutionSelectorTest.php' ] ),
+			$this->projectRoot
+		);
+		$command = $processRunner->calls[ 0 ][ 'command' ];
+		$this->assertNotContains( '--processes=1', $command );
+		foreach ( $workerArgs as $arg ) {
+			$this->assertContains( $arg, $command );
+		}
+	}
+
+	public static function explicitWorkerCounts() :array {
+		return [
+			'long' => [ [ '--processes', '2' ] ],
+			'inline' => [ [ '--processes=2' ] ],
+			'auto' => [ [ '--processes=auto' ] ],
+			'short' => [ [ '-p', '2' ] ],
+			'compact' => [ [ '-p2' ] ],
+		];
 	}
 
 	public function testAutoModeUsesSerialPhpUnitWithDatasetShortcutFilter() :void {

@@ -100,10 +100,7 @@ class PageOperatorModeLanding extends BaseRender {
 	 * @return list<DashboardActivityChart>
 	 */
 	private function buildDashboardActivityCharts( array $chartData ) :array {
-		$href = self::con()->plugin_urls->adminTopNav(
-			PluginNavs::NAV_REPORTS,
-			PluginNavs::SUBNAV_REPORTS_CHARTS
-		);
+		$href = self::con()->plugin_urls->reportsHome( PluginNavs::SUBNAV_REPORTS_CHARTS );
 		$seriesByKey = \array_column( $chartData[ 'series' ], null, 'key' );
 
 		return \array_map(

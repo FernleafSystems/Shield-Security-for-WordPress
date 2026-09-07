@@ -18,6 +18,11 @@
 
 .shield-rail-layout.shield-rail-layout--context-end > .shield-rail-layout__content {
 	overflow-x: auto;
+
+	> .row {
+		// Rows sit directly in this scroll container, without a Bootstrap container's gutter padding.
+		margin-inline: 0;
+	}
 }
 
 .operator-step-tabs {

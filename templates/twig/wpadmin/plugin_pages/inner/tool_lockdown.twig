@@ -23,7 +23,7 @@
 
 					<div class="mb-3">
 						<h6 class="mb-2">{{ strings.whitelist_heading }}</h6>
-						<div class="form-check">
+						<div class="form-check shield-option-multiple-item">
 							<input type="checkbox" class="form-check-input" id="whitelist_me" name="whitelist_me" value="Y"
 									{% if flags.is_your_ip_whitelisted %} disabled="disabled"{% endif %}>
 							<label class="form-check-label" for="whitelist_me">
@@ -35,25 +35,25 @@
 
 					<div class="mb-3">
 						<h6 class="mb-2">{{ strings.confirm_heading }}</h6>
-						<div class="form-check">
+						<div class="form-check shield-option-multiple-item">
 							<input type="checkbox" class="form-check-input" id="confirm_cache" name="confirm[]"
 								   value="cache">
 							<label class="form-check-label" for="confirm_cache">
 								{{ strings.confirm_cache }}</label>
 						</div>
-						<div class="form-check">
+						<div class="form-check shield-option-multiple-item">
 							<input type="checkbox" class="form-check-input" id="confirm_access" name="confirm[]"
 								   value="access">
 							<label class="form-check-label" for="confirm_access">
 								{{ strings.confirm_access }}</label>
 						</div>
-						<div class="form-check">
+						<div class="form-check shield-option-multiple-item">
 							<input type="checkbox" class="form-check-input" id="confirm_consequences" name="confirm[]"
 								   value="consequences">
 							<label class="form-check-label"
 								   for="confirm_consequences">{{ strings.confirm_consequences }}</label>
 						</div>
-						<div class="form-check">
+						<div class="form-check shield-option-multiple-item">
 							<input type="checkbox" class="form-check-input" id="confirm_authority" name="confirm[]"
 								   value="authority">
 							<label class="form-check-label"

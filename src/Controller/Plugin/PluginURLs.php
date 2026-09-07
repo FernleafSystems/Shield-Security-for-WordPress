@@ -42,8 +42,10 @@ class PluginURLs {
 		return $this->adminTopNav( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_OVERVIEW );
 	}
 
-	public function reportsHome() :string {
-		return $this->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW );
+	public function reportsHome( string $workspace = '' ) :string {
+		$url = $this->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW );
+		return isset( PluginNavs::reportsWorkspaceDefinitions()[ $workspace ] )
+			? URL::Build( $url, [ 'workspace' => $workspace ] ) : $url;
 	}
 
 	public function reportView( string $reportID ) :string {
@@ -225,11 +227,11 @@ class PluginURLs {
 	}
 
 	public function trafficLive() :string {
-		return $this->adminTopNav( PluginNavs::NAV_TRAFFIC, PluginNavs::SUBNAV_LIVE );
+		return URL::Build( $this->investigateHome(), [ 'subject' => 'live_traffic' ] );
 	}
 
 	public function cfgForZoneComponent( string $componentSlug ) :string {
-		return $this->adminTopNav( PluginNavs::NAV_ZONE_COMPONENTS, $componentSlug );
+		return $this->legacyAdminRouteRedirect( PluginNavs::NAV_ZONE_COMPONENTS, $componentSlug ) ?? $this->configureHome();
 	}
 
 	public function cfgForOpt( string $optKey ) :string {
@@ -285,6 +287,15 @@ class PluginURLs {
 	}
 
 	public function legacyAdminRouteRedirect( string $nav, string $subNav ) :?string {
+		$route = self::legacyAdminRouteParams( $nav, $subNav );
+		if ( isset( $route[ 'wp_admin' ] ) ) {
+			return Services::WpGeneral()->getAdminUrl( $route[ 'wp_admin' ], (bool)self::con()->cfg->properties[ 'wpms_network_admin_only' ] );
+		}
+		return $route === null ? null : URL::Build( $this->rootAdminPage(), $route );
+	}
+
+	/** @return array<string,string>|null */
+	public static function legacyAdminRouteParams( string $nav, string $subNav ) :?array {
 		$nav = sanitize_key( $nav );
 		$subNav = sanitize_key( $subNav );
 
@@ -293,14 +304,42 @@ class PluginURLs {
 				case PluginNavs::SUBNAV_SCANS_RESULTS:
 				case PluginNavs::SUBNAV_SCANS_HISTORY:
 				case PluginNavs::SUBNAV_SCANS_STATE:
-					return $this->actionsQueueScans();
+					return [ 'nav' => 'scans', 'nav_sub' => 'overview', 'zone' => 'scans' ];
 			}
 		}
 		elseif ( $nav === PluginNavs::NAV_REPORTS ) {
 			switch ( $subNav ) {
 				case 'alerts':
 				case 'reporting':
-					return $this->adminTopNav( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_SETTINGS );
+					$subNav = PluginNavs::SUBNAV_REPORTS_SETTINGS;
+			}
+			if ( isset( PluginNavs::reportsWorkspaceDefinitions()[ $subNav ] ) ) {
+				return [ 'nav' => 'reports', 'nav_sub' => 'overview', 'workspace' => $subNav ];
+			}
+		}
+		elseif ( $nav === PluginNavs::NAV_TRAFFIC && $subNav === PluginNavs::SUBNAV_LIVE ) {
+			return [ 'nav' => 'activity', 'nav_sub' => 'overview', 'subject' => 'live_traffic' ];
+		}
+		elseif ( $nav === PluginNavs::NAV_TOOLS && $subNav === PluginNavs::SUBNAV_TOOLS_SESSIONS ) {
+			return [ 'nav' => 'activity', 'nav_sub' => 'sessions' ];
+		}
+		elseif ( $nav === PluginNavs::NAV_ZONE_COMPONENTS
+				 && isset( self::con()->comps->zones->enumZoneComponents()[ $subNav ] ) ) {
+			switch ( $subNav ) {
+				case 'reporting':
+					return [ 'nav' => 'reports', 'nav_sub' => 'overview', 'workspace' => 'settings' ];
+				case 'activity_logging':
+					return [ 'nav' => 'activity', 'nav_sub' => 'logs' ];
+				case 'request_logging':
+					return [ 'nav' => 'traffic', 'nav_sub' => 'logs' ];
+				case 'scans':
+					return [ 'nav' => 'scans', 'nav_sub' => 'overview' ];
+				case 'server_software_status':
+					return [ 'nav' => 'tools', 'nav_sub' => 'debug' ];
+				case 'wordpress_updates':
+					return [ 'wp_admin' => 'update-core.php' ];
+				default:
+					return [ 'nav' => 'zones', 'nav_sub' => 'overview', 'component' => $subNav ];
 			}
 		}
 

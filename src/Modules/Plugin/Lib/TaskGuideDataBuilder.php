@@ -162,7 +162,9 @@ class TaskGuideDataBuilder {
 	}
 
 	private function buildHref( string $nav, string $subNav, array $query = [] ) :string {
-		$href = self::con()->plugin_urls->adminTopNav( $nav, $subNav );
+		$href = $nav === PluginNavs::NAV_REPORTS
+			? self::con()->plugin_urls->reportsHome( $subNav )
+			: self::con()->plugin_urls->adminTopNav( $nav, $subNav );
 		if ( !empty( $query ) ) {
 			$href .= ( \strpos( $href, '?' ) === false ? '?' : '&' ).\http_build_query( $query, '', '&', \PHP_QUERY_RFC3986 );
 		}

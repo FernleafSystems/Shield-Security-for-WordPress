@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData,
 	Constants
 };
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
 class PageConfigureLanding extends PageDrillDownLandingBase {
@@ -43,13 +44,44 @@ class PageConfigureLanding extends PageDrillDownLandingBase {
 		return \array_merge(
 			parent::getLandingVars(),
 			[
-				'configure_ajax'          => [
+				'configure_ajax'                  => [
 					'diagnosis_render_action_json' => OperatorChromeContract::encodeJson( $diagnosisAction ),
 					'search_render_action_json'    => OperatorChromeContract::encodeJson( $searchAction ),
 				],
-				'configure_focus_request_json' => $this->buildRequestedConfigureFocusRequestJson(),
+				'configure_focus_request_json'    => $this->buildRequestedConfigureFocusRequestJson(),
+				'configure_component_action_json' => OperatorChromeContract::encodeJson( $this->buildRequestedComponentAction() ),
 			]
 		);
+	}
+
+	private function buildRequestedComponentAction() :array {
+		$con = self::con();
+		$slug = $this->getTextInputFromRequestOrActionData( 'component' );
+		if ( !isset( $con->comps->zones->enumZoneComponents()[ $slug ] ) ) {
+			return [];
+		}
+
+		$component = $con->comps->zones->getZoneComponent( $slug );
+		$options = \array_values( \array_filter(
+			$component->getOptions(),
+			static fn( string $key ) :bool => !\in_array(
+				$con->cfg->configuration->options[ $key ][ 'section' ] ?? '',
+				[ '', 'section_hidden', 'section_deprecated' ],
+				true
+			)
+		) );
+		if ( empty( $options ) ) {
+			return [];
+		}
+
+		$data = $component->getActions()[ 'config' ][ 'data' ];
+		$data[ 'option_keys' ] = \implode( ',', $options );
+		$data[ 'form_context' ] = 'offcanvas';
+		$configItem = $this->getTextInputFromRequestOrActionData( 'config_item' );
+		if ( \in_array( $configItem, $options, true ) ) {
+			$data[ 'config_item' ] = $configItem;
+		}
+		return $this->buildAjaxRenderActionData( ZoneComponentConfig::class, $data );
 	}
 
 	protected function getLandingStrings() :array {

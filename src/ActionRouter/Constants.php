@@ -268,17 +268,14 @@ class Constants {
 		Actions\Render\PluginAdminPages\PageImportExport::class,
 		Actions\Render\PluginAdminPages\PageIpRulesTable::class,
 		Actions\Render\PluginAdminPages\PageLicense::class,
-		Actions\Render\PluginAdminPages\PageReports::class,
 		Actions\Render\PluginAdminPages\PageRulesBuild::class,
 		Actions\Render\PluginAdminPages\PageRulesManage::class,
 		Actions\Render\PluginAdminPages\PageRulesSummary::class,
 		Actions\Render\PluginAdminPages\PageScansRun::class,
 		Actions\Render\PluginAdminPages\PageSecurityAdminRestricted::class,
-		Actions\Render\PluginAdminPages\PageTrafficLogLive::class,
 		Actions\Render\PluginAdminPages\PageTrafficLogTable::class,
 		Actions\Render\PluginAdminPages\PageToolLockdown::class,
 		Actions\Render\PluginAdminPages\PageUserSessions::class,
-		Actions\Render\PluginAdminPages\PageZoneComponentConfig::class,
 		Actions\Render\Utility\DbDescribeTable::class,
 	];
 }
