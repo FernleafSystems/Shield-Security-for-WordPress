@@ -1,11 +1,18 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginImportExport_HandshakeConfirm;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as ImportExportSitesDB;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Record as ImportExportSiteRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Profiles\ProfileRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportProfiles\Ops\Record as ImportExportProfileRecord;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\ScopedTargetHostRequest;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
 
@@ -13,37 +20,71 @@ class Export {
 
 	use PluginControllerConsumer;
 
+	private const VERIFY_OK = 'ok';
+	private const VERIFY_FAILED = 'failed';
+	private const VERIFY_COOLDOWN = 'cooldown';
+	private const EXPORT_COOLDOWN = 300;
+	private const IMPORT_ID_EXPORT_COOLDOWN = 60;
+	private const HANDSHAKE_COOLDOWN = 300;
+
 	public function run( string $method ) {
 		try {
-			switch ( $method ) {
-				case 'json':
-					$this->toJson();
-				default:
-					throw new \Exception();
+			if ( $method === 'json' ) {
+				$this->toJson();
 			}
 		}
 		catch ( \Exception $e ) {
 		}
-		die();
 	}
 
 	public function toJson() :void {
 		$ieCon = self::con()->comps->import_export;
+		if ( !$ieCon->isSyncEnabled() ) {
+			return;
+		}
+
 		$evt = self::con()->comps->events;
 		$req = Services::Request();
 
 		$success = false;
 		$data = [];
 
-		$url = (string)Services::Data()->validateSimpleHttpUrl( (string)$req->query( 'url', '' ) );
-		if ( !$this->verifyUrl( $url, (string)$req->query( 'id', '' ), (string)$req->query( 'secret', '' ) ) ) {
-			$code = 3;
-			$msg = __( 'Verification of import-origin failed.', 'wp-simple-firewall' );
+		$repo = new SiteRepository();
+		try {
+			$repo->ensureLegacyImported( false );
 		}
-		else {
+		catch ( \Throwable $e ) {
+		}
+
+		$url = ( new SyncSiteUrlValidator() )->canonicalize( (string)$req->query( 'url', '' ) );
+		$id = (string)$req->query( 'id', '' );
+		$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
+		$verification = $this->verifyUrl( $repo, $url, $id, (string)$req->query( 'secret', '' ) );
+
+		if ( \in_array( $verification[ 'status' ], [ self::VERIFY_FAILED, self::VERIFY_COOLDOWN ], true ) ) {
+			return;
+		}
+
+		$row = $verification[ 'row' ];
+		if ( $row instanceof ImportExportSiteRecord && !(bool)$verification[ 'secret' ] ) {
+			$cooldown = (bool)$verification[ 'import_id_verified' ] ? self::IMPORT_ID_EXPORT_COOLDOWN : self::EXPORT_COOLDOWN;
+			if ( $repo->exportCooldownActive( $row, $cooldown ) ) {
+				wp_send_json( [
+					'success' => false,
+					'code'    => 3,
+					'message' => __( 'Please wait a few minutes before trying that again.', 'wp-simple-firewall' ),
+					'data'    => $data,
+				], 403 );
+			}
+		}
+
+		try {
 			$code = 0;
+			$repo->recordExportRequested( $url );
+			$data = $this->shouldUseProfileExport( $row, $networkOpt )
+				? $this->getExportDataForProfile( ( new ProfileRepository() )->profileForSite( $row ) )
+				: $this->getExportData();
 			$success = true;
-			$data = $this->getExportData();
 			$msg = 'Options Exported Successfully';
 
 			$evt->fireEvent(
@@ -51,27 +92,40 @@ class Export {
 				[ 'audit_params' => [ 'site' => $url ] ]
 			);
 
-			// Only setup the network if we have a valid URL
-			$networkOpt = empty( $url ) ? false : $req->query( 'network', '' );
+			if ( $networkOpt === 'Y' ) {
+				$ieCon->addSyncSiteExportUrl( $url, $id );
+			}
+
+			$repo->recordExportSuccess( $url, ImportExportSitesDB::EXPORT_RESULT_SUCCESS, $id );
+			$servedRow = $repo->findByUrl( $url, true );
+			if ( $servedRow instanceof ImportExportSiteRecord ) {
+				$repo->recordExportServed( $servedRow );
+			}
 
 			if ( $networkOpt === 'Y' ) {
-				$ieCon->addUrlToImportExportWhitelistUrls( $url );
 				$evt->fireEvent(
 					'whitelist_site_added',
 					[ 'audit_params' => [ 'site' => $url ] ]
 				);
 			}
 			elseif ( !empty( $networkOpt ) ) {
-				$ieCon->removeUrlFromImportExportWhitelistUrls( $url );
+				$ieCon->removeSyncSiteExportUrl( $url );
 				$evt->fireEvent(
 					'whitelist_site_removed',
 					[ 'audit_params' => [ 'site' => $url ] ]
 				);
 			}
 		}
+		catch ( \Throwable $e ) {
+			$code = 4;
+			$success = false;
+			$data = [];
+			$msg = $e->getMessage();
+			$repo->recordExportFailure( $url, ImportExportSitesDB::EXPORT_RESULT_EXCEPTION, $msg );
+		}
 
 		/**
-		 * Send a JSON error response with 403 to also help break caches.
+		 * Use 403 to help break caches.
 		 */
 		wp_send_json( [
 			'success' => $success,
@@ -105,13 +159,25 @@ class Export {
 	}
 
 	public function getExportData() :array {
+		return $this->buildExportData( $this->getRawOptionsExport() );
+	}
+
+	public function getExportDataForProfile( ?ImportExportProfileRecord $profile ) :array {
+		return $this->buildExportData(
+			$profile instanceof ImportExportProfileRecord
+				? ( new ProfileRepository() )->exportOptionsForProfile( $profile )
+				: $this->getRawOptionsExport()
+		);
+	}
+
+	public function buildExportData( array $options ) :array {
 		$all = [
 			'site_url'      => Services::WpGeneral()->getHomeUrl(),
 			'exported_at'   => Services::Request()->ts(),
 			'exported_date' => Services::Request()->carbon( true )->toIso8601String(),
 			'slug'          => 'wp-simple-firewall',
 			'version'       => self::con()->cfg->version(),
-			'options'       => $this->getRawOptionsExport(),
+			'options'       => $options,
 		];
 
 		if ( apply_filters( 'shield/export_include_ip_rules', true ) ) {
@@ -152,89 +218,84 @@ class Export {
 		return \array_diff_key( $this->getFullTransferableOptionsExport(), \array_flip( self::con()->comps->opts_lookup->getXferExcluded() ) );
 	}
 
+	private function shouldUseProfileExport( ?ImportExportSiteRecord $row, $networkOpt ) :bool {
+		return $row instanceof ImportExportSiteRecord || $networkOpt === 'Y';
+	}
+
 	/**
-	 * 2022-10-27:
-	 * There is real issue with some sites being able to perform automated import and export. So we want to simplify
-	 * this so that if the URL handshake doesn't work, we can fallback to an ID lookup. The one issue here is that we
-	 * accept the ID if it's the first time see this URL. However, at this stage, the requesting URL has either already
-	 * been added to the "whitelist" or they're sending the correct secret key.
+	 * Secret-key export remains valid. Otherwise export trust comes from an active sync-site row.
+	 * Rows that already have an import ID must use it. No-ID rows keep legacy handshake fallback.
 	 *
-	 * So you're verified if:
-	 * - You're on the whitelist and your ID is valid, OR you can handshake
-	 * - You're not on the whitelist AND your secret is valid AND ( ID is valid OR you can handshake ).
+	 * @return array{status:string,row:?ImportExportSiteRecord,secret:bool,import_id_verified:bool}
 	 */
-	private function verifyUrl( string $url, string $id, string $secret ) :bool {
-		$urlIDs = self::con()->opts->optGet( 'import_url_ids' );
-
-		$verified = !empty( $url ) &&
-					(
-						self::con()->comps->import_export->verifySecretKey( $secret )
-						|| ( !empty( $id ) && ( $urlIDs[ \hash( 'md5', $url ) ] ?? '' ) === $id )
-						|| ( $this->isUrlOnWhitelist( $url ) && $this->handshake( $url ) )
-					);
-
-		// Update the stored ID, so it can be used at a later date.
-		if ( $verified && !empty( $id ) ) {
-			$urlIDs[ \hash( 'md5', $url ) ] = $id;
-			self::con()
-				->opts
-				->optSet( 'import_url_ids', $urlIDs )
-				->store();
+	private function verifyUrl( SiteRepository $repo, string $url, string $id, string $secret ) :array {
+		if ( empty( $url ) ) {
+			return $this->verifyResult( self::VERIFY_FAILED );
 		}
 
-		return $verified;
+		if ( self::con()->comps->import_export->verifySecretKey( $secret ) ) {
+			return $this->verifyResult( self::VERIFY_OK, null, true );
+		}
+
+		$row = $repo->findByUrl( $url );
+		if ( !$row instanceof ImportExportSiteRecord || !$this->syncSiteRowAllowsExportTrust( $row, $url ) ) {
+			return $this->verifyResult( self::VERIFY_FAILED, $row );
+		}
+
+		if ( (string)$row->import_id !== '' ) {
+			return $id !== '' && \hash_equals( (string)$row->import_id, $id )
+				? $this->verifyResult( self::VERIFY_OK, $row, false, true )
+				: $this->verifyResult( self::VERIFY_FAILED, $row );
+		}
+
+		if ( $repo->handshakeCooldownActive( $row, self::HANDSHAKE_COOLDOWN ) ) {
+			return $this->verifyResult( self::VERIFY_COOLDOWN, $row );
+		}
+		$repo->recordHandshakeAttempt( $row );
+
+		return $this->handshake( $url, (string)$row->source === ImportExportSitesDB::SOURCE_MANUAL )
+			? $this->verifyResult( self::VERIFY_OK, $row )
+			: $this->verifyResult( self::VERIFY_FAILED, $row );
 	}
 
 	/**
-	 * @return string[]
+	 * @return array{status:string,row:?ImportExportSiteRecord,secret:bool,import_id_verified:bool}
 	 */
-	public function getImportExportWhitelist() :array {
-		return self::con()->opts->optGet( 'importexport_whitelist' );
-	}
-
-	private function isUrlOnWhitelist( string $url ) :bool {
-		$isWhitelisted = false;
-		$urlComponents = $this->parseURL( $url );
-		if ( !empty( $urlComponents[ 'host' ] ) ) {
-
-			$whiteURLs = \array_map(
-				function ( $whitelistedURL ) {
-					return $this->parseURL( $whitelistedURL );
-				},
-				self::con()->comps->import_export->getImportExportWhitelist()
-			);
-
-			foreach ( $whiteURLs as $whiteURL ) {
-				if ( $whiteURL[ 'host' ] === $urlComponents[ 'host' ] && $whiteURL[ 'path' ] === $urlComponents[ 'path' ] ) {
-					$isWhitelisted = true;
-					break;
-				}
-			}
-		}
-
-		return $isWhitelisted;
-	}
-
-	/**
-	 * @return array{host:string, path:string}
-	 */
-	private function parseURL( string $url ) :array {
-		$components = [
-			'host' => '',
-			'path' => '',
+	private function verifyResult(
+		string $status,
+		?ImportExportSiteRecord $row = null,
+		bool $secret = false,
+		bool $importIDVerified = false
+	) :array {
+		return [
+			'status'             => $status,
+			'row'                => $row,
+			'secret'             => $secret,
+			'import_id_verified' => $importIDVerified,
 		];
-		$parsed = wp_parse_url( $url );
-		if ( !empty( $parsed ) ) {
-			$components[ 'host' ] = empty( $parsed[ 'host' ] ) ? '' : $parsed[ 'host' ];
-			$components[ 'path' ] = empty( $parsed[ 'path' ] ) ? '' : \trim( $parsed[ 'path' ], '/' );
-		}
-		return $components;
 	}
 
-	private function handshake( string $url ) :bool {
-		$raw = Services::HttpRequest()->getContent(
-			URL::Build( $url, ActionData::Build( PluginImportExport_HandshakeConfirm::class, false, [], true ) )
+	private function syncSiteRowAllowsExportTrust( ImportExportSiteRecord $row, string $url ) :bool {
+		if ( (string)$row->source !== ImportExportSitesDB::SOURCE_MANUAL ) {
+			return true;
+		}
+
+		try {
+			( new SyncSiteUrlValidator() )->validateTrustedSyncUrl( $url );
+			return true;
+		}
+		catch ( \Throwable $e ) {
+			return false;
+		}
+	}
+
+	private function handshake( string $url, bool $rejectUnsafeUrls = false ) :bool {
+		$targetUrl = URL::Build( $url, ActionData::Build( PluginImportExport_HandshakeConfirm::class, false, [], true ) );
+		$request = static fn() :string => Services::HttpRequest()->getContent(
+			$targetUrl,
+			$rejectUnsafeUrls ? [ 'reject_unsafe_urls' => true ] : []
 		);
+		$raw = $rejectUnsafeUrls ? ( new ScopedTargetHostRequest() )->run( $targetUrl, $request ) : $request();
 		$dec = @\json_decode( $raw, true );
 		return \is_array( $dec ) && isset( $dec[ 'success' ] ) && ( $dec[ 'success' ] === true );
 	}

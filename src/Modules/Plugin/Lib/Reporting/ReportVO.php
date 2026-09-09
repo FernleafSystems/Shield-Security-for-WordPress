@@ -6,17 +6,20 @@ use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops\Record;
 
 /**
+ * @phpstan-import-type AlertDigest from BuildAlertDigestContract
+ *
  * @property string       $type
  * @property string       $interval
  * @property int          $start_at
  * @property int          $end_at
+ * @property int          $previous_start_at
+ * @property int          $previous_end_at
  * @property array        $areas
  * @property array        $areas_data
- * @property array        $alert_digest
+ * @property array{}|AlertDigest $alert_digest
  * @property array        $info_headline
  * @property string       $title
  * @property string       $content
- * @property Record|false $previous
  */
 class ReportVO extends DynPropertiesClass {
 
@@ -31,6 +34,8 @@ class ReportVO extends DynPropertiesClass {
 				break;
 			case 'start_at':
 			case 'end_at':
+			case 'previous_start_at':
+			case 'previous_end_at':
 				$value = (int)$value;
 				break;
 			case 'alert_digest':

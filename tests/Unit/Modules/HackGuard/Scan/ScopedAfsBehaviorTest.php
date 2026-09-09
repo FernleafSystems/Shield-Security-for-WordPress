@@ -12,6 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\S
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
 	BuildScanItems,
 	ScanActionVO
@@ -145,6 +146,35 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$this->assertRootDirDepth( 0, path_join( ABSPATH, 'wp-admin' ), $rootDirs );
 	}
 
+	/**
+	 * @dataProvider providerMalwareScanEntitlement
+	 */
+	public function test_malware_scan_entitlement_uses_local_capability(
+		bool $canScanMalwareLocal,
+		bool $expected
+	) :void {
+		$this->installController( [], [ 'malware_php' ], true, $canScanMalwareLocal );
+		$afs = new class extends Afs {
+
+			public function isEnabled() :bool {
+				return true;
+			}
+
+			public function getFileScanAreas() :array {
+				return [ 'malware_php' ];
+			}
+		};
+
+		$this->assertSame( $expected, $afs->isEnabledMalwareScanPHP() );
+	}
+
+	public static function providerMalwareScanEntitlement() :array {
+		return [
+			'unlicensed' => [ false, false ],
+			'licensed'   => [ true, true ],
+		];
+	}
+
 	private function buildCoreScopedRootDirs( array $scanAreas, bool $canScanAllFiles ) :array {
 		$this->installController( [], $scanAreas, $canScanAllFiles );
 
@@ -166,7 +196,8 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 	private function installController(
 		array $overrides = [],
 		array $fileScanAreas = [ 'plugins', 'themes', 'wp', 'wpcontent', 'wproot', 'malware_php' ],
-		bool $canScanAllFiles = true
+		bool $canScanAllFiles = true,
+		bool $canScanMalwareLocal = true
 	) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -185,15 +216,21 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 				return [];
 			}
 		};
-		$controller->caps = new class( $canScanAllFiles ) {
+		$controller->caps = new class( $canScanAllFiles, $canScanMalwareLocal ) {
 			private bool $canScanAllFiles;
+			private bool $canScanMalwareLocal;
 
-			public function __construct( bool $canScanAllFiles ) {
+			public function __construct( bool $canScanAllFiles, bool $canScanMalwareLocal ) {
 				$this->canScanAllFiles = $canScanAllFiles;
+				$this->canScanMalwareLocal = $canScanMalwareLocal;
 			}
 
 			public function canScanAllFiles() :bool {
 				return $this->canScanAllFiles;
+			}
+
+			public function canScanMalwareLocal() :bool {
+				return $this->canScanMalwareLocal;
 			}
 		};
 		$controller->comps = (object)[

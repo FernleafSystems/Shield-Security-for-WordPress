@@ -121,6 +121,27 @@ class StoreTest extends BaseUnitTest {
 		$this->assertSame( [], $this->insertQueriesForTable( $wpdb, 'shield_scan_results' ) );
 	}
 
+	public function test_store_replaces_existing_comparison_basis_metadata() :void {
+		$metaDeletes = [];
+		$wpdb = $this->installController( [
+			$this->existingResultRow( 77, 'akismet/akismet.php' ),
+		], [], $metaDeletes );
+
+		( new Store() )->store( $this->newQueueItem(), [
+			[
+				'item_id' => 'akismet/akismet.php',
+				'meta'    => [
+					'comparison_basis' => 'local_baseline',
+				],
+			],
+		] );
+
+		$this->assertSame( [ [ 77 ] ], $metaDeletes );
+		$metaInserts = $this->insertQueriesForTable( $wpdb, 'shield_scan_result_item_meta' );
+		$this->assertCount( 1, $metaInserts );
+		$this->assertStringContainsString( "('77','comparison_basis','local_baseline')", $metaInserts[ 0 ] );
+	}
+
 	public function test_store_reuses_blank_legacy_result_item_without_overwriting_history() :void {
 		$metaDeletes = [];
 		$resultItemInserts = [];
@@ -137,6 +158,9 @@ class StoreTest extends BaseUnitTest {
 		( new Store() )->store( $this->newQueueItem(), [
 			[
 				'item_id' => 'akismet/akismet.php',
+				'meta'    => [
+					'comparison_basis' => 'published_reference',
+				],
 			],
 		] );
 
@@ -159,6 +183,9 @@ class StoreTest extends BaseUnitTest {
 		$this->assertCount( 1, $observationInserts );
 		$this->assertStringContainsString( "('91','77','1700000000')", $observationInserts[ 0 ] );
 		$this->assertSame( [ [ 77 ] ], $metaDeletes );
+		$metaInserts = $this->insertQueriesForTable( $wpdb, 'shield_scan_result_item_meta' );
+		$this->assertCount( 1, $metaInserts );
+		$this->assertStringContainsString( "('77','comparison_basis','published_reference')", $metaInserts[ 0 ] );
 	}
 
 	public function test_store_prefers_current_scan_result_item_over_matching_legacy_row() :void {
@@ -183,6 +210,192 @@ class StoreTest extends BaseUnitTest {
 		$this->assertCount( 1, $observationInserts );
 		$this->assertStringContainsString( "('91','77','1700000000')", $observationInserts[ 0 ] );
 		$this->assertSame( [ [ 77 ] ], $metaDeletes );
+	}
+
+	public function test_full_afs_ineligible_malware_result_preserves_existing_row_state() :void {
+		$metaDeletes = [];
+		$resultItemInserts = [];
+		$resultItemUpdates = [];
+		$this->installController(
+			[
+				$this->existingResultRow( 77, 'akismet/akismet.php', [
+					'asset_key' => 'akismet/akismet.php',
+				] ),
+			],
+			[],
+			$metaDeletes,
+			$resultItemInserts,
+			$resultItemUpdates,
+			null,
+			77,
+			1,
+			[
+				[
+					'ri_ref'     => 77,
+					'meta_key'   => 'is_checksumfail',
+					'meta_value' => '1',
+				],
+				[
+					'ri_ref'     => 77,
+					'meta_key'   => 'asset_version',
+					'meta_value' => '5.0',
+				],
+				[
+					'ri_ref'     => 77,
+					'meta_key'   => 'comparison_basis',
+					'meta_value' => 'published_reference',
+				],
+			]
+		);
+
+		( new Store() )->store( $this->newFullQueueItem(), [
+			[
+				'item_id'         => 'akismet/akismet.php',
+				'auto_filtered_at' => 1700000042,
+				'meta'             => [
+					'asset_version'    => '5.0',
+					'is_mal'           => 1,
+					'malware_record_id' => 314,
+				],
+			],
+		] );
+
+		$this->assertSame( [], $resultItemInserts );
+		$this->assertSame( [], $metaDeletes );
+		$this->assertCount( 1, $resultItemUpdates );
+		$this->assertSame( [
+			'scan'              => 'afs',
+			'asset_type'        => 'plugin',
+			'asset_key'         => 'akismet/akismet.php',
+			'auto_filtered_at'  => 1700000042,
+			'last_seen_at'      => 1700000000,
+			'resolved_at'       => 0,
+			'resolution_reason' => '',
+		], $resultItemUpdates[ 0 ][ 'data' ] );
+	}
+
+	public function test_full_afs_incomplete_marker_filters_file_change_comparison_from_entire_batch_and_preserves_malware() :void {
+		$metaDeletes = [];
+		$resultItemInserts = [];
+		$this->installController( [], [], $metaDeletes, $resultItemInserts );
+		$queueItem = $this->newFullQueueItem();
+		$queueItem->meta = \array_merge( $queueItem->meta, [
+			'asset_comparison_incomplete' => [
+				'plugin' => [ 'akismet/akismet.php' ],
+				'theme'  => [],
+			],
+		] );
+
+		( new Store() )->store( $queueItem, [
+			[
+				'item_id'          => 'akismet/old.php',
+				'is_in_plugin'     => true,
+				'ptg_slug'         => 'akismet/akismet.php',
+				'asset_version'    => '5.0',
+				'is_checksumfail'  => true,
+				'comparison_basis' => 'published_reference',
+			],
+			[
+				'item_id'           => 'akismet/malware.php',
+				'is_in_plugin'      => true,
+				'ptg_slug'          => 'akismet/akismet.php',
+				'asset_version'     => '5.0',
+				'is_checksumfail'   => true,
+				'comparison_basis'  => 'published_reference',
+				'is_mal'            => true,
+				'malware_record_id' => 314,
+			],
+			[
+				'item_id'          => 'other/other.php',
+				'is_in_plugin'     => true,
+				'ptg_slug'         => 'other/other.php',
+				'asset_version'    => '1.0',
+				'is_checksumfail'  => true,
+				'comparison_basis' => 'local_baseline',
+			],
+		] );
+
+		$this->assertCount( 2, $resultItemInserts );
+		$insertsByID = \array_column( $resultItemInserts, null, 'item_id' );
+		$this->assertArrayHasKey( 'akismet/malware.php', $insertsByID );
+		$this->assertArrayHasKey( 'other/other.php', $insertsByID );
+		$this->assertTrue( $insertsByID[ 'akismet/malware.php' ][ 'meta' ][ 'is_mal' ] ?? false );
+		$this->assertSame( 314, $insertsByID[ 'akismet/malware.php' ][ 'meta' ][ 'malware_record_id' ] ?? null );
+		$this->assertArrayNotHasKey( 'is_checksumfail', $insertsByID[ 'akismet/malware.php' ][ 'meta' ] );
+		$this->assertArrayNotHasKey( 'comparison_basis', $insertsByID[ 'akismet/malware.php' ][ 'meta' ] );
+		$this->assertTrue( $insertsByID[ 'other/other.php' ][ 'meta' ][ 'is_checksumfail' ] ?? false );
+		$this->assertSame( 'local_baseline', $insertsByID[ 'other/other.php' ][ 'meta' ][ 'comparison_basis' ] ?? null );
+	}
+
+	public function test_malformed_incomplete_marker_filters_all_plugin_theme_file_change_comparison_fail_closed() :void {
+		$metaDeletes = [];
+		$resultItemInserts = [];
+		$this->installController( [], [], $metaDeletes, $resultItemInserts );
+		$queueItem = $this->newFullQueueItem();
+		$queueItem->meta = \array_merge( $queueItem->meta, [
+			'asset_comparison_incomplete' => [ 'plugin' => [] ],
+		] );
+
+		( new Store() )->store( $queueItem, [
+			[
+				'item_id'         => 'akismet/plugin.php',
+				'is_in_plugin'    => true,
+				'ptg_slug'        => 'akismet/akismet.php',
+				'is_checksumfail' => true,
+			],
+			[
+				'item_id'         => 'theme/style.php',
+				'is_in_theme'     => true,
+				'ptg_slug'        => 'theme',
+				'is_unrecognised' => true,
+				'is_mal'          => true,
+			],
+			[
+				'item_id'         => 'wp-admin/core.php',
+				'is_in_core'      => true,
+				'is_checksumfail' => true,
+			],
+		] );
+
+		$this->assertCount( 2, $resultItemInserts );
+		$this->assertEqualsCanonicalizing( [ 'theme/style.php', 'wp-admin/core.php' ], \array_map(
+			static fn( array $record ) :string => (string)$record[ 'item_id' ],
+			$resultItemInserts
+		) );
+	}
+
+	public function test_full_afs_protected_metadata_read_failure_prevents_mutation() :void {
+		$metaDeletes = [];
+		$resultItemInserts = [];
+		$resultItemUpdates = [];
+		$this->installController(
+			[ $this->existingResultRow( 77, 'akismet/akismet.php' ) ],
+			[],
+			$metaDeletes,
+			$resultItemInserts,
+			$resultItemUpdates,
+			null,
+			77,
+			1,
+			[],
+			true
+		);
+
+		$this->assertStoreFailure( 'metadata read', function () :void {
+			( new Store() )->store( $this->newFullQueueItem(), [
+				[
+					'item_id' => 'akismet/akismet.php',
+					'meta'    => [
+						'asset_version' => '5.0',
+						'is_mal'        => 1,
+					],
+				],
+			] );
+		} );
+
+		$this->assertSame( [], $resultItemInserts );
+		$this->assertSame( [], $resultItemUpdates );
+		$this->assertSame( [], $metaDeletes );
 	}
 
 	/**
@@ -331,14 +544,18 @@ class StoreTest extends BaseUnitTest {
 		array &$resultItemUpdates = [],
 		?string $failingStage = null,
 		int $lastInsertID = 77,
-		$metaDeleteResult = 1
+		$metaDeleteResult = 1,
+		array $existingMetaRows = [],
+		bool $metaReadFailure = false
 	) :object {
 		$wpdb = new class(
 			$existingResultRows,
 			$observedResultItemIDs,
 			$failingStage,
 			$lastInsertID,
-			$metaDeleteResult
+			$metaDeleteResult,
+			$existingMetaRows,
+			$metaReadFailure
 		) extends Db {
 			public array $selectQueries = [];
 			public array $insertQueries = [];
@@ -348,19 +565,25 @@ class StoreTest extends BaseUnitTest {
 			private ?string $failingStage;
 			private int $lastInsertID;
 			private $metaDeleteResult;
+			private array $existingMetaRows;
+			private bool $metaReadFailure;
 
 			public function __construct(
 				array $existingResultRows,
 				array $observedResultItemIDs,
 				?string $failingStage,
 				int $lastInsertID,
-				$metaDeleteResult
+				$metaDeleteResult,
+				array $existingMetaRows,
+				bool $metaReadFailure
 			) {
 				$this->existingResultRows = $existingResultRows;
 				$this->observedResultItemIDs = $observedResultItemIDs;
 				$this->failingStage = $failingStage;
 				$this->lastInsertID = $lastInsertID;
 				$this->metaDeleteResult = $metaDeleteResult;
+				$this->existingMetaRows = $existingMetaRows;
+				$this->metaReadFailure = $metaReadFailure;
 			}
 
 			public function selectCustom( $query, $format = null ) {
@@ -374,6 +597,9 @@ class StoreTest extends BaseUnitTest {
 						static fn( int $resultItemID ) :array => [ 'resultitem_ref' => $resultItemID ],
 						$this->observedResultItemIDs
 					);
+				}
+				if ( \strpos( (string)$query, 'shield_scan_result_item_meta' ) !== false ) {
+					return $this->metaReadFailure ? false : $this->existingMetaRows;
 				}
 				return [];
 			}
@@ -419,13 +645,32 @@ class StoreTest extends BaseUnitTest {
 							$record->item_id = $result[ 'item_id' ];
 							$record->asset_type = 'plugin';
 							$record->asset_key = $result[ 'item_id' ];
-							$record->auto_filtered_at = 0;
+							$record->auto_filtered_at = (int)( $result[ 'auto_filtered_at' ] ?? 0 );
 							$record->last_seen_at = 1700000000;
 							$record->resolved_at = 0;
 							$record->resolution_reason = '';
-							$record->meta = \array_merge( [
+							$meta = \array_merge( [
 								'ptg_slug' => $result[ 'item_id' ],
 							], $result[ 'meta' ] ?? [] );
+							foreach ( [
+								'is_in_core',
+								'is_in_plugin',
+								'is_in_theme',
+								'ptg_slug',
+								'asset_version',
+								'is_checksumfail',
+								'is_unrecognised',
+								'is_unidentified',
+								'is_missing',
+								'comparison_basis',
+								'is_mal',
+								'malware_record_id',
+							] as $metaKey ) {
+								if ( \array_key_exists( $metaKey, $result ) ) {
+									$meta[ $metaKey ] = $result[ $metaKey ];
+								}
+							}
+							$record->meta = $meta;
 							return $record;
 						}
 					};
@@ -473,6 +718,7 @@ class StoreTest extends BaseUnitTest {
 								'last_seen_at'      => $record->last_seen_at,
 								'resolved_at'       => $record->resolved_at,
 								'resolution_reason' => $record->resolution_reason,
+								'meta'              => $record->meta,
 							];
 							return true;
 						}
@@ -560,8 +806,8 @@ class StoreTest extends BaseUnitTest {
 		return $wpdb;
 	}
 
-	private function existingResultRow( int $id, string $itemID ) :array {
-		return [
+	private function existingResultRow( int $id, string $itemID, array $overrides = [] ) :array {
+		return \array_merge( [
 			'id'                => $id,
 			'scan'              => 'afs',
 			'item_type'         => 'f',
@@ -574,7 +820,7 @@ class StoreTest extends BaseUnitTest {
 			'resolution_reason' => '',
 			'item_repaired_at'  => 0,
 			'item_deleted_at'   => 0,
-		];
+		], $overrides );
 	}
 
 	private function legacyBlankResultRow( int $id, string $itemID, array $overrides = [] ) :array {
@@ -590,6 +836,23 @@ class StoreTest extends BaseUnitTest {
 		$queueItem->scan_id = 91;
 		$queueItem->qitem_id = 14;
 		$queueItem->scan = 'afs';
+		return $queueItem;
+	}
+
+	private function newFullQueueItem() :QueueItemVO {
+		$queueItem = $this->newQueueItem();
+		$queueItem->scope_type = 'full';
+		$queueItem->meta = [
+			'asset_snapshot_eligibility' => [
+				'plugin' => [
+					'akismet/akismet.php' => [
+						'version'             => '5.0',
+						'comparison_eligible' => false,
+					],
+				],
+				'theme'  => [],
+			],
+		];
 		return $queueItem;
 	}
 }

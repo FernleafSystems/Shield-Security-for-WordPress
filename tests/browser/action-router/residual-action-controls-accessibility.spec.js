@@ -1,5 +1,6 @@
-const { AxeBuilder, buildShieldUrl, test, expect, openShieldRoute } = require( './support/shield-test' );
-const { expectModalHiddenWithoutAriaModal } = require( './support/modal-accessibility' );
+const { buildShieldUrl, test, expect, openShieldRoute } = require( './support/shield-test' );
+const { expectNoAxeViolations } = require( './support/accessibility' );
+const { expectModalHiddenWithoutAriaModal, expectNamedDialog } = require( './support/modal-accessibility' );
 
 function requestParams( request ) {
 	return new URLSearchParams( request.postData() || '' );
@@ -27,28 +28,6 @@ function installNativeDialogGuard( page ) {
 	return nativeDialogs;
 }
 
-function formatAxeViolations( violations ) {
-	return violations.map( ( violation ) => {
-		const targets = violation.nodes
-		.flatMap( ( node ) => node.target || [] )
-		.slice( 0, 5 )
-		.join( ', ' );
-
-		return `${ violation.id }: ${ targets }`;
-	} ).join( '\n' );
-}
-
-async function expectNoAxeViolations( page, selector, disabledRules = [] ) {
-	let builder = new AxeBuilder( { page } )
-	.include( selector );
-	if ( disabledRules.length > 0 ) {
-		builder = builder.disableRules( disabledRules );
-	}
-	const results = await builder.analyze();
-
-	expect( results.violations, formatAxeViolations( results.violations ) ).toEqual( [] );
-}
-
 async function expectActionButton( locator ) {
 	await expect( locator ).toBeVisible( { timeout: 20_000 } );
 	await expect( locator ).toHaveRole( 'button' );
@@ -56,7 +35,7 @@ async function expectActionButton( locator ) {
 	expect( await locator.getAttribute( 'href' ) ).toBeNull();
 }
 
-async function expectSubmitInputWithoutHref( locator ) {
+async function expectSubmitControlWithoutHref( locator ) {
 	await expect( locator ).toBeVisible();
 	await expect( locator ).toBeEnabled();
 	await expect( locator ).toHaveAttribute( 'type', 'submit' );
@@ -64,12 +43,15 @@ async function expectSubmitInputWithoutHref( locator ) {
 	expect( await locator.evaluate( ( element ) => element.form instanceof HTMLFormElement ) ).toBe( true );
 }
 
-async function expectNamedDialog( page, modal ) {
-	await expect( modal ).toHaveAttribute( 'role', 'dialog' );
-	await expect( modal ).toHaveAttribute( 'aria-modal', 'true' );
-	const labelID = await modal.getAttribute( 'aria-labelledby' );
-	expect( labelID || '' ).not.toHaveLength( 0 );
-	await expect( page.locator( `#${ labelID }` ) ).toHaveAccessibleName( /\S/ );
+async function expectNetworkSyncWorkbenchVisible( page ) {
+	await expect( page.locator( '[data-import-export-workbench="1"]' ) ).toBeVisible( { timeout: 15_000 } );
+	await expect( page.locator( '[data-import-export-network-disabled="1"]' ) ).toHaveCount( 0 );
+}
+
+async function expectNetworkSyncDisabledStateVisible( page ) {
+	await expect( page.locator( '[data-import-export-network-disabled="1"]' ) ).toBeVisible( { timeout: 15_000 } );
+	await expect( page.locator( '[data-import-export-workbench="1"]' ) ).toHaveCount( 0 );
+	await expect( page.locator( '#ShieldTable-ImportExportSites' ) ).toHaveCount( 0 );
 }
 
 async function visibleMerlinStepId( page ) {
@@ -90,7 +72,7 @@ test( 'debug contextual action controls are buttons and keep purge and print beh
 	const printAction = page.locator( 'button.shield_div_print.dropdown-item' );
 	await expectActionButton( purgeAction );
 	await expectActionButton( printAction );
-	await expectNoAxeViolations( page, '.inner-page-header .dropdown-menu' );
+	await expectNoAxeViolations( page, '[data-operator-step-tabs="1"] .dropdown-menu' );
 
 	const purgeRequest = page.waitForRequest(
 		( request ) => isShieldActionRequest( request, 'tool_purge_provider_ips' ),
@@ -200,11 +182,152 @@ test( 'import file submit control stays usable without an invalid href', async (
 			nav_sub: 'importexport',
 		} );
 
-		await page.locator( 'a[data-bs-toggle="tab"][href="#byFile"]' ).click();
-		await expect( page.locator( '#byFile' ) ).toBeVisible();
-		await expectSubmitInputWithoutHref(
-			page.locator( '#ImportExportFileForm input#SubmitForm[type="submit"]' )
+		await expect( page.locator( '[data-import-export-panel="file"]' ) ).toBeVisible();
+		await expect( page.locator( '[data-import-export-sync-toggle]' ) ).toHaveCount( 0 );
+		await expectSubmitControlWithoutHref(
+			page.locator( '#ImportExportFileForm #SubmitForm[type="submit"]' )
 		);
-		await expectNoAxeViolations( page, '#SectionImportExportFile', [ 'heading-order' ] );
+		await expectNoAxeViolations( page, '#PageContainer-Apto' );
+	} );
+} );
+
+test( 'network verification radios reveal and clear master key field', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withImportExportNetworkFixture( async () => {
+		await openShieldRoute( page, {
+			nav: 'tools',
+			nav_sub: 'importexport',
+		} );
+
+		const networkPanel = page.locator( '[data-import-export-panel="network_sync"]' );
+		const formPanel = page.locator( '[data-import-export-connect-form-panel="1"]' );
+		const revealButton = page.locator( '[data-import-export-connect-reveal="1"]' );
+		const secretField = page.locator( '[data-import-export-secret-field]' );
+		const secretInput = page.locator( '#MasterSiteSecretKey' );
+		const masterUrlInput = page.locator( '#MasterSiteUrl' );
+
+		await expect( networkPanel ).toBeVisible();
+		await expect( formPanel ).toBeHidden();
+		await expect( revealButton ).toHaveAttribute( 'aria-expanded', 'false' );
+
+		const unexpectedImportRequest = page.waitForRequest(
+			( request ) => isShieldActionRequest( request, 'import_from_site' ),
+			{ timeout: 750 }
+		)
+		.then( () => true )
+		.catch( () => false );
+		await revealButton.click();
+		await expect( formPanel ).toBeVisible();
+		await expect( revealButton ).toHaveAttribute( 'aria-expanded', 'true' );
+		await expect( masterUrlInput ).toBeFocused();
+		expect( await unexpectedImportRequest ).toBe( false );
+
+		await expect( secretField ).toBeHidden();
+		await expect( secretInput ).toBeDisabled();
+
+		await page.locator( '[data-import-export-link-choice][value="Y"]' ).check();
+		await expect( page.locator( '[data-import-export-link-choice][value="Y"]' ) ).toBeChecked();
+
+		await page.locator( '[data-import-export-auth-choice="key"]' ).check();
+		await expect( secretField ).toBeVisible();
+		await expect( secretInput ).toBeEnabled();
+		await secretInput.fill( 'master-secret-fixture' );
+
+		await page.locator( '[data-import-export-auth-choice="trusted"]' ).check();
+		await expect( secretField ).toBeHidden();
+		await expect( secretInput ).toBeDisabled();
+		await expect( secretInput ).toHaveValue( '' );
+		await expectNoAxeViolations( page, '#PageContainer-Apto' );
+	} );
+} );
+
+test( 'connected master sync-now button sends existing import request', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withImportExportNetworkFixture( async () => {
+		await openShieldRoute( page, {
+			nav: 'tools',
+			nav_sub: 'importexport',
+		} );
+
+		const connectedState = page.locator( '[data-import-export-connected-master="1"]' );
+		const syncButton = page.locator( '[data-import-export-sync-now="1"]' );
+
+		await expect( connectedState ).toBeVisible( { timeout: 15_000 } );
+		await expectActionButton( syncButton );
+		await expect( syncButton ).toHaveAccessibleName( /\S/ );
+
+		await page.route( '**/admin-ajax.php*', async ( route ) => {
+			const request = route.request();
+			if ( isShieldActionRequest( request, 'import_from_site' ) ) {
+				await route.fulfill( {
+					status: 200,
+					contentType: 'application/json',
+					body: JSON.stringify( {
+						success: true,
+						data: {
+							message: '',
+							page_reload: false,
+							show_toast: false,
+						},
+					} ),
+				} );
+				return;
+			}
+
+			await route.continue();
+		} );
+
+		const syncRequest = page.waitForRequest( ( request ) => {
+			if ( !isShieldActionRequest( request, 'import_from_site' ) ) {
+				return false;
+			}
+
+			const params = requestParams( request );
+			return params.get( 'form_params[confirm]' ) === 'Y'
+				&& params.get( 'form_params[MasterSiteUrl]' ) === ''
+				&& params.get( 'form_params[MasterSiteSecretKey]' ) === ''
+				&& params.get( 'form_params[ShieldNetwork]' ) === 'NC';
+		}, { timeout: 20_000 } );
+
+		await syncButton.click();
+		await syncRequest;
+		await expect( syncButton ).toBeEnabled( { timeout: 15_000 } );
+		// Bootstrap transitions the button colours for 150ms after it is re-enabled.
+		await page.waitForTimeout( 200 );
+		await expectNoAxeViolations( page, '#PageContainer-Apto' );
+	}, [ 'connected-master' ] );
+} );
+
+test( 'network sync toggle switches the pro workbench off and on', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withImportExportNetworkFixture( async () => {
+		await openShieldRoute( page, {
+			nav: 'tools',
+			nav_sub: 'importexport',
+		} );
+
+		const toggle = page.locator( '[data-import-export-sync-toggle]' );
+
+		await expect( page.locator( '[data-import-export-panel="network_sync"]' ) ).toBeVisible();
+		await expect( toggle ).toBeChecked();
+		await expectNetworkSyncWorkbenchVisible( page );
+
+		const disableRequest = page.waitForRequest(
+			( request ) => isShieldActionRequest( request, 'importexport_set_enabled', { enabled: 'N' } ),
+			{ timeout: 20_000 }
+		);
+		await toggle.uncheck();
+		await disableRequest;
+
+		await expect( toggle ).not.toBeChecked( { timeout: 15_000 } );
+		await expectNetworkSyncDisabledStateVisible( page );
+		await expectNoAxeViolations( page, '#PageContainer-Apto' );
+
+		const enableRequest = page.waitForRequest(
+			( request ) => isShieldActionRequest( request, 'importexport_set_enabled', { enabled: 'Y' } ),
+			{ timeout: 20_000 }
+		);
+		await toggle.check();
+		await enableRequest;
+
+		await expect( toggle ).toBeChecked( { timeout: 15_000 } );
+		await expectNetworkSyncWorkbenchVisible( page );
 	} );
 } );

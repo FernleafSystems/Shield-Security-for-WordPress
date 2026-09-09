@@ -25,13 +25,16 @@ class BrowserTestLane {
 
 	private SourceAssetBuildReadiness $assetBuildReadiness;
 
+	private DockerResourceSweeper $resourceSweeper;
+
 	public function __construct(
 		?ProcessRunner $processRunner = null,
 		?LocalSiteManager $siteManager = null,
 		?BrowserTestLanePool $lanePool = null,
 		?LocalSiteRuntimeHostManifestProvider $hostManifestProvider = null,
 		?SourceGeneratedConfigReadiness $generatedConfigReadiness = null,
-		?SourceAssetBuildReadiness $assetBuildReadiness = null
+		?SourceAssetBuildReadiness $assetBuildReadiness = null,
+		?DockerResourceSweeper $resourceSweeper = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$this->providedSiteManager = $siteManager;
@@ -39,6 +42,7 @@ class BrowserTestLane {
 		$this->hostManifestProvider = $hostManifestProvider ?? new LocalSiteRuntimeHostManifestProvider();
 		$this->generatedConfigReadiness = $generatedConfigReadiness ?? new SourceGeneratedConfigReadiness( $this->processRunner );
 		$this->assetBuildReadiness = $assetBuildReadiness ?? new SourceAssetBuildReadiness( $this->processRunner );
+		$this->resourceSweeper = $resourceSweeper ?? new DockerResourceSweeper();
 	}
 
 	/**
@@ -77,6 +81,17 @@ class BrowserTestLane {
 					$laneCount
 				).\PHP_EOL
 			);
+			return 1;
+		}
+
+		$runId = $this->buildRunId();
+		$transientExpiresAt = \gmdate( \DATE_ATOM, \time() + 6*60*60 );
+		$reusableExpiresAt = \gmdate( \DATE_ATOM, \time() + 7*24*60*60 );
+		try {
+			$this->resourceSweeper->startupSweep( $rootDir );
+		}
+		catch ( \Throwable $throwable ) {
+			$this->writeFailureDiagnostic( 'browser Docker startup sweep', $throwable, null );
 			return 1;
 		}
 
@@ -135,9 +150,16 @@ class BrowserTestLane {
 
 		$laneMap = [];
 		$parallelIndex = 0;
+		$exitCode = 0;
 		foreach ( $leases as $lease ) {
 			try {
 				$siteManager = $this->providedSiteManager ?? new LocalSiteManager( $lease->definition() );
+				$labelEnv = $this->browserLabelEnv(
+					$runId,
+					'lane-'.$lease->laneIndex(),
+					$transientExpiresAt,
+					$reusableExpiresAt
+				);
 
 				echo \sprintf(
 					'Browser lane: prepare lane %d at %s (%s)',
@@ -152,7 +174,8 @@ class BrowserTestLane {
 					true,
 					$fixtureToken,
 					$showSetupOutput ? null : static function () :void {},
-					$hostManifest
+					$hostManifest,
+					$labelEnv
 				);
 				$laneMap[ (string)$parallelIndex ] = [
 					'laneIndex'     => $lease->laneIndex(),
@@ -165,17 +188,32 @@ class BrowserTestLane {
 			}
 			catch ( \Throwable $throwable ) {
 				$this->writeFailureDiagnostic( 'prepare browser lane', $throwable, $lease );
-				$this->releaseLeases( $leases );
-				return 1;
+				$exitCode = 1;
+				break;
 			}
 		}
 
 		try {
-			return $this->runPlaywright(
+			if ( $exitCode === 0 ) {
+				$exitCode = $this->runPlaywright(
+					$rootDir,
+					$this->withResolvedWorkers( $playwrightArgs, $workerCount ),
+					$laneMap
+				);
+			}
+
+			$cleanupFindings = $this->cleanupRunResourcesSafely(
 				$rootDir,
-				$this->withResolvedWorkers( $playwrightArgs, $workerCount ),
-				$laneMap
+				$runId,
+				$laneCount,
+				$this->requiresFullCleanup( $runMode )
 			);
+			if ( $cleanupFindings !== [] ) {
+				$this->writeCleanupFindings( $cleanupFindings );
+				$exitCode = 1;
+			}
+
+			return $exitCode;
 		}
 		finally {
 			$this->releaseLeases( $leases );
@@ -261,9 +299,7 @@ class BrowserTestLane {
 			return self::RUNTIME_REFRESH_FULL;
 		}
 
-		return $explicitMode === self::RUNTIME_REFRESH_AUTO
-			? self::RUNTIME_REFRESH_AUTO
-			: self::RUNTIME_REFRESH_FULL;
+		return $explicitMode ?: self::RUNTIME_REFRESH_AUTO;
 	}
 
 	/**
@@ -341,6 +377,63 @@ class BrowserTestLane {
 		}
 
 		return (int)$value;
+	}
+
+	private function buildRunId() :string {
+		return 'shield-plugin-browser-'.\gmdate( 'YmdHis' ).'-'.\bin2hex( \random_bytes( 4 ) );
+	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	private function browserLabelEnv(
+		string $runId,
+		string $lane,
+		string $transientExpiresAt,
+		string $reusableExpiresAt
+	) :array {
+		return $this->resourceSweeper->labelEnvironment(
+			$runId,
+			'transient',
+			$lane,
+			$transientExpiresAt,
+			$runId,
+			'reusable',
+			$reusableExpiresAt
+		);
+	}
+
+	private function requiresFullCleanup( string $runMode ) :bool {
+		return \getenv( 'CI' ) || $runMode === self::MODE_CLEAN;
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function cleanupRunResourcesSafely(
+		string $rootDir,
+		string $runId,
+		int $laneCount,
+		bool $fullCleanup
+	) :array {
+		try {
+			return $this->resourceSweeper->cleanupRunResources( $rootDir, $runId, $laneCount, $fullCleanup )->findings();
+		}
+		catch ( \Throwable $throwable ) {
+			return [
+				'Browser harness Docker cleanup failed: '.$throwable->getMessage(),
+			];
+		}
+	}
+
+	/**
+	 * @param string[] $cleanupFindings
+	 */
+	private function writeCleanupFindings( array $cleanupFindings ) :void {
+		\fwrite( \STDERR, 'Browser harness cleanup left unexpected Docker resources:'.\PHP_EOL );
+		foreach ( $cleanupFindings as $finding ) {
+			\fwrite( \STDERR, '- '.$finding.\PHP_EOL );
+		}
 	}
 
 	/**

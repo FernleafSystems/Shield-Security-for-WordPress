@@ -2,10 +2,11 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\GenericLines;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminRequired;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
+	EmailDeliveryVerification,
+	EmailDeliveryVerificationMailer
+};
 
 class MfaEmailSendVerification extends BaseAction {
 
@@ -14,45 +15,35 @@ class MfaEmailSendVerification extends BaseAction {
 	public const SLUG = 'mfa_email_send_verification';
 
 	protected function exec() {
-		$opts = self::con()->opts;
-		if ( !$opts->optIs( 'enable_email_authentication', 'Y' ) ) {
+		$con = self::con();
+		$verification = new EmailDeliveryVerification();
+		$status = $verification->status();
+		$success = true;
+		$pageReload = false;
+
+		if ( $status === EmailDeliveryVerification::STATUS_DISABLED ) {
 			$msg = __( 'Email 2FA option is not currently enabled.', 'wp-simple-firewall' );
+			$success = false;
 		}
-		elseif ( $opts->optGet( 'email_can_send_verified_at' ) > 0 ) {
+		elseif ( $status === EmailDeliveryVerification::STATUS_VERIFIED ) {
 			$msg = __( 'Email sending has already been verified.', 'wp-simple-firewall' );
 		}
+		elseif ( ( new EmailDeliveryVerificationMailer() )->send() ) {
+			$verification->markSent();
+			$con->opts->store();
+			$status = $verification->status();
+			$msg = __( 'Verification email sent.', 'wp-simple-firewall' );
+			$pageReload = true;
+		}
 		else {
-			$opts->optSet( 'email_can_send_verified_at', 0 );
-			$this->sendEmailVerifyCanSend();
-			$msg = __( 'Verification email resent.', 'wp-simple-firewall' );
+			$msg = __( 'Verification email could not be sent.', 'wp-simple-firewall' );
+			$success = false;
 		}
 
 		$this->response()->setPayload( [
-			'message' => $msg
-		] )->setPayloadSuccess( true );
-	}
-
-	private function sendEmailVerifyCanSend() {
-		$con = self::con();
-		$con->email_con->sendVO(
-			EmailVO::Factory(
-				Services::WpGeneral()->getSiteAdminEmail(), //TODO: $this->getPluginReportEmail()?
-				__( 'Email Sending Verification', 'wp-simple-firewall' ),
-				$con->action_router->render(
-					GenericLines::class,
-					[
-						'lines' => [
-							__( 'Before enabling 2-factor email authentication for your WordPress site, you must verify you can receive this email.', 'wp-simple-firewall' ),
-							__( 'This verifies your website can send email and that your account can receive emails sent from your site.', 'wp-simple-firewall' ),
-							'',
-							sprintf(
-								__( 'Click the verify link: %s', 'wp-simple-firewall' ),
-								$con->plugin_urls->noncedPluginAction( MfaCanEmailSendVerify::class, $con->plugin_urls->adminHome() )
-							)
-						],
-					]
-				)
-			)
-		);
+			'message'     => $msg,
+			'page_reload' => $pageReload,
+			'status'      => $status,
+		] )->setPayloadSuccess( $success );
 	}
 }

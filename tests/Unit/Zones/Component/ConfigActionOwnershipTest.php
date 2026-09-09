@@ -15,6 +15,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\{
+	Base as ComponentBase,
 	PasswordPolicies,
 	PasswordStrength,
 	PwnedPasswords,
@@ -39,30 +40,52 @@ class ConfigActionOwnershipTest extends BaseUnitTest {
 		$scanSchedulingAction = ( new ScanScheduling() )->getActions()[ 'config' ] ?? [];
 		$this->assertSame( ScanScheduling::Slug(), $scanSchedulingAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
 		$this->assertSame( 'scan_frequency', $scanSchedulingAction[ 'data' ][ 'config_item' ] ?? '' );
+		$this->assertSame( 'scan_frequency', $scanSchedulingAction[ 'data' ][ 'option_keys' ] );
 
 		$trustedCommentersAction = ( new TrustedCommenters() )->getActions()[ 'config' ] ?? [];
 		$this->assertSame( TrustedCommenters::Slug(), $trustedCommentersAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
 		$this->assertSame( 'trusted_commenter_minimum', $trustedCommentersAction[ 'data' ][ 'config_item' ] ?? '' );
+		$this->assertSame( 'trusted_commenter_minimum', $trustedCommentersAction[ 'data' ][ 'option_keys' ] );
 
 		$passwordPoliciesAction = ( new PasswordPolicies() )->getActions()[ 'config' ] ?? [];
 		$this->assertSame( PasswordPolicies::Slug(), $passwordPoliciesAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
 		$this->assertSame( 'enable_password_policies', $passwordPoliciesAction[ 'data' ][ 'config_item' ] ?? '' );
+		$this->assertSame( 'enable_password_policies', $passwordPoliciesAction[ 'data' ][ 'option_keys' ] );
 
 		$pwnedPasswordsAction = ( new PwnedPasswords() )->getActions()[ 'config' ] ?? [];
 		$this->assertSame( PwnedPasswords::Slug(), $pwnedPasswordsAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
 		$this->assertSame( 'pass_prevent_pwned', $pwnedPasswordsAction[ 'data' ][ 'config_item' ] ?? '' );
+		$this->assertSame( 'enable_password_policies,pass_prevent_pwned', $pwnedPasswordsAction[ 'data' ][ 'option_keys' ] );
 
 		$passwordStrengthAction = ( new PasswordStrength() )->getActions()[ 'config' ] ?? [];
 		$this->assertSame( PasswordStrength::Slug(), $passwordStrengthAction[ 'data' ][ 'zone_component_slug' ] ?? '' );
 		$this->assertSame( 'pass_min_strength', $passwordStrengthAction[ 'data' ][ 'config_item' ] ?? '' );
+		$this->assertSame( 'enable_password_policies,pass_min_strength', $passwordStrengthAction[ 'data' ][ 'option_keys' ] );
 	}
 
-	private function installControllerStub() :void {
+	public function test_components_do_not_emit_config_actions_without_owned_options() :void {
+		PluginControllerInstaller::reset();
+		$this->installControllerStub( [] );
+
+		$component = new class extends ComponentBase {
+			public static function Slug() :string {
+				return 'empty_component';
+			}
+
+			protected function hasConfigAction() :bool {
+				return true;
+			}
+		};
+
+		$this->assertSame( [], $component->getActions() );
+	}
+
+	private function installControllerStub( ?array $options = null ) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
 		$controller->cfg = (object)[
 			'configuration' => (object)[
-				'options' => [
+				'options' => $options ?? [
 					'scan_frequency' => [
 						'zone_comp_slugs' => [
 							ScanScheduling::Slug(),

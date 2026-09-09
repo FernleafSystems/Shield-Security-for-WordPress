@@ -2,6 +2,9 @@ import { AppBase } from "./AppBase";
 import { Blockdown } from "../components/general/Blockdown";
 import { BootstrapTooltips } from "../components/ui/BootstrapTooltips";
 import { ReportsTrendsController } from "../components/charts/ReportsTrendsController";
+import { DashboardActivityCharts } from "../components/charts/DashboardActivityCharts";
+import { DashboardTaskGuide } from "../components/general/DashboardTaskGuide";
+import { ProUpsell } from "../components/general/ProUpsell";
 import { ConfigImport } from "../components/options/ConfigImport";
 import { DashboardLiveMonitor } from "../components/general/DashboardLiveMonitor";
 import { DivPrinter } from "../components/general/DivPrinter";
@@ -36,6 +39,7 @@ import { HealthyDisclosureController } from "../components/ui/HealthyDisclosureC
 import { SecurityAdmin } from "../components/general/SecurityAdmin";
 import { ShieldServicesPlugin } from "../services/ShieldServicesPlugin";
 import { ShieldTableActivityLog } from "../components/tables/ShieldTableActivityLog";
+import { ShieldTableImportExportSites } from "../components/tables/ShieldTableImportExportSites";
 import { ShieldTableIpRules } from "../components/tables/ShieldTableIpRules";
 import { ShieldTableReports } from "../components/tables/ShieldTableReports";
 import { ShieldTableSecurityRules } from "../components/tables/ShieldTableSecurityRules";
@@ -76,6 +80,9 @@ export class AppMain extends AppBase {
 		this.components.reports_trends = ( 'reports_trends' in comps ) ? new ReportsTrendsController( comps.reports_trends ) : null;
 		this.components.import = ( 'import' in comps ) ? new ConfigImport( comps.import ) : null;
 		this.components.dashboard_live_monitor = ( 'dashboard_live_monitor' in comps ) ? new DashboardLiveMonitor( comps.dashboard_live_monitor ) : null;
+		this.components.dashboard_activity_charts = new DashboardActivityCharts();
+		this.components.dashboard_task_guide = new DashboardTaskGuide();
+		this.components.pro_upsell = new ProUpsell();
 		this.components.div_printer = new DivPrinter();
 		this.components.dynamic_buttons = new DynamicActionButtons();
 		this.components.file_locker = ( 'file_locker' in comps ) ? new FileLocker( comps.file_locker ) : null;
@@ -113,6 +120,7 @@ export class AppMain extends AppBase {
 		this.components.traffic = ( 'traffic' in comps ) ? new TrafficLiveLogs( comps.traffic ) : null;
 
 		this.components.tables_activity = ( 'activity' in comps.tables ) ? new ShieldTableActivityLog( comps.tables.activity ) : null;
+		this.components.tables_import_export_sites = ( 'import_export_sites' in comps.tables ) ? new ShieldTableImportExportSites( comps.tables.import_export_sites ) : null;
 		this.components.tables_ip_rules = ( 'ip_rules' in comps.tables ) ? new ShieldTableIpRules( comps.tables.ip_rules ) : null;
 		this.components.tables_reports = ( 'reports' in comps.tables ) ? new ShieldTableReports( comps.tables.reports ) : null;
 		this.components.tables_sessions = ( 'sessions' in comps.tables ) ? new ShieldTableSessions( comps.tables.sessions ) : null;

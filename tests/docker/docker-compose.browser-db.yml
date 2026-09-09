@@ -5,12 +5,18 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: testpass
     command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
+    labels:
+      com.fernleaf.harness: "${SHIELD_BROWSER_LABEL_HARNESS:-shield-plugin-browser}"
+      com.fernleaf.run-id: "${SHIELD_BROWSER_CONTAINER_RUN_ID:-manual}"
+      com.fernleaf.lane: "${SHIELD_BROWSER_LABEL_LANE:-shared}"
+      com.fernleaf.lifecycle: "${SHIELD_BROWSER_CONTAINER_LIFECYCLE:-transient}"
+      com.fernleaf.expires-at: "${SHIELD_BROWSER_CONTAINER_EXPIRES_AT:-1970-01-01T00:00:00+00:00}"
     volumes:
       - browser-db:/var/lib/mysql
     networks:
       - browser-shared
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ptestpass"]
+      test: ["CMD", "mysqladmin", "ping", "--protocol=tcp", "-h", "127.0.0.1", "-uroot", "-ptestpass"]
       interval: 2s
       timeout: 5s
       retries: 30
@@ -18,7 +24,19 @@ services:
 
 volumes:
   browser-db:
+    labels:
+      com.fernleaf.harness: "${SHIELD_BROWSER_LABEL_HARNESS:-shield-plugin-browser}"
+      com.fernleaf.run-id: "${SHIELD_BROWSER_VOLUME_RUN_ID:-manual}"
+      com.fernleaf.lane: "${SHIELD_BROWSER_LABEL_LANE:-shared}"
+      com.fernleaf.lifecycle: "${SHIELD_BROWSER_VOLUME_LIFECYCLE:-reusable}"
+      com.fernleaf.expires-at: "${SHIELD_BROWSER_VOLUME_EXPIRES_AT:-1970-01-01T00:00:00+00:00}"
 
 networks:
   browser-shared:
     name: shield-browser-tests
+    labels:
+      com.fernleaf.harness: "${SHIELD_BROWSER_LABEL_HARNESS:-shield-plugin-browser}"
+      com.fernleaf.run-id: "${SHIELD_BROWSER_CONTAINER_RUN_ID:-manual}"
+      com.fernleaf.lane: "${SHIELD_BROWSER_LABEL_LANE:-shared}"
+      com.fernleaf.lifecycle: "${SHIELD_BROWSER_CONTAINER_LIFECYCLE:-transient}"
+      com.fernleaf.expires-at: "${SHIELD_BROWSER_CONTAINER_EXPIRES_AT:-1970-01-01T00:00:00+00:00}"

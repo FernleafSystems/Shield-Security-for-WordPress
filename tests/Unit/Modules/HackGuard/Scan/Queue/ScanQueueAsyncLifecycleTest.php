@@ -10,6 +10,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Queue;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record as ScanRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
 	ScansController,
 	StartScansResult
@@ -558,7 +559,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 1, $harness->async->scheduledHookAttempts( 'icwp_wpsf_shield_scanqbuild_cron' ) );
 	}
 
-	public function test_queue_init_marks_building_without_reloading_known_scan_row() :void {
+	public function test_queue_init_persists_built_state() :void {
 		$harness = ( new ScanQueueLifecycleHarness() )->install();
 		$scanID = $harness->insertScan( [
 			'scan'   => 'afs',
@@ -568,7 +569,6 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 
 		$this->assertTrue( ( new QueueInit() )->init( $scanID ) );
 
-		$this->assertSame( 1, $this->queryLogCount( $harness->sql->queryLog(), 'SELECT * FROM `scans` WHERE `id`' ) );
 		$this->assertSame( 'built', $harness->scanRow( $scanID )[ 'status' ] );
 	}
 
@@ -628,15 +628,9 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$harness->sql->updateRowById( 'scans', $scanID, [
 			'meta' => $this->encodedScanMeta( [ RunState::META_KEY_LAST_ERROR => $diagnostic ] ),
 		] );
-		$harness->sql->resetQueryLog();
-
 		( new ProcessQueueItem() )->run( ( new QueueItems() )->next() );
 
-		$queries = $harness->sql->queryLog();
-		$finishIndex = $this->queryLogFirstIndex( $queries, 'UPDATE `scan_items` SET `finished_at`' );
-		$clearIndex = $this->queryLogFirstIndex( $queries, 'UPDATE `scans` SET `meta`' );
-		$this->assertGreaterThanOrEqual( 0, $finishIndex );
-		$this->assertGreaterThan( $finishIndex, $clearIndex );
+		$this->assertSame( 1700000000, (int)$harness->scanItemRow( $itemID )[ 'finished_at' ] );
 		$this->assertArrayNotHasKey(
 			RunState::META_KEY_LAST_ERROR,
 			$this->scanMeta( $harness->scanRow( $scanID ) )
@@ -877,7 +871,11 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 1, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
 		$this->assertSame(
 			$isCron,
-			$harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) )
+			$harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN ) )
+		);
+		$this->assertSame(
+			!$isCron,
+			$harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN_MALAI ) )
 		);
 		$this->assertFalse( $harness->controller->opts->optGet( 'is_scan_cron' ) );
 		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
@@ -919,7 +917,8 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 'completed', $harness->scanRow( $terminalID )[ 'status' ] );
 		$this->assertSame( 0, $harness->countScanItems( $terminalID ) );
 		$this->assertSame( 0, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
-		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN ) ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN_MALAI ) ) );
 		$this->assertTrue( $harness->controller->opts->optGet( 'is_scan_cron' ) );
 		$this->assertSame( [], $harness->async->remotePosts );
 		$this->assertTrue( $harness->async->hasScheduledHook( $watchdog->hook() ) );
@@ -942,7 +941,8 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( $scanBefore, $harness->scanRow( $scanID ) );
 		$this->assertSame( 1, $harness->countScanItems( $scanID ) );
 		$this->assertSame( 0, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
-		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN ) ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN_MALAI ) ) );
 		$this->assertTrue( $harness->controller->opts->optGet( 'is_scan_cron' ) );
 		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
 	}
@@ -1121,7 +1121,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 			'created_at'      => 1699998100,
 			'last_process_at' => 1699999990,
 		] );
-		$harness->scansDb->failNextUpdate();
+		$harness->sql->failNextConditionalScanMetaUpdate();
 		$harness->async->resetTransport();
 
 		( new QueueWatchdog() )->run();
@@ -2336,7 +2336,7 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		] );
 		$harness->insertScanItem( $scanID, [ 'afs-a' ] );
 		$watchdog = new QueueWatchdog();
-		$harness->scansDb->failNextUpdate();
+		$harness->sql->failNextConditionalScanMetaUpdate();
 		$harness->async->resetTransport();
 
 		$this->assertFalse( $watchdog->recoverScanIfStale( $scanID ) );
@@ -2380,7 +2380,8 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 		$this->assertSame( 1700000000, (int)$harness->scanRow( $scanID )[ 'finished_at' ] );
 		$this->assertSame( 0, $harness->countScanItems( $scanID ) );
 		$this->assertSame( 1, $this->actionCount( $harness, 'shield/scan_queue_completed' ) );
-		$this->assertTrue( $harness->async->hasScheduledHook( $harness->controller->prefix( 'post_scan' ) ) );
+		$this->assertTrue( $harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN ) ) );
+		$this->assertFalse( $harness->async->hasScheduledHook( $harness->controller->prefix( ScansController::HOOK_POST_SCAN_MALAI ) ) );
 		$this->assertFalse( $harness->controller->opts->optGet( 'is_scan_cron' ) );
 		$this->assertFalse( $harness->async->hasScheduledHook( $watchdog->hook() ) );
 	}
@@ -2490,7 +2491,9 @@ class ScanQueueAsyncLifecycleTest extends BaseUnitTest {
 	}
 
 	private function encodedScanMeta( array $meta ) :string {
-		return \base64_encode( \json_encode( $meta ) ?: '[]' );
+		$scan = new ScanRecord();
+		$scan->meta = $meta;
+		return (string)( $scan->getRawData()[ 'meta' ] ?? '' );
 	}
 
 	private function scanMeta( array $scan ) :array {

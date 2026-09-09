@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\{
+	EmailDeliveryVerification,
+	EmailDeliveryVerificationMailer
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Forms\FormParams;
 
@@ -44,62 +48,39 @@ class HandleOptionsSaveRequest {
 	/**
 	 * @throws \Exception
 	 */
-	private function storeOptions() {
-		// standard options use b64 and fail-over to lz-string
-		$form = $this->getForm();
+	private function storeOptions() :void {
+		$submittedKeys = $this->applyFormValues();
+		$this->sendEmailVerificationIfRequired( $submittedKeys );
 
+		self::con()->opts->store();
+	}
+
+	/**
+	 * @return string[]
+	 * @throws \Exception
+	 */
+	private function applyFormValues() :array {
 		$optsCon = self::con()->opts;
+		$resolved = ( new ResolveSubmittedOptionValues() )->resolve( $this->getForm() );
 
-		foreach ( \explode( ',', $form[ 'all_opts_keys' ] ?? [] ) as $optKey ) {
-
-			if ( !$optsCon->optExists( $optKey ) || $optsCon->optDef( $optKey )[ 'section' ] === 'section_hidden' ) {
-				continue;
-			}
-
-			$optType = $optsCon->optType( $optKey );
-			if ( $optType === 'noneditable_text' ) {
-				continue;
-			}
-
-			$optValue = $form[ $optKey ] ?? null;
-			if ( \is_null( $optValue ) ) {
-
-				if ( \in_array( $optType, [ 'text', 'email' ] ) ) { //text box, and it's null, don't update
-					continue;
-				}
-				elseif ( $optType == 'checkbox' ) { //if it was a checkbox, and it's null, it means 'N'
-					$optValue = 'N';
-				}
-				elseif ( $optType == 'integer' ) { //if it was a integer, and it's null, it means '0'
-					$optValue = 0;
-				}
-				elseif ( $optType == 'multiple_select' ) {
-					$optValue = [];
-				}
-			}
-			elseif ( $optType == 'password' ) {
-				$tempValue = \trim( $optValue );
-				if ( empty( $tempValue ) ) {
-					continue;
-				}
-
-				$confirm = $form[ $optKey.'_confirm' ] ?? null;
-				if ( $tempValue !== $confirm ) {
-					throw new \Exception( __( 'Password values do not match.', 'wp-simple-firewall' ) );
-				}
-
-				$optValue = \hash( 'md5', $tempValue );
-			}
-			elseif ( $optType == 'array' ) { //arrays are textareas, where each is separated by newline
-				$optValue = \array_values( \array_filter(
-					\array_map( '\trim', \explode( "\n", esc_textarea( $optValue ) ) ),
-					static fn( string $value ) :bool => $value !== ''
-				) );
-			}
-
+		foreach ( $resolved[ 'values' ] as $optKey => $optValue ) {
 			$optsCon->optSet( $optKey, $optValue );
 		}
 
-		$optsCon->store();
+		return $resolved[ 'submitted_keys' ];
+	}
+
+	/**
+	 * @param string[] $submittedKeys
+	 */
+	private function sendEmailVerificationIfRequired( array $submittedKeys ) :void {
+		if ( !\in_array( 'enable_email_authentication', $submittedKeys, true ) ) {
+			return;
+		}
+
+		$verification = new EmailDeliveryVerification();
+		if ( $verification->needsVerificationSend() && ( new EmailDeliveryVerificationMailer() )->send() ) {
+			$verification->markSent();
+		}
 	}
 }

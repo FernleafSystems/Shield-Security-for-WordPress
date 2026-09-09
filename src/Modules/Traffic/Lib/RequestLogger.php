@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib;
 
+use Monolog\Handler\HandlerInterface;
 use Monolog\Logger;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
@@ -25,8 +26,7 @@ class RequestLogger {
 
 	protected function canRun(): bool {
 		$con = self::con();
-		return $con->comps->opts_lookup->enabledTrafficLogger()
-		       && !$con->this_req->wp_is_wpcli
+		return !$con->this_req->wp_is_wpcli
 		       && $con->db_con->req_logs->isReady();
 	}
 
@@ -102,10 +102,11 @@ class RequestLogger {
 	private function pushCustomHandlers() {
 		if ( self::con()->caps->canActivityLogsSendToIntegrations() ) {
 			$custom = apply_filters( 'shield/custom_request_log_handlers', [] );
-			\array_map(
-				fn( $handler ) => $this->getLogger()->pushHandler( $handler ),
-				\is_array( $custom ) ? $custom : []
-			);
+			foreach ( \is_array( $custom ) ? $custom : [] as $handler ) {
+				if ( $handler instanceof HandlerInterface ) {
+					$this->getLogger()->pushHandler( $handler );
+				}
+			}
 		}
 	}
 

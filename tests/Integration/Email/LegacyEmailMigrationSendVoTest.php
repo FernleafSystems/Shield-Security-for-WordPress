@@ -6,8 +6,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVer
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerAdminLogin;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib\LicenseEmails;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\BackupCodes;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\AdminLoginAlertContextBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\UserManagement\Lib\Session\UserSessionHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
+use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
 
 class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 
@@ -46,14 +49,84 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 			'user_email' => 'secadmin@example.com',
 		] );
 		$con->opts
+			->optSet( 'block_send_email_address', 'mfa-report@example.com' )
 			->optSet( 'enable_email_authentication', 'Y' )
-			->optSet( 'email_can_send_verified_at', 0 );
+			->optSet( 'email_can_send_verified_at', 0 )
+			->optSet( 'email_can_send_verification_sent_at', 0 );
 
-		$con->action_router->action( MfaEmailSendVerification::class );
+		$payload = $con->action_router->action( MfaEmailSendVerification::class )->payload();
 
 		$mail = $this->lastMail();
-		$this->assertStringContainsString( 'Email Sending Verification', (string)( $mail[ 'subject' ] ?? '' ) );
-		$this->assertStringContainsString( 'Click the verify link:', (string)( $mail[ 'message' ] ?? '' ) );
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
+		$this->assertTrue( (bool)$payload[ 'success' ] );
+		$this->assertTrue( (bool)$payload[ 'page_reload' ] );
+		$this->assertArrayHasKey( 'subject', $mail );
+		$this->assertStringContainsString( 'Email Sending Verification', (string)$mail[ 'subject' ] );
+		$this->assertContains( 'mfa-report@example.com', $this->mailRecipients( $mail ) );
+		$this->assertGreaterThan( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+	}
+
+	public function testMfaEmailVerificationSendFailsWhenEmailAuthDisabled() :void {
+		$con = $this->requireController();
+		$this->loginAsSecurityAdmin();
+		$con->opts
+			->optSet( 'enable_email_authentication', 'N' )
+			->optSet( 'email_can_send_verified_at', 0 )
+			->optSet( 'email_can_send_verification_sent_at', 0 );
+
+		$payload = $con->action_router->action( MfaEmailSendVerification::class )->payload();
+
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
+		$this->assertFalse( (bool)$payload[ 'success' ] );
+		$this->assertFalse( (bool)$payload[ 'page_reload' ] );
+		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->assertCount( 0, $this->mails );
+	}
+
+	public function testMfaEmailVerificationSendIsNoopWhenAlreadyVerified() :void {
+		$con = $this->requireController();
+		$this->loginAsSecurityAdmin();
+		$con->opts
+			->optSet( 'enable_email_authentication', 'Y' )
+			->optSet( 'email_can_send_verified_at', \time() )
+			->optSet( 'email_can_send_verification_sent_at', 0 );
+
+		$payload = $con->action_router->action( MfaEmailSendVerification::class )->payload();
+
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
+		$this->assertArrayHasKey( 'status', $payload );
+		$this->assertTrue( (bool)$payload[ 'success' ] );
+		$this->assertFalse( (bool)$payload[ 'page_reload' ] );
+		$this->assertSame( 'verified', $payload[ 'status' ] );
+		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
+		$this->assertCount( 0, $this->mails );
+	}
+
+	public function testMfaEmailVerificationSendFailureDoesNotStoreSentTimestamp() :void {
+		$con = $this->requireController();
+		$this->loginAsSecurityAdmin();
+		$con->opts
+			->optSet( 'enable_email_authentication', 'Y' )
+			->optSet( 'email_can_send_verified_at', 0 )
+			->optSet( 'email_can_send_verification_sent_at', 0 );
+		$failMail = static fn() :bool => false;
+		\add_filter( 'pre_wp_mail', $failMail, 20 );
+
+		try {
+			$payload = $con->action_router->action( MfaEmailSendVerification::class )->payload();
+		}
+		finally {
+			\remove_filter( 'pre_wp_mail', $failMail, 20 );
+		}
+
+		$this->assertArrayHasKey( 'success', $payload );
+		$this->assertArrayHasKey( 'page_reload', $payload );
+		$this->assertFalse( (bool)$payload[ 'success' ] );
+		$this->assertFalse( (bool)$payload[ 'page_reload' ] );
+		$this->assertSame( 0, $con->opts->optGet( 'email_can_send_verification_sent_at' ) );
 	}
 
 	public function testLicenseWarningEmailRespectsThrottle() :void {
@@ -90,7 +163,8 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 
 	public function testAdminLoginInstantAlertEmailIsSentToReportRecipientWithExpectedDetails() :void {
 		$con = $this->requireController();
-		$con->this_req->ip = '198.51.100.23';
+		$con->this_req->ip = '147.182.139.163';
+		$con->this_req->ip_id = ServiceProviders::PROVIDER_ICONTROLWP;
 		$con->opts
 			->optSet( 'instant_alert_admin_login', 'email' )
 			->optSet( 'block_send_email_address', 'admin-notify@example.com' );
@@ -114,8 +188,73 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 		$this->assertStringContainsString( 'successful Administrator+ login', (string)( $mail[ 'message' ] ?? '' ) );
 		$this->assertStringContainsString( 'Login Details', (string)( $mail[ 'message' ] ?? '' ) );
 		$this->assertStringContainsString( 'managedadmin-notify@example.com', (string)( $mail[ 'message' ] ?? '' ) );
+		$this->assertStringContainsString( '147.182.139.163 (iControlWP)', (string)( $mail[ 'message' ] ?? '' ) );
 		$this->assertStringContainsString( 'admin-notify@example.com', (string)( $mail[ 'to' ] ?? '' ) );
 		$this->assertStringContainsString( 'Configure security email recipient', (string)( $mail[ 'message' ] ?? '' ) );
+	}
+
+	public function testAdminLoginAlertContextSuppressesVisitorIpIdentity() :void {
+		$con = $this->requireController();
+		$con->this_req->ip = '198.51.100.23';
+		$con->this_req->ip_id = IpID::VISITOR;
+
+		$userId = self::factory()->user->create( [
+			'role'       => 'administrator',
+			'user_login' => 'managedadmin-visitor',
+			'user_email' => 'managedadmin-visitor@example.com',
+		] );
+		$this->assertIsInt( $userId );
+		$user = get_user_by( 'id', $userId );
+		$this->assertInstanceOf( \WP_User::class, $user );
+
+		$alertData = ( new AdminLoginAlertContextBuilder() )->build( $user );
+
+		$this->assertIsArray( $alertData );
+		$this->assertSame( '', $alertData[ 'ip_identity' ] );
+	}
+
+	public function testAdminLoginAlertContextFallsBackForInvalidRoleFilter() :void {
+		$con = $this->requireController();
+		$userId = self::factory()->user->create( [
+			'role'       => 'administrator',
+			'user_login' => 'invalid-role-filter-admin',
+			'user_email' => 'invalid-role-filter-admin@example.com',
+		] );
+		$user = \get_user_by( 'id', $userId );
+		$this->assertInstanceOf( \WP_User::class, $user );
+		$callback = static fn() => new \stdClass();
+		\add_filter( $con->prefix( 'login-notification-email-role' ), $callback, \PHP_INT_MAX );
+
+		try {
+			$alertData = ( new AdminLoginAlertContextBuilder() )->build( $user );
+			$this->assertIsArray( $alertData );
+			$this->assertSame( 'Administrator+', $alertData[ 'role_name' ] );
+		}
+		finally {
+			\remove_filter( $con->prefix( 'login-notification-email-role' ), $callback, \PHP_INT_MAX );
+		}
+	}
+
+	public function testAdminLoginAlertContextPreservesValidRoleFilter() :void {
+		$con = $this->requireController();
+		$userId = self::factory()->user->create( [
+			'role'       => 'administrator',
+			'user_login' => 'valid-role-filter-admin',
+			'user_email' => 'valid-role-filter-admin@example.com',
+		] );
+		$user = \get_user_by( 'id', $userId );
+		$this->assertInstanceOf( \WP_User::class, $user );
+		$callback = static fn() :string => 'EDITOR';
+		\add_filter( $con->prefix( 'login-notification-email-role' ), $callback, \PHP_INT_MAX );
+
+		try {
+			$alertData = ( new AdminLoginAlertContextBuilder() )->build( $user );
+			$this->assertIsArray( $alertData );
+			$this->assertSame( 'Editor+', $alertData[ 'role_name' ] );
+		}
+		finally {
+			\remove_filter( $con->prefix( 'login-notification-email-role' ), $callback, \PHP_INT_MAX );
+		}
 	}
 
 	public function testAdminLoginInstantAlertSuppressesDuplicateUserLoginNoticeForSameRecipient() :void {
@@ -168,6 +307,18 @@ class LegacyEmailMigrationSendVoTest extends ShieldIntegrationTestCase {
 	private function lastMail() :array {
 		$this->assertNotEmpty( $this->mails, 'Expected at least one captured email.' );
 		return $this->mails[ \count( $this->mails ) - 1 ];
+	}
+
+	/**
+	 * @param array<string,mixed> $mail
+	 * @return string[]
+	 */
+	private function mailRecipients( array $mail ) :array {
+		$to = $mail[ 'to' ] ?? [];
+		if ( \is_string( $to ) ) {
+			$to = [ $to ];
+		}
+		return \array_values( \array_filter( \array_map( 'strval', \is_array( $to ) ? $to : [] ) ) );
 	}
 
 	private function resetInstantAlertsCache() :void {

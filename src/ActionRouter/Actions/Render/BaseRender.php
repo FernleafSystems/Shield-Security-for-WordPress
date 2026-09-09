@@ -16,6 +16,7 @@ abstract class BaseRender extends BaseAction {
 
 	public const TEMPLATE = '';
 	public const GO_PRO_URL = 'https://clk.shldscrty.com/shieldgoprofeature';
+	public const COMPARE_FEATURES_URL = 'https://clk.shldscrty.com/gp';
 	public const RENDER_ERROR_EXCEPTION = 'render_exception';
 
 	private string $renderErrorCode = '';
@@ -179,6 +180,7 @@ abstract class BaseRender extends BaseAction {
 				'aar_forget_key' => $con->labels->url_secadmin_forgotten_key,
 				'plugin_home'    => $con->labels->PluginURI,
 				'go_pro'         => self::GO_PRO_URL,
+				'compare_features' => self::COMPARE_FEATURES_URL,
 				'goprofooter'    => 'https://clk.shldscrty.com/goprofooter',
 
 				'dashboard_home' => $con->plugin_urls->adminHome(),
@@ -299,9 +301,7 @@ abstract class BaseRender extends BaseAction {
 				'privacy_never_spam'     => __( 'We never SPAM and you can remove yourself at any time.', 'wp-simple-firewall' ),
 
 				'options'        => CommonDisplayStrings::get( 'options_label' ),
-				'not_available'  => __( 'Sorry, please upgrade your plan to access this feature.', 'wp-simple-firewall' ),
 				'not_enabled'    => __( "This feature isn't currently enabled.", 'wp-simple-firewall' ),
-				'please_upgrade' => sprintf( __( 'You can get this security feature, and many more, by upgrading your %s plan.', 'wp-simple-firewall' ), self::con()->labels->Name ),
 				'please_enable'  => __( 'Please turn on this feature in the options.', 'wp-simple-firewall' ),
 				'yyyymmdd'       => __( 'YYYY-MM-DD', 'wp-simple-firewall' ),
 
@@ -362,7 +362,7 @@ abstract class BaseRender extends BaseAction {
 		if ( $value === null ) {
 			$value = $default;
 		}
-		return \trim( sanitize_text_field( (string)$value ) );
+		return \trim( sanitize_text_field( \is_scalar( $value ) ? (string)$value : $default ) );
 	}
 
 	private function buildRunningVersionHtml() :string {

@@ -135,10 +135,7 @@ class PluginAdminPageHandler extends Actions\BaseAction {
 	public function displayModuleAdminPage() {
 		echo self::con()->action_router->render(
 			Actions\Render\PageAdminPlugin::class,
-			[
-				Constants::NAV_ID     => $this->action_data[ Constants::NAV_ID ] ?? '',
-				Constants::NAV_SUB_ID => $this->action_data[ Constants::NAV_SUB_ID ] ?? '',
-			]
+			( new Actions\Render\PageAdminPluginRouteResolver() )->buildAdminPageActionData( $this->action_data )
 		);
 	}
 }

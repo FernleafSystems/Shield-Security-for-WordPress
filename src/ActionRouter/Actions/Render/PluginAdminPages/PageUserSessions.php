@@ -7,8 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\{
 	ModuleUsers
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
-class PageUserSessions extends BasePluginAdminPage {
+class PageUserSessions extends PageModeLandingBase {
 
 	public const SLUG = 'admin_plugin_page_user_sessions';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/table_sessions.twig';
@@ -33,24 +34,39 @@ class PageUserSessions extends BasePluginAdminPage {
 		];
 	}
 
+	protected function getLandingTitle() :string {
+		return CommonDisplayStrings::get( 'user_sessions_label' );
+	}
+
+	protected function getLandingSubtitle() :string {
+		return __( 'View and manage details of current user sessions on the site.', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingIcon() :string {
+		return 'person-badge';
+	}
+
+	protected function getLandingMode() :string {
+		return PluginNavs::MODE_INVESTIGATE;
+	}
+
+	protected function hasOperatorModeParent() :bool {
+		return true;
+	}
+
 	protected function getRenderData() :array {
-		return [
-			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->iconClass( 'person-badge' ),
-			],
+		return \array_replace_recursive( parent::getRenderData(), [
 			'strings' => [
 				'title_filter_form'   => __( 'Sessions Table Filters', 'wp-simple-firewall' ),
 				'users_title'         => CommonDisplayStrings::get( 'user_sessions_label' ),
 				'users_subtitle'      => __( 'Review and manage current user sessions', 'wp-simple-firewall' ),
 				'users_maybe_expired' => __( "Some sessions may have expired but haven't been automatically cleaned from the database yet", 'wp-simple-firewall' ),
 				'username'            => CommonDisplayStrings::get( 'username' ),
-				'inner_page_title'    => CommonDisplayStrings::get( 'user_sessions_label' ),
-				'inner_page_subtitle' => __( 'View and manage details of current user sessions on the site.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'unique_users' => $this->getDistinctUsernames(),
 			],
-		];
+		] );
 	}
 
 	private function getDistinctUsernames() :array {

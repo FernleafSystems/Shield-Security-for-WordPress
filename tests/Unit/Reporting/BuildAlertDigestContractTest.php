@@ -43,6 +43,7 @@ class BuildAlertDigestContractTest extends BaseUnitTest {
 						'count'     => 6,
 						'new_count' => 4,
 						'items'     => [],
+						'notification_target_ids' => [],
 					],
 					[
 						'slug'      => 'afs_malware',
@@ -71,6 +72,7 @@ class BuildAlertDigestContractTest extends BaseUnitTest {
 						'name'      => 'Vulnerability Scan',
 						'count'     => 1,
 						'new_count' => 0,
+						'notification_target_ids' => [],
 						'items'     => [
 							[ 'label' => 'Vulnerable Plugin', 'is_new' => false ],
 						],
@@ -81,6 +83,7 @@ class BuildAlertDigestContractTest extends BaseUnitTest {
 						'count'     => 8,
 						'new_count' => 8,
 						'items'     => [],
+						'notification_target_ids' => [],
 					],
 				],
 			],
@@ -96,9 +99,56 @@ class BuildAlertDigestContractTest extends BaseUnitTest {
 		$this->assertSame( '/admin/scans/overview?zone=scans', $digest[ 'summary' ][ 'actions_queue_href' ] );
 		$this->assertSame( [ 11, 12, 23 ], $digest[ 'notification_target_ids' ] );
 		$this->assertSame( [ 'Malware Scan', 'Abandoned Plugins', 'Vulnerability Scan' ], \array_column( $digest[ 'rows' ], 'title' ) );
+		foreach ( $digest[ 'rows' ] as $row ) {
+			$this->assertIsString( $row[ 'title' ] );
+			$this->assertIsInt( $row[ 'count' ] );
+			$this->assertIsInt( $row[ 'new_count' ] );
+			$this->assertIsString( $row[ 'count_summary' ] );
+			$this->assertIsBool( $row[ 'has_new' ] );
+			$this->assertIsArray( $row[ 'new_items' ] );
+			$this->assertIsArray( $row[ 'outstanding_items' ] );
+			$this->assertIsArray( $row[ 'notification_target_ids' ] );
+		}
 		$this->assertSame( '4 total, 2 new', $digest[ 'rows' ][ 0 ][ 'count_summary' ] );
 		$this->assertSame( 1, $digest[ 'rows' ][ 0 ][ 'hidden_outstanding_count' ] );
 		$this->assertSame( 1, $digest[ 'rows' ][ 1 ][ 'hidden_outstanding_count' ] );
 		$this->assertSame( [ [ 'label' => 'Vulnerable Plugin' ] ], $digest[ 'rows' ][ 2 ][ 'outstanding_items' ] );
+	}
+
+	/**
+	 * @dataProvider invalidSourceRowProvider
+	 * @param array<string,mixed> $sourceRow
+	 */
+	public function test_build_rejects_invalid_source_row_contract( array $sourceRow ) :void {
+		$report = new ReportVO();
+		$report->areas_data = [
+			Constants::REPORT_AREA_SCANS => [
+				'scan_results' => [ $sourceRow ],
+			],
+		];
+
+		$this->expectException( \UnexpectedValueException::class );
+		( new BuildAlertDigestContract() )->build( $report );
+	}
+
+	public static function invalidSourceRowProvider() :array {
+		$valid = [
+			'slug'                    => 'afs_malware',
+			'name'                    => 'Malware Scan',
+			'count'                   => 1,
+			'new_count'               => 1,
+			'items'                   => [ [ 'label' => 'malware.php', 'is_new' => true ] ],
+			'notification_target_ids' => [ 11 ],
+		];
+		$invalidItem = $valid;
+		$invalidItem[ 'items' ][ 0 ][ 'is_new' ] = 1;
+		$invalidTarget = $valid;
+		$invalidTarget[ 'notification_target_ids' ] = [ '11' ];
+
+		return [
+			'missing required fields'        => [ [] ],
+			'invalid nested item boolean'    => [ $invalidItem ],
+			'invalid notification target ID' => [ $invalidTarget ],
+		];
 	}
 }

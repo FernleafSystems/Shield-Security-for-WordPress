@@ -45,6 +45,9 @@ jobs:
     - name: Install dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
+    - name: Enforce unit filesystem fixture policy
+      run: composer test:unit:policy
+
     - name: Run unit command
       continue-on-error: ${{ inputs.allow_failure }}
       run: ${{ inputs.run_command }}

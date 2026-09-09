@@ -37,9 +37,10 @@ class PopularPluginsCompatibilityTestLaneTest extends TestCase {
 		$root = \dirname( __DIR__, 2 );
 		$artifactDir = $this->createTrackedTempDir( 'shield-popular-artifacts-' );
 		$runner = new FastPopularPluginProcessRunner( $this->successfulCompatibilityQueue() );
+		$docker = new RecordingDockerComposeExecutor( [ 0 ] );
 		$lane = $this->buildLane(
 			$runner,
-			new RecordingDockerComposeExecutor( [ 0 ] ),
+			$docker,
 			$this->packageResolverReturning( '21.2.7' )
 		);
 		$this->expectOutputRegex( '#Mode: popular-plugins\r?\nArtifact directory: .+#' );
@@ -59,6 +60,7 @@ class PopularPluginsCompatibilityTestLaneTest extends TestCase {
 		$this->assertCommandContains( $runner, 'wp plugin list --status=active --format=json' );
 		$this->assertCommandContains( $runner, 'wp cron event run --due-now' );
 		$this->assertCompanionsPrecedeShieldInstall( $runner );
+		$this->assertSame( [ 'up', '-d', '--wait', '--wait-timeout', '60', 'db', 'wordpress' ], $docker->calls[ 0 ][ 'sub_command' ] );
 		$this->assertFileExists( Path::join( $artifactDir, PopularPluginsCompatibilityArtifacts::COMPANION_PLUGINS_FILE ) );
 		$this->assertFileExists( Path::join( $artifactDir, PopularPluginsCompatibilityArtifacts::ACTIVATION_RESULTS_FILE ) );
 	}

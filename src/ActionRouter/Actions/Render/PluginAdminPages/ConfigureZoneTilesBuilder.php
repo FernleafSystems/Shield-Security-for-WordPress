@@ -38,6 +38,35 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  * }
  * @phpstan-type TileDefinition StandardTileDefinition|ForcedNeutralTileDefinition
  * @phpstan-type ConfigureStatus 'good'|'warning'|'critical'|'neutral'
+ * @phpstan-type RawConfigureScope array{
+ *   zone_component_slugs:list<string>,
+ *   option_keys:list<string>,
+ *   config_item:string,
+ *   title:string
+ * }
+ * @phpstan-type ConfigureScope array{
+ *   zone_component_slugs:non-empty-list<string>,
+ *   option_keys:non-empty-list<string>,
+ *   config_item:string,
+ *   title:string
+ * }
+ * @phpstan-type ConfigureActionData array{
+ *   zone_component_action:string,
+ *   zone_component_slug:non-empty-string,
+ *   option_keys:non-empty-string,
+ *   form_context:'offcanvas',
+ *   config_item?:non-empty-string
+ * }
+ * @phpstan-type ConfigureActionContract array{
+ *   label:string,
+ *   title:string,
+ *   href:'',
+ *   target:'',
+ *   is_action:true,
+ *   icon:string,
+ *   classes:list<string>,
+ *   data:ConfigureActionData
+ * }
  * @phpstan-type ConfigureRowContract array{
  *   key:string,
  *   title:string,
@@ -46,7 +75,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
  *   status_icon_class:string,
  *   note:string,
  *   explanations:list<string>,
- *   config_action:array<string,mixed>
+ *   config_action:ConfigureActionContract
  * }
  * @phpstan-type ConfigureZoneTileContract array{
  *   key:string,
@@ -80,10 +109,14 @@ class ConfigureZoneTilesBuilder {
 	 * @return list<ConfigureZoneTileContract>
 	 */
 	public function build() :array {
-		return \array_map(
-			fn( array $definition ) :array => $this->buildTileFromDefinition( $definition ),
-			$this->getTileDefinitions()
-		);
+		$tiles = [];
+		foreach ( $this->getTileDefinitions() as $definition ) {
+			$tile = $this->buildTileFromDefinition( $definition );
+			if ( !empty( $tile[ 'panel' ][ 'rows' ] ) ) {
+				$tiles[] = $tile;
+			}
+		}
+		return $tiles;
 	}
 
 	/**
@@ -139,7 +172,11 @@ class ConfigureZoneTilesBuilder {
 		$rowInputs = [];
 		foreach ( $visibleComponents as $component ) {
 			foreach ( $component->configureRows() as $rowInput ) {
-				$rowInputs[] = $rowInput;
+				$configScope = $this->normalizeDisplayableConfigScope( $rowInput[ 'config_scope' ] );
+				if ( !empty( $configScope ) ) {
+					$rowInput[ 'config_scope' ] = $configScope;
+					$rowInputs[] = $rowInput;
+				}
 			}
 		}
 
@@ -166,12 +203,7 @@ class ConfigureZoneTilesBuilder {
 	 *   enabled_status:string,
 	 *   note:string,
 	 *   explanations:list<string>,
-	 *   config_scope:array{
-	 *     zone_component_slugs:list<string>,
-	 *     option_keys:list<string>,
-	 *     config_item:string,
-	 *     title:string
-	 *   }
+	 *   config_scope:ConfigureScope
 	 * } $rowInput
 	 * @return ConfigureRowContract
 	 */
@@ -203,6 +235,15 @@ class ConfigureZoneTilesBuilder {
 		if ( empty( $scope ) ) {
 			return [];
 		}
+		$scope = $this->normalizeDisplayableConfigScope( [
+			'zone_component_slugs' => $scope[ 'zone_component_slugs' ],
+			'option_keys'          => $scope[ 'option_keys' ],
+			'config_item'          => '',
+			'title'                => __( 'Edit Settings', 'wp-simple-firewall' ),
+		] );
+		if ( empty( $scope ) ) {
+			return [];
+		}
 
 		return [
 			'key'               => self::GENERAL_SETTINGS_ROW_KEY,
@@ -212,12 +253,7 @@ class ConfigureZoneTilesBuilder {
 			'status_icon_class' => $this->componentStatusIconClass( 'neutral' ),
 			'note'              => __( 'Additional settings in this zone that are not covered by a dedicated callout.', 'wp-simple-firewall' ),
 			'explanations'      => [],
-			'config_action'     => $this->buildConfigActionForScope( [
-				'zone_component_slugs' => $scope[ 'zone_component_slugs' ],
-				'option_keys'          => $scope[ 'option_keys' ],
-				'config_item'          => '',
-				'title'                => __( 'Edit Settings', 'wp-simple-firewall' ),
-			] ),
+			'config_action'     => $this->buildConfigActionForScope( $scope ),
 		];
 	}
 
@@ -228,15 +264,8 @@ class ConfigureZoneTilesBuilder {
 	private function extractCoveredOptionKeysFromRows( array $rows ) :array {
 		$coveredOptionKeys = [];
 		foreach ( $rows as $row ) {
-			$optionKeys = (string)( $row[ 'config_action' ][ 'data' ][ 'option_keys' ] ?? '' );
-			if ( $optionKeys === '' ) {
-				continue;
-			}
-			foreach ( \explode( ',', $optionKeys ) as $optionKey ) {
-				$optionKey = \trim( $optionKey );
-				if ( $optionKey !== '' ) {
-					$coveredOptionKeys[] = $optionKey;
-				}
+			foreach ( \explode( ',', $row[ 'config_action' ][ 'data' ][ 'option_keys' ] ) as $optionKey ) {
+				$coveredOptionKeys[] = $optionKey;
 			}
 		}
 
@@ -370,41 +399,72 @@ class ConfigureZoneTilesBuilder {
 	}
 
 	/**
-	 * @param array{
-	 *   zone_component_slugs:list<string>,
-	 *   option_keys:list<string>,
-	 *   config_item:string,
-	 *   title:string
-	 * } $scope
-	 * @return array<string,mixed>
+	 * @param ConfigureScope $scope
+	 * @return ConfigureActionContract
 	 */
 	private function buildConfigActionForScope( array $scope ) :array {
-		if ( empty( $scope[ 'zone_component_slugs' ] ) ) {
-			return [];
-		}
-
 		$data = [
 			'zone_component_action' => ZoneComponentConfig::SLUG,
 			'zone_component_slug'   => \implode( ',', $scope[ 'zone_component_slugs' ] ),
+			'option_keys'           => \implode( ',', $scope[ 'option_keys' ] ),
+			'form_context'          => 'offcanvas',
 		];
-		if ( !empty( $scope[ 'option_keys' ] ) ) {
-			$data[ 'option_keys' ] = \implode( ',', $scope[ 'option_keys' ] );
-		}
 		if ( !empty( $scope[ 'config_item' ] ) ) {
 			$data[ 'config_item' ] = $scope[ 'config_item' ];
 		}
-		$data[ 'form_context' ] = 'offcanvas';
 
 		return [
 			'label'     => __( 'Configure', 'wp-simple-firewall' ),
 			'title'     => $scope[ 'title' ] ?: __( 'Edit Settings', 'wp-simple-firewall' ),
 			'href'      => '',
+			'target'    => '',
 			'is_action' => true,
 			'icon'      => self::con()->svgs->iconClass( 'gear' ),
-			'tooltip'   => '',
 			'classes'   => [ 'zone_component_action' ],
 			'data'      => $data,
 		];
+	}
+
+	/**
+	 * @param RawConfigureScope $scope
+	 * @return array{}|ConfigureScope
+	 */
+	private function normalizeDisplayableConfigScope( array $scope ) :array {
+		$zoneComponentSlugs = \array_values( \array_unique( \array_filter( \array_map(
+			static fn( $slug ) :string => \trim( (string)$slug ),
+			$scope[ 'zone_component_slugs' ]
+		) ) ) );
+
+		$optionKeys = [];
+		foreach ( $scope[ 'option_keys' ] as $optionKey ) {
+			$optionKey = \trim( (string)$optionKey );
+			if ( $optionKey !== ''
+				 && !\in_array( $optionKey, $optionKeys, true )
+				 && $this->isDisplayableOptionKey( $optionKey ) ) {
+				$optionKeys[] = $optionKey;
+			}
+		}
+
+		if ( empty( $zoneComponentSlugs ) || empty( $optionKeys ) ) {
+			return [];
+		}
+
+		$configItem = \trim( $scope[ 'config_item' ] );
+		if ( $configItem !== '' && !\in_array( $configItem, $optionKeys, true ) ) {
+			$configItem = '';
+		}
+
+		return [
+			'zone_component_slugs' => $zoneComponentSlugs,
+			'option_keys'          => $optionKeys,
+			'config_item'          => $configItem,
+			'title'                => \trim( $scope[ 'title' ] ),
+		];
+	}
+
+	private function isDisplayableOptionKey( string $optionKey ) :bool {
+		$section = (string)( self::con()->cfg->configuration->options[ $optionKey ][ 'section' ] ?? '' );
+		return $section !== '' && !\in_array( $section, [ 'section_hidden', 'section_deprecated' ], true );
 	}
 
 	/**

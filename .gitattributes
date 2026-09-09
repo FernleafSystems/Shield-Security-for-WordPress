@@ -160,6 +160,7 @@ yarn.lock text eol=lf
 /README.md export-ignore
 /TESTING.md export-ignore
 /changelog.md export-ignore
+/CONTEXT.md export-ignore
 
 # Dependency management (runtime deps installed separately in package)
 # NOTE: composer.json is INCLUDED during copy (needed for composer install in packaging)

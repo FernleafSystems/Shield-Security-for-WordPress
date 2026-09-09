@@ -184,7 +184,7 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_active_direct_scan_group_indicates_ignored_results_without_changing_active_count() :void {
+	public function test_active_direct_scan_group_preserves_active_count_and_direct_table_contract() :void {
 		$builder = $this->newBuilder(
 			[],
 			$this->newScopeStateBuilder( 1, 2 )
@@ -207,21 +207,53 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 
 		$this->assertArrayHasKey( 'plugins:example-plugin/example-plugin.php', $groups[ 'groups_indexed' ] );
 		$group = $groups[ 'groups_indexed' ][ 'plugins:example-plugin/example-plugin.php' ];
-		$header = $group[ 'selection' ][ 'header' ];
 
 		$this->assertSame( 1, $group[ 'item_count' ] );
 		$this->assertSame( 'warning', $group[ 'status' ] );
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( $header[ 'summary' ] )
+		$this->assertSame( 'direct_table', $group[ 'detail_shell' ] );
+	}
+
+	public function test_healthy_direct_scan_group_with_only_ignored_results_is_interactive() :void {
+		$builder = $this->newBuilder(
+			[],
+			$this->newScopeStateBuilder( 0, 2 )
 		);
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( $header[ 'focus' ] )
+
+		$groups = $builder->buildResolvedGroups( 'Fix now', [
+			$this->groupSeed( [
+				'key'                         => 'malware',
+				'definition_key'              => 'malware',
+				'label'                       => 'Malware',
+				'item_count'                  => 0,
+				'status'                      => 'good',
+				'is_interactive_override'     => false,
+				'render_action_data_override' => [],
+			] ),
+		] );
+
+		$this->assertArrayHasKey( 'malware', $groups[ 'groups_indexed' ] );
+		$group = $groups[ 'groups_indexed' ][ 'malware' ];
+		$header = $group[ 'selection' ][ 'header' ];
+
+		$this->assertTrue( $group[ 'is_interactive' ] );
+		$this->assertSame( 0, $group[ 'item_count' ] );
+		$this->assertSame( 'good', $group[ 'status' ] );
+		$this->assertSame( [], $header[ 'actions' ] );
+		$this->assertSame(
+			( new ScanResultsDisplayOptions() )->buildDisplayContextActionData(),
+			$group[ 'render_action_data' ]
 		);
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( $header[ 'next_step' ] )
+		$this->assertSame(
+			'scanresults_malware',
+			(string)( $group[ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] ?? '' )
+		);
+		$this->assertSame(
+			'actions_queue',
+			(string)( $group[ 'selection' ][ 'detail_render_action' ][ 'display_context' ] ?? '' )
+		);
+		$this->assertAjaxRenderPayloadAllowedByPolicy(
+			$group[ 'selection' ][ 'detail_render_action' ],
+			'healthy ignored malware detail render'
 		);
 	}
 
@@ -245,14 +277,31 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 		$this->assertSame( 'good', $group[ 'status' ] );
 		$this->assertSame( 0, $group[ 'item_count' ] );
 		$this->assertSame( [], $header[ 'actions' ] );
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( $header[ 'summary' ] )
-		);
-		$this->assertStringContainsString(
-			'ignored',
-			\strtolower( $header[ 'next_step' ] )
-		);
+		$this->assertSame( 'actions_queue', (string)( $group[ 'render_action_data' ][ 'display_context' ] ?? '' ) );
+	}
+
+	public function test_empty_cloaked_seed_suppresses_only_its_detail_render_contract() :void {
+		$groups = $this->newBuilder()->buildResolvedGroups( 'Fix now', [
+			$this->groupSeed( [
+				'key'                         => 'hidden_plugins',
+				'definition_key'              => 'hidden_plugins',
+				'label'                       => 'Cloaked Plugins',
+				'item_count'                  => 0,
+				'status'                      => 'good',
+				'is_interactive_override'     => false,
+				'render_action_data_override' => [],
+				'suppress_detail_render_action_if_noninteractive' => true,
+			] ),
+		] );
+		$cloaked = $groups[ 'groups_indexed' ][ 'hidden_plugins' ];
+
+		$this->assertFalse( $cloaked[ 'is_interactive' ] );
+		$this->assertSame( [], $cloaked[ 'render_action_data' ] );
+		$this->assertSame( [], $cloaked[ 'selection' ][ 'detail_render_action' ] );
+
+		$unrelated = $this->newBuilder()->buildEmptyGroup( 'abandoned', 'Fix now' );
+		$this->assertFalse( $unrelated[ 'is_interactive' ] );
+		$this->assertNotSame( [], $unrelated[ 'selection' ][ 'detail_render_action' ] );
 	}
 
 	/**
@@ -316,6 +365,69 @@ class ActionsQueueGroupContractBuilderTest extends BaseUnitTest {
 				];
 			}
 		};
+	}
+
+	public function test_sections_keep_related_checks_together_and_promote_findings() :void {
+		$seeds = [];
+		foreach ( [
+			'wordpress' => 'good',
+			'themes' => 'neutral',
+			'plugins' => 'warning',
+			'malware' => 'critical',
+			'file_locker' => 'good',
+			'vulnerabilities' => 'good',
+			'abandoned' => 'neutral',
+			'hidden_plugins' => 'good',
+		] as $key => $status ) {
+			$seeds[] = $this->groupSeed( [
+				'key' => $key, 'definition_key' => $key, 'status' => $status,
+				'item_count' => \in_array( $status, [ 'critical', 'warning' ], true ) ? 3 : 0,
+			] );
+		}
+		$result = $this->newBuilder()->buildResolvedGroups( 'Fix Now', $seeds );
+		$this->assertCount( 1, $result[ 'active_sections' ] );
+		$this->assertCount( 1, $result[ 'healthy_sections' ] );
+		$this->assertSame( [ 'malware', 'plugins', 'wordpress', 'file_locker', 'themes' ],
+			\array_column( $result[ 'active_sections' ][ 0 ][ 'groups' ], 'key' ) );
+		$this->assertSame( [ 'vulnerabilities', 'hidden_plugins', 'abandoned' ],
+			\array_column( $result[ 'healthy_sections' ][ 0 ][ 'groups' ], 'key' ) );
+		$this->assertCount( 8, $result[ 'groups_indexed' ] );
+		$this->assertSame( 3, $result[ 'groups_indexed' ][ 'malware' ][ 'item_count' ] );
+		$this->assertSame( 'scanresults_malware', $result[ 'groups_indexed' ][ 'malware' ][ 'selection' ][ 'detail_render_action' ][ 'render_slug' ] );
+
+		foreach ( $seeds as &$seed ) {
+			$seed[ 'status' ] = $seed[ 'key' ] === 'vulnerabilities' ? 'critical' : 'good';
+			$seed[ 'item_count' ] = $seed[ 'key' ] === 'vulnerabilities' ? 2 : 0;
+		}
+		unset( $seed );
+		$result = $this->newBuilder()->buildResolvedGroups( 'Fix Now', $seeds );
+		$this->assertCount( 1, $result[ 'active_sections' ] );
+		$this->assertSame( [ 'vulnerabilities', 'abandoned', 'hidden_plugins' ],
+			\array_column( $result[ 'active_sections' ][ 0 ][ 'groups' ], 'key' ) );
+		$this->assertSame( [ 'wordpress', 'plugins', 'themes', 'malware', 'file_locker' ],
+			\array_column( $result[ 'healthy_sections' ][ 0 ][ 'groups' ], 'key' ) );
+	}
+
+	public function test_critical_section_precedes_warning_section() :void {
+		$result = $this->newBuilder()->buildResolvedGroups( 'Fix Now', [
+			$this->groupSeed( [ 'status' => 'warning' ] ),
+			$this->groupSeed( [ 'key' => 'vulnerabilities', 'definition_key' => 'vulnerabilities', 'status' => 'critical' ] ),
+		] );
+		$this->assertSame( [ 'Plugin & Theme Risks', 'File Integrity' ], \array_column( $result[ 'active_sections' ], 'heading_label' ) );
+	}
+
+	/** @dataProvider clearSectionStatuses */
+	public function test_clear_sections_show_file_integrity_first( string $fileStatus, string $riskStatus ) :void {
+		$result = $this->newBuilder()->buildResolvedGroups( 'Fix Now', [
+			$this->groupSeed( [ 'key' => 'vulnerabilities', 'definition_key' => 'vulnerabilities', 'status' => $riskStatus, 'item_count' => 0 ] ),
+			$this->groupSeed( [ 'status' => $fileStatus, 'item_count' => 0 ] ),
+		] );
+		$this->assertSame( [], $result[ 'active_sections' ] );
+		$this->assertSame( [ 'File Integrity', 'Plugin & Theme Risks' ], \array_column( $result[ 'healthy_sections' ], 'heading_label' ) );
+	}
+
+	public static function clearSectionStatuses() :array {
+		return [ [ 'good', 'good' ], [ 'neutral', 'neutral' ], [ 'neutral', 'good' ], [ 'good', 'neutral' ] ];
 	}
 
 	private function groupSeed( array $overrides = [] ) :array {

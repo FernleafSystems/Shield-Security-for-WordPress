@@ -21,10 +21,13 @@ class ActionsQueueItemIconsTest extends BaseUnitTest {
 
 		$this->assertSame( 'shield-exclamation', $icons->iconForScanKey( 'vulnerabilities' ) );
 		$this->assertSame( 'archive', $icons->iconForScanKey( 'abandoned' ) );
+		$this->assertSame( 'eye-slash-fill', $icons->iconForScanKey( 'hidden_plugins' ) );
 		$this->assertSame( 'archive', $icons->iconForKey( 'abandoned' ) );
 		$this->assertSame( 'archive', PluginNavs::actionsLandingScanRowIcon( 'abandoned' ) );
 		$this->assertSame( 'bi bi-plug-fill', $icons->iconClassForScanKey( 'plugins' ) );
 		$this->assertSame( 'bi bi-archive-fill', $icons->iconClassForScanKey( 'abandoned' ) );
+		$this->assertSame( 'bi bi-eye-slash-fill', $icons->iconClassForScanKey( 'hidden_plugins' ) );
+		$this->assertSame( 'bi bi-eye-slash-fill', $icons->iconClassForKey( 'hidden_plugins' ) );
 		$this->assertSame( 'bi bi-code-slash', $icons->iconClassForKey( 'system_php_version' ) );
 		$this->assertSame( $icons->iconClassForScanKey( 'plugins' ), PluginNavs::actionsLandingScanRailIconClass( 'plugins' ) );
 	}

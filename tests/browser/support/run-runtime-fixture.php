@@ -1,4 +1,6 @@
-<?php declare( strict_types=1 );
+<?php
+
+// WP-CLI eval-file wraps scripts before evaluation, so strict_types cannot be declared here.
 
 require_once '/app/tests/Helpers/RuntimeTestState.php';
 require_once '/app/tests/Helpers/TestDataFactory.php';
@@ -20,6 +22,8 @@ require_once '/app/tests/Helpers/ActionRouter/NotBotAltchaFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/PublicBlockRecoveryFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/SecurityAdminFixtureBuilder.php';
 require_once '/app/tests/Helpers/ActionRouter/SecurityHeadersFixtureBuilder.php';
+require_once '/app/tests/Helpers/ActionRouter/CustomRulesTerminalFinalizationRuntime.php';
+require_once '/app/tests/Helpers/ActionRouter/CustomRulesTerminalFinalizationFixtureBuilder.php';
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\BrowserFixtureRegistry;
 

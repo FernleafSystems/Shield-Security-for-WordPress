@@ -16,7 +16,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\FullPageDisplay\DisplayReportAdmin
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginURLs;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\{
+	PluginNavs,
+	PluginURLs
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\PluginControllerInstaller;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
@@ -28,6 +31,7 @@ class PluginURLsTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		Functions\when( '__' )->returnArg();
 
 		Functions\when( 'plugin_basename' )->alias( static fn( string $file ) :string => $file );
 		Functions\when( 'sanitize_key' )->alias( static fn( string $key ) :string => \strtolower( \trim( $key ) ) );
@@ -71,6 +75,16 @@ class PluginURLsTest extends BaseUnitTest {
 		PluginControllerInstaller::install( new class extends Controller {
 			public function __construct() {
 				parent::__construct( 'icwp-wpsf.php' );
+				$this->opts = new class {
+					public function optDef( string $key ) :array {
+						return \in_array( $key, [ 'importexport_enable', 'importexport_masterurl', 'importexport_secretkey' ], true )
+							? [
+								'section'         => 'section_importexport',
+								'zone_comp_slugs' => [ 'import_export' ],
+							]
+							: [];
+					}
+				};
 				$this->cfg = (object)[
 					'properties' => [
 						'wpms_network_admin_only' => false,
@@ -78,6 +92,7 @@ class PluginURLsTest extends BaseUnitTest {
 						'slug_plugin' => 'wpsf',
 					],
 				];
+				$this->comps = (object)[ 'zones' => new \FernleafSystems\Wordpress\Plugin\Shield\Zones\SecurityZonesCon() ];
 			}
 		} );
 	}
@@ -123,15 +138,25 @@ class PluginURLsTest extends BaseUnitTest {
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=overview', $urls->reportsHome() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=overview&zone=scans', $urls->modeHome( 'actions' ) );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=zones&nav_sub=overview&zone=login', $urls->zone( 'login' ) );
-		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=zone_components&nav_sub=module_plugin', $urls->cfgForZoneComponent( 'module_plugin' ) );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=zones&nav_sub=overview&component=module_plugin', $urls->cfgForZoneComponent( 'module_plugin' ) );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=scans&nav_sub=run', $urls->scansRun() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=tools&nav_sub=debug', $urls->debugInfo() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=tools&nav_sub=blockdown', $urls->lockdown() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=traffic&nav_sub=logs', $urls->trafficLog() );
-		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=traffic&nav_sub=live', $urls->trafficLive() );
+		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=activity&nav_sub=overview&subject=live_traffic', $urls->trafficLive() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=license&nav_sub=check', $urls->licenseCheck() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=build', $urls->rulesBuild() );
 		$this->assertSame( '/shield-admin.php?page=icwp-wpsf-plugin&nav=rules&nav_sub=manage', $urls->rulesManage() );
+		$this->assertSame( '/wp-admin/plugins.php?plugin_status=cloaked', $urls->cloakedPlugins() );
+	}
+
+	public function test_import_export_options_link_to_current_import_export_tool() :void {
+		$urls = new PluginURLs();
+		$expected = $urls->adminTopNav( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT );
+
+		foreach ( [ 'importexport_enable', 'importexport_masterurl', 'importexport_secretkey' ] as $optKey ) {
+			$this->assertSame( $expected, $urls->cfgForOpt( $optKey ) );
+		}
 	}
 
 	public function test_report_view_builds_admin_shield_action_without_signature_or_nonce() :void {
@@ -163,13 +188,14 @@ class PluginURLsTest extends BaseUnitTest {
 			$urls->legacyAdminRouteRedirect( 'scans', 'state' )
 		);
 		$this->assertSame(
-			'/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=settings',
+			'/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=overview&workspace=settings',
 			$urls->legacyAdminRouteRedirect( 'reports', 'alerts' )
 		);
 		$this->assertSame(
-			'/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=settings',
+			'/shield-admin.php?page=icwp-wpsf-plugin&nav=reports&nav_sub=overview&workspace=settings',
 			$urls->legacyAdminRouteRedirect( 'reports', 'reporting' )
 		);
-		$this->assertNull( $urls->legacyAdminRouteRedirect( 'reports', 'list' ) );
+		$this->assertSame( $urls->reportsHome( 'list' ), $urls->legacyAdminRouteRedirect( 'reports', 'list' ) );
+		$this->assertNull( $urls->legacyAdminRouteRedirect( 'reports', 'overview' ) );
 	}
 }

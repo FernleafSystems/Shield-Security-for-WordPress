@@ -96,6 +96,10 @@ class Capabilities {
 		return $this->hasCap( 'scan_vulnerabilities' );
 	}
 
+	public function canDetectCloakedPlugins() :bool {
+		return true;
+	}
+
 	public function canMainwpLevel1() :bool {
 		return $this->hasCap( 'mainwp_level_1' ) || $this->canMainwpLevel2();
 	}
@@ -144,6 +148,10 @@ class Capabilities {
 
 	public function canTrafficRateLimit() :bool {
 		return $this->hasCap( 'traffic_rate_limiting' );
+	}
+
+	public function canTrafficLiveLog() :bool {
+		return $this->hasCap( 'traffic_live_log' );
 	}
 
 	public function canUserPasswordPolicies() :bool {

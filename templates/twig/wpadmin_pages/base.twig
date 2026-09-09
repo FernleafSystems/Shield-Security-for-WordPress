@@ -3,12 +3,12 @@
 
 {% block top_container %}
 	<div id="PageContainer-Apto" class="container-fluid g-2 {{ classes.top_container|default('') }}"
-		 role="region"
+		 role="region" tabindex="-1"
 		 aria-labelledby="ShieldAdminShellTitle">
 		<h1 id="ShieldAdminShellTitle" class="screen-reader-text">{{ strings.admin_shell_title }}</h1>
 		{% block h1heading %}{% endblock %}
 		{% block body %}
-			<div class="row" id="PageHead-Apto">
+			<div class="row gx-2" id="PageHead-Apto">
 				<div class="col">
 					{% block page_head %}Override this block for the header area{% endblock %}
 				</div>

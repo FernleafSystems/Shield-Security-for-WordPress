@@ -55,14 +55,16 @@ class OptsLookup {
 
 	public function enabledTrafficLimiter() :bool {
 		$opts = self::con()->opts;
-		return $this->enabledTrafficLogger()
-			   && $opts->optIs( 'enable_limiter', 'Y' )
+		return $opts->optIs( 'enable_limiter', 'Y' )
 			   && $opts->optGet( 'limit_time_span' ) > 0
 			   && $opts->optGet( 'limit_requests' ) > 0;
 	}
 
+	/**
+	 * Request logging is no longer user-disableable.
+	 */
 	public function enabledTrafficLogger() :bool {
-		return self::con()->opts->optIs( 'enable_logger', 'Y' );
+		return true;
 	}
 
 	public function getActivatedPeriod() :int {
@@ -176,9 +178,11 @@ class OptsLookup {
 
 	public function getLoginGuardEmailAuth2FaRoles() :array {
 		$roles = apply_filters( 'shield/2fa_email_enforced_user_roles', self::con()->opts->optGet( 'two_factor_auth_user_roles' ) );
-		return \array_unique( \array_filter( \array_map( 'sanitize_key',
-			\is_array( $roles ) ? $roles : self::con()->opts->optDefault( 'two_factor_auth_user_roles' )
-		) ) );
+		if ( !\is_array( $roles ) ) {
+			$roles = self::con()->opts->optDefault( 'two_factor_auth_user_roles' );
+		}
+		$roles = \array_filter( $roles, '\is_string' );
+		return \array_unique( \array_filter( \array_map( 'sanitize_key', $roles ) ) );
 	}
 
 	public function getPassExpireTimeout() :int {
@@ -188,7 +192,10 @@ class OptsLookup {
 	public function getReportEmail() :string {
 		$e = self::con()->opts->optGet( 'block_send_email_address' );
 		if ( self::con()->isPremiumActive() ) {
-			$e = apply_filters( 'shield/report_email', $e );
+			$filtered = apply_filters( 'shield/report_email', $e );
+			if ( \is_string( $filtered ) ) {
+				$e = $filtered;
+			}
 		}
 		$e = \trim( $e );
 		return Services::Data()->validEmail( $e ) ? $e : Services::WpGeneral()->getSiteAdminEmail();
@@ -231,7 +238,28 @@ class OptsLookup {
 		}
 
 		$startedAt = $opts->optGet( 'live_log_started_at' );
-		return $startedAt > 0 ? \max( 0, $this->getTrafficLiveLogDuration() - ( $now - $startedAt ) ) : 0;
+		return $this->calcTrafficLiveLogTimeRemaining(
+			$opts->optIs( 'enable_live_log', 'Y' ),
+			(int)$startedAt,
+			$now
+		);
+	}
+
+	public function peekTrafficLiveLogTimeRemaining() :int {
+		$opts = self::con()->opts;
+
+		return $this->calcTrafficLiveLogTimeRemaining(
+			$opts->optIs( 'enable_live_log', 'Y' ),
+			(int)$opts->optGet( 'live_log_started_at' ),
+			Services::Request()->ts()
+		);
+	}
+
+	private function calcTrafficLiveLogTimeRemaining( bool $enabled, int $startedAt, int $now ) :int {
+		if ( !$enabled || $startedAt <= 0 ) {
+			return 0;
+		}
+		return \max( 0, $this->getTrafficLiveLogDuration() - ( $now - $startedAt ) );
 	}
 
 	public function getTrafficLiveLogDuration() :int {

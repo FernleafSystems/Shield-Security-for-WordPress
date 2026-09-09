@@ -241,6 +241,33 @@ class AllowBetaUpgradesTest extends BaseUnitTest {
 		$this->assertFalse( $method->invoke( $subject ) );
 	}
 
+	public function testBetaLookupNoopsForHostileCachedVersionMap() :void {
+		$slug = 'wp-simple-firewall';
+		UnitTestControllerFactory::install( null, null, (object)[
+			'base_file' => 'wp-plugin-shield/icwp-wpsf.php',
+			'cfg'       => new AllowBetaUpgradesTestConfig(),
+		] );
+		ServicesState::installItems( [
+			'service_wpplugins' => new AllowBetaUpgradesPluginsStub( new AllowBetaUpgradesPluginVoStub( [
+				'id'   => 'wp-simple-firewall',
+				'slug' => $slug,
+			] ) ),
+			'service_wpgeneral' => new AllowBetaUpgradesGeneralStub( [
+				$this->cacheKeyForSlug( $slug ) => [
+					23.1     => 'https://downloads.wordpress.org/plugin/wp-simple-firewall.23.1.zip',
+					'23.2.0' => false,
+					'23.3.0' => [],
+					'bad-tag' => 'https://downloads.wordpress.org/plugin/wp-simple-firewall.bad-tag.zip',
+				],
+			] ),
+		] );
+
+		$method = new \ReflectionMethod( AllowBetaUpgrades::class, 'getBeta' );
+		$method->setAccessible( true );
+
+		$this->assertFalse( $method->invoke( new AllowBetaUpgrades() ) );
+	}
+
 	private function cacheKeyForSlug( string $slug ) :string {
 		return 'apto-shield-wporg-plugin-versions-'.\md5( $slug );
 	}

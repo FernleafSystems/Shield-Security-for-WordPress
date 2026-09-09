@@ -15,12 +15,23 @@ class RecordingDockerComposeExecutor extends DockerComposeExecutor {
 	/** @var int[] */
 	private array $exitCodes;
 
+	private bool $failWhenExhausted = false;
+
 	/**
 	 * @param int[] $exitCodes
 	 */
 	public function __construct( array $exitCodes = [ 0 ] ) {
 		parent::__construct();
 		$this->exitCodes = $exitCodes;
+	}
+
+	/**
+	 * @param int[] $exitCodes
+	 */
+	public static function strict( array $exitCodes ) :self {
+		$executor = new self( $exitCodes );
+		$executor->failWhenExhausted = true;
+		return $executor;
 	}
 
 	public function run(
@@ -39,6 +50,10 @@ class RecordingDockerComposeExecutor extends DockerComposeExecutor {
 			'show_docker_output' => $showDockerOutput,
 			'has_output_callback' => $onOutput !== null,
 		];
+
+		if ( $this->failWhenExhausted && $this->exitCodes === [] ) {
+			throw new \LogicException( 'Unexpected Docker Compose call exhausted the configured exit-code queue.' );
+		}
 
 		return (int)( \array_shift( $this->exitCodes ) ?? 0 );
 	}

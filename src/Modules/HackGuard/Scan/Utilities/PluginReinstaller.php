@@ -16,6 +16,15 @@ class PluginReinstaller {
 	}
 
 	public function eligiblePlugin( string $file ) :?WpPluginVo {
+		$plugin = $this->wpOrgPlugin( $file );
+		if ( !$plugin instanceof WpPluginVo || Services::WpPlugins()->isUpdateAvailable( $plugin->file ) ) {
+			return null;
+		}
+
+		return $plugin;
+	}
+
+	public function wpOrgPlugin( string $file ) :?WpPluginVo {
 		$file = \trim( $file );
 		if ( $file === '' ) {
 			return null;
@@ -25,8 +34,7 @@ class PluginReinstaller {
 		$plugin = $plugins->getPluginAsVo( $file );
 		if ( !$plugin instanceof WpPluginVo
 			 || $plugin->asset_type !== 'plugin'
-			 || !$plugin->isWpOrg()
-			 || $plugins->isUpdateAvailable( $plugin->file ) ) {
+			 || !$plugin->isWpOrg() ) {
 			return null;
 		}
 
@@ -40,7 +48,7 @@ class PluginReinstaller {
 		}
 
 		$this->deleteSnapshot( $plugin );
-		$this->assetCleanup->run( 'plugin', $plugin->file );
+		$this->assetCleanup->schedule( 'plugin', $plugin->file );
 
 		return true;
 	}

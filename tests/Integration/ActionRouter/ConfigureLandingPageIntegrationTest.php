@@ -284,6 +284,16 @@ class ConfigureLandingPageIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertNull( $this->findDiagnosisRowByKey( $ipsPayload, 'ip_blocking_rules' ) );
 	}
 
+	public function test_general_diagnosis_omits_empty_request_logging_scope() :void {
+		$viewData = ( new ConfigureLandingViewBuilder() )->build();
+		$this->assertArrayHasKey( 'general', $viewData[ 'tile_lookup' ] );
+		$this->assertArrayHasKey( 'general', $viewData[ 'diagnoses' ] );
+
+		$generalPayload = $viewData[ 'diagnoses' ][ 'general' ];
+		$this->assertNull( $this->findDiagnosisRowByKey( $generalPayload, 'request_logging' ) );
+		$this->assertDiagnosisRowScope( $generalPayload, 'plugin_general', 'plugin_general', [ 'visitor_address_source' ] );
+	}
+
 	public function test_secadmin_diagnosis_header_actions_only_when_security_admin_is_enabled() :void {
 		$snapshot = $this->snapshotSelectedOptions( [
 			'admin_access_key',

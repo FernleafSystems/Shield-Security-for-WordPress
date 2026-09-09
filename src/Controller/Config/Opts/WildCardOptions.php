@@ -54,7 +54,8 @@ class WildCardOptions {
 
 	protected function basicCleanValues( array $optValues, int $type ) :array {
 
-		$optValues = \array_filter( \array_map( function ( $value ) {
+		$optValues = \array_filter( $optValues, '\is_string' );
+		$optValues = \array_filter( \array_map( function ( string $value ) {
 			return \strtolower( \trim( $value ) );
 		}, $optValues ) );
 
@@ -92,7 +93,7 @@ class WildCardOptions {
 
 		switch ( $type ) {
 			case self::FILE_PATH_REL:
-				$fullValue = \path_join( ABSPATH, $valueRegEx );
+				$fullValue = \path_join( \wp_normalize_path( ABSPATH ), $valueRegEx );
 				break;
 
 			case self::URL_PATH:

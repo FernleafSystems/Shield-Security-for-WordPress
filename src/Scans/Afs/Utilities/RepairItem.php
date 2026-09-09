@@ -60,9 +60,13 @@ class RepairItem {
 
 		$canRepair = false;
 		if ( $item->is_checksumfail || $item->is_missing ) {
+			$pathFragment = \is_string( $item->path_fragment ) ? $item->path_fragment : '';
+			if ( \trim( $pathFragment ) === '' ) {
+				return false;
+			}
 
 			if ( $item->is_in_core ) {
-				if ( !Services::CoreFileHashes()->isCoreFile( $item->path_fragment ) ) {
+				if ( !Services::CoreFileHashes()->isCoreFile( $pathFragment ) ) {
 					throw new \Exception( __( 'Not a WordPress Core file', 'wp-simple-firewall' ) );
 				}
 				$canRepair = !( new WordpressReleaseChannel() )->isDevelopmentBuild();
@@ -87,7 +91,7 @@ class RepairItem {
 				}
 
 				try {
-					$canRepair = ( new Lib\Hashes\Query() )->fileExistsInHash( $item->path_fragment );
+					$canRepair = ( new Lib\Hashes\Query() )->fileExistsInHash( $pathFragment );
 				}
 				catch ( \Exception $e ) {
 				}
@@ -120,7 +124,7 @@ class RepairItem {
 				}
 
 				try {
-					$canRepair = ( new Lib\Hashes\Query() )->fileExistsInHash( $item->path_fragment );
+					$canRepair = ( new Lib\Hashes\Query() )->fileExistsInHash( $pathFragment );
 				}
 				catch ( \Exception $e ) {
 				}

@@ -17,7 +17,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
  *   item_icon_class:string,
  *   status:string,
  *   status_label:string,
- *   status_icon_class:string
+ *   status_icon_class:string,
+ *   has_useful_detail?:bool
  * }
  * @phpstan-type AssessmentRowsByZone array{
  *   scans:list<AssessmentRow>,
@@ -62,7 +63,9 @@ class ActionsQueueLandingAssessmentBuilder {
 			}
 		}
 
-		return $rows;
+		return $zone === 'scans'
+			? \array_merge( $rows, $this->buildSecurityCheckRows() )
+			: $rows;
 	}
 
 	/**
@@ -219,6 +222,13 @@ class ActionsQueueLandingAssessmentBuilder {
 
 	protected function buildMaintenanceIssueStateProvider() :MaintenanceIssueStateProvider {
 		return new MaintenanceIssueStateProvider();
+	}
+
+	/**
+	 * @return list<AssessmentRow>
+	 */
+	protected function buildSecurityCheckRows() :array {
+		return ( new ActionsQueueSecurityCheckSource() )->assessmentRows();
 	}
 
 	private function itemIcons() :ActionsQueueItemIcons {

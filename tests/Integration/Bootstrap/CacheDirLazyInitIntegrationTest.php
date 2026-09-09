@@ -42,7 +42,7 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_plain_request_does_not_create_cache_dir_until_feature_uses_it() :void {
 		$con = $this->requireController();
-		$preferredTempDir = $this->createRuntimeTrackedTempDir( 'cache-dir-' );
+		$preferredTempDir = $this->createTrackedTempDir( 'cache-dir-', \get_temp_dir() );
 		$expectedLastKnown = [];
 
 		$con->opts
@@ -74,7 +74,7 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_legacy_url_keyed_cache_dir_still_seeds_handler_without_migration() :void {
 		$con = $this->requireController();
-		$legacyBaseDir = $this->createRuntimeTrackedTempDir( 'cache-legacy-base-' );
+		$legacyBaseDir = $this->createTrackedTempDir( 'cache-legacy-base-', \get_temp_dir() );
 		$storedDirs = [
 			'https://legacy.example/' => $legacyBaseDir,
 		];
@@ -101,14 +101,5 @@ class CacheDirLazyInitIntegrationTest extends ShieldIntegrationTestCase {
 		$prop = $ref->getProperty( 'cacheDirHandler' );
 		$prop->setAccessible( true );
 		$prop->setValue( $con->plugin, null );
-	}
-
-	private function createRuntimeTrackedTempDir( string $prefix ) :string {
-		$path = \wp_normalize_path( \path_join( \get_temp_dir(), $prefix.\bin2hex( \random_bytes( 6 ) ) ) );
-		if ( !Services::WpFs()->isDir( $path ) && !Services::WpFs()->mkdir( $path ) ) {
-			throw new \RuntimeException( 'Failed to create runtime temporary directory: '.$path );
-		}
-		$this->trackedTempDirs[] = $path;
-		return $path;
 	}
 }

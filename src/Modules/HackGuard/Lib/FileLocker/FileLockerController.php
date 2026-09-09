@@ -73,8 +73,22 @@ class FileLockerController {
 		return $links;
 	}
 
+	/**
+	 * @return list<string>
+	 */
 	public function getFilesToLock(): array {
-		return self::con()->opts->optGet( 'file_locker' );
+		$allowed = \array_column(
+			self::con()->opts->optDef( 'file_locker' )[ 'value_options' ] ?? [],
+			'value_key'
+		);
+		$selected = [];
+		$stored = self::con()->opts->optGet( 'file_locker' );
+		foreach ( \is_array( $stored ) ? $stored : [] as $fileKey ) {
+			if ( \is_string( $fileKey ) && \in_array( $fileKey, $allowed, true ) && !\in_array( $fileKey, $selected, true ) ) {
+				$selected[] = $fileKey;
+			}
+		}
+		return $selected;
 	}
 
 	/**
@@ -164,13 +178,17 @@ class FileLockerController {
 			( new Ops\AssessLocks() )->run();
 
 			// 3. Create any outstanding locks.
-			if ( is_main_network()
-			     && !wp_next_scheduled( $this->getCronHook() )
-			     && !Services::WpGeneral()->isCron()
-			     && !empty( ( new Ops\GetFileLocksToCreate() )->run() )
-			) {
-				wp_schedule_single_event( Services::Request()->ts() + self::CRON_DELAY, $this->getCronHook() );
-			}
+			$this->scheduleLocksCreationIfNeeded();
+		}
+	}
+
+	public function scheduleLocksCreationIfNeeded() :void {
+		if ( is_main_network()
+			 && !wp_next_scheduled( $this->getCronHook() )
+			 && !Services::WpGeneral()->isCron()
+			 && !empty( ( new Ops\GetFileLocksToCreate() )->run() )
+		) {
+			wp_schedule_single_event( Services::Request()->ts() + self::CRON_DELAY, $this->getCronHook() );
 		}
 	}
 

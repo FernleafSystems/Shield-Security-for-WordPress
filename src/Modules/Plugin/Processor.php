@@ -45,6 +45,7 @@ class Processor {
 				$components->http_headers->execute();
 				$components->reports->execute();
 				$components->autoupdates->execute();
+				$components->hidden_plugins->execute();
 				$components->badge->execute();
 				$components->import_export->execute();
 				$components->comment_spam->execute();
@@ -55,6 +56,7 @@ class Processor {
 				$components->mcp->execute();
 
 				new Events\StatsWriter();
+				$components->login_success->execute();
 				( new Lib\AllowBetaUpgrades() )->execute();
 
 				$components->forms_spam->execute();
@@ -97,6 +99,9 @@ class Processor {
 
 	public function runHourlyCron() {
 		$this->setEarlyLoadOrder();
+		if ( self::con()->comps->opts_lookup->isPluginEnabled() ) {
+			self::con()->comps->hidden_plugins->detect();
+		}
 		( new BulkUpdateUserMeta() )->execute();
 	}
 
@@ -114,7 +119,7 @@ class Processor {
 		self::con()->comps->events->fireEvent( 'test_cron_run' );
 		self::con()->comps->mu->run();
 		( new Lib\PluginTelemetry() )->collectAndSend();
-		( new Events\ConsolidateAllEvents() )->run();
+		( new Events\ConsolidateAllEvents() )->run( Services::Request()->carbon( true ) );
 		( new Components\CleanRubbish() )->execute();
 	}
 

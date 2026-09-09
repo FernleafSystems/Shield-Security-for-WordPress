@@ -6,8 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDi
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\IpRules\IpRuleStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\SiteLockdown\SiteBlockdownCfg;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
-class PageToolLockdown extends BasePluginAdminPage {
+class PageToolLockdown extends PageModeLandingBase {
 
 	public const SLUG = 'admin_plugin_page_tools_lockdown';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/tool_lockdown.twig';
@@ -25,13 +26,8 @@ class PageToolLockdown extends BasePluginAdminPage {
 		$cfg = ( new SiteBlockdownCfg() )->applyFromArray( $con->comps->opts_lookup->getBlockdownCfg() );
 		$yourIp = $con->this_req->ip;
 		$moreHelpUrl = 'https://clk.shldscrty.com/lo';
-		return [
-			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->iconClass( 'sign-stop-fill' ),
-			],
+		return \array_replace_recursive( parent::getRenderData(), [
 			'strings' => [
-				'inner_page_title'            => __( 'Site Lockdown', 'wp-simple-firewall' ),
-				'inner_page_subtitle'         => __( 'Block all access to the site except from IPs on the bypass/white list.', 'wp-simple-firewall' ),
 				'lockdown_active_title'       => __( 'Site Is In Lockdown', 'wp-simple-firewall' ),
 				'lockdown_active_description' => __( 'Your site is currently in lockdown.', 'wp-simple-firewall' ),
 				'lockdown_started_label'      => __( 'Lockdown started:', 'wp-simple-firewall' ),
@@ -44,7 +40,7 @@ class PageToolLockdown extends BasePluginAdminPage {
 				'warning_note_security_admin' => __( 'Note: To prevent other admins from using this tool, consider switching on the Security Admin feature.', 'wp-simple-firewall' ),
 				'warning_more_help_html'      => sprintf(
 					__( 'Proceed with caution. [%s]', 'wp-simple-firewall' ),
-					sprintf( '<a href="%s" target="_blank">%s</a>', esc_url( $moreHelpUrl ), __( 'further help', 'wp-simple-firewall' ) )
+					sprintf( '<a href="%s" class="alert-link text-decoration-underline" target="_blank">%s</a>', esc_url( $moreHelpUrl ), __( 'further help', 'wp-simple-firewall' ) )
 				),
 				'whitelist_heading'           => __( 'Whitelist Me', 'wp-simple-firewall' ),
 				'whitelist_label'             => __( 'Add my IP address (%s) to the bypass/whitelist', 'wp-simple-firewall' ),
@@ -70,6 +66,26 @@ class PageToolLockdown extends BasePluginAdminPage {
 										  ->diffForHumans(),
 				'active_by'    => $cfg->activated_by,
 			],
-		];
+		] );
+	}
+
+	protected function getLandingTitle() :string {
+		return __( 'Site Lockdown', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingSubtitle() :string {
+		return __( 'Block all access to the site except from IPs on the bypass/white list.', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingIcon() :string {
+		return 'sign-stop-fill';
+	}
+
+	protected function getLandingMode() :string {
+		return PluginNavs::MODE_CONFIGURE;
+	}
+
+	protected function hasOperatorModeParent() :bool {
+		return true;
 	}
 }

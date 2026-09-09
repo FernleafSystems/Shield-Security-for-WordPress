@@ -222,3 +222,40 @@ test( 'dashboard general checks expose operator modes live monitor ajax and wp d
 		await expect( widget.locator( '.shield-dashboard-widget[data-shield-status]' ) ).toBeVisible();
 	} );
 } );
+
+test( 'dashboard status strip renders all real attention outcomes', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withDashboardDefaultsFixture( async ( rawContract ) => {
+		const contract = assertDashboardDefaultsContract( rawContract );
+		await fixtureApi.prepareDashboardActionsAllClearFixture();
+		await openShieldRoute( page, contract.routes.dashboard );
+		await dismissBlockingDialogs( page );
+		const allClearOverview = page.locator( '.operator-mode-landing__overview' );
+		await expect( allClearOverview ).toHaveAttribute( 'data-shield-status', 'good' );
+		await expect( allClearOverview.locator( '[data-summary-id]' ) ).toHaveCount( 2 );
+		await expect( allClearOverview.locator( '[data-summary-id="scans"]' ) ).toHaveRole( 'link' );
+		await expect( allClearOverview.locator( '[data-summary-id="maintenance"]' ) ).toHaveRole( 'link' );
+		await expect( allClearOverview.locator( '[data-summary-id="scans"] .operator-mode-overview__summary-value' ) ).toHaveText( 'None waiting' );
+		await expect( allClearOverview.locator( '[data-summary-id="maintenance"] .operator-mode-overview__summary-value' ) ).toHaveText( 'Up to date' );
+
+		await fixtureApi.prepareDashboardMaintenanceWarningFixture();
+		await page.reload( { waitUntil: 'domcontentloaded' } );
+		await dismissBlockingDialogs( page );
+		const maintenanceOverview = page.locator( '.operator-mode-landing__overview' );
+		await expect( maintenanceOverview ).toHaveAttribute( 'data-shield-status', 'warning' );
+		await expect( maintenanceOverview.locator( '.operator-mode-overview__overall-title' ) ).toHaveText( 'Maintenance Action Required' );
+
+		await fixtureApi.withActionsQueueFixture( 'file_locker_lazy', async () => {
+			await openShieldRoute( page, contract.routes.dashboard );
+			await dismissBlockingDialogs( page );
+			const securityWarningOverview = page.locator( '.operator-mode-landing__overview' );
+			await expect( securityWarningOverview ).toHaveAttribute( 'data-shield-status', 'warning' );
+			await expect( securityWarningOverview.locator( '.operator-mode-overview__overall-title' ) ).toHaveText( 'Security Action Required' );
+		} );
+
+		await fixtureApi.withActionsQueueFixture( 'direct_table', async () => {
+			await openShieldRoute( page, contract.routes.dashboard );
+			await dismissBlockingDialogs( page );
+			await expect( page.locator( '.operator-mode-landing__overview' ) ).toHaveAttribute( 'data-shield-status', 'critical' );
+		} );
+	} );
+} );

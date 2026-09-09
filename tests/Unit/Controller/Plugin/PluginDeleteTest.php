@@ -10,7 +10,10 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Plugin;
 
+use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginDelete;
+use FernleafSystems\Wordpress\Plugin\Shield\Events\ConsolidateAllEvents;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -29,17 +32,22 @@ use FernleafSystems\Wordpress\Services\Core\General;
 class PluginDeleteTest extends BaseUnitTest {
 
 	use CacheStoreWordPressFunctions;
+	use TempDirLifecycleTrait;
 
 	private CacheStoreTestDb $db;
 
 	private CacheStoreTestFs $fs;
 
 	private array $servicesSnapshot = [];
-
-	private array $tempDirs = [];
+	private array $deletedTransients = [];
 
 	protected function setUp() :void {
 		parent::setUp();
+		$this->deletedTransients = [];
+		Functions\when( 'delete_transient' )->alias( function ( string $key ) :bool {
+			$this->deletedTransients[] = $key;
+			return true;
+		} );
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->db = new CacheStoreTestDb( 'wp_install_a_' );
 		$this->fs = new CacheStoreTestFs();
@@ -60,14 +68,13 @@ class PluginDeleteTest extends BaseUnitTest {
 	protected function tearDown() :void {
 		PluginControllerInstaller::reset();
 		ServicesState::restore( $this->servicesSnapshot );
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
 	public function test_run_deletes_only_the_current_external_namespace() :void {
 		$sharedParent = $this->makeTempDir( 'shared-parent' );
+		$assetCoordinator = new PluginDeleteTestAssetCoordinator();
 		$controller = UnitTestControllerFactory::install( null, null, (object)[
 			'cfg'               => (object)[
 				'paths'      => [
@@ -85,6 +92,9 @@ class PluginDeleteTest extends BaseUnitTest {
 				public function delete() :void {
 				}
 			},
+			'comps'             => (object)[
+				'asset_coordinator' => $assetCoordinator,
+			],
 			'db_con'            => $this->newDbCon(),
 			'cache_dir_handler' => new CacheDirHandler( '', $sharedParent ),
 		] );
@@ -121,6 +131,11 @@ class PluginDeleteTest extends BaseUnitTest {
 		( new PluginDelete() )->run();
 
 		$this->assertNotEmpty( $this->db->droppedTables );
+		$this->assertContains(
+			$controller->prefix( ConsolidateAllEvents::GUARD_TRANSIENT ),
+			$this->deletedTransients
+		);
+		$this->assertSame( 1, $assetCoordinator->deletions );
 		$this->assertDirectoryDoesNotExist( $rootA );
 		foreach ( [ $sharedParent, $rootB, $unsuffixedRoot, $legacyRoot ] as $preservedRoot ) {
 			$this->assertDirectoryExists( $preservedRoot );
@@ -166,12 +181,9 @@ class PluginDeleteTest extends BaseUnitTest {
 	}
 
 	private function makeTempDir( string $suffix ) :string {
-		$dir = $this->normaliseCacheStorePath(
-			\sys_get_temp_dir().'/cache-plugin-delete-'.$suffix.'-'.\uniqid()
+		return $this->normaliseCacheStorePath(
+			$this->createTrackedTempDir( 'cache-plugin-delete-'.$suffix.'-' )
 		);
-		$this->mkdir( $dir );
-		$this->tempDirs[] = $dir;
-		return $dir;
 	}
 
 	private function mkdir( string $dir ) :void {
@@ -179,20 +191,14 @@ class PluginDeleteTest extends BaseUnitTest {
 			@\mkdir( $dir, 0777, true );
 		}
 	}
+}
 
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
+class PluginDeleteTestAssetCoordinator {
 
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $iterator as $item ) {
-			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
-		}
-		@\rmdir( $dir );
+	public int $deletions = 0;
+
+	public function deleteState() :void {
+		$this->deletions++;
 	}
 }
 

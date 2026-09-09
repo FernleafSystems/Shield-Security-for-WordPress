@@ -8,6 +8,12 @@ services:
       WORDPRESS_DB_NAME: ${SHIELD_LOCAL_SITE_DB_NAME:-shield_test_site_lane_1}
     ports:
       - "${SHIELD_LOCAL_SITE_PORT:-8890}:80"
+    labels:
+      com.fernleaf.harness: "${SHIELD_BROWSER_LABEL_HARNESS:-shield-plugin-browser}"
+      com.fernleaf.run-id: "${SHIELD_BROWSER_CONTAINER_RUN_ID:-manual}"
+      com.fernleaf.lane: "${SHIELD_BROWSER_LABEL_LANE:-lane-unknown}"
+      com.fernleaf.lifecycle: "${SHIELD_BROWSER_CONTAINER_LIFECYCLE:-transient}"
+      com.fernleaf.expires-at: "${SHIELD_BROWSER_CONTAINER_EXPIRES_AT:-1970-01-01T00:00:00+00:00}"
     volumes:
       - site-wp:/var/www/html
       - site-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
@@ -22,17 +28,34 @@ services:
       WORDPRESS_DB_USER: root
       WORDPRESS_DB_PASSWORD: testpass
       WORDPRESS_DB_NAME: ${SHIELD_LOCAL_SITE_DB_NAME:-shield_test_site_lane_1}
+    labels:
+      com.fernleaf.harness: "${SHIELD_BROWSER_LABEL_HARNESS:-shield-plugin-browser}"
+      com.fernleaf.run-id: "${SHIELD_BROWSER_CONTAINER_RUN_ID:-manual}"
+      com.fernleaf.lane: "${SHIELD_BROWSER_LABEL_LANE:-lane-unknown}"
+      com.fernleaf.lifecycle: "${SHIELD_BROWSER_CONTAINER_LIFECYCLE:-transient}"
+      com.fernleaf.expires-at: "${SHIELD_BROWSER_CONTAINER_EXPIRES_AT:-1970-01-01T00:00:00+00:00}"
     volumes:
       - site-wp:/var/www/html
       - site-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
-      - ../../:/app
       - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-local-browser-runtime.ini:ro
     networks:
       - browser-shared
 
 volumes:
   site-wp:
+    labels:
+      com.fernleaf.harness: "${SHIELD_BROWSER_LABEL_HARNESS:-shield-plugin-browser}"
+      com.fernleaf.run-id: "${SHIELD_BROWSER_VOLUME_RUN_ID:-manual}"
+      com.fernleaf.lane: "${SHIELD_BROWSER_LABEL_LANE:-lane-unknown}"
+      com.fernleaf.lifecycle: "${SHIELD_BROWSER_VOLUME_LIFECYCLE:-reusable}"
+      com.fernleaf.expires-at: "${SHIELD_BROWSER_VOLUME_EXPIRES_AT:-1970-01-01T00:00:00+00:00}"
   site-plugin:
+    labels:
+      com.fernleaf.harness: "${SHIELD_BROWSER_LABEL_HARNESS:-shield-plugin-browser}"
+      com.fernleaf.run-id: "${SHIELD_BROWSER_VOLUME_RUN_ID:-manual}"
+      com.fernleaf.lane: "${SHIELD_BROWSER_LABEL_LANE:-lane-unknown}"
+      com.fernleaf.lifecycle: "${SHIELD_BROWSER_VOLUME_LIFECYCLE:-reusable}"
+      com.fernleaf.expires-at: "${SHIELD_BROWSER_VOLUME_EXPIRES_AT:-1970-01-01T00:00:00+00:00}"
 
 networks:
   browser-shared:

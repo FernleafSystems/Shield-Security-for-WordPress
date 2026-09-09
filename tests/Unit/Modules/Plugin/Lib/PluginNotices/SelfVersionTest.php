@@ -61,6 +61,37 @@ class SelfVersionTest extends BaseUnitTest {
 		$this->assertSame( [ 'shield_admin_top_page' ], $issue[ 'locations' ] );
 	}
 
+	/**
+	 * @dataProvider provideHostileReleaseVersionMembers
+	 */
+	public function testCheckUsesStandardNoticeForHostileReleaseVersionMembers( $hostileVersion ) :void {
+		$this->installEnvironment( '22.1.3', true );
+
+		$issue = ( new SelfVersion( new SelfVersionHostilePluginVersions( $hostileVersion ) ) )->check();
+
+		$this->assertIsArray( $issue );
+		$this->assertSame( 'self_update_available', $issue[ 'id' ] );
+		$this->assertSame( [ 'shield_admin_top_page' ], $issue[ 'locations' ] );
+	}
+
+	public function provideHostileReleaseVersionMembers() :array {
+		return [
+			'null'  => [ null ],
+			'false' => [ false ],
+			'array' => [ [] ],
+		];
+	}
+
+	public function testCheckUsesStandardNoticeWhenVersionLookupThrowsUnexpectedly() :void {
+		$this->installEnvironment( '22.1.3', true );
+
+		$issue = ( new SelfVersion( new SelfVersionFailingPluginVersions() ) )->check();
+
+		$this->assertIsArray( $issue );
+		$this->assertSame( 'self_update_available', $issue[ 'id' ] );
+		$this->assertSame( [ 'shield_admin_top_page' ], $issue[ 'locations' ] );
+	}
+
 	public function testCheckUsesStandardNoticeWhenPluginVoIsUnavailable() :void {
 		$this->installEnvironment( '22.1.3', true );
 
@@ -174,5 +205,19 @@ class SelfVersionFailingPluginVersions extends PluginVersions {
 
 	public function hasAtLeastTwoNewerMajorVersions( string $currentVersion ) :bool {
 		throw new \RuntimeException( 'WP.org versions should not be consulted when no update is available.' );
+	}
+}
+
+class SelfVersionHostilePluginVersions extends PluginVersions {
+
+	private $hostileVersion;
+
+	public function __construct( $hostileVersion ) {
+		parent::__construct( 'wp-simple-firewall', [] );
+		$this->hostileVersion = $hostileVersion;
+	}
+
+	public function releaseVersions() :array {
+		return [ '23.0.0', $this->hostileVersion, '24.0.0' ];
 	}
 }

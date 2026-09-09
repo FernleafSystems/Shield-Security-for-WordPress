@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\PluginFileCopier;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -14,12 +15,11 @@ use Symfony\Component\Filesystem\Path;
  */
 class PluginFileCopierTest extends TestCase {
 
+	use TempDirLifecycleTrait;
+
 	private string $projectRoot;
 
 	private Filesystem $filesystem;
-
-	/** @var string[] */
-	private array $tempDirs = [];
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -28,13 +28,8 @@ class PluginFileCopierTest extends TestCase {
 	}
 
 	protected function tearDown() :void {
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
-
-		foreach ( $this->tempDirs as $tempDir ) {
-			if ( is_dir( $tempDir ) ) {
-				$this->filesystem->remove( $tempDir );
-			}
-		}
 	}
 
 	private function createFileCopier(
@@ -51,11 +46,7 @@ class PluginFileCopierTest extends TestCase {
 	}
 
 	private function createTempDir( string $suffix ) :string {
-		$path = Path::join( sys_get_temp_dir(), 'shield-plugin-file-copier-'.$suffix.'-'.bin2hex( random_bytes( 6 ) ) );
-		$this->filesystem->mkdir( $path );
-		$this->tempDirs[] = $path;
-
-		return $path;
+		return $this->createTrackedTempDir( 'shield-plugin-file-copier-'.$suffix.'-' );
 	}
 
 	// =========================================================================

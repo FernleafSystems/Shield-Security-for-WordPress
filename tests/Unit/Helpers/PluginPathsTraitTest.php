@@ -3,12 +3,14 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 class PluginPathsTraitTest extends TestCase {
 
 	use PluginPathsTrait;
+	use TempDirLifecycleTrait;
 
 	/**
 	 * Store original SHIELD_PACKAGE_PATH so we can restore it after tests that modify it.
@@ -25,6 +27,7 @@ class PluginPathsTraitTest extends TestCase {
 	protected function tear_down() :void {
 		// Restore original env state
 		$this->restorePackageEnv();
+		$this->cleanupTrackedTempDirs();
 		parent::tear_down();
 	}
 
@@ -37,8 +40,7 @@ class PluginPathsTraitTest extends TestCase {
 	}
 
 	public function testGetPluginRootHonoursPackagePath() :void {
-		$tempDir = Path::join( sys_get_temp_dir(), 'shield-package-'.uniqid( '', true ) );
-		$this->assertTrue( mkdir( $tempDir ), 'Failed to create temporary package directory' );
+		$tempDir = $this->createTrackedTempDir( 'shield-package-' );
 		$this->assertNotFalse( file_put_contents( Path::join( $tempDir, 'icwp-wpsf.php' ), '<?php // stub plugin file' ), 'Failed to seed plugin file in temporary package directory' );
 
 		putenv( 'SHIELD_PACKAGE_PATH='.$tempDir );
@@ -47,10 +49,6 @@ class PluginPathsTraitTest extends TestCase {
 
 		$this->assertSame( $tempDir, $this->getPluginRoot(), 'Plugin root should honour SHIELD_PACKAGE_PATH' );
 		$this->assertSame( Path::join( $tempDir, 'icwp-wpsf.php' ), $this->getPluginFilePath( 'icwp-wpsf.php' ) );
-
-		// Cleanup temp files (env restored by tear_down)
-		unlink( Path::join( $tempDir, 'icwp-wpsf.php' ) );
-		rmdir( $tempDir );
 	}
 
 	public function testGetPluginFileContentsReadsFile() :void {

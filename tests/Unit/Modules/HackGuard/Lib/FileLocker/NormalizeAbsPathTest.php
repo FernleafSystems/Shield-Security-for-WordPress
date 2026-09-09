@@ -4,11 +4,12 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\L
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\NormalizeAbsPath;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 
 class NormalizeAbsPathTest extends BaseUnitTest {
 
-	private array $tempDirs = [];
+	use TempDirLifecycleTrait;
 
 	protected function setUp() :void {
 		parent::setUp();
@@ -22,16 +23,14 @@ class NormalizeAbsPathTest extends BaseUnitTest {
 	}
 
 	protected function tearDown() :void {
-		foreach ( \array_reverse( $this->tempDirs ) as $dir ) {
-			$this->removeDir( $dir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
 	public function test_existing_dot_segment_paths_compare_equal_after_realpath_resolution() :void {
-		$root = $this->makeTempDir();
+		$root = $this->createTrackedTempDir( 'shield-normalize-abspath-' );
 		$public = $root.'/public';
-		$this->mkdir( $public );
+		@\mkdir( $public, 0777, true );
 
 		$dotPath = $root.'/./public/';
 		$this->assertIsString( \realpath( $dotPath ) );
@@ -43,7 +42,7 @@ class NormalizeAbsPathTest extends BaseUnitTest {
 	}
 
 	public function test_missing_path_falls_back_to_normalized_string_when_realpath_returns_false() :void {
-		$root = $this->makeTempDir();
+		$root = $this->createTrackedTempDir( 'shield-normalize-abspath-' );
 		$missing = $root.'/missing-public';
 		$this->assertFalse( \realpath( $missing ) );
 
@@ -62,38 +61,9 @@ class NormalizeAbsPathTest extends BaseUnitTest {
 	}
 
 	public function test_same_raw_path_with_different_trailing_slash_compares_equal() :void {
-		$root = $this->makeTempDir();
+		$root = $this->createTrackedTempDir( 'shield-normalize-abspath-' );
 		$normalizer = new NormalizeAbsPath();
 
 		$this->assertTrue( $normalizer->areSame( $root, $root.'/' ) );
-	}
-
-	private function makeTempDir() :string {
-		$dir = \rtrim( \str_replace( '\\', '/', \sys_get_temp_dir() ), '/' )
-			   .'/shield-normalize-abspath-'.\uniqid();
-		$this->mkdir( $dir );
-		$this->tempDirs[] = $dir;
-		return $dir;
-	}
-
-	private function mkdir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			@\mkdir( $dir, 0777, true );
-		}
-	}
-
-	private function removeDir( string $dir ) :void {
-		if ( !\is_dir( $dir ) ) {
-			return;
-		}
-
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $iterator as $item ) {
-			$item->isDir() ? @\rmdir( $item->getPathname() ) : @\unlink( $item->getPathname() );
-		}
-		@\rmdir( $dir );
 	}
 }

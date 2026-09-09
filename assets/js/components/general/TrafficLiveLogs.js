@@ -1,20 +1,23 @@
+import { AjaxService } from "../services/AjaxService";
 import { BaseComponent } from "../BaseComponent";
 import { LiveTrafficPoller } from "./LiveTrafficPoller";
 import { announceStatus } from "../ui/ShieldA11y";
+import { ObjectOps } from "../../util/ObjectOps";
 
 export class TrafficLiveLogs extends BaseComponent {
 
 	init() {
-		this.liveLogsSection = document.getElementById( 'SectionTrafficLiveLogs' ) || false;
+		this.liveLogsSection = this.getLiveLogsSection();
 		this.poller = null;
 		this.hasAnnouncedInitialLoad = false;
 		this.lastPollFailed = false;
 		this.lastPollFailureMessage = '';
+		this.registerLiveLogToggle();
 		this.exec();
 	}
 
 	canRun() {
-		return this.liveLogsSection;
+		return this.isTrafficPageSection( this.liveLogsSection );
 	}
 
 	run() {
@@ -24,16 +27,75 @@ export class TrafficLiveLogs extends BaseComponent {
 			allowRepeat: false,
 		} );
 		this.poller = new LiveTrafficPoller( {
-			requestData: this._base_data?.ajax?.render_live || {},
+			requestData: this._base_data.ajax.render_live,
 			onSuccess: ( resp ) => this.handlePollSuccess( resp ),
 			onFailure: ( resp ) => this.handlePollFailure( resp ),
 		} );
 		this.poller.start();
 	}
 
+	registerLiveLogToggle() {
+		shieldEventsHandler_Main.add_Change( '[data-traffic-live-log-toggle]', ( targetEl ) => {
+			this.setLiveLogEnabled( targetEl );
+		} );
+	}
+
+	setLiveLogEnabled( targetEl ) {
+		const toggle = targetEl instanceof Element ? targetEl.closest( '[data-traffic-live-log-toggle]' ) : null;
+		if ( !( toggle instanceof HTMLInputElement ) || toggle.disabled ) {
+			return;
+		}
+
+		const previousState = !toggle.checked;
+		toggle.disabled = true;
+		( new AjaxService() )
+		.send( ObjectOps.Merge(
+			this._base_data.ajax.set_live_log_enabled,
+			{ enabled: toggle.checked ? 'Y' : 'N' }
+		) )
+		.then( ( resp ) => {
+			if ( !resp?.success ) {
+				toggle.checked = previousState;
+				this.syncLiveLogControl( toggle, previousState );
+				return;
+			}
+
+			if ( typeof resp?.data?.is_enabled === 'boolean' ) {
+				toggle.checked = resp.data.is_enabled;
+			}
+			this.syncLiveLogControl( toggle, toggle.checked );
+		} )
+		.finally( () => {
+			toggle.disabled = false;
+		} );
+	}
+
+	syncLiveLogControl( toggle, isEnabled ) {
+		const section = toggle.closest( '#SectionTrafficLiveLogs' );
+		const topbar = section?.querySelector( '[data-traffic-live-log-control]' ) || null;
+		if ( topbar instanceof HTMLElement ) {
+			topbar.classList.toggle( 'is-enabled', Boolean( isEnabled ) );
+		}
+
+		const summary = section?.querySelector( '[data-traffic-live-log-summary]' ) || null;
+		if ( summary instanceof HTMLElement ) {
+			if ( isEnabled ) {
+				summary.textContent = this.normalizeStatusMessage(
+					summary.dataset.liveLogEnabledSummary,
+					''
+				);
+				summary.hidden = summary.textContent.length < 1;
+			}
+			else {
+				summary.textContent = '';
+				summary.hidden = true;
+			}
+		}
+	}
+
 	focusOutput() {
 		const output = this.liveLogsSection?.querySelector( '.output' ) || null;
-		if ( output ) {
+		if ( output instanceof HTMLElement ) {
 			output.focus();
 		}
 	}
@@ -121,5 +183,14 @@ export class TrafficLiveLogs extends BaseComponent {
 	normalizeStatusMessage( message, fallback ) {
 		const text = String( message || '' ).trim();
 		return text.length > 0 ? text : fallback;
+	}
+
+	getLiveLogsSection() {
+		return document.getElementById( 'SectionTrafficLiveLogs' );
+	}
+
+	isTrafficPageSection( section ) {
+		return section instanceof HTMLElement
+			&& String( section.dataset.trafficLiveLogOwner || '' ) === 'traffic_page';
 	}
 }

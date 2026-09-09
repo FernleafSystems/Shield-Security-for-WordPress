@@ -20,12 +20,11 @@ abstract class EmailReportBase extends EmailBase {
 		$report = $report ?? $this->report();
 		$WP = Services::WpGeneral();
 		$reportCon = self::con()->comps->reports;
-		$isHourly = ( $report->interval ?? '' ) === 'hourly';
 
 		return [
 			'href'       => $reportCon->getReportURL( $report->record->unique_id ),
-			'date_start' => $WP->getTimeStringForDisplay( $report->start_at, $isHourly ),
-			'date_end'   => $WP->getTimeStringForDisplay( $report->end_at, $isHourly ),
+			'date_start' => $WP->getTimeStringForDisplay( $report->start_at, false ),
+			'date_end'   => $WP->getTimeStringForDisplay( $report->end_at, false ),
 		];
 	}
 

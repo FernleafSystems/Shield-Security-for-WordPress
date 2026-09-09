@@ -24,7 +24,7 @@
 		{% endfor %}
 	{% endif %}
 	{% if disabled %}
-		{% set attributes = attributes|merge( { disabled: 'disabled' } ) %}
+		{% set attributes = attributes|merge( is_action ? { disabled: 'disabled' } : { 'aria-disabled': 'true', tabindex: '-1' } ) %}
 	{% endif %}
 	{% if is_action %}
 		<button type="button"

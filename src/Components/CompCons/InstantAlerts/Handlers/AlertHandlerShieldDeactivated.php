@@ -28,7 +28,7 @@ class AlertHandlerShieldDeactivated extends AlertHandlerBase {
 			self::con()->comps->instant_alerts->updateAlertDataFor( $this, [
 				'shield_deactivated' => [
 					'time' => $thisReq->carbon_tz->toIso8601String(),
-					'path' => $thisReq->wp_is_wpcli ? 'WP-CLI' : esc_html( $thisReq->path ),
+					'path' => $thisReq->wp_is_wpcli ? 'WP-CLI' : $thisReq->path,
 					'user' => $user instanceof \WP_User ? $user->user_login : 'unknown',
 					'ip'   => $thisReq->wp_is_wpcli ? 'n/a' : $thisReq->ip,
 				]

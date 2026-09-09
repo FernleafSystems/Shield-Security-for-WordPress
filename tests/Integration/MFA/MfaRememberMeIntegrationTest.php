@@ -103,15 +103,46 @@ class MfaRememberMeIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( $this->requireController()->comps->mfa->isSubjectToLoginIntent( $user ) );
 		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
 
-		$method = new \ReflectionMethod( LoginRequestCapture::class, 'captureLogin' );
-		$method->setAccessible( true );
-		$method->invoke( new LoginRequestCapture(), $user );
+		( new LoginRequestCapture() )->execute();
+		\do_action( 'wp_login', $user->user_login, $user );
 
 		$this->assertSame( [], $this->requireController()->user_metas->for( $user )->login_intents );
 	}
 
+	public function test_current_mfa_skip_filter_can_suppress_mfa() :void {
+		$user = $this->createMfaUser();
+		$skip = static fn() :bool => true;
+
+		\add_filter( 'shield/2fa_skip', $skip );
+		try {
+			$this->assertTrue( $this->canUserMfaSkip( $user ) );
+		}
+		finally {
+			\remove_filter( 'shield/2fa_skip', $skip );
+		}
+	}
+
+	public function test_legacy_odp_mfa_skip_filter_no_longer_suppresses_mfa() :void {
+		$user = $this->createMfaUser();
+		$skip = static fn() :bool => true;
+
+		\add_filter( 'odp-shield-2fa_skip', $skip );
+		try {
+			$this->assertFalse( $this->canUserMfaSkip( $user ) );
+		}
+		finally {
+			\remove_filter( 'odp-shield-2fa_skip', $skip );
+		}
+	}
+
 	public function rememberAgentParams() :array {
 		return $this->rememberAgent;
+	}
+
+	private function canUserMfaSkip( \WP_User $user ) :bool {
+		$method = new \ReflectionMethod( LoginRequestCapture::class, 'canUserMfaSkip' );
+		$method->setAccessible( true );
+		return (bool)$method->invoke( new LoginRequestCapture(), $user );
 	}
 
 	private function createMfaUser() :\WP_User {

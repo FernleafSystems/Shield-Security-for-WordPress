@@ -452,7 +452,7 @@
     "login_success": {
         "level": "info",
         "offense": false,
-        "stat": false
+        "stat": true
     },
     "loginpage_load": {
         "level": "info",
@@ -551,6 +551,18 @@
             "plugin",
             "version",
             "name"
+        ],
+        "level": "warning",
+        "audit_multiple": true
+    },
+    "plugin_hidden_detected": {
+        "audit_params": [
+            "plugin",
+            "type",
+            "hidden_by",
+            "status",
+            "name",
+            "version"
         ],
         "level": "warning",
         "audit_multiple": true

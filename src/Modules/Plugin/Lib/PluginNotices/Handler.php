@@ -20,6 +20,7 @@ class Handler {
 				SiteInLockdown::class,
 				GloballyDisabled::class,
 				HighReputation::class,
+				ImportExportNetworkInvite::class,
 				IpStatus::class,
 				LicenseStatus::class,
 				RulesEngine::class,

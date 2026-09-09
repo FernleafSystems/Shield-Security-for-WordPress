@@ -28,6 +28,8 @@ class ResponseProcessor {
 	}
 
 	public function run() {
+		$nonTerminating = [];
+		$terminating = [];
 		foreach ( $this->rule->responses as $respDef ) {
 			try {
 				$responseClass = $respDef[ 'response' ] ?? null;
@@ -46,7 +48,12 @@ class ResponseProcessor {
 				$response->setThisRequest( $this->req )
 						 ->setRule( $this->rule )
 						 ->setParams( $params );
-				$this->execResponse( $response );
+				if ( $response->isTerminating() ) {
+					$terminating[] = $response;
+				}
+				else {
+					$nonTerminating[] = $response;
+				}
 			}
 			catch ( NoResponseActionDefinedException|NoSuchResponseHandlerException $e ) {
 				error_log( $e->getMessage() );
@@ -54,6 +61,9 @@ class ResponseProcessor {
 			catch ( ParametersException|\Exception $e ) {
 //				error_log( $e->getMessage() );
 			}
+		}
+		foreach ( $nonTerminating as $response ) {
+			$this->execResponse( $response );
 		}
 
 		try {
@@ -67,6 +77,9 @@ class ResponseProcessor {
 			$this->execResponse( $defaultEventResponse );
 		}
 		catch ( \Exception $e ) {
+		}
+		foreach ( $terminating as $response ) {
+			$this->execResponse( $response );
 		}
 	}
 

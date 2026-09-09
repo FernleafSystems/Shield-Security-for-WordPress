@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Traffic;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayText;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ActivityLogs\LogRecord as ActivityLogRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 	LogRecord as RequestLogRecord,
@@ -11,6 +10,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\IPs\Lib\ResolvesIpIdentity;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib\ActivityLogMessageBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\Utility\RequestLogDisplayPathBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Text\SafeDisplayText;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
 
@@ -78,14 +79,14 @@ class LiveLogRowsBuilder {
 	 */
 	public function buildActivityRow( ActivityLogRecord $record ) :array {
 		$title = self::con()->comps->events->getEventName( $record->event_slug );
-		$description = ActivityLogMessageBuilder::Build( $record->event_slug, $record->meta_data ?? [], ' ' );
+		$description = ActivityLogMessageBuilder::BuildPlain( $record->event_slug, $record->meta_data ?? [], ' ' );
 
 		return [
 			'timestamp'   => $this->buildCompactTimestamp( $record->created_at ),
 			'ip'          => $record->ip,
 			'ip_href'     => $this->buildIpHref( $record->ip ),
 			'title'       => empty( $title ) ? $record->event_slug : $title,
-			'description' => CommonDisplayText::truncate( $description, 140 ),
+			'description' => SafeDisplayText::truncate( $description, 140 ),
 			'badges'      => [],
 		];
 	}
@@ -105,16 +106,12 @@ class LiveLogRowsBuilder {
 	}
 
 	private function buildTrafficTitle( RequestLogRecord $record ) :string {
-		$path = (string)$record->path;
-		$query = \trim( (string)( $record->meta[ 'query' ] ?? '' ), '?' );
-		if ( !empty( $query ) ) {
-			$path .= '?'.$query;
-		}
+		$path = ( new RequestLogDisplayPathBuilder() )->build( $record );
 
 		return \sprintf(
 			'%s %s',
 			\strtoupper( empty( $record->verb ) ? 'GET' : $record->verb ),
-			CommonDisplayText::truncate( $path === '' ? '/' : $path, 110 )
+			SafeDisplayText::truncate( SafeDisplayText::inline( $path === '' ? '/' : $path ), 110 )
 		);
 	}
 

@@ -37,9 +37,15 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 	public function getActions() :array {
 		$actions = [];
 		if ( $this->hasConfigAction() ) {
+			$optionKeys = $this->getOptions();
+			if ( empty( $optionKeys ) ) {
+				return $actions;
+			}
+
 			$configData = [
 				'zone_component_action' => ZoneComponentConfig::SLUG,
 				'zone_component_slug'   => \implode( ',', $this->configZoneComponentSlugs() ),
+				'option_keys'           => \implode( ',', $optionKeys ),
 			];
 			$configItem = $this->configItem();
 			if ( $configItem !== '' ) {

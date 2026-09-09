@@ -12,6 +12,10 @@ class SiteCustomAction extends BaseSiteMwpAction {
 	public const SLUG = 'mwp_server_client_site_custom_action';
 
 	protected function fireClientSiteAction() {
+		$subActionParams = $this->action_data[ 'sub_action_params' ] ?? [];
+		$subActionParams = \is_array( $subActionParams ) ? $subActionParams : [];
+		unset( $subActionParams[ 'action_overrides' ] );
+
 		return MainWP_Connect::fetch_url_authed(
 			$this->getMwpSite()->siteobj,
 			'extra_execution',
@@ -23,7 +27,7 @@ class SiteCustomAction extends BaseSiteMwpAction {
 							Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
 						],
 					],
-					$this->action_data[ 'sub_action_params' ] ?? []
+					$subActionParams
 				),
 			]
 		);
@@ -36,12 +40,16 @@ class SiteCustomAction extends BaseSiteMwpAction {
 			throw new ActionException( sprintf( __( 'Empty response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 
+		if ( !\is_string( $response[ $key ] ) ) {
+			throw new ActionException( sprintf( __( 'Invalid response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) );
+		}
+
 		$result = \json_decode( $response[ $key ], true );
 		if ( empty( $result ) || !\is_array( $result ) ) {
 			throw new ActionException( sprintf( __( 'Invalid response from %s client site', 'wp-simple-firewall' ), self::con()->labels->Name ) );
 		}
 
-		return true;
+		return (bool)( $result[ 'success' ] ?? false );
 	}
 
 	protected function getMainwpActionFailureMessage() :string {
@@ -66,5 +74,14 @@ class SiteCustomAction extends BaseSiteMwpAction {
 				break;
 		}
 		return $msg;
+	}
+
+	protected function getRequiredDataKeys() :array {
+		return \array_merge(
+			parent::getRequiredDataKeys(),
+			[
+				'sub_action_slug',
+			]
+		);
 	}
 }

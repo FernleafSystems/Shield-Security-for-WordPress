@@ -35,13 +35,15 @@ class RequestLogRetentionPolicyTest extends BaseUnitTest {
 		};
 	}
 
-	public function test_retention_days_default_to_constants() :void {
+	public function test_retention_days_default_to_expected_policy_windows() :void {
 		$this->setApplyFilters();
 		$policy = $this->makePolicy();
 
+		$this->assertSame( 2, RequestLogRetentionPolicy::RETENTION_DAYS_TRANSIENT );
+		$this->assertSame( 7, RequestLogRetentionPolicy::RETENTION_DAYS_STANDARD );
 		$this->assertSame( [
-			'transient' => RequestLogRetentionPolicy::RETENTION_DAYS_TRANSIENT,
-			'standard'  => RequestLogRetentionPolicy::RETENTION_DAYS_STANDARD,
+			'transient' => 2,
+			'standard'  => 7,
 		], $policy->retentionDays() );
 	}
 

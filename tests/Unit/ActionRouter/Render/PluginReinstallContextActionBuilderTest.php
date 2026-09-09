@@ -96,9 +96,6 @@ class PluginReinstallContextActionBuilderTest extends BaseUnitTest {
 			'service_wpusers'   => new UnitTestUsers(),
 			'service_wpplugins' => new PluginReinstallContextActionBuilderTestPluginsService( [
 				'premium/plugin.php' => new PluginReinstallContextActionBuilderTestPluginVo( 'premium/plugin.php', false ),
-				'update/plugin.php'  => new PluginReinstallContextActionBuilderTestPluginVo( 'update/plugin.php', true ),
-			], [
-				'update/plugin.php' => true,
 			] ),
 		] );
 
@@ -106,7 +103,30 @@ class PluginReinstallContextActionBuilderTest extends BaseUnitTest {
 
 		$this->assertSame( [], $builder->buildForPluginFile( 'missing/plugin.php' ) );
 		$this->assertSame( [], $builder->buildForPluginFile( 'premium/plugin.php' ) );
-		$this->assertSame( [], $builder->buildForPluginFile( 'update/plugin.php' ) );
+	}
+
+	public function test_build_for_plugin_file_returns_update_link_for_wporg_plugin_with_pending_update() :void {
+		ServicesState::installItems( [
+			'service_wpgeneral' => new UnitTestGeneral(),
+			'service_request'   => new UnitTestRequest(),
+			'service_wpusers'   => new UnitTestUsers(),
+			'service_wpplugins' => new PluginReinstallContextActionBuilderTestPluginsService( [
+				'update/plugin.php' => new PluginReinstallContextActionBuilderTestPluginVo( 'update/plugin.php', true ),
+			], [
+				'update/plugin.php' => true,
+			] ),
+		] );
+
+		$actions = ( new PluginReinstallContextActionBuilder( new PluginReinstaller() ) )
+			->buildForPluginFile( 'update/plugin.php', 'Update Plugin' );
+
+		$this->assertCount( 1, $actions );
+		$this->assertSame( 'href', $actions[ 0 ][ 'kind' ] );
+		$this->assertSame( 'update', $actions[ 0 ][ 'type' ] );
+		$this->assertSame( 'bi bi-arrow-up-circle-fill', $actions[ 0 ][ 'icon_class' ] );
+		$this->assertSame( '/wp-admin/update-core.php', $actions[ 0 ][ 'href' ] );
+		$this->assertNotEmpty( $actions[ 0 ][ 'label' ] );
+		$this->assertArrayNotHasKey( 'ajax_action_json', $actions[ 0 ] );
 	}
 }
 

@@ -94,7 +94,8 @@ class BuildScanItems {
 			fn( $value ) => ( new WildCardOptions() )->buildFullRegexValue( $value, WildCardOptions::FILE_PATH_REL ),
 			$paths
 		);
-		$action->max_file_size = apply_filters( 'shield/file_scan_size_max', 16*1024*1024 );
+		$maxFileSize = apply_filters( 'shield/file_scan_size_max', ScanActionVO::DEFAULT_MAX_FILE_SIZE );
+		$action->max_file_size = ScanActionVO::normalizeMaxFileSize( $maxFileSize );
 	}
 
 	/**
@@ -148,7 +149,7 @@ class BuildScanItems {
 		$files = [];
 		$processed = 0;
 		foreach ( $action->scan_root_dirs as $scanDir => $depth ) {
-			foreach ( StandardDirectoryIterator::create( $scanDir, (int)$depth, \is_array( $action->file_exts ) ? $action->file_exts : [] ) as $item ) {
+			foreach ( StandardDirectoryIterator::create( $scanDir, (int)$depth, $action->file_exts ) as $item ) {
 				/** @var \SplFileInfo $item */
 				$this->tickProgressEvery( ++$processed );
 				if ( !$this->isAutoFilterFile( $item ) ) {

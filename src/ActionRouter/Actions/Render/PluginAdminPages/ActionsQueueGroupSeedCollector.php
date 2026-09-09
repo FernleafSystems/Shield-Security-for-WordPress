@@ -7,11 +7,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
 /**
  * @phpstan-import-type AttentionItem from \FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems
  * @phpstan-import-type BucketSource from ActionsQueueBucketsBuilder
- * @phpstan-import-type GroupLink from ActionsQueueGroupsBuilder
  * @phpstan-import-type GroupSeed from ActionsQueueGroupContractBuilder
  * @phpstan-import-type MaintenanceQueueItem from MaintenanceQueueItemDisplayNormalizer
  * @phpstan-import-type QueueAssetSummaryRecord from ActionsQueueScanAssetCardsBuilder
- * @phpstan-import-type VulnerabilityAction from ScansVulnerabilitiesBuilder
+ * @phpstan-import-type VulnerabilitySection from ScansVulnerabilitiesBuilder
  */
 class ActionsQueueGroupSeedCollector {
 
@@ -203,34 +202,20 @@ class ActionsQueueGroupSeedCollector {
 	}
 
 	/**
+	 * @phpstan-param VulnerabilitySection $section
 	 * @phpstan-param AttentionItem $item
 	 * @return list<GroupSeed>
 	 */
 	private function buildVulnerabilitySeeds( string $definitionKey, array $section, array $item ) :array {
-		if ( $section === [] ) {
+		if ( $section[ 'count' ] === 0 ) {
 			return [];
 		}
 
+		$item[ 'count' ] = $section[ 'count' ];
+		$item[ 'severity' ] = $section[ 'status' ];
 		$seeds = [];
-		foreach ( $section[ 'items' ] as $vulnerabilityItem ) {
-			$seeds[] = [
-				'key'              => $definitionKey.':'.$vulnerabilityItem[ 'key' ],
-				'definition_key'   => $definitionKey,
-				'label'            => $vulnerabilityItem[ 'label' ],
-				'item_count'       => $vulnerabilityItem[ 'count' ],
-				'status'           => StatusPriority::normalize( $vulnerabilityItem[ 'severity' ], 'warning' ),
-				'narrative'        => $vulnerabilityItem[ 'description' ],
-				'detail_shell'     => 'direct_table',
-				'links'            => $this->buildGroupLinksFromVulnerabilityActions( $vulnerabilityItem[ 'actions' ] ),
-				'management_link'  => [],
-				'detail_table'     => [],
-				'attention_items'  => [ $item ],
-				'maintenance_rows' => [],
-				'summary_row'      => [],
-			];
-		}
-
-		return $seeds;
+		$this->mergeAttentionSeed( $seeds, $definitionKey, $item );
+		return \array_values( $seeds );
 	}
 
 	/**
@@ -264,32 +249,6 @@ class ActionsQueueGroupSeedCollector {
 			'maintenance_rows' => [],
 			'summary_row'      => [],
 		];
-	}
-
-	/**
-	 * @param list<VulnerabilityAction> $actions
-	 * @return list<GroupLink>
-	 */
-	private function buildGroupLinksFromVulnerabilityActions( array $actions ) :array {
-		$links = [];
-		foreach ( $actions as $action ) {
-			$label = \trim( (string)( $action[ 'label' ] ?? '' ) );
-			$href = \trim( (string)( $action[ 'href' ] ?? '' ) );
-			if ( $label === '' || $href === '' ) {
-				continue;
-			}
-
-			$attributes = \is_array( $action[ 'attributes' ] ?? null ) ? $action[ 'attributes' ] : [];
-			$target = \trim( (string)( $attributes[ 'target' ] ?? '' ) );
-			$links[] = [
-				'label'      => $label,
-				'href'       => $href,
-				'target'     => $target,
-				'rel'        => $target === '_blank' ? 'noopener noreferrer' : '',
-				'icon_class' => $target === '_blank' ? 'bi-box-arrow-up-right' : '',
-			];
-		}
-		return $links;
 	}
 
 	/**

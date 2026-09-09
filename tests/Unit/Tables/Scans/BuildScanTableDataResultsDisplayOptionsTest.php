@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Tables\Scans;
 
 use Brain\Monkey\Functions;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\ScanResultsScopeResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans\{
 	BuildScanTableData,
 	LoadFileScanResultsTableData
@@ -46,10 +47,10 @@ class BuildScanTableDataResultsDisplayOptionsTest extends BaseUnitTest {
 			$loader->results_display_options
 		);
 		$this->assertSame(
-			[
-				"`rim`.`meta_key`='ptg_slug'",
-				"`rim`.`meta_value`='akismet/akismet.php'",
-			],
+			( new ScanResultsScopeResolver() )->wheresForActionScope(
+				ScanResultsScopeResolver::SCOPE_TYPE_PLUGIN,
+				'akismet/akismet.php'
+			),
 			$loader->custom_record_retriever_wheres
 		);
 	}

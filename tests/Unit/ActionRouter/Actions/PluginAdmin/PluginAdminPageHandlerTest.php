@@ -12,14 +12,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Action
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\PluginAdmin\PluginAdminPageHandler;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PageAdminPlugin;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Constants;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
+	RenderCapture,
+	UnitTestActionRouter,
 	UnitTestControllerFactory,
 	UnitTestLicenseComponent,
-	UnitTestPluginUrls
+	UnitTestPluginUrls,
+	UnitTestZonesComponent
 };
 
 class PluginAdminPageHandlerTest extends BaseUnitTest {
@@ -29,6 +34,7 @@ class PluginAdminPageHandlerTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'sanitize_key' )->alias( static fn( string $key ) :string => \strtolower( \trim( $key ) ) );
 		Functions\when( 'add_submenu_page' )->alias( function (
 			string $parentSlug,
 			string $pageTitle,
@@ -82,16 +88,44 @@ class PluginAdminPageHandlerTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_display_module_admin_page_passes_only_allowed_route_payload_to_page_render() :void {
+		$importRenderData = $this->captureDisplayModuleRenderData( [
+			Constants::NAV_ID                        => PluginNavs::NAV_TOOLS,
+			Constants::NAV_SUB_ID                    => PluginNavs::SUBNAV_TOOLS_IMPORT,
+			NetworkInviteRepository::REVIEW_QUERY_KEY => 'INVITE-ID',
+			'unrelated'                             => 'drop-me',
+		] );
+
+		$this->assertSame( PageAdminPlugin::class, $importRenderData[ 'action' ] );
+		$this->assertSame( [
+			Constants::NAV_ID                        => PluginNavs::NAV_TOOLS,
+			Constants::NAV_SUB_ID                    => PluginNavs::SUBNAV_TOOLS_IMPORT,
+			NetworkInviteRepository::REVIEW_QUERY_KEY => 'invite-id',
+		], $importRenderData[ 'action_data' ] );
+
+		$nonImportRenderData = $this->captureDisplayModuleRenderData( [
+			Constants::NAV_ID                        => PluginNavs::NAV_REPORTS,
+			Constants::NAV_SUB_ID                    => PluginNavs::SUBNAV_REPORTS_OVERVIEW,
+			NetworkInviteRepository::REVIEW_QUERY_KEY => 'INVITE-ID',
+		] );
+
+		$this->assertSame( PageAdminPlugin::class, $nonImportRenderData[ 'action' ] );
+		$this->assertSame( [
+			Constants::NAV_ID     => PluginNavs::NAV_REPORTS,
+			Constants::NAV_SUB_ID => PluginNavs::SUBNAV_REPORTS_OVERVIEW,
+		], $nonImportRenderData[ 'action_data' ] );
+	}
+
 	private function captureSubMenuItems() :void {
 		( new PluginAdminPageHandlerTestSubject( [
 			Constants::NAV_ID => PluginNavs::NAV_DASHBOARD,
 		] ) )->captureSubMenuItems();
 	}
 
-	private function installController( bool $isPremium ) :void {
+	private function installController( bool $isPremium, ?UnitTestActionRouter $actionRouter = null ) :void {
 		UnitTestControllerFactory::install(
 			new UnitTestPluginUrls(),
-			null,
+			$actionRouter,
 			(object)[
 				'cfg' => (object)[
 					'properties' => [
@@ -107,9 +141,29 @@ class PluginAdminPageHandlerTest extends BaseUnitTest {
 				],
 				'comps' => (object)[
 					'license' => new UnitTestLicenseComponent( $isPremium ),
+					'zones'   => new UnitTestZonesComponent(),
 				],
 			]
 		);
+	}
+
+	private function captureDisplayModuleRenderData( array $actionData ) :array {
+		$capture = new RenderCapture();
+		$this->installController( true, new UnitTestActionRouter( $capture ) );
+
+		$level = \ob_get_level();
+		\ob_start();
+		try {
+			( new PluginAdminPageHandler( $actionData ) )->displayModuleAdminPage();
+		}
+		finally {
+			while ( \ob_get_level() > $level ) {
+				\ob_end_clean();
+			}
+		}
+
+		$this->assertCount( 1, $capture->calls );
+		return $capture->calls[ 0 ];
 	}
 
 	private function findSubMenuCallBySlug( string $menuSlug ) :?array {

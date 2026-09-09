@@ -4,17 +4,20 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
+	Actions\Render\FullPage\Block\BlockAuthorFishing,
 	Actions\RuleBuilderAction,
 	Actions\RulesManagerTableAction
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\HookTimings;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\RuleRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Build\Builder,
+	Build\Core\BotTrack404,
 	Conditions\IsRequestStatus404,
 	Conditions\RequestBypassesAllRestrictions,
 	Enum\EnumLogic,
 	Processors\ProcessConditions,
-	Processors\ResponseProcessor,
-	Responses\TriggerIpBlock,
+	Responses\DisplayBlockPage,
 	RuleVO
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -43,7 +46,8 @@ class Custom404RuleBehaviorIntegrationTest extends ShieldIntegrationTestCase {
 			'rule_description'              => 'custom_404_block description',
 			'conditions_logic'              => EnumLogic::LOGIC_AND,
 			'condition_1'                   => IsRequestStatus404::Slug(),
-			'response_1'                    => TriggerIpBlock::Slug(),
+			'response_1'                    => DisplayBlockPage::Slug(),
+			'response_1_param_block_page_slug' => BlockAuthorFishing::SLUG,
 			'checkbox_auto_include_bypass'  => 'Y',
 			'checkbox_accept_rules_warning' => 'Y',
 		];
@@ -94,7 +98,12 @@ class Custom404RuleBehaviorIntegrationTest extends ShieldIntegrationTestCase {
 	private function assertRuntimeRuleContract( array $rule ) :void {
 		$this->assertSame( 'custom/custom_404_block', $rule[ 'slug' ] ?? '' );
 		$this->assertSame( 'custom_404_block', $rule[ 'name' ] ?? '' );
-		$this->assertTrue( (bool)( $rule[ 'immediate_exec_response' ] ?? false ) );
+		$this->assertFalse( (bool)( $rule[ 'immediate_exec_response' ] ?? true ) );
+		$this->assertSame( 'template_redirect', $rule[ 'wp_hook' ] ?? '' );
+		$this->assertSame(
+			HookTimings::TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS + 1,
+			(int)( $rule[ 'wp_hook_priority' ] ?? 0 )
+		);
 
 		$conditions = $this->flattenConditions( $rule[ 'conditions' ] ?? [] );
 		$conditionClasses = \array_column( $conditions, 'conditions' );
@@ -118,8 +127,8 @@ class Custom404RuleBehaviorIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertArrayHasKey( 'responses', $rule );
 		$this->assertCount( 1, $rule[ 'responses' ] );
 		$response = $rule[ 'responses' ][ 0 ];
-		$this->assertSame( TriggerIpBlock::class, $response[ 'response' ] ?? '' );
-		$this->assertIsArray( $response[ 'params' ] ?? [] );
+		$this->assertSame( DisplayBlockPage::class, $response[ 'response' ] ?? '' );
+		$this->assertSame( BlockAuthorFishing::SLUG, $response[ 'params' ][ 'block_page_slug' ] ?? '' );
 	}
 
 	private function resetRuntimeRequestState() :void {
@@ -158,30 +167,31 @@ class Custom404RuleBehaviorIntegrationTest extends ShieldIntegrationTestCase {
 			->process();
 	}
 
-	private function processRuleIfMatched( RuleVO $rule ) :bool {
-		$matched = $this->ruleMatches( $rule );
-		if ( $matched ) {
-			( new ResponseProcessor( $rule ) )
-				->setThisRequest( $this->requireController()->this_req )
-				->run();
-		}
-		return $matched;
-	}
-
 	public function test_saved_and_activated_custom_404_rule_rebuilds_runtime_contract() {
 		$this->createAndActivateCustom404Rule();
 
 		$this->assertRuntimeRuleContract( $this->loadRuntimeCustom404RuleRaw() );
 	}
 
-	public function test_custom_404_rule_matches_and_triggers_block_response() {
+	public function test_custom_404_rule_matches_and_retains_terminal_block_response() {
 		$this->createAndActivateCustom404Rule();
 		$rule = $this->loadRuntimeCustom404Rule();
 		$this->prepareAnonymous404Request( '/definitely/missing/custom-404-block.php' );
 
 		$this->assertTrue( \is_404(), 'Request should be a 404 for this scenario.' );
-		$this->assertTrue( $this->processRuleIfMatched( $rule ) );
-		$this->assertTrue( $this->requireController()->comps->offense_tracker->isBlocked() );
+		$this->assertTrue( $this->ruleMatches( $rule ) );
+		$this->assertTrue( ( new DisplayBlockPage() )->isTerminating() );
+	}
+
+	public function test_custom_404_rule_runs_immediately_after_native_404_tracking() :void {
+		$this->createAndActivateCustom404Rule();
+		$rules = ( new Builder() )->run();
+		$customRule = $rules[ 'custom/custom_404_block' ];
+		$nativeRule = $rules[ BotTrack404::SLUG ];
+
+		$this->assertSame( HookTimings::TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS, $nativeRule->wp_hook_priority );
+		$this->assertSame( $nativeRule->wp_hook, $customRule->wp_hook );
+		$this->assertSame( $nativeRule->wp_hook_priority + 1, $customRule->wp_hook_priority );
 	}
 
 	public function test_custom_404_rule_does_not_block_non_404_request() {
@@ -190,7 +200,7 @@ class Custom404RuleBehaviorIntegrationTest extends ShieldIntegrationTestCase {
 		$this->prepareAnonymousNon404Request();
 
 		$this->assertFalse( \is_404(), 'Test fixture should resolve as a non-404 request.' );
-		$this->assertFalse( $this->processRuleIfMatched( $rule ) );
+		$this->assertFalse( $this->ruleMatches( $rule ) );
 		$this->assertFalse( $this->requireController()->comps->offense_tracker->isBlocked() );
 	}
 
@@ -200,7 +210,7 @@ class Custom404RuleBehaviorIntegrationTest extends ShieldIntegrationTestCase {
 		$this->prepareAnonymous404Request( '/definitely/missing/custom-404-bypass.php', true );
 
 		$this->assertTrue( \is_404(), 'Request should be a 404 for this scenario.' );
-		$this->assertFalse( $this->processRuleIfMatched( $rule ) );
+		$this->assertFalse( $this->ruleMatches( $rule ) );
 		$this->assertFalse( $this->requireController()->comps->offense_tracker->isBlocked() );
 	}
 }

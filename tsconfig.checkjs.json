@@ -24,6 +24,7 @@
     "./assets/js/util/ObjectOps.js",
     "./assets/js/components/general/MiscHooks.js",
     "./assets/js/components/general/SilentCaptcha.js",
+    "./assets/js/components/general/TrafficLiveLogs.js",
     "./assets/js/plugin-silentcaptcha.js",
     "./assets/js/components/general/PluginOnboarding.js",
     "./assets/js/plugin-onboarding.js",

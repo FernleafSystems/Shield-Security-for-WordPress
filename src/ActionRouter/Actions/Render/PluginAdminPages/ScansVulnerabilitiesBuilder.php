@@ -50,8 +50,29 @@ class ScansVulnerabilitiesBuilder {
 	 * @return VulnerabilitiesPayload
 	 */
 	public function build() :array {
-		$vulnerableItems = $this->buildVulnerableItems();
-		$abandonedItems = $this->buildAbandonedItems();
+		return $this->buildForOptionalAssetType( '' );
+	}
+
+	/**
+	 * @param 'plugin'|'theme' $assetType
+	 * @return VulnerabilitiesPayload
+	 */
+	public function buildForAssetType( string $assetType ) :array {
+		$assetType = $this->normalizeAssetTypeFilter( $assetType );
+		if ( $assetType === '' ) {
+			throw new \InvalidArgumentException( 'Asset type filter must be "plugin" or "theme".' );
+		}
+
+		return $this->buildForOptionalAssetType( $assetType );
+	}
+
+	/**
+	 * @param 'plugin'|'theme'|'' $assetType
+	 * @return VulnerabilitiesPayload
+	 */
+	private function buildForOptionalAssetType( string $assetType ) :array {
+		$vulnerableItems = $this->buildVulnerableItems( $assetType );
+		$abandonedItems = $this->buildAbandonedItems( $assetType );
 
 		return [
 			'count'    => $this->countDistinctAffectedAssets( $vulnerableItems, $abandonedItems ),
@@ -72,9 +93,10 @@ class ScansVulnerabilitiesBuilder {
 	}
 
 	/**
+	 * @param 'plugin'|'theme'|'' $assetType
 	 * @return list<VulnerabilityItem>
 	 */
-	protected function buildVulnerableItems() :array {
+	protected function buildVulnerableItems( string $assetType = '' ) :array {
 		try {
 			$results = self::con()->comps->scans->WPV()->getResultsForDisplay();
 		}
@@ -105,6 +127,9 @@ class ScansVulnerabilitiesBuilder {
 			if ( $asset === null ) {
 				continue;
 			}
+			if ( !$this->assetMatchesFilter( $asset, $assetType ) ) {
+				continue;
+			}
 
 			$count = \count( $typedAsset[ 'items' ] );
 			$items[] = $this->buildAssetRow(
@@ -123,9 +148,10 @@ class ScansVulnerabilitiesBuilder {
 	}
 
 	/**
+	 * @param 'plugin'|'theme'|'' $assetType
 	 * @return list<VulnerabilityItem>
 	 */
-	protected function buildAbandonedItems() :array {
+	protected function buildAbandonedItems( string $assetType = '' ) :array {
 		try {
 			$results = self::con()->comps->scans->APC()->getResultsForDisplay();
 		}
@@ -140,6 +166,9 @@ class ScansVulnerabilitiesBuilder {
 				(string)( $item->VO->item_type ?? '' )
 			);
 			if ( $asset === null ) {
+				continue;
+			}
+			if ( !$this->assetMatchesFilter( $asset, $assetType ) ) {
 				continue;
 			}
 
@@ -206,6 +235,23 @@ class ScansVulnerabilitiesBuilder {
 
 	private function isKnownScanItemType( string $itemType ) :bool {
 		return \in_array( $itemType, [ 'p', 't' ], true );
+	}
+
+	/**
+	 * @return 'plugin'|'theme'|''
+	 */
+	private function normalizeAssetTypeFilter( string $assetType ) :string {
+		$assetType = \strtolower( \trim( $assetType ) );
+		return \in_array( $assetType, [ 'plugin', 'theme' ], true ) ? $assetType : '';
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $asset
+	 */
+	private function assetMatchesFilter( $asset, string $assetType ) :bool {
+		return $assetType === ''
+			   || ( $assetType === 'plugin' && $asset instanceof WpPluginVo )
+			   || ( $assetType === 'theme' && $asset instanceof WpThemeVo );
 	}
 
 	/**

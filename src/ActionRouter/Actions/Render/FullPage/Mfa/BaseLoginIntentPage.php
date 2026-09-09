@@ -8,36 +8,46 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\MfaEmailSendIntent,
 	Actions\MfaPasskeyAuthenticationStart
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\LoginRequestValues;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Provider\Passkey;
 use FernleafSystems\Wordpress\Services\Services;
 
+/**
+ * @phpstan-import-type LoginIntentRenderData from LoginRequestValues
+ */
 abstract class BaseLoginIntentPage extends Actions\Render\FullPage\BaseFullPageRender {
 
 	use Actions\Traits\AuthNotRequired;
 
 	public function getLoginIntentJavascript() :array {
-		$userID = (int)( $this->action_data[ 'user_id' ] ?? 0 );
-		$loginNonce = (string)( $this->action_data[ 'plain_login_nonce' ] ?? '' );
-
-		$prov = self::con()->comps->mfa->getProvidersActiveForUser(
-			Services::WpUsers()->getUserById( $userID )
-		);
+		$data = $this->loginIntentRenderData();
+		$user = Services::WpUsers()->getUserById( $data[ 'user_id' ] );
+		$prov = $user instanceof \WP_User ? self::con()->comps->mfa->getProvidersActiveForUser( $user ) : [];
 
 		return [
 			'ajax'  => [
 				'passkey_auth_start' => ActionData::Build( MfaPasskeyAuthenticationStart::class, true, [
-					'login_wp_user' => $userID,
-					'login_nonce'   => $loginNonce,
+					'login_wp_user' => $data[ 'user_id' ],
+					'login_nonce'   => $data[ 'plain_login_nonce' ],
 				] ),
 				'email_code_send'    => ActionData::Build( MfaEmailSendIntent::class, true, [
-					'wp_user_id'  => $userID,
-					'login_nonce' => $loginNonce,
-					'redirect_to' => esc_url_raw( $this->action_data[ 'redirect_to' ] ?? '' ),
+					'wp_user_id'  => $data[ 'user_id' ],
+					'login_nonce' => $data[ 'plain_login_nonce' ],
+					'redirect_to' => esc_url_raw( $data[ 'redirect_to' ] ),
 				] ),
 			],
 			'flags' => [
 				'passkey_auth_auto' => \count( $prov ) === 1 && isset( $prov[ Passkey::ProviderSlug() ] ),
 			],
 		];
+	}
+
+	/**
+	 * @return LoginIntentRenderData
+	 */
+	protected function loginIntentRenderData() :array {
+		/** @var LoginIntentRenderData $data */
+		$data = $this->action_data;
+		return $data;
 	}
 }

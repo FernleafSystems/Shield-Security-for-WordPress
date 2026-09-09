@@ -320,24 +320,30 @@ $options-rail-width-max: 260px;
   width: min(100%, 280px);
 }
 
-.options_form_for--modern .shield-option-multiple-item {
-  display: flex;
-  align-items: flex-start;
+.form-check.shield-option-multiple-item {
+  align-items: start;
+  display: grid;
   gap: 0.55rem;
-  min-height: 0;
+  grid-template-columns: max-content minmax(0, 1fr);
   margin: 0;
+  min-height: 0;
+  min-width: 0;
   padding-left: 0;
 }
 
-.options_form_for--modern .shield-option-multiple-item .form-check-input {
-  margin-top: 0.2rem;
-  margin-left: 0;
-  flex-shrink: 0;
+.form-check.shield-option-multiple-item .form-check-input {
+  float: none;
+  margin: 0.2rem 0 0;
 }
 
-.options_form_for--modern .shield-option-multiple-item .form-check-label {
+.form-check.shield-option-multiple-item .form-check-label {
   line-height: 1.35;
-  word-break: break-word;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.form-check.shield-option-multiple-item .form-check-label code {
+  white-space: normal;
 }
 
 // ─── Bootstrap Switch Overrides ───
@@ -438,7 +444,8 @@ $options-rail-width-max: 260px;
   padding-left: 0.1rem;
 }
 
-@container (max-width: 600px) {
+// Stack the section rail before it leaves too little room for the options.
+@container (max-width: 800px) {
   .options_form_for--modern .shield-options-layout {
     grid-template-columns: 1fr;
     gap: 0.75rem;
@@ -466,7 +473,9 @@ $options-rail-width-max: 260px;
     padding-top: 0.5rem;
     border-top: 1px solid $options-border-subtle;
   }
+}
 
+@container (max-width: 600px) {
   .options_form_for--modern .shield-option-row {
     flex-direction: column;
     align-items: stretch;

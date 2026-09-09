@@ -2,8 +2,9 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts;
 
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailSendVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\Ops\Delete;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class OptionSaveSideEffects {
@@ -13,18 +14,16 @@ class OptionSaveSideEffects {
 	public function run() :void {
 		$this->login();
 		$this->integrations();
+		$this->importExport();
 		$this->ips();
 		$this->securityAdmin();
 		$this->scanners();
 	}
 
 	private function login() :void {
-		if ( self::con()->opts->optChanged( 'enable_email_authentication' ) ) {
-			try {
-				self::con()->action_router->action( MfaEmailSendVerification::class );
-			}
-			catch ( \Exception $e ) {
-			}
+		$opts = self::con()->opts;
+		if ( $opts->optChanged( 'enable_email_authentication' ) && $opts->optIs( 'enable_email_authentication', 'N' ) ) {
+			( new EmailDeliveryVerification() )->clearSent();
 		}
 	}
 
@@ -32,6 +31,16 @@ class OptionSaveSideEffects {
 		$opts = self::con()->opts;
 		if ( $opts->optChanged( 'enable_auto_integrations' ) ) {
 			$opts->optSet( 'auto_integrations_track', [] );
+		}
+	}
+
+	private function importExport() :void {
+		$opts = self::con()->opts;
+		if ( $opts->optChanged( 'importexport_enable' ) && $opts->optIs( 'importexport_enable', 'N' ) ) {
+			( new NetworkInviteRepository() )->clearAll( false );
+		}
+		if ( $opts->optChanged( 'importexport_masterurl' ) && \trim( (string)$opts->optGet( 'importexport_masterurl' ) ) !== '' ) {
+			( new NetworkInviteRepository() )->clearAll( false );
 		}
 	}
 

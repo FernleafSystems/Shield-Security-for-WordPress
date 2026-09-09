@@ -2,8 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components;
 
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\ProcessorComponentReferenceVerifier;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\ComponentLoader;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Tests the ComponentLoader lazy-loading mechanism: verifies that all
@@ -106,6 +108,37 @@ class ComponentLoaderTest extends ShieldIntegrationTestCase {
 		$this->assertInstanceOf(
 			\FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\Signals\NotBotHandler::class,
 			$notBot
+		);
+	}
+
+	public function test_processor_execute_components_resolve_to_executable_services() :void {
+		$con = $this->requireController();
+		$keys = ( new ProcessorComponentReferenceVerifier() )->extractProcessorExecuteComponentKeys(
+			Path::join( \dirname( __DIR__, 3 ), 'src', 'Modules', 'Plugin', 'Processor.php' )
+		);
+
+		$this->assertNotEmpty( $keys, 'Processor should declare executable component references.' );
+
+		$failures = [];
+		foreach ( $keys as $key ) {
+			try {
+				$component = $con->comps->{$key};
+				if ( !\is_object( $component ) ) {
+					$failures[] = $key.' (not an object)';
+				}
+				elseif ( !\is_callable( [ $component, 'execute' ] ) ) {
+					$failures[] = $key.' (execute() not callable)';
+				}
+			}
+			catch ( \Throwable $e ) {
+				$failures[] = $key.' ('.$e->getMessage().')';
+			}
+		}
+
+		$this->assertSame(
+			[],
+			$failures,
+			'Processor execute components should resolve to executable services: '.\implode( ', ', $failures )
 		);
 	}
 }

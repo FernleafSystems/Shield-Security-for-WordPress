@@ -241,6 +241,66 @@ class ScansVulnerabilitiesBuilderTest extends BaseUnitTest {
 		$this->assertSame( [], $abandonedRows[ 'items' ] );
 	}
 
+	public function test_build_for_asset_type_filters_vulnerable_and_abandoned_sections() :void {
+		$this->installTestControllerAndServices(
+			[
+				$this->buildWpvResultItem( 'plugin-alpha/plugin-alpha.php', 'p' ),
+				$this->buildWpvResultItem( 'twentytwentyfive', 't' ),
+			],
+			[
+				$this->buildApcResultItem( 'plugin-beta/plugin-beta.php', 'p' ),
+				$this->buildApcResultItem( 'twentytwentysix', 't' ),
+			],
+			[
+				'plugin-alpha/plugin-alpha.php' => $this->buildPluginVo( 'plugin-alpha/plugin-alpha.php', 'plugin-alpha', 'Plugin Alpha' ),
+				'plugin-beta/plugin-beta.php'   => $this->buildPluginVo( 'plugin-beta/plugin-beta.php', 'plugin-beta', 'Plugin Beta' ),
+			],
+			[
+				'twentytwentyfive' => $this->buildThemeVo( 'twentytwentyfive', 'Twenty Twenty Five' ),
+				'twentytwentysix'  => $this->buildThemeVo( 'twentytwentysix', 'Twenty Twenty Six' ),
+			]
+		);
+
+		$builder = new ScansVulnerabilitiesBuilder();
+		$pluginPayload = $builder->buildForAssetType( 'plugin' );
+		$themePayload = $builder->buildForAssetType( 'theme' );
+
+		$this->assertSame( 2, $pluginPayload[ 'count' ] );
+		$this->assertSame( 1, $pluginPayload[ 'sections' ][ 'vulnerable' ][ 'count' ] );
+		$this->assertSame( 1, $pluginPayload[ 'sections' ][ 'abandoned' ][ 'count' ] );
+		$this->assertSame(
+			[ 'plugin-alpha/plugin-alpha.php' ],
+			\array_column( $pluginPayload[ 'sections' ][ 'vulnerable' ][ 'items' ], 'asset_key' )
+		);
+		$this->assertSame(
+			[ 'plugin-beta/plugin-beta.php' ],
+			\array_column( $pluginPayload[ 'sections' ][ 'abandoned' ][ 'items' ], 'asset_key' )
+		);
+		$this->assertSame( [ 'plugin' ], \array_values( \array_unique(
+			\array_column( $pluginPayload[ 'sections' ][ 'vulnerable' ][ 'items' ], 'asset_type' )
+		) ) );
+
+		$this->assertSame( 2, $themePayload[ 'count' ] );
+		$this->assertSame( 1, $themePayload[ 'sections' ][ 'vulnerable' ][ 'count' ] );
+		$this->assertSame( 1, $themePayload[ 'sections' ][ 'abandoned' ][ 'count' ] );
+		$this->assertSame(
+			[ 'twentytwentyfive' ],
+			\array_column( $themePayload[ 'sections' ][ 'vulnerable' ][ 'items' ], 'asset_key' )
+		);
+		$this->assertSame(
+			[ 'twentytwentysix' ],
+			\array_column( $themePayload[ 'sections' ][ 'abandoned' ][ 'items' ], 'asset_key' )
+		);
+		$this->assertSame( [ 'theme' ], \array_values( \array_unique(
+			\array_column( $themePayload[ 'sections' ][ 'vulnerable' ][ 'items' ], 'asset_type' )
+		) ) );
+	}
+
+	public function test_build_for_asset_type_rejects_unsupported_asset_type() :void {
+		$this->expectException( \InvalidArgumentException::class );
+		(new ScansVulnerabilitiesBuilder())->buildForAssetType( 'wordpress' );
+	}
+
 	private function buildPluginVo( string $file, string $slug, string $label ) :WpPluginVo {
 		return new class( $file, $slug, $label ) extends WpPluginVo {
 			public string $file;

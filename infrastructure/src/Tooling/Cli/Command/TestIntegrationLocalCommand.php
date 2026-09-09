@@ -25,7 +25,14 @@ class TestIntegrationLocalCommand extends Command {
 
 	protected function configure() :void {
 		$this
-			->setDescription( 'Run host-PHP integration tests with a local Docker MySQL sidecar.' )
+			->setDescription( 'Run host-PHP integration tests with a local Docker database sidecar.' )
+			->addOption(
+				'db-profile',
+				null,
+				InputOption::VALUE_REQUIRED,
+				'Database compatibility profile: mysql80, mysql56, or mariadb106.',
+				'mysql80'
+			)
 			->addOption(
 				'db-down',
 				null,
@@ -49,6 +56,7 @@ class TestIntegrationLocalCommand extends Command {
 		try {
 			$dbDown = (bool)$input->getOption( 'db-down' );
 			$showDockerOutput = (bool)$input->getOption( 'show-docker-output' );
+			$dbProfile = (string)$input->getOption( 'db-profile' );
 			$phpunitArgs = \array_values( \array_filter(
 				(array)$input->getArgument( 'phpunit_args' ),
 				static function ( $value ) :bool {
@@ -56,7 +64,7 @@ class TestIntegrationLocalCommand extends Command {
 				}
 			) );
 
-			return $this->lane->run( $this->projectRoot, $dbDown, $phpunitArgs, $showDockerOutput );
+			return $this->lane->run( $this->projectRoot, $dbDown, $phpunitArgs, $showDockerOutput, $dbProfile );
 		}
 		catch ( \Throwable $throwable ) {
 			$output->writeln( '<error>Error: '.$throwable->getMessage().'</error>' );

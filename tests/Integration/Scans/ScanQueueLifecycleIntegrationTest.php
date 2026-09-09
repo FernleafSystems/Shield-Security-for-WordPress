@@ -6,9 +6,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops as ScansDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Exceptions\NoQueueItems;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\CreateNewScan;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\{
+	CreateNewScan,
+	SetScanCompleted
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Base;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
+	ProcessQueueItem,
 	QueueItems,
 	QueueMaintenance,
 	QueueProcessor,
@@ -20,6 +24,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue\{
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScansController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\StartScansResult;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\BaseScanActionVO;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
 class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
@@ -159,7 +164,7 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 	public function testScheduledWatchdogFinalizesLastActiveCronScanInRealDb() :void {
 		$con = $this->requireController();
 		$optionsSnapshot = $this->snapshotSelectedOptions( [ 'is_scan_cron' ] );
-		$postScanHook = $con->prefix( 'post_scan' );
+		$postScanHook = $con->prefix( ScansController::HOOK_POST_SCAN );
 		$completedCalls = 0;
 		$completedCallback = static function () use ( &$completedCalls ) :void {
 			$completedCalls++;
@@ -248,6 +253,157 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$claimed = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $itemID );
 		$this->assertGreaterThan( 0, $claimed->started_at );
 		$this->assertSame( 1, $claimed->attempts );
+	}
+
+	public function testSuccessiveRealQueueItemsHydrateIdenticalFullAfsEligibility() :void {
+		$eligibility = [
+			'plugin' => [
+				'example/example.php' => [
+					'version'             => '1.0',
+					'comparison_eligible' => true,
+				],
+			],
+			'theme'  => [],
+		];
+		$scanID = $this->createScan( 'afs', 'built', [
+			'ready_at'        => \time(),
+			'last_process_at' => \time(),
+			'meta'            => [
+				'scan'                       => 'wpv',
+				'scope_type'                 => 'theme',
+				'scope_key'                  => 'not-authoritative',
+				'coverage_families'          => [ ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY ],
+				'asset_snapshot_eligibility' => $eligibility,
+			],
+		] );
+		$firstID = $this->createScanItem( $scanID, [ 'first.php' ] );
+		$secondID = $this->createScanItem( $scanID, [ 'second.php' ] );
+
+		$first = ( new QueueItems() )->next();
+		$second = ( new QueueItems() )->next();
+
+		$this->assertSame( $firstID, $first->qitem_id );
+		$this->assertSame( $secondID, $second->qitem_id );
+		$this->assertSame( $first->meta, $second->meta );
+		$this->assertSame( $eligibility, $first->meta[ 'asset_snapshot_eligibility' ] ?? null );
+		foreach ( [ $first, $second ] as $item ) {
+			$this->assertSame( 'afs', $item->scan );
+			$this->assertSame( 'full', $item->scope_type );
+			$this->assertSame( '', $item->scope_key );
+		}
+	}
+
+	public function testZeroItemCompletionPersistsExactFullAfsEligibilityPayload() :void {
+		$meta = [
+			'coverage_families' => [ ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY ],
+			'asset_snapshot_eligibility' => [
+				'plugin' => [
+					'zero/zero.php' => [
+						'version'             => '0',
+						'comparison_eligible' => false,
+					],
+				],
+				'theme'  => [],
+			],
+		];
+		$scanID = $this->createScan( 'afs', 'built', [
+			'ready_at'        => \time(),
+			'last_process_at' => \time(),
+			'meta'            => $meta,
+		] );
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$rawBefore = $scan->getRawData();
+		$this->assertArrayHasKey( 'meta', $rawBefore );
+
+		$this->assertTrue( ( new SetScanCompleted() )->run( $scanID, $scan, true ) );
+
+		$persisted = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$rawAfter = $persisted->getRawData();
+		$this->assertSame( 'completed', $persisted->status );
+		$this->assertSame( $meta, $persisted->meta );
+		$this->assertSame( $rawBefore[ 'meta' ], $rawAfter[ 'meta' ] );
+	}
+
+	public function testRealDbHydrationPreservesValidQueueSiblingsThroughProcessor() :void {
+		$scanID = $this->createScan( 'wpv', 'built', [
+			'ready_at'        => \time(),
+			'last_process_at' => \time(),
+		] );
+		$itemID = $this->createScanItem( $scanID, [ 'placeholder-theme' ] );
+		$validTheme = 'shield-ts11-deliberately-not-installed-theme';
+		$this->updateRawItemsPayload( $itemID, \base64_encode( (string)\json_encode( [
+			12,
+			$validTheme,
+			false,
+			null,
+			'',
+			[],
+			$validTheme,
+		] ) ) );
+
+		$item = ( new QueueItems() )->next();
+
+		$this->assertSame( $itemID, $item->qitem_id );
+		$this->assertSame( [ $validTheme, $validTheme ], $item->items );
+		$this->assertSame( 1, $item->attempts );
+
+		( new ProcessQueueItem() )->run( $item );
+
+		/** @var ScanItemsDB\Record $persistedItem */
+		$persistedItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $itemID );
+		/** @var ScansDB\Record $scan */
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$this->assertGreaterThan( 0, $persistedItem->finished_at );
+		$this->assertSame( 1, $persistedItem->attempts );
+		$this->assertSame( 'completed', $scan->status );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $scan->meta );
+		$this->assertSame(
+			0,
+			$this->requireDb( 'scan_results' )->getQuerySelector()->filterByScan( $scanID )->count()
+		);
+		$this->assertSame(
+			0,
+			$this->requireDb( 'scan_items' )->getQuerySelector()
+				 ->filterByScan( $scanID )
+				 ->filterByNotFinished()
+				 ->count()
+		);
+	}
+
+	public function testRealDbUndecodableQueuePayloadCompletesAsEmptyWorkOnce() :void {
+		$scanID = $this->createScan( 'wpv', 'built', [
+			'ready_at'        => \time(),
+			'last_process_at' => \time(),
+		] );
+		$itemID = $this->createScanItem( $scanID, [ 'placeholder-theme' ] );
+		$this->updateRawItemsPayload( $itemID, '***not-base64***' );
+
+		$item = ( new QueueItems() )->next();
+
+		$this->assertSame( [], $item->items );
+		$this->assertSame( 1, $item->attempts );
+
+		( new ProcessQueueItem() )->run( $item );
+
+		/** @var ScanItemsDB\Record $persistedItem */
+		$persistedItem = $this->requireDb( 'scan_items' )->getQuerySelector()->byId( $itemID );
+		/** @var ScansDB\Record $scan */
+		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
+		$this->assertGreaterThan( 0, $persistedItem->finished_at );
+		$this->assertSame( 1, $persistedItem->attempts );
+		$this->assertSame( 'completed', $scan->status );
+		$this->assertArrayNotHasKey( RunState::META_KEY_LAST_ERROR, $scan->meta );
+		$this->assertSame(
+			0,
+			$this->requireDb( 'scan_results' )->getQuerySelector()->filterByScan( $scanID )->count()
+		);
+		$this->assertSame(
+			0,
+			$this->requireDb( 'scan_items' )->getQuerySelector()
+				 ->filterByScan( $scanID )
+				 ->filterByNotFinished()
+				 ->count()
+		);
 	}
 
 	public function testClaimedItemInOldestReadyScanBlocksNewerScanUntilCompletion() :void {
@@ -501,7 +657,7 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		$watchdog = new QueueWatchdog();
 
-		$watchdog->run();
+		$watchdog->runScheduled();
 
 		/** @var ScansDB\Record $scan */
 		$scan = $this->requireDb( 'scans' )->getQuerySelector()->byId( $scanID );
@@ -822,6 +978,16 @@ class ScanQueueLifecycleIntegrationTest extends ShieldIntegrationTestCase {
 		$record->finished_at = $finishedAt;
 		$this->assertTrue( $scanItems->getQueryInserter()->insert( $record ) );
 		return (int)$GLOBALS[ 'wpdb' ]->insert_id;
+	}
+
+	private function updateRawItemsPayload( int $itemID, string $payload ) :void {
+		$this->assertSame( 1, $GLOBALS[ 'wpdb' ]->update(
+			$this->requireDb( 'scan_items' )->getTable(),
+			[ 'items' => $payload ],
+			[ 'id' => $itemID ],
+			[ '%s' ],
+			[ '%d' ]
+		) );
 	}
 
 	private function recoveryMeta( int $attempts, int $lastAttemptAt ) :array {

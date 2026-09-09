@@ -15,12 +15,23 @@ class RecordingProcessRunner extends ProcessRunner {
 	 */
 	private array $exitCodes;
 
+	private bool $failWhenExhausted = false;
+
 	/**
 	 * @param array<int,int|array{exit_code:int,stdout?:string,stderr?:string}> $exitCodes
 	 */
 	public function __construct( array $exitCodes = [ 0 ] ) {
 		parent::__construct();
 		$this->exitCodes = $exitCodes;
+	}
+
+	/**
+	 * @param array<int,int|array{exit_code:int,stdout?:string,stderr?:string}> $exitCodes
+	 */
+	public static function strict( array $exitCodes ) :self {
+		$runner = new self( $exitCodes );
+		$runner->failWhenExhausted = true;
+		return $runner;
 	}
 
 	public function run(
@@ -40,22 +51,14 @@ class RecordingProcessRunner extends ProcessRunner {
 	}
 
 	private function buildProcessFromQueue( ?callable $onOutput = null ) :Process {
+		if ( $this->failWhenExhausted && $this->exitCodes === [] ) {
+			throw new \LogicException( 'Unexpected process call exhausted the configured response queue.' );
+		}
+
 		$queueEntry = \array_shift( $this->exitCodes );
 		$exitCode = \is_array( $queueEntry ) ? (int)( $queueEntry[ 'exit_code' ] ?? 0 ) : (int)( $queueEntry ?? 0 );
 		$stdout = \is_array( $queueEntry ) ? (string)( $queueEntry[ 'stdout' ] ?? '' ) : '';
 		$stderr = \is_array( $queueEntry ) ? (string)( $queueEntry[ 'stderr' ] ?? '' ) : '';
-		$script = 'fwrite(STDOUT, '.\var_export( $stdout, true ).');'
-			.'fwrite(STDERR, '.\var_export( $stderr, true ).');'
-			.'exit('.$exitCode.');';
-		$process = new Process(
-			[
-				\PHP_BINARY,
-				'-r',
-				$script,
-			]
-		);
-		$process->run( static function () :void {
-		} );
 		if ( $onOutput !== null ) {
 			if ( $stdout !== '' ) {
 				$onOutput( Process::OUT, $stdout );
@@ -65,6 +68,34 @@ class RecordingProcessRunner extends ProcessRunner {
 			}
 		}
 
-		return $process;
+		return new RecordingProcess( $exitCode, $stdout, $stderr );
+	}
+}
+
+class RecordingProcess extends Process {
+
+	private int $recordedExitCode;
+
+	private string $recordedOutput;
+
+	private string $recordedErrorOutput;
+
+	public function __construct( int $exitCode, string $output = '', string $errorOutput = '' ) {
+		parent::__construct( [ \PHP_BINARY, '-v' ] );
+		$this->recordedExitCode = $exitCode;
+		$this->recordedOutput = $output;
+		$this->recordedErrorOutput = $errorOutput;
+	}
+
+	public function getExitCode() :?int {
+		return $this->recordedExitCode;
+	}
+
+	public function getOutput() :string {
+		return $this->recordedOutput;
+	}
+
+	public function getErrorOutput() :string {
+		return $this->recordedErrorOutput;
 	}
 }

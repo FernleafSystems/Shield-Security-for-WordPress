@@ -9,7 +9,7 @@
 		 data-shield-scan-modal-state="{{ vars.modal_state }}"
 		 aria-busy="{{ vars.is_busy ? 'true' : 'false' }}"
 		 data-shield-scan-modal-announcement="{{ vars.announcement }}">
-		<h6>{{ vars.heading }}</h6>
+		<h3 class="h6">{{ vars.heading }}</h3>
 		<p>{{ vars.remaining_scans }}</p>
 		{% if vars.show_progress %}
 			{% if vars.scan_rows is not empty %}

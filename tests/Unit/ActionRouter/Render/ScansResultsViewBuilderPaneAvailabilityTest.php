@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages\ScansResultsViewBuilder;
+
 class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilderTestCase {
 
 	public function test_plugin_pane_data_returns_disabled_state_when_scan_is_unavailable() :void {
@@ -110,6 +112,34 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 		$this->assertSame( [], $pane[ 'items' ] ?? [ 'unexpected' ] );
 		$this->assertSame( $message, $pane[ 'disabled_message' ] ?? '' );
 		$this->assertSame( [], $pane[ 'disabled_actions' ] ?? [ 'unexpected' ] );
+	}
+
+	public function test_cloaked_plugins_pane_uses_dedicated_queue_provider_path() :void {
+		$builder = new class extends ScansResultsViewBuilder {
+			public function buildActionsQueueCloakedPluginsPane() :array {
+				return [
+					'key'                    => 'hidden_plugins',
+					'label'                  => 'Cloaked Plugins',
+					'icon_class'             => 'bi bi-eye-slash-fill',
+					'count_items'            => 0,
+					'status'                 => 'good',
+					'items'                  => [],
+					'is_loaded'              => true,
+					'is_disabled'            => false,
+					'disabled_message'       => '',
+					'disabled_status'        => 'neutral',
+					'disabled_actions'       => [],
+					'render_action'          => [],
+					'show_count_placeholder' => false,
+					'pane_id'                => 'actions-queue-cloaked-plugins',
+				];
+			}
+		};
+
+		$pane = $builder->buildRailPaneData( 'hidden_plugins' );
+
+		$this->assertSame( 'hidden_plugins', $pane[ 'key' ] );
+		$this->assertSame( 'good', $pane[ 'status' ] );
 	}
 
 	public function test_vulnerability_pane_does_not_use_abandoned_state_to_bypass_unavailable_wpv() :void {

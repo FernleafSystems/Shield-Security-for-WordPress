@@ -53,7 +53,7 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 				$data[ 'ip' ] = $this->log->ip;
 				$data[ 'rid' ] = $this->log->rid ?? __( 'Unknown', 'wp-simple-firewall' );
 				$data[ 'identity' ] = $this->getColumnContent_Identity( $user );
-				$data[ 'event' ] = self::con()->comps->events->getEventName( $this->log->event_slug );
+				$data[ 'event' ] = esc_html( self::con()->comps->events->getEventName( $this->log->event_slug ) );
 				$this->log->created_at = \max( $this->log->updated_at, $this->log->created_at );
 				$data[ 'created_since' ] = $this->getColumnContent_ActivityDate( $this->log->created_at );
 				$data[ 'message' ] = $this->getColumnContent_Message();
@@ -354,27 +354,27 @@ class BuildActivityLogTableData extends BaseBuildTableData {
 				$content = $this->getUserHref( (int)$uid );
 			}
 			else {
-				$content = $uid === 'cron' ? 'WP Cron' : 'WP-CLI';
+				$content = esc_html( $uid === 'cron' ? 'WP Cron' : 'WP-CLI' );
 			}
 		}
 		return $content;
 	}
 
 	private function getColumnContent_Message() :string {
-		$msg = ActivityLogMessageBuilder::BuildFromLogRecord( $this->log, "<br/> \n" );
+		$msg = ActivityLogMessageBuilder::BuildHtmlLinesFromLogRecord( $this->log );
 		return sprintf( '<span class="message-header">%s</span><p class="m-0">%s</p>',
-			self::con()->comps->events->getEventName( $this->log->event_slug ),
-			sanitize_textarea_field( \implode( "<br/>", $msg ) )
+			esc_html( self::con()->comps->events->getEventName( $this->log->event_slug ) ),
+			\implode( '<br/>', $msg )
 		);
 	}
 
 	private function getColumnContent_Meta() :string {
 		$label = __( 'Click to display meta data for this request in a popover', 'wp-simple-firewall' );
 		return sprintf( '<button type="button" aria-label="%s" class="btn btn-link" title="%s" data-toggle="popover" data-rid="%s">%s</button>',
-			$label,
-			$label,
-			$this->log->rid,
-			sprintf( '<span class="meta-icon"><i class="%s" aria-hidden="true"></i></span>', self::con()->svgs->iconClass( 'tags.svg' ) )
+			esc_attr( $label ),
+			esc_attr( $label ),
+			esc_attr( (string)$this->log->rid ),
+			sprintf( '<span class="meta-icon"><i class="%s" aria-hidden="true"></i></span>', esc_attr( self::con()->svgs->iconClass( 'tags.svg' ) ) )
 		);
 	}
 

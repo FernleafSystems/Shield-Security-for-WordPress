@@ -1,4 +1,36 @@
-{% if flags.has_subject %}
+{% if flags.has_all_subjects %}
+	{% include '/wpadmin/components/investigate/subject_header.twig' with {
+		title: vars.subject_header.title,
+		meta: vars.subject_header.meta,
+		change_label: strings.change_subject,
+		context_step_json: vars.subject_header.context_step_json
+	} only %}
+
+	{% set panes = [
+		{
+			id: vars.tabs.vulnerabilities.pane_id,
+			nav_id: vars.tabs.vulnerabilities.nav_id,
+			is_active: true,
+			body_include: '/wpadmin_pages/insights/scans/results/scan_results_rail_pane.twig',
+			body_vars: vars.vulnerability_pane
+		},
+		{
+			id: vars.tabs.activity.pane_id,
+			nav_id: vars.tabs.activity.nav_id,
+			is_active: false,
+			body_include: '/wpadmin/components/investigate/table_container.twig',
+			body_vars: {
+				table: vars.tables.activity
+			}
+		}
+	] %}
+	{% include '/wpadmin/components/investigate/page_shell.twig' with {
+		nav_id: 'ShieldInvestigateByPluginTabsNav',
+		nav_items: vars.rail_nav_items,
+		panes: panes,
+		is_flat: true
+	} only %}
+{% elseif flags.has_subject %}
 	{% include '/wpadmin/components/investigate/subject_header.twig' with {
 		title: vars.subject_header.title,
 		meta: vars.subject_header.meta,

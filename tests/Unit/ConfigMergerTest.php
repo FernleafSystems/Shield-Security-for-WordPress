@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\ConfigMerger;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use Symfony\Component\Filesystem\Path;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
@@ -13,6 +14,8 @@ use Yoast\PHPUnitPolyfills\TestCases\TestCase;
  * into a valid plugin.json configuration.
  */
 class ConfigMergerTest extends TestCase {
+
+	use TempDirLifecycleTrait;
 
 	/**
 	 * @var string Path to the plugin-spec directory
@@ -27,13 +30,11 @@ class ConfigMergerTest extends TestCase {
 	protected function set_up() :void {
 		parent::set_up();
 		$this->specDir = Path::join( dirname( dirname( __DIR__ ) ), 'plugin-spec' );
-		$this->tempOutputPath = Path::join( sys_get_temp_dir(), 'plugin-json-test-'.uniqid().'.json' );
+		$this->tempOutputPath = $this->createTrackedTempPath( 'plugin-json-test-', '.json' );
 	}
 
 	protected function tear_down() :void {
-		if ( file_exists( $this->tempOutputPath ) ) {
-			unlink( $this->tempOutputPath );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tear_down();
 	}
 

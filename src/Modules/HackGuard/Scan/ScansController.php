@@ -17,11 +17,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Scan\Results\Update
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\ReportToMalai;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
+	FileScanOptimiser,
+	ReportToMalai,
+	RetrieveMalwareMalaiStatus
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class ScansController {
+	public const HOOK_POST_SCAN = 'post_scan';
+	public const HOOK_POST_SCAN_MALAI = 'post_scan_malai';
+	public const HOOK_SCAN_RESULT_NOTIFICATION_READINESS_OPENED = 'shield/scan_result_notification_readiness_opened';
 
 	use ExecOnce;
 	use PluginControllerConsumer;
@@ -63,7 +69,7 @@ class ScansController {
 	public function runHourlyCron() {
 		( new QueueMaintenance() )->run();
 		self::con()->comps->scans_queue->getQueueWatchdog()->scheduleIfActive();
-		( new ReportToMalai() )->run();
+		$this->runMalaiReconciliation();
 	}
 
 	public function AFS() :Controller\Afs {
@@ -130,6 +136,23 @@ class ScansController {
 		self::con()->comps->site_query->clearMemoized();
 	}
 
+	public function isReadyForScanResultNotifications() :bool {
+		try {
+			if ( ( new Init\ScansStatus() )->hasActiveScans() ) {
+				return false;
+			}
+			return !self::con()->comps->asset_coordinator->hasRetryableAssetWork();
+		}
+		catch ( \Throwable $e ) {
+			error_log( 'Shield scan-result notification readiness check failed: '.\substr(
+				(string)\preg_replace( '#\s+#', ' ', $e->getMessage() ),
+				0,
+				300
+			) );
+			return false;
+		}
+	}
+
 	private function setupAdminBarScanSummaryCacheHooks() :void {
 		add_action( 'shield/scan_queue_completed', function () {
 			$this->resetScanResultsCountMemoization();
@@ -138,10 +161,16 @@ class ScansController {
 	}
 
 	private function handlePostScanCron() {
-		add_action( self::con()->prefix( 'post_scan' ), function () {
-			( new ReportToMalai() )->run();
+		add_action( self::con()->prefix( self::HOOK_POST_SCAN ), function () {
+			$this->runMalaiReconciliation();
 			$this->runAutoRepair();
 		} );
+		add_action( self::con()->prefix( self::HOOK_POST_SCAN_MALAI ), fn() => $this->runMalaiReconciliation() );
+	}
+
+	private function runMalaiReconciliation() :void {
+		( new ReportToMalai() )->run();
+		( new RetrieveMalwareMalaiStatus() )->reconcileActiveResults();
 	}
 
 	private function runAutoRepair() {

@@ -28,31 +28,29 @@ class EmailInstantAlertVulnerabilities extends EmailInstantAlertBase {
 	protected function buildAlertGroups() :array {
 		$alertGroups = [];
 		foreach ( \array_filter( $this->action_data[ 'alert_data' ] ) as $alertKey => $alertItems ) {
-			$alertGroups[ $alertKey ] = [
-				'title' => $this->titleFor( $alertKey ),
-				'items' => []
-			];
+			$items = [];
 
 			$WPP = Services::WpPlugins();
 			$WPT = Services::WpThemes();
 			foreach ( $alertItems as $alertItem ) {
 				if ( $alertKey === 'plugins' ) {
 					$VO = $WPP->getPluginAsVo( $alertItem );
-					$alertGroups[ $alertKey ][ 'items' ][ $alertItem ] = [
-						/* translators: %1$s: item name, %2$s: item version */
-						'text' => sprintf( __( '%1$s v%2$s', 'wp-simple-firewall' ), $VO->Name, $VO->Version ),
-						'href' => self::con()->plugin_urls->vulnerabilityLookupByPlugin( $VO->slug, $VO->Version ),
-					];
+					/* translators: %1$s: item name, %2$s: item version */
+					$items[] = $this->alertItem(
+						[ $this->alertTextLine( sprintf( __( '%1$s v%2$s', 'wp-simple-firewall' ), $VO->Name, $VO->Version ) ) ],
+						self::con()->plugin_urls->vulnerabilityLookupByPlugin( $VO->slug, $VO->Version )
+					);
 				}
 				elseif ( $alertKey === 'themes' ) {
 					$VO = $WPT->getThemeAsVo( $alertItem );
-					$alertGroups[ $alertKey ][ 'items' ][ $alertItem ] = [
-						/* translators: %1$s: item name, %2$s: item version */
-						'text' => sprintf( __( '%1$s v%2$s', 'wp-simple-firewall' ), $VO->Name, $VO->Version ),
-						'href' => self::con()->plugin_urls->vulnerabilityLookupByTheme( $VO->stylesheet, $VO->Version ),
-					];
+					/* translators: %1$s: item name, %2$s: item version */
+					$items[] = $this->alertItem(
+						[ $this->alertTextLine( sprintf( __( '%1$s v%2$s', 'wp-simple-firewall' ), $VO->Name, $VO->Version ) ) ],
+						self::con()->plugin_urls->vulnerabilityLookupByTheme( $VO->stylesheet, $VO->Version )
+					);
 				}
 			}
+			$alertGroups[ $alertKey ] = $this->alertGroup( $this->titleFor( $alertKey ), $items );
 		}
 
 		return $alertGroups;

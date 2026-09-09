@@ -136,6 +136,36 @@ class BuildAttentionItemsTest extends BaseUnitTest {
 		$this->assertSame( 7, $query[ 'summary' ][ 'total' ] );
 	}
 
+	public function test_security_check_items_are_counted_with_scan_attention_items() :void {
+		$query = ( new BuildAttentionItemsTestDouble(
+			[],
+			[],
+			[
+				[
+					'key'                => 'hidden_plugins',
+					'zone'               => 'scans',
+					'source'             => 'security_check',
+					'label'              => 'Cloaked Plugins',
+					'description'        => 'Cloaked plugins need review.',
+					'count'              => 2,
+					'ignored_count'      => 0,
+					'severity'           => 'critical',
+					'href'               => '/cloaked-plugins',
+					'action'             => 'Review',
+					'target'             => '',
+					'supports_sub_items' => false,
+				],
+			]
+		) )->build();
+
+		$scanItems = $query[ 'groups' ][ 'scans' ][ 'items' ];
+		$this->assertSame( [ 'hidden_plugins' ], \array_column( $scanItems, 'key' ) );
+		$this->assertSame( 'security_check', $scanItems[ 0 ][ 'source' ] );
+		$this->assertSame( 2, $query[ 'groups' ][ 'scans' ][ 'total' ] );
+		$this->assertSame( 2, $query[ 'summary' ][ 'total' ] );
+		$this->assertSame( 'critical', $query[ 'summary' ][ 'severity' ] );
+	}
+
 	public function test_build_excludes_zero_count_scan_rows_from_attention_payload() :void {
 		$query = ( new BuildAttentionItemsScanStateTestDouble(
 			[
@@ -179,14 +209,20 @@ class BuildAttentionItemsTestDouble extends BuildAttentionItems {
 
 	private array $scanItems;
 	private array $maintenanceItems;
+	private array $securityCheckItems;
 
-	public function __construct( array $scanItems, array $maintenanceItems ) {
+	public function __construct( array $scanItems, array $maintenanceItems, array $securityCheckItems = [] ) {
 		$this->scanItems = $scanItems;
 		$this->maintenanceItems = $maintenanceItems;
+		$this->securityCheckItems = $securityCheckItems;
 	}
 
 	protected function buildScanItems() :array {
 		return $this->scanItems;
+	}
+
+	protected function buildSecurityCheckItems() :array {
+		return $this->securityCheckItems;
 	}
 
 	protected function buildMaintenanceItems() :array {
@@ -204,6 +240,10 @@ class BuildAttentionItemsScanStateTestDouble extends BuildAttentionItems {
 
 	protected function buildScanState() :array {
 		return $this->scanState;
+	}
+
+	protected function buildSecurityCheckItems() :array {
+		return [];
 	}
 
 	protected function buildMaintenanceItems() :array {

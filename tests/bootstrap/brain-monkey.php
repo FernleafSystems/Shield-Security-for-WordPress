@@ -43,9 +43,14 @@ if ( ! defined( 'DB_PASSWORD' ) ) {
 // Set a minimal WordPress filesystem root if not already defined.
 $shieldBrainMonkeyTempRoot = null;
 if ( ! defined( 'ABSPATH' ) ) {
+	$shieldBrainMonkeyTempSuffix = sprintf(
+		'%d-%s',
+		getmypid() ?: 0,
+		bin2hex( random_bytes( 8 ) )
+	);
 	$shieldBrainMonkeyTempRoot = rtrim( str_replace( '\\', '/', sys_get_temp_dir() ), '/' )
-								 .'/shield-brain-monkey-wp-'.uniqid();
-	define( 'ABSPATH', $shieldBrainMonkeyTempRoot.'/' );
+								 .'/shield-brain-monkey-wp-'.$shieldBrainMonkeyTempSuffix;
+	define( 'ABSPATH', $shieldBrainMonkeyTempRoot.'/wordpress/' );
 }
 if ( ! defined( 'WP_CONTENT_DIR' ) ) {
 	define( 'WP_CONTENT_DIR', rtrim( str_replace( '\\', '/', ABSPATH ), '/' ).'/wp-content' );

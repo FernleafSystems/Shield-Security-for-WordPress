@@ -11,7 +11,7 @@
 		{{ strings.no_issues }}
 	</div>
 {% else %}
-	<div class="actions-queue-asset-cards"
+	<div class="actions-queue-asset-cards{% if flags.is_file_locker %} actions-queue-asset-cards--files{% endif %}"
 		 data-actions-queue-asset-cards="1"
 		 data-mode-shell="1"
 		 data-mode="actions_queue_assets"
@@ -19,25 +19,19 @@
 		<div class="investigate-landing__subject-grid actions-queue-asset-cards__grid" data-mode-tiles="1">
 			{% for item in vars.asset_cards %}
 				<button type="button"
-						class="investigate-landing__subject-card actions-queue-asset-card status-{{ item.status }}"
+						class="investigate-landing__subject-card actions-queue-asset-card operator-card-surface operator-tile-card status-{{ item.status }}{% if item.is_inactive %} is-inactive{% endif %}"
+						{% if item.enable_dialog_json is not empty %}
+						data-enable-protection="{{ item.enable_dialog_json|e('html_attr') }}" aria-haspopup="dialog"
+						{% else %}
 						data-mode-tile="1"
 						data-mode-tile-key="{{ item.key|e('html_attr') }}"
 						data-mode-panel-target="{{ item.panel_target|e('html_attr') }}"
 						aria-controls="{{ item.panel_id|e('html_attr') }}"
-						aria-expanded="false">
-					<span class="investigate-landing__subject-icon actions-queue-asset-card__icon" aria-hidden="true">
-						<i class="{{ item.icon_class }}"></i>
-					</span>
-					<span class="investigate-landing__subject-label">
-						{{ item.title }}
-						{% if item.count_badge is not null and item.count_badge > 0 %}
-							<span class="shield-badge badge-{{ item.status }}">{{ item.count_badge }}</span>
-						{% endif %}
-					</span>
-					<span class="investigate-landing__subject-stat">{{ item.stat_text }}</span>
-					{% if item.meta_text is not empty and item.show_meta_in_tile %}
-						<span class="actions-queue-asset-card__meta">{{ item.meta_text }}</span>
-					{% endif %}
+						aria-expanded="false"{% endif %}>
+					{% include '/wpadmin/components/operator/tile_content.twig' with { tile: {
+						icon_class: item.icon_class, title: item.title, status: item.status, count_badge: item.count_badge,
+						status_label: '', oneliner: item.stat_text, meta_text: item.show_meta_in_tile ? item.meta_text : ''
+					} } only %}
 				</button>
 			{% endfor %}
 		</div>
@@ -52,6 +46,7 @@
 
 		<div class="actions-queue-asset-cards__panels">
 			{% for item in vars.asset_cards %}
+				{% if item.enable_dialog_json is empty %}
 				{% set panel_body %}
 					{% if item.meta_text is not empty or item.actions is not empty %}
 						<div class="investigate-subject-header actions-queue-asset-panel__summary">
@@ -112,6 +107,7 @@
 					},
 					strings: strings
 				} only %}
+				{% endif %}
 			{% endfor %}
 		</div>
 	</div>

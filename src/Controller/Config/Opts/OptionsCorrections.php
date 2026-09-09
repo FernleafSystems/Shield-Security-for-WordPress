@@ -15,7 +15,7 @@ class OptionsCorrections {
 
 	public function run() :void {
 		$this->backupCodesFreeOption();
-		$this->audit();
+		$this->requestLogging();
 		$this->alerts();
 		$this->comments();
 		$this->firewall();
@@ -23,6 +23,7 @@ class OptionsCorrections {
 		$this->ips();
 		$this->login();
 		$this->plugin();
+		$this->reporting();
 		$this->scanners();
 		$this->securityAdmin();
 		$this->silentCaptcha();
@@ -31,8 +32,10 @@ class OptionsCorrections {
 
 	public function runUpgradeMigrations() :void {
 		$this->backupCodesFreeOption();
+		$this->requestLogging();
 		$this->alerts();
 		$this->pluginBadgeMode();
+		$this->reporting();
 		$this->silentCaptcha();
 	}
 
@@ -48,15 +51,11 @@ class OptionsCorrections {
 	protected function removeModuleEnablers() {
 	}
 
-	private function audit() :void {
+	private function requestLogging() :void {
 		$opts = self::con()->opts;
 
-		if ( $opts->optIs( 'enable_limiter', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
+		if ( !$opts->optIs( 'enable_logger', 'Y' ) ) {
 			$opts->optSet( 'enable_logger', 'Y' );
-		}
-		if ( $opts->optIs( 'enable_live_log', 'Y' ) && !$opts->optIs( 'enable_logger', 'Y' ) ) {
-			$opts->optSet( 'enable_live_log', 'N' )
-					 ->optSet( 'live_log_started_at', 0 );
 		}
 	}
 
@@ -199,15 +198,6 @@ class OptionsCorrections {
 
 		$this->pluginBadgeMode();
 
-		if ( $opts->optChanged( 'importexport_whitelist' ) ) {
-			$opts->optSet( 'importexport_whitelist', \array_unique( \array_filter( \array_map(
-				function ( $url ) {
-					return Services::Data()->validateSimpleHttpUrl( $url );
-				},
-				$opts->optGet( 'importexport_whitelist' )
-			) ) ) );
-		}
-
 		$url = Services::Data()->validateSimpleHttpUrl( $opts->optGet( 'importexport_masterurl' ) );
 		$opts->optSet( 'importexport_masterurl', $url === false ? '' : $url );
 	}
@@ -238,6 +228,17 @@ class OptionsCorrections {
 					WildCardOptions::FILE_PATH_REL
 				)
 			);
+		}
+	}
+
+	private function reporting() :void {
+		$opts = self::con()->opts;
+		foreach ( [ 'frequency_alert', 'frequency_info' ] as $key ) {
+			$current = $opts->optGet( $key );
+			$normalised = ReportFrequency::normaliseLegacy( $current );
+			if ( $normalised !== $current ) {
+				$opts->optSet( $key, $normalised );
+			}
 		}
 	}
 

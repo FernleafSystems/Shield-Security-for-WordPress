@@ -3,7 +3,7 @@
 {% block page_head %}
 
 	{% if strings.top_page_warnings|default([]) is not empty %}
-		<div id="ShieldTopPageWarnings" class="row row-cols-1">
+		<div id="ShieldTopPageWarnings" class="row row-cols-1 gx-2">
 					{% for warning in strings.top_page_warnings %}
 						<div class="col apto-top_page_warning bg-{{ warning.type }} py-1 border-bottom shield-notice-container"
 							 data-notice_id="{{ warning.id|default('') }}">

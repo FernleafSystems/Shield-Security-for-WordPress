@@ -10,6 +10,7 @@ class ActionsQueueItemIcons {
 		'bug'                     => 'bi bi-bug-fill',
 		'code-slash'              => 'bi bi-code-slash',
 		'database-fill-lock'      => 'bi bi-database-fill-lock',
+		'eye-slash-fill'          => 'bi bi-eye-slash-fill',
 		'file-lock2'              => 'bi bi-file-lock2-fill',
 		'key-fill'                => 'bi bi-key-fill',
 		'person-fill-exclamation' => 'bi bi-person-fill-exclamation',
@@ -26,6 +27,7 @@ class ActionsQueueItemIcons {
 		'themes'          => 'brush',
 		'vulnerabilities' => 'shield-exclamation',
 		'abandoned'       => 'archive',
+		'hidden_plugins'  => 'eye-slash-fill',
 		'malware'         => 'bug',
 		'file_locker'     => 'file-lock2',
 	];

@@ -13,7 +13,9 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 		$con = self::con();
 		$options = $this->action_data[ 'options' ];
 		$configItem = (string)( $this->action_data[ 'config_item' ] ?? '' );
+		$transferAction = (string)( $this->action_data[ 'transfer_action' ] ?? '' );
 		$optionsBuilder = empty( $options ) ? null : ( new BuildOptionsForDisplay( $options, [] ) )
+			->setValues( \is_array( $this->action_data[ 'values' ] ?? null ) ? $this->action_data[ 'values' ] : [] )
 			->setFocusOption( $configItem );
 
 		if ( $optionsBuilder instanceof BuildOptionsForDisplay ) {
@@ -23,6 +25,8 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 			}
 		}
 
+		$allOptions = $optionsBuilder instanceof BuildOptionsForDisplay ? $optionsBuilder->standard() : [];
+
 		return [
 			'strings' => [
 				'inner_page_title'    => __( 'Edit Settings', 'wp-simple-firewall' ),
@@ -31,8 +35,8 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 				'toggle_importexport' => __( 'Toggle whether this setting is included in import and export operations', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
-				'show_transfer_switch' => true,
-				//				'show_transfer_switch' => $con->isPremiumActive() && !empty( $con->comps->import_export->getImportExportMasterImportUrl() ),
+				'show_section_navigation' => \count( $allOptions ) > 1,
+				'show_transfer_switch'    => (bool)( $this->action_data[ 'show_transfer_switch' ] ?? false ) && $transferAction !== '',
 			],
 			'imgs'    => [
 				'svgs' => [
@@ -41,10 +45,16 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 			],
 			'vars'    => [
 				'all_opts_keys'      => $options,
-				'all_options'        => $optionsBuilder instanceof BuildOptionsForDisplay ? $optionsBuilder->standard() : [],
+				'all_options'        => $allOptions,
 				'form_context'       => $this->action_data[ 'form_context' ] ?? 'normal',
-				'xferable_opts'      => \array_keys( $con->cfg->configuration->transferableOptions() ),
-				'xfer_excluded_opts' => $con->comps->opts_lookup->getXferExcluded(),
+				'options_save_action' => (string)( $this->action_data[ 'options_save_action' ] ?? 'form_save' ),
+				'transfer_action'    => $transferAction,
+				'xferable_opts'      => \is_array( $this->action_data[ 'xferable_opts' ] ?? null )
+					? $this->action_data[ 'xferable_opts' ]
+					: \array_keys( $con->cfg->configuration->transferableOptions() ),
+				'xfer_excluded_opts' => \is_array( $this->action_data[ 'xfer_excluded_opts' ] ?? null )
+					? $this->action_data[ 'xfer_excluded_opts' ]
+					: $con->comps->opts_lookup->getXferExcluded(),
 			],
 		];
 	}

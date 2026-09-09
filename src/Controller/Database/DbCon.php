@@ -17,6 +17,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	CrowdSecSignals,
 	Event,
 	FileLocker,
+	ImportExportProfiles,
+	ImportExportSites,
 	IpMeta,
 	IpRules,
 	IPs,
@@ -44,6 +46,8 @@ use FernleafSystems\Wordpress\Services\Services;
  * @property CrowdSecSignals\Ops\Handler  $crowdsec_signals
  * @property Event\Ops\Handler            $events
  * @property FileLocker\Ops\Handler       $file_locker
+ * @property ImportExportProfiles\Ops\Handler $import_export_profiles
+ * @property ImportExportSites\Ops\Handler $import_export_sites
  * @property IPs\Ops\Handler              $ips
  * @property IpMeta\Ops\Handler           $ip_meta
  * @property IpRules\Ops\Handler          $ip_rules
@@ -95,6 +99,14 @@ class DbCon extends DynPropertiesClass {
 		'file_locker'           => [
 			'slug'          => 'file_locker',
 			'handler_class' => FileLocker\Ops\Handler::class,
+		],
+		'import_export_profiles' => [
+			'slug'          => 'importexport_profiles',
+			'handler_class' => ImportExportProfiles\Ops\Handler::class,
+		],
+		'import_export_sites'   => [
+			'slug'          => 'importexport_sites',
+			'handler_class' => ImportExportSites\Ops\Handler::class,
 		],
 		'ips'                   => [
 			'slug'          => 'ips',
@@ -169,6 +181,7 @@ class DbCon extends DynPropertiesClass {
 
 	public function runDailyCron() {
 		( new CleanDatabases() )->all();
+		( new TableIndices( $this->events->getTableSchema() ) )->applyFromSchema();
 		( new TableIndices( $this->ip_rules->getTableSchema() ) )->applyFromSchema();
 		( new TableIndices( $this->mfa->getTableSchema() ) )->applyFromSchema();
 	}

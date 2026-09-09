@@ -203,144 +203,15 @@
 	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
-.configure-zone-card {
-	align-items: start;
-	cursor: pointer;
-	gap: 0.875rem;
-	width: 100%;
-	padding: 1rem 1.125rem;
-	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, opacity 0.3s ease;
-}
+.reports-landing .operator-tile-card--reports {
+	--operator-card-accent-color: #{$mode-reports};
+	--operator-card-text-color: #{$mode-reports-text};
+	--operator-card-icon-bg: #{$mode-reports-light};
+	--operator-card-icon-color: #{$mode-reports};
+	--operator-card-action-border: #{rgba($mode-reports, 0.4)};
+	--operator-card-action-hover-bg: #{$mode-reports-light};
 
-.configure-zone-card.status-critical {
-	border-color: #e8c4c4;
-}
-
-.configure-zone-card.status-warning {
-	border-color: #e8dcc4;
-}
-
-.configure-zone-card.status-good {
-	border-color: #c4e8cf;
-}
-
-.configure-zone-card.status-neutral,
-.configure-zone-card.status-info {
-	border-color: rgba($status-color-info, 0.25);
-}
-
-.configure-zone-card.status-critical:hover:not(:disabled),
-.configure-zone-card.status-critical:focus-visible {
-	border-color: $status-color-critical;
-}
-
-.configure-zone-card.status-warning:hover:not(:disabled),
-.configure-zone-card.status-warning:focus-visible {
-	border-color: $status-color-warning;
-}
-
-.configure-zone-card.status-good:hover:not(:disabled),
-.configure-zone-card.status-good:focus-visible {
-	border-color: $status-color-good;
-}
-
-.configure-zone-card.status-neutral:hover:not(:disabled),
-.configure-zone-card.status-neutral:focus-visible,
-.configure-zone-card.status-info:hover:not(:disabled),
-.configure-zone-card.status-info:focus-visible {
-	border-color: $status-color-info;
-}
-
-.configure-zone-card__icon {
-	background: none;
-	border-radius: 0;
-	color: #5f6974;
-	display: inline;
-	flex-shrink: 0;
-	font-size: 1.375rem;
-	height: auto;
-	margin-top: 0.125rem;
-	width: auto;
-}
-
-.configure-zone-card__body {
-	flex: 1;
-	min-width: 0;
-}
-
-.configure-zone-card__title {
-	display: block;
-	font-size: 0.875rem;
-	font-weight: 600;
-	margin: 0 0 0.125rem;
-}
-
-.configure-zone-card__status {
-	font-size: 0.75rem;
-	font-weight: 600;
-	margin-bottom: 0.25rem;
-}
-
-.status-critical .configure-zone-card__status {
-	color: $status-text-color-critical;
-}
-
-.status-warning .configure-zone-card__status {
-	color: $status-text-color-warning;
-}
-
-.status-good .configure-zone-card__status {
-	color: $status-text-color-good;
-}
-
-.status-neutral .configure-zone-card__status,
-.status-info .configure-zone-card__status {
-	color: $status-text-color-info;
-}
-
-.reports-landing .configure-zone-card.operator-tile-card--reports {
 	border-color: $mode-reports-border;
-}
-
-.reports-landing .configure-zone-card.operator-tile-card--reports:hover:not(:disabled),
-.reports-landing .configure-zone-card.operator-tile-card--reports:focus-visible {
-	border-color: $mode-reports;
-}
-
-.reports-landing .operator-tile-card--reports .configure-zone-card__status {
-	color: $mode-reports-text;
-}
-
-.reports-landing .operator-tile-card--reports .configure-zone-card__icon {
-	color: $mode-reports;
-}
-
-.configure-zone-card__oneliner {
-	color: #5f6974;
-	font-size: 0.75rem;
-	margin: 0;
-}
-
-.configure-zone-card__footer {
-	border-top: 1px solid rgba(0, 0, 0, 0.08);
-	display: grid;
-	gap: 0.35rem;
-	margin-top: 0.75rem;
-	padding-top: 0.75rem;
-}
-
-.configure-zone-card__footer-link {
-	align-items: center;
-	color: #1d2327;
-	display: inline-flex;
-	font-size: 0.75rem;
-	font-weight: 600;
-	gap: 0.25rem;
-	text-decoration: none;
-}
-
-.configure-zone-card__footer-link:hover {
-	text-decoration: underline;
 }
 
 .configure-diagnosis {

@@ -21,7 +21,7 @@ class OverviewActivity extends OverviewBase {
 		$logLoader->order_dir = 'DESC';
 		$logs = \array_map(
 			fn( LogRecord $log ) => [
-				'message' => $this->truncate( ActivityLogMessageBuilder::Build( $log->event_slug, $log->meta_data ?? [], ' ' ) ),
+				'message' => $this->truncate( ActivityLogMessageBuilder::BuildPlain( $log->event_slug, $log->meta_data ?? [], ' ' ) ),
 				'ip'      => $log->ip,
 				'ip_href' => self::con()->plugin_urls->ipAnalysis( $log->ip ),
 				'ago'     => Services::Request()

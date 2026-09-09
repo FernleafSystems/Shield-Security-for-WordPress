@@ -26,38 +26,78 @@ class Cleanup {
 	}
 
 	public function schedule( string $assetType, string $assetKey, int $delay = self::CRON_DELAY, int $retry = 0 ) :bool {
+		unset( $retry );
+		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
+		if ( $assetType === '' || $assetKey === '' ) {
+			return false;
+		}
+		return self::con()->comps->asset_coordinator->enqueueAsset( $assetType, $assetKey, $delay );
+	}
+
+	public function run( $assetType = null, $assetKey = null, $retry = 0 ) :void {
+		if ( !\is_string( $assetType ) || !\is_string( $assetKey ) || !\is_int( $retry )
+			 || $retry < 0 || $retry > self::MAX_RETRIES ) {
+			return;
+		}
+		$this->process( $assetType, $assetKey );
+	}
+
+	public function process( string $assetType, string $assetKey ) :bool {
 		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
 		if ( $assetType === '' || $assetKey === '' ) {
 			return false;
 		}
 
-		if ( $this->hasPendingCleanup( $assetType, $assetKey ) ) {
-			return true;
-		}
-
-		$args = [ $assetType, $assetKey, $retry ];
-		return \wp_schedule_single_event( Services::Request()->ts() + $delay, $this->getHook(), $args ) !== false;
-	}
-
-	public function run( string $assetType, string $assetKey, int $retry = 0 ) :void {
-		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
-		if ( $assetType === '' || $assetKey === '' ) {
-			return;
-		}
-
 		$readiness = $this->prepareAssetForScan( $assetType, $assetKey );
 		if ( !$readiness[ 'ready' ] ) {
-			if ( $retry < self::MAX_RETRIES ) {
-				$this->schedule( $assetType, $assetKey, self::CRON_DELAY, $retry + 1 );
-			}
-			return;
+			return false;
 		}
 
 		if ( $readiness[ 'reset_memoization' ] ) {
 			Retrieve::resetMemoization();
 			AssetTrustResolver::resetMemoization();
 		}
-		self::con()->comps->scans->startAfsAssetScan( $assetType, $assetKey );
+		return self::con()->comps->scans->startAfsAssetScan( $assetType, $assetKey );
+	}
+
+	public function processPromotionFollowUp(
+		string $assetType,
+		string $assetKey,
+		string $requiredPublishedVersion
+	) :bool {
+		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
+		if ( !\in_array( $assetType, [ 'plugin', 'theme' ], true )
+			 || $assetKey === ''
+			 || \trim( $requiredPublishedVersion ) === ''
+			 || \strpos( $requiredPublishedVersion, "\0" ) !== false ) {
+			return true;
+		}
+
+		try {
+			$asset = $this->loadAsset( $assetType, $assetKey );
+			$isExactAsset = $assetType === 'plugin'
+				? $asset instanceof WpPluginVo
+				  && $asset->asset_type === 'plugin'
+				  && $asset->file === $assetKey
+				: $asset instanceof WpThemeVo
+				  && $asset->asset_type === 'theme'
+				  && $asset->stylesheet === $assetKey;
+			if ( !$isExactAsset || $asset->version !== $requiredPublishedVersion ) {
+				return true;
+			}
+
+			$snapshot = ( new StoreAction\Load() )
+				->setAsset( $asset )
+				->run()
+				->getUsableSnapshot();
+		}
+		catch ( \Throwable $e ) {
+			return true;
+		}
+
+		return $snapshot === null || ( $snapshot[ 'meta' ][ 'live_hashes' ] ?? null ) !== true
+			? true
+			: self::con()->comps->scans->startAfsAssetScan( $assetType, $assetKey );
 	}
 
 	/**
@@ -87,6 +127,13 @@ class Cleanup {
 			];
 		}
 
+		if ( ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) !== null ) {
+			return [
+				'ready'             => true,
+				'reset_memoization' => false,
+			];
+		}
+
 		try {
 			( new StoreAction\Build() )
 				->setAsset( $asset )
@@ -96,7 +143,7 @@ class Cleanup {
 				->setAsset( $asset )
 				->run();
 
-			$ready = $store->verify() && \count( $store->getSnapData() ) > 0;
+			$ready = $store->isUsable();
 			return [
 				'ready'             => $ready,
 				'reset_memoization' => $ready,
@@ -117,17 +164,6 @@ class Cleanup {
 		return $assetType === 'plugin'
 			? Services::WpPlugins()->getPluginAsVo( $assetKey, true )
 			: Services::WpThemes()->getThemeAsVo( $assetKey, true );
-	}
-
-	private function hasPendingCleanup( string $assetType, string $assetKey ) :bool {
-		$pending = false;
-		foreach ( \range( 0, self::MAX_RETRIES ) as $retry ) {
-			if ( \wp_next_scheduled( $this->getHook(), [ $assetType, $assetKey, $retry ] ) !== false ) {
-				$pending = true;
-				break;
-			}
-		}
-		return $pending;
 	}
 
 	/**

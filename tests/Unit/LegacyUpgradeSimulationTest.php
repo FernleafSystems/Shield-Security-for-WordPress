@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\LegacyPathCompatibilityPlan;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\LegacyPathDuplicator;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempPathJoinTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -13,6 +14,7 @@ use Symfony\Component\Process\Process;
 class LegacyUpgradeSimulationTest extends TestCase {
 
 	use TempPathJoinTrait;
+	use TempDirLifecycleTrait;
 
 	private const PROBE_CLASS = 'FernleafSystems\\Wordpress\\Plugin\\Shield\\LegacyProbe\\CompatTarget';
 
@@ -26,15 +28,12 @@ class LegacyUpgradeSimulationTest extends TestCase {
 		parent::setUp();
 		$this->projectRoot = \dirname( \dirname( __DIR__ ) );
 		$this->fs = new Filesystem();
-		$this->tempDir = Path::join( \sys_get_temp_dir(), 'shield-upgrade-sim-'.\uniqid() );
-		$this->fs->mkdir( $this->tempDir );
+		$this->tempDir = $this->createTrackedTempDir( 'shield-upgrade-sim-' );
 		$this->seedMovedClassSource();
 	}
 
 	protected function tearDown() :void {
-		if ( \is_dir( $this->tempDir ) ) {
-			$this->fs->remove( $this->tempDir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 

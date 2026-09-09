@@ -3,16 +3,8 @@ const { expect } = require( './shield-test' );
 async function expectNamedDialog( page, modal, expectedLabelId = null ) {
 	await expect( modal ).toHaveAttribute( 'role', 'dialog' );
 	await expect( modal ).toHaveAttribute( 'aria-modal', 'true' );
+	await expect( modal ).toHaveAccessibleName( /\S/ );
 	const labelId = await expectConnectedNonEmptyReference( page, modal, 'aria-labelledby' );
-	if ( expectedLabelId !== null ) {
-		expect( labelId ).toBe( expectedLabelId );
-	}
-}
-
-async function expectNamedOffcanvas( page, offcanvas, expectedLabelId = null ) {
-	await expect( offcanvas ).toHaveAttribute( 'role', 'dialog' );
-	await expect( offcanvas ).toHaveAttribute( 'aria-modal', 'true' );
-	const labelId = await expectConnectedNonEmptyReference( page, offcanvas, 'aria-labelledby' );
 	if ( expectedLabelId !== null ) {
 		expect( labelId ).toBe( expectedLabelId );
 	}
@@ -42,6 +34,7 @@ async function expectOptionalDescription( page, dialog ) {
 	if ( descriptionId === null || descriptionId.length < 1 ) {
 		return null;
 	}
+	await expect( dialog ).toHaveAccessibleDescription( /\S/ );
 	return expectConnectedNonEmptyReference( page, dialog, 'aria-describedby' );
 }
 
@@ -58,6 +51,7 @@ async function expectReferenceTargetNonEmpty( page, referenceId ) {
 	const reference = page.locator( `#${referenceId}` );
 	await expect( reference ).toHaveCount( 1 );
 	await expect( reference ).not.toHaveAttribute( 'aria-hidden', 'true' );
+	await expect.poll( () => reference.evaluate( ( node ) => ( node.textContent || '' ).trim().length ) ).toBeGreaterThan( 0 );
 }
 
 const getIdReferenceTokens = async ( locator, attribute ) => locator.evaluate(
@@ -78,7 +72,6 @@ module.exports = {
 	expectLabelledControl,
 	expectModalHiddenWithoutAriaModal,
 	expectNamedDialog,
-	expectNamedOffcanvas,
 	expectOptionalDescription,
 	expectReferenceTargetNonEmpty,
 	getIdReferenceTokens,

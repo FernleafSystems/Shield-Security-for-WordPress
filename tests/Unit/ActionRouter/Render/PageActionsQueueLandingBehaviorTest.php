@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAd
 	DetailExpansionType,
 	PageActionsQueueLanding
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Urls;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Labels;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\AjaxRenderPolicyAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
@@ -90,6 +91,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 				}
 				return $url.( \strpos( $url, '?' ) === false ? '?' : '&' ).\implode( '&', $pieces );
 			}
+		);
+		Functions\when( 'plugins_url' )->alias(
+			static fn( string $path = '', string $plugin = '' ) :string =>
+				'https://shield.test/wp-content/plugins/wp-simple-firewall/'.\ltrim( $path, '/' )
 		);
 		$this->servicesSnapshot = ServicesState::snapshot();
 		$this->installServices();
@@ -411,6 +416,8 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 	private function installControllerStub() :void {
 		$labels = new Labels();
 		$labels->Name = 'Shield Security';
+		$urls = new Urls();
+		$urls->includeTS = false;
 
 		$this->capture = (object)[
 			'actionCalls'  => [],
@@ -420,6 +427,15 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 			new UnitTestPluginUrls(),
 			null,
 			(object)[
+				'cfg'           => new class {
+					public array $paths = [ 'assets' => 'assets' ];
+
+					public function version() :string {
+						return 'test-version';
+					}
+				},
+				'root_file'     => '/test/wp-content/plugins/wp-simple-firewall/icwp-wpsf.php',
+				'urls'          => $urls,
 				'opts'          => new UnitTestOptionsComponent( [
 					'ignored_maintenance_items' => \array_fill_keys( [
 						'default_admin_user',
@@ -455,6 +471,10 @@ class PageActionsQueueLandingBehaviorTest extends BaseUnitTest {
 
 					public function canScanVulnerabilities() :bool {
 						return false;
+					}
+
+					public function canDetectCloakedPlugins() :bool {
+						return true;
 					}
 				},
 				'action_router' => new PageActionsQueueActionRouter( $this->capture ),

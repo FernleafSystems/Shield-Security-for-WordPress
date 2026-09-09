@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\NormalizeHashMap;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
 	WpThemeVo
@@ -117,15 +118,39 @@ class Store {
 	}
 
 	public function verify() :bool {
-		$verified = false;
-		$meta = $this->getSnapMeta();
-		if ( !empty( $meta ) ) {
-			$asset = $this->getAsset();
-			$verified = ( $meta[ 'version' ] ?? null ) === $asset->Version
-						&& ( $meta[ 'unique_id' ] ?? null ) ===
-						   ( $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet );
+		return $this->verifyMeta( $this->getSnapMeta() );
+	}
+
+	public function isUsable() :bool {
+		return $this->getUsableSnapshot() !== null;
+	}
+
+	/**
+	 * @return array{meta:array,data:array<string,string>}|null
+	 */
+	public function getUsableSnapshot() :?array {
+		try {
+			$meta = $this->readSnapMetaStrict();
+			if ( !$this->verifyMeta( $meta ) ) {
+				return null;
+			}
+
+			$data = $this->readSnapDataStrict();
+			if ( empty( $data ) || $data !== ( new NormalizeHashMap() )->toScalarMap( $data ) ) {
+				return null;
+			}
+
+			$this->snapMeta = $meta;
+			$this->snapData = $data;
+
+			return [
+				'meta' => $meta,
+				'data' => $data,
+			];
 		}
-		return $verified;
+		catch ( \Throwable $e ) {
+			return null;
+		}
 	}
 
 	/**
@@ -133,16 +158,22 @@ class Store {
 	 */
 	private function readSnapData() :array {
 		$FS = Services::WpFs();
+		$snap = [];
 
 		if ( $this->isReady() && !$this->getSnapStoreExists() ) {
 			throw new \Exception( sprintf( __( "Snapshot store does not exist: '%s'", 'wp-simple-firewall' ), $this->getSnapStorePath() ) );
 		}
 
 		$encoded = $FS->getFileContent( $this->getSnapStorePath(), true );
-		if ( !empty( $encoded ) ) {
-			$snap = [];
+		if ( \is_string( $encoded ) && $encoded !== '' ) {
 			foreach ( \array_map( '\trim', \explode( "\n", $encoded ) ) as $line ) {
+				if ( $line === '' || \strpos( $line, self::SEPARATOR ) === false ) {
+					continue;
+				}
 				[ $file, $hash ] = \explode( self::SEPARATOR, $line, 2 );
+				if ( $file === '' || $hash === '' ) {
+					continue;
+				}
 				$snap[ $file ] = $hash;
 			}
 		}
@@ -151,6 +182,70 @@ class Store {
 		}
 
 		return $snap;
+	}
+
+	/**
+	 * @return array<string,string>
+	 * @throws \Exception
+	 */
+	private function readSnapDataStrict() :array {
+		$FS = Services::WpFs();
+		if ( !$FS->exists( $this->getSnapStorePath() ) ) {
+			throw new \Exception( __( 'Snapshot store does not exist.', 'wp-simple-firewall' ) );
+		}
+
+		$encoded = $FS->getFileContent( $this->getSnapStorePath(), true );
+		if ( !\is_string( $encoded ) || trim( $encoded ) === '' ) {
+			throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) );
+		}
+
+		$snap = [];
+		foreach ( \explode( "\n", $encoded ) as $line ) {
+			$line = \rtrim( $line, "\r" );
+			if ( trim( $line ) === '' ) {
+				continue;
+			}
+			if ( \substr_count( $line, self::SEPARATOR ) !== 1 ) {
+				throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) );
+			}
+
+			[ $file, $hash ] = \explode( self::SEPARATOR, $line, 2 );
+			if ( $file === '' || $hash === '' || \array_key_exists( $file, $snap ) ) {
+				throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) );
+			}
+			$snap[ $file ] = $hash;
+		}
+
+		if ( empty( $snap ) ) {
+			throw new \Exception( __( 'Snapshot data could not be decoded.', 'wp-simple-firewall' ) );
+		}
+
+		return $snap;
+	}
+
+	/**
+	 * @throws \Exception
+	 */
+	private function readSnapMetaStrict() :array {
+		$FS = Services::WpFs();
+		if ( !$FS->exists( $this->getSnapStoreMetaPath() ) ) {
+			throw new \Exception( __( 'Snapshot metadata does not exist.', 'wp-simple-firewall' ) );
+		}
+
+		$encoded = $FS->getFileContent( $this->getSnapStoreMetaPath(), true );
+		$meta = \is_string( $encoded ) ? \json_decode( $encoded, true ) : null;
+		if ( !\is_array( $meta ) || empty( $meta ) ) {
+			throw new \Exception( __( 'Snapshot metadata could not be decoded.', 'wp-simple-firewall' ) );
+		}
+		return $meta;
+	}
+
+	private function verifyMeta( array $meta ) :bool {
+		$asset = $this->getAsset();
+		return !empty( $meta )
+			   && ( $meta[ 'version' ] ?? null ) === $asset->Version
+			   && ( $meta[ 'unique_id' ] ?? null ) ===
+				  ( $asset->asset_type === 'plugin' ? $asset->file : $asset->stylesheet );
 	}
 
 	/**

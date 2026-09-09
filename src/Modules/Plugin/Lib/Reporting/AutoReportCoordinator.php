@@ -3,8 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Reports\Ops as ReportsDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
 class AutoReportCoordinator {
+	use PluginControllerConsumer;
 
 	public function run() :void {
 		$this->attemptAlert();
@@ -12,6 +14,9 @@ class AutoReportCoordinator {
 	}
 
 	protected function attemptAlert() :?ReportVO {
+		if ( !$this->isReadyForScanResultNotifications() ) {
+			return null;
+		}
 		try {
 			$report = $this->createReport( Constants::REPORT_TYPE_ALERT );
 			$report->record = $this->buildAndStoreReport( $report );
@@ -26,6 +31,9 @@ class AutoReportCoordinator {
 	}
 
 	protected function attempt( string $reportType ) :?ReportVO {
+		if ( !$this->isReadyForScanResultNotifications() ) {
+			return null;
+		}
 		try {
 			$report = $this->createReport( $reportType );
 			$report->record = $this->buildAndStoreReport( $report );
@@ -51,5 +59,9 @@ class AutoReportCoordinator {
 
 	protected function persistAlertNotifications( ReportVO $report ) :bool {
 		return ( new ReportGenerator() )->persistAlertNotifications( $report );
+	}
+
+	protected function isReadyForScanResultNotifications() :bool {
+		return self::con()->comps->scans->isReadyForScanResultNotifications();
 	}
 }

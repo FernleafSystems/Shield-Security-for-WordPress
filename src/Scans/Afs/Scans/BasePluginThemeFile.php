@@ -26,10 +26,7 @@ abstract class BasePluginThemeFile extends BaseScan {
 		return $this;
 	}
 
-	public function getHashVerificationResult() :HashVerificationResult {
-		if ( !$this->hashVerificationResult instanceof HashVerificationResult ) {
-			throw new \LogicException( 'Hash verification result has not been produced.' );
-		}
+	public function getHashVerificationResult() :?HashVerificationResult {
 		return $this->hashVerificationResult;
 	}
 

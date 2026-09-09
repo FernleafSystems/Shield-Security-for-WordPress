@@ -76,20 +76,9 @@ jobs:
     - name: Run ActionRouter browser lane
       run: composer test:browser -- --clean --lanes=2 -- --workers=2
 
-    - name: Stop isolated browser lane sites
+    - name: Clean browser harness resources
       if: always()
-      shell: bash
-      run: |
-        for lane in 1 2; do
-          docker compose \
-            -p "shield-test-site-lane-${lane}" \
-            -f tests/docker/docker-compose.browser-lane.yml \
-            down -v --remove-orphans || true
-        done
-
-    - name: Stop shared browser database
-      if: always()
-      run: docker compose -p shield-browser-db -f tests/docker/docker-compose.browser-db.yml down -v --remove-orphans
+      run: composer test:browser:cleanup -- --all --lanes=2
 
     - name: Upload Playwright artifacts
       if: failure()

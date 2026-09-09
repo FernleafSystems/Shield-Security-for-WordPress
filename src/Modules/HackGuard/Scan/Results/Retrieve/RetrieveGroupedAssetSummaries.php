@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -57,6 +58,7 @@ class RetrieveGroupedAssetSummaries {
 	private function buildQuery( string $assetType, array $wheres, string $selectSql, string $suffixSql = '' ) :string {
 		$dbCon = self::con()->db_con;
 		$assetType = \preg_replace( '/[^a-z]/i', '', $assetType ) ?? '';
+		$wheres[] = "`ri`.`item_type`='".ResultItemsHandler::ITEM_TYPE_FILE."'";
 		$wheres[] = \sprintf( "`ri`.`asset_type`='%s'", $assetType );
 		$wheres[] = "`ri`.`asset_key`!=''";
 

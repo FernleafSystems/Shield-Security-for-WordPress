@@ -19,7 +19,14 @@ class SelfVersion extends Base {
 		$issue = null;
 
 		if ( Services::WpPlugins()->isUpdateAvailable( $con->base_file ) ) {
-			if ( $this->isPluginTooOld() ) {
+			try {
+				$isPluginTooOld = $this->isPluginTooOld();
+			}
+			catch ( \Throwable $e ) {
+				$isPluginTooOld = false;
+			}
+
+			if ( $isPluginTooOld ) {
 				$issue = [
 					'id'        => 'self_update_available',
 					'type'      => 'info',

@@ -100,7 +100,7 @@ class FileLockerControllerTest extends BaseUnitTest {
 	public static function permanentExceptionProvider() :array {
 		return [
 			'missing paths'    => [ 'wpconfig', NoFileLockPathsExistException::class ],
-			'unsupported type' => [ 'unsupported_file_type', UnsupportedFileLockType::class ],
+			'unsupported type' => [ 'wpconfig', UnsupportedFileLockType::class ],
 		];
 	}
 
@@ -187,11 +187,104 @@ class FileLockerControllerTest extends BaseUnitTest {
 		$this->assertSame( [ 'wpconfig' ], $subject->attemptedTypes );
 	}
 
+	public function test_malformed_stored_selections_are_discarded_without_blocking_valid_siblings() :void {
+		$resource = \fopen( 'php://memory', 'r' );
+		try {
+			[ $subject ] = $this->runCreation( [
+				'files' => [
+					'root_index',
+					1,
+					1.5,
+					true,
+					[ 'root_index' ],
+					new \stdClass(),
+					new FileLockerSelectionStringable(),
+					$resource,
+					null,
+					'',
+					'unknown_file',
+					'wpconfig',
+					'root_index',
+				],
+			] );
+
+			$this->assertSame( [ 'root_index', 'wpconfig' ], $subject->getFilesToLock() );
+			$this->assertSame( [ 'root_index', 'wpconfig' ], $subject->attemptedTypes );
+		}
+		finally {
+			\fclose( $resource );
+		}
+	}
+
+	public function test_all_configured_keys_and_associative_storage_become_first_seen_list() :void {
+		[ $subject ] = $this->runCreation( [
+			'files' => [
+				'first'     => 'root_webconfig',
+				'second'    => 'wpconfig',
+				'duplicate' => 'root_webconfig',
+				'third'     => 'theme_functions',
+				'fourth'    => 'root_htaccess',
+				'fifth'     => 'root_index',
+			],
+			'execute' => false,
+		] );
+
+		$expected = [ 'root_webconfig', 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index' ];
+		$this->assertSame( $expected, $subject->getFilesToLock() );
+	}
+
+	public function test_only_malformed_stored_selections_do_not_schedule_or_attempt_locks() :void {
+		[ $subject ] = $this->runCreation( [
+			'files' => [ 1, true, [ 'wpconfig' ], new \stdClass(), null, '', 'unknown_file' ],
+		] );
+
+		$this->assertSame( [], $subject->getFilesToLock() );
+		$this->assertSame( [], $subject->attemptedTypes );
+		$this->assertSame( [], $this->actions );
+	}
+
+	/**
+	 * @dataProvider malformedOuterSelectionProvider
+	 */
+	public function test_malformed_outer_stored_selection_disables_runtime( $files ) :void {
+		[ $subject ] = $this->runCreation( [ 'files' => $files ] );
+
+		$this->assertSame( [], $subject->getFilesToLock() );
+		$this->assertSame( [], $subject->attemptedTypes );
+		$this->assertSame( [], $this->actions );
+	}
+
+	public static function malformedOuterSelectionProvider() :array {
+		return [
+			'null'    => [ null ],
+			'string'  => [ 'wpconfig' ],
+			'integer' => [ 1 ],
+			'float'   => [ 1.5 ],
+			'boolean' => [ true ],
+			'object'  => [ new \stdClass() ],
+		];
+	}
+
+	public function test_resource_outer_stored_selection_disables_runtime() :void {
+		$resource = \fopen( 'php://memory', 'r' );
+		try {
+			[ $subject ] = $this->runCreation( [ 'files' => $resource ] );
+
+			$this->assertSame( [], $subject->getFilesToLock() );
+			$this->assertSame( [], $subject->attemptedTypes );
+			$this->assertSame( [], $this->actions );
+		}
+		finally {
+			\fclose( $resource );
+		}
+	}
+
 	/**
 	 * @param array{
-	 *   files:list<string>,
+	 *   files:mixed,
 	 *   state?:array<string,mixed>,
-	 *   failures?:array<string,\Exception>
+	 *   failures?:array<string,\Exception>,
+	 *   execute?:bool
 	 * } $config
 	 * @return array{FileLockerControllerTestSubject,FileLockerOptionsStub}
 	 */
@@ -229,7 +322,14 @@ class FileLockerControllerTest extends BaseUnitTest {
 		};
 		PluginControllerInstaller::install( $controller );
 
+		if ( !( $config[ 'execute' ] ?? true ) ) {
+			return [ $subject, $opts ];
+		}
+
 		$subject->execute();
+		if ( !$subject->isEnabled() ) {
+			return [ $subject, $opts ];
+		}
 		$this->assertCount( 1, $this->actions[ 'wp_loaded' ] ?? [] );
 		$this->actions[ 'wp_loaded' ][ 0 ]();
 		$this->assertCount( 1, $this->actions[ 'shield-create_file_locks' ] ?? [] );
@@ -280,6 +380,15 @@ class FileLockerOptionsStub {
 		return $this;
 	}
 
+	public function optDef( string $key ) :array {
+		return $key === 'file_locker' ? [
+			'value_options' => \array_map(
+				static fn( string $value ) :array => [ 'value_key' => $value ],
+				[ 'wpconfig', 'theme_functions', 'root_htaccess', 'root_index', 'root_webconfig' ]
+			),
+		] : [];
+	}
+
 	public function store() :self {
 		return $this;
 	}
@@ -311,6 +420,13 @@ class FileLockerShieldNetStub {
 
 	public function canHandshake() :bool {
 		return true;
+	}
+}
+
+class FileLockerSelectionStringable {
+
+	public function __toString() :string {
+		return 'wpconfig';
 	}
 }
 

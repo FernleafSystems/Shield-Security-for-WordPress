@@ -110,7 +110,7 @@ abstract class BaseZoneReport {
 	protected function buildSummaryLinesForLog( LogRecord $log ) :array {
 		return \array_map(
 			static fn( $line ) :string => (string)$line,
-			ActivityLogMessageBuilder::BuildFromLogRecord( $log )
+			ActivityLogMessageBuilder::BuildPlainLinesFromLogRecord( $log )
 		);
 	}
 

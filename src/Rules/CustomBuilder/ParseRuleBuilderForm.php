@@ -60,12 +60,12 @@ class ParseRuleBuilderForm {
 				 && $this->extractedForm->count_set_conditions > 0
 				 && $this->extractedForm->count_set_responses > 0;
 		if ( $ready ) {
-			foreach ( $this->extractedForm->checks as $check ) {
-				if ( $check[ 'value' ] !== 'Y' ) {
-					$ready = false;
-					break;
-				}
-			}
+			$checks = $this->extractedForm->checks;
+			$autoInclude = $checks[ 'checkbox_auto_include_bypass' ][ 'value' ];
+			$ready = \in_array( $autoInclude, [ 'Y', 'N' ], true )
+					 && $checks[ 'checkbox_accept_rules_warning' ][ 'value' ] === 'Y'
+					 && ( $autoInclude === 'Y'
+						  || $checks[ 'checkbox_has_bypass_all_inverted' ][ 'value' ] === 'Y' );
 		}
 		$this->extractedForm->ready_to_create = $ready;
 	}

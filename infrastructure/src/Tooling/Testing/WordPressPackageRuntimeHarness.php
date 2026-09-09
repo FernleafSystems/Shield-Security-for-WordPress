@@ -111,7 +111,7 @@ class WordPressPackageRuntimeHarness {
 		$exitCode = $this->dockerComposeExecutor->run(
 			$rootDir,
 			[ self::COMPOSE_FILE ],
-			[ 'up', '-d', 'db', self::WORDPRESS_SERVICE ],
+			[ 'up', '-d', '--wait', '--wait-timeout', '60', 'db', self::WORDPRESS_SERVICE ],
 			$envOverrides,
 			$artifacts->processOutputCallback(),
 			$showDockerOutput

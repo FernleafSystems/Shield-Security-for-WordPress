@@ -9,42 +9,76 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Componen
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
+/**
+ * @phpstan-type ReportsWorkspaceTile array{
+ *   tag:string,
+ *   status:string,
+ *   icon_class:string,
+ *   title:string,
+ *   status_label:string,
+ *   oneliner:string,
+ *   action_label:string,
+ *   data_drill_target:string,
+ *   data_drill_zone_selection:string,
+ *   data_drill_bucket_selection:string,
+ *   data_drill_group_selection:string,
+ *   data_reports_workspace_selection:string,
+ *   is_disabled:bool,
+ *   class_name:string,
+ *   footer_links:list<array<string,string>>
+ * }
+ * @phpstan-type ReportsWorkspaceCard array{key:string,tile:ReportsWorkspaceTile}
+ * @phpstan-type ReportsWorkspacePanel array{
+ *   key:string,
+ *   description:string,
+ *   body:string,
+ *   data_reports_workspace_selection:string,
+ *   is_default:bool
+ * }
+ * @phpstan-type ReportsWorkspaceContracts array{
+ *   cards:list<ReportsWorkspaceCard>,
+ *   panels:list<ReportsWorkspacePanel>,
+ *   headers:array<string,array>
+ * }
+ */
 class PageReportsLanding extends PageDrillDownLandingBase {
 
 	public const SLUG = 'plugin_admin_page_reports_landing';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/reports_landing.twig';
 
 	/**
-	 * @var array{
-	 *   cards:list<array{
-	 *     key:string,
-	 *     tile:array{
-	 *       tag:string,
-	 *       status:string,
-	 *       icon_class:string,
-	 *       title:string,
-	 *       status_label:string,
-	 *       oneliner:string,
-	 *       data_drill_target:string,
-	 *       data_drill_zone_selection:string,
-	 *       data_drill_bucket_selection:string,
-	 *       data_drill_group_selection:string,
-	 *       data_reports_workspace_selection:string,
-	 *       is_disabled:bool,
-	 *       class_name:string,
-	 *       footer_links:list<array<string,string>>
-	 *     }
-	 *   }>,
-	 *   panels:list<array{
-	 *     key:string,
-	 *     description:string,
-	 *     body:string,
-	 *     data_reports_workspace_selection:string,
-	 *     is_default:bool
-	 *   }>
-	 * }|null
+	 * @var ReportsWorkspaceContracts|null
 	 */
 	private ?array $workspaceContractsCache = null;
+
+	protected function getPageContextualHrefs() :array {
+		return self::con()->caps->canReportsLocal() ? [ [
+			'title' => __( 'Create Custom Report', 'wp-simple-firewall' ),
+			'is_action' => true,
+			'classes' => [ 'offcanvas_report_create_form' ],
+		] ] : [];
+	}
+
+	protected function getPageContextualHrefs_Help() :array {
+		return [
+			'title' => __( 'Reports Help', 'wp-simple-firewall' ),
+			'href' => 'https://help.getshieldsecurity.com/collection/77-reporting',
+			'new_window' => true,
+		];
+	}
+
+	protected function getLandingVars() :array {
+		return \array_merge( parent::getLandingVars(), [ 'reports_workspace' => $this->getRequestedWorkspace() ] );
+	}
+
+	private function getRequestedWorkspace() :string {
+		$key = sanitize_key( $this->getTextInputFromRequestOrActionData( 'workspace' ) );
+		return isset( PluginNavs::reportsWorkspaceDefinitions()[ $key ] ) ? $key : '';
+	}
+
+	private function getWorkspaceHeader() :array {
+		return $this->getWorkspaceContracts()[ 'headers' ][ $this->getRequestedWorkspace() ] ?? $this->buildDefaultWorkspaceHeader();
+	}
 
 	protected function getLandingTitle() :string {
 		return __( 'Reports', 'wp-simple-firewall' );
@@ -82,13 +116,13 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 			[
 				'key'    => 'workspace',
 				'body'   => $this->renderWorkspaceLayer(),
-				'header' => $this->buildDefaultWorkspaceHeader(),
+				'header' => $this->getWorkspaceHeader(),
 			],
 		];
 	}
 
 	protected function getActiveLayerIndex() :int {
-		return 0;
+		return $this->getRequestedWorkspace() === '' ? 0 : 1;
 	}
 
 	protected function getOperatorRootStep() :array {
@@ -124,72 +158,21 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 	}
 
 	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   tile:array{
-	 *     tag:string,
-	 *     status:string,
-	 *     icon_class:string,
-	 *     title:string,
-	 *     status_label:string,
-	 *     oneliner:string,
-	 *     data_drill_target:string,
-	 *     data_drill_zone_selection:string,
-	 *     data_drill_bucket_selection:string,
-	 *     data_drill_group_selection:string,
-	 *     data_reports_workspace_selection:string,
-	 *     is_disabled:bool,
-	 *     class_name:string,
-	 *     footer_links:list<array<string,string>>
-	 *   }
-	 * }>
+	 * @return list<ReportsWorkspaceCard>
 	 */
 	protected function getWorkspaceCards() :array {
 		return $this->getWorkspaceContracts()[ 'cards' ];
 	}
 
 	/**
-	 * @return list<array{
-	 *   key:string,
-	 *   description:string,
-	 *   body:string,
-	 *   data_reports_workspace_selection:string,
-	 *   is_default:bool
-	 * }>
+	 * @return list<ReportsWorkspacePanel>
 	 */
 	protected function getWorkspacePanels() :array {
 		return $this->getWorkspaceContracts()[ 'panels' ];
 	}
 
 	/**
-	 * @return array{
-	 *   cards:list<array{
-	 *     key:string,
-	 *     tile:array{
-	 *       tag:string,
-	 *       status:string,
-	 *       icon_class:string,
-	 *       title:string,
-	 *       status_label:string,
-	 *       oneliner:string,
-	 *       data_drill_target:string,
-	 *       data_drill_zone_selection:string,
-	 *       data_drill_bucket_selection:string,
-	 *       data_drill_group_selection:string,
-	 *       data_reports_workspace_selection:string,
-	 *       is_disabled:bool,
-	 *       class_name:string,
-	 *       footer_links:list<array<string,string>>
-	 *     }
-	 *   }>,
-	 *   panels:list<array{
-	 *     key:string,
-	 *     description:string,
-	 *     body:string,
-	 *     data_reports_workspace_selection:string,
-	 *     is_default:bool
-	 *   }>
-	 * }
+	 * @return ReportsWorkspaceContracts
 	 */
 	private function getWorkspaceContracts() :array {
 		if ( $this->workspaceContractsCache !== null ) {
@@ -277,6 +260,7 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 					'title'             => $workspaceDefinition[ 'menu_title' ],
 					'status_label'      => $workspaceCopy[ $workspaceKey ][ 'status_label' ],
 					'oneliner'          => $workspaceCopy[ $workspaceKey ][ 'oneliner' ],
+					'action_label'      => __( 'Open', 'wp-simple-firewall' ),
 					'data_drill_target' => 'workspace',
 					'data_drill_zone_selection' => '',
 					'data_drill_bucket_selection' => '',
@@ -293,13 +277,14 @@ class PageReportsLanding extends PageDrillDownLandingBase {
 				'description'                      => $workspaceCopy[ $workspaceKey ][ 'description' ],
 				'body'                             => $workspaceBodies[ $workspaceKey ],
 				'data_reports_workspace_selection' => $selectionJson,
-				'is_default'                       => $workspaceKey === PluginNavs::SUBNAV_REPORTS_LIST,
+				'is_default'                       => $workspaceKey === ( $this->getRequestedWorkspace() ?: PluginNavs::SUBNAV_REPORTS_LIST ),
 			];
 		}
 
 		$this->workspaceContractsCache = [
 			'cards'  => $cards,
 			'panels' => $panels,
+			'headers' => \array_map( static fn( array $workspace ) :array => $workspace[ 'header' ], $workspaceCopy ),
 		];
 
 		return $this->workspaceContractsCache;

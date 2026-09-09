@@ -17,6 +17,11 @@ class BuildHashesFromApi {
 	 * @throws \Exception
 	 */
 	public function build( $asset ) {
+		if ( $asset instanceof WpThemeVo
+			 && ( (bool)$asset->is_child || (bool)$asset->is_inactive_child ) ) {
+			throw new \Exception( __( 'Live hashes are not supported for child themes.', 'wp-simple-firewall' ) );
+		}
+
 		if ( !$asset->isWpOrg() ) {
 
 			$apiSupport = false;
@@ -70,9 +75,6 @@ class BuildHashesFromApi {
 				->getHashes( $asset->slug, $asset->Version, 'md5' );
 		}
 		elseif ( $asset->asset_type === 'theme' ) {
-			if ( $asset->is_child ) {
-				throw new \Exception( __( 'Live hashes are not supported for child themes.', 'wp-simple-firewall' ) );
-			}
 			$hashes = ( new Hashes\Theme() )
 				->setUseQueryCache( true )
 				->getHashes( $asset->stylesheet, $asset->version, 'md5' );

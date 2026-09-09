@@ -16,6 +16,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\Utilities\{
 	ItemActionHandler,
 	ItemRepairHandler
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -25,6 +26,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 use FernleafSystems\Wordpress\Services\Core\Fs;
 
 class ItemActionHandlerTest extends BaseUnitTest {
+
+	use TempDirLifecycleTrait;
 
 	private array $servicesSnapshot = [];
 
@@ -40,6 +43,7 @@ class ItemActionHandlerTest extends BaseUnitTest {
 	protected function tearDown() :void {
 		ServicesState::restore( $this->servicesSnapshot );
 		PluginControllerInstaller::reset();
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 
@@ -76,25 +80,16 @@ class ItemActionHandlerTest extends BaseUnitTest {
 	public function test_delete_resets_scan_memoization_after_successful_delete() :void {
 		$updater = new ItemActionQueryUpdaterSpy();
 		$resets = $this->installController( $updater );
-		$path = \tempnam( \sys_get_temp_dir(), 'shield-delete-test-' );
-		$this->assertIsString( $path );
+		$path = $this->createTrackedTempFile( 'shield-delete-test-' );
+		$item = $this->scanItem( 7 );
+		$item->VO->scan = 'afs';
+		$item->path_full = $path;
+		$item->path_fragment = '';
+		$item->is_unrecognised = true;
 
-		try {
-			$item = $this->scanItem( 7 );
-			$item->VO->scan = 'afs';
-			$item->path_full = $path;
-			$item->path_fragment = '';
-			$item->is_unrecognised = true;
-
-			$result = ( new ItemActionHandlerRepairTestSubject( false ) )
-				->setScanItem( $item )
-				->delete();
-		}
-		finally {
-			if ( \is_file( $path ) ) {
-				@\unlink( $path );
-			}
-		}
+		$result = ( new ItemActionHandlerRepairTestSubject( false ) )
+			->setScanItem( $item )
+			->delete();
 
 		$this->assertTrue( $result );
 		$this->assertSame( [ 7 ], $updater->deletedIds );

@@ -4,7 +4,7 @@
 
 	{% block email_intro %}
 		<p>{{ body.strings.url_site }}: {{ body.hrefs.url_site }}</p>
-		{% for p in body.strings.intro|default([]) %}
+		{% for p in body.strings.intro %}
 			<p>{{ p }}</p>
 		{% endfor %}
 	{% endblock %}
@@ -19,10 +19,13 @@
 					<ul style="margin:5px 0 0 0;padding:0;">
 						{% for item in alert_group_data.items %}
 							<li>
-								{% if item.href|default('')|length > 0 %}
-									<a href="{{ item.href }}" target="_blank">{{ item.text|raw }}</a>
-								{% else %}
-									{{ item.text|raw }}
+								{% for line in item.lines %}
+									{% if line.label|length > 0 %}<strong>{{ line.label }}</strong>: {% endif %}
+									{% if line.style == 'code' %}<code>{{ line.value }}</code>{% else %}{{ line.value }}{% endif %}{% if not loop.last %}<br/>{% endif %}
+								{% endfor %}
+								{% if item.href|length > 0 %}
+									<br/>
+									<a href="{{ item.href|e('html_attr') }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:6px;color:#008000;text-decoration:underline;">{{ item.cta_label }}</a>
 								{% endif %}
 							</li>
 						{% endfor %}
@@ -35,7 +38,7 @@
 	{% endblock %}
 
 	{% block email_outro %}
-		{% for p in body.strings.outro|default([]) %}
+		{% for p in body.strings.outro %}
 			<p>{{ p }}</p>
 		{% endfor %}
 	{% endblock %}

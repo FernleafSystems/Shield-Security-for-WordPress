@@ -128,6 +128,180 @@ class AutoUpdatesConTest extends BaseUnitTest {
 		$this->assertFalse( $subject->autoupdate_plugins( false, $this->pluginUpdateItem( self::OTHER_PLUGIN_FILE ) ) );
 	}
 
+	public function test_self_auto_update_allows_expired_whole_number_version_delay() :void {
+		$timestamp = self::NOW - 5*\DAY_IN_SECONDS - 1;
+		$opts = $this->installEnvironment( [
+			'delay_tracking' => [
+				'plugins' => [
+					self::BASE_FILE => [ '2' => $timestamp ],
+				],
+			],
+		], [
+			self::BASE_FILE => (object)[ 'new_version' => '2' ],
+		] );
+
+		$this->assertTrue(
+			( new AutoUpdatesCon() )->autoupdate_plugins( true, $this->pluginUpdateItem( self::BASE_FILE ) )
+		);
+		$this->assertSame( $timestamp, $this->delayTracking( $opts )[ 'plugins' ][ self::BASE_FILE ][ '2' ] );
+	}
+
+	public function test_valid_vulnerable_non_self_plugin_forces_auto_update() :void {
+		$wpv = new AutoUpdatesConTestWpv( true, [ self::OTHER_PLUGIN_FILE ] );
+		$this->installEnvironment( [ 'update_delay' => 7 ], $this->updatesFor( self::OTHER_PLUGIN_FILE ), $wpv );
+
+		$this->assertTrue(
+			( new AutoUpdatesCon() )->autoupdate_plugins( false, $this->pluginUpdateItem( self::OTHER_PLUGIN_FILE ) )
+		);
+		$this->assertSame( [ self::OTHER_PLUGIN_FILE ], $wpv->vulnerabilityChecks );
+	}
+
+	public function test_valid_core_future_delay_is_preserved_and_blocks_update() :void {
+		$timestamp = self::NOW + 300;
+		$opts = $this->installEnvironment( [
+			'update_delay' => 7,
+			'delay_tracking' => [
+				'core' => [ 'wp' => [ '7' => $timestamp ] ],
+			],
+		], [] );
+
+		$this->assertFalse(
+			( new AutoUpdatesCon() )->autoupdate_core( true, (object)[ 'current' => '7' ] )
+		);
+		$this->assertSame( $timestamp, $this->delayTracking( $opts )[ 'core' ][ 'wp' ][ '7' ] );
+	}
+
+	public function test_valid_core_expired_delay_preserves_incoming_decision() :void {
+		$this->installEnvironment( [
+			'update_delay' => 7,
+			'delay_tracking' => [
+				'core' => [ 'wp' => [ '6.8.1' => self::NOW - 7*\DAY_IN_SECONDS - 1 ] ],
+			],
+		], [] );
+
+		$this->assertSame(
+			'upstream',
+			( new AutoUpdatesCon() )->autoupdate_core( 'upstream', (object)[ 'current' => '6.8.1' ] )
+		);
+	}
+
+	public function test_numeric_theme_slug_and_whole_number_version_delay_are_honoured() :void {
+		$this->installEnvironment( [
+			'update_delay' => 7,
+			'delay_tracking' => [
+				'themes' => [ '2024' => [ '2' => self::NOW - 1 ] ],
+			],
+		], [] );
+		ServicesState::mergeItems( [
+			'service_wpthemes' => new AutoUpdatesConTestThemes( [
+				'2024' => [ 'new_version' => '2' ],
+			] ),
+		] );
+
+		$this->assertFalse(
+			( new AutoUpdatesCon() )->autoupdate_themes( true, (object)[ 'theme' => '2024' ] )
+		);
+	}
+
+	public function test_valid_theme_expired_delay_preserves_incoming_decision() :void {
+		$this->installEnvironment( [
+			'update_delay' => 7,
+			'delay_tracking' => [
+				'themes' => [ 'twentynineteen' => [ '3.3' => self::NOW - 7*\DAY_IN_SECONDS - 1 ] ],
+			],
+		], [] );
+		ServicesState::mergeItems( [
+			'service_wpthemes' => new AutoUpdatesConTestThemes( [
+				'twentynineteen' => [ 'new_version' => '3.3' ],
+			] ),
+		] );
+
+		$this->assertSame(
+			'upstream',
+			( new AutoUpdatesCon() )->autoupdate_themes( 'upstream', (object)[ 'theme' => 'twentynineteen' ] )
+		);
+	}
+
+	public function test_self_auto_update_preserves_incoming_decision_when_update_version_is_invalid() :void {
+		$this->installEnvironment( [], [
+			self::BASE_FILE => (object)[ 'new_version' => 22.1 ],
+		] );
+
+		$subject = new AutoUpdatesCon();
+
+		$this->assertFalse( $subject->autoupdate_plugins( false, $this->pluginUpdateItem( self::BASE_FILE ) ) );
+		$this->assertTrue( $subject->autoupdate_plugins( true, $this->pluginUpdateItem( self::BASE_FILE ) ) );
+	}
+
+	public function test_disabled_self_auto_update_does_not_require_valid_update_version() :void {
+		$this->installEnvironment( [ 'autoupdate_plugin_self' => 'disabled' ], [
+			self::BASE_FILE => (object)[ 'new_version' => [] ],
+		] );
+
+		$this->assertFalse(
+			( new AutoUpdatesCon() )->autoupdate_plugins( true, $this->pluginUpdateItem( self::BASE_FILE ) )
+		);
+	}
+
+	/**
+	 * @dataProvider provideInvalidIdentifiers
+	 */
+	public function test_plugin_auto_update_preserves_incoming_decision_for_invalid_identifier( $identifier ) :void {
+		$wpv = new AutoUpdatesConTestWpv( true, [ self::OTHER_PLUGIN_FILE ] );
+		$this->installEnvironment( [ 'update_delay' => 7 ], [], $wpv );
+		$subject = new AutoUpdatesCon();
+		$item = (object)[ 'plugin' => $identifier ];
+
+		$this->assertTrue( $subject->autoupdate_plugins( true, $item ) );
+		$this->assertFalse( $subject->autoupdate_plugins( false, $item ) );
+		$this->assertSame( [], $wpv->vulnerabilityChecks );
+	}
+
+	/**
+	 * @dataProvider provideInvalidIdentifiers
+	 */
+	public function test_theme_auto_update_preserves_incoming_decision_for_invalid_identifier( $identifier ) :void {
+		$this->installEnvironment( [ 'update_delay' => 7 ], [] );
+		$subject = new AutoUpdatesCon();
+		$item = (object)[ 'theme' => $identifier ];
+
+		$this->assertTrue( $subject->autoupdate_themes( true, $item ) );
+		$this->assertFalse( $subject->autoupdate_themes( false, $item ) );
+	}
+
+	public function test_auto_update_filters_preserve_decisions_for_resource_identifiers() :void {
+		$resource = \fopen( 'php://memory', 'rb' );
+		$this->assertIsResource( $resource );
+		try {
+			$this->installEnvironment( [ 'update_delay' => 7 ], [] );
+			$subject = new AutoUpdatesCon();
+			$this->assertSame( 'plugin-decision', $subject->autoupdate_plugins(
+				'plugin-decision',
+				(object)[ 'plugin' => $resource ]
+			) );
+			$this->assertSame( 'theme-decision', $subject->autoupdate_themes(
+				'theme-decision',
+				(object)[ 'theme' => $resource ]
+			) );
+		}
+		finally {
+			\fclose( $resource );
+		}
+	}
+
+	public function provideInvalidIdentifiers() :array {
+		return [
+			'null'       => [ null ],
+			'false'      => [ false ],
+			'integer'    => [ 123 ],
+			'float'      => [ 1.5 ],
+			'array'      => [ [] ],
+			'object'     => [ (object)[] ],
+			'empty'      => [ '' ],
+			'whitespace' => [ " \t\n" ],
+		];
+	}
+
 	public function test_core_update_tracking_ignores_malformed_transient_entries() :void {
 		$opts = $this->installEnvironment( [], [] );
 
@@ -167,6 +341,19 @@ class AutoUpdatesConTest extends BaseUnitTest {
 			],
 			$this->delayTracking( $opts )[ 'core' ][ 'wp' ]
 		);
+	}
+
+	public function test_core_tracking_preserves_whole_number_version_key() :void {
+		$opts = $this->installEnvironment( [], [] );
+
+		( new AutoUpdatesCon() )->trackUpdateTimesCore( (object)[
+			'updates' => [ (object)[
+				'response' => 'autoupdate',
+				'current'  => '7',
+			] ],
+		] );
+
+		$this->assertSame( self::NOW, $this->delayTracking( $opts )[ 'core' ][ 'wp' ][ '7' ] );
 	}
 
 	public function test_plugin_update_tracking_ignores_malformed_transient_entries() :void {
@@ -253,6 +440,19 @@ class AutoUpdatesConTest extends BaseUnitTest {
 		$this->assertFalse( $subject->autoupdate_plugins( false, $this->pluginUpdateItem( self::OTHER_PLUGIN_FILE ) ) );
 	}
 
+	public function test_plugin_auto_update_rejects_direct_integer_update_version() :void {
+		$wpv = new AutoUpdatesConTestWpv( true, [ self::OTHER_PLUGIN_FILE ] );
+		$this->installEnvironment( [ 'update_delay' => 7 ], [
+			self::OTHER_PLUGIN_FILE => (object)[ 'new_version' => 2 ],
+		], $wpv );
+
+		$this->assertSame(
+			'upstream',
+			( new AutoUpdatesCon() )->autoupdate_plugins( 'upstream', $this->pluginUpdateItem( self::OTHER_PLUGIN_FILE ) )
+		);
+		$this->assertSame( [], $wpv->vulnerabilityChecks );
+	}
+
 	public function test_theme_auto_update_preserves_wordpress_decision_for_malformed_update_version() :void {
 		$this->installEnvironment( [ 'update_delay' => 7 ], [] );
 		ServicesState::mergeItems( [
@@ -280,6 +480,126 @@ class AutoUpdatesConTest extends BaseUnitTest {
 			[ self::NEW_VERSION => self::NOW ],
 			$this->delayTracking( $opts )[ 'plugins' ][ self::BASE_FILE ]
 		);
+	}
+
+	public function test_delay_tracking_is_canonicalized_at_the_smallest_invalid_member() :void {
+		$opts = $this->installEnvironment( [
+			'delay_tracking' => [
+				'core' => [
+					'wp' => [
+						' 6.8.1 ' => self::NOW - 10,
+						'6.8.2'    => (string)( self::NOW - 9 ),
+						'6.8.3'    => self::NOW + 1,
+						'6.8.4'    => -1,
+						'6.8.5'    => \PHP_INT_MAX,
+						'6.8.6'    => [],
+						'6.8.7'    => (object)[],
+					],
+					'other' => [ '6.8.4' => self::NOW - 8 ],
+				],
+				'plugins' => [
+					' '.self::BASE_FILE.' ' => [
+						' '.self::NEW_VERSION.' ' => self::NOW - 7,
+						'bad'                       => 0,
+					],
+					'bad-row' => 'not-an-array',
+					'bad-object-row' => (object)[],
+				],
+				'themes' => [
+					'twentynineteen' => [ '3.3' => self::NOW - 5 ],
+					2024 => [ 2 => self::NOW - 4 ],
+				],
+				'extra' => [ 'ignored' ],
+			],
+		], [] );
+
+		$this->assertSame( [
+			'core' => [
+				'wp' => [
+					'6.8.1' => self::NOW - 10,
+					'6.8.3' => self::NOW + 1,
+					'6.8.5' => \PHP_INT_MAX,
+				],
+			],
+			'plugins' => [
+				self::BASE_FILE => [ self::NEW_VERSION => self::NOW - 7 ],
+			],
+			'themes' => [
+				'twentynineteen' => [ '3.3' => self::NOW - 5 ],
+				2024 => [ 2 => self::NOW - 4 ],
+			],
+		], ( new AutoUpdatesCon() )->getDelayTracking() );
+		$this->assertSame( 1, $opts->setCounts[ 'delay_tracking' ] ?? 0 );
+	}
+
+	public function test_delay_tracking_drops_scalar_and_object_contexts() :void {
+		$opts = $this->installEnvironment( [
+			'delay_tracking' => [
+				'core'    => 'invalid',
+				'plugins' => (object)[],
+				'themes'  => null,
+			],
+		], [] );
+
+		$this->assertSame( [
+			'core'    => [],
+			'plugins' => [],
+			'themes'  => [],
+		], ( new AutoUpdatesCon() )->getDelayTracking() );
+		$this->assertSame( 1, $opts->setCounts[ 'delay_tracking' ] ?? 0 );
+	}
+
+	public function test_tracking_rejects_non_string_versions_without_losing_valid_siblings() :void {
+		$opts = $this->installEnvironment( [], [] );
+		$subject = new AutoUpdatesCon();
+
+		$subject->trackUpdateTimesPlugins( (object)[ 'response' => [
+			self::BASE_FILE => (object)[ 'new_version' => self::NEW_VERSION ],
+			'bad-version'   => (object)[ 'new_version' => 2.5 ],
+			'blank-version' => (object)[ 'new_version' => '  ' ],
+		] ] );
+
+		$this->assertSame( [
+			self::BASE_FILE => [ self::NEW_VERSION => self::NOW ],
+		], $this->delayTracking( $opts )[ 'plugins' ] );
+	}
+
+	public function test_theme_tracking_recovers_php_coerced_numeric_map_keys() :void {
+		$opts = $this->installEnvironment( [], [] );
+
+		( new AutoUpdatesCon() )->trackUpdateTimesThemes( (object)[ 'response' => [
+			2024 => (object)[ 'new_version' => '2' ],
+		] ] );
+
+		$this->assertSame(
+			self::NOW,
+			$this->delayTracking( $opts )[ 'themes' ][ '2024' ][ '2' ]
+		);
+	}
+
+	public function test_plugins_list_normalizes_outer_sections_and_rows() :void {
+		$this->installEnvironment( [], [] );
+		$subject = new AutoUpdatesCon();
+		$validShieldRow = [ 'Name' => 'Shield' ];
+
+		$this->assertSame( [], $subject->indicateAutoUpdate( 'invalid' ) );
+		$this->assertSame( [
+			'all' => [
+				self::BASE_FILE => $validShieldRow + [ 'auto-update-forced' => true ],
+				self::OTHER_PLUGIN_FILE => [ 'Name' => 'Akismet' ],
+			],
+			'invalid-row' => [],
+			'invalid-object-row' => [],
+		], $subject->indicateAutoUpdate( [
+			'all' => [
+				self::BASE_FILE => $validShieldRow,
+				self::OTHER_PLUGIN_FILE => [ 'Name' => 'Akismet' ],
+			],
+			'invalid-section' => 'not-an-array',
+			'invalid-object-section' => (object)[],
+			'invalid-row' => [ self::BASE_FILE => 'not-an-array' ],
+			'invalid-object-row' => [ self::BASE_FILE => (object)[] ],
+		] ) );
 	}
 
 	private function delayTracking( AutoUpdatesConTestOptions $opts ) :array {
@@ -340,6 +660,8 @@ class AutoUpdatesConTestOptions {
 
 	private array $values;
 
+	public array $setCounts = [];
+
 	public function __construct( array $overrides = [] ) {
 		$this->values = \array_merge( [
 			'autoupdate_plugin_self' => 'auto',
@@ -353,6 +675,7 @@ class AutoUpdatesConTestOptions {
 	}
 
 	public function optSet( string $key, $value ) :self {
+		$this->setCounts[ $key ] = ( $this->setCounts[ $key ] ?? 0 ) + 1;
 		$this->values[ $key ] = $value;
 		return $this;
 	}
@@ -373,6 +696,8 @@ class AutoUpdatesConTestScans {
 
 class AutoUpdatesConTestWpv {
 
+	public array $vulnerabilityChecks = [];
+
 	private bool $autoupdatesEnabled;
 
 	private array $vulnerablePlugins;
@@ -387,6 +712,7 @@ class AutoUpdatesConTestWpv {
 	}
 
 	public function hasVulnerabilities( string $pluginFile ) :bool {
+		$this->vulnerabilityChecks[] = $pluginFile;
 		return \in_array( $pluginFile, $this->vulnerablePlugins, true );
 	}
 }

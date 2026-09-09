@@ -1,0 +1,35 @@
+name: Customer Test ZIP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-zip:
+    name: Build Customer ZIP Artifact
+    uses: ./.github/workflows/reusable-build-zip.yml
+    with:
+      retention_days: 30
+    secrets: inherit
+
+  summary:
+    name: Share Artifact Link
+    runs-on: ubuntu-latest
+    needs: build-zip
+    permissions:
+      contents: read
+
+    steps:
+    - name: Write artifact summary
+      run: |
+        cat >> "$GITHUB_STEP_SUMMARY" <<'SUMMARY'
+        ## Customer test ZIP
+
+        | Field | Value |
+        |---|---|
+        | ZIP | `${{ needs.build-zip.outputs.zip_name }}` |
+        | Artifact URL | ${{ needs.build-zip.outputs.artifact_url }} |
+        | Ref | `${{ needs.build-zip.outputs.ref_name }}` |
+        | Commit | `${{ needs.build-zip.outputs.commit_sha }}` |
+        | ZIP SHA-256 | `${{ needs.build-zip.outputs.zip_sha256 }}` |
+        | Artifact digest | `${{ needs.build-zip.outputs.artifact_digest }}` |
+        SUMMARY

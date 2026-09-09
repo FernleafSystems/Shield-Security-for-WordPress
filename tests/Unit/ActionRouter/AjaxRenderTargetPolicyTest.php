@@ -36,13 +36,14 @@ class AjaxRenderTargetPolicyTest extends BaseUnitTest {
 		}
 	}
 
-	public function allowedRenderTargetProvider() :array {
+	public static function allowedRenderTargetProvider() :array {
 		return [
 			[ Actions\Render\Components\Widgets\DashboardLiveMonitorTicker::class ],
 			[ Actions\Render\Components\Traffic\TrafficLiveLogs::class ],
 			[ Actions\Render\Components\Widgets\WpDashboardSummary::class ],
 			[ Actions\Render\Components\Scans\ScansFileLockerDiff::class ],
 			[ Actions\Render\Components\OffCanvas\IpAnalysis::class ],
+			[ Actions\Render\Components\OffCanvas\ImportExportSitesAuthoriseUrls::class ],
 			[ Actions\Render\Components\OffCanvas\IpRuleAddForm::class ],
 			[ Actions\Render\Components\Rules\RuleBuilder::class ],
 			[ Actions\Render\Components\Rules\RulesManager::class ],
@@ -59,6 +60,7 @@ class AjaxRenderTargetPolicyTest extends BaseUnitTest {
 			[ Actions\Render\Components\Scans\Results\Vulnerabilities::class ],
 			[ Actions\Render\Components\Scans\Results\Malware::class ],
 			[ Actions\Render\Components\Scans\Results\FileLocker::class ],
+			[ Actions\Render\Components\Scans\Results\CloakedPlugins::class ],
 			[ Actions\Render\Components\Scans\Results\Maintenance::class ],
 			[ Actions\Render\PluginAdminPages\ConfigureDrillDownDiagnosis::class ],
 			[ Actions\Render\PluginAdminPages\ConfigureSearchResults::class ],
@@ -72,7 +74,7 @@ class AjaxRenderTargetPolicyTest extends BaseUnitTest {
 		];
 	}
 
-	public function blockedRenderTargetProvider() :array {
+	public static function blockedRenderTargetProvider() :array {
 		return [
 			[ Actions\Render\FullPage\Report\SecurityReport::SLUG ],
 			[ Actions\Render\Components\Reports\Components\ReportAreaChanges::SLUG ],

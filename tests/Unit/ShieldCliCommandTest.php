@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ScriptCommandTest
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\GitPreCommitCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestBrowserCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestCrossSiteCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestDockerCleanupCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestIntegrationLocalCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPackageFullCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\TestPopularPluginsCommand;
@@ -53,6 +54,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				'test:site:reset',
 				'test:site:status',
 				'test:browser',
+				'test:docker:cleanup',
 				'test:cross-site',
 				'test:source',
 				'test:integration-local',
@@ -64,6 +66,10 @@ class ShieldCliCommandTest extends BaseUnitTest {
 				'analyze:source',
 				'analyze:package',
 				'git:pre-commit',
+				'operator',
+				'operator:package-svn',
+				'operator:prepare-release',
+				'operator:build-zip',
 			] as $commandName
 		) {
 			$this->assertStringContainsString( $commandName, $output );
@@ -99,10 +105,26 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			$this->createMock( LocalIntegrationTestLane::class )
 		);
 		$this->assertTrue( $command->getDefinition()->hasOption( 'db-down' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'db-profile' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
 	}
 
-	public function testSourceCommandIncludesDebuggingOptions() :void {
+	public function testIntegrationLocalCommandForwardsDatabaseProfile() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$lane = $this->createMock( LocalIntegrationTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), false, [ '--group', 'database-compat' ], false, 'mysql56' )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestIntegrationLocalCommand( $this->getPluginRoot(), $lane ) );
+		$this->assertSame( 0, $tester->execute( [
+			'--db-profile' => 'mysql56',
+			'phpunit_args' => [ '--group', 'database-compat' ],
+		] ) );
+	}
+
+	public function testSourceCommandIncludesRuntimeOptions() :void {
 		$this->skipIfPackageScriptUnavailable();
 		$command = new TestSourceCommand(
 			$this->getPluginRoot(),
@@ -111,6 +133,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertTrue( $command->getDefinition()->hasOption( 'refresh-setup' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'skip-unit-tests' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'include-previous-wp' ) );
 	}
 
 	public function testSourceCommandForwardsSkipUnitTestsOption() :void {
@@ -119,7 +142,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$lane = $this->createMock( SourceRuntimeTestLane::class );
 		$lane->expects( $this->once() )
 			 ->method( 'run' )
-			 ->with( $this->getPluginRoot(), false, true, true )
+			 ->with( $this->getPluginRoot(), false, true, true, false )
 			 ->willReturn( 0 );
 
 		$tester = new CommandTester( new TestSourceCommand( $this->getPluginRoot(), $lane ) );
@@ -131,13 +154,59 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertSame( 0, $exitCode );
 	}
 
-	public function testPackageFullCommandIncludesDebuggingOption() :void {
+	public function testSourceCommandForwardsIncludePreviousWordpressOption() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$lane = $this->createMock( SourceRuntimeTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), false, false, false, true )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestSourceCommand( $this->getPluginRoot(), $lane ) );
+		$exitCode = $tester->execute( [
+			'--include-previous-wp' => true,
+		] );
+
+		$this->assertSame( 0, $exitCode );
+	}
+
+	public function testPackageFullCommandIncludesRuntimeOptions() :void {
 		$this->skipIfPackageScriptUnavailable();
 		$command = new TestPackageFullCommand(
 			$this->getPluginRoot(),
 			$this->createMock( PackageFullTestLane::class )
 		);
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-docker-output' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'include-previous-wp' ) );
+	}
+
+	public function testPackageFullCommandDefaultsToLatestWordpressOnly() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$lane = $this->createMock( PackageFullTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), null, false, false )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestPackageFullCommand( $this->getPluginRoot(), $lane ) );
+		$this->assertSame( 0, $tester->execute( [] ) );
+	}
+
+	public function testPackageFullCommandForwardsIncludePreviousWordpressOption() :void {
+		$this->skipIfPackageScriptUnavailable();
+
+		$lane = $this->createMock( PackageFullTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), null, false, true )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestPackageFullCommand( $this->getPluginRoot(), $lane ) );
+		$this->assertSame( 0, $tester->execute( [
+			'--include-previous-wp' => true,
+		] ) );
 	}
 
 	public function testUpgradePublicCommandIncludesCiReadyOptions() :void {
@@ -230,29 +299,43 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$this->assertTrue( $command->getDefinition()->hasOption( 'runtime-refresh' ) );
 	}
 
-	public function testCrossSiteCommandHelpIncludesHarnessOptions() :void {
-		$this->skipIfPackageScriptUnavailable();
-
-		$process = $this->runPhpScript( 'bin/shield', [ 'test:cross-site', '--help' ] );
-		$this->assertSame( 0, $process->getExitCode() ?? 1, $this->processOutput( $process ) );
-
-		$output = $this->processOutput( $process );
-		$this->assertStringContainsString( 'test:cross-site', $output );
-		$this->assertStringContainsString( '--clean', $output );
-		$this->assertStringContainsString( '--warm', $output );
-		$this->assertStringContainsString( '--show-setup-output', $output );
-	}
-
-	public function testCrossSiteCommandIncludesHarnessOptions() :void {
+	public function testCrossSiteCommandExposesOnlyDiagnosticSetupOutput() :void {
 		$this->skipIfPackageScriptUnavailable();
 		$command = new TestCrossSiteCommand(
 			$this->getPluginRoot(),
 			$this->createMock( CrossSiteTestLane::class )
 		);
 
-		$this->assertTrue( $command->getDefinition()->hasOption( 'clean' ) );
-		$this->assertTrue( $command->getDefinition()->hasOption( 'warm' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-setup-output' ) );
+		$this->assertFalse( $command->getDefinition()->hasOption( 'clean' ) );
+		$this->assertFalse( $command->getDefinition()->hasOption( 'warm' ) );
+		$this->assertFalse( $command->getDefinition()->hasOption( 'teardown' ) );
+	}
+
+	public function testCrossSiteCommandForwardsDiagnosticSetupOutput() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$lane = $this->createMock( CrossSiteTestLane::class );
+		$lane->expects( $this->once() )
+			 ->method( 'run' )
+			 ->with( $this->getPluginRoot(), [
+				'show_setup_output' => true,
+			] )
+			 ->willReturn( 0 );
+
+		$tester = new CommandTester( new TestCrossSiteCommand( $this->getPluginRoot(), $lane ) );
+		$this->assertSame( 0, $tester->execute( [
+			'--show-setup-output' => true,
+		] ) );
+	}
+
+	public function testDockerCleanupCommandIncludesAuditOptions() :void {
+		$this->skipIfPackageScriptUnavailable();
+		$command = new TestDockerCleanupCommand( $this->getPluginRoot() );
+
+		$this->assertTrue( $command->getDefinition()->hasOption( 'scope' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'dry-run' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'all' ) );
+		$this->assertTrue( $command->getDefinition()->hasOption( 'lanes' ) );
 	}
 
 	public function testDevSiteWpHelpIncludesWpCliForwardingHint() :void {
@@ -315,6 +398,7 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		return [
 			'test-source' => [ 'test:source' ],
 			'test-browser' => [ 'test:browser' ],
+			'test-docker-cleanup' => [ 'test:docker:cleanup' ],
 			'test-cross-site' => [ 'test:cross-site' ],
 			'test-integration-local' => [ 'test:integration-local' ],
 			'dev-site-up' => [ 'dev:site:up' ],
@@ -336,6 +420,10 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			'analyze-source' => [ 'analyze:source' ],
 			'analyze-package' => [ 'analyze:package' ],
 			'git-pre-commit' => [ 'git:pre-commit' ],
+			'operator' => [ 'operator' ],
+			'operator-package-svn' => [ 'operator:package-svn' ],
+			'operator-prepare-release' => [ 'operator:prepare-release' ],
+			'operator-build-zip' => [ 'operator:build-zip' ],
 		];
 	}
 }

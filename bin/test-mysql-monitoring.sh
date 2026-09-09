@@ -48,7 +48,7 @@ docker run -d \
     -e MYSQL_ROOT_PASSWORD=testpass \
     -e MYSQL_DATABASE=test_db \
     -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
-    --health-cmd="mysqladmin ping -h localhost --silent" \
+    --health-cmd="mysqladmin ping --protocol=tcp -h 127.0.0.1 --silent" \
     --health-interval=1s \
     --health-timeout=5s \
     --health-retries=60 \
@@ -90,7 +90,7 @@ ATTEMPTS_2=0
 
 while [ $ATTEMPTS_2 -lt $MAX_ATTEMPTS ]; do
     # Try to ping MySQL directly using mysqladmin
-    if docker exec $TEST_CONTAINER mysqladmin ping -h localhost --silent 2>/dev/null; then
+    if docker exec $TEST_CONTAINER mysqladmin ping --protocol=tcp -h 127.0.0.1 --silent 2>/dev/null; then
         END_TIME_2=$(date +%s)
         DURATION_2=$((END_TIME_2 - START_TIME_2))
         echo "✅ Direct mysqladmin ping successful after ${DURATION_2} seconds"
@@ -120,7 +120,7 @@ docker logs --tail 10 $TEST_CONTAINER
 echo ""
 echo "Testing rapid connection attempts..."
 for i in {1..5}; do
-    if docker exec $TEST_CONTAINER mysql -uroot -ptestpass -e "SELECT 1" test_db >/dev/null 2>&1; then
+    if docker exec $TEST_CONTAINER mysql --protocol=tcp -h 127.0.0.1 -uroot -ptestpass -e "SELECT 1" test_db >/dev/null 2>&1; then
         echo "  Connection $i: ✅ Success"
     else
         echo "  Connection $i: ❌ Failed"

@@ -56,6 +56,7 @@ class RetrieveGroupedAssetSummariesQueryTest extends BaseUnitTest {
 		], $rows );
 		$this->assertCount( 1, $queries[ 'select' ] );
 		$this->assertStringContainsString( "SELECT `ri`.`asset_key` AS `slug`, COUNT(DISTINCT `ri`.`id`) AS `file_count`", $queries[ 'select' ][ 0 ] );
+		$this->assertStringContainsString( "`ri`.`item_type`='f'", $queries[ 'select' ][ 0 ] );
 		$this->assertStringContainsString( "`ri`.`asset_type`='plugin'", $queries[ 'select' ][ 0 ] );
 		$this->assertStringContainsString( "`ri`.`asset_key`!=''", $queries[ 'select' ][ 0 ] );
 		$this->assertStringContainsString( "`ri`.`auto_filtered_at`=0", $queries[ 'select' ][ 0 ] );

@@ -915,6 +915,33 @@
         "sensitive": true
     },
     {
+        "key": "hidden_plugins_alert_state",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "transferable": false,
+        "tracking_exclude": true,
+        "sensitive": true
+    },
+    {
+        "key": "cloaked_plugin_findings",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "transferable": false,
+        "tracking_exclude": true,
+        "sensitive": true
+    },
+    {
+        "key": "ignored_hidden_plugins",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "transferable": false,
+        "tracking_exclude": true,
+        "sensitive": true
+    },
+    {
         "key": "is_scan_cron",
         "section": "section_hidden",
         "tracking_exclude": true,
@@ -2046,6 +2073,17 @@
     {
         "key": "email_can_send_verified_at",
         "section": "section_hidden",
+        "tracking_exclude": true,
+        "transferable": false,
+        "type": "integer",
+        "default": 0,
+        "min": 0
+    },
+    {
+        "key": "email_can_send_verification_sent_at",
+        "section": "section_hidden",
+        "tracking_exclude": true,
+        "transferable": false,
         "type": "integer",
         "default": 0,
         "min": 0
@@ -2576,10 +2614,7 @@
     },
     {
         "key": "importexport_whitelist",
-        "section": "section_importexport",
-        "zone_comp_slugs": [
-            "import_export"
-        ],
+        "section": "section_hidden",
         "transferable": false,
         "sensitive": true,
         "default": [],
@@ -2592,10 +2627,7 @@
     },
     {
         "key": "importexport_whitelist_notify",
-        "section": "section_importexport",
-        "zone_comp_slugs": [
-            "import_export"
-        ],
+        "section": "section_hidden",
         "default": "N",
         "type": "checkbox",
         "link_info": "",
@@ -2634,10 +2666,6 @@
                 "text": "Disabled"
             },
             {
-                "value_key": "hourly",
-                "text": "Hourly"
-            },
-            {
                 "value_key": "daily",
                 "text": "Daily"
             },
@@ -2665,10 +2693,6 @@
             {
                 "value_key": "disabled",
                 "text": "Disabled"
-            },
-            {
-                "value_key": "hourly",
-                "text": "Hourly"
             },
             {
                 "value_key": "daily",
@@ -2719,6 +2743,32 @@
         "name": "Shield Deactivated",
         "summary": "Be alerted when the Shield plugin is deactivated",
         "description": "Be alerted when the Shield plugin is deactivated."
+    },
+    {
+        "key": "instant_alert_hidden_plugins",
+        "section": "section_alerts",
+        "zone_comp_slugs": [
+            "instant_alerts",
+            "reporting"
+        ],
+        "type": "select",
+        "default": "email",
+        "value_options": [
+            {
+                "value_key": "disabled",
+                "text": "Disabled"
+            },
+            {
+                "value_key": "email",
+                "text": "Email"
+            }
+        ],
+        "beacon_id": 788,
+        "link_info": "",
+        "link_blog": "",
+        "name": "Cloaked Plugins",
+        "summary": "Be alerted when a plugin is cloaked from the WordPress admin list",
+        "description": "Be alerted when a plugin or must-use plugin exists on disk but is cloaked from the WordPress admin plugin list."
     },
     {
         "key": "instant_alert_admins",
@@ -3069,13 +3119,15 @@
         "key": "importexport_secretkey_expires_at",
         "section": "section_hidden",
         "type": "integer",
-        "default": 0
+        "default": 0,
+        "transferable": false
     },
     {
         "key": "importexport_handshake_expires_at",
         "section": "section_hidden",
         "type": "integer",
-        "default": 0
+        "default": 0,
+        "transferable": false
     },
     {
         "key": "snapi_data",
@@ -3102,6 +3154,7 @@
         "section": "section_hidden",
         "type": "text",
         "default": "",
+        "transferable": false,
         "sensitive": true
     },
     {
@@ -3109,7 +3162,31 @@
         "section": "section_hidden",
         "type": "array",
         "default": [],
+        "transferable": false,
         "sensitive": true
+    },
+    {
+        "key": "importexport_sites_migrated_at",
+        "section": "section_hidden",
+        "type": "integer",
+        "default": 0,
+        "transferable": false
+    },
+    {
+        "key": "importexport_pending_network_invites",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "transferable": false,
+        "sensitive": true
+    },
+    {
+        "key": "importexport_network_invite_block_until",
+        "section": "section_hidden",
+        "type": "integer",
+        "default": 0,
+        "transferable": false,
+        "tracking_exclude": true
     },
     {
         "key": "test_rest_data",
@@ -3128,6 +3205,7 @@
         "key": "xfer_excluded",
         "section": "section_hidden",
         "type": "array",
+        "transferable": false,
         "default": []
     },
     {
@@ -3157,37 +3235,18 @@
     },
     {
         "key": "enable_logger",
-        "section": "section_log_requests",
-        "zone_comp_slugs": [
-            "request_logging",
-            "request_live_logging"
-        ],
-        "default": "N",
+        "section": "section_hidden",
+        "default": "Y",
         "type": "checkbox",
-        "link_info": "https://clk.shldscrty.com/hf",
-        "link_blog": "",
-        "beacon_id": 153,
-        "name": "Enable Request Logging",
-        "summary": "Log Requests To Your WordPress Site",
-        "description": "Monitor web requests sent to your WordPress site."
+        "transferable": false,
+        "tracking_exclude": true
     },
     {
         "key": "enable_live_log",
-        "section": "section_log_requests",
-        "zone_comp_slugs": [
-            "request_logging",
-            "request_live_logging"
-        ],
-        "cap": "traffic_live_log",
-        "premium": true,
+        "section": "section_hidden",
         "default": "N",
         "type": "checkbox",
-        "beacon_id": 759,
-        "link_info": "",
-        "link_blog": "",
-        "name": "Live Logging",
-        "summary": "Enable Live Logging Of All Traffic",
-        "description": "Switch-on logging of all site traffic."
+        "transferable": false
     },
     {
         "key": "enable_limiter",

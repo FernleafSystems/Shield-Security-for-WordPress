@@ -2,10 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\FileLocker\Ops as FileLockerDB;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\FileLockerController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\CleanLockRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\LoadFileLocks;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\{
+	BuildFileFromFileKey,
+	GetFileLockCandidateDisplays,
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Utility\FileLockKeyApplicability;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
@@ -18,7 +25,6 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function set_up() {
 		parent::set_up();
-		$this->requireDb( 'file_locker' );
 		$this->optionSnapshot = $this->snapshotSelectedOptions( [ 'file_locker', 'filelocker_state', 'snapi_data' ] );
 		$this->enablePremiumCapabilities( [ 'scan_file_locker' ] );
 	}
@@ -49,31 +55,46 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 
 		( new CleanLockRecords() )->run();
 
-		$reloadedHandler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$reloadedHandler = $this->requireTransactionScopedDb( 'file_locker' );
 		$this->assertSame(
 			[ 'wpconfig' ],
 			$wpdb->get_col( "SELECT type FROM {$reloadedHandler->getTable()} ORDER BY id ASC" )
 		);
 	}
 
+	/** @group database-transaction-exception */
 	public function test_purge_deletes_existing_file_lock_rows() :void {
 		global $wpdb;
 		$con = $this->requireController();
-		$handler = $this->prepareFileLockerRuntime( [ 'wpconfig' ] );
+		$table = $con->db_con->file_locker->getTable();
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( $wpdb, $con, $table ) :void {
+				$handler = $this->prepareFileLockerRuntime( [ 'wpconfig' ] );
+				TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
+				$this->assertSame( 1, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ) );
 
-		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
-		$this->assertSame( 1, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
+				$handler::GetTableReadyCache()->setReady( $handler->getTableSchema() );
+				$this->assertTrue( $handler::GetTableReadyCache()->isReady( $handler->getTableSchema() ) );
+				$queries = $this->captureFileLockerPurgeQueries(
+					static function () use ( $con ) :void {
+						$con->comps->file_locker->purge();
+					},
+					$table
+				);
+				$this->assertOnlyExactFileLockerTruncates( $queries, $table );
 
-		$handler::GetTableReadyCache()->setReady( $handler->getTableSchema() );
-		$this->assertTrue( $handler::GetTableReadyCache()->isReady( $handler->getTableSchema() ) );
-
-		$con->comps->file_locker->purge();
-
-		$this->assertFalse( $handler::GetTableReadyCache()->isReady( $handler->getTableSchema() ) );
-
-		$reloadedHandler = RuntimeTestState::requireDbHandler( 'file_locker', true );
-		$this->assertTrue( $reloadedHandler->tableExists() );
-		$this->assertSame( 0, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$reloadedHandler->getTable()}" ) );
+				$this->assertFalse( $handler::GetTableReadyCache()->isReady( $handler->getTableSchema() ) );
+				$reloadedHandler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+				$this->assertTrue( $reloadedHandler->tableExists() );
+				$this->assertSame( 0, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$reloadedHandler->getTable()}" ) );
+			},
+			function () use ( $con ) :void {
+				$this->recreateCanonicalFileLockerTable();
+				$this->restoreSelectedOptions( $this->optionSnapshot );
+				$con->db_con->reset();
+				$con->comps->file_locker->clearLocks();
+			}
+		);
 	}
 
 	public function test_run_analysis_keeps_file_locker_when_stored_abspath_has_dot_segment() :void {
@@ -90,22 +111,37 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 'wpconfig', 'root_index' ], $con->opts->optGet( 'file_locker' ) );
 	}
 
+	/** @group database-transaction-exception */
 	public function test_run_analysis_clears_file_locker_when_stored_abspath_is_genuinely_different() :void {
 		$con = $this->requireController();
 		$this->requireFileLockerAnalysisRuntime();
-		$this->prepareFileLockerRuntime( [ 'wpconfig', 'root_index' ] );
-
 		$missingAbsPath = $this->missingDifferentAbsPath();
 		$this->assertFalse( \realpath( $missingAbsPath ) );
+		$table = $con->db_con->file_locker->getTable();
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( $con, $missingAbsPath, $table ) :void {
+				$this->prepareFileLockerRuntime( [ 'wpconfig', 'root_index' ] );
+				$state = $con->comps->file_locker->getState();
+				$state[ 'abspath' ] = $missingAbsPath;
+				$con->opts->optSet( 'filelocker_state', $state )->store();
 
-		$state = $con->comps->file_locker->getState();
-		$state[ 'abspath' ] = $missingAbsPath;
-		$con->opts->optSet( 'filelocker_state', $state )->store();
-
-		$this->runFileLockerAnalysis();
-
-		$this->assertSame( [], $con->opts->optGet( 'file_locker' ) );
-		RuntimeTestState::requireDbHandler( 'file_locker', true );
+				$queries = $this->captureFileLockerPurgeQueries(
+					function () :void {
+						$this->runFileLockerAnalysis();
+					},
+					$table
+				);
+				$this->assertOnlyExactFileLockerTruncates( $queries, $table );
+				$this->assertSame( [], $con->opts->optGet( 'file_locker' ) );
+				RuntimeTestState::requireDbHandler( 'file_locker', true );
+			},
+			function () use ( $con ) :void {
+				$this->recreateCanonicalFileLockerTable();
+				$this->restoreSelectedOptions( $this->optionSnapshot );
+				$con->db_con->reset();
+				$con->comps->file_locker->clearLocks();
+			}
+		);
 	}
 
 	public function test_run_analysis_handles_non_string_stored_abspath_without_disabling_file_locker() :void {
@@ -178,6 +214,117 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertTrue( Services::WpFs()->isAccessibleFile( $pendingDisplays[ 0 ][ 'path' ] ) );
 	}
 
+	public function test_file_lock_candidate_displays_follow_supported_order_and_applicability() :void {
+		$displays = ( new GetFileLockCandidateDisplays( new FileLockKeyApplicability( false, false ) ) )->run();
+		$fileKeys = \array_column( $displays, 'file_key' );
+
+		$this->assertNotEmpty( $fileKeys );
+		$this->assertSame(
+			\array_values( \array_intersect( BuildFileFromFileKey::SUPPORTED_FILE_KEYS, $fileKeys ) ),
+			$fileKeys
+		);
+		$this->assertNotContains( 'theme_functions', $fileKeys );
+		$this->assertNotContains( 'root_webconfig', $fileKeys );
+		foreach ( $displays as $display ) {
+			$this->assertNotSame( '', $display[ 'title' ] );
+			$this->assertSame( \wp_normalize_path( $display[ 'path' ] ), $display[ 'path' ] );
+		}
+	}
+
+	public function test_real_hooks_ignore_malformed_stored_selections_and_process_valid_siblings() :void {
+		$this->requireFileLockerAnalysisRuntime();
+		$con = $this->requireController();
+		$this->prepareFileLockerRuntime( [ 'wpconfig', 'root_index' ] );
+		$state = $con->comps->file_locker->getState();
+		$state[ 'abspath' ] = ABSPATH;
+		$state[ 'last_analysis_started_at' ] = 0;
+		$state[ 'last_locks_created_at' ] = 0;
+		$state[ 'last_locks_created_failed_at' ] = 0;
+		$con->opts->optSet( 'filelocker_state', $state )->store();
+		$this->replaceStoredFileLockerSelections( [
+			'wpconfig',
+			1,
+			1.5,
+			true,
+			[ 'root_index' ],
+			(object)[ 'key' => 'root_index' ],
+			null,
+			'',
+			'unknown_file',
+			'root_index',
+			'wpconfig',
+		] );
+		$hook = $con->prefix( 'create_file_locks' );
+		$hookSnapshot = $this->snapshotHooks( [ 'wp_loaded', $hook ] );
+		\wp_clear_scheduled_hook( $hook );
+		$probe = new FileLockerControllerIntegrationProbe();
+
+		try {
+			$probe->execute();
+			global $wp_filter;
+			$this->assertArrayHasKey( 1000, $wp_filter[ 'wp_loaded' ]->callbacks ?? [] );
+
+			\do_action( 'wp_loaded' );
+
+			$this->assertSame(
+				Services::Request()->ts(),
+				$probe->getState()[ 'last_analysis_started_at' ]
+			);
+			$this->assertNotFalse( \wp_next_scheduled( $hook ) );
+
+			\do_action( $hook );
+
+			$this->assertSame( [ 'wpconfig', 'root_index' ], $probe->getFilesToLock() );
+			$this->assertSame( [ 'wpconfig', 'root_index' ], $probe->attemptedTypes );
+		}
+		finally {
+			\wp_clear_scheduled_hook( $hook );
+			$this->restoreHooks( $hookSnapshot );
+		}
+	}
+
+	/** @group database-transaction-exception */
+	public function test_invalid_only_stored_selections_register_no_analysis_or_lock_work() :void {
+		$con = $this->requireController();
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( $con ) :void {
+				$this->prepareFileLockerRuntime( [ 'wpconfig' ] );
+				$this->replaceStoredFileLockerSelections( [
+					1,
+					true,
+					[ 'wpconfig' ],
+					(object)[ 'key' => 'wpconfig' ],
+					null,
+					'',
+					'unknown_file',
+				] );
+				$hook = $con->prefix( 'create_file_locks' );
+				$hookSnapshot = $this->snapshotHooks( [ 'wp_loaded', $hook ] );
+				\wp_clear_scheduled_hook( $hook );
+				$probe = new FileLockerControllerIntegrationProbe();
+
+				try {
+					$probe->execute();
+					global $wp_filter;
+					$this->assertArrayNotHasKey( 1000, $wp_filter[ 'wp_loaded' ]->callbacks ?? [] );
+					$this->assertFalse( \wp_next_scheduled( $hook ) );
+					$this->assertSame( [], $probe->getFilesToLock() );
+					$this->assertSame( [], $probe->attemptedTypes );
+				}
+				finally {
+					\wp_clear_scheduled_hook( $hook );
+					$this->restoreHooks( $hookSnapshot );
+				}
+			},
+			function () use ( $con ) :void {
+				$this->recreateCanonicalFileLockerTable();
+				$this->restoreSelectedOptions( $this->optionSnapshot );
+				$con->db_con->reset();
+				$con->comps->file_locker->clearLocks();
+			}
+		);
+	}
+
 	/**
 	 * Optional file-locker storage is only ready after the feature is enabled
 	 * and ShieldNet-backed runtime prerequisites are in place.
@@ -187,12 +334,29 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		RuntimeTestState::primeShieldNetHandshake();
 		$con->opts->optSet( 'file_locker', $lockTypes )->store();
 
-		$handler = RuntimeTestState::requireDbHandler( 'file_locker', true );
-		$handler->tableDelete( true );
-		$handler = RuntimeTestState::requireDbHandler( 'file_locker', true );
+		$handler = $this->requireTransactionScopedDb( 'file_locker' );
 		$con->comps->file_locker->clearLocks();
 
 		return $handler;
+	}
+
+	private function recreateCanonicalFileLockerTable() :void {
+		global $wpdb;
+
+		$handler = $this->requireController()->db_con->file_locker;
+		$table = $handler->getTable();
+		$wpdb->last_error = '';
+		if ( $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" ) === false || $wpdb->last_error !== '' ) {
+			throw new \RuntimeException( 'Failed to drop the File Locker table: '.$wpdb->last_error );
+		}
+		$wpdb->last_error = '';
+		if ( $wpdb->query( $handler->getTableSchema()->buildCreate() ) === false || $wpdb->last_error !== '' ) {
+			throw new \RuntimeException( 'Failed to recreate the canonical File Locker table: '.$wpdb->last_error );
+		}
+		Services::WpDb()->clearResultShowTables();
+		if ( !Services::WpDb()->tableExists( $table ) || (int)$wpdb->get_var( "SELECT COUNT(*) FROM `{$table}`" ) !== 0 ) {
+			throw new \RuntimeException( 'The canonical empty File Locker table was not restored.' );
+		}
 	}
 
 	private function requireFileLockerAnalysisRuntime() :void {
@@ -210,6 +374,89 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		$method = new \ReflectionMethod( $this->requireController()->comps->file_locker, 'runAnalysis' );
 		$method->setAccessible( true );
 		$method->invoke( $this->requireController()->comps->file_locker );
+	}
+
+	/**
+	 * Preserve and capture the production fallback which empties the real table
+	 * when its initial DROP targets only the WordPress test temporary table.
+	 *
+	 * @return string[]
+	 */
+	private function captureFileLockerPurgeQueries( callable $operation, string $table ) :array {
+		$queries = [];
+		$filter = static function ( string $query ) use ( &$queries, $table ) :string {
+			$queries[] = $query;
+			$dropPattern = '/^\s*DROP\s+TABLE\s+IF\s+EXISTS\s+`'.\preg_quote( $table, '/' ).'`\s*;?\s*$/i';
+			return \preg_match( $dropPattern, $query ) === 1
+				? (string)\preg_replace( '/\bDROP\s+TABLE\b/i', 'DROP TEMPORARY TABLE', $query, 1 )
+				: $query;
+		};
+
+		\add_filter( 'query', $filter, \PHP_INT_MAX );
+		try {
+			$operation();
+		}
+		finally {
+			\remove_filter( 'query', $filter, \PHP_INT_MAX );
+		}
+
+		return $queries;
+	}
+
+	/**
+	 * @param string[] $queries
+	 */
+	private function assertOnlyExactFileLockerTruncates( array $queries, string $table ) :void {
+		$allTruncates = \array_values( \array_filter(
+			$queries,
+			static fn( string $query ) :bool => \preg_match( '/^\s*TRUNCATE\s+TABLE\b/i', $query ) === 1
+		) );
+		$exactTruncates = \array_values( \array_filter(
+			$queries,
+			static fn( string $query ) :bool => \preg_match(
+				'/^\s*TRUNCATE\s+TABLE\s+`'.\preg_quote( $table, '/' ).'`\s*;?\s*$/i',
+				$query
+			) === 1
+		) );
+		$this->assertNotEmpty( $exactTruncates, 'The production purge must issue a bounded File Locker truncate.' );
+		$this->assertCount(
+			\count( $allTruncates ),
+			$exactTruncates,
+			'The production operation must not truncate any table other than File Locker.'
+		);
+	}
+
+	private function replaceStoredFileLockerSelections( array $selections ) :void {
+		$con = $this->requireController();
+		$optionName = $con->prefix( 'opts_all', '_' );
+		$all = Services::WpGeneral()->getOption( $optionName );
+		$this->assertIsArray( $all );
+		$all[ 'values' ][ OptsHandler::TYPE_FREE ][ 'file_locker' ] = $selections;
+		$all[ 'values' ][ OptsHandler::TYPE_PRO ][ 'file_locker' ] = $selections;
+		Services::WpGeneral()->updateOption( $optionName, $all );
+		$con->opts = new OptsHandler();
+	}
+
+	private function snapshotHooks( array $hookNames ) :array {
+		global $wp_filter;
+		$snapshot = [];
+		foreach ( $hookNames as $hookName ) {
+			$snapshot[ $hookName ] = $wp_filter[ $hookName ] ?? null;
+			unset( $wp_filter[ $hookName ] );
+		}
+		return $snapshot;
+	}
+
+	private function restoreHooks( array $snapshot ) :void {
+		global $wp_filter;
+		foreach ( $snapshot as $hookName => $hook ) {
+			if ( $hook === null ) {
+				unset( $wp_filter[ $hookName ] );
+			}
+			else {
+				$wp_filter[ $hookName ] = $hook;
+			}
+		}
 	}
 
 	private function abspathWithDotSegment() :string {
@@ -232,5 +479,17 @@ class FileLockerOperationsIntegrationTest extends ShieldIntegrationTestCase {
 		return \trailingslashit( \wp_normalize_path(
 			\sys_get_temp_dir().'/shield-missing-abspath-'.\uniqid()
 		) );
+	}
+}
+
+class FileLockerControllerIntegrationProbe extends FileLockerController {
+
+	/**
+	 * @var list<string>
+	 */
+	public array $attemptedTypes = [];
+
+	protected function createLocksForType( string $type ) :void {
+		$this->attemptedTypes[] = $type;
 	}
 }

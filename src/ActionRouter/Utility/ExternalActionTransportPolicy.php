@@ -40,6 +40,9 @@ class ExternalActionTransportPolicy {
 			case Actions\FullPageDisplay\FullPageDisplayNonTerminating::SLUG:
 				return false;
 
+			case Actions\PluginImportExport_NetworkInviteRequest::SLUG:
+				return $type === ActionRoutingController::ACTION_SHIELD;
+
 			case Actions\FullPageDisplay\DisplayReport::SLUG:
 				return $type === ActionRoutingController::ACTION_SHIELD;
 

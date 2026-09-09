@@ -3,13 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Scans;
 
 use FernleafSystems\Utilities\Data\Adapter\DynPropertiesClass;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Record as MalwareRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\{
 	RetrieveCount,
 	RetrieveItems
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\RetrieveMalwareMalaiStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem;
 use FernleafSystems\Wordpress\Services\Services;
 use FernleafSystems\Wordpress\Services\Utilities\Decorate\FormatBytes;
@@ -47,18 +47,8 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		$resultsDisplayOptions = $this->getResultsDisplayOptions();
 		$results = $this->getRecordRetriever()->retrieveForResultsTables( $resultsDisplayOptions );
 
-		/**
-		 * Bulk update the malai statuses
-		 */
-		( new RetrieveMalwareMalaiStatus() )->updateRecords(
-			\array_filter(
-				\array_map( fn( ResultItem $item ) => $item->getMalwareRecord(), $results->getMalware()->getAllItems() )
-			)
-		);
-
 		$changed = false;
 		$AFS = self::con()->comps->scans->AFS();
-		/** @var ResultItem $item */
 		foreach ( $results->getAllItems() as $item ) {
 			$changed = $AFS->cleanStaleResultItem( $item ) || $changed;
 		}
@@ -110,10 +100,11 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 
 		if ( $item->is_mal ) {
 			$malRecord = $item->getMalwareRecord();
-			if ( !empty( $malRecord ) ) {
+			if ( $malRecord !== null ) {
 				$data[ 'mal_sig' ] = sprintf( '<code style="white-space: nowrap">%s</code>', esc_html( $malRecord->sig ) );
 				$data[ 'mal_details' ] = $this->getColumnContent_MalwareDetailsForRecord(
 					$item,
+					$malRecord,
 					$data[ 'mal_sig' ]
 				);
 			}
@@ -304,9 +295,7 @@ class LoadFileScanResultsTableData extends DynPropertiesClass {
 		return esc_html( $this->fileExtensionForDisplay( $item ) );
 	}
 
-	protected function getColumnContent_MalwareDetailsForRecord( ResultItem $item, string $sig ): string {
-		$record = $item->getMalwareRecord();
-
+	protected function getColumnContent_MalwareDetailsForRecord( ResultItem $item, MalwareRecord $record, string $sig ): string {
 		switch ( $record->malai_status ) {
 			case MalwareStatus::STATUS_MALWARE:
 			case MalwareStatus::STATUS_PREDICTED_MALWARE:

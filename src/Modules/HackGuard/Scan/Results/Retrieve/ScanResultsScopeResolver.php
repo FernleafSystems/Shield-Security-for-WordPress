@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops\Handler as ResultItemsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\Investigation\InvestigationSubjectWheres;
 
 class ScanResultsScopeResolver {
@@ -67,7 +68,10 @@ class ScanResultsScopeResolver {
 		switch ( $type ) {
 			case self::SCOPE_TYPE_PLUGIN:
 			case self::SCOPE_TYPE_THEME:
-				return InvestigationSubjectWheres::forAssetSlug( $file, $metaTableAbbr );
+				return \array_merge(
+					[ "`ri`.`item_type`='".ResultItemsHandler::ITEM_TYPE_FILE."'" ],
+					InvestigationSubjectWheres::forAssetSlug( $file, $metaTableAbbr )
+				);
 			case self::SCOPE_TYPE_MALWARE:
 				return InvestigationSubjectWheres::forMalwareResults( $metaTableAbbr );
 			case self::SCOPE_TYPE_WORDPRESS:

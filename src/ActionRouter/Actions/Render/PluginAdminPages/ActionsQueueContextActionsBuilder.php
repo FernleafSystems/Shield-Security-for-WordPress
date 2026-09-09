@@ -14,17 +14,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retri
 class ActionsQueueContextActionsBuilder {
 
 	private ScanResultsDisplayOptions $queueScanResultsOptions;
-	private ScanResultsScopeResolver $scopeResolver;
+	private ActionsQueueScanResultScopeResolver $scopeResolver;
 	private PluginReinstallContextActionBuilder $pluginReinstallActionBuilder;
+	private ThemeReinstallContextActionBuilder $themeReinstallActionBuilder;
 
 	public function __construct(
 		?ScanResultsDisplayOptions $queueScanResultsOptions = null,
-		?ScanResultsScopeResolver $scopeResolver = null,
-		?PluginReinstallContextActionBuilder $pluginReinstallActionBuilder = null
+		?ActionsQueueScanResultScopeResolver $scopeResolver = null,
+		?PluginReinstallContextActionBuilder $pluginReinstallActionBuilder = null,
+		?ThemeReinstallContextActionBuilder $themeReinstallActionBuilder = null
 	) {
 		$this->queueScanResultsOptions = $queueScanResultsOptions ?? new ScanResultsDisplayOptions();
-		$this->scopeResolver = $scopeResolver ?? new ScanResultsScopeResolver();
+		$this->scopeResolver = $scopeResolver ?? new ActionsQueueScanResultScopeResolver();
 		$this->pluginReinstallActionBuilder = $pluginReinstallActionBuilder ?? new PluginReinstallContextActionBuilder();
+		$this->themeReinstallActionBuilder = $themeReinstallActionBuilder ?? new ThemeReinstallContextActionBuilder();
 	}
 
 	/**
@@ -47,7 +50,7 @@ class ActionsQueueContextActionsBuilder {
 			return [];
 		}
 
-		$scope = $this->determineScopeForGroup( $definitionKey, $renderActionData );
+		$scope = $this->scopeResolver->resolveForGroup( $definitionKey, $renderActionData );
 		if ( $scope === [] ) {
 			return [];
 		}
@@ -79,45 +82,14 @@ class ActionsQueueContextActionsBuilder {
 				$this->pluginReinstallActionBuilder->buildForPluginFile( $scope[ 'file' ], $label )
 			);
 		}
+		if ( $definitionKey === 'themes' && $scope[ 'type' ] === ScanResultsScopeResolver::SCOPE_TYPE_THEME ) {
+			$actions = \array_merge(
+				$actions,
+				$this->themeReinstallActionBuilder->buildForThemeStylesheet( $scope[ 'file' ], $label )
+			);
+		}
 
 		return $actions;
-	}
-
-	/**
-	 * @param array<string,mixed> $renderActionData
-	 * @return array{type:string,file:string}|array{}
-	 */
-	private function determineScopeForGroup( string $definitionKey, array $renderActionData ) :array {
-		switch ( $definitionKey ) {
-			case 'wordpress':
-				return $this->scopeResolver->normalizeActionScope(
-					ScanResultsScopeResolver::SCOPE_TYPE_WORDPRESS,
-					ScanResultsScopeResolver::SCOPE_FILE_WORDPRESS
-				);
-			case 'malware':
-				return $this->scopeResolver->normalizeActionScope(
-					ScanResultsScopeResolver::SCOPE_TYPE_MALWARE,
-					ScanResultsScopeResolver::SCOPE_TYPE_MALWARE
-				);
-			case 'plugins':
-				$subjectId = \trim( (string)( $renderActionData[ 'subject_id' ] ?? '' ) );
-				return $subjectId !== ''
-					? $this->scopeResolver->canonicalActionDataForSubject(
-						ScanResultsScopeResolver::SCOPE_TYPE_PLUGIN,
-						$subjectId
-					)
-					: [];
-			case 'themes':
-				$subjectId = \trim( (string)( $renderActionData[ 'subject_id' ] ?? '' ) );
-				return $subjectId !== ''
-					? $this->scopeResolver->canonicalActionDataForSubject(
-						ScanResultsScopeResolver::SCOPE_TYPE_THEME,
-						$subjectId
-					)
-					: [];
-			default:
-				return [];
-		}
 	}
 
 	private function buildConfirmText( string $definitionKey, string $label ) :string {

@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 class PhpDie extends Base {
+	use Traits\IsTerminating;
 
 	public const SLUG = 'php_die';
 

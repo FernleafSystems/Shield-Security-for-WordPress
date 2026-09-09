@@ -38,7 +38,7 @@ class ActionsQueueAllClearDataBuilderTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_build_produces_zone_chip_contract() :void {
+	public function test_build_produces_all_clear_contract() :void {
 		$data = ( new ActionsQueueAllClearDataBuilder() )->build( [
 			'scans' => [
 				'slug'  => 'scans',
@@ -52,7 +52,16 @@ class ActionsQueueAllClearDataBuilderTest extends BaseUnitTest {
 
 		$topLevelKeys = \array_keys( $data );
 		\sort( $topLevelKeys );
-		$this->assertSame( [ 'icon_class', 'subtitle', 'title', 'zone_chips' ], $topLevelKeys );
+		$this->assertSame( [ 'checks', 'icon_class', 'subtitle', 'title', 'zone_chips' ], $topLevelKeys );
+		$this->assertCount( 2, $data[ 'checks' ] );
+		foreach ( $data[ 'checks' ] as $check ) {
+			$checkKeys = \array_keys( $check );
+			\sort( $checkKeys );
+			$this->assertSame( [ 'icon_class', 'label', 'severity', 'slug' ], $checkKeys );
+		}
+		$this->assertSame( [ 'scans', 'maintenance' ], \array_column( $data[ 'checks' ], 'slug' ) );
+		$this->assertSame( [ 'Scans clear', 'Maintenance clear' ], \array_column( $data[ 'checks' ], 'label' ) );
+		$this->assertSame( [ 'good', 'good' ], \array_column( $data[ 'checks' ], 'severity' ) );
 		$this->assertCount( 2, $data[ 'zone_chips' ] );
 		foreach ( $data[ 'zone_chips' ] as $chip ) {
 			$chipKeys = \array_keys( $chip );

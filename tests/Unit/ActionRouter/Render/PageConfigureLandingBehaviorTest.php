@@ -476,15 +476,19 @@ class PageConfigureLandingBehaviorTest extends BaseUnitTest {
 				'label'     => 'Configure',
 				'title'     => 'Configure '.$title,
 				'href'      => '',
+				'target'    => '',
 				'is_action' => true,
 				'icon'      => 'bi bi-gear-fill',
-				'tooltip'   => '',
 				'classes'   => [ 'zone_component_action' ],
-				'data'      => [
-					'zone_component_action' => 'offcanvas_zone_component_config',
-					'zone_component_slug'   => $key,
-					'form_context'          => 'offcanvas',
-				] + $actionData,
+				'data'      => \array_merge(
+					[
+						'zone_component_action' => 'offcanvas_zone_component_config',
+						'zone_component_slug'   => $key,
+						'option_keys'           => $key.'_option',
+						'form_context'          => 'offcanvas',
+					],
+					$actionData
+				),
 			],
 		];
 	}
@@ -616,6 +620,11 @@ class PageConfigureLandingUnitTestDouble extends PageConfigureLanding {
 			'status'         => $zoneTile[ 'status' ],
 			'status_label'   => $zoneTile[ 'status_label' ],
 			'summary'        => $zoneTile[ 'summary' ],
+			'action_label'   => $zoneTile[ 'is_disabled' ]
+				? ''
+				: ( $zoneTile[ 'key' ] === 'general'
+					? 'Configure General Settings'
+					: 'Configure '.$zoneTile[ 'label' ] ),
 			'selection_json' => $diagnosis[ 'zone_selection_json' ],
 			'is_disabled'    => $zoneTile[ 'is_disabled' ],
 		];

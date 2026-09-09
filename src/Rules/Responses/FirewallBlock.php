@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Ha
 use FernleafSystems\Wordpress\Services\Services;
 
 class FirewallBlock extends Base {
+	use Traits\IsTerminating;
 
 	public const SLUG = 'firewall_block';
 

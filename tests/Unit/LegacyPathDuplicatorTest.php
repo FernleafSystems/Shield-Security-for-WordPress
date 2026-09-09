@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\LegacyPathCompatibilityPlan;
 use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\LegacyPathDuplicator;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempPathJoinTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
@@ -12,6 +13,7 @@ use Symfony\Component\Filesystem\Path;
 class LegacyPathDuplicatorTest extends TestCase {
 
 	use TempPathJoinTrait;
+	use TempDirLifecycleTrait;
 
 	private string $tempDir;
 
@@ -20,14 +22,11 @@ class LegacyPathDuplicatorTest extends TestCase {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->fs = new Filesystem();
-		$this->tempDir = Path::join( \sys_get_temp_dir(), 'shield-test-'.\uniqid() );
-		$this->fs->mkdir( $this->tempDir );
+		$this->tempDir = $this->createTrackedTempDir( 'shield-legacy-path-' );
 	}
 
 	protected function tearDown() :void {
-		if ( \is_dir( $this->tempDir ) ) {
-			$this->fs->remove( $this->tempDir );
-		}
+		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
 	}
 

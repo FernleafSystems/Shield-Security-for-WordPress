@@ -3,4 +3,5 @@ export class OffCanvasService {
 		canvasProperties?: Record<string, any>,
 		options?: { historyMode?: string, launcher?: HTMLElement|null }
 	) :Promise<boolean>;
+	static CloseCanvas() :void;
 }

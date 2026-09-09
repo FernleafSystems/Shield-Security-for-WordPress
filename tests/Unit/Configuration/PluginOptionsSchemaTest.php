@@ -123,6 +123,19 @@ class PluginOptionsSchemaTest extends TestCase {
 		}
 	}
 
+	public function testMultipleSelectValueKeysAreStrings() :void {
+		foreach ( $this->options as $key => $option ) {
+			if ( ( $option[ 'type' ] ?? '' ) === 'multiple_select' ) {
+				foreach ( $option[ 'value_options' ] ?? [] as $valueOption ) {
+					$this->assertIsString(
+						$valueOption[ 'value_key' ] ?? null,
+						sprintf( "Multiple-select option '%s' must use string value keys.", $key )
+					);
+				}
+			}
+		}
+	}
+
 	public function testIntegerOptionsHaveNumericDefaults() :void {
 		$integerOptions = \array_filter( 
 			$this->options, 
@@ -273,6 +286,41 @@ class PluginOptionsSchemaTest extends TestCase {
 		);
 	}
 
+	public function testEmailDeliveryVerificationOptionsUseHiddenNonTransferableContract() :void {
+		foreach ( [ 'email_can_send_verified_at', 'email_can_send_verification_sent_at' ] as $optionKey ) {
+			$this->assertArrayHasKey( $optionKey, $this->options );
+			$generated = $this->options[ $optionKey ];
+
+			foreach ( [ 'section', 'type', 'default', 'transferable', 'tracking_exclude' ] as $contractKey ) {
+				$this->assertArrayHasKey( $contractKey, $generated );
+			}
+			$this->assertSame( 'section_hidden', $generated[ 'section' ] );
+			$this->assertSame( 'integer', $generated[ 'type' ] );
+			$this->assertSame( 0, $generated[ 'default' ] );
+			$this->assertSame( false, $generated[ 'transferable' ] );
+			$this->assertSame( true, $generated[ 'tracking_exclude' ] );
+		}
+
+		$options = $this->decodePluginJsonFile( 'plugin-spec/34_options.json', 'Source options spec' );
+		foreach ( [ 'email_can_send_verified_at', 'email_can_send_verification_sent_at' ] as $optionKey ) {
+			$matches = \array_values( \array_filter(
+				$options,
+				static fn( array $option ) :bool => ( $option[ 'key' ] ?? '' ) === $optionKey
+			) );
+
+			$this->assertCount( 1, $matches );
+			$source = $matches[ 0 ];
+			foreach ( [ 'section', 'type', 'default', 'transferable', 'tracking_exclude' ] as $contractKey ) {
+				$this->assertArrayHasKey( $contractKey, $source );
+			}
+			$this->assertSame( 'section_hidden', $source[ 'section' ] );
+			$this->assertSame( 'integer', $source[ 'type' ] );
+			$this->assertSame( 0, $source[ 'default' ] );
+			$this->assertSame( false, $source[ 'transferable' ] );
+			$this->assertSame( true, $source[ 'tracking_exclude' ] );
+		}
+	}
+
 	public function testAdminLoginInstantAlertOptionUsesAlertsReportingContract() :void {
 		$this->assertArrayHasKey( 'instant_alert_admin_login', $this->options );
 		$option = $this->options['instant_alert_admin_login'];
@@ -413,6 +461,42 @@ class PluginOptionsSchemaTest extends TestCase {
 		$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
 	}
 
+	public function testRequestLoggerOptionUsesHiddenAlwaysOnContract() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [
+			'source'    => $sourceOptions[ 'enable_logger' ],
+			'generated' => $this->options[ 'enable_logger' ],
+		] as $context => $option ) {
+			$this->assertSame( 'section_hidden', $option[ 'section' ], sprintf( "%s request logger option should be hidden.", $context ) );
+			$this->assertSame( 'checkbox', $option[ 'type' ], sprintf( "%s request logger option should remain a checkbox.", $context ) );
+			$this->assertSame( 'Y', $option[ 'default' ], sprintf( "%s request logger option should default on.", $context ) );
+			$this->assertSame( false, $option[ 'transferable' ], sprintf( "%s request logger option should not transfer.", $context ) );
+			$this->assertSame( true, $option[ 'tracking_exclude' ], sprintf( "%s request logger option should not be telemetry signal.", $context ) );
+			$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
+		}
+	}
+
+	public function testLiveTrafficLoggerOptionUsesHiddenPageControlledContract() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [
+			'source'    => $sourceOptions[ 'enable_live_log' ],
+			'generated' => $this->options[ 'enable_live_log' ],
+		] as $context => $option ) {
+			$this->assertSame( 'section_hidden', $option[ 'section' ], sprintf( "%s live logger option should be hidden.", $context ) );
+			$this->assertSame( 'checkbox', $option[ 'type' ], sprintf( "%s live logger option should remain a checkbox.", $context ) );
+			$this->assertSame( 'N', $option[ 'default' ], sprintf( "%s live logger option should default off.", $context ) );
+			$this->assertSame( false, $option[ 'transferable' ], sprintf( "%s live logger option should not transfer.", $context ) );
+			$this->assertArrayNotHasKey( 'zone_comp_slugs', $option );
+			$this->assertArrayNotHasKey( 'cap', $option );
+			$this->assertArrayNotHasKey( 'premium', $option );
+			$this->assertArrayNotHasKey( 'name', $option );
+			$this->assertArrayNotHasKey( 'summary', $option );
+			$this->assertArrayNotHasKey( 'description', $option );
+		}
+	}
+
 	public function testLegacyLogRetentionOptionsAreHiddenAndRetained() :void {
 		$sourceOptions = $this->sourceOptionsByKey();
 
@@ -464,6 +548,7 @@ class PluginOptionsSchemaTest extends TestCase {
 			'wphashes_api_token',
 			'import_id',
 			'import_url_ids',
+			'importexport_pending_network_invites',
 			'blockdown_cfg',
 			'importexport_secretkey',
 			'importexport_whitelist',
@@ -495,6 +580,50 @@ class PluginOptionsSchemaTest extends TestCase {
 
 		$this->assertNotSame( true, $sourceOptions[ 'importexport_whitelist_notify' ][ 'sensitive' ] ?? false );
 		$this->assertNotSame( true, $this->options[ 'importexport_whitelist_notify' ][ 'sensitive' ] ?? false );
+	}
+
+	public function testImportExportNetworkInviteBlockOptionIsHiddenLocalIntegerState() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [
+			'source'    => $sourceOptions[ 'importexport_network_invite_block_until' ],
+			'generated' => $this->options[ 'importexport_network_invite_block_until' ],
+		] as $context => $option ) {
+			$this->assertSame( 'section_hidden', $option[ 'section' ], sprintf( "%s cooldown option should be hidden.", $context ) );
+			$this->assertSame( 'integer', $option[ 'type' ], sprintf( "%s cooldown option should be an integer.", $context ) );
+			$this->assertSame( 0, $option[ 'default' ], sprintf( "%s cooldown option should default to 0.", $context ) );
+			$this->assertSame( false, $option[ 'transferable' ], sprintf( "%s cooldown option should not transfer.", $context ) );
+			$this->assertSame( true, $option[ 'tracking_exclude' ], sprintf( "%s cooldown option should be excluded from tracking.", $context ) );
+			$this->assertNotSame( true, $option[ 'sensitive' ] ?? false, sprintf( "%s cooldown option should not be sensitive.", $context ) );
+		}
+	}
+
+	public function testImportExportRuntimeStateIsNotTransferable() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+		foreach ( [
+			'import_id',
+			'import_url_ids',
+			'importexport_sites_migrated_at',
+			'importexport_pending_network_invites',
+			'importexport_handshake_expires_at',
+			'importexport_secretkey_expires_at',
+		] as $key ) {
+			$this->assertArrayHasKey( 'transferable', $sourceOptions[ $key ], "Source option '{$key}' should declare transferability." );
+			$this->assertFalse( $sourceOptions[ $key ][ 'transferable' ], "Source option '{$key}' should not transfer." );
+			$this->assertArrayHasKey( 'transferable', $this->options[ $key ], "Generated option '{$key}' should declare transferability." );
+			$this->assertFalse( $this->options[ $key ][ 'transferable' ], "Generated option '{$key}' should not transfer." );
+		}
+	}
+
+	public function testLegacyImportExportWhitelistOptionsAreHidden() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+
+		foreach ( [ 'importexport_whitelist', 'importexport_whitelist_notify' ] as $key ) {
+			$this->assertSame( 'section_hidden', $sourceOptions[ $key ][ 'section' ] ?? null );
+			$this->assertSame( 'section_hidden', $this->options[ $key ][ 'section' ] ?? null );
+			$this->assertArrayNotHasKey( 'zone_comp_slugs', $sourceOptions[ $key ] );
+			$this->assertArrayNotHasKey( 'zone_comp_slugs', $this->options[ $key ] );
+		}
 	}
 
 	public function testSecurityOverviewPrefsOptionIsAbsentFromGeneratedConfig() :void {

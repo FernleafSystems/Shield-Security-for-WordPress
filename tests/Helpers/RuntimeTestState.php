@@ -4,6 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
+use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableReadyCache;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Traffic\Lib\RequestLogger;
 use FernleafSystems\Wordpress\Services\Services;
 use WP_User;
@@ -285,6 +287,21 @@ class RuntimeTestState {
 			$this->lastLoggedRecord = null;
 			unset( $this->logger );
 		}, $logger, RequestLogger::class )();
+	}
+
+	public static function restoreTableReadyCache( $snapshot ) :void {
+		if ( $snapshot === false ) {
+			Services::WpGeneral()->deleteOption( TableReadyCache::DB_STATUS_KEY );
+		}
+		else {
+			Services::WpGeneral()->updateOption( TableReadyCache::DB_STATUS_KEY, $snapshot );
+		}
+
+		$cache = Handler::GetTableReadyCache();
+		\Closure::bind( function () :void {
+			unset( $this->status );
+			$this->save = false;
+		}, $cache, TableReadyCache::class )();
 	}
 
 	/**

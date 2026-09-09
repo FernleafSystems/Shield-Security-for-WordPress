@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\LocalIntegrationTestLane;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TempDirLifecycleTrait;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingDockerComposeExecutor;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalWpTestsConfigGuard;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingLocalWpTestsInstallerCommandBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingProcessRunner;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\RecordingTestingEnvironmentResolver;
@@ -32,18 +33,19 @@ class LocalIntegrationTestLaneTest extends TestCase {
 	}
 
 	public function testDefaultRunIssuesComposeUpWaitAndRunsLocalCommands() :void {
-		$processRunner = new RecordingProcessRunner( [ 0, 0, 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0, 0, 0, 0 ] );
 		$environmentResolver = $this->createRecordingEnvironmentResolver();
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$installerCommandBuilder = $this->createRecordingInstallerCommandBuilder( [ 'custom-installer' ] );
-
+		$wpTestsConfigGuard = new RecordingLocalWpTestsConfigGuard();
 		$lane = new LocalIntegrationTestLane(
 			$processRunner,
 			$environmentResolver,
 			$dockerComposeExecutor,
 			null,
 			$installerCommandBuilder,
-			$this->lockDir
+			$this->lockDir,
+			$wpTestsConfigGuard
 		);
 
 		$exitCode = $this->runLaneSilenced( $lane, false, [ '--filter', 'RuleBuilderTest' ] );
@@ -52,7 +54,6 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		$this->assertLaneLockMetadataWritten();
 		$this->assertLaneLockReleased();
 		$this->assertTrue( $environmentResolver->assertDockerReadyCalled );
-
 		$this->assertCount( 1, $dockerComposeExecutor->calls );
 		$this->assertSame(
 			[
@@ -70,12 +71,24 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			],
 			$dockerComposeExecutor->calls[ 0 ][ 'compose_files' ]
 		);
-		$this->assertSame(
-			$this->expectedDockerEnvOverrides(),
-			$dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ]
-		);
+		$this->assertDockerEnvOverrides( $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ] );
 
 		$this->assertCount( 1, $installerCommandBuilder->calls );
+		$this->assertCount( 1, $wpTestsConfigGuard->removeIfStaleCalls );
+		$this->assertCount( 1, $wpTestsConfigGuard->assertMatchesCalls );
+		$this->assertSame(
+			[
+				'DB_NAME' => 'wordpress_test_local',
+				'DB_USER' => 'root',
+				'DB_PASSWORD' => 'testpass',
+				'DB_HOST' => '127.0.0.1:3311',
+			],
+			$wpTestsConfigGuard->removeIfStaleCalls[ 0 ][ 'expected' ]
+		);
+		$this->assertSame(
+			$wpTestsConfigGuard->removeIfStaleCalls[ 0 ],
+			$wpTestsConfigGuard->assertMatchesCalls[ 0 ]
+		);
 		$this->assertSame(
 			[
 				'db_name' => 'wordpress_test_local',
@@ -88,19 +101,18 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			$installerCommandBuilder->calls[ 0 ]
 		);
 
-		$this->assertCount( 3, $processRunner->calls );
-		$this->assertSame( [ 'custom-installer' ], $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertCount( 5, $processRunner->calls );
+		$this->assertHostDatabaseReadyCommand( $processRunner->calls[ 0 ][ 'command' ] );
+		$this->assertHostDatabaseResetCommand( $processRunner->calls[ 1 ][ 'command' ] );
+		$this->assertSame( [ 'custom-installer' ], $processRunner->calls[ 2 ][ 'command' ] );
 		$this->assertSame(
 			[
 				\PHP_BINARY,
 				'./bin/build-config.php',
 			],
-			$processRunner->calls[ 1 ][ 'command' ]
+			$processRunner->calls[ 3 ][ 'command' ]
 		);
-		$this->assertSame(
-			$this->expectedPhpUnitEnvOverrides(),
-			$processRunner->calls[ 1 ][ 'env_overrides' ]
-		);
+		$this->assertPhpUnitEnvOverrides( $processRunner->calls[ 3 ][ 'env_overrides' ] );
 		$this->assertSame(
 			[
 				\PHP_BINARY,
@@ -110,30 +122,51 @@ class LocalIntegrationTestLaneTest extends TestCase {
 				'--filter',
 				'RuleBuilderTest',
 			],
-			$processRunner->calls[ 2 ][ 'command' ]
+			$processRunner->calls[ 4 ][ 'command' ]
 		);
-		$this->assertSame(
-			$this->expectedDockerEnvOverrides(),
-			$processRunner->calls[ 0 ][ 'env_overrides' ]
+		$this->assertDockerEnvOverrides( $processRunner->calls[ 0 ][ 'env_overrides' ] );
+		$this->assertDockerEnvOverrides( $processRunner->calls[ 1 ][ 'env_overrides' ] );
+		$this->assertDockerEnvOverrides( $processRunner->calls[ 2 ][ 'env_overrides' ] );
+		$this->assertPhpUnitEnvOverrides( $processRunner->calls[ 4 ][ 'env_overrides' ] );
+	}
+
+	public function testDatabaseResetFailureStopsBeforeInstallerAndPhpunit() :void {
+		$processRunner = RecordingProcessRunner::strict( [ 0, 7 ] );
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
+		$lane = new LocalIntegrationTestLane(
+			$processRunner,
+			$this->createRecordingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			null,
+			$this->createRecordingInstallerCommandBuilder( [ 'custom-installer' ] ),
+			$this->lockDir,
+			new RecordingLocalWpTestsConfigGuard()
 		);
-		$this->assertSame(
-			$this->expectedPhpUnitEnvOverrides(),
-			$processRunner->calls[ 2 ][ 'env_overrides' ]
-		);
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'Failed to recreate integration-local database wordpress_test_local.' );
+		try {
+			$this->runLaneSilenced( $lane );
+		}
+		finally {
+			$this->assertCount( 2, $processRunner->calls );
+			$this->assertHostDatabaseReadyCommand( $processRunner->calls[ 0 ][ 'command' ] );
+			$this->assertHostDatabaseResetCommand( $processRunner->calls[ 1 ][ 'command' ] );
+		}
 	}
 
 	public function testDbDownOnlyRunsComposeDownAndExits() :void {
 		$processRunner = new RecordingProcessRunner();
 		$environmentResolver = $this->createRecordingEnvironmentResolver();
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 7 ] );
-
 		$lane = new LocalIntegrationTestLane(
 			$processRunner,
 			$environmentResolver,
 			$dockerComposeExecutor,
 			null,
 			null,
-			$this->lockDir
+			$this->lockDir,
+			new RecordingLocalWpTestsConfigGuard()
 		);
 
 		$exitCode = $this->runLaneSilenced( $lane, true );
@@ -156,10 +189,11 @@ class LocalIntegrationTestLaneTest extends TestCase {
 	}
 
 	public function testDbUpAndSuiteRunCanEnableNoisyDockerOutput() :void {
-		$processRunner = new RecordingProcessRunner( [ 0, 0, 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0, 0, 0 ] );
 		$environmentResolver = $this->createRecordingEnvironmentResolver();
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$installerCommandBuilder = $this->createRecordingInstallerCommandBuilder( [ 'custom-installer' ] );
+		$wpTestsConfigGuard = new RecordingLocalWpTestsConfigGuard();
 
 		$lane = new LocalIntegrationTestLane(
 			$processRunner,
@@ -167,7 +201,8 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			$dockerComposeExecutor,
 			null,
 			$installerCommandBuilder,
-			$this->lockDir
+			$this->lockDir,
+			$wpTestsConfigGuard
 		);
 
 		$exitCode = $this->runLaneSilenced(
@@ -184,7 +219,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 	public function testHeldLaneLockTimesOutBeforeTouchingDocker() :void {
 		\putenv( 'SHIELD_INTEGRATION_LANE_WAIT_SECONDS=1' );
 		$heldLock = $this->holdLaneLock();
-		$processRunner = new RecordingProcessRunner( [ 0, 0, 0 ] );
+		$processRunner = new RecordingProcessRunner( [ 0, 0, 0, 0 ] );
 		$environmentResolver = $this->createRecordingEnvironmentResolver();
 		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
 		$lane = new LocalIntegrationTestLane(
@@ -193,7 +228,8 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			$dockerComposeExecutor,
 			null,
 			$this->createRecordingInstallerCommandBuilder( [ 'custom-installer' ] ),
-			$this->lockDir
+			$this->lockDir,
+			new RecordingLocalWpTestsConfigGuard()
 		);
 
 		$caught = null;
@@ -229,7 +265,8 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			$dockerComposeExecutor,
 			null,
 			null,
-			$this->lockDir
+			$this->lockDir,
+			new RecordingLocalWpTestsConfigGuard()
 		);
 
 		$caught = null;
@@ -262,7 +299,8 @@ class LocalIntegrationTestLaneTest extends TestCase {
 			$dockerComposeExecutor,
 			null,
 			null,
-			$this->lockDir
+			$this->lockDir,
+			new RecordingLocalWpTestsConfigGuard()
 		);
 
 		$caught = null;
@@ -281,6 +319,64 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		$this->assertFileDoesNotExist( $this->laneLockPath() );
 	}
 
+	/** @dataProvider providerDatabaseProfiles */
+	public function testDatabaseProfileSuppliesFixedComposeEnvironment(
+		string $profile,
+		string $expectedImage,
+		string $expectedCommand
+	) :void {
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor( [ 0 ] );
+		$lane = new LocalIntegrationTestLane(
+			new RecordingProcessRunner(),
+			$this->createRecordingEnvironmentResolver(),
+			$dockerComposeExecutor,
+			null,
+			null,
+			$this->lockDir,
+			new RecordingLocalWpTestsConfigGuard()
+		);
+
+		$this->assertSame( 0, $this->runLaneSilenced( $lane, true, [], false, $profile ) );
+		$this->assertSame( $expectedImage, $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_INTEGRATION_DB_IMAGE' ] ?? null );
+		$this->assertSame( $expectedCommand, $dockerComposeExecutor->calls[ 0 ][ 'env_overrides' ][ 'SHIELD_INTEGRATION_DB_COMMAND' ] ?? null );
+	}
+
+	public function testUnknownDatabaseProfileFailsBeforeDocker() :void {
+		$environmentResolver = $this->createRecordingEnvironmentResolver();
+		$dockerComposeExecutor = new RecordingDockerComposeExecutor();
+		$lane = new LocalIntegrationTestLane(
+			new RecordingProcessRunner(),
+			$environmentResolver,
+			$dockerComposeExecutor,
+			null,
+			null,
+			$this->lockDir,
+			new RecordingLocalWpTestsConfigGuard()
+		);
+
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'Unknown integration database profile: mysql-latest' );
+		try {
+			$this->runLaneSilenced( $lane, false, [], false, 'mysql-latest' );
+		}
+		finally {
+			$this->assertFalse( $environmentResolver->assertDockerReadyCalled );
+			$this->assertSame( [], $dockerComposeExecutor->calls );
+		}
+	}
+
+	public static function providerDatabaseProfiles() :array {
+		return [
+			'mysql80' => [
+				'mysql80',
+				'mysql:8.0',
+				'--default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0',
+			],
+			'mysql56' => [ 'mysql56', 'mysql:5.6', '--bind-address=0.0.0.0' ],
+			'mariadb106' => [ 'mariadb106', 'mariadb:10.6', '--bind-address=0.0.0.0' ],
+		];
+	}
+
 	/**
 	 * @param string[] $phpunitArgs
 	 */
@@ -288,11 +384,12 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		LocalIntegrationTestLane $lane,
 		bool $dbDown = false,
 		array $phpunitArgs = [],
-		bool $showDockerOutput = false
+		bool $showDockerOutput = false,
+		string $dbProfile = 'mysql80'
 	) :int {
 		\ob_start();
 		try {
-			return $lane->run( $this->projectRoot, $dbDown, $phpunitArgs, $showDockerOutput );
+			return $lane->run( $this->projectRoot, $dbDown, $phpunitArgs, $showDockerOutput, $dbProfile );
 		}
 		finally {
 			\ob_end_clean();
@@ -310,6 +407,33 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		return new RecordingLocalWpTestsInstallerCommandBuilder( $command );
 	}
 
+	/**
+	 * @param string[] $command
+	 */
+	private function assertHostDatabaseReadyCommand( array $command ) :void {
+		$this->assertSame( \PHP_BINARY, $command[ 0 ] ?? null );
+		$this->assertSame( '-r', $command[ 1 ] ?? null );
+		$script = (string)( $command[ 2 ] ?? '' );
+		$this->assertStringContainsString( 'extension_loaded( \'mysqli\' )', $script );
+		$this->assertStringContainsString( 'real_connect( \'127.0.0.1\', \'root\', \'testpass\', null, 3311 )', $script );
+		$this->assertStringContainsString( 'SELECT 1', $script );
+	}
+
+	/**
+	 * @param string[] $command
+	 */
+	private function assertHostDatabaseResetCommand( array $command ) :void {
+		$this->assertSame( \PHP_BINARY, $command[ 0 ] ?? null );
+		$this->assertSame( '-r', $command[ 1 ] ?? null );
+		$script = (string)( $command[ 2 ] ?? '' );
+		$this->assertStringContainsString( "real_connect( '127.0.0.1', 'root', 'testpass', null, 3311 )", $script );
+		$this->assertStringContainsString( 'DROP DATABASE IF EXISTS `wordpress_test_local`', $script );
+		$this->assertStringContainsString(
+			'CREATE DATABASE `wordpress_test_local` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci',
+			$script
+		);
+	}
+
 	private function laneLockPath() :string {
 		return Path::join( $this->lockDir, 'integration-local.lock' );
 	}
@@ -322,6 +446,7 @@ class LocalIntegrationTestLaneTest extends TestCase {
 		$this->assertSame( 'shield-local-db', $metadata[ 'compose_project' ] ?? null );
 		$this->assertSame( 'wordpress_test_local', $metadata[ 'db_name' ] ?? null );
 		$this->assertSame( '127.0.0.1:3311', $metadata[ 'db_host' ] ?? null );
+		$this->assertSame( 'mysql80', $metadata[ 'db_profile' ] ?? null );
 		$this->assertSame( $this->projectRoot, $metadata[ 'root_dir' ] ?? null );
 	}
 
@@ -368,12 +493,46 @@ class LocalIntegrationTestLaneTest extends TestCase {
 	}
 
 	/**
-	 * @return array<string,string|false>
+	 * @param array<string,string|false> $env
 	 */
-	private function expectedPhpUnitEnvOverrides() :array {
-		return \array_merge( $this->expectedDockerEnvOverrides(), [
-			'WP_TESTS_DIR' => \rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress-tests-lib',
-			'WP_CORE_DIR' => \rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress',
-		] );
+	private function assertDockerEnvOverrides( array $env ) :void {
+		foreach ( $this->expectedDockerEnvOverrides() as $name => $value ) {
+			$this->assertSame( $value, $env[ $name ] ?? null );
+		}
+
+		$this->assertSame( 'shield-plugin-integration-local', $env[ 'SHIELD_DOCKER_LABEL_HARNESS' ] ?? null );
+		$this->assertSame( 'integration-local', $env[ 'SHIELD_DOCKER_LABEL_LANE' ] ?? null );
+		$this->assertSame( 'reusable', $env[ 'SHIELD_DOCKER_CONTAINER_LIFECYCLE' ] ?? null );
+		$this->assertSame( 'reusable', $env[ 'SHIELD_DOCKER_VOLUME_LIFECYCLE' ] ?? null );
+		$this->assertSame( 'integration-local-reusable', $env[ 'SHIELD_DOCKER_CONTAINER_RUN_ID' ] ?? null );
+		$this->assertSame(
+			$env[ 'SHIELD_DOCKER_CONTAINER_RUN_ID' ] ?? null,
+			$env[ 'SHIELD_DOCKER_VOLUME_RUN_ID' ] ?? null
+		);
+		$this->assertSame( '2037-12-31T23:59:59+00:00', $env[ 'SHIELD_DOCKER_CONTAINER_EXPIRES_AT' ] ?? null );
+		$this->assertSame( 'mysql:8.0', $env[ 'SHIELD_INTEGRATION_DB_IMAGE' ] ?? null );
+		$this->assertSame(
+			'--default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0',
+			$env[ 'SHIELD_INTEGRATION_DB_COMMAND' ] ?? null
+		);
+		$this->assertSame(
+			$env[ 'SHIELD_DOCKER_CONTAINER_EXPIRES_AT' ] ?? null,
+			$env[ 'SHIELD_DOCKER_VOLUME_EXPIRES_AT' ] ?? null
+		);
+	}
+
+	/**
+	 * @param array<string,string|false> $env
+	 */
+	private function assertPhpUnitEnvOverrides( array $env ) :void {
+		$this->assertDockerEnvOverrides( $env );
+		$this->assertSame(
+			\rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress-tests-lib',
+			$env[ 'WP_TESTS_DIR' ] ?? null
+		);
+		$this->assertSame(
+			\rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress',
+			$env[ 'WP_CORE_DIR' ] ?? null
+		);
 	}
 }

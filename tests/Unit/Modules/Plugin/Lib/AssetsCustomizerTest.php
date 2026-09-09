@@ -16,12 +16,22 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\AjaxRender,
 	Actions\BlockdownDisableFormSubmit,
 	Actions\BlockdownFormSubmit,
+	Actions\ImportExportNetworkInviteAccept,
+	Actions\ImportExportNetworkInviteReject,
+	Actions\ImportExportSitesAuthoriseUrlsSubmit,
+	Actions\ImportExportSitesTableAction,
 	Actions\LicenseClear,
+	Actions\PluginImportExport_DisconnectMaster,
+	Actions\PluginImportExport_SetEnabled,
+	Actions\PluginImportFromSite,
 	Actions\ReportingChartTrends,
+	Actions\Render\Components\OffCanvas\ImportExportSitesAuthoriseUrls,
 	Actions\Render\Components\Widgets\WpDashboardSummary,
 	Actions\ScansAttemptRecovery,
 	Actions\ScansCheck,
+	Actions\ScansFileLockerAction,
 	Actions\ScansStart,
+	Actions\TrafficLiveLog_SetEnabled,
 	Actions\ToolPurgeProviderIPs
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
@@ -49,7 +59,11 @@ class AssetsCustomizerTest extends BaseUnitTest {
 
 	protected function setUp() :void {
 		parent::setUp();
+		if ( !\defined( 'HOUR_IN_SECONDS' ) ) {
+			\define( 'HOUR_IN_SECONDS', 3600 );
+		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => htmlspecialchars( $text ) );
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \preg_replace( '/[^a-z0-9_\-]/', '', $text ) ) : ''
 		);
@@ -200,6 +214,17 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertSame( ScansStart::SLUG, $ajax[ 'start' ][ ActionData::FIELD_EXECUTE ] ?? null );
 	}
 
+	public function test_file_locker_component_localizes_file_action_payload() :void {
+		$this->installEnvironment();
+
+		$ajax = $this->componentAjax( 'file_locker' );
+
+		$this->assertSame(
+			ScansFileLockerAction::SLUG,
+			$ajax[ 'file_action' ][ ActionData::FIELD_EXECUTE ] ?? null
+		);
+	}
+
 	public function test_scans_component_sets_initial_check_when_scan_queue_is_running() :void {
 		$this->installEnvironment( [
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_SCANS,
@@ -228,6 +253,74 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertSame( ToolPurgeProviderIPs::SLUG, $debugAjax[ ToolPurgeProviderIPs::SLUG ][ ActionData::FIELD_EXECUTE ] ?? '' );
 		$this->assertSame( LicenseClear::SLUG, $licenseAjax[ 'clear' ][ ActionData::FIELD_EXECUTE ] ?? '' );
 		$this->assertSame( ReportingChartTrends::SLUG, $reportsTrendsAjax[ 'render_chart' ][ ActionData::FIELD_EXECUTE ] ?? '' );
+	}
+
+	public function test_import_component_localizes_network_import_and_client_site_payloads() :void {
+		$this->installEnvironment();
+
+		$ajax = $this->componentAjax( 'import' );
+
+		$this->assertSame( PluginImportFromSite::SLUG, $ajax[ 'import_from_site' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame( PluginImportExport_DisconnectMaster::SLUG, $ajax[ 'disconnect_master' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame( PluginImportExport_SetEnabled::SLUG, $ajax[ 'set_enabled' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame( ImportExportSitesAuthoriseUrlsSubmit::SLUG, $ajax[ 'authorise_urls_submit' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame( ImportExportNetworkInviteAccept::SLUG, $ajax[ 'network_invite_accept' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame( ImportExportNetworkInviteReject::SLUG, $ajax[ 'network_invite_reject' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertSame(
+			ImportExportSitesAuthoriseUrls::SLUG,
+			$ajax[ 'render_authorise_urls_offcanvas' ][ 'render_slug' ]
+		);
+		$this->assertAjaxRenderPayloadAllowedByPolicy(
+			$ajax[ 'render_authorise_urls_offcanvas' ],
+			'import export add client sites offcanvas'
+		);
+	}
+
+	public function test_traffic_component_localizes_live_log_toggle_payload() :void {
+		$this->installEnvironment();
+
+		$ajax = $this->componentAjax( 'traffic' );
+
+		$this->assertSame( TrafficLiveLog_SetEnabled::SLUG, $ajax[ 'set_live_log_enabled' ][ ActionData::FIELD_EXECUTE ] );
+	}
+
+	public function test_import_export_sites_table_localizes_table_payload_without_authorise_urls_submit() :void {
+		$this->installEnvironment( [
+			PluginNavs::FIELD_NAV    => PluginNavs::NAV_TOOLS,
+			PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_TOOLS_IMPORT,
+		] );
+
+		$tables = $this->componentData( 'tables' );
+		$this->assertArrayHasKey( 'import_export_sites', $tables );
+
+		$sites = $tables[ 'import_export_sites' ];
+		$this->assertArrayHasKey( 'ajax', $sites );
+		$this->assertArrayHasKey( 'strings', $sites );
+		$this->assertArrayHasKey( 'vars', $sites );
+
+		$ajax = $sites[ 'ajax' ];
+		$this->assertArrayHasKey( 'table_action', $ajax );
+		$this->assertArrayNotHasKey( 'authorise_urls_submit', $ajax );
+
+		$this->assertSame( ImportExportSitesTableAction::SLUG, $ajax[ 'table_action' ][ ActionData::FIELD_EXECUTE ] );
+		$this->assertArrayHasKey( 'remove_site_confirm', $sites[ 'strings' ] );
+		$this->assertIsString( $sites[ 'strings' ][ 'remove_site_confirm' ] );
+		$this->assertNotSame( '', $sites[ 'strings' ][ 'remove_site_confirm' ] );
+		$this->assertArrayHasKey( 'remove_selected_sites_confirm', $sites[ 'strings' ] );
+		$this->assertIsString( $sites[ 'strings' ][ 'remove_selected_sites_confirm' ] );
+		$this->assertNotSame( '', $sites[ 'strings' ][ 'remove_selected_sites_confirm' ] );
+		$this->assertArrayHasKey( 'repair_site_confirm', $sites[ 'strings' ] );
+		$this->assertIsString( $sites[ 'strings' ][ 'repair_site_confirm' ] );
+		$this->assertNotSame( '', $sites[ 'strings' ][ 'repair_site_confirm' ] );
+		$this->assertArrayHasKey( 'datatables_init', $sites[ 'vars' ] );
+		$this->assertArrayHasKey( 'columns', $sites[ 'vars' ][ 'datatables_init' ] );
+		$this->assertIsArray( $sites[ 'vars' ][ 'datatables_init' ][ 'columns' ] );
+		$columns = $sites[ 'vars' ][ 'datatables_init' ][ 'columns' ];
+		$actionColumns = \array_values( \array_filter(
+			$columns,
+			static fn( array $column ) :bool => $column[ 'data' ] === 'actions'
+		) );
+		$this->assertCount( 1, $actionColumns );
 	}
 
 	private function installEnvironment(
@@ -336,11 +429,6 @@ class AssetsCustomizerTest extends BaseUnitTest {
 				'dashboard_widget',
 				1,
 			],
-			'file locker diff' => [
-				[],
-				'file_locker',
-				1,
-			],
 			'ip analysis offcanvas' => [
 				[],
 				'ip_analyse',
@@ -390,6 +478,14 @@ class AssetsCustomizerTest extends BaseUnitTest {
 					PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_LOGS,
 				],
 				'tables',
+				1,
+			],
+			'import page add client sites offcanvas' => [
+				[
+					PluginNavs::FIELD_NAV    => PluginNavs::NAV_TOOLS,
+					PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_TOOLS_IMPORT,
+				],
+				'import',
 				1,
 			],
 		];

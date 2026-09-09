@@ -17,6 +17,11 @@ class AutoReportCoordinatorTest extends TestCase {
 		$coordinator = new class extends AutoReportCoordinator {
 			public array $calls = [];
 
+			protected function isReadyForScanResultNotifications() :bool {
+				$this->calls[] = 'ready';
+				return true;
+			}
+
 			protected function createReport( string $reportType ) :ReportVO {
 				$this->calls[] = 'create:'.$reportType;
 				$report = new ReportVO();
@@ -42,10 +47,12 @@ class AutoReportCoordinatorTest extends TestCase {
 		$coordinator->run();
 
 		$this->assertSame( [
+			'ready',
 			'create:'.Constants::REPORT_TYPE_ALERT,
 			'build:'.Constants::REPORT_TYPE_ALERT,
 			'persist:'.Constants::REPORT_TYPE_ALERT,
 			'send:'.Constants::REPORT_TYPE_ALERT,
+			'ready',
 			'create:'.Constants::REPORT_TYPE_INFO,
 			'build:'.Constants::REPORT_TYPE_INFO,
 			'send:'.Constants::REPORT_TYPE_INFO,
@@ -55,6 +62,11 @@ class AutoReportCoordinatorTest extends TestCase {
 	public function test_run_suppresses_alert_email_when_persistence_fails_but_still_attempts_info() :void {
 		$coordinator = new class extends AutoReportCoordinator {
 			public array $calls = [];
+
+			protected function isReadyForScanResultNotifications() :bool {
+				$this->calls[] = 'ready';
+				return true;
+			}
 
 			protected function createReport( string $reportType ) :ReportVO {
 				$this->calls[] = 'create:'.$reportType;
@@ -81,9 +93,11 @@ class AutoReportCoordinatorTest extends TestCase {
 		$coordinator->run();
 
 		$this->assertSame( [
+			'ready',
 			'create:'.Constants::REPORT_TYPE_ALERT,
 			'build:'.Constants::REPORT_TYPE_ALERT,
 			'persist:'.Constants::REPORT_TYPE_ALERT,
+			'ready',
 			'create:'.Constants::REPORT_TYPE_INFO,
 			'build:'.Constants::REPORT_TYPE_INFO,
 			'send:'.Constants::REPORT_TYPE_INFO,
@@ -93,6 +107,11 @@ class AutoReportCoordinatorTest extends TestCase {
 	public function test_run_skips_alert_persistence_and_email_when_alert_build_fails_but_still_attempts_info() :void {
 		$coordinator = new class extends AutoReportCoordinator {
 			public array $calls = [];
+
+			protected function isReadyForScanResultNotifications() :bool {
+				$this->calls[] = 'ready';
+				return true;
+			}
 
 			protected function createReport( string $reportType ) :ReportVO {
 				$this->calls[] = 'create:'.$reportType;
@@ -122,11 +141,34 @@ class AutoReportCoordinatorTest extends TestCase {
 		$coordinator->run();
 
 		$this->assertSame( [
+			'ready',
 			'create:'.Constants::REPORT_TYPE_ALERT,
 			'build:'.Constants::REPORT_TYPE_ALERT,
+			'ready',
 			'create:'.Constants::REPORT_TYPE_INFO,
 			'build:'.Constants::REPORT_TYPE_INFO,
 			'send:'.Constants::REPORT_TYPE_INFO,
 		], $coordinator->calls );
+	}
+
+	public function test_run_checks_each_automatic_report_independently_before_construction() :void {
+		$coordinator = new class extends AutoReportCoordinator {
+			public array $calls = [];
+			private array $ready = [ false, false ];
+
+			protected function isReadyForScanResultNotifications() :bool {
+				$this->calls[] = 'ready';
+				return \array_shift( $this->ready );
+			}
+
+			protected function createReport( string $reportType ) :ReportVO {
+				$this->calls[] = 'create:'.$reportType;
+				return new ReportVO();
+			}
+		};
+
+		$coordinator->run();
+
+		$this->assertSame( [ 'ready', 'ready' ], $coordinator->calls );
 	}
 }

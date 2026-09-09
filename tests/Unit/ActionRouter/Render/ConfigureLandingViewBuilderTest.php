@@ -100,6 +100,8 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 			$view[ 'tiles' ][ 0 ][ 'summary' ],
 			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ]
 		);
+		$this->assertSame( 'Configure Security Admin', $view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'action_label' ] );
+		$this->assertSame( 'Configure General Settings', $view[ 'sections' ][ 2 ][ 'cards' ][ 0 ][ 'action_label' ] );
 		$this->assertNotSame(
 			$view[ 'diagnoses' ][ 'secadmin' ][ 'preview_text' ],
 			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ]
@@ -240,13 +242,14 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 				'label'     => 'Configure',
 				'title'     => 'Configure '.$title,
 				'href'      => '',
+				'target'    => '',
 				'is_action' => true,
 				'icon'      => 'bi bi-gear-fill',
-				'tooltip'   => '',
 				'classes'   => [ 'zone_component_action' ],
 				'data'      => [
 					'zone_component_action' => 'offcanvas_zone_component_config',
 					'zone_component_slug'   => \strtolower( \str_replace( ' ', '_', $title ) ),
+					'option_keys'           => \strtolower( \str_replace( ' ', '_', $title ) ).'_option',
 					'form_context'          => 'offcanvas',
 				],
 			],

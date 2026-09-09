@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaEmailToggle;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Email\MfaLoginCode;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Integrations\Lib\SureSendController;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\MfaRecordsHandler;
 use FernleafSystems\Wordpress\Plugin\Shield\ShieldNetApi\SureSend\SendEmail;
 use FernleafSystems\Wordpress\Services\Services;
@@ -19,8 +20,7 @@ class Email extends AbstractShieldProviderMfaDB {
 
 	public static function ProviderEnabled() :bool {
 		return parent::ProviderEnabled()
-			   && self::con()->opts->optIs( 'enable_email_authentication', 'Y' )
-			   && self::con()->opts->optGet( 'email_can_send_verified_at' ) > 0;
+			   && ( new EmailDeliveryVerification() )->status() === EmailDeliveryVerification::STATUS_VERIFIED;
 	}
 
 	public function getJavascriptVars() :array {
@@ -164,7 +164,11 @@ class Email extends AbstractShieldProviderMfaDB {
 	}
 
 	private function generate2faCode( string $hashedLoginNonce ) :string {
-		$otp = apply_filters( 'shield/2fa_email_otp', PasswordGenerator::Gen( 6, true, false, false ) );
+		$otp = PasswordGenerator::Gen( 6, true, false, false );
+		$filtered = apply_filters( 'shield/2fa_email_otp', $otp );
+		if ( \is_string( $filtered ) ) {
+			$otp = $filtered;
+		}
 		$this->deleteAllSecrets();
 		$this->createNewSecretRecord( wp_hash_password( $otp ), 'Email 2FA', [
 			'hashed_login_nonce' => $hashedLoginNonce

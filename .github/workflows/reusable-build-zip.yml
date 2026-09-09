@@ -1,0 +1,153 @@
+name: Reusable Build ZIP
+
+on:
+  workflow_call:
+    inputs:
+      zip_name:
+        description: Optional ZIP filename. Defaults to ref slug plus short SHA.
+        required: false
+        type: string
+        default: ''
+      retention_days:
+        description: Days to keep the ZIP artifact.
+        required: false
+        type: number
+        default: 30
+    outputs:
+      artifact_digest:
+        description: Digest reported by the artifact upload action.
+        value: ${{ jobs.build-zip.outputs.artifact_digest }}
+      artifact_id:
+        description: GitHub artifact ID for the ZIP.
+        value: ${{ jobs.build-zip.outputs.artifact_id }}
+      artifact_name:
+        description: Artifact name for download.
+        value: ${{ jobs.build-zip.outputs.artifact_name }}
+      artifact_url:
+        description: URL for the uploaded ZIP artifact.
+        value: ${{ jobs.build-zip.outputs.artifact_url }}
+      commit_sha:
+        description: Commit SHA used for the build.
+        value: ${{ jobs.build-zip.outputs.commit_sha }}
+      ref_name:
+        description: Git ref name used for the build.
+        value: ${{ jobs.build-zip.outputs.ref_name }}
+      short_sha:
+        description: Short commit SHA used in default ZIP names.
+        value: ${{ jobs.build-zip.outputs.short_sha }}
+      zip_name:
+        description: ZIP filename produced by the build.
+        value: ${{ jobs.build-zip.outputs.zip_name }}
+      zip_sha256:
+        description: SHA-256 checksum of the ZIP file.
+        value: ${{ jobs.build-zip.outputs.zip_sha256 }}
+    secrets:
+      PACKAGIST_TOKEN:
+        required: true
+
+jobs:
+  build-zip:
+    name: Build ZIP
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      artifact_digest: ${{ steps.upload-zip.outputs.artifact-digest }}
+      artifact_id: ${{ steps.upload-zip.outputs.artifact-id }}
+      artifact_name: ${{ steps.metadata.outputs.artifact_name }}
+      artifact_url: ${{ steps.upload-zip.outputs.artifact-url }}
+      commit_sha: ${{ steps.metadata.outputs.commit_sha }}
+      ref_name: ${{ steps.metadata.outputs.ref_name }}
+      short_sha: ${{ steps.metadata.outputs.short_sha }}
+      zip_name: ${{ steps.metadata.outputs.zip_name }}
+      zip_sha256: ${{ steps.build-zip.outputs.zip_sha256 }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer:v2
+
+    - name: Prepare Private Packagist Composer auth
+      env:
+        PACKAGIST_TOKEN: ${{ secrets.PACKAGIST_TOKEN }}
+      run: php .github/scripts/prepare-packagist-composer-auth.php
+
+    - name: Display Environment Info
+      run: |
+        echo "PHP Version: $(php -v)"
+        echo "Composer Version: $(composer --version)"
+        echo "Node.js Version: $(node --version)"
+        echo "NPM Version: $(npm --version)"
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: '20.10'
+        cache: npm
+
+    - name: Install dependencies
+      run: |
+        composer install --no-interaction --prefer-dist
+        npm ci --no-audit --no-fund
+
+    - name: Build assets
+      run: npm run build
+
+    - name: Verify admin bundle safety
+      run: |
+        chmod +x .github/scripts/verify-admin-bundle-safety.sh
+        ./.github/scripts/verify-admin-bundle-safety.sh
+
+    - name: Load Strauss version
+      run: |
+        source .github/scripts/read-packager-config.sh
+        echo "SHIELD_STRAUSS_VERSION=${SHIELD_STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "STRAUSS_VERSION=${STRAUSS_VERSION}" >> $GITHUB_ENV
+        echo "SHIELD_STRAUSS_FORK_REPO=${SHIELD_STRAUSS_FORK_REPO:-}" >> $GITHUB_ENV
+        echo "SHIELD_STRAUSS_FORK_BRANCH=${SHIELD_STRAUSS_FORK_BRANCH:-}" >> $GITHUB_ENV
+
+    - name: Resolve ZIP metadata
+      id: metadata
+      env:
+        INPUT_ZIP_NAME: ${{ inputs.zip_name }}
+      run: |
+        SHORT_SHA="${GITHUB_SHA::7}"
+        REF_SLUG="$(printf '%s' "${GITHUB_REF_NAME}" | tr '/\\: ' '----' | tr -cd 'A-Za-z0-9._-')"
+
+        if [ -z "$REF_SLUG" ]; then
+          REF_SLUG="ref"
+        fi
+
+        if [ -n "$INPUT_ZIP_NAME" ]; then
+          ZIP_NAME="$INPUT_ZIP_NAME"
+        else
+          ZIP_NAME="wp-simple-firewall-${REF_SLUG}-${SHORT_SHA}.zip"
+        fi
+
+        echo "artifact_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
+        echo "commit_sha=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+        echo "ref_name=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+        echo "short_sha=${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+        echo "zip_name=${ZIP_NAME}" >> "$GITHUB_OUTPUT"
+
+    - name: Build release ZIP
+      id: build-zip
+      run: |
+        ZIP_PATH="${{ github.workspace }}/${{ steps.metadata.outputs.zip_name }}"
+        composer build-zip -- --output="${ZIP_PATH}" --zip-root-folder=wp-simple-firewall --skip-root-composer --skip-lib-composer --skip-npm-install --skip-npm-build
+        echo "zip_sha256=$(sha256sum "${ZIP_PATH}" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+
+    - name: Upload ZIP artifact
+      id: upload-zip
+      uses: actions/upload-artifact@v7
+      with:
+        path: ${{ github.workspace }}/${{ steps.metadata.outputs.zip_name }}
+        if-no-files-found: error
+        retention-days: ${{ inputs.retention_days }}
+        archive: false

@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Crons\PluginCronsConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ResultItems\Ops as ResultItemsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Lib\Hashes,
@@ -15,23 +14,7 @@ use FernleafSystems\Wordpress\Services\Services;
 
 class Afs extends Base {
 
-	use PluginCronsConsumer;
-
 	public const SCAN_SLUG = 'afs';
-
-	protected function run() {
-		parent::run();
-		$this->setupCronHooks();
-		( new StoreAction\ScheduleBuildAll() )->execute();
-		$assetCleanup = new Scan\AssetChange\Cleanup();
-		add_action( $assetCleanup->getHook(), [ $assetCleanup, 'run' ], 10, 3 );
-		add_action( '_core_updated_successfully', [ $this, 'queueCoreAssetScan' ], 10, 1 );
-		add_action( 'upgrader_process_complete', [ $this, 'queueAssetScansFromUpgraderProcessComplete' ], 10, 2 );
-		add_filter( 'upgrader_post_install', [ $this, 'queueAssetScansFromUpgraderPostInstall' ], 10, 2 );
-		add_action( 'pre_uninstall_plugin', [ $this, 'queuePluginAssetScan' ] );
-		add_action( 'deleted_plugin', [ $this, 'queuePluginAssetScan' ] );
-		add_action( 'deleted_theme', [ $this, 'queueThemeAssetScan' ], 10, 2 );
-	}
 
 	/**
 	 * @return array{name:string, subtitle:string}
@@ -90,11 +73,6 @@ class Afs extends Base {
 		$record->meta = $meta;
 
 		return $record;
-	}
-
-	public function runHourlyCron() {
-		( new StoreAction\CleanStale() )->execute();
-		( new StoreAction\TouchAll() )->execute();
 	}
 
 	/**
@@ -237,38 +215,36 @@ class Afs extends Base {
 		}
 
 		if ( ( $data[ 'action' ] ?? null ) === 'update' && ( $data[ 'type' ] ?? null ) === 'plugin' ) {
-			foreach ( \array_filter( \is_array( $data[ 'plugins' ] ?? null ) ? $data[ 'plugins' ] : [] ) as $plugin ) {
-				$this->queuePluginAssetScan( (string)$plugin );
+			foreach ( \is_array( $data[ 'plugins' ] ?? null ) ? $data[ 'plugins' ] : [] as $plugin ) {
+				$this->queuePluginAssetScan( $plugin );
 			}
 		}
 
 		if ( ( $data[ 'action' ] ?? null ) === 'update' && ( $data[ 'type' ] ?? null ) === 'theme' ) {
-			foreach ( \array_filter( \is_array( $data[ 'themes' ] ?? null ) ? $data[ 'themes' ] : [] ) as $theme ) {
-				$this->queueThemeAssetScan( (string)$theme, true );
+			foreach ( \is_array( $data[ 'themes' ] ?? null ) ? $data[ 'themes' ] : [] as $theme ) {
+				$this->queueThemeAssetScan( $theme, true );
 			}
 		}
 	}
 
 	public function queueAssetScansFromUpgraderPostInstall( $response, $hookExtra ) {
-		if ( \is_array( $hookExtra ) && ( !empty( $hookExtra[ 'plugin' ] ) || !empty( $hookExtra[ 'theme' ] ) ) ) {
-			if ( !empty( $hookExtra[ 'plugin' ] ) ) {
-				$this->queuePluginAssetScan( (string)$hookExtra[ 'plugin' ] );
-			}
-			if ( !empty( $hookExtra[ 'theme' ] ) ) {
-				$this->queueThemeAssetScan( (string)$hookExtra[ 'theme' ], true );
-			}
+		if ( \is_array( $hookExtra ) ) {
+			$this->queuePluginAssetScan( $hookExtra[ 'plugin' ] ?? null );
+			$this->queueThemeAssetScan( $hookExtra[ 'theme' ] ?? null, true );
 		}
 		return $response;
 	}
 
-	public function queuePluginAssetScan( string $plugin ) :void {
-		if ( $plugin !== '' ) {
+	public function queuePluginAssetScan( $plugin = null ) :void {
+		$plugin = $this->normalizeAssetKey( $plugin );
+		if ( $plugin !== null ) {
 			( new Scan\AssetChange\Cleanup() )->schedule( 'plugin', $plugin );
 		}
 	}
 
-	public function queueThemeAssetScan( string $stylesheet, bool $wasDeleted = true ) :void {
-		if ( $wasDeleted && $stylesheet !== '' ) {
+	public function queueThemeAssetScan( $stylesheet = null, $wasDeleted = true ) :void {
+		$stylesheet = $this->normalizeAssetKey( $stylesheet );
+		if ( $wasDeleted === true && $stylesheet !== null ) {
 			( new Scan\AssetChange\Cleanup() )->schedule( 'theme', $stylesheet );
 		}
 	}
@@ -276,6 +252,14 @@ class Afs extends Base {
 	public function queueCoreAssetScan( $newVersion = '' ) :void {
 		unset( $newVersion );
 		( new Scan\AssetChange\Cleanup() )->schedule( 'core', 'core' );
+	}
+
+	private function normalizeAssetKey( $value ) :?string {
+		if ( !\is_string( $value ) ) {
+			return null;
+		}
+		$value = \trim( $value );
+		return $value === '' || $value === '0' ? null : $value;
 	}
 
 	/**

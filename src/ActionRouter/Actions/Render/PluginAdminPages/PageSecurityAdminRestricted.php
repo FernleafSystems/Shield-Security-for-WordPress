@@ -4,8 +4,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Traits\SecurityAdminNotRequired;
 use FernleafSystems\Wordpress\Services\Utilities\Obfuscate;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
-class PageSecurityAdminRestricted extends BasePluginAdminPage {
+class PageSecurityAdminRestricted extends PageModeLandingBase {
 
 	use SecurityAdminNotRequired;
 
@@ -14,23 +15,35 @@ class PageSecurityAdminRestricted extends BasePluginAdminPage {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		return [
+		return \array_replace_recursive( parent::getRenderData(), [
 			'flags'   => [
 				'allow_email_override' => $con->opts->optIs( 'allow_email_override', 'Y' )
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->iconClass( 'person-badge' ),
 				'icon_shield'           => $con->svgs->iconClass( 'shield-fill' ),
 				'icon_external_link'    => $con->svgs->iconClass( 'box-arrow-up-right' ),
 			],
 			'strings' => [
-				'inner_page_title'    => __( 'Security Plugin Protection', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => sprintf( __( 'Access to the %s Security plugin is restricted.', 'wp-simple-firewall' ), $con->labels->Name ),
-
 				'disable_security_admin' => __( 'Disable Security Admin via Email', 'wp-simple-firewall' ),
 				'send_to_email'          => sprintf( __( 'Confirmation email will be sent to %s', 'wp-simple-firewall' ),
 					Obfuscate::Email( $con->comps->opts_lookup->getReportEmail() ) ),
 			],
-		];
+		] );
+	}
+
+	protected function getLandingTitle() :string {
+		return __( 'Security Plugin Protection', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingSubtitle() :string {
+		return sprintf( __( 'Access to the %s Security plugin is restricted.', 'wp-simple-firewall' ), self::con()->labels->Name );
+	}
+
+	protected function getLandingIcon() :string {
+		return 'person-badge';
+	}
+
+	protected function getLandingMode() :string {
+		return PluginNavs::NAV_DASHBOARD;
 	}
 }

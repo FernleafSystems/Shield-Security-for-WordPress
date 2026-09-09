@@ -114,7 +114,6 @@ class SecurityZonesCon {
 			Component\RateLimiting::class,
 			Component\Reporting::class,
 			Component\RequestLogging::class,
-			Component\RequestLiveLogging::class,
 			Component\Scans::class,
 			Component\ScanScheduling::class,
 			Component\SecadminEnabled::class,

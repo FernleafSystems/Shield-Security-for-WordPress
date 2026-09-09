@@ -16,7 +16,9 @@ class LocalSiteManager {
 	private const BROWSER_FIXTURE_ENDPOINT_TARGET = '/var/www/html/wp-content/mu-plugins/shield-browser-fixtures.php';
 	private const BROWSER_FIXTURE_TOKEN_FILE = '/var/www/html/wp-content/.shield-browser-fixture-token';
 	private const BROWSER_LANE_READY_MARKER = '/var/www/html/wp-content/.shield-browser-lane-ready.json';
-	private const BROWSER_LANE_READY_SCHEMA_VERSION = 2;
+	private const BROWSER_LANE_READY_SCHEMA_VERSION = 3;
+	private const BROWSER_LANE_READY_TTL_SECONDS = 24*60*60;
+	private const BROWSER_FIXTURE_CONTRACT = 'shield-browser-fixture-v1';
 
 	private ProcessRunner $processRunner;
 
@@ -33,6 +35,11 @@ class LocalSiteManager {
 	private SourceGeneratedConfigReadiness $generatedConfigReadiness;
 
 	private LocalSiteDefinition $definition;
+
+	private string $runId = '';
+
+	/** @var array<string,string>|null */
+	private ?array $localSiteLabelEnvironment = null;
 
 	public function __construct(
 		LocalSiteDefinition $definition,
@@ -60,7 +67,7 @@ class LocalSiteManager {
 	}
 
 	public function up( string $rootDir ) :int {
-		$this->ensureReady( $rootDir, false );
+		$this->ensureReady( $rootDir, false, false );
 		return 0;
 	}
 
@@ -154,6 +161,7 @@ class LocalSiteManager {
 				$exitCode
 			) );
 		}
+		$this->localSiteLabelEnvironment = null;
 		if ( $this->definition->usesSharedDatabase() ) {
 			$this->resetSharedDatabase( $rootDir );
 		}
@@ -167,11 +175,12 @@ class LocalSiteManager {
 		bool $requirePlaywright,
 		string $fixtureToken,
 		?callable $onOutput = null,
-		?array $hostManifest = null
+		?array $hostManifest = null,
+		array $browserLabelEnv = []
 	) :int {
 		$this->runPreflightChecks( $rootDir, $requirePlaywright );
 		if ( $this->definition->usesSharedDatabase() ) {
-			$this->ensureSharedDatabaseReady( $rootDir, $onOutput );
+			$this->ensureSharedDatabaseReady( $rootDir, $onOutput, $browserLabelEnv );
 		}
 
 		if ( $mode === 'clean' ) {
@@ -179,7 +188,7 @@ class LocalSiteManager {
 				$rootDir,
 				$this->buildComposeFiles(),
 				[ 'down', '-v', '--remove-orphans' ],
-				$this->buildRuntimeEnvOverrides( $rootDir ),
+				$this->buildRuntimeEnvOverrides( $rootDir, $browserLabelEnv ),
 				$onOutput
 			);
 			if ( $exitCode !== 0 ) {
@@ -190,9 +199,9 @@ class LocalSiteManager {
 				) );
 			}
 			if ( $this->definition->usesSharedDatabase() ) {
-				$this->resetSharedDatabase( $rootDir );
+				$this->resetSharedDatabase( $rootDir, $browserLabelEnv );
 			}
-			$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, true, $hostManifest );
+			$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, true, $hostManifest, $browserLabelEnv );
 			return 0;
 		}
 
@@ -200,7 +209,10 @@ class LocalSiteManager {
 			throw new \InvalidArgumentException( 'Browser lane mode must be "clean" or "warm".' );
 		}
 
-		$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, false, $hostManifest );
+		if ( $this->definition->usesSharedDatabase() ) {
+			$this->ensureSharedDatabaseSchema( $rootDir, $browserLabelEnv );
+		}
+		$this->ensureReadyAfterPreflight( $rootDir, $onOutput, true, $fixtureToken, false, $hostManifest, $browserLabelEnv );
 		return 0;
 	}
 
@@ -221,9 +233,9 @@ class LocalSiteManager {
 		];
 	}
 
-	public function ensureReady( string $rootDir, bool $requirePlaywright ) :void {
+	public function ensureReady( string $rootDir, bool $requirePlaywright, bool $forceProvision = true ) :void {
 		$this->runPreflightChecks( $rootDir, $requirePlaywright );
-		$this->ensureReadyAfterPreflight( $rootDir );
+		$this->ensureReadyAfterPreflight( $rootDir, null, false, null, $forceProvision );
 	}
 
 	/**
@@ -235,33 +247,42 @@ class LocalSiteManager {
 		bool $sharedDatabaseAlreadyReady = false,
 		?string $fixtureToken = null,
 		bool $forceProvision = true,
-		?array $hostManifest = null
+		?array $hostManifest = null,
+		array $browserLabelEnv = []
 	) :void {
 		if ( $this->definition->usesSharedDatabase() && !$sharedDatabaseAlreadyReady ) {
-			$this->ensureSharedDatabaseReady( $rootDir, $onOutput );
+			$this->ensureSharedDatabaseReady( $rootDir, $onOutput, $browserLabelEnv );
 		}
 
-		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir );
+		$envOverrides = $this->buildRuntimeEnvOverrides( $rootDir, $browserLabelEnv );
 		$composeFiles = $this->buildComposeFiles();
-		$containerId = $this->resolveOrStartWordpressContainer( $rootDir, $composeFiles, $envOverrides, $onOutput );
+		$site = $this->resolveOrStartWordpressContainer( $rootDir, $composeFiles, $envOverrides, $onOutput );
+		$containerId = $site[ 'container_id' ];
 
 		$this->refreshRuntimeAndAssertHealthy( $rootDir, $containerId, $onOutput, $hostManifest );
 		if ( $fixtureToken !== null ) {
 			$this->installBrowserFixtureEndpoint( $rootDir, $containerId, $fixtureToken, $onOutput );
 		}
-		if ( !$forceProvision && $this->isBrowserLaneReady( $rootDir, $containerId ) && $this->isSiteHealthy() ) {
+		if ( !$forceProvision && $site[ 'reused' ] && !$this->definition->usesSharedDatabase() ) {
+			return;
+		}
+		if (
+			!$forceProvision
+			&& $this->isBrowserLaneReady( $rootDir, $containerId, $fixtureToken, $hostManifest )
+			&& $this->isSiteHealthy()
+		) {
 			return;
 		}
 		$this->provisionBaselineAndAssertHealthy( $rootDir, $envOverrides, $onOutput );
 		if ( $fixtureToken !== null ) {
-			$this->writeBrowserLaneReadyMarker( $rootDir, $containerId );
+			$this->writeBrowserLaneReadyMarker( $rootDir, $containerId, $fixtureToken, $hostManifest );
 		}
 	}
 
 	/**
 	 * @return array<string,string|false>
 	 */
-	private function buildRuntimeEnvOverrides( string $rootDir ) :array {
+	private function buildRuntimeEnvOverrides( string $rootDir, array $browserLabelEnv = [] ) :array {
 		$envOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
 			$this->definition->composeProjectName(),
 			true
@@ -271,7 +292,7 @@ class LocalSiteManager {
 		$envOverrides['SHIELD_LOCAL_SITE_DB_HOST'] = $this->definition->dbHost();
 		$envOverrides['SHIELD_LOCAL_SITE_PORT'] = (string)$this->definition->sitePort();
 		$envOverrides['SHIELD_LOCAL_SITE_PROFILE'] = $this->definition->key();
-		return $envOverrides;
+		return \array_merge( $envOverrides, $this->siteLabelEnvironment( $rootDir, $envOverrides, $browserLabelEnv ) );
 	}
 
 	/**
@@ -303,7 +324,7 @@ class LocalSiteManager {
 		$command = \array_merge( $command, [
 			self::WPCLI_SERVICE_NAME,
 			'sh',
-			'/app/tests/docker/provision-local-site.sh',
+			'/var/www/html/wp-content/plugins/wp-simple-firewall/tests/docker/provision-local-site.sh',
 		] );
 
 		return $command;
@@ -381,22 +402,22 @@ class LocalSiteManager {
 	/**
 	 * @param callable|null $onOutput Receives (string $type, string $buffer)
 	 */
-	private function ensureSharedDatabaseReady( string $rootDir, ?callable $onOutput = null ) :void {
-		$this->withSharedDatabaseLock( $rootDir, function () use ( $rootDir, $onOutput ) :void {
+	private function ensureSharedDatabaseReady( string $rootDir, ?callable $onOutput = null, array $browserLabelEnv = [] ) :void {
+		$this->withSharedDatabaseLock( $rootDir, function () use ( $rootDir, $onOutput, $browserLabelEnv ) :void {
 			$composeFiles = [ $this->definition->sharedDatabaseComposeFile() ];
-			$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir );
+			$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir, $browserLabelEnv );
 
 			$exitCode = $this->dockerComposeExecutor->run(
 				$rootDir,
 				$composeFiles,
-				[ 'up', '-d', self::DB_SERVICE_NAME ],
+				$this->buildDatabaseUpCommand(),
 				$envOverrides,
 				$onOutput
 			);
 			if ( $exitCode !== 0 ) {
 				throw new \RuntimeException( $this->diagnoseCommandFailure(
 					'Failed to start the shared browser MySQL service.',
-					$this->buildComposeCommandForExecution( $composeFiles, [ 'up', '-d', self::DB_SERVICE_NAME ] ),
+					$this->buildComposeCommandForExecution( $composeFiles, $this->buildDatabaseUpCommand() ),
 					$exitCode
 				) );
 			}
@@ -439,13 +460,13 @@ class LocalSiteManager {
 	/**
 	 * @return array<string,string|false>
 	 */
-	private function buildSharedDatabaseEnvOverrides( string $rootDir ) :array {
+	private function buildSharedDatabaseEnvOverrides( string $rootDir, array $browserLabelEnv = [] ) :array {
 		$envOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
 			$this->definition->sharedDatabaseComposeProjectName(),
 			true
 		);
 		$envOverrides['PHP_VERSION'] = $this->environmentResolver->resolvePhpVersion( $rootDir );
-		return $envOverrides;
+		return \array_merge( $envOverrides, $this->sharedDatabaseLabelEnvironment( $browserLabelEnv ) );
 	}
 
 	/**
@@ -453,49 +474,75 @@ class LocalSiteManager {
 	 * @param string[] $composeFiles
 	 */
 	private function waitForSharedDatabaseHealthy( string $rootDir, array $envOverrides, array $composeFiles ) :void {
-		$command = \array_merge(
-			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
-			[ 'mysqladmin', 'ping', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '--silent' ]
-		);
+		$pingCommand = $this->buildMysqlPingCommand( $composeFiles );
+		$selectOneCommand = $this->buildMysqlSelectOneCommand( $composeFiles );
+		$lastCommand = $pingCommand;
+		$lastProcess = null;
+		$lastPhase = 'ping';
 		$startedAt = \time();
 		do {
-			$process = $this->processRunner->run(
-				$command,
+			$pingProcess = $this->processRunner->run(
+				$pingCommand,
 				$rootDir,
 				static function () :void {
 				},
 				$envOverrides
 			);
-			if ( ( $process->getExitCode() ?? 1 ) === 0 ) {
+			if ( ( $pingProcess->getExitCode() ?? 1 ) !== 0 ) {
+				$lastCommand = $pingCommand;
+				$lastProcess = $pingProcess;
+				$lastPhase = 'ping';
+				\usleep( 500000 );
+				continue;
+			}
+
+			$selectOneProcess = $this->processRunner->run(
+				$selectOneCommand,
+				$rootDir,
+				static function () :void {
+				},
+				$envOverrides
+			);
+			if ( ( $selectOneProcess->getExitCode() ?? 1 ) === 0 ) {
 				return;
 			}
+
+			$lastCommand = $selectOneCommand;
+			$lastProcess = $selectOneProcess;
+			$lastPhase = 'sql';
 			\usleep( 500000 );
 		} while ( \time() - $startedAt < 60 );
 
+		if ( !$lastProcess instanceof Process ) {
+			throw new \RuntimeException( 'Shared browser MySQL readiness check did not run.' );
+		}
+
 		throw new \RuntimeException( $this->diagnoseCommandFailure(
-			'Shared browser MySQL did not become healthy within 60 seconds.',
-			$command,
-			$process->getExitCode() ?? 1,
-			$process->getOutput(),
-			$process->getErrorOutput()
+			$lastPhase === 'sql'
+				? 'Shared browser MySQL accepted ping but did not pass SELECT 1 within 60 seconds.'
+				: 'Shared browser MySQL did not become healthy within 60 seconds.',
+			$lastCommand,
+			$lastProcess->getExitCode() ?? 1,
+			$lastProcess->getOutput(),
+			$lastProcess->getErrorOutput()
 		) );
 	}
 
-	private function resetSharedDatabase( string $rootDir ) :void {
+	private function resetSharedDatabase( string $rootDir, array $browserLabelEnv = [] ) :void {
 		$dbName = $this->definition->dbName();
 		if ( \preg_match( '/^[a-z0-9_]+$/', $dbName ) !== 1 ) {
 			throw new \RuntimeException( 'Unsafe browser lane database name: '.$dbName );
 		}
 
 		$composeFiles = [ $this->definition->sharedDatabaseComposeFile() ];
-		$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir );
+		$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir, $browserLabelEnv );
 		$sql = \sprintf(
 			'DROP DATABASE IF EXISTS `%1$s`; CREATE DATABASE `%1$s`;',
 			$dbName
 		);
 		$command = \array_merge(
 			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
-			[ 'mysql', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '-e', $sql ]
+			$this->buildMysqlSqlCommand( $sql )
 		);
 		$process = $this->processRunner->run(
 			$command,
@@ -515,16 +562,48 @@ class LocalSiteManager {
 		}
 	}
 
+	private function ensureSharedDatabaseSchema( string $rootDir, array $browserLabelEnv = [] ) :void {
+		$dbName = $this->definition->dbName();
+		if ( \preg_match( '/^[a-z0-9_]+$/', $dbName ) !== 1 ) {
+			throw new \RuntimeException( 'Unsafe browser lane database name: '.$dbName );
+		}
+
+		$composeFiles = [ $this->definition->sharedDatabaseComposeFile() ];
+		$envOverrides = $this->buildSharedDatabaseEnvOverrides( $rootDir, $browserLabelEnv );
+		$sql = \sprintf( 'CREATE DATABASE IF NOT EXISTS `%s`;', $dbName );
+		$command = \array_merge(
+			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			$this->buildMysqlSqlCommand( $sql )
+		);
+		$process = $this->processRunner->run(
+			$command,
+			$rootDir,
+			static function () :void {
+			},
+			$envOverrides
+		);
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			throw new \RuntimeException( $this->diagnoseCommandFailure(
+				'Failed to ensure browser lane database '.$dbName.'.',
+				$command,
+				$process->getExitCode() ?? 1,
+				$process->getOutput(),
+				$process->getErrorOutput()
+			) );
+		}
+	}
+
 	/**
 	 * @param string[] $composeFiles
 	 * @param array<string,string|false> $envOverrides
+	 * @return array{container_id:string,reused:bool}
 	 */
 	private function resolveOrStartWordpressContainer(
 		string $rootDir,
 		array $composeFiles,
 		array $envOverrides,
 		?callable $onOutput = null
-	) :string {
+	) :array {
 		$containerId = $this->runtimeRefresher->resolveServiceContainerId(
 			$rootDir,
 			$composeFiles,
@@ -541,7 +620,10 @@ class LocalSiteManager {
 				);
 			}
 
-			return $containerId;
+			return [
+				'container_id' => $containerId,
+				'reused' => true,
+			];
 		}
 
 		$this->assertSitePortIsAvailable();
@@ -558,7 +640,10 @@ class LocalSiteManager {
 			throw new \RuntimeException( $this->definition->label().' WordPress container did not resolve after startup.' );
 		}
 
-		return $containerId;
+		return [
+			'container_id' => $containerId,
+			'reused' => false,
+		];
 	}
 
 	private function assertSitePortIsAvailable() :void {
@@ -587,12 +672,7 @@ class LocalSiteManager {
 		$exitCode = $this->dockerComposeExecutor->run(
 			$rootDir,
 			$composeFiles,
-			\array_merge(
-				[ 'up', '-d' ],
-				$this->definition->usesSharedDatabase()
-					? [ self::WORDPRESS_SERVICE_NAME ]
-					: [ self::DB_SERVICE_NAME, self::WORDPRESS_SERVICE_NAME ]
-			),
+			$this->buildSiteUpCommand(),
 			$envOverrides,
 			$onOutput
 		);
@@ -601,16 +681,56 @@ class LocalSiteManager {
 				'Failed to start the '.$this->definition->label().' Docker services.',
 				$this->buildComposeCommandForExecution(
 					$composeFiles,
-					\array_merge(
-						[ 'up', '-d' ],
-						$this->definition->usesSharedDatabase()
-							? [ self::WORDPRESS_SERVICE_NAME ]
-							: [ self::DB_SERVICE_NAME, self::WORDPRESS_SERVICE_NAME ]
-					)
+					$this->buildSiteUpCommand()
 				),
 				$exitCode
 			) );
 		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildDatabaseUpCommand() :array {
+		return [ 'up', '-d', '--wait', '--wait-timeout', '60', self::DB_SERVICE_NAME ];
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildSiteUpCommand() :array {
+		return $this->definition->usesSharedDatabase()
+			? [ 'up', '-d', self::WORDPRESS_SERVICE_NAME ]
+			: [ 'up', '-d', '--wait', '--wait-timeout', '60', self::DB_SERVICE_NAME, self::WORDPRESS_SERVICE_NAME ];
+	}
+
+	/**
+	 * @param string[] $composeFiles
+	 * @return string[]
+	 */
+	private function buildMysqlPingCommand( array $composeFiles ) :array {
+		return \array_merge(
+			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			[ 'mysqladmin', 'ping', '--protocol=tcp', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '--silent' ]
+		);
+	}
+
+	/**
+	 * @param string[] $composeFiles
+	 * @return string[]
+	 */
+	private function buildMysqlSelectOneCommand( array $composeFiles ) :array {
+		return \array_merge(
+			$this->buildComposeCommandForExecution( $composeFiles, [ 'exec', '-T', self::DB_SERVICE_NAME ] ),
+			$this->buildMysqlSqlCommand( 'SELECT 1' )
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildMysqlSqlCommand( string $sql ) :array {
+		return [ 'mysql', '--protocol=tcp', '-h', '127.0.0.1', '-uroot', '-p'.self::DB_ROOT_PASSWORD, '-e', $sql ];
 	}
 
 	private function waitForWordpressStartup() :void {
@@ -738,7 +858,16 @@ PHP;
 		);
 	}
 
-	private function isBrowserLaneReady( string $rootDir, string $containerId ) :bool {
+	private function isBrowserLaneReady(
+		string $rootDir,
+		string $containerId,
+		?string $fixtureToken,
+		?array $hostManifest
+	) :bool {
+		if ( $fixtureToken === null || $hostManifest === null ) {
+			return false;
+		}
+
 		$script = 'echo is_file('.\var_export( self::BROWSER_LANE_READY_MARKER, true ).') ? file_get_contents('.\var_export( self::BROWSER_LANE_READY_MARKER, true ).') : "";';
 		$process = $this->processRunner->run(
 			[
@@ -765,16 +894,31 @@ PHP;
 			&& (string)( $decoded[ 'site_url' ] ?? '' ) === $this->definition->siteUrl()
 			&& (string)( $decoded[ 'db_name' ] ?? '' ) === $this->definition->dbName()
 			&& (string)( $decoded[ 'admin_user' ] ?? '' ) === $this->definition->adminUser()
-			&& (string)( $decoded[ 'profile' ] ?? '' ) === $this->definition->key();
+			&& (string)( $decoded[ 'profile' ] ?? '' ) === $this->definition->key()
+			&& (string)( $decoded[ 'fixture_contract' ] ?? '' ) === self::BROWSER_FIXTURE_CONTRACT
+			&& (string)( $decoded[ 'fixture_token_sha256' ] ?? '' ) === \hash( 'sha256', $fixtureToken )
+			&& (string)( $decoded[ 'runtime_manifest_hash' ] ?? '' ) === $this->runtimeManifestHash( $hostManifest )
+			&& (int)( $decoded[ 'expires_at_unix' ] ?? 0 ) > \time();
 	}
 
-	private function writeBrowserLaneReadyMarker( string $rootDir, string $containerId ) :void {
+	private function writeBrowserLaneReadyMarker(
+		string $rootDir,
+		string $containerId,
+		string $fixtureToken,
+		?array $hostManifest
+	) :void {
+		$createdAt = \time();
 		$marker = \json_encode( [
-			'schema_version' => self::BROWSER_LANE_READY_SCHEMA_VERSION,
-			'site_url'       => $this->definition->siteUrl(),
-			'db_name'        => $this->definition->dbName(),
-			'admin_user'     => $this->definition->adminUser(),
-			'profile'        => $this->definition->key(),
+			'schema_version'        => self::BROWSER_LANE_READY_SCHEMA_VERSION,
+			'site_url'              => $this->definition->siteUrl(),
+			'db_name'               => $this->definition->dbName(),
+			'admin_user'            => $this->definition->adminUser(),
+			'profile'               => $this->definition->key(),
+			'fixture_contract'      => self::BROWSER_FIXTURE_CONTRACT,
+			'fixture_token_sha256'  => \hash( 'sha256', $fixtureToken ),
+			'runtime_manifest_hash' => $hostManifest === null ? '' : $this->runtimeManifestHash( $hostManifest ),
+			'created_at_unix'       => $createdAt,
+			'expires_at_unix'       => $createdAt + self::BROWSER_LANE_READY_TTL_SECONDS,
 		], \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR );
 
 		$script = <<<'PHP'
@@ -804,6 +948,177 @@ PHP;
 			],
 			$rootDir
 		);
+	}
+
+	/**
+	 * @param array<string,mixed> $hostManifest
+	 */
+	private function runtimeManifestHash( array $hostManifest ) :string {
+		return \hash( 'sha256', \json_encode( $hostManifest, \JSON_UNESCAPED_SLASHES | \JSON_THROW_ON_ERROR ) );
+	}
+
+	/**
+	 * @param array<string,string|false> $dockerEnvOverrides
+	 * @param array<string,string|false> $browserLabelEnv
+	 * @return array<string,string|false>
+	 */
+	private function siteLabelEnvironment( string $rootDir, array $dockerEnvOverrides, array $browserLabelEnv ) :array {
+		if ( $browserLabelEnv !== [] ) {
+			return $browserLabelEnv;
+		}
+
+		$policy = $this->siteCleanupPolicy();
+		if ( !$this->definition->usesSharedDatabase() ) {
+			if ( $this->localSiteLabelEnvironment === null ) {
+				$this->localSiteLabelEnvironment = $this->storedLocalSiteLabelEnvironment(
+					$rootDir,
+					$dockerEnvOverrides,
+					$policy
+				) ?? $this->newLocalSiteLabelEnvironment( $policy );
+			}
+			return $this->localSiteLabelEnvironment;
+		}
+
+		$runId = $this->runtimeRunId( $policy );
+		return $policy->labelEnvironment(
+			$runId,
+			DockerHarnessLabels::LIFECYCLE_REUSABLE,
+			$this->definition->key(),
+			\gmdate( \DATE_ATOM, \time() + 7*24*60*60 ),
+			$runId,
+			DockerHarnessLabels::LIFECYCLE_REUSABLE,
+			\gmdate( \DATE_ATOM, \time() + 30*24*60*60 )
+		);
+	}
+
+	/**
+	 * @param array<string,string|false> $dockerEnvOverrides
+	 * @return array<string,string>|null
+	 */
+	private function storedLocalSiteLabelEnvironment(
+		string $rootDir,
+		array $dockerEnvOverrides,
+		DockerCleanupPolicy $policy
+	) :?array {
+		$projectName = $this->definition->composeProjectName();
+		$process = $this->processRunner->run(
+			[
+				'docker',
+				'inspect',
+				'--format',
+				'{{json .Labels}}',
+				$projectName.'_site-wp',
+				$projectName.'_default',
+			],
+			$rootDir,
+			static function () :void {
+			},
+			$dockerEnvOverrides
+		);
+		if ( ( $process->getExitCode() ?? 1 ) !== 0 ) {
+			return null;
+		}
+
+		$labelSets = \preg_split( '/\R+/', \trim( $process->getOutput() ) ) ?: [];
+		if ( \count( $labelSets ) !== 2 ) {
+			return null;
+		}
+
+		try {
+			$volumeLabels = \json_decode( $labelSets[ 0 ], true, 512, \JSON_THROW_ON_ERROR );
+			$networkLabels = \json_decode( $labelSets[ 1 ], true, 512, \JSON_THROW_ON_ERROR );
+		}
+		catch ( \JsonException $e ) {
+			return null;
+		}
+		if ( !\is_array( $volumeLabels ) || !\is_array( $networkLabels )
+			|| !$this->areReusableLocalSiteLabels( $volumeLabels, $policy )
+			|| !$this->areReusableLocalSiteLabels( $networkLabels, $policy ) ) {
+			return null;
+		}
+
+		return $policy->labelEnvironment(
+			(string)$networkLabels[ DockerHarnessLabels::RUN_ID ],
+			(string)$networkLabels[ DockerHarnessLabels::LIFECYCLE ],
+			$this->definition->key(),
+			(string)$networkLabels[ DockerHarnessLabels::EXPIRES_AT ],
+			(string)$volumeLabels[ DockerHarnessLabels::RUN_ID ],
+			(string)$volumeLabels[ DockerHarnessLabels::LIFECYCLE ],
+			(string)$volumeLabels[ DockerHarnessLabels::EXPIRES_AT ]
+		);
+	}
+
+	/**
+	 * @param array<string,mixed> $labels
+	 */
+	private function areReusableLocalSiteLabels( array $labels, DockerCleanupPolicy $policy ) :bool {
+		$expiresAt = (string)( $labels[ DockerHarnessLabels::EXPIRES_AT ] ?? '' );
+		return (string)( $labels[ DockerHarnessLabels::HARNESS ] ?? '' ) === $policy->harnessLabelValue()
+			&& (string)( $labels[ DockerHarnessLabels::LANE ] ?? '' ) === $this->definition->key()
+			&& (string)( $labels[ DockerHarnessLabels::LIFECYCLE ] ?? '' ) === DockerHarnessLabels::LIFECYCLE_REUSABLE
+			&& (string)( $labels[ DockerHarnessLabels::RUN_ID ] ?? '' ) !== ''
+			&& $expiresAt !== ''
+			&& ( \strtotime( $expiresAt ) ?: 0 ) > \time();
+	}
+
+	/**
+	 * @return array<string,string>
+	 */
+	private function newLocalSiteLabelEnvironment( DockerCleanupPolicy $policy ) :array {
+		$runId = $this->runtimeRunId( $policy );
+		return $policy->labelEnvironment(
+			$runId,
+			DockerHarnessLabels::LIFECYCLE_REUSABLE,
+			$this->definition->key(),
+			\gmdate( \DATE_ATOM, \time() + 7*24*60*60 ),
+			$runId,
+			DockerHarnessLabels::LIFECYCLE_REUSABLE,
+			\gmdate( \DATE_ATOM, \time() + 30*24*60*60 )
+		);
+	}
+
+	/**
+	 * @param array<string,string|false> $browserLabelEnv
+	 * @return array<string,string|false>
+	 */
+	private function sharedDatabaseLabelEnvironment( array $browserLabelEnv ) :array {
+		if ( $browserLabelEnv !== [] ) {
+			$env = $browserLabelEnv;
+		}
+		else {
+			$policy = DockerCleanupPolicy::browser( 1 );
+			$runId = $this->runtimeRunId( $policy );
+			$env = $policy->labelEnvironment(
+				$runId,
+				DockerHarnessLabels::LIFECYCLE_REUSABLE,
+				'shared',
+				\gmdate( \DATE_ATOM, \time() + 7*24*60*60 ),
+				$runId,
+				DockerHarnessLabels::LIFECYCLE_REUSABLE,
+				\gmdate( \DATE_ATOM, \time() + 30*24*60*60 )
+			);
+		}
+		$env['SHIELD_BROWSER_LABEL_LANE'] = 'shared';
+
+		return $env;
+	}
+
+	private function siteCleanupPolicy() :DockerCleanupPolicy {
+		if ( $this->definition->usesSharedDatabase() ) {
+			return DockerCleanupPolicy::browser( 1 );
+		}
+
+		return $this->definition->key() === 'test'
+			? DockerCleanupPolicy::testSite()
+			: DockerCleanupPolicy::devSite();
+	}
+
+	private function runtimeRunId( DockerCleanupPolicy $policy ) :string {
+		if ( $this->runId === '' ) {
+			$this->runId = 'shield-plugin-'.$policy->scope().'-'.\gmdate( 'YmdHis' ).'-'.\bin2hex( \random_bytes( 3 ) );
+		}
+
+		return $this->runId;
 	}
 
 	/**

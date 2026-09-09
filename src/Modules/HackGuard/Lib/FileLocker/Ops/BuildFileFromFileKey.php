@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
@@ -6,6 +6,14 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Exc
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\File;
 
 class BuildFileFromFileKey {
+
+	public const SUPPORTED_FILE_KEYS = [
+		'wpconfig',
+		'theme_functions',
+		'root_htaccess',
+		'root_index',
+		'root_webconfig',
+	];
 
 	/**
 	 * @throws UnsupportedFileLockType

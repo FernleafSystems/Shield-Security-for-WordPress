@@ -20,6 +20,7 @@
 {% set badge_status = row_data.badge_status|default(status == 'neutral' ? 'info' : status) %}
 {% set expandable = row_data.expandable %}
 {% set actions = row_data.actions|default([]) %}
+{% set detail_items = row_data.detail_items|default([]) %}
 {% set explanations = row_data.explanations|default([]) %}
 {% set expand_target = row_data.expand_target %}
 {% set expand_cta_label = row_data.expand_cta_label %}
@@ -55,6 +56,21 @@
 
 		{% if row_data.description|default('') is not empty %}
 			<div class="shield-detail-row__desc">{{ row_data.description }}</div>
+		{% endif %}
+
+		{% if detail_items is not empty %}
+			<ul class="shield-detail-row__details">
+				{% for detail_item in detail_items %}
+					<li>
+						<span class="shield-detail-row__detail-label">{{ detail_item.label }}</span>
+						{% if detail_item.style == 'code' %}
+							<code class="shield-detail-row__detail-code">{{ detail_item.value }}</code>
+						{% else %}
+							<span class="shield-detail-row__detail-value">{{ detail_item.value }}</span>
+						{% endif %}
+					</li>
+				{% endfor %}
+			</ul>
 		{% endif %}
 
 		{% if explanations is not empty %}

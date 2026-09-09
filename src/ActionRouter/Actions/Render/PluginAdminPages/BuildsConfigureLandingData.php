@@ -170,20 +170,14 @@ trait BuildsConfigureLandingData {
 				continue;
 			}
 
-			$rowKey = sanitize_key( (string)( $row[ 'key' ] ?? '' ) );
-			if ( $rowKey === '' ) {
-				continue;
-			}
-
-			$dataAttributes = \is_array( $row[ 'expand_action' ][ 'data_attributes' ] ?? null )
-				? $row[ 'expand_action' ][ 'data_attributes' ]
-				: [];
+			$rowKey = $row[ 'key' ];
+			$dataAttributes = $row[ 'expand_action' ][ 'data_attributes' ];
 			$allowedOptionKeys = [];
 			$configItem = sanitize_key( (string)( $dataAttributes[ 'config_item' ] ?? '' ) );
 			if ( $configItem !== '' ) {
 				$allowedOptionKeys[] = $configItem;
 			}
-			foreach ( \explode( ',', (string)( $dataAttributes[ 'option_keys' ] ?? '' ) ) as $optionKey ) {
+			foreach ( \explode( ',', $dataAttributes[ 'option_keys' ] ) as $optionKey ) {
 				$optionKey = sanitize_key( $optionKey );
 				if ( $optionKey !== '' ) {
 					$allowedOptionKeys[] = $optionKey;

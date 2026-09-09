@@ -36,6 +36,12 @@ class TestPackageFullCommand extends Command {
 				null,
 				InputOption::VALUE_NONE,
 				'Show full Docker output instead of test-oriented compose output.'
+			)
+			->addOption(
+				'include-previous-wp',
+				null,
+				InputOption::VALUE_NONE,
+				'Also run checks against the previous WordPress version.'
 			);
 	}
 
@@ -45,7 +51,8 @@ class TestPackageFullCommand extends Command {
 			return $this->lane->run(
 				$this->projectRoot,
 				\is_string( $packagePath ) ? $packagePath : null,
-				(bool)$input->getOption( 'show-docker-output' )
+				(bool)$input->getOption( 'show-docker-output' ),
+				(bool)$input->getOption( 'include-previous-wp' )
 			);
 		}
 		catch ( \Throwable $throwable ) {

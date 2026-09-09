@@ -3,7 +3,7 @@
 	<div class="row">
 		{% for reporting_option in vars.reporting_options %}
 			<div class="col-4 mb-3">
-				<h6>{{ reporting_option.title }}</h6>
+				<h3 class="h6">{{ reporting_option.title }}</h3>
 				<div class="ps-3">
 					{% for zone_key,zone_name in reporting_option.zones %}
 						<div class="form-check">
@@ -22,7 +22,7 @@
 
 	<div class="row">
 		<div class="col-lg-12 col-xl-6 mb-4">
-			<h6>{{ strings.date_range }}</h6>
+			<h3 class="h6">{{ strings.date_range }}</h3>
 			<div class="input-group date input-daterange">
 			  <input type="text" name="start_date" class="form-control datepicker-input"
 					 {% if not flags.can_run_report %}disabled="disabled"{% endif %}
@@ -37,8 +37,8 @@
 
 	<div class="row">
 		<div class="col-5 mb-4">
-			<h6><label for="ReportTitle" class="form-label"
-					   id="ReportTitleLabel">{{ strings.report_title }}</label></h6>
+			<label for="ReportTitle" class="form-label h6"
+				   id="ReportTitleLabel">{{ strings.report_title }}</label>
 			<input name="title" type="text" class="form-control" id="ReportTitle"
 				   placeholder="{{ strings.descriptive_title }}"
 				   aria-describedby="ReportTitleLabel">

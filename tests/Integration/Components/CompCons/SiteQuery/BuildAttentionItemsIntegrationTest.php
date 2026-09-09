@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Components\CompCons\SiteQuery;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -20,7 +21,12 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->loginAsSecurityAdmin();
 		$this->optionsSnapshot = $this->snapshotSelectedOptions( [
+			'enable_core_file_integrity_scan',
+			'file_locker',
+			'file_scan_areas',
+			'filelocker_state',
 			'ignored_maintenance_items',
+			'snapi_data',
 		] );
 		\delete_site_transient( 'update_plugins' );
 	}
@@ -49,10 +55,7 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->setPluginUpdateAvailable();
 
 		$query = self::con()->comps->site_query->attention();
-		$itemsByKey = [];
-		foreach ( $query[ 'items' ] as $item ) {
-			$itemsByKey[ $item[ 'key' ] ] = $item;
-		}
+		$itemsByKey = $this->indexItemsByKey( $query[ 'items' ] );
 
 		$this->assertArrayHasKey( 'wp_plugins_updates', $itemsByKey );
 		$this->assertSame( 'maintenance', $itemsByKey[ 'wp_plugins_updates' ][ 'zone' ] );
@@ -155,6 +158,7 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 			'scan_pluginsthemes_local',
 			'scan_file_locker',
 		] );
+		RuntimeTestState::primeShieldNetHandshake();
 
 		self::con()->opts
 			->optSet( 'enable_core_file_integrity_scan', 'Y' )
@@ -187,11 +191,11 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->resetScanResultCountMemoization();
 
 		$query = self::con()->comps->site_query->attention();
-		$itemsByKey = [];
-		foreach ( $query[ 'groups' ][ 'scans' ][ 'items' ] as $item ) {
-			$itemsByKey[ $item[ 'key' ] ] = $item;
-		}
+		$itemsByKey = $this->indexItemsByKey( $query[ 'groups' ][ 'scans' ][ 'items' ] );
 
+		$this->assertArrayHasKey( 'plugin_files', $itemsByKey );
+		$this->assertArrayHasKey( 'theme_files', $itemsByKey );
+		$this->assertArrayHasKey( 'file_locker', $itemsByKey );
 		$this->assertSame( 1, $itemsByKey[ 'plugin_files' ][ 'count' ] );
 		$this->assertSame( 1, $itemsByKey[ 'theme_files' ][ 'count' ] );
 		$this->assertSame( 1, $itemsByKey[ 'file_locker' ][ 'count' ] );
@@ -233,19 +237,20 @@ class BuildAttentionItemsIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	/**
-	 * @param list<array<string,mixed>> $items
-	 * @return array<string,array<string,mixed>>
+	 * @template T of array{key:string}
+	 * @param list<T> $items
+	 * @return array<string,T>
 	 */
 	private function indexItemsByKey( array $items ) :array {
 		$itemsByKey = [];
 		foreach ( $items as $item ) {
-			$itemsByKey[ (string)( $item[ 'key' ] ?? '' ) ] = $item;
+			$itemsByKey[ $item[ 'key' ] ] = $item;
 		}
 		return $itemsByKey;
 	}
 
 	/**
-	 * @param list<array<string,mixed>> $items
+	 * @param list<array{count:int}> $items
 	 */
 	private function sumItemCounts( array $items ) :int {
 		return (int)\array_sum( \array_column( $items, 'count' ) );

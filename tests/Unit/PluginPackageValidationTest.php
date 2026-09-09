@@ -2,6 +2,8 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit;
 
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\ProcessorComponentReferenceVerifier;
+use FernleafSystems\ShieldPlatform\Tooling\PluginPackager\TwigTemplateReferenceVerifier;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Path;
@@ -140,6 +142,51 @@ class PluginPackageValidationTest extends TestCase {
 		$this->assertMatchesRegularExpression(
 			'/^Stable tag:\s*'.preg_quote( $configVersion, '/' ).'\s*$/m',
 			$readme
+		);
+	}
+
+	public function testPackagedTwigStaticReferencesResolve() :void {
+		$templateRoot = $this->getPluginFilePath( 'templates/twig' );
+		$this->assertFileExistsWithDebug( $templateRoot, 'Package should include Twig templates.' );
+		$this->assertDirectoryExists( $templateRoot );
+
+		$verifier = new TwigTemplateReferenceVerifier();
+		$missingReferences = $verifier->findMissingReferences( $templateRoot );
+
+		$this->assertSame(
+			[],
+			$missingReferences,
+			'Packaged Twig static references should resolve: '.$verifier->formatMissingReferences( $missingReferences )
+		);
+	}
+
+	public function testPackagedProcessorComponentReferencesAreMapped() :void {
+		$processor = $this->getPluginFilePath( 'src/Modules/Plugin/Processor.php' );
+		$componentLoader = $this->getPluginFilePath( 'src/Components/ComponentLoader.php' );
+		$this->assertFileExistsWithDebug( $processor, 'Package should include Processor.php.' );
+		$this->assertFileExistsWithDebug( $componentLoader, 'Package should include ComponentLoader.php.' );
+
+		$verifier = new ProcessorComponentReferenceVerifier();
+		$missingKeys = $verifier->findMissingComponentKeys( $processor, $componentLoader );
+
+		$this->assertSame(
+			[],
+			$missingKeys,
+			'Packaged Processor component references should be mapped: '.$verifier->formatMissingKeys( $missingKeys )
+		);
+	}
+
+	public function testPackagedComponentLoaderMappedClassFilesExist() :void {
+		$componentLoader = $this->getPluginFilePath( 'src/Components/ComponentLoader.php' );
+		$this->assertFileExistsWithDebug( $componentLoader, 'Package should include ComponentLoader.php.' );
+
+		$verifier = new ProcessorComponentReferenceVerifier();
+		$missingClassFiles = $verifier->findMissingComponentClassFiles( $componentLoader, $this->packagePath );
+
+		$this->assertSame(
+			[],
+			$missingClassFiles,
+			'Packaged ComponentLoader mapped class files should exist: '.$verifier->formatMissingClassFiles( $missingClassFiles )
 		);
 	}
 

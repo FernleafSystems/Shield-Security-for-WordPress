@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\FullPageDisplay\FullPageDisplayDynamic,
 	Actions\FullPageDisplay\FullPageDisplayNonTerminating,
 	Actions\OperatorModeSwitch,
+	Actions\PluginImportExport_NetworkInviteRequest,
 	Actions\Render,
 	Actions\Render\Components\Reports\Components\ReportAreaChanges,
 	Actions\Render\Components\Scans\Results\Wordpress,
@@ -121,6 +122,26 @@ class ExternalActionTransportPolicyTest extends BaseUnitTest {
 
 		self::$isAdminContext = false;
 		$this->assertFalse( $policy->isAllowed( DisplayReportAdmin::SLUG, [], ActionRoutingController::ACTION_SHIELD ) );
+	}
+
+	public function test_network_invite_request_transport_is_only_allowed_from_normal_shield_transport() :void {
+		$policy = new ExternalActionTransportPolicy();
+
+		$this->assertTrue( $policy->isAllowed(
+			PluginImportExport_NetworkInviteRequest::SLUG,
+			[],
+			ActionRoutingController::ACTION_SHIELD
+		) );
+		$this->assertFalse( $policy->isAllowed(
+			PluginImportExport_NetworkInviteRequest::SLUG,
+			[],
+			ActionRoutingController::ACTION_AJAX
+		) );
+		$this->assertFalse( $policy->isAllowed(
+			PluginImportExport_NetworkInviteRequest::SLUG,
+			[],
+			ActionRoutingController::ACTION_REST
+		) );
 	}
 
 	/**

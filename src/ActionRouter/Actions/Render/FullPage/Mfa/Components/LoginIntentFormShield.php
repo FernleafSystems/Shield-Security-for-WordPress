@@ -9,7 +9,7 @@ class LoginIntentFormShield extends BaseForm {
 
 	protected function getRenderData() :array {
 		$con = self::con();
-		$errorMsg = (string)( $this->action_data[ 'msg_error' ] ?? '' );
+		$errorMsg = $this->loginIntentRenderData()[ 'msg_error' ];
 		$hasError = $errorMsg !== '';
 
 		return [

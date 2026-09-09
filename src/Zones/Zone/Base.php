@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Zones\Zone;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\OffCanvas\ZoneComponentConfig;
+use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\GetOptionsForZoneComponents;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Component\Modules\ModuleBase;
 
 abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\Base {
@@ -37,13 +38,23 @@ abstract class Base extends \FernleafSystems\Wordpress\Plugin\Shield\Zones\Commo
 
 	public function getAction_Config() :?array {
 		$zoneComponentSlugs = $this->getConfigZoneComponentSlugs();
-		return empty( $zoneComponentSlugs ) ? null : [
+		if ( empty( $zoneComponentSlugs ) ) {
+			return null;
+		}
+
+		$optionKeys = ( new GetOptionsForZoneComponents() )->run( $zoneComponentSlugs );
+		if ( empty( $optionKeys ) ) {
+			return null;
+		}
+
+		return [
 			'title'   => sprintf( __( "Configure All '%s' Options", 'wp-simple-firewall' ), $this->title() ),
 			'href'    => '',
 			'data'    => \array_merge(
 				[
 					'zone_component_action' => ZoneComponentConfig::SLUG,
 					'zone_component_slug'   => \implode( ',', $zoneComponentSlugs ),
+					'option_keys'           => \implode( ',', $optionKeys ),
 				],
 				empty( $this->tooltip() ) ? [] : [
 					'bs-toggle'    => 'tooltip',

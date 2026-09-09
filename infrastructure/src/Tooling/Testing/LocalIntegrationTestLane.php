@@ -14,12 +14,31 @@ class LocalIntegrationTestLane {
 	private const DB_NAME = 'wordpress_test_local';
 	private const DB_USER = 'root';
 	private const DB_PASS = 'testpass';
-	private const DB_HOST = '127.0.0.1:3311';
+	private const DB_HOST_NAME = '127.0.0.1';
+	private const DB_PORT = 3311;
+	private const DB_HOST = self::DB_HOST_NAME.':'.self::DB_PORT;
 	private const WP_VERSION = 'latest';
 	private const SKIP_DB_CREATE = true;
 	private const LOCK_DIR_NAME = 'shield-test-locks';
 	private const LOCK_FILE = 'integration-local.lock';
 	private const DEFAULT_WAIT_SECONDS = 600;
+	private const DATABASE_READY_WAIT_SECONDS = 60;
+	private const REUSABLE_DOCKER_RUN_ID = 'integration-local-reusable';
+	private const REUSABLE_DOCKER_EXPIRES_AT = '2037-12-31T23:59:59+00:00';
+	private const DB_PROFILES = [
+		'mysql80'    => [
+			'image'   => 'mysql:8.0',
+			'command' => '--default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0',
+		],
+		'mysql56'    => [
+			'image'   => 'mysql:5.6',
+			'command' => '--bind-address=0.0.0.0',
+		],
+		'mariadb106' => [
+			'image'   => 'mariadb:10.6',
+			'command' => '--bind-address=0.0.0.0',
+		],
+	];
 
 	private ProcessRunner $processRunner;
 
@@ -29,6 +48,8 @@ class LocalIntegrationTestLane {
 
 	private LocalWpTestsInstallerCommandBuilder $installerCommandBuilder;
 
+	private LocalWpTestsConfigGuard $wpTestsConfigGuard;
+
 	private ?string $lockDir;
 
 	public function __construct(
@@ -37,7 +58,8 @@ class LocalIntegrationTestLane {
 		?DockerComposeExecutor $dockerComposeExecutor = null,
 		?BashCommandResolver $bashCommandResolver = null,
 		?LocalWpTestsInstallerCommandBuilder $installerCommandBuilder = null,
-		?string $lockDir = null
+		?string $lockDir = null,
+		?LocalWpTestsConfigGuard $wpTestsConfigGuard = null
 	) {
 		$this->processRunner = $processRunner ?? new ProcessRunner();
 		$resolvedBashCommandResolver = $bashCommandResolver ?? new BashCommandResolver();
@@ -49,29 +71,59 @@ class LocalIntegrationTestLane {
 		$this->installerCommandBuilder = $installerCommandBuilder ?? new LocalWpTestsInstallerCommandBuilder(
 			$resolvedBashCommandResolver
 		);
+		$this->wpTestsConfigGuard = $wpTestsConfigGuard ?? new LocalWpTestsConfigGuard();
 		$this->lockDir = $lockDir;
 	}
 
 	/**
 	 * @param string[] $phpunitArgs
 	 */
-	public function run( string $rootDir, bool $dbDown = false, array $phpunitArgs = [], bool $showDockerOutput = false ) :int {
-		echo 'Mode: integration-local'.\PHP_EOL;
+	public function run(
+		string $rootDir,
+		bool $dbDown = false,
+		array $phpunitArgs = [],
+		bool $showDockerOutput = false,
+		string $dbProfile = 'mysql80'
+	) :int {
+		$profile = $this->resolveDbProfile( $dbProfile );
+		echo 'Mode: integration-local ('.$dbProfile.')'.\PHP_EOL;
 
-		return $this->withLaneLock( $rootDir, function () use ( $rootDir, $dbDown, $phpunitArgs, $showDockerOutput ) :int {
-			return $this->runWithLock( $rootDir, $dbDown, $phpunitArgs, $showDockerOutput );
+		return $this->withLaneLock( $rootDir, $dbProfile, function () use ( $rootDir, $dbDown, $phpunitArgs, $showDockerOutput, $profile ) :int {
+			return $this->runWithLock( $rootDir, $dbDown, $phpunitArgs, $showDockerOutput, $profile );
 		} );
 	}
 
 	/**
 	 * @param string[] $phpunitArgs
+	 * @param array{image:string,command:string} $profile
 	 */
-	private function runWithLock( string $rootDir, bool $dbDown, array $phpunitArgs, bool $showDockerOutput ) :int {
+	private function runWithLock(
+		string $rootDir,
+		bool $dbDown,
+		array $phpunitArgs,
+		bool $showDockerOutput,
+		array $profile
+	) :int {
 		$this->environmentResolver->assertDockerReady( $rootDir );
 		$composeFiles = $this->buildComposeFiles();
-		$envOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
-			self::COMPOSE_PROJECT_NAME,
-			true
+		$envOverrides = \array_merge(
+			$this->environmentResolver->buildDockerProcessEnvOverrides(
+				self::COMPOSE_PROJECT_NAME,
+				true
+			),
+			DockerCleanupPolicy::integrationLocal()->labelEnvironment(
+				self::REUSABLE_DOCKER_RUN_ID,
+				DockerHarnessLabels::LIFECYCLE_REUSABLE,
+				'integration-local',
+				self::REUSABLE_DOCKER_EXPIRES_AT,
+				self::REUSABLE_DOCKER_RUN_ID,
+				DockerHarnessLabels::LIFECYCLE_REUSABLE,
+				self::REUSABLE_DOCKER_EXPIRES_AT
+			),
+			[
+				'SHIELD_INTEGRATION_DB_IMAGE'   => $profile[ 'image' ],
+				'SHIELD_INTEGRATION_DB_COMMAND' => $profile[ 'command' ],
+			]
 		);
 		$phpUnitEnvOverrides = \array_merge( $envOverrides, $this->buildWordPressTestEnvOverrides() );
 
@@ -97,9 +149,14 @@ class LocalIntegrationTestLane {
 			return 1;
 		}
 
+		$this->waitForHostDatabaseReady( $rootDir, $envOverrides );
+		$this->resetHostDatabase( $rootDir, $envOverrides );
+		$this->wpTestsConfigGuard->removeIfStale( $this->wordPressTestsDir(), $this->expectedWordPressTestDbConstants() );
+
 		if ( $this->processRunner->runForExitCode( $this->buildInstallerCommand(), $rootDir, null, $envOverrides ) !== 0 ) {
 			return 1;
 		}
+		$this->wpTestsConfigGuard->assertMatches( $this->wordPressTestsDir(), $this->expectedWordPressTestDbConstants() );
 
 		if ( $this->processRunner->runForExitCode( $this->buildBuildConfigCommand(), $rootDir, null, $phpUnitEnvOverrides ) !== 0 ) {
 			return 1;
@@ -116,7 +173,7 @@ class LocalIntegrationTestLane {
 	/**
 	 * @param callable():int $callback
 	 */
-	private function withLaneLock( string $rootDir, callable $callback ) :int {
+	private function withLaneLock( string $rootDir, string $dbProfile, callable $callback ) :int {
 		$waitSeconds = $this->waitSeconds();
 		$lockDir = $this->resolveLockDir();
 		if ( !\is_dir( $lockDir ) && !@\mkdir( $lockDir, 0777, true ) && !\is_dir( $lockDir ) ) {
@@ -134,7 +191,7 @@ class LocalIntegrationTestLane {
 		try {
 			do {
 				if ( \flock( $handle, \LOCK_EX | \LOCK_NB ) ) {
-					$this->writeLeaseMetadata( $handle, $rootDir );
+					$this->writeLeaseMetadata( $handle, $rootDir, $dbProfile );
 					echo 'Integration lane: acquired lock'.\PHP_EOL;
 					return $callback();
 				}
@@ -182,7 +239,7 @@ class LocalIntegrationTestLane {
 	/**
 	 * @param resource $handle
 	 */
-	private function writeLeaseMetadata( $handle, string $rootDir ) :void {
+	private function writeLeaseMetadata( $handle, string $rootDir, string $dbProfile ) :void {
 		\rewind( $handle );
 		\ftruncate( $handle, 0 );
 		\fwrite( $handle, \json_encode( [
@@ -190,12 +247,26 @@ class LocalIntegrationTestLane {
 			'compose_project' => self::COMPOSE_PROJECT_NAME,
 			'db_name' => self::DB_NAME,
 			'db_host' => self::DB_HOST,
+			'db_profile' => $dbProfile,
 			'pid' => \getmypid(),
 			'cwd' => (string)\getcwd(),
 			'root_dir' => $rootDir,
 			'acquired_at_unix' => \time(),
 		], \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES ).\PHP_EOL );
 		\fflush( $handle );
+	}
+
+	/**
+	 * @return array{image:string,command:string}
+	 */
+	private function resolveDbProfile( string $dbProfile ) :array {
+		if ( !isset( self::DB_PROFILES[ $dbProfile ] ) ) {
+			throw new \InvalidArgumentException(
+				'Unknown integration database profile: '.$dbProfile.'. Expected mysql80, mysql56, or mariadb106.'
+			);
+		}
+
+		return self::DB_PROFILES[ $dbProfile ];
 	}
 
 	/**
@@ -275,14 +346,164 @@ class LocalIntegrationTestLane {
 	}
 
 	/**
+	 * @param array<string,string|false> $envOverrides
+	 */
+	private function waitForHostDatabaseReady( string $rootDir, array $envOverrides ) :void {
+		$command = $this->buildHostDatabaseReadyCommand();
+		$startedAt = \time();
+		$lastOutput = '';
+		echo 'Integration lane: waiting for host database TCP readiness'.\PHP_EOL;
+		do {
+			$process = $this->processRunner->run(
+				$command,
+				$rootDir,
+				static function ( string $type, string $buffer ) :void {
+				},
+				$envOverrides
+			);
+			if ( ( $process->getExitCode() ?? 1 ) === 0 ) {
+				return;
+			}
+			$lastOutput = \trim( $process->getErrorOutput().$process->getOutput() );
+			\usleep( 500000 );
+		} while ( \time() - $startedAt < self::DATABASE_READY_WAIT_SECONDS );
+
+		throw new \RuntimeException(
+			'Integration-local database did not become reachable from host PHP within '
+			.self::DATABASE_READY_WAIT_SECONDS.' seconds at '.self::DB_HOST.'.'
+			.( $lastOutput === '' ? '' : ' Last probe output: '.$lastOutput )
+		);
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildHostDatabaseReadyCommand() :array {
+		return [
+			\PHP_BINARY,
+			'-r',
+			$this->buildHostDatabaseReadyProbeScript(),
+		];
+	}
+
+	private function buildHostDatabaseReadyProbeScript() :string {
+		return \sprintf(
+			<<<'PHP'
+if ( !extension_loaded( 'mysqli' ) ) {
+	fwrite( STDERR, 'PHP mysqli extension is required for integration-local database readiness.' );
+	exit( 2 );
+}
+$mysqli = mysqli_init();
+if ( !$mysqli instanceof mysqli ) {
+	fwrite( STDERR, 'Failed to initialize mysqli.' );
+	exit( 2 );
+}
+$mysqli->options( MYSQLI_OPT_CONNECT_TIMEOUT, 2 );
+if ( !@$mysqli->real_connect( %s, %s, %s, null, %d ) ) {
+	fwrite( STDERR, mysqli_connect_error() ?: $mysqli->connect_error ?: 'Host database TCP connection failed.' );
+	exit( 1 );
+}
+$result = $mysqli->query( 'SELECT 1' );
+if ( $result === false ) {
+	fwrite( STDERR, $mysqli->error ?: 'Host database SELECT 1 failed.' );
+	exit( 1 );
+}
+exit( 0 );
+PHP,
+			\var_export( self::DB_HOST_NAME, true ),
+			\var_export( self::DB_USER, true ),
+			\var_export( self::DB_PASS, true ),
+			self::DB_PORT
+		);
+	}
+
+	/**
+	 * @param array<string,string|false> $envOverrides
+	 */
+	private function resetHostDatabase( string $rootDir, array $envOverrides ) :void {
+		echo 'Integration lane: recreating database'.\PHP_EOL;
+		if ( $this->processRunner->runForExitCode(
+			$this->buildHostDatabaseResetCommand(),
+			$rootDir,
+			null,
+			$envOverrides
+		) !== 0 ) {
+			throw new \RuntimeException( 'Failed to recreate integration-local database '.self::DB_NAME.'.' );
+		}
+	}
+
+	/**
+	 * @return string[]
+	 */
+	private function buildHostDatabaseResetCommand() :array {
+		return [
+			\PHP_BINARY,
+			'-r',
+			\sprintf(
+				<<<'PHP'
+if ( !extension_loaded( 'mysqli' ) ) {
+	fwrite( STDERR, 'PHP mysqli extension is required to reset the integration-local database.' );
+	exit( 2 );
+}
+$mysqli = mysqli_init();
+if ( !$mysqli instanceof mysqli ) {
+	fwrite( STDERR, 'Failed to initialize mysqli.' );
+	exit( 2 );
+}
+$mysqli->options( MYSQLI_OPT_CONNECT_TIMEOUT, 2 );
+if ( !@$mysqli->real_connect( %s, %s, %s, null, %d ) ) {
+	fwrite( STDERR, mysqli_connect_error() ?: $mysqli->connect_error ?: 'Host database TCP connection failed.' );
+	exit( 1 );
+}
+foreach ( [
+	'DROP DATABASE IF EXISTS `%s`',
+	'CREATE DATABASE `%s` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci',
+] as $sql ) {
+	if ( !$mysqli->query( $sql ) ) {
+		fwrite( STDERR, $mysqli->error ?: 'Host database reset failed.' );
+		exit( 1 );
+	}
+}
+exit( 0 );
+PHP,
+				\var_export( self::DB_HOST_NAME, true ),
+				\var_export( self::DB_USER, true ),
+				\var_export( self::DB_PASS, true ),
+				self::DB_PORT,
+				self::DB_NAME,
+				self::DB_NAME
+			)
+		];
+	}
+
+	/**
 	 * @return array<string,string>
 	 */
 	private function buildWordPressTestEnvOverrides() :array {
-		$tempDir = \rtrim( \sys_get_temp_dir(), "\\/" );
-
 		return [
-			'WP_TESTS_DIR' => $tempDir.\DIRECTORY_SEPARATOR.'wordpress-tests-lib',
-			'WP_CORE_DIR'  => $tempDir.\DIRECTORY_SEPARATOR.'wordpress',
+			'WP_TESTS_DIR' => $this->wordPressTestsDir(),
+			'WP_CORE_DIR'  => $this->wordPressCoreDir(),
 		];
 	}
+
+	/**
+	 * @return array{DB_NAME:string,DB_USER:string,DB_PASSWORD:string,DB_HOST:string}
+	 */
+	private function expectedWordPressTestDbConstants() :array {
+		return [
+			'DB_NAME' => self::DB_NAME,
+			'DB_USER' => self::DB_USER,
+			'DB_PASSWORD' => self::DB_PASS,
+			'DB_HOST' => self::DB_HOST,
+		];
+	}
+
+	private function wordPressTestsDir() :string {
+		return \rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress-tests-lib';
+	}
+
+	private function wordPressCoreDir() :string {
+		return \rtrim( \sys_get_temp_dir(), "\\/" ).\DIRECTORY_SEPARATOR.'wordpress';
+	}
+
 }

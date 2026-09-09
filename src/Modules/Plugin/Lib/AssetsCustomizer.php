@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\{
 	ForActivityLog,
+	ForImportExportSites,
 	ForIpRules,
 	ForReports,
 	ForSecurityRules,
@@ -34,24 +35,25 @@ class AssetsCustomizer {
 	}
 
 	protected function run() {
-		add_filter( 'shield/custom_enqueue_assets', fn( array $assets ) => $this->buildCustomEnqueueAssets( $assets ) );
+		add_filter( 'shield/custom_enqueue_assets', fn( $assets ) => $this->buildCustomEnqueueAssets( $assets ) );
 
-		add_filter( 'shield/custom_localisations', function ( array $locals, string $hook = '', array $handles = [] ) {
+		add_filter( 'shield/custom_localisations', function ( $locals, $hook = '', $handles = [] ) {
 			return $this->buildCustomLocalisations( $locals, $hook, $handles );
 		}, 10, 3 );
 	}
 
-	private function buildCustomEnqueueAssets( array $assets ) :array {
-		if ( $this->isPluginOnboardingRequired() ) {
+	private function buildCustomEnqueueAssets( $assets ) :array {
+		$assets = $this->normalizeStringList( $assets );
+		if ( $this->isPluginOnboardingRequired() && !\in_array( 'plugin_onboarding', $assets, true ) ) {
 			$assets[] = 'plugin_onboarding';
 		}
-		return \array_unique( $assets );
+		return $assets;
 	}
 
-	private function buildCustomLocalisations( array $locals, string $hook = '', array $handles = [] ) :array {
-		$this->hook = $hook;
-		$this->handles = $handles;
-		return \array_merge( $locals, \array_filter( $this->buildForComponents() ) );
+	private function buildCustomLocalisations( $locals, $hook = '', $handles = [] ) :array {
+		$this->hook = \is_string( $hook ) ? $hook : '';
+		$this->handles = $this->normalizeStringList( $handles );
+		return \array_merge( $this->normalizeLocalisations( $locals ), $this->buildForComponents() );
 	}
 
 	private function buildForComponents() :array {
@@ -82,9 +84,7 @@ class AssetsCustomizer {
 							'table_loading'        => __( 'Loading table data.', 'wp-simple-firewall' ),
 							'scan_repair_limit_exceeded' => __( "Sorry, this tool isn't designed for such large repairs. We recommend completely removing and reinstalling the item.", 'wp-simple-firewall' ),
 						],
-						'comps'   => \array_map(
-							fn( array $c ) => \is_callable( $c[ 'data' ] ?? null ) ? \call_user_func( $c[ 'data' ] ) : $c[ 'data' ],
-							$components ),
+						'comps'   => $this->buildComponentData( $components ),
 					]
 				];
 			}
@@ -95,7 +95,7 @@ class AssetsCustomizer {
 
 	private function components() :array {
 		$con = self::con();
-		return apply_filters( 'shield/custom_localisations/components', [
+		$components = apply_filters( 'shield/custom_localisations/components', [
 			'badge'            => [
 				'key'     => 'badge',
 				'handles' => [
@@ -183,7 +183,6 @@ class AssetsCustomizer {
 				'data'    => fn() => [
 					'ajax' => [
 						'file_action' => ActionData::Build( Actions\ScansFileLockerAction::class ),
-						'render_diff' => ActionData::BuildAjaxRender( Components\Scans\ScansFileLockerDiff::class ),
 					],
 				],
 			],
@@ -204,7 +203,14 @@ class AssetsCustomizer {
 				],
 				'data'    => fn() => [
 					'ajax' => [
-						'import_from_site' => ActionData::Build( Actions\PluginImportFromSite::class ),
+						'disconnect_master'     => ActionData::Build( Actions\PluginImportExport_DisconnectMaster::class ),
+						'import_from_site'       => ActionData::Build( Actions\PluginImportFromSite::class ),
+						'network_invite_accept'  => ActionData::Build( Actions\ImportExportNetworkInviteAccept::class ),
+						'network_invite_reject'  => ActionData::Build( Actions\ImportExportNetworkInviteReject::class ),
+						'profile_copy_from_master' => ActionData::Build( Actions\ImportExportProfileCopyFromMaster::class ),
+						'authorise_urls_submit'  => ActionData::Build( Actions\ImportExportSitesAuthoriseUrlsSubmit::class ),
+						'render_authorise_urls_offcanvas' => ActionData::BuildAjaxRender( Components\OffCanvas\ImportExportSitesAuthoriseUrls::class ),
+						'set_enabled'            => ActionData::Build( Actions\PluginImportExport_SetEnabled::class ),
 					],
 				],
 			],
@@ -345,8 +351,10 @@ class AssetsCustomizer {
 				],
 				'data'    => fn() => [
 					'ajax' => [
-						'form_save'           => ActionData::Build( Actions\ModuleOptionsSave::class ),
-						'xfer_include_toggle' => ActionData::Build( Actions\OptionTransferIncludeToggle::class ),
+						'form_save'                         => ActionData::Build( Actions\ModuleOptionsSave::class ),
+						'profile_form_save'                 => ActionData::Build( Actions\ImportExportProfileOptionsSave::class ),
+						'profile_xfer_include_toggle'       => ActionData::Build( Actions\ImportExportProfileOptionIncludeToggle::class ),
+						'profile_xfer_group_include_toggle' => ActionData::Build( Actions\ImportExportProfileOptionsIncludeToggle::class ),
 					]
 				],
 			],
@@ -401,7 +409,7 @@ class AssetsCustomizer {
 			],
 			'reports'          => [
 				'key'      => 'reports',
-				'required' => PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::reportsDefaultWorkspaceSubNav() ),
+				'required' => PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW ),
 				'handles'  => [
 					'main',
 				],
@@ -476,6 +484,21 @@ class AssetsCustomizer {
 							]
 						];
 					}
+					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_IMPORT ) ) {
+						$data[ 'import_export_sites' ] = [
+							'ajax' => [
+								'table_action' => ActionData::Build( Actions\ImportExportSitesTableAction::class ),
+							],
+							'strings' => [
+								'remove_site_confirm'          => __( 'Remove this site from managed client sites? This affects this master site\'s authorization and record only; it does not change the remote client configuration.', 'wp-simple-firewall' ),
+								'remove_selected_sites_confirm' => __( 'Remove selected sites from managed client sites? This affects this master site\'s authorization and records only; it does not change remote client configuration.', 'wp-simple-firewall' ),
+								'repair_site_confirm'          => __( 'Use this if this site is stuck failing to sync or has not updated after several tries. Shield will try again now.', 'wp-simple-firewall' ),
+							],
+							'vars' => [
+								'datatables_init' => ( new ForImportExportSites() )->buildRaw(),
+							]
+						];
+					}
 					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_IPS, PluginNavs::SUBNAV_IPS_RULES ) ) {
 						$data[ 'ip_rules' ] = [
 							'ajax' => [
@@ -501,10 +524,7 @@ class AssetsCustomizer {
 							]
 						];
 					}
-					elseif (
-						PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS )
-						|| PluginNavs::IsNavs( PluginNavs::NAV_TOOLS, PluginNavs::SUBNAV_TOOLS_SESSIONS )
-					) {
+					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_ACTIVITY, PluginNavs::SUBNAV_ACTIVITY_SESSIONS ) ) {
 						$data[ 'sessions' ] = [
 							'ajax' => [
 								'table_action' => ActionData::Build( Actions\SessionsTableAction::class ),
@@ -531,10 +551,7 @@ class AssetsCustomizer {
 							]
 						];
 					}
-					elseif (
-						PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW )
-						|| PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_LIST )
-					) {
+					elseif ( PluginNavs::IsNavs( PluginNavs::NAV_REPORTS, PluginNavs::SUBNAV_REPORTS_OVERVIEW ) ) {
 						$data[ 'reports' ] = [
 							'ajax' => [
 								'table_action' => ActionData::Build( Actions\ReportTableAction::class ),
@@ -614,7 +631,8 @@ class AssetsCustomizer {
 				],
 				'data'    => [
 					'ajax' => [
-						'render_live' => ActionData::BuildAjaxRender( Components\Traffic\TrafficLiveLogs::class ),
+						'render_live'           => ActionData::BuildAjaxRender( Components\Traffic\TrafficLiveLogs::class ),
+						'set_live_log_enabled'  => ActionData::Build( Actions\TrafficLiveLog_SetEnabled::class ),
 					],
 				],
 			],
@@ -631,6 +649,82 @@ class AssetsCustomizer {
 				],
 			],
 		], $this->hook, $this->handles );
+
+		return $this->normalizeComponents( $components );
+	}
+
+	private function buildComponentData( array $components ) :array {
+		$data = [];
+		foreach ( $components as $key => $component ) {
+			$value = \is_callable( $component[ 'data' ] ) ? \call_user_func( $component[ 'data' ] ) : $component[ 'data' ];
+			if ( \is_array( $value ) ) {
+				$data[ $key ] = $value;
+			}
+		}
+		return $data;
+	}
+
+	private function normalizeComponents( $components ) :array {
+		$normalized = [];
+		if ( !\is_array( $components ) ) {
+			return $normalized;
+		}
+		foreach ( $components as $mapKey => $component ) {
+			$key = \is_string( $mapKey ) ? \trim( $mapKey ) : '';
+			if ( $key === '' || !\is_array( $component ) ) {
+				continue;
+			}
+			$handles = $this->normalizeStringList( $component[ 'handles' ] ?? null );
+			$data = $component[ 'data' ] ?? null;
+			if ( $handles === [] || !( \is_array( $data ) || \is_callable( $data ) ) ) {
+				continue;
+			}
+			if ( \array_key_exists( 'required', $component ) && !\is_bool( $component[ 'required' ] ) ) {
+				continue;
+			}
+			$component[ 'key' ] = $key;
+			$component[ 'handles' ] = $handles;
+			$normalized[ $key ] = $component;
+		}
+		return $normalized;
+	}
+
+	private function normalizeLocalisations( $locals ) :array {
+		$normalized = [];
+		if ( !\is_array( $locals ) ) {
+			return $normalized;
+		}
+		foreach ( $locals as $local ) {
+			$handle = \is_array( $local ) ? $this->normalizeString( $local[ 0 ] ?? null ) : null;
+			$objectName = \is_array( $local ) ? $this->normalizeString( $local[ 1 ] ?? null ) : null;
+			$data = \is_array( $local ) ? ( $local[ 2 ] ?? null ) : null;
+			if ( \count( \is_array( $local ) ? $local : [] ) === 3
+				 && $handle !== null && $objectName !== null && \is_array( $data ) ) {
+				$normalized[] = [ $handle, $objectName, $data ];
+			}
+		}
+		return $normalized;
+	}
+
+	private function normalizeStringList( $values ) :array {
+		$normalized = [];
+		if ( \is_array( $values ) ) {
+			foreach ( $values as $value ) {
+				$value = $this->normalizeString( $value );
+				if ( $value !== null && !\in_array( $value, $normalized, true ) ) {
+					$normalized[] = $value;
+				}
+			}
+		}
+		return $normalized;
+	}
+
+	private function normalizeString( $value ) :?string {
+		if ( !\is_string( $value ) ) {
+			return null;
+		}
+		$value = \trim( $value );
+		return $value === '' ? null : $value;
 	}
 
 	private function isIpAutoDetectRequired() :bool {

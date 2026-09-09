@@ -25,20 +25,7 @@ class ShieldLogRequest extends BuildRuleCoreShieldBase {
 			'logic'      => Enum\EnumLogic::LOGIC_OR,
 			'conditions' => [
 				[
-					'logic'      => Enum\EnumLogic::LOGIC_AND,
-					'conditions' => [
-						[
-							'conditions' => Conditions\ShieldConfigurationOption::class,
-							'params'     => [
-								'name'        => 'enable_logger',
-								'match_type'  => Enum\EnumMatchTypes::MATCH_TYPE_EQUALS,
-								'match_value' => 'Y',
-							]
-						],
-						[
-							'conditions' => Conditions\RequestHasAnyParameters::class,
-						],
-					]
+					'conditions' => Conditions\RequestHasAnyParameters::class,
 				],
 				[
 					'conditions' => Conditions\ShieldConfigIsTrafficRateLimitingEnabled::class,

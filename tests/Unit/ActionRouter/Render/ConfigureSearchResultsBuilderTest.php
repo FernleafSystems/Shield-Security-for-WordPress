@@ -105,6 +105,10 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 				'description'     => [ 'This option has a specific owner that is not visible in Configure diagnosis rows.' ],
 				'zone_comp_slugs' => [ 'missing_firewall_component', 'module_firewall' ],
 			],
+			'clean_wp_rubbish' => [
+				'section'         => 'section_wordpress_obscurity_options',
+				'zone_comp_slugs' => [ 'module_firewall' ],
+			],
 			'disable_xmlrpc' => [
 				'section'         => 'section_apixml',
 				'zone_comp_slugs' => [ 'xml_rpc_component' ],
@@ -686,6 +690,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 								'is_expandable'   => true,
 								'data_attributes' => [
 									'zone_component_slug' => 'silentcaptcha_component',
+									'option_keys'         => 'custom_silentcaptcha_toggle',
 									'config_item'         => 'custom_silentcaptcha_toggle',
 								],
 							],
@@ -736,6 +741,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 								'is_expandable'   => true,
 								'data_attributes' => [
 									'zone_component_slug' => 'module_firewall',
+									'option_keys'         => 'clean_wp_rubbish',
 								],
 							],
 						],
@@ -751,6 +757,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 								'is_expandable'   => true,
 								'data_attributes' => [
 									'zone_component_slug' => 'web_application_firewall',
+									'option_keys'         => 'block_aggressive',
 								],
 							],
 						],
@@ -783,6 +790,7 @@ class ConfigureSearchResultsBuilderTest extends BaseUnitTest {
 								'is_expandable'   => true,
 								'data_attributes' => [
 									'zone_component_slug' => 'xml_rpc_component',
+									'option_keys'         => 'disable_xmlrpc',
 									'config_item'         => 'disable_xmlrpc',
 								],
 							],

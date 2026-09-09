@@ -118,6 +118,14 @@ class PublicUpgradeTestLane {
 			$this->assertPluginUpdateResult( $updateResult, $publicVersion, $metadata->version() );
 
 			$this->runtime->runDueCron( $rootDir, $envOverrides, $artifacts );
+			$upgradeContract = $this->runtime->runJsonFixture(
+				$rootDir,
+				$envOverrides,
+				$artifacts,
+				$this->fixture( 'read-upgrade-contract-report.php' )
+			);
+			$this->assertUpgradeContractReport( $upgradeContract );
+			$summary[ 'upgrade_contract' ] = $upgradeContract;
 
 			$finalVersion = $this->runtime->assertPluginVersion(
 				$rootDir,
@@ -310,6 +318,101 @@ class PublicUpgradeTestLane {
 		}
 		if ( (string)( $result[ 'new_version' ] ?? '' ) !== $packageVersion ) {
 			throw new PublicUpgradeTestFailureException( 'Plugin update new_version did not match package version.' );
+		}
+	}
+
+	/**
+	 * @param array<string,mixed> $report
+	 */
+	private function assertUpgradeContractReport( array $report ) :void {
+		if ( !empty( $report[ 'early_translation' ] ) ) {
+			throw new PublicUpgradeTestFailureException( 'Shield translation loading was triggered before the upgraded plugin request was ready.' );
+		}
+		if ( empty( $report[ 'pre_replace' ][ 'captured' ] )
+			 || empty( $report[ 'pre_replace' ][ 'is_shield_upgrade' ] ) ) {
+			throw new PublicUpgradeTestFailureException( 'Upgrade contract probe did not identify Shield before replacement.' );
+		}
+		foreach ( (array)( $report[ 'pre_replace' ][ 'callback_owners_loaded' ] ?? [] ) as $owner => $loaded ) {
+			if ( !$loaded ) {
+				throw new PublicUpgradeTestFailureException( 'Old callback owner was not loaded before replacement: '.$owner );
+			}
+		}
+		if ( empty( $report[ 'pre_replace' ][ 'unresolved_lazy_dependencies' ] ) ) {
+			throw new PublicUpgradeTestFailureException( 'Upgrade contract probe did not observe any unresolved lazy dependency.' );
+		}
+		foreach ( (array)( $report[ 'pre_replace' ][ 'seeded_legacy_crons' ] ?? [] ) as $event ) {
+			if ( !\is_array( $event ) || empty( $event[ 'scheduled' ] ) ) {
+				throw new PublicUpgradeTestFailureException( 'Upgrade contract probe could not seed every legacy cron.' );
+			}
+		}
+
+		if ( empty( $report[ 'post_replace' ][ 'captured' ] )
+			 || empty( $report[ 'post_replace' ][ 'is_shield_upgrade' ] ) ) {
+			throw new PublicUpgradeTestFailureException( 'Upgrade contract probe did not identify Shield after replacement.' );
+		}
+		foreach ( (array)( $report[ 'post_replace' ][ 'retained_executor_files_present' ] ?? [] ) as $contract => $valid ) {
+			if ( !$valid ) {
+				throw new PublicUpgradeTestFailureException( 'Retained executor file is missing: '.$contract );
+			}
+		}
+		if ( empty( $report[ 'old_request_shutdown' ][ 'captured' ] ) ) {
+			throw new PublicUpgradeTestFailureException( 'Loaded old-release callbacks did not finish the update request.' );
+		}
+		foreach ( [ 'lazy_dependencies_resolved', 'method_contracts_callable' ] as $section ) {
+			foreach ( (array)( $report[ 'old_request_shutdown' ][ $section ] ?? [] ) as $contract => $valid ) {
+				if ( !$valid ) {
+					throw new PublicUpgradeTestFailureException( 'Upgrade compatibility contract failed: '.$section.'.'.$contract );
+				}
+			}
+		}
+		foreach ( (array)( $report[ 'pre_replace' ][ 'unresolved_lazy_dependencies' ] ?? [] ) as $dependency ) {
+			if ( empty( $report[ 'old_request_shutdown' ][ 'lazy_dependencies_resolved' ][ $dependency ] ) ) {
+				throw new PublicUpgradeTestFailureException( 'Lazy dependency did not resolve after replacement: '.$dependency );
+			}
+		}
+		foreach ( [ 'afs' => 2, 'build' => 1, 'wpv' => 2 ] as $type => $minimum ) {
+			if ( \count( (array)( $report[ 'old_request_shutdown' ][ 'legacy_crons_after_old_callbacks' ][ $type ] ?? [] ) ) < $minimum ) {
+				throw new PublicUpgradeTestFailureException( 'Legacy cron evidence is incomplete after old callbacks: '.$type );
+			}
+		}
+
+		$before = \is_array( $report[ 'new_boot_before_cleanup' ] ?? null )
+			? $report[ 'new_boot_before_cleanup' ]
+			: [];
+		$beforeState = \is_array( $before[ 'imported_state' ] ?? null ) ? $before[ 'imported_state' ] : [];
+		$plugin = $beforeState[ 'assets' ][ 'plugin' ][ self::PLUGIN_FILE ] ?? null;
+		if ( !\is_array( $plugin )
+			 || (int)( $plugin[ 'attempts' ] ?? -1 ) !== 0
+			 || (int)( $plugin[ 'due_at' ] ?? 0 ) <= 0
+			 || empty( $beforeState[ 'build_missing_snapshots' ] )
+			 || !\is_array( $beforeState[ 'wpv' ] ?? null ) ) {
+			throw new PublicUpgradeTestFailureException( 'Legacy work was not durably imported before upgrade cleanup.' );
+		}
+		$this->assertLegacyCronsEmpty( (array)( $before[ 'legacy_crons' ] ?? [] ), 'before upgrade cleanup' );
+		if ( empty( $before[ 'canonical_wakeup' ] ) || empty( $before[ 'upgrade_cleanup_cron' ] ) ) {
+			throw new PublicUpgradeTestFailureException( 'Pre-cleanup cron ordering evidence is incomplete.' );
+		}
+
+		$after = \is_array( $report[ 'after_upgrade_cleanup' ] ?? null )
+			? $report[ 'after_upgrade_cleanup' ]
+			: [];
+		$afterState = \is_array( $after[ 'coordinator_state' ] ?? null ) ? $after[ 'coordinator_state' ] : [];
+		if ( !isset( $afterState[ 'assets' ][ 'plugin' ][ self::PLUGIN_FILE ] )
+			 || !isset( $afterState[ 'wpv' ] )
+			 || empty( $afterState[ 'build_missing_snapshots' ] ) ) {
+			throw new PublicUpgradeTestFailureException( 'Coordinator state did not survive scheduled upgrade cleanup.' );
+		}
+		$this->assertLegacyCronsEmpty( (array)( $after[ 'legacy_crons' ] ?? [] ), 'after upgrade cleanup' );
+		if ( empty( $after[ 'canonical_wakeup' ] ) ) {
+			throw new PublicUpgradeTestFailureException( 'Canonical coordinator wakeup was not restored after upgrade cleanup.' );
+		}
+	}
+
+	private function assertLegacyCronsEmpty( array $legacy, string $phase ) :void {
+		foreach ( [ 'afs', 'build', 'wpv' ] as $type ) {
+			if ( !empty( $legacy[ $type ] ) ) {
+				throw new PublicUpgradeTestFailureException( 'Legacy '.$type.' cron remained '.$phase.'.' );
+			}
 		}
 	}
 

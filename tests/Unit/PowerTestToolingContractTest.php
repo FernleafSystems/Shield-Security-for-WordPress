@@ -15,10 +15,6 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 			$this->markTestSkipped( 'composer.json is excluded from packages (development-only)' );
 		}
 
-		$unitCommands = $this->getComposerScriptCommands( 'test:unit' );
-		$this->assertContains( '@build:config', $unitCommands );
-		$this->assertContains( '@php bin/run-unit-tests.php --runner-mode=auto', $unitCommands );
-
 		$integrationCommands = $this->getComposerScriptCommands( 'test:integration' );
 		$this->assertContains( 'Composer\\Config::disableProcessTimeout', $integrationCommands );
 		$this->assertContains( '@build:config', $integrationCommands );
@@ -29,7 +25,10 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertContains( '@php bin/shield test:browser', $browserCommands );
 
 		$crossSiteCommands = $this->getComposerScriptCommands( 'test:cross-site' );
-		$this->assertSame( [ '@php bin/shield test:cross-site' ], $crossSiteCommands );
+		$this->assertSame( [
+			'Composer\\Config::disableProcessTimeout',
+			'@php bin/shield test:cross-site',
+		], $crossSiteCommands );
 		$this->assertNotContains( '@test:cross-site', $this->getComposerScriptCommands( 'test' ) );
 
 		$packageCommands = $this->getComposerScriptCommands( 'test:package' );
@@ -86,7 +85,7 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertContains( 'phpunit-integration.xml', $command );
 	}
 
-	public function testCrossSiteWorkflowRunsCleanLaneWithScopedTriggers() :void {
+	public function testCrossSiteWorkflowRunsOneStandardLaneWithScopedTriggers() :void {
 		if ( $this->isTestingPackage() ) {
 			$this->markTestSkipped( 'GitHub workflows are excluded from packages (development-only)' );
 		}
@@ -99,7 +98,10 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'workflow_dispatch:', $workflow );
 		$this->assertStringContainsString( 'schedule:', $workflow );
 		$this->assertStringContainsString( "cron: '45 6 * * 1-5'", $workflow );
-		$this->assertStringContainsString( 'composer test:cross-site -- --clean', $workflow );
+		$this->assertSame( 1, \substr_count( $workflow, 'run: composer test:cross-site' ) );
+		foreach ( [ '--clean', '--warm', '--teardown', 'test:docker:cleanup --scope=cross-site', 'down -v' ] as $prohibited ) {
+			$this->assertStringNotContainsString( $prohibited, $workflow );
+		}
 
 		foreach ( [
 			'composer.json',
@@ -192,10 +194,21 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 		$this->assertStringContainsString( 'run: composer analyze', $workflow );
 		$this->assertStringNotContainsString( 'run: composer build:config', $workflow );
 		$this->assertStringContainsString(
-			'run: php bin/shield test:source --skip-unit-tests --show-docker-output',
+			'run: php bin/shield test:source --skip-unit-tests --include-previous-wp --show-docker-output',
+			$workflow
+		);
+		$this->assertStringContainsString(
+			'run: php bin/shield test:docker:cleanup --scope=source --all',
 			$workflow
 		);
 		$this->assertStringNotContainsString( 'SHIELD_SKIP_UNIT_TESTS:', $workflow );
+		$this->assertSame( 2, \substr_count( $workflow, 'run_command: composer test:unit:runner' ) );
+
+		$reusableWorkflow = $this->getPluginFileContents(
+			'.github/workflows/reusable-unit-tests.yml',
+			'reusable unit-tests workflow'
+		);
+		$this->assertSame( 1, \substr_count( $reusableWorkflow, 'run: composer test:unit:policy' ) );
 	}
 
 	public function testBrowserWorkflowRunsPathGatedDevelopPushesWithTwoLanes() :void {
@@ -219,8 +232,7 @@ class PowerTestToolingContractTest extends BaseUnitTest {
 			"needs.changes.outputs.browser == 'true'",
 			'npm run playwright:install -- --with-deps --only-shell',
 			'composer test:browser -- --clean --lanes=2 -- --workers=2',
-			'shield-test-site-lane-${lane}',
-			'shield-browser-db',
+			'composer test:browser:cleanup -- --all --lanes=2',
 		] as $contract ) {
 			$this->assertStringContainsString( $contract, $workflow );
 		}

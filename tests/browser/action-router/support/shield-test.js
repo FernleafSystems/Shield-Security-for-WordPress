@@ -240,6 +240,7 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 		cleanupAll: () => runFixture( '__all__', 'cleanup' ),
 		dispose: () => request.dispose(),
 		fixtureApi: {
+			renderScanProgressFixture: ( state ) => runFixture( 'scan-progress', 'render', [ state ] ),
 			async withActionsQueueFixture( scenario, runScenario ) {
 				let seeded = false;
 				try {
@@ -258,6 +259,12 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			},
 			async resetDashboardDefaultsFixture() {
 				return runFixture( 'dashboard-defaults', 'reset-defaults' );
+			},
+			async prepareDashboardActionsAllClearFixture() {
+				return runFixture( 'dashboard-defaults', 'prepare-actions-all-clear' );
+			},
+			async prepareDashboardMaintenanceWarningFixture() {
+				return runFixture( 'dashboard-defaults', 'prepare-maintenance-warning' );
 			},
 			async withDashboardDefaultsFixture( runScenario ) {
 				let seeded = false;
@@ -282,6 +289,19 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 				finally {
 					if ( seeded ) {
 						await runFixture( 'import-export-file', 'cleanup' );
+					}
+				}
+			},
+			async withImportExportNetworkFixture( runScenario, args = [] ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'import-export-network', 'seed', args );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'import-export-network', 'cleanup' );
 					}
 				}
 			},
@@ -333,6 +353,9 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			async inspectLicenseClearFixture() {
 				return runFixture( 'license-clear', 'inspect' );
 			},
+			async inspectLiveTrafficToggleFixture() {
+				return runFixture( 'live-traffic-toggle', 'inspect' );
+			},
 			async withLicenseClearFixture( runScenario ) {
 				let seeded = false;
 				try {
@@ -343,6 +366,19 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 				finally {
 					if ( seeded ) {
 						await runFixture( 'license-clear', 'cleanup' );
+					}
+				}
+			},
+			async withLiveTrafficToggleFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'live-traffic-toggle', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'live-traffic-toggle', 'cleanup' );
 					}
 				}
 			},

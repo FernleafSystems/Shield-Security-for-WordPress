@@ -8,6 +8,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Pro
 	Passkey,
 	Yubikey
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\Utilties\PasskeyCompatibilityCheck;
 use FernleafSystems\Wordpress\Plugin\Shield\Zones\Common\EnumEnabledStatus;
 
@@ -107,13 +108,13 @@ class TwoFactorAuth extends Base {
 	 */
 	private function emailConfigureStatus() :array {
 		$status = parent::status();
-		$con = self::con();
+		$emailVerificationStatus = ( new EmailDeliveryVerification() )->status();
 
-		if ( !$con->opts->optIs( 'enable_email_authentication', 'Y' ) ) {
+		if ( $emailVerificationStatus === EmailDeliveryVerification::STATUS_DISABLED ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
 			$status[ 'exp' ][] = __( 'Email-based verification is disabled.', 'wp-simple-firewall' );
 		}
-		elseif ( $con->opts->optGet( 'email_can_send_verified_at' ) < 1 ) {
+		elseif ( $emailVerificationStatus !== EmailDeliveryVerification::STATUS_VERIFIED ) {
 			$status[ 'level' ] = EnumEnabledStatus::OKAY;
 			$status[ 'exp' ][] = __( 'Email-based verification cannot be relied on until email delivery has been verified.', 'wp-simple-firewall' );
 		}

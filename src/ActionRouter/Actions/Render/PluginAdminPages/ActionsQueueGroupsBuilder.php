@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildAttentionItems;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops\GetPendingFileLockDisplays;
 
 /**
  * @phpstan-import-type AttentionItem from BuildAttentionItems
@@ -44,6 +45,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildA
  *   links:list<GroupLink>,
  *   management_link:array{}|GroupManagementLink,
  *   is_interactive:bool,
+ *   is_pro_upsell:bool,
+ *   enable_dialog_json:string,
  *   detail_table:array<string,mixed>,
  *   render_action_class:class-string<BaseRender>,
  *   render_action_data:array<string,mixed>,
@@ -79,6 +82,8 @@ class ActionsQueueGroupsBuilder {
 	private ?ActionsQueueGroupSeedCollector $seedCollector = null;
 	private ?ActionsQueuePassiveGroupSeedSupplementer $passiveSeedSupplementer = null;
 	private ?ActionsQueueGroupContractBuilder $contractBuilder = null;
+	private ?ActionsQueueScanResultScopeStateBuilder $scanResultScopeStateBuilder = null;
+	private ?ActionsQueueScanResultScopeResolver $scanResultScopeResolver = null;
 
 	/**
 	 * @param AttentionQuery $attentionQuery
@@ -215,8 +220,22 @@ class ActionsQueueGroupsBuilder {
 			$this->groupDefinitions(),
 			$this->presentation(),
 			$this->assetMetadataResolver(),
+			$this->queueScanResultsOptions(),
+			null,
+			$this->scanResultScopeStateBuilder(),
+			$this->scanResultScopeResolver()
+		);
+	}
+
+	protected function buildScanResultScopeStateBuilder() :ActionsQueueScanResultScopeStateBuilder {
+		return new ActionsQueueScanResultScopeStateBuilder(
+			null,
 			$this->queueScanResultsOptions()
 		);
+	}
+
+	protected function buildPendingFileLockDisplays() :GetPendingFileLockDisplays {
+		return new GetPendingFileLockDisplays();
 	}
 
 	private function groupDefinitions() :ActionsQueueGroupDefinitions {
@@ -281,7 +300,11 @@ class ActionsQueueGroupsBuilder {
 			$this->passiveSeedSupplementer = new ActionsQueuePassiveGroupSeedSupplementer(
 				$this->groupDefinitions(),
 				$this->maintenanceSeedBuilder(),
-				$this->groupMaintenanceSource()
+				$this->groupMaintenanceSource(),
+				$this->buildPendingFileLockDisplays(),
+				$this->scanResultScopeStateBuilder(),
+				$this->scanResultScopeResolver(),
+				$this->buildRailTabAvailability()
 			);
 		}
 
@@ -318,5 +341,21 @@ class ActionsQueueGroupsBuilder {
 		}
 
 		return $this->bucketsBuilder;
+	}
+
+	private function scanResultScopeStateBuilder() :ActionsQueueScanResultScopeStateBuilder {
+		if ( $this->scanResultScopeStateBuilder === null ) {
+			$this->scanResultScopeStateBuilder = $this->buildScanResultScopeStateBuilder();
+		}
+
+		return $this->scanResultScopeStateBuilder;
+	}
+
+	private function scanResultScopeResolver() :ActionsQueueScanResultScopeResolver {
+		if ( $this->scanResultScopeResolver === null ) {
+			$this->scanResultScopeResolver = new ActionsQueueScanResultScopeResolver();
+		}
+
+		return $this->scanResultScopeResolver;
 	}
 }

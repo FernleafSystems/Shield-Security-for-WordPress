@@ -33,6 +33,10 @@ class UnitTestPluginUrls {
 		return empty( $zone ) ? $url : $url.'?zone='.$zone;
 	}
 
+	public function reportsHome( string $workspace = '' ) :string {
+		return '/admin/reports/overview'.( $workspace === '' ? '' : '?workspace='.$workspace );
+	}
+
 	public function adminIpRules() :string {
 		return '/admin/ips/rules';
 	}
@@ -76,6 +80,10 @@ class UnitTestPluginUrls {
 	public function actionsQueueScans( string $zone = 'scans' ) :string {
 		$url = '/admin/scans/overview';
 		return empty( $zone ) ? $url : $url.'?zone='.$zone;
+	}
+
+	public function cloakedPlugins() :string {
+		return '/wp-admin/plugins.php?plugin_status=cloaked';
 	}
 
 	public function noncedPluginAction( string $action, ?string $url = null, array $aux = [] ) :string {
