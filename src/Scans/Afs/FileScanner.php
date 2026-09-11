@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 	IsExcludedPhpTranslationFile,
+	IsExpectedShieldCacheIndexFile,
 	IsFileContentExcluded
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
@@ -299,6 +300,8 @@ class FileScanner {
 	}
 
 	private function isFileExcludedFromScans( string $fullPath ) :bool {
-		return ( new IsFileContentExcluded() )->check( $fullPath ) || ( new IsExcludedPhpTranslationFile() )->check( $fullPath );
+		return ( new IsFileContentExcluded() )->check( $fullPath )
+			   || ( new IsExcludedPhpTranslationFile() )->check( $fullPath )
+			   || ( new IsExpectedShieldCacheIndexFile() )->check( $fullPath );
 	}
 }

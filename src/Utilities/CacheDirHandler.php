@@ -15,6 +15,8 @@ class CacheDirHandler {
 	private const EXTERNAL_CACHE_NAMESPACE_HASH_LENGTH = 32;
 	private const LEGACY_EXTERNAL_CACHE_ROOT_SUFFIX_MAX_LENGTH = 48;
 
+	public const CACHE_INDEX_FILE_CONTENT = "<?php\n\http_response_code(404);";
+
 	private ?string $cacheDir = null;
 
 	private ?string $externalCacheBasename = null;
@@ -189,7 +191,7 @@ class CacheDirHandler {
 				'</FilesMatch>',
 				"# END SHIELD"
 			] ),
-			'index.php'  => "<?php\n\http_response_code(404);",
+			'index.php'  => self::CACHE_INDEX_FILE_CONTENT,
 			'README.txt' => sprintf( "This is a temporary caching folder used by the %s plugin. You can safely delete it, but it'll be recreated if required.\n", self::con()->labels->Name ),
 		];
 
