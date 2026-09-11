@@ -289,7 +289,7 @@ class AutoUpdatesConTest extends BaseUnitTest {
 		}
 	}
 
-	public function provideInvalidIdentifiers() :array {
+	public static function provideInvalidIdentifiers() :array {
 		return [
 			'null'       => [ null ],
 			'false'      => [ false ],

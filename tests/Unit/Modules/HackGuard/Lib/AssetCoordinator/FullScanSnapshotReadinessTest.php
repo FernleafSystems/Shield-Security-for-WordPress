@@ -165,7 +165,7 @@ class FullScanSnapshotReadinessTest extends BaseUnitTest {
 		$this->assertSame( 0, $this->remoteRequestCount );
 	}
 
-	public function provideNonOwnerTopologies() :array {
+	public static function provideNonOwnerTopologies() :array {
 		return [
 			'main network secondary site' => [ true, false ],
 			'secondary network main site' => [ false, true ],

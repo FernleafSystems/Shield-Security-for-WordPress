@@ -252,7 +252,7 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFindingResolved( $finding, true, 'clean_rescan' );
 	}
 
-	public function provideCoveredIssueFamilies() :array {
+	public static function provideCoveredIssueFamilies() :array {
 		return [
 			'unrecognised' => [
 				'unrecognised',
@@ -336,7 +336,7 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFindingResolved( $finding, true, 'clean_rescan' );
 	}
 
-	public function provideIssuePrecedence() :array {
+	public static function provideIssuePrecedence() :array {
 		return [
 			'unrecognised before malware' => [
 				'unrecognised-malware',
@@ -684,7 +684,7 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFindingResolved( $finding, false );
 	}
 
-	public function invalidAssetEligibilityProvider() :array {
+	public static function invalidAssetEligibilityProvider() :array {
 		return [
 			'missing' => [ null ],
 			'missing theme group' => [
@@ -823,7 +823,7 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertFindingResolved( $finding, false );
 	}
 
-	public function provideInvalidCoverageMetadata() :array {
+	public static function provideInvalidCoverageMetadata() :array {
 		$plugin = ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY;
 		return [
 			'missing'     => [ [] ],
@@ -929,7 +929,7 @@ class AssetChangeCompletionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'clean_rescan', (string)$item->resolution_reason );
 	}
 
-	public function provideCleanRescanCompletionScopes() :array {
+	public static function provideCleanRescanCompletionScopes() :array {
 		return [
 			'full manual'    => [ 'full', '', 'manual' ],
 			'scoped manual'  => [ 'plugin', '{plugin}', 'manual' ],

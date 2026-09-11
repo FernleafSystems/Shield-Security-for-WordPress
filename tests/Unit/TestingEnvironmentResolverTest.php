@@ -85,7 +85,7 @@ class TestingEnvironmentResolverTest extends TestCase {
 	/**
 	 * @return array<string,array{string}>
 	 */
-	public function providerMalformedWordpressVersionOutput() :array {
+	public static function providerMalformedWordpressVersionOutput() :array {
 		return [
 			'missing-previous' => [ "LATEST_VERSION=9.4.2\n" ],
 			'empty-latest' => [ "LATEST_VERSION=\nPREVIOUS_VERSION=9.3.7\n" ],

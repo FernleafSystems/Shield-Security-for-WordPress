@@ -110,7 +110,7 @@ class PluginScannerTest extends BaseUnitTest {
 		$this->assertSame( [], $result );
 	}
 
-	public function provideMalformedUpdateUris() :array {
+	public static function provideMalformedUpdateUris() :array {
 		return [
 			'modern null'  => [ 'UpdateURI', null ],
 			'modern array' => [ 'UpdateURI', [] ],
@@ -156,7 +156,7 @@ class PluginScannerTest extends BaseUnitTest {
 		}
 	}
 
-	public function provideMalformedWpOrgIds() :array {
+	public static function provideMalformedWpOrgIds() :array {
 		return [
 			'null'               => [ null ],
 			'boolean'            => [ true ],
@@ -185,7 +185,7 @@ class PluginScannerTest extends BaseUnitTest {
 		], $result );
 	}
 
-	public function provideEligibleInstalledVersions() :array {
+	public static function provideEligibleInstalledVersions() :array {
 		return [
 			'older than repository' => [ '0.7.0' ],
 			'equal to repository'   => [ '0.8.1' ],
@@ -203,8 +203,8 @@ class PluginScannerTest extends BaseUnitTest {
 		$this->assertSame( [], $result );
 	}
 
-	public function provideUntrustedApiResponses() :array {
-		$oldDate = $this->date( self::NOW - self::ABANDONED_LIMIT - 1 );
+	public static function provideUntrustedApiResponses() :array {
+		$oldDate = self::date( self::NOW - self::ABANDONED_LIMIT - 1 );
 		return [
 			'WordPress error' => [ new \WP_Error( 'api_failed', 'API failed.' ) ],
 			'non-object response' => [ [] ],
@@ -257,7 +257,7 @@ class PluginScannerTest extends BaseUnitTest {
 		}
 	}
 
-	public function provideWrongTypeFamily() :array {
+	public static function provideWrongTypeFamily() :array {
 		return [
 			'null'                  => [ null ],
 			'boolean'               => [ true ],
@@ -301,7 +301,7 @@ class PluginScannerTest extends BaseUnitTest {
 		$this->assertSame( [], $result );
 	}
 
-	public function provideMalformedApiFields() :array {
+	public static function provideMalformedApiFields() :array {
 		return [
 			'slug'         => [ 'slug' ],
 			'version'      => [ 'version' ],
@@ -366,7 +366,7 @@ class PluginScannerTest extends BaseUnitTest {
 		];
 	}
 
-	private function date( int $timestamp ) :string {
+	private static function date( int $timestamp ) :string {
 		return \gmdate( 'c', $timestamp );
 	}
 }

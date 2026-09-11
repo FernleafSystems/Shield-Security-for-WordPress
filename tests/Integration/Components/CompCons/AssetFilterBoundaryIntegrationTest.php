@@ -83,7 +83,7 @@ class AssetFilterBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		) );
 	}
 
-	public function provideHostileFilterValues() :array {
+	public static function provideHostileFilterValues() :array {
 		return [
 			'null'    => [ null ],
 			'false'   => [ false ],
@@ -108,7 +108,7 @@ class AssetFilterBoundaryIntegrationTest extends ShieldIntegrationTestCase {
 		], $method->invoke( new Enqueue() ) );
 	}
 
-	public function provideInvalidFinalAssetValues() :array {
+	public static function provideInvalidFinalAssetValues() :array {
 		return [
 			'null'    => [ null ],
 			'false'   => [ false ],

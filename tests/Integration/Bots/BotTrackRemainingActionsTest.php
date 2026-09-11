@@ -159,7 +159,7 @@ class BotTrackRemainingActionsTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( (bool)$events[ 0 ][ 'meta' ][ 'block' ] );
 	}
 
-	public function botTrackModeProvider() :array {
+	public static function botTrackModeProvider() :array {
 		return [
 			'log'                  => [ 'log', 0, false ],
 			'transgression-single' => [ 'transgression-single', 1, false ],

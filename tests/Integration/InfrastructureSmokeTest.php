@@ -52,6 +52,16 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * @group smoke
+	 * @expectedDeprecated shield_phpunit_compatibility_probe
+	 */
+	public function test_wordpress_deprecation_annotations_are_read_with_phpunit_11() :void {
+		_deprecated_function( 'shield_phpunit_compatibility_probe', '1.0.0' );
+
+		$this->assertTrue( true );
+	}
+
+	/**
 	 * Validates that temporary table filter functions are instance methods on
 	 * WP_UnitTestCase_Base, NOT global functions. This is the exact check that
 	 * would have caught the bootstrap bug where global function callbacks were

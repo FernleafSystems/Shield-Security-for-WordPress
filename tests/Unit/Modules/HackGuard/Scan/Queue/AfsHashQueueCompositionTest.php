@@ -166,7 +166,7 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		$this->assertSame( $expectTrustedFileRecord, ( new FileScanOptimiser() )->hasKnownValidFileRecords() );
 	}
 
-	public function providePersistedAfsActionConfig() :array {
+	public static function providePersistedAfsActionConfig() :array {
 		return [
 			'null safely disables matching'   => [ null, false ],
 			'scalar safely disables matching' => [ ' PHP ', false ],
@@ -577,7 +577,7 @@ class AfsHashQueueCompositionTest extends BaseUnitTest {
 		$this->assertArrayHasKey( RunState::META_KEY_LAST_ERROR, $this->scanMeta( $harness->scanRow( $scanID ) ) );
 	}
 
-	public function provideAssetMarkerPersistenceFailures() :array {
+	public static function provideAssetMarkerPersistenceFailures() :array {
 		return [
 			'write failure'    => [ 'write' ],
 			'readback failure' => [ 'readback' ],

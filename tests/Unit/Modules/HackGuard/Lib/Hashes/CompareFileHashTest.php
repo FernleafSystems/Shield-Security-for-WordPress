@@ -36,7 +36,7 @@ class CompareFileHashTest extends BaseUnitTest {
 		$this->assertTrue( ( new CompareFileHash() )->isEqual( $path, \hash( $algorithm, $content ) ) );
 	}
 
-	public function provideAlgorithms() :array {
+	public static function provideAlgorithms() :array {
 		return [
 			'md5'    => [ 'md5' ],
 			'sha1'   => [ 'sha1' ],

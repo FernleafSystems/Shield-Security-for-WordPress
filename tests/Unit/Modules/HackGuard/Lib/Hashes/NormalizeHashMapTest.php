@@ -18,7 +18,7 @@ class NormalizeHashMapTest extends BaseUnitTest {
 		$this->assertSame( [], ( new NormalizeHashMap() )->run( $value ) );
 	}
 
-	public function provideInvalidOuterValues() :array {
+	public static function provideInvalidOuterValues() :array {
 		return [
 			'null'       => [ null ],
 			'false'      => [ false ],
@@ -94,7 +94,7 @@ class NormalizeHashMapTest extends BaseUnitTest {
 		$this->assertSame( [], ( new NormalizeHashMap() )->toScalarMap( $hashes ) );
 	}
 
-	public function provideInvalidScalarMaps() :array {
+	public static function provideInvalidScalarMaps() :array {
 		return [
 			'empty map' => [ [] ],
 			'not an array' => [ 'not-an-array' ],

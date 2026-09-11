@@ -30,7 +30,7 @@ class PrepareWpDiffInputTest extends TestCase {
 		);
 	}
 
-	public function provideValidInputs() :array {
+	public static function provideValidInputs() :array {
 		return [
 			'ascii'     => [ 'plain ASCII', "tabs\tand\r\nlines" ],
 			'multibyte' => [ "caf\xC3\xA9", "\xE6\x9D\xB1\xE4\xBA\xAC" ],
@@ -55,7 +55,7 @@ class PrepareWpDiffInputTest extends TestCase {
 		);
 	}
 
-	public function provideInvalidInputs() :array {
+	public static function provideInvalidInputs() :array {
 		return [
 			'original invalid' => [
 				'old '.\chr( 0xC3 ),

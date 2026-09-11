@@ -43,7 +43,7 @@ class SyncSiteUrlValidatorTest extends BaseUnitTest {
 		);
 	}
 
-	public function canonicalUrlProvider() :array {
+	public static function canonicalUrlProvider() :array {
 		return [
 			'scheme and host case' => [ 'https://client.example.com/Path', 'HTTPS://CLIENT.Example.COM/Path' ],
 			'http default port'    => [ 'http://client.example.com/path', 'HTTP://Client.Example.com:80/path' ],

@@ -627,7 +627,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( $asset->file, $this->state()[ 'assets' ][ 'plugin' ] );
 	}
 
-	public function provideScanResults() :array {
+	public static function provideScanResults() :array {
 		return [
 			'success' => [ true ],
 			'failure' => [ false ],
@@ -746,7 +746,7 @@ class AssetCoordinatorTest extends BaseUnitTest {
 		$this->assertSame( [], $this->cronEvents( 'icwp-wpsf-asset_coordinator' ) );
 	}
 
-	public function provideNonOwnerTopologies() :array {
+	public static function provideNonOwnerTopologies() :array {
 		return [
 			'main network, secondary site' => [ true, false ],
 			'secondary network, main site' => [ false, true ],

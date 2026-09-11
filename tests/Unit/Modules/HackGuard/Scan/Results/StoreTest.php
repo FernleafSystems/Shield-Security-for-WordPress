@@ -417,7 +417,7 @@ class StoreTest extends BaseUnitTest {
 		$this->assertSame( $expectedStages, $wpdb->stages );
 	}
 
-	public function persistenceFailureProvider() :array {
+	public static function persistenceFailureProvider() :array {
 		return [
 			'new result insert' => [ false, 'result_insert', [ 'result_insert' ], 'result item insert' ],
 			'existing result update' => [ true, 'result_update', [ 'result_update' ], 'result item update' ],

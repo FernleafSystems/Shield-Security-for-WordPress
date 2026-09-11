@@ -64,7 +64,7 @@ class BuildScanActionCoverageTest extends BaseUnitTest {
 		$this->assertSame( $expected, $action->coverage_families );
 	}
 
-	public function provideScopeCoverage() :array {
+	public static function provideScopeCoverage() :array {
 		$all = [
 			'core'      => true,
 			'plugin'    => true,

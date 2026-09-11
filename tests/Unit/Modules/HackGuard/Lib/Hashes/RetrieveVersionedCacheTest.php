@@ -207,7 +207,7 @@ class RetrieveVersionedCacheTest extends BaseUnitTest {
 		], ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) );
 	}
 
-	public function provideUntrustedStoredSourceMeta() :array {
+	public static function provideUntrustedStoredSourceMeta() :array {
 		return [
 			'false'   => [ [ 'live_hashes' => false ] ],
 			'absent'  => [ [] ],

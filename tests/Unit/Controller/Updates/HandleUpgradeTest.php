@@ -214,7 +214,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$this->assertSame( [], HandleUpgradeDbSpy::$writes );
 		}
 
-		public function adequateScanMetadataColumnProvider() :array {
+		public static function adequateScanMetadataColumnProvider() :array {
 			return [
 				'mediumtext' => [ 'mediumtext' ],
 				'longtext'   => [ 'longtext' ],

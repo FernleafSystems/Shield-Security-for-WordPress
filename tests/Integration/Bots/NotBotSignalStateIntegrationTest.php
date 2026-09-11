@@ -62,7 +62,7 @@ class NotBotSignalStateIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
-	public function signalStateProvider() :array {
+	public static function signalStateProvider() :array {
 		return [
 			'no record' => [
 				null,

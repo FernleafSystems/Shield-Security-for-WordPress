@@ -153,7 +153,7 @@ class RateLimitRuleBehaviorTest extends ShieldIntegrationTestCase {
 		$this->assertFalse( $this->processRateLimitRuleConditions() );
 	}
 
-	public function disabledTrafficLimiterProvider() :array {
+	public static function disabledTrafficLimiterProvider() :array {
 		return [
 			'limiter disabled' => [ 'N', 2, 300, '203.0.113.60' ],
 			'zero count'       => [ 'Y', 0, 300, '203.0.113.61' ],

@@ -18,18 +18,18 @@ class QueueItemVOContractTest extends BaseUnitTest {
 		$this->assertSame( $expected, $item->items );
 	}
 
-	public function provideSerializedItemPayloads() :array {
+	public static function provideSerializedItemPayloads() :array {
 		return [
-			'valid list'             => [ $this->encode( [ 'first', 'second', 'first' ] ), [ 'first', 'second', 'first' ] ],
-			'mixed members'          => [ $this->encode( [ 12, 'valid', false, null, '', [], '  ' ] ), [ 'valid', '  ' ] ],
-			'empty list'             => [ $this->encode( [] ), [] ],
-			'json object'            => [ $this->encode( [ 'first' => 'valid' ] ), [] ],
-			'sparse object'          => [ $this->encode( [ 0 => 'first', 2 => 'third' ] ), [] ],
+			'valid list'             => [ self::encode( [ 'first', 'second', 'first' ] ), [ 'first', 'second', 'first' ] ],
+			'mixed members'          => [ self::encode( [ 12, 'valid', false, null, '', [], '  ' ] ), [ 'valid', '  ' ] ],
+			'empty list'             => [ self::encode( [] ), [] ],
+			'json object'            => [ self::encode( [ 'first' => 'valid' ] ), [] ],
+			'sparse object'          => [ self::encode( [ 0 => 'first', 2 => 'third' ] ), [] ],
 			'numeric-key json object' => [ \base64_encode( '{"0":"first","1":"second"}' ), [] ],
-			'json null'              => [ $this->encode( null ), [] ],
-			'json string'            => [ $this->encode( 'valid' ), [] ],
-			'json integer'           => [ $this->encode( 12 ), [] ],
-			'json boolean'           => [ $this->encode( true ), [] ],
+			'json null'              => [ self::encode( null ), [] ],
+			'json string'            => [ self::encode( 'valid' ), [] ],
+			'json integer'           => [ self::encode( 12 ), [] ],
+			'json boolean'           => [ self::encode( true ), [] ],
 			'invalid json'           => [ \base64_encode( '{' ), [] ],
 			'invalid base64'         => [ '***', [] ],
 			'empty encoded payload'  => [ '', [] ],
@@ -75,7 +75,7 @@ class QueueItemVOContractTest extends BaseUnitTest {
 		], $item->meta );
 	}
 
-	private function encode( $value ) :string {
+	private static function encode( $value ) :string {
 		return \base64_encode( (string)\json_encode( $value ) );
 	}
 }

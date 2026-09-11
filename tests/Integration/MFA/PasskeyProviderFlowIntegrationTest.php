@@ -453,7 +453,7 @@ class PasskeyProviderFlowIntegrationTest extends ShieldIntegrationTestCase {
 	/**
 	 * @return array<string, array{0:string}>
 	 */
-	public function classLikeTrustPathTypesProvider() :array {
+	public static function classLikeTrustPathTypesProvider() :array {
 		return [
 			'legacy unprefixed class'       => [ 'Webauthn\\TrustPath\\EmptyTrustPath' ],
 			'legacy prefixed class'         => [ 'AptowebDeps\\Webauthn\\TrustPath\\EmptyTrustPath' ],

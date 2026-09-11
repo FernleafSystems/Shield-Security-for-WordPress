@@ -54,7 +54,20 @@ class Diff extends BaseComponent {
 
 		return [
 			'default_css' => \base64_decode( $res[ 'html' ][ 'css_default' ] ),
-			'content'     => \base64_decode( $res[ 'html' ][ 'content' ] ),
+			'content'     => $this->labelEmptyHeaders( \base64_decode( $res[ 'html' ][ 'content' ] ) ),
 		];
+	}
+
+	private function labelEmptyHeaders( string $content ) :string {
+		$label = \esc_attr__( 'No line number', 'wp-simple-firewall' );
+		return \preg_replace_callback(
+			'#<th(?<attributes>\s[^>]*)?>\s*</th>#i',
+			static fn( array $matches ) :string => sprintf(
+				'<th%s><span class="screen-reader-text">%s</span></th>',
+				$matches[ 'attributes' ] ?? '',
+				$label
+			),
+			$content
+		) ?? $content;
 	}
 }

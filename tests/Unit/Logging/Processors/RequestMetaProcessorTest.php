@@ -244,7 +244,7 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'ip_source', $meta );
 	}
 
-	public function provider_real_request_detector_uses_canonical_ip() :array {
+	public static function provider_real_request_detector_uses_canonical_ip() :array {
 		return [
 			'canonical Cloudflare header beats Cloudflare transport' => [
 				'',
@@ -299,7 +299,7 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 		$this->assertSame( '', $request->ip() );
 	}
 
-	public function provider_cloudflare_transport_addresses() :array {
+	public static function provider_cloudflare_transport_addresses() :array {
 		return [
 			'IPv4' => [ '173.245.48.5' ],
 			'IPv6' => [ '2400:cb00::1' ],
@@ -324,15 +324,15 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'ip_source', $meta );
 	}
 
-	public function provider_transport_attribution_rejections() :array {
+	public static function provider_transport_attribution_rejections() :array {
 		return [
-			'not an IP address'      => [ 'not-an-ip', $this->cloudflareProviders() ],
-			'private IP address'      => [ '10.0.0.1', $this->cloudflareProviders() ],
-			'reserved IP address'     => [ '192.0.2.1', $this->cloudflareProviders() ],
-			'public non-Cloudflare IP'=> [ '8.8.8.8', $this->cloudflareProviders() ],
-			'non-string transport data'=> [ 123, $this->cloudflareProviders() ],
-			'empty provider data'     => [ '173.245.48.5', $this->emptyProviders() ],
-			'provider runtime failure'=> [ '173.245.48.5', $this->failingProviders() ],
+			'not an IP address'      => [ 'not-an-ip', self::cloudflareProviders() ],
+			'private IP address'      => [ '10.0.0.1', self::cloudflareProviders() ],
+			'reserved IP address'     => [ '192.0.2.1', self::cloudflareProviders() ],
+			'public non-Cloudflare IP'=> [ '8.8.8.8', self::cloudflareProviders() ],
+			'non-string transport data'=> [ 123, self::cloudflareProviders() ],
+			'empty provider data'     => [ '173.245.48.5', self::emptyProviders() ],
+			'provider runtime failure'=> [ '173.245.48.5', self::failingProviders() ],
 		];
 	}
 
@@ -414,7 +414,7 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 		};
 	}
 
-	private function cloudflareProviders() :ServiceProviders {
+	private static function cloudflareProviders() :ServiceProviders {
 		return new class extends ServiceProviders {
 			public function getProviders() :array {
 				return [
@@ -433,7 +433,7 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 		};
 	}
 
-	private function emptyProviders() :ServiceProviders {
+	private static function emptyProviders() :ServiceProviders {
 		return new class extends ServiceProviders {
 			public function getProviders() :array {
 				return [];
@@ -441,7 +441,7 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 		};
 	}
 
-	private function failingProviders() :ServiceProviders {
+	private static function failingProviders() :ServiceProviders {
 		return new class extends ServiceProviders {
 			public function getProviders() :array {
 				throw new \RuntimeException( 'Provider data unavailable.' );

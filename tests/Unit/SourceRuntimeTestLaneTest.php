@@ -521,7 +521,7 @@ class SourceRuntimeTestLaneTest extends TestCase {
 	/**
 	 * @return array<string,array{0:int[]}>
 	 */
-	public function providerRuntimeFailurePositions() :array {
+	public static function providerRuntimeFailurePositions() :array {
 		return [
 			'latest-fails' => [ [ 0, 0, 7, 0 ] ],
 			'previous-fails' => [ [ 0, 0, 0, 7 ] ],

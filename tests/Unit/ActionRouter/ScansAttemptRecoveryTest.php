@@ -103,7 +103,7 @@ class ScansAttemptRecoveryTest extends BaseUnitTest {
 		$this->assertSame( ScansBase::SCAN_MODAL_STATE_FAILED, $payload[ 'modal_state' ] );
 	}
 
-	public function invalidScanIDProvider() :array {
+	public static function invalidScanIDProvider() :array {
 		return [
 			'missing scan id'    => [ [] ],
 			'zero scan id'       => [ [ 'scan_id' => 0 ] ],

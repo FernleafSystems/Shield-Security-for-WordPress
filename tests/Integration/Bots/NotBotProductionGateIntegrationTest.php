@@ -87,7 +87,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertOutcome( $this->runHandler(), $expectedToRun, $expectedToRun );
 	}
 
-	public function thresholdProvider() :array {
+	public static function thresholdProvider() :array {
 		return [
 			'below range becomes zero' => [ -1, 0, false ],
 			'string zero is preserved' => [ '0', 0, false ],
@@ -115,7 +115,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertOutcome( $this->runHandler(), $expectedToRun, $expectedToRun );
 	}
 
-	public function complexityProvider() :array {
+	public static function complexityProvider() :array {
 		$cases = [];
 		foreach ( SilentCaptchaComplexity::VALID as $complexity ) {
 			$cases[ $complexity.' with score zero' ] = [ $complexity, 0, false ];
@@ -139,7 +139,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertOutcome( $this->runHandler(), $expectedToRun, $expectedToRun );
 	}
 
-	public function consumerProvider() :array {
+	public static function consumerProvider() :array {
 		return [
 			'all consumers off leaves positive score enabled' => [ 45, [], true ],
 			'comment consumer' => [ 45, [ 'enable_antibot_comments' => 'Y' ], true ],
@@ -176,7 +176,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertOutcome( $this->runHandler( $filters ), $expectedCookie, $expectedJavascript );
 	}
 
-	public function filterProvider() :array {
+	public static function filterProvider() :array {
 		return [
 			'legacy threshold filter disables' => [ 45, [ 'shield/antibot_score_minimum' => 0 ], false, false ],
 			'current threshold filter disables' => [ 45, [ 'shield/silent_captcha_bot_threshold' => 0 ], false, false ],
@@ -233,7 +233,7 @@ class NotBotProductionGateIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertOutcome( $this->runHandler(), true, true );
 	}
 
-	public function securityProfileProvider() :array {
+	public static function securityProfileProvider() :array {
 		return [
 			'light'  => [ Levels::LIGHT, 25 ],
 			'medium' => [ Levels::MEDIUM, 45 ],

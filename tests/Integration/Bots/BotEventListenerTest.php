@@ -18,7 +18,7 @@ class BotEventListenerTest extends ShieldIntegrationTestCase {
 	 *
 	 * @return array<string, array{string, string}>
 	 */
-	public function provideEventToColumnMappings() :array {
+	public static function provideEventToColumnMappings() :array {
 		return [
 			'not-bot signal'      => [ 'bottrack_notbot', 'notbot_at' ],
 			'altcha'              => [ 'bottrack_altcha', 'altcha_at' ],

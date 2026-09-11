@@ -220,8 +220,6 @@ class ShieldCliCommandTest extends BaseUnitTest {
 		$output = $this->processOutput( $process );
 		$this->assertStringContainsString( 'test:browser', $output );
 		$this->assertStringContainsString( 'composer: -- -- --headed', $output );
-		$this->assertStringContainsString( '--clean', $output );
-		$this->assertStringContainsString( '--warm', $output );
 		$this->assertStringContainsString( '--show-setup-output', $output );
 		$this->assertStringContainsString( '--lanes', $output );
 		$this->assertStringContainsString( '--runtime-refresh', $output );
@@ -234,9 +232,9 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			$this->createMock( BrowserTestLane::class )
 		);
 
+		$this->assertTrue( $command->getDefinition()->hasOption( 'show-setup-output' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'clean' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'warm' ) );
-		$this->assertTrue( $command->getDefinition()->hasOption( 'show-setup-output' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'lanes' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'runtime-refresh' ) );
 	}
@@ -249,8 +247,6 @@ class ShieldCliCommandTest extends BaseUnitTest {
 
 		$output = $this->processOutput( $process );
 		$this->assertStringContainsString( 'test:cross-site', $output );
-		$this->assertStringContainsString( '--clean', $output );
-		$this->assertStringContainsString( '--warm', $output );
 		$this->assertStringContainsString( '--show-setup-output', $output );
 	}
 
@@ -261,9 +257,10 @@ class ShieldCliCommandTest extends BaseUnitTest {
 			$this->createMock( CrossSiteTestLane::class )
 		);
 
-		$this->assertTrue( $command->getDefinition()->hasOption( 'clean' ) );
-		$this->assertTrue( $command->getDefinition()->hasOption( 'warm' ) );
 		$this->assertTrue( $command->getDefinition()->hasOption( 'show-setup-output' ) );
+		$this->assertFalse( $command->getDefinition()->hasOption( 'clean' ) );
+		$this->assertFalse( $command->getDefinition()->hasOption( 'warm' ) );
+		$this->assertFalse( $command->getDefinition()->hasOption( 'teardown' ) );
 	}
 
 	public function testDockerCleanupCommandIncludesAuditOptions() :void {
