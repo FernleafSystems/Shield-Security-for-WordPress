@@ -682,7 +682,7 @@ class CacheDirHandlerTest extends BaseUnitTest {
 				'</FilesMatch>',
 				"# END SHIELD"
 			] ),
-			'index.php'  => "<?php\n\http_response_code(404);",
+			'index.php'  => CacheDirHandler::CACHE_INDEX_FILE_CONTENT,
 			'README.txt' => "This is a temporary caching folder used by the Shield plugin. You can safely delete it, but it'll be recreated if required.\n",
 		];
 	}
