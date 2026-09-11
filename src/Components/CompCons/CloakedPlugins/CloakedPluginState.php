@@ -28,10 +28,13 @@ class CloakedPluginState {
 	public function reconcile(
 		array $observedFindings,
 		array $entries,
-		AdminPluginVisibilitySnapshot $visibility,
-		bool $authoritative
+		AdminPluginVisibilitySnapshot $visibility
 	) :array {
-		$reconciled = $authoritative ? [] : $this->loadPersistedFindings( $entries, $visibility );
+		$replaceTypes = \array_filter( PluginType::ALL, [ $visibility, 'canReplaceFindings' ] );
+		$reconciled = \array_filter(
+			$this->loadPersistedFindings( $entries, $visibility ),
+			static fn( CloakedPluginFinding $finding ) :bool => !\in_array( $finding->entry->type, $replaceTypes, true )
+		);
 
 		foreach ( $observedFindings as $finding ) {
 			$reconciled[ $finding->identityKey() ] = $finding;

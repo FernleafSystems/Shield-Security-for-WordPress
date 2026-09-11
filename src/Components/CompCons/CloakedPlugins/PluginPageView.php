@@ -13,7 +13,7 @@ class PluginPageView {
 
 	public function addHooks() :void {
 		add_action( 'pre_current_active_plugins', [ $this, 'setCurrentStatus' ], 1000 );
-		add_filter( 'plugins_list', [ $this, 'addCloakedList' ], 1000 );
+		add_filter( 'plugins_list', [ $this, 'addCloakedList' ], \PHP_INT_MAX );
 		add_filter( 'views_plugins', [ $this, 'addStatusViewLink' ], 1000 );
 		add_filter( 'plugin_action_links', [ $this, 'filterActionLinks' ], 1000, 4 );
 		add_filter( 'mu_plugin_action_links', [ $this, 'filterActionLinks' ], 1000, 4 );

@@ -462,12 +462,12 @@ class ScansResultsViewBuilder {
 	 */
 	public function buildRailPaneData( string $tabKey, array $vulnerabilities = [], ?string $vulnerabilitySection = null ) :array {
 		$tabKey = \strtolower( \trim( $tabKey ) );
-		if ( $tabKey === 'hidden_plugins' ) {
+		$availability = $this->getRailTabAvailability( $tabKey );
+		if ( $tabKey === 'hidden_plugins' && $availability[ 'is_available' ] ) {
 			return $this->buildActionsQueueCloakedPluginsPane();
 		}
 
 		$meta = $this->getRailTabMeta( $tabKey );
-		$availability = $this->getRailTabAvailability( $tabKey );
 		$items = [];
 		$count = 0;
 		$status = 'good';
@@ -477,7 +477,7 @@ class ScansResultsViewBuilder {
 		$disabledActions = [];
 
 		if ( !$availability[ 'is_available' ]
-			 && $this->isProtectedScanResultsArea( $tabKey ) ) {
+			 && ( $tabKey === 'hidden_plugins' || $this->isProtectedScanResultsArea( $tabKey ) ) ) {
 			$isDisabled = true;
 			$status = $disabledStatus;
 			$disabledMessage = $availability[ 'disabled_message' ];
