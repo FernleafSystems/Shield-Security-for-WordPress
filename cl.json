@@ -116,7 +116,22 @@
         ]
       }
     ],
-    "patches":     []
+    "patches":     [
+      {
+        "version":     "3",
+        "released_at": 1789123336,
+        "items":       [
+          {
+            "type":        "fixed",
+            "title":       "Ignore verified Shield cache index files",
+            "commit":      "a69aa5dc",
+            "description": [
+              "Ensure Shield-owned dynamic files are not published in scan results."
+            ]
+          }
+        ]
+      }
+    ]
   },
   "22.1": {
     "version":     "22.1",
@@ -255,7 +270,7 @@
       "Shield 22.0 reshapes the plugin around clearer day-to-day security work: what needs attention, what to investigate, what to configure, and what your reports are telling you.",
       "It also strengthens silentCAPTCHA bot protection and improves live monitoring, scan handling, 2FA and passkey upgrades, MainWP workflows, PHP 8.4 support, and admin action prompts."
     ],
-    "items": [
+    "items":       [
       {
         "type":        "new",
         "title":       "A Clearer Picture of What Needs Your Attention",
@@ -588,12 +603,12 @@
         "released_at": 1772023000,
         "items":       [
           {
-            "type":        "new",
-            "title":       "Added option to override plugin display language regardless of site/user locale."
+            "type":  "new",
+            "title": "Added option to override plugin display language regardless of site/user locale."
           },
           {
-            "type":        "improved",
-            "title":       "Styling of Security Admin login box."
+            "type":  "improved",
+            "title": "Styling of Security Admin login box."
           },
           {
             "type":        "fixed",
@@ -609,16 +624,16 @@
         "released_at": 1772191000,
         "items":       [
           {
-            "type":        "new",
-            "title":       "Added helper function to assit with silentCAPTCHA 3rd party integrations."
+            "type":  "new",
+            "title": "Added helper function to assit with silentCAPTCHA 3rd party integrations."
           },
           {
-            "type":        "fixed",
-            "title":       "Javascript collisions on WP Admin dashboard which also broke MainWP dashboard."
+            "type":  "fixed",
+            "title": "Javascript collisions on WP Admin dashboard which also broke MainWP dashboard."
           },
           {
-            "type":        "security",
-            "title":       "Applied various security advisories to dependencies."
+            "type":  "security",
+            "title": "Applied various security advisories to dependencies."
           }
         ]
       }
