@@ -137,6 +137,25 @@ class UnitTestExecutionSelectorTest extends TestCase {
 		$this->assertNotContains( '--functional', $command );
 	}
 
+	public function testParatestCommandsTranslatePhpUnitDebugToVerbose() :void {
+		$selector = new UnitTestExecutionSelector();
+
+		foreach ( [
+			$selector->buildCommand( [ '--debug', 'tests/Unit/UnitTestExecutionSelectorTest.php' ] ),
+			$selector->buildCommand( [ '--debug', '--filter', 'example' ] ),
+		] as $command ) {
+			$this->assertContains( './vendor/brianium/paratest/bin/paratest', $command );
+			$this->assertContains( '--verbose', $command );
+			$this->assertNotContains( '--debug', $command );
+		}
+
+		$serialCommand = $selector->buildCommand(
+			[ '--debug', 'tests/Unit/UnitTestExecutionSelectorTest.php' ],
+			UnitTestExecutionSelector::MODE_SERIAL
+		);
+		$this->assertContains( '--debug', $serialCommand );
+	}
+
 	public function testAllUnitTestCommandsSetMemoryLimit() :void {
 		$selector = new UnitTestExecutionSelector();
 
