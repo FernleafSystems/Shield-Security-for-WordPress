@@ -26,6 +26,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   links:list<GroupLink>,
  *   management_link:array{}|GroupManagementLink,
  *   is_interactive_override?:bool,
+ *   is_pro_upsell?:bool,
+ *   enable_dialog_json?:string,
  *   status_label_override?:string,
  *   header_summary_override?:string,
  *   header_focus_override?:string,
@@ -34,6 +36,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   header_badge_status_override?:string,
  *   header_color_key_override?:string,
  *   context_actions_override?:list<OperatorChromeActionInput>,
+ *   suppress_detail_render_action_if_noninteractive?:bool,
  *   detail_table:array<string,mixed>,
  *   render_action_class_override?:class-string<\FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\BaseRender>,
  *   render_action_data_override?:array<string,mixed>,
@@ -156,6 +159,8 @@ class ActionsQueueGroupContractBuilder {
 			'links'               => [],
 			'management_link'     => [],
 			'is_interactive'      => false,
+			'is_pro_upsell'      => false,
+			'enable_dialog_json' => '',
 			'detail_table'        => [],
 			'render_action_class' => $definition[ 'render_action_class' ],
 			'render_action_data'  => $renderActionData,
@@ -220,6 +225,8 @@ class ActionsQueueGroupContractBuilder {
 			'links'               => [],
 			'management_link'     => [],
 			'is_interactive'      => false,
+			'is_pro_upsell'      => false,
+			'enable_dialog_json' => '',
 			'detail_table'        => [],
 			'render_action_class' => ActionsQueueAssetFileStatusDetail::class,
 			'render_action_data'  => $renderActionData,
@@ -258,10 +265,18 @@ class ActionsQueueGroupContractBuilder {
 			}
 		}
 
+		$activeSectionKeys = \array_column( $activeEntries, 'section_key' );
+		foreach ( $healthyEntries as $index => $entry ) {
+			if ( $entry[ 'section_key' ] !== '' && \in_array( $entry[ 'section_key' ], $activeSectionKeys, true ) ) {
+				$activeEntries[] = $entry;
+				unset( $healthyEntries[ $index ] );
+			}
+		}
+
 		return [
 			'groups_indexed'  => $indexed,
 			'active_entries'  => $activeEntries,
-			'healthy_entries' => $healthyEntries,
+			'healthy_entries' => \array_values( $healthyEntries ),
 		];
 	}
 
@@ -274,7 +289,7 @@ class ActionsQueueGroupContractBuilder {
 		$iconClass = $seed[ 'icon_class_override' ] ?? $definition[ 'icon_class' ];
 		$narrative = $seed[ 'narrative' ] !== ''
 			? $seed[ 'narrative' ]
-			: $this->buildNarrative( $seed[ 'definition_key' ], $seed[ 'attention_items' ], $seed[ 'item_count' ] );
+			: $this->buildNarrative( $seed[ 'definition_key' ], $seed[ 'item_count' ] );
 		$isInteractive = $seed[ 'is_interactive_override' ]
 			?? $this->determineInteractivity( $seed );
 		$renderActionData = $seed[ 'render_action_data_override' ]
@@ -283,6 +298,11 @@ class ActionsQueueGroupContractBuilder {
 		if ( $this->shouldExposeIgnoredOnlyDirectTableGroup( $seed, $scopeCounts ) ) {
 			$isInteractive = true;
 			$renderActionData = $definition[ 'render_action_data' ];
+		}
+		$suppressDetailRenderAction = !$isInteractive
+			&& !empty( $seed[ 'suppress_detail_render_action_if_noninteractive' ] );
+		if ( $suppressDetailRenderAction ) {
+			$renderActionData = [];
 		}
 		$contextActions = \array_key_exists( 'context_actions_override', $seed )
 			? $seed[ 'context_actions_override' ]
@@ -313,11 +333,13 @@ class ActionsQueueGroupContractBuilder {
 			$iconClass,
 			$seed[ 'item_count' ],
 			$seed[ 'detail_shell' ],
-			$this->buildDetailRenderAction(
-				$seed[ 'render_action_class_override' ]
-					?? $definition[ 'render_action_class' ],
-				$renderActionData
-			),
+			$suppressDetailRenderAction
+				? []
+				: $this->buildDetailRenderAction(
+					$seed[ 'render_action_class_override' ]
+						?? $definition[ 'render_action_class' ],
+					$renderActionData
+				),
 			$narrative,
 			$contextActions,
 			$headerOverrides
@@ -342,6 +364,8 @@ class ActionsQueueGroupContractBuilder {
 			'links'               => $seed[ 'links' ],
 			'management_link'     => $seed[ 'management_link' ],
 			'is_interactive'      => $isInteractive,
+			'is_pro_upsell'      => (bool)( $seed[ 'is_pro_upsell' ] ?? false ),
+			'enable_dialog_json' => $seed[ 'enable_dialog_json' ] ?? '',
 			'detail_table'        => $seed[ 'detail_table' ],
 			'render_action_class' => $seed[ 'render_action_class_override' ]
 				?? $definition[ 'render_action_class' ],
@@ -352,23 +376,18 @@ class ActionsQueueGroupContractBuilder {
 		];
 	}
 
-	/**
-	 * @param list<AttentionItem> $attentionItems
-	 */
-	private function buildNarrative( string $definitionKey, array $attentionItems, int $itemCount ) :string {
+	private function buildNarrative( string $definitionKey, int $itemCount ) :string {
 		switch ( $definitionKey ) {
 			case 'vulnerabilities':
-				$vulnerableCount = \max( $itemCount, $this->countAttentionItemsByKey( $attentionItems, 'vulnerable_assets' ) );
 				return \sprintf(
-					_n( '%s vulnerable asset needs review.', '%s vulnerable assets need review.', $vulnerableCount, 'wp-simple-firewall' ),
-					$vulnerableCount
+					_n( '%s plugin/theme contains known vulnerabilities.', '%s plugins/themes contain known vulnerabilities.', $itemCount, 'wp-simple-firewall' ),
+					$itemCount
 				);
 
 			case 'abandoned':
-				$abandonedCount = \max( $itemCount, $this->countAttentionItemsByKey( $attentionItems, 'abandoned' ) );
 				return \sprintf(
-					_n( '%s abandoned asset needs review.', '%s abandoned assets need review.', $abandonedCount, 'wp-simple-firewall' ),
-					$abandonedCount
+					_n( '%s abandoned asset needs review.', '%s abandoned assets need review.', $itemCount, 'wp-simple-firewall' ),
+					$itemCount
 				);
 
 			case 'hidden_plugins':
@@ -441,19 +460,6 @@ class ActionsQueueGroupContractBuilder {
 		return \sprintf( $pattern, number_format_i18n( $itemCount ) );
 	}
 
-	/**
-	 * @param list<AttentionItem> $items
-	 */
-	private function countAttentionItemsByKey( array $items, string $itemKey ) :int {
-		$count = 0;
-		foreach ( $items as $item ) {
-			if ( $item[ 'key' ] === $itemKey ) {
-				$count += $item[ 'count' ];
-			}
-		}
-		return $count;
-	}
-
 	private function buildActiveSections( array $entries ) :array {
 		$sections = $this->buildSectionsMap( $entries );
 		\usort( $sections, fn( array $left, array $right ) :int => $this->compareActiveSections( $left, $right ) );
@@ -513,6 +519,12 @@ class ActionsQueueGroupContractBuilder {
 	 * @param array{section_key:string,heading_label:string,groups:list<GroupData>} $right
 	 */
 	private function compareActiveSections( array $left, array $right ) :int {
+		$statusCmp = StatusPriority::rank( StatusPriority::highest( \array_column( $right[ 'groups' ], 'status' ) ) )
+			<=> StatusPriority::rank( StatusPriority::highest( \array_column( $left[ 'groups' ], 'status' ) ) );
+		if ( $statusCmp !== 0 ) {
+			return $statusCmp;
+		}
+
 		$sectionCmp = $this->sectionOrderForSectionKey( $left[ 'section_key' ] ) <=> $this->sectionOrderForSectionKey( $right[ 'section_key' ] );
 		if ( $sectionCmp !== 0 ) {
 			return $sectionCmp;
@@ -526,11 +538,6 @@ class ActionsQueueGroupContractBuilder {
 	 * @phpstan-param GroupSectionEntry $right
 	 */
 	private function compareHealthyEntries( array $left, array $right ) :int {
-		$healthyCmp = $this->healthyGroupOrder( $left[ 'group' ][ 'status' ] ) <=> $this->healthyGroupOrder( $right[ 'group' ][ 'status' ] );
-		if ( $healthyCmp !== 0 ) {
-			return $healthyCmp;
-		}
-
 		$sectionCmp = $this->sectionOrderForSectionKey( $left[ 'section_key' ] ) <=> $this->sectionOrderForSectionKey( $right[ 'section_key' ] );
 		if ( $sectionCmp !== 0 ) {
 			return $sectionCmp;
@@ -591,7 +598,7 @@ class ActionsQueueGroupContractBuilder {
 	}
 
 	private function activeGroupOrder( string $status ) :int {
-		return StatusPriority::normalize( $status, 'warning' ) === 'critical' ? 0 : 1;
+		return -StatusPriority::rank( $status );
 	}
 
 	/**

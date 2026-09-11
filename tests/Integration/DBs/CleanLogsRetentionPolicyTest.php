@@ -198,7 +198,10 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 		$this->requireDb( 'activity_logs' );
 	}
 
-	public function test_policy_prunes_activity_and_request_logs_by_tier_and_references() :void {
+	/**
+	 * @return array{request_id:int,activity_id:int}
+	 */
+	public function test_policy_prunes_activity_and_request_logs_by_tier_and_references() :array {
 		$now = \time();
 		$highValueEvents = ( new ActivityLogRetentionPolicy() )->highValueEventSlugs();
 
@@ -238,7 +241,7 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 		$expiredHighValueActivity = $this->insertActivityLogForRequest( $standardOldReqWithExpiredHighValue, $highValueEvent );
 		$this->setCreatedAt( 'activity_logs', $expiredHighValueActivity, $now - 800*\DAY_IN_SECONDS );
 
-		( new CleanDatabases() )->all();
+		( new CleanDatabases() )->cleanRequestLogs();
 
 		$this->assertFalse( $this->existsById( 'req_logs', $transientOldReq ) );
 		$this->assertTrue( $this->existsById( 'req_logs', $transientRecentReq ) );
@@ -255,6 +258,20 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 
 		$this->assertFalse( $this->existsById( 'activity_logs', $expiredHighValueActivity ) );
 		$this->assertFalse( $this->existsById( 'req_logs', $standardOldReqWithExpiredHighValue ) );
+
+		return [
+			'request_id'  => $standardOldReqWithWarning,
+			'activity_id' => $warningActivity,
+		];
+	}
+
+	/**
+	 * @param array{request_id:int,activity_id:int} $fixture
+	 * @depends test_policy_prunes_activity_and_request_logs_by_tier_and_references
+	 */
+	public function test_policy_retained_rows_are_rolled_back_after_producer_teardown( array $fixture ) :void {
+		$this->assertFalse( $this->existsById( 'activity_logs', $fixture[ 'activity_id' ] ) );
+		$this->assertFalse( $this->existsById( 'req_logs', $fixture[ 'request_id' ] ) );
 	}
 
 	public function test_policy_filters_override_pruning_windows() :void {
@@ -312,7 +329,7 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 			$expiredHighValueActivity = $this->insertActivityLogForRequest( $standardOldReqWithExpiredHighValue, $highValueEvent );
 			$this->setCreatedAt( 'activity_logs', $expiredHighValueActivity, $now - 100*\DAY_IN_SECONDS );
 
-			( new CleanDatabases() )->all();
+			( new CleanDatabases() )->cleanRequestLogs();
 
 			$this->assertFalse( $this->existsById( 'req_logs', $transientOldReq ) );
 			$this->assertTrue( $this->existsById( 'req_logs', $transientRecentReq ) );
@@ -355,7 +372,7 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 			$recentUnknownActivity = $this->insertActivityLogForRequest( $recentReq, 'unknown_custom_event' );
 			$this->setCreatedAt( 'activity_logs', $recentUnknownActivity, $now - 30*\DAY_IN_SECONDS );
 
-			( new CleanDatabases() )->all();
+			( new CleanDatabases() )->cleanRequestLogs();
 
 			$this->assertFalse( $this->existsById( 'activity_logs', $oldUnknownActivity ) );
 			$this->assertFalse( $this->existsById( 'req_logs', $oldReq ) );
@@ -398,7 +415,7 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 				$standardAfter = $this->insertRequestLog( false );
 				$this->setCreatedAt( 'req_logs', $standardAfter, $standardCutoff + 1 );
 
-				( new CleanDatabases() )->all();
+				( new CleanDatabases() )->cleanRequestLogs();
 
 				$this->assertFalse( $this->existsById( 'req_logs', $transientBefore ) );
 				$this->assertTrue( $this->existsById( 'req_logs', $transientAt ) );
@@ -446,7 +463,7 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 				$afterActivity = $this->insertActivityLogForRequest( $afterReq, $infoEvent );
 				$this->setCreatedAt( 'activity_logs', $afterActivity, $activityCutoff + 1 );
 
-				( new CleanDatabases() )->all();
+				( new CleanDatabases() )->cleanRequestLogs();
 
 				$this->assertFalse( $this->existsById( 'activity_logs', $beforeActivity ) );
 				$this->assertFalse( $this->existsById( 'req_logs', $beforeReq ) );
@@ -518,7 +535,7 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 			$noticeFallbackActivityRecent = $this->insertActivityLogForRequest( $noticeFallbackReqRecent, 'unknown_event_recent' );
 			$this->setCreatedAt( 'activity_logs', $noticeFallbackActivityRecent, $now - 2*\DAY_IN_SECONDS );
 
-			( new CleanDatabases() )->all();
+			( new CleanDatabases() )->cleanRequestLogs();
 
 			$this->assertTrue( $this->existsById( 'activity_logs', $eventOverrideActivity ) );
 			$this->assertTrue( $this->existsById( 'req_logs', $eventOverrideReq ) );
@@ -560,7 +577,7 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 1, $this->requestTransientFlag( $noParamsReq ) );
 		$this->assertSame( 0, $this->requestTransientFlag( $offenseReq ) );
 
-		( new CleanDatabases() )->all();
+		( new CleanDatabases() )->cleanRequestLogs();
 
 		$this->assertTrue( $this->existsById( 'req_logs', $dependentReq ) );
 		$this->assertTrue( $this->existsById( 'req_logs', $queryReq ) );
@@ -581,7 +598,7 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 0, $this->requestTransientFlag( $oldQueryReq ) );
 		$this->assertSame( 0, $this->requestTransientFlag( $recentQueryReq ) );
 
-		( new CleanDatabases() )->all();
+		( new CleanDatabases() )->cleanRequestLogs();
 
 		$this->assertFalse( $this->existsById( 'req_logs', $oldQueryReq ) );
 		$this->assertTrue( $this->existsById( 'req_logs', $recentQueryReq ) );
@@ -642,14 +659,14 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 			$activityId = $this->insertActivityLogForRequest( $reqId, $warningEvent );
 			$this->setCreatedAt( 'activity_logs', $activityId, $now - 2*\DAY_IN_SECONDS );
 
-			( new CleanDatabases() )->all();
+			( new CleanDatabases() )->cleanRequestLogs();
 
 			$this->assertTrue( $this->existsById( 'activity_logs', $activityId ) );
 			$this->assertTrue( $this->existsById( 'req_logs', $reqId ) );
 
 			$this->setCreatedAt( 'activity_logs', $activityId, $now - 20*\DAY_IN_SECONDS );
 
-			( new CleanDatabases() )->all();
+			( new CleanDatabases() )->cleanRequestLogs();
 
 			$this->assertFalse( $this->existsById( 'activity_logs', $activityId ) );
 			$this->assertFalse( $this->existsById( 'req_logs', $reqId ) );
@@ -676,7 +693,7 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 		$retainedActivity = $this->insertActivityLogForRequest( $retainedReq, $warningEvent );
 		$this->setCreatedAt( 'activity_logs', $retainedActivity, $now - 2*\DAY_IN_SECONDS );
 
-		( new CleanDatabases() )->all();
+		( new CleanDatabases() )->cleanRequestLogs();
 
 		$afterFirst = [
 			'req_count'         => $this->rowCount( 'req_logs' ),
@@ -687,7 +704,7 @@ class CleanLogsRetentionPolicyTest extends ShieldIntegrationTestCase {
 			'retained_activity' => $this->existsById( 'activity_logs', $retainedActivity ),
 		];
 
-		( new CleanDatabases() )->all();
+		( new CleanDatabases() )->cleanRequestLogs();
 
 		$afterSecond = [
 			'req_count'         => $this->rowCount( 'req_logs' ),

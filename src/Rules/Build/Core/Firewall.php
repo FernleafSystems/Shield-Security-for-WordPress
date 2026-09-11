@@ -51,19 +51,29 @@ class Firewall extends BuildRuleCoreShieldBase {
 
 	protected function getResponses() :array {
 		return [
-			[
-				'response' => Responses\EventFire::class,
-				'params'   => [
-					'event'            => 'firewall_block',
-					'offense_count'    => 1,
-					'block'            => false,
-					'audit_params_map' => $this->getCommonAuditParamsMapping(),
-				],
-			],
+			self::eventResponseDefinition( $this->getCommonAuditParamsMapping() ),
 			[
 				'response' => Responses\FirewallBlock::class,
 				'params'   => [],
 			],
 		];
+	}
+
+	public static function eventResponseDefinition( array $auditParamsMap, array $auditParams = [] ) :array {
+		$response = [
+			'response' => Responses\EventFire::class,
+			'params'   => [
+				'event'         => 'firewall_block',
+				'offense_count' => 1,
+				'block'         => false,
+			],
+		];
+		if ( $auditParamsMap !== [] ) {
+			$response[ 'params' ][ 'audit_params_map' ] = $auditParamsMap;
+		}
+		if ( $auditParams !== [] ) {
+			$response[ 'params' ][ 'audit_params' ] = $auditParams;
+		}
+		return $response;
 	}
 }

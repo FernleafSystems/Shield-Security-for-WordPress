@@ -67,8 +67,8 @@ class ActionsQueueGroupDefinitions {
 		],
 		'plugins' => [
 			'sort_order'               => 3,
-			'section_key'              => 'plugins',
-			'section_order'            => 2,
+			'section_key'              => 'wordpress',
+			'section_order'            => 0,
 			'detail_shell'             => 'asset_cards',
 			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'none',
@@ -77,8 +77,8 @@ class ActionsQueueGroupDefinitions {
 		],
 		'themes' => [
 			'sort_order'               => 4,
-			'section_key'              => 'themes',
-			'section_order'            => 3,
+			'section_key'              => 'wordpress',
+			'section_order'            => 0,
 			'detail_shell'             => 'asset_cards',
 			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'none',
@@ -90,7 +90,7 @@ class ActionsQueueGroupDefinitions {
 			'section_key'              => 'vulnerabilities',
 			'section_order'            => 1,
 			'detail_shell'             => 'direct_table',
-			'card_type'                => 'linked',
+			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'none',
 			'render_action_class'      => Vulnerabilities::class,
 			'render_action_data'       => [
@@ -99,10 +99,10 @@ class ActionsQueueGroupDefinitions {
 		],
 		'abandoned' => [
 			'sort_order'               => 1,
-			'section_key'              => 'abandoned',
-			'section_order'            => 4,
+			'section_key'              => 'vulnerabilities',
+			'section_order'            => 1,
 			'detail_shell'             => 'direct_table',
-			'card_type'                => 'linked',
+			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'none',
 			'render_action_class'      => Vulnerabilities::class,
 			'render_action_data'       => [
@@ -111,8 +111,8 @@ class ActionsQueueGroupDefinitions {
 		],
 		'hidden_plugins' => [
 			'sort_order'               => 2,
-			'section_key'              => 'hidden_plugins',
-			'section_order'            => 5,
+			'section_key'              => 'vulnerabilities',
+			'section_order'            => 1,
 			'detail_shell'             => 'direct_table',
 			'card_type'                => 'expandable',
 			'healthy_interaction_mode' => 'default_detail',
@@ -399,10 +399,10 @@ class ActionsQueueGroupDefinitions {
 	private function labelOverrideForGroupKey( string $groupKey ) :string {
 		switch ( $groupKey ) {
 			case 'malware':
-				return __( 'Malware Detections', 'wp-simple-firewall' );
+				return __( 'PHP Malware', 'wp-simple-firewall' );
 
 			case 'file_locker':
-				return __( 'Critical File Changes', 'wp-simple-firewall' );
+				return __( 'Critical File Locker', 'wp-simple-firewall' );
 
 			case 'maintenance':
 				return __( 'Maintenance Items', 'wp-simple-firewall' );
@@ -418,7 +418,7 @@ class ActionsQueueGroupDefinitions {
 				return __( 'File Integrity', 'wp-simple-firewall' );
 
 			case 'vulnerabilities':
-				return __( 'Known Vulnerabilities', 'wp-simple-firewall' );
+				return __( 'Plugin & Theme Risks', 'wp-simple-firewall' );
 
 			default:
 				return '';

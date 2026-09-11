@@ -14,20 +14,32 @@ class ProcessQueueItem {
 	use PluginControllerConsumer;
 
 	public function run( QueueItemVO $item ) {
-		( new RunState() )->markRunning( $item );
+		$runState = new RunState();
+		$runState->markRunning( $item );
 
 		try {
-			$results = $this->runScanOnItem( $item );
+			$scan = $this->runScanOnItem( $item );
+			$action = $scan[ 'action' ];
+			if ( $action instanceof Scans\Afs\ScanActionVO && $action->scope_type === 'full' ) {
+				$this->enqueueIncompleteAssets( $runState->persistAssetComparisonIncomplete(
+					$item,
+					$action,
+					$scan[ 'asset_comparison_incomplete_before' ]
+				) );
+			}
 
-			( new Store() )->store( $item, $results );
+			( new Store() )->store( $item, $scan[ 'results' ] );
 
-			self::con()
+			$itemFinished = self::con()
 				->db_con
 				->scan_items
 				->getQueryUpdater()
 				->updateById( $item->qitem_id, [
 					'finished_at' => Services::Request()->ts()
 				] );
+			if ( $itemFinished ) {
+				$runState->clearQueueItemExceptionForFinishedItem( $item );
+			}
 
 			( new SetScanCompleted() )->runForQueueItem( $item );
 		}
@@ -39,18 +51,33 @@ class ProcessQueueItem {
 				$item->scan,
 				$e->getMessage()
 			) );
+			$runState->recordQueueItemException( $item, $e );
 		}
 	}
 
 	/**
 	 * @throws \Exception
+	 * @return array{
+	 *     action:Scans\Base\BaseScanActionVO,
+	 *     results:array,
+	 *     asset_comparison_incomplete_before:array{plugin:list<string>,theme:list<string>}
+	 * }
 	 */
 	private function runScanOnItem( QueueItemVO $item ) :array {
 		$action = ScanActionFromSlug::GetAction( $item->scan )->applyFromArray( \array_merge(
 			$item->meta,
-			[ 'scan' => $item->scan ]
+			[
+				'scan'       => $item->scan,
+				'scope_type' => $item->scope_type,
+				'scope_key'  => $item->scope_key,
+			]
 		) );
 		$action->items = $item->items;
+		$incompleteBefore = $action instanceof Scans\Afs\ScanActionVO
+			&& $action->scope_type === 'full'
+			&& $action->hasValidAssetComparisonIncomplete()
+			? $action->getAssetComparisonIncomplete()
+			: [ 'plugin' => [], 'theme' => [] ];
 		$heartbeat = new QueueHeartbeat();
 		$action->progress_callback = static function () use ( $heartbeat, $item ) :void {
 			$heartbeat->tick( $item->scan_id );
@@ -64,7 +91,39 @@ class ProcessQueueItem {
 			\usleep( $action->usleep );
 		}
 
-		return \is_array( $action->results ) ? $action->results : [];
+		return [
+			'action'                             => $action,
+			'results'                            => \is_array( $action->results ) ? $action->results : [],
+			'asset_comparison_incomplete_before' => $incompleteBefore,
+		];
+	}
+
+	/**
+	 * @param array{plugin:list<string>,theme:list<string>} $assets
+	 */
+	private function enqueueIncompleteAssets( array $assets ) :void {
+		foreach ( [ 'plugin', 'theme' ] as $assetType ) {
+			foreach ( $assets[ $assetType ] as $assetKey ) {
+				try {
+					if ( !self::con()->comps->asset_coordinator->enqueueAsset( $assetType, $assetKey ) ) {
+						$this->logAssetEnqueueFailure( $assetType, $assetKey, 'returned false' );
+					}
+				}
+				catch ( \Throwable $e ) {
+					$this->logAssetEnqueueFailure( $assetType, $assetKey, $e->getMessage() );
+				}
+			}
+		}
+	}
+
+	private function logAssetEnqueueFailure( string $assetType, string $assetKey, string $message ) :void {
+		$message = \trim( (string)\preg_replace( '#\s+#', ' ', $message ) );
+		error_log( \sprintf(
+			'Shield AFS asset follow-up enqueue failed: type=%s key=%s message=%s',
+			$assetType,
+			$assetKey,
+			\substr( $message, 0, 200 )
+		) );
 	}
 
 	/**

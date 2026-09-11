@@ -378,6 +378,7 @@ class Controller extends DynPropertiesClass {
 		$this->db_con->execute();
 		$this->importExportSitesRegistryOnConfigRebuild();
 		$this->comps->execute();
+		$this->comps->asset_coordinator->execute();
 
 		( new Updates\HandleUpgrade() )->execute();
 	}

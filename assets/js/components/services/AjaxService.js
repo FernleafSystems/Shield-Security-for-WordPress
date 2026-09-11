@@ -13,10 +13,22 @@ export class AjaxService {
 	static authRefreshPendingPromise = null;
 
 	bg( data ) {
-		return this.send( data, false, true );
+		return this.sendWithPolicy( data, {
+			showOverlay: false,
+			quiet: true,
+			isBackground: true,
+		} );
 	}
 
 	send( data, showOverlay = false, quiet = false ) {
+		return this.sendWithPolicy( data, {
+			showOverlay,
+			quiet,
+			isBackground: false,
+		} );
+	}
+
+	sendWithPolicy( data, { showOverlay, quiet, isBackground } ) {
 		if ( AjaxService.authRefreshPending ) {
 			return AjaxService.suspendForAuthRefresh();
 		}
@@ -26,9 +38,9 @@ export class AjaxService {
 		}
 
 		return this
-		.req( data )
+		.req( data, isBackground )
 		.then( respJSON => {
-			if ( this.isAuthRefreshResponse( respJSON ) ) {
+			if ( !isBackground && this.isAuthRefreshResponse( respJSON ) ) {
 				this.handleAuthRefresh( respJSON );
 				return AjaxService.suspendForAuthRefresh();
 			}
@@ -47,7 +59,7 @@ export class AjaxService {
 			return respJSON;
 		} )
 		.then( respJSON => {
-			if ( respJSON?.data?.page_reload ) {
+			if ( !isBackground && respJSON?.data?.page_reload ) {
 				setTimeout( () => Navigation.RedirectOrReload( respJSON, null ), 2000 );
 			}
 			else if ( showOverlay ) {
@@ -68,7 +80,7 @@ export class AjaxService {
 			}
 			return error;
 		} );
-	};
+	}
 
 	showFallbackMessage( message, success ) {
 		announceGlobal( message, {
@@ -78,7 +90,7 @@ export class AjaxService {
 		logger.call( console, message );
 	}
 
-	req( data ) {
+	req( data, isBackground = false ) {
 		if ( data === null || ObjectOps.IsEmpty( data ) ) {
 			throw new Error( 'Empty or null Ajax data.' );
 		}
@@ -99,7 +111,7 @@ export class AjaxService {
 			delete reqData._rest_url;
 			delete reqData.ajaxurl;
 
-			return fetch( url, this.constructFetchRequestData( reqData ) )
+			return fetch( url, this.constructFetchRequestData( reqData, 'POST', isBackground ) )
 			.then( raw => raw.text().then( respTEXT => {
 				const respJSON = AjaxParseResponseService.ParseIt( respTEXT );
 				if ( respJSON === null
@@ -115,13 +127,13 @@ export class AjaxService {
 		}
 	}
 
-	constructFetchRequestData( core, method = 'POST' ) {
+	constructFetchRequestData( core, method = 'POST', isBackground = false ) {
 		core.apto_wrap_response = 1;
 		const headers = {
 			'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
 			'X-Requested-With': 'XMLHttpRequest',
 		};
-		if ( this.shouldRequestAuthRefresh( core ) ) {
+		if ( !isBackground && this.shouldRequestAuthRefresh( core ) ) {
 			headers[ 'X-Shield-Auth-Refresh' ] = '1';
 		}
 		return {

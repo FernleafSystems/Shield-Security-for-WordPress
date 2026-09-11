@@ -4,51 +4,34 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\D
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Events\EventsParser;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\{
-	Constants,
-	ReportIntervalWindow,
-	ReportIntervalWindowResolver
-};
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
 
 class BuildForStats extends BuildBase {
 
-	/**
-	 * TODO: it currently builds all stats and then filters. Probably best to optimise.
-	 */
 	public function build() :array {
 		$eventsParser = new EventsParser();
-		$rawStats = \array_map(
-			function ( array $data ) {
-				$data[ 'stats_count' ] = \count( $data[ 'stats' ] );
-				$data[ 'has_non_zero_stat' ] =
-					\count( \array_filter( $data[ 'stats' ], fn( array $stat ) => !$stat[ 'is_zero_stat' ] ) ) > 0;
-				return $data;
-			},
-			[
-				'security'      => [
-					'title'   => __( 'Security Stats', 'wp-simple-firewall' ),
-					'stats'   => $this->buildForGroup( \array_keys( $eventsParser->security() ) ),
-					'neutral' => false,
-				],
-				'wordpress'     => [
-					'title'   => __( 'WordPress Stats', 'wp-simple-firewall' ),
-					'stats'   => $this->buildForGroup( \array_keys( $eventsParser->wordpress() ) ),
-					'neutral' => true,
-				],
-				'user_accounts' => [
-					'title'   => __( 'User Accounts', 'wp-simple-firewall' ),
-					'stats'   => $this->buildForGroup( \array_keys( $eventsParser->accounts() ) ),
-					'neutral' => true,
-				],
-				'user_access'   => [
-					'title'   => __( 'User Access', 'wp-simple-firewall' ),
-					'stats'   => $this->buildForGroup( \array_keys( $eventsParser->userAccess() ) ),
-					'neutral' => true,
-				],
-			]
-		);
+		$definitions = [
+			'security'      => [ __( 'Security Stats', 'wp-simple-firewall' ), $eventsParser->security(), false ],
+			'wordpress'     => [ __( 'WordPress Stats', 'wp-simple-firewall' ), $eventsParser->wordpress(), true ],
+			'user_accounts' => [ __( 'User Accounts', 'wp-simple-firewall' ), $eventsParser->accounts(), true ],
+			'user_access'   => [ __( 'User Access', 'wp-simple-firewall' ), $eventsParser->userAccess(), true ],
+		];
+		$requested = \array_flip( $this->report->areas[ Constants::REPORT_AREA_STATS ] );
+		$stats = [];
+		foreach ( \array_intersect_key( $definitions, $requested ) as $key => [ $title, $eventDefinitions, $neutral ] ) {
+			$groupStats = $this->buildForGroup( \array_keys( $eventDefinitions ) );
+			$stats[ $key ] = [
+				'title'             => $title,
+				'stats'             => $groupStats,
+				'has_non_zero_stat' => \count( \array_filter(
+					$groupStats,
+					static fn( array $stat ) :bool => !$stat[ 'is_zero_stat' ]
+				) ) > 0,
+				'neutral'           => $neutral,
+			];
+		}
 
-		return \array_intersect_key( $rawStats, \array_flip( $this->report->areas[ Constants::REPORT_AREA_STATS ] ) );
+		return $stats;
 	}
 
 	public function buildForGroup( array $eventsGroup = [] ) :array {
@@ -60,18 +43,14 @@ class BuildForStats extends BuildBase {
 
 		$start = $this->report->start_at;
 		$end = $this->report->end_at;
-		$previousWindow = $this->resolvePreviousWindow( $start, $end );
-
 		/** @var EventsDB\Select $selector */
 		$selector = $con->db_con->events->getQuerySelector();
 		$countsCurrent = $selector
 			->filterByBoundary( $start, $end )
 			->sumEventsSeparately( $eventsGroup );
-		$countsPrevious = $previousWindow === null ?
-			\array_fill_keys( $eventsGroup, 0 )
-			: $selector->reset()
-					   ->filterByBoundary( $previousWindow->start_at, $previousWindow->end_at )
-					   ->sumEventsSeparately( $eventsGroup );
+		$countsPrevious = $selector->reset()
+						   ->filterByBoundary( $this->report->previous_start_at, $this->report->previous_end_at )
+						   ->sumEventsSeparately( $eventsGroup );
 
 		foreach ( $eventsGroup as $event ) {
 			$sumCurrent = $countsCurrent[ $event ];
@@ -120,22 +99,4 @@ class BuildForStats extends BuildBase {
 		];
 	}
 
-	private function resolvePreviousWindow( int $startAt, int $endAt ) :?ReportIntervalWindow {
-		if ( $startAt <= 0 ) {
-			return null;
-		}
-
-		$timezone = \wp_timezone()->getName();
-		$resolver = new ReportIntervalWindowResolver();
-		$interval = (string)$this->report->interval;
-
-		if ( $resolver->isSupportedScheduledInterval( $interval ) ) {
-			return $resolver->resolvePreviousMatchingWindow(
-				new ReportIntervalWindow( $startAt, $endAt, $timezone ),
-				$interval
-			);
-		}
-
-		return $resolver->resolveAdjacentInclusiveWindow( $startAt, $endAt, $timezone );
-	}
 }

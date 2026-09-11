@@ -109,13 +109,14 @@ class AssetsCustomizerProgressMetersRouteIntegrationTest extends ShieldIntegrati
 		$this->assertSessionsTableLocalized( $comps );
 	}
 
-	public function test_sessions_table_remains_localized_for_legacy_tools_sessions_route() :void {
+	public function test_reports_workspace_localizes_table_and_creation_actions() :void {
 		$comps = $this->getMainLocalisedComponentsForRoute(
-			PluginNavs::NAV_TOOLS,
-			PluginNavs::SUBNAV_TOOLS_SESSIONS
+			PluginNavs::NAV_REPORTS,
+			PluginNavs::SUBNAV_REPORTS_OVERVIEW
 		);
 
-		$this->assertSessionsTableLocalized( $comps );
+		$this->assertArrayHasKey( 'table_action', $comps[ 'tables' ][ 'reports' ][ 'ajax' ] ?? [] );
+		$this->assertArrayHasKey( 'reports', $comps );
 	}
 
 	private function getMainLocalisedComponentsForRoute( string $nav, string $subNav ) :array {

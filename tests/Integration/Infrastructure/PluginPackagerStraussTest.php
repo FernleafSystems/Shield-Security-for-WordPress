@@ -36,7 +36,6 @@ class PluginPackagerStraussTest extends TestCase {
 	];
 
 	private const EXPECTED_EXCLUDED_PACKAGES = [
-		'psr/log',
 		'psr/cache',
 		'psr/clock',
 		'psr/container',
@@ -63,7 +62,6 @@ class PluginPackagerStraussTest extends TestCase {
 
 	private const REQUIRED_UNPREFIXED_PACKAGES = [
 		'fernleafsystems/worpdrive-client',
-		'psr/log',
 		'psr/cache',
 		'psr/clock',
 		'psr/container',
@@ -90,6 +88,7 @@ class PluginPackagerStraussTest extends TestCase {
 
 	private const EXPECTED_NAMESPACE_REWRITES = [
 		'Monolog\\'                       => 'AptowebDeps\\Monolog\\',
+		'Psr\\Log\\'                       => 'AptowebDeps\\Psr\\Log\\',
 		'Twig\\'                          => 'AptowebDeps\\Twig\\',
 		'CrowdSec\\CapiClient\\'          => 'AptowebDeps\\CrowdSec\\CapiClient\\',
 		'Webauthn\\'                      => 'AptowebDeps\\Webauthn\\',
@@ -111,6 +110,10 @@ class PluginPackagerStraussTest extends TestCase {
 
 	private string $packagePath;
 
+	private const REQUIRED_PREFIXED_DEPENDENCIES = [
+		'psr/log',
+	];
+
 	private function packagePathJoin( string ...$parts ) :string {
 		return Path::join( $this->packagePath, ...$parts );
 	}
@@ -119,7 +122,7 @@ class PluginPackagerStraussTest extends TestCase {
 	 * @return string[]
 	 */
 	private function getRequiredPrefixedPackages() :array {
-		return self::EXPECTED_STRAUSS_PACKAGES;
+		return array_merge( self::EXPECTED_STRAUSS_PACKAGES, self::REQUIRED_PREFIXED_DEPENDENCIES );
 	}
 
 	/**
@@ -143,19 +146,15 @@ class PluginPackagerStraussTest extends TestCase {
 	public function testSourceStraussConfigMatchesPackageContract() :void {
 		$strauss = $this->getSourceComposerStraussConfig();
 
-		$this->assertArrayHasKey( 'target_directory', $strauss );
-		$this->assertSame( 'vendor_prefixed', $strauss[ 'target_directory' ] );
-		$this->assertArrayHasKey( 'namespace_prefix', $strauss );
-		$this->assertSame( self::STRAUSS_NAMESPACE_PREFIX, $strauss[ 'namespace_prefix' ] );
-		$this->assertArrayHasKey( 'packages', $strauss );
-		$this->assertSame( self::EXPECTED_STRAUSS_PACKAGES, $strauss[ 'packages' ] );
-		$this->assertNotContains( 'fernleafsystems/worpdrive-client', $strauss[ 'packages' ] );
-		$this->assertArrayHasKey( 'update_call_sites', $strauss );
-		$this->assertSame( [ 'src' ], $strauss[ 'update_call_sites' ] );
-		$this->assertArrayHasKey( 'exclude_from_copy', $strauss );
-		$this->assertIsArray( $strauss[ 'exclude_from_copy' ] );
-		$this->assertArrayHasKey( 'packages', $strauss[ 'exclude_from_copy' ] );
-		$this->assertSame( self::EXPECTED_EXCLUDED_PACKAGES, $strauss[ 'exclude_from_copy' ][ 'packages' ] );
+		$this->assertSame( 'vendor_prefixed', $strauss[ 'target_directory' ] ?? null );
+		$this->assertSame( self::STRAUSS_NAMESPACE_PREFIX, $strauss[ 'namespace_prefix' ] ?? null );
+		$this->assertEqualsCanonicalizing( self::EXPECTED_STRAUSS_PACKAGES, $strauss[ 'packages' ] ?? null );
+		$this->assertNotContains( 'fernleafsystems/worpdrive-client', $strauss[ 'packages' ] ?? [] );
+		$this->assertSame( [ 'src' ], $strauss[ 'update_call_sites' ] ?? null );
+		$this->assertEqualsCanonicalizing(
+			self::EXPECTED_EXCLUDED_PACKAGES,
+			$strauss[ 'exclude_from_copy' ][ 'packages' ] ?? null
+		);
 	}
 
 	/** @group package-targeted */

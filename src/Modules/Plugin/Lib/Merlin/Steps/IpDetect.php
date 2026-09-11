@@ -2,18 +2,17 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Merlin\Steps;
 
-use FernleafSystems\Wordpress\Plugin\Shield;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Response;
 use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
 
 class IpDetect extends Base {
-
 	public const SLUG = 'ip_detect';
 
-	public function getName() :string {
+	public function getName(): string {
 		return __( 'Visitor IP', 'wp-simple-firewall' );
 	}
 
-	protected function getStepRenderData() :array {
+	protected function getStepRenderData(): array {
 		$allIPs = $this->gatherUniqueIpSources();
 		return [
 			'hrefs'   => [
@@ -35,7 +34,7 @@ class IpDetect extends Base {
 		];
 	}
 
-	public function processStepFormSubmit( array $form ) :Shield\Utilities\Response {
+	public function processStepFormSubmit( array $form ): Response {
 		$source = $form[ 'ip_source' ] ?? '';
 		if ( empty( $source ) ) {
 			throw new \Exception( 'Not a valid request' );
@@ -52,15 +51,16 @@ class IpDetect extends Base {
 		return $resp;
 	}
 
-	private function gatherUniqueIpSources() :array {
-		$allIPs = [];
-		foreach ( ( new RequestIpDetect() )->getPublicRequestIPData()[ 'all_ips' ] as $source => $ips ) {
-			$allIPs[ $source ] = \current( $ips );
-		}
-		return \array_unique( $allIPs );
+	private function gatherUniqueIpSources(): array {
+		return \array_unique(
+			\array_map(
+				fn( $ips ) => \current( $ips ),
+				( new RequestIpDetect() )->getPublicRequestIPData()[ 'all_ips' ]
+			)
+		);
 	}
 
-	public function skipStep() :bool {
+	public function skipStep(): bool {
 		return \count( $this->gatherUniqueIpSources() ) === 1;
 	}
 }

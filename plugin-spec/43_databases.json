@@ -249,7 +249,23 @@
                     "default": 0,
                     "comment": "Total"
                 }
-            }
+            },
+            "indices": [
+                {
+                    "key_name": "created_at_event",
+                    "columns": [
+                        "created_at",
+                        "event"
+                    ]
+                },
+                {
+                    "key_name": "event_created_at",
+                    "columns": [
+                        "event",
+                        "created_at"
+                    ]
+                }
+            ]
         },
         "file_locker": {
             "name": "File Locker Data",
@@ -680,7 +696,7 @@
                 },
                 "malai_status": {
                     "macro_type": "varchar",
-                    "length": 20,
+                    "length": 24,
                     "default": "''",
                     "comment": "The status of the file from malai"
                 },
@@ -899,7 +915,7 @@
                 "item_id": {
                     "macro_type": "varchar",
                     "length": 256,
-                    "comment": "Result Item ID"
+                    "comment": "Legacy canonical scan-result identity. AFS paths longer than 256 characters are an accepted limitation pending replacement result storage; do not change this column in place without a migration and index-compatibility design."
                 },
                 "asset_type": {
                     "macro_type": "varchar",
@@ -1138,7 +1154,7 @@
                     "comment": "Scan Completed At"
                 },
                 "meta": {
-                    "macro_type": "meta",
+                    "macro_type": "mediumtext",
                     "comment": "Scan Meta Info"
                 }
             },
@@ -1205,6 +1221,10 @@
                 "items": {
                     "macro_type": "text",
                     "comment": "Array of scan items"
+                },
+                "item_count": {
+                    "macro_type": "unsigned_int",
+                    "comment": "Number of scan items in this queue row"
                 },
                 "started_at": {
                     "macro_type": "timestamp",

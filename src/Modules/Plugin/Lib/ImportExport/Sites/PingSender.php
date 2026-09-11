@@ -49,8 +49,7 @@ class PingSender {
 	}
 
 	private function canonicalMasterUrl() :string {
-		$masterUrl = Services::Data()->validateSimpleHttpUrl( Services::WpGeneral()->getHomeUrl() );
-		return $masterUrl === false ? '' : (string)$masterUrl;
+		return $this->urlValidator->canonicalize( Services::WpGeneral()->getHomeUrl() );
 	}
 
 	/**

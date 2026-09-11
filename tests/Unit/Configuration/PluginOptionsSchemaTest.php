@@ -123,6 +123,19 @@ class PluginOptionsSchemaTest extends TestCase {
 		}
 	}
 
+	public function testMultipleSelectValueKeysAreStrings() :void {
+		foreach ( $this->options as $key => $option ) {
+			if ( ( $option[ 'type' ] ?? '' ) === 'multiple_select' ) {
+				foreach ( $option[ 'value_options' ] ?? [] as $valueOption ) {
+					$this->assertIsString(
+						$valueOption[ 'value_key' ] ?? null,
+						sprintf( "Multiple-select option '%s' must use string value keys.", $key )
+					);
+				}
+			}
+		}
+	}
+
 	public function testIntegerOptionsHaveNumericDefaults() :void {
 		$integerOptions = \array_filter( 
 			$this->options, 
@@ -582,6 +595,23 @@ class PluginOptionsSchemaTest extends TestCase {
 			$this->assertSame( false, $option[ 'transferable' ], sprintf( "%s cooldown option should not transfer.", $context ) );
 			$this->assertSame( true, $option[ 'tracking_exclude' ], sprintf( "%s cooldown option should be excluded from tracking.", $context ) );
 			$this->assertNotSame( true, $option[ 'sensitive' ] ?? false, sprintf( "%s cooldown option should not be sensitive.", $context ) );
+		}
+	}
+
+	public function testImportExportRuntimeStateIsNotTransferable() :void {
+		$sourceOptions = $this->sourceOptionsByKey();
+		foreach ( [
+			'import_id',
+			'import_url_ids',
+			'importexport_sites_migrated_at',
+			'importexport_pending_network_invites',
+			'importexport_handshake_expires_at',
+			'importexport_secretkey_expires_at',
+		] as $key ) {
+			$this->assertArrayHasKey( 'transferable', $sourceOptions[ $key ], "Source option '{$key}' should declare transferability." );
+			$this->assertFalse( $sourceOptions[ $key ][ 'transferable' ], "Source option '{$key}' should not transfer." );
+			$this->assertArrayHasKey( 'transferable', $this->options[ $key ], "Generated option '{$key}' should declare transferability." );
+			$this->assertFalse( $this->options[ $key ][ 'transferable' ], "Generated option '{$key}' should not transfer." );
 		}
 	}
 

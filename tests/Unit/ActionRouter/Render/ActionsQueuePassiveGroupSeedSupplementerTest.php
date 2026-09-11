@@ -232,6 +232,72 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 		$this->assertSame( 'good', $seeds[ 0 ][ 'status' ] );
 	}
 
+	public function test_supplement_suppresses_empty_cloaked_plugin_detail() :void {
+		$seeds = $this->newSupplementer()->supplement(
+			'critical',
+			[ 'attention_items' => [], 'disabled_groups' => [] ],
+			[
+				'scans' => [ [
+					'key'               => 'hidden_plugins',
+					'label'             => 'Cloaked Plugins',
+					'description'       => 'No cloaked plugins detected.',
+					'drill_bucket'      => 'critical',
+					'status'            => 'good',
+					'status_label'      => 'Good',
+					'status_icon_class' => 'bi bi-patch-check-fill',
+					'has_useful_detail' => false,
+				] ],
+				'maintenance' => [],
+			],
+			[]
+		);
+
+		$this->assertCount( 1, $seeds );
+		$this->assertSame( 'hidden_plugins', $seeds[ 0 ][ 'key' ] );
+		$this->assertFalse( $seeds[ 0 ][ 'is_interactive_override' ] );
+		$this->assertSame( [], $seeds[ 0 ][ 'render_action_data_override' ] );
+		$this->assertSame( [], $seeds[ 0 ][ 'context_actions_override' ] );
+		$this->assertTrue( $seeds[ 0 ][ 'suppress_detail_render_action_if_noninteractive' ] );
+	}
+
+	public function test_supplement_keeps_ignored_cloaked_plugin_detail_and_file_locker_default_detail() :void {
+		$seeds = $this->newSupplementer( [] )->supplement(
+			'critical',
+			[ 'attention_items' => [], 'disabled_groups' => [] ],
+			[
+				'scans' => [
+					[
+						'key'               => 'hidden_plugins',
+						'label'             => 'Cloaked Plugins',
+						'description'       => 'No cloaked plugins detected.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+						'has_useful_detail' => true,
+					],
+					[
+						'key'               => 'file_locker',
+						'label'             => 'File Locker',
+						'description'       => 'Locked files are healthy.',
+						'drill_bucket'      => 'critical',
+						'status'            => 'good',
+						'status_label'      => 'Good',
+						'status_icon_class' => 'bi bi-patch-check-fill',
+					],
+				],
+				'maintenance' => [],
+			],
+			[]
+		);
+
+		$byKey = \array_column( $seeds, null, 'key' );
+		$this->assertTrue( $byKey[ 'hidden_plugins' ][ 'is_interactive_override' ] );
+		$this->assertArrayNotHasKey( 'suppress_detail_render_action_if_noninteractive', $byKey[ 'hidden_plugins' ] );
+		$this->assertTrue( $byKey[ 'file_locker' ][ 'is_interactive_override' ] );
+		$this->assertNotSame( [], $byKey[ 'file_locker' ][ 'render_action_data_override' ] );
+	}
+
 	public function test_supplement_adds_interactive_direct_scan_seed_when_only_ignored_results_exist() :void {
 		$definitions = new ActionsQueueGroupDefinitions();
 		$maintenanceSeedBuilder = new ActionsQueueMaintenanceGroupSeedBuilder(
@@ -293,6 +359,53 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 		$this->assertSame( [], $seeds[ 0 ][ 'context_actions_override' ] );
 	}
 
+	public function test_supplement_marks_only_upgrade_required_protection_groups_for_pro_upsell() :void {
+		$eligibleKeys = [ 'malware', 'vulnerabilities', 'plugins', 'themes', 'file_locker' ];
+		$disabledGroups = [];
+		foreach ( $eligibleKeys as $key ) {
+			$disabledGroups[ $key ] = [
+				'disabled_reason'  => 'upgrade_required',
+				'disabled_message' => $key.' requires an upgrade.',
+			];
+		}
+		$disabledGroups[ 'wordpress' ] = [
+			'disabled_reason'  => 'upgrade_required',
+			'disabled_message' => 'WordPress core scanning requires an upgrade.',
+		];
+
+		$seeds = $this->newSupplementer()->supplement(
+			'critical',
+			[ 'attention_items' => [], 'disabled_groups' => $disabledGroups ],
+			[ 'scans' => [], 'maintenance' => [] ],
+			[]
+		);
+		$seedsByKey = \array_column( $seeds, null, 'key' );
+		$upsellKeys = \array_keys( \array_filter(
+			$seedsByKey,
+			static fn( array $seed ) :bool => !empty( $seed[ 'is_pro_upsell' ] )
+		) );
+
+		$this->assertSame( $eligibleKeys, $upsellKeys );
+		$this->assertArrayNotHasKey( 'is_pro_upsell', $seedsByKey[ 'wordpress' ] );
+
+		$notEnabledSeeds = $this->newSupplementer()->supplement(
+			'critical',
+			[
+				'attention_items' => [],
+				'disabled_groups' => [
+					'file_locker' => [
+						'disabled_reason'  => 'not_enabled',
+						'disabled_message' => 'File Locker is not enabled.',
+					],
+				],
+			],
+			[ 'scans' => [], 'maintenance' => [] ],
+			[]
+		);
+
+		$this->assertArrayNotHasKey( 'is_pro_upsell', $notEnabledSeeds[ 0 ] );
+	}
+
 	private function makePendingFileLockDisplays( array $displays ) :GetPendingFileLockDisplays {
 		return new class( $displays ) extends GetPendingFileLockDisplays {
 
@@ -306,6 +419,31 @@ class ActionsQueuePassiveGroupSeedSupplementerTest extends BaseUnitTest {
 				return $this->displays;
 			}
 		};
+	}
+
+	private function newSupplementer( ?array $pendingFileLockDisplays = null ) :ActionsQueuePassiveGroupSeedSupplementer {
+		$definitions = new ActionsQueueGroupDefinitions();
+		$maintenanceSeedBuilder = new ActionsQueueMaintenanceGroupSeedBuilder(
+			$definitions,
+			new ActionsQueueCompactSummaryRowBuilder()
+		);
+		$maintenanceSource = $this->getMockBuilder( ActionsQueueGroupMaintenanceSource::class )
+								  ->disableOriginalConstructor()
+								  ->onlyMethods( [ 'itemsForBucket' ] )
+								  ->getMock();
+		$maintenanceSource->method( 'itemsForBucket' )->willReturn( [] );
+
+		return new ActionsQueuePassiveGroupSeedSupplementer(
+			$definitions,
+			$maintenanceSeedBuilder,
+			$maintenanceSource,
+			$pendingFileLockDisplays === null
+				? $this->makeFailingPendingFileLockDisplays()
+				: $this->makePendingFileLockDisplays( $pendingFileLockDisplays ),
+			$this->makeScanResultScopeStateBuilder(),
+			null,
+			$this->makeRailTabAvailability()
+		);
 	}
 
 	private function makeFailingPendingFileLockDisplays() :GetPendingFileLockDisplays {

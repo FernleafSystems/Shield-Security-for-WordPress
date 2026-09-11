@@ -181,6 +181,7 @@ class DbCon extends DynPropertiesClass {
 
 	public function runDailyCron() {
 		( new CleanDatabases() )->all();
+		( new TableIndices( $this->events->getTableSchema() ) )->applyFromSchema();
 		( new TableIndices( $this->ip_rules->getTableSchema() ) )->applyFromSchema();
 		( new TableIndices( $this->mfa->getTableSchema() ) )->applyFromSchema();
 	}

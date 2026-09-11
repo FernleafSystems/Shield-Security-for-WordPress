@@ -110,10 +110,10 @@
 	min-width: 0;
 }
 
-.import-export-file-row h5,
-.import-export-sync-topbar h5,
-.import-export-network-disabled h5,
-.import-export-pane__header h5 {
+.import-export-file-row .h5,
+.import-export-sync-topbar .h5,
+.import-export-network-disabled .h5,
+.import-export-pane__header .h5 {
 	font-size: 0.95rem;
 	font-weight: 700;
 	line-height: 1.3;
@@ -495,6 +495,8 @@
 .import-export-network-state__copy [data-import-export-sync-now] {
 	justify-self: start;
 	margin-top: 0.35rem;
+	// Avoid a transient low-contrast colour interpolation when this action is re-enabled.
+	transition: none;
 }
 
 .import-export-network-state [data-import-export-connect-reveal] {
@@ -646,7 +648,7 @@
 	min-width: 0;
 }
 
-.import-export-profile-options__heading h6 {
+.import-export-profile-options__heading .h6 {
 	font-size: 0.92rem;
 	font-weight: 700;
 	line-height: 1.3;

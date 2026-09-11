@@ -17,11 +17,17 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\{
 	Scan\Results\Update
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\FileScanOptimiser;
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\ReportToMalai;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
+	FileScanOptimiser,
+	ReportToMalai,
+	RetrieveMalwareMalaiStatus
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class ScansController {
+	public const HOOK_POST_SCAN = 'post_scan';
+	public const HOOK_POST_SCAN_MALAI = 'post_scan_malai';
+	public const HOOK_SCAN_RESULT_NOTIFICATION_READINESS_OPENED = 'shield/scan_result_notification_readiness_opened';
 
 	use ExecOnce;
 	use PluginControllerConsumer;
@@ -63,7 +69,7 @@ class ScansController {
 	public function runHourlyCron() {
 		( new QueueMaintenance() )->run();
 		self::con()->comps->scans_queue->getQueueWatchdog()->scheduleIfActive();
-		( new ReportToMalai() )->run();
+		$this->runMalaiReconciliation();
 	}
 
 	public function AFS() :Controller\Afs {
@@ -123,8 +129,28 @@ class ScansController {
 
 	public function resetScanResultsCountMemoization() :void {
 		$this->scanResultsStatus = null;
+		foreach ( $this->scanCons as $scanCon ) {
+			$scanCon->resetResultsMemoization();
+		}
 		$this->getAdminBarScanSummaryCache()->invalidate();
 		self::con()->comps->site_query->clearMemoized();
+	}
+
+	public function isReadyForScanResultNotifications() :bool {
+		try {
+			if ( ( new Init\ScansStatus() )->hasActiveScans() ) {
+				return false;
+			}
+			return !self::con()->comps->asset_coordinator->hasRetryableAssetWork();
+		}
+		catch ( \Throwable $e ) {
+			error_log( 'Shield scan-result notification readiness check failed: '.\substr(
+				(string)\preg_replace( '#\s+#', ' ', $e->getMessage() ),
+				0,
+				300
+			) );
+			return false;
+		}
 	}
 
 	private function setupAdminBarScanSummaryCacheHooks() :void {
@@ -135,10 +161,16 @@ class ScansController {
 	}
 
 	private function handlePostScanCron() {
-		add_action( self::con()->prefix( 'post_scan' ), function () {
-			( new ReportToMalai() )->run();
+		add_action( self::con()->prefix( self::HOOK_POST_SCAN ), function () {
+			$this->runMalaiReconciliation();
 			$this->runAutoRepair();
 		} );
+		add_action( self::con()->prefix( self::HOOK_POST_SCAN_MALAI ), fn() => $this->runMalaiReconciliation() );
+	}
+
+	private function runMalaiReconciliation() :void {
+		( new ReportToMalai() )->run();
+		( new RetrieveMalwareMalaiStatus() )->reconcileActiveResults();
 	}
 
 	private function runAutoRepair() {
@@ -252,6 +284,7 @@ class ScansController {
 					$existingScanID = $e->getExistingScanID();
 					if ( $existingScanID > 0 ) {
 						$result->addResumed( $scanCon->getSlug(), $existingScanID );
+						$resumedScan = true;
 					}
 					else {
 						$result->addFailure( $slug, StartScansResult::REASON_ALREADY_EXISTS, $e->getMessage() );
@@ -313,34 +346,77 @@ class ScansController {
 			return false;
 		}
 
+		$createdScan = false;
+		$resumedScan = false;
+
 		try {
 			$scanCon = $this->AFS();
 			if ( !$scanCon->isReady() ) {
 				return false;
 			}
+			$scanSlug = $scanCon->getSlug();
 
-			( new Init\CreateNewScan() )->run(
-				$scanCon->getSlug(),
-				$assetType,
-				$assetKey,
-				'asset_change'
-			);
+			$this->createAfsAssetScanRecord( $scanCon, $assetType, $assetKey );
 
-			if ( $resetIgnored ) {
-				( new Update() )
-					->setScanController( $scanCon )
-					->clearIgnoredWithinScope( $assetType, $assetKey );
+			$createdScan = true;
+		}
+		catch ( ScanExistsException $e ) {
+			$blockers = self::con()
+				->comps
+				->scans_queue
+				->getQueueWatchdog()
+				->runForStaleStartBlockers( [ $scanSlug ], $assetType, $assetKey );
+
+			if ( !isset( $blockers[ $scanSlug ] ) ) {
+				return false;
+			}
+
+			try {
+				$this->createAfsAssetScanRecord( $scanCon, $assetType, $assetKey );
+
+				$createdScan = true;
+			}
+			catch ( ScanExistsException $retryException ) {
+				unset( $retryException );
+				$resumedScan = true;
+			}
+			catch ( \Exception $retryException ) {
+				return false;
 			}
 		}
 		catch ( \Exception $e ) {
 			return false;
 		}
 
+		if ( !$createdScan && !$resumedScan ) {
+			return false;
+		}
+
+		if ( $resetIgnored ) {
+			( new Update() )
+				->setScanController( $scanCon )
+				->clearIgnoredWithinScope( $assetType, $assetKey );
+		}
+
 		$queue = self::con()->comps->scans_queue;
-		$queue->getQueueWatchdog()->scheduleIfActive();
-		$queue->getQueueBuilder()->dispatch();
+		if ( $createdScan ) {
+			$queue->getQueueWatchdog()->scheduleIfActive();
+			$queue->getQueueBuilder()->dispatch();
+		}
 
 		return true;
+	}
+
+	/**
+	 * @throws ScanCreateException|ScanExistsException
+	 */
+	private function createAfsAssetScanRecord( Controller\Afs $scanCon, string $assetType, string $assetKey ) :void {
+		( new Init\CreateNewScan() )->run(
+			$scanCon->getSlug(),
+			$assetType,
+			$assetKey,
+			'asset_change'
+		);
 	}
 
 	public function getCanScansExecute() :bool {

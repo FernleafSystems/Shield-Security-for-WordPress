@@ -36,8 +36,9 @@ class NavMenuBuilder {
 
 	/**
 	 * @return array{
-	 *   back_item:array<string,mixed>|null,
-	 *   mode_items:list<array<string,mixed>>,
+	 *   navigation_links:list<array<string,mixed>>,
+	 *   task_guide:array{graph_json:string},
+	 *   task_guide_item:array<string,mixed>,
 	 *   tool_items:list<array<string,mixed>>,
 	 *   home_license_item:SidebarLicenseItem|null,
 	 *   home_connect_title:string,
@@ -47,15 +48,20 @@ class NavMenuBuilder {
 	public function build() :array {
 		$mode = $this->resolveCurrentMode();
 		$actionsSummary = $this->getActionsQueueSummary();
-
-		$modeItems = $this->normalizeItems( $this->buildModeItems( $mode, $actionsSummary ) );
+		$navigationLinks = $this->normalizeItems( $this->buildNavigationLinks( $mode, $actionsSummary ) );
+		$taskGuideGraph = ( new TaskGuideDataBuilder() )->buildGraph();
+		$taskGuideItem = $this->normalizeItems( [ $this->buildTaskGuideItem() ] )[ 0 ];
+		$taskGuideData = [
+			'graph_json' => \json_encode( $taskGuideGraph, \JSON_THROW_ON_ERROR ),
+		];
 
 		if ( empty( $mode ) ) {
 			$connect = $this->buildHomeConnectItems();
 
 			return [
-				'back_item'          => null,
-				'mode_items'         => $modeItems,
+				'navigation_links'   => $navigationLinks,
+				'task_guide'        => $taskGuideData,
+				'task_guide_item'   => $taskGuideItem,
 				'tool_items'         => [],
 				'home_license_item'  => $this->normalizeItems( [ $this->buildHomeLicenseItem() ] )[ 0 ],
 				'home_connect_title' => $connect[ 'title' ],
@@ -63,10 +69,10 @@ class NavMenuBuilder {
 			];
 		}
 
-		$backItem = $this->buildBackItem();
 		return [
-			'back_item'          => $this->normalizeItems( [ $backItem ] )[ 0 ],
-			'mode_items'         => $modeItems,
+			'navigation_links'   => $navigationLinks,
+			'task_guide'        => $taskGuideData,
+			'task_guide_item'   => $taskGuideItem,
 			'tool_items'         => $this->normalizeItems( $this->toolsForMode( $mode ) ),
 			'home_license_item'  => null,
 			'home_connect_title' => '',
@@ -78,18 +84,40 @@ class NavMenuBuilder {
 	 * @param array{has_items:bool,total_items:int,severity:string} $actionsSummary
 	 * @return list<array<string,mixed>>
 	 */
-	private function buildModeItems( string $currentMode, array $actionsSummary ) :array {
-		$items = [];
+	private function buildNavigationLinks( string $currentMode, array $actionsSummary ) :array {
+		$items = [ [
+			'id'           => 'dashboard',
+			'slug'         => PluginNavs::NAV_DASHBOARD,
+			'kind'         => 'dashboard',
+			'route'        => [
+				'nav'    => PluginNavs::NAV_DASHBOARD,
+				'subnav' => PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
+			],
+			'title'        => __( 'Dashboard', 'wp-simple-firewall' ),
+			'img'          => self::con()->svgs->iconClass( 'house-door' ),
+			'href'         => self::con()->plugin_urls->adminHome(),
+			'active'       => $this->inav() === PluginNavs::NAV_DASHBOARD
+				&& $this->subnav() === PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
+			'classes'      => [ 'sidebar-nav-dashboard' ],
+			'divider_after'=> false,
+		] ];
 		foreach ( PluginNavs::allOperatorModes() as $mode ) {
 			$entry = PluginNavs::defaultEntryForMode( $mode );
 			$item = [
-				'slug'    => 'mode-'.$mode,
-				'mode'    => $mode,
-				'title'   => PluginNavs::modeLabel( $mode ),
-				'img'     => $this->modeIconClass( $mode ),
-				'href'    => self::con()->plugin_urls->adminTopNav( $entry[ 'nav' ], $entry[ 'subnav' ] ),
-				'active'  => !empty( $currentMode ) && $currentMode === $mode,
-				'classes' => [ 'mode-item-link' ],
+				'id'           => $mode,
+				'slug'         => 'mode-'.$mode,
+				'kind'         => 'operator_mode',
+				'mode'         => $mode,
+				'route'        => [
+					'nav'    => $entry[ 'nav' ],
+					'subnav' => $entry[ 'subnav' ],
+				],
+				'title'        => PluginNavs::modeLabel( $mode ),
+				'img'          => $this->modeIconClass( $mode ),
+				'href'         => self::con()->plugin_urls->adminTopNav( $entry[ 'nav' ], $entry[ 'subnav' ] ),
+				'active'       => !empty( $currentMode ) && $currentMode === $mode,
+				'classes'      => [ 'mode-item-link' ],
+				'divider_after'=> $mode === PluginNavs::MODE_ACTIONS,
 			];
 			if ( $mode === PluginNavs::MODE_ACTIONS && $actionsSummary[ 'total_items' ] > 0 ) {
 				$item[ 'badge' ] = [
@@ -100,6 +128,21 @@ class NavMenuBuilder {
 			$items[] = $item;
 		}
 		return $items;
+	}
+
+	private function buildTaskGuideItem() :array {
+		return [
+			'id'           => 'task_guide',
+			'slug'         => 'task-guide',
+			'kind'         => 'task_guide',
+			'title'        => __( 'Guide Me', 'wp-simple-firewall' ),
+			'img'          => self::con()->svgs->iconClass( 'question-circle' ),
+			'href'         => '',
+			'is_action'    => true,
+			'active'       => false,
+			'classes'      => [ 'sidebar-task-guide-link' ],
+			'divider_after'=> false,
+		];
 	}
 
 	private function modeIconClass( string $mode ) :string {
@@ -119,16 +162,6 @@ class NavMenuBuilder {
 				break;
 		}
 		return self::con()->svgs->iconClass( $icon );
-	}
-
-	private function buildBackItem() :array {
-		return [
-			'slug'    => 'mode-selector-back',
-			'title'   => __( 'Dashboard', 'wp-simple-firewall' ),
-			'img'     => self::con()->svgs->iconClass( 'arrow-left' ),
-			'href'    => self::con()->plugin_urls->adminHome(),
-			'classes' => [ 'sidebar-back-link' ],
-		];
 	}
 
 	/**
@@ -417,6 +450,10 @@ class NavMenuBuilder {
 			'target'    => '',
 			'data'      => [],
 			'badge'     => [],
+			'kind'      => '',
+			'mode'      => '',
+			'route'     => [],
+			'divider_after' => false,
 		], $item );
 
 		$item[ 'is_action' ] = (bool)$item[ 'is_action' ];

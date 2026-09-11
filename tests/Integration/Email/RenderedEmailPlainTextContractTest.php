@@ -14,6 +14,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\Buil
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\PlainTextEmailAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\ConvertHtmlToText;
+use FernleafSystems\Wordpress\Services\Services;
 
 class RenderedEmailPlainTextContractTest extends ShieldIntegrationTestCase {
 
@@ -86,15 +87,31 @@ class RenderedEmailPlainTextContractTest extends ShieldIntegrationTestCase {
 	}
 
 	public function test_info_report_render_converts_real_report_html_with_status_headline() :void {
+		$report = $this->buildReportFixture( Constants::REPORT_TYPE_INFO );
 		$html = $this->requireController()->action_router->render( EmailReportInfo::class, [
 			'home_url'     => 'https://example.com',
-			'report'       => $this->buildReportFixture( Constants::REPORT_TYPE_INFO ),
+			'report'       => $report,
 			'detail_level' => 'detailed',
 		] );
 
 		$text = ( new ConvertHtmlToText() )->run( $html );
+		$WP = Services::WpGeneral();
+		$currentStart = $WP->getTimeStringForDisplay( $report->start_at, false );
+		$currentEnd = $WP->getTimeStringForDisplay( $report->end_at, false );
+		$previousStart = $WP->getTimeStringForDisplay( $report->previous_start_at, false );
+		$previousEnd = $WP->getTimeStringForDisplay( $report->previous_end_at, false );
 
 		$this->assertPlainTextOutputHealthy( $text, 'Info report render conversion' );
 		$this->assertNotSame( '', \trim( $text ) );
+		$this->assertMatchesRegularExpression( \sprintf(
+			'/Current\s+%s\s+[–-]\s+%s/u',
+			\preg_quote( $currentStart, '/' ),
+			\preg_quote( $currentEnd, '/' )
+		), $text );
+		$this->assertMatchesRegularExpression( \sprintf(
+			'/Previous\s+%s\s+[–-]\s+%s/u',
+			\preg_quote( $previousStart, '/' ),
+			\preg_quote( $previousEnd, '/' )
+		), $text );
 	}
 }

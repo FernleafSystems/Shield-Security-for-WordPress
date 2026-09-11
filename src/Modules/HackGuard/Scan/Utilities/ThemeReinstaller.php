@@ -48,7 +48,7 @@ class ThemeReinstaller {
 		}
 
 		$this->deleteSnapshot( $theme );
-		$this->assetCleanup->run( 'theme', $theme->stylesheet );
+		$this->assetCleanup->schedule( 'theme', $theme->stylesheet );
 
 		return true;
 	}

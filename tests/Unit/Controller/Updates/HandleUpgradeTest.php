@@ -27,6 +27,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 	};
 	use FernleafSystems\Wordpress\Services\Utilities\Data;
 	use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
+	use FernleafSystems\Wordpress\Services\Core\Db;
 
 	class HandleUpgradeTest extends BaseUnitTest {
 
@@ -44,6 +45,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				static fn( string $message ) :bool => HandleUpgradeErrorLogSpy::log( $message )
 			);
 			HandleUpgradeErrorLogSpy::reset();
+			HandleUpgradeDbSpy::reset();
 			$this->serviceProviders = new class extends ServiceProviders {
 				public int $clears = 0;
 
@@ -145,10 +147,95 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 
 			$this->assertSame( 1, $this->serviceProviders->clears );
 			$this->assertSame( 1, $state->plugin->deletedCrons );
+			$this->assertSame( 1, $state->assetCoordinator->reconciliations );
 			$this->assertSame( 1, $state->opts->stores );
 			$this->assertSame( 1, $state->extensionHandler->forceChecks );
 			$this->assertCount( 1, $state->scans->startedScans );
 			$this->assertTrue( $state->scans->startedScans[ 0 ]->isReady() );
+		}
+
+		public function test_scheduled_upgrade_widens_narrow_malai_status_column() :void {
+			$actions = [];
+			$this->captureUpgradeAction( $actions );
+			HandleUpgradeDbSpy::$columnType = 'varchar(20)';
+			$this->installController( '2.0.0' );
+
+			( new HandleUpgrade() )->execute();
+			$this->runCapturedUpgradeCallback( $actions );
+
+			$this->assertCount( 1, HandleUpgradeDbSpy::$writes );
+			$this->assertStringContainsString(
+				'ALTER TABLE `shield_malware` MODIFY COLUMN `malai_status` varchar(24)',
+				HandleUpgradeDbSpy::$writes[ 0 ]
+			);
+		}
+
+		public function test_scheduled_upgrade_skips_correct_malai_status_column() :void {
+			$actions = [];
+			$this->captureUpgradeAction( $actions );
+			$this->installController( '2.0.0' );
+
+			( new HandleUpgrade() )->execute();
+			$this->runCapturedUpgradeCallback( $actions );
+
+			$this->assertSame( [], HandleUpgradeDbSpy::$writes );
+		}
+
+		public function test_scheduled_upgrade_widens_text_scan_metadata_column() :void {
+			$actions = [];
+			$this->captureUpgradeAction( $actions );
+			HandleUpgradeDbSpy::$scanMetaColumnType = 'text';
+			$this->installController( '2.0.0' );
+
+			( new HandleUpgrade() )->execute();
+			$this->runCapturedUpgradeCallback( $actions );
+
+			$this->assertCount( 1, HandleUpgradeDbSpy::$writes );
+			$this->assertStringContainsString(
+				'ALTER TABLE `shield_scans` MODIFY COLUMN `meta` mediumtext',
+				HandleUpgradeDbSpy::$writes[ 0 ]
+			);
+		}
+
+		/**
+		 * @dataProvider adequateScanMetadataColumnProvider
+		 */
+		public function test_scheduled_upgrade_does_not_shrink_adequate_scan_metadata_column(
+			string $columnType
+		) :void {
+			$actions = [];
+			$this->captureUpgradeAction( $actions );
+			HandleUpgradeDbSpy::$scanMetaColumnType = $columnType;
+			$this->installController( '2.0.0' );
+
+			( new HandleUpgrade() )->execute();
+			$this->runCapturedUpgradeCallback( $actions );
+
+			$this->assertSame( [], HandleUpgradeDbSpy::$writes );
+		}
+
+		public function adequateScanMetadataColumnProvider() :array {
+			return [
+				'mediumtext' => [ 'mediumtext' ],
+				'longtext'   => [ 'longtext' ],
+			];
+		}
+
+		public function test_unexpected_scan_metadata_column_type_is_logged_and_worker_continues() :void {
+			$actions = [];
+			$this->captureUpgradeAction( $actions );
+			HandleUpgradeDbSpy::$scanMetaColumnType = 'varchar(255)';
+			$state = $this->installController( '2.0.0' );
+
+			( new HandleUpgrade() )->execute();
+			$this->runCapturedUpgradeCallback( $actions );
+
+			$this->assertSame( [], HandleUpgradeDbSpy::$writes );
+			$this->assertCount( 1, $state->scans->startedScans );
+			$this->assertContains(
+				'Shield upgrade side effect failed: scan metadata column alignment: The scan metadata column has an unexpected type.',
+				HandleUpgradeErrorLogSpy::$messages
+			);
 		}
 
 		public function test_cache_purge_failure_does_not_stop_scheduled_upgrade_worker() :void {
@@ -173,9 +260,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			( new HandleUpgrade() )->execute();
 			$this->runCapturedUpgradeCallback( $actions );
 
-			$this->assertSame( [ 'delete_crons', 'start_scans' ], \array_values( \array_intersect(
+			$this->assertSame( [ 'delete_crons', 'reconcile_wakeup', 'start_scans' ], \array_values( \array_intersect(
 				$state->operations->calls,
-				[ 'delete_crons', 'start_scans' ]
+				[ 'delete_crons', 'reconcile_wakeup', 'start_scans' ]
 			) ) );
 		}
 
@@ -235,9 +322,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			( new HandleUpgrade() )->execute();
 			$this->runCapturedUpgradeCallback( $actions );
 
-			$this->assertSame( [ 'delete_crons', 'start_scans' ], \array_values( \array_intersect(
+			$this->assertSame( [ 'delete_crons', 'reconcile_wakeup', 'start_scans' ], \array_values( \array_intersect(
 				$state->operations->calls,
-				[ 'delete_crons', 'start_scans' ]
+				[ 'delete_crons', 'reconcile_wakeup', 'start_scans' ]
 			) ) );
 			$this->assertSame( 1, $state->scans->startCalls );
 			$this->assertTrue( $harness->async->hasScheduledHook( ( new QueueWatchdog() )->hook() ) );
@@ -343,6 +430,9 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			bool $includeThrowingExtension = false,
 			bool $includeThrowingHandlerLookup = false
 		) :object {
+			ServicesState::mergeItems( [
+				'service_wpdb' => new HandleUpgradeTestDb(),
+			] );
 			$operations = new HandleUpgradeTestOperations();
 			$cfg = new class( $previousVersion ) {
 				public string $previous_version;
@@ -376,6 +466,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				\array_unshift( $extensions, new HandleUpgradeTestExtension( $throwingHandlerLookup, true ) );
 			}
 			$scans = new HandleUpgradeTestScans( $operations );
+			$assetCoordinator = new HandleUpgradeTestAssetCoordinator( $operations );
 
 			$controller = UnitTestControllerFactory::install( null, null, (object)[
 				'cfg'                   => $cfg,
@@ -386,9 +477,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 						return false;
 					}
 				},
+				'db_con'                => new HandleUpgradeTestDbCon(),
 				'extensions_controller' => new HandleUpgradeTestExtensionsController( $extensions ),
 				'comps'                 => (object)[
-					'scans' => $scans,
+					'asset_coordinator' => $assetCoordinator,
+					'scans'             => $scans,
 				],
 			] );
 
@@ -400,6 +493,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				'extensionHandler'         => $extensionHandler,
 				'throwingExtensionHandler' => $throwingExtensionHandler,
 				'throwingHandlerLookup'    => $throwingHandlerLookup,
+				'assetCoordinator'         => $assetCoordinator,
 				'scans'                    => $scans,
 			];
 		}
@@ -428,6 +522,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$extensionHandler = new HandleUpgradeTestExtensionHandler();
 			$controller = $harness->controller;
 			$scanFacade = new HandleUpgradeLifecycleScans( $controller->comps->scans, $operations );
+			$assetCoordinator = new HandleUpgradeTestAssetCoordinator( $operations );
 			$controller->cfg = $cfg;
 			$controller->plugin = $plugin;
 			$controller->opts = $opts;
@@ -439,6 +534,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 			$controller->extensions_controller = new HandleUpgradeTestExtensionsController( [
 				new HandleUpgradeTestExtension( $extensionHandler ),
 			] );
+			$controller->comps->asset_coordinator = $assetCoordinator;
 			$controller->comps->scans = $scanFacade;
 			PluginControllerInstaller::install( $controller );
 
@@ -448,6 +544,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 				'plugin'           => $plugin,
 				'opts'             => $opts,
 				'extensionHandler' => $extensionHandler,
+				'assetCoordinator' => $assetCoordinator,
 				'scans'            => $scanFacade,
 			];
 		}
@@ -485,6 +582,78 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 		}
 	}
 
+	class HandleUpgradeDbSpy {
+
+		public static string $columnType = 'varchar(24)';
+
+		public static string $scanMetaColumnType = 'mediumtext';
+
+		public static array $writes = [];
+
+		public static function reset() :void {
+			self::$columnType = 'varchar(24)';
+			self::$scanMetaColumnType = 'mediumtext';
+			self::$writes = [];
+		}
+	}
+
+	class HandleUpgradeTestDb extends Db {
+
+		public function selectCustom( $query, $format = null ) {
+			unset( $format );
+			return [ [
+				'Type' => \strpos( (string)$query, "`Field`='meta'" ) !== false
+					? HandleUpgradeDbSpy::$scanMetaColumnType
+					: HandleUpgradeDbSpy::$columnType,
+			] ];
+		}
+
+		public function doSql( string $sqlQuery ) {
+			HandleUpgradeDbSpy::$writes[] = $sqlQuery;
+			return 1;
+		}
+	}
+
+	class HandleUpgradeTestDbCon {
+
+		public object $malware;
+
+		public object $scans;
+
+		public function __construct() {
+			$this->malware = new class {
+				public function getTableSchema() :object {
+					return new class {
+						public string $table = 'shield_malware';
+
+						public function getColumnDef( string $column ) :array {
+							return $column === 'malai_status' ? [ 'length' => 24 ] : [];
+						}
+
+						public function enumerateColumns() :array {
+							return [
+								'malai_status' => "varchar(24) NOT NULL DEFAULT '' COMMENT 'The status of the file from malai'",
+							];
+						}
+					};
+				}
+			};
+			$this->scans = new class {
+				public function getTableSchema() :object {
+					return new class {
+						public string $table = 'shield_scans';
+
+						public function enumerateColumns() :array {
+							return [
+								'meta' => "mediumtext NOT NULL COMMENT 'Scan Meta Info'",
+							];
+						}
+					};
+				}
+			};
+		}
+	}
+
 	class HandleUpgradeCacheSpy {
 
 		public static array $calls = [];
@@ -514,6 +683,22 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Controller\Updates 
 	class HandleUpgradeTestOperations {
 
 		public array $calls = [];
+	}
+
+	class HandleUpgradeTestAssetCoordinator {
+
+		public int $reconciliations = 0;
+
+		private HandleUpgradeTestOperations $operations;
+
+		public function __construct( HandleUpgradeTestOperations $operations ) {
+			$this->operations = $operations;
+		}
+
+		public function reconcileWakeup() :void {
+			$this->reconciliations++;
+			$this->operations->calls[] = 'reconcile_wakeup';
+		}
 	}
 
 	class HandleUpgradeTestPlugin extends ModCon {

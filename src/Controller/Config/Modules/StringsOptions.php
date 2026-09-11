@@ -410,6 +410,8 @@ class StringsOptions {
 					.' '.sprintf( __( 'If the visitor score fails to meet your Minimum %s Score, we may prevent the request (such as login, WP comment etc.). If its higher, we allow it.', 'wp-simple-firewall' ), $silentCaptcha ),
 					__( "This means: choose a higher minimum score to be more strict and capture more bots (but potentially block someone that appears to be a bot, but isn't).", 'wp-simple-firewall' )
 					.' '.__( "Or choose a lower minimum score to perhaps allow through more bots (but reduce the chances of accidentally blocking legitimate visitors).", 'wp-simple-firewall' ),
+					sprintf( __( 'Set this minimum score to 0 to disable %s bot checking on normal page requests, including its front-end cookie and JavaScript.', 'wp-simple-firewall' ), $silentCaptcha ),
+					__( 'Values from 1 to 99 set the minimum score required to treat a visitor as human.', 'wp-simple-firewall' ),
 				];
 				break;
 			case 'antibot_high_reputation_minimum':

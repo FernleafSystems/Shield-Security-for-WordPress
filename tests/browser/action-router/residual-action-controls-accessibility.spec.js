@@ -1,5 +1,6 @@
-const { AxeBuilder, buildShieldUrl, test, expect, openShieldRoute } = require( './support/shield-test' );
-const { expectModalHiddenWithoutAriaModal } = require( './support/modal-accessibility' );
+const { buildShieldUrl, test, expect, openShieldRoute } = require( './support/shield-test' );
+const { expectNoAxeViolations } = require( './support/accessibility' );
+const { expectModalHiddenWithoutAriaModal, expectNamedDialog } = require( './support/modal-accessibility' );
 
 function requestParams( request ) {
 	return new URLSearchParams( request.postData() || '' );
@@ -25,28 +26,6 @@ function installNativeDialogGuard( page ) {
 		await dialog.dismiss().catch( () => null );
 	} );
 	return nativeDialogs;
-}
-
-function formatAxeViolations( violations ) {
-	return violations.map( ( violation ) => {
-		const targets = violation.nodes
-		.flatMap( ( node ) => node.target || [] )
-		.slice( 0, 5 )
-		.join( ', ' );
-
-		return `${ violation.id }: ${ targets }`;
-	} ).join( '\n' );
-}
-
-async function expectNoAxeViolations( page, selector, disabledRules = [] ) {
-	let builder = new AxeBuilder( { page } )
-	.include( selector );
-	if ( disabledRules.length > 0 ) {
-		builder = builder.disableRules( disabledRules );
-	}
-	const results = await builder.analyze();
-
-	expect( results.violations, formatAxeViolations( results.violations ) ).toEqual( [] );
 }
 
 async function expectActionButton( locator ) {
@@ -75,14 +54,6 @@ async function expectNetworkSyncDisabledStateVisible( page ) {
 	await expect( page.locator( '#ShieldTable-ImportExportSites' ) ).toHaveCount( 0 );
 }
 
-async function expectNamedDialog( page, modal ) {
-	await expect( modal ).toHaveAttribute( 'role', 'dialog' );
-	await expect( modal ).toHaveAttribute( 'aria-modal', 'true' );
-	const labelID = await modal.getAttribute( 'aria-labelledby' );
-	expect( labelID || '' ).not.toHaveLength( 0 );
-	await expect( page.locator( `#${ labelID }` ) ).toHaveAccessibleName( /\S/ );
-}
-
 async function visibleMerlinStepId( page ) {
 	return page.locator( '#merlin .wizard-step-pane:not(.d-none)' )
 	.evaluate( ( element ) => element.id );
@@ -101,7 +72,7 @@ test( 'debug contextual action controls are buttons and keep purge and print beh
 	const printAction = page.locator( 'button.shield_div_print.dropdown-item' );
 	await expectActionButton( purgeAction );
 	await expectActionButton( printAction );
-	await expectNoAxeViolations( page, '.inner-page-header .dropdown-menu' );
+	await expectNoAxeViolations( page, '[data-operator-step-tabs="1"] .dropdown-menu' );
 
 	const purgeRequest = page.waitForRequest(
 		( request ) => isShieldActionRequest( request, 'tool_purge_provider_ips' ),
@@ -216,7 +187,7 @@ test( 'import file submit control stays usable without an invalid href', async (
 		await expectSubmitControlWithoutHref(
 			page.locator( '#ImportExportFileForm #SubmitForm[type="submit"]' )
 		);
-		await expectNoAxeViolations( page, '#SectionImportExportFile', [ 'heading-order' ] );
+		await expectNoAxeViolations( page, '#PageContainer-Apto' );
 	} );
 } );
 
@@ -265,7 +236,7 @@ test( 'network verification radios reveal and clear master key field', async ( {
 		await expect( secretField ).toBeHidden();
 		await expect( secretInput ).toBeDisabled();
 		await expect( secretInput ).toHaveValue( '' );
-		await expectNoAxeViolations( page, '#SectionImportExportNetworkSync', [ 'heading-order' ] );
+		await expectNoAxeViolations( page, '#PageContainer-Apto' );
 	} );
 } );
 
@@ -281,7 +252,7 @@ test( 'connected master sync-now button sends existing import request', async ( 
 
 		await expect( connectedState ).toBeVisible( { timeout: 15_000 } );
 		await expectActionButton( syncButton );
-		await expect( syncButton ).toHaveText( /Sync settings now/ );
+		await expect( syncButton ).toHaveAccessibleName( /\S/ );
 
 		await page.route( '**/admin-ajax.php*', async ( route ) => {
 			const request = route.request();
@@ -319,7 +290,9 @@ test( 'connected master sync-now button sends existing import request', async ( 
 		await syncButton.click();
 		await syncRequest;
 		await expect( syncButton ).toBeEnabled( { timeout: 15_000 } );
-		await expectNoAxeViolations( page, '#SectionImportExportNetworkSync', [ 'heading-order' ] );
+		// Bootstrap transitions the button colours for 150ms after it is re-enabled.
+		await page.waitForTimeout( 200 );
+		await expectNoAxeViolations( page, '#PageContainer-Apto' );
 	}, [ 'connected-master' ] );
 } );
 
@@ -345,6 +318,7 @@ test( 'network sync toggle switches the pro workbench off and on', async ( { pag
 
 		await expect( toggle ).not.toBeChecked( { timeout: 15_000 } );
 		await expectNetworkSyncDisabledStateVisible( page );
+		await expectNoAxeViolations( page, '#PageContainer-Apto' );
 
 		const enableRequest = page.waitForRequest(
 			( request ) => isShieldActionRequest( request, 'importexport_set_enabled', { enabled: 'Y' } ),

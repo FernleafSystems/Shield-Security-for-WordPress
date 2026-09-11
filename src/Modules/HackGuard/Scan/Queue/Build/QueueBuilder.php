@@ -27,11 +27,18 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 					->filterByStatus( ScanStatus::QUEUED )
 					->filterByNotFinished()
 					->setOrderBy( 'created_at', 'ASC', true )
+					->setOrderBy( 'id', 'ASC' )
 					->first();
 
 		$batch = new \stdClass();
-		$batch->key = empty( $scan ) ? '0' : (string)$scan->id;
-		$batch->data = empty( $scan ) ? [] : [ (int)$scan->id ];
+		if ( empty( $scan ) ) {
+			$batch->key = '0';
+			$batch->data = [];
+		}
+		else {
+			$batch->key = (string)$scan->id;
+			$batch->data = [ $scan->id ];
+		}
 		return $batch;
 	}
 
@@ -81,10 +88,10 @@ class QueueBuilder extends Utilities\BackgroundProcessing\BackgroundProcess {
 	 */
 	protected function task( $scanID ) {
 		try {
-			( new QueueInit() )->init( (int)$scanID );
+			( new QueueInit() )->init( $scanID );
 		}
 		catch ( \Throwable $e ) {
-			( new RunState() )->markFailed( (int)$scanID, \sprintf( 'Scan queue build failed: %s', $e->getMessage() ) );
+			( new RunState() )->markFailed( $scanID, \sprintf( 'Scan queue build failed: %s', $e->getMessage() ) );
 		}
 
 		return false;

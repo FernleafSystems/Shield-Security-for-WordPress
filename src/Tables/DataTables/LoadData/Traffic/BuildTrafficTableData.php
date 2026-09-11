@@ -245,10 +245,10 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 
 		return sprintf( '<div>%s</div>', \implode( '</div><div>', [
 			sprintf( '%s: %s', __( 'Response', 'wp-simple-firewall' ),
-				sprintf( '<span class="badge bg-%s">%s</span>', $codeType, $this->log->code ) ),
+				sprintf( '<span class="badge text-bg-%s">%s</span>', $codeType, $this->log->code ) ),
 			sprintf( '%s: %s', __( 'Offense', 'wp-simple-firewall' ),
 				sprintf(
-					'<span class="badge bg-%s">%s</span>',
+					'<span class="badge text-bg-%s">%s</span>',
 					@$this->log->offense ? 'danger' : 'info',
 					@$this->log->offense ? __( 'Yes', 'wp-simple-firewall' ) : __( 'No', 'wp-simple-firewall' )
 				)
@@ -297,7 +297,7 @@ class BuildTrafficTableData extends \FernleafSystems\Wordpress\Plugin\Shield\Tab
 				$this->ipInfo[ '' ] = '';
 			}
 			else {
-				$badgeTemplate = '<span class="badge bg-%s">%s</span>';
+				$badgeTemplate = '<span class="badge text-bg-%s">%s</span>';
 				$ipRuleStatus = new IpRuleStatus( $ip );
 				if ( $ipRuleStatus->isBlocked() ) {
 					$status = sprintf( $badgeTemplate, 'danger', __( 'Blocked', 'wp-simple-firewall' ) );

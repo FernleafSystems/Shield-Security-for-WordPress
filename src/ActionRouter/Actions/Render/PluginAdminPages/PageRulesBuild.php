@@ -2,8 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
-use FernleafSystems\Wordpress\Services\Services;
-
 class PageRulesBuild extends PageRulesBase {
 
 	public const SLUG = 'admin_plugin_page_rules_build';
@@ -18,16 +16,11 @@ class PageRulesBuild extends PageRulesBase {
 		];
 	}
 
-	protected function getRenderData() :array {
-		return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
-		] );
-	}
-
-	protected function getInnerPageTitle() :string {
+	protected function getLandingTitle() :string {
 		return __( 'Build Custom Security Rules', 'wp-simple-firewall' );
 	}
 
-	protected function getInnerPageSubTitle() :string {
+	protected function getLandingSubtitle() :string {
 		return __( 'Create custom rules to meet all your security needs', 'wp-simple-firewall' );
 	}
 }

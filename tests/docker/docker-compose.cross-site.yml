@@ -54,7 +54,7 @@ services:
           - wordpress-master.shield-cross-site.example.com
     volumes:
       - cross-site-master-wp:/var/www/html
-      - cross-site-master-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - cross-site-master-plugin:/var/www/html/wp-content/plugins
       - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-cross-site-runtime.ini:ro
 
   wordpress-slave:
@@ -76,7 +76,7 @@ services:
           - wordpress-slave.shield-cross-site.example.com
     volumes:
       - cross-site-slave-wp:/var/www/html
-      - cross-site-slave-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - cross-site-slave-plugin:/var/www/html/wp-content/plugins
       - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-cross-site-runtime.ini:ro
 
   wp-cli-master:
@@ -92,7 +92,7 @@ services:
       WORDPRESS_DB_NAME: shield_cross_site_master
     volumes:
       - cross-site-master-wp:/var/www/html
-      - cross-site-master-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - cross-site-master-plugin:/var/www/html/wp-content/plugins
       - ../../:/app
       - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-cross-site-runtime.ini:ro
 
@@ -109,7 +109,7 @@ services:
       WORDPRESS_DB_NAME: shield_cross_site_slave
     volumes:
       - cross-site-slave-wp:/var/www/html
-      - cross-site-slave-plugin:/var/www/html/wp-content/plugins/wp-simple-firewall
+      - cross-site-slave-plugin:/var/www/html/wp-content/plugins
       - ../../:/app
       - ./local-browser-runtime.ini:/usr/local/etc/php/conf.d/zz-shield-cross-site-runtime.ini:ro
 

@@ -408,6 +408,9 @@ class TestDataFactory {
 		return self::insertAfsFileScanResultTracked( $scanId, $path, $meta )[ 'scan_result_id' ];
 	}
 
+	/**
+	 * Convert an absolute or already-relative path to the canonical persisted AFS file item ID.
+	 */
 	public static function afsFileItemIdFromPath( string $path ) :string {
 		return Services::WpFs()->getPathRelativeToAbsPath( $path );
 	}

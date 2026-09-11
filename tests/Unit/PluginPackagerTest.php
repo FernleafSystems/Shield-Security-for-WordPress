@@ -35,8 +35,8 @@ class PluginPackagerTest extends TestCase {
 		return $method->invokeArgs( $object, $args );
 	}
 
-	private function createPackager() :PluginPackager {
-		return new PluginPackager( $this->projectRoot, function ( string $message ) {} );
+	private function createPackager( ?string $projectRoot = null ) :PluginPackager {
+		return new PluginPackager( $projectRoot ?? $this->projectRoot, function ( string $message ) {} );
 	}
 
 	// =========================================================================
@@ -60,6 +60,36 @@ class PluginPackagerTest extends TestCase {
 			'whitespace'   => [ '   ' ],
 			'quotes only'  => [ '""' ],
 		];
+	}
+
+	public function testResolveOutputDirectoryCanonicalisesExistingExternalTarget() :void {
+		$projectRoot = $this->createTrackedTempDir( 'shield-packager-project-' );
+		$target = $this->createTrackedTempDir( 'shield-packager-output-' );
+		$packager = $this->createPackager( Path::join( $projectRoot, '.' ) );
+
+		$resolved = $this->invokePrivateMethod( $packager, 'resolveOutputDirectory', [ $target ] );
+
+		$this->assertSame( Path::normalize( (string)\realpath( $target ) ), $resolved );
+	}
+
+	public function testResolveOutputDirectoryResolvesNewExternalChildFromNearestRealParent() :void {
+		$projectRoot = $this->createTrackedTempDir( 'shield-packager-project-' );
+		$parent = $this->createTrackedTempDir( 'shield-packager-output-parent-' );
+		$target = Path::join( $parent, 'new-package', 'child' );
+		$packager = $this->createPackager( $projectRoot );
+
+		$resolved = $this->invokePrivateMethod( $packager, 'resolveOutputDirectory', [ $target ] );
+
+		$this->assertSame( Path::join( Path::normalize( (string)\realpath( $parent ) ), 'new-package', 'child' ), $resolved );
+	}
+
+	public function testResolveOutputDirectoryKeepsInternalTemporaryOutputSupported() :void {
+		$projectRoot = $this->createTrackedTempDir( 'shield-packager-project-' );
+		$packager = $this->createPackager( $projectRoot );
+
+		$resolved = $this->invokePrivateMethod( $packager, 'resolveOutputDirectory', [ 'tmp/package' ] );
+
+		$this->assertSame( Path::join( Path::normalize( (string)\realpath( $projectRoot ) ), 'tmp', 'package' ), $resolved );
 	}
 
 	// =========================================================================

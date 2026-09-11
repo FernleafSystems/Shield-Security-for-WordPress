@@ -188,7 +188,7 @@ export class ShieldTableBase extends BaseComponent {
 			buttons.push( {
 				text: 'Search Help',
 				name: 'search-help',
-				className: 'action search-help btn-outline-info mb-2',
+				className: 'action search-help btn-outline-secondary mb-2',
 				action: ( e, dt, node, config ) => {
 					OffCanvasService.RenderCanvas(
 						this._base_data.ajax.render_offcanvas,

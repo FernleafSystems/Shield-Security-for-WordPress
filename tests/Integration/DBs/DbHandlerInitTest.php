@@ -71,7 +71,7 @@ class DbHandlerInitTest extends ShieldIntegrationTestCase {
 		$con = $this->requireController();
 
 		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] );
-		$handler = $con->db_con->loadDbH( DbCon::MAP[ 'file_locker' ][ 'slug' ], true );
+		$handler = $this->requireTransactionScopedDb( 'file_locker' );
 
 		$this->assertNotEmpty( $handler );
 		$this->assertTrue( $handler->isReady() );

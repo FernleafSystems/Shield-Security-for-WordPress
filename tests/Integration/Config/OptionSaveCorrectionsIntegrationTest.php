@@ -3,9 +3,13 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Config;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\OptsHandler;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\PluginBadgeMode;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\{
+	PluginBadgeMode,
+	WildCardOptions
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Updates\HandleUpgrade;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SilentCaptcha\SilentCaptchaComplexity;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -33,7 +37,9 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'enable_x_content_security_policy',
 		'page_params_whitelist',
 		'request_whitelist',
+		'scan_path_exclusions',
 		'file_locker',
+		'snapi_data',
 		'instant_alert_admin_login',
 		'enable_admin_login_email_notification',
 		'instant_alert_firewall_block',
@@ -44,6 +50,8 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		'enable_live_log',
 		'live_log_started_at',
 		'silentcaptcha_complexity',
+		'frequency_alert',
+		'frequency_info',
 	];
 
 	private array $originalOptions = [];
@@ -52,21 +60,14 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		parent::set_up();
 		$this->enablePremiumCapabilities( self::PREMIUM_CAPABILITIES );
 		\delete_site_transient( 'update_plugins' );
-		$con = $this->requireController();
-		foreach ( self::SNAPSHOT_KEYS as $key ) {
-			$this->originalOptions[ $key ] = $con->opts->optGet( $key );
-		}
+		$this->originalOptions = $this->snapshotSelectedOptions( self::SNAPSHOT_KEYS );
 	}
 
 	public function tear_down() {
+		$this->restoreSelectedOptions( $this->originalOptions, false );
 		$con = static::con();
 		if ( $con !== null ) {
-			foreach ( $this->originalOptions as $key => $value ) {
-				$con->opts->optSet( $key, $value );
-			}
-			if ( $con->opts->hasChanges() ) {
-				$con->opts->store();
-			}
+			unset( $con->comps->shieldnet->vo );
 		}
 		\delete_site_transient( 'update_plugins' );
 		parent::tear_down();
@@ -107,6 +108,62 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'Y', $con->opts->optGet( 'enable_logger' ) );
 		$this->assertSame( 'Y', $con->opts->optGet( 'enable_live_log' ) );
 		$this->assertSame( $startedAt, $con->opts->optGet( 'live_log_started_at' ) );
+	}
+
+	public function test_hourly_report_frequencies_migrate_to_daily_during_store() :void {
+		$con = $this->requireController();
+		$this->replaceStoredOptionValues( [
+			'frequency_alert' => 'hourly',
+			'frequency_info'  => 'hourly',
+		] );
+
+		$con->opts->store();
+
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_alert' ) );
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_info' ) );
+	}
+
+	public function test_hourly_report_frequencies_normalise_before_scope_validation() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'frequency_alert', 'weekly' )
+			->optSet( 'frequency_info', 'monthly' )
+			->store();
+
+		$con->opts
+			->optSet( 'frequency_alert', 'hourly' )
+			->optSet( 'frequency_info', 'hourly' );
+
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_alert' ) );
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_info' ) );
+	}
+
+	public function test_hourly_report_frequencies_migrate_to_daily_during_upgrade() :void {
+		$con = $this->requireController();
+		$previousVersion = $con->cfg->previous_version;
+		$this->replaceStoredOptionValues( [
+			'frequency_alert' => 'hourly',
+			'frequency_info'  => 'hourly',
+		] );
+
+		$con->cfg->previous_version = '0.0.1';
+		( new HandleUpgrade() )->execute();
+		do_action( $con->prefix( 'plugin-upgrade' ), '0.0.1' );
+
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_alert' ) );
+		$this->assertSame( 'daily', $con->opts->optGet( 'frequency_info' ) );
+		$con->cfg->previous_version = $previousVersion;
+	}
+
+	public function test_valid_report_frequencies_survive_corrections() :void {
+		$con = $this->requireController();
+		$con->opts
+			->optSet( 'frequency_alert', 'weekly' )
+			->optSet( 'frequency_info', 'monthly' )
+			->store();
+
+		$this->assertSame( 'weekly', $con->opts->optGet( 'frequency_alert' ) );
+		$this->assertSame( 'monthly', $con->opts->optGet( 'frequency_info' ) );
 	}
 
 	public function test_request_logger_cannot_be_set_off_directly() :void {
@@ -168,6 +225,7 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 
 	public function test_list_corrections_and_empty_csp_rules_are_applied_during_store() :void {
 		$con = $this->requireController();
+		RuntimeTestState::primeShieldNetHandshake();
 
 		$con->opts
 			->optSet( 'enable_x_content_security_policy', 'Y' )
@@ -188,6 +246,65 @@ class OptionSaveCorrectionsIntegrationTest extends ShieldIntegrationTestCase {
 		if ( !Services::Data()->isWindows() ) {
 			$this->assertNotContains( 'root_webconfig', $fileLocker );
 		}
+	}
+
+	public function test_scan_path_exclusions_discard_malformed_members_at_option_correction() :void {
+		$con = $this->requireController();
+
+		$con->opts
+			->optSet( 'scan_path_exclusions', [
+				'  WP-CONTENT/CACHE/*  ',
+				'wp-content/custom[dir]/*.php',
+				12,
+				false,
+				null,
+				[],
+				'',
+			] )
+			->store();
+
+		$this->assertSame( [
+			'wp-content/cache/*',
+			'wp-content/custom[dir]/*.php',
+		], $con->opts->optGet( 'scan_path_exclusions' ) );
+
+		$wildcards = new WildCardOptions();
+		$literalWildcard = $wildcards->buildFullRegexValue(
+			'wp-content/custom[dir]/*.php',
+			WildCardOptions::FILE_PATH_REL
+		);
+		$this->assertSame( 1, \preg_match(
+			$literalWildcard,
+			\wp_normalize_path( \path_join( ABSPATH, 'wp-content/custom[dir]/example.php' ) )
+		) );
+		$this->assertSame( 0, \preg_match(
+			$literalWildcard,
+			\wp_normalize_path( \path_join( ABSPATH, 'wp-content/customXdir/example.php' ) )
+		) );
+
+		$subtreeWildcard = $wildcards->buildFullRegexValue(
+			'wp-content/cache/*',
+			WildCardOptions::FILE_PATH_REL
+		);
+		$this->assertSame( 1, \preg_match(
+			$subtreeWildcard,
+			\wp_normalize_path( \path_join( ABSPATH, 'wp-content/cache/nested/item.dat' ) )
+		) );
+		$this->assertSame( 0, \preg_match(
+			$subtreeWildcard,
+			\wp_normalize_path( \path_join( ABSPATH, 'wp-content/cache-copy/item.dat' ) )
+		) );
+	}
+
+	public function test_malformed_multiple_select_save_is_rejected_as_a_whole() :void {
+		$con = $this->requireController();
+		$this->replaceStoredOptionValues( [
+			'file_locker' => [ 'wpconfig', 'root_index' ],
+		] );
+
+		$con->opts->optSet( 'file_locker', [ 'theme_functions', [ 'root_index' ] ] )->store();
+
+		$this->assertSame( [ 'wpconfig', 'root_index' ], $con->opts->optGet( 'file_locker' ) );
 	}
 
 	public function test_valid_master_url_survives_store() :void {

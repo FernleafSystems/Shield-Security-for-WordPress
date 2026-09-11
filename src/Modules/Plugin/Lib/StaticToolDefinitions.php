@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
 class StaticToolDefinitions {
 
@@ -56,7 +57,7 @@ class StaticToolDefinitions {
 			],
 			[
 				'id'           => 'tool_traffic_log',
-				'title'        => __( 'HTTP Request Log', 'wp-simple-firewall' ),
+				'title'        => CommonDisplayStrings::get( 'web_request_log_label' ),
 				'icon'         => 'globe',
 				'nav'          => PluginNavs::NAV_TRAFFIC,
 				'subnav'       => PluginNavs::SUBNAV_LOGS,

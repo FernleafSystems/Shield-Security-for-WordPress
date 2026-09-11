@@ -25,6 +25,8 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 			}
 		}
 
+		$allOptions = $optionsBuilder instanceof BuildOptionsForDisplay ? $optionsBuilder->standard() : [];
+
 		return [
 			'strings' => [
 				'inner_page_title'    => __( 'Edit Settings', 'wp-simple-firewall' ),
@@ -33,7 +35,8 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 				'toggle_importexport' => __( 'Toggle whether this setting is included in import and export operations', 'wp-simple-firewall' ),
 			],
 			'flags'   => [
-				'show_transfer_switch' => (bool)( $this->action_data[ 'show_transfer_switch' ] ?? false ) && $transferAction !== '',
+				'show_section_navigation' => \count( $allOptions ) > 1,
+				'show_transfer_switch'    => (bool)( $this->action_data[ 'show_transfer_switch' ] ?? false ) && $transferAction !== '',
 			],
 			'imgs'    => [
 				'svgs' => [
@@ -42,7 +45,7 @@ class OptionsFormFor extends \FernleafSystems\Wordpress\Plugin\Shield\ActionRout
 			],
 			'vars'    => [
 				'all_opts_keys'      => $options,
-				'all_options'        => $optionsBuilder instanceof BuildOptionsForDisplay ? $optionsBuilder->standard() : [],
+				'all_options'        => $allOptions,
 				'form_context'       => $this->action_data[ 'form_context' ] ?? 'normal',
 				'options_save_action' => (string)( $this->action_data[ 'options_save_action' ] ?? 'form_save' ),
 				'transfer_action'    => $transferAction,

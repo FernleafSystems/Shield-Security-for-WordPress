@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 
 use FernleafSystems\Utilities\Logic\ExecOnce;
+use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\InstantAlerts\Handlers\AlertHandlerVulnerabilities;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Email\EmailVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
@@ -44,7 +45,13 @@ class InstantAlertsCon {
 
 	private function sendAlerts() :void {
 		$alertsData = $this->getAlertsData();
-		$this->setAlertsData( [] );
+		$retained = [];
+		if ( isset( $alertsData[ AlertHandlerVulnerabilities::class ] )
+			 && !self::con()->comps->scans->isReadyForScanResultNotifications() ) {
+			$retained[ AlertHandlerVulnerabilities::class ] = $alertsData[ AlertHandlerVulnerabilities::class ];
+			unset( $alertsData[ AlertHandlerVulnerabilities::class ] );
+		}
+		$this->setAlertsData( $retained );
 		foreach ( $alertsData as $handlerClass => $alertGroupData ) {
 			if ( !empty( $alertGroupData ) && isset( $this->getAlertHandlers()[ $handlerClass ] ) ) {
 				$this->sendAlert( $this->getAlertHandlers()[ $handlerClass ], $alertGroupData );

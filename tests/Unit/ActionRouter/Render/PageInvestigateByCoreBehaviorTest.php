@@ -36,6 +36,7 @@ class PageInvestigateByCoreBehaviorTest extends BaseUnitTest {
 			\define( 'ABSPATH', '/var/www/html/' );
 		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => htmlspecialchars( $text ) );
 		Functions\when( 'wp_hash' )->alias(
 			static fn( string $data, string $scheme = '' ) :string => \hash( 'sha256', $scheme.'|'.$data )
 		);

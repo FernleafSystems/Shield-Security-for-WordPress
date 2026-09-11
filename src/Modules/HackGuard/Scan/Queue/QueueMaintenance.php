@@ -9,8 +9,4 @@ class QueueMaintenance {
 		$reconcile->completeReadyScansWithOnlyFinishedItems();
 		$reconcile->failReadyScansWithNoItems( ReconcileQueue::MESSAGE_ORPHANED_QUEUE );
 	}
-
-	public function failStaleBuildingScans( int $cutoff ) :void {
-		( new ReconcileQueue() )->failBuildingScansOlderThan( $cutoff, ReconcileQueue::MESSAGE_TIMED_OUT );
-	}
 }

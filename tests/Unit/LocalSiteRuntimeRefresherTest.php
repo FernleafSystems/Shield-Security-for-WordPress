@@ -38,11 +38,15 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 			\ob_end_clean();
 		}
 
-		$this->assertCount( 7, $runner->calls );
+		$this->assertCount( 8, $runner->calls );
 		$this->assertSame( 'tar', $runner->calls[ 1 ][ 'command' ][ 0 ] );
 		$this->assertSame(
 			'wordpress-container:/tmp/shield-browser-runtime-refresh.tar',
 			$runner->calls[ 2 ][ 'command' ][ 3 ]
+		);
+		$this->assertSame(
+			[ 'docker', 'exec', 'wordpress-container', 'mkdir', '-p', '/var/www/html/wp-content/plugins/wp-simple-firewall' ],
+			$runner->calls[ 3 ][ 'command' ]
 		);
 
 		$this->assertNotEmpty( $runner->tarFileLists );
@@ -63,7 +67,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 
 		$refresher->refresh( $this->projectRoot, 'wordpress-container', static function () :void {} );
 
-		$this->assertCount( 7, $runner->calls );
+		$this->assertCount( 8, $runner->calls );
 		foreach ( $runner->calls as $call ) {
 			$this->assertTrue( $call[ 'has_output_callback' ], \implode( ' ', $call[ 'command' ] ) );
 		}
@@ -206,6 +210,7 @@ class LocalSiteRuntimeRefresherTest extends TestCase {
 				'exit_code' => 0,
 				'stdout' => \json_encode( $manifest, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES ) ?: '',
 			],
+			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],
 			[ 'exit_code' => 0 ],

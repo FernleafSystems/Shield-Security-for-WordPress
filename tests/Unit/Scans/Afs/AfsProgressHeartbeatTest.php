@@ -14,6 +14,7 @@ use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
 	ResultsSet,
+	Scan,
 	ScanActionVO,
 	ScanFromFileMap
 };
@@ -35,6 +36,9 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 	protected function setUp() :void {
 		parent::setUp();
 		$this->servicesSnapshot = ServicesState::snapshot();
+		if ( !\defined( 'ABSPATH' ) ) {
+			\define( 'ABSPATH', \sys_get_temp_dir().\DIRECTORY_SEPARATOR );
+		}
 		Functions\when( 'wp_normalize_path' )->alias(
 			static fn( string $path ) :string => \str_replace( '\\', '/', $path )
 		);
@@ -48,6 +52,54 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 		PluginControllerInstaller::reset();
 		$this->cleanupTrackedTempDirs();
 		parent::tearDown();
+	}
+
+	public function test_prescan_filter_without_known_valid_records_returns_without_tick() :void {
+		$ticks = 0;
+		$items = $this->invalidBase64Items( 2500 );
+		$action = $this->newPreScanAction( $items, $ticks );
+		$this->installPreScanCacheController( $this->makeTempDir( 'cache' ) );
+
+		( new AfsPreScanHeartbeatTestDouble() )->exposeFilterKnownValidItems( $action );
+
+		$this->assertSame( 0, $ticks );
+		$this->assertSame( $items, $action->items );
+	}
+
+	public function test_prescan_filter_ticks_once_after_partial_batch() :void {
+		$ticks = 0;
+		$items = $this->invalidBase64Items( 999 );
+		$action = $this->newPreScanAction( $items, $ticks );
+		$this->installPreScanCacheController( $this->makeKnownValidCacheRoot() );
+
+		( new AfsPreScanHeartbeatTestDouble() )->exposeFilterKnownValidItems( $action );
+
+		$this->assertSame( 1, $ticks );
+		$this->assertSame( $items, $action->items );
+	}
+
+	public function test_prescan_filter_ticks_at_interval_without_completion_duplicate() :void {
+		$ticks = 0;
+		$items = $this->invalidBase64Items( 1000 );
+		$action = $this->newPreScanAction( $items, $ticks );
+		$this->installPreScanCacheController( $this->makeKnownValidCacheRoot() );
+
+		( new AfsPreScanHeartbeatTestDouble() )->exposeFilterKnownValidItems( $action );
+
+		$this->assertSame( 1, $ticks );
+		$this->assertSame( $items, $action->items );
+	}
+
+	public function test_prescan_filter_ticks_at_intervals_and_completion() :void {
+		$ticks = 0;
+		$items = $this->invalidBase64Items( 2500 );
+		$action = $this->newPreScanAction( $items, $ticks );
+		$this->installPreScanCacheController( $this->makeKnownValidCacheRoot() );
+
+		( new AfsPreScanHeartbeatTestDouble() )->exposeFilterKnownValidItems( $action );
+
+		$this->assertSame( 3, $ticks );
+		$this->assertSame( $items, $action->items );
 	}
 
 	public function test_file_map_ticks_progress_at_file_boundaries_without_scanning_empty_paths() :void {
@@ -103,6 +155,23 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 		$this->assertLessThan( 60, $ticks );
 	}
 
+	private function newPreScanAction( array $items, int &$ticks ) :ScanActionVO {
+		$action = new ScanActionVO();
+		$action->items = $items;
+		$action->progress_callback = static function () use ( &$ticks ) :void {
+			$ticks++;
+		};
+		return $action;
+	}
+
+	private function invalidBase64Items( int $count ) :array {
+		$items = [];
+		for ( $i = 0; $i < $count; $i++ ) {
+			$items[] = 'invalid-base64-'.$i.'*';
+		}
+		return $items;
+	}
+
 	private function installController() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -123,5 +192,61 @@ class AfsProgressHeartbeatTest extends BaseUnitTest {
 			},
 		];
 		PluginControllerInstaller::install( $controller );
+	}
+
+	private function installPreScanCacheController( string $cacheDir ) :void {
+		/** @var Controller $controller */
+		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->cache_dir_handler = new AfsPreScanCacheDir( $cacheDir );
+		PluginControllerInstaller::install( $controller );
+	}
+
+	private function makeKnownValidCacheRoot() :string {
+		$cacheDir = $this->makeTempDir( 'known-valid-cache' );
+		$knownValidDir = \rtrim( $cacheDir, '/\\' ).\DIRECTORY_SEPARATOR.'afs-file-optimiser'.\DIRECTORY_SEPARATOR.'known-valid';
+		@\mkdir( $knownValidDir, 0755, true );
+		$content = '<?php clean();';
+		$contextKey = \hash( 'sha256', \implode( '|', [ 'core', 'core', '6.5.0', 'wp-admin/core.php' ] ) );
+		\file_put_contents(
+			$knownValidDir.\DIRECTORY_SEPARATOR.\substr( $contextKey, 0, 2 ).'.jsonl',
+			\json_encode( [
+				'schema_version' => 1,
+				'ts'             => 1700000000,
+				'context_key'    => $contextKey,
+				'size'           => \strlen( $content ),
+				'sha256'         => \hash( 'sha256', $content ),
+			] )."\n"
+		);
+		return $cacheDir;
+	}
+
+	private function makeTempDir( string $suffix ) :string {
+		return $this->createTrackedTempDir( 'shield-afs-progress-'.$suffix.'-' );
+	}
+}
+
+class AfsPreScanHeartbeatTestDouble extends Scan {
+
+	public function exposeFilterKnownValidItems( ScanActionVO $action ) :void {
+		$this->filterKnownValidItems( $action );
+	}
+
+	protected function scanSlice() {
+	}
+}
+
+class AfsPreScanCacheDir {
+	private string $dir;
+
+	public function __construct( string $dir ) {
+		$this->dir = $dir;
+	}
+
+	public function exists() :bool {
+		return \is_dir( $this->dir ) && \is_writable( $this->dir );
+	}
+
+	public function locateExistingDir() :string {
+		return $this->exists() ? $this->dir : '';
 	}
 }

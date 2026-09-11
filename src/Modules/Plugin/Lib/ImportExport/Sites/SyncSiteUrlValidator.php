@@ -85,7 +85,35 @@ class SyncSiteUrlValidator {
 	}
 
 	public function canonicalize( string $url ) :string {
-		$validated = Services::Data()->validateSimpleHttpUrl( \trim( $url ) );
+		$parts = $this->parse( \trim( $url ) );
+		$scheme = \strtolower( (string)( $parts[ 'scheme' ] ?? '' ) );
+		$host = $this->normaliseHost( (string)( $parts[ 'host' ] ?? '' ) );
+		if ( !\in_array( $scheme, [ 'http', 'https' ], true ) || $host === '' ) {
+			return '';
+		}
+
+		$authority = '';
+		if ( \array_key_exists( 'user', $parts ) || \array_key_exists( 'pass', $parts ) ) {
+			$authority = (string)( $parts[ 'user' ] ?? '' );
+			if ( \array_key_exists( 'pass', $parts ) ) {
+				$authority .= ':'.(string)$parts[ 'pass' ];
+			}
+			$authority .= '@';
+		}
+
+		$canonicalHost = \filter_var( $host, \FILTER_VALIDATE_IP, \FILTER_FLAG_IPV6 ) !== false
+			? '['.$host.']'
+			: $host;
+		if ( \array_key_exists( 'port', $parts ) ) {
+			$port = (int)$parts[ 'port' ];
+			if ( !( $scheme === 'http' && $port === 80 ) && !( $scheme === 'https' && $port === 443 ) ) {
+				$canonicalHost .= ':'.$port;
+			}
+		}
+
+		$validated = Services::Data()->validateSimpleHttpUrl(
+			$scheme.'://'.$authority.$canonicalHost.(string)( $parts[ 'path' ] ?? '' )
+		);
 		return $validated === false ? '' : (string)$validated;
 	}
 

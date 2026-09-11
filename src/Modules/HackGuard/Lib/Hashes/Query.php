@@ -11,7 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Excepti
 class Query {
 
 	/**
-	 * @return array{hashes:array<int, string>, trusted_source:bool, asset_type:string, asset_key:string, asset_version:string, relative_path:string}
+	 * @return array{hashes:list<string>,trusted_source:bool,comparison_basis:string,asset_type:string,asset_key:string,asset_version:string,relative_path:string}
 	 * @throws AssetHashesNotFound
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
@@ -51,6 +51,7 @@ class Query {
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
 	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	public function verifyHashWithSource( string $fullPath ) :HashVerificationResult {
 		return ( new AssetTrustResolver() )->verifyPath( $fullPath );
@@ -61,6 +62,7 @@ class Query {
 	 * @throws NonAssetFileException
 	 * @throws UnrecognisedAssetFile
 	 * @throws \InvalidArgumentException
+	 * @throws \Exception
 	 */
 	public function verifyHash( string $fullPath ) :bool {
 		return $this->verifyHashWithSource( $fullPath )->verified;

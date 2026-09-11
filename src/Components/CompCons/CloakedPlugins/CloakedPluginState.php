@@ -18,6 +18,28 @@ class CloakedPluginState {
 
 	public const OPT_KEY = 'hidden_plugins_alert_state';
 	public const IGNORE_OPT_KEY = 'ignored_hidden_plugins';
+	public const FINDINGS_OPT_KEY = 'cloaked_plugin_findings';
+
+	/**
+	 * @param list<CloakedPluginFinding> $observedFindings
+	 * @param list<PluginEntry> $entries
+	 * @return CloakedPluginFindingState
+	 */
+	public function reconcile(
+		array $observedFindings,
+		array $entries,
+		AdminPluginVisibilitySnapshot $visibility,
+		bool $authoritative
+	) :array {
+		$reconciled = $authoritative ? [] : $this->loadPersistedFindings( $entries, $visibility );
+
+		foreach ( $observedFindings as $finding ) {
+			$reconciled[ $finding->identityKey() ] = $finding;
+		}
+
+		$this->storeFindings( $reconciled );
+		return $this->classify( \array_values( $reconciled ) );
+	}
 
 	/**
 	 * @param list<CloakedPluginFinding> $findings
@@ -74,7 +96,15 @@ class CloakedPluginState {
 	 * @return list<CloakedPluginFinding>
 	 */
 	private function rememberNewCandidates( array $trackedFindings, array $candidateFindings ) :array {
-		$stored = $this->load();
+		$stored = $this->loadNotificationState();
+		$storedByIdentity = [];
+		foreach ( $stored as $record ) {
+			$identity = $this->normalizeIdentity( (string)( $record[ 'identity' ] ?? '' ) );
+			if ( $identity !== '' && !isset( $storedByIdentity[ $identity ] ) ) {
+				$storedByIdentity[ $identity ] = $record;
+			}
+		}
+
 		$next = [];
 		$new = [];
 		$now = \time();
@@ -85,16 +115,19 @@ class CloakedPluginState {
 
 		foreach ( $trackedFindings as $finding ) {
 			$fingerprint = $finding->fingerprint();
-			if ( isset( $candidateFingerprints[ $fingerprint ] ) && !isset( $stored[ $fingerprint ] ) ) {
+			$identity = $finding->identityKey();
+			$priorRecord = $stored[ $fingerprint ] ?? $storedByIdentity[ $identity ] ?? null;
+			if ( isset( $candidateFingerprints[ $fingerprint ] ) && $priorRecord === null ) {
 				$new[] = $finding;
 			}
 			$next[ $fingerprint ] = [
-				'notified_at' => (int)( $stored[ $fingerprint ][ 'notified_at' ] ?? $now ),
+				'identity'     => $identity,
+				'notified_at' => (int)( $priorRecord[ 'notified_at' ] ?? $now ),
 				'last_seen_at' => $now,
 			];
 		}
 
-		$this->store( $next );
+		$this->storeNotificationState( $next );
 		return $new;
 	}
 
@@ -210,7 +243,111 @@ class CloakedPluginState {
 		return false;
 	}
 
-	private function load() :array {
+	/**
+	 * @param list<PluginEntry> $entries
+	 * @return array<string,CloakedPluginFinding>
+	 */
+	private function loadPersistedFindings( array $entries, AdminPluginVisibilitySnapshot $visibility ) :array {
+		$stored = self::con()->opts->optGet( self::FINDINGS_OPT_KEY );
+		if ( !\is_array( $stored ) ) {
+			return [];
+		}
+
+		$entryLookup = [];
+		foreach ( $entries as $entry ) {
+			$entryLookup[ $entry->type ][ $entry->file ] = $entry;
+		}
+
+		$findings = [];
+		foreach ( $stored as $identity => $record ) {
+			$finding = $this->rehydrateFinding( $identity, $record, $entryLookup, $visibility );
+			if ( $finding !== null ) {
+				$findings[ $identity ] = $finding;
+			}
+		}
+
+		return $findings;
+	}
+
+	/**
+	 * @param mixed $identity
+	 * @param mixed $record
+	 * @param array<string,array<string,PluginEntry>> $entryLookup
+	 */
+	private function rehydrateFinding(
+		$identity,
+		$record,
+		array $entryLookup,
+		AdminPluginVisibilitySnapshot $visibility
+	) :?CloakedPluginFinding {
+		if ( !\is_string( $identity ) || !\is_array( $record ) ) {
+			return null;
+		}
+
+		$type = $record[ 'type' ] ?? null;
+		$file = $record[ 'file' ] ?? null;
+		$reasons = $record[ 'cloak_reasons' ] ?? null;
+		$detectedAt = $record[ 'detected_at' ] ?? null;
+		if ( !\is_string( $type )
+			 || !\in_array( $type, PluginType::ALL, true )
+			 || !\is_string( $file )
+			 || $file === ''
+			 || !\is_int( $detectedAt )
+			 || $detectedAt <= 0
+			 || !\is_array( $reasons )
+			 || !$this->areCanonicalCloakReasons( $reasons ) ) {
+			return null;
+		}
+
+		$entry = $entryLookup[ $type ][ $file ] ?? null;
+		if ( !$entry instanceof PluginEntry ) {
+			return null;
+		}
+
+		$finding = new CloakedPluginFinding(
+			$entry,
+			$reasons,
+			$type === PluginType::MustUse || $visibility->isActive( $file ),
+			$type === PluginType::MustUse || $visibility->isNetworkActive( $file ),
+			$detectedAt
+		);
+
+		return $finding->identityKey() === $identity ? $finding : null;
+	}
+
+	private function areCanonicalCloakReasons( array $reasons ) :bool {
+		if ( empty( $reasons ) || \array_keys( $reasons ) !== \range( 0, \count( $reasons ) - 1 ) ) {
+			return false;
+		}
+
+		$canonical = [];
+		foreach ( CloakReason::ALL as $reason ) {
+			if ( \in_array( $reason, $reasons, true ) ) {
+				$canonical[] = $reason;
+			}
+		}
+
+		return $canonical === $reasons;
+	}
+
+	/**
+	 * @param array<string,CloakedPluginFinding> $findings
+	 */
+	private function storeFindings( array $findings ) :void {
+		$stored = [];
+		foreach ( $findings as $identity => $finding ) {
+			$stored[ $identity ] = [
+				'type'          => $finding->entry->type,
+				'file'          => $finding->entry->file,
+				'cloak_reasons' => \array_values( $finding->cloakReasons ),
+				'detected_at'   => $finding->detectedAt,
+			];
+		}
+
+		self::con()->opts->optSet( self::FINDINGS_OPT_KEY, $stored )->store();
+	}
+
+	private function loadNotificationState() :array {
 		$state = self::con()->opts->optGet( self::OPT_KEY );
 		if ( !\is_array( $state ) ) {
 			return [];
@@ -222,7 +359,7 @@ class CloakedPluginState {
 		);
 	}
 
-	private function store( array $state ) :void {
+	private function storeNotificationState( array $state ) :void {
 		self::con()->opts->optSet( self::OPT_KEY, $state )->store();
 	}
 

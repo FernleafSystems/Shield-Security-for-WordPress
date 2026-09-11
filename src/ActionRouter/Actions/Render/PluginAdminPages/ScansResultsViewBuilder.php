@@ -5,7 +5,6 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionData
 };
-use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansFileLockerEnableFile;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Investigation\InvestigationTableContract;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -44,6 +43,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   body_notice_variant:string,
  *   panel_data:QueueAssetPanelData,
  *   is_inactive:bool,
+ *   enable_dialog_json:string,
  *   actions:list<QueueAssetAction>,
  *   table:array<string,mixed>
  * }
@@ -64,6 +64,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Tool\StatusPriority;
  *   body_notice_variant:string,
  *   panel_data:QueueAssetPanelData,
  *   is_inactive:bool,
+ *   enable_dialog_json:string,
  *   actions:list<QueueAssetAction>,
  *   table:array<string,mixed>
  * }
@@ -732,7 +733,7 @@ class ScansResultsViewBuilder {
 				? __( 'File integrity verified.', 'wp-simple-firewall' )
 				: $this->describeFileLockerRecord( $lock ),
 			'meta_text'          => $path,
-			'show_meta_in_tile'  => false,
+			'show_meta_in_tile'  => true,
 			'render_action'      => $this->buildAjaxRenderActionData( ScansFileLockerDiff::class, [
 				'rid' => $rid,
 			] ),
@@ -757,7 +758,7 @@ class ScansResultsViewBuilder {
 			'rail_title'         => $path,
 			'stat_text'          => __( 'Initial lock is still being created.', 'wp-simple-firewall' ),
 			'meta_text'          => $path,
-			'show_meta_in_tile'  => false,
+			'show_meta_in_tile'  => true,
 			'body_notice'        => __( 'Shield is still creating the first lock for this file. Check back in about a minute for the full lock details.', 'wp-simple-firewall' ),
 			'body_notice_variant' => 'info',
 		] );
@@ -773,39 +774,15 @@ class ScansResultsViewBuilder {
 
 		return $this->normalizeQueueAssetCard( [
 			'key'                => 'inactive:'.$fileKey,
-			'panel_id'           => 'actions-queue-filelocker-card-inactive-'.$fileKey,
-			'panel_target'       => 'actions-queue-filelocker-pending-'.$fileKey,
 			'status'             => 'neutral',
 			'icon_class'         => 'bi bi-file-lock2-fill',
 			'title'              => $inactiveLock[ 'title' ],
 			'rail_title'         => $path,
-			'stat_text'          => __( 'File Locker is not enabled for this file.', 'wp-simple-firewall' ),
+			'stat_text'          => __( 'This file is not currently protected.', 'wp-simple-firewall' ),
 			'meta_text'          => $path,
-			'show_meta_in_tile'  => false,
+			'show_meta_in_tile'  => true,
 			'is_inactive'        => true,
-			'body_notice'        => __( 'Enable File Locker for this file to create the first lock.', 'wp-simple-firewall' ),
-			'body_notice_variant' => 'secondary',
-			'actions'            => [
-				[
-					'type'         => 'update',
-					'label'        => __( 'Enable File Locker', 'wp-simple-firewall' ),
-					'is_action'    => true,
-					'icon_class'   => 'bi bi-shield-lock-fill',
-					'tooltip_attr' => '',
-					'attributes'   => [
-						'data-operator-context-action-ajax'       => '1',
-						'data-operator-context-action-json'       => OperatorChromeContract::encodeJson( ActionData::Build(
-							ScansFileLockerEnableFile::class,
-							true,
-							[
-								'file_key' => $fileKey,
-							]
-						) ),
-						'data-operator-context-action-confirm'    => __( 'Enable File Locker for this file?', 'wp-simple-firewall' ),
-						'data-operator-context-action-processing' => __( 'Enabling File Locker...', 'wp-simple-firewall' ),
-					],
-				],
-			],
+			'enable_dialog_json' => ( new ProtectionEnableDialogBuilder() )->forFile( $fileKey, $path ),
 		] );
 	}
 
@@ -911,6 +888,7 @@ class ScansResultsViewBuilder {
 			'body_notice_variant' => '',
 			'panel_data'        => [],
 			'is_inactive'       => false,
+			'enable_dialog_json' => '',
 			'actions'           => [],
 			'table'             => [],
 			'render_action'     => [],
@@ -927,7 +905,7 @@ class ScansResultsViewBuilder {
 			$panelData[ 'actions-queue-asset-render-action' ] = OperatorChromeContract::encodeJson( $renderAction );
 		}
 
-		$card[ 'panel_data' ] = $panelData;
+		$card[ 'panel_data' ] = $card[ 'enable_dialog_json' ] === '' ? $panelData : [];
 		$card[ 'actions' ] = \array_values( \array_map(
 			fn( array $action ) :array => $this->normalizeQueueAssetAction( $action ),
 			\is_array( $card[ 'actions' ] ?? null ) ? $card[ 'actions' ] : []

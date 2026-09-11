@@ -34,6 +34,8 @@ class Init {
 
 			// Augment Sync data with Shield Sync Data
 			add_filter( 'mainwp_site_sync_others_data', function ( $information, $othersData ) {
+				$information = \is_array( $information ) ? $information : [];
+				$othersData = \is_array( $othersData ) ? $othersData : [];
 				$con = self::con();
 				if ( isset( $othersData[ $con->prefix( 'mainwp-sync' ) ] ) ) {
 					$information[ $con->prefix( 'mainwp-sync' ) ] = wp_json_encode( ( new Sync() )->run() );
@@ -65,6 +67,8 @@ class Init {
 			 * @see SiteCustomAction.php - MainWP server sends overrides
 			 */
 			add_filter( 'mainwp_child_extra_execution', function ( $information, $post ) {
+				$information = \is_array( $information ) ? $information : [];
+				$post = \is_array( $post ) ? $post : [];
 				$con = self::con();
 				$actionSlug = $post[ $con->prefix( 'mwp-action' ) ] ?? '';
 
@@ -79,7 +83,9 @@ class Init {
 
 						if ( !empty( $actionOverrides ) ) {
 							foreach ( $actionOverrides as $overrideKey => $overrideValue ) {
-								$action->setActionOverride( $overrideKey, $overrideValue );
+								if ( \is_string( $overrideKey ) ) {
+									$action->setActionOverride( $overrideKey, $overrideValue );
+								}
 							}
 						}
 

@@ -458,6 +458,9 @@ PHP;
 				$onOutput
 			);
 		}
+		if ( $refreshPlan[ 'mode' ] === 'seed' ) {
+			$this->ensurePluginRootExists( $rootDir, $containerId, $onOutput );
+		}
 
 		if ( $refreshPlan[ 'deleted_paths' ] !== [] ) {
 			$copyDuration += $this->prepareAndCopyDeleteList(
@@ -601,6 +604,19 @@ PHP;
 			.$this->formatDuration( \microtime( true ) - $deleteStartedAt ),
 			$onOutput
 		);
+	}
+
+	/**
+	 * @param callable|null $onOutput Receives (string $type, string $buffer)
+	 */
+	private function ensurePluginRootExists( string $rootDir, string $containerId, ?callable $onOutput = null ) :void {
+		$this->runPhase( 'create plugin root', function () use ( $containerId, $rootDir, $onOutput ) :void {
+			$this->processRunner->runOrThrow(
+				[ 'docker', 'exec', $containerId, 'mkdir', '-p', self::PLUGIN_ROOT ],
+				$rootDir,
+				$onOutput
+			);
+		} );
 	}
 
 	/**

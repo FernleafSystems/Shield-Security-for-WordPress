@@ -100,6 +100,8 @@ class ConfigureLandingViewBuilderTest extends BaseUnitTest {
 			$view[ 'tiles' ][ 0 ][ 'summary' ],
 			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ]
 		);
+		$this->assertSame( 'Configure Security Admin', $view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'action_label' ] );
+		$this->assertSame( 'Configure General Settings', $view[ 'sections' ][ 2 ][ 'cards' ][ 0 ][ 'action_label' ] );
 		$this->assertNotSame(
 			$view[ 'diagnoses' ][ 'secadmin' ][ 'preview_text' ],
 			$view[ 'sections' ][ 0 ][ 'cards' ][ 0 ][ 'summary' ]

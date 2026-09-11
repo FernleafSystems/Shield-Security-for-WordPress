@@ -93,7 +93,7 @@ class LocalSiteRuntimeHostManifestProvider {
 			$onOutput
 		);
 		if ( $mode === self::MODE_AUTO ) {
-			$this->writeCache( $rootDir, $fingerprint ?? $this->fingerprint( $fileMetadata ), $manifest );
+			$this->writeCache( $rootDir, $fingerprint, $manifest );
 		}
 
 		return $manifest;

@@ -83,6 +83,29 @@ class SafeDirectoryRemoverTest extends TestCase {
 		$this->invokePrivateMethod( $remover, 'validateDirectoryIsSafeToDelete', [ $internalPath ] );
 	}
 
+	public function testBlocksProjectChildWhenProjectRootHasDotSegmentSpelling() :void {
+		$projectRoot = $this->createTrackedTempDir( 'shield-project-root-' );
+		$child = Path::join( $projectRoot, 'child' );
+		mkdir( $child, 0777, true );
+		$remover = new SafeDirectoryRemover( Path::join( $projectRoot, '.' ) );
+
+		$this->expectException( \RuntimeException::class );
+		$this->expectExceptionMessage( 'Cannot build package within project directory' );
+		$this->invokePrivateMethod( $remover, 'validateDirectoryIsSafeToDelete', [ (string)\realpath( $child ) ] );
+	}
+
+	public function testAllowsExternalSiblingWithSamePathPrefix() :void {
+		$parent = $this->createTrackedTempDir( 'shield-remover-parent-' );
+		$projectRoot = Path::join( $parent, 'project' );
+		$externalSibling = Path::join( $parent, 'project-output' );
+		mkdir( $projectRoot, 0777, true );
+		mkdir( $externalSibling, 0777, true );
+		$remover = new SafeDirectoryRemover( $projectRoot );
+
+		$this->invokePrivateMethod( $remover, 'validateDirectoryIsSafeToDelete', [ (string)\realpath( $externalSibling ) ] );
+		$this->assertDirectoryExists( $externalSibling );
+	}
+
 	/**
 	 * Test subdirectory validation - must be inside parent
 	 */
@@ -142,9 +165,10 @@ class SafeDirectoryRemoverTest extends TestCase {
 	 */
 	public function testRemoveSafelyHandlesNonExistentDirectory() :void {
 		$remover = $this->createRemover();
+		$missingDirectory = $this->createTrackedTempPath( 'shield-missing-safe-dir-' );
 
-		$remover->removeSafely( $this->createTrackedTempPath( 'shield-missing-safe-dir-' ) );
+		$remover->removeSafely( $missingDirectory );
 
-		$this->assertTrue( true ); // If we got here, no exception was thrown
+		$this->assertDirectoryDoesNotExist( $missingDirectory );
 	}
 }

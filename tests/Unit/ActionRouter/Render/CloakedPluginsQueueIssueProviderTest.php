@@ -117,6 +117,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$this->assertSame( 'critical', $assessmentRow[ 'status' ] );
 		$this->assertSame( 'critical', $assessmentRow[ 'drill_bucket' ] );
 		$this->assertSame( 'bi bi-eye-slash-fill', $assessmentRow[ 'item_icon_class' ] );
+		$this->assertTrue( $assessmentRow[ 'has_useful_detail' ] );
 
 		$this->assertSame( 'hidden_plugins', $pane[ 'key' ] );
 		$this->assertSame( 'critical', $pane[ 'status' ] );
@@ -148,6 +149,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		$assessmentRow = $provider->assessmentRows()[ 0 ];
 		$this->assertSame( 'good', $assessmentRow[ 'status' ] );
 		$this->assertSame( 'critical', $assessmentRow[ 'drill_bucket' ] );
+		$this->assertFalse( $assessmentRow[ 'has_useful_detail' ] );
 
 		$pane = $provider->railPaneData();
 		$this->assertSame( 'good', $pane[ 'status' ] );
@@ -210,6 +212,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 		);
 
 		$this->assertSame( [], $provider->attentionItems() );
+		$this->assertTrue( $provider->assessmentRows()[ 0 ][ 'has_useful_detail' ] );
 
 		$pane = $provider->railPaneData();
 		$this->assertSame( 'good', $pane[ 'status' ] );

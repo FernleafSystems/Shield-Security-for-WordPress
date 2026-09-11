@@ -17,6 +17,14 @@ use FernleafSystems\Wordpress\Services\Core\{
 	Request,
 	Rest
 };
+use FernleafSystems\Wordpress\Services\Utilities\{
+	IpUtils,
+	ServiceProviders
+};
+use FernleafSystems\Wordpress\Services\Utilities\Net\{
+	BaseIP,
+	RequestIpDetect
+};
 
 class RequestMetaProcessorTest extends BaseUnitTest {
 
@@ -214,6 +222,136 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 		$this->assertArrayNotHasKey( 'verb', $meta );
 	}
 
+	/**
+	 * @dataProvider provider_real_request_detector_uses_canonical_ip
+	 */
+	public function test_real_request_detector_uses_canonical_ip_without_transport_attribution(
+		string $preferredSource,
+		array $server
+	) :void {
+		$this->prepareServer( $server );
+		$request = ( new Request() )->setIpDetector(
+			( new RequestIpDetect() )->setPreferredSource( $preferredSource )
+		);
+		$this->installRealRequestMetaServices( $request, $this->cloudflareProviders(), $this->ipUtils() );
+
+		$this->assertSame( '8.8.8.8', $request->ip() );
+
+		$meta = ( new RequestMetaProcessor() )( [ 'extra' => [] ] )[ 'extra' ][ 'meta_request' ];
+		$this->assertSame( '8.8.8.8', $meta[ 'ip' ] );
+		$this->assertArrayNotHasKey( 'ip_attribution', $meta );
+		$this->assertArrayNotHasKey( 'ip_provider', $meta );
+		$this->assertArrayNotHasKey( 'ip_source', $meta );
+	}
+
+	public function provider_real_request_detector_uses_canonical_ip() :array {
+		return [
+			'canonical Cloudflare header beats Cloudflare transport' => [
+				'',
+				[
+					'REMOTE_ADDR'          => '173.245.48.5',
+					'HTTP_CF_CONNECTING_IP' => '8.8.8.8',
+				],
+			],
+			'preferred Cloudflare header is a normal browser request' => [
+				'HTTP_CF_CONNECTING_IP',
+				[
+					'REMOTE_ADDR'          => '173.245.48.5',
+					'HTTP_CF_CONNECTING_IP' => '8.8.8.8',
+				],
+			],
+			'preferred remote address is a normal browser request' => [
+				'REMOTE_ADDR',
+				[
+					'REMOTE_ADDR'          => '173.245.48.5',
+					'HTTP_CF_CONNECTING_IP' => '8.8.8.8',
+				],
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider provider_cloudflare_transport_addresses
+	 */
+	public function test_cloudflare_transport_is_logged_when_real_detector_has_no_canonical_ip( string $transportIp ) :void {
+		$this->prepareServer( [
+			'REMOTE_ADDR'          => $transportIp,
+			'HTTP_CF_CONNECTING_IP' => $transportIp,
+		] );
+		$request = ( new Request() )->setIpDetector(
+			( new RequestIpDetect() )->setPreferredSource( 'REMOTE_ADDR' )
+		);
+		$this->installRealRequestMetaServices( $request, $this->cloudflareProviders(), $this->ipUtils() );
+
+		$this->assertSame( '', $request->ip() );
+
+		$meta = ( new RequestMetaProcessor() )( [ 'extra' => [] ] )[ 'extra' ][ 'meta_request' ];
+		$this->assertSame( $transportIp, $meta[ 'ip' ] );
+		$this->assertSame( [
+			'ip_attribution' => 'transport',
+			'ip_provider'    => 'cloudflare',
+			'ip_source'      => 'REMOTE_ADDR',
+		], array_intersect_key( $meta, [
+			'ip_attribution' => true,
+			'ip_provider'    => true,
+			'ip_source'      => true,
+		] ) );
+		$this->assertSame( '', $request->ip() );
+	}
+
+	public function provider_cloudflare_transport_addresses() :array {
+		return [
+			'IPv4' => [ '173.245.48.5' ],
+			'IPv6' => [ '2400:cb00::1' ],
+		];
+	}
+
+	/**
+	 * @dataProvider provider_transport_attribution_rejections
+	 */
+	public function test_transport_attribution_rejections_leave_empty_canonical_ip( $remoteAddr, ServiceProviders $providers ) :void {
+		$this->prepareServer( [ 'REMOTE_ADDR' => $remoteAddr ] );
+		$this->installRealRequestMetaServices(
+			$this->requestService( '/', '', 'transportreject' ),
+			$providers,
+			$this->ipUtils()
+		);
+
+		$meta = ( new RequestMetaProcessor() )( [ 'extra' => [] ] )[ 'extra' ][ 'meta_request' ];
+		$this->assertSame( '', $meta[ 'ip' ] );
+		$this->assertArrayNotHasKey( 'ip_attribution', $meta );
+		$this->assertArrayNotHasKey( 'ip_provider', $meta );
+		$this->assertArrayNotHasKey( 'ip_source', $meta );
+	}
+
+	public function provider_transport_attribution_rejections() :array {
+		return [
+			'not an IP address'      => [ 'not-an-ip', $this->cloudflareProviders() ],
+			'private IP address'      => [ '10.0.0.1', $this->cloudflareProviders() ],
+			'reserved IP address'     => [ '192.0.2.1', $this->cloudflareProviders() ],
+			'public non-Cloudflare IP'=> [ '8.8.8.8', $this->cloudflareProviders() ],
+			'non-string transport data'=> [ 123, $this->cloudflareProviders() ],
+			'empty provider data'     => [ '173.245.48.5', $this->emptyProviders() ],
+			'provider runtime failure'=> [ '173.245.48.5', $this->failingProviders() ],
+		];
+	}
+
+	public function test_php_cli_cron_ignores_qualifying_cloudflare_transport_attribution() :void {
+		$this->prepareServer( [ 'REMOTE_ADDR' => '173.245.48.5' ] );
+		$this->installRealRequestMetaServices(
+			$this->requestService( '', '', 'cloudflarecron' ),
+			$this->cloudflareProviders(),
+			$this->ipUtils(),
+			$this->generalService( false, true )
+		);
+
+		$meta = ( new RequestMetaProcessor() )( [ 'extra' => [] ] )[ 'extra' ][ 'meta_request' ];
+		$this->assertSame( ReqLogsHandler::TYPE_CRON, $meta[ 'type' ] );
+		$this->assertSame( '127.0.0.1', $meta[ 'ip' ] );
+		$this->assertSame( '/wp-cron.php', $meta[ 'path' ] );
+		$this->assertArrayNotHasKey( 'ip_attribution', $meta );
+	}
+
 	private function installRequestMetaServices( Request $request, General $general ) :void {
 		ServicesState::installItems( [
 			'service_request'    => $request,
@@ -229,6 +367,86 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 				}
 			},
 		] );
+	}
+
+	private function installRealRequestMetaServices(
+		Request $request,
+		ServiceProviders $providers,
+		IpUtils $ipUtils,
+		?General $general = null
+	) :void {
+		ServicesState::installItems( [
+			'service_request'          => $request,
+			'service_ip'               => $ipUtils,
+			'service_serviceproviders' => $providers,
+			'service_rest'             => new class extends Rest {
+				public function isRest() :bool {
+					return false;
+				}
+			},
+			'service_wpgeneral'        => $general ?? $this->generalService( false, false ),
+			'service_wpcomments'       => new class extends Comments {
+				public function isCommentSubmission() :bool {
+					return false;
+				}
+			},
+		] );
+	}
+
+	private function prepareServer( array $server ) :void {
+		$_SERVER = array_fill_keys( ( new BaseIP() )->getSources(), '' );
+		$_SERVER = array_merge( $_SERVER, [
+			'HTTP_HOST'       => 'example.test',
+			'HTTP_USER_AGENT' => 'phpunit',
+			'REQUEST_METHOD'  => 'GET',
+			'REQUEST_URI'     => '/',
+		], $server );
+		$_GET = [];
+		$_POST = [];
+	}
+
+	private function ipUtils() :IpUtils {
+		return new class extends IpUtils {
+			public function getServerPublicIPs( $forceRefresh = false ) :array {
+				unset( $forceRefresh );
+				return [];
+			}
+		};
+	}
+
+	private function cloudflareProviders() :ServiceProviders {
+		return new class extends ServiceProviders {
+			public function getProviders() :array {
+				return [
+					'services' => [
+						'cloudflare' => [
+							'name' => 'Cloudflare',
+							'ips'  => [
+								4 => [ '173.245.48.0/20' ],
+								6 => [ '2400:cb00::/32' ],
+							],
+						],
+					],
+					'crawlers' => [],
+				];
+			}
+		};
+	}
+
+	private function emptyProviders() :ServiceProviders {
+		return new class extends ServiceProviders {
+			public function getProviders() :array {
+				return [];
+			}
+		};
+	}
+
+	private function failingProviders() :ServiceProviders {
+		return new class extends ServiceProviders {
+			public function getProviders() :array {
+				throw new \RuntimeException( 'Provider data unavailable.' );
+			}
+		};
 	}
 
 	private function requestService( string $path, string $ip, string $requestID ) :Request {
@@ -264,6 +482,10 @@ class RequestMetaProcessorTest extends BaseUnitTest {
 
 			public function getMethod() :string {
 				return '';
+			}
+
+			public function server( $key, $default = null ) {
+				return $_SERVER[ $key ] ?? $default;
 			}
 		};
 	}

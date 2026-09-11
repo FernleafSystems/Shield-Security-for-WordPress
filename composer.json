@@ -34,9 +34,9 @@
     "fernleafsystems/wordpress-plugin-core": "^2.4",
     "fernleafsystems/worpdrive-client":      "0.4",
     "fernleafsystems/zxcvbn-php":            "^1.1",
-    "monolog/monolog":                       "^2.10",
+    "monolog/monolog":                       "^2.11",
     "paragonie/constant_time_encoding":      "^3.0",
-    "symfony/polyfill-iconv":                "^1.29",
+    "symfony/polyfill-iconv":                "^1.37",
     "twig/twig":                             "^3.27",
     "web-auth/webauthn-lib":                 "^5.3",
     "ext-json":                              "*",
@@ -87,13 +87,19 @@
     ],
     "build:config":     "@php bin/build-config.php",
     "test":             [
+      "Composer\\Config::disableProcessTimeout",
       "@build:config",
       "@test:unit",
       "@test:integration"
     ],
-    "test:unit":        [
+    "test:unit:policy": "@php bin/check-unit-test-fixtures.php",
+    "test:unit:runner": [
       "@build:config",
       "@php bin/run-unit-tests.php --runner-mode=auto"
+    ],
+    "test:unit":        [
+      "@test:unit:policy @no_additional_args",
+      "@test:unit:runner"
     ],
     "test:integration": [
       "Composer\\Config::disableProcessTimeout",
@@ -169,7 +175,6 @@
       "override_autoload":              {},
       "exclude_from_copy":              {
         "packages":      [
-          "psr/log",
           "psr/cache",
           "psr/clock",
           "psr/container",

@@ -42,6 +42,12 @@ class TestSourceCommand extends Command {
 				null,
 				InputOption::VALUE_NONE,
 				'Skip the Docker unit-test stage and run source runtime integration checks only.'
+			)
+			->addOption(
+				'include-previous-wp',
+				null,
+				InputOption::VALUE_NONE,
+				'Also run checks against the previous WordPress version.'
 			);
 	}
 
@@ -51,7 +57,8 @@ class TestSourceCommand extends Command {
 				$this->projectRoot,
 				(bool)$input->getOption( 'refresh-setup' ),
 				(bool)$input->getOption( 'show-docker-output' ),
-				(bool)$input->getOption( 'skip-unit-tests' )
+				(bool)$input->getOption( 'skip-unit-tests' ),
+				(bool)$input->getOption( 'include-previous-wp' )
 			);
 		}
 		catch ( \Throwable $throwable ) {

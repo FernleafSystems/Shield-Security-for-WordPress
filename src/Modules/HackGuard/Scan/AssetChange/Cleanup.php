@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
+	AssetTrustResolver,
+	Retrieve
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -22,50 +26,112 @@ class Cleanup {
 	}
 
 	public function schedule( string $assetType, string $assetKey, int $delay = self::CRON_DELAY, int $retry = 0 ) :bool {
+		unset( $retry );
+		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
+		if ( $assetType === '' || $assetKey === '' ) {
+			return false;
+		}
+		return self::con()->comps->asset_coordinator->enqueueAsset( $assetType, $assetKey, $delay );
+	}
+
+	public function run( $assetType = null, $assetKey = null, $retry = 0 ) :void {
+		if ( !\is_string( $assetType ) || !\is_string( $assetKey ) || !\is_int( $retry )
+			 || $retry < 0 || $retry > self::MAX_RETRIES ) {
+			return;
+		}
+		$this->process( $assetType, $assetKey );
+	}
+
+	public function process( string $assetType, string $assetKey ) :bool {
 		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
 		if ( $assetType === '' || $assetKey === '' ) {
 			return false;
 		}
 
-		$this->invalidateAssetSnapshot( $assetType, $assetKey );
+		$readiness = $this->prepareAssetForScan( $assetType, $assetKey );
+		if ( !$readiness[ 'ready' ] ) {
+			return false;
+		}
 
-		if ( $this->hasPendingCleanup( $assetType, $assetKey ) ) {
+		if ( $readiness[ 'reset_memoization' ] ) {
+			Retrieve::resetMemoization();
+			AssetTrustResolver::resetMemoization();
+		}
+		return self::con()->comps->scans->startAfsAssetScan( $assetType, $assetKey );
+	}
+
+	public function processPromotionFollowUp(
+		string $assetType,
+		string $assetKey,
+		string $requiredPublishedVersion
+	) :bool {
+		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
+		if ( !\in_array( $assetType, [ 'plugin', 'theme' ], true )
+			 || $assetKey === ''
+			 || \trim( $requiredPublishedVersion ) === ''
+			 || \strpos( $requiredPublishedVersion, "\0" ) !== false ) {
 			return true;
 		}
 
-		$args = [ $assetType, $assetKey, $retry ];
-		return \wp_schedule_single_event( Services::Request()->ts() + $delay, $this->getHook(), $args ) !== false;
-	}
-
-	public function run( string $assetType, string $assetKey, int $retry = 0 ) :void {
-		[ $assetType, $assetKey ] = $this->normalizeAsset( $assetType, $assetKey );
-		if ( $assetType === '' || $assetKey === '' ) {
-			return;
-		}
-
-		if ( !$this->ensureAssetReadyForScan( $assetType, $assetKey ) ) {
-			if ( $retry < self::MAX_RETRIES ) {
-				$this->schedule( $assetType, $assetKey, self::CRON_DELAY, $retry + 1 );
+		try {
+			$asset = $this->loadAsset( $assetType, $assetKey );
+			$isExactAsset = $assetType === 'plugin'
+				? $asset instanceof WpPluginVo
+				  && $asset->asset_type === 'plugin'
+				  && $asset->file === $assetKey
+				: $asset instanceof WpThemeVo
+				  && $asset->asset_type === 'theme'
+				  && $asset->stylesheet === $assetKey;
+			if ( !$isExactAsset || $asset->version !== $requiredPublishedVersion ) {
+				return true;
 			}
-			return;
+
+			$snapshot = ( new StoreAction\Load() )
+				->setAsset( $asset )
+				->run()
+				->getUsableSnapshot();
+		}
+		catch ( \Throwable $e ) {
+			return true;
 		}
 
-		self::con()->comps->scans->startAfsAssetScan( $assetType, $assetKey );
+		return $snapshot === null || ( $snapshot[ 'meta' ][ 'live_hashes' ] ?? null ) !== true
+			? true
+			: self::con()->comps->scans->startAfsAssetScan( $assetType, $assetKey );
 	}
 
-	private function ensureAssetReadyForScan( string $assetType, string $assetKey ) :bool {
+	/**
+	 * @return array{ready:bool, reset_memoization:bool}
+	 */
+	private function prepareAssetForScan( string $assetType, string $assetKey ) :array {
 		if ( $assetType === 'core' ) {
 			try {
-				return Services::CoreFileHashes()->isReady();
+				return [
+					'ready'             => Services::CoreFileHashes()->isReady(),
+					'reset_memoization' => false,
+				];
 			}
 			catch ( \Throwable $e ) {
-				return false;
+				return [
+					'ready'             => false,
+					'reset_memoization' => false,
+				];
 			}
 		}
 
 		$asset = $this->loadAsset( $assetType, $assetKey );
 		if ( empty( $asset ) ) {
-			return true;
+			return [
+				'ready'             => true,
+				'reset_memoization' => false,
+			];
+		}
+
+		if ( ( new Retrieve() )->byVOFromStoredSnapshot( $asset ) !== null ) {
+			return [
+				'ready'             => true,
+				'reset_memoization' => false,
+			];
 		}
 
 		try {
@@ -77,10 +143,17 @@ class Cleanup {
 				->setAsset( $asset )
 				->run();
 
-			return $store->verify() && \count( $store->getSnapData() ) > 0;
+			$ready = $store->isUsable();
+			return [
+				'ready'             => $ready,
+				'reset_memoization' => $ready,
+			];
 		}
 		catch ( \Throwable $e ) {
-			return false;
+			return [
+				'ready'             => false,
+				'reset_memoization' => false,
+			];
 		}
 	}
 
@@ -91,34 +164,6 @@ class Cleanup {
 		return $assetType === 'plugin'
 			? Services::WpPlugins()->getPluginAsVo( $assetKey, true )
 			: Services::WpThemes()->getThemeAsVo( $assetKey, true );
-	}
-
-	private function hasPendingCleanup( string $assetType, string $assetKey ) :bool {
-		$pending = false;
-		foreach ( \range( 0, self::MAX_RETRIES ) as $retry ) {
-			if ( \wp_next_scheduled( $this->getHook(), [ $assetType, $assetKey, $retry ] ) !== false ) {
-				$pending = true;
-				break;
-			}
-		}
-		return $pending;
-	}
-
-	private function invalidateAssetSnapshot( string $assetType, string $assetKey ) :void {
-		if ( !\in_array( $assetType, [ 'plugin', 'theme' ], true ) ) {
-			return;
-		}
-
-		try {
-			$asset = $this->loadAsset( $assetType, $assetKey );
-			if ( $asset instanceof WpPluginVo || $asset instanceof WpThemeVo ) {
-				( new StoreAction\Delete() )
-					->setAsset( $asset )
-					->run();
-			}
-		}
-		catch ( \Throwable $e ) {
-		}
 	}
 
 	/**

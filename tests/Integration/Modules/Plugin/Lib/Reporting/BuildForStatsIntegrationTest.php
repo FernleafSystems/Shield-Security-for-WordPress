@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plug
 
 use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\{
+	Constants,
 	ReportIntervalWindowResolver,
 	ReportVO
 };
@@ -92,7 +93,7 @@ class BuildForStatsIntegrationTest extends ShieldIntegrationTestCase {
 		$this->insertEventRecord( 'ip_blocked', 3, 999 );
 		$this->insertEventRecord( 'ip_blocked', 5, 1000 );
 
-		$stats = ( new BuildForStats( $this->buildReport( 1000, 1099, 'custom' ) ) )
+		$stats = ( new BuildForStats( $this->buildReport( 1000, 1099, Constants::REPORT_INTERVAL_CUSTOM ) ) )
 			->buildForGroup( [ 'ip_blocked' ] );
 
 		$this->assertSame( 5, $stats[ 'ip_blocked' ][ 'count_current_period' ] );
@@ -162,6 +163,19 @@ class BuildForStatsIntegrationTest extends ShieldIntegrationTestCase {
 		$report->start_at = $startAt;
 		$report->end_at = $endAt;
 		$report->interval = $interval;
+		$resolver = new ReportIntervalWindowResolver();
+		$previous = $resolver->isSupportedScheduledInterval( $interval )
+			? $resolver->resolvePreviousMatchingWindow(
+				new \FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\CalendarIntervalWindow(
+					$startAt,
+					$endAt,
+					\wp_timezone()->getName()
+				),
+				$interval
+			)
+			: $resolver->resolveAdjacentInclusiveWindow( $startAt, $endAt, \wp_timezone()->getName() );
+		$report->previous_start_at = $previous->start_at;
+		$report->previous_end_at = $previous->end_at;
 		return $report;
 	}
 

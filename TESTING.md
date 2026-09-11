@@ -6,15 +6,17 @@ Supporting docs:
 
 1. [`tests/docker/README.md`](tests/docker/README.md) for Docker-runner mechanics only.
 2. [`docs/test-suite-full-audit-2026-03-15.md`](docs/test-suite-full-audit-2026-03-15.md) for the audit record.
-3. [`tests/TESTING-RULES-ROADMAP.md`](tests/TESTING-RULES-ROADMAP.md) for rules/firewall coverage planning only.
+3. [`docs/testing/checklist-automation-coverage.md`](docs/testing/checklist-automation-coverage.md) for the maintained automation coverage and evidence matrix.
+
+Composer 2.8 or newer is required for the supported command surface. Unit command argument isolation relies on Composer's `@no_additional_args` control token.
 
 ## Public Commands
 
 | Goal | Command | Notes |
 |---|---|---|
-| Full local confidence gate | `composer test` | Builds config, then runs unit and integration lanes |
-| Unit tests | `composer test:unit` | Default developer unit entry point |
-| Integration tests | `composer test:integration` | Public wrapper around the local Docker-backed integration lane |
+| Full local confidence gate | `composer test` | Broad gate for the risk triggers below; builds config, then runs unit and integration lanes; allow a 30-minute outer timeout |
+| Unit tests | `composer test:unit` | Enforces filesystem-fixture policy, then builds config and runs the unit runner |
+| Integration tests | `composer test:integration` | Public wrapper around the local Docker-backed integration lane; allow a 30-minute outer timeout for an unfiltered run |
 | Browser lane | `composer test:browser` | Playwright + axe against an automatically leased isolated Docker WordPress browser lane |
 | Cross-site sync lane | `composer test:cross-site` | Two Docker WordPress sites exercising Shield import/export master/slave sync |
 | Package validation | `composer test:package` | Public wrapper around targeted package validation |
@@ -23,7 +25,32 @@ Supporting docs:
 | Source static analysis | `composer analyze` | Public wrapper around source static analysis |
 | JS static checks | `npm run test:js` | Policy, ESLint, and checkJs TypeScript validation only |
 
-`test:source`, `test:integration-local`, `test:package-full`, `test:upgrade-public`, and `test:popular-plugins` default to reduced Docker output to keep signal dense. Add `--show-docker-output` when you need full compose output for a failing run.
+## Verification Policy
+
+Use the narrowest supported command that covers the changed behavior, then widen only when a concrete risk or acceptance criterion requires it. A completed PHP change does not by itself require `composer test`; prefer the focused owner-level unit or integration command, plus applicable static analysis.
+
+During regression exposure or test-first work, run only the focused command that proves the new test is red. Adding a test, or reaching a red state before the production correction is stable, never justifies `composer test`, an unfiltered integration run, cross-site, browser, package, or release-confidence lanes.
+
+`composer test` is a broad local confidence gate, not a routine per-change completion requirement. Run it when the change affects shared PHP bootstrap, generated configuration, test infrastructure, or widely reused behavior whose regression radius cannot be bounded reliably; when reproducing the corresponding CI or release-confidence path; or when the operator or task explicitly requires that exact lane. The number of changed PHP files or bounded owners does not itself make the regression radius unbounded. Before starting the command, map it to the concrete risk or acceptance criterion and confirm that current focused evidence cannot prove the same point. Otherwise omit it and report the focused evidence actually gathered.
+
+Source and full-package Docker testing use only the latest WordPress runtime by default. This is the preferred local behavior. Testing the retained previous major is exceptional compatibility coverage, not a routine final gate; use it only when a task explicitly targets that version or when reproducing the source-runtime CI job itself. Required CI selects its own broader coverage, so normal local verification does not need to duplicate it.
+
+Docker-backed commands keep Compose output concise by default. See [`tests/docker/README.md`](tests/docker/README.md#quiet-vs-noisy-compose-output) for troubleshooting output and runner mechanics.
+
+## Full PHP gate runtime and timeout budget
+
+`composer test` and an unfiltered `composer test:integration` are intentionally long-running commands. Operators and automated callers must distinguish the following independent timers and limits:
+
+| Timer or limit | Value | What it means | Why it exists |
+|---|---:|---|---|
+| Expected execution time | About 12-15 minutes when the integration lane is immediately available | The normal wall-clock time for the unit and full integration work itself; it is an estimate, not a cutoff | A recorded successful full gate completed in 751.8 seconds, and runtime varies with the host, Docker, MySQL, and the current test count |
+| Integration lock-wait timer | Up to 600 seconds by default | Time spent waiting to acquire the machine-scoped integration lane before integration setup or tests start | Local terminals, agents, and worktrees share one Docker project, port, database, and WordPress test configuration, so overlapping runs must serialize |
+| Composer/internal process timeout | Disabled for the full gate | Shield does not stop a healthy test process merely because it is long-running | The complete integration suite normally exceeds common five- or ten-minute process limits |
+| Outer caller timeout | At least 30 minutes (`1,800` seconds or `1,800,000` milliseconds) | The timeout configured by the shell runner, agent tool, IDE task, CI job, or other process that launches Composer | An outer caller can terminate Composer regardless of Shield's internal timeout setting, so it must cover lock wait, execution, and normal setup variance |
+
+The 30-minute outer budget is deliberate: up to 10 minutes of lock waiting, about 15 minutes of expected execution, and 5 minutes of setup and host-performance margin. The 600-second lock wait is not the total test timeout and must never be reused as one.
+
+When invoking either full command through a tool that requires a timeout, configure at least 30 minutes before starting it. A caller-side timeout is not a test failure and provides no full-suite pass or fail evidence. Do not immediately rerun with the same insufficient limit; first increase the caller budget. If the command exceeds 30 minutes, inspect whether it is waiting for the integration lock or which test phase is active before deciding whether to stop or retry it.
 
 ## Private Packagist Composer Auth
 
@@ -58,11 +85,11 @@ Auth-required public Composer lanes:
 | `composer test:upgrade-public`, `composer test:popular-plugins` | Release-confidence package lanes build or consume the current package |
 | `composer analyze` | Source analysis depends on Composer-installed dependencies |
 
-Auth-required internal lanes are the Composer-backed source, package, Docker, browser, cross-site, release, and analysis paths listed in this file, including `test:source`, `test:integration-local`, `test:docker:cleanup`, `test:package-targeted`, `test:package-full`, `analyze:source`, `analyze:package`, `git:pre-commit`, `dev:site:*`, and `test:site:*` when they invoke Composer-installed tooling. JS-only checks, cache-cleanup script regression tests, and admin-bundle-safety script regression tests do not need Packagist auth unless Composer commands are added to those jobs later.
+Auth-required internal lanes are the Composer-backed source, package, Docker, browser, cross-site, release, and analysis paths listed in this file, including `test:source`, `test:integration-local`, `test:docker:cleanup`, `test:package-targeted`, `test:package-full`, `analyze:source`, `analyze:package`, `git:pre-commit`, `dev:site:*`, and `test:site:*` when they invoke Composer-installed tooling. JS-only checks and CI helper-script regression tests do not need Packagist auth unless Composer commands are added to those jobs later.
 
-Auth preflight is wired into the Composer-bearing CI workflows: `.github/workflows/tests.yml`, `.github/workflows/reusable-unit-tests.yml`, `.github/workflows/reusable-build-package.yml`, `.github/workflows/reusable-build-zip.yml`, `.github/workflows/unit-serial-sentinel.yml`, `.github/workflows/browser-tests.yml`, and `.github/workflows/cross-site-tests.yml`. The tag release workflow and manual customer ZIP workflow inherit secrets into the reusable ZIP build workflow instead of duplicating Composer setup. `.github/workflows/cache-cleanup.yml`, JS-only jobs, and standalone shell script regression jobs are intentionally outside the Packagist-auth path until they start running Composer.
+Auth preflight is wired into `.github/workflows/tests.yml`, `reusable-unit-tests.yml`, `reusable-build-package.yml`, `reusable-build-zip.yml`, `unit-serial-sentinel.yml`, `browser-tests.yml`, and `cross-site-tests.yml`. Tag release and customer ZIP workflows inherit secrets through the reusable ZIP build. JS-only jobs, cache cleanup, and standalone shell regression jobs remain outside this path until they invoke Composer.
 
-### Unit test narrowing
+## Unit Test Narrowing
 
 Use `composer test:unit` for normal unit work, including full-suite, path-focused, and filtered runs:
 
@@ -73,30 +100,39 @@ composer test:unit -- --filter PluginNavsOperatorModesTest
 composer test:unit -- --filter testSomeMethod tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php
 ```
 
-The unit runner auto-selects ParaTest. Full-suite and path-only runs use ParaTest `WrapperRunner`; ordinary `--filter` and `--filter=...` runs use ParaTest functional mode so standard Composer/PHPUnit-style focused commands stay parallel by default. Native PHPUnit dataset shortcut filters such as `testMethod@dataset` and `testMethod#2` use the serial PHPUnit path in auto mode to preserve PHPUnit parity. Use `php bin/run-unit-tests.php --runner-mode=serial` only for diagnostic work and the serial sentinel lane.
+The unit runner auto-selects ParaTest. Full-suite and path-only runs use ParaTest `WrapperRunner`; a single-file run defaults to one worker because the wrapper schedules whole files. This also applies to each file in the pre-commit lane and avoids idle-worker shutdown stalls on Windows. Directory/full-suite runs retain automatic parallelism, and explicit `--processes`/`-p` values take precedence. Ordinary `--filter` and `--filter=...` runs use ParaTest functional mode so standard Composer/PHPUnit-style focused commands stay parallel by default. Native PHPUnit dataset shortcut filters such as `testMethod@dataset` and `testMethod#2` use the serial PHPUnit path in auto mode to preserve PHPUnit parity. Use `php bin/run-unit-tests.php --runner-mode=serial` only for diagnostic work and the serial sentinel lane.
+
+`composer test:unit:policy` is the standalone filesystem-fixture policy check. Unit tests that create temporary files or directories must use `TempDirLifecycleTrait`, obtain fixtures with `createTrackedTempDir()`, `createTrackedTempPath()`, or `createTrackedTempFile()`, and call `cleanupTrackedTempDirs()` from `tearDown()`. The statement-local policy rejects direct `tempnam( sys_get_temp_dir(), ... )`, direct concatenation or `Path::join()` of a system-temp path with `uniqid()` or `random_bytes()`, direct system-temp destinations passed to `mkdir()`, `touch()`, `file_put_contents()`, `copy()`, or `rename()`, and direct writing or dynamic-mode `fopen()` calls. Literal read-only `fopen()` modes (`r`, `rb`, and `rt`) and existing-root inspection are allowed. The policy deliberately does not trace variables, aliases, control flow, or data flow. `TempDirLifecycleTraitTest` is the sole exception because it must exercise the helper against the real temp root.
+
+`composer test:unit:runner` is the CI/internal runner-only command: it builds generated config and invokes the current auto-selecting runner without repeating policy. Normal local use should remain on `composer test:unit`, which runs policy before the runner.
 
 ## Pre-commit checks
 
 `php bin/shield git:pre-commit --stdin --null` accepts NUL-delimited changed file paths from Git, filters changed PHP files, and feeds them into the existing syntax lint, PHPStan, and unit test tooling. A local pre-commit hook can stay thin by piping `git diff --cached --name-only --diff-filter=ACMR -z` into that command.
 
-## Required PR CI local parity
+## Choosing Verification Scope
 
-The required PR CI gate is [`.github/workflows/tests.yml`](.github/workflows/tests.yml). It is broader than `composer test` because CI also proves static analysis, JS checks, package build/validation, and a source Docker runtime lane. Use these local equivalents when you need to reproduce the required CI gate:
+| Situation | Preferred verification |
+|---|---|
+| Focused PHP behavior | Narrow `composer test:unit` or `composer test:integration` invocation |
+| Completed bounded PHP change | Focused owner-level unit or integration coverage, plus applicable static analysis |
+| Shared or cross-cutting PHP change with an unbounded regression radius | `composer test` after applying the broad-gate criteria above |
+| Source behavior that specifically needs the containerized runtime | `php bin/shield test:source` |
+| JavaScript static changes | `npm run test:js` |
+| ActionRouter interaction or accessibility | `composer test:browser` |
+| Import/export validation or normalization contained within one site | Focused owner-level unit or integration coverage |
+| Observable import/export site-to-site protocol, transport, handshake, queue, or remote-state lifecycle | `composer test:cross-site` |
+| Package structure or prefixed dependencies | `composer test:package` |
+| Release upgrade or ecosystem compatibility | The relevant manual release-confidence lane |
+| Exact reproduction of a CI job | The command recorded under [CI Workflow Roles](#ci-workflow-roles) |
 
-| CI lane | Local equivalent | Notes |
-|---|---|---|
-| PHPStan Source Analysis (PHP 8.2) | `composer analyze` | CI runs this on PHP 8.2; use a PHP 8.2 shell when reproducing parse-compatibility exactly. |
-| JavaScript Static Checks | `npm run test:js` | Static policy, ESLint, and checkJs only. |
-| PHP Unit Tests (PHP 8.2) | `composer test:unit` | Run under PHP 8.2 for exact CI parity. |
-| PHP Unit Tests (PHP 8.4) | `composer test:unit` | Run under the latest supported CI PHP version. |
-| WordPress Runtime Integration (Source) | `php bin/shield test:source --skip-unit-tests --show-docker-output` | Mirrors required CI by focusing Docker on runtime/integration checks after the unit lanes have already run. |
-| Validate Packaged Plugin Artifact | `composer package-plugin -- --output=tmp/shield-package-ci` then `php bin/shield test:package-targeted --package-path=tmp/shield-package-ci` | Mirrors CI's built-artifact validation path. |
+Do not expand a normal local run into every CI, browser, package, release, or compatibility lane without a corresponding risk. CI supplies its configured broader coverage independently.
 
-The workflow starts for the configured branch events, then uses job-level changed-file filters from [`.github/ci-path-filters.yml`](.github/ci-path-filters.yml) to skip expensive lanes when their inputs were not touched. This deliberately avoids workflow-level `paths` filters for the required gate, because skipped workflows can leave required checks pending while skipped jobs report a successful skipped state. Manual `workflow_dispatch` runs execute the full required gate.
+## Manual Release-Confidence Lanes
 
-`composer test` remains the everyday local confidence gate: it builds config, runs unit tests, and runs the local Docker-backed integration lane. It is intentionally faster and narrower than required PR CI, while scheduled/manual browser and cross-site workflows remain deeper coverage rather than default local requirements. Use `php bin/shield test:package-full` when you need the manual full packaged runtime lane.
+These network-dependent lanes are deliberately outside normal local verification and the default PR gate.
 
-## Public-To-Current Upgrade Lane
+### Public-To-Current Upgrade
 
 Use this lane before publishing a release package when you need confidence that the latest public Shield release can upgrade in place to the current package through WordPress' normal plugin updater.
 
@@ -158,7 +194,7 @@ This lane depends on Docker and WordPress.org availability, so it is intentional
 composer test:upgrade-public -- --package-zip="$ZIP_PATH" --artifact-dir="$RUNNER_TEMP/shield-upgrade-public"
 ```
 
-## Popular Plugin Compatibility Lane
+### Popular Plugin Compatibility
 
 Use this lane before publishing a release package when you need confidence that current packaged Shield can activate alongside the pinned high-popularity WordPress.org plugin stack without library/autoload/runtime conflicts.
 
@@ -221,17 +257,19 @@ These commands remain the owned internal lanes behind the public surface and CI 
 |---|---|
 | `php bin/shield analyze:source` | Canonical source static-analysis lane; source parse-compatibility gate when run on PHP 8.2 |
 | `php bin/shield analyze:package` | Packaged static analysis lane |
-| `php bin/shield test:source` | Source-first Docker runtime lane |
+| `php bin/shield test:source` | Source-first Docker runtime lane; latest WordPress by default |
 | `php bin/shield test:integration-local` | Local Docker-backed WordPress integration lane |
 | `php bin/shield test:cross-site` | Two-site Docker WordPress import/export sync lane |
 | `php bin/shield test:docker:cleanup` | Explicit labeled Docker cleanup for source-test harness scopes |
 | `php bin/shield test:package-targeted` | Targeted package validation lane |
-| `php bin/shield test:package-full` | Manual local deep packaged runtime lane |
+| `php bin/shield test:package-full` | Manual local deep packaged runtime lane; latest WordPress by default |
 | `php bin/shield test:upgrade-public` | Manual public-to-current package upgrade smoke lane |
 | `php bin/shield test:popular-plugins` | Manual packaged Shield compatibility lane against a pinned popular plugin stack |
 | `php bin/run-unit-tests.php --runner-mode=serial` | Serial unit sentinel path |
 
 `test:source` and `analyze:source` cache setup state by default for faster local reruns. Use `--refresh-setup` when you need a clean setup pass.
+
+`test:source` and `test:package-full` start, build, and run only the latest WordPress runtime by default. Both accept `--include-previous-wp` for an explicit previous-major compatibility investigation or exact reproduction of the source-runtime CI job. Do not add it to normal local verification or routine final gates.
 
 Source-test Docker resources are labeled with `com.fernleaf.harness`, `com.fernleaf.run-id`, `com.fernleaf.lane`, `com.fernleaf.lifecycle`, and `com.fernleaf.expires-at`. Use the explicit cleanup command for auditable dry-runs and scoped removal:
 
@@ -245,58 +283,71 @@ php bin/shield test:docker:cleanup --scope=dev-site --dry-run --all
 
 The `browser` scope is also supported by `test:docker:cleanup`, but `composer test:browser:cleanup` remains the preferred browser cleanup entry point because it also audits stale runtime-refresh staging workspaces. Cleanup never uses `docker system prune` and only targets the selected harness label.
 
-`composer test:integration` is now focused on behaviour-level WordPress runtime coverage. Browser-managed ActionRouter page-shell and DOM-contract tests are intentionally excluded from the default PHPUnit integration lane and covered via `composer test:browser`.
+`composer test:integration` is focused on behaviour-level WordPress runtime coverage. Browser-managed ActionRouter page-shell and DOM-contract tests are intentionally excluded from the default PHPUnit integration lane and covered via `composer test:browser`.
 
-## Quiet vs noisy test runs
+### PHP integration asset ownership
 
-Default behavior for Docker-backed lanes is intentionally quieter:
-
-- `php bin/shield test:source`
-- `php bin/shield test:integration-local`
-- `php bin/shield test:package-full`
-- `php bin/shield test:upgrade-public`
-- `php bin/shield test:popular-plugins`
-
-To get full Docker compose output during a troubleshooting run, append `--show-docker-output`:
-
-```bash
-php bin/shield test:source --show-docker-output
-php bin/shield test:integration-local --show-docker-output -- tests/Integration/ActionRouter/WpDashboardSummaryIntegrationTest.php
-php bin/shield test:package-full --show-docker-output
-```
-
-When running through Composer wrappers, place `--show-docker-output` before PHPUnit arguments:
-
-```bash
-composer test:integration -- --show-docker-output -- tests/Integration/ActionRouter/WpDashboardSummaryIntegrationTest.php
-```
-
-Automated CI workflows can enforce noisy mode by invoking the command form directly:
-
-```bash
-php bin/shield test:source --skip-unit-tests --show-docker-output
-```
+The PHP integration lane has no lane-wide frontend build. Non-consumer selections and database-compatibility runs are Node-free; selected full report renderers demand-build assets exactly once in ordinary local source mode, so an unfiltered integration run may still require Node. Source-runtime and package outer owners supply assets, while consumers validate the exact bundle. Browser, source, and package asset ownership is unchanged.
 
 ## Local integration lane serialization
 
-`composer test`, `composer test:integration`, and `php bin/shield test:integration-local` are serialized across local terminals, agents, and worktrees with a machine-scoped `flock()` lock. The lock protects the fixed local sidecar resources: Compose project `shield-local-db`, MySQL port `127.0.0.1:3311`, database `wordpress_test_local`, and the shared WordPress test-library config.
+`composer test`, `composer test:integration`, and `php bin/shield test:integration-local` are serialized across local terminals, agents, and worktrees with a machine-scoped `flock()` lock. The lock protects the fixed local sidecar resources: Compose project `shield-local-db`, SQL port `127.0.0.1:3311`, database `wordpress_test_local`, and the shared WordPress test-library config.
 
 - Lock file: `<system-temp>/shield-test-locks/integration-local.lock`.
-- Default wait: 600 seconds.
+- Default lock-acquisition wait: 600 seconds. This is not a process or test-suite timeout; see [Full PHP gate runtime and timeout budget](#full-php-gate-runtime-and-timeout-budget).
 - Override wait: `SHIELD_INTEGRATION_LANE_WAIT_SECONDS=<positive-integer>`.
 - `--db-down` uses the same lock, so teardown cannot remove the sidecar while another integration run is active.
 
 After Compose reports the DB container healthy, the lane also verifies host PHP can connect over TCP to `127.0.0.1:3311`, select `wordpress_test_local`, and run `SELECT 1`. This is the readiness contract WordPress bootstrap depends on. The lane also removes a cached WordPress test config when its DB constants do not match the fixed local sidecar contract, then asserts the generated config before PHPUnit starts.
 
+Each test run then drops and recreates `wordpress_test_local` inside the lane lock before WordPress installation. This removes retained Shield tables and their InnoDB high-water allocation from earlier runs while preserving a failed run's database for inspection until the next run. The sidecar uses a 2 GiB tmpfs and disables binary logging because this isolated test database has no replication or point-in-time recovery role; otherwise MySQL 8 retains each run's write log until its 30-day binlog expiry.
+
 The lock file may remain after a run and contains diagnostic metadata for the last acquired lease. Do not delete it as stale cleanup; `flock()` releases automatically when the owning process exits. Raw `vendor/bin/phpunit -c phpunit-integration.xml` bypasses this guard and is not part of the supported local integration command surface.
 
 The sidecar DB resources use stable reusable labels under the `integration-local` cleanup scope so normal repeat runs can reuse the same DB container. A run after Docker Compose file changes may recreate the sidecar once; subsequent unchanged runs should not recreate it. `php bin/shield test:integration-local --db-down` remains the normal functional teardown because it observes the lane lock. Use `php bin/shield test:docker:cleanup --scope=integration-local --dry-run --all` when auditing Docker resources directly.
+
+### Integration database lifecycle
+
+Ordinary integration tests rely on the transaction started by `WP_UnitTestCase`; its parent teardown rolls back WordPress core rows, options, and Shield-table DML for each test. Do not add blanket table truncation, option-prefix deletion, or other global database cleanup to integration base classes.
+
+Tests that deliberately execute persistent database operations such as real DDL, engine changes, transaction control, or production table purge must be individually marked `database-transaction-exception`. Shield integration cases use the method-scoped persistent-mutation boundary and declare exact restoration for only the state that method commits. Keep ordinary DML outside this exception group.
+
+Run the compatibility and persistent-exception union through the serialized wrapper:
+
+```bash
+php bin/shield test:integration-local --db-profile=mysql80 -- --group database-compat,database-transaction-exception
+php bin/shield test:integration-local --db-profile=mysql56 -- --group database-compat,database-transaction-exception
+php bin/shield test:integration-local --db-profile=mariadb106 -- --group database-compat,database-transaction-exception
+```
+
+When a task explicitly calls for the final instrumented integration evidence, use one invocation with a frozen seed and JUnit destination:
+
+```bash
+composer test:integration -- -- --order-by=random --random-order-seed=<fixed-seed> --log-junit=tmp/transactional-teardown-final-integration.xml
+```
+
+Record lock-wait time separately from PHPUnit runtime and wrapper wall time. Do not run integration tests in parallel and do not bypass the wrapper with raw PHPUnit, because all local runs share the same sidecar and reset lifecycle.
+
+### Database compatibility profiles
+
+The serialized integration lane exposes three fixed database profiles. Arbitrary images are not accepted:
+
+```bash
+php bin/shield test:integration-local --db-profile=mysql80 -- --group database-compat
+php bin/shield test:integration-local --db-profile=mysql56 -- --group database-compat
+php bin/shield test:integration-local --db-profile=mariadb106 -- --group database-compat
+php bin/shield test:integration-local --db-down
+```
+
+`mysql80` remains the default. Switching profile recreates the tmpfs-backed sidecar under the same serialized Compose project. Run `--db-down` after a non-default compatibility sequence to restore a clean default start for later work. `database-compat` tests cover portable event aggregation, report-period continuity, index application, and MyISAM behavior; the broader consumer suite stays on the default profile.
 
 ## Local Browser Lane
 
 Use this lane for ActionRouter interaction and accessibility checks that now live in Playwright instead of PHPUnit DOM assertions. Browser tests run against an automatically leased isolated Docker WordPress lane, while `dev:site:*` continues to manage the persistent manual development site.
 
 Most developers and agents should start with `composer test:browser`. It rebuilds production browser/runtime bundles, reuses warm lanes for practical local speed, and defaults warm local runtime refresh to `auto` so repeated runs avoid a full content scan when the metadata cache is valid. Clean mode and CI still force full runtime freshness.
+
+Browser lane counts describe parallel isolated sites, not different WordPress-version streams.
 
 ```bash
 npm run playwright:install
@@ -425,28 +476,6 @@ npm install
 npm run playwright:install
 ```
 
-## Local Cross-Site Lane
-
-Use this lane for Shield-to-Shield import/export communication. It provisions a master WordPress site and a slave WordPress site on one Docker network, uses dotted Docker DNS aliases for site-to-site HTTP, and drives setup, cron, queue processing, and assertions with WP-CLI.
-
-```bash
-composer test:cross-site
-composer test:cross-site -- --warm
-composer test:cross-site -- --clean --show-setup-output
-```
-
-Operational notes:
-
-1. The lane uses internal URLs `http://wordpress-master.shield-cross-site.example.com` and `http://wordpress-slave.shield-cross-site.example.com`; exposed host ports are only for diagnostics.
-2. Local runs default to warm mode. CI defaults to clean mode.
-3. Successful runs stay quiet except for the final lane result; use `--show-setup-output` when Docker, provisioning, or runtime-refresh setup logs are needed.
-4. The lane has a single lock under `tmp/cross-site-test-lane` because both sites share one Compose project and one database container.
-5. The runtime helper grants every capability required by transferable Shield options, plus WP-CLI, before generating the option corpus.
-6. The comparison excludes only explicit non-corpus keys: slave-local sync state such as `importexport_masterurl`, and runtime prerequisites such as `global_enable_plugin_features` and `importexport_enable`. Every generated corpus key must change from its baseline after Shield option normalization.
-7. `SHIELD_CROSS_SITE_MASTER_PORT` and `SHIELD_CROSS_SITE_SLAVE_PORT` override the diagnostic host ports if `8892` or `8893` are unavailable.
-8. This lane covers Shield import/export sync only. MainWP scenarios should be added as explicit consumers of the same harness when they exist.
-9. Cross-site containers, volumes, and networks are labeled under the `cross-site` cleanup scope. CI removes them with `php bin/shield test:docker:cleanup --scope=cross-site --all`; use `--dry-run` locally to audit before removal.
-
 ### Browser spec authoring contract
 
 Use these rules for every Playwright spec under `tests/browser/action-router`:
@@ -467,7 +496,29 @@ Use these rules for every Playwright spec under `tests/browser/action-router`:
 9. Let the fixture wrappers seed and clean state with `try/finally`. Avoid manual cleanup in specs unless a new wrapper cannot express the scenario.
 10. Use Playwright's own narrowing flags after the second `--`, for example `composer test:browser -- --warm -- tests/browser/action-router/example.spec.js -g "flow" --workers=1`.
 
-### Optional Playground Tooling
+## Local Cross-Site Lane
+
+Use this lane when a change affects observable Shield-to-Shield import/export behavior: transport or authentication, the handshake or successful wire contract, the transferred option corpus, cron or queue processing, or remote sync-state handling. Do not select it merely because `Import.php` or another import/export path changed when focused owner-level tests cover site-local validation, normalization, or rejection of a malformed response without changing the successful cross-site contract. The lane provisions a master WordPress site and a slave WordPress site on one Docker network, uses dotted Docker DNS aliases for site-to-site HTTP, and drives setup, cron, queue processing, and assertions with WP-CLI.
+
+```bash
+composer test:cross-site
+composer test:cross-site -- --show-setup-output
+```
+
+Operational notes:
+
+1. The lane uses internal URLs `http://wordpress-master.shield-cross-site.example.com` and `http://wordpress-slave.shield-cross-site.example.com`; exposed host ports are only for diagnostics.
+2. Every invocation runs the public 22.1.3-to-current upgrade scenario followed by the complete current-to-current corpus. The lane reuses its labelled services, volumes, network, and generic WordPress core, but removes and proves absent all scenario state at the public-to-current boundary and during final cleanup.
+3. Successful runs stay quiet except for the final lane result; use `--show-setup-output` when Docker, provisioning, or runtime-refresh setup logs are needed.
+4. The lane has a single lock under `tmp/cross-site-test-lane` because both sites share one Compose project and one database container.
+5. The runtime helper grants every capability required by transferable Shield options, plus WP-CLI, before generating the option corpus.
+6. The comparison excludes only explicit non-corpus keys: slave-local sync state such as `importexport_masterurl`, and runtime prerequisites such as `global_enable_plugin_features` and `importexport_enable`. Every generated corpus key must change from its baseline after Shield option normalization.
+7. `SHIELD_CROSS_SITE_MASTER_PORT` and `SHIELD_CROSS_SITE_SLAVE_PORT` override the diagnostic host ports if `8892` or `8893` are unavailable.
+8. This lane covers Shield import/export sync only. MainWP scenarios should be added as explicit consumers of the same harness when they exist.
+9. The lane removes and directly proves absent its per-site fixtures, public runtime, update package, Shield plugin directory, archive workspace, and owned schemas. Lock acquisition failure leaves the pair untouched; after a lock is acquired, final cleanup is attempted even when a scenario fails.
+10. After an interrupted external process, manual recovery remains available with `php bin/shield test:docker:cleanup --scope=cross-site --all`. It is not ordinary lane execution or CI teardown; use `--dry-run` first to audit its deliberate scope.
+
+## Optional Playground Tooling
 
 Raw Playground is no longer part of the supported test surface. Keep the local helper only for standalone smoke or debugging work:
 
@@ -478,49 +529,36 @@ php bin/run-playground-local.php --run-blueprint
 php bin/run-playground-local.php --clean
 ```
 
-## CI Workflow Role Split
+## CI Workflow Roles
 
-Required source-first gate: [`.github/workflows/tests.yml`](.github/workflows/tests.yml)
+CI behavior is recorded here for diagnosis and exact job reproduction; it does not define the preferred local test scope. Required checks use job-level path filters because workflow-level `paths` can leave skipped required checks pending. A docs-only change should normally run only the lightweight changed-file detector.
 
-The required workflow is job-level path gated by [`.github/ci-path-filters.yml`](.github/ci-path-filters.yml). A docs-only change should normally run only the lightweight changed-file detector, while manual dispatch runs the full gate.
+| Workflow | Trigger and role |
+|---|---|
+| [Required source-first gate](.github/workflows/tests.yml) | Job-level path-gated by [`.github/ci-path-filters.yml`](.github/ci-path-filters.yml); manual dispatch runs the full gate. It runs source analysis on PHP 8.2, JS checks, unit tests on PHP 8.2 and 8.4, package build/targeted validation, and `php bin/shield test:source --skip-unit-tests --include-previous-wp --show-docker-output`. CI explicitly owns this exceptional two-stream WordPress run. |
+| [Serial compatibility sentinel](.github/workflows/unit-serial-sentinel.yml) | Runs `php bin/run-unit-tests.php --runner-mode=serial` manually and weekly at 05:00 UTC Monday. |
+| [Browser tests](.github/workflows/browser-tests.yml) | Runs for browser-relevant pull requests, pushes to `develop`, manual dispatch, and weekdays at 06:30 UTC. It installs Composer and Node dependencies plus Chromium, then runs `composer test:browser -- --clean --lanes=2 -- --workers=2`. |
+| [Cross-site tests](.github/workflows/cross-site-tests.yml) | Runs for pull requests affecting import/export, WP-CLI, the test harness, Docker, Composer, or this workflow; also runs manually and weekdays at 06:45 UTC. It installs dependencies, builds assets, and runs `composer test:cross-site` once with no automatic recovery step. |
+| [Customer test ZIP](.github/workflows/customer-test-zip.yml) | Manual artifact-only workflow that builds a selected branch or ref through the reusable `composer build-zip` path. It records the ref, commit, artifact URL, ZIP SHA-256, and artifact digest without creating a tag or GitHub Release. |
 
-1. `PHPStan Source Analysis (PHP 8.2)` runs `composer analyze`.
-2. `JavaScript Static Checks` runs `npm run test:js`.
-3. `PHP Unit Tests (PHP 8.2)` and `PHP Unit Tests (PHP 8.4)` run `composer test:unit`.
-4. `WordPress Runtime Integration (Source)` runs `php bin/shield test:source --skip-unit-tests --show-docker-output`.
-5. `WordPress Runtime Integration (Source)` skips its unit stage because the dedicated unit lanes have already run.
-6. `Build Packaged Plugin Artifact` builds the plugin package, then `Validate Packaged Plugin Artifact` runs package-targeted validation against the built artifact.
+For local reproduction of the required gate's individual jobs, use `composer analyze`, `npm run test:js`, `composer test:unit:policy` followed by `composer test:unit:runner` on the relevant PHP runtime, and the source command shown above. Reproduce the package path with:
+
+```bash
+composer package-plugin -- --output=tmp/shield-package-ci
+php bin/shield test:package-targeted --package-path=tmp/shield-package-ci
+```
+
+The source-runtime job uploads its raw per-phase logs as a failure artifact.
 
 Do not use `php bin/shield analyze:tooling` as a source compatibility gate. Source PHP compatibility belongs to `composer analyze` / `php bin/shield analyze:source`.
 
-Serial compatibility sentinel: [`.github/workflows/unit-serial-sentinel.yml`](.github/workflows/unit-serial-sentinel.yml)
+## Tooling Verification Commands
 
-1. Runs `php bin/run-unit-tests.php --runner-mode=serial`.
-2. Triggered by `workflow_dispatch`.
-3. Runs weekly at `0 5 * * 1` (05:00 UTC every Monday).
+The WordPress version detector's hermetic shell regression command runs the real detector with fixture-backed command shims; it does not call live WordPress or GitHub endpoints:
 
-Path-gated/scheduled/manual browser lane: [`.github/workflows/browser-tests.yml`](.github/workflows/browser-tests.yml)
-
-1. Installs Composer and Node dependencies.
-2. Installs Chromium headless shell.
-3. Runs `composer test:browser`, which rebuilds browser/runtime assets, prepares isolated local Docker WordPress browser lanes, and runs the ActionRouter Playwright + axe lane.
-4. Runs one clean two-lane Playwright job with two workers: `composer test:browser -- --clean --lanes=2 -- --workers=2`.
-5. Triggered by `workflow_dispatch`, the weekday schedule `30 6 * * 1-5` (06:30 UTC Monday through Friday), PRs with browser-relevant changed files, and browser-relevant pushes to `develop`.
-
-Scheduled/manual cross-site lane: [`.github/workflows/cross-site-tests.yml`](.github/workflows/cross-site-tests.yml)
-
-1. Installs Composer dependencies and builds source config/assets.
-2. Runs `composer test:cross-site -- --clean`.
-3. Triggered by `workflow_dispatch`, the weekday schedule, and PRs that touch import/export, WP-CLI, plugin action routing, cross-site tooling, Docker test files, Composer scripts, or the workflow.
-
-Manual customer ZIP artifact workflow: [`.github/workflows/customer-test-zip.yml`](.github/workflows/customer-test-zip.yml)
-
-1. Triggered by `workflow_dispatch` and run against the selected branch/ref.
-2. Calls [`.github/workflows/reusable-build-zip.yml`](.github/workflows/reusable-build-zip.yml), which uses the same `composer build-zip` path as tag releases.
-3. Uploads only a GitHub Actions artifact and writes the artifact URL, ref, commit SHA, ZIP filename, and checksums to the run summary.
-4. Does not create GitHub tags or GitHub Releases.
-
-## Local Verification Commands
+```bash
+bash .github/scripts/test-detect-wp-versions.sh
+```
 
 Use these to verify the command surface and documentation alignment:
 
@@ -529,21 +567,11 @@ php bin/shield --help
 composer run-script --list
 ```
 
-For focused unit work, use the supported Composer wrapper unless you are deliberately diagnosing raw PHPUnit or ParaTest behavior:
-
-```bash
-composer test:unit -- tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php
-composer test:unit -- --filter PluginNavsOperatorModesTest
-composer test:unit -- --filter testSomeMethod tests/Unit/Controller/Plugin/PluginNavsOperatorModesTest.php
-```
-
-Direct vendor PHPUnit/ParaTest commands are diagnostic tools, not normal workflow entry points.
+For focused unit work, use the supported commands under [Unit test narrowing](#unit-test-narrowing). Direct vendor PHPUnit/ParaTest commands are diagnostic tools, not normal workflow entry points.
 
 For GitHub authentication issues during Docker or source runs, use the troubleshooting steps in [`tests/docker/README.md`](tests/docker/README.md).
 
-## Operational Boundaries
+## Testing Boundaries
 
 1. Keep testing validation focused on runtime, static analysis, package correctness, and browser coverage where it replaces brittle PHP UI assertions.
 2. Do not add tests that assert documentation prose.
-3. Ignore unrelated non-conflicting workspace changes while implementing testing updates.
-4. If conflicting changes are found in the touched testing slice, stop and report before continuing.

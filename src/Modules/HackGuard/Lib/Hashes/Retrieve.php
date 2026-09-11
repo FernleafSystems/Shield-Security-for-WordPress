@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\Exceptions\AssetHashesNotFound;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\{
+	Store,
+	StoreAction
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
 	WpPluginVo,
@@ -16,13 +19,27 @@ class Retrieve {
 
 	use PluginControllerConsumer;
 
-	private static array $hashes;
+	private const MODE_PUBLISHED_OR_STORED = 'published_or_stored';
+	private const MODE_STORED = 'stored';
 
-	private static array $trustedSources;
+	/**
+	 * @var array<string,array{hashes:array<string,list<string>>,trusted_source:bool,comparison_basis:string}|null>
+	 */
+	private static array $sources;
+
+	/**
+	 * @var array<string,array{data:array{path:string,accessible:bool,modified_time:?int,size:?int},meta:array{path:string,accessible:bool,modified_time:?int,size:?int}}>
+	 */
+	private static array $sourceStorageStates;
+
+	public static function resetMemoization() :void {
+		self::$sources = [];
+		self::$sourceStorageStates = [];
+	}
 
 	public function __construct() {
-		self::$hashes ??= [];
-		self::$trustedSources ??= [];
+		self::$sources ??= [];
+		self::$sourceStorageStates ??= [];
 	}
 
 	/**
@@ -42,6 +59,7 @@ class Retrieve {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
+	 * @return array<string,list<string>>
 	 * @throws AssetHashesNotFound|\Exception
 	 */
 	public function byVO( $vo ) :array {
@@ -50,62 +68,131 @@ class Retrieve {
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
-	 * @return array{hashes:array, trusted_source:bool}
+	 * @return array{hashes:array<string,list<string>>,trusted_source:bool,comparison_basis:string}
 	 * @throws AssetHashesNotFound|\Exception
 	 */
 	public function byVOWithSource( $vo ) :array {
-		$cacheKey = $this->buildCacheKey( $vo );
-		$hashes = self::$hashes[ $cacheKey ] ?? null;
-		$trustedSource = self::$trustedSources[ $cacheKey ] ?? false;
-
-		if ( \is_null( $hashes ) ) {
-			$trustedSource = false;
+		$cacheKey = $this->buildCacheKey( self::MODE_PUBLISHED_OR_STORED, $vo );
+		if ( !\array_key_exists( $cacheKey, self::$sources ) ) {
 			try {
-				$hashes = $this->fromCsHashes( $vo );
-				$trustedSource = true;
+				self::$sources[ $cacheKey ] = [
+					'hashes'           => $this->fromCsHashes( $vo ),
+					'trusted_source'   => true,
+					'comparison_basis' => HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE,
+				];
 			}
 			catch ( \Exception $e ) {
-				try {
-					$localStore = $this->fromLocalStoreWithMeta( $vo );
-					$hashes = $localStore[ 'hashes' ];
-					$trustedSource = $localStore[ 'trusted_source' ];
-				}
-				catch ( \Exception $e ) {
-					$hashes = [];
-				}
-			}
-
-			if ( !empty( $hashes ) ) {
-				self::$hashes[ $cacheKey ] = $hashes;
-				self::$trustedSources[ $cacheKey ] = $trustedSource;
+				self::$sources[ $cacheKey ] = null;
 			}
 		}
 
-		if ( empty( $hashes ) ) {
+		$source = self::$sources[ $cacheKey ] ?? $this->byVOFromStoredSnapshot( $vo );
+		if ( \is_null( $source ) ) {
 			throw new AssetHashesNotFound( sprintf( __( 'Could not locate hashes for VO: %s', 'wp-simple-firewall' ), $vo->slug ) );
 		}
-		return [
-			'hashes'         => $hashes,
-			'trusted_source' => $trustedSource,
-		];
+		return $source;
 	}
 
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
-	 * @return array{hashes:array, trusted_source:bool}
-	 * @throws \Exception
+	 * @return array{hashes:array<string,list<string>>,trusted_source:bool,comparison_basis:string}|null
 	 */
-	private function fromLocalStoreWithMeta( $vo ) :array {
-		$store = ( new StoreAction\Load() )
-			->setAsset( $vo )
-			->run();
-		if ( !$store->verify() ) {
-			throw new AssetHashesNotFound( sprintf( __( 'Snapshot store metadata does not match asset: %s', 'wp-simple-firewall' ), $vo->slug ) );
+	public function byVOFromStoredSnapshot( $vo ) :?array {
+		$cacheKey = $this->buildCacheKey( self::MODE_STORED, $vo );
+		if ( \array_key_exists( $cacheKey, self::$sources ) && \is_null( self::$sources[ $cacheKey ] ) ) {
+			return null;
 		}
+
+		try {
+			$store = ( new StoreAction\Load() )
+				->setAsset( $vo )
+				->run();
+			$storageState = $this->storageState( $store );
+			if ( \array_key_exists( $cacheKey, self::$sources )
+				 && ( self::$sourceStorageStates[ $cacheKey ] ?? null ) === $storageState ) {
+				return self::$sources[ $cacheKey ];
+			}
+
+			$this->refillStoredSource( $cacheKey, $store, $storageState );
+		}
+		catch ( \Throwable $e ) {
+			self::$sources[ $cacheKey ] = null;
+			unset( self::$sourceStorageStates[ $cacheKey ] );
+		}
+		return self::$sources[ $cacheKey ];
+	}
+
+	/**
+	 * @param array{data:array{path:string,accessible:bool,modified_time:?int,size:?int},meta:array{path:string,accessible:bool,modified_time:?int,size:?int}} $before
+	 */
+	private function refillStoredSource( string $cacheKey, Store $store, array $before ) :void {
+		$snapshot = $this->isUsableStorageState( $before ) ? $store->getUsableSnapshot() : null;
+		$after = $this->storageState( $store );
+		if ( \is_null( $snapshot ) || $before !== $after ) {
+			self::$sources[ $cacheKey ] = null;
+			unset( self::$sourceStorageStates[ $cacheKey ] );
+			return;
+		}
+
+		try {
+			$hashes = ( new NormalizeHashMap() )->run( $snapshot[ 'data' ] );
+			if ( empty( $hashes ) ) {
+				throw new \UnexpectedValueException( 'Stored snapshot hashes are empty.' );
+			}
+			$trustedSource = ( $snapshot[ 'meta' ][ 'live_hashes' ] ?? false ) === true;
+			self::$sources[ $cacheKey ] = [
+				'hashes'           => $hashes,
+				'trusted_source'   => $trustedSource,
+				'comparison_basis' => $trustedSource
+					? HashVerificationResult::COMPARISON_BASIS_PUBLISHED_REFERENCE
+					: HashVerificationResult::COMPARISON_BASIS_LOCAL_BASELINE,
+			];
+			self::$sourceStorageStates[ $cacheKey ] = $after;
+		}
+		catch ( \Throwable $e ) {
+			self::$sources[ $cacheKey ] = null;
+			unset( self::$sourceStorageStates[ $cacheKey ] );
+		}
+	}
+
+	/**
+	 * @return array{data:array{path:string,accessible:bool,modified_time:?int,size:?int},meta:array{path:string,accessible:bool,modified_time:?int,size:?int}}
+	 */
+	private function storageState( Store $store ) :array {
 		return [
-			'hashes'         => $store->getSnapData(),
-			'trusted_source' => ( $store->getSnapMeta()[ 'live_hashes' ] ?? false ) === true,
+			'data' => $this->fileStorageState( $store->getSnapStorePath() ),
+			'meta' => $this->fileStorageState( $store->getSnapStoreMetaPath() ),
 		];
+	}
+
+	/**
+	 * @return array{path:string,accessible:bool,modified_time:?int,size:?int}
+	 */
+	private function fileStorageState( string $path ) :array {
+		\clearstatcache( true, $path );
+		$accessible = Services::WpFs()->isAccessibleFile( $path ) && @\is_readable( $path );
+		$modifiedTime = $accessible ? @\filemtime( $path ) : false;
+		$size = $accessible ? @\filesize( $path ) : false;
+		return [
+			'path'          => wp_normalize_path( $path ),
+			'accessible'    => $accessible,
+			'modified_time' => \is_int( $modifiedTime ) ? $modifiedTime : null,
+			'size'          => \is_int( $size ) ? $size : null,
+		];
+	}
+
+	/**
+	 * @param array{data:array{path:string,accessible:bool,modified_time:?int,size:?int},meta:array{path:string,accessible:bool,modified_time:?int,size:?int}} $state
+	 */
+	private function isUsableStorageState( array $state ) :bool {
+		foreach ( $state as $fileState ) {
+			if ( !$fileState[ 'accessible' ]
+				 || !\is_int( $fileState[ 'modified_time' ] )
+				 || !\is_int( $fileState[ 'size' ] ) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -116,7 +203,9 @@ class Retrieve {
 		if ( !self::con()->caps->canScanPluginsThemesRemote() && !$vo->isWpOrg() ) {
 			throw new \Exception( __( 'Insufficient permissions to use crowd-sourced hashes for premium plugins/themes.', 'wp-simple-firewall' ) );
 		}
-		$hashes = ( $vo->asset_type == 'plugin' ? new Query\Plugin() : new Query\Theme() )->getHashesFromVO( $vo );
+		$hashes = ( new NormalizeHashMap() )->run(
+			( $vo->asset_type == 'plugin' ? new Query\Plugin() : new Query\Theme() )->getHashesFromVO( $vo )
+		);
 		if ( empty( $hashes ) ) {
 			throw new \Exception( __( 'No crowd-sourced hashes available.', 'wp-simple-firewall' ) );
 		}
@@ -126,8 +215,9 @@ class Retrieve {
 	/**
 	 * @param WpPluginVo|WpThemeVo $vo
 	 */
-	private function buildCacheKey( $vo ) :string {
+	private function buildCacheKey( string $mode, $vo ) :string {
 		return \implode( '|', [
+			$mode,
 			(string)$vo->asset_type,
 			(string)$vo->unique_id,
 			(string)$vo->Version,

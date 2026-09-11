@@ -68,6 +68,84 @@ class RequestQueryRedactorTest extends BaseUnitTest {
 		$this->assertStringNotContainsString( 'custom-secret', $redacted );
 	}
 
+	public function test_invalid_final_filter_output_preserves_calculated_redaction() :void {
+		Functions\when( 'apply_filters' )->alias(
+			static fn( string $tag, $value ) => $tag === RequestQueryRedactor::FILTER_REDACTED_QUERY
+				? new \stdClass()
+				: $value
+		);
+
+		$redacted = ( new RequestQueryRedactor() )->redact( 'token=token-secret&safe=value' );
+
+		$this->assertQueryValue( $redacted, 'token', 'redacted' );
+		$this->assertQueryValue( $redacted, 'safe', 'value' );
+		$this->assertStringNotContainsString( 'token-secret', $redacted );
+	}
+
+	public function test_mixed_sensitive_key_filter_keeps_only_valid_strings() :void {
+		Functions\when( 'apply_filters' )->alias(
+			static fn( string $tag, $value ) => $tag === RequestQueryRedactor::FILTER_SENSITIVE_QUERY_KEYS
+				? [ ' customer_magic ', 123, [], new \stdClass() ]
+				: $value
+		);
+
+		$redacted = ( new RequestQueryRedactor() )->redact( 'customer_magic=custom-secret&123=numeric-secret&safe=value' );
+
+		$this->assertQueryValue( $redacted, 'customer_magic', 'redacted' );
+		$this->assertQueryValue( $redacted, '123', 'numeric-secret' );
+		$this->assertQueryValue( $redacted, 'safe', 'value' );
+	}
+
+	public function test_non_array_sensitive_key_filter_uses_defaults() :void {
+		Functions\when( 'apply_filters' )->alias(
+			static fn( string $tag, $value ) => $tag === RequestQueryRedactor::FILTER_SENSITIVE_QUERY_KEYS
+				? new \stdClass()
+				: $value
+		);
+
+		$redacted = ( new RequestQueryRedactor() )->redact( 'token=token-secret&safe=value' );
+
+		$this->assertQueryValue( $redacted, 'token', 'redacted' );
+		$this->assertQueryValue( $redacted, 'safe', 'value' );
+	}
+
+	public function test_empty_sensitive_key_filter_intentionally_disables_redaction() :void {
+		Functions\when( 'apply_filters' )->alias(
+			static fn( string $tag, $value ) => $tag === RequestQueryRedactor::FILTER_SENSITIVE_QUERY_KEYS ? [] : $value
+		);
+
+		$redacted = ( new RequestQueryRedactor() )->redact( 'token=token-secret&safe=value' );
+
+		$this->assertQueryValue( $redacted, 'token', 'token-secret' );
+		$this->assertQueryValue( $redacted, 'safe', 'value' );
+	}
+
+	public function test_non_empty_all_invalid_sensitive_key_filter_uses_defaults() :void {
+		Functions\when( 'apply_filters' )->alias(
+			static fn( string $tag, $value ) => $tag === RequestQueryRedactor::FILTER_SENSITIVE_QUERY_KEYS
+				? [ 123, [], new \stdClass() ]
+				: $value
+		);
+
+		$redacted = ( new RequestQueryRedactor() )->redact( 'token=token-secret&safe=value' );
+
+		$this->assertQueryValue( $redacted, 'token', 'redacted' );
+		$this->assertQueryValue( $redacted, 'safe', 'value' );
+	}
+
+	public function test_non_empty_sensitive_keys_that_normalise_to_empty_use_defaults() :void {
+		Functions\when( 'apply_filters' )->alias(
+			static fn( string $tag, $value ) => $tag === RequestQueryRedactor::FILTER_SENSITIVE_QUERY_KEYS
+				? [ '   ', '%20%20' ]
+				: $value
+		);
+
+		$redacted = ( new RequestQueryRedactor() )->redact( 'token=token-secret&safe=value' );
+
+		$this->assertQueryValue( $redacted, 'token', 'redacted' );
+		$this->assertQueryValue( $redacted, 'safe', 'value' );
+	}
+
 	private function assertQueryValue( string $query, string $key, string $expectedValue ) :void {
 		$pairs = $this->queryPairs( $query );
 

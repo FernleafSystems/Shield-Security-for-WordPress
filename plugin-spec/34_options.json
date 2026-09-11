@@ -924,6 +924,15 @@
         "sensitive": true
     },
     {
+        "key": "cloaked_plugin_findings",
+        "section": "section_hidden",
+        "type": "array",
+        "default": [],
+        "transferable": false,
+        "tracking_exclude": true,
+        "sensitive": true
+    },
+    {
         "key": "ignored_hidden_plugins",
         "section": "section_hidden",
         "type": "array",
@@ -1088,7 +1097,7 @@
         "beacon_id": 424,
         "name": "silentCAPTCHA Bot Minimum Score",
         "summary": "silentCAPTCHA Bot Minimum Score (Percentage)",
-        "description": "When using Shield's silentCAPTCHA system, this is the threshold used for testing (between 1 and 99)."
+        "description": "Set this minimum score to 0 to disable silentCAPTCHA bot checking on normal page requests, including its front-end cookie and JavaScript. Values from 1 to 99 set the minimum score required to treat a visitor as human."
     },
     {
         "key": "antibot_high_reputation_minimum",
@@ -2657,10 +2666,6 @@
                 "text": "Disabled"
             },
             {
-                "value_key": "hourly",
-                "text": "Hourly"
-            },
-            {
                 "value_key": "daily",
                 "text": "Daily"
             },
@@ -2688,10 +2693,6 @@
             {
                 "value_key": "disabled",
                 "text": "Disabled"
-            },
-            {
-                "value_key": "hourly",
-                "text": "Hourly"
             },
             {
                 "value_key": "daily",
@@ -3118,13 +3119,15 @@
         "key": "importexport_secretkey_expires_at",
         "section": "section_hidden",
         "type": "integer",
-        "default": 0
+        "default": 0,
+        "transferable": false
     },
     {
         "key": "importexport_handshake_expires_at",
         "section": "section_hidden",
         "type": "integer",
-        "default": 0
+        "default": 0,
+        "transferable": false
     },
     {
         "key": "snapi_data",
@@ -3151,6 +3154,7 @@
         "section": "section_hidden",
         "type": "text",
         "default": "",
+        "transferable": false,
         "sensitive": true
     },
     {
@@ -3158,19 +3162,22 @@
         "section": "section_hidden",
         "type": "array",
         "default": [],
+        "transferable": false,
         "sensitive": true
     },
     {
         "key": "importexport_sites_migrated_at",
         "section": "section_hidden",
         "type": "integer",
-        "default": 0
+        "default": 0,
+        "transferable": false
     },
     {
         "key": "importexport_pending_network_invites",
         "section": "section_hidden",
         "type": "array",
         "default": [],
+        "transferable": false,
         "sensitive": true
     },
     {

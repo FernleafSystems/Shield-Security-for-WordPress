@@ -1,4 +1,4 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops;
 
@@ -65,7 +65,7 @@ class CreateFileLocks {
 		$record->path = $path;
 		$record->hash_original = \hash_file( 'sha1', $path );
 
-		$record->cipher = self::con()->comps->file_locker->getState()[ 'cipher' ] ?? '';
+		$record->cipher = self::con()->comps->file_locker->getState()[ 'cipher' ];
 		if ( empty( $record->cipher ) ) {
 			throw new NoCipherAvailableException();
 		}

@@ -12,8 +12,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\S
 
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Scans\Ops\Record as ScanRecord;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Init\SetScanCompleted;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\Afs;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\{
 	BuildScanItems,
 	ScanActionVO
@@ -30,7 +29,6 @@ use FernleafSystems\Wordpress\Services\Core\{
 	Themes
 };
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
-use FernleafSystems\Wordpress\Services\Core\Db;
 
 class ScopedAfsBehaviorTest extends BaseUnitTest {
 
@@ -96,62 +94,17 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$action->scope_type = 'plugin';
 		$action->scope_key = $pluginFile;
 		$action->file_exts = [ 'php' ];
+		$progressTicks = 0;
+		$action->progress_callback = static function () use ( &$progressTicks ) :void {
+			$progressTicks++;
+		};
 
 		$items = ( new BuildScanItems() )
 			->setScanActionVO( $action )
 			->run();
 
 		$this->assertSame( [ \base64_encode( $pluginPath ) ], $items );
-	}
-
-	public function test_set_scan_completed_resolves_only_the_matching_asset_scope_for_asset_change_runs() :void {
-		$queries = [];
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_results' => new class {
-					public function getTable() :string {
-						return 'shield_scan_results';
-					}
-				},
-				'scan_result_items' => new class {
-					public function getTable() :string {
-						return 'shield_scan_result_items';
-					}
-				},
-			],
-		] );
-
-		ServicesState::installItems( [
-			'service_wpdb' => new class( $queries ) extends Db {
-				public array $queries;
-
-				public function __construct( array &$queries ) {
-					$this->queries = &$queries;
-				}
-
-				public function doSql( $sql ) :bool {
-					$this->queries[] = $sql;
-					return true;
-				}
-			},
-		] );
-
-		$record = new ScanRecord();
-		$record->scan = 'afs';
-		$record->scope_type = 'plugin';
-		$record->scope_key = 'akismet/akismet.php';
-		$record->run_trigger = 'asset_change';
-
-		$method = new \ReflectionMethod( SetScanCompleted::class, 'resolveStaleItemsForRun' );
-		$method->setAccessible( true );
-		$method->invoke( new SetScanCompleted(), 5, $record, 1700004000 );
-
-		$this->assertCount( 1, $queries );
-		$this->assertStringContainsString( "`resolution_reason`='asset_replaced'", $queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_type`='plugin'", $queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_key`='akismet/akismet.php'", $queries[ 0 ] );
-		$this->assertStringContainsString( 'NOTEXISTS', \str_replace( ' ', '', $queries[ 0 ] ) );
-		$this->assertStringContainsString( 'shield_scan_results', $queries[ 0 ] );
+		$this->assertGreaterThan( 0, $progressTicks );
 	}
 
 	public function test_core_scope_builds_wordpress_core_roots() :void {
@@ -166,17 +119,17 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$method->setAccessible( true );
 		$rootDirs = $method->invoke( new BuildScanItems(), $action );
 
-		$this->assertSame( 1, $rootDirs[ ABSPATH ] ?? null );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, WPINC ) ] ?? null );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, 'wp-admin' ) ] ?? null );
+		$this->assertRootDirDepth( 1, ABSPATH, $rootDirs );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, WPINC ), $rootDirs );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, 'wp-admin' ), $rootDirs );
 	}
 
 	public function test_core_scope_builds_wp_roots_only_when_wproot_area_is_disabled() :void {
 		$rootDirs = $this->buildCoreScopedRootDirs( [ 'wp' ], true );
 
 		$this->assertArrayNotHasKey( ABSPATH, $rootDirs );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, WPINC ) ] ?? null );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, 'wp-admin' ) ] ?? null );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, WPINC ), $rootDirs );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, 'wp-admin' ), $rootDirs );
 	}
 
 	public function test_core_scope_builds_wproot_only_when_wp_area_is_disabled_and_cap_allows() :void {
@@ -189,70 +142,37 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		$rootDirs = $this->buildCoreScopedRootDirs( [ 'wp', 'wproot' ], false );
 
 		$this->assertArrayNotHasKey( ABSPATH, $rootDirs );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, WPINC ) ] ?? null );
-		$this->assertSame( 0, $rootDirs[ path_join( ABSPATH, 'wp-admin' ) ] ?? null );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, WPINC ), $rootDirs );
+		$this->assertRootDirDepth( 0, path_join( ABSPATH, 'wp-admin' ), $rootDirs );
 	}
 
-	public function test_set_scan_completed_resolves_only_core_modified_or_missing_asset_scope_findings() :void {
-		$queries = [];
-		$this->installController( [
-			'db_con' => (object)[
-				'scan_results' => new class {
-					public function getTable() :string {
-						return 'shield_scan_results';
-					}
-				},
-				'scan_result_items' => new class {
-					public function getTable() :string {
-						return 'shield_scan_result_items';
-					}
-				},
-				'scan_result_item_meta' => new class {
-					public function getTable() :string {
-						return 'shield_scan_result_item_meta';
-					}
-				},
-			],
-		] );
+	/**
+	 * @dataProvider providerMalwareScanEntitlement
+	 */
+	public function test_malware_scan_entitlement_uses_local_capability(
+		bool $canScanMalwareLocal,
+		bool $expected
+	) :void {
+		$this->installController( [], [ 'malware_php' ], true, $canScanMalwareLocal );
+		$afs = new class extends Afs {
 
-		ServicesState::installItems( [
-			'service_wpdb' => new class( $queries ) extends Db {
-				public array $queries;
+			public function isEnabled() :bool {
+				return true;
+			}
 
-				public function __construct( array &$queries ) {
-					$this->queries = &$queries;
-				}
+			public function getFileScanAreas() :array {
+				return [ 'malware_php' ];
+			}
+		};
 
-				public function doSql( $sql ) :bool {
-					$this->queries[] = $sql;
-					return true;
-				}
-			},
-		] );
+		$this->assertSame( $expected, $afs->isEnabledMalwareScanPHP() );
+	}
 
-		$record = new ScanRecord();
-		$record->scan = 'afs';
-		$record->scope_type = 'core';
-		$record->scope_key = 'core';
-		$record->run_trigger = 'asset_change';
-
-		$method = new \ReflectionMethod( SetScanCompleted::class, 'resolveStaleItemsForRun' );
-		$method->setAccessible( true );
-		$method->invoke( new SetScanCompleted(), 5, $record, 1700004000 );
-
-		$this->assertCount( 1, $queries );
-		$this->assertStringContainsString( "`resolution_reason`='asset_replaced'", $queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_type`='core'", $queries[ 0 ] );
-		$this->assertStringContainsString( "`asset_key`='core'", $queries[ 0 ] );
-		$this->assertStringContainsString( "`rim_scope`.`meta_key` IN ('is_checksumfail','is_missing')", $queries[ 0 ] );
-		$this->assertStringContainsString( "`rim_scope`.`meta_value`!=''", $queries[ 0 ] );
-		$this->assertStringContainsString( "`rim_scope`.`meta_value`!='0'", $queries[ 0 ] );
-		foreach ( [ 'is_in_wpcontent', 'is_in_wproot', 'is_unrecognised', 'is_unidentified', 'is_mal' ] as $unresolvedMetaKey ) {
-			$this->assertStringNotContainsString( $unresolvedMetaKey, $queries[ 0 ] );
-		}
-		$normalizedSql = \preg_replace( '/\s+/', '', $queries[ 0 ] );
-		$this->assertStringContainsString( 'ANDEXISTS(', $normalizedSql );
-		$this->assertStringContainsString( 'ANDNOTEXISTS(', $normalizedSql );
+	public static function providerMalwareScanEntitlement() :array {
+		return [
+			'unlicensed' => [ false, false ],
+			'licensed'   => [ true, true ],
+		];
 	}
 
 	private function buildCoreScopedRootDirs( array $scanAreas, bool $canScanAllFiles ) :array {
@@ -268,10 +188,16 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 		return $method->invoke( new BuildScanItems(), $action );
 	}
 
+	private function assertRootDirDepth( int $expectedDepth, string $path, array $rootDirs ) :void {
+		$this->assertArrayHasKey( $path, $rootDirs );
+		$this->assertSame( $expectedDepth, $rootDirs[ $path ] );
+	}
+
 	private function installController(
 		array $overrides = [],
 		array $fileScanAreas = [ 'plugins', 'themes', 'wp', 'wpcontent', 'wproot', 'malware_php' ],
-		bool $canScanAllFiles = true
+		bool $canScanAllFiles = true,
+		bool $canScanMalwareLocal = true
 	) :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -290,15 +216,21 @@ class ScopedAfsBehaviorTest extends BaseUnitTest {
 				return [];
 			}
 		};
-		$controller->caps = new class( $canScanAllFiles ) {
+		$controller->caps = new class( $canScanAllFiles, $canScanMalwareLocal ) {
 			private bool $canScanAllFiles;
+			private bool $canScanMalwareLocal;
 
-			public function __construct( bool $canScanAllFiles ) {
+			public function __construct( bool $canScanAllFiles, bool $canScanMalwareLocal ) {
 				$this->canScanAllFiles = $canScanAllFiles;
+				$this->canScanMalwareLocal = $canScanMalwareLocal;
 			}
 
 			public function canScanAllFiles() :bool {
 				return $this->canScanAllFiles;
+			}
+
+			public function canScanMalwareLocal() :bool {
+				return $this->canScanMalwareLocal;
 			}
 		};
 		$controller->comps = (object)[

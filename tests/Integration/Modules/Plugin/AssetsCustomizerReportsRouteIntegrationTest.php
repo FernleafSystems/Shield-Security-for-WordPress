@@ -5,7 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plug
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\{
 	ReportTableAction,
-	ReportingChartTrends
+	ReportingChartTrends,
+	Render\Components\OffCanvas\FormReportCreate
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Assets\Enqueue;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
@@ -33,20 +34,14 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 		parent::tear_down();
 	}
 
-	public function test_reports_table_is_localized_for_reports_overview() :void {
+	/**
+	 * @dataProvider reportsWorkspaceProvider
+	 */
+	public function test_reports_workspace_assets_are_localized_for_canonical_reports_shell( ?string $workspace ) :void {
 		$comps = $this->getMainLocalisedComponentsForRoute(
 			PluginNavs::NAV_REPORTS,
-			PluginNavs::SUBNAV_REPORTS_OVERVIEW
-		);
-
-		$this->assertReportsTableLocalized( $comps );
-		$this->assertReportsTrendsLocalized( $comps );
-	}
-
-	public function test_reports_table_is_localized_for_reports_list() :void {
-		$comps = $this->getMainLocalisedComponentsForRoute(
-			PluginNavs::NAV_REPORTS,
-			PluginNavs::SUBNAV_REPORTS_LIST
+			PluginNavs::SUBNAV_REPORTS_OVERVIEW,
+			$workspace
 		);
 
 		$this->assertReportsTableLocalized( $comps );
@@ -54,40 +49,36 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 		$this->assertReportsCreateFormLocalized( $comps );
 	}
 
-	public function test_reports_table_is_not_localized_for_reports_settings() :void {
-		$comps = $this->getMainLocalisedComponentsForRoute(
-			PluginNavs::NAV_REPORTS,
-			PluginNavs::SUBNAV_REPORTS_SETTINGS
-		);
-
-		$this->assertArrayHasKey( 'tables', $comps );
-		$this->assertArrayNotHasKey( 'reports', $comps[ 'tables' ] ?? [] );
-		$this->assertReportsTrendsLocalized( $comps );
+	public function reportsWorkspaceProvider() :array {
+		return [
+			'default workspace'  => [ null ],
+			'list workspace'     => [ PluginNavs::SUBNAV_REPORTS_LIST ],
+			'settings workspace' => [ PluginNavs::SUBNAV_REPORTS_SETTINGS ],
+			'charts workspace'   => [ PluginNavs::SUBNAV_REPORTS_CHARTS ],
+		];
 	}
 
-	public function test_reports_trends_is_localized_for_reports_charts() :void {
-		$comps = $this->getMainLocalisedComponentsForRoute(
-			PluginNavs::NAV_REPORTS,
-			PluginNavs::SUBNAV_REPORTS_CHARTS
-		);
-
-		$this->assertReportsTrendsLocalized( $comps );
-	}
-
-	public function test_reports_trends_is_localized_for_dashboard_overview_to_support_later_reports_navigation() :void {
+	public function test_dashboard_overview_excludes_report_specific_assets_but_retains_global_trends() :void {
 		$comps = $this->getMainLocalisedComponentsForRoute(
 			PluginNavs::NAV_DASHBOARD,
 			PluginNavs::SUBNAV_DASHBOARD_OVERVIEW
 		);
 
+		$this->assertArrayNotHasKey( 'reports', $comps[ 'tables' ] ?? [] );
+		$this->assertArrayNotHasKey( 'reports', $comps );
 		$this->assertReportsTrendsLocalized( $comps );
 	}
 
-	private function getMainLocalisedComponentsForRoute( string $nav, string $subNav ) :array {
-		Services::Request()->query = \array_merge( $this->originalQuery, [
+	private function getMainLocalisedComponentsForRoute( string $nav, string $subNav, ?string $workspace = null ) :array {
+		$query = \array_merge( $this->originalQuery, [
 			PluginNavs::FIELD_NAV    => $nav,
 			PluginNavs::FIELD_SUBNAV => $subNav,
 		] );
+		unset( $query[ 'workspace' ] );
+		if ( $workspace !== null ) {
+			$query[ 'workspace' ] = $workspace;
+		}
+		Services::Request()->query = $query;
 
 		$locals = \apply_filters( 'shield/custom_localisations', [], Enqueue::PLUGIN_ADMIN_HOOK_SUFFIX, [ 'main' ] );
 		foreach ( \is_array( $locals ) ? $locals : [] as $local ) {
@@ -142,6 +133,10 @@ class AssetsCustomizerReportsRouteIntegrationTest extends ShieldIntegrationTestC
 	private function assertReportsCreateFormLocalized( array $comps ) :void {
 		$this->assertArrayHasKey( 'reports', $comps );
 		$this->assertArrayHasKey( 'render_offcanvas', $comps[ 'reports' ][ 'ajax' ] ?? [] );
+		$this->assertSame(
+			FormReportCreate::SLUG,
+			$comps[ 'reports' ][ 'ajax' ][ 'render_offcanvas' ][ 'render_slug' ] ?? ''
+		);
 		$this->assertAjaxRenderPayloadAllowedByPolicy(
 			$comps[ 'reports' ][ 'ajax' ][ 'render_offcanvas' ],
 			'reports render_offcanvas'

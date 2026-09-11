@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plugin\Lib;
 
+use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\PluginTelemetry;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 
@@ -51,5 +52,33 @@ class PluginTelemetryIntegrationTest extends ShieldIntegrationTestCase {
 
 		$this->assertArrayHasKey( 'admin_access_timeout', $options );
 		$this->assertSame( $timeout, (int)$options[ 'admin_access_timeout' ] );
+	}
+
+	public function test_compaction_preserves_lifetime_event_totals() :void {
+		$event = 'reporting_telemetry_total';
+		$day = Carbon::create( 2026, 6, 22, 0, 0, 0, 'UTC' );
+		$this->insertEvent( $event, 13, ( clone $day )->addHour()->timestamp );
+		$this->insertEvent( $event, 17, ( clone $day )->addHours( 2 )->timestamp );
+		$before = ( new PluginTelemetry() )->collectTrackingData()[ 'events' ][ 'stats' ][ $event ] ?? null;
+		$this->assertSame( 2, self::con()->db_con->events->getQuerySelector()->filterByEvent( $event )->count() );
+
+		$this->assertTrue( self::con()->db_con->events->compactBoundary(
+			$day->timestamp,
+			( clone $day )->endOfDay()->timestamp
+		) );
+		$after = ( new PluginTelemetry() )->collectTrackingData()[ 'events' ][ 'stats' ][ $event ] ?? null;
+
+		$this->assertSame( 30, $before );
+		$this->assertSame( $before, $after );
+		$this->assertSame( 1, self::con()->db_con->events->getQuerySelector()->filterByEvent( $event )->count() );
+	}
+
+	private function insertEvent( string $event, int $count, int $createdAt ) :void {
+		$dbh = self::con()->db_con->events;
+		$record = $dbh->getRecord();
+		$record->event = $event;
+		$record->count = $count;
+		$record->created_at = $createdAt;
+		$dbh->getQueryInserter()->insert( $record );
 	}
 }

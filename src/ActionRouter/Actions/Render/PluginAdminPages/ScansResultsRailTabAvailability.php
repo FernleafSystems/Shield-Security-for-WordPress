@@ -79,7 +79,7 @@ class ScansResultsRailTabAvailability {
 				if ( !$state[ 'is_available' ] ) {
 					$state = \array_replace( $state, $this->buildDisabledState(
 						'not_enabled',
-						$this->buildNotEnabledMessage( __( 'WordPress Core File Scanning', 'wp-simple-firewall' ) ),
+						__( 'Detect changes to WordPress core files', 'wp-simple-firewall' ),
 						[
 							$this->buildZoneComponentAction(
 								__( 'Turn On Scanning', 'wp-simple-firewall' ),
@@ -107,7 +107,7 @@ class ScansResultsRailTabAvailability {
 						)
 						: $this->buildDisabledState(
 							'not_enabled',
-							$this->buildNotEnabledMessage( __( 'Plugin File Scanning', 'wp-simple-firewall' ) ),
+							__( 'Detect changes to plugin files', 'wp-simple-firewall' ),
 							[
 								$this->buildZoneComponentAction(
 									__( 'Turn On Scanning', 'wp-simple-firewall' ),
@@ -135,7 +135,7 @@ class ScansResultsRailTabAvailability {
 						)
 						: $this->buildDisabledState(
 							'not_enabled',
-							$this->buildNotEnabledMessage( __( 'Theme File Scanning', 'wp-simple-firewall' ) ),
+							__( 'Detect changes to theme files', 'wp-simple-firewall' ),
 							[
 								$this->buildZoneComponentAction(
 									__( 'Turn On Scanning', 'wp-simple-firewall' ),
@@ -163,7 +163,7 @@ class ScansResultsRailTabAvailability {
 						)
 						: $this->buildDisabledState(
 							'not_enabled',
-							$this->buildNotEnabledMessage( __( 'Vulnerability Scanning', 'wp-simple-firewall' ) ),
+							__( 'Detect vulnerabilities in plugins and themes', 'wp-simple-firewall' ),
 							[
 								$this->buildZoneComponentAction(
 									__( 'Turn On Scanning', 'wp-simple-firewall' ),
@@ -183,7 +183,7 @@ class ScansResultsRailTabAvailability {
 				if ( !$state[ 'is_available' ] ) {
 					$state = \array_replace( $state, $this->buildDisabledState(
 						'not_enabled',
-						$this->buildNotEnabledMessage( __( 'Abandoned Asset Scanning', 'wp-simple-firewall' ) ),
+						__( 'Identify abandoned plugins and themes', 'wp-simple-firewall' ),
 						[
 							$this->buildZoneComponentAction(
 								__( 'Turn On Checks', 'wp-simple-firewall' ),
@@ -211,7 +211,7 @@ class ScansResultsRailTabAvailability {
 						)
 						: $this->buildDisabledState(
 							'not_enabled',
-							$this->buildNotEnabledMessage( __( 'Malware Scanning', 'wp-simple-firewall' ) ),
+							__( 'Detect malicious code in PHP files', 'wp-simple-firewall' ),
 							[
 								$this->buildZoneComponentAction(
 									__( 'Turn On Scanning', 'wp-simple-firewall' ),
@@ -233,7 +233,7 @@ class ScansResultsRailTabAvailability {
 					$state = \array_replace( $state, self::con()->isPremiumActive()
 						? $this->buildDisabledState(
 							'not_enabled',
-							$this->buildNotEnabledMessage( __( 'File Locker', 'wp-simple-firewall' ) ),
+							__( 'Detect changes to critical files', 'wp-simple-firewall' ),
 							[]
 						)
 						: $this->buildDisabledState(

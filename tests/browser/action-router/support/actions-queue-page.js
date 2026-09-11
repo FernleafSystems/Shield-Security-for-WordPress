@@ -49,6 +49,17 @@ class ActionsQueuePage {
 		);
 	}
 
+	groupOuter( groupKey ) {
+		return this.page.locator( `[data-actions-queue-group-key="${groupKey}"]` ).first();
+	}
+
+	async waitForGroupOuter( groupKey, timeout = 20000 ) {
+		const group = this.groupOuter( groupKey );
+		await expect.poll( async () => await group.count(), { timeout } ).toBe( 1 );
+		await expect( group ).toBeVisible();
+		return group;
+	}
+
 	async findBucket( bucketKey ) {
 		return this.findDrillTargetBySelection(
 			this.page.locator( '[data-actions-landing="1"] [data-drill-target="groups"]' ),

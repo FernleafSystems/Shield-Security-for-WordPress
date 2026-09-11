@@ -4,11 +4,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	ActionProcessor,
+	Actions\Render\Components\Rules\RuleBuilder as RuleBuilderRender,
 	Actions\RuleBuilderAction
 };
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Rules\RuleRecords;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\IsPhpCli;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\ParseRuleBuilderForm;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\EventFire;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ActionRouter\Support\PluginAdminRouteRenderAssertions;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rules\Support\RuntimeRulesStorageAssertions;
 
@@ -20,6 +23,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rules\Support\Runt
  */
 class RuleBuilderActionIntegrationTest extends ShieldIntegrationTestCase {
 
+	use PluginAdminRouteRenderAssertions;
 	use RuntimeRulesStorageAssertions;
 
 	public function set_up() {
@@ -60,6 +64,67 @@ class RuleBuilderActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertIsBool( $payload[ 'success' ] );
 		$this->assertIsString( $payload[ 'message' ] );
 		$this->assertIsNumeric( $payload[ 'edit_rule_id' ] );
+	}
+
+	/**
+	 * @dataProvider readinessMatrixProvider
+	 */
+	public function test_rule_builder_form_readiness_matrix(
+		array $overrides,
+		array $unsetFields,
+		bool $expectedReady,
+		?string $expectedAutoInclude = null
+	) :void {
+		$form = $this->buildValidRuleForm( $overrides );
+		foreach ( $unsetFields as $field ) {
+			unset( $form[ $field ] );
+		}
+
+		$parsed = ( new ParseRuleBuilderForm( $form ) )->parseForm();
+
+		$this->assertSame( $expectedReady, $parsed->ready_to_create );
+		if ( $expectedAutoInclude !== null ) {
+			$this->assertSame(
+				$expectedAutoInclude,
+				$parsed->checks[ 'checkbox_auto_include_bypass' ][ 'value' ] ?? null
+			);
+		}
+	}
+
+	public static function readinessMatrixProvider() :array {
+		return [
+			'normal policy accepted'                => [ [], [], true ],
+			'missing policy defaults to accepted Y' => [ [], [ 'checkbox_auto_include_bypass' ], true, 'Y' ],
+			'normal policy warning rejected'        => [ [ 'checkbox_accept_rules_warning' => 'N' ], [], false ],
+			'normal policy warning absent'          => [ [], [ 'checkbox_accept_rules_warning' ], false ],
+			'opt-out accepted with both warnings'   => [ [
+				'checkbox_auto_include_bypass'        => 'N',
+				'checkbox_has_bypass_all_inverted'    => 'Y',
+				'checkbox_accept_rules_warning'       => 'Y',
+			], [], true ],
+			'opt-out lockout warning rejected'      => [ [
+				'checkbox_auto_include_bypass'        => 'N',
+				'checkbox_has_bypass_all_inverted'    => 'N',
+			], [], false ],
+			'opt-out lockout warning absent'        => [ [
+				'checkbox_auto_include_bypass' => 'N',
+			], [ 'checkbox_has_bypass_all_inverted' ], false ],
+			'opt-out advanced warning rejected'     => [ [
+				'checkbox_auto_include_bypass'        => 'N',
+				'checkbox_has_bypass_all_inverted'    => 'Y',
+				'checkbox_accept_rules_warning'       => 'N',
+			], [], false ],
+			'opt-out advanced warning absent'       => [ [
+				'checkbox_auto_include_bypass'     => 'N',
+				'checkbox_has_bypass_all_inverted' => 'Y',
+			], [ 'checkbox_accept_rules_warning' ], false ],
+			'unsupported policy rejected'           => [ [
+				'checkbox_auto_include_bypass'        => 'unsupported',
+				'checkbox_has_bypass_all_inverted'    => 'Y',
+				'checkbox_accept_rules_warning'       => 'Y',
+			], [], false ],
+			'base description gate rejected'        => [ [ 'rule_description' => '' ], [], false ],
+		];
 	}
 
 	public function test_create_rule_persists_form_data_and_sanitizes_text_fields() {
@@ -140,6 +205,119 @@ class RuleBuilderActionIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'N', $draft[ 'checks' ][ 'checkbox_accept_rules_warning' ][ 'value' ] ?? '' );
 		$this->assertSame( [], ( new RuleRecords() )->getActiveCustom() );
 		$this->assertSame( [], $this->runtimeCustomRuleSlugs() );
+	}
+
+	public function test_create_rule_with_accepted_opt_out_persists_saved_form_without_coercion() :void {
+		$response = $this->processor()->processAction( RuleBuilderAction::SLUG, [
+			'builder_action' => 'create_rule',
+			'rule_form'      => $this->buildValidRuleForm( [
+				'rule_name'                           => 'Accepted Opt Out Rule',
+				'checkbox_auto_include_bypass'        => 'N',
+				'checkbox_has_bypass_all_inverted'    => 'Y',
+				'checkbox_accept_rules_warning'       => 'Y',
+			] ),
+		] );
+
+		$payload = $response->payload();
+		$this->assertRuleBuilderPayloadContract( $payload );
+		$this->assertTrue( $payload[ 'success' ] ?? false );
+
+		$record = ( new RuleRecords() )->byID( (int)$payload[ 'edit_rule_id' ] );
+		$this->assertNotEmpty( $record->form );
+		$this->assertEmpty( $record->form_draft );
+		$this->assertSame( 0, (int)$record->is_apply_default );
+		$this->assertSame( 0, (int)$record->is_active );
+
+		$form = $record->form;
+		$this->assertTrue( (bool)( $form[ 'ready_to_create' ] ?? false ) );
+		$this->assertSame( 'N', $form[ 'checks' ][ 'checkbox_auto_include_bypass' ][ 'value' ] ?? null );
+		$this->assertSame( 'Y', $form[ 'checks' ][ 'checkbox_has_bypass_all_inverted' ][ 'value' ] ?? null );
+		$this->assertSame( 'Y', $form[ 'checks' ][ 'checkbox_accept_rules_warning' ][ 'value' ] ?? null );
+		$this->assertSame( [], ( new RuleRecords() )->getActiveCustom() );
+		$this->assertSame( [], $this->runtimeCustomRuleSlugs() );
+
+		$renderPayload = $this->processActionPayloadWithAdminBypass( RuleBuilderRender::SLUG, [
+			'edit_rule_id' => (int)$record->id,
+		] );
+		$this->assertRouteRenderOutputHealthy( $renderPayload, 'saved opt-out rule' );
+		$renderData = (array)( $renderPayload[ 'render_data' ] ?? [] );
+		$this->assertSame( (int)$record->id, (int)( $renderData[ 'vars' ][ 'edit_rule_id' ] ?? 0 ) );
+		$this->assertSame( 'N', $renderData[ 'vars' ][ 'form_data' ][ 'checks' ][ 'checkbox_auto_include_bypass' ][ 'value' ] ?? null );
+		$this->assertSame( 'Y', $renderData[ 'vars' ][ 'form_data' ][ 'checks' ][ 'checkbox_has_bypass_all_inverted' ][ 'value' ] ?? null );
+		$this->assertSame( 'Y', $renderData[ 'vars' ][ 'form_data' ][ 'checks' ][ 'checkbox_accept_rules_warning' ][ 'value' ] ?? null );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'allow_submit' ] ?? null );
+	}
+
+	public function test_existing_rule_update_and_render_use_opt_out_draft_readiness() :void {
+		$createResponse = $this->processor()->processAction( RuleBuilderAction::SLUG, [
+			'builder_action' => 'create_rule',
+			'rule_form'      => $this->buildValidRuleForm( [
+				'rule_name' => 'Opt Out Update Rule',
+			] ),
+		] );
+		$ruleID = (int)( $createResponse->payload()[ 'edit_rule_id' ] ?? 0 );
+		$this->assertGreaterThan( 0, $ruleID );
+
+		$validOptOut = $this->buildValidRuleForm( [
+			'edit_rule_id'                        => $ruleID,
+			'rule_name'                           => 'Opt Out Update Rule',
+			'checkbox_auto_include_bypass'        => 'N',
+			'checkbox_has_bypass_all_inverted'    => 'Y',
+			'checkbox_accept_rules_warning'       => 'Y',
+		] );
+		$updateResponse = $this->processor()->processAction( RuleBuilderAction::SLUG, [
+			'builder_action' => 'update',
+			'rule_form'      => $validOptOut,
+		] );
+		$this->assertTrue( $updateResponse->payload()[ 'success' ] ?? false );
+		$this->assertSame( $ruleID, (int)( $updateResponse->payload()[ 'edit_rule_id' ] ?? 0 ) );
+
+		$record = ( new RuleRecords() )->byID( $ruleID );
+		$this->assertNotEmpty( $record->form );
+		$this->assertNotEmpty( $record->form_draft );
+		$this->assertSame( 'Y', $record->form[ 'checks' ][ 'checkbox_auto_include_bypass' ][ 'value' ] ?? null );
+		$this->assertTrue( (bool)( $record->form_draft[ 'ready_to_create' ] ?? false ) );
+		$this->assertSame( 'N', $record->form_draft[ 'checks' ][ 'checkbox_auto_include_bypass' ][ 'value' ] ?? null );
+		$this->assertSame( 'Y', $record->form_draft[ 'checks' ][ 'checkbox_has_bypass_all_inverted' ][ 'value' ] ?? null );
+		$this->assertSame( 'Y', $record->form_draft[ 'checks' ][ 'checkbox_accept_rules_warning' ][ 'value' ] ?? null );
+
+		$renderPayload = $this->processActionPayloadWithAdminBypass( RuleBuilderRender::SLUG, [
+			'edit_rule_id' => $ruleID,
+		] );
+		$this->assertRouteRenderOutputHealthy( $renderPayload, 'valid opt-out draft' );
+		$renderData = (array)( $renderPayload[ 'render_data' ] ?? [] );
+		$this->assertSame( $ruleID, (int)( $renderData[ 'vars' ][ 'edit_rule_id' ] ?? 0 ) );
+		$this->assertSame( 'N', $renderData[ 'vars' ][ 'form_data' ][ 'checks' ][ 'checkbox_auto_include_bypass' ][ 'value' ] ?? null );
+		$this->assertSame( 'Y', $renderData[ 'vars' ][ 'form_data' ][ 'checks' ][ 'checkbox_has_bypass_all_inverted' ][ 'value' ] ?? null );
+		$this->assertSame( 'Y', $renderData[ 'vars' ][ 'form_data' ][ 'checks' ][ 'checkbox_accept_rules_warning' ][ 'value' ] ?? null );
+		$this->assertSame( true, $renderData[ 'flags' ][ 'allow_submit' ] ?? null );
+
+		$invalidOptOut = $validOptOut;
+		$invalidOptOut[ 'checkbox_has_bypass_all_inverted' ] = 'N';
+		$invalidResponse = $this->processor()->processAction( RuleBuilderAction::SLUG, [
+			'builder_action' => 'update',
+			'rule_form'      => $invalidOptOut,
+		] );
+		$this->assertTrue( $invalidResponse->payload()[ 'success' ] ?? false );
+		$this->assertSame( $ruleID, (int)( $invalidResponse->payload()[ 'edit_rule_id' ] ?? 0 ) );
+
+		$record = ( new RuleRecords() )->byID( $ruleID );
+		$this->assertNotEmpty( $record->form );
+		$this->assertFalse( (bool)( $record->form_draft[ 'ready_to_create' ] ?? true ) );
+		$this->assertSame( 'N', $record->form_draft[ 'checks' ][ 'checkbox_auto_include_bypass' ][ 'value' ] ?? null );
+		$this->assertSame( 'N', $record->form_draft[ 'checks' ][ 'checkbox_has_bypass_all_inverted' ][ 'value' ] ?? null );
+		$this->assertSame( 'Y', $record->form_draft[ 'checks' ][ 'checkbox_accept_rules_warning' ][ 'value' ] ?? null );
+
+		$renderPayload = $this->processActionPayloadWithAdminBypass( RuleBuilderRender::SLUG, [
+			'edit_rule_id' => $ruleID,
+		] );
+		$this->assertRouteRenderOutputHealthy( $renderPayload, 'invalid opt-out draft' );
+		$renderData = (array)( $renderPayload[ 'render_data' ] ?? [] );
+		$this->assertSame( $ruleID, (int)( $renderData[ 'vars' ][ 'edit_rule_id' ] ?? 0 ) );
+		$this->assertSame( 'N', $renderData[ 'vars' ][ 'form_data' ][ 'checks' ][ 'checkbox_auto_include_bypass' ][ 'value' ] ?? null );
+		$this->assertSame( 'N', $renderData[ 'vars' ][ 'form_data' ][ 'checks' ][ 'checkbox_has_bypass_all_inverted' ][ 'value' ] ?? null );
+		$this->assertSame( 'Y', $renderData[ 'vars' ][ 'form_data' ][ 'checks' ][ 'checkbox_accept_rules_warning' ][ 'value' ] ?? null );
+		$this->assertSame( false, $renderData[ 'flags' ][ 'allow_submit' ] ?? null );
 	}
 
 	public function test_reset_action_on_saved_rule_creates_draft_from_saved_form() {

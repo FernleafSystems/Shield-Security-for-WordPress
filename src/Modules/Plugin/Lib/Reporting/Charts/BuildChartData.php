@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\C
 use Carbon\Carbon;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\CalendarIntervalWindowResolver;
 use FernleafSystems\Wordpress\Services\Services;
 
 class BuildChartData {
@@ -46,7 +47,11 @@ class BuildChartData {
 					'key'   => $eventKey,
 					'label' => $eventDefinitions[ $eventKey ][ 'label' ],
 					'data'  => \array_map(
-						fn( array $bucket ) :int => $this->sumEventForBucket( $eventKey, $bucket[ 'interval' ], $bucket[ 'timestamp' ] ),
+						fn( array $bucket ) :int => $this->sumEventForBucket(
+							$eventKey,
+							$bucket[ 'start_at' ],
+							$bucket[ 'end_at' ]
+						),
 						$buckets
 					),
 				],
@@ -57,33 +62,39 @@ class BuildChartData {
 
 	/**
 	 * @return list<array{
-	 *   interval:'daily'|'weekly'|'monthly'|'yearly',
-	 *   timestamp:int,
+	 *   start_at:int,
+	 *   end_at:int,
 	 *   label:string
 	 * }>
 	 */
 	private function buildFixedBuckets( string $interval, int $ticks ) :array {
 		$buckets = [];
-		$cursor = Services::Request()->carbon();
+		$resolver = new CalendarIntervalWindowResolver();
+		$cursor = Services::Request()->carbon( true );
 		switch ( $interval ) {
 			case 'daily':
-				$cursor->subDays( $ticks - 1 )->startOfDay();
+				$cursor->subDays( $ticks - 1 );
 				break;
 			case 'weekly':
-				$cursor->subWeeks( $ticks - 1 )->startOfWeek();
+				$cursor->subWeeks( $ticks - 1 );
 				break;
 			case 'monthly':
-				$cursor->subMonths( $ticks - 1 )->startOfMonth();
+				$cursor->day( 15 )->subMonths( $ticks - 1 );
 				break;
 			default:
 				throw new \InvalidArgumentException( 'Unsupported fixed chart interval.' );
 		}
+		$cursor = Carbon::createFromTimestamp(
+			$resolver->resolveWindowContaining( $interval, $cursor )->start_at,
+			\wp_timezone()
+		);
 
 		for ( $i = 0; $i < $ticks; $i++ ) {
+			$window = $resolver->resolveWindowContaining( $interval, $cursor );
 			$buckets[] = [
-				'interval'  => $interval,
-				'timestamp' => $cursor->timestamp,
-				'label'     => $this->formatBucketLabel( $interval, $cursor ),
+				'start_at' => $window->start_at,
+				'end_at'   => $window->end_at,
+				'label'    => $this->formatBucketLabel( $interval, $cursor ),
 			];
 			switch ( $interval ) {
 				case 'daily':
@@ -104,13 +115,14 @@ class BuildChartData {
 	/**
 	 * @param list<string> $eventKeys
 	 * @return list<array{
-	 *   interval:'yearly',
-	 *   timestamp:int,
+	 *   start_at:int,
+	 *   end_at:int,
 	 *   label:string
 	 * }>
 	 */
 	private function buildYearBuckets( array $eventKeys ) :array {
-		$currentYear = (int)Services::Request()->carbon()->format( 'Y' );
+		$timezone = \wp_timezone();
+		$currentYear = (int)Services::Request()->carbon( true )->format( 'Y' );
 		$startYear = $currentYear;
 
 		foreach ( $eventKeys as $eventKey ) {
@@ -118,17 +130,22 @@ class BuildChartData {
 			$selector = self::con()->db_con->events->getQuerySelector();
 			$oldest = $selector->getOldestForEvent( $eventKey );
 			if ( $oldest !== null ) {
-				$startYear = \min( $startYear, (int)Carbon::createFromTimestamp( $oldest->created_at )->format( 'Y' ) );
+				$startYear = \min(
+					$startYear,
+					(int)Carbon::createFromTimestamp( $oldest->created_at, $timezone )->format( 'Y' )
+				);
 			}
 		}
 
 		$buckets = [];
+		$resolver = new CalendarIntervalWindowResolver();
 		for ( $year = $startYear; $year <= $currentYear; $year++ ) {
-			$timestamp = Carbon::create( $year, 1, 1, 0, 0, 0 )->timestamp;
+			$yearStart = Carbon::create( $year, 1, 1, 0, 0, 0, $timezone );
+			$window = $resolver->resolveWindowContaining( 'yearly', $yearStart );
 			$buckets[] = [
-				'interval'  => 'yearly',
-				'timestamp' => $timestamp,
-				'label'     => (string)$year,
+				'start_at' => $window->start_at,
+				'end_at'   => $window->end_at,
+				'label'    => (string)$year,
 			];
 		}
 
@@ -152,28 +169,9 @@ class BuildChartData {
 		}
 	}
 
-	private function sumEventForBucket( string $eventKey, string $interval, int $timestamp ) :int {
+	private function sumEventForBucket( string $eventKey, int $startAt, int $endAt ) :int {
 		/** @var EventsDB\Select $selector */
 		$selector = self::con()->db_con->events->getQuerySelector();
-		$selector->filterByEvent( $eventKey );
-
-		switch ( $interval ) {
-			case 'daily':
-				$selector->filterByBoundary_Day( $timestamp );
-				break;
-			case 'weekly':
-				$selector->filterByBoundary_Week( $timestamp );
-				break;
-			case 'monthly':
-				$selector->filterByBoundary_Month( $timestamp );
-				break;
-			case 'yearly':
-				$selector->filterByBoundary_Year( $timestamp );
-				break;
-			default:
-				throw new \InvalidArgumentException( 'Unsupported chart interval.' );
-		}
-
-		return $selector->sumEvent( $eventKey );
+		return $selector->filterByBoundary( $startAt, $endAt )->sumEvent( $eventKey );
 	}
 }

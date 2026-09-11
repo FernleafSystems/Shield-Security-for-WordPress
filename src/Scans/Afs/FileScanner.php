@@ -3,19 +3,20 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\AssetChange\Cleanup;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\{
 	IsExcludedPhpTranslationFile,
+	IsExpectedShieldCacheIndexFile,
 	IsFileContentExcluded
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
 	AssetFileContext,
-	AssetTrustResolver,
-	Exceptions\AssetHashesNotFound,
-	Exceptions\NonAssetFileException,
+	Exceptions\AmbiguousAssetFileException,
 	HashVerificationResult
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\TrustedFileContext;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\{
+	AssetTrustState,
+	TrustedFileContext
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Common\ScanActionConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -24,6 +25,9 @@ class FileScanner {
 	use PluginControllerConsumer;
 	use ScanActionConsumer;
 
+	/**
+	 * @throws \Exception When the file cannot be reliably classified or a required finding record cannot be created.
+	 */
 	public function scan( string $fullPath ) :?ResultItem {
 		$scanCon = self::con()->comps->scans->AFS();
 		/** @var ScanActionVO $action */
@@ -38,17 +42,25 @@ class FileScanner {
 		$trustedFileContext = null;
 		$assetContext = null;
 		$assetContextResolved = false;
+		$assetOwnershipAmbiguous = false;
 		$assetVerification = null;
 		$malwareScanClean = false;
 		$optimiser = new Processing\FileScanOptimiser();
-		$assetResolver = new AssetTrustResolver();
-		$resolveAssetContext = function () use ( $fullPath, $assetResolver, &$assetContext, &$assetContextResolved ) :?AssetFileContext {
+		$assetTrustState = new AssetTrustState( $action );
+		$resolveAssetContext = function () use (
+			$fullPath,
+			$assetTrustState,
+			&$assetContext,
+			&$assetContextResolved,
+			&$assetOwnershipAmbiguous
+		) :?AssetFileContext {
 			if ( !$assetContextResolved ) {
 				try {
-					$assetContext = $assetResolver->resolveContext( $fullPath );
+					$assetContext = $assetTrustState->resolveAssetContext( $fullPath );
 				}
-				catch ( NonAssetFileException $e ) {
+				catch ( AmbiguousAssetFileException $e ) {
 					$assetContext = null;
+					$assetOwnershipAmbiguous = true;
 				}
 				$assetContextResolved = true;
 			}
@@ -77,46 +89,58 @@ class FileScanner {
 			}
 			if ( !$validFile && $scanCon->isScanEnabledPlugins() ) {
 				$assetContext = $resolveAssetContext();
-				if ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'plugin' ) {
+				if ( $assetOwnershipAmbiguous ) {
+					$validFile = true;
+				}
+				elseif ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'plugin' ) {
 					$pluginScan = ( new Scans\PluginFile( $fullPath ) )
 						->setAssetContext( $assetContext )
+						->setAssetTrustState( $assetTrustState )
 						->setScanActionVO( $action );
 					if ( $pluginScan->isFileValid() ) {
 						$validFile = true;
 						$assetVerification = $pluginScan->getHashVerificationResult();
-						$skipMalwareScan = $assetVerification->trustedSource;
-						if ( $skipMalwareScan ) {
-							$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
+						if ( $assetVerification instanceof HashVerificationResult ) {
+							$skipMalwareScan = $assetVerification->trustedSource;
+							if ( $skipMalwareScan ) {
+								$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
+							}
 						}
-					}
-					elseif ( $pluginScan->hasUnavailableAssetHashes() ) {
-						$this->scheduleAssetCleanup( $assetContext );
 					}
 				}
 			}
 			if ( !$validFile && $scanCon->isScanEnabledThemes() ) {
 				$assetContext = $resolveAssetContext();
-				if ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'theme' ) {
+				if ( $assetOwnershipAmbiguous ) {
+					$validFile = true;
+				}
+				elseif ( $assetContext instanceof AssetFileContext && $assetContext->assetType === 'theme' ) {
 					$themeScan = ( new Scans\ThemeFile( $fullPath ) )
 						->setAssetContext( $assetContext )
+						->setAssetTrustState( $assetTrustState )
 						->setScanActionVO( $action );
 					if ( $themeScan->isFileValid() ) {
 						$validFile = true;
 						$assetVerification = $themeScan->getHashVerificationResult();
-						$skipMalwareScan = $assetVerification->trustedSource;
-						if ( $skipMalwareScan ) {
-							$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
+						if ( $assetVerification instanceof HashVerificationResult ) {
+							$skipMalwareScan = $assetVerification->trustedSource;
+							if ( $skipMalwareScan ) {
+								$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
+							}
 						}
-					}
-					elseif ( $themeScan->hasUnavailableAssetHashes() ) {
-						$this->scheduleAssetCleanup( $assetContext );
 					}
 				}
 			}
-			if ( !$validFile && $scanCon->isScanEnabledWpContent() && ( new Scans\WpContentUnidentified( $fullPath ) )
+			if ( !$validFile && $scanCon->isScanEnabledWpContent() ) {
+				$assetContext = $resolveAssetContext();
+				if ( $assetOwnershipAmbiguous || $assetContext instanceof AssetFileContext ) {
+					$validFile = true;
+				}
+				elseif ( ( new Scans\WpContentUnidentified( $fullPath ) )
 					->setScanActionVO( $action )
 					->isFileValid() ) {
-				$validFile = true;
+					$validFile = true;
+				}
 			}
 		}
 		catch ( Exceptions\WpCoreFileMissingException $me ) {
@@ -139,28 +163,32 @@ class FileScanner {
 			$item->is_in_plugin = true;
 			$item->is_unrecognised = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
-			$item->asset_version = $e->getScanFileData()[ 'asset_version' ] ?? '';
+			$item->asset_version = $e->getScanFileData()[ 'asset_version' ];
+			$item->comparison_basis = $e->getScanFileData()[ 'comparison_basis' ];
 		}
 		catch ( Exceptions\PluginFileChecksumFailException $e ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_plugin = true;
 			$item->is_checksumfail = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
-			$item->asset_version = $e->getScanFileData()[ 'asset_version' ] ?? '';
+			$item->asset_version = $e->getScanFileData()[ 'asset_version' ];
+			$item->comparison_basis = $e->getScanFileData()[ 'comparison_basis' ];
 		}
 		catch ( Exceptions\ThemeFileUnrecognisedException $e ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_theme = true;
 			$item->is_unrecognised = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
-			$item->asset_version = $e->getScanFileData()[ 'asset_version' ] ?? '';
+			$item->asset_version = $e->getScanFileData()[ 'asset_version' ];
+			$item->comparison_basis = $e->getScanFileData()[ 'comparison_basis' ];
 		}
 		catch ( Exceptions\ThemeFileChecksumFailException $e ) {
 			$item = $this->getResultItem( $fullPath );
 			$item->is_in_theme = true;
 			$item->is_checksumfail = true;
 			$item->ptg_slug = $e->getScanFileData()[ 'slug' ];
-			$item->asset_version = $e->getScanFileData()[ 'asset_version' ] ?? '';
+			$item->asset_version = $e->getScanFileData()[ 'asset_version' ];
+			$item->comparison_basis = $e->getScanFileData()[ 'comparison_basis' ];
 		}
 		catch ( Exceptions\WpRootFileUnidentifiedException $e ) {
 			$item = $this->getResultItem( $fullPath );
@@ -174,28 +202,22 @@ class FileScanner {
 			$item->is_in_wpcontent = true;
 			$item->is_unidentified = true;
 		}
-		catch ( \Exception $e ) {
-			//Never reached
-		}
-
 		$canRunMalwareScan = !$fileExcluded
 							  && $scanCon->isEnabledMalwareScanPHP()
 							  && ( empty( $item ) || !$item->is_missing );
 		if ( !$skipMalwareScan && $canRunMalwareScan && empty( $item ) && !( $assetVerification instanceof HashVerificationResult )
 			 && ( !$scanCon->isScanEnabledPlugins() || !$scanCon->isScanEnabledThemes() ) ) {
 			$assetContext = $resolveAssetContext();
-			if ( $assetContext instanceof AssetFileContext
+			if ( !$assetOwnershipAmbiguous
+				 && $assetContext instanceof AssetFileContext
 				 && ( ( $assetContext->assetType === 'plugin' && !$scanCon->isScanEnabledPlugins() )
 					  || ( $assetContext->assetType === 'theme' && !$scanCon->isScanEnabledThemes() ) ) ) {
 				try {
-					$assetVerification = $assetResolver->verifyContext( $fullPath, $assetContext );
-					if ( $assetVerification->trustedSource ) {
+					$assetVerification = $assetTrustState->verifyAssetContext( $fullPath, $assetContext );
+					if ( $assetVerification instanceof HashVerificationResult && $assetVerification->trustedSource ) {
 						$skipMalwareScan = true;
-						$trustedFileContext = $this->buildAssetTrustedFileContext( $assetVerification );
+						$trustedFileContext = $assetTrustState->trustedFileContextFromVerification( $assetVerification );
 					}
-				}
-				catch ( AssetHashesNotFound $e ) {
-					$this->scheduleAssetCleanup( $assetContext );
 				}
 				catch ( \Exception $e ) {
 				}
@@ -213,28 +235,36 @@ class FileScanner {
 				$malwareScanClean = true;
 			}
 			catch ( Exceptions\MalwareFileException $mfe ) {
-				$item = $item ?? $this->getResultItem( $fullPath );
+				if ( $item === null ) {
+					$item = $this->getResultItem( $fullPath );
+					if ( $assetContext instanceof AssetFileContext ) {
+						if ( $assetContext->assetType === 'plugin' ) {
+							$item->is_in_plugin = true;
+							$item->ptg_slug = $assetContext->assetKey;
+							$item->asset_version = $assetContext->assetVersion;
+						}
+						elseif ( $assetContext->assetType === 'theme' ) {
+							$item->is_in_theme = true;
+							$item->ptg_slug = $assetContext->assetKey;
+							$item->asset_version = $assetContext->assetVersion;
+						}
+					}
+				}
 				$item->is_mal = true;
 
-				try {
-					if ( !isset( $mfe->getScanFileData()[ 'mal_sig' ] ) ) {
-						throw new \Exception( 'Cannot proceed without a malware signature' );
-					}
-					$malRecord = ( new Processing\CreateLocalMalwareRecords() )->run(
-						$item->path_fragment,
-						$mfe->getScanFileData()[ 'mal_sig' ],
-						$validFile
-					);
-					$item->malware_record_id = $malRecord->id;
-					$item->auto_filter = $validFile;
+				if ( !isset( $mfe->getScanFileData()[ 'mal_sig' ] ) ) {
+					throw new \Exception( 'Cannot proceed without a malware signature' );
 				}
-				catch ( \Exception $e ) {
-					/** We can't proceed without a linked local Malware Record */
-					$item = null;
-					error_log( $e->getMessage() );
-				}
-			}
-			catch ( \InvalidArgumentException $e ) {
+				$autoFilterMalware = $assetVerification instanceof HashVerificationResult
+								 && $assetVerification->verified
+								 && $assetVerification->trustedSource;
+				$malRecord = ( new Processing\CreateLocalMalwareRecords() )->run(
+					$item->path_fragment,
+					$mfe->getScanFileData()[ 'mal_sig' ],
+					$autoFilterMalware
+				);
+				$item->malware_record_id = $malRecord->id;
+				$item->auto_filter = $autoFilterMalware;
 			}
 		}
 
@@ -261,22 +291,6 @@ class FileScanner {
 		);
 	}
 
-	private function buildAssetTrustedFileContext( HashVerificationResult $verification ) :TrustedFileContext {
-		return new TrustedFileContext(
-			$verification->assetType,
-			$verification->assetKey,
-			$verification->assetVersion,
-			$verification->relativePath
-		);
-	}
-
-	private function scheduleAssetCleanup( AssetFileContext $assetContext ) :void {
-		if ( !\function_exists( 'wp_next_scheduled' ) || !\function_exists( 'wp_schedule_single_event' ) ) {
-			return;
-		}
-		( new Cleanup() )->schedule( $assetContext->assetType, $assetContext->assetKey );
-	}
-
 	private function getResultItem( string $fullPath ) :ResultItem {
 		/** @var ResultItem $item */
 		$item = self::con()->comps->scans->AFS()->getNewResultItem();
@@ -286,6 +300,8 @@ class FileScanner {
 	}
 
 	private function isFileExcludedFromScans( string $fullPath ) :bool {
-		return ( new IsFileContentExcluded() )->check( $fullPath ) || ( new IsExcludedPhpTranslationFile() )->check( $fullPath );
+		return ( new IsFileContentExcluded() )->check( $fullPath )
+			   || ( new IsExcludedPhpTranslationFile() )->check( $fullPath )
+			   || ( new IsExpectedShieldCacheIndexFile() )->check( $fullPath );
 	}
 }

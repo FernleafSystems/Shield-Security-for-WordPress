@@ -197,6 +197,22 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertSame( '', (string)$this->opts->optGet( 'importexport_masterurl' ) );
 	}
 
+	public function test_from_site_uses_generic_failure_for_non_string_remote_message() :void {
+		$this->httpRequest->setContentResponse( [
+			'success' => false,
+			'message' => [ 'not-a-string' ],
+		] );
+
+		try {
+			( new Import() )->fromSite( 'https://source-master.example.com' );
+			$this->fail( 'Expected the remote import failure to be reported.' );
+		}
+		catch ( \Exception $e ) {
+			$this->assertSame( 6, $e->getCode() );
+			$this->assertSame( "Request failed with no error message from the source site.", $e->getMessage() );
+		}
+	}
+
 	public function test_from_site_legacy_private_mode_wraps_export_request_with_external_host_filter() :void {
 		$events = [];
 		$this->recordExternalHostFilterEvents( $events );
@@ -410,11 +426,11 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 	public function test_notify_accepts_normalised_matching_master_url() :void {
 		$this->opts
 			->optSet( 'importexport_enable', 'Y' )
-			->optSet( 'importexport_masterurl', 'https://configured-master.example.com/' )
+			->optSet( 'importexport_masterurl', 'HTTPS://Configured-Master.Example.COM:443/Master/' )
 			->store();
 
 		$accepted = ( new ImportExportController() )->runOptionsUpdateNotified(
-			'https://configured-master.example.com/?notify=1'
+			'https://configured-master.example.com/Master?notify=1#source'
 		);
 
 		$this->assertTrue( $accepted );
@@ -643,6 +659,16 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->buildPingSender()->send( 'https://client.example.com', 5, 'client-import-id' );
 
 		$this->assertStringContainsString( 'id=client-import-id', $this->httpRequest->lastGetRequestedUrl() );
+	}
+
+	public function test_ping_sender_uses_canonical_client_and_master_urls() :void {
+		$this->wpGeneral->setHomeUrl( 'HTTPS://LOCAL.Example.COM:443/Master/' );
+
+		$this->buildPingSender()->send( 'HTTPS://CLIENT.Example.COM:443/Path/' );
+
+		$requestedUrl = \urldecode( $this->httpRequest->lastGetRequestedUrl() );
+		$this->assertStringContainsString( 'https://client.example.com/Path', $requestedUrl );
+		$this->assertStringContainsString( 'master_url=https://local.example.com/Master', $requestedUrl );
 	}
 
 	public function test_ping_sender_ignores_response_body() :void {
@@ -891,6 +917,7 @@ class ImportExportEventsRecorderStub {
 class ImportExportHttpRequestStub extends HttpRequest {
 
 	private array $responseOptions = [];
+	private ?array $contentResponse = null;
 	private string $lastRequestedUrl = '';
 	private string $lastGetRequestedUrl = '';
 	private string $lastPostRequestedUrl = '';
@@ -909,6 +936,10 @@ class ImportExportHttpRequestStub extends HttpRequest {
 
 	public function setResponseOptions( array $options ) :void {
 		$this->responseOptions = $options;
+	}
+
+	public function setContentResponse( array $response ) :void {
+		$this->contentResponse = $response;
 	}
 
 	public function lastRequestedUrl() :string {
@@ -1005,7 +1036,7 @@ class ImportExportHttpRequestStub extends HttpRequest {
 			throw $this->getContentException;
 		}
 
-		return (string)\json_encode( [
+		return (string)\json_encode( $this->contentResponse ?? [
 			'success' => true,
 			'data'    => [
 				'options'  => $this->responseOptions,

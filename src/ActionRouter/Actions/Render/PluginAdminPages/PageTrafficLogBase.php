@@ -4,7 +4,19 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 
-abstract class PageTrafficLogBase extends BasePluginAdminPage {
+abstract class PageTrafficLogBase extends PageModeLandingBase {
+
+	protected function getLandingTitle() :string {
+		return CommonDisplayStrings::get( 'web_request_log_label' );
+	}
+
+	protected function getLandingSubtitle() :string {
+		return __( 'View and explore details of web requests made to your site.', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingIcon() :string {
+		return 'globe';
+	}
 
 	protected function getPageContextualHrefs() :array {
 		$con = self::con();

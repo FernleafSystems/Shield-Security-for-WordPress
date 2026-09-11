@@ -112,6 +112,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		if ( root === null || !root.contains( subjectTile ) ) {
 			return;
 		}
+		if ( evt.target instanceof Element
+			&& evt.target.closest( '[data-investigate-manage-ip-rules="1"]' ) !== null ) {
+			return;
+		}
 
 		const selection = this.readSubjectSelection( subjectTile );
 		if ( selection.key.length < 1 ) {
@@ -122,9 +126,10 @@ export class InvestigateLandingController extends BaseAutoExecComponent {
 		this.rootEl = root;
 		this.shellEl = this.getShell( root );
 		this.panelEl = this.getPanel( root );
+		const primaryAction = subjectTile.querySelector( '[data-investigate-primary-action="1"]' );
 
 		this.openSubjectSelection( selection, {
-			sourceEl: subjectTile,
+			sourceEl: primaryAction instanceof HTMLElement ? primaryAction : null,
 			requestData: {
 				...selection.render_action,
 			},

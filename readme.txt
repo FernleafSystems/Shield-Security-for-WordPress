@@ -7,8 +7,8 @@ Tags: firewall, bots, activity log, 2fa, security
 Requires at least: 5.7
 Requires PHP: 8.2
 Recommended PHP: 8.2
-Tested up to: 7.0
-Stable tag: 22.1.5
+Tested up to: 7.1
+Stable tag: 22.2.2
 Smart WordPress security that blocks bots automatically, guides you to what matters, and repairs problems — without drowning you in noise.
 
 == Description ==

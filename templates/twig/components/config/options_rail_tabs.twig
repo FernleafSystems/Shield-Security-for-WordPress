@@ -1,9 +1,8 @@
 <div{% if nav_id|default('') is not empty %} id="{{ nav_id }}"{% endif %}
-	 class="shield-options-nav{% if nav_container_class|default('') is not empty %} {{ nav_container_class }}{% endif %}"
-	 aria-orientation="vertical">
-	<ul class="nav flex-column shield-options-rail-nav{% if nav_list_class|default('') is not empty %} {{ nav_list_class }}{% endif %}" role="tablist">
+	 class="shield-options-nav{% if nav_container_class|default('') is not empty %} {{ nav_container_class }}{% endif %}">
+	<ul class="nav flex-column shield-options-rail-nav{% if nav_list_class|default('') is not empty %} {{ nav_list_class }}{% endif %}" role="tablist" aria-orientation="vertical">
 		{% for item in nav_items %}
-			<li class="nav-item">
+			<li class="nav-item" role="presentation">
 				<button type="button"
 						data-bs-target="{{ item.target }}"
 						class="nav-link w-100 text-start {{ item.is_focus ? 'active' : '' }}"

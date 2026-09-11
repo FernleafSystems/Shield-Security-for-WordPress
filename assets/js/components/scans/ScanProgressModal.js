@@ -56,10 +56,6 @@ export class ScanProgressModal {
 			&& ScanProgressModal.modalStates.includes( resp.data.modal_state ) );
 	}
 
-	static ModalState( resp ) {
-		return ScanProgressModal.HasModalResponse( resp ) ? resp.data.modal_state : 'failed';
-	}
-
 	static ExtractErrorMessage( resp ) {
 		const message = resp?.data?.message;
 		return typeof message === 'string' && message.length > 0 ? message : '';
@@ -75,12 +71,12 @@ export class ScanProgressModal {
 
 	static buildLocalModalContent( { state, title, heading, message, announcement, busy } ) {
 		return `<div class="modal-header">
-			<h5 class="modal-title" id="ShieldModalContainerLabel">${ScanProgressModal.escapeHtml( title )}</h5>
+			<h2 class="modal-title h5" id="ShieldModalContainerLabel">${ScanProgressModal.escapeHtml( title )}</h2>
 			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="${ScanProgressModal.escapeHtml( ScanProgressModal.getCloseLabel() )}"></button>
 		</div>
 		<div class="modal-body">
 			<div data-shield-scan-modal-state="${ScanProgressModal.escapeHtml( state )}" aria-busy="${busy ? 'true' : 'false'}" data-shield-scan-modal-announcement="${ScanProgressModal.escapeHtml( announcement )}">
-				<h6>${ScanProgressModal.escapeHtml( heading )}</h6>
+				<h3 class="h6">${ScanProgressModal.escapeHtml( heading )}</h3>
 				<p>${ScanProgressModal.escapeHtml( message )}</p>
 				${busy ? ScanProgressModal.buildSpinnerMarkup() : ''}
 			</div>

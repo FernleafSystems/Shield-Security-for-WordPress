@@ -44,15 +44,24 @@ class AutoUpdatesCon {
 	 * @param array[]|mixed $plugins
 	 */
 	public function indicateAutoUpdate( $plugins ) :array {
-		return \array_map(
-			function ( $section ) {
-				if ( isset( $section[ self::con()->base_file ] ) ) {
-					$section[ self::con()->base_file ][ 'auto-update-forced' ] = self::con()->opts->optGet( 'autoupdate_plugin_self' ) !== 'disabled';
-				}
-				return $section;
-			},
-			\is_array( $plugins ) ? $plugins : []
-		);
+		if ( !\is_array( $plugins ) ) {
+			return [];
+		}
+
+		$normalized = [];
+		foreach ( $plugins as $sectionKey => $section ) {
+			if ( !\is_array( $section ) ) {
+				continue;
+			}
+
+			$rows = \array_filter( $section, '\is_array' );
+			if ( isset( $rows[ self::con()->base_file ] ) ) {
+				$rows[ self::con()->base_file ][ 'auto-update-forced' ] = self::con()->opts->optGet( 'autoupdate_plugin_self' ) !== 'disabled';
+			}
+			$normalized[ $sectionKey ] = $rows;
+		}
+
+		return $normalized;
 	}
 
 	/**
@@ -69,15 +78,14 @@ class AutoUpdatesCon {
 				if ( \is_array( $upd ) ) {
 					$upd = (object)$upd;
 				}
-				if ( \is_object( $upd ) && 'autoupdate' == ( $upd->response ?? '' ) ) {
-					$current = $upd->current ?? '';
-					$version = \is_scalar( $current ) ? (string)$current : '';
-					if ( !empty( $version ) && !isset( $item[ $version ] ) ) {
+				if ( \is_object( $upd ) && 'autoupdate' === ( $upd->response ?? null ) ) {
+					$version = $this->normalizeNonEmptyString( $upd->current ?? null );
+					if ( $version !== null && !isset( $item[ $version ] ) ) {
 						$item[ $version ] = Services::Request()->ts();
 					}
 				}
 			}
-			$delayTracking[ 'core' ][ 'wp' ] = \array_slice( $item, -5 );
+			$delayTracking[ 'core' ][ 'wp' ] = \array_slice( $item, -5, null, true );
 
 			self::con()->opts->optSet( 'delay_tracking', $delayTracking );
 		}
@@ -105,22 +113,23 @@ class AutoUpdatesCon {
 		if ( !empty( $updates ) && isset( $updates->response ) && \is_array( $updates->response ) ) {
 			$delayTracking = $this->getDelayTracking();
 
-			foreach ( $updates->response as $slug => $theUpdate ) {
+			foreach ( $updates->response as $slugRaw => $theUpdate ) {
+				$slug = $this->normalizeLogicalStringMapKey( $slugRaw );
+				if ( $slug === null ) {
+					continue;
+				}
+
 				$itemTrack = $delayTracking[ $context ][ $slug ] ?? [];
 				if ( \is_array( $theUpdate ) ) {
 					$theUpdate = (object)$theUpdate;
 				}
 
-				$newVersion = '';
-				if ( \is_object( $theUpdate ) ) {
-					$newVersionRaw = $theUpdate->new_version ?? '';
-					$newVersion = \is_scalar( $newVersionRaw ) ? (string)$newVersionRaw : '';
-				}
-				if ( !empty( $newVersion ) ) {
+				$newVersion = \is_object( $theUpdate ) ? $this->normalizeNonEmptyString( $theUpdate->new_version ?? null ) : null;
+				if ( $newVersion !== null ) {
 					if ( !isset( $itemTrack[ $newVersion ] ) ) {
 						$itemTrack[ $newVersion ] = Services::Request()->ts();
 					}
-					$delayTracking[ $context ][ $slug ] = \array_slice( $itemTrack, -3 );
+					$delayTracking[ $context ][ $slug ] = \array_slice( $itemTrack, -3, null, true );
 				}
 			}
 
@@ -134,7 +143,8 @@ class AutoUpdatesCon {
 	 * @return bool|mixed
 	 */
 	public function autoupdate_core( $autoupdate, $coreUpgrade ) {
-		return $this->isDelayed( $coreUpgrade, 'core' ) ? false : $autoupdate;
+		$version = \is_object( $coreUpgrade ) ? $this->normalizeNonEmptyString( $coreUpgrade->current ?? null ) : null;
+		return $version !== null && $this->isDelayed( 'core', 'wp', $version ) ? false : $autoupdate;
 	}
 
 	/**
@@ -144,19 +154,36 @@ class AutoUpdatesCon {
 	 */
 	public function autoupdate_plugins( $autoupdate, $item ) {
 
-		if ( \is_object( $item ) && !empty( $item->plugin ) ) {
+		if ( \is_object( $item ) ) {
+			$pluginFile = $this->normalizeNonEmptyString( $item->plugin ?? null );
+			if ( $pluginFile === null ) {
+				return $autoupdate;
+			}
+
 			$con = self::con();
-			if ( $item->plugin === $con->base_file ) {
+			if ( $pluginFile === $con->base_file ) {
 				$auto = $con->opts->optGet( 'autoupdate_plugin_self' );
-				$autoupdate = $auto !== 'disabled'
-							  && ( $auto === 'immediate' || !$this->isDelayed( $item->plugin, 'plugins' ) );
+				if ( $auto === 'disabled' ) {
+					return false;
+				}
+
+				$version = $this->pluginUpdateVersion( $pluginFile );
+				if ( $version === null ) {
+					return $autoupdate;
+				}
+				$autoupdate = $auto === 'immediate' || !$this->isDelayed( 'plugins', $pluginFile, $version );
 			}
 			else {
+				$version = $this->pluginUpdateVersion( $pluginFile );
+				if ( $version === null ) {
+					return $autoupdate;
+				}
+
 				$WPV = $con->comps->scans->WPV();
-				if ( $WPV->isAutoupdatesEnabled() && $WPV->hasVulnerabilities( $item->plugin ) ) {
+				if ( $WPV->isAutoupdatesEnabled() && $WPV->hasVulnerabilities( $pluginFile ) ) {
 					$autoupdate = true;
 				}
-				elseif ( $this->isDelayed( $item->plugin, 'plugins' ) ) {
+				elseif ( $this->isDelayed( 'plugins', $pluginFile, $version ) ) {
 					$autoupdate = false;
 				}
 			}
@@ -171,51 +198,37 @@ class AutoUpdatesCon {
 	 * @return bool|mixed
 	 */
 	public function autoupdate_themes( $autoupdate, $item ) {
-		return ( \is_object( $item ) && !empty( $item->theme ) && $this->isDelayed( $item->theme, 'themes' ) ) ? false : $autoupdate;
+		$slug = \is_object( $item ) ? $this->normalizeNonEmptyString( $item->theme ?? null ) : null;
+		if ( $slug === null ) {
+			return $autoupdate;
+		}
+
+		$themeInfo = Services::WpThemes()->getUpdateInfo( $slug );
+		$version = \is_array( $themeInfo ) ? $this->normalizeNonEmptyString( $themeInfo[ 'new_version' ] ?? null ) : null;
+		return $version !== null && $this->isDelayed( 'themes', $slug, $version ) ? false : $autoupdate;
 	}
 
-	/**
-	 * @param string|\stdClass $slug
-	 */
-	private function isDelayed( $slug, string $context ) :bool {
+	private function isDelayed( string $context, string $slug, string $version ) :bool {
 		$delayed = false;
 		$con = self::con();
 
-		$delay = $con->opts->optGet( 'update_delay' );
+		$delayRaw = $con->opts->optGet( 'update_delay' );
+		$delay = \is_int( $delayRaw ) ? \max( 0, $delayRaw ) : 0;
 		$isSelfPlugin = $context === 'plugins' && $slug === $con->base_file;
 		if ( $isSelfPlugin ) {
-			$delay = \max( $delay, (int)$con->cfg->properties[ 'autoupdate_days' ] );
+			$selfDelay = $con->cfg->properties[ 'autoupdate_days' ] ?? 0;
+			$delay = \max( $delay, \is_int( $selfDelay ) ? $selfDelay : 0 );
 		}
 		if ( $delay > 0 ) {
-
-			$version = '';
-			if ( $context === 'core' ) {
-				$current = \is_object( $slug ) ? ( $slug->current ?? '' ) : ''; // \stdClass from transient update_core
-				$version = \is_scalar( $current ) ? (string)$current : '';
-				$slug = 'wp';
-			}
-
-			if ( $context == 'plugins' ) {
-				$pluginInfo = Services::WpPlugins()->getUpdateInfo( $slug );
-				$newVersion = \is_object( $pluginInfo ) ? ( $pluginInfo->new_version ?? '' ) : '';
-				$version = \is_scalar( $newVersion ) ? (string)$newVersion : '';
-			}
-			elseif ( $context == 'themes' ) {
-				$themeInfo = Services::WpThemes()->getUpdateInfo( $slug );
-				$newVersion = \is_array( $themeInfo ) ? ( $themeInfo[ 'new_version' ] ?? '' ) : '';
-				$version = \is_scalar( $newVersion ) ? (string)$newVersion : '';
-			}
-
 			$delayTracking = $this->getDelayTracking();
 			$track = $delayTracking[ $context ][ $slug ] ?? [];
-			if ( $isSelfPlugin && !empty( $version ) && !isset( $track[ $version ] ) ) {
+			if ( $isSelfPlugin && !isset( $track[ $version ] ) ) {
 				$track[ $version ] = Services::Request()->ts();
-				$delayTracking[ $context ][ $slug ] = \array_slice( $track, -3 );
+				$delayTracking[ $context ][ $slug ] = \array_slice( $track, -3, null, true );
 				$con->opts->optSet( 'delay_tracking', $delayTracking );
 			}
 
-			$delayed = !empty( $version )
-					   && isset( $track[ $version ] )
+			$delayed = isset( $track[ $version ] )
 					   && ( Services::Request()->ts() - $track[ $version ] ) < $delay*DAY_IN_SECONDS;
 		}
 
@@ -236,16 +249,51 @@ class AutoUpdatesCon {
 
 	public function getDelayTracking() :array {
 		$opts = self::con()->opts;
-		$delayTracking = $opts->optGet( 'delay_tracking' );
+		$stored = $opts->optGet( 'delay_tracking' );
+		$normalized = [
+			'core'    => [],
+			'plugins' => [],
+			'themes'  => [],
+		];
+		if ( \is_array( $stored ) ) {
+			foreach ( $normalized as $context => $_ ) {
+				$contextItems = $stored[ $context ] ?? null;
+				if ( !\is_array( $contextItems ) ) {
+					continue;
+				}
+				foreach ( $contextItems as $slugRaw => $versions ) {
+					$slug = $this->normalizeLogicalStringMapKey( $slugRaw );
+					if ( $slug === null || ( $context === 'core' && $slug !== 'wp' ) || !\is_array( $versions ) ) {
+						continue;
+					}
+					foreach ( $versions as $versionRaw => $timestamp ) {
+						$version = $this->normalizeLogicalStringMapKey( $versionRaw );
+						if ( $version !== null && \is_int( $timestamp ) && $timestamp > 0 ) {
+							$normalized[ $context ][ $slug ][ $version ] = $timestamp;
+						}
+					}
+				}
+			}
+		}
 
-		$opts->optSet( 'delay_tracking',
-			Services::DataManipulation()->mergeArraysRecursive( [
-				'core'    => [],
-				'plugins' => [],
-				'themes'  => [],
-			], \is_array( $delayTracking ) ? $delayTracking : [] )
-		);
+		$opts->optSet( 'delay_tracking', $normalized );
+		return $normalized;
+	}
 
-		return $opts->optGet( 'delay_tracking' );
+	private function pluginUpdateVersion( string $pluginFile ) :?string {
+		$pluginInfo = Services::WpPlugins()->getUpdateInfo( $pluginFile );
+		return \is_object( $pluginInfo ) ? $this->normalizeNonEmptyString( $pluginInfo->new_version ?? null ) : null;
+	}
+
+	private function normalizeLogicalStringMapKey( $value ) :?string {
+		return $this->normalizeNonEmptyString( \is_int( $value ) ? (string)$value : $value );
+	}
+
+	private function normalizeNonEmptyString( $value ) :?string {
+		if ( !\is_string( $value ) ) {
+			return null;
+		}
+		$value = \trim( $value );
+		return $value === '' ? null : $value;
 	}
 }

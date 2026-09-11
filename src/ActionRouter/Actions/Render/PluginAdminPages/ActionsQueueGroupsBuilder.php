@@ -45,6 +45,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\FileLocker\Ops
  *   links:list<GroupLink>,
  *   management_link:array{}|GroupManagementLink,
  *   is_interactive:bool,
+ *   is_pro_upsell:bool,
+ *   enable_dialog_json:string,
  *   detail_table:array<string,mixed>,
  *   render_action_class:class-string<BaseRender>,
  *   render_action_data:array<string,mixed>,

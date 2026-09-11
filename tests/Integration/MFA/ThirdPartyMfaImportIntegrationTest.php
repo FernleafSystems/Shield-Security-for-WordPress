@@ -46,7 +46,7 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 		parent::set_up();
 		$this->requireDb( 'mfa' );
 		$this->clearThirdPartyMfaFixtureState();
-		$this->resetMfaProviderCache();
+		RuntimeTestState::resetMfaProviderCache();
 
 		$this->optsSnapshot = $this->snapshotSelectedOptions( [
 			'enable_google_authenticator',
@@ -71,7 +71,6 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 
 		\delete_option( WordpressTwoFactorBridge::OPT_SITE_ENABLED_PROVIDERS );
 		\delete_site_option( 'itsec-storage' );
-		$this->createWordfenceLoginSecuritySecretsTable();
 		$this->resetImportRuntime();
 		$this->applyCurrentRequestState( [
 			'REQUEST_METHOD' => 'POST',
@@ -84,7 +83,7 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 		\remove_filter( 'pre_http_request', [ $this, 'interceptImportQueueDispatch' ], 10 );
 		$this->resetImportRuntime();
 		$this->clearThirdPartyMfaFixtureState();
-		$this->resetMfaProviderCache();
+		RuntimeTestState::resetMfaProviderCache();
 
 		if ( $this->isControllerConfigReady() ) {
 			$this->restoreSelectedOptions( $this->optsSnapshot );
@@ -103,8 +102,6 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 		else {
 			\update_site_option( 'itsec-storage', $this->originalItsecStorage );
 		}
-		$this->dropWordfenceLoginSecuritySecretsTable();
-
 		parent::tear_down();
 	}
 
@@ -263,24 +260,47 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( ImportController::STATUS_COMPLETED, $state[ 'status' ] );
 	}
 
+	/** @group database-transaction-exception */
 	public function test_wordfence_import_run_imports_ga_and_backup_codes() :void {
-		$userId = $this->createAdministratorUser();
-		$user = \get_user_by( 'id', $userId );
 		$recoveryCodes = [ 'abcdef1234567890', '1122334455667788' ];
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( $recoveryCodes ) :void {
+				$this->createWordfenceLoginSecuritySecretsTable();
+				RuntimeTestState::restoreOptions( [
+					'enable_google_authenticator' => 'Y',
+					'allow_backupcodes'           => 'Y',
+					'enable_email_authentication' => 'Y',
+					'email_any_user_set'          => 'Y',
+					'email_can_send_verified_at'  => \time(),
+					ImportController::OPT_RUN_STATE => [],
+				], true );
+				$userId = $this->createAdministratorUser();
+				$user = \get_user_by( 'id', $userId );
+				$this->seedWordfenceLoginSecurityState(
+					$user,
+					'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
+					$recoveryCodes
+				);
 
-		$this->seedWordfenceLoginSecurityState(
-			$user,
-			'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP',
-			$recoveryCodes
+				$state = $this->runImportAndProcessAllPages( 'wordfence_login_security' );
+				$backupRecords = $this->loadRecordsForSlug( $userId, 'backupcode' );
+				$this->assertSame( 1, $state[ 'imported_factors' ][ 'ga' ] ?? 0 );
+				$this->assertSame( 1, $state[ 'imported_factors' ][ 'backupcode' ] ?? 0 );
+				$this->assertCount( 1, $this->loadRecordsForSlug( $userId, 'ga' ) );
+				$this->assertImportedBackupCodesMatch( $recoveryCodes, $backupRecords );
+			},
+			function () :void {
+				$this->dropWordfenceLoginSecuritySecretsTable();
+				$this->resetImportRuntime();
+				RuntimeTestState::resetMfaProviderCache();
+				$this->restoreSelectedOptions( $this->optsSnapshot );
+			}
 		);
-
-		$state = $this->runImportAndProcessAllPages( 'wordfence_login_security' );
-		$backupRecords = $this->loadRecordsForSlug( $userId, 'backupcode' );
-
-		$this->assertSame( 1, $state[ 'imported_factors' ][ 'ga' ] ?? 0 );
-		$this->assertSame( 1, $state[ 'imported_factors' ][ 'backupcode' ] ?? 0 );
-		$this->assertCount( 1, $this->loadRecordsForSlug( $userId, 'ga' ) );
-		$this->assertImportedBackupCodesMatch( $recoveryCodes, $backupRecords );
+		$this->assertSame(
+			$this->optsSnapshot,
+			$this->snapshotSelectedOptions( \array_keys( $this->optsSnapshot ) ),
+			'The persistent Wordfence fixture must restore its exact option snapshot.'
+		);
 	}
 
 	public function test_wordfence_missing_table_fails_run_start() :void {
@@ -560,15 +580,6 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 		) );
 	}
 
-	private function resetMfaProviderCache() :void {
-		$ref = new \ReflectionClass( $this->requireController()->comps->mfa );
-		if ( $ref->hasProperty( 'providers' ) ) {
-			$prop = $ref->getProperty( 'providers' );
-			$prop->setAccessible( true );
-			$prop->setValue( $this->requireController()->comps->mfa, [] );
-		}
-	}
-
 	private function getImportQueueIdentifier() :string {
 		return $this->requireController()->prefix().'_mfa_import_pages';
 	}
@@ -729,60 +740,28 @@ class ThirdPartyMfaImportIntegrationTest extends ShieldIntegrationTestCase {
 	}
 
 	private function createWordfenceLoginSecuritySecretsTable() :void {
-		$this->runWithoutWordpressTemporaryTableQueryHooks( function () {
-			global $wpdb;
-			$table = $this->getWordfenceLoginSecuritySecretsTable();
-			$wpdb->query(
-				"CREATE TABLE IF NOT EXISTS `{$table}` (
-					`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-					`user_id` bigint(20) unsigned NOT NULL,
-					`secret` tinyblob NOT NULL,
-					`recovery` blob NOT NULL,
-					`ctime` int(10) unsigned NOT NULL,
-					`vtime` int(10) unsigned NOT NULL,
-					`mode` enum('authenticator') NOT NULL DEFAULT 'authenticator',
-					PRIMARY KEY (`id`),
-					KEY `user_id` (`user_id`)
-				) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
-			);
-		} );
+		global $wpdb;
+		$table = $this->getWordfenceLoginSecuritySecretsTable();
+		$this->assertNotFalse( $wpdb->query(
+			"CREATE TABLE IF NOT EXISTS `{$table}` (
+				`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+				`user_id` bigint(20) unsigned NOT NULL,
+				`secret` tinyblob NOT NULL,
+				`recovery` blob NOT NULL,
+				`ctime` int(10) unsigned NOT NULL,
+				`vtime` int(10) unsigned NOT NULL,
+				`mode` enum('authenticator') NOT NULL DEFAULT 'authenticator',
+				PRIMARY KEY (`id`),
+				KEY `user_id` (`user_id`)
+			) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+		) );
 		\FernleafSystems\Wordpress\Services\Services::WpDb()->clearResultShowTables();
 	}
 
 	private function dropWordfenceLoginSecuritySecretsTable() :void {
-		$this->runWithoutWordpressTemporaryTableQueryHooks( function () {
-			global $wpdb;
-			$table = $this->getWordfenceLoginSecuritySecretsTable();
-			$wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
-		} );
+		global $wpdb;
+		$table = $this->getWordfenceLoginSecuritySecretsTable();
+		$this->assertNotFalse( $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" ) );
 		\FernleafSystems\Wordpress\Services\Services::WpDb()->clearResultShowTables();
-	}
-
-	// WP_UnitTestCase can rewrite ad hoc CREATE/DROP TABLE queries into temporary tables.
-	// Suspending those query hooks keeps Wordfence's table visible to SHOW TABLES probes.
-	private function runWithoutWordpressTemporaryTableQueryHooks( callable $callback ) {
-		$createHook = [ $this, '_create_temporary_tables' ];
-		$dropHook = [ $this, '_drop_temporary_tables' ];
-		$removedCreateHook = \method_exists( $this, '_create_temporary_tables' ) && \has_filter( 'query', $createHook ) !== false;
-		$removedDropHook = \method_exists( $this, '_drop_temporary_tables' ) && \has_filter( 'query', $dropHook ) !== false;
-
-		if ( $removedCreateHook ) {
-			\remove_filter( 'query', $createHook, 10 );
-		}
-		if ( $removedDropHook ) {
-			\remove_filter( 'query', $dropHook, 10 );
-		}
-
-		try {
-			return $callback();
-		}
-		finally {
-			if ( $removedCreateHook ) {
-				\add_filter( 'query', $createHook, 10 );
-			}
-			if ( $removedDropHook ) {
-				\add_filter( 'query', $dropHook, 10 );
-			}
-		}
 	}
 }

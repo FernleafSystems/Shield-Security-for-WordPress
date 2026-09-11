@@ -4,7 +4,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops;
 
 /**
  * @property int   $scan_ref
- * @property array $items
+ * @property array<array-key,mixed> $items
+ * @property int   $item_count
  * @property int   $started_at
  * @property int   $attempts
  * @property int   $finished_at
@@ -31,6 +32,7 @@ class Record extends \FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Recor
 				break;
 
 			case 'scan_ref':
+			case 'item_count':
 			case 'started_at':
 			case 'attempts':
 			case 'finished_at':

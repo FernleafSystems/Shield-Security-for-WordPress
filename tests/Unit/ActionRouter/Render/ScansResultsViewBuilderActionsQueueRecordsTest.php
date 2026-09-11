@@ -207,7 +207,7 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertSame( 'actions-queue-filelocker-card-14', $pane[ 'cards' ][ 0 ][ 'panel_id' ] );
 		$this->assertSame( 'actions-queue-filelocker-14', $pane[ 'cards' ][ 0 ][ 'panel_target' ] );
 		$this->assertSame( '/wp-config.php', $pane[ 'cards' ][ 0 ][ 'meta_text' ] );
-		$this->assertFalse( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
+		$this->assertTrue( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
 		$this->assertSame( '0', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
 		$this->assertSame( '1', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
 		$fileDiffRenderAction = \json_decode(
@@ -280,27 +280,17 @@ class ScansResultsViewBuilderActionsQueueRecordsTest extends ScansResultsViewBui
 		$this->assertCount( 2, $pane[ 'cards' ] );
 		$this->assertSame( [ 'inactive:wpconfig', 'inactive:root_index' ], \array_column( $pane[ 'cards' ], 'key' ) );
 		$this->assertSame(
-			[ 'actions-queue-filelocker-pending-wpconfig', 'actions-queue-filelocker-pending-root_index' ],
+			[ '', '' ],
 			\array_column( $pane[ 'cards' ], 'panel_target' )
 		);
 		$this->assertTrue( $pane[ 'cards' ][ 0 ][ 'is_inactive' ] );
-		$this->assertSame( 'secondary', $pane[ 'cards' ][ 0 ][ 'body_notice_variant' ] );
-		$this->assertFalse( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
-		$this->assertSame( '1', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-loaded' ] );
-		$this->assertSame( '0', $pane[ 'cards' ][ 0 ][ 'panel_data' ][ 'actions-queue-asset-panel-lazy' ] );
+		$this->assertSame( [], $pane[ 'cards' ][ 0 ][ 'actions' ] );
+		$this->assertTrue( $pane[ 'cards' ][ 0 ][ 'show_meta_in_tile' ] );
+		$this->assertSame( [], $pane[ 'cards' ][ 0 ][ 'panel_data' ] );
 
-		$action = $pane[ 'cards' ][ 0 ][ 'actions' ][ 0 ];
-		$this->assertTrue( $action[ 'is_action' ] );
-		$this->assertSame( 'update', $action[ 'type' ] );
-		$this->assertSame( 'bi bi-shield-lock-fill', $action[ 'icon_class' ] );
-		$this->assertSame( '1', $action[ 'attributes' ][ 'data-operator-context-action-ajax' ] );
-		$this->assertNotSame( '', $action[ 'attributes' ][ 'data-operator-context-action-confirm' ] );
-		$actionData = \json_decode(
-			$action[ 'attributes' ][ 'data-operator-context-action-json' ],
-			true,
-			512,
-			\JSON_THROW_ON_ERROR
-		);
+		$dialog = \json_decode( $pane[ 'cards' ][ 0 ][ 'enable_dialog_json' ], true, 512, \JSON_THROW_ON_ERROR );
+		$this->assertSame( '/wp-config.php', $dialog[ 'path' ] );
+		$actionData = $dialog[ 'action' ];
 		$this->assertSame( ScansFileLockerEnableFile::SLUG, $actionData[ 'ex' ] );
 		$this->assertSame( 'wpconfig', $actionData[ 'file_key' ] );
 		$this->assertArrayHasKey( 'exnonce', $actionData );

@@ -16,7 +16,6 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 
 	public function set_up() {
 		parent::set_up();
-		$this->truncateShieldTables();
 		$this->requireDb( 'scans' );
 		$this->requireDb( 'scan_results' );
 		$this->requireDb( 'scan_result_items' );
@@ -48,7 +47,7 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertSame( $notifiedAt, (int)$resultItem->notified_at );
 		$this->assertSame( 0, (int)$resultItem->resolved_at );
 
-		$this->assertSame( 1, $this->countResultItemsForPath( $pathFragment ) );
+		$this->assertSame( 1, $this->countResultItemsForPath( $pathFull ) );
 		$this->assertSame( 1, $this->countScanResultLinks( $scanID, $legacyResultItemID ) );
 		$this->assertSame( 0, $this->countResultItemMetaForKey( $legacyResultItemID, 'path_full' ) );
 		$this->assertSame( 0, $this->countResultItemMetaForKey( $legacyResultItemID, 'path_fragment' ) );
@@ -67,6 +66,97 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertCount( 1, $items );
 		$this->assertSame( $pathFragment, $items[ 0 ]->path_fragment );
 		$this->assertSame( $pathFull, $items[ 0 ]->path_full );
+	}
+
+	public function testStoreLegacyReuseReplacesComparisonBasisMetadataInRealSchema() :void {
+		$scanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$pathFragment = 'wp-content/plugins/legacy/legacy.php';
+		$pathFull = \wp_normalize_path( ABSPATH.$pathFragment );
+		$legacyResultItemID = $this->insertLegacyBlankResultItem( $pathFragment, 1700000123 );
+		$this->insertResultItemMeta( $legacyResultItemID, 'comparison_basis', 'local_baseline' );
+
+		( new Store() )->store( $this->newQueueItem( $scanID ), [
+			[
+				'path_full'       => $pathFull,
+				'path_fragment'   => $pathFull,
+				'file_path'       => $pathFull,
+				'is_in_plugin'    => 1,
+				'ptg_slug'        => 'legacy/legacy.php',
+				'is_checksumfail' => 1,
+				'comparison_basis' => 'published_reference',
+			],
+		] );
+
+		$this->assertSame( 1, $this->countResultItemsForPath( $pathFull ) );
+		$this->assertSame( [ 'published_reference' ], $this->resultItemMetaValues( $legacyResultItemID, 'comparison_basis' ) );
+	}
+
+	public function testIneligibleFullAfsMalwareRetryPreservesExistingFileChangeFacet() :void {
+		$initialScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$pathFull = \wp_normalize_path( WP_PLUGIN_DIR.'/protected/protected.php' );
+		$tracked = TestDataFactory::insertAfsFileScanResultTracked( $initialScanID, $pathFull, [
+			'is_in_plugin'     => 1,
+			'is_checksumfail'  => 1,
+			'ptg_slug'         => 'protected/protected.php',
+			'asset_version'    => '1.0',
+			'comparison_basis' => 'published_reference',
+		] );
+		$resultItemID = (int)$tracked[ 'result_item_id' ];
+		$queueScanID = TestDataFactory::insertCompletedScan( 'afs' );
+		$result = [
+			'path_full'         => $pathFull,
+			'path_fragment'     => $pathFull,
+			'file_path'         => $pathFull,
+			'is_in_plugin'      => 1,
+			'ptg_slug'          => 'protected/protected.php',
+			'asset_version'     => '1.0',
+			'is_mal'            => 1,
+			'malware_record_id' => 314,
+		];
+
+		global $wpdb;
+		$scanResultsTable = self::con()->db_con->scan_results->getTable();
+		$failedTable = $scanResultsTable.'_forced_failure';
+		$queryFilter = static function ( string $query ) use ( $scanResultsTable, $failedTable ) :string {
+			return \stripos( $query, 'insert' ) !== false
+				   && \strpos( $query, "`{$scanResultsTable}`" ) !== false
+				? \str_replace( "`{$scanResultsTable}`", "`{$failedTable}`", $query )
+				: $query;
+		};
+		$previousSuppressErrors = $wpdb->suppress_errors( true );
+		\add_filter( 'query', $queryFilter );
+		try {
+			( new Store() )->store( $this->newFullQueueItem( $queueScanID ), [ $result ] );
+			$this->fail( 'Expected the forced observation insert failure.' );
+		}
+		catch ( \RuntimeException $e ) {
+			$this->assertStringContainsString( 'observation insert', $e->getMessage() );
+		}
+		finally {
+			\remove_filter( 'query', $queryFilter );
+			$wpdb->suppress_errors( $previousSuppressErrors );
+		}
+
+		$this->assertSame( 1, $this->countResultItemsForPath( $pathFull ) );
+		$this->assertSame( [ '1' ], $this->resultItemMetaValues( $resultItemID, 'is_checksumfail' ) );
+		$this->assertSame( [ '1.0' ], $this->resultItemMetaValues( $resultItemID, 'asset_version' ) );
+		$this->assertSame(
+			[ 'published_reference' ],
+			$this->resultItemMetaValues( $resultItemID, 'comparison_basis' )
+		);
+		$this->assertSame( 0, $this->countScanResultLinks( $queueScanID, $resultItemID ) );
+
+		( new Store() )->store( $this->newFullQueueItem( $queueScanID ), [ $result ] );
+
+		$this->assertSame( [ '1' ], $this->resultItemMetaValues( $resultItemID, 'is_checksumfail' ) );
+		$this->assertSame( [ '1.0' ], $this->resultItemMetaValues( $resultItemID, 'asset_version' ) );
+		$this->assertSame(
+			[ 'published_reference' ],
+			$this->resultItemMetaValues( $resultItemID, 'comparison_basis' )
+		);
+		$this->assertSame( [ '1' ], $this->resultItemMetaValues( $resultItemID, 'is_mal' ) );
+		$this->assertSame( [ '314' ], $this->resultItemMetaValues( $resultItemID, 'malware_record_id' ) );
+		$this->assertSame( 1, $this->countScanResultLinks( $queueScanID, $resultItemID ) );
 	}
 
 	private function insertLegacyBlankResultItem( string $pathFragment, int $notifiedAt ) :int {
@@ -99,6 +189,24 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 		return $queueItem;
 	}
 
+	private function newFullQueueItem( int $scanID ) :QueueItemVO {
+		$queueItem = $this->newQueueItem( $scanID );
+		$queueItem->scope_type = 'full';
+		$queueItem->scope_key = '';
+		$queueItem->meta = [
+			'asset_snapshot_eligibility' => [
+				'plugin' => [
+					'protected/protected.php' => [
+						'version'             => '1.0',
+						'comparison_eligible' => false,
+					],
+				],
+				'theme'  => [],
+			],
+		];
+		return $queueItem;
+	}
+
 	private function newAfsScanController() :object {
 		return new class {
 			public function getSlug() :string {
@@ -107,16 +215,11 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 		};
 	}
 
-	private function countResultItemsForPath( string $pathFragment ) :int {
-		global $wpdb;
-		return (int)$wpdb->get_var( $wpdb->prepare(
-			"SELECT COUNT(*)
-				FROM `".self::con()->db_con->scan_result_items->getTable()."`
-				WHERE `item_type`=%s
-				  AND `item_id`=%s",
-			ResultItemsHandler::ITEM_TYPE_FILE,
-			$pathFragment
-		) );
+	private function countResultItemsForPath( string $path ) :int {
+		return self::con()->db_con->scan_result_items->getQuerySelector()
+			->filterByTypeFile()
+			->filterByItemID( TestDataFactory::afsFileItemIdFromPath( $path ) )
+			->count();
 	}
 
 	private function countScanResultLinks( int $scanID, int $resultItemID ) :int {
@@ -141,5 +244,30 @@ class ScanResultStoreLegacyReuseIntegrationTest extends ShieldIntegrationTestCas
 			$resultItemID,
 			$metaKey
 		) );
+	}
+
+	private function insertResultItemMeta( int $resultItemID, string $metaKey, string $metaValue ) :void {
+		global $wpdb;
+		$this->assertSame( 1, $wpdb->insert(
+			self::con()->db_con->scan_result_item_meta->getTable(),
+			[
+				'ri_ref'     => $resultItemID,
+				'meta_key'   => $metaKey,
+				'meta_value' => $metaValue,
+			]
+		) );
+	}
+
+	private function resultItemMetaValues( int $resultItemID, string $metaKey ) :array {
+		global $wpdb;
+		return \array_map( 'strval', $wpdb->get_col( $wpdb->prepare(
+			"SELECT `meta_value`
+				FROM `".self::con()->db_con->scan_result_item_meta->getTable()."`
+				WHERE `ri_ref`=%d
+				  AND `meta_key`=%s
+				ORDER BY `id` ASC",
+			$resultItemID,
+			$metaKey
+		) ) );
 	}
 }
