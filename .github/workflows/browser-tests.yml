@@ -6,9 +6,9 @@ concurrency:
 
 on:
   pull_request:
-    branches: [ develop, main, master, docker-matrix-testing-research ]
+    branches: [ develop, feature/php82, main, master, docker-matrix-testing-research ]
   push:
-    branches: [ develop ]
+    branches: [ develop, feature/php82 ]
   workflow_dispatch:
   schedule:
     - cron: '30 6 * * 1-5'

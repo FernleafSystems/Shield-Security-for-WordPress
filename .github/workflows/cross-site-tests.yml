@@ -6,7 +6,7 @@ concurrency:
 
 on:
   pull_request:
-    branches: [ develop, main, master, docker-matrix-testing-research ]
+    branches: [ develop, feature/php82, main, master, docker-matrix-testing-research ]
     paths:
       - 'composer.json'
       - 'composer.lock'

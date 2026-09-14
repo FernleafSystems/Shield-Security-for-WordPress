@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ develop, main, master, docker-matrix-testing-research ]
+    branches: [ develop, feature/php82, main, master, docker-matrix-testing-research ]
   pull_request:
-    branches: [ develop, main, master, docker-matrix-testing-research ]
+    branches: [ develop, feature/php82, main, master, docker-matrix-testing-research ]
   workflow_dispatch:
 
 jobs:
