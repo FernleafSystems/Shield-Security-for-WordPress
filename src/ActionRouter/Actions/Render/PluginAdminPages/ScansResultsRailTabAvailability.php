@@ -54,9 +54,9 @@ class ScansResultsRailTabAvailability {
 		];
 
 		if ( $tabKey === 'hidden_plugins' ) {
-			$state[ 'show_in_fix_now' ] = true;
 			$state[ 'is_available' ] = self::con()->caps->canDetectCloakedPlugins();
-			$state[ 'show_in_actions_queue' ] = true;
+			$state[ 'show_in_fix_now' ] = $state[ 'is_available' ];
+			$state[ 'show_in_actions_queue' ] = $state[ 'is_available' ];
 			if ( !$state[ 'is_available' ] ) {
 				$state = \array_replace( $state, $this->buildDisabledState(
 					'not_enabled',
