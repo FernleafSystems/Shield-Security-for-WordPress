@@ -59,14 +59,14 @@ use FernleafSystems\Wordpress\Services\Utilities\URL;
  * @phpstan-type CloakedPluginsRailPane array{
  *   key:'hidden_plugins',
  *   label:string,
- *   status:'critical'|'good',
+ *   status:string,
  *   icon_class:string,
  *   count_items:int,
  *   items:list<CloakedPluginDetailRow>,
  *   is_loaded:true,
- *   is_disabled:false,
- *   disabled_message:'',
- *   disabled_status:'neutral',
+ *   is_disabled:bool,
+ *   disabled_message:string,
+ *   disabled_status:string,
  *   disabled_actions:array{},
  *   render_action:array{},
  *   show_count_placeholder:false,
@@ -85,6 +85,9 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 	 * @return list<AttentionItem>
 	 */
 	public function attentionItems() :array {
+		if ( !self::con()->caps->canDetectCloakedPlugins() ) {
+			return [];
+		}
 		$activeFindings = $this->activeFindings();
 		$count = \count( $activeFindings );
 		if ( $count < 1 ) {
@@ -113,6 +116,9 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 	 * @return list<AssessmentRow>
 	 */
 	public function assessmentRows() :array {
+		if ( !self::con()->caps->canDetectCloakedPlugins() ) {
+			return [];
+		}
 		$count = \count( $this->activeFindings() );
 		$status = $count > 0 ? 'critical' : 'good';
 
@@ -135,8 +141,10 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 	 * @return CloakedPluginsRailPane
 	 */
 	public function railPaneData() :array {
-		$activeFindings = $this->activeFindings();
-		$ignoredFindings = $this->ignoredFindings();
+		$availability = ( new ScansResultsRailTabAvailability() )->build( self::KEY );
+		$isDisabled = !$availability[ 'is_available' ];
+		$activeFindings = $isDisabled ? [] : $this->activeFindings();
+		$ignoredFindings = $isDisabled ? [] : $this->ignoredFindings();
 		$count = \count( $activeFindings );
 
 		return [
@@ -144,7 +152,7 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 			'label'                  => $this->label(),
 			'icon_class'             => $this->iconClass(),
 			'count_items'            => $count,
-			'status'                 => $count > 0 ? 'critical' : 'good',
+			'status'                 => $isDisabled ? $availability[ 'disabled_status' ] : ( $count > 0 ? 'critical' : 'good' ),
 			'items'                  => \array_merge(
 				\array_map(
 					fn( CloakedPluginFinding $finding ) :array => $this->detailRow( $finding, false ),
@@ -156,9 +164,9 @@ class CloakedPluginsQueueIssueProvider implements ActionsQueueSecurityCheckProvi
 				)
 			),
 			'is_loaded'              => true,
-			'is_disabled'            => false,
-			'disabled_message'       => '',
-			'disabled_status'        => 'neutral',
+			'is_disabled'            => $isDisabled,
+			'disabled_message'       => $availability[ 'disabled_message' ],
+			'disabled_status'        => $availability[ 'disabled_status' ],
 			'disabled_actions'       => [],
 			'render_action'          => [],
 			'show_count_placeholder' => false,

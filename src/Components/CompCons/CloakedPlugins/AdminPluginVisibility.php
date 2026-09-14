@@ -4,87 +4,58 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlu
 
 class AdminPluginVisibility {
 
-	public function snapshot( ?array $finalPluginsList = null ) :AdminPluginVisibilitySnapshot {
-		$this->ensurePluginApiLoaded();
+	private ?AdminPluginVisibilitySnapshot $observation = null;
 
-		$wpPlugins = \function_exists( 'get_plugins' ) ? \get_plugins() : [];
-		$adminAllPlugins = $this->normalizePluginMap( $this->applyFilter( 'all_plugins', $wpPlugins ) );
+	public function beginPluginsList( mixed $plugins ) :mixed {
+		$this->observation = $this->snapshot();
+		$this->observation->wpDiscoveredPlugins = \is_array( $plugins ) ? $plugins : null;
+		$this->observation->adminAllPlugins = null;
+		$this->observation->showMustUsePlugins = null;
+		$this->observation->isPageObservation = true;
+		return $plugins;
+	}
 
-		$wpMuPlugins = \function_exists( 'get_mu_plugins' ) ? \get_mu_plugins() : [];
-		$showMuPlugins = (bool)$this->applyFilter( 'show_advanced_plugins', true, 'mustuse' );
-		$adminMuPlugins = $showMuPlugins ? $this->normalizePluginMap( $wpMuPlugins ) : [];
+	public function observeAllPlugins( mixed $plugins ) :mixed {
+		if ( $this->observation !== null ) {
+			$this->observation->adminAllPlugins = \is_array( $plugins ) ? $plugins : null;
+		}
+		return $plugins;
+	}
 
-		$activePlugins = $this->activePlugins();
-		$networkActivePlugins = $this->networkActivePlugins();
+	public function observeAdvancedPlugins( mixed $show, string $type ) :mixed {
+		if ( $type === 'mustuse' && $this->observation !== null ) {
+			$this->observation->showMustUsePlugins = \is_bool( $show ) ? $show : null;
+		}
+		return $show;
+	}
+
+	public function finishPluginsList( mixed $plugins ) :?AdminPluginVisibilitySnapshot {
+		$observation = $this->observation;
+		$this->observation = null;
+		if ( $observation !== null ) {
+			$observation->finalPluginsList = \is_array( $plugins ) ? $plugins : null;
+		}
+		return $observation;
+	}
+
+	public function snapshot() :AdminPluginVisibilitySnapshot {
+		if ( !\function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH.'wp-admin/includes/plugin.php';
+		}
+		$plugins = \get_plugins();
+		$plugins = \is_array( $plugins ) ? $plugins : null;
+		$muPlugins = \get_mu_plugins();
+		$active = \get_option( 'active_plugins', [] );
+		$networkActive = \get_site_option( 'active_sitewide_plugins', [] );
 
 		return new AdminPluginVisibilitySnapshot(
-			$this->normalizePluginMap( $wpPlugins ),
-			$adminAllPlugins,
-			$this->normalizePluginMap( $wpMuPlugins ),
-			$showMuPlugins,
-			$adminMuPlugins,
-			$finalPluginsList ?? $this->filteredPluginsList( $adminAllPlugins, $adminMuPlugins, $activePlugins, $networkActivePlugins ),
-			$activePlugins,
-			$networkActivePlugins
+			$plugins,
+			$plugins,
+			$muPlugins,
+			true,
+			null,
+			\array_values( \array_filter( \is_array( $active ) ? $active : [], '\is_string' ) ),
+			\array_values( \array_filter( \array_keys( \is_array( $networkActive ) ? $networkActive : [] ), '\is_string' ) )
 		);
-	}
-
-	private function ensurePluginApiLoaded() :void {
-		if ( !\function_exists( 'get_plugins' ) && \defined( 'ABSPATH' ) ) {
-			$pluginApi = \rtrim( \str_replace( '\\', '/', ABSPATH ), '/' ).'/wp-admin/includes/plugin.php';
-			if ( \is_file( $pluginApi ) ) {
-				require_once $pluginApi;
-			}
-		}
-	}
-
-	private function applyFilter( string $hook, mixed $value, mixed ...$args ) :mixed {
-		return \function_exists( 'apply_filters' ) ? \apply_filters( $hook, $value, ...$args ) : $value;
-	}
-
-	private function normalizePluginMap( mixed $plugins ) :array {
-		return \is_array( $plugins ) ? $plugins : [];
-	}
-
-	private function filteredPluginsList( array $adminAllPlugins, array $adminMuPlugins, array $activePlugins, array $networkActivePlugins ) :array {
-		$plugins = [
-			'all'                  => $adminAllPlugins,
-			'search'               => [],
-			'active'               => [],
-			'inactive'             => [],
-			'recently_activated'   => [],
-			'upgrade'              => [],
-			'mustuse'              => $adminMuPlugins,
-			'dropins'              => [],
-			'paused'               => [],
-			'auto-update-enabled'  => [],
-			'auto-update-disabled' => [],
-		];
-
-		foreach ( $adminAllPlugins as $file => $pluginData ) {
-			$group = \in_array( $file, $activePlugins, true ) || \in_array( $file, $networkActivePlugins, true )
-				? 'active'
-				: 'inactive';
-			$plugins[ $group ][ $file ] = $pluginData;
-		}
-
-		$filtered = $this->applyFilter( 'plugins_list', $plugins );
-		return \is_array( $filtered ) ? $filtered : $plugins;
-	}
-
-	/**
-	 * @return list<string>
-	 */
-	private function activePlugins() :array {
-		$active = \function_exists( 'get_option' ) ? \get_option( 'active_plugins', [] ) : [];
-		return \array_values( \array_filter( \is_array( $active ) ? $active : [], '\is_string' ) );
-	}
-
-	/**
-	 * @return list<string>
-	 */
-	private function networkActivePlugins() :array {
-		$active = \function_exists( 'get_site_option' ) ? \get_site_option( 'active_sitewide_plugins', [] ) : [];
-		return \array_values( \array_filter( \array_keys( \is_array( $active ) ? $active : [] ), '\is_string' ) );
 	}
 }

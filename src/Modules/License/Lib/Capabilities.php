@@ -3,6 +3,7 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\License\Lib;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
+use FernleafSystems\Wordpress\Services\Services;
 
 class Capabilities {
 
@@ -97,7 +98,7 @@ class Capabilities {
 	}
 
 	public function canDetectCloakedPlugins() :bool {
-		return true;
+		return \version_compare( Services::WpGeneral()->getVersion( true ), '6.3', '>=' );
 	}
 
 	public function canMainwpLevel1() :bool {

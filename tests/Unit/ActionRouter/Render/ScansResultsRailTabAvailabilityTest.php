@@ -30,14 +30,23 @@ class ScansResultsRailTabAvailabilityTest extends BaseUnitTest {
 		parent::tearDown();
 	}
 
-	public function test_cloaked_plugins_tab_is_available_through_its_explicit_capability() :void {
+	/**
+	 * @dataProvider availabilityProvider
+	 */
+	public function test_cloaked_plugins_tab_follows_its_explicit_capability( bool $available ) :void {
 		UnitTestControllerFactory::install(
 			null,
 			null,
 			(object)[
-				'caps' => new class {
+				'caps' => new class( $available ) {
+					private bool $available;
+
+					public function __construct( bool $available ) {
+						$this->available = $available;
+					}
+
 					public function canDetectCloakedPlugins() :bool {
-						return true;
+						return $this->available;
 					}
 				},
 			]
@@ -45,10 +54,15 @@ class ScansResultsRailTabAvailabilityTest extends BaseUnitTest {
 
 		$state = ( new ScansResultsRailTabAvailability() )->build( 'hidden_plugins' );
 
-		$this->assertTrue( $state[ 'is_available' ] );
-		$this->assertTrue( $state[ 'show_in_actions_queue' ] );
-		$this->assertTrue( $state[ 'show_in_fix_now' ] );
-		$this->assertSame( '', $state[ 'disabled_reason' ] );
+		$this->assertSame( $available, $state[ 'is_available' ] );
+		$this->assertSame( $available, $state[ 'show_in_actions_queue' ] );
+		$this->assertSame( $available, $state[ 'show_in_fix_now' ] );
+		$this->assertSame( $available ? '' : 'not_enabled', $state[ 'disabled_reason' ] );
+		$this->assertSame( 'neutral', $state[ 'disabled_status' ] );
 		$this->assertSame( [], $state[ 'disabled_actions' ] );
+	}
+
+	public static function availabilityProvider() :array {
+		return [ 'available' => [ true ], 'unavailable' => [ false ] ];
 	}
 }

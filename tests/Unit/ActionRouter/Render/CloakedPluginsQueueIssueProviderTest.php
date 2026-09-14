@@ -77,7 +77,7 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 			'service_wpusers'   => new UnitTestUsers( 7 ),
 			'service_wpfs'      => new Fs(),
 		] );
-		UnitTestControllerFactory::install();
+		$this->installCapability( true );
 	}
 
 	protected function tearDown() :void {
@@ -267,6 +267,41 @@ class CloakedPluginsQueueIssueProviderTest extends BaseUnitTest {
 
 		$this->assertSame( 'critical', $row[ 'status' ] );
 		$this->assertSame( [], $row[ 'actions' ] );
+	}
+
+	public function test_unavailable_detection_omits_queue_rows_and_disables_direct_pane() :void {
+		$this->installCapability( false );
+		$finding = $this->finding(
+			new PluginEntry( PluginType::Standard, 'cloaked/cloaked.php', 'Cloaked Plugin', '1.2.3', '/plugins/cloaked/cloaked.php' ),
+			[ CloakReason::AllPlugins ],
+			true
+		);
+		$provider = new CloakedPluginsQueueIssueProviderTestDouble( [ $finding ], '', '', [ $finding ] );
+
+		$this->assertSame( [], $provider->attentionItems() );
+		$this->assertSame( [], $provider->assessmentRows() );
+		$pane = $provider->railPaneData();
+		$this->assertTrue( $pane[ 'is_disabled' ] );
+		$this->assertSame( 'neutral', $pane[ 'status' ] );
+		$this->assertSame( 0, $pane[ 'count_items' ] );
+		$this->assertSame( [], $pane[ 'items' ] );
+		$this->assertSame( [], $pane[ 'disabled_actions' ] );
+	}
+
+	private function installCapability( bool $available ) :void {
+		UnitTestControllerFactory::install( null, null, (object)[
+			'caps' => new class( $available ) {
+				private bool $available;
+
+				public function __construct( bool $available ) {
+					$this->available = $available;
+				}
+
+				public function canDetectCloakedPlugins() :bool {
+					return $this->available;
+				}
+			},
+		] );
 	}
 
 	private function finding(

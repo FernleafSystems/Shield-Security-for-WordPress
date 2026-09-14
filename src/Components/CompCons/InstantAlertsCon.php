@@ -123,7 +123,8 @@ class InstantAlertsCon {
 			'admins'             => InstantAlerts\Handlers\AlertHandlerAdmins::class,
 			'filelocker'         => InstantAlerts\Handlers\AlertHandlerFileLocker::class,
 			'firewall_block'     => InstantAlerts\Handlers\AlertHandlerFirewallBlock::class,
-			'hidden_plugins'     => InstantAlerts\Handlers\AlertHandlerCloakedPlugins::class,
+			'hidden_plugins'     => self::con()->caps->canDetectCloakedPlugins()
+				? InstantAlerts\Handlers\AlertHandlerCloakedPlugins::class : null,
 			'vulnerabilities'    => InstantAlerts\Handlers\AlertHandlerVulnerabilities::class,
 			'shield_deactivated' => InstantAlerts\Handlers\AlertHandlerShieldDeactivated::class,
 		];
