@@ -387,18 +387,24 @@ class CloakedPluginsConIntegrationTest extends ShieldIntegrationTestCase {
 	public function testRealPluginsTableSurvivesEmptyDiscoveryAndRecovery() :void {
 		$GLOBALS[ 'pagenow' ] = 'plugins.php';
 		$file = $this->createStandardCloakedPlugin( 'shi-cloaked-table-cache', 'Table cache control' );
-		$this->assertArrayHasKey( $file, $this->prepareRealPluginsTable() );
+		$shieldFile = $this->requireController()->base_file;
+		$initialItems = $this->prepareRealPluginsTable();
+		$this->assertArrayHasKey( $file, $initialItems );
+		$this->assertArrayHasKey( $shieldFile, $initialItems );
 		$restore = $this->injectEmptyStandardList( 'discovery_cache' );
 		try {
 			$this->resetCloakedPluginFindingsCache();
 			$items = $this->prepareRealPluginsTable();
 			$this->assertArrayNotHasKey( $file, $items, 'The controlled empty discovery must reach the actual table.' );
+			$this->assertArrayNotHasKey( $shieldFile, $items, 'Empty discovery must not add a synthetic Shield row.' );
 		}
 		finally {
 			$restore();
 		}
 		$this->resetCloakedPluginFindingsCache();
-		$this->assertArrayHasKey( $file, $this->prepareRealPluginsTable() );
+		$recoveredItems = $this->prepareRealPluginsTable();
+		$this->assertArrayHasKey( $file, $recoveredItems );
+		$this->assertArrayHasKey( $shieldFile, $recoveredItems );
 	}
 
 	/** @dataProvider muEvidenceChecks */
