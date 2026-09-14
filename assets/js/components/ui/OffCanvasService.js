@@ -30,10 +30,12 @@ export class OffCanvasService extends BaseComponent {
 		OffCanvasService.bsCanvas = new Offcanvas( OffCanvasService.offCanvasEl );
 
 		OffCanvasService.offCanvasEl.addEventListener( 'shown.bs.offcanvas', () => {
+			UiContentActivator.activateBootstrapTabsWithin( OffCanvasService.offCanvasEl );
 			UiContentActivator.activateCurrentSubtree( OffCanvasService.offCanvasEl );
 		} );
 
 		OffCanvasService.offCanvasEl.addEventListener( 'hidden.bs.offcanvas', () => {
+			UiContentActivator.disposeBootstrapTabsWithin( OffCanvasService.offCanvasEl );
 			OffCanvasService.canvasTracker.pop(); // remove the one we just closed.
 			if ( OffCanvasService.canvasTracker.length > 0 ) {
 				OffCanvasService.renderRequest(
@@ -44,7 +46,10 @@ export class OffCanvasService extends BaseComponent {
 
 			const openerEl = OffCanvasService.rootOpenerEl;
 			OffCanvasService.rootOpenerEl = null;
-			focusElement( openerEl );
+			if ( !focusElement( openerEl ) && openerEl instanceof HTMLElement ) {
+				// A contextual menu closes when its action opens the offcanvas.
+				focusElement( openerEl.closest( '.dropdown-menu' )?.parentElement?.querySelector( '[data-bs-toggle="dropdown"]' ) );
+			}
 		} );
 	}
 
@@ -106,6 +111,7 @@ export class OffCanvasService extends BaseComponent {
 	}
 
 	static renderRequest( request ) {
+		UiContentActivator.disposeBootstrapTabsWithin( OffCanvasService.offCanvasEl );
 		BootstrapTooltips.DisposeTooltipsWithin( OffCanvasService.offCanvasEl );
 		OffCanvasService.offCanvasEl.replaceChildren( OffCanvasService.buildLoadingContent() );
 		OffCanvasService.offCanvasEl.classList.forEach( ( cls ) => {
@@ -120,6 +126,7 @@ export class OffCanvasService extends BaseComponent {
 		.then( ( resp ) => {
 			if ( resp?.success && typeof resp?.data?.html === 'string' ) {
 				OffCanvasService.offCanvasEl.classList.add( request.render_slug );
+				UiContentActivator.disposeBootstrapTabsWithin( OffCanvasService.offCanvasEl );
 				BootstrapTooltips.DisposeTooltipsWithin( OffCanvasService.offCanvasEl );
 				OffCanvasService.offCanvasEl.innerHTML = resp.data.html;
 				if ( !OffCanvasService.validateOffcanvasAccessibility() ) {
@@ -128,6 +135,7 @@ export class OffCanvasService extends BaseComponent {
 					);
 				}
 				if ( OffCanvasService.offCanvasEl.classList.contains( 'show' ) ) {
+					UiContentActivator.activateBootstrapTabsWithin( OffCanvasService.offCanvasEl );
 					UiContentActivator.activateCurrentSubtree( OffCanvasService.offCanvasEl );
 				}
 				return true;
@@ -217,8 +225,8 @@ export class OffCanvasService extends BaseComponent {
 		const fragment = document.createDocumentFragment();
 		const header = document.createElement( 'div' );
 		header.className = 'offcanvas-header';
-		const title = document.createElement( 'h5' );
-		title.className = 'offcanvas-title';
+		const title = document.createElement( 'h2' );
+		title.className = 'offcanvas-title h5';
 		title.id = 'AptoOffcanvasLabel';
 		title.textContent = typeof shieldStrings !== 'undefined' && typeof shieldStrings.string === 'function'
 			? shieldStrings.string( 'loading' ) || 'Loading'

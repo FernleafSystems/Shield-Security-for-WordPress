@@ -2,12 +2,52 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Configuration;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing\MalwareStatus;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\PluginPathsTrait;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 class DatabaseSchemaConfigTest extends TestCase {
 
 	use PluginPathsTrait;
+
+	public function test_malware_status_width_covers_every_known_label_in_source_and_generated_config() :void {
+		$source = $this->decodePluginJsonFile( 'plugin-spec/43_databases.json', 'Database schema source spec' );
+		$generated = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
+		$requiredWidth = \max( \array_map( 'strlen', ( new MalwareStatus() )->knownLabels() ) );
+
+		$this->assertGreaterThanOrEqual(
+			$requiredWidth,
+			$source[ 'tables' ][ 'malware' ][ 'cols_custom' ][ 'malai_status' ][ 'length' ] ?? 0
+		);
+		$this->assertGreaterThanOrEqual(
+			$requiredWidth,
+			$generated[ 'config_spec' ][ 'databases' ][ 'tables' ][ 'malware' ][ 'cols_custom' ][ 'malai_status' ][ 'length' ] ?? 0
+		);
+	}
+
+	public function test_scan_items_item_count_definition_matches_generated_config() :void {
+		$source = $this->decodePluginJsonFile( 'plugin-spec/43_databases.json', 'Database schema source spec' );
+		$generated = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
+		$expected = [
+			'macro_type' => 'unsigned_int',
+			'comment'    => 'Number of scan items in this queue row',
+		];
+
+		$this->assertSame( $expected, $source[ 'tables' ][ 'scan_items' ][ 'cols_custom' ][ 'item_count' ] ?? null );
+		$this->assertSame( $expected, $generated[ 'config_spec' ][ 'databases' ][ 'tables' ][ 'scan_items' ][ 'cols_custom' ][ 'item_count' ] ?? null );
+	}
+
+	public function test_scans_meta_uses_mediumtext_in_source_and_generated_config() :void {
+		$source = $this->decodePluginJsonFile( 'plugin-spec/43_databases.json', 'Database schema source spec' );
+		$generated = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
+		$expected = [
+			'macro_type' => 'mediumtext',
+			'comment'    => 'Scan Meta Info',
+		];
+
+		$this->assertSame( $expected, $source[ 'tables' ][ 'scans' ][ 'cols_custom' ][ 'meta' ] ?? null );
+		$this->assertSame( $expected, $generated[ 'config_spec' ][ 'databases' ][ 'tables' ][ 'scans' ][ 'cols_custom' ][ 'meta' ] ?? null );
+	}
 
 	public function test_custom_database_column_names_do_not_use_mysql_reserved_words() :void {
 		$config = $this->decodePluginJsonFile( 'plugin-spec/43_databases.json', 'Database schema source spec' );
@@ -24,6 +64,21 @@ class DatabaseSchemaConfigTest extends TestCase {
 
 		\sort( $violations );
 		$this->assertSame( [], $violations );
+	}
+
+	public function test_events_range_and_latest_indexes_match_generated_config() :void {
+		$source = $this->decodePluginJsonFile( 'plugin-spec/43_databases.json', 'Database schema source spec' );
+		$generated = $this->decodePluginJsonFile( 'plugin.json', 'Plugin configuration' );
+		foreach ( [
+			[ 'key_name' => 'created_at_event', 'columns' => [ 'created_at', 'event' ] ],
+			[ 'key_name' => 'event_created_at', 'columns' => [ 'event', 'created_at' ] ],
+		] as $expected ) {
+			$this->assertContains( $expected, $source[ 'tables' ][ 'events' ][ 'indices' ] ?? [] );
+			$this->assertContains(
+				$expected,
+				$generated[ 'config_spec' ][ 'databases' ][ 'tables' ][ 'events' ][ 'indices' ] ?? []
+			);
+		}
 	}
 
 	private function mysqlReservedWords() :array {

@@ -119,16 +119,26 @@ export class OptionsHandler extends BaseAutoExecComponent {
 			return;
 		}
 
-		button.disabled = true;
+		if ( !OptionsFormSubmit.beginProfileMutation( form ) ) {
+			return;
+		}
 		button.classList.add( 'is-syncing' );
-		button.setAttribute( 'aria-busy', 'true' );
-		( new AjaxService() )
-		.bg(
-			ObjectOps.Merge( this._base_data.ajax[ actionKey ], {
-				key: key,
-				status: status
-			} )
-		)
+		let request;
+		try {
+			request = ( new AjaxService() ).bg(
+				ObjectOps.Merge( this._base_data.ajax[ actionKey ], {
+					key: key,
+					status: status
+				} )
+			);
+		}
+		catch ( error ) {
+			button.classList.remove( 'is-syncing' );
+			OptionsFormSubmit.endProfileMutation( form );
+			throw error;
+		}
+
+		request
 		.then( respJSON => {
 			shieldServices.notification().showMessage( respJSON.data.message, respJSON.success );
 			if ( respJSON.success ) {
@@ -141,9 +151,8 @@ export class OptionsHandler extends BaseAutoExecComponent {
 			return respJSON;
 		} )
 		.finally( () => {
-			button.disabled = false;
 			button.classList.remove( 'is-syncing' );
-			button.removeAttribute( 'aria-busy' );
+			OptionsFormSubmit.endProfileMutation( form );
 		} );
 	}
 
@@ -162,16 +171,26 @@ export class OptionsHandler extends BaseAutoExecComponent {
 			return;
 		}
 
-		button.disabled = true;
+		if ( !OptionsFormSubmit.beginProfileMutation( form ) ) {
+			return;
+		}
 		button.classList.add( 'is-syncing' );
-		button.setAttribute( 'aria-busy', 'true' );
-		( new AjaxService() )
-		.bg(
-			ObjectOps.Merge( this._base_data.ajax[ actionKey ], {
-				keys: keys,
-				status: status
-			} )
-		)
+		let request;
+		try {
+			request = ( new AjaxService() ).bg(
+				ObjectOps.Merge( this._base_data.ajax[ actionKey ], {
+					keys: keys,
+					status: status
+				} )
+			);
+		}
+		catch ( error ) {
+			button.classList.remove( 'is-syncing' );
+			OptionsFormSubmit.endProfileMutation( form );
+			throw error;
+		}
+
+		request
 		.then( respJSON => {
 			shieldServices.notification().showMessage( respJSON.data.message, respJSON.success );
 			if ( respJSON.success ) {
@@ -183,9 +202,8 @@ export class OptionsHandler extends BaseAutoExecComponent {
 			return respJSON;
 		} )
 		.finally( () => {
-			button.disabled = false;
 			button.classList.remove( 'is-syncing' );
-			button.removeAttribute( 'aria-busy' );
+			OptionsFormSubmit.endProfileMutation( form );
 		} );
 	}
 

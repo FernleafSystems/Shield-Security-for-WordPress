@@ -9,10 +9,11 @@ ADMIN_USER="${SHIELD_LOCAL_SITE_ADMIN_USER:-admin}"
 ADMIN_PASSWORD="${SHIELD_LOCAL_SITE_ADMIN_PASSWORD:-password}"
 ADMIN_EMAIL="${SHIELD_LOCAL_SITE_ADMIN_EMAIL:-devnull@example.com}"
 SITE_PROFILE="${SHIELD_LOCAL_SITE_PROFILE:-dev}"
+PROVISION_MODE="${SHIELD_LOCAL_SITE_PROVISION_MODE:-current-runtime}"
 PLUGIN_SLUG="wp-simple-firewall"
 PLUGIN_MAIN="wp-simple-firewall/icwp-wpsf.php"
 
-if [ ! -f "wp-content/plugins/${PLUGIN_MAIN}" ]; then
+if [ "${PROVISION_MODE}" != "core-only" ] && [ ! -f "wp-content/plugins/${PLUGIN_MAIN}" ]; then
 	echo "Shield plugin runtime was not found at wp-content/plugins/${PLUGIN_MAIN}." >&2
 	exit 1
 fi
@@ -43,14 +44,16 @@ else
 		--allow-root
 fi
 
-if ! wp plugin is-installed "${PLUGIN_SLUG}" --allow-root >/dev/null 2>&1; then
-	echo "Shield plugin slug ${PLUGIN_SLUG} is not available to WP-CLI." >&2
-	exit 1
+if [ "${PROVISION_MODE}" != "core-only" ]; then
+	if ! wp plugin is-installed "${PLUGIN_SLUG}" --allow-root >/dev/null 2>&1; then
+		echo "Shield plugin slug ${PLUGIN_SLUG} is not available to WP-CLI." >&2
+		exit 1
+	fi
+
+	wp plugin activate "${PLUGIN_SLUG}" --allow-root
 fi
 
-wp plugin activate "${PLUGIN_SLUG}" --allow-root
-
-if [ "${SITE_PROFILE}" = "test" ]; then
+if [ "${PROVISION_MODE}" != "core-only" ] && [ "${SITE_PROFILE}" = "test" ]; then
 	wp eval '
 		$optionName = "icwp_wpsf_opts_all";
 		$all = get_option( $optionName, [] );

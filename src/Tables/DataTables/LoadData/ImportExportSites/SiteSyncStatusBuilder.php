@@ -295,9 +295,8 @@ class SiteSyncStatusBuilder {
 			case SitesDB::QUEUE_WAITING_EXPORT:
 				return $this->text( 'Update notification sent; waiting for this site to send its export.' );
 			case SitesDB::QUEUE_PENDING_INVITE:
-				return $this->text( 'This site is queued for a network invite.' );
 			case SitesDB::QUEUE_PENDING_CONNECTION:
-				return $this->text( 'Waiting for this client site to initiate a connection.' );
+				return $this->text( 'Waiting for this client to connect before syncing. To retry, remove and re-add the site.' );
 			case SitesDB::QUEUE_QUEUED:
 				return $this->text( 'This site is queued for its next sync ping.' );
 			default:

@@ -29,7 +29,6 @@ class SessionController {
 	protected function captureLogin( \WP_User $user ) {
 		if ( !empty( $this->getLoggedInCookie() ) ) {
 			$this->current();
-			self::con()->comps->events->fireEvent( 'login_success' );
 		}
 	}
 

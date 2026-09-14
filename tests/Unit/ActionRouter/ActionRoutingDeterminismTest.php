@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\AjaxRender;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaLoginVerifyStep;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\ScansAttemptRecovery;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\Results\{
 	Malware,
 	Wordpress
@@ -35,6 +36,12 @@ class ActionRoutingDeterminismTest extends BaseUnitTest {
 
 	public function testActionFromKnownSlugResolvesExpectedClass() :void {
 		$this->assertSame( AjaxRender::class, ActionsMap::ActionFromSlug( 'ajax_render' ) );
+	}
+
+	public function testActionFromScanRecoverySlugResolvesExpectedClass() :void {
+		$this->assertSame( 'scans_attempt_recovery', ScansAttemptRecovery::SLUG );
+		$this->assertTrue( ActionData::isValidActionSlug( ScansAttemptRecovery::SLUG ) );
+		$this->assertSame( ScansAttemptRecovery::class, ActionsMap::ActionFromSlug( ScansAttemptRecovery::SLUG ) );
 	}
 
 	public function testActionFromDrillDownSlugsResolveExpectedClasses() :void {

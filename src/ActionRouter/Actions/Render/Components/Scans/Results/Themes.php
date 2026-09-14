@@ -23,6 +23,7 @@ class Themes extends PluginThemesBase {
 			return Services::DataManipulation()->mergeArraysRecursive( parent::getRenderData(), [
 				'flags'   => [
 					'is_disabled' => $pane[ 'is_disabled' ],
+				'is_file_locker' => false,
 				],
 				'strings' => [
 					'no_issues'         => __( "Previous scans didn't detect any modified, missing, or unrecognised files in theme directories.", 'wp-simple-firewall' ),

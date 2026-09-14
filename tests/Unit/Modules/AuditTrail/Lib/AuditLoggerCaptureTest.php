@@ -58,6 +58,27 @@ class AuditLoggerCaptureTest extends BaseUnitTest {
 		$this->assertSame( 'Info', $this->getAuditLogs( $logger )[ 'report_generated' ][ 'audit_params' ][ 'type' ] ?? '' );
 	}
 
+	public function test_malformed_audit_meta_filter_falls_back_to_original_metadata() :void {
+		Functions\when( 'apply_filters' )->alias( static function ( string $tag, $value = null ) {
+			return $tag === 'shield/audit_event_meta' ? new \stdClass() : $value;
+		} );
+		$logger = $this->makeLogger();
+		$this->captureEvent( $logger, 'report_generated', [
+			'audit_params' => [
+				'type' => 'Original',
+			],
+		], [
+			'audit'          => true,
+			'audit_multiple' => false,
+			'level'          => 'info',
+		] );
+
+		$this->assertSame(
+			'Original',
+			$this->getAuditLogs( $logger )[ 'report_generated' ][ 'audit_params' ][ 'type' ] ?? ''
+		);
+	}
+
 	public function test_suppress_audit_prevents_overwrite_for_internal_follow_up_event() :void {
 		$this->setupApplyFiltersPassthrough();
 		$logger = $this->makeLogger();

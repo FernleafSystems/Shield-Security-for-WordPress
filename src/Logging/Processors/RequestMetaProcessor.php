@@ -5,6 +5,8 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Logging\Processors;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ReqLogs\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Request\RequestTypeResolver;
 use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Services\Utilities\Net\IpID;
+use FernleafSystems\Wordpress\Services\Utilities\ServiceProviders;
 
 class RequestMetaProcessor extends BaseMetaProcessor {
 
@@ -37,6 +39,29 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 				$path = '/wp-cron.php';
 			}
 		}
+		$ipAttribution = [];
+		if ( !$isWpCli && !$isPhpCliCron && $ip === '' ) {
+			$remoteAddr = $req->server( 'REMOTE_ADDR', '' );
+			if ( \is_string( $remoteAddr ) ) {
+				$remoteAddr = \trim( $remoteAddr );
+				if ( Services::IP()->isValidIp_PublicRemote( $remoteAddr ) ) {
+					try {
+						$isCloudflare = IpID::IsIpInServiceCollection( $remoteAddr, ServiceProviders::PROVIDER_CLOUDFLARE );
+					}
+					catch ( \Exception $e ) {
+						$isCloudflare = false;
+					}
+					if ( $isCloudflare ) {
+						$ip = $remoteAddr;
+						$ipAttribution = [
+							'ip_attribution' => 'transport',
+							'ip_provider'    => 'cloudflare',
+							'ip_source'      => 'REMOTE_ADDR',
+						];
+					}
+				}
+			}
+		}
 
 		$data = [
 			'ip'   => $ip,
@@ -53,6 +78,9 @@ class RequestMetaProcessor extends BaseMetaProcessor {
 		}
 		if ( !empty( $query ) ) {
 			$data[ 'query' ] = $query;
+		}
+		if ( !empty( $ipAttribution ) ) {
+			$data = \array_merge( $data, $ipAttribution );
 		}
 
 		$records[ 'extra' ][ 'meta_request' ] = $data;

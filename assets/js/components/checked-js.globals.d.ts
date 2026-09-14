@@ -10,6 +10,7 @@ type AccessibleDialogConfig = {
 	danger?: boolean;
 	launcher?: HTMLElement|null;
 	showTitle?: boolean;
+	iconClass?: string;
 	validate?: ( value: string ) => true|string|boolean;
 };
 
@@ -18,6 +19,12 @@ type AccessibleDialogProcessingHandle = {
 };
 
 type AccessibleDialogService = {
+	content( config: AccessibleDialogConfig & { content: HTMLElement; footer: HTMLElement } ) :{
+		closed: Promise<void>;
+		close(): void;
+		setBusy( busy: boolean ): void;
+		setTitle( title: string ): void;
+	}|null;
 	confirm( config?: AccessibleDialogConfig ) :Promise<boolean>;
 	message( config?: AccessibleDialogConfig ) :Promise<void>;
 	prompt( config?: AccessibleDialogConfig ) :Promise<string|null>;

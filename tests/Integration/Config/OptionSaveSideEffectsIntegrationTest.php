@@ -4,6 +4,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Config;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Config\Opts\HandleOptionsSaveRequest;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\IpRules\LoadIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\EmailDeliveryVerification;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\NetworkInviteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\TestDataFactory;
@@ -34,6 +35,7 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		'transgression_limit',
 		'scan_frequency',
 		'file_locker',
+		'snapi_data',
 	];
 
 	private array $originalOptions = [];
@@ -294,6 +296,79 @@ class OptionSaveSideEffectsIntegrationTest extends ShieldIntegrationTestCase {
 		$con->opts->optSet( 'scan_frequency', $newFrequency )->store();
 
 		$this->assertFalse( wp_next_scheduled( $hook ) );
+	}
+
+	/** @group database-transaction-exception */
+	public function test_file_locker_option_change_recreates_storage_when_table_caches_are_stale() :void {
+		global $wpdb;
+
+		$con = $this->requireController();
+		$handler = $con->db_con->file_locker;
+		$schema = $handler->getTableSchema();
+		$table = $handler->getTable();
+		$this->runWithPersistentDatabaseMutation(
+			function () use ( $con, $wpdb, $schema, $table ) :void {
+				RuntimeTestState::primeShieldNetHandshake();
+				$con->opts->optSet( 'file_locker', [] )->store();
+				$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
+
+				$handler = $con->db_con->file_locker;
+				$handler::GetTableReadyCache()->setReady( $schema );
+				\FernleafSystems\Wordpress\Services\Services::WpDb()->clearResultShowTables();
+				$this->assertTrue( \FernleafSystems\Wordpress\Services\Services::WpDb()->tableExists( $table ) );
+
+				$this->assertNotFalse( $wpdb->query( 'SET FOREIGN_KEY_CHECKS=0' ) );
+				$this->assertNotFalse( $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" ) );
+				$this->assertNotFalse( $wpdb->query( 'SET FOREIGN_KEY_CHECKS=1' ) );
+
+				$this->assertNull( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) );
+				$this->assertTrue( $handler::GetTableReadyCache()->isReady( $schema ) );
+				$this->assertTrue( \FernleafSystems\Wordpress\Services\Services::WpDb()->tableExists( $table ) );
+
+				$con->opts->optSet( 'file_locker', [ 'wpconfig', 'root_index' ] )->store();
+				$this->assertNotNull( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) );
+				$reloadedHandler = $con->db_con->file_locker;
+				$this->assertTrue( $reloadedHandler->isReady() );
+				$this->assertTrue( $reloadedHandler->tableExists() );
+			},
+			function () use ( $con, $wpdb, $schema, $table ) :void {
+				$this->assertNotFalse( $wpdb->query( 'SET FOREIGN_KEY_CHECKS=0' ) );
+				$this->assertNotFalse( $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" ) );
+				$this->assertNotFalse( $wpdb->query( $schema->buildCreate() ) );
+				$this->assertNotFalse( $wpdb->query( 'SET FOREIGN_KEY_CHECKS=1' ) );
+				\FernleafSystems\Wordpress\Services\Services::WpDb()->clearResultShowTables();
+				$con->db_con->reset();
+				$this->restoreSelectedOptions( $this->originalOptions );
+			}
+		);
+	}
+
+	public function test_file_locker_option_change_reconciles_against_fresh_lock_records() :void {
+		global $wpdb;
+
+		$con = $this->requireController();
+		RuntimeTestState::primeShieldNetHandshake();
+		$con->opts->optSet( 'file_locker', [ 'wpconfig', 'root_index' ] )->store();
+
+		$handler = $this->requireTransactionScopedDb( 'file_locker' );
+		$con->comps->file_locker->clearLocks();
+
+		TestDataFactory::insertFileLockRecord( 'wpconfig', ABSPATH.'wp-config.php' );
+		$memoizedLocks = \array_values( $con->comps->file_locker->getLocks() );
+		$this->assertCount( 1, $memoizedLocks );
+		$this->assertSame( 'wpconfig', $memoizedLocks[ 0 ]->type );
+
+		TestDataFactory::insertFileLockRecord( 'root_index', ABSPATH.'index.php' );
+		$this->assertSame( 2, (int)$wpdb->get_var( "SELECT COUNT(*) FROM {$handler->getTable()}" ) );
+		$this->assertCount( 1, $con->comps->file_locker->getLocks() );
+
+		$con->opts->optSet( 'file_locker', [ 'wpconfig' ] )->store();
+
+		$reloadedHandler = $this->requireTransactionScopedDb( 'file_locker' );
+		$this->assertSame(
+			[ 'wpconfig' ],
+			$wpdb->get_col( "SELECT type FROM {$reloadedHandler->getTable()} ORDER BY id ASC" )
+		);
 	}
 
 	private function alternateSelectValue( string $key, string $avoid ) :string {

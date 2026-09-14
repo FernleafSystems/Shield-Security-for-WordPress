@@ -116,6 +116,10 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 
 	public function test_cloaked_plugins_pane_uses_dedicated_queue_provider_path() :void {
 		$builder = new class extends ScansResultsViewBuilder {
+			protected function getRailTabAvailability( string $tabKey ) :array {
+				return [ 'is_available' => true ];
+			}
+
 			public function buildActionsQueueCloakedPluginsPane() :array {
 				return [
 					'key'                    => 'hidden_plugins',
@@ -140,6 +144,34 @@ class ScansResultsViewBuilderPaneAvailabilityTest extends ScansResultsViewBuilde
 
 		$this->assertSame( 'hidden_plugins', $pane[ 'key' ] );
 		$this->assertSame( 'good', $pane[ 'status' ] );
+	}
+
+	public function test_unavailable_cloaked_plugins_pane_does_not_dispatch_to_provider() :void {
+		$builder = new class extends ScansResultsViewBuilder {
+			public bool $providerCalled = false;
+
+			protected function getRailTabAvailability( string $tabKey ) :array {
+				return [
+					'is_available'     => false,
+					'disabled_status'  => 'neutral',
+					'disabled_message' => '',
+					'disabled_actions' => [],
+				];
+			}
+
+			public function buildActionsQueueCloakedPluginsPane() :array {
+				$this->providerCalled = true;
+				return [];
+			}
+		};
+
+		$pane = $builder->buildRailPaneData( 'hidden_plugins' );
+		$this->assertFalse( $builder->providerCalled );
+		$this->assertTrue( $pane[ 'is_disabled' ] );
+		$this->assertSame( 'neutral', $pane[ 'status' ] );
+		$this->assertSame( 0, $pane[ 'count_items' ] );
+		$this->assertSame( [], $pane[ 'items' ] );
+		$this->assertSame( [], $pane[ 'disabled_actions' ] );
 	}
 
 	public function test_vulnerability_pane_does_not_use_abandoned_state_to_bypass_unavailable_wpv() :void {

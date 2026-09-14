@@ -56,4 +56,19 @@ class PublicUpgradeUpdateProviderFixtureTest extends TestCase {
 			)
 		);
 	}
+
+	public function testUpgradeMatcherUsesConfiguredPluginIdentityWithoutOptionalType() :void {
+		require_once $this->getPluginFilePath( 'tests/fixtures/upgrade-public/update-provider.php' );
+		$config = [ 'plugin' => 'wp-simple-firewall/icwp-wpsf.php' ];
+
+		$this->assertTrue( \shield_upgrade_test_is_shield_upgrade( [
+			'plugin' => 'wp-simple-firewall/icwp-wpsf.php',
+		], $config ) );
+		$this->assertTrue( \shield_upgrade_test_is_shield_upgrade( [
+			'plugins' => [ 'wp-simple-firewall/icwp-wpsf.php' ],
+		], $config ) );
+		$this->assertFalse( \shield_upgrade_test_is_shield_upgrade( [
+			'plugin' => 'another/plugin.php',
+		], $config ) );
+	}
 }

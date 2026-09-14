@@ -6,7 +6,7 @@
 		<div class="import-export-sync-topbar__state">
 			<span class="import-export-sync-topbar__dot" aria-hidden="true"></span>
 			<div class="import-export-sync-topbar__copy">
-				<h5>{{ network_sync.status.title }}</h5>
+				<h2 class="h5">{{ network_sync.status.title }}</h2>
 				<p>{{ network_sync.status.summary }}</p>
 			</div>
 		</div>
@@ -28,7 +28,7 @@
 		<div class="import-export-network-disabled" data-import-export-network-disabled="1">
 			<i class="bi bi-toggle-off" aria-hidden="true"></i>
 			<div>
-				<h5>{{ network_sync.disabled.title }}</h5>
+				<h3 class="h5">{{ network_sync.disabled.title }}</h3>
 				<p>{{ network_sync.disabled.summary }}</p>
 			</div>
 		</div>
@@ -63,7 +63,7 @@
 					 role="tabpanel">
 					<header class="import-export-pane__header">
 						<div>
-							<h5>{{ network_sync.connect.title }}</h5>
+							<h3 class="h5">{{ network_sync.connect.title }}</h3>
 							{% if not network_sync.connect.is_connected %}
 								<p>{{ network_sync.connect.summary }}</p>
 							{% endif %}
@@ -91,6 +91,7 @@
 								<span>{{ network_sync.connect.connected.label }}</span>
 								<strong>{{ network_sync.connect.connected.master_host }}</strong>
 								<small data-import-export-local-import-id="{{ network_sync.connect.connected.import_id.value }}">{{ network_sync.connect.connected.import_id.label }}: {{ network_sync.connect.connected.import_id.value }}</small>
+								<small>{{ network_sync.connect.disconnect.summary }}</small>
 								<button type="button"
 										id="{{ network_sync.connect.sync_now.id }}"
 										class="btn btn-primary btn-sm import-export-primary-action"
@@ -224,7 +225,7 @@
 					 hidden>
 					<header class="import-export-pane__header">
 						<div>
-							<h5>{{ network_sync.clients.title }}</h5>
+							<h3 class="h5">{{ network_sync.clients.title }}</h3>
 							<p>{{ network_sync.clients.summary }}</p>
 						</div>
 						<button type="button"
@@ -248,7 +249,7 @@
 					 hidden>
 					<header class="import-export-pane__header">
 						<div>
-							<h5>{{ network_sync.profile.title }}</h5>
+							<h3 class="h5">{{ network_sync.profile.title }}</h3>
 							<p>{{ network_sync.profile.summary }}</p>
 						</div>
 						{% if network_sync.profile.is_available %}

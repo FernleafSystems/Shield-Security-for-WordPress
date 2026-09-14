@@ -1,0 +1,37 @@
+.operator-tile-card__main {
+	align-items: center;
+	display: flex;
+	gap: 0.75rem;
+}
+
+.operator-tile-card__icon {
+	align-items: center;
+	background: var(--operator-card-icon-bg);
+	border-radius: 8px;
+	color: var(--operator-card-icon-color);
+	display: inline-flex;
+	flex: 0 0 52px;
+	height: 52px;
+	justify-content: center;
+	width: 52px;
+}
+
+.operator-tile-card__icon i {
+	font-size: 1.55rem;
+}
+
+.operator-tile-card__copy {
+	display: grid;
+	gap: 0.2rem;
+	min-width: 0;
+}
+
+.operator-tile-card__meta {
+	color: #8c8f94;
+	font-family: monospace;
+	font-size: 0.68rem;
+	line-height: 1.35;
+	margin-top: auto;
+	overflow-wrap: anywhere;
+	width: 100%;
+}

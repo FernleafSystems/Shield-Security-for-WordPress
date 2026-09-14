@@ -5,55 +5,9 @@ import { ObjectOps } from "../../util/ObjectOps";
 export class FileLocker extends BaseComponent {
 
 	init() {
-		shieldEventsHandler_Main.add_Change( '#FileLockerFileSelect', ( targetEl ) => {
-			this.#select( targetEl );
-		} );
 		shieldEventsHandler_Main.add_Submit( 'form.filelocker_fileaction', ( targetEl ) => {
 			this.#fileAction( targetEl );
 		} );
-	}
-
-	#select( targetEl ) {
-		let selected = targetEl.options[ targetEl.selectedIndex ];
-		if ( selected.value !== '-' ) {
-
-			const params = ObjectOps.ObjClone( this._base_data.ajax.render_diff );
-			params.rid = selected.value;
-			this.#renderBusy();
-
-			( new AjaxService() )
-			.send( params )
-			.then( ( resp ) => {
-				if ( resp.success ) {
-					document.getElementById( 'FileLockerDiffContents' ).innerHTML = resp.data.html;
-				}
-				else {
-					shieldServices.dialog().message( {
-						title: shieldStrings.string( 'request_failed' ),
-						message: resp.data.error,
-						launcher: targetEl,
-						showTitle: true,
-					} );
-				}
-			} )
-			.finally( () => {
-				targetEl.selectedIndex = 0;
-			} );
-		}
-	};
-
-	#renderBusy() {
-		const container = document.getElementById( 'FileLockerDiffContents' );
-		if ( container === null ) {
-			return;
-		}
-
-		const spinner = document.getElementById( 'ShieldWaitSpinner' ).cloneNode( true );
-		spinner.id = '';
-		spinner.classList.remove( 'd-none' );
-
-		container.textContent = '';
-		container.appendChild( spinner );
 	}
 
 	#fileAction( form ) {

@@ -16,9 +16,7 @@ class ResultsSet {
 	 * @return $this
 	 */
 	public function addItem( $item ) {
-		$all = $this->getAllItems();
-		$all[] = $item;
-		$this->items = $all;
+		$this->items[] = $item;
 		return $this;
 	}
 

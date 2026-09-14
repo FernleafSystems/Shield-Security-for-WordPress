@@ -11,7 +11,15 @@ class CacheDirHandler {
 
 	use PluginControllerConsumer;
 
+	private const EXTERNAL_CACHE_NAMESPACE_SEED_VERSION = 'shield-external-cache-namespace-v2';
+	private const EXTERNAL_CACHE_NAMESPACE_HASH_LENGTH = 32;
+	private const LEGACY_EXTERNAL_CACHE_ROOT_SUFFIX_MAX_LENGTH = 48;
+
+	public const CACHE_INDEX_FILE_CONTENT = "<?php\n\http_response_code(404);";
+
 	private ?string $cacheDir = null;
+
+	private ?string $externalCacheBasename = null;
 
 	private string $lastKnownBaseDir;
 
@@ -54,9 +62,10 @@ class CacheDirHandler {
 			return $this->cacheDir;
 		}
 
-		$configuredCandidates = $this->getConfiguredCandidates();
-		if ( !empty( $configuredCandidates ) ) {
-			return $this->locateExistingCandidate( $configuredCandidates );
+		$configuredPath = $this->configuredPath();
+		if ( $configuredPath !== null ) {
+			$configuredCandidate = $this->canonicaliseConfiguredPath( $configuredPath );
+			return $configuredCandidate === '' ? '' : $this->locateExistingCandidate( [ $configuredCandidate ] );
 		}
 
 		$candidates = $this->buildCandidates( $this->getDiscoveryBaseDirCandidates( false ) );
@@ -68,33 +77,43 @@ class CacheDirHandler {
 	}
 
 	private function resolveConfiguredDir() :?string {
-		$configuredCandidates = $this->getConfiguredCandidates();
-		return empty( $configuredCandidates ) ? null : ( $this->assessCandidates( $configuredCandidates ) ?? '' );
+		$configuredPath = $this->configuredPath();
+		if ( $configuredPath === null ) {
+			return null;
+		}
+
+		$configuredCandidate = $this->canonicaliseConfiguredPath( $configuredPath );
+		return $configuredCandidate === '' ? '' : ( $this->assessCandidates( [ $configuredCandidate ] ) ?? '' );
 	}
 
-	private function getConfiguredCandidates() :array {
-		$configuredCandidates = [];
-		if ( !empty( $this->preferredDir ) ) {
-			$configuredCandidates = $this->buildConfiguredCandidates( [ $this->preferredDir ] );
+	private function configuredPath() :?string {
+		if ( $this->preferredDir !== '' ) {
+			$configuredPath = $this->preferredDir;
 		}
-		elseif ( !empty( $this->lastKnownBaseDir ) ) {
-			$configuredCandidates = $this->buildConfiguredCandidates( [ $this->lastKnownBaseDir ] );
+		elseif ( $this->lastKnownBaseDir !== '' ) {
+			$configuredPath = $this->lastKnownBaseDir;
 		}
-		return $configuredCandidates;
+		else {
+			$configuredPath = null;
+		}
+		return $configuredPath;
 	}
 
 	private function assessCandidates( array $candidates ) :?string {
 		$chosenDir = null;
 		foreach ( $candidates as $maybeDir ) {
 			if ( $this->testDir( $maybeDir ) ) {
-				$chosenDir = $maybeDir;
-				if ( !\str_starts_with( $maybeDir, '/tmp' ) ) {
-					$this->addProtections( $maybeDir );
+				if ( $this->isTmpPath( $maybeDir ) || $this->addProtections( $maybeDir ) ) {
+					$chosenDir = $maybeDir;
+					break;
 				}
-				break;
 			}
 		}
 		return $chosenDir;
+	}
+
+	private function isTmpPath( string $path ) :bool {
+		return $path === '/tmp' || \str_starts_with( $path, '/tmp/' );
 	}
 
 	public function exists() :bool {
@@ -161,67 +180,116 @@ class CacheDirHandler {
 
 	private function addProtections( string $cacheDir ) :bool {
 		$FS = Services::WpFs();
+		$protections = [
+			'.htaccess' => \implode( "\n", [
+				"# BEGIN SHIELD",
+				"Options -Indexes",
+				"Order allow,deny",
+				"Deny from all",
+				'<FilesMatch "^.*\.(css|js)$">',
+				" Allow from all",
+				'</FilesMatch>',
+				"# END SHIELD"
+			] ),
+			'index.php'  => self::CACHE_INDEX_FILE_CONTENT,
+			'README.txt' => sprintf( "This is a temporary caching folder used by the %s plugin. You can safely delete it, but it'll be recreated if required.\n", self::con()->labels->Name ),
+		];
 
-		$htFile = path_join( $cacheDir, '.htaccess' );
-		$htContent = \implode( "\n", [
-			"# BEGIN SHIELD",
-			"Options -Indexes",
-			"Order allow,deny",
-			"Deny from all",
-			'<FilesMatch "^.*\.(css|js)$">',
-			" Allow from all",
-			'</FilesMatch>',
-			"# END SHIELD"
-		] );
-		if ( !$FS->exists( $htFile ) || !\hash_equals( \hash( 'sha256', $htContent ), \hash_file( 'sha256', $htFile ) ) ) {
-			$FS->putFileContent( $htFile, $htContent );
-		}
-		$index = path_join( $cacheDir, 'index.php' );
-		$indexContent = "<?php\n\http_response_code(404);";
-		if ( !$FS->exists( $index ) || !\hash_equals( \hash( 'sha256', $indexContent ), \hash_file( 'sha256', $index ) ) ) {
-			$FS->putFileContent( $index, $indexContent );
-		}
-
-		$readme = path_join( $cacheDir, 'README.txt' );
-		$readmeContent = sprintf( "This is a temporary caching folder used by the %s plugin. You can safely delete it, but it'll be recreated if required.\n", self::con()->labels->Name );
-		if ( !$FS->exists( $readme ) || !\hash_equals( \hash( 'sha256', $readmeContent ), \hash_file( 'sha256', $readme ) ) ) {
-			$FS->putFileContent( $readme, $readmeContent );
+		foreach ( $protections as $filename => $content ) {
+			$file = path_join( $cacheDir, $filename );
+			$expectedHash = \hash( 'sha256', $content );
+			$actualHash = $this->hashProtectionFile( $file );
+			if ( $actualHash === null || !\hash_equals( $expectedHash, $actualHash ) ) {
+				if ( $FS->exists( $file ) && !$FS->isFile( $file ) ) {
+					return false;
+				}
+				if ( !$FS->putFileContent( $file, $content ) ) {
+					return false;
+				}
+				$actualHash = $this->hashProtectionFile( $file );
+				if ( $actualHash === null || !\hash_equals( $expectedHash, $actualHash ) ) {
+					return false;
+				}
+			}
 		}
 
 		return true;
+	}
+
+	protected function hashProtectionFile( string $path ) :?string {
+		if ( !Services::WpFs()->isFile( $path ) ) {
+			return null;
+		}
+		$hash = @\hash_file( 'sha256', $path );
+		return \is_string( $hash ) ? $hash : null;
 	}
 
 	private function buildCandidates( array $baseDirCandidates ) :array {
 		$candidates = [];
 		$cacheBasename = $this->cacheBasename();
 		if ( !empty( $cacheBasename ) ) {
-			$candidates = \array_filter(
-				\array_map(
-					fn( string $baseDir ) => untrailingslashit( wp_normalize_path( path_join( $baseDir, $cacheBasename ) ) ),
-					$baseDirCandidates
-				),
-				fn( string $dir ) => !empty( $dir ) && \str_ends_with( $dir, $cacheBasename )
-			);
+			$candidates = \array_filter( \array_map(
+				fn( string $baseDir ) :string => $this->canonicaliseKnownBase( $baseDir, $cacheBasename ),
+				$baseDirCandidates
+			) );
 		}
 		return $candidates;
 	}
 
-	private function buildConfiguredCandidates( array $configuredPaths ) :array {
-		$candidates = [];
+	private function canonicaliseConfiguredPath( string $configuredPath ) :string {
 		$cacheBasename = $this->cacheBasename();
-		if ( !empty( $cacheBasename ) ) {
-			$candidates = \array_filter(
-				\array_unique( \array_map(
-					function ( string $path ) use ( $cacheBasename ) :string {
-						$path = untrailingslashit( wp_normalize_path( $path ) );
-						return \basename( $path ) === $cacheBasename ? $path : untrailingslashit( wp_normalize_path( path_join( $path, $cacheBasename ) ) );
-					},
-					\array_filter( $configuredPaths )
-				) ),
-				fn( string $dir ) => !empty( $dir ) && \str_ends_with( $dir, $cacheBasename )
-			);
+		$path = $this->normalisePathSegments( $configuredPath );
+		if ( $cacheBasename === '' || $path === '' ) {
+			return '';
 		}
-		return $candidates;
+
+		$basename = \basename( $path );
+		if ( $this->isPathWithinAbsPath( $path ) ) {
+			$candidate = $this->basenamesMatch( $basename, $cacheBasename )
+				? $path
+				: $this->normalisePathSegments( path_join( $path, $cacheBasename ) );
+		}
+		else {
+			$externalCacheBasename = $this->externalCacheBasename( $cacheBasename );
+			if ( $externalCacheBasename === '' ) {
+				return '';
+			}
+
+			if ( $this->isV2CacheRootBasename( $basename, $cacheBasename ) ) {
+				$candidate = $this->basenamesMatch( $basename, $externalCacheBasename )
+					? $this->normalisePathSegments( path_join( \dirname( $path ), $externalCacheBasename ) )
+					: '';
+			}
+			elseif ( $this->basenamesMatch( $basename, $cacheBasename )
+				   || $this->isLegacyCacheRootBasename( $basename, $cacheBasename ) ) {
+				$candidate = $this->normalisePathSegments( path_join( \dirname( $path ), $externalCacheBasename ) );
+			}
+			else {
+				$candidate = $this->normalisePathSegments( path_join( $path, $externalCacheBasename ) );
+			}
+		}
+
+		return $this->isOwnedCacheRootPath( $candidate, $cacheBasename ) ? $candidate : '';
+	}
+
+	private function canonicaliseKnownBase( string $baseDir, string $cacheBasename ) :string {
+		$baseDir = $this->normalisePathSegments( $baseDir );
+		if ( $baseDir === '' ) {
+			return '';
+		}
+
+		$unsuffixedCandidate = $this->normalisePathSegments( path_join( $baseDir, $cacheBasename ) );
+		if ( $this->isPathWithinAbsPath( $unsuffixedCandidate ) ) {
+			$candidate = $unsuffixedCandidate;
+		}
+		else {
+			$externalCacheBasename = $this->externalCacheBasename( $cacheBasename );
+			$candidate = $externalCacheBasename === ''
+				? ''
+				: $this->normalisePathSegments( path_join( $baseDir, $externalCacheBasename ) );
+		}
+
+		return $this->isOwnedCacheRootPath( $candidate, $cacheBasename ) ? $candidate : '';
 	}
 
 	private function getExistingSnapshotRootCandidates( array $candidates ) :array {
@@ -318,6 +386,144 @@ class CacheDirHandler {
 	private function cacheBasename() :string {
 		$cacheBasename = (string)( self::con()->cfg->paths[ 'cache' ] ?? '' );
 		return \preg_match( '#^[a-z]+$#i', $cacheBasename ) ? $cacheBasename : '';
+	}
+
+	private function isPathWithinAbsPath( string $path ) :bool {
+		$absPath = $this->pathForLexicalComparison( ABSPATH );
+		$path = $this->pathForLexicalComparison( $path );
+		return $absPath !== '' && ( $path === $absPath || \str_starts_with( $path.'/', $absPath.'/' ) );
+	}
+
+	private function externalCacheBasename( string $cacheBasename ) :string {
+		if ( $this->externalCacheBasename === null ) {
+			$this->externalCacheBasename = '';
+			try {
+				$absPath = $this->pathForLexicalComparison( ABSPATH );
+				$dbHost = \defined( 'DB_HOST' ) ? (string)\constant( 'DB_HOST' ) : '';
+				$dbName = \defined( 'DB_NAME' ) ? (string)\constant( 'DB_NAME' ) : '';
+				$dbPrefix = Services::WpDb()->getPrefix();
+				$blogID = \function_exists( 'get_current_blog_id' ) ? (int)\get_current_blog_id() : 0;
+				if ( $absPath !== '' && \trim( $dbHost ) !== '' && \trim( $dbName ) !== ''
+					 && \trim( $dbPrefix ) !== '' && $blogID > 0 ) {
+					$seed = \implode( "\0", [
+						self::EXTERNAL_CACHE_NAMESPACE_SEED_VERSION,
+						$absPath,
+						$dbHost,
+						$dbName,
+						$dbPrefix,
+						(string)$blogID,
+					] );
+					$this->externalCacheBasename = $cacheBasename.'-v2-'
+						.\substr( \hash( 'sha256', $seed ), 0, self::EXTERNAL_CACHE_NAMESPACE_HASH_LENGTH );
+				}
+			}
+			catch ( \Throwable $e ) {
+				$this->externalCacheBasename = '';
+			}
+		}
+		return $this->externalCacheBasename;
+	}
+
+	private function pathForLexicalComparison( string $path ) :string {
+		$path = $this->normalisePathSegments( $path );
+		return \DIRECTORY_SEPARATOR === '\\' ? \strtolower( $path ) : $path;
+	}
+
+	private function normalisePathSegments( string $path ) :string {
+		$path = untrailingslashit( wp_normalize_path( $path ) );
+		if ( $path === '' ) {
+			return '';
+		}
+
+		$prefix = '';
+		$rest = $path;
+		if ( \preg_match( '#^([a-z]:)(?:/(.*))?$#i', $path, $matches ) === 1 ) {
+			$prefix = $matches[ 1 ];
+			$rest = $matches[ 2 ] ?? '';
+		}
+		elseif ( \str_starts_with( $path, '//' ) ) {
+			$prefix = '//';
+			$rest = \substr( $path, 2 );
+		}
+		elseif ( \str_starts_with( $path, '/' ) ) {
+			$prefix = '/';
+			$rest = \substr( $path, 1 );
+		}
+
+		$segments = [];
+		foreach ( \explode( '/', $rest ) as $segment ) {
+			if ( $segment === '' || $segment === '.' ) {
+				continue;
+			}
+			if ( $segment === '..' ) {
+				if ( !empty( $segments ) && \end( $segments ) !== '..' ) {
+					\array_pop( $segments );
+				}
+				elseif ( $prefix === '' ) {
+					$segments[] = $segment;
+				}
+				continue;
+			}
+			$segments[] = $segment;
+		}
+
+		$collapsed = \implode( '/', $segments );
+		return $prefix === ''
+			? $collapsed
+			: ( $prefix === '/' || $prefix === '//' ? $prefix.$collapsed : $prefix.( $collapsed === '' ? '' : '/'.$collapsed ) );
+	}
+
+	private function isOwnedCacheRootPath( string $path, string $cacheBasename ) :bool {
+		$path = $this->normalisePathSegments( $path );
+		if ( $path === '' ) {
+			return false;
+		}
+
+		if ( $this->isPathWithinAbsPath( $path ) ) {
+			return $this->basenamesMatch( \basename( $path ), $cacheBasename );
+		}
+
+		$externalCacheBasename = $this->externalCacheBasename( $cacheBasename );
+		return $externalCacheBasename !== ''
+			   && $this->basenamesMatch( \basename( $path ), $externalCacheBasename )
+			   && !$this->hasV2CacheRootAncestor( $path, $cacheBasename );
+	}
+
+	private function isV2CacheRootBasename( string $basename, string $cacheBasename ) :bool {
+		return \preg_match(
+			'#^'.\preg_quote( $cacheBasename, '#' ).'-v2-[a-f0-9]{'.self::EXTERNAL_CACHE_NAMESPACE_HASH_LENGTH.'}$#'
+			.( \DIRECTORY_SEPARATOR === '\\' ? 'i' : '' ),
+			$basename
+		) === 1;
+	}
+
+	private function isLegacyCacheRootBasename( string $basename, string $cacheBasename ) :bool {
+		$prefix = $cacheBasename.'-';
+		if ( \strlen( $basename ) <= \strlen( $prefix )
+			 || !$this->basenamesMatch( \substr( $basename, 0, \strlen( $prefix ) ), $prefix ) ) {
+			return false;
+		}
+
+		$suffix = \substr( $basename, \strlen( $prefix ) );
+		return \strlen( $suffix ) <= self::LEGACY_EXTERNAL_CACHE_ROOT_SUFFIX_MAX_LENGTH
+			   && \preg_match( '#^[a-z0-9]+(?:-[a-z0-9]+)*$#'.( \DIRECTORY_SEPARATOR === '\\' ? 'i' : '' ), $suffix ) === 1;
+	}
+
+	private function hasV2CacheRootAncestor( string $path, string $cacheBasename ) :bool {
+		$components = \explode( '/', \trim( $this->normalisePathSegments( $path ), '/' ) );
+		\array_pop( $components );
+		foreach ( $components as $component ) {
+			if ( $this->isV2CacheRootBasename( $component, $cacheBasename ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function basenamesMatch( string $first, string $second ) :bool {
+		return \DIRECTORY_SEPARATOR === '\\'
+			? \strtolower( $first ) === \strtolower( $second )
+			: $first === $second;
 	}
 
 	private function pathForWordPressAbsoluteCheck( string $dir ) :string {

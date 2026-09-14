@@ -789,6 +789,35 @@ body.shield-mfa-login-page.shield-busy {
 
 /* Shared legacy selectors for WP Replica and unchanged fallback markup. */
 
+form.shield-2fa-wplogin input[type="checkbox"][name="skip_mfa"] {
+	-webkit-appearance: auto;
+	appearance: auto;
+	accent-color: var(--shield-green);
+	height: 1rem;
+	min-width: 1rem;
+	vertical-align: middle;
+	width: 1rem;
+}
+
+form.shield-2fa-wplogin input[type="checkbox"][name="skip_mfa"]::before {
+	content: none;
+}
+
+form.shield-2fa-wplogin input[type="checkbox"][name="skip_mfa"]:focus-visible {
+	outline: 2px solid var(--shield-green);
+	outline-offset: 2px;
+}
+
+@media (forced-colors: active) {
+	form.shield-2fa-wplogin input[type="checkbox"][name="skip_mfa"] {
+		accent-color: auto;
+	}
+
+	form.shield-2fa-wplogin input[type="checkbox"][name="skip_mfa"]:focus-visible {
+		outline-color: Highlight;
+	}
+}
+
 .shield-2fa-wplogin input[type="text"][name="shield_yubi_otp"] {
 	width: 100%;
 }

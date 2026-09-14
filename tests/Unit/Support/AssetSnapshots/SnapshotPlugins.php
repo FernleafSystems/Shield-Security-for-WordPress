@@ -8,19 +8,19 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpPluginVo;
 class SnapshotPlugins extends Plugins {
 
 	/**
-	 * @var SnapshotPluginVo[]
+	 * @var mixed[]
 	 */
 	private array $plugins;
 
 	/**
-	 * @param SnapshotPluginVo[] $plugins
+	 * @param mixed[] $plugins
 	 */
 	public function __construct( array $plugins ) {
 		$this->plugins = $plugins;
 	}
 
 	/**
-	 * @return SnapshotPluginVo[]
+	 * @return mixed[]
 	 */
 	public function getPluginsAsVo() :array {
 		return $this->plugins;
@@ -29,7 +29,7 @@ class SnapshotPlugins extends Plugins {
 	public function getPluginAsVo( string $file, bool $reload = false ) :?WpPluginVo {
 		unset( $reload );
 		foreach ( $this->plugins as $plugin ) {
-			if ( $plugin->file === $file ) {
+			if ( $plugin instanceof WpPluginVo && $plugin->file === $file ) {
 				return $plugin;
 			}
 		}

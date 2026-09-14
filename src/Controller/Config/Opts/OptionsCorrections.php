@@ -23,6 +23,7 @@ class OptionsCorrections {
 		$this->ips();
 		$this->login();
 		$this->plugin();
+		$this->reporting();
 		$this->scanners();
 		$this->securityAdmin();
 		$this->silentCaptcha();
@@ -34,6 +35,7 @@ class OptionsCorrections {
 		$this->requestLogging();
 		$this->alerts();
 		$this->pluginBadgeMode();
+		$this->reporting();
 		$this->silentCaptcha();
 	}
 
@@ -226,6 +228,17 @@ class OptionsCorrections {
 					WildCardOptions::FILE_PATH_REL
 				)
 			);
+		}
+	}
+
+	private function reporting() :void {
+		$opts = self::con()->opts;
+		foreach ( [ 'frequency_alert', 'frequency_info' ] as $key ) {
+			$current = $opts->optGet( $key );
+			$normalised = ReportFrequency::normaliseLegacy( $current );
+			if ( $normalised !== $current ) {
+				$opts->optSet( $key, $normalised );
+			}
 		}
 	}
 

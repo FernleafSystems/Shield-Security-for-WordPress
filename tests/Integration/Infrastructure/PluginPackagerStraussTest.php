@@ -32,8 +32,11 @@ class PluginPackagerStraussTest extends TestCase {
 		'dolondro/google-authenticator',
 	];
 
-	private const EXPECTED_EXCLUDED_PACKAGES = [
+	private const REQUIRED_PREFIXED_DEPENDENCIES = [
 		'psr/log',
+	];
+
+	private const EXPECTED_EXCLUDED_PACKAGES = [
 		'psr/cache',
 		'psr/http-client',
 		'psr/http-factory',
@@ -53,7 +56,6 @@ class PluginPackagerStraussTest extends TestCase {
 
 	private const REQUIRED_UNPREFIXED_PACKAGES = [
 		'fernleafsystems/worpdrive-client',
-		'psr/log',
 		'psr/cache',
 		'psr/http-client',
 		'psr/http-factory',
@@ -68,6 +70,7 @@ class PluginPackagerStraussTest extends TestCase {
 
 	private const EXPECTED_NAMESPACE_REWRITES = [
 		'Monolog\\'                       => 'AptowebDeps\\Monolog\\',
+		'Psr\\Log\\'                       => 'AptowebDeps\\Psr\\Log\\',
 		'Twig\\'                          => 'AptowebDeps\\Twig\\',
 		'CrowdSec\\CapiClient\\'          => 'AptowebDeps\\CrowdSec\\CapiClient\\',
 		'Safe\\'                          => 'AptowebDeps\\Safe\\',
@@ -94,7 +97,7 @@ class PluginPackagerStraussTest extends TestCase {
 	 * @return string[]
 	 */
 	private function getRequiredPrefixedPackages() :array {
-		return self::EXPECTED_STRAUSS_PACKAGES;
+		return array_merge( self::EXPECTED_STRAUSS_PACKAGES, self::REQUIRED_PREFIXED_DEPENDENCIES );
 	}
 
 	/**
@@ -120,10 +123,10 @@ class PluginPackagerStraussTest extends TestCase {
 
 		$this->assertSame( 'vendor_prefixed', $strauss[ 'target_directory' ] ?? null );
 		$this->assertSame( self::STRAUSS_NAMESPACE_PREFIX, $strauss[ 'namespace_prefix' ] ?? null );
-		$this->assertSame( self::EXPECTED_STRAUSS_PACKAGES, $strauss[ 'packages' ] ?? null );
+		$this->assertEqualsCanonicalizing( self::EXPECTED_STRAUSS_PACKAGES, $strauss[ 'packages' ] ?? null );
 		$this->assertNotContains( 'fernleafsystems/worpdrive-client', $strauss[ 'packages' ] ?? [] );
 		$this->assertSame( [ 'src' ], $strauss[ 'update_call_sites' ] ?? null );
-		$this->assertSame(
+		$this->assertEqualsCanonicalizing(
 			self::EXPECTED_EXCLUDED_PACKAGES,
 			$strauss[ 'exclude_from_copy' ][ 'packages' ] ?? null
 		);
@@ -241,7 +244,7 @@ class PluginPackagerStraussTest extends TestCase {
 			}
 			$content = file_get_contents( $path );
 			$this->assertNotFalse( $content );
-			foreach ( self::EXPECTED_STRAUSS_PACKAGES as $package ) {
+			foreach ( $this->getRequiredPrefixedPackages() as $package ) {
 				$this->assertStringNotContainsString(
 					$package,
 					(string)$content,
@@ -564,7 +567,7 @@ class PluginPackagerStraussTest extends TestCase {
 	 */
 	private function getExpectedPrefixedPackageVendors() :array {
 		$vendors = [];
-		foreach ( self::EXPECTED_STRAUSS_PACKAGES as $package ) {
+		foreach ( $this->getRequiredPrefixedPackages() as $package ) {
 			$vendors[] = explode( '/', $package )[ 0 ];
 		}
 		sort( $vendors );

@@ -29,6 +29,11 @@ class ReportIntervalCoverageTest extends TestCase {
 		$this->assertContains( 'biweekly', ReportIntervalWindowResolver::supportedScheduledIntervals() );
 	}
 
+	public function test_hourly_interval_is_not_configured_or_scheduled() :void {
+		$this->assertNotContains( 'hourly', $this->getConfiguredAutoReportIntervals() );
+		$this->assertNotContains( 'hourly', ReportIntervalWindowResolver::supportedScheduledIntervals() );
+	}
+
 	/**
 	 * @return string[]
 	 */

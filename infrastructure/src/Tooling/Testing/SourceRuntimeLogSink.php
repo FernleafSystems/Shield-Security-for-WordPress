@@ -136,6 +136,9 @@ class SourceRuntimeLogSink {
 		if ( \is_file( $logFile ) ) {
 			\unlink( $logFile );
 		}
+		if ( \file_put_contents( $logFile, '' ) === false ) {
+			throw new \RuntimeException( 'Failed to create source runtime log file: '.$logFile );
+		}
 
 		$this->phaseOrder[] = $phaseKey;
 		$this->phaseState[ $phaseKey ] = [

@@ -1,8 +1,8 @@
 <div class="row">
 	<div class="col insights_section">
-		<ul class="nav nav-tabs shield_body-sub-nav">
+		<ul class="nav nav-tabs shield_body-sub-nav" role="tablist">
 
-			<li class="nav-item">
+			<li class="nav-item" role="presentation">
 				<a class="nav-link active"
 				   id="tabInfo-tab"
 				   data-bs-toggle="tab"
@@ -14,7 +14,7 @@
 				</a>
 			</li>
 
-			<li class="nav-item">
+			<li class="nav-item" role="presentation">
 				<a class="nav-link"
 				   id="tabContents-tab"
 				   data-bs-toggle="tab"
@@ -26,7 +26,7 @@
 				</a>
 			</li>
 
-			<li class="nav-item">
+			<li class="nav-item" role="presentation">
 				<a class="nav-link"
 				   id="tabDiff-tab"
 				   data-bs-toggle="tab"
@@ -39,7 +39,7 @@
 			</li>
 
 			{% if flags.can_query_malai %}
-				<li class="nav-item">
+				<li class="nav-item" role="presentation">
 					<a class="nav-link"
 					   id="tabMalai-tab"
 					   data-bs-toggle="tab"

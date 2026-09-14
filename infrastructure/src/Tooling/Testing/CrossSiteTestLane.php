@@ -6,8 +6,6 @@ use Symfony\Component\Filesystem\Path;
 
 class CrossSiteTestLane {
 
-	private const MODE_CLEAN = 'clean';
-	private const MODE_WARM = 'warm';
 	private const LOCK_DIR = 'tmp/cross-site-test-lane';
 	private const LOCK_FILE = 'lane.lock';
 
@@ -18,18 +16,46 @@ class CrossSiteTestLane {
 	}
 
 	/**
-	 * @param array{mode?:?string,show_setup_output?:bool} $options
+	 * @param array{show_setup_output?:bool} $options
 	 */
 	public function run( string $rootDir, array $options = [] ) :int {
-		$mode = $this->resolveRunMode( $options[ 'mode' ] ?? null );
 		$showSetupOutput = (bool)( $options[ 'show_setup_output' ] ?? false );
 
 		try {
-			$exitCode = $this->withLock( $rootDir, function () use ( $rootDir, $mode, $showSetupOutput ) :int {
-				$this->pairManager->prepare( $rootDir, $mode, $showSetupOutput );
-				$this->pairManager->runImportExportScenario( $rootDir );
-				return 0;
-			} );
+			$exitCode = $this->withLock(
+				$rootDir,
+				function () use ( $rootDir, $showSetupOutput ) :int {
+					$scenarioFailure = null;
+					try {
+						$this->pairManager->prepare( $rootDir, $showSetupOutput );
+						$this->pairManager->preparePublicRuntimeScenario( $rootDir, $showSetupOutput );
+						$this->pairManager->runPublicUpgradeScenario( $rootDir );
+						$this->pairManager->prepareCurrentRuntimeScenario( $rootDir, $showSetupOutput );
+						$this->pairManager->runImportExportScenario( $rootDir );
+						return 0;
+					}
+					catch ( \Throwable $throwable ) {
+						$scenarioFailure = $throwable;
+						throw $throwable;
+					}
+					finally {
+						try {
+							$this->pairManager->cleanupRun( $rootDir );
+						}
+						catch ( \Throwable $cleanupFailure ) {
+							if ( $scenarioFailure === null ) {
+								throw $cleanupFailure;
+							}
+							throw new \RuntimeException(
+								'Cross-site scenario failed: '.$scenarioFailure->getMessage()
+								.' | cleanup also failed: '.$cleanupFailure->getMessage(),
+								0,
+								$scenarioFailure
+							);
+						}
+					}
+				}
+			);
 			if ( $exitCode === 0 ) {
 				echo 'Cross-site test lane passed'.\PHP_EOL;
 			}
@@ -50,17 +76,6 @@ class CrossSiteTestLane {
 			}
 			return 1;
 		}
-	}
-
-	private function resolveRunMode( ?string $explicitMode ) :string {
-		if ( $explicitMode === self::MODE_CLEAN || $explicitMode === self::MODE_WARM ) {
-			return $explicitMode;
-		}
-		$envMode = \getenv( 'SHIELD_CROSS_SITE_MODE' );
-		if ( $envMode === self::MODE_CLEAN || $envMode === self::MODE_WARM ) {
-			return $envMode;
-		}
-		return \getenv( 'CI' ) ? self::MODE_CLEAN : self::MODE_WARM;
 	}
 
 	/**

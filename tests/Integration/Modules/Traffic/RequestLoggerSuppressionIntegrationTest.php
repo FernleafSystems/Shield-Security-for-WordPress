@@ -12,6 +12,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\Render\Components\UserMfa\ConfigForm,
 	Actions\Render\Components\Widgets\DashboardLiveMonitorTicker,
 	Actions\Render\Components\Widgets\WpDashboardSummary,
+	Actions\ScansAttemptRecovery,
 	Actions\ScansStart,
 	Actions\SecurityAdminAuthClear,
 	Actions\SecurityAdminRemove,
@@ -268,6 +269,7 @@ class RequestLoggerSuppressionIntegrationTest extends ShieldIntegrationTestCase 
 		$this->loginAsSecurityAdmin();
 
 		foreach ( [
+			ScansAttemptRecovery::class,
 			ScansStart::class,
 			PluginAutoDbRepair::class,
 		] as $action ) {

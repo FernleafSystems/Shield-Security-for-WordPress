@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Plugin\Lib\Reporting;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
+	Init\SetScanCompleted,
+	ScanStatus
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\{
 	AutoReportCoordinator,
 	BuildAlertDigestContract,
@@ -10,17 +14,21 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\{
 	ReportVO
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data\BuildForScans;
+use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 	RuntimeTestState,
 	TestDataFactory
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\HackGuard\Scan\Support\AfsAssetChangeIntegrationSupport;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\LocalEmailCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CompiledReportAssetFixture;
 use FernleafSystems\Wordpress\Services\Services;
 
 class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCase {
 
 	use LocalEmailCapture;
+	use AfsAssetChangeIntegrationSupport;
 
 	private array $optionsSnapshot = [];
 
@@ -28,6 +36,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		parent::set_up();
 		$this->requireDb( 'reports' );
 		$this->requireDb( 'scans' );
+		$this->requireDb( 'scan_items' );
 		$this->requireDb( 'scan_results' );
 		$this->requireDb( 'scan_result_items' );
 		$this->requireDb( 'scan_result_item_meta' );
@@ -60,12 +69,15 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 			->optSet( 'enable_core_file_integrity_scan', 'Y' )
 			->optSet( 'enable_wpvuln_scan', 'Y' )
 			->optSet( 'enabled_scan_apc', 'Y' )
-			->optSet( 'file_scan_areas', [ 'plugins' ] )
+			->optSet( 'file_scan_areas', [ 'wp', 'plugins', 'themes' ] )
 			->optSet( 'file_locker', [ 'wpconfig' ] )
 			->optSet( 'frequency_alert', 'daily' )
 			->optSet( 'frequency_info', 'disabled' )
 			->optSet( 'block_send_email_address', 'security-alerts@example.test' )
 			->store();
+		self::con()->comps->asset_coordinator->deleteState();
+		\wp_clear_scheduled_hook( self::con()->prefix( 'asset_coordinator' ) );
+		self::con()->cache_dir_handler->buildSubDir( 'integration-fixture' );
 		$this->startLocalEmailCapture();
 	}
 
@@ -73,6 +85,8 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		if ( static::con() !== null ) {
 			$this->restoreSelectedOptions( $this->optionsSnapshot );
 			self::con()->comps->file_locker->clearLocks();
+			self::con()->comps->asset_coordinator->deleteState();
+			\wp_clear_scheduled_hook( self::con()->prefix( 'asset_coordinator' ) );
 		}
 		$this->stopLocalEmailCapture();
 		parent::tear_down();
@@ -95,12 +109,10 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 
 		$generatedEvents = $this->getCapturedEventsByKey( 'report_generated_alert' );
 		$this->assertCount( 1, $generatedEvents );
-		$this->assertSame( 'Alert', $generatedEvents[ 0 ][ 'meta' ][ 'audit_params' ][ 'type' ] ?? null );
 		$this->assertSame( 'daily', $generatedEvents[ 0 ][ 'meta' ][ 'audit_params' ][ 'interval' ] ?? null );
 
 		$sentEvents = $this->getCapturedEventsByKey( 'report_sent' );
 		$this->assertCount( 1, $sentEvents );
-		$this->assertSame( 'Alert', $sentEvents[ 0 ][ 'meta' ][ 'audit_params' ][ 'type' ] ?? null );
 		$this->assertSame( 'email', $sentEvents[ 0 ][ 'meta' ][ 'audit_params' ][ 'medium' ] ?? null );
 
 		$this->assertCount( 1, $this->capturedMails() );
@@ -156,6 +168,132 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertSame( [], $this->getCapturedEventsByKey( 'report_sent' ) );
 	}
 
+	/**
+	 * @dataProvider provideActiveScanStatuses
+	 */
+	public function test_active_scan_blocks_all_automatic_reports_until_terminal_reentry( string $status ) :void {
+		self::con()->opts->optSet( 'frequency_info', 'daily' )->store();
+		$this->captureShieldEvents();
+		$tracked = $this->seedPluginVulnerability( 'active-'.$status );
+		$activeScanId = $this->insertActiveScan( 'afs', $status );
+		$remainingScanId = $this->insertActiveScan( 'apc', ScanStatus::QUEUED );
+		$this->resetScanResultCountMemoization();
+
+		( new AutoReportCoordinator() )->run();
+
+		$this->assertAutomaticReportsBlocked( (int)$tracked[ 'result_item_id' ] );
+
+		self::con()->db_con->scans->getQueryUpdater()->updateById( $activeScanId, [
+			'status'      => ScanStatus::COMPLETED,
+			'finished_at' => Services::Request()->ts(),
+		] );
+		( new AutoReportCoordinator() )->run();
+		$this->assertAutomaticReportsBlocked( (int)$tracked[ 'result_item_id' ] );
+
+		self::con()->db_con->scan_result_items->getQueryUpdater()->updateById(
+			(int)$tracked[ 'result_item_id' ],
+			[
+				'resolved_at'       => Services::Request()->ts(),
+				'resolution_reason' => 'clean_rescan',
+			]
+		);
+		$finalTracked = $this->seedPluginVulnerability( 'final-'.$status );
+		$this->resetScanResultCountMemoization();
+
+		self::con()->db_con->scans->getQueryUpdater()->updateById( $remainingScanId, [
+			'status'      => ScanStatus::COMPLETED,
+			'finished_at' => Services::Request()->ts(),
+		] );
+		CompiledReportAssetFixture::ensureReady( self::con()->getRootDir() );
+		( new AutoReportCoordinator() )->run();
+
+		$this->assertSame( 1, $this->countAutomaticReports( Constants::REPORT_TYPE_ALERT ) );
+		$this->assertSame( 1, $this->countAutomaticReports( Constants::REPORT_TYPE_INFO ) );
+		$this->assertCount( 2, $this->capturedMails() );
+		$this->assertSame(
+			0,
+			(int)self::con()->db_con->scan_result_items->getQuerySelector()
+				->byId( (int)$tracked[ 'result_item_id' ] )->notified_at
+		);
+		$this->assertGreaterThan(
+			0,
+			(int)self::con()->db_con->scan_result_items->getQuerySelector()
+				->byId( (int)$finalTracked[ 'result_item_id' ] )->notified_at
+		);
+	}
+
+	public function provideActiveScanStatuses() :array {
+		return [
+			'queued'   => [ ScanStatus::QUEUED ],
+			'building' => [ ScanStatus::BUILDING ],
+			'built'    => [ ScanStatus::BUILT ],
+			'running'  => [ ScanStatus::RUNNING ],
+		];
+	}
+
+	public function test_retryable_asset_work_blocks_automatic_reports_until_queue_is_cleared() :void {
+		self::con()->opts->optSet( 'frequency_info', 'daily' )->store();
+		$this->captureShieldEvents();
+		$tracked = $this->seedPluginVulnerability( 'retryable-asset' );
+		$this->assertTrue( self::con()->comps->asset_coordinator->enqueueAsset(
+			'plugin',
+			self::con()->base_file,
+			60
+		) );
+		$this->resetScanResultCountMemoization();
+
+		( new AutoReportCoordinator() )->run();
+
+		$this->assertAutomaticReportsBlocked( (int)$tracked[ 'result_item_id' ] );
+
+		self::con()->comps->asset_coordinator->deleteState();
+		CompiledReportAssetFixture::ensureReady( self::con()->getRootDir() );
+		( new AutoReportCoordinator() )->run();
+
+		$this->assertSame( 1, $this->countAutomaticReports( Constants::REPORT_TYPE_ALERT ) );
+		$this->assertSame( 1, $this->countAutomaticReports( Constants::REPORT_TYPE_INFO ) );
+		$this->assertCount( 2, $this->capturedMails() );
+	}
+
+	public function test_malformed_coordinator_state_fails_closed_until_state_is_removed() :void {
+		self::con()->opts->optSet( 'frequency_info', 'daily' )->store();
+		$this->captureShieldEvents();
+		$tracked = $this->seedPluginVulnerability( 'malformed-coordinator' );
+		$this->persistCoordinatorState( 'malformed-state' );
+		$this->resetScanResultCountMemoization();
+
+		( new AutoReportCoordinator() )->run();
+
+		$this->assertAutomaticReportsBlocked( (int)$tracked[ 'result_item_id' ] );
+
+		self::con()->comps->asset_coordinator->deleteState();
+		CompiledReportAssetFixture::ensureReady( self::con()->getRootDir() );
+		( new AutoReportCoordinator() )->run();
+
+		$this->assertSame( 1, $this->countAutomaticReports( Constants::REPORT_TYPE_ALERT ) );
+		$this->assertSame( 1, $this->countAutomaticReports( Constants::REPORT_TYPE_INFO ) );
+		$this->assertCount( 2, $this->capturedMails() );
+	}
+
+	public function test_coordinator_read_failure_fails_closed_without_report_side_effects() :void {
+		global $wpdb;
+
+		self::con()->opts->optSet( 'frequency_info', 'daily' )->store();
+		$this->captureShieldEvents();
+		$tracked = $this->seedPluginVulnerability( 'coordinator-read-failure' );
+		$property = \is_multisite() ? 'sitemeta' : 'options';
+		$originalTable = $wpdb->{$property};
+		$wpdb->{$property} = '';
+		try {
+			( new AutoReportCoordinator() )->run();
+		}
+		finally {
+			$wpdb->{$property} = $originalTable;
+		}
+
+		$this->assertAutomaticReportsBlocked( (int)$tracked[ 'result_item_id' ] );
+	}
+
 	public function test_persist_alert_notifications_updates_only_digest_targets() :void {
 		$pluginSlug = self::con()->base_file;
 
@@ -201,7 +339,7 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		];
 		\sort( $expectedTargetIds );
 
-		$actualTargetIds = (array)( $report->alert_digest[ 'notification_target_ids' ] ?? [] );
+		$actualTargetIds = $report->alert_digest[ 'notification_target_ids' ];
 		\sort( $actualTargetIds );
 
 		$this->assertSame( $expectedTargetIds, $actualTargetIds );
@@ -260,6 +398,72 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		$this->assertSame( 0, $rebuild->alert_digest[ 'summary' ][ 'new_total' ] );
 	}
 
+	/**
+	 * @dataProvider provideAfsAssetScopes
+	 */
+	public function test_rediscovered_notified_afs_asset_finding_keeps_identity_and_is_not_new(
+		string $assetType
+	) :void {
+		$scenario = $this->afsAssetScenario( $assetType );
+		$notifiedAt = Services::Request()->ts() - 60;
+
+		$initialScanId = TestDataFactory::insertCompletedScan( 'afs' );
+		$tracked = $this->seedAfsFinding( $initialScanId, $scenario, $scenario[ 'path_full' ] );
+		self::con()->db_con->scan_result_items->getQueryUpdater()->updateById(
+			(int)$tracked[ 'result_item_id' ],
+			[ 'notified_at' => $notifiedAt ]
+		);
+		$stale = $this->seedAfsFinding( $initialScanId, $scenario, $scenario[ 'stale_path_full' ] );
+
+		$replacementScanId = $this->insertAfsScan(
+			$scenario[ 'scope_type' ],
+			$scenario[ 'scope_key' ],
+			[ $this->afsIntegrityCoverageFamily( $assetType ) ]
+		);
+		$this->storeAfsObservation( $replacementScanId, $scenario );
+		$this->assertTrue( ( new SetScanCompleted() )->run( $replacementScanId ) );
+
+		$resultItem = self::con()->db_con->scan_result_items->getQuerySelector()
+			->byId( (int)$tracked[ 'result_item_id' ] );
+		$this->assertNotEmpty( $resultItem );
+		$this->assertSame( $notifiedAt, (int)$resultItem->notified_at );
+		$this->assertSame( 0, (int)$resultItem->resolved_at );
+		$this->assertSame( 1, $this->countAfsResultItemsForPath( $scenario[ 'path_full' ] ) );
+		$this->assertSame( 1, $this->countAfsScanResultLinks( $replacementScanId, (int)$tracked[ 'result_item_id' ] ) );
+		$staleItem = self::con()->db_con->scan_result_items->getQuerySelector()
+			->byId( (int)$stale[ 'result_item_id' ] );
+		$this->assertNotEmpty( $staleItem );
+		$this->assertGreaterThan( 0, (int)$staleItem->resolved_at );
+		$this->assertSame( 'asset_replaced', (string)$staleItem->resolution_reason );
+
+		$report = $this->buildAlertReport();
+		$report->areas_data = [
+			Constants::REPORT_AREA_SCANS => ( new BuildForScans( $report ) )->build(),
+		];
+		$report->alert_digest = ( new BuildAlertDigestContract() )->build( $report );
+
+		$this->assertFalse( $report->alert_digest[ 'has_new_items' ] );
+		$this->assertSame( [], $report->alert_digest[ 'notification_target_ids' ] );
+		$this->assertGreaterThan( 0, $report->alert_digest[ 'summary' ][ 'outstanding_total' ] );
+		$this->assertSame( 0, $report->alert_digest[ 'summary' ][ 'new_total' ] );
+	}
+
+	public function provideAfsAssetScopes() :array {
+		return [
+			'plugin' => [ 'plugin' ],
+			'theme'  => [ 'theme' ],
+			'core'   => [ 'core' ],
+		];
+	}
+
+	private function afsIntegrityCoverageFamily( string $assetType ) :string {
+		return [
+			'plugin' => ScanActionVO::COVERAGE_FAMILY_PLUGIN_INTEGRITY,
+			'theme'  => ScanActionVO::COVERAGE_FAMILY_THEME_INTEGRITY,
+			'core'   => ScanActionVO::COVERAGE_FAMILY_CORE_INTEGRITY,
+		][ $assetType ];
+	}
+
 	private function buildAlertReport() :ReportVO {
 		$carbon = Services::Request()->carbon( true )->subDay();
 
@@ -292,11 +496,58 @@ class ScheduledAlertNotificationIntegrationTest extends ShieldIntegrationTestCas
 		] );
 	}
 
-	private function countAlertReports() :int {
+	private function insertActiveScan( string $scanSlug, string $status ) :int {
+		$now = Services::Request()->ts();
+		$dbh = self::con()->db_con->scans;
+		$record = $dbh->getRecord();
+		$record->scan = $scanSlug;
+		$record->status = $status;
+		$record->scope_type = 'full';
+		$record->scope_key = '';
+		$record->run_trigger = 'manual';
+		$record->started_at = $now;
+		$record->last_process_at = $now;
+		$record->ready_at = $now;
+		$record->finished_at = 0;
+		$dbh->getQueryInserter()->insert( $record );
+		return (int)Services::WpDb()->getVar( 'SELECT LAST_INSERT_ID()' );
+	}
+
+	/**
+	 * @param mixed $state
+	 */
+	private function persistCoordinatorState( $state ) :void {
+		$key = self::con()->prefix( 'asset_coordinator_state' );
+		if ( \is_multisite() ) {
+			\update_site_option( $key, $state );
+		}
+		else {
+			\update_option( $key, $state, false );
+		}
+	}
+
+	private function assertAutomaticReportsBlocked( int $resultItemId ) :void {
+		$this->assertSame( 0, $this->countAutomaticReports( Constants::REPORT_TYPE_ALERT ) );
+		$this->assertSame( 0, $this->countAutomaticReports( Constants::REPORT_TYPE_INFO ) );
+		$this->assertSame( [], $this->capturedMails() );
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'report_generated_alert' ) );
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'report_generated' ) );
+		$this->assertSame( [], $this->getCapturedEventsByKey( 'report_sent' ) );
+		$this->assertSame(
+			0,
+			(int)self::con()->db_con->scan_result_items->getQuerySelector()->byId( $resultItemId )->notified_at
+		);
+	}
+
+	private function countAutomaticReports( string $type ) :int {
 		return self::con()->db_con->reports->getQuerySelector()
-			->filterByType( Constants::REPORT_TYPE_ALERT )
+			->filterByType( $type )
 			->filterByInterval( 'daily' )
 			->count();
+	}
+
+	private function countAlertReports() :int {
+		return $this->countAutomaticReports( Constants::REPORT_TYPE_ALERT );
 	}
 
 	private function latestAlertReport() {

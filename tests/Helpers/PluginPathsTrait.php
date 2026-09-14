@@ -134,7 +134,7 @@ trait PluginPathsTrait {
 			sprintf(
 				'composer script "%s" must be a string or array of strings; got %s',
 				$scriptName,
-				\get_debug_type( $scriptEntry )
+				\gettype( $scriptEntry )
 			)
 		);
 		return [];

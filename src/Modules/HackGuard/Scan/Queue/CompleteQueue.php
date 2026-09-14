@@ -3,7 +3,10 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Queue;
 
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\ScanItems\Ops as ScanItemsDB;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\ScanStatus;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\{
+	ScansController,
+	ScanStatus
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -30,8 +33,11 @@ class CompleteQueue {
 			return;
 		}
 
-		if ( $con->opts->optGet( 'is_scan_cron' ) && !wp_next_scheduled( $con->prefix( 'post_scan' ) ) ) {
-			wp_schedule_single_event( Services::Request()->ts() + 5, $con->prefix( 'post_scan' ) );
+		$postScanHook = $con->prefix( $con->opts->optGet( 'is_scan_cron' )
+			? ScansController::HOOK_POST_SCAN
+			: ScansController::HOOK_POST_SCAN_MALAI );
+		if ( !wp_next_scheduled( $postScanHook ) ) {
+			wp_schedule_single_event( Services::Request()->ts() + 5, $postScanHook );
 		}
 
 		do_action( 'shield/scan_queue_completed' );

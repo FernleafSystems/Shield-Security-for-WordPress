@@ -7,6 +7,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Constants
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\StaticToolDefinitions;
 
 /**
  * @phpstan-import-type DrillLayerHeader from OperatorChromeContract
@@ -39,11 +40,20 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   icon_class:string,
  *   status:string,
  *   stat_text:string,
+ *   primary_action_label:string,
+ *   ip_rules_href:string,
  *   lookup_key:string,
  *   render_action:array<string,mixed>,
  *   render_action_json:string,
  *   header:DrillLayerHeader,
  *   header_json:string
+ * }
+ * @phpstan-type ActivityReviewTile array{
+ *   title:string,
+ *   stat_text:string,
+ *   action_label:string,
+ *   icon_class:string,
+ *   href:string
  * }
  * @phpstan-type PanelLayerData array{
  *   subject_key:string,
@@ -100,11 +110,12 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 
 	protected function getLandingStrings() :array {
 		return [
-			'label_pro'        => __( 'PRO', 'wp-simple-firewall' ),
-			'panel_loading'    => $this->getPanelLoadingMessage(),
-			'panel_load_error' => $this->getPanelLoadErrorMessage(),
-			'landing_hint'     => __( 'Select a subject above to begin investigating.', 'wp-simple-firewall' ),
-			'subjects_heading' => __( 'Choose a subject to investigate', 'wp-simple-firewall' ),
+			'label_pro'               => __( 'PRO', 'wp-simple-firewall' ),
+			'explore_heading'         => __( 'Explore', 'wp-simple-firewall' ),
+			'manage_ip_rules'         => __( 'Manage IP rules and access', 'wp-simple-firewall' ),
+			'panel_loading'           => $this->getPanelLoadingMessage(),
+			'panel_load_error'        => $this->getPanelLoadErrorMessage(),
+			'review_activity_heading' => __( 'Review Activity', 'wp-simple-firewall' ),
 		];
 	}
 
@@ -167,8 +178,9 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		return self::con()->comps->render
 			->setTemplate( '/wpadmin/components/investigate/layer_subjects.twig' )
 			->setData( [
-				'subjects' => $this->getSubjectTiles(),
-				'strings'  => $this->getLandingStrings(),
+				'subjects'         => $this->getSubjectTiles(),
+				'activity_reviews' => $this->getActivityReviewTiles(),
+				'strings'          => $this->getLandingStrings(),
 			] )
 			->render();
 	}
@@ -192,6 +204,8 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 			$this->subjectTilesCache = [];
 			foreach ( $this->getSubjectDefinitions() as $subject ) {
 				$lookupKey = $subject[ 'lookup_key' ];
+				$isLive = $this->isLiveTrafficSubject( $subject );
+				$presentation = $this->getSubjectTilePresentation( $subject );
 				$renderAction = $subject[ 'is_enabled' ]
 					? $this->buildPanelRenderActionData( $subject )
 					: [];
@@ -201,12 +215,16 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 					'is_enabled'        => $subject[ 'is_enabled' ],
 					'is_disabled'       => !$subject[ 'is_enabled' ],
 					'is_pro'            => $subject[ 'is_pro' ],
-					'is_live'           => $this->isLiveTrafficSubject( $subject ),
-					'is_live_attr'      => $this->isLiveTrafficSubject( $subject ) ? '1' : '0',
-					'title'             => $subject[ 'label' ],
+					'is_live'           => $isLive,
+					'is_live_attr'      => $isLive ? '1' : '0',
+					'title'             => $presentation[ 'title' ],
 					'icon_class'        => $subject[ 'icon_class' ],
 					'status'            => $subject[ 'status' ],
 					'stat_text'         => $subject[ 'stat_text' ],
+					'primary_action_label' => $presentation[ 'primary_action_label' ],
+					'ip_rules_href'     => $subject[ 'key' ] === 'ip'
+						? self::con()->plugin_urls->adminIpRules()
+						: '',
 					'lookup_key'        => $lookupKey,
 					'render_action'     => $renderAction,
 					'render_action_json'=> OperatorChromeContract::encodeJson( $renderAction ),
@@ -217,6 +235,86 @@ class PageInvestigateLanding extends PageDrillDownLandingBase {
 		}
 
 		return $this->subjectTilesCache;
+	}
+
+	/**
+	 * @param SubjectDefinition $subject
+	 * @return array{title:string,primary_action_label:string}
+	 */
+	private function getSubjectTilePresentation( array $subject ) :array {
+		$presentation = [
+			'title'                => $subject[ 'label' ],
+			'primary_action_label' => sprintf( __( 'Explore %s', 'wp-simple-firewall' ), $subject[ 'label' ] ),
+		];
+
+		switch ( $subject[ 'key' ] ) {
+			case 'user':
+				$presentation = [
+					'title'                => __( 'Users', 'wp-simple-firewall' ),
+					'primary_action_label' => __( 'Explore users', 'wp-simple-firewall' ),
+				];
+				break;
+			case 'ip':
+				$presentation = [
+					'title'                => __( 'IP Addresses', 'wp-simple-firewall' ),
+					'primary_action_label' => __( 'Explore IP Addresses', 'wp-simple-firewall' ),
+				];
+				break;
+			case 'plugin':
+				$presentation = [
+					'title'                => __( 'Plugins', 'wp-simple-firewall' ),
+					'primary_action_label' => __( 'Explore plugins', 'wp-simple-firewall' ),
+				];
+				break;
+			case 'theme':
+				$presentation = [
+					'title'                => __( 'Themes', 'wp-simple-firewall' ),
+					'primary_action_label' => __( 'Explore themes', 'wp-simple-firewall' ),
+				];
+				break;
+			case 'core':
+				$presentation = [
+					'title'                => $subject[ 'label' ],
+					'primary_action_label' => __( 'Explore WordPress', 'wp-simple-firewall' ),
+				];
+				break;
+			case 'live_traffic':
+				$presentation = [
+					'title'                => $subject[ 'label' ],
+					'primary_action_label' => __( 'Watch Live Traffic', 'wp-simple-firewall' ),
+				];
+				break;
+		}
+
+		return $presentation;
+	}
+
+	/**
+	 * @return list<ActivityReviewTile>
+	 */
+	private function getActivityReviewTiles() :array {
+		$pluginURLs = self::con()->plugin_urls;
+		$reviewMeta = [
+			'tool_activity_log' => __( 'Review recorded security events', 'wp-simple-firewall' ),
+			'tool_traffic_log'  => __( 'Review recorded web requests', 'wp-simple-firewall' ),
+			'tool_sessions'     => __( 'Review active and recent sessions', 'wp-simple-firewall' ),
+		];
+		$reviewTiles = [];
+		foreach ( StaticToolDefinitions::forMode( PluginNavs::MODE_INVESTIGATE ) as $tool ) {
+			$statText = $reviewMeta[ $tool[ 'id' ] ] ?? null;
+			if ( $statText === null ) {
+				continue;
+			}
+
+			$reviewTiles[] = [
+				'title'        => $tool[ 'title' ],
+				'stat_text'    => $statText,
+				'action_label' => sprintf( __( 'Review %s', 'wp-simple-firewall' ), $tool[ 'title' ] ),
+				'icon_class'   => 'bi bi-'.$tool[ 'icon' ],
+				'href'         => $pluginURLs->adminTopNav( $tool[ 'nav' ], $tool[ 'subnav' ] ),
+			];
+		}
+		return $reviewTiles;
 	}
 
 	/**

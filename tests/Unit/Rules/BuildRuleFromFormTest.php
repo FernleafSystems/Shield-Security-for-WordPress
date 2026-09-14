@@ -11,14 +11,27 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Rules;
 
 use Brain\Monkey\Functions;
-use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\{
+	Controller,
+	Plugin\HookTimings
+};
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Conditions\{
+	IsRequestStatus404,
+	MatchRequestPath
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Build\BuildRuleFromForm;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\CustomBuilder\{
 	ParseRuleBuilderForm,
 	RuleFormBuilderVO
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
+use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\{
+	EnumLogic,
+	EnumMatchTypes,
+	EnumParameters
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses\{
+	EventFire,
+	FirewallBlock,
 	HookAddFilter,
 	HttpRedirect
 };
@@ -122,6 +135,136 @@ class BuildRuleFromFormTest extends BaseUnitTest {
 		$this->assertSame( 302, $responses[ 0 ][ 'params' ][ 'status_code' ] );
 	}
 
+	public function test_custom_responses_are_deferred_by_default() :void {
+		$rule = ( new BuildRuleFromForm( $this->formWith( [], [] ) ) )->build();
+
+		$this->assertFalse( $rule->immediate_exec_response );
+	}
+
+	public function test_only_direct_404_custom_rules_run_after_native_404_tracking() :void {
+		$rule404 = new BuildRuleFromFormTestDouble( $this->formWith( [
+			$this->condition( IsRequestStatus404::Slug() ),
+		], [] ) );
+		$invertedRule404 = new BuildRuleFromFormTestDouble( $this->formWith( [
+			$this->condition( IsRequestStatus404::Slug(), [], EnumLogic::LOGIC_INVERT ),
+		], [] ) );
+		$pathRule = new BuildRuleFromFormTestDouble( $this->formWith( [
+			$this->pathCondition( '/private' ),
+		], [] ) );
+
+		$this->assertSame(
+			HookTimings::TEMPLATE_REDIRECT_AFTER_WORDPRESS_REDIRECTS + 1,
+			$rule404->priorityForTest()
+		);
+		$this->assertNull( $invertedRule404->priorityForTest() );
+		$this->assertNull( $pathRule->priorityForTest() );
+	}
+
+	public function test_mixed_or_404_custom_rules_do_not_run_after_native_404_tracking() :void {
+		$rule = new BuildRuleFromFormTestDouble( $this->formWith( [
+			$this->condition( IsRequestStatus404::Slug() ),
+			$this->pathCondition( '/private' ),
+		], [], BuildRuleFromForm::LOGIC_OR ) );
+
+		$this->assertNull( $rule->priorityForTest() );
+	}
+
+	public function test_firewall_block_gets_canonical_event_with_truthful_custom_audit_data() :void {
+		$responses = ( new BuildRuleFromFormTestDouble( $this->formWith(
+			[ $this->pathCondition( '/private-area' ) ],
+			[ $this->response( FirewallBlock::Slug() ) ]
+		) ) )->responsesForTest();
+
+		$this->assertCount( 2, $responses );
+		$this->assertSame( EventFire::class, $responses[ 0 ][ 'response' ] );
+		$this->assertSame( FirewallBlock::class, $responses[ 1 ][ 'response' ] );
+
+		$params = $responses[ 0 ][ 'params' ];
+		$this->assertSame( 'firewall_block', $params[ 'event' ] );
+		$this->assertSame( 1, $params[ 'offense_count' ] );
+		$this->assertFalse( $params[ 'block' ] );
+		$this->assertSame( [ 'value' => 'path' ], $params[ 'audit_params_map' ] );
+		$this->assertSame( [
+			'name'  => 'machine_contract_rule',
+			'term'  => '/private-area',
+			'param' => 'path',
+			'scan'  => 'custom_rule',
+			'type'  => EnumMatchTypes::MATCH_TYPE_EQUALS,
+		], $params[ 'audit_params' ] );
+	}
+
+	public function test_explicit_firewall_event_is_not_duplicated_or_reordered() :void {
+		$responses = ( new BuildRuleFromFormTestDouble( $this->formWith(
+			[ $this->pathCondition( '/private-area' ) ],
+			[
+				$this->response( HookAddFilter::Slug() ),
+				$this->response( EventFire::Slug(), [
+					$this->param( 'event', 'firewall_block', EnumParameters::TYPE_ENUM ),
+				] ),
+				$this->response( FirewallBlock::Slug() ),
+			]
+		) ) )->responsesForTest();
+
+		$firewallEvents = \array_filter( $responses, static function ( array $response ) :bool {
+			return ( $response[ 'response' ] ?? '' ) === EventFire::class
+				&& ( $response[ 'params' ][ 'event' ] ?? '' ) === 'firewall_block';
+		} );
+
+		$this->assertCount( 1, $firewallEvents );
+		$this->assertSame( HookAddFilter::class, $responses[ 0 ][ 'response' ] );
+		$this->assertSame( EventFire::class, $responses[ 1 ][ 'response' ] );
+		$this->assertSame( FirewallBlock::class, $responses[ 2 ][ 'response' ] );
+	}
+
+	private function formWith(
+		array $conditions,
+		array $responses,
+		string $conditionsLogic = BuildRuleFromForm::LOGIC_AND
+	) :RuleFormBuilderVO {
+		return ( new RuleFormBuilderVO() )->applyFromArray( [
+			'name'             => 'machine_contract_rule',
+			'description'      => 'machine contract description',
+			'conditions_logic' => $conditionsLogic,
+			'conditions'       => $conditions,
+			'checks'           => [
+				'checkbox_auto_include_bypass' => [
+					'value' => 'N',
+				],
+			],
+			'responses'        => $responses,
+		] );
+	}
+
+	private function condition( string $slug, array $params = [], string $logic = EnumLogic::LOGIC_ASIS ) :array {
+		return [
+			'value'  => $slug,
+			'invert' => [ 'value' => $logic ],
+			'params' => $params,
+		];
+	}
+
+	private function pathCondition( string $path ) :array {
+		return $this->condition( MatchRequestPath::Slug(), [
+			$this->param( 'match_type', EnumMatchTypes::MATCH_TYPE_EQUALS, EnumParameters::TYPE_ENUM ),
+			$this->param( 'match_path', $path, EnumParameters::TYPE_STRING ),
+		] );
+	}
+
+	private function response( string $slug, array $params = [] ) :array {
+		return [
+			'value'  => $slug,
+			'params' => $params,
+		];
+	}
+
+	private function param( string $name, $value, string $type ) :array {
+		return [
+			'name'       => $name,
+			'value'      => $value,
+			'param_type' => $type,
+		];
+	}
+
 	private function installController() :void {
 		/** @var Controller $controller */
 		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
@@ -170,5 +313,9 @@ class BuildRuleFromFormTestDouble extends BuildRuleFromForm {
 
 	public function responsesForTest() :array {
 		return parent::getResponses();
+	}
+
+	public function priorityForTest() :?int {
+		return parent::getWpHookPriority();
 	}
 }

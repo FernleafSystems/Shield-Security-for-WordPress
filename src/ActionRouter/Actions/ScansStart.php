@@ -70,6 +70,7 @@ class ScansStart extends ScansBase {
 				: __( 'Scan failed.', 'wp-simple-firewall' ),
 			'remaining_scans' => $msg,
 			'progress'        => $isScanRunning ? 5 : 100,
+			'scan_rows'       => [],
 		] ) );
 
 		$this->response()->setPayload( $payload )->setPayloadSuccess( $success );

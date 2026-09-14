@@ -12,6 +12,8 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
  *   header_density:string,
  *   home_href:string,
  *   home_label:string,
+ *   parent_href:string,
+ *   parent_label:string,
  *   is_mode_landing:bool,
  *   is_interactive:bool,
  *   use_operator_chrome:bool,
@@ -145,6 +147,10 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		return $this->isModeLandingPage();
 	}
 
+	protected function hasOperatorModeParent() :bool {
+		return false;
+	}
+
 	protected function getRenderData() :array {
 		$strings = [
 			'inner_page_title'    => $this->getLandingTitle(),
@@ -236,12 +242,22 @@ abstract class PageModeLandingBase extends BasePluginAdminPage {
 		}
 
 		$rootStep = $this->normalizeOperatorChromeStep( \is_array( $modeShell[ 'root_step' ] ?? null ) ? $modeShell[ 'root_step' ] : [] );
+		$parentHref = '';
+		$parentLabel = '';
+		if ( $this->hasOperatorModeParent() ) {
+			$mode = $this->getLandingMode();
+			$entry = PluginNavs::defaultEntryForMode( $mode );
+			$parentHref = self::con()->plugin_urls->adminTopNav( $entry[ 'nav' ], $entry[ 'subnav' ] );
+			$parentLabel = PluginNavs::modeLabel( $mode );
+		}
 
 		return [
 			'mode'                => sanitize_key( (string)( $modeShell[ 'mode' ] ?? '' ) ),
 			'header_density'      => $headerDensity,
 			'home_href'           => (string)( $modeShell[ 'home_href' ] ?? '' ),
 			'home_label'          => $homeLabel,
+			'parent_href'         => $parentHref,
+			'parent_label'        => $parentLabel,
 			'is_mode_landing'     => true,
 			'is_interactive'      => (bool)( $modeShell[ 'is_interactive' ] ?? false ),
 			'use_operator_chrome' => (bool)( $modeShell[ 'use_operator_chrome' ] ?? false ),

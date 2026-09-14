@@ -21,6 +21,7 @@
 
 	<input type="text" name="{{ option.key }}"
 		   id="Opt-{{ option.key }}"
+		   aria-labelledby="Label-{{ option.key }}"
 		   value="{{ option.value|raw }}"
 		   placeholder="{{ option.value }}"
 			{% if option.disabled %}
@@ -35,6 +36,7 @@
 
 	<input type="text" name="{{ option.key }}"
 		   id="Opt-{{ option.key }}"
+		   aria-labelledby="Label-{{ option.key }}"
 		   value="{{ option.value|raw }}"
 		   placeholder="{{ option.value }}"
 		   {% if option.disabled %}disabled="disabled"{% endif %}
@@ -63,6 +65,7 @@
 
 	<textarea name="{{ option.key }}"
 			  id="Opt-{{ option.key }}"
+			  aria-labelledby="Label-{{ option.key }}"
 			  placeholder="{{ option.value|raw }}"
 			  rows="{{ option.rows }}"
 			  {% if option.disabled %}disabled="disabled"{% endif %}
@@ -72,6 +75,7 @@
 
 	<textarea name="{{ option.key }}"
 			  id="Opt-{{ option.key }}"
+			  aria-labelledby="Label-{{ option.key }}"
 			  placeholder="{{ option.value }}"
 			  rows="{{ option.rows }}"
 			  {% if option.disabled %}disabled="disabled"{% endif %}
@@ -80,6 +84,7 @@
 {% elseif option.type is same as('noneditable_text') %}
 
 	<input name="{{ option.key }}" id="Opt-{{ option.key }}"
+		   aria-labelledby="Label-{{ option.key }}"
 		   type="text" readonly
 		   class="form-control"
 		   value="{{ option.value }}" />
@@ -88,6 +93,7 @@
 
 	<input type="text" name="{{ option.key }}"
 		   id="Opt-{{ option.key }}"
+		   aria-labelledby="Label-{{ option.key }}"
 		   value="{{ option.value }}"
 		   placeholder="{{ option.value }}"
 		   {% if option.disabled %}disabled="disabled"{% endif %}

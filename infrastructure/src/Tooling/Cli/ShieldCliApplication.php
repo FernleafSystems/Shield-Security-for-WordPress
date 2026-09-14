@@ -6,6 +6,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzePackageCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeSourceCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\AnalyzeToolingCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\GitPreCommitCommand;
+use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\ReleaseOperatorCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteDownCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteFixtureCommand;
 use FernleafSystems\ShieldPlatform\Tooling\Cli\Command\SiteResetCommand;
@@ -38,6 +39,7 @@ use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceRuntimeTestLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\SourceStaticAnalysisLane;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\TestingEnvironmentResolver;
 use FernleafSystems\ShieldPlatform\Tooling\Testing\ToolingAnalysisLane;
+use FernleafSystems\ShieldPlatform\Tooling\Process\ProcessRunner;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\CommandLoader\FactoryCommandLoader;
@@ -83,6 +85,18 @@ class ShieldCliApplication {
 		return \array_merge(
 			$siteFactories,
 			[
+				'operator' => static function () use ( $projectRoot ) :Command {
+					return new ReleaseOperatorCommand( 'operator', null, $projectRoot, new ProcessRunner() );
+				},
+				'operator:package-svn' => static function () use ( $projectRoot ) :Command {
+					return new ReleaseOperatorCommand( 'operator:package-svn', 'package-svn', $projectRoot, new ProcessRunner() );
+				},
+				'operator:prepare-release' => static function () use ( $projectRoot ) :Command {
+					return new ReleaseOperatorCommand( 'operator:prepare-release', 'prepare-release', $projectRoot, new ProcessRunner() );
+				},
+				'operator:build-zip' => static function () use ( $projectRoot ) :Command {
+					return new ReleaseOperatorCommand( 'operator:build-zip', 'build-zip', $projectRoot, new ProcessRunner() );
+				},
 				'test:browser' => static function () use ( $projectRoot ) :Command {
 					return new TestBrowserCommand( $projectRoot, new BrowserTestLane() );
 				},

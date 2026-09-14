@@ -27,7 +27,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\{
 	Actions\ReportingChartTrends,
 	Actions\Render\Components\OffCanvas\ImportExportSitesAuthoriseUrls,
 	Actions\Render\Components\Widgets\WpDashboardSummary,
+	Actions\ScansAttemptRecovery,
 	Actions\ScansCheck,
+	Actions\ScansFileLockerAction,
 	Actions\ScansStart,
 	Actions\TrafficLiveLog_SetEnabled,
 	Actions\ToolPurgeProviderIPs
@@ -61,6 +63,7 @@ class AssetsCustomizerTest extends BaseUnitTest {
 			\define( 'HOUR_IN_SECONDS', 3600 );
 		}
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => htmlspecialchars( $text ) );
 		Functions\when( 'sanitize_key' )->alias(
 			static fn( $text ) :string => \is_string( $text ) ? \strtolower( \preg_replace( '/[^a-z0-9_\-]/', '', $text ) ) : ''
 		);
@@ -165,6 +168,22 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertNotSame( '', $dashboardWidgetComp[ 'data' ][ 'strings' ][ 'load_failed' ] ?? '' );
 	}
 
+	public function test_ip_detect_component_is_localized_for_user_with_base_permission() :void {
+		$this->installEnvironment();
+
+		$ipDetect = $this->getLocalisedIpDetectComponent()[ 'ip_detect' ] ?? null;
+
+		$this->assertIsArray( $ipDetect );
+		$this->assertArrayHasKey( 'flags', $ipDetect );
+		$this->assertTrue( $ipDetect[ 'flags' ][ 'is_check_required' ] );
+	}
+
+	public function test_ip_detect_component_is_not_localized_for_user_without_base_permission() :void {
+		$this->installEnvironment( [], [], false, false );
+
+		$this->assertArrayNotHasKey( 'ip_detect', $this->getLocalisedIpDetectComponent() );
+	}
+
 	/**
 	 * @dataProvider ajaxRenderComponentProvider
 	 */
@@ -189,9 +208,21 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$scansData = \is_callable( $scansComp[ 'data' ] ?? null ) ? \call_user_func( $scansComp[ 'data' ] ) : [];
 		$ajax = \is_array( $scansData[ 'ajax' ] ?? null ) ? $scansData[ 'ajax' ] : [];
 
-		$this->assertEqualsCanonicalizing( [ 'check', 'start' ], \array_keys( $ajax ) );
+		$this->assertEqualsCanonicalizing( [ 'check', 'recover', 'start' ], \array_keys( $ajax ) );
 		$this->assertSame( ScansCheck::SLUG, $ajax[ 'check' ][ ActionData::FIELD_EXECUTE ] ?? null );
+		$this->assertSame( ScansAttemptRecovery::SLUG, $ajax[ 'recover' ][ ActionData::FIELD_EXECUTE ] ?? null );
 		$this->assertSame( ScansStart::SLUG, $ajax[ 'start' ][ ActionData::FIELD_EXECUTE ] ?? null );
+	}
+
+	public function test_file_locker_component_localizes_file_action_payload() :void {
+		$this->installEnvironment();
+
+		$ajax = $this->componentAjax( 'file_locker' );
+
+		$this->assertSame(
+			ScansFileLockerAction::SLUG,
+			$ajax[ 'file_action' ][ ActionData::FIELD_EXECUTE ] ?? null
+		);
 	}
 
 	public function test_scans_component_sets_initial_check_when_scan_queue_is_running() :void {
@@ -292,7 +323,12 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertCount( 1, $actionColumns );
 	}
 
-	private function installEnvironment( array $query = [], array $completedTours = [], bool $hasRunningScans = false ) :void {
+	private function installEnvironment(
+		array $query = [],
+		array $completedTours = [],
+		bool $hasRunningScans = false,
+		bool $meetsBasePermissions = true
+	) :void {
 		$query = \array_merge( [
 			'page'                  => 'icwp-wpsf-plugin',
 			PluginNavs::FIELD_NAV    => PluginNavs::NAV_DASHBOARD,
@@ -319,7 +355,8 @@ class AssetsCustomizerTest extends BaseUnitTest {
 				true,
 				new AssetsCustomizerUserMetasStub( (object)[ 'tours' => $completedTours ] ),
 				self::VALID_VIDEO_URL,
-				$hasRunningScans
+				$hasRunningScans,
+				$meetsBasePermissions
 			)
 		);
 
@@ -343,6 +380,17 @@ class AssetsCustomizerTest extends BaseUnitTest {
 			}
 		}
 		return [];
+	}
+
+	private function getLocalisedIpDetectComponent() :array {
+		Functions\when( 'apply_filters' )->alias(
+			static function ( string $hook, $value, ...$args ) {
+				return $hook === 'shield/custom_localisations/components' && \is_array( $value )
+					? \array_intersect_key( $value, [ 'ip_detect' => true ] )
+					: $value;
+			}
+		);
+		return $this->getLocalisedCompsForHandle( 'wpadmin' );
 	}
 
 	private function getComponentDefinition( string $key ) :array {
@@ -379,11 +427,6 @@ class AssetsCustomizerTest extends BaseUnitTest {
 					PluginNavs::FIELD_SUBNAV => PluginNavs::SUBNAV_DASHBOARD_OVERVIEW,
 				],
 				'dashboard_widget',
-				1,
-			],
-			'file locker diff' => [
-				[],
-				'file_locker',
 				1,
 			],
 			'ip analysis offcanvas' => [
@@ -453,23 +496,36 @@ class AssetsCustomizerControllerStub extends Controller {
 
 	private bool $pluginAdminPage;
 	private bool $pluginAdmin;
+	private bool $meetsBasePermissions;
 
 	public function __construct(
 		bool $pluginAdminPage,
 		bool $pluginAdmin,
 		object $userMetas,
 		string $dashboardVideoURL,
-		bool $hasRunningScans = false
+		bool $hasRunningScans = false,
+		bool $meetsBasePermissions = true
 	) {
 		$this->pluginAdminPage = $pluginAdminPage;
 		$this->pluginAdmin = $pluginAdmin;
+		$this->meetsBasePermissions = $meetsBasePermissions;
 		$this->user_metas = $userMetas;
 		$this->cfg = (object)[
 			'configuration' => new AssetsCustomizerConfigStub( [
 				'dashboard_intro_video_url_v22' => $dashboardVideoURL,
 			] ),
 		];
+		$this->opts = new class {
+			public function optGet( string $key ) {
+				return $key === 'ipdetect_at' ? 1 : null;
+			}
+		};
 		$this->comps = (object)[
+			'opts_lookup' => new class {
+				public function ipSource() :string {
+					return 'AUTO_DETECT_IP';
+				}
+			},
 			'scans_queue' => new class( $hasRunningScans ) {
 				private bool $hasRunningScans;
 
@@ -495,6 +551,10 @@ class AssetsCustomizerControllerStub extends Controller {
 
 	public function isPluginAdmin() :bool {
 		return $this->pluginAdmin;
+	}
+
+	public function getMeetsBasePermissions() :bool {
+		return $this->meetsBasePermissions;
 	}
 
 	public function isPremiumActive() :bool {

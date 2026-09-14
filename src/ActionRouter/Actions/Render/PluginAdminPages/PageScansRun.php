@@ -23,19 +23,15 @@ class PageScansRun extends PageScansBase {
 
 		// Can Scan Checks:
 		$reasonsCantScan = $con->comps->scans->getReasonsScansCantExecute();
-		return [
+		return \array_replace_recursive( parent::getRenderData(), [
 			'flags'   => [
 				'can_scan' => \count( $reasonsCantScan ) === 0,
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->iconClass( 'shield-shaded' ),
 				'icon_shield_check'     => $con->svgs->iconClass( 'shield-check' ),
 				'icon_shield_x'         => $con->svgs->iconClass( 'shield-x' ),
 			],
 			'strings' => [
-				'inner_page_title'    => __( 'Run Manual Scan', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => __( 'Scan your site for file changes, malware and vulnerabilities.', 'wp-simple-firewall' ),
-
 				'never'                 => CommonDisplayStrings::get( 'never_label' ),
 				'not_available'         => __( 'Sorry, this scan is not available.', 'wp-simple-firewall' ),
 				'not_enabled'           => __( 'This scan is not currently enabled.', 'wp-simple-firewall' ),
@@ -52,7 +48,19 @@ class PageScansRun extends PageScansBase {
 			'vars'    => [
 				'cannot_scan_reasons' => $reasonsCantScan,
 			],
-		];
+		] );
+	}
+
+	protected function getLandingTitle() :string {
+		return __( 'Run Manual Scan', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingSubtitle() :string {
+		return __( 'Scan your site for file changes, malware and vulnerabilities.', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingIcon() :string {
+		return 'shield-shaded';
 	}
 
 	private function buildScansVars() :array {

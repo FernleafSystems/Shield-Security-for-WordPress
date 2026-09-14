@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery;
 
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Record as EventRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -31,17 +30,16 @@ class BuildRecentActivity {
 			$eventsService->getEvents(),
 			static fn( array $event ) :bool => !empty( $event[ 'recent' ] )
 		);
-		/** @var array<string,EventRecord> $latestRecords */
-		$latestRecords = $this->latestRecords();
+		$latestTimestamps = $this->latestTimestamps( \array_keys( $recentEvents ) );
 
 		$items = [];
 		foreach ( \array_keys( $recentEvents ) as $eventKey ) {
-			$record = $latestRecords[ $eventKey ] ?? null;
+			$latestAt = $latestTimestamps[ $eventKey ] ?? 0;
 			$items[] = [
 				'key'        => $eventKey,
 				'label'      => $eventsService->getEventName( $eventKey ),
-				'latest_at'  => $record instanceof EventRecord ? (int)$record->created_at : 0,
-				'has_record' => $record instanceof EventRecord,
+				'latest_at'  => $latestAt,
+				'has_record' => $latestAt > 0,
 			];
 		}
 
@@ -56,9 +54,10 @@ class BuildRecentActivity {
 	}
 
 	/**
-	 * @return array<string,EventRecord>
+	 * @param string[] $eventKeys
+	 * @return array<string,int>
 	 */
-	protected function latestRecords() :array {
-		return self::con()->db_con->events->getQuerySelector()->getLatestForAllEvents();
+	protected function latestTimestamps( array $eventKeys ) :array {
+		return self::con()->db_con->events->getQuerySelector()->getLatestTimestampsForEvents( $eventKeys );
 	}
 }

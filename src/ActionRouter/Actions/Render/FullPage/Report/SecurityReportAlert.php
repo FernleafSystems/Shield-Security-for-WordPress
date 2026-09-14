@@ -35,14 +35,9 @@ class SecurityReportAlert extends \FernleafSystems\Wordpress\Plugin\Shield\Actio
 				'and_x_more'             => __( '... and %s more', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
-				'interval'      => $report->interval ?? '',
 				'dates'         => [
-					'generation_date'        => $WP->getTimeStringForDisplay( null, false ),
-					'generation_time'        => $WP->getTimeStringForDisplay(),
-					'report_date_start'      => $WP->getTimeStringForDisplay( $report->start_at, false ),
-					'report_date_end'        => $WP->getTimeStringForDisplay( $report->end_at, false ),
-					'report_date_full_start' => $WP->getTimeStringForDisplay( $report->start_at ),
-					'report_date_full_end'   => $WP->getTimeStringForDisplay( $report->end_at ),
+					'report_date_start' => $WP->getTimeStringForDisplay( $report->start_at, false ),
+					'report_date_end'   => $WP->getTimeStringForDisplay( $report->end_at, false ),
 				],
 				'site_url_host' => \wp_parse_url( $WP->getHomeUrl(), \PHP_URL_HOST ),
 				'digest'        => $digest,

@@ -22,6 +22,17 @@ class ResultsSetTest extends BaseUnitTest {
 		$this->assertSame( [ 'akismet/akismet.php', 'hello-dolly/hello.php' ], $set->getUniqueSlugs() );
 	}
 
+	public function test_direct_append_preserves_order_and_count() :void {
+		$first = $this->buildWpvItem( 'first/first.php' );
+		$second = $this->buildWpvItem( 'second/second.php' );
+		$set = new Wpv\ResultsSet();
+
+		$set->addItem( $first )->addItem( $second );
+
+		$this->assertSame( [ $first, $second ], $set->getAllItems() );
+		$this->assertSame( 2, $set->countItems() );
+	}
+
 	private function buildWpvItem( string $itemID ) :Wpv\ResultItem {
 		$item = new Wpv\ResultItem();
 		$item->VO = $this->buildScanResultVO( $itemID );

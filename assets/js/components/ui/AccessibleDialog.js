@@ -89,6 +89,40 @@ export class AccessibleDialog {
 		}, null );
 	}
 
+	/** Open caller-owned content within the same accessible dialog lifecycle. */
+	content( config ) {
+		if ( this.pendingResolver !== null ) {
+			return null;
+		}
+		const closed = this.show( { ...config, type: 'content' }, undefined );
+		const owner = this.pendingResolver;
+		const isCurrent = () => this.pendingResolver === owner;
+		return {
+			closed,
+			close: () => {
+				if ( isCurrent() && !this.currentConfig.busy ) {
+					this.dialogInstance.hide();
+				}
+			},
+			setBusy: ( busy ) => {
+				if ( isCurrent() ) {
+					this.currentConfig.busy = busy;
+					this.dialogEl.toggleAttribute( 'aria-busy', busy );
+					if ( busy ) {
+						this.dialogEl.setAttribute( 'aria-busy', 'true' );
+						focusElement( this.dialogEl );
+					}
+				}
+			},
+			setTitle: ( title ) => {
+				if ( isCurrent() ) {
+					const heading = this.setText( `#${this.options.titleId}`, title );
+					focusElement( heading );
+				}
+			},
+		};
+	}
+
 	processing( config = {} ) {
 		if ( this.pendingResolver !== null ) {
 			return { close: () => null };
@@ -156,8 +190,14 @@ export class AccessibleDialog {
 		this.dialogEl.innerHTML = `
 			<div class="${classPrefix}__overlay" data-a11y-dialog-hide></div>
 			<div class="${classPrefix}__surface" role="document">
-				<h2 id="${titleId}" class="${classPrefix}__title"></h2>
-				<div id="${messageId}" class="${classPrefix}__message"></div>
+				<div class="${classPrefix}__header operator-tile-card__main">
+					<span class="${classPrefix}__icon operator-tile-card__icon" aria-hidden="true" hidden></span>
+					<div class="operator-tile-card__copy">
+						<h2 id="${titleId}" class="${classPrefix}__title" tabindex="-1"></h2>
+						<div id="${messageId}" class="${classPrefix}__message"></div>
+					</div>
+				</div>
+				<div class="${classPrefix}__content" hidden></div>
 				<div class="${classPrefix}__field" hidden>
 					<label id="${inputLabelId}" for="${inputId}"></label>
 					<input id="${inputId}" type="text" autocomplete="off" />
@@ -188,7 +228,7 @@ export class AccessibleDialog {
 	}
 
 	onHide( evt = null ) {
-		if ( this.currentConfig?.type === 'processing' && !this.allowProcessingClose ) {
+		if ( this.currentConfig?.busy || ( this.currentConfig?.type === 'processing' && !this.allowProcessingClose ) ) {
 			evt?.preventDefault();
 			return;
 		}
@@ -201,6 +241,8 @@ export class AccessibleDialog {
 		this.pendingLauncher = null;
 		this.currentConfig = null;
 		this.resetProcessingState();
+		this.dialogEl.querySelector( `.${this.options.classPrefix}__content` ).replaceChildren();
+		this.dialogEl.querySelectorAll( '[data-dialog-custom-footer]' ).forEach( el => el.remove() );
 
 		window.setTimeout( () => {
 			if ( resolver ) {
@@ -222,12 +264,13 @@ export class AccessibleDialog {
 	}
 
 	normalizeDialogConfig( config ) {
-		const type = [ 'alert', 'confirm', 'prompt', 'processing' ].includes( config.type ) ? config.type : 'alert';
+		const type = [ 'alert', 'confirm', 'prompt', 'processing', 'content' ].includes( config.type ) ? config.type : 'alert';
 		const titleFallbacks = {
 			alert: this.localizedText( this.options.alertTitleKeys, 'Notice' ),
 			confirm: this.localizedText( this.options.confirmTitleKeys, 'Confirm Action' ),
 			prompt: this.localizedText( this.options.promptTitleKeys, 'Information Required' ),
 			processing: this.localizedText( this.options.processingTitleKeys, 'Loading' ),
+			content: this.localizedText( this.options.alertTitleKeys, 'Notice' ),
 		};
 
 		const normalized = {
@@ -236,13 +279,13 @@ export class AccessibleDialog {
 			title: normalizeText( config.title || titleFallbacks[ type ] ),
 			message: normalizeText( config.message ),
 			label: type === 'prompt' ? normalizeText( config.label ) : '',
-			confirmLabel: type === 'processing' ? '' : normalizeText(
+			confirmLabel: [ 'processing', 'content' ].includes( type ) ? '' : normalizeText(
 				config.confirmLabel || this.localizedText(
 					type === 'alert' ? this.options.alertConfirmLabelKeys : this.options.actionConfirmLabelKeys,
 					type === 'alert' ? 'Close' : 'Confirm'
 				)
 			),
-			cancelLabel: [ 'alert', 'processing' ].includes( type ) ? '' : normalizeText(
+			cancelLabel: [ 'alert', 'processing', 'content' ].includes( type ) ? '' : normalizeText(
 				config.cancelLabel || this.localizedText( this.options.cancelLabelKeys, 'Cancel' )
 			),
 			showTitle: config.showTitle === true || ( config.showTitle !== false && ![ 'alert', 'processing' ].includes( type ) ),
@@ -251,10 +294,10 @@ export class AccessibleDialog {
 		if ( normalized.title.length < 1 ) {
 			throw new Error( `${this.options.errorContext} requires a non-empty title.` );
 		}
-		if ( type !== 'processing' && normalized.confirmLabel.length < 1 ) {
+		if ( ![ 'processing', 'content' ].includes( type ) && normalized.confirmLabel.length < 1 ) {
 			throw new Error( `${this.options.errorContext} requires a non-empty title and confirm label.` );
 		}
-		if ( ![ 'alert', 'processing' ].includes( type ) && normalized.cancelLabel.length < 1 ) {
+		if ( ![ 'alert', 'processing', 'content' ].includes( type ) && normalized.cancelLabel.length < 1 ) {
 			throw new Error( `${this.options.errorContext} requires a non-empty cancel label when cancel is visible.` );
 		}
 		if ( type === 'processing' && normalized.message.length < 1 ) {
@@ -278,6 +321,18 @@ export class AccessibleDialog {
 		} = this.options;
 
 		const isProcessing = config.type === 'processing';
+		const isContent = config.type === 'content';
+		const icon = element.querySelector( `.${classPrefix}__icon` );
+		icon.replaceChildren();
+		icon.hidden = !config.iconClass;
+		if ( config.iconClass ) {
+			const glyph = document.createElement( 'i' );
+			glyph.className = config.iconClass;
+			icon.append( glyph );
+		}
+		const content = element.querySelector( `.${classPrefix}__content` );
+		content.hidden = !isContent;
+		content.replaceChildren( ...( isContent ? [ config.content ] : [] ) );
 		this.allowProcessingClose = false;
 		element.classList.toggle( `${classPrefix}--danger`, config.danger === true );
 		element.classList.toggle( `${classPrefix}--processing`, isProcessing );
@@ -298,13 +353,17 @@ export class AccessibleDialog {
 		}
 
 		const confirmButton = element.querySelector( `.${classPrefix}__confirm` );
-		this.setActionButton( confirmButton, !isProcessing, config.confirmLabel );
+		this.setActionButton( confirmButton, !isProcessing && !isContent, config.confirmLabel );
 		confirmButton.classList.toggle( 'button-primary', config.danger !== true );
 		confirmButton.classList.toggle( 'button-link-delete', config.danger === true );
 
 		const cancelButton = element.querySelector( `.${classPrefix}__cancel` );
-		this.setActionButton( cancelButton, ![ 'alert', 'processing' ].includes( config.type ), config.cancelLabel );
+		this.setActionButton( cancelButton, ![ 'alert', 'processing', 'content' ].includes( config.type ), config.cancelLabel );
 		element.querySelector( `.${classPrefix}__actions` ).hidden = isProcessing;
+		if ( isContent ) {
+			config.footer.dataset.dialogCustomFooter = '1';
+			element.querySelector( `.${classPrefix}__actions` ).append( config.footer );
+		}
 		this.resetValidation();
 
 		const field = element.querySelector( `.${classPrefix}__field` );
@@ -321,7 +380,7 @@ export class AccessibleDialog {
 			field.hidden = true;
 			input.value = '';
 			input.removeAttribute( 'autofocus' );
-			this.setActionButton( cancelButton, ![ 'alert', 'processing' ].includes( config.type ), config.cancelLabel, config.danger === true );
+			this.setActionButton( cancelButton, ![ 'alert', 'processing', 'content' ].includes( config.type ), config.cancelLabel, config.danger === true );
 		}
 
 		this.currentConfig = config;

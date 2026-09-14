@@ -7,6 +7,19 @@ const {
 
 test.setTimeout( 180_000 );
 
+test( 'legacy live traffic URL reaches the canonical active investigation panel', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withLiveTrafficToggleFixture( async ( contract ) => {
+		await openShieldRoute( page, contract.legacy_route );
+		const params = new URL( page.url() ).searchParams;
+		for ( const [ key, value ] of Object.entries( contract.route ) ) {
+			expect( params.get( key ) ).toBe( value );
+		}
+		await expect( page.locator( contract.selectors.toggle ) ).toBeVisible();
+		await expect( page.locator( contract.selectors.toggle ) ).toBeEnabled();
+		await expect( page.locator( '#SectionTrafficLiveLogs' ) ).toHaveAttribute( 'data-traffic-live-log-owner', 'investigate_panel' );
+	} );
+} );
+
 async function fulfillNextToggleRequest( page, matcher, payload, delayMs = 250 ) {
 	let handled = false;
 	let startedResolve;
@@ -110,7 +123,7 @@ test( 'live traffic toggle enables and disables through real action responses', 
 		const enablePayload = parseShieldAjaxJson( await ( await enableResponse ).text() );
 		expect( enablePayload ).toHaveProperty( 'success', true );
 		expect( enablePayload.data.page_reload ).toBe( false );
-		expect( enablePayload.data.message ).toBe( 'Live traffic logging has been enabled.' );
+		expect( enablePayload.data.is_enabled ).toBe( true );
 		await page.waitForTimeout( 2_300 );
 		expect( page.url() ).toBe( initialUrl );
 
@@ -127,7 +140,7 @@ test( 'live traffic toggle enables and disables through real action responses', 
 		const disablePayload = parseShieldAjaxJson( await ( await disableResponse ).text() );
 		expect( disablePayload ).toHaveProperty( 'success', true );
 		expect( disablePayload.data.page_reload ).toBe( false );
-		expect( disablePayload.data.message ).toBe( 'Live traffic logging has been disabled.' );
+		expect( disablePayload.data.is_enabled ).toBe( false );
 		await page.waitForTimeout( 2_300 );
 		expect( page.url() ).toBe( initialUrl );
 

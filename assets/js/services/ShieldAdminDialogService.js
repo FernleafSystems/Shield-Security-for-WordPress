@@ -22,6 +22,10 @@ export class ShieldAdminDialogService {
 		return this.dialog.confirm( config );
 	}
 
+	content( config ) {
+		return this.dialog.content( config );
+	}
+
 	message( config = {} ) {
 		return this.dialog.message( config );
 	}

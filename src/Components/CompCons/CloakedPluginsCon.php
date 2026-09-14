@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons;
 use FernleafSystems\Utilities\Logic\ExecOnce;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\CloakedPlugins\{
 	AdminPluginVisibility,
+	AdminPluginVisibilitySnapshot,
 	CloakedPluginFinding,
 	CloakedPluginState,
 	PhpFileActivity,
@@ -28,6 +29,8 @@ class CloakedPluginsCon {
 
 	private bool $isDetecting = false;
 
+	private ?AdminPluginVisibility $visibility = null;
+
 	/**
 	 * @var CloakedPluginFindingState|null
 	 */
@@ -39,6 +42,10 @@ class CloakedPluginsCon {
 	}
 
 	protected function run() :void {
+		$this->visibility = new AdminPluginVisibility();
+		add_filter( 'all_plugins', [ $this->visibility, 'beginPluginsList' ], -\PHP_INT_MAX );
+		add_filter( 'all_plugins', [ $this->visibility, 'observeAllPlugins' ], \PHP_INT_MAX );
+		add_filter( 'show_advanced_plugins', [ $this->visibility, 'observeAdvancedPlugins' ], \PHP_INT_MAX, 2 );
 		add_action( 'activated_plugin', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
 		add_action( 'deleted_plugin', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
 		add_action( 'pre_uninstall_plugin', [ $this, 'triggerDetection' ], \PHP_INT_MAX, 2 );
@@ -55,8 +62,12 @@ class CloakedPluginsCon {
 	}
 
 	public function observePluginsList( $plugins ) {
-		if ( \is_array( $plugins ) && !$this->isDetecting && $this->isNeutralPluginListContext() ) {
-			$this->detect( $plugins );
+		$observation = $this->visibility === null ? null : $this->visibility->finishPluginsList( $plugins );
+		if ( $observation !== null
+			 && !$this->isDetecting
+			 && $this->isPluginsListScreen()
+			 && $this->isNeutralPluginListContext() ) {
+			$this->detect( $observation );
 		}
 
 		return $plugins;
@@ -84,7 +95,7 @@ class CloakedPluginsCon {
 	/**
 	 * @return list<CloakedPluginFinding>
 	 */
-	public function detect( ?array $finalPluginsList = null ) :array {
+	public function detect( ?AdminPluginVisibilitySnapshot $visibility = null ) :array {
 		if ( $this->isDetecting || !$this->canRun() ) {
 			return [];
 		}
@@ -97,19 +108,21 @@ class CloakedPluginsCon {
 				static fn( PluginEntry $entry ) :bool => PhpFileActivity::isAlertable( $classifier->classify( $entry->path ) )
 			) );
 
+			$visibility = $visibility ?? ( new AdminPluginVisibility() )->snapshot();
 			$findings = ( new PluginVisibilityComparator() )->compare(
 				$entries,
-				( new AdminPluginVisibility() )->snapshot( $finalPluginsList )
+				$visibility
 			);
-			$state = ( new CloakedPluginState() )->classify( $findings );
+			$state = ( new CloakedPluginState() )->reconcile(
+				$findings,
+				$entries,
+				$visibility
+			);
+			$this->currentState = $state;
 
 			$newFindings = $state[ 'new_active' ];
 			if ( !empty( $newFindings ) ) {
 				$this->publishFindings( $newFindings );
-			}
-
-			if ( $finalPluginsList === null ) {
-				$this->currentState = $state;
 			}
 
 			return $state[ 'active' ];
@@ -144,8 +157,22 @@ class CloakedPluginsCon {
 		$req = Services::Request();
 		$status = (string)$req->query( 'plugin_status' );
 		$search = (string)$req->query( 's' );
+		foreach ( [ 'action', 'action2' ] as $key ) {
+			foreach ( [ $_GET[ $key ] ?? '', $_POST[ $key ] ?? '' ] as $action ) {
+				if ( !\in_array( $action, [ '', '-1' ], true ) ) {
+					return false;
+				}
+			}
+		}
 
-		return $search === '' && ( $status === '' || $status === 'all' );
+		// A multisite site's table can omit network plugins without any cloaking.
+		return $search === '' && ( $status === '' || $status === 'all' )
+			&& ( !\is_multisite() || \is_network_admin() );
+	}
+
+	private function isPluginsListScreen() :bool {
+		global $pagenow;
+		return $pagenow === 'plugins.php';
 	}
 
 	/**

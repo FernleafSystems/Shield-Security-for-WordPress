@@ -72,6 +72,54 @@ class BuildChartDataIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( [ 7, 0, 2, 0 ], $chart[ 'series' ][ 0 ][ 'data' ] );
 	}
 
+	public function test_daily_buckets_use_wordpress_timezone_near_local_midnight() :void {
+		$timezone = (string)\get_option( 'timezone_string', '' );
+		$gmtOffset = \get_option( 'gmt_offset', 0 );
+		try {
+			\update_option( 'timezone_string', 'America/New_York' );
+			\update_option( 'gmt_offset', 0 );
+			$now = Services::Request()->carbon( true );
+			$targetDay = ( clone $now )->subDays( 2 )->startOfDay();
+			$this->insertEventRecord( 'ip_blocked', 9, ( clone $targetDay )->endOfDay()->subMinutes( 30 )->timestamp );
+
+			$chart = ( new BuildChartData() )->build(
+				( new ChartRequestVO() )->applyFromArray( [
+					'period_key' => ChartOptions::PERIOD_7_DAYS,
+					'event_keys' => [ 'ip_blocked' ],
+				] )
+			);
+
+			$this->assertSame( 9, $chart[ 'series' ][ 0 ][ 'data' ][ 4 ] );
+		}
+		finally {
+			\update_option( 'timezone_string', $timezone );
+			\update_option( 'gmt_offset', $gmtOffset );
+		}
+	}
+
+	public function test_daily_chart_totals_are_stable_after_compaction() :void {
+		$event = 'ip_blocked';
+		$day = Services::Request()->carbon( true )->startOfDay();
+		$this->insertEventRecord( $event, 4, ( clone $day )->addHour()->timestamp );
+		$this->insertEventRecord( $event, 6, ( clone $day )->addHours( 2 )->timestamp );
+		$request = ( new ChartRequestVO() )->applyFromArray( [
+			'period_key' => ChartOptions::PERIOD_7_DAYS,
+			'event_keys' => [ $event ],
+		] );
+		$before = ( new BuildChartData() )->build( $request );
+
+		$this->assertTrue( self::con()->db_con->events->compactBoundary(
+			$day->timestamp,
+			( clone $day )->endOfDay()->timestamp
+		) );
+		$after = ( new BuildChartData() )->build( $request );
+
+		$this->assertSame( $before[ 'labels' ], $after[ 'labels' ] );
+		$this->assertSame( $before[ 'series' ], $after[ 'series' ] );
+		$this->assertSame( 10, \array_sum( $after[ 'series' ][ 0 ][ 'data' ] ) );
+		$this->assertSame( 1, self::con()->db_con->events->getQuerySelector()->filterByEvent( $event )->count() );
+	}
+
 	private function insertEventRecord( string $event, int $count, int $createdAt ) :void {
 		$dbh = self::con()->db_con->events;
 		$record = $dbh->getRecord();

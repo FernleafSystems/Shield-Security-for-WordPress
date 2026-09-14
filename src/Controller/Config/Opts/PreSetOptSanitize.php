@@ -46,6 +46,10 @@ class PreSetOptSanitize {
 			case 'silentcaptcha_complexity':
 				$this->value = SilentCaptchaComplexity::normalise( $this->value );
 				break;
+			case 'frequency_alert':
+			case 'frequency_info':
+				$this->value = ReportFrequency::normaliseLegacy( $this->value );
+				break;
 			case 'language_override':
 				$raw = ( \is_scalar( $this->value ) || \is_null( $this->value ) ) ? (string)$this->value : '';
 				$normalised = \strtolower( (string)\preg_replace( '#[^a-z]#i', '', $raw ) );
@@ -140,15 +144,17 @@ class PreSetOptSanitize {
 				break;
 			case 'multiple_select':
 				if ( \is_array( $this->value ) ) {
-					$valid = \count( \array_diff(
-							$this->value,
-							\array_map(
-								function ( $aValueOption ) {
-									return $aValueOption[ 'value_key' ];
-								},
-								self::con()->opts->optDef( $this->key )[ 'value_options' ]
-							)
-						) ) === 0;
+					$valid = true;
+					$allowed = \array_column(
+						self::con()->opts->optDef( $this->key )[ 'value_options' ],
+						'value_key'
+					);
+					foreach ( $this->value as $selected ) {
+						if ( !\is_string( $selected ) || !\in_array( $selected, $allowed, true ) ) {
+							$valid = false;
+							break;
+						}
+					}
 				}
 				break;
 			case 'checkbox':

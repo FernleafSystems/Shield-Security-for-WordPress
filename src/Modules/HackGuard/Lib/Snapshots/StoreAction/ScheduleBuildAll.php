@@ -2,6 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\StoreAction;
 
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\{
+	AssetTrustResolver,
+	Retrieve
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\CrowdSourced\SubmitHashes;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Snapshots\FindAssetsToSnap;
 use FernleafSystems\Wordpress\Services\Core\VOs\Assets\{
@@ -17,72 +21,92 @@ class ScheduleBuildAll extends BaseExec {
 	}
 
 	protected function run() {
-		$hook = self::con()->prefix( 'ptg_build_snapshots' );
-
-		if ( is_main_network() ) {
-			add_action( $hook, function () {
-				$this->build();
-			} );
-		}
-
-		if ( wp_next_scheduled( $hook ) === false ) {
-			add_action( self::con()->prefix( 'pre_plugin_shutdown' ), function () use ( $hook ) {
-				if ( !self::con()->is_my_upgrade && \count( $this->getAssetsThatNeedBuilt() ) > 0 ) {
-					wp_schedule_single_event( Services::Request()->ts() + 60, $hook );
-				}
-			} );
-		}
+		self::con()->comps->asset_coordinator->discoverMissingSnapshots();
 	}
 
-	private function build() {
-		foreach ( $this->getAssetsThatNeedBuilt() as $asset ) {
+	public function build() :void {
+		[ $needsBuild, $needsPromotion ] = $this->classifyAssets();
+
+		foreach ( $needsBuild as $asset ) {
 			try {
-				( new Build() )
-					->setAsset( $asset )
-					->run();
-
-				$store = ( new Load() )
-					->setAsset( $asset )
-					->run();
-
-				if ( self::con()->isPremiumActive()
-					 && $store->verify()
-					 && ( $asset->asset_type === 'plugin' || !$asset->is_child )
-				) {
-					$meta = $store->getSnapMeta();
-					if ( empty( $meta[ 'cs_hashes_at' ] ) ) {
-						$meta[ 'cs_hashes_at' ] = Services::Request()->ts();
-						if ( $store->setSnapMeta( $meta )->saveMeta() ) {
-							( new SubmitHashes() )->run( $asset );
-						}
-					}
-				}
+				$this->buildMissingAsset( $asset );
 			}
-			catch ( \Exception $e ) {
+			catch ( \Throwable $e ) {
 				error_log( '[Build Asset] Notice: '.$e->getMessage() );
+			}
+		}
+
+		foreach ( $needsPromotion as $asset ) {
+			try {
+				( new PromoteLocalBaseline() )
+					->setAsset( $asset )
+					->run();
+			}
+			catch ( \Throwable $e ) {
+				error_log( '[Promote Asset Snapshot] Notice: '.$e->getMessage() );
 			}
 		}
 	}
 
 	/**
-	 * Only those that don't have a meta file or the versions are different
-	 * @return WpPluginVo[]|WpThemeVo[]
+	 * @return array{0:array<int,WpPluginVo|WpThemeVo>,1:array<int,WpPluginVo|WpThemeVo>}
 	 */
-	private function getAssetsThatNeedBuilt() :array {
-		return \array_filter(
-			( new FindAssetsToSnap() )->run(),
-			function ( $asset ) {
-				try {
-					$store = ( new Load() )
-						->setAsset( $asset )
-						->run();
-					$needBuilt = !$store->verify();
-				}
-				catch ( \Exception $e ) {
-					$needBuilt = true;
-				}
-				return $needBuilt;
+	private function classifyAssets() :array {
+		$needsBuild = [];
+		$needsPromotion = [];
+		$now = Services::Request()->ts();
+
+		foreach ( ( new FindAssetsToSnap() )->run() as $asset ) {
+			try {
+				$snapshot = ( new Load() )
+					->setAsset( $asset )
+					->run()
+					->getUsableSnapshot();
 			}
-		);
+			catch ( \Throwable $e ) {
+				$snapshot = null;
+			}
+
+			if ( $snapshot === null ) {
+				$needsBuild[] = $asset;
+			}
+			elseif ( PromoteLocalBaseline::isDue( $snapshot, $now ) ) {
+				$needsPromotion[] = $asset;
+			}
+		}
+
+		return [ $needsBuild, $needsPromotion ];
+	}
+
+	/**
+	 * @param WpPluginVo|WpThemeVo $asset
+	 */
+	private function buildMissingAsset( $asset ) :void {
+		( new Build() )
+			->setAsset( $asset )
+			->run();
+
+		$store = ( new Load() )
+			->setAsset( $asset )
+			->run();
+		if ( !$store->isUsable() ) {
+			return;
+		}
+
+		Retrieve::resetMemoization();
+		AssetTrustResolver::resetMemoization();
+
+		$canCrowdsource = $asset instanceof WpPluginVo
+			? \dirname( $asset->file ) !== '.'
+			: !( $asset->is_child || $asset->is_inactive_child );
+		if ( self::con()->isPremiumActive() && $canCrowdsource ) {
+			$meta = $store->getSnapMeta();
+			if ( empty( $meta[ 'cs_hashes_at' ] ) ) {
+				$meta[ 'cs_hashes_at' ] = Services::Request()->ts();
+				if ( $store->setSnapMeta( $meta )->saveMeta() ) {
+					( new SubmitHashes() )->run( $asset );
+				}
+			}
+		}
 	}
 }

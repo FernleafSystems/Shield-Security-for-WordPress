@@ -16,6 +16,11 @@ class CaptureRedirects {
 		$urls = $con->plugin_urls;
 		$req = Services::Request();
 
+		// Action capture owns these requests, including their nonce and response handling.
+		if ( $req->post( ActionData::FIELD_ACTION, $req->query( ActionData::FIELD_ACTION ) ) === ActionData::FIELD_SHIELD ) {
+			return;
+		}
+
 		if ( is_admin() && !Services::WpGeneral()->isAjax() ) {
 
 			$redirectTo = null;
@@ -42,8 +47,14 @@ class CaptureRedirects {
 				}
 			}
 			elseif ( \preg_match( sprintf( '#^%s-([a-z_]+)$#', \preg_quote( $con->prefix(), '#' ) ), $page, $matches ) ) {
-				$nav = PluginNavs::NavExists( $matches[ 1 ] ) ? $matches[ 1 ] : PluginNavs::NAV_DASHBOARD;
-				$redirectTo = $urls->adminTopNav( $nav, PluginNavs::GetDefaultSubNavForNav( $nav ) );
+				$nav = $matches[ 1 ];
+				$subNav = (string)$req->query( Constants::NAV_SUB_ID );
+				$redirectTo = $urls->legacyAdminRouteRedirect( $nav, $subNav );
+				if ( empty( $redirectTo ) ) {
+					$nav = PluginNavs::NavExists( $nav ) ? $nav : PluginNavs::NAV_DASHBOARD;
+					$redirectTo = $urls->adminTopNav( $nav,
+						PluginNavs::NavExists( $nav, $subNav ) ? $subNav : PluginNavs::GetDefaultSubNavForNav( $nav ) );
+				}
 			}
 			elseif ( $con->comps->opts_lookup->getActivatedPeriod() < 20 && $con->opts->optGet( 'last_wizard_redirect_at' ) === 0 ) {
 				$con->opts

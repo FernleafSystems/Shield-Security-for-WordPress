@@ -15,7 +15,8 @@
 .shield-accessible-dialog__overlay {
 	position: fixed;
 	inset: 0;
-	background: rgba( 0, 0, 0, 0.46 );
+	background: rgba( 21, 45, 37, 0.35 );
+	backdrop-filter: blur(2px);
 }
 
 .shield-accessible-dialog__surface {
@@ -25,14 +26,18 @@
 	overflow: auto;
 	background: #fff;
 	color: #1d2327;
-	border-radius: 4px;
-	box-shadow: 0 16px 44px rgba( 0, 0, 0, 0.28 );
+	border-radius: 16px;
+	border: 1px solid #dce5df;
+	box-shadow: 0 24px 80px rgba(16, 42, 36, 0.25);
+	font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	--operator-card-icon-bg: #e6f5e6;
+	--operator-card-icon-color: #008000;
 	padding: 24px;
 }
 
 .shield-accessible-dialog__title {
-	margin: 0 0 12px;
-	font-size: 1.35em;
+	margin: 0 0 7px;
+	font-size: 21px;
 	line-height: 1.3;
 }
 
@@ -50,7 +55,8 @@
 }
 
 .shield-accessible-dialog__message {
-	margin: 0 0 16px;
+	margin: 0;
+	color: #607168;
 	line-height: 1.5;
 }
 
@@ -75,15 +81,12 @@
 	font-weight: 600;
 }
 
-.shield-accessible-dialog__actions {
+.shield-accessible-dialog__actions,
+.shield-accessible-dialog__footer {
 	display: flex;
 	gap: 8px;
 	justify-content: flex-end;
 	margin-top: 20px;
-}
-
-.shield-accessible-dialog__actions .button[hidden] {
-	display: none !important;
 }
 
 .shield-accessible-dialog--danger .shield-accessible-dialog__confirm.button-link-delete {
@@ -110,7 +113,8 @@
 		padding: 20px;
 	}
 
-	.shield-accessible-dialog__actions {
+	.shield-accessible-dialog__actions,
+	.shield-accessible-dialog__footer {
 		flex-direction: column-reverse;
 	}
 
@@ -118,4 +122,73 @@
 		width: 100%;
 		justify-content: center;
 	}
+}
+
+.shield-accessible-dialog__header {
+	align-items: flex-start;
+	margin-bottom: 22px;
+}
+.shield-accessible-dialog__icon[hidden],
+.shield-accessible-dialog__actions[hidden],
+.shield-accessible-dialog__actions [hidden] {
+	display: none !important;
+}
+.shield-accessible-dialog__footer {
+	margin-top: 0;
+	width: 100%;
+}
+.shield-accessible-dialog__actions .button {
+	height: auto;
+	border: 1px solid #dce5df;
+	border-radius: 7px;
+	padding: 10px 23px;
+	font: inherit;
+	font-weight: 600;
+	line-height: 1.4;
+	background: #fff;
+	color: #40554a;
+	box-shadow: none;
+	cursor: pointer;
+}
+.shield-accessible-dialog__actions .button-primary {
+	background: #008000;
+	border-color: #008000;
+	color: #fff;
+}
+.shield-accessible-dialog__actions .button-primary:hover {
+	background: #006400;
+	border-color: #006400;
+}
+.shield-accessible-dialog__actions .button:disabled {
+	background: #e6ece8;
+	border-color: #d5ded8;
+	color: #69776e;
+	cursor: default;
+}
+.shield-accessible-dialog__actions .button:focus-visible {
+	@include shield-focus-ring();
+}
+.shield-accessible-dialog__setting {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 17px 16px;
+	background: #f6f9f7;
+	border: 1px solid #dce5df;
+	border-radius: 10px;
+	font-weight: 600;
+	cursor: pointer;
+}
+.shield-accessible-dialog__setting .form-check-input {
+	float: none;
+	margin: 0;
+	flex-shrink: 0;
+}
+.shield-accessible-dialog__path {
+	font: 12px/1.6 monospace;
+	background: #f5f7f6;
+	border-radius: 6px;
+	padding: 10px;
+	overflow-wrap: anywhere;
+	margin: 0 0 18px;
 }

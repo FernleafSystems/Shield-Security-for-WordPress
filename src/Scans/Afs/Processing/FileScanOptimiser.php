@@ -3,7 +3,6 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Processing;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Lib\Hashes\AssetTrustResolver;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ScanActionVO;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\Utilities\MalwarePatternFingerprint;
 use FernleafSystems\Wordpress\Services\Services;
@@ -18,26 +17,66 @@ class FileScanOptimiser {
 	private const CACHE_SCHEMA_VERSION = 1;
 
 	public function canSkipKnownValidFile( string $path, ScanActionVO $action ) :bool {
-		$skip = false;
-		if ( $this->isCacheUsable() && $this->isAccessibleSupportedFile( $path, $action ) ) {
-			$context = $this->detectCurrentContext( $path );
-			if ( $context instanceof TrustedFileContext ) {
-				$size = $this->fileSize( $path );
-				$sha256 = null;
-				$contextKey = $context->key();
-				foreach ( $this->readRecords( $this->shardPath( self::KNOWN_VALID, $contextKey ), self::KNOWN_VALID ) as $record ) {
-					if ( $record[ 'context_key' ] === $contextKey
-						 && $record[ 'size' ] === $size ) {
-						$sha256 ??= $this->fileSha256( $path );
-						if ( \hash_equals( $record[ 'sha256' ], $sha256 ) ) {
-							$skip = true;
-							break;
-						}
-					}
+		try {
+			if ( !$this->isCacheUsable() || !$this->isAccessibleSupportedFile( $path, $action ) ) {
+				return false;
+			}
+
+			$size = $this->fileSize( $path );
+			if ( $size < 0 || $size >= $action->max_file_size ) {
+				return false;
+			}
+
+			$assetTrustState = new AssetTrustState( $action );
+			$recordContext = $this->detectRecordContext( $path, $assetTrustState );
+			if ( !$recordContext instanceof TrustedFileContext ) {
+				return false;
+			}
+
+			$sha256 = null;
+			$contextKey = $recordContext->key();
+			foreach ( $this->readRecords( $this->shardPath( self::KNOWN_VALID, $contextKey ), self::KNOWN_VALID ) as $record ) {
+				if ( $record[ 'context_key' ] !== $contextKey || $record[ 'size' ] !== $size ) {
+					continue;
+				}
+
+				$sha256 ??= $this->fileSha256( $path );
+				if ( !\hash_equals( $record[ 'sha256' ], $sha256 ) ) {
+					continue;
+				}
+
+				if ( $recordContext->assetType === 'core' ) {
+					return true;
+				}
+
+				$currentTrustedContext = $assetTrustState->trustedFileContextForAssetPath( $path );
+				return $currentTrustedContext instanceof TrustedFileContext
+					   && \hash_equals( $contextKey, $currentTrustedContext->key() );
+			}
+		}
+		catch ( \Throwable $e ) {
+		}
+
+		return false;
+	}
+
+	public function hasKnownValidFileRecords() :bool {
+		$dir = $this->existingKnownValidRecordDir();
+		if ( $dir === '' ) {
+			return false;
+		}
+
+		try {
+			foreach ( new \DirectoryIterator( $dir ) as $file ) {
+				if ( $file->isFile() && $file->getExtension() === 'jsonl' && $file->isReadable() ) {
+					return true;
 				}
 			}
 		}
-		return $skip;
+		catch ( \Throwable $e ) {
+		}
+
+		return false;
 	}
 
 	public function recordKnownValidFile( string $path, TrustedFileContext $context ) :void {
@@ -120,7 +159,7 @@ class FileScanOptimiser {
 		}
 	}
 
-	private function detectCurrentContext( string $path ) :?TrustedFileContext {
+	private function detectRecordContext( string $path, AssetTrustState $assetTrustState ) :?TrustedFileContext {
 		try {
 			$scanCon = self::con()->comps->scans->AFS();
 			if ( $scanCon->isEnabled() && Services::CoreFileHashes()->isCoreFile( $path ) ) {
@@ -132,12 +171,12 @@ class FileScanOptimiser {
 				);
 			}
 
-			$context = ( new AssetTrustResolver() )->resolveContext( $path );
-			return new TrustedFileContext(
-				$context->assetType,
-				$context->assetKey,
-				$context->assetVersion,
-				$context->relativePath
+			$assetContext = $assetTrustState->resolveAssetContext( $path );
+			return $assetContext === null ? null : new TrustedFileContext(
+				$assetContext->assetType,
+				$assetContext->assetKey,
+				$assetContext->assetVersion,
+				$assetContext->relativePath
 			);
 		}
 		catch ( \Throwable $e ) {
@@ -148,7 +187,6 @@ class FileScanOptimiser {
 	private function isAccessibleSupportedFile( string $path, ScanActionVO $action ) :bool {
 		$ext = \strtolower( (string)\pathinfo( $path, \PATHINFO_EXTENSION ) );
 		return $ext !== ''
-			   && \is_array( $action->file_exts )
 			   && \in_array( $ext, $action->file_exts, true )
 			   && Services::WpFs()->isAccessibleFile( $path );
 	}
@@ -168,6 +206,31 @@ class FileScanOptimiser {
 			$dir = '';
 		}
 		return $dir !== '' && \is_dir( $dir ) && \is_writable( $dir ) ? $dir : '';
+	}
+
+	private function existingOptimiserCacheRoot() :string {
+		try {
+			$cacheDirHandler = self::con()->cache_dir_handler;
+			if ( !\is_object( $cacheDirHandler ) || !\method_exists( $cacheDirHandler, 'locateExistingDir' ) ) {
+				return '';
+			}
+			$root = $cacheDirHandler->locateExistingDir();
+			$dir = \is_string( $root ) && $root !== '' ? \path_join( $root, self::CACHE_DIR ) : '';
+		}
+		catch ( \Throwable $e ) {
+			$dir = '';
+		}
+		return $dir !== '' && \is_dir( $dir ) && \is_writable( $dir ) ? $dir : '';
+	}
+
+	private function existingKnownValidRecordDir() :string {
+		$root = $this->existingOptimiserCacheRoot();
+		if ( $root === '' ) {
+			return '';
+		}
+
+		$dir = \path_join( $root, self::KNOWN_VALID );
+		return \is_dir( $dir ) && \is_readable( $dir ) ? $dir : '';
 	}
 
 	private function shardPath( string $type, string $key ) :string {

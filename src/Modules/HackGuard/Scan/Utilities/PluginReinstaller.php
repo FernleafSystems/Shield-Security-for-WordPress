@@ -48,7 +48,7 @@ class PluginReinstaller {
 		}
 
 		$this->deleteSnapshot( $plugin );
-		$this->assetCleanup->run( 'plugin', $plugin->file );
+		$this->assetCleanup->schedule( 'plugin', $plugin->file );
 
 		return true;
 	}

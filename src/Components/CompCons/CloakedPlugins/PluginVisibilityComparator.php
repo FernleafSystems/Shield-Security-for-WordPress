@@ -11,8 +11,12 @@ class PluginVisibilityComparator {
 	public function compare( array $entries, AdminPluginVisibilitySnapshot $visibility ) :array {
 		$findings = [];
 		$detectedAt = \time();
+		$comparableTypes = \array_filter( PluginType::ALL, [ $visibility, 'canCompare' ] );
 
 		foreach ( $entries as $entry ) {
+			if ( !\in_array( $entry->type, $comparableTypes, true ) ) {
+				continue;
+			}
 			$reasons = $entry->type === PluginType::MustUse ?
 				$this->mustUseCloakReasons( $entry, $visibility )
 				: $this->standardCloakReasons( $entry, $visibility );
@@ -40,11 +44,11 @@ class PluginVisibilityComparator {
 		if ( !isset( $visibility->wpDiscoveredPlugins[ $entry->file ] ) ) {
 			$reasons[] = CloakReason::WpDiscoveryCacheGap;
 		}
-		elseif ( !isset( $visibility->adminAllPlugins[ $entry->file ] ) ) {
+		elseif ( $visibility->isPageObservation && !isset( $visibility->adminAllPlugins[ $entry->file ] ) ) {
 			$reasons[] = CloakReason::AllPlugins;
 		}
 
-		if ( isset( $visibility->adminAllPlugins[ $entry->file ] ) && !$visibility->isVisibleInFinalList( $entry ) ) {
+		if ( $visibility->isPageObservation && isset( $visibility->adminAllPlugins[ $entry->file ] ) && !$visibility->isVisibleInFinalList( $entry ) ) {
 			$reasons[] = CloakReason::PluginsList;
 		}
 
@@ -60,12 +64,12 @@ class PluginVisibilityComparator {
 		if ( !isset( $visibility->wpDiscoveredMuPlugins[ $entry->file ] ) ) {
 			$reasons[] = CloakReason::WpDiscoveryCacheGap;
 		}
-		elseif ( !$visibility->showMustUsePlugins ) {
+		elseif ( $visibility->isPageObservation && !$visibility->showMustUsePlugins ) {
 			$reasons[] = CloakReason::ShowAdvancedPlugins;
 		}
 
-		if ( $visibility->showMustUsePlugins
-			 && isset( $visibility->adminMustUsePlugins[ $entry->file ] )
+		if ( $visibility->isPageObservation && $visibility->showMustUsePlugins
+			 && isset( $visibility->wpDiscoveredMuPlugins[ $entry->file ] )
 			 && !$visibility->isVisibleInFinalList( $entry ) ) {
 			$reasons[] = CloakReason::PluginsList;
 		}

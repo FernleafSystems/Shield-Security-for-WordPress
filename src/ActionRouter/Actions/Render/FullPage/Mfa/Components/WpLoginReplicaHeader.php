@@ -12,7 +12,8 @@ class WpLoginReplicaHeader extends Base {
 	protected function getRenderData() :array {
 		global $action;
 
-		$isInterimLogin = (bool)( $this->action_data[ 'interim_login' ] ?? false );
+		$data = $this->loginIntentRenderData();
+		$isInterimLogin = $data[ 'interim_login' ] === '1';
 
 		// Don't index any of these forms.
 		if ( \function_exists( 'wp_robots_sensitive_page' ) ) {
@@ -80,10 +81,6 @@ class WpLoginReplicaHeader extends Base {
 		 */
 		$login_header_url = apply_filters( 'login_headerurl', $login_header_url );
 
-		$login_header_title = '';
-
-		// TODO: investigate why we has this empty() query
-//		$login_header_text = empty( $login_header_title ) ? __( 'Powered by WordPress', 'wp-simple-firewall' ) : $login_header_title;
 		$login_header_text = __( 'Powered by WordPress', 'wp-simple-firewall' );
 
 		/**
@@ -103,10 +100,6 @@ class WpLoginReplicaHeader extends Base {
 
 		if ( $isInterimLogin ) {
 			$classes[] = 'interim-login';
-		}
-
-		if ( 'success' === ( $this->action_data[ 'interim_login' ] ?? '' ) ) {
-			$classes[] = 'interim-login-success';
 		}
 
 		$classes[] = ' locale-'.sanitize_html_class( \strtolower( \str_replace( '_', '-', get_locale() ) ) );
@@ -185,7 +178,7 @@ class WpLoginReplicaHeader extends Base {
 			}
 		}
 
-		$interimMessage = esc_html( $this->action_data[ 'interim_message' ] ?? '' );
+		$interimMessage = esc_html( $data[ 'interim_message' ] );
 
 		return [
 			'content' => [

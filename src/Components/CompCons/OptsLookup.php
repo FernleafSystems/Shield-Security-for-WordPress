@@ -178,9 +178,11 @@ class OptsLookup {
 
 	public function getLoginGuardEmailAuth2FaRoles() :array {
 		$roles = apply_filters( 'shield/2fa_email_enforced_user_roles', self::con()->opts->optGet( 'two_factor_auth_user_roles' ) );
-		return \array_unique( \array_filter( \array_map( 'sanitize_key',
-			\is_array( $roles ) ? $roles : self::con()->opts->optDefault( 'two_factor_auth_user_roles' )
-		) ) );
+		if ( !\is_array( $roles ) ) {
+			$roles = self::con()->opts->optDefault( 'two_factor_auth_user_roles' );
+		}
+		$roles = \array_filter( $roles, '\is_string' );
+		return \array_unique( \array_filter( \array_map( 'sanitize_key', $roles ) ) );
 	}
 
 	public function getPassExpireTimeout() :int {
@@ -190,7 +192,10 @@ class OptsLookup {
 	public function getReportEmail() :string {
 		$e = self::con()->opts->optGet( 'block_send_email_address' );
 		if ( self::con()->isPremiumActive() ) {
-			$e = apply_filters( 'shield/report_email', $e );
+			$filtered = apply_filters( 'shield/report_email', $e );
+			if ( \is_string( $filtered ) ) {
+				$e = $filtered;
+			}
 		}
 		$e = \trim( $e );
 		return Services::Data()->validEmail( $e ) ? $e : Services::WpGeneral()->getSiteAdminEmail();

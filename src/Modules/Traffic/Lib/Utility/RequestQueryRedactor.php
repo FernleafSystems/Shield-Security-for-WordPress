@@ -54,7 +54,8 @@ class RequestQueryRedactor {
 			$parts
 		) );
 
-		return (string)\apply_filters( self::FILTER_REDACTED_QUERY, $redacted, $query, $sensitiveKeys );
+		$filtered = \apply_filters( self::FILTER_REDACTED_QUERY, $redacted, $query, $sensitiveKeys );
+		return \is_string( $filtered ) ? $filtered : $redacted;
 	}
 
 	private function redactQueryPart( string $part, array $sensitiveKeys ) :string {
@@ -104,11 +105,17 @@ class RequestQueryRedactor {
 		if ( !\is_array( $keys ) ) {
 			$keys = self::DEFAULT_SENSITIVE_KEYS;
 		}
-
-		return \array_values( \array_unique( \array_filter(
-			\array_map( fn( $key ) :string => $this->normaliseKey( (string)$key ), $keys ),
+		$intentionallyEmpty = $keys === [];
+		$keys = \array_filter( $keys, '\is_string' );
+		$keys = \array_values( \array_unique( \array_filter(
+			\array_map( fn( string $key ) :string => $this->normaliseKey( $key ), $keys ),
 			static fn( string $key ) :bool => $key !== ''
 		) ) );
+		if ( !$intentionallyEmpty && empty( $keys ) ) {
+			$keys = self::DEFAULT_SENSITIVE_KEYS;
+		}
+
+		return $keys;
 	}
 
 	private function normaliseKey( string $key ) :string {

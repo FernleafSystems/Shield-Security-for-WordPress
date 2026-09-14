@@ -183,6 +183,41 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 			$this->assertSame( 1, $this->badge->closedCount );
 		}
 
+		public function test_site_sync_normalizes_non_array_callback_arguments() :void {
+			$filters = $this->registeredFilterCallbacks();
+			$callback = $filters[ 'mainwp_site_sync_others_data' ];
+
+			$this->assertSame( [], $callback( new \stdClass(), new \stdClass() ) );
+			$this->assertSame( [], MainWP_Connect::$authCalls );
+		}
+
+		public function test_extra_execution_normalizes_non_array_callback_arguments() :void {
+			$callback = $this->extraExecutionCallback();
+
+			$this->assertSame( [], $callback( new \stdClass(), new \stdClass() ) );
+			$this->assertSame( [], MainWP_Connect::$authCalls );
+			$this->assertSame( 0, $this->badge->closedCount );
+		}
+
+		public function test_extra_execution_ignores_numeric_override_keys_and_keeps_valid_sibling() :void {
+			$callback = $this->extraExecutionCallback();
+			$result = $callback( [], [
+				'shield-security-mwp-action' => PluginBadgeClose::SLUG,
+				'shield-security-mwp-params' => [
+					'action_overrides' => [
+						0 => true,
+						'123' => false,
+						Constants::ACTION_OVERRIDE_IS_NONCE_VERIFY_REQUIRED => false,
+					],
+				],
+			] );
+
+			$response = $this->decodeActionResponse( $result );
+			$this->assertTrue( (bool)$response[ 'success' ] );
+			$this->assertSame( [], MainWP_Connect::$authCalls );
+			$this->assertSame( 1, $this->badge->closedCount );
+		}
+
 		public function test_extra_execution_without_override_fails_nonce_and_does_not_auth_replay() :void {
 			$callback = $this->extraExecutionCallback();
 			$result = $callback( [], [
@@ -243,6 +278,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 		}
 
 		private function extraExecutionCallback() :callable {
+			return $this->registeredFilterCallbacks()[ 'mainwp_child_extra_execution' ];
+		}
+
+		private function registeredFilterCallbacks() :array {
 			$filters = [];
 			Functions\when( 'add_action' )->justReturn( true );
 			Functions\when( 'add_filter' )->alias(
@@ -254,7 +293,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\Integration
 			);
 
 			( new Init() )->run();
-			return $filters[ 'mainwp_child_extra_execution' ];
+			return $filters;
 		}
 
 		private function decodeActionResponse( array $result ) :array {

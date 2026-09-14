@@ -2,7 +2,10 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Reports\Components;
 
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Constants;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\{
+	Constants,
+	ResolveReportViewContracts
+};
 
 class ReportAreaStats extends ReportAreaBase {
 
@@ -20,12 +23,9 @@ class ReportAreaStats extends ReportAreaBase {
 			'flags'   => [
 				'has_stats' => $hasAnyStats,
 			],
-			'strings' => [
-				'this_period'     => __( 'This Period', 'wp-simple-firewall' ),
-				'previous_period' => __( 'Previous Period', 'wp-simple-firewall' ),
-			],
 			'vars'    => [
-				'stats' => $stats,
+				'stats'   => $stats,
+				'periods' => ( new ResolveReportViewContracts() )->statisticsPeriods( $this->report() ),
 			],
 		];
 	}

@@ -7,8 +7,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Debug\SimplePlu
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Debug\DebugRecentEvents;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Debug\Collate;
 use FernleafSystems\Wordpress\Services\Utilities\URL;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
-class PageDebug extends BasePluginAdminPage {
+class PageDebug extends PageModeLandingBase {
 
 	public const SLUG = 'admin_plugin_page_debug';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/debug.twig';
@@ -63,25 +64,40 @@ class PageDebug extends BasePluginAdminPage {
 			);
 		}
 
-		return [
+		return \array_replace_recursive( parent::getRenderData(), [
 			'content' => [
 				'recent_events' => $con->action_router->render( DebugRecentEvents::class ),
 			],
 			'flags'   => [
 				'display_tests' => !empty( $availableTests ),
 			],
-			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->iconClass( 'patch-question' ),
-			],
 			'strings' => [
-				'inner_page_title'    => sprintf( __( '%s Debug Information', 'wp-simple-firewall' ), $con->labels->Name ),
-				'inner_page_subtitle' => __( 'Assess the state of the plugin and view various configuration information for your site.', 'wp-simple-firewall' ),
 				'debug_tests_heading' => __( 'Debug Tests', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'debug_data'      => ( new Collate() )->run(),
 				'available_tests' => $availableTests,
 			],
-		];
+		] );
+	}
+
+	protected function getLandingTitle() :string {
+		return sprintf( __( '%s Debug Information', 'wp-simple-firewall' ), self::con()->labels->Name );
+	}
+
+	protected function getLandingSubtitle() :string {
+		return __( 'Assess the state of the plugin and view various configuration information for your site.', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingIcon() :string {
+		return 'patch-question';
+	}
+
+	protected function getLandingMode() :string {
+		return PluginNavs::MODE_CONFIGURE;
+	}
+
+	protected function hasOperatorModeParent() :bool {
+		return true;
 	}
 }

@@ -37,10 +37,10 @@
 			</div>
 
 			<div style="padding:1.125rem">
-				<h6 style="font-size:.82rem; font-weight:700; color:#1d2327; margin-bottom:.75rem">
+				<h3 style="font-size:.82rem; font-weight:700; color:#1d2327; margin-bottom:.75rem">
 					{{ strings.title_signals }}
 					<span class="badge rounded-pill bg-secondary ms-1" style="font-size:.67rem; vertical-align:middle">{{ vars.signals.total }}</span>
-				</h6>
+				</h3>
 				<div class="row g-3">
 					<div class="col-6">
 						<div style="font-size:.75rem; font-weight:700; color:#008000; border-bottom:2px solid #008000; padding-bottom:.35rem; margin-bottom:.35rem; display:flex; justify-content:space-between">
@@ -57,7 +57,7 @@
 						{% else %}
 							<div style="font-size:.79rem; color:#5f6974; padding:.28rem 0">{{ strings.none_recorded }}</div>
 						{% endfor %}
-						<div class="text-success" style="font-size:.75rem; font-weight:600; padding-top:.35rem">
+						<div class="text-primary" style="font-size:.75rem; font-weight:600; padding-top:.35rem">
 							{{ strings.total }}: {{ vars.signals.positive.total_label }}
 						</div>
 					</div>

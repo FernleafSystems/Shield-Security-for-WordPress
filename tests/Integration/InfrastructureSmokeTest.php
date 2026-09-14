@@ -313,33 +313,49 @@ class InfrastructureSmokeTest extends \WP_UnitTestCase {
 
 	/**
 	 * @group smoke
+	 * @group database-transaction-exception
 	 */
 	public function test_mysql_required_features() :void {
 		global $wpdb;
 
-		$wpdb->query( 'SET FOREIGN_KEY_CHECKS=0' );
-		$this->assertEmpty(
-			$wpdb->last_error,
-			'SET FOREIGN_KEY_CHECKS must execute without error. Got: '.$wpdb->last_error
-		);
-		$wpdb->query( 'SET FOREIGN_KEY_CHECKS=1' );
+		try {
+			$this->requireSuccessfulDatabaseStatement( 'ROLLBACK' );
+			$this->requireSuccessfulDatabaseStatement( 'SET FOREIGN_KEY_CHECKS=0' );
+			$this->requireSuccessfulDatabaseStatement( 'SET FOREIGN_KEY_CHECKS=1' );
+			$this->requireSuccessfulDatabaseStatement( 'START TRANSACTION' );
+			$this->requireSuccessfulDatabaseStatement( 'ROLLBACK' );
+			$this->requireSuccessfulDatabaseStatement( 'SET autocommit=1' );
+		}
+		finally {
+			$failures = [];
+			foreach ( [ 'SET FOREIGN_KEY_CHECKS=1', 'SET autocommit=0', 'START TRANSACTION' ] as $sql ) {
+				try {
+					$this->requireSuccessfulDatabaseStatement( $sql );
+				}
+				catch ( \Throwable $e ) {
+					$failures[] = $e;
+				}
+			}
+			if ( $failures !== [] ) {
+				throw new \RuntimeException(
+					'Failed to restore the MySQL test transaction contract: '.\implode( '; ', \array_map(
+						static fn( \Throwable $e ) :string => $e->getMessage(),
+						$failures
+					)),
+					0,
+					$failures[ 0 ]
+				);
+			}
+		}
+	}
 
-		$wpdb->query( 'START TRANSACTION' );
-		$this->assertEmpty(
-			$wpdb->last_error,
-			'START TRANSACTION must execute without error. Got: '.$wpdb->last_error
-		);
-		$wpdb->query( 'ROLLBACK' );
-		$this->assertEmpty(
-			$wpdb->last_error,
-			'ROLLBACK must execute without error. Got: '.$wpdb->last_error
-		);
+	private function requireSuccessfulDatabaseStatement( string $sql ) :void {
+		global $wpdb;
 
-		$wpdb->query( 'SET autocommit=1' );
-		$this->assertEmpty(
-			$wpdb->last_error,
-			'SET autocommit must execute without error. Got: '.$wpdb->last_error
-		);
+		$wpdb->last_error = '';
+		$result = $wpdb->query( $sql );
+		$this->assertNotFalse( $result, $sql.' must execute successfully. Got: '.$wpdb->last_error );
+		$this->assertSame( '', $wpdb->last_error, $sql.' must execute without error.' );
 	}
 
 

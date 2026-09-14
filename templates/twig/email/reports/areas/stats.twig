@@ -1,9 +1,9 @@
 {# Statistics area for email reports #}
-{# Receives: stats (associative array of pre-filtered stat groups), strings #}
+{# Receives: stats (associative array of pre-filtered stat groups), periods, strings #}
 
 {% if stats|length > 0 %}
 	{% for group_key, group in stats %}
-		{% if group.stats is defined and group.stats|length > 0 %}
+		{% if group.stats|length > 0 %}
 			{# Sub-header #}
 			<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
 				<tr>
@@ -19,11 +19,11 @@
 					<td style="background: #f5f6f5; padding: 6px 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888888; border-bottom: 1px solid #d9dfd9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
 						{{ strings.event }}
 					</td>
-					<td style="background: #f5f6f5; padding: 6px 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888888; border-bottom: 1px solid #d9dfd9; text-align: center; width: 60px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-						{{ strings.current_period }}
+					<td style="background: #f5f6f5; padding: 6px 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888888; border-bottom: 1px solid #d9dfd9; text-align: center; width: 105px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+						{{ periods.current.label }}<br><span style="font-size: 9px; font-weight: 400; text-transform: none;">{{ periods.current.date_start }} &ndash; {{ periods.current.date_end }}</span>
 					</td>
-					<td style="background: #f5f6f5; padding: 6px 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888888; border-bottom: 1px solid #d9dfd9; text-align: center; width: 60px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-						{{ strings.previous_period }}
+					<td style="background: #f5f6f5; padding: 6px 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888888; border-bottom: 1px solid #d9dfd9; text-align: center; width: 105px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+						{{ periods.previous.label }}<br><span style="font-size: 9px; font-weight: 400; text-transform: none;">{{ periods.previous.date_start }} &ndash; {{ periods.previous.date_end }}</span>
 					</td>
 					<td style="background: #f5f6f5; padding: 6px 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #888888; border-bottom: 1px solid #d9dfd9; text-align: right; width: 100px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
 						{{ strings.change }}
@@ -31,16 +31,16 @@
 				</tr>
 				{% for event_key, stat in group.stats %}
 					{% set change_color = '#6c757d' %}
-					{% if stat.diff_colour|default('') == 'warning' %}
+					{% if stat.diff_colour == 'warning' %}
 						{% set change_color = '#cc7a00' %}
-					{% elseif stat.diff_colour|default('') == 'success' %}
+					{% elseif stat.diff_colour == 'success' %}
 						{% set change_color = '#008000' %}
 					{% endif %}
 
 					{% set current_bg = '' %}
-					{% if stat.diff_colour|default('') == 'warning' %}
+					{% if stat.diff_colour == 'warning' %}
 						{% set current_bg = 'background-color: #fffbe6;' %}
-					{% elseif stat.diff_colour|default('') == 'success' %}
+					{% elseif stat.diff_colour == 'success' %}
 						{% set current_bg = 'background-color: #e8f5e9;' %}
 					{% endif %}
 
@@ -56,7 +56,7 @@
 							{{ stat.count_previous_period }}
 						</td>
 						<td style="padding: 8px 4px; font-size: 12px; font-weight: 600; color: {{ change_color }}; border-bottom: 1px solid {{ border_color }}; text-align: right; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-							{{ stat.diff_symbol_email }} {{ stat.diff_symbol_plus_minus }}{{ stat.count_diff_abs }}{% if stat.diff_percentage is defined and stat.diff_percentage != 0 %} ({{ stat.diff_percentage }}%){% endif %}
+							{{ stat.diff_symbol_email }} {{ stat.diff_symbol_plus_minus }}{{ stat.count_diff_abs }}{% if stat.diff_percentage != 0 %} ({{ stat.diff_percentage }}%){% endif %}
 						</td>
 					</tr>
 				{% endfor %}

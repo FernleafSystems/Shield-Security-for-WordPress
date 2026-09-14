@@ -48,6 +48,11 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
  *   group_key:string,
  *   group_section:'active'|'healthy'
  * }
+ * @phpstan-type GroupSummary array{
+ *   is_interactive:bool,
+ *   detail_shell:string,
+ *   detail_render_action:array<string,mixed>
+ * }
  * @phpstan-type DetailSummary array{
  *   detail_shell:string,
  *   panel_target:string,
@@ -143,6 +148,23 @@ class ActionsQueueRuntimeProbe {
 		}
 
 		return null;
+	}
+
+	/**
+	 * @phpstan-param GroupContext $groupContext
+	 * @return GroupSummary
+	 */
+	public function inspectGroup( array $groupContext ) :array {
+		$group = $this->findGroupPayload( $groupContext[ 'bucket_key' ], $groupContext[ 'group_key' ] );
+		$selection = \is_array( $group[ 'selection' ] ?? null ) ? $group[ 'selection' ] : [];
+
+		return [
+			'is_interactive'       => !empty( $group[ 'is_interactive' ] ),
+			'detail_shell'         => (string)( $selection[ 'detail_shell' ] ?? '' ),
+			'detail_render_action' => \is_array( $selection[ 'detail_render_action' ] ?? null )
+				? $selection[ 'detail_render_action' ]
+				: [],
+		];
 	}
 
 	/**

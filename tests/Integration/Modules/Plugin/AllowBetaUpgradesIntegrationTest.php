@@ -161,4 +161,54 @@ class AllowBetaUpgradesIntegrationTest extends ShieldWordPressTestCase {
 		$this->assertArrayHasKey( $this->baseFile, $filtered->response );
 		$this->assertSame( $betaEntry->new_version, $filtered->response[ $this->baseFile ]->new_version );
 	}
+
+	public function testInvalidEnableBetaFilterResultsFailClosedAndPreserveTransient() :void {
+		$invalidValues = [
+			'1',
+			1,
+			1.0,
+			null,
+			[],
+			new \stdClass(),
+		];
+		$resource = \fopen( 'php://memory', 'rb' );
+		$this->assertIsResource( $resource );
+		$invalidValues[] = $resource;
+
+		try {
+			foreach ( $invalidValues as $invalidValue ) {
+				$subject = $this->registerAllowBetaTransientHooks();
+				$enableFilter = static fn() => $invalidValue;
+				\add_filter( 'shield/enable_beta', $enableFilter );
+
+				$betaEntry = (object)[
+					'plugin'      => $this->baseFile,
+					'new_version' => $this->currentVersion.'.1',
+					'package'     => 'https://downloads.wordpress.org/plugin/wp-plugin-shield.zip',
+				];
+				$reflection = new \ReflectionClass( $subject );
+				$betaProp = $reflection->getProperty( 'beta' );
+				$betaProp->setAccessible( true );
+				$betaProp->setValue( $subject, $betaEntry );
+
+				$sibling = (object)[ 'new_version' => '9.9.9' ];
+				$updates = $this->createUpdates( [
+					$this->baseFile      => (object)[ 'new_version' => [] ],
+					'akismet/akismet.php' => $sibling,
+				] );
+				$filtered = \apply_filters( 'pre_set_site_transient_update_plugins', $updates );
+
+				$this->assertSame( $updates, $filtered );
+				$this->assertSame( $sibling, $filtered->response[ 'akismet/akismet.php' ] );
+				$this->assertIsArray( $filtered->response[ $this->baseFile ]->new_version );
+
+				\remove_filter( 'shield/enable_beta', $enableFilter );
+				\remove_all_filters( 'site_transient_update_plugins' );
+				\remove_all_filters( 'pre_set_site_transient_update_plugins' );
+			}
+		}
+		finally {
+			\fclose( $resource );
+		}
+	}
 }

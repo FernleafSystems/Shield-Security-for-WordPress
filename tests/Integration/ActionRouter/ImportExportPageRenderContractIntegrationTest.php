@@ -155,6 +155,8 @@ class ImportExportPageRenderContractIntegrationTest extends ShieldIntegrationTes
 
 		$this->assertTrue( (bool)$connect[ 'is_connected' ] );
 		$this->assertArrayHasKey( 'label', $connect[ 'disconnect' ] );
+		$this->assertArrayHasKey( 'summary', $connect[ 'disconnect' ] );
+		$this->assertNotSame( '', $connect[ 'disconnect' ][ 'summary' ] );
 	}
 
 	public function test_disabled_sync_hides_workbench_and_table() :void {

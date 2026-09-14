@@ -2,16 +2,16 @@
 
 	<div class="row mb-3">
 		<div class="col-12">
-			<h6 class="mt-0 mb-2">{{ strings.scanselect }}</h6>
+			<h2 class="h6 mt-0 mb-2">{{ strings.scanselect }}</h2>
 		</div>
 
 		<div class="col-xl-4 col-lg-6 col-md-12 mb-3">
-			<div class="scan-select pl-2 text-nowrap">
+			<div class="scan-select pl-2">
 				<label for="_afs" class="col-form-label">
 					<input type="checkbox" class="form-control text-end"
 						   name="afs" id="_afs" value="Y"
 						   {% if not scans.afs.flags.is_available %}disabled="disabled"{% endif %}
-							{% if scans.afs.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
+							{% if scans.afs.flags.is_selected %}checked="checked"{% endif %}
 					/>
 					{{ scans.afs.strings.name }}
 					<br />
@@ -34,12 +34,12 @@
 
 
 		<div class="col-xl-4 col-lg-6 col-md-12 mb-3">
-			<div class="scan-select pl-2 text-nowrap">
+			<div class="scan-select pl-2">
 				<label for="_wpv" class="col-form-label">
 					<input type="checkbox" class="form-control text-end"
 						   name="wpv" id="_wpv" value="Y"
 						   {% if not scans.wpv.flags.is_available %}disabled="disabled"{% endif %}
-							{% if scans.wpv.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
+							{% if scans.wpv.flags.is_selected %}checked="checked"{% endif %}
 					/>
 					{{ scans.wpv.strings.name }}
 					<br />
@@ -49,12 +49,12 @@
 		</div>
 
 		<div class="col-xl-4 col-lg-6 col-md-12 mb-3">
-			<div class="scan-select pl-2 text-nowrap">
+			<div class="scan-select pl-2">
 				<label for="_apc" class="col-form-label">
 					<input type="checkbox" class="form-control text-end"
 						   name="apc" id="_apc" value="Y"
 						   {% if not scans.apc.flags.is_available %}disabled="disabled"{% endif %}
-							{% if scans.apc.flags.is_selected %}checked="checked" aria-selected="true"{% endif %}
+							{% if scans.apc.flags.is_selected %}checked="checked"{% endif %}
 					/>
 					{{ scans.apc.strings.name }}
 					<br />
@@ -67,11 +67,11 @@
 
 	<div class="row">
 		<div class="col-12">
-			<h6 class="mb-2">{{ strings.scan_options }}</h6>
+			<h2 class="h6 mb-2">{{ strings.scan_options }}</h2>
 		</div>
 
 		<div class="col-xl-6 col-lg-6 col-md-6">
-			<div class="scan-select pl-2 text-nowrap">
+			<div class="scan-select pl-2">
 				<label for="_opt_clear_ignore" class="col-form-label">
 					<input type="checkbox" class="form-control text-end"
 						   name="opt_clear_ignore" id="_opt_clear_ignore" value="Y" />

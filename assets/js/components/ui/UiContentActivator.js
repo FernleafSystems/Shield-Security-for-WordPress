@@ -1,3 +1,4 @@
+import { Tab } from "bootstrap";
 import { InvestigateLookupSelect2 } from "../mode/InvestigateLookupSelect2";
 import { InvestigationTable } from "../tables/InvestigationTable";
 import { ShieldTableScanResults } from "../tables/ShieldTableScanResults";
@@ -7,6 +8,7 @@ import { BootstrapTooltips } from "./BootstrapTooltips";
 export class UiContentActivator {
 
 	static investigateLookupSelect2 = null;
+	static bootstrapTabSelector = '[data-bs-toggle="tab"], [data-bs-toggle="pill"], [data-bs-toggle="list"]';
 	static ownerSelector = '.tab-pane, [data-shield-expand-body="1"], [data-mode-panel="1"], .offcanvas';
 	static activeOwnerSelectors = [
 		'.tab-pane.active',
@@ -54,6 +56,16 @@ export class UiContentActivator {
 		UiContentActivator.activateInvestigationTables(
 			UiContentActivator.collectElements( contextEl, '[data-investigation-table="1"]' )
 		);
+	}
+
+	static activateBootstrapTabsWithin( contextEl ) {
+		UiContentActivator.collectElements( contextEl, UiContentActivator.bootstrapTabSelector )
+		.forEach( ( element ) => Tab.getOrCreateInstance( element ) );
+	}
+
+	static disposeBootstrapTabsWithin( contextEl ) {
+		UiContentActivator.collectElements( contextEl, UiContentActivator.bootstrapTabSelector )
+		.forEach( ( element ) => Tab.getInstance( element )?.dispose() );
 	}
 
 	static activateInvestigateSelect2Within( contextEl ) {

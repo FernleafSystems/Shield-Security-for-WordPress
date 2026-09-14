@@ -38,6 +38,11 @@ class LiveTrafficToggleFixtureBuilder {
 				'contract' => [
 					'action_slug' => TrafficLiveLog_SetEnabled::SLUG,
 					'route'       => [
+						'nav'     => PluginNavs::NAV_ACTIVITY,
+						'nav_sub' => PluginNavs::SUBNAV_ACTIVITY_OVERVIEW,
+						'subject' => 'live_traffic',
+					],
+					'legacy_route' => [
 						'nav'     => PluginNavs::NAV_TRAFFIC,
 						'nav_sub' => PluginNavs::SUBNAV_LIVE,
 					],

@@ -240,6 +240,7 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 		cleanupAll: () => runFixture( '__all__', 'cleanup' ),
 		dispose: () => request.dispose(),
 		fixtureApi: {
+			renderScanProgressFixture: ( state ) => runFixture( 'scan-progress', 'render', [ state ] ),
 			async withActionsQueueFixture( scenario, runScenario ) {
 				let seeded = false;
 				try {
@@ -261,6 +262,9 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			},
 			async prepareDashboardActionsAllClearFixture() {
 				return runFixture( 'dashboard-defaults', 'prepare-actions-all-clear' );
+			},
+			async prepareDashboardMaintenanceWarningFixture() {
+				return runFixture( 'dashboard-defaults', 'prepare-maintenance-warning' );
 			},
 			async withDashboardDefaultsFixture( runScenario ) {
 				let seeded = false;
@@ -316,6 +320,19 @@ async function createFixtureApi( playwright, lane, authStatePath ) {
 			},
 			async inspectIpAnalysisActivityMetaFixture() {
 				return runFixture( 'ip-analysis-activity-meta', 'inspect' );
+			},
+			async withIpDetectBackgroundFixture( runScenario ) {
+				let seeded = false;
+				try {
+					const contract = await runFixture( 'ip-detect-background', 'seed' );
+					seeded = true;
+					return await runScenario( contract );
+				}
+				finally {
+					if ( seeded ) {
+						await runFixture( 'ip-detect-background', 'cleanup' );
+					}
+				}
 			},
 			async withIpRulesTableFixture( runScenario ) {
 				let seeded = false;

@@ -1,5 +1,6 @@
 const { openShieldRoute, test, expect } = require( './support/shield-test' );
 const { ActionsQueuePage } = require( './support/actions-queue-page' );
+const { expectNoAxeViolations } = require( './support/accessibility' );
 
 const SCAN_ITEM_ANALYSIS_RENDER_SLUG = 'scanitemanalysis_container';
 const MALAI_QUERY_ACTION_SLUG = 'scans_malai_file_query';
@@ -27,7 +28,7 @@ function isMalaiQueryRequest( request ) {
 	return paramsForRequest( request ).get( 'ex' ) === MALAI_QUERY_ACTION_SLUG;
 }
 
-async function openMalaiTabForRid( page, table, rid ) {
+async function openMalaiTabForRid( page, table, rid, auditModal = false ) {
 	await waitForScanResultsTableRows( table );
 
 	const viewAction = table.locator(
@@ -55,6 +56,9 @@ async function openMalaiTabForRid( page, table, rid ) {
 	await expect( form ).toBeVisible();
 	const actionData = JSON.parse( await form.getAttribute( 'data-scan-item-malai-query-action' ) || '{}' );
 	expect( actionData.ex ).toBe( MALAI_QUERY_ACTION_SLUG );
+	if ( auditModal ) {
+		await expectNoAxeViolations( page, '#ShieldModalContainer' );
+	}
 
 	return {
 		form,
@@ -117,8 +121,8 @@ async function submitMalaiAndAssertNoNavigation( page, modal, form, rid, activeT
 	}
 }
 
-async function exerciseMalaiLookupSubmit( page, table, rid, activeTab = null ) {
-	const { modal, form } = await openMalaiTabForRid( page, table, rid );
+async function exerciseMalaiLookupSubmit( page, table, rid, activeTab = null, auditModal = false ) {
+	const { modal, form } = await openMalaiTabForRid( page, table, rid, auditModal );
 	await submitMalaiAndAssertNoNavigation( page, modal, form, rid, activeTab );
 	await modal.locator( '.btn-close' ).click();
 	await expect( modal ).toBeHidden();
@@ -187,11 +191,15 @@ test( 'scan item MAL{ai} lookup submits without native navigation across shared 
 		for ( const scenario of investigateScenarios ) {
 			await openShieldRoute( page, scenario.route );
 			const activeTab = await activateInvestigateFileStatusTab( page, scenario.subjectKey );
+			const table = page.locator( '[data-scan-results-table="1"]' ).first();
+			await waitForScanResultsTableRows( table );
+			await expectNoAxeViolations( page, '#PageContainer-Apto' );
 			await exerciseMalaiLookupSubmit(
 				page,
-				page.locator( '[data-scan-results-table="1"]' ).first(),
+				table,
 				scenario.rid,
-				activeTab
+				activeTab,
+				scenario.subjectKey === 'plugin'
 			);
 		}
 	} );

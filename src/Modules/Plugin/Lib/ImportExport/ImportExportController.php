@@ -242,19 +242,13 @@ class ImportExportController {
 	}
 
 	public function addSyncSiteExportUrl( string $url, string $importID = '' ) :void {
-		$url = Services::Data()->validateSimpleHttpUrl( $url );
-		if ( $url !== false ) {
-			if ( ( new SiteRepository() )->upsertActive( $url, ImportExportSitesDB::SOURCE_EXPORT, $importID, true ) ) {
-				( new NetworkInviteRepository() )->clearAll();
-			}
+		if ( ( new SiteRepository() )->upsertActive( $url, ImportExportSitesDB::SOURCE_EXPORT, $importID, true ) ) {
+			( new NetworkInviteRepository() )->clearAll();
 		}
 	}
 
 	public function removeSyncSiteExportUrl( string $url ) :void {
-		$url = Services::Data()->validateSimpleHttpUrl( $url );
-		if ( $url !== false ) {
-			( new SiteRepository() )->softDeleteUrl( $url );
-		}
+		( new SiteRepository() )->softDeleteUrl( $url );
 	}
 
 	public function getImportExportSecretKey(): string {
@@ -348,12 +342,12 @@ class ImportExportController {
 			return true;
 		}
 
-		$data = Services::Data();
-		$notifyingMasterUrl = $data->validateSimpleHttpUrl( $notifyingMasterUrl );
-		$configuredMasterUrl = $data->validateSimpleHttpUrl( $configuredMasterUrl );
-		return $notifyingMasterUrl !== false
-			   && $configuredMasterUrl !== false
-			   && \strcasecmp( (string)$notifyingMasterUrl, (string)$configuredMasterUrl ) === 0;
+		$validator = new SyncSiteUrlValidator();
+		$notifyingMasterUrl = $validator->canonicalize( $notifyingMasterUrl );
+		$configuredMasterUrl = $validator->canonicalize( $configuredMasterUrl );
+		return $notifyingMasterUrl !== ''
+			   && $configuredMasterUrl !== ''
+			   && $notifyingMasterUrl === $configuredMasterUrl;
 	}
 
 	private function notifyingImportIdAllowed( string $notifyingImportId ) :bool {

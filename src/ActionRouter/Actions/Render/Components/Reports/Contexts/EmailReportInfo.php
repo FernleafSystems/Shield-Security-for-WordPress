@@ -42,6 +42,7 @@ class EmailReportInfo extends EmailReportBase {
 			$areasData[ Constants::REPORT_AREA_SCANS ][ 'scan_repairs' ] = $scanRepairs;
 		}
 
+		$viewContracts = new ResolveReportViewContracts();
 		return [
 			'vars'    => [
 				'site_url'       => $this->action_data[ 'home_url' ],
@@ -49,7 +50,8 @@ class EmailReportInfo extends EmailReportBase {
 					$this->buildReportMeta( $report ),
 					[ 'areas_data' => $areasData ]
 				),
-				'info_headline'  => ( new ResolveReportViewContracts() )->infoHeadline( $report ),
+				'info_headline'  => $viewContracts->infoHeadline( $report ),
+				'stats_periods'  => $viewContracts->statisticsPeriods( $report ),
 				'detail_level'   => $this->detailLevel(),
 			],
 			'strings' => \array_merge(
@@ -61,8 +63,6 @@ class EmailReportInfo extends EmailReportBase {
 					'section_scans'         => __( 'Latest Scan Results', 'wp-simple-firewall' ),
 					'section_scans_repairs' => __( 'Scan File Repairs', 'wp-simple-firewall' ),
 					'event'                 => __( 'Event', 'wp-simple-firewall' ),
-					'current_period'        => __( 'Current', 'wp-simple-firewall' ),
-					'previous_period'       => __( 'Previous', 'wp-simple-firewall' ),
 					'change'                => __( 'Change', 'wp-simple-firewall' ),
 					'all_clear'             => __( 'All clear', 'wp-simple-firewall' ),
 				]

@@ -3,8 +3,9 @@
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\PluginAdminPages;
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
-abstract class PageScansBase extends BasePluginAdminPage {
+abstract class PageScansBase extends PageModeLandingBase {
 
 	protected function getPageContextualHrefs_Help() :array {
 		return [
@@ -14,15 +15,11 @@ abstract class PageScansBase extends BasePluginAdminPage {
 		];
 	}
 
-	protected function getRenderData() :array {
-		return [
-			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->iconClass( 'node-plus-fill' ),
-			],
-			'strings' => [
-				'inner_page_title'    => $this->getInnerPageTitle(),
-				'inner_page_subtitle' => $this->getInnerPageSubTitle(),
-			],
-		];
+	protected function getLandingMode() :string {
+		return PluginNavs::MODE_ACTIONS;
+	}
+
+	protected function hasOperatorModeParent() :bool {
+		return true;
 	}
 }

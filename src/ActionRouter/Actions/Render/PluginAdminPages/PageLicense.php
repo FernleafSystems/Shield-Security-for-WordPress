@@ -4,9 +4,10 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Pl
 
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\InstallationID;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 use FernleafSystems\Wordpress\Services\Services;
 
-class PageLicense extends BasePluginAdminPage {
+class PageLicense extends PageModeLandingBase {
 
 	public const SLUG = 'admin_plugin_page_license';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/license.twig';
@@ -50,8 +51,6 @@ class PageLicense extends BasePluginAdminPage {
 		}
 
 		$strings = [
-			'inner_page_title'    => sprintf( __( '%s License Management', 'wp-simple-firewall' ), $con->labels->Name ),
-			'inner_page_subtitle' => sprintf( __( 'Seamlessly activate and manage your %s license without any license keys.', 'wp-simple-firewall' ), $con->labels->Name ),
 			'pro_features'        => $proFeatures,
 
 			'pro_available_blurb'          => sprintf( __( '%s Pro is available from our online store.', 'wp-simple-firewall' ), $con->labels->Name ),
@@ -89,7 +88,7 @@ class PageLicense extends BasePluginAdminPage {
 			'cta_view_features'            => __( 'See All PRO Features and Extras', 'wp-simple-firewall' ),
 		];
 
-		return [
+		return \array_replace_recursive( parent::getRenderData(), [
 			'flags'   => [
 				'show_ads'              => false,
 				'button_enabled_check'  => true,
@@ -104,7 +103,6 @@ class PageLicense extends BasePluginAdminPage {
 				'keyless_cp'     => $config->def( 'keyless_cp' ),
 			],
 			'imgs'    => [
-				'inner_page_title_icon' => $con->svgs->iconClass( 'award' ),
 				'svgs'                  => [
 					'thumbs_up' => $con->svgs->iconClass( 'hand-thumbs-up.svg' ),
 				],
@@ -130,7 +128,27 @@ class PageLicense extends BasePluginAdminPage {
 				'pro_feature_tiles' => $this->buildProFeatureTiles( $proFeatures ),
 				'status_card'      => $this->buildStatusCardVars( !$isPro && $hasLicence, $strings ),
 			],
-		];
+		] );
+	}
+
+	protected function getLandingTitle() :string {
+		return sprintf( __( '%s License Management', 'wp-simple-firewall' ), self::con()->labels->Name );
+	}
+
+	protected function getLandingSubtitle() :string {
+		return sprintf( __( 'Seamlessly activate and manage your %s license without any license keys.', 'wp-simple-firewall' ), self::con()->labels->Name );
+	}
+
+	protected function getLandingIcon() :string {
+		return 'award';
+	}
+
+	protected function getLandingMode() :string {
+		return PluginNavs::MODE_CONFIGURE;
+	}
+
+	protected function hasOperatorModeParent() :bool {
+		return true;
 	}
 
 	private function buildProFeatureTiles( array $proFeatures ) :array {

@@ -9,15 +9,52 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Controller\{
 };
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
 
+/**
+ * @phpstan-import-type ScanReportItem from \FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\Reporting\Data\BuildForScans
+ * @phpstan-type AlertDigestSourceRow array{
+ *   slug:string,
+ *   name:string,
+ *   count:int,
+ *   new_count:int,
+ *   items:list<ScanReportItem>,
+ *   notification_target_ids:list<int>
+ * }
+ * @phpstan-type AlertDigestItem array{label:string}
+ * @phpstan-type AlertDigestRow array{
+ *   title:string,
+ *   count:int,
+ *   new_count:int,
+ *   count_summary:string,
+ *   outstanding_count:int,
+ *   has_new:bool,
+ *   new_items:list<AlertDigestItem>,
+ *   outstanding_items:list<AlertDigestItem>,
+ *   hidden_new_count:int,
+ *   hidden_outstanding_count:int,
+ *   notification_target_ids:list<int>,
+ *   review_href:string,
+ *   review_action:string
+ * }
+ * @phpstan-type AlertDigest array{
+ *   has_new_items:bool,
+ *   notification_target_ids:list<int>,
+ *   summary:array{row_count:int,new_total:int,current_total:int,outstanding_total:int,actions_queue_href:string},
+ *   rows:list<AlertDigestRow>
+ * }
+ */
 class BuildAlertDigestContract {
 
 	use PluginControllerConsumer;
 
+	/**
+	 * @phpstan-return AlertDigest
+	 */
 	public function build( ReportVO $report ) :array {
+		$scanRows = $this->extractScanRows( $report );
 		$rows = \array_values( \array_filter( \array_map(
 			fn( array $scanRow ) :?array => $this->buildRowContract( $scanRow ),
-			$report->areas_data[ Constants::REPORT_AREA_SCANS ][ 'scan_results' ] ?? []
-		) ) );
+			$scanRows
+		), static fn( ?array $row ) :bool => $row !== null ) );
 
 		\usort( $rows, static function ( array $a, array $b ) :int {
 			$hasNewCmp = (int)$b[ 'has_new' ] <=> (int)$a[ 'has_new' ];
@@ -47,38 +84,93 @@ class BuildAlertDigestContract {
 		];
 	}
 
+	/**
+	 * @phpstan-return list<AlertDigestSourceRow>
+	 */
+	private function extractScanRows( ReportVO $report ) :array {
+		$areasData = $report->areas_data;
+		if ( !isset( $areasData[ Constants::REPORT_AREA_SCANS ][ 'scan_results' ] )
+			 || !\is_array( $areasData[ Constants::REPORT_AREA_SCANS ][ 'scan_results' ] ) ) {
+			throw new \UnexpectedValueException( 'Alert report scan results are missing.' );
+		}
+
+		$scanRows = [];
+		foreach ( $areasData[ Constants::REPORT_AREA_SCANS ][ 'scan_results' ] as $row ) {
+			if ( !\is_array( $row )
+				 || !isset( $row[ 'slug' ], $row[ 'name' ], $row[ 'count' ], $row[ 'new_count' ], $row[ 'items' ], $row[ 'notification_target_ids' ] )
+				 || !\is_string( $row[ 'slug' ] )
+				 || !\is_string( $row[ 'name' ] )
+				 || !\is_int( $row[ 'count' ] )
+				 || !\is_int( $row[ 'new_count' ] )
+				 || !\is_array( $row[ 'items' ] )
+				 || !\is_array( $row[ 'notification_target_ids' ] ) ) {
+				throw new \UnexpectedValueException( 'Alert report scan row is invalid.' );
+			}
+
+			$items = [];
+			foreach ( $row[ 'items' ] as $item ) {
+				if ( !\is_array( $item )
+					 || !isset( $item[ 'label' ], $item[ 'is_new' ] )
+					 || !\is_string( $item[ 'label' ] )
+					 || !\is_bool( $item[ 'is_new' ] ) ) {
+					throw new \UnexpectedValueException( 'Alert report scan item is invalid.' );
+				}
+				$items[] = [
+					'label'  => $item[ 'label' ],
+					'is_new' => $item[ 'is_new' ],
+				];
+			}
+
+			$notificationTargetIDs = [];
+			foreach ( $row[ 'notification_target_ids' ] as $id ) {
+				if ( !\is_int( $id ) ) {
+					throw new \UnexpectedValueException( 'Alert report notification target ID is invalid.' );
+				}
+				$notificationTargetIDs[] = $id;
+			}
+
+			$scanRows[] = [
+				'slug'                    => $row[ 'slug' ],
+				'name'                    => $row[ 'name' ],
+				'count'                   => $row[ 'count' ],
+				'new_count'               => $row[ 'new_count' ],
+				'items'                   => $items,
+				'notification_target_ids' => $notificationTargetIDs,
+			];
+		}
+
+		return $scanRows;
+	}
+
+	/**
+	 * @phpstan-param AlertDigestSourceRow $scanRow
+	 * @phpstan-return ?AlertDigestRow
+	 */
 	protected function buildRowContract( array $scanRow ) :?array {
-		$slug = (string)( $scanRow[ 'slug' ] ?? '' );
+		$slug = $scanRow[ 'slug' ];
 		if ( !$this->isCriticalScanSlug( $slug ) ) {
 			return null;
 		}
 
-		$count = (int)( $scanRow[ 'count' ] ?? 0 );
+		$count = $scanRow[ 'count' ];
 		if ( $count < 1 ) {
 			return null;
 		}
 
-		$newCount = (int)( $scanRow[ 'new_count' ] ?? 0 );
+		$newCount = $scanRow[ 'new_count' ];
 		$outstandingCount = \max( 0, $count - $newCount );
-		$visibleItems = \is_array( $scanRow[ 'items' ] ?? null ) ? $scanRow[ 'items' ] : [];
-		$notificationTargetIds = \array_values( \array_unique( \array_map(
-			'intval',
-			\array_filter(
-				\is_array( $scanRow[ 'notification_target_ids' ] ?? null ) ? $scanRow[ 'notification_target_ids' ] : [],
-				static fn( $id ) :bool => (int)$id > 0
-			)
-		) ) );
+		$visibleItems = $scanRow[ 'items' ];
 		$newItems = \array_values( \array_map(
-			fn( array $item ) :array => [ 'label' => (string)( $item[ 'label' ] ?? '' ) ],
-			\array_filter( $visibleItems, static fn( array $item ) :bool => !empty( $item[ 'is_new' ] ) )
+			fn( array $item ) :array => [ 'label' => $item[ 'label' ] ],
+			\array_filter( $visibleItems, static fn( array $item ) :bool => $item[ 'is_new' ] )
 		) );
 		$outstandingItems = \array_values( \array_map(
-			fn( array $item ) :array => [ 'label' => (string)( $item[ 'label' ] ?? '' ) ],
-			\array_filter( $visibleItems, static fn( array $item ) :bool => empty( $item[ 'is_new' ] ) )
+			fn( array $item ) :array => [ 'label' => $item[ 'label' ] ],
+			\array_filter( $visibleItems, static fn( array $item ) :bool => !$item[ 'is_new' ] )
 		) );
 
 		return [
-			'title'                   => (string)( $scanRow[ 'name' ] ?? __( 'Scan Issue', 'wp-simple-firewall' ) ),
+			'title'                   => $scanRow[ 'name' ],
 			'count'                   => $count,
 			'new_count'               => $newCount,
 			'count_summary'           => \sprintf(
@@ -92,7 +184,7 @@ class BuildAlertDigestContract {
 			'outstanding_items'       => $outstandingItems,
 			'hidden_new_count'        => \max( 0, $newCount - \count( $newItems ) ),
 			'hidden_outstanding_count'=> \max( 0, $outstandingCount - \count( $outstandingItems ) ),
-			'notification_target_ids' => $notificationTargetIds,
+			'notification_target_ids' => $scanRow[ 'notification_target_ids' ],
 			'review_href'             => self::con()->plugin_urls->actionsQueueScans(),
 			'review_action'           => __( 'Review Scan Results', 'wp-simple-firewall' ),
 		];
@@ -110,17 +202,14 @@ class BuildAlertDigestContract {
 	}
 
 	/**
-	 * @param array<array<string,mixed>> $rows
+	 * @phpstan-param list<AlertDigestRow> $rows
 	 * @return list<int>
 	 */
 	private function collectNotificationTargetIds( array $rows ) :array {
 		$ids = [];
 		foreach ( $rows as $row ) {
-			foreach ( (array)( $row[ 'notification_target_ids' ] ?? [] ) as $id ) {
-				$id = (int)$id;
-				if ( $id > 0 ) {
-					$ids[ $id ] = $id;
-				}
+			foreach ( $row[ 'notification_target_ids' ] as $id ) {
+				$ids[ $id ] = $id;
 			}
 		}
 

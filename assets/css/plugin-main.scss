@@ -20,12 +20,13 @@ $code-color: $secondary;
 @import './shield/datatables.css';
 @import './shield/merlin.scss';
 @import './shield/options.scss';
-@import './shield/landing-tile-accent';
+@import './shield/operator-landing-cards';
 @import './shield/landing-stack-rows';
 @import './shield/investigate.scss';
 @import './shield/configure.scss';
 @import './shield/charts.scss';
 @import './shield/actions-landing.scss';
+@import './shield/pro-upsell';
 @import './shield/import-export.scss';
 @import './shield/operator-root-tile-grid';
 @import './shield/healthy-disclosure';
@@ -39,6 +40,7 @@ $code-color: $secondary;
 @import './shield/video_modal';
 @import './shield/zones';
 @import './shield/dashboard';
+@import './shield/dashboard-task-guide';
 @import './shield/needs-attention';
 @import './shield/modal-layout';
 @import './shield/security-admin';
@@ -182,6 +184,18 @@ label input[type=checkbox] {
   padding: 0;
 }
 
+#PageContainer-Apto {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 32px);
+}
+
+@media screen and (max-width: 782px) {
+  #PageContainer-Apto {
+    min-height: calc(100vh - 46px);
+  }
+}
+
 #PageHead-Apto {
   top: 40px;
   z-index: 3;
@@ -201,6 +215,7 @@ label input[type=checkbox] {
 }
 
 #PageMain-Shield {
+  flex: 1 0 auto;
   font-size: 13px;
   position: relative;
   z-index: 0;
@@ -551,14 +566,6 @@ dl.pro-features dd {
   opacity: 0;
 }
 
-#FileLockerDiffContents {
-  margin-bottom: 20px;
-}
-
-#FileLockerDiffContents .card-body {
-  padding: 1.25rem;
-}
-
 #PageContainer-Apto .overview.card {
   box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.1);
 }
@@ -836,7 +843,8 @@ $sidebar-transition-speed: 0.25s;
       z-index: 10;
     }
 
-    &:hover .sidebar-inner {
+    &:hover .sidebar-inner,
+    &:focus-within .sidebar-inner {
       width: $sidebar-width-expanded;
       background-color: #f6f7f7;
       box-shadow: 3px 0 12px rgba(0, 0, 0, 0.1);
@@ -873,7 +881,8 @@ $sidebar-transition-speed: 0.25s;
       height: 26px;
     }
   }
-  #PageMainSide-Apto:hover .logo-container {
+  #PageMainSide-Apto:hover .logo-container,
+  #PageMainSide-Apto:focus-within .logo-container {
     padding: 6px 10px 8px !important;
     .sidebar-logo-banner {
       display: block;
@@ -895,10 +904,12 @@ $sidebar-transition-speed: 0.25s;
     background-position: center !important;
     margin-bottom: 10px !important;
   }
-  #PageMainSide-Apto:hover #SuperSearchLaunch {
+  #PageMainSide-Apto:hover #SuperSearchLaunch,
+  #PageMainSide-Apto:focus-within #SuperSearchLaunch {
     display: flex !important;
   }
-  #PageMainSide-Apto:hover #SuperSearchLaunch > input {
+  #PageMainSide-Apto:hover #SuperSearchLaunch > input,
+  #PageMainSide-Apto:focus-within #SuperSearchLaunch > input {
     width: 100% !important;
     text-indent: 20px;
   }
@@ -1087,6 +1098,7 @@ $sidebar-transition-speed: 0.25s;
   background-color: transparent;
   padding: 0;
   display: block;
+  overflow: visible;
 }
 
 #ShieldModalContainer pre.icwp-code-render > code:before {

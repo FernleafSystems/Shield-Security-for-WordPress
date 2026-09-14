@@ -2,7 +2,7 @@
 title: Wiki Index
 type: index
 created: 2026-04-07
-updated: 2026-04-21
+updated: 2026-08-21
 sources: []
 tags: [index, catalog]
 ---
@@ -88,7 +88,7 @@ One entry per style-rule topic page.
 
 One entry per filed analysis page.
 
-(Empty - will populate as approved answers and maintenance analyses are filed.)
+- [[wordpress-7-1-plugin-compatibility]] - Core and vendor evidence for WordPress 7.1.0 plugin compatibility risks and Shield's exposure | analysis | updated 2026-08-21
 
 ---
 

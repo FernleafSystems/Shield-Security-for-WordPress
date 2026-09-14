@@ -2,11 +2,13 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers;
 
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\Scans\ScansProgress;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ActionsQueueFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\DashboardDefaultsFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportFileFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\ImportExportNetworkFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpAnalysisActivityMetaFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpDetectBackgroundFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\IpRulesTableFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\LicenseClearFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\LiveTrafficToggleFixtureBuilder;
@@ -18,6 +20,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\NotBotAlt
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\PublicBlockRecoveryFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityAdminFixtureBuilder;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\SecurityHeadersFixtureBuilder;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\ActionRouter\CustomRulesTerminalFinalizationFixtureBuilder;
 
 class BrowserFixtureRegistry {
 
@@ -33,6 +36,8 @@ class BrowserFixtureRegistry {
 				return self::runAllFixtures( $action );
 			case 'actions-queue':
 				return self::runActionsQueueFixture( $action, $args );
+			case 'scan-progress':
+				return self::renderScanProgress( $action, $args );
 			case 'dashboard-defaults':
 				return self::runDashboardDefaultsFixture( $action );
 			case 'import-export-file':
@@ -41,6 +46,8 @@ class BrowserFixtureRegistry {
 				return self::runImportExportNetworkFixture( $action, $args );
 			case 'ip-analysis-activity-meta':
 				return self::runIpAnalysisActivityMetaFixture( $action );
+			case 'ip-detect-background':
+				return self::runIpDetectBackgroundFixture( $action );
 			case 'ip-rules-table':
 				return self::runIpRulesTableFixture( $action );
 			case 'license-clear':
@@ -63,6 +70,8 @@ class BrowserFixtureRegistry {
 				return self::runSecurityAdminFixture( $action, $args );
 			case 'security-headers':
 				return self::runSecurityHeadersFixture( $action );
+			case 'custom-rules-terminal-finalization':
+				return self::runCustomRulesTerminalFinalizationFixture( $action, $args );
 			default:
 				throw new \RuntimeException( 'Unknown browser fixture: '.$fixture );
 		}
@@ -81,6 +90,7 @@ class BrowserFixtureRegistry {
 		self::runImportExportFileFixture( 'cleanup' );
 		self::runImportExportNetworkFixture( 'cleanup' );
 		self::runIpAnalysisActivityMetaFixture( 'cleanup' );
+		self::runIpDetectBackgroundFixture( 'cleanup' );
 		self::runIpRulesTableFixture( 'cleanup' );
 		self::runLicenseClearFixture( 'cleanup' );
 		self::runLiveTrafficToggleFixture( 'cleanup' );
@@ -92,7 +102,63 @@ class BrowserFixtureRegistry {
 		self::runPublicBlockRecoveryFixture( 'cleanup', [] );
 		self::runSecurityAdminFixture( 'cleanup', [] );
 		self::runSecurityHeadersFixture( 'cleanup' );
+		self::runCustomRulesTerminalFinalizationFixture( 'cleanup', [] );
 		return [ 'cleaned' => true ];
+	}
+
+	/** @param list<string> $args */
+	private static function renderScanProgress( string $action, array $args ) :array {
+		$progress = [ 'initiating' => 0, 'running' => 37, 'completed' => 100, 'failed' => 100 ];
+		$state = self::requireScenario( $args );
+		if ( $action !== 'render' || !isset( $progress[ $state ] ) ) {
+			throw new \RuntimeException( 'Unknown scan progress render scenario.' );
+		}
+		RuntimeTestState::loginAsSecurityAdmin();
+		return [
+			'modal_state' => $state,
+			'modal_html' => RuntimeTestState::controller()->action_router->render( ScansProgress::SLUG, [
+				'modal_state' => $state,
+				'current_scan' => 'Browser fixture scan',
+				'remaining_scans' => 'Browser fixture progress',
+				'progress' => $progress[ $state ],
+				'scan_rows' => [],
+			] ),
+		];
+	}
+
+	/** @param list<string> $args */
+	private static function runCustomRulesTerminalFinalizationFixture( string $action, array $args ) :array {
+		$builder = new CustomRulesTerminalFinalizationFixtureBuilder();
+		$key = self::fixtureOptionKey( 'custom-rules-terminal-finalization' );
+		$state = \get_option( $key, [] );
+		$state = \is_array( $state ) ? $state : [];
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $key );
+				return [ 'cleaned' => true ];
+			case 'seed':
+				$scenario = self::requireScenario( $args );
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $key );
+				}
+				$result = $builder->seed( $scenario, \trim( $args[ 1 ] ?? '' ) );
+				\update_option( $key, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+			case 'activate':
+				$result = $builder->activate( $state, \trim( $args[ 0 ] ?? '' ) );
+				\update_option( $key, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+			case 'inspect':
+				$scenario = self::requireScenario( $args );
+				if ( ( $state[ 'scenario' ] ?? '' ) !== $scenario ) {
+					throw new \RuntimeException( 'Fixture scenario does not match stored state.' );
+				}
+				return $builder->inspect( $state, \trim( $args[ 1 ] ?? '' ) );
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
 	}
 
 	/**
@@ -220,6 +286,9 @@ class BrowserFixtureRegistry {
 
 			case 'prepare-actions-all-clear':
 				return $builder->prepareActionsAllClear( $state );
+
+			case 'prepare-maintenance-warning':
+				return $builder->prepareMaintenanceWarning( $state );
 
 			case 'seed':
 				if ( $state !== [] ) {
@@ -349,6 +418,36 @@ class BrowserFixtureRegistry {
 
 			case 'inspect':
 				return $builder->inspect( $state );
+
+			case 'seed':
+				if ( $state !== [] ) {
+					$builder->cleanup( $state );
+					\delete_option( $optionKey );
+				}
+
+				$result = $builder->seed();
+				\update_option( $optionKey, $result[ 'state' ], false );
+				return $result[ 'contract' ];
+
+			default:
+				throw new \RuntimeException( 'Unknown browser fixture action: '.$action );
+		}
+	}
+
+	/**
+	 * @return array<string,mixed>
+	 */
+	private static function runIpDetectBackgroundFixture( string $action ) :array {
+		$builder = new IpDetectBackgroundFixtureBuilder();
+		$optionKey = self::fixtureOptionKey( 'ip-detect-background' );
+		$state = \get_option( $optionKey, [] );
+		$state = \is_array( $state ) ? $state : [];
+
+		switch ( $action ) {
+			case 'cleanup':
+				$builder->cleanup( $state );
+				\delete_option( $optionKey );
+				return [ 'cleaned' => true ];
 
 			case 'seed':
 				if ( $state !== [] ) {

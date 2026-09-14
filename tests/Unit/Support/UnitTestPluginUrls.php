@@ -33,6 +33,10 @@ class UnitTestPluginUrls {
 		return empty( $zone ) ? $url : $url.'?zone='.$zone;
 	}
 
+	public function reportsHome( string $workspace = '' ) :string {
+		return '/admin/reports/overview'.( $workspace === '' ? '' : '?workspace='.$workspace );
+	}
+
 	public function adminIpRules() :string {
 		return '/admin/ips/rules';
 	}

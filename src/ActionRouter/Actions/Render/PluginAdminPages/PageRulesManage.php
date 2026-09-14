@@ -22,11 +22,11 @@ class PageRulesManage extends PageRulesBase {
 		] );
 	}
 
-	protected function getInnerPageTitle() :string {
+	protected function getLandingTitle() :string {
 		return __( 'Custom Rules Manager', 'wp-simple-firewall' );
 	}
 
-	protected function getInnerPageSubTitle() :string {
+	protected function getLandingSubtitle() :string {
 		return __( 'View, edit and remove custom security rules', 'wp-simple-firewall' );
 	}
 }

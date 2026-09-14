@@ -42,6 +42,11 @@ export class ReportsLandingController extends BaseAutoExecComponent {
 			return;
 		}
 		this.hasBoundHandlers = true;
+		document.addEventListener( 'shield:drill-back', ( evt ) => {
+			if ( evt.target === this.shellEl ) {
+				this.updateWorkspaceUrl( '' );
+			}
+		} );
 
 		shieldEventsHandler_Main.add_Click(
 			'[data-reports-landing="1"] [data-drill-target="workspace"]',
@@ -90,6 +95,18 @@ export class ReportsLandingController extends BaseAutoExecComponent {
 		}
 
 		this.activateWorkspaceSection( selection.key );
+		this.updateWorkspaceUrl( selection.key );
+	}
+
+	updateWorkspaceUrl( workspace ) {
+		const url = new URL( window.location.href );
+		if ( workspace ) {
+			url.searchParams.set( 'workspace', workspace );
+		}
+		else {
+			url.searchParams.delete( 'workspace' );
+		}
+		window.history.replaceState( window.history.state, '', url );
 	}
 
 	readWorkspaceSelection( rawValue ) {

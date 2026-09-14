@@ -50,7 +50,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		}
 	}
 
-	public function test_reports_workspace_definitions_only_expose_live_routes() :void {
+	public function test_reports_workspace_definitions_are_separate_from_registered_routes() :void {
 		$workspace = PluginNavs::reportsWorkspaceDefinitions();
 		$routeHandlers = PluginNavs::reportsRouteHandlers();
 
@@ -66,7 +66,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame( PluginAdminPages\PageReportsLanding::class, $routeHandlers[ PluginNavs::SUBNAV_REPORTS_OVERVIEW ] );
 
 		foreach ( $workspace as $subNav => $definition ) {
-			$this->assertSame( PluginAdminPages\PageReports::class, $routeHandlers[ $subNav ] );
+			$this->assertArrayNotHasKey( $subNav, $routeHandlers );
 			$this->assertContains( $definition[ 'render_action' ], [
 				OptionsFormFor::class,
 				Reports\PageReportsView::class,
@@ -137,10 +137,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			$hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ PluginNavs::SUBNAV_REPORTS_OVERVIEW ][ 'handler' ]
 		);
 		foreach ( \array_keys( PluginNavs::reportsWorkspaceDefinitions() ) as $subNav ) {
-			$this->assertSame(
-				PluginAdminPages\PageReports::class,
-				$hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ][ $subNav ][ 'handler' ]
-			);
+			$this->assertArrayNotHasKey( $subNav, $hierarchy[ PluginNavs::NAV_REPORTS ][ 'sub_navs' ] );
 		}
 	}
 
@@ -150,7 +147,6 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		$this->assertSame(
 			[
 				PluginNavs::SUBNAV_TOOLS_BLOCKDOWN,
-				PluginNavs::SUBNAV_TOOLS_SESSIONS,
 				PluginNavs::SUBNAV_TOOLS_DEBUG,
 				PluginNavs::SUBNAV_TOOLS_IMPORT,
 			],
@@ -160,10 +156,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 			PluginAdminPages\PageToolLockdown::class,
 			$toolsSubNavs[ PluginNavs::SUBNAV_TOOLS_BLOCKDOWN ][ 'handler' ] ?? ''
 		);
-		$this->assertSame(
-			PluginAdminPages\PageUserSessions::class,
-			$toolsSubNavs[ PluginNavs::SUBNAV_TOOLS_SESSIONS ][ 'handler' ] ?? ''
-		);
+		$this->assertArrayNotHasKey( PluginNavs::SUBNAV_TOOLS_SESSIONS, $toolsSubNavs );
 		$this->assertSame(
 			PluginAdminPages\PageDebug::class,
 			$toolsSubNavs[ PluginNavs::SUBNAV_TOOLS_DEBUG ][ 'handler' ] ?? ''
@@ -174,7 +167,7 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 		);
 	}
 
-	public function test_configure_hierarchy_keeps_overview_only_zones_and_live_zone_component_routes() :void {
+	public function test_configure_hierarchy_retires_standalone_component_routes() :void {
 		$zoneComponentSlugs = [
 			'module_plugin' => true,
 			'reporting'     => true,
@@ -189,17 +182,13 @@ class PluginNavsOperatorModesTest extends BaseUnitTest {
 
 		$hierarchy = PluginNavs::GetNavHierarchy();
 		$zonesSubNavs = $hierarchy[ PluginNavs::NAV_ZONES ][ 'sub_navs' ];
-		$zoneComponentSubNavs = $hierarchy[ PluginNavs::NAV_ZONE_COMPONENTS ][ 'sub_navs' ];
 
 		$this->assertSame( [ PluginNavs::SUBNAV_ZONES_OVERVIEW ], \array_keys( $zonesSubNavs ) );
 		$this->assertSame(
 			PluginAdminPages\PageConfigureLanding::class,
 			$zonesSubNavs[ PluginNavs::SUBNAV_ZONES_OVERVIEW ][ 'handler' ]
 		);
-		$this->assertSame( \array_keys( $zoneComponentSlugs ), \array_keys( $zoneComponentSubNavs ) );
-		foreach ( $zoneComponentSubNavs as $route ) {
-			$this->assertSame( PluginAdminPages\PageZoneComponentConfig::class, $route[ 'handler' ] ?? '' );
-		}
+		$this->assertArrayNotHasKey( PluginNavs::NAV_ZONE_COMPONENTS, $hierarchy );
 	}
 
 	public function test_actions_assessment_definitions_keep_runtime_component_invariants() :void {

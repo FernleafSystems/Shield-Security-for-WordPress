@@ -4,8 +4,10 @@ import { UiContentActivator } from "../ui/UiContentActivator";
 import { BootstrapTooltips } from "../ui/BootstrapTooltips";
 import { DrillDownAsyncControllerBase } from "./DrillDownAsyncControllerBase";
 import { ShieldTableBase } from "../tables/ShieldTableBase";
-import { announceStatus } from "../ui/ShieldA11y";
-import { openOperatorContextProcessingDialog } from "./DrillDownShared";
+import { announceStatus, focusElement } from "../ui/ShieldA11y";
+import { getActiveLayerIndex, getLayerForShell, getLayersForShell, openOperatorContextProcessingDialog } from "./DrillDownShared";
+
+import { openProtectionEnableDialog } from '../scans/ProtectionEnableDialog';
 
 export class ActionsQueueLandingController extends DrillDownAsyncControllerBase {
 
@@ -32,6 +34,16 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			return;
 		}
 		this.hasBoundDrillDownHandlers = true;
+		shieldEventsHandler_Main.add_Click(
+			'[data-actions-landing="1"] [data-enable-protection]',
+			async ( item ) => {
+				if ( !( item instanceof HTMLElement ) ) return;
+				const isFile = item.closest( '[data-actions-queue-asset-cards="1"]' ) !== null;
+				if ( await openProtectionEnableDialog( JSON.parse( item.dataset.enableProtection ), item ) ) {
+					await this.refreshAfterProtectionEnabled( item, isFile );
+				}
+			}, false
+		);
 
 		shieldEventsHandler_Main.add_Click(
 			'[data-actions-landing="1"] [data-drill-target]',
@@ -44,6 +56,24 @@ export class ActionsQueueLandingController extends DrillDownAsyncControllerBase 
 			false
 		);
 		document.addEventListener( 'shield:drill-back', ( evt ) => this.handleDrillBack( evt ) );
+	}
+
+	async refreshAfterProtectionEnabled( launcher, isFile ) {
+		await ( isFile
+			? this.refreshAfterNestedAction( true )
+			: this.loadGroupsLayer( { showPlaceholder: false, includeLandingRefresh: true } ) );
+
+		// A user may have moved elsewhere while the closed dialog's refresh was pending.
+		const focused = document.activeElement;
+		if ( focused instanceof HTMLElement && focused !== document.body
+			&& focused !== launcher && focused.isConnected ) {
+			return;
+		}
+		const layers = getLayersForShell( this.shellEl );
+		const activeLayer = getLayerForShell( this.shellEl, getActiveLayerIndex( layers ) );
+		if ( !focusElement( activeLayer ) ) {
+			focusElement( document.getElementById( 'PageContainer-Apto' ) );
+		}
 	}
 
 	bindModePanelHandlers() {

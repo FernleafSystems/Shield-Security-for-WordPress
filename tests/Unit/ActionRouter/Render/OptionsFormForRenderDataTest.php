@@ -49,6 +49,7 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 		$sections = $renderData[ 'vars' ][ 'all_options' ] ?? [];
 
 		$this->assertCount( 2, $sections );
+		$this->assertTrue( $renderData[ 'flags' ][ 'show_section_navigation' ] );
 		$this->assertSame(
 			[ 'section_security_headers' ],
 			\array_values( \array_map(
@@ -66,6 +67,14 @@ class OptionsFormForRenderDataTest extends BaseUnitTest {
 		$this->assertFalse( (bool)( $sectionsBySlug[ 'section_security_admin_settings' ][ 'is_focus' ] ?? true ) );
 		$this->assertTrue( $this->isFocusedOptionPresent( $sectionsBySlug[ 'section_security_headers' ][ 'options' ] ?? [], 'unit_headers_flag' ) );
 		$this->assertFalse( $this->isFocusedOptionPresent( $sectionsBySlug[ 'section_security_admin_settings' ][ 'options' ] ?? [], 'unit_security_admin_flag' ) );
+	}
+
+	public function test_single_section_uses_footer_without_section_navigation() :void {
+		$action = new OptionsFormFor( [ 'options' => [ 'unit_headers_flag' ] ] );
+		$data = $this->invokeNonPublicMethod( $action, 'getRenderData' );
+		$this->assertCount( 1, $data[ 'vars' ][ 'all_options' ] );
+		$this->assertFalse( $data[ 'flags' ][ 'show_section_navigation' ] );
+		$this->assertTrue( \array_values( $data[ 'vars' ][ 'all_options' ] )[ 0 ][ 'is_focus' ] );
 	}
 
 	private function isFocusedOptionPresent( array $options, string $key ) :bool {

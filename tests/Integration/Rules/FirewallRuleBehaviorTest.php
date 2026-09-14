@@ -4,9 +4,15 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Rules;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\RequestPolicy\PolicyEvidence;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\{
+	Build\BuildRuleFromForm,
 	Build\Core\Firewall as FirewallRuleBuilder,
 	Conditions\FirewallPatternFoundInRequest,
+	Conditions\MatchRequestPath,
 	Conditions\RequestTriggersFirewall,
+	CustomBuilder\RuleFormBuilderVO,
+	Enum\EnumLogic,
+	Enum\EnumMatchTypes,
+	Enum\EnumParameters,
 	Processors\ProcessConditions,
 	Processors\ResponseProcessor,
 	Responses,
@@ -90,6 +96,41 @@ class FirewallRuleBehaviorTest extends ShieldIntegrationTestCase {
 
 		$this->assertNotEmpty( $response, 'Rule must define response: '.$responseClass );
 		return $response;
+	}
+
+	private function customFirewallRule() :RuleVO {
+		return ( new BuildRuleFromForm( ( new RuleFormBuilderVO() )->applyFromArray( [
+			'name'             => 'custom_path_firewall',
+			'description'      => 'Custom path firewall description',
+			'conditions_logic' => EnumLogic::LOGIC_AND,
+			'conditions'       => [
+				[
+					'value'  => MatchRequestPath::Slug(),
+					'invert' => [ 'value' => EnumLogic::LOGIC_ASIS ],
+					'params' => [
+						[
+							'name'       => 'match_type',
+							'value'      => EnumMatchTypes::MATCH_TYPE_EQUALS,
+							'param_type' => EnumParameters::TYPE_ENUM,
+						],
+						[
+							'name'       => 'match_path',
+							'value'      => '/private-area',
+							'param_type' => EnumParameters::TYPE_STRING,
+						],
+					],
+				],
+			],
+			'checks'           => [
+				'checkbox_auto_include_bypass' => [ 'value' => 'Y' ],
+			],
+			'responses'        => [
+				[
+					'value'  => Responses\FirewallBlock::Slug(),
+					'params' => [],
+				],
+			],
+		] ) ) )->build();
 	}
 
 	public function test_enabled_sql_pattern_matches_malicious_request_param() {
@@ -308,6 +349,49 @@ class FirewallRuleBehaviorTest extends ShieldIntegrationTestCase {
 		foreach ( [ 'name', 'term', 'param', 'value', 'scan', 'type' ] as $required ) {
 			$this->assertArrayHasKey( $required, $auditParams, "Missing firewall audit param: {$required}" );
 		}
+	}
+
+	public function test_custom_path_firewall_composes_one_native_event_with_custom_audit_contract() :void {
+		$this->resetFirewallRequestState( '/private-area' );
+		$rule = $this->customFirewallRule();
+
+		$this->assertTrue( ( new ProcessConditions( $rule->conditions ) )
+			->setThisRequest( $this->requireController()->this_req )
+			->process() );
+
+		$eventResponses = \array_values( \array_filter(
+			$rule->responses,
+			static fn( array $response ) :bool => ( $response[ 'response' ] ?? '' ) === Responses\EventFire::class
+				&& ( $response[ 'params' ][ 'event' ] ?? '' ) === 'firewall_block'
+		) );
+		$this->assertCount( 1, $eventResponses );
+		$this->responseDefinition( $rule->responses, Responses\FirewallBlock::class );
+
+		$eventOnlyRule = ( new RuleVO() )->applyFromArray( [
+			'slug'                    => 'test_custom_firewall_event_contract',
+			'name'                    => 'Test Custom Firewall Event Contract',
+			'conditions'              => fn() => true,
+			'condition_meta'          => $this->requireController()->rules->getConditionMeta()->getRawData(),
+			'responses'               => [ $eventResponses[ 0 ] ],
+			'immediate_exec_response' => true,
+		] );
+		$this->captureShieldEvents();
+		( new ResponseProcessor( $eventOnlyRule ) )
+			->setThisRequest( $this->requireController()->this_req )
+			->run();
+
+		$events = $this->getCapturedEventsByKey( 'firewall_block' );
+		$this->assertCount( 1, $events );
+		$this->assertEquals( [
+			'name'  => 'custom_path_firewall',
+			'term'  => '/private-area',
+			'param' => 'path',
+			'value' => '/private-area',
+			'scan'  => 'custom_rule',
+			'type'  => EnumMatchTypes::MATCH_TYPE_EQUALS,
+		], $events[ 0 ][ 'meta' ][ 'audit_params' ] ?? [] );
+		$this->assertSame( 1, (int)( $events[ 0 ][ 'meta' ][ 'offense_count' ] ?? 0 ) );
+		$this->assertFalse( (bool)( $events[ 0 ][ 'meta' ][ 'block' ] ?? true ) );
 	}
 
 	public function test_firewall_pattern_condition_directly_matches_enabled_regex() {

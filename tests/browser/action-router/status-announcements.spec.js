@@ -264,19 +264,18 @@ test( 'dashboard live monitor announces partial batch failures assertively', asy
 	await expect.poll( () => statusRegionActivityCount( page ) ).toBeGreaterThan( 0 );
 } );
 
-test( 'traffic live logs page announces failed poll through stable status region', async ( { page } ) => {
-	const failedRequest = await failNextMatchingAdminAjaxRequest( page, isLiveTrafficPollRequest );
-	await openShieldRoute( page, {
-		nav: 'traffic',
-		nav_sub: 'live',
-	} );
+test( 'traffic live logs panel announces failed poll through stable status region', async ( { page, fixtureApi } ) => {
+	await fixtureApi.withLiveTrafficToggleFixture( async ( contract ) => {
+		const failedRequest = await failNextMatchingAdminAjaxRequest( page, isLiveTrafficPollRequest );
+		await openShieldRoute( page, contract.route );
 
-	const section = page.locator( '#SectionTrafficLiveLogs' );
-	await expect( section ).toBeVisible();
-	await observeStatusRegionActivity( page );
-	await failedRequest.completed;
-	await expectStatusAnnouncement( section, 'assertive' );
-	await expect.poll( () => statusRegionActivityCount( page ) ).toBeGreaterThan( 0 );
+		const section = page.locator( '#SectionTrafficLiveLogs' );
+		await expect( section ).toBeVisible();
+		await observeStatusRegionActivity( page );
+		await failedRequest.completed;
+		await expectStatusAnnouncement( section, 'assertive' );
+		await expect.poll( () => statusRegionActivityCount( page ) ).toBeGreaterThan( 0 );
+	} );
 } );
 
 test( 'actions queue lazy asset panel announces quiet loading failure', async ( { page, fixtureApi } ) => {

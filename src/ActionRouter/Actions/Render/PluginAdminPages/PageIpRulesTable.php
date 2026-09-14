@@ -6,8 +6,9 @@ use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\ActionData;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\IpRulesTableAction;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\CommonDisplayStrings;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\Build\ForIpRules;
+use FernleafSystems\Wordpress\Plugin\Shield\Controller\Plugin\PluginNavs;
 
-class PageIpRulesTable extends BasePluginAdminPage {
+class PageIpRulesTable extends PageModeLandingBase {
 
 	public const SLUG = 'admin_plugin_page_ip_rules_table';
 	public const TEMPLATE = '/wpadmin/plugin_pages/inner/ip_rules.twig';
@@ -38,14 +39,7 @@ class PageIpRulesTable extends BasePluginAdminPage {
 	}
 
 	protected function getRenderData() :array {
-		return [
-			'strings' => [
-				'inner_page_title'    => __( 'Manage Rules', 'wp-simple-firewall' ),
-				'inner_page_subtitle' => __( 'View and manage IP rules that block malicious visitors and bots.', 'wp-simple-firewall' ),
-			],
-			'imgs'    => [
-				'inner_page_title_icon' => self::con()->svgs->iconClass( 'diagram-3' ),
-			],
+		return \array_replace_recursive( parent::getRenderData(), [
 			'vars'    => [
 				'datatable_iprules' => wp_json_encode( [
 					'ajax'       => [
@@ -54,6 +48,26 @@ class PageIpRulesTable extends BasePluginAdminPage {
 					'table_init' => ( new ForIpRules() )->buildRaw(),
 				] ),
 			]
-		];
+		] );
+	}
+
+	protected function getLandingTitle() :string {
+		return __( 'Manage Rules', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingSubtitle() :string {
+		return __( 'View and manage IP rules that block malicious visitors and bots.', 'wp-simple-firewall' );
+	}
+
+	protected function getLandingIcon() :string {
+		return 'diagram-3';
+	}
+
+	protected function getLandingMode() :string {
+		return PluginNavs::MODE_INVESTIGATE;
+	}
+
+	protected function hasOperatorModeParent() :bool {
+		return true;
 	}
 }

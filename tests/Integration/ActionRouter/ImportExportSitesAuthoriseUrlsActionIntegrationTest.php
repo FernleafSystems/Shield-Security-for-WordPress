@@ -279,7 +279,7 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$this->clearQueueSchedule();
 		$this->inviteHttp->clearRequests();
 
-		$payload = $this->submitAuthoriseUrls( self::EXISTING.'/' );
+		$payload = $this->submitAuthoriseUrls( 'HTTPS://93.184.216.69:443/' );
 
 		$this->assertArrayHasKey( 'success', $payload );
 		$this->assertArrayHasKey( 'page_reload', $payload );
@@ -321,7 +321,19 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 	public function test_deleted_url_reactivation_queues_one_invite() :void {
 		$this->enableSync();
 		$repo = $this->repo();
-		$repo->upsertActive( self::REACTIVATED, SitesDB::SOURCE_MANUAL, '', true );
+		$row = $repo->upsertActive( self::REACTIVATED, SitesDB::SOURCE_MANUAL, 'stale-import-id', true );
+		$this->assertInstanceOf( Record::class, $row );
+		$profileRef = $row->profile_ref;
+		$repo->recordExportServed( $row );
+		$repo->recordHandshakeAttempt( $row );
+		$repo->recordPingFailure( $row, 503, 'stale ping failure' );
+		$repo->recordExportFailure( self::REACTIVATED, SitesDB::EXPORT_RESULT_VERIFY_FAILED, 'stale export failure' );
+		$row = $this->requireSite( self::REACTIVATED, true );
+		$meta = $row->meta;
+		$meta[ 'preserve_this' ] = 'preserved';
+		self::con()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+			'meta' => self::con()->db_con->import_export_sites->getRecord()->arrayDataWrap( $meta ) ?? '',
+		] );
 		$repo->softDeleteUrl( self::REACTIVATED );
 		$this->clearQueueSchedule();
 		$this->inviteHttp->clearRequests();
@@ -333,6 +345,19 @@ class ImportExportSitesAuthoriseUrlsActionIntegrationTest extends ShieldIntegrat
 		$row = $this->requireSite( self::REACTIVATED, true );
 		$this->assertSame( SitesDB::STATUS_ACTIVE, $row->status );
 		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $row->queue_status );
+		$this->assertSame( '', $row->import_id );
+		$this->assertSame( 0, $row->last_ping_failure_at );
+		$this->assertSame( 0, $row->last_ping_http_code );
+		$this->assertSame( '', $row->last_ping_error );
+		$this->assertSame( 0, $row->last_export_failure_at );
+		$this->assertSame( '', $row->last_export_result_code );
+		$this->assertSame( '', $row->last_export_error );
+		$this->assertSame( 0, $row->consecutive_failures );
+		$this->assertFalse( $repo->exportCooldownActive( $row, \DAY_IN_SECONDS ) );
+		$this->assertFalse( $repo->handshakeCooldownActive( $row, \DAY_IN_SECONDS ) );
+		$this->assertArrayHasKey( 'preserve_this', $row->meta );
+		$this->assertSame( 'preserved', $row->meta[ 'preserve_this' ] );
+		$this->assertSame( $profileRef, $row->profile_ref );
 		$this->assertNotFalse( \wp_next_scheduled( $this->queueHook() ) );
 		$this->assertCount( 0, $this->inviteHttp->requests );
 	}

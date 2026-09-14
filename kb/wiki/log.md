@@ -44,3 +44,9 @@ Key notes: Kept `sources` and `analyses` as universal categories, limited `REPO_
 Pages created: none
 Pages updated: `REPO_WIKI_SPEC.md`, `wiki/index.md`, `wiki/log.md`
 Key notes: Dropped `personas` from the repo topic categories and added `plans` for intended future work and execution design pages.
+
+## [2026-08-21] analysis | Research WordPress 7.1 plugin compatibility
+
+Pages created: `wiki/analyses/wordpress-7-1-plugin-compatibility.md`
+Pages updated: `wiki/index.md`, `wiki/log.md`, `wiki/overview.md`
+Key notes: Recorded official WordPress 7.1 compatibility changes, a vendor-confirmed WP Rocket hook-callback fatal, and the source/runtime assessment for Shield.

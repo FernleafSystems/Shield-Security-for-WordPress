@@ -1,3 +1,61 @@
 .shield-modal-content-raised {
 	margin-top: 100px;
 }
+
+.shield-scan-progress__status {
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.35rem;
+	white-space: nowrap;
+}
+
+.shield-scan-progress__status-icon {
+	width: 1rem;
+	flex: 0 0 1rem;
+	line-height: 1;
+	text-align: center;
+}
+
+.shield-scan-progress__status--running .shield-scan-progress__status-icon {
+	color: var(--bs-success);
+	animation: shield-scan-progress-spin 1.15s linear infinite;
+}
+
+.shield-scan-progress__status--waiting .shield-scan-progress__status-icon {
+	color: var(--bs-secondary-color, #6c757d);
+	animation: shield-scan-progress-wait 1.6s ease-in-out infinite;
+}
+
+.shield-scan-progress__status--stalled .shield-scan-progress__status-icon {
+	color: var(--bs-warning);
+}
+
+@keyframes shield-scan-progress-spin {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes shield-scan-progress-wait {
+	0%,
+	100% {
+		opacity: 0.55;
+		transform: translateY(0);
+	}
+
+	50% {
+		opacity: 1;
+		transform: translateY(-1px);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.shield-scan-progress__status-icon {
+		animation: none;
+	}
+}

@@ -64,7 +64,7 @@ class ForActivityLog extends Base {
 			],
 			'severity'   => [
 				'data'        => 'severity',
-				'title'       => '',
+				'title'       => '<span class="visually-hidden">'.esc_html__( 'Severity', 'wp-simple-firewall' ).'</span>',
 				'className'   => 'severity',
 				'orderable'   => false,
 				'searchable'  => false,

@@ -47,6 +47,7 @@ class CommonDisplayStrings {
 			'username'                => __( 'Username', 'wp-simple-firewall' ),
 			'username_label'          => __( 'Username', 'wp-simple-firewall' ),
 			'user_sessions_label'     => __( 'User Sessions', 'wp-simple-firewall' ),
+			'web_request_log_label'   => __( 'Web Request Log', 'wp-simple-firewall' ),
 			'view_scan_results_label' => __( 'View Scan Results', 'wp-simple-firewall' ),
 			'view_report_label'       => __( 'View Report', 'wp-simple-firewall' ),
 			'yes_label'               => __( 'Yes', 'wp-simple-firewall' ),

@@ -11,6 +11,7 @@ if ( !\function_exists( __NAMESPACE__.'\\shield_security_get_plugin' ) ) {
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Modules\HackGuard\Scan\Results\Retrieve;
 
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Malware\Ops\Record as MalwareRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\HackGuard\Scan\Results\Retrieve\RetrieveItems;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultsSet as AfsResultsSet;
 use FernleafSystems\Wordpress\Plugin\Shield\Scans\Base\ResultItem;
@@ -131,6 +132,180 @@ class RetrieveItemsFindingsQueryTest extends BaseUnitTest {
 		$this->assertCount( 1, $results->getAllItems() );
 		$this->assertSame( 'wpv', $results->getAllItems()[ 0 ]->VO->scan );
 		$this->assertSame( 101, $results->getAllItems()[ 0 ]->VO->resultitem_id );
+	}
+
+	public function test_conversion_batches_metadata_and_unique_malware_hydration_at_two_hundred() :void {
+		$metaBatches = [];
+		$malwareBatches = [];
+		$metas = [];
+		$records = [];
+		$rows = [];
+		for ( $id = 1; $id <= 201; $id++ ) {
+			$metas[] = (object)[ 'ri_ref' => $id, 'meta_key' => 'malware_record_id', 'meta_value' => $id ];
+			$metas[] = (object)[ 'ri_ref' => $id, 'meta_key' => 'ptg_slug', 'meta_value' => 'fixture-'.$id ];
+			$records[ $id ] = new MalwareRecord( [ 'id' => $id ] );
+			$rows[] = $this->afsRawResult( $id );
+		}
+		$this->installAfsHydrationController( $metas, $records, $metaBatches, $malwareBatches );
+		$retriever = new class extends RetrieveItems {
+			public function convert( array $results ) :ResultsSet {
+				return $this->convertToResultsSet( $results );
+			}
+		};
+
+		$items = $retriever->convert( $rows )->getAllItems();
+
+		$this->assertSame( [ 200, 1 ], \array_map( 'count', $metaBatches ) );
+		$this->assertSame( [ 200, 1 ], \array_map( 'count', $malwareBatches ) );
+		$this->assertCount( 201, $items );
+		$this->assertSame( 'fixture-200', $items[ 199 ]->ptg_slug );
+		$this->assertSame( 'fixture-201', $items[ 200 ]->ptg_slug );
+		$this->assertSame( 201, $items[ 200 ]->getMalwareRecord()->id );
+	}
+
+	public function test_hydration_loads_duplicate_ids_once_and_memoizes_missing_records() :void {
+		$metaBatches = [];
+		$malwareBatches = [];
+		$metas = [
+			(object)[ 'ri_ref' => 1, 'meta_key' => 'malware_record_id', 'meta_value' => 7 ],
+			(object)[ 'ri_ref' => 2, 'meta_key' => 'malware_record_id', 'meta_value' => 7 ],
+			(object)[ 'ri_ref' => 3, 'meta_key' => 'malware_record_id', 'meta_value' => 99 ],
+		];
+		$this->installAfsHydrationController(
+			$metas,
+			[ 7 => new MalwareRecord( [ 'id' => 7 ] ) ],
+			$metaBatches,
+			$malwareBatches
+		);
+		$retriever = new class extends RetrieveItems {
+			public function convert( array $results ) :ResultsSet {
+				return $this->convertToResultsSet( $results );
+			}
+		};
+
+		$items = $retriever->convert( [
+			$this->afsRawResult( 1 ),
+			$this->afsRawResult( 2 ),
+			$this->afsRawResult( 3 ),
+		] )->getAllItems();
+
+		$this->assertSame( [ [ 7, 99 ] ], $malwareBatches );
+		$this->assertSame( $items[ 0 ]->getMalwareRecord(), $items[ 1 ]->getMalwareRecord() );
+		$this->assertNull( $items[ 2 ]->getMalwareRecord() );
+		$this->assertNull( $items[ 2 ]->getMalwareRecord() );
+		$this->assertCount( 1, $malwareBatches );
+	}
+
+	private function afsRawResult( int $id ) :array {
+		return [
+			'scan' => 'afs',
+			'scan_created_at' => 0,
+			'scan_id' => 0,
+			'resultitem_id' => $id,
+			'item_type' => 'x',
+			'item_id' => 'item-'.$id,
+			'asset_type' => 'plugin',
+			'asset_key' => 'fixture/fixture.php',
+			'ignored_at' => 0,
+			'notified_at' => 0,
+			'attempt_repair_at' => 0,
+			'last_seen_at' => 100,
+			'resolved_at' => 0,
+			'resolution_reason' => '',
+			'created_at' => 50,
+		];
+	}
+
+	private function installAfsHydrationController(
+		array $metas,
+		array $records,
+		array &$metaBatches,
+		array &$malwareBatches
+	) :void {
+		/** @var Controller $controller */
+		$controller = ( new \ReflectionClass( Controller::class ) )->newInstanceWithoutConstructor();
+		$controller->db_con = (object)[
+			'scan_result_item_meta' => new class( $metas, $metaBatches ) {
+				private array $metas;
+				private array $batches;
+
+				public function __construct( array $metas, array &$batches ) {
+					$this->metas = $metas;
+					$this->batches = &$batches;
+				}
+
+				public function getQuerySelector() {
+					return new class( $this->metas, $this->batches ) {
+						private array $metas;
+						private array $batches;
+						private array $ids = [];
+
+						public function __construct( array $metas, array &$batches ) {
+							$this->metas = $metas;
+							$this->batches = &$batches;
+						}
+
+						public function filterByResultItems( array $ids ) {
+							$this->ids = $ids;
+							$this->batches[] = $ids;
+							return $this;
+						}
+
+						public function queryWithResult() :array {
+							return \array_values( \array_filter(
+								$this->metas,
+								fn( $meta ) :bool => \in_array( $meta->ri_ref, $this->ids, true )
+							) );
+						}
+					};
+				}
+			},
+			'malware' => new class( $records, $malwareBatches ) {
+				private array $records;
+				private array $batches;
+
+				public function __construct( array $records, array &$batches ) {
+					$this->records = $records;
+					$this->batches = &$batches;
+				}
+
+				public function getQuerySelector() {
+					return new class( $this->records, $this->batches ) {
+						private array $records;
+						private array $batches;
+						private array $ids = [];
+
+						public function __construct( array $records, array &$batches ) {
+							$this->records = $records;
+							$this->batches = &$batches;
+						}
+
+						public function addWhereIn( string $column, array $ids ) {
+							unset( $column );
+							$this->ids = $ids;
+							$this->batches[] = $ids;
+							return $this;
+						}
+
+						public function queryWithResult() :array {
+							return \array_values( \array_intersect_key( $this->records, \array_flip( $this->ids ) ) );
+						}
+					};
+				}
+			},
+		];
+		$controller->comps = (object)[
+			'scans' => new class {
+				public function getScanCon( string $slug ) {
+					return $slug === 'afs' ? new class {
+						public function getNewResultItem() :\FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem {
+							return new \FernleafSystems\Wordpress\Plugin\Shield\Scans\Afs\ResultItem();
+						}
+					} : null;
+				}
+			},
+		];
+		PluginControllerInstaller::install( $controller );
 	}
 
 	private function installControllerAndDb( array &$queries ) :void {

@@ -13,12 +13,14 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\ActionRouter\Render
 use Brain\Monkey\Functions;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\MfaLoginVerifyStep;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\Components\UserMfa\LoginIntent\LoginIntentFormFieldBase;
+use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa\BaseLoginIntentPage;
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions\Render\FullPage\Mfa\Components\{
 	BaseForm,
 	LoginIntentFormShield
 };
 use FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\LoginGuard\Lib\TwoFactor\LoginRequestValues;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -46,6 +48,18 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 		);
 		Functions\when( 'esc_attr' )->alias( static fn( $value ) => $value );
 		Functions\when( 'esc_url_raw' )->alias( static fn( $value ) => $value );
+		Functions\when( 'wp_hash' )->alias( static fn( string $value ) :string => \hash( 'sha256', $value ) );
+		Functions\when( 'wp_create_nonce' )->justReturn( 'rest-nonce' );
+		Functions\when( 'get_rest_url' )->alias(
+			static fn( $blogID, string $path ) :string => 'https://example.com/wp-json/'.\ltrim( $path, '/' )
+		);
+		Functions\when( 'add_query_arg' )->alias(
+			static fn( array $data, string $url ) :string => $url.'?'.\http_build_query( $data )
+		);
+		Functions\when( 'rawurlencode_deep' )->alias(
+			static fn( $value ) => \is_array( $value ) ? \array_map( '\rawurlencode', $value ) : \rawurlencode( (string)$value )
+		);
+		Functions\when( 'wp_validate_redirect' )->alias( static fn( string $url, string $fallback ) :string => $url === '' ? $fallback : $url );
 		Functions\when( 'wp_parse_url' )->alias(
 			static fn( string $url, int $component = -1 ) => $component === -1 ? \parse_url( $url ) : \parse_url( $url, $component )
 		);
@@ -140,11 +154,10 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 			true
 		);
 
-		$action = new BaseFormTestDouble( [
-			'user_id'           => 42,
-			'plain_login_nonce' => 'login-nonce',
-			'rememberme'        => 'Y',
-		] );
+		$action = new BaseFormTestDouble( $this->renderData( [
+			'rememberme'  => 'forever',
+			'redirect_to' => '/target',
+		] ) );
 
 		$data = $action->commonFormDataForTest();
 
@@ -188,14 +201,81 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 		);
 	}
 
+	public function test_base_form_emits_canonical_hidden_fields_and_literal_interim_global() :void {
+		$this->installMfaEnvironment( [], 0, false );
+		global $interim_login;
+		$interim_login = true;
+
+		$fields = ( new BaseFormTestDouble( $this->renderData( [
+			'plain_login_nonce' => 'nonce',
+			'rememberme'        => 'forever',
+			'interim_login'     => '',
+			'redirect_to'       => '/safe-target',
+			'cancel_href'       => '/safe-cancel',
+		] ) ) )->hiddenFieldsForTest();
+
+		$this->assertSame( 42, $fields[ 'wp_user_id' ] );
+		$this->assertSame( 'nonce', $fields[ 'login_nonce' ] );
+		$this->assertSame( 'forever', $fields[ 'rememberme' ] );
+		$this->assertSame( '1', $fields[ 'interim-login' ] );
+		$this->assertSame( '/safe-target', $fields[ 'redirect_to' ] );
+		$this->assertSame( '/safe-cancel', $fields[ 'cancel_href' ] );
+	}
+
+	public function test_base_form_ignores_non_string_referer_for_cancel_fallback() :void {
+		$this->installMfaEnvironment( [], 0, false );
+		ServicesState::mergeItems( [
+			'service_request' => new class extends UnitTestRequest {
+				public function server( $key, $default = null ) {
+					return $key === 'HTTP_REFERER' ? [ 'invalid' ] : $default;
+				}
+
+				public function getPath() :string {
+					return '/current-path';
+				}
+			},
+		] );
+
+		$fields = ( new BaseFormTestDouble( $this->renderData( [
+			'redirect_to' => '/canonical-target',
+		] ) ) )->hiddenFieldsForTest();
+
+		$this->assertSame( '/canonical-target', $fields[ 'redirect_to' ] );
+		$this->assertArrayNotHasKey( 'cancel_href', $fields );
+	}
+
+	public function test_base_form_ignores_unknown_positive_user_id() :void {
+		$this->installMfaEnvironment( [], 0, false, false );
+
+		$data = ( new BaseFormTestDouble( $this->renderData() ) )->commonFormDataForTest();
+
+		$this->assertSame( [], $data[ 'content' ][ 'login_fields' ] );
+	}
+
+	public function test_login_intent_javascript_preserves_canonical_action_data_and_stable_keys() :void {
+		$this->installMfaEnvironment( [], 0, false );
+
+		$data = ( new BaseLoginIntentPageTestDouble( $this->renderData( [
+			'plain_login_nonce' => 'nonce',
+			'redirect_to'       => '/target',
+		] ) ) )->getLoginIntentJavascript();
+
+		$this->assertSame( 42, $data[ 'ajax' ][ 'passkey_auth_start' ][ 'login_wp_user' ] ?? null );
+		$this->assertSame( 'nonce', $data[ 'ajax' ][ 'passkey_auth_start' ][ 'login_nonce' ] ?? null );
+		$this->assertSame( 42, $data[ 'ajax' ][ 'email_code_send' ][ 'wp_user_id' ] ?? null );
+		$this->assertSame( 'nonce', $data[ 'ajax' ][ 'email_code_send' ][ 'login_nonce' ] ?? null );
+		$this->assertSame( '/target', $data[ 'ajax' ][ 'email_code_send' ][ 'redirect_to' ] ?? null );
+		$this->assertFalse( $data[ 'flags' ][ 'passkey_auth_auto' ] );
+	}
+
 	public function test_shield_form_render_data_hides_alert_without_error_and_surfaces_error_message() :void {
 		$this->installMfaEnvironment( [], 0, false );
 
-		$defaultData = ( new LoginIntentFormShieldTestDouble( [] ) )->renderDataForTest();
+		$defaultData = ( new LoginIntentFormShieldTestDouble( $this->renderData() ) )->renderDataForTest();
 		$payload = '<img src=x onerror=alert(1)>';
-		$errorData = ( new LoginIntentFormShieldTestDouble( [
+		$errorData = ( new LoginIntentFormShieldTestDouble( $this->renderData( [
 			'msg_error' => $payload,
-		] ) )->renderDataForTest();
+		] ) ) )->renderDataForTest();
 
 		$this->assertFalse( $defaultData[ 'flags' ][ 'show_message' ] );
 		$this->assertSame( '', $defaultData[ 'strings' ][ 'message' ] );
@@ -209,7 +289,18 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 		$this->assertSame( $payload, $errorData[ 'strings' ][ 'message' ] );
 	}
 
-	private function installMfaEnvironment( array $providers, int $skipDays, bool $whitelabelEnabled ) :Controller {
+	private function renderData( array $input = [] ) :array {
+		return LoginRequestValues::buildLoginIntentRenderData(
+			\array_merge( [
+				'user_id'           => 42,
+				'include_body'      => true,
+				'plain_login_nonce' => 'login-nonce',
+			], $input ),
+			'/current-path'
+		);
+	}
+
+	private function installMfaEnvironment( array $providers, int $skipDays, bool $whitelabelEnabled, bool $userExists = true ) :Controller {
 		ServicesState::installItems( [
 			'service_request'   => new class extends UnitTestRequest {
 				public function server( $key, $default = null ) {
@@ -227,9 +318,21 @@ class MfaLoginIntentRenderContractsTest extends BaseUnitTest {
 					return '/wp-login.php';
 				}
 			},
-			'service_wpusers'   => new class extends UnitTestUsers {
+			'service_wpusers'   => new class( $userExists ) extends UnitTestUsers {
+				private bool $userExists;
+
+				public function __construct( bool $userExists ) {
+					parent::__construct();
+					$this->userExists = $userExists;
+				}
+
 				public function getUserById( $userId ) {
-					return (object)[ 'ID' => $userId ];
+					if ( !$this->userExists ) {
+						return null;
+					}
+					$user = new \WP_User();
+					$user->ID = $userId;
+					return $user;
 				}
 			},
 			'service_data'      => new class extends \FernleafSystems\Wordpress\Services\Utilities\Data {
@@ -313,8 +416,18 @@ class BaseFormTestDouble extends BaseForm {
 		return $this->getCommonFormData();
 	}
 
+	public function hiddenFieldsForTest() :array {
+		return $this->getHiddenFields();
+	}
+
 	protected function exec() {
 	}
+}
+
+class BaseLoginIntentPageTestDouble extends BaseLoginIntentPage {
+
+	public const SLUG = 'unit_test_mfa_page';
+	public const TEMPLATE = '/unit-test.twig';
 }
 
 class LoginIntentFormShieldTestDouble extends LoginIntentFormShield {

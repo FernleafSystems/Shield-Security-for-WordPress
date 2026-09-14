@@ -34,6 +34,26 @@ php bin/prepare-release.php --version=21.0.102 --build=auto
 
 ## CLI Commands
 
+### Interactive release operator
+
+The Shield CLI provides a confirmed, interactive wrapper around the existing
+release scripts. These convenience commands do not replace the script sections
+below, which remain the authoritative package and release interfaces:
+
+```bash
+php bin/shield operator
+php bin/shield operator:package-svn
+php bin/shield operator:prepare-release
+php bin/shield operator:build-zip
+```
+
+`operator` lets you choose a package-for-SVN, prepare-release, or build-ZIP
+flow; the three `operator:*` commands start their corresponding flow directly.
+Each flow previews the exact command arguments and asks for confirmation before
+starting it. A confirmed command records its action, inputs, and argv in the
+local, overwrite-on-confirmation `tmp/operator-state.json` immediately before
+the child process starts. Declined or cancelled flows do not write that file.
+
 ### build-zip
 
 Creates a complete distributable zip archive of the plugin.

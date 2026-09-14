@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Rules\Responses;
 use FernleafSystems\Wordpress\Plugin\Shield\Rules\Enum\EnumParameters;
 
 class HttpRedirect extends Base {
+	use Traits\IsTerminating;
 
 	public function execResponse() :void {
 		if ( !$this->canRedirect() ) {

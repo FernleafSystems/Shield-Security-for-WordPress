@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Core\Databases\Base\Handler;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableReadyCache;
 use FernleafSystems\Wordpress\Plugin\Core\Databases\Common\TableSchema;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Database\DbCon;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\RuntimeTestState;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Services\Services;
 
@@ -18,6 +19,10 @@ class TableReadyCacheIntegrationTest extends ShieldIntegrationTestCase {
 	private bool $cfgRebuiltSnapshot = false;
 
 	private ?DbCon $dbConSnapshot = null;
+
+	private $readyCacheSnapshot;
+
+	private bool $persistentStateRestored = false;
 
 	/**
 	 * @var array<int,array{family:string,snippet:string}>
@@ -32,6 +37,7 @@ class TableReadyCacheIntegrationTest extends ShieldIntegrationTestCase {
 		$con = $this->requireController();
 		$this->dbConSnapshot = $con->db_con;
 		$this->cfgRebuiltSnapshot = $con->cfg->rebuilt;
+		$this->readyCacheSnapshot = Services::WpGeneral()->getOption( TableReadyCache::DB_STATUS_KEY );
 		$con->cfg->rebuilt = false;
 		$this->optionSnapshot = [
 			'activated_at'       => $con->opts->optGet( 'activated_at' ),
@@ -52,7 +58,9 @@ class TableReadyCacheIntegrationTest extends ShieldIntegrationTestCase {
 				$this->requireController()->db_con = $this->dbConSnapshot;
 			}
 			$this->restorePluginTimingOptions();
-			$this->clearTableReadyCache();
+			if ( !$this->persistentStateRestored ) {
+				$this->clearTableReadyCache();
+			}
 			$this->resetDbReadinessRuntimeState();
 		}
 
@@ -106,26 +114,43 @@ class TableReadyCacheIntegrationTest extends ShieldIntegrationTestCase {
 		);
 	}
 
+	/** @group database-transaction-exception */
 	public function test_missing_table_is_repaired_before_ready_status_is_cacheable() :void {
-		$schema = $this->getHandlerSchema( 'events' );
+		$this->runWithPersistentDatabaseMutation(
+			function () :void {
+				$this->makeTableReadyCacheEligible();
+				$schema = $this->getHandlerSchema( 'events' );
+				$this->clearTableReadyCache();
+				$this->dropTable( $schema->table );
+				$this->resetDbReadinessRuntimeState();
 
-		$this->clearTableReadyCache();
-		$this->dropTable( $schema->table );
-		$this->resetDbReadinessRuntimeState();
+				$handler = $this->requireController()->db_con->load( 'events' );
+				$schema = $handler->getTableSchema();
 
-		$handler = $this->requireController()->db_con->load( 'events' );
-		$schema = $handler->getTableSchema();
+				$this->assertTrue( $handler->isReady(), 'Events handler should be ready after production repair path runs.' );
+				$this->assertTrue( $handler->tableExists(), 'Events table should exist after production repair path runs.' );
+				$this->assertSame(
+					$this->normaliseColumnNames( $schema->getColumnNames() ),
+					$this->normaliseColumnNames( Services::WpDb()->getColumnsForTable( $schema->table ) ),
+					'Repaired table columns should match the handler schema before the ready cache is usable.'
+				);
+				$this->assertTrue(
+					Handler::GetTableReadyCache()->isReady( $schema ),
+					'Ready cache should only report ready after the repaired table reaches a good final state.'
+				);
+			},
+			function () :void {
+				$this->recreateCanonicalTable( 'events' );
+				$this->restorePluginTimingOptions();
+				RuntimeTestState::restoreTableReadyCache( $this->readyCacheSnapshot );
 
-		$this->assertTrue( $handler->isReady(), 'Events handler should be ready after production repair path runs.' );
-		$this->assertTrue( $handler->tableExists(), 'Events table should exist after production repair path runs.' );
-		$this->assertSame(
-			$this->normaliseColumnNames( $schema->getColumnNames() ),
-			$this->normaliseColumnNames( Services::WpDb()->getColumnsForTable( $schema->table ) ),
-			'Repaired table columns should match the handler schema before the ready cache is usable.'
-		);
-		$this->assertTrue(
-			Handler::GetTableReadyCache()->isReady( $schema ),
-			'Ready cache should only report ready after the repaired table reaches a good final state.'
+				$con = $this->requireController();
+				$con->cfg->rebuilt = $this->cfgRebuiltSnapshot;
+				if ( $this->dbConSnapshot instanceof DbCon ) {
+					$con->db_con = $this->dbConSnapshot;
+				}
+				$this->persistentStateRestored = true;
+			}
 		);
 	}
 
@@ -250,8 +275,27 @@ class TableReadyCacheIntegrationTest extends ShieldIntegrationTestCase {
 	private function dropTable( string $table ) :void {
 		global $wpdb;
 
-		$wpdb->query( "DROP TABLE IF EXISTS `{$table}`" );
+		if ( $wpdb->query( "DROP TABLE IF EXISTS `{$table}`" ) === false ) {
+			throw new \RuntimeException( "Failed to drop table '{$table}': ".$wpdb->last_error );
+		}
 		Services::WpDb()->clearResultShowTables();
+	}
+
+	private function recreateCanonicalTable( string $dbKey ) :void {
+		$con = $this->requireController();
+		$dbSpec = $con->db_con->getHandlers()[ $dbKey ];
+		$dbDef = $dbSpec[ 'def' ];
+		$dbDef[ 'table_prefix' ] = $con->getPluginPrefix( '_' );
+		$dbClass = $dbSpec[ 'handler_class' ];
+		$handler = new $dbClass( $dbDef );
+		$handler->use_table_ready_cache = false;
+
+		$this->dropTable( $handler->getTable() );
+		$handler->execute();
+		if ( !$handler->isReady() || !$handler->tableExists() ) {
+			throw new \RuntimeException( "Failed to restore canonical table for DB handler '{$dbKey}'." );
+		}
+		$con->db_con->reset();
 	}
 
 	private function captureSchemaProbeQueries( callable $callback ) :array {

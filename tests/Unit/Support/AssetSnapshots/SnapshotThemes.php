@@ -8,12 +8,12 @@ use FernleafSystems\Wordpress\Services\Core\VOs\Assets\WpThemeVo;
 class SnapshotThemes extends Themes {
 
 	/**
-	 * @var SnapshotThemeVo[]
+	 * @var mixed[]
 	 */
 	private array $themes;
 
 	/**
-	 * @param SnapshotThemeVo[] $themes
+	 * @param mixed[] $themes
 	 */
 	public function __construct( array $themes ) {
 		$this->themes = $themes;
@@ -25,14 +25,24 @@ class SnapshotThemes extends Themes {
 	public function getThemes() :array {
 		return \array_map(
 			static fn( SnapshotThemeVo $theme ) => new SnapshotWpTheme( $theme ),
-			$this->themes
+			\array_filter(
+				$this->themes,
+				static fn( $theme ) :bool => $theme instanceof SnapshotThemeVo
+			)
 		);
+	}
+
+	/**
+	 * @return mixed[]
+	 */
+	public function getThemesAsVo() :array {
+		return $this->themes;
 	}
 
 	public function getThemeAsVo( string $stylesheet, bool $reload = false ) :?WpThemeVo {
 		unset( $reload );
 		foreach ( $this->themes as $theme ) {
-			if ( $theme->stylesheet === $stylesheet ) {
+			if ( $theme instanceof WpThemeVo && $theme->stylesheet === $stylesheet ) {
 				return $theme;
 			}
 		}

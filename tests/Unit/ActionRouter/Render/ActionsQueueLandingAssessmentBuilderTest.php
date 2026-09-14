@@ -294,7 +294,7 @@ class ActionsQueueLandingAssessmentBuilderTest extends BaseUnitTest {
 				[
 					'key'               => 'hidden_plugins',
 					'label'             => 'Cloaked Plugins',
-					'description'       => 'No cloaked plugins are currently detected.',
+					'description'       => 'No cloaked plugins detected.',
 					'drill_bucket'      => 'critical',
 					'item_icon_class'   => 'bi bi-eye-slash-fill',
 					'status'            => 'good',

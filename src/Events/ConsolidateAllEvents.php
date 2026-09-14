@@ -1,252 +1,123 @@
-<?php
+<?php declare( strict_types=1 );
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Events;
 
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops as EventsDB;
+use Carbon\Carbon;
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Handler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\PluginControllerConsumer;
-use FernleafSystems\Wordpress\Services\Services;
+use FernleafSystems\Wordpress\Plugin\Shield\Utilities\Time\CalendarIntervalWindowResolver;
 
 class ConsolidateAllEvents {
 
 	use PluginControllerConsumer;
 
-	public function run() {
-		foreach ( $this->getAllEvents() as $event ) {
-			$this->consolidateEventIntoHourly( $event );
-			$this->consolidateEventIntoDaily( $event );
-			$this->consolidateEventIntoWeekly( $event );
-			$this->consolidateEventIntoMonthly( $event );
-			$this->consolidateEventIntoYearly( $event );
+	public const CURSOR_OPTION = 'events_compaction_cursor';
+	public const GUARD_TRANSIENT = 'events_compaction_guard';
+
+	private const GUARD_TTL = 600;
+	private const RECENT_DAILY_BUCKETS = 14;
+	private const HISTORICAL_BUCKET_BUDGET = 14;
+
+	public function run( Carbon $referenceNow ) :bool {
+		$referenceNow = ( clone $referenceNow )->setTimezone( \wp_timezone() );
+		$guardToken = $this->acquireGuard();
+		if ( $guardToken === '' ) {
+			return true;
+		}
+
+		try {
+			return $this->compactDailyWindows( $referenceNow );
+		}
+		finally {
+			$this->releaseGuard( $guardToken );
 		}
 	}
 
-	protected function consolidateEventIntoHourly( string $event ) {
-		$dbh = self::con()->db_con->events;
-
-		$time = Services::Request()
-						->carbon()
-						->subHour()
-						->startOfHour();
-
-		$hourCount = 0;
-		do {
-			/** @var EventsDB\Select $select */
-			$select = $dbh->getQuerySelector();
-			$nRecords = $select->filterByBoundary_Hour( $time->timestamp )
-							   ->filterByEvent( $event )
-							   ->count();
-
-			if ( $nRecords > 1 ) {
-				/** @var EventsDB\Select $select */
-				$select = $dbh->getQuerySelector();
-				$sum = $select->filterByBoundary_Hour( $time->timestamp )
-							  ->sumEvent( $event );
-				if ( $sum > 0 ) {
-
-					/** @var EventsDB\Delete $deleter */
-					$deleter = $dbh->getQueryDeleter();
-					$deleter->filterByBoundary_Hour( $time->timestamp )
-							->filterByEvent( $event )
-							->query();
-
-					/** @var EventsDB\Record $record */
-					$record = $dbh->getRecord();
-					$record->event = $event;
-					$record->count = $sum;
-					$record->created_at = $time->timestamp + 1;
-					$dbh->getQueryInserter()->insert( $record );
-				}
+	private function compactDailyWindows( Carbon $referenceNow ) :bool {
+		$resolver = new CalendarIntervalWindowResolver();
+		$recentStart = 0;
+		for ( $offset = 0; $offset < self::RECENT_DAILY_BUCKETS; $offset++ ) {
+			$window = $resolver->resolveWindowContaining(
+				'daily',
+				( clone $referenceNow )->subDays( $offset )
+			);
+			if ( !$this->eventsHandler()->compactBoundary( $window->start_at, $window->end_at ) ) {
+				return false;
 			}
+			$recentStart = $window->start_at;
+		}
 
-			$hourCount++;
-			$time->subHour();
-		} while ( $hourCount < 48 );
+		return $this->compactHistoricalDays( $recentStart, $resolver );
 	}
 
-	/**
-	 * Consolidates each event in Daily sums. Doesn't process events from the previous 48hrs.
-	 * Processes event for the 7 days previous to the last 48 hours.
-	 */
-	protected function consolidateEventIntoDaily( string $event ) {
-		$dbh = self::con()->db_con->events;
+	private function compactHistoricalDays( int $recentStart, CalendarIntervalWindowResolver $resolver ) :bool {
+		$cursorKey = self::con()->prefix( self::CURSOR_OPTION );
+		$cursor = (int)\get_option( $cursorKey, 0 );
+		if ( $cursor < 0 || $cursor >= $recentStart ) {
+			$cursor = 0;
+		}
 
-		$time = Services::Request()
-						->carbon()
-						->subDays( 2 )
-						->startOfDay();
-
-		$count = 0;
-		do {
-			/** @var EventsDB\Select $select */
-			$select = $dbh->getQuerySelector();
-			$recordsCount = $select->filterByBoundary_Day( $time->timestamp )
-								   ->filterByEvent( $event )
-								   ->count();
-
-			if ( $recordsCount > 1 ) {
-				/** @var EventsDB\Select $select */
-				$select = $dbh->getQuerySelector();
-				$sum = $select->filterByBoundary_Day( $time->timestamp )->sumEvent( $event );
-				if ( $sum > 0 ) {
-
-					/** @var EventsDB\Delete $deleter */
-					$deleter = $dbh->getQueryDeleter();
-					$deleter->filterByBoundary_Day( $time->timestamp )
-							->filterByEvent( $event )
-							->query();
-
-					/** @var EventsDB\Record $record */
-					$record = $dbh->getRecord();
-					$record->event = $event;
-					$record->count = $sum;
-					$record->created_at = $time->timestamp + 1;
-					$dbh->getQueryInserter()->insert( $record );
-				}
+		$lastSuccessfulCursor = $cursor;
+		for ( $processed = 0; $processed < self::HISTORICAL_BUCKET_BUDGET; $processed++ ) {
+			try {
+				$nextCreatedAt = $this->eventsHandler()->getNextCreatedAt( $lastSuccessfulCursor, $recentStart );
+			}
+			catch ( \RuntimeException $e ) {
+				$this->storeCursor( $cursorKey, $lastSuccessfulCursor );
+				return false;
+			}
+			if ( $nextCreatedAt === null ) {
+				$lastSuccessfulCursor = $recentStart - 1;
+				break;
 			}
 
-			$count++;
-			$time->subDay();
-		} while ( $count < 13 );
-	}
-
-	/**
-	 * Consolidates each event in weekly sums. Doesn't process events from the previous 2 whole weeks.
-	 * Processes event for the previous 8 weeks.
-	 */
-	protected function consolidateEventIntoWeekly( string $event ) {
-		$dbh = self::con()->db_con->events;
-
-		$time = Services::Request()
-						->carbon()
-						->subWeeks( 2 )
-						->startOfWeek();
-
-		$count = 0;
-		do {
-			/** @var EventsDB\Select $select */
-			$select = $dbh->getQuerySelector();
-			$records = $select->filterByBoundary_Week( $time->timestamp )
-							  ->filterByEvent( $event )
-							  ->count();
-
-			if ( $records > 1 ) {
-				/** @var EventsDB\Select $select */
-				$select = $dbh->getQuerySelector();
-				$sum = $select->filterByBoundary_Week( $time->timestamp )->sumEvent( $event );
-
-				if ( $sum > 0 ) {
-					/** @var EventsDB\Delete $deleter */
-					$deleter = $dbh->getQueryDeleter();
-					$deleter->filterByBoundary_Week( $time->timestamp )
-							->filterByEvent( $event )
-							->query();
-
-					/** @var EventsDB\Record $record */
-					$record = $dbh->getRecord();
-					$record->event = $event;
-					$record->count = $sum;
-					$record->created_at = $time->timestamp + 1;
-					$dbh->getQueryInserter()->insert( $record );
-				}
+			$dayWindow = $resolver->resolveWindowContaining(
+				'daily',
+				Carbon::createFromTimestamp( $nextCreatedAt, \wp_timezone() )
+			);
+			if ( !$this->eventsHandler()->compactBoundary( $dayWindow->start_at, $dayWindow->end_at ) ) {
+				$this->storeCursor( $cursorKey, $lastSuccessfulCursor );
+				return false;
 			}
+			$lastSuccessfulCursor = $dayWindow->end_at;
+		}
 
-			$count++;
-			$time->subWeek();
-		} while ( $count < 8 );
+		$this->storeCursor( $cursorKey, $lastSuccessfulCursor );
+		return true;
 	}
 
-	protected function consolidateEventIntoMonthly( string $event ) {
-		$dbh = self::con()->db_con->events;
-
-		$time = Services::Request()
-						->carbon()
-						->subMonths( 2 )
-						->startOfMonth();
-
-		$count = 0;
-		do {
-			/** @var EventsDB\Select $select */
-			$select = $dbh->getQuerySelector();
-			$recordsCount = $select->filterByBoundary_Month( $time->timestamp )
-								   ->filterByEvent( $event )
-								   ->count();
-
-			if ( $recordsCount > 1 ) {
-				/** @var EventsDB\Select $select */
-				$select = $dbh->getQuerySelector();
-				$sum = $select->filterByBoundary_Month( $time->timestamp )->sumEvent( $event );
-
-				if ( $sum > 0 ) {
-					/** @var EventsDB\Delete $deleter */
-					$deleter = $dbh->getQueryDeleter();
-					$deleter->filterByBoundary_Month( $time->timestamp )
-							->filterByEvent( $event )
-							->query();
-
-					/** @var EventsDB\Record $record */
-					$record = $dbh->getRecord();
-					$record->event = $event;
-					$record->count = $sum;
-					$record->created_at = $time->timestamp + 1;
-					$dbh->getQueryInserter()->insert( $record );
-				}
-			}
-
-			$count++;
-			$time->subMonth();
-		} while ( $count < 24 );
+	private function storeCursor( string $cursorKey, int $cursor ) :void {
+		if ( !\add_option( $cursorKey, $cursor, '', false ) ) {
+			\update_option( $cursorKey, $cursor, false );
+		}
 	}
 
-	protected function consolidateEventIntoYearly( string $event ) {
-		$dbh = self::con()->db_con->events;
+	private function acquireGuard() :string {
+		$key = $this->guardKey();
+		if ( \get_transient( $key ) !== false ) {
+			return '';
+		}
 
-		$time = Services::Request()
-						->carbon()
-						->subYear()
-						->startOfYear();
+		$token = \wp_generate_uuid4();
+		if ( !\set_transient( $key, $token, self::GUARD_TTL ) ) {
+			return '';
+		}
 
-		/** @var EventsDB\Select $selector */
-		$selector = $dbh->getQuerySelector();
-		$oldest = $selector->getOldestForEvent( $event );
-
-		do {
-			/** @var EventsDB\Select $selector */
-			$selector = $dbh->getQuerySelector();
-			$records = $selector->filterByBoundary_Year( $time->timestamp )
-								->filterByEvent( $event )
-								->count();
-
-			if ( $records > 1 ) {
-				/** @var EventsDB\Select $selector */
-				$selector = $dbh->getQuerySelector();
-				$sum = $selector->filterByBoundary_Year( $time->timestamp )->sumEvent( $event );
-
-				if ( $sum > 0 ) {
-					/** @var EventsDB\Delete $deleter */
-					$deleter = $dbh->getQueryDeleter();
-					$deleter->filterByBoundary_Year( $time->timestamp )
-							->filterByEvent( $event )
-							->query();
-
-					/** @var EventsDB\Record $record */
-					$record = $dbh->getRecord();
-					$record->event = $event;
-					$record->count = $sum;
-					$record->created_at = $time->timestamp + 1;
-					$dbh->getQueryInserter()->insert( $record );
-				}
-			}
-
-			$time->subYear();
-		} while ( $time->timestamp > $oldest->created_at );
+		return \get_transient( $key ) === $token ? $token : '';
 	}
 
-	/**
-	 * @return string[]
-	 */
-	protected function getAllEvents() :array {
-		/** @var EventsDB\Select $select */
-		$select = self::con()->db_con->events->getQuerySelector();
-		return \array_filter( $select->getAllEvents(), fn( $evt ) => !empty( $evt ) );
+	private function releaseGuard( string $token ) :void {
+		$key = $this->guardKey();
+		if ( \hash_equals( $token, (string)\get_transient( $key ) ) ) {
+			\delete_transient( $key );
+		}
+	}
+
+	private function guardKey() :string {
+		return self::con()->prefix( self::GUARD_TRANSIENT );
+	}
+
+	private function eventsHandler() :Handler {
+		return self::con()->db_con->events;
 	}
 }

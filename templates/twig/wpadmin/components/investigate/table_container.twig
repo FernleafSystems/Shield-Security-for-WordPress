@@ -25,7 +25,7 @@
 	<section class="investigate-table-panel investigate-table-panel--flat mb-3 status-{{ panel_status }}">
 		{% if table.show_header %}
 			<div class="d-flex justify-content-between align-items-center mb-3">
-				<h5 class="card-title mb-0">{{ table.title }}</h5>
+				<h3 class="card-title h5 mb-0">{{ table.title }}</h3>
 				{% if table.full_log_href is not empty %}
 					<a href="{{ table.full_log_href }}" class="{{ full_log_button_class }}">{{ table.full_log_text }}</a>
 				{% endif %}
@@ -39,7 +39,7 @@
 		<div class="card-body">
 			{% if table.show_header %}
 				<div class="d-flex justify-content-between align-items-center mb-3">
-					<h5 class="card-title mb-0">{{ table.title }}</h5>
+					<h3 class="card-title h5 mb-0">{{ table.title }}</h3>
 					{% if table.full_log_href is not empty %}
 						<a href="{{ table.full_log_href }}" class="{{ full_log_button_class }}">{{ table.full_log_text }}</a>
 					{% endif %}

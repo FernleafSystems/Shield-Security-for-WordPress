@@ -5,6 +5,7 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Modules\AuditTrail\Lib;
 use Monolog\Logger;
 use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Handler\FilterHandler;
+use Monolog\Handler\HandlerInterface;
 use FernleafSystems\Wordpress\Plugin\Shield\Controller\Dependencies\Monolog;
 use FernleafSystems\Wordpress\Plugin\Shield\DBs\{
 	ActivityLogs\Ops as ActivityLogsDB,
@@ -81,10 +82,11 @@ class AuditLogger extends EventsListener {
 	private function pushCustomHandlers() {
 		if ( self::con()->caps->canActivityLogsSendToIntegrations() ) {
 			$custom = apply_filters( 'shield/custom_audit_trail_handlers', [] );
-			\array_map(
-				fn( $handler ) => $this->getLogger()->pushHandler( $handler ),
-				\is_array( $custom ) ? $custom : []
-			);
+			foreach ( \is_array( $custom ) ? $custom : [] as $handler ) {
+				if ( $handler instanceof HandlerInterface ) {
+					$this->getLogger()->pushHandler( $handler );
+				}
+			}
 		}
 	}
 
@@ -144,7 +146,10 @@ class AuditLogger extends EventsListener {
 
 	protected function captureEvent( string $evt, array $meta = [], array $def = [] ) {
 
-		$meta = apply_filters( 'shield/audit_event_meta', $meta, $evt );
+		$filtered = apply_filters( 'shield/audit_event_meta', $meta, $evt );
+		if ( \is_array( $filtered ) ) {
+			$meta = $filtered;
+		}
 
 		if ( $def[ 'audit' ] && empty( $meta[ 'suppress_audit' ] ) ) {
 			$meta[ 'event_slug' ] = $evt;

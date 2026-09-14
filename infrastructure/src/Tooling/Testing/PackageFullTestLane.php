@@ -29,96 +29,106 @@ class PackageFullTestLane {
 		$this->dockerComposeExecutor = $dockerComposeExecutor ?? new DockerComposeExecutor( $this->processRunner );
 	}
 
-	public function run( string $rootDir, ?string $packagePath = null, bool $showDockerOutput = false ) :int {
+	public function run(
+		string $rootDir,
+		?string $packagePath = null,
+		bool $showDockerOutput = false,
+		bool $includePreviousWp = false
+	) :int {
 		echo 'Mode: package-full'.\PHP_EOL;
 
-		$this->environmentResolver->assertDockerReady( $rootDir );
-		$resolvedPackagePath = $this->packagePathResolver->resolve( $rootDir, $packagePath );
-		echo 'Using package path: '.$resolvedPackagePath.\PHP_EOL;
-
-		$phpVersion = $this->environmentResolver->resolvePhpVersion( $rootDir );
-		[ $latestWpVersion, $previousWpVersion ] = $this->environmentResolver->detectWordpressVersions( $rootDir );
-		$packagerConfig = $this->environmentResolver->resolvePackagerConfig( $rootDir );
-
 		$dockerEnvPath = Path::join( $rootDir, 'tests', 'docker', '.env' );
-		$this->environmentResolver->writeDockerEnvFile(
-			$dockerEnvPath,
-			$this->buildDockerEnvLines(
-				$phpVersion,
-				$latestWpVersion,
-				$previousWpVersion,
-				$resolvedPackagePath,
-				$packagerConfig
-			)
-		);
-
-		$composeFiles = $this->buildComposeFiles();
-		$dockerProcessEnvOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
-			'shield-tests'
-		);
-
 		try {
-			$this->dockerComposeExecutor->runIgnoringFailure(
-				$rootDir,
-				$composeFiles,
-				$this->buildComposeCleanupCommand(),
-				$dockerProcessEnvOverrides,
-				$showDockerOutput
+			$this->environmentResolver->assertDockerReady( $rootDir );
+			$resolvedPackagePath = $this->packagePathResolver->resolve( $rootDir, $packagePath );
+			echo 'Using package path: '.$resolvedPackagePath.\PHP_EOL;
+
+			$phpVersion = $this->environmentResolver->resolvePhpVersion( $rootDir );
+			[ $latestWpVersion, $previousWpVersion ] = $this->environmentResolver->detectWordpressVersions( $rootDir );
+			$packagerConfig = $this->environmentResolver->resolvePackagerConfig( $rootDir );
+
+			$this->environmentResolver->writeDockerEnvFile(
+				$dockerEnvPath,
+				$this->buildDockerEnvLines(
+					$phpVersion,
+					$latestWpVersion,
+					$previousWpVersion,
+					$resolvedPackagePath,
+					$packagerConfig
+				)
 			);
 
-			if ( $this->dockerComposeExecutor->run(
-				$rootDir,
-				$composeFiles,
-				$this->buildComposeMysqlUpCommand(),
-				$dockerProcessEnvOverrides,
-				null,
-				$showDockerOutput
-			) !== 0 ) {
-				return 1;
-			}
-			if ( $this->dockerComposeExecutor->run(
-				$rootDir,
-				$composeFiles,
-				$this->buildComposeBuildRunnersCommand(),
-				$dockerProcessEnvOverrides,
-				null,
-				$showDockerOutput
-			) !== 0 ) {
-				return 1;
-			}
+			$composeFiles = $this->buildComposeFiles();
+			$dockerProcessEnvOverrides = $this->environmentResolver->buildDockerProcessEnvOverrides(
+				'shield-tests'
+			);
+			try {
+				$this->dockerComposeExecutor->runIgnoringFailure(
+					$rootDir,
+					$composeFiles,
+					$this->buildComposeCleanupCommand(),
+					$dockerProcessEnvOverrides,
+					$showDockerOutput
+				);
 
-			$overallExitCode = 0;
-			if ( $this->dockerComposeExecutor->run(
-				$rootDir,
-				$composeFiles,
-				$this->buildComposeRunLatestCommand(),
-				$dockerProcessEnvOverrides,
-				null,
-				$showDockerOutput
-			) !== 0 ) {
-				$overallExitCode = 1;
-			}
-			if ( $this->dockerComposeExecutor->run(
-				$rootDir,
-				$composeFiles,
-				$this->buildComposeRunPreviousCommand(),
-				$dockerProcessEnvOverrides,
-				null,
-				$showDockerOutput
-			) !== 0 ) {
-				$overallExitCode = 1;
-			}
+				if ( $this->dockerComposeExecutor->run(
+					$rootDir,
+					$composeFiles,
+					$this->buildComposeMysqlUpCommand( $includePreviousWp ),
+					$dockerProcessEnvOverrides,
+					null,
+					$showDockerOutput
+				) !== 0 ) {
+					return 1;
+				}
+				if ( $this->dockerComposeExecutor->run(
+					$rootDir,
+					$composeFiles,
+					$this->buildComposeBuildRunnersCommand( $includePreviousWp ),
+					$dockerProcessEnvOverrides,
+					null,
+					$showDockerOutput
+				) !== 0 ) {
+					return 1;
+				}
 
-			return $overallExitCode;
+				$overallExitCode = 0;
+				if ( $this->dockerComposeExecutor->run(
+					$rootDir,
+					$composeFiles,
+					$this->buildComposeRunLatestCommand(),
+					$dockerProcessEnvOverrides,
+					null,
+					$showDockerOutput
+				) !== 0 ) {
+					$overallExitCode = 1;
+				}
+				if ( $includePreviousWp ) {
+					if ( $this->dockerComposeExecutor->run(
+						$rootDir,
+						$composeFiles,
+						$this->buildComposeRunPreviousCommand(),
+						$dockerProcessEnvOverrides,
+						null,
+						$showDockerOutput
+					) !== 0 ) {
+						$overallExitCode = 1;
+					}
+				}
+
+				return $overallExitCode;
+			}
+			finally {
+				$this->dockerComposeExecutor->runIgnoringFailure(
+					$rootDir,
+					$composeFiles,
+					$this->buildComposeCleanupCommand(),
+					$dockerProcessEnvOverrides,
+					$showDockerOutput
+				);
+			}
 		}
 		finally {
-			$this->dockerComposeExecutor->runIgnoringFailure(
-				$rootDir,
-				$composeFiles,
-				$this->buildComposeCleanupCommand(),
-				$dockerProcessEnvOverrides,
-				$showDockerOutput
-			);
 			if ( \is_file( $dockerEnvPath ) ) {
 				\unlink( $dockerEnvPath );
 			}
@@ -145,15 +155,23 @@ class PackageFullTestLane {
 	/**
 	 * @return string[]
 	 */
-	private function buildComposeMysqlUpCommand() :array {
-		return [ 'up', '-d', '--wait', '--wait-timeout', '60', 'mysql-latest', 'mysql-previous' ];
+	private function buildComposeMysqlUpCommand( bool $includePreviousWp ) :array {
+		$command = [ 'up', '-d', '--wait', '--wait-timeout', '60', 'mysql-latest' ];
+		if ( $includePreviousWp ) {
+			$command[] = 'mysql-previous';
+		}
+		return $command;
 	}
 
 	/**
 	 * @return string[]
 	 */
-	private function buildComposeBuildRunnersCommand() :array {
-		return [ 'build', 'test-runner-latest', 'test-runner-previous' ];
+	private function buildComposeBuildRunnersCommand( bool $includePreviousWp ) :array {
+		$command = [ 'build', 'test-runner-latest' ];
+		if ( $includePreviousWp ) {
+			$command[] = 'test-runner-previous';
+		}
+		return $command;
 	}
 
 	/**

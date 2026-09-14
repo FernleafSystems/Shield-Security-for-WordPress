@@ -1,4 +1,5 @@
 {% extends '/components/modals/base_modal_content.twig' %}
+{% import '/common/macros.twig' as icwp_macros %}
 
 {% block modal_body %}
 	{% include '/wpadmin_pages/insights/scans/modal/scan_item_analysis/tabpanel.twig' %}
@@ -6,12 +7,10 @@
 
 {% block modal_footer %}
 
-	<a href="{{ flags.can_download ? hrefs.file_download : '#' }}"
-	   class="btn btn-dark href-download{% if not flags.can_download %} disabled{% endif %}"
-	   {% if not flags.can_download %}disabled="disabled"{% endif %}
-	>
+	{% set download_label %}
 		<i class="{{ imgs.svgs.file_download }}" aria-hidden="true"></i>
 		{{ strings.file_download }}
-	</a>
+	{% endset %}
+	{{ icwp_macros.tagAnchor(hrefs.file_download, download_label, '', ['btn', 'btn-dark', 'href-download'], false, [], not flags.can_download) }}
 
 {% endblock %}

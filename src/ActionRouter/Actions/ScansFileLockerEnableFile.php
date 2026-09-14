@@ -9,7 +9,7 @@ class ScansFileLockerEnableFile extends ScansBase {
 	public const SLUG = 'filelocker_enable_file';
 
 	protected function exec() {
-		$fileKey = sanitize_key( (string)$this->action_data[ 'file_key' ] );
+		$fileKey = \is_string( $this->action_data[ 'file_key' ] ) ? sanitize_key( $this->action_data[ 'file_key' ] ) : '';
 		$success = false;
 
 		try {

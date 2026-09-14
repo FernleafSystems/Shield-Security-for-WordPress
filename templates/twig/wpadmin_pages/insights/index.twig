@@ -3,3 +3,9 @@
 {% block page_main %}
 	{{ content.rendered_page_body|raw }}
 {% endblock %}
+
+{% block page_foot %}
+	<template id="{{ vars.pro_upsell.template_id }}">
+		{% include '/wpadmin/components/pro_upsell_modal.twig' with { upsell: vars.pro_upsell } only %}
+	</template>
+{% endblock %}

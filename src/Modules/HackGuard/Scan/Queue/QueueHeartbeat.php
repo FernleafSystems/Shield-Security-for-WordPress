@@ -15,13 +15,21 @@ class QueueHeartbeat {
 	private static array $lastWriteAt = [];
 
 	public function tick( int $scanID, bool $force = false ) :bool {
+		return $this->tickStatus( $scanID, ScanStatus::RUNNING, $force );
+	}
+
+	public function tickBuilding( int $scanID, bool $force = false ) :bool {
+		return $this->tickStatus( $scanID, ScanStatus::BUILDING, $force );
+	}
+
+	private function tickStatus( int $scanID, string $status, bool $force = false ) :bool {
 		if ( $scanID < 1 ) {
 			return false;
 		}
 
 		$now = Services::Request()->ts();
-		if ( !$force && isset( self::$lastWriteAt[ $scanID ] )
-			 && self::$lastWriteAt[ $scanID ] > $now - self::MIN_INTERVAL ) {
+		if ( !$force && isset( self::$lastWriteAt[ $status ][ $scanID ] )
+			 && self::$lastWriteAt[ $status ][ $scanID ] > $now - self::MIN_INTERVAL ) {
 			return false;
 		}
 
@@ -35,19 +43,27 @@ class QueueHeartbeat {
 				self::con()->db_con->scans->getTable(),
 				$now,
 				$scanID,
-				ScanStatus::RUNNING,
+				$status,
 				$now - self::MIN_INTERVAL
 			)
 		) > 0;
 
-		self::prime( $scanID, $now );
+		self::primeStatus( $status, $scanID, $now );
 
 		return $written;
 	}
 
-	public static function prime( int $scanID, ?int $timestamp = null ) :void {
+	public static function primeRunning( int $scanID, ?int $timestamp = null ) :void {
+		self::primeStatus( ScanStatus::RUNNING, $scanID, $timestamp );
+	}
+
+	public static function primeBuilding( int $scanID, ?int $timestamp = null ) :void {
+		self::primeStatus( ScanStatus::BUILDING, $scanID, $timestamp );
+	}
+
+	private static function primeStatus( string $status, int $scanID, ?int $timestamp = null ) :void {
 		if ( $scanID > 0 ) {
-			self::$lastWriteAt[ $scanID ] = $timestamp ?? Services::Request()->ts();
+			self::$lastWriteAt[ $status ][ $scanID ] = $timestamp ?? Services::Request()->ts();
 		}
 	}
 

@@ -12,7 +12,11 @@ class SafeDirectoryRemover {
 	private string $projectRoot;
 
 	public function __construct( string $projectRoot ) {
-		$this->projectRoot = $projectRoot;
+		$realRoot = \realpath( $projectRoot );
+		if ( $realRoot === false || !\is_dir( $realRoot ) ) {
+			throw new \RuntimeException( 'The project root must be an existing directory.' );
+		}
+		$this->projectRoot = Path::normalize( $realRoot );
 	}
 
 	/**
@@ -111,9 +115,8 @@ class SafeDirectoryRemover {
 	 * @throws \RuntimeException if directory is unsafe to delete
 	 */
 	private function validateDirectoryIsSafeToDelete( string $dir ) :void {
-		$normalizedDir = rtrim( str_replace( '\\', '/', $dir ), '/' );
-		$normalizedRoot = rtrim( str_replace( '\\', '/', $this->projectRoot ), '/' );
-		$isWithinProject = strpos( $normalizedDir, $normalizedRoot ) === 0;
+		$normalizedDir = Path::normalize( $dir );
+		$isWithinProject = Path::isBasePath( $this->projectRoot, $normalizedDir );
 
 		// Safety rule: Never allow cleaning within the project directory
 		// Packages should only be built in external directories (e.g., SVN repos)

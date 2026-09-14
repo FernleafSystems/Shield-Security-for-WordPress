@@ -95,15 +95,17 @@ class MfaProfilesController {
 
 	private function enqueueAssets( bool $isFrontend, array $setupPages = [] ) {
 
-		add_filter( 'shield/custom_enqueue_assets', function ( array $assets, $hook = '' ) use ( $isFrontend, $setupPages ) {
+		add_filter( 'shield/custom_enqueue_assets', function ( $assets, $hook = '' ) use ( $isFrontend, $setupPages ) {
+			$assets = \is_array( $assets ) ? $assets : [];
+			$hook = \is_string( $hook ) ? $hook : '';
 
-			if ( $isFrontend || $this->isAdminHookWithConfiguredMfaUi( (string)$hook, $setupPages ) ) {
+			if ( $isFrontend || $this->isAdminHookWithConfiguredMfaUi( $hook, $setupPages ) ) {
 				$assets[] = 'userprofile';
 
 				$this->registerUserProfileLocalisation();
 			}
 
-			return \array_unique( $assets );
+			return $assets;
 		}, 10, $isFrontend ? 1 : 2 );
 	}
 
@@ -118,7 +120,8 @@ class MfaProfilesController {
 		}
 		$this->localisationRegistered = true;
 
-		add_filter( 'shield/custom_localisations/components', function ( array $components ) {
+		add_filter( 'shield/custom_localisations/components', function ( $components ) {
+			$components = \is_array( $components ) ? $components : [];
 			$components[ 'userprofile' ] = [
 				'key'     => 'userprofile',
 				'handles' => [

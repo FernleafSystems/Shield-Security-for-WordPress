@@ -104,8 +104,8 @@
 		</table>
 		{% include '/email/reports/areas/stats.twig' with {
 			stats: report.areas_data.statistics,
-			strings: body.strings,
-			detail_level: body.vars.detail_level
+			periods: body.vars.stats_periods,
+			strings: body.strings
 		} only %}
 	{% endif %}
 

@@ -49,6 +49,7 @@ class PageInvestigateByUserBehaviorTest extends BaseUnitTest {
 		Functions\when( 'sanitize_text_field' )->alias( static fn( $text ) => \is_string( $text ) ? \trim( $text ) : '' );
 		Functions\when( 'sanitize_key' )->alias( static fn( $text ) => \is_string( $text ) ? \strtolower( \trim( $text ) ) : '' );
 		Functions\when( '__' )->alias( static fn( string $text ) :string => $text );
+		Functions\when( 'esc_html__' )->alias( static fn( string $text ) :string => htmlspecialchars( $text ) );
 		Functions\when( 'wp_hash' )->alias(
 			static fn( string $data, string $scheme = '' ) :string => \hash( 'sha256', $scheme.'|'.$data )
 		);

@@ -20,7 +20,7 @@ $operator-root-tile-grid-selectors:
 	@include operator-root-tile-columns(3);
 }
 
-// Above 992px the operator context rail docks and narrows the content pane,
+// Compact desktop operator panes need readable tile widths after WordPress and Shield chrome consume space,
 // so hold the root grids at 2 columns until there is enough real pane width.
 @media (min-width: 992px) and (max-width: 1249.98px) {
 	@include operator-root-tile-columns(2);

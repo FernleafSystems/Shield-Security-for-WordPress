@@ -16,7 +16,7 @@
 							{% include '/wpadmin/components/actions_queue/group_card.twig' with {
 								group: group,
 								bucket_selection: bucket_selection,
-								is_healthy: false
+								is_healthy: group.status == 'good'
 							} only %}
 						{% endfor %}
 					</div>

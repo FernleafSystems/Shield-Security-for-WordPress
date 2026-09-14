@@ -2,7 +2,6 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Components\CompCons\SiteQuery;
 
-use FernleafSystems\Wordpress\Plugin\Shield\DBs\Event\Ops\Record as EventRecord;
 use FernleafSystems\Wordpress\Plugin\Shield\Components\CompCons\SiteQuery\BuildRecentActivity;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\ServicesState;
@@ -30,8 +29,10 @@ class BuildRecentActivityTest extends BaseUnitTest {
 	}
 
 	public function test_build_filters_to_recent_events_and_marks_missing_records() :void {
-		$query = ( new BuildRecentActivityTestDouble() )->build();
+		$builder = new BuildRecentActivityTestDouble();
+		$query = $builder->build();
 
+		$this->assertSame( [ 'login_success', 'plugin_activated' ], $builder->queriedEventKeys );
 		$this->assertSame( 1700000000, $query[ 'generated_at' ] );
 		$this->assertSame( [ 'login_success', 'plugin_activated' ], \array_column( $query[ 'items' ], 'key' ) );
 		$this->assertSame( [ 1700000100, 0 ], \array_column( $query[ 'items' ], 'latest_at' ) );
@@ -40,6 +41,8 @@ class BuildRecentActivityTest extends BaseUnitTest {
 }
 
 class BuildRecentActivityTestDouble extends BuildRecentActivity {
+
+	public array $queriedEventKeys = [];
 
 	protected function eventsService() {
 		return new class {
@@ -61,13 +64,10 @@ class BuildRecentActivityTestDouble extends BuildRecentActivity {
 		};
 	}
 
-	protected function latestRecords() :array {
-		$record = ( new \ReflectionClass( EventRecord::class ) )->newInstanceWithoutConstructor();
-		$record->event = 'login_success';
-		$record->created_at = 1700000100;
-
+	protected function latestTimestamps( array $eventKeys ) :array {
+		$this->queriedEventKeys = $eventKeys;
 		return [
-			'login_success' => $record,
+			'login_success' => 1700000100,
 		];
 	}
 }

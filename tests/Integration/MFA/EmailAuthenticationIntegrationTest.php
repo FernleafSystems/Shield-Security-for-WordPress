@@ -26,11 +26,13 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tests\Helpers\{
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Email\Support\LocalEmailCapture;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
+use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\LoginSuccessFixture;
 
 class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 
 	use CurrentRequestFixture;
 	use LocalEmailCapture;
+	use LoginSuccessFixture;
 
 	private array $optionsSnapshot = [];
 
@@ -72,9 +74,11 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		] );
 		\add_filter( 'shield/2fa_email_otp', [ $this, 'nextEmailOtp' ] );
 		$this->startLocalEmailCapture();
+		$this->startLoginSuccessFixture();
 	}
 
 	public function tear_down() :void {
+		$this->stopLoginSuccessFixture();
 		$this->stopLocalEmailCapture();
 		\remove_filter( 'shield/2fa_email_otp', [ $this, 'nextEmailOtp' ] );
 		if ( static::con() !== null ) {
@@ -312,6 +316,31 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		}
 	}
 
+	public function test_send_intent_falls_back_from_invalid_otp_filter_with_consistent_record_and_mail() :void {
+		$user = \get_user_by( 'id', $this->createAdministratorUser( [
+			'user_email' => 'invalid-otp-filter@example.test',
+		] ) );
+		$this->seedLoginIntent( $user, 'invalid-otp-filter-login' );
+		$invalid = static fn() => new \stdClass();
+		\add_filter( 'shield/2fa_email_otp', $invalid, \PHP_INT_MAX );
+
+		try {
+			$payload = $this->processEmailSendAction( $user, 'invalid-otp-filter-login' );
+			$records = $this->loadEmailRecords( $user->ID );
+			$query = $this->autoLoginQueryFromLastMail();
+			$otp = $query[ ( new Email( $user ) )->getLoginIntentFormParameter() ] ?? null;
+
+			$this->assertTrue( (bool)( $payload[ 'success' ] ?? false ) );
+			$this->assertIsString( $otp );
+			$this->assertNotSame( '', $otp );
+			$this->assertCount( 1, $records );
+			$this->assertTrue( \wp_check_password( $otp, $records[ 0 ]->unique_id ) );
+		}
+		finally {
+			\remove_filter( 'shield/2fa_email_otp', $invalid, \PHP_INT_MAX );
+		}
+	}
+
 	public function test_email_auto_login_accepts_latest_otp_and_returns_redirect_payload() :void {
 		$this->captureShieldEvents();
 
@@ -319,6 +348,17 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->seedLoginIntent( $user, 'email-auto-login' );
 		$this->otpSequence = [ 'EE33FF' ];
 		$this->processEmailSendAction( $user, 'email-auto-login', '/wp-admin/' );
+		$completedAtVerification = null;
+		\add_action( 'shield/event', function ( $event ) use ( &$completedAtVerification ) {
+			if ( $event === '2fa_verify_success' ) {
+				// This action emits its verification audit before building the response.
+				$completedAtVerification = $this->loginTimeline;
+			}
+		}, 2 );
+		\add_action( 'set_logged_in_cookie', function ( $cookie, $expire, $expiration, $userID, $scheme, $token ) {
+			$this->assertLoginSuccessCount( 0 );
+			$this->assertTrue( \WP_Session_Tokens::get_instance( $userID )->verify( $token ) );
+		}, 7, 6 );
 
 		$payload = ( new PluginAdminRouteRuntime() )->processActionPayloadWithAdminBypass(
 			MfaEmailAutoLogin::SLUG,
@@ -334,6 +374,8 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$this->assertSame( 'redirect', (string)( $payload[ 'next_step' ][ 'type' ] ?? '' ) );
 		$this->assertSame( '/wp-admin/', (string)( $payload[ 'next_step' ][ 'url' ] ?? '' ) );
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_success' ) );
+		$this->assertMfaLoginCompleted();
+		$this->assertSame( [ 'cookie', '2fa_success', 'login_success' ], $completedAtVerification );
 		$this->assertNotEmpty( $this->getCapturedEventsByKey( '2fa_verify_success' ) );
 	}
 
@@ -354,6 +396,47 @@ class EmailAuthenticationIntegrationTest extends ShieldIntegrationTestCase {
 		$missingProviderPayload = $this->processEmailSendAction( $user, 'valid-email-login' );
 		$this->assertFalse( (bool)( $missingProviderPayload[ 'success' ] ?? true ) );
 		$this->assertCount( 0, $this->capturedMails() );
+	}
+
+	/** @dataProvider rejectedAutoLoginProvider */
+	public function test_rejected_email_auto_login_does_not_record_success( string $failure ) :void {
+		$user = \get_user_by( 'id', $this->createAdministratorUser() );
+		$this->seedLoginIntent( $user, 'rejected-auto-login' );
+		$this->otpSequence = [ 'EE33FF' ];
+		$this->processEmailSendAction( $user, 'rejected-auto-login' );
+		if ( $failure === 'expired' ) {
+			$meta = $this->requireController()->user_metas->for( $user );
+			$intents = $meta->login_intents;
+			foreach ( $intents as &$intent ) {
+				$intent[ 'start' ] = \time() - DAY_IN_SECONDS;
+			}
+			unset( $intent );
+			$meta->login_intents = $intents;
+		}
+		if ( $failure === 'provider' ) {
+			RuntimeTestState::restoreOptions( [ 'enable_email_authentication' => 'N' ], true );
+			$this->resetMfaProviderCache();
+		}
+		try {
+			$payload = ( new PluginAdminRouteRuntime() )->processActionPayloadWithAdminBypass(
+				MfaEmailAutoLogin::SLUG,
+				ActionData::Build( MfaEmailAutoLogin::class, false, [
+					'login_nonce' => $failure === 'nonce' ? 'wrong-nonce' : 'rejected-auto-login',
+					'user_id' => $user->ID,
+					( new Email( $user ) )->getLoginIntentFormParameter() => $failure === 'otp' ? 'WRONG1' : 'EE33FF',
+				] )
+			);
+			$this->assertSame( 'otp', $failure, 'Invalid identity/provider must reject before OTP handling.' );
+			$this->assertFalse( (bool)( $payload[ 'success' ] ?? true ) );
+		}
+		catch ( \FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Exceptions\ActionException $e ) {
+			$this->assertNotSame( 'otp', $failure );
+		}
+		$this->assertLoginSuccessCount( 0 );
+	}
+
+	public static function rejectedAutoLoginProvider() :array {
+		return [ 'nonce' => [ 'nonce' ], 'expired' => [ 'expired' ], 'OTP' => [ 'otp' ], 'provider' => [ 'provider' ] ];
 	}
 
 	public function test_login_intent_validation_still_rejects_invalid_email_otp_without_valid_fallback() :void {

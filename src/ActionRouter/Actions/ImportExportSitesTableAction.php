@@ -2,6 +2,7 @@
 
 namespace FernleafSystems\Wordpress\Plugin\Shield\ActionRouter\Actions;
 
+use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\Handler as SitesDB;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SiteRepository;
 use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExportSites\BuildImportExportSitesTableData;
@@ -39,11 +40,33 @@ class ImportExportSitesTableAction extends TableActionBase {
 	}
 
 	protected function queueSync() :array {
-		$count = ( new ImportExportController() )->queueSitesForSync( $this->ridsFromActionData() );
+		$rids = $this->ridsFromActionData();
+		$count = ( new ImportExportController() )->queueSitesForSync( $rids );
+		$pendingOnly = false;
+		if ( $count === 0 ) {
+			$ids = \array_values( \array_unique( \array_filter(
+				\array_map( '\intval', $rids ),
+				static fn( int $id ) :bool => $id > 0
+			) ) );
+			$pendingOnly = !empty( $ids );
+			$repo = new SiteRepository();
+			foreach ( $ids as $id ) {
+				$row = $repo->findById( $id );
+				if ( $row === null
+					 || $row->status !== SitesDB::STATUS_ACTIVE
+					 || !\in_array( $row->queue_status, [ SitesDB::QUEUE_PENDING_INVITE, SitesDB::QUEUE_PENDING_CONNECTION ], true ) ) {
+					$pendingOnly = false;
+					break;
+				}
+			}
+		}
+
 		return [
 			'success'      => true,
 			'table_reload' => true,
-			'message'      => sprintf( _n( '%s site queued for sync.', '%s sites queued for sync.', $count, 'wp-simple-firewall' ), $count ),
+			'message'      => $pendingOnly
+				? __( 'Selected sites are waiting for their clients to connect. To retry, remove and re-add the sites.', 'wp-simple-firewall' )
+				: sprintf( _n( '%s site queued for sync.', '%s sites queued for sync.', $count, 'wp-simple-firewall' ), $count ),
 		];
 	}
 

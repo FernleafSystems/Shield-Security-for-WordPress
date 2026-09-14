@@ -15,7 +15,7 @@ class CloakedPlugins extends BaseRender {
 
 		return [
 			'strings' => [
-				'no_issues' => __( 'No cloaked plugins are currently detected.', 'wp-simple-firewall' ),
+				'no_issues' => __( 'No cloaked plugins detected.', 'wp-simple-firewall' ),
 			],
 			'vars'    => [
 				'count_items' => $pane[ 'count_items' ],

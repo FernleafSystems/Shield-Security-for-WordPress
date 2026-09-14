@@ -51,10 +51,14 @@ class ShieldLoginIntentPage extends BaseLoginIntentPage {
 	protected function getLoginIntentExpiresAt() :int {
 		$mfaCon = self::con()->comps->mfa;
 
-		$user = Services::WpUsers()->getUserById( (int)$this->action_data[ 'user_id' ] );
+		$data = $this->loginIntentRenderData();
+		$user = Services::WpUsers()->getUserById( $data[ 'user_id' ] );
+		if ( !$user instanceof \WP_User ) {
+			return 0;
+		}
 
 		$intentAt = $mfaCon->getActiveLoginIntents( $user )
-					[ $mfaCon->findHashedNonce( $user, $this->action_data[ 'plain_login_nonce' ] ) ][ 'start' ] ?? 0;
+					[ $mfaCon->findHashedNonce( $user, $data[ 'plain_login_nonce' ] ) ][ 'start' ] ?? 0;
 		return Services::Request()
 					   ->carbon()
 					   ->setTimestamp( $intentAt )

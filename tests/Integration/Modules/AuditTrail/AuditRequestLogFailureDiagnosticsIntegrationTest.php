@@ -52,7 +52,13 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\AuditTrail\Support\RequestLogDiagnosticSpy;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\ShieldIntegrationTestCase;
 	use FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Support\CurrentRequestFixture;
+	use FernleafSystems\Wordpress\Services\Services;
 	use FernleafSystems\Wordpress\Services\Core\General;
+	use FernleafSystems\Wordpress\Services\Utilities\{
+		IpUtils,
+		ServiceProviders
+	};
+	use FernleafSystems\Wordpress\Services\Utilities\Net\RequestIpDetect;
 
 	class AuditRequestLogFailureDiagnosticsIntegrationTest extends ShieldIntegrationTestCase {
 
@@ -226,6 +232,33 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 			$this->assertSame( '127.0.0.1', $this->requestLogIpHuman( (int)$requestRow[ 'ip_ref' ] ) );
 		}
 
+		public function test_cloudflare_transport_ip_is_logged_when_request_detection_excludes_it() :void {
+			$this->applyCloudflareTransportRequestWithoutDetectedVisitorIp();
+
+			$this->assertSame( 'REMOTE_ADDR', Services::Request()->getIpDetector()->getPreferredSource() );
+			$this->assertSame( '', Services::Request()->ip() );
+			$this->assertSame( '', $this->requireController()->this_req->ip );
+
+			$this->writeAuditEvent();
+
+			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'traffic' ) );
+			$this->assertSame( [], RequestLogDiagnosticSpy::messages( 'audit' ) );
+			$this->assertSame( 1, $this->rowCount( 'activity_logs' ) );
+			$this->assertSame( 1, $this->rowCount( 'req_logs' ) );
+
+			$requestRow = $this->latestRequestLogRow();
+			$this->assertSame( [ (int)$requestRow[ 'id' ] ], $this->activityLogRequestRefs() );
+			$this->assertSame( '173.245.48.5', $this->requestLogIpHuman( (int)$requestRow[ 'ip_ref' ] ) );
+
+			$meta = $this->decodedRequestMeta( (string)$requestRow[ 'meta' ] );
+			$this->assertSame( 'transport', $meta[ 'ip_attribution' ] ?? null );
+			$this->assertSame( 'cloudflare', $meta[ 'ip_provider' ] ?? null );
+			$this->assertSame( 'REMOTE_ADDR', $meta[ 'ip_source' ] ?? null );
+
+			$this->assertSame( '', Services::Request()->ip() );
+			$this->assertSame( '', $this->requireController()->this_req->ip );
+		}
+
 		private function applySnapshotDiscoveryRequest( string $ip = '198.51.100.91' ) :void {
 			$this->applyCurrentRequestState(
 				[
@@ -296,6 +329,61 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 					}
 				},
 			] );
+		}
+
+		private function applyCloudflareTransportRequestWithoutDetectedVisitorIp() :void {
+			ServicesState::mergeItems( [
+				'service_ip' => new class extends IpUtils {
+					public function getServerPublicIPs( $forceRefresh = false ) :array {
+						return [];
+					}
+				},
+				'service_serviceproviders' => new class extends ServiceProviders {
+					public function getProviders() :array {
+						return [
+							'services' => [
+								'cloudflare' => [
+									'name' => 'Cloudflare',
+									'ips'  => [
+										4 => [ '173.245.48.0/20' ],
+										6 => [ '2400:cb00::/32' ],
+									],
+								],
+							],
+							'crawlers' => [],
+						];
+					}
+				},
+			] );
+
+			$this->applyCurrentRequestState(
+				[
+					'REQUEST_METHOD'          => 'GET',
+					'REQUEST_URI'             => '/wp-json/titanium-site-watch/v1/health',
+					'HTTP_USER_AGENT'         => 'generic-test-agent',
+					'REMOTE_ADDR'             => '173.245.48.5',
+					'HTTP_CF_CONNECTING_IP'   => '',
+					'HTTP_X_FORWARDED_FOR'    => '',
+					'HTTP_X_FORWARDED'        => '',
+					'HTTP_X_REAL_IP'          => '',
+					'HTTP_X_SUCURI_CLIENTIP'  => '',
+					'HTTP_INCAP_CLIENT_IP'    => '',
+					'HTTP_X_SP_FORWARDED_IP'  => '',
+					'HTTP_FORWARDED'          => '',
+					'HTTP_CLIENT_IP'          => '',
+				],
+				[],
+				[],
+				[
+					'path' => '/wp-json/titanium-site-watch/v1/health',
+				]
+			);
+
+			$request = Services::Request();
+			$request->setIpDetector( ( new RequestIpDetect() )->setPreferredSource( 'REMOTE_ADDR' ) );
+			$this->requireController()->this_req->ip = $request->ip();
+			$this->requireController()->this_req->ip_is_public = !empty( $this->requireController()->this_req->ip )
+				&& Services::IP()->isValidIp_PublicRemote( $this->requireController()->this_req->ip );
 		}
 
 		private function writeAuditEvent( array $auditParams = [] ) :void {
@@ -461,6 +549,11 @@ namespace FernleafSystems\Wordpress\Plugin\Shield\Tests\Integration\Modules\Audi
 				: false;
 
 			return \is_string( $unpacked ) ? $unpacked : $ip;
+		}
+
+		private function decodedRequestMeta( string $encoded ) :array {
+			$decoded = \json_decode( (string)\base64_decode( $encoded ), true );
+			return \is_array( $decoded ) ? $decoded : [];
 		}
 	}
 }

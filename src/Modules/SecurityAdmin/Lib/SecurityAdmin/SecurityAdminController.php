@@ -96,7 +96,8 @@ class SecurityAdminController {
 	}
 
 	private function enqueueJS() {
-		add_filter( 'shield/custom_localisations/components', function ( array $components ) {
+		add_filter( 'shield/custom_localisations/components', function ( $components ) {
+			$components = \is_array( $components ) ? $components : [];
 			$components[ 'sec_admin' ] = [
 				'key'     => 'sec_admin',
 				'handles' => [

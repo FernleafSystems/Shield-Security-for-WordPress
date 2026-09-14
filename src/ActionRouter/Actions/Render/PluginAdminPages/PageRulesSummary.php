@@ -102,11 +102,11 @@ class PageRulesSummary extends PageRulesBase {
 		return $parsed;
 	}
 
-	protected function getInnerPageTitle() :string {
+	protected function getLandingTitle() :string {
 		return __( 'Active Rules Summary', 'wp-simple-firewall' );
 	}
 
-	protected function getInnerPageSubTitle() :string {
+	protected function getLandingSubtitle() :string {
 		return __( 'View all active rules on your site at-a-glance', 'wp-simple-firewall' );
 	}
 }

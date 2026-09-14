@@ -28,16 +28,24 @@ class LoginIntentRequestCapture {
 
 	private \WP_User $user;
 
+	private string $loginNonce;
+
 	public function runCapture() {
 		$con = self::con();
 		$req = Services::Request();
 
 		try {
-			$user = $req->post( 'wp_user_id' ) ? Services::WpUsers()->getUserById( $req->post( 'wp_user_id' ) ) : null;
+			$userID = LoginRequestValues::positiveUserId( $req->post( 'wp_user_id' ) );
+			$loginNonce = LoginRequestValues::nonEmptyString( $req->post( 'login_nonce' ) );
+			if ( $userID === null || $loginNonce === null ) {
+				throw new NotValidUserException();
+			}
+			$user = Services::WpUsers()->getUserById( $userID );
 			if ( !$user instanceof \WP_User ) {
 				throw new NotValidUserException();
 			}
 			$this->user = $user;
+			$this->loginNonce = $loginNonce;
 			$this->capture();
 		}
 		catch ( NotValidUserException $e ) {
@@ -54,8 +62,8 @@ class LoginIntentRequestCapture {
 		catch ( LoginCancelException $e ) {
 			// This should always be a user since we can only throw this exception after loading the user
 			$con->user_metas->for( $this->user )->login_intents = [];
-			$redirect = $req->post( 'cancel_href' );
-			empty( $redirect ) ? Services::Response()->redirectToLogin() : Services::Response()->redirect( $redirect );
+			$redirect = LoginRequestValues::safeRedirect( $req->post( 'cancel_href' ), '' );
+			$redirect === '' ? Services::Response()->redirectToLogin() : Services::Response()->redirect( $redirect );
 		}
 		catch ( TooManyAttemptsException $e ) {
 			$con->user_metas->for( $this->user )->login_intents = [];
@@ -72,17 +80,19 @@ class LoginIntentRequestCapture {
 		catch ( OtpVerificationFailedException|CouldNotValidate2FA $e ) {
 			// Allow a further attempt to 2FA
 			try {
+				$redirectFallback = $req->getPath();
 				$con->action_router->action( FullPageDisplayDynamic::class, [
 					'render_slug' => $con->opts->optIs( 'mfa_verify_page', MfaController::LOGIN_INTENT_PAGE_FORMAT_SHIELD ) ? ShieldLoginIntentPage::SLUG : WpReplicaLoginIntentPage::SLUG,
-					'render_data' => [
+					'render_data' => LoginRequestValues::buildLoginIntentRenderData( [
 						'user_id'           => $this->user->ID,
 						'include_body'      => true,
-						'plain_login_nonce' => $req->request( 'login_nonce', false, '' ),
+						'plain_login_nonce' => $this->loginNonce,
 						'interim_login'     => $req->request( 'interim-login', false, '' ),
 						'redirect_to'       => $req->request( 'redirect_to', false, '' ),
 						'rememberme'        => $req->request( 'rememberme', false, '' ),
+						'cancel_href'       => $req->request( 'cancel_href', false, '' ),
 						'msg_error'         => __( 'Could not verify your 2FA codes', 'wp-simple-firewall' ),
-					],
+					], $redirectFallback ),
 				] );
 			}
 			catch ( ActionException $e ) {
@@ -110,39 +120,46 @@ class LoginIntentRequestCapture {
 
 		$validatedSlug = ( new LoginIntentRequestValidate() )
 			->setWpUser( $this->user )
-			->run( (string)$req->post( 'login_nonce' ), $req->post( 'cancel' ) == '1' );
+			->run( $this->loginNonce, LoginRequestValues::isToken( $req->post( 'cancel' ), '1' ) );
 
 		if ( $validatedSlug ) {
-			wp_set_auth_cookie( $this->user->ID, (bool)$req->post( 'rememberme' ) );
+			wp_set_auth_cookie( $this->user->ID, LoginRequestValues::isToken( $req->post( 'rememberme' ), 'forever' ) );
 
-			if ( $req->post( 'skip_mfa' ) === 'Y' ) {
+			if ( LoginRequestValues::isToken( $req->post( 'skip_mfa' ), 'Y' ) ) {
 				( new MfaSkip() )->addMfaSkip( $this->user );
 			}
 
 			$con->comps->events->fireEvent( '2fa_success' );
+			$con->comps->login_success->recordSuccessfulLogin( $this->user );
 
 			global $interim_login;
-			$interim_login = (bool)$req->request( 'interim-login' );
+			$interim_login = LoginRequestValues::isToken( $req->request( 'interim-login' ), '1' );
 			if ( $interim_login ) {
 				add_filter( 'login_message', '__return_empty_string', 100, 0 );
 
+				$redirectFallback = $req->getPath();
 				$con->action_router->action( FullPageDisplayDynamic::class, [
 					'render_slug' => WpReplicaLoginIntentPage::SLUG,
-					'render_data' => [
+					'render_data' => LoginRequestValues::buildLoginIntentRenderData( [
 						'user_id'           => $this->user->ID,
 						'include_body'      => false,
 						'interim_message'   => __( '2FA authentication verified successfully.', 'wp-simple-firewall' ),
-						'plain_login_nonce' => $req->request( 'login_nonce', false, '' ),
+						'plain_login_nonce' => $this->loginNonce,
 						'interim_login'     => $req->request( 'interim-login', false, '' ),
 						'redirect_to'       => $req->request( 'redirect_to', false, '' ),
 						'rememberme'        => $req->request( 'rememberme', false, '' ),
-					],
+						'cancel_href'       => $req->request( 'cancel_href', false, '' ),
+					], $redirectFallback ),
 				] );
 			}
 
-			$redirect = $req->request( 'redirect_to', false, $req->getPath() );
+			$fallback = $req->getPath();
+			$redirect = LoginRequestValues::safeRedirect( $req->request( 'redirect_to', false, $fallback ), $fallback );
 			Services::Response()->redirect(
-				apply_filters( 'login_redirect', $redirect, $redirect, $this->user ),
+				LoginRequestValues::safeRedirect(
+					apply_filters( 'login_redirect', $redirect, $redirect, $this->user ),
+					$fallback
+				),
 				[], true, false
 			);
 		}

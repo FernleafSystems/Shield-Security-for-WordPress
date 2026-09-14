@@ -30,9 +30,17 @@ class ReportGenerator {
 	public function custom( string $title, int $start, int $end, array $options ) :ReportsDB\Record {
 		$report = new ReportVO();
 		$report->type = Constants::REPORT_TYPE_CUSTOM;
+		$report->interval = Constants::REPORT_INTERVAL_CUSTOM;
 		$report->title = $title;
 		$report->start_at = $start;
 		$report->end_at = $end;
+		$previousWindow = ( new ReportIntervalWindowResolver() )->resolveAdjacentInclusiveWindow(
+			$start,
+			$end,
+			\wp_timezone()->getName()
+		);
+		$report->previous_start_at = $previousWindow->start_at;
+		$report->previous_end_at = $previousWindow->end_at;
 		$report->areas = $options[ 'areas' ];
 		return $this->buildAndStore( $report );
 	}
@@ -87,7 +95,7 @@ class ReportGenerator {
 		$record = $con->db_con->reports->getRecord();
 		$record->interval_start_at = $report->start_at;
 		$record->interval_end_at = $report->end_at;
-		$record->interval_length = $report->interval ?? 'custom';
+		$record->interval_length = $report->interval;
 		$record->type = $report->type;
 		$record->unique_id = ( new Uuid() )->V4();
 		$record->protected = $record->type !== Constants::REPORT_TYPE_CUSTOM;
@@ -133,7 +141,7 @@ class ReportGenerator {
 		$data = $report->areas_data;
 		$inspector = new ReportDataInspector( $data );
 		if ( $report->type === Constants::REPORT_TYPE_ALERT
-			 && empty( $report->alert_digest[ 'has_new_items' ] ) ) {
+			 && !$report->alert_digest[ 'has_new_items' ] ) {
 			$data = [];
 			$report->alert_digest = [];
 		}
@@ -185,15 +193,7 @@ class ReportGenerator {
 	}
 
 	public function persistAlertNotifications( ReportVO $report ) :bool {
-		$targetIDs = \array_values( \array_unique( \array_map(
-			'intval',
-			\array_filter(
-				\is_array( $report->alert_digest[ 'notification_target_ids' ] ?? null )
-					? $report->alert_digest[ 'notification_target_ids' ]
-					: [],
-				static fn( $id ) :bool => (int)$id > 0
-			)
-		) ) );
+		$targetIDs = $report->alert_digest[ 'notification_target_ids' ];
 
 		if ( empty( $targetIDs ) ) {
 			return false;

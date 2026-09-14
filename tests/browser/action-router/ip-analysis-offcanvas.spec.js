@@ -1,11 +1,11 @@
 const { test, expect } = require( './support/shield-test' );
+const { expectNoAxeViolations } = require( './support/accessibility' );
 const {
 	openShieldRoute,
 } = require( './support/shield-browser' );
 const {
 	expectModalHiddenWithoutAriaModal,
 	expectNamedDialog,
-	expectNamedOffcanvas,
 	expectOptionalDescription,
 } = require( './support/modal-accessibility' );
 const {
@@ -148,7 +148,7 @@ const openIpAnalysisOffcanvasFromClick = async ( page, ip ) => {
 
 	const offcanvas = page.locator( '#AptoOffcanvas.show' );
 	await expect( offcanvas ).toBeVisible();
-	await expectNamedOffcanvas( page, offcanvas, 'AptoOffcanvasLabel' );
+	await expectNamedDialog( page, offcanvas, 'AptoOffcanvasLabel' );
 
 	return { offcanvas };
 };
@@ -162,7 +162,7 @@ const openIpAnalysisOffcanvas = async ( page, ip ) => {
 
 	const offcanvas = page.locator( '#AptoOffcanvas.show' );
 	await expect( offcanvas ).toBeVisible();
-	await expectNamedOffcanvas( page, offcanvas, 'AptoOffcanvasLabel' );
+	await expectNamedDialog( page, offcanvas, 'AptoOffcanvasLabel' );
 
 	return { offcanvas };
 };
@@ -209,13 +209,19 @@ test( 'clicked IP link opens the IP analysis offcanvas with the four investigati
 
 		const { offcanvas } = await openIpAnalysisOffcanvasFromClick( page, fixture.ip );
 		await page.unroute( '**/admin-ajax.php*', delayHandler ).catch( () => null );
-		await expectNamedOffcanvas( page, offcanvas, 'AptoOffcanvasLabel' );
+		await expectNamedDialog( page, offcanvas, 'AptoOffcanvasLabel' );
 		await expectInlineTabsContract( offcanvas );
 
 		const targetTab = await getInlineTabByTableType( offcanvas, 'sessions' );
 		await targetTab.click();
 
 		await expectActiveInlineTabState( offcanvas, targetTab );
+		await expectNoAxeViolations( page, '#AptoOffcanvas' );
+		await offcanvas.press( 'Escape' );
+		await expect( offcanvas ).toBeHidden();
+		await openShieldRoute( page, { nav: 'activity', nav_sub: 'overview', subject: 'ip', ip: fixture.ip } );
+		await expect( page.locator( '[data-investigate-panel-subject="ip"][data-investigate-panel-loaded="1"]' ) ).toBeVisible();
+		await expectNoAxeViolations( page, '#PageContainer-Apto' );
 	} );
 } );
 

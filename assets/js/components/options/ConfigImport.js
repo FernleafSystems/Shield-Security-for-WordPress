@@ -3,6 +3,7 @@ import { BaseComponent } from "../BaseComponent";
 import { Forms } from "../../util/Forms";
 import { ObjectOps } from "../../util/ObjectOps";
 import { OffCanvasService } from "../ui/OffCanvasService";
+import { OptionsFormSubmit } from "./OptionsFormSubmit";
 
 export class ConfigImport extends BaseComponent {
 
@@ -214,7 +215,12 @@ export class ConfigImport extends BaseComponent {
 
 	async copyProfileFromMaster( targetEl ) {
 		const button = targetEl instanceof Element ? targetEl.closest( '[data-import-export-profile-copy-from-master]' ) : null;
-		if ( !( button instanceof HTMLButtonElement ) || this.profileCopyRequestRunning ) {
+		if ( !( button instanceof HTMLButtonElement ) || button.disabled || this.profileCopyRequestRunning ) {
+			return;
+		}
+		const form = button.closest( '[data-import-export-pane="profile"]' )
+			?.querySelector( 'form.import-export-profile-options-form' );
+		if ( !( form instanceof HTMLFormElement ) ) {
 			return;
 		}
 
@@ -227,27 +233,27 @@ export class ConfigImport extends BaseComponent {
 			return;
 		}
 
-		const dialog = shieldServices.dialog();
-		const confirmed = await dialog.confirm( {
-			message,
-			confirmLabel,
-			launcher: button,
-		} );
-		if ( !confirmed ) {
-			return;
-		}
-
 		this.profileCopyRequestRunning = true;
-		button.disabled = true;
-		button.setAttribute( 'aria-busy', 'true' );
+		try {
+			const confirmed = await shieldServices.dialog().confirm( {
+				message,
+				confirmLabel,
+				launcher: button,
+			} );
+			if ( !confirmed || !OptionsFormSubmit.beginProfileMutation( form ) ) {
+				return;
+			}
 
-		( new AjaxService() )
-		.send( this._base_data.ajax.profile_copy_from_master )
-		.finally( () => {
+			try {
+				await ( new AjaxService() ).send( this._base_data.ajax.profile_copy_from_master );
+			}
+			finally {
+				OptionsFormSubmit.endProfileMutation( form );
+			}
+		}
+		finally {
 			this.profileCopyRequestRunning = false;
-			button.disabled = false;
-			button.removeAttribute( 'aria-busy' );
-		} );
+		}
 	}
 
 	submitAuthoriseUrlsForm( form ) {
