@@ -312,6 +312,9 @@ class AssetsCustomizerTest extends BaseUnitTest {
 		$this->assertArrayHasKey( 'repair_site_confirm', $sites[ 'strings' ] );
 		$this->assertIsString( $sites[ 'strings' ][ 'repair_site_confirm' ] );
 		$this->assertNotSame( '', $sites[ 'strings' ][ 'repair_site_confirm' ] );
+		$this->assertArrayHasKey( 'retry_invitation_label', $sites[ 'strings' ] );
+		$this->assertIsString( $sites[ 'strings' ][ 'retry_invitation_label' ] );
+		$this->assertNotSame( '', $sites[ 'strings' ][ 'retry_invitation_label' ] );
 		$this->assertArrayHasKey( 'datatables_init', $sites[ 'vars' ] );
 		$this->assertArrayHasKey( 'columns', $sites[ 'vars' ][ 'datatables_init' ] );
 		$this->assertIsArray( $sites[ 'vars' ][ 'datatables_init' ][ 'columns' ] );

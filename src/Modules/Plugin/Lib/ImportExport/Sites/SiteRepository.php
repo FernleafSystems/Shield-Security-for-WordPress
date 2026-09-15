@@ -21,6 +21,7 @@ class SiteRepository {
 	public const OLD_QUEUE_ACTION = 'whitelist_notify_urls';
 	private const META_EXPORT_SERVED_AT = 'export_served_at';
 	private const META_HANDSHAKE_ATTEMPT_AT = 'handshake_attempt_at';
+	private const META_WRITE_ATTEMPTS = 3;
 	private const SQL_BATCH_SIZE = 20;
 	private ?int $defaultProfileRef = null;
 
@@ -127,6 +128,9 @@ class SiteRepository {
 
 		$now = Services::Request()->ts();
 		$row = $this->findByUrl( $url, true );
+		if ( $row instanceof Record && $row->status === SitesDB::STATUS_ACTIVE && $row->deleted_at === 0 ) {
+			return $row;
+		}
 		$data = $this->buildPendingClientSiteUpsertData( $row, $url, $source, $sendInvite, $now );
 
 		if ( $row instanceof Record ) {
@@ -276,15 +280,107 @@ class SiteRepository {
 		return $this->selectExpiredWaitingExportRowsWithSql( Services::Request()->ts(), $limit );
 	}
 
-	public function recordInviteProcessed( Record $row ) :void {
-		$this->updateById( $row->id, [
-			'queue_status'        => SitesDB::QUEUE_PENDING_CONNECTION,
-			'consecutive_failures' => 0,
-			'next_ping_at'        => 0,
-			'lock_until'          => 0,
-			'picked_at'           => 0,
-			'expected_export_by'  => 0,
-		] );
+	/**
+	 * @return false|int
+	 */
+	public function startInviteAttempt( Record $row, int $startedAt ) {
+		$invitation = ( new InvitationMetadata() )->normalize( $row->meta );
+		if ( $invitation[ 'attempts_started' ] >= InvitationMetadata::MAX_ATTEMPTS ) {
+			return 0;
+		}
+		$attempt = $invitation[ 'attempts_started' ] + 1;
+		$nextPingAt = $attempt === InvitationMetadata::MAX_ATTEMPTS
+			? $row->lock_until
+			: $startedAt + ( $attempt === 1 ? 15 : 30 )*\MINUTE_IN_SECONDS;
+
+		$data = [
+			'meta'         => ( new InvitationMetadata() )->startAttempt( $row->meta, $startedAt ),
+			'next_ping_at' => $nextPingAt,
+		];
+		$result = $this->conditionalMetadataUpdate( $row, $data, true );
+		if ( $result === 1 ) {
+			foreach ( $data as $key => $value ) {
+				$row->{$key} = $value;
+			}
+		}
+		return $result;
+	}
+
+	/**
+	 * @return false|int
+	 */
+	public function recordInviteResult( Record $row, string $result, int $httpStatus = 0 ) {
+		$invitation = ( new InvitationMetadata() )->normalize( $row->meta );
+		if ( $invitation[ 'attempts_started' ] < 1 || $invitation[ 'last_result' ] !== InvitationMetadata::RESULT_STARTED ) {
+			return 0;
+		}
+		$isComplete = $result === InvitationMetadata::RESULT_HTTP_RESPONSE
+					  || $invitation[ 'attempts_started' ] >= InvitationMetadata::MAX_ATTEMPTS;
+		$data = [
+			'meta'       => ( new InvitationMetadata() )->withResult( $row->meta, $result, $httpStatus ),
+			'lock_until' => 0,
+			'picked_at'  => 0,
+		];
+		if ( $isComplete ) {
+			$data[ 'queue_status' ] = SitesDB::QUEUE_PENDING_CONNECTION;
+			$data[ 'next_ping_at' ] = 0;
+		}
+
+		return $this->conditionalMetadataUpdate( $row, $data, true );
+	}
+
+	/**
+	 * @return false|int
+	 */
+	public function settleInterruptedFinalInviteAttempt( Record $row ) {
+		$invitation = ( new InvitationMetadata() )->normalize( $row->meta );
+		if ( $invitation[ 'attempts_started' ] !== InvitationMetadata::MAX_ATTEMPTS
+			 || $invitation[ 'last_result' ] !== InvitationMetadata::RESULT_STARTED ) {
+			return 0;
+		}
+
+		return $this->conditionalMetadataUpdate( $row, [
+			'queue_status' => SitesDB::QUEUE_PENDING_CONNECTION,
+			'next_ping_at' => 0,
+			'lock_until'   => 0,
+			'picked_at'    => 0,
+		], true );
+	}
+
+	public function restartInvitationsByIds( array $ids ) :array {
+		$counts = [
+			'queued_count'  => 0,
+			'skipped_count' => 0,
+			'failed_count'  => 0,
+		];
+		$now = Services::Request()->ts();
+		foreach ( $this->sanitiseIds( $ids ) as $id ) {
+			$row = $this->findById( $id, true );
+			if ( !$row instanceof Record || $row->status !== SitesDB::STATUS_ACTIVE
+				 || $row->deleted_at > 0 || $row->queue_status !== SitesDB::QUEUE_PENDING_CONNECTION ) {
+				$counts[ 'skipped_count' ]++;
+				continue;
+			}
+
+			$result = $this->conditionalMetadataUpdate( $row, [
+				'queue_status' => SitesDB::QUEUE_PENDING_INVITE,
+				'queued_at'    => $now,
+				'next_ping_at' => $now,
+				'picked_at'    => 0,
+				'lock_until'   => 0,
+				'meta'         => ( new InvitationMetadata() )->replace( $row->meta, ( new InvitationMetadata() )->newCycle() ),
+			], false, SitesDB::QUEUE_PENDING_CONNECTION );
+			if ( $result === false ) {
+				$counts[ 'failed_count' ]++;
+			}
+			elseif ( $result === 1 ) {
+				$counts[ 'queued_count' ]++;
+			}
+			else {
+				$counts[ 'skipped_count' ]++;
+			}
+		}
+		return $counts;
 	}
 
 	public function recordPingAttempt( Record $row ) :void {
@@ -695,6 +791,12 @@ class SiteRepository {
 		if ( $row instanceof Record && $row->status === SitesDB::STATUS_DELETED && $row->deleted_at > 0 ) {
 			$data = \array_merge( $data, $this->buildConnectionResetData( $row ) );
 		}
+		$meta = \is_array( $data[ 'meta' ] ?? null )
+			? $data[ 'meta' ]
+			: ( $row instanceof Record && \is_array( $row->meta ) ? $row->meta : [] );
+		$data[ 'meta' ] = $sendInvite
+			? ( new InvitationMetadata() )->replace( $meta, ( new InvitationMetadata() )->newCycle() )
+			: ( new InvitationMetadata() )->remove( $meta );
 
 		if ( !empty( $source ) && ( !$row instanceof Record || empty( $row->source ) ) ) {
 			$data[ 'source' ] = $source;
@@ -1173,6 +1275,50 @@ class SiteRepository {
 		return Services::WpDb()->doSql( $this->prepareSql( $sql, $values ) ) !== false;
 	}
 
+	/**
+	 * @return false|int
+	 */
+	private function conditionalMetadataUpdate(
+		Record $row,
+		array $data,
+		bool $requireClaim = false,
+		?string $expectedQueueStatus = SitesDB::QUEUE_PENDING_INVITE
+	) {
+		$dbh = $this->dbOrNull();
+		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() || empty( $data ) ) {
+			return false;
+		}
+
+		$data = $this->withUpdatedAt( $data, Services::Request()->ts() );
+		$sets = [];
+		$values = [];
+		foreach ( $data as $column => $value ) {
+			$value = $this->normaliseSqlValue( $value );
+			$sets[] = \sprintf( '`%s`=%s', $this->sqlColumnName( $column ), $this->sqlPlaceholder( $value ) );
+			$values[] = $value;
+		}
+
+		$rawMeta = (string)( $row->getRawData()[ 'meta' ] ?? '' );
+		$where = '`id`=%d AND `status`=%s AND `deleted_at`=0';
+		$whereValues = [ $row->id, SitesDB::STATUS_ACTIVE ];
+		if ( $expectedQueueStatus !== null ) {
+			$where .= ' AND `queue_status`=%s';
+			$whereValues[] = $expectedQueueStatus;
+		}
+		$where .= ' AND BINARY `meta`=BINARY %s';
+		$whereValues[] = $rawMeta;
+		if ( $requireClaim ) {
+			$where .= ' AND `picked_at`=%d AND `lock_until`=%d';
+			$whereValues[] = $row->picked_at;
+			$whereValues[] = $row->lock_until;
+		}
+
+		return Services::WpDb()->doSql( $this->prepareSql(
+			\sprintf( 'UPDATE `%s` SET %s WHERE %s;', $dbh->getTable(), \implode( ',', $sets ), $where ),
+			\array_merge( $values, $whereValues )
+		) );
+	}
+
 	private function updateById( int $id, array $data ) :bool {
 		$dbh = $this->dbOrNull();
 		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
@@ -1290,10 +1436,23 @@ class SiteRepository {
 	}
 
 	private function setMetaTimestamp( Record $row, string $key ) :void {
-		$meta = \is_array( $row->meta ) ? $row->meta : [];
-		$meta[ $key ] = Services::Request()->ts();
-		if ( $this->updateById( $row->id, [ 'meta' => $meta ] ) ) {
-			$row->meta = $meta;
+		$current = $row;
+		for ( $attempt = 0; $attempt < self::META_WRITE_ATTEMPTS; $attempt++ ) {
+			$meta = \is_array( $current->meta ) ? $current->meta : [];
+			$meta[ $key ] = Services::Request()->ts();
+			$result = $this->conditionalMetadataUpdate( $current, [ 'meta' => $meta ], false, null );
+			if ( $result === 1 ) {
+				$row->meta = $meta;
+				return;
+			}
+			if ( $result === false ) {
+				return;
+			}
+
+			$current = $this->findById( $row->id, true );
+			if ( !$current instanceof Record ) {
+				return;
+			}
 		}
 	}
 

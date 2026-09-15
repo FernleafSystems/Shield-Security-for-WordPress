@@ -20,6 +20,11 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 			className: 'action selected-action queue-sync btn-outline-primary mb-2',
 			action: () => this.bulkTableAction( 'queue_sync' )
 		}, {
+			text: this._base_data.strings.retry_invitation_label,
+			name: 'retry-invitation',
+			className: 'action selected-action retry-invitation btn-outline-primary mb-2',
+			action: () => this.bulkTableAction( 'retry_invitation' )
+		}, {
 			text: 'Bulk Remove',
 			name: 'bulk-remove',
 			className: 'action selected-action bulk-remove btn-outline-warning mb-2',
@@ -168,7 +173,7 @@ export class ShieldTableImportExportSites extends ShieldTableBase {
 
 	syncSelectedActionButtons() {
 		const hasSelection = this.$table.rows( { selected: true } ).count() > 0;
-		[ 'queue-sync:name', 'bulk-remove:name' ].forEach( ( selector ) => {
+		[ 'queue-sync:name', 'retry-invitation:name', 'bulk-remove:name' ].forEach( ( selector ) => {
 			if ( hasSelection ) {
 				this.$table.buttons( selector ).enable();
 			}

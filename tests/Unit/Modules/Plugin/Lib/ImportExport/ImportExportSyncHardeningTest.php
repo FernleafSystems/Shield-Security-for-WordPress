@@ -23,6 +23,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteInviteSender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\InvitationMetadata;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	PluginControllerInstaller,
@@ -339,11 +340,52 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 
 		$result = ( new SyncSiteInviteSender() )->send( 'https://93.184.216.36/client-site' );
 
-		$this->assertTrue( $result[ 'success' ] ?? false );
+		$this->assertSame(
+			\FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\InvitationMetadata::RESULT_HTTP_RESPONSE,
+			$result[ 'result' ] ?? ''
+		);
 		$this->assertScopedExternalHostFilterEvents( $events, 'http_post' );
 		$this->assertStringContainsString( PluginImportExport_NetworkInviteRequest::SLUG, $this->httpRequest->lastPostRequestedUrl() );
 		$this->assertTrue( (bool)( $this->httpRequest->lastPostArgs()[ 'reject_unsafe_urls' ] ?? false ) );
 		$this->assertSame( 'https://93.184.216.35', $this->httpRequest->lastPostArgs()[ 'body' ][ 'master_url' ] ?? '' );
+	}
+
+	/**
+	 * @dataProvider inviteSenderResultProvider
+	 */
+	public function test_invite_sender_classifies_sanitized_outcomes(
+		int $httpCode,
+		bool $success,
+		?\Throwable $exception,
+		string $expectedResult
+	) :void {
+		$this->wpGeneral->setHomeUrl( 'https://93.184.216.35' );
+		$this->httpRequest->setPostOutcome( $httpCode, $success, $exception );
+
+		$result = ( new SyncSiteInviteSender() )->send( 'https://93.184.216.36/client-site' );
+
+		$this->assertSame( $expectedResult, $result[ 'result' ] );
+		$this->assertSame( $httpCode, $result[ 'http_status' ] );
+		$this->assertSame( [ 'result', 'http_status' ], \array_keys( $result ) );
+	}
+
+	public static function inviteSenderResultProvider() :array {
+		return [
+			'http 200'        => [ 200, true, null, InvitationMetadata::RESULT_HTTP_RESPONSE ],
+			'http 204'        => [ 204, true, null, InvitationMetadata::RESULT_HTTP_RESPONSE ],
+			'http 403'        => [ 403, false, null, InvitationMetadata::RESULT_HTTP_FAILURE ],
+			'http 429'        => [ 429, false, null, InvitationMetadata::RESULT_HTTP_FAILURE ],
+			'http 500'        => [ 500, false, null, InvitationMetadata::RESULT_HTTP_FAILURE ],
+			'transport error' => [ 0, false, null, InvitationMetadata::RESULT_TRANSPORT_FAILURE ],
+			'sender exception' => [ 0, false, new \RuntimeException( 'secret diagnostic' ), InvitationMetadata::RESULT_SENDER_FAILURE ],
+		];
+	}
+
+	public function test_invite_sender_rejects_unsafe_url_without_http() :void {
+		$result = ( new SyncSiteInviteSender() )->send( 'https://127.0.0.1/client-site' );
+
+		$this->assertSame( InvitationMetadata::RESULT_URL_VALIDATION_FAILURE, $result[ 'result' ] );
+		$this->assertSame( '', $this->httpRequest->lastPostRequestedUrl() );
 	}
 
 	public function test_from_site_rejects_unknown_request_safety_mode_without_mutation() :void {
@@ -933,6 +975,9 @@ class ImportExportHttpRequestStub extends HttpRequest {
 	private $onGet = null;
 	private $onGetContent = null;
 	private $onPost = null;
+	private int $postResponseCode = 200;
+	private bool $postSuccess = true;
+	private ?\Throwable $postException = null;
 
 	public function setResponseOptions( array $options ) :void {
 		$this->responseOptions = $options;
@@ -993,6 +1038,12 @@ class ImportExportHttpRequestStub extends HttpRequest {
 		$this->onPost = $callback;
 	}
 
+	public function setPostOutcome( int $httpCode, bool $success, ?\Throwable $exception = null ) :void {
+		$this->postResponseCode = $httpCode;
+		$this->postSuccess = $success;
+		$this->postException = $exception;
+	}
+
 	public function get( $url, $args = [] ) :bool {
 		$this->lastGetRequestedUrl = (string)$url;
 		$this->lastGetArgs = \is_array( $args ) ? $args : [];
@@ -1051,17 +1102,20 @@ class ImportExportHttpRequestStub extends HttpRequest {
 		if ( \is_callable( $this->onPost ) ) {
 			( $this->onPost )( $url, $args );
 		}
-		$this->lastResponse = ( new WpHttpResponseVo() )->applyFromArray( [
+		if ( $this->postException !== null ) {
+			throw $this->postException;
+		}
+		$this->lastResponse = $this->postResponseCode > 0 ? ( new WpHttpResponseVo() )->applyFromArray( [
 			'headers'  => [],
 			'body'     => '',
 			'response' => [
-				'code'    => 200,
+				'code'    => $this->postResponseCode,
 				'message' => 'OK',
 			],
 			'cookies'  => [],
 			'filename' => null,
-		] );
-		return true;
+		] ) : null;
+		return $this->postSuccess;
 	}
 
 	private function getResponseBody() :string {
