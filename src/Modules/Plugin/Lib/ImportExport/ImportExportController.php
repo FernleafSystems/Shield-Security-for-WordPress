@@ -143,6 +143,19 @@ class ImportExportController {
 		return $count;
 	}
 
+	/**
+	 * @return array{queued_count:int,skipped_count:int,failed_count:int}
+	 */
+	public function restartSiteInvitationsByIds( array $ids ) :array {
+		$this->assertSyncEnabled();
+
+		$result = ( new SiteRepository() )->restartInvitationsByIds( $ids );
+		if ( $result[ 'queued_count' ] > 0 ) {
+			$this->scheduleQueueSoonIfSyncEnabled();
+		}
+		return $result;
+	}
+
 	public function queueAllActiveSitesForSync() :int {
 		$this->assertSyncEnabled();
 

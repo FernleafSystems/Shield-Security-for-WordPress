@@ -11,6 +11,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Tables\DataTables\LoadData\ImportExp
 	BuildImportExportSitesTableData,
 	SiteSyncStatusBuilder
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\InvitationMetadata;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\BaseUnitTest;
 use FernleafSystems\Wordpress\Plugin\Shield\Tests\Unit\Support\{
 	ServicesState,
@@ -96,6 +97,38 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		] );
 
 		$this->assertSame( SiteSyncStatusBuilder::STATE_PENDING, $this->builder()->stateForRecord( $record ) );
+	}
+
+	/**
+	 * @dataProvider invitationPresentationStateProvider
+	 */
+	public function test_invitation_metadata_maps_to_stable_presentation_state(
+		string $queueStatus,
+		array $invitation,
+		string $expectedState
+	) :void {
+		$record = $this->record( [
+			'queue_status' => $queueStatus,
+			'meta'         => empty( $invitation ) ? [] : [ InvitationMetadata::META_KEY => $invitation ],
+		] );
+
+		$this->assertSame( $expectedState, $this->builder()->invitationStateForRecord( $record ) );
+	}
+
+	public function test_invitation_details_include_bounded_attempt_and_http_values() :void {
+		$status = $this->builder()->build( $this->record( [
+			'queue_status' => SitesDB::QUEUE_PENDING_CONNECTION,
+			'meta'         => [ InvitationMetadata::META_KEY => [
+				'cycle_id'               => 'cycle-a',
+				'attempts_started'        => 2,
+				'last_attempt_started_at' => self::NOW - 60,
+				'last_result'             => InvitationMetadata::RESULT_HTTP_RESPONSE,
+				'last_http_status'        => 204,
+			] ],
+		] ) );
+
+		$this->assertStringContainsString( '2 / 3', $status[ 'details_html' ] );
+		$this->assertStringContainsString( '204', $status[ 'details_html' ] );
 	}
 
 	public function test_queued_after_failure_is_problem() :void {
@@ -281,6 +314,51 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		];
 	}
 
+	public static function invitationPresentationStateProvider() :array {
+		return [
+			'queued before first attempt' => [
+				SitesDB::QUEUE_PENDING_INVITE,
+				[ 'cycle_id' => 'cycle-a', 'attempts_started' => 0 ],
+				SiteSyncStatusBuilder::INVITATION_STATE_QUEUED,
+			],
+			'unknown retryable attempt' => [
+				SitesDB::QUEUE_PENDING_INVITE,
+				[ 'cycle_id' => 'cycle-a', 'attempts_started' => 1, 'last_result' => InvitationMetadata::RESULT_STARTED ],
+				SiteSyncStatusBuilder::INVITATION_STATE_STARTED_RETRYABLE,
+			],
+			'failure awaiting retry' => [
+				SitesDB::QUEUE_PENDING_INVITE,
+				[ 'cycle_id' => 'cycle-a', 'attempts_started' => 2, 'last_result' => InvitationMetadata::RESULT_TRANSPORT_FAILURE ],
+				SiteSyncStatusBuilder::INVITATION_STATE_RETRY_SCHEDULED,
+			],
+			'unknown final attempt awaiting settlement' => [
+				SitesDB::QUEUE_PENDING_INVITE,
+				[ 'cycle_id' => 'cycle-a', 'attempts_started' => 3, 'last_result' => InvitationMetadata::RESULT_STARTED ],
+				SiteSyncStatusBuilder::INVITATION_STATE_FINAL_SETTLEMENT,
+			],
+			'response received but unconfirmed' => [
+				SitesDB::QUEUE_PENDING_CONNECTION,
+				[ 'cycle_id' => 'cycle-a', 'attempts_started' => 1, 'last_result' => InvitationMetadata::RESULT_HTTP_RESPONSE, 'last_http_status' => 204 ],
+				SiteSyncStatusBuilder::INVITATION_STATE_RESPONSE_UNCONFIRMED,
+			],
+			'known failure exhausted' => [
+				SitesDB::QUEUE_PENDING_CONNECTION,
+				[ 'cycle_id' => 'cycle-a', 'attempts_started' => 3, 'last_result' => InvitationMetadata::RESULT_HTTP_FAILURE, 'last_http_status' => 503 ],
+				SiteSyncStatusBuilder::INVITATION_STATE_EXHAUSTED_FAILURE,
+			],
+			'unknown final attempt settled' => [
+				SitesDB::QUEUE_PENDING_CONNECTION,
+				[ 'cycle_id' => 'cycle-a', 'attempts_started' => 3, 'last_result' => InvitationMetadata::RESULT_STARTED ],
+				SiteSyncStatusBuilder::INVITATION_STATE_EXHAUSTED_UNKNOWN,
+			],
+			'legacy passive connection' => [
+				SitesDB::QUEUE_PENDING_CONNECTION,
+				[],
+				SiteSyncStatusBuilder::INVITATION_STATE_PASSIVE,
+			],
+		];
+	}
+
 	public static function repairActionVisibilityProvider() :array {
 		return [
 			'working idle success'           => [
@@ -357,7 +435,7 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 	}
 
 	private function record( array $overrides = [] ) :Record {
-		return ( new Record() )->applyFromArray( \array_merge( [
+		$data = \array_merge( [
 			'id'                       => 1,
 			'url'                      => 'https://sync.example.com',
 			'url_hash'                 => \hash( 'md5', 'https://sync.example.com' ),
@@ -387,6 +465,11 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 			'created_at'               => self::NOW - 3600,
 			'updated_at'               => self::NOW - 60,
 			'deleted_at'               => 0,
-		], $overrides ) );
+		], $overrides );
+		$meta = \is_array( $data[ 'meta' ] ?? null ) ? $data[ 'meta' ] : [];
+		unset( $data[ 'meta' ] );
+		$record = ( new Record() )->applyFromArray( $data );
+		$record->meta = $meta;
+		return $record;
 	}
 }

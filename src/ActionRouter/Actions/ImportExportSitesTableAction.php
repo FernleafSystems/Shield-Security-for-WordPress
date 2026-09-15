@@ -13,6 +13,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 	public const SUB_ACTION_QUEUE_SYNC = 'queue_sync';
 	public const SUB_ACTION_DELETE_SITE = 'delete_site';
 	public const SUB_ACTION_REPAIR_CONNECTION = 'repair_connection';
+	public const SUB_ACTION_RETRY_INVITATION = 'retry_invitation';
 
 	protected function getSubActionHandlers() :array {
 		return [
@@ -20,6 +21,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 			self::SUB_ACTION_QUEUE_SYNC          => fn() => $this->queueSync(),
 			self::SUB_ACTION_DELETE_SITE         => fn() => $this->deleteSite(),
 			self::SUB_ACTION_REPAIR_CONNECTION   => fn() => $this->repairConnection(),
+			self::SUB_ACTION_RETRY_INVITATION    => fn() => $this->retryInvitation(),
 		];
 	}
 
@@ -28,6 +30,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 			self::SUB_ACTION_QUEUE_SYNC        => [ 'rids' ],
 			self::SUB_ACTION_DELETE_SITE       => [ 'rids' ],
 			self::SUB_ACTION_REPAIR_CONNECTION => [ 'rids' ],
+			self::SUB_ACTION_RETRY_INVITATION  => [ 'rids' ],
 		];
 	}
 
@@ -65,7 +68,7 @@ class ImportExportSitesTableAction extends TableActionBase {
 			'success'      => true,
 			'table_reload' => true,
 			'message'      => $pendingOnly
-				? __( 'Selected sites are waiting for their clients to connect. To retry, remove and re-add the sites.', 'wp-simple-firewall' )
+				? __( 'Selected sites are already in the invitation or connection flow. Use Retry invitation for sites waiting on a connection.', 'wp-simple-firewall' )
 				: sprintf( _n( '%s site queued for sync.', '%s sites queued for sync.', $count, 'wp-simple-firewall' ), $count ),
 		];
 	}
@@ -91,6 +94,21 @@ class ImportExportSitesTableAction extends TableActionBase {
 			'table_reload' => true,
 			'message'      => sprintf( _n( '%s site queued for connection repair.', '%s sites queued for connection repair.', $count, 'wp-simple-firewall' ), $count ),
 		];
+	}
+
+	protected function retryInvitation() :array {
+		$result = ( new ImportExportController() )->restartSiteInvitationsByIds( $this->ridsFromActionData() );
+
+		return \array_merge( $result, [
+			'success'      => true,
+			'table_reload' => true,
+			'message'      => \sprintf(
+				__( 'Invitation recovery handled: %1$s queued, %2$s skipped, %3$s failed.', 'wp-simple-firewall' ),
+				$result[ 'queued_count' ],
+				$result[ 'skipped_count' ],
+				$result[ 'failed_count' ]
+			),
+		] );
 	}
 
 	private function ridsFromActionData() :array {

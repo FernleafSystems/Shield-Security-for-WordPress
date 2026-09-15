@@ -22,9 +22,27 @@ class QueueRunner {
 		$now = \FernleafSystems\Wordpress\Services\Services::Request()->ts();
 		$remaining = self::BATCH_SIZE;
 		foreach ( $repo->claimDueInviteRows( $remaining, $now + self::LOCK_TIMEOUT ) as $row ) {
-			$this->inviteSender()->send( $row->url, self::INVITE_TIMEOUT );
-			$repo->recordInviteProcessed( $row );
 			$remaining--;
+			$invitation = ( new InvitationMetadata() )->normalize( $row->meta );
+			if ( $invitation[ 'attempts_started' ] >= InvitationMetadata::MAX_ATTEMPTS ) {
+				$repo->settleInterruptedFinalInviteAttempt( $row );
+				continue;
+			}
+
+			if ( $repo->startInviteAttempt( $row, \FernleafSystems\Wordpress\Services\Services::Request()->ts() ) !== 1 ) {
+				continue;
+			}
+
+			try {
+				$result = $this->inviteSender()->send( $row->url, self::INVITE_TIMEOUT );
+			}
+			catch ( \Throwable $e ) {
+				$result = [
+					'result'      => InvitationMetadata::RESULT_SENDER_FAILURE,
+					'http_status' => 0,
+				];
+			}
+			$repo->recordInviteResult( $row, (string)$result[ 'result' ], (int)$result[ 'http_status' ] );
 		}
 
 		if ( $remaining <= 0 ) {

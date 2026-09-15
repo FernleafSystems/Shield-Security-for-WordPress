@@ -11,19 +11,28 @@ class SyncSiteInviteSender {
 	use PluginControllerConsumer;
 
 	/**
-	 * @return array{success:bool,http_code:int,error:string}
+	 * @return array{result:string,http_status:int}
 	 */
 	public function send( string $clientUrl, int $timeout = 2 ) :array {
 		$http = Services::HttpRequest();
 		try {
 			$validator = new SyncSiteUrlValidator();
 			$clientUrl = $validator->validateTrustedSyncUrl( $clientUrl );
+			$masterUrl = $validator->validateTrustedSyncUrl( Services::WpGeneral()->getHomeUrl(), false );
+		}
+		catch ( \InvalidArgumentException $e ) {
+			return [
+				'result'      => InvitationMetadata::RESULT_URL_VALIDATION_FAILURE,
+				'http_status' => 0,
+			];
+		}
+
+		try {
 			$targetUrl = self::con()->plugin_urls->noncedPluginAction(
 				PluginImportExport_NetworkInviteRequest::class,
 				$clientUrl
 			);
-			$masterUrl = $validator->validateTrustedSyncUrl( Services::WpGeneral()->getHomeUrl(), false );
-			$success = ( new ScopedTargetHostRequest() )->run(
+			( new ScopedTargetHostRequest() )->run(
 				$targetUrl,
 				static fn() :bool => $http->post( $targetUrl, [
 					'timeout'            => $timeout,
@@ -35,18 +44,18 @@ class SyncSiteInviteSender {
 				] )
 			);
 			$code = $http->lastResponse ? (int)$http->lastResponse->getCode() : 0;
-			$error = $success ? '' : ( $http->lastError ? $http->lastError->get_error_message() : 'invite_request_failed' );
+			$result = $code >= 200 && $code < 300
+				? InvitationMetadata::RESULT_HTTP_RESPONSE
+				: ( $code > 0 ? InvitationMetadata::RESULT_HTTP_FAILURE : InvitationMetadata::RESULT_TRANSPORT_FAILURE );
 		}
 		catch ( \Throwable $e ) {
-			$success = false;
 			$code = 0;
-			$error = $e->getMessage();
+			$result = InvitationMetadata::RESULT_SENDER_FAILURE;
 		}
 
 		return [
-			'success'   => $success,
-			'http_code' => $code,
-			'error'     => $error,
+			'result'      => $result,
+			'http_status' => $code,
 		];
 	}
 }

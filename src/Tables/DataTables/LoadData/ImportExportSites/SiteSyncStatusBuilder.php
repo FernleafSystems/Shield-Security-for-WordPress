@@ -6,6 +6,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Handler as SitesDB,
 	Record
 };
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\InvitationMetadata;
 use FernleafSystems\Wordpress\Services\Services;
 
 class SiteSyncStatusBuilder {
@@ -15,6 +16,14 @@ class SiteSyncStatusBuilder {
 	public const STATE_PENDING = 'pending';
 	public const STATE_WORKING = 'working';
 	public const STATE_NEVER_SYNCED = 'never_synced';
+	public const INVITATION_STATE_QUEUED = 'queued';
+	public const INVITATION_STATE_STARTED_RETRYABLE = 'started_retryable';
+	public const INVITATION_STATE_RETRY_SCHEDULED = 'retry_scheduled';
+	public const INVITATION_STATE_FINAL_SETTLEMENT = 'final_settlement';
+	public const INVITATION_STATE_RESPONSE_UNCONFIRMED = 'response_unconfirmed';
+	public const INVITATION_STATE_EXHAUSTED_FAILURE = 'exhausted_failure';
+	public const INVITATION_STATE_EXHAUSTED_UNKNOWN = 'exhausted_unknown';
+	public const INVITATION_STATE_PASSIVE = 'passive';
 
 	private const STATES = [
 		self::STATE_PROBLEM,
@@ -99,6 +108,37 @@ class SiteSyncStatusBuilder {
 		}
 
 		return self::STATE_NEVER_SYNCED;
+	}
+
+	public function invitationStateForRecord( Record $record ) :string {
+		$invitation = ( new InvitationMetadata() )->normalize( $record->meta );
+		$attempts = $invitation[ 'attempts_started' ];
+		$result = $invitation[ 'last_result' ];
+
+		if ( $record->queue_status === SitesDB::QUEUE_PENDING_INVITE ) {
+			if ( $result === InvitationMetadata::RESULT_STARTED ) {
+				return $attempts >= InvitationMetadata::MAX_ATTEMPTS
+					? self::INVITATION_STATE_FINAL_SETTLEMENT
+					: self::INVITATION_STATE_STARTED_RETRYABLE;
+			}
+			if ( $result !== null && InvitationMetadata::isFailure( $result ) ) {
+				return self::INVITATION_STATE_RETRY_SCHEDULED;
+			}
+			return self::INVITATION_STATE_QUEUED;
+		}
+
+		if ( $record->queue_status === SitesDB::QUEUE_PENDING_CONNECTION ) {
+			if ( $result === InvitationMetadata::RESULT_HTTP_RESPONSE ) {
+				return self::INVITATION_STATE_RESPONSE_UNCONFIRMED;
+			}
+			if ( $attempts >= InvitationMetadata::MAX_ATTEMPTS ) {
+				return $result !== null && InvitationMetadata::isFailure( $result )
+					? self::INVITATION_STATE_EXHAUSTED_FAILURE
+					: self::INVITATION_STATE_EXHAUSTED_UNKNOWN;
+			}
+		}
+
+		return self::INVITATION_STATE_PASSIVE;
 	}
 
 	/**
@@ -265,6 +305,7 @@ class SiteSyncStatusBuilder {
 			$this->detailRow( $this->text( 'Expected export by' ), $this->formatTimestamp( $record->expected_export_by ) ),
 			$this->detailRow( $this->text( 'Next ping due' ), $this->formatTimestamp( $record->next_ping_at ) ),
 		];
+		$rows = \array_merge( $rows, $this->buildInvitationDetailsRows( $record ) );
 
 		return \sprintf( '<div class="import-export-sync-details"><dl class="mb-0">%s</dl></div>', \implode( '', $rows ) );
 	}
@@ -296,12 +337,62 @@ class SiteSyncStatusBuilder {
 				return $this->text( 'Update notification sent; waiting for this site to send its export.' );
 			case SitesDB::QUEUE_PENDING_INVITE:
 			case SitesDB::QUEUE_PENDING_CONNECTION:
-				return $this->text( 'Waiting for this client to connect before syncing. To retry, remove and re-add the site.' );
+				return $this->invitationReason( $record );
 			case SitesDB::QUEUE_QUEUED:
 				return $this->text( 'This site is queued for its next sync ping.' );
 			default:
 				return $this->text( 'Sync work is pending.' );
 		}
+	}
+
+	private function invitationReason( Record $record ) :string {
+		$invitation = ( new InvitationMetadata() )->normalize( $record->meta );
+		$attempts = $invitation[ 'attempts_started' ];
+		switch ( $this->invitationStateForRecord( $record ) ) {
+			case self::INVITATION_STATE_QUEUED:
+				return $this->text( 'The invitation is queued to be sent.' );
+			case self::INVITATION_STATE_STARTED_RETRYABLE:
+				return \sprintf(
+					$this->text( 'Invitation attempt %1$s started, but its outcome is not recorded. The next attempt is eligible at %2$s.' ),
+					$attempts,
+					$this->formatTimestamp( $record->next_ping_at )
+				);
+			case self::INVITATION_STATE_RETRY_SCHEDULED:
+				return \sprintf(
+					$this->text( 'Invitation attempt %1$s failed. The next attempt is eligible at %2$s.' ),
+					$attempts,
+					$this->formatTimestamp( $record->next_ping_at )
+				);
+			case self::INVITATION_STATE_FINAL_SETTLEMENT:
+				return $this->text( 'The final invitation attempt started with no recorded outcome. No further invitation will be sent; pending work will close the cycle.' );
+			case self::INVITATION_STATE_RESPONSE_UNCONFIRMED:
+				return $this->text( 'The invitation received a response, but the connection is unconfirmed. Check the client for the invitation or an existing master connection. If it is already linked to this master, use Sync settings now on the client.' );
+			case self::INVITATION_STATE_EXHAUSTED_FAILURE:
+				return $this->text( 'Automatic invitation attempts are exhausted after a failure. Inspect and correct the failure before using Retry invitation to start a new cycle.' );
+			case self::INVITATION_STATE_EXHAUSTED_UNKNOWN:
+				return $this->text( 'The final invitation outcome is unknown and no further invitation will be sent. Check the client for an invitation or existing master connection before using Retry invitation. If it is already linked to this master, use Sync settings now on the client.' );
+			case self::INVITATION_STATE_PASSIVE:
+			default:
+				return $this->text( 'Waiting for this client to connect. No invitation result is recorded; use Retry invitation or connect from the client. If it is already linked to this master, use Sync settings now on the client.' );
+		}
+	}
+
+	private function buildInvitationDetailsRows( Record $record ) :array {
+		if ( !\in_array( $record->queue_status, [
+			SitesDB::QUEUE_PENDING_INVITE,
+			SitesDB::QUEUE_PENDING_CONNECTION,
+		], true ) ) {
+			return [];
+		}
+
+		$invitation = ( new InvitationMetadata() )->normalize( $record->meta );
+		return [
+			$this->detailRow( $this->text( 'Invitation state' ), $this->formatKey( $this->invitationStateForRecord( $record ) ) ),
+			$this->detailRow( $this->text( 'Invitation attempts' ), \sprintf( '%d / %d', $invitation[ 'attempts_started' ], InvitationMetadata::MAX_ATTEMPTS ) ),
+			$this->detailRow( $this->text( 'Last invitation attempt' ), $this->formatTimestamp( $invitation[ 'last_attempt_started_at' ] ?? 0 ) ),
+			$this->detailRow( $this->text( 'Invitation result' ), $invitation[ 'last_result' ] === null ? $this->text( 'None recorded' ) : $this->formatKey( $invitation[ 'last_result' ] ) ),
+			$this->detailRow( $this->text( 'Invitation HTTP result' ), $invitation[ 'last_http_status' ] === null ? $this->text( 'None recorded' ) : (string)$invitation[ 'last_http_status' ] ),
+		];
 	}
 
 	private function currentFailureReason( Record $record ) :string {

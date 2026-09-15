@@ -21,6 +21,7 @@ use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Site
 	PingSender,
 	QueueRunner,
 	QueueScheduler,
+	InvitationMetadata,
 	SiteRepository,
 	SyncSiteInviteSender
 };
@@ -703,24 +704,383 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$this->assertSame( 7, $stillDue );
 	}
 
-	public function test_queue_runner_sends_pending_invite_once_and_waits_for_connection() :void {
+	public function test_queue_runner_retries_failed_invites_on_bounded_schedule() :void {
+		$this->setRequestTimestamp( 1712620800 );
 		$repo = $this->repo();
 		$row = $repo->upsertPendingClientSite( 'https://invite-queued.example.com', SitesDB::SOURCE_MANUAL, true );
-		$inviteSender = new ImportExportInviteSenderTestDouble();
+		$inviteSender = new ImportExportInviteSenderTestDouble( [
+			[ InvitationMetadata::RESULT_TRANSPORT_FAILURE, 0 ],
+			[ InvitationMetadata::RESULT_HTTP_FAILURE, 500 ],
+			[ InvitationMetadata::RESULT_SENDER_FAILURE, 0 ],
+		] );
 		$runner = new ImportExportQueueRunnerTestDouble(
 			new ImportExportPingSenderTestDouble( true, 204, '' ),
 			$inviteSender
 		);
 
 		$runner->run();
+		$row = $repo->findById( $row->id, true );
+		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $row->queue_status );
+		$this->assertSame( 1712621700, $row->next_ping_at );
+		$this->assertSame( 1, ( new InvitationMetadata() )->normalize( $row->meta )[ 'attempts_started' ] );
+
+		$this->setRequestTimestamp( 1712621699 );
+		$runner->run();
+		$this->assertCount( 1, $inviteSender->urls );
+
+		$this->setRequestTimestamp( 1712621700 );
+		$runner->run();
+		$row = $repo->findById( $row->id, true );
+		$this->assertSame( 1712623500, $row->next_ping_at );
+		$this->assertSame( 2, ( new InvitationMetadata() )->normalize( $row->meta )[ 'attempts_started' ] );
+
+		$this->setRequestTimestamp( 1712623500 );
+		$runner->run();
+		$this->setRequestTimestamp( 1712625000 );
 		$runner->run();
 
 		$row = $repo->findById( $row->id, true );
-		$this->assertSame( [ 'https://invite-queued.example.com' ], $inviteSender->urls );
-		$this->assertSame( [ 2 ], $inviteSender->timeouts );
+		$this->assertCount( 3, $inviteSender->urls );
+		$this->assertSame( [ 2, 2, 2 ], $inviteSender->timeouts );
 		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $row->queue_status );
 		$this->assertSame( 0, $row->next_ping_at );
 		$this->assertSame( 0, $row->last_ping_attempt_at );
+		$this->assertSame( 3, ( new InvitationMetadata() )->normalize( $row->meta )[ 'attempts_started' ] );
+	}
+
+	public function test_queue_runner_treats_successful_http_response_as_unconfirmed_connection() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertPendingClientSite( 'https://invite-http.example.com', SitesDB::SOURCE_MANUAL, true );
+		$sender = new ImportExportInviteSenderTestDouble( [ InvitationMetadata::RESULT_HTTP_RESPONSE ], 204 );
+
+		( new ImportExportQueueRunnerTestDouble( new ImportExportPingSenderTestDouble( true, 204, '' ), $sender ) )->run();
+
+		$row = $repo->findById( $row->id, true );
+		$invitation = ( new InvitationMetadata() )->normalize( $row->meta );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $row->queue_status );
+		$this->assertSame( InvitationMetadata::RESULT_HTTP_RESPONSE, $invitation[ 'last_result' ] );
+		$this->assertSame( 204, $invitation[ 'last_http_status' ] );
+	}
+
+	public function test_interrupted_third_attempt_settles_without_a_fourth_send() :void {
+		$this->setRequestTimestamp( 1712620800 );
+		$repo = $this->repo();
+		$row = $repo->upsertPendingClientSite( 'https://invite-interrupted.example.com', SitesDB::SOURCE_MANUAL, true );
+		foreach ( [ 1, 2 ] as $attempt ) {
+			$claimed = $repo->claimDueInviteRows( 1, Services::Request()->ts() + QueueRunner::LOCK_TIMEOUT )[ 0 ];
+			$this->assertSame( 1, $repo->startInviteAttempt( $claimed, Services::Request()->ts() ) );
+			$started = $repo->findById( $row->id, true );
+			$this->assertSame( 1, $repo->recordInviteResult( $started, InvitationMetadata::RESULT_TRANSPORT_FAILURE ) );
+			$this->setRequestTimestamp( $started->next_ping_at );
+		}
+
+		$settlementAt = Services::Request()->ts() + QueueRunner::LOCK_TIMEOUT;
+		$claimed = $repo->claimDueInviteRows( 1, $settlementAt )[ 0 ];
+		$this->assertSame( 1, $repo->startInviteAttempt( $claimed, Services::Request()->ts() ) );
+		$this->assertSame( $settlementAt, $repo->findById( $row->id, true )->next_ping_at );
+		$this->setRequestTimestamp( $settlementAt );
+		$sender = new ImportExportInviteSenderTestDouble();
+		( new ImportExportQueueRunnerTestDouble( new ImportExportPingSenderTestDouble( true, 204, '' ), $sender ) )->run();
+
+		$row = $repo->findById( $row->id, true );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $row->queue_status );
+		$this->assertSame( InvitationMetadata::RESULT_STARTED, ( new InvitationMetadata() )->normalize( $row->meta )[ 'last_result' ] );
+		$this->assertSame( [], $sender->urls );
+	}
+
+	public function test_active_pending_authorisation_resubmission_preserves_invitation_cycle() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertPendingClientSite( 'https://invite-resubmit.example.com', SitesDB::SOURCE_MANUAL, true );
+		$meta = $row->meta;
+		$invitation = ( new InvitationMetadata() )->normalize( $meta );
+		$invitation[ 'attempts_started' ] = InvitationMetadata::MAX_ATTEMPTS;
+		$invitation[ 'last_attempt_started_at' ] = Services::Request()->ts();
+		$invitation[ 'last_result' ] = InvitationMetadata::RESULT_HTTP_FAILURE;
+		$invitation[ 'last_http_status' ] = 500;
+		$meta = ( new InvitationMetadata() )->replace( $meta, $invitation );
+		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+			'queue_status' => SitesDB::QUEUE_PENDING_CONNECTION,
+			'next_ping_at' => 0,
+			'meta'         => $this->requireController()->db_con->import_export_sites->getRecord()->arrayDataWrap( $meta ) ?? '',
+		] );
+		$before = $repo->findById( $row->id, true )->getRawData();
+
+		$repo->upsertPendingClientSite( $row->url, SitesDB::SOURCE_MANUAL, false );
+		$repo->upsertPendingClientSite( $row->url, SitesDB::SOURCE_MANUAL, true );
+
+		$this->assertSame( $before, $repo->findById( $row->id, true )->getRawData() );
+	}
+
+	public function test_legacy_pending_invite_without_metadata_starts_at_attempt_one() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertPendingClientSite( 'https://invite-legacy.example.com', SitesDB::SOURCE_MANUAL, true );
+		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+			'meta' => $this->requireController()->db_con->import_export_sites->getRecord()->arrayDataWrap( [ 'preserved' => true ] ) ?? '',
+		] );
+
+		( new ImportExportQueueRunnerTestDouble(
+			new ImportExportPingSenderTestDouble( true, 204, '' ),
+			new ImportExportInviteSenderTestDouble( [ InvitationMetadata::RESULT_TRANSPORT_FAILURE ], 0 )
+		) )->run();
+
+		$meta = $repo->findById( $row->id, true )->meta;
+		$invitation = ( new InvitationMetadata() )->normalize( $meta );
+		$this->assertSame( 1, $invitation[ 'attempts_started' ] );
+		$this->assertNotSame( '', $invitation[ 'cycle_id' ] );
+		$this->assertTrue( $meta[ 'preserved' ] );
+	}
+
+	public function test_disabled_scheduler_hook_preserves_due_retry_and_reenable_resumes_cycle() :void {
+		$this->enablePremiumCapabilities( [ 'import_export_level_2' ] );
+		$start = 1712620800;
+		$this->setRequestTimestamp( $start );
+		$repo = $this->repo();
+		$row = $repo->upsertPendingClientSite( 'https://example.com', SitesDB::SOURCE_MANUAL, true );
+		$firstSender = new ImportExportInviteSenderTestDouble( [ InvitationMetadata::RESULT_TRANSPORT_FAILURE ], 0 );
+		( new ImportExportQueueRunnerTestDouble( new ImportExportPingSenderTestDouble( true, 204, '' ), $firstSender ) )->run();
+		$paused = $repo->findById( $row->id, true );
+		$pausedRaw = $paused->getRawData();
+		$pausedCycleID = ( new InvitationMetadata() )->normalize( $paused->meta )[ 'cycle_id' ];
+		$httpRequests = 0;
+		$httpResponse = static function ( $preempt ) use ( &$httpRequests ) :array {
+			$httpRequests++;
+			return [
+				'headers'  => [],
+				'body'     => '',
+				'response' => [
+					'code'    => 200,
+					'message' => 'OK',
+				],
+				'cookies'  => [],
+				'filename' => null,
+			];
+		};
+		$scheduler = new QueueScheduler( fn() :bool => ( new ImportExportController() )->isSyncEnabled() );
+		$scheduler->setup();
+		\add_filter( 'pre_http_request', $httpResponse, 10, 3 );
+
+		try {
+			$this->requireController()->opts->optSet( 'importexport_enable', 'N' )->store();
+			$this->setRequestTimestamp( $start + 30*\MINUTE_IN_SECONDS );
+			\do_action( $scheduler->hook() );
+			$this->assertSame( 0, $httpRequests );
+			$this->assertSame( $pausedRaw, $repo->findById( $row->id, true )->getRawData() );
+
+			$this->requireController()->opts->optSet( 'importexport_enable', 'Y' )->store();
+			$this->assertTrue( ( new ImportExportController() )->isSyncEnabled() );
+			$this->assertNotFalse( \has_action( $scheduler->hook() ) );
+			\do_action( $scheduler->hook() );
+		}
+		finally {
+			\remove_filter( 'pre_http_request', $httpResponse, 10 );
+		}
+
+		$row = $repo->findById( $row->id, true );
+		$invitation = ( new InvitationMetadata() )->normalize( $row->meta );
+		$this->assertSame( 1, $httpRequests );
+		$this->assertSame( 2, $invitation[ 'attempts_started' ] );
+		$this->assertSame( $pausedCycleID, $invitation[ 'cycle_id' ] );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $row->queue_status );
+	}
+
+	/**
+	 * @dataProvider provideCooldownMetadataWriters
+	 */
+	public function test_stale_cooldown_metadata_writer_preserves_final_attempt_and_prevents_fourth_send(
+		string $writer,
+		string $cooldownKey
+	) :void {
+		$this->setRequestTimestamp( 1712620800 );
+		$repo = $this->repo();
+		$row = $repo->upsertPendingClientSite( "https://invite-stale-{$writer}.example.com", SitesDB::SOURCE_MANUAL, true );
+		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+			'meta' => $this->requireController()->db_con->import_export_sites->getRecord()->arrayDataWrap( [
+				'preserved' => true,
+			] ) ?? '',
+		] );
+		foreach ( [ 1, 2 ] as $attempt ) {
+			$claimed = $repo->claimDueInviteRows( 1, Services::Request()->ts() + QueueRunner::LOCK_TIMEOUT )[ 0 ];
+			$this->assertSame( 1, $repo->startInviteAttempt( $claimed, Services::Request()->ts() ) );
+			$started = $repo->findById( $row->id, true );
+			$this->assertSame( 1, $repo->recordInviteResult( $started, InvitationMetadata::RESULT_TRANSPORT_FAILURE ) );
+			$this->setRequestTimestamp( $started->next_ping_at );
+		}
+
+		$staleCooldownRow = $repo->findById( $row->id, true );
+		$settlementAt = Services::Request()->ts() + QueueRunner::LOCK_TIMEOUT;
+		$claimed = $repo->claimDueInviteRows( 1, $settlementAt )[ 0 ];
+		$this->assertSame( 1, $repo->startInviteAttempt( $claimed, Services::Request()->ts() ) );
+		$thirdAttempt = $repo->findById( $row->id, true );
+		$thirdAttemptCycleID = ( new InvitationMetadata() )->normalize( $thirdAttempt->meta )[ 'cycle_id' ];
+		$cooldownTimestamp = Services::Request()->ts();
+
+		$repo->{$writer}( $staleCooldownRow );
+
+		$afterCooldown = $repo->findById( $row->id, true );
+		$afterCooldownInvitation = ( new InvitationMetadata() )->normalize( $afterCooldown->meta );
+		$this->assertSame( $cooldownTimestamp, $afterCooldown->meta[ $cooldownKey ] );
+		$this->assertTrue( $afterCooldown->meta[ 'preserved' ] );
+		$this->assertSame( $thirdAttemptCycleID, $afterCooldownInvitation[ 'cycle_id' ] );
+		$this->assertSame( 3, $afterCooldownInvitation[ 'attempts_started' ] );
+		$this->assertSame( 0, $repo->recordInviteResult( $thirdAttempt, InvitationMetadata::RESULT_TRANSPORT_FAILURE ) );
+		$this->setRequestTimestamp( $settlementAt );
+		$sender = new ImportExportInviteSenderTestDouble();
+		( new ImportExportQueueRunnerTestDouble(
+			new ImportExportPingSenderTestDouble( true, 204, '' ),
+			$sender
+		) )->run();
+
+		$settled = $repo->findById( $row->id, true );
+		$this->assertSame( [], $sender->urls );
+		$this->assertSame( SitesDB::QUEUE_PENDING_CONNECTION, $settled->queue_status );
+		$this->assertSame( 3, ( new InvitationMetadata() )->normalize( $settled->meta )[ 'attempts_started' ] );
+	}
+
+	public function provideCooldownMetadataWriters() :array {
+		return [
+			'handshake attempt' => [ 'recordHandshakeAttempt', 'handshake_attempt_at' ],
+			'export served'     => [ 'recordExportServed', 'export_served_at' ],
+		];
+	}
+
+	public function test_superseded_attempt_cannot_consume_or_overwrite_manual_restart_cycle() :void {
+		$repo = new ImportExportRestartAfterStartRepositoryTestDouble();
+		$row = $repo->upsertPendingClientSite( 'https://invite-snapshot.example.com', SitesDB::SOURCE_MANUAL, true );
+		$oldCycleID = ( new InvitationMetadata() )->normalize( $row->meta )[ 'cycle_id' ];
+		$sender = new ImportExportInviteSenderTestDouble();
+
+		( new ImportExportQueueRunnerTestDouble(
+			new ImportExportPingSenderTestDouble( true, 204, '' ),
+			$sender,
+			$repo
+		) )->run();
+
+		$this->assertSame( [ $row->url ], $sender->urls );
+		$current = $this->repo()->findById( $row->id, true );
+		$invitation = ( new InvitationMetadata() )->normalize( $current->meta );
+		$this->assertSame( SitesDB::QUEUE_PENDING_INVITE, $current->queue_status );
+		$this->assertSame( 0, $invitation[ 'attempts_started' ] );
+		$this->assertSame( $repo->restartCycleID, $invitation[ 'cycle_id' ] );
+		$this->assertNotSame( $oldCycleID, $invitation[ 'cycle_id' ] );
+	}
+
+	public function test_each_attempt_uses_its_actual_start_time_for_backoff() :void {
+		$start = 1712620800;
+		$this->setRequestTimestamp( $start );
+		$repo = $this->repo();
+		$first = $repo->upsertPendingClientSite( 'https://invite-clock-one.example.com', SitesDB::SOURCE_MANUAL, true );
+		$second = $repo->upsertPendingClientSite( 'https://invite-clock-two.example.com', SitesDB::SOURCE_MANUAL, true );
+		$sender = new ImportExportInviteSenderTestDouble(
+			[ InvitationMetadata::RESULT_TRANSPORT_FAILURE, InvitationMetadata::RESULT_TRANSPORT_FAILURE ],
+			0,
+			function ( int $sendCount ) use ( $start ) :void {
+				if ( $sendCount === 1 ) {
+					$this->setRequestTimestamp( $start + 60 );
+				}
+			}
+		);
+
+		( new ImportExportQueueRunnerTestDouble( new ImportExportPingSenderTestDouble( true, 204, '' ), $sender ) )->run();
+
+		$this->assertSame( $start + 15*\MINUTE_IN_SECONDS, $repo->findById( $first->id, true )->next_ping_at );
+		$this->assertSame( $start + 60 + 15*\MINUTE_IN_SECONDS, $repo->findById( $second->id, true )->next_ping_at );
+	}
+
+	public function test_claim_only_does_not_start_an_invitation_attempt() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertPendingClientSite( 'https://invite-claim-only.example.com', SitesDB::SOURCE_MANUAL, true );
+
+		$repo->claimDueInviteRows( 1, Services::Request()->ts() + QueueRunner::LOCK_TIMEOUT );
+
+		$claimed = $repo->findById( $row->id, true );
+		$this->assertSame( 0, ( new InvitationMetadata() )->normalize( $claimed->meta )[ 'attempts_started' ] );
+		$this->assertGreaterThan( 0, $claimed->lock_until );
+	}
+
+	public function test_failed_attempt_start_sends_nothing_and_consumes_the_invitation_batch() :void {
+		global $wpdb;
+		$repo = $this->repo();
+		for ( $i = 0; $i < QueueRunner::BATCH_SIZE; $i++ ) {
+			$repo->upsertPendingClientSite( "https://invite-failed-start-{$i}.example.com", SitesDB::SOURCE_MANUAL, true );
+		}
+		$sync = $repo->upsertActive( 'https://sync-after-failed-starts.example.com', SitesDB::SOURCE_MANUAL, 'sync-id', true );
+		$inviteSender = new ImportExportInviteSenderTestDouble();
+		$pingSender = new ImportExportPingSenderTestDouble( true, 204, '' );
+		$table = $this->requireController()->db_con->import_export_sites->getTable();
+		$queryFailure = static function ( string $query ) use ( $table ) :string {
+			return \strpos( $query, "UPDATE `{$table}`" ) !== false && \strpos( $query, 'BINARY `meta`' ) !== false
+				? 'UPDATE intentionally_invalid_invitation_sql'
+				: $query;
+		};
+		\add_filter( 'query', $queryFailure, 1000 );
+		$previousShowErrors = $wpdb->hide_errors();
+		$previousSuppressErrors = $wpdb->suppress_errors( true );
+
+		try {
+			( new ImportExportQueueRunnerTestDouble( $pingSender, $inviteSender, $repo ) )->run();
+		}
+		finally {
+			\remove_filter( 'query', $queryFailure, 1000 );
+			$wpdb->show_errors( $previousShowErrors );
+			$wpdb->suppress_errors( $previousSuppressErrors );
+		}
+
+		$this->assertSame( [], $inviteSender->urls );
+		$this->assertSame( [], $pingSender->importIDs );
+		$this->assertSame( SitesDB::QUEUE_QUEUED, $this->repo()->findById( $sync->id, true )->queue_status );
+	}
+
+	public function test_failed_result_persistence_retains_started_snapshot_and_due_time() :void {
+		$start = 1712620800;
+		$this->setRequestTimestamp( $start );
+		$repo = new ImportExportFailedResultRepositoryTestDouble();
+		$row = $repo->upsertPendingClientSite( 'https://invite-result-write.example.com', SitesDB::SOURCE_MANUAL, true );
+
+		( new ImportExportQueueRunnerTestDouble(
+			new ImportExportPingSenderTestDouble( true, 204, '' ),
+			new ImportExportInviteSenderTestDouble( [ InvitationMetadata::RESULT_TRANSPORT_FAILURE ], 0 ),
+			$repo
+		) )->run();
+
+		$row = $this->repo()->findById( $row->id, true );
+		$invitation = ( new InvitationMetadata() )->normalize( $row->meta );
+		$this->assertSame( InvitationMetadata::RESULT_STARTED, $invitation[ 'last_result' ] );
+		$this->assertSame( 1, $invitation[ 'attempts_started' ] );
+		$this->assertSame( $start + 15*\MINUTE_IN_SECONDS, $row->next_ping_at );
+	}
+
+	public function test_stale_invitation_writes_cannot_override_pull_delete_or_new_cycle() :void {
+		$repo = $this->repo();
+		$rows = [];
+		foreach ( [ 'pull', 'delete', 'cycle' ] as $case ) {
+			$row = $repo->upsertPendingClientSite( "https://invite-superseded-{$case}.example.com", SitesDB::SOURCE_MANUAL, true );
+			$claimed = $repo->claimDueInviteRows( 1, Services::Request()->ts() + QueueRunner::LOCK_TIMEOUT )[ 0 ];
+			$this->assertSame( 1, $repo->startInviteAttempt( $claimed, Services::Request()->ts() ) );
+			$rows[ $case ] = $claimed;
+		}
+
+		$repo->recordExportSuccess( $rows[ 'pull' ]->url, SitesDB::EXPORT_RESULT_SUCCESS, 'fresh-id' );
+		$repo->softDeleteUrl( $rows[ 'delete' ]->url );
+		$this->assertSame( 1, $repo->recordInviteResult( $rows[ 'cycle' ], InvitationMetadata::RESULT_HTTP_RESPONSE, 200 ) );
+		$this->assertSame( 1, $repo->restartInvitationsByIds( [ $rows[ 'cycle' ]->id ] )[ 'queued_count' ] );
+
+		foreach ( $rows as $row ) {
+			$this->assertSame( 0, $repo->recordInviteResult( $row, InvitationMetadata::RESULT_HTTP_FAILURE, 500 ) );
+		}
+		$this->assertSame( SitesDB::QUEUE_IDLE, $repo->findById( $rows[ 'pull' ]->id, true )->queue_status );
+		$this->assertSame( SitesDB::STATUS_DELETED, $repo->findById( $rows[ 'delete' ]->id, true )->status );
+		$this->assertSame( 0, ( new InvitationMetadata() )->normalize( $repo->findById( $rows[ 'cycle' ]->id, true )->meta )[ 'attempts_started' ] );
+	}
+
+	public function test_invitation_compare_and_swap_uses_binary_raw_metadata() :void {
+		$repo = $this->repo();
+		$row = $repo->upsertPendingClientSite( 'https://invite-binary-cas.example.com', SitesDB::SOURCE_MANUAL, true );
+		$claimed = $repo->claimDueInviteRows( 1, Services::Request()->ts() + QueueRunner::LOCK_TIMEOUT )[ 0 ];
+		$rawMeta = (string)$claimed->getRawData()[ 'meta' ];
+		$caseChanged = \strtr( $rawMeta, 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' );
+		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [ 'meta' => $caseChanged ] );
+
+		$this->assertSame( 0, $repo->startInviteAttempt( $claimed, Services::Request()->ts() ) );
 	}
 
 	public function test_upserts_repair_invalid_existing_profile_refs() :void {
@@ -1105,7 +1465,10 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 			'queued_at'    => 0,
 			'next_ping_at' => 0,
 		] );
-		$repo->recordInviteProcessed( $pending );
+		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $pending->id, [
+			'queue_status' => SitesDB::QUEUE_PENDING_CONNECTION,
+			'next_ping_at' => 0,
+		] );
 		$repo->softDeleteUrl( $deleted->url );
 		$repo->recordExportSuccess( $broken->url, SitesDB::EXPORT_RESULT_SUCCESS, 'stale-id' );
 		$repo->recordExportFailure( $broken->url, SitesDB::EXPORT_RESULT_VERIFY_FAILED, 'verify failed' );
@@ -1838,6 +2201,12 @@ class ImportExportSitesRegistryIntegrationTest extends ShieldIntegrationTestCase
 		$method->invoke( $this->requireController() );
 	}
 
+	private function setRequestTimestamp( int $timestamp ) :void {
+		ServicesState::mergeItems( [
+			'service_request' => new ImportExportSitesExportRequestStub( [], $timestamp ),
+		] );
+	}
+
 	private function execTableAction( ImportExportSitesTableAction $action ) :void {
 		$method = new \ReflectionMethod( $action, 'exec' );
 		$method->setAccessible( true );
@@ -1849,10 +2218,20 @@ class ImportExportQueueRunnerTestDouble extends QueueRunner {
 
 	private PingSender $sender;
 	private ?SyncSiteInviteSender $inviteSender;
+	private ?SiteRepository $siteRepository;
 
-	public function __construct( PingSender $sender, ?SyncSiteInviteSender $inviteSender = null ) {
+	public function __construct(
+		PingSender $sender,
+		?SyncSiteInviteSender $inviteSender = null,
+		?SiteRepository $siteRepository = null
+	) {
 		$this->sender = $sender;
 		$this->inviteSender = $inviteSender;
+		$this->siteRepository = $siteRepository;
+	}
+
+	protected function repository() :SiteRepository {
+		return $this->siteRepository ?? parent::repository();
 	}
 
 	protected function pingSender() :PingSender {
@@ -1894,15 +2273,57 @@ class ImportExportInviteSenderTestDouble extends SyncSiteInviteSender {
 
 	public array $urls = [];
 	public array $timeouts = [];
+	private array $results;
+	private int $httpStatus;
+	private $afterSend;
+
+	public function __construct(
+		array $results = [ InvitationMetadata::RESULT_HTTP_RESPONSE ],
+		int $httpStatus = 200,
+		?callable $afterSend = null
+	) {
+		$this->results = $results;
+		$this->httpStatus = $httpStatus;
+		$this->afterSend = $afterSend;
+	}
 
 	public function send( string $url, int $timeout = 2 ) :array {
 		$this->urls[] = $url;
 		$this->timeouts[] = $timeout;
-		return [
-			'success'   => true,
-			'http_code' => 200,
-			'error'     => '',
+		if ( \is_callable( $this->afterSend ) ) {
+			( $this->afterSend )( \count( $this->urls ) );
+		}
+		$outcome = \array_shift( $this->results ) ?? InvitationMetadata::RESULT_SENDER_FAILURE;
+		return \is_array( $outcome ) ? [
+			'result'      => (string)( $outcome[ 0 ] ?? InvitationMetadata::RESULT_SENDER_FAILURE ),
+			'http_status' => (int)( $outcome[ 1 ] ?? 0 ),
+		] : [
+			'result'      => (string)$outcome,
+			'http_status' => $this->httpStatus,
 		];
+	}
+}
+
+class ImportExportRestartAfterStartRepositoryTestDouble extends SiteRepository {
+
+	public string $restartCycleID = '';
+
+	public function startInviteAttempt( Record $row, int $startedAt ) {
+		$result = parent::startInviteAttempt( $row, $startedAt );
+		if ( $result === 1 ) {
+			parent::recordInviteResult( $row, InvitationMetadata::RESULT_HTTP_RESPONSE, 200 );
+			parent::restartInvitationsByIds( [ $row->id ] );
+			$current = parent::findById( $row->id, true );
+			$this->restartCycleID = ( new InvitationMetadata() )->normalize( $current->meta )[ 'cycle_id' ];
+		}
+		return $result;
+	}
+}
+
+class ImportExportFailedResultRepositoryTestDouble extends SiteRepository {
+
+	public function recordInviteResult( Record $row, string $result, int $httpStatus = 0 ) {
+		return false;
 	}
 }
 
