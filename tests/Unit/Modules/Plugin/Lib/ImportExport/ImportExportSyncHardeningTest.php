@@ -20,7 +20,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\Controller\Controller;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Import;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\ImportExportController;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\PingSender;
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\QueueScheduler;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\{
+	QueueProcessor,
+	QueueScheduler
+};
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteInviteSender;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\SyncSiteUrlValidator;
 use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\InvitationMetadata;
@@ -660,6 +663,45 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertSame( 1712620845, $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
 	}
 
+	public function test_queue_scheduler_recreates_health_event_before_running_worker() :void {
+		$callbacks = [];
+		Functions\when( 'add_action' )->alias( static function ( string $hook, callable $callback ) use ( &$callbacks ) :bool {
+			$callbacks[ $hook ] = $callback;
+			return true;
+		} );
+		$hook = $this->queueCronHook();
+		$workerRan = false;
+		$scheduler = new QueueScheduler(
+			static fn() :bool => true,
+			function () use ( &$workerRan, $hook ) :void {
+				$this->assertSame( 1712621100, $this->scheduledEvents[ $hook ] ?? false );
+				$workerRan = true;
+			}
+		);
+		$scheduler->setup();
+		unset( $this->scheduledEvents[ $hook ] );
+
+		$callbacks[ $hook ]();
+
+		$this->assertTrue( $workerRan );
+	}
+
+	public function test_queue_processor_identity_is_specific_to_current_blog() :void {
+		$blogID = 17;
+		Functions\when( 'get_current_blog_id' )->alias( static function () use ( &$blogID ) :int {
+			return $blogID;
+		} );
+		Functions\when( 'add_action' )->justReturn( true );
+
+		$first = ( new ImportExportQueueProcessorIdentityTestDouble() )->identifierForTest();
+		$blogID = 29;
+		$second = ( new ImportExportQueueProcessorIdentityTestDouble() )->identifierForTest();
+
+		$this->assertNotSame( $first, $second );
+		$this->assertStringEndsWith( 'importexport_sites_queue_17', $first );
+		$this->assertStringEndsWith( 'importexport_sites_queue_29', $second );
+	}
+
 	public function test_schedule_queue_soon_schedules_when_enabled_and_available() :void {
 		$this->opts->optSet( 'importexport_enable', 'Y' )->store();
 
@@ -674,6 +716,16 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 
 		( new ImportExportController() )->scheduleQueueSoonIfSyncEnabled();
 
+		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
+	}
+
+	public function test_disabling_sync_clears_existing_queue_health_event() :void {
+		$this->opts->optSet( 'importexport_enable', 'Y' )->store();
+		$this->scheduledEvents[ $this->queueCronHook() ] = 1712620900;
+
+		( new ImportExportController() )->setAutomaticImportExportEnabled( false );
+
+		$this->assertSame( 'N', $this->opts->optGet( 'importexport_enable' ) );
 		$this->assertFalse( $this->scheduledEvents[ $this->queueCronHook() ] ?? false );
 	}
 
@@ -899,6 +951,17 @@ class ImportExportSyncHardeningTest extends BaseUnitTest {
 		$this->assertSame( $events[ 0 ][ 'callback_id' ] ?? null, $events[ 2 ][ 'callback_id' ] ?? null );
 	}
 
+}
+
+class ImportExportQueueProcessorIdentityTestDouble extends QueueProcessor {
+
+	public function __construct() {
+		parent::__construct( static fn() :bool => true );
+	}
+
+	public function identifierForTest() :string {
+		return $this->identifier;
+	}
 }
 
 class ImportExportOptsStoreStub {

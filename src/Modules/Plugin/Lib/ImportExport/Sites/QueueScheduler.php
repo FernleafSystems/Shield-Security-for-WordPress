@@ -13,9 +13,11 @@ class QueueScheduler {
 	public const INTERVAL = 300;
 
 	private \Closure $canRun;
+	private \Closure $runWorker;
 
-	public function __construct( ?callable $canRun = null ) {
+	public function __construct( ?callable $canRun = null, ?callable $runWorker = null ) {
 		$this->canRun = \Closure::fromCallable( $canRun ?? static fn() :bool => false );
+		$this->runWorker = \Closure::fromCallable( $runWorker ?? static function () :void {} );
 	}
 
 	public function setup() :void {
@@ -26,8 +28,8 @@ class QueueScheduler {
 				return;
 			}
 
-			( new QueueRunner() )->run();
 			$this->scheduleNext();
+			( $this->runWorker )();
 		}, 10, 0 );
 
 		$this->scheduleNext();

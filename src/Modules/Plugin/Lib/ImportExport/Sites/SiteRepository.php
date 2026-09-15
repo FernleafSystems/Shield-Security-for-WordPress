@@ -25,16 +25,16 @@ class SiteRepository {
 	private const SQL_BATCH_SIZE = 20;
 	private ?int $defaultProfileRef = null;
 
-	public function ensureLegacyImported( bool $includeOldQueueState = true ) :void {
+	public function ensureLegacyImported( bool $includeOldQueueState = true ) :bool {
 		$dbh = $this->dbOrNull();
 		if ( !( $dbh instanceof SitesDB ) || !$dbh->isReady() ) {
-			return;
+			return false;
 		}
 		if ( !$this->hasConfigHandler() ) {
-			return;
+			return true;
 		}
 		if ( (int)self::con()->opts->optGet( self::MIGRATED_AT_OPTION ) > 0 ) {
-			return;
+			return true;
 		}
 
 		$fallbackUrls = $this->canonicalLegacyWhitelistUrls();
@@ -77,12 +77,13 @@ class SiteRepository {
 		$insertSucceeded = $this->bulkInsertRows( $insertRows );
 		$updateSucceeded = $this->bulkUpdateRowsByHash( $updateRowsByHash );
 		if ( !$insertSucceeded || !$updateSucceeded ) {
-			return;
+			return false;
 		}
 
 		self::con()->opts->optSet( self::MIGRATED_AT_OPTION, $now );
 		$this->storeOptionsIfChanged();
 		$this->clearOldQueueState();
+		return true;
 	}
 
 	public function canonicalizeUrl( string $url ) :string {
@@ -211,66 +212,34 @@ class SiteRepository {
 		return $this->queueRows( $this->selectActiveRows() );
 	}
 
-	/**
-	 * @return Record[]
-	 */
-	public function claimDueRows( int $limit, int $lockUntil ) :array {
-		$now = Services::Request()->ts();
-		$rows = $this->selectDueRowsForClaim( $now, $limit );
-
-		$data = [
-			'queue_status' => SitesDB::QUEUE_PROCESSING,
-			'picked_at'    => $now,
-			'lock_until'   => $lockUntil,
-		];
-		$data = $this->withUpdatedAt( $data, $now );
-		$this->bulkUpdateRowsByIds( \array_map( static fn( Record $row ) :int => $row->id, $rows ), $data );
-
-		foreach ( $rows as $row ) {
-			foreach ( $data as $key => $value ) {
-				$row->{$key} = $value;
-			}
-		}
-
-		return $rows;
+	public function selectNextInterruptedNotification( ?int $now = null ) :?Record {
+		$rows = $this->selectExpiredProcessingRowsForRecovery( $now ?? Services::Request()->ts(), 1 );
+		return $rows[ 0 ] ?? null;
 	}
 
-	/**
-	 * @return Record[]
-	 */
-	public function claimDueInviteRows( int $limit, int $lockUntil ) :array {
-		$now = Services::Request()->ts();
-		$rows = $this->selectDueInviteRowsForClaim( $now, $limit );
-
-		$data = [
-			'picked_at'  => $now,
-			'lock_until' => $lockUntil,
-		];
-		$data = $this->withUpdatedAt( $data, $now );
-		$this->bulkUpdateRowsByIds( \array_map( static fn( Record $row ) :int => $row->id, $rows ), $data );
-
-		foreach ( $rows as $row ) {
-			foreach ( $data as $key => $value ) {
-				$row->{$key} = $value;
-			}
-		}
-
-		return $rows;
+	public function refreshInterruptedNotification( Record $selected, ?int $now = null ) :?Record {
+		$current = $this->findById( $selected->id, true );
+		$now = $now ?? Services::Request()->ts();
+		return $current instanceof Record
+			   && $current->status === SitesDB::STATUS_ACTIVE
+			   && $current->deleted_at === 0
+			   && $current->queue_status === SitesDB::QUEUE_PROCESSING
+			   && $current->lock_until > 0
+			   && $current->lock_until <= $now
+			? $current
+			: null;
 	}
 
-	public function recoverExpiredProcessingRows( int $limit ) :int {
-		$now = Services::Request()->ts();
-		$rows = $this->selectExpiredProcessingRowsForRecovery( $now, $limit );
-		if ( empty( $rows ) ) {
-			return 0;
-		}
+	public function selectNextDueWork( ?int $now = null ) :?Record {
+		$rows = $this->selectDueWork( $now ?? Services::Request()->ts(), 1 );
+		return $rows[ 0 ] ?? null;
+	}
 
-		$this->bulkUpdateRowsByIds(
-			\array_map( static fn( Record $row ) :int => $row->id, $rows ),
-			$this->buildQueueDueData( $now )
-		);
-
-		return \count( $rows );
+	public function hasActionableWork( ?int $now = null ) :bool {
+		$now = $now ?? Services::Request()->ts();
+		return $this->selectNextInterruptedNotification( $now ) instanceof Record
+			   || $this->selectNextDueWork( $now ) instanceof Record
+			   || !empty( $this->selectExpiredWaitingExportRowsWithSql( $now, 1 ) );
 	}
 
 	/**
@@ -289,15 +258,18 @@ class SiteRepository {
 			return 0;
 		}
 		$attempt = $invitation[ 'attempts_started' ] + 1;
+		$deadline = $startedAt + QueueProcessor::INVITE_PROCESSING_DEADLINE;
 		$nextPingAt = $attempt === InvitationMetadata::MAX_ATTEMPTS
-			? $row->lock_until
+			? $deadline
 			: $startedAt + ( $attempt === 1 ? 15 : 30 )*\MINUTE_IN_SECONDS;
 
 		$data = [
 			'meta'         => ( new InvitationMetadata() )->startAttempt( $row->meta, $startedAt ),
 			'next_ping_at' => $nextPingAt,
+			'picked_at'    => $startedAt,
+			'lock_until'   => $deadline,
 		];
-		$result = $this->conditionalMetadataUpdate( $row, $data, true );
+		$result = $this->conditionalMetadataUpdate( $row, $data );
 		if ( $result === 1 ) {
 			foreach ( $data as $key => $value ) {
 				$row->{$key} = $value;
@@ -383,17 +355,22 @@ class SiteRepository {
 		return $counts;
 	}
 
-	public function recordPingAttempt( Record $row ) :void {
-		$now = Services::Request()->ts();
-		$this->updateById( $row->id, [
-			'last_ping_attempt_at' => $now,
+	public function startNotificationAttempt( Record $row, int $startedAt, bool $recovery = false ) :bool {
+		$metadata = new NotificationMetadata();
+		$meta = $recovery ? $metadata->increment( $row->meta ) : $metadata->startFreshCycle( $row->meta );
+		return $this->updateById( $row->id, [
+			'queue_status'        => SitesDB::QUEUE_PROCESSING,
+			'picked_at'           => $startedAt,
+			'lock_until'          => $startedAt + \MINUTE_IN_SECONDS,
+			'last_ping_attempt_at' => $startedAt,
 			'ping_attempts_total'  => $row->ping_attempts_total + 1,
+			'meta'                 => $meta,
 		] );
 	}
 
-	public function recordNotifyDispatched( Record $row, int $httpCode, int $expectedExportBy ) :void {
+	public function recordNotifyDispatched( Record $row, int $httpCode, int $expectedExportBy ) :bool {
 		$now = Services::Request()->ts();
-		$this->updateById( $row->id, [
+		return $this->updateById( $row->id, [
 			'queue_status'          => SitesDB::QUEUE_WAITING_EXPORT,
 			'last_ping_success_at'  => $now,
 			'last_ping_http_code'   => $httpCode,
@@ -401,6 +378,7 @@ class SiteRepository {
 			'expected_export_by'    => $expectedExportBy,
 			'lock_until'            => 0,
 			'picked_at'             => 0,
+			'meta'                  => ( new NotificationMetadata() )->reset( $row->meta ),
 		] );
 	}
 
@@ -423,9 +401,9 @@ class SiteRepository {
 		$this->setMetaTimestamp( $row, self::META_HANDSHAKE_ATTEMPT_AT );
 	}
 
-	public function recordPingFailure( Record $row, int $httpCode, string $error ) :void {
+	public function recordPingFailure( Record $row, int $httpCode, string $error ) :bool {
 		$failures = $row->consecutive_failures + 1;
-		$this->updateById( $row->id, [
+		return $this->updateById( $row->id, [
 			'queue_status'          => SitesDB::QUEUE_QUEUED,
 			'last_ping_failure_at'  => Services::Request()->ts(),
 			'last_ping_http_code'   => $httpCode,
@@ -435,12 +413,29 @@ class SiteRepository {
 			'lock_until'            => 0,
 			'picked_at'             => 0,
 			'expected_export_by'    => 0,
+			'meta'                  => ( new NotificationMetadata() )->reset( $row->meta ),
 		] );
 	}
 
-	public function recordExportTimeout( Record $row ) :void {
+	public function recordInterruptedNotificationExhaustion( Record $row ) :bool {
 		$failures = $row->consecutive_failures + 1;
-		$this->updateById( $row->id, [
+		return $this->updateById( $row->id, [
+			'queue_status'         => SitesDB::QUEUE_QUEUED,
+			'last_ping_failure_at' => Services::Request()->ts(),
+			'last_ping_http_code'  => 0,
+			'last_ping_error'      => 'Notification interrupted three times; retry deferred.',
+			'consecutive_failures' => $failures,
+			'next_ping_at'         => $this->nextRetryAt( $failures ),
+			'lock_until'           => 0,
+			'picked_at'            => 0,
+			'expected_export_by'   => 0,
+			'meta'                 => ( new NotificationMetadata() )->reset( $row->meta ),
+		] );
+	}
+
+	public function recordExportTimeout( Record $row ) :bool {
+		$failures = $row->consecutive_failures + 1;
+		return $this->updateById( $row->id, [
 			'queue_status'             => SitesDB::QUEUE_QUEUED,
 			'last_export_failure_at'   => Services::Request()->ts(),
 			'last_export_result_code'  => SitesDB::EXPORT_RESULT_TIMEOUT,
@@ -1032,14 +1027,17 @@ class SiteRepository {
 	/**
 	 * @return Record[]
 	 */
-	private function selectDueRowsForClaim( int $now, int $limit ) :array {
+	private function selectDueWork( int $now, int $limit ) :array {
 		return $this->selectRowsWithSql( $this->prepareSql(
 			sprintf(
 				"SELECT * FROM `%s`
 				 WHERE `deleted_at`=0
 				   AND `status`=%%s
-				   AND `queue_status` IN (%%s,%%s)
-				   AND `next_ping_at`<=%%d
+				   AND (
+				     (`queue_status` IN (%%s,%%s) AND `next_ping_at`<=%%d)
+				     OR
+				     (`queue_status`=%%s AND `next_ping_at`>0 AND `next_ping_at`<=%%d)
+				   )
 				   AND (`lock_until`=0 OR `lock_until`<=%%d)
 				 ORDER BY `priority` DESC, `next_ping_at` ASC, `id` ASC
 				 LIMIT %%d",
@@ -1050,31 +1048,6 @@ class SiteRepository {
 				SitesDB::QUEUE_IDLE,
 				SitesDB::QUEUE_QUEUED,
 				(int)$now,
-				(int)$now,
-				\max( 1, (int)$limit ),
-			]
-		) );
-	}
-
-	/**
-	 * @return Record[]
-	 */
-	private function selectDueInviteRowsForClaim( int $now, int $limit ) :array {
-		return $this->selectRowsWithSql( $this->prepareSql(
-			sprintf(
-				"SELECT * FROM `%s`
-				 WHERE `deleted_at`=0
-				   AND `status`=%%s
-				   AND `queue_status`=%%s
-				   AND `next_ping_at`>0
-				   AND `next_ping_at`<=%%d
-				   AND (`lock_until`=0 OR `lock_until`<=%%d)
-				 ORDER BY `priority` DESC, `next_ping_at` ASC, `id` ASC
-				 LIMIT %%d",
-				$this->db()->getTable()
-			),
-			[
-				SitesDB::STATUS_ACTIVE,
 				SitesDB::QUEUE_PENDING_INVITE,
 				(int)$now,
 				(int)$now,
@@ -1095,7 +1068,7 @@ class SiteRepository {
 				   AND `queue_status`=%%s
 				   AND `lock_until`>0
 				   AND `lock_until`<=%%d
-				 ORDER BY `lock_until` ASC, `id` ASC
+				 ORDER BY `picked_at` ASC, `id` ASC
 				 LIMIT %%d",
 				$this->db()->getTable()
 			),
