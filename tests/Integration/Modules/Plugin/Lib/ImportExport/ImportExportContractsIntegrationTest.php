@@ -946,7 +946,12 @@ class ImportExportContractsIntegrationTest extends ShieldIntegrationTestCase {
 			'id'  => self::SLAVE_IMPORT_ID,
 		] ) );
 
-		$repo->recordNotifyDispatched( $repo->findById( $row->id, true ), 0, \time() + 600 );
+		$this->requireController()->db_con->import_export_sites->getQueryUpdater()->updateById( $row->id, [
+			'last_export_success_at' => Services::Request()->ts() - 1,
+		] );
+		$row = $repo->findById( $row->id, true );
+		$this->assertTrue( $repo->startNotificationAttempt( $row, Services::Request()->ts() ) );
+		$this->assertSame( 1, $repo->recordNotifyDispatched( $row, 0, Services::Request()->ts() + 600 ) );
 		$payload = $this->captureExportJson( [
 			'url' => self::MANUAL_PUBLIC_URL,
 			'id'  => self::SLAVE_IMPORT_ID,

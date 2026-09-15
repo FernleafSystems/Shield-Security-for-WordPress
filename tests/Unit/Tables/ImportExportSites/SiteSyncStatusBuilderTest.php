@@ -68,6 +68,37 @@ class SiteSyncStatusBuilderTest extends BaseUnitTest {
 		$this->assertSame( SiteSyncStatusBuilder::STATE_PROBLEM, $status[ 'state_key' ] );
 	}
 
+	/**
+	 * @dataProvider waitingExportBoundaryProvider
+	 */
+	public function test_waiting_export_expiry_boundary(
+		int $deadline,
+		int $pingSuccess,
+		int $exportSuccess,
+		string $expectedState
+	) :void {
+		$record = $this->record( [
+			'queue_status'           => SitesDB::QUEUE_WAITING_EXPORT,
+			'expected_export_by'     => $deadline,
+			'last_ping_success_at'   => $pingSuccess,
+			'last_export_success_at' => $exportSuccess,
+		] );
+
+		$this->assertSame( $expectedState, $this->builder()->stateForRecord( $record ) );
+	}
+
+	public static function waitingExportBoundaryProvider() :array {
+		return [
+			'absent deadline' => [ 0, self::NOW - 10, 0, SiteSyncStatusBuilder::STATE_PENDING ],
+			'before deadline without success' => [ self::NOW + 1, self::NOW - 10, 0, SiteSyncStatusBuilder::STATE_PENDING ],
+			'at deadline without success' => [ self::NOW, self::NOW - 10, 0, SiteSyncStatusBuilder::STATE_PROBLEM ],
+			'after deadline with equal positive success' => [ self::NOW - 1, self::NOW - 10, self::NOW - 10, SiteSyncStatusBuilder::STATE_PENDING ],
+			'after deadline with both timestamps zero' => [ self::NOW - 1, 0, 0, SiteSyncStatusBuilder::STATE_PROBLEM ],
+			'after deadline with older success' => [ self::NOW - 1, self::NOW - 10, self::NOW - 11, SiteSyncStatusBuilder::STATE_PROBLEM ],
+			'after deadline with newer success' => [ self::NOW - 1, self::NOW - 10, self::NOW - 9, SiteSyncStatusBuilder::STATE_PENDING ],
+		];
+	}
+
 	public function test_summary_uses_explicit_last_export_request_label() :void {
 		$status = $this->builder()->build( $this->record( [
 			'queue_status'            => SitesDB::QUEUE_IDLE,

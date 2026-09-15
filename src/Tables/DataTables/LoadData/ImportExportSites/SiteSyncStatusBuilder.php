@@ -6,7 +6,10 @@ use FernleafSystems\Wordpress\Plugin\Shield\DBs\ImportExportSites\Ops\{
 	Handler as SitesDB,
 	Record
 };
-use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\InvitationMetadata;
+use FernleafSystems\Wordpress\Plugin\Shield\Modules\Plugin\Lib\ImportExport\Sites\{
+	ExportWaitState,
+	InvitationMetadata
+};
 use FernleafSystems\Wordpress\Services\Services;
 
 class SiteSyncStatusBuilder {
@@ -481,11 +484,7 @@ class SiteSyncStatusBuilder {
 	}
 
 	private function isExpiredWaitingExportProblem( Record $record ) :bool {
-		return $record->status === SitesDB::STATUS_ACTIVE
-			   && $record->queue_status === SitesDB::QUEUE_WAITING_EXPORT
-			   && $record->expected_export_by > 0
-			   && $record->expected_export_by <= $this->now
-			   && $record->last_export_success_at <= $record->last_ping_success_at;
+		return ExportWaitState::isExpired( $record, $this->now );
 	}
 
 	private function hasQueuedOrIdleProblem( Record $record ) :bool {
@@ -555,9 +554,10 @@ class SiteSyncStatusBuilder {
 
 	private function sqlExpiredWaitingExportProblem() :string {
 		return \sprintf(
-			'(`queue_status`=%s AND `expected_export_by`>0 AND `expected_export_by`<=%d AND `last_export_success_at`<=`last_ping_success_at`)',
+			'(`queue_status`=%s AND `expected_export_by`>0 AND `expected_export_by`<=%d AND %s)',
 			$this->sqlValue( SitesDB::QUEUE_WAITING_EXPORT ),
-			$this->now
+			$this->now,
+			ExportWaitState::sqlUnsatisfiedSuccess()
 		);
 	}
 

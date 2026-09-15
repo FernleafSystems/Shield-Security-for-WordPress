@@ -50,7 +50,7 @@ class QueueProcessor extends BackgroundProcess {
 	protected function handle() {
 		$this->processingStartedAt = $this->now();
 		$this->lock_process();
-		$progress = false;
+		$workHandled = false;
 		$halt = false;
 
 		try {
@@ -60,12 +60,15 @@ class QueueProcessor extends BackgroundProcess {
 			}
 
 			if ( !$halt ) {
-				foreach ( $repo->selectExpiredWaitingExportRows( self::EXPORT_MAINTENANCE_LIMIT ) as $row ) {
-					if ( !$repo->recordExportTimeout( $row ) ) {
+				foreach ( $repo->selectExportMaintenanceRows( self::EXPORT_MAINTENANCE_LIMIT ) as $row ) {
+					$result = ExportWaitState::isReconcilable( $row )
+						? $repo->recordExportReconciliation( $row )
+						: $repo->recordExportTimeout( $row );
+					if ( $result === false ) {
 						$halt = true;
 						break;
 					}
-					$progress = true;
+					$workHandled = true;
 				}
 			}
 
@@ -87,20 +90,25 @@ class QueueProcessor extends BackgroundProcess {
 
 				if ( $row->queue_status === SitesDB::QUEUE_PENDING_INVITE ) {
 					$result = $this->processInvitation( $repo, $row );
+					if ( $result === false ) {
+						$halt = true;
+					}
+					elseif ( $result === true ) {
+						$workHandled = true;
+					}
+					else {
+						$workHandled = true;
+						break;
+					}
 				}
 				else {
 					$result = $this->processNotification( $repo, $row, $interrupted instanceof Record );
-				}
-
-				if ( $result === false ) {
-					$halt = true;
-				}
-				elseif ( $result === true ) {
-					$progress = true;
-				}
-				else {
-					$progress = true;
-					break;
+					if ( $result === false ) {
+						$halt = true;
+					}
+					else {
+						$workHandled = true;
+					}
 				}
 			}
 		}
@@ -108,7 +116,7 @@ class QueueProcessor extends BackgroundProcess {
 			$this->unlock_process();
 		}
 
-		if ( !$halt && $progress && $this->canRun() && $this->repository()->hasActionableWork() ) {
+		if ( !$halt && $workHandled && $this->canRun() && $this->repository()->hasActionableWork() ) {
 			$this->dispatch();
 		}
 		return null;
@@ -139,7 +147,10 @@ class QueueProcessor extends BackgroundProcess {
 		return $result === false ? false : ( $result === 1 ? true : null );
 	}
 
-	private function processNotification( SiteRepository $repo, Record $row, bool $recovery ) :bool {
+	/**
+	 * @return false|int
+	 */
+	private function processNotification( SiteRepository $repo, Record $row, bool $recovery ) {
 		$metadata = new NotificationMetadata();
 		if ( $recovery && $metadata->attemptsStarted( $row->meta ) >= NotificationMetadata::MAX_ATTEMPTS ) {
 			return $repo->recordInterruptedNotificationExhaustion( $row );
